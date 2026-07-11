@@ -1,0 +1,1 @@
+{"name":"roamwise-seo","version":"1.0.0","scripts":{"start":"node generate.js"},"dependencies":{"firebase-admin":"^12.0.0","dotenv":"^16.0.0"}}
