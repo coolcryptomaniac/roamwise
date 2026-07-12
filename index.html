@@ -10,7 +10,7 @@
 <meta property="og:type" content="website">
 <meta property="og:title" content="RoamWise Pro — AI Travel Planner">
 <meta property="og:description" content="Escape the crowds. AI itineraries, budgets & crowd heatmaps for 195+ countries. Pay once, yours forever.">
-<meta property="og:url" content="https://roamwise-pro-trip.surge.sh">
+<meta property="og:url" content="https://www.roamwise.co.in">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="RoamWise Pro — AI Travel Planner">
 <meta name="twitter:description" content="AI itineraries, budgets & crowd heatmaps for 195+ countries. One-time unlock, lifetime access.">
@@ -782,6 +782,12 @@ body.shell .hamb{display:flex}
   <div class="trek-grid" id="circGrid"></div>
 </section>
 
+<section class="xsec v v-explore" id="hubspoke">
+  <div class="xsec-head"><h2 class="xsec-title">&#127470;&#127475; Hub &amp; Spoke <em>India</em></h2><button class="share-fab" onclick="shareApp('app')">&#128228; Share</button></div>
+  <p class="xsec-sub">The fastest, most comfortable way to cover India: fly long distances to a regional hub, rent a self-drive car there, use premium trains &amp; buses between cities, and carry a folding cycle in the boot for the last mile.</p>
+  <div id="hsAcc"></div>
+</section>
+
 <section class="xsec v v-explore" id="ev">
   <div class="xsec-head"><h2 class="xsec-title">&#9889; EV <em>Vault</em></h2></div>
   <p class="xsec-sub">The standout electric machine in every category &mdash; range kings, charging champs and the best picks for world travel. Specs are indicative; always verify the latest.</p>
@@ -802,7 +808,12 @@ body.shell .hamb{display:flex}
   <div class="log-row"><button class="tact" style="flex:1" onclick="stravaConnect()">&#128692; Link Strava profile</button></div>
   <button class="rzp-main-btn" style="margin-top:6px" onclick="makeCard()">&#127912; Generate my Journey Card (+25 XP)</button>
   <img id="cardImg" alt="Your journey card">
-  <a id="cardDl" class="dl-btn" download="my-roamwise-journey.png">&#11015;&#65039; Download &amp; share</a>
+  <div id="cardBtns" style="display:none;gap:7px;margin-top:9px;flex-wrap:wrap">
+    <button class="tact" style="flex:1;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#07090F;border:none;font-weight:700" onclick="cardShare()">&#128228; Share</button>
+    <button class="tact" style="flex:1" onclick="cardPNG()">&#11015; PNG</button>
+    <button class="tact" style="flex:1" onclick="cardJPG()">&#11015; JPG</button>
+    <button class="tact" style="flex:1" onclick="cardPDF()">&#11015; PDF</button>
+  </div>
 </section>
 </div>
 
@@ -853,13 +864,13 @@ body.shell .hamb{display:flex}
   <a class="dr-link" onclick="closeDrawer();scrollToId('exps')"><span class="ic">&#10024;</span>Fresh Experiences</a>
   <a class="dr-link" onclick="closeDrawer();scrollToId('circuits')"><span class="ic">&#127950;&#65039;</span>Legendary Circuits</a>
   <a class="dr-link" onclick="closeDrawer();scrollToId('ev')"><span class="ic">&#9889;</span>EV Vault</a>
+  <a class="dr-link" onclick="closeDrawer();scrollToId('hubspoke')"><span class="ic">&#127470;&#127475;</span>Hub &amp; Spoke India</a>
   <a class="dr-link" onclick="closeDrawer();scrollToId('basecamp')"><span class="ic">&#9978;</span>Basecamp</a>
   <a class="dr-link" onclick="closeDrawer();scrollToId('jlog')"><span class="ic">&#128506;&#65039;</span>My Journey Card</a>
   <a class="dr-link" onclick="closeDrawer();openDna()"><span class="ic">&#129516;</span>Traveler DNA quiz</a>
   <a class="dr-link" onclick="closeDrawer();shareApp('app')"><span class="ic">&#128228;</span>Share RoamWise (+15 XP)</a>
   <a class="dr-link" onclick="closeDrawer();requestFeature()"><span class="ic">&#128161;</span>Request a feature</a>
   <a class="dr-link" onclick="closeDrawer();openPay()"><span class="ic">&#128081;</span><span id="drProLbl">Unlock Pro</span></a>
- <a href="/guide/">Travel Guides</a>
   <div class="dr-sec">App</div>
   <a class="dr-link" onclick="closeDrawer();openSettings()"><span class="ic">&#9881;&#65039;</span>Settings &amp; AI keys</a>
   <a class="dr-link" href="https://youtube.com/@mohucool" target="_blank" rel="noopener"><span class="ic">&#9654;&#65039;</span>YouTube @mohucool</a>
@@ -1609,7 +1620,7 @@ function xpPaint(){
 })();
 
 /* ===== SHARE / VIRALITY ===== */
-var APP_URL_SHARE='https://roamwise-pro-trip.surge.sh';
+var APP_URL_SHARE='https://www.roamwise.co.in';
 function doShare(txt){
   if(navigator.share){ navigator.share({title:'RoamWise Pro',text:txt,url:APP_URL_SHARE}).then(function(){xpAdd(15,'Shared \u2014 spreading the word');}).catch(function(){}); }
   else{ window.open('https://wa.me/?text='+encodeURIComponent(txt+' '+APP_URL_SHARE),'_blank'); xpAdd(15,'Shared \u2014 spreading the word'); }
@@ -1621,6 +1632,45 @@ function shareApp(what){
   doShare(m[what]||m.app);
 }
 function shareTrek(i){ var t=TREKS[i]; doShare('\u26f0\ufe0f '+t.n+' ('+t.w+') \u2014 '+t.d+' days, '+t.alt+'m. Full itinerary on RoamWise:'); }
+
+/* ===== HUB & SPOKE INDIA ===== */
+var HS=[
+['\u2708\ufe0f The strategy in one line',[
+ ['Fly \u2192 Hub','Cover 1,000+ km in 2 hours instead of 2 days of driving','Home \u2192 regional hub city'],
+ ['Drive \u2192 Region','Pick up a self-drive SUV at the airport for flexible road-tripping','Hub \u2192 the whole region'],
+ ['Train/Bus \u2192 Cities','Premium coaches for crowd-free city-to-city hops','Between major stops'],
+ ['Cycle \u2192 Streets','Folding cycle in the car boot beats every traffic jam','The last mile']]],
+['\ud83d\ude82 Trains \u2014 premium & crowd-free only',[
+ ['Vande Bharat (CC/EC)','India\u2019s fastest day trains \u2014 aircraft comfort, big windows, rarely crowded. Book 1\u20132 weeks out.','Best for 2\u20136 hr day hops'],
+ ['Shatabdi Executive / Anubhuti','2\u00d72 seating, huge legroom, quiet crowd','Day journeys in style'],
+ ['1st AC (1A) Rajdhani/Duronto','Lockable private 2/4-berth coupe \u2014 the quietest overnight on rails','Overnight long hauls'],
+ ['\u26a1 Tatkal hack','IRCTC app at exactly 10:00 AM the day before travel (AC quota) for guaranteed last-minute seats','Emergency bookings']]],
+['\ud83d\ude8c Buses \u2014 skip state transport entirely',[
+ ['What to book','Multi-axle Volvo B11R / Scania / Mercedes AC sleepers only','4\u20138 hr intercity hops'],
+ ['Operators','NueGo (electric), National Travels, SRS \u2014 filter \u201cPrime / Max Safety / Volvo\u201d on redBus or AbhiBus','Premium private fleets'],
+ ['Comfort hack','Single sleeper LOWER berth, RIGHT side \u2014 dramatically less sway than upper berths','Sleep like a log']]],
+['\ud83d\ude97 Self-drive \u2014 the pan-India illusion',[
+ ['Rent locally, not one car forever','Driving one car across all India kills speed and burns fuel/tolls \u2014 rent at each hub instead','Revv \u00b7 Zoomcar \u00b7 MyChoize'],
+ ['Airport pickup','Pre-book an SUV straight from the terminal \u2014 land and drive','Zero waiting'],
+ ['Subscription trick','Revv-style 1\u20133 month subscriptions give you a \u201cdedicated\u201d car with permits, insurance & maintenance handled','Long regional stays']]],
+['\ud83d\udeb2 The boot cycle',[
+ ['Folding only','Full-size cycles need roof racks rental companies refuse \u2014 folders fit any hatchback boot','Decathlon Tilt \u00b7 Tern \u00b7 Brompton'],
+ ['The workflow','Park at the old-city edge \u2192 unfold in 30 seconds \u2192 glide past every jam and into the tiny lanes','Cities & fort towns'],
+ ['Bonus','Cycle mode in RoamWise cuts your budget estimate ~40% automatically','Try it in Plan']]],
+['\ud83d\uddfa\ufe0f Example: Rajasthan loop',[
+ ['1. Fly','Delhi/Mumbai \u2192 Jaipur (fastest entry)','2 hrs'],
+ ['2. Drive','Airport SUV pickup, folded cycle in boot \u2192 Jodhpur \u2192 Udaipur','Flexible days'],
+ ['3. Cycle','Park below Mehrangarh / Udaipur old city \u2192 pedal the alleys past every crowd','Golden hours'],
+ ['4. Train back','Drop the car in Udaipur \u2192 Vande Bharat to Jaipur/Delhi in silence','Zero drive fatigue']]]
+];
+function renderHS(){
+  var box=el('hsAcc'); if(!box) return;
+  box.innerHTML = HS.map(function(sec,i){
+    return '<div class="trek'+(i===0?' open':'')+'" style="margin-bottom:10px"><div class="trek-top" style="cursor:pointer" onclick="this.parentNode.classList.toggle(\'open\')"><div class="trek-name">'+sec[0]+'</div><span class="tbadge pop">'+sec[1].length+'</span></div>'
+    +'<div class="trek-itin">'+sec[1].map(function(r){return '<div class="ti-day"><b style="min-width:0">\u25aa</b><span><strong style="color:var(--t1)">'+r[0]+'</strong> \u2014 '+r[1]+'<br><span style="color:var(--gold2);font-size:10px">'+r[2]+'</span></span></div>';}).join('')+'</div></div>';
+  }).join('');
+}
+renderHS();
 
 /* ===== BASECAMP ===== */
 var BC = [
@@ -1810,10 +1860,17 @@ function makeCard(){
 }
 function mercY(lat,H){ var r=lat*Math.PI/180; return (1-Math.log(Math.tan(r)+1/Math.cos(r))/Math.PI)/2*H; }
 function drawCard(L, tiles){
-  var W=1000,H=1250,c=document.createElement('canvas');c.width=W;c.height=H;
-  var x=c.getContext('2d');
+  var W=1000,H=1250,c=document.createElement('canvas');
+  c.width=W*2; c.height=H*2;                 /* HD: 2000x2500 px */
+  var x=c.getContext('2d'); x.scale(2,2);    /* draw in 1000x1250 logical space */
+  window._rwCard=c;
   var bg=x.createLinearGradient(0,0,W,H); bg.addColorStop(0,'#0B0D18'); bg.addColorStop(1,'#150D12');
   x.fillStyle=bg; x.fillRect(0,0,W,H);
+  /* RoamWise watermark branding — diagonal tiled, subtle */
+  x.save(); x.globalAlpha=0.045; x.fillStyle='#E8BA6C';
+  x.font='700 44px Outfit,Arial'; x.translate(W/2,H/2); x.rotate(-Math.PI/7);
+  for(var wy=-H;wy<H;wy+=110){ for(var wx=-W;wx<W;wx+=340){ x.fillText('ROAMWISE \u{1F977}', wx, wy); } }
+  x.restore();
   /* drifting cloud motifs */
   function cloud(cx,cy,s,a){ x.globalAlpha=a; x.fillStyle='#C4302B'; x.strokeStyle='#F2E9E4'; x.lineWidth=6*s;
     [[ -34,8,20],[0,-8,26],[34,9,19]].forEach(function(b){ x.beginPath(); x.arc(cx+b[0]*s,cy+b[1]*s,b[2]*s,0,7); x.fill(); x.stroke(); }); x.globalAlpha=1; }
@@ -1824,7 +1881,14 @@ function drawCard(L, tiles){
   /* rank */
   var xp=xpGet(), r=rankOf(xp);
   x.fillStyle='#EA5A50'; x.font='700 56px Outfit,Arial'; x.fillText('\ud83e\udd77 '+r[1].toUpperCase(),60,230);
-  x.fillStyle='#EDE8DF'; x.font='400 24px Outfit,Arial'; x.fillText(xp+' XP \u00b7 '+L.length+' journeys logged',60,272);
+  var streak=parseInt(lsGet('rw_streak')||'0',10)||0;
+  var dnaArr=JSON.parse(lsGet('rw_dna')||'null');
+  var vibe=dnaArr? ['Adventure','Culture','Chill','Party'][dnaArr[1]]||'' : '';
+  x.fillStyle='#EDE8DF'; x.font='400 24px Outfit,Arial';
+  x.fillText(xp+' XP \u00b7 '+L.length+' journeys \u00b7 '+streak+'-day streak'+(vibe?' \u00b7 '+vibe+' soul':''),60,272);
+  if(isPro){ x.fillStyle='#E8BA6C'; x.font='700 22px Outfit,Arial';
+    x.strokeStyle='#E8BA6C'; x.lineWidth=2;
+    x.strokeRect(W-190,54,130,44); x.fillText('\u{1F451} PRO',W-172,84); }
   /* REAL world map (OSM tiles) when online; stylized fallback offline */
   if(tiles){
     var MW=880, MH=880/2, MX0=60, MY0=340;
@@ -1870,13 +1934,40 @@ function drawCard(L, tiles){
   x.fillText('Make yours \u2192 RoamWise Pro \u00b7 the shinobi travel app',60,H-50);
   var url=c.toDataURL('image/png');
   el('cardImg').src=url; el('cardImg').style.display='block';
-  var dl=el('cardDl'); dl.href=url; dl.style.display='block';
-  dl.onclick=function(ev){
-    if(window.RW && RW.saveCard){ ev.preventDefault(); RW.saveCard(url); showToast('Saving to your Downloads\u2026'); return false; }
-    return true; /* browsers: normal download */
-  };
+  el('cardBtns').style.display='flex';
   if(!lsGet('rw_card_xp')){ lsSet('rw_card_xp','1'); xpAdd(25,'Journey Card forged'); }
-  showToast('Long-press the card to share it \u2b06\ufe0f');
+  showToast('HD card ready \u2014 2000\u00d72500px, Insta-perfect \u2b06\ufe0f');
+}
+function saveOrDownload(dataUrl, filename){
+  if(window.RW && RW.saveCard){ RW.saveCard(dataUrl); showToast('Saving to Downloads/RoamWise\u2026'); return; }
+  var a=document.createElement('a'); a.href=dataUrl; a.download=filename; a.click();
+}
+function cardPNG(){ if(window._rwCard) saveOrDownload(_rwCard.toDataURL('image/png'),'roamwise-journey.png'); }
+function cardJPG(){ if(window._rwCard) saveOrDownload(_rwCard.toDataURL('image/jpeg',0.92),'roamwise-journey.jpg'); }
+function cardPDF(){
+  if(!window._rwCard) return;
+  var go=function(){
+    var pdf=new window.jspdf.jsPDF({orientation:'portrait',unit:'px',format:[1000,1250]});
+    pdf.addImage(_rwCard.toDataURL('image/jpeg',0.92),'JPEG',0,0,1000,1250);
+    if(window.RW && RW.saveCard){ RW.saveCard(pdf.output('datauristring')); showToast('PDF saving to Downloads\u2026'); }
+    else pdf.save('roamwise-journey.pdf');
+  };
+  if(window.jspdf) return go();
+  showToast('Preparing PDF engine\u2026');
+  var s=document.createElement('script');
+  s.src='https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+  s.onload=go; s.onerror=function(){ showToast('PDF needs internet \u2014 try PNG/JPG'); };
+  document.head.appendChild(s);
+}
+function cardShare(){
+  if(!window._rwCard) return;
+  _rwCard.toBlob(function(blob){
+    var f=new File([blob],'roamwise-journey.png',{type:'image/png'});
+    if(navigator.canShare && navigator.canShare({files:[f]})){
+      navigator.share({files:[f], title:'My RoamWise Journey', text:'\u{1F977} My travel map \u2014 made on RoamWise. Make yours: https://www.roamwise.co.in'})
+        .then(function(){ xpAdd(15,'Card shared \u2014 spreading the legend'); }).catch(function(){});
+    } else { cardPNG(); showToast('Saved \u2014 now share it from your gallery to Insta/WhatsApp'); }
+  },'image/png');
 }
 
 /* ===== CHEAP TRICKS & LUXURY HACKS ===== */
@@ -2164,7 +2255,7 @@ document.addEventListener('DOMContentLoaded', function(){
     if(r && r.innerHTML.length > 100) showToast('Mode changed — hit Search again to recalculate budgets');
   });
 });
-var VIEW_OF={treks:'explore',exps:'explore',circuits:'explore',ev:'explore',jlog:'explore',app:'plan',brief:'home'};
+var VIEW_OF={treks:'explore',exps:'explore',circuits:'explore',ev:'explore',hubspoke:'explore',basecamp:'explore',jlog:'explore',app:'plan',brief:'home'};
 function scrollToId(id){
   if(document.body.classList.contains('shell') && VIEW_OF[id]){
     tabGo(VIEW_OF[id]);
@@ -2440,7 +2531,7 @@ function aiRequest(prov, key, model, prompt, maxTok){
     var bases={groq:'https://api.groq.com/openai/v1', openrouter:'https://openrouter.ai/api/v1', mistral:'https://api.mistral.ai/v1'};
     url=(bases[prov]||bases.groq)+'/chat/completions';
     headers={'Content-Type':'application/json','Authorization':'Bearer '+key};
-    if(prov==='openrouter'){ headers['HTTP-Referer']='https://roamwise-pro-trip.surge.sh'; headers['X-Title']='RoamWise Pro'; }
+    if(prov==='openrouter'){ headers['HTTP-Referer']='https://www.roamwise.co.in'; headers['X-Title']='RoamWise Pro'; }
     body=JSON.stringify({model:model, max_tokens:maxTok, messages:[{role:'user',content:prompt}]});
   }
   var ctrl = ('AbortController' in window)? new AbortController() : null;
