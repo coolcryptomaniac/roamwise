@@ -828,6 +828,8 @@ body.shell .hamb{display:flex}
       <a class="foot-link" onclick="scrollTo(0,document.getElementById('app').offsetTop-10)">Plan a trip</a>
       <a class="foot-link" onclick="openPay()">Unlock Pro</a>
       <a class="foot-link" onclick="openSettings()">Settings &amp; AI keys</a>
+      <a class="foot-link" href="https://www.roamwise.co.in/guides/" target="_blank">Travel Guides</a>
+      <a class="foot-link" href="https://www.roamwise.co.in/blog/" target="_blank">Blog</a>
     </div>
     <div>
       <div class="foot-h">Company</div>
@@ -1847,96 +1849,187 @@ function logAdd(){
 function logName(e){ return typeof e==='string'? e : e.n; }
 function logDel(i){ var L=logGet(); L.splice(i,1); lsSet('rw_log',JSON.stringify(L)); logPaint(); }
 logPaint();
+function askName(cb){
+  var n = lsGet('rw_name') || (window.user && user.displayName) || '';
+  if(!n){
+    n = prompt('Your name for the Journey Card (appears as the title):','') || 'A Wanderer';
+    n = n.trim().slice(0,24) || 'A Wanderer';
+  }
+  lsSet('rw_name', n); cb(n);
+}
 function makeCard(){
   var L=logGet(); if(!L.length) return showToast('Log at least one place first');
-  var tiles=[], need=4, fail=false;
-  ['0/0','1/0','0/1','1/1'].forEach(function(t,i){
-    var im=new Image(); im.crossOrigin='anonymous';
-    im.onload=function(){ tiles[i]=im; if(--need===0) drawCard(L, fail?null:tiles); };
-    im.onerror=function(){ fail=true; if(--need===0) drawCard(L, null); };
-    im.src='https://tile.openstreetmap.org/1/'+t.split('/')[0]+'/'+t.split('/')[1]+'.png';
+  askName(function(name){
+    /* Painting-grade dark world map — CARTO dark tiles, zoom 2 (4x4 grid) */
+    var Z=2, N=4, need=N*N, fail=false, tiles=[];
+    showToast('Painting your world\u2026 \ud83c\udfa8');
+    for(var ty=0;ty<N;ty++) for(var tx=0;tx<N;tx++) (function(tx,ty){
+      var im=new Image(); im.crossOrigin='anonymous';
+      im.onload=function(){ tiles[ty*N+tx]=im; if(--need===0) drawCard(L,name,fail?null:tiles); };
+      im.onerror=function(){ fail=true; if(--need===0) drawCard(L,name,null); };
+      im.src='https://'+(['a','b','c'][ (tx+ty)%3 ])+'.basemaps.cartocdn.com/dark_nolabels/'+Z+'/'+tx+'/'+ty+'.png';
+    })(tx,ty);
   });
-  showToast('Fetching your world map\u2026');
 }
 function mercY(lat,H){ var r=lat*Math.PI/180; return (1-Math.log(Math.tan(r)+1/Math.cos(r))/Math.PI)/2*H; }
-function drawCard(L, tiles){
-  var W=1000,H=1250,c=document.createElement('canvas');
-  c.width=W*2; c.height=H*2;                 /* HD: 2000x2500 px */
-  var x=c.getContext('2d'); x.scale(2,2);    /* draw in 1000x1250 logical space */
+var PRAISE={Genin:'Every legend begins with a single step \u2014 yours already covers the map.',
+ Chunin:'The roads are starting to learn this name.',
+ Jonin:'A seasoned wanderer \u2014 borders bend around such travelers.',
+ ANBU:'Moving through the world the way wind moves through pines.',
+ Kage:'Master of the wandering arts. The map keeps this one\u2019s secrets.'};
+function drawCard(L, name, tiles){
+  var W=1200,H=1600,c=document.createElement('canvas');
+  c.width=W*2; c.height=H*2;                    /* 2400x3200 \u2014 print-grade */
+  var x=c.getContext('2d'); x.scale(2,2);
   window._rwCard=c;
-  var bg=x.createLinearGradient(0,0,W,H); bg.addColorStop(0,'#0B0D18'); bg.addColorStop(1,'#150D12');
+  /* canvas backdrop */
+  var bg=x.createLinearGradient(0,0,W,H); bg.addColorStop(0,'#0B0D18'); bg.addColorStop(.55,'#10101F'); bg.addColorStop(1,'#160D13');
   x.fillStyle=bg; x.fillRect(0,0,W,H);
-  /* RoamWise watermark branding — diagonal tiled, subtle */
-  x.save(); x.globalAlpha=0.045; x.fillStyle='#E8BA6C';
-  x.font='700 44px Outfit,Arial'; x.translate(W/2,H/2); x.rotate(-Math.PI/7);
-  for(var wy=-H;wy<H;wy+=110){ for(var wx=-W;wx<W;wx+=340){ x.fillText('ROAMWISE \u{1F977}', wx, wy); } }
+  /* watermark weave */
+  x.save(); x.globalAlpha=0.04; x.fillStyle='#E8BA6C'; x.font='700 40px Outfit,Arial';
+  x.translate(W/2,H/2); x.rotate(-Math.PI/8);
+  for(var wy=-H;wy<H;wy+=120) for(var wx=-W;wx<W;wx+=330) x.fillText('ROAMWISE',wx,wy);
   x.restore();
-  /* drifting cloud motifs */
-  function cloud(cx,cy,s,a){ x.globalAlpha=a; x.fillStyle='#C4302B'; x.strokeStyle='#F2E9E4'; x.lineWidth=6*s;
-    [[ -34,8,20],[0,-8,26],[34,9,19]].forEach(function(b){ x.beginPath(); x.arc(cx+b[0]*s,cy+b[1]*s,b[2]*s,0,7); x.fill(); x.stroke(); }); x.globalAlpha=1; }
-  cloud(140,150,1.2,.16); cloud(860,220,.9,.13); cloud(760,1050,1.1,.12);
+  /* vignette */
+  var vg=x.createRadialGradient(W/2,H/2,H*0.35,W/2,H/2,H*0.85);
+  vg.addColorStop(0,'rgba(0,0,0,0)'); vg.addColorStop(1,'rgba(0,0,0,0.5)');
+  x.fillStyle=vg; x.fillRect(0,0,W,H);
+  /* double gold frame + corner ticks */
+  x.strokeStyle='rgba(232,186,108,.85)'; x.lineWidth=3; x.strokeRect(26,26,W-52,H-52);
+  x.strokeStyle='rgba(232,186,108,.3)';  x.lineWidth=1; x.strokeRect(40,40,W-80,H-80);
+  x.strokeStyle='#E8BA6C'; x.lineWidth=3;
+  [[26,26],[W-26,26],[26,H-26],[W-26,H-26]].forEach(function(p){
+    x.beginPath(); x.moveTo(p[0]-(p[0]>W/2?26:-26),p[1]); x.lineTo(p[0],p[1]); x.lineTo(p[0],p[1]-(p[1]>H/2?26:-26)); x.stroke();
+  });
   /* header */
-  x.fillStyle='#E8BA6C'; x.font='700 34px Outfit,Arial'; x.fillText('ROAMWISE \u00b7 JOURNEY CARD',60,90);
-  x.fillStyle='#8B87A0'; x.font='400 22px Outfit,Arial'; x.fillText(new Date().toLocaleDateString('en-IN',{month:'long',year:'numeric'}),60,128);
-  /* rank */
-  var xp=xpGet(), r=rankOf(xp);
-  x.fillStyle='#EA5A50'; x.font='700 56px Outfit,Arial'; x.fillText('\ud83e\udd77 '+r[1].toUpperCase(),60,230);
-  var streak=parseInt(lsGet('rw_streak')||'0',10)||0;
+  x.textAlign='center';
+  x.fillStyle='#8A8880'; x.font='600 15px Outfit,Arial';
+  x.fillText('T H E   J O U R N E Y   M A P   O F', W/2, 108);
+  x.fillStyle='#E8BA6C'; x.font='700 58px Georgia,serif';
+  x.fillText(name, W/2, 168);
+  var xp=xpGet(), r=rankOf(xp), streak=parseInt(lsGet('rw_streak')||'0',10)||0;
   var dnaArr=JSON.parse(lsGet('rw_dna')||'null');
   var vibe=dnaArr? ['Adventure','Culture','Chill','Party'][dnaArr[1]]||'' : '';
-  x.fillStyle='#EDE8DF'; x.font='400 24px Outfit,Arial';
-  x.fillText(xp+' XP \u00b7 '+L.length+' journeys \u00b7 '+streak+'-day streak'+(vibe?' \u00b7 '+vibe+' soul':''),60,272);
-  if(isPro){ x.fillStyle='#E8BA6C'; x.font='700 22px Outfit,Arial';
-    x.strokeStyle='#E8BA6C'; x.lineWidth=2;
-    x.strokeRect(W-190,54,130,44); x.fillText('\u{1F451} PRO',W-172,84); }
-  /* REAL world map (OSM tiles) when online; stylized fallback offline */
-  if(tiles){
-    var MW=880, MH=880/2, MX0=60, MY0=340;
-    x.save();
-    x.drawImage(tiles[0],MX0,MY0,MW/2,MH/2); x.drawImage(tiles[1],MX0+MW/2,MY0,MW/2,MH/2);
-    x.drawImage(tiles[2],MX0,MY0+MH/2,MW/2,MH/2); x.drawImage(tiles[3],MX0+MW/2,MY0+MH/2,MW/2,MH/2);
-    x.globalCompositeOperation='multiply'; x.fillStyle='#5A4E86'; x.fillRect(MX0,MY0,MW,MH);
-    x.globalCompositeOperation='source-over';
-    x.strokeStyle='#C4302B'; x.lineWidth=3; x.strokeRect(MX0,MY0,MW,MH);
-    x.restore();
-    function proj(e){ if(e.lat===undefined) return null;
-      return [MX0 + (e.lon+180)/360*MW, MY0 + mercY(Math.max(-85,Math.min(85,e.lat)), MH)]; }
-    var pts=L.map(proj).filter(Boolean);
-    x.strokeStyle='rgba(232,186,108,.55)'; x.lineWidth=3; x.beginPath();
-    pts.forEach(function(d,i){ i?x.lineTo(d[0],d[1]):x.moveTo(d[0],d[1]); }); if(pts.length>1) x.stroke();
-    pts.forEach(function(d){
-      x.fillStyle='#C4302B'; x.beginPath(); x.arc(d[0],d[1],11,0,7); x.fill();
-      x.fillStyle='#E8BA6C'; x.beginPath(); x.arc(d[0],d[1],6,0,7); x.fill(); });
-    var un=L.filter(function(e){return e.lat===undefined;}).length;
-    if(un){ x.fillStyle='#8B87A0'; x.font='400 18px Outfit,Arial'; x.fillText(un+' place(s) still locating \u2014 regenerate in a minute', MX0, MY0+MH+28); }
-  } else {
-  /* real (stylized) world map — same continents as the intro */
-  var CONT=['M28 38l30-12 26 6 8 18-16 22-20 26-10-2-6-24-14-14z','M84 96l14 4 6 16-8 26-12 6-8-20z','M150 30l30-10 22 8 6 14-10 10-16 26-14 6-12-18-10-16z','M158 92l16-4 14 10 4 20-14 20-14-6-8-22z','M214 26l52-8 34 10 14 20-16 18-28 12-24 20-18-8-12-26-8-22z','M282 108l22 2 12 14-8 14-22 2-10-16z'];
-  var MX=60, MY=380, MS=2.45; /* map offset + scale (viewBox 360x160 -> ~880 wide) */
-  x.save(); x.translate(MX,MY); x.scale(MS,MS);
-  x.fillStyle='#2E2745'; x.strokeStyle='#544877'; x.lineWidth=1.2;
-  CONT.forEach(function(pd){ var P=new Path2D(pd); x.fill(P); x.stroke(P); });
+  x.fillStyle='#B8B4A8'; x.font='italic 400 19px Georgia,serif';
+  x.fillText('\u201c'+(PRAISE[r[1]]||PRAISE.Genin)+'\u201d', W/2, 205);
+  /* ===== MAP PLATE ===== */
+  var MX=86, MY=250, MW=W-172, MH=Math.round(MW*0.62);   /* 1028 x 637 — fuller Mercator */
+  x.save();
+  x.shadowColor='rgba(0,0,0,.6)'; x.shadowBlur=26; x.shadowOffsetY=8;
+  x.fillStyle='#0A0A12'; x.fillRect(MX-6,MY-6,MW+12,MH+12);
   x.restore();
-  /* visited pins hashed onto continent anchor points */
-  var ANCH=[[52,52],[96,118],[176,52],[172,116],[252,52],[298,122],[120,40],[200,70],[268,84],[80,60],[160,70],[240,40]];
-  function pin(pe){ var p=logName(pe); var a=ANCH[nameHash(p)%ANCH.length]; return [MX+a[0]*MS+((nameHash(p)>>4)%30-15), MY+a[1]*MS+((nameHash(p)>>8)%22-11)]; }
-  x.strokeStyle='rgba(232,186,108,.4)'; x.lineWidth=3; x.beginPath();
-  L.slice(0,24).forEach(function(p,i){ var d=pin(p); i?x.lineTo(d[0],d[1]):x.moveTo(d[0],d[1]); }); x.stroke();
-  L.slice(0,24).forEach(function(p){ var d=pin(p);
-    x.fillStyle='#C4302B'; x.beginPath(); x.arc(d[0],d[1],11,0,7); x.fill();
-    x.fillStyle='#E8BA6C'; x.beginPath(); x.arc(d[0],d[1],6,0,7); x.fill(); });
+  if(tiles){
+    var tw=MW/4, th=MH/4;
+    for(var ty=0;ty<4;ty++) for(var tx=0;tx<4;tx++){
+      var im=tiles[ty*4+tx]; if(im) x.drawImage(im, MX+tx*tw, MY+ty*th, tw, th);
+    }
+    /* warm painterly grade */
+    x.save(); x.globalCompositeOperation='overlay'; x.fillStyle='rgba(90,70,140,.25)'; x.fillRect(MX,MY,MW,MH);
+    x.globalCompositeOperation='soft-light'; x.fillStyle='rgba(232,186,108,.12)'; x.fillRect(MX,MY,MW,MH); x.restore();
+  } else {
+    /* offline fallback \u2014 stylized continents */
+    x.fillStyle='#141225'; x.fillRect(MX,MY,MW,MH);
+    var CONT=['M28 38l30-12 26 6 8 18-16 22-20 26-10-2-6-24-14-14z','M84 96l14 4 6 16-8 26-12 6-8-20z','M150 30l30-10 22 8 6 14-10 10-16 26-14 6-12-18-10-16z','M158 92l16-4 14 10 4 20-14 20-14-6-8-22z','M214 26l52-8 34 10 14 20-16 18-28 12-24 20-18-8-12-26-8-22z','M282 108l22 2 12 14-8 14-22 2-10-16z'];
+    x.save(); x.translate(MX,MY); x.scale(MW/360, MH/160);
+    x.fillStyle='#2E2745'; CONT.forEach(function(pd){ x.fill(new Path2D(pd)); }); x.restore();
   }
-  /* list */
-  x.fillStyle='#8B87A0'; x.font='400 20px Outfit,Arial';
-  L.slice(0,10).forEach(function(p,i){ x.fillText('\ud83d\udccd '+logName(p), 60, 980+i*30); });
-  if(L.length>10){ x.fillText('\u2026 +'+(L.length-10)+' more', 60, 980+10*30); }
-  x.fillStyle='#54524C'; x.font='400 20px Outfit,Arial';
-  x.fillText('Make yours \u2192 RoamWise Pro \u00b7 the shinobi travel app',60,H-50);
+  x.strokeStyle='#E8BA6C'; x.lineWidth=2.5; x.strokeRect(MX,MY,MW,MH);
+  /* pins + arcs */
+  function proj(e){ if(e.lat===undefined) return null;
+    return [MX+(e.lon+180)/360*MW, MY+mercY(Math.max(-84,Math.min(84,e.lat)),MH)]; }
+  var pts=[], legend=[];
+  L.forEach(function(e,i){ var p=proj(e); legend.push({n:logName(e),p:p}); if(p) pts.push({p:p,i:legend.length}); });
+  /* golden arcs between consecutive located pins */
+  x.save(); x.setLineDash([7,6]); x.lineWidth=2.6;
+  for(var i=0;i<pts.length-1;i++){
+    var a=pts[i].p, b=pts[i+1].p;
+    var mx2=(a[0]+b[0])/2, my2=Math.min(a[1],b[1])-Math.min(80, Math.abs(a[0]-b[0])*0.25)-14;
+    var grad=x.createLinearGradient(a[0],a[1],b[0],b[1]);
+    grad.addColorStop(0,'rgba(232,186,108,.9)'); grad.addColorStop(1,'rgba(196,48,43,.9)');
+    x.strokeStyle=grad;
+    x.beginPath(); x.moveTo(a[0],a[1]); x.quadraticCurveTo(mx2,my2,b[0],b[1]); x.stroke();
+  }
+  x.restore();
+  /* numbered glowing pins */
+  pts.forEach(function(o,idx){
+    var p=o.p;
+    x.save(); x.shadowColor='rgba(232,186,108,.9)'; x.shadowBlur=14;
+    x.fillStyle='#C4302B'; x.beginPath(); x.arc(p[0],p[1],12,0,7); x.fill(); x.restore();
+    x.fillStyle='#E8BA6C'; x.beginPath(); x.arc(p[0],p[1],8.5,0,7); x.fill();
+    x.fillStyle='#0A0A12'; x.font='700 11px Outfit,Arial'; x.textAlign='center';
+    x.fillText(String(idx+1), p[0], p[1]+4);
+  });
+  x.fillStyle='#54524C'; x.font='400 10px Outfit,Arial'; x.textAlign='right';
+  x.fillText('Map \u00a9 OpenStreetMap contributors \u00a9 CARTO', MX+MW-6, MY+MH-8);
+  /* ===== LEGEND \u2014 two columns, numbered ===== */
+  x.textAlign='left';
+  x.fillStyle='#E8BA6C'; x.font='700 16px Outfit,Arial';
+  x.fillText('T H E   J O U R N E Y S', MX, MY+MH+56);
+  x.strokeStyle='rgba(232,186,108,.3)'; x.lineWidth=1;
+  x.beginPath(); x.moveTo(MX+190,MY+MH+51); x.lineTo(MX+MW,MY+MH+51); x.stroke();
+  var colW=MW/2, ly0=MY+MH+92, show=legend.slice(0,14);
+  show.forEach(function(g,i){
+    var cx2=MX+(i%2)*colW, cy2=ly0+Math.floor(i/2)*42;
+    x.fillStyle='#C4302B'; x.beginPath(); x.arc(cx2+9,cy2-5,9,0,7); x.fill();
+    x.fillStyle='#E8BA6C'; x.font='700 10px Outfit,Arial'; x.textAlign='center'; x.fillText(String(i+1),cx2+9,cy2-1);
+    x.textAlign='left'; x.fillStyle='#EDE8DF'; x.font='500 17px Georgia,serif';
+    x.fillText(g.n.slice(0,30), cx2+28, cy2);
+  });
+  if(legend.length>14){ x.fillStyle='#8A8880'; x.font='italic 14px Georgia,serif';
+    x.fillText('\u2026 and '+(legend.length-14)+' more roads', MX, ly0+7*42+8); }
+  /* ===== DECOR BAND — Himalayan silhouette + compass ===== */
+  var artY=H-330;
+  x.save(); x.globalAlpha=.5;
+  var rg=x.createLinearGradient(0,artY-60,0,artY+40);
+  rg.addColorStop(0,'rgba(232,186,108,0)'); rg.addColorStop(1,'rgba(232,186,108,.28)');
+  x.fillStyle=rg;
+  x.beginPath(); x.moveTo(60,artY+40);
+  var ridge=[[60,10],[150,-38],[230,-8],[320,-62],[400,-20],[470,-70],[560,-14],[650,-52],[730,-6],[820,-44],[900,-12],[1000,-58],[1080,-4],[1140,-30]];
+  ridge.forEach(function(pt){ x.lineTo(pt[0],artY+pt[1]); });
+  x.lineTo(W-60,artY+40); x.closePath(); x.fill();
+  x.restore();
+  /* snow caps */
+  x.fillStyle='rgba(250,240,225,.5)';
+  [[320,-62],[470,-70],[1000,-58]].forEach(function(pt){
+    x.beginPath(); x.moveTo(pt[0]-14,artY+pt[1]+16); x.lineTo(pt[0],artY+pt[1]); x.lineTo(pt[0]+14,artY+pt[1]+16); x.closePath(); x.fill();
+  });
+  /* faint compass rose */
+  x.save(); x.globalAlpha=.35; x.strokeStyle='#E8BA6C'; x.lineWidth=1.5;
+  var ccx=W-150, ccy=artY-70;
+  x.beginPath(); x.arc(ccx,ccy,42,0,7); x.stroke();
+  x.beginPath(); x.arc(ccx,ccy,30,0,7); x.stroke();
+  for(var ca=0;ca<8;ca++){ var rr2=ca%2?34:46, an=ca*Math.PI/4;
+    x.beginPath(); x.moveTo(ccx,ccy); x.lineTo(ccx+Math.cos(an)*rr2, ccy+Math.sin(an)*rr2); x.stroke(); }
+  x.fillStyle='#E8BA6C'; x.font='700 12px Georgia,serif'; x.textAlign='center'; x.fillText('N', ccx, ccy-50);
+  x.restore(); x.textAlign='left';
+  /* ===== STATS STRIP ===== */
+  var sy=H-190, boxes=[['\ud83e\udd77 '+r[1].toUpperCase(),'traveler rank'],[xp+' XP','experience'],[String(L.length),'journeys'],[streak+' days','streak'+(vibe?'':'')]];
+  if(vibe) boxes[3]=[vibe,'soul \u00b7 '+streak+'-day streak'];
+  var bw=(W-172)/4;
+  boxes.forEach(function(b2,i){
+    var bx=86+i*bw;
+    x.strokeStyle='rgba(232,186,108,.3)'; x.lineWidth=1; x.strokeRect(bx+6,sy,bw-12,74);
+    x.fillStyle='#E8BA6C'; x.font='700 20px Outfit,Arial'; x.textAlign='center';
+    x.fillText(b2[0], bx+bw/2, sy+32);
+    x.fillStyle='#8A8880'; x.font='400 11px Outfit,Arial';
+    x.fillText(b2[1].toUpperCase(), bx+bw/2, sy+54);
+  });
+  if(isPro){ x.fillStyle='#E8BA6C'; x.font='700 15px Outfit,Arial'; x.textAlign='center';
+    x.fillText('\ud83d\udc51 LIFETIME PRO MEMBER', W/2, sy-16); }
+  /* footer brand */
+  x.fillStyle='#8A8880'; x.font='600 13px Outfit,Arial'; x.textAlign='center';
+  x.fillText('\ud83e\udd77  R O A M W I S E   \u00b7   www.roamwise.co.in   \u00b7   make yours free', W/2, H-64);
+  x.fillStyle='#54524C'; x.font='400 11px Georgia,serif';
+  x.fillText(new Date().toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'}), W/2, H-44);
+  x.textAlign='left';
+  /* output */
   var url=c.toDataURL('image/png');
   el('cardImg').src=url; el('cardImg').style.display='block';
   el('cardBtns').style.display='flex';
+  var un=L.filter(function(e){return e.lat===undefined;}).length;
+  if(un) showToast(un+' place(s) still locating \u2014 regenerate in a minute for full pins');
+  else showToast('Souvenir-grade \u2014 2400\u00d73200px, ready to print & frame \ud83d\uddbc\ufe0f');
   if(!lsGet('rw_card_xp')){ lsSet('rw_card_xp','1'); xpAdd(25,'Journey Card forged'); }
-  showToast('HD card ready \u2014 2000\u00d72500px, Insta-perfect \u2b06\ufe0f');
 }
 function saveOrDownload(dataUrl, filename){
   if(window.RW && RW.saveCard){ RW.saveCard(dataUrl); showToast('Saving to Downloads/RoamWise\u2026'); return; }
