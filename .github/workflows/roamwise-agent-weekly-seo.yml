@@ -1,0 +1,24 @@
+name: RoamWise Agent — Weekly SEO Refresh
+on:
+  schedule:
+    - cron: '0 4 * * 0'    # Sunday 09:30 IST
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  seo:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - name: Regenerate SEO pages from the live app database
+        run: node agent/seo-refresh.js
+      - name: Commit if anything changed
+        run: |
+          git config user.name "roamwise-agent"
+          git config user.email "agent@roamwise.co.in"
+          git add -A
+          git diff --cached --quiet || (git commit -m "🤖 agent: weekly SEO refresh $(date +%F)" && git push)

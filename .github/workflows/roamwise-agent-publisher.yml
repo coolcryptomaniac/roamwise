@@ -1,0 +1,31 @@
+name: RoamWise Agent — Daily SEO Publisher
+on:
+  schedule:
+    - cron: '0 5 * * *'    # 10:30 IST daily
+  workflow_dispatch:
+    inputs:
+      pages:
+        description: 'Pages to publish this run'
+        default: '3'
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - name: Publish new SEO pages
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          PAGES_PER_DAY: ${{ github.event.inputs.pages || '3' }}
+        run: node agent/publish-daily.js
+      - name: Commit new pages
+        run: |
+          git config user.name "roamwise-agent"
+          git config user.email "agent@roamwise.co.in"
+          git add -A
+          git diff --cached --quiet || (git commit -m "🤖 agent: +$(cat published.txt | tr ',' '\n' | grep -c .) SEO pages — $(cat published.txt)" && git push)
