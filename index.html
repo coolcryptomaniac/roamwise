@@ -782,6 +782,12 @@ body.shell .hamb{display:flex}
   <div class="trek-grid" id="circGrid"></div>
 </section>
 
+<section class="xsec v v-explore" id="events">
+  <div class="xsec-head"><h2 class="xsec-title">&#127967;&#65039; Event <em>Radar</em></h2><button class="share-fab" onclick="shareApp('app')">&#128228; Share</button></div>
+  <p class="xsec-sub">The world&rsquo;s biggest moments &mdash; World Cups, Olympics, launches, tours &mdash; turned into trip triggers with insider timing.</p>
+  <div class="exp-grid" id="evtGrid"></div>
+</section>
+
 <section class="xsec v v-explore" id="hubspoke">
   <div class="xsec-head"><h2 class="xsec-title">&#127470;&#127475; Hub &amp; Spoke <em>India</em></h2><button class="share-fab" onclick="shareApp('app')">&#128228; Share</button></div>
   <p class="xsec-sub">The fastest, most comfortable way to cover India: fly long distances to a regional hub, rent a self-drive car there, use premium trains &amp; buses between cities, and carry a folding cycle in the boot for the last mile.</p>
@@ -866,10 +872,12 @@ body.shell .hamb{display:flex}
   <a class="dr-link" onclick="closeDrawer();scrollToId('exps')"><span class="ic">&#10024;</span>Fresh Experiences</a>
   <a class="dr-link" onclick="closeDrawer();scrollToId('circuits')"><span class="ic">&#127950;&#65039;</span>Legendary Circuits</a>
   <a class="dr-link" onclick="closeDrawer();scrollToId('ev')"><span class="ic">&#9889;</span>EV Vault</a>
+  <a class="dr-link" onclick="closeDrawer();scrollToId('events')"><span class="ic">&#127967;&#65039;</span>Event Radar</a>
   <a class="dr-link" onclick="closeDrawer();scrollToId('hubspoke')"><span class="ic">&#127470;&#127475;</span>Hub &amp; Spoke India</a>
   <a class="dr-link" onclick="closeDrawer();scrollToId('basecamp')"><span class="ic">&#9978;</span>Basecamp</a>
   <a class="dr-link" onclick="closeDrawer();scrollToId('jlog')"><span class="ic">&#128506;&#65039;</span>My Journey Card</a>
   <a class="dr-link" onclick="closeDrawer();openDna()"><span class="ic">&#129516;</span>Traveler DNA quiz</a>
+  <a class="dr-link" onclick="closeDrawer();openWizard()"><span class="ic">&#129504;</span>AI setup wizard (60 sec)</a>
   <a class="dr-link" onclick="closeDrawer();shareApp('app')"><span class="ic">&#128228;</span>Share RoamWise (+15 XP)</a>
   <a class="dr-link" onclick="closeDrawer();requestFeature()"><span class="ic">&#128161;</span>Request a feature</a>
   <a class="dr-link" onclick="closeDrawer();openPay()"><span class="ic">&#128081;</span><span id="drProLbl">Unlock Pro</span></a>
@@ -881,6 +889,15 @@ body.shell .hamb{display:flex}
   <a class="dr-link" onclick="closeDrawer();openLegal('terms')"><span class="ic">&#128196;</span>Terms &amp; refunds</a>
   <div class="dr-out">RoamWise Pro v3.1<br>Made in the Himalayas &#127956;&#65039; by GYANVERSE</div>
 </aside>
+
+<!-- WIZARD -->
+<div class="overlay" id="wizOverlay">
+  <div class="modal" style="max-width:400px">
+    <button class="modal-close" onclick="el('wizOverlay').classList.remove('open')">&#215;</button>
+    <div class="modal-head"><div class="modal-title">&#129504; 60-second AI setup</div><div class="modal-sub">Free keys &mdash; open, copy, paste, done</div></div>
+    <div class="modal-body" id="wizBody"></div>
+  </div>
+</div>
 
 <!-- DNA MODAL -->
 <div class="overlay" id="dnaOverlay">
@@ -1562,6 +1579,263 @@ function refreshProUI(){
     }
   }catch(e){}
 })();
+/* ===== 60-SECOND AI KEY WIZARD ===== */
+var WIZ=[
+ {p:'gemini',n:'Google Gemini',url:'https://aistudio.google.com/apikey',why:'Best free tier \u2014 recommended first',ph:'AIza\u2026'},
+ {p:'groq',n:'Groq (Llama)',url:'https://console.groq.com/keys',why:'Insanely fast, generous free tier',ph:'gsk_\u2026'},
+ {p:'openrouter',n:'OpenRouter',url:'https://openrouter.ai/keys',why:'One key \u2192 many FREE models',ph:'sk-or-\u2026'}
+];
+var wizI=0;
+function openWizard(){ wizI=0; wizPaint(); el('wizOverlay').classList.add('open'); try{track('wiz_opens');}catch(e){} }
+function wizPaint(){
+  var w=WIZ[wizI], has=!!lsGet('rwKey_'+w.p);
+  el('wizBody').innerHTML=
+   '<div style="font-size:11px;color:var(--t3);margin-bottom:6px">STEP '+(wizI+1)+' OF '+WIZ.length+'</div>'
+  +'<div style="font-size:16px;font-weight:700;margin-bottom:3px">'+w.n+(has?' <span style="color:#16BF96;font-size:11px">\u2713 saved</span>':'')+'</div>'
+  +'<div style="font-size:11.5px;color:var(--t2);margin-bottom:12px">'+w.why+'</div>'
+  +'<a class="rzp-main-btn" style="display:block;text-align:center;text-decoration:none;margin-bottom:10px" href="'+w.url+'" target="_blank" rel="noopener">1\ufe0f\u20e3 Open '+w.n+' \u2192 tap \u201cCreate key\u201d \u2192 Copy</a>'
+  +'<div class="key-row"><input class="k-inp" id="wizKey" placeholder="2\ufe0f\u20e3 Paste the key here \u2014 '+w.ph+'"><button class="k-save" onclick="wizSave()">Save & Test</button></div>'
+  +'<div id="wizStatus" style="font-size:11px;margin-top:8px;min-height:16px"></div>'
+  +'<div style="display:flex;gap:8px;margin-top:12px">'
+  +(wizI>0?'<button class="tact" style="flex:1" onclick="wizI--;wizPaint()">\u2190 Back</button>':'')
+  +'<button class="tact" style="flex:1" onclick="wizNext()">'+(wizI<WIZ.length-1?'Skip \u2192':'Done')+'</button></div>';
+}
+function wizNext(){ if(wizI<WIZ.length-1){ wizI++; wizPaint(); } else { el('wizOverlay').classList.remove('open'); showToast('\ud83e\udd16 AI armed \u2014 itineraries are now personalised'); } }
+function wizSave(){
+  var w=WIZ[wizI], k=(el('wizKey').value||'').trim();
+  if(!k) return;
+  lsSet('rwKey_'+w.p, k); activeProv=w.p; lsSet('rwProv', w.p);
+  var st=el('wizStatus'); st.textContent='Testing\u2026'; st.style.color='var(--t3)';
+  aiRequest(w.p, k, AI_MODELS[w.p][0], 'Reply with exactly: OK', 10)
+    .then(function(){ st.textContent='\u2705 Working! '+w.n+' is now your AI engine.'; st.style.color='#16BF96'; setTimeout(wizNext, 1200); })
+    .catch(function(e){ st.textContent='\u274c '+String(e.message||e).slice(0,70); st.style.color='#E05B5B'; });
+}
+
+/* ===== MODEL COMPARISON ARENA ===== */
+function compareModels(name, days){
+  var provs = ['gemini','groq','openrouter','mistral','anthropic'].filter(function(p){return lsGet('rwKey_'+p);});
+  var ov = el('cmpOverlay');
+  if(!ov){
+    ov=document.createElement('div'); ov.id='cmpOverlay'; ov.className='overlay';
+    ov.innerHTML='<div class="modal" style="max-width:520px;max-height:86vh;overflow:auto"><button class="modal-close" onclick="el(\'cmpOverlay\').classList.remove(\'open\')">\u00d7</button>'
+    +'<div class="modal-head"><div class="modal-title">\u2694\ufe0f AI Arena</div><div class="modal-sub">Same brief \u00b7 every engine \u00b7 side by side</div></div>'
+    +'<div class="modal-body" id="cmpBody"></div></div>';
+    document.body.appendChild(ov);
+  }
+  ov.classList.add('open');
+  var body=el('cmpBody');
+  if(!provs.length){ body.innerHTML='<div class="mode-box">No AI keys yet \u2014 run the 60-second wizard first.</div><button class="rzp-main-btn" onclick="el(\'cmpOverlay\').classList.remove(\'open\');openWizard()">\ud83e\ude84 Open the wizard</button>'; return; }
+  var prompt='Create a compact '+Math.min(days,5)+'-day itinerary for '+name+'. For each day give: a title and one line each for morning, afternoon, evening. Be specific with real place names. Max 140 words total.';
+  body.innerHTML = '<div class="mode-box">Racing '+provs.length+' AI engine'+(provs.length>1?'s':'')+' + the built-in Smart engine on: <b>'+name+'</b>\u2026</div>'
+    + provs.map(function(p){ return '<div class="trek" style="margin-bottom:10px"><div class="trek-top"><div class="trek-name">'+p.toUpperCase()+'</div><span class="tbadge hid" id="cmpT_'+p+'">\u23f3</span></div><div style="font-size:11.5px;color:var(--t2);line-height:1.6" id="cmpB_'+p+'">running\u2026</div></div>'; }).join('')
+    + '<div class="trek" style="margin-bottom:10px"><div class="trek-top"><div class="trek-name">\u26a1 SMART ENGINE (built-in)</div><span class="tbadge pop">0.0s</span></div><div style="font-size:11.5px;color:var(--t2);line-height:1.6">'+(typeof DAY_TEMPLATES!=='undefined'? DAY_TEMPLATES.slice(0,2).map(function(t,i){return '<b>Day '+(i+1)+' \u2014 '+t.title+':</b> '+t.morning;}).join('<br>')+'<br><i>\u2026instant, offline, zero cost</i>':'')+'</div></div>'
+    + '<div id="cmpVerdict"></div>';
+  var results=[];
+  provs.forEach(function(p){
+    var t0=Date.now();
+    aiRequest(p, lsGet('rwKey_'+p), AI_MODELS[p][0], prompt, 700)
+      .then(function(txt){ var dt=((Date.now()-t0)/1000).toFixed(1);
+        el('cmpT_'+p).textContent=dt+'s'; el('cmpT_'+p).className='tbadge pop';
+        el('cmpB_'+p).textContent=txt.slice(0,460)+(txt.length>460?'\u2026':'');
+        results.push({p:p,dt:parseFloat(dt),w:txt.split(/\s+/).length}); verdict(); })
+      .catch(function(e){ el('cmpT_'+p).textContent='\u2717'; el('cmpT_'+p).className='tbadge dan';
+        el('cmpB_'+p).textContent=String(e.message||e).slice(0,90); verdict(); });
+  });
+  function verdict(){
+    if(results.length<1) return;
+    var fast=results.slice().sort(function(a,b){return a.dt-b.dt;})[0];
+    var rich=results.slice().sort(function(a,b){return b.w-a.w;})[0];
+    el('cmpVerdict').innerHTML='<div class="mode-box">\ud83c\udfc6 <b>Insights:</b> fastest \u2014 <b>'+fast.p+'</b> ('+fast.dt+'s) \u00b7 most detailed \u2014 <b>'+rich.p+'</b> ('+rich.w+' words) \u00b7 the Smart engine wins on speed & offline; AI wins on personal detail. Set your favourite in Settings.</div>';
+  }
+  try{ track('arena_runs'); }catch(e){}
+}
+
+/* ===== PREMIUM PDF ITINERARY \u2014 \u20b910 one-off (free for Pro) ===== */
+var PDF_CTX=null; /* {d, days, month} set when user opens the flow */
+function openPdfFlow(T, name, days, month){
+  var d = DB.find(function(x){return x.name===name;}) || {name:name, country:'', cost:{mid:0}, food:[], gems:[]};
+  PDF_CTX = {d:d, days:days, month:month, T:T};
+  var ov = el('pdfOverlay');
+  if(!ov){
+    ov=document.createElement('div'); ov.id='pdfOverlay'; ov.className='overlay';
+    ov.innerHTML='<div class="modal" style="max-width:420px"><button class="modal-close" onclick="el(\'pdfOverlay\').classList.remove(\'open\')">\u00d7</button>'
+    +'<div class="modal-head"><div class="modal-title">\ud83d\udcd5 Premium PDF Itinerary</div><div class="modal-sub">Multi-page \u00b7 designed \u00b7 yours forever</div></div>'
+    +'<div class="modal-body" id="pdfBody"></div></div>';
+    document.body.appendChild(ov);
+  }
+  var payBlock = isPro ? '<button class="rzp-main-btn" onclick="genPdf()">\u2728 Generate my PDF (free with Pro)</button>'
+    : '<div class="mode-box" style="margin-bottom:10px">\ud83d\udcb0 <b>\u20b910 one-off</b> \u2014 or free with Pro. Pay via any UPI app to <b>coolmohit@ybl</b>, then tap generate.</div>'
+      +'<div style="display:flex;gap:7px;margin-bottom:10px"><button class="tact" style="flex:1" onclick="payVia(\'generic10\')">\ud83d\udcb3 Pay \u20b910 via UPI</button></div>'
+      +'<button class="rzp-main-btn" onclick="track(\'pdf_paid\');genPdf()">\u2705 I\u2019ve paid \u20b910 \u2014 Generate</button>'
+      +'<div style="font-size:10px;color:var(--t3);text-align:center;margin-top:6px">Honor system for now \u2014 you\u2019re supporting a solo builder \ud83c\udfd4\ufe0f</div>';
+  el('pdfBody').innerHTML =
+    '<div class="dna-q"><div class="qt">Traveler name on the cover</div><input class="txn-inp" id="pdfName" style="width:100%" value="'+(lsGet('rw_name')||'')+'" placeholder="Your name"></div>'
+   +'<div class="dna-q"><div class="qt">Start date</div><input class="txn-inp" type="date" id="pdfDate" style="width:100%"></div>'
+   +'<div class="dna-q"><div class="qt">Party</div><div class="dna-opts">'+['Solo','Couple','Family','Friends'].map(function(o,i){return '<button class="dna-opt'+(i===0?' on':'')+'" onclick="pdfPick(this,\'party\',\''+o+'\')">'+o+'</button>';}).join('')+'</div></div>'
+   +'<div class="dna-q"><div class="qt">Pace</div><div class="dna-opts">'+['Relaxed','Balanced','Packed'].map(function(o,i){return '<button class="dna-opt'+(i===1?' on':'')+'" onclick="pdfPick(this,\'pace\',\''+o+'\')">'+o+'</button>';}).join('')+'</div></div>'
+   +'<div class="dna-q"><div class="qt">Special notes (optional)</div><input class="txn-inp" id="pdfNotes" style="width:100%" placeholder="anniversary trip, vegetarian, photography focus\u2026"></div>'
+   + payBlock;
+  window._pdfOpts={party:'Solo',pace:'Balanced'};
+  ov.classList.add('open');
+  try{ track('pdf_opens'); }catch(e){}
+}
+function pdfPick(btn,k,v){ window._pdfOpts[k]=v; btn.parentNode.querySelectorAll('.dna-opt').forEach(function(b){b.classList.remove('on');}); btn.classList.add('on'); }
+function loadJsPdf(cb){
+  if(window.jspdf) return cb();
+  var s=document.createElement('script');
+  s.src='https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+  s.onload=cb; s.onerror=function(){ showToast('PDF engine needs internet'); };
+  document.head.appendChild(s);
+}
+function fetchImg64(url){ return fetch(url).then(function(r){return r.blob();}).then(function(b){
+  return new Promise(function(res){ var fr=new FileReader(); fr.onload=function(){res(fr.result);}; fr.readAsDataURL(b); });});}
+function genPdf(){
+  el('pdfOverlay').classList.remove('open');
+  showToast('Designing your itinerary\u2026 \ud83c\udfa8');
+  loadJsPdf(function(){
+    var C=PDF_CTX, d=C.d, days=Math.min(C.days||5,10);
+    var name=(el('pdfName').value||'A Traveler').slice(0,26); lsSet('rw_name',name);
+    var start = el('pdfDate').value ? new Date(el('pdfDate').value) : null;
+    var o=window._pdfOpts, notes=(el('pdfNotes').value||'').slice(0,120);
+    var pdf=new window.jspdf.jsPDF({unit:'px',format:[600,800]});
+    var GOLD='#C8913E', CRIM='#C4302B', INK='#1A1A22', PAP='#F7F3EA', MUT='#6B675C';
+    function page(bg){ pdf.setFillColor(bg||PAP); pdf.rect(0,0,600,800,'F'); }
+    function frame(){ pdf.setDrawColor(GOLD); pdf.setLineWidth(2); pdf.rect(18,18,564,764);
+      pdf.setLineWidth(.6); pdf.rect(26,26,548,748); }
+    function foot(pn){ pdf.setTextColor(MUT); pdf.setFontSize(8);
+      pdf.text('\u{1F977} ROAMWISE \u00b7 www.roamwise.co.in',300,776,{align:'center'});
+      pdf.text(String(pn),566,776); }
+    /* ---- COVER ---- */
+    page('#0E1018'); frame();
+    pdf.setTextColor('#8A8880'); pdf.setFontSize(11); pdf.text('A ROAMWISE PREMIUM ITINERARY',300,150,{align:'center'});
+    pdf.setTextColor('#E8BA6C'); pdf.setFont('times','bold'); pdf.setFontSize(42);
+    pdf.text(d.name.toUpperCase(),300,220,{align:'center'});
+    pdf.setFontSize(16); pdf.setFont('helvetica','normal'); pdf.setTextColor('#EDEAE2');
+    pdf.text((d.country||'')+'  \u00b7  '+days+' days  \u00b7  '+C.month,300,252,{align:'center'});
+    pdf.setDrawColor('#C4302B'); pdf.setLineWidth(2); pdf.line(240,275,360,275);
+    pdf.setTextColor('#B8B4A8'); pdf.setFontSize(13);
+    pdf.text('crafted for',300,330,{align:'center'});
+    pdf.setTextColor('#E8BA6C'); pdf.setFont('times','bolditalic'); pdf.setFontSize(26);
+    pdf.text(name,300,360,{align:'center'});
+    pdf.setFont('helvetica','normal'); pdf.setFontSize(11); pdf.setTextColor('#8A8880');
+    pdf.text(o.party+' \u00b7 '+o.pace+' pace'+(start?(' \u00b7 from '+start.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'})):''),300,390,{align:'center'});
+    if(notes){ pdf.setFontSize(10); pdf.text('\u201c'+notes+'\u201d',300,415,{align:'center'}); }
+    foot(1);
+    var pn=1, photo=(d.photos&&d.photos[0])||null;
+    var chain = photo? fetchImg64(photo).catch(function(){return null;}) : Promise.resolve(null);
+    chain.then(function(img){
+      if(img){ try{ pdf.addImage(img,'JPEG',150,450,300,200); pdf.setDrawColor(GOLD); pdf.rect(150,450,300,200);}catch(e){} }
+      /* ---- DAY PAGES ---- */
+      var perDay=(d.cost&&d.cost.mid? Math.round(d.cost.mid/7):0);
+      var paceAdj = o.pace==='Relaxed'?0.8:(o.pace==='Packed'?1.25:1);
+      var segs=[['09:00','Morning'],['13:00','Afternoon'],['18:00','Evening']];
+      for(var i=0;i<days;i++){
+        pdf.addPage(); pn++; page(); frame();
+        var dt = start? new Date(start.getTime()+i*864e5):null;
+        pdf.setTextColor(CRIM); pdf.setFont('times','bold'); pdf.setFontSize(30);
+        pdf.text('Day '+(i+1),50,70);
+        pdf.setFont('helvetica','normal'); pdf.setFontSize(11); pdf.setTextColor(MUT);
+        pdf.text((dt? dt.toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long'}) : d.name+' \u00b7 '+C.month),50,88);
+        var t=(typeof DAY_TEMPLATES!=='undefined' && DAY_TEMPLATES[i])||{title:'Explore',morning:'Discover the neighbourhood',afternoon:'The must-see of the area',evening:'Local food street'};
+        pdf.setTextColor(INK); pdf.setFontSize(14); pdf.setFont('helvetica','bold');
+        pdf.text(t.title||'Exploration',50,112);
+        var y=140;
+        segs.forEach(function(sg,si){
+          var body=[t.morning,t.afternoon,t.evening][si]||'';
+          pdf.setFillColor('#EFE7D6'); pdf.roundedRect(44,y-14,512,58,6,6,'F');
+          pdf.setTextColor(GOLD); pdf.setFont('helvetica','bold'); pdf.setFontSize(11);
+          pdf.text(sg[0]+'  '+sg[1].toUpperCase(),56,y+2);
+          pdf.setTextColor(INK); pdf.setFont('helvetica','normal'); pdf.setFontSize(10.5);
+          pdf.text(pdf.splitTextToSize(body,480),56,y+18);
+          y+=76;
+        });
+        if(t.tip){ pdf.setFillColor('#F3E2C0'); pdf.roundedRect(44,y-10,512,44,6,6,'F');
+          pdf.setTextColor('#7A5A16'); pdf.setFontSize(10);
+          pdf.text(pdf.splitTextToSize('\ud83e\udd77 Ninja tip: '+t.tip,480),56,y+6); y+=60; }
+        /* food of the day + budget line */
+        var f=(d.food||[])[i%Math.max(1,(d.food||[]).length)];
+        if(f){ pdf.setTextColor(CRIM); pdf.setFontSize(10.5); pdf.text('\ud83c\udf7d Eat today: '+f,50,y+8); y+=20; }
+        if(perDay){ pdf.setTextColor(MUT); pdf.setFontSize(10);
+          pdf.text('\ud83d\udcb0 Day budget (mid, '+o.party.toLowerCase()+'): ~$'+Math.round(perDay*paceAdj*(o.party==='Couple'?1.8:(o.party==='Family'?3:(o.party==='Friends'?1:1)))),50,y+8); }
+        foot(pn);
+      }
+      /* ---- ESSENTIALS PAGE ---- */
+      pdf.addPage(); pn++; page(); frame();
+      pdf.setTextColor(CRIM); pdf.setFont('times','bold'); pdf.setFontSize(26); pdf.text('Essentials',50,70);
+      var y2=100;
+      function h(t2){ pdf.setTextColor(GOLD); pdf.setFont('helvetica','bold'); pdf.setFontSize(12); pdf.text(t2,50,y2); y2+=16; pdf.setTextColor(INK); pdf.setFont('helvetica','normal'); pdf.setFontSize(10.5); }
+      if(d.cost){ h('\ud83d\udcb0 Budget bands (per person / week)');
+        [['Backpacker','$'+d.cost.budget],['Mid-range','$'+d.cost.mid],['Luxury','$'+d.cost.luxury]].forEach(function(r2){
+          pdf.text(r2[0],56,y2); pdf.text(String(r2[1]),200,y2); y2+=15; }); y2+=8; }
+      if(d.visa){ h('\ud83d\udec2 Visa (Indian passport)');
+        pdf.text(pdf.splitTextToSize((d.visa.type||'')+' \u00b7 '+(d.visa.cost||'')+' \u00b7 up to '+(d.visa.days||'')+' days. '+(d.visa.note||''),490),56,y2); y2+=42; }
+      if(d.gems&&d.gems.length){ h('\ud83d\udc8e Hidden gems');
+        d.gems.slice(0,4).forEach(function(g){ pdf.text('\u2022 '+g,56,y2); y2+=15; }); y2+=8; }
+      h('\ud83c\udd98 Emergency'); pdf.text('Global: 112 \u00b7 India: 112 / Ambulance 108 \u00b7 Save your embassy number offline',56,y2); y2+=26;
+      h('\u2713 Pack'); pdf.text(pdf.splitTextToSize('Passport+copies \u00b7 insurance \u00b7 offline maps \u00b7 power bank \u00b7 meds/ORS \u00b7 rain shell \u00b7 broken-in shoes \u00b7 cash in small notes',490),56,y2);
+      pdf.setTextColor(MUT); pdf.setFontSize(9);
+      pdf.text('Generated '+new Date().toLocaleDateString('en-IN')+' \u00b7 figures indicative \u2014 verify before booking',50,740);
+      foot(pn);
+      /* ---- OUTPUT ---- */
+      var fname='roamwise-'+d.name.toLowerCase().replace(/[^a-z0-9]+/g,'-')+'-itinerary.pdf';
+      if(window.RW && RW.saveCard){ RW.saveCard(pdf.output('datauristring')); showToast('\ud83d\udcd5 PDF saving to Downloads/RoamWise'); }
+      else pdf.save(fname);
+      xpAdd(20,'Premium itinerary forged');
+      try{ track('pdf_generated'); }catch(e){}
+    });
+  });
+}
+
+/* ===== EVENT RADAR — the world's biggest moments as travel triggers ===== */
+var EVENTS=[
+{id:'fifa26',ic:'\u26bd',n:'FIFA World Cup 2026',from:'2026-06-11',to:'2026-07-19',city:'New York',month:6,ac:'#1F8A3B',
+ places:'USA \u00b7 Mexico \u00b7 Canada \u2014 16 host cities',idea:'Fan-fest cities beat stadium cities on price: watch group games in Mexico City (electric + cheap), semis atmosphere in NYC. Book stays 40km out on transit lines \u2014 half price, 30 min in.'},
+{id:'iphone26',ic:'\ud83d\udcf1',n:'iPhone launch week',from:'2026-09-07',to:'2026-09-20',city:'Dubai',month:8,ac:'#8E8E93',
+ places:'Dubai \u00b7 Singapore \u00b7 NYC 5th Ave',idea:'Launch-day tourism is real: Dubai Mall and Singapore Orchard get the first stock hours ahead of the West \u2014 pair a city break with a day-one pickup and skip home-country markups.'},
+{id:'wc27',ic:'\ud83c\udfcf',n:'ICC Cricket World Cup 2027',from:'2027-10-01',to:'2027-11-15',city:'Cape Town',month:9,ac:'#D4A017',
+ places:'South Africa \u00b7 Zimbabwe \u00b7 Namibia',idea:'The first African ODI World Cup in decades \u2014 combine Newlands cricket with the Garden Route. Book Cape Town stays 9+ months out; match-week prices triple.'},
+{id:'la28',ic:'\ud83c\udfc5',n:'LA Olympics 2028',from:'2028-07-14',to:'2028-07-30',city:'Los Angeles',month:6,ac:'#E8524A',
+ places:'Los Angeles, USA',idea:'Olympic cities empty out AROUND the venues \u2014 Santa Monica and Malibu run below normal occupancy while Downtown surges. Stay coastal, train in.'},
+{id:'expo',ic:'\ud83c\udfd7\ufe0f',n:'Next mega-tower & expo watch',from:'2026-01-01',to:'2028-12-31',city:'Riyadh',month:10,ac:'#9B59F5',
+ places:'Jeddah Tower \u00b7 Riyadh Expo 2030 build-up',idea:'Skyline tourism: Jeddah Tower aims to take the world-tallest crown from Burj Khalifa \u2014 the construction-boom years are the cheap years to see a city being born.'},
+{id:'concerts',ic:'\ud83c\udfa4',n:'Stadium tour season',from:'2026-05-01',to:'2026-09-30',city:'London',month:6,ac:'#FF5CA8',
+ places:'Global stadium tours \u2014 pop\u2019s biggest names',idea:'Concert arbitrage: the same world tour costs 40\u201360% less in Warsaw, Bangkok or S\u00e3o Paulo than London or NYC \u2014 fly there, see the show, get a holiday free.'},
+{id:'f1',ic:'\ud83c\udfce\ufe0f',n:'F1 season flyaways',from:'2026-03-01',to:'2026-11-30',city:'Singapore',month:8,ac:'#E10600',
+ places:'Singapore night race \u00b7 Monaco \u00b7 Suzuka',idea:'Singapore\u2019s night GP is the most tourist-perfect race \u2014 the track wraps the city, so a regular hotel IS a grandstand. Book Marina Bay view rooms 6 months out.'},
+{id:'lambo',ic:'\ud83d\udc02',n:'Supercar launch pilgrimages',from:'2026-01-01',to:'2026-12-31',city:'Bologna',month:4,ac:'#DDB321',
+ places:'Sant\u2019Agata (Lamborghini) \u00b7 Maranello (Ferrari)',idea:'Italy\u2019s Motor Valley: factory museums, test-track days and launch events cluster around Bologna \u2014 one base, three legendary marques, best in spring.'}];
+function activeEvents(){ var t=new Date().toISOString().slice(0,10);
+  return EVENTS.filter(function(e){ return e.from<=t && t<=e.to; }); }
+function renderEventBanner(){
+  var live=activeEvents(); if(!live.length) return;
+  var e=live[0];
+  var b=document.createElement('div');
+  b.style.cssText='position:sticky;top:52px;z-index:60;margin:0 12px;border-radius:12px;padding:9px 14px;display:flex;align-items:center;gap:9px;font-size:12px;font-weight:700;color:#fff;background:linear-gradient(90deg,'+e.ac+'CC,'+e.ac+'66);border:1px solid '+e.ac+';cursor:pointer;animation:fadeup .5s ease';
+  b.innerHTML=e.ic+' <span>'+e.n+' is LIVE \u2014 plan the trip \u2192</span>';
+  b.onclick=function(){ eventPlan(e.id); };
+  var host=document.querySelector('.hero-sky'); if(host) host.parentNode.insertBefore(b, host);
+}
+function eventPlan(id){
+  var e=EVENTS.find(function(x){return x.id===id;}); if(!e) return;
+  var i=el('destInput'); if(i) i.value=e.city;
+  var m=el('month'); if(m) m.selectedIndex=e.month;
+  tabGo('plan'); showToast(e.ic+' '+e.n+' \u2014 destination & month pre-filled. Hit Search!');
+  try{ track('event_plans'); }catch(x){}
+}
+function renderEvents(){
+  var g=el('evtGrid'); if(!g) return;
+  var t=new Date().toISOString().slice(0,10);
+  g.innerHTML = EVENTS.map(function(e){
+    var live = e.from<=t && t<=e.to;
+    return '<div class="exp" style="border-color:'+e.ac+'55">'
+      +'<div class="exp-ic">'+e.ic+(live?' <span style="font-size:9px;color:#fff;background:'+e.ac+';border-radius:99px;padding:2px 8px;vertical-align:middle">LIVE NOW</span>':'')+'</div>'
+      +'<div class="exp-name">'+e.n+'</div><div class="exp-where">'+e.places+'</div>'
+      +'<div class="exp-desc">'+e.idea+'</div>'
+      +'<button class="tact red" style="margin-top:9px;width:100%" onclick="eventPlan(\''+e.id+'\')">'+(live?'\ud83d\udd25 Plan it now':'\ud83d\uddd3 Build the itinerary')+'</button></div>';
+  }).join('');
+}
+document.addEventListener('DOMContentLoaded', function(){ try{ renderEventBanner(); renderEvents(); }catch(e){} });
+
 /* ===== FUNNEL TRACKER — anonymous daily counters for the owner dashboard ===== */
 function track(ev){
   if(!AUTH_READY) return;
@@ -2384,7 +2658,7 @@ document.addEventListener('DOMContentLoaded', function(){
     if(r && r.innerHTML.length > 100) showToast('Mode changed — hit Search again to recalculate budgets');
   });
 });
-var VIEW_OF={treks:'explore',exps:'explore',circuits:'explore',ev:'explore',hubspoke:'explore',basecamp:'explore',jlog:'explore',app:'plan',brief:'home'};
+var VIEW_OF={treks:'explore',exps:'explore',circuits:'explore',ev:'explore',events:'explore',hubspoke:'explore',basecamp:'explore',jlog:'explore',app:'plan',brief:'home'};
 function scrollToId(id){
   if(document.body.classList.contains('shell') && VIEW_OF[id]){
     tabGo(VIEW_OF[id]);
@@ -2445,6 +2719,10 @@ function setTier(a){ UPI_AMT=String(a);
   showToast(a===100?'Pro \u2014 \u20b9100':'Supporter \u2014 \u20b9299, you legend \ud83d\udc9b'); }
 function upiParams(){ return 'pa='+UPI_VPA+'&pn='+encodeURIComponent(UPI_NAME)+'&am='+UPI_AMT+'&cu=INR&tn='+encodeURIComponent('RoamWise Pro Lifetime'); }
 function payVia(app){
+  if(app==='generic10'){
+    var deep10='upi://pay?pa='+UPI_VPA+'&pn='+encodeURIComponent(UPI_NAME)+'&am=10&cu=INR&tn=RoamWise%20PDF';
+    location.href=deep10; showToast('Pay \u20b910, then come back and tap Generate'); return;
+  }
   if(!requireLogin()) return;
   if(!IS_TOUCH_MOBILE && !IS_APP){ showToast('Scan the QR below with your phone camera or any UPI app'); var q=document.querySelector('.qr-wrap'); if(q) q.scrollIntoView({behavior:'smooth',block:'center'}); return; }
   var generic = 'upi://pay?' + upiParams();
@@ -3131,7 +3409,9 @@ function buildItin(T, name, costMid, days){
       return `<div class="day-card"><div class="day-head" onclick="togDay('${did}')"><div><div class="day-num">Day ${day.day}</div><div class="day-title">${day.title||'Exploration'}</div></div><span class="day-arr" id="arr_${did}">▶</span></div>
         <div class="day-body" id="${did}"><div>${segs}</div>${day.tip?`<div class="day-tip">💡 ${day.tip}</div>`:''}</div></div>`;
     }).join('');
-    cnt.innerHTML = (srcBadge||'') + H;
+    cnt.innerHTML = (srcBadge||'') + H
+      + '<button class="tact" style="width:100%;margin-top:12px" onclick="compareModels(\''+name.replace(/'/g,"\\'")+'\','+days+')">\u2694\ufe0f Compare AI engines on this trip</button>'
+      + '<button class="rzp-main-btn" style="margin-top:12px;background:linear-gradient(135deg,#9B59F5,#7A3FE0)" onclick="openPdfFlow(\''+T+'\',\''+name.replace(/'/g,"\\'")+'\','+days+',\''+((el('month')||{}).value||'')+'\')">\ud83d\udcd5 Premium PDF itinerary \u2014 \u20b910 (free for Pro)</button>';
     ph.style.display='none'; cnt.style.display='block'; itinBuilt[T]=true;
   }
   function smartBadge(extra){
