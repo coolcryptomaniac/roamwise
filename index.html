@@ -607,6 +607,13 @@ body.shell .hamb{display:flex}
 </div>
 
 
+<div id="siteSearch" style="display:none;position:fixed;top:0;left:0;right:0;z-index:300;background:rgba(7,9,15,.98);padding:12px;border-bottom:1px solid var(--b2)">
+  <div style="display:flex;gap:8px;max-width:640px;margin:0 auto">
+    <input id="ssInput" placeholder="Search anything &mdash; treks, events, tools, sections&hellip;" style="flex:1;background:#12121C;border:1px solid var(--b2);border-radius:11px;padding:11px 13px;color:var(--t1);font-family:Outfit;font-size:14px" oninput="ssRun(this.value)">
+    <button class="tact" onclick="ssClose()">&#215;</button>
+  </div>
+  <div id="ssOut" style="max-width:640px;margin:8px auto 0;max-height:55vh;overflow:auto"></div>
+</div>
 <nav class="nav">
   <div class="nav-inner">
     <a class="logo-wrap" href="#" onclick="scrollTo(0,0);return false">
@@ -614,6 +621,7 @@ body.shell .hamb{display:flex}
       <span class="logo-text">Roam<span>Wise</span></span>
     </a>
     <div class="nav-right">
+      <button class="nav-ic" onclick="ssOpen()" title="Search" style="background:none;border:none;color:var(--t1);font-size:17px;cursor:pointer;padding:6px">&#128269;</button>
       <button class="mode-chip mode-free" id="modeChip" onclick="openSettings()">Smart Mode (free)</button>
       <button class="btn btn-sm" onclick="openSettings()">&#9881; Settings</button>
       <button class="btn btn-ghost" onclick="scrollTo(0,document.getElementById('app').offsetTop-10)">Plan</button>
@@ -753,6 +761,7 @@ body.shell .hamb{display:flex}
   </button>
 </div>
 <div id="results" class="v v-plan"></div>
+<ins class="adsbygoogle rw-ad v v-plan" style="display:none;margin:10px 14px" data-ad-format="auto" data-full-width-responsive="true"></ins>
 
 
 </section>
@@ -797,6 +806,8 @@ body.shell .hamb{display:flex}
 <section class="xsec v v-explore" id="ev">
   <div class="xsec-head"><h2 class="xsec-title">&#9889; EV <em>Vault</em></h2></div>
   <p class="xsec-sub">The standout electric machine in every category &mdash; range kings, charging champs and the best picks for world travel. Specs are indicative; always verify the latest.</p>
+  <div class="mode-box" style="margin-bottom:12px"><b>&#9889; 2026 breakthroughs:</b> solid-state pilot packs enter premium EVs (900+ km claims) &bull; 5C ultrafast LFP makes 10&ndash;80% a coffee stop &bull; battery-swap crosses 4,000 stations in China &bull; megawatt charging unlocks electric trucking. 
+  <div style="display:flex;gap:8px;margin-top:9px"><a class="tact" style="flex:1;text-align:center;text-decoration:none" target="_blank" rel="noopener" href="https://www.youtube.com/results?search_query=solid+state+battery+2026">&#9654; Solid-state, explained</a><a class="tact" style="flex:1;text-align:center;text-decoration:none" target="_blank" rel="noopener" href="https://www.youtube.com/results?search_query=megawatt+charging+electric+trucks">&#9654; Megawatt charging</a></div></div>
   <div class="ev-grid" id="evGrid"></div>
 </section>
 
@@ -820,8 +831,34 @@ body.shell .hamb{display:flex}
     <button class="tact" style="flex:1" onclick="cardJPG()">&#11015; JPG</button>
     <button class="tact" style="flex:1" onclick="cardPDF()">&#11015; PDF</button>
   </div>
+  <button class="rzp-main-btn" id="movieBtn" style="display:none;margin-top:9px;background:linear-gradient(135deg,#C4302B,#8E1F1B)" onclick="openMovie()">&#127916; Journey Movie &mdash; cinematic video &middot; &#8377;50 (free for Pro)</button>
 </section>
 </div>
+
+<section class="xsec v v-home" id="store">
+  <div class="xsec-head"><h2 class="xsec-title">&#128717; The <em>Store</em></h2><button class="share-fab" onclick="shareApp('app')">&#128228; Share</button></div>
+  <p class="xsec-sub">Everything made in the Himalayas &mdash; tools, books and upgrades that fund the next feature.</p>
+  <div class="exp-grid">
+    <div class="exp" style="border-color:rgba(232,186,108,.45)"><div class="exp-ic">&#128081;</div><div class="exp-name">Lifetime Pro &mdash; &#8377;100</div><div class="exp-desc">Unlimited searches, AI itineraries, every hack. One payment, forever. Founding price.</div><button class="tact red" style="width:100%;margin-top:9px" onclick="useBump('store');openPay()">Unlock now</button></div>
+    <div class="exp"><div class="exp-ic">&#128213;</div><div class="exp-name">Premium PDF itinerary &mdash; &#8377;10</div><div class="exp-desc">Multi-page designed plan with photos, themes and timings. Free for Pro.</div><button class="tact" style="width:100%;margin-top:9px" onclick="tabGo('plan');showToast('Search a place \u2192 open itinerary \u2192 Premium PDF')">Make mine</button></div>
+    <div class="exp"><div class="exp-ic">&#127916;</div><div class="exp-name">Journey Movie &mdash; &#8377;50</div><div class="exp-desc">Your travels as a cinematic reel with music and chapters. Free for Pro.</div><button class="tact" style="width:100%;margin-top:9px" onclick="tabGo('explore');scrollToId('jlog')">Roll camera</button></div>
+    <div class="exp"><div class="exp-ic">&#128218;</div><div class="exp-name">Books by Mohit Pandey</div><div class="exp-desc">AI Ki Pathshala &bull; GYANVERSE &bull; Yuga &bull; Denki no Akatsuki &mdash; on Amazon &amp; Pothi.</div><button class="tact" style="width:100%;margin-top:9px" onclick="scrollToId('creator')">Browse books</button></div>
+    <div class="exp"><div class="exp-ic">&#129333;</div><div class="exp-name">1-on-1 Trip Consultation &mdash; &#8377;999</div><div class="exp-desc">60 minutes with the creator: your route, budget and crowd-dodge plan, built live.</div><button class="tact" style="width:100%;margin-top:9px" onclick="location.href='upi://pay?pa=coolmohit@ybl&pn=RoamWise&am=999&cu=INR&tn=Consultation';showToast('After paying, email proof \u2014 booking link comes back within 24h')">Book &#8377;999</button></div>
+    <div class="exp" style="opacity:.75"><div class="exp-ic">&#128085;</div><div class="exp-name">Shinobi tees &amp; merch</div><div class="exp-desc">Journey Card posters and RoamWise tees &mdash; print-on-demand store coming soon.</div><button class="tact" style="width:100%;margin-top:9px" onclick="showToast('Dropping soon \u2014 Supporters get first dibs \ud83d\udc4a')">Notify me</button></div>
+  </div>
+</section>
+
+<section class="xsec v v-explore" id="aipulse">
+  <div class="xsec-head"><h2 class="xsec-title">&#129302; AI <em>Pulse</em></h2><button class="share-fab" onclick="shareApp('app')">&#128228; Share</button></div>
+  <p class="xsec-sub">The machines are traveling too &mdash; agents, robots and the startups building them. Refreshed by our agent.</p>
+  <div class="exp-grid">
+    <div class="exp" style="border-color:rgba(217,119,87,.5)"><div class="exp-ic">&#10024;</div><div class="exp-name">Claude &mdash; Anthropic</div><div class="exp-desc">The frontier AI assistant known for deep reasoning, long documents and agentic coding &mdash; literally the co-builder of this entire app. If you want one AI for serious work, start here.</div><a class="tact" style="display:block;text-align:center;margin-top:9px;text-decoration:none" href="https://claude.ai" target="_blank" rel="noopener">Try Claude</a></div>
+    <div class="exp"><div class="exp-ic">&#129504;</div><div class="exp-name">The agent era</div><div class="exp-desc">2026's shift: AIs that don't just answer but DO &mdash; browsing, booking, coding, running loops for days. Our GitHub agent publishing daily SEO pages is a small taste.</div></div>
+    <div class="exp"><div class="exp-ic">&#129470;</div><div class="exp-name">Humanoids are walking</div><div class="exp-desc">Figure, Tesla Optimus and Unitree's G1 moved from demos to pilot factories &mdash; the first robot you meet may hand you your hotel key.</div></div>
+    <div class="exp"><div class="exp-ic">&#127470;&#127475;</div><div class="exp-name">India builds its own</div><div class="exp-desc">Sarvam AI (Indic language models), Krutrim (Ola's full-stack bet) and CoRover (BharatGPT for railways) are making AI that speaks Bharat.</div></div>
+    <div class="exp"><div class="exp-ic">&#9889;</div><div class="exp-name">AI &#215; Travel</div><div class="exp-desc">Crowd prediction, dynamic pricing beaters, instant itineraries &mdash; the whole industry is being rebuilt. You're using one of the rebuilders right now.</div></div>
+  </div>
+</section>
 
 <section class="xsec v v-home" id="creator">
   <div class="xsec-head"><h2 class="xsec-title">&#127956;&#65039; The <em>Creator</em></h2><button class="share-fab" onclick="shareApp('app')">&#128228; Share</button></div>
@@ -843,28 +880,28 @@ body.shell .hamb{display:flex}
       <div class="exp-name">AI Ki Pathshala</div>
       <div class="exp-where">Hinglish &bull; 300+ pages</div>
       <div class="exp-desc">The practical AI guide for Indian students &amp; families &mdash; ChatGPT, prompts, careers and side-income, explained in the language you actually think in.</div>
-      <div style="display:flex;gap:7px;margin-top:9px"><a class="tact" style="flex:1;text-align:center;text-decoration:none" href="https://www.amazon.in/s?k=AI+Ki+Pathshala+GYANVERSE" target="_blank" rel="noopener">Amazon</a><a class="tact" style="flex:1;text-align:center;text-decoration:none" href="https://store.pothi.com/search?q=AI+Ki+Pathshala" target="_blank" rel="noopener">Pothi</a></div>
+      <div style="display:flex;gap:7px;margin-top:9px"><a class="tact" style="flex:1;text-align:center;text-decoration:none" href="https://www.amazon.in/s?k=AI+Ki+Pathshala+GYANVERSE" target="_blank" rel="noopener">Amazon</a><a class="tact" style="flex:1;text-align:center;text-decoration:none" href="https://store.pothi.com/catalogsearch/result/?q=AI+Ki+Pathshala" target="_blank" rel="noopener">Pothi</a></div>
     </div>
     <div class="exp">
       <div class="exp-ic">&#128218;</div>
       <div class="exp-name">GYANVERSE</div>
       <div class="exp-where">Class 9&ndash;12 exam companion</div>
       <div class="exp-desc">Board-exam strategy, memory systems and subject cheat-sheets &mdash; the book built to turn average prep into ranks.</div>
-      <div style="display:flex;gap:7px;margin-top:9px"><a class="tact" style="flex:1;text-align:center;text-decoration:none" href="https://www.amazon.in/s?k=GYANVERSE+exam+companion" target="_blank" rel="noopener">Amazon</a><a class="tact" style="flex:1;text-align:center;text-decoration:none" href="https://store.pothi.com/search?q=GYANVERSE" target="_blank" rel="noopener">Pothi</a></div>
+      <div style="display:flex;gap:7px;margin-top:9px"><a class="tact" style="flex:1;text-align:center;text-decoration:none" href="https://www.amazon.in/s?k=GYANVERSE+exam+companion" target="_blank" rel="noopener">Amazon</a><a class="tact" style="flex:1;text-align:center;text-decoration:none" href="https://store.pothi.com/catalogsearch/result/?q=GYANVERSE" target="_blank" rel="noopener">Pothi</a></div>
     </div>
     <div class="exp">
       <div class="exp-ic">&#128302;</div>
       <div class="exp-name">Yuga: The Silicon Age</div>
       <div class="exp-where">Sci-fi novel &bull; set in 2047</div>
       <div class="exp-desc">A mystery about an ancient AI called ORACLE hidden at Kasar Devi, Almora &mdash; where the Himalayas meet the machine age.</div>
-      <div style="display:flex;gap:7px;margin-top:9px"><a class="tact" style="flex:1;text-align:center;text-decoration:none" href="https://www.amazon.in/s?k=Yuga+The+Silicon+Age" target="_blank" rel="noopener">Amazon</a><a class="tact" style="flex:1;text-align:center;text-decoration:none" href="https://store.pothi.com/search?q=Yuga+Silicon+Age" target="_blank" rel="noopener">Pothi</a></div>
+      <div style="display:flex;gap:7px;margin-top:9px"><a class="tact" style="flex:1;text-align:center;text-decoration:none" href="https://www.amazon.in/s?k=Yuga+The+Silicon+Age" target="_blank" rel="noopener">Amazon</a><a class="tact" style="flex:1;text-align:center;text-decoration:none" href="https://store.pothi.com/catalogsearch/result/?q=Yuga+Silicon+Age" target="_blank" rel="noopener">Pothi</a></div>
     </div>
     <div class="exp">
       <div class="exp-ic">&#9889;</div>
       <div class="exp-name">Denki no Akatsuki</div>
       <div class="exp-where">The EV revolution, decoded</div>
       <div class="exp-desc">Electric vehicles, batteries and the road ahead &mdash; told with the same anime-flavoured clarity as everything GYANVERSE makes.</div>
-      <div style="display:flex;gap:7px;margin-top:9px"><a class="tact" style="flex:1;text-align:center;text-decoration:none" href="https://www.amazon.in/s?k=Denki+no+Akatsuki" target="_blank" rel="noopener">Amazon</a><a class="tact" style="flex:1;text-align:center;text-decoration:none" href="https://store.pothi.com/search?q=Denki+no+Akatsuki" target="_blank" rel="noopener">Pothi</a></div>
+      <div style="display:flex;gap:7px;margin-top:9px"><a class="tact" style="flex:1;text-align:center;text-decoration:none" href="https://www.amazon.in/s?k=Denki+no+Akatsuki" target="_blank" rel="noopener">Amazon</a><a class="tact" style="flex:1;text-align:center;text-decoration:none" href="https://store.pothi.com/catalogsearch/result/?q=Denki+no+Akatsuki" target="_blank" rel="noopener">Pothi</a></div>
     </div>
     <div class="exp" style="border-color:rgba(155,89,245,.4)">
       <div class="exp-ic">&#128155;</div>
@@ -899,7 +936,8 @@ body.shell .hamb{display:flex}
     </div>
   </div>
   <div class="foot-legal">
-    <span>&copy; 2026 RoamWise &bull; Made by Mohit Pandey, Almora, India</span>
+    <span>&copy; 2026 RoamWise &bull; Made by Mohit Pandey, Almora, India<br>
+<span style="font-size:10px;color:var(--t3)">RoamWise&trade;, Journey Card&trade;, Shinobi XP&trade;, Sync Circle&trade; &mdash; original works. All features, designs, data models and content are protected; copying or derivative use is prohibited without written permission.</span></span>
     <span>Prices are estimates &bull; Data: Wikipedia &amp; Open-Meteo</span>
   </div>
 </footer>
@@ -930,6 +968,11 @@ body.shell .hamb{display:flex}
   <a class="dr-link" onclick="closeDrawer();scrollToId('hubspoke')"><span class="ic">&#127470;&#127475;</span>Hub &amp; Spoke India</a>
   <a class="dr-link" onclick="closeDrawer();scrollToId('basecamp')"><span class="ic">&#9978;</span>Basecamp</a>
   <a class="dr-link" onclick="closeDrawer();scrollToId('jlog')"><span class="ic">&#128506;&#65039;</span>My Journey Card</a>
+  <a class="dr-link" onclick="closeDrawer();showSaved()"><span class="ic">&#9829;</span>Saved for later</a>
+  <a class="dr-link" onclick="closeDrawer();openProfile()"><span class="ic">&#128100;</span>My Profile</a>
+  <a class="dr-link" onclick="closeDrawer();tabGo('home');scrollToId('store')"><span class="ic">&#128717;</span>Store</a>
+  <a class="dr-link" onclick="closeDrawer();openMusic()"><span class="ic">&#127925;</span>My Music</a>
+  <a class="dr-link" onclick="closeDrawer();tabGo('explore');scrollToId('aipulse')"><span class="ic">&#129302;</span>AI Pulse</a>
   <a class="dr-link" onclick="closeDrawer();openDna()"><span class="ic">&#129516;</span>Traveler DNA quiz</a>
   <a class="dr-link" onclick="closeDrawer();openWizard()"><span class="ic">&#129504;</span>AI setup wizard (60 sec)</a>
   <a class="dr-link" onclick="closeDrawer();shareApp('app')"><span class="ic">&#128228;</span>Share RoamWise (+15 XP)</a>
@@ -1634,6 +1677,183 @@ function refreshProUI(){
     }
   }catch(e){}
 })();
+/* ===== SITE SEARCH ===== */
+function ssIndex(){
+  var ix=[
+   {t:'Plan a trip (crowd calendar + budget)',k:'plan search itinerary budget crowd month',go:function(){tabGo('plan');}},
+   {t:'Trek Vault',k:'trek hike hidden dangerous new',go:function(){tabGo('explore');scrollToId('treks');}},
+   {t:'Event Radar (FIFA, Olympics...)',k:'event fifa olympics cricket concert f1 iphone',go:function(){tabGo('explore');scrollToId('events');}},
+   {t:'Hub & Spoke India + airports + Vande Bharat + best base',k:'airport vande bharat train bus base delhi flights india',go:function(){tabGo('explore');scrollToId('hubspoke');}},
+   {t:'EV Vault + breakthroughs',k:'ev electric battery tesla charging breakthrough',go:function(){tabGo('explore');scrollToId('ev');}},
+   {t:'AI Pulse (agents, robots, startups)',k:'ai claude anthropic chatgpt gemini robot startup agent',go:function(){tabGo('explore');scrollToId('aipulse');}},
+   {t:'Journey Card (poster) & Movie',k:'journey card map poster movie video souvenir',go:function(){tabGo('explore');scrollToId('jlog');}},
+   {t:'Store (books, PDFs, membership)',k:'store shop buy book tshirt membership consult',go:function(){tabGo('home');scrollToId('store');}},
+   {t:'My Profile & lifetime destinations',k:'profile avatar bio age style lifetime',go:function(){openProfile();}},
+   {t:'AI setup wizard (free keys)',k:'api key gemini groq wizard setup',go:function(){openWizard();}},
+   {t:'AI Arena (compare models)',k:'compare arena models benchmark',go:function(){showToast('Build any itinerary, then tap Compare AI engines');tabGo('plan');}},
+   {t:'Premium PDF itinerary',k:'pdf premium download print',go:function(){tabGo('plan');showToast('Search a place, open its itinerary, tap Premium PDF');}},
+   {t:'Saved for later',k:'saved wishlist heart',go:function(){showSaved();}},
+   {t:'Unlock Pro / Supporter',k:'pro pay upgrade supporter price',go:function(){openPay();}},
+   {t:'Basecamp (companies, emergency, packing)',k:'basecamp emergency packing operators',go:function(){tabGo('explore');scrollToId('basecamp');}},
+   {t:'The Creator & books',k:'creator mohit books author about',go:function(){tabGo('home');scrollToId('creator');}},
+   {t:'My Music',k:'music songs phonk spotify saavn',go:function(){openMusic();}}
+  ];
+  (typeof TREKS!=='undefined'?TREKS:[]).forEach(function(t){ ix.push({t:'Trek: '+t.n,k:t.n.toLowerCase(),go:function(){tabGo('explore');scrollToId('treks');}}); });
+  (typeof EVENTS!=='undefined'?EVENTS:[]).forEach(function(e){ ix.push({t:e.ic+' '+e.n,k:e.n.toLowerCase(),go:function(){eventPlan(e.id);}}); });
+  (typeof EXPS!=='undefined'?EXPS:[]).forEach(function(e){ ix.push({t:'Experience: '+e.n,k:e.n.toLowerCase(),go:function(){tabGo('explore');scrollToId('exps');}}); });
+  return ix;
+}
+var _ssIx=null;
+function ssOpen(){ el('siteSearch').style.display='block'; el('ssInput').focus(); useBump('search'); }
+function ssClose(){ el('siteSearch').style.display='none'; el('ssOut').innerHTML=''; el('ssInput').value=''; }
+function ssRun(q){
+  q=(q||'').toLowerCase().trim();
+  if(!_ssIx) _ssIx=ssIndex();
+  var out=el('ssOut');
+  if(q.length<2){ out.innerHTML=''; return; }
+  var hits=_ssIx.filter(function(x){ return (x.t+' '+x.k).toLowerCase().indexOf(q)>-1; }).slice(0,9);
+  out.innerHTML = hits.length? hits.map(function(x,i){ return '<div class="ti-day" style="cursor:pointer;padding:11px 12px;border:1px solid var(--b);border-radius:11px;margin-bottom:7px;background:#0E1018" onclick="_ssGo('+i+')"><b>&#128269;</b><span>'+x.t+'</span></div>'; }).join('')
+    : '<div class="mode-box">No match \u2014 try "trek", "pdf", "events", "store"\u2026 or just plan a trip to "'+q+'" \u2192 <button class="tact" onclick="ssClose();el(\'destInput\').value=\''+q.replace(/'/g,'')+'\';tabGo(\'plan\')">Plan it</button></div>';
+  window._ssHits=hits;
+}
+function _ssGo(i){ var x=window._ssHits[i]; ssClose(); x.go(); }
+
+/* ===== ADAPTIVE "FOR YOU" (usage-aware UI) ===== */
+function useBump(k){ try{ var u=JSON.parse(lsGet('rw_use')||'{}'); u[k]=(u[k]||0)+1; lsSet('rw_use',JSON.stringify(u)); }catch(e){} }
+var FORYOU_DEFS={plan:['\ud83e\udded Plan',function(){tabGo('plan');}],treks:['\u26f0 Treks',function(){tabGo('explore');scrollToId('treks');}],card:['\ud83d\uddfa Card',function(){tabGo('explore');scrollToId('jlog');}],events:['\ud83c\udfdf Events',function(){tabGo('explore');scrollToId('events');}],store:['\ud83d\udecd Store',function(){tabGo('home');scrollToId('store');}],pdf:['\ud83d\udcd5 PDF',function(){tabGo('plan');}],search:['\ud83d\udd0d Search',function(){ssOpen();}],profile:['\ud83d\udc64 Profile',function(){openProfile();}]};
+function renderForYou(){
+  var host=el('brief'); if(!host) return;
+  var u={}; try{u=JSON.parse(lsGet('rw_use')||'{}');}catch(e){}
+  var keys=Object.keys(FORYOU_DEFS).sort(function(a,b){return (u[b]||0)-(u[a]||0);}).slice(0,4);
+  var bar=document.createElement('div');
+  bar.style.cssText='display:flex;gap:8px;margin:10px 0 2px;flex-wrap:wrap';
+  bar.innerHTML='<span style="font-size:10px;color:var(--gold2);align-self:center;letter-spacing:.08em">\u2b50 FOR YOU</span>'+keys.map(function(k,i){
+    return '<button class="tact" style="flex:1;min-width:70px" onclick="useBump(\''+k+'\');FORYOU_DEFS[\''+k+'\'][1]()">'+FORYOU_DEFS[k][0]+'</button>';
+  }).join('');
+  host.insertBefore(bar, host.firstChild);
+}
+
+/* ===== TRAVEL ECONOMY LIVE TICKER ===== */
+function renderTicker(){
+  var host=el('brief'); if(!host) return;
+  var t=document.createElement('div');
+  t.style.cssText='text-align:center;font-size:11px;color:var(--t2);margin:6px 0 2px';
+  t.innerHTML='\ud83c\udf0d Global travel economy this year: <b id="ecoTick" style="color:#16BF96;font-variant-numeric:tabular-nums">$0</b> <span style="color:var(--t3)">and counting (WTTC-basis)</span>';
+  host.insertBefore(t, host.firstChild);
+  var Y=new Date(new Date().getFullYear(),0,1).getTime(), RATE=11.5e12/31536000; /* ~$11.5T/yr */
+  setInterval(function(){ var v=(Date.now()-Y)/1000*RATE;
+    el('ecoTick').textContent = v>=1e12? '$'+(v/1e12).toFixed(3)+' Trillion' : '$'+(v/1e9).toFixed(1)+' Billion';
+  }, 1000);
+}
+
+/* ===== PROFILE + LIFETIME LIST ===== */
+var STYLE_POOL={
+ adventure:[['Patagonia, Chile-Argentina','the planet\u2019s wildest trekking finale'],['Ladakh, India','high-altitude freedom on two wheels'],['Iceland ring road','fire, ice and zero guardrails'],['Nepal (EBC)','the pilgrimage every adventurer owes themselves'],['New Zealand South Island','adrenaline\u2019s home address'],['Kyrgyzstan','the last untamed horse country']],
+ culture:[['Kyoto, Japan','a thousand years, perfectly kept'],['Varanasi, India','the oldest living city on Earth'],['Rome, Italy','walk inside a history book'],['Istanbul, Turkey','two continents, one table'],['Cairo, Egypt','stand where 4,500 years stare back'],['Uzbekistan (Samarkand)','the Silk Road\u2019s blue-tiled heart']],
+ chill:[['Bali, Indonesia','slow mornings perfected'],['Kerala backwaters','float through green silence'],['Santorini, Greece','sunsets as a lifestyle'],['Maldives','the pause button of the planet'],['Amalfi Coast','lemon-scented la dolce vita'],['Goa in monsoon','India\u2019s softest secret season']],
+ party:[['Tokyo, Japan','neon nights that never repeat'],['Berlin, Germany','the world\u2019s dance-floor capital'],['Rio de Janeiro','carnival is a warm-up here'],['Bangkok, Thailand','the night owns this city'],['Ibiza, Spain','the pilgrimage of sound'],['Goa NYE','India\u2019s beach party crown']]};
+function openProfile(){
+  useBump('profile');
+  var ov=el('profOverlay');
+  if(!ov){ ov=document.createElement('div'); ov.id='profOverlay'; ov.className='overlay';
+    ov.innerHTML='<div class="modal" style="max-width:440px;max-height:88vh;overflow:auto"><button class="modal-close" onclick="el(\'profOverlay\').classList.remove(\'open\')">\u00d7</button><div class="modal-head"><div class="modal-title">\ud83d\udc64 My Traveler Profile</div><div class="modal-sub">Tell RoamWise who\u2019s traveling</div></div><div class="modal-body" id="profBody"></div></div>';
+    document.body.appendChild(ov); }
+  var P2={}; try{P2=JSON.parse(lsGet('rw_profile')||'{}');}catch(e){}
+  var avs=['adventurer','ninja','fox','owl','bear','robot'].map(function(s,i){
+    var u2='https://api.dicebear.com/9.x/'+(i<2?'adventurer':'bottts')+'/svg?seed='+s;
+    return '<img src="'+u2+'" data-u="'+u2+'" onclick="profAv(this)" style="width:52px;height:52px;border-radius:50%;cursor:pointer;border:2px solid '+((P2.av===u2)?'var(--gold)':'var(--b2)')+'">';
+  }).join('');
+  el('profBody').innerHTML=
+   '<div style="display:flex;gap:10px;align-items:center;margin-bottom:12px"><img id="profPic" src="'+(P2.av||'https://api.dicebear.com/9.x/adventurer/svg?seed=ninja')+'" style="width:64px;height:64px;border-radius:50%;border:2px solid var(--gold2)"><div style="flex:1"><div style="font-size:11px;color:var(--t2);margin-bottom:5px">Pick an avatar or upload</div><div style="display:flex;gap:6px;flex-wrap:wrap">'+avs+'</div><input type="file" accept="image/*" id="profUp" style="font-size:10px;margin-top:6px" onchange="profUpload(this)"></div></div>'
+   +'<div class="dna-q"><div class="qt">Name</div><input class="txn-inp" id="pfName" style="width:100%" value="'+(P2.name||lsGet('rw_name')||'')+'"></div>'
+   +'<div style="display:flex;gap:8px"><div class="dna-q" style="flex:1"><div class="qt">Work</div><input class="txn-inp" id="pfWork" style="width:100%" value="'+(P2.work||'')+'"></div>'
+   +'<div class="dna-q" style="flex:1"><div class="qt">Location</div><input class="txn-inp" id="pfLoc" style="width:100%" value="'+(P2.loc||'')+'"></div></div>'
+   +'<div style="display:flex;gap:8px"><div class="dna-q" style="flex:1"><div class="qt">Age (optional, stays on device)</div><input class="txn-inp" id="pfAge" type="number" style="width:100%" value="'+(P2.age||'')+'"></div>'
+   +'<div class="dna-q" style="flex:1"><div class="qt">WhatsApp (optional)</div><input class="txn-inp" id="pfWa" style="width:100%" placeholder="+91\u2026" value="'+(P2.wa||'')+'"></div></div>'
+   +'<div class="dna-q"><div class="qt">Travel style</div><div class="dna-opts">'+['adventure','culture','chill','party'].map(function(s){return '<button class="dna-opt'+(P2.style===s?' on':'')+'" onclick="profPick(this,\'style\',\''+s+'\')">'+s+'</button>';}).join('')+'</div></div>'
+   +'<div class="dna-q"><div class="qt">Dream terrain</div><div class="dna-opts">'+['mountains','beaches','cities','deserts'].map(function(s){return '<button class="dna-opt'+(P2.terr===s?' on':'')+'" onclick="profPick(this,\'terr\',\''+s+'\')">'+s+'</button>';}).join('')+'</div></div>'
+   +'<div class="dna-q"><div class="qt">Trip length you love</div><div class="dna-opts">'+['weekend','1 week','2+ weeks'].map(function(s){return '<button class="dna-opt'+(P2.len===s?' on':'')+'" onclick="profPick(this,\'len\',\''+s+'\')">'+s+'</button>';}).join('')+'</div></div>'
+   +'<div class="dna-q"><div class="qt">Favourite destinations so far</div><input class="txn-inp" id="pfFav" style="width:100%" value="'+(P2.fav||'')+'"></div>'
+   +'<div class="dna-q"><div class="qt">Hobbies</div><input class="txn-inp" id="pfHob" style="width:100%" value="'+(P2.hob||'')+'"></div>'
+   +'<div class="dna-q"><div class="qt">Bio</div><input class="txn-inp" id="pfBio" style="width:100%" maxlength="120" value="'+(P2.bio||'')+'"></div>'
+   +'<label style="display:flex;gap:8px;font-size:11.5px;color:var(--t2);margin:4px 0 12px"><input type="checkbox" id="pfNews" '+(P2.news?'checked':'')+'> Send me weekly travel drops (email)</label>'
+   +'<button class="rzp-main-btn" onclick="profSave()">\u2728 Save & reveal my Lifetime List</button>'
+   +'<div id="pfOut" style="margin-top:12px"></div>';
+  window._prof=P2;
+  ov.classList.add('open');
+}
+function profAv(img){ window._prof.av=img.dataset.u; el('profPic').src=img.dataset.u;
+  img.parentNode.querySelectorAll('img').forEach(function(x){x.style.borderColor='var(--b2)';}); img.style.borderColor='var(--gold)'; }
+function profUpload(inp){ var f=inp.files[0]; if(!f) return;
+  var fr=new FileReader(); fr.onload=function(){ if(fr.result.length>400000) return showToast('Pick a smaller image');
+    window._prof.av=fr.result; el('profPic').src=fr.result; }; fr.readAsDataURL(f); }
+function profPick(b,k,v){ window._prof[k]=v; b.parentNode.querySelectorAll('.dna-opt').forEach(function(x){x.classList.remove('on');}); b.classList.add('on'); }
+function profSave(){
+  var P2=window._prof;
+  ['Name','Work','Loc','Age','Wa','Fav','Hob','Bio'].forEach(function(k){ P2[k.toLowerCase()]=el('pf'+k).value.trim(); });
+  P2.news=el('pfNews').checked;
+  lsSet('rw_profile', JSON.stringify(P2)); lsSet('rw_name', P2.name||lsGet('rw_name')||'');
+  if(AUTH_READY && user){ db.collection('users').doc(user.uid).set({name:P2.name||'',whatsapp:P2.wa||'',newsletter:!!P2.news,style:P2.style||'',location:P2.loc||''},{merge:true}); }
+  var style=P2.style||'adventure', pool=STYLE_POOL[style]||STYLE_POOL.adventure;
+  var extra = P2.terr==='beaches'? STYLE_POOL.chill[3] : P2.terr==='deserts'? ['Jaisalmer + Wadi Rum','gold dunes twice over'] : P2.terr==='cities'? STYLE_POOL.party[0] : STYLE_POOL.adventure[1];
+  var list=pool.slice(0,5).concat([extra]);
+  el('pfOut').innerHTML='<div class="mode-box" style="border-color:rgba(232,186,108,.5)"><b>\ud83c\udf1f '+(P2.name||'Traveler')+'\u2019s Lifetime List \u2014 the '+style+' soul edition</b><br><span style="font-size:10.5px;color:var(--t3)">Based on your style, terrain and trip length. Plan any of them in one tap.</span></div>'
+   + list.map(function(x){ return '<div class="ti-day" style="align-items:center"><b>\u272a</b><span style="flex:1"><b style="color:var(--t1)">'+x[0]+'</b><br><span style="font-size:10.5px;color:var(--t2)">'+x[1]+'</span></span><button class="tact" onclick="el(\'profOverlay\').classList.remove(\'open\');el(\'destInput\').value=\''+x[0].split(',')[0].replace(/'/g,'')+'\';tabGo(\'plan\')">Plan</button></div>'; }).join('');
+  showToast('Profile saved \u2014 your Lifetime List is ready \u2b50'); xpAdd(15,'Identity forged');
+}
+
+/* ===== MUSIC PANEL ===== */
+var MUSIC_YT_PLAYLIST=''; /* paste a YouTube playlist ID to embed a real player */
+function openMusic(){
+  useBump('music');
+  var ov=el('musOverlay');
+  if(!ov){ ov=document.createElement('div'); ov.id='musOverlay'; ov.className='overlay';
+    ov.innerHTML='<div class="modal" style="max-width:420px"><button class="modal-close" onclick="el(\'musOverlay\').classList.remove(\'open\')">\u00d7</button><div class="modal-head"><div class="modal-title">\ud83c\udfb5 Music by Mohit Pandey</div><div class="modal-sub">Kumaoni folk \u00d7 phonk \u00d7 travel beats</div></div><div class="modal-body" id="musBody"></div></div>';
+    document.body.appendChild(ov); }
+  el('musBody').innerHTML=
+   (MUSIC_YT_PLAYLIST? '<iframe width="100%" height="200" style="border-radius:12px;border:1px solid var(--b2)" src="https://www.youtube-nocookie.com/embed/videoseries?list='+MUSIC_YT_PLAYLIST+'" allow="autoplay;encrypted-media" allowfullscreen></iframe>' : '')
+   +'<a class="rzp-main-btn" style="display:block;text-align:center;text-decoration:none;margin-top:10px;background:linear-gradient(135deg,#FF0000,#B00000)" href="https://youtube.com/@mohucool" target="_blank" rel="noopener">\u25b6 Play on YouTube @mohucool</a>'
+   +'<div style="display:flex;gap:8px;margin-top:8px">'
+   +'<a class="tact" style="flex:1;text-align:center;text-decoration:none" href="https://open.spotify.com/search/'+encodeURIComponent('Mohit Pandey mohucool')+'" target="_blank" rel="noopener">Spotify</a>'
+   +'<a class="tact" style="flex:1;text-align:center;text-decoration:none" href="https://www.jiosaavn.com/search/'+encodeURIComponent('Mohit Pandey')+'" target="_blank" rel="noopener">JioSaavn</a></div>'
+   +'<div style="font-size:10px;color:var(--t3);margin-top:8px;text-align:center">Send your artist links / a YT playlist ID and this becomes a real in-app player.</div>';
+  ov.classList.add('open');
+}
+
+/* ===== ADSENSE (gated) + WHATSAPP (gated) ===== */
+var ADSENSE_ID=''; /* e.g. ca-pub-1234567890123456 after AdSense approval */
+var WA_NUMBER='', WA_CHANNEL='', WA_GROUP='';
+(function(){
+  if(ADSENSE_ID){
+    var s=document.createElement('script'); s.async=true;
+    s.src='https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client='+ADSENSE_ID;
+    s.crossOrigin='anonymous'; document.head.appendChild(s);
+    document.querySelectorAll('.rw-ad').forEach(function(a){ a.style.display='block'; (adsbygoogle=window.adsbygoogle||[]).push({}); });
+  }
+  if(WA_NUMBER){
+    var w=document.createElement('a');
+    w.href='https://wa.me/'+WA_NUMBER.replace(/[^0-9]/g,'')+'?text='+encodeURIComponent('Hi RoamWise!');
+    w.target='_blank';
+    w.style.cssText='position:fixed;right:14px;bottom:86px;z-index:200;width:48px;height:48px;border-radius:50%;background:#25D366;display:flex;align-items:center;justify-content:center;font-size:24px;box-shadow:0 6px 20px rgba(0,0,0,.4);text-decoration:none';
+    w.textContent='\ud83d\udcac';
+    document.body.appendChild(w);
+  }
+})();
+
+/* ===== SYNC CIRCLE — anonymous "I'm going" intent counts (no PII) ===== */
+function syncGo(name){
+  if(!AUTH_READY || !user){ showToast('Sign in first \u2014 Sync Circle is for real accounts'); return; }
+  var m=(el('month')||{}).value||'soon';
+  var key=(name+'_'+m).toLowerCase().replace(/[^a-z0-9]+/g,'_').slice(0,60);
+  var inc={}; inc[key]=firebase.firestore.FieldValue.increment(1);
+  var ref=db.collection('pulse').doc('intents');
+  ref.set(inc,{merge:true}).then(function(){ return ref.get(); }).then(function(d2){
+    var n=(d2.exists && d2.data()[key])||1;
+    showToast('\ud83e\udd1d You + '+(n-1)+' traveler'+(n===2?'':'s')+' planning '+name+' in '+m+' \u2014 matched groups coming soon');
+    xpAdd(5,'Joined a Sync Circle');
+  }).catch(function(){ showToast('Sync Circle needs the pulse rules published'); });
+}
+
 /* ===== 60-SECOND AI KEY WIZARD ===== */
 var WIZ=[
  {p:'gemini',n:'Google Gemini',url:'https://aistudio.google.com/apikey',why:'Best free tier \u2014 recommended first',ph:'AIza\u2026',
@@ -1816,122 +2036,266 @@ function loadJsPdf(cb){
   s.onload=cb; s.onerror=function(){ showToast('PDF engine needs internet'); };
   document.head.appendChild(s);
 }
-function fetchImg64(url){ return fetch(url).then(function(r){return r.blob();}).then(function(b){
-  return new Promise(function(res){ var fr=new FileReader(); fr.onload=function(){res(fr.result);}; fr.readAsDataURL(b); });});}
+function fetchImg64(url){ /* any format in -> clean JPEG dataURL out (jsPDF-safe) */
+  return fetch(url).then(function(r){ if(!r.ok) throw 0; return r.blob(); }).then(function(b){
+    return new Promise(function(res,rej){
+      var im=new Image(); var u=URL.createObjectURL(b);
+      im.onload=function(){
+        try{
+          var c2=document.createElement('canvas');
+          var w=Math.min(900,im.naturalWidth), h=Math.round(im.naturalHeight*w/im.naturalWidth);
+          c2.width=w; c2.height=h;
+          var g=c2.getContext('2d'); g.fillStyle='#fff'; g.fillRect(0,0,w,h); g.drawImage(im,0,0,w,h);
+          URL.revokeObjectURL(u); res(c2.toDataURL('image/jpeg',0.88));
+        }catch(e){ rej(e); }
+      };
+      im.onerror=function(){ URL.revokeObjectURL(u); rej(0); };
+      im.src=u;
+    });
+  });}
+function wikiThumbSmart(q, alt){ /* try full query, then a shorter one */
+  return wikiThumb(q).then(function(u){ if(u) return u; return alt? wikiThumb(alt):null; });
+}
+var PDF_THEMES={
+ beach:{deep:[10,42,56],acc:[32,178,170],line:'Sun, salt and slow mornings'},
+ metro:{deep:[26,16,42],acc:[171,102,255],line:'Neon nights, skyline days'},
+ sacred:{deep:[48,28,14],acc:[224,150,54],line:'Bells, rivers and quiet dawns'},
+ tech:{deep:[8,22,38],acc:[64,156,255],line:'Glass towers, future streets'},
+ peak:{deep:[16,22,36],acc:[136,116,190],line:'Thin air, tall silence'},
+ classic:{deep:[14,16,24],acc:[200,145,62],line:'Old roads, new eyes'}};
+function hueRGB(h,s,l){ s/=100; l/=100; var k=function(n){return (n+h/30)%12;},
+  a=s*Math.min(l,1-l), f=function(n){return l-a*Math.max(-1,Math.min(k(n)-3,Math.min(9-k(n),1)));};
+  return [Math.round(255*f(0)),Math.round(255*f(8)),Math.round(255*f(4))]; }
+function themeFor(d){
+  var key=detectTheme(d);
+  var h=0, s=String(d.name||'x'); for(var i=0;i<s.length;i++) h=(h*31+s.charCodeAt(i))>>>0;
+  if(key==='classic'){ key=['beach','metro','sacred','tech','peak','classic'][h%6]; }
+  var hue=h%360;
+  return { key:key,
+    acc: hueRGB(hue, 62, 56),
+    deep: hueRGB(hue, 48, 13),
+    line: PDF_THEMES[key].line };
+}
+function detectTheme(d){
+  var j=((d.tags||[]).concat(d.interests||[]).join(' ')+' '+(d.name||'')).toLowerCase();
+  if(/beach|island|coast|surf|goa|bali|maldiv/.test(j)) return 'beach';
+  if(/night|neon|party|club|vegas|bangkok|tokyo|dubai/.test(j)) return 'metro';
+  if(/temple|spiritual|pilgrim|yoga|sacred|varanasi|rishikesh|kyoto/.test(j)) return 'sacred';
+  if(/tech|futur|cyber|modern|singapore|shenzhen/.test(j)) return 'tech';
+  if(/trek|mountain|himalaya|alpine|snow|leh|spiti|manali/.test(j)) return 'peak';
+  return 'classic';
+}
+function drawMotif(pdf,key,acc,cx,cy){
+  pdf.setDrawColor(acc[0],acc[1],acc[2]); pdf.setFillColor(acc[0],acc[1],acc[2]); pdf.setLineWidth(2);
+  if(key==='beach'){ pdf.circle(cx-90,cy-16,14,'F');
+    pdf.line(cx-56,cy+2,cx-8,cy+2); pdf.line(cx-48,cy+12,cx-16,cy+12); pdf.line(cx-52,cy+22,cx-12,cy+22);
+    pdf.line(cx+70,cy+18,cx+78,cy-26);
+    [[-24,-34],[22,-38],[-16,-16],[18,-18]].forEach(function(l){ pdf.line(cx+76,cy-26,cx+78+l[0],cy+l[1]); });
+  } else if(key==='metro'){ var xs=[-100,-70,-36,0,36,72]; var hs=[26,44,34,52,30,42];
+    xs.forEach(function(x0,i){ pdf.rect(cx+x0,cy+20-hs[i],26,hs[i],'F'); });
+    pdf.circle(cx+112,cy+10,6,'F'); pdf.line(cx+118,cy+10,cx+118,cy-22); pdf.line(cx+118,cy-22,cx+130,cy-18);
+  } else if(key==='sacred'){ [[46,0],[34,-14],[22,-28]].forEach(function(t){ pdf.triangle(cx-t[0],cy+18+t[1],cx+t[0],cy+18+t[1],cx,cy-34+t[1],'F'); });
+    pdf.circle(cx,cy+30,4,'F');
+  } else if(key==='tech'){ [[-90,34],[-52,52],[-14,40],[24,58],[62,44]].forEach(function(b){ pdf.rect(cx+b[0],cy+20-b[1],30,b[1],'S'); });
+    pdf.line(cx-90,cy+30,cx+100,cy+30); [-60,-10,40,90].forEach(function(x0){ pdf.circle(cx+x0,cy+30,3,'F'); });
+  } else if(key==='peak'){ pdf.triangle(cx-96,cy+22,cx-24,cy+22,cx-60,cy-30,'F'); pdf.triangle(cx-30,cy+22,cx+60,cy+22,cx+15,cy-40,'F'); pdf.triangle(cx+40,cy+22,cx+104,cy+22,cx+72,cy-22,'F');
+    pdf.setFillColor(255,255,255); pdf.triangle(cx+5,cy-28,cx+25,cy-28,cx+15,cy-40,'F');
+  } else { pdf.circle(cx,cy,26,'S'); pdf.circle(cx,cy,18,'S');
+    [[0,-34],[0,34],[-34,0],[34,0]].forEach(function(p2){ pdf.line(cx,cy,cx+p2[0],cy+p2[1]); }); }
+}
+function wikiThumb(q){
+  return fetch('https://en.wikipedia.org/api/rest_v1/page/summary/'+encodeURIComponent(q))
+    .then(function(r){return r.json();})
+    .then(function(d){ return (d.thumbnail&&d.thumbnail.source)? d.thumbnail.source.replace(/\/\d+px-/,'/640px-') : null; })
+    .catch(function(){ return null; });
+}
 function genPdf(){
   el('pdfOverlay').classList.remove('open');
-  showToast('Designing your itinerary\u2026 \ud83c\udfa8');
+  showToast('Designing your itinerary\u2026 \ud83c\udfa8 (10\u201320s)');
   loadJsPdf(function(){
     var C=PDF_CTX, d=C.d, days=Math.min(C.days||5,10);
     var name=(el('pdfName').value||'A Traveler').slice(0,26); lsSet('rw_name',name);
     var start = el('pdfDate').value ? new Date(el('pdfDate').value) : null;
     var o=window._pdfOpts, notes=(el('pdfNotes').value||'').slice(0,120);
+    /* Real AI plan if the user just built one for this destination */
+    var AIP=(window._lastItin && _lastItin.name===d.name && _lastItin.days)? _lastItin.days : null;
     var pdf=new window.jspdf.jsPDF({unit:'px',format:[600,800]});
-    var GOLD='#C8913E', CRIM='#C4302B', INK='#1A1A22', PAP='#F7F3EA', MUT='#6B675C';
-    function wm(){ /* RoamWise watermark under content */
-      try{
-        pdf.saveGraphicsState(); pdf.setGState(new pdf.GState({opacity:0.055}));
-        pdf.setTextColor(GOLD); pdf.setFont('helvetica','bold'); pdf.setFontSize(26);
-        for(var wy=90; wy<800; wy+=130) for(var wx=-60; wx<640; wx+=190)
-          pdf.text('ROAMWISE', wx, wy, {angle:32});
-        pdf.restoreGraphicsState();
-      }catch(e){}
+    var _rawText=pdf.text.bind(pdf), _rawSplit=pdf.splitTextToSize.bind(pdf);
+    function clean(s){ if(Array.isArray(s)) return s.map(clean);
+      return String(s==null?'':s)
+        .replace(/[\u2018\u2019\u02bc]/g,"'").replace(/[\u201c\u201d]/g,'"')
+        .replace(/[\u2013\u2014]/g,'-').replace(/\u2026/g,'...').replace(/\u20b9/g,'Rs ')
+        .replace(/[\u00b7\u2022]/g,'-')
+        .replace(/[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\u2190-\u21FF\uFE0F\u200D\u2726\u2713\u2B06-\u2B07]/gu,'')
+        .replace(/  +/g,' ').trim(); }
+    pdf.text=function(s,x2,y2,o){ return _rawText(clean(s),x2,y2,o); };
+    pdf.splitTextToSize=function(s,w){ return _rawSplit(clean(s),w); };
+    var THT=themeFor(d), THK=THT.key, TH={deep:THT.deep, acc:THT.acc, line:THT.line};
+    var GOLD='#C8913E', GOLD2='#E8BA6C', CRIM='#C4302B', INK='#1A1A22', PAP='#F7F3EA', MUT='#6B675C', DARK='#0E1018';
+    function wm(){
+      pdf.setTextColor(229,212,178); pdf.setFont('helvetica','bold'); pdf.setFontSize(23);
+      for(var wy=100;wy<790;wy+=128) for(var wx=-50;wx<640;wx+=185) pdf.text('ROAMWISE',wx,wy,{angle:31});
     }
     function page(bg){ pdf.setFillColor(bg||PAP); pdf.rect(0,0,600,800,'F'); }
-    function frame(){ pdf.setDrawColor(GOLD); pdf.setLineWidth(2); pdf.rect(18,18,564,764);
-      pdf.setLineWidth(.6); pdf.rect(26,26,548,748); }
-    function foot(pn){ pdf.setTextColor(MUT); pdf.setFontSize(8);
-      pdf.text('\u{1F977} ROAMWISE \u00b7 www.roamwise.co.in',300,776,{align:'center'});
-      pdf.text(String(pn),566,776); }
-    /* ---- COVER ---- */
-    page('#0E1018'); frame();
-    pdf.setTextColor('#8A8880'); pdf.setFontSize(11); pdf.text('A ROAMWISE PREMIUM ITINERARY',300,150,{align:'center'});
-    pdf.setTextColor('#E8BA6C'); pdf.setFont('times','bold'); pdf.setFontSize(42);
-    pdf.text(d.name.toUpperCase(),300,220,{align:'center'});
-    pdf.setFontSize(16); pdf.setFont('helvetica','normal'); pdf.setTextColor('#EDEAE2');
-    pdf.text((d.country||'')+'  \u00b7  '+days+' days  \u00b7  '+C.month,300,252,{align:'center'});
-    pdf.setDrawColor('#C4302B'); pdf.setLineWidth(2); pdf.line(240,275,360,275);
-    pdf.setTextColor('#B8B4A8'); pdf.setFontSize(13);
-    pdf.text('crafted for',300,330,{align:'center'});
-    pdf.setTextColor('#E8BA6C'); pdf.setFont('times','bolditalic'); pdf.setFontSize(26);
-    pdf.text(name,300,360,{align:'center'});
-    pdf.setFont('helvetica','normal'); pdf.setFontSize(11); pdf.setTextColor('#8A8880');
-    pdf.text(o.party+' \u00b7 '+o.pace+' pace'+(start?(' \u00b7 from '+start.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'})):''),300,390,{align:'center'});
-    if(notes){ pdf.setFontSize(10); pdf.text('\u201c'+notes+'\u201d',300,415,{align:'center'}); }
-    foot(1);
-    var pn=1, photo=(d.photos&&d.photos[0])||null;
-    var chain = photo? fetchImg64(photo).catch(function(){return null;}) : Promise.resolve(null);
-    chain.then(function(img){
-      if(img){ try{ pdf.addImage(img,'JPEG',150,450,300,200); pdf.setDrawColor(GOLD); pdf.rect(150,450,300,200);}catch(e){} }
-      /* ---- DAY PAGES ---- */
+    function frame(){ pdf.setDrawColor(GOLD); pdf.setLineWidth(2); pdf.rect(18,18,564,764); pdf.setLineWidth(.6); pdf.rect(26,26,548,748); }
+    function foot(pn){ pdf.setFillColor(DARK); pdf.rect(18,760,564,22,'F');
+      pdf.setTextColor(GOLD2); pdf.setFontSize(8);
+      pdf.text('\u{1F977} ROAMWISE \u00b7 www.roamwise.co.in \u00b7 crafted for '+name,300,774,{align:'center'});
+      pdf.setTextColor('#8A8880'); pdf.text(String(pn),566,774); }
+    var pn=1;
+    /* ---------- gather photos first (hero + up to 3 gems) ---------- */
+    function firstPlace(s){ return String(s||'').split(/,| at | - |\(/)[0].split(' ').slice(0,4).join(' ').trim(); }
+    var wants=[(d.photos&&d.photos[0])||null];
+    (d.gems||[]).slice(0,3).forEach(function(g){ wants.push({wiki:g+' '+(d.country||'')}); });
+    for(var di=0; di<days; di++){
+      var pl = AIP&&AIP[di]? firstPlace(AIP[di].morning) : ((d.gems||[])[di%Math.max(1,(d.gems||[]).length)]||'');
+      wants.push(pl? {wiki:pl+' '+(d.name||'')} : null);
+    }
+    function job(q,alt){ return wikiThumbSmart(q,alt).then(function(u){ return u? fetchImg64(u).catch(function(){return null;}) : null; }); }
+    var photoJobs = wants.map(function(w,wi){
+      if(!w) return job(d.name+' '+(d.country||''), d.name);
+      if(typeof w==='string') return fetchImg64(w).catch(function(){ return job(d.name+' '+(d.country||''), d.name); });
+      return job(w.wiki, String(w.wiki).split(' ').slice(0,2).join(' '));
+    });
+    Promise.all(photoJobs).then(function(imgs){
+      var hero=imgs[0], gemPics=imgs.slice(1,4).filter(Boolean), dayPics=imgs.slice(4);
+      /* ---------- COVER ---------- */
+      pdf.setFillColor(TH.deep[0],TH.deep[1],TH.deep[2]); pdf.rect(0,0,600,800,'F');
+      if(hero){ try{ pdf.addImage(hero,'JPEG',40,250,520,300);
+        pdf.setDrawColor(TH.acc[0],TH.acc[1],TH.acc[2]); pdf.setLineWidth(2); pdf.rect(40,250,520,300);
+      }catch(e){} }
+      frame();
+      drawMotif(pdf,THK,TH.acc,300,150);
+      pdf.setTextColor('#B8B4A8'); pdf.setFontSize(10); pdf.text('A  R O A M W I S E   P R E M I U M   I T I N E R A R Y',300,60,{align:'center'});
+      pdf.setTextColor(GOLD2); pdf.setFont('times','bold'); pdf.setFontSize(44);
+      pdf.text(d.name.toUpperCase(),300,214,{align:'center'});
+      pdf.setDrawColor(TH.acc[0],TH.acc[1],TH.acc[2]); pdf.setLineWidth(2.5); pdf.line(230,226,370,226);
+      pdf.setFont('times','italic'); pdf.setFontSize(13); pdf.setTextColor(TH.acc[0],TH.acc[1],TH.acc[2]);
+      pdf.text(TH.line,300,244,{align:'center'});
+      pdf.setFont('helvetica','normal'); pdf.setFontSize(14); pdf.setTextColor('#EDEAE2');
+      pdf.text((d.country||'')+'  -  '+days+' days  -  '+(C.month||''),300,578,{align:'center'});
+      pdf.setTextColor('#B8B4A8'); pdf.setFontSize(12); pdf.text('crafted for',300,620,{align:'center'});
+      pdf.setTextColor(GOLD2); pdf.setFont('times','bolditalic'); pdf.setFontSize(30); pdf.text(name,300,652,{align:'center'});
+      pdf.setFont('helvetica','normal'); pdf.setFontSize(11); pdf.setTextColor('#B8B4A8');
+      pdf.text(o.party+' - '+o.pace+' pace'+(start?(' - from '+start.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'})):''),300,676,{align:'center'});
+      if(notes){ pdf.setFontSize(10); pdf.text('"'+notes+'"',300,698,{align:'center'}); }
+      if(AIP){ pdf.setTextColor('#16BF96'); pdf.setFontSize(9.5); pdf.text('* Personalised by AI - real places, real timings *',300,720,{align:'center'}); }
+      foot(pn);
+      /* ---------- DAY PAGES: 6-slot cinematic timeline ---------- */
       var perDay=(d.cost&&d.cost.mid? Math.round(d.cost.mid/7):0);
-      var paceAdj = o.pace==='Relaxed'?0.8:(o.pace==='Packed'?1.25:1);
-      var segs=[['09:00','Morning'],['13:00','Afternoon'],['18:00','Evening']];
+      var paceAdj=o.pace==='Relaxed'?0.85:(o.pace==='Packed'?1.2:1);
+      var partyMul=o.party==='Couple'?1.8:(o.party==='Family'?3:1);
       for(var i=0;i<days;i++){
         pdf.addPage(); pn++; page(); wm(); frame();
-        var dt = start? new Date(start.getTime()+i*864e5):null;
-        pdf.setTextColor(CRIM); pdf.setFont('times','bold'); pdf.setFontSize(30);
-        pdf.text('Day '+(i+1),50,70);
-        pdf.setFont('helvetica','normal'); pdf.setFontSize(11); pdf.setTextColor(MUT);
-        pdf.text((dt? dt.toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long'}) : d.name+' \u00b7 '+C.month),50,88);
-        var t=(typeof DAY_TEMPLATES!=='undefined' && DAY_TEMPLATES[i])||{title:'Explore',morning:'Discover the neighbourhood',afternoon:'The must-see of the area',evening:'Local food street'};
-        pdf.setTextColor(INK); pdf.setFontSize(14); pdf.setFont('helvetica','bold');
-        pdf.text(t.title||'Exploration',50,112);
-        var y=140;
-        segs.forEach(function(sg,si){
-          var body=[t.morning,t.afternoon,t.evening][si]||'';
-          pdf.setFillColor('#EFE7D6'); pdf.roundedRect(44,y-14,512,58,6,6,'F');
-          pdf.setTextColor(GOLD); pdf.setFont('helvetica','bold'); pdf.setFontSize(11);
-          pdf.text(sg[0]+'  '+sg[1].toUpperCase(),56,y+2);
-          pdf.setTextColor(INK); pdf.setFont('helvetica','normal'); pdf.setFontSize(10.5);
-          pdf.text(pdf.splitTextToSize(body,480),56,y+18);
-          y+=76;
+        var A=AIP? AIP[i%AIP.length] : null;
+        var T2=(typeof DAY_TEMPLATES!=='undefined'&&DAY_TEMPLATES[i])||{};
+        var dt=start? new Date(start.getTime()+i*864e5):null;
+        /* day banner */
+        pdf.setFillColor(TH.deep[0],TH.deep[1],TH.deep[2]); pdf.rect(26,26,548,64,'F');
+        pdf.setFillColor(TH.acc[0],TH.acc[1],TH.acc[2]); pdf.circle(64,58,22,'F');
+        pdf.setTextColor('#fff'); pdf.setFont('times','bold'); pdf.setFontSize(22); pdf.text(String(i+1),64,66,{align:'center'});
+        pdf.setTextColor(GOLD2); pdf.setFontSize(17);
+        pdf.text((A&&A.title)||T2.title||'Exploration',100,52);
+        pdf.setFont('helvetica','normal'); pdf.setFontSize(9.5); pdf.setTextColor('#B8B4A8');
+        pdf.text((dt? dt.toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long'})+' - ':'')+d.name,100,68);
+        try{ drawMotif(pdf,THK,TH.acc,505,58); }catch(e){}
+        if(i===0 && notes){ pdf.setTextColor(TH.acc[0],TH.acc[1],TH.acc[2]); pdf.setFontSize(9);
+          pdf.text('Special focus: '+notes, 100, 82); }
+        /* timeline */
+        var slots=[
+          ['07:30','\u2600\ufe0f Sunrise start', A? 'Beat every crowd \u2014 golden light + empty streets before the day begins.' : 'Sunrise walk \u2014 the city belongs to you for one hour.'],
+          ['09:00','\ud83c\udfdb Morning', (A&&A.morning)||T2.morning||'Headline sight at opening time.'],
+          ['11:30','\u2615 Pause', 'Coffee/chai stop \u2014 pick the busiest local caf\u00e9 you can find; busy = good.'],
+          ['13:30','\ud83c\udf7d Lunch + afternoon', (A&&A.afternoon)||T2.afternoon||'Neighbourhood deep-dive after a local lunch.'],
+          ['16:30','\ud83d\udcf8 Golden hour', 'Viewpoint or waterfront for the light; photos now, shopping after dark.'],
+          ['19:00','\ud83c\udf19 Evening', (A&&A.evening)||T2.evening||'Food street dinner \u2014 order what the longest queue orders.']
+        ];
+        var dp=dayPics[i], TXW=452;
+        if(dp){ try{ pdf.addImage(dp,'JPEG',384,102,172,116);
+          pdf.setDrawColor(TH.acc[0],TH.acc[1],TH.acc[2]); pdf.setLineWidth(1.5); pdf.rect(384,102,172,116); TXW=286; }catch(e){ TXW=452; dp=null; } }
+        var y=112; pdf.setDrawColor(TH.acc[0],TH.acc[1],TH.acc[2]); pdf.setLineWidth(1.4); pdf.line(58,y-4,58,y+slots.length*58-26);
+        slots.forEach(function(sg,si){
+          pdf.setFillColor(TH.acc[0],TH.acc[1],TH.acc[2]); pdf.circle(58,y+6,4,'F');
+          pdf.setTextColor(TH.acc[0],TH.acc[1],TH.acc[2]); pdf.setFont('helvetica','bold'); pdf.setFontSize(10.5); pdf.text(sg[0],74,y);
+          pdf.setTextColor(INK); pdf.text(sg[1],112,y);
+          pdf.setFont('helvetica','normal'); pdf.setFontSize(11);
+          pdf.text(pdf.splitTextToSize(sg[2], (si<2&&dp)? TXW:452),74,y+15);
+          y+=58;
         });
-        if(t.tip){ pdf.setFillColor('#F3E2C0'); pdf.roundedRect(44,y-10,512,44,6,6,'F');
-          pdf.setTextColor('#7A5A16'); pdf.setFontSize(10);
-          pdf.text(pdf.splitTextToSize('\ud83e\udd77 Ninja tip: '+t.tip,480),56,y+6); y+=60; }
-        /* food of the day + budget line */
-        var f=(d.food||[])[i%Math.max(1,(d.food||[]).length)];
-        if(f){ pdf.setTextColor(CRIM); pdf.setFontSize(10.5); pdf.text('\ud83c\udf7d Eat today: '+f,50,y+8); y+=20; }
-        if(perDay){ pdf.setTextColor(MUT); pdf.setFontSize(10);
-          pdf.text('\ud83d\udcb0 Day budget (mid, '+o.party.toLowerCase()+'): ~$'+Math.round(perDay*paceAdj*(o.party==='Couple'?1.8:(o.party==='Family'?3:(o.party==='Friends'?1:1)))),50,y+8); }
+        /* food + tip + budget band */
+        var fd=(A&&A.food)||((d.food||[])[i%Math.max(1,(d.food||[]).length)]||'');
+        pdf.setFillColor('#F3E2C0'); pdf.roundedRect(44,y-8,512,58,7,7,'F');
+        pdf.setTextColor('#7A2E1E'); pdf.setFont('helvetica','bold'); pdf.setFontSize(10);
+        pdf.text('\ud83c\udf5b EAT TODAY',56,y+8);
+        pdf.setFont('helvetica','normal'); pdf.setTextColor(INK); pdf.setFontSize(10);
+        pdf.text(pdf.splitTextToSize(fd||'Ask three locals one question: \u201cwhere do YOU eat?\u201d',300),56,y+22);
+        pdf.setTextColor('#7A5A16'); pdf.setFontSize(9);
+        pdf.text(pdf.splitTextToSize('\ud83e\udd77 '+((A&&A.tip)||T2.tip||'Carry small notes; big bills slow every purchase.'),190),380,y+8);
+        if(perDay){ pdf.setTextColor(MUT); pdf.setFontSize(9.5);
+          pdf.text('\ud83d\udcb0 Day budget ('+o.party.toLowerCase()+', '+o.pace.toLowerCase()+'): ~$'+Math.round(perDay*paceAdj*partyMul),44,y+66); }
         foot(pn);
       }
-      /* ---- ESSENTIALS PAGE ---- */
+      /* ---------- FOOD & CULTURE PAGE ---------- */
       pdf.addPage(); pn++; page(); wm(); frame();
-      pdf.setTextColor(CRIM); pdf.setFont('times','bold'); pdf.setFontSize(26); pdf.text('Essentials',50,70);
-      var y2=100;
-      function h(t2){ pdf.setTextColor(GOLD); pdf.setFont('helvetica','bold'); pdf.setFontSize(12); pdf.text(t2,50,y2); y2+=16; pdf.setTextColor(INK); pdf.setFont('helvetica','normal'); pdf.setFontSize(10.5); }
-      if(d.cost){ h('\ud83d\udcb0 Budget bands (per person / week)');
-        [['Backpacker','$'+d.cost.budget],['Mid-range','$'+d.cost.mid],['Luxury','$'+d.cost.luxury]].forEach(function(r2){
-          pdf.text(r2[0],56,y2); pdf.text(String(r2[1]),200,y2); y2+=15; }); y2+=8; }
-      if(d.visa){ h('\ud83d\udec2 Visa (Indian passport)');
-        pdf.text(pdf.splitTextToSize((d.visa.type||'')+' \u00b7 '+(d.visa.cost||'')+' \u00b7 up to '+(d.visa.days||'')+' days. '+(d.visa.note||''),490),56,y2); y2+=42; }
-      if(d.gems&&d.gems.length){ h('\ud83d\udc8e Hidden gems');
-        d.gems.slice(0,4).forEach(function(g){ pdf.text('\u2022 '+g,56,y2); y2+=15; }); y2+=8; }
-      h('\ud83c\udd98 Emergency'); pdf.text('Global: 112 \u00b7 India: 112 / Ambulance 108 \u00b7 Save your embassy number offline',56,y2); y2+=26;
-      h('\u2713 Pack'); pdf.text(pdf.splitTextToSize('Passport+copies \u00b7 insurance \u00b7 offline maps \u00b7 power bank \u00b7 meds/ORS \u00b7 rain shell \u00b7 broken-in shoes \u00b7 cash in small notes',490),56,y2);
-      pdf.setTextColor(MUT); pdf.setFontSize(9);
-      pdf.text('Generated '+new Date().toLocaleDateString('en-IN')+' \u00b7 figures indicative \u2014 verify before booking',50,740);
+      pdf.setTextColor(CRIM); pdf.setFont('times','bold'); pdf.setFontSize(26); pdf.text('Food, Culture & Specialities',44,64);
+      var y3=92; pdf.setTextColor(GOLD); pdf.setFont('helvetica','bold'); pdf.setFontSize(12); pdf.text('\ud83c\udf7d The plates that define '+d.name,44,y3); y3+=16;
+      pdf.setTextColor(INK); pdf.setFont('helvetica','normal'); pdf.setFontSize(10.5);
+      (d.food&&d.food.length? d.food:['Follow the queues \u2014 locals vote with their feet']).slice(0,6).forEach(function(f){ pdf.text('\u2022 '+f,52,y3); y3+=15; });
+      y3+=10; pdf.setTextColor(GOLD); pdf.setFont('helvetica','bold'); pdf.setFontSize(12); pdf.text('\ud83d\udc8e Local specialities & hidden gems',44,y3); y3+=16;
+      pdf.setTextColor(INK); pdf.setFont('helvetica','normal'); pdf.setFontSize(10.5);
+      (d.gems&&d.gems.length? d.gems:['The best gem is an unplanned afternoon']).slice(0,5).forEach(function(g){ pdf.text(pdf.splitTextToSize('\u2022 '+g,500),52,y3); y3+=15; });
+      y3+=10; pdf.setTextColor(GOLD); pdf.setFont('helvetica','bold'); pdf.setFontSize(12); pdf.text('\ud83e\udd1d Culture in 4 lines',44,y3); y3+=16;
+      pdf.setTextColor(INK); pdf.setFont('helvetica','normal'); pdf.setFontSize(10.5);
+      ['Greet before you ask \u2014 two seconds of hello changes every interaction.','Dress one notch more modestly at religious sites than the street suggests.','Haggling is a smile game where both sides should win.','Photograph people only after a nod \u2014 the nod is the picture\u2019s soul.'].forEach(function(c2){ pdf.text(pdf.splitTextToSize('\u2022 '+c2,500),52,y3); y3+=15; });
+      /* gem photo strip */
+      if(gemPics.length){ var gx=44;
+        gemPics.slice(0,3).forEach(function(im){ try{ pdf.addImage(im,'JPEG',gx,y3+8,164,110); pdf.setDrawColor(GOLD); pdf.rect(gx,y3+8,164,110); gx+=172; }catch(e){} });
+        y3+=126; }
       foot(pn);
-      /* ---- OUTPUT ---- */
+      /* ---------- ESSENTIALS ---------- */
+      pdf.addPage(); pn++; page(); wm(); frame();
+      pdf.setTextColor(CRIM); pdf.setFont('times','bold'); pdf.setFontSize(26); pdf.text('Essentials',44,64);
+      var y2=94;
+      function h(t3){ pdf.setTextColor(GOLD); pdf.setFont('helvetica','bold'); pdf.setFontSize(12); pdf.text(t3,44,y2); y2+=16; pdf.setTextColor(INK); pdf.setFont('helvetica','normal'); pdf.setFontSize(10.5); }
+      if(d.cost){ h('Budget bands (per person / week)');
+        var mx3=d.cost.luxury||1;
+        [['Backpacker',d.cost.budget],['Mid-range',d.cost.mid],['Luxury',d.cost.luxury]].forEach(function(r2){
+          pdf.setTextColor(INK); pdf.text(r2[0],52,y2);
+          pdf.setFillColor(238,231,214); pdf.rect(150,y2-8,300,10,'F');
+          pdf.setFillColor(TH.acc[0],TH.acc[1],TH.acc[2]); pdf.rect(150,y2-8,Math.max(8,300*(r2[1]/mx3)),10,'F');
+          pdf.setTextColor(MUT); pdf.text('$'+r2[1],458,y2);
+          y2+=17; }); y2+=8;
+        if(d.crowd){ pdf.setTextColor(TH.acc[0],TH.acc[1],TH.acc[2]); pdf.setFont('helvetica','bold'); pdf.setFontSize(10);
+          pdf.text('Crowd by month (J F M A M J J A S O N D)',52,y2); y2+=8;
+          for(var ci=0; ci<12; ci++){ var cv=d.crowd[ci];
+            pdf.setFillColor(cv<35?60:(cv<60?224:214), cv<35?176:(cv<60?150:82), cv<35?120:(cv<60?54:74));
+            pdf.rect(52+ci*33, y2, 26, 12*(cv/100)+3, 'F'); }
+          y2+=26; } }
+      if(d.visa){ h('\ud83d\udec2 Visa (Indian passport)');
+        pdf.text(pdf.splitTextToSize((d.visa.type||'')+' \u00b7 '+(d.visa.cost||'')+' \u00b7 up to '+(d.visa.days||'')+' days. '+(d.visa.note||''),500),52,y2); y2+=44; }
+      h('\ud83c\udd98 Emergency'); pdf.text('Global 112 \u00b7 India 112 / Ambulance 108 \u00b7 keep your embassy number offline',52,y2); y2+=26;
+      h('Pack checklist');
+      ['Passport + copies','Travel insurance','Offline maps','Power bank + cables','Meds / ORS','Rain shell','Broken-in shoes','Cash in small notes'].forEach(function(pk,pi){
+        var px=52+(pi%2)*250, py=y2+Math.floor(pi/2)*16;
+        pdf.setDrawColor(TH.acc[0],TH.acc[1],TH.acc[2]); pdf.rect(px,py-8,9,9,'S');
+        pdf.setTextColor(INK); pdf.text(pk,px+16,py); });
+      y2+=Math.ceil(8/2)*16+10;
+      h('\ud83d\udcf1 Your pocket guide'); pdf.text('Live crowd calendars, budgets and this itinerary\u2019s AI twin: www.roamwise.co.in',52,y2);
+      pdf.setTextColor(MUT); pdf.setFontSize(9); pdf.text('Generated '+new Date().toLocaleDateString('en-IN')+' \u00b7 figures indicative \u2014 verify before booking',44,742);
+      foot(pn);
+      /* ---------- OUTPUT ---------- */
       var fname='roamwise-'+d.name.toLowerCase().replace(/[^a-z0-9]+/g,'-')+'-itinerary.pdf';
       if(window.RW && RW.saveCard){ RW.saveCard(pdf.output('datauristring')); showToast('\ud83d\udcd5 PDF saved to Downloads/RoamWise \u2014 open it from your notifications'); }
-      else {
-        try{
-          var blob=pdf.output('blob'); var u=URL.createObjectURL(blob);
-          var w2=window.open(u,'_blank');
-          if(w2) showToast('\ud83d\udc41 Preview opened \u2014 hit the viewer\u2019s \u2b07 to save');
-          else pdf.save(fname);
-        }catch(e){ pdf.save(fname); }
-      }
+      else { try{ var u=URL.createObjectURL(pdf.output('blob')); var w2=window.open(u,'_blank');
+          if(w2) showToast('\ud83d\udc41 Preview opened \u2014 hit the viewer\u2019s \u2b07 to save'); else pdf.save(fname);
+        }catch(e){ pdf.save(fname); } }
       xpAdd(20,'Premium itinerary forged');
       try{ track('pdf_generated'); }catch(e){}
     });
   });
 }
 
-/* ===== EVENT RADAR — the world's biggest moments as travel triggers ===== */
+/* ===== EVENT RADAR/* ===== EVENT RADAR — the world's biggest moments as travel triggers ===== */
 var EVENTS=[
 {id:'fifa26',ic:'\u26bd',n:'FIFA World Cup 2026',from:'2026-06-11',to:'2026-07-19',city:'New York',month:6,ac:'#1F8A3B',
  places:'USA \u00b7 Mexico \u00b7 Canada \u2014 16 host cities',idea:'Fan-fest cities beat stadium cities on price: watch group games in Mexico City (electric + cheap), semis atmosphere in NYC. Book stays 40km out on transit lines \u2014 half price, 30 min in.'},
@@ -1979,7 +2343,28 @@ function renderEvents(){
       +'<button class="tact red" style="margin-top:9px;width:100%" onclick="eventPlan(\''+e.id+'\')">'+(live?'\ud83d\udd25 Plan it now':'\ud83d\uddd3 Build the itinerary')+'</button></div>';
   }).join('');
 }
-document.addEventListener('DOMContentLoaded', function(){ try{ renderEventBanner(); renderEvents(); }catch(e){} });
+function renderSpotlight(){
+  var host=el('brief'); if(!host) return;
+  var live=activeEvents(), e=live[0];
+  var doy=Math.floor((Date.now()-new Date(new Date().getFullYear(),0,0))/864e5);
+  var dod=(typeof DB!=='undefined' && DB.length)? DB[doy%DB.length] : null;
+  var title, sub, city, ac, yt;
+  if(e){ title=e.ic+' '+e.n; sub=e.idea; city=e.city; ac=e.ac; yt=e.n+' travel guide'; }
+  else if(dod){ title='\ud83c\udf0d Spotlight: '+dod.name; sub='Today\u2019s destination of the day \u2014 tap Plan for the crowd calendar, budget and itinerary.'; city=dod.name; ac='#C8913E'; yt=dod.name+' travel guide 4k'; }
+  else return;
+  var card=document.createElement('div');
+  card.className='exp';
+  card.style.cssText='margin:12px 0 0;border-color:'+ac+'66;background:linear-gradient(135deg,'+ac+'14,transparent)';
+  card.innerHTML='<div class="exp-ic">\ud83c\udfaf <span style="font-size:9px;color:#fff;background:'+ac+';border-radius:99px;padding:2px 8px;vertical-align:middle">TODAY\u2019S THEME</span></div>'
+    +'<div class="exp-name">'+title+'</div>'
+    +'<div class="exp-desc">'+sub+'</div>'
+    +'<div style="display:flex;gap:7px;margin-top:10px">'
+    +'<button class="tact red" style="flex:1" onclick="'+(e? 'eventPlan(\''+e.id+'\')' : '(function(){el(\'destInput\').value=\''+city.replace(/'/g,'')+'\';tabGo(\'plan\')})()')+'">\ud83d\uddd3 Plan this</button>'
+    +'<a class="tact" style="flex:1;text-align:center;text-decoration:none" target="_blank" rel="noopener" href="https://www.youtube.com/results?search_query='+encodeURIComponent(yt)+'">\u25b6 Watch</a></div>'
+    +'<div style="font-size:10px;color:var(--gold2);margin-top:8px">\ud83d\udd25 Founding offer live: lifetime Pro \u20b9100 \u2014 rises after the first wave</div>';
+  host.appendChild(card);
+}
+document.addEventListener('DOMContentLoaded', function(){ try{ renderEventBanner(); renderEvents(); renderSpotlight(); renderTicker(); renderForYou(); }catch(e){} });
 
 /* ===== FUNNEL TRACKER — anonymous daily counters for the owner dashboard ===== */
 function track(ev){
@@ -2114,6 +2499,22 @@ var HS=[
  ['Folding only','Full-size cycles need roof racks rental companies refuse \u2014 folders fit any hatchback boot','Decathlon Tilt \u00b7 Tern \u00b7 Brompton'],
  ['The workflow','Park at the old-city edge \u2192 unfold in 30 seconds \u2192 glide past every jam and into the tiny lanes','Cities & fort towns'],
  ['Bonus','Cycle mode in RoamWise cuts your budget estimate ~40% automatically','Try it in Plan']]],
+['\ud83d\udeeb Major airports - your 26 launchpads',[
+ ['North','DEL Delhi - IXC Chandigarh - ATQ Amritsar - SXR Srinagar - IXL Leh - DED Dehradun - JAI Jaipur - LKO Lucknow - VNS Varanasi','Himalaya + heartland'],
+ ['West','BOM Mumbai - PNQ Pune - AMD Ahmedabad - GOI/GOX Goa - IDR Indore','Coast + business'],
+ ['South','BLR Bengaluru - MAA Chennai - HYD Hyderabad - COK Kochi - TRV Trivandrum - IXM Madurai','Tech + temples + beaches'],
+ ['East & NE','CCU Kolkata - BBI Bhubaneswar - PAT Patna - IXR Ranchi - GAU Guwahati - IXB Bagdogra','Gateways to the wild east'],
+ ['Islands','IXZ Port Blair (Andamans)','Book 60+ days out']]],
+['\ud83d\ude84 Vande Bharat - the premium web (key routes)',[
+ ['Himalaya feeders','Delhi-Dehradun - Delhi-Katra (Vaishno Devi) - Delhi-Amb Andaura (Kangra) - NJP-Guwahati','Mountains by breakfast'],
+ ['Golden routes','Delhi-Varanasi - Delhi-Bhopal - Mumbai-Gandhinagar - Mumbai-Shirdi - Mumbai-Solapur','Business + pilgrimage'],
+ ['South web','Chennai-Mysuru - Chennai-Coimbatore - Bengaluru-Dharwad - Kasaragod-Trivandrum - Secunderabad-Vizag','Day-hop the peninsula'],
+ ['East & more','Howrah-NJP (Darjeeling gateway) - Howrah-Puri - Patna-Ranchi - Bilaspur-Nagpur - Jodhpur-Sabarmati','Check IRCTC for the newest of 100+ pairs']]],
+['\ud83c\udfe0 Best base city for all-India travel',[
+ ['\ud83c\udfc6 The verdict: DELHI','Max flight web (India\u2019s busiest hub, cheapest average domestic fares), the densest Vande Bharat + Rajdhani spokes, AND the only metro 4-8h from the entire Himalaya - Uttarakhand, Himachal, Kashmir, Ladakh flights.','Save 20-35% on travel spend vs coastal bases'],
+ ['Runner-up: BENGALURU','Best base if your map is South-heavy - Kerala, Tamil Nadu, Goa, Hampi all within cheap hops; weather bonus year-round.','South specialist'],
+ ['Why not Mumbai?','Great international + west coast, but Himalaya trips always cost one extra flight and 2+ extra hours.','Premium priced too'],
+ ['The hybrid hack','Base Delhi Oct-Mar (mountain + desert season), migrate to Bengaluru Apr-Sep (monsoon south is magic). Two sublets beat one lease.','Nomad optimum']]],
 ['\ud83d\uddfa\ufe0f Example: Rajasthan loop',[
  ['1. Fly','Delhi/Mumbai \u2192 Jaipur (fastest entry)','2 hrs'],
  ['2. Drive','Airport SUV pickup, folded cycle in boot \u2192 Jodhpur \u2192 Udaipur','Flexible days'],
@@ -2316,13 +2717,13 @@ function makeCard(){
   var L=logGet(); if(!L.length) return showToast('Log at least one place first');
   askName(function(name){
     /* Painting-grade dark world map — CARTO dark tiles, zoom 2 (4x4 grid) */
-    var Z=2, N=4, need=N*N, fail=false, tiles=[];
+    var Z=3, N=8, need=N*N, fail=false, tiles=[]; tiles.N=N;
     showToast('Painting your world\u2026 \ud83c\udfa8');
     for(var ty=0;ty<N;ty++) for(var tx=0;tx<N;tx++) (function(tx,ty){
       var im=new Image(); im.crossOrigin='anonymous';
       im.onload=function(){ tiles[ty*N+tx]=im; if(--need===0) drawCard(L,name,fail?null:tiles); };
       im.onerror=function(){ fail=true; if(--need===0) drawCard(L,name,null); };
-      im.src='https://'+(['a','b','c'][ (tx+ty)%3 ])+'.basemaps.cartocdn.com/dark_nolabels/'+Z+'/'+tx+'/'+ty+'.png';
+      im.src='https://'+(['a','b','c'][ (tx+ty)%3 ])+'.basemaps.cartocdn.com/dark_all/'+Z+'/'+tx+'/'+ty+'.png';
     })(tx,ty);
   });
 }
@@ -2368,19 +2769,19 @@ function drawCard(L, name, tiles){
   x.fillStyle='#B8B4A8'; x.font='italic 400 19px Georgia,serif';
   x.fillText('\u201c'+(PRAISE[r[1]]||PRAISE.Genin)+'\u201d', W/2, 205);
   /* ===== MAP PLATE ===== */
-  var MX=86, MY=250, MW=W-172, MH=Math.round(MW*0.62);   /* 1028 x 637 — fuller Mercator */
+  var MX=70, MY=246, MW=W-140, MH=Math.round(MW*0.70);   /* 1060 x 742 — big, label-detailed */
   x.save();
   x.shadowColor='rgba(0,0,0,.6)'; x.shadowBlur=26; x.shadowOffsetY=8;
   x.fillStyle='#0A0A12'; x.fillRect(MX-6,MY-6,MW+12,MH+12);
   x.restore();
   if(tiles){
-    var tw=MW/4, th=MH/4;
-    for(var ty=0;ty<4;ty++) for(var tx=0;tx<4;tx++){
-      var im=tiles[ty*4+tx]; if(im) x.drawImage(im, MX+tx*tw, MY+ty*th, tw, th);
+    var TN=tiles.N||4, tw=MW/TN, th=MH/TN;
+    for(var ty=0;ty<TN;ty++) for(var tx=0;tx<TN;tx++){
+      var im=tiles[ty*TN+tx]; if(im) x.drawImage(im, MX+tx*tw, MY+ty*th, tw, th);
     }
-    /* warm painterly grade */
-    x.save(); x.globalCompositeOperation='overlay'; x.fillStyle='rgba(90,70,140,.25)'; x.fillRect(MX,MY,MW,MH);
-    x.globalCompositeOperation='soft-light'; x.fillStyle='rgba(232,186,108,.12)'; x.fillRect(MX,MY,MW,MH); x.restore();
+    /* gentle warm grade — keep place labels readable */
+    x.save(); x.globalCompositeOperation='overlay'; x.fillStyle='rgba(90,70,140,.13)'; x.fillRect(MX,MY,MW,MH);
+    x.globalCompositeOperation='soft-light'; x.fillStyle='rgba(232,186,108,.08)'; x.fillRect(MX,MY,MW,MH); x.restore();
   } else {
     /* offline fallback \u2014 stylized continents */
     x.fillStyle='#141225'; x.fillRect(MX,MY,MW,MH);
@@ -2390,29 +2791,36 @@ function drawCard(L, name, tiles){
   }
   x.strokeStyle='#E8BA6C'; x.lineWidth=2.5; x.strokeRect(MX,MY,MW,MH);
   /* pins + arcs */
-  function proj(e){ if(e.lat===undefined) return null;
+  function proj(e){
+    if(typeof e.lat!=='number' || typeof e.lon!=='number' || !isFinite(e.lat) || !isFinite(e.lon)) return null;
     return [MX+(e.lon+180)/360*MW, MY+mercY(Math.max(-84,Math.min(84,e.lat)),MH)]; }
   var pts=[], legend=[];
-  L.forEach(function(e,i){ var p=proj(e); legend.push({n:logName(e),p:p}); if(p) pts.push({p:p,i:legend.length}); });
+  L.forEach(function(e,i){ var p=proj(e); legend.push({n:logName(e),p:p}); if(p) pts.push({p:p,num:legend.length}); });
+  window._rwCine={pts:pts.map(function(o){return {x:o.p[0],y:o.p[1],num:o.num};}), names:legend.map(function(g){return g.n;}), name:name, W:W, H:H};
   /* golden arcs between consecutive located pins */
   x.save(); x.setLineDash([7,6]); x.lineWidth=2.6;
+  x.beginPath(); x.rect(MX,MY,MW,MH); x.clip();   /* arcs stay inside the map plate */
   for(var i=0;i<pts.length-1;i++){
     var a=pts[i].p, b=pts[i+1].p;
-    var mx2=(a[0]+b[0])/2, my2=Math.min(a[1],b[1])-Math.min(80, Math.abs(a[0]-b[0])*0.25)-14;
+    if(!a||!b) continue;
     var grad=x.createLinearGradient(a[0],a[1],b[0],b[1]);
     grad.addColorStop(0,'rgba(232,186,108,.9)'); grad.addColorStop(1,'rgba(196,48,43,.9)');
     x.strokeStyle=grad;
-    x.beginPath(); x.moveTo(a[0],a[1]); x.quadraticCurveTo(mx2,my2,b[0],b[1]); x.stroke();
+    x.beginPath();
+    if(Math.abs(a[0]-b[0]) > MW*0.55){ x.moveTo(a[0],a[1]); x.lineTo(b[0],b[1]); }   /* huge hops: straight, no wild arc */
+    else { var my2=Math.max(MY+8, Math.min(a[1],b[1]) - Math.min(70, Math.abs(a[0]-b[0])*0.25) - 12);
+      x.moveTo(a[0],a[1]); x.quadraticCurveTo((a[0]+b[0])/2, my2, b[0], b[1]); }
+    x.stroke();
   }
   x.restore();
   /* numbered glowing pins */
-  pts.forEach(function(o,idx){
+  pts.forEach(function(o){
     var p=o.p;
     x.save(); x.shadowColor='rgba(232,186,108,.9)'; x.shadowBlur=14;
     x.fillStyle='#C4302B'; x.beginPath(); x.arc(p[0],p[1],12,0,7); x.fill(); x.restore();
     x.fillStyle='#E8BA6C'; x.beginPath(); x.arc(p[0],p[1],8.5,0,7); x.fill();
     x.fillStyle='#0A0A12'; x.font='700 11px Outfit,Arial'; x.textAlign='center';
-    x.fillText(String(idx+1), p[0], p[1]+4);
+    x.fillText(String(o.num), p[0], p[1]+4);
   });
   x.fillStyle='#54524C'; x.font='400 10px Outfit,Arial'; x.textAlign='right';
   x.fillText('Map \u00a9 OpenStreetMap contributors \u00a9 CARTO', MX+MW-6, MY+MH-8);
@@ -2481,6 +2889,7 @@ function drawCard(L, name, tiles){
   var url=c.toDataURL('image/png');
   el('cardImg').src=url; el('cardImg').style.display='block';
   el('cardBtns').style.display='flex';
+  var mb=el('movieBtn'); if(mb) mb.style.display='block';
   var un=L.filter(function(e){return e.lat===undefined;}).length;
   if(un) showToast(un+' place(s) still locating \u2014 regenerate in a minute for full pins');
   else showToast('Souvenir-grade \u2014 2400\u00d73200px, ready to print & frame \ud83d\uddbc\ufe0f');
@@ -2520,6 +2929,145 @@ function cardShare(){
         .then(function(){ xpAdd(15,'Card shared \u2014 spreading the legend'); }).catch(function(){});
     } else { cardPNG(); showToast('Saved \u2014 now share it from your gallery to Insta/WhatsApp'); }
   },'image/png');
+}
+
+/* ===== JOURNEY MOVIE — cinematic canvas render with music ===== */
+function openMovie(){
+  if(!window._rwCard || !window._rwCine){ showToast('Forge your Journey Card first \u2014 then the movie'); return; }
+  if((_rwCine.pts||[]).length<2){ showToast('Log at least 2 located places for a movie'); return; }
+  try{ track('video_opens'); }catch(e){}
+  if(isPro || lsGet('rw_movie_ok')) return cineRender();
+  var ov=el('movOverlay');
+  if(!ov){ ov=document.createElement('div'); ov.id='movOverlay'; ov.className='overlay';
+    ov.innerHTML='<div class="modal" style="max-width:400px"><button class="modal-close" onclick="el(\'movOverlay\').classList.remove(\'open\')">\u00d7</button>'
+    +'<div class="modal-head"><div class="modal-title">\ud83c\udfac Journey Movie</div><div class="modal-sub">Your travels as a cinematic reel \u00b7 music \u00b7 chapters</div></div>'
+    +'<div class="modal-body"><div class="mode-box" style="margin-bottom:10px">\ud83d\udcb0 <b>\u20b950 one-off</b> \u2014 or free with Pro. Pay via any UPI app to <b>coolmohit@ybl</b>, then render.</div>'
+    +'<button class="tact" style="width:100%;margin-bottom:8px" onclick="payVia(\'generic50\')">\ud83d\udcb3 Pay \u20b950 via UPI</button>'
+    +'<button class="rzp-main-btn" onclick="lsSet(\'rw_movie_ok\',\'1\');el(\'movOverlay\').classList.remove(\'open\');cineRender()">\u2705 I\u2019ve paid \u20b950 \u2014 Render my movie</button>'
+    +'<div style="font-size:10px;color:var(--t3);text-align:center;margin-top:6px">Honor system \u2014 you\u2019re funding a solo Himalayan builder \ud83c\udfd4\ufe0f</div></div></div>';
+    document.body.appendChild(ov); }
+  ov.classList.add('open');
+}
+function cineMusic(ctx, dest, dur){
+  /* dark shinobi phonk: 88bpm kick + 808 + hat + minor cowbell motif */
+  var bpm=88, beat=60/bpm, t0=ctx.currentTime+0.05;
+  function kick(t){ var o=ctx.createOscillator(), g=ctx.createGain();
+    o.frequency.setValueAtTime(150,t); o.frequency.exponentialRampToValueAtTime(42,t+0.11);
+    g.gain.setValueAtTime(.9,t); g.gain.exponentialRampToValueAtTime(.001,t+0.24);
+    o.connect(g); g.connect(dest); o.start(t); o.stop(t+0.26); }
+  function bass(t,f,d){ var o=ctx.createOscillator(), g=ctx.createGain(); o.type='triangle';
+    o.frequency.setValueAtTime(f,t); g.gain.setValueAtTime(.4,t); g.gain.exponentialRampToValueAtTime(.001,t+d);
+    o.connect(g); g.connect(dest); o.start(t); o.stop(t+d); }
+  function hat(t){ var b=ctx.createBuffer(1,2000,ctx.sampleRate), dd=b.getChannelData(0);
+    for(var i=0;i<2000;i++) dd[i]=(Math.random()*2-1)*Math.pow(1-i/2000,2);
+    var s=ctx.createBufferSource(), g=ctx.createGain(), f=ctx.createBiquadFilter();
+    f.type='highpass'; f.frequency.value=8000; g.gain.value=.16;
+    s.buffer=b; s.connect(f); f.connect(g); g.connect(dest); s.start(t); }
+  function bell(t,f){ var o=ctx.createOscillator(), g=ctx.createGain(); o.type='square';
+    o.frequency.setValueAtTime(f,t); g.gain.setValueAtTime(.14,t); g.gain.exponentialRampToValueAtTime(.001,t+beat*0.9);
+    var fl=ctx.createBiquadFilter(); fl.type='bandpass'; fl.frequency.value=f*2;
+    o.connect(fl); fl.connect(g); g.connect(dest); o.start(t); o.stop(t+beat); }
+  var mel=[220,262,196,220, 175,220,262,330, 220,196,175,196, 220,262,220,175]; /* Am minor motif */
+  var bars=Math.ceil(dur/(beat*4));
+  for(var b2=0;b2<bars;b2++){
+    var bt=t0+b2*beat*4;
+    [0,1,2,3].forEach(function(q){ kick(bt+q*beat); hat(bt+q*beat+beat/2); if(q===1||q===3) hat(bt+q*beat+beat*0.75); });
+    bass(bt,55,beat*1.8); bass(bt+beat*2,49,beat*1.8);
+    [0,1,2,3].forEach(function(q){ bell(bt+q*beat, mel[(b2*4+q)%mel.length]); });
+  }
+}
+function cineRender(opts){
+  opts=opts||{};
+  showToast('\ud83c\udfac Rolling\u2026 rendering your movie (\u224815\u201325s)');
+  try{ track('video_made'); }catch(e){}
+  var C=_rwCine, src=_rwCard, S=2; /* card drawn at 2x */
+  var VW=1080, VH=1920, cv=document.createElement('canvas'); cv.width=VW; cv.height=VH;
+  var x=cv.getContext('2d');
+  var legs=C.pts.filter(function(p){return p && isFinite(p.x) && isFinite(p.y);});
+  legs=legs.filter(function(p,i){ return i===0 || Math.abs(p.x-legs[i-1].x)+Math.abs(p.y-legs[i-1].y) > 4; }).slice(0,8);
+  if(legs.length<2){ showToast('Need 2+ located places for a movie'); return; }
+  var test=!!window._cineTest;
+  var INTRO=test?0.6:2.2, LEG=test?0.4:2.6, OUTRO=test?0.8:3.2;
+  var DUR=INTRO+legs.length*LEG+OUTRO;
+  /* audio */
+  var AC=window.AudioContext||window.webkitAudioContext, ctx=null, dest=null;
+  if(!opts.mute){ try{ ctx=new AC(); try{ctx.resume();}catch(e2){} dest=ctx.createMediaStreamDestination(); cineMusic(ctx,dest,DUR);}catch(e){} }
+  var stream=cv.captureStream(30);
+  if(dest && dest.stream.getAudioTracks().length) stream.addTrack(dest.stream.getAudioTracks()[0]);
+  var mime=['video/webm;codecs=vp8,opus','video/webm;codecs=vp9,opus','video/webm'].find(function(m){return window.MediaRecorder && MediaRecorder.isTypeSupported(m);});
+  if(!mime){ showToast('Video not supported in this browser \u2014 try Chrome'); return; }
+  var rec=new MediaRecorder(stream,{mimeType:mime, videoBitsPerSecond: 5e6}), chunks=[];
+  rec.ondataavailable=function(e){ if(e.data.size) chunks.push(e.data); };
+  rec.onstop=function(){
+    if(ctx) try{ctx.close();}catch(e){}
+    var blob=new Blob(chunks,{type:'video/webm'});
+    if(blob.size<2000 && !opts.mute){ showToast('Retrying without music\u2026'); return cineRender({mute:true}); }
+    if(blob.size<2000){ showToast('\u26a0 Recording failed on this browser \u2014 try Chrome'); return; }
+    if(window.RW && RW.saveCard){
+      var fr=new FileReader(); fr.onload=function(){ RW.saveCard(fr.result); showToast('\ud83c\udfac Movie saved to Downloads/RoamWise \u2014 share it everywhere!'); };
+      fr.readAsDataURL(blob);
+    } else {
+      var u=URL.createObjectURL(blob), a=document.createElement('a');
+      a.href=u; a.download='roamwise-journey-movie.webm'; a.click();
+      showToast('\ud83c\udfac Movie downloaded \u2014 post it as a Reel/Short!');
+    }
+    xpAdd(30,'Journey Movie premiered');
+  };
+  rec.start(200);
+  var t0=performance.now();
+  function ease(t){ return t<0.5? 2*t*t : 1-Math.pow(-2*t+2,2)/2; }
+  function camAt(px,py,zoom){ /* draw src so that (px,py in logical card coords) centers, at zoom */
+    var sw=VW/zoom, sh=VH/zoom;
+    var sx=px*S-sw/2, sy=py*S-sh/2;
+    sx=Math.max(0,Math.min(src.width-sw,sx)); sy=Math.max(0,Math.min(src.height-sh,sy));
+    x.drawImage(src, sx,sy,sw,sh, 0,0,VW,VH);
+    return {sx:sx,sy:sy,z:zoom};
+  }
+  function toScreen(cam,px,py){ return [ (px*S-cam.sx)*cam.z, (py*S-cam.sy)*cam.z ]; }
+  function cap(top,big,small,alpha){
+    x.save(); x.globalAlpha=alpha; x.textAlign='center';
+    x.fillStyle='rgba(7,9,15,.55)'; x.fillRect(0,VH-330,VW,240);
+    x.fillStyle='#E8BA6C'; x.font='700 34px Georgia,serif'; x.fillText(top,VW/2,VH-260);
+    x.fillStyle='#fff'; x.font='700 58px Georgia,serif'; x.fillText(big,VW/2,VH-190);
+    if(small){ x.fillStyle='#B8B4A8'; x.font='italic 26px Georgia,serif'; x.fillText(small,VW/2,VH-140); }
+    x.restore();
+  }
+  function frame(now){
+   try{
+    var t=(now-t0)/1000;
+    x.fillStyle='#07090F'; x.fillRect(0,0,VW,VH);
+    var fitZ=Math.min(VW/src.width, VH/src.height)*0.98*2/S; /* full card fit */
+    if(t<INTRO){
+      var p=ease(t/INTRO);
+      var cam=camAt(C.W/2, C.H/2, fitZ*(1+0.12*p));
+      cap('THE JOURNEY OF', C.name.toUpperCase(), 'a RoamWise film', Math.min(1,t*2));
+    } else if(t<INTRO+legs.length*LEG){
+      var k=Math.floor((t-INTRO)/LEG), lt=((t-INTRO)%LEG)/LEG, e2=ease(lt);
+      var A2=legs[Math.max(0,k-0)], Pv=legs[Math.max(0,k-1)]||A2;
+      var px=Pv.x+(A2.x-Pv.x)*e2, py=Pv.y+(A2.y-Pv.y)*e2;
+      var cam=camAt(px,py, 3.4);
+      /* progressive golden trail */
+      x.save(); x.lineWidth=7; x.setLineDash([16,12]); x.strokeStyle='#E8BA6C'; x.shadowColor='#E8BA6C'; x.shadowBlur=16;
+      x.beginPath();
+      for(var i2=0;i2<=k;i2++){
+        var pt=legs[i2], s2=toScreen(cam,pt.x,pt.y);
+        if(i2===0) x.moveTo(s2[0],s2[1]); else x.lineTo(s2[0],s2[1]);
+      }
+      var cur=toScreen(cam,px,py); x.lineTo(cur[0],cur[1]); x.stroke(); x.restore();
+      /* pulsing pin */
+      x.save(); x.fillStyle='#C4302B'; x.shadowColor='#E8BA6C'; x.shadowBlur=24;
+      x.beginPath(); x.arc(cur[0],cur[1],20+6*Math.sin(t*7),0,7); x.fill(); x.restore();
+      var nm=String(C.names[(legs[k].num||1)-1]||'Somewhere').slice(0,26);
+      cap('CHAPTER '+(k+1)+' OF '+legs.length, nm, k===0?'where it all began':'the road continues', 1);
+    } else {
+      var ot=(t-INTRO-legs.length*LEG)/OUTRO, e3=ease(Math.min(1,ot));
+      var cam=camAt(C.W/2,C.H/2, 3.0-(3.0-fitZ)*e3);
+      cap(legs.length+' CHAPTERS \u00b7 ONE LEGEND', C.name.toUpperCase(), 'make yours \u2014 roamwise.co.in', 1);
+    }
+    if(t<DUR) requestAnimationFrame(frame); else rec.stop();
+   }catch(err){ try{rec.stop();}catch(e2){} showToast('Render hiccup \u2014 movie saved up to that point'); }
+  }
+  requestAnimationFrame(frame);
 }
 
 /* ===== CHEAP TRICKS & LUXURY HACKS ===== */
@@ -2683,13 +3231,31 @@ var TREKS=[
 ];
 var trekF='all';
 function trekFilter(btn){ trekF=btn.dataset.f; document.querySelectorAll('#trekChips .fchip').forEach(function(b){b.classList.toggle('on',b===btn);}); renderTreks(); }
+var WISH=JSON.parse(lsGet('rw_wish')||'[]');
+function wishTog(ev,id){ ev.stopPropagation();
+  var i=WISH.indexOf(id);
+  if(i<0){ WISH.push(id); ev.target.textContent='\u2665'; ev.target.style.color='#E8524A'; showToast('Saved to your list \u2665 (+5 XP)'); xpAdd(5,'Saved a dream'); }
+  else { WISH.splice(i,1); ev.target.textContent='\u2661'; ev.target.style.color=''; }
+  lsSet('rw_wish', JSON.stringify(WISH));
+}
+function wishHeart(id){ var on=WISH.indexOf(id)>-1;
+  return '<span class="wsh" onclick="wishTog(event,\''+id.replace(/'/g,'')+'\')" style="cursor:pointer;font-size:17px;margin-left:auto;padding:0 4px;'+(on?'color:#E8524A':'color:var(--t3)')+'">'+(on?'\u2665':'\u2661')+'</span>'; }
+function showSaved(){
+  var ov=el('savedOverlay');
+  if(!ov){ ov=document.createElement('div'); ov.id='savedOverlay'; ov.className='overlay';
+    ov.innerHTML='<div class="modal" style="max-width:400px"><button class="modal-close" onclick="el(\'savedOverlay\').classList.remove(\'open\')">\u00d7</button><div class="modal-head"><div class="modal-title">\u2665 Saved for later</div><div class="modal-sub">Your dream list</div></div><div class="modal-body" id="savedBody"></div></div>';
+    document.body.appendChild(ov); }
+  el('savedBody').innerHTML = WISH.length? WISH.map(function(w){ return '<div class="ti-day"><b>\u2665</b><span>'+w+'</span></div>'; }).join('') + '<button class="tact" style="width:100%;margin-top:10px" onclick="WISH=[];lsSet(\'rw_wish\',\'[]\');showSaved();renderTreks();renderExps()">Clear all</button>'
+    : '<div class="mode-box">Nothing saved yet \u2014 tap the \u2661 on any trek or experience.</div>';
+  ov.classList.add('open');
+}
 function renderTreks(){
   var g=el('trekGrid'); if(!g) return;
   var CATN={pop:'POPULAR',hid:'HIDDEN',dan:'DANGEROUS',new:'NEW'};
   g.innerHTML = TREKS.map(function(t,i){
     if(trekF!=='all' && t.c!==trekF) return '';
     return '<div class="trek" id="trek'+i+'">'
-      +'<div class="trek-top"><div class="trek-name">'+t.n+'</div><span class="tbadge '+t.c+'">'+CATN[t.c]+'</span></div>'
+      +'<div class="trek-top"><div class="trek-name">'+t.n+'</div>'+wishHeart(t.n)+'<span class="tbadge '+t.c+'">'+CATN[t.c]+'</span></div>'
       +'<div class="trek-where">'+t.w+'</div>'
       +'<div class="trek-meta"><span class="tm"><b>'+t.d+'</b> days</span><span class="tm"><b>'+t.alt+'m</b> max</span><span class="tm">'+t.df+'</span><span class="tm">'+t.bm+'</span></div>'
       +'<div class="trek-itin">'+t.it.map(function(s,di){return '<div class="ti-day"><b>Day '+(di+1)+'</b><span>'+s+'</span></div>';}).join('')+'</div>'
@@ -2722,7 +3288,7 @@ var EXPS=[
 function renderExps(){
   var g=el('expGrid'); if(!g) return;
   g.innerHTML = EXPS.map(function(e){
-    return '<div class="exp"><div class="exp-ic">'+e.ic+'</div><div class="exp-name">'+e.n+'</div><div class="exp-where">'+e.w+'</div><div class="exp-desc">'+e.x+'</div><div class="exp-when">\ud83d\uddd3 '+e.t+'</div></div>';
+    return '<div class="exp"><div class="exp-ic" style="display:flex;align-items:center">'+e.ic+wishHeart(e.n)+'</div><div class="exp-name">'+e.n+'</div><div class="exp-where">'+e.w+'</div><div class="exp-desc">'+e.x+'</div><div class="exp-when">\ud83d\uddd3 '+e.t+'</div></div>';
   }).join('');
 }
 renderTreks(); renderExps();
@@ -2807,7 +3373,7 @@ document.addEventListener('DOMContentLoaded', function(){
     if(r && r.innerHTML.length > 100) showToast('Mode changed — hit Search again to recalculate budgets');
   });
 });
-var VIEW_OF={treks:'explore',exps:'explore',circuits:'explore',ev:'explore',events:'explore',hubspoke:'explore',basecamp:'explore',jlog:'explore',app:'plan',brief:'home',creator:'home'};
+var VIEW_OF={treks:'explore',exps:'explore',circuits:'explore',ev:'explore',events:'explore',hubspoke:'explore',basecamp:'explore',jlog:'explore',app:'plan',brief:'home',creator:'home',store:'home',aipulse:'explore'};
 function scrollToId(id){
   if(document.body.classList.contains('shell') && VIEW_OF[id]){
     tabGo(VIEW_OF[id]);
@@ -2868,6 +3434,10 @@ function setTier(a){ UPI_AMT=String(a);
   showToast(a===100?'Pro \u2014 \u20b9100':'Supporter \u2014 \u20b9299, you legend \ud83d\udc9b'); }
 function upiParams(){ return 'pa='+UPI_VPA+'&pn='+encodeURIComponent(UPI_NAME)+'&am='+UPI_AMT+'&cu=INR&tn='+encodeURIComponent('RoamWise Pro Lifetime'); }
 function payVia(app){
+  if(app==='generic50'){
+    var deep50='upi://pay?pa='+UPI_VPA+'&pn='+encodeURIComponent(UPI_NAME)+'&am=50&cu=INR&tn=RoamWise%20Movie';
+    location.href=deep50; showToast('Pay \u20b950, then come back and tap Render'); return;
+  }
   if(app==='generic10'){
     var deep10='upi://pay?pa='+UPI_VPA+'&pn='+encodeURIComponent(UPI_NAME)+'&am=10&cu=INR&tn=RoamWise%20PDF';
     location.href=deep10; showToast('Pay \u20b910, then come back and tap Generate'); return;
@@ -3065,15 +3635,24 @@ function loadPhotosForCard(d, ci){
 
 /* OPTIONAL AI ENHANCEMENT */
 var AI_MODELS = {
-  gemini: ['gemini-2.0-flash','gemini-2.5-flash','gemini-1.5-flash'],
+  gemini: ['gemini-2.5-flash','gemini-2.0-flash','gemini-flash-latest'],
   groq: ['llama-3.3-70b-versatile','llama-3.1-8b-instant'],
   openrouter: ['meta-llama/llama-3.3-70b-instruct:free','mistralai/mistral-small-3.1-24b-instruct:free','google/gemma-3-27b-it:free'],
   mistral: ['mistral-small-latest','open-mistral-nemo'],
   anthropic: ['claude-sonnet-4-20250514']
 };
 var lastAiSource = null; /* {prov, model} of the last successful AI call, or null */
+function extractJSON(txt){
+  if(!txt) return null;
+  try{ return JSON.parse(txt); }catch(e){}
+  var a=txt.indexOf('{'), b=txt.lastIndexOf('}');
+  if(a>-1 && b>a){ try{ return JSON.parse(txt.slice(a,b+1)); }catch(e){} }
+  a=txt.indexOf('['); b=txt.lastIndexOf(']');
+  if(a>-1 && b>a){ try{ var arr=JSON.parse(txt.slice(a,b+1)); return {days:arr}; }catch(e){} }
+  return null;
+}
 
-function aiRequest(prov, key, model, prompt, maxTok){
+function aiRequest(prov, key, model, prompt, maxTok, jsonMode){
   var url, headers, body;
   if(prov==='anthropic'){
     url='https://api.anthropic.com/v1/messages';
@@ -3082,13 +3661,16 @@ function aiRequest(prov, key, model, prompt, maxTok){
   } else if(prov==='gemini'){
     url='https://generativelanguage.googleapis.com/v1beta/models/'+model+':generateContent?key='+key;
     headers={'Content-Type':'application/json'};
-    body=JSON.stringify({contents:[{parts:[{text:prompt}]}], generationConfig:{maxOutputTokens:maxTok, temperature:0.7}});
+    var gc={maxOutputTokens:maxTok, temperature:0.7}; if(jsonMode) gc.responseMimeType='application/json';
+    body=JSON.stringify({contents:[{parts:[{text:prompt}]}], generationConfig:gc});
   } else {
     var bases={groq:'https://api.groq.com/openai/v1', openrouter:'https://openrouter.ai/api/v1', mistral:'https://api.mistral.ai/v1'};
     url=(bases[prov]||bases.groq)+'/chat/completions';
     headers={'Content-Type':'application/json','Authorization':'Bearer '+key};
     if(prov==='openrouter'){ headers['HTTP-Referer']='https://www.roamwise.co.in'; headers['X-Title']='RoamWise Pro'; }
-    body=JSON.stringify({model:model, max_tokens:maxTok, messages:[{role:'user',content:prompt}]});
+    var ob={model:model, max_tokens:maxTok, messages:[{role:'user',content:prompt}]};
+    if(jsonMode && prov!=='openrouter') ob.response_format={type:'json_object'};
+    body=JSON.stringify(ob);
   }
   var ctrl = ('AbortController' in window)? new AbortController() : null;
   var tmr = ctrl? setTimeout(function(){ ctrl.abort(); }, 15000) : null;
@@ -3118,14 +3700,14 @@ function aiRequest(prov, key, model, prompt, maxTok){
 }
 
 /* Tries each model for the active provider; cb(errorString|null, text|null) */
-function aiCall(prompt, maxTok, cb){
+function aiCall(prompt, maxTok, cb, jsonMode){
   var prov=activeProv, key=lsGet('rwKey_'+prov);
   if(prov==='smart' || !key){ lastAiSource=null; cb(null,null); return; }
   var models = AI_MODELS[prov]||[]; var i=0;
   function attempt(lastErr){
     if(i>=models.length){ lastAiSource=null; cb(lastErr||'All models failed', null); return; }
     var m=models[i++];
-    aiRequest(prov,key,m,prompt,maxTok)
+    aiRequest(prov,key,m,prompt,maxTok,jsonMode)
       .then(function(txt){ lastAiSource={prov:prov, model:m}; cb(null, txt); })
       .catch(function(e){
         /* model-not-found → try next model; auth/quota → stop and surface */
@@ -3555,11 +4137,13 @@ function buildItin(T, name, costMid, days){
       if(day.morning) segs += `<div class="day-seg"><div class="seg-time">Morning</div><div class="seg-desc">${day.morning}</div></div>`;
       if(day.afternoon) segs += `<div class="day-seg"><div class="seg-time">Afternoon</div><div class="seg-desc">${day.afternoon}</div></div>`;
       if(day.evening) segs += `<div class="day-seg"><div class="seg-time">Evening</div><div class="seg-desc">${day.evening}</div></div>`;
+      if(day.food) segs += `<div class="day-seg"><div class="seg-time">\ud83c\udf5b Eat</div><div class="seg-desc">${day.food}</div></div>`;
       return `<div class="day-card"><div class="day-head" onclick="togDay('${did}')"><div><div class="day-num">Day ${day.day}</div><div class="day-title">${day.title||'Exploration'}</div></div><span class="day-arr" id="arr_${did}">▶</span></div>
         <div class="day-body" id="${did}"><div>${segs}</div>${day.tip?`<div class="day-tip">💡 ${day.tip}</div>`:''}</div></div>`;
     }).join('');
     cnt.innerHTML = (srcBadge||'') + H
-      + '<button class="tact" style="width:100%;margin-top:12px" onclick="compareModels(\''+name.replace(/'/g,"\\'")+'\','+days+')">\u2694\ufe0f Compare AI engines on this trip</button>'
+      + '<button class="tact" style="width:100%;margin-top:12px;border-color:rgba(22,191,150,.5);color:#16BF96" onclick="syncGo(\''+name.replace(/'/g,"\\'")+'\')">\ud83e\udd1d Sync Circle \u2014 I\u2019m going! See who else is</button>'
+      + '<button class="tact" style="width:100%;margin-top:8px" onclick="compareModels(\''+name.replace(/'/g,"\\'")+'\','+days+')">\u2694\ufe0f Compare AI engines on this trip</button>'
       + '<button class="rzp-main-btn" style="margin-top:12px;background:linear-gradient(135deg,#9B59F5,#7A3FE0)" onclick="openPdfFlow(\''+T+'\',\''+name.replace(/'/g,"\\'")+'\','+days+',\''+((el('month')||{}).value||'')+'\')">\ud83d\udcd5 Premium PDF itinerary \u2014 \u20b910 (free for Pro)</button>';
     ph.style.display='none'; cnt.style.display='block'; itinBuilt[T]=true;
   }
@@ -3569,21 +4153,26 @@ function buildItin(T, name, costMid, days){
 
   var prov=activeProv, key=lsGet('rwKey_'+prov);
   if(prov!=='smart' && key){
-    var p = 'Build a '+days+'-day travel itinerary for '+name+' in '+el('month').value+'. Budget approximately $'+Math.round(costMid/83.5)+' USD. Return ONLY valid JSON: {"days":[{"day":1,"title":"Title","morning":"Place + activity","afternoon":"Activity + local tip","evening":"Dining + dish name","tip":"Practical tip"}]}. Exactly '+days+' days. Each field max 90 characters. Use real place names.';
-    aiCall(p, 1800, function(err, txt){
-      if(txt){ try{
-        var d=JSON.parse(txt);
-        if(d.days && d.days.length){
-          var who = lastAiSource? (lastAiSource.prov==='gemini'?'Gemini':''+(lastAiSource.prov==='groq'?'Llama via Groq':'Claude')) : 'AI';
-          renderDays(d.days, '<div class="itin-src ai">\ud83e\udd16 AI-generated by '+who+' \u00b7 personalised for '+name+'</div>');
+    var p = 'You are an expert local guide. Build a '+days+'-day itinerary for '+name+' in '+((el('month')||{}).value||'any month')+'. Budget ~$'+Math.round(costMid/83.5)+' USD/person. Return ONLY JSON (no prose, no markdown): {"days":[{"day":1,"title":"short theme","morning":"SPECIFIC named place + what to do (with timing like 8:30 AM)","afternoon":"SPECIFIC named place + insider tip","evening":"named restaurant/street + exact dish to order","food":"one local speciality with 4-word description","tip":"practical money/crowd/culture tip"}]}. Exactly '+days+' days, every place REAL and specific to '+name+', each field under 110 chars.';
+    aiCall(p, 2200, function(err, txt){
+      if(txt){
+        var d=extractJSON(txt);
+        if(d && d.days && d.days.length){
+          d.days.forEach(function(x,i){ x.day=x.day||i+1; });
+          window._lastItin={name:name, days:d.days, ai:true, model:(lastAiSource||{}).model};
+          var who = lastAiSource? (lastAiSource.prov.charAt(0).toUpperCase()+lastAiSource.prov.slice(1)+' \u00b7 '+lastAiSource.model) : 'AI';
+          renderDays(d.days, '<div class="itin-src ai">\ud83e\udd16 AI \u00b7 '+who+' \u00b7 personalised for '+name+'</div>');
           return;
         }
-      }catch(x){ err = 'AI replied in a broken format'; } }
+        err='AI replied in a broken format';
+      }
       var list=[]; for(var i=0;i<days && i<DAY_TEMPLATES.length;i++){ var t=DAY_TEMPLATES[i]; list.push({day:i+1,title:t.title,morning:t.morning,afternoon:t.afternoon,evening:t.evening,tip:t.tip}); }
+      window._lastItin={name:name, days:list, ai:false};
       renderDays(list, err? '<div class="itin-src err">\u26a0 '+String(err).slice(0,90)+' \u2014 showing the built-in Smart plan instead. Test your key in Settings.</div>' : smartBadge());
-    });
+    }, true);
   } else {
     var list=[]; for(var i=0;i<days && i<DAY_TEMPLATES.length;i++){ var t=DAY_TEMPLATES[i]; list.push({day:i+1,title:t.title,morning:t.morning,afternoon:t.afternoon,evening:t.evening,tip:t.tip}); }
+    window._lastItin={name:name, days:list, ai:false};
     renderDays(list, smartBadge());
   }
 }
@@ -3659,7 +4248,7 @@ function _adminUnlock(code){
 }
 
 function activatePro(payId, method){
-  isPro=true; lsSet('rwPro','1'); lsSet('rwPayId', payId||'manual');
+  isPro=true; lsSet('rwPro','1'); lsSet('rw_pro_uid',(user&&user.uid)||'device'); lsSet('rwPayId', payId||'manual');
   closePay(); el('successOverlay').classList.add('open');
   confetti(); refreshProUI();
 }
@@ -3805,11 +4394,28 @@ if (AUTH_READY) {
       });
       /* Live account-bound Pro: flips ON across every device the moment
          the backend or owner approves — this is the "cloud unlock" */
+      /* Device account-abuse guard: >8 accounts on one device = no more freebies */
+      try{
+        var uids=JSON.parse(lsGet('rw_uids')||'[]');
+        if(uids.indexOf(u.uid)<0){ uids.push(u.uid); lsSet('rw_uids', JSON.stringify(uids.slice(-20))); }
+        if(uids.length>8) lsSet('rw_temp_used','1');
+      }catch(e){}
       ref.onSnapshot(function(d){
         var cloudPro = d.exists && d.data().pro === true;
-        if(cloudPro){ lsSet('rw_pro_temp',''); }
-        if(cloudPro && !isPro){ isPro=true; lsSet('rwPro','1'); refreshProUI(); showToast('Pro verified \u2014 permanent on your account \u2713'); closePay(); }
-        if(cloudPro){ isPro=true; refreshProUI(); }
+        var temp = parseInt(lsGet('rw_pro_temp')||'0',10) > Date.now();
+        if(cloudPro){
+          lsSet('rw_pro_temp',''); lsSet('rw_pro_uid', u.uid);
+          if(!isPro){ isPro=true; lsSet('rwPro','1'); refreshProUI(); showToast('Pro verified \u2014 permanent on your account \u2713'); closePay(); }
+          isPro=true; refreshProUI();
+        } else if(!temp){
+          /* Pro is PER ACCOUNT: this signed-in account has no Pro \u2192 clear any
+             leftover local flag from a different account on this device */
+          var owner=lsGet('rw_pro_uid');
+          if(isPro && owner && owner!==u.uid){
+            isPro=false; lsSet('rwPro','0'); refreshProUI();
+            showToast('Pro belongs to another account \u2014 sign in with it, or unlock Pro for this one');
+          }
+        }
       });
     } else {
       btn.style.display=''; av.style.display='none';
@@ -3834,6 +4440,11 @@ function friendly(e){
 }
 function loginGoogle(){
   if(!AUTH_READY) return showToast('Accounts not configured yet');
+  if(window.RW || /RoamWiseApp/i.test(navigator.userAgent)){
+    showToast('Google blocks its login inside apps like this one \u2014 use Email (10 seconds), or Google on roamwise.co.in: same account, same Pro.');
+    var em=el('authEmail'); if(em) em.focus();
+    return;
+  }
   firebase.auth().signInWithPopup(new firebase.auth.GoogleAuthProvider())
     .then(function(){ closeAuth(); showToast('Signed in \u2713'); })
     .catch(function(e){ authError(friendly(e)); });
@@ -3952,7 +4563,7 @@ function submitUtr(){
     if(!lsGet('rw_temp_used')){
       lsSet('rw_temp_used','1');
       lsSet('rw_pro_temp', String(Date.now()+864e5));
-      isPro=true; lsSet('rwPro','1'); refreshProUI();
+      isPro=true; lsSet('rwPro','1'); lsSet('rw_pro_uid',(user&&user.uid)||'device'); refreshProUI();
       say('\ud83c\udf89 Pro unlocked INSTANTLY! Verification completes in the background \u2014 nothing more to do.', true);
     } else {
       say('Submitted \u2713 Verification usually completes within minutes \u2014 Pro activates automatically on approval.', true);
@@ -3985,6 +4596,7 @@ applyShell();
 if(window.matchMedia){ try{ matchMedia('(max-width:768px)').addEventListener('change', function(){ IS_TOUCH_MOBILE = /Android|iPhone|iPad|Mobile/i.test(navigator.userAgent) || matchMedia('(max-width:768px)').matches; applyShell(); }); }catch(e){} }
 
 function tabGo(t){
+  try{useBump('tab_'+t);}catch(e){}
   ['home','plan','explore','pro','more'].forEach(function(k){ var b=el('tb-'+k); if(b) b.classList.toggle('on', k===t); });
   if(t==='pro'){ openPay(); return; }
   if(t==='more'){ openDrawer(); return; }
