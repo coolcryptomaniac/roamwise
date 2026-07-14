@@ -106,5 +106,113 @@
    100,
    99
   ]
+ },
+ {
+  "slug": "jaisalmer-india",
+  "title": "Jaisalmer, India",
+  "name": "Jaisalmer",
+  "country": "India",
+  "best": "January, March, November",
+  "arch": "tropical",
+  "cl": [
+   21.8,
+   25.7,
+   31.2,
+   36.4,
+   42.8,
+   40.4,
+   39.4,
+   32,
+   36,
+   36.6,
+   31.7,
+   22.7
+  ],
+  "scores": [
+   100,
+   99,
+   100,
+   79,
+   26,
+   40,
+   36,
+   79,
+   78,
+   78,
+   100,
+   100
+  ]
+ },
+ {
+  "slug": "rishikesh-india",
+  "title": "Rishikesh, India",
+  "name": "Rishikesh",
+  "country": "India",
+  "best": "January, October, November",
+  "arch": "monsoon",
+  "cl": [
+   17.4,
+   21.3,
+   26.9,
+   33.4,
+   37.4,
+   38.3,
+   32.1,
+   31.3,
+   30.5,
+   29.9,
+   24.7,
+   19.7
+  ],
+  "scores": [
+   100,
+   94,
+   92,
+   98,
+   72,
+   47,
+   55,
+   55,
+   68,
+   100,
+   100,
+   97
+  ]
+ },
+ {
+  "slug": "haridwar-india",
+  "title": "Haridwar, India",
+  "name": "Haridwar",
+  "country": "India",
+  "best": "January, April, October",
+  "arch": "monsoon",
+  "cl": [
+   17,
+   21.3,
+   26.6,
+   32.4,
+   37.2,
+   38.4,
+   32.6,
+   31.7,
+   30.7,
+   30.1,
+   25,
+   20
+  ],
+  "scores": [
+   100,
+   91,
+   93,
+   100,
+   73,
+   44,
+   55,
+   66,
+   62,
+   100,
+   100,
+   94
+  ]
  }
 ]
