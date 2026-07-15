@@ -214,5 +214,113 @@
    100,
    94
   ]
+ },
+ {
+  "slug": "nainital-india",
+  "title": "Nainital, India",
+  "name": "Nainital",
+  "country": "India",
+  "best": "January, April, November",
+  "arch": "monsoon",
+  "cl": [
+   10.9,
+   10.7,
+   15.5,
+   21.6,
+   23.8,
+   25.4,
+   21.6,
+   20.9,
+   20.4,
+   18.7,
+   15.4,
+   12.5
+  ],
+  "scores": [
+   100,
+   84,
+   86,
+   99,
+   94,
+   90,
+   55,
+   55,
+   55,
+   97,
+   98,
+   96
+  ]
+ },
+ {
+  "slug": "mussoorie-india",
+  "title": "Mussoorie, India",
+  "name": "Mussoorie",
+  "country": "India",
+  "best": "January, May, November",
+  "arch": "monsoon",
+  "cl": [
+   12.1,
+   11.4,
+   16.3,
+   21.2,
+   25.6,
+   27.5,
+   23.8,
+   22.9,
+   22.1,
+   20.5,
+   17.1,
+   13.7
+  ],
+  "scores": [
+   99,
+   84,
+   80,
+   94,
+   95,
+   87,
+   55,
+   55,
+   55,
+   95,
+   99,
+   94
+  ]
+ },
+ {
+  "slug": "munsiyari-india",
+  "title": "Munsiyari, India",
+  "name": "Munsiyari",
+  "country": "India",
+  "best": "June, July, August",
+  "arch": "alpine",
+  "cl": [
+   -12.4,
+   -14.5,
+   -10.4,
+   -7.3,
+   -0.9,
+   4.2,
+   7.1,
+   6.9,
+   2.8,
+   0.1,
+   -2.9,
+   -11
+  ],
+  "scores": [
+   5,
+   5,
+   5,
+   14,
+   45,
+   59,
+   72,
+   72,
+   40,
+   50,
+   38,
+   5
+  ]
  }
 ]
