@@ -797,6 +797,7 @@ body.shell .hamb{display:flex}
   <div class="exp-grid" id="evtGrid"></div>
 </section>
 
+<ins class="adsbygoogle rw-ad v v-explore" style="display:none;margin:10px 14px" data-ad-format="auto" data-full-width-responsive="true"></ins>
 <section class="xsec v v-explore" id="hubspoke">
   <div class="xsec-head"><h2 class="xsec-title">&#127470;&#127475; Hub &amp; Spoke <em>India</em></h2><button class="share-fab" onclick="shareApp('app')">&#128228; Share</button></div>
   <p class="xsec-sub">The fastest, most comfortable way to cover India: fly long distances to a regional hub, rent a self-drive car there, use premium trains &amp; buses between cities, and carry a folding cycle in the boot for the last mile.</p>
@@ -831,10 +832,16 @@ body.shell .hamb{display:flex}
     <button class="tact" style="flex:1" onclick="cardJPG()">&#11015; JPG</button>
     <button class="tact" style="flex:1" onclick="cardPDF()">&#11015; PDF</button>
   </div>
+  <div style="display:flex;gap:7px;margin-top:9px">
+    <button class="tact cstyle red" data-k="atlas" style="flex:1" onclick="setCardStyle('atlas')">&#127963; Atlas</button>
+    <button class="tact cstyle" data-k="noir" style="flex:1" onclick="setCardStyle('noir')">&#9899; Noir</button>
+    <button class="tact cstyle" data-k="neon" style="flex:1" onclick="setCardStyle('neon')">&#9889; Neon</button>
+  </div>
   <button class="rzp-main-btn" id="movieBtn" style="display:none;margin-top:9px;background:linear-gradient(135deg,#C4302B,#8E1F1B)" onclick="openMovie()">&#127916; Journey Movie &mdash; cinematic video &middot; &#8377;50 (free for Pro)</button>
 </section>
 </div>
 
+<ins class="adsbygoogle rw-ad v v-home" style="display:none;margin:10px 14px" data-ad-format="auto" data-full-width-responsive="true"></ins>
 <section class="xsec v v-home" id="store">
   <div class="xsec-head"><h2 class="xsec-title">&#128717; The <em>Store</em></h2><button class="share-fab" onclick="shareApp('app')">&#128228; Share</button></div>
   <p class="xsec-sub">Everything made in the Himalayas &mdash; tools, books and upgrades that fund the next feature.</p>
@@ -1822,6 +1829,9 @@ function openMusic(){
 
 /* ===== ADSENSE (gated) + WHATSAPP (gated) ===== */
 var ADSENSE_ID=''; /* e.g. ca-pub-1234567890123456 after AdSense approval */
+var AFF_BOOKING=''; /* Booking.com affiliate aid (optional) */
+function stayUrl(place){ var u='https://www.booking.com/searchresults.html?ss='+encodeURIComponent(place);
+  if(AFF_BOOKING) u+='&aid='+AFF_BOOKING; return u; }
 var WA_NUMBER='', WA_CHANNEL='', WA_GROUP='';
 (function(){
   if(ADSENSE_ID){
@@ -2036,25 +2046,66 @@ function loadJsPdf(cb){
   s.onload=cb; s.onerror=function(){ showToast('PDF engine needs internet'); };
   document.head.appendChild(s);
 }
-function fetchImg64(url){ /* any format in -> clean JPEG dataURL out (jsPDF-safe) */
-  return fetch(url).then(function(r){ if(!r.ok) throw 0; return r.blob(); }).then(function(b){
-    return new Promise(function(res,rej){
-      var im=new Image(); var u=URL.createObjectURL(b);
-      im.onload=function(){
-        try{
-          var c2=document.createElement('canvas');
-          var w=Math.min(900,im.naturalWidth), h=Math.round(im.naturalHeight*w/im.naturalWidth);
-          c2.width=w; c2.height=h;
-          var g=c2.getContext('2d'); g.fillStyle='#fff'; g.fillRect(0,0,w,h); g.drawImage(im,0,0,w,h);
-          URL.revokeObjectURL(u); res(c2.toDataURL('image/jpeg',0.88));
-        }catch(e){ rej(e); }
-      };
-      im.onerror=function(){ URL.revokeObjectURL(u); rej(0); };
-      im.src=u;
-    });
-  });}
-function wikiThumbSmart(q, alt){ /* try full query, then a shorter one */
-  return wikiThumb(q).then(function(u){ if(u) return u; return alt? wikiThumb(alt):null; });
+function blobToJpeg(b){
+  function draw(bm,w0,h0){
+    var c2=document.createElement('canvas');
+    var w=Math.min(900,w0), h=Math.round(h0*w/w0);
+    c2.width=w; c2.height=h;
+    var g=c2.getContext('2d'); g.fillStyle='#fff'; g.fillRect(0,0,w,h); g.drawImage(bm,0,0,w,h);
+    return c2.toDataURL('image/jpeg',0.88);
+  }
+  if(window.createImageBitmap){
+    return createImageBitmap(b).then(function(bm){ var d=draw(bm,bm.width,bm.height); bm.close&&bm.close(); return d; });
+  }
+  return new Promise(function(res,rej){
+    var fr=new FileReader();
+    fr.onload=function(){ var im=new Image();
+      im.onload=function(){ try{ res(draw(im,im.naturalWidth,im.naturalHeight)); }catch(e){ rej(e); } };
+      im.onerror=function(){ rej(0); }; im.src=fr.result; };
+    fr.onerror=function(){ rej(0); }; fr.readAsDataURL(b);
+  });
+}
+function fetchImg64(url){
+  /* weserv proxy: any source -> CORS-open, resized, guaranteed JPEG */
+  var u0=String(url).replace(/\/thumb\/([0-9a-f]\/[0-9a-f]{2}\/[^\/]+)\/\d+px-[^\/]+$/,'/$1'); /* wikimedia: use ORIGINAL, let proxy resize */
+  var prox='https://images.weserv.nl/?w=820&q=82&output=jpg&url='+encodeURIComponent(u0.replace(/^https?:\/\//,''));
+  function toData(b){ return new Promise(function(res,rej){ var fr=new FileReader(); fr.onload=function(){res(fr.result);}; fr.onerror=function(){rej(0);}; fr.readAsDataURL(b); }); }
+  return fetch(prox).then(function(r){ if(!r.ok) throw 0; return r.blob(); })
+    .then(function(b){ if(b.size<400 || !/image/.test(b.type)) throw 0; return toData(b); })
+    .catch(function(){ return fetch(url).then(function(r){ if(!r.ok) throw 0; return r.blob(); }).then(blobToJpeg); });
+}
+function fetchBmp(url){ /* ImageBitmap for canvas composition (map tiles) */
+  return fetch(url).then(function(r){ if(!r.ok) throw 0; return r.blob(); })
+    .then(function(b){ return createImageBitmap(b); });
+}
+function wikiAction(q){
+  return fetch('https://en.wikipedia.org/w/api.php?action=query&prop=pageimages&piprop=thumbnail&pithumbsize=640&redirects=1&format=json&origin=*&titles='+encodeURIComponent(q))
+    .then(function(r){return r.json();}).then(function(d){
+      var pgs=d.query&&d.query.pages; if(!pgs) return null;
+      var k=Object.keys(pgs)[0];
+      return (pgs[k]&&pgs[k].thumbnail&&pgs[k].thumbnail.source)||null;
+    }).catch(function(){return null;});
+}
+function openverseThumb(q){
+  return fetch('https://api.openverse.org/v1/images/?q='+encodeURIComponent(q)+'&page_size=1&license_type=all')
+    .then(function(r){return r.json();}).then(function(d){
+      return (d.results&&d.results[0]&&(d.results[0].thumbnail||d.results[0].url))||null;
+    }).catch(function(){return null;});
+}
+function wikiAny(q, alt){ /* REST -> action -> short -> alt -> openverse */
+  var short3=String(q).split(' ').slice(0,3).join(' ');
+  return wikiThumb(q).then(function(u){ if(u) return u; return wikiAction(q); })
+    .then(function(u){ if(u) return u; return short3!==q? wikiAction(short3):null; })
+    .then(function(u){ if(u) return u; return alt? wikiAction(alt):null; })
+    .then(function(u){ if(u) return u; return openverseThumb(q); });
+}
+var EMG_NUM={india:'112 all-in-one / 108 ambulance',thailand:'191 police / 1669 medical',japan:'110 police / 119 fire-med',usa:'911',uk:'999',france:'112',italy:'112',spain:'112',germany:'112',indonesia:'112',vietnam:'113 police / 115 medical',uae:'999 / 998 ambulance',nepal:'100 police / 102 ambulance','sri lanka':'119 / 110',turkey:'112',greece:'112',iceland:'112',singapore:'999 / 995',malaysia:'999',portugal:'112',netherlands:'112',switzerland:'112',austria:'112',mexico:'911',brazil:'190 / 192',australia:'000','new zealand':'111',egypt:'122 / 123',morocco:'19 / 15'};
+function emgFor(c){ c=String(c||'').toLowerCase();
+  for(var k in EMG_NUM){ if(c.indexOf(k)>-1) return EMG_NUM[k]; } return '112 (global GSM standard)'; }
+function gcode(q){
+  return fetch('https://geocoding-api.open-meteo.com/v1/search?name='+encodeURIComponent(q)+'&count=1&language=en')
+    .then(function(r){return r.json();}).then(function(d){ var h=d.results&&d.results[0];
+      return h? {lat:h.latitude, lon:h.longitude} : null; }).catch(function(){return null;});
 }
 var PDF_THEMES={
  beach:{deep:[10,42,56],acc:[32,178,170],line:'Sun, salt and slow mornings'},
@@ -2149,15 +2200,114 @@ function genPdf(){
     (d.gems||[]).slice(0,3).forEach(function(g){ wants.push({wiki:g+' '+(d.country||'')}); });
     for(var di=0; di<days; di++){
       var pl = AIP&&AIP[di]? firstPlace(AIP[di].morning) : ((d.gems||[])[di%Math.max(1,(d.gems||[]).length)]||'');
-      wants.push(pl? {wiki:pl+' '+(d.name||'')} : null);
+      wants.push(pl? {wiki:pl, alt:pl+' '+(d.name||'')} : null);
     }
-    function job(q,alt){ return wikiThumbSmart(q,alt).then(function(u){ return u? fetchImg64(u).catch(function(){return null;}) : null; }); }
+    function imgTry(getters){ /* iterate candidate URL getters until a download succeeds */
+      if(!getters.length) return Promise.resolve(null);
+      var g=getters.shift();
+      return Promise.resolve().then(g).then(function(u){
+        if(!u) return imgTry(getters);
+        return fetchImg64(u).catch(function(){ return imgTry(getters); });
+      }).catch(function(){ return imgTry(getters); });
+    }
+    function job(q,alt){
+      var s3=String(q).split(' ').slice(0,3).join(' ');
+      return imgTry([
+        function(){ return wikiThumb(q); },
+        function(){ return wikiAction(q); },
+        function(){ return s3!==q? wikiAction(s3):null; },
+        function(){ return alt? wikiAction(alt):null; },
+        function(){ return openverseThumb(q); }
+      ]);
+    }
     var photoJobs = wants.map(function(w,wi){
-      if(!w) return job(d.name+' '+(d.country||''), d.name);
-      if(typeof w==='string') return fetchImg64(w).catch(function(){ return job(d.name+' '+(d.country||''), d.name); });
-      return job(w.wiki, String(w.wiki).split(' ').slice(0,2).join(' '));
+      if(!w) return job(d.name, d.name+' '+(d.country||''));
+      if(typeof w==='string'){
+        if(/^https?:/i.test(w)) return fetchImg64(w).catch(function(){ return job(d.name, d.name+' '+(d.country||'')); });
+        return job(w, d.name);   /* DB photos are search phrases */
+      }
+      return job(w.wiki, w.alt || (String(w.wiki).split(' ').slice(0,3).join(' ')));
     });
-    Promise.all(photoJobs).then(function(imgs){
+    /* --- traveler profile for the cover --- */
+    var PR={}; try{ PR=JSON.parse(lsGet('rw_profile')||'{}'); }catch(e){}
+    var avP = PR.av? (PR.av.indexOf('data:')===0? Promise.resolve(PR.av) : fetchImg64(PR.av).catch(function(){return null;})) : Promise.resolve(null);
+    /* --- events overlapping the trip window --- */
+    var t0=start||new Date(), t1=new Date(t0.getTime()+days*864e5);
+    var evHit=(typeof EVENTS!=='undefined'? EVENTS:[]).filter(function(e){
+      if(new Date(e.to)<t0 || new Date(e.from)>t1) return false;
+      return e.city===d.name || (String(e.places||'').toLowerCase().indexOf(String(d.country||'').toLowerCase())>-1 && d.country);
+    }).slice(0,2);
+    /* --- Local Intel: AI (any key) with graceful fallback --- */
+    function ARCHX(k){ var M={
+      beach:{hacks:['Beach shacks 200m from the main entry are half price','Rent gear for the week, not the day','Sunrise swims beat sunset crowds'],save:['Eat where the boat crews eat','Book stays 1 lane inland','Happy-hour = dinner-hour'],nature:'Sun is the real boss - hydrate, reef-safe sunscreen, respect currents.',caution:'Watch tides and red flags; keep valuables off the sand.'},
+      metro:{hacks:['Transit day-pass beats 3 taxi rides','Museums have one free evening weekly','Rooftop views: hotel bars beat paid decks'],save:['Lunch menus at dinner restaurants','Stay near a metro line, not the center','Street food courts over cafes'],nature:'Concrete heat is real - hydrate and plan shade for afternoons.',caution:'Pickpockets love crowds; front pockets, split cash.'},
+      sacred:{hacks:['Dawn prayers beat every tour bus','Caretakers unlock stories tips can\u2019t buy','Festival eves outshine festival days'],save:['Pilgrim canteens: honest food, honest prices','Guesthouses near temples','Free shoe stands outside barefoot zones'],nature:'Rivers and hills here are living heritage - keep them clean.',caution:'Dress codes are respect codes; follow queue culture at shrines.'},
+      tech:{hacks:['Airport trains beat taxis on price AND time','eSIM before landing skips counter queues','Office-tower food courts = chef food, canteen price'],save:['Business-hotel weekends are discounted','Supermarket dinners are a cultural tour','City cards bundle transit + sights'],nature:'Air-conditioned everything - carry a layer.',caution:'Jaywalking fines are real; follow the signals.'},
+      peak:{hacks:['Acclimatize a day before you climb','Shared jeeps leave when full - arrive early','Homestays beat hotels on warmth and price'],save:['Thali/dal-bhat: refills included','Off-season permits cost less','Rent heavy gear locally'],nature:'Altitude and weather change fast - respect both, tell someone your route.',caution:'AMS is real above 3000m: ascend slow, hydrate, descend if ill.'},
+      classic:{hacks:['First hour after opening = private viewing','Ask "where do YOU eat?" three times','Walk the old town at 7am once'],save:['City cards pay off from visit #3','Bakeries discount at closing time','Tap-water refills where safe'],nature:'Four seasons, four cities - pack layers.',caution:'Tourist-zone prices double: one street back is honest.'}};
+      return M[k]||M.classic; }
+    function intelFallback(){ var A0=ARCHX(THK);
+      return {hacks:A0.hacks, save:A0.save, context:{
+        nature:A0.nature, culture:'Greet first, dress a notch modest at holy places, ask before photographing people.',
+        politics:'Stable for tourists; avoid demonstrations and political debates as a guest.',
+        economy:(d.cost? 'Mid-range week ~$'+d.cost.mid+'; cash still wins in small shops.':'Carry some cash; cards fail in the best little places.'),
+        social:'People respond to patience and a smile; learn 5 local words and doors open.',
+        education:'English works in tourist zones; a translation app closes the rest.',
+        caution:A0.caution}};
+    }
+    var intelP=new Promise(function(res){
+      var hasKey=['gemini','groq','openrouter','mistral','anthropic'].some(function(p2){return lsGet('rwKey_'+p2);});
+      if(!hasKey) return res(intelFallback());
+      var done=false; setTimeout(function(){ if(!done){done=true; res(intelFallback());} }, 18000);
+      try{
+        aiCall('Return ONLY JSON for travelers to '+d.name+', '+(d.country||'')+': {"hacks":["3 insider hacks"],"save":["3 cost-saving moves"],"context":{"nature":"..","culture":"..","politics":"neutral, safety-focused, no opinions","economy":"..","social":"..","education":"..","caution":".."}}. Each value under 140 chars, practical, specific to the place.',900,function(err,txt){
+          if(done) return; done=true;
+          var j=extractJSON(txt); res(j&&j.hacks&&j.context? j : intelFallback());
+        }, true);
+      }catch(e){ if(!done){done=true; res(intelFallback());} }
+    });
+    /* --- MAP: dest geocode + up to 4 activity pins + composed tiles --- */
+    var mapP=(function(){
+      var cP=(typeof d.lat==='number'&&typeof d.lon==='number')? Promise.resolve({lat:d.lat,lon:d.lon}) : gcode(d.name+', '+(d.country||''));
+      return cP.then(function(c){ if(!c) return null;
+        var pinQ=[]; if(AIP){ for(var pi2=0; pi2<Math.min(4,AIP.length); pi2++){ (function(ii){
+          var plc=firstPlace(AIP[ii].morning); if(plc&&plc.length>2) pinQ.push(gcode(plc+', '+d.name).then(function(g){ return g? {n:plc,day:ii+1,lat:g.lat,lon:g.lon}:null; })); })(pi2); } }
+        return Promise.all(pinQ).then(function(pins){
+          pins=(pins||[]).filter(function(p3){ return p3 && Math.abs(p3.lat-c.lat)<1.3 && Math.abs(p3.lon-c.lon)<1.3; });
+          var Z=11, n2=Math.pow(2,Z);
+          function txx(lo){ return (lo+180)/360*n2; }
+          function tyy(la){ var r=la*Math.PI/180; return (1-Math.log(Math.tan(r)+1/Math.cos(r))/Math.PI)/2*n2; }
+          var cxp=txx(c.lon), cyp=tyy(c.lat);
+          var x0=Math.floor(cxp)-1, y0=Math.floor(cyp)-1;
+          var jobs=[]; for(var yy=0; yy<2; yy++) for(var xx=0; xx<3; xx++)(function(xx,yy){
+            jobs.push(fetchBmp('https://'+(['a','b','c'][(xx+yy)%3])+'.basemaps.cartocdn.com/rastertiles/voyager/'+Z+'/'+(x0+xx)+'/'+(y0+yy)+'.png').catch(function(){return null;}));
+          })(xx,yy);
+          return Promise.all(jobs).then(function(tls){
+            if(!tls.some(function(t3){return t3;})) return null;
+            var cv2=document.createElement('canvas'); cv2.width=768; cv2.height=512;
+            var g2=cv2.getContext('2d'); g2.fillStyle='#DDE8E8'; g2.fillRect(0,0,768,512);
+            tls.forEach(function(bm,ti){ if(bm) g2.drawImage(bm,(ti%3)*256,Math.floor(ti/3)*256,256,256); });
+            function px(lo,la){ return [(txx(lo)-x0)*256,(tyy(la)-y0)*256]; }
+            var cc=px(c.lon,c.lat);
+            g2.fillStyle='rgb('+TH.acc[0]+','+TH.acc[1]+','+TH.acc[2]+')';
+            g2.beginPath(); g2.arc(cc[0],cc[1],11,0,7); g2.fill();
+            g2.fillStyle='#fff'; g2.font='700 12px Arial'; g2.textAlign='center'; g2.fillText('\u2605',cc[0],cc[1]+4);
+            pins.forEach(function(p3,pi3){ var pp=px(p3.lon,p3.lat);
+              g2.fillStyle='#C4302B'; g2.beginPath(); g2.arc(pp[0],pp[1],10,0,7); g2.fill();
+              g2.fillStyle='#fff'; g2.fillText(String(pi3+1),pp[0],pp[1]+4); });
+            g2.fillStyle='rgba(255,255,255,.85)'; g2.fillRect(0,494,768,18);
+            g2.fillStyle='#555'; g2.font='10px Arial'; g2.textAlign='left';
+            g2.fillText('\u00a9 OpenStreetMap contributors \u00a9 CARTO', 8, 507);
+            return {img:cv2.toDataURL('image/jpeg',0.9), pins:pins, c:c};
+          });
+        });
+      }).catch(function(){ return null; });
+    })();
+    var photoJobsStaggered = photoJobs.map(function(p,pi){
+      return new Promise(function(res){ setTimeout(function(){ Promise.resolve(p).then(res,function(){res(null);}); }, pi*160); });
+    });
+    Promise.all([Promise.all(photoJobsStaggered), avP, intelP, mapP]).then(function(ALL){
+      var imgs=ALL[0], avatar=ALL[1], intel=ALL[2], mapDat=ALL[3];
       var hero=imgs[0], gemPics=imgs.slice(1,4).filter(Boolean), dayPics=imgs.slice(4);
       /* ---------- COVER ---------- */
       pdf.setFillColor(TH.deep[0],TH.deep[1],TH.deep[2]); pdf.rect(0,0,600,800,'F');
@@ -2180,7 +2330,41 @@ function genPdf(){
       pdf.text(o.party+' - '+o.pace+' pace'+(start?(' - from '+start.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'})):''),300,676,{align:'center'});
       if(notes){ pdf.setFontSize(10); pdf.text('"'+notes+'"',300,698,{align:'center'}); }
       if(AIP){ pdf.setTextColor('#16BF96'); pdf.setFontSize(9.5); pdf.text('* Personalised by AI - real places, real timings *',300,720,{align:'center'}); }
+      if(avatar){ try{ pdf.addImage(avatar,'JPEG',40,38,52,52); pdf.setDrawColor(TH.acc[0],TH.acc[1],TH.acc[2]); pdf.setLineWidth(1.6); pdf.rect(40,38,52,52); }catch(e){} }
+      if(PR&&(PR.name||PR.style)){ pdf.setTextColor('#B8B4A8'); pdf.setFontSize(8.5);
+        pdf.text((PR.name||name)+(PR.style? ' - '+PR.style+' soul':'')+(PR.loc? ' - '+PR.loc:''),40,104);
+        if(PR.bio){ pdf.setFont('times','italic'); pdf.text('"'+String(PR.bio).slice(0,54)+'"',40,118); pdf.setFont('helvetica','normal'); } }
+      if(evHit.length){ pdf.setTextColor(TH.acc[0],TH.acc[1],TH.acc[2]); pdf.setFontSize(10);
+        pdf.text('HAPPENING DURING YOUR TRIP: '+evHit.map(function(e){return e.n;}).join('  +  '),300,132,{align:'center'}); }
       foot(pn);
+      /* ---------- MAP & PINS PAGE ---------- */
+      if(mapDat){
+        pdf.addPage(); pn++; page(); wm(); frame();
+        pdf.setTextColor(TH.acc[0],TH.acc[1],TH.acc[2]); pdf.setFont('times','bold'); pdf.setFontSize(24);
+        pdf.text('Your Map & Pins',44,62);
+        try{ pdf.addImage(mapDat.img,'JPEG',40,80,520,347);
+          pdf.setDrawColor(TH.acc[0],TH.acc[1],TH.acc[2]); pdf.setLineWidth(1.6); pdf.rect(40,80,520,347); }catch(e){}
+        var ly=452;
+        pdf.setFontSize(10.5); pdf.setFont('helvetica','normal');
+        pdf.setTextColor(INK); pdf.text('STAR = '+d.name+' center',44,ly); ly+=16;
+        (mapDat.pins||[]).forEach(function(p3,pi3){
+          pdf.setTextColor('#C4302B'); pdf.setFont('helvetica','bold'); pdf.text(String(pi3+1),48,ly);
+          pdf.setTextColor(INK); pdf.setFont('helvetica','normal');
+          pdf.text('Day '+p3.day+' - 09:00 - '+p3.n,64,ly); ly+=15; });
+        ly+=8; pdf.setTextColor(TH.acc[0],TH.acc[1],TH.acc[2]); pdf.setFont('helvetica','bold'); pdf.setFontSize(11);
+        pdf.text('Open live maps:',44,ly); ly+=16; pdf.setFont('helvetica','normal'); pdf.setFontSize(10.5);
+        var gmU='https://maps.google.com/?q='+mapDat.c.lat+','+mapDat.c.lon;
+        var mmU='https://maps.mapmyindia.com/@'+mapDat.c.lat+','+mapDat.c.lon;
+        var osU='https://www.openstreetmap.org/#map=12/'+mapDat.c.lat+'/'+mapDat.c.lon;
+        try{ pdf.setTextColor(30,90,200);
+          pdf.textWithLink('Google Maps  ->  tap to open',44,ly,{url:gmU}); ly+=15;
+          pdf.textWithLink('MapmyIndia  ->  tap to open',44,ly,{url:mmU}); ly+=15;
+          pdf.textWithLink('OpenStreetMap  ->  tap to open',44,ly,{url:osU}); ly+=15;
+        }catch(e){}
+        if(evHit.length){ ly+=6; pdf.setTextColor(TH.acc[0],TH.acc[1],TH.acc[2]);
+          pdf.text('Event nearby during your dates: '+evHit[0].n,44,ly); }
+        foot(pn);
+      }
       /* ---------- DAY PAGES: 6-slot cinematic timeline ---------- */
       var perDay=(d.cost&&d.cost.mid? Math.round(d.cost.mid/7):0);
       var paceAdj=o.pace==='Relaxed'?0.85:(o.pace==='Packed'?1.2:1);
@@ -2244,6 +2428,12 @@ function genPdf(){
       y3+=10; pdf.setTextColor(GOLD); pdf.setFont('helvetica','bold'); pdf.setFontSize(12); pdf.text('\ud83d\udc8e Local specialities & hidden gems',44,y3); y3+=16;
       pdf.setTextColor(INK); pdf.setFont('helvetica','normal'); pdf.setFontSize(10.5);
       (d.gems&&d.gems.length? d.gems:['The best gem is an unplanned afternoon']).slice(0,5).forEach(function(g){ pdf.text(pdf.splitTextToSize('\u2022 '+g,500),52,y3); y3+=15; });
+      y3+=10; pdf.setTextColor(TH.acc[0],TH.acc[1],TH.acc[2]); pdf.setFont('helvetica','bold'); pdf.setFontSize(12); pdf.text("Don't-miss & only-here",44,y3); y3+=16;
+      pdf.setTextColor(INK); pdf.setFont('helvetica','normal'); pdf.setFontSize(10.5);
+      var dm=[(d.gems&&d.gems[0])||'The first hour after sunrise - the place before the performance',
+              (d.food&&d.food[0])? 'The one dish: '+d.food[0] : 'Ask three locals for the one dish',
+              ((d.tags||[])[0]? 'Its signature: '+(d.tags||[]).slice(0,3).join(', ') : 'Walk one street behind the famous one')];
+      dm.forEach(function(x2){ pdf.text(pdf.splitTextToSize('* '+x2,500),52,y3); y3+=15; });
       y3+=10; pdf.setTextColor(GOLD); pdf.setFont('helvetica','bold'); pdf.setFontSize(12); pdf.text('\ud83e\udd1d Culture in 4 lines',44,y3); y3+=16;
       pdf.setTextColor(INK); pdf.setFont('helvetica','normal'); pdf.setFontSize(10.5);
       ['Greet before you ask \u2014 two seconds of hello changes every interaction.','Dress one notch more modestly at religious sites than the street suggests.','Haggling is a smile game where both sides should win.','Photograph people only after a nod \u2014 the nod is the picture\u2019s soul.'].forEach(function(c2){ pdf.text(pdf.splitTextToSize('\u2022 '+c2,500),52,y3); y3+=15; });
@@ -2252,6 +2442,38 @@ function genPdf(){
         gemPics.slice(0,3).forEach(function(im){ try{ pdf.addImage(im,'JPEG',gx,y3+8,164,110); pdf.setDrawColor(GOLD); pdf.rect(gx,y3+8,164,110); gx+=172; }catch(e){} });
         y3+=126; }
       foot(pn);
+      /* ---------- LOCAL INTEL & STREET WISDOM ---------- */
+      if(intel){
+        pdf.addPage(); pn++; page(); wm(); frame();
+        pdf.setTextColor(TH.acc[0],TH.acc[1],TH.acc[2]); pdf.setFont('times','bold'); pdf.setFontSize(24);
+        pdf.text('Local Intel & Street Wisdom',44,62);
+        var yi=92;
+        pdf.setFont('helvetica','bold'); pdf.setFontSize(12); pdf.setTextColor(TH.acc[0],TH.acc[1],TH.acc[2]);
+        pdf.text('Secret hacks',44,yi);
+        pdf.text('Save money like a local',310,yi); yi+=16;
+        pdf.setFont('helvetica','normal'); pdf.setFontSize(10); pdf.setTextColor(INK);
+        for(var ri=0; ri<3; ri++){
+          if(intel.hacks&&intel.hacks[ri]) pdf.text(pdf.splitTextToSize('* '+intel.hacks[ri],240),44,yi);
+          if(intel.save&&intel.save[ri]) pdf.text(pdf.splitTextToSize('* '+intel.save[ri],240),310,yi);
+          yi+=34; }
+        yi+=6; pdf.setDrawColor(TH.acc[0],TH.acc[1],TH.acc[2]); pdf.setLineWidth(.8); pdf.line(44,yi,556,yi); yi+=18;
+        pdf.setFont('helvetica','bold'); pdf.setFontSize(12); pdf.setTextColor(TH.acc[0],TH.acc[1],TH.acc[2]);
+        pdf.text('Know the ground: local conditions',44,yi); yi+=16;
+        var ctx2=intel.context||{};
+        [['Nature',ctx2.nature],['Culture',ctx2.culture],['Politics',ctx2.politics],['Economy',ctx2.economy],['Social',ctx2.social],['Education',ctx2.education]].forEach(function(rw){
+          if(!rw[1]) return;
+          pdf.setFont('helvetica','bold'); pdf.setFontSize(10); pdf.setTextColor(TH.acc[0],TH.acc[1],TH.acc[2]);
+          pdf.text(rw[0].toUpperCase(),44,yi);
+          pdf.setFont('helvetica','normal'); pdf.setTextColor(INK);
+          var lines2=pdf.splitTextToSize(String(rw[1]),430);
+          pdf.text(lines2,120,yi); yi+=Math.max(15,lines2.length*13+4); });
+        if(ctx2.caution){ yi+=4; pdf.setFillColor(250,236,214); pdf.roundedRect(40,yi-10,520,46,7,7,'F');
+          pdf.setTextColor('#7A2E1E'); pdf.setFont('helvetica','bold'); pdf.setFontSize(10);
+          pdf.text('APPROACH WITH CARE',52,yi+4);
+          pdf.setFont('helvetica','normal'); pdf.setTextColor(INK);
+          pdf.text(pdf.splitTextToSize(ctx2.caution,480),52,yi+18); }
+        foot(pn);
+      }
       /* ---------- ESSENTIALS ---------- */
       pdf.addPage(); pn++; page(); wm(); frame();
       pdf.setTextColor(CRIM); pdf.setFont('times','bold'); pdf.setFontSize(26); pdf.text('Essentials',44,64);
@@ -2273,7 +2495,7 @@ function genPdf(){
           y2+=26; } }
       if(d.visa){ h('\ud83d\udec2 Visa (Indian passport)');
         pdf.text(pdf.splitTextToSize((d.visa.type||'')+' \u00b7 '+(d.visa.cost||'')+' \u00b7 up to '+(d.visa.days||'')+' days. '+(d.visa.note||''),500),52,y2); y2+=44; }
-      h('\ud83c\udd98 Emergency'); pdf.text('Global 112 \u00b7 India 112 / Ambulance 108 \u00b7 keep your embassy number offline',52,y2); y2+=26;
+      h('Emergency - '+(d.country||'local')); pdf.text(emgFor(d.country)+'  -  save your embassy number offline',52,y2); y2+=26;
       h('Pack checklist');
       ['Passport + copies','Travel insurance','Offline maps','Power bank + cables','Meds / ORS','Rain shell','Broken-in shoes','Cash in small notes'].forEach(function(pk,pi){
         var px=52+(pi%2)*250, py=y2+Math.floor(pi/2)*16;
@@ -2284,6 +2506,7 @@ function genPdf(){
       pdf.setTextColor(MUT); pdf.setFontSize(9); pdf.text('Generated '+new Date().toLocaleDateString('en-IN')+' \u00b7 figures indicative \u2014 verify before booking',44,742);
       foot(pn);
       /* ---------- OUTPUT ---------- */
+      window._pdfDbg={pages:pn, hero:!!hero, dayPics:dayPics.filter(Boolean).length, gems:gemPics.length, map:!!mapDat, intel:!!intel, av:!!avatar, ev:evHit.length};
       var fname='roamwise-'+d.name.toLowerCase().replace(/[^a-z0-9]+/g,'-')+'-itinerary.pdf';
       if(window.RW && RW.saveCard){ RW.saveCard(pdf.output('datauristring')); showToast('\ud83d\udcd5 PDF saved to Downloads/RoamWise \u2014 open it from your notifications'); }
       else { try{ var u=URL.createObjectURL(pdf.output('blob')); var w2=window.open(u,'_blank');
@@ -2733,13 +2956,22 @@ var PRAISE={Genin:'Every legend begins with a single step \u2014 yours already c
  Jonin:'A seasoned wanderer \u2014 borders bend around such travelers.',
  ANBU:'Moving through the world the way wind moves through pines.',
  Kage:'Master of the wandering arts. The map keeps this one\u2019s secrets.'};
+var CARD_STYLES={
+ atlas:{label:'Classic Atlas',bg:['#0B0D18','#10101F','#160D13'],pin:'#C4302B',pinCore:'#E8BA6C',pinTxt:'#0A0A12',trail:null,accent:'#E8BA6C',capFont:'Georgia,serif',tint:null},
+ noir:{label:'Minimal Noir',bg:['#0A0A0E','#0E0E13','#0A0A0E'],pin:'#F2EFE8',pinCore:'#0A0A0E',pinTxt:'#F2EFE8',trail:'#B8B4A8',accent:'#EDEAE2',capFont:'Outfit,Arial',tint:['rgba(0,0,0,.28)','rgba(255,255,255,.05)']},
+ neon:{label:'Neon Voyage',bg:['#070113','#0E0330','#12042E'],pin:'#FF2E9A',pinCore:'#070113',pinTxt:'#FF2E9A',trail:'#00E5FF',accent:'#00E5FF',capFont:'Outfit,Arial',tint:['rgba(0,229,255,.07)','rgba(255,46,154,.06)']}};
+function cardStyleGet(){ return CARD_STYLES[lsGet('rw_cardstyle')||'atlas']||CARD_STYLES.atlas; }
+function setCardStyle(k){ lsSet('rw_cardstyle',k);
+  document.querySelectorAll('.cstyle').forEach(function(b){ b.classList.toggle('red', b.dataset.k===k); });
+  showToast(CARD_STYLES[k].label+' style armed'); makeCard(); }
 function drawCard(L, name, tiles){
+  var ST=cardStyleGet();
   var W=1200,H=1600,c=document.createElement('canvas');
   c.width=W*2; c.height=H*2;                    /* 2400x3200 \u2014 print-grade */
   var x=c.getContext('2d'); x.scale(2,2);
   window._rwCard=c;
   /* canvas backdrop */
-  var bg=x.createLinearGradient(0,0,W,H); bg.addColorStop(0,'#0B0D18'); bg.addColorStop(.55,'#10101F'); bg.addColorStop(1,'#160D13');
+  var bg=x.createLinearGradient(0,0,W,H); bg.addColorStop(0,ST.bg[0]); bg.addColorStop(.55,ST.bg[1]); bg.addColorStop(1,ST.bg[2]);
   x.fillStyle=bg; x.fillRect(0,0,W,H);
   /* watermark weave */
   x.save(); x.globalAlpha=0.04; x.fillStyle='#E8BA6C'; x.font='700 40px Outfit,Arial';
@@ -2796,16 +3028,19 @@ function drawCard(L, name, tiles){
     return [MX+(e.lon+180)/360*MW, MY+mercY(Math.max(-84,Math.min(84,e.lat)),MH)]; }
   var pts=[], legend=[];
   L.forEach(function(e,i){ var p=proj(e); legend.push({n:logName(e),p:p}); if(p) pts.push({p:p,num:legend.length}); });
-  window._rwCine={pts:pts.map(function(o){return {x:o.p[0],y:o.p[1],num:o.num};}), names:legend.map(function(g){return g.n;}), name:name, W:W, H:H};
+  if(ST.tint){ x.save(); x.globalCompositeOperation='soft-light'; x.fillStyle=ST.tint[0]; x.fillRect(0,0,W,H);
+    x.globalCompositeOperation='overlay'; x.fillStyle=ST.tint[1]; x.fillRect(0,0,W,H); x.restore(); }
+  window._rwCine={pts:pts.map(function(o){return {x:o.p[0],y:o.p[1],num:o.num};}), names:legend.map(function(g){return g.n;}), name:name, W:W, H:H, style:lsGet('rw_cardstyle')||'atlas'};
   /* golden arcs between consecutive located pins */
   x.save(); x.setLineDash([7,6]); x.lineWidth=2.6;
   x.beginPath(); x.rect(MX,MY,MW,MH); x.clip();   /* arcs stay inside the map plate */
   for(var i=0;i<pts.length-1;i++){
     var a=pts[i].p, b=pts[i+1].p;
     if(!a||!b) continue;
-    var grad=x.createLinearGradient(a[0],a[1],b[0],b[1]);
-    grad.addColorStop(0,'rgba(232,186,108,.9)'); grad.addColorStop(1,'rgba(196,48,43,.9)');
-    x.strokeStyle=grad;
+    if(ST.trail){ x.strokeStyle=ST.trail; }
+    else { var grad=x.createLinearGradient(a[0],a[1],b[0],b[1]);
+      grad.addColorStop(0,'rgba(232,186,108,.9)'); grad.addColorStop(1,'rgba(196,48,43,.9)');
+      x.strokeStyle=grad; }
     x.beginPath();
     if(Math.abs(a[0]-b[0]) > MW*0.55){ x.moveTo(a[0],a[1]); x.lineTo(b[0],b[1]); }   /* huge hops: straight, no wild arc */
     else { var my2=Math.max(MY+8, Math.min(a[1],b[1]) - Math.min(70, Math.abs(a[0]-b[0])*0.25) - 12);
@@ -2817,9 +3052,9 @@ function drawCard(L, name, tiles){
   pts.forEach(function(o){
     var p=o.p;
     x.save(); x.shadowColor='rgba(232,186,108,.9)'; x.shadowBlur=14;
-    x.fillStyle='#C4302B'; x.beginPath(); x.arc(p[0],p[1],12,0,7); x.fill(); x.restore();
-    x.fillStyle='#E8BA6C'; x.beginPath(); x.arc(p[0],p[1],8.5,0,7); x.fill();
-    x.fillStyle='#0A0A12'; x.font='700 11px Outfit,Arial'; x.textAlign='center';
+    x.fillStyle=ST.pin; x.beginPath(); x.arc(p[0],p[1],12,0,7); x.fill(); x.restore();
+    x.fillStyle=ST.pinCore; x.beginPath(); x.arc(p[0],p[1],8.5,0,7); x.fill();
+    x.fillStyle=ST.pinTxt; x.font='700 11px Outfit,Arial'; x.textAlign='center';
     x.fillText(String(o.num), p[0], p[1]+4);
   });
   x.fillStyle='#54524C'; x.font='400 10px Outfit,Arial'; x.textAlign='right';
@@ -3027,9 +3262,10 @@ function cineRender(opts){
   function cap(top,big,small,alpha){
     x.save(); x.globalAlpha=alpha; x.textAlign='center';
     x.fillStyle='rgba(7,9,15,.55)'; x.fillRect(0,VH-330,VW,240);
-    x.fillStyle='#E8BA6C'; x.font='700 34px Georgia,serif'; x.fillText(top,VW/2,VH-260);
-    x.fillStyle='#fff'; x.font='700 58px Georgia,serif'; x.fillText(big,VW/2,VH-190);
-    if(small){ x.fillStyle='#B8B4A8'; x.font='italic 26px Georgia,serif'; x.fillText(small,VW/2,VH-140); }
+    var STc=CARD_STYLES[(_rwCine&&_rwCine.style)||'atlas']||CARD_STYLES.atlas;
+    x.fillStyle=STc.accent; x.font='700 34px '+STc.capFont; x.fillText(top,VW/2,VH-260);
+    x.fillStyle='#fff'; x.font='700 58px '+STc.capFont; x.fillText(big,VW/2,VH-190);
+    if(small){ x.fillStyle='#B8B4A8'; x.font='italic 26px '+STc.capFont; x.fillText(small,VW/2,VH-140); }
     x.restore();
   }
   function frame(now){
@@ -3047,7 +3283,8 @@ function cineRender(opts){
       var px=Pv.x+(A2.x-Pv.x)*e2, py=Pv.y+(A2.y-Pv.y)*e2;
       var cam=camAt(px,py, 3.4);
       /* progressive golden trail */
-      x.save(); x.lineWidth=7; x.setLineDash([16,12]); x.strokeStyle='#E8BA6C'; x.shadowColor='#E8BA6C'; x.shadowBlur=16;
+      var STm=CARD_STYLES[(C.style)||'atlas']||CARD_STYLES.atlas;
+      x.save(); x.lineWidth=7; x.setLineDash([16,12]); x.strokeStyle=STm.trail||'#E8BA6C'; x.shadowColor=STm.trail||'#E8BA6C'; x.shadowBlur=16;
       x.beginPath();
       for(var i2=0;i2<=k;i2++){
         var pt=legs[i2], s2=toScreen(cam,pt.x,pt.y);
@@ -3055,7 +3292,7 @@ function cineRender(opts){
       }
       var cur=toScreen(cam,px,py); x.lineTo(cur[0],cur[1]); x.stroke(); x.restore();
       /* pulsing pin */
-      x.save(); x.fillStyle='#C4302B'; x.shadowColor='#E8BA6C'; x.shadowBlur=24;
+      x.save(); x.fillStyle=STm.pin; x.shadowColor=STm.trail||'#E8BA6C'; x.shadowBlur=24;
       x.beginPath(); x.arc(cur[0],cur[1],20+6*Math.sin(t*7),0,7); x.fill(); x.restore();
       var nm=String(C.names[(legs[k].num||1)-1]||'Somewhere').slice(0,26);
       cap('CHAPTER '+(k+1)+' OF '+legs.length, nm, k===0?'where it all began':'the road continues', 1);
@@ -4142,7 +4379,8 @@ function buildItin(T, name, costMid, days){
         <div class="day-body" id="${did}"><div>${segs}</div>${day.tip?`<div class="day-tip">💡 ${day.tip}</div>`:''}</div></div>`;
     }).join('');
     cnt.innerHTML = (srcBadge||'') + H
-      + '<button class="tact" style="width:100%;margin-top:12px;border-color:rgba(22,191,150,.5);color:#16BF96" onclick="syncGo(\''+name.replace(/'/g,"\\'")+'\')">\ud83e\udd1d Sync Circle \u2014 I\u2019m going! See who else is</button>'
+      + '<a class="tact" style="display:block;text-align:center;text-decoration:none;width:100%;margin-top:12px" target="_blank" rel="noopener" href="'+stayUrl(name)+'">\ud83c\udfe8 Book stays in '+name+'</a>'
+      + '<button class="tact" style="width:100%;margin-top:8px;border-color:rgba(22,191,150,.5);color:#16BF96" onclick="syncGo(\''+name.replace(/'/g,"\\'")+'\')">\ud83e\udd1d Sync Circle \u2014 I\u2019m going! See who else is</button>'
       + '<button class="tact" style="width:100%;margin-top:8px" onclick="compareModels(\''+name.replace(/'/g,"\\'")+'\','+days+')">\u2694\ufe0f Compare AI engines on this trip</button>'
       + '<button class="rzp-main-btn" style="margin-top:12px;background:linear-gradient(135deg,#9B59F5,#7A3FE0)" onclick="openPdfFlow(\''+T+'\',\''+name.replace(/'/g,"\\'")+'\','+days+',\''+((el('month')||{}).value||'')+'\')">\ud83d\udcd5 Premium PDF itinerary \u2014 \u20b910 (free for Pro)</button>';
     ph.style.display='none'; cnt.style.display='block'; itinBuilt[T]=true;
