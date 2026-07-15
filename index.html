@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="theme-color" content="#07090F">
 <title>RoamWise Pro — AI Travel Planner | Itineraries, Budgets & Crowd-Free Destinations</title>
 <meta name="description" content="Plan smarter trips anywhere in the world. AI-powered itineraries, live crowd heatmaps, budget breakdowns in 10 currencies, packing lists and visa info. One-time Pro unlock — ₹100 in India, $4.99 worldwide.">
@@ -595,6 +595,126 @@ body.shell .hamb{display:flex}
 .utr-title{font-size:12px;font-weight:600;color:var(--gold2);margin-bottom:4px}
 .utr-sub{font-size:11px;color:var(--t2);margin-bottom:9px;line-height:1.55}
 </style>
+<style id="rwPolish">
+/* ===== rwPolish — press feel, elevation, motion, pill tab bar ===== */
+*{-webkit-tap-highlight-color:transparent}
+html{overflow-x:hidden;overscroll-behavior-x:none}
+body{overscroll-behavior:none;max-width:100vw}
+html{scroll-behavior:smooth}
+body{overscroll-behavior-y:none;touch-action:manipulation}
+button,.tact,.dr-link,.tabbar button,.exp,.trek,.rzp-main-btn{user-select:none;-webkit-user-select:none}
+/* Duolingo press-squish on every tappable */
+.tact,.rzp-main-btn,.tabbar button,.exp,.trek,.dr-link,.k-save,.share-fab,.dna-opt{transition:transform .12s ease,box-shadow .2s ease,background .2s ease,border-color .2s ease}
+.tact:active,.rzp-main-btn:active,.exp:active,.trek:active,.dna-opt:active,.k-save:active{transform:scale(.965)}
+.tabbar button:active .ti{transform:scale(1.22)}
+.tabbar button .ti{transition:transform .16s cubic-bezier(.34,1.56,.64,1)}
+/* Elevated cards (Airbnb) */
+.exp,.trek{border-radius:18px;box-shadow:0 1px 0 rgba(255,255,255,.03) inset,0 8px 24px rgba(0,0,0,.28)}
+.exp:hover,.trek:hover{border-color:rgba(232,186,108,.45);box-shadow:0 12px 34px rgba(0,0,0,.4)}
+.modal{border-radius:22px;box-shadow:0 24px 80px rgba(0,0,0,.6)}
+.mode-box{border-radius:14px}
+.rzp-main-btn{border-radius:16px;box-shadow:0 10px 26px rgba(196,48,43,.35)}
+/* Floating pill tab bar (Uber/Spotify) */
+.tabbar{left:10px;right:10px;bottom:10px;border-radius:22px;border:1px solid var(--b2);box-shadow:0 12px 40px rgba(0,0,0,.5)}
+.tabbar button{border-radius:15px;margin:0 2px}
+.tabbar button.on{background:linear-gradient(135deg,rgba(196,48,43,.22),rgba(196,48,43,.08))}
+.tabbar button.on::after{display:none}
+body.shell{padding-bottom:calc(96px + env(safe-area-inset-bottom))}
+/* Scroll-reveal (Apple) */
+@media (prefers-reduced-motion:no-preference){
+  .rv{opacity:0;transform:translateY(16px);transition:opacity .55s ease,transform .55s cubic-bezier(.22,1,.36,1)}
+  .rv.inview{opacity:1;transform:none}
+}
+/* Inputs & search pill */
+.txn-inp:focus,.k-inp:focus,input:focus,select:focus{outline:none;border-color:var(--gold2)!important;box-shadow:0 0 0 3px rgba(232,186,108,.15)}
+#destInput{border-radius:16px}
+/* Section rhythm */
+.xsec{padding-top:34px}
+.xsec-title{letter-spacing:-.02em}
+/* Icon tiles (fintech-style emoji chips) */
+.exp-ic{width:46px;height:46px;border-radius:14px;background:linear-gradient(135deg,rgba(196,48,43,.18),rgba(232,186,108,.10));display:flex;align-items:center;justify-content:center;font-size:24px!important;margin-bottom:10px;border:1px solid rgba(232,186,108,.18)}
+.exp{padding:18px}
+/* Billboard (video hero) */
+#promoTop{margin:10px 12px 4px}
+.bb{position:relative;border-radius:20px;overflow:hidden;border:1px solid var(--b2);box-shadow:0 14px 40px rgba(0,0,0,.45);cursor:pointer;background:linear-gradient(110deg,#12121C 30%,#1A1A26 50%,#12121C 70%);background-size:200% 100%;animation:bbsheen 1.4s linear infinite}
+.bb img{width:100%;display:block;aspect-ratio:16/9;object-fit:cover}
+.bb .ov{position:absolute;inset:0;background:linear-gradient(180deg,transparent 35%,rgba(7,9,15,.88) 100%);display:flex;flex-direction:column;justify-content:flex-end;padding:16px}
+.bb .t1{font-family:'Playfair Display',Georgia,serif;font-weight:800;font-size:22px;color:#fff;letter-spacing:.01em}
+.bb .t2{font-size:11.5px;color:var(--gold2);margin-top:2px;letter-spacing:.14em}
+.bb .play{position:absolute;top:50%;left:50%;transform:translate(-50%,-60%);width:64px;height:64px;border-radius:50%;background:var(--crim);display:flex;align-items:center;justify-content:center;font-size:24px;color:#fff;box-shadow:0 10px 34px rgba(196,48,43,.55)}
+@keyframes bbsheen{to{background-position:-200% 0}}
+@media (prefers-reduced-motion:no-preference){
+  .rzp-main-btn{animation:ctaglow 3.2s ease-in-out infinite}
+  @keyframes ctaglow{0%,100%{box-shadow:0 10px 26px rgba(196,48,43,.32)}50%{box-shadow:0 10px 34px rgba(196,48,43,.55)}}
+}
+/* — Enkio language: flat dark cards, white pill on media, icon tiles, media rows — */
+@media (max-width:1024px){
+  .exp,.trek{background:#15151E;border-color:rgba(255,255,255,.05)}
+}
+.bb .try{position:absolute;right:14px;bottom:14px;background:#fff;color:#0A0C14;font-weight:800;font-size:14.5px;padding:11px 22px;border-radius:99px;box-shadow:0 8px 24px rgba(0,0,0,.45)}
+.bb .play{display:none}
+/* feature tiles (Image-to-video row style) */
+.ftrow{display:flex;gap:10px;overflow-x:auto;padding:4px 2px 6px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.ftrow::-webkit-scrollbar{display:none}
+.ftile{flex:0 0 auto;width:96px;background:#17171F;border-radius:18px;padding:14px 8px 12px;text-align:center;border:1px solid rgba(255,255,255,.04);transition:transform .12s ease}
+.ftile:active{transform:scale(.94)}
+.ftile .fi{font-size:26px;display:block;margin-bottom:8px}
+.ftile .fl{font-size:12px;font-weight:600;color:var(--t1);line-height:1.25}
+/* popular media row (9:16 gradient covers) */
+.prow{display:flex;gap:11px;overflow-x:auto;padding:4px 2px 8px;scrollbar-width:none}
+.prow::-webkit-scrollbar{display:none}
+.pcard{flex:0 0 auto;width:128px;aspect-ratio:9/15;border-radius:18px;position:relative;overflow:hidden;display:flex;align-items:flex-end;padding:11px;cursor:pointer;transition:transform .12s ease}
+.pcard:active{transform:scale(.95)}
+.pcard .pe{position:absolute;top:10px;left:0;right:0;text-align:center;font-size:42px;filter:drop-shadow(0 6px 14px rgba(0,0,0,.5))}
+.pcard .pn{position:relative;font-weight:800;font-size:14px;color:#fff;text-shadow:0 2px 10px rgba(0,0,0,.6);line-height:1.15}
+.pcard .pb{position:absolute;top:9px;right:9px;font-size:9px;font-weight:800;padding:3px 8px;border-radius:99px;background:#16BF96;color:#04120D}
+.pcard::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,transparent 45%,rgba(7,9,15,.72) 100%)}
+.pcard .pn{z-index:1}
+.rowhead{display:flex;align-items:baseline;justify-content:space-between;margin:16px 2px 9px}
+.rowhead b{font-size:21px;font-weight:800;letter-spacing:-.02em;color:#fff}
+.rowhead a{font-size:12.5px;color:var(--t3);text-decoration:none}
+/* Scrollbar (desktop Stripe-clean) */
+::-webkit-scrollbar{width:9px;height:9px}
+::-webkit-scrollbar-thumb{background:#23232E;border-radius:9px}
+::-webkit-scrollbar-thumb:hover{background:#2E2E3C}
+</style>
+<style id="rwScale">
+/* ===== Native-app scale — bigger, thumb-friendly on mobile & tablet ===== */
+html{-webkit-text-size-adjust:100%}
+@media (max-width:1024px){
+  body{font-size:16px;line-height:1.65}
+  .tact{font-size:14.5px;padding:12px 14px;border-radius:13px;min-height:46px}
+  .rzp-main-btn{font-size:16px;padding:16px;border-radius:15px}
+  .txn-inp,.k-inp,input,select,textarea{font-size:16px!important;padding:13px 14px!important;border-radius:12px}
+  .xsec-title{font-size:27px}
+  .xsec-sub{font-size:14px}
+  .trek-name{font-size:16.5px}
+  .exp-name{font-size:16.5px}
+  .exp-desc,.exp-where,.exp-when{font-size:13.5px}
+  .tbadge{font-size:10px;padding:4px 9px}
+  .dr-link{font-size:16px;padding:15px 16px}
+  .dr-link .ic{font-size:20px}
+  .modal-title{font-size:20px}
+  .modal-sub{font-size:13px}
+  .mode-box,.ti-day{font-size:13.5px}
+  .day-seg .seg-desc{font-size:13.5px}
+  .day-seg .seg-time{font-size:11px}
+  .logo-text{font-size:19px}
+  .nav-ic{font-size:20px!important;padding:8px!important}
+  /* --- the big one: bottom tab bar like native apps --- */
+  .tabbar{padding:9px 6px calc(11px + env(safe-area-inset-bottom))}
+  .tabbar button{font-size:11.5px;font-weight:700;letter-spacing:.02em;gap:4px;padding:5px 0}
+  .tabbar button .ti{font-size:25px;line-height:1}
+  body.shell{padding-bottom:calc(84px + env(safe-area-inset-bottom))}
+}
+@media (min-width:481px) and (max-width:1024px){ /* tablets */
+  body{font-size:17px}
+  .xsec-title{font-size:32px}
+  .tabbar button .ti{font-size:28px}
+  .tabbar button{font-size:12.5px}
+  .exp-grid{grid-template-columns:repeat(auto-fill,minmax(280px,1fr))}
+}
+</style>
 </head>
 <body>
 <div class="intro" id="intro" onclick="killIntro()">
@@ -640,6 +760,7 @@ body.shell .hamb{display:flex}
   <span class="free-link" onclick="openPay()">Upgrade unlimited &rarr;</span>
 </div>
 
+<div id="promoTop" class="v v-home"></div>
 <div class="hero-sky v v-home"><div class="kumo" style="top:12%;left:4%"></div><div class="kumo k2" style="top:58%;right:6%"></div><div class="kumo k3" style="top:30%;right:22%"></div><div class="hero">
   <h1>Escape the crowds.<br><em>Discover your world.</em></h1>
   <p>The AI travel planner that works for any destination on Earth — smart itineraries, crowd heatmaps, real budget breakdowns and packing lists. No signup. No subscription. Pay once, yours forever.</p>
@@ -842,6 +963,12 @@ body.shell .hamb{display:flex}
 </div>
 
 <ins class="adsbygoogle rw-ad v v-home" style="display:none;margin:10px 14px" data-ad-format="auto" data-full-width-responsive="true"></ins>
+<section class="xsec v v-home" id="promofilm">
+  <div class="xsec-head"><h2 class="xsec-title">&#127916; The <em>Film</em></h2><button class="share-fab" onclick="shareApp('app')">&#128228; Share</button></div>
+  <p class="xsec-sub">The official RoamWise promo &mdash; music, mountains and the mission, in one reel.</p>
+  <div id="promoBox"></div>
+</section>
+
 <section class="xsec v v-home" id="store">
   <div class="xsec-head"><h2 class="xsec-title">&#128717; The <em>Store</em></h2><button class="share-fab" onclick="shareApp('app')">&#128228; Share</button></div>
   <p class="xsec-sub">Everything made in the Himalayas &mdash; tools, books and upgrades that fund the next feature.</p>
@@ -1703,7 +1830,8 @@ function ssIndex(){
    {t:'Unlock Pro / Supporter',k:'pro pay upgrade supporter price',go:function(){openPay();}},
    {t:'Basecamp (companies, emergency, packing)',k:'basecamp emergency packing operators',go:function(){tabGo('explore');scrollToId('basecamp');}},
    {t:'The Creator & books',k:'creator mohit books author about',go:function(){tabGo('home');scrollToId('creator');}},
-   {t:'My Music',k:'music songs phonk spotify saavn',go:function(){openMusic();}}
+   {t:'My Music',k:'music songs phonk spotify saavn',go:function(){openMusic();}},
+   {t:'The RoamWise Film (promo video)',k:'promo film video anthem watch',go:function(){tabGo('home');scrollToId('promofilm');}}
   ];
   (typeof TREKS!=='undefined'?TREKS:[]).forEach(function(t){ ix.push({t:'Trek: '+t.n,k:t.n.toLowerCase(),go:function(){tabGo('explore');scrollToId('treks');}}); });
   (typeof EVENTS!=='undefined'?EVENTS:[]).forEach(function(e){ ix.push({t:e.ic+' '+e.n,k:e.n.toLowerCase(),go:function(){eventPlan(e.id);}}); });
@@ -1731,13 +1859,32 @@ var FORYOU_DEFS={plan:['\ud83e\udded Plan',function(){tabGo('plan');}],treks:['\
 function renderForYou(){
   var host=el('brief'); if(!host) return;
   var u={}; try{u=JSON.parse(lsGet('rw_use')||'{}');}catch(e){}
-  var keys=Object.keys(FORYOU_DEFS).sort(function(a,b){return (u[b]||0)-(u[a]||0);}).slice(0,4);
-  var bar=document.createElement('div');
-  bar.style.cssText='display:flex;gap:8px;margin:10px 0 2px;flex-wrap:wrap';
-  bar.innerHTML='<span style="font-size:10px;color:var(--gold2);align-self:center;letter-spacing:.08em">\u2b50 FOR YOU</span>'+keys.map(function(k,i){
-    return '<button class="tact" style="flex:1;min-width:70px" onclick="useBump(\''+k+'\');FORYOU_DEFS[\''+k+'\'][1]()">'+FORYOU_DEFS[k][0]+'</button>';
+  var keys=Object.keys(FORYOU_DEFS).sort(function(a,b){return (u[b]||0)-(u[a]||0);});
+  var wrap=document.createElement('div');
+  var tiles=keys.map(function(k){
+    var d2=FORYOU_DEFS[k], parts=d2[0].split(' ');
+    return '<div class="ftile" onclick="useBump(\''+k+'\');FORYOU_DEFS[\''+k+'\'][1]()"><span class="fi">'+parts[0]+'</span><span class="fl">'+parts.slice(1).join(' ')+'</span></div>';
   }).join('');
-  host.insertBefore(bar, host.firstChild);
+  wrap.innerHTML='<div class="rowhead"><b>Quick start</b><a onclick="ssOpen()">Search \u2192</a></div><div class="ftrow">'+tiles+'</div>';
+  host.insertBefore(wrap, host.firstChild);
+  /* Popular now — image-first media row from the destination DB */
+  try{
+    var live=activeEvents(), evCity=live.length? live[0].city:null;
+    var picks=(typeof DB!=='undefined'? DB:[]).slice(0,10).sort(function(a,b){
+      var h=function(s){var x=0;for(var i=0;i<s.length;i++)x=(x*31+s.charCodeAt(i))>>>0;return (x+new Date().getDate())%97;};
+      return h(a.name)-h(b.name); }).slice(0,6);
+    var EMO={beach:'\ud83c\udfd6\ufe0f',metro:'\ud83c\udf06',sacred:'\ud83d\uded5',tech:'\ud83c\udf03',peak:'\ud83c\udfd4\ufe0f',classic:'\ud83e\udded'};
+    var row=document.createElement('div');
+    row.innerHTML='<div class="rowhead"><b>Popular now</b><a onclick="tabGo(\'explore\')">All \u2192</a></div><div class="prow">'
+      + picks.map(function(d2){
+          var th=themeFor(d2), a2=th.acc, dp2=th.deep, k2=th.key;
+          var badge = (evCity===d2.name)? '<span class="pb">LIVE</span>' : '';
+          return '<div class="pcard" style="background:linear-gradient(160deg, rgb('+a2[0]+','+a2[1]+','+a2[2]+') 0%, rgb('+dp2[0]+','+dp2[1]+','+dp2[2]+') 85%)" onclick="el(\'destInput\').value=\''+d2.name.replace(/'/g,'')+'\';tabGo(\'plan\');runSearch()">'
+            + badge + '<span class="pe">'+(EMO[k2]||EMO.classic)+'</span><span class="pn">'+d2.name+'</span></div>';
+        }).join('') + '</div>';
+    var bb=el('promoTop');
+    if(bb && bb.parentNode) bb.parentNode.insertBefore(row, bb.nextSibling);
+  }catch(e){}
 }
 
 /* ===== TRAVEL ECONOMY LIVE TICKER ===== */
@@ -1811,6 +1958,26 @@ function profSave(){
 
 /* ===== MUSIC PANEL ===== */
 var MUSIC_YT_PLAYLIST=''; /* paste a YouTube playlist ID to embed a real player */
+var PROMO_YT_ID='3MRlvs9bdPQ'; /* official RoamWise promo */
+function renderPromo(){
+  var top=el('promoTop'), box=el('promoBox');
+  if(PROMO_YT_ID && top){
+    top.innerHTML='<div class="bb" onclick="playPromo(this)">'
+     +'<img src="https://img.youtube.com/vi/'+PROMO_YT_ID+'/maxresdefault.jpg" onerror="this.src=\'https://img.youtube.com/vi/'+PROMO_YT_ID+'/hqdefault.jpg\'" alt="RoamWise film">'
+     +'<div class="ov"><div class="t2">THE OFFICIAL FILM</div><div class="t1">RoamWise \u2014 born in the Himalayas</div></div>'
+     +'<div class="try">\u25b6 Play</div></div>';
+  }
+  if(box){
+    box.innerHTML='<div class="exp" style="text-align:center;border-color:rgba(232,186,108,.4)"><div class="exp-ic" style="margin:0 auto 10px">\ud83c\udfa5</div>'
+     +'<div class="exp-name">More on @mohucool</div>'
+     +'<div class="exp-desc">Behind-the-scenes, Kumaoni-phonk drops and the build-in-public journey \u2014 subscribe so the next premiere finds you.</div>'
+     +'<a class="tact red" style="display:block;text-decoration:none;margin-top:10px" href="https://youtube.com/@mohucool?sub_confirmation=1" target="_blank" rel="noopener">\u25b6 Subscribe on YouTube</a></div>';
+  }
+}
+function playPromo(host){
+  host.outerHTML='<iframe width="100%" style="aspect-ratio:16/9;border-radius:20px;border:1px solid var(--b2)" src="https://www.youtube-nocookie.com/embed/'+PROMO_YT_ID+'?autoplay=1&playsinline=1" allow="autoplay;encrypted-media;fullscreen" allowfullscreen></iframe>';
+  try{ track('video_opens'); }catch(e){}
+}
 function openMusic(){
   useBump('music');
   var ov=el('musOverlay');
@@ -2587,7 +2754,21 @@ function renderSpotlight(){
     +'<div style="font-size:10px;color:var(--gold2);margin-top:8px">\ud83d\udd25 Founding offer live: lifetime Pro \u20b9100 \u2014 rises after the first wave</div>';
   host.appendChild(card);
 }
-document.addEventListener('DOMContentLoaded', function(){ try{ renderEventBanner(); renderEvents(); renderSpotlight(); renderTicker(); renderForYou(); }catch(e){} });
+document.addEventListener('DOMContentLoaded', function(){ try{ renderEventBanner(); renderEvents(); renderSpotlight(); renderTicker(); renderForYou(); renderPromo(); }catch(e){}
+  /* Apple-style scroll reveal */
+  try{
+    if('IntersectionObserver' in window){
+      var io=new IntersectionObserver(function(es){ es.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('inview'); io.unobserve(e.target); } }); },{threshold:0.08});
+      document.querySelectorAll('.xsec,.exp,.trek,.promo,.mode-box').forEach(function(n2,i2){ if(i2<160){ n2.classList.add('rv'); io.observe(n2); } });
+      /* safety nets: nothing may ever stay hidden */
+      function revealVisible(){ document.querySelectorAll('.rv:not(.inview)').forEach(function(n3){
+        var r3=n3.getBoundingClientRect(); if(r3.top < innerHeight && r3.bottom > 0 && r3.width) n3.classList.add('inview'); }); }
+      setTimeout(revealVisible, 600);
+      window._rvAll=function(){ setTimeout(revealVisible, 60); };
+      setTimeout(function(){ document.querySelectorAll('.rv:not(.inview)').forEach(function(n3){ n3.classList.add('inview'); }); }, 5000);
+    }
+  }catch(e){}
+});
 
 /* ===== FUNNEL TRACKER — anonymous daily counters for the owner dashboard ===== */
 function track(ev){
@@ -3610,7 +3791,7 @@ document.addEventListener('DOMContentLoaded', function(){
     if(r && r.innerHTML.length > 100) showToast('Mode changed — hit Search again to recalculate budgets');
   });
 });
-var VIEW_OF={treks:'explore',exps:'explore',circuits:'explore',ev:'explore',events:'explore',hubspoke:'explore',basecamp:'explore',jlog:'explore',app:'plan',brief:'home',creator:'home',store:'home',aipulse:'explore'};
+var VIEW_OF={treks:'explore',exps:'explore',circuits:'explore',ev:'explore',events:'explore',hubspoke:'explore',basecamp:'explore',jlog:'explore',app:'plan',brief:'home',creator:'home',store:'home',aipulse:'explore',promofilm:'home'};
 function scrollToId(id){
   if(document.body.classList.contains('shell') && VIEW_OF[id]){
     tabGo(VIEW_OF[id]);
@@ -4835,6 +5016,7 @@ if(window.matchMedia){ try{ matchMedia('(max-width:768px)').addEventListener('ch
 
 function tabGo(t){
   try{useBump('tab_'+t);}catch(e){}
+  try{ if(window._rvAll) _rvAll(); }catch(e){}
   ['home','plan','explore','pro','more'].forEach(function(k){ var b=el('tb-'+k); if(b) b.classList.toggle('on', k===t); });
   if(t==='pro'){ openPay(); return; }
   if(t==='more'){ openDrawer(); return; }
