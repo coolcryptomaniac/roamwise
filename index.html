@@ -1886,25 +1886,33 @@ function renderForYou(){
     row.className='v v-home';
     var bb=el('promoTop');
     if(bb && bb.parentNode) bb.parentNode.insertBefore(row, bb.nextSibling);
-    /* real photos over the gradients — same bulletproof pipeline as the PDF */
+    /* real photos over the gradients — SEQUENTIAL queue (weserv rate-limit safe) */
     var cards=row.querySelectorAll('.pcard');
-    picks.forEach(function(d2,ci){
-      var key='rw_pimg_'+d2.name.toLowerCase().replace(/[^a-z0-9]/g,'');
-      var cached=lsGet(key);
-      function apply(u){ if(!u||!cards[ci]) return;
-        var prox='https://images.weserv.nl/?w=300&h=500&fit=cover&q=78&output=jpg&url='+encodeURIComponent(String(u).replace(/\/thumb\/([0-9a-f]\/[0-9a-f]{2}\/[^\/]+)\/\d+px-[^\/]+$/,'/$1').replace(/^https?:\/\//,''));
-        var im=new Image();
-        im.onload=function(){ cards[ci].style.background='url('+prox+')'; cards[ci].querySelector('.pe').style.display='none'; };
-        im.src=prox;
-      }
-      if(cached){ apply(cached); return; }
-      setTimeout(function(){
-        wikiAny(d2.name, d2.name+' '+(d2.country||'')).then(function(u){
-          if(u){ lsSet(key,u); apply(u); }
-        });
-      }, ci*300);
-    });
-  }catch(e){}
+    function proxOf(u){ return 'https://images.weserv.nl/?w=300&h=500&fit=cover&q=78&output=jpg&url='+encodeURIComponent(String(u).replace(/\/thumb\/([0-9a-f]\/[0-9a-f]{2}\/[^\/]+)\/\d+px-[^\/]+$/,'/$1').replace(/^https?:\/\//,'')); }
+    function paintCard(ci,prox){ if(!cards[ci]) return; cards[ci].style.background='url('+prox+')'; var pe=cards[ci].querySelector('.pe'); if(pe) pe.style.display='none'; }
+    function loadOne(u,ci){ return new Promise(function(res){
+      var prox=proxOf(u), im=new Image(), tries=0;
+      im.onload=function(){ if(im.naturalWidth>10){ paintCard(ci,prox); res(true); } else res(false); };
+      im.onerror=function(){ if(tries++<2){ setTimeout(function(){ im.src=prox+'&_='+Date.now(); }, 1100*tries); } else res(false); };
+      im.src=prox;
+    }); }
+    function findURL(d3){
+      var key='rw_pimg_'+d3.name.toLowerCase().replace(/[^a-z0-9]/g,'');
+      var cached=lsGet(key); if(cached) return Promise.resolve({key:key,u:cached});
+      var seen=null;
+      function grab(q){ if(seen) return Promise.resolve(); return wikiAny(q,q).then(function(u){ if(u&&/wikimedia|wikipedia/.test(u)&&!seen) seen=u; }); }
+      return grab(d3.name).then(function(){ return grab(d3.name+' '+(d3.country||'')); })
+        .then(function(){ return grab((d3.photos&&d3.photos[0])||d3.name); })
+        .then(function(){ return {key:key,u:seen}; });
+    }
+    (function next(i){
+      if(i>=picks.length) return;
+      findURL(picks[i]).then(function(r){
+        if(r&&r.u){ loadOne(r.u,i).then(function(ok){ if(ok) lsSet(r.key,r.u); else lsSet(r.key,''); setTimeout(function(){next(i+1);},450); }); }
+        else setTimeout(function(){next(i+1);},150);
+      });
+    })(0);
+    }catch(e){}
 }
 
 /* ===== TRAVEL ECONOMY LIVE TICKER ===== */
