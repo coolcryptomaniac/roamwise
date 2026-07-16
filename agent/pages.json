@@ -322,5 +322,113 @@
    38,
    5
   ]
+ },
+ {
+  "slug": "kausani-india",
+  "title": "Kausani, India",
+  "name": "Kausani",
+  "country": "India",
+  "best": "January, October, November",
+  "arch": "monsoon",
+  "cl": [
+   16,
+   15.2,
+   20.4,
+   26.4,
+   29.3,
+   31.4,
+   26.5,
+   26.3,
+   25.4,
+   24.3,
+   21,
+   17
+  ],
+  "scores": [
+   100,
+   90,
+   89,
+   96,
+   96,
+   83,
+   55,
+   55,
+   56,
+   98,
+   99,
+   97
+  ]
+ },
+ {
+  "slug": "ranikhet-india",
+  "title": "Ranikhet, India",
+  "name": "Ranikhet",
+  "country": "India",
+  "best": "January, April, November",
+  "arch": "monsoon",
+  "cl": [
+   13.6,
+   13.5,
+   18.8,
+   24.9,
+   27.5,
+   28.8,
+   24.2,
+   23.8,
+   23,
+   22,
+   18.9,
+   15.1
+  ],
+  "scores": [
+   100,
+   94,
+   94,
+   100,
+   98,
+   92,
+   55,
+   55,
+   59,
+   99,
+   100,
+   96
+  ]
+ },
+ {
+  "slug": "binsar-india",
+  "title": "Binsar, India",
+  "name": "Binsar",
+  "country": "India",
+  "best": "January, April, November",
+  "arch": "monsoon",
+  "cl": [
+   12,
+   11.2,
+   16.3,
+   22,
+   24.8,
+   27,
+   22,
+   21.7,
+   20.9,
+   20,
+   16.8,
+   12.7
+  ],
+  "scores": [
+   100,
+   94,
+   93,
+   99,
+   95,
+   90,
+   55,
+   55,
+   55,
+   99,
+   100,
+   96
+  ]
  }
 ]
