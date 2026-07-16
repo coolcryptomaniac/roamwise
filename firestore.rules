@@ -1,69 +1,96 @@
 rules_version = '2';
 service cloud.firestore {
-  match /databases/{database}/documents {
+  match /databases/{db}/documents {
+    // You are admin only if a doc exists at admins/<your-uid>.
+    // That doc can ONLY be created from the Firebase Console (no client can write it).
+    function isAdmin() {
+      return request.auth != null
+        && exists(/databases/$(db)/documents/admins/$(request.auth.uid));
+    }
+    function isSelf(uid) {
+      return request.auth != null && request.auth.uid == uid;
+    }
 
-    // ===== USERS: each user reads/writes only their own profile =====
+    // ---------- USERS ----------
+    // A user may create/read their own profile but can NEVER touch the pro fields.
+    // Pro is set only by you (admin) — users cannot grant themselves Pro.
     match /users/{uid} {
-      allow read: if request.auth != null && request.auth.uid == uid;
-      allow write: if request.auth != null && request.auth.uid == uid;
+      allow read: if isSelf(uid) || isAdmin();
+      allow create: if isSelf(uid)
+        && !request.resource.data.keys().hasAny(['pro','proAt','proMethod','proPayId']);
+      allow update: if isAdmin();
+      allow update: if isSelf(uid)
+        && !request.resource.data.diff(resource.data).affectedKeys()
+             .hasAny(['pro','proAt','proMethod','proPayId']);
+      allow delete: if isAdmin() || isSelf(uid);
 
-      // Device registry for the 3-device cap
+      // Device registry for the 3-device cap (account-bound Pro system).
       match /devices/{deviceId} {
-        allow read, write: if request.auth != null && request.auth.uid == uid;
+        allow read, write: if isSelf(uid);
       }
     }
 
-    // ===== PRO ACTIVATION CLAIMS (UTR submissions) =====
-    match /claims/{claimId} {
-      allow create: if request.auth != null;
-      allow read: if request.auth != null
-        && (resource.data.uid == request.auth.uid || isAdmin());
+    // ---------- UPI CLAIMS (zero-fee flow) ----------
+    // User submits their UTR after paying your QR; only admin can approve.
+    match /claims/{id} {
+      allow create: if request.auth != null
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.status == 'pending'
+        && request.resource.data.utr is string
+        && request.resource.data.utr.size() >= 8
+        && request.resource.data.utr.size() <= 40;
+      allow read: if isAdmin() || (request.auth != null && resource.data.uid == request.auth.uid);
       allow update, delete: if isAdmin();
     }
 
-    // ===== PAYMENTS log (server/admin managed) =====
-    match /payments/{paymentId} {
-      allow read: if request.auth != null && resource.data.uid == request.auth.uid || isAdmin();
-      allow write: if isAdmin();
-    }
-
-    // ===== ADMINS allowlist =====
-    match /admins/{uid} {
-      allow read: if request.auth != null;
-      allow write: if false; // manage manually in console
-    }
-
-    // ===== SYNC CIRCLE / PULSE: anonymous intent counters, public read/increment =====
-    match /pulse/{docId} {
-      allow read: if true;
-      allow write: if request.auth != null; // increment-only pattern enforced client-side
-    }
-
-    // ===== FEATURE REQUESTS =====
-    match /requests/{reqId} {
-      allow create: if request.auth != null;
-      allow read: if isAdmin();
-    }
-
-    // ===== DAILY STATS (funnel tracking) =====
-    match /stats/{day} {
-      allow read: if isAdmin();
-      allow write: if true; // increment-only counters from the client funnel tracker
-    }
-
-    // ===== RATINGS & TESTIMONIALS: public read, one doc per user (doc id = uid) =====
-    match /ratings/{uid} {
+    match /pulse/{id} {
       allow read: if true;
       allow create, update: if request.auth != null
-        && request.auth.uid == uid
+        && request.resource.data.count is int;
+    }
+
+    match /requests/{id} {
+      allow create: if request.auth != null
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.text is string
+        && request.resource.data.text.size() <= 200;
+      allow read: if isAdmin();
+    }
+
+    // ---------- PAYMENTS LOG ----------
+    match /payments/{id} {
+      allow read: if isAdmin();
+      allow write: if false;
+    }
+
+    // ---------- ADMINS ----------
+    // Never writable from any client. Add your own UID manually in the Firebase Console.
+    match /admins/{uid} {
+      allow read: if isSelf(uid);
+      allow write: if false;
+    }
+
+    match /stats/{day} {
+      allow read: if isAdmin();
+      allow write: if true;
+    }
+
+    // ---------- RATINGS & TESTIMONIALS ----------
+    // Public read (needed for the average-score + testimonial wall). One doc per
+    // user (doc id = uid), so "one rating per account" is enforced server-side.
+    match /ratings/{uid} {
+      allow read: if true;
+      allow create, update: if isSelf(uid)
         && request.resource.data.stars is int
         && request.resource.data.stars >= 1
         && request.resource.data.stars <= 5
         && (!('text' in request.resource.data) || request.resource.data.text.size() <= 200);
-      allow delete: if request.auth != null && request.auth.uid == uid;
+      allow delete: if isSelf(uid);
     }
 
-    // ===== TRIP SQUADS: safe, anchored posts — public read, owner-only edit/delete =====
+    // ---------- TRIP SQUADS ----------
+    // Safe, destination-anchored posts. Public read, owner-only delete, immutable
+    // once created (delete + repost instead of editing in place).
     match /squads/{squadId} {
       allow read: if true;
       allow create: if request.auth != null
@@ -71,19 +98,21 @@ service cloud.firestore {
         && request.resource.data.note.size() <= 140
         && (!('contact' in request.resource.data) || request.resource.data.contact.size() <= 80);
       allow delete: if request.auth != null && resource.data.uid == request.auth.uid;
-      allow update: if false; // posts are immutable once created — delete + repost instead
+      allow update: if false;
     }
 
-    // ===== REPORTS (moderation flags): write-only from clients, admin-only read =====
+    // ---------- REPORTS (moderation flags) ----------
+    // Write-only from clients (including anonymous — safety reports shouldn't
+    // require an account); only admin can read/manage them.
     match /reports/{reportId} {
-      allow create: if request.auth != null || true; // allow anonymous reports too
+      allow create: if true;
       allow read, update, delete: if isAdmin();
     }
 
-    // ===== Helper =====
-    function isAdmin() {
-      return request.auth != null &&
-        exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    // ---------- META (shared counters, e.g. first-1000-signups trial) ----------
+    match /meta/{doc} {
+      allow read: if true;
+      allow write: if request.auth != null;
     }
   }
 }
