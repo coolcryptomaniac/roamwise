@@ -675,6 +675,23 @@ body.shell{padding-bottom:calc(96px + env(safe-area-inset-bottom))}
 .rowhead{display:flex;align-items:baseline;justify-content:space-between;margin:16px 2px 9px}
 .rowhead b{font-size:21px;font-weight:800;letter-spacing:-.02em;color:#fff}
 .rowhead a{font-size:12.5px;color:var(--t3);text-decoration:none}
+/* ===== Music player chrome (Spotify embed can't be restyled, so we build glow/eq around it) ===== */
+.mus-frame{position:relative;border-radius:18px;padding:2px;background:linear-gradient(120deg,#1DB954,#E8BA6C,#C4302B,#1DB954);background-size:300% 300%;animation:musGlow 6s ease infinite}
+@keyframes musGlow{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+.mus-inner{background:#0A0C14;border-radius:16px;padding:10px}
+.mus-eq{display:flex;align-items:flex-end;gap:3px;height:22px;margin:0 0 8px}
+.mus-eq i{width:4px;background:linear-gradient(180deg,#1DB954,#E8BA6C);border-radius:2px;animation:musBar 1.1s ease-in-out infinite}
+.mus-eq i:nth-child(1){animation-delay:0s;height:40%}
+.mus-eq i:nth-child(2){animation-delay:.15s;height:80%}
+.mus-eq i:nth-child(3){animation-delay:.3s;height:55%}
+.mus-eq i:nth-child(4){animation-delay:.45s;height:90%}
+.mus-eq i:nth-child(5){animation-delay:.6s;height:35%}
+.mus-eq i:nth-child(6){animation-delay:.2s;height:65%}
+.mus-eq i:nth-child(7){animation-delay:.5s;height:45%}
+@keyframes musBar{0%,100%{transform:scaleY(.4)}50%{transform:scaleY(1)}}
+.mus-tabs{display:flex;gap:6px;margin-bottom:10px}
+.mus-tab{flex:1;text-align:center;font-size:12.5px;font-weight:700;padding:9px 0;border-radius:11px;background:#15151E;color:var(--t3);cursor:pointer;transition:all .2s}
+.mus-tab.on{background:linear-gradient(135deg,#1DB954,#159943);color:#04150A}
 /* Scrollbar (desktop Stripe-clean) */
 ::-webkit-scrollbar{width:9px;height:9px}
 ::-webkit-scrollbar-thumb{background:#23232E;border-radius:9px}
@@ -954,13 +971,15 @@ html{-webkit-text-size-adjust:100%}
     <button class="tact" style="flex:1" onclick="cardPNG()">&#11015; PNG</button>
     <button class="tact" style="flex:1" onclick="cardJPG()">&#11015; JPG</button>
     <button class="tact" style="flex:1" onclick="cardPDF()">&#11015; PDF</button>
+    <button class="tact" style="flex:1;background:linear-gradient(135deg,#b8860b,#8a6400);color:#f5f1e8;border:none;font-weight:700" onclick="downloadAtlasCertificate()">&#128220; Atlas Certificate</button>
   </div>
   <div style="display:flex;gap:7px;margin-top:9px">
     <button class="tact cstyle red" data-k="atlas" style="flex:1" onclick="setCardStyle('atlas')">&#127963; Atlas</button>
     <button class="tact cstyle" data-k="noir" style="flex:1" onclick="setCardStyle('noir')">&#9899; Noir</button>
     <button class="tact cstyle" data-k="neon" style="flex:1" onclick="setCardStyle('neon')">&#9889; Neon</button>
+    <button class="tact cstyle" data-k="shadow" id="shadowChip" style="flex:1;display:none" onclick="setCardStyle('shadow')">&#129399; Shadow</button>
   </div>
-  <button class="rzp-main-btn" id="movieBtn" style="display:none;margin-top:9px;background:linear-gradient(135deg,#C4302B,#8E1F1B)" onclick="openMovie()">&#127916; Journey Movie &mdash; cinematic video &middot; &#8377;50 (free for Pro)</button>
+  <button class="rzp-main-btn" id="movieBtn" style="display:none;margin-top:9px;background:linear-gradient(135deg,#C4302B,#8E1F1B)" onclick="openMovie()">&#127916; Journey Film &mdash; 5-sec chapters &middot; &#8377;50 (free for Pro)</button>
 </section>
 </div>
 
@@ -969,6 +988,13 @@ html{-webkit-text-size-adjust:100%}
   <div class="xsec-head"><h2 class="xsec-title">&#127916; The <em>Film</em></h2><button class="share-fab" onclick="shareApp('app')">&#128228; Share</button></div>
   <p class="xsec-sub">The official RoamWise promo &mdash; music, mountains and the mission, in one reel.</p>
   <div id="promoBox"></div>
+</section>
+
+<section class="xsec v v-home" id="ratings">
+  <div class="xsec-head"><h2 class="xsec-title">&#11088; Traveler <em>Ratings</em></h2><button class="share-fab" onclick="shareApp('app')">&#128228; Share</button></div>
+  <div id="ratingsSummary" style="text-align:center;padding:14px 0 6px"><div style="font-size:11px;color:var(--t3)">Loading ratings&hellip;</div></div>
+  <div id="ratingsWall" class="exp-grid"></div>
+  <button class="rzp-main-btn" style="margin-top:12px" onclick="openRateForm()">&#11088; Rate your experience</button>
 </section>
 
 <section class="xsec v v-home" id="store">
@@ -982,6 +1008,12 @@ html{-webkit-text-size-adjust:100%}
     <div class="exp"><div class="exp-ic">&#129333;</div><div class="exp-name">1-on-1 Trip Consultation &mdash; &#8377;999</div><div class="exp-desc">60 minutes with the creator: your route, budget and crowd-dodge plan, built live.</div><button class="tact" style="width:100%;margin-top:9px" onclick="location.href='upi://pay?pa=coolmohit@ybl&pn=RoamWise&am=999&cu=INR&tn=Consultation';showToast('After paying, email proof \u2014 booking link comes back within 24h')">Book &#8377;999</button></div>
     <div class="exp" style="opacity:.75"><div class="exp-ic">&#128085;</div><div class="exp-name">Shinobi tees &amp; merch</div><div class="exp-desc">Journey Card posters and RoamWise tees &mdash; print-on-demand store coming soon.</div><button class="tact" style="width:100%;margin-top:9px" onclick="showToast('Dropping soon \u2014 Supporters get first dibs \ud83d\udc4a')">Notify me</button></div>
   </div>
+</section>
+
+<section class="xsec v v-explore" id="newspulse">
+  <div class="xsec-head"><h2 class="xsec-title">&#128240; Travel <em>Pulse</em></h2><button class="share-fab" onclick="shareApp('app')">&#128228; Share</button></div>
+  <p class="xsec-sub">Today's travel news, crunched into one line each &mdash; refreshed daily by our agent, not fake real-time.</p>
+  <div class="exp-grid" id="newsGrid"><div class="exp"><div class="exp-desc">Loading today's pulse&hellip;</div></div></div>
 </section>
 
 <section class="xsec v v-explore" id="aipulse">
@@ -1652,7 +1684,11 @@ function lsSet(k,v){ LS.setItem(k,v); }
 function el(id){ return document.getElementById(id); }
 
 var AC = 'INR';
-var isPro = lsGet('rwPro')==='1';
+var AUTH_ENABLED = (typeof FIREBASE_CONFIG!=='undefined') && FIREBASE_CONFIG.apiKey && FIREBASE_CONFIG.apiKey!=='PASTE_ME';
+/* Pro is account-bound. With accounts ON, never trust the local flag at boot —
+   the auth snapshot re-grants it for the right account. Without accounts
+   (pure device mode) the local flag is all we have. */
+var isPro = AUTH_ENABLED ? false : (lsGet('rwPro')==='1');
 var freeLeft = 5;
 var activeProv = lsGet('rwProv')||'smart';
 var spends = {};
@@ -1802,17 +1838,12 @@ function refreshProUI(){
   refreshProUI();
 })();
 
-/* Provisional-Pro expiry: lapses after 24h unless the owner approved (cloud pro overrides) */
-(function(){
-  try{
-    var t = parseInt(lsGet('rw_pro_temp')||'0',10);
-    if(t && Date.now() > t){
-      lsSet('rw_pro_temp','');
-      /* only revoke if cloud hasn't confirmed — the auth snapshot re-grants if approved */
-      isPro=false; localStorage.removeItem('rwPro'); setTimeout(refreshProUI, 300);
-    }
-  }catch(e){}
-})();
+/* Provisional-Pro is account-bound now (see auth snapshot). At boot, if a
+   provisional token exists but has expired, clear it. */
+(function(){ try{
+  var t=parseInt(lsGet('rw_pro_temp')||'0',10);
+  if(t && Date.now()>t){ lsSet('rw_pro_temp',''); lsSet('rw_pro_temp_uid',''); }
+}catch(e){} })();
 /* ===== SITE SEARCH ===== */
 function ssIndex(){
   var ix=[
@@ -1822,6 +1853,8 @@ function ssIndex(){
    {t:'Hub & Spoke India + airports + Vande Bharat + best base',k:'airport vande bharat train bus base delhi flights india',go:function(){tabGo('explore');scrollToId('hubspoke');}},
    {t:'EV Vault + breakthroughs',k:'ev electric battery tesla charging breakthrough',go:function(){tabGo('explore');scrollToId('ev');}},
    {t:'AI Pulse (agents, robots, startups)',k:'ai claude anthropic chatgpt gemini robot startup agent',go:function(){tabGo('explore');scrollToId('aipulse');}},
+   {t:'Travel Pulse News (daily crunched headlines)',k:'news visa flight advisory pulse today',go:function(){tabGo('explore');scrollToId('newspulse');}},
+   {t:'Ratings & Testimonials',k:'rating review stars testimonial feedback',go:function(){tabGo('home');scrollToId('ratings');}},
    {t:'Journey Card (poster) & Movie',k:'journey card map poster movie video souvenir',go:function(){tabGo('explore');scrollToId('jlog');}},
    {t:'Store (books, PDFs, membership)',k:'store shop buy book tshirt membership consult',go:function(){tabGo('home');scrollToId('store');}},
    {t:'My Profile & lifetime destinations',k:'profile avatar bio age style lifetime',go:function(){openProfile();}},
@@ -1946,8 +1979,19 @@ function openProfile(){
     var u2='https://api.dicebear.com/9.x/'+(i<2?'adventurer':'bottts')+'/svg?seed='+s;
     return '<img src="'+u2+'" data-u="'+u2+'" onclick="profAv(this)" style="width:52px;height:52px;border-radius:50%;cursor:pointer;border:2px solid '+((P2.av===u2)?'var(--gold)':'var(--b2)')+'">';
   }).join('');
+  var xpNow=xpGet(), rNow=rankOf(xpNow), nxR=nextRank(xpNow);
+  var pctR=nxR? Math.min(100,Math.round((xpNow-rNow[0])/(nxR[0]-rNow[0])*100)) : 100;
+  var unlockedCount=perksUnlocked().length;
+  var rankHead=
+   '<div style="background:linear-gradient(135deg,rgba(232,186,108,.12),rgba(196,48,43,.08));border:1px solid rgba(232,186,108,.3);border-radius:16px;padding:14px 16px;margin-bottom:14px">'
+   +'<div style="display:flex;justify-content:space-between;align-items:baseline"><div style="font-size:17px;font-weight:800;color:var(--gold2)">\ud83e\udd77 '+rNow[1]+'</div><div style="font-size:11.5px;color:var(--t3)">'+xpNow+' XP</div></div>'
+   +'<div class="xp-bar" style="margin-top:8px"><div class="xp-fill" style="width:'+pctR+'%"></div></div>'
+   +'<div style="font-size:10.5px;color:var(--t3);margin-top:5px">'+(nxR? (nxR[0]-xpNow)+' XP to '+nxR[1] : 'Maximum rank reached')+' \u00b7 '+unlockedCount+'/'+PERKS.length+' perks unlocked</div></div>'
+   +'<div style="font-size:12.5px;font-weight:700;color:var(--t1);margin:0 0 8px">\ud83c\udfc6 Your Perks \u2014 earned by doing, not just tapping</div>'
+   +'<div style="margin-bottom:16px">'+renderPerks()+'</div>';
   el('profBody').innerHTML=
-   '<div style="display:flex;gap:10px;align-items:center;margin-bottom:12px"><img id="profPic" src="'+(P2.av||'https://api.dicebear.com/9.x/adventurer/svg?seed=ninja')+'" style="width:64px;height:64px;border-radius:50%;border:2px solid var(--gold2)"><div style="flex:1"><div style="font-size:11px;color:var(--t2);margin-bottom:5px">Pick an avatar or upload</div><div style="display:flex;gap:6px;flex-wrap:wrap">'+avs+'</div><input type="file" accept="image/*" id="profUp" style="font-size:10px;margin-top:6px" onchange="profUpload(this)"></div></div>'
+   rankHead
+   +'<div style="display:flex;gap:10px;align-items:center;margin-bottom:12px"><img id="profPic" src="'+(P2.av||'https://api.dicebear.com/9.x/adventurer/svg?seed=ninja')+'" style="width:64px;height:64px;border-radius:50%;border:2px solid var(--gold2)"><div style="flex:1"><div style="font-size:11px;color:var(--t2);margin-bottom:5px">Pick an avatar or upload</div><div style="display:flex;gap:6px;flex-wrap:wrap">'+avs+'</div><input type="file" accept="image/*" id="profUp" style="font-size:10px;margin-top:6px" onchange="profUpload(this)"></div></div>'
    +'<div class="dna-q"><div class="qt">Name</div><input class="txn-inp" id="pfName" style="width:100%" value="'+(P2.name||lsGet('rw_name')||'')+'"></div>'
    +'<div style="display:flex;gap:8px"><div class="dna-q" style="flex:1"><div class="qt">Work</div><input class="txn-inp" id="pfWork" style="width:100%" value="'+(P2.work||'')+'"></div>'
    +'<div class="dna-q" style="flex:1"><div class="qt">Location</div><input class="txn-inp" id="pfLoc" style="width:100%" value="'+(P2.loc||'')+'"></div></div>'
@@ -1986,7 +2030,10 @@ function profSave(){
 }
 
 /* ===== MUSIC PANEL ===== */
-var MUSIC_YT_PLAYLIST=''; /* paste a YouTube playlist ID to embed a real player */
+var MUSIC_YT_PLAYLIST=''; /* optional extra: paste a YouTube playlist ID for a second player */
+var SPOTIFY_ARTIST_ID='2qbS0OT9WF0Wpf2WnggrKS';
+var SPOTIFY_PLAYLIST_ID='4tO1PY5vyjXhwLFepr8VIF';
+var JIOSAAVN_URL='https://www.saavn.com/s/artist/mohit-pandey-albums/s0TzZzm4XaE_';
 var PROMO_YT_ID='3MRlvs9bdPQ'; /* official RoamWise promo */
 function renderPromo(){
   var top=el('promoTop'), box=el('promoBox');
@@ -2016,24 +2063,102 @@ function renderPromo(){
      +'<a class="tact red" style="display:block;text-decoration:none;margin-top:10px" href="https://youtube.com/@mohucool?sub_confirmation=1" target="_blank" rel="noopener">\u25b6 Subscribe on YouTube</a></div>';
   }
 }
-function playPromo(host){
-  host.outerHTML='<iframe width="100%" style="aspect-ratio:16/9;border-radius:20px;border:1px solid var(--b2)" src="https://www.youtube-nocookie.com/embed/'+PROMO_YT_ID+'?autoplay=1&playsinline=1" allow="autoplay;encrypted-media;fullscreen" allowfullscreen></iframe>';
-  try{ track('video_opens'); }catch(e){}
+/* ===== General pattern: try in-app playback first, fall back to external only
+   on real failure. Used for the film billboard, reusable for any future embed. ===== */
+var _ytApiLoading=null;
+function loadYTApi(){
+  if(window.YT && window.YT.Player) return Promise.resolve();
+  if(_ytApiLoading) return _ytApiLoading;
+  _ytApiLoading=new Promise(function(res,rej){
+    var done=false;
+    window.onYouTubeIframeAPIReady=function(){ done=true; res(); };
+    var s=document.createElement('script'); s.src='https://www.youtube.com/iframe_api';
+    s.onerror=function(){ if(!done) rej(new Error('yt-api-load-failed')); };
+    document.head.appendChild(s);
+    setTimeout(function(){ if(!done) rej(new Error('yt-api-timeout')); }, 6000);
+  });
+  return _ytApiLoading;
 }
-function openMusic(){
+function openExternally(url){
+  if(window.RW && RW.openExternal){ RW.openExternal(url); }
+  else { window.open(url, '_blank', 'noopener'); }
+}
+function playPromo(host){
+  var box=document.createElement('div');
+  box.id='promoPlayerBox';
+  box.style.cssText='aspect-ratio:16/9;border-radius:20px;overflow:hidden;border:1px solid var(--b2);background:#000;display:flex;align-items:center;justify-content:center;color:var(--t3);font-size:12px';
+  box.textContent='Loading player\u2026';
+  var parent = host.parentNode || el('promoTop');
+  if(host.parentNode) host.parentNode.replaceChild(box, host); else if(el('promoTop')) el('promoTop').appendChild(box);
+  var watchUrl='https://www.youtube.com/watch?v='+PROMO_YT_ID;
+  var settled=false;
+  function fallback(reason){
+    if(settled) return; settled=true;
+    try{ console.log('film inline playback fallback:', reason); }catch(e){}
+    box.innerHTML='';
+    box.style.cssText='aspect-ratio:16/9;border-radius:20px;border:1px solid var(--b2);background:linear-gradient(135deg,#12121C,#1A1A26);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:20px;text-align:center';
+    box.innerHTML='<div style="font-size:32px">\ud83c\udfac</div><div style="font-size:13px;color:var(--t2)">This device prefers watching on YouTube</div>'
+      +'<button class="rzp-main-btn" style="margin:0" onclick="openExternally(\''+watchUrl+'\')">\u25b6 Continue on YouTube</button>';
+  }
+  function markPlaying(){ settled=true; try{ track('video_opens'); }catch(e){} }
+  var hardTimer=setTimeout(function(){ fallback('timeout'); }, 7000);
+  loadYTApi().then(function(){
+    if(settled) return;
+    try{
+      new YT.Player(box, {
+        videoId: PROMO_YT_ID,
+        playerVars: { autoplay: 1, playsinline: 1, rel: 0 },
+        events: {
+          onReady: function(e){
+            /* Player object exists now, but this does NOT mean the video is
+               actually playing — YouTube can render its own in-frame error
+               screen (e.g. the undocumented "error 153") after this fires,
+               with no JS onError event at all. So we don't mark success yet:
+               we call playVideo() and then wait for a real onStateChange to
+               PLAYING (1) before trusting it. A second timer catches the
+               case where onReady fires but PLAYING never follows. */
+            try{ e.target.playVideo(); }catch(er){}
+            setTimeout(function(){ if(!settled) fallback('never-started-playing'); }, 4500);
+          },
+          onStateChange: function(e){
+            if(e.data===1){ clearTimeout(hardTimer); markPlaying(); } /* 1 = YT.PlayerState.PLAYING */
+          },
+          onError: function(e){ clearTimeout(hardTimer); fallback('yt-error-'+(e&&e.data)); }
+        }
+      });
+    }catch(e){ clearTimeout(hardTimer); fallback('player-init-threw'); }
+  }).catch(function(e){ clearTimeout(hardTimer); fallback('api-load-failed'); });
+}
+function openMusic(mode){
   useBump('music');
+  mode = mode || lsGet('rw_mus_mode') || 'playlist';
   var ov=el('musOverlay');
   if(!ov){ ov=document.createElement('div'); ov.id='musOverlay'; ov.className='overlay';
-    ov.innerHTML='<div class="modal" style="max-width:420px"><button class="modal-close" onclick="el(\'musOverlay\').classList.remove(\'open\')">\u00d7</button><div class="modal-head"><div class="modal-title">\ud83c\udfb5 Music by Mohit Pandey</div><div class="modal-sub">Kumaoni folk \u00d7 phonk \u00d7 travel beats</div></div><div class="modal-body" id="musBody"></div></div>';
+    ov.innerHTML='<div class="modal" style="max-width:440px"><button class="modal-close" onclick="el(\'musOverlay\').classList.remove(\'open\')">\u00d7</button>'
+     +'<div class="modal-head"><div class="modal-title">\ud83c\udfb5 Music by Mohit Pandey</div><div class="modal-sub">Kumaoni folk \u00d7 phonk \u00d7 travel beats \u2014 live from Spotify</div></div>'
+     +'<div class="modal-body" id="musBody"></div></div>';
     document.body.appendChild(ov); }
-  el('musBody').innerHTML=
-   (MUSIC_YT_PLAYLIST? '<iframe width="100%" height="200" style="border-radius:12px;border:1px solid var(--b2)" src="https://www.youtube-nocookie.com/embed/videoseries?list='+MUSIC_YT_PLAYLIST+'" allow="autoplay;encrypted-media" allowfullscreen></iframe>' : '')
-   +'<a class="rzp-main-btn" style="display:block;text-align:center;text-decoration:none;margin-top:10px;background:linear-gradient(135deg,#FF0000,#B00000)" href="https://youtube.com/@mohucool" target="_blank" rel="noopener">\u25b6 Play on YouTube @mohucool</a>'
-   +'<div style="display:flex;gap:8px;margin-top:8px">'
-   +'<a class="tact" style="flex:1;text-align:center;text-decoration:none" href="https://open.spotify.com/search/'+encodeURIComponent('Mohit Pandey mohucool')+'" target="_blank" rel="noopener">Spotify</a>'
-   +'<a class="tact" style="flex:1;text-align:center;text-decoration:none" href="https://www.jiosaavn.com/search/'+encodeURIComponent('Mohit Pandey')+'" target="_blank" rel="noopener">JioSaavn</a></div>'
-   +'<div style="font-size:10px;color:var(--t3);margin-top:8px;text-align:center">Send your artist links / a YT playlist ID and this becomes a real in-app player.</div>';
+  musRender(mode);
   ov.classList.add('open');
+}
+function musRender(mode){
+  lsSet('rw_mus_mode', mode);
+  var spotifyEmbedId = mode==='artist'? SPOTIFY_ARTIST_ID : SPOTIFY_PLAYLIST_ID;
+  var spotifyEmbedKind = mode==='artist'? 'artist' : 'playlist';
+  el('musBody').innerHTML=
+   '<div class="mus-eq"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>'
+   +'<div class="mus-tabs">'
+   +'<div class="mus-tab'+(mode==='playlist'?' on':'')+'" onclick="musRender(\'playlist\')">\ud83c\udfa7 All Songs</div>'
+   +'<div class="mus-tab'+(mode==='artist'?' on':'')+'" onclick="musRender(\'artist\')">\ud83c\udfa4 Artist Page</div>'
+   +'</div>'
+   +'<div class="mus-frame"><div class="mus-inner">'
+   +'<iframe key="'+spotifyEmbedKind+'" style="border-radius:12px" src="https://open.spotify.com/embed/'+spotifyEmbedKind+'/'+spotifyEmbedId+'?utm_source=generator&theme=0" width="100%" height="'+(mode==='artist'?'352':'352')+'" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>'
+   +'</div></div>'
+   +'<div style="display:flex;gap:8px;margin-top:10px">'
+   +'<a class="tact" style="flex:1;text-align:center;text-decoration:none;background:linear-gradient(135deg,#1DB95422,transparent)" href="https://open.spotify.com/artist/'+SPOTIFY_ARTIST_ID+'" target="_blank" rel="noopener">\ud83c\udfa7 Open in Spotify</a>'
+   +'<a class="tact" style="flex:1;text-align:center;text-decoration:none" href="'+JIOSAAVN_URL+'" target="_blank" rel="noopener">JioSaavn</a>'
+   +'</div>'
+   +'<a class="tact" style="display:block;text-align:center;text-decoration:none;margin-top:8px" href="https://youtube.com/@mohucool" target="_blank" rel="noopener">\u25b6 Also on YouTube @mohucool</a>';
 }
 
 /* ===== ADSENSE (gated) + WHATSAPP (gated) ===== */
@@ -2059,6 +2184,64 @@ var WA_NUMBER='', WA_CHANNEL='', WA_GROUP='';
   }
 })();
 
+/* ===== RATINGS & TESTIMONIALS ===== */
+var PLAYSTORE_URL=''; /* paste your Play Store listing URL once published — unlocks the "Rate on Play Store" nudge */
+function renderRatings(){
+  var wall=el('ratingsWall'), sum=el('ratingsSummary'); if(!wall||!sum) return;
+  db.collection('ratings').orderBy('created','desc').limit(60).get().then(function(qs){
+    var rows=qs.docs.map(function(d){ return d.data(); }).filter(function(r){ return r.stars>0; });
+    if(!rows.length){
+      sum.innerHTML='<div style="font-size:13px;color:var(--t3)">Be the first to rate RoamWise \u2b50</div>';
+      wall.innerHTML=''; return;
+    }
+    var avg=(rows.reduce(function(t,r){return t+r.stars;},0)/rows.length);
+    var stars=''; for(var i=1;i<=5;i++) stars+= i<=Math.round(avg)? '\u2b50':'\u2606';
+    sum.innerHTML='<div style="font-size:34px;font-weight:800;color:var(--gold2)">'+avg.toFixed(1)+'</div>'
+      +'<div style="font-size:19px;letter-spacing:2px">'+stars+'</div>'
+      +'<div style="font-size:11.5px;color:var(--t3);margin-top:2px">from '+rows.length+' traveler'+(rows.length===1?'':'s')
+      +(PLAYSTORE_URL? ' &middot; <a href="'+PLAYSTORE_URL+'" target="_blank" rel="noopener" style="color:var(--gold2)">rate us on Play Store \u2192</a>':'')+'</div>';
+    wall.innerHTML = rows.filter(function(r){ return r.text; }).slice(0,12).map(function(r){
+      var st=''; for(var i=1;i<=5;i++) st+= i<=r.stars? '\u2b50':'\u2606';
+      return '<div class="exp"><div style="font-size:14px;letter-spacing:1px">'+st+'</div>'
+        +'<div class="exp-desc" style="margin-top:6px">\u201c'+String(r.text).slice(0,180).replace(/[<>]/g,'')+'\u201d</div>'
+        +'<div style="font-size:11px;color:var(--t3);margin-top:8px">\u2014 '+String(r.name||'A traveler').replace(/[<>]/g,'')+'</div></div>';
+    }).join('');
+  }).catch(function(){ sum.innerHTML='<div class="mode-box">Ratings need the Firestore rules published \u2014 see admin console.</div>'; });
+}
+function openRateForm(){
+  if(!AUTH_READY || !user){ showToast('Sign in first \u2014 one honest rating per traveler'); return; }
+  var ov=el('rateOv');
+  if(!ov){ ov=document.createElement('div'); ov.id='rateOv'; ov.className='overlay';
+    ov.innerHTML='<div class="modal" style="max-width:400px"><button class="modal-close" onclick="el(\'rateOv\').classList.remove(\'open\')">\u00d7</button>'
+     +'<div class="modal-head"><div class="modal-title">\u2b50 Rate RoamWise</div><div class="modal-sub">Your honest take helps other travelers find us</div></div>'
+     +'<div class="modal-body">'
+     +'<div id="starPicker" style="font-size:34px;text-align:center;letter-spacing:6px;margin-bottom:14px;cursor:pointer"></div>'
+     +'<textarea id="rateText" maxlength="180" placeholder="What made your trip planning easier? (optional)" style="width:100%;background:#12121C;border:1px solid var(--b2);border-radius:11px;padding:10px;color:var(--t1);font-family:Outfit;font-size:13px;min-height:70px"></textarea>'
+     +'<button class="rzp-main-btn" style="margin-top:10px" onclick="submitRating()">Submit rating</button>'
+     +(PLAYSTORE_URL? '<div style="font-size:10.5px;color:var(--t3);text-align:center;margin-top:8px">Loved it? A Play Store review helps even more \u2192 <a href="'+PLAYSTORE_URL+'" target="_blank" rel="noopener" style="color:var(--gold2)">rate there too</a></div>':'')
+     +'</div></div>';
+    document.body.appendChild(ov); }
+  window._rateStars=5;
+  paintStars();
+  ov.classList.add('open');
+}
+function paintStars(){
+  var s=window._rateStars||5, html='';
+  for(var i=1;i<=5;i++) html+='<span onclick="window._rateStars='+i+';paintStars()" style="color:'+(i<=s?'var(--gold2)':'var(--t3)')+'">\u2605</span>';
+  el('starPicker').innerHTML=html;
+}
+function submitRating(){
+  var stars=window._rateStars||5, text=(el('rateText').value||'').trim().slice(0,180);
+  var name=(function(){ try{ return (JSON.parse(lsGet('rw_profile')||'{}').name)||lsGet('rw_name')||'A traveler'; }catch(e){ return 'A traveler'; } })();
+  db.collection('ratings').doc(user.uid).set({
+    stars:stars, text:text, name:name, created:firebase.firestore.FieldValue.serverTimestamp()
+  }).then(function(){
+    el('rateOv').classList.remove('open');
+    showToast('\u2b50 Thank you for rating RoamWise!'); xpAdd(10,'Rated the app');
+    renderRatings();
+  }).catch(function(){ showToast('Could not submit \u2014 check Firestore rules'); });
+}
+
 /* ===== SYNC CIRCLE — anonymous "I'm going" intent counts (no PII) ===== */
 function syncGo(name){
   if(!AUTH_READY || !user){ showToast('Sign in first \u2014 Sync Circle is for real accounts'); return; }
@@ -2068,9 +2251,86 @@ function syncGo(name){
   var ref=db.collection('pulse').doc('intents');
   ref.set(inc,{merge:true}).then(function(){ return ref.get(); }).then(function(d2){
     var n=(d2.exists && d2.data()[key])||1;
-    showToast('\ud83e\udd1d You + '+(n-1)+' traveler'+(n===2?'':'s')+' planning '+name+' in '+m+' \u2014 matched groups coming soon');
+    showToast('\ud83e\udd1d You + '+(n-1)+' traveler'+(n===2?'':'s')+' planning '+name+' in '+m+' \u2014 open Trip Squads to find them');
     xpAdd(5,'Joined a Sync Circle');
+    openSquads(name, m);
   }).catch(function(){ showToast('Sync Circle needs the pulse rules published'); });
+}
+
+/* ===== TRIP SQUADS — safe, anchored, zero built-in chat ===== *
+ * Modeled on how Zostel/goSTOPS/The Hosteller stay safe: they never run an open
+ * DM system between strangers — social anchors to a real place + real dates,
+ * and the traveler themself decides what contact info (if any) to publish.
+ * RoamWise can't provide the "real staffed hostel" safety net, so it goes
+ * further the other direction: NO forced info exchange, NO in-app messaging
+ * to build/moderate, a visible report button, a daily post cap, and posts
+ * auto-expire. That is the whole safety model — simple by design. */
+var SQUAD_CAP_PER_DAY = 3;
+function squadKey(name,month){ return (name+'_'+month).toLowerCase().replace(/[^a-z0-9]+/g,'_').slice(0,60); }
+function openSquads(name, month){
+  if(!AUTH_READY || !user){ showToast('Sign in first \u2014 Trip Squads is for real accounts'); return; }
+  var ov=el('squadOv');
+  if(!ov){ ov=document.createElement('div'); ov.id='squadOv'; ov.className='overlay';
+    ov.innerHTML='<div class="modal" style="max-width:440px;max-height:88vh;overflow:auto"><button class="modal-close" onclick="el(\'squadOv\').classList.remove(\'open\')">\u00d7</button>'
+     +'<div class="modal-head"><div class="modal-title">\ud83c\udf92 Trip Squads</div><div class="modal-sub" id="squadSub"></div></div>'
+     +'<div class="modal-body"><div style="font-size:11px;color:var(--t3);background:#12121C;border:1px solid var(--b2);border-radius:11px;padding:10px 12px;margin-bottom:12px">\ud83d\udee1\ufe0f No chat here on purpose. Posts show only what the traveler chooses to share. Never send money or OTPs before meeting in person \u2014 verify at a public place first.</div>'
+     +'<div id="squadList"></div>'
+     +'<div style="border-top:1px solid var(--b2);margin-top:14px;padding-top:14px">'
+     +'<div style="font-size:12.5px;font-weight:700;color:var(--t1);margin-bottom:8px">Post your own squad</div>'
+     +'<textarea id="squadNote" maxlength="140" placeholder="e.g. 2 of us, budget backpacking, flexible dates \\u00b1 4 days" style="width:100%;background:#12121C;border:1px solid var(--b2);border-radius:11px;padding:10px;color:var(--t1);font-family:Outfit;font-size:13px;min-height:60px"></textarea>'
+     +'<input id="squadContact" maxlength="80" placeholder="Optional \u2014 how to reach you (Insta handle, WhatsApp link\u2026) \u2014 leave blank to stay private" style="width:100%;margin-top:8px;background:#12121C;border:1px solid var(--b2);border-radius:11px;padding:10px;color:var(--t1);font-family:Outfit;font-size:13px">'
+     +'<button class="rzp-main-btn" style="margin-top:10px" onclick="postSquad()">\ud83d\udce2 Post to this Squad board</button>'
+     +'</div></div></div>';
+    document.body.appendChild(ov); }
+  el('squadSub').textContent=name+' \u00b7 '+month;
+  window._squadCtx={name:name, month:month};
+  loadSquads(name,month);
+  ov.classList.add('open');
+}
+function loadSquads(name,month){
+  var list=el('squadList'); list.innerHTML='<div style="font-size:12px;color:var(--t3)">Loading\u2026</div>';
+  var key=squadKey(name,month);
+  var cutoff=Date.now()-45*864e5; /* auto-expire: only show posts from the last 45 days */
+  db.collection('squads').where('key','==',key).orderBy('created','desc').limit(20).get().then(function(qs){
+    var rows=qs.docs.map(function(d){ return {id:d.id, data:d.data()}; })
+      .filter(function(r){ var c=r.data.created; return !c || c.toMillis()>cutoff; });
+    if(!rows.length){ list.innerHTML='<div class="mode-box">No squads posted yet for '+name+' in '+month+' \u2014 be the first \ud83e\udd1d</div>'; return; }
+    list.innerHTML=rows.map(function(r){
+      var d2=r.data, mine=(d2.uid===((user||{}).uid));
+      return '<div class="ti-day" style="align-items:flex-start;flex-direction:column;gap:4px;padding:12px;border:1px solid var(--b2);border-radius:12px;margin-bottom:8px">'
+        +'<div style="font-size:13px;color:var(--t1)">'+String(d2.note||'').replace(/[<>]/g,'')+'</div>'
+        +(d2.contact? '<div style="font-size:11.5px;color:var(--gold2)">\ud83d\udcac '+String(d2.contact).replace(/[<>]/g,'')+'</div>' : '<div style="font-size:11px;color:var(--t3)">No contact shared \u2014 poster stays private</div>')
+        +'<div style="display:flex;gap:8px;margin-top:2px">'
+        +(mine? '<button class="tact" style="font-size:10.5px;padding:5px 10px" onclick="delSquad(\''+r.id+'\')">Remove mine</button>'
+              : '<button class="tact" style="font-size:10.5px;padding:5px 10px;color:var(--t3)" onclick="reportSquad(\''+r.id+'\')">\u26a0 Report</button>')
+        +'</div></div>';
+    }).join('');
+  }).catch(function(){ list.innerHTML='<div class="mode-box">Squad board needs the Firestore rules published \u2014 see admin console.</div>'; });
+}
+function postSquad(){
+  var C=window._squadCtx||{}; if(!C.name) return;
+  var note=(el('squadNote').value||'').trim().slice(0,140);
+  if(note.length<6) return showToast('Add a real one-liner \u2014 destination, dates, party size');
+  var contact=(el('squadContact').value||'').trim().slice(0,80);
+  var todayKey='rw_squadday_'+new Date().toISOString().slice(0,10);
+  var postedToday=parseInt(lsGet(todayKey)||'0',10);
+  if(postedToday>=SQUAD_CAP_PER_DAY) return showToast('Daily post limit reached ('+SQUAD_CAP_PER_DAY+') \u2014 try again tomorrow');
+  db.collection('squads').add({
+    key:squadKey(C.name,C.month), destination:C.name, month:C.month, note:note, contact:contact,
+    uid:user.uid, created:firebase.firestore.FieldValue.serverTimestamp()
+  }).then(function(){
+    lsSet(todayKey, String(postedToday+1));
+    el('squadNote').value=''; el('squadContact').value='';
+    showToast('\ud83c\udf92 Posted to the Squad board'); xpAdd(8,'Posted a Trip Squad'); lsSet('rw_squad_count', String((parseInt(lsGet('rw_squad_count')||'0',10)||0)+1));
+    loadSquads(C.name,C.month);
+  }).catch(function(){ showToast('Could not post \u2014 check Firestore rules'); });
+}
+function delSquad(id){ if(!confirm('Remove this squad post?')) return;
+  db.collection('squads').doc(id).delete().then(function(){ var C=window._squadCtx||{}; if(C.name) loadSquads(C.name,C.month); }); }
+function reportSquad(id){
+  db.collection('reports').add({type:'squad', targetId:id, by:(user&&user.uid)||'anon', created:firebase.firestore.FieldValue.serverTimestamp()})
+    .then(function(){ showToast('Reported \u2014 thank you, our team will review'); })
+    .catch(function(){ showToast('Report failed \u2014 try again'); });
 }
 
 /* ===== 60-SECOND AI KEY WIZARD ===== */
@@ -2206,8 +2466,10 @@ function openPdfFlow(T, name, days, month){
   var payBlock = isPro ? '<button class="rzp-main-btn" onclick="genPdf()">\u2728 Generate my PDF (free with Pro)</button>'
     : '<div class="mode-box" style="margin-bottom:10px">\ud83d\udcb0 <b>\u20b910 one-off</b> \u2014 or free with Pro. Pay via any UPI app to <b>coolmohit@ybl</b>, then tap generate.</div>'
       +'<div style="display:flex;gap:7px;margin-bottom:10px"><button class="tact" style="flex:1" onclick="payVia(\'generic10\')">\ud83d\udcb3 Pay \u20b910 via UPI</button></div>'
-      +'<button class="rzp-main-btn" onclick="track(\'pdf_paid\');genPdf()">\u2705 I\u2019ve paid \u20b910 \u2014 Generate</button>'
-      +'<div style="font-size:10px;color:var(--t3);text-align:center;margin-top:6px">Honor system for now \u2014 you\u2019re supporting a solo builder \ud83c\udfd4\ufe0f</div>';
+      +'<button class="rzp-main-btn" onclick="track(\'pdf_paid\');genPdf()">\u2705 I\u2019ve paid \u20b910 \u2014 Generate full PDF</button>'
+      +'<div style="text-align:center;margin:10px 0 4px;font-size:11px;color:var(--t3)">\u2014 or try it first \u2014</div>'
+      +'<button class="tact" style="width:100%" onclick="genPdf(true)">\ud83d\udcc4 Download a free 2-page sample</button>'
+      +'<div style="font-size:10px;color:var(--t3);text-align:center;margin-top:6px">Honor system \u2014 you\u2019re supporting a solo builder \ud83c\udfd4\ufe0f</div>';
   el('pdfBody').innerHTML =
     '<div class="dna-q"><div class="qt">Traveler name on the cover</div><input class="txn-inp" id="pdfName" style="width:100%" value="'+(lsGet('rw_name')||'')+'" placeholder="Your name"></div>'
    +'<div class="dna-q"><div class="qt">Start date</div><input class="txn-inp" type="date" id="pdfDate" style="width:100%"></div>'
@@ -2301,6 +2563,14 @@ function openverseThumb(q){
       return (d.results&&d.results[0]&&(d.results[0].thumbnail||d.results[0].url))||null;
     }).catch(function(){return null;});
 }
+function imgTry(getters){ /* iterate candidate URL getters until a download succeeds */
+  if(!getters.length) return Promise.resolve(null);
+  var g=getters.shift();
+  return Promise.resolve().then(g).then(function(u){
+    if(!u) return imgTry(getters);
+    return fetchImg64(u).catch(function(){ return imgTry(getters); });
+  }).catch(function(){ return imgTry(getters); });
+}
 function wikiAny(q, alt){ /* REST -> action -> short -> alt -> openverse */
   var short3=String(q).split(' ').slice(0,3).join(' ');
   return wikiThumb(q).then(function(u){ if(u) return u; return wikiAction(q); })
@@ -2369,11 +2639,12 @@ function wikiThumb(q){
     .then(function(d){ return (d.thumbnail&&d.thumbnail.source)? d.thumbnail.source.replace(/\/\d+px-/,'/640px-') : null; })
     .catch(function(){ return null; });
 }
-function genPdf(){
+function genPdf(sample){
   el('pdfOverlay').classList.remove('open');
-  showToast('Designing your itinerary\u2026 \ud83c\udfa8 (10\u201320s)');
+  window._pdfSample = !!sample;
+  showToast(sample? 'Building your free sample\u2026 \ud83d\udcc4' : 'Designing your itinerary\u2026 \ud83c\udfa8 (10\u201320s)');
   loadJsPdf(function(){
-    var C=PDF_CTX, d=C.d, days=Math.min(C.days||5,10);
+    var C=PDF_CTX, d=C.d, days=window._pdfSample? 1 : Math.min(C.days||5,10);
     var name=(el('pdfName').value||'A Traveler').slice(0,26); lsSet('rw_name',name);
     var start = el('pdfDate').value ? new Date(el('pdfDate').value) : null;
     var o=window._pdfOpts, notes=(el('pdfNotes').value||'').slice(0,120);
@@ -2395,6 +2666,8 @@ function genPdf(){
     function wm(){
       pdf.setTextColor(229,212,178); pdf.setFont('helvetica','bold'); pdf.setFontSize(23);
       for(var wy=100;wy<790;wy+=128) for(var wx=-50;wx<640;wx+=185) pdf.text('ROAMWISE',wx,wy,{angle:31});
+      if(window._pdfSample){ pdf.setTextColor(232,120,90); pdf.setFontSize(60);
+        for(var sy=180;sy<760;sy+=200) pdf.text('SAMPLE',300,sy,{align:'center',angle:32}); }
     }
     function page(bg){ pdf.setFillColor(bg||PAP); pdf.rect(0,0,600,800,'F'); }
     function frame(){ pdf.setDrawColor(GOLD); pdf.setLineWidth(2); pdf.rect(18,18,564,764); pdf.setLineWidth(.6); pdf.rect(26,26,548,748); }
@@ -2410,14 +2683,6 @@ function genPdf(){
     for(var di=0; di<days; di++){
       var pl = AIP&&AIP[di]? firstPlace(AIP[di].morning) : ((d.gems||[])[di%Math.max(1,(d.gems||[]).length)]||'');
       wants.push(pl? {wiki:pl, alt:pl+' '+(d.name||'')} : null);
-    }
-    function imgTry(getters){ /* iterate candidate URL getters until a download succeeds */
-      if(!getters.length) return Promise.resolve(null);
-      var g=getters.shift();
-      return Promise.resolve().then(g).then(function(u){
-        if(!u) return imgTry(getters);
-        return fetchImg64(u).catch(function(){ return imgTry(getters); });
-      }).catch(function(){ return imgTry(getters); });
     }
     function job(q,alt){
       var s3=String(q).split(' ').slice(0,3).join(' ');
@@ -2715,14 +2980,32 @@ function genPdf(){
       pdf.setTextColor(MUT); pdf.setFontSize(9); pdf.text('Generated '+new Date().toLocaleDateString('en-IN')+' \u00b7 figures indicative \u2014 verify before booking',44,742);
       foot(pn);
       /* ---------- OUTPUT ---------- */
-      window._pdfDbg={pages:pn, hero:!!hero, dayPics:dayPics.filter(Boolean).length, gems:gemPics.length, map:!!mapDat, intel:!!intel, av:!!avatar, ev:evHit.length};
-      var fname='roamwise-'+d.name.toLowerCase().replace(/[^a-z0-9]+/g,'-')+'-itinerary.pdf';
-      if(window.RW && RW.saveCard){ RW.saveCard(pdf.output('datauristring')); showToast('\ud83d\udcd5 PDF saved to Downloads/RoamWise \u2014 open it from your notifications'); }
+      /* SAMPLE MODE: after the first day page, add an upsell page and stop */
+      if(window._pdfSample){
+        pdf.addPage(); pn++; page(TH.deep[0]!==undefined? undefined:undefined);
+        pdf.setFillColor(TH.deep[0],TH.deep[1],TH.deep[2]); pdf.rect(0,0,600,800,'F'); frame();
+        drawMotif(pdf,THK,TH.acc,300,150);
+        pdf.setTextColor(GOLD2); pdf.setFont('times','bold'); pdf.setFontSize(30); pdf.text('This is just a taste',300,300,{align:'center'});
+        pdf.setTextColor('#EDEAE2'); pdf.setFont('helvetica','normal'); pdf.setFontSize(13);
+        [' You have Day 1 of a '+(C.days||5)+'-day plan.','','The full itinerary unlocks:',
+         '- Every day, hour-by-hour with photos','- Map & pins page with live links','- Food, culture & local-intel pages',
+         '- Secret hacks + cost-saving moves','- Emergency numbers + packing checklist'].forEach(function(l,i){
+          pdf.text(l,300,340+i*24,{align:'center'}); });
+        pdf.setTextColor(TH.acc[0],TH.acc[1],TH.acc[2]); pdf.setFont('times','bold'); pdf.setFontSize(18);
+        pdf.text('Unlock Pro \u2014 Rs 100 lifetime',300,560,{align:'center'});
+        pdf.setTextColor('#B8B4A8'); pdf.setFont('helvetica','normal'); pdf.setFontSize(11);
+        pdf.text('roamwise.co.in  \u00b7  or the \u20b910 one-off in the app',300,586,{align:'center'});
+        try{ pdf.textWithLink('Open RoamWise \u2192',300,614,{align:'center',url:'https://www.roamwise.co.in'}); }catch(e){}
+        foot(pn);
+      }
+      window._pdfDbg={pages:pn, hero:!!hero, dayPics:dayPics.filter(Boolean).length, gems:gemPics.length, map:!!mapDat, intel:!!intel, av:!!avatar, ev:evHit.length, sample:!!window._pdfSample};
+      var fname='roamwise-'+d.name.toLowerCase().replace(/[^a-z0-9]+/g,'-')+(window._pdfSample?'-SAMPLE':'')+'-itinerary.pdf';
+      if(window.RW && RW.saveCard){ RW.saveCard(pdf.output('datauristring')); offerOpen('Your itinerary'); }
       else { try{ var u=URL.createObjectURL(pdf.output('blob')); var w2=window.open(u,'_blank');
           if(w2) showToast('\ud83d\udc41 Preview opened \u2014 hit the viewer\u2019s \u2b07 to save'); else pdf.save(fname);
         }catch(e){ pdf.save(fname); } }
       xpAdd(20,'Premium itinerary forged');
-      try{ track('pdf_generated'); }catch(e){}
+      try{ track('pdf_generated'); lsSet('rw_pdf_count', String((parseInt(lsGet('rw_pdf_count')||'0',10)||0)+1)); }catch(e){}
     });
   });
 }
@@ -2796,7 +3079,36 @@ function renderSpotlight(){
     +'<div style="font-size:10px;color:var(--gold2);margin-top:8px">\ud83d\udd25 Founding offer live: lifetime Pro \u20b9100 \u2014 rises after the first wave</div>';
   host.appendChild(card);
 }
-document.addEventListener('DOMContentLoaded', function(){ try{ renderEventBanner(); renderEvents(); renderSpotlight(); renderTicker(); renderForYou(); renderPromo(); }catch(e){}
+/* ===== TRAVEL PULSE NEWS — daily-crunched, honest about not being live-live ===== */
+function renderNewsPulse(){
+  var g=el('newsGrid'); if(!g) return;
+  fetch('news.json',{cache:'no-store'}).then(function(r){ if(!r.ok) throw 0; return r.json(); }).then(function(d){
+    if(!d.items || !d.items.length){ g.innerHTML=''; el('newspulse').style.display='none'; return; }
+    var upd=d.updated? new Date(d.updated) : null;
+    var when = upd? upd.toLocaleDateString('en-IN',{day:'numeric',month:'short'}) : '';
+    g.innerHTML = d.items.map(function(it){
+      return '<div class="exp"><div class="exp-ic">\ud83d\udcf0</div>'
+        +'<div class="exp-where" style="color:var(--gold2);font-size:10.5px;text-transform:uppercase;letter-spacing:.06em">'+(it.tag||'Travel')+'</div>'
+        +'<div class="exp-name" style="font-size:14.5px">'+String(it.crunch||it.headline||'').replace(/[<>]/g,'')+'</div>'
+        +'<div class="exp-desc" style="font-size:11px;color:var(--t3)">'+(it.source||'')+(when? ' \u00b7 '+when:'')+'</div>'
+        +(it.url? '<a class="tact" style="display:block;text-align:center;text-decoration:none;margin-top:9px;font-size:12px" target="_blank" rel="noopener" href="'+it.url+'">Read more \u2192</a>' : '')
+        +'</div>';
+    }).join('');
+  }).catch(function(){
+    /* graceful no-op: the news.json file may not exist yet on a fresh site — hide, don't error */
+    var sec=el('newspulse'); if(sec) sec.style.display='none';
+  });
+}
+
+document.addEventListener('DOMContentLoaded', function(){
+  try{ renderEventBanner(); }catch(e){}
+  try{ renderEvents(); }catch(e){}
+  try{ renderSpotlight(); }catch(e){}
+  try{ renderTicker(); }catch(e){}
+  try{ renderForYou(); }catch(e){}
+  try{ renderPromo(); }catch(e){}
+  try{ renderNewsPulse(); }catch(e){}
+  try{ renderRatings(); }catch(e){}
   /* Apple-style scroll reveal */
   try{
     if('IntersectionObserver' in window){
@@ -2869,6 +3181,51 @@ function killIntro(){ var i=el('intro'); if(i){ i.classList.add('bye'); setTimeo
   if(sessionStorage.getItem('rw_intro')){ var i=el('intro'); if(i) i.remove(); return; }
   sessionStorage.setItem('rw_intro','1'); setTimeout(killIntro, 2600);
 }catch(e){ killIntro(); } })();
+
+/* ===== PERKS — rewards for constructive use, not just clicking around ===== */
+function perksData(){
+  var xp=xpGet();
+  var streak=parseInt(lsGet('rw_streak')||'0',10)||0;
+  var wish=0; try{ wish=JSON.parse(lsGet('rw_wish')||'[]').length; }catch(e){}
+  var pdfs=parseInt(lsGet('rw_pdf_count')||'0',10)||0;
+  var squads=parseInt(lsGet('rw_squad_count')||'0',10)||0;
+  var use={}; try{ use=JSON.parse(lsGet('rw_use')||'{}'); }catch(e){}
+  var planUses=use.plan||0;
+  return {xp:xp, streak:streak, wish:wish, pdfs:pdfs, squads:squads, planUses:planUses};
+}
+var PERKS=[
+ {id:'scout', name:'Scout Badge', need:'3-day streak', icon:'\ud83e\udded',
+  test:function(d){return d.streak>=3;}, prog:function(d){return [Math.min(d.streak,3),3];},
+  reward:'Unlocks the trending-aware "For You" row a rank early'},
+ {id:'planner', name:'Real Planner', need:'3 destinations searched + planned', icon:'\ud83d\uddfa\ufe0f',
+  test:function(d){return d.planUses>=3;}, prog:function(d){return [Math.min(d.planUses,3),3];},
+  reward:'+10% bonus XP on every future itinerary build'},
+ {id:'curator', name:'Curator', need:'2 places saved to your wishlist', icon:'\u2665',
+  test:function(d){return d.wish>=2;}, prog:function(d){return [Math.min(d.wish,2),2];},
+  reward:'Your wishlist can now be turned into a Lifetime List reel'},
+ {id:'documented', name:'Documented', need:'1 premium PDF generated', icon:'\ud83d\udcd5',
+  test:function(d){return d.pdfs>=1;}, prog:function(d){return [Math.min(d.pdfs,1),1];},
+  reward:'Unlocked: one free Journey Movie render (normally \u20b950)'},
+ {id:'connector', name:'Connector', need:'1 Trip Squad posted', icon:'\ud83c\udf92',
+  test:function(d){return d.squads>=1;}, prog:function(d){return [Math.min(d.squads,1),1];},
+  reward:'Your squad posts get a small visibility boost'},
+ {id:'shadow', name:'\ud83e\udd77 Shadow Clone (secret)', need:'Reach Jonin rank (300 XP) + 3 perks unlocked', icon:'\ud83c\udf11', secret:true,
+  test:function(d){ var others=PERKS.slice(0,5).filter(function(p){return p.test(d);}).length; return d.xp>=300 && others>=3; },
+  prog:function(d){ var others=PERKS.slice(0,5).filter(function(p){return p.test(d);}).length; return [Math.min(others,3), 3]; },
+  reward:'Unlocks the hidden Shadow Clone Journey Card style'}
+];
+function perksUnlocked(){ var d=perksData(); return PERKS.filter(function(p){ return p.test(d); }).map(function(p){return p.id;}); }
+function hasShadowStyle(){ return perksUnlocked().indexOf('shadow')>-1; }
+function renderPerks(){
+  var d=perksData(), un=perksUnlocked();
+  return PERKS.map(function(p){
+    var on=un.indexOf(p.id)>-1, pr=p.prog(d), pct=Math.round(pr[0]/pr[1]*100);
+    if(p.secret && !on) return '<div class="ti-day" style="opacity:.55;align-items:center"><b>\ud83d\udd12</b><span style="flex:1"><b style="color:var(--t2)">??? Secret Perk</b><br><span style="font-size:10.5px;color:var(--t3)">Keep exploring to reveal it</span></span></div>';
+    return '<div class="ti-day" style="align-items:center;'+(on?'':'opacity:.7')+'"><b>'+(on?p.icon:'\ud83d\udd12')+'</b><span style="flex:1"><b style="color:'+(on?'var(--gold2)':'var(--t2)')+'">'+p.name+'</b> \u2014 <span style="font-size:11px;color:var(--t3)">'+p.need+'</span>'
+      +(on? '<br><span style="font-size:10.5px;color:#16BF96">\u2713 '+p.reward+'</span>' : '<div class="xp-bar" style="margin-top:5px"><div class="xp-fill" style="width:'+pct+'%"></div></div>')
+      +'</span></div>';
+  }).join('');
+}
 
 /* ===== SHINOBI XP — traveler ranks ===== */
 var RANKS=[[0,'Genin'],[100,'Chunin'],[300,'Jonin'],[700,'ANBU'],[1500,'Kage']];
@@ -3162,15 +3519,35 @@ function askName(cb){
 function makeCard(){
   var L=logGet(); if(!L.length) return showToast('Log at least one place first');
   askName(function(name){
-    /* Painting-grade dark world map — CARTO dark tiles, zoom 2 (4x4 grid) */
+    /* Painting-grade dark world map — CARTO tiles, zoom 3 (8x8 grid) */
     var Z=3, N=8, need=N*N, fail=false, tiles=[]; tiles.N=N;
-    showToast('Painting your world\u2026 \ud83c\udfa8');
+    showToast('Painting your world\u2026 \ud83c\udfa8 (fetching your cover photo too)');
     for(var ty=0;ty<N;ty++) for(var tx=0;tx<N;tx++) (function(tx,ty){
       var im=new Image(); im.crossOrigin='anonymous';
-      im.onload=function(){ tiles[ty*N+tx]=im; if(--need===0) drawCard(L,name,fail?null:tiles); };
-      im.onerror=function(){ fail=true; if(--need===0) drawCard(L,name,null); };
-      im.src='https://'+(['a','b','c'][ (tx+ty)%3 ])+'.basemaps.cartocdn.com/dark_all/'+Z+'/'+tx+'/'+ty+'.png';
+      im.onload=function(){ tiles[ty*N+tx]=im; if(--need===0) after(); };
+      im.onerror=function(){ fail=true; if(--need===0) after(); };
+      im.src='https://'+(['a','b','c'][ (tx+ty)%3 ])+'.basemaps.cartocdn.com/rastertiles/voyager/'+Z+'/'+tx+'/'+ty+'.png';
     })(tx,ty);
+    /* real destination photo for the cinematic cover backdrop — the flagship/most-recent place.
+       Uses fetchImg64 (fetch -> blob -> dataURL), the SAME proven path the PDF pipeline uses —
+       this keeps the resulting <img> same-origin so the canvas never gets tainted (toDataURL
+       must keep working for save/share). Hard timeout: never let a slow fetch block the card. */
+    var heroName = logName(L[L.length-1]) || logName(L[0]);
+    var heroImg = null, heroDone = false, heroTimer=setTimeout(function(){ if(!heroDone){ heroDone=true; maybeGo(); } }, 8000);
+    imgTry([
+      function(){ return wikiThumb(heroName); },
+      function(){ return wikiAction(heroName); },
+      function(){ return wikiAction(heroName.split(',')[0]); }
+    ]).then(function(u){ if(heroDone) return null; if(!u) return null; return fetchImg64(u); })
+    .then(function(dataUrl){ if(heroDone) return; if(!dataUrl){ heroDone=true; clearTimeout(heroTimer); maybeGo(); return; }
+      var im2=new Image();
+      im2.onload=function(){ if(heroDone) return; heroImg=im2; heroDone=true; clearTimeout(heroTimer); maybeGo(); };
+      im2.onerror=function(){ if(heroDone) return; heroDone=true; clearTimeout(heroTimer); maybeGo(); };
+      im2.src=dataUrl;
+    }).catch(function(){ if(heroDone) return; heroDone=true; clearTimeout(heroTimer); maybeGo(); });
+    var tilesReady=false;
+    function after(){ tilesReady=true; maybeGo(); }
+    function maybeGo(){ if(tilesReady && heroDone) drawCard(L,name,fail?null:tiles,heroImg); }
   });
 }
 function mercY(lat,H){ var r=lat*Math.PI/180; return (1-Math.log(Math.tan(r)+1/Math.cos(r))/Math.PI)/2*H; }
@@ -3182,12 +3559,13 @@ var PRAISE={Genin:'Every legend begins with a single step \u2014 yours already c
 var CARD_STYLES={
  atlas:{label:'Classic Atlas',bg:['#0B0D18','#10101F','#160D13'],pin:'#C4302B',pinCore:'#E8BA6C',pinTxt:'#0A0A12',trail:null,accent:'#E8BA6C',capFont:'Georgia,serif',tint:null},
  noir:{label:'Minimal Noir',bg:['#0A0A0E','#0E0E13','#0A0A0E'],pin:'#F2EFE8',pinCore:'#0A0A0E',pinTxt:'#F2EFE8',trail:'#B8B4A8',accent:'#EDEAE2',capFont:'Outfit,Arial',tint:['rgba(0,0,0,.28)','rgba(255,255,255,.05)']},
- neon:{label:'Neon Voyage',bg:['#070113','#0E0330','#12042E'],pin:'#FF2E9A',pinCore:'#070113',pinTxt:'#FF2E9A',trail:'#00E5FF',accent:'#00E5FF',capFont:'Outfit,Arial',tint:['rgba(0,229,255,.07)','rgba(255,46,154,.06)']}};
-function cardStyleGet(){ return CARD_STYLES[lsGet('rw_cardstyle')||'atlas']||CARD_STYLES.atlas; }
+ neon:{label:'Neon Voyage',bg:['#070113','#0E0330','#12042E'],pin:'#FF2E9A',pinCore:'#070113',pinTxt:'#FF2E9A',trail:'#00E5FF',accent:'#00E5FF',capFont:'Outfit,Arial',tint:['rgba(0,229,255,.07)','rgba(255,46,154,.06)']},
+ shadow:{label:'\ud83e\udd77 Shadow Clone',bg:['#050505','#0B0808','#050505'],pin:'#E8BA6C',pinCore:'#050505',pinTxt:'#E8BA6C',trail:'#C4302B',accent:'#E8BA6C',capFont:'Georgia,serif',tint:['rgba(196,48,43,.10)','rgba(0,0,0,.35)'],secret:true}};
+function cardStyleGet(){ return CARD_STYLES[lsGet('rw_cardstyle')||'neon']||CARD_STYLES.neon; }
 function setCardStyle(k){ lsSet('rw_cardstyle',k);
   document.querySelectorAll('.cstyle').forEach(function(b){ b.classList.toggle('red', b.dataset.k===k); });
   showToast(CARD_STYLES[k].label+' style armed'); makeCard(); }
-function drawCard(L, name, tiles){
+function drawCard(L, name, tiles, heroPhoto){
   var ST=cardStyleGet();
   var W=1200,H=1600,c=document.createElement('canvas');
   c.width=W*2; c.height=H*2;                    /* 2400x3200 \u2014 print-grade */
@@ -3212,19 +3590,45 @@ function drawCard(L, name, tiles){
   [[26,26],[W-26,26],[26,H-26],[W-26,H-26]].forEach(function(p){
     x.beginPath(); x.moveTo(p[0]-(p[0]>W/2?26:-26),p[1]); x.lineTo(p[0],p[1]); x.lineTo(p[0],p[1]-(p[1]>H/2?26:-26)); x.stroke();
   });
-  /* header */
+  /* ===== CINEMATIC PHOTO HERO (poster-style, like a real destination cover) ===== */
+  var HY=48, HH=272, HX=48, HW=W-96;
+  x.save(); x.beginPath(); x.rect(HX,HY,HW,HH); x.clip();
+  if(heroPhoto){
+    var ir=heroPhoto.width/heroPhoto.height, tr=HW/HH, sx2,sy2,sw2,sh2;
+    if(ir>tr){ sh2=heroPhoto.height; sw2=sh2*tr; sx2=(heroPhoto.width-sw2)/2; sy2=0; }
+    else { sw2=heroPhoto.width; sh2=sw2/tr; sx2=0; sy2=(heroPhoto.height-sh2)/2; }
+    x.drawImage(heroPhoto, sx2,sy2,sw2,sh2, HX,HY,HW,HH);
+    /* film grade: subtle style-accent tint on the photo */
+    x.globalCompositeOperation='soft-light'; x.fillStyle=ST.accent+'22'; x.fillRect(HX,HY,HW,HH);
+    x.globalCompositeOperation='source-over';
+  } else {
+    var hg=x.createLinearGradient(HX,HY,HX,HY+HH); hg.addColorStop(0,ST.bg[1]); hg.addColorStop(1,ST.bg[2]);
+    x.fillStyle=hg; x.fillRect(HX,HY,HW,HH);
+  }
+  /* bottom gradient so title text always reads */
+  var tg=x.createLinearGradient(HX,HY,HX,HY+HH); tg.addColorStop(0,'rgba(6,7,12,.15)'); tg.addColorStop(0.55,'rgba(6,7,12,.35)'); tg.addColorStop(1,'rgba(6,7,12,.92)');
+  x.fillStyle=tg; x.fillRect(HX,HY,HW,HH);
+  /* light rays (subtle, cinematic) */
+  x.save(); x.globalAlpha=.10; x.fillStyle='#fff';
+  for(var lr=0; lr<5; lr++){ x.save(); x.translate(HX+HW*(0.15+lr*0.18), HY); x.rotate(-0.12+lr*0.05);
+    x.beginPath(); x.moveTo(0,0); x.lineTo(40,0); x.lineTo(-30,HH); x.lineTo(-70,HH); x.closePath(); x.fill(); x.restore(); }
+  x.restore();
+  x.restore(); /* end hero clip */
+  x.strokeStyle=ST.accent; x.lineWidth=2; x.strokeRect(HX,HY,HW,HH);
+  /* title over the photo, poster-style */
   x.textAlign='center';
-  x.fillStyle='#8A8880'; x.font='600 15px Outfit,Arial';
-  x.fillText('T H E   J O U R N E Y   M A P   O F', W/2, 108);
-  x.fillStyle='#E8BA6C'; x.font='700 58px Georgia,serif';
-  x.fillText(name, W/2, 168);
+  x.fillStyle='rgba(255,255,255,.72)'; x.font='600 13px Outfit,Arial';
+  x.fillText('T H E   J O U R N E Y   M A P   O F', W/2, HY+HH-84);
+  x.fillStyle='#fff'; x.font='700 52px Georgia,serif';
+  x.save(); x.shadowColor='rgba(0,0,0,.6)'; x.shadowBlur=14;
+  x.fillText(name, W/2, HY+HH-38); x.restore();
   var xp=xpGet(), r=rankOf(xp), streak=parseInt(lsGet('rw_streak')||'0',10)||0;
   var dnaArr=JSON.parse(lsGet('rw_dna')||'null');
   var vibe=dnaArr? ['Adventure','Culture','Chill','Party'][dnaArr[1]]||'' : '';
-  x.fillStyle='#B8B4A8'; x.font='italic 400 19px Georgia,serif';
-  x.fillText('\u201c'+(PRAISE[r[1]]||PRAISE.Genin)+'\u201d', W/2, 205);
+  x.fillStyle=ST.accent; x.font='italic 400 16px Georgia,serif';
+  x.fillText('\u201c'+(PRAISE[r[1]]||PRAISE.Genin)+'\u201d', W/2, HY+HH+30);
   /* ===== MAP PLATE ===== */
-  var MX=70, MY=246, MW=W-140, MH=Math.round(MW*0.70);   /* 1060 x 742 — big, label-detailed */
+  var MX=70, MY=HY+HH+56, MW=W-140, MH=Math.round(MW*0.62);
   x.save();
   x.shadowColor='rgba(0,0,0,.6)'; x.shadowBlur=26; x.shadowOffsetY=8;
   x.fillStyle='#0A0A12'; x.fillRect(MX-6,MY-6,MW+12,MH+12);
@@ -3234,9 +3638,24 @@ function drawCard(L, name, tiles){
     for(var ty=0;ty<TN;ty++) for(var tx=0;tx<TN;tx++){
       var im=tiles[ty*TN+tx]; if(im) x.drawImage(im, MX+tx*tw, MY+ty*th, tw, th);
     }
-    /* gentle warm grade — keep place labels readable */
-    x.save(); x.globalCompositeOperation='overlay'; x.fillStyle='rgba(90,70,140,.13)'; x.fillRect(MX,MY,MW,MH);
-    x.globalCompositeOperation='soft-light'; x.fillStyle='rgba(232,186,108,.08)'; x.fillRect(MX,MY,MW,MH); x.restore();
+    /* deepen the light basemap into a moody premium tone (multiply darkens, soft-light adds mood, style accent tints it) */
+    x.save();
+    x.globalCompositeOperation='multiply'; x.fillStyle='rgba(150,148,168,1)'; x.fillRect(MX,MY,MW,MH);
+    x.globalCompositeOperation='soft-light'; x.fillStyle=ST.bg[0]; x.globalAlpha=.55; x.fillRect(MX,MY,MW,MH); x.globalAlpha=1;
+    x.globalCompositeOperation='overlay'; x.fillStyle=ST.accent; x.globalAlpha=.06; x.fillRect(MX,MY,MW,MH); x.globalAlpha=1;
+    x.restore();
+    x.save(); x.shadowColor='rgba(0,0,0,.5)'; x.shadowBlur=30; x.strokeStyle=ST.accent; x.lineWidth=0; x.restore();
+    /* lat/long graticule with labels */
+    x.save(); x.beginPath(); x.rect(MX,MY,MW,MH); x.clip();
+    x.strokeStyle='rgba(255,255,255,.18)'; x.fillStyle='rgba(255,255,255,.5)'; x.lineWidth=1; x.font='600 11px Outfit,Arial';
+    for(var lo=-180; lo<=180; lo+=30){ var gx=MX+(lo+180)/360*MW;
+      x.beginPath(); x.moveTo(gx,MY); x.lineTo(gx,MY+MH); x.stroke();
+      x.textAlign='center'; x.fillText((lo>0?lo+'\u00b0E':lo<0?(-lo)+'\u00b0W':'0\u00b0'), gx, MY+MH-6); }
+    for(var la=-60; la<=75; la+=30){ var gy=MY+mercY(la,MH);
+      if(gy<MY||gy>MY+MH) continue;
+      x.beginPath(); x.moveTo(MX,gy); x.lineTo(MX+MW,gy); x.stroke();
+      x.textAlign='left'; x.fillText((la>0?la+'\u00b0N':la<0?(-la)+'\u00b0S':'0\u00b0'), MX+4, gy-4); }
+    x.restore(); x.textAlign='left';
   } else {
     /* offline fallback \u2014 stylized continents */
     x.fillStyle='#141225'; x.fillRect(MX,MY,MW,MH);
@@ -3253,7 +3672,7 @@ function drawCard(L, name, tiles){
   L.forEach(function(e,i){ var p=proj(e); legend.push({n:logName(e),p:p}); if(p) pts.push({p:p,num:legend.length}); });
   if(ST.tint){ x.save(); x.globalCompositeOperation='soft-light'; x.fillStyle=ST.tint[0]; x.fillRect(0,0,W,H);
     x.globalCompositeOperation='overlay'; x.fillStyle=ST.tint[1]; x.fillRect(0,0,W,H); x.restore(); }
-  window._rwCine={pts:pts.map(function(o){return {x:o.p[0],y:o.p[1],num:o.num};}), names:legend.map(function(g){return g.n;}), name:name, W:W, H:H, style:lsGet('rw_cardstyle')||'atlas'};
+  window._rwCine={pts:pts.map(function(o){return {x:o.p[0],y:o.p[1],num:o.num};}), names:legend.map(function(g){return g.n;}), name:name, W:W, H:H, style:lsGet('rw_cardstyle')||'neon'};
   /* golden arcs between consecutive located pins */
   x.save(); x.setLineDash([7,6]); x.lineWidth=2.6;
   x.beginPath(); x.rect(MX,MY,MW,MH); x.clip();   /* arcs stay inside the map plate */
@@ -3272,14 +3691,22 @@ function drawCard(L, name, tiles){
   }
   x.restore();
   /* numbered glowing pins */
-  pts.forEach(function(o){
-    var p=o.p;
-    x.save(); x.shadowColor='rgba(232,186,108,.9)'; x.shadowBlur=14;
-    x.fillStyle=ST.pin; x.beginPath(); x.arc(p[0],p[1],12,0,7); x.fill(); x.restore();
-    x.fillStyle=ST.pinCore; x.beginPath(); x.arc(p[0],p[1],8.5,0,7); x.fill();
-    x.fillStyle=ST.pinTxt; x.font='700 11px Outfit,Arial'; x.textAlign='center';
-    x.fillText(String(o.num), p[0], p[1]+4);
+  x.save(); x.beginPath(); x.rect(MX,MY,MW,MH); x.clip();
+  pts.forEach(function(o,idx){
+    var p=o.p, nm=(legend[o.num-1]&&legend[o.num-1].n||'').slice(0,18);
+    /* label chip */
+    x.font='700 15px Outfit,Arial'; var tw2=x.measureText(nm).width;
+    var lx=Math.min(MX+MW-tw2-16, Math.max(MX+4, p[0]+16)), lyy=Math.max(MY+16,p[1]-10);
+    x.fillStyle='rgba(7,9,15,.72)'; x.fillRect(lx-6, lyy-15, tw2+12, 22);
+    x.fillStyle=ST.accent; x.textAlign='left'; x.fillText(nm, lx, lyy);
+    /* pin */
+    x.save(); x.shadowColor=ST.trail||ST.pin; x.shadowBlur=20;
+    x.fillStyle=ST.pin; x.beginPath(); x.arc(p[0],p[1],16,0,7); x.fill(); x.restore();
+    x.fillStyle=ST.pinCore; x.beginPath(); x.arc(p[0],p[1],11,0,7); x.fill();
+    x.fillStyle=ST.pinTxt; x.font='700 14px Outfit,Arial'; x.textAlign='center';
+    x.fillText(String(o.num), p[0], p[1]+5);
   });
+  x.restore(); x.textAlign='left';
   x.fillStyle='#54524C'; x.font='400 10px Outfit,Arial'; x.textAlign='right';
   x.fillText('Map \u00a9 OpenStreetMap contributors \u00a9 CARTO', MX+MW-6, MY+MH-8);
   /* ===== LEGEND \u2014 two columns, numbered ===== */
@@ -3324,7 +3751,7 @@ function drawCard(L, name, tiles){
   x.fillStyle='#E8BA6C'; x.font='700 12px Georgia,serif'; x.textAlign='center'; x.fillText('N', ccx, ccy-50);
   x.restore(); x.textAlign='left';
   /* ===== STATS STRIP ===== */
-  var sy=H-190, boxes=[['\ud83e\udd77 '+r[1].toUpperCase(),'traveler rank'],[xp+' XP','experience'],[String(L.length),'journeys'],[streak+' days','streak'+(vibe?'':'')]];
+  var sy=H-262, boxes=[['\ud83e\udd77 '+r[1].toUpperCase(),'traveler rank'],[xp+' XP','experience'],[String(L.length),'journeys'],[streak+' days','streak'+(vibe?'':'')]];
   if(vibe) boxes[3]=[vibe,'soul \u00b7 '+streak+'-day streak'];
   var bw=(W-172)/4;
   boxes.forEach(function(b2,i){
@@ -3337,25 +3764,226 @@ function drawCard(L, name, tiles){
   });
   if(isPro){ x.fillStyle='#E8BA6C'; x.font='700 15px Outfit,Arial'; x.textAlign='center';
     x.fillText('\ud83d\udc51 LIFETIME PRO MEMBER', W/2, sy-16); }
-  /* footer brand */
-  x.fillStyle='#8A8880'; x.font='600 13px Outfit,Arial'; x.textAlign='center';
-  x.fillText('\ud83e\udd77  R O A M W I S E   \u00b7   www.roamwise.co.in   \u00b7   make yours free', W/2, H-64);
-  x.fillStyle='#54524C'; x.font='400 11px Georgia,serif';
-  x.fillText(new Date().toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'}), W/2, H-44);
+  /* ===== CERTIFICATE OF ACHIEVEMENT: seal + signature + date ===== */
+  var dateStr=new Date().toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'});
+  var certY=H-152;
+  x.textAlign='center';
+  x.fillStyle=ST.accent; x.font='700 15px Georgia,serif';
+  x.fillText('C E R T I F I C A T E   O F   A C H I E V E M E N T', W/2, certY);
+  x.strokeStyle=(ST.trail||ST.accent); x.globalAlpha=.5; x.lineWidth=1;
+  x.beginPath(); x.moveTo(W/2-210,certY+10); x.lineTo(W/2+210,certY+10); x.stroke(); x.globalAlpha=1;
+  x.fillStyle='#B8B4A8'; x.font='400 12px Georgia,serif';
+  x.fillText('This certifies that '+name+' has journeyed '+L.length+' destination'+(L.length===1?'':'s')+' \u00b7 rank of '+r[1], W/2, certY+30);
+  /* wax-style circular seal (left) */
+  var sx2=150, syl=certY+36;
+  x.save(); x.translate(sx2,syl);
+  x.fillStyle=(ST.pin); x.globalAlpha=.9;
+  x.beginPath(); for(var pa=0;pa<16;pa++){ var an=pa*Math.PI/8, rr=pa%2?30:36; x[pa?'lineTo':'moveTo'](Math.cos(an)*rr,Math.sin(an)*rr); } x.closePath(); x.fill();
+  x.globalAlpha=1; x.strokeStyle='rgba(255,255,255,.6)'; x.lineWidth=1.5; x.beginPath(); x.arc(0,0,24,0,7); x.stroke();
+  x.fillStyle='#fff'; x.font='700 13px Georgia,serif'; x.textAlign='center'; x.fillText('RW',0,-2);
+  x.font='600 7px Outfit,Arial'; x.fillText('VERIFIED',0,10);
+  x.restore();
+  /* signature (right) */
+  x.textAlign='center';
+  x.strokeStyle=ST.accent; x.lineWidth=2; x.globalAlpha=.9;
+  x.beginPath();
+  var gx0=W-260, gy0=certY+40;
+  x.moveTo(gx0,gy0);
+  x.bezierCurveTo(gx0+30,gy0-22, gx0+50,gy0+20, gx0+80,gy0-6);
+  x.bezierCurveTo(gx0+100,gy0-20, gx0+120,gy0+14, gx0+170,gy0-10);
+  x.stroke(); x.globalAlpha=1;
+  x.fillStyle='#B8B4A8'; x.font='italic 400 12px Georgia,serif';
+  x.fillText('Mohit Pandey \u00b7 Founder, RoamWise', W-175, certY+58);
+  /* footer brand + date */
+  x.fillStyle='#8A8880'; x.font='600 12px Outfit,Arial';
+  x.fillText('\ud83e\udd77  R O A M W I S E   \u00b7   www.roamwise.co.in', W/2, H-40);
+  x.fillStyle=ST.accent; x.font='700 12px Outfit,Arial';
+  x.fillText('Issued '+dateStr, W/2, H-22);
   x.textAlign='left';
   /* output */
   var url=c.toDataURL('image/png');
   el('cardImg').src=url; el('cardImg').style.display='block';
   el('cardBtns').style.display='flex';
   var mb=el('movieBtn'); if(mb) mb.style.display='block';
+  var shc=el('shadowChip'); if(shc) shc.style.display = hasShadowStyle()? 'block':'none';
   var un=L.filter(function(e){return e.lat===undefined;}).length;
   if(un) showToast(un+' place(s) still locating \u2014 regenerate in a minute for full pins');
   else showToast('Souvenir-grade \u2014 2400\u00d73200px, ready to print & frame \ud83d\uddbc\ufe0f');
   if(!lsGet('rw_card_xp')){ lsSet('rw_card_xp','1'); xpAdd(25,'Journey Card forged'); }
 }
+function offerOpen(label){
+  var ov=el('openPromptOv');
+  if(!ov){ ov=document.createElement('div'); ov.id='openPromptOv'; ov.className='overlay';
+    ov.innerHTML='<div class="modal" style="max-width:340px;text-align:center"><div class="modal-body" id="openPromptBody"></div></div>';
+    document.body.appendChild(ov); }
+  el('openPromptBody').innerHTML=
+     '<div style="font-size:34px;margin-bottom:8px">\ud83d\udcd5</div>'
+    +'<div style="font-weight:700;font-size:15.5px;color:var(--t1);margin-bottom:4px">'+label+' saved</div>'
+    +'<div style="font-size:12.5px;color:var(--t3);margin-bottom:16px">to Downloads/RoamWise</div>'
+    +'<div style="display:flex;gap:8px">'
+    +'<button class="tact" style="flex:1" onclick="el(\'openPromptOv\').classList.remove(\'open\')">Later</button>'
+    +'<button class="rzp-main-btn" style="flex:1;margin:0" onclick="_doOpenNow()">\ud83d\udc41 Open now</button>'
+    +'</div>';
+  ov.classList.add('open');
+}
+function _doOpenNow(){
+  el('openPromptOv').classList.remove('open');
+  try{ if(window.RW && RW.openLastSaved) RW.openLastSaved(); else showToast('Check Downloads/RoamWise to open it'); }
+  catch(e){ showToast('Check Downloads/RoamWise to open it'); }
+}
 function saveOrDownload(dataUrl, filename){
   if(window.RW && RW.saveCard){ RW.saveCard(dataUrl); showToast('Saving to Downloads/RoamWise\u2026'); return; }
   var a=document.createElement('a'); a.href=dataUrl; a.download=filename; a.click();
+}
+/* ===== ATLAS CERTIFICATE — self-contained downloadable HTML journey certificate =====
+ * Design tokens (palette, ornate-double border, filter-based layer tabs, percentage-
+ * positioned pins) reverse-engineered honestly from a Tailwind-compiled reference the
+ * user shared — NOT copied code, just the same proven recipe, rebuilt from scratch
+ * using our own real journey data and existing card canvas as the map image. */
+function haversine(a,b){
+  var R=6371, toRad=function(d){return d*Math.PI/180;};
+  var dLat=toRad(b.lat-a.lat), dLon=toRad(b.lon-a.lon);
+  var s=Math.sin(dLat/2)**2 + Math.cos(toRad(a.lat))*Math.cos(toRad(b.lat))*Math.sin(dLon/2)**2;
+  return R*2*Math.asin(Math.sqrt(s));
+}
+function downloadAtlasCertificate(){
+  if(!window._rwCard || !window._rwCine){ showToast('Forge your Journey Card first — then the certificate'); return; }
+  showToast('📜 Engraving your Atlas Certificate…');
+  var C=_rwCine, L=logGet();
+  var PR={}; try{ PR=JSON.parse(lsGet('rw_profile')||'{}'); }catch(e){}
+  var name=PR.name||lsGet('rw_name')||'A Traveler';
+  var xp=xpGet(), r=rankOf(xp);
+  var withCoords=L.filter(function(e){ return typeof e.lat==='number' && typeof e.lon==='number'; });
+  var countries={}, dist=0;
+  withCoords.forEach(function(e,i){ if(e.country) countries[e.country]=1; if(i>0) dist+=haversine(withCoords[i-1],e); });
+  var countryCount=Object.keys(countries).length || Math.max(1,Math.round(withCoords.length*0.6));
+  var lats=withCoords.map(function(e){return e.lat;});
+  var latRange = lats.length? Math.round(Math.max.apply(0,lats))+'°N to '+Math.abs(Math.round(Math.min.apply(0,lats)))+'°'+(Math.min.apply(0,lats)<0?'S':'N') : '—';
+  var mapImg = _rwCard.toDataURL('image/jpeg',0.9);
+  var W=C.W, H=C.H;
+  var pinsHtml = C.pts.map(function(p,i){
+    var lx=(p.x/W*100).toFixed(2), ty=(p.y/H*100).toFixed(2);
+    var nm=(C.names[p.num-1]||'Stop '+p.num).replace(/[<>"]/g,'');
+    return '<div class="ac-pin" data-x="'+lx+'" data-y="'+ty+'" style="left:'+lx+'%;top:'+ty+'%" onclick="this.classList.toggle(\'ac-open\')">'
+      +'<div class="ac-dot">'+p.num+'</div>'
+      +'<div class="ac-tip">'+nm+'</div></div>';
+  }).join('');
+  var flightPath = C.pts.map(function(p){ return (p.x/W*100).toFixed(2)+'% '+(p.y/H*100).toFixed(2)+'%'; });
+  var logRows = withCoords.length? withCoords.map(function(e,i){
+    return '<div class="ac-row"><span class="ac-num">'+String(i+1).padStart(2,'0')+'</span>'
+      +'<span class="ac-place">'+(e.n||'').replace(/[<>]/g,'')+'</span>'
+      +'<span class="ac-coord">'+e.lat.toFixed(2)+'°, '+e.lon.toFixed(2)+'°</span></div>';
+  }).join('') : C.names.map(function(n,i){ return '<div class="ac-row"><span class="ac-num">'+String(i+1).padStart(2,'0')+'</span><span class="ac-place">'+n.replace(/[<>]/g,'')+'</span></div>'; }).join('');
+  var stamp='RW-ATLAS-'+new Date().getFullYear()+'-'+Math.random().toString(36).slice(2,7).toUpperCase();
+  var now=new Date();
+
+  var html = '<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
+  +'<title>'+name+' — RoamWise Atlas Certificate</title>'
+  +'<style>'
+  +"@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=EB+Garamond:wght@400;600&family=JetBrains+Mono:wght@400;500&display=swap');"
+  +'*{box-sizing:border-box;margin:0;padding:0}'
+  +'body{background:#0a0a0a;font-family:"EB Garamond",Georgia,serif;padding:24px 12px;color:#1a1a1a}'
+  +'.wrap{max-width:760px;margin:0 auto;background:#f5f1e8;background-image:radial-gradient(ellipse at top left,rgba(184,134,11,.08),transparent 60%);'
+  +'border:2px solid #b8860b;box-shadow:inset 0 0 0 1px #f5f1e8,inset 0 0 0 4px #1a1a1a,0 10px 40px rgba(0,0,0,.5);border-radius:2px;overflow:hidden;position:relative}'
+  +'.hd{padding:26px 26px 18px;text-align:center;border-bottom:1px solid rgba(26,26,26,.15);position:relative}'
+  +'.hd h1{font-family:"Playfair Display",serif;font-weight:800;font-size:24px;letter-spacing:.04em}'
+  +'.hd .sub{font-family:"EB Garamond",serif;font-style:italic;font-size:13px;color:rgba(26,26,26,.6);margin-top:6px}'
+  +'.corner{position:absolute;color:#b8860b;font-size:13px}'
+  +'.c-tl{top:10px;left:12px}.c-tr{top:10px;right:12px}'
+  +'.bar{display:flex;gap:8px;flex-wrap:wrap;padding:14px 22px;align-items:center}'
+  +'.btn{font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.06em;border:1px solid rgba(26,26,26,.3);background:#efe9d8;padding:8px 14px;border-radius:20px;cursor:pointer;color:#1a1a1a}'
+  +'.btn.on{background:#1a1a1a;color:#f5f1e8;border-color:#1a1a1a}'
+  +'.tab{font-family:"JetBrains Mono",monospace;font-size:10.5px;letter-spacing:.05em;border:1px solid rgba(184,134,11,.4);background:transparent;color:#8a6400;padding:7px 13px;border-radius:20px;cursor:pointer}'
+  +'.tab.on{background:#b8860b;color:#f5f1e8}'
+  +'.mapbox{position:relative;margin:0 22px 18px;border:1px solid rgba(26,26,26,.2);aspect-ratio:16/10.5;overflow:hidden;border-radius:4px}'
+  +'.mapbox img{width:100%;height:100%;object-fit:cover;filter:none;transition:filter .3s}'
+  +'.mapbox.pol img{filter:sepia(60%) saturate(1.4) hue-rotate(-10deg)}'
+  +'.mapbox.temp img{filter:hue-rotate(200deg) saturate(1.6)}'
+  +'.mapbox::after{content:"";position:absolute;inset:0;box-shadow:inset 0 0 90px rgba(26,26,26,.4);pointer-events:none}'
+  +'.ac-pin{position:absolute;transform:translate(-50%,-50%);cursor:pointer;z-index:5}'
+  +'.ac-pin:hover,.ac-pin.ac-open{z-index:20}'
+  +'.ac-dot{width:20px;height:20px;border-radius:50%;background:#b8860b;border:2px solid #1a1a1a;color:#1a1a1a;font:700 10px "JetBrains Mono",monospace;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,.5)}'
+  +'.ac-tip{position:absolute;bottom:26px;left:50%;transform:translateX(-50%);background:rgba(26,26,26,.92);color:#f5f1e8;font-size:10.5px;padding:4px 9px;border-radius:5px;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .2s}'
+  +'.ac-pin.ac-open .ac-tip{opacity:1}'
+  +'.plane{position:absolute;width:14px;height:14px;z-index:6;filter:drop-shadow(0 2px 4px rgba(0,0,0,.6));pointer-events:none}'
+  +'.profile{display:flex;gap:14px;align-items:center;padding:16px 22px;border-bottom:1px solid rgba(26,26,26,.12)}'
+  +'.av{width:52px;height:52px;border-radius:50%;background:#1a1a1a;color:#f5f1e8;display:flex;align-items:center;justify-content:center;font:700 20px "Playfair Display",serif;border:2px solid #b8860b}'
+  +'.pname{font-family:"Playfair Display",serif;font-weight:700;font-size:19px}'
+  +'.prank{font:600 11px "JetBrains Mono",monospace;color:#8a6400;letter-spacing:.08em;margin-top:2px}'
+  +'.stats{padding:16px 22px;display:grid;grid-template-columns:1fr 1fr;gap:14px 24px}'
+  +'.stat label{display:block;font:500 9.5px "JetBrains Mono",monospace;color:rgba(26,26,26,.5);letter-spacing:.08em;text-transform:uppercase}'
+  +'.stat b{font-family:"Playfair Display",serif;font-size:19px;font-weight:700}'
+  +'.log{padding:16px 22px;border-top:1px solid rgba(26,26,26,.12)}'
+  +'.log h3{font-family:"Playfair Display",serif;font-size:15px;letter-spacing:.06em;margin-bottom:10px}'
+  +'.ac-row{display:flex;gap:10px;align-items:center;padding:8px 0;border-bottom:1px dashed rgba(26,26,26,.15);font-size:13px}'
+  +'.ac-num{font:700 10px "JetBrains Mono",monospace;background:#efe9d8;border:1px solid rgba(26,26,26,.2);width:22px;height:18px;display:flex;align-items:center;justify-content:center;border-radius:3px;flex-shrink:0}'
+  +'.ac-place{flex:1;font-weight:600}'
+  +'.ac-coord{font:400 11px "JetBrains Mono",monospace;color:rgba(26,26,26,.55)}'
+  +'.cert{padding:20px 22px 26px;border-top:1px solid rgba(26,26,26,.15);display:flex;gap:18px;align-items:center}'
+  +'.seal{width:70px;height:70px;border-radius:50%;border:3px solid #b8860b;display:flex;align-items:center;justify-content:center;text-align:center;font:700 8px "JetBrains Mono",monospace;letter-spacing:.05em;flex-shrink:0;color:#8a6400}'
+  +'.certtext{flex:1;font-size:12px;color:rgba(26,26,26,.7);line-height:1.6}'
+  +'.certtext b{font-family:"Playfair Display",serif;font-size:15px;color:#1a1a1a;display:block;margin-bottom:3px}'
+  +'.dotgrid{width:52px;height:52px;background-image:radial-gradient(#1a1a1a 1px,transparent 1px);background-size:3px 3px;opacity:.6;flex-shrink:0}'
+  +'.foot{text-align:center;font:400 10px "JetBrains Mono",monospace;color:rgba(26,26,26,.4);padding:10px;border-top:1px solid rgba(26,26,26,.1)}'
+  +'</style></head><body><div class="wrap">'
+  +'<div class="corner c-tl">✦</div><div class="corner c-tr">✦</div>'
+  +'<div class="hd"><h1>ROAMWISE · ATLAS EDITION · JOURNEY CERTIFICATE</h1><div class="sub">Shinobi Edition — Escape the crowds · Discover your world</div></div>'
+  +'<div class="bar"><button class="btn on" id="acPlayBtn" onclick="acToggleFlight()">▶ Play Flight</button>'
+  +'<button class="tab on" data-f="geo" onclick="acTab(this)">Geographical</button>'
+  +'<button class="tab" data-f="pol" onclick="acTab(this)">Political</button>'
+  +'<button class="tab" data-f="temp" onclick="acTab(this)">Temperature</button></div>'
+  +'<div class="mapbox" id="acMapbox"><img src="'+mapImg+'">'+pinsHtml+'<div class="plane" id="acPlane" style="opacity:0">✈️</div></div>'
+  +'<div class="profile"><div class="av">'+(name[0]||'R').toUpperCase()+'</div><div><div class="pname">'+name.replace(/[<>]/g,'')+'</div><div class="prank">'+r[1].toUpperCase()+' · LEVEL '+Math.max(1,Math.floor(xp/50))+'</div></div></div>'
+  +'<div class="stats">'
+  +'<div class="stat"><label>Countries</label><b>'+countryCount+'</b></div>'
+  +'<div class="stat"><label>Stops</label><b>'+C.names.length+'</b></div>'
+  +'<div class="stat"><label>Total Distance</label><b>'+Math.round(dist).toLocaleString()+' km</b></div>'
+  +'<div class="stat"><label>Latitude Range</label><b>'+latRange+'</b></div>'
+  +'</div>'
+  +'<div class="log"><h3>JOURNEY LOG · '+C.names.length+' STOPS</h3>'+logRows+'</div>'
+  +'<div class="cert"><div class="seal">ROAMWISE<br>ATLAS<br>✦<br>VALIDATED</div>'
+  +'<div class="certtext"><b>Certified True Journey</b>Date: '+now.toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'})+' · ID: '+stamp+'<br>This certifies that the bearer has logged the above destinations on roamwise.co.in — data stays on device.</div>'
+  +'<div class="dotgrid"></div></div>'
+  +'<div class="foot">Published by RoamWise.co.in · © '+now.getFullYear()+' RoamWise Atlas Authority</div>'
+  +'</div>'
+  +'<script>'
+  +'function acTab(b){document.querySelectorAll(".tab").forEach(function(t){t.classList.remove("on");});b.classList.add("on");var m=document.getElementById("acMapbox");m.className="mapbox "+({geo:"",pol:"pol",temp:"temp"}[b.dataset.f]);}'
+  +'var acPts='+JSON.stringify(C.pts.map(function(p){return [p.x/W*100,p.y/H*100];}))+';'
+  +'var acPlaying=true,acT=0,acRAF=null;'
+  +'function acStep(){ if(!acPlaying||acPts.length<2){acRAF=requestAnimationFrame(acStep);return;} '
+  +'var segT=acT%1, segI=Math.floor(acT)%(acPts.length-1); var a=acPts[segI],b2=acPts[segI+1];'
+  +'var x=a[0]+(b2[0]-a[0])*segT, y=a[1]+(b2[1]-a[1])*segT;'
+  +'var pl=document.getElementById("acPlane"); pl.style.opacity=1; pl.style.left=x+"%"; pl.style.top=y+"%";'
+  +'acT+=0.006; if(acT>=acPts.length-1) acT=0; acRAF=requestAnimationFrame(acStep); }'
+  +'function acToggleFlight(){ acPlaying=!acPlaying; var b=document.getElementById("acPlayBtn"); b.textContent=acPlaying?"▶ Play Flight":"⏸ Pause Flight"; b.classList.toggle("on",acPlaying); }'
+  +'function acDeclutter(){'
+  +'var pins=Array.prototype.slice.call(document.querySelectorAll(".ac-pin"));'
+  +'var pos=pins.map(function(p){return {el:p, x:parseFloat(p.dataset.x), y:parseFloat(p.dataset.y)};});'
+  +'var THRESH=4.5;'
+  +'for(var iter=0;iter<6;iter++){'
+  +'for(var i=0;i<pos.length;i++)for(var j=i+1;j<pos.length;j++){'
+  +'var dx=pos[j].x-pos[i].x, dy=pos[j].y-pos[i].y, d=Math.sqrt(dx*dx+dy*dy);'
+  +'if(d<THRESH){ var push=(THRESH-d)/2; var ang=Math.atan2(dy||0.01,dx||0.01);'
+  +'pos[i].x-=Math.cos(ang)*push; pos[i].y-=Math.sin(ang)*push;'
+  +'pos[j].x+=Math.cos(ang)*push; pos[j].y+=Math.sin(ang)*push; }'
+  +'}}'
+  +'pos.forEach(function(p){ p.el.style.left=Math.max(2,Math.min(98,p.x))+"%"; p.el.style.top=Math.max(2,Math.min(98,p.y))+"%"; });'
+  +'}'
+  +'acDeclutter();'
+  +'acStep();'
+  +'<'+'/script></body></html>';
+
+  var blob=new Blob([html],{type:'text/html'});
+  var fname='roamwise-atlas-certificate-'+(name||'traveler').toLowerCase().replace(/[^a-z0-9]+/g,'-')+'.html';
+  if(window.RW && RW.saveCard){
+    var fr=new FileReader(); fr.onload=function(){ RW.saveCard(fr.result); offerOpen('Your Atlas Certificate'); };
+    fr.readAsDataURL(blob);
+  } else {
+    var u=URL.createObjectURL(blob), a=document.createElement('a'); a.href=u; a.download=fname; a.click();
+    showToast('📜 Atlas Certificate downloaded — open it in any browser');
+  }
+  xpAdd(15,'Atlas Certificate engraved');
+  try{ track('atlas_cert_made'); }catch(e){}
 }
 function cardPNG(){ if(window._rwCard) saveOrDownload(_rwCard.toDataURL('image/png'),'roamwise-journey.png'); }
 function cardJPG(){ if(window._rwCard) saveOrDownload(_rwCard.toDataURL('image/jpeg',0.92),'roamwise-journey.jpg'); }
@@ -3395,10 +4023,15 @@ function openMovie(){
   if((_rwCine.pts||[]).length<2){ showToast('Log at least 2 located places for a movie'); return; }
   try{ track('video_opens'); }catch(e){}
   if(isPro || lsGet('rw_movie_ok')) return cineRender();
+  if(perksUnlocked().indexOf('documented')>-1 && !lsGet('rw_movie_perk_used')){
+    lsSet('rw_movie_perk_used','1');
+    showToast('\ud83c\udfc6 Perk redeemed \u2014 free Journey Movie for a Documented traveler!');
+    return cineRender();
+  }
   var ov=el('movOverlay');
   if(!ov){ ov=document.createElement('div'); ov.id='movOverlay'; ov.className='overlay';
     ov.innerHTML='<div class="modal" style="max-width:400px"><button class="modal-close" onclick="el(\'movOverlay\').classList.remove(\'open\')">\u00d7</button>'
-    +'<div class="modal-head"><div class="modal-title">\ud83c\udfac Journey Movie</div><div class="modal-sub">Your travels as a cinematic reel \u00b7 music \u00b7 chapters</div></div>'
+    +'<div class="modal-head"><div class="modal-title">\ud83c\udfac Journey Film</div><div class="modal-sub">5-second chapters \u00b7 a plane flies your route \u00b7 music</div></div>'
     +'<div class="modal-body"><div class="mode-box" style="margin-bottom:10px">\ud83d\udcb0 <b>\u20b950 one-off</b> \u2014 or free with Pro. Pay via any UPI app to <b>coolmohit@ybl</b>, then render.</div>'
     +'<button class="tact" style="width:100%;margin-bottom:8px" onclick="payVia(\'generic50\')">\ud83d\udcb3 Pay \u20b950 via UPI</button>'
     +'<button class="rzp-main-btn" onclick="lsSet(\'rw_movie_ok\',\'1\');el(\'movOverlay\').classList.remove(\'open\');cineRender()">\u2705 I\u2019ve paid \u20b950 \u2014 Render my movie</button>'
@@ -3436,96 +4069,156 @@ function cineMusic(ctx, dest, dur){
 }
 function cineRender(opts){
   opts=opts||{};
-  showToast('\ud83c\udfac Rolling\u2026 rendering your movie (\u224815\u201325s)');
+  var ST=CARD_STYLES[(_rwCine&&_rwCine.style)||'neon']||CARD_STYLES.neon;
+  showToast('\ud83c\udfac Rolling\u2026 rendering your journey film');
   try{ track('video_made'); }catch(e){}
-  var C=_rwCine, src=_rwCard, S=2; /* card drawn at 2x */
+  var C=_rwCine, S=2;
   var VW=1080, VH=1920, cv=document.createElement('canvas'); cv.width=VW; cv.height=VH;
   var x=cv.getContext('2d');
+  /* clean, de-duplicated leg list */
   var legs=C.pts.filter(function(p){return p && isFinite(p.x) && isFinite(p.y);});
-  legs=legs.filter(function(p,i){ return i===0 || Math.abs(p.x-legs[i-1].x)+Math.abs(p.y-legs[i-1].y) > 4; }).slice(0,8);
-  if(legs.length<2){ showToast('Need 2+ located places for a movie'); return; }
+  legs=legs.filter(function(p,i){ return i===0 || Math.abs(p.x-legs[i-1].x)+Math.abs(p.y-legs[i-1].y) > 4; });
+  if(legs.length<2){ showToast('Log 2+ located places for a film'); return; }
+  var names=C.names||[];
   var test=!!window._cineTest;
-  var INTRO=test?0.6:2.2, LEG=test?0.4:2.6, OUTRO=test?0.8:3.2;
-  var DUR=INTRO+legs.length*LEG+OUTRO;
+  /* fixed 5-second segments: INTRO(5) + one 5s hop per leg-transition + OUTRO(5) */
+  var SEG=test?0.5:5.0, hops=legs.length-1;
+  var INTRO=SEG, OUTRO=SEG, DUR=INTRO + hops*SEG + OUTRO;
+
+  /* geo bounds of the trip for a framed map view */
+  var minX=Math.min.apply(0,legs.map(function(p){return p.x;})), maxX=Math.max.apply(0,legs.map(function(p){return p.x;}));
+  var minY=Math.min.apply(0,legs.map(function(p){return p.y;})), maxY=Math.max.apply(0,legs.map(function(p){return p.y;}));
+
   /* audio */
   var AC=window.AudioContext||window.webkitAudioContext, ctx=null, dest=null;
   if(!opts.mute){ try{ ctx=new AC(); try{ctx.resume();}catch(e2){} dest=ctx.createMediaStreamDestination(); cineMusic(ctx,dest,DUR);}catch(e){} }
   var stream=cv.captureStream(30);
   if(dest && dest.stream.getAudioTracks().length) stream.addTrack(dest.stream.getAudioTracks()[0]);
   var mime=['video/webm;codecs=vp8,opus','video/webm;codecs=vp9,opus','video/webm'].find(function(m){return window.MediaRecorder && MediaRecorder.isTypeSupported(m);});
-  if(!mime){ showToast('Video not supported in this browser \u2014 try Chrome'); return; }
-  var rec=new MediaRecorder(stream,{mimeType:mime, videoBitsPerSecond: 5e6}), chunks=[];
+  if(!mime){ showToast('Video needs Chrome \u2014 try there'); return; }
+  var rec=new MediaRecorder(stream,{mimeType:mime, videoBitsPerSecond:6e6}), chunks=[];
   rec.ondataavailable=function(e){ if(e.data.size) chunks.push(e.data); };
   rec.onstop=function(){
     if(ctx) try{ctx.close();}catch(e){}
     var blob=new Blob(chunks,{type:'video/webm'});
     if(blob.size<2000 && !opts.mute){ showToast('Retrying without music\u2026'); return cineRender({mute:true}); }
-    if(blob.size<2000){ showToast('\u26a0 Recording failed on this browser \u2014 try Chrome'); return; }
-    if(window.RW && RW.saveCard){
-      var fr=new FileReader(); fr.onload=function(){ RW.saveCard(fr.result); showToast('\ud83c\udfac Movie saved to Downloads/RoamWise \u2014 share it everywhere!'); };
-      fr.readAsDataURL(blob);
-    } else {
-      var u=URL.createObjectURL(blob), a=document.createElement('a');
-      a.href=u; a.download='roamwise-journey-movie.webm'; a.click();
-      showToast('\ud83c\udfac Movie downloaded \u2014 post it as a Reel/Short!');
-    }
-    xpAdd(30,'Journey Movie premiered');
+    if(blob.size<2000){ showToast('\u26a0 Recording failed \u2014 try Chrome'); return; }
+    if(window.RW && RW.saveCard){ var fr=new FileReader(); fr.onload=function(){ RW.saveCard(fr.result); showToast('\ud83c\udfac Film saved to Downloads/RoamWise!'); }; fr.readAsDataURL(blob); }
+    else { var u=URL.createObjectURL(blob), a=document.createElement('a'); a.href=u; a.download='roamwise-journey-film.webm'; a.click(); showToast('\ud83c\udfac Film downloaded \u2014 post it as a Reel!'); }
+    xpAdd(30,'Journey Film premiered');
   };
   rec.start(200);
+
   var t0=performance.now();
   function ease(t){ return t<0.5? 2*t*t : 1-Math.pow(-2*t+2,2)/2; }
-  function camAt(px,py,zoom){ /* draw src so that (px,py in logical card coords) centers, at zoom */
-    var sw=VW/zoom, sh=VH/zoom;
-    var sx=px*S-sw/2, sy=py*S-sh/2;
-    sx=Math.max(0,Math.min(src.width-sw,sx)); sy=Math.max(0,Math.min(src.height-sh,sy));
-    x.drawImage(src, sx,sy,sw,sh, 0,0,VW,VH);
-    return {sx:sx,sy:sy,z:zoom};
+  function lerp(a,b,t){ return a+(b-a)*t; }
+  /* map viewport helpers: world logical coords -> screen, with padding */
+  function view(cx,cy,span){
+    var pad=VW*0.16, availW=VW-2*pad, availH=VH-2*pad;
+    var sc=Math.min(availW/span, availH/span);
+    return {cx:cx,cy:cy,sc:sc};
   }
-  function toScreen(cam,px,py){ return [ (px*S-cam.sx)*cam.z, (py*S-cam.sy)*cam.z ]; }
-  function cap(top,big,small,alpha){
+  function toS(v,px,py){ return [ VW/2+(px-v.cx)*v.sc, VH/2+(py-v.cy)*v.sc ]; }
+
+  function bg(){ /* deep gradient backdrop in the card's style */
+    var g=x.createLinearGradient(0,0,0,VH);
+    g.addColorStop(0,ST.bg[0]); g.addColorStop(.5,ST.bg[1]); g.addColorStop(1,ST.bg[2]);
+    x.fillStyle=g; x.fillRect(0,0,VW,VH);
+    /* faint graticule */
+    x.strokeStyle='rgba(255,255,255,.05)'; x.lineWidth=1;
+    for(var gy=0;gy<VH;gy+=120){ x.beginPath(); x.moveTo(0,gy); x.lineTo(VW,gy); x.stroke(); }
+    for(var gx=0;gx<VW;gx+=120){ x.beginPath(); x.moveTo(gx,0); x.lineTo(gx,VH); x.stroke(); }
+  }
+  function drawTrail(v, upto, partial){
+    /* solid trail through visited pins, dashed remainder */
+    x.lineWidth=6; x.lineCap='round';
+    for(var i=0;i<legs.length-1;i++){
+      var a=toS(v,legs[i].x,legs[i].y), b=toS(v,legs[i+1].x,legs[i+1].y);
+      var visible = i<upto;
+      x.setLineDash(visible? [] : [10,12]);
+      x.strokeStyle = visible? ST.trail||ST.accent : 'rgba(255,255,255,.22)';
+      x.shadowColor=ST.trail||ST.accent; x.shadowBlur=visible?14:0;
+      x.beginPath();
+      if(i===upto && partial!=null){ var mx=lerp(legs[i].x,legs[i+1].x,partial), my=lerp(legs[i].y,legs[i+1].y,partial); var bb=toS(v,mx,my);
+        x.moveTo(a[0],a[1]); x.lineTo(bb[0],bb[1]); }
+      else { x.moveTo(a[0],a[1]); x.lineTo(b[0],b[1]); }
+      x.stroke();
+    }
+    x.setLineDash([]); x.shadowBlur=0;
+  }
+  function drawPins(v, upto){
+    legs.forEach(function(p,i){
+      var s=toS(v,p.x,p.y), active=i<=upto;
+      x.save(); x.shadowColor=ST.trail||ST.pin; x.shadowBlur=active?20:6;
+      x.fillStyle=active?ST.pin:'rgba(180,180,190,.5)'; x.beginPath(); x.arc(s[0],s[1],active?15:10,0,7); x.fill(); x.restore();
+      x.fillStyle=ST.pinCore; x.beginPath(); x.arc(s[0],s[1],active?10:6,0,7); x.fill();
+      x.fillStyle=ST.pinTxt; x.font='700 13px Outfit,Arial'; x.textAlign='center'; x.fillText(String(i+1),s[0],s[1]+5);
+    });
+  }
+  function plane(v, fromP, toP, tt){
+    var px=lerp(fromP.x,toP.x,tt), py=lerp(fromP.y,toP.y,tt), s=toS(v,px,py);
+    var ang=Math.atan2(toP.y-fromP.y, toP.x-fromP.x);
+    x.save(); x.translate(s[0],s[1]); x.rotate(ang);
+    x.fillStyle='#fff'; x.shadowColor=ST.accent; x.shadowBlur=18;
+    /* simple plane glyph */
+    x.beginPath(); x.moveTo(24,0); x.lineTo(-14,-11); x.lineTo(-6,0); x.lineTo(-14,11); x.closePath(); x.fill();
+    x.fillRect(-16,-3,10,6);
+    x.restore(); x.shadowBlur=0;
+  }
+  function caption(top,big,small,alpha){
     x.save(); x.globalAlpha=alpha; x.textAlign='center';
-    x.fillStyle='rgba(7,9,15,.55)'; x.fillRect(0,VH-330,VW,240);
-    var STc=CARD_STYLES[(_rwCine&&_rwCine.style)||'atlas']||CARD_STYLES.atlas;
-    x.fillStyle=STc.accent; x.font='700 34px '+STc.capFont; x.fillText(top,VW/2,VH-260);
-    x.fillStyle='#fff'; x.font='700 58px '+STc.capFont; x.fillText(big,VW/2,VH-190);
-    if(small){ x.fillStyle='#B8B4A8'; x.font='italic 26px '+STc.capFont; x.fillText(small,VW/2,VH-140); }
-    x.restore();
+    var gy=x.createLinearGradient(0,VH-360,0,VH); gy.addColorStop(0,'rgba(7,9,15,0)'); gy.addColorStop(1,'rgba(7,9,15,.92)');
+    x.fillStyle=gy; x.fillRect(0,VH-360,VW,360);
+    if(top){ x.fillStyle=ST.accent; x.font='700 32px '+ST.capFont; x.fillText(top,VW/2,VH-250); }
+    if(big){ x.fillStyle='#fff'; x.font='700 66px '+ST.capFont;
+      var t2=big.length>16? big.slice(0,16):big; x.fillText(t2,VW/2,VH-176); }
+    if(small){ x.fillStyle='#C9C5BB'; x.font='italic 27px '+ST.capFont; x.fillText(small,VW/2,VH-128); }
+    x.restore(); x.textAlign='left';
   }
+  function watermark(){
+    x.save(); x.globalAlpha=.5; x.textAlign='center';
+    x.fillStyle=ST.accent; x.font='700 26px Outfit,Arial';
+    x.fillText('\ud83e\udd77 ROAMWISE', VW/2, 60);
+    x.restore(); x.textAlign='left';
+  }
+
   function frame(now){
    try{
     var t=(now-t0)/1000;
-    x.fillStyle='#07090F'; x.fillRect(0,0,VW,VH);
-    var fitZ=Math.min(VW/src.width, VH/src.height)*0.98*2/S; /* full card fit */
+    bg(); watermark();
+
     if(t<INTRO){
+      /* SEGMENT 1 — INTRO: whole map framed, gentle zoom-in, title */
       var p=ease(t/INTRO);
-      var cam=camAt(C.W/2, C.H/2, fitZ*(1+0.12*p));
-      cap('THE JOURNEY OF', C.name.toUpperCase(), 'a RoamWise film', Math.min(1,t*2));
-    } else if(t<INTRO+legs.length*LEG){
-      var k=Math.floor((t-INTRO)/LEG), lt=((t-INTRO)%LEG)/LEG, e2=ease(lt);
-      var A2=legs[Math.max(0,k-0)], Pv=legs[Math.max(0,k-1)]||A2;
-      var px=Pv.x+(A2.x-Pv.x)*e2, py=Pv.y+(A2.y-Pv.y)*e2;
-      var cam=camAt(px,py, 3.4);
-      /* progressive golden trail */
-      var STm=CARD_STYLES[(C.style)||'atlas']||CARD_STYLES.atlas;
-      x.save(); x.lineWidth=7; x.setLineDash([16,12]); x.strokeStyle=STm.trail||'#E8BA6C'; x.shadowColor=STm.trail||'#E8BA6C'; x.shadowBlur=16;
-      x.beginPath();
-      for(var i2=0;i2<=k;i2++){
-        var pt=legs[i2], s2=toScreen(cam,pt.x,pt.y);
-        if(i2===0) x.moveTo(s2[0],s2[1]); else x.lineTo(s2[0],s2[1]);
-      }
-      var cur=toScreen(cam,px,py); x.lineTo(cur[0],cur[1]); x.stroke(); x.restore();
-      /* pulsing pin */
-      x.save(); x.fillStyle=STm.pin; x.shadowColor=STm.trail||'#E8BA6C'; x.shadowBlur=24;
-      x.beginPath(); x.arc(cur[0],cur[1],20+6*Math.sin(t*7),0,7); x.fill(); x.restore();
-      var nm=String(C.names[(legs[k].num||1)-1]||'Somewhere').slice(0,26);
-      cap('CHAPTER '+(k+1)+' OF '+legs.length, nm, k===0?'where it all began':'the road continues', 1);
+      var spanAll=Math.max(60, Math.max(maxX-minX,maxY-minY)*1.5);
+      var v=view((minX+maxX)/2,(minY+maxY)/2, spanAll*(1.25-0.25*p));
+      drawTrail(v,-1,null); drawPins(v,-1);
+      caption('THE JOURNEY OF', (C.name||'A TRAVELER').toUpperCase(), legs.length+' destinations \u00b7 a RoamWise film', Math.min(1,t/0.8));
+    } else if(t < INTRO + hops*SEG){
+      /* SEGMENTS 2..n — one 5s plane hop per leg, camera follows */
+      var k=Math.floor((t-INTRO)/SEG), lt=((t-INTRO)%SEG)/SEG;
+      if(k>hops-1){ k=hops-1; lt=1; }
+      var A=legs[k], B=legs[k+1], e=ease(lt);
+      /* camera frames the current hop, tightening as the plane flies */
+      var midX=(A.x+B.x)/2, midY=(A.y+B.y)/2;
+      var hopSpan=Math.max(30, (Math.max(Math.abs(A.x-B.x),Math.abs(A.y-B.y)))*2.2);
+      var v=view(midX,midY, hopSpan);
+      drawTrail(v,k,e);
+      drawPins(v,k + (e>0.98?1:0));
+      plane(v,A,B,e);
+      var toName=(names[k+1]||'Next stop').slice(0,18), fromName=(names[k]||'').slice(0,18);
+      caption('CHAPTER '+(k+1)+' \u2192 '+(k+2), toName, k===0? 'the journey begins \u00b7 from '+fromName : 'flying in from '+fromName, 1);
     } else {
-      var ot=(t-INTRO-legs.length*LEG)/OUTRO, e3=ease(Math.min(1,ot));
-      var cam=camAt(C.W/2,C.H/2, 3.0-(3.0-fitZ)*e3);
-      cap(legs.length+' CHAPTERS \u00b7 ONE LEGEND', C.name.toUpperCase(), 'make yours \u2014 roamwise.co.in', 1);
+      /* FINAL SEGMENT — OUTRO: zoom back out over the full trail, thanks note */
+      var ot=(t-INTRO-hops*SEG)/OUTRO, e3=ease(Math.min(1,ot));
+      var spanAll2=Math.max(60, Math.max(maxX-minX,maxY-minY)*1.5);
+      var v=view((minX+maxX)/2,(minY+maxY)/2, spanAll2*(0.9+0.35*e3));
+      drawTrail(v,legs.length-1,null); drawPins(v,legs.length-1);
+      caption('THANK YOU FOR TRAVELING', (C.name||'').toUpperCase(), 'make your own film \u00b7 roamwise.co.in', Math.min(1,ot*1.4));
     }
+
     if(t<DUR) requestAnimationFrame(frame); else rec.stop();
-   }catch(err){ try{rec.stop();}catch(e2){} showToast('Render hiccup \u2014 movie saved up to that point'); }
+   }catch(err){ try{rec.stop();}catch(e2){} showToast('Film wrapped early \u2014 saved what rendered'); }
   }
   requestAnimationFrame(frame);
 }
@@ -3833,7 +4526,7 @@ document.addEventListener('DOMContentLoaded', function(){
     if(r && r.innerHTML.length > 100) showToast('Mode changed — hit Search again to recalculate budgets');
   });
 });
-var VIEW_OF={treks:'explore',exps:'explore',circuits:'explore',ev:'explore',events:'explore',hubspoke:'explore',basecamp:'explore',jlog:'explore',app:'plan',brief:'home',creator:'home',store:'home',aipulse:'explore',promofilm:'home'};
+var VIEW_OF={treks:'explore',exps:'explore',circuits:'explore',ev:'explore',events:'explore',hubspoke:'explore',basecamp:'explore',jlog:'explore',app:'plan',brief:'home',creator:'home',store:'home',aipulse:'explore',promofilm:'home',newspulse:'explore',ratings:'home'};
 function scrollToId(id){
   if(document.body.classList.contains('shell') && VIEW_OF[id]){
     tabGo(VIEW_OF[id]);
@@ -4853,33 +5546,48 @@ if (AUTH_READY) {
       ref.get().then(function(d){
         if(!d.exists) ref.set({email:u.email||'', phone:u.phoneNumber||'', name:u.displayName||'', created:firebase.firestore.FieldValue.serverTimestamp()});
       });
-      /* Live account-bound Pro: flips ON across every device the moment
-         the backend or owner approves — this is the "cloud unlock" */
-      /* Device account-abuse guard: >8 accounts on one device = no more freebies */
+      /* ---- device fingerprint (stable per browser/app install) ---- */
+      var devId=lsGet('rw_devid'); if(!devId){ devId='d_'+Math.random().toString(36).slice(2)+Date.now().toString(36); lsSet('rw_devid',devId); }
+      /* ---- register this account+device pair; enforce a 3-device cap ---- */
       try{
-        var uids=JSON.parse(lsGet('rw_uids')||'[]');
-        if(uids.indexOf(u.uid)<0){ uids.push(u.uid); lsSet('rw_uids', JSON.stringify(uids.slice(-20))); }
-        if(uids.length>8) lsSet('rw_temp_used','1');
-      }catch(e){}
-      ref.onSnapshot(function(d){
-        var cloudPro = d.exists && d.data().pro === true;
-        var temp = parseInt(lsGet('rw_pro_temp')||'0',10) > Date.now();
-        if(cloudPro){
-          lsSet('rw_pro_temp',''); lsSet('rw_pro_uid', u.uid);
-          if(!isPro){ isPro=true; lsSet('rwPro','1'); refreshProUI(); showToast('Pro verified \u2014 permanent on your account \u2713'); closePay(); }
-          isPro=true; refreshProUI();
-        } else if(!temp){
-          /* Pro is PER ACCOUNT: this signed-in account has no Pro \u2192 clear any
-             leftover local flag from a different account on this device */
-          var owner=lsGet('rw_pro_uid');
-          if(isPro && owner && owner!==u.uid){
-            isPro=false; lsSet('rwPro','0'); refreshProUI();
-            showToast('Pro belongs to another account \u2014 sign in with it, or unlock Pro for this one');
+        ref.collection('devices').doc(devId).set({
+          ua:navigator.userAgent.slice(0,180), last:firebase.firestore.FieldValue.serverTimestamp()
+        },{merge:true});
+        ref.collection('devices').orderBy('last','desc').get().then(function(qs){
+          if(qs.size>3){
+            var extras=qs.docs.slice(3); /* keep 3 most-recent, sign out the rest */
+            if(extras.some(function(x){return x.id===devId;})){
+              showToast('This account is signed in on too many devices \u2014 signing out here. Max 3 devices.');
+              setTimeout(function(){ firebase.auth().signOut(); }, 2600);
+            }
           }
+        }).catch(function(){});
+      }catch(e){}
+      /* ---- ACCOUNT-BOUND PRO (the only source of truth) ---- */
+      /* Always kill any previous session's listener first — this is the actual
+         bug fix: an old onSnapshot from a prior login was never unsubscribed,
+         so a late/cached callback could revive Pro moments after logout. */
+      if(window._proUnsub){ try{ window._proUnsub(); }catch(e){} window._proUnsub=null; }
+      window._proUnsub = ref.onSnapshot(function(d){
+        var cloudPro = d.exists && d.data().pro === true;
+        var provOK = (parseInt(lsGet('rw_pro_temp')||'0',10) > Date.now()) && (lsGet('rw_pro_temp_uid')===u.uid);
+        var shouldBePro = cloudPro || provOK;
+        if(cloudPro){ lsSet('rw_pro_temp',''); lsSet('rw_pro_temp_uid',''); }
+        if(shouldBePro){
+          if(!isPro){ isPro=true; lsSet('rwPro','1'); lsSet('rw_pro_uid',u.uid); refreshProUI();
+            if(cloudPro){ showToast('Pro active on your account \u2713'); closePay(); } }
+          isPro=true; lsSet('rw_pro_uid',u.uid); refreshProUI();
+        } else {
+          /* this account has NO pro \u2192 force-off regardless of any stale local flag */
+          if(isPro){ isPro=false; lsSet('rwPro','0'); lsSet('rw_pro_uid',''); refreshProUI(); }
         }
       });
     } else {
       btn.style.display=''; av.style.display='none';
+      /* AUTHORITATIVE: no signed-in user means no Pro, full stop — this runs on
+         every sign-out regardless of how it happened (button, expiry, error). */
+      if(window._proUnsub){ try{ window._proUnsub(); }catch(e){} window._proUnsub=null; }
+      if(isPro || lsGet('rwPro')==='1'){ wipeSession(); }
     }
   });
 } else {
@@ -4960,8 +5668,24 @@ function confirmOtp(){
     .then(function(){ closeAuth(); showToast('Signed in \u2713'); })
     .catch(function(){ authError('Wrong OTP \u2014 try again.'); });
 }
+function wipeSession(){
+  /* clear everything tied to the logged-in identity */
+  ['rwPro','rw_pro_uid','rw_pro_temp','rw_pro_temp_uid'].forEach(function(k){ localStorage.removeItem(k); });
+  /* remove all stored AI provider keys */
+  ['gemini','groq','openrouter','mistral','anthropic'].forEach(function(p){ localStorage.removeItem('rwKey_'+p); });
+  activeProv='smart'; lsSet('rwProv','smart');
+  isPro=false;
+  try{ refreshProUI(); }catch(e){}
+  try{ if(el('settingsOverlay') && el('settingsOverlay').classList.contains('open')) openSettings(); }catch(e){}
+}
 function authMenu(){
-  if(confirm('Sign out of RoamWise?')) firebase.auth().signOut().then(function(){ showToast('Signed out'); });
+  if(!user){ openAuth(); return; }
+  if(confirm('Sign out of RoamWise?\n\nThis clears Pro and your AI keys from this device. Your account keeps its Pro \u2014 sign back in to restore it.')){
+    var uid=user.uid, devId=lsGet('rw_devid');
+    /* de-register this device from the account */
+    try{ if(uid&&devId&&db) db.collection('users').doc(uid).collection('devices').doc(devId).delete().catch(function(){}); }catch(e){}
+    firebase.auth().signOut().then(function(){ wipeSession(); showToast('Signed out \u2014 Pro & keys cleared from this device'); });
+  }
 }
 function deleteAccount(){
   if(!AUTH_READY || !user) return showToast('Not signed in');
@@ -4971,7 +5695,7 @@ function deleteAccount(){
   db.collection('users').doc(uid).delete().catch(function(){}).then(function(){
     return user.delete();
   }).then(function(){
-    localStorage.removeItem('rwPro'); isPro=false; refreshProUI();
+    wipeSession();
     showToast('Account deleted. Safe travels \ud83c\udffd\ufe0f');
   }).catch(function(e){
     if((e&&e.code)==='auth/requires-recent-login'){
@@ -5020,14 +5744,14 @@ function submitUtr(){
     if(res===undefined) return; /* gated above */
     b.disabled=false; b.textContent='Submit \u27A4'; el('utrInput').value='';
     try{ track('utr_submits'); }catch(e){}
-    /* INSTANT provisional unlock — once per device, ever */
-    if(!lsGet('rw_temp_used')){
-      lsSet('rw_temp_used','1');
+    /* INSTANT provisional unlock — bound to THIS ACCOUNT (not the device) */
+    if(user){
       lsSet('rw_pro_temp', String(Date.now()+864e5));
-      isPro=true; lsSet('rwPro','1'); lsSet('rw_pro_uid',(user&&user.uid)||'device'); refreshProUI();
-      say('\ud83c\udf89 Pro unlocked INSTANTLY! Verification completes in the background \u2014 nothing more to do.', true);
+      lsSet('rw_pro_temp_uid', user.uid);
+      isPro=true; lsSet('rwPro','1'); lsSet('rw_pro_uid',user.uid); refreshProUI();
+      say('\ud83c\udf89 Pro unlocked INSTANTLY for your account! Verification completes in the background \u2014 nothing more to do.', true);
     } else {
-      say('Submitted \u2713 Verification usually completes within minutes \u2014 Pro activates automatically on approval.', true);
+      say('Submitted \u2713 Verification completes shortly \u2014 Pro activates on your account automatically.', true);
     }
     setTimeout(closePay, 1800);
     if(OWNER_NOTIFY_EMAIL){
