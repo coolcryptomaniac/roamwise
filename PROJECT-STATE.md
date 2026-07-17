@@ -43,6 +43,10 @@ Uses `com.pierfrancescosoffritti.androidyoutubeplayer:core:12.1.0` (the actively
 - Last AAB: versionCode 15, PLAY_MODE=true
 - Web `index.html`: single-file architecture, now includes the RWPricing engine (see below)
 
+## Promo video: SELF-HOSTED MP4 (final decision — do not revisit YouTube embedding)
+After exhausting YouTube iframe embeds AND the native android-youtube-player library (both hit YouTube's 2025 embedder-identity restrictions — errors 152/153, confirmed as open unresolved issues industry-wide), the film now plays via a plain HTML5 `<video>` tag pointing at `https://roamwise.co.in/promo.mp4` (constant `PROMO_MP4_URL` in index.html). Direct media elements have no embed restrictions and their error events actually fire — the fallback (clean "Watch on YouTube" card) is real and verified. A small "Watch on YouTube" button always sits below the player.
+**PENDING (Mohit):** upload `promo.mp4` to the GitHub repo root. Get the file via YouTube Studio → Content → your video → ⋮ → Download (official creator feature for your own uploads). If the file is >50MB, compress to 720p first (HandBrake "Fast 720p30" preset on Mac). Until uploaded, clicking Play shows the YouTube-card fallback — nothing is broken, just not inline yet.
+
 ## Pricing / business model (RWPricing engine in index.html)
 Single source of truth — search `var RWPricing` in index.html. Founder offer (₹100 lifetime) closes at EITHER 1000 signups OR 365 days from `LAUNCH_DATE`, whichever first. Ongoing tiers: Free/Plus(₹99)/Pro(₹299)/Elite(₹499) monthly, with yearly discounts and tier-specific long-term one-time passes (3/5/10yr, priced separately per tier). Short-term day/week passes exist too. **These are starting numbers Mohit should sanity-check against real margins, not validated market pricing.**
 

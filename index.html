@@ -1815,6 +1815,29 @@ var CONTINENT_BY_CC = {
   PF:'Oceania',NC:'Oceania'
 };
 function continentForCC(cc){ return CONTINENT_BY_CC[(cc||'').toUpperCase()] || null; }
+/* Fallback for entries with no countryCode at all — including everything
+   logged before this fix existed. Rough lat/lon bounding boxes; not survey-
+   grade, but good enough to retroactively fix "Continents 0/7" for existing
+   journey logs instead of requiring people to re-log every past entry. */
+function continentForLatLon(lat, lon){
+  if(typeof lat!=='number' || typeof lon!=='number') return null;
+  if(lat < -60) return null; /* Antarctica — vanishingly rare to log, excluded from the 7-way split */
+  if(lat < -10 && lon > 110 && lon <= 180) return 'Oceania';
+  if(lat < 0 && lon >= -180 && lon < -140) return 'Oceania'; /* Pacific islands */
+  if(lon >= -170 && lon < -35 && lat >= 8) return 'North America';
+  if(lon >= -85 && lon < -33 && lat < 8 && lat >= -60) return 'South America';
+  if(lon >= 25 && lon < 63 && lat >= 12 && lat < 42) return 'Middle East';
+  if(lon >= -25 && lon < 45 && lat >= 35 && lat <= 72) return 'Europe';
+  if(lon >= -20 && lon < 52 && lat >= -35 && lat < 35) return 'Africa';
+  if(lon >= 45 && lon <= 180 && lat >= -10 && lat < 80) return 'Asia';
+  if(lon >= -180 && lon < -25 && lat >= 5) return 'North America'; /* far western wrap */
+  return null;
+}
+/* Single entry point used everywhere: try the reliable country-code path
+   first, fall back to coordinates for older/incomplete log entries. */
+function continentFor(entry){
+  return continentForCC(entry.countryCode) || continentForLatLon(entry.lat, entry.lon);
+}
 
 var isPro = AUTH_ENABLED ? false : (lsGet('rwPro')==='1');
 var freeLeft = 5;
@@ -2211,19 +2234,42 @@ function openExternally(url){
   if(window.RW && RW.openExternal){ RW.openExternal(url); }
   else { window.open(url, '_blank', 'noopener'); }
 }
+var PROMO_MP4_URL = 'https://roamwise.co.in/promo.mp4'; /* self-hosted film — Mohit uploads promo.mp4 to the repo root (see PROJECT-STATE.md) */
 function playPromo(host){
-  /* DECISION: stop chasing inline YouTube playback. Verified via the
-     library's own GitHub issue tracker that "Error 152-4" is a known, open,
-     UNRESOLVED problem hitting other developers using this exact native
-     player library right now — not something fixable with better config on
-     our side. Context: YouTube tightened embedder-identity verification
-     industry-wide in mid-2025, breaking WebView-based embeds broadly. Rather
-     than keep spending engineering effort chasing a moving target the wider
-     industry hasn't solved either, always launch externally — this is
-     boring, but it reliably works every single time, on every device. */
+  /* FINAL approach (Mohit's idea, and the right one): self-host the film as
+     a plain MP4 and play it with a native HTML5 <video> tag. This removes
+     the entire YouTube-embed dependency that caused errors 152/153 — a
+     direct media element has NO embedder verification, NO referrer checks,
+     NO cookie requirements, and (critically, unlike a cross-origin iframe)
+     its error events ACTUALLY FIRE, so a real fallback is finally possible.
+     GitHub Pages verified to support HTTP range requests, so seeking works.
+     A small "Watch on YouTube" button sits below the player as requested.
+     Until promo.mp4 is uploaded, the onerror path shows a clean
+     watch-on-YouTube card — nothing breaks in the meantime. */
   var watchUrl='https://www.youtube.com/watch?v='+PROMO_YT_ID;
-  openExternally(watchUrl);
+  var wrap=document.createElement('div');
+  wrap.id='promoPlayerBox';
+  wrap.style.cssText='border-radius:20px;overflow:hidden;border:1px solid var(--b2);contain:layout;max-width:100%';
+  wrap.innerHTML=
+    '<div style="position:relative;width:100%;padding-bottom:56.25%;background:#000">'
+    +'<video id="promoVideo" src="'+PROMO_MP4_URL+'" controls autoplay playsinline preload="auto" '
+    +'poster="https://img.youtube.com/vi/'+PROMO_YT_ID+'/hqdefault.jpg" '
+    +'style="position:absolute;inset:0;width:100%;height:100%;display:block;background:#000"></video>'
+    +'</div>'
+    +'<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 14px;background:#12121C">'
+    +'<span style="font-size:11.5px;color:var(--t3)">\ud83c\udfac RoamWise \u2014 The Official Film</span>'
+    +'<button class="tact" style="font-size:11px;padding:6px 12px" onclick="openExternally(\''+watchUrl+'\')">\u25b6 Watch on YouTube</button>'
+    +'</div>';
+  if(host.parentNode) host.parentNode.replaceChild(wrap, host); else if(el('promoTop')) el('promoTop').appendChild(wrap);
   try{ track('video_opens'); }catch(e){}
+  var vid=document.getElementById('promoVideo');
+  vid.onerror=function(){
+    /* Direct media element = this genuinely fires on 404/network/decode
+       failure — the reliable fallback we could never have with an iframe. */
+    wrap.innerHTML='<div style="aspect-ratio:16/9;border-radius:20px;background:linear-gradient(135deg,#12121C,#1A1A26);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:20px;text-align:center">'
+      +'<div style="font-size:32px">\ud83c\udfac</div><div style="font-size:13px;color:var(--t2)">The film is on YouTube</div>'
+      +'<button class="rzp-main-btn" style="margin:0" onclick="openExternally(\''+watchUrl+'\')">\u25b6 Watch on YouTube</button></div>';
+  };
 }
 function _playPromo_ABANDONED_inlineAttempt(host){
   if(window.RW && RW.playPromoVideo){
@@ -3040,6 +3086,50 @@ function genPdf(sample){
         pdf.text(pdf.splitTextToSize('\ud83e\udd77 '+((A&&A.tip)||T2.tip||'Carry small notes; big bills slow every purchase.'),190),380,y+8);
         if(perDay){ pdf.setTextColor(MUT); pdf.setFontSize(9.5);
           pdf.text('\ud83d\udcb0 Day budget ('+o.party.toLowerCase()+', '+o.pace.toLowerCase()+'): ~$'+Math.round(perDay*paceAdj*partyMul),44,y+66); }
+        /* ---- Fill the previously-blank lower half with real, grounded data ----
+           Two-column panel: destination fast facts (region/country/tags — all
+           already in the database, not invented) + an actual crowd-by-month
+           comparison (d.crowd is real per-destination data used elsewhere in
+           the app, e.g. the ninja-hacks crowd-dodge callouts). */
+        var fy = y + 84;
+        if(fy < 700){
+          pdf.setDrawColor(TH.acc[0],TH.acc[1],TH.acc[2]); pdf.setLineWidth(0.8);
+          pdf.line(44, fy, 556, fy);
+          var colW=246, gx=44, gx2=44+colW+22;
+          /* Left: Fast Facts */
+          pdf.setTextColor(GOLD); pdf.setFont('helvetica','bold'); pdf.setFontSize(10.5);
+          pdf.text('\ud83c\udf0d Fast Facts', gx, fy+20);
+          pdf.setFont('helvetica','normal'); pdf.setFontSize(9); pdf.setTextColor(INK);
+          var facts=[
+            'Region: '+(d.region||'—')+', '+(d.country||'—'),
+            'Vibe: '+((d.tags||[]).slice(0,3).join(' \u00b7 ')||'—'),
+            'Typical trip cost: $'+(d.cost&&d.cost.budget||'—')+'\u2013$'+(d.cost&&d.cost.mid||'—')+'/week'
+          ];
+          var fyy=fy+34; facts.forEach(function(f){ pdf.text(pdf.splitTextToSize(f,colW),gx,fyy); fyy+=15; });
+          /* Right: real crowd-by-month comparison */
+          if(d.crowd && d.crowd.length===12){
+            pdf.setTextColor(GOLD); pdf.setFont('helvetica','bold'); pdf.setFontSize(10.5);
+            pdf.text('\ud83d\udc65 Crowd Forecast', gx2, fy+20);
+            var curMi = (typeof mi==='number')? mi : (start? start.getMonth() : new Date().getMonth());
+            var bestMi=0; for(var cmi=1;cmi<12;cmi++) if(d.crowd[cmi]<d.crowd[bestMi]) bestMi=cmi;
+            pdf.setFont('helvetica','normal'); pdf.setFontSize(9); pdf.setTextColor(INK);
+            pdf.text('This trip ('+(MO_FULL?MO_FULL[curMi]:curMi)+'): '+d.crowd[curMi]+'% crowds', gx2, fy+34);
+            if(bestMi!==curMi && d.crowd[curMi]-d.crowd[bestMi]>=10){
+              pdf.setTextColor(TH.acc[0],TH.acc[1],TH.acc[2]);
+              pdf.text(pdf.splitTextToSize('\ud83e\udd77 '+(MO_FULL?MO_FULL[bestMi]:bestMi)+' sees just '+d.crowd[bestMi]+'% \u2014 half the queues, same place.',colW),gx2,fy+49);
+            } else {
+              pdf.setTextColor(MUT);
+              pdf.text('You\u2019re already visiting near the quietest window \u2014 good timing.',gx2,fy+49);
+            }
+            /* tiny 12-month bar strip, real data, not decorative */
+            var bw=(colW)/12, by=fy+62;
+            for(var bi=0;bi<12;bi++){
+              var bh=Math.max(2,(d.crowd[bi]/100)*18);
+              pdf.setFillColor(bi===curMi? TH.acc[0]:200, bi===curMi? TH.acc[1]:200, bi===curMi? TH.acc[2]:200);
+              pdf.rect(gx2+bi*bw, by+18-bh, bw-1, bh, 'F');
+            }
+          }
+        }
         foot(pn);
       }
       /* ---------- FOOD & CULTURE PAGE ---------- */
@@ -3638,10 +3728,22 @@ function logPaint(){
   box.innerHTML = L.length? L.map(function(p,i){return '<span class="log-chip">\ud83d\udccd '+logName(p)+'<button onclick="logDel('+i+')">\u00d7</button></span>';}).join('')
     : '<span style="font-size:11px;color:var(--t3)">No journeys logged yet \u2014 add your first above.</span>';
 }
+/* Common compound city names people type without a space — the geocoding
+   API does exact-ish string matching, so "Newyork" literally matched a
+   tiny real village in Scotland instead of New York City. This normalizes
+   the handful of most common cases before searching. */
+var CITY_NAME_FIXUPS = {
+  'newyork':'New York', 'losangeles':'Los Angeles', 'sanfrancisco':'San Francisco',
+  'saopaulo':'Sao Paulo', 'hongkong':'Hong Kong', 'newdelhi':'New Delhi',
+  'capetown':'Cape Town', 'buenosaires':'Buenos Aires', 'kualalumpur':'Kuala Lumpur',
+  'lasvegas':'Las Vegas', 'saltlakecity':'Salt Lake City'
+};
 function logAdd(){
   var v=(el('logInput').value||'').trim(); if(!v) return;
   if(v.length>40) v=v.slice(0,40);
   v=v.replace(/[<>]/g,'');
+  var fixup = CITY_NAME_FIXUPS[v.toLowerCase().replace(/[^a-z]/g,'')];
+  if(fixup) v = fixup;
   var L=logGet(); var entry={n:v}; L.push(entry); lsSet('rw_log',JSON.stringify(L));
   el('logInput').value=''; logPaint();
   /* free geocoding — Open-Meteo, no key */
@@ -3651,11 +3753,8 @@ function logAdd(){
       var g=(j.results||[])[0]; if(!g) return;
       var L2=logGet();
       for(var i=L2.length-1;i>=0;i--){ var e=L2[i]; if((e.n||e)===v && e.lat===undefined){
-        /* previously only lat/lon were kept — country was silently discarded,
-           which is why continent/country stats could never work for any
-           manually-typed journey entry (e.g. "New York" never got tagged
-           United States / North America at all). */
-        L2[i]={n:v,lat:g.latitude,lon:g.longitude,country:g.country||'',countryCode:g.country_code||''}; break; } }
+        L2[i]={n:v,lat:g.latitude,lon:g.longitude,country:g.country||'',countryCode:g.country_code||''};
+        showToast('\ud83d\udccd Logged '+v+' \u2014 '+(g.country||'located')); break; } }
       lsSet('rw_log',JSON.stringify(L2));
     }).catch(function(){});
 }
@@ -4010,7 +4109,7 @@ function downloadAtlasCertificate(){
   var withCoords=L.filter(function(e){ return typeof e.lat==='number' && typeof e.lon==='number'; });
   var countries={}, dist=0;
   var continents={};
-  withCoords.forEach(function(e,i){ if(e.country) countries[e.country]=1; var c=continentForCC(e.countryCode); if(c) continents[c]=1; if(i>0) dist+=haversine(withCoords[i-1],e); });
+  withCoords.forEach(function(e,i){ if(e.country) countries[e.country]=1; var c=continentFor(e); if(c) continents[c]=1; if(i>0) dist+=haversine(withCoords[i-1],e); });
   var countryCount=Object.keys(countries).length || Math.max(1,Math.round(withCoords.length*0.6));
   var continentCount=Object.keys(continents).length;
   var lats=withCoords.map(function(e){return e.lat;});
