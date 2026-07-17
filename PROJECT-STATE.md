@@ -3,21 +3,53 @@
 **Purpose of this file:** Claude's sandbox can reset mid-project (it happened once already — lost the Android SDK, keystore, and agent folder). This file is the single source of truth so a fresh session can pick up correctly without re-deriving everything from a long chat transcript. Update it whenever something structural changes.
 
 ## 🚨 Critical — read before touching the Android build
-- **The signing keystore (`rw.keystore`) is the single most important file in this project.** If Play Store publishing has happened, losing it means you can NEVER update the app again under the same package — you'd have to publish as a new app from zero installs/reviews.
-- **Mohit: confirm right now whether you have `RoamWise-KEYSTORE-BACKUP.zip` saved somewhere durable** (Drive, email, USB). If not, do it before anything else.
-- If a fresh Claude session needs to rebuild the Android toolchain and the keystore is lost, **ask Mohit for the backup before generating a new one** — a new keystore only breaks nothing if the app has never been published to Play Store yet.
+- **The signing keystore (`rw.keystore`) is the single most important file in this project.** Location: `/home/claude/rw2/apk/build/rw.keystore` (both the old manual toolchain AND the new Gradle project reference this same file — don't duplicate it).
+- **Mohit: confirm you have `RoamWise-KEYSTORE-BACKUP.zip` saved somewhere durable.** Losing it after Play Store publishing permanently breaks the ability to ship updates.
+
+## ⚡ Build system: NOW GRADLE-BASED (as of v10.2) — the old manual toolchain is deprecated
+The project moved from a manual `aapt2`+`javac`+`d8` pipeline to a **real Gradle project** at `/home/claude/rw2/gradleapp/`, specifically to support proper Maven dependency resolution (needed for the `android-youtube-player` native library — see below). **Use Gradle for all future Android builds; the old `/home/claude/rw2/apk/proj` manual pipeline is legacy and no longer the source of truth for MainActivity.java.**
+
+```
+cd /home/claude/rw2/gradleapp
+export PATH=$PATH:/home/claude/rw2/gradle-8.7/bin
+export ANDROID_HOME=/home/claude/rw2/apk/sdk
+export ANDROID_SDK_ROOT=/home/claude/rw2/apk/sdk
+
+# Sideload APK (PLAY_MODE=false):
+cp /home/claude/rw2/web/index.html app/src/main/assets/index.html
+gradle assembleRelease --console=plain
+# → app/build/outputs/apk/release/app-release.apk
+
+# Play Store AAB (PLAY_MODE=true):
+sed 's/var PLAY_MODE = false;/var PLAY_MODE = true;/' /home/claude/rw2/web/index.html > app/src/main/assets/index.html
+gradle bundleRelease --console=plain
+# → app/build/outputs/bundle/release/app-release.aab
+# IMPORTANT: restore the sideload assets afterward before building the APK again!
+```
+
+**If Gradle itself is lost in a future reset:** re-download `https://services.gradle.org/distributions/gradle-8.7-bin.zip`, unzip, and the `gradleapp/` project (build.gradle, settings.gradle, app/build.gradle, AndroidManifest.xml, MainActivity.java) should still be on disk since it's separate from the downloaded Gradle binary itself.
+
+**Key files in `gradleapp/`:**
+- `app/build.gradle` — dependencies, signing config (points at `../../apk/build/rw.keystore`), versionCode/versionName (bump both on every release)
+- `app/src/main/java/com/gyanverse/roamwise/MainActivity.java` — now extends `AppCompatActivity` (required for `getLifecycle()`, needed by the YouTube player library) — the manifest theme MUST stay an AppCompat theme (`Theme.AppCompat.NoActionBar`) or the app will crash on launch
+- `app/src/main/assets/index.html` — copy the web build here before each build (see commands above)
+
+## Native YouTube player (fixes error 153, replaces WebView iframe entirely for the promo video)
+Uses `com.pierfrancescosoffritti.androidyoutubeplayer:core:12.1.0` (the actively-maintained community standard — Google's own official player API is deprecated since 2023). JS calls `RW.playPromoVideo(videoId)`; native side shows a full-screen overlay with a real `YouTubePlayerView`, sidestepping WebView file:// origin/referrer/cookie restrictions entirely since there's no WebView-hosted iframe involved in playback anymore. On the website (no `RW` bridge), the existing plain-iframe fallback still applies unchanged.
 
 ## Current versions (update these each ship)
 - Package: `com.gyanverse.roamwise`
-- Last APK: v9.4 (versionCode 6, targetSdk 34, minSdk 24)
-- Last AAB: versionCode 6
-- Web `index.html`: ~438KB, single-file architecture
-- Keystore alias: `roamwise`, password: `roamwise2026` (yes, in plaintext here — this is a solo-dev low-stakes app; rotate if that ever changes)
+- Last APK: v10.2 (Gradle versionCode 15, targetSdk 34, minSdk 24) — includes native YouTube player
+- Last AAB: versionCode 15, PLAY_MODE=true
+- Web `index.html`: single-file architecture, now includes the RWPricing engine (see below)
+
+## Pricing / business model (RWPricing engine in index.html)
+Single source of truth — search `var RWPricing` in index.html. Founder offer (₹100 lifetime) closes at EITHER 1000 signups OR 365 days from `LAUNCH_DATE`, whichever first. Ongoing tiers: Free/Plus(₹99)/Pro(₹299)/Elite(₹499) monthly, with yearly discounts and tier-specific long-term one-time passes (3/5/10yr, priced separately per tier). Short-term day/week passes exist too. **These are starting numbers Mohit should sanity-check against real margins, not validated market pricing.**
 
 ## Architecture in one paragraph
-Single `index.html` (web app), wrapped in a thin Android WebView shell (`MainActivity.java`) that loads it from `file:///android_asset/index.html`. A JS↔Java bridge (`window.RW`) exposes `saveCard()` (writes files to Downloads/RoamWise) and `openExternal()` (launches URLs natively — needed because YouTube/some embeds reject the `file://` origin). Firebase (Auth + Firestore) provides accounts, Pro status, ratings, squads. A GitHub Actions "agent" package runs cron jobs (SEO page generation, news crunching, daily ops report, newsletter) with zero server needed.
+Single `index.html` (web app) + a WebView-wrapped Android shell, now Gradle-built specifically to support the native YouTube player dependency. JS↔Java bridge (`window.RW`) exposes `saveCard()`, `openLastSaved()`, `openExternal()`, and now `playPromoVideo()`. Firebase (Auth + Firestore) provides accounts, Pro status, ratings, squads, the pricing/trial system. GitHub Actions agent package runs cron jobs (SEO, news, ops report, newsletter) with zero server needed.
 
-## Build toolchain — how to rebuild from scratch if lost
+## Old manual toolchain (legacy, kept for reference only)
 ```
 # 1. Download Android SDK cmdline-tools + install build-tools/platform
 curl -sL -o cmdline-tools.zip https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip

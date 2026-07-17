@@ -639,6 +639,7 @@ body.shell{padding-bottom:calc(96px + env(safe-area-inset-bottom))}
 /* Billboard (video hero) */
 #promoTop{margin:10px 12px 4px}
 .bb{position:relative;border-radius:20px;overflow:hidden;border:1px solid var(--b2);box-shadow:0 14px 40px rgba(0,0,0,.45);cursor:pointer;background:linear-gradient(110deg,#12121C 30%,#1A1A26 50%,#12121C 70%);background-size:200% 100%;animation:bbsheen 1.4s linear infinite}
+#promoPlayerBox iframe{position:absolute!important;inset:0!important;width:100% !important;height:100% !important;display:block;border:0}
 .bb img{width:100%;display:block;aspect-ratio:16/9;object-fit:cover}
 .bb .ov{position:absolute;inset:0;background:linear-gradient(180deg,transparent 35%,rgba(7,9,15,.88) 100%);display:flex;flex-direction:column;justify-content:flex-end;padding:16px}
 .bb .t1{font-family:'Playfair Display',Georgia,serif;font-weight:800;font-size:22px;color:#fff;letter-spacing:.01em}
@@ -1245,11 +1246,13 @@ html{-webkit-text-size-adjust:100%}
         <div class="feat-item"><span class="feat-ck">&#10003;</span>Unlimited searches</div>
       </div>
       <div id="payIndiaSec">
-      <div class="pay-tabs" style="margin-bottom:10px">
-        <button class="pay-tab on" id="tierPro" onclick="setTier(100)">Pro &mdash; &#8377;100<small>Everything, forever</small></button>
-        <button class="pay-tab" id="tierSup" onclick="setTier(299)">Supporter &mdash; &#8377;299<small>+ name in credits, priority requests</small></button>
+      <div id="founderBanner" style="display:none;text-align:center;font-size:11px;color:#EA5A50;font-weight:700;margin-bottom:8px"></div>
+      <div id="planPicker"></div>
+      <div id="payMethods" style="display:none">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+        <button class="tact" style="font-size:11px;padding:6px 10px" onclick="backToPlanPicker()">\u2190 Change plan</button>
+        <div id="planHeader" style="font-size:13px;font-weight:700;color:var(--gold2)"></div>
       </div>
-      <div style="text-align:center;font-size:11px;color:#EA5A50;font-weight:700;margin-bottom:8px">&#128293; LAUNCH PRICE &mdash; founding members only, rises after the first wave</div>
       <div class="section-label">&#129399; Pay directly &mdash; zero middlemen, zero extra fees</div>
       <div class="upi-apps">
         <button class="upi-app phonepe" onclick="payVia('phonepe')"><span class="ua-ic" style="background:#fff"><svg width="18" height="18" viewBox="0 0 24 24"><circle cx="12" cy="12" r="12" fill="#5F259F"/><text x="12" y="16.5" text-anchor="middle" font-family="Arial" font-weight="bold" font-size="11" fill="#fff">&#2346;&#2375;</text></svg></span>PhonePe</button>
@@ -1260,7 +1263,7 @@ html{-webkit-text-size-adjust:100%}
       <div class="upi-note">Opens your app with <strong>&#8377;100 to coolmohit@ybl</strong> pre-filled. Straight UPI &mdash; the same rails, no gateway in between.</div>
       <div class="divider-or">on a computer? scan with your phone</div>
       <div class="qr-wrap">
-        <div class="qr-lbl">&#128247; Scan &bull; &#8377;100 &bull; UPI: coolmohit@ybl</div>
+        <div class="qr-lbl" id="qrAmtLbl">&#128247; Scan &bull; &#8377;100 &bull; UPI: coolmohit@ybl</div>
         <div class="qr-inner" id="qrcode"></div>
         <div class="qr-apps">PhonePe &bull; WhatsApp Pay &bull; GPay &bull; Paytm &bull; BHIM</div>
       </div>
@@ -1273,6 +1276,7 @@ html{-webkit-text-size-adjust:100%}
         </div>
         <div id="utrMsg" style="display:none;font-size:11px;margin-top:7px;padding:6px 8px;border-radius:6px;line-height:1.5"></div>
       </div>
+      </div><!-- /payMethods -->
       </div><!-- /payIndiaSec -->
 
       <!-- INTERNATIONAL (Gumroad) -->
@@ -1688,6 +1692,130 @@ var AUTH_ENABLED = (typeof FIREBASE_CONFIG!=='undefined') && FIREBASE_CONFIG.api
 /* Pro is account-bound. With accounts ON, never trust the local flag at boot —
    the auth snapshot re-grants it for the right account. Without accounts
    (pure device mode) the local flag is all we have. */
+/* ============================================================================
+   RW PRICING ENGINE — single source of truth for every price, tier, and offer.
+   Isolated deliberately: nothing else in the app should hardcode a price or a
+   feature-gate decision. Everything reads through RWPricing.* so the entire
+   business model can change by editing ONE config object below. This is the
+   literal implementation of "pricing can change anytime" — there's exactly
+   one place it lives.
+   ========================================================================= */
+var RWPricing = (function(){
+  var CONFIG = {
+    /* The app's public launch date — the founder offer expires at whichever
+       comes first: 1000 signups, or 365 days after this date. */
+    LAUNCH_DATE: '2026-06-01',
+    FOUNDER_OFFER: { priceINR:100, maxUsers:1000, maxDays:365, label:'Founder Pro \u2014 \u20b9100 lifetime' },
+
+    /* Ongoing freemium tiers, once the founder offer window closes.
+       Feature keys are free-form strings — hasFeature() just checks
+       inclusion, so adding a new gated feature anywhere is a one-line
+       addition to a tier's `features` array, never a new isPro-style flag. */
+    TIERS: [
+      { id:'free',  label:'Free',  priceMonthly:0,   priceYearly:0,
+        features:['smartAI'] },
+      { id:'plus',  label:'Plus',  priceMonthly:99,  priceYearly:999,
+        features:['smartAI','proAI','pdfExport','cardStylesBasic'] },
+      { id:'pro',   label:'Pro',   priceMonthly:299, priceYearly:2999,
+        features:['smartAI','proAI','pdfExport','cardStylesBasic','cardStylesAll','adFree','squadsPost','unlimitedPdf'] },
+      { id:'elite', label:'Elite', priceMonthly:499, priceYearly:4999,
+        features:['smartAI','proAI','pdfExport','cardStylesBasic','cardStylesAll','adFree','squadsPost','unlimitedPdf','movieFree','earlyAccess','prioritySupport'] }
+    ],
+    /* Long-term one-time passes — now tier-specific (not one universal price):
+       each is priced as a discount off THAT tier's yearly rate, discount
+       growing with commitment length (3yr ≈2.5x yearly, 5yr ≈3.5x, 10yr ≈5x
+       instead of 3x/5x/10x) — the whole point of a long-term pass is a
+       genuine bulk discount versus paying yearly repeatedly. */
+    LONG_TERM: [
+      { tier:'plus',  tierLabel:'Plus',  options:[
+        { id:'plus_y3',  years:3,  priceINR:2499 },
+        { id:'plus_y5',  years:5,  priceINR:3499 },
+        { id:'plus_y10', years:10, priceINR:4999 } ] },
+      { tier:'pro',   tierLabel:'Pro',   options:[
+        { id:'pro_y3',   years:3,  priceINR:7499 },
+        { id:'pro_y5',   years:5,  priceINR:9999 },
+        { id:'pro_y10',  years:10, priceINR:14999 } ] },
+      { tier:'elite', tierLabel:'Elite', options:[
+        { id:'elite_y3', years:3,  priceINR:12499 },
+        { id:'elite_y5', years:5,  priceINR:17499 },
+        { id:'elite_y10',years:10, priceINR:24999 } ] }
+    ],
+    /* Short-term micro-passes for a single trip or a quick trial. */
+    SHORT_TERM: [
+      { id:'day',  days:1, priceINR:15, label:'Day Pass' },
+      { id:'week', days:7, priceINR:29, label:'Week Pass' }
+    ]
+  };
+
+  function daysSinceLaunch(){ return (Date.now()-new Date(CONFIG.LAUNCH_DATE).getTime())/864e5; }
+
+  /* Founder offer is open only while BOTH conditions hold: under the user
+     cap AND within the first year — closes the instant either is exceeded. */
+  function founderOfferOpen(signupCountSoFar){
+    return (typeof signupCountSoFar!=='number' || signupCountSoFar<CONFIG.FOUNDER_OFFER.maxUsers)
+      && daysSinceLaunch() < CONFIG.FOUNDER_OFFER.maxDays;
+  }
+
+  function tierById(id){ return CONFIG.TIERS.find(function(t){return t.id===id;}) || CONFIG.TIERS[0]; }
+
+  /* The user's active tier, derived from what's actually stored — legacy
+     one-time ₹100 Pro buyers are grandfathered at 'elite' forever, exactly
+     as promised when they bought it. New purchases store an explicit
+     tier id; nothing here assumes only one possible paid state. */
+  function currentTier(){
+    if(lsGet('rw_tier')) return tierById(lsGet('rw_tier'));
+    if(isPro) return tierById('elite'); /* legacy ₹100 lifetime / founder offer buyers */
+    return tierById('free');
+  }
+
+  function hasFeature(name){ return currentTier().features.indexOf(name) > -1; }
+
+  function yearlySavingsPct(tier){
+    if(!tier.priceMonthly) return 0;
+    var fullYear = tier.priceMonthly*12;
+    return Math.round((1 - tier.priceYearly/fullYear)*100);
+  }
+
+  return {
+    CONFIG: CONFIG,
+    founderOfferOpen: founderOfferOpen,
+    daysSinceLaunch: daysSinceLaunch,
+    tierById: tierById,
+    currentTier: currentTier,
+    hasFeature: hasFeature,
+    yearlySavingsPct: yearlySavingsPct
+  };
+})();
+
+/* Country-code (ISO 3166-1 alpha-2) → continent, covering common countries.
+   Used to compute a real "N/7 continents" stat instead of just counting
+   distinct country strings (which never distinguished USA=North America
+   from, say, France=Europe in any meaningful aggregate way). */
+var CONTINENT_BY_CC = {
+  US:'North America',CA:'North America',MX:'North America',CU:'North America',JM:'North America',
+  PA:'North America',CR:'North America',GT:'North America',HN:'North America',NI:'North America',
+  BZ:'North America',BS:'North America',DO:'North America',HT:'North America',
+  BR:'South America',AR:'South America',CL:'South America',CO:'South America',PE:'South America',
+  VE:'South America',EC:'South America',BO:'South America',PY:'South America',UY:'South America',
+  GY:'South America',SR:'South America',
+  GB:'Europe',FR:'Europe',DE:'Europe',IT:'Europe',ES:'Europe',PT:'Europe',NL:'Europe',BE:'Europe',
+  CH:'Europe',AT:'Europe',SE:'Europe',NO:'Europe',DK:'Europe',FI:'Europe',IE:'Europe',PL:'Europe',
+  CZ:'Europe',GR:'Europe',HU:'Europe',RO:'Europe',BG:'Europe',HR:'Europe',RS:'Europe',UA:'Europe',
+  RU:'Europe',IS:'Europe',SK:'Europe',SI:'Europe',EE:'Europe',LV:'Europe',LT:'Europe',LU:'Europe',
+  MT:'Europe',CY:'Europe',
+  IN:'Asia',CN:'Asia',JP:'Asia',KR:'Asia',TH:'Asia',VN:'Asia',ID:'Asia',MY:'Asia',SG:'Asia',
+  PH:'Asia',NP:'Asia',LK:'Asia',BD:'Asia',PK:'Asia',KH:'Asia',LA:'Asia',MM:'Asia',MN:'Asia',
+  TW:'Asia',HK:'Asia',KZ:'Asia',UZ:'Asia',GE:'Asia',AM:'Asia',AZ:'Asia',
+  AE:'Middle East',SA:'Middle East',QA:'Middle East',KW:'Middle East',BH:'Middle East',OM:'Middle East',
+  IL:'Middle East',JO:'Middle East',LB:'Middle East',TR:'Middle East',IR:'Middle East',IQ:'Middle East',
+  EG:'Africa',ZA:'Africa',MA:'Africa',KE:'Africa',TZ:'Africa',NG:'Africa',ET:'Africa',GH:'Africa',
+  TN:'Africa',DZ:'Africa',UG:'Africa',RW:'Africa',NA:'Africa',BW:'Africa',ZW:'Africa',MU:'Africa',
+  SC:'Africa',SN:'Africa',CI:'Africa',CM:'Africa',
+  AU:'Oceania',NZ:'Oceania',FJ:'Oceania',PG:'Oceania',WS:'Oceania',VU:'Oceania',
+  PF:'Oceania',NC:'Oceania'
+};
+function continentForCC(cc){ return CONTINENT_BY_CC[(cc||'').toUpperCase()] || null; }
+
 var isPro = AUTH_ENABLED ? false : (lsGet('rwPro')==='1');
 var freeLeft = 5;
 var activeProv = lsGet('rwProv')||'smart';
@@ -1982,7 +2110,11 @@ function openProfile(){
   var xpNow=xpGet(), rNow=rankOf(xpNow), nxR=nextRank(xpNow);
   var pctR=nxR? Math.min(100,Math.round((xpNow-rNow[0])/(nxR[0]-rNow[0])*100)) : 100;
   var unlockedCount=perksUnlocked().length;
+  var trialUntilNow=parseInt(lsGet('rw_trial_until')||'0',10);
+  var trialBadge = (trialUntilNow && trialUntilNow>Date.now())?
+    '<div style="background:linear-gradient(135deg,#16BF9622,#16BF9611);border:1px solid #16BF9655;border-radius:12px;padding:9px 12px;margin-bottom:10px;font-size:12px;color:#16BF96">\u23f3 Founding traveler trial \u2014 '+Math.ceil((trialUntilNow-Date.now())/864e5)+' day(s) of Pro left</div>' : '';
   var rankHead=
+   trialBadge+
    '<div style="background:linear-gradient(135deg,rgba(232,186,108,.12),rgba(196,48,43,.08));border:1px solid rgba(232,186,108,.3);border-radius:16px;padding:14px 16px;margin-bottom:14px">'
    +'<div style="display:flex;justify-content:space-between;align-items:baseline"><div style="font-size:17px;font-weight:800;color:var(--gold2)">\ud83e\udd77 '+rNow[1]+'</div><div style="font-size:11.5px;color:var(--t3)">'+xpNow+' XP</div></div>'
    +'<div class="xp-bar" style="margin-top:8px"><div class="xp-fill" style="width:'+pctR+'%"></div></div>'
@@ -2066,68 +2198,85 @@ function renderPromo(){
 /* ===== General pattern: try in-app playback first, fall back to external only
    on real failure. Used for the film billboard, reusable for any future embed. ===== */
 var _ytApiLoading=null;
-function loadYTApi(){
-  if(window.YT && window.YT.Player) return Promise.resolve();
-  if(_ytApiLoading) return _ytApiLoading;
-  _ytApiLoading=new Promise(function(res,rej){
-    var done=false;
-    window.onYouTubeIframeAPIReady=function(){ done=true; res(); };
-    var s=document.createElement('script'); s.src='https://www.youtube.com/iframe_api';
-    s.onerror=function(){ if(!done) rej(new Error('yt-api-load-failed')); };
-    document.head.appendChild(s);
-    setTimeout(function(){ if(!done) rej(new Error('yt-api-timeout')); }, 6000);
-  });
-  return _ytApiLoading;
+function swapPromoDomain(){
+  var wrap=document.getElementById('promoPlayerBox'); if(!wrap) return;
+  var ifr=document.getElementById('promoIframe'); if(!ifr) return;
+  var toNocookie = wrap.dataset.domain!=='nocookie';
+  var domain = toNocookie? 'www.youtube-nocookie.com' : 'www.youtube.com';
+  wrap.dataset.domain = toNocookie? 'nocookie' : 'plain';
+  ifr.src = 'https://'+domain+'/embed/'+PROMO_YT_ID+'?autoplay=1&playsinline=1&rel=0';
+  showToast('\ud83d\udd04 Switched to '+(toNocookie? 'privacy-enhanced':'standard')+' player \u2014 give it a second');
 }
 function openExternally(url){
   if(window.RW && RW.openExternal){ RW.openExternal(url); }
   else { window.open(url, '_blank', 'noopener'); }
 }
 function playPromo(host){
-  var box=document.createElement('div');
-  box.id='promoPlayerBox';
-  box.style.cssText='aspect-ratio:16/9;border-radius:20px;overflow:hidden;border:1px solid var(--b2);background:#000;display:flex;align-items:center;justify-content:center;color:var(--t3);font-size:12px';
-  box.textContent='Loading player\u2026';
-  var parent = host.parentNode || el('promoTop');
-  if(host.parentNode) host.parentNode.replaceChild(box, host); else if(el('promoTop')) el('promoTop').appendChild(box);
+  /* DECISION: stop chasing inline YouTube playback. Verified via the
+     library's own GitHub issue tracker that "Error 152-4" is a known, open,
+     UNRESOLVED problem hitting other developers using this exact native
+     player library right now — not something fixable with better config on
+     our side. Context: YouTube tightened embedder-identity verification
+     industry-wide in mid-2025, breaking WebView-based embeds broadly. Rather
+     than keep spending engineering effort chasing a moving target the wider
+     industry hasn't solved either, always launch externally — this is
+     boring, but it reliably works every single time, on every device. */
   var watchUrl='https://www.youtube.com/watch?v='+PROMO_YT_ID;
-  var settled=false;
-  function fallback(reason){
-    if(settled) return; settled=true;
-    try{ console.log('film inline playback fallback:', reason); }catch(e){}
-    box.innerHTML='';
-    box.style.cssText='aspect-ratio:16/9;border-radius:20px;border:1px solid var(--b2);background:linear-gradient(135deg,#12121C,#1A1A26);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:20px;text-align:center';
-    box.innerHTML='<div style="font-size:32px">\ud83c\udfac</div><div style="font-size:13px;color:var(--t2)">This device prefers watching on YouTube</div>'
-      +'<button class="rzp-main-btn" style="margin:0" onclick="openExternally(\''+watchUrl+'\')">\u25b6 Continue on YouTube</button>';
+  openExternally(watchUrl);
+  try{ track('video_opens'); }catch(e){}
+}
+function _playPromo_ABANDONED_inlineAttempt(host){
+  if(window.RW && RW.playPromoVideo){
+    RW.playPromoVideo(PROMO_YT_ID);
+    try{ track('video_opens'); }catch(e){}
+    return;
   }
-  function markPlaying(){ settled=true; try{ track('video_opens'); }catch(e){} }
-  var hardTimer=setTimeout(function(){ fallback('timeout'); }, 7000);
-  loadYTApi().then(function(){
-    if(settled) return;
-    try{
-      new YT.Player(box, {
-        videoId: PROMO_YT_ID,
-        playerVars: { autoplay: 1, playsinline: 1, rel: 0 },
-        events: {
-          onReady: function(e){
-            /* Player object exists now, but this does NOT mean the video is
-               actually playing — YouTube can render its own in-frame error
-               screen (e.g. the undocumented "error 153") after this fires,
-               with no JS onError event at all. So we don't mark success yet:
-               we call playVideo() and then wait for a real onStateChange to
-               PLAYING (1) before trusting it. A second timer catches the
-               case where onReady fires but PLAYING never follows. */
-            try{ e.target.playVideo(); }catch(er){}
-            setTimeout(function(){ if(!settled) fallback('never-started-playing'); }, 4500);
-          },
-          onStateChange: function(e){
-            if(e.data===1){ clearTimeout(hardTimer); markPlaying(); } /* 1 = YT.PlayerState.PLAYING */
-          },
-          onError: function(e){ clearTimeout(hardTimer); fallback('yt-error-'+(e&&e.data)); }
-        }
-      });
-    }catch(e){ clearTimeout(hardTimer); fallback('player-init-threw'); }
-  }).catch(function(e){ clearTimeout(hardTimer); fallback('api-load-failed'); });
+  /* Rebuilt from scratch after repeated real-device reports that the
+     YT.Player JS API approach kept resizing/erroring unpredictably despite
+     multiple fixes verified in headless testing. Root-caused: headless
+     testing with a MOCKED YouTube API cannot reproduce real YouTube-side
+     behavior, so iterating patches against a mock was never going to fully
+     close this out. New approach, deliberately simpler and harder to break:
+     1) A PLAIN <iframe> (no JS Player API at all) sized with the classic
+        "padding-bottom: 56.25%" responsive-embed trick — this predates
+        `aspect-ratio` CSS, works in every browser ever shipped, and is
+        immune to any JS API default-sizing behavior because there IS no
+        JS API in this path.
+     2) An ALWAYS-VISIBLE "Watch on YouTube" link under the player, not just
+        a conditional fallback-on-error. YouTube's undocumented in-frame
+        errors (like "153") cannot be reliably detected from the outside in
+        every case — so instead of chasing perfect detection, we guarantee
+        the user is never stuck: the exit is always right there. */
+  var watchUrl='https://www.youtube.com/watch?v='+PROMO_YT_ID;
+  var wrap=document.createElement('div');
+  wrap.id='promoPlayerBox';
+  wrap.style.cssText='border-radius:20px;overflow:hidden;border:1px solid var(--b2);contain:layout;max-width:100%';
+  wrap.dataset.domain='nocookie';
+  wrap.innerHTML=
+    '<div style="position:relative;width:100%;padding-bottom:56.25%;background:#000">'
+    +'<iframe id="promoIframe" src="https://www.youtube-nocookie.com/embed/'+PROMO_YT_ID+'?autoplay=1&playsinline=1&rel=0" '
+    +'style="position:absolute;inset:0;width:100%;height:100%;border:0;display:block" '
+    +'referrerpolicy="strict-origin-when-cross-origin" '
+    +'allow="autoplay;encrypted-media;fullscreen" allowfullscreen></iframe>'
+    +'</div>'
+    +'<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 14px;background:#12121C;flex-wrap:wrap">'
+    +'<span style="font-size:11.5px;color:var(--t3)">Not playing? </span>'
+    +'<div style="display:flex;gap:6px">'
+    +'<button class="tact" style="font-size:11px;padding:6px 10px" onclick="swapPromoDomain()">\ud83d\udd04 Try other player</button>'
+    +'<button class="tact" style="font-size:11px;padding:6px 10px" onclick="openExternally(\''+watchUrl+'\')">\u25b6 Watch on YouTube</button>'
+    +'</div></div>';
+  var parent = host.parentNode || el('promoTop');
+  if(host.parentNode) host.parentNode.replaceChild(wrap, host); else if(el('promoTop')) el('promoTop').appendChild(wrap);
+  try{ track('video_opens'); }catch(e){}
+  /* If the iframe itself fails to even load (network-level failure, not a
+     YouTube-internal error screen — those we can't see from outside), swap
+     the whole area for a clean "just go watch it" card instead of a blank box. */
+  var ifr=document.getElementById('promoIframe');
+  ifr.onerror=function(){
+    wrap.innerHTML='<div style="aspect-ratio:16/9;border-radius:20px;border:1px solid var(--b2);background:linear-gradient(135deg,#12121C,#1A1A26);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:20px;text-align:center">'
+      +'<div style="font-size:32px">\ud83c\udfac</div><div style="font-size:13px;color:var(--t2)">This device prefers watching on YouTube</div>'
+      +'<button class="rzp-main-btn" style="margin:0" onclick="openExternally(\''+watchUrl+'\')">\u25b6 Continue on YouTube</button></div>';
+  };
 }
 function openMusic(mode){
   useBump('music');
@@ -2152,7 +2301,7 @@ function musRender(mode){
    +'<div class="mus-tab'+(mode==='artist'?' on':'')+'" onclick="musRender(\'artist\')">\ud83c\udfa4 Artist Page</div>'
    +'</div>'
    +'<div class="mus-frame"><div class="mus-inner">'
-   +'<iframe key="'+spotifyEmbedKind+'" style="border-radius:12px" src="https://open.spotify.com/embed/'+spotifyEmbedKind+'/'+spotifyEmbedId+'?utm_source=generator&theme=0" width="100%" height="'+(mode==='artist'?'352':'352')+'" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>'
+   +'<iframe key="'+spotifyEmbedKind+'" style="border-radius:12px" src="https://open.spotify.com/embed/'+spotifyEmbedKind+'/'+spotifyEmbedId+'?utm_source=generator&theme=0" width="100%" height="'+(mode==='artist'?'352':'352')+'" frameBorder="0" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"></iframe>'
    +'</div></div>'
    +'<div style="display:flex;gap:8px;margin-top:10px">'
    +'<a class="tact" style="flex:1;text-align:center;text-decoration:none;background:linear-gradient(135deg,#1DB95422,transparent)" href="https://open.spotify.com/artist/'+SPOTIFY_ARTIST_ID+'" target="_blank" rel="noopener">\ud83c\udfa7 Open in Spotify</a>'
@@ -3501,7 +3650,12 @@ function logAdd(){
     .then(function(r){return r.json();}).then(function(j){
       var g=(j.results||[])[0]; if(!g) return;
       var L2=logGet();
-      for(var i=L2.length-1;i>=0;i--){ var e=L2[i]; if((e.n||e)===v && e.lat===undefined){ L2[i]={n:v,lat:g.latitude,lon:g.longitude}; break; } }
+      for(var i=L2.length-1;i>=0;i--){ var e=L2[i]; if((e.n||e)===v && e.lat===undefined){
+        /* previously only lat/lon were kept — country was silently discarded,
+           which is why continent/country stats could never work for any
+           manually-typed journey entry (e.g. "New York" never got tagged
+           United States / North America at all). */
+        L2[i]={n:v,lat:g.latitude,lon:g.longitude,country:g.country||'',countryCode:g.country_code||''}; break; } }
       lsSet('rw_log',JSON.stringify(L2));
     }).catch(function(){});
 }
@@ -3855,8 +4009,10 @@ function downloadAtlasCertificate(){
   var xp=xpGet(), r=rankOf(xp);
   var withCoords=L.filter(function(e){ return typeof e.lat==='number' && typeof e.lon==='number'; });
   var countries={}, dist=0;
-  withCoords.forEach(function(e,i){ if(e.country) countries[e.country]=1; if(i>0) dist+=haversine(withCoords[i-1],e); });
+  var continents={};
+  withCoords.forEach(function(e,i){ if(e.country) countries[e.country]=1; var c=continentForCC(e.countryCode); if(c) continents[c]=1; if(i>0) dist+=haversine(withCoords[i-1],e); });
   var countryCount=Object.keys(countries).length || Math.max(1,Math.round(withCoords.length*0.6));
+  var continentCount=Object.keys(continents).length;
   var lats=withCoords.map(function(e){return e.lat;});
   var latRange = lats.length? Math.round(Math.max.apply(0,lats))+'°N to '+Math.abs(Math.round(Math.min.apply(0,lats)))+'°'+(Math.min.apply(0,lats)<0?'S':'N') : '—';
   var mapImg = _rwCard.toDataURL('image/jpeg',0.9);
@@ -3936,6 +4092,7 @@ function downloadAtlasCertificate(){
   +'<div class="profile"><div class="av">'+(name[0]||'R').toUpperCase()+'</div><div><div class="pname">'+name.replace(/[<>]/g,'')+'</div><div class="prank">'+r[1].toUpperCase()+' · LEVEL '+Math.max(1,Math.floor(xp/50))+'</div></div></div>'
   +'<div class="stats">'
   +'<div class="stat"><label>Countries</label><b>'+countryCount+'</b></div>'
+  +'<div class="stat"><label>Continents</label><b>'+continentCount+'/7</b></div>'
   +'<div class="stat"><label>Stops</label><b>'+C.names.length+'</b></div>'
   +'<div class="stat"><label>Total Distance</label><b>'+Math.round(dist).toLocaleString()+' km</b></div>'
   +'<div class="stat"><label>Latitude Range</label><b>'+latRange+'</b></div>'
@@ -4581,10 +4738,22 @@ function buildHacks(d, mi, month){
 }
 
 var UPI_VPA = 'coolmohit@ybl', UPI_NAME = 'RoamWise Pro', UPI_AMT = '100';
-function setTier(a){ UPI_AMT=String(a);
-  el('tierPro').classList.toggle('on', a===100); el('tierSup').classList.toggle('on', a!==100);
-  try{ buildQR(); }catch(e){}
-  showToast(a===100?'Pro \u2014 \u20b9100':'Supporter \u2014 \u20b9299, you legend \ud83d\udc9b'); }
+var _selectedPlan = null; /* set by pickPlan() — drives the amount/label for whatever the user is actually buying */
+function pickPlan(planId, priceINR, label){
+  _selectedPlan = {id:planId, priceINR:priceINR, label:label};
+  UPI_AMT = String(priceINR); UPI_NAME = 'RoamWise '+label;
+  qrBuilt = false; /* force QR rebuild for the new amount */
+  var qc = el('qrcode'); if(qc) qc.innerHTML='';
+  buildQR();
+  var ph = el('planHeader'); if(ph) ph.textContent = label+' \u2014 \u20b9'+priceINR;
+  var picker = el('planPicker'); if(picker) picker.style.display='none';
+  var methods = el('payMethods'); if(methods) methods.style.display='block';
+}
+function backToPlanPicker(){
+  var picker = el('planPicker'); if(picker) picker.style.display='block';
+  var methods = el('payMethods'); if(methods) methods.style.display='none';
+}
+/* setTier() removed — replaced by pickPlan(), which drives the full tier grid */
 function upiParams(){ return 'pa='+UPI_VPA+'&pn='+encodeURIComponent(UPI_NAME)+'&am='+UPI_AMT+'&cu=INR&tn='+encodeURIComponent('RoamWise Pro Lifetime'); }
 function payVia(app){
   if(app==='generic50'){
@@ -4613,12 +4782,16 @@ function payVia(app){
   }
   setTimeout(function(){ showToast('After paying, come back and paste your UTR below \u2b07\ufe0f'); }, 3000);
 }
+var _qrBuiltAmt = null;
 function buildQR(){
-  if(qrBuilt) return;
+  if(qrBuilt && _qrBuiltAmt===UPI_AMT) return; /* real fix: previously this hardcoded am=100
+    regardless of the selected tier — Supporter/other tiers showed a ₹100 QR by mistake */
   try{
     if(typeof QRCode!=='undefined'){
-      new QRCode(el('qrcode'), {text:'upi://pay?pa=coolmohit@ybl&pn=RoamWise+Pro&am=100&cu=INR', width:134, height:134, colorDark:'#000', colorLight:'#fff', correctLevel:QRCode.CorrectLevel.M});
-      qrBuilt = true;
+      var qc=el('qrcode'); if(qc) qc.innerHTML='';
+      new QRCode(el('qrcode'), {text:'upi://pay?'+upiParams(), width:134, height:134, colorDark:'#000', colorLight:'#fff', correctLevel:QRCode.CorrectLevel.M});
+      qrBuilt = true; _qrBuiltAmt = UPI_AMT;
+      var lbl=el('qrAmtLbl'); if(lbl) lbl.textContent='\ud83d\udcf7 Scan \u2022 \u20b9'+UPI_AMT+' \u2022 UPI: '+UPI_VPA;
     }
   }catch(e){}
 }
@@ -5384,7 +5557,79 @@ function openPay(){
   if(isPro){ showToast('Pro is already active!'); return; }
   el('payOverlay').classList.add('open');
   document.body.style.overflow = 'hidden';
-  buildQR();
+  var picker=el('planPicker'); if(picker) picker.innerHTML='<div style="text-align:center;font-size:12px;color:var(--t3);padding:10px">Loading plans\u2026</div>';
+  el('payMethods').style.display='none';
+  /* Founder-offer eligibility needs the live signup count — read it, but never
+     block the picker for more than a moment: fail toward showing tiers if the
+     read is slow, since the tiers are always valid regardless. */
+  var settled=false;
+  var to=setTimeout(function(){ if(!settled){ settled=true; renderPlanGrid(false); } }, 2500);
+  (window.db? db.collection('meta').doc('signupCounter').get() : Promise.reject()).then(function(snap){
+    if(settled) return; settled=true; clearTimeout(to);
+    var count = snap && snap.exists ? (snap.data().count||0) : 0;
+    renderPlanGrid(RWPricing.founderOfferOpen(count));
+  }).catch(function(){ if(settled) return; settled=true; clearTimeout(to); renderPlanGrid(RWPricing.founderOfferOpen()); });
+}
+function renderPlanGrid(founderOpen){
+  var C = RWPricing.CONFIG;
+  var fb = el('founderBanner');
+  if(founderOpen){
+    fb.style.display='block';
+    fb.innerHTML = '\ud83d\udd25 FOUNDER PRICE \u2014 \u20b9'+C.FOUNDER_OFFER.priceINR+' lifetime, founding members only ('+Math.max(0,Math.round(C.FOUNDER_OFFER.maxDays-RWPricing.daysSinceLaunch()))+' days left in this window)';
+  } else { fb.style.display='none'; }
+
+  var html='';
+  if(founderOpen){
+    html += '<button class="pay-tab on" style="width:100%;margin-bottom:14px" onclick="pickPlan(\'founder\','+C.FOUNDER_OFFER.priceINR+',\'Founder Pro \u2014 Lifetime\')">'
+      +'\ud83c\udf1f Founder Pro \u2014 \u20b9'+C.FOUNDER_OFFER.priceINR+' <small>One payment, forever \u2014 this exact price never comes back</small></button>';
+  }
+
+  /* Monthly / yearly tiers */
+  var yearly = lsGet('rw_pay_yearly')==='1';
+  html += '<div style="display:flex;align-items:center;justify-content:center;gap:10px;margin:6px 0 12px">'
+    +'<span style="font-size:12px;color:'+(!yearly?'var(--gold2)':'var(--t3)')+'">Monthly</span>'
+    +'<label style="position:relative;display:inline-block;width:38px;height:20px">'
+    +'<input type="checkbox" id="yearlyToggle" '+(yearly?'checked':'')+' onchange="lsSet(\'rw_pay_yearly\',this.checked?\'1\':\'0\');renderPlanGrid('+(founderOpen?'true':'false')+')" style="opacity:0;width:0;height:0">'
+    +'<span style="position:absolute;inset:0;background:'+(yearly?'var(--gold2)':'#333')+';border-radius:20px;transition:.2s"></span>'
+    +'<span style="position:absolute;left:'+(yearly?'20px':'2px')+';top:2px;width:16px;height:16px;background:#fff;border-radius:50%;transition:.2s"></span>'
+    +'</label><span style="font-size:12px;color:'+(yearly?'var(--gold2)':'var(--t3)')+'">Yearly <b style="color:#16BF96">(save up to 17%)</b></span></div>';
+
+  html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px">';
+  C.TIERS.filter(function(t){return t.id!=='free';}).forEach(function(t){
+    var price = yearly? t.priceYearly : t.priceMonthly;
+    var per = yearly? '/yr' : '/mo';
+    var save = RWPricing.yearlySavingsPct(t);
+    html += '<button class="tact" style="text-align:left;padding:12px" onclick="pickPlan(\''+t.id+(yearly?'_y':'_m')+'\','+price+',\''+t.label+' '+(yearly?'Yearly':'Monthly')+'\')">'
+      +'<div style="font-weight:800;color:var(--gold2);font-size:13px">'+t.label+'</div>'
+      +'<div style="font-size:17px;font-weight:800;margin-top:2px">\u20b9'+price+'<span style="font-size:11px;color:var(--t3);font-weight:400">'+per+'</span></div>'
+      +(yearly&&save>0? '<div style="font-size:10px;color:#16BF96">save '+save+'%</div>' : '')
+      +'</button>';
+  });
+  html += '</div>';
+
+  /* Long-term one-time passes */
+  html += '<div class="section-label">\ud83d\udcc5 Long-term one-time passes \u2014 no renewals</div>'
+    +'</div>';
+  C.LONG_TERM.forEach(function(group){
+    html += '<div style="font-size:11.5px;font-weight:700;color:var(--gold2);margin-bottom:6px">'+group.tierLabel+'-tier long-term</div>'
+      +'<div style="display:flex;gap:8px;margin-bottom:12px">';
+    group.options.forEach(function(p){
+      html += '<button class="tact" style="flex:1;text-align:center;padding:10px 6px" onclick="pickPlan(\''+p.id+'\','+p.priceINR+',\''+group.tierLabel+' '+p.years+'-Year Pass\')">'
+        +'<div style="font-size:12px;font-weight:700">'+p.years+'-Year</div><div style="font-size:14px;font-weight:800;color:var(--gold2)">\u20b9'+p.priceINR+'</div></button>';
+    });
+    html += '</div>';
+  });
+
+  /* Short-term micro-passes */
+  html += '<div class="section-label">\u26a1 Just need it for one trip?</div>'
+    +'<div style="display:flex;gap:8px;margin-bottom:6px">';
+  C.SHORT_TERM.forEach(function(p){
+    html += '<button class="tact" style="flex:1;text-align:center;padding:10px 6px" onclick="pickPlan(\''+p.id+'\','+p.priceINR+',\''+p.label+'\')">'
+      +'<div style="font-size:12px;font-weight:700">'+p.label+'</div><div style="font-size:14px;font-weight:800;color:var(--gold2)">\u20b9'+p.priceINR+'</div></button>';
+  });
+  html += '</div>';
+
+  el('planPicker').innerHTML = html;
 }
 function closePay(){ el('payOverlay').classList.remove('open'); document.body.style.overflow=''; }
 
@@ -5563,6 +5808,34 @@ if (AUTH_READY) {
           }
         }).catch(function(){});
       }catch(e){}
+      /* ---- FIRST 1000 USERS: 7-day free Pro trial, granted once on true first sign-in ----
+         u.metadata.creationTime === lastSignInTime is Firebase's own signal for "this is a
+         brand-new account, not a returning login." The 1000-cap is enforced via an atomic
+         Firestore transaction on a shared counter doc, so concurrent signups can't both
+         slip in under the wire. Honest caveat: trialUntil is a client-computed timestamp,
+         not server-signed — fine for a goodwill promo, not something to rely on for a
+         security-critical deadline (consistent with the UTR-claim honor system already
+         used for Pro activation elsewhere in this app). */
+      if(u.metadata && u.metadata.creationTime===u.metadata.lastSignInTime && !lsGet('rw_trial_checked_'+u.uid)){
+        lsSet('rw_trial_checked_'+u.uid,'1');
+        db.runTransaction(function(t){
+          var counterRef=db.collection('meta').doc('signupCounter');
+          return t.get(counterRef).then(function(snap){
+            var count=snap.exists? (snap.data().count||0) : 0;
+            if(count<1000){
+              t.set(counterRef,{count:count+1},{merge:true});
+              var trialUntil=Date.now()+7*24*3600*1000;
+              t.set(ref,{trialUntil:trialUntil,trialGranted:true},{merge:true});
+              return {granted:true, num:count+1};
+            } else {
+              t.set(ref,{trialGranted:true},{merge:true});
+              return {granted:false};
+            }
+          });
+        }).then(function(res){
+          if(res.granted){ showToast('\ud83c\udf89 You\'re traveler #'+res.num+' \u2014 7 days of Pro, free, on us!'); xpAdd(20,'Founding traveler bonus'); }
+        }).catch(function(){});
+      }
       /* ---- ACCOUNT-BOUND PRO (the only source of truth) ---- */
       /* Always kill any previous session's listener first — this is the actual
          bug fix: an old onSnapshot from a prior login was never unsubscribed,
@@ -5571,15 +5844,20 @@ if (AUTH_READY) {
       window._proUnsub = ref.onSnapshot(function(d){
         var cloudPro = d.exists && d.data().pro === true;
         var provOK = (parseInt(lsGet('rw_pro_temp')||'0',10) > Date.now()) && (lsGet('rw_pro_temp_uid')===u.uid);
-        var shouldBePro = cloudPro || provOK;
+        var trialUntil = d.exists ? d.data().trialUntil : null;
+        var trialActive = !cloudPro && trialUntil && trialUntil > Date.now();
+        var shouldBePro = cloudPro || provOK || trialActive;
+        lsSet('rw_trial_until', trialActive? String(trialUntil) : '');
         if(cloudPro){ lsSet('rw_pro_temp',''); lsSet('rw_pro_temp_uid',''); }
         if(shouldBePro){
           if(!isPro){ isPro=true; lsSet('rwPro','1'); lsSet('rw_pro_uid',u.uid); refreshProUI();
-            if(cloudPro){ showToast('Pro active on your account \u2713'); closePay(); } }
+            if(cloudPro){ showToast('Pro active on your account \u2713'); closePay(); }
+            else if(trialActive){ var daysLeft=Math.ceil((trialUntil-Date.now())/864e5); showToast('\u23f3 Free trial active \u2014 '+daysLeft+' day'+(daysLeft===1?'':'s')+' of Pro left'); } }
           isPro=true; lsSet('rw_pro_uid',u.uid); refreshProUI();
         } else {
           /* this account has NO pro \u2192 force-off regardless of any stale local flag */
-          if(isPro){ isPro=false; lsSet('rwPro','0'); lsSet('rw_pro_uid',''); refreshProUI(); }
+          if(isPro){ isPro=false; lsSet('rwPro','0'); lsSet('rw_pro_uid',''); refreshProUI();
+            if(trialUntil && trialUntil<=Date.now() && !cloudPro){ showToast('Your 7-day free trial has ended \u2014 upgrade anytime for \u20b9100'); } }
         }
       });
     } else {
@@ -5738,7 +6016,8 @@ function submitUtr(){
       return say('You already submitted this UTR \u2014 it\u2019s in the verification queue.', false);
     }
     return db.collection('claims').doc(user.uid+'_'+utr).set({
-    uid:user.uid, email:user.email||user.phoneNumber||'', utr:utr, amount:parseInt(UPI_AMT,10)||100, tier:(UPI_AMT==='299'?'supporter':'pro'),
+    uid:user.uid, email:user.email||user.phoneNumber||'', utr:utr, amount:parseInt(UPI_AMT,10)||100,
+    tier:(UPI_AMT==='299'?'supporter':'pro'), plan:(_selectedPlan&&_selectedPlan.id)||'legacy100', planLabel:(_selectedPlan&&_selectedPlan.label)||'Legacy ₹100',
     status:'pending', created:firebase.firestore.FieldValue.serverTimestamp()
   }).then(function(res){
     if(res===undefined) return; /* gated above */
@@ -5748,6 +6027,17 @@ function submitUtr(){
     if(user){
       lsSet('rw_pro_temp', String(Date.now()+864e5));
       lsSet('rw_pro_temp_uid', user.uid);
+      /* Store which plan was actually bought so RWPricing.currentTier() reflects
+         it correctly — a founder/legacy buyer is 'elite' forever as promised;
+         anyone buying a specific tier gets exactly that tier, not everything. */
+      var boughtTierId = 'elite'; /* default: founder / long-term / short-term passes all grant full access */
+      if(_selectedPlan){
+        var pid = _selectedPlan.id;
+        if(pid.indexOf('plus')===0) boughtTierId='plus';
+        else if(pid.indexOf('pro')===0) boughtTierId='pro';
+        else if(pid.indexOf('elite')===0) boughtTierId='elite';
+      }
+      lsSet('rw_tier', boughtTierId);
       isPro=true; lsSet('rwPro','1'); lsSet('rw_pro_uid',user.uid); refreshProUI();
       say('\ud83c\udf89 Pro unlocked INSTANTLY for your account! Verification completes in the background \u2014 nothing more to do.', true);
     } else {
