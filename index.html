@@ -17,7 +17,10 @@
 <meta name="twitter:description" content="AI itineraries, budgets & crowd heatmaps for 195+ countries. One-time unlock, lifetime access.">
 <link rel="canonical" href="https://www.roamwise.co.in">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%2307090F'/%3E%3Cpath d='M12 46 26 20l8 14 6-9 12 21z' fill='%23E8BA6C'/%3E%3Ccircle cx='46' cy='16' r='5' fill='%23BF8CFF'/%3E%3C/svg%3E">
-<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%2307090F'/%3E%3Cpath d='M12 46 26 20l8 14 6-9 12 21z' fill='%23E8BA6C'/%3E%3Ccircle cx='46' cy='16' r='5' fill='%23BF8CFF'/%3E%3C/svg%3E">
+<!-- PWA: iOS ignores SVG data-URI touch icons in most versions, so this must be a real PNG -->
+<link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="RoamWise">
@@ -6325,6 +6328,75 @@ applyRegionUI();
   }
 })();
 
+/* ============================ PWA ============================
+   Installable web app for Android + iPhone. Two deliberate guards:
+   1) Registration only on https: — inside the Android APK the page is
+      served from file://, where registering a service worker throws.
+   2) The APK already IS the app, so no install prompt is shown there. */
+(function(){
+  var inApp = !!window.RW || (typeof PLAY_MODE!=='undefined' && PLAY_MODE);
+  /* isSecureContext is true for https AND localhost, false for file:// (the
+     APK), which is exactly the condition a service worker needs. */
+  if(window.isSecureContext && 'serviceWorker' in navigator && !inApp){
+    window.addEventListener('load', function(){
+      navigator.serviceWorker.register('sw.js').catch(function(){ /* offline mode simply unavailable */ });
+    });
+  }
+  if(inApp) return;
+
+  function dismissed(){ return lsGet('rw_pwa_dismissed')==='1'; }
+  function standalone(){
+    return window.matchMedia('(display-mode: standalone)').matches || navigator.standalone===true;
+  }
+  function showBar(html){
+    if(dismissed() || standalone() || document.getElementById('pwaBar')) return;
+    var b=document.createElement('div');
+    b.id='pwaBar';
+    b.style.cssText='position:fixed;left:12px;right:12px;bottom:78px;z-index:9998;background:#12121C;border:1px solid #2A2A36;'
+      +'border-radius:14px;padding:12px 14px;display:flex;align-items:center;gap:10px;box-shadow:0 10px 30px rgba(0,0,0,.5);'
+      +'font-size:12.5px;color:#EDEAE2;animation:none';
+    b.innerHTML=html;
+    document.body.appendChild(b);
+  }
+  function closeBar(){
+    lsSet('rw_pwa_dismissed','1');
+    var b=document.getElementById('pwaBar'); if(b) b.remove();
+  }
+  window.rwPwaClose = closeBar;
+
+  /* --- Android / Chrome / Edge: real install prompt --- */
+  var deferred=null;
+  window.addEventListener('beforeinstallprompt', function(e){
+    e.preventDefault(); deferred=e;
+    showBar('<span style="font-size:20px">\uD83D\uDCF2</span>'
+      +'<span style="flex:1;line-height:1.4">Install RoamWise \u2014 works offline, opens like an app</span>'
+      +'<button onclick="rwPwaInstall()" style="background:linear-gradient(135deg,#E8BA6C,#C8913E);color:#12121C;border:none;'
+      +'border-radius:9px;padding:8px 12px;font-weight:800;font-size:12px;cursor:pointer">Install</button>'
+      +'<button onclick="rwPwaClose()" style="background:none;border:none;color:#8A8880;font-size:16px;cursor:pointer;padding:4px">\u2715</button>');
+  });
+  window.rwPwaInstall = function(){
+    if(!deferred) return;
+    deferred.prompt();
+    deferred.userChoice.then(function(c){
+      try{ track(c && c.outcome==='accepted' ? 'pwa_installed' : 'pwa_dismissed'); }catch(e){}
+      deferred=null; closeBar();
+    });
+  };
+  window.addEventListener('appinstalled', function(){ closeBar(); try{ track('pwa_installed'); }catch(e){} });
+
+  /* --- iPhone/iPad: Safari has no install prompt API, so show the manual
+         Share -> Add to Home Screen steps instead (only on real iOS Safari). --- */
+  var ua=navigator.userAgent||'';
+  var isIOS=/iPad|iPhone|iPod/.test(ua) || (navigator.platform==='MacIntel' && navigator.maxTouchPoints>1);
+  var isSafari=/Safari/.test(ua) && !/CriOS|FxiOS|EdgiOS|OPiOS/.test(ua);
+  if(isIOS && isSafari && !standalone()){
+    setTimeout(function(){
+      showBar('<span style="font-size:20px">\uD83D\uDCF2</span>'
+        +'<span style="flex:1;line-height:1.45">Add RoamWise to your Home Screen: tap <b>Share</b> \u2191 then <b>Add to Home Screen</b></span>'
+        +'<button onclick="rwPwaClose()" style="background:none;border:none;color:#8A8880;font-size:16px;cursor:pointer;padding:4px">\u2715</button>');
+    }, 4000);
+  }
+})();
 </script>
 </body>
 </html>
