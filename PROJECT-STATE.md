@@ -9,9 +9,15 @@
 ## ⚡ Build system: NOW GRADLE-BASED (as of v10.2) — the old manual toolchain is deprecated
 The project moved from a manual `aapt2`+`javac`+`d8` pipeline to a **real Gradle project** at `/home/claude/rw2/gradleapp/`, specifically to support proper Maven dependency resolution (needed for the `android-youtube-player` native library — see below). **Use Gradle for all future Android builds; the old `/home/claude/rw2/apk/proj` manual pipeline is legacy and no longer the source of truth for MainActivity.java.**
 
+**Toolchain as of v10.6 (SDK-36 rebuild):** Gradle **8.11.1** (`/home/claude/rw2/gradle-8.11.1/bin`) + AGP **8.10.1** + `platforms;android-36` + `build-tools;36.0.0` (installed in the same SDK dir). compileSdk 36 / targetSdk 36 / minSdk 24. **targetSdk 35+ enforces edge-to-edge on Android 15/16** — MainActivity handles this with a WindowInsets listener padding the root layout (dark #0A0A0C background behind the bars), zeroed during HTML5-fullscreen video and restored via `requestApplyInsets()` on exit. Do not remove that listener or the header will render under the status bar on modern devices.
+
+**R8 minification ON as of v10.7 (versionCode 20):** `minifyEnabled true` + `shrinkResources true` cut the app from ~2.7MB to ~900KB. Keep rules live in `app/proguard-rules.pro` — the critical one preserves every `@JavascriptInterface` method unrenamed (verified in mapping.txt: saveCard/openExternal/playPromoVideo/openLastSaved all map to themselves). **Never delete proguard-rules.pro or the entire JS bridge silently breaks.** The deobfuscation map auto-embeds in the AAB (`BUNDLE-METADATA/com.android.tools.build.obfuscation/proguard.map`), which is what clears Play Console's "no deobfuscation file" warning — no manual mapping upload needed. Standalone mapping.txt per release lands at `app/build/outputs/mapping/release/mapping.txt`.
+
+**Ads policy (as of v21): AdSense is WEBSITE-ONLY.** The loader in index.html detects the app (window.RW bridge OR PLAY_MODE) and never loads AdSense inside any app build — AdSense-for-Content in a native app violates AdSense program policy and endangers the whole account. Play Console declarations therefore: Advertising ID = **No** (manifest verifiably has no AD_ID permission, no ad SDKs); Contains ads = **No** for the app. Do not add play-services-ads / AdMob without revisiting both declarations.
+
 ```
 cd /home/claude/rw2/gradleapp
-export PATH=$PATH:/home/claude/rw2/gradle-8.7/bin
+export PATH=/home/claude/rw2/gradle-8.11.1/bin:$PATH  # Gradle 8.11.1 REQUIRED for AGP 8.10.1 (SDK 36); old gradle-8.7 is deprecated
 export ANDROID_HOME=/home/claude/rw2/apk/sdk
 export ANDROID_SDK_ROOT=/home/claude/rw2/apk/sdk
 
@@ -39,8 +45,8 @@ Uses `com.pierfrancescosoffritti.androidyoutubeplayer:core:12.1.0` (the actively
 
 ## Current versions (update these each ship)
 - Package: `com.gyanverse.roamwise`
-- Last APK: v10.2 (Gradle versionCode 15, targetSdk 34, minSdk 24) — includes native YouTube player
-- Last AAB: versionCode 15, PLAY_MODE=true
+- Last APK: v10.9 (versionCode 22, compileSdk 36, targetSdk 36, minSdk 24, R8-minified ~900KB)
+- Last AAB: versionCode 22, PLAY_MODE=true, SDK 36, R8-minified with embedded deobfuscation map
 - Web `index.html`: single-file architecture, now includes the RWPricing engine (see below)
 
 ## Promo video: SELF-HOSTED MP4 (final decision — do not revisit YouTube embedding)

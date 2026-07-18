@@ -2363,12 +2363,24 @@ function stayUrl(place){ var u='https://www.booking.com/searchresults.html?ss='+
   if(AFF_BOOKING) u+='&aid='+AFF_BOOKING; return u; }
 var WA_NUMBER='', WA_CHANNEL='', WA_GROUP='';
 (function(){
-  if(ADSENSE_ID){
-    var s=document.createElement('script'); s.async=true;
-    s.src='https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client='+ADSENSE_ID;
-    s.crossOrigin='anonymous'; document.head.appendChild(s);
-    document.querySelectorAll('.rw-ad').forEach(function(a){ a.style.display='block'; (adsbygoogle=window.adsbygoogle||[]).push({}); });
+  /* AdSense loads on the WEBSITE ONLY — never inside the app WebView.
+     AdSense-for-Content is websites-only by policy (AdMob is the in-app
+     product); serving it inside a wrapper app risks the entire AdSense
+     account, which also carries the website's revenue. Detection: the
+     native app injects the window.RW bridge before the page loads, and
+     Play builds set PLAY_MODE=true — either signal disables ads. Deferred
+     to DOMContentLoaded because PLAY_MODE is declared later in this file
+     (var hoisting would make an immediate check read undefined). */
+  function loadAds(){
+    var inApp = !!window.RW || (typeof PLAY_MODE!=='undefined' && PLAY_MODE);
+    if(ADSENSE_ID && !inApp){
+      var s=document.createElement('script'); s.async=true;
+      s.src='https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client='+ADSENSE_ID;
+      s.crossOrigin='anonymous'; document.head.appendChild(s);
+      document.querySelectorAll('.rw-ad').forEach(function(a){ a.style.display='block'; (adsbygoogle=window.adsbygoogle||[]).push({}); });
+    }
   }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', loadAds); else loadAds();
   if(WA_NUMBER){
     var w=document.createElement('a');
     w.href='https://wa.me/'+WA_NUMBER.replace(/[^0-9]/g,'')+'?text='+encodeURIComponent('Hi RoamWise!');
