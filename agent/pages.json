@@ -538,5 +538,113 @@
    100,
    91
   ]
+ },
+ {
+  "slug": "kasol-india",
+  "title": "Kasol, India",
+  "name": "Kasol",
+  "country": "India",
+  "best": "May, October, November",
+  "arch": "temperate",
+  "cl": [
+   13.9,
+   10,
+   14.9,
+   21.2,
+   27.2,
+   29.9,
+   28.1,
+   26.4,
+   26.2,
+   23.3,
+   20.3,
+   14.3
+  ],
+  "scores": [
+   90,
+   52,
+   64,
+   70,
+   98,
+   95,
+   70,
+   64,
+   71,
+   97,
+   99,
+   73
+  ]
+ },
+ {
+  "slug": "leh-india",
+  "title": "Leh, India",
+  "name": "Leh",
+  "country": "India",
+  "best": "July, September, October",
+  "arch": "alpine",
+  "cl": [
+   -0.8,
+   -5.6,
+   -1.1,
+   5.4,
+   13.8,
+   17.1,
+   24.5,
+   22.3,
+   18.9,
+   12.7,
+   6.2,
+   -1.5
+  ],
+  "scores": [
+   46,
+   23,
+   38,
+   69,
+   98,
+   98,
+   100,
+   96,
+   99,
+   100,
+   85,
+   42
+  ]
+ },
+ {
+  "slug": "srinagar-india",
+  "title": "Srinagar, India",
+  "name": "Srinagar",
+  "country": "India",
+  "best": "May, June, October",
+  "arch": "alpine",
+  "cl": [
+   9.2,
+   2.6,
+   11.4,
+   17.5,
+   24.9,
+   27.5,
+   32.5,
+   28.7,
+   27.9,
+   24.2,
+   15.6,
+   5.2
+  ],
+  "scores": [
+   79,
+   40,
+   68,
+   61,
+   96,
+   95,
+   93,
+   74,
+   88,
+   96,
+   87,
+   54
+  ]
  }
 ]
