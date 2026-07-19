@@ -2044,7 +2044,7 @@ function _ssGo(i){ var x=window._ssHits[i]; ssClose(); x.go(); }
 
 /* ===== ADAPTIVE "FOR YOU" (usage-aware UI) ===== */
 function useBump(k){ try{ var u=JSON.parse(lsGet('rw_use')||'{}'); u[k]=(u[k]||0)+1; lsSet('rw_use',JSON.stringify(u)); }catch(e){} }
-var FORYOU_DEFS={plan:['\ud83e\udded Plan',function(){tabGo('plan');}],treks:['\u26f0 Treks',function(){tabGo('explore');scrollToId('treks');}],card:['\ud83d\uddfa Card',function(){tabGo('explore');scrollToId('jlog');}],events:['\ud83c\udfdf Events',function(){tabGo('explore');scrollToId('events');}],store:['\ud83d\udecd Store',function(){tabGo('home');scrollToId('store');}],pdf:['\ud83d\udcd5 PDF',function(){tabGo('plan');}],search:['\ud83d\udd0d Search',function(){ssOpen();}],profile:['\ud83d\udc64 Profile',function(){openProfile();}]};
+var FORYOU_DEFS={trips:['\u2708\ufe0f Trips',function(){openVault();}],plan:['\ud83e\udded Plan',function(){tabGo('plan');}],treks:['\u26f0 Treks',function(){tabGo('explore');scrollToId('treks');}],card:['\ud83d\uddfa Card',function(){tabGo('explore');scrollToId('jlog');}],events:['\ud83c\udfdf Events',function(){tabGo('explore');scrollToId('events');}],store:['\ud83d\udecd Store',function(){tabGo('home');scrollToId('store');}],pdf:['\ud83d\udcd5 PDF',function(){tabGo('plan');}],search:['\ud83d\udd0d Search',function(){ssOpen();}],profile:['\ud83d\udc64 Profile',function(){openProfile();}]};
 function renderForYou(){
   var host=el('brief'); if(!host) return;
   var u={}; try{u=JSON.parse(lsGet('rw_use')||'{}');}catch(e){}
@@ -3360,6 +3360,7 @@ document.addEventListener('DOMContentLoaded', function(){
   try{ renderSpotlight(); }catch(e){}
   try{ renderTicker(); }catch(e){}
   try{ renderForYou(); }catch(e){}
+  try{ tripReminderCheck(); }catch(e){}  /* fire any due trip countdown reminders */
   try{ renderPromo(); }catch(e){}
   try{ renderNewsPulse(); }catch(e){}
   try{ renderRatings(); }catch(e){}
@@ -4114,7 +4115,7 @@ function haversine(a,b){
   var s=Math.sin(dLat/2)**2 + Math.cos(toRad(a.lat))*Math.cos(toRad(b.lat))*Math.sin(dLon/2)**2;
   return R*2*Math.asin(Math.sqrt(s));
 }
-function downloadAtlasCertificate(){
+async function downloadAtlasCertificate(){
   if(!window._rwCard || !window._rwCine){ showToast('Forge your Journey Card first — then the certificate'); return; }
   showToast('📜 Engraving your Atlas Certificate…');
   var C=_rwCine, L=logGet();
@@ -4145,6 +4146,8 @@ function downloadAtlasCertificate(){
       +'<span class="ac-coord">'+e.lat.toFixed(2)+'°, '+e.lon.toFixed(2)+'°</span></div>';
   }).join('') : C.names.map(function(n,i){ return '<div class="ac-row"><span class="ac-num">'+String(i+1).padStart(2,'0')+'</span><span class="ac-place">'+n.replace(/[<>]/g,'')+'</span></div>'; }).join('');
   var stamp='RW-ATLAS-'+new Date().getFullYear()+'-'+Math.random().toString(36).slice(2,7).toUpperCase();
+  /* Verifiable fingerprint of the exact journey contents (see proofStamp). */
+  var proof = await proofStamp(name+'|'+withCoords.map(function(e){return e.n+','+e.lat+','+e.lon;}).join(';')) || '';
   var now=new Date();
 
   var html = '<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
@@ -4213,7 +4216,7 @@ function downloadAtlasCertificate(){
   +'</div>'
   +'<div class="log"><h3>JOURNEY LOG · '+C.names.length+' STOPS</h3>'+logRows+'</div>'
   +'<div class="cert"><div class="seal">ROAMWISE<br>ATLAS<br>✦<br>VALIDATED</div>'
-  +'<div class="certtext"><b>Certified True Journey</b>Date: '+now.toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'})+' · ID: '+stamp+'<br>This certifies that the bearer has logged the above destinations on roamwise.co.in — data stays on device.</div>'
+  +'<div class="certtext"><b>Certified True Journey</b>Date: '+now.toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'})+' · ID: '+stamp+'<br>This certifies that the bearer has logged the above destinations on roamwise.co.in — data stays on device.'+(proof? '<br><span style="font-family:monospace;font-size:10px;word-break:break-all">Proof (SHA-256): '+proof.slice(0,32)+'…</span>':'')+'</div>'
   +'<div class="dotgrid"></div></div>'
   +'<div class="foot">Published by RoamWise.co.in · © '+now.getFullYear()+' RoamWise Atlas Authority</div>'
   +'</div>'
@@ -4861,7 +4864,12 @@ function pickPlan(planId, priceINR, label){
   buildQR();
   var ph = el('planHeader'); if(ph) ph.textContent = label+' \u2014 \u20b9'+priceINR;
   var picker = el('planPicker'); if(picker) picker.style.display='none';
-  var methods = el('payMethods'); if(methods) methods.style.display='block';
+  var methods = el('payMethods'); if(methods){
+    methods.style.display='block';
+    var cp = el('cryptoPanel');
+    if(!cp && cryptoConfigured()){ cp=document.createElement('div'); cp.id='cryptoPanel'; methods.appendChild(cp); }
+    if(cp) cp.innerHTML = cryptoPanelHTML();
+  }
 }
 function backToPlanPicker(){
   var picker = el('planPicker'); if(picker) picker.style.display='block';
@@ -5582,7 +5590,8 @@ function buildItin(T, name, costMid, days){
         <div class="day-body" id="${did}"><div>${segs}</div>${day.tip?`<div class="day-tip">💡 ${day.tip}</div>`:''}</div></div>`;
     }).join('');
     cnt.innerHTML = (srcBadge||'') + H
-      + '<a class="tact" style="display:block;text-align:center;text-decoration:none;width:100%;margin-top:12px" target="_blank" rel="noopener" href="'+stayUrl(name)+'">\ud83c\udfe8 Book stays in '+name+'</a>'
+      + '<button class="tact" style="display:block;width:100%;margin-top:12px;font-weight:800" onclick="saveTripOffline()">\u2708\ufe0f Save offline \u2014 works with no signal</button>'
+      + travelLinksHTML(name)
       + '<button class="tact" style="width:100%;margin-top:8px;border-color:rgba(22,191,150,.5);color:#16BF96" onclick="syncGo(\''+name.replace(/'/g,"\\'")+'\')">\ud83e\udd1d Sync Circle \u2014 I\u2019m going! See who else is</button>'
       + '<button class="tact" style="width:100%;margin-top:8px" onclick="compareModels(\''+name.replace(/'/g,"\\'")+'\','+days+')">\u2694\ufe0f Compare AI engines on this trip</button>'
       + '<button class="rzp-main-btn" style="margin-top:12px;background:linear-gradient(135deg,#9B59F5,#7A3FE0)" onclick="openPdfFlow(\''+T+'\',\''+name.replace(/'/g,"\\'")+'\','+days+',\''+((el('month')||{}).value||'')+'\')">\ud83d\udcd5 Premium PDF itinerary \u2014 \u20b910 (free for Pro)</button>';
@@ -5798,6 +5807,37 @@ function closeLbox(){ el('lightbox').classList.remove('open'); document.body.sty
 
 /* SETTINGS */
 function openSettings(){
+  /* ---- UI simplification ----
+     Provider choice and API keys are power-user territory: Smart Search works
+     with no key at all, so for most people these sections are noise that makes
+     Settings look like a developer console. They're collapsed behind an
+     "Advanced" toggle, and auto-expanded for anyone who already has a key set
+     so existing power users lose nothing. */
+  setTimeout(function(){
+    var body = document.querySelector('#settingsOverlay .modal-body');
+    if(body && !el('advToggle')){
+      var secs = body.querySelectorAll('.key-section');
+      var adv = [];
+      secs.forEach(function(sec){
+        var t = (sec.textContent||'');
+        if(/AI Mode|API Keys/i.test(t)) adv.push(sec);
+      });
+      if(adv.length){
+        var hasKey = ['gemini','groq','openrouter','mistral','anthropic'].some(function(x){ return lsGet('rwKey_'+x); });
+        var btn = document.createElement('button');
+        btn.id='advToggle'; btn.className='tact';
+        btn.style.cssText='width:100%;margin:4px 0 10px;font-size:12.5px';
+        btn.onclick=function(){
+          var open = adv[0].style.display!=='none';
+          adv.forEach(function(x){ x.style.display = open?'none':''; });
+          btn.textContent = (open?'\u2699 Advanced \u2014 AI provider & API keys':'\u2699 Hide advanced');
+        };
+        adv.forEach(function(x){ x.style.display = hasKey?'':'none'; });
+        btn.textContent = hasKey ? '\u2699 Hide advanced' : '\u2699 Advanced \u2014 AI provider & API keys';
+        body.insertBefore(btn, body.firstChild);
+      }
+    }
+  }, 0);
   ['gemini','groq','openrouter','mistral','anthropic'].forEach(function(p){
     var inp=el(p+'Key'), stat=el(p+'Status'), val=lsGet('rwKey_'+p);
     if(inp) inp.value=val;
@@ -6327,6 +6367,271 @@ applyRegionUI();
     chip.className = 'mode-chip '+(activeProv==='anthropic'?'mode-ai':'mode-free');
   }
 })();
+
+/* ==================== TRIP VAULT — offline itinerary access ====================
+   Saved trips live in localStorage (not the SW cache): they're user data, not
+   network responses, so they survive offline, airplane mode and dead zones with
+   no network dependency at all. The service worker already keeps the app shell
+   available offline, so vault + shell = a fully usable trip planner on a plane. */
+function vaultGet(){ try{ return JSON.parse(lsGet('rw_trips')||'[]'); }catch(e){ return []; } }
+function vaultSave(list){ lsSet('rw_trips', JSON.stringify(list.slice(0,50))); }
+function saveTripOffline(){
+  var it = window._lastItin;
+  if(!it || !it.days || !it.days.length){ showToast('Generate an itinerary first'); return; }
+  var list = vaultGet();
+  var id = 'trip_'+Date.now();
+  var startVal = (el('tripStart')||{}).value || '';
+  list.unshift({
+    id:id, name:it.name, days:it.days, ai:!!it.ai,
+    month:(el('month')||{}).value||'', start:startVal,
+    savedAt:Date.now()
+  });
+  vaultSave(list);
+  showToast('\u2708\ufe0f Saved offline \u2014 works with no signal');
+  try{ track('trip_saved'); }catch(e){}
+  try{ xpAdd(10,'Trip saved for offline'); }catch(e){}
+}
+function openVault(){
+  var list = vaultGet();
+  var ov = el('vaultOverlay');
+  if(!ov){
+    ov = document.createElement('div');
+    ov.id='vaultOverlay'; ov.className='overlay';
+    ov.innerHTML='<div class="sheet"><div class="sheet-head"><b>\u2708\ufe0f My Trips \u2014 offline</b>'
+      +'<button class="x" onclick="closeVault()">\u2715</button></div>'
+      +'<div id="vaultBody" style="padding:4px 2px 20px"></div></div>';
+    document.body.appendChild(ov);
+  }
+  var b = el('vaultBody');
+  if(!list.length){
+    b.innerHTML='<div style="text-align:center;padding:28px 16px;color:var(--t3);font-size:13px;line-height:1.6">'
+      +'<div style="font-size:34px;margin-bottom:8px">\ud83c\udf0f</div>'
+      +'No saved trips yet.<br>Generate an itinerary, then tap <b>Save offline</b> \u2014 it\u2019ll work with zero signal.</div>';
+  } else {
+    b.innerHTML = list.map(function(t){
+      var when = new Date(t.savedAt).toLocaleDateString('en-IN',{day:'numeric',month:'short'});
+      return '<div style="background:var(--bg2,#12121C);border:1px solid var(--b2,#2A2A36);border-radius:14px;padding:12px 14px;margin-bottom:10px">'
+        +'<div style="display:flex;justify-content:space-between;align-items:center;gap:8px">'
+        +'<div><div style="font-weight:800;font-size:14px">'+String(t.name).replace(/[<>]/g,'')+'</div>'
+        +'<div style="font-size:11px;color:var(--t3)">'+t.days.length+' days \u00b7 saved '+when+(t.ai?' \u00b7 \ud83e\udd16 AI':'')+'</div></div>'
+        +'<div style="display:flex;gap:6px">'
+        +'<button class="tact" style="font-size:11px;padding:6px 10px" onclick="openVaultTrip(\''+t.id+'\')">Open</button>'
+        +'<button class="tact" style="font-size:11px;padding:6px 8px" onclick="deleteVaultTrip(\''+t.id+'\')">\ud83d\uddd1</button>'
+        +'</div></div></div>';
+    }).join('');
+  }
+  ov.classList.add('open'); document.body.style.overflow='hidden';
+}
+function closeVault(){ var o=el('vaultOverlay'); if(o){ o.classList.remove('open'); } document.body.style.overflow=''; }
+function deleteVaultTrip(id){
+  vaultSave(vaultGet().filter(function(t){ return t.id!==id; }));
+  openVault(); showToast('Removed');
+}
+function openVaultTrip(id){
+  var t = vaultGet().filter(function(x){ return x.id===id; })[0];
+  if(!t) return;
+  if(!el('vaultBody')) openVault(); /* self-sufficient: create the overlay if entered directly */
+  var H = t.days.map(function(day){
+    var segs='';
+    ['morning','afternoon','evening','food'].forEach(function(k){
+      if(day[k]) segs += '<div style="margin:6px 0"><div style="font-size:10px;letter-spacing:.08em;color:var(--gold2,#C8913E);text-transform:uppercase">'+(k==='food'?'\ud83c\udf5b Eat':k)+'</div>'
+        +'<div style="font-size:12.5px;line-height:1.55">'+String(day[k]).replace(/[<>]/g,'')+'</div></div>';
+    });
+    return '<div style="background:var(--bg2,#12121C);border:1px solid var(--b2,#2A2A36);border-radius:14px;padding:12px 14px;margin-bottom:10px">'
+      +'<div style="font-weight:800;font-size:13px;color:var(--gold2,#C8913E)">Day '+day.day+' \u00b7 '+String(day.title||'').replace(/[<>]/g,'')+'</div>'
+      +segs+(day.tip?'<div style="margin-top:8px;font-size:11.5px;color:var(--t2);border-top:1px dashed var(--b2,#2A2A36);padding-top:7px">\ud83d\udca1 '+String(day.tip).replace(/[<>]/g,'')+'</div>':'')
+      +'</div>';
+  }).join('');
+  el('vaultBody').innerHTML =
+    '<button class="tact" style="font-size:11px;padding:6px 10px;margin-bottom:10px" onclick="openVault()">\u2190 All trips</button>'
+    +'<div style="font-weight:800;font-size:16px;margin-bottom:2px">'+String(t.name).replace(/[<>]/g,'')+'</div>'
+    +'<div style="font-size:11px;color:var(--t3);margin-bottom:12px">Available offline \u00b7 '+t.days.length+' days</div>'
+    + H + travelLinksHTML(t.name)
+    + '<div id="tripExtras"></div>';
+  loadTripExtras(t);
+}
+
+/* ---- Trip extras: weather, money, safety — all free, no-key APIs ----
+   Open-Meteo (already our geocoder) for a 7-day forecast; Frankfurter
+   (ECB rates, keyless, current domain api.frankfurter.dev) for currency.
+   Coordinates are geocoded once and cached back onto the saved trip, so
+   repeat opens cost zero lookups. Fully graceful offline: the trip itself
+   always renders; extras simply say they need internet. */
+async function loadTripExtras(t){
+  var host = el('tripExtras'); if(!host) return;
+  var out = [];
+
+  /* Safety essentials — deliberately generic and honest: emergency numbers
+     and search links, never invented "areas to avoid". */
+  out.push('<div style="background:var(--bg2,#12121C);border:1px solid var(--b2,#2A2A36);border-radius:14px;padding:12px 14px;margin-top:10px">'
+    +'<div style="font-weight:800;font-size:12.5px;margin-bottom:6px">\ud83d\udee1 Safety essentials</div>'
+    +'<div style="font-size:11.5px;color:var(--t2);line-height:1.7">'
+    +'\ud83c\uddee\ud83c\uddf3 India all-in-one emergency: <b>112</b> \u00b7 Tourist helpline: <b>1363</b><br>'
+    +'\ud83c\udfe5 <a style="color:var(--gold2,#C8913E)" target="_blank" rel="noopener" href="https://www.google.com/maps/search/'+encodeURIComponent('hospitals near '+t.name)+'">Hospitals near '+String(t.name).replace(/[<>]/g,'')+'</a>'
+    +' \u00b7 \ud83d\udc6e <a style="color:var(--gold2,#C8913E)" target="_blank" rel="noopener" href="https://www.google.com/maps/search/'+encodeURIComponent('police station near '+t.name)+'">Police</a><br>'
+    +'\ud83d\udca1 Keep digital + paper copies of ID \u00b7 agree taxi fares before boarding \u00b7 \u201cfree\u201d guides and closed-hotel claims are the two classic scams</div></div>');
+
+  host.innerHTML = out.join('') + '<div id="tripLive" style="margin-top:10px;font-size:11px;color:var(--t3)">\u26c5 Loading forecast\u2026</div>';
+
+  if(!navigator.onLine){ el('tripLive').textContent='\u26c5 Forecast & rates need internet \u2014 everything above works offline.'; return; }
+  try{
+    /* geocode once, cache into the saved trip */
+    if(typeof t.lat!=='number'){
+      var g = await fetch('https://geocoding-api.open-meteo.com/v1/search?count=1&name='+encodeURIComponent(t.name)).then(function(r){return r.json();});
+      var hit = (g.results||[])[0];
+      if(hit){ t.lat=hit.latitude; t.lon=hit.longitude;
+        var L=vaultGet(); L.forEach(function(x){ if(x.id===t.id){ x.lat=t.lat; x.lon=t.lon; } }); vaultSave(L); }
+    }
+    var live=[];
+    if(typeof t.lat==='number'){
+      var w = await fetch('https://api.open-meteo.com/v1/forecast?latitude='+t.lat+'&longitude='+t.lon
+        +'&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max&forecast_days=7&timezone=auto')
+        .then(function(r){return r.json();});
+      if(w && w.daily && w.daily.time){
+        var days = w.daily.time.map(function(d,i){
+          var dt=new Date(d), rain=w.daily.precipitation_probability_max[i];
+          return '<div style="text-align:center;min-width:44px"><div style="font-size:9.5px;color:var(--t3)">'+dt.toLocaleDateString('en-IN',{weekday:'short'})+'</div>'
+            +'<div style="font-size:12px;font-weight:700">'+Math.round(w.daily.temperature_2m_max[i])+'\u00b0</div>'
+            +'<div style="font-size:9.5px;color:var(--t3)">'+Math.round(w.daily.temperature_2m_min[i])+'\u00b0</div>'
+            +'<div style="font-size:9px;color:'+(rain>=50?'#5CC8FF':'var(--t3)')+'">'+(rain!=null? rain+'%\ud83c\udf27':'')+'</div></div>';
+        }).join('');
+        live.push('<div style="background:var(--bg2,#12121C);border:1px solid var(--b2,#2A2A36);border-radius:14px;padding:12px 14px;margin-bottom:10px">'
+          +'<div style="font-weight:800;font-size:12.5px;margin-bottom:8px">\u26c5 Next 7 days in '+String(t.name).replace(/[<>]/g,'')+'</div>'
+          +'<div style="display:flex;gap:4px;overflow-x:auto">'+days+'</div></div>');
+      }
+    }
+    /* currency mini-panel: INR vs the majors */
+    try{
+      var fx = await fetch('https://api.frankfurter.dev/v1/latest?base=INR&symbols=USD,EUR,GBP,THB,IDR,AED,JPY')
+        .then(function(r){return r.json();});
+      if(fx && fx.rates){
+        var rows = Object.keys(fx.rates).map(function(c){
+          return '<div style="display:flex;justify-content:space-between;font-size:11.5px;padding:2px 0"><span style="color:var(--t3)">\u20b91,000 \u2192</span><b>'+(fx.rates[c]*1000).toFixed(2)+' '+c+'</b></div>';
+        }).join('');
+        live.push('<div style="background:var(--bg2,#12121C);border:1px solid var(--b2,#2A2A36);border-radius:14px;padding:12px 14px;margin-bottom:10px">'
+          +'<div style="font-weight:800;font-size:12.5px;margin-bottom:6px">\ud83d\udcb1 Your \u20b91,000 abroad <span style="font-weight:400;font-size:9.5px;color:var(--t3)">ECB rates \u00b7 '+fx.date+'</span></div>'+rows+'</div>');
+      }
+    }catch(e){}
+    el('tripLive').outerHTML = live.join('') || '';
+  }catch(e){ var tl=el('tripLive'); if(tl) tl.textContent='\u26c5 Forecast unavailable right now.'; }
+}
+
+/* ==================== FREE AFFILIATE / DEEP LINKS ====================
+   Every link here is a plain public search URL that works with NO partnership,
+   NO approval and NO traffic minimum. Where a programme exists, the affiliate
+   ID is an optional constant appended only if set — so revenue can be switched
+   on later by filling one string, with zero code changes. */
+var AFF_SKYSCANNER='', AFF_AGODA='', AFF_GYG='';
+function flightUrl(place){
+  return 'https://www.google.com/travel/flights?q=' + encodeURIComponent('flights to '+place);
+}
+function trainBusUrl(place){
+  /* Rome2Rio covers trains, buses and ferries worldwide with no signup. */
+  return 'https://www.rome2rio.com/s/' + encodeURIComponent(place);
+}
+function stayUrlAgoda(place){
+  var u='https://www.agoda.com/search?city='+encodeURIComponent(place);
+  if(AFF_AGODA) u+='&cid='+AFF_AGODA; return u;
+}
+function thingsUrl(place){
+  var u='https://www.getyourguide.com/s/?q='+encodeURIComponent(place);
+  if(AFF_GYG) u+='&partner_id='+AFF_GYG; return u;
+}
+function travelLinksHTML(place){
+  var L=[
+    ['\ud83c\udfe8 Stays', stayUrl(place)],
+    ['\u2708\ufe0f Flights', flightUrl(place)],
+    ['\ud83d\ude86 Trains & buses', trainBusUrl(place)],
+    ['\ud83c\udfab Things to do', thingsUrl(place)]
+  ];
+  return '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px">'
+    + L.map(function(x){
+        return '<a class="tact" style="text-align:center;text-decoration:none;font-size:12px;padding:10px 6px" target="_blank" rel="noopener" href="'+x[1]+'" onclick="try{track(\'aff_click\')}catch(e){}">'+x[0]+'</a>';
+      }).join('')
+    + '</div>';
+}
+
+/* ==================== TRIP NOTIFICATIONS ====================
+   Deliberately LOCAL notifications, not server push. Real push needs a server
+   or Cloud Function sending via FCM — infrastructure that costs money and
+   maintenance. Local notifications are free forever, need no backend, and
+   cover the actually-useful case: countdown reminders for a saved trip,
+   fired when the app is opened. Honest limit: they can't fire while the app
+   is closed, which is why nothing here promises "real-time alerts". */
+function notifyEnable(){
+  if(!('Notification' in window)){ showToast('This device doesn\u2019t support notifications'); return; }
+  Notification.requestPermission().then(function(p){
+    lsSet('rw_notify', p==='granted'?'1':'0');
+    showToast(p==='granted' ? '\ud83d\udd14 Trip reminders on' : 'Reminders stayed off');
+    if(p==='granted') tripReminderCheck();
+  });
+}
+function tripReminderCheck(){
+  if(lsGet('rw_notify')!=='1' || !('Notification' in window) || Notification.permission!=='granted') return;
+  var today=new Date(); today.setHours(0,0,0,0);
+  vaultGet().forEach(function(t){
+    if(!t.start) return;
+    var d=new Date(t.start); if(isNaN(d)) return;
+    d.setHours(0,0,0,0);
+    var days=Math.round((d-today)/864e5);
+    if(days<0 || days>7) return;
+    var key='rw_notified_'+t.id+'_'+days;
+    if(lsGet(key)==='1') return;
+    lsSet(key,'1');
+    var msg = days===0 ? 'Your '+t.name+' trip starts today \u2014 itinerary is offline-ready \ud83e\udd77'
+            : days===1 ? 'Tomorrow: '+t.name+'. Packing list ready?'
+            : days+' days to '+t.name+' \u2014 tap to review your plan';
+    try{ new Notification('RoamWise', {body:msg, icon:'icons/icon-192.png', tag:t.id}); }catch(e){}
+  });
+}
+
+/* ==================== PROOF STAMP (verifiable journey fingerprint) ==========
+   An honest cryptographic stamp, not marketing. SHA-256 over the exact journey
+   contents produces a fingerprint that changes if even one character of the
+   log is altered — so two people can verify a certificate is unmodified by
+   recomputing it. This is free, instant, offline and needs no chain.
+   NOTE ON "BLOCKCHAIN": writing this hash to a public chain costs gas on every
+   chain worth trusting, so it is NOT enabled by default (it would cost money
+   per certificate). The hash below is exactly what you'd anchor if you ever
+   choose to — the design is anchor-ready, deliberately not anchor-billed. */
+async function proofStamp(payloadStr){
+  try{
+    var buf = new TextEncoder().encode(payloadStr);
+    var hash = await crypto.subtle.digest('SHA-256', buf);
+    var hex = Array.from(new Uint8Array(hash)).map(function(b){ return b.toString(16).padStart(2,'0'); }).join('');
+    return hex;
+  }catch(e){ return null; }
+}
+
+/* ==================== CRYPTO PAYMENT (direct wallet, zero fees) =============
+   No gateway, no partnership, no monthly cost: the user sends stablecoin
+   straight to your own wallet and submits the transaction hash, verified the
+   same honour-system way UPI UTRs already are in this app. Fill the addresses
+   below to switch it on — until then the option stays hidden rather than
+   showing a broken payment path. */
+var CRYPTO_WALLETS = {
+  /* e.g. usdt_polygon:'0xYourWallet...', usdt_tron:'TYourWallet...' */
+};
+function cryptoConfigured(){ return Object.keys(CRYPTO_WALLETS).length>0; }
+function cryptoPanelHTML(){
+  if(!cryptoConfigured()) return '';
+  var rows = Object.keys(CRYPTO_WALLETS).map(function(k){
+    var label = k.replace('_',' ').toUpperCase();
+    return '<div style="background:var(--bg3,#1A1A20);border:1px solid var(--b2,#2A2A36);border-radius:10px;padding:10px;margin-bottom:8px">'
+      +'<div style="font-size:11px;color:var(--t3);margin-bottom:4px">'+label+'</div>'
+      +'<div style="font-family:monospace;font-size:11px;word-break:break-all">'+CRYPTO_WALLETS[k]+'</div>'
+      +'<button class="tact" style="font-size:11px;padding:5px 9px;margin-top:6px" onclick="copyText(\''+CRYPTO_WALLETS[k]+'\')">Copy address</button>'
+      +'</div>';
+  }).join('');
+  return '<div style="margin-top:14px;border-top:1px solid var(--b2,#2A2A36);padding-top:12px">'
+    +'<div style="font-size:12px;font-weight:700;margin-bottom:8px">\u20bf Pay with crypto (USDT)</div>'
+    + rows
+    +'<div style="font-size:10.5px;color:var(--t3);line-height:1.5">Send the exact amount, then paste the transaction hash in the box above instead of a UTR. Verified manually within 24h.</div></div>';
+}
+function copyText(t){
+  try{ navigator.clipboard.writeText(t); showToast('Copied'); }
+  catch(e){ showToast(t); }
+}
 
 /* ============================ PWA ============================
    Installable web app for Android + iPhone. Two deliberate guards:

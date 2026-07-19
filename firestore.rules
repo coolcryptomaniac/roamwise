@@ -109,6 +109,12 @@ service cloud.firestore {
       allow read, update, delete: if isAdmin();
     }
 
+    // ---------- CRM (contact database: personal data, admin-only) ----------
+    // Never publicly readable — it holds names and emails of real people.
+    match /crm/{id} {
+      allow read, write: if isAdmin();
+    }
+
     // ---------- META (shared counters, e.g. first-1000-signups trial) ----------
     match /meta/{doc} {
       allow read: if true;

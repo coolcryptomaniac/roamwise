@@ -55,7 +55,7 @@ self.addEventListener('activate', function (e) {
 
 /* Hosts whose responses must always come from the network. */
 function isLive(url) {
-  return /firestore|firebase|googleapis|googlesyndication|doubleclick|google-analytics|gstatic|open-meteo|youtube|ytimg|weserv|spotify|saavn/i.test(url);
+  return /firestore|firebase|googleapis|googlesyndication|doubleclick|google-analytics|gstatic|open-meteo|frankfurter|youtube|ytimg|weserv|spotify|saavn/i.test(url);
 }
 
 self.addEventListener('fetch', function (e) {
