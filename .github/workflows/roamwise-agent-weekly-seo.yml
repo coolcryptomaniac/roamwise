@@ -7,13 +7,16 @@ on:
 permissions:
   contents: write
 
+  env:
+  ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
+
 jobs:
   seo:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
-        with: { node-version: 24}
+        with: { node-version: 20}
       - name: Regenerate SEO pages from the live app database
         run: node agent/seo-refresh.js
       - name: Commit if anything changed
