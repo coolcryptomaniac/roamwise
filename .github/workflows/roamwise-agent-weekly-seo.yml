@@ -4,8 +4,7 @@ on:
     - cron: '0 4 * * 0'    # Sunday 09:30 IST
   workflow_dispatch:
 
-env:
-  ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: 'true'
+
 
 
 permissions:
