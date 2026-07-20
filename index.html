@@ -1370,15 +1370,7 @@ html{-webkit-text-size-adjust:100%}
         </div>
       </div>
 
-      <details style="margin-top:6px"><summary style="cursor:pointer;font-size:11px;color:var(--t3);padding:6px 0">&#128736;&#65039; Owner setup (app publisher only)</summary>
-      <div class="key-section">
-        <div class="key-sec-title">Gumroad <small style="font-size:10px;font-weight:400;color:var(--t3);text-transform:none;letter-spacing:0">&mdash; international payments ($4.99 worldwide)</small></div>
-        <div class="key-box">
-          <div class="key-box-hint">Create a $4.99 product with license keys ON at <a href="https://gumroad.com" target="_blank" style="color:var(--teal)">gumroad.com</a>, then paste the product link and Product ID here</div>
-          <div class="key-row"><input class="k-inp" type="text" id="gumUrl" placeholder="https://yourname.gumroad.com/l/roamwise"><button class="k-save" onclick="saveGumroad()">Save</button></div>
-          <div class="key-row" style="margin-top:6px"><input class="k-inp" type="text" id="gumPid" placeholder="Product ID (Gumroad &rarr; product &rarr; Advanced)"><button class="k-save" onclick="saveGumroad()">Save</button></div>
-        </div>
-      </div></details>
+      <!-- Owner setup moved to the Admin console (Config tab) — nothing here for users to fill. -->
     </div>
   </div>
 </div>
@@ -2384,15 +2376,19 @@ var WA_NUMBER='', WA_CHANNEL='', WA_GROUP='';
     }
   }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', loadAds); else loadAds();
-  if(WA_NUMBER){
-    var w=document.createElement('a');
-    w.href='https://wa.me/'+WA_NUMBER.replace(/[^0-9]/g,'')+'?text='+encodeURIComponent('Hi RoamWise!');
-    w.target='_blank';
-    w.style.cssText='position:fixed;right:14px;bottom:86px;z-index:200;width:48px;height:48px;border-radius:50%;background:#25D366;display:flex;align-items:center;justify-content:center;font-size:24px;box-shadow:0 6px 20px rgba(0,0,0,.4);text-decoration:none';
-    w.textContent='\ud83d\udcac';
-    document.body.appendChild(w);
-  }
+  ensureWaButton();
 })();
+/* Global + idempotent so remote config can create it after the fact. */
+function ensureWaButton(){
+  if(!WA_NUMBER || document.getElementById('waFab')) return;
+  var w=document.createElement('a');
+  w.id='waFab';
+  w.href='https://wa.me/'+WA_NUMBER.replace(/[^0-9]/g,'')+'?text='+encodeURIComponent('Hi RoamWise!');
+  w.target='_blank';
+  w.style.cssText='position:fixed;right:14px;bottom:86px;z-index:200;width:48px;height:48px;border-radius:50%;background:#25D366;display:flex;align-items:center;justify-content:center;font-size:24px;box-shadow:0 6px 20px rgba(0,0,0,.4);text-decoration:none';
+  w.textContent='\ud83d\udcac';
+  document.body.appendChild(w);
+}
 
 /* ===== RATINGS & TESTIMONIALS ===== */
 var PLAYSTORE_URL=''; /* paste your Play Store listing URL once published — unlocks the "Rate on Play Store" nudge */
@@ -6308,15 +6304,10 @@ function applyRegionUI(){
   var dl = el('drProLbl'); if(dl) dl.textContent = isPro ? 'Pro active \u2713' : ('Unlock Pro \u2014 '+p);
   setPayRegion(r);
 }
-function saveGumroad(){
-  var u = (el('gumUrl').value||'').trim(), pid = (el('gumPid').value||'').trim();
-  if(u) lsSet('rw_gum_url', u);
-  if(pid) lsSet('rw_gum_pid', pid);
-  showToast('Gumroad settings saved');
-}
+/* saveGumroad removed — Gumroad link/ID now arrive via remote config (admin Config tab). */
 function openGumroad(){
   var u = lsGet('rw_gum_url');
-  if(!u){ showToast('Set your Gumroad product link in Settings first'); openSettings(); return false; }
+  if(!u){ showToast('International checkout isn\u2019t configured yet \u2014 UPI works right now'); return false; }
   window.open(u, '_blank', 'noopener');
   showToast('After paying, check your email for the license key');
   return false;
@@ -6327,7 +6318,7 @@ function verifyGumroad(){
   err.style.display = 'none';
   if(key.length < 8){ err.textContent = 'That does not look like a license key \u2014 paste the full key from your email.'; err.style.display = 'block'; return; }
   var pid = lsGet('rw_gum_pid');
-  if(!pid){ err.textContent = 'Product ID not configured. Open Settings \u2192 Gumroad and paste your Product ID.'; err.style.display = 'block'; return; }
+  if(!pid){ err.textContent = 'License verification isn\u2019t configured yet \u2014 email founder@roamwise.co.in and we\u2019ll unlock you manually.'; err.style.display = 'block'; return; }
   btn.disabled = true; btn.textContent = 'Verifying\u2026';
   fetch('https://api.gumroad.com/v2/licenses/verify', {
     method:'POST',
@@ -6701,6 +6692,54 @@ function copyText(t){
         +'<button onclick="rwPwaClose()" style="background:none;border:none;color:#8A8880;font-size:16px;cursor:pointer;padding:4px">\u2715</button>');
     }, 4000);
   }
+})();
+
+/* ==================== REMOTE CONFIG (owner values, zero user input) =========
+   Every owner-only value — affiliate IDs, WhatsApp numbers, Gumroad link/ID,
+   promo video URL, music embeds, crypto wallets, Play Store URL — now lives in
+   ONE Firestore doc (config/app) that only the admin console can write (rules:
+   public read, isAdmin write). The user app just reads it. Two-phase apply:
+   1) cached copy from localStorage immediately (works offline / first paint),
+   2) fresh Firestore fetch, re-cache, re-apply.
+   CRITICAL ORDERING NOTE: this must run at DOMContentLoaded, not at parse
+   time — several of these vars are declared AFTER db-init in file order, so
+   applying config too early would be overwritten by their own `var x=''`
+   initializers a few thousand lines later. DOMContentLoaded fires after every
+   synchronous script has executed, which is exactly the safe moment. */
+var RW_CFG = {};
+function applyRemoteConfig(cfg){
+  if(!cfg || typeof cfg!=='object') return;
+  RW_CFG = cfg;
+  function set(k, fn){ if(cfg[k]!=null && cfg[k]!=='') try{ fn(cfg[k]); }catch(e){} }
+  set('AFF_BOOKING',      function(v){ AFF_BOOKING=v; });
+  set('AFF_SKYSCANNER',   function(v){ AFF_SKYSCANNER=v; });
+  set('AFF_AGODA',        function(v){ AFF_AGODA=v; });
+  set('AFF_GYG',          function(v){ AFF_GYG=v; });
+  set('WA_NUMBER',        function(v){ WA_NUMBER=v; ensureWaButton(); });
+  set('WA_CHANNEL',       function(v){ WA_CHANNEL=v; });
+  set('WA_GROUP',         function(v){ WA_GROUP=v; });
+  set('PLAYSTORE_URL',    function(v){ PLAYSTORE_URL=v; });
+  set('PROMO_MP4_URL',    function(v){ PROMO_MP4_URL=v; });
+  set('SPOTIFY_ARTIST_ID',function(v){ SPOTIFY_ARTIST_ID=v; });
+  set('SPOTIFY_PLAYLIST_ID',function(v){ SPOTIFY_PLAYLIST_ID=v; });
+  set('JIOSAAVN_URL',     function(v){ JIOSAAVN_URL=v; });
+  set('CRYPTO_WALLETS',   function(v){ if(typeof v==='object') CRYPTO_WALLETS=v; });
+  /* Gumroad values feed the existing localStorage readers untouched. */
+  set('GUM_URL',          function(v){ lsSet('rw_gum_url', v); });
+  set('GUM_PID',          function(v){ lsSet('rw_gum_pid', v); });
+}
+(function(){
+  function boot(){
+    try{ var cached=JSON.parse(lsGet('rw_cfg')||'null'); if(cached) applyRemoteConfig(cached); }catch(e){}
+    try{
+      if(window.db){
+        db.collection('config').doc('app').get().then(function(snap){
+          if(snap.exists){ var c=snap.data(); lsSet('rw_cfg', JSON.stringify(c)); applyRemoteConfig(c); }
+        }).catch(function(){ /* offline or rules not yet published — cached copy already applied */ });
+      }
+    }catch(e){}
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', boot); else boot();
 })();
 </script>
 </body>

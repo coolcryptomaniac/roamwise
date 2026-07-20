@@ -109,6 +109,15 @@ service cloud.firestore {
       allow read, update, delete: if isAdmin();
     }
 
+    // ---------- CONFIG (owner-managed app settings) ----------
+    // Affiliate IDs, Gumroad link/ID, WhatsApp numbers, wallets, promo URL.
+    // Publicly readable (the app needs them), writable ONLY by admin — this
+    // must NOT live in `meta`, which any signed-in user can write.
+    match /config/{doc} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
     // ---------- CRM (contact database: personal data, admin-only) ----------
     // Never publicly readable — it holds names and emails of real people.
     match /crm/{id} {
