@@ -754,5 +754,113 @@
    85,
    91
   ]
+ },
+ {
+  "slug": "shillong-india",
+  "title": "Shillong, India",
+  "name": "Shillong",
+  "country": "India",
+  "best": "January, November, December",
+  "arch": "monsoon",
+  "cl": [
+   15.2,
+   17.5,
+   21,
+   25.8,
+   24.7,
+   24.6,
+   25.1,
+   23.8,
+   24.8,
+   22,
+   20.3,
+   18.7
+  ],
+  "scores": [
+   98,
+   96,
+   94,
+   96,
+   66,
+   60,
+   60,
+   63,
+   87,
+   73,
+   99,
+   100
+  ]
+ },
+ {
+  "slug": "kaziranga-india",
+  "title": "Kaziranga, India",
+  "name": "Kaziranga",
+  "country": "India",
+  "best": "January, November, December",
+  "arch": "monsoon",
+  "cl": [
+   22.5,
+   22.9,
+   27.4,
+   29.3,
+   31.1,
+   31.2,
+   32.5,
+   31.7,
+   33,
+   27.8,
+   27.3,
+   23.8
+  ],
+  "scores": [
+   97,
+   94,
+   87,
+   75,
+   57,
+   55,
+   55,
+   55,
+   80,
+   68,
+   99,
+   100
+  ]
+ },
+ {
+  "slug": "tawang-india",
+  "title": "Tawang, India",
+  "name": "Tawang",
+  "country": "India",
+  "best": "May, July, August",
+  "arch": "tropical",
+  "cl": [
+   28.1,
+   28.2,
+   27.9,
+   27.5,
+   26.6,
+   26.3,
+   25.2,
+   25.5,
+   27.2,
+   27.6,
+   28.7,
+   28.6
+  ],
+  "scores": [
+   64,
+   65,
+   68,
+   73,
+   91,
+   88,
+   89,
+   93,
+   89,
+   88,
+   67,
+   55
+  ]
  }
 ]
