@@ -2036,7 +2036,7 @@ function _ssGo(i){ var x=window._ssHits[i]; ssClose(); x.go(); }
 
 /* ===== ADAPTIVE "FOR YOU" (usage-aware UI) ===== */
 function useBump(k){ try{ var u=JSON.parse(lsGet('rw_use')||'{}'); u[k]=(u[k]||0)+1; lsSet('rw_use',JSON.stringify(u)); }catch(e){} }
-var FORYOU_DEFS={trips:['\u2708\ufe0f Trips',function(){openVault();}],plan:['\ud83e\udded Plan',function(){tabGo('plan');}],treks:['\u26f0 Treks',function(){tabGo('explore');scrollToId('treks');}],card:['\ud83d\uddfa Card',function(){tabGo('explore');scrollToId('jlog');}],events:['\ud83c\udfdf Events',function(){tabGo('explore');scrollToId('events');}],store:['\ud83d\udecd Store',function(){tabGo('home');scrollToId('store');}],pdf:['\ud83d\udcd5 PDF',function(){tabGo('plan');}],search:['\ud83d\udd0d Search',function(){ssOpen();}],profile:['\ud83d\udc64 Profile',function(){openProfile();}]};
+var FORYOU_DEFS={copilot:['\ud83e\udded Copilot',function(){openCopilot();}],trips:['\u2708\ufe0f Trips',function(){openVault();}],plan:['\ud83e\udded Plan',function(){tabGo('plan');}],treks:['\u26f0 Treks',function(){tabGo('explore');scrollToId('treks');}],card:['\ud83d\uddfa Card',function(){tabGo('explore');scrollToId('jlog');}],events:['\ud83c\udfdf Events',function(){tabGo('explore');scrollToId('events');}],store:['\ud83d\udecd Store',function(){tabGo('home');scrollToId('store');}],pdf:['\ud83d\udcd5 PDF',function(){tabGo('plan');}],search:['\ud83d\udd0d Search',function(){ssOpen();}],profile:['\ud83d\udc64 Profile',function(){openProfile();}]};
 function renderForYou(){
   var host=el('brief'); if(!host) return;
   var u={}; try{u=JSON.parse(lsGet('rw_use')||'{}');}catch(e){}
@@ -6358,6 +6358,164 @@ applyRegionUI();
     chip.className = 'mode-chip '+(activeProv==='anthropic'?'mode-ai':'mode-free');
   }
 })();
+
+
+/* ==================== AI TRAVEL COPILOT ====================
+   One box, natural language, no menus: "Reaching Manali tomorrow, rain
+   expected, find a cafe to work from, bus back to Delhi Sunday, keep it
+   under Rs18,000." Parsing is two-tier and honest about both tiers:
+   1) If the user has any AI key (existing aiCall stack), the model extracts
+      a strict-JSON intent object.
+   2) Otherwise a deterministic regex parser covers the core intents.
+   Execution NEVER fakes what a static app can't do: weather is fetched live
+   (Open-Meteo), budgets are real arithmetic, transport/cafe actions open the
+   right partner or Maps deep-link, sharing uses WhatsApp. The footer says
+   exactly that. */
+function openCopilot(){
+  var ov = el('cpOverlay');
+  if(!ov){
+    ov=document.createElement('div'); ov.id='cpOverlay'; ov.className='overlay';
+    ov.innerHTML='<div class="sheet" style="display:flex;flex-direction:column;max-height:92dvh">'
+      +'<div class="sheet-head"><b>\ud83e\udded Travel Copilot</b><button class="x" onclick="closeCopilot()">\u2715</button></div>'
+      +'<div id="cpLog" style="flex:1;overflow-y:auto;padding:4px 2px;min-height:120px"></div>'
+      +'<div style="display:flex;gap:6px;flex-wrap:wrap;margin:6px 0" id="cpChips"></div>'
+      +'<div style="display:flex;gap:8px;align-items:flex-end">'
+      +'<textarea id="cpInput" rows="1" placeholder="Type or speak your plan\u2026" style="flex:1;background:var(--bg3,#1A1A20);border:1px solid var(--b2,#2A2A36);border-radius:12px;padding:11px 12px;color:inherit;font:inherit;resize:none;outline:none"></textarea>'
+      +'<button class="tact" id="cpMic" style="padding:11px 12px" onclick="copilotVoice()">\ud83c\udfa4</button>'
+      +'<button class="tact" style="padding:11px 14px;font-weight:800;background:linear-gradient(135deg,var(--gold,#E8BA6C),var(--gold2,#C8913E));color:#0A0A0C;border:none" onclick="copilotSend()">\u27a4</button>'
+      +'</div>'
+      +'<div style="font-size:9.5px;color:var(--t3);margin-top:6px;line-height:1.5">Copilot plans, calculates and links \u2014 transport &amp; stays open partner sites; nothing is booked or charged inside the app.</div>'
+      +'</div>';
+    document.body.appendChild(ov);
+    el('cpInput').addEventListener('keydown',function(e){ if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); copilotSend(); } });
+    var chips=[['\u26c5 Weather in Goa this week','Weather in Goa this week'],
+               ['\ud83d\ude8c Bus Manali \u2192 Delhi Sunday','I need a bus from Manali to Delhi on Sunday'],
+               ['\ud83d\udcb0 5 days in Jaipur under \u20b915,000','Plan 5 days in Jaipur under \u20b915,000']];
+    el('cpChips').innerHTML = chips.map(function(c){
+      return '<button class="tact" style="font-size:10.5px;padding:6px 10px" onclick="el(\'cpInput\').value=\''+c[1].replace(/'/g,"\\'")+'\';copilotSend()">'+c[0]+'</button>';
+    }).join('');
+    cpBubble('Tell me your plan in one message \u2014 destination, dates, budget, what you need. I\u2019ll sort the pieces.','bot');
+  }
+  ov.classList.add('open'); document.body.style.overflow='hidden';
+  setTimeout(function(){ var i=el('cpInput'); if(i) i.focus(); },150);
+}
+function closeCopilot(){ var o=el('cpOverlay'); if(o) o.classList.remove('open'); document.body.style.overflow=''; }
+function cpBubble(html, who){
+  var log=el('cpLog'); if(!log) return;
+  var b=document.createElement('div');
+  b.style.cssText = who==='me'
+    ? 'margin:6px 0 6px 40px;background:linear-gradient(135deg,var(--gold,#E8BA6C),var(--gold2,#C8913E));color:#0A0A0C;border-radius:14px 14px 4px 14px;padding:10px 12px;font-size:12.5px'
+    : 'margin:6px 40px 6px 0;background:var(--bg2,#12121C);border:1px solid var(--b2,#2A2A36);border-radius:14px 14px 14px 4px;padding:10px 12px;font-size:12.5px;line-height:1.55';
+  b.innerHTML=html; log.appendChild(b); log.scrollTop=log.scrollHeight;
+  return b;
+}
+var _cpRec=null;
+function copilotVoice(){
+  var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if(!SR){ showToast('Voice input isn\u2019t supported in this browser \u2014 typing works!'); return; }
+  if(_cpRec){ try{_cpRec.stop();}catch(e){} _cpRec=null; el('cpMic').textContent='\ud83c\udfa4'; return; }
+  _cpRec = new SR(); _cpRec.lang='en-IN'; _cpRec.interimResults=false;
+  el('cpMic').textContent='\u23f9';
+  _cpRec.onresult=function(ev){ el('cpInput').value = ev.results[0][0].transcript; copilotSend(); };
+  _cpRec.onend=function(){ _cpRec=null; el('cpMic').textContent='\ud83c\udfa4'; };
+  _cpRec.onerror=function(){ _cpRec=null; el('cpMic').textContent='\ud83c\udfa4'; showToast('Didn\u2019t catch that \u2014 try again or type'); };
+  try{ _cpRec.start(); }catch(e){ _cpRec=null; }
+}
+/* ---- tier 2: deterministic parser (no key needed) ---- */
+function cpParseRegex(t){
+  var out={dest:null,to:null,days:null,budget:null,wants:[]};
+  var lower=' '+t.toLowerCase()+' ';
+  var m=t.match(/(?:\u20b9|rs\.?\s?|inr\s?)\s?([\d,]{3,})/i); if(m) out.budget=parseInt(m[1].replace(/,/g,''),10);
+  m=t.match(/(\d+)\s*[- ]?\s*day/i); if(m) out.days=parseInt(m[1],10);
+  DB.forEach(function(d){ if(lower.indexOf(' '+d.name.toLowerCase())>-1 && !out.dest) out.dest=d.name; });
+  if(!out.dest){ m=t.match(/(?:in|to|reaching|at|visit(?:ing)?)\s+([A-Z][a-zA-Z]{2,}(?:\s[A-Z][a-zA-Z]{2,})?)/); if(m) out.dest=m[1]; }
+  m=t.match(/(?:back to|to)\s+([A-Z][a-zA-Z]{2,})\b(?=[^]*?(?:bus|volvo|train|flight))/);
+  if(!m) m=t.match(/(?:bus|volvo|train|flight)[^.]*?\bto\s+([A-Z][a-zA-Z]{2,})/i);
+  if(m && m[1] && m[1]!==out.dest) out.to=m[1];
+  if(/rain|weather|forecast|temperature/i.test(t)) out.wants.push('weather');
+  if(/caf|coffee|work from|wifi/i.test(t)) out.wants.push('cafes');
+  if(/bus|volvo|train|flight|transport/i.test(t)) out.wants.push('transport');
+  if(/plan|itinerar|shift|days? in/i.test(t)) out.wants.push('plan');
+  if(/notify|companion|share|tell (?:my|the)/i.test(t)) out.wants.push('share');
+  if(out.budget!=null) out.wants.push('budget');
+  return out;
+}
+function copilotSend(){
+  var inp=el('cpInput'); var t=(inp.value||'').trim(); if(!t) return;
+  inp.value=''; cpBubble(t.replace(/[<>]/g,''),'me');
+  var thinking=cpBubble('\u2026','bot');
+  var hasKey = (typeof activeProv!=='undefined') && activeProv!=='smart' && lsGet('rwKey_'+activeProv);
+  if(hasKey){
+    var prompt='Extract travel intents from this message. Return ONLY JSON, no prose: '
+      +'{"dest":"main destination or null","to":"onward/return city or null","days":number|null,'
+      +'"budget":number in INR|null,"wants":["weather","cafes","transport","plan","share","budget"] (only those clearly requested)}. '
+      +'Message: '+t;
+    aiCall(prompt, 300, function(err, txt){
+      var intents=null;
+      if(txt){ try{ intents=JSON.parse(txt.replace(/```json|```/g,'').trim()); }catch(x){} }
+      cpExecute(intents || cpParseRegex(t), thinking, t);
+    });
+  } else {
+    cpExecute(cpParseRegex(t), thinking, t);
+  }
+}
+async function cpExecute(it, thinkingBubble, raw){
+  var H=[];
+  var dbHit = it.dest ? DB.filter(function(d){ return d.name.toLowerCase()===String(it.dest).toLowerCase(); })[0] : null;
+  var lat = dbHit? dbHit.lat : null, lon = dbHit? dbHit.lon : null;
+  if(it.dest && lat==null && navigator.onLine){
+    try{
+      var fix = CITY_NAME_FIXUPS[String(it.dest).toLowerCase().replace(/[^a-z]/g,'')]; if(fix) it.dest=fix;
+      var g=await fetch('https://geocoding-api.open-meteo.com/v1/search?count=1&name='+encodeURIComponent(it.dest)).then(function(r){return r.json();});
+      var hit=(g.results||[])[0]; if(hit){ lat=hit.latitude; lon=hit.longitude; }
+    }catch(e){}
+  }
+  if(it.dest) H.push('<b>\ud83d\udccd '+String(it.dest).replace(/[<>]/g,'')+'</b>'+(dbHit? ' \u00b7 '+dbHit.country+' \u00b7 in our destination library':''));
+  /* weather */
+  if(it.wants.indexOf('weather')>-1){
+    if(lat!=null && navigator.onLine){
+      try{
+        var w=await fetch('https://api.open-meteo.com/v1/forecast?latitude='+lat+'&longitude='+lon+'&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max&forecast_days=3&timezone=auto').then(function(r){return r.json();});
+        if(w&&w.daily){
+          var rows=w.daily.time.map(function(d,i){
+            var rain=w.daily.precipitation_probability_max[i];
+            return new Date(d).toLocaleDateString('en-IN',{weekday:'short'})+' '+Math.round(w.daily.temperature_2m_min[i])+'\u2013'+Math.round(w.daily.temperature_2m_max[i])+'\u00b0'+(rain>=40? ' \ud83c\udf27'+rain+'%':'');
+          }).join(' \u00b7 ');
+          H.push('\u26c5 '+rows+(w.daily.precipitation_probability_max[0]>=40? '<br><span style="color:#5CC8FF">Rain likely \u2014 front-load indoor stops (cafes, museums, markets) early in the day.</span>':''));
+        }
+      }catch(e){ H.push('\u26c5 Forecast unavailable right now.'); }
+    } else H.push('\u26c5 Forecast needs internet'+(it.dest?'':' and a destination'));
+  }
+  /* cafes */
+  if(it.wants.indexOf('cafes')>-1 && it.dest){
+    H.push('\u2615 <a style="color:var(--gold2,#C8913E)" target="_blank" rel="noopener" href="https://www.google.com/maps/search/'+encodeURIComponent('cafes with wifi in '+it.dest)+'">Work-friendly cafes in '+it.dest+' \u2192</a>');
+  }
+  /* transport */
+  if(it.wants.indexOf('transport')>-1 && it.dest){
+    var dst = it.to || 'Delhi';
+    H.push('\ud83d\ude8c <a style="color:var(--gold2,#C8913E)" target="_blank" rel="noopener" href="https://www.rome2rio.com/s/'+encodeURIComponent(it.dest)+'/'+encodeURIComponent(dst)+'">All routes '+it.dest+' \u2192 '+dst+'</a> \u00b7 <a style="color:var(--gold2,#C8913E)" target="_blank" rel="noopener" href="https://www.redbus.in/">redBus (Volvo/sleeper) \u2192</a>');
+  }
+  /* budget */
+  if(it.budget!=null){
+    var line='\ud83d\udcb0 \u20b9'+it.budget.toLocaleString('en-IN');
+    if(it.days) line+=' over '+it.days+' days = <b>\u20b9'+Math.round(it.budget/it.days).toLocaleString('en-IN')+'/day</b>';
+    if(dbHit&&dbHit.cost) line+=' <span style="color:var(--t3)">(typical mid-range there \u2248 $'+dbHit.cost.mid+'/week)</span>';
+    H.push(line);
+  }
+  /* plan */
+  if(it.wants.indexOf('plan')>-1 && it.dest){
+    H.push('\ud83d\uddfa '+(dbHit? 'Full day-by-day itinerary, crowd data and PDF live on the destination card:' : 'Search it in the app for the full planner:')
+      +' <button class="tact" style="font-size:11px;padding:5px 10px;margin-left:4px" onclick="closeCopilot();ssOpen()">Open '+String(it.dest).replace(/[<>]/g,'')+' \u2192</button>');
+  }
+  /* share */
+  if(it.wants.indexOf('share')>-1){
+    var summary='RoamWise plan: '+(it.dest||'trip')+(it.days? ' \u00b7 '+it.days+' days':'')+(it.budget? ' \u00b7 under \u20b9'+it.budget.toLocaleString('en-IN'):'')+' \u2014 roamwise.co.in';
+    H.push('\ud83d\udc65 <a style="color:var(--gold2,#C8913E)" target="_blank" rel="noopener" href="https://wa.me/?text='+encodeURIComponent(summary)+'">Send this plan to companions on WhatsApp \u2192</a>');
+  }
+  if(!H.length) H.push('I can handle destinations, dates, budgets, weather, cafes, buses/trains and sharing \u2014 try: \u201cPlan 4 days in Udaipur under \u20b912,000, rain check, and a bus back to Jaipur.\u201d');
+  thinkingBubble.innerHTML = H.join('<br><br>');
+  try{ track('copilot_uses'); }catch(e){}
+}
 
 /* ==================== TRIP VAULT — offline itinerary access ====================
    Saved trips live in localStorage (not the SW cache): they're user data, not
