@@ -253,12 +253,38 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:17px;heigh
 /* ACTION BAR */
 .act-bar{display:flex;gap:7px;padding:11px 18px;border-top:1px solid var(--b1);flex-wrap:wrap}
 .act-btn{display:flex;align-items:center;gap:5px;padding:7px 11px;border-radius:8px;font-family:'Outfit',sans-serif;font-size:11px;font-weight:600;cursor:pointer;border:none;transition:all .15s}
+/* drawer accordion */
+.dr-grp{border-bottom:1px solid rgba(255,255,255,.04)}
+.dr-gh{width:100%;display:flex;justify-content:space-between;align-items:center;background:none;border:none;color:var(--t2);
+  font:inherit;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:12px 6px;cursor:pointer}
+.dr-gh .chev{transition:transform .2s;color:var(--t3);font-size:14px}
+.dr-grp.open .dr-gh .chev{transform:rotate(90deg)}
+.dr-gb{max-height:0;overflow:hidden;transition:max-height .25s ease}
+.dr-grp.open .dr-gb{max-height:420px}
+/* home folds (declutter) */
+.fold-head{width:100%;display:flex;justify-content:space-between;align-items:center;background:var(--bg2,#12121C);
+  border:1px solid var(--b2,#2A2A36);border-radius:14px;padding:13px 15px;color:var(--t1);font:inherit;font-size:13px;font-weight:700;cursor:pointer;margin:6px 0}
+.fold-head .chev{transition:transform .2s;color:var(--t3)}
+.fold-head.open .chev{transform:rotate(90deg)}
+.fold-body{display:none}
+.fold-body.open{display:block}
 .act-gold{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#07090F;flex:1}.act-gold:hover{opacity:.88}
 .act-wa{background:rgba(37,211,102,.1);color:#25D366;border:1px solid rgba(37,211,102,.22)}
 .act-ghost{background:transparent;color:var(--t2);border:1px solid var(--b2)}.act-ghost:hover{border-color:var(--gold);color:var(--gold2)}
 .act-pm{background:rgba(155,89,245,.1);color:var(--pm2);border:1px solid rgba(155,89,245,.25)}
 /* MODALS */
 .overlay{position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:500;display:none;align-items:center;justify-content:center;padding:14px;backdrop-filter:blur(10px)}.overlay.open{display:flex}
+/* Sheet container used by Trips / Copilot / Map overlays.
+   These classes never existed — the divs rendered unstyled, so content ran past
+   the viewport with body scroll locked and the close button off-screen. */
+.sheet{background:var(--bg2);border:1px solid var(--b2);border-radius:20px;width:100%;max-width:430px;
+  max-height:88dvh;display:flex;flex-direction:column;overflow:hidden;animation:pop .3s ease;padding:14px}
+.sheet-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:2px 2px 10px;
+  border-bottom:1px solid var(--b2);position:sticky;top:0;background:var(--bg2);z-index:2;flex:0 0 auto}
+.sheet-head b{font-size:14px}
+.sheet .x{background:var(--bg3);border:1px solid var(--b2);color:var(--t2);width:32px;height:32px;border-radius:50%;
+  font-size:15px;cursor:pointer;flex:0 0 auto;display:flex;align-items:center;justify-content:center}
+.sheet>#vaultBody,.sheet>#cpLog{overflow-y:auto;-webkit-overflow-scrolling:touch;flex:1 1 auto;min-height:0}
 .modal{background:var(--bg2);border:1px solid var(--b2);border-radius:20px;max-width:380px;width:100%;position:relative;animation:pop .3s ease;overflow:hidden;max-height:92vh;overflow-y:auto}
 .modal-lg{max-width:430px}
 .modal-head{background:linear-gradient(135deg,rgba(155,89,245,.14),rgba(191,140,255,.06));padding:16px 20px 12px;border-bottom:1px solid rgba(155,89,245,.18);text-align:center}
@@ -620,7 +646,7 @@ button,.tact,.dr-link,.tabbar button,.exp,.trek,.rzp-main-btn{user-select:none;-
 .mode-box{border-radius:14px}
 .rzp-main-btn{border-radius:16px;box-shadow:0 10px 26px rgba(196,48,43,.35)}
 /* Floating pill tab bar (Uber/Spotify) */
-.tabbar{left:10px;right:10px;bottom:10px;border-radius:22px;border:1px solid var(--b2);box-shadow:0 12px 40px rgba(0,0,0,.5)}
+.tabbar{left:10px;right:10px;bottom:10px;border-radius:22px;border:1px solid var(--b2);box-shadow:0 12px 40px rgba(0,0,0,.5);max-height:74px;overflow:hidden;align-items:start;padding-bottom:8px!important}
 .tabbar button{border-radius:15px;margin:0 2px}
 .tabbar button.on{background:linear-gradient(135deg,rgba(196,48,43,.22),rgba(196,48,43,.08))}
 .tabbar button.on::after{display:none}
@@ -784,6 +810,22 @@ html{-webkit-text-size-adjust:100%}
 </div>
 
 <div id="promoTop" class="v v-home"></div>
+
+<!-- ============ COPILOT HERO — the front door, Claude-style ============ -->
+<section class="v v-home" id="copilotHero" style="margin:14px 14px 4px">
+  <div id="heroLog" style="display:none;margin-bottom:10px;max-height:52vh;overflow-y:auto"></div>
+  <div style="position:relative;background:linear-gradient(180deg,var(--bg2,#12121C),rgba(18,18,28,.6));border:1px solid var(--b2,#2A2A36);border-radius:20px;padding:12px">
+    <textarea id="heroInput" rows="3" placeholder="Ask your travel copilot anything&hellip;"
+      style="display:block;width:100%;box-sizing:border-box;background:transparent;border:none;padding:8px 8px 44px;color:inherit;font:inherit;font-size:15px;resize:none;outline:none;min-height:104px;line-height:1.5"></textarea>
+    <div style="position:absolute;right:12px;bottom:12px;display:flex;gap:8px;align-items:center">
+      <button onclick="copilotVoiceHero()" aria-label="Voice"
+        style="width:36px;height:36px;border-radius:50%;border:1px solid var(--b2,#2A2A36);background:var(--bg3,#1A1A20);color:var(--t2);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center">&#127908;</button>
+      <button onclick="copilotSend(true)" aria-label="Send"
+        style="width:36px;height:36px;border-radius:50%;border:none;background:linear-gradient(135deg,var(--gold,#E8BA6C),var(--gold2,#C8913E));color:#0A0A0C;font-size:16px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center">&#10148;</button>
+    </div>
+    <div id="heroModels" style="position:absolute;left:14px;bottom:16px;display:flex;gap:6px;flex-wrap:wrap;max-width:58%"></div>
+  </div>
+</section>
 <div class="hero-sky v v-home"><div class="kumo" style="top:12%;left:4%"></div><div class="kumo k2" style="top:58%;right:6%"></div><div class="kumo k3" style="top:30%;right:22%"></div><div class="hero">
   <h1>Escape the crowds.<br><em>Discover your world.</em></h1>
   <p>The AI travel planner that works for any destination on Earth — smart itineraries, crowd heatmaps, real budget breakdowns and packing lists. No signup. No subscription. Pay once, yours forever.</p>
@@ -1130,34 +1172,44 @@ html{-webkit-text-size-adjust:100%}
     <button class="dr-signin" onclick="closeDrawer();openAuth()">Sign in / Create account</button>
   </div>
   <div class="dr-xp" id="drXp"></div>
-  <div class="dr-sec">Travel</div>
-  <a class="dr-link" onclick="closeDrawer();tabGo('plan')"><span class="ic">&#9992;&#65039;</span>Plan a trip</a>
-  <a class="dr-link" onclick="closeDrawer();tabGo('treks')"><span class="ic">&#9968;&#65039;</span>Trek Vault</a>
-  <a class="dr-link" onclick="closeDrawer();scrollToId('exps')"><span class="ic">&#10024;</span>Fresh Experiences</a>
-  <a class="dr-link" onclick="closeDrawer();scrollToId('circuits')"><span class="ic">&#127950;&#65039;</span>Legendary Circuits</a>
-  <a class="dr-link" onclick="closeDrawer();scrollToId('ev')"><span class="ic">&#9889;</span>EV Vault</a>
-  <a class="dr-link" onclick="closeDrawer();scrollToId('events')"><span class="ic">&#127967;&#65039;</span>Event Radar</a>
-  <a class="dr-link" onclick="closeDrawer();scrollToId('hubspoke')"><span class="ic">&#127470;&#127475;</span>Hub &amp; Spoke India</a>
-  <a class="dr-link" onclick="closeDrawer();scrollToId('basecamp')"><span class="ic">&#9978;</span>Basecamp</a>
-  <a class="dr-link" onclick="closeDrawer();scrollToId('jlog')"><span class="ic">&#128506;&#65039;</span>My Journey Card</a>
-  <a class="dr-link" onclick="closeDrawer();showSaved()"><span class="ic">&#9829;</span>Saved for later</a>
-  <a class="dr-link" onclick="closeDrawer();openProfile()"><span class="ic">&#128100;</span>My Profile</a>
-  <a class="dr-link" onclick="closeDrawer();tabGo('home');scrollToId('store')"><span class="ic">&#128717;</span>Store</a>
-  <a class="dr-link" onclick="closeDrawer();openMusic()"><span class="ic">&#127925;</span>My Music</a>
-  <a class="dr-link" onclick="closeDrawer();tabGo('explore');scrollToId('aipulse')"><span class="ic">&#129302;</span>AI Pulse</a>
-  <a class="dr-link" onclick="closeDrawer();openDna()"><span class="ic">&#129516;</span>Traveler DNA quiz</a>
-  <a class="dr-link" onclick="closeDrawer();openWizard()"><span class="ic">&#129504;</span>AI setup wizard (60 sec)</a>
-  <a class="dr-link" onclick="closeDrawer();shareApp('app')"><span class="ic">&#128228;</span>Share RoamWise (+15 XP)</a>
-  <a class="dr-link" onclick="closeDrawer();requestFeature()"><span class="ic">&#128161;</span>Request a feature</a>
-  <a class="dr-link" onclick="closeDrawer();openPay()"><span class="ic">&#128081;</span><span id="drProLbl">Unlock Pro</span></a>
-  <div class="dr-sec">App</div>
-  <a class="dr-link" onclick="closeDrawer();openSettings()"><span class="ic">&#9881;&#65039;</span>Settings &amp; AI keys</a>
-  <a class="dr-link" href="https://youtube.com/@mohucool" target="_blank" rel="noopener"><span class="ic">&#9654;&#65039;</span>YouTube @mohucool</a>
-  <a class="dr-link" onclick="closeDrawer();scrollToId('creator')"><span class="ic">&#127956;&#65039;</span>About the creator</a>
-  <div class="dr-sec">Legal</div>
-  <a class="dr-link" onclick="closeDrawer();openLegal('privacy')"><span class="ic">&#128274;</span>Privacy policy</a>
-  <a class="dr-link" onclick="closeDrawer();openLegal('terms')"><span class="ic">&#128196;</span>Terms &amp; refunds</a>
-  <div class="dr-out">RoamWise Pro v3.1<br>Made in the Himalayas &#127956;&#65039; by Mohit Pandey</div>
+  <div class="dr-grp open"><button class="dr-gh" onclick="drToggle(this)">🧭 Travel<span class="chev">›</span></button><div class="dr-gb">
+  <a class="dr-link" onclick="closeDrawer();tabGo('plan')"><span class="ic">✈️</span>Plan a trip</a>
+  <a class="dr-link" onclick="closeDrawer();cpFocusHero()"><span class="ic">🧭</span>Copilot chat</a>
+  <a class="dr-link" onclick="closeDrawer();openMapExplorer()"><span class="ic">🗺️</span>Live world map</a>
+  <a class="dr-link" onclick="closeDrawer();openVault()"><span class="ic">✈️</span>My Trips (offline)</a>
+  <a class="dr-link" onclick="closeDrawer();tabGo('treks')"><span class="ic">⛰️</span>Trek Vault</a>
+  <a class="dr-link" onclick="closeDrawer();showSaved()"><span class="ic">♥</span>Saved for later</a>
+  <a class="dr-link" onclick="closeDrawer();scrollToId('jlog')"><span class="ic">🗺️</span>My Journey Card</a>
+</div></div>
+<div class="dr-grp"><button class="dr-gh" onclick="drToggle(this)">✨ Discover<span class="chev">›</span></button><div class="dr-gb">
+  <a class="dr-link" onclick="closeDrawer();scrollToId('exps')"><span class="ic">✨</span>Fresh Experiences</a>
+  <a class="dr-link" onclick="closeDrawer();scrollToId('circuits')"><span class="ic">🏎️</span>Legendary Circuits</a>
+  <a class="dr-link" onclick="closeDrawer();scrollToId('events')"><span class="ic">🏟️</span>Event Radar</a>
+  <a class="dr-link" onclick="closeDrawer();scrollToId('hubspoke')"><span class="ic">🇮🇳</span>Hub &amp; Spoke India</a>
+  <a class="dr-link" onclick="closeDrawer();scrollToId('ev')"><span class="ic">⚡</span>EV Vault</a>
+  <a class="dr-link" onclick="closeDrawer();scrollToId('basecamp')"><span class="ic">⛺</span>Basecamp</a>
+  <a class="dr-link" onclick="closeDrawer();tabGo('explore');scrollToId('aipulse')"><span class="ic">🤖</span>AI Pulse</a>
+  <a class="dr-link" onclick="closeDrawer();openDna()"><span class="ic">🧬</span>Traveler DNA quiz</a>
+</div></div>
+<div class="dr-grp"><button class="dr-gh" onclick="drToggle(this)">👤 Account<span class="chev">›</span></button><div class="dr-gb">
+  <a class="dr-link" onclick="closeDrawer();openProfile()"><span class="ic">👤</span>My Profile</a>
+  <a class="dr-link" onclick="closeDrawer();openPay()"><span class="ic">👑</span><span id="drProLbl">Unlock Pro</span></a>
+  <a class="dr-link" onclick="closeDrawer();openMusic()"><span class="ic">🎵</span>My Music</a>
+  <a class="dr-link" onclick="closeDrawer();tabGo('home');scrollToId('store')"><span class="ic">🛍</span>Store</a>
+</div></div>
+<div class="dr-grp"><button class="dr-gh" onclick="drToggle(this)">🛠 App<span class="chev">›</span></button><div class="dr-gb">
+  <a class="dr-link" onclick="closeDrawer();openSettings()"><span class="ic">⚙️</span>Settings &amp; AI keys</a>
+  <a class="dr-link" onclick="closeDrawer();openWizard()"><span class="ic">🧠</span>AI setup wizard (60 sec)</a>
+  <a class="dr-link" onclick="closeDrawer();shareApp('app')"><span class="ic">📤</span>Share RoamWise (+15 XP)</a>
+  <a class="dr-link" onclick="closeDrawer();requestFeature()"><span class="ic">💡</span>Request a feature</a>
+  <a class="dr-link" href="https://youtube.com/@mohucool" target="_blank" rel="noopener"><span class="ic">▶️</span>YouTube @mohucool</a>
+  <a class="dr-link" onclick="closeDrawer();scrollToId('creator')"><span class="ic">🏔️</span>About the creator</a>
+</div></div>
+<div class="dr-grp"><button class="dr-gh" onclick="drToggle(this)">⚖ Legal<span class="chev">›</span></button><div class="dr-gb">
+  <a class="dr-link" onclick="closeDrawer();openLegal('privacy')"><span class="ic">🔒</span>Privacy policy</a>
+  <a class="dr-link" onclick="closeDrawer();openLegal('terms')"><span class="ic">📄</span>Terms &amp; refunds</a>
+</div></div>
+<div class="dr-out">RoamWise Pro v3.1<br>Made in the Himalayas &#127956;&#65039; by Mohit Pandey</div>
 </aside>
 
 <!-- WIZARD -->
@@ -1343,31 +1395,8 @@ html{-webkit-text-size-adjust:100%}
       </div>
       <div class="key-section">
         <div class="key-sec-title">API Keys <small style="font-size:10px;font-weight:400;color:var(--t3);text-transform:none;letter-spacing:0">&mdash; adds AI-enhanced descriptions to results</small></div>
-        <div class="key-box">
-          <div class="key-box-name">Gemini Flash <span class="key-status ks-empty" id="geminiStatus">not set</span></div>
-          <div class="key-box-hint">Free at <a href="https://aistudio.google.com" target="_blank">aistudio.google.com</a> &rarr; Get API Key &bull; Starts with AIzaSy</div>
-          <div class="key-row"><input class="k-inp" type="password" id="geminiKey" placeholder="AIzaSy..."><button class="k-save" onclick="saveKey('gemini')">Save</button><button class="k-clear" onclick="clearKey('gemini')">Clear</button><button class="k-save" style="background:var(--teal);" onclick="testKey('gemini')">Test</button></div>
-        </div>
-        <div class="key-box">
-          <div class="key-box-name">Llama 3 via Groq <span class="key-status ks-empty" id="groqStatus">not set</span></div>
-          <div class="key-box-hint">Free at <a href="https://console.groq.com" target="_blank">console.groq.com</a> &rarr; API Keys &bull; Starts with gsk_</div>
-          <div class="key-row"><input class="k-inp" type="password" id="groqKey" placeholder="gsk_..."><button class="k-save" onclick="saveKey('groq')">Save</button><button class="k-clear" onclick="clearKey('groq')">Clear</button><button class="k-save" style="background:var(--teal);" onclick="testKey('groq')">Test</button></div>
-        </div>
-        <div class="key-box">
-          <div class="key-box-name">OpenRouter <span class="key-status ks-empty" id="openrouterStatus">not set</span></div>
-          <div class="key-box-hint">One key, dozens of models incl. FREE ones &mdash; openrouter.ai/keys</div>
-          <div class="key-row"><input class="k-inp" type="password" id="openrouterKey" placeholder="sk-or-..."><button class="k-save" onclick="saveKey('openrouter')">Save</button><button class="k-clear" onclick="clearKey('openrouter')">Clear</button><button class="k-save" style="background:var(--teal)" onclick="testKey('openrouter')">Test</button></div>
-        </div>
-        <div class="key-box">
-          <div class="key-box-name">Mistral <span class="key-status ks-empty" id="mistralStatus">not set</span></div>
-          <div class="key-box-hint">Free tier at console.mistral.ai</div>
-          <div class="key-row"><input class="k-inp" type="password" id="mistralKey" placeholder="..."><button class="k-save" onclick="saveKey('mistral')">Save</button><button class="k-clear" onclick="clearKey('mistral')">Clear</button><button class="k-save" style="background:var(--teal)" onclick="testKey('mistral')">Test</button></div>
-        </div>
-        <div class="key-box">
-          <div class="key-box-name">Claude Sonnet <span class="key-status ks-empty" id="anthropicStatus">not set</span></div>
-          <div class="key-box-hint">Paid at <a href="https://console.anthropic.com" target="_blank" style="color:var(--amber)">console.anthropic.com</a> &rarr; API Keys &bull; Starts with sk-ant-</div>
-          <div class="key-row"><input class="k-inp" type="password" id="anthropicKey" placeholder="sk-ant-..."><button class="k-save" onclick="saveKey('anthropic')">Save</button><button class="k-clear" onclick="clearKey('anthropic')">Clear</button><button class="k-save" style="background:var(--teal);" onclick="testKey('anthropic')">Test</button></div>
-        </div>
+        <div id="keyBoxes"></div>
+
       </div>
 
       <!-- Owner setup moved to the Admin console (Config tab) — nothing here for users to fill. -->
@@ -2036,7 +2065,7 @@ function _ssGo(i){ var x=window._ssHits[i]; ssClose(); x.go(); }
 
 /* ===== ADAPTIVE "FOR YOU" (usage-aware UI) ===== */
 function useBump(k){ try{ var u=JSON.parse(lsGet('rw_use')||'{}'); u[k]=(u[k]||0)+1; lsSet('rw_use',JSON.stringify(u)); }catch(e){} }
-var FORYOU_DEFS={copilot:['\ud83e\udded Copilot',function(){openCopilot();}],trips:['\u2708\ufe0f Trips',function(){openVault();}],plan:['\ud83e\udded Plan',function(){tabGo('plan');}],treks:['\u26f0 Treks',function(){tabGo('explore');scrollToId('treks');}],card:['\ud83d\uddfa Card',function(){tabGo('explore');scrollToId('jlog');}],events:['\ud83c\udfdf Events',function(){tabGo('explore');scrollToId('events');}],store:['\ud83d\udecd Store',function(){tabGo('home');scrollToId('store');}],pdf:['\ud83d\udcd5 PDF',function(){tabGo('plan');}],search:['\ud83d\udd0d Search',function(){ssOpen();}],profile:['\ud83d\udc64 Profile',function(){openProfile();}]};
+var FORYOU_DEFS={copilot:['\ud83e\udded Copilot',function(){cpFocusHero();}],map:['\ud83d\uddfa\ufe0f Map',function(){openMapExplorer();}],trips:['\u2708\ufe0f Trips',function(){openVault();}],plan:['\ud83e\udded Plan',function(){tabGo('plan');}],treks:['\u26f0 Treks',function(){tabGo('explore');scrollToId('treks');}],card:['\ud83d\uddfa Card',function(){tabGo('explore');scrollToId('jlog');}],events:['\ud83c\udfdf Events',function(){tabGo('explore');scrollToId('events');}],store:['\ud83d\udecd Store',function(){tabGo('home');scrollToId('store');}],pdf:['\ud83d\udcd5 PDF',function(){tabGo('plan');}],search:['\ud83d\udd0d Search',function(){ssOpen();}],profile:['\ud83d\udc64 Profile',function(){openProfile();}]};
 function renderForYou(){
   var host=el('brief'); if(!host) return;
   var u={}; try{u=JSON.parse(lsGet('rw_use')||'{}');}catch(e){}
@@ -2051,9 +2080,16 @@ function renderForYou(){
   /* Popular now — image-first media row from the destination DB */
   try{
     var live=activeEvents(), evCity=live.length? live[0].city:null;
-    var picks=(typeof DB!=='undefined'? DB:[]).slice(0,10).sort(function(a,b){
-      var h=function(s){var x=0;for(var i=0;i<s.length;i++)x=(x*31+s.charCodeAt(i))>>>0;return (x+new Date().getDate())%97;};
-      return h(a.name)-h(b.name); }).slice(0,6);
+    var curM=new Date().getMonth();
+    var seedH=function(str){var x=0;for(var i=0;i<str.length;i++)x=(x*31+str.charCodeAt(i))>>>0;return (x+new Date().getDate())%97;};
+    /* Month-aware: in-season (bestM) first, LIVE-event city pinned, daily-shuffled —
+       genuinely different by season AND by day, and it scales as DB grows. */
+    var pool=(typeof DB!=='undefined'? DB:[]).slice();
+    pool.sort(function(a,b){
+      var ea=(evCity===a.name)?-200:0, eb=(evCity===b.name)?-200:0;
+      var sa=((a.bestM||[]).indexOf(curM+1)>-1)?-100:0, sb=((b.bestM||[]).indexOf(curM+1)>-1)?-100:0;
+      return (ea+sa+seedH(a.name))-(eb+sb+seedH(b.name)); });
+    var picks=pool.slice(0,6);
     var EMO={beach:'\ud83c\udfd6\ufe0f',metro:'\ud83c\udf06',sacred:'\ud83d\uded5',tech:'\ud83c\udf03',peak:'\ud83c\udfd4\ufe0f',classic:'\ud83e\udded'};
     var row=document.createElement('div');
     row.innerHTML='<div class="rowhead"><b>Popular now</b><a onclick="tabGo(\'explore\')">All \u2192</a></div><div class="prow">'
@@ -2066,7 +2102,38 @@ function renderForYou(){
     row.className='v v-home';
     var bb=el('promoTop');
     if(bb && bb.parentNode) bb.parentNode.insertBefore(row, bb.nextSibling);
+    /* --- three more dynamic rows, below the copilot hero --- */
+    try{
+      var MOx=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+      function miniRow(title, list){
+        if(!list.length) return null;
+        var r=document.createElement('div'); r.className='v v-home';
+        r.innerHTML='<div class="rowhead"><b>'+title+'</b></div><div class="prow">'
+          + list.map(function(d3){
+              var t3=themeFor(d3), a3=t3.acc, dp3=t3.deep;
+              return '<div class="pcard" style="background:linear-gradient(160deg, rgb('+a3[0]+','+a3[1]+','+a3[2]+') 0%, rgb('+dp3[0]+','+dp3[1]+','+dp3[2]+') 85%)" onclick="cpGoPlan(\''+d3.name.replace(/'/g,'')+'\')">'
+                +'<span class="pe">'+(d3._tag||'')+'</span><span class="pn">'+d3.name+'</span></div>';
+            }).join('')+'</div>';
+        setTimeout(function(){ rwPaintPhotos(r, list); }, 900); /* stagger behind Popular-now's queue */
+        return r;
+      }
+      var used={}; picks.forEach(function(d){used[d.name]=1;});
+      var inSeason=pool.filter(function(d){ return (d.bestM||[]).indexOf(curM+1)>-1 && !used[d.name]; }).slice(0,6)
+        .map(function(d){ d._tag='\ud83c\udf1e'; used[d.name]=1; return d; });
+      var lowCrowd=pool.filter(function(d){ return d.crowd && !used[d.name]; })
+        .sort(function(a,b){ return a.crowd[curM]-b.crowd[curM]; }).slice(0,6)
+        .map(function(d){ d._tag=d.crowd[curM]+'%'; used[d.name]=1; return d; });
+      var visaEasy=pool.filter(function(d){ return d.visa && /free|arrival/i.test(d.visa.type) && !used[d.name]; }).slice(0,6)
+        .map(function(d){ d._tag='\ud83d\udec2'; return d; });
+      var hero=el('copilotHero'), after=hero;
+      [miniRow('\ud83c\udf1e In season \u2014 '+MOx[curM], inSeason),
+       miniRow('\ud83e\udd2b Low-crowd escapes this month', lowCrowd),
+       miniRow('\ud83d\udec2 Easy visa for Indians', visaEasy)].forEach(function(r){
+        if(r && after && after.parentNode){ after.parentNode.insertBefore(r, after.nextSibling); after=r; }
+      });
+    }catch(e){}
     /* real photos over the gradients — SEQUENTIAL queue (weserv rate-limit safe) */
+    rwPaintPhotos(row, picks);
     var cards=row.querySelectorAll('.pcard');
     function proxOf(u){ return 'https://images.weserv.nl/?w=300&h=500&fit=cover&q=78&output=jpg&url='+encodeURIComponent(String(u).replace(/\/thumb\/([0-9a-f]\/[0-9a-f]{2}\/[^\/]+)\/\d+px-[^\/]+$/,'/$1').replace(/^https?:\/\//,'')); }
     function paintCard(ci,prox){ if(!cards[ci]) return; cards[ci].style.background='url('+prox+')'; var pe=cards[ci].querySelector('.pe'); if(pe) pe.style.display='none'; }
@@ -2085,14 +2152,43 @@ function renderForYou(){
         .then(function(){ return grab((d3.photos&&d3.photos[0])||d3.name); })
         .then(function(){ return {key:key,u:seen}; });
     }
-    (function next(i){
-      if(i>=picks.length) return;
-      findURL(picks[i]).then(function(r){
-        if(r&&r.u){ loadOne(r.u,i).then(function(ok){ if(ok) lsSet(r.key,r.u); else lsSet(r.key,''); setTimeout(function(){next(i+1);},450); }); }
-        else setTimeout(function(){next(i+1);},150);
-      });
-    })(0);
+    /* photo painting handled by rwPaintPhotos(row, picks) above */
     }catch(e){}
+}
+
+/* ===== SHARED CARD PHOTO PAINTER =====
+   Same Wikimedia -> weserv pipeline the Popular-now row uses, extracted so every
+   carousel (In season / Low-crowd / Easy visa) gets real photos too. Sequential
+   with backoff to stay inside weserv's rate limit; caches the resolved URL per
+   destination so repeat visits paint instantly. */
+function rwPaintPhotos(rowEl, list){
+  if(!rowEl || !list || !list.length) return;
+  var cards = rowEl.querySelectorAll('.pcard');
+  function proxOf(u){ return 'https://images.weserv.nl/?w=300&h=500&fit=cover&q=78&output=jpg&url='+encodeURIComponent(String(u).replace(/\/thumb\/([0-9a-f]\/[0-9a-f]{2}\/[^\/]+)\/\d+px-[^\/]+$/,'/$1').replace(/^https?:\/\//,'')); }
+  function paint(ci,prox){ if(!cards[ci]) return; cards[ci].style.background='url('+prox+')'; cards[ci].style.backgroundSize='cover'; cards[ci].style.backgroundPosition='center';
+    var pe=cards[ci].querySelector('.pe'); if(pe) pe.style.textShadow='0 2px 10px rgba(0,0,0,.85)'; }
+  function loadOne(u,ci){ return new Promise(function(res){
+    var prox=proxOf(u), im=new Image(), tries=0;
+    im.onload=function(){ if(im.naturalWidth>10){ paint(ci,prox); res(true); } else res(false); };
+    im.onerror=function(){ if(tries++<2){ setTimeout(function(){ im.src=prox+'&_='+Date.now(); }, 1100*tries); } else res(false); };
+    im.src=prox;
+  }); }
+  function findURL(d){
+    var key='rw_pimg_'+d.name.toLowerCase().replace(/[^a-z0-9]/g,'');
+    var cached=lsGet(key);
+    if(cached) return Promise.resolve({key:key,u:cached});
+    if(cached==='') return Promise.resolve({key:key,u:null});
+    var seen=null;
+    function grab(q){ if(seen) return Promise.resolve(); return wikiAny(q,q).then(function(u){ if(u&&/wikimedia|wikipedia/.test(u)&&!seen) seen=u; }).catch(function(){}); }
+    return grab(d.name).then(function(){ return grab(d.name+' '+(d.country||'')); }).then(function(){ return {key:key,u:seen}; });
+  }
+  (function next(i){
+    if(i>=list.length) return;
+    findURL(list[i]).then(function(r){
+      if(r&&r.u){ loadOne(r.u,i).then(function(ok){ lsSet(r.key, ok? r.u : ''); setTimeout(function(){next(i+1);}, 450); }); }
+      else setTimeout(function(){ next(i+1); }, 150);
+    });
+  })(0);
 }
 
 /* ===== TRAVEL ECONOMY LIVE TICKER ===== */
@@ -2541,24 +2637,35 @@ function reportSquad(id){
 
 /* ===== 60-SECOND AI KEY WIZARD ===== */
 var WIZ=[
- {p:'gemini',n:'Google Gemini',url:'https://aistudio.google.com/apikey',why:'Best free tier \u2014 recommended first',ph:'AIza\u2026',
-  steps:['Sign in with any Google account','Tap the blue \u201cCreate API key\u201d button','Tap the copy icon \u2b1a next to the new key'],
-  trouble:'If it asks for a project, pick \u201cCreate in new project\u201d \u2014 one tap.'},
- {p:'groq',n:'Groq (Llama)',url:'https://console.groq.com/keys',why:'Insanely fast, generous free tier',ph:'gsk_\u2026',
-  steps:['Sign up free (Google login works)','Tap \u201cCreate API Key\u201d, give it any name','Copy it NOW \u2014 Groq shows it only once'],
-  trouble:'Lost it? Just create another key \u2014 unlimited.'},
- {p:'openrouter',n:'OpenRouter',url:'https://openrouter.ai/keys',why:'One key \u2192 many FREE models',ph:'sk-or-\u2026',
-  steps:['Sign in (Google/GitHub)','Tap \u201cCreate Key\u201d \u2014 no card needed for free models','Copy the sk-or-\u2026 key'],
-  trouble:'Free models have queues at peak \u2014 the app auto-falls back.'}
+ {p:'groq',n:'Groq (Llama 3.3 70B)',url:'https://console.groq.com/keys',why:'\u2705 No card ever \u00b7 fastest replies \u00b7 ~1,000 calls/day',ph:'gsk_\u2026',
+  steps:['Sign up free (Google login works \u2014 no card asked)','Tap \u201cCreate API Key\u201d, give it any name','Copy it NOW \u2014 Groq shows it only once'],
+  trouble:'Lost it? Just create another key \u2014 unlimited keys, still no card.'},
+ {p:'cerebras',n:'Cerebras',url:'https://cloud.cerebras.ai',why:'\u2705 No card \u00b7 biggest daily volume (~1M tokens/day)',ph:'csk-\u2026',
+  steps:['Sign up with Google or email \u2014 no payment step','Open API Keys in the sidebar','Create a key and copy it'],
+  trouble:'Runs Llama 3.3 70B very fast; if a call times out, the app falls back automatically.'},
+ {p:'github',n:'GitHub Models',url:'https://github.com/settings/tokens',why:'\u2705 No card \u00b7 GPT-4o & Llama on a GitHub account',ph:'ghp_\u2026',
+  steps:['Sign in to GitHub \u2192 Settings \u2192 Developer settings','Personal access tokens \u2192 Generate new token (classic)','No scopes needed \u2014 generate, then copy the ghp_\u2026 token'],
+  trouble:'Limits are tied to your GitHub plan; the free plan is enough for planning trips.'},
+ {p:'gemini',n:'Google Gemini 2.5 Flash',url:'https://aistudio.google.com/apikey',why:'Frontier quality free \u2014 but pick the right model',ph:'AIza\u2026',
+  steps:['Sign in with any Google account','Tap \u201cCreate API key\u201d \u2192 \u201cCreate in new project\u201d','Copy the AIza\u2026 key'],
+  trouble:'Billing prompt? That means the chosen model is paid-only. RoamWise now calls gemini-2.5-flash, which is on the free tier \u2014 Pro and Flash-Lite are not.'},
+ {p:'openrouter',n:'OpenRouter',url:'https://openrouter.ai/keys',why:'One key \u2192 many free models (lower daily cap)',ph:'sk-or-\u2026',
+  steps:['Sign in (Google/GitHub)','Tap \u201cCreate Key\u201d','Copy the sk-or-\u2026 key'],
+  trouble:'Free slots are ~50 calls/day and queue at peak; a one-time $10 top-up raises it to ~1,000/day. Groq or Cerebras avoid that entirely.'}
 ];
 var wizI=0;
 function keyProvider(k){
   k=(k||'').trim();
   if(/^AIza/.test(k)) return 'gemini';
   if(/^gsk_/.test(k)) return 'groq';
+  if(/^csk-/.test(k)) return 'cerebras';
+  if(/^ghp_|^github_pat_/.test(k)) return 'github';
   if(/^sk-or-/.test(k)) return 'openrouter';
   if(/^sk-ant-/.test(k)) return 'anthropic';
-  if(/^[A-Za-z0-9]{32,}$/.test(k)) return 'mistral';
+  /* Deliberately NOT guessing here: an unprefixed key used to be assumed
+     Mistral, which hijacked Cerebras keys and tested them against the wrong
+     API — the reported "save & test fails". Unknown format => no guess, and
+     the caller keeps whichever provider the user actually selected. */
   return null;
 }
 function openProvider(url){
@@ -2577,7 +2684,7 @@ function openProvider(url){
 function openWizard(){ wizI=0; wizPaint(); el('wizOverlay').classList.add('open'); try{track('wiz_opens');}catch(e){} }
 function wizPaint(){
   var w=WIZ[wizI], has=!!lsGet('rwKey_'+w.p);
-  var armed=['gemini','groq','openrouter','mistral','anthropic'].filter(function(p){return lsGet('rwKey_'+p);});
+  var armed=['groq','cerebras','github','gemini','openrouter','mistral','anthropic'].filter(function(p){return lsGet('rwKey_'+p);});
   el('wizBody').innerHTML=
    '<div class="mode-box" style="margin-bottom:12px">\u26a1 <b>Smart paste:</b> already have ANY key? Paste it \u2014 I\u2019ll detect the provider, save & test it automatically.'
   +'<div class="key-row" style="margin-top:8px"><input class="k-inp" id="wizAny" placeholder="AIza\u2026 / gsk_\u2026 / sk-or-\u2026 / sk-ant-\u2026"><button class="k-save" onclick="wizSmartPaste()">Detect & Save</button></div>'
@@ -2609,17 +2716,18 @@ function wizSave(){
   var det=keyProvider(k);
   if(det && det!==w.p){ el('wizStatus').textContent='\ud83d\udd0d That looks like a '+det+' key \u2014 saving it there instead\u2026'; el('wizStatus').style.color='var(--gold2)';
     return wizTest(det,k,el('wizStatus'),wizPaint); }
+  /* No recognised prefix => trust the provider the user is standing on. */
   wizTest(w.p,k,el('wizStatus'),wizNext);
 }
 function wizSmartPaste(){
   var k=(el('wizAny').value||'').trim(), st=el('wizAnyStatus'); if(!k) return;
   var det=keyProvider(k);
-  if(!det){ st.textContent='\u2753 Unrecognised format \u2014 keys start with AIza, gsk_, sk-or- or sk-ant-'; st.style.color='#E05B5B'; return; }
+  if(!det){ st.textContent='\u2753 I can\u2019t tell which service that key is from \u2014 open Settings \u2192 Advanced and paste it next to the right provider.'; st.style.color='#E05B5B'; return; }
   wizTest(det,k,st,wizPaint);
 }
 /* ===== MODEL COMPARISON ARENA ===== */
 function compareModels(name, days){
-  var provs = ['gemini','groq','openrouter','mistral','anthropic'].filter(function(p){return lsGet('rwKey_'+p);});
+  var provs = ['groq','cerebras','github','gemini','openrouter','mistral','anthropic'].filter(function(p){return lsGet('rwKey_'+p);});
   var ov = el('cmpOverlay');
   if(!ov){
     ov=document.createElement('div'); ov.id='cmpOverlay'; ov.className='overlay';
@@ -2936,7 +3044,7 @@ function genPdf(sample){
         caution:A0.caution}};
     }
     var intelP=new Promise(function(res){
-      var hasKey=['gemini','groq','openrouter','mistral','anthropic'].some(function(p2){return lsGet('rwKey_'+p2);});
+      var hasKey=['groq','cerebras','github','gemini','openrouter','mistral','anthropic'].some(function(p2){return lsGet('rwKey_'+p2);});
       if(!hasKey) return res(intelFallback());
       var done=false; setTimeout(function(){ if(!done){done=true; res(intelFallback());} }, 18000);
       try{
@@ -3356,7 +3464,31 @@ document.addEventListener('DOMContentLoaded', function(){
   try{ renderSpotlight(); }catch(e){}
   try{ renderTicker(); }catch(e){}
   try{ renderForYou(); }catch(e){}
-  try{ tripReminderCheck(); }catch(e){}  /* fire any due trip countdown reminders */
+  try{ tripReminderCheck(); }catch(e){}
+  /* Home declutter: heavy sections collapse behind slim headers — the scroll
+     keeps only the essentials (video, copilot, quick start). One tap expands. */
+  try{
+    /* The Film + subscribe now live INSIDE the creator section (folded at bottom) */
+    try{
+      var pf=el('promofilm'), cr=el('creator');
+      if(pf && cr){ pf.classList.remove('v','v-home'); pf.style.margin='0'; cr.insertBefore(pf, cr.firstChild.nextSibling); }
+    }catch(e){}
+    [['ratings','\u2b50 Ratings & traveler wall'],['store','\ud83d\udecd Store'],['creator','\ud83c\udfd4\ufe0f About the creator \u00b7 The Film'],].forEach(function(f){
+      var sec=el(f[0]); if(!sec || sec.dataset.folded) return;
+      sec.dataset.folded='1';
+      var body=document.createElement('div'); body.className='fold-body';
+      while(sec.firstChild) body.appendChild(sec.firstChild);
+      var head=document.createElement('button'); head.className='fold-head';
+      head.innerHTML=f[1]+'<span class="chev">\u203a</span>';
+      head.onclick=function(){ head.classList.toggle('open'); body.classList.toggle('open'); };
+      sec.appendChild(head); sec.appendChild(body);
+    });
+  }catch(e){}
+  try{
+    cpModelChips('heroModels');
+    var hi=el('heroInput');
+    if(hi) hi.addEventListener('keydown',function(e){ if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); copilotSend(true); } });
+  }catch(e){}  /* fire any due trip countdown reminders */
   try{ renderPromo(); }catch(e){}
   try{ renderNewsPulse(); }catch(e){}
   try{ renderRatings(); }catch(e){}
@@ -4600,7 +4732,7 @@ function toggleSound(){ phOn ? sndStop() : sndStart(0); }
 (function(){
   if(sessionStorage.getItem('rw_phonk')) return;
   sessionStorage.setItem('rw_phonk','1');
-  function go(){ try{ sndStart(13); }catch(e){} }
+  function go(){ /* auto-intro removed — sound is opt-in via the speaker button only */ }
   if(IS_APP){ setTimeout(go, 1200); }
   else{
     var once=function(){ document.removeEventListener('pointerdown',once); go(); };
@@ -5079,8 +5211,10 @@ function loadPhotosForCard(d, ci){
 
 /* OPTIONAL AI ENHANCEMENT */
 var AI_MODELS = {
-  gemini: ['gemini-2.5-flash','gemini-2.0-flash','gemini-flash-latest'],
   groq: ['llama-3.3-70b-versatile','llama-3.1-8b-instant'],
+  cerebras: ['llama-3.3-70b','llama3.1-8b'],
+  github: ['gpt-4o','Meta-Llama-3.1-70B-Instruct'],
+  gemini: ['gemini-2.5-flash','gemini-flash-latest'],
   openrouter: ['meta-llama/llama-3.3-70b-instruct:free','mistralai/mistral-small-3.1-24b-instruct:free','google/gemma-3-27b-it:free'],
   mistral: ['mistral-small-latest','open-mistral-nemo'],
   anthropic: ['claude-sonnet-4-20250514']
@@ -5108,7 +5242,9 @@ function aiRequest(prov, key, model, prompt, maxTok, jsonMode){
     var gc={maxOutputTokens:maxTok, temperature:0.7}; if(jsonMode) gc.responseMimeType='application/json';
     body=JSON.stringify({contents:[{parts:[{text:prompt}]}], generationConfig:gc});
   } else {
-    var bases={groq:'https://api.groq.com/openai/v1', openrouter:'https://openrouter.ai/api/v1', mistral:'https://api.mistral.ai/v1'};
+    var bases={groq:'https://api.groq.com/openai/v1', cerebras:'https://api.cerebras.ai/v1',
+      github:'https://models.inference.ai.azure.com', openrouter:'https://openrouter.ai/api/v1',
+      mistral:'https://api.mistral.ai/v1'};
     url=(bases[prov]||bases.groq)+'/chat/completions';
     headers={'Content-Type':'application/json','Authorization':'Bearer '+key};
     if(prov==='openrouter'){ headers['HTTP-Referer']='https://www.roamwise.co.in'; headers['X-Title']='RoamWise Pro'; }
@@ -5124,7 +5260,9 @@ function aiRequest(prov, key, model, prompt, maxTok, jsonMode){
       clearTimeout(tmr);
       var data=res.data;
       if(res.status>=400){
-        var em=(data&&data.error&&(data.error.message||data.error))||('HTTP '+res.status);
+        var em=(data&&data.error&&(data.error.message||data.error))
+              || (data&&data.message)  /* Cerebras & friends: flat {message,type,code} */
+              || ('HTTP '+res.status);
         if(typeof em!=='string') em=JSON.stringify(em).slice(0,120);
         var e=new Error(em); e.httpStatus=res.status; throw e;
       }
@@ -5802,7 +5940,35 @@ function openLbox(src){ el('lboxImg').src=src; el('lightbox').classList.add('ope
 function closeLbox(){ el('lightbox').classList.remove('open'); document.body.style.overflow=''; }
 
 /* SETTINGS */
+var PROV_META = {
+  groq:     {label:'Groq \u00b7 Llama 3.3 70B', hint:'console.groq.com/keys \u2014 free, no card. Starts with gsk_', url:'https://console.groq.com/keys', ph:'gsk_...'},
+  cerebras: {label:'Cerebras \u00b7 Llama 3.3 70B', hint:'cloud.cerebras.ai \u2014 free, no card, ~1M tokens/day', url:'https://cloud.cerebras.ai', ph:'csk-...'},
+  github:   {label:'GitHub Models \u00b7 GPT-4o', hint:'github.com/settings/tokens \u2014 free with a GitHub account', url:'https://github.com/settings/tokens', ph:'ghp_...'},
+  gemini:   {label:'Google Gemini 2.5 Flash', hint:'aistudio.google.com \u2014 free tier covers 2.5 Flash (Pro/Flash-Lite are paid)', url:'https://aistudio.google.com/apikey', ph:'AIzaSy...'},
+  openrouter:{label:'OpenRouter \u00b7 many models', hint:'openrouter.ai/keys \u2014 free slots ~50/day', url:'https://openrouter.ai/keys', ph:'sk-or-...'},
+  mistral:  {label:'Mistral', hint:'console.mistral.ai \u2014 free prototyping tier', url:'https://console.mistral.ai/api-keys', ph:'...'},
+  anthropic:{label:'Claude (Anthropic)', hint:'console.anthropic.com \u2014 paid only, no free tier', url:'https://console.anthropic.com/settings/keys', ph:'sk-ant-...'}
+};
+/* Settings key rows are GENERATED from PROV_META, not hand-written HTML.
+   Previously they were hardcoded, so newly added providers silently had no
+   input at all and openSettings() looked them up with el(p+'Key') => null. */
+function renderKeyBoxes(){
+  var host=el('keyBoxes'); if(!host) return;
+  host.innerHTML = Object.keys(PROV_META).map(function(p){
+    var m=PROV_META[p], free = (p==='groq'||p==='cerebras'||p==='github'||p==='gemini');
+    return '<div class="key-box">'
+      +'<div class="key-box-name">'+m.label+(free?' <span style="font-size:9px;color:#4ADE80;border:1px solid rgba(74,222,128,.4);border-radius:999px;padding:1px 6px;margin-left:4px">no card</span>':'')
+      +' <span class="key-status ks-empty" id="'+p+'Status">not set</span></div>'
+      +'<div class="key-box-hint"><a href="'+m.url+'" target="_blank" rel="noopener">'+m.hint+'</a></div>'
+      +'<div class="key-row"><input class="k-inp" type="password" id="'+p+'Key" placeholder="'+m.ph+'">'
+      +'<button class="k-save" onclick="saveKey(\''+p+'\')">Save</button>'
+      +'<button class="k-clear" onclick="clearKey(\''+p+'\')">Clear</button>'
+      +'<button class="k-save" style="background:var(--teal)" onclick="testKey(\''+p+'\')">Test</button></div>'
+      +'</div>';
+  }).join('');
+}
 function openSettings(){
+  renderKeyBoxes();
   /* ---- UI simplification ----
      Provider choice and API keys are power-user territory: Smart Search works
      with no key at all, so for most people these sections are noise that makes
@@ -5819,7 +5985,7 @@ function openSettings(){
         if(/AI Mode|API Keys/i.test(t)) adv.push(sec);
       });
       if(adv.length){
-        var hasKey = ['gemini','groq','openrouter','mistral','anthropic'].some(function(x){ return lsGet('rwKey_'+x); });
+        var hasKey = ['groq','cerebras','github','gemini','openrouter','mistral','anthropic'].some(function(x){ return lsGet('rwKey_'+x); });
         var btn = document.createElement('button');
         btn.id='advToggle'; btn.className='tact';
         btn.style.cssText='width:100%;margin:4px 0 10px;font-size:12.5px';
@@ -5834,7 +6000,7 @@ function openSettings(){
       }
     }
   }, 0);
-  ['gemini','groq','openrouter','mistral','anthropic'].forEach(function(p){
+  ['groq','cerebras','github','gemini','openrouter','mistral','anthropic'].forEach(function(p){
     var inp=el(p+'Key'), stat=el(p+'Status'), val=lsGet('rwKey_'+p);
     if(inp) inp.value=val;
     if(stat){ stat.textContent = val?'set':'not set'; stat.className = 'key-status '+(val?'ks-set':'ks-empty'); }
@@ -6100,7 +6266,7 @@ function wipeSession(){
   /* clear everything tied to the logged-in identity */
   ['rwPro','rw_pro_uid','rw_pro_temp','rw_pro_temp_uid'].forEach(function(k){ localStorage.removeItem(k); });
   /* remove all stored AI provider keys */
-  ['gemini','groq','openrouter','mistral','anthropic'].forEach(function(p){ localStorage.removeItem('rwKey_'+p); });
+  ['groq','cerebras','github','gemini','openrouter','mistral','anthropic'].forEach(function(p){ localStorage.removeItem('rwKey_'+p); });
   activeProv='smart'; lsSet('rwProv','smart');
   isPro=false;
   try{ refreshProUI(); }catch(e){}
@@ -6260,6 +6426,11 @@ function tabGo(t){
 })();
 
 function openDrawer(){ el('drawer').classList.add('open'); el('drawerBk').classList.add('open'); }
+function drToggle(btn){
+  var grp=btn.parentElement;
+  document.querySelectorAll('.dr-grp.open').forEach(function(g){ if(g!==grp) g.classList.remove('open'); });
+  grp.classList.toggle('open');
+}
 function closeDrawer(){ el('drawer').classList.remove('open'); el('drawerBk').classList.remove('open'); var m=el('tb-more'); if(m)m.classList.remove('on'); }
 function drawerAccount(u){
   var box = el('drAcct'); if(!box) return;
@@ -6378,7 +6549,8 @@ function openCopilot(){
     ov.innerHTML='<div class="sheet" style="display:flex;flex-direction:column;max-height:92dvh">'
       +'<div class="sheet-head"><b>\ud83e\udded Travel Copilot</b><button class="x" onclick="closeCopilot()">\u2715</button></div>'
       +'<div id="cpLog" style="flex:1;overflow-y:auto;padding:4px 2px;min-height:120px"></div>'
-      +'<div style="display:flex;gap:6px;flex-wrap:wrap;margin:6px 0" id="cpChips"></div>'
+      +'<div id="cpModels" style="display:flex;gap:6px;flex-wrap:wrap;margin:8px 0 4px"></div>'
+      +'<div style="display:flex;gap:6px;flex-wrap:wrap;margin:2px 0 6px" id="cpChips"></div>'
       +'<div style="display:flex;gap:8px;align-items:flex-end">'
       +'<textarea id="cpInput" rows="1" placeholder="Type or speak your plan\u2026" style="flex:1;background:var(--bg3,#1A1A20);border:1px solid var(--b2,#2A2A36);border-radius:12px;padding:11px 12px;color:inherit;font:inherit;resize:none;outline:none"></textarea>'
       +'<button class="tact" id="cpMic" style="padding:11px 12px" onclick="copilotVoice()">\ud83c\udfa4</button>'
@@ -6396,81 +6568,279 @@ function openCopilot(){
     }).join('');
     cpBubble('Tell me your plan in one message \u2014 destination, dates, budget, what you need. I\u2019ll sort the pieces.','bot');
   }
-  ov.classList.add('open'); document.body.style.overflow='hidden';
+  cpModelChips('cpModels');
+  rwOverlayOpen('cpOverlay');
   setTimeout(function(){ var i=el('cpInput'); if(i) i.focus(); },150);
 }
-function closeCopilot(){ var o=el('cpOverlay'); if(o) o.classList.remove('open'); document.body.style.overflow=''; }
+function cpFocusHero(){
+  try{ tabGo('home'); }catch(e){}
+  var h=el('copilotHero'); if(!h) { openCopilot(); return; }
+  h.scrollIntoView({behavior:'smooth', block:'center'});
+  setTimeout(function(){ var i=el('heroInput'); if(i) i.focus(); }, 420);
+}
+function closeCopilot(){ rwOverlayClose('cpOverlay'); }
+var _cpTargetLog='cpLog';
 function cpBubble(html, who){
-  var log=el('cpLog'); if(!log) return;
+  var log=el(_cpTargetLog)||el('cpLog'); if(!log) return;
   var b=document.createElement('div');
   b.style.cssText = who==='me'
     ? 'margin:6px 0 6px 40px;background:linear-gradient(135deg,var(--gold,#E8BA6C),var(--gold2,#C8913E));color:#0A0A0C;border-radius:14px 14px 4px 14px;padding:10px 12px;font-size:12.5px'
     : 'margin:6px 40px 6px 0;background:var(--bg2,#12121C);border:1px solid var(--b2,#2A2A36);border-radius:14px 14px 14px 4px;padding:10px 12px;font-size:12.5px;line-height:1.55';
-  b.innerHTML=html; log.appendChild(b); log.scrollTop=log.scrollHeight;
+  b.innerHTML=html;
+  /* Hero log sits ABOVE the input, so newest goes at the BOTTOM of that log —
+     i.e. directly above the box where the eye and thumb already are. */
+  log.appendChild(b);
+  if(_cpTargetLog==='heroLog'){ log.scrollTop=log.scrollHeight; } else { log.scrollTop=log.scrollHeight; }
   return b;
 }
 var _cpRec=null;
-function copilotVoice(){
+function copilotVoiceHero(){ rwVoiceStart('heroInput'); }
+var _rwVoiceTarget='heroInput';
+function rwVoiceStart(targetId){
+  _rwVoiceTarget = targetId || 'heroInput';
+  /* Inside the APK, Android WebView has NO Web Speech API — the mic looked
+     dead there while working fine in Chrome. Use the native bridge instead. */
+  if(window.RW && typeof RW.startVoice==='function'){
+    try{ RW.startVoice(); showToast('\ud83c\udfa4 Listening\u2026'); return; }catch(e){}
+  }
   var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if(!SR){ showToast('Voice input isn\u2019t supported in this browser \u2014 typing works!'); return; }
-  if(_cpRec){ try{_cpRec.stop();}catch(e){} _cpRec=null; el('cpMic').textContent='\ud83c\udfa4'; return; }
-  _cpRec = new SR(); _cpRec.lang='en-IN'; _cpRec.interimResults=false;
-  el('cpMic').textContent='\u23f9';
-  _cpRec.onresult=function(ev){ el('cpInput').value = ev.results[0][0].transcript; copilotSend(); };
-  _cpRec.onend=function(){ _cpRec=null; el('cpMic').textContent='\ud83c\udfa4'; };
-  _cpRec.onerror=function(){ _cpRec=null; el('cpMic').textContent='\ud83c\udfa4'; showToast('Didn\u2019t catch that \u2014 try again or type'); };
-  try{ _cpRec.start(); }catch(e){ _cpRec=null; }
+  if(!SR){ showToast('Voice input isn\u2019t supported here \u2014 typing works!'); return; }
+  var rec=new SR(); rec.lang='en-IN'; rec.interimResults=false;
+  rec.onresult=function(ev){ rwVoiceResult(ev.results[0][0].transcript); };
+  rec.onerror=function(){ showToast('Didn\u2019t catch that \u2014 try again or type'); };
+  try{ rec.start(); showToast('\ud83c\udfa4 Listening\u2026'); }catch(e){}
+}
+/* Called by the native bridge (and by the web path above) */
+function rwVoiceResult(text){
+  var inp = el(_rwVoiceTarget) || el('heroInput'); if(!inp || !text) return;
+  inp.value = text;
+  copilotSend(_rwVoiceTarget==='heroInput');
+}
+function rwVoiceState(state, msg){
+  if(state==='error' && msg) showToast(msg);
+  if(state==='listening') showToast('\ud83c\udfa4 Listening\u2026');
 }
 /* ---- tier 2: deterministic parser (no key needed) ---- */
+var _cpHist = []; /* [{q,a}] capped — gives the AI real conversational memory */
+function cpModelChips(targetId){
+  var host = el(targetId); if(!host) return;
+  var provs = ['groq','cerebras','github','gemini','openrouter','mistral','anthropic'].filter(function(p){ return lsGet('rwKey_'+p); });
+  var cur = (typeof activeProv!=='undefined')? activeProv : 'smart';
+  var chips = [['smart','\u26a1 Delta 1.1']].concat(provs.map(function(p){ return [p, p.charAt(0).toUpperCase()+p.slice(1)]; }));
+  host.innerHTML = chips.map(function(c){
+    var on = cur===c[0];
+    return '<button onclick="cpSetModel(\'' + c[0] + '\')" style="font-size:10px;padding:4px 10px;border-radius:999px;border:1px solid '
+      +(on?'var(--gold,#E8BA6C)':'var(--b2,#2A2A36)')+';background:'+(on?'rgba(232,186,108,.14)':'transparent')
+      +';color:'+(on?'var(--gold,#E8BA6C)':'var(--t3)')+';cursor:pointer">'+c[1]+'</button>';
+  }).join('') + (provs.length? '' : '<button onclick="openWizard()" style="font-size:10px;padding:4px 10px;border-radius:999px;border:1px dashed var(--b2,#2A2A36);background:none;color:var(--t3);cursor:pointer">+ free AI key</button>');
+}
+function cpSetModel(p){
+  activeProv=p; lsSet('rwProv',p);
+  cpModelChips('cpModels'); cpModelChips('heroModels');
+  showToast(p==='smart' ? '\u26a1 RoamWise Delta 1.1 \u2014 our built-in engine: live data + your destination library (not a language model)' : 'Using '+p);
+}
+function cpDbFind(text){
+  var lower=' '+String(text).toLowerCase()+' ';
+  var hit=null;
+  DB.forEach(function(d){ if(!hit && lower.indexOf(' '+d.name.toLowerCase())>-1) hit=d; });
+  if(!hit){ /* fuzzy: any 5+char token that starts a DB name — scales as DB grows */
+    var toks=String(text).toLowerCase().match(/[a-z]{5,}/g)||[];
+    DB.forEach(function(d){ if(hit) return; var n=d.name.toLowerCase();
+      toks.forEach(function(tk){ if(!hit && n.indexOf(tk)===0) hit=d; }); });
+  }
+  return hit;
+}
+function cpSmartAnswer(t){
+  var MO=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  var vs=t.match(/(.+?)\s+(?:vs\.?|versus)\s+(.+)/i);
+  if(vs){
+    var a=cpDbFind(vs[1]), b=cpDbFind(vs[2]);
+    if(a&&b&&a!==b){
+      function one(d){ return '<b>'+d.name+'</b> ('+d.country+') \u2014 $'+d.cost.budget+'\u2013'+d.cost.mid+'/wk \u00b7 best: '+(d.bestM||[]).map(function(m){return MO[m-1];}).join(',')+' \u00b7 '+d.visa.type; }
+      return one(a)+'<br><br>'+one(b)+'<br><br>\ud83e\udd77 Lower cost: <b>'+(a.cost.mid<=b.cost.mid?a.name:b.name)+'</b>';
+    }
+  }
+  var hit=cpDbFind(t);
+  if(hit){
+    var best=(hit.bestM||[]).map(function(m){return MO[m-1]||m;}).join(', ');
+    var low=hit.crowd? MO[hit.crowd.indexOf(Math.min.apply(null,hit.crowd))] : null;
+    var out='<b>'+hit.name+'</b> \u00b7 '+hit.country+' ('+hit.region+')';
+    if(hit.cost) out+='<br>\ud83d\udcb0 Weekly: $'+hit.cost.budget+' budget \u00b7 $'+hit.cost.mid+' mid \u00b7 $'+hit.cost.luxury+' luxury';
+    var dm=t.match(/(\d+)\s*[- ]?\s*day/i);
+    if(dm && hit.cost){ var nd=parseInt(dm[1],10); out+='<br>\ud83d\udcc6 '+nd+' days \u2248 $'+Math.round(hit.cost.budget/7*nd)+'\u2013'+Math.round(hit.cost.mid/7*nd)+' (\u2248\u20b9'+Math.round(hit.cost.budget/7*nd*88).toLocaleString('en-IN')+'\u2013'+Math.round(hit.cost.mid/7*nd*88).toLocaleString('en-IN')+')'; }
+    if(hit.visa) out+='<br>\ud83d\udec2 '+hit.visa.type+' \u00b7 '+hit.visa.cost+' \u00b7 '+hit.visa.days+' days'+(hit.visa.note? ' \u2014 '+hit.visa.note:'');
+    if(best) out+='<br>\ud83d\udcc5 Best months: '+best;
+    if(low) out+=' \u00b7 quietest: <b>'+low+'</b>';
+    return out;
+  }
+  return null;
+}
 function cpParseRegex(t){
   var out={dest:null,to:null,days:null,budget:null,wants:[]};
   var lower=' '+t.toLowerCase()+' ';
-  var m=t.match(/(?:\u20b9|rs\.?\s?|inr\s?)\s?([\d,]{3,})/i); if(m) out.budget=parseInt(m[1].replace(/,/g,''),10);
-  m=t.match(/(\d+)\s*[- ]?\s*day/i); if(m) out.days=parseInt(m[1],10);
-  DB.forEach(function(d){ if(lower.indexOf(' '+d.name.toLowerCase())>-1 && !out.dest) out.dest=d.name; });
-  if(!out.dest){ m=t.match(/(?:in|to|reaching|at|visit(?:ing)?)\s+([A-Z][a-zA-Z]{2,}(?:\s[A-Z][a-zA-Z]{2,})?)/); if(m) out.dest=m[1]; }
-  m=t.match(/(?:back to|to)\s+([A-Z][a-zA-Z]{2,})\b(?=[^]*?(?:bus|volvo|train|flight))/);
-  if(!m) m=t.match(/(?:bus|volvo|train|flight)[^.]*?\bto\s+([A-Z][a-zA-Z]{2,})/i);
-  if(m && m[1] && m[1]!==out.dest) out.to=m[1];
-  if(/rain|weather|forecast|temperature/i.test(t)) out.wants.push('weather');
+  /* budget: 12000 | 12,000 | Rs12000 | ₹12,000 | 8k | under 15k */
+  var m=t.match(/(?:\u20b9|rs\.?\s?|inr\s?)?\s?([\d,]{2,})\s?(k\b|thousand)?/i);
+  var mk=t.match(/(?:under|below|within|budget(?: of)?|max)?\s*(?:\u20b9|rs\.?|inr)?\s*(\d{1,3})\s*k\b/i);
+  if(mk) out.budget=parseInt(mk[1],10)*1000;
+  else { var mb=t.match(/(?:\u20b9|rs\.?\s?|inr\s?)\s?([\d,]{3,})|(?:under|below|within|budget(?: of)?|max)\s*(?:\u20b9|rs\.?|inr)?\s*([\d,]{3,})/i);
+         if(mb) out.budget=parseInt((mb[1]||mb[2]).replace(/,/g,''),10); }
+  var dm=t.match(/(\d+)\s*[- ]?\s*(?:day|night|din)/i); if(dm) out.days=parseInt(dm[1],10);
+  /* destination: DB first (incl. fuzzy), then preposition, then leftover-token */
+  var hit=cpDbFind(t); if(hit) out.dest=hit.name;
+  if(!out.dest){ var mp=t.match(/(?:in|to|reaching|at|visit(?:ing)?|for|around|near)\s+([A-Za-z][a-zA-Z\u00C0-\u024F]{2,}(?:\s[A-Z][a-zA-Z]{2,})?)/);
+    if(mp) out.dest=mp[1].trim(); }
+  if(!out.dest){
+    /* strip filler + numbers; whatever real word remains is the place —
+       this is what makes "Manali 5 day plan under 8k inr" resolve. */
+    var STOP=/^(plan|planning|trip|tour|days?|nights?|budget|under|below|within|max|itinerary|itineraries|for|the|a|an|and|with|my|me|please|need|want|going|go|visit|visiting|show|find|make|create|give|about|cost|costs|price|rs|inr|rupees|k|thousand|weather|rain|cafe|cafes|bus|train|flight|volvo|hotel|stay|stays|from|to|in|at|on|next|week|weekend|tomorrow|today|is|are|it|what|how|much|good|best|place|places)$/i;
+    var toks=(t.match(/[A-Za-z\u00C0-\u024F]{3,}/g)||[]).filter(function(w){ return !STOP.test(w); });
+    if(toks.length) out.dest=toks[0];
+  }
+  var mto=t.match(/(?:back to|return to|bus|volvo|train|flight|cab)[^.]*?\bto\s+([A-Za-z][a-zA-Z]{2,})/i);
+  if(mto && mto[1] && mto[1].toLowerCase()!==String(out.dest||'').toLowerCase()) out.to=mto[1];
+  if(/rain|weather|forecast|temperature|climate/i.test(t)) out.wants.push('weather');
   if(/caf|coffee|work from|wifi/i.test(t)) out.wants.push('cafes');
-  if(/bus|volvo|train|flight|transport/i.test(t)) out.wants.push('transport');
-  if(/plan|itinerar|shift|days? in/i.test(t)) out.wants.push('plan');
+  if(/bus|volvo|train|flight|transport|cab|taxi/i.test(t)) out.wants.push('transport');
+  if(/plan|itinerar|shift|days?|schedule|trip/i.test(t) || out.days) out.wants.push('plan');
   if(/notify|companion|share|tell (?:my|the)/i.test(t)) out.wants.push('share');
+  if(/hotel|stay|hostel|resort|room/i.test(t)) out.wants.push('stay');
   if(out.budget!=null) out.wants.push('budget');
+  if(!out.wants.length && out.dest) out.wants.push('plan');
   return out;
 }
-function copilotSend(){
-  var inp=el('cpInput'); var t=(inp.value||'').trim(); if(!t) return;
-  inp.value=''; cpBubble(t.replace(/[<>]/g,''),'me');
+/* ---- WORLD PLACE RESOLVER ----
+   An embedded gazetteer of every country/city/village would be hundreds of MB —
+   impossible in a single-file app. Instead we resolve ANY place live through
+   Open-Meteo's geocoder (free, keyless, worldwide, includes villages) and cache
+   each hit in localStorage, so the app effectively knows the whole map while
+   staying a few hundred KB. Curated DB entries still win for depth. */
+var RW_PLACE_CACHE={};
+async function rwResolvePlace(name){
+  if(!name) return null;
+  var key='rw_geo_'+String(name).toLowerCase().replace(/[^a-z0-9]/g,'');
+  if(RW_PLACE_CACHE[key]) return RW_PLACE_CACHE[key];
+  try{ var c=JSON.parse(lsGet(key)||'null'); if(c){ RW_PLACE_CACHE[key]=c; return c; } }catch(e){}
+  if(!navigator.onLine) return null;
+  try{
+    var fix = (typeof CITY_NAME_FIXUPS!=='undefined') ? CITY_NAME_FIXUPS[String(name).toLowerCase().replace(/[^a-z]/g,'')] : null;
+    var q = fix || name;
+    var g = await fetch('https://geocoding-api.open-meteo.com/v1/search?count=8&language=en&name='+encodeURIComponent(q)).then(function(r){return r.json();});
+    var list = g.results||[]; if(!list.length) return null;
+    /* Rank properly: the geocoder happily returns fuzzy foreign matches first
+       ("Kufri" -> a village in Türkiye). Exact name match wins, then bigger
+       population — that keeps real destinations ahead of coincidences. */
+    var qn = String(q).toLowerCase().trim();
+    /* Ranking, in order: exact name match, then home country, then population.
+       The home-country tiebreak matters because the dataset carries namesakes
+       with NO population data ("Kufri" exists in Pakistan and in Himachal) —
+       and for an India-first travel app the Indian one is the right default. */
+    var HOME = (typeof RW_HOME_CC!=='undefined' && RW_HOME_CC) ? RW_HOME_CC : 'IN';
+    list.sort(function(a,b){
+      var ax = (String(a.name).toLowerCase()===qn)?0:1, bx = (String(b.name).toLowerCase()===qn)?0:1;
+      if(ax!==bx) return ax-bx;
+      var ah = (a.country_code===HOME)?0:1, bh = (b.country_code===HOME)?0:1;
+      if(ah!==bh) return ah-bh;
+      return (b.population||0)-(a.population||0);
+    });
+    var h = list[0];
+    var place = {name:h.name, country:h.country||'', cc:h.country_code||'', admin:h.admin1||'',
+                 lat:h.latitude, lon:h.longitude, pop:h.population||null, elev:h.elevation||null, tz:h.timezone||''};
+    RW_PLACE_CACHE[key]=place; lsSet(key, JSON.stringify(place));
+    return place;
+  }catch(e){ return null; }
+}
+function copilotSend(fromHero){
+  var inp = el(fromHero? 'heroInput' : 'cpInput');
+  var t=(inp && inp.value||'').trim(); if(!t) return;
+  inp.value='';
+  if(fromHero){
+    /* Conversation flows vertically right on the page — no popup. */
+    _cpTargetLog='heroLog';
+    var hl=el('heroLog'); if(hl) hl.style.display='block';
+  } else { _cpTargetLog='cpLog'; }
+  cpBubble(t.replace(/[<>]/g,''),'me');
+  /* App navigation intents: "open settings", "go to store", "show my trips"… */
+  var NAV=[[/settings|api key/i,'Settings',function(){openSettings();}],
+    [/store|merch/i,'the Store',function(){tabGo('home');var st=el('store');if(st){var fh=st.querySelector('.fold-head');if(fh&&!fh.classList.contains('open'))fh.click();st.scrollIntoView({behavior:'smooth'});}}],
+    [/music/i,'your Music',function(){openMusic();}],
+    [/profile|account/i,'your Profile',function(){openProfile();}],
+    [/my trips|vault|offline trip/i,'My Trips',function(){openVault();}],
+    [/saved/i,'Saved items',function(){showSaved();}],
+    [/\bpro\b|upgrade|subscri/i,'Pro plans',function(){openPay();}],
+    [/wizard|free (ai )?key/i,'the AI key wizard',function(){openWizard();}],
+    [/trek/i,'Trek Vault',function(){tabGo('treks');}],
+    [/explore/i,'Explore',function(){tabGo('explore');}]];
+  if(/\b(open|go to|goto|take me|show( me)?|launch)\b/i.test(t)){
+    for(var ni=0;ni<NAV.length;ni++){
+      if(NAV[ni][0].test(t)){
+        cpBubble('\ud83d\udc49 Opening '+NAV[ni][1]+'\u2026','bot');
+        try{ NAV[ni][2](); }catch(e){}
+        try{ track('copilot_uses'); }catch(e){}
+        return;
+      }
+    }
+  }
   var thinking=cpBubble('\u2026','bot');
+  var intents = cpParseRegex(t);
   var hasKey = (typeof activeProv!=='undefined') && activeProv!=='smart' && lsGet('rwKey_'+activeProv);
   if(hasKey){
-    var prompt='Extract travel intents from this message. Return ONLY JSON, no prose: '
-      +'{"dest":"main destination or null","to":"onward/return city or null","days":number|null,'
-      +'"budget":number in INR|null,"wants":["weather","cafes","transport","plan","share","budget"] (only those clearly requested)}. '
-      +'Message: '+t;
-    aiCall(prompt, 300, function(err, txt){
-      var intents=null;
-      if(txt){ try{ intents=JSON.parse(txt.replace(/```json|```/g,'').trim()); }catch(x){} }
-      cpExecute(intents || cpParseRegex(t), thinking, t);
+    /* Real conversation: persona + history + the new message. Any topic is
+       fine — the model answers naturally; travel intents ADDITIONALLY get
+       action links appended below the answer. */
+    var hist=_cpHist.slice(-6).map(function(h){ return 'User: '+h.q+'\nCopilot: '+h.a; }).join('\n');
+    var prompt='You are RoamWise Copilot \u2014 a sharp, friendly travel companion built into a travel-planning app. '
+      +'Answer the user helpfully and concisely (under 120 words). Any topic is allowed; bring it back to travel when natural. No markdown headers.\n'
+      +(hist? 'Conversation so far:\n'+hist+'\n':'')+'User: '+t+'\nCopilot:';
+    aiCall(prompt, 400, function(err, txt){
+      var answer = (txt||'').trim() || 'Hmm, the AI didn\u2019t answer \u2014 trying my built-in engine instead.';
+      cpFinish(thinking, answer.replace(/</g,'&lt;'), intents, t);
     });
   } else {
-    cpExecute(cpParseRegex(t), thinking, t);
+    var kb = cpSmartAnswer(t);
+    var canned = kb || (intents.wants.length || intents.dest ? '' :
+      'My built-in engine covers destinations, weather, budgets, transport and sharing. For open-ended conversation, add a free AI key \u2014 takes 2 minutes: <button class="tact" style="font-size:11px;padding:4px 10px" onclick="openWizard()">Get a free key</button>');
+    cpFinish(thinking, canned, intents, t);
   }
 }
-async function cpExecute(it, thinkingBubble, raw){
+async function cpFinish(bubble, answerHTML, intents, raw){
+  var actions = await cpActionsHTML(intents);
+  var parts=[]; if(answerHTML) parts.push(answerHTML);
+  if(actions.length) parts.push(actions.join('<br><br>'));
+  if(!parts.length) parts.push('I can handle destinations, dates, budgets, weather, cafes, buses/trains and sharing \u2014 try: \u201cPlan 4 days in Udaipur under \u20b912,000.\u201d');
+  bubble.innerHTML = parts.join('<hr style="border:none;border-top:1px dashed var(--b2,#2A2A36);margin:10px 0">');
+  var log=el(_cpTargetLog)||el('cpLog');
+  if(log) log.scrollTop=log.scrollHeight;
+  _cpHist.push({q:raw, a:bubble.textContent.slice(0,300)}); if(_cpHist.length>8) _cpHist.shift();
+  try{ track('copilot_uses'); }catch(e){}
+}
+function cpGoPlan(dest, days){
+  closeCopilot();
+  var di=el('destInput'); if(di) di.value=dest;
+  if(days){ var ds=el('days'); if(ds){ var opt=[].slice.call(ds.options||[]).filter(function(o){ return parseInt(o.value,10)===parseInt(days,10); })[0]; if(opt) ds.value=opt.value; } }
+  tabGo('plan');
+  try{ runSearch(); }catch(e){}
+}
+async function cpActionsHTML(it){
   var H=[];
-  var dbHit = it.dest ? DB.filter(function(d){ return d.name.toLowerCase()===String(it.dest).toLowerCase(); })[0] : null;
-  var lat = dbHit? dbHit.lat : null, lon = dbHit? dbHit.lon : null;
-  if(it.dest && lat==null && navigator.onLine){
-    try{
-      var fix = CITY_NAME_FIXUPS[String(it.dest).toLowerCase().replace(/[^a-z]/g,'')]; if(fix) it.dest=fix;
-      var g=await fetch('https://geocoding-api.open-meteo.com/v1/search?count=1&name='+encodeURIComponent(it.dest)).then(function(r){return r.json();});
-      var hit=(g.results||[])[0]; if(hit){ lat=hit.latitude; lon=hit.longitude; }
-    }catch(e){}
+  var dbHit = it.dest ? cpDbFind(String(it.dest)) : null;
+  var lat = dbHit? dbHit.lat : null, lon = dbHit? dbHit.lon : null, geo=null;
+  if(it.dest && lat==null){
+    geo = await rwResolvePlace(it.dest);
+    if(geo){ lat=geo.lat; lon=geo.lon; it.dest=geo.name; }
   }
-  if(it.dest) H.push('<b>\ud83d\udccd '+String(it.dest).replace(/[<>]/g,'')+'</b>'+(dbHit? ' \u00b7 '+dbHit.country+' \u00b7 in our destination library':''));
+  if(it.dest){
+    var head='<b>\ud83d\udccd '+String(it.dest).replace(/[<>]/g,'')+'</b>';
+    if(dbHit) head+=' \u00b7 '+dbHit.country+' \u00b7 <span style="color:var(--gold2,#C8913E)">in your library</span>';
+    else if(geo){
+      head+=' \u00b7 '+[geo.admin,geo.country].filter(Boolean).join(', ');
+      var bits=[];
+      if(geo.pop) bits.push(geo.pop.toLocaleString('en-IN')+' people');
+      if(geo.elev) bits.push(Math.round(geo.elev)+'m elevation');
+      if(geo.tz) bits.push(geo.tz);
+      if(bits.length) head+='<br><span style="font-size:11px;color:var(--t3)">'+bits.join(' \u00b7 ')+'</span>';
+    }
+    H.push(head);
+  }
   /* weather */
   if(it.wants.indexOf('weather')>-1){
     if(lat!=null && navigator.onLine){
@@ -6495,6 +6865,10 @@ async function cpExecute(it, thinkingBubble, raw){
     var dst = it.to || 'Delhi';
     H.push('\ud83d\ude8c <a style="color:var(--gold2,#C8913E)" target="_blank" rel="noopener" href="https://www.rome2rio.com/s/'+encodeURIComponent(it.dest)+'/'+encodeURIComponent(dst)+'">All routes '+it.dest+' \u2192 '+dst+'</a> \u00b7 <a style="color:var(--gold2,#C8913E)" target="_blank" rel="noopener" href="https://www.redbus.in/">redBus (Volvo/sleeper) \u2192</a>');
   }
+  /* stays */
+  if(it.wants.indexOf('stay')>-1 && it.dest){
+    H.push('\ud83c\udfe8 <a style="color:var(--gold2,#C8913E)" target="_blank" rel="noopener" href="'+stayUrl(it.dest)+'">Compare stays on Booking</a> \u00b7 <a style="color:var(--gold2,#C8913E)" target="_blank" rel="noopener" href="'+stayUrlAgoda(it.dest)+'">Agoda</a>');
+  }
   /* budget */
   if(it.budget!=null){
     var line='\ud83d\udcb0 \u20b9'+it.budget.toLocaleString('en-IN');
@@ -6504,17 +6878,17 @@ async function cpExecute(it, thinkingBubble, raw){
   }
   /* plan */
   if(it.wants.indexOf('plan')>-1 && it.dest){
-    H.push('\ud83d\uddfa '+(dbHit? 'Full day-by-day itinerary, crowd data and PDF live on the destination card:' : 'Search it in the app for the full planner:')
-      +' <button class="tact" style="font-size:11px;padding:5px 10px;margin-left:4px" onclick="closeCopilot();ssOpen()">Open '+String(it.dest).replace(/[<>]/g,'')+' \u2192</button>');
+    /* Hand off WITH the data: destination goes straight into the Plan tab's
+       search — works for DB destinations and unknown ones alike. */
+    H.push('\ud83d\uddfa Build the day-by-day plan '+(it.days? '('+it.days+' days) ':'')+'with budget breakdown, packing list and <b>PDF download</b>:'
+      +'<br><button class="tact" style="font-size:12px;padding:7px 12px;margin-top:6px;font-weight:800" onclick="cpGoPlan(\''+String(it.dest).replace(/[<>']/g,'')+'\','+(it.days||0)+')">\ud83d\udcc5 Plan '+String(it.dest).replace(/[<>]/g,'')+' \u2192</button>');
   }
   /* share */
   if(it.wants.indexOf('share')>-1){
     var summary='RoamWise plan: '+(it.dest||'trip')+(it.days? ' \u00b7 '+it.days+' days':'')+(it.budget? ' \u00b7 under \u20b9'+it.budget.toLocaleString('en-IN'):'')+' \u2014 roamwise.co.in';
     H.push('\ud83d\udc65 <a style="color:var(--gold2,#C8913E)" target="_blank" rel="noopener" href="https://wa.me/?text='+encodeURIComponent(summary)+'">Send this plan to companions on WhatsApp \u2192</a>');
   }
-  if(!H.length) H.push('I can handle destinations, dates, budgets, weather, cafes, buses/trains and sharing \u2014 try: \u201cPlan 4 days in Udaipur under \u20b912,000, rain check, and a bus back to Jaipur.\u201d');
-  thinkingBubble.innerHTML = H.join('<br><br>');
-  try{ track('copilot_uses'); }catch(e){}
+  return H;
 }
 
 /* ==================== TRIP VAULT — offline itinerary access ====================
@@ -6540,6 +6914,25 @@ function saveTripOffline(){
   try{ track('trip_saved'); }catch(e){}
   try{ xpAdd(10,'Trip saved for offline'); }catch(e){}
 }
+/* --- Overlay history stack ---
+   Android's back button was leaving the app because overlays never touched
+   history. Each open pushes a state; back pops it and closes the top overlay. */
+var _rwOvStack=[];
+function rwOverlayOpen(id, closeFn){
+  var ov=el(id); if(!ov) return;
+  ov.classList.add('open'); document.body.style.overflow='hidden';
+  _rwOvStack.push({id:id, close:closeFn});
+  try{ history.pushState({rwOverlay:id}, ''); }catch(e){}
+}
+function rwOverlayClose(id){
+  var ov=el(id); if(ov) ov.classList.remove('open');
+  _rwOvStack = _rwOvStack.filter(function(o){ return o.id!==id; });
+  if(!_rwOvStack.length) document.body.style.overflow='';
+}
+window.addEventListener('popstate', function(){
+  var top=_rwOvStack.pop();
+  if(top){ var ov=el(top.id); if(ov) ov.classList.remove('open'); if(!_rwOvStack.length) document.body.style.overflow=''; }
+});
 function openVault(){
   var list = vaultGet();
   var ov = el('vaultOverlay');
@@ -6548,7 +6941,7 @@ function openVault(){
     ov.id='vaultOverlay'; ov.className='overlay';
     ov.innerHTML='<div class="sheet"><div class="sheet-head"><b>\u2708\ufe0f My Trips \u2014 offline</b>'
       +'<button class="x" onclick="closeVault()">\u2715</button></div>'
-      +'<div id="vaultBody" style="padding:4px 2px 20px"></div></div>';
+      +'<div id="vaultBody" style="padding:8px 2px 16px;overflow-y:auto;flex:1 1 auto;min-height:0"></div></div>';
     document.body.appendChild(ov);
   }
   var b = el('vaultBody');
@@ -6569,9 +6962,9 @@ function openVault(){
         +'</div></div></div>';
     }).join('');
   }
-  ov.classList.add('open'); document.body.style.overflow='hidden';
+  rwOverlayOpen('vaultOverlay');
 }
-function closeVault(){ var o=el('vaultOverlay'); if(o){ o.classList.remove('open'); } document.body.style.overflow=''; }
+function closeVault(){ rwOverlayClose('vaultOverlay'); }
 function deleteVaultTrip(id){
   vaultSave(vaultGet().filter(function(t){ return t.id!==id; }));
   openVault(); showToast('Removed');
@@ -6850,6 +7243,216 @@ function copyText(t){
         +'<button onclick="rwPwaClose()" style="background:none;border:none;color:#8A8880;font-size:16px;cursor:pointer;padding:4px">\u2715</button>');
     }, 4000);
   }
+})();
+
+
+
+/* ==================== LIVE WORLD MAP (tap anywhere) ====================
+   Google Maps JS and MapMyIndia both require an API key tied to a billing
+   account — a recurring cost with a traffic cliff. Leaflet + OpenStreetMap
+   tiles are free, keyless and unlimited for normal app use, so the map ships
+   today instead of waiting on funding. Tap any point on Earth and the panel
+   fills with place, country, elevation, live weather and one-tap planning. */
+var _rwMap=null, _rwMarker=null;
+function openMapExplorer(){
+  /* Inline, not a popup: the map lives in the page so scrolling, back-button
+     and the rest of the app keep working around it. */
+  try{ tabGo('home'); }catch(e){}
+  var sec=el('mapSection');
+  if(!sec){
+    sec=document.createElement('section');
+    sec.id='mapSection'; sec.className='xsec v v-home';
+    sec.innerHTML='<div class="xsec-head"><h2 class="xsec-title">\ud83d\uddfa\ufe0f Live <em>map</em></h2></div>'
+      +'<p class="xsec-sub">Tap anywhere on Earth \u2014 place, elevation, live weather and a plan link.</p>'
+      +'<div id="rwMap" style="height:52vh;min-height:280px;border-radius:16px;overflow:hidden;background:#0E1018;border:1px solid var(--b2,#2A2A36)"></div>'
+      +'<div id="rwMapInfo" style="padding:12px 2px 4px;font-size:12.5px;color:var(--t2);line-height:1.6">Tap a spot on the map to inspect it.</div>';
+    var host=el('copilotHero');
+    if(host && host.parentNode) host.parentNode.insertBefore(sec, host.nextSibling);
+    else document.body.appendChild(sec);
+  }
+  sec.scrollIntoView({behavior:'smooth', block:'start'});
+  rwEnsureLeaflet(function(ok){
+    if(!ok){ el('rwMapInfo').innerHTML='Map needs an internet connection \u2014 your saved trips still work offline.'; return; }
+    if(!_rwMap){
+      _rwMap = L.map('rwMap', {zoomControl:true, attributionControl:true}).setView([22.9,79.5], 4);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {maxZoom:18, attribution:'\u00a9 OpenStreetMap'}).addTo(_rwMap);
+      _rwMap.on('click', function(e){ rwMapPoint(e.latlng.lat, e.latlng.lng); });
+    }
+    setTimeout(function(){ try{ _rwMap.invalidateSize(); }catch(e){} }, 250);
+  });
+}
+function closeMapExplorer(){ /* inline section — nothing to close */ }
+function rwEnsureLeaflet(cb){
+  if(window.L && window.L.map) return cb(true);
+  if(!navigator.onLine) return cb(false);
+  var css=document.createElement('link'); css.rel='stylesheet';
+  css.href='https://unpkg.com/leaflet@1.9.4/dist/leaflet.css'; document.head.appendChild(css);
+  var js=document.createElement('script'); js.src='https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+  js.onload=function(){ cb(true); }; js.onerror=function(){ cb(false); };
+  document.head.appendChild(js);
+}
+async function rwMapPoint(lat, lon){
+  var info=el('rwMapInfo'); if(!info) return;
+  info.innerHTML='\u23f3 Reading that spot\u2026';
+  try{ if(_rwMarker) _rwMap.removeLayer(_rwMarker); _rwMarker=L.marker([lat,lon]).addTo(_rwMap); }catch(e){}
+  var name=null, country='', admin='', elev=null;
+  try{
+    /* Reverse lookup via Open-Meteo's own geocoder (keyless): find the nearest
+       named place by searching around the tapped coordinates. */
+    var w = await fetch('https://api.open-meteo.com/v1/forecast?latitude='+lat+'&longitude='+lon
+      +'&current=temperature_2m,precipitation,weather_code&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max&forecast_days=3&timezone=auto').then(function(r){return r.json();});
+    elev = w.elevation;
+    var rev = await fetch('https://nominatim.openstreetmap.org/reverse?format=jsonv2&zoom=10&lat='+lat+'&lon='+lon, {headers:{'Accept':'application/json'}}).then(function(r){return r.json();}).catch(function(){return null;});
+    if(rev && rev.address){
+      name = rev.address.city||rev.address.town||rev.address.village||rev.address.county||rev.address.state||rev.name||null;
+      admin = rev.address.state||''; country = rev.address.country||'';
+    }
+    var H='<div style="font-weight:800;font-size:14px;color:var(--t1)">\ud83d\udccd '+(name? String(name).replace(/[<>]/g,'') : lat.toFixed(3)+', '+lon.toFixed(3))+'</div>';
+    if(admin||country) H+='<div style="font-size:11.5px;color:var(--t3)">'+[admin,country].filter(Boolean).join(', ')+'</div>';
+    var bits=[];
+    if(elev!=null) bits.push(Math.round(elev)+'m elevation');
+    if(w.timezone) bits.push(w.timezone);
+    if(w.current) bits.push('now '+Math.round(w.current.temperature_2m)+'\u00b0C');
+    if(bits.length) H+='<div style="font-size:11.5px;color:var(--t3);margin-top:2px">'+bits.join(' \u00b7 ')+'</div>';
+    if(w.daily && w.daily.time){
+      H+='<div style="display:flex;gap:10px;margin-top:8px">'+w.daily.time.map(function(d,i){
+        var rain=w.daily.precipitation_probability_max[i];
+        return '<div style="text-align:center"><div style="font-size:9.5px;color:var(--t3)">'+new Date(d).toLocaleDateString('en-IN',{weekday:'short'})+'</div>'
+          +'<div style="font-size:12px;font-weight:700">'+Math.round(w.daily.temperature_2m_max[i])+'\u00b0</div>'
+          +'<div style="font-size:9px;color:'+(rain>=40?'#5CC8FF':'var(--t3)')+'">'+(rain!=null?rain+'%':'')+'</div></div>';
+      }).join('')+'</div>';
+    }
+    var q = name || (lat.toFixed(3)+','+lon.toFixed(3));
+    H+='<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">'
+      +'<button class="tact" style="font-size:11.5px;padding:7px 11px;font-weight:800" onclick="cpGoPlan(\''+String(q).replace(/'/g,'')+'\')">\ud83d\udcc5 Plan this place</button>'
+      +'<a class="tact" style="font-size:11.5px;padding:7px 11px;text-decoration:none" target="_blank" rel="noopener" href="https://www.google.com/maps/search/'+encodeURIComponent('things to do in '+q)+'">\ud83c\udfaf Things to do</a>'
+      +'<a class="tact" style="font-size:11.5px;padding:7px 11px;text-decoration:none" target="_blank" rel="noopener" href="'+stayUrl(q)+'">\ud83c\udfe8 Stays</a>'
+      +'</div>';
+    info.innerHTML=H;
+  }catch(e){ info.innerHTML='Couldn\u2019t read that spot \u2014 try tapping again.'; }
+}
+
+/* ==================== LIVING THEMES — season, time & festival aware =========
+   16 base themes picked from (season x time-of-day) + Indian festival windows,
+   each with a background gradient and a live particle effect (rain in monsoon,
+   snow on winter nights, petals in spring, diyas at Diwali, tricolor on Aug 15,
+   confetti at Holi/New Year...). Canvas is fixed, pointer-transparent, capped
+   at ~80 particles, pauses when the tab hides, and fully disables under
+   prefers-reduced-motion. Manual override survives in rw_theme_mode. */
+var RW_THEMES = {
+  winter_day:   {bg:'linear-gradient(180deg,#0A0E16,#0E1420 60%,#101826)', fx:'snow',    tint:'#9CC4E4'},
+  winter_night: {bg:'linear-gradient(180deg,#05070D,#0A0F1A)',             fx:'snow',    tint:'#7FA8D0'},
+  summer_day:   {bg:'linear-gradient(180deg,#0C0A08,#141008)',             fx:'sunhaze', tint:'#F0C070'},
+  summer_night: {bg:'linear-gradient(180deg,#070609,#100C14)',             fx:'fireflies',tint:'#D9F99D'},
+  monsoon_day:  {bg:'linear-gradient(180deg,#080B10,#0C1219 60%,#0A1016)', fx:'rain',    tint:'#5CC8FF'},
+  monsoon_night:{bg:'linear-gradient(180deg,#05070B,#080D14)',             fx:'rain',    tint:'#3E8BB8'},
+  autumn_day:   {bg:'linear-gradient(180deg,#0D0A07,#150F08)',             fx:'leaves',  tint:'#E8A25C'},
+  autumn_night: {bg:'linear-gradient(180deg,#080605,#100B07)',             fx:'leaves',  tint:'#C07840'},
+  spring_day:   {bg:'linear-gradient(180deg,#0A0C0A,#0F140E)',             fx:'petals',  tint:'#F5A9C4'},
+  spring_night: {bg:'linear-gradient(180deg,#060806,#0B100B)',             fx:'petals',  tint:'#C77A9A'},
+  dawn:         {bg:'linear-gradient(180deg,#120C10,#1A0F12 50%,#0C0A10)', fx:'clouds',  tint:'#F0A0A0'},
+  dusk:         {bg:'linear-gradient(180deg,#100A14,#170D18 50%,#0A0810)', fx:'stars',   tint:'#C8A0F0'},
+  holi:         {bg:'linear-gradient(180deg,#0C080E,#120A14)',             fx:'confetti',tint:'#FF6EC7'},
+  diwali:       {bg:'linear-gradient(180deg,#0E0906,#160E06)',             fx:'diyas',   tint:'#FFB84D'},
+  independence: {bg:'linear-gradient(180deg,#081008,#0A0E14)',             fx:'tricolor',tint:'#FF9933'},
+  newyear:      {bg:'linear-gradient(180deg,#080810,#100A18)',             fx:'confetti',tint:'#E8BA6C'}
+};
+function rwPickTheme(now){
+  now = now || new Date();
+  var m=now.getMonth()+1, d=now.getDate(), h=now.getHours();
+  /* Festival windows (2026 dates; ranges keep them right for +/- a year) */
+  if(m===3 && d>=2 && d<=5) return 'holi';
+  if(m===11 && d>=6 && d<=13) return 'diwali';
+  if(m===8 && d>=14 && d<=16) return 'independence';
+  if((m===12 && d>=30) || (m===1 && d<=2)) return 'newyear';
+  if((m===12 && d>=23 && d<=26)) return 'winter_night';
+  if(h>=5 && h<8) return 'dawn';
+  if(h>=17 && h<20) return 'dusk';
+  var night = (h>=20 || h<5);
+  var season = (m>=12||m<=2)?'winter' : (m>=3&&m<=5)?'spring' : (m>=6&&m<=9)?'monsoon' : (m>=10&&m<=11)?'autumn' : 'summer';
+  if(m>=4 && m<=6 && season==='spring') season = (m>=4)?'summer':'spring'; /* Indian summer Apr-Jun */
+  return season+'_'+(night?'night':'day');
+}
+var _fxRAF=null,_fxParts=[],_fxCanvas=null;
+function rwApplyTheme(key){
+  var th=RW_THEMES[key]; if(!th) return;
+  document.documentElement.style.background=th.bg;
+  document.body.style.background='transparent';
+  document.body.dataset.rwtheme=key;
+  var reduced = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(reduced){ rwStopFx(); return; }
+  rwStartFx(th.fx, th.tint);
+}
+function rwStopFx(){ if(_fxRAF) cancelAnimationFrame(_fxRAF); _fxRAF=null; if(_fxCanvas){ _fxCanvas.remove(); _fxCanvas=null; } _fxParts=[]; }
+function rwStartFx(kind, tint){
+  rwStopFx();
+  var c=document.createElement('canvas'); c.id='rwFx';
+  c.style.cssText='position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.55';
+  document.body.appendChild(c); _fxCanvas=c;
+  var ctx=c.getContext('2d'), W,H;
+  function size(){ W=c.width=innerWidth; H=c.height=innerHeight; } size();
+  addEventListener('resize', size);
+  var N = kind==='rain'? 80 : kind==='snow'? 60 : kind==='confetti'||kind==='tricolor'? 70 : kind==='stars'? 70 : 40;
+  var TRI=['#FF9933','#FFFFFF','#138808'];
+  for(var i=0;i<N;i++){
+    _fxParts.push({x:Math.random()*innerWidth, y:Math.random()*innerHeight,
+      v:.4+Math.random()*(kind==='rain'?7:1.4), r:1+Math.random()*(kind==='confetti'||kind==='tricolor'?3.5:2.5),
+      w:Math.random()*1.4-.7, a:.25+Math.random()*.6, hue:Math.random()*360, tw:Math.random()*6.28});
+  }
+  function frame(t){
+    ctx.clearRect(0,0,W,H);
+    _fxParts.forEach(function(p2){
+      if(kind==='rain'){
+        ctx.strokeStyle='rgba(120,180,230,'+(p2.a*.7)+')'; ctx.lineWidth=1;
+        ctx.beginPath(); ctx.moveTo(p2.x,p2.y); ctx.lineTo(p2.x+p2.w*2,p2.y+9+p2.v); ctx.stroke();
+        p2.y+=p2.v+7; p2.x+=p2.w; if(p2.y>H){p2.y=-12;p2.x=Math.random()*W;}
+      } else if(kind==='snow'){
+        ctx.fillStyle='rgba(220,235,250,'+p2.a+')';
+        ctx.beginPath(); ctx.arc(p2.x,p2.y,p2.r,0,6.29); ctx.fill();
+        p2.y+=p2.v; p2.x+=Math.sin((t/900)+p2.tw)*.6; if(p2.y>H){p2.y=-6;p2.x=Math.random()*W;}
+      } else if(kind==='leaves'||kind==='petals'){
+        ctx.fillStyle=kind==='leaves'?'rgba(216,150,80,'+p2.a+')':'rgba(240,170,200,'+p2.a+')';
+        ctx.save(); ctx.translate(p2.x,p2.y); ctx.rotate((t/700)+p2.tw);
+        ctx.beginPath(); ctx.ellipse(0,0,p2.r+2,p2.r,0,0,6.29); ctx.fill(); ctx.restore();
+        p2.y+=p2.v*.8; p2.x+=Math.sin((t/1100)+p2.tw)*1.1; if(p2.y>H){p2.y=-8;p2.x=Math.random()*W;}
+      } else if(kind==='stars'||kind==='fireflies'){
+        var tw=.5+.5*Math.sin((t/(kind==='stars'?1400:600))+p2.tw);
+        ctx.fillStyle=kind==='stars'?'rgba(230,230,255,'+(p2.a*tw)+')':'rgba(217,249,157,'+(p2.a*tw)+')';
+        ctx.beginPath(); ctx.arc(p2.x,p2.y,p2.r*.9,0,6.29); ctx.fill();
+        if(kind==='fireflies'){ p2.x+=Math.sin((t/800)+p2.tw)*.5; p2.y+=Math.cos((t/900)+p2.tw)*.4; }
+      } else if(kind==='confetti'||kind==='tricolor'){
+        ctx.fillStyle=kind==='tricolor'? TRI[Math.floor(p2.hue)%3] : 'hsla('+p2.hue+',80%,65%,'+p2.a+')';
+        ctx.save(); ctx.translate(p2.x,p2.y); ctx.rotate((t/500)+p2.tw); ctx.fillRect(-p2.r,-p2.r/2,p2.r*2,p2.r); ctx.restore();
+        p2.y+=p2.v; p2.x+=Math.sin((t/700)+p2.tw); if(p2.y>H){p2.y=-8;p2.x=Math.random()*W;}
+      } else if(kind==='diyas'){
+        var g=.6+.4*Math.sin((t/500)+p2.tw);
+        ctx.fillStyle='rgba(255,184,77,'+(p2.a*g*.8)+')';
+        ctx.beginPath(); ctx.arc(p2.x,p2.y,p2.r*1.6,0,6.29); ctx.fill();
+        ctx.fillStyle='rgba(255,220,150,'+(p2.a*g)+')';
+        ctx.beginPath(); ctx.arc(p2.x,p2.y,p2.r*.6,0,6.29); ctx.fill();
+        p2.y-=p2.v*.25; if(p2.y<-8){p2.y=H+8;p2.x=Math.random()*W;}
+      } else if(kind==='clouds'||kind==='sunhaze'){
+        ctx.fillStyle=kind==='sunhaze'?'rgba(240,192,112,'+(p2.a*.12)+')':'rgba(180,180,200,'+(p2.a*.10)+')';
+        ctx.beginPath(); ctx.arc(p2.x,p2.y,p2.r*16,0,6.29); ctx.fill();
+        p2.x+=p2.v*.15; if(p2.x>W+60){p2.x=-60;}
+      }
+    });
+    _fxRAF=requestAnimationFrame(frame);
+  }
+  _fxRAF=requestAnimationFrame(frame);
+  document.addEventListener('visibilitychange', function(){
+    if(document.hidden){ if(_fxRAF) cancelAnimationFrame(_fxRAF), _fxRAF=null; }
+    else if(_fxCanvas && !_fxRAF) _fxRAF=requestAnimationFrame(frame);
+  });
+}
+(function(){
+  function boot(){
+    try{
+      var mode=lsGet('rw_theme_mode');
+      rwApplyTheme(mode && RW_THEMES[mode] ? mode : rwPickTheme());
+    }catch(e){}
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', boot); else boot();
 })();
 
 /* ==================== REMOTE CONFIG (owner values, zero user input) =========
