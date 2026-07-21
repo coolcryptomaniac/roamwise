@@ -109,6 +109,14 @@ service cloud.firestore {
       allow read, update, delete: if isAdmin();
     }
 
+    // ---------- SECRETS (end-to-end encrypted API-key backup) ----------
+    // Ciphertext only: encrypted in the user's browser with a passphrase we
+    // never receive. Strictly owner-only — no admin read, because there is
+    // no legitimate reason for anyone but the user to touch this document.
+    match /secrets/{uid} {
+      allow read, write, delete: if isSelf(uid);
+    }
+
     // ---------- CONFIG (owner-managed app settings) ----------
     // Affiliate IDs, Gumroad link/ID, WhatsApp numbers, wallets, promo URL.
     // Publicly readable (the app needs them), writable ONLY by admin — this
