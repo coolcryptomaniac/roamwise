@@ -2707,6 +2707,7 @@ function wizTest(prov,key,stEl,onOk){
   stEl.textContent='Testing '+prov+'\u2026'; stEl.style.color='var(--t3)';
   aiRequest(prov, key, AI_MODELS[prov][0], 'Reply with exactly: OK', 10)
     .then(function(){ lsSet('rwKey_'+prov,key); activeProv=prov; lsSet('rwProv',prov);
+      try{ rwAutoBackup(); rwOfferBackup(); }catch(e){}
       stEl.textContent='\u2705 '+prov.charAt(0).toUpperCase()+prov.slice(1)+' is working \u2014 saved & set as your engine.'; stEl.style.color='#16BF96';
       if(onOk) setTimeout(onOk,1200); })
     .catch(function(e){ stEl.textContent='\u274c '+String(e.message||e).slice(0,70); stEl.style.color='#E05B5B'; });
@@ -3513,7 +3514,12 @@ function track(ev){
   try{
     var day = new Date().toISOString().slice(0,10);
     var inc = {}; inc[ev] = firebase.firestore.FieldValue.increment(1);
-    db.collection('stats').doc(day).set(inc, {merge:true});
+    /* .set() rejects ASYNCHRONOUSLY — the surrounding try/catch never sees it,
+       so a blocked write used to fail completely silently and the admin funnel
+       just stayed empty with no clue why. Record the last failure so it can be
+       surfaced instead of guessed at. */
+    db.collection('stats').doc(day).set(inc, {merge:true})
+      .catch(function(e){ try{ lsSet('rw_track_err', (e.code||'')+' '+(e.message||e)); }catch(_){} });
   }catch(e){}
 }
 (function(){ try{
@@ -5980,6 +5986,17 @@ function rwKeyBundle(){
   });
   return out;
 }
+async function rwAutoBackup(){
+  /* Silent push after any key change — so "save once" really means once. */
+  var pass = lsGet('rw_sec_pass');
+  if(!pass || !user || !user.uid) return;
+  try{
+    var bundle=rwKeyBundle(); if(!Object.keys(bundle).length) return;
+    var rec=await rwEncryptSecrets(bundle, pass);
+    rec.updated=firebase.firestore.FieldValue.serverTimestamp();
+    await db.collection('secrets').doc(user.uid).set(rec);
+  }catch(e){}
+}
 async function rwSyncKeysUp(){
   var pass=(el('secPass')&&el('secPass').value||'').trim();
   var st=el('secStatus');
@@ -6027,6 +6044,17 @@ async function rwForgetSynced(){
   }catch(e){ el('secStatus').textContent='Delete failed: '+(e.message||e); }
 }
 function lsRemove(k){ try{ localStorage.removeItem(k); }catch(e){} }
+function rwOfferBackup(){
+  if(lsGet('rw_sec_pass') || lsGet('rw_sec_declined')==='1') return;
+  if(!user || !user.uid) return;
+  setTimeout(function(){
+    var pass = prompt('Save this key to your account so you never paste it again?\n\nChoose a passphrase (8+ characters). Your keys are encrypted on this device before upload \u2014 RoamWise can never read them, and the passphrase cannot be reset.\n\nLeave blank to skip.');
+    if(!pass){ lsSet('rw_sec_declined','1'); return; }
+    if(pass.trim().length<8){ showToast('Passphrase needs 8+ characters \u2014 you can set it in Settings anytime'); return; }
+    lsSet('rw_sec_pass', pass.trim());
+    rwAutoBackup().then(function(){ showToast('\ud83d\udd10 Keys backed up to your account'); });
+  }, 400);
+}
 function secPanelHTML(){
   return '<div class="key-box" style="border-color:rgba(232,186,108,.35)">'
     +'<div class="key-box-name">\u2601\ufe0f Keep my keys in my account <span class="key-status ks-empty" id="secStatus">encrypted end-to-end</span></div>'
@@ -6037,6 +6065,11 @@ function secPanelHTML(){
     +'<button class="k-clear" onclick="rwForgetSynced()">Delete</button></div>'
     +'<label style="display:flex;gap:7px;align-items:center;font-size:11px;color:var(--t3);margin-top:7px">'
     +'<input type="checkbox" id="secRemember" checked> Remember on this device (auto-restore at sign-in)</label>'
+    +'<label style="display:flex;gap:7px;align-items:center;font-size:11px;color:var(--t3);margin-top:5px">'
+    +'<input type="checkbox" id="secWipe" '+(lsGet('rw_wipe_keys')==='1'?'checked':'')+' onchange="lsSet(\'rw_wipe_keys\', this.checked?\'1\':\'0\')">'
+    +' Shared device: also delete my keys from this device when I sign out</label>'
+    +'<div style="font-size:11px;margin-top:8px;color:'+(lsGet('rw_sec_pass')?'#4ADE80':'var(--t3)')+'">'
+    +(lsGet('rw_sec_pass')? '\u2713 Backup is on \u2014 keys re-appear automatically after sign-in.' : '\u25cb Backup is off \u2014 keys live only on this device.')+'</div>'
     +'</div>';
 }
 
@@ -6368,10 +6401,14 @@ function confirmOtp(){
 function wipeSession(){
   /* clear everything tied to the logged-in identity */
   ['rwPro','rw_pro_uid','rw_pro_temp','rw_pro_temp_uid'].forEach(function(k){ localStorage.removeItem(k); });
-  /* remove all stored AI provider keys (recoverable if the encrypted
-     account backup was enabled — see rwSyncKeysDown) */
-  ['groq','cerebras','github','gemini','openrouter','mistral','anthropic'].forEach(function(p){ localStorage.removeItem('rwKey_'+p); });
-  activeProv='smart'; lsSet('rwProv','smart');
+  /* AI provider keys are the USER'S OWN third-party credentials, not an
+     entitlement tied to this account — wiping them on every sign-out meant
+     re-pasting keys forever. They now survive sign-out by default; people on
+     a shared device can opt into the old behaviour with rw_wipe_keys. */
+  if(lsGet('rw_wipe_keys')==='1'){
+    ['groq','cerebras','github','gemini','openrouter','mistral','anthropic'].forEach(function(p){ localStorage.removeItem('rwKey_'+p); });
+    activeProv='smart'; lsSet('rwProv','smart');
+  }
   isPro=false;
   try{ refreshProUI(); }catch(e){}
   try{ if(el('settingsOverlay') && el('settingsOverlay').classList.contains('open')) openSettings(); }catch(e){}
