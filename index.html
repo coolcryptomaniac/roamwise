@@ -818,6 +818,8 @@ html{-webkit-text-size-adjust:100%}
     <textarea id="heroInput" rows="3" placeholder="Ask your travel copilot anything&hellip;"
       style="display:block;width:100%;box-sizing:border-box;background:transparent;border:none;padding:8px 8px 44px;color:inherit;font:inherit;font-size:15px;resize:none;outline:none;min-height:104px;line-height:1.5"></textarea>
     <div style="position:absolute;right:12px;bottom:12px;display:flex;gap:8px;align-items:center">
+      <button onclick="scanImageOpen()" aria-label="Scan a screenshot" title="Scan a screenshot or reel"
+        style="width:36px;height:36px;border-radius:50%;border:1px solid var(--b2,#2A2A36);background:var(--bg3,#1A1A20);color:var(--t2);font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center">&#128247;</button>
       <button onclick="copilotVoiceHero()" aria-label="Voice"
         style="width:36px;height:36px;border-radius:50%;border:1px solid var(--b2,#2A2A36);background:var(--bg3,#1A1A20);color:var(--t2);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center">&#127908;</button>
       <button onclick="copilotSend(true)" aria-label="Send"
@@ -3466,6 +3468,13 @@ document.addEventListener('DOMContentLoaded', function(){
   try{ renderTicker(); }catch(e){}
   try{ renderForYou(); }catch(e){}
   try{ tripReminderCheck(); }catch(e){}
+  /* one cheap call keeps every INR figure honest instead of hardcoding 88 */
+  try{
+    if(navigator.onLine) fetch('https://api.frankfurter.dev/v1/latest?base=USD&symbols=INR')
+      .then(function(r){return r.json();})
+      .then(function(d){ if(d && d.rates && d.rates.INR) window._rwFxINR = d.rates.INR; })
+      .catch(function(){});
+  }catch(e){}
   /* Home declutter: heavy sections collapse behind slim headers — the scroll
      keeps only the essentials (video, copilot, quick start). One tap expands. */
   try{
@@ -6767,7 +6776,7 @@ function cpModelChips(targetId){
   var host = el(targetId); if(!host) return;
   var provs = ['groq','cerebras','github','gemini','openrouter','mistral','anthropic'].filter(function(p){ return lsGet('rwKey_'+p); });
   var cur = (typeof activeProv!=='undefined')? activeProv : 'smart';
-  var chips = [['smart','\u26a1 Delta 1.1']].concat(provs.map(function(p){ return [p, p.charAt(0).toUpperCase()+p.slice(1)]; }));
+  var chips = [['smart','\u26a1 Ailon Tusk']].concat(provs.map(function(p){ return [p, p.charAt(0).toUpperCase()+p.slice(1)]; }));
   host.innerHTML = chips.map(function(c){
     var on = cur===c[0];
     return '<button onclick="cpSetModel(\'' + c[0] + '\')" style="font-size:10px;padding:4px 10px;border-radius:999px;border:1px solid '
@@ -6778,7 +6787,7 @@ function cpModelChips(targetId){
 function cpSetModel(p){
   activeProv=p; lsSet('rwProv',p);
   cpModelChips('cpModels'); cpModelChips('heroModels');
-  showToast(p==='smart' ? '\u26a1 RoamWise Delta 1.1 \u2014 our built-in engine: live data + your destination library (not a language model)' : 'Using '+p);
+  showToast(p==='smart' ? '\u26a1 Ailon Tusk \u2014 RoamWise\u2019s own engine: live travel guides, weather and prices (not a language model)' : 'Using '+p);
 }
 function cpDbFind(text){
   var lower=' '+String(text).toLowerCase()+' ';
@@ -6828,8 +6837,17 @@ function cpParseRegex(t){
   var dm=t.match(/(\d+)\s*[- ]?\s*(?:day|night|din)/i); if(dm) out.days=parseInt(dm[1],10);
   /* destination: DB first (incl. fuzzy), then preposition, then leftover-token */
   var hit=cpDbFind(t); if(hit) out.dest=hit.name;
-  if(!out.dest){ var mp=t.match(/(?:in|to|reaching|at|visit(?:ing)?|for|around|near)\s+([A-Za-z][a-zA-Z\u00C0-\u024F]{2,}(?:\s[A-Z][a-zA-Z]{2,})?)/);
-    if(mp) out.dest=mp[1].trim(); }
+  if(!out.dest){
+    /* Take EVERY preposition match, not just the first: "what to eat in Manali"
+       used to capture "eat" from "to eat" and then look up a guide for a verb.
+       Skip common verbs/fillers, and prefer a capitalised candidate. */
+    var VERBS=/^(eat|go|do|see|visit|stay|sleep|travel|reach|get|buy|shop|find|book|know|start|plan|the|a|an|my|it|be|drink|walk)$/i;
+    var re=/(?:\bin|\bto|reaching|\bat|visit(?:ing)?|\bfor|around|near)\s+([A-Za-z][a-zA-Z\u00C0-\u024F]{2,}(?:\s[A-Z][a-zA-Z]{2,})?)/g, mm, cands=[];
+    while((mm=re.exec(t))!==null){ var w=mm[1].trim(); if(!VERBS.test(w.split(' ')[0])) cands.push(w); }
+    var capped = cands.filter(function(w){ return /^[A-Z]/.test(w); });
+    if(capped.length) out.dest=capped[0];
+    else if(cands.length) out.dest=cands[0];
+  }
   if(!out.dest){
     /* strip filler + numbers; whatever real word remains is the place —
        this is what makes "Manali 5 day plan under 8k inr" resolve. */
@@ -6855,12 +6873,68 @@ function cpParseRegex(t){
    Open-Meteo's geocoder (free, keyless, worldwide, includes villages) and cache
    each hit in localStorage, so the app effectively knows the whole map while
    staying a few hundred KB. Curated DB entries still win for depth. */
+/* Famous-destination overrides.
+   Open-Meteo ranks by population, so India's tourist towns lose to same-named
+   suburbs: "Manali" resolved to a Chennai neighbourhood instead of the Himachal
+   hill station, "Bir" to Ukraine. For an India-first travel app those are the
+   exact queries that must be right, so the best-known travel meaning wins. */
+var RW_PLACE_OVERRIDES = {
+  manali:{name:'Manali',admin:'Himachal Pradesh',lat:32.2432,lon:77.1892},
+  shimla:{name:'Shimla',admin:'Himachal Pradesh',lat:31.1048,lon:77.1734},
+  kasol:{name:'Kasol',admin:'Himachal Pradesh',lat:32.0100,lon:77.3152},
+  tosh:{name:'Tosh',admin:'Himachal Pradesh',lat:31.9950,lon:77.3600},
+  bir:{name:'Bir',admin:'Himachal Pradesh',lat:32.0419,lon:76.7204},
+  kufri:{name:'Kufri',admin:'Himachal Pradesh',lat:31.0980,lon:77.2670},
+  dharamshala:{name:'Dharamshala',admin:'Himachal Pradesh',lat:32.2190,lon:76.3234},
+  mcleodganj:{name:'McLeod Ganj',admin:'Himachal Pradesh',lat:32.2396,lon:76.3200},
+  spiti:{name:'Spiti Valley',admin:'Himachal Pradesh',lat:32.2264,lon:78.0716},
+  kaza:{name:'Kaza',admin:'Himachal Pradesh',lat:32.2264,lon:78.0716},
+  leh:{name:'Leh',admin:'Ladakh',lat:34.1526,lon:77.5771},
+  rishikesh:{name:'Rishikesh',admin:'Uttarakhand',lat:30.0869,lon:78.2676},
+  haridwar:{name:'Haridwar',admin:'Uttarakhand',lat:29.9457,lon:78.1642},
+  nainital:{name:'Nainital',admin:'Uttarakhand',lat:29.3803,lon:79.4636},
+  mussoorie:{name:'Mussoorie',admin:'Uttarakhand',lat:30.4598,lon:78.0644},
+  almora:{name:'Almora',admin:'Uttarakhand',lat:29.5971,lon:79.6591},
+  munsiyari:{name:'Munsiyari',admin:'Uttarakhand',lat:30.0672,lon:80.2386},
+  auli:{name:'Auli',admin:'Uttarakhand',lat:30.5290,lon:79.5660},
+  jaisalmer:{name:'Jaisalmer',admin:'Rajasthan',lat:26.9157,lon:70.9083},
+  udaipur:{name:'Udaipur',admin:'Rajasthan',lat:24.5854,lon:73.7125},
+  pushkar:{name:'Pushkar',admin:'Rajasthan',lat:26.4899,lon:74.5511},
+  mountabu:{name:'Mount Abu',admin:'Rajasthan',lat:24.5926,lon:72.7156},
+  gokarna:{name:'Gokarna',admin:'Karnataka',lat:14.5479,lon:74.3188},
+  hampi:{name:'Hampi',admin:'Karnataka',lat:15.3350,lon:76.4600},
+  coorg:{name:'Coorg (Madikeri)',admin:'Karnataka',lat:12.4244,lon:75.7382},
+  munnar:{name:'Munnar',admin:'Kerala',lat:10.0889,lon:77.0595},
+  alleppey:{name:'Alleppey',admin:'Kerala',lat:9.4981,lon:76.3388},
+  wayanad:{name:'Wayanad',admin:'Kerala',lat:11.6854,lon:76.1320},
+  ooty:{name:'Ooty',admin:'Tamil Nadu',lat:11.4064,lon:76.6932},
+  kodaikanal:{name:'Kodaikanal',admin:'Tamil Nadu',lat:10.2381,lon:77.4892},
+  pondicherry:{name:'Pondicherry',admin:'Puducherry',lat:11.9416,lon:79.8083},
+  darjeeling:{name:'Darjeeling',admin:'West Bengal',lat:27.0360,lon:88.2627},
+  gangtok:{name:'Gangtok',admin:'Sikkim',lat:27.3389,lon:88.6065},
+  tawang:{name:'Tawang',admin:'Arunachal Pradesh',lat:27.5860,lon:91.8590},
+  ziro:{name:'Ziro',admin:'Arunachal Pradesh',lat:27.5448,lon:93.8340},
+  shillong:{name:'Shillong',admin:'Meghalaya',lat:25.5788,lon:91.8933},
+  cherrapunji:{name:'Cherrapunji',admin:'Meghalaya',lat:25.3000,lon:91.7000},
+  varanasi:{name:'Varanasi',admin:'Uttar Pradesh',lat:25.3176,lon:82.9739},
+  khajuraho:{name:'Khajuraho',admin:'Madhya Pradesh',lat:24.8318,lon:79.9199},
+  portblair:{name:'Port Blair',admin:'Andaman & Nicobar',lat:11.6234,lon:92.7265}
+};
 var RW_PLACE_CACHE={};
 async function rwResolvePlace(name){
   if(!name) return null;
   var key='rw_geo_'+String(name).toLowerCase().replace(/[^a-z0-9]/g,'');
   if(RW_PLACE_CACHE[key]) return RW_PLACE_CACHE[key];
   try{ var c=JSON.parse(lsGet(key)||'null'); if(c){ RW_PLACE_CACHE[key]=c; return c; } }catch(e){}
+  /* curated meaning first — no network needed, and never wrong */
+  var ovKey = String(name).toLowerCase().replace(/[^a-z]/g,'');
+  if(RW_PLACE_OVERRIDES[ovKey]){
+    var o = RW_PLACE_OVERRIDES[ovKey];
+    var place = {name:o.name, country:'India', cc:'IN', admin:o.admin, lat:o.lat, lon:o.lon,
+                 pop:null, elev:null, tz:'Asia/Kolkata'};
+    RW_PLACE_CACHE[key]=place; lsSet(key, JSON.stringify(place));
+    return place;
+  }
   if(!navigator.onLine) return null;
   try{
     var fix = (typeof CITY_NAME_FIXUPS!=='undefined') ? CITY_NAME_FIXUPS[String(name).toLowerCase().replace(/[^a-z]/g,'')] : null;
@@ -6929,18 +7003,35 @@ function copilotSend(fromHero){
        fine — the model answers naturally; travel intents ADDITIONALLY get
        action links appended below the answer. */
     var hist=_cpHist.slice(-6).map(function(h){ return 'User: '+h.q+'\nCopilot: '+h.a; }).join('\n');
-    var prompt='You are RoamWise Copilot \u2014 a sharp, friendly travel companion built into a travel-planning app. '
-      +'Answer the user helpfully and concisely (under 120 words). Any topic is allowed; bring it back to travel when natural. No markdown headers.\n'
-      +(hist? 'Conversation so far:\n'+hist+'\n':'')+'User: '+t+'\nCopilot:';
-    aiCall(prompt, 400, function(err, txt){
-      var answer = (txt||'').trim() || 'Hmm, the AI didn\u2019t answer \u2014 trying my built-in engine instead.';
-      cpFinish(thinking, answer.replace(/</g,'&lt;'), intents, t);
+    /* Ground the model in the real guide before it answers — this is what stops
+       confident-but-wrong replies about small towns. */
+    (intents.dest ? wvGuide(intents.dest) : Promise.resolve(null)).then(function(g){
+      var facts = g && g.extract ? 'Verified guide text for '+g.title+': '+g.extract.slice(0,600)+'\n' : '';
+      var prompt='You are RoamWise Copilot \u2014 a sharp, friendly travel companion built into a travel-planning app. '
+        +'Answer helpfully and concisely (under 120 words). Prefer the verified guide text below over your own recollection; if it contradicts you, trust it. Say plainly when you are unsure. No markdown headers.\n'
+        +facts+(hist? 'Conversation so far:\n'+hist+'\n':'')+'User: '+t+'\nCopilot:';
+      aiCall(prompt, 400, function(err, txt){
+        var answer = (txt||'').trim() || 'The AI didn\u2019t answer \u2014 here\u2019s what my own engine has.';
+        if(intents.dest) rwLearn(intents.dest);
+        cpFinish(thinking, answer.replace(/</g,'&lt;'), intents, t);
+      });
     });
   } else {
+    /* Ailon Tusk: curated DB first (fastest, richest), then the live travel
+       guide for anywhere on Earth, and only then admit it needs a key. This is
+       what turned "generic answers" into real ones. */
     var kb = cpSmartAnswer(t);
-    var canned = kb || (intents.wants.length || intents.dest ? '' :
-      'My built-in engine covers destinations, weather, budgets, transport and sharing. For open-ended conversation, add a free AI key \u2014 takes 2 minutes: <button class="tact" style="font-size:11px;padding:4px 10px" onclick="openWizard()">Get a free key</button>');
-    cpFinish(thinking, canned, intents, t);
+    var place = intents.dest;
+    if(place){
+      wvAnswer(place, t).then(function(guide){
+        var body = [kb, guide].filter(Boolean).join('<hr style="border:none;border-top:1px dashed var(--b2,#2A2A36);margin:10px 0">');
+        if(!body) body = 'I don\u2019t have a guide for \u201c'+String(place).replace(/[<>]/g,'')+'\u201d yet \u2014 try a nearby town, or add a free AI key for open-ended answers: <button class="tact" style="font-size:11px;padding:4px 10px" onclick="openWizard()">Get a free key</button>';
+        cpFinish(thinking, body, intents, t);
+      }).catch(function(){ cpFinish(thinking, kb||'', intents, t); });
+    } else {
+      var canned = kb || 'I cover destinations, weather, budgets, transport and sharing. For open-ended conversation, add a free AI key \u2014 takes 2 minutes: <button class="tact" style="font-size:11px;padding:4px 10px" onclick="openWizard()">Get a free key</button>';
+      cpFinish(thinking, canned, intents, t);
+    }
   }
 }
 async function cpFinish(bubble, answerHTML, intents, raw){
@@ -7009,6 +7100,11 @@ async function cpActionsHTML(it){
   /* stays */
   if(it.wants.indexOf('stay')>-1 && it.dest){
     H.push('\ud83c\udfe8 <a style="color:var(--gold2,#C8913E)" target="_blank" rel="noopener" href="'+stayUrl(it.dest)+'">Compare stays on Booking</a> \u00b7 <a style="color:var(--gold2,#C8913E)" target="_blank" rel="noopener" href="'+stayUrlAgoda(it.dest)+'">Agoda</a>');
+  }
+  /* shadow budget — the differentiator: costs no competitor quotes */
+  var costEntry = dbHit || costEntryForPlace(geo);
+  if(costEntry && (it.days || it.wants.indexOf('budget')>-1)){
+    H.push(shadowBudgetHTML(costEntry, it.days||5, 'mid'));
   }
   /* budget */
   if(it.budget!=null){
@@ -7181,6 +7277,13 @@ async function loadTripExtras(t){
         live.push('<div style="background:var(--bg2,#12121C);border:1px solid var(--b2,#2A2A36);border-radius:14px;padding:12px 14px;margin-bottom:10px">'
           +'<div style="font-weight:800;font-size:12.5px;margin-bottom:8px">\u26c5 Next 7 days in '+String(t.name).replace(/[<>]/g,'')+'</div>'
           +'<div style="display:flex;gap:4px;overflow-x:auto">'+days+'</div></div>');
+        /* act on the forecast instead of just displaying it */
+        try{ var rs = rainSwapHTML(t, w.daily); if(rs) live.push(rs); }catch(e){}
+        /* and the shadow budget for this trip, if we know the destination */
+        try{
+          var dbe = cpDbFind(t.name) || costEntryForPlace(await rwResolvePlace(t.name));
+          if(dbe) live.push(shadowBudgetHTML(dbe, t.days.length, 'mid'));
+        }catch(e){}
       }
     }
     /* currency mini-panel: INR vs the majors */
@@ -7387,6 +7490,346 @@ function copyText(t){
 })();
 
 
+
+
+
+/* ==================== AILON TUSK — the built-in engine's knowledge layer ====
+   "Crawl Google in the background" cannot be done from a static app: Google
+   blocks cross-origin browser calls and its terms forbid scraping, and the
+   official Search API bills per query. Wikivoyage is the honest substitute —
+   a real, community-written travel guide for tens of thousands of places, with
+   open CORS, no API key, no cost, and a licence that permits reuse with
+   attribution (CC BY-SA). It answers the exact questions people ask: how to
+   get in, what to see, what to eat, where to sleep, what to watch out for.
+
+   The "learning" is real but modest and honestly named: every guide fetched is
+   cached on the device, and every place the traveller actually engages with is
+   counted, so answers get faster and ordering gets more personal the more the
+   app is used. No model weights are trained in a phone browser. */
+var WV_CACHE_DAYS = 30;
+var WV_SECTION_MAP = [
+  [/eat|food|restaurant|cuisine|dish|cafe|drink/i,            ['Eat','Drink']],
+  [/reach|get in|getting there|how to go|travel to|flight|train|bus|airport/i, ['Get in']],
+  [/get around|around|local transport|taxi|metro|rickshaw/i,  ['Get around']],
+  [/see|attraction|sight|monument|temple|museum|viewpoint/i,  ['See']],
+  [/do|activity|trek|adventure|experience|hike|raft|ski/i,    ['Do']],
+  [/stay|hotel|hostel|sleep|accommodation|homestay|camp/i,    ['Sleep']],
+  [/safe|danger|scam|theft|security|health|altitude/i,        ['Stay safe','Stay healthy']],
+  [/buy|shop|market|souvenir|bazaar/i,                        ['Buy']],
+  [/weather|climate|season|best time|month/i,                 ['Weather','Climate','Understand']],
+  [/history|about|understand|culture|language/i,              ['Understand']]
+];
+function wvSlug(p){ return String(p).toLowerCase().replace(/[^a-z0-9]/g,''); }
+async function wvGuide(place){
+  var key='rw_wv_'+wvSlug(place);
+  try{
+    var c=JSON.parse(lsGet(key)||'null');
+    if(c && (Date.now()-c.at) < WV_CACHE_DAYS*864e5) return c;
+  }catch(e){}
+  if(!navigator.onLine) return null;
+  try{
+    var api='https://en.wikivoyage.org/w/api.php?origin=*&format=json&';
+    var q = await fetch(api+'action=query&list=search&srlimit=1&srsearch='+encodeURIComponent(place)).then(function(r){return r.json();});
+    var hit=((q.query||{}).search||[])[0]; if(!hit) return null;
+    var title=hit.title;
+    var ex = await fetch(api+'action=query&prop=extracts&exintro=1&explaintext=1&titles='+encodeURIComponent(title)).then(function(r){return r.json();});
+    var pg=Object.values((ex.query||{}).pages||{})[0]||{};
+    var se = await fetch(api+'action=parse&prop=sections&page='+encodeURIComponent(title)).then(function(r){return r.json();});
+    var sections=((se.parse||{}).sections||[]).map(function(x){ return {line:x.line, index:x.index}; });
+    var rec={title:title, extract:(pg.extract||'').trim(), sections:sections, at:Date.now()};
+    lsSet(key, JSON.stringify(rec));
+    return rec;
+  }catch(e){ return null; }
+}
+async function wvSection(title, index){
+  var key='rw_wvs_'+wvSlug(title)+'_'+index;
+  var c=lsGet(key); if(c) return c;
+  if(!navigator.onLine) return null;
+  try{
+    var d = await fetch('https://en.wikivoyage.org/w/api.php?origin=*&format=json&action=parse&prop=wikitext&section='
+      +index+'&page='+encodeURIComponent(title)).then(function(r){return r.json();});
+    var wt=(((d.parse||{}).wikitext||{})['*']||'');
+    /* wikitext -> readable: drop templates, listings, markup, refs */
+    var txt = wt
+      .replace(/={2,}[^=\n]+={2,}/g,' ')   /* section headers like ==Get in== */
+      .replace(/\{\{[^{}]*\}\}/g,' ')
+      .replace(/<ref[^>]*>[\s\S]*?<\/ref>/g,' ')
+      .replace(/<[^>]+>/g,' ')
+      .replace(/\[\[([^\]|]*\|)?([^\]]*)\]\]/g,'$2')
+      .replace(/'''?/g,'')
+      .replace(/^[=*#:;]+/gm,' ')
+      .replace(/\s{2,}/g,' ')
+      .trim();
+    if(txt.length>20){ lsSet(key, txt.slice(0,1200)); return txt.slice(0,1200); }
+    return null;
+  }catch(e){ return null; }
+}
+function wvPickSections(question, sections){
+  var want=[];
+  WV_SECTION_MAP.forEach(function(m){ if(m[0].test(question)) want=want.concat(m[1]); });
+  if(!want.length) want=['Understand','See','Do'];
+  var out=[];
+  want.forEach(function(name){
+    var hit=sections.filter(function(s){ return s.line.toLowerCase()===name.toLowerCase(); })[0];
+    if(hit && out.length<2) out.push(hit);
+  });
+  return out;
+}
+async function wvAnswer(place, question){
+  var g = await wvGuide(place);
+  if(!g) return null;
+  rwLearn(place);
+  var parts=[];
+  if(g.extract) parts.push('<div style="font-size:12.5px;line-height:1.6">'+esc2(g.extract.slice(0,340))+(g.extract.length>340?'\u2026':'')+'</div>');
+  var picks = wvPickSections(question||'', g.sections||[]);
+  for(var i=0;i<picks.length;i++){
+    var body = await wvSection(g.title, picks[i].index);
+    if(body && body.length>40){
+      parts.push('<div style="margin-top:8px"><div style="font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--gold2,#C8913E)">'
+        +esc2(picks[i].line)+'</div><div style="font-size:12px;line-height:1.6;color:var(--t2)">'+esc2(body.slice(0,420))+'\u2026</div></div>');
+    }
+  }
+  if(!parts.length) return null;
+  parts.push('<div style="font-size:10px;color:var(--t3);margin-top:8px">Source: <a style="color:var(--gold2,#C8913E)" target="_blank" rel="noopener" href="https://en.wikivoyage.org/wiki/'
+    +encodeURIComponent(g.title)+'">Wikivoyage \u2014 '+esc2(g.title)+'</a> \u00b7 CC BY-SA \u00b7 cached on your device</div>');
+  return parts.join('');
+}
+function esc2(t){ return String(t==null?'':t).replace(/[<>&]/g,function(c){ return {'<':'&lt;','>':'&gt;','&':'&amp;'}[c]; }); }
+
+/* ---- the learning layer: local, honest, and actually useful ---- */
+function rwLearn(place){
+  try{
+    var m=JSON.parse(lsGet('rw_learn')||'{}');
+    var k=wvSlug(place); m[k]=(m[k]||0)+1;
+    lsSet('rw_learn', JSON.stringify(m));
+  }catch(e){}
+}
+function rwTopInterests(n){
+  try{
+    var m=JSON.parse(lsGet('rw_learn')||'{}');
+    return Object.keys(m).sort(function(a,b){ return m[b]-m[a]; }).slice(0, n||5);
+  }catch(e){ return []; }
+}
+
+/* ==================== SHADOW BUDGET — the costs nobody quotes ==============
+   Competitors show a headline "$950/week". Travellers actually get ambushed by
+   the gaps: airport transfers, daily metro fares, the ATM's FX spread, tipping
+   norms, a tourist SIM, entry tickets. This computes those from the same data
+   the app already holds (weekly cost tiers + the brk breakdown) and returns a
+   day-by-day cash-flow prediction in USD and INR.
+   Every number is a MODELLED ESTIMATE from the destination's own price band —
+   labelled as such in the UI, never dressed up as live pricing. */
+var TIP_BY_REGION = {
+  'North America':0.18, 'Europe':0.07, 'Western Europe':0.07, 'Eastern Europe':0.08,
+  'Southeast Asia':0.05, 'South Asia':0.05, 'East Asia':0.0, 'Japan':0.0,
+  'Middle East':0.10, 'Africa':0.10, 'South America':0.10, 'Oceania':0.05
+};
+/* The curated DB covers 15 countries — none of them India, because it was
+   built for international trips. Domestic trips (Manali, Rishikesh, Ziro) come
+   from the live geocoder and had no cost band at all, so the shadow budget
+   never fired for the app's core audience. This table gives any geocoded place
+   a sensible band by country, falling back to a regional default. Daily USD,
+   deliberately conservative and clearly labelled as an estimate. */
+var RW_COST_HINTS = {
+  IN:{d:{budget:22,mid:52,luxury:130}, region:'South Asia'},
+  NP:{d:{budget:20,mid:45,luxury:110}, region:'South Asia'},
+  LK:{d:{budget:24,mid:55,luxury:135}, region:'South Asia'},
+  BT:{d:{budget:70,mid:120,luxury:250}, region:'South Asia'},
+  TH:{d:{budget:28,mid:60,luxury:160}, region:'Southeast Asia'},
+  VN:{d:{budget:25,mid:55,luxury:140}, region:'Southeast Asia'},
+  ID:{d:{budget:26,mid:58,luxury:150}, region:'Southeast Asia'},
+  MY:{d:{budget:30,mid:65,luxury:160}, region:'Southeast Asia'},
+  SG:{d:{budget:70,mid:140,luxury:320}, region:'Southeast Asia'},
+  AE:{d:{budget:65,mid:130,luxury:300}, region:'Middle East'},
+  JP:{d:{budget:70,mid:135,luxury:320}, region:'East Asia'},
+  GB:{d:{budget:80,mid:150,luxury:350}, region:'Europe'},
+  FR:{d:{budget:70,mid:135,luxury:320}, region:'Europe'},
+  IT:{d:{budget:65,mid:125,luxury:300}, region:'Europe'},
+  ES:{d:{budget:60,mid:115,luxury:280}, region:'Europe'},
+  DE:{d:{budget:70,mid:130,luxury:300}, region:'Europe'},
+  US:{d:{budget:95,mid:180,luxury:420}, region:'North America'},
+  AU:{d:{budget:85,mid:160,luxury:370}, region:'Oceania'},
+  NZ:{d:{budget:80,mid:150,luxury:350}, region:'Oceania'}
+};
+var RW_REGION_DEFAULT = {d:{budget:45,mid:95,luxury:230}, region:'Europe'};
+/* Turn a geocoded place into something shadowBudget() understands. */
+function costEntryForPlace(geo){
+  if(!geo) return null;
+  var h = RW_COST_HINTS[(geo.cc||'').toUpperCase()] || RW_REGION_DEFAULT;
+  return {
+    name: geo.name, country: geo.country || '', region: h.region,
+    cost: {budget:h.d.budget*7, mid:h.d.mid*7, luxury:h.d.luxury*7},
+    brk: {flights:0, stay:h.d.mid*7*0.42, food:h.d.mid*7*0.26, act:h.d.mid*7*0.18, misc:h.d.mid*7*0.14},
+    _estimated: true
+  };
+}
+function shadowBudget(entry, days, style){
+  days = Math.max(1, days||5);
+  style = style || 'mid';
+  var weekly = (entry.cost && entry.cost[style]) || (entry.cost && entry.cost.mid) || 700;
+  var brk = entry.brk || {flights:0.30*weekly, stay:0.28*weekly, food:0.18*weekly, act:0.14*weekly, misc:0.10*weekly};
+  var perDay = {
+    stay:  (brk.stay||0)/7,
+    food:  (brk.food||0)/7,
+    act:   (brk.act||0)/7,
+    local: ((brk.misc||0)/7) * 0.55   /* the metro/bus/tuk-tuk slice of misc */
+  };
+  var domestic = /^india$/i.test(entry.country||'');
+  var tipRate  = TIP_BY_REGION[entry.region] != null ? TIP_BY_REGION[entry.region] : 0.07;
+  var oneOff = {
+    airport:   Math.round(perDay.local * 3.2),               /* both transfers */
+    sim:       domestic ? 0 : 8,                             /* tourist eSIM/data */
+    fxSpread:  0,                                            /* filled below */
+    buffer:    0
+  };
+  var dailyBase = perDay.stay + perDay.food + perDay.act + perDay.local;
+  var tips = perDay.food * tipRate;
+  var dailyTotal = dailyBase + tips;
+  var tripSub = dailyTotal*days + oneOff.airport + oneOff.sim;
+  oneOff.fxSpread = domestic ? 0 : Math.round(tripSub * 0.025);  /* ATM + card spread */
+  oneOff.buffer   = Math.round((tripSub + oneOff.fxSpread) * 0.10);
+  var total = tripSub + oneOff.fxSpread + oneOff.buffer;
+  return {
+    days:days, style:style, domestic:domestic, tipRate:tipRate,
+    perDay:perDay, tips:tips, dailyTotal:dailyTotal, oneOff:oneOff,
+    total:total,
+    cashShare: domestic ? 0.35 : ((entry.region==='Southeast Asia'||entry.region==='South Asia'||entry.region==='Africa') ? 0.55 : 0.25)
+  };
+}
+function shadowBudgetHTML(entry, days, style){
+  var b = shadowBudget(entry, days, style);
+  var fx = (window._rwFxINR || 88);
+  function money(usd){
+    if(b.domestic) return '\u20b9'+Math.round(usd*fx).toLocaleString('en-IN');
+    return '$'+Math.round(usd)+' <span style="opacity:.6">(\u20b9'+Math.round(usd*fx).toLocaleString('en-IN')+')</span>';
+  }
+  var rows = [
+    ['\ud83c\udfe8 Stay',        b.perDay.stay],
+    ['\ud83c\udf5c Food',        b.perDay.food],
+    ['\ud83c\udfab Activities',  b.perDay.act],
+    ['\ud83d\ude87 Local transit', b.perDay.local],
+    ['\ud83d\udcb5 Tips ('+Math.round(b.tipRate*100)+'%)', b.tips]
+  ].map(function(r){
+    return '<div style="display:flex;justify-content:space-between;font-size:12px;padding:3px 0">'
+      +'<span style="color:var(--t2)">'+r[0]+'</span><b>'+money(r[1])+'</b></div>';
+  }).join('');
+  var extras = [
+    ['\ud83d\ude95 Airport transfers (both ways)', b.oneOff.airport],
+    b.oneOff.sim ? ['\ud83d\udcf1 Tourist SIM / eSIM', b.oneOff.sim] : null,
+    b.oneOff.fxSpread ? ['\ud83c\udfe7 ATM + card FX spread (~2.5%)', b.oneOff.fxSpread] : null,
+    ['\ud83d\udee1 Buffer (10%)', b.oneOff.buffer]
+  ].filter(Boolean).map(function(r){
+    return '<div style="display:flex;justify-content:space-between;font-size:12px;padding:3px 0">'
+      +'<span style="color:var(--t2)">'+r[0]+'</span><b>'+money(r[1])+'</b></div>';
+  }).join('');
+  return '<div style="background:var(--bg2,#12121C);border:1px solid var(--b2,#2A2A36);border-radius:14px;padding:13px 15px;margin-top:10px">'
+    +'<div style="font-weight:800;font-size:13px;margin-bottom:2px">\ud83d\udc7b Shadow budget \u2014 '+b.days+' days in '+String(entry.name).replace(/[<>]/g,'')+'</div>'
+    +'<div style="font-size:10.5px;color:var(--t3);margin-bottom:9px">The costs headline prices leave out. '+(entry._estimated? 'Modelled from typical '+(entry.country||'regional')+' prices' : 'Modelled from this destination\u2019s '+b.style+' price band')+' \u2014 estimates, not live quotes.</div>'
+    +'<div style="font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--gold2,#C8913E);margin-bottom:3px">Every day</div>'
+    + rows
+    +'<div style="display:flex;justify-content:space-between;font-size:12.5px;padding:6px 0;border-top:1px solid var(--b2,#2A2A36);margin-top:5px"><b>Daily burn</b><b style="color:var(--gold,#E8BA6C)">'+money(b.dailyTotal)+'</b></div>'
+    +'<div style="font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--gold2,#C8913E);margin:9px 0 3px">Once per trip</div>'
+    + extras
+    +'<div style="display:flex;justify-content:space-between;font-size:14px;padding:8px 0 2px;border-top:1px solid var(--b2,#2A2A36);margin-top:6px"><b>Total</b><b style="color:var(--gold,#E8BA6C)">'+money(b.total)+'</b></div>'
+    +'<div style="font-size:11px;color:var(--t3);margin-top:7px;line-height:1.6">\ud83d\udcb5 Carry roughly <b>'+money(b.total*b.cashShare)+'</b> as cash \u2014 the rest works on card here.</div>'
+    +'</div>';
+}
+
+/* ==================== RAIN CONTINGENCY ====================
+   A forecast is useless if the itinerary ignores it. This reads the 7-day
+   outlook already fetched for a saved trip, classifies each planned day as
+   indoor or outdoor from its own text, and offers a concrete swap. It rewrites
+   the SAVED trip only when the traveller accepts — never silently. */
+var OUTDOOR_RE = /trek|hike|beach|walk|market|park|safari|boat|kayak|cycl|sunset|viewpoint|garden|waterfall|snorkel|dive|ride/i;
+var INDOOR_RE  = /museum|gallery|cafe|caf\u00e9|spa|mall|palace|fort|temple|shrine|aquarium|workshop|class|brewery|restaurant/i;
+function dayIsOutdoor(d){
+  var txt = [d.title,d.morning,d.afternoon,d.evening].filter(Boolean).join(' ');
+  var out = (txt.match(OUTDOOR_RE)||[]).length, ind = (txt.match(INDOOR_RE)||[]).length;
+  return out > ind;
+}
+function rainSwapHTML(trip, daily){
+  if(!trip || !trip.days || !daily || !daily.time) return '';
+  var wet = [];
+  daily.time.forEach(function(d,i){ if((daily.precipitation_probability_max||[])[i] >= 55) wet.push(i); });
+  if(!wet.length) return '';
+  var wetIdx = wet[0];                       /* first soggy day of the trip */
+  if(wetIdx >= trip.days.length) return '';
+  if(!dayIsOutdoor(trip.days[wetIdx])) return '';
+  var swapWith = -1;
+  for(var i=0;i<trip.days.length;i++){
+    if(i!==wetIdx && wet.indexOf(i)===-1 && !dayIsOutdoor(trip.days[i])){ swapWith=i; break; }
+  }
+  if(swapWith<0) return '';
+  var when = new Date(daily.time[wetIdx]).toLocaleDateString('en-IN',{weekday:'long'});
+  return '<div style="background:rgba(92,200,255,.08);border:1px solid rgba(92,200,255,.35);border-radius:14px;padding:12px 14px;margin-top:10px">'
+    +'<div style="font-weight:800;font-size:12.5px;color:#5CC8FF">\ud83c\udf27 '+when+' looks wet ('+daily.precipitation_probability_max[wetIdx]+'% rain)</div>'
+    +'<div style="font-size:12px;color:var(--t2);line-height:1.6;margin-top:5px">Day '+(wetIdx+1)+' is mostly outdoors, Day '+(swapWith+1)+' is mostly indoors. Swapping them keeps the trip intact and moves the walking into dry weather.</div>'
+    +'<button class="tact" style="font-size:11.5px;padding:7px 12px;margin-top:8px;font-weight:800" onclick="rainSwapApply(\''+trip.id+'\','+wetIdx+','+swapWith+')">Swap Day '+(wetIdx+1)+' \u2194 Day '+(swapWith+1)+'</button>'
+    +'</div>';
+}
+function rainSwapApply(tripId, a, b){
+  var list = vaultGet();
+  list.forEach(function(t){
+    if(t.id!==tripId || !t.days[a] || !t.days[b]) return;
+    var tmp = t.days[a]; t.days[a] = t.days[b]; t.days[b] = tmp;
+    /* keep the day numbers in reading order after the swap */
+    t.days.forEach(function(d,i){ d.day = i+1; });
+  });
+  vaultSave(list);
+  showToast('\ud83c\udf27 Swapped \u2014 outdoor day moved to drier weather');
+  openVaultTrip(tripId);
+}
+
+/* ==================== CAMERA -> ITINERARY ====================
+   Screenshot a reel, a blog, a handwritten list — the model reads it and pulls
+   out the places. Vision needs a multimodal model, so this runs on the user's
+   own Gemini key (its free tier is vision-capable). No key, no fake demo: it
+   says what it needs and offers the wizard. */
+function scanImageOpen(){
+  var key = lsGet('rwKey_gemini');
+  if(!key){
+    cpBubble('\ud83d\udcf8 Screenshot scanning needs a vision model. Google Gemini\u2019s free tier can do it \u2014 <button class="tact" style="font-size:11px;padding:4px 10px" onclick="openWizard()">add a free key</button> and this unlocks.', 'bot');
+    return;
+  }
+  var inp=document.createElement('input');
+  inp.type='file'; inp.accept='image/*';
+  inp.onchange=function(){ if(inp.files && inp.files[0]) scanImageRun(inp.files[0], key); };
+  inp.click();
+}
+function scanImageRun(file, key){
+  _cpTargetLog='heroLog'; var hl=el('heroLog'); if(hl) hl.style.display='block';
+  cpBubble('\ud83d\udcf8 Reading '+String(file.name).replace(/[<>]/g,'')+'\u2026','me');
+  var thinking=cpBubble('\u2026','bot');
+  var fr=new FileReader();
+  fr.onload=function(){
+    var b64=String(fr.result).split(',')[1];
+    fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key='+key,{
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({contents:[{parts:[
+        {text:'List every real-world travel place in this image (cities, neighbourhoods, restaurants, viewpoints, hotels, trails). Reply ONLY with JSON: {"places":[{"name":"...","kind":"city|food|sight|stay","note":"one short clause"}]}. No prose, no markdown fences. If none, return {"places":[]}.'},
+        {inline_data:{mime_type:file.type||'image/jpeg', data:b64}}
+      ]}]})
+    }).then(function(r){ return r.json(); }).then(function(d){
+      var txt='';
+      try{ txt=d.candidates[0].content.parts.map(function(p){return p.text||'';}).join(''); }catch(e){}
+      var out=null; try{ out=JSON.parse(txt.replace(/```json|```/g,'').trim()); }catch(e){}
+      if(!out || !out.places || !out.places.length){
+        thinking.innerHTML='I couldn\u2019t find recognisable places in that image. A screenshot with visible place names or captions works best.';
+        return;
+      }
+      thinking.innerHTML='\ud83d\udccd Found '+out.places.length+' place(s):<br><br>'
+        + out.places.slice(0,8).map(function(pl){
+            var nm=String(pl.name).replace(/[<>']/g,'');
+            return '<div style="display:flex;justify-content:space-between;gap:8px;align-items:center;padding:5px 0;border-bottom:1px solid var(--b2,#2A2A36)">'
+              +'<div><b>'+nm+'</b>'+(pl.note?'<div style="font-size:11px;color:var(--t3)">'+String(pl.note).replace(/[<>]/g,'')+'</div>':'')+'</div>'
+              +'<button class="tact" style="font-size:11px;padding:5px 9px;flex:0 0 auto" onclick="cpGoPlan(\''+nm+'\')">Plan \u2192</button></div>';
+          }).join('')
+        +'<div style="font-size:10.5px;color:var(--t3);margin-top:8px">Read from your image by Gemini on your own key \u2014 nothing was uploaded to RoamWise.</div>';
+      try{ track('img_scans'); }catch(e){}
+    }).catch(function(e){ thinking.innerHTML='Scan failed: '+(e.message||e); });
+  };
+  fr.readAsDataURL(file);
+}
 
 /* ==================== LIVE WORLD MAP (tap anywhere) ====================
    Google Maps JS and MapMyIndia both require an API key tied to a billing
