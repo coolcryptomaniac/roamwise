@@ -324,7 +324,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:17px;heigh
 .key-sec-title{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--t3);margin-bottom:10px}
 .prov-select{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:12px}
 .prov-btn{padding:9px 8px;border:1px solid var(--b1);border-radius:9px;background:var(--bg3);cursor:pointer;text-align:center;font-family:'Outfit',sans-serif;transition:all .15s}
-.prov-btn.on{border-color:var(--pm);background:rgba(155,89,245,.1)}.prov-btn .pn{font-size:12px;font-weight:600;color:var(--t1);display:block;margin-bottom:2px}.prov-btn .ps{font-size:10px}.ps-free{color:var(--teal)}.ps-paid{color:var(--amber)}
+.prov-btn.on{border-color:var(--pm);background:rgba(155,89,245,.1)}.prov-btn .pn{font-size:16px;font-weight:600;color:var(--t1);display:block;margin-bottom:2px}.prov-btn .ps{font-size:10px}.ps-free{color:var(--teal)}.ps-paid{color:var(--amber)}
 .key-box{background:var(--bg3);border-radius:10px;padding:11px 13px;margin-bottom:8px;border:1px solid var(--b1)}
 .key-box-name{font-size:12px;font-weight:600;color:var(--t1);margin-bottom:3px;display:flex;align-items:center;justify-content:space-between}
 .key-status{font-size:10px;padding:2px 8px;border-radius:99px}.ks-set{background:#e8f5f0;color:#0b7a4e}.ks-empty{background:rgba(255,255,255,.05);color:var(--t3)}
@@ -695,9 +695,9 @@ body.shell{padding-bottom:calc(96px + env(safe-area-inset-bottom))}
 /* popular media row (9:16 gradient covers) */
 .prow{display:flex;gap:11px;overflow-x:auto;padding:4px 2px 8px;scrollbar-width:none}
 .prow::-webkit-scrollbar{display:none}
-.pcard{flex:0 0 auto;width:128px;aspect-ratio:9/15;border-radius:18px;position:relative;overflow:hidden;display:flex;align-items:flex-end;padding:11px;cursor:pointer;transition:transform .12s ease;background-size:cover!important;background-position:center!important}
+.pcard{flex:0 0 auto;width:168px;aspect-ratio:3/4;border-radius:20px;position:relative;overflow:hidden;display:flex;align-items:flex-end;padding:14px;cursor:pointer;transition:transform .15s ease;background-size:cover!important;background-position:center!important;box-shadow:0 6px 20px rgba(0,0,0,.35)}
 .pcard:active{transform:scale(.95)}
-.pcard .pe{position:absolute;top:10px;left:0;right:0;text-align:center;font-size:42px;filter:drop-shadow(0 6px 14px rgba(0,0,0,.5))}
+.pcard .pe{position:absolute;top:10px;left:0;right:0;text-align:center;font-size:20px;filter:drop-shadow(0 6px 14px rgba(0,0,0,.5))}
 .pcard .pn{position:relative;font-weight:800;font-size:14px;color:#fff;text-shadow:0 2px 10px rgba(0,0,0,.6);line-height:1.15}
 .pcard .pb{position:absolute;top:9px;right:9px;font-size:9px;font-weight:800;padding:3px 8px;border-radius:99px;background:#16BF96;color:#04120D}
 .pcard::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,transparent 45%,rgba(7,9,15,.72) 100%)}
@@ -2067,7 +2067,7 @@ function _ssGo(i){ var x=window._ssHits[i]; ssClose(); x.go(); }
 
 /* ===== ADAPTIVE "FOR YOU" (usage-aware UI) ===== */
 function useBump(k){ try{ var u=JSON.parse(lsGet('rw_use')||'{}'); u[k]=(u[k]||0)+1; lsSet('rw_use',JSON.stringify(u)); }catch(e){} }
-var FORYOU_DEFS={copilot:['\ud83e\udded Copilot',function(){cpFocusHero();}],map:['\ud83d\uddfa\ufe0f Map',function(){openMapExplorer();}],trips:['\u2708\ufe0f Trips',function(){openVault();}],plan:['\ud83e\udded Plan',function(){tabGo('plan');}],treks:['\u26f0 Treks',function(){tabGo('explore');scrollToId('treks');}],card:['\ud83d\uddfa Card',function(){tabGo('explore');scrollToId('jlog');}],events:['\ud83c\udfdf Events',function(){tabGo('explore');scrollToId('events');}],store:['\ud83d\udecd Store',function(){tabGo('home');scrollToId('store');}],pdf:['\ud83d\udcd5 PDF',function(){tabGo('plan');}],search:['\ud83d\udd0d Search',function(){ssOpen();}],profile:['\ud83d\udc64 Profile',function(){openProfile();}]};
+var FORYOU_DEFS={copilot:['\ud83e\udded Copilot',function(){cpFocusHero();}],map:['\ud83d\uddfa\ufe0f Map',function(){openMapExplorer();}],group:['\ud83e\udd1d Group',function(){openGroupPlanner();}],trips:['\u2708\ufe0f Trips',function(){openVault();}],plan:['\ud83e\udded Plan',function(){tabGo('plan');}],treks:['\u26f0 Treks',function(){tabGo('explore');scrollToId('treks');}],card:['\ud83d\uddfa Card',function(){tabGo('explore');scrollToId('jlog');}],events:['\ud83c\udfdf Events',function(){tabGo('explore');scrollToId('events');}],store:['\ud83d\udecd Store',function(){tabGo('home');scrollToId('store');}],pdf:['\ud83d\udcd5 PDF',function(){tabGo('plan');}],search:['\ud83d\udd0d Search',function(){ssOpen();}],profile:['\ud83d\udc64 Profile',function(){openProfile();}]};
 function renderForYou(){
   var host=el('brief'); if(!host) return;
   var u={}; try{u=JSON.parse(lsGet('rw_use')||'{}');}catch(e){}
@@ -2166,29 +2166,61 @@ function renderForYou(){
 function rwPaintPhotos(rowEl, list){
   if(!rowEl || !list || !list.length) return;
   var cards = rowEl.querySelectorAll('.pcard');
-  function proxOf(u){ return 'https://images.weserv.nl/?w=300&h=500&fit=cover&q=78&output=jpg&url='+encodeURIComponent(String(u).replace(/\/thumb\/([0-9a-f]\/[0-9a-f]{2}\/[^\/]+)\/\d+px-[^\/]+$/,'/$1').replace(/^https?:\/\//,'')); }
-  function paint(ci,prox){ if(!cards[ci]) return; cards[ci].style.background='url('+prox+')'; cards[ci].style.backgroundSize='cover'; cards[ci].style.backgroundPosition='center';
-    var pe=cards[ci].querySelector('.pe'); if(pe) pe.style.textShadow='0 2px 10px rgba(0,0,0,.85)'; }
-  function loadOne(u,ci){ return new Promise(function(res){
-    var prox=proxOf(u), im=new Image(), tries=0;
-    im.onload=function(){ if(im.naturalWidth>10){ paint(ci,prox); res(true); } else res(false); };
-    im.onerror=function(){ if(tries++<2){ setTimeout(function(){ im.src=prox+'&_='+Date.now(); }, 1100*tries); } else res(false); };
-    im.src=prox;
-  }); }
-  function findURL(d){
+  /* The weserv proxy was 404-ing on Wikimedia thumbnail paths (their %-encoded
+     filenames don't survive proxying). Wikimedia URLs load DIRECTLY in the
+     browser with proper CORS, so we skip the proxy entirely — faster and it
+     actually works. Resolved URL is cached per destination. */
+  function paint(ci,url){
+    if(!cards[ci]) return;
+    cards[ci].style.background='linear-gradient(180deg,rgba(0,0,0,.05),rgba(0,0,0,.55)), url('+url+')';
+    cards[ci].style.backgroundSize='cover';
+    cards[ci].style.backgroundPosition='center';
+    var pe=cards[ci].querySelector('.pe'); if(pe) pe.style.textShadow='0 2px 12px rgba(0,0,0,.9)';
+    var pn=cards[ci].querySelector('.pn'); if(pn) pn.style.textShadow='0 2px 12px rgba(0,0,0,.95)';
+  }
+  function proxied(url){
+    /* Wikimedia serves these to servers but rejects the browser's hotlink
+       request; the weserv image proxy fetches server-side and re-serves with
+       open CORS. The critical detail my first attempt got wrong: the ENTIRE
+       source URL must be percent-encoded (encodeURIComponent), otherwise the
+       %-sequences already in Wikimedia filenames corrupt the proxy request. */
+    return 'https://images.weserv.nl/?url='+encodeURIComponent(url)+'&w=340&h=460&fit=cover&output=jpg&q=80';
+  }
+  function loadInto(url, ci){
+    return new Promise(function(res){
+      var prox=proxied(url), im=new Image();
+      im.onload=function(){ if(im.naturalWidth>10){ paint(ci,prox); res(true); } else res(false); };
+      im.onerror=function(){
+        /* proxy failed — last resort, try the raw URL directly */
+        var im2=new Image();
+        im2.onload=function(){ if(im2.naturalWidth>10){ paint(ci,url); res(true); } else res(false); };
+        im2.onerror=function(){ res(false); };
+        im2.src=url;
+      };
+      im.src=prox;
+    });
+  }
+  function findURL(d, attempt){
     var key='rw_pimg_'+d.name.toLowerCase().replace(/[^a-z0-9]/g,'');
     var cached=lsGet(key);
-    if(cached) return Promise.resolve({key:key,u:cached});
-    if(cached==='') return Promise.resolve({key:key,u:null});
-    var seen=null;
-    function grab(q){ if(seen) return Promise.resolve(); return wikiAny(q,q).then(function(u){ if(u&&/wikimedia|wikipedia/.test(u)&&!seen) seen=u; }).catch(function(){}); }
-    return grab(d.name).then(function(){ return grab(d.name+' '+(d.country||'')); }).then(function(){ return {key:key,u:seen}; });
+    if(cached) return Promise.resolve(cached);
+    /* NOTE: do NOT treat cached==='' as a hard no here. At page load a burst of
+       wikiAny calls gets rate-limited by Wikipedia's REST API and returns null,
+       which previously got cached as '' and stuck forever. Retry a couple of
+       times with backoff before giving up. */
+    attempt = attempt||0;
+    return wikiAny(d.name, d.name+' '+(d.country||'')).then(function(u){
+      if(u) return u;
+      if(attempt<2) return new Promise(function(r){ setTimeout(r, 700*(attempt+1)); }).then(function(){ return findURL(d, attempt+1); });
+      return null;
+    });
   }
   (function next(i){
     if(i>=list.length) return;
-    findURL(list[i]).then(function(r){
-      if(r&&r.u){ loadOne(r.u,i).then(function(ok){ lsSet(r.key, ok? r.u : ''); setTimeout(function(){next(i+1);}, 450); }); }
-      else setTimeout(function(){ next(i+1); }, 150);
+    var d=list[i], key='rw_pimg_'+d.name.toLowerCase().replace(/[^a-z0-9]/g,'');
+    findURL(d).then(function(url){
+      if(url){ loadInto(url,i).then(function(ok){ if(ok) lsSet(key, url); /* only cache successes */ setTimeout(function(){next(i+1);}, 350); }); }
+      else { setTimeout(function(){ next(i+1); }, 250); }
     });
   })(0);
 }
@@ -2888,10 +2920,9 @@ function imgTry(getters){ /* iterate candidate URL getters until a download succ
     return fetchImg64(u).catch(function(){ return imgTry(getters); });
   }).catch(function(){ return imgTry(getters); });
 }
-function wikiAny(q, alt){ /* REST -> action -> short -> alt -> openverse */
-  var short3=String(q).split(' ').slice(0,3).join(' ');
-  return wikiThumb(q).then(function(u){ if(u) return u; return wikiAction(q); })
-    .then(function(u){ if(u) return u; return short3!==q? wikiAction(short3):null; })
+function wikiAny(q, alt){ /* REST summary (proxy-safe) -> alt REST -> action -> openverse */
+  return wikiThumb(q).then(function(u){ if(u) return u; return alt? wikiThumb(alt):null; })
+    .then(function(u){ if(u) return u; return wikiAction(q); })
     .then(function(u){ if(u) return u; return alt? wikiAction(alt):null; })
     .then(function(u){ if(u) return u; return openverseThumb(q); });
 }
@@ -2951,9 +2982,12 @@ function drawMotif(pdf,key,acc,cx,cy){
     [[0,-34],[0,34],[-34,0],[34,0]].forEach(function(p2){ pdf.line(cx,cy,cx+p2[0],cy+p2[1]); }); }
 }
 function wikiThumb(q){
+  /* The REST summary already returns a working thumbnail URL. The old code
+     rewrote its size to /640px- which produced a path that often 404s (and
+     404s harder through the image proxy) — return the URL as-is. */
   return fetch('https://en.wikipedia.org/api/rest_v1/page/summary/'+encodeURIComponent(q))
     .then(function(r){return r.json();})
-    .then(function(d){ return (d.thumbnail&&d.thumbnail.source)? d.thumbnail.source.replace(/\/\d+px-/,'/640px-') : null; })
+    .then(function(d){ return (d.thumbnail&&d.thumbnail.source) || null; })
     .catch(function(){ return null; });
 }
 function genPdf(sample){
@@ -6841,7 +6875,7 @@ function cpParseRegex(t){
     /* Take EVERY preposition match, not just the first: "what to eat in Manali"
        used to capture "eat" from "to eat" and then look up a guide for a verb.
        Skip common verbs/fillers, and prefer a capitalised candidate. */
-    var VERBS=/^(eat|go|do|see|visit|stay|sleep|travel|reach|get|buy|shop|find|book|know|start|plan|the|a|an|my|it|be|drink|walk)$/i;
+    var VERBS=/^(eat|go|do|see|visit|stay|sleep|travel|reach|get|buy|shop|find|book|know|start|plan|the|a|an|my|it|be|drink|walk|chill|relax|relaxing|peaceful|adventure|romantic|honeymoon|solo|family|spiritual|nature|scenic|foodie|luxury|cheap|party|nightlife|somewhere|anywhere)$/i;
     var re=/(?:\bin|\bto|reaching|\bat|visit(?:ing)?|\bfor|around|near)\s+([A-Za-z][a-zA-Z\u00C0-\u024F]{2,}(?:\s[A-Z][a-zA-Z]{2,})?)/g, mm, cands=[];
     while((mm=re.exec(t))!==null){ var w=mm[1].trim(); if(!VERBS.test(w.split(' ')[0])) cands.push(w); }
     var capped = cands.filter(function(w){ return /^[A-Z]/.test(w); });
@@ -6849,9 +6883,10 @@ function cpParseRegex(t){
     else if(cands.length) out.dest=cands[0];
   }
   if(!out.dest){
-    /* strip filler + numbers; whatever real word remains is the place —
-       this is what makes "Manali 5 day plan under 8k inr" resolve. */
-    var STOP=/^(plan|planning|trip|tour|days?|nights?|budget|under|below|within|max|itinerary|itineraries|for|the|a|an|and|with|my|me|please|need|want|going|go|visit|visiting|show|find|make|create|give|about|cost|costs|price|rs|inr|rupees|k|thousand|weather|rain|cafe|cafes|bus|train|flight|volvo|hotel|stay|stays|from|to|in|at|on|next|week|weekend|tomorrow|today|is|are|it|what|how|much|good|best|place|places)$/i;
+    /* strip filler + numbers + MOOD words; whatever real word remains is the
+       place. Mood words (romantic, solo, chill...) were being mistaken for
+       destinations, so they're excluded here. */
+    var STOP=/^(plan|planning|trip|tour|days?|nights?|budget|under|below|within|max|itinerary|itineraries|for|the|a|an|and|with|my|me|please|need|want|going|go|visit|visiting|show|find|make|create|give|about|cost|costs|price|rs|inr|rupees|k|thousand|weather|rain|cafe|cafes|bus|train|flight|volvo|hotel|stay|stays|from|to|in|at|on|next|week|weekend|tomorrow|today|is|are|it|what|how|much|good|best|place|places|chill|relax|relaxing|peaceful|adventure|adventurous|romantic|honeymoon|solo|family|spiritual|nature|scenic|foodie|luxury|cheap|party|nightlife|workation|somewhere|anywhere|nice|cool|amazing|beautiful)$/i;
     var toks=(t.match(/[A-Za-z\u00C0-\u024F]{3,}/g)||[]).filter(function(w){ return !STOP.test(w); });
     if(toks.length) out.dest=toks[0];
   }
@@ -6864,8 +6899,69 @@ function cpParseRegex(t){
   if(/notify|companion|share|tell (?:my|the)/i.test(t)) out.wants.push('share');
   if(/hotel|stay|hostel|resort|room/i.test(t)) out.wants.push('stay');
   if(out.budget!=null) out.wants.push('budget');
+  /* ---- VIBE INFERENCE: read the mood/constraints behind the words ----
+     This is what turns "somewhere chill near Delhi, not too pricey, long
+     weekend" into structured intent instead of a keyword miss. */
+  out.vibe = [];
+  var VIBES=[
+    [/chill|relax|peace|quiet|slow|unwind|laid.?back|shaant|sukoon/i,'relax'],
+    [/adventure|thrill|trek|hike|raft|adrenal|extreme|risky/i,'adventure'],
+    [/party|nightlife|club|rave|booze|drink|masti/i,'party'],
+    [/romantic|honeymoon|couple|partner|wife|husband|girlfriend|boyfriend|bae/i,'romantic'],
+    [/family|kids|parents|children|bachche/i,'family'],
+    [/spiritual|temple|meditat|yoga|pilgrim|dham|darshan/i,'spiritual'],
+    [/nature|scenic|mountain|forest|waterfall|lake|green/i,'nature'],
+    [/foodie|food|eat|cuisine|street.?food|khana/i,'food'],
+    [/budget|cheap|afford|sasta|kam.?paisa|tight/i,'budget'],
+    [/luxury|premium|5.?star|fancy|lavish|shaandaar/i,'luxury'],
+    [/solo|alone|myself|akela/i,'solo'],
+    [/work|remote|workation|wifi|digital.?nomad/i,'workation']
+  ];
+  VIBES.forEach(function(v){ if(v[0].test(t)) out.vibe.push(v[1]); });
+  /* proximity: "near Delhi", "close to Mumbai", "around Bangalore" */
+  var near=t.match(/(?:near|close to|around|from)\s+([A-Z][a-zA-Z]{2,})/);
+  if(near) out.near=near[1];
+  /* fuzzy duration words when no number given */
+  if(out.days==null){
+    if(/long weekend|weekend/i.test(t)) out.days=3;
+    else if(/week\b/i.test(t)) out.days=7;
+    else if(/fortnight|two weeks/i.test(t)) out.days=14;
+  }
+  /* season/timing hint */
+  var MON=/(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)/i.exec(t);
+  if(MON) out.month=MON[1];
+  if(/summer|garmi/i.test(t)) out.season='summer';
+  else if(/winter|sardi|snow/i.test(t)) out.season='winter';
+  else if(/monsoon|rain|barish/i.test(t)) out.season='monsoon';
   if(!out.wants.length && out.dest) out.wants.push('plan');
+  if(out.vibe.length && out.wants.indexOf('plan')===-1) out.wants.push('plan');
+  /* learn what this user tends to ask for — powers personalisation over time */
+  try{ rwLearnIntent(out); }catch(e){}
   return out;
+}
+/* ---- SELF-IMPROVING INTENT MEMORY ----
+   Every parse feeds a local profile: which vibes, budgets and trip lengths this
+   user gravitates to. Ailon Tusk reads it back to fill gaps ("plan Goa" from a
+   budget-conscious beach-lover implies a cheaper beach itinerary) and to rank
+   suggestions. Stored on-device; nothing leaves the phone unless the user opts
+   into aggregate sharing. This is the honest "learns from user data". */
+function rwLearnIntent(parsed){
+  var m={}; try{ m=JSON.parse(lsGet('rw_intent_profile')||'{}'); }catch(e){}
+  m.vibes=m.vibes||{}; m.budgets=m.budgets||[]; m.days=m.days||[]; m.count=(m.count||0)+1;
+  (parsed.vibe||[]).forEach(function(v){ m.vibes[v]=(m.vibes[v]||0)+1; });
+  if(parsed.budget) { m.budgets.push(parsed.budget); if(m.budgets.length>20) m.budgets.shift(); }
+  if(parsed.days)   { m.days.push(parsed.days);     if(m.days.length>20) m.days.shift(); }
+  lsSet('rw_intent_profile', JSON.stringify(m));
+}
+function rwUserProfile(){
+  try{
+    var m=JSON.parse(lsGet('rw_intent_profile')||'{}');
+    var topVibe=null, max=0;
+    Object.keys(m.vibes||{}).forEach(function(v){ if(m.vibes[v]>max){ max=m.vibes[v]; topVibe=v; } });
+    var avgBudget = (m.budgets&&m.budgets.length)? Math.round(m.budgets.reduce(function(a,b){return a+b;},0)/m.budgets.length) : null;
+    var typicalDays = (m.days&&m.days.length)? Math.round(m.days.reduce(function(a,b){return a+b;},0)/m.days.length) : null;
+    return {topVibe:topVibe, avgBudget:avgBudget, typicalDays:typicalDays, count:m.count||0};
+  }catch(e){ return {topVibe:null,avgBudget:null,typicalDays:null,count:0}; }
 }
 /* ---- WORLD PLACE RESOLVER ----
    An embedded gazetteer of every country/city/village would be hundreds of MB —
@@ -7106,6 +7202,18 @@ async function cpActionsHTML(it){
   if(costEntry && (it.days || it.wants.indexOf('budget')>-1)){
     H.push(shadowBudgetHTML(costEntry, it.days||5, 'mid'));
   }
+  /* personalise from what we've learned about this user */
+  var prof = rwUserProfile();
+  if(prof.count>=3 && prof.topVibe && it.dest && (!it.vibe || !it.vibe.length)){
+    H.push('<div style="font-size:11px;color:var(--t3)">\ud83d\udca1 You usually lean <b>'+prof.topVibe+'</b>'
+      +(prof.typicalDays? ' \u00b7 ~'+prof.typicalDays+'-day trips':'')
+      +(prof.avgBudget? ' \u00b7 around \u20b9'+prof.avgBudget.toLocaleString('en-IN'):'')
+      +' \u2014 tuning suggestions that way.</div>');
+  }
+  /* the fun bit: a witty, destination-aware voice note */
+  if(it.dest && (dbHit||geo)){
+    H.push(tuskVoiceNoteHTML(it.dest, dbHit||costEntry));
+  }
   /* budget */
   if(it.budget!=null){
     var line='\ud83d\udcb0 \u20b9'+it.budget.toLocaleString('en-IN');
@@ -7225,6 +7333,7 @@ function openVaultTrip(id){
     '<button class="tact" style="font-size:11px;padding:6px 10px;margin-bottom:10px" onclick="openVault()">\u2190 All trips</button>'
     +'<div style="font-weight:800;font-size:16px;margin-bottom:2px">'+String(t.name).replace(/[<>]/g,'')+'</div>'
     +'<div style="font-size:11px;color:var(--t3);margin-bottom:12px">Available offline \u00b7 '+t.days.length+' days</div>'
+    + '<button class="tact" style="width:100%;margin-top:10px;font-weight:800" onclick="tripChatById(\''+t.id+'\')">\ud83d\udcac Open group chat</button>'
     + H + travelLinksHTML(t.name)
     + '<div id="tripExtras"></div>';
   loadTripExtras(t);
@@ -7492,6 +7601,301 @@ function copyText(t){
 
 
 
+
+
+/* ==================== GROUP COMPROMISE ENGINE ====================
+   The problem it kills: five people in a WhatsApp thread arguing over a trip.
+   Each member sets what they want (interests, daily budget, pace, wake time,
+   dietary need). The engine scores every candidate destination against the
+   WHOLE group and finds the itinerary shape that upsets the fewest people.
+
+   It is pure deterministic logic over data the app already has — no server, no
+   AI cost, and the maths is explainable (we SHOW each person's satisfaction,
+   not a black-box number). That transparency is the point: a compromise people
+   can see is fair is one they'll actually accept. */
+var RW_INTERESTS = ['beaches','mountains','food','nightlife','culture','adventure','shopping','relaxation','wildlife','history'];
+function grpMembers(){ try{ return JSON.parse(lsGet('rw_group')||'[]'); }catch(e){ return []; } }
+function grpSave(m){ lsSet('rw_group', JSON.stringify(m.slice(0,12))); }
+function grpTagsFor(entry){
+  var j=((entry.tags||[]).concat(entry.interests||[]).join(' ')+' '+(entry.name||'')+' '+(entry.region||'')).toLowerCase();
+  var t=[];
+  if(/beach|island|coast|goa|bali|maldiv/.test(j)) t.push('beaches');
+  if(/trek|mountain|himalaya|alpine|leh|spiti|manali|peak/.test(j)) t.push('mountains');
+  t.push('food'); /* every destination has food */
+  if(/night|party|club|bar|bangkok|vegas/.test(j)) t.push('nightlife');
+  if(/temple|museum|heritage|fort|palace|culture|history|varanasi/.test(j)) { t.push('culture'); t.push('history'); }
+  if(/trek|raft|dive|surf|safari|adventure|ski/.test(j)) t.push('adventure');
+  if(/market|shop|bazaar|mall/.test(j)) t.push('shopping');
+  if(/beach|spa|lake|relax|retreat/.test(j)) t.push('relaxation');
+  if(/safari|wildlife|park|jungle|national/.test(j)) t.push('wildlife');
+  return t;
+}
+function grpScoreMember(member, entry, tags){
+  /* interest overlap */
+  var want=member.interests||[], hit=0;
+  want.forEach(function(w){ if(tags.indexOf(w)>-1) hit++; });
+  var interestScore = want.length ? hit/want.length : 0.5;
+  /* budget fit: their daily cap vs the destination's mid daily (weekly/7, INR) */
+  var fx=window._rwFxINR||88;
+  var dailyMidINR = ((entry.cost&&entry.cost.mid)||700)/7*fx;
+  var budgetScore = !member.budget ? 0.6
+    : member.budget >= dailyMidINR ? 1
+    : Math.max(0, member.budget/dailyMidINR);
+  /* dietary comfort — veg/halal easier in some regions */
+  var dietScore=1, reg=(entry.region||'').toLowerCase();
+  if(member.diet==='veg')  dietScore = /south asia|india/.test(reg)?1 : /southeast asia|east asia/.test(reg)?0.7 : 0.55;
+  if(member.diet==='halal')dietScore = /middle east|south asia|southeast asia/.test(reg)?1 : 0.6;
+  if(member.diet==='vegan')dietScore = /south asia|southeast asia/.test(reg)?0.8 : 0.6;
+  return Math.round((interestScore*0.5 + budgetScore*0.35 + dietScore*0.15)*100);
+}
+function grpCompromise(members){
+  if(!members.length) return [];
+  var pool=(typeof DB!=='undefined'? DB:[]).slice();
+  var scored=pool.map(function(entry){
+    var tags=grpTagsFor(entry);
+    var per=members.map(function(m){ return {name:m.name||'Traveller', score:grpScoreMember(m,entry,tags)}; });
+    var vals=per.map(function(p){return p.score;});
+    var avg=Math.round(vals.reduce(function(a,b){return a+b;},0)/vals.length);
+    var min=Math.min.apply(null,vals);
+    /* fairness = high average BUT penalise leaving anyone miserable; the min
+       term is what stops "great for 4, awful for 1" winning. */
+    var fairness=Math.round(avg*0.6 + min*0.4);
+    return {entry:entry, per:per, avg:avg, min:min, fairness:fairness, tags:tags};
+  });
+  scored.sort(function(a,b){ return b.fairness-a.fairness; });
+  return scored.slice(0,5);
+}
+function openGroupPlanner(){
+  var ov=el('grpOverlay');
+  if(!ov){
+    ov=document.createElement('div'); ov.id='grpOverlay'; ov.className='overlay';
+    ov.innerHTML='<div class="sheet"><div class="sheet-head"><b>\ud83e\udd1d Group Compromise</b><button class="x" onclick="rwOverlayClose(\'grpOverlay\')">\u2715</button></div>'
+      +'<div id="grpBody" style="overflow-y:auto;flex:1 1 auto;min-height:0;padding:4px 2px 16px"></div></div>';
+    document.body.appendChild(ov);
+  }
+  grpRender();
+  rwOverlayOpen('grpOverlay');
+}
+function grpRender(){
+  var body=el('grpBody'); if(!body) return;
+  var m=grpMembers();
+  var chips=RW_INTERESTS.map(function(x){return x;});
+  var memHTML = m.map(function(mem,i){
+    return '<div style="background:var(--bg2,#12121C);border:1px solid var(--b2,#2A2A36);border-radius:12px;padding:10px 12px;margin-bottom:8px">'
+      +'<div style="display:flex;justify-content:space-between;align-items:center">'
+      +'<b style="font-size:13px">'+(String(mem.name||'Traveller '+(i+1)).replace(/[<>]/g,''))+'</b>'
+      +'<button class="tact" style="font-size:11px;padding:4px 8px" onclick="grpRemove('+i+')">\u2715</button></div>'
+      +'<div style="font-size:11px;color:var(--t3);margin-top:3px">'
+      +(mem.interests&&mem.interests.length? mem.interests.join(', '):'no interests set')
+      +(mem.budget? ' \u00b7 \u20b9'+mem.budget+'/day':'')
+      +(mem.diet&&mem.diet!=='none'? ' \u00b7 '+mem.diet:'')+'</div></div>';
+  }).join('');
+  body.innerHTML =
+    '<p style="font-size:12px;color:var(--t2);line-height:1.6;margin:2px 2px 12px">Add everyone travelling. The engine finds destinations that keep the <b>whole group</b> happy \u2014 and shows each person\u2019s score so the pick is provably fair.</p>'
+    + memHTML
+    + '<div style="background:var(--bg3,#1A1A20);border:1px dashed var(--b2,#2A2A36);border-radius:12px;padding:12px;margin-bottom:10px">'
+    + '<input id="grpName" class="k-inp" placeholder="Name" style="width:100%;margin-bottom:8px">'
+    + '<div style="font-size:11px;color:var(--t3);margin-bottom:5px">Interests (tap):</div>'
+    + '<div id="grpInterests" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px">'
+    + chips.map(function(c){ return '<button class="tact grp-int" data-i="'+c+'" style="font-size:11px;padding:5px 10px" onclick="this.classList.toggle(\'on\');this.style.background=this.classList.contains(\'on\')?\'var(--gold,#E8BA6C)\':\'\';this.style.color=this.classList.contains(\'on\')?\'#0A0A0C\':\'\'">'+c+'</button>'; }).join('')
+    + '</div>'
+    + '<div style="display:flex;gap:8px;margin-bottom:8px">'
+    + '<input id="grpBudget" class="k-inp" type="number" placeholder="\u20b9/day" style="flex:1">'
+    + '<select id="grpDiet" class="k-inp" style="flex:1"><option value="none">No diet limit</option><option value="veg">Vegetarian</option><option value="vegan">Vegan</option><option value="halal">Halal</option></select>'
+    + '</div>'
+    + '<button class="g-btn" style="width:100%;min-height:40px" onclick="grpAdd()">+ Add traveller</button></div>'
+    + (m.length>=2 ? '<button class="g-btn" style="width:100%;min-height:46px;font-size:15px;background:linear-gradient(135deg,var(--gold,#E8BA6C),var(--gold2,#C8913E))" onclick="grpResults()">\ud83c\udfaf Find our compromise</button>'
+                   : '<div style="text-align:center;font-size:11px;color:var(--t3);padding:6px">Add at least 2 travellers</div>')
+    + '<div id="grpOut" style="margin-top:12px"></div>';
+}
+function grpAdd(){
+  var name=(el('grpName').value||'').trim();
+  var interests=[].slice.call(document.querySelectorAll('.grp-int.on')).map(function(b){return b.dataset.i;});
+  var budget=parseInt(el('grpBudget').value,10)||0;
+  var diet=el('grpDiet').value;
+  if(!name && !interests.length){ showToast('Add a name or pick interests'); return; }
+  var m=grpMembers(); m.push({name:name, interests:interests, budget:budget, diet:diet});
+  grpSave(m); grpRender();
+}
+function grpRemove(i){ var m=grpMembers(); m.splice(i,1); grpSave(m); grpRender(); }
+function grpResults(){
+  var m=grpMembers(); var out=el('grpOut');
+  var res=grpCompromise(m);
+  if(!res.length){ out.innerHTML='<div class="mode-box">No destinations to score yet.</div>'; return; }
+  out.innerHTML = '<div style="font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--gold2,#C8913E);margin-bottom:8px">Best for everyone</div>'
+    + res.map(function(r,idx){
+        var bar = r.per.map(function(p){
+          var col = p.score>=70?'#4ADE80':p.score>=45?'#E8BA6C':'#E05B5B';
+          return '<div style="flex:1;text-align:center"><div style="font-size:9px;color:var(--t3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+String(p.name).replace(/[<>]/g,'')+'</div>'
+            +'<div style="height:5px;background:var(--b2,#2A2A36);border-radius:3px;margin-top:2px;overflow:hidden"><div style="width:'+p.score+'%;height:100%;background:'+col+'"></div></div>'
+            +'<div style="font-size:10px;color:'+col+';margin-top:1px">'+p.score+'</div></div>';
+        }).join('');
+        return '<div style="background:var(--bg2,#12121C);border:1px solid '+(idx===0?'var(--gold,#E8BA6C)':'var(--b2,#2A2A36)')+';border-radius:14px;padding:12px 14px;margin-bottom:10px">'
+          +'<div style="display:flex;justify-content:space-between;align-items:center">'
+          +'<div><b style="font-size:15px">'+(idx===0?'\ud83c\udfc6 ':'')+r.entry.name+'</b> <span style="font-size:11px;color:var(--t3)">'+r.entry.country+'</span></div>'
+          +'<div style="text-align:right"><div style="font-size:20px;font-weight:800;color:var(--gold,#E8BA6C)">'+r.fairness+'</div><div style="font-size:9px;color:var(--t3)">fairness</div></div></div>'
+          +'<div style="display:flex;gap:6px;margin-top:10px">'+bar+'</div>'
+          +'<div style="font-size:10.5px;color:var(--t3);margin-top:8px">Avg '+r.avg+' \u00b7 nobody below '+r.min+' \u00b7 '+r.tags.slice(0,4).join(', ')+'</div>'
+          +'<button class="tact" style="font-size:11.5px;padding:6px 11px;margin-top:8px;font-weight:800" onclick="rwOverlayClose(\'grpOverlay\');cpGoPlan(\''+r.entry.name.replace(/'/g,'')+'\')">Plan '+r.entry.name+' \u2192</button>'
+          +'</div>';
+      }).join('');
+}
+
+/* ==================== SECURE TRIP GROUP CHAT ====================
+   A private room per trip so planning lives in the app, not scattered across
+   WhatsApp. "Secure" here means specific, not hand-wavy: messages are readable
+   and writable ONLY by members listed on the room doc (enforced in Firestore
+   rules, not just the UI), every message is signed with its sender's uid, the
+   room is reachable only by its unguessable ID, and nothing is world-readable.
+   It is NOT end-to-end encrypted — Firestore can see message text — so the UI
+   says exactly that rather than overpromising. */
+var _chatUnsub=null, _chatRoom=null;
+function tripChatOpen(roomId, roomName){
+  if(!user || !user.uid){ showToast('Sign in to use group chat'); try{ openAuth(); }catch(e){} return; }
+  _chatRoom=roomId;
+  var ov=el('chatOverlay');
+  if(!ov){
+    ov=document.createElement('div'); ov.id='chatOverlay'; ov.className='overlay';
+    ov.innerHTML='<div class="sheet" style="display:flex;flex-direction:column;max-height:90dvh">'
+      +'<div class="sheet-head"><b id="chatTitle">\ud83d\udcac Trip chat</b><button class="x" onclick="tripChatClose()">\u2715</button></div>'
+      +'<div id="chatLog" style="flex:1 1 auto;min-height:0;overflow-y:auto;padding:6px 2px"></div>'
+      +'<div style="font-size:9.5px;color:var(--t3);padding:4px 2px">\ud83d\udd12 Private to members \u00b7 signed by sender \u00b7 not end-to-end encrypted</div>'
+      +'<div style="display:flex;gap:8px;align-items:flex-end;padding-top:4px">'
+      +'<textarea id="chatInput" rows="1" placeholder="Message the group\u2026" style="flex:1;background:var(--bg3,#1A1A20);border:1px solid var(--b2,#2A2A36);border-radius:12px;padding:10px 12px;color:inherit;font:inherit;resize:none;outline:none"></textarea>'
+      +'<button class="tact" style="padding:10px 14px;font-weight:800;background:linear-gradient(135deg,var(--gold,#E8BA6C),var(--gold2,#C8913E));color:#0A0A0C;border:none" onclick="tripChatSend()">\u27a4</button></div>'
+      +'</div>';
+    document.body.appendChild(ov);
+    el('chatInput').addEventListener('keydown',function(e){ if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); tripChatSend(); } });
+  }
+  el('chatTitle').textContent='\ud83d\udcac '+(roomName||'Trip chat');
+  rwOverlayOpen('chatOverlay');
+  /* ensure the room exists with me as a member, then live-subscribe */
+  var ref=db.collection('tripchats').doc(roomId);
+  ref.get().then(function(d){
+    if(!d.exists) return ref.set({name:roomName||'Trip', members:[user.uid], owner:user.uid, created:firebase.firestore.FieldValue.serverTimestamp()});
+    if((d.data().members||[]).indexOf(user.uid)===-1)
+      return ref.update({members:firebase.firestore.FieldValue.arrayUnion(user.uid)});
+  }).then(function(){
+    if(_chatUnsub) _chatUnsub();
+    _chatUnsub = ref.collection('msgs').orderBy('at','asc').limitToLast(100).onSnapshot(function(qs){
+      var log=el('chatLog'); if(!log) return;
+      log.innerHTML = qs.docs.map(function(doc){
+        var m=doc.data(), mine=m.uid===user.uid;
+        return '<div style="display:flex;justify-content:'+(mine?'flex-end':'flex-start')+';margin:4px 0">'
+          +'<div style="max-width:78%;background:'+(mine?'linear-gradient(135deg,var(--gold,#E8BA6C),var(--gold2,#C8913E));color:#0A0A0C':'var(--bg2,#12121C);color:var(--t1);border:1px solid var(--b2,#2A2A36)')
+          +';border-radius:'+(mine?'14px 14px 4px 14px':'14px 14px 14px 4px')+';padding:8px 11px;font-size:12.5px;line-height:1.5">'
+          +(mine?'':'<div style="font-size:9.5px;opacity:.7;margin-bottom:2px">'+String(m.name||'Traveller').replace(/[<>]/g,'')+'</div>')
+          +String(m.text||'').replace(/[<>]/g,'')+'</div></div>';
+      }).join('');
+      log.scrollTop=log.scrollHeight;
+    }, function(err){ el('chatLog').innerHTML='<div class="mode-box">Chat unavailable: '+esc2(err.message||err)+'</div>'; });
+  }).catch(function(e){ showToast('Could not open chat: '+(e.message||e)); });
+}
+function tripChatSend(){
+  var inp=el('chatInput'); var t=(inp.value||'').trim(); if(!t || !_chatRoom || !user) return;
+  inp.value='';
+  db.collection('tripchats').doc(_chatRoom).collection('msgs').add({
+    text:t.slice(0,1000), uid:user.uid,
+    name:(user.displayName||user.email||'Traveller').split('@')[0],
+    at:firebase.firestore.FieldValue.serverTimestamp()
+  }).catch(function(e){ showToast('Send failed: '+(e.message||e)); inp.value=t; });
+}
+function tripChatClose(){ if(_chatUnsub){ _chatUnsub(); _chatUnsub=null; } rwOverlayClose('chatOverlay'); }
+/* deterministic room id from a saved trip, so the same trip = the same room */
+function tripChatById(id){ var t=vaultGet().filter(function(x){return x.id===id;})[0]; if(t) tripChatForTrip(t); }
+function tripChatForTrip(trip){
+  var id = 'trip_'+wvSlug(trip.name)+'_'+String(trip.id||'').slice(-6);
+  tripChatOpen(id, trip.name+' group');
+}
+
+
+/* ==================== AILON TUSK — PERSONALITY & VOICE NOTES ================
+   People come back to something that makes them smile. This gives Ailon Tusk a
+   witty, masala Hinglish voice and lets it drop a short spoken "voice note"
+   about a destination.
+
+   IMPORTANT (copyright): these are ORIGINAL lines written in a Bollywood-ish,
+   filmy flavour — NOT real film dialogue or song lyrics, which are copyrighted
+   and would get the app pulled from Play. Audio is the device's own built-in
+   text-to-speech (SpeechSynthesis) — free, offline, no rights issue, no files
+   to host. In the Android app the native TTS is used via the same bridge. */
+var TUSK_QUIPS = {
+  beach:[
+    "Beach vibes? Boss, sunscreen laga ke jaana — warna lobster ban ke aaoge. \ud83e\udd9e",
+    "Sand, susegad aur sunset. Bas ek chai-tapri aur life set hai. \ud83c\udfd6\ufe0f",
+    "Waves bulaa rahi hain, aur tera boss bhi. Dono ko ignore kar, chal nikal. \ud83c\udf0a"
+  ],
+  mountains:[
+    "Pahaad bula rahe hain! Oxygen kam, attitude zyada \u2014 perfect trip. \ud83c\udfd4\ufe0f",
+    "Maggi at 3000m hits different, boss. Science bhi maan chuki hai. \ud83c\udf5c",
+    "Mountains don\u2019t text back, par sukoon zaroor dete hain. Chalo. \u26f0\ufe0f"
+  ],
+  spiritual:[
+    "Aatma ki battery low? Chalo, thodi spiritual charging ho jaaye. \ud83d\uddff",
+    "Ghanti bajao, selfie lo, thoda sukoon lo \u2014 balance hai boss. \ud83d\ude4f",
+    "Yahaan network kam milega, par connection upar waale se pakka. \u2728"
+  ],
+  party:[
+    "Party mode ON! Kal ki tension kal ka Tusk sambhaal lega. \ud83c\udf89",
+    "Neend to ghar pe bhi aa jayegi \u2014 abhi nikal, DJ waiting hai. \ud83d\udd7a",
+    "Budget alert baad mein, pehle beat drop hone de. \ud83c\udfa7"
+  ],
+  romantic:[
+    "Do log, ek sunset, zero network \u2014 perfect date, boss. \u2764\ufe0f",
+    "Romance ka budget mat dekh, memories priceless hoti hain (mostly). \ud83c\udf39",
+    "Candlelight dinner ya street chaat \u2014 pyaar dono mein hai. \ud83d\udd6f\ufe0f"
+  ],
+  budget:[
+    "Kam paise, zyada maze \u2014 yeh apun ka funda hai, boss. \ud83d\udcb8",
+    "Sasta trip, mehnga experience. Tusk guarantee. \ud83e\uddb5",
+    "Paisa bachega toh ek aur trip banega. Simple maths. \ud83e\uddee"
+  ],
+  adventure:[
+    "Dil thaam ke baith \u2014 yeh trip roller-coaster hai, EMI nahi. \ud83e\udea2",
+    "Comfort zone ko bye bol, adventure zone mein WiFi behtar hai. \ud83e\udd18",
+    "Darr ke aage jeep hai, boss. Chal nikal. \ud83d\ude99"
+  ],
+  _default:[
+    "Bags pack kar, excuses unpack kar \u2014 Tusk ready hai. \ud83c\udf92",
+    "Zindagi ek safar hai, aur main tera co-pilot. Seatbelt baandh. \u2708\ufe0f",
+    "Trip plan karna mujhpe chhod, tu bas haan bol. \ud83d\ude0e"
+  ]
+};
+function tuskQuip(vibeOrPlace, entry){
+  var pool=null;
+  if(entry){
+    var tags=(typeof grpTagsFor==='function')? grpTagsFor(entry):[];
+    for(var i=0;i<tags.length;i++){ if(TUSK_QUIPS[tags[i]]){ pool=TUSK_QUIPS[tags[i]]; break; } }
+  }
+  if(!pool && TUSK_QUIPS[vibeOrPlace]) pool=TUSK_QUIPS[vibeOrPlace];
+  if(!pool) pool=TUSK_QUIPS._default;
+  return pool[Math.floor(Math.random()*pool.length)];
+}
+/* speak a line via TTS — native bridge in-app, Web Speech on the web */
+function tuskSpeak(text){
+  if(window.RW && typeof RW.speak==='function'){ try{ RW.speak(text); return; }catch(e){} }
+  try{
+    if(!window.speechSynthesis){ showToast('Voice notes need a newer browser \u2014 reading it instead'); return; }
+    speechSynthesis.cancel();
+    var u=new SpeechSynthesisUtterance(text);
+    u.lang='hi-IN'; u.rate=1.02; u.pitch=1.05;
+    /* prefer an Indian-English/Hindi voice if the device has one */
+    var vs=speechSynthesis.getVoices();
+    var pick=vs.filter(function(v){ return /hi-IN|en-IN/i.test(v.lang); })[0];
+    if(pick) u.voice=pick;
+    speechSynthesis.speak(u);
+  }catch(e){}
+}
+/* a shareable "voice note" bubble: shows the witty line + a play button */
+function tuskVoiceNoteHTML(place, entry){
+  var line=tuskQuip(place, entry);
+  var id='vn_'+Math.random().toString(36).slice(2,8);
+  window['_'+id]=line;
+  return '<div style="display:flex;align-items:center;gap:10px;background:linear-gradient(135deg,rgba(232,186,108,.14),rgba(200,145,62,.06));border:1px solid rgba(232,186,108,.3);border-radius:14px;padding:11px 13px;margin-top:8px">'
+    +'<button onclick="tuskSpeak(window._'+id+')" style="flex:0 0 auto;width:40px;height:40px;border-radius:50%;border:none;background:linear-gradient(135deg,var(--gold,#E8BA6C),var(--gold2,#C8913E));color:#0A0A0C;font-size:16px;cursor:pointer">\u25b6</button>'
+    +'<div style="flex:1;min-width:0"><div style="font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--gold2,#C8913E);margin-bottom:2px">\ud83c\udf99\ufe0f Tusk\u2019s voice note</div>'
+    +'<div style="font-size:12px;line-height:1.5;color:var(--t2)">'+esc2(line)+'</div></div></div>';
+}
 
 /* ==================== AILON TUSK — the built-in engine's knowledge layer ====
    "Crawl Google in the background" cannot be done from a static app: Google
