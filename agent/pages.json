@@ -970,5 +970,113 @@
    99,
    97
   ]
+ },
+ {
+  "slug": "goa-india",
+  "title": "Goa, India",
+  "name": "Goa",
+  "country": "India",
+  "best": "July, August, November",
+  "arch": "temperate",
+  "cl": [
+   11.9,
+   14.1,
+   14.9,
+   17.9,
+   20.1,
+   23.4,
+   28.6,
+   31.2,
+   23.7,
+   20.1,
+   15.5,
+   12
+  ],
+  "scores": [
+   88,
+   61,
+   65,
+   87,
+   87,
+   81,
+   97,
+   98,
+   77,
+   57,
+   93,
+   92
+  ]
+ },
+ {
+  "slug": "gokarna-india",
+  "title": "Gokarna, India",
+  "name": "Gokarna",
+  "country": "India",
+  "best": "February, March, December",
+  "arch": "monsoon",
+  "cl": [
+   31.9,
+   32.9,
+   32.6,
+   33.5,
+   32.8,
+   28.1,
+   26.6,
+   27.7,
+   27.7,
+   29.4,
+   33.3,
+   32
+  ],
+  "scores": [
+   97,
+   100,
+   100,
+   96,
+   82,
+   55,
+   55,
+   55,
+   56,
+   59,
+   93,
+   98
+  ]
+ },
+ {
+  "slug": "hampi-india",
+  "title": "Hampi, India",
+  "name": "Hampi",
+  "country": "India",
+  "best": "January, November, December",
+  "arch": "tropical",
+  "cl": [
+   32.6,
+   35.9,
+   39,
+   40.4,
+   38.2,
+   32.1,
+   30.2,
+   30.5,
+   30.7,
+   30,
+   29.4,
+   29.4
+  ],
+  "scores": [
+   100,
+   83,
+   49,
+   36,
+   48,
+   86,
+   85,
+   81,
+   89,
+   80,
+   98,
+   97
+  ]
  }
 ]
