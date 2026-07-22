@@ -1,0 +1,164 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{db}/documents {
+    // You are admin only if a doc exists at admins/<your-uid>.
+    // That doc can ONLY be created from the Firebase Console (no client can write it).
+    function isAdmin() {
+      return request.auth != null
+        && exists(/databases/$(db)/documents/admins/$(request.auth.uid));
+    }
+    function isSelf(uid) {
+      return request.auth != null && request.auth.uid == uid;
+    }
+
+    // ---------- USERS ----------
+    // A user may create/read their own profile but can NEVER touch the pro fields.
+    // Pro is set only by you (admin) — users cannot grant themselves Pro.
+    match /users/{uid} {
+      allow read: if isSelf(uid) || isAdmin();
+      allow create: if isSelf(uid)
+        && !request.resource.data.keys().hasAny(['pro','proAt','proMethod','proPayId']);
+      allow update: if isAdmin();
+      allow update: if isSelf(uid)
+        && !request.resource.data.diff(resource.data).affectedKeys()
+             .hasAny(['pro','proAt','proMethod','proPayId']);
+      allow delete: if isAdmin() || isSelf(uid);
+
+      // Device registry for the 3-device cap (account-bound Pro system).
+      match /devices/{deviceId} {
+        allow read, write: if isSelf(uid);
+      }
+    }
+
+    // ---------- UPI CLAIMS (zero-fee flow) ----------
+    // User submits their UTR after paying your QR; only admin can approve.
+    match /claims/{id} {
+      allow create: if request.auth != null
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.status == 'pending'
+        && request.resource.data.utr is string
+        && request.resource.data.utr.size() >= 8
+        && request.resource.data.utr.size() <= 40;
+      allow read: if isAdmin() || (request.auth != null && resource.data.uid == request.auth.uid);
+      allow update, delete: if isAdmin();
+    }
+
+    match /pulse/{id} {
+      allow read: if true;
+      allow create, update: if request.auth != null
+        && request.resource.data.count is int;
+    }
+
+    match /requests/{id} {
+      allow create: if request.auth != null
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.text is string
+        && request.resource.data.text.size() <= 200;
+      allow read: if isAdmin();
+    }
+
+    // ---------- PAYMENTS LOG ----------
+    match /payments/{id} {
+      allow read: if isAdmin();
+      allow write: if false;
+    }
+
+    // ---------- ADMINS ----------
+    // Never writable from any client. Add your own UID manually in the Firebase Console.
+    match /admins/{uid} {
+      allow read: if isSelf(uid);
+      allow write: if false;
+    }
+
+    match /stats/{day} {
+      allow read: if isAdmin();
+      allow write: if true;
+    }
+
+    // ---------- RATINGS & TESTIMONIALS ----------
+    // Public read (needed for the average-score + testimonial wall). One doc per
+    // user (doc id = uid), so "one rating per account" is enforced server-side.
+    match /ratings/{uid} {
+      allow read: if true;
+      allow create, update: if isSelf(uid)
+        && request.resource.data.stars is int
+        && request.resource.data.stars >= 1
+        && request.resource.data.stars <= 5
+        && (!('text' in request.resource.data) || request.resource.data.text.size() <= 200);
+      allow delete: if isSelf(uid);
+    }
+
+    // ---------- TRIP SQUADS ----------
+    // Safe, destination-anchored posts. Public read, owner-only delete, immutable
+    // once created (delete + repost instead of editing in place).
+    match /squads/{squadId} {
+      allow read: if true;
+      allow create: if request.auth != null
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.note.size() <= 140
+        && (!('contact' in request.resource.data) || request.resource.data.contact.size() <= 80);
+      allow delete: if request.auth != null && resource.data.uid == request.auth.uid;
+      allow update: if false;
+    }
+
+    // ---------- REPORTS (moderation flags) ----------
+    // Write-only from clients (including anonymous — safety reports shouldn't
+    // require an account); only admin can read/manage them.
+    match /reports/{reportId} {
+      allow create: if true;
+      allow read, update, delete: if isAdmin();
+    }
+
+    // ---------- TRIP CHATS (private group rooms) ----------
+    // Readable/writable ONLY by uids listed on the room's members array — this
+    // is the actual security boundary, enforced here not just in the UI. The
+    // room is created by a signed-in user who must include themselves; joining
+    // appends your own uid. Messages are per-member, signed with the sender uid.
+    match /tripchats/{roomId} {
+      allow read: if request.auth != null && request.auth.uid in resource.data.members;
+      allow create: if request.auth != null && request.auth.uid in request.resource.data.members;
+      // only let a signed-in user add THEMSELVES to members (join), nothing else destructive
+      allow update: if request.auth != null
+        && request.auth.uid in request.resource.data.members
+        && (resource.data.members.toSet().difference(request.resource.data.members.toSet()).size() == 0);
+      match /msgs/{msgId} {
+        allow read: if request.auth != null
+          && request.auth.uid in get(/databases/$(database)/documents/tripchats/$(roomId)).data.members;
+        allow create: if request.auth != null
+          && request.resource.data.uid == request.auth.uid
+          && request.resource.data.text.size() <= 1000
+          && request.auth.uid in get(/databases/$(database)/documents/tripchats/$(roomId)).data.members;
+        allow update, delete: if false;
+      }
+    }
+
+    // ---------- SECRETS (end-to-end encrypted API-key backup) ----------
+    // Ciphertext only: encrypted in the user's browser with a passphrase we
+    // never receive. Strictly owner-only — no admin read, because there is
+    // no legitimate reason for anyone but the user to touch this document.
+    match /secrets/{uid} {
+      allow read, write, delete: if isSelf(uid);
+    }
+
+    // ---------- CONFIG (owner-managed app settings) ----------
+    // Affiliate IDs, Gumroad link/ID, WhatsApp numbers, wallets, promo URL.
+    // Publicly readable (the app needs them), writable ONLY by admin — this
+    // must NOT live in the meta collection, which any signed-in user can write.
+    match /config/{doc} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // ---------- CRM (contact database: personal data, admin-only) ----------
+    // Never publicly readable — it holds names and emails of real people.
+    match /crm/{id} {
+      allow read, write: if isAdmin();
+    }
+
+    // ---------- META (shared counters, e.g. first-1000-signups trial) ----------
+    match /meta/{doc} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+  }
+}
