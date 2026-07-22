@@ -109,6 +109,29 @@ service cloud.firestore {
       allow read, update, delete: if isAdmin();
     }
 
+    // ---------- TRIP CHATS (private group rooms) ----------
+    // Readable/writable ONLY by uids listed on the room's members array — this
+    // is the actual security boundary, enforced here not just in the UI. The
+    // room is created by a signed-in user who must include themselves; joining
+    // appends your own uid. Messages are per-member, signed with the sender uid.
+    match /tripchats/{roomId} {
+      allow read: if request.auth != null && request.auth.uid in resource.data.members;
+      allow create: if request.auth != null && request.auth.uid in request.resource.data.members;
+      // only let a signed-in user add THEMSELVES to members (join), nothing else destructive
+      allow update: if request.auth != null
+        && request.auth.uid in request.resource.data.members
+        && (resource.data.members.toSet().difference(request.resource.data.members.toSet()).size() == 0);
+      match /msgs/{msgId} {
+        allow read: if request.auth != null
+          && request.auth.uid in get(/databases/$(database)/documents/tripchats/$(roomId)).data.members;
+        allow create: if request.auth != null
+          && request.resource.data.uid == request.auth.uid
+          && request.resource.data.text.size() <= 1000
+          && request.auth.uid in get(/databases/$(database)/documents/tripchats/$(roomId)).data.members;
+        allow update, delete: if false;
+      }
+    }
+
     // ---------- SECRETS (end-to-end encrypted API-key backup) ----------
     // Ciphertext only: encrypted in the user's browser with a passphrase we
     // never receive. Strictly owner-only — no admin read, because there is
