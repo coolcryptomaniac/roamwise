@@ -28,6 +28,7 @@ var PRECACHE = [
   '/index.html',
   '/app.css',
   '/app.js',
+  '/destination-photos.js',
   '/manifest.webmanifest',
   '/icons/icon-192.png',
   '/icons/icon-512.png',

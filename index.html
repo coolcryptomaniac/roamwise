@@ -213,15 +213,15 @@ html{-webkit-text-size-adjust:100%}
   <span class="free-link" onclick="openPay()">Upgrade unlimited &rarr;</span>
 </div>
 
-<div id="promoTop" class="v v-film"></div>
+<div id="promoTop"></div>
 
 <!-- ============ COPILOT HERO — the front door, Claude-style ============ -->
 <section class="v v-home v-copilot" id="copilotHero" style="margin:16px 14px 8px">
   <div style="display:flex;align-items:center;gap:8px;margin:0 2px 8px"><span style="font-size:17px">⚡</span><b style="font-size:15px">Ailon Tusk</b><span style="font-size:11px;color:var(--t3)">· your travel copilot</span></div>
   <div id="heroLog" style="display:none;margin-bottom:10px;max-height:52vh;overflow-y:auto"></div>
-  <div style="position:relative;background:linear-gradient(180deg,var(--bg2,#12121C),rgba(18,18,28,.6));border:1px solid var(--b2,#2A2A36);border-radius:20px;padding:12px">
-    <textarea id="heroInput" rows="4" placeholder="Ask me anything &mdash; &ldquo;chill 4 days near Rishikesh under 12k&rdquo;"
-      style="display:block;width:100%;box-sizing:border-box;background:transparent;border:none;padding:8px 8px 44px;color:inherit;font:inherit;font-size:16px;resize:none;outline:none;min-height:132px;line-height:1.55"></textarea>
+  <div style="position:relative;background:linear-gradient(180deg,var(--bg2,#12121C),rgba(18,18,28,.55));border:1.5px solid rgba(232,186,108,.35);border-radius:22px;padding:14px;box-shadow:0 8px 30px rgba(0,0,0,.35)">
+    <textarea id="heroInput" rows="5" placeholder="Ask me anything &mdash; &ldquo;chill 4 days near Rishikesh under 12k&rdquo;"
+      style="display:block;width:100%;box-sizing:border-box;background:transparent;border:none;padding:8px 8px 44px;color:inherit;font:inherit;font-size:16.5px;resize:none;outline:none;min-height:168px;line-height:1.6"></textarea>
     <div style="position:absolute;right:12px;bottom:12px;display:flex;gap:8px;align-items:center">
       <button onclick="scanImageOpen()" aria-label="Scan a screenshot" title="Scan a screenshot or reel"
         style="width:36px;height:36px;border-radius:50%;border:1px solid var(--b2,#2A2A36);background:var(--bg3,#1A1A20);color:var(--t2);font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center">&#128247;</button>
@@ -354,9 +354,18 @@ html{-webkit-text-size-adjust:100%}
   </button>
 </div>
 <div id="results" class="v v-plan v-home"></div>
-<ins class="adsbygoogle rw-ad v v-plan" style="display:none;margin:10px 14px" data-ad-format="auto" data-full-width-responsive="true"></ins>
+<ins class="adsbygoogle rw-ad v v-plan" style="display:none;margin:10px 14px" data-ad-client="ca-pub-4943859484482348" data-ad-format="auto" data-full-width-responsive="true"></ins>
 
 
+</section>
+
+<section class="xsec v v-explore" id="reads">
+  <div class="xsec-head"><h2 class="xsec-title">&#128218; Guides &amp; <em>Blog</em></h2></div>
+  <p class="xsec-sub">Long-form route guides and field notes &mdash; written, not generated.</p>
+  <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:4px">
+    <a class="tact" style="flex:1;min-width:140px;text-align:center;text-decoration:none;padding:14px 12px;font-weight:800" href="guides/">&#128506;&#65039; Travel guides</a>
+    <a class="tact" style="flex:1;min-width:140px;text-align:center;text-decoration:none;padding:14px 12px;font-weight:800" href="blog/">&#9997;&#65039; Blog</a>
+  </div>
 </section>
 
 <section class="xsec v v-explore" id="treks">
@@ -390,7 +399,7 @@ html{-webkit-text-size-adjust:100%}
   <div class="exp-grid" id="evtGrid"></div>
 </section>
 
-<ins class="adsbygoogle rw-ad v v-explore" style="display:none;margin:10px 14px" data-ad-format="auto" data-full-width-responsive="true"></ins>
+<ins class="adsbygoogle rw-ad v v-explore" style="display:none;margin:10px 14px" data-ad-client="ca-pub-4943859484482348" data-ad-format="auto" data-full-width-responsive="true"></ins>
 <section class="xsec v v-explore" id="hubspoke">
   <div class="xsec-head"><h2 class="xsec-title">&#127470;&#127475; Hub &amp; Spoke <em>India</em></h2><button class="share-fab" onclick="shareApp('app')">&#128228; Share</button></div>
   <p class="xsec-sub">The fastest, most comfortable way to cover India: fly long distances to a regional hub, rent a self-drive car there, use premium trains &amp; buses between cities, and carry a folding cycle in the boot for the last mile.</p>
@@ -436,7 +445,7 @@ html{-webkit-text-size-adjust:100%}
 </section>
 </div>
 
-<ins class="adsbygoogle rw-ad v v-home" style="display:none;margin:10px 14px" data-ad-format="auto" data-full-width-responsive="true"></ins>
+<ins class="adsbygoogle rw-ad v v-home" style="display:none;margin:10px 14px" data-ad-client="ca-pub-4943859484482348" data-ad-format="auto" data-full-width-responsive="true"></ins>
 <section class="xsec v v-film" id="promofilm">
   <div class="xsec-head"><h2 class="xsec-title">&#127916; The <em>Film</em></h2><button class="share-fab" onclick="shareApp('app')">&#128228; Share</button></div>
   <p class="xsec-sub">The official RoamWise promo &mdash; music, mountains and the mission, in one reel.</p>
@@ -577,9 +586,11 @@ html{-webkit-text-size-adjust:100%}
   <a class="dr-link" onclick="closeDrawer();tabGo('plan')"><span class="ic">✈️</span>Plan a trip</a>
   <a class="dr-link" onclick="closeDrawer();cpFocusHero()"><span class="ic">🧭</span>Copilot chat</a>
   <a class="dr-link" onclick="closeDrawer();openMapExplorer()"><span class="ic">🗺️</span>Live world map</a>
-  <a class="dr-link" onclick="closeDrawer();tabGo('extras')"><span class="ic">⭐</span>Ratings, Store &amp; the Film</a>
+  <a class="dr-link" onclick="closeDrawer();tabGo('film')"><span class="ic">🎬</span>The Film</a>
+  <a class="dr-link" onclick="closeDrawer();tabGo('store')"><span class="ic">🛍️</span>Store</a>
+  <a class="dr-link" onclick="closeDrawer();tabGo('extras')"><span class="ic">⭐</span>Ratings &amp; traveler wall</a>
   <a class="dr-link" onclick="closeDrawer();openVault()"><span class="ic">✈️</span>My Trips (offline)</a>
-  <a class="dr-link" onclick="closeDrawer();tabGo('treks')"><span class="ic">⛰️</span>Trek Vault</a>
+  <a class="dr-link" onclick="closeDrawer();tabGo('explore');scrollToId('treks')"><span class="ic">⛰️</span>Trek Vault</a>
   <a class="dr-link" onclick="closeDrawer();showSaved()"><span class="ic">♥</span>Saved for later</a>
   <a class="dr-link" onclick="closeDrawer();scrollToId('jlog')"><span class="ic">🗺️</span>My Journey Card</a>
 </div></div>
@@ -597,7 +608,7 @@ html{-webkit-text-size-adjust:100%}
   <a class="dr-link" onclick="closeDrawer();openProfile()"><span class="ic">👤</span>My Profile</a>
   <a class="dr-link" onclick="closeDrawer();openPay()"><span class="ic">👑</span><span id="drProLbl">Unlock Pro</span></a>
   <a class="dr-link" onclick="closeDrawer();openMusic()"><span class="ic">🎵</span>My Music</a>
-  <a class="dr-link" onclick="closeDrawer();tabGo('home');scrollToId('store')"><span class="ic">🛍</span>Store</a>
+  
 </div></div>
 <div class="dr-grp"><button class="dr-gh" onclick="drToggle(this)">🛠 App<span class="chev">›</span></button><div class="dr-gb">
   <a class="dr-link" onclick="closeDrawer();openSettings()"><span class="ic">⚙️</span>Settings &amp; AI keys</a>
@@ -808,6 +819,7 @@ html{-webkit-text-size-adjust:100%}
 </div>
 
 
+<script src="destination-photos.js" defer></script>
 <script src="app.js" defer></script>
 </body>
 </html>

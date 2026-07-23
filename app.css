@@ -648,3 +648,30 @@ body.shell .hamb{display:flex}
   +'.dotgrid{width:52px;height:52px;background-image:radial-gradient(#1a1a1a 1px,transparent 1px);background-size:3px 3px;opacity:.6;flex-shrink:0}'
   +'.foot{text-align:center;font:400 10px "JetBrains Mono",monospace;color:rgba(26,26,26,.4);padding:10px;border-top:1px solid rgba(26,26,26,.1)}'
   +'
+/* ===== AILON TUSK ANSWER CARDS ===== */
+.tk-card{border-radius:20px;overflow:hidden;border:1px solid var(--b2,#2A2A36);background:var(--bg2,#12121C);animation:tkUp .45s cubic-bezier(.2,.8,.3,1) both}
+.tk-head{position:relative;min-height:120px;display:flex;flex-direction:column;justify-content:flex-end;padding:14px 16px;background-size:cover;background-position:center;isolation:isolate}
+.tk-head::before{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(6,6,10,.05) 0%,rgba(6,6,10,.78) 88%);z-index:-1}
+.tk-head::after{content:'';position:absolute;inset:0;background:linear-gradient(115deg,transparent 30%,rgba(255,255,255,.08) 48%,transparent 62%);background-size:220% 100%;animation:tkShine 3.2s ease-in-out 1;z-index:-1;pointer-events:none}
+.tk-place{font-size:21px;font-weight:900;letter-spacing:.01em;text-shadow:0 2px 14px rgba(0,0,0,.9)}
+.tk-meta{font-size:11px;color:rgba(255,255,255,.82);text-shadow:0 1px 8px rgba(0,0,0,.9);margin-top:2px}
+.tk-sec{padding:12px 16px;border-top:1px solid rgba(255,255,255,.05);animation:tkUp .4s ease both}
+.tk-sec:nth-child(2){animation-delay:.05s}.tk-sec:nth-child(3){animation-delay:.1s}.tk-sec:nth-child(4){animation-delay:.15s}.tk-sec:nth-child(5){animation-delay:.2s}
+.tk-lab{font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--gold2,#C8913E);margin-bottom:6px;font-weight:800}
+.tk-bul{display:flex;gap:8px;font-size:12.5px;line-height:1.55;color:var(--t2);padding:3px 0}
+.tk-bul::before{content:'\2726';color:var(--gold2,#C8913E);flex:0 0 auto}
+.tk-chips{display:flex;flex-wrap:wrap;gap:7px}
+.tk-chip{font-size:12px;padding:7px 13px;border-radius:999px;border:1px solid var(--b2,#2A2A36);background:rgba(255,255,255,.03);color:var(--t1);cursor:pointer;transition:all .15s ease;font-weight:700}
+.tk-chip:active{transform:scale(.95)}
+.tk-chip.gold{border-color:rgba(232,186,108,.5);background:linear-gradient(135deg,rgba(232,186,108,.18),rgba(200,145,62,.08));color:var(--gold,#E8BA6C)}
+.tk-foot{padding:8px 16px 10px;font-size:9px;color:var(--t3);border-top:1px solid rgba(255,255,255,.05)}
+.tk-foot a{color:var(--t3)}
+@keyframes tkUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@keyframes tkShine{from{background-position:180% 0}to{background-position:-40% 0}}
+
+.tk-foldwrap{border:1px solid rgba(255,255,255,.07);border-radius:12px;overflow:hidden}
+.tk-foldbtn{width:100%;display:flex;justify-content:space-between;align-items:center;background:rgba(255,255,255,.03);border:none;color:var(--t1);font:inherit;font-size:12.5px;font-weight:800;padding:10px 13px;cursor:pointer}
+.tk-fold{max-height:0;overflow:hidden;transition:max-height .38s cubic-bezier(.2,.8,.3,1);padding:0 6px}
+.tk-foldwrap.open .tk-fold{max-height:1600px;padding:4px 6px 10px}
+.tk-arr{color:var(--gold2,#C8913E)}
+.tk-mini .tk-sec{padding:10px 14px}
