@@ -152,13 +152,59 @@ service cloud.firestore {
     // ---------- CRM (contact database: personal data, admin-only) ----------
     // Never publicly readable — it holds names and emails of real people.
     match /crm/{id} {
-      allow read, write: if isAdmin();
+      allow read, update, delete: if isAdmin();
+      // Inbound creator applications from /creators/ — anyone may CREATE, but
+      // only with consent explicitly true and marked inbound, and nobody but an
+      // admin can ever read the collection back. This is deliberately the only
+      // way personal contact data enters the CRM without the founder typing it:
+      // the person opts in themselves. Size caps stop the form being abused as
+      // free storage.
+      allow create: if isAdmin() || (
+           request.resource.data.seg == 'creator'
+        && request.resource.data.consent == true
+        && request.resource.data.source == 'creators page (inbound)'
+        && request.resource.data.stage == 'new'
+        && request.resource.data.name is string  && request.resource.data.name.size()  <= 120
+        && request.resource.data.email is string && request.resource.data.email.size() <= 160
+        && request.resource.data.note is string  && request.resource.data.note.size()  <= 1200
+        // An applicant must NOT be able to award themselves the ladder. Tier,
+        // referral counts and the affiliate code are set by the founder only —
+        // otherwise anyone could POST tier:'featured' and claim Pro for life.
+        && request.resource.data.tier == 'applied'
+        && request.resource.data.refSales == 0
+        && request.resource.data.refRevenue == 0
+        && (!('code' in request.resource.data) || request.resource.data.code == '')
+        && (!('proGranted' in request.resource.data))
+      );
     }
 
     // ---------- META (shared counters, e.g. first-1000-signups trial) ----------
+    // ---------- META (shared counters + the founder-offer gate) ----------
+    // WAS: allow write when request.auth != null — which let ANY signed-in
+    // user rewrite the founder signup counter: set it to 0 to keep the Rs 100
+    // lifetime offer open forever, or to a huge number to slam it shut. The
+    // counter is now increment-by-exactly-one and can never be lowered.
     match /meta/{doc} {
       allow read: if true;
-      allow write: if request.auth != null;
+      allow create: if isAdmin();
+      allow delete: if isAdmin();
+      allow update: if isAdmin() || (
+        // the ONLY self-serve write: bump the signup counter by exactly 1
+        doc == 'signupCounter'
+        && request.auth != null
+        && request.resource.data.count is int
+        && request.resource.data.count == resource.data.count + 1
+        && request.resource.data.keys().hasOnly(['count'])
+      );
+    }
+
+    // ---------- PRICING GATE (server truth, not the device clock) ----------
+    // The founder window used to be judged client-side from daysSinceLaunch(),
+    // which reads the PHONE's clock — set the date back and the offer reopens.
+    // Admin-owned document; everyone reads it, only an admin can move it.
+    match /pricing/{doc} {
+      allow read: if true;
+      allow write: if isAdmin();
     }
   }
 }
