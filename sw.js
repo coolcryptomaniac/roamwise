@@ -20,11 +20,14 @@ var VERSION = 'rw-v1';
 var HTML_CACHE = VERSION + '-html';
 var ASSET_CACHE = VERSION + '-assets';
 
-/* Minimal precache: enough to boot offline. index.html is fetched fresh when
+/* Minimal precache: enough to boot offline. index.html + app.css + app.js are
+   the three files the shell needs. index.html is fetched fresh when
    online, so we only seed it here as the offline fallback. */
 var PRECACHE = [
   '/',
   '/index.html',
+  '/app.css',
+  '/app.js',
   '/manifest.webmanifest',
   '/icons/icon-192.png',
   '/icons/icon-512.png',
