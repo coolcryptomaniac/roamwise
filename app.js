@@ -5441,6 +5441,31 @@ function cpSmartAnswer(t){
   }
   return null;
 }
+
+/* One canonical known-place map: curated overrides + DB + major cities. Used by
+   multi-city detection AND single-destination rescue below. */
+function rwKnownMap(){
+  if(window._rwKnown) return window._rwKnown;
+  var known={};
+  try{ (typeof DB!=='undefined'?DB:[]).forEach(function(d){ known[d.name.toLowerCase()]=d.name; }); }catch(e){}
+  try{ Object.keys(RW_PLACE_OVERRIDES||{}).forEach(function(k){ var o=RW_PLACE_OVERRIDES[k]; known[o.name.toLowerCase()]=o.name; }); }catch(e){}
+  ['delhi','new delhi','mumbai','goa','jaipur','agra','kolkata','chennai','bengaluru','bangalore','hyderabad','pune','udaipur','jodhpur','jaisalmer','amritsar','varanasi','lucknow','kochi','mysuru','mysore','ooty','munnar','hampi','pondicherry','rishikesh','haridwar','dehradun','manali','shimla','leh','srinagar','darjeeling','gangtok','shillong','guwahati','bhopal','indore','surat','ahmedabad','almora','nainital','mussoorie','kasol','auli','ziro','gokarna','bangkok','bali','singapore','dubai','kathmandu','pokhara','colombo','hanoi','tokyo','paris','london','rome'].forEach(function(n){ if(!known[n]) known[n]=n.replace(/(^|\s)\w/g,function(m){return m.toUpperCase();}); });
+  window._rwKnown = known;
+  return known;
+}
+function rwScanKnown(t){
+  var known=rwKnownMap(), lower=' '+String(t).toLowerCase().replace(/[^a-z0-9 ]/g,' ')+' ', hits=[];
+  Object.keys(known).forEach(function(k){
+    var at=lower.indexOf(' '+k+' ');
+    if(at>-1) hits.push({at:at, key:k, name:known[k]});
+  });
+  hits.sort(function(a,b){ return b.key.length-a.key.length; });
+  var kept=[], cov=[];
+  hits.forEach(function(h){ if(!cov.some(function(c){return h.at>=c[0]&&h.at<c[1];})){ kept.push(h); cov.push([h.at,h.at+h.key.length]); } });
+  kept.sort(function(a,b){ return a.at-b.at; });
+  return kept.map(function(h){return h.name;}).filter(function(n,i,a){return a.indexOf(n)===i;});
+}
+
 function cpParseRegex(t){
   /* -------- input hygiene: greetings, smalltalk, junk -------- */
   var RAW_T = t;
@@ -5465,7 +5490,7 @@ function cpParseRegex(t){
     /* Take EVERY preposition match, not just the first: "what to eat in Manali"
        used to capture "eat" from "to eat" and then look up a guide for a verb.
        Skip common verbs/fillers, and prefer a capitalised candidate. */
-    var VERBS=/^(eat|go|do|see|visit|stay|sleep|travel|reach|get|buy|shop|find|book|know|start|plan|the|a|an|my|it|be|drink|walk|chill|relax|relaxing|peaceful|adventure|romantic|honeymoon|solo|family|spiritual|nature|scenic|foodie|luxury|cheap|party|nightlife|somewhere|anywhere|food|eat|hotel|stay|room|transport|taxi|cab|bus|train|flight|safety|scam|cost|price|money|there|here|that|this|tips|guide|advice|option|thing)$/i;
+    var VERBS=/^(eat|go|do|see|visit|stay|sleep|travel|reach|get|buy|shop|find|book|know|start|plan|the|a|an|my|it|be|drink|walk|chill|relax|relaxing|peaceful|adventure|romantic|honeymoon|solo|family|spiritual|nature|scenic|foodie|luxury|cheap|party|nightlife|somewhere|anywhere|food|eat|hotel|stay|room|transport|taxi|cab|bus|train|flight|safety|scam|cost|price|money|there|here|that|this|tips|guide|advice|option|thing|under|below|within|over|about|around|say|says|said|mean|means|meant|share|send|give|tell|show|make|curated|budget|rs|inr|not|shadow)$/i;
     var re=/(?:\bin|\bto|reaching|\bat|visit(?:ing)?|\bfor|around|near)\s+([A-Za-z][a-zA-Z\u00C0-\u024F]{2,}(?:\s[A-Z][a-zA-Z]{2,})?)/g, mm, cands=[];
     while((mm=re.exec(t))!==null){ var w=mm[1].trim(); if(!VERBS.test(w.split(' ')[0])) cands.push(w); }
     var capped = cands.filter(function(w){ return /^[A-Z]/.test(w); });
@@ -5476,9 +5501,9 @@ function cpParseRegex(t){
     /* strip filler + numbers + MOOD words; whatever real word remains is the
        place. Mood words (romantic, solo, chill...) were being mistaken for
        destinations, so they're excluded here. */
-    var STOP=/^(plan|planning|trip|tour|days?|nights?|budget|under|below|within|max|itinerary|itineraries|for|the|a|an|and|with|my|me|please|need|want|going|go|visit|visiting|show|find|make|create|give|about|cost|costs|price|rs|inr|rupees|k|thousand|weather|rain|cafe|cafes|bus|train|flight|volvo|hotel|stay|stays|from|to|in|at|on|next|week|weekend|tomorrow|today|is|are|it|what|how|much|good|best|place|places|chill|relax|relaxing|peaceful|adventure|adventurous|romantic|honeymoon|solo|family|spiritual|nature|scenic|foodie|luxury|cheap|party|nightlife|workation|somewhere|anywhere|nice|cool|amazing|beautiful|food|foods|eat|eating|meal|meals|drink|drinks|hotel|hotels|stay|stays|room|rooms|transport|taxi|cab|auto|rickshaw|bike|scooter|metro|ferry|ticket|tickets|safety|safe|scam|scams|cost|costs|price|prices|money|cash|card|atm|sim|wifi|there|here|that|this|those|these|them|its|option|options|thing|things|idea|ideas|day|days|time|times|should|would|could|will|shall|might|must|reach|reaching|arrive|arriving|leave|leaving|any|some|anyone|anything|something|every|each|does|did|has|have|had|was|were|been|being|got|lets|let|when|where|which|who|whom|whose|why|whats|hows|季|plan|plans|list|tips|tip|guide|guides|advice)$/i;
+    var STOP=/^(plan|planning|trip|tour|days?|nights?|budget|under|below|within|max|itinerary|itineraries|for|the|a|an|and|with|my|me|please|need|want|going|go|visit|visiting|show|find|make|create|give|about|cost|costs|price|rs|inr|rupees|k|thousand|weather|rain|cafe|cafes|bus|train|flight|volvo|hotel|stay|stays|from|to|in|at|on|next|week|weekend|tomorrow|today|is|are|it|what|how|much|good|best|place|places|chill|relax|relaxing|peaceful|adventure|adventurous|romantic|honeymoon|solo|family|spiritual|nature|scenic|foodie|luxury|cheap|party|nightlife|workation|somewhere|anywhere|nice|cool|amazing|beautiful|food|foods|eat|eating|meal|meals|drink|drinks|hotel|hotels|stay|stays|room|rooms|transport|taxi|cab|auto|rickshaw|bike|scooter|metro|ferry|ticket|tickets|safety|safe|scam|scams|cost|costs|price|prices|money|cash|card|atm|sim|wifi|there|here|that|this|those|these|them|its|option|options|thing|things|idea|ideas|day|days|time|times|international|abroad|foreign|domestic|overseas|say|says|said|mean|means|meant|share|send|give|tell|show|curated|shadow|not|should|would|could|will|shall|might|must|reach|reaching|arrive|arriving|leave|leaving|any|some|anyone|anything|something|every|each|does|did|has|have|had|was|were|been|being|got|lets|let|when|where|which|who|whom|whose|why|whats|hows|季|plan|plans|list|tips|tip|guide|guides|advice)$/i;
     var toks=(t.match(/[A-Za-z\u00C0-\u024F]{3,}/g)||[]).filter(function(w){ return !STOP.test(w); });
-    if(toks.length) out.dest=toks[0];
+    if(toks.length){ out.dest=toks[0]; out._weakDest=true; }
   }
   var mto=t.match(/(?:back to|return to|bus|volvo|train|flight|cab)[^.]*?\bto\s+([A-Za-z][a-zA-Z]{2,})/i);
   if(mto && mto[1] && mto[1].toLowerCase()!==String(out.dest||'').toLowerCase()) out.to=mto[1];
@@ -5537,37 +5562,43 @@ function cpParseRegex(t){
               [/\b(get around|local transport|taxi|auto|metro|rickshaw|scooter)\b/i,'around'],
               [/\b(stay|staying|hotel|hotels|hostel|hostels|sleep|accommodation|homestay|room|rooms)\b/i,'stay'],
               [/\b(safe|safety|scam|scams|danger|dangerous|theft|crime)\b/i,'safe'],
-              [/\b(cost|costs|price|prices|expensive|cheap|money)\b/i,'cost']];
+              [/\b(cost|costs|price|prices|expensive|cheap|money|budget|budgets)\b/i,'cost']];
   for(var ti=0; ti<TOPICS.length; ti++){ if(TOPICS[ti][0].test(t)){ out.topic=TOPICS[ti][1]; break; } }
+  /* travel STYLE words: "shoestring" is a style, not a rupee figure */
+  if(/shoe\s*string|shoestring|bare\s*bones|barebones|backpack(er|ing)?|cheapest|sasta|low\s*budget|tight\s*budget/i.test(t)) out.style='budget';
+  else if(/luxur(y|ious)|lavish|5\s*star|premium|shaandaar/i.test(t)) out.style='luxury';
   if(_cpCtx){
     var refersBack = /\b(there|here|that place|it|same|also|and|what about|how about)\b/i.test(t) || !out.dest;
     if(!out.dest && refersBack && _cpCtx.dest){ out.dest = _cpCtx.dest; out._inherited = true; }
-    if(out.days==null && _cpCtx.days) out.days = _cpCtx.days;
-    if(out.budget==null && _cpCtx.budget) out.budget = _cpCtx.budget;
+    /* days/budget belong to a TRIP, not to the user forever. Carrying \u20b98,500
+       from an Almora chat into a brand-new Switzerland request produced a
+       nonsense "won't cover" verdict for a budget the user never stated. Only
+       inherit when this turn is about the SAME destination. */
+    var sameTrip = out._inherited || (out.dest && _cpCtx.dest && String(out.dest).toLowerCase()===String(_cpCtx.dest).toLowerCase());
+    if(sameTrip){
+      if(out.days==null && _cpCtx.days) out.days = _cpCtx.days;
+      if(out.budget==null && _cpCtx.budget) out.budget = _cpCtx.budget;
+    }
   }
   /* ---- MULTI-CITY: "delhi covering delhi, jaipur, mumbai, goa" ---- */
   out.stops = (function(){
-    var known = {};
-    try{ (typeof DB!=='undefined'?DB:[]).forEach(function(d){ known[d.name.toLowerCase()]=d.name; }); }catch(e){}
-    try{ Object.keys(RW_PLACE_OVERRIDES||{}).forEach(function(k){ var o=RW_PLACE_OVERRIDES[k]; known[o.name.toLowerCase()]=o.name; }); }catch(e){}
-    ['delhi','new delhi','mumbai','goa','jaipur','agra','kolkata','chennai','bengaluru','bangalore','hyderabad','pune','udaipur','jodhpur','jaisalmer','amritsar','varanasi','lucknow','kochi','mysuru','mysore','ooty','munnar','hampi','pondicherry','rishikesh','haridwar','dehradun','manali','shimla','leh','srinagar','darjeeling','gangtok','shillong','guwahati','bhopal','indore','surat','ahmedabad','bangkok','bali','singapore','dubai','kathmandu','pokhara','colombo','hanoi','tokyo','paris','london','rome'].forEach(function(n){ if(!known[n]) known[n]=n.replace(/(^|\s)\w/g,function(m){return m.toUpperCase();}); });
-    var lower=' '+t.toLowerCase()+' ', hits=[];
-    Object.keys(known).forEach(function(k){
-      var idx=lower.indexOf(' '+k+' ')>-1? lower.indexOf(' '+k+' ') : (new RegExp('[ ,]'+k+'[ ,.?!]')).test(lower)? lower.search(new RegExp('[ ,]'+k+'[ ,.?!]')) : -1;
-      if(idx>-1) hits.push({at:idx, name:known[k], key:k});
-    });
-    /* de-dupe substrings (new delhi vs delhi) and sort by appearance */
-    hits.sort(function(a,b){ return b.key.length-a.key.length; });
-    var kept=[], covered=[];
-    hits.forEach(function(h){
-      var overlap = covered.some(function(c){ return h.at>=c[0] && h.at<c[1]; });
-      if(!overlap){ kept.push(h); covered.push([h.at, h.at+h.key.length]); }
-    });
-    kept.sort(function(a,b){ return a.at-b.at; });
-    var names = kept.map(function(h){ return h.name; }).filter(function(n,i,a){ return a.indexOf(n)===i; });
+    var names = rwScanKnown(t);
     return names.length>=2 ? names : null;
   })();
   if(out.stops){ out.dest = out.stops[out.stops.length-1]; out.multi=true; }
+  /* RESCUE: if the text contains exactly one KNOWN place, and our extracted
+     dest is not itself known, trust the known one. This is what stops
+     "i mean to say share budget ... for almora ..." resolving to Say, Niger. */
+  if(!out.multi){
+    var knowns = rwScanKnown(t);
+    var destKnown = out.dest && rwKnownMap()[String(out.dest).toLowerCase()];
+    if(knowns.length===1 && !destKnown) out.dest = knowns[0];
+  }
+  /* a weak leftover token ("busget" typo) that isn't a known place loses to
+     the destination we already know from this conversation */
+  if(out._weakDest && _cpCtx && _cpCtx.dest && out.dest && !rwKnownMap()[String(out.dest).toLowerCase()]){
+    out.dest = _cpCtx.dest; out._inherited = true;
+  }
   if(out.dest) _cpCtx = {dest:out.dest, days:out.days, budget:out.budget};
   /* learn what this user tends to ask for — powers personalisation over time */
   try{ rwLearnIntent(out); }catch(e){}
@@ -5610,6 +5641,29 @@ function rwUserProfile(){
    hill station, "Bir" to Ukraine. For an India-first travel app those are the
    exact queries that must be right, so the best-known travel meaning wins. */
 var RW_PLACE_OVERRIDES = {
+  /* Major Indian anchors: the global geocoder betrays several of these
+     ("Goa" the Indian state isn't a city in its dataset, so exact-match went
+     to Goa, Philippines). Curated coordinates are checked FIRST, offline. */
+  goa:{name:'Goa', admin:'Goa (Panaji)', lat:15.4909, lon:73.8278},
+  delhi:{name:'Delhi', admin:'NCT of Delhi', lat:28.6139, lon:77.2090},
+  newdelhi:{name:'New Delhi', admin:'NCT of Delhi', lat:28.6139, lon:77.2090},
+  mumbai:{name:'Mumbai', admin:'Maharashtra', lat:19.0760, lon:72.8777},
+  jaipur:{name:'Jaipur', admin:'Rajasthan', lat:26.9124, lon:75.7873},
+  agra:{name:'Agra', admin:'Uttar Pradesh', lat:27.1767, lon:78.0081},
+  kolkata:{name:'Kolkata', admin:'West Bengal', lat:22.5726, lon:88.3639},
+  chennai:{name:'Chennai', admin:'Tamil Nadu', lat:13.0827, lon:80.2707},
+  bengaluru:{name:'Bengaluru', admin:'Karnataka', lat:12.9716, lon:77.5946},
+  bangalore:{name:'Bengaluru', admin:'Karnataka', lat:12.9716, lon:77.5946},
+  hyderabad:{name:'Hyderabad', admin:'Telangana', lat:17.3850, lon:78.4867},
+  pune:{name:'Pune', admin:'Maharashtra', lat:18.5204, lon:73.8567},
+  kochi:{name:'Kochi', admin:'Kerala', lat:9.9312, lon:76.2673},
+  amritsar:{name:'Amritsar', admin:'Punjab', lat:31.6340, lon:74.8723},
+  jodhpur:{name:'Jodhpur', admin:'Rajasthan', lat:26.2389, lon:73.0243},
+  lucknow:{name:'Lucknow', admin:'Uttar Pradesh', lat:26.8467, lon:80.9462},
+  ahmedabad:{name:'Ahmedabad', admin:'Gujarat', lat:23.0225, lon:72.5714},
+  srinagar:{name:'Srinagar', admin:'Jammu & Kashmir', lat:34.0837, lon:74.7973},
+  guwahati:{name:'Guwahati', admin:'Assam', lat:26.1445, lon:91.7362},
+
   manali:{name:'Manali',admin:'Himachal Pradesh',lat:32.2432,lon:77.1892},
   shimla:{name:'Shimla',admin:'Himachal Pradesh',lat:31.1048,lon:77.1734},
   kasol:{name:'Kasol',admin:'Himachal Pradesh',lat:32.0100,lon:77.3152},
@@ -5860,12 +5914,29 @@ async function cpActionsHTML(it){
       if(wvS){
         used.wv = wvS.title;
         if(wvS.intro) H.push('<div class="tk-lab">About</div><div style="font-size:12.5px;line-height:1.6;color:var(--t2)">'+esc2(wvS.intro)+'\u2026</div>');
-        var gsecs='';
+        var gsecs='', allBul=[];
         wvS.secs.slice(0,2).forEach(function(sec){
           var bl = tkBullets(sec.text, 4);
+          allBul = allBul.concat(bl);
           if(bl.length) gsecs += '<div class="tk-lab">'+esc2(sec.line)+'</div>'+bl.map(function(b){ return '<div class="tk-bul">'+esc2(b)+'</div>'; }).join('');
         });
         if(gsecs) H.push(tkFold('\u2726 Highlights \u2014 see & do', gsecs));
+        /* mini itinerary: a TASTE of the days from real guide material — the
+           full visual plan (photos, packing, PDF) stays one tap away in Plan */
+        if(allBul.length>=2 && it.days){
+          var sample = Math.min(it.days, 4), per = Math.max(1, Math.floor(allBul.length/sample));
+          var ITIC=['\ud83c\udfdb\ufe0f','\ud83c\udf5c','\u26f0\ufe0f','\ud83c\udfa8','\ud83d\uddfa\ufe0f','\ud83c\udf05'];
+          var itin='';
+          for(var di=0; di<sample; di++){
+            var picks2 = allBul.slice(di*per, di*per+Math.min(2,per));
+            if(!picks2.length) break;
+            itin += '<div style="display:flex;gap:9px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.04)">'
+              +'<b style="flex:0 0 auto;font-size:10.5px;color:var(--gold2,#C8913E);padding-top:2px">DAY '+(di+1)+'</b>'
+              +'<div style="font-size:12px;line-height:1.55;color:var(--t2)">'+picks2.map(function(b,bi){ return ITIC[(di+bi)%ITIC.length]+' '+esc2(b); }).join('<br>')+'</div></div>';
+          }
+          if(it.days>sample) itin += '<div style="font-size:11px;color:var(--t3);padding:6px 0">\u2026 +'+(it.days-sample)+' more days \u2014 tap a Plan chip above for the full day-by-day with packing list & PDF.</div>';
+          if(itin) H.push(tkFold('\ud83d\uddd3\ufe0f Mini itinerary \u2014 taste of the days', itin));
+        }
       }
     }catch(e){}
     H.push('<div class="tk-lab">Plan it</div>'+tkItinChips(it.dest));
@@ -5901,7 +5972,14 @@ async function cpActionsHTML(it){
   /* shadow budget — the differentiator: costs no competitor quotes */
   var costEntry = dbHit || costEntryForPlace(geo);
   if(costEntry && (it.days || it.wants.indexOf('budget')>-1)){
-    H.push(tkFold('\ud83d\udc7b Shadow budget \u2014 full breakdown', shadowBudgetHTML(costEntry, it.days||5, 'mid')));
+    if(it.budget){ H.push(rwBudgetFitHTML(costEntry, it)); }
+    else if(it.style){ H.push(rwStyledSheet(costEntry, it.days||5, it.style)); }
+    else H.push(tkFold('\ud83d\udc7b Shadow budget \u2014 full breakdown', shadowBudgetHTML(costEntry, it.days||5, 'mid')));
+  }
+  /* international destinations: visa + flights + insurance on top */
+  if(geo && geo.cc){
+    var intl = rwIntlHTML(geo);
+    if(intl) H.push(intl);
   }
   /* personalise from what we've learned about this user */
   var prof = rwUserProfile();
@@ -6614,6 +6692,10 @@ async function tkMiniCard(it){
     if(g){
       if(it.topic==='stay') out.push('<div class="tk-lab">Typical per night</div><div style="font-size:12px;color:var(--t2)">'+g.d.stay.map(function(r){return r[0]+' <b>'+r[1]+'</b>';}).join(' \u00b7 ')+'</div>');
       if(it.topic==='safe') out.push('<div class="tk-lab">Don\u2019t get played</div>'+g.d.hacks.slice(0,4).map(function(h){return '<div class="tk-bul">'+h+'</div>';}).join(''));
+      if(it.topic==='cost'){
+        var ce = dbHit || costEntryForPlace(geo);
+        if(ce && it.budget) out.push(rwBudgetFitHTML(ce, it));
+      }
       if(it.topic==='cost' || it.topic==='around') out.push(tkFold('Full cost sheet & scam guide', groundHTML(geo||{cc:'IN'}, dest)));
     }
   }
@@ -6657,6 +6739,11 @@ async function tkRouteCard(it){
 async function wvStructured(place, question){
   var g = await wvGuide(place);
   if(!g) return null;
+  /* Search can return an unrelated first hit ("Say" -> Natchitoches, Louisiana).
+     If the guide title doesn't resemble the place, showing it is worse than
+     showing nothing. */
+  var pl=String(place).toLowerCase(), tl=String(g.title).toLowerCase();
+  if(tl.indexOf(pl)===-1 && pl.indexOf(tl)===-1) return null;
   var picks = wvPickSections(question||'', g.sections||[]);
   var out = {title:g.title, intro:(g.extract||'').slice(0,300), secs:[]};
   for(var i=0;i<picks.length;i++){
@@ -6711,6 +6798,118 @@ function tkCredits(used){
   if(used.wx) bits.push('Weather: Open-Meteo');
   if(!bits.length) return '';
   return '<div class="tk-foot">'+bits.join(' \u00b7 ')+'</div>';
+}
+
+
+
+/* ---- INTERNATIONAL CHECKLIST ----
+   The shadow budget deliberately excludes flights ("costs headline prices
+   leave out") — fine domestically, badly misleading for Switzerland where the
+   flight IS the biggest line. For any non-home-country destination, show the
+   on-top items: visa, return-flight ballpark, insurance, passport validity.
+   Ranges are typical for Indian passport holders and say so; rules change, so
+   the official-source reminder is always printed. */
+function rwIntlHTML(geo){
+  if(!geo || !geo.cc) return '';
+  var cc = String(geo.cc).toUpperCase();
+  var HOME = (typeof RW_HOME_CC!=='undefined' && RW_HOME_CC) ? RW_HOME_CC : 'IN';
+  if(cc===HOME) return '';
+  var SCHENGEN=['CH','FR','DE','IT','ES','PT','NL','BE','AT','GR','CZ','PL','HU','DK','SE','NO','FI','IS','SK','SI','EE','LV','LT','LU','MT','HR','LI'];
+  var visa, flight, extra='';
+  if(SCHENGEN.indexOf(cc)>-1){
+    visa='Schengen visa required \u2014 fee \u224880\u20ac (\u2248\u20b97,500) + VFS charges; apply 4\u20138 weeks ahead with itinerary, stay proof and bank statements.';
+    flight='Return flights India \u2194 Europe: \u2248\u20b935,000\u201360,000 if booked 6\u201310 weeks out.';
+    extra='Travel insurance is MANDATORY for Schengen (\u2248\u20b91,000\u20132,000/week).';
+  } else if(['TH','ID','VN','MY','KH','LA','PH','SG'].indexOf(cc)>-1){
+    var m={TH:'Thailand: visa-free entry for Indians (60 days, current policy)',ID:'Indonesia: visa on arrival \u2248\u20b92,600',VN:'Vietnam: e-visa \u2248\u20b92,100, apply online 1\u20132 weeks ahead',MY:'Malaysia: visa-free (30 days) \u2014 fill the MDAC form online first',KH:'Cambodia: e-visa \u2248\u20b93,000',LA:'Laos: visa on arrival \u2248\u20b93,500',PH:'Philippines: e-visa needed for most Indian passports',SG:'Singapore: visa required \u2248\u20b92,500\u20133,500 via authorised agents'};
+    visa=m[cc]||'Check visa requirements for your passport.';
+    flight='Return flights India \u2194 Southeast Asia: \u2248\u20b912,000\u201328,000.';
+  } else if(cc==='NP' || cc==='BT'){
+    visa=(cc==='NP'?'Nepal':'Bhutan')+': no visa needed for Indian citizens \u2014 carry passport or voter ID'+(cc==='BT'?'; Bhutan charges a daily Sustainable Development Fee (\u20b91,200/day for Indians)':'')+'.';
+    flight='Flights \u2248\u20b98,000\u201318,000 return, or overland by road/rail.';
+  } else if(cc==='LK'){
+    visa='Sri Lanka: free ETA for Indians currently \u2014 apply online before flying.';
+    flight='Return flights \u2248\u20b910,000\u201320,000.';
+  } else if(cc==='AE'){
+    visa='UAE: e-visa \u2248\u20b96,000\u20137,500, usually 3\u20134 working days.';
+    flight='Return flights \u2248\u20b914,000\u201330,000.';
+  } else {
+    visa='Visa: check the official embassy site for Indian passport requirements \u2014 rules vary and change.';
+    flight='Compare return fares on any aggregator; book 6\u201310 weeks out for the best band.';
+  }
+  return '<div style="background:rgba(92,200,255,.06);border:1px solid rgba(92,200,255,.25);border-radius:12px;padding:11px 13px">'
+    +'<div style="font-weight:800;font-size:12.5px;margin-bottom:6px">\ud83d\udec2 International trip \u2014 these sit ON TOP of the sheet below</div>'
+    +'<div class="tk-bul">'+visa+'</div>'
+    +'<div class="tk-bul">'+flight+'</div>'
+    +(extra? '<div class="tk-bul">'+extra+'</div>':'')
+    +'<div class="tk-bul">Passport must be valid 6+ months beyond travel; keep 2 blank pages.</div>'
+    +'<div style="font-size:10px;color:var(--t3);margin-top:6px">Typical figures for Indian passport holders \u2014 verify on the official embassy/VFS site before paying anyone.</div>'
+    +'</div>';
+}
+function rwStyledSheet(entry, days, style){
+  entry = JSON.parse(JSON.stringify(entry));
+  delete entry.brk;
+  if(entry.cost && !entry.cost.budget) entry.cost.budget = Math.round(entry.cost.mid*0.55);
+  var fx = window._rwFxINR || 88;
+  var tot = Math.round(shadowBudget(entry, days, style).total * fx);
+  var label = style==='budget' ? '\ud83c\udf92 Shoestring plan \u2248 \u20b9'+tot.toLocaleString('en-IN')+' (ex-flights)'
+            : '\ud83d\udc51 Luxury plan \u2248 \u20b9'+tot.toLocaleString('en-IN')+' (ex-flights)';
+  return '<div style="font-size:12px;color:var(--t2)">'+label+' \u2014 breakdown below.</div>'
+    + tkFold('\ud83d\udc7b '+(style==='budget'?'Shoestring':'Luxury')+' budget \u2014 breakdown', shadowBudgetHTML(entry, days, style));
+}
+
+/* ---- BUDGET FIT: answer the budget the user actually stated ----
+   "5 days in Almora under 5000" used to get the standard mid-range sheet
+   totalling ~27k — which reads as ignoring the person. Now: try to FIT the cap
+   (drop to the budget tier), and when even that can't fit, say so plainly with
+   the real minimum and two honest ways out (fewer days, or a higher cap).
+   Numbers come from the same model as the sheet — no fudging to please. */
+function rwBudgetFit(entry, days, capINR){
+  var fx = window._rwFxINR || 88;
+  /* Estimated entries carry only a mid price; without a real shoestring tier
+     the "bare-bones" number silently showed MID prices — dishonest twice over.
+     Model shoestring as 55% of mid (hostel/bus/street-food ratio), and the
+     sheet itself already labels everything as an estimate. */
+  /* entries carry a FIXED brk (absolute $ split); shadowBudget prefers it over
+     the tier weekly, so 'budget' and 'mid' produced identical totals — the fit
+     silently didn't fit. For fitting we clone and drop brk so the tier weekly
+     drives the split (the sheet is labelled an estimate either way). */
+  entry = JSON.parse(JSON.stringify(entry));
+  delete entry.brk;
+  if(entry.cost && !entry.cost.budget) entry.cost.budget = Math.round(entry.cost.mid*0.55);
+  function tot(style){ try{ return Math.round(shadowBudget(entry, days, style).total * fx); }catch(e){ return null; } }
+  var tMid = tot('mid'), tLo = tot('budget');
+  if(tMid!=null && capINR >= tMid) return {fit:'mid', total:tMid};
+  if(tLo!=null && capINR >= tLo)  return {fit:'budget', total:tLo};
+  /* how many days DOES the cap buy at the budget tier? */
+  var okDays = 0;
+  for(var d=days-1; d>=1; d--){
+    var td = Math.round(shadowBudget(entry, d, 'budget').total * fx);
+    if(td <= capINR){ okDays=d; break; }
+  }
+  return {fit:'none', minINR:tLo, okDays:okDays};
+}
+function rwBudgetFitHTML(entry, it){
+  var days = it.days||5, cap = it.budget;
+  entry = JSON.parse(JSON.stringify(entry));
+  delete entry.brk;
+  if(entry.cost && !entry.cost.budget) entry.cost.budget = Math.round(entry.cost.mid*0.55);
+  var f = rwBudgetFit(entry, days, cap);
+  var nm = String(entry.name||it.dest).replace(/[<>]/g,'');
+  if(f.fit==='mid')
+    return '<div style="font-size:12px;color:var(--t2)">\u2705 \u20b9'+cap.toLocaleString('en-IN')+' comfortably covers '+days+' days \u2014 the sheet below is the standard mid-range plan (\u2248\u20b9'+f.total.toLocaleString('en-IN')+').</div>'
+      + tkFold('\ud83d\udc7b Budget \u2014 full breakdown', shadowBudgetHTML(entry, days, 'mid'));
+  if(f.fit==='budget')
+    return '<div style="font-size:12px;color:var(--t2)">\ud83c\udfaf Fitted to your \u20b9'+cap.toLocaleString('en-IN')+': the <b>shoestring</b> plan below lands at \u2248\u20b9'+f.total.toLocaleString('en-IN')+' \u2014 hostels/homestays, local buses, street food. Tight but real.</div>'
+      + tkFold('\ud83d\udc7b Shoestring budget \u2014 breakdown', shadowBudgetHTML(entry, days, 'budget'));
+  /* can't be done — say it straight, then give real options */
+  var chips='';
+  if(f.okDays>=1) chips += '<button class="tk-chip gold" onclick="cpGoPlan(\''+nm.replace(/'/g,'')+'\','+f.okDays+')">\u2702\ufe0f '+f.okDays+' day'+(f.okDays>1?'s':'')+' under \u20b9'+cap.toLocaleString('en-IN')+'</button>';
+  chips += '<button class="tk-chip" onclick="cpFollow(\''+days+' days in '+nm.replace(/'/g,'')+' under '+Math.ceil((f.minINR||0)/500)*500+'\')">\ud83d\udcc8 Raise to \u2248\u20b9'+(Math.ceil((f.minINR||0)/500)*500).toLocaleString('en-IN')+'</button>';
+  return '<div style="background:rgba(224,91,91,.07);border:1px solid rgba(224,91,91,.3);border-radius:12px;padding:11px 13px">'
+    +'<div style="font-size:12.5px;line-height:1.65;color:var(--t1)"><b>Straight answer:</b> \u20b9'+cap.toLocaleString('en-IN')+' won\u2019t cover '+days+' days in '+nm+'. Bare-bones (hostel dorm, bus, street food) runs \u2248<b>\u20b9'+(f.minINR||0).toLocaleString('en-IN')+'</b> all-in \u2014 that includes transfers and a safety buffer, which is where most "cheap" plans blow up.</div>'
+    +'<div class="tk-chips" style="margin-top:9px">'+chips+'</div></div>'
+    + tkFold('\ud83d\udc7b The \u20b9'+ (f.minINR||0).toLocaleString('en-IN') +' bare-bones breakdown', shadowBudgetHTML(entry, days, 'budget'));
 }
 
 /* ==================== ON-THE-GROUND COSTS & STREET SMARTS =================
