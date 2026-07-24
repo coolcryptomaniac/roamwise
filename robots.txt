@@ -1,3 +1,9 @@
 User-agent: *
 Allow: /
+
+# Private surfaces — not secret, but not for the index.
+# Real protection is the Firestore rules; this stops them appearing in search.
+Disallow: /staff/
+Disallow: /deck/
+
 Sitemap: https://www.roamwise.co.in/sitemap.xml

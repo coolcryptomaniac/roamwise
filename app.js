@@ -5583,7 +5583,8 @@ function rwKnownMap(){
   var known={};
   try{ (typeof DB!=='undefined'?DB:[]).forEach(function(d){ known[d.name.toLowerCase()]=d.name; }); }catch(e){}
   try{ Object.keys(RW_PLACE_OVERRIDES||{}).forEach(function(k){ var o=RW_PLACE_OVERRIDES[k]; known[o.name.toLowerCase()]=o.name; }); }catch(e){}
-  ['delhi','new delhi','mumbai','goa','jaipur','agra','kolkata','chennai','bengaluru','bangalore','hyderabad','pune','udaipur','jodhpur','jaisalmer','amritsar','varanasi','lucknow','kochi','mysuru','mysore','ooty','munnar','hampi','pondicherry','rishikesh','haridwar','dehradun','manali','shimla','leh','srinagar','darjeeling','gangtok','shillong','guwahati','bhopal','indore','surat','ahmedabad','almora','nainital','mussoorie','kasol','auli','ziro','gokarna','bangkok','bali','singapore','dubai','kathmandu','pokhara','colombo','hanoi','tokyo','paris','london','rome'].forEach(function(n){ if(!known[n]) known[n]=n.replace(/(^|\s)\w/g,function(m){return m.toUpperCase();}); });
+  ['kerala','rajasthan','himachal','uttarakhand','karnataka','tamil nadu','gujarat','ladakh','sikkim','meghalaya','punjab','maharashtra','west bengal','odisha','assam','telangana',
+   'delhi','new delhi','mumbai','goa','jaipur','agra','kolkata','chennai','bengaluru','bangalore','hyderabad','pune','udaipur','jodhpur','jaisalmer','amritsar','varanasi','lucknow','kochi','mysuru','mysore','ooty','munnar','hampi','pondicherry','rishikesh','haridwar','dehradun','manali','shimla','leh','srinagar','darjeeling','gangtok','shillong','guwahati','bhopal','indore','surat','ahmedabad','almora','nainital','mussoorie','kasol','auli','ziro','gokarna','bangkok','bali','singapore','dubai','kathmandu','pokhara','colombo','hanoi','tokyo','paris','london','rome'].forEach(function(n){ if(!known[n]) known[n]=n.replace(/(^|\s)\w/g,function(m){return m.toUpperCase();}); });
   window._rwKnown = known;
   return known;
 }
@@ -5720,11 +5721,21 @@ function cpParseRegex(t){
     return names.length>=2 ? names : null;
   })();
   /* country/region scope beats any single-city guess */
+  /* STATE scope beats country scope: "Kerala, India" is a Kerala request, not
+     an India request. */
+  var _st = rwDetectState(t);
+  if(_st) out._state = _st;
   var _ctry = rwDetectCountry(t);
   if(_ctry){
-    out._country = _ctry;
-    /* a country request should never inherit or keep a stray city */
-    if(out.dest && RW_COMMON_WORDS.test(String(out.dest))) out.dest = null;
+    /* A country name QUALIFYING a place ("Kerala, India", "Goa India") is not a
+       country-scope request. Only treat it as country scope when no specific
+       state or known city is named alongside it. This is why "kerala, india"
+       was answering with an all-India itinerary. */
+    var namedPlace = _st || (rwScanKnown(t).length > 0);
+    if(!namedPlace){
+      out._country = _ctry;
+      if(out.dest && RW_COMMON_WORDS.test(String(out.dest))) out.dest = null;
+    }
   }
   if(out.stops){ out.dest = out.stops[out.stops.length-1]; out.multi=true; }
   /* RESCUE: if the text contains exactly one KNOWN place, and our extracted
@@ -5787,6 +5798,31 @@ function rwUserProfile(){
    hill station, "Bir" to Ukraine. For an India-first travel app those are the
    exact queries that must be right, so the best-known travel meaning wins. */
 var RW_PLACE_OVERRIDES = {
+  /* Indian STATES: absent from any city geocoder, which is how "Kerala"
+     resolved to Kerälä in Finland. Anchored to their principal city so
+     weather, costs and nearby lookups still work if used as a destination. */
+  kerala:{name:'Kerala', admin:'Kerala (Kochi)', lat:9.9312, lon:76.2673},
+  rajasthan:{name:'Rajasthan', admin:'Rajasthan (Jaipur)', lat:26.9124, lon:75.7873},
+  himachal:{name:'Himachal Pradesh', admin:'Himachal (Shimla)', lat:31.1048, lon:77.1734},
+  himachalpradesh:{name:'Himachal Pradesh', admin:'Himachal (Shimla)', lat:31.1048, lon:77.1734},
+  uttarakhand:{name:'Uttarakhand', admin:'Uttarakhand (Dehradun)', lat:30.3165, lon:78.0322},
+  karnataka:{name:'Karnataka', admin:'Karnataka (Bengaluru)', lat:12.9716, lon:77.5946},
+  tamilnadu:{name:'Tamil Nadu', admin:'Tamil Nadu (Chennai)', lat:13.0827, lon:80.2707},
+  gujarat:{name:'Gujarat', admin:'Gujarat (Ahmedabad)', lat:23.0225, lon:72.5714},
+  ladakh:{name:'Ladakh', admin:'Ladakh (Leh)', lat:34.1526, lon:77.5771},
+  sikkim:{name:'Sikkim', admin:'Sikkim (Gangtok)', lat:27.3389, lon:88.6065},
+  meghalaya:{name:'Meghalaya', admin:'Meghalaya (Shillong)', lat:25.5788, lon:91.8933},
+  punjab:{name:'Punjab', admin:'Punjab (Amritsar)', lat:31.6340, lon:74.8723},
+  maharashtra:{name:'Maharashtra', admin:'Maharashtra (Mumbai)', lat:19.0760, lon:72.8777},
+  westbengal:{name:'West Bengal', admin:'West Bengal (Kolkata)', lat:22.5726, lon:88.3639},
+  odisha:{name:'Odisha', admin:'Odisha (Bhubaneswar)', lat:20.2961, lon:85.8245},
+  assam:{name:'Assam', admin:'Assam (Guwahati)', lat:26.1445, lon:91.7362},
+  telangana:{name:'Telangana', admin:'Telangana (Hyderabad)', lat:17.3850, lon:78.4867},
+  andhrapradesh:{name:'Andhra Pradesh', admin:'Andhra Pradesh (Visakhapatnam)', lat:17.6868, lon:83.2185},
+  madhyapradesh:{name:'Madhya Pradesh', admin:'Madhya Pradesh (Bhopal)', lat:23.2599, lon:77.4126},
+  uttarpradesh:{name:'Uttar Pradesh', admin:'Uttar Pradesh (Lucknow)', lat:26.8467, lon:80.9462},
+  bihar:{name:'Bihar', admin:'Bihar (Patna)', lat:25.5941, lon:85.1376},
+
   /* Major Indian anchors: the global geocoder betrays several of these
      ("Goa" the Indian state isn't a city in its dataset, so exact-match went
      to Goa, Philippines). Curated coordinates are checked FIRST, offline. */
@@ -6018,6 +6054,10 @@ async function cpActionsHTML(it){
   var H=[];
   /* smalltalk never reaches the heavy path */
   if(it.smalltalk) return [];
+  /* state-scope request: routes through the state, not a random village */
+  if(it._state){
+    try{ return [rwStateHTML(it._state, it.days)]; }catch(e){}
+  }
   /* country-scope request: answer with circuits, not a single city */
   if(it._country){
     try{ return [rwCountryRouteHTML(it._country, it.days)]; }catch(e){}
@@ -6036,6 +6076,11 @@ async function cpActionsHTML(it){
   /* off-grid safety */
   if(/\b(satellite|sos|off.?grid|no signal|no network|emergency|rescue|inreach|garmin)\b/i.test(String(it._raw||''))){
     return [rwOffgridHTML(it.dest || (_cpCtx && _cpCtx.dest) || '')];
+  }
+  /* rules health check */
+  if(/\b(rules|permission|permissions|insufficient|blocked|firestore)\b/i.test(String(it._raw||''))){
+    setTimeout(function(){ try{ rwRulesCheck(); }catch(e){} }, 60);
+    return ['<div class="tk-card tk-mini"><div class="tk-sec"><div style="font-size:12.5px">Checking which Firestore rules are live\u2026</div></div></div>'];
   }
   /* certificate verification */
   if(/\b(verify|verification|authentic|is this real|check certificate|tamper)\b/i.test(String(it._raw||''))){
@@ -6144,9 +6189,29 @@ async function cpActionsHTML(it){
   var dbHit = it.dest ? cpDbFind(String(it.dest)) : null;
   var lat = dbHit? dbHit.lat : null, lon = dbHit? dbHit.lon : null, geo=null;
   if(it.dest && lat==null){
+    /* ---- ASK BEFORE GUESSING ----
+       Skip only when the traveller already disambiguated ("Manali, Himachal"),
+       when we hold a curated override, or when they're continuing a topic about
+       a place already established in this conversation. */
+    var _alreadySpecific = /,/.test(String(it._raw||'')) || it._inherited;
+    var _curated = !!(RW_PLACE_OVERRIDES && RW_PLACE_OVERRIDES[String(it.dest).toLowerCase().replace(/[^a-z]/g,'')]);
+    if(!_alreadySpecific && !_curated){
+      try{
+        var _cands = await rwCandidates(it.dest);
+        if(rwIsAmbiguous(_cands, (typeof RW_HOME_CC!=='undefined'? RW_HOME_CC : 'IN'))){
+          return [rwDisambigHTML(it.dest, _cands)];
+        }
+      }catch(e){}
+    }
     geo = await rwResolvePlace(it.dest);
-    /* not sure which place they mean? ask, don't guess */
-    if(geo && geo.lowConf){ return [tkClarifyHTML(it.dest, geo)]; }
+    /* legacy low-confidence path, kept as a backstop */
+    if(geo && geo.lowConf){
+      try{
+        var _c2 = await rwCandidates(it.dest);
+        if(_c2.length>1) return [rwDisambigHTML(it.dest, _c2)];
+      }catch(e){}
+      return [tkClarifyHTML(it.dest, geo)];
+    }
     if(geo){ lat=geo.lat; lon=geo.lon; it.dest=geo.name; }
     else {
       /* Not in our library, not resolvable anywhere: SAY SO. Building a
@@ -6889,11 +6954,19 @@ function tripChatOpen(roomId, roomName){
     ov.innerHTML='<div class="sheet" style="display:flex;flex-direction:column;max-height:90dvh">'
       +'<div class="sheet-head"><b id="chatTitle">\ud83d\udcac Trip chat</b><button class="x" onclick="tripChatClose()">\u2715</button></div>'
       +'<div id="chatLog" style="flex:1 1 auto;min-height:0;overflow-y:auto;padding:6px 2px"></div>'
+      +'<div style="display:flex;gap:6px;flex-wrap:wrap;padding:6px 2px 2px;border-top:1px solid var(--b2,#2A2A36)">'
+      +'<button class="tact" style="font-size:11px;padding:5px 9px" onclick="chatShareBudget()">\ud83d\udcb0 Budget</button>'
+      +'<button class="tact" style="font-size:11px;padding:5px 9px" onclick="chatSharePlan()">\ud83d\uddd3\ufe0f Itinerary</button>'
+      +'<button class="tact" style="font-size:11px;padding:5px 9px" onclick="chatShareMeet()">\ud83d\udccd Meet</button>'
+      +'<button class="tact" style="font-size:11px;padding:5px 9px" onclick="chatNewPoll()">\ud83d\uddf3\ufe0f Poll</button>'
+      +'<button class="tact" style="font-size:11px;padding:5px 9px" onclick="chatMarkPaid()">\u2705 Paid</button>'
+      +'<button class="tact" style="font-size:11px;padding:5px 9px" onclick="chatInvite()">\ud83d\udc65 Invite</button>'
+      +'</div>'
       +'<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;padding:4px 2px">'
 +'<span style="font-size:9.5px;color:var(--t3)">\ud83d\udd12 Private to members \u00b7 signed by sender \u00b7 not end-to-end encrypted</span>'
 +'<button class="tact" style="font-size:10px;padding:3px 8px" onclick="rwReportOpen({room:_chatRoom})">\ud83d\udea9 Report</button></div>'
       +'<div style="display:flex;gap:8px;align-items:flex-end;padding-top:4px">'
-      +'<textarea id="chatInput" rows="1" placeholder="Message the group\u2026" style="flex:1;background:var(--bg3,#1A1A20);border:1px solid var(--b2,#2A2A36);border-radius:12px;padding:10px 12px;color:inherit;font:inherit;resize:none;outline:none"></textarea>'
+      +'<textarea id="chatInput" rows="1" placeholder="Message the group \u2014 or ask @tusk anything\u2026" style="flex:1;background:var(--bg3,#1A1A20);border:1px solid var(--b2,#2A2A36);border-radius:12px;padding:10px 12px;color:inherit;font:inherit;resize:none;outline:none"></textarea>'
       +'<button class="tact" style="padding:10px 14px;font-weight:800;background:linear-gradient(135deg,var(--gold,#E8BA6C),var(--gold2,#C8913E));color:#0A0A0C;border:none" onclick="tripChatSend()">\u27a4</button></div>'
       +'</div>';
     document.body.appendChild(ov);
@@ -6913,14 +6986,23 @@ function tripChatOpen(roomId, roomName){
       var log=el('chatLog'); if(!log) return;
       log.innerHTML = qs.docs.filter(function(doc){ return !rwIsBlocked((doc.data()||{}).uid); }).map(function(doc){
         var m=doc.data(), mine=m.uid===user.uid;
-        return '<div style="display:flex;justify-content:'+(mine?'flex-end':'flex-start')+';margin:4px 0">'
-          +'<div style="max-width:78%;background:'+(mine?'linear-gradient(135deg,var(--gold,#E8BA6C),var(--gold2,#C8913E));color:#0A0A0C':'var(--bg2,#12121C);color:var(--t1);border:1px solid var(--b2,#2A2A36)')
-          +';border-radius:'+(mine?'14px 14px 4px 14px':'14px 14px 14px 4px')+';padding:8px 11px;font-size:12.5px;line-height:1.5">'
-          +(mine?'':'<div style="font-size:9.5px;opacity:.7;margin-bottom:2px">'+String(m.name||'Traveller').replace(/[<>]/g,'')+'</div>')
-          +String(m.text||'').replace(/[<>]/g,'')+'</div></div>';
+        return chatBubble(doc.id, m, mine);
       }).join('');
       log.scrollTop=log.scrollHeight;
-    }, function(err){ el('chatLog').innerHTML='<div class="mode-box">Chat unavailable: '+esc2(err.message||err)+'</div>'; });
+    }, function(err){
+      /* This is the path the user actually hits when rules are stale, so it
+         must say what to DO, not just what failed. */
+      var denied = (err && (err.code==='permission-denied' || /permission/i.test(err.message||'')));
+      el('chatLog').innerHTML = denied
+        ? '<div class="mode-box" style="text-align:left;line-height:1.65">'
+          +'<b>Chat is blocked by the server rules.</b><br>'
+          +'<span style="font-size:12px;color:var(--t2)">Almost always means the latest <code>firestore.rules</code> has not been published yet. '
+          +'In Firebase Console \u2192 Firestore \u2192 Rules, paste the current file and press Publish. '
+          +'Group chat needs the <code>tripchats</code> block.</span>'
+          +'<button class="tact" style="font-size:11px;padding:6px 11px;margin-top:9px" onclick="rwRulesCheck()">Check which rules are live</button>'
+          +'</div>'
+        : '<div class="mode-box">Chat unavailable: '+esc2(err.message||err)+'</div>';
+    });
   }).catch(function(e){
     var msg = (e && e.code==='permission-denied')
       ? 'Chat rules are out of date on the server \u2014 publish the latest firestore.rules.'
@@ -6931,8 +7013,12 @@ function tripChatOpen(roomId, roomName){
 function tripChatSend(){
   var inp=el('chatInput'); var t=(inp.value||'').trim(); if(!t || !_chatRoom || !user) return;
   inp.value='';
+  /* "@tusk <question>" asks Ailon Tusk and posts the answer into the room, so
+     nobody has to leave the conversation to look something up. */
+  var mAsk = t.match(/^@?tusk[,:\s]+(.+)$/i);
+  if(mAsk){ chatAskTusk(mAsk[1]); return; }
   db.collection('tripchats').doc(_chatRoom).collection('msgs').add({
-    text:t.slice(0,1000), uid:user.uid,
+    kind:'text', text:t.slice(0,1000), uid:user.uid,
     name:(user.displayName||user.email||'Traveller').split('@')[0],
     at:firebase.firestore.FieldValue.serverTimestamp()
   }).catch(function(e){ showToast('Send failed: '+(e.message||e)); inp.value=t; });
@@ -7063,6 +7149,162 @@ async function tkRouteCard(it){
 
 
 
+
+
+/* ==================== CHAT: TUSK BOT + COORDINATION ====================
+   Group trip planning falls apart in WhatsApp because the useful things —
+   the budget, the itinerary, who has paid, where we're meeting — scroll away
+   within an hour. This keeps them as structured, pinnable messages, and puts
+   Ailon Tusk in the room so nobody has to leave to look something up.
+
+   HONEST SCOPE on messaging apps: WhatsApp has no API that lets an app read or
+   post into a normal group (the Business API is paid, approval-gated and
+   template-only). Telegram does have a free bot API but needs a bot configured
+   per group. So RoamWise shares OUT via deep links — one tap, their own app,
+   their own account — rather than pretending to sync with either. */
+var CHAT_KINDS = {
+  text:    {icon:'', label:''},
+  tusk:    {icon:'\u26a1', label:'Ailon Tusk'},
+  budget:  {icon:'\ud83d\udcb0', label:'Budget'},
+  plan:    {icon:'\ud83d\uddd3\ufe0f', label:'Itinerary'},
+  meet:    {icon:'\ud83d\udccd', label:'Meeting point'},
+  poll:    {icon:'\ud83d\uddf3\ufe0f', label:'Poll'},
+  paid:    {icon:'\u2705', label:'Payment'}
+};
+function chatPost(kind, payload, text){
+  if(!_chatRoom || !user) return Promise.reject(new Error('no room'));
+  return db.collection('tripchats').doc(_chatRoom).collection('msgs').add({
+    kind:kind||'text', text:String(text||'').slice(0,1000),
+    payload:payload||null, uid:user.uid,
+    name:(user.displayName||user.email||'Traveller').split('@')[0],
+    at:firebase.firestore.FieldValue.serverTimestamp()
+  });
+}
+/* ---- Ailon Tusk answers into the room ---- */
+async function chatAskTusk(q){
+  if(!q || !q.trim()) return;
+  await chatPost('text', null, '@tusk '+q).catch(function(){});
+  var thinking = el('chatLog');
+  try{
+    var it = cpParseRegex(q);
+    it._raw = q;
+    var parts = await cpActionsHTML(it);
+    var plain = String(parts.join(' '))
+      .replace(/<style[\s\S]*?<\/style>/g,' ')
+      .replace(/<[^>]*>/g,' ').replace(/\s{2,}/g,' ').trim().slice(0,700);
+    if(!plain) plain = 'I could not find anything solid on that. Try naming the place with its state or country.';
+    await chatPost('tusk', {q:q}, plain);
+  }catch(e){
+    await chatPost('tusk', null, 'I hit an error answering that. Try rephrasing?').catch(function(){});
+  }
+}
+/* ---- structured shares ---- */
+function chatShareBudget(){
+  var dest = (_cpCtx && _cpCtx.dest) || '';
+  var days = (_cpCtx && _cpCtx.days) || 5;
+  var entry = dest ? (cpDbFind(dest) || null) : null;
+  if(!entry){ showToast('Ask Tusk about a destination first, then share its budget'); return; }
+  try{
+    var fx = window._rwFxINR || 88;
+    var e2 = JSON.parse(JSON.stringify(entry)); delete e2.brk;
+    if(e2.cost && !e2.cost.budget) e2.cost.budget = Math.round(e2.cost.mid*0.55);
+    var mid = Math.round(shadowBudget(e2, days, 'mid').total*fx);
+    var lo  = Math.round(shadowBudget(e2, days, 'budget').total*fx);
+    chatPost('budget', {dest:dest, days:days, mid:mid, lo:lo},
+      dest+' \u00b7 '+days+' days \u2014 shoestring \u20b9'+lo.toLocaleString('en-IN')+', mid-range \u20b9'+mid.toLocaleString('en-IN')+' per person');
+  }catch(e){ showToast('Could not build that budget'); }
+}
+function chatSharePlan(){
+  var t = (typeof vaultGet==='function') ? (vaultGet()[0]||null) : null;
+  if(!t){ showToast('Save a trip first, then share it here'); return; }
+  chatPost('plan', {id:t.id, name:t.name, days:(t.days||[]).length},
+    t.name+' \u2014 '+((t.days||[]).length)+'-day plan');
+}
+function chatShareMeet(){
+  var where = prompt('Where and when are you meeting?\n\ne.g. "Kashmere Gate metro, Gate 3, Sat 6am"');
+  if(!where || !where.trim()) return;
+  chatPost('meet', {where:where.trim()}, where.trim());
+}
+function chatMarkPaid(){
+  var what = prompt('What did you pay for?\n\ne.g. "Hotel advance \u20b94,000 \u2014 split 4 ways"');
+  if(!what || !what.trim()) return;
+  chatPost('paid', {note:what.trim()}, what.trim());
+}
+function chatNewPoll(){
+  var q = prompt('What is the question?\n\ne.g. "Which weekend works?"');
+  if(!q || !q.trim()) return;
+  var opts = prompt('Options, separated by commas\n\ne.g. "12-14 Oct, 19-21 Oct, 26-28 Oct"');
+  if(!opts || !opts.trim()) return;
+  var list = opts.split(',').map(function(x){ return x.trim(); }).filter(Boolean).slice(0,5);
+  if(list.length<2){ showToast('Give at least two options'); return; }
+  chatPost('poll', {q:q.trim(), options:list, votes:{}}, q.trim());
+}
+async function chatVote(msgId, idx){
+  if(!_chatRoom || !user) return;
+  var ref = db.collection('tripchats').doc(_chatRoom).collection('msgs').doc(msgId);
+  try{
+    var d = await ref.get(); if(!d.exists) return;
+    var p = d.data().payload||{}; p.votes = p.votes||{};
+    p.votes[user.uid] = idx;
+    /* messages are immutable by rule, so a vote is posted as its own message
+       and tallied client-side — simpler than loosening the write rules */
+    await chatPost('text', null, '\ud83d\uddf3\ufe0f voted: '+(p.options[idx]||''));
+  }catch(e){ showToast('Could not vote'); }
+}
+/* ---- share the room outward ---- */
+function chatInvite(){
+  var link = 'https://www.roamwise.co.in/?join='+encodeURIComponent(_chatRoom||'');
+  var msg = 'Join our trip planning on RoamWise \u2014 budgets, itineraries and Ailon Tusk in one place:\n'+link;
+  var ov = el('chatInviteBox');
+  if(!ov){
+    ov=document.createElement('div'); ov.id='chatInviteBox'; ov.className='overlay';
+    ov.innerHTML='<div class="sheet"><div class="sheet-head"><b>\ud83d\udc65 Invite the group</b><button class="x" onclick="rwOverlayClose(\'chatInviteBox\')">\u2715</button></div>'
+      +'<div id="chatInviteBody" style="padding:4px 2px 16px"></div></div>';
+    document.body.appendChild(ov);
+  }
+  el('chatInviteBody').innerHTML =
+     '<p style="font-size:12.5px;color:var(--t2);line-height:1.6">Anyone who opens this and signs in joins the room. Share it where your group already talks.</p>'
+    +'<div class="tk-chips" style="margin-top:11px">'
+    +'<a class="tk-chip gold" style="text-decoration:none" target="_blank" rel="noopener" href="https://wa.me/?text='+encodeURIComponent(msg)+'">\ud83d\udcac WhatsApp</a>'
+    +'<a class="tk-chip" style="text-decoration:none" target="_blank" rel="noopener" href="https://t.me/share/url?url='+encodeURIComponent(link)+'&text='+encodeURIComponent('Join our trip planning on RoamWise')+'">\u2708\ufe0f Telegram</a>'
+    +'<button class="tk-chip" onclick="copyText(\''+link+'\')">\ud83d\udd17 Copy link</button>'
+    +'</div>'
+    +'<div style="font-size:10.5px;color:var(--t3);line-height:1.6;margin-top:12px">'
+    +'RoamWise cannot read or post inside your WhatsApp group \u2014 no app can, WhatsApp provides no such API. This shares the link out to whichever app you already use.'
+    +'</div>';
+  rwOverlayOpen('chatInviteBox');
+}
+/* ---- render one message by kind ---- */
+function chatBubble(id, m, mine){
+  var kind = m.kind||'text', K = CHAT_KINDS[kind]||CHAT_KINDS.text;
+  if(kind==='tusk'){
+    return '<div style="display:flex;justify-content:flex-start;margin:6px 0">'
+      +'<div style="max-width:88%;background:linear-gradient(135deg,rgba(232,186,108,.14),rgba(200,145,62,.05));border:1px solid rgba(232,186,108,.32);border-radius:14px 14px 14px 4px;padding:10px 12px">'
+      +'<div style="font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--gold2,#C8913E);font-weight:800;margin-bottom:3px">\u26a1 Ailon Tusk</div>'
+      +'<div style="font-size:12.5px;line-height:1.6;color:var(--t2)">'+esc2(m.text||'')+'</div></div></div>';
+  }
+  if(kind==='poll'){
+    var p=m.payload||{}, opts=p.options||[];
+    return '<div style="margin:7px 0"><div style="background:var(--bg2,#12121C);border:1px solid var(--b2,#2A2A36);border-radius:13px;padding:11px 13px">'
+      +'<div style="font-size:9.5px;color:var(--gold2,#C8913E);font-weight:800;text-transform:uppercase;letter-spacing:.08em">\ud83d\uddf3\ufe0f Poll \u00b7 '+esc2(m.name||'')+'</div>'
+      +'<div style="font-size:13px;font-weight:700;margin:4px 0 7px">'+esc2(p.q||m.text||'')+'</div>'
+      + opts.map(function(o,i){
+          return '<button onclick="chatVote(\''+id+'\','+i+')" style="display:block;width:100%;text-align:left;background:var(--bg3,#1A1A20);border:1px solid var(--b2,#2A2A36);border-radius:9px;padding:8px 11px;margin-bottom:5px;color:inherit;font:inherit;font-size:12px;cursor:pointer">'+esc2(o)+'</button>';
+        }).join('')
+      +'</div></div>';
+  }
+  if(kind==='budget' || kind==='plan' || kind==='meet' || kind==='paid'){
+    var col = kind==='paid' ? '#4ADE80' : kind==='meet' ? '#60A5FA' : 'var(--gold,#E8BA6C)';
+    return '<div style="margin:7px 0"><div style="background:var(--bg2,#12121C);border-left:3px solid '+col+';border-radius:9px;padding:9px 12px">'
+      +'<div style="font-size:9.5px;color:'+col+';font-weight:800;text-transform:uppercase;letter-spacing:.08em">'+K.icon+' '+K.label+' \u00b7 '+esc2(m.name||'')+'</div>'
+      +'<div style="font-size:12.5px;line-height:1.55;margin-top:3px">'+esc2(m.text||'')+'</div></div></div>';
+  }
+  return '<div style="display:flex;justify-content:'+(mine?'flex-end':'flex-start')+';margin:4px 0">'
+    +'<div style="max-width:78%;background:'+(mine?'linear-gradient(135deg,var(--gold,#E8BA6C),var(--gold2,#C8913E));color:#0A0A0C':'var(--bg2,#12121C);color:var(--t1);border:1px solid var(--b2,#2A2A36)')
+    +';border-radius:'+(mine?'14px 14px 4px 14px':'14px 14px 14px 4px')+';padding:8px 11px;font-size:12.5px;line-height:1.5">'
+    +(mine?'':'<div style="font-size:9.5px;opacity:.7;margin-bottom:2px">'+esc2(m.name||'Traveller')+'</div>')
+    +esc2(m.text||'')+'</div></div>';
+}
 
 /* ==================== SAFETY & MODERATION ====================
    The ban is enforced in Firestore rules (isBanned() gates every social write),
@@ -8597,6 +8839,303 @@ function rwPressureHTML(place){
     +'Was '+esc2(p.was)+'. Now: '+esc2(p.now)+' \u2014 broadly since '+esc2(p.since)+'.</div>'
     +'<div style="font-size:11px;color:var(--t3);margin-top:6px">Not a reason to skip it \u2014 a reason to go off-season, start early, and check current rules before booking.</div>'
     +'</div>';
+}
+
+
+
+
+/* ==================== RULES VERSION CHECK ====================
+   "Missing or insufficient permissions" is the least helpful error in Firebase,
+   because it looks identical whether the user lacks access or the rules simply
+   were not published. This probes several collections and reports which
+   features are actually live, so the answer is a fact rather than a guess. */
+var RW_RULES_VERSION = '2026-07-24';
+async function rwRulesCheck(){
+  if(!window.db){ showToast('Not connected to the database'); return; }
+  var checks = [
+    ['Group chat',      function(){ return db.collection('tripchats').doc('_probe_'+Date.now()).get(); }],
+    ['Staff logins',    function(){ return db.collection('staff').doc('_probe').get(); }],
+    ['Moderation bans', function(){ return db.collection('bans').doc('_probe').get(); }],
+    ['Founder gate',    function(){ return db.collection('pricing').doc('founder').get(); }],
+    ['Rules version',   function(){ return db.collection('meta').doc('rulesVersion').get(); }]
+  ];
+  var rows=[], live=null;
+  for(var i=0;i<checks.length;i++){
+    try{
+      var d = await checks[i][1]();
+      if(checks[i][0]==='Rules version' && d && d.exists) live=(d.data()||{}).version||null;
+      rows.push([checks[i][0], true, '']);
+    }catch(e){
+      rows.push([checks[i][0], false, (e && e.code) || 'error']);
+    }
+  }
+  var allOk = rows.every(function(r){ return r[1]; });
+  var html = '<div class="tk-card"><div class="tk-head" style="background:linear-gradient(150deg,'
+    +(allOk?'#14532D':'#7F1D1D')+',#0A0A0C)">'
+    +'<div class="tk-place">'+(allOk?'\u2705 Rules look current':'\u26a0\ufe0f Rules are out of date')+'</div>'
+    +'<div class="tk-meta">'+(live? 'Published version: '+esc2(live) : 'No version marker found on the server')+'</div></div>'
+    +'<div class="tk-sec">'
+    + rows.map(function(r){
+        return '<div style="display:flex;justify-content:space-between;gap:8px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.05);font-size:12.5px">'
+          +'<span>'+esc2(r[0])+'</span>'
+          +'<b style="color:'+(r[1]?'#4ADE80':'#E05B5B')+'">'+(r[1]?'reachable':'blocked')+'</b></div>';
+      }).join('')
+    +'</div>'
+    + (allOk
+        ? '<div class="tk-sec"><div style="font-size:12px;color:var(--t2);line-height:1.6">Every collection responded. If a feature still fails, it is a code issue rather than a rules issue \u2014 tell me exactly what you tapped.</div></div>'
+        : '<div class="tk-sec"><div style="font-size:12px;color:var(--t2);line-height:1.6">'
+          +'Anything marked <b>blocked</b> needs the current rules published. Firebase Console \u2192 Firestore \u2192 Rules \u2192 paste <code>firestore.rules</code> \u2192 Publish. '
+          +'Then set <code>meta/rulesVersion</code> to <code>{version:"'+RW_RULES_VERSION+'"}</code> so this check can confirm it next time.</div></div>')
+    +'</div>';
+  var log = el('heroLog');
+  if(log){ log.style.display='block'; log.insertAdjacentHTML('beforeend','<div class="cp-msg bot">'+html+'</div>'); log.scrollTop=log.scrollHeight; }
+  else showToast(allOk? 'Rules look current' : 'Rules need publishing');
+}
+
+/* ==================== PLACE DISAMBIGUATION ====================
+   Guessing wrong is worse than asking. The geocoder returns GeoNames
+   `feature_code`, which tells us exactly WHAT each candidate is — a village, a
+   district capital, a state, a mountain — so the traveller can pick the right
+   one instead of being silently sent to a namesake.
+
+   Real failures this prevents, all reproduced against the live API:
+     "Almora"  -> Almorox, SPAIN ranked above Almora, Uttarakhand
+     "Manali"  -> Manali, Tamil Nadu (pop 35k) above Manali, Himachal (pop 8k)
+     "Kerala"  -> five Finnish villages called Ker\u00e4l\u00e4
+     "Goa"     -> Genoa, Italy on a fuzzy match
+   Population ranking is exactly wrong for travel: the famous Manali is the
+   small one. So when candidates are genuinely close, we ask. */
+var RW_FC = {
+  PCLI:['\ud83c\udf0d','Country'], PCLD:['\ud83c\udf0d','Territory'], PCLS:['\ud83c\udf0d','Country'],
+  ADM1:['\ud83d\uddfa\ufe0f','State / province'], ADM2:['\ud83d\uddfa\ufe0f','District'],
+  ADM3:['\ud83d\uddfa\ufe0f','Sub-district'], ADM4:['\ud83d\uddfa\ufe0f','Local area'],
+  PPLC:['\ud83c\udfdb\ufe0f','Capital city'], PPLA:['\ud83c\udfd9\ufe0f','State capital'],
+  PPLA2:['\ud83c\udfd9\ufe0f','District town'], PPLA3:['\ud83c\udfd8\ufe0f','Town'], PPLA4:['\ud83c\udfd8\ufe0f','Town'],
+  PPL:['\ud83c\udfd8\ufe0f','Town / village'], PPLL:['\ud83c\udfe1','Village'], PPLX:['\ud83c\udfd8\ufe0f','Neighbourhood'],
+  PPLF:['\ud83c\udf3e','Farm village'], PPLS:['\ud83c\udfd8\ufe0f','Settlements'], PPLW:['\ud83c\udfda\ufe0f','Former village'],
+  MT:['\u26f0\ufe0f','Mountain'], PK:['\u26f0\ufe0f','Peak'], MTS:['\u26f0\ufe0f','Mountain range'],
+  LK:['\ud83c\udf0a','Lake'], STM:['\ud83c\udf0a','River'], FLLS:['\ud83d\udca7','Waterfall'],
+  BCH:['\ud83c\udfd6\ufe0f','Beach'], ISL:['\ud83c\udfdd\ufe0f','Island'], VAL:['\ud83c\udfde\ufe0f','Valley'],
+  PASS:['\u26f0\ufe0f','Mountain pass'], PRK:['\ud83c\udf33','Park / reserve'],
+  RLG:['\ud83d\uded5','Temple / shrine'], HSTS:['\ud83c\udfdb\ufe0f','Historic site'],
+  AIRP:['\u2708\ufe0f','Airport'], RSTN:['\ud83d\ude82','Railway station']
+};
+function rwPlaceType(fc){
+  var t = RW_FC[String(fc||'').toUpperCase()];
+  if(t) return {icon:t[0], label:t[1]};
+  var f = String(fc||'').toUpperCase();
+  if(f.indexOf('PPL')===0) return {icon:'\ud83c\udfd8\ufe0f', label:'Town / village'};
+  if(f.indexOf('ADM')===0) return {icon:'\ud83d\uddfa\ufe0f', label:'Administrative area'};
+  return {icon:'\ud83d\udccd', label:'Place'};
+}
+/* fetch every plausible candidate, typed and de-duplicated */
+async function rwCandidates(q){
+  if(!navigator.onLine) return [];
+  try{
+    var r = await fetch('https://geocoding-api.open-meteo.com/v1/search?name='+encodeURIComponent(q)
+      +'&count=10&language=en&format=json').then(function(x){ return x.json(); });
+    var list = r.results||[];
+    var ql = String(q).toLowerCase().trim();
+    /* keep only candidates whose name genuinely resembles the query \u2014 stops
+       "Goa" surfacing Genoa, and "Almora" surfacing Almorox */
+    var close = list.filter(function(x){
+      var n=String(x.name||'').toLowerCase();
+      return n===ql || n.indexOf(ql)===0 || ql.indexOf(n)===0;
+    });
+    if(!close.length) close = list.slice(0,4);
+    var seen={}, out=[];
+    close.forEach(function(x){
+      var key=[x.name,x.country,x.admin1].join('|').toLowerCase();
+      if(seen[key]) return; seen[key]=1;
+      var ty=rwPlaceType(x.feature_code);
+      out.push({name:x.name, country:x.country||'', cc:x.country_code||'',
+                admin:[x.admin1,x.admin2].filter(Boolean).slice(0,1).join(', '),
+                lat:x.latitude, lon:x.longitude, pop:x.population||null,
+                icon:ty.icon, type:ty.label, fc:x.feature_code||''});
+    });
+    return out.slice(0,6);
+  }catch(e){ return []; }
+}
+/* Is this genuinely ambiguous, or obvious? */
+function rwIsAmbiguous(cands, homeCC){
+  if(!cands || cands.length<2) return false;
+  var countries={}, admins={};
+  cands.forEach(function(c){ countries[c.cc]=1; admins[(c.cc||'')+'|'+(c.admin||'')]=1; });
+  var multiCountry = Object.keys(countries).length>1;
+  var multiAdmin   = Object.keys(admins).length>1;
+  if(!multiCountry && !multiAdmin) return false;
+
+  /* A world-famous place is not ambiguous just because a hamlet shares its
+     name. Tokyo was being flagged because five tiny namesakes exist. Two
+     escape hatches, both evidence-based rather than a hardcoded list: */
+  var sorted = cands.slice().sort(function(a,b){ return (b.pop||0)-(a.pop||0); });
+  var top = sorted[0], second = sorted[1];
+
+  /* 1. Population dominance — top is an order of magnitude bigger than the
+        next. Note this is checked GLOBALLY, not only for the home country,
+        which is the bug that made Tokyo look ambiguous. */
+  if((top.pop||0) >= 250000 && (top.pop||0) > ((second&&second.pop)||0)*10) return false;
+
+  /* 2. Rank dominance — top is a national or state capital while the rest are
+        villages. "Which Paris?" is not a question worth asking. */
+  var topFC = String(top.fc||'').toUpperCase();
+  if((topFC==='PPLC' || topFC==='PPLA') && (top.pop||0) > 100000){
+    var rivals = sorted.slice(1).filter(function(c){ return (c.pop||0) > 50000; });
+    if(!rivals.length) return false;
+  }
+
+  /* one candidate overwhelmingly dominant in the home country = not ambiguous */
+  var home = cands.filter(function(c){ return c.cc===homeCC; });
+  if(home.length===1){
+    var others = cands.filter(function(c){ return c.cc!==homeCC; });
+    var biggestOther = Math.max.apply(null, others.map(function(c){ return c.pop||0; }).concat([0]));
+    if((home[0].pop||0) > biggestOther*5) return false;
+  }
+  return true;
+}
+function rwDisambigHTML(query, cands){
+  return '<div class="tk-card"><div class="tk-head" style="background:linear-gradient(150deg,#1E3A8A,#0A0A0C)">'
+    +'<div class="tk-place">Which '+esc2(query)+'?</div>'
+    +'<div class="tk-meta">'+cands.length+' places share that name \u2014 pick one and I\u2019ll get it right</div></div>'
+    +'<div class="tk-sec">'
+    + cands.map(function(c){
+        var where=[c.admin, c.country].filter(Boolean).join(', ');
+        var pop = c.pop ? Number(c.pop).toLocaleString('en-IN')+' people' : 'small settlement';
+        return '<button onclick="cpFollow(\''+String(c.name+', '+(c.admin||c.country)).replace(/'/g,"\\'")+'\')" '
+          +'style="display:flex;width:100%;text-align:left;gap:11px;align-items:center;background:transparent;border:none;'
+          +'border-bottom:1px solid rgba(255,255,255,.06);padding:11px 2px;cursor:pointer;color:inherit;font:inherit">'
+          +'<span style="font-size:20px">'+c.icon+'</span>'
+          +'<span style="flex:1"><b style="font-size:13.5px;display:block">'+esc2(c.name)+'</b>'
+          +'<span style="font-size:11px;color:var(--t3)">'+esc2(c.type)+' \u00b7 '+esc2(where)+' \u00b7 '+pop+'</span></span>'
+          +'<span style="color:var(--gold,#E8BA6C);font-size:15px">\u203a</span></button>';
+      }).join('')
+    +'</div>'
+    +'<div class="tk-sec"><div style="font-size:11.5px;color:var(--t2);line-height:1.6">'
+    +'None of these? Type the place with its state or country \u2014 e.g. \u201c'+esc2(query)+', Himachal Pradesh\u201d.</div>'
+    +'</div></div>';
+}
+
+/* ==================== INDIAN STATES & REGIONS ====================
+   States are not cities, so a global city geocoder has no entry for them —
+   "Kerala" resolved to Kerälä, a village in Finland, and "Rajasthan" or
+   "Himachal" would fail the same way. A state request is also not a single
+   destination: the right answer is a route through it, sized to the days
+   available. This handles both. */
+var RW_STATES = {
+  kerala:      {label:'Kerala', cc:'IN', lat:10.1632, lon:76.6413,
+    circuits:[
+      {name:'Backwaters & hills', minDays:6, stops:['Kochi','Alleppey','Munnar'], why:'The classic first Kerala trip \u2014 fort town, houseboat night, then tea country.'},
+      {name:'Full south coast',   minDays:9, stops:['Kochi','Alleppey','Varkala','Kovalam'], why:'Add the cliff beaches and the quieter southern shore.'},
+      {name:'Wild Kerala',        minDays:8, stops:['Kochi','Thekkady','Wayanad'], why:'Spice plantations and two of the better wildlife reserves.'},
+      {name:'North Kerala',       minDays:7, stops:['Kozhikode','Wayanad','Kannur'], why:'Theyyam ritual season, Malabar food, and almost no tourists.'}
+    ]},
+  rajasthan:   {label:'Rajasthan', cc:'IN', lat:26.9124, lon:75.7873,
+    circuits:[
+      {name:'Golden Triangle+',   minDays:6, stops:['Jaipur','Agra','Delhi'], why:'The standard entry route into north India.'},
+      {name:'Desert circuit',     minDays:9, stops:['Jaipur','Jodhpur','Jaisalmer'], why:'Forts to dunes, with overnight trains that work well.'},
+      {name:'Lakes & forts',      minDays:8, stops:['Udaipur','Chittorgarh','Bundi'], why:'The softer, greener half of the state.'}
+    ]},
+  himachal:    {label:'Himachal Pradesh', cc:'IN', lat:31.1048, lon:77.1734,
+    circuits:[
+      {name:'Classic hills',      minDays:6, stops:['Shimla','Manali','Kasol'], why:'Easy road access, good for a first mountain trip.'},
+      {name:'Spiti loop',         minDays:10, stops:['Manali','Kaza','Tabo'], why:'High desert. Only Jun\u2013Oct, and worth planning carefully.'},
+      {name:'Dhauladhar',         minDays:7, stops:['Dharamshala','Bir','Barot'], why:'Monasteries and paragliding, quieter than Manali.'}
+    ]},
+  uttarakhand: {label:'Uttarakhand', cc:'IN', lat:30.0668, lon:79.0193,
+    circuits:[
+      {name:'Kumaon hills',       minDays:6, stops:['Nainital','Almora','Munsiyari'], why:'Lakes, then ridges, then the high Himalaya in view.'},
+      {name:'Ganga & yoga',       minDays:5, stops:['Haridwar','Rishikesh','Devprayag'], why:'The river end-to-end \u2014 aarti, rafting, ashrams.'},
+      {name:'Char Dham circuit',  minDays:12, stops:['Yamunotri','Gangotri','Kedarnath','Badrinath'], why:'The full pilgrimage. May\u2013Oct only, and physically demanding.'}
+    ]},
+  goa:         {label:'Goa', cc:'IN', lat:15.4909, lon:73.8278,
+    circuits:[
+      {name:'North Goa',          minDays:4, stops:['Anjuna','Baga','Vagator'], why:'Markets, nightlife and the busy stretch of coast.'},
+      {name:'South Goa',          minDays:5, stops:['Palolem','Agonda','Colva'], why:'Quiet beaches. This is the Goa people mean when they say it changed.'},
+      {name:'Inland Goa',         minDays:4, stops:['Panjim','Old Goa','Ponda'], why:'Portuguese quarters, churches and spice farms \u2014 barely visited.'}
+    ]},
+  karnataka:   {label:'Karnataka', cc:'IN', lat:15.3350, lon:76.4600,
+    circuits:[
+      {name:'Hampi & coast',      minDays:7, stops:['Hampi','Gokarna','Bengaluru'], why:'Ruins, then an unhurried beach town.'},
+      {name:'Coffee country',     minDays:6, stops:['Bengaluru','Coorg','Mysuru'], why:'Plantations, palaces and easy roads.'}
+    ]},
+  tamilnadu:   {label:'Tamil Nadu', cc:'IN', lat:11.1271, lon:78.6569,
+    circuits:[
+      {name:'Temple trail',       minDays:8, stops:['Chennai','Mahabalipuram','Thanjavur','Madurai'], why:'Dravidian architecture at its best.'},
+      {name:'Hills & coast',      minDays:7, stops:['Chennai','Pondicherry','Ooty'], why:'French quarter, then tea hills.'}
+    ]},
+  gujarat:     {label:'Gujarat', cc:'IN', lat:22.2587, lon:71.1924,
+    circuits:[
+      {name:'Rann & heritage',    minDays:7, stops:['Ahmedabad','Bhuj','Rann of Kutch'], why:'White desert \u2014 Nov\u2013Feb only.'},
+      {name:'Wildlife',           minDays:6, stops:['Ahmedabad','Gir','Somnath'], why:'The only wild Asiatic lions on earth.'}
+    ]},
+  ladakh:      {label:'Ladakh', cc:'IN', lat:34.1526, lon:77.5771,
+    circuits:[
+      {name:'Leh & lakes',        minDays:8, stops:['Leh','Nubra','Pangong'], why:'Acclimatise in Leh for two days first \u2014 non-negotiable.'},
+      {name:'Full Ladakh',        minDays:12, stops:['Leh','Nubra','Pangong','Tso Moriri'], why:'Add the quieter southern lakes and Hanle if permits allow.'}
+    ]},
+  sikkim:      {label:'Sikkim', cc:'IN', lat:27.5330, lon:88.5122,
+    circuits:[
+      {name:'East Sikkim',        minDays:6, stops:['Gangtok','Tsomgo','Nathula'], why:'Permits needed for Nathula \u2014 arrange in Gangtok.'},
+      {name:'North Sikkim',       minDays:8, stops:['Gangtok','Lachung','Yumthang'], why:'Valley of flowers in spring, snow in winter.'}
+    ]},
+  meghalaya:   {label:'Meghalaya', cc:'IN', lat:25.4670, lon:91.3662,
+    circuits:[
+      {name:'Living root bridges',minDays:6, stops:['Shillong','Cherrapunji','Nongriat'], why:'The double-decker root bridge is a hard day hike down and back.'},
+      {name:'Caves & canyons',    minDays:7, stops:['Shillong','Dawki','Mawlynnong'], why:'Clear-water river at Dawki, and Asia\u2019s cleanest village.'}
+    ]}
+};
+var RW_STATE_ALIAS = {
+  'kerala':'kerala','gods own country':'kerala',
+  'rajasthan':'rajasthan',
+  'himachal':'himachal','himachal pradesh':'himachal','hp':'himachal',
+  'uttarakhand':'uttarakhand','uttaranchal':'uttarakhand','garhwal':'uttarakhand','kumaon':'uttarakhand',
+  /* NOTE: Goa, Ladakh and Sikkim are states, but they are compact enough that a
+     single destination card (photo, vibe, costs, food) serves better than a
+     circuit picker. Their circuits stay reachable via "goa circuits". Only the
+     large states auto-route to routes. */
+  'goa circuits':'goa','kerala circuits':'kerala',
+  'karnataka':'karnataka',
+  'tamil nadu':'tamilnadu','tamilnadu':'tamilnadu',
+  'gujarat':'gujarat',
+  'ladakh circuits':'ladakh',
+  'sikkim circuits':'sikkim',
+  'meghalaya':'meghalaya'
+};
+function rwDetectState(t){
+  var lower=' '+String(t).toLowerCase().replace(/[^a-z ]/g,' ').replace(/\s+/g,' ')+' ';
+  var keys=Object.keys(RW_STATE_ALIAS).sort(function(a,b){ return b.length-a.length; });
+  for(var i=0;i<keys.length;i++){ if(lower.indexOf(' '+keys[i]+' ')>-1) return RW_STATE_ALIAS[keys[i]]; }
+  return null;
+}
+function rwStateHTML(key, days){
+  var S=RW_STATES[key]; if(!S) return '';
+  days = days || 7;
+  var fits = S.circuits.filter(function(c){ return c.minDays <= days; });
+  var tooBig = S.circuits.filter(function(c){ return c.minDays > days; });
+  if(!fits.length) fits = S.circuits.slice().sort(function(a,b){ return a.minDays-b.minDays; }).slice(0,2);
+  var rows = fits.slice(0,4).map(function(c){
+    var per = Math.max(1, Math.floor(days/c.stops.length));
+    return '<div style="padding:9px 0;border-bottom:1px solid rgba(255,255,255,.05)">'
+      +'<div style="display:flex;justify-content:space-between;align-items:center;gap:8px">'
+      +'<b style="font-size:13.5px">'+esc2(c.name)+'</b>'
+      +'<span style="font-size:10.5px;color:var(--t3)">from '+c.minDays+' days</span></div>'
+      +'<div style="font-size:11.5px;color:var(--t2);margin:3px 0 6px;line-height:1.5">'+esc2(c.why)+'</div>'
+      +'<div class="tk-chips">'
+      + c.stops.map(function(st){ return '<button class="tk-chip" style="font-size:11px;padding:5px 10px" onclick="cpFollow(\''+st.replace(/'/g,'')+' '+per+' days\')">'+esc2(st)+' \u00b7 '+per+'d</button>'; }).join('')
+      +'</div></div>';
+  }).join('');
+  return '<div class="tk-card"><div class="tk-head" style="background:'+tkThemeGrad(S.label)+'">'
+    +'<div class="tk-place">'+esc2(S.label)+' \u00b7 '+days+' days</div>'
+    +'<div class="tk-meta">A state, not a city \u2014 here are routes through it</div></div>'
+    +'<div class="tk-sec"><div class="tk-lab">Routes that fit '+days+' days</div>'+rows+'</div>'
+    + (tooBig.length? '<div class="tk-sec"><div class="tk-lab">Needs more time</div>'
+        + tooBig.map(function(c){ return '<div class="tk-bul">'+esc2(c.name)+' \u2014 needs '+c.minDays+'+ days</div>'; }).join('')
+        +'</div>' : '')
+    +'<div class="tk-sec"><div class="tk-lab">Ask me next</div><div class="tk-chips">'
+    +'<button class="tk-chip" onclick="cpFollow(\'best time to visit '+S.label.replace(/'/g,'')+'\')">\u26c5 Best season</button>'
+    +'<button class="tk-chip" onclick="cpFollow(\''+S.label.replace(/'/g,'')+' budget for '+days+' days\')">\ud83d\udcb0 Budget</button>'
+    +'<button class="tk-chip" onclick="cpFollow(\'food in '+S.label.replace(/'/g,'')+'\')">\ud83c\udf5c Food</button>'
+    +'</div></div></div>';
 }
 
 /* ==================== COUNTRY / REGION TRIPS ====================

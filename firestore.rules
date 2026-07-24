@@ -127,15 +127,41 @@ service cloud.firestore {
         && request.auth.uid in request.resource.data.members
         && (resource.data.members.toSet().difference(request.resource.data.members.toSet()).size() == 0);
       match /msgs/{msgId} {
-        allow read: if request.auth != null
-          && request.auth.uid in get(/databases/$(database)/documents/tripchats/$(roomId)).data.members;
+        // LATENT BUG FIXED: get() on a room that does not exist returns null,
+        // and reading .data.members off null makes the whole rule evaluation
+        // fail — which surfaces to the user as "Missing or insufficient
+        // permissions" even when they are a legitimate member. Guard with
+        // exists() FIRST; && short-circuits, so get() only runs on a real doc.
+        function roomExists() {
+          return exists(/databases/$(database)/documents/tripchats/$(roomId));
+        }
+        function isMember() {
+          return request.auth.uid in
+            get(/databases/$(database)/documents/tripchats/$(roomId)).data.members;
+        }
+        allow read: if request.auth != null && roomExists() && isMember();
         allow create: if request.auth != null
           && !isBanned()
+          && roomExists()
+          && isMember()
           && request.resource.data.uid == request.auth.uid
+          && request.resource.data.text is string
           && request.resource.data.text.size() <= 1000
-          && request.auth.uid in get(/databases/$(database)/documents/tripchats/$(roomId)).data.members;
+          // structured messages (budget/itinerary/poll/meet/paid/tusk) carry a
+          // small payload; cap the kind so nothing arbitrary is stored
+          && (!('kind' in request.resource.data)
+              || request.resource.data.kind in ['text','tusk','budget','plan','meet','poll','paid']);
         allow update, delete: if false;
       }
+    }
+
+    // ---------- RULES VERSION PROBE ----------
+    // Public-readable, admin-written. Lets the app tell the founder definitively
+    // whether the deployed rules are current, instead of everyone guessing when
+    // a feature returns "insufficient permissions".
+    match /meta/rulesVersion {
+      allow read: if true;
+      allow write: if isAdmin();
     }
 
     // ---------- SECRETS (end-to-end encrypted API-key backup) ----------
