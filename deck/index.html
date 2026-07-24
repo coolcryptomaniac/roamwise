@@ -1,0 +1,224 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>RoamWise — investor deck</title>
+<meta name="robots" content="noindex">
+<style>
+:root{--bg:#08090F;--bg2:#11131C;--b:#1E2029;--t1:#F2F0EA;--t2:#B9B6AE;--t3:#7A7870;
+      --gold:#E8BA6C;--gold2:#C8913E;--grn:#4ADE80;--vio:#A78BFA}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-snap-type:y proximity}
+body{background:var(--bg);color:var(--t1);font:16px/1.7 system-ui,-apple-system,'Segoe UI',sans-serif;overflow-x:hidden}
+.slide{min-height:100vh;display:flex;flex-direction:column;justify-content:center;padding:70px 24px;
+       max-width:940px;margin:0 auto;scroll-snap-align:start;position:relative}
+.slide::before{content:'';position:absolute;inset:0;pointer-events:none;z-index:-1;opacity:.5;
+  background:radial-gradient(900px 420px at 15% 8%,rgba(232,186,108,.09),transparent 62%)}
+.n{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold2);font-weight:800;margin-bottom:14px}
+h1{font-size:clamp(34px,7vw,62px);line-height:1.06;letter-spacing:-.03em;margin-bottom:18px}
+h2{font-size:clamp(26px,4.6vw,40px);line-height:1.15;letter-spacing:-.02em;margin-bottom:16px}
+h3{font-size:18px;margin-bottom:7px;color:var(--gold)}
+p{color:var(--t2);margin-bottom:14px;max-width:70ch}
+.lead{font-size:clamp(17px,2.4vw,21px);color:var(--t1)}
+.grid{display:grid;gap:14px;margin-top:20px}
+.g2{grid-template-columns:repeat(auto-fit,minmax(230px,1fr))}
+.g3{grid-template-columns:repeat(auto-fit,minmax(180px,1fr))}
+.card{background:var(--bg2);border:1px solid var(--b);border-radius:16px;padding:19px;
+      transition:transform .25s cubic-bezier(.2,.8,.3,1),border-color .25s}
+.card:hover{transform:translateY(-3px);border-color:rgba(232,186,108,.42)}
+.card .ic{font-size:26px;margin-bottom:9px;display:block}
+.card p{font-size:14px;margin:0;color:var(--t2)}
+.stat{font-size:clamp(32px,5.5vw,50px);font-weight:900;letter-spacing:-.03em;
+      background:linear-gradient(135deg,var(--gold),var(--gold2));-webkit-background-clip:text;
+      background-clip:text;-webkit-text-fill-color:transparent;line-height:1.05}
+.stat.g{background:linear-gradient(135deg,#4ADE80,#16A34A);-webkit-background-clip:text;background-clip:text}
+.lbl{font-size:12px;color:var(--t3);letter-spacing:.06em;text-transform:uppercase;margin-top:4px}
+table{width:100%;border-collapse:collapse;margin-top:18px;font-size:14px}
+th,td{text-align:left;padding:11px 10px;border-bottom:1px solid var(--b)}
+th{color:var(--gold);font-size:11.5px;letter-spacing:.08em;text-transform:uppercase}
+td.y{color:var(--grn);font-weight:700}td.n{color:#E05B5B}
+.quote{border-left:3px solid var(--gold2);padding:6px 0 6px 18px;font-size:17px;color:var(--t1);
+       font-style:italic;margin:18px 0}
+.bar{height:9px;border-radius:5px;background:var(--b);overflow:hidden;margin-top:7px}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--gold),var(--gold2))}
+ul{margin:0 0 14px 20px;color:var(--t2)}li{margin-bottom:8px}
+.tag{display:inline-block;font-size:12px;padding:5px 12px;border-radius:99px;border:1px solid var(--b);
+     color:var(--t2);margin:0 6px 8px 0}
+.tag.on{border-color:var(--gold);color:var(--gold);background:rgba(232,186,108,.1)}
+.brand{font-weight:900;font-size:21px;letter-spacing:-.02em}.brand em{color:var(--gold);font-style:normal}
+.dots{position:fixed;right:16px;top:50%;transform:translateY(-50%);z-index:50;display:flex;flex-direction:column;gap:9px}
+.dots a{width:7px;height:7px;border-radius:99px;background:var(--b);display:block;transition:.2s}
+.dots a:hover{background:var(--gold);transform:scale(1.5)}
+.foot{font-size:12.5px;color:var(--t3);margin-top:26px}
+@media(max-width:640px){.slide{padding:52px 18px;min-height:auto}.dots{display:none}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.card{transition:none}}
+</style></head><body>
+
+<div class="dots">
+<a href="#s1"></a><a href="#s2"></a><a href="#s3"></a><a href="#s4"></a><a href="#s5"></a>
+<a href="#s6"></a><a href="#s7"></a><a href="#s8"></a><a href="#s9"></a><a href="#s10b"></a><a href="#s10c"></a><a href="#s10"></a><a href="#s11"></a>
+</div>
+
+<section class="slide" id="s1">
+  <div class="brand">Roam<em>Wise</em></div>
+  <h1 style="margin-top:26px">Travel planning that<br>knows the local price.</h1>
+  <p class="lead">An India-first travel planner with something no competitor has: the fair price of an auto-rickshaw, the specific scam you'll meet at the station, and an itinerary that opens with no signal.</p>
+  <div class="grid g3" style="margin-top:34px">
+    <div><div class="stat">195+</div><div class="lbl">countries covered</div></div>
+    <div><div class="stat">66</div><div class="lbl">releases shipped</div></div>
+    <div><div class="stat">1</div><div class="lbl">person building it</div></div>
+  </div>
+  <p class="foot">Mohit Pandey · Almora, Uttarakhand · founder@roamwise.co.in</p>
+</section>
+
+<section class="slide" id="s2">
+  <div class="n">01 — The problem</div>
+  <h2>Travellers don't lack inspiration.<br>They lack local knowledge.</h2>
+  <p>Every AI trip planner produces the same output: a confident list of the same six places, written in the same voice, with "budget-friendly" where a number should be.</p>
+  <div class="grid g2">
+    <div class="card"><span class="ic">💸</span><h3>No real prices</h3><p>"Affordable" is not a number. Travellers get quoted 3× the local rate because they have no idea what the rate is.</p></div>
+    <div class="card"><span class="ic">🕳️</span><h3>Confident hallucination</h3><p>LLM planners routinely invent restaurants and recommend places that closed years ago.</p></div>
+    <div class="card"><span class="ic">📵</span><h3>Useless offline</h3><p>The moment you most need your itinerary is usually the moment you have no data.</p></div>
+    <div class="card"><span class="ic">🌍</span><h3>Western-centric</h3><p>Built for a traveller flying into Rome, not one taking a sleeper from Delhi.</p></div>
+  </div>
+</section>
+
+<section class="slide" id="s3">
+  <div class="n">02 — Insight</div>
+  <h2>The gap is not intelligence.<br>It's ground truth.</h2>
+  <div class="quote">Anyone can generate a Goa itinerary. Almost nobody can tell you that the auto to Anjuna should cost ₹180, that "your hotel is closed" is a commission scam, and then show you all of it with your phone in airplane mode.</div>
+  <p>Generic travel advice is now free and infinite. What remains scarce — and defensible — is verified local economic knowledge. That is a data moat, not a model moat, and it compounds.</p>
+</section>
+
+<section class="slide" id="s4">
+  <div class="n">03 — Product</div>
+  <h2>What RoamWise does that others don't</h2>
+  <div class="grid g2">
+    <div class="card"><span class="ic">🚕</span><h3>Ground-cost engine</h3><p>Auto ₹25–35 base +₹15–20/km. Bike taxi ₹10–15/km. Rooms, meals, intercity fares — bands for India, SE Asia and Europe.</p></div>
+    <div class="card"><span class="ic">🛡️</span><h3>Anti-scam layer</h3><p>The mechanics of each trick — meter refusal, commission runs, passport-as-deposit, dynamic currency conversion at the card machine.</p></div>
+    <div class="card"><span class="ic">📴</span><h3>Offline-first</h3><p>Saved trips, guides, maps and costs open with no connectivity. Survives a dead CDN.</p></div>
+    <div class="card"><span class="ic">🌱</span><h3>Carbon ledger</h3><p>Published DEFRA/IPCC factors, earned badges, shareable certificate — stating emissions <em>avoided</em>, never "removed".</p></div>
+    <div class="card"><span class="ic">📅</span><h3>Crowd calendar</h3><p>Month-by-month crowd index per destination. Timing changes trip quality more than any other decision.</p></div>
+    <div class="card"><span class="ic">💊</span><h3>Situational safety</h3><p>Pharmacies, rabies protocol, monkey hotspots in hill towns — the things that actually go wrong.</p></div>
+  </div>
+</section>
+
+<section class="slide" id="s5">
+  <div class="n">04 — Competition</div>
+  <h2>Know your competitors</h2>
+  <table>
+    <tr><th>Capability</th><th>Mindtrip</th><th>Layla</th><th>Wanderlog</th><th>Google</th><th style="color:#E8BA6C">RoamWise</th></tr>
+    <tr><td>AI itinerary</td><td class="y">Yes</td><td class="y">Yes</td><td class="n">Partial</td><td class="y">Yes</td><td class="y">Yes</td></tr>
+    <tr><td>Local fair-price data</td><td class="n">No</td><td class="n">No</td><td class="n">No</td><td class="n">No</td><td class="y">Yes</td></tr>
+    <tr><td>Scam / overcharge warnings</td><td class="n">No</td><td class="n">No</td><td class="n">No</td><td class="n">No</td><td class="y">Yes</td></tr>
+    <tr><td>Works fully offline</td><td class="n">No</td><td class="n">No</td><td class="y">Partial</td><td class="n">No</td><td class="y">Yes</td></tr>
+    <tr><td>India-first depth</td><td class="n">No</td><td class="n">No</td><td class="n">No</td><td class="n">Partial</td><td class="y">Yes</td></tr>
+    <tr><td>Carbon ledger</td><td class="n">No</td><td class="n">No</td><td class="n">No</td><td class="n">Partial</td><td class="y">Yes</td></tr>
+    <tr><td>Pricing</td><td>Subscription</td><td>Subscription</td><td>Freemium</td><td>Free (ads)</td><td class="y">One-time</td></tr>
+  </table>
+  <p class="foot">Assessment as of July 2026 from public product surfaces. Competitors ship fast — this table is re-verified each quarter, and the underlying claim is not "they can't build this" but "it takes years of field data they have no reason to collect."</p>
+</section>
+
+<section class="slide" id="s6">
+  <div class="n">05 — Why the moat holds</div>
+  <h2>A model is rentable.<br>Ground truth isn't.</h2>
+  <div class="grid g2">
+    <div class="card"><h3>They optimise for coverage</h3><p>A global planner cannot afford to know that Rishikesh autos overcharge at Ram Jhula. RoamWise is worth more precisely because it goes narrow first.</p></div>
+    <div class="card"><h3>Grounded, not generated</h3><p>Answers are built from Wikivoyage, OpenStreetMap and curated cost models — so it can decline to answer instead of inventing a restaurant.</p></div>
+    <div class="card"><h3>Costs scale with users, not with AI</h3><p>Free data sources. No per-query inference bill. Gross margin does not degrade with growth.</p></div>
+    <div class="card"><h3>Trust compounds</h3><p>Every honest refusal — no fake urgency, no invented safety claims — is a reason a traveller returns. That is slow to build and hard to copy.</p></div>
+  </div>
+</section>
+
+<section class="slide" id="s7">
+  <div class="n">06 — Market</div>
+  <h2>India's outbound and domestic travel is the fastest-growing large market on earth</h2>
+  <div class="grid g3" style="margin-top:24px">
+    <div><div class="stat">2.5B+</div><div class="lbl">domestic trips / yr (India)</div></div>
+    <div><div class="stat">~30M</div><div class="lbl">outbound travellers</div></div>
+    <div><div class="stat">$6.4T</div><div class="lbl">global travel economy</div></div>
+  </div>
+  <p style="margin-top:22px">The wedge is Indian travellers planning within India and Asia — underserved by Western tools, price-sensitive, mobile-first, and accustomed to paying once rather than subscribing. The same product then works for anyone travelling <em>into</em> these regions.</p>
+  <p class="foot">Figures indicative, from published tourism-ministry and WTTC reporting. Investors should verify independently.</p>
+</section>
+
+<section class="slide" id="s8">
+  <div class="n">07 — Business model</div>
+  <h2>Four revenue lines, none of them a data sale</h2>
+  <div class="grid g2">
+    <div class="card"><h3>One-time Pro</h3><p>₹100 founder price capped at 1,000 members, then tiered subscriptions and 3/5/10-year passes. Prices held one year, reviewed annually.</p></div>
+    <div class="card"><h3>Affiliate commission</h3><p>Flights, stays and activities. Never influences recommendations — the cost engine is computed identically either way.</p></div>
+    <div class="card"><h3>Merchandise</h3><p>Print-on-demand travel tees. ₹499 retail, ~₹172 margin, zero inventory.</p></div>
+    <div class="card"><h3>Advertising</h3><p>Website only. Never inside the app experience.</p></div>
+  </div>
+  <p style="margin-top:16px"><span class="tag on">No data sale</span><span class="tag on">No paid placement</span><span class="tag on">No dark patterns</span></p>
+</section>
+
+<section class="slide" id="s9">
+  <div class="n">08 — Traction & execution</div>
+  <h2>Shipped, not slideware</h2>
+  <div class="grid g2">
+    <div class="card"><h3>66 releases</h3><p>Android app live, PWA live, admin console, agent tooling. Built and shipped by one person.</p></div>
+    <div class="card"><h3>Full stack in production</h3><p>Firestore with rule-level security, offline service worker, R8-minified release builds, signed AAB on Play.</p></div>
+    <div class="card"><h3>Content engine</h3><p>32 indexed pages, 16,000+ words of original guides driving organic acquisition at zero CAC.</p></div>
+    <div class="card"><h3>Creator programme</h3><p>Tiered partner ladder — trial, then revenue share, then lifetime — earned rather than gifted.</p></div>
+  </div>
+  <div class="bar" style="margin-top:20px"><i style="width:66%"></i></div>
+  <p class="foot">Velocity: v1 → v66 solo. The constraint has never been capability. It has been hours.</p>
+</section>
+
+
+<section class="slide" id="s10b">
+  <div class="n">09 — Funding landscape</div>
+  <h2>What this category has raised</h2>
+  <table>
+    <tr><th>Company</th><th>Reported raised</th><th>Where</th><th>Model</th></tr>
+    <tr><td><b>Mindtrip</b></td><td>~$12M seed +</td><td>US</td><td>Subscription</td></tr>
+    <tr><td><b>Layla</b></td><td>~$10M (incl. Roam Around acquisition)</td><td>EU/US</td><td>Subscription</td></tr>
+    <tr><td><b>Wanderlog</b></td><td>Y Combinator + seed</td><td>US</td><td>Freemium</td></tr>
+    <tr><td><b>GuideGeek</b> (Matador)</td><td>Backed by parent media group</td><td>US</td><td>Free / B2B</td></tr>
+    <tr><td style="color:var(--gold)"><b>RoamWise</b></td><td style="color:var(--gold)">Bootstrapped — ₹0 raised</td><td>India</td><td>One-time + affiliate</td></tr>
+  </table>
+  <p class="foot" style="margin-top:14px">Figures are <b>reported publicly and must be independently verified</b> on Crunchbase or Tracxn before being quoted in a live pitch. They are directionally useful, not precise — and an investor who catches a wrong number stops trusting the rest of the deck.</p>
+  <p style="margin-top:16px">The point of this slide is not that they raised more. It is that <b>they raised eight figures to build the layer RoamWise already has</b> — and still do not have the local price and offline layers. This was built to v66 on nothing.</p>
+</section>
+
+<section class="slide" id="s10c">
+  <div class="n">10 — The ask</div>
+  <h2>₹4 crore <span style="color:var(--t3);font-size:.55em">(≈ $480K)</span><br>for 18 months</h2>
+  <p class="lead">Deliberately not a $10M round. This is the amount that removes the actual constraint — and nothing beyond it.</p>
+  <div class="grid g2" style="margin-top:20px">
+    <div class="card"><h3>₹1.6 Cr — Field data operations</h3>
+      <p>Paid local contributors verifying cost bands and scam patterns across 40 Indian cities, then Southeast Asia. <b>This is the moat and it is funded first.</b></p>
+      <div class="bar"><i style="width:40%"></i></div></div>
+    <div class="card"><h3>₹1.2 Cr — Two engineers, 18 months</h3>
+      <p>iOS native, regional languages, and removing the founder as the single point of failure.</p>
+      <div class="bar"><i style="width:30%"></i></div></div>
+    <div class="card"><h3>₹0.8 Cr — Distribution</h3>
+      <p>First real marketing spend, creator partnerships, and content scaling on the channel that already converts at zero CAC.</p>
+      <div class="bar"><i style="width:20%"></i></div></div>
+    <div class="card"><h3>₹0.4 Cr — Runway buffer</h3>
+      <p>Infrastructure, compliance, legal, and the 10% that every honest budget needs.</p>
+      <div class="bar"><i style="width:10%"></i></div></div>
+  </div>
+  <p style="margin-top:18px">At this raise the company reaches 40-city verified coverage, iOS parity and a team of three — the point where the data advantage becomes genuinely hard to catch.</p>
+</section>
+<section class="slide" id="s10">
+  <div class="n">11 — Beyond the round</div>
+  <h2>Where this goes next</h2>
+  <div class="grid g3">
+    <div class="card"><span class="ic">🗺️</span><h3>Field data</h3><p>Paid local contributors verifying cost bands and scam patterns city by city. This is the moat — it should be funded first.</p></div>
+    <div class="card"><span class="ic">📱</span><h3>iOS + distribution</h3><p>Native iOS, regional language support, and the first real marketing spend.</p></div>
+    <div class="card"><span class="ic">👥</span><h3>Two engineers</h3><p>To stop being the bottleneck. Everything on this deck was built alone; the ceiling is time, not ideas.</p></div>
+  </div>
+  <p style="margin-top:22px">The honest version: this is pre-revenue-scale and solo-built. What it is not is a prototype — it is a shipped, secured, offline-capable product with a defensible data strategy and a founder who has proven he can execute without a team.</p>
+</section>
+
+<section class="slide" id="s11">
+  <div class="brand">Roam<em>Wise</em></div>
+  <h2 style="margin-top:22px">Built in the Himalayas.<br>Priced for the person actually travelling.</h2>
+  <p class="lead">Try it before you decide — that is the whole pitch.</p>
+  <p style="margin-top:20px"><a href="https://www.roamwise.co.in/" style="color:var(--gold);font-weight:800;font-size:19px;text-decoration:none">roamwise.co.in →</a></p>
+  <p class="foot">Mohit Pandey · founder@roamwise.co.in · Almora, Uttarakhand, India<br>
+  Figures marked indicative are from public reporting and should be independently verified.</p>
+</section>
+
+</body></html>
