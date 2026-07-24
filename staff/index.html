@@ -1,0 +1,223 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>RoamWise — team board</title><meta name="robots" content="noindex">
+<style>
+:root{--bg:#08090F;--bg2:#11131C;--bg3:#171A24;--b:#1E2029;--t1:#F2F0EA;--t2:#B9B6AE;--t3:#7A7870;
+      --gold:#E8BA6C;--gold2:#C8913E;--grn:#4ADE80;--red:#E05B5B;--vio:#A78BFA}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--t1);font:15px/1.65 system-ui,-apple-system,'Segoe UI',sans-serif}
+.wrap{max-width:820px;margin:0 auto;padding:18px 16px 60px}
+header{display:flex;justify-content:space-between;align-items:center;padding:12px 0 16px;border-bottom:1px solid var(--b);margin-bottom:18px;flex-wrap:wrap;gap:10px}
+.brand{font-weight:900;font-size:19px}.brand em{color:var(--gold);font-style:normal}
+.who{font-size:12px;color:var(--t3)}
+.role{display:inline-block;font-size:10.5px;padding:3px 9px;border-radius:99px;font-weight:800;letter-spacing:.05em;text-transform:uppercase}
+.role.marketing{background:rgba(167,139,250,.16);color:var(--vio)}
+.role.finance{background:rgba(74,222,128,.14);color:var(--grn)}
+.role.admin{background:rgba(232,186,108,.16);color:var(--gold)}
+.card{background:var(--bg2);border:1px solid var(--b);border-radius:14px;padding:15px 17px;margin-bottom:13px}
+h2{font-size:15px;margin-bottom:9px}
+.lab{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--gold2);font-weight:800;margin-bottom:7px}
+.task{display:flex;gap:11px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.05);align-items:flex-start}
+.task:last-child{border:none}
+.tk{flex:1}.tk b{font-size:13.5px;display:block;margin-bottom:2px}
+.tk p{font-size:12px;color:var(--t2);margin:0}
+.tk .meta{font-size:10.5px;color:var(--t3);margin-top:3px}
+.pill{font-size:10px;padding:3px 8px;border-radius:99px;border:1px solid var(--b);color:var(--t3);white-space:nowrap}
+.pill.todo{border-color:#3A3A46}.pill.doing{border-color:var(--gold);color:var(--gold)}
+.pill.done{border-color:var(--grn);color:var(--grn)}
+button,select,input,textarea{font:inherit}
+.btn{background:var(--bg3);border:1px solid var(--b);color:var(--t1);border-radius:9px;padding:6px 11px;font-size:12px;cursor:pointer}
+.btn:hover{border-color:var(--gold)}
+.btn.go{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#0A0A0C;border:none;font-weight:800}
+.inp{width:100%;background:#0E0F16;border:1px solid var(--b);border-radius:9px;padding:10px;color:var(--t1);outline:none;margin-top:6px}
+.inp:focus{border-color:var(--gold)}
+.stat{display:flex;gap:16px;flex-wrap:wrap}
+.stat div b{display:block;font-size:22px;color:var(--gold)}
+.stat div span{font-size:11px;color:var(--t3)}
+.note{font-size:11.5px;color:var(--t3);line-height:1.6}
+.hide{display:none}
+</style></head><body><div class="wrap">
+<header>
+  <div><div class="brand">Roam<em>Wise</em> · team</div><div class="who" id="who">Not signed in</div></div>
+  <div><span id="roleTag"></span> <button class="btn" id="authBtn" onclick="doAuth()">Sign in</button></div>
+</header>
+
+<div id="signedOut">
+  <div class="card">
+    <h2>Team sign-in</h2>
+    <p class="note">Use the Google account the founder added to the team. If you see "no role assigned", your access hasn't been set up yet — message Mohit.</p>
+    <button class="btn go" style="margin-top:12px;width:100%;padding:12px" onclick="doAuth()">Sign in with Google</button>
+  </div>
+</div>
+
+<div id="app" class="hide">
+  <div class="card" id="todayCard">
+    <div class="lab">Today</div>
+    <div id="todayList"></div>
+  </div>
+
+  <div class="card">
+    <div class="lab">My tasks</div>
+    <div id="taskList"><p class="note">Loading…</p></div>
+  </div>
+
+  <div class="card" id="finBox" style="display:none">
+    <div class="lab">Log an expense</div>
+    <p class="note">Only expenses and notes. Revenue records are entered by the founder — you'll see the totals but can't edit them.</p>
+    <input class="inp" id="expWhat" placeholder="What was it for? e.g. Canva Pro, Jul">
+    <input class="inp" id="expAmt" type="number" placeholder="Amount in ₹">
+    <button class="btn go" style="margin-top:10px;width:100%;padding:11px" onclick="logExpense()">Save entry</button>
+    <div id="ledgerList" style="margin-top:14px"></div>
+  </div>
+
+  <div class="card" id="mktBox" style="display:none">
+    <div class="lab">Creator outreach</div>
+    <p class="note">Creator partnership records only. You can move an outreach stage and add notes — you can't see other CRM segments or anyone's payment details.</p>
+    <div id="crmList" style="margin-top:10px"><p class="note">Loading…</p></div>
+  </div>
+
+  <div class="card">
+    <div class="lab">This month</div>
+    <div class="stat" id="statBox"><span class="note">Loading…</span></div>
+  </div>
+</div>
+
+<p class="note" style="margin-top:20px">You only ever see what your role needs. Traveller accounts, saved API keys, private chats and raw payment records are not readable from this page — not hidden, actually blocked at the database.</p>
+
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<script>
+var CFG={apiKey:"AIzaSyBTfmJvHTmp0mNQqsIhWEwnLLwFKz0ExYQ",authDomain:"roamwisepro.firebaseapp.com",projectId:"roamwisepro",storageBucket:"roamwisepro.firebasestorage.app",messagingSenderId:"1039880917656",appId:"1:1039880917656:web:8b3e18e8a4b1c9f8e2c0d1"};
+var db=null,user=null,ROLE='';
+try{ firebase.initializeApp(CFG); db=firebase.firestore(); }catch(e){}
+function el(i){return document.getElementById(i);}
+function esc(t){return String(t==null?'':t).replace(/[<>&]/g,function(c){return{'<':'&lt;','>':'&gt;','&':'&amp;'}[c];});}
+
+function doAuth(){
+  if(user){ firebase.auth().signOut(); return; }
+  firebase.auth().signInWithPopup(new firebase.auth.GoogleAuthProvider()).catch(function(e){ alert(e.message); });
+}
+firebase.auth().onAuthStateChanged(function(u){
+  user=u;
+  el('authBtn').textContent = u? 'Sign out':'Sign in';
+  if(!u){ el('signedOut').classList.remove('hide'); el('app').classList.add('hide'); el('who').textContent='Not signed in'; return; }
+  el('who').textContent = u.email||'';
+  db.collection('staff').doc(u.uid).get().then(function(d){
+    if(!d.exists){
+      el('signedOut').classList.remove('hide'); el('app').classList.add('hide');
+      el('signedOut').innerHTML='<div class="card"><h2>No role assigned</h2><p class="note">This account isn\'t on the team yet. Ask Mohit to add it — he needs the email you just used.</p></div>';
+      return;
+    }
+    ROLE = d.data().role||'';
+    el('roleTag').innerHTML = '<span class="role '+ROLE+'">'+ROLE+'</span>';
+    el('signedOut').classList.add('hide'); el('app').classList.remove('hide');
+    el('finBox').style.display = ROLE==='finance'?'block':'none';
+    el('mktBox').style.display = ROLE==='marketing'?'block':'none';
+    loadToday(); loadTasks(); loadStats();
+    if(ROLE==='finance') loadLedger();
+    if(ROLE==='marketing') loadCrm();
+  }).catch(function(e){ el('signedOut').innerHTML='<div class="card"><p class="note">Could not check your role: '+esc(e.message)+'</p></div>'; });
+});
+
+var DAILY = {
+  marketing:[
+    ['Reply to inbound creators','Anyone who applied via /creators/ — reply the same day. Warm leads go cold in 48 hours.'],
+    ['Send 3 researched pitches','Three personal emails beat thirty templates. Name something specific from their work in line one.'],
+    ['Log every reply','Update the stage in the CRM so nobody gets pitched twice.'],
+    ['One content idea','A guide topic travellers actually search for. Write the title and one line on why.']
+  ],
+  finance:[
+    ['Reconcile yesterday','Match every UPI credit against an order or a Pro unlock. Flag anything unmatched.'],
+    ['Log expenses','Anything spent yesterday, with what it was for. Receipts in the shared drive.'],
+    ['Check refunds/chargebacks','Anything reversed gets removed from the revenue count the same day.'],
+    ['Update the running total','Revenue, expenses, and what that leaves.']
+  ]
+};
+function loadToday(){
+  var list = DAILY[ROLE]||[];
+  el('todayList').innerHTML = list.map(function(t){
+    return '<div class="task"><div class="tk"><b>'+esc(t[0])+'</b><p>'+esc(t[1])+'</p></div></div>';
+  }).join('') || '<p class="note">No standing routine for this role.</p>';
+}
+function loadTasks(){
+  db.collection('tasks').where('assignee','==',ROLE).limit(50).get().then(function(qs){
+    if(qs.empty){ el('taskList').innerHTML='<p class="note">Nothing assigned right now. The daily routine above is your baseline.</p>'; return; }
+    var rows=[];
+    qs.forEach(function(doc){
+      var t=doc.data(), st=t.status||'todo';
+      rows.push({id:doc.id,t:t,st:st});
+    });
+    rows.sort(function(a,b){ return (a.st==='done')-(b.st==='done'); });
+    el('taskList').innerHTML = rows.map(function(r){
+      var t=r.t;
+      return '<div class="task"><div class="tk"><b>'+esc(t.title)+'</b>'
+        +(t.brief? '<p>'+esc(t.brief)+'</p>':'')
+        +(t.due? '<div class="meta">Due '+esc(t.due)+'</div>':'')
+        +'</div>'
+        +'<select class="btn" onchange="setStatus(\''+r.id+'\',this.value)">'
+        + ['todo','doing','done'].map(function(s){ return '<option value="'+s+'"'+(r.st===s?' selected':'')+'>'+s+'</option>'; }).join('')
+        +'</select></div>';
+    }).join('');
+  }).catch(function(e){ el('taskList').innerHTML='<p class="note">Could not load tasks: '+esc(e.message)+'</p>'; });
+}
+function setStatus(id,val){
+  db.collection('tasks').doc(id).update({status:val, updatedAt:new Date().toISOString()})
+    .then(loadTasks).catch(function(e){ alert(e.message); });
+}
+function logExpense(){
+  var what=el('expWhat').value.trim(), amt=parseFloat(el('expAmt').value);
+  if(!what || !(amt>0)){ alert('What it was for, and an amount.'); return; }
+  db.collection('ledger').add({kind:'expense', what:what, amount:amt,
+    enteredBy:user.uid, at:new Date().toISOString()})
+    .then(function(){ el('expWhat').value=''; el('expAmt').value=''; loadLedger(); })
+    .catch(function(e){ alert(e.message); });
+}
+function loadLedger(){
+  db.collection('ledger').limit(60).get().then(function(qs){
+    var rows=[], exp=0, rev=0;
+    qs.forEach(function(d){ var x=d.data(); rows.push(x);
+      if(x.kind==='expense') exp+=(x.amount||0); if(x.kind==='revenue') rev+=(x.amount||0); });
+    rows.sort(function(a,b){ return (b.at||'').localeCompare(a.at||''); });
+    el('ledgerList').innerHTML =
+      '<div class="stat" style="margin-bottom:10px">'
+      +'<div><b>₹'+rev.toLocaleString('en-IN')+'</b><span>revenue logged</span></div>'
+      +'<div><b>₹'+exp.toLocaleString('en-IN')+'</b><span>expenses</span></div>'
+      +'<div><b style="color:'+(rev-exp>=0?'var(--grn)':'var(--red)')+'">₹'+(rev-exp).toLocaleString('en-IN')+'</b><span>net</span></div></div>'
+      + rows.slice(0,12).map(function(x){
+          return '<div class="task"><div class="tk"><b>'+esc(x.what||x.kind)+'</b>'
+            +'<div class="meta">'+esc((x.at||'').slice(0,10))+' · '+esc(x.kind)+'</div></div>'
+            +'<span class="pill">₹'+Number(x.amount||0).toLocaleString('en-IN')+'</span></div>';
+        }).join('');
+  }).catch(function(e){ el('ledgerList').innerHTML='<p class="note">'+esc(e.message)+'</p>'; });
+}
+function loadCrm(){
+  db.collection('crm').where('seg','==','creator').limit(50).get().then(function(qs){
+    if(qs.empty){ el('crmList').innerHTML='<p class="note">No creator records yet.</p>'; return; }
+    var rows=[]; qs.forEach(function(d){ rows.push({id:d.id,x:d.data()}); });
+    el('crmList').innerHTML = rows.map(function(r){
+      var x=r.x, st=x.stage||'new';
+      return '<div class="task"><div class="tk"><b>'+esc(x.name||'(no name)')+'</b>'
+        +'<p>'+esc(x.handle||'')+(x.reach? ' · '+esc(x.reach):'')+(x.niche? ' · '+esc(x.niche):'')+'</p></div>'
+        +'<select class="btn" onchange="setStage(\''+r.id+'\',this.value)">'
+        + ['new','contacted','replied','won','lost'].map(function(s){ return '<option value="'+s+'"'+(st===s?' selected':'')+'>'+s+'</option>'; }).join('')
+        +'</select></div>';
+    }).join('');
+  }).catch(function(e){ el('crmList').innerHTML='<p class="note">'+esc(e.message)+'</p>'; });
+}
+function setStage(id,val){
+  db.collection('crm').doc(id).update({stage:val}).then(loadCrm).catch(function(e){ alert(e.message); });
+}
+function loadStats(){
+  var ids=[]; var now=new Date();
+  for(var i=0;i<30;i++){ var d=new Date(now-i*864e5); ids.push(d.toISOString().slice(0,10).replace(/-/g,'')); }
+  Promise.all(ids.slice(0,10).map(function(id){ return db.collection('stats').doc(id).get().catch(function(){return null;}); }))
+    .then(function(docs){
+      var plans=0, opens=0;
+      docs.forEach(function(d){ if(d&&d.exists){ var x=d.data(); plans+=(x.plans||0); opens+=(x.opens||0); } });
+      el('statBox').innerHTML='<div><b>'+plans+'</b><span>trips planned (10d)</span></div>'
+        +'<div><b>'+opens+'</b><span>app opens (10d)</span></div>';
+    }).catch(function(){ el('statBox').innerHTML='<span class="note">Stats unavailable.</span>'; });
+}
+</script>
+</div></body></html>
