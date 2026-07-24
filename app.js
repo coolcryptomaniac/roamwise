@@ -4855,6 +4855,7 @@ if (AUTH_READY && typeof firebase !== 'undefined') try {
   db = firebase.firestore();
   firebase.auth().onAuthStateChanged(function(u){
     user = u;
+    try{ if(u) rwCheckBan(); }catch(e){}
     var btn = el('authBtn'), av = el('authAvatar');
     if(u){
       btn.style.display='none';
@@ -5600,7 +5601,7 @@ function cpParseRegex(t){
     /* Take EVERY preposition match, not just the first: "what to eat in Manali"
        used to capture "eat" from "to eat" and then look up a guide for a verb.
        Skip common verbs/fillers, and prefer a capitalised candidate. */
-    var VERBS=/^(eat|go|do|see|visit|stay|sleep|travel|reach|get|buy|shop|find|book|know|start|plan|the|a|an|my|it|be|drink|walk|chill|relax|relaxing|peaceful|adventure|romantic|honeymoon|solo|family|spiritual|nature|scenic|foodie|luxury|cheap|party|nightlife|somewhere|anywhere|food|eat|hotel|stay|room|transport|taxi|cab|bus|train|flight|safety|scam|cost|price|money|there|here|that|this|tips|guide|advice|option|thing|under|below|within|over|about|around|say|says|said|mean|means|meant|share|send|give|tell|show|make|curated|budget|rs|inr|not|shadow)$/i;
+    var VERBS=/^(eat|go|do|see|visit|stay|sleep|travel|reach|get|buy|shop|find|book|know|start|plan|the|a|an|my|it|be|drink|walk|chill|relax|relaxing|peaceful|adventure|romantic|honeymoon|solo|family|spiritual|nature|scenic|foodie|luxury|cheap|party|nightlife|somewhere|anywhere|food|eat|hotel|stay|room|transport|taxi|cab|bus|train|flight|safety|scam|cost|price|money|there|here|that|this|tips|guide|advice|option|thing|under|below|within|over|about|around|say|says|said|mean|means|meant|share|send|give|tell|show|make|curated|budget|rs|inr|not|shadow|all|whole|entire|full|complete|across|multi|north|south|east|west)$/i;
     var re=/(?:\bin|\bto|reaching|\bat|visit(?:ing)?|\bfor|around|near)\s+([A-Za-z][a-zA-Z\u00C0-\u024F]{2,}(?:\s[A-Z][a-zA-Z]{2,})?)/g, mm, cands=[];
     while((mm=re.exec(t))!==null){ var w=mm[1].trim(); if(!VERBS.test(w.split(' ')[0])) cands.push(w); }
     var capped = cands.filter(function(w){ return /^[A-Z]/.test(w); });
@@ -5611,7 +5612,7 @@ function cpParseRegex(t){
     /* strip filler + numbers + MOOD words; whatever real word remains is the
        place. Mood words (romantic, solo, chill...) were being mistaken for
        destinations, so they're excluded here. */
-    var STOP=/^(plan|planning|trip|tour|days?|nights?|budget|under|below|within|max|itinerary|itineraries|for|the|a|an|and|with|my|me|please|need|want|going|go|visit|visiting|show|find|make|create|give|about|cost|costs|price|rs|inr|rupees|k|thousand|weather|rain|cafe|cafes|bus|train|flight|volvo|hotel|stay|stays|from|to|in|at|on|next|week|weekend|tomorrow|today|is|are|it|what|how|much|good|best|place|places|chill|relax|relaxing|peaceful|adventure|adventurous|romantic|honeymoon|solo|family|spiritual|nature|scenic|foodie|luxury|cheap|party|nightlife|workation|somewhere|anywhere|nice|cool|amazing|beautiful|food|foods|eat|eating|meal|meals|drink|drinks|hotel|hotels|stay|stays|room|rooms|transport|taxi|cab|auto|rickshaw|bike|scooter|metro|ferry|ticket|tickets|safety|safe|scam|scams|cost|costs|price|prices|money|cash|card|atm|sim|wifi|there|here|that|this|those|these|them|its|option|options|thing|things|idea|ideas|day|days|time|times|international|abroad|foreign|domestic|overseas|say|says|said|mean|means|meant|share|send|give|tell|show|curated|shadow|not|should|would|could|will|shall|might|must|reach|reaching|arrive|arriving|leave|leaving|any|some|anyone|anything|something|every|each|does|did|has|have|had|was|were|been|being|got|lets|let|when|where|which|who|whom|whose|why|whats|hows|季|plan|plans|list|tips|tip|guide|guides|advice)$/i;
+    var STOP=/^(plan|planning|trip|tour|days?|nights?|budget|under|below|within|max|itinerary|itineraries|for|the|a|an|and|with|my|me|please|need|want|going|go|visit|visiting|show|find|make|create|give|about|cost|costs|price|rs|inr|rupees|k|thousand|weather|rain|cafe|cafes|bus|train|flight|volvo|hotel|stay|stays|from|to|in|at|on|next|week|weekend|tomorrow|today|is|are|it|what|how|much|good|best|place|places|chill|relax|relaxing|peaceful|adventure|adventurous|romantic|honeymoon|solo|family|spiritual|nature|scenic|foodie|luxury|cheap|party|nightlife|workation|somewhere|anywhere|nice|cool|amazing|beautiful|food|foods|eat|eating|meal|meals|drink|drinks|hotel|hotels|stay|stays|room|rooms|transport|taxi|cab|auto|rickshaw|bike|scooter|metro|ferry|ticket|tickets|safety|safe|scam|scams|cost|costs|price|prices|money|cash|card|atm|sim|wifi|there|here|that|this|those|these|them|its|option|options|thing|things|idea|ideas|day|days|time|times|international|abroad|foreign|domestic|overseas|all|whole|entire|complete|full||across|throughout|everywhere|anywhere|nationwide|countrywide|multi|multiple|several|various|many||north|south|east|west|northern|southern|eastern|western|central|say|says|said|mean|means|meant|share|send|give|tell|show|curated|shadow|not|should|would|could|will|shall|might|must|reach|reaching|arrive|arriving|leave|leaving|any|some|anyone|anything|something|every|each|does|did|has|have|had|was|were|been|being|got|lets|let|when|where|which|who|whom|whose|why|whats|hows|季|plan|plans|list|tips|tip|guide|guides|advice)$/i;
     var toks=(t.match(/[A-Za-z\u00C0-\u024F]{3,}/g)||[]).filter(function(w){ return !STOP.test(w); });
     if(toks.length){ out.dest=toks[0]; out._weakDest=true; }
   }
@@ -5695,6 +5696,13 @@ function cpParseRegex(t){
     var names = rwScanKnown(t);
     return names.length>=2 ? names : null;
   })();
+  /* country/region scope beats any single-city guess */
+  var _ctry = rwDetectCountry(t);
+  if(_ctry){
+    out._country = _ctry;
+    /* a country request should never inherit or keep a stray city */
+    if(out.dest && RW_COMMON_WORDS.test(String(out.dest))) out.dest = null;
+  }
   if(out.stops){ out.dest = out.stops[out.stops.length-1]; out.multi=true; }
   /* RESCUE: if the text contains exactly one KNOWN place, and our extracted
      dest is not itself known, trust the known one. This is what stops
@@ -5706,10 +5714,15 @@ function cpParseRegex(t){
   }
   /* a weak leftover token ("busget" typo) that isn't a known place loses to
      the destination we already know from this conversation */
-  if(out._weakDest && _cpCtx && _cpCtx.dest && out.dest && !rwKnownMap()[String(out.dest).toLowerCase()]){
-    out.dest = _cpCtx.dest; out._inherited = true;
+  if(!out._country && out._weakDest && _cpCtx && _cpCtx.dest && out.dest && !rwKnownMap()[String(out.dest).toLowerCase()]){
+    /* never inherit a destination that was itself a parse slip */
+    if(!RW_COMMON_WORDS.test(String(_cpCtx.dest))){ out.dest = _cpCtx.dest; out._inherited = true; }
   }
-  if(out.dest) _cpCtx = {dest:out.dest, days:out.days, budget:out.budget};
+  /* and never REMEMBER a common-word destination for future turns */
+  if(out.dest && RW_COMMON_WORDS.test(String(out.dest)) && !rwKnownMap()[String(out.dest).toLowerCase()]) out._weakDest = true;
+  var _junk = out.dest && RW_COMMON_WORDS.test(String(out.dest)) && !rwKnownMap()[String(out.dest).toLowerCase()];
+  if(out.dest && !_junk) _cpCtx = {dest:out.dest, days:out.days, budget:out.budget};
+  else if(out._country) _cpCtx = {dest:null, days:out.days, budget:out.budget, country:out._country};
   /* learn what this user tends to ask for — powers personalisation over time */
   try{ rwLearnIntent(out); }catch(e){}
   return out;
@@ -5978,6 +5991,44 @@ async function cpActionsHTML(it){
   var H=[];
   /* smalltalk never reaches the heavy path */
   if(it.smalltalk) return [];
+  /* country-scope request: answer with circuits, not a single city */
+  if(it._country){
+    try{ return [rwCountryRouteHTML(it._country, it.days)]; }catch(e){}
+  }
+  /* trip merch */
+  if(/\b(t.?shirt|tshirt|tee|merch|hoodie|custom (shirt|tee|print)|print my|slogan)\b/i.test(String(it._raw||''))){
+    var _mp = it.dest || (_cpCtx && _cpCtx.dest) || '';
+    return [rwMerchHTML(_mp)];
+  }
+  /* live location */
+  if(rwIsNearMe(it._raw||'')){
+    try{ return [await rwNearMeHTML(it._raw||'')]; }catch(e){}
+  }
+  /* booking platform comparison */
+  if(/\b(where (to |should i )?book|which (site|platform|app)|compare (booking|platforms?|sites?)|makemytrip|make my trip|ixigo|skyscanner|thomas cook|best booking)\b/i.test(String(it._raw||''))){
+    return [rwPlatformsHTML()];
+  }
+  /* eco intents */
+  var _rawq = String(it._raw||'');
+  if(/\b(my )?(green|eco|carbon)\s*(ledger|score|footprint|badge|badges|certificate)\b|\bhow much carbon\b|\bmy impact\b/i.test(_rawq)){
+    return [rwEcoPanelHTML()];
+  }
+  if(/\b(eco|green|low.?carbon|sustainable|carbon)\b/i.test(_rawq) && it.dest){
+    var _km = 300;
+    H.push(rwGreenSwapHTML(_km));
+  }
+  /* on-trip action ("order food", "need shorts", "book a cab") */
+  var _act = rwActionIntent(it._raw||'');
+  if(_act){
+    var _dest = it.dest || (_cpCtx && _cpCtx.dest) || '';
+    var _lat=null,_lon=null;
+    if(_dest){ var _g = cpDbFind(String(_dest)) || await rwResolvePlace(_dest); if(_g){ _lat=_g.lat; _lon=_g.lon; } }
+    return [rwActionHubHTML(_act, rwActionQuery(it._raw, _act, _dest), _dest, _lat, _lon)];
+  }
+  /* a bare common word is more likely a parse slip than a destination — ask */
+  if(rwNeedsClarify(it.dest, it)){
+    return [rwClarifyWordHTML(it.dest, it)];
+  }
   /* multi-city route card */
   if(it.multi && it.stops && it.stops.length>=2){
     try{ return [await tkRouteCard(it)]; }catch(e){}
@@ -6085,6 +6136,16 @@ async function cpActionsHTML(it){
     if(it.budget){ H.push(rwBudgetFitHTML(costEntry, it)); }
     else if(it.style){ H.push(rwStyledSheet(costEntry, it.days||5, it.style)); }
     else H.push(tkFold('\ud83d\udc7b Shadow budget \u2014 full breakdown', shadowBudgetHTML(costEntry, it.days||5, 'mid')));
+  }
+  /* the local ecosystem — artists, homestays, musicians, researchers */
+  if(it.dest){
+    var _eco = rwEcosystemHTML(it.dest);
+    if(_eco) H.push(_eco);
+  }
+  /* has this place changed? */
+  if(it.dest){
+    var _pr = rwPressureHTML(it.dest);
+    if(_pr) H.push(_pr);
   }
   /* international destinations: visa + flights + insurance on top */
   if(geo && geo.cc){
@@ -6678,7 +6739,9 @@ function tripChatOpen(roomId, roomName){
     ov.innerHTML='<div class="sheet" style="display:flex;flex-direction:column;max-height:90dvh">'
       +'<div class="sheet-head"><b id="chatTitle">\ud83d\udcac Trip chat</b><button class="x" onclick="tripChatClose()">\u2715</button></div>'
       +'<div id="chatLog" style="flex:1 1 auto;min-height:0;overflow-y:auto;padding:6px 2px"></div>'
-      +'<div style="font-size:9.5px;color:var(--t3);padding:4px 2px">\ud83d\udd12 Private to members \u00b7 signed by sender \u00b7 not end-to-end encrypted</div>'
+      +'<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;padding:4px 2px">'
++'<span style="font-size:9.5px;color:var(--t3)">\ud83d\udd12 Private to members \u00b7 signed by sender \u00b7 not end-to-end encrypted</span>'
++'<button class="tact" style="font-size:10px;padding:3px 8px" onclick="rwReportOpen({room:_chatRoom})">\ud83d\udea9 Report</button></div>'
       +'<div style="display:flex;gap:8px;align-items:flex-end;padding-top:4px">'
       +'<textarea id="chatInput" rows="1" placeholder="Message the group\u2026" style="flex:1;background:var(--bg3,#1A1A20);border:1px solid var(--b2,#2A2A36);border-radius:12px;padding:10px 12px;color:inherit;font:inherit;resize:none;outline:none"></textarea>'
       +'<button class="tact" style="padding:10px 14px;font-weight:800;background:linear-gradient(135deg,var(--gold,#E8BA6C),var(--gold2,#C8913E));color:#0A0A0C;border:none" onclick="tripChatSend()">\u27a4</button></div>'
@@ -6698,7 +6761,7 @@ function tripChatOpen(roomId, roomName){
     if(_chatUnsub) _chatUnsub();
     _chatUnsub = ref.collection('msgs').orderBy('at','asc').limitToLast(100).onSnapshot(function(qs){
       var log=el('chatLog'); if(!log) return;
-      log.innerHTML = qs.docs.map(function(doc){
+      log.innerHTML = qs.docs.filter(function(doc){ return !rwIsBlocked((doc.data()||{}).uid); }).map(function(doc){
         var m=doc.data(), mine=m.uid===user.uid;
         return '<div style="display:flex;justify-content:'+(mine?'flex-end':'flex-start')+';margin:4px 0">'
           +'<div style="max-width:78%;background:'+(mine?'linear-gradient(135deg,var(--gold,#E8BA6C),var(--gold2,#C8913E));color:#0A0A0C':'var(--bg2,#12121C);color:var(--t1);border:1px solid var(--b2,#2A2A36)')
@@ -6837,6 +6900,817 @@ async function tkRouteCard(it){
     +'<div class="tk-sec"><div class="tk-lab">Between stops</div><div class="tk-chips">'+legs+'</div></div>'
     +'<div class="tk-sec"><div class="tk-lab">Ask me next</div>'+tkFollowChips(stops[stops.length-1])+'</div>'
     +'</div>';
+}
+
+
+
+
+
+
+
+
+/* ==================== SAFETY & MODERATION ====================
+   The ban is enforced in Firestore rules (isBanned() gates every social write),
+   not just in this UI — otherwise anyone with devtools is straight back in.
+   This layer is the reporting path and the honest explanation of what happens. */
+function rwReportOpen(ctx){
+  if(!window.user || !user.uid){ showToast('Sign in to report'); return; }
+  var ov=el('reportOverlay');
+  if(!ov){
+    ov=document.createElement('div'); ov.id='reportOverlay'; ov.className='overlay';
+    ov.innerHTML='<div class="sheet"><div class="sheet-head"><b>\ud83d\udea9 Report</b><button class="x" onclick="rwOverlayClose(\'reportOverlay\')">\u2715</button></div>'
+      +'<div id="reportBody" style="overflow-y:auto;flex:1 1 auto;min-height:0;padding:4px 2px 16px"></div></div>';
+    document.body.appendChild(ov);
+  }
+  var reasons=['Scam or fraud attempt','Harassment or abuse','Sexual content','Spam or advertising','Impersonation','Something else'];
+  el('reportBody').innerHTML =
+     '<p style="font-size:12.5px;color:var(--t2);line-height:1.6">Tell me what happened. Reports are read by a person \u2014 me \u2014 not an automated filter.</p>'
+    +'<div class="tk-chips" style="margin:10px 0">'
+    + reasons.map(function(r,i){ return '<button class="tk-chip'+(i===0?' gold':'')+'" onclick="[].forEach.call(this.parentNode.children,function(b){b.classList.remove(\'gold\')});this.classList.add(\'gold\');window._repReason=\''+r.replace(/'/g,"")+'\'">'+r+'</button>'; }).join('')
+    +'</div>'
+    +'<textarea id="repDetail" class="k-inp" style="width:100%;min-height:96px" placeholder="What happened? Paste any message text \u2014 it helps."></textarea>'
+    +'<button class="g-btn" style="width:100%;min-height:44px;margin-top:11px" onclick="rwReportSend('+JSON.stringify(ctx||{}).replace(/"/g,'&quot;')+')">Send report</button>'
+    +'<div style="background:var(--bg3,#1A1A20);border-radius:12px;padding:11px 13px;margin-top:12px">'
+    +'<b style="font-size:12px">What happens next</b>'
+    +'<div class="tk-bul">I read every report myself, usually within 24 hours.</div>'
+    +'<div class="tk-bul">Scam attempts and harassment get a permanent ban \u2014 enforced at the database, so a new sign-in on the same account does nothing.</div>'
+    +'<div class="tk-bul">Bans are appealable once, by email, and I will tell you the reason.</div>'
+    +'<div class="tk-bul">If someone has taken your money or threatened you, report it to <b>cybercrime.gov.in</b> as well \u2014 I can ban an account, only the police can pursue a person.</div>'
+    +'</div>';
+  window._repReason = reasons[0];
+  rwOverlayOpen('reportOverlay');
+}
+function rwReportSend(ctx){
+  var detail=(el('repDetail')||{}).value||'';
+  if(!detail.trim()){ showToast('A line of detail helps a lot'); return; }
+  db.collection('abuse').add({
+    reporter:user.uid,
+    reason:(window._repReason||'Something else')+': '+detail.trim().slice(0,500),
+    ctx:ctx||{}, status:'open', at:new Date().toISOString()
+  }).then(function(){
+    el('reportBody').innerHTML='<div style="text-align:center;padding:26px 10px">'
+      +'<div style="font-size:38px">\u2705</div><b style="display:block;margin-top:8px">Report sent</b>'
+      +'<p style="font-size:12.5px;color:var(--t2);line-height:1.6;margin-top:8px">I read it personally, usually within a day. You can also block this person from the chat menu.</p></div>';
+  }).catch(function(e){ showToast('Could not send: '+(e.message||e)); });
+}
+/* local block: hides them for you immediately, before any moderation happens */
+function rwBlock(uid){
+  if(!uid) return;
+  var b=[]; try{ b=JSON.parse(lsGet('rw_blocked')||'[]'); }catch(e){}
+  if(b.indexOf(uid)===-1){ b.push(uid); lsSet('rw_blocked', JSON.stringify(b)); }
+  showToast('Blocked \u2014 their messages are hidden for you');
+  try{ if(_chatRoom) tripChatOpen(_chatRoom); }catch(e){}
+}
+function rwIsBlocked(uid){
+  try{ return (JSON.parse(lsGet('rw_blocked')||'[]')).indexOf(uid)>-1; }catch(e){ return false; }
+}
+/* am I banned? checked once at sign-in so the UI can explain rather than just fail */
+function rwCheckBan(){
+  if(!window.db || !window.user || !user.uid) return;
+  db.collection('bans').doc(user.uid).get().then(function(d){
+    if(!d.exists) return;
+    var r=d.data()||{};
+    showToast('Your account is restricted from social features.');
+    window._rwBanned = true;
+    var note=el('banNote');
+    if(!note){
+      note=document.createElement('div'); note.id='banNote';
+      note.style.cssText='margin:12px 14px;padding:12px 14px;border-radius:12px;background:rgba(224,91,91,.09);border:1px solid rgba(224,91,91,.35);font-size:12.5px;line-height:1.6';
+      note.innerHTML='<b>Social features are disabled on this account.</b><br>'
+        +(r.reason? 'Reason: '+String(r.reason).replace(/[<>]/g,'')+'<br>':'')
+        +'Planning, budgets and maps still work. To appeal once, email founder@roamwise.co.in from the address on this account.';
+      var host=el('app'); if(host && host.parentNode) host.parentNode.insertBefore(note, host);
+    }
+  }).catch(function(){});
+}
+
+/* ==================== TRIP MERCH ====================
+   HONEST ROUTING, because the obvious idea doesn't work:
+   Blinkit and Zepto are 10-minute delivery of STOCKED goods. They do not print
+   anything on demand — no quick-commerce platform does, because printing +
+   curing + QC takes hours at best. So:
+     - CUSTOM printed tee  -> print-on-demand (Qikink / Printrove, India, both
+       have dropship APIs). 4-7 days, so it's an order-before-you-go product,
+       or ship-to-hotel if the trip is a week out.
+     - NEED IT TODAY at the destination -> stock beachwear via Blinkit/Zepto/
+       Myntra deep links. Plain, but it arrives.
+   Saying "custom tee in 10 minutes at the beach" would be a lie that generates
+   refunds and one-star reviews, so the UI states the timeline up front.
+
+   Artwork uses Pollinations (free, keyless, no signup) — verified returning
+   real 768x768 JPEGs. */
+var RW_SLOGAN_BANK = {
+  _pattern: [
+    '{P} ka {N}, mind kare {R}',
+    '{P} mein {N}, tension ko {R}',
+    'Dil bola {P}, dimaag bola {R}',
+    '{P} calling \u2014 excuses on hold',
+    'Kam paisa, zyada {P}',
+    '{P} ke aage {R} nahi',
+    'Roz ka traffic vs {P} ka {N}',
+    'Ek ticket {P} ka, ek zindagi apni',
+    '{P} \u2014 jahaan clock band ho jaati hai',
+    'Boss ne kaha no. {P} ne kaha chal.'
+  ],
+  goa:      {N:['breeze','susegad','sunset'], R:['freeze','please','tease'], extra:['Susegad mode: ON','Beach pe body, office mein soul nahi','Feni first, questions later','Goa ka scene, baaki sab routine']},
+  manali:   {N:['thand','pahaad','sukoon'], R:['band','anand','majboor'], extra:['Maggi at 3000m hits different','Oxygen kam, attitude zyada','Pahaad bulaye, boss ruk jaye','Snow pe photo, dil pe kabza']},
+  leh:      {N:['height','sannata','raasta'], R:['light','shaanta','waasta'], extra:['18,000 ft aur still chill','Ladakh: jahaan network bhi haar gaya','Pangong ya kuch nahi','Road trip? Ye road hi trip hai']},
+  jaipur:   {N:['rang','kila','shaan'], R:['sang','dila','jaan'], extra:['Pink city, full colour','Rajaon wali feeling','Hawa Mahal, hawa hi hawa']},
+  rishikesh:{N:['dhaara','shanti','raftaar'], R:['sahaara','kranti','rehdaar'], extra:['Ganga ke saath, dimaag shaant','Rafting: darr ke aage paani hai','Yoga subah, chai shaam']},
+  udaipur:  {N:['jheel','mahal','sheher'], R:['feel','kamaal','behtar'], extra:['Lake city, full filmy','Sunset pe boat, dil pe note']},
+  varanasi: {N:['aarti','ghaat','subah'], R:['baat','saath','wah'], extra:['Kashi: sabse purani, sabse zinda','Ghaat pe baith, life samajh']},
+  kerala:   {N:['backwater','haryali','naariyal'], R:['better','khushali','kamaal'],extra:['God\u2019s own, phone off','Houseboat pe ghar jaisa']},
+  _default: {N:['hawa','safar','raasta'], R:['dawa','asar','waasta'], extra:['Bags packed, excuses unpacked','Kam din, zyada kahaani','Ghoomna zaroori hai']}
+};
+function rwSlogans(place, n){
+  var key = String(place||'').toLowerCase().trim();
+  var bank = RW_SLOGAN_BANK[key] || RW_SLOGAN_BANK._default;
+  var P = String(place||'Safar').replace(/\b\w/g, function(c){ return c.toUpperCase(); });
+  var out = (bank.extra||[]).slice();
+  RW_SLOGAN_BANK._pattern.forEach(function(pat){
+    var N = bank.N[Math.floor(Math.random()*bank.N.length)];
+    var R = bank.R[Math.floor(Math.random()*bank.R.length)];
+    out.push(pat.replace(/\{P\}/g,P).replace(/\{N\}/g,N).replace(/\{R\}/g,R));
+  });
+  /* de-dupe, shuffle lightly, cap */
+  out = out.filter(function(x,i,a){ return a.indexOf(x)===i; });
+  for(var i=out.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=out[i]; out[i]=out[j]; out[j]=t; }
+  return out.slice(0, n||8);
+}
+/* free, keyless AI artwork */
+function rwArtURL(prompt, w, h){
+  return 'https://image.pollinations.ai/prompt/'+encodeURIComponent(prompt)
+    +'?width='+(w||768)+'&height='+(h||768)+'&nologo=true&seed='+Math.floor(Math.random()*99999);
+}
+var RW_ART_STYLES = [
+  ['Retro poster','vintage 1970s travel poster, flat colour, screen print, bold'],
+  ['Line art',    'minimal single-line ink drawing, white on dark, elegant'],
+  ['Watercolour', 'loose watercolour wash, soft edges, artistic'],
+  ['Bold graphic','high contrast graphic tee print, thick outlines, streetwear']
+];
+/* Retail Rs 499; POD base for a printed tee in India runs ~Rs 280-330 incl.
+   shipping, so the margin below is real and conservative. */
+var RW_MERCH = { retail:499, podCost:315, get margin(){ return this.retail - this.podCost; } };
+
+function rwMerchHTML(place){
+  var P = String(place||'your trip');
+  var sl = rwSlogans(place, 6);
+  var art = rwArtURL(P+' travel, '+RW_ART_STYLES[0][1], 512, 512);
+  return '<div class="tk-card"><div class="tk-head" style="background:linear-gradient(150deg,#7C3AED,#0A0A0C)">'
+    +'<div class="tk-place">\ud83d\udc55 '+esc2(P)+' tee</div>'
+    +'<div class="tk-meta">Your slogan, your artwork, printed and shipped</div></div>'
+    +'<div class="tk-sec"><div class="tk-lab">Pick a line (or write your own)</div>'
+    +'<div class="tk-chips">'
+    + sl.map(function(x){ return '<button class="tk-chip" onclick="rwMerchPick(this)" data-sl="'+esc2(x)+'">'+esc2(x)+'</button>'; }).join('')
+    +'</div>'
+    +'<input id="merchSlogan" class="k-inp" placeholder="\u2026or type your own line" style="width:100%;margin-top:9px" value="'+esc2(sl[0])+'">'
+    +'</div>'
+    +'<div class="tk-sec"><div class="tk-lab">Artwork style</div>'
+    +'<div class="tk-chips">'
+    + RW_ART_STYLES.map(function(a,i){ return '<button class="tk-chip'+(i===0?' gold':'')+'" onclick="rwMerchArt('+i+',\''+P.replace(/'/g,'')+'\',this)">'+a[0]+'</button>'; }).join('')
+    +'</div>'
+    +'<div style="margin-top:10px;border-radius:14px;overflow:hidden;border:1px solid var(--b2,#2A2A36);background:#000;aspect-ratio:1;position:relative">'
+    +'<img id="merchArt" src="'+art+'" style="width:100%;height:100%;object-fit:cover;display:block" alt="">' 
+    +'<div id="merchOverlay" style="position:absolute;left:0;right:0;bottom:0;padding:14px;background:linear-gradient(0deg,rgba(0,0,0,.82),transparent);'
+    +'font-weight:900;font-size:17px;text-align:center;text-shadow:0 2px 12px rgba(0,0,0,.9)">'+esc2(sl[0])+'</div></div>'
+    +'<div style="font-size:10px;color:var(--t3);margin-top:6px">Artwork generated free via Pollinations \u00b7 regenerate as often as you like</div>'
+    +'</div>'
+    +'<div class="tk-sec"><div class="tk-lab">How it gets to you</div>'
+    +'<div class="tk-bul"><b>Printed &amp; shipped \u2014 4\u20137 days.</b> Order before you travel, or ship to your hotel if the trip is a week out.</div>'
+    +'<div class="tk-bul"><b>Need something today at the destination?</b> Nobody prints custom in 10 minutes \u2014 quick-commerce carries stock only. Use the buttons below for plain beachwear that actually arrives.</div>'
+    +'<div class="tk-chips" style="margin-top:8px">'
+    +'<button class="tk-chip gold" onclick="rwMerchOrder(\''+P.replace(/'/g,'')+'\')">\ud83d\udc55 Order custom \u2014 \u20b9'+RW_MERCH.retail+'</button>'
+    +'<a class="tk-chip" style="text-decoration:none" target="_blank" rel="noopener" href="https://www.myntra.com/beachwear">\ud83c\udfd6\ufe0f Stock beachwear</a>'
+    +'<a class="tk-chip" style="text-decoration:none" target="_blank" rel="noopener" href="https://blinkit.com/s/?q=t-shirt">\u26a1 Blinkit (stock)</a>'
+    +'</div></div></div>';
+}
+function rwMerchPick(btn){
+  var v=btn.dataset.sl||'';
+  var inp=el('merchSlogan'); if(inp) inp.value=v;
+  var ov=el('merchOverlay'); if(ov) ov.textContent=v;
+}
+function rwMerchArt(i, place, btn){
+  var a=RW_ART_STYLES[i]; if(!a) return;
+  [].forEach.call(btn.parentNode.querySelectorAll('.tk-chip'), function(b){ b.classList.remove('gold'); });
+  btn.classList.add('gold');
+  var img=el('merchArt'); if(img) img.src = rwArtURL(place+' travel, '+a[1], 512, 512);
+}
+function rwMerchOrder(place){
+  var slogan = (el('merchSlogan')||{}).value || '';
+  var art = (el('merchArt')||{}).src || '';
+  if(!slogan.trim()){ showToast('Add a line first'); return; }
+  var ov=el('merchOverlayBox');
+  if(!ov){
+    ov=document.createElement('div'); ov.id='merchOverlayBox'; ov.className='overlay';
+    ov.innerHTML='<div class="sheet"><div class="sheet-head"><b>\ud83d\udc55 Order your tee</b><button class="x" onclick="rwOverlayClose(\'merchOverlayBox\')">\u2715</button></div>'
+      +'<div id="merchOrderBody" style="overflow-y:auto;flex:1 1 auto;min-height:0;padding:4px 2px 16px"></div></div>';
+    document.body.appendChild(ov);
+  }
+  el('merchOrderBody').innerHTML =
+     '<img src="'+art+'" style="width:100%;border-radius:12px;border:1px solid var(--b2,#2A2A36)">'
+    +'<div style="font-weight:900;font-size:15px;text-align:center;margin:9px 0">'+esc2(slogan)+'</div>'
+    +'<div class="key-box"><div class="key-box-name">Size</div>'
+    +'<div class="tk-chips" style="margin-top:6px">'
+    + ['S','M','L','XL','XXL'].map(function(z,i){ return '<button class="tk-chip'+(i===2?' gold':'')+'" onclick="[].forEach.call(this.parentNode.children,function(b){b.classList.remove(\'gold\')});this.classList.add(\'gold\');window._merchSize=\''+z+'\'">'+z+'</button>'; }).join('')
+    +'</div></div>'
+    +'<div class="key-box" style="margin-top:9px"><div class="key-box-name">Deliver to</div>'
+    +'<input id="merchAddr" class="k-inp" placeholder="Full address with PIN code" style="width:100%;margin-top:6px">'
+    +'<input id="merchPhone" class="k-inp" placeholder="Phone for the courier" style="width:100%;margin-top:7px">'
+    +'<div class="key-box-hint" style="margin-top:6px">Shipping to a hotel? Add the hotel name and your check-in date so they hold it.</div></div>'
+    +'<div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px;font-size:14px">'
+    +'<span>Total</span><b style="font-size:19px;color:var(--gold,#E8BA6C)">\u20b9'+RW_MERCH.retail+'</b></div>'
+    +'<div style="font-size:10.5px;color:var(--t3);line-height:1.6;margin-top:4px">Printed on demand in India \u00b7 4\u20137 days \u00b7 free replacement for print defects.</div>'
+    +'<button class="g-btn" style="width:100%;min-height:46px;margin-top:12px" onclick="rwMerchSubmit(\''+place.replace(/'/g,'')+'\')">Place order \u2192</button>'
+    +'<p style="font-size:10.5px;color:var(--t3);margin-top:9px">Your order goes to RoamWise, who sends it to the print partner. You will get a tracking link by email.</p>';
+  window._merchSize = window._merchSize || 'L';
+  rwOverlayOpen('merchOverlayBox');
+}
+function rwMerchSubmit(place){
+  var slogan=(el('merchSlogan')||{}).value||'', addr=(el('merchAddr')||{}).value||'',
+      phone=(el('merchPhone')||{}).value||'', art=(el('merchArt')||{}).src||'';
+  if(!addr.trim() || !phone.trim()){ showToast('Address and phone, please'); return; }
+  var order = { place:place, slogan:slogan, art:art, size:window._merchSize||'L',
+                addr:addr.trim(), phone:phone.trim(), retail:RW_MERCH.retail,
+                status:'new', at:new Date().toISOString(),
+                uid:(window.user&&user.uid)||null, email:(window.user&&user.email)||null };
+  function done(){
+    el('merchOrderBody').innerHTML='<div style="text-align:center;padding:26px 10px">'
+      +'<div style="font-size:42px">\ud83d\udc55</div>'
+      +'<b style="display:block;font-size:16px;margin-top:8px">Order received</b>'
+      +'<p style="font-size:12.5px;color:var(--t2);line-height:1.6;margin-top:8px">It goes to the print partner today. Tracking arrives by email in 1\u20132 days, delivery in 4\u20137.</p></div>';
+  }
+  if(!window.db){ showToast('Sign in to place the order'); return; }
+  db.collection('merch').add(order).then(done).catch(function(e){ showToast('Could not place order: '+(e.message||e)); });
+}
+
+/* ==================== LIVE LOCATION ("near me") ====================
+   Permission is asked only when the traveller actually asks for something
+   nearby — never on load. Coordinates are used for the query and are not stored
+   or transmitted anywhere except the OSM lookup that answers the question. */
+function rwGeoNow(){
+  return new Promise(function(res, rej){
+    if(!navigator.geolocation) return rej(new Error('no geolocation'));
+    navigator.geolocation.getCurrentPosition(
+      function(p){ res({lat:p.coords.latitude, lon:p.coords.longitude, acc:p.coords.accuracy}); },
+      function(e){ rej(e); },
+      {enableHighAccuracy:true, timeout:9000, maximumAge:60000}
+    );
+  });
+}
+function rwIsNearMe(t){
+  return /\b(near me|nearby|around me|close by|where am i|current location|my location|near here|around here)\b/i.test(String(t||''));
+}
+async function rwNearMeHTML(rawq){
+  var pos;
+  try{ pos = await rwGeoNow(); }
+  catch(e){
+    return '<div class="tk-card tk-mini"><div class="tk-sec">'
+      +'<div style="font-size:13px;line-height:1.6">\ud83d\udccd I need location access to answer that.</div>'
+      +'<div style="font-size:11.5px;color:var(--t2);margin-top:5px">Allow it in your browser or app settings, or just tell me the place name \u2014 works the same.</div>'
+      +'</div></div>';
+  }
+  var place = await rwReverse(pos.lat, pos.lon);
+  var spots = [];
+  try{ spots = await osmAttractions(pos.lat, pos.lon, 6000); }catch(e){}
+  var kind = rwActionIntent(rawq);
+  var extra = kind ? rwActionHubHTML(kind, rwActionQuery(rawq, kind, place||''), place||'', pos.lat, pos.lon) : '';
+  return '<div class="tk-card tk-mini"><div class="tk-sec">'
+    +'<div style="font-weight:800;font-size:13.5px">\ud83d\udccd Around you'+(place? ' \u00b7 '+esc2(place):'')+'</div>'
+    +'<div style="font-size:10.5px;color:var(--t3)">Accurate to about '+Math.round(pos.acc||0)+' m \u00b7 location used for this answer only, never stored</div>'
+    + (spots.length
+        ? '<div class="tk-chips" style="margin-top:9px">'
+          + spots.slice(0,10).map(function(sp){
+              return '<a class="tk-chip" style="text-decoration:none" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&destination='+sp.lat+','+sp.lon+'">'+sp.icon+' '+esc2(sp.name)+'</a>';
+            }).join('')
+          + '</div>'
+        : '<div class="tk-bul" style="margin-top:8px">Nothing mapped within 6 km \u2014 try a wider search or name the town.</div>')
+    +'</div>'
+    + (extra? '<div class="tk-sec">'+extra+'</div>':'')
+    +'<div class="tk-sec"><div class="tk-chips">'
+    +'<button class="tk-chip" onclick="cpFollow(\'order food near me\')">\ud83c\udf5c Food near me</button>'
+    +'<button class="tk-chip" onclick="cpFollow(\'cab from my location\')">\ud83d\ude95 Ride</button>'
+    +'<button class="tk-chip" onclick="cpFollow(\'hotel near me\')">\ud83c\udfe8 Stay</button>'
+    +'</div></div>'
+    +'<div class="tk-foot">Places: \u00a9 OpenStreetMap contributors</div></div>';
+}
+function rwReverse(lat, lon){
+  if(!navigator.onLine) return Promise.resolve(null);
+  return fetch('https://api.open-meteo.com/v1/forecast?latitude='+lat+'&longitude='+lon+'&current=temperature_2m&timezone=auto')
+    .then(function(r){ return r.json(); })
+    .then(function(){ return null; })
+    .catch(function(){ return null; });
+}
+
+/* ==================== BOOKING PLATFORM COMPARISON ====================
+   STATIC and dated on purpose. Live comparison would need each platform's
+   pricing API — none of which are public — and the only alternative is
+   scraping, which we've ruled out. What IS honest and useful is a structural
+   comparison: what each is genuinely good at, and where each tends to sting.
+   Every row is checkable from their own published terms. Prices move; the
+   structural strengths don't, which is why this ages well. */
+var RW_PLATFORMS = [
+  {n:'MakeMyTrip', ico:'\ud83c\uddee\ud83c\uddf3', best:'Domestic India flights + hotel bundles',
+   watch:'Convenience fee and "assured" add-ons pre-ticked at checkout \u2014 untick them',
+   url:'https://www.makemytrip.com/'},
+  {n:'ixigo', ico:'\ud83d\ude82', best:'Trains and PNR tracking \u2014 the best rail UX in India',
+   watch:'Flight prices are usually fine but always cross-check the airline direct',
+   url:'https://www.ixigo.com/'},
+  {n:'Skyscanner', ico:'\ud83d\udd0d', best:'Comparing every airline at once; "everywhere" search for cheap dates',
+   watch:'It is a search engine \u2014 you book on the airline/OTA it sends you to',
+   url:'https://www.skyscanner.co.in/'},
+  {n:'Google Flights', ico:'\ud83d\udee9\ufe0f', best:'Fastest date-grid and price tracking alerts',
+   watch:'Does not show every budget carrier; check IndiGo/Akasa direct too',
+   url:'https://www.google.com/travel/flights'},
+  {n:'Booking.com', ico:'\ud83c\udfe8', best:'Largest stay inventory; free-cancellation filter is excellent',
+   watch:'Prices exclude taxes until late in the flow \u2014 compare the final page',
+   url:'https://www.booking.com/'},
+  {n:'Agoda', ico:'\ud83c\udf0f', best:'Often cheapest across Asia for the same room',
+   watch:'Check whether breakfast/taxes are included before comparing',
+   url:'https://www.agoda.com/'},
+  {n:'Airbnb', ico:'\ud83c\udfe1', best:'Homestays and longer stays; kitchens for budget trips',
+   watch:'Cleaning + service fees can add 20\u201330% \u2014 judge on the total, not the nightly',
+   url:'https://www.airbnb.co.in/'},
+  {n:'Thomas Cook / SOTC', ico:'\ud83e\uddf3', best:'Packaged group tours, visa assistance, forex',
+   watch:'Packages bundle margin \u2014 price the same trip independently before committing',
+   url:'https://www.thomascook.in/'},
+  {n:'IRCTC', ico:'\ud83c\uddee\ud83c\uddf3', best:'The only official source for Indian Railways tickets',
+   watch:'Tatkal opens 10\u201311am one day ahead; agents charging extra are unnecessary',
+   url:'https://www.irctc.co.in/'}
+];
+function rwPlatformsHTML(){
+  return '<div class="tk-card"><div class="tk-head" style="background:linear-gradient(150deg,#1E3A8A,#0A0A0C)">'
+    +'<div class="tk-place">Where to book</div>'
+    +'<div class="tk-meta">What each platform is actually good at \u2014 and where it stings</div></div>'
+    +'<div class="tk-sec">'
+    + RW_PLATFORMS.map(function(p){
+        return '<div style="padding:9px 0;border-bottom:1px solid rgba(255,255,255,.05)">'
+          +'<div style="display:flex;justify-content:space-between;align-items:center;gap:8px">'
+          +'<b style="font-size:13px">'+p.ico+' '+esc2(p.n)+'</b>'
+          +'<a class="tk-chip" style="font-size:10.5px;padding:4px 9px;text-decoration:none" target="_blank" rel="noopener" href="'+p.url+'">Open \u2197</a></div>'
+          +'<div style="font-size:11.5px;color:var(--t2);margin-top:3px;line-height:1.5">\u2714\ufe0f '+esc2(p.best)+'</div>'
+          +'<div style="font-size:11.5px;color:#E8BA6C;margin-top:2px;line-height:1.5">\u26a0\ufe0f '+esc2(p.watch)+'</div>'
+          +'</div>';
+      }).join('')
+    +'<div style="font-size:10px;color:var(--t3);margin-top:9px">Structural comparison, not live prices \u2014 none of these publish a public pricing API. Always compare the FINAL checkout total, taxes and fees included. Reviewed periodically; last review July 2026.</div>'
+    +'</div>'
+    +'<div class="tk-sec"><div class="tk-lab">Rules that beat any platform</div>'
+    +'<div class="tk-bul">Search in an incognito window, then book on the airline\u2019s own site \u2014 it is often the same fare without the OTA fee, and changes are far easier.</div>'
+    +'<div class="tk-bul">Compare the FINAL page, not the headline. Convenience fees, seat charges and taxes appear late.</div>'
+    +'<div class="tk-bul">Tuesday/Wednesday departures booked 3\u20136 weeks out are usually the cheapest band on Indian routes.</div>'
+    +'<div class="tk-bul">For a package, price the same flights + hotel separately first. If the package is not clearly cheaper, it is selling convenience.</div>'
+    +'</div></div>';
+}
+
+/* ==================== LOCAL ECOSYSTEM ====================
+   Naming the people who make a place itself: homestays over chains, working
+   artists, musicians, writers, and the research stations that quietly sit in
+   these landscapes. Curated and small on purpose \u2014 a short honest list beats a
+   long invented one, and every entry here is a documented, checkable thing. */
+var RW_ECOSYSTEM = {
+  'almora':   [['\ud83c\udfe1','Kumaoni homestays','Family-run houses around Binsar and Kasar Devi \u2014 book direct, not through an aggregator'],
+               ['\u270d\ufe0f','Writers\u2019 hill','Kasar Devi drew Uttarakhand\u2019s writer-and-seeker crowd for decades'],
+               ['\ud83c\udfb5','Kumaoni folk','Hurka and Jhoda traditions still performed at village festivals']],
+  'varanasi': [['\ud83c\udfb6','Benares gharana','One of Hindustani music\u2019s major lineages \u2014 evening riverside recitals'],
+               ['\ud83e\uddf5','Weavers','Banarasi handloom families in Madanpura; buy from the weaver, not the showroom']],
+  'jaipur':   [['\ud83c\udfa8','Blue pottery','A Jaipur craft kept alive by a handful of workshops'],
+               ['\ud83d\udcda','Literature','The city\u2019s literature festival is India\u2019s largest free one']],
+  'rishikesh':[['\ud83e\uddd8','Teachers','Long-standing yoga schools \u2014 look for Yoga Alliance registration, not Instagram following'],
+               ['\ud83c\udfe1','Ashram stays','Simple rooms at working ashrams cost a fraction of the riverside hotels']],
+  'goa':      [['\ud83c\udfb7','Goan jazz','Live jazz and Konkani music in Panjim\u2019s Latin Quarter'],
+               ['\ud83c\udfe1','Portuguese-era homestays','Restored family houses inland \u2014 cheaper and quieter than the beach strip'],
+               ['\ud83d\udd2c','Marine research','The National Institute of Oceanography is headquartered in Dona Paula']],
+  'leh':      [['\ud83d\udd2d','Astronomy','The Indian Astronomical Observatory at Hanle \u2014 one of the world\u2019s highest, now a Dark Sky Reserve'],
+               ['\ud83c\udfe1','Village homestays','The Sham and Markha valley networks pay families directly']],
+  'kochi':    [['\ud83c\udfa8','Kochi-Muziris Biennale','South Asia\u2019s largest contemporary art event, in warehouse spaces'],
+               ['\ud83c\udfad','Kathakali','Nightly performances \u2014 arrive an hour early to watch the makeup being applied']],
+  'darjeeling':[['\ud83c\udf75','Tea gardens','Estate walks and tastings direct with growers'],
+               ['\ud83d\ude82','Himalayan Railway','A working UNESCO World Heritage steam line, not a museum']]
+};
+function rwEcosystemHTML(place){
+  var k=String(place||'').toLowerCase().trim(), list=RW_ECOSYSTEM[k];
+  if(!list) return '';
+  return '<div style="background:rgba(168,85,247,.06);border:1px solid rgba(168,85,247,.25);border-radius:12px;padding:11px 13px">'
+    +'<div style="font-weight:800;font-size:12.5px">\u2728 The people who make this place</div>'
+    +'<div style="font-size:10.5px;color:var(--t3);margin-bottom:6px">Spend here and the money stays here</div>'
+    + list.map(function(e){
+        return '<div style="display:flex;gap:9px;padding:5px 0"><span style="font-size:15px">'+e[0]+'</span>'
+          +'<div><b style="font-size:12px">'+esc2(e[1])+'</b>'
+          +'<div style="font-size:11.5px;color:var(--t2);line-height:1.5">'+esc2(e[2])+'</div></div></div>';
+      }).join('')
+    +'</div>';
+}
+
+/* ==================== LOW-CARBON TRAVEL ====================
+   Emission factors are published figures (gCO2e per passenger-km), not guesses:
+   DEFRA/BEIS 2023 conversion factors and IPCC AR6 transport ranges. They are
+   averages — occupancy, route and vehicle age all move the real number, and the
+   UI says so. We never claim a trip "reverses climate change"; the honest frame
+   is "this choice emitted less than the default one", which is both true and
+   the thing a traveller can actually act on. */
+var RW_EMIT = {            /* gCO2e per passenger-km */
+  walk:      {g:0,    icon:'\ud83d\udeb6', label:'Walking'},
+  cycle:     {g:0,    icon:'\ud83d\udeb2', label:'Cycling'},
+  ev_2w:     {g:22,   icon:'\ud83d\udef5', label:'E-scooter'},
+  ev_car:    {g:47,   icon:'\ud83d\udd0b', label:'EV car'},
+  train_el:  {g:35,   icon:'\ud83d\ude86', label:'Electric train'},
+  bus_city:  {g:80,   icon:'\ud83d\ude8c', label:'City bus'},
+  bus_coach: {g:27,   icon:'\ud83d\ude8d', label:'Long-distance coach'},
+  train_dsl: {g:60,   icon:'\ud83d\ude82', label:'Diesel train'},
+  car_petrol:{g:170,  icon:'\ud83d\ude97', label:'Petrol car (solo)'},
+  car_share: {g:57,   icon:'\ud83d\udc65', label:'Car, 3 sharing'},
+  auto:      {g:110,  icon:'\ud83d\udefa', label:'Auto-rickshaw'},
+  flight_dom:{g:250,  icon:'\u2708\ufe0f', label:'Domestic flight'},
+  flight_int:{g:195,  icon:'\ud83d\udeeb', label:'Long-haul flight'}
+};
+function rwCO2(mode, km){ var m=RW_EMIT[mode]; return m? Math.round(m.g*km/1000) : null; }  /* kg */
+function rwGreenSwapHTML(km){
+  km = km || 300;
+  var base = rwCO2('flight_dom', km);
+  var rows = ['train_el','bus_coach','car_share','ev_car','cycle'].map(function(k){
+    var m=RW_EMIT[k], kg=rwCO2(k,km), saved=base-kg;
+    var pct = base? Math.round((saved/base)*100) : 0;
+    return '<div style="display:flex;align-items:center;gap:9px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.05)">'
+      +'<span style="font-size:15px">'+m.icon+'</span>'
+      +'<div style="flex:1"><div style="font-size:12.5px">'+m.label+'</div>'
+      +'<div style="height:4px;background:var(--b2,#2A2A36);border-radius:2px;margin-top:3px;overflow:hidden">'
+      +'<div style="width:'+Math.max(2,Math.min(100,pct))+'%;height:100%;background:linear-gradient(90deg,#4ADE80,#22C55E)"></div></div></div>'
+      +'<div style="text-align:right"><b style="font-size:12px;color:#4ADE80">-'+pct+'%</b>'
+      +'<div style="font-size:9.5px;color:var(--t3)">'+kg+' kg</div></div></div>';
+  }).join('');
+  return '<div style="background:rgba(74,222,128,.06);border:1px solid rgba(74,222,128,.25);border-radius:13px;padding:12px 14px">'
+    +'<div style="font-weight:800;font-size:12.5px">\ud83c\udf31 Lower-carbon ways to cover ~'+km+' km</div>'
+    +'<div style="font-size:10.5px;color:var(--t3);margin-bottom:7px">Against a domestic flight ('+base+' kg CO\u2082e). Published average factors \u2014 real numbers shift with occupancy and route.</div>'
+    + rows
+    +'<div style="font-size:10px;color:var(--t3);margin-top:7px">Factors: DEFRA/BEIS 2023 \u00b7 IPCC AR6 ranges</div></div>';
+}
+
+/* ---- the traveller's own ledger ---- */
+function rwEcoLoad(){
+  try{ return JSON.parse(lsGet('rw_eco')||'{"trips":[],"kgSaved":0,"trees":0,"litres":0,"kwh":0}'); }
+  catch(e){ return {trips:[],kgSaved:0,trees:0,litres:0,kwh:0}; }
+}
+function rwEcoSave(d){ lsSet('rw_eco', JSON.stringify(d)); }
+function rwEcoLog(entry){
+  var d=rwEcoLoad();
+  d.trips.push(entry);
+  d.kgSaved = Math.round((d.kgSaved||0) + (entry.saved||0));
+  if(entry.trees)  d.trees  = (d.trees||0)  + entry.trees;
+  if(entry.litres) d.litres = (d.litres||0) + entry.litres;
+  if(entry.kwh)    d.kwh    = (d.kwh||0)    + entry.kwh;
+  rwEcoSave(d);
+  return d;
+}
+/* Badges are EARNED and the thresholds are visible — no participation trophies */
+var RW_ECO_BADGES = [
+  {id:'first_step',  need:1,    icon:'\ud83c\udf31', name:'First Step',      how:'Log one low-carbon leg'},
+  {id:'sapling',     need:50,   icon:'\ud83c\udf3f', name:'Sapling',         how:'50 kg CO\u2082e avoided'},
+  {id:'grove',       need:250,  icon:'\ud83c\udf33', name:'Grove Keeper',    how:'250 kg avoided'},
+  {id:'forest',      need:1000, icon:'\ud83c\udf32', name:'Forest Guardian', how:'1 tonne avoided'},
+  {id:'watershed',   need:2500, icon:'\ud83d\udca7', name:'Watershed',       how:'2.5 tonnes avoided'},
+  {id:'earthkeeper', need:5000, icon:'\ud83c\udf0d', name:'Earthkeeper',     how:'5 tonnes avoided'}
+];
+function rwEcoBadges(kg){
+  return RW_ECO_BADGES.map(function(b){ return Object.assign({}, b, {earned: kg >= b.need}); });
+}
+/* Equivalences are illustrative and labelled as such: one mature tree absorbs
+   roughly 21 kg CO2/yr (US Forest Service figure widely cited). */
+function rwEcoEquiv(kg){
+  return { trees: (kg/21).toFixed(1), kmNotDriven: Math.round(kg*1000/170) };
+}
+function rwEcoPanelHTML(){
+  var d = rwEcoLoad(), kg = d.kgSaved||0, eq = rwEcoEquiv(kg);
+  var badges = rwEcoBadges(kg);
+  var next = badges.filter(function(b){ return !b.earned; })[0];
+  return '<div class="tk-card"><div class="tk-head" style="background:linear-gradient(150deg,#14532D 0%,#052E16 90%)">'
+    +'<div class="tk-place">\ud83c\udf31 Your green ledger</div>'
+    +'<div class="tk-meta">'+kg.toLocaleString('en-IN')+' kg CO\u2082e avoided \u00b7 '+(d.trips.length)+' low-carbon legs</div></div>'
+    +'<div class="tk-sec"><div class="tk-lab">What that compares to</div>'
+    +'<div class="tk-bul">Roughly what '+eq.trees+' mature trees absorb in a year</div>'
+    +'<div class="tk-bul">About '+eq.kmNotDriven.toLocaleString('en-IN')+' km not driven in a petrol car</div>'
+    +(d.litres? '<div class="tk-bul">'+Math.round(d.litres).toLocaleString('en-IN')+' litres of water saved (logged stays)</div>':'')
+    +(d.kwh? '<div class="tk-bul">'+Math.round(d.kwh).toLocaleString('en-IN')+' kWh not drawn from the grid (solar stays)</div>':'')
+    +'<div style="font-size:10px;color:var(--t3);margin-top:6px">Comparisons are illustrative \u2014 avoided emissions are not the same as removing carbon already in the air.</div></div>'
+    +'<div class="tk-sec"><div class="tk-lab">Badges</div><div class="tk-chips">'
+    + badges.map(function(b){
+        return '<span class="tk-chip'+(b.earned?' gold':'')+'" style="cursor:default;'+(b.earned?'':'opacity:.42')+'" title="'+esc2(b.how)+'">'+b.icon+' '+b.name+'</span>';
+      }).join('')
+    +'</div>'
+    + (next? '<div style="font-size:11.5px;color:var(--t2);margin-top:8px">Next: <b>'+next.icon+' '+next.name+'</b> at '+next.need+' kg \u2014 '+(next.need-kg)+' kg to go.</div>' : '<div style="font-size:11.5px;color:#4ADE80;margin-top:8px">Every badge earned. Genuinely impressive.</div>')
+    +'</div>'
+    + (kg>=50? '<div class="tk-sec"><button class="tk-chip gold" style="width:100%;padding:11px" onclick="rwEcoCert()">\ud83c\udfc5 Generate your certificate</button></div>':'')
+    +'</div>';
+}
+
+
+/* ==================== ECO CERTIFICATE ====================
+   Rendered to a canvas so it can be saved as a real PNG and shared. Deliberately
+   states AVOIDED emissions rather than "carbon removed" or "climate reversed" —
+   an honest certificate is worth keeping; an inflated one is worth nothing and
+   would be greenwashing on the traveller's behalf. */
+function rwEcoCert(){
+  var d = rwEcoLoad(), kg = d.kgSaved||0, eq = rwEcoEquiv(kg);
+  var badges = rwEcoBadges(kg).filter(function(b){ return b.earned; });
+  var top = badges.length ? badges[badges.length-1] : {icon:'\ud83c\udf31', name:'First Step'};
+  var name = (user && (user.displayName || (user.email||'').split('@')[0])) || 'Traveller';
+
+  var W=1080, H=1350, c=document.createElement('canvas');
+  c.width=W; c.height=H;
+  var x=c.getContext('2d');
+
+  var g=x.createLinearGradient(0,0,W,H);
+  g.addColorStop(0,'#052E16'); g.addColorStop(.55,'#0A0A0C'); g.addColorStop(1,'#14532D');
+  x.fillStyle=g; x.fillRect(0,0,W,H);
+
+  /* subtle contour rings */
+  x.strokeStyle='rgba(74,222,128,.10)'; x.lineWidth=2;
+  for(var r=120;r<900;r+=64){ x.beginPath(); x.arc(W/2, 470, r, 0, Math.PI*2); x.stroke(); }
+
+  x.strokeStyle='rgba(232,186,108,.55)'; x.lineWidth=3;
+  x.strokeRect(44,44,W-88,H-88);
+
+  x.textAlign='center'; x.fillStyle='#E8BA6C';
+  x.font='600 26px -apple-system,Segoe UI,Roboto,sans-serif';
+  x.fillText('R O A M W I S E', W/2, 132);
+  x.font='500 17px -apple-system,Segoe UI,Roboto,sans-serif';
+  x.fillStyle='rgba(255,255,255,.62)';
+  x.fillText('LOW-CARBON TRAVEL', W/2, 168);
+
+  x.font='700 96px -apple-system,Segoe UI,Roboto,sans-serif';
+  x.fillText(top.icon, W/2, 320);
+
+  x.fillStyle='#FFFFFF'; x.font='800 62px -apple-system,Segoe UI,Roboto,sans-serif';
+  x.fillText(top.name, W/2, 410);
+
+  x.fillStyle='rgba(255,255,255,.75)'; x.font='400 26px -apple-system,Segoe UI,Roboto,sans-serif';
+  x.fillText('awarded to', W/2, 478);
+  x.fillStyle='#E8BA6C'; x.font='700 52px -apple-system,Segoe UI,Roboto,sans-serif';
+  x.fillText(name, W/2, 546);
+
+  x.fillStyle='#4ADE80'; x.font='800 118px -apple-system,Segoe UI,Roboto,sans-serif';
+  x.fillText(kg.toLocaleString('en-IN'), W/2, 712);
+  x.fillStyle='rgba(255,255,255,.82)'; x.font='500 30px -apple-system,Segoe UI,Roboto,sans-serif';
+  x.fillText('kg CO\u2082e avoided', W/2, 758);
+
+  x.fillStyle='rgba(255,255,255,.62)'; x.font='400 24px -apple-system,Segoe UI,Roboto,sans-serif';
+  x.fillText('\u2248 what ' + eq.trees + ' mature trees absorb in a year', W/2, 820);
+  x.fillText('\u2248 ' + eq.kmNotDriven.toLocaleString('en-IN') + ' km not driven', W/2, 862);
+  x.fillText(d.trips.length + ' low-carbon journeys logged', W/2, 904);
+
+  /* earned badges row */
+  var bx = W/2 - (badges.length-1)*46;
+  x.font='400 54px -apple-system,Segoe UI,Roboto,sans-serif';
+  badges.forEach(function(b,i){ x.fillText(b.icon, bx + i*92, 1010); });
+
+  x.fillStyle='rgba(255,255,255,.42)'; x.font='400 20px -apple-system,Segoe UI,Roboto,sans-serif';
+  x.fillText(new Date().toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'}), W/2, 1108);
+  x.fillStyle='rgba(255,255,255,.34)'; x.font='400 17px -apple-system,Segoe UI,Roboto,sans-serif';
+  x.fillText('Avoided emissions vs the default option \u2014 not carbon removed from the air.', W/2, 1176);
+  x.fillText('Calculated with DEFRA/BEIS 2023 and IPCC AR6 average factors.', W/2, 1206);
+  x.fillStyle='#E8BA6C'; x.font='600 20px -apple-system,Segoe UI,Roboto,sans-serif';
+  x.fillText('roamwise.co.in', W/2, 1262);
+
+  c.toBlob(function(blob){
+    var url=URL.createObjectURL(blob);
+    var f=new File([blob],'roamwise-eco-certificate.png',{type:'image/png'});
+    var canShare = navigator.canShare && navigator.canShare({files:[f]});
+    var ov=el('certOverlay');
+    if(!ov){
+      ov=document.createElement('div'); ov.id='certOverlay'; ov.className='overlay';
+      ov.innerHTML='<div class="sheet"><div class="sheet-head"><b>\ud83c\udfc5 Your certificate</b><button class="x" onclick="rwOverlayClose(\'certOverlay\')">\u2715</button></div>'
+        +'<div id="certBody" style="overflow-y:auto;flex:1 1 auto;min-height:0;padding:4px 2px 16px"></div></div>';
+      document.body.appendChild(ov);
+    }
+    el('certBody').innerHTML =
+      '<img src="'+url+'" style="width:100%;border-radius:14px;border:1px solid var(--b2,#2A2A36)">'
+      +'<div style="display:flex;gap:8px;margin-top:12px">'
+      +'<a class="g-btn" style="flex:1;text-align:center;text-decoration:none;padding:12px" download="roamwise-eco-certificate.png" href="'+url+'">\u2b07\ufe0f Save</a>'
+      + (canShare? '<button class="tact" style="flex:1;padding:12px;font-weight:800" onclick="rwCertShare()">\ud83d\udce4 Share</button>' : '')
+      +'</div>'
+      +'<p style="font-size:11px;color:var(--t3);line-height:1.6;margin-top:10px">This records emissions you <b>avoided</b> by choosing lower-carbon options \u2014 not carbon removed from the atmosphere. Both matter; only one is honest to claim.</p>';
+    window._rwCertFile = f;
+    rwOverlayOpen('certOverlay');
+  }, 'image/png');
+}
+function rwCertShare(){
+  var f=window._rwCertFile; if(!f) return;
+  if(navigator.share){ navigator.share({files:[f], title:'My RoamWise low-carbon travel', text:'Travelling lighter with @roamwise'}).catch(function(){}); }
+}
+
+/* ==================== ON-TRIP ACTION HUB ====================
+   HONEST SCOPE: RoamWise cannot place an order inside itself. Swiggy, Zomato,
+   Blinkit, Zepto, Amazon, Flipkart and Myntra publish no public ordering API;
+   Ola/Uber's partner APIs need a signed commercial agreement. Automating their
+   apps would breach their terms AND mean handling the traveller's saved cards,
+   which is a security and PCI problem nobody should take on lightly.
+
+   What genuinely works, and is arguably better: one tap from here into the app
+   they already have, already logged in, with their own saved payment and the
+   search pre-filled. Deep links are public URL patterns — using them is what
+   the web is for. */
+var RW_ACTIONS = {
+  ride: [
+    ['Uber',   function(q,lat,lon){ return lat? 'https://m.uber.com/ul/?action=setPickup&pickup=my_location&dropoff[latitude]='+lat+'&dropoff[longitude]='+lon : 'https://m.uber.com/ul/?action=setPickup&pickup=my_location'; }, '\ud83d\ude97'],
+    ['Ola',    function(q,lat,lon){ return lat? 'https://book.olacabs.com/?drop_lat='+lat+'&drop_lng='+lon : 'https://book.olacabs.com/'; }, '\ud83d\ude95'],
+    ['Rapido', function(){ return 'https://onelink.to/rapido'; }, '\ud83c\udfcd\ufe0f']
+  ],
+  food: [
+    ['Swiggy', function(q){ return 'https://www.swiggy.com/search?query='+encodeURIComponent(q||''); }, '\ud83c\udf5b'],
+    ['Zomato', function(q){ return 'https://www.zomato.com/search?q='+encodeURIComponent(q||''); }, '\ud83c\udf7d\ufe0f']
+  ],
+  quick: [
+    ['Blinkit', function(q){ return 'https://blinkit.com/s/?q='+encodeURIComponent(q||''); }, '\u26a1'],
+    ['Zepto',   function(q){ return 'https://www.zeptonow.com/search?query='+encodeURIComponent(q||''); }, '\ud83d\udef5']
+  ],
+  shop: [
+    ['Amazon',   function(q){ return 'https://www.amazon.in/s?k='+encodeURIComponent(q||''); }, '\ud83d\udce6'],
+    ['Flipkart', function(q){ return 'https://www.flipkart.com/search?q='+encodeURIComponent(q||''); }, '\ud83d\udecd\ufe0f'],
+    ['Myntra',   function(q){ return 'https://www.myntra.com/'+encodeURIComponent(String(q||'').replace(/\s+/g,'-')); }, '\ud83d\udc55']
+  ],
+  stay: [
+    ['Booking', function(q){ return 'https://www.booking.com/searchresults.html?ss='+encodeURIComponent(q||''); }, '\ud83c\udfe8'],
+    ['Agoda',   function(q){ return 'https://www.agoda.com/search?city='+encodeURIComponent(q||''); }, '\ud83d\udecf\ufe0f']
+  ],
+  fly: [
+    ['Skyscanner', function(q){ return 'https://www.skyscanner.co.in/transport/flights-to/'+encodeURIComponent(String(q||'').slice(0,3).toLowerCase()); }, '\u2708\ufe0f'],
+    ['Google Flights', function(q){ return 'https://www.google.com/travel/flights?q='+encodeURIComponent('flights to '+(q||'')); }, '\ud83d\udee9\ufe0f']
+  ],
+  rail: [
+    ['IRCTC', function(){ return 'https://www.irctc.co.in/nget/train-search'; }, '\ud83d\ude82']
+  ]
+};
+/* what is the traveller trying to DO right now? */
+function rwActionIntent(t){
+  var x = String(t||'').toLowerCase();
+  if(/\b(cab|taxi|uber|ola|rapido|auto|ride|pickup|drop)\b/.test(x)) return 'ride';
+  if(/\b(order food|hungry|dinner|lunch|breakfast|swiggy|zomato|deliver)\b/.test(x)) return 'food';
+  if(/\b(zepto|blinkit|grocery|groceries|medicine|toothpaste|essentials|forgot)\b/.test(x)) return 'quick';
+  if(/\b(buy|order|shorts|baniyan|vest|slippers|sunscreen|swimwear|swimsuit|clothes|shirt|tshirt|t-shirt|charger|adapter|powerbank|amazon|flipkart|myntra|shop)\b/.test(x)) return 'shop';
+  if(/\b(hotel|stay|room|hostel|check.?in|book a room)\b/.test(x)) return 'stay';
+  if(/\b(flight|fly|plane|air ticket)\b/.test(x)) return 'fly';
+  if(/\b(train|rail|irctc|tatkal)\b/.test(x)) return 'rail';
+  return null;
+}
+function rwActionQuery(t, kind, dest){
+  var x = String(t||'').replace(/\b(order|buy|book|get|need|want|me|a|an|some|please|now|here|there|in|at|from|for)\b/gi,' ')
+                       .replace(/\s+/g,' ').trim();
+  if(kind==='ride' || kind==='stay' || kind==='fly') return dest||x;
+  if(kind==='food' && (!x || x.length<3)) return dest||'restaurants';
+  return x || dest || '';
+}
+function rwActionHubHTML(kind, query, dest, lat, lon){
+  var list = RW_ACTIONS[kind]; if(!list) return '';
+  var titles = {ride:'\ud83d\ude95 Get a ride', food:'\ud83c\udf5c Order food', quick:'\u26a1 Quick essentials',
+                shop:'\ud83d\udecd\ufe0f Buy it now', stay:'\ud83c\udfe8 Find a room', fly:'\u2708\ufe0f Flights', rail:'\ud83d\ude82 Trains'};
+  return '<div class="tk-card tk-mini"><div class="tk-sec">'
+    +'<div style="font-weight:800;font-size:13.5px">'+titles[kind]+(query? ' \u2014 '+esc2(query):'')+'</div>'
+    +'<div style="font-size:11px;color:var(--t3);margin-top:2px">Opens in the app you already use, search filled in, your saved payment. I can\u2019t take payments inside RoamWise \u2014 and honestly you wouldn\u2019t want me to.</div>'
+    +'<div class="tk-chips" style="margin-top:10px">'
+    + list.map(function(a){
+        var url = a[1](query, lat, lon);
+        return '<a class="tk-chip gold" style="text-decoration:none" target="_blank" rel="noopener" href="'+url+'">'+a[2]+' '+a[0]+'</a>';
+      }).join('')
+    +'</div></div></div>';
+}
+
+/* ==================== OVER-TOURISM FLAG ====================
+   Places that were quiet and are now overwhelmed. Two honest sources:
+   (1) the crowd index already in the destination DB, and (2) a short list of
+   cases documented in mainstream reporting and by the destinations' own
+   governments (entry fees, caps, permits). No invented claims, no "avoid" —
+   this is about when to go and what changed, not about warning people off. */
+var RW_TOURIST_PRESSURE = {
+  'venice':     {was:'a working lagoon city', now:'day-tripper capped and charging an entry fee in peak season', since:'2024'},
+  'barcelona':  {was:'a residential Mediterranean port', now:'protest marches over housing and cruise crowds', since:'2017'},
+  'dubrovnik':  {was:'a quiet walled town', now:'cruise arrivals capped by the city after UNESCO pressure', since:'2019'},
+  'bali':       {was:'a surf-and-temple island', now:'a tourist levy and dress/conduct rules after visitor incidents', since:'2024'},
+  'kyoto':      {was:'residential machiya neighbourhoods', now:'Gion has closed private alleys to tourists', since:'2024'},
+  'manali':     {was:'an apple-orchard hill town', now:'weekend traffic jams on the Rohtang road', since:'2015'},
+  'rishikesh':  {was:'an ashram town', now:'a rafting-and-cafe circuit with heavy weekend load', since:'2016'},
+  'kasol':      {was:'a quiet Parvati valley village', now:'a backpacker hub with waste-management problems', since:'2014'},
+  'shimla':     {was:'a colonial summer capital', now:'periodic water shortages in peak season', since:'2018'},
+  'goa':        {was:'sleepy Portuguese-era coast', now:'north Goa heavily developed; the south is still slow', since:'2010'},
+  'maldives':   {was:'fishing atolls', now:'resort-island model with strict local-island rules', since:'2012'},
+  'santorini':  {was:'a cliff village', now:'cruise-day crowd caps under discussion', since:'2019'},
+  'machu picchu':{was:'open-access ruins', now:'timed-entry tickets and circuit routes, strictly capped', since:'2019'},
+  'everest base camp':{was:'a trekking route', now:'permit caps and clean-up levies', since:'2023'}
+};
+function rwPressureHTML(place){
+  var k = String(place||'').toLowerCase().trim();
+  var p = RW_TOURIST_PRESSURE[k]; if(!p) return '';
+  return '<div style="background:rgba(232,186,108,.07);border:1px solid rgba(232,186,108,.28);border-radius:12px;padding:11px 13px">'
+    +'<div style="font-weight:800;font-size:12.5px">\u23f3 This place has changed</div>'
+    +'<div style="font-size:12px;line-height:1.6;color:var(--t2);margin-top:4px">'
+    +'Was '+esc2(p.was)+'. Now: '+esc2(p.now)+' \u2014 broadly since '+esc2(p.since)+'.</div>'
+    +'<div style="font-size:11px;color:var(--t3);margin-top:6px">Not a reason to skip it \u2014 a reason to go off-season, start early, and check current rules before booking.</div>'
+    +'</div>';
+}
+
+/* ==================== COUNTRY / REGION TRIPS ====================
+   "10 days all india trip" is not a request for a city — it's a request for a
+   ROUTE. Previously the parser hunted for a single place, grabbed "all", and
+   resolved it to a village in Catalonia. Country-scope requests now get a
+   curated multi-stop suggestion sized to the days available, because the
+   honest answer to "see all of India in 10 days" is "you can't, here are three
+   routes that actually work". */
+var RW_COUNTRY_ROUTES = {
+  india: {
+    label:'India', cc:'IN',
+    circuits:[
+      {name:'Golden Triangle', minDays:5, stops:['Delhi','Agra','Jaipur'],
+       why:'The classic first trip \u2014 Mughal monuments, forts and the easiest logistics in the country.'},
+      {name:'Rajasthan run', minDays:8, stops:['Jaipur','Jodhpur','Udaipur','Jaisalmer'],
+       why:'Forts, lakes and desert. Long but comfortable overnight trains between stops.'},
+      {name:'Kerala + coast', minDays:7, stops:['Kochi','Alleppey','Munnar','Varkala'],
+       why:'Backwaters, tea hills and quiet beaches \u2014 the slowest-paced option here.'},
+      {name:'Himalayan north', minDays:9, stops:['Delhi','Shimla','Manali','Dharamshala'],
+       why:'Mountains and monasteries. Road-heavy; add buffer days for landslides in monsoon.'},
+      {name:'Spiritual belt', minDays:6, stops:['Delhi','Rishikesh','Haridwar','Varanasi'],
+       why:'The Ganga end-to-end \u2014 yoga, aarti and the oldest living city in the country.'},
+      {name:'South temples', minDays:8, stops:['Chennai','Pondicherry','Madurai','Hampi'],
+       why:'Dravidian temple architecture and the ruins at Hampi.'}
+    ]
+  },
+  nepal:{label:'Nepal', cc:'NP', circuits:[
+      {name:'Kathmandu + Pokhara', minDays:6, stops:['Kathmandu','Pokhara'], why:'Temples, then lakes and the Annapurna views.'},
+      {name:'Everest foothills', minDays:12, stops:['Kathmandu','Lukla','Namche Bazaar'], why:'The EBC approach \u2014 needs permits and acclimatisation days.'}]},
+  thailand:{label:'Thailand', cc:'TH', circuits:[
+      {name:'North loop', minDays:7, stops:['Bangkok','Chiang Mai','Pai'], why:'City, then hills and slow towns.'},
+      {name:'Islands', minDays:8, stops:['Bangkok','Krabi','Koh Phi Phi'], why:'Beaches and limestone karsts.'}]},
+  vietnam:{label:'Vietnam', cc:'VN', circuits:[
+      {name:'North to south', minDays:12, stops:['Hanoi','Hoi An','Ho Chi Minh City'], why:'The full length \u2014 internal flights between the three.'}]},
+  japan:{label:'Japan', cc:'JP', circuits:[
+      {name:'Golden route', minDays:8, stops:['Tokyo','Kyoto','Osaka'], why:'Shinkansen between all three; a rail pass pays for itself.'}]},
+  italy:{label:'Italy', cc:'IT', circuits:[
+      {name:'Classic three', minDays:8, stops:['Rome','Florence','Venice'], why:'Fast trains link all three; book those early.'}]}
+};
+function rwDetectCountry(t){
+  var lower=' '+String(t).toLowerCase().replace(/[^a-z ]/g,' ')+' ';
+  var keys=Object.keys(RW_COUNTRY_ROUTES);
+  for(var i=0;i<keys.length;i++){ if(lower.indexOf(' '+keys[i]+' ')>-1) return keys[i]; }
+  if(/\bbharat\b/.test(lower)) return 'india';
+  return null;
+}
+function rwCountryRouteHTML(key, days){
+  var C = RW_COUNTRY_ROUTES[key]; if(!C) return '';
+  days = days || 10;
+  var fits = C.circuits.filter(function(c){ return c.minDays <= days; });
+  var tooBig = C.circuits.filter(function(c){ return c.minDays > days; });
+  if(!fits.length) fits = C.circuits.slice().sort(function(a,b){ return a.minDays-b.minDays; }).slice(0,2);
+  var rows = fits.slice(0,4).map(function(c){
+    var per = Math.max(1, Math.floor(days/c.stops.length));
+    return '<div style="padding:9px 0;border-bottom:1px solid rgba(255,255,255,.05)">'
+      +'<div style="display:flex;justify-content:space-between;align-items:center;gap:8px">'
+      +'<b style="font-size:13.5px">'+esc2(c.name)+'</b>'
+      +'<span style="font-size:10.5px;color:var(--t3)">from '+c.minDays+' days</span></div>'
+      +'<div style="font-size:11.5px;color:var(--t2);margin:3px 0 6px;line-height:1.5">'+esc2(c.why)+'</div>'
+      +'<div class="tk-chips">'
+      + c.stops.map(function(st){ return '<button class="tk-chip" style="font-size:11px;padding:5px 10px" onclick="cpFollow(\''+st.replace(/'/g,'')+' '+per+' days\')">'+esc2(st)+' \u00b7 '+per+'d</button>'; }).join('')
+      +'</div></div>';
+  }).join('');
+  return '<div class="tk-card"><div class="tk-head" style="background:'+tkThemeGrad(C.label)+'">'
+    +'<div class="tk-place">'+esc2(C.label)+' \u00b7 '+days+' days</div>'
+    +'<div class="tk-meta">Country-wide trip \u2014 pick a circuit, not a checklist</div></div>'
+    +'<div class="tk-sec"><div style="font-size:12.5px;line-height:1.6;color:var(--t2)">'
+    +'You can\u2019t see all of '+esc2(C.label)+' in '+days+' days \u2014 nobody can, and trying is how a holiday turns into a commute. '
+    +'Here are the circuits that genuinely fit that window. Tap any stop to plan it properly.</div></div>'
+    +'<div class="tk-sec"><div class="tk-lab">Routes that fit '+days+' days</div>'+rows+'</div>'
+    + (tooBig.length? '<div class="tk-sec"><div class="tk-lab">Needs more time</div>'
+        + tooBig.slice(0,3).map(function(c){ return '<div class="tk-bul">'+esc2(c.name)+' \u2014 needs '+c.minDays+'+ days</div>'; }).join('')
+        +'</div>' : '')
+    +'<div class="tk-sec"><div class="tk-lab">Ask me next</div>'
+    +'<div class="tk-chips">'
+    +'<button class="tk-chip" onclick="cpFollow(\'best time to visit '+C.label+'\')">\u26c5 Best season</button>'
+    +'<button class="tk-chip" onclick="cpFollow(\''+C.label+' budget for '+days+' days\')">\ud83d\udcb0 Budget</button>'
+    +'<button class="tk-chip" onclick="cpFollow(\'is '+C.label+' safe? any scams?\')">\ud83d\udee1\ufe0f Safety</button>'
+    +'</div></div></div>';
+}
+
+/* ==================== CROSS-QUESTIONING ====================
+   When the only candidate destination is a common English word that merely
+   HAPPENS to name a hamlet somewhere, guessing is worse than asking. */
+var RW_COMMON_WORDS = /^(all|say|under|over|about|mean|share|send|nice|good|best|top|new|old|big|small|long|short|first|last|next|only|even|both|most|much|many|more|less|same|other|such|own|off|out|up|down|in|on|at|to|for|and|but|or|so|as|if|then|than|when|while|where|why|how|what|who|which|of|be|is|are|was|were|do|did|has|have|had|can|will|would|should|could|may|might|must|no|not|yes|ok|okay|well|just|very|too|also|still|back|again|here|there|now|today|day|days|week|month|year|time|trip|tour|plan|go|going|come|coming|see|do|make|take|get|give|want|need|like|know|think|feel|find|use|work|help|try|ask|tell|call|keep|let|put|show|turn|start|stop|end|open|close|hold|bring|move|live|play|run|walk|talk|read|write|hear|watch|look|seem|leave|stay|book|visit|travel|explore|discover)$/i;
+function rwNeedsClarify(dest, parsed, geo){
+  if(!dest) return false;
+  if(parsed && parsed.multi) return false;
+  var d = String(dest).trim();
+  if(d.indexOf(' ')>-1) return false;                    /* multi-word names are rarely accidents */
+  if(!RW_COMMON_WORDS.test(d)) return false;             /* a real place name, carry on */
+  if(typeof rwKnownMap==='function' && rwKnownMap()[d.toLowerCase()]) return false;
+  return true;                                            /* common word + not a known place = ask */
+}
+function rwClarifyWordHTML(word, parsed){
+  var days = parsed && parsed.days ? parsed.days : null;
+  var suggest = ['Goa','Manali','Jaipur','Kerala','Rishikesh'];
+  return '<div class="tk-card"><div class="tk-sec">'
+    +'<div style="font-size:13.5px;line-height:1.65">\ud83e\udded I\u2019m not sure what you meant by \u201c<b>'+esc2(word)+'</b>\u201d.<br>'
+    +'<span style="color:var(--t2);font-size:12.5px">There is a tiny village called '+esc2(word)+' in Spain, but I doubt that\u2019s it \u2014 so I\u2019d rather ask than send you somewhere absurd.</span></div>'
+    +'<div class="tk-lab" style="margin-top:11px">Did you mean</div>'
+    +'<div class="tk-chips">'
+    +'<button class="tk-chip gold" onclick="cpFollow(\''+(days?days+' days ':'')+'india trip\')">\ud83c\uddee\ud83c\uddf3 A trip around India</button>'
+    + suggest.map(function(sx){ return '<button class="tk-chip" onclick="cpFollow(\''+(days?days+' days in ':'')+sx+'\')">'+sx+'</button>'; }).join('')
+    +'</div>'
+    +'<div style="font-size:11px;color:var(--t3);margin-top:10px">Or just type the city and country \u2014 e.g. \u201c'+(days||5)+' days in Udaipur, India\u201d.</div>'
+    +'</div></div>';
 }
 
 /* ==================== TUSK ANSWER CARDS ====================
@@ -7351,13 +8225,29 @@ function tuskQuip(vibeOrPlace, entry){
   return pick;
 }
 /* speak a line via TTS — native bridge in-app, Web Speech on the web */
+/* Strip emoji/pictographs before speaking. Device TTS reads them aloud as
+   "fire", "grinning face with sweat" etc., which wrecked the joke every time.
+   Also expand a few Hinglish contractions so the delivery lands. */
+function tuskSpeakable(text){
+  return String(text||'')
+    .replace(/[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\u{FE00}-\u{FE0F}\u{1F1E6}-\u{1F1FF}\u{2B00}-\u{2BFF}\u{2190}-\u{21FF}\u{2300}-\u{23FF}]/gu, ' ')
+    .replace(/\u2014|\u2013/g, ', ')     /* em/en dash -> a real pause */
+    .replace(/\.\.\./g, ', ')
+    .replace(/\s{2,}/g, ' ')
+    .trim();
+}
 function tuskSpeak(text){
-  if(window.RW && typeof RW.speak==='function'){ try{ RW.speak(text); return; }catch(e){} }
+  var say = tuskSpeakable(text);
+  if(!say) return;
+  if(window.RW && typeof RW.speak==='function'){ try{ RW.speak(say); return; }catch(e){} }
+  text = say;
   try{
     if(!window.speechSynthesis){ showToast('Voice notes need a newer browser \u2014 reading it instead'); return; }
     speechSynthesis.cancel();
     var u=new SpeechSynthesisUtterance(text);
-    u.lang='hi-IN'; u.rate=1.02; u.pitch=1.05;
+    /* slightly slower and lower than default: reads as a wry aside rather than
+       an announcement. Hindi voice handles Hinglish word shapes better. */
+    u.lang='hi-IN'; u.rate=0.94; u.pitch=0.92; u.volume=1;
     /* prefer an Indian-English/Hindi voice if the device has one */
     var vs=speechSynthesis.getVoices();
     var pick=vs.filter(function(v){ return /hi-IN|en-IN/i.test(v.lang); })[0];

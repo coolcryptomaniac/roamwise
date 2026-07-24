@@ -125,6 +125,7 @@ service cloud.firestore {
         allow read: if request.auth != null
           && request.auth.uid in get(/databases/$(database)/documents/tripchats/$(roomId)).data.members;
         allow create: if request.auth != null
+          && !isBanned()
           && request.resource.data.uid == request.auth.uid
           && request.resource.data.text.size() <= 1000
           && request.auth.uid in get(/databases/$(database)/documents/tripchats/$(roomId)).data.members;
@@ -179,6 +180,39 @@ service cloud.firestore {
     }
 
     // ---------- META (shared counters, e.g. first-1000-signups trial) ----------
+    // ---------- BANS (enforced server-side, not just in the UI) ----------
+    // A ban has to bite at the DATA layer. If it only hides buttons, anyone who
+    // opens devtools is back in. isBanned() is called by every social write
+    // below, so a banned uid cannot post, chat, join a squad or report.
+    function isBanned() {
+      return exists(/databases/$(database)/documents/bans/$(request.auth.uid));
+    }
+    match /bans/{uid} {
+      allow read: if isAdmin() || (request.auth != null && request.auth.uid == uid);
+      allow write: if isAdmin();
+    }
+
+    // ---------- REPORTS (abuse reports from travellers) ----------
+    match /abuse/{id} {
+      allow create: if request.auth != null
+        && !isBanned()
+        && request.resource.data.reporter == request.auth.uid
+        && request.resource.data.reason is string
+        && request.resource.data.reason.size() <= 600
+        && request.resource.data.status == 'open';
+      allow read, update, delete: if isAdmin();
+    }
+
+    // ---------- MERCH ORDERS ----------
+    match /merch/{id} {
+      allow create: if request.auth != null && !isBanned()
+        && request.resource.data.status == 'new'
+        && request.resource.data.slogan is string && request.resource.data.slogan.size() <= 120
+        && request.resource.data.addr is string   && request.resource.data.addr.size() <= 400;
+      allow read: if isAdmin() || (request.auth != null && resource.data.uid == request.auth.uid);
+      allow update, delete: if isAdmin();
+    }
+
     // ---------- META (shared counters + the founder-offer gate) ----------
     // WAS: allow write when request.auth != null — which let ANY signed-in
     // user rewrite the founder signup counter: set it to 0 to keep the Rs 100

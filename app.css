@@ -675,3 +675,24 @@ body.shell .hamb{display:flex}
 .tk-foldwrap.open .tk-fold{max-height:1600px;padding:4px 6px 10px}
 .tk-arr{color:var(--gold2,#C8913E)}
 .tk-mini .tk-sec{padding:10px 14px}
+
+/* ===== motion + surface polish ===== */
+.tk-card{position:relative}
+.tk-card::after{content:'';position:absolute;inset:0;border-radius:20px;pointer-events:none;
+  background:linear-gradient(160deg,rgba(255,255,255,.05),transparent 42%);mix-blend-mode:overlay}
+.tk-chip{position:relative;overflow:hidden}
+.tk-chip::before{content:'';position:absolute;inset:0;background:linear-gradient(120deg,transparent,rgba(255,255,255,.14),transparent);
+  transform:translateX(-100%);transition:transform .5s ease}
+.tk-chip:hover::before{transform:translateX(100%)}
+.tk-chip.gold::before{background:linear-gradient(120deg,transparent,rgba(255,255,255,.28),transparent)}
+.prow{scroll-behavior:smooth;scrollbar-width:none}
+.prow::-webkit-scrollbar{height:0}
+.pcard{will-change:transform}
+.tk-foldbtn:hover{background:rgba(255,255,255,.055)}
+.tk-bul{transition:color .15s ease}
+.tk-bul:hover{color:var(--t1)}
+@media (prefers-reduced-motion: reduce){
+  .tk-card,.tk-sec{animation:none!important}
+  .tk-head::after{animation:none!important}
+  .tk-chip::before{transition:none}
+}
