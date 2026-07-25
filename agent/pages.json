@@ -1294,5 +1294,113 @@
    56,
    68
   ]
+ },
+ {
+  "slug": "mahabalipuram-india",
+  "title": "Mahabalipuram, India",
+  "name": "Mahabalipuram",
+  "country": "India",
+  "best": "January, February, March",
+  "arch": "tropical",
+  "cl": [
+   28.9,
+   31,
+   32.4,
+   34.3,
+   34.2,
+   33.9,
+   33.5,
+   32.6,
+   33.8,
+   30.9,
+   29,
+   28.9
+  ],
+  "scores": [
+   92,
+   99,
+   100,
+   92,
+   64,
+   73,
+   88,
+   81,
+   83,
+   62,
+   55,
+   78
+  ]
+ },
+ {
+  "slug": "andaman-islands-india",
+  "title": "Andaman Islands, India",
+  "name": "Andaman Islands",
+  "country": "India",
+  "best": "January, February, March",
+  "arch": "monsoon",
+  "cl": [
+   30.3,
+   32,
+   33.8,
+   34.2,
+   32,
+   29.1,
+   28.9,
+   29,
+   29,
+   29,
+   30,
+   29.8
+  ],
+  "scores": [
+   93,
+   99,
+   95,
+   91,
+   55,
+   55,
+   55,
+   56,
+   62,
+   62,
+   84,
+   85
+  ]
+ },
+ {
+  "slug": "kutch-india",
+  "title": "Kutch, India",
+  "name": "Kutch",
+  "country": "India",
+  "best": "March, September, October",
+  "arch": "alpine",
+  "cl": [
+   3.3,
+   8.8,
+   11.6,
+   17.2,
+   20.5,
+   29.6,
+   29.8,
+   29.7,
+   27.2,
+   21.4,
+   7.3,
+   8.7
+  ],
+  "scores": [
+   62,
+   82,
+   98,
+   94,
+   96,
+   98,
+   94,
+   95,
+   99,
+   99,
+   69,
+   84
+  ]
  }
 ]
