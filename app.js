@@ -7147,26 +7147,31 @@ function tripChatOpen(roomId, roomName){
   var ov=el('chatOverlay');
   if(!ov){
     ov=document.createElement('div'); ov.id='chatOverlay'; ov.className='overlay';
-    ov.innerHTML='<div class="sheet" style="display:flex;flex-direction:column;max-height:90dvh">'
-      +'<div class="sheet-head"><b id="chatTitle">\ud83d\udcac Trip chat</b><button class="x" onclick="tripChatClose()">\u2715</button></div>'
-      +'<div id="chatLog" style="flex:1 1 auto;min-height:0;overflow-y:auto;padding:6px 2px"></div>'
-      +'<div style="display:flex;gap:6px;flex-wrap:wrap;padding:6px 2px 2px;border-top:1px solid var(--b2,#2A2A36)">'
-      +'<button class="tact" style="font-size:11px;padding:5px 9px" onclick="chatShareBudget()">\ud83d\udcb0 Budget</button>'
-      +'<button class="tact" style="font-size:11px;padding:5px 9px" onclick="chatSharePlan()">\ud83d\uddd3\ufe0f Itinerary</button>'
-      +'<button class="tact" style="font-size:11px;padding:5px 9px" onclick="chatShareMeet()">\ud83d\udccd Meet</button>'
-      +'<button class="tact" style="font-size:11px;padding:5px 9px" onclick="chatNewPoll()">\ud83d\uddf3\ufe0f Poll</button>'
-      +'<button class="tact" style="font-size:11px;padding:5px 9px" onclick="chatMarkPaid()">\u2705 Paid</button>'
-      +'<button class="tact" style="font-size:11px;padding:5px 9px" onclick="chatInvite()">\ud83d\udc65 Invite</button>'
+    ov.innerHTML='<div class="sheet" style="display:flex;flex-direction:column;height:96dvh;max-height:96dvh;border-radius:20px 20px 0 0;padding:0;overflow:hidden">'
+      +'<div style="display:flex;align-items:center;gap:10px;padding:14px 16px;background:linear-gradient(135deg,rgba(232,186,108,.12),transparent);border-bottom:1px solid var(--b2,#2A2A36)">'
+        +'<div style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--gold,#E8BA6C),var(--gold2,#C8913E));display:flex;align-items:center;justify-content:center;font-size:18px;flex:0 0 auto">\ud83d\udc65</div>'
+        +'<div style="flex:1;min-width:0"><b id="chatTitle" style="font-size:15px;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Trip chat</b>'
+        +'<span style="font-size:10.5px;color:var(--t3)">\ud83d\udd12 Private to members \u00b7 ask @tusk anything</span></div>'
+        +'<button class="x" onclick="rwReportOpen({room:_chatRoom})" title="Report" style="font-size:14px">\ud83d\udea9</button>'
+        +'<button class="x" onclick="tripChatClose()">\u2715</button></div>'
+      +'<div id="chatLog" style="flex:1 1 auto;min-height:0;overflow-y:auto;padding:12px 14px;background:var(--bg,#0A0A0C)"></div>'
+      +'<div style="padding:8px 12px 4px;border-top:1px solid var(--b2,#2A2A36);background:var(--bg2,#12121C)">'
+      +'<div style="display:flex;gap:6px;overflow-x:auto;padding-bottom:6px;-webkit-overflow-scrolling:touch">'
+      +'<button class="chat-tool" onclick="chatSharePlan()">\ud83d\uddd3\ufe0f Itinerary</button>'
+      +'<button class="chat-tool" onclick="chatShareBudget()">\ud83d\udcb0 Split bill</button>'
+      +'<button class="chat-tool" onclick="chatShareMeet()">\ud83d\udccd Meet point</button>'
+      +'<button class="chat-tool" onclick="chatNewPoll()">\ud83d\uddf3\ufe0f Poll</button>'
+      +'<button class="chat-tool" onclick="chatMarkPaid()">\u2705 Mark paid</button>'
+      +'<button class="chat-tool" onclick="chatInvite()">\ud83d\udc65 Invite</button>'
       +'</div>'
-      +'<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;padding:4px 2px">'
-+'<span style="font-size:9.5px;color:var(--t3)">\ud83d\udd12 Private to members \u00b7 signed by sender \u00b7 not end-to-end encrypted</span>'
-+'<button class="tact" style="font-size:10px;padding:3px 8px" onclick="rwReportOpen({room:_chatRoom})">\ud83d\udea9 Report</button></div>'
-      +'<div style="display:flex;gap:8px;align-items:flex-end;padding-top:4px">'
-      +'<textarea id="chatInput" rows="1" placeholder="Message the group \u2014 or ask @tusk anything\u2026" style="flex:1;background:var(--bg3,#1A1A20);border:1px solid var(--b2,#2A2A36);border-radius:12px;padding:10px 12px;color:inherit;font:inherit;resize:none;outline:none"></textarea>'
-      +'<button class="tact" style="padding:10px 14px;font-weight:800;background:linear-gradient(135deg,var(--gold,#E8BA6C),var(--gold2,#C8913E));color:#0A0A0C;border:none" onclick="tripChatSend()">\u27a4</button></div>'
+      +'<div style="display:flex;gap:8px;align-items:flex-end;padding:4px 0 8px">'
+      +'<textarea id="chatInput" rows="1" placeholder="Message the group \u2014 or ask @tusk\u2026" style="flex:1;background:var(--bg3,#1A1A20);border:1px solid var(--b2,#2A2A36);border-radius:22px;padding:12px 16px;color:inherit;font:inherit;resize:none;outline:none;max-height:110px"></textarea>'
+      +'<button aria-label="Send" style="width:46px;height:46px;flex:0 0 auto;border-radius:50%;font-size:18px;font-weight:800;background:linear-gradient(135deg,var(--gold,#E8BA6C),var(--gold2,#C8913E));color:#0A0A0C;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center" onclick="tripChatSend()">\u27a4</button></div>'
+      +'</div>'
       +'</div>';
     document.body.appendChild(ov);
     el('chatInput').addEventListener('keydown',function(e){ if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); tripChatSend(); } });
+    el('chatInput').addEventListener('input',function(){ this.style.height='auto'; this.style.height=Math.min(this.scrollHeight,110)+'px'; });
   }
   el('chatTitle').textContent='\ud83d\udcac '+(roomName||'Trip chat');
   rwOverlayOpen('chatOverlay');
@@ -7200,10 +7205,17 @@ function tripChatOpen(roomId, roomName){
         : '<div class="mode-box">Chat unavailable: '+esc2(err.message||err)+'</div>';
     });
   }).catch(function(e){
-    var msg = (e && e.code==='permission-denied')
-      ? 'Chat rules are out of date on the server \u2014 publish the latest firestore.rules.'
-      : ('Could not open chat: '+((e&&e.message)||e));
-    var log=el('chatLog'); if(log) log.innerHTML='<div class="mode-box">'+esc2(msg)+'</div>';
+    var log=el('chatLog');
+    if(e && e.code==='permission-denied'){
+      if(log) log.innerHTML='<div class="mode-box" style="text-align:left;line-height:1.6">'
+        +'<b>Group chat is blocked by the server rules.</b><br>'
+        +'<span style="font-size:12px;color:var(--t2)">The latest <code>firestore.rules</code> needs to be published (Firebase Console \u2192 Firestore \u2192 Rules \u2192 paste \u2192 Publish). '
+        +'Tap below to see exactly which collections are blocked right now.</span>'
+        +'<button class="tact" style="font-size:11px;padding:6px 11px;margin-top:9px" onclick="rwRulesCheck()">Check which rules are live</button>'
+        +'</div>';
+    } else {
+      if(log) log.innerHTML='<div class="mode-box">Could not open chat: '+esc2((e&&e.message)||e)+'</div>';
+    }
   });
 }
 function tripChatSend(){
