@@ -50,7 +50,10 @@ ul{margin:0 0 14px 20px;color:var(--t2)}li{margin-bottom:8px}
 .foot{font-size:12.5px;color:var(--t3);margin-top:26px}
 @media(max-width:640px){.slide{padding:52px 18px;min-height:auto}.dots{display:none}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.card{transition:none}}
-</style></head><body>
+</style>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+</head><body>
 
 <div class="dots">
 <a href="#s1"></a><a href="#s2"></a><a href="#s3"></a><a href="#s4"></a><a href="#s5"></a>
@@ -221,4 +224,98 @@ ul{margin:0 0 14px 20px;color:var(--t2)}li{margin-bottom:8px}
   Figures marked indicative are from public reporting and should be independently verified.</p>
 </section>
 
+<div id="deckGate" style="position:fixed;inset:0;z-index:9999;background:linear-gradient(160deg,#0A0E16,#12080C);display:flex;align-items:center;justify-content:center;padding:22px">
+  <div style="max-width:400px;width:100%;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:18px;padding:28px 24px">
+    <div style="font-size:22px;font-weight:800;letter-spacing:-.5px">Roam<em style="color:#E8BA6C;font-style:normal">Wise</em></div>
+    <h2 style="font-size:18px;margin:14px 0 6px;line-height:1.3">A quick hello before the deck</h2>
+    <p style="font-size:12.5px;color:rgba(255,255,255,.6);line-height:1.6;margin-bottom:18px">This is a private investor deck. Tell me who's reading so I can follow up properly — takes 15 seconds.</p>
+    <input id="gName" placeholder="Your name" style="width:100%;box-sizing:border-box;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);border-radius:10px;padding:12px;color:#fff;font-size:14px;margin-bottom:9px;outline:none">
+    <input id="gRole" placeholder="Designation / firm (e.g. Partner, Blume)" style="width:100%;box-sizing:border-box;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);border-radius:10px;padding:12px;color:#fff;font-size:14px;margin-bottom:9px;outline:none">
+    <input id="gPhone" type="tel" placeholder="Phone or email" style="width:100%;box-sizing:border-box;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);border-radius:10px;padding:12px;color:#fff;font-size:14px;margin-bottom:16px;outline:none">
+    <button id="gBtn" onclick="deckEnter()" style="width:100%;background:linear-gradient(135deg,#E8BA6C,#C8913E);border:none;border-radius:10px;padding:13px;color:#1a1206;font-size:15px;font-weight:800;cursor:pointer">View the deck →</button>
+    <p id="gErr" style="font-size:11.5px;color:#E05B5B;margin-top:9px;min-height:14px"></p>
+    <p style="font-size:10.5px;color:rgba(255,255,255,.35);margin-top:4px">Mohit Pandey · founder@roamwise.co.in</p>
+  </div>
+</div>
+<script>
+(function(){
+  var CFG={apiKey:"AIzaSyBTfmJvHTmp0mNQqsIhWEwnLLwFKz0ExYQ",authDomain:"roamwisepro.firebaseapp.com",projectId:"roamwisepro",storageBucket:"roamwisepro.firebasestorage.app",messagingSenderId:"1039880917656",appId:"1:1039880917656:web:8b3e18e8a4b1c9f8e2c0d1"};
+  try{ firebase.initializeApp(CFG); window._db=firebase.firestore(); }catch(e){ window._db=null; }
+})();
+var _leadId=null, _deckStart=Date.now(), _maxSlide=0, _slidesSeen={}, _lastSave=0;
+
+/* If they've already entered on this device, skip the gate. */
+try{
+  var prev=localStorage.getItem('rw_deck_lead');
+  if(prev){ _leadId=prev; document.getElementById('deckGate').style.display='none'; deckTrackStart(); }
+}catch(e){}
+
+function deckEnter(){
+  var name=(document.getElementById('gName').value||'').trim();
+  var role=(document.getElementById('gRole').value||'').trim();
+  var phone=(document.getElementById('gPhone').value||'').trim();
+  var err=document.getElementById('gErr');
+  if(name.length<2){ err.textContent='Please enter your name.'; return; }
+  if(phone.length<5){ err.textContent='A phone or email helps me follow up.'; return; }
+  document.getElementById('gBtn').textContent='Opening…';
+  var lead={ name:name, role:role, contact:phone,
+    at:new Date().toISOString(), ua:navigator.userAgent.slice(0,180),
+    ref:document.referrer||'direct', maxSlide:0, seconds:0, slides:{} };
+  function proceed(id){
+    _leadId=id||('local_'+Date.now());
+    try{ localStorage.setItem('rw_deck_lead', _leadId); }catch(e){}
+    document.getElementById('deckGate').style.display='none';
+    deckTrackStart();
+  }
+  if(window._db){
+    _db.collection('deckleads').add(lead)
+      .then(function(ref){ proceed(ref.id); })
+      .catch(function(e){ /* even if the write fails, don't block the investor */ proceed(null); });
+  } else { proceed(null); }
+}
+
+function deckSave(){
+  if(!_leadId || !window._db || String(_leadId).slice(0,6)==='local_') return;
+  var now=Date.now();
+  if(now-_lastSave < 4000) return;   /* throttle writes */
+  _lastSave=now;
+  var secs=Math.round((now-_deckStart)/1000);
+  _db.collection('deckleads').doc(_leadId).update({
+    maxSlide:_maxSlide, seconds:secs, slides:_slidesSeen,
+    lastSeen:new Date().toISOString()
+  }).catch(function(){});
+}
+
+function deckTrackStart(){
+  var slides=[].slice.call(document.querySelectorAll('.slide'));
+  var total=slides.length;
+  if('IntersectionObserver' in window){
+    var io=new IntersectionObserver(function(ents){
+      ents.forEach(function(en){
+        if(en.isIntersecting){
+          var idx=slides.indexOf(en.target)+1;
+          if(idx>_maxSlide) _maxSlide=idx;
+          _slidesSeen['s'+idx]=(_slidesSeen['s'+idx]||0)+1;
+          deckSave();
+        }
+      });
+    }, {threshold:0.5});
+    slides.forEach(function(s){ io.observe(s); });
+  }
+  /* periodic heartbeat so time-on-deck is captured even if they stop scrolling */
+  setInterval(deckSave, 8000);
+  /* final save when they leave */
+  window.addEventListener('beforeunload', function(){
+    if(!_leadId || !window._db || String(_leadId).slice(0,6)==='local_') return;
+    var secs=Math.round((Date.now()-_deckStart)/1000);
+    try{
+      _db.collection('deckleads').doc(_leadId).update({
+        maxSlide:_maxSlide, seconds:secs, slides:_slidesSeen,
+        lastSeen:new Date().toISOString(),
+        completed:(_maxSlide>=total)
+      });
+    }catch(e){}
+  });
+}
+</script>
 </body></html>
