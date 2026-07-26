@@ -3843,7 +3843,35 @@ function aiCall(prompt, maxTok, cb, jsonMode){
   attempt(null);
 }
 
-/* Key tester — used by the Test buttons in Settings */
+/* PROVIDER INDEPENDENCE: one provider failing (or hitting its daily cap) must
+   never take the answer down. Tries the ACTIVE provider's models first, then
+   EVERY other armed provider in turn; only if all fail does the caller fall
+   back to Ailon Tusk's own engine. Auth/quota errors skip to the NEXT PROVIDER. */
+function aiCallAny(prompt, maxTok, cb, jsonMode){
+  var all=['groq','cerebras','github','gemini','openrouter','mistral','anthropic'];
+  var order=[activeProv].concat(all.filter(function(p){ return p!==activeProv; }))
+    .filter(function(p){ return p && p!=='smart' && lsGet('rwKey_'+p); });
+  if(!order.length){ lastAiSource=null; cb(null,null); return; }
+  var oi=0;
+  (function nextProv(lastErr){
+    if(oi>=order.length){ lastAiSource=null; cb(lastErr||'All providers failed', null); return; }
+    var prov=order[oi++], key=lsGet('rwKey_'+prov), models=AI_MODELS[prov]||[], mi=0;
+    (function tryM(err){
+      if(mi>=models.length){ nextProv(err); return; }
+      var m=models[mi++];
+      aiRequest(prov,key,m,prompt,maxTok,jsonMode)
+        .then(function(txt){ lastAiSource={prov:prov, model:m}; cb(null, txt); })
+        .catch(function(e){
+          var msg=String(e.message||e);
+          if(e.httpStatus===401||e.httpStatus===403||/api key|permission|quota|billing|rate.?limit/i.test(msg)) nextProv(msg);
+          else tryM(msg);
+        });
+    })(null);
+  })(null);
+}
+
+/* Key tester
+ — used by the Test buttons in Settings */
 function testKey(prov){
   var key=(el(prov+'Key').value||'').trim() || lsGet('rwKey_'+prov);
   var st=el(prov+'Status');
@@ -5432,7 +5460,7 @@ function openCopilot(){
   if(!ov){
     ov=document.createElement('div'); ov.id='cpOverlay'; ov.className='overlay';
     ov.innerHTML='<div class="sheet" style="display:flex;flex-direction:column;max-height:92dvh">'
-      +'<div class="sheet-head"><b>\ud83e\udded Travel Copilot</b><button class="x" onclick="closeCopilot()">\u2715</button></div>'
+      +'<div class="sheet-head"><b>\ud83e\udded Travel Copilot</b><span style="margin-left:auto;display:flex;gap:6px"><button class="x" title="Clear chat" onclick="cpClearChat()">\ud83e\uddf9</button><button class="x" onclick="closeCopilot()">\u2715</button></span></div>'
       +'<div id="cpLog" style="flex:1;overflow-y:auto;padding:4px 2px;min-height:120px"></div>'
       +'<div id="cpModels" style="display:flex;gap:6px;flex-wrap:wrap;margin:8px 0 4px"></div>'
       +'<div style="display:flex;gap:6px;flex-wrap:wrap;margin:2px 0 6px" id="cpChips"></div>'
@@ -5464,6 +5492,15 @@ function cpFocusHero(){
   setTimeout(function(){ var i=el('heroInput'); if(i) i.focus(); }, 420);
 }
 function closeCopilot(){ rwOverlayClose('cpOverlay'); }
+/* One tap = truly fresh: visible log, rolling memory, trip context, stored turns. */
+function cpClearChat(){
+  _cpTurns=[]; _cpHist=[]; _cpCtx=null; window._tkLastAns=null; window._tkCarryShown=null;
+  try{ localStorage.removeItem('rw_turns'); }catch(e){}
+  var log=el('cpLog'); if(log) log.innerHTML='';
+  var hl=el('heroLog'); if(hl) hl.innerHTML='';
+  try{ cpBubble('\ud83e\uddf9 Fresh start — history cleared. Tell me your plan.','bot'); }catch(e){}
+  try{ showToast('Chat cleared'); }catch(e){}
+}
 var _cpTargetLog='cpLog';
 function cpBubble(html, who){
   var log=el(_cpTargetLog)||el('cpLog'); if(!log) return;
@@ -5514,13 +5551,17 @@ var _cpTurns = [];
 function rwRemember(role, text, meta){
   _cpTurns.push({role:role, text:String(text||'').slice(0,300), meta:meta||{}, at:Date.now()});
   if(_cpTurns.length>10) _cpTurns.shift();
-  try{ lsSet('rw_turns', JSON.stringify(_cpTurns.slice(-10))); }catch(e){}
+  try{ if(lsGet('rw_keep_chat')==='1') lsSet('rw_turns', JSON.stringify(_cpTurns.slice(-10))); }catch(e){}
 }
 function rwRecall(n){ return _cpTurns.slice(-(n||5)); }
 function rwAskedBefore(topic){
   return _cpTurns.some(function(t){ return t.role==='user' && new RegExp(topic,'i').test(t.text); });
 }
-try{ _cpTurns = JSON.parse(lsGet('rw_turns')||'[]'); }catch(e){ _cpTurns=[]; }
+/* CLEAN-START POLICY: chat memory is session-only by default. Restoring old
+   turns made Tusk drag stale context into brand-new chats ("still on X" when
+   the user had moved on days ago). Opt back in with rw_keep_chat='1'. */
+if(lsGet('rw_keep_chat')==='1'){ try{ _cpTurns = JSON.parse(lsGet('rw_turns')||'[]'); }catch(e){ _cpTurns=[]; } }
+else { _cpTurns=[]; try{ localStorage.removeItem('rw_turns'); }catch(e){} }
 var _cpHist = []; /* [{q,a}] capped — gives the AI real conversational memory */
 function cpModelChips(targetId){
   var host = el(targetId); if(!host) return;
@@ -5576,6 +5617,63 @@ function cpSmartAnswer(t){
   return null;
 }
 
+/* ==================== MINI WEB LOOKUP ====================
+   When the curated DB and guide APIs come up empty, search the free open web:
+   Wikipedia's search API + DuckDuckGo's Instant Answer API — both keyless and
+   CORS-open. NOT Google crawling (blocked + against ToS); the card links out to
+   full Google / DuckDuckGo results in one tap, which covers the same need. */
+async function rwMiniSearch(q){
+  q=String(q||'').slice(0,140);
+  var out={abs:null, absSrc:null, absUrl:null, hits:[]};
+  var jobs=[];
+  jobs.push(fetch('https://api.duckduckgo.com/?q='+encodeURIComponent(q)+'&format=json&no_html=1&skip_disambig=1')
+    .then(function(r){return r.json();}).then(function(d){
+      var a=d.AbstractText||d.Answer||d.Definition||'';
+      if(a){ out.abs=String(a).slice(0,420); out.absSrc=d.AbstractSource||'DuckDuckGo'; out.absUrl=d.AbstractURL||''; }
+      (d.RelatedTopics||[]).slice(0,3).forEach(function(x){
+        if(x && x.Text && x.FirstURL) out.hits.push({t:String(x.Text).slice(0,110), u:x.FirstURL, s:'DDG'});
+      });
+    }).catch(function(){}));
+  jobs.push(fetch('https://en.wikipedia.org/w/rest.php/v1/search/page?q='+encodeURIComponent(q)+'&limit=3')
+    .then(function(r){return r.json();}).then(function(d){
+      (d.pages||[]).forEach(function(pg){
+        out.hits.push({t:pg.title+(pg.description? ' — '+pg.description : ''), u:'https://en.wikipedia.org/wiki/'+encodeURIComponent(pg.key), s:'Wikipedia'});
+      });
+      if(!out.abs && d.pages && d.pages[0] && d.pages[0].excerpt){
+        out.abs=String(d.pages[0].excerpt).replace(/<[^>]*>/g,'').slice(0,320); out.absSrc='Wikipedia';
+        out.absUrl='https://en.wikipedia.org/wiki/'+encodeURIComponent(d.pages[0].key);
+      }
+    }).catch(function(){}));
+  try{ await Promise.all(jobs); }catch(e){}
+  return (out.abs || out.hits.length) ? out : null;
+}
+function rwWebAnswerHTML(q, res){
+  var g='https://www.google.com/search?q='+encodeURIComponent(q);
+  var dd='https://duckduckgo.com/?q='+encodeURIComponent(q);
+  var out='<div class="tk-card"><div class="tk-head" style="background:linear-gradient(150deg,#1E3A5F,#0A1628)">'
+    +'<div class="tk-place">🔎 Web lookup</div>'
+    +'<div class="tk-meta">Free open sources · “'+esc2(String(q).slice(0,70))+'”</div></div>'
+    +'<div class="tk-sec">';
+  if(res.abs){
+    out+='<div style="font-size:12.5px;line-height:1.65;color:var(--t2)">'+esc2(res.abs)+'</div>'
+      +'<div style="font-size:10.5px;color:var(--t3);margin-top:4px">Source: '+esc2(res.absSrc||'web')
+      +(res.absUrl? ' · <a href="'+res.absUrl+'" target="_blank" rel="noopener" style="color:var(--gold,#E8BA6C)">open</a>':'')+'</div>';
+  }
+  if(res.hits.length){
+    out+='<div class="tk-lab" style="margin-top:9px">Top matches</div>'
+      + res.hits.slice(0,4).map(function(h){
+          return '<div class="tk-bul"><a href="'+h.u+'" target="_blank" rel="noopener" style="color:inherit;text-decoration:underline dotted">'+esc2(h.t)+'</a> <span style="color:var(--t3);font-size:10px">'+esc2(h.s)+'</span></div>';
+        }).join('');
+  }
+  out+='<div class="tk-chips" style="margin-top:10px">'
+    +'<a class="tk-chip" style="text-decoration:none" target="_blank" rel="noopener" href="'+g+'">🌐 Full Google results</a>'
+    +'<a class="tk-chip" style="text-decoration:none" target="_blank" rel="noopener" href="'+dd+'">🦆 DuckDuckGo</a>'
+    +'</div>'
+    +'<div style="font-size:10px;color:var(--t3);margin-top:7px">Wikipedia + DuckDuckGo open APIs — no key, nothing tracked.</div>'
+    +'</div></div>';
+  return out;
+}
+
 /* One canonical known-place map: curated overrides + DB + major cities. Used by
    multi-city detection AND single-destination rescue below. */
 function rwKnownMap(){
@@ -5601,7 +5699,53 @@ function rwScanKnown(t){
   return kept.map(function(h){return h.name;}).filter(function(n,i,a){return a.indexOf(n)===i;});
 }
 
+function rwEditDist(a,b){
+  a=String(a); b=String(b);
+  var la=a.length, lb=b.length;
+  if(Math.abs(la-lb)>2) return 99;
+  var d=[]; for(var i=0;i<=la;i++){ d[i]=[i]; } for(var j=0;j<=lb;j++){ d[0][j]=j; }
+  for(i=1;i<=la;i++){ for(j=1;j<=lb;j++){
+    var cost = a.charAt(i-1)===b.charAt(j-1)?0:1;
+    d[i][j]=Math.min(d[i-1][j]+1, d[i][j-1]+1, d[i-1][j-1]+cost);
+    if(i>1 && j>1 && a.charAt(i-1)===b.charAt(j-2) && a.charAt(i-2)===b.charAt(j-1))
+      d[i][j]=Math.min(d[i][j], d[i-2][j-2]+1);
+  }}
+  return d[la][lb];
+}
+function rwFuzzyPlace(tok){
+  tok=String(tok||'').toLowerCase();
+  if(tok.length<5) return null;
+  if(RW_COMMON_WORDS.test(tok)) return null;
+  var known=rwKnownMap();
+  if(known[tok]) return known[tok];
+  var tol = tok.length>=8 ? 2 : 1, best=null, bestD=tol+1;
+  for(var k in known){
+    if(k.length<5 || Math.abs(k.length-tok.length)>tol) continue;
+    var dd=rwEditDist(tok,k);
+    if(dd<bestD){ bestD=dd; best=known[k]; if(dd===0) break; }
+  }
+  return bestD<=tol ? best : null;
+}
+var RW_SYN = [
+  [/\bmausam\b/gi,'weather'], [/\bbarish\b/gi,'rain'], [/\bgarmi\b/gi,'summer heat'], [/\bsardi\b/gi,'winter cold'],
+  [/\bkha+na\b/gi,'food'], [/\bnashta\b/gi,'breakfast'], [/\bkhane ?(ka|ki|ke)\b/gi,'food'],
+  [/\bkharcha?\b/gi,'cost'], [/\bkitna\b/gi,'how much'], [/\bpaisa\b/gi,'money'], [/\bsasta\b/gi,'cheap'], [/\bmeh?nga\b/gi,'expensive'],
+  [/\bru[kh]ne\b/gi,'stay'], [/\brehne\b/gi,'stay'], [/\bhotal\b/gi,'hotel'],
+  [/\bpahu?nch(na|e|ne)?\b/gi,'reach'], [/\bkaise ja(ye|na|un)\b/gi,'how to reach'], [/\bja+na\b/gi,'go'],
+  [/\bghu+m(na|ne)\b/gi,'explore'], [/\bjagah\b/gi,'place'], [/\bsuraksh(a|it)\b/gi,'safety'],
+  [/\bwhats\b/gi,'what is'], [/\bhows\b/gi,'how is'], [/\bwheres\b/gi,'where is'],
+  [/\baccomodation\b/gi,'accommodation'], [/\bwether\b/gi,'weather'], [/\bwheather\b/gi,'weather'],
+  [/\bbugdet\b/gi,'budget'], [/\bbudge?t?t\b/gi,'budget'], [/\bitin[ea]rary\b/gi,'itinerary'],
+  [/\brestraunt|restarant|resturant\b/gi,'restaurant']
+];
+function rwNormalizeQuery(t){
+  t=String(t||'');
+  for(var i=0;i<RW_SYN.length;i++){ t=t.replace(RW_SYN[i][0], RW_SYN[i][1]); }
+  return t.replace(/\s{2,}/g,' ');
+}
+
 function cpParseRegex(t){
+  t = rwNormalizeQuery(t);
   /* -------- input hygiene: greetings, smalltalk, junk -------- */
   var RAW_T = t;
   t = String(t).replace(/^\s*(hey+|hii+|hi|hello+|helo|yo|namaste|namaskar|hola|sup|wassup|bhai|bro|dear|please|pls)\b[\s,!.]*/i, '');
@@ -5698,7 +5842,13 @@ function cpParseRegex(t){
               [/\b(stay|staying|hotel|hotels|hostel|hostels|sleep|accommodation|homestay|room|rooms)\b/i,'stay'],
               [/\b(safe|safety|scam|scams|danger|dangerous|theft|crime)\b/i,'safe'],
               [/\b(cost|costs|price|prices|expensive|cheap|money|budget|budgets)\b/i,'cost']];
-  for(var ti=0; ti<TOPICS.length; ti++){ if(TOPICS[ti][0].test(t)){ out.topic=TOPICS[ti][1]; break; } }
+  var _tScore={}, _tBest=null, _tBestN=0;
+  for(var ti=0; ti<TOPICS.length; ti++){
+    var _tm = t.match(new RegExp(TOPICS[ti][0].source,'gi'));
+    var _tn = _tm? _tm.length : 0;
+    if(_tn){ _tScore[TOPICS[ti][1]]=_tn; if(_tn>_tBestN){ _tBestN=_tn; _tBest=TOPICS[ti][1]; } }
+  }
+  if(_tBest){ out.topic=_tBest; out.topics=Object.keys(_tScore); }
   /* travel STYLE words: "shoestring" is a style, not a rupee figure */
   if(/shoe\s*string|shoestring|bare\s*bones|barebones|backpack(er|ing)?|cheapest|sasta|low\s*budget|tight\s*budget/i.test(t)) out.style='budget';
   else if(/luxur(y|ious)|lavish|5\s*star|premium|shaandaar/i.test(t)) out.style='luxury';
@@ -5745,6 +5895,13 @@ function cpParseRegex(t){
     var knowns = rwScanKnown(t);
     var destKnown = out.dest && rwKnownMap()[String(out.dest).toLowerCase()];
     if(knowns.length===1 && !destKnown) out.dest = knowns[0];
+    if(!knowns.length && (!out.dest || !rwKnownMap()[String(out.dest).toLowerCase()])){
+      var _ft = String(t).toLowerCase().match(/[a-z]{5,}/g)||[];
+      for(var _fi=0; _fi<_ft.length; _fi++){
+        var _fh = rwFuzzyPlace(_ft[_fi]);
+        if(_fh){ out.dest=_fh; out._fuzzy=_ft[_fi]; break; }
+      }
+    }
   }
   /* a weak leftover token ("busget" typo) that isn't a known place loses to
      the destination we already know from this conversation */
@@ -5974,7 +6131,14 @@ function copilotSend(fromHero){
     }
   }
   var thinking=cpBubble('\u2026','bot');
-  var intents = cpParseRegex(t);
+  var intents;
+  try{ intents = cpParseRegex(t); }
+  catch(_e){
+    /* Parser hiccup must never freeze the chat — degrade to a bare intent. */
+    intents = { _raw:t };
+    cpFinish(thinking, 'Arre boss, thoda confuse ho gaya \u2014 ek baar phir se, seedhe shabdon mein bolo? \ud83d\ude05', intents, t);
+    return;
+  }
   var hasKey = (typeof activeProv!=='undefined') && activeProv!=='smart' && lsGet('rwKey_'+activeProv);
   if(hasKey){
     /* Real conversation: persona + history + the new message. Any topic is
@@ -5994,13 +6158,28 @@ function copilotSend(fromHero){
           + (_cpCtx.budget? ', budget: \u20b9'+_cpCtx.budget : '')
           + '. If the user does not name a new place, they mean this one.\n';
       }
-      var prompt='You are RoamWise Copilot \u2014 a sharp, friendly travel companion built into a travel-planning app. '
-        +'Answer helpfully and concisely (under 120 words). Prefer the verified guide text below over your own recollection; if it contradicts you, trust it. Say plainly when you are unsure. No markdown headers.\n'
+      var prompt='You are Ailon Tusk \u2014 a travel companion with FULL Bollywood masala energy: dramatic, witty, warm, a little theatrical, with light Hinglish sprinkles (words like boss, arre, chalo, mast, scene, hero). '
+        +'Open with a punchy filmi line and close with a small flourish, but keep the MIDDLE \u2014 the actual facts, numbers, routes, prices \u2014 100% accurate and clear. Personality is the seasoning, facts are the meal. '
+        +'Never invent facts to sound dramatic; if unsure, say so with a grin. Do NOT quote real Bollywood dialogues or put words in real actors\u2019 mouths \u2014 use your own filmi-flavoured lines. '
+        +'Answer helpfully and concisely (under 130 words). Prefer the verified guide text below over your own recollection; if it contradicts you, trust it. No markdown headers.\n'
         +facts+(hist? 'Conversation so far:\n'+hist+'\n':'')+'User: '+t+'\nCopilot:';
-      aiCall(prompt, 400, function(err, txt){
-        var answer = (txt||'').trim() || 'The AI didn\u2019t answer \u2014 here\u2019s what my own engine has.';
+      aiCallAny(prompt, 400, function(err, txt){
+        var answer = (txt||'').trim();
+        if(!answer){
+          var kb2 = cpSmartAnswer(t) || '';
+          var note = '<span style="font-size:11px;color:var(--t3)">\u26a1 AI engines unreachable right now'
+            +(err? ' ('+esc2(String(err).slice(0,60))+')':'')
+            +' \u2014 answered by Ailon Tusk\u2019s own engine.</span>';
+          if(intents.dest) rwLearn(intents.dest);
+          cpFinish(thinking, (kb2? kb2+'<br>':'')+note, intents, t);
+          return;
+        }
+        answer = answer.replace(/</g,'&lt;');
+        if(lastAiSource && lastAiSource.prov!==activeProv){
+          answer += '<br><span style="font-size:10.5px;color:var(--t3)">\u21aa answered by <b>'+esc2(lastAiSource.prov)+'</b> \u2014 '+esc2(activeProv)+' was unavailable</span>';
+        }
         if(intents.dest) rwLearn(intents.dest);
-        cpFinish(thinking, answer.replace(/</g,'&lt;'), intents, t);
+        cpFinish(thinking, answer, intents, t);
       });
     });
   } else {
@@ -6010,16 +6189,27 @@ function copilotSend(fromHero){
     if(intents.smalltalk){ cpFinish(thinking, tkSmalltalk(intents.smalltalk), intents, t); return; }
     var kb = cpSmartAnswer(t);
     var place = intents.dest;
-    /* Tell the user we carried the topic over, so follow-ups don't feel random */
-    if(place && !new RegExp(place.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'i').test(t)){
+    /* Carry the topic over — but only ONCE per destination (was the nagging repetition). */
+    if(place && !new RegExp(place.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'i').test(t) && window._tkCarryShown!==place){
       kb = (kb? kb+'<br>' : '') + '<span style="font-size:11px;color:var(--t3)">\u21b3 still on <b>'+esc2(place)+'</b></span>';
+      window._tkCarryShown = place;
     }
+    if(place && new RegExp(place.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'i').test(t)) window._tkCarryShown=place;
     if(place){
-      /* the card built in cpActionsHTML now carries the guide content */
-      cpFinish(thinking, kb||'', intents, t);
+      /* the card built in cpActionsHTML now carries the guide content; if we
+         also have a text summary, give it a dash of masala */
+      cpFinish(thinking, kb? rwMasalaWrap(kb) : '', intents, t);
+    } else if(kb){
+      cpFinish(thinking, rwMasalaWrap(kb), intents, t);
     } else {
-      var canned = kb || 'I cover destinations, weather, budgets, transport and sharing. For open-ended conversation, add a free AI key \u2014 takes 2 minutes: <button class="tact" style="font-size:11px;padding:4px 10px" onclick="openWizard()">Get a free key</button>';
-      cpFinish(thinking, canned, intents, t);
+      /* Nothing curated and no place named — quietly search the free open
+         web (Wikipedia + DuckDuckGo, keyless, CORS-open) and present a card. */
+      var _keyPrompt = 'I cover destinations, weather, budgets, transport and sharing. For open-ended conversation, add a free AI key \u2014 takes 2 minutes: <button class="tact" style="font-size:11px;padding:4px 10px" onclick="openWizard()">Get a free key</button>';
+      /* MUST NOT throw: file:// cross-origin fetch can reject in the APK; an
+         uncaught reject would freeze the "…" bubble = "chat broken in app". */
+      Promise.resolve().then(function(){ return rwMiniSearch(t); }).then(function(res){
+        cpFinish(thinking, res ? rwWebAnswerHTML(t, res) : _keyPrompt, intents, t);
+      }).catch(function(){ cpFinish(thinking, _keyPrompt, intents, t); });
     }
   }
 }
@@ -6099,8 +6289,14 @@ async function cpActionsHTML(it){
     return [rwResponsibleHTML(_rk)];
   }
   /* green hub */
-  if(/\b(ev|electric|green (travel|options|hub)|solar|charging|organic|eco.?(stay|village|farm)|sustainab)\w*\b/i.test(String(it._raw||''))
-     && !/\bcarbon (ledger|score|footprint)\b/i.test(String(it._raw||''))){
+  /* BUG FIX (the "stuck on EV" one): the old pattern was (ev|...)\w* which made
+     \bev\w* match EVery, EVening, EVent, EVerest — hijacking unrelated messages
+     into this card again and again. Each keyword now has its own boundary, and
+     bare "charge" only counts with vehicle context (not "charge a fee"). */
+  if((/\b(evs?|electric|e-?vehicles?|charging|chargers?|green (travel|options|hub)|solar|organic farm|eco.?(stay|village|farm)|sustainab\w*)\b/i.test(String(it._raw||''))
+      || (/\bcharge\b/i.test(String(it._raw||'')) && /\b(car|bike|scooter|vehicle|ev|battery|station|point|where)\b/i.test(String(it._raw||''))))
+     && !/\bcarbon (ledger|score|footprint)\b/i.test(String(it._raw||''))
+     && !/\b(charge (a|me|extra|more|fee|fees|for)|service charge|convenience charge|extra charge)\b/i.test(String(it._raw||''))){
     var _gc = '';
     var _gd = it.dest || (_cpCtx && _cpCtx.dest) || '';
     if(_gd){ var _gg = cpDbFind(String(_gd)) || await rwResolvePlace(_gd); if(_gg) _gc = _gg.cc || (_gg.country==='India'?'IN':''); }
@@ -7046,18 +7242,58 @@ function tkToggle(btn){
   var open=w.classList.toggle('open');
   btn.querySelector('.tk-arr').textContent = open? '\u25b4':'\u25be';
 }
+/* ==================== AILON TUSK \u2014 FULL MASALA PERSONA ====================
+   Big, dramatic Bollywood energy with light Hinglish sprinkles. The rule that
+   keeps it from becoming annoying: personality lives in the OPENERS and
+   WRAP-UPS; the facts in the middle stay clean and accurate. Filmi flavour is
+   original wordplay \u2014 no real dialogues, no real star names put in quotes. */
 var TK_SMALLTALK = {
-  greet:["Bol boss, kahaan chalna hai? \ud83c\udf0f Try \u201c5 days in Goa under 15k\u201d.",
-         "Hazir! Destination bolo, plan main sambhalta hoon. \u2708\ufe0f",
-         "Namaste \ud83d\ude4f Kahaan ki hawa khani hai is baar?"],
-  thanks:["Arre mention not, boss. Agla trip kab? \ud83d\ude0e","Khushi hui! Ab bags pack karo. \ud83c\udf92","Anytime! Tusk on duty 24x7. \u26a1"],
-  bye:["Chalo, safe travels boss! \ud83d\udc4b","Milte hain agli trip pe. \u2708\ufe0f","Bye! Yaad rakhna \u2014 kam saaman, zyada maza. \ud83c\udf92"],
-  nice:["Haan na! Ab isko plan mein badalte hain? \ud83d\uddfa\ufe0f","Sahi hai boss. Kahaan chalein? \ud83d\ude0e"],
-  none:["Theek hai \u2014 type the city WITH its country so I lock on exactly: e.g. \u201cGoa, India\u201d or \u201cParis, France\u201d. \ud83c\udfaf"]
+  greet:["\u26a1 Picture abhi baaki hai, mere dost! Bol \u2014 kahaan ki tickets kaatun? Try \u201c5 days in Goa under 15k\u201d.",
+         "Lights, camera, TRAVEL! \ud83c\udfac Destination bata, baaki main hero ki tarah sambhaal loonga. \u2708\ufe0f",
+         "Hazir hoon boss, jaise chai ke saath biscuit. \ud83d\ude0e Kahaan ki hawa khaani hai is baar?",
+         "Namaste ji \ud83d\ude4f Ek destination bolo aur dekho kaise poora plan filmi climax ban jaata hai."],
+  thanks:["Arre mention not, boss \u2014 yeh toh mera farz banta hai. \ud83d\ude0e Agla trip kab?",
+          "Khushi se dil garden-garden ho gaya! Ab bags pack karo, hero. \ud83c\udf92",
+          "Anytime, meri jaan \u2014 Tusk 24x7 on duty, no interval. \u26a1"],
+  bye:["Chalo, safe travels boss \u2014 jaa, jee le apni zindagi! \ud83d\udc4b",
+       "The End... filhaal. Sequel toh pakka aayega. \u2708\ufe0f",
+       "Bye boss! Yaad rakhna \u2014 kam saaman, zyada maza, full picture. \ud83c\udf92"],
+  nice:["Haan na! Ab is feeling ko ek solid plan mein badalte hain? \ud83d\uddfa\ufe0f",
+        "Wah wah, kya baat hai. Toh phir chalein? \ud83d\ude0e"],
+  none:["Theek hai boss \u2014 hero ka naam poora bolo: city WITH country, e.g. \u201cGoa, India\u201d ya \u201cParis, France\u201d, taaki main galat gaadi mein na chadh jaaun. \ud83c\udfaf"]
 };
 function tkSmalltalk(kind){
   var pool = TK_SMALLTALK[kind]||TK_SMALLTALK.greet;
   return pool[Math.floor(Math.random()*pool.length)];
+}
+/* Masala openers/closers sprinkled onto destination answers. Kept short so the
+   facts stay the star. rwMasala(true) = opener, rwMasala(false) = closer. */
+var TK_MASALA_OPEN = [
+  "Seedhi baat, no bakwaas \u2014 here\u2019s the scene:",
+  "Taaliyaan baad mein, pehle plan \u2014 dekho:",
+  "Iss destination ki kahaani sun, phir decide kar:",
+  "Full filmy setup, zero fake drama \u2014 lo:",
+  "Interval ke baad ka twist yahin milega \u2014 dekh:"
+];
+var TK_MASALA_CLOSE = [
+  "\u2728 Baaki picture tumhaare haath mein \u2014 tap a chip aur climax likhte hain.",
+  "\u2728 Ab tera move, hero. Ek chip dabaa aur scene aage badhaate hain.",
+  "\u2728 Dialogue mila, ab action chahiye? Neeche wale button dabaa.",
+  "\u2728 Trip ka trailer ready \u2014 full movie ke liye ek aur sawaal maar."
+];
+function rwMasala(open){
+  var pool = open ? TK_MASALA_OPEN : TK_MASALA_CLOSE;
+  return pool[Math.floor(Math.random()*pool.length)];
+}
+/* Wrap an answer body with masala framing, but only ~55% of the time so it
+   feels spontaneous, not robotic. Opener as a styled line above, closer below. */
+function rwMasalaWrap(bodyHTML){
+  if(!bodyHTML) return bodyHTML;
+  var out='';
+  if(Math.random()<0.55) out += '<div style="font-size:12px;font-style:italic;color:var(--gold2,#C8913E);margin-bottom:7px">'+rwMasala(true)+'</div>';
+  out += bodyHTML;
+  if(Math.random()<0.45) out += '<div style="font-size:11.5px;color:var(--t3);margin-top:9px">'+rwMasala(false)+'</div>';
+  return out;
 }
 /* clarify chips when the geocoder isn't sure */
 function tkClarifyHTML(typed, place){
@@ -7806,8 +8042,9 @@ var RW_FOOD = {
   bali:       ['Babi guling',         'Suckling pig \u2014 the ceremonial dish, best at a warung before noon.',                     'babi guling balinese']
 };
 function rwFoodFor(place){
-  var k=String(place||'').toLowerCase().trim();
-  return RW_FOOD[k] || null;
+  try{ rwMergeExtData(); }catch(e){}
+  var k=String(place||'').toLowerCase().trim().replace(/\s+/g,'');
+  return RW_FOOD[k] || RW_FOOD[String(place||'').toLowerCase().trim()] || null;
 }
 function rwFoodHTML(place){
   var f=rwFoodFor(place); if(!f) return '';
@@ -7909,7 +8146,7 @@ var RW_GREEN = {
   twowheel: [
     ['Bounce',  'E-scooter rentals, dockless',      'https://bounceshare.com/',  '\ud83d\udef4', 'IN'],
     ['Yulu',    'E-bikes and e-mopeds, city hops',  'https://www.yulu.bike/',    '\ud83d\udeb2', 'IN'],
-    ['Vogo',    'Scooter rental incl. electric',    'https://vogo.in/',          '\ud83d\udef5', 'IN']
+    ['Chalo',   'Live city-bus tracking incl. e-buses','https://chalo.com/',        '\ud83d\udef5', 'IN']
   ],
   charge: [
     ['PlugShare',     'Crowd-mapped chargers worldwide',   'https://www.plugshare.com/',              '\ud83d\udd0c', ''],
@@ -7924,7 +8161,7 @@ var RW_GREEN = {
   farm: [
     ['WWOOF India',      'Work-stay on organic farms',        'https://wwoofindia.org/',  '\ud83c\udf31', 'IN'],
     ['Worldpackers',     'Eco-stay volunteering worldwide',   'https://www.worldpackers.com/', '\ud83c\udf0d', ''],
-    ['Organic India',    'Certified organic producers',       'https://organicindia.com/','\ud83c\udf3f', 'IN']
+    ['Ecobnb',           'Verified eco-friendly stays worldwide','https://ecobnb.com/','\ud83c\udf3f', '']
   ]
 };
 function rwGreenHubHTML(cc){
@@ -9176,8 +9413,27 @@ var RW_COUNTRY_ROUTES = {
   italy:{label:'Italy', cc:'IT', circuits:[
       {name:'Classic three', minDays:8, stops:['Rome','Florence','Venice'], why:'Fast trains link all three; book those early.'}]}
 };
+/* Merge the extended database (tusk-data.js) into the built-in tables. Done once,
+   lazily, so load order can't bite us — if tusk-data.js is missing the app still
+   runs on its six built-in countries. */
+function rwMergeExtData(){
+  if(window._rwDataMerged) return;
+  try{ if(typeof RW_COUNTRY_ROUTES_EXT!=='undefined'){ for(var k in RW_COUNTRY_ROUTES_EXT){ if(!RW_COUNTRY_ROUTES[k]) RW_COUNTRY_ROUTES[k]=RW_COUNTRY_ROUTES_EXT[k]; } } }catch(e){}
+  try{ if(typeof RW_FOOD_EXT!=='undefined'){ for(var f in RW_FOOD_EXT){ if(!RW_FOOD[f]) RW_FOOD[f]=RW_FOOD_EXT[f]; } } }catch(e){}
+  window._rwDataMerged = true;
+}
 function rwDetectCountry(t){
-  var lower=' '+String(t).toLowerCase().replace(/[^a-z ]/g,' ')+' ';
+  rwMergeExtData();
+  var lower=' '+String(t).toLowerCase().replace(/[^a-z ]/g,' ').replace(/\s{2,}/g,' ')+' ';
+  /* 1) alias table first — handles "nz", "new zealand", "aussie", "the states" */
+  try{
+    if(typeof RW_COUNTRY_ALIAS!=='undefined'){
+      /* check multi-word aliases before single words so "new zealand" wins over "new" */
+      var aliases=Object.keys(RW_COUNTRY_ALIAS).sort(function(a,b){ return b.length-a.length; });
+      for(var a=0;a<aliases.length;a++){ if(lower.indexOf(' '+aliases[a]+' ')>-1) return RW_COUNTRY_ALIAS[aliases[a]]; }
+    }
+  }catch(e){}
+  /* 2) direct key match (india, japan, etc.) */
   var keys=Object.keys(RW_COUNTRY_ROUTES);
   for(var i=0;i<keys.length;i++){ if(lower.indexOf(' '+keys[i]+' ')>-1) return keys[i]; }
   if(/\bbharat\b/.test(lower)) return 'india';

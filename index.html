@@ -449,8 +449,8 @@ html{-webkit-text-size-adjust:100%}
   <div class="xsec-head"><h2 class="xsec-title">&#128218; Guides &amp; <em>Blog</em></h2></div>
   <p class="xsec-sub">Long-form route guides and field notes &mdash; written, not generated.</p>
   <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:4px">
-    <a class="tact" style="flex:1;min-width:140px;text-align:center;text-decoration:none;padding:14px 12px;font-weight:800" href="guides/">&#128506;&#65039; Travel guides</a>
-    <a class="tact" style="flex:1;min-width:140px;text-align:center;text-decoration:none;padding:14px 12px;font-weight:800" href="blog/">&#9997;&#65039; Blog</a>
+    <a class="tact" style="flex:1;min-width:140px;text-align:center;text-decoration:none;padding:14px 12px;font-weight:800" href="https://roamwise.co.in/guides/" onclick="event.preventDefault();rwOpenSite('guides/')">&#128506;&#65039; Travel guides</a>
+    <a class="tact" style="flex:1;min-width:140px;text-align:center;text-decoration:none;padding:14px 12px;font-weight:800" href="https://roamwise.co.in/blog/" onclick="event.preventDefault();rwOpenSite('blog/')">&#9997;&#65039; Blog</a>
   </div>
 </section>
 
@@ -676,7 +676,7 @@ html{-webkit-text-size-adjust:100%}
   <a class="dr-link" onclick="closeDrawer();openGroupPlanner()"><span class="ic">🤝</span>Group planner</a>
   <a class="dr-link" onclick="closeDrawer();openGroupChat()"><span class="ic">💬</span>Group chat</a>
   <a class="dr-link" onclick="closeDrawer();tabGo('film')"><span class="ic">🎬</span>The Film</a>
-  <a class="dr-link" href="creators/" target="_blank" rel="noopener"><span class="ic">🤝</span>Creator collabs</a>
+  <a class="dr-link" href="https://roamwise.co.in/creators/" onclick="event.preventDefault();rwOpenSite('creators/')" rel="noopener"><span class="ic">🤝</span>Creator collabs</a>
   <a class="dr-link" onclick="closeDrawer();tabGo('store')"><span class="ic">🛍️</span>Store</a>
   <a class="dr-link" onclick="closeDrawer();tabGo('extras')"><span class="ic">⭐</span>Ratings &amp; traveler wall</a>
   <a class="dr-link" onclick="closeDrawer();openVault()"><span class="ic">✈️</span>My Trips (offline)</a>
@@ -916,6 +916,7 @@ html{-webkit-text-size-adjust:100%}
 
 
 <script src="destination-photos.js" defer></script>
+<script src="tusk-data.js" defer></script>
 <script src="app.js" defer></script>
 </body>
 </html>

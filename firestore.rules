@@ -1,3 +1,23 @@
+// ============================================================================
+//  RoamWise — Firestore Security Rules   (STABLE BUILD v15.5 / vc75)
+// ----------------------------------------------------------------------------
+//  HOW TO DEPLOY (2 minutes, do this whenever rules change):
+//    1. Firebase Console  →  your project  →  Build  →  Firestore Database
+//    2. Click the  "Rules"  tab at the top
+//    3. Select all existing text, delete it, paste THIS ENTIRE FILE
+//    4. Click  "Publish"
+//  That's it. Changes are live in ~10 seconds.
+//
+//  IF THE T-SHIRT "ORDER" BUTTON ERRORS  → the 'merch' rule below wasn't live.
+//  IF STAFF LOGIN WON'T PROCEED          → the 'staff' rule below wasn't live,
+//                                           OR that account has no staff/{uid}
+//                                           doc yet (add it in Firestore).
+//
+//  Covers: merch (t-shirt orders), staff (team roles), users, payments,
+//  ratings, reports, tripchats, and 19 more collections. Everything the app
+//  writes to has a matching rule here — deploying this fixes permission-denied.
+// ============================================================================
+
 rules_version = '2';
 service cloud.firestore {
   match /databases/{db}/documents {
