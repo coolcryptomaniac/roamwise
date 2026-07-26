@@ -1402,5 +1402,113 @@
    69,
    84
   ]
+ },
+ {
+  "slug": "mount-abu-india",
+  "title": "Mount Abu, India",
+  "name": "Mount Abu",
+  "country": "India",
+  "best": "January, April, November",
+  "arch": "monsoon",
+  "cl": [
+   19.3,
+   21.4,
+   25.3,
+   29.8,
+   34.2,
+   31.2,
+   26.1,
+   23.2,
+   24.5,
+   26.5,
+   24.8,
+   20.4
+  ],
+  "scores": [
+   100,
+   99,
+   99,
+   100,
+   92,
+   86,
+   71,
+   55,
+   79,
+   95,
+   100,
+   100
+  ]
+ },
+ {
+  "slug": "khajuraho-india",
+  "title": "Khajuraho, India",
+  "name": "Khajuraho",
+  "country": "India",
+  "best": "February, October, November",
+  "arch": "monsoon",
+  "cl": [
+   21.4,
+   26.4,
+   33.3,
+   39,
+   42.3,
+   41,
+   33,
+   31.1,
+   31.3,
+   32.4,
+   28.6,
+   23.3
+  ],
+  "scores": [
+   95,
+   96,
+   96,
+   49,
+   29,
+   23,
+   55,
+   55,
+   67,
+   100,
+   100,
+   96
+  ]
+ },
+ {
+  "slug": "orchha-india",
+  "title": "Orchha, India",
+  "name": "Orchha",
+  "country": "India",
+  "best": "January, October, November",
+  "arch": "monsoon",
+  "cl": [
+   20.8,
+   25.7,
+   32.4,
+   37.9,
+   42.5,
+   40.6,
+   33.4,
+   30.8,
+   30.9,
+   32,
+   28.4,
+   23
+  ],
+  "scores": [
+   99,
+   95,
+   99,
+   71,
+   27,
+   26,
+   61,
+   55,
+   56,
+   100,
+   100,
+   99
+  ]
  }
 ]
