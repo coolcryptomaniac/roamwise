@@ -7052,9 +7052,51 @@ function grpCompromise(members){
    works before a trip is even saved. */
 function openGroupChat(){
   if(!window.user || !user.uid){ showToast('Sign in to use group chat'); try{ openAuth(); }catch(e){} return; }
-  var nm = prompt('Name this group (everyone you invite uses the same name)', 'Goa gang');
+  /* Show recent chats so people return to an existing conversation instead of
+     always starting fresh. History is remembered per device. */
+  var recents = rwChatRecents();
+  var ov=el('chatPickOverlay');
+  if(!ov){
+    ov=document.createElement('div'); ov.id='chatPickOverlay'; ov.className='overlay';
+    ov.innerHTML='<div class="sheet"><div class="sheet-head"><b>\ud83d\udcac Your trip chats</b><button class="x" onclick="rwOverlayClose(\'chatPickOverlay\')">\u2715</button></div>'
+      +'<div id="chatPickBody" style="padding:4px 2px 16px"></div></div>';
+    document.body.appendChild(ov);
+  }
+  var body=el('chatPickBody');
+  var list = recents.length
+    ? recents.map(function(r){
+        return '<button class="tact" style="width:100%;text-align:left;margin-bottom:7px;display:flex;justify-content:space-between;align-items:center;gap:8px" onclick="rwOverlayClose(\'chatPickOverlay\');tripChatOpen(\''+r.id+'\',\''+esc2(r.name).replace(/\'/g,"")+'\')">'
+          +'<span><b style="font-size:13.5px">'+esc2(r.name)+'</b><br><span style="font-size:10.5px;color:var(--t3)">last opened '+rwAgo(r.at)+'</span></span>'
+          +'<span style="color:var(--t3);font-size:18px">\u203a</span></button>';
+      }).join('')
+    : '<p style="font-size:12.5px;color:var(--t2);line-height:1.6;padding:0 2px 10px">No chats yet. Start one below \u2014 then invite your travel buddies. Everything (Kitty, decisions, plan) lives here.</p>';
+  body.innerHTML = list
+    + '<button class="rzp-main-btn" style="width:100%;margin-top:6px" onclick="rwNewGroupChat()">\u2795 Start a new trip chat</button>';
+  rwOverlayOpen('chatPickOverlay');
+}
+function rwNewGroupChat(){
+  var nm = prompt('Name this trip chat (everyone you invite uses the same name)', 'Goa gang');
   if(!nm || !nm.trim()) return;
+  rwOverlayClose('chatPickOverlay');
   tripChatOpen('grp_' + wvSlug(nm.trim()).slice(0,24), nm.trim());
+}
+/* Local memory of chats this device has opened, most-recent first. */
+function rwChatRecents(){
+  try{ return JSON.parse(lsGet('rw_chat_recents')||'[]'); }catch(e){ return []; }
+}
+function rwChatRemember(id, name){
+  try{
+    var list = rwChatRecents().filter(function(r){ return r.id!==id; });
+    list.unshift({id:id, name:name||'Trip chat', at:Date.now()});
+    lsSet('rw_chat_recents', JSON.stringify(list.slice(0,12)));
+  }catch(e){}
+}
+function rwAgo(ts){
+  var s=Math.round((Date.now()-ts)/1000);
+  if(s<60) return 'just now';
+  if(s<3600) return Math.floor(s/60)+'m ago';
+  if(s<86400) return Math.floor(s/3600)+'h ago';
+  return Math.floor(s/86400)+'d ago';
 }
 function openGroupPlanner(){
   var ov=el('grpOverlay');
@@ -7153,12 +7195,14 @@ function tripChatOpen(roomId, roomName){
         +'<div style="flex:1;min-width:0"><b id="chatTitle" style="font-size:15px;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Trip chat</b>'
         +'<span style="font-size:10.5px;color:var(--t3)">\ud83d\udd12 Private to members \u00b7 ask @tusk anything</span></div>'
         +'<button class="x" onclick="rwReportOpen({room:_chatRoom})" title="Report" style="font-size:14px">\ud83d\udea9</button>'
+        +'<button class="x" onclick="tripChatMinimize()" title="Minimize" style="font-size:16px">\u2013</button>'
         +'<button class="x" onclick="tripChatClose()">\u2715</button></div>'
+      +'<div id="chatPins" style="border-bottom:1px solid var(--b2,#2A2A36);background:var(--bg2,#12121C);padding:8px 12px"></div>'
       +'<div id="chatLog" style="flex:1 1 auto;min-height:0;overflow-y:auto;padding:12px 14px;background:var(--bg,#0A0A0C)"></div>'
       +'<div style="padding:8px 12px 4px;border-top:1px solid var(--b2,#2A2A36);background:var(--bg2,#12121C)">'
       +'<div style="display:flex;gap:6px;overflow-x:auto;padding-bottom:6px;-webkit-overflow-scrolling:touch">'
       +'<button class="chat-tool" onclick="chatSharePlan()">\ud83d\uddd3\ufe0f Itinerary</button>'
-      +'<button class="chat-tool" onclick="chatShareBudget()">\ud83d\udcb0 Split bill</button>'
+      +'<button class="chat-tool" onclick="chatAddExpense()">\ud83d\udcb0 Add expense</button>'
       +'<button class="chat-tool" onclick="chatShareMeet()">\ud83d\udccd Meet point</button>'
       +'<button class="chat-tool" onclick="chatNewPoll()">\ud83d\uddf3\ufe0f Poll</button>'
       +'<button class="chat-tool" onclick="chatMarkPaid()">\u2705 Mark paid</button>'
@@ -7174,6 +7218,7 @@ function tripChatOpen(roomId, roomName){
     el('chatInput').addEventListener('input',function(){ this.style.height='auto'; this.style.height=Math.min(this.scrollHeight,110)+'px'; });
   }
   el('chatTitle').textContent='\ud83d\udcac '+(roomName||'Trip chat');
+  try{ rwChatRemember(roomId, roomName||'Trip chat'); }catch(e){}
   rwOverlayOpen('chatOverlay');
   /* ensure the room exists with me as a member, then live-subscribe */
   var ref=db.collection('tripchats').doc(roomId);
@@ -7183,13 +7228,18 @@ function tripChatOpen(roomId, roomName){
       return ref.update({members:firebase.firestore.FieldValue.arrayUnion(user.uid)});
   }).then(function(){
     if(_chatUnsub) _chatUnsub();
-    _chatUnsub = ref.collection('msgs').orderBy('at','asc').limitToLast(100).onSnapshot(function(qs){
+    _chatUnsub = ref.collection('msgs').orderBy('at','asc').limitToLast(200).onSnapshot(function(qs){
       var log=el('chatLog'); if(!log) return;
-      log.innerHTML = qs.docs.filter(function(doc){ return !rwIsBlocked((doc.data()||{}).uid); }).map(function(doc){
-        var m=doc.data(), mine=m.uid===user.uid;
-        return chatBubble(doc.id, m, mine);
+      /* Capture the whole stream so the Kitty, Decision Board and pinned plan
+         can be computed live from it. These features ARE the message history
+         replayed — no separate schema, works offline once loaded. */
+      _chatMsgs = qs.docs.map(function(doc){ var m=doc.data()||{}; m._id=doc.id; return m; });
+      var wasNearBottom = (log.scrollHeight - log.scrollTop - log.clientHeight) < 120;
+      log.innerHTML = _chatMsgs.filter(function(m){ return !rwIsBlocked(m.uid); }).map(function(m){
+        return chatBubble(m._id, m, m.uid===user.uid);
       }).join('');
-      log.scrollTop=log.scrollHeight;
+      try{ chatRenderPins(); }catch(e){}   /* pinned Kitty / decisions / plan up top */
+      if(wasNearBottom) log.scrollTop=log.scrollHeight;
     }, function(err){
       /* This is the path the user actually hits when rules are stale, so it
          must say what to DO, not just what failed. */
@@ -7231,7 +7281,37 @@ function tripChatSend(){
     at:firebase.firestore.FieldValue.serverTimestamp()
   }).catch(function(e){ showToast('Send failed: '+(e.message||e)); inp.value=t; });
 }
-function tripChatClose(){ if(_chatUnsub){ _chatUnsub(); _chatUnsub=null; } rwOverlayClose('chatOverlay'); }
+function tripChatClose(){ if(_chatUnsub){ _chatUnsub(); _chatUnsub=null; } rwOverlayClose('chatOverlay'); rwChatFabHide(); }
+/* MINIMIZE: hide the sheet but KEEP the live listener running, and show a
+   floating bubble so people can browse other features and pop back in \u2014 the
+   thing that lets them "do everything here" instead of leaving for WhatsApp. */
+function tripChatMinimize(){
+  /* The .overlay is position:fixed inset:0 with a backdrop — hiding only the
+     inner sheet leaves it capturing every touch, which killed site scroll.
+     Remove .open from the OVERLAY itself so the page is fully usable, and
+     restore body scroll. The Firestore listener keeps running underneath. */
+  var ov=el('chatOverlay');
+  if(ov){ ov.classList.remove('open'); ov.style.display='none'; }
+  document.body.style.overflow='';
+  rwChatFabShow();
+}
+function rwChatFabShow(){
+  var fab=el('chatFab');
+  if(!fab){
+    fab=document.createElement('button'); fab.id='chatFab';
+    fab.setAttribute('aria-label','Open trip chat');
+    fab.onclick=function(){
+      var ov=el('chatOverlay');
+      if(ov){ ov.style.display=''; ov.classList.add('open'); }
+      rwChatFabHide();
+      var log=el('chatLog'); if(log) log.scrollTop=log.scrollHeight;
+    };
+    fab.innerHTML='\ud83d\udcac';
+    document.body.appendChild(fab);
+  }
+  fab.style.display='flex';
+}
+function rwChatFabHide(){ var fab=el('chatFab'); if(fab) fab.style.display='none'; }
 /* deterministic room id from a saved trip, so the same trip = the same room */
 function tripChatById(id){ var t=vaultGet().filter(function(x){return x.id===id;})[0]; if(t) tripChatForTrip(t); }
 function tripChatForTrip(trip){
@@ -7417,7 +7497,11 @@ var CHAT_KINDS = {
   plan:    {icon:'\ud83d\uddd3\ufe0f', label:'Itinerary'},
   meet:    {icon:'\ud83d\udccd', label:'Meeting point'},
   poll:    {icon:'\ud83d\uddf3\ufe0f', label:'Poll'},
-  paid:    {icon:'\u2705', label:'Payment'}
+  paid:    {icon:'\u2705', label:'Payment'},
+  expense: {icon:'\ud83d\udcb0', label:'Expense'},
+  settle:  {icon:'\u2705', label:'Settled'},
+  decision:{icon:'\u2705', label:'Decision'},
+  vote:    {icon:'\ud83d\uddf3\ufe0f', label:'Vote'}
 };
 function chatPost(kind, payload, text){
   if(!_chatRoom || !user) return Promise.reject(new Error('no room'));
@@ -7428,25 +7512,187 @@ function chatPost(kind, payload, text){
     at:firebase.firestore.FieldValue.serverTimestamp()
   });
 }
+/* Close any unclosed <div>s left by truncation, and strip stray closers, so a
+   Tusk card can never break the chat layout. Also removes <style>/<script>. */
+function rwBalanceDivs(html){
+  html = String(html||'').replace(/<style[\s\S]*?<\/style>/gi,'').replace(/<script[\s\S]*?<\/script>/gi,'');
+  var open = (html.match(/<div\b[^>]*>/gi)||[]).length;
+  var close = (html.match(/<\/div>/gi)||[]).length;
+  if(close>open){ /* trim extra leading closers */ 
+    var extra = close-open;
+    while(extra-->0){ html = html.replace(/<\/div>/i, ''); }
+  } else {
+    for(var i=0;i<(open-close);i++){ html += '</div>'; }
+  }
+  return html;
+}
 /* ---- Ailon Tusk answers into the room ---- */
 async function chatAskTusk(q){
   if(!q || !q.trim()) return;
   await chatPost('text', null, '@tusk '+q).catch(function(){});
-  var thinking = el('chatLog');
   try{
     var it = cpParseRegex(q);
     it._raw = q;
     var parts = await cpActionsHTML(it);
-    var plain = String(parts.join(' '))
-      .replace(/<style[\s\S]*?<\/style>/g,' ')
-      .replace(/<[^>]*>/g,' ').replace(/\s{2,}/g,' ').trim().slice(0,700);
-    if(!plain) plain = 'I could not find anything solid on that. Try naming the place with its state or country.';
-    await chatPost('tusk', {q:q}, plain);
+    /* Keep Tusk's RICH output — cards, chips, images, buttons — instead of
+       flattening to plain text. This is Tusk's own generated HTML (not user
+       input), rendered in a sandboxed bubble, so it is safe to keep intact.
+       We trim to the first couple of cards so a chat answer stays crisp. */
+    var rich = String(parts.join(''));
+    /* crispness: cap the size so one @tusk reply can't flood the chat */
+    if(rich.length > 4200){
+      var cut = rich.lastIndexOf('</div>', 4200);
+      rich = (cut>800 ? rich.slice(0, cut+6) : rich.slice(0,4200));
+    }
+    /* CRITICAL: truncating HTML can leave unclosed <div>s. Unbalanced tags make
+       EVERY following chat bubble render INSIDE the broken card, laid out as
+       thin horizontal strips (the bug in the screenshot). Balance the divs so
+       the card always closes cleanly. */
+    rich = rwBalanceDivs(rich);
+    var plainFallback = rich.replace(/<style[\s\S]*?<\/style>/g,' ').replace(/<[^>]*>/g,' ').replace(/\s{2,}/g,' ').trim().slice(0,240);
+    if(!rich.trim()) { rich=''; plainFallback = 'I could not find anything solid on that \u2014 try naming the place with its country, e.g. "Goa, India".'; }
+    await chatPost('tusk', {q:q, html:rich}, plainFallback);
+    if(/\b(plan|itinerary|days? in|day trip|schedule)\b/i.test(q)){
+      await chatPost('plan', {text:plainFallback}, '\ud83d\uddd3\ufe0f Tusk drafted a plan \u2014 see \ud83d\uddd3\ufe0f Plan up top').catch(function(){});
+    }
   }catch(e){
     await chatPost('tusk', null, 'I hit an error answering that. Try rephrasing?').catch(function(){});
   }
 }
 /* ---- structured shares ---- */
+/* ==================== THE TRIP HUB: what WhatsApp can't do ====================
+   Groups will always CHAT on WhatsApp. We win on turning a messy group into a
+   DECIDED, PAID-FOR, COORDINATED trip. All computed live from the message
+   stream (no extra schema, works offline once loaded):
+     1. LIVE KITTY     - who-owes-whom money tracker with minimal settle-up
+     2. DECISION BOARD - polls that tally live and lock into a pinned decision
+     3. LIVING PLAN    - the itinerary pinned at the top, @tusk can fill it
+   ============================================================================ */
+var _chatMsgs = [];
+var _chatPinView = null;
+
+function chatAddExpense(){
+  var who = (user.displayName||user.email||'Traveller').split('@')[0];
+  var what = prompt('What was paid for?\n\ne.g. "Hotel advance", "Petrol", "Dinner"');
+  if(!what || !what.trim()) return;
+  var amtStr = prompt('How much did YOU pay, in \u20b9?\n\nJust the number, e.g. 4000');
+  if(!amtStr) return;
+  var amt = parseFloat(String(amtStr).replace(/[^0-9.]/g,''));
+  if(!amt || amt<=0){ showToast('Enter a valid amount'); return; }
+  var splitStr = prompt('Split between how many people (including you)?\n\ne.g. 4 \u2014 or leave blank for the whole group');
+  var split = splitStr ? parseInt(splitStr,10) : 0;
+  chatPost('expense', {what:what.trim(), amount:Math.round(amt), payer:user.uid, payerName:who, split:split||0},
+    who+' paid \u20b9'+Math.round(amt).toLocaleString('en-IN')+' for '+what.trim());
+}
+function chatKittyState(){
+  var expenses = _chatMsgs.filter(function(m){ return m.kind==='expense' && m.payload; });
+  var settles  = _chatMsgs.filter(function(m){ return m.kind==='settle' && m.payload; });
+  if(!expenses.length) return null;
+  var people={}, names={};
+  _chatMsgs.forEach(function(m){ if(m.uid){ people[m.uid]=true; if(m.name) names[m.uid]=m.name; } });
+  expenses.forEach(function(m){ var p=m.payload; if(p.payer){ people[p.payer]=true; if(p.payerName) names[p.payer]=p.payerName; } });
+  var ids=Object.keys(people); var n=ids.length||1;
+  var bal={}; ids.forEach(function(id){ bal[id]=0; });
+  var total=0;
+  expenses.forEach(function(m){
+    var p=m.payload, amt=p.amount||0; total+=amt;
+    var share = amt/n;
+    if(bal[p.payer]===undefined) bal[p.payer]=0;
+    bal[p.payer]+=amt;
+    ids.forEach(function(id){ bal[id]-=share; });
+  });
+  settles.forEach(function(m){ var p=m.payload; if(bal[p.from]!==undefined) bal[p.from]+=p.amount; if(bal[p.to]!==undefined) bal[p.to]-=p.amount; });
+  var creditors=[], debtors=[];
+  ids.forEach(function(id){ var v=Math.round(bal[id]); if(v>1) creditors.push({id:id,v:v}); else if(v<-1) debtors.push({id:id,v:-v}); });
+  creditors.sort(function(a,b){return b.v-a.v;}); debtors.sort(function(a,b){return b.v-a.v;});
+  var tx=[], ci=0, di=0;
+  while(ci<creditors.length && di<debtors.length){
+    var pay=Math.min(creditors[ci].v, debtors[di].v);
+    tx.push({from:debtors[di].id, to:creditors[ci].id, amount:pay});
+    creditors[ci].v-=pay; debtors[di].v-=pay;
+    if(creditors[ci].v<=1) ci++; if(debtors[di].v<=1) di++;
+  }
+  return {total:total, perHead:Math.round(total/n), people:n, names:names, tx:tx, myBal:Math.round(bal[user.uid]||0), count:expenses.length};
+}
+function chatKittyHTML(){
+  var k=chatKittyState();
+  if(!k) return '<div style="font-size:12px;color:var(--t3);padding:8px 2px">No expenses yet. Tap <b>+ Add an expense</b> when someone pays for something \u2014 I\u2019ll track who owes whom and how to settle up with the fewest payments.</div>';
+  var mine = k.myBal>1 ? '<span style="color:#4ADE80">you\u2019re owed \u20b9'+k.myBal.toLocaleString('en-IN')+'</span>'
+           : k.myBal<-1 ? '<span style="color:#F87171">you owe \u20b9'+Math.abs(k.myBal).toLocaleString('en-IN')+'</span>'
+           : '<span style="color:var(--t3)">you\u2019re settled</span>';
+  var out='<div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:8px;flex-wrap:wrap;gap:4px">'
+    +'<span style="color:var(--t2)">Total \u20b9'+k.total.toLocaleString('en-IN')+' \u00b7 \u20b9'+k.perHead.toLocaleString('en-IN')+'/head</span>'+mine+'</div>';
+  if(!k.tx.length){ out+='<div style="font-size:12px;color:#4ADE80;text-align:center;padding:6px">\u2705 Everyone\u2019s square.</div>'; }
+  else {
+    out+='<div style="font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--gold2,#C8913E);margin-bottom:5px">Settle up in '+k.tx.length+' payment'+(k.tx.length>1?'s':'')+'</div>';
+    out+=k.tx.map(function(t){
+      var fromMe = t.from===user.uid;
+      var fromN = fromMe?'You':(k.names[t.from]||'Someone'), toN = t.to===user.uid?'you':(k.names[t.to]||'someone');
+      return '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.05)">'
+        +'<span style="font-size:12.5px"><b>'+esc2(fromN)+'</b> \u2192 '+esc2(toN)+' <b style="color:var(--gold,#E8BA6C)">\u20b9'+t.amount.toLocaleString('en-IN')+'</b></span>'
+        +(fromMe? '<button class="chat-tool" style="font-size:11px;padding:4px 10px" onclick="chatSettle(\''+t.to+'\','+t.amount+')">Mark paid</button>':'')
+        +'</div>';
+    }).join('');
+  }
+  out+='<button class="chat-tool" style="width:100%;margin-top:9px;justify-content:center;background:var(--bg3,#1A1A20)" onclick="chatAddExpense()">+ Add an expense</button>';
+  return out;
+}
+function chatSettle(toUid, amount){
+  chatPost('settle', {from:user.uid, to:toUid, amount:amount},
+    (user.displayName||'Someone').split('@')[0]+' settled \u20b9'+amount.toLocaleString('en-IN'));
+}
+function chatPollTally(pollMsg){
+  var votes={};
+  _chatMsgs.forEach(function(m){ if(m.kind==='vote' && m.payload && m.payload.poll===pollMsg._id){ votes[m.uid]=m.payload.choice; } });
+  var opts=(pollMsg.payload&&pollMsg.payload.options)||[];
+  var counts=opts.map(function(){return 0;}); var total=0;
+  Object.keys(votes).forEach(function(u){ var c=votes[u]; if(counts[c]!==undefined){ counts[c]++; total++; } });
+  var winner=-1, max=-1; counts.forEach(function(c,i){ if(c>max){ max=c; winner=i; } });
+  return {counts:counts, total:total, winner:winner, myVote:votes[user.uid]};
+}
+function chatVoteNew(pollId, idx){ if(_chatRoom && user) chatPost('vote', {poll:pollId, choice:idx}, '\ud83d\uddf3\ufe0f voted'); }
+function chatLockPoll(pollId){
+  var poll=_chatMsgs.filter(function(m){return m._id===pollId;})[0]; if(!poll) return;
+  var t=chatPollTally(poll); var opts=(poll.payload&&poll.payload.options)||[];
+  if(t.winner<0){ showToast('No votes yet'); return; }
+  chatPost('decision', {q:poll.payload.q, choice:opts[t.winner], poll:pollId},
+    '\u2705 Decided: '+poll.payload.q+' \u2192 '+opts[t.winner]);
+}
+function chatRenderPins(){
+  var host=el('chatPins'); if(!host) return;
+  var k=chatKittyState();
+  var decisions=_chatMsgs.filter(function(m){return m.kind==='decision'&&m.payload;});
+  var plan=_chatMsgs.filter(function(m){return m.kind==='plan'&&m.payload;}).slice(-1)[0];
+  var chips='';
+  chips+='<button class="chat-pin'+(_chatPinView==='kitty'?' on':'')+'" onclick="chatTogglePin(\'kitty\')">\ud83d\udcb0 Kitty'
+    +(k? ' <span class="pin-badge">\u20b9'+(k.total>=1000?Math.round(k.total/1000)+'k':k.total)+'</span>':'')+'</button>';
+  chips+='<button class="chat-pin'+(_chatPinView==='decisions'?' on':'')+'" onclick="chatTogglePin(\'decisions\')">\u2705 Decisions'
+    +(decisions.length? ' <span class="pin-badge">'+decisions.length+'</span>':'')+'</button>';
+  chips+='<button class="chat-pin'+(_chatPinView==='plan'?' on':'')+'" onclick="chatTogglePin(\'plan\')">\ud83d\uddd3\ufe0f Plan</button>';
+  var body='';
+  if(_chatPinView==='kitty') body='<div class="pin-body">'+chatKittyHTML()+'</div>';
+  else if(_chatPinView==='decisions'){
+    body='<div class="pin-body">'+(decisions.length
+      ? decisions.map(function(m){ return '<div style="padding:6px 0;border-bottom:1px solid rgba(255,255,255,.05);font-size:12.5px"><b style="color:#4ADE80">\u2713</b> '+esc2((m.payload.q||'')+': ')+'<b>'+esc2(m.payload.choice||'')+'</b></div>'; }).join('')
+      : '<div style="font-size:12px;color:var(--t3)">No decisions locked yet. Start a poll (\ud83d\uddf3\ufe0f below); when it\u2019s clear, lock the winner and it pins here so nobody re-asks \u201cso what did we decide?\u201d</div>')
+      +'</div>';
+  }
+  else if(_chatPinView==='plan'){
+    body='<div class="pin-body">'+(plan && plan.payload.text
+      ? '<div style="font-size:12.5px;line-height:1.6;white-space:pre-wrap">'+esc2(plan.payload.text)+'</div>'
+      : '<div style="font-size:12px;color:var(--t3)">No plan pinned yet. Type <b>@tusk plan 3 days in Goa</b> and I\u2019ll draft one everyone sees here.</div>')
+      +'<button class="chat-tool" style="width:100%;margin-top:9px;justify-content:center" onclick="chatEditPlan()">\u270f\ufe0f Edit the plan</button></div>';
+  }
+  host.innerHTML='<div class="pin-row">'+chips+'</div>'+body;
+}
+function chatTogglePin(v){ _chatPinView=(_chatPinView===v)?null:v; chatRenderPins(); }
+function chatEditPlan(){
+  var cur=_chatMsgs.filter(function(m){return m.kind==='plan';}).slice(-1)[0];
+  var txt=prompt('The shared plan (everyone sees this pinned up top):', (cur&&cur.payload&&cur.payload.text)||'');
+  if(txt===null) return;
+  chatPost('plan', {text:txt.slice(0,2000)}, '\ud83d\uddd3\ufe0f updated the plan');
+}
+
 function chatShareBudget(){
   var dest = (_cpCtx && _cpCtx.dest) || '';
   var days = (_cpCtx && _cpCtx.days) || 5;
@@ -7526,21 +7772,48 @@ function chatInvite(){
 function chatBubble(id, m, mine){
   var kind = m.kind||'text', K = CHAT_KINDS[kind]||CHAT_KINDS.text;
   if(kind==='tusk'){
+    var richHtml = (m.payload && m.payload.html) ? (typeof rwBalanceDivs==='function' ? rwBalanceDivs(m.payload.html) : m.payload.html) : '';
+    var inner = richHtml
+      ? '<div class="tusk-rich clamped" id="tr_'+id+'">'+richHtml+'</div>'
+        +'<button class="tusk-more" onclick="var b=el(\'tr_'+id+'\');b.classList.toggle(\'clamped\');this.textContent=b.classList.contains(\'clamped\')?\'Show more\':\'Show less\'">Show more</button>'
+      : '<div style="font-size:12.5px;line-height:1.6;color:var(--t2)">'+esc2(m.text||'')+'</div>';
     return '<div style="display:flex;justify-content:flex-start;margin:6px 0">'
-      +'<div style="max-width:88%;background:linear-gradient(135deg,rgba(232,186,108,.14),rgba(200,145,62,.05));border:1px solid rgba(232,186,108,.32);border-radius:14px 14px 14px 4px;padding:10px 12px">'
-      +'<div style="font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--gold2,#C8913E);font-weight:800;margin-bottom:3px">\u26a1 Ailon Tusk</div>'
-      +'<div style="font-size:12.5px;line-height:1.6;color:var(--t2)">'+esc2(m.text||'')+'</div></div></div>';
+      +'<div style="max-width:92%;background:linear-gradient(135deg,rgba(232,186,108,.14),rgba(200,145,62,.05));border:1px solid rgba(232,186,108,.32);border-radius:14px 14px 14px 4px;padding:10px 12px;overflow:hidden">'
+      +'<div style="font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--gold2,#C8913E);font-weight:800;margin-bottom:5px">\u26a1 Ailon Tusk</div>'
+      + inner +'</div></div>';
   }
   if(kind==='poll'){
     var p=m.payload||{}, opts=p.options||[];
+    var tally = (typeof chatPollTally==='function') ? chatPollTally(m) : {counts:opts.map(function(){return 0;}),total:0,winner:-1,myVote:undefined};
     return '<div style="margin:7px 0"><div style="background:var(--bg2,#12121C);border:1px solid var(--b2,#2A2A36);border-radius:13px;padding:11px 13px">'
-      +'<div style="font-size:9.5px;color:var(--gold2,#C8913E);font-weight:800;text-transform:uppercase;letter-spacing:.08em">\ud83d\uddf3\ufe0f Poll \u00b7 '+esc2(m.name||'')+'</div>'
+      +'<div style="font-size:9.5px;color:var(--gold2,#C8913E);font-weight:800;text-transform:uppercase;letter-spacing:.08em">\ud83d\uddf3\ufe0f Poll \u00b7 '+esc2(m.name||'')+(tally.total?' \u00b7 '+tally.total+' vote'+(tally.total>1?'s':''):'')+'</div>'
       +'<div style="font-size:13px;font-weight:700;margin:4px 0 7px">'+esc2(p.q||m.text||'')+'</div>'
       + opts.map(function(o,i){
-          return '<button onclick="chatVote(\''+id+'\','+i+')" style="display:block;width:100%;text-align:left;background:var(--bg3,#1A1A20);border:1px solid var(--b2,#2A2A36);border-radius:9px;padding:8px 11px;margin-bottom:5px;color:inherit;font:inherit;font-size:12px;cursor:pointer">'+esc2(o)+'</button>';
+          var votes=tally.counts[i]||0, pct=tally.total? Math.round(votes/tally.total*100):0;
+          var mineVote = tally.myVote===i, leading=tally.winner===i && tally.total>0;
+          return '<button onclick="chatVoteNew(\''+id+'\','+i+')" style="position:relative;display:block;width:100%;text-align:left;background:var(--bg3,#1A1A20);border:1px solid '+(mineVote?'var(--gold,#E8BA6C)':'var(--b2,#2A2A36)')+';border-radius:9px;padding:8px 11px;margin-bottom:5px;color:inherit;font:inherit;font-size:12px;cursor:pointer;overflow:hidden">'
+            +'<div style="position:absolute;inset:0;width:'+pct+'%;background:'+(leading?'rgba(232,186,108,.18)':'rgba(255,255,255,.05)')+';transition:width .3s"></div>'
+            +'<span style="position:relative;display:flex;justify-content:space-between"><span>'+(mineVote?'\u25c9 ':'')+esc2(o)+'</span><span style="color:var(--t3)">'+(tally.total?pct+'%':'')+'</span></span></button>';
         }).join('')
+      + '<button class="chat-tool" style="width:100%;justify-content:center;margin-top:3px;font-size:11px" onclick="chatLockPoll(\''+id+'\')">\u2705 Lock the winner as a decision</button>'
       +'</div></div>';
   }
+  if(kind==='expense'){
+    var p=m.payload||{};
+    return '<div style="margin:6px 0"><div style="background:var(--bg2,#12121C);border-left:3px solid #4ADE80;border-radius:9px;padding:8px 12px">'
+      +'<div style="font-size:9.5px;color:#4ADE80;font-weight:800;text-transform:uppercase;letter-spacing:.08em">\ud83d\udcb0 Expense</div>'
+      +'<div style="font-size:12.5px;margin-top:2px"><b>'+esc2(p.payerName||m.name||'Someone')+'</b> paid <b style="color:var(--gold,#E8BA6C)">\u20b9'+((p.amount||0).toLocaleString('en-IN'))+'</b> for '+esc2(p.what||'')+'</div></div></div>';
+  }
+  if(kind==='settle'){
+    return '<div style="margin:5px 0;text-align:center"><span style="font-size:11px;color:#4ADE80;background:rgba(74,222,128,.1);padding:3px 10px;border-radius:999px">\u2705 '+esc2(m.text||'settled up')+'</span></div>';
+  }
+  if(kind==='decision'){
+    var p=m.payload||{};
+    return '<div style="margin:6px 0"><div style="background:linear-gradient(135deg,rgba(74,222,128,.12),transparent);border:1px solid rgba(74,222,128,.3);border-radius:11px;padding:9px 12px">'
+      +'<div style="font-size:9.5px;color:#4ADE80;font-weight:800;text-transform:uppercase;letter-spacing:.08em">\u2705 Decided \u00b7 pinned up top</div>'
+      +'<div style="font-size:12.5px;margin-top:2px">'+esc2(p.q||'')+' \u2192 <b>'+esc2(p.choice||'')+'</b></div></div></div>';
+  }
+  if(kind==='vote'){ return ''; }
   if(kind==='budget' || kind==='plan' || kind==='meet' || kind==='paid'){
     var col = kind==='paid' ? '#4ADE80' : kind==='meet' ? '#60A5FA' : 'var(--gold,#E8BA6C)';
     return '<div style="margin:7px 0"><div style="background:var(--bg2,#12121C);border-left:3px solid '+col+';border-radius:9px;padding:9px 12px">'
