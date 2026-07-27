@@ -1510,5 +1510,113 @@
    100,
    99
   ]
+ },
+ {
+  "slug": "kathmandu-nepal",
+  "title": "Kathmandu, Nepal",
+  "name": "Kathmandu",
+  "country": "Nepal",
+  "best": "January, February, April",
+  "arch": "monsoon",
+  "cl": [
+   16.6,
+   18.7,
+   22.4,
+   28.6,
+   27.9,
+   28.2,
+   27.2,
+   27.2,
+   26.8,
+   24.5,
+   21.3,
+   18.6
+  ],
+  "scores": [
+   99,
+   100,
+   95,
+   100,
+   86,
+   62,
+   55,
+   55,
+   55,
+   93,
+   98,
+   99
+  ]
+ },
+ {
+  "slug": "pokhara-nepal",
+  "title": "Pokhara, Nepal",
+  "name": "Pokhara",
+  "country": "Nepal",
+  "best": "January, April, December",
+  "arch": "monsoon",
+  "cl": [
+   16,
+   18,
+   22,
+   29.3,
+   28.3,
+   27.8,
+   26.4,
+   26.3,
+   26.5,
+   24.1,
+   20.6,
+   18.2
+  ],
+  "scores": [
+   100,
+   96,
+   94,
+   100,
+   89,
+   55,
+   55,
+   60,
+   55,
+   91,
+   99,
+   100
+  ]
+ },
+ {
+  "slug": "paro-bhutan",
+  "title": "Paro, Bhutan",
+  "name": "Paro",
+  "country": "Bhutan",
+  "best": "October, November, December",
+  "arch": "monsoon",
+  "cl": [
+   10,
+   10.3,
+   16.1,
+   20,
+   21.9,
+   23.5,
+   24,
+   24.2,
+   23.6,
+   20.3,
+   17.8,
+   16.9
+  ],
+  "scores": [
+   74,
+   67,
+   64,
+   67,
+   78,
+   55,
+   55,
+   65,
+   70,
+   80,
+   80,
+   91
+  ]
  }
 ]
