@@ -76,6 +76,18 @@ button,select,input,textarea{font:inherit}
     <div id="crmList" style="margin-top:10px"><p class="note">Loading…</p></div>
   </div>
 
+  <div class="card" id="ordBox" style="display:none">
+    <div class="lab">🛍️ T-shirt orders</div>
+    <p class="note">Every custom-tee order customers place. Mark each one as you print and ship it. New orders show at the top.</p>
+    <div id="ordList" style="margin-top:10px"><p class="note">Loading…</p></div>
+  </div>
+
+  <div class="card" id="leadBox" style="display:none">
+    <div class="lab">📊 Investor deck views</div>
+    <p class="note">Everyone who opened your private deck link — with how far they scrolled and how long they spent. Sorted by most recent.</p>
+    <div id="leadList" style="margin-top:10px"><p class="note">Loading…</p></div>
+  </div>
+
   <div class="card">
     <div class="lab">This month</div>
     <div class="stat" id="statBox"><span class="note">Loading…</span></div>
@@ -96,8 +108,32 @@ function esc(t){return String(t==null?'':t).replace(/[<>&]/g,function(c){return{
 
 function doAuth(){
   if(user){ firebase.auth().signOut(); return; }
-  firebase.auth().signInWithPopup(new firebase.auth.GoogleAuthProvider()).catch(function(e){ alert(e.message); });
+  var prov = new firebase.auth.GoogleAuthProvider();
+  prov.setCustomParameters({ prompt:'select_account' }); /* always show the account chooser */
+  /* Only force redirect where popups genuinely can't return: an embedded
+     WebView or a file:// origin. Normal mobile Safari/Chrome CAN do popups, so
+     the old broad UA test was wrong and sent real browsers down a redirect that
+     silently did nothing. Try popup first everywhere; fall back to redirect only
+     when the popup is actually refused. */
+  var mustRedirect = (location.protocol === 'file:')
+    || /; wv\)|\bwv\b/i.test(navigator.userAgent); /* Android WebView marker */
+  if(mustRedirect){
+    firebase.auth().signInWithRedirect(prov).catch(function(e){ alert('Sign-in error: '+e.message); });
+    return;
+  }
+  firebase.auth().signInWithPopup(prov).catch(function(e){
+    var code = e && e.code || '';
+    if(code==='auth/popup-blocked' || code==='auth/popup-closed-by-user' || code==='auth/cancelled-popup-request' || code==='auth/operation-not-supported-in-this-environment'){
+      firebase.auth().signInWithRedirect(prov).catch(function(e2){ alert('Sign-in error: '+e2.message); });
+    } else {
+      alert('Sign-in error: '+(e.message||code||'unknown')+'\n\nIf this keeps happening, this domain may not be in Firebase Auth > Settings > Authorized domains.');
+    }
+  });
 }
+/* Complete a redirect sign-in when the page reloads back from Google. */
+firebase.auth().getRedirectResult().catch(function(e){
+  if(e && e.message) { try{ el('who').textContent = 'Sign-in error: '+e.message; }catch(_){}}
+});
 firebase.auth().onAuthStateChanged(function(u){
   user=u;
   el('authBtn').textContent = u? 'Sign out':'Sign in';
@@ -106,7 +142,11 @@ firebase.auth().onAuthStateChanged(function(u){
   db.collection('staff').doc(u.uid).get().then(function(d){
     if(!d.exists){
       el('signedOut').classList.remove('hide'); el('app').classList.add('hide');
-      el('signedOut').innerHTML='<div class="card"><h2>No role assigned</h2><p class="note">This account isn\'t on the team yet. Ask Mohit to add it — he needs the email you just used.</p></div>';
+      el('signedOut').innerHTML='<div class="card"><h2>You\'re signed in \u2014 role pending</h2>'
+        +'<p class="note">Your account works, but you\'re not on the team list yet. Send the ID below to Mohit and he\'ll switch you on.</p>'
+        +'<div style="margin:12px 0;padding:11px;background:rgba(255,255,255,.05);border-radius:9px;font-family:monospace;font-size:12px;word-break:break-all">'+esc(u.uid)+'</div>'
+        +'<button class="btn go" style="width:100%;padding:11px" onclick="navigator.clipboard.writeText(\''+u.uid+'\').then(function(){this.textContent=\'Copied!\';}.bind(this))">Copy my ID</button>'
+        +'<p class="note" style="margin-top:8px">Signed in as '+esc(u.email||'')+'</p></div>';
       return;
     }
     ROLE = d.data().role||'';
@@ -114,9 +154,13 @@ firebase.auth().onAuthStateChanged(function(u){
     el('signedOut').classList.add('hide'); el('app').classList.remove('hide');
     el('finBox').style.display = ROLE==='finance'?'block':'none';
     el('mktBox').style.display = ROLE==='marketing'?'block':'none';
+    el('ordBox').style.display = ROLE==='admin'?'block':'none';
+    el('leadBox').style.display = ROLE==='admin'?'block':'none';
     loadToday(); loadTasks(); loadStats();
     if(ROLE==='finance') loadLedger();
     if(ROLE==='marketing') loadCrm();
+    if(ROLE==='admin') loadOrders();
+    if(ROLE==='admin') loadLeads();
   }).catch(function(e){ el('signedOut').innerHTML='<div class="card"><p class="note">Could not check your role: '+esc(e.message)+'</p></div>'; });
 });
 
@@ -207,6 +251,68 @@ function loadCrm(){
 }
 function setStage(id,val){
   db.collection('crm').doc(id).update({stage:val}).then(loadCrm).catch(function(e){ alert(e.message); });
+}
+function loadOrders(){
+  db.collection('merch').orderBy('at','desc').limit(100).get().then(function(qs){
+    if(qs.empty){ el('ordList').innerHTML='<p class="note">No orders yet. When a customer designs and orders a tee, it appears here.</p>'; return; }
+    var rows=[]; qs.forEach(function(d){ rows.push({id:d.id, x:d.data()}); });
+    var counts={new:0, printing:0, shipped:0};
+    rows.forEach(function(r){ var s=r.x.status||'new'; counts[s]=(counts[s]||0)+1; });
+    el('ordList').innerHTML =
+      '<div style="display:flex;gap:8px;margin-bottom:10px;font-size:11px">'
+      +'<span class="pill" style="background:rgba(232,186,108,.15);color:var(--gold)">'+counts.new+' new</span>'
+      +'<span class="pill" style="background:rgba(167,139,250,.15);color:var(--vio)">'+(counts.printing||0)+' printing</span>'
+      +'<span class="pill" style="background:rgba(74,222,128,.14);color:var(--grn)">'+(counts.shipped||0)+' shipped</span>'
+      +'</div>'
+      + rows.map(function(r){
+        var x=r.x, st=x.status||'new';
+        var art = x.art ? '<a href="'+esc(x.art)+'" target="_blank" rel="noopener" style="color:var(--gold)">view art \u2197</a>' : 'text-only';
+        return '<div class="task" style="flex-direction:column;align-items:stretch;gap:6px;border-bottom:1px solid rgba(255,255,255,.06);padding:10px 0">'
+          +'<div style="display:flex;justify-content:space-between;gap:8px">'
+            +'<b style="font-size:13px">"'+esc(x.slogan||'(no slogan)')+'"</b>'
+            +'<span class="pill">size '+esc(x.size||'?')+'</span></div>'
+          +'<div class="meta" style="font-size:11px;color:var(--t2);line-height:1.6">'
+            +'\ud83d\udccd '+esc(x.place||'\u2014')+' \u00b7 '+art+'<br>'
+            +'\ud83d\udcde '+esc(x.phone||'no phone')+' \u00b7 \u2709\ufe0f '+esc(x.email||'no email')+'<br>'
+            +'\ud83c\udfe0 '+esc(x.addr||'no address')+'<br>'
+            +'\ud83d\udd52 '+esc((x.at||'').slice(0,16).replace('T',' '))+'</div>'
+          +'<select class="btn" onchange="setOrderStatus(\''+r.id+'\',this.value)">'
+          + ['new','printing','shipped','cancelled'].map(function(s){ return '<option value="'+s+'"'+(st===s?' selected':'')+'>'+s+'</option>'; }).join('')
+          +'</select></div>';
+      }).join('');
+  }).catch(function(e){ el('ordList').innerHTML='<p class="note">Could not load orders: '+esc(e.message)+'</p>'; });
+}
+function setOrderStatus(id,val){
+  db.collection('merch').doc(id).update({status:val}).then(loadOrders).catch(function(e){ alert(e.message); });
+}
+function loadLeads(){
+  db.collection('deckleads').orderBy('at','desc').limit(100).get().then(function(qs){
+    if(qs.empty){ el('leadList').innerHTML='<p class="note">No deck views yet. Share the link at roamwise.co.in/deck/ and viewers appear here.</p>'; return; }
+    var rows=[]; qs.forEach(function(d){ rows.push(d.data()); });
+    var totalSlides=13;
+    el('leadList').innerHTML = rows.map(function(x){
+      var depth = Math.round(((x.maxSlide||0)/totalSlides)*100);
+      var mins = Math.floor((x.seconds||0)/60), secs=(x.seconds||0)%60;
+      var timeStr = mins? mins+'m '+secs+'s' : secs+'s';
+      var hot = (x.maxSlide||0)>=totalSlides-1 && (x.seconds||0)>=60;
+      var barColor = depth>=80?'var(--grn)':depth>=40?'var(--gold)':'var(--vio)';
+      var contact = x.contact || [x.email, x.phone].filter(Boolean).join(' · ') || x.email || x.phone || '\u2014';
+      return '<div class="task" style="flex-direction:column;align-items:stretch;gap:5px;border-bottom:1px solid rgba(255,255,255,.06);padding:11px 0">'
+        +'<div style="display:flex;justify-content:space-between;gap:8px;align-items:center">'
+          +'<b style="font-size:13.5px">'+esc(x.name||'(no name)')+(hot?' 🔥':'')+'</b>'
+          +'<span class="pill">'+esc(timeStr)+'</span></div>'
+        +'<div class="meta" style="font-size:11px;color:var(--t2);line-height:1.6">'
+          +(x.role? '💼 '+esc(x.role)+'<br>':'')
+          +'📞 '+esc(contact)+'<br>'
+          +'🕒 '+esc((x.at||'').slice(0,16).replace('T',' '))
+          +(x.completed?' · <span style="color:var(--grn)">read to end</span>':'')+'</div>'
+        +'<div style="display:flex;align-items:center;gap:8px;margin-top:3px">'
+          +'<div style="flex:1;height:6px;background:rgba(255,255,255,.08);border-radius:3px;overflow:hidden">'
+            +'<div style="height:100%;width:'+depth+'%;background:'+barColor+'"></div></div>'
+          +'<span style="font-size:10.5px;color:var(--t3)">slide '+(x.maxSlide||0)+'/'+totalSlides+'</span></div>'
+        +'</div>';
+    }).join('');
+  }).catch(function(e){ el('leadList').innerHTML='<p class="note">Could not load leads: '+esc(e.message)+'</p>'; });
 }
 function loadStats(){
   var ids=[]; var now=new Date();
