@@ -88,6 +88,57 @@ button,select,input,textarea{font:inherit}
     <div id="leadList" style="margin-top:10px"><p class="note">Loading…</p></div>
   </div>
 
+  <div class="card" id="hrBox" style="display:none">
+    <div class="lab">👥 Staff & payroll</div>
+    <p class="note">Your team, their role, employment type and pay (fixed + incentive). Add someone by their UID once they've signed in and sent it to you.</p>
+    <div style="margin:10px 0"><button class="btn go" style="width:100%;padding:11px" onclick="hrAddStaff()">➕ Add / edit a team member</button></div>
+    <div id="hrList"><p class="note">Loading…</p></div>
+  </div>
+
+  <div class="card" id="docBox" style="display:none">
+    <div class="lab">📄 Documents vault</div>
+    <p class="note">Generate offer letters, salary slips, resignation acceptance, and leave records — then store them here. Everything's saved and downloadable.</p>
+    <div style="display:flex;gap:7px;flex-wrap:wrap;margin:10px 0">
+      <button class="btn" onclick="docGen('offer')">📝 Offer letter</button>
+      <button class="btn" onclick="docGen('salary')">💰 Salary slip</button>
+      <button class="btn" onclick="docGen('resignation')">👋 Resignation</button>
+      <button class="btn" onclick="docGen('leave')">🏖️ Leave record</button>
+    </div>
+    <div id="docList"><p class="note">Loading…</p></div>
+  </div>
+
+  <div class="card" id="finConsoleBox" style="display:none">
+    <div class="lab">🧾 Finance console</div>
+    <p class="note">Business bills, expenses and revenue in one place — with a live accounts summary. Add each entry as it happens; the totals update automatically.</p>
+    <div id="finSummary" style="margin:10px 0"></div>
+    <div style="display:flex;gap:7px;flex-wrap:wrap;margin:10px 0">
+      <button class="btn go" onclick="finAdd('bill')">🧾 Add bill</button>
+      <button class="btn" onclick="finAdd('expense')">💸 Add expense</button>
+      <button class="btn" onclick="finAdd('revenue')">📈 Add revenue</button>
+      <button class="btn" onclick="finExport()">⬇️ Export CSV</button>
+    </div>
+    <div id="finList"><p class="note">Loading…</p></div>
+  </div>
+
+  <div class="card" id="taxBox" style="display:none">
+    <div class="lab">📁 Tax & business documents</div>
+    <p class="note">Store GST filings, ITR acknowledgements, invoices and receipts. Paste a link (Drive/DigiLocker) or type the reference — everything's kept in one searchable place.</p>
+    <div style="margin:10px 0"><button class="btn go" style="width:100%;padding:11px" onclick="taxAdd()">➕ Add a tax / business document</button></div>
+    <div id="taxList"><p class="note">Loading…</p></div>
+  </div>
+
+  <div class="card" id="mailBox" style="display:none">
+    <div class="lab">✉️ Outreach & emails</div>
+    <p class="note">Draft investor and lead emails from proven templates — pick a type, fill the name, and get a ready-to-send draft you can copy or open in your mail app.</p>
+    <div style="display:flex;gap:7px;flex-wrap:wrap;margin:10px 0">
+      <button class="btn" onclick="mailGen('investor_intro')">💼 Investor intro</button>
+      <button class="btn" onclick="mailGen('investor_followup')">🔁 Investor follow-up</button>
+      <button class="btn" onclick="mailGen('creator')">🎥 Creator collab</button>
+      <button class="btn" onclick="mailGen('order')">📦 Order update</button>
+    </div>
+    <div id="mailOut"></div>
+  </div>
+
   <div class="card">
     <div class="lab">This month</div>
     <div class="stat" id="statBox"><span class="note">Loading…</span></div>
@@ -100,6 +151,14 @@ button,select,input,textarea{font:inherit}
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
 <script>
+function showModal(html){
+  var m=el('hrModal');
+  if(!m){ m=document.createElement('div'); m.id='hrModal'; m.style.cssText='position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.6);display:flex;align-items:flex-start;justify-content:center;overflow-y:auto;padding:24px 14px'; document.body.appendChild(m); }
+  m.innerHTML='<div style="max-width:440px;width:100%">'+html+'</div>';
+  m.style.display='flex';
+}
+function closeModal(){ var m=el('hrModal'); if(m) m.style.display='none'; }
+
 var CFG={apiKey:"AIzaSyBTfmJvHTmp0mNQqsIhWEwnLLwFKz0ExYQ",authDomain:"roamwisepro.firebaseapp.com",projectId:"roamwisepro",storageBucket:"roamwisepro.firebasestorage.app",messagingSenderId:"1039880917656",appId:"1:1039880917656:web:8b3e18e8a4b1c9f8e2c0d1"};
 var db=null,user=null,ROLE='';
 try{ firebase.initializeApp(CFG); db=firebase.firestore(); }catch(e){}
@@ -156,11 +215,20 @@ firebase.auth().onAuthStateChanged(function(u){
     el('mktBox').style.display = ROLE==='marketing'?'block':'none';
     el('ordBox').style.display = ROLE==='admin'?'block':'none';
     el('leadBox').style.display = ROLE==='admin'?'block':'none';
+    el('hrBox').style.display = ROLE==='admin'?'block':'none';
+    el('docBox').style.display = ROLE==='admin'?'block':'none';
+    el('finConsoleBox').style.display = ROLE==='admin'?'block':'none';
+    el('taxBox').style.display = ROLE==='admin'?'block':'none';
+    el('mailBox').style.display = ROLE==='admin'?'block':'none';
     loadToday(); loadTasks(); loadStats();
     if(ROLE==='finance') loadLedger();
     if(ROLE==='marketing') loadCrm();
     if(ROLE==='admin') loadOrders();
     if(ROLE==='admin') loadLeads();
+    if(ROLE==='admin') hrLoad();
+    if(ROLE==='admin') docLoad();
+    if(ROLE==='admin') finLoad();
+    if(ROLE==='admin') taxLoad();
   }).catch(function(e){ el('signedOut').innerHTML='<div class="card"><p class="note">Could not check your role: '+esc(e.message)+'</p></div>'; });
 });
 
@@ -314,6 +382,274 @@ function loadLeads(){
     }).join('');
   }).catch(function(e){ el('leadList').innerHTML='<p class="note">Could not load leads: '+esc(e.message)+'</p>'; });
 }
+
+/* ==================== STAFF & PAYROLL ==================== */
+var STAFF_TYPES = ['Full-time','Finance Intern','Marketing Intern','Customer Support Intern'];
+var STAFF_ROLES = ['admin','finance','marketing','support','none'];
+function hrLoad(){
+  db.collection('staff').get().then(function(qs){
+    if(qs.empty){ el('hrList').innerHTML='<p class="note">No team members yet.</p>'; return; }
+    var rows=[]; qs.forEach(function(d){ rows.push({uid:d.id, x:d.data()}); });
+    el('hrList').innerHTML = rows.map(function(r){
+      var x=r.x;
+      var fixed=x.salaryFixed||0, inc=x.incentive||0;
+      return '<div style="border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:11px;margin-bottom:9px">'
+        +'<div style="display:flex;justify-content:space-between;gap:8px;align-items:center">'
+          +'<b style="font-size:13.5px">'+esc(x.name||'(unnamed)')+'</b>'
+          +'<span class="pill">'+esc(x.type||'Full-time')+'</span></div>'
+        +'<div style="font-size:11px;color:var(--t2);line-height:1.7;margin-top:4px">'
+          +'🎫 '+esc(x.role||'none')+' · 📧 '+esc(x.email||'—')+'<br>'
+          +'💰 Fixed ₹'+fixed.toLocaleString('en-IN')+(inc?' + incentive ₹'+inc.toLocaleString('en-IN'):'')
+          +' = <b>₹'+(fixed+inc).toLocaleString('en-IN')+'/mo</b><br>'
+          +'<span style="color:var(--t3)">UID '+esc(r.uid).slice(0,12)+'…</span></div>'
+        +'<div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap">'
+          +'<button class="btn" style="font-size:11px;padding:5px 10px" onclick="hrAddStaff(\''+r.uid+'\')">Edit</button>'
+          +'<button class="btn" style="font-size:11px;padding:5px 10px" onclick="docGen(\'salary\',\''+r.uid+'\')">Salary slip</button>'
+          +'<button class="btn" style="font-size:11px;padding:5px 10px" onclick="docGen(\'offer\',\''+r.uid+'\')">Offer letter</button>'
+        +'</div></div>';
+    }).join('');
+  }).catch(function(e){ el('hrList').innerHTML='<p class="note">Could not load staff: '+esc(e.message)+'</p>'; });
+}
+function hrAddStaff(uid){
+  var existing=null;
+  var run=function(){
+    var typeOpts=STAFF_TYPES.map(function(t){return '<option'+(existing&&existing.type===t?' selected':'')+'>'+t+'</option>';}).join('');
+    var roleOpts=STAFF_ROLES.map(function(t){return '<option'+(existing&&existing.role===t?' selected':'')+'>'+t+'</option>';}).join('');
+    var html='<div class="card"><h3 style="margin:0 0 10px">'+(uid?'Edit team member':'Add team member')+'</h3>'
+      +'<label class="lab">UID (from their sign-in screen)</label>'
+      +'<input id="hrUid" class="inp" value="'+esc(uid||'')+'"'+(uid?' readonly':'')+' placeholder="paste their UID">'
+      +'<label class="lab">Full name</label><input id="hrName" class="inp" value="'+esc(existing&&existing.name||'')+'">'
+      +'<label class="lab">Email</label><input id="hrEmail" class="inp" value="'+esc(existing&&existing.email||'')+'">'
+      +'<label class="lab">Type</label><select id="hrType" class="inp">'+typeOpts+'</select>'
+      +'<label class="lab">Dashboard role</label><select id="hrRole" class="inp">'+roleOpts+'</select>'
+      +'<label class="lab">Fixed salary (₹/month)</label><input id="hrFixed" class="inp" type="number" value="'+(existing&&existing.salaryFixed||'')+'">'
+      +'<label class="lab">Incentive (₹/month, optional)</label><input id="hrInc" class="inp" type="number" value="'+(existing&&existing.incentive||'')+'">'
+      +'<label class="lab">Joining date</label><input id="hrJoin" class="inp" type="date" value="'+esc(existing&&existing.joined||'')+'">'
+      +'<div style="display:flex;gap:8px;margin-top:12px">'
+        +'<button class="btn go" style="flex:1;padding:11px" onclick="hrSave()">Save</button>'
+        +'<button class="btn" style="padding:11px" onclick="hrLoad();closeModal()">Cancel</button></div></div>';
+    showModal(html);
+  };
+  if(uid){ db.collection('staff').doc(uid).get().then(function(d){ existing=d.data()||{}; run(); }); }
+  else run();
+}
+function hrSave(){
+  var uid=el('hrUid').value.trim();
+  if(!uid){ alert('UID is required — the person sees it on their sign-in screen.'); return; }
+  var rec={
+    name:el('hrName').value.trim(), email:el('hrEmail').value.trim(),
+    type:el('hrType').value, role:el('hrRole').value,
+    salaryFixed:parseInt(el('hrFixed').value||'0',10)||0,
+    incentive:parseInt(el('hrInc').value||'0',10)||0,
+    joined:el('hrJoin').value||'', updatedAt:new Date().toISOString()
+  };
+  db.collection('staff').doc(uid).set(rec,{merge:true}).then(function(){ closeModal(); hrLoad(); })
+    .catch(function(e){ alert('Could not save: '+e.message); });
+}
+
+/* ==================== DOCUMENTS VAULT ==================== */
+var COMPANY={name:'GYANVERSE / RoamWise', founder:'Mohit Pandey', place:'Almora, Uttarakhand'};
+function docLoad(){
+  db.collection('hrdocs').orderBy('at','desc').limit(60).get().then(function(qs){
+    if(qs.empty){ el('docList').innerHTML='<p class="note">No documents yet. Generate one above.</p>'; return; }
+    var rows=[]; qs.forEach(function(d){ rows.push({id:d.id, x:d.data()}); });
+    el('docList').innerHTML = rows.map(function(r){
+      var x=r.x;
+      return '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.06)">'
+        +'<div><b style="font-size:12.5px">'+esc(x.title||x.kind)+'</b><br><span style="font-size:10.5px;color:var(--t3)">'+esc((x.at||'').slice(0,10))+' · '+esc(x.forName||'')+'</span></div>'
+        +'<button class="btn" style="font-size:11px;padding:5px 10px" onclick="docView(\''+r.id+'\')">Open</button></div>';
+    }).join('');
+  }).catch(function(e){ el('docList').innerHTML='<p class="note">Could not load documents: '+esc(e.message)+'</p>'; });
+}
+function docView(id){
+  db.collection('hrdocs').doc(id).get().then(function(d){
+    var x=d.data()||{};
+    showModal('<div class="card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><h3 style="margin:0">'+esc(x.title||'Document')+'</h3><button class="btn" onclick="closeModal()">✕</button></div>'
+      +'<div style="background:#fff;color:#111;border-radius:8px;padding:22px;font-size:13px;line-height:1.7;white-space:pre-wrap;max-height:60vh;overflow-y:auto">'+esc(x.body||'')+'</div>'
+      +'<div style="display:flex;gap:8px;margin-top:12px"><button class="btn go" style="flex:1;padding:11px" onclick="docPrint(\''+id+'\')">🖨️ Print / Save PDF</button></div></div>');
+  });
+}
+function docPrint(id){
+  db.collection('hrdocs').doc(id).get().then(function(d){
+    var x=d.data()||{};
+    var w=window.open('','_blank');
+    w.document.write('<html><head><title>'+esc(x.title||'Document')+'</title><style>body{font-family:Georgia,serif;max-width:720px;margin:40px auto;padding:0 24px;line-height:1.8;color:#111;white-space:pre-wrap}h1{font-size:18px}</style></head><body>'+esc(x.body||'').replace(/\n/g,'<br>')+'</body></html>');
+    w.document.close(); setTimeout(function(){ w.print(); }, 300);
+  });
+}
+function docGen(kind, uid){
+  var build=function(emp){
+    var today=new Date().toISOString().slice(0,10);
+    var name=emp?emp.name:'', body='', title='';
+    if(kind==='offer'){
+      title='Offer Letter — '+(name||'New hire');
+      body='OFFER OF '+(emp&&emp.type||'EMPLOYMENT').toUpperCase()+'\n\nDate: '+today+'\n\nDear '+(name||'________')+',\n\nWe are pleased to offer you the position of '+(emp&&emp.type||'________')+' at '+COMPANY.name+', based in '+COMPANY.place+'.\n\nCompensation:\n  Fixed: ₹'+((emp&&emp.salaryFixed)||0).toLocaleString('en-IN')+' per month'
+        +((emp&&emp.incentive)?'\n  Incentive: up to ₹'+emp.incentive.toLocaleString('en-IN')+' per month based on performance':'')
+        +'\n  Total: ₹'+(((emp&&emp.salaryFixed)||0)+((emp&&emp.incentive)||0)).toLocaleString('en-IN')+' per month\n\nJoining date: '+((emp&&emp.joined)||'________')+'\n\nWe look forward to working with you.\n\nWarm regards,\n'+COMPANY.founder+'\n'+COMPANY.name;
+    } else if(kind==='salary'){
+      var mon=new Date().toLocaleString('en-IN',{month:'long',year:'numeric'});
+      var fixed=(emp&&emp.salaryFixed)||0, inc=(emp&&emp.incentive)||0;
+      title='Salary Slip — '+mon+' — '+(name||'');
+      body='SALARY SLIP\n'+COMPANY.name+'\n\nFor: '+mon+'\nEmployee: '+(name||'________')+'\nType: '+((emp&&emp.type)||'________')+'\n\nEARNINGS\n  Fixed pay:      ₹'+fixed.toLocaleString('en-IN')+'\n  Incentive:      ₹'+inc.toLocaleString('en-IN')+'\n  ---------------------------------\n  Net payable:    ₹'+(fixed+inc).toLocaleString('en-IN')+'\n\nThis is a system-generated slip and does not require a signature.\n'+COMPANY.name+' · '+today;
+    } else if(kind==='resignation'){
+      title='Resignation Acceptance — '+(name||'');
+      body='RESIGNATION ACCEPTANCE\n\nDate: '+today+'\n\nDear '+(name||'________')+',\n\nThis is to confirm that we have received and accepted your resignation from the position of '+((emp&&emp.type)||'________')+' at '+COMPANY.name+'.\n\nWe thank you for your contributions and wish you the very best.\n\nRegards,\n'+COMPANY.founder+'\n'+COMPANY.name;
+    } else if(kind==='leave'){
+      title='Leave Record — '+(name||'');
+      body='LEAVE RECORD\n\nDate: '+today+'\nEmployee: '+(name||'________')+'\n\nLeave type: ________\nFrom: ________   To: ________\nDays: ____\nReason: ________________________________\n\nApproved by: '+COMPANY.founder+'\n'+COMPANY.name;
+    }
+    var doc={kind:kind, title:title, body:body, forUid:(emp&&emp.uid)||'', forName:name||'', at:new Date().toISOString()};
+    db.collection('hrdocs').add(doc).then(function(ref){ docLoad(); docView(ref.id); })
+      .catch(function(e){ alert('Could not save document: '+e.message); });
+  };
+  if(uid){ db.collection('staff').doc(uid).get().then(function(d){ var e=d.data()||{}; e.uid=uid; build(e); }); }
+  else build(null);
+}
+
+/* ==================== FINANCE CONSOLE ==================== */
+var FIN_CATS = ['Office & rent','Software & tools','Marketing & ads','Travel','Salaries','Contractors','Bank & fees','Taxes','Hardware','Other'];
+var _finRows = [];
+function finLoad(){
+  db.collection('ledger').limit(300).get().then(function(qs){
+    _finRows=[]; qs.forEach(function(d){ var x=d.data(); x._id=d.id; _finRows.push(x); });
+    _finRows.sort(function(a,b){ return (b.at||'').localeCompare(a.at||''); });
+    var rev=0, exp=0, bills=0, due=0;
+    _finRows.forEach(function(x){
+      if(x.kind==='revenue') rev+=(x.amount||0);
+      else if(x.kind==='bill'){ bills+=(x.amount||0); if(x.status!=='paid'){ due+=(x.amount||0); } if(x.status==='paid'){ exp+=(x.amount||0); } }
+      else exp+=(x.amount||0);
+    });
+    el('finSummary').innerHTML='<div class="stat">'
+      +'<div><b>₹'+rev.toLocaleString('en-IN')+'</b><span>revenue</span></div>'
+      +'<div><b>₹'+exp.toLocaleString('en-IN')+'</b><span>spent</span></div>'
+      +'<div><b style="color:'+(due>0?'var(--gold)':'var(--grn)')+'">₹'+due.toLocaleString('en-IN')+'</b><span>bills due</span></div>'
+      +'<div><b style="color:'+(rev-exp>=0?'var(--grn)':'var(--red)')+'">₹'+(rev-exp).toLocaleString('en-IN')+'</b><span>net</span></div></div>';
+    el('finList').innerHTML = _finRows.slice(0,40).map(function(x){
+      var col = x.kind==='revenue'?'var(--grn)': x.kind==='bill'?'var(--gold)':'#F87171';
+      var sign = x.kind==='revenue'?'+':'−';
+      var statusChip = x.kind==='bill' ? ' <span class="pill" style="background:'+(x.status==='paid'?'rgba(74,222,128,.14)':'rgba(232,186,108,.15)')+'">'+(x.status||'unpaid')+'</span>' : '';
+      var payBtn = (x.kind==='bill' && x.status!=='paid') ? '<button class="btn" style="font-size:10px;padding:3px 8px" onclick="finMarkPaid(\''+x._id+'\')">Mark paid</button>' : '';
+      return '<div class="task" style="align-items:flex-start"><div class="tk"><b>'+esc(x.what||x.kind)+'</b>'+statusChip
+        +'<div class="meta">'+esc((x.at||'').slice(0,10))+' · '+esc(x.cat||x.kind)+(x.vendor?' · '+esc(x.vendor):'')+'</div>'+payBtn+'</div>'
+        +'<span class="pill" style="color:'+col+'">'+sign+'₹'+Number(x.amount||0).toLocaleString('en-IN')+'</span></div>';
+    }).join('') || '<p class="note">No entries yet.</p>';
+  }).catch(function(e){ el('finList').innerHTML='<p class="note">Could not load: '+esc(e.message)+'</p>'; });
+}
+function finAdd(kind){
+  var catSel = (kind!=='revenue') ? '<label class="lab">Category</label><select id="finCat" class="inp">'+FIN_CATS.map(function(c){return '<option>'+c+'</option>';}).join('')+'</select>' : '';
+  var vendorField = (kind==='bill') ? '<label class="lab">Vendor / paid to</label><input id="finVendor" class="inp" placeholder="e.g. AWS, landlord, printer">' : '';
+  var dueField = (kind==='bill') ? '<label class="lab">Status</label><select id="finStatus" class="inp"><option value="unpaid">Unpaid (due)</option><option value="paid">Paid</option></select>' : '';
+  var title = kind==='bill'?'🧾 Add a bill':kind==='revenue'?'📈 Add revenue':'💸 Add an expense';
+  showModal('<div class="card"><h3 style="margin:0 0 10px">'+title+'</h3>'
+    +'<label class="lab">Description</label><input id="finWhat" class="inp" placeholder="What is it?">'
+    +'<label class="lab">Amount (₹)</label><input id="finAmt" class="inp" type="number" placeholder="0">'
+    +vendorField+catSel+dueField
+    +'<label class="lab">Date</label><input id="finDate" class="inp" type="date" value="'+new Date().toISOString().slice(0,10)+'">'
+    +'<div style="display:flex;gap:8px;margin-top:12px"><button class="btn go" style="flex:1;padding:11px" onclick="finSave(\''+kind+'\')">Save</button>'
+    +'<button class="btn" style="padding:11px" onclick="closeModal()">Cancel</button></div></div>');
+}
+function finSave(kind){
+  var what=el('finWhat').value.trim();
+  var amt=parseInt(el('finAmt').value||'0',10)||0;
+  if(!what || amt<=0){ alert('Enter a description and amount.'); return; }
+  var rec={ kind:kind, what:what, amount:amt, at:(el('finDate').value||new Date().toISOString().slice(0,10)), enteredBy:user.uid };
+  if(el('finCat')) rec.cat=el('finCat').value;
+  if(el('finVendor')) rec.vendor=el('finVendor').value.trim();
+  if(el('finStatus')) rec.status=el('finStatus').value;
+  db.collection('ledger').add(rec).then(function(){ closeModal(); finLoad(); }).catch(function(e){ alert('Could not save: '+e.message); });
+}
+function finMarkPaid(id){
+  db.collection('ledger').doc(id).update({status:'paid'}).then(finLoad).catch(function(e){ alert(e.message); });
+}
+function finExport(){
+  if(!_finRows.length){ alert('Nothing to export yet.'); return; }
+  var head='Date,Type,Category,Vendor,Description,Amount,Status\n';
+  var body=_finRows.map(function(x){
+    return [ (x.at||'').slice(0,10), x.kind, x.cat||'', x.vendor||'', '"'+String(x.what||'').replace(/"/g,'""')+'"', x.amount||0, x.status||'' ].join(',');
+  }).join('\n');
+  var blob=new Blob([head+body],{type:'text/csv'});
+  var a=document.createElement('a'); a.href=URL.createObjectURL(blob);
+  a.download='roamwise-finance-'+new Date().toISOString().slice(0,10)+'.csv'; a.click();
+}
+
+/* ==================== TAX & BUSINESS DOCUMENTS ==================== */
+var TAX_TYPES=['GST filing','ITR acknowledgement','Invoice','Receipt','Bank statement','Registration / license','Other'];
+function taxLoad(){
+  db.collection('hrdocs').where('kind','==','tax').limit(80).get().then(function(qs){
+    var rows=[]; qs.forEach(function(d){ rows.push({id:d.id,x:d.data()}); });
+    rows.sort(function(a,b){ return (b.x.at||'').localeCompare(a.x.at||''); });
+    if(!rows.length){ el('taxList').innerHTML='<p class="note">No tax documents yet.</p>'; return; }
+    el('taxList').innerHTML = rows.map(function(r){
+      var x=r.x;
+      return '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.06)">'
+        +'<div><b style="font-size:12.5px">'+esc(x.title||'')+'</b><br><span style="font-size:10.5px;color:var(--t3)">'+esc(x.taxType||'')+' · '+esc((x.at||'').slice(0,10))+(x.period?' · '+esc(x.period):'')+'</span></div>'
+        +(x.link?'<a class="btn" style="font-size:11px;padding:5px 10px;text-decoration:none" href="'+esc(x.link)+'" target="_blank" rel="noopener">Open</a>':'<span class="pill">'+esc(x.ref||'')+'</span>')
+        +'</div>';
+    }).join('');
+  }).catch(function(e){ el('taxList').innerHTML='<p class="note">Could not load: '+esc(e.message)+'</p>'; });
+}
+function taxAdd(){
+  showModal('<div class="card"><h3 style="margin:0 0 10px">Add tax / business document</h3>'
+    +'<label class="lab">Type</label><select id="taxType" class="inp">'+TAX_TYPES.map(function(t){return '<option>'+t+'</option>';}).join('')+'</select>'
+    +'<label class="lab">Title</label><input id="taxTitle" class="inp" placeholder="e.g. GSTR-3B March 2026">'
+    +'<label class="lab">Period (optional)</label><input id="taxPeriod" class="inp" placeholder="e.g. FY 2025-26, Q1">'
+    +'<label class="lab">Link (Drive / DigiLocker)</label><input id="taxLink" class="inp" placeholder="https://…">'
+    +'<label class="lab">…or a reference number</label><input id="taxRef" class="inp" placeholder="ARN / acknowledgement no.">'
+    +'<div style="display:flex;gap:8px;margin-top:12px"><button class="btn go" style="flex:1;padding:11px" onclick="taxSave()">Save</button>'
+    +'<button class="btn" style="padding:11px" onclick="closeModal()">Cancel</button></div></div>');
+}
+function taxSave(){
+  var title=el('taxTitle').value.trim();
+  if(!title){ alert('Give it a title.'); return; }
+  var rec={ kind:'tax', taxType:el('taxType').value, title:title, period:el('taxPeriod').value.trim(),
+    link:el('taxLink').value.trim(), ref:el('taxRef').value.trim(), at:new Date().toISOString() };
+  db.collection('hrdocs').add(rec).then(function(){ closeModal(); taxLoad(); }).catch(function(e){ alert('Could not save: '+e.message); });
+}
+
+/* ==================== OUTREACH & EMAILS ==================== */
+function mailGen(kind){
+  var fields, title;
+  if(kind==='investor_intro'){ title='Investor intro';
+    fields=[{k:'name',l:'Investor name'},{k:'firm',l:'Firm (optional)'}]; }
+  else if(kind==='investor_followup'){ title='Investor follow-up';
+    fields=[{k:'name',l:'Investor name'}]; }
+  else if(kind==='creator'){ title='Creator collab';
+    fields=[{k:'name',l:'Creator name'},{k:'niche',l:'Their niche (e.g. travel vlogs)'}]; }
+  else { title='Order update';
+    fields=[{k:'name',l:'Customer name'},{k:'status',l:'Status (printing / shipped)'}]; }
+  showModal('<div class="card"><h3 style="margin:0 0 10px">'+title+'</h3>'
+    + fields.map(function(f,i){ return '<label class="lab">'+f.l+'</label><input id="ml_'+i+'" class="inp">'; }).join('')
+    +'<div style="display:flex;gap:8px;margin-top:12px"><button class="btn go" style="flex:1;padding:11px" onclick="mailBuild(\''+kind+'\','+fields.length+')">Draft it</button>'
+    +'<button class="btn" style="padding:11px" onclick="closeModal()">Cancel</button></div></div>');
+}
+function mailBuild(kind, n){
+  var v=[]; for(var i=0;i<n;i++){ var e=el('ml_'+i); v.push(e?e.value.trim():''); }
+  var subject='', body='';
+  if(kind==='investor_intro'){
+    subject='RoamWise — AI trip planning for India\u2019s next 200M travellers';
+    body='Hi '+(v[0]||'there')+',\n\nI\u2019m Mohit, founder of RoamWise — an AI travel copilot built for Indian travellers. We turn messy group trip-planning into decided, paid-for, coordinated trips: itineraries, live bill-splitting, and group decisions in one place.\n\nWe\u2019re a solo-built product already live on Android and the web, with real users and a clear wedge WhatsApp can\u2019t copy.\n\n'+(v[1]?'Given '+v[1]+'\u2019s focus on early consumer products, I\u2019d love 15 minutes to walk you through it.':'I\u2019d love 15 minutes to walk you through it.')+'\n\nDeck: https://roamwise.co.in/deck/\n\nWarm regards,\nMohit Pandey\nRoamWise · Almora, Uttarakhand';
+  } else if(kind==='investor_followup'){
+    subject='Following up — RoamWise';
+    body='Hi '+(v[0]||'there')+',\n\nJust floating this back to the top of your inbox. Since I last wrote, we\u2019ve kept shipping — the group trip-hub (live kitty, decision board, shared plans) is now live.\n\nWould a quick call this week work? Deck\u2019s here if useful: https://roamwise.co.in/deck/\n\nThanks for your time,\nMohit';
+  } else if(kind==='creator'){
+    subject='Collab? RoamWise x '+(v[0]||'you');
+    body='Hi '+(v[0]||'there')+',\n\nLove your '+(v[1]||'content')+'. I run RoamWise, an AI trip-planning app for Indian travellers, and I think your audience would genuinely find it useful.\n\nOpen to a collab — happy to tailor something that fits your style. Details: https://roamwise.co.in/creators/\n\nCheers,\nMohit · RoamWise';
+  } else {
+    subject='Your RoamWise order — '+(v[1]||'update');
+    body='Hi '+(v[0]||'there')+',\n\nQuick update on your custom RoamWise tee: it\u2019s now '+(v[1]||'being processed')+'. We\u2019ll let you know as soon as it ships.\n\nThanks for repping RoamWise!\nMohit';
+  }
+  var mailto='mailto:?subject='+encodeURIComponent(subject)+'&body='+encodeURIComponent(body);
+  el('mailOut').innerHTML='<div style="margin-top:10px;border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:12px">'
+    +'<div style="font-size:11px;color:var(--t3);margin-bottom:4px">SUBJECT</div>'
+    +'<div style="font-size:13px;font-weight:700;margin-bottom:8px">'+esc(subject)+'</div>'
+    +'<div style="font-size:11px;color:var(--t3);margin-bottom:4px">BODY</div>'
+    +'<textarea id="mailBody" class="inp" style="min-height:180px;font-size:12.5px">'+esc(body)+'</textarea>'
+    +'<div style="display:flex;gap:8px;margin-top:10px">'
+    +'<button class="btn go" style="flex:1;padding:10px" onclick="navigator.clipboard.writeText(el(\'mailBody\').value).then(function(){this.textContent=\'Copied!\';}.bind(this))">Copy</button>'
+    +'<a class="btn" style="padding:10px;text-decoration:none" href="'+mailto+'">Open in mail</a></div></div>';
+  closeModal();
+}
+
 function loadStats(){
   var ids=[]; var now=new Date();
   for(var i=0;i<30;i++){ var d=new Date(now-i*864e5); ids.push(d.toISOString().slice(0,10).replace(/-/g,'')); }
