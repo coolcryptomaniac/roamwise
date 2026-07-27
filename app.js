@@ -7075,10 +7075,11 @@ function openGroupChat(){
   rwOverlayOpen('chatPickOverlay');
 }
 function rwNewGroupChat(){
-  var nm = prompt('Name this trip chat (everyone you invite uses the same name)', 'Goa gang');
-  if(!nm || !nm.trim()) return;
-  rwOverlayClose('chatPickOverlay');
-  tripChatOpen('grp_' + wvSlug(nm.trim()).slice(0,24), nm.trim());
+  rwForm('\\u2795 New trip chat', [{key:'nm', label:'Name this trip chat', placeholder:'Goa gang', hint:'Everyone you invite uses the same name.'}], function(v){
+    if(!v.nm){ return; }
+    rwOverlayClose('chatPickOverlay');
+    tripChatOpen('grp_' + wvSlug(v.nm).slice(0,24), v.nm);
+  });
 }
 /* Local memory of chats this device has opened, most-recent first. */
 function rwChatRecents(){
@@ -7571,18 +7572,58 @@ async function chatAskTusk(q){
 var _chatMsgs = [];
 var _chatPinView = null;
 
+/* ==================== IN-APP FORM MODAL ====================
+   Replaces browser prompt() (the ugly "page at file:// says" boxes) with a
+   styled sheet. rwForm(title, fields, onSubmit) where fields = [{key,label,
+   placeholder,type,value}]. onSubmit gets an object of {key:value}. Cancel =
+   no callback. Works in the APK (file://) and on the web identically. */
+function rwForm(title, fields, onSubmit){
+  var ov=el('rwFormOverlay');
+  if(!ov){
+    ov=document.createElement('div'); ov.id='rwFormOverlay'; ov.className='overlay';
+    ov.innerHTML='<div class="sheet" style="max-width:420px"><div class="sheet-head"><b id="rwFormTitle"></b><button class="x" onclick="rwOverlayClose(\'rwFormOverlay\')">\u2715</button></div><div id="rwFormBody" style="padding:6px 4px 16px"></div></div>';
+    document.body.appendChild(ov);
+  }
+  el('rwFormTitle').textContent=title;
+  var body=el('rwFormBody');
+  body.innerHTML = fields.map(function(f,i){
+    var common='width:100%;box-sizing:border-box;background:var(--bg3,#1A1A20);border:1px solid var(--b2,#2A2A36);border-radius:12px;padding:12px 13px;color:inherit;font:inherit;font-size:16px;outline:none;margin-bottom:4px';
+    var inp = f.type==='textarea'
+      ? '<textarea id="rwf_'+i+'" rows="3" placeholder="'+esc2(f.placeholder||'')+'" style="'+common+';resize:vertical">'+esc2(f.value||'')+'</textarea>'
+      : '<input id="rwf_'+i+'" type="'+(f.type||'text')+'" inputmode="'+(f.type==='number'?'numeric':'text')+'" placeholder="'+esc2(f.placeholder||'')+'" value="'+esc2(f.value||'')+'" style="'+common+'">';
+    return '<label style="display:block;font-size:12px;color:var(--t2);font-weight:600;margin:10px 2px 5px">'+esc2(f.label)+'</label>'+inp
+      +(f.hint?'<div style="font-size:10.5px;color:var(--t3);margin:0 2px 2px">'+esc2(f.hint)+'</div>':'');
+  }).join('')
+  + '<button class="rzp-main-btn" style="width:100%;margin-top:14px" onclick="rwFormSubmit()">'+(fields._submit||'Add')+'</button>';
+  window._rwFormFields=fields; window._rwFormCb=onSubmit;
+  rwOverlayOpen('rwFormOverlay');
+  setTimeout(function(){ var f0=el('rwf_0'); if(f0) f0.focus(); }, 120);
+}
+function rwFormSubmit(){
+  var fields=window._rwFormFields||[], out={};
+  for(var i=0;i<fields.length;i++){
+    var elm=el('rwf_'+i); out[fields[i].key]=elm?elm.value.trim():'';
+  }
+  rwOverlayClose('rwFormOverlay');
+  if(typeof window._rwFormCb==='function') window._rwFormCb(out);
+}
+
 function chatAddExpense(){
   var who = (user.displayName||user.email||'Traveller').split('@')[0];
-  var what = prompt('What was paid for?\n\ne.g. "Hotel advance", "Petrol", "Dinner"');
-  if(!what || !what.trim()) return;
-  var amtStr = prompt('How much did YOU pay, in \u20b9?\n\nJust the number, e.g. 4000');
-  if(!amtStr) return;
-  var amt = parseFloat(String(amtStr).replace(/[^0-9.]/g,''));
-  if(!amt || amt<=0){ showToast('Enter a valid amount'); return; }
-  var splitStr = prompt('Split between how many people (including you)?\n\ne.g. 4 \u2014 or leave blank for the whole group');
-  var split = splitStr ? parseInt(splitStr,10) : 0;
-  chatPost('expense', {what:what.trim(), amount:Math.round(amt), payer:user.uid, payerName:who, split:split||0},
-    who+' paid \u20b9'+Math.round(amt).toLocaleString('en-IN')+' for '+what.trim());
+  var f=[
+    {key:'what', label:'What was paid for?', placeholder:'Hotel advance, Petrol, Dinner\u2026'},
+    {key:'amount', label:'How much did YOU pay? (\u20b9)', placeholder:'4000', type:'number'},
+    {key:'split', label:'Split between how many people?', placeholder:'leave blank for the whole group', type:'number', hint:'Including you. Blank = split across everyone in the chat.'}
+  ]; f._submit='Add expense';
+  rwForm('\ud83d\udcb0 Add an expense', f, function(v){
+    if(!v.what){ showToast('Say what it was for'); return; }
+    var amt=parseFloat(String(v.amount).replace(/[^0-9.]/g,''));
+    if(!amt||amt<=0){ showToast('Enter a valid amount'); return; }
+    var split=v.split?parseInt(v.split,10):0;
+    chatPost('expense', {what:v.what, amount:Math.round(amt), payer:user.uid, payerName:who, split:split||0},
+      who+' paid \u20b9'+Math.round(amt).toLocaleString('en-IN')+' for '+v.what)
+      .then(function(){ _chatPinView='kitty'; setTimeout(function(){ try{ chatRenderPins(); }catch(e){} }, 200); });
+  });
 }
 function chatKittyState(){
   var expenses = _chatMsgs.filter(function(m){ return m.kind==='expense' && m.payload; });
@@ -7688,9 +7729,12 @@ function chatRenderPins(){
 function chatTogglePin(v){ _chatPinView=(_chatPinView===v)?null:v; chatRenderPins(); }
 function chatEditPlan(){
   var cur=_chatMsgs.filter(function(m){return m.kind==='plan';}).slice(-1)[0];
-  var txt=prompt('The shared plan (everyone sees this pinned up top):', (cur&&cur.payload&&cur.payload.text)||'');
-  if(txt===null) return;
-  chatPost('plan', {text:txt.slice(0,2000)}, '\ud83d\uddd3\ufe0f updated the plan');
+  var f=[{key:'text', label:'The shared plan', type:'textarea', value:(cur&&cur.payload&&cur.payload.text)||'', placeholder:'Day 1: reach Goa, check in\nDay 2: North beaches\n\u2026', hint:'Everyone in the chat sees this pinned at the top.'}];
+  f._submit='Save plan';
+  rwForm('\ud83d\uddd3\ufe0f Edit the plan', f, function(v){
+    chatPost('plan', {text:(v.text||'').slice(0,2000)}, '\ud83d\uddd3\ufe0f updated the plan')
+      .then(function(){ _chatPinView='plan'; setTimeout(function(){ try{ chatRenderPins(); }catch(e){} }, 200); });
+  });
 }
 
 function chatShareBudget(){
@@ -7715,23 +7759,42 @@ function chatSharePlan(){
     t.name+' \u2014 '+((t.days||[]).length)+'-day plan');
 }
 function chatShareMeet(){
-  var where = prompt('Where and when are you meeting?\n\ne.g. "Kashmere Gate metro, Gate 3, Sat 6am"');
-  if(!where || !where.trim()) return;
-  chatPost('meet', {where:where.trim()}, where.trim());
+  var f=[
+    {key:'place', label:'Meeting place', placeholder:'Kashmere Gate metro, Gate 3'},
+    {key:'when', label:'When', placeholder:'Sat 6:00 am'},
+    {key:'city', label:'City / area (for map & events)', placeholder:'Delhi', hint:'Used to add a map pin and find events on your dates.'}
+  ]; f._submit='Share meeting point';
+  rwForm('\ud83d\udccd Set a meeting point', f, function(v){
+    if(!v.place){ showToast('Where are you meeting?'); return; }
+    var q=encodeURIComponent(v.place+(v.city?', '+v.city:''));
+    var mapUrl='https://www.google.com/maps/search/?api=1&query='+q;
+    chatPost('meet', {place:v.place, when:v.when||'', city:v.city||'', map:mapUrl},
+      '\ud83d\udccd '+v.place+(v.when?' \u00b7 '+v.when:''))
+      .then(function(){ _chatPinView=null; });
+  });
 }
 function chatMarkPaid(){
-  var what = prompt('What did you pay for?\n\ne.g. "Hotel advance \u20b94,000 \u2014 split 4 ways"');
-  if(!what || !what.trim()) return;
-  chatPost('paid', {note:what.trim()}, what.trim());
+  var f=[{key:'note', label:'What did you pay / settle?', placeholder:'Hotel advance \u20b94,000 \u2014 paid to Amit'}];
+  f._submit='Post';
+  rwForm('\u2705 Mark a payment', f, function(v){
+    if(!v.note){ return; }
+    chatPost('paid', {note:v.note}, v.note);
+  });
 }
 function chatNewPoll(){
-  var q = prompt('What is the question?\n\ne.g. "Which weekend works?"');
-  if(!q || !q.trim()) return;
-  var opts = prompt('Options, separated by commas\n\ne.g. "12-14 Oct, 19-21 Oct, 26-28 Oct"');
-  if(!opts || !opts.trim()) return;
-  var list = opts.split(',').map(function(x){ return x.trim(); }).filter(Boolean).slice(0,5);
-  if(list.length<2){ showToast('Give at least two options'); return; }
-  chatPost('poll', {q:q.trim(), options:list, votes:{}}, q.trim());
+  var f=[
+    {key:'q', label:'Question', placeholder:'Which weekend works?'},
+    {key:'o1', label:'Option 1', placeholder:'12\u201314 Oct'},
+    {key:'o2', label:'Option 2', placeholder:'19\u201321 Oct'},
+    {key:'o3', label:'Option 3 (optional)', placeholder:''},
+    {key:'o4', label:'Option 4 (optional)', placeholder:''}
+  ]; f._submit='Start poll';
+  rwForm('\ud83d\uddf3\ufe0f New poll', f, function(v){
+    if(!v.q){ showToast('Add a question'); return; }
+    var list=[v.o1,v.o2,v.o3,v.o4].map(function(x){return (x||'').trim();}).filter(Boolean).slice(0,4);
+    if(list.length<2){ showToast('Give at least two options'); return; }
+    chatPost('poll', {q:v.q, options:list, votes:{}}, v.q);
+  });
 }
 async function chatVote(msgId, idx){
   if(!_chatRoom || !user) return;
@@ -7814,13 +7877,30 @@ function chatBubble(id, m, mine){
       +'<div style="font-size:12.5px;margin-top:2px">'+esc2(p.q||'')+' \u2192 <b>'+esc2(p.choice||'')+'</b></div></div></div>';
   }
   if(kind==='vote'){ return ''; }
-  if(kind==='budget' || kind==='plan' || kind==='meet' || kind==='paid'){
-    var col = kind==='paid' ? '#4ADE80' : kind==='meet' ? '#60A5FA' : 'var(--gold,#E8BA6C)';
+  if(kind==='meet'){
+    var p=m.payload||{};
+    var place=p.place||m.text||'', when=p.when||'', city=p.city||place;
+    var mapUrl=p.map||('https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(place+(p.city?', '+p.city:'')));
+    var slug=(city||place).toLowerCase().replace(/[^a-z ]/g,'').trim().replace(/\s+/g,'-');
+    var bms='https://in.bookmyshow.com/explore/events-'+encodeURIComponent(slug);
+    var zomato='https://www.zomato.com/'+encodeURIComponent((city||'').toLowerCase().replace(/[^a-z]/g,''))+'/restaurants';
+    return '<div style="margin:7px 0"><div style="background:var(--bg2,#12121C);border-left:3px solid #60A5FA;border-radius:9px;padding:10px 12px">'
+      +'<div style="font-size:9.5px;color:#60A5FA;font-weight:800;text-transform:uppercase;letter-spacing:.08em">\ud83d\udccd Meeting point \u00b7 '+esc2(m.name||'')+'</div>'
+      +'<div style="font-size:13px;font-weight:700;margin:3px 0 1px">'+esc2(place)+'</div>'
+      +(when?'<div style="font-size:12px;color:var(--t2)">\ud83d\udd52 '+esc2(when)+'</div>':'')
+      +'<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px">'
+      +'<a class="chat-tool" style="text-decoration:none" href="'+esc2(mapUrl)+'" target="_blank" rel="noopener">\ud83d\uddfa\ufe0f Open in Maps</a>'
+      +'<a class="chat-tool" style="text-decoration:none" href="'+esc2(bms)+'" target="_blank" rel="noopener">\ud83c\udfab Events here</a>'
+      +'<a class="chat-tool" style="text-decoration:none" href="'+esc2(zomato)+'" target="_blank" rel="noopener">\ud83c\udf7d\ufe0f Food</a>'
+      +'</div></div></div>';
+  }
+  if(kind==='budget' || kind==='plan' || kind==='paid'){
+    var col = kind==='paid' ? '#4ADE80' : 'var(--gold,#E8BA6C)';
     return '<div style="margin:7px 0"><div style="background:var(--bg2,#12121C);border-left:3px solid '+col+';border-radius:9px;padding:9px 12px">'
       +'<div style="font-size:9.5px;color:'+col+';font-weight:800;text-transform:uppercase;letter-spacing:.08em">'+K.icon+' '+K.label+' \u00b7 '+esc2(m.name||'')+'</div>'
       +'<div style="font-size:12.5px;line-height:1.55;margin-top:3px">'+esc2(m.text||'')+'</div></div></div>';
   }
-  return '<div style="display:flex;justify-content:'+(mine?'flex-end':'flex-start')+';margin:4px 0">'
+    return '<div style="display:flex;justify-content:'+(mine?'flex-end':'flex-start')+';margin:4px 0">'
     +'<div style="max-width:78%;background:'+(mine?'linear-gradient(135deg,var(--gold,#E8BA6C),var(--gold2,#C8913E));color:#0A0A0C':'var(--bg2,#12121C);color:var(--t1);border:1px solid var(--b2,#2A2A36)')
     +';border-radius:'+(mine?'14px 14px 4px 14px':'14px 14px 14px 4px')+';padding:8px 11px;font-size:12.5px;line-height:1.5">'
     +(mine?'':'<div style="font-size:9.5px;opacity:.7;margin-bottom:2px">'+esc2(m.name||'Traveller')+'</div>')

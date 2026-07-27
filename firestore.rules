@@ -365,5 +365,10 @@ service cloud.firestore {
       allow read, delete: if isAdmin();
     }
 
+    // ---- HR DOCUMENTS (offer letters, salary slips, etc.) admin only ----
+    match /hrdocs/{id} {
+      allow read, write: if isAdmin();
+    }
+
   }
 }
