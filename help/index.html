@@ -1,0 +1,160 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Help &amp; FAQ — RoamWise</title>
+<meta name="description" content="Complete guide to RoamWise: how every feature works, how to add AI keys, fix common problems, plan trips, use group chat, go offline, and more.">
+<link rel="canonical" href="https://www.roamwise.co.in/help/">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:system-ui,-apple-system,'Segoe UI',sans-serif;background:#0A0C14;color:#EDEAE2;line-height:1.7;font-size:16px}
+a{color:#E8BA6C;text-decoration:none}a:hover{text-decoration:underline}
+.wrap{max-width:820px;margin:0 auto;padding:20px 18px 80px}
+header{border-bottom:1px solid #1E1E28;padding:14px 0;margin-bottom:10px;position:sticky;top:0;background:rgba(10,12,20,.96);backdrop-filter:blur(12px);z-index:20}
+.brand{font-weight:800;font-size:19px;letter-spacing:-.01em}.brand em{color:#E8BA6C;font-style:normal}
+nav{margin-top:8px;font-size:13.5px;display:flex;gap:14px;flex-wrap:wrap}
+h1{font-size:30px;line-height:1.2;margin:14px 0 6px;letter-spacing:-.02em}
+.sub{color:#9A968E;font-size:15px;margin-bottom:18px}
+/* search */
+.q-search{width:100%;background:#12141E;border:1px solid #262633;border-radius:12px;color:#EDEAE2;font-size:15px;padding:13px 15px;outline:none;margin:6px 0 20px}
+.q-search:focus{border-color:#E8BA6C}
+/* category chips */
+.cats{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:22px}
+.cat{background:#12141E;border:1px solid #262633;border-radius:999px;color:#C9C6BE;font-size:12.5px;font-weight:600;padding:7px 13px;cursor:pointer;transition:.15s}
+.cat:hover,.cat.on{background:#E8BA6C;border-color:#E8BA6C;color:#0A0C14}
+/* section headers */
+h2{font-size:15px;text-transform:uppercase;letter-spacing:.08em;color:#E8BA6C;margin:30px 0 10px;font-weight:800}
+/* accordion */
+.faq{border:1px solid #1E1E28;border-radius:13px;margin-bottom:10px;overflow:hidden;background:#0E1018}
+.faq-q{width:100%;text-align:left;background:none;border:none;color:#EDEAE2;font-family:inherit;font-size:15.5px;font-weight:600;padding:15px 16px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:12px}
+.faq-q:hover{background:#12141E}
+.faq-q .chev{color:#6B675C;font-size:18px;transition:transform .2s;flex:0 0 auto}
+.faq.open .faq-q .chev{transform:rotate(90deg);color:#E8BA6C}
+.faq-a{max-height:0;overflow:hidden;transition:max-height .28s ease;padding:0 16px}
+.faq.open .faq-a{max-height:1400px;padding:0 16px 16px}
+.faq-a p{color:#C4C1B9;font-size:14.5px;margin:0 0 10px}
+.faq-a ol,.faq-a ul{margin:6px 0 12px 20px;color:#C4C1B9;font-size:14.5px}
+.faq-a li{margin-bottom:6px}
+.faq-a code{background:#1A1D28;border:1px solid #262633;border-radius:5px;padding:1px 6px;font-size:13px;color:#E8BA6C;font-family:ui-monospace,monospace}
+.faq-a b{color:#EDEAE2}
+.tip{background:rgba(232,186,108,.08);border:1px solid rgba(232,186,108,.25);border-radius:9px;padding:10px 12px;font-size:13.5px;color:#D8D4CC;margin:8px 0}
+.warn{background:rgba(216,79,79,.08);border:1px solid rgba(216,79,79,.28);border-radius:9px;padding:10px 12px;font-size:13.5px;color:#E8C4C4;margin:8px 0}
+.none{color:#6B675C;font-size:14px;padding:16px;text-align:center;display:none}
+footer{margin-top:40px;padding-top:20px;border-top:1px solid #1E1E28;font-size:13px;color:#6B675C;text-align:center;line-height:1.9}
+.back-app{display:inline-block;margin-top:8px;background:linear-gradient(135deg,#E8BA6C,#C8913E);color:#0A0C14;font-weight:700;padding:11px 22px;border-radius:11px;font-size:14px}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap" style="padding-top:0;padding-bottom:0">
+    <div class="brand">Roam<em>Wise</em> · Help</div>
+    <nav>
+      <a href="https://www.roamwise.co.in/">← Back to app</a>
+      <a href="https://www.roamwise.co.in/guides/">Travel guides</a>
+      <a href="#keys">AI keys</a>
+      <a href="#problems">Fix a problem</a>
+    </nav>
+  </div>
+</header>
+
+<div class="wrap">
+  <h1>Help &amp; FAQ</h1>
+  <p class="sub">Everything RoamWise can do, how to use it, and how to fix the common snags — in plain language.</p>
+
+  <input class="q-search" id="qSearch" type="text" placeholder="🔍 Search help… (e.g. 'API key', 'offline', 'group')" oninput="faqSearch()">
+
+  <div class="cats" id="cats"></div>
+
+  <div id="faqList"></div>
+  <div class="none" id="noResults">No matches. Try a different word, or <a href="mailto:hello@roamwise.co.in">email us</a>.</div>
+
+  <footer>
+    Still stuck? Email <a href="mailto:hello@roamwise.co.in">hello@roamwise.co.in</a><br>
+    RoamWise · Made in the Himalayas by Mohit Pandey · Almora, Uttarakhand, India<br>
+    <a class="back-app" href="https://www.roamwise.co.in/">Open RoamWise</a>
+  </footer>
+</div>
+
+<script>
+/* ===== FAQ DATA — edit here to add/change entries. cat = category. ===== */
+var FAQ = [
+  // GETTING STARTED
+  {cat:'Getting started', q:'What is RoamWise and what does it cost?', a:"<p>RoamWise is an AI travel planner built for Indian (and global) travellers. It builds day-by-day itineraries, shows crowd levels and real budgets, plans group trips, and works on any destination on Earth.</p><p><b>Price:</b> the core planner is free. <b>Pro is a one-time ₹100</b> (about $4.99 worldwide) — no subscription, no auto-charge, yours forever. There's a 7-day no-questions refund.</p>"},
+  {cat:'Getting started', q:'Do I need to sign up or create an account?', a:"<p>No — you can plan trips straight away without an account. An account is only useful if you want your Pro status and saved trips to sync across your phone, tablet and laptop.</p><p>To sync: open the menu (☰) → Account → sign in with Google or email.</p>"},
+  {cat:'Getting started', q:'How do I plan my first trip?', a:"<ol><li>Tap <b>Plan</b> in the bottom bar (or 'Plan a trip' in the menu).</li><li>Type a destination and pick your month and number of days.</li><li>Tap to generate — you'll get a day-by-day itinerary with a budget and crowd forecast.</li><li>Open any day to see morning / afternoon / evening suggestions with real place names.</li></ol><div class='tip'>💡 In a hurry? Just ask Ailon Tusk (the copilot box on the home screen) something like <i>“chill 4 days near Rishikesh under 12k”</i> and it plans it for you.</div>"},
+
+  // AILON TUSK / AI
+  {cat:'AI &amp; Ailon Tusk', q:'Who is Ailon Tusk?', a:"<p>Ailon Tusk is your in-app AI travel copilot. Ask it anything in plain language — destinations, budgets, food, “where's warm in February from Delhi”, or “fix my Goa plan”. It understands typos and casual phrasing.</p>"},
+  {cat:'AI &amp; Ailon Tusk', q:'The AI answers feel slow or generic. How do I make them better?', a:"<p>By default RoamWise uses a built-in smart engine (instant, offline, free). For richer AI answers, add your own free AI key — this unlocks faster, smarter, more specific responses.</p><p>Menu (☰) → 🛠 App → <b>AI setup wizard (60 sec)</b>, or Settings &amp; AI keys.</p>"},
+
+  // KEYS
+  {cat:'AI keys', q:'What is an API key and why would I add one?', a:"<p>An API key connects RoamWise to a powerful AI model (like Groq, Gemini, or others) using <b>your own free account</b>. It makes itineraries and Ailon Tusk noticeably smarter and faster. RoamWise never charges you for this — you use the provider's free tier directly.</p><div class='tip'>💡 The 60-second wizard walks you through it: Menu → 🛠 App → AI setup wizard.</div>"},
+  {cat:'AI keys', q:'Which AI providers can I use?', a:"<p>RoamWise supports these — most have a generous free tier:</p><ul><li><b>Groq</b> — very fast, free, great default. Get a key at console.groq.com.</li><li><b>Google Gemini</b> — free, high quality. aistudio.google.com → Create API key.</li><li><b>Cerebras</b> — extremely fast free tier.</li><li><b>OpenRouter</b> — one key, many models.</li><li><b>Mistral</b>, <b>GitHub Models</b>, and <b>Anthropic</b> (Claude) are also supported.</li></ul>"},
+  {cat:'AI keys', q:'How do I add a Groq key (step by step)?', a:"<ol><li>Go to <b>console.groq.com</b> and sign in (Google works).</li><li>Open <b>API Keys</b> → <b>Create API Key</b>.</li><li>Copy the key (starts with <code>gsk_…</code>).</li><li>In RoamWise: Menu → 🛠 App → <b>Settings &amp; AI keys</b> → paste it into the Groq field → Save.</li></ol><div class='tip'>💡 Your key is stored only on your device. Sign in to RoamWise to sync it across devices so you don't re-paste it.</div>"},
+  {cat:'AI keys', q:'How do I add a Google Gemini key?', a:"<ol><li>Go to <b>aistudio.google.com</b> and sign in with any Google account.</li><li>Click <b>Create API key</b> → <b>Create in new project</b>.</li><li>Copy the key (starts with <code>AIza…</code>).</li><li>In RoamWise: Settings &amp; AI keys → paste into the Gemini field → Save.</li></ol>"},
+  {cat:'AI keys', q:'Is my API key safe? Where is it stored?', a:"<p>Yes. Your key is stored locally on your device (and, if you sign in, synced privately to your account). It is never shown to other users and never sold. You can remove it any time in Settings.</p>"},
+
+  // GROUP / TRIP HUB
+  {cat:'Group trips', q:'How does group planning work?', a:"<p>Open the menu → <b>Group chat</b> (or Group planner). Create a trip chat, name it, and share it with your travel buddies. Inside, everyone gets:</p><ul><li><b>Live Kitty</b> — add expenses and it works out who owes whom, with the simplest settle-up.</li><li><b>Decision Board</b> — start a poll (dates, place, budget), and lock the winner so nobody re-asks “so what did we decide?”.</li><li><b>Living Plan</b> — a shared itinerary pinned at the top that anyone can edit.</li><li><b>@tusk</b> — tag the AI in the chat to plan for the whole group.</li></ul>"},
+  {cat:'Group trips', q:'How do I add a shared expense / split a bill?', a:"<ol><li>In the group chat, tap <b>Add expense</b>.</li><li>Enter what it was for, how much you paid, and how many people to split between.</li><li>The Kitty updates instantly — tap 💰 Kitty at the top to see the settle-up.</li></ol>"},
+  {cat:'Group trips', q:'Can I set a meeting point on a map?', a:"<p>Yes — tap <b>Meet point</b> in the group chat, enter the place, time and city. It posts a card with an <b>Open in Maps</b> button, plus quick links to events and food near that spot.</p>"},
+
+  // OFFLINE
+  {cat:'Offline &amp; saving', q:'Does RoamWise work offline?', a:"<p>Partly, yes — which matters for treks and remote areas. Your <b>saved trips</b> (Menu → My Trips) are viewable offline. The interactive live map and new AI generation need a connection, but anything you saved before losing signal stays available.</p>"},
+  {cat:'Offline &amp; saving', q:'How do I save a trip for later?', a:"<p>On any itinerary or destination, tap the ♥ / Save option. Find everything later under Menu → <b>Saved for later</b> or <b>My Trips (offline)</b>.</p>"},
+
+  // THEMES / APPEARANCE
+  {cat:'Appearance', q:'How do I change the theme (dark / black / light)?', a:"<p>RoamWise has 6 themes: Midnight, Obsidian (pure black), Forest, Daylight, Paper, and Minimal (clean white).</p><ul><li><b>On phone:</b> Menu (☰) → 🛠 App → <b>Theme</b> → pick one.</li><li><b>On desktop:</b> tap the 🎨 icon in the top bar.</li></ul><p>Your choice is remembered on that device.</p>"},
+  {cat:'Appearance', q:'How do I switch the language to Hindi?', a:"<p>Menu → 🛠 App → <b>Language</b> → हिन्दी. (On desktop, use the 🌐 icon in the top bar.) More Indian languages are coming.</p>"},
+
+  // PRO / PAYMENT
+  {cat:'Pro &amp; payment', q:'What do I get with Pro, and how do I pay?', a:"<p>Pro unlocks unlimited searches, the premium PDF itinerary, and all Pro features — <b>one-time ₹100, forever</b>. Tap <b>Pro</b> in the top bar or 'Unlock Pro' in the menu, and pay by UPI or card. No subscription, no auto-charge.</p>"},
+  {cat:'Pro &amp; payment', q:'I paid but Pro isn\u2019t showing. What do I do?', a:"<p>First, if you paid by UPI, it can take a few minutes to confirm. If it still doesn't show:</p><ol><li>Make sure you're signed in with the same account on this device.</li><li>Pull to refresh / reopen the app.</li><li>If you submitted a UPI reference (UTR), the founder approves these manually — it may take a short while.</li><li>Still stuck after a few hours? Email <a href='mailto:hello@roamwise.co.in'>hello@roamwise.co.in</a> with your payment reference.</li></ol>"},
+  {cat:'Pro &amp; payment', q:'What is the refund policy?', a:"<p>7-day, no-questions-asked refund. Email <a href='mailto:hello@roamwise.co.in'>hello@roamwise.co.in</a> within 7 days of purchase.</p>"},
+
+  // COMMON PROBLEMS
+  {cat:'Fix a problem', q:'The app looks broken or old after an update', a:"<p>RoamWise caches files to work offline, so sometimes an old version stays loaded.</p><ol><li>Fully close the app/tab and reopen it.</li><li>If on the website, do a hard refresh (or clear the site's cache in your browser settings).</li><li>On the installed app, the update loads automatically on next open.</li></ol>"},
+  {cat:'Fix a problem', q:'Sign-in or Google login isn\u2019t working', a:"<ol><li>Check your internet connection.</li><li>Try email sign-in instead of Google (or vice-versa).</li><li>If you see an error mentioning an API key or domain, it's usually a temporary server-side setting — try again shortly.</li><li>Make sure your device date &amp; time are correct (wrong clocks break secure logins).</li></ol>"},
+  {cat:'Fix a problem', q:'“Loading…” spinner that never finishes', a:"<p>Usually a weak connection while fetching live data. Reload the page/section. Your saved trips still work offline regardless. If a specific section always hangs, email us with a screenshot.</p>"},
+  {cat:'Fix a problem', q:'The AI gives wrong or odd results', a:"<p>The built-in engine is broad; for accuracy add your own AI key (see the AI keys section) which gives much better, place-specific answers. If a specific place is wrong, tell us — accuracy is improved continuously, India-first.</p>"},
+  {cat:'Fix a problem', q:'How do I report a bug or request a feature?', a:"<p>Menu → 🛠 App → <b>Request a feature</b>, or email <a href='mailto:hello@roamwise.co.in'>hello@roamwise.co.in</a>. Real user reports directly shape what gets built next.</p>"},
+
+  // FEATURES TOUR
+  {cat:'Feature tour', q:'What is the Trek Vault?', a:"<p>A curated collection of Himalayan and Indian treks with difficulty, altitude, duration and season — find it under Menu → Trek Vault.</p>"},
+  {cat:'Feature tour', q:'What is the Journey Card?', a:"<p>A shareable visual summary of your trip — your route, stats and highlights on one card. Menu → My Journey Card.</p>"},
+  {cat:'Feature tour', q:'What is Event Radar?', a:"<p>Discovers concerts, festivals and markets happening around your destination and dates. Menu → Discover → Event Radar.</p>"},
+  {cat:'Feature tour', q:'What is the Premium PDF itinerary?', a:"<p>A multi-page, designed trip plan with photos, timings and a day-by-day layout you can download and print. ₹10 for anyone, free for Pro. Build any itinerary, then tap Premium PDF.</p>"},
+  {cat:'Feature tour', q:'What is the Live World Map?', a:"<p>Tap anywhere on Earth to see the place, elevation, live weather and a one-tap plan link. Menu → Live world map, or the Map tab.</p>"}
+];
+
+var activeCat = 'All';
+function faqCats(){
+  var cats = ['All']; FAQ.forEach(function(f){ if(cats.indexOf(f.cat)<0) cats.push(f.cat); });
+  document.getElementById('cats').innerHTML = cats.map(function(c){
+    return '<button class="cat'+(c===activeCat?' on':'')+'" onclick="faqSetCat(\''+c.replace(/'/g,"\\'")+'\')">'+c+'</button>';
+  }).join('');
+}
+function faqSetCat(c){ activeCat=c; document.getElementById('qSearch').value=''; faqCats(); faqRender(); }
+function faqRender(filter){
+  filter=(filter||'').toLowerCase().trim();
+  var host=document.getElementById('faqList'); var shown=0;
+  host.innerHTML = FAQ.map(function(f,i){
+    var inCat = (activeCat==='All' || f.cat===activeCat);
+    var text=(f.q+' '+f.a+' '+f.cat).toLowerCase();
+    var match = !filter || text.indexOf(filter)>=0;
+    if(!(inCat && match)) return '';
+    shown++;
+    return '<div class="faq" id="faq'+i+'"><button class="faq-q" onclick="faqTog('+i+')">'+f.q+'<span class="chev">›</span></button><div class="faq-a">'+f.a+'</div></div>';
+  }).join('');
+  document.getElementById('noResults').style.display = shown?'none':'block';
+}
+function faqTog(i){ var e=document.getElementById('faq'+i); if(e) e.classList.toggle('open'); }
+function faqSearch(){ var q=document.getElementById('qSearch').value; if(q){ activeCat='All'; faqCats(); } faqRender(q); }
+/* deep-link: #keys etc opens that category */
+function faqHash(){
+  var h=(location.hash||'').replace('#','');
+  var map={keys:'AI keys',problems:'Fix a problem'};
+  if(map[h]){ faqSetCat(map[h]); }
+}
+faqCats(); faqRender(); faqHash();
+window.addEventListener('hashchange', faqHash);
+</script>
+</body></html>
