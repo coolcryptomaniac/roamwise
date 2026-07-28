@@ -1618,5 +1618,113 @@
    80,
    91
   ]
+ },
+ {
+  "slug": "colombo-sri-lanka",
+  "title": "Colombo, Sri Lanka",
+  "name": "Colombo",
+  "country": "Sri Lanka",
+  "best": "February, March, December",
+  "arch": "monsoon",
+  "cl": [
+   30.2,
+   32.4,
+   32.1,
+   32,
+   30.4,
+   29.3,
+   29,
+   28.7,
+   29.2,
+   28.7,
+   29,
+   30.2
+  ],
+  "scores": [
+   83,
+   95,
+   90,
+   78,
+   55,
+   56,
+   61,
+   58,
+   61,
+   55,
+   56,
+   84
+  ]
+ },
+ {
+  "slug": "ella-sri-lanka",
+  "title": "Ella, Sri Lanka",
+  "name": "Ella",
+  "country": "Sri Lanka",
+  "best": "February, March, July",
+  "arch": "tropical",
+  "cl": [
+   23.8,
+   25.2,
+   27.3,
+   27,
+   26.8,
+   26.5,
+   27.8,
+   26.4,
+   28.9,
+   25,
+   24.2,
+   24.8
+  ],
+  "scores": [
+   77,
+   95,
+   91,
+   83,
+   69,
+   89,
+   91,
+   82,
+   89,
+   62,
+   55,
+   75
+  ]
+ },
+ {
+  "slug": "male-maldives",
+  "title": "Male, Maldives",
+  "name": "Male",
+  "country": "Maldives",
+  "best": "February, March, June",
+  "arch": "monsoon",
+  "cl": [
+   28.2,
+   28.9,
+   29.2,
+   29.9,
+   29.8,
+   29.4,
+   29.4,
+   28.7,
+   28.6,
+   28.7,
+   28.4,
+   28.8
+  ],
+  "scores": [
+   82,
+   91,
+   94,
+   73,
+   56,
+   90,
+   88,
+   55,
+   71,
+   83,
+   67,
+   77
+  ]
  }
 ]
