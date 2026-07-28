@@ -45,8 +45,18 @@ button,select,input,textarea{font:inherit}
 <div id="signedOut">
   <div class="card">
     <h2>Team sign-in</h2>
-    <p class="note">Use the Google account the founder added to the team. If you see "no role assigned", your access hasn't been set up yet — message Mohit.</p>
-    <button class="btn go" style="margin-top:12px;width:100%;padding:12px" onclick="doAuth()">Sign in with Google</button>
+    <p class="note">Sign in with your email, or create an account. New accounts get a Staff ID to send to Mohit — he switches on your access from the admin panel.</p>
+    <div id="authTabs" style="display:flex;gap:6px;margin:14px 0 10px">
+      <button class="btn go" id="tabSignin" style="flex:1;padding:9px" onclick="authTab('signin')">Sign in</button>
+      <button class="btn" id="tabSignup" style="flex:1;padding:9px" onclick="authTab('signup')">Create account</button>
+    </div>
+    <input id="authEmail" class="inp" type="email" placeholder="you@email.com" autocomplete="email">
+    <input id="authPass" class="inp" type="password" placeholder="Password (min 6 characters)" autocomplete="current-password">
+    <input id="authName" class="inp hide" type="text" placeholder="Your full name">
+    <button class="btn go" id="authGo" style="width:100%;padding:12px;margin-top:6px" onclick="authEmailGo()">Sign in</button>
+    <p id="authErr" style="font-size:12px;color:#F87171;margin:8px 0 0;min-height:16px"></p>
+    <div style="text-align:center;font-size:11px;color:var(--t3);margin:12px 0">or</div>
+    <button class="btn" style="width:100%;padding:11px" onclick="doAuth()">Continue with Google</button>
   </div>
 </div>
 
@@ -165,6 +175,57 @@ try{ firebase.initializeApp(CFG); db=firebase.firestore(); }catch(e){}
 function el(i){return document.getElementById(i);}
 function esc(t){return String(t==null?'':t).replace(/[<>&]/g,function(c){return{'<':'&lt;','>':'&gt;','&':'&amp;'}[c];});}
 
+var _authMode='signin';
+function authTab(m){
+  _authMode=m;
+  el('tabSignin').className = m==='signin'?'btn go':'btn';
+  el('tabSignup').className = m==='signup'?'btn go':'btn';
+  el('authName').classList.toggle('hide', m!=='signup');
+  el('authGo').textContent = m==='signup'?'Create account':'Sign in';
+  el('authErr').textContent='';
+}
+function authEmailGo(){
+  var email=(el('authEmail').value||'').trim();
+  var pass=(el('authPass').value||'');
+  var errEl=el('authErr'); errEl.textContent='';
+  if(!email || pass.length<6){ errEl.textContent='Enter your email and a password of at least 6 characters.'; return; }
+  el('authGo').textContent='Please wait\u2026';
+  var done=function(){ /* onAuthStateChanged handles the rest */ };
+  var fail=function(e){
+    el('authGo').textContent = _authMode==='signup'?'Create account':'Sign in';
+    var c=e&&e.code||'';
+    var msg = c==='auth/email-already-in-use' ? 'That email already has an account \u2014 switch to Sign in.'
+      : c==='auth/invalid-email' ? 'That email doesn\u2019t look right.'
+      : c==='auth/wrong-password' || c==='auth/invalid-credential' ? 'Wrong email or password.'
+      : c==='auth/user-not-found' ? 'No account with that email \u2014 create one first.'
+      : c==='auth/weak-password' ? 'Password too weak \u2014 use at least 6 characters.'
+      : c==='auth/operation-not-allowed' ? 'Email sign-in isn\u2019t enabled yet. In Firebase Console \u2192 Authentication \u2192 Sign-in method, enable Email/Password.'
+      : (e&&e.message)||'Something went wrong.';
+    errEl.textContent=msg;
+  };
+  if(_authMode==='signup'){
+    var name=(el('authName').value||'').trim();
+    firebase.auth().createUserWithEmailAndPassword(email,pass).then(function(cred){
+      /* set their display name, then register a pending staff record with a
+         friendly auto Staff ID so the founder can find & approve them. */
+      if(name && cred.user) cred.user.updateProfile({displayName:name});
+      return registerPending(cred.user, name);
+    }).then(done).catch(fail);
+  } else {
+    firebase.auth().signInWithEmailAndPassword(email,pass).then(done).catch(fail);
+  }
+}
+/* Create a pending staff doc keyed by UID with an auto Staff ID (RW-XXXX). The
+   founder sees it in the admin panel and assigns a role to activate it. */
+function registerPending(u, name){
+  if(!u) return Promise.resolve();
+  var staffId = 'RW-' + (u.uid.replace(/[^a-zA-Z0-9]/g,'').slice(-4).toUpperCase());
+  return db.collection('staff').doc(u.uid).set({
+    staffId: staffId, name: name||'', email: u.email||'',
+    role: 'none', type:'', status:'pending',
+    requestedAt: new Date().toISOString()
+  }, {merge:true});
+}
 function doAuth(){
   if(user){ firebase.auth().signOut(); return; }
   var prov = new firebase.auth.GoogleAuthProvider();
@@ -200,15 +261,31 @@ firebase.auth().onAuthStateChanged(function(u){
   el('who').textContent = u.email||'';
   db.collection('staff').doc(u.uid).get().then(function(d){
     if(!d.exists){
+      /* First time here (e.g. via Google) with no record yet — create a pending
+         one with an auto Staff ID, then show it. */
+      return registerPending(u, u.displayName||'').then(function(){
+        return db.collection('staff').doc(u.uid).get();
+      });
+    }
+    return d;
+  }).then(function(d){
+    var data = d.data()||{};
+    var role = data.role||'none';
+    if(role==='none' || !role){
+      /* Signed in fine, but not activated. Show the friendly Staff ID + clear reason. */
+      var sid = data.staffId || ('RW-'+u.uid.replace(/[^a-zA-Z0-9]/g,'').slice(-4).toUpperCase());
       el('signedOut').classList.remove('hide'); el('app').classList.add('hide');
-      el('signedOut').innerHTML='<div class="card"><h2>You\'re signed in \u2014 role pending</h2>'
-        +'<p class="note">Your account works, but you\'re not on the team list yet. Send the ID below to Mohit and he\'ll switch you on.</p>'
-        +'<div style="margin:12px 0;padding:11px;background:rgba(255,255,255,.05);border-radius:9px;font-family:monospace;font-size:12px;word-break:break-all">'+esc(u.uid)+'</div>'
-        +'<button class="btn go" style="width:100%;padding:11px" onclick="navigator.clipboard.writeText(\''+u.uid+'\').then(function(){this.textContent=\'Copied!\';}.bind(this))">Copy my ID</button>'
-        +'<p class="note" style="margin-top:8px">Signed in as '+esc(u.email||'')+'</p></div>';
+      el('signedOut').innerHTML='<div class="card"><h2>Almost there \u2014 access pending</h2>'
+        +'<p class="note">Your account is created and working. You just need the founder to switch on your access. Send him your Staff ID below.</p>'
+        +'<div style="margin:14px 0;padding:14px;background:rgba(232,186,108,.1);border:1px solid rgba(232,186,108,.3);border-radius:10px;text-align:center">'
+          +'<div style="font-size:10px;letter-spacing:.1em;color:var(--t3);text-transform:uppercase">Your Staff ID</div>'
+          +'<div style="font-size:24px;font-weight:800;font-family:monospace;color:var(--gold);margin-top:3px">'+esc(sid)+'</div></div>'
+        +'<button class="btn go" style="width:100%;padding:11px" onclick="navigator.clipboard.writeText(\''+esc(sid)+'\').then(function(){this.textContent=\'Copied!\';}.bind(this))">Copy Staff ID</button>'
+        +'<a class="btn" style="width:100%;padding:11px;margin-top:8px;text-decoration:none;display:block;text-align:center;box-sizing:border-box" href="mailto:founder@roamwise.co.in?subject=Staff%20access%20request&body='+encodeURIComponent('Hi Mohit, please activate my staff access.\n\nName: '+(data.name||'')+'\nStaff ID: '+sid+'\nEmail: '+(u.email||''))+'">Email it to Mohit</a>'
+        +'<p class="note" style="margin-top:10px">Signed in as '+esc(u.email||'')+' \u00b7 <a href="#" onclick="firebase.auth().signOut();return false" style="color:var(--gold)">sign out</a></p></div>';
       return;
     }
-    ROLE = d.data().role||'';
+    ROLE = role;
     el('roleTag').innerHTML = '<span class="role '+ROLE+'">'+ROLE+'</span>';
     el('signedOut').classList.add('hide'); el('app').classList.remove('hide');
     el('finBox').style.display = ROLE==='finance'?'block':'none';
@@ -390,7 +467,18 @@ function hrLoad(){
   db.collection('staff').get().then(function(qs){
     if(qs.empty){ el('hrList').innerHTML='<p class="note">No team members yet.</p>'; return; }
     var rows=[]; qs.forEach(function(d){ rows.push({uid:d.id, x:d.data()}); });
-    el('hrList').innerHTML = rows.map(function(r){
+    var pending = rows.filter(function(r){ return (r.x.role||'none')==='none'; });
+    var active = rows.filter(function(r){ return (r.x.role||'none')!=='none'; });
+    var pendHtml = pending.length ? '<div style="background:rgba(232,186,108,.08);border:1px solid rgba(232,186,108,.25);border-radius:10px;padding:10px;margin-bottom:12px">'
+      +'<div style="font-size:11px;font-weight:800;color:var(--gold);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">\u23f3 '+pending.length+' waiting for approval</div>'
+      + pending.map(function(r){
+          return '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;padding:6px 0">'
+            +'<div><b style="font-size:12.5px">'+esc(r.x.name||r.x.email||'New user')+'</b>'
+            +'<div style="font-size:10.5px;color:var(--t3)">'+esc(r.x.staffId||'')+' \u00b7 '+esc(r.x.email||'')+'</div></div>'
+            +'<button class="btn go" style="font-size:11px;padding:5px 11px" onclick="hrAddStaff(\''+r.uid+'\')">Approve / set role</button></div>';
+        }).join('')
+      +'</div>' : '';
+    el('hrList').innerHTML = pendHtml + active.map(function(r){
       var x=r.x;
       var fixed=x.salaryFixed||0, inc=x.incentive||0;
       return '<div style="border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:11px;margin-bottom:9px">'
@@ -398,10 +486,9 @@ function hrLoad(){
           +'<b style="font-size:13.5px">'+esc(x.name||'(unnamed)')+'</b>'
           +'<span class="pill">'+esc(x.type||'Full-time')+'</span></div>'
         +'<div style="font-size:11px;color:var(--t2);line-height:1.7;margin-top:4px">'
-          +'🎫 '+esc(x.role||'none')+' · 📧 '+esc(x.email||'—')+'<br>'
-          +'💰 Fixed ₹'+fixed.toLocaleString('en-IN')+(inc?' + incentive ₹'+inc.toLocaleString('en-IN'):'')
-          +' = <b>₹'+(fixed+inc).toLocaleString('en-IN')+'/mo</b><br>'
-          +'<span style="color:var(--t3)">UID '+esc(r.uid).slice(0,12)+'…</span></div>'
+          +'\ud83c\udfab '+esc(x.role||'none')+' \u00b7 \ud83d\udce7 '+esc(x.email||'\u2014')+'<br>'
+          +(x.staffId?'\ud83c\udd94 '+esc(x.staffId)+' \u00b7 ':'')+'\ud83d\udcb0 Fixed \u20b9'+fixed.toLocaleString('en-IN')+(inc?' + \u20b9'+inc.toLocaleString('en-IN'):'')
+          +' = <b>\u20b9'+(fixed+inc).toLocaleString('en-IN')+'/mo</b></div>'
         +'<div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap">'
           +'<button class="btn" style="font-size:11px;padding:5px 10px" onclick="hrAddStaff(\''+r.uid+'\')">Edit</button>'
           +'<button class="btn" style="font-size:11px;padding:5px 10px" onclick="docGen(\'salary\',\''+r.uid+'\')">Salary slip</button>'
@@ -416,6 +503,7 @@ function hrAddStaff(uid){
     var typeOpts=STAFF_TYPES.map(function(t){return '<option'+(existing&&existing.type===t?' selected':'')+'>'+t+'</option>';}).join('');
     var roleOpts=STAFF_ROLES.map(function(t){return '<option'+(existing&&existing.role===t?' selected':'')+'>'+t+'</option>';}).join('');
     var html='<div class="card"><h3 style="margin:0 0 10px">'+(uid?'Edit team member':'Add team member')+'</h3>'
+      +(existing&&existing.staffId?'<div style="margin-bottom:8px;font-size:12px;color:var(--t2)">Staff ID: <b style="color:var(--gold);font-family:monospace">'+esc(existing.staffId)+'</b></div>':'')
       +'<label class="lab">UID (from their sign-in screen)</label>'
       +'<input id="hrUid" class="inp" value="'+esc(uid||'')+'"'+(uid?' readonly':'')+' placeholder="paste their UID">'
       +'<label class="lab">Full name</label><input id="hrName" class="inp" value="'+esc(existing&&existing.name||'')+'">'
