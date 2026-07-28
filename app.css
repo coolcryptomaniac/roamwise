@@ -1,6 +1,16 @@
 
 *{box-sizing:border-box;margin:0;padding:0}
 :root{--crim:#C4302B;--crim2:#EA5A50;--bg:#07090F;--bg2:#0C1020;--bg3:#121828;--bg4:#182030;--b1:rgba(255,255,255,.07);--b2:rgba(255,255,255,.12);--gold:#C8913E;--gold2:#E8BA6C;--teal:#16BF96;--red:#D84F4F;--amber:#E09030;--pm:#9B59F5;--pm2:#BF8CFF;--t1:#EDE8DF;--t2:#8A8680;--t3:#4A4946}
+/* ===== THEMES: switch via <html data-theme="..."> — all colors cascade from these vars ===== */
+/* Midnight (default dark) is :root above. */
+html[data-theme="obsidian"]{--bg:#000000;--bg2:#0A0A0A;--bg3:#141414;--bg4:#1C1C1C;--b1:rgba(255,255,255,.06);--b2:rgba(255,255,255,.1);--t1:#F5F5F5;--t2:#9A9A9A;--t3:#555}
+html[data-theme="daylight"]{--bg:#F7F6F3;--bg2:#FFFFFF;--bg3:#EFEDE8;--bg4:#E6E3DC;--b1:rgba(0,0,0,.08);--b2:rgba(0,0,0,.14);--t1:#1A1A1A;--t2:#5A5A5A;--t3:#9A9A9A;--gold:#B67B2E;--gold2:#C8913E}
+html[data-theme="paper"]{--bg:#FBF7EF;--bg2:#FFFDF8;--bg3:#F2EBDD;--bg4:#E8DFCB;--b1:rgba(60,40,20,.08);--b2:rgba(60,40,20,.15);--t1:#2A2118;--t2:#6B5D4A;--t3:#A89B85;--gold:#A9772B;--gold2:#C08B3C}
+html[data-theme="forest"]{--bg:#0A1410;--bg2:#0E1B15;--bg3:#13251C;--bg4:#1A3227;--b1:rgba(160,255,200,.07);--b2:rgba(160,255,200,.13);--t1:#E8F0EA;--t2:#8AA595;--t3:#4A5D52;--gold:#3FB984;--gold2:#5FD9A4;--teal:#16BF96}
+html[data-theme="minimal"]{--bg:#FFFFFF;--bg2:#FAFAFA;--bg3:#F4F4F4;--bg4:#ECECEC;--b1:rgba(0,0,0,.06);--b2:rgba(0,0,0,.1);--t1:#111111;--t2:#666666;--t3:#AAAAAA;--gold:#111111;--gold2:#333333}
+/* light themes need their inline dark backgrounds softened where CSS uses raw #07090F */
+html[data-theme="daylight"] .logo-icon,html[data-theme="paper"] .logo-icon,html[data-theme="minimal"] .logo-icon,html[data-theme="daylight"] .hb-gold,html[data-theme="paper"] .hb-gold,html[data-theme="minimal"] .hb-gold{color:#fff}
+html[data-theme="daylight"] .nav,html[data-theme="paper"] .nav,html[data-theme="minimal"] .nav{background:rgba(255,255,255,.9)}
 body{background:var(--bg);color:var(--t1);font-family:'Outfit',sans-serif;font-size:14px;line-height:1.6;overflow-x:hidden}
 @keyframes spin{to{transform:rotate(360deg)}}
 @keyframes fadeup{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
@@ -696,3 +706,25 @@ body.shell .hamb{display:flex}
   .tk-head::after{animation:none!important}
   .tk-chip::before{transition:none}
 }
+
+/* ===== DEVICE-ADAPTIVE UI (classes set by rwDetectDevice) ===== */
+/* Touch devices: bigger tap targets, no hover-dependent affordances */
+html.is-touch .btn,html.is-touch .nav-ic,html.is-touch .tact{min-height:40px}
+html.is-touch .cbtn,html.is-touch .tab{min-height:42px}
+/* Phones: comfortable spacing, prevent iOS zoom on inputs (font>=16px) */
+html.is-phone .inp,html.is-phone input,html.is-phone select,html.is-phone textarea{font-size:16px}
+html.is-phone .nav-inner{height:50px}
+/* iOS/iPadOS: respect the notch & home indicator via safe-area insets */
+html.os-ios .nav,html.os-ipados .nav{padding-top:env(safe-area-inset-top)}
+html.os-ios body,html.os-ipados body{padding-bottom:env(safe-area-inset-bottom)}
+html.os-ios .overlay .sheet,html.os-ipados .overlay .sheet{padding-bottom:calc(env(safe-area-inset-bottom) + 12px)}
+/* Tablets: use the extra width, roomier cards */
+html.is-tablet .nav-inner{max-width:840px}
+/* Desktop: hover affordances, tighter density, wider canvas */
+html.is-desktop .btn{cursor:pointer}
+html.is-desktop .nav-inner{max-width:1040px}
+html.sz-xl .nav-inner{max-width:1160px}
+/* Mac/desktop fine-tuning: crisper font smoothing */
+html.os-mac body,html.is-desktop body{-webkit-font-smoothing:antialiased}
+/* Respect reduced-motion preference (accessibility) */
+html.reduce-motion *,html.reduce-motion *::before,html.reduce-motion *::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important;scroll-behavior:auto!important}

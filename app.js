@@ -393,6 +393,93 @@ function rwInitLang(){
   rwApplyLang();
 }
 
+/* ==================== DEVICE DETECTION & ADAPTIVE UI ====================
+   Browsers deliberately hide exact hardware (you cannot read "MacBook Air" vs
+   "Pro", or a phone's model, from the web — it's a privacy boundary). What we
+   CAN detect reliably: OS, device class (phone/tablet/desktop), touch, screen
+   size, notch/safe-area, and reduced-motion. We adapt the UI to those, which is
+   what actually improves the experience. Sets classes on <html> for CSS + a
+   global RW_DEVICE object for JS. */
+var RW_DEVICE = {};
+function rwDetectDevice(){
+  var ua = navigator.userAgent||'';
+  var uaLower = ua.toLowerCase();
+  var plat = (navigator.platform||'');
+  var maxTouch = navigator.maxTouchPoints||0;
+  var w = window.innerWidth, h = window.innerHeight;
+  var os='other', devclass='desktop';
+  // --- OS ---
+  if(/iphone|ipod/.test(uaLower)) os='ios';
+  else if(/ipad/.test(uaLower) || (plat==='MacIntel' && maxTouch>1)) os='ipados'; // modern iPad reports as Mac + touch
+  else if(/android/.test(uaLower)) os='android';
+  else if(/mac/.test(uaLower)) os='mac';
+  else if(/win/.test(uaLower)) os='windows';
+  else if(/linux|ubuntu|x11/.test(uaLower)) os='linux';
+  else if(/cros/.test(uaLower)) os='chromeos';
+  // --- device class ---
+  var touch = maxTouch>0 || 'ontouchstart' in window;
+  if(os==='ios' || (os==='android' && /mobile/.test(uaLower))) devclass='phone';
+  else if(os==='ipados' || (os==='android' && !/mobile/.test(uaLower))) devclass='tablet';
+  else if(touch && w<900) devclass='phone';
+  else if(touch && w<1200) devclass='tablet';
+  else devclass='desktop';
+  // small-desktop refinement by width for laptops
+  var sizeClass = w<430?'xs' : w<768?'sm' : w<1024?'md' : w<1440?'lg' : 'xl';
+  RW_DEVICE = { os:os, devclass:devclass, touch:touch, w:w, h:h, size:sizeClass,
+    ios:(os==='ios'||os==='ipados'), apple:(os==='ios'||os==='ipados'||os==='mac'),
+    reducedMotion: (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) };
+  // apply classes to <html>
+  var r=document.documentElement;
+  r.classList.remove('is-phone','is-tablet','is-desktop','os-ios','os-ipados','os-android','os-mac','os-windows','os-linux','os-chromeos','is-touch','no-touch');
+  r.classList.add('is-'+devclass, 'os-'+os, touch?'is-touch':'no-touch', 'sz-'+sizeClass);
+  if(RW_DEVICE.reducedMotion) r.classList.add('reduce-motion');
+  return RW_DEVICE;
+}
+function rwInitDevice(){
+  rwDetectDevice();
+  var _t; window.addEventListener('resize', function(){ clearTimeout(_t); _t=setTimeout(rwDetectDevice, 200); });
+}
+
+/* ==================== THEMES ====================
+   6 themes via a data-theme attribute on <html>. All colors are CSS vars in
+   app.css, so switching just swaps the attribute. Remembered per device. */
+var RW_THEMES = [
+  {id:'midnight', name:'Midnight', sub:'Default dark', dot:'#07090F'},
+  {id:'obsidian', name:'Obsidian', sub:'Pure black (OLED)', dot:'#000000'},
+  {id:'forest',   name:'Forest',   sub:'Deep green dark', dot:'#0A1410'},
+  {id:'daylight', name:'Daylight', sub:'Warm light', dot:'#F7F6F3'},
+  {id:'paper',    name:'Paper',    sub:'Sepia reading', dot:'#FBF7EF'},
+  {id:'minimal',  name:'Minimal',  sub:'Clean white', dot:'#FFFFFF'}
+];
+function rwSetTheme(id){
+  if(id==='midnight'){ document.documentElement.removeAttribute('data-theme'); }
+  else{ document.documentElement.setAttribute('data-theme', id); }
+  try{ lsSet('rw_theme', id); }catch(e){}
+  /* keep the mobile status-bar color in sync */
+  try{
+    var th=RW_THEMES.filter(function(x){return x.id===id;})[0];
+    var mt=document.querySelector('meta[name="theme-color"]');
+    if(mt && th) mt.setAttribute('content', th.dot);
+  }catch(e){}
+  try{ var lbl=el('themeLabel'); if(lbl){ var T=RW_THEMES.filter(function(x){return x.id===id;})[0]; lbl.textContent=T?T.name:'Theme'; } }catch(e){}
+}
+function rwToggleThemeMenu(){
+  var m=el('themeMenu'); if(!m) return;
+  m.style.display = m.style.display==='block'?'none':'block';
+}
+function rwInitTheme(){
+  var saved=''; try{ saved=lsGet('rw_theme'); }catch(e){}
+  var m=el('themeMenu');
+  if(m){
+    m.innerHTML = RW_THEMES.map(function(T){
+      return '<button class="theme-opt" onclick="rwSetTheme(\''+T.id+'\');rwToggleThemeMenu()">'
+        +'<span class="theme-dot" style="background:'+T.dot+'"></span>'
+        +'<span class="theme-txt"><b>'+T.name+'</b><small>'+T.sub+'</small></span></button>';
+    }).join('');
+  }
+  rwSetTheme(saved || 'midnight');
+}
+
 var AC = 'INR';
 var AUTH_ENABLED = (typeof FIREBASE_CONFIG!=='undefined') && FIREBASE_CONFIG.apiKey && FIREBASE_CONFIG.apiKey!=='PASTE_ME';
 /* Pro is account-bound. With accounts ON, never trust the local flag at boot —
@@ -2198,7 +2285,9 @@ function renderNewsPulse(){
 }
 
 document.addEventListener('DOMContentLoaded', function(){
+  try{ rwInitDevice(); }catch(e){}
   try{ rwInitLang(); }catch(e){}
+  try{ rwInitTheme(); }catch(e){}
   try{ renderEventBanner(); }catch(e){}
   try{ renderEvents(); }catch(e){}
   try{ renderSpotlight(); }catch(e){}

@@ -274,6 +274,13 @@ html{-webkit-text-size-adjust:100%}
 .lang-opt{display:flex;flex-direction:column;align-items:flex-start;width:100%;background:none;border:none;color:var(--t1,#fff);font:inherit;font-size:14px;font-weight:600;padding:9px 11px;border-radius:8px;cursor:pointer;text-align:left}
 .lang-opt:hover{background:rgba(255,255,255,.06)}
 .lang-opt small{font-size:10.5px;color:var(--t3,#888);font-weight:400}
+.theme-opt{display:flex;align-items:center;gap:10px;width:100%;background:none;border:none;color:var(--t1,#fff);font:inherit;padding:9px 11px;border-radius:8px;cursor:pointer;text-align:left}
+.theme-opt:hover{background:rgba(255,255,255,.06)}
+.theme-dot{width:20px;height:20px;border-radius:50%;border:1px solid rgba(255,255,255,.2);flex:0 0 auto}
+.theme-txt{display:flex;flex-direction:column}
+.theme-txt b{font-size:13px;font-weight:600}
+.theme-txt small{font-size:10px;color:var(--t3,#888)}
+#themeMenu{min-width:180px}
 .trust-row{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:10px 0 4px}
 .trust-badge{font-size:10.5px;font-weight:600;color:var(--t2,#C8C8D0);background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:999px;padding:4px 9px;white-space:nowrap}
 .price-old s{color:var(--t3,#888);opacity:.75}
@@ -311,6 +318,10 @@ html{-webkit-text-size-adjust:100%}
       <div class="lang-wrap">
         <button class="nav-ic" onclick="rwToggleLangMenu()" title="Language / भाषा" style="background:none;border:none;color:var(--t1);font-size:13px;cursor:pointer;padding:6px 8px;display:flex;align-items:center;gap:3px">&#127760; <span id="langLabel">English</span></button>
         <div id="langMenu" class="lang-menu"></div>
+      </div>
+      <div class="lang-wrap">
+        <button class="nav-ic" onclick="rwToggleThemeMenu()" title="Theme" style="background:none;border:none;color:var(--t1);font-size:15px;cursor:pointer;padding:6px 8px">&#127912;</button>
+        <div id="themeMenu" class="lang-menu"></div>
       </div>
       <button class="nav-ic" onclick="ssOpen()" title="Search" style="background:none;border:none;color:var(--t1);font-size:17px;cursor:pointer;padding:6px">&#128269;</button>
       <button class="mode-chip mode-free" id="modeChip" onclick="openSettings()">Smart Mode (free)</button>
