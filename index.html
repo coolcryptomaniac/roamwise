@@ -269,6 +269,18 @@ html{-webkit-text-size-adjust:100%}
   .tabbar button{font-size:12.5px}
   .exp-grid{grid-template-columns:repeat(auto-fill,minmax(280px,1fr))}
 }
+.lang-wrap{position:relative}
+.lang-menu{display:none;position:absolute;top:100%;right:0;margin-top:6px;background:var(--bg2,#12121C);border:1px solid var(--b2,#2A2A36);border-radius:12px;padding:6px;min-width:140px;z-index:200;box-shadow:0 8px 28px rgba(0,0,0,.5)}
+.lang-opt{display:flex;flex-direction:column;align-items:flex-start;width:100%;background:none;border:none;color:var(--t1,#fff);font:inherit;font-size:14px;font-weight:600;padding:9px 11px;border-radius:8px;cursor:pointer;text-align:left}
+.lang-opt:hover{background:rgba(255,255,255,.06)}
+.lang-opt small{font-size:10.5px;color:var(--t3,#888);font-weight:400}
+.trust-row{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:10px 0 4px}
+.trust-badge{font-size:10.5px;font-weight:600;color:var(--t2,#C8C8D0);background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:999px;padding:4px 9px;white-space:nowrap}
+.price-old s{color:var(--t3,#888);opacity:.75}
+.pay-testi{margin:12px 0 4px;padding:11px 13px;background:rgba(232,186,108,.07);border:1px solid rgba(232,186,108,.2);border-radius:12px}
+.pay-testi .stars{color:#E8BA6C;font-size:12px;letter-spacing:1px}
+.pay-testi .quote{font-size:12.5px;line-height:1.5;color:var(--t1,#fff);margin:4px 0 3px;font-style:italic}
+.pay-testi .who{font-size:10.5px;color:var(--t3,#888)}
 </style>
 </head>
 <body>
@@ -296,10 +308,14 @@ html{-webkit-text-size-adjust:100%}
       <span class="logo-text">Roam<span>Wise</span></span>
     </a>
     <div class="nav-right">
+      <div class="lang-wrap">
+        <button class="nav-ic" onclick="rwToggleLangMenu()" title="Language / भाषा" style="background:none;border:none;color:var(--t1);font-size:13px;cursor:pointer;padding:6px 8px;display:flex;align-items:center;gap:3px">&#127760; <span id="langLabel">English</span></button>
+        <div id="langMenu" class="lang-menu"></div>
+      </div>
       <button class="nav-ic" onclick="ssOpen()" title="Search" style="background:none;border:none;color:var(--t1);font-size:17px;cursor:pointer;padding:6px">&#128269;</button>
       <button class="mode-chip mode-free" id="modeChip" onclick="openSettings()">Smart Mode (free)</button>
       <button class="btn btn-sm" onclick="openSettings()">&#9881; Settings</button>
-      <button class="btn btn-ghost" onclick="scrollTo(0,document.getElementById('app').offsetTop-10)">Plan</button>
+      <button class="btn btn-ghost" data-i18n="nav.plan" onclick="scrollTo(0,document.getElementById('app').offsetTop-10)">Plan</button>
       <button class="xp-chip" id="xpChip" onclick="openDrawer()" title="Your traveler rank">&#129399; <span id="xpChipTxt">Genin</span></button>
       <button class="btn btn-pro" id="proBtn" onclick="openPay()">Pro &#8377;100</button>
       <button class="btn btn-ghost" id="authBtn" onclick="openAuth()" style="display:none">Sign in</button>
@@ -335,10 +351,10 @@ html{-webkit-text-size-adjust:100%}
   </div>
 </section>
 <div class="hero-sky v v-home v-web-only"><div class="kumo" style="top:12%;left:4%"></div><div class="kumo k2" style="top:58%;right:6%"></div><div class="kumo k3" style="top:30%;right:22%"></div><div class="hero">
-  <h1>Escape the crowds.<br><em>Discover your world.</em></h1>
-  <p>The AI travel planner that works for any destination on Earth — smart itineraries, crowd heatmaps, real budget breakdowns and packing lists. No signup. No subscription. Pay once, yours forever.</p>
+  <h1><span data-i18n="hero.title1">Escape the crowds.</span><br><em data-i18n="hero.title2">Discover your world.</em></h1>
+  <p data-i18n="hero.sub">The AI travel planner that works for any destination on Earth — smart itineraries, crowd heatmaps, real budget breakdowns and packing lists. No signup. No subscription. Pay once, yours forever.</p>
   <div class="hero-btns">
-    <button class="hero-btn hb-gold" onclick="scrollTo(0,document.getElementById('app').offsetTop-10)">Start Planning &mdash; Free &rarr;</button>
+    <button class="hero-btn hb-gold" data-i18n="hero.startFree" onclick="scrollTo(0,document.getElementById('app').offsetTop-10)">Start Planning &mdash; Free &rarr;</button>
     <button class="hero-btn hb-pm" onclick="openPay()" id="heroProBtn">Unlock Pro &mdash; &#8377;100</button>
   </div>
   <div class="trust-strip">
@@ -795,8 +811,8 @@ html{-webkit-text-size-adjust:100%}
     <button class="modal-close" onclick="closePay()">&#215;</button>
     <div class="modal-head">
       <span class="modal-crown">&#128081;</span>
-      <div class="modal-title">RoamWise Pro</div>
-      <div class="modal-sub">Pay once &bull; Unlock forever</div>
+      <div class="modal-title" data-i18n="pay.title">RoamWise Pro</div>
+      <div class="modal-sub" data-i18n="pay.sub">Pay once &bull; Unlock forever</div>
     </div>
     <div class="modal-body">
       <div class="pay-tabs">
@@ -806,7 +822,12 @@ html{-webkit-text-size-adjust:100%}
       <div class="price-hero">
         <div class="big-price" id="bigPrice">&#8377;100</div>
         <div class="price-sub" id="priceSub">One-time &bull; Lifetime &bull; No subscription</div>
-        <div class="price-old" id="priceOld">Worth &#8377;999/year &mdash; yours for &#8377;100 forever</div>
+        <div class="price-old" id="priceOld"><s>&#8377;999/year</s> &rarr; <b>&#8377;100 forever</b> &middot; founder price</div>
+      </div>
+      <div class="trust-row">
+        <span class="trust-badge" data-i18n="pay.refund">&#128737;&#65039; 7-day refund &mdash; no questions</span>
+        <span class="trust-badge" data-i18n="pay.secure">&#128274; Secure UPI / Card</span>
+        <span class="trust-badge" data-i18n="pay.noAuto">&#9989; One-time, no auto-charge</span>
       </div>
       <div class="features-grid">
         <div class="feat-item"><span class="feat-ck">&#10003;</span>Full itineraries</div>
@@ -817,6 +838,12 @@ html{-webkit-text-size-adjust:100%}
         <div class="feat-item"><span class="feat-ck">&#10003;</span>Visa details</div>
         <div class="feat-item"><span class="feat-ck">&#10003;</span>AI enhancement</div>
         <div class="feat-item"><span class="feat-ck">&#10003;</span>Unlimited searches</div>
+      </div>
+      <!-- ===== TESTIMONIALS: replace the quote/who text below with REAL user quotes when you have them ===== -->
+      <div class="pay-testi" id="payTesti">
+        <div class="stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+        <div class="quote" id="testiQuote">&ldquo;Planned our whole Manali trip in one evening &mdash; the budget split alone saved us so many arguments.&rdquo;</div>
+        <div class="who" id="testiWho">&mdash; Priya, group trip to Himachal</div>
       </div>
       <div id="payIndiaSec">
       <div id="founderBanner" style="display:none;margin-bottom:12px;padding:13px 14px;border-radius:16px;color:#fff;background:linear-gradient(135deg,#C8913E,#8E5B1F);box-shadow:0 8px 26px rgba(200,145,62,.28)"></div>

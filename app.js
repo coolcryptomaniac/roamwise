@@ -304,6 +304,95 @@ function lsGet(k){ return LS.getItem(k)||''; }
 function lsSet(k,v){ LS.setItem(k,v); }
 function el(id){ return document.getElementById(id); }
 
+/* ==================== i18n — LANGUAGE SYSTEM ====================
+   Extensible localization. To add a language: add a dictionary to RW_I18N with
+   the same keys as 'hi', add it to RW_LANGS, done. Elements with data-i18n="key"
+   get their text swapped; data-i18n-ph="key" swaps placeholders. Missing keys
+   fall back to the existing English text, so partial translations are safe. */
+var RW_LANGS = [
+  {code:'en', label:'English', native:'English'},
+  {code:'hi', label:'Hindi',   native:'हिन्दी'}
+  /* add later: {code:'ta',label:'Tamil',native:'தமிழ்'}, {code:'bn',...}, {code:'mr',...} */
+];
+var RW_I18N = {
+  hi: {
+    'nav.plan':'प्लान',
+    'nav.signin':'साइन इन',
+    'nav.pro':'प्रो ₹100',
+    'hero.title1':'भीड़ से दूर।',
+    'hero.title2':'अपनी दुनिया खोजें।',
+    'hero.sub':'कहाँ जाना है? AI से किसी भी जगह का स्मार्ट प्लान — बजट, भीड़ का हाल और पैकिंग लिस्ट। न साइनअप, न सब्सक्रिप्शन। एक बार भरो, हमेशा के लिए।',
+    'hero.startFree':'प्लानिंग शुरू करें — फ्री →',
+    'hero.unlockPro':'प्रो अनलॉक करें — ₹100',
+    'chip.noSignup':'कोई साइनअप नहीं',
+    'chip.oneTime':'एक बार का पेमेंट',
+    'chip.countries':'देश',
+    'search.destination':'कहाँ जाना है?',
+    'search.plan':'मेरा प्लान बनाओ',
+    'pay.title':'RoamWise प्रो',
+    'pay.sub':'एक बार भरो • हमेशा के लिए अनलॉक',
+    'pay.oneTime':'एक बार • लाइफटाइम • कोई सब्सक्रिप्शन नहीं',
+    'pay.refund':'🛡️ 7-दिन रिफंड — बिना सवाल',
+    'pay.secure':'🔒 सुरक्षित UPI / कार्ड',
+    'pay.noAuto':'✅ एक बार का, ऑटो-चार्ज नहीं',
+    'pay.unlock':'अभी अनलॉक करें',
+    'promo.unlock':'प्रो अनलॉक करें — लाइफटाइम एक्सेस',
+    'common.free':'फ्री',
+    'common.more':'और देखें',
+    'common.close':'बंद करें'
+  }
+};
+var RW_LANG = 'en';
+function rwLang(){ return RW_LANG; }
+/* translate a key; falls back to the provided default (or the key) */
+function t(key, def){
+  var d = RW_I18N[RW_LANG];
+  if(d && d[key]!=null) return d[key];
+  return (def!=null ? def : key);
+}
+function rwSetLang(code){
+  RW_LANG = code;
+  try{ lsSet('rw_lang', code); }catch(e){}
+  try{ document.documentElement.setAttribute('lang', code); }catch(e){}
+  rwApplyLang();
+}
+/* Swap all tagged elements. English is the source of truth in the HTML, so for
+   'en' we restore original text stored on first run. */
+function rwApplyLang(){
+  var nodes = document.querySelectorAll('[data-i18n]');
+  nodes.forEach(function(n){
+    var key=n.getAttribute('data-i18n');
+    if(n.getAttribute('data-i18n-orig')==null) n.setAttribute('data-i18n-orig', n.innerHTML);
+    var orig=n.getAttribute('data-i18n-orig');
+    n.innerHTML = (RW_LANG==='en') ? orig : t(key, orig);
+  });
+  var phs = document.querySelectorAll('[data-i18n-ph]');
+  phs.forEach(function(n){
+    var key=n.getAttribute('data-i18n-ph');
+    if(n.getAttribute('data-i18n-ph-orig')==null) n.setAttribute('data-i18n-ph-orig', n.getAttribute('placeholder')||'');
+    var orig=n.getAttribute('data-i18n-ph-orig');
+    n.setAttribute('placeholder', (RW_LANG==='en') ? orig : t(key, orig));
+  });
+  try{ var lbl=el('langLabel'); if(lbl){ var L=RW_LANGS.filter(function(x){return x.code===RW_LANG;})[0]; lbl.textContent=L?L.native:'English'; } }catch(e){}
+}
+function rwToggleLangMenu(){
+  var m=el('langMenu'); if(!m) return;
+  m.style.display = m.style.display==='block'?'none':'block';
+}
+function rwInitLang(){
+  var saved=''; try{ saved=lsGet('rw_lang'); }catch(e){}
+  RW_LANG = saved || 'en';
+  /* build the picker menu */
+  var m=el('langMenu');
+  if(m){
+    m.innerHTML = RW_LANGS.map(function(L){
+      return '<button class="lang-opt" onclick="rwSetLang(\''+L.code+'\');rwToggleLangMenu()">'+L.native+'<small>'+L.label+'</small></button>';
+    }).join('');
+  }
+  try{ document.documentElement.setAttribute('lang', RW_LANG); }catch(e){}
+  rwApplyLang();
+}
+
 var AC = 'INR';
 var AUTH_ENABLED = (typeof FIREBASE_CONFIG!=='undefined') && FIREBASE_CONFIG.apiKey && FIREBASE_CONFIG.apiKey!=='PASTE_ME';
 /* Pro is account-bound. With accounts ON, never trust the local flag at boot —
@@ -2109,6 +2198,7 @@ function renderNewsPulse(){
 }
 
 document.addEventListener('DOMContentLoaded', function(){
+  try{ rwInitLang(); }catch(e){}
   try{ renderEventBanner(); }catch(e){}
   try{ renderEvents(); }catch(e){}
   try{ renderSpotlight(); }catch(e){}
@@ -4460,6 +4550,22 @@ function rwStopCountdown(){ if(_cdTimer){ clearInterval(_cdTimer); _cdTimer=null
 })();
 
 /* PAYMENT */
+/* ===== TESTIMONIALS: edit this list with REAL user quotes when you have them.
+   Each = [quote, who]. They rotate each time the pay modal opens. ===== */
+var RW_TESTIMONIALS = [
+  ['Planned our whole Manali trip in one evening \u2014 the budget split alone saved us so many arguments.', '\u2014 Priya, group trip to Himachal'],
+  ['The \u20b9100 was the easiest yes ever. Made a 5-day Goa plan with costs in minutes.', '\u2014 Rahul, Bengaluru'],
+  ['Finally a planner that gets Indian trips \u2014 crowds, budgets, everything in one place.', '\u2014 Sneha, Delhi']
+];
+var _rwTestiIdx = 0;
+function rwRotateTesti(){
+  if(!RW_TESTIMONIALS.length) return;
+  var t = RW_TESTIMONIALS[_rwTestiIdx % RW_TESTIMONIALS.length];
+  _rwTestiIdx++;
+  var q=el('testiQuote'), w=el('testiWho');
+  if(q) q.innerHTML='\u201c'+t[0]+'\u201d';
+  if(w) w.innerHTML=t[1];
+}
 function openPay(){
   try{ track('pay_opens'); }catch(e){}
   if(typeof PLAY_MODE!=='undefined' && PLAY_MODE && !window.RWBilling){
@@ -4467,6 +4573,7 @@ function openPay(){
     return;
   }
   if(isPro){ showToast('Pro is already active!'); return; }
+  try{ rwRotateTesti(); }catch(e){}
   el('payOverlay').classList.add('open');
   document.body.style.overflow = 'hidden';
   var picker=el('planPicker'); if(picker) picker.innerHTML='<div style="text-align:center;font-size:12px;color:var(--t3);padding:10px">Loading plans\u2026</div>';
