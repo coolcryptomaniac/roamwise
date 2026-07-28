@@ -42,7 +42,8 @@ service cloud.firestore {
     // ---- STAFF ROLES ----
     match /staff/{uid} {
       allow read: if isAdmin() || (signedIn() && request.auth.uid == uid);
-      allow write: if isAdmin();
+      allow create: if isAdmin() || (signedIn() && request.auth.uid == uid && request.resource.data.role == 'none');
+      allow update, delete: if isAdmin();
     }
 
     // ---- USER PROFILES ----
@@ -60,13 +61,24 @@ service cloud.firestore {
         && request.resource.data.name.size() <= 120
         && request.resource.data.contact is string
         && request.resource.data.contact.size() <= 160;
-      allow update: if request.resource.data.name is string;
+      // tracking updates (scroll depth, time) don't resend name - allow any
+      // update to an existing lead so engagement data actually records.
+      allow update: if resource != null;
       allow read, delete: if isAdmin();
     }
 
     // ---- HR DOCUMENTS (offer letters, salary slips, etc.) admin only ----
     match /hrdocs/{id} {
       allow read, write: if isAdmin();
+    }
+
+    // ---- ADMINS (owner allow-list) ----
+    // Read your own doc. You may set ONLY your own pinHash (second-factor);
+    // you can never grant yourself admin status - that is Console-only.
+    match /admins/{uid} {
+      allow read: if request.auth != null && request.auth.uid == uid;
+      allow update: if request.auth != null && request.auth.uid == uid
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['pinHash']);
     }
 
     match /{document=**} {

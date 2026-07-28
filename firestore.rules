@@ -87,7 +87,10 @@ service cloud.firestore {
     // Never writable from any client. Add your own UID manually in the Firebase Console.
     match /admins/{uid} {
       allow read: if isSelf(uid);
-      allow write: if false;
+      // You may set ONLY your own pinHash (the second-factor lock). You can
+      // never grant yourself admin status - that stays Console-only.
+      allow update: if isSelf(uid)
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['pinHash']);
     }
 
     match /stats/{day} {
@@ -255,10 +258,15 @@ service cloud.firestore {
     function isStaff()     { return isMarketing() || isFinance(); }
 
     match /staff/{uid} {
-      // a member of staff may read their OWN record (to know their role);
-      // only the founder can create, change or revoke one.
+      // a member of staff may read their OWN record (to know their role).
       allow read: if isAdmin() || (request.auth != null && request.auth.uid == uid);
-      allow write: if isAdmin();
+      // a signed-in person may self-register ONLY their own pending record
+      // (role must be 'none' - they can't make themselves staff). Only the
+      // founder can assign a real role or change anyone else's record.
+      allow create: if isAdmin() ||
+        (request.auth != null && request.auth.uid == uid
+         && request.resource.data.role == 'none');
+      allow update, delete: if isAdmin();
     }
 
     // ---------- TASKS (the intern work board) ----------
@@ -361,7 +369,9 @@ service cloud.firestore {
         && request.resource.data.name.size() <= 120
         && request.resource.data.contact is string
         && request.resource.data.contact.size() <= 160;
-      allow update: if request.resource.data.name is string;
+      // tracking updates (scroll depth, time) don't resend name - allow any
+      // update to an existing lead so engagement data actually records.
+      allow update: if resource != null;
       allow read, delete: if isAdmin();
     }
 
