@@ -743,7 +743,12 @@ html{-webkit-text-size-adjust:100%}
   
 </div></div>
 <div class="dr-grp"><button class="dr-gh" onclick="drToggle(this)">🛠 App<span class="chev">›</span></button><div class="dr-gb">
+  <a class="dr-link" onclick="drThemePick()"><span class="ic">🎨</span>Theme<span id="drThemeVal" style="margin-left:auto;color:var(--t3);font-size:11px"></span></a>
+  <div id="drThemeList" style="display:none;padding:2px 0 2px 30px"></div>
+  <a class="dr-link" onclick="drLangPick()"><span class="ic">🌐</span>Language<span id="drLangVal" style="margin-left:auto;color:var(--t3);font-size:11px"></span></a>
+  <div id="drLangList" style="display:none;padding:2px 0 2px 30px"></div>
   <a class="dr-link" onclick="closeDrawer();openSettings()"><span class="ic">⚙️</span>Settings &amp; AI keys</a>
+  <a class="dr-link" href="https://roamwise.co.in/help/" onclick="event.preventDefault();rwOpenSite('help/')" rel="noopener"><span class="ic">❓</span>Help &amp; FAQ</a>
   <a class="dr-link" onclick="closeDrawer();openWizard()"><span class="ic">🧠</span>AI setup wizard (60 sec)</a>
   <a class="dr-link" onclick="closeDrawer();shareApp('app')"><span class="ic">📤</span>Share RoamWise (+15 XP)</a>
   <a class="dr-link" onclick="closeDrawer();requestFeature()"><span class="ic">💡</span>Request a feature</a>

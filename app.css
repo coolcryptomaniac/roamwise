@@ -21,10 +21,11 @@ body{background:var(--bg);color:var(--t1);font-family:'Outfit',sans-serif;font-s
 /* NAV */
 .nav{position:sticky;top:0;z-index:200;background:rgba(7,9,15,.95);backdrop-filter:blur(16px);border-bottom:1px solid var(--b1);padding:0 16px}
 .nav-inner{max-width:960px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:52px}
-.logo-wrap{display:flex;align-items:center;gap:8px;cursor:pointer;text-decoration:none}
+.logo-wrap{display:flex;align-items:center;gap:8px;cursor:pointer;text-decoration:none;flex:0 0 auto;margin-right:10px}
 .logo-icon{width:28px;height:28px;border-radius:7px;background:linear-gradient(135deg,var(--gold),var(--gold2));display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#07090F;flex-shrink:0}
 .logo-text{font-size:17px;font-weight:600;color:var(--t1)}.logo-text span{color:var(--gold2)}
-.nav-right{display:flex;align-items:center;gap:7px}
+.nav-right{display:flex;align-items:center;gap:7px;min-width:0;flex:1;justify-content:flex-end}
+.nav-right .lang-wrap{flex:0 0 auto}
 .btn{padding:6px 11px;border-radius:8px;font-family:'Outfit',sans-serif;font-size:11px;font-weight:600;cursor:pointer;border:none;transition:all .15s;letter-spacing:.04em;text-transform:uppercase}
 .btn-ghost{background:transparent;color:var(--t2);border:1px solid var(--b1)}.btn-ghost:hover{color:var(--t1);border-color:var(--b2)}
 .btn-pro{background:linear-gradient(135deg,var(--pm),var(--pm2));color:white}.btn-pro.active{background:linear-gradient(135deg,var(--teal),#2AE8B8);color:#07090F}
@@ -572,9 +573,12 @@ body.shell{padding-bottom:calc(70px + env(safe-area-inset-bottom))}
 body.shell .hamb{display:flex}
 @media(max-width:768px){
   body.shell .nav-right .btn-ghost,body.shell .nav-right .btn-sm,body.shell .nav-right .mode-chip{display:none}
+  /* pickers move into the hamburger drawer on mobile so the header never overflows */
+  body.shell .nav-right .lang-wrap{display:none}
   body.shell .hero{padding-top:32px}
   body.shell .hero-btns{display:none} /* tabs replace them */
   .grid3{grid-template-columns:1fr}
+  .nav-right{gap:5px}
 }
 /* Drawer */
 .drawer-bk{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:400;opacity:0;pointer-events:none;transition:opacity .22s}

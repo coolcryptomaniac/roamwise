@@ -443,7 +443,7 @@ function rwInitDevice(){
 /* ==================== THEMES ====================
    6 themes via a data-theme attribute on <html>. All colors are CSS vars in
    app.css, so switching just swaps the attribute. Remembered per device. */
-var RW_THEMES = [
+var RW_UI_THEMES = [
   {id:'midnight', name:'Midnight', sub:'Default dark', dot:'#07090F'},
   {id:'obsidian', name:'Obsidian', sub:'Pure black (OLED)', dot:'#000000'},
   {id:'forest',   name:'Forest',   sub:'Deep green dark', dot:'#0A1410'},
@@ -457,11 +457,11 @@ function rwSetTheme(id){
   try{ lsSet('rw_theme', id); }catch(e){}
   /* keep the mobile status-bar color in sync */
   try{
-    var th=RW_THEMES.filter(function(x){return x.id===id;})[0];
+    var th=RW_UI_THEMES.filter(function(x){return x.id===id;})[0];
     var mt=document.querySelector('meta[name="theme-color"]');
     if(mt && th) mt.setAttribute('content', th.dot);
   }catch(e){}
-  try{ var lbl=el('themeLabel'); if(lbl){ var T=RW_THEMES.filter(function(x){return x.id===id;})[0]; lbl.textContent=T?T.name:'Theme'; } }catch(e){}
+  try{ var lbl=el('themeLabel'); if(lbl){ var T=RW_UI_THEMES.filter(function(x){return x.id===id;})[0]; lbl.textContent=T?T.name:'Theme'; } }catch(e){}
 }
 function rwToggleThemeMenu(){
   var m=el('themeMenu'); if(!m) return;
@@ -471,13 +471,45 @@ function rwInitTheme(){
   var saved=''; try{ saved=lsGet('rw_theme'); }catch(e){}
   var m=el('themeMenu');
   if(m){
-    m.innerHTML = RW_THEMES.map(function(T){
+    m.innerHTML = RW_UI_THEMES.map(function(T){
       return '<button class="theme-opt" onclick="rwSetTheme(\''+T.id+'\');rwToggleThemeMenu()">'
         +'<span class="theme-dot" style="background:'+T.dot+'"></span>'
         +'<span class="theme-txt"><b>'+T.name+'</b><small>'+T.sub+'</small></span></button>';
     }).join('');
   }
+  /* also populate the in-drawer lists (mobile) */
+  var dl=el('drThemeList');
+  if(dl){
+    dl.innerHTML = RW_UI_THEMES.map(function(T){
+      return '<a class="dr-link" style="padding:9px 10px" onclick="rwSetTheme(\''+T.id+'\');drThemeSync()"><span class="theme-dot" style="width:15px;height:15px;background:'+T.dot+'"></span> '+T.name+'</a>';
+    }).join('');
+  }
   rwSetTheme(saved || 'midnight');
+  try{ drThemeSync(); }catch(e){}
+}
+function drThemePick(){
+  var l=el('drThemeList'); if(!l) return;
+  if(!l.innerHTML.trim()){
+    l.innerHTML = RW_UI_THEMES.map(function(T){
+      return '<a class="dr-link" style="padding:9px 10px" onclick="rwSetTheme(\''+T.id+'\');drThemeSync()"><span class="theme-dot" style="width:15px;height:15px;background:'+T.dot+'"></span> '+T.name+'</a>';
+    }).join('');
+  }
+  l.style.display = l.style.display==='none'?'block':'none';
+}
+function drLangPick(){
+  var l=el('drLangList'); if(!l) return;
+  if(!l.innerHTML){
+    l.innerHTML = RW_LANGS.map(function(L){
+      return '<a class="dr-link" style="padding:9px 10px" onclick="rwSetLang(\''+L.code+'\');drThemeSync()">'+L.native+' <small style="color:var(--t3)">'+L.label+'</small></a>';
+    }).join('');
+  }
+  l.style.display = l.style.display==='none'?'block':'none';
+}
+function drThemeSync(){
+  try{
+    var tv=el('drThemeVal'); if(tv){ var T=RW_UI_THEMES.filter(function(x){return x.id===(lsGet('rw_theme')||'midnight');})[0]; tv.textContent=T?T.name:''; }
+    var lv=el('drLangVal'); if(lv){ var L=RW_LANGS.filter(function(x){return x.code===RW_LANG;})[0]; lv.textContent=L?L.native:''; }
+  }catch(e){}
 }
 
 var AC = 'INR';
