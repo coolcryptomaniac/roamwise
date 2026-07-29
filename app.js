@@ -1720,11 +1720,23 @@ function fetchBmp(url){ /* ImageBitmap for canvas composition (map tiles) */
     .then(function(b){ return createImageBitmap(b); });
 }
 function wikiAction(q){
-  return fetch('https://en.wikipedia.org/w/api.php?action=query&prop=pageimages&piprop=thumbnail&pithumbsize=640&redirects=1&format=json&origin=*&titles='+encodeURIComponent(q))
+  /* Stricter image lookup: only return an image when Wikipedia actually has a
+     matching article with a real page image. This prevents wrong-image bugs
+     (e.g. a food query returning an unrelated thumbnail) by checking the page
+     isn't a "missing" stub and the title reasonably matches the query. */
+  return fetch('https://en.wikipedia.org/w/api.php?action=query&prop=pageimages|info&piprop=thumbnail&pithumbsize=640&redirects=1&format=json&origin=*&titles='+encodeURIComponent(q))
     .then(function(r){return r.json();}).then(function(d){
       var pgs=d.query&&d.query.pages; if(!pgs) return null;
-      var k=Object.keys(pgs)[0];
-      return (pgs[k]&&pgs[k].thumbnail&&pgs[k].thumbnail.source)||null;
+      var k=Object.keys(pgs)[0]; var pg=pgs[k];
+      if(!pg || pg.missing!==undefined) return null;           /* no such article */
+      if(!pg.thumbnail || !pg.thumbnail.source) return null;    /* article has no image */
+      /* sanity: the returned title should share a keyword with the query, else
+         it's likely a loose/incorrect match — skip rather than show a wrong pic */
+      var qWords=String(q).toLowerCase().split(/[\s,]+/).filter(function(w){return w.length>3;});
+      var title=String(pg.title||'').toLowerCase();
+      var overlap=qWords.some(function(w){ return title.indexOf(w)>=0; });
+      if(qWords.length && !overlap) return null;
+      return pg.thumbnail.source;
     }).catch(function(){return null;});
 }
 function openverseThumb(q){
@@ -2574,6 +2586,119 @@ function openBadges(){
     +'<p class="xsec-sub">Collectible achievements \u2014 earned as you plan, map, and travel.</p>'+badgesHTML();
   sec.style.display=''; sec.scrollIntoView({behavior:'smooth',block:'start'});
 }
+
+/* ==================== JOURNEY CERTIFICATE ====================
+   A premium, shareable "Atlas Edition" certificate generated from the user's
+   trip: route on a world map, journey stats, stops timeline, cultural notes,
+   badges. Renders as an on-page artifact you can screenshot/share; also
+   exportable. All offline once the map tiles cache. */
+function openJourneyCert(){
+  try{ tabGo('home'); }catch(e){}
+  var it = window._lastItin;
+  var destName = (it && it.name) || '';
+  var stops = rwDeriveStops(destName);
+  if(!destName){ try{ showToast('Plan a trip first \u2014 then mint its certificate \ud83c\udfc5'); }catch(e){}; return; }
+
+  var name = lsGet('rw_name') || (window.user && user.displayName) || 'A Traveler';
+  var rank = (typeof rankOf==='function') ? rankOf(xpGet())[1] : 'Explorer';
+  var lvl = (typeof xpGet==='function') ? Math.max(1, Math.floor(xpGet()/100)+1) : 1;
+  var certId = 'RW-ATLAS-2026-'+String(1000+Math.floor(Math.random()*8999));
+  var today = new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});
+  var dayCount = (it && it.days) ? it.days.length : stops.length;
+
+  var sec=el('certSection');
+  if(!sec){
+    sec=document.createElement('section'); sec.id='certSection'; sec.className='xsec v v-home';
+    var host=el('copilotHero'); if(host&&host.parentNode) host.parentNode.insertBefore(sec,host.nextSibling); else document.body.appendChild(sec);
+  }
+  var DAYC=['#E8BA6C','#60A5FA','#4ADE80','#F87171','#A78BFA','#38BDF8','#FB923C','#F472B6'];
+  var stopRows = stops.map(function(s,i){
+    var c=DAYC[i%DAYC.length];
+    return '<div class="cert-stop"><span class="cert-stopnum" style="background:'+c+'">'+(i+1)+'</span>'
+      +'<span class="cert-stopname">'+esc2(s.name)+'</span>'
+      +'<span class="cert-stopnote">'+esc2(s.note||'Highlight')+'</span></div>';
+  }).join('');
+
+  var earned = (typeof badgeEarnedIds==='function') ? badgeEarnedIds() : [];
+  var badgeChips = (typeof RW_BADGES!=='undefined'? RW_BADGES:[]).filter(function(b){ return earned.indexOf(b.id)>=0; }).slice(0,6)
+    .map(function(b){ return '<span class="cert-badge" style="border-color:'+b.accent+'">'+b.emoji+' '+b.name+'</span>'; }).join('') || '<span class="cert-badge" style="opacity:.6">Plan trips to earn badges</span>';
+
+  sec.innerHTML =
+    '<div class="xsec-head"><h2 class="xsec-title">\ud83c\udfc5 Journey <em>Certificate</em></h2>'
+    +'<button class="tact" onclick="el(\'certSection\').style.display=\'none\'">\u2715</button></div>'
+    +'<div id="certCard" class="cert-card">'
+      +'<div class="cert-topbar"><span class="cert-brand">ROAM<b>WISE</b></span><span class="cert-edition">ATLAS EDITION \u65c5</span></div>'
+      +'<div class="cert-title">JOURNEY CERTIFICATE</div>'
+      +'<div class="cert-sub">'+esc2(destName)+' \u00b7 '+dayCount+'-day expedition</div>'
+      +'<div id="certMap" class="cert-map"></div>'
+      +'<div class="cert-stats">'
+        +'<div class="cert-stat"><b>'+stops.length+'</b><span>Stops</span></div>'
+        +'<div class="cert-stat"><b>'+dayCount+'</b><span>Days</span></div>'
+        +'<div class="cert-stat"><b>'+rank+'</b><span>Rank</span></div>'
+        +'<div class="cert-stat"><b>L'+lvl+'</b><span>Level</span></div>'
+      +'</div>'
+      +'<div class="cert-sectitle">Itinerary</div>'
+      +'<div class="cert-stops">'+stopRows+'</div>'
+      +'<div class="cert-sectitle">Badges earned</div>'
+      +'<div class="cert-badges">'+badgeChips+'</div>'
+      +'<div class="cert-foot">'
+        +'<div><div class="cert-name">'+esc2(name)+'</div><div class="cert-role">'+rank+' \u00b7 Level '+lvl+' \u00b7 RoamWise Explorer</div></div>'
+        +'<div class="cert-meta"><div>Certificate ID</div><b>'+certId+'</b><div style="margin-top:4px">Issued '+today+'</div></div>'
+      +'</div>'
+      +'<div class="cert-motif">"Collect moments, not things." \u2014 RoamWise</div>'
+    +'</div>'
+    +'<div style="display:flex;gap:8px;margin-top:12px">'
+      +'<button class="tact" style="flex:1;font-weight:800;background:linear-gradient(135deg,var(--gold,#E8BA6C),var(--gold2,#C8913E));color:#0A0A0C;border:none" onclick="certShare()">\ud83d\udce4 Share certificate</button>'
+      +'<button class="tact" style="flex:1;font-weight:800" onclick="certDownload()">\u2b07\ufe0f Save image</button>'
+    +'</div>';
+  sec.style.display=''; sec.scrollIntoView({behavior:'smooth',block:'start'});
+
+  /* draw the route mini-map */
+  rwEnsureLeaflet(function(ok){
+    if(!ok){ el('certMap').innerHTML='<div style="padding:30px;text-align:center;color:#888;font-size:12px">Map needs internet the first time</div>'; return; }
+    var cacheKey='rw_tripmap_'+destName.toLowerCase().replace(/[^a-z0-9]/g,'');
+    var cached=null; try{ cached=JSON.parse(lsGet(cacheKey)||'null'); }catch(e){}
+    var geoP = (cached&&cached.pins&&cached.pins.length) ? Promise.resolve(cached)
+      : gcode(destName).then(function(center){
+          return Promise.all(stops.map(function(s){ return gcode(s.name+', '+destName).then(function(g){ return g?{name:s.name,lat:g.lat,lon:g.lon}:null; }); }))
+            .then(function(pins){ return {center:center, pins:pins.filter(Boolean)}; });
+        });
+    geoP.then(function(data){
+      var m=L.map('certMap',{zoomControl:false,attributionControl:false,dragging:true}).setView(data.center?[data.center.lat,data.center.lon]:[22,79],11);
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png',{maxZoom:18}).addTo(m);
+      var pts=[], bounds=[];
+      (data.pins||[]).forEach(function(p,i){
+        var c=DAYC[i%DAYC.length];
+        var ic=L.divIcon({className:'',html:'<div style="background:'+c+';width:22px;height:22px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);border:2px solid #fff;display:flex;align-items:center;justify-content:center"><span style="transform:rotate(45deg);color:#0A0A0C;font-weight:800;font-size:11px">'+(i+1)+'</span></div>',iconSize:[22,22],iconAnchor:[11,22]});
+        L.marker([p.lat,p.lon],{icon:ic}).addTo(m); pts.push([p.lat,p.lon]); bounds.push([p.lat,p.lon]);
+      });
+      if(pts.length>1) L.polyline(pts,{color:'#E8BA6C',weight:2.5,opacity:.7,dashArray:'5,7'}).addTo(m);
+      if(bounds.length) try{ m.fitBounds(bounds,{padding:[30,30],maxZoom:12}); }catch(e){}
+      setTimeout(function(){ try{ m.invalidateSize(); }catch(e){} },300);
+    });
+  });
+}
+function certShare(){
+  var url='https://roamwise.co.in';
+  var txt='I just mapped my '+((window._lastItin&&_lastItin.name)||'next')+' journey on RoamWise \ud83c\udfc5\u2708\ufe0f Plan yours:';
+  if(navigator.share){ navigator.share({title:'My RoamWise Journey Certificate',text:txt,url:url}).catch(function(){}); }
+  else { try{ navigator.clipboard.writeText(txt+' '+url); showToast('Share text copied \u2713'); }catch(e){} }
+}
+function certDownload(){
+  /* Uses html2canvas if available; else guides the user to screenshot. */
+  var node=el('certCard'); if(!node) return;
+  if(window.html2canvas){
+    showToast('Rendering your certificate\u2026');
+    html2canvas(node,{backgroundColor:null,scale:2,useCORS:true}).then(function(cv){
+      try{ saveOrDownload(cv.toDataURL('image/png'),'roamwise-certificate.png'); }catch(e){ showToast('Long-press the card to save it'); }
+    }).catch(function(){ showToast('Tip: screenshot the certificate to save it'); });
+  } else {
+    var s=document.createElement('script'); s.src='https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+    s.onload=function(){ certDownload(); }; s.onerror=function(){ showToast('Tip: screenshot the certificate to save it'); };
+    document.head.appendChild(s);
+  }
+}
+
 function rankOf(x){ var r=RANKS[0]; for(var i=0;i<RANKS.length;i++) if(x>=RANKS[i][0]) r=RANKS[i]; return r; }
 function nextRank(x){ for(var i=0;i<RANKS.length;i++) if(x<RANKS[i][0]) return RANKS[i]; return null; }
 function xpAdd(n, why){
@@ -4596,6 +4721,7 @@ function buildItin(T, name, costMid, days){
     try{ badgeBump('trip'); }catch(e){}
     cnt.innerHTML = (srcBadge||'') + H
       + '<button class="tact" style="display:block;width:100%;margin-top:12px;font-weight:800;background:linear-gradient(135deg,var(--gold,#E8BA6C),var(--gold2,#C8913E));color:#0A0A0C;border:none" onclick="openTripMap(window._lastItin?_lastItin.name:\'\',null)">\ud83d\uddfa\ufe0f See this trip on a map</button>'
+      + '<button class="tact" style="display:block;width:100%;margin-top:8px;font-weight:800" onclick="openJourneyCert()">\ud83c\udfc5 Mint journey certificate</button>'
       + '<button class="tact" style="display:block;width:100%;margin-top:8px;font-weight:800" onclick="saveTripOffline()">\u2708\ufe0f Save offline \u2014 works with no signal</button>'
       + travelLinksHTML(name)
       + '<button class="tact" style="width:100%;margin-top:8px;border-color:rgba(22,191,150,.5);color:#16BF96" onclick="syncGo(\''+name.replace(/'/g,"\\'")+'\')">\ud83e\udd1d Sync Circle \u2014 I\u2019m going! See who else is</button>'
@@ -6469,6 +6595,13 @@ function copilotSend(fromHero){
        confident-but-wrong replies about small towns. */
     (intents.dest ? wvGuide(intents.dest) : Promise.resolve(null)).then(function(g){
       var facts = g && g.extract ? 'Verified guide text for '+g.title+': '+g.extract.slice(0,600)+'\n' : '';
+      try{
+        if(typeof RW_PLACE_FACTS!=='undefined'){
+          var _pfq=(intents.dest||t||'').toLowerCase(); var _pf=null;
+          for(var _pk in RW_PLACE_FACTS){ if(_pfq.indexOf(_pk)>=0){ _pf=RW_PLACE_FACTS[_pk]; break; } }
+          if(_pf) facts = 'AUTHORITATIVE curated facts (trust these over everything else): '+_pf+'\n' + facts;
+        }
+      }catch(e){}
       /* Explicit state beats hoping the model infers it from the transcript. */
       var recent = rwRecall(6).map(function(t){ return (t.role==='user'?'User: ':'Assistant: ')+t.text; }).join('\n');
       if(recent) facts += 'Recent conversation:\n'+recent+'\n';
@@ -6478,12 +6611,14 @@ function copilotSend(fromHero){
           + (_cpCtx.budget? ', budget: \u20b9'+_cpCtx.budget : '')
           + '. If the user does not name a new place, they mean this one.\n';
       }
-      var prompt='You are Ailon Tusk \u2014 a travel companion with FULL Bollywood masala energy: dramatic, witty, warm, a little theatrical, with light Hinglish sprinkles (words like boss, arre, chalo, mast, scene, hero). '
-        +'Open with a punchy filmi line and close with a small flourish, but keep the MIDDLE \u2014 the actual facts, numbers, routes, prices \u2014 100% accurate and clear. Personality is the seasoning, facts are the meal. '
-        +'Never invent facts to sound dramatic; if unsure, say so with a grin. Do NOT quote real Bollywood dialogues or put words in real actors\u2019 mouths \u2014 use your own filmi-flavoured lines. '
-        +'Answer helpfully and concisely (under 130 words). Prefer the verified guide text below over your own recollection; if it contradicts you, trust it. No markdown headers.\n'
+      var prompt='You are Ailon Tusk \u2014 a witty, warm travel companion with playful Bollywood-masala energy and light Hinglish sprinkles (arre, chalo, mast, boss, scene). '
+        +'MATCH YOUR LENGTH TO THE QUESTION: a quick factual question (a price, a distance, is-X-open) gets ONE punchy sentence \u2014 do not pad it. Only a genuinely open request (plan my trip, what should I do in X) earns a fuller answer, still under 90 words. '
+        +'Personality is seasoning, not the meal: one small filmi flourish max, then the real facts \u2014 numbers, routes, prices, names \u2014 100% accurate and clear. '
+        +'Never invent facts to sound dramatic; if you are unsure, say so plainly with a grin. Do NOT quote real Bollywood dialogues or put words in real actors\u2019 mouths \u2014 use your own filmi-flavoured lines. '
+        +'Read the user intent and mood: if they sound excited, match it; if stressed or on a tight budget, be reassuring and practical, not theatrical. '
+        +'Prefer the verified guide text below over your own recollection; if it contradicts you, trust it. No markdown headers, no bullet spam.\n'
         +facts+(hist? 'Conversation so far:\n'+hist+'\n':'')+'User: '+t+'\nCopilot:';
-      aiCallAny(prompt, 400, function(err, txt){
+      aiCallAny(prompt, 260, function(err, txt){
         var answer = (txt||'').trim();
         if(!answer){
           var kb2 = cpSmartAnswer(t) || '';

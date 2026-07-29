@@ -750,3 +750,30 @@ html.sz-xl .nav-inner{max-width:1160px}
 html.os-mac body,html.is-desktop body{-webkit-font-smoothing:antialiased}
 /* Respect reduced-motion preference (accessibility) */
 html.reduce-motion *,html.reduce-motion *::before,html.reduce-motion *::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important;scroll-behavior:auto!important}
+
+/* ===== JOURNEY CERTIFICATE (Atlas Edition) ===== */
+.cert-card{background:linear-gradient(165deg,#0B0E16 0%,#12151F 55%,#0B0E16 100%);border:1px solid rgba(232,186,108,.3);border-radius:18px;padding:22px 20px;position:relative;overflow:hidden;box-shadow:0 12px 44px rgba(0,0,0,.5)}
+.cert-card::before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 80% 0%,rgba(232,186,108,.09),transparent 45%),radial-gradient(circle at 0% 100%,rgba(96,165,250,.07),transparent 40%);pointer-events:none}
+.cert-topbar{display:flex;justify-content:space-between;align-items:center;position:relative}
+.cert-brand{font-size:15px;font-weight:800;letter-spacing:.14em;color:#EDE8DF}.cert-brand b{color:#E8BA6C}
+.cert-edition{font-size:9px;font-weight:700;letter-spacing:.22em;color:#E8BA6C;border:1px solid rgba(232,186,108,.4);border-radius:20px;padding:3px 9px}
+.cert-title{font-size:26px;font-weight:800;letter-spacing:.06em;color:#fff;text-align:center;margin:16px 0 3px;text-shadow:0 2px 14px rgba(232,186,108,.2)}
+.cert-sub{font-size:12px;color:#B8B4A8;text-align:center;font-style:italic;margin-bottom:16px}
+.cert-map{height:200px;border-radius:12px;overflow:hidden;border:1px solid rgba(232,186,108,.25);background:#0E1018}
+.cert-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:16px 0}
+.cert-stat{text-align:center;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:11px;padding:10px 4px}
+.cert-stat b{display:block;font-size:17px;color:#E8BA6C;font-weight:800}.cert-stat span{font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:#8A8680}
+.cert-sectitle{font-size:10px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#E8BA6C;margin:16px 0 8px;display:flex;align-items:center;gap:8px}
+.cert-sectitle::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,rgba(232,186,108,.35),transparent)}
+.cert-stop{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.05)}
+.cert-stop:last-child{border-bottom:none}
+.cert-stopnum{flex:0 0 auto;width:22px;height:22px;border-radius:50%;color:#0A0A0C;font-weight:800;font-size:12px;display:flex;align-items:center;justify-content:center}
+.cert-stopname{font-size:13px;font-weight:600;color:#EDE8DF;flex:1}
+.cert-stopnote{font-size:10px;color:#8A8680}
+.cert-badges{display:flex;flex-wrap:wrap;gap:6px}
+.cert-badge{font-size:11px;font-weight:600;color:#EDE8DF;background:rgba(255,255,255,.04);border:1px solid rgba(232,186,108,.3);border-radius:20px;padding:5px 11px}
+.cert-foot{display:flex;justify-content:space-between;align-items:flex-end;margin-top:18px;padding-top:14px;border-top:1px solid rgba(232,186,108,.2)}
+.cert-name{font-size:16px;font-weight:800;color:#fff}
+.cert-role{font-size:10px;color:#E8BA6C;letter-spacing:.04em;margin-top:2px}
+.cert-meta{text-align:right;font-size:9px;color:#8A8680;line-height:1.5}.cert-meta b{color:#B8B4A8;font-size:10px;letter-spacing:.05em}
+.cert-motif{text-align:center;font-size:11px;font-style:italic;color:#6B675C;margin-top:14px}

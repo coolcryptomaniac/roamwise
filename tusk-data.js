@@ -294,3 +294,19 @@ var RW_FOOD_EXT = {
   hanoiegg:  ['Bun cha',             'Grilled pork in a bowl of dipping broth with noodles \u2014 Hanoi\u2019s lunch of choice.', 'bun cha hanoi'],
   tbilisi:   ['Khachapuri + khinkali','A cheese-and-egg bread boat and juicy soup dumplings \u2014 Georgia punches absurdly above its weight.', 'khachapuri georgia']
 };
+
+/* ---- CURATED PLACE FACTS: accurate, specific notes for popular Indian
+   destinations. Tusk prefers these over guesswork. Keyed by lowercase place.
+   Extend freely — this is how village/town-level accuracy grows over time. ---- */
+var RW_PLACE_FACTS = {
+  'rishikesh':'Rishikesh (Uttarakhand) — yoga & rafting capital on the Ganga. Key spots: Laxman Jhula & Ram Jhula (iron suspension bridges), Triveni Ghat (evening Ganga aarti ~6pm), Beatles Ashram (Chaurasi Kutia), Neelkanth Mahadev Temple (32km, hill temple). Best: Sep–Nov & Feb–May. Rafting season Sep–Jun. Alcohol & non-veg largely restricted in the holy zone. Nearest airport Dehradun (35km), railhead Haridwar (25km).',
+  'haridwar':'Haridwar (Uttarakhand) — one of Hinduism\u2019s seven holiest cities on the Ganga. Har Ki Pauri hosts the famous evening Ganga aarti. Mansa Devi & Chandi Devi temples reached by ropeway. Kumbh Mela site. Vegetarian & alcohol-free city. 25km from Rishikesh.',
+  'almora':'Almora (Uttarakhand) — Kumaon hill town on a horseshoe ridge, ~1,600m. Known for Kasar Devi (the \u2018Crank\u2019s Ridge\u2019 with a geomagnetic anomaly, once home to Bob Dylan & Timothy Leary), Nanda Devi Temple, Chitai Golu Devta (temple of bells), and its signature sweet Bal Mithai (brown chocolate-like fudge coated in white sugar balls) and Singori. Views of the Himalayan peaks. Nearest railhead Kathgodam (90km).',
+  'manali':'Manali (Himachal) — Kullu-valley hill station on the Beas, ~2,050m. Hadimba Temple (cedar forest), Solang Valley (paragliding/skiing), Old Manali cafes, Vashisht hot springs, Jogini Falls. Gateway to Rohtang Pass & Leh-Manali highway (open ~May–Oct). Nearest airport Bhuntar (50km).',
+  'nainital':'Nainital (Uttarakhand) — Kumaon lake town around emerald Naini Lake, ~2,000m. Naina Devi Temple (a Shakti Peetha) on the lake shore, Snow View & Tiffin Top viewpoints, Mall Road, boating on the lake. Nearest railhead Kathgodam (34km).',
+  'jaipur':'Jaipur (Rajasthan) — the Pink City. Amber Fort (elephant/jeep ascent), Hawa Mahal (honeycomb facade), City Palace, Jantar Mantar (UNESCO astronomical instruments), Nahargarh & Jaigarh forts. Shop for block-print textiles & jewellery in the bazaars. Best Oct–Mar.',
+  'varanasi':'Varanasi/Kashi (UP) — among the world\u2019s oldest living cities, on the Ganga. Dashashwamedh Ghat hosts the grand evening Ganga aarti; Kashi Vishwanath Temple (Jyotirlinga); dawn boat ride past the ghats is the signature experience; Sarnath (10km) is where Buddha gave his first sermon. Manikarnika is the main cremation ghat.',
+  'goa':'Goa — beaches + Portuguese heritage. North (Baga, Calangute, Anjuna) is lively; South (Palolem, Agonda) is calmer. Basilica of Bom Jesus (St Francis Xavier\u2019s relics, UNESCO Old Goa), Fort Aguada, Dudhsagar Falls (monsoon-fed, on the railway). Peak Nov–Feb; monsoon Jun–Sep is lush & cheap.',
+  'leh':'Leh-Ladakh (UT of Ladakh) — high-altitude desert, ~3,500m; acclimatise 2 days before exertion. Pangong Lake (changing blues, ~4,350m), Nubra Valley (Diskit monastery, dunes, double-hump camels), Magnetic Hill, Thiksey & Hemis monasteries. Roads open ~May–Oct. Carry ID for inner-line permits.',
+  'udaipur':'Udaipur (Rajasthan) — City of Lakes. City Palace complex on Lake Pichola, Jag Mandir & the Lake Palace (island palaces), Fateh Sagar Lake, Sajjangarh (Monsoon Palace) for sunset, Jagdish Temple. Romantic, best Oct–Mar.'
+};
