@@ -2523,7 +2523,9 @@ var RW_BADGES=[
   {id:'saver', emoji:'\ud83d\udcbe', name:'Prepared', desc:'Saved a trip for offline', accent:'#F472B6',
     test:function(s){ return s.saves>=1; }, prog:function(s){ return [Math.min(s.saves,1),1]; }},
   {id:'explorer', emoji:'\ud83e\udded', name:'Curious Mind', desc:'Asked Ailon Tusk 10 questions', accent:'#F87171',
-    test:function(s){ return s.asks>=10; }, prog:function(s){ return [Math.min(s.asks,10),10]; }}
+    test:function(s){ return s.asks>=10; }, prog:function(s){ return [Math.min(s.asks,10),10]; }},
+  {id:'green', emoji:'\ud83c\udf31', name:'Green Traveller', desc:'Chose 5 low-impact, eco-friendly options', accent:'#4ADE80',
+    test:function(s){ return s.green>=5; }, prog:function(s){ return [Math.min(s.green,5),5]; }}
 ];
 function badgeState(){
   return {
@@ -2533,12 +2535,13 @@ function badgeState(){
     maps: parseInt(lsGet('rw_ct_maps')||'0',10)||0,
     groups: parseInt(lsGet('rw_ct_groups')||'0',10)||0,
     saves: parseInt(lsGet('rw_ct_saves')||'0',10)||0,
-    asks: parseInt(lsGet('rw_ct_asks')||'0',10)||0
+    asks: parseInt(lsGet('rw_ct_asks')||'0',10)||0,
+    green: parseInt(lsGet('rw_ct_green')||'0',10)||0
   };
 }
 /* bump a usage counter and check for newly-earned badges */
 function badgeBump(kind){
-  var map={trip:'rw_ct_trips',map:'rw_ct_maps',group:'rw_ct_groups',save:'rw_ct_saves',ask:'rw_ct_asks'};
+  var map={trip:'rw_ct_trips',map:'rw_ct_maps',group:'rw_ct_groups',save:'rw_ct_saves',ask:'rw_ct_asks',green:'rw_ct_green'};
   var key=map[kind]; if(!key) return;
   var before=badgeEarnedIds();
   lsSet(key, String((parseInt(lsGet(key)||'0',10)||0)+1));
@@ -2592,6 +2595,189 @@ function openBadges(){
    trip: route on a world map, journey stats, stops timeline, cultural notes,
    badges. Renders as an on-page artifact you can screenshot/share; also
    exportable. All offline once the map tiles cache. */
+/* ==================== GREEN / ECO TRAVEL ====================
+   A dedicated space for low-impact travel: eco transport, plant-based food,
+   sustainable stays, ethical shopping, and mindful choices. Each "I chose this"
+   tap nudges the Green Traveller badge (5 green choices to earn it). */
+var RW_GREEN_CATS=[
+  {emoji:'\ud83d\udeb2', title:'Move green', accent:'#4ADE80',
+   items:['Rent a bicycle or e-bike for the town','Take the bus or shared transport over a private cab','Choose EV taxis / e-rickshaws where available','Walk the old-town cores \u2014 you see more anyway','Prefer trains over short flights (far lower carbon)']},
+  {emoji:'\ud83c\udf31', title:'Eat plant-forward', accent:'#22C55E',
+   items:['Try the local vegan / veg thali \u2014 often the tastiest, cheapest option','Pick organic & farm-to-table cafes','Carry a refillable bottle \u2014 skip single-use plastic','Eat seasonal & local, not imported','Say no to disposable cutlery']},
+  {emoji:'\ud83c\udfe1', title:'Stay light', accent:'#38BDF8',
+   items:['Choose homestays & eco-lodges over big chains','Look for solar-powered or off-grid stays','Reuse towels; switch off AC when out','Support places that manage waste & water','Small, locally-owned beats large & corporate']},
+  {emoji:'\ud83d\udecd\ufe0f', title:'Shop conscious', accent:'#A78BFA',
+   items:['Buy handmade & local crafts (supports artisans)','Choose eco / natural-fibre clothes','Skip mass-produced souvenirs \u2014 buy less, buy meaningful','Carry a cloth bag','Avoid products from endangered species / materials']},
+  {emoji:'\ud83c\udf3f', title:'Tread lightly', accent:'#10B981',
+   items:['Leave no trace on treks \u2014 carry your waste out','Stick to marked trails; respect wildlife distance','Offset unavoidable flights via a verified programme','Attend local eco / community events','Travel slow \u2014 fewer places, deeper experience']}
+];
+/* ==================== POST-TRIP MEMORIES STUDIO ====================
+   After a trip: auto-generate a blog (Medium/Reddit/X ready), a photo collage,
+   and a memory log. Cross-post via the share sheet to text platforms; collages
+   download for Instagram/Facebook (those need manual upload — no web post API). */
+function openMemories(){
+  try{ tabGo('home'); }catch(e){}
+  var it=window._lastItin;
+  var dest=(it&&it.name)||'';
+  if(!dest){ try{ showToast('Plan or finish a trip first \u2014 then turn it into a story \u270d\ufe0f'); }catch(e){}; return; }
+  var sec=el('memSection');
+  if(!sec){ sec=document.createElement('section'); sec.id='memSection'; sec.className='xsec v v-home';
+    var host=el('copilotHero'); if(host&&host.parentNode) host.parentNode.insertBefore(sec,host.nextSibling); else document.body.appendChild(sec); }
+  sec.innerHTML='<div class="xsec-head"><h2 class="xsec-title">\u270d\ufe0f Trip <em>memories</em></h2>'
+    +'<button class="tact" onclick="el(\'memSection\').style.display=\'none\'">\u2715</button></div>'
+    +'<p class="xsec-sub">Turn your '+esc2(dest)+' trip into a blog, a collage, and a keepsake log \u2014 then share it.</p>'
+    +'<div class="mem-tabs">'
+      +'<button class="mem-tab on" onclick="rwMemTab(this,\'blog\')">\ud83d\udcdd Blog</button>'
+      +'<button class="mem-tab" onclick="rwMemTab(this,\'collage\')">\ud83d\uddbc\ufe0f Collage</button>'
+      +'<button class="mem-tab" onclick="rwMemTab(this,\'log\')">\ud83d\udcd3 Memory log</button>'
+    +'</div>'
+    +'<div id="memBlog" class="mem-pane"><button class="tact" style="width:100%;font-weight:800;background:linear-gradient(135deg,var(--gold,#E8BA6C),var(--gold2,#C8913E));color:#0A0A0C;border:none" onclick="rwGenBlog()">\u2728 Write my trip blog</button><div id="memBlogOut" style="margin-top:12px"></div></div>'
+    +'<div id="memCollage" class="mem-pane" style="display:none"><p class="note">Add up to 6 photos from your trip \u2014 RoamWise arranges them into a shareable collage.</p>'
+      +'<input type="file" id="memPhotos" accept="image/*" multiple onchange="rwCollagePreview()" style="margin:8px 0">'
+      +'<canvas id="memCanvas" style="width:100%;border-radius:14px;display:none;border:1px solid var(--b2)"></canvas>'
+      +'<div id="memCollageBtns"></div></div>'
+    +'<div id="memLog" class="mem-pane" style="display:none"><div id="memLogOut"></div></div>';
+  sec.style.display=''; sec.scrollIntoView({behavior:'smooth',block:'start'});
+  rwRenderLog();
+}
+function rwMemTab(btn,which){
+  document.querySelectorAll('.mem-tab').forEach(function(b){b.classList.remove('on');}); btn.classList.add('on');
+  ['blog','collage','log'].forEach(function(k){ var p=el('mem'+k.charAt(0).toUpperCase()+k.slice(1)); if(p) p.style.display=(k===which?'':'none'); });
+}
+function rwGenBlog(){
+  var it=window._lastItin; var dest=(it&&it.name)||'my trip';
+  var stops=(typeof rwDeriveStops==='function')?rwDeriveStops(dest):[];
+  var stopList=stops.map(function(s){return s.name;}).join(', ');
+  var out=el('memBlogOut'); out.innerHTML='<div class="note">\u270d\ufe0f Writing your story\u2026</div>';
+  var prompt='Write a warm, vivid first-person travel blog post about a trip to '+dest+'.'
+    +(stopList?' Places visited: '+stopList+'.':'')
+    +' 300-400 words, engaging and personal, with a short catchy title on the first line. Evocative but honest \u2014 no clich\u00e9 overload. End with one practical tip for future travellers. Plain text, no markdown headers.';
+  if(typeof aiCallAny==='function'){
+    aiCallAny(prompt, 700, function(err,txt){
+      if(!txt){ out.innerHTML='<div class="note">Couldn\u2019t reach the AI engine. Add a free AI key in Settings for blog generation, then try again.</div>'; return; }
+      var title=txt.split('\n')[0].replace(/^#+\s*/,'');
+      window._rwBlog={title:title,body:txt};
+      out.innerHTML='<div class="mem-blog"><h3 style="margin:0 0 8px">'+esc2(title)+'</h3><div style="white-space:pre-wrap;font-size:13.5px;line-height:1.7;color:var(--t1)">'+esc2(txt.split('\n').slice(1).join('\n').trim())+'</div></div>'
+        +'<div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">'
+        +'<button class="tact" style="flex:1;min-width:120px" onclick="rwBlogCopy()">\ud83d\udccb Copy</button>'
+        +'<button class="tact" style="flex:1;min-width:120px" onclick="rwBlogCrosspost()">\ud83d\ude80 Cross-post</button></div>'
+        +'<div style="font-size:11px;color:var(--t3);margin-top:8px">Cross-post opens Medium, Reddit, X or Dev.to with your draft ready. Instagram/Facebook: use the collage tab.</div>';
+      try{ rwSaveMemory('blog', dest, title); }catch(e){}
+    });
+  } else { out.innerHTML='<div class="note">AI engine unavailable.</div>'; }
+}
+function rwBlogCopy(){ if(window._rwBlog){ try{ navigator.clipboard.writeText(_rwBlog.title+'\n\n'+_rwBlog.body); showToast('Blog copied \u2713'); }catch(e){} } }
+function rwBlogCrosspost(){
+  if(!window._rwBlog) return;
+  try{ navigator.clipboard.writeText(_rwBlog.title+'\n\n'+_rwBlog.body); }catch(e){}
+  var title=encodeURIComponent(_rwBlog.title), url=encodeURIComponent('https://roamwise.co.in');
+  var ov=el('rwShareOverlay')||document.createElement('div');
+  ov.id='rwShareOverlay'; ov.className='share-overlay'; ov.onclick=function(e){if(e.target===ov)rwCloseShare();};
+  if(!ov.parentNode) document.body.appendChild(ov);
+  var sites=[
+    {l:'Medium',e:'\u270d\ufe0f',h:'https://medium.com/new-story'},
+    {l:'Reddit',e:'\ud83d\udc7d',h:'https://www.reddit.com/submit?title='+title+'&url='+url},
+    {l:'Dev.to',e:'\ud83d\udcbb',h:'https://dev.to/new'},
+    {l:'X',e:'\u2715',h:'https://twitter.com/intent/tweet?text='+title+'&url='+url},
+    {l:'Blogger',e:'\ud83d\udcd8',h:'https://www.blogger.com/blog/post/edit'},
+    {l:'LinkedIn',e:'\ud83d\udcbc',h:'https://www.linkedin.com/feed/?shareActive=true'}
+  ];
+  ov.innerHTML='<div class="share-modal-inner"><div class="share-head">Cross-post your blog</div>'
+    +'<p class="note" style="text-align:center;margin:-6px 0 12px">Your draft is copied \u2014 paste it after the site opens.</p>'
+    +'<div class="share-grid">'+sites.map(function(s){return '<button class="share-cell" onclick="window.open(\''+s.h+'\',\'_blank\');rwCloseShare()"><span class="share-emoji">'+s.e+'</span><span>'+s.l+'</span></button>';}).join('')+'</div>'
+    +'<button class="tact" style="width:100%" onclick="rwCloseShare()">Close</button></div>';
+  ov.style.display='flex';
+}
+/* ---- Photo collage (canvas) ---- */
+function rwCollagePreview(){
+  var files=(el('memPhotos').files)||[]; if(!files.length) return;
+  var imgs=[]; var loaded=0; var n=Math.min(files.length,6);
+  for(var i=0;i<n;i++){ (function(f){ var img=new Image(); img.onload=function(){ imgs.push(img); if(++loaded===n) rwDrawCollage(imgs); }; img.src=URL.createObjectURL(f); })(files[i]); }
+}
+function rwDrawCollage(imgs){
+  var c=el('memCanvas'); var W=1080,H=1080; c.width=W;c.height=H; var ctx=c.getContext('2d');
+  ctx.fillStyle='#0B0E16'; ctx.fillRect(0,0,W,H);
+  var n=imgs.length;
+  var grid = n<=1?[1,1]: n<=2?[2,1]: n<=4?[2,2]: [3,2];
+  var cols=grid[0], rows=grid[1], pad=14;
+  var cw=(W-pad*(cols+1))/cols, ch=(H-90-pad*(rows+1))/rows;
+  imgs.forEach(function(img,i){
+    var cx=i%cols, cy=Math.floor(i/cols);
+    var x=pad+cx*(cw+pad), y=pad+cy*(ch+pad);
+    var ar=img.width/img.height, tar=cw/ch, sw,sh,sx,sy;
+    if(ar>tar){ sh=img.height; sw=sh*tar; sx=(img.width-sw)/2; sy=0; } else { sw=img.width; sh=sw/tar; sx=0; sy=(img.height-sh)/2; }
+    ctx.save(); rwRoundRect(ctx,x,y,cw,ch,12); ctx.clip(); ctx.drawImage(img,sx,sy,sw,sh,x,y,cw,ch); ctx.restore();
+  });
+  var dest=(window._lastItin&&_lastItin.name)||'My Trip';
+  ctx.fillStyle='#E8BA6C'; ctx.font='bold 40px system-ui,sans-serif'; ctx.textAlign='center';
+  ctx.fillText(dest+' \u2708\ufe0f', W/2, H-34);
+  ctx.fillStyle='rgba(237,232,223,.6)'; ctx.font='500 20px system-ui,sans-serif';
+  ctx.fillText('made on RoamWise', W/2, H-14);
+  c.style.display='block';
+  el('memCollageBtns').innerHTML='<div style="display:flex;gap:8px;margin-top:10px"><button class="tact" style="flex:1;font-weight:800" onclick="rwCollageSave()">\u2b07\ufe0f Save collage</button><button class="tact" style="flex:1;font-weight:800" onclick="rwCollageShare()">\ud83d\udce4 Share</button></div><div style="font-size:11px;color:var(--t3);margin-top:6px">Save it, then post to Instagram or Facebook (they need manual upload).</div>';
+  try{ rwSaveMemory('collage', dest, imgs.length+' photos'); }catch(e){}
+}
+function rwRoundRect(ctx,x,y,w,h,r){ ctx.beginPath(); ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r); ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath(); }
+function rwCollageSave(){ var c=el('memCanvas'); if(c){ try{ saveOrDownload(c.toDataURL('image/jpeg',0.92),'roamwise-collage.jpg'); }catch(e){ showToast('Long-press the collage to save'); } } }
+function rwCollageShare(){
+  var c=el('memCanvas'); if(!c) return;
+  c.toBlob(function(b){
+    var f=new File([b],'roamwise-collage.jpg',{type:'image/jpeg'});
+    if(navigator.share && navigator.canShare && navigator.canShare({files:[f]})){
+      navigator.share({files:[f], text:'My '+((window._lastItin&&_lastItin.name)||'trip')+' \u2708\ufe0f made on RoamWise'}).catch(function(){});
+    } else { rwCollageSave(); showToast('Saved \u2014 upload it to Instagram/Facebook'); }
+  },'image/jpeg',0.92);
+}
+/* ---- Memory log ---- */
+function rwSaveMemory(kind, dest, detail){
+  var log=[]; try{ log=JSON.parse(lsGet('rw_memlog')||'[]'); }catch(e){}
+  log.unshift({kind:kind,dest:dest,detail:detail,at:Date.now()});
+  try{ lsSet('rw_memlog', JSON.stringify(log.slice(0,50))); }catch(e){}
+}
+function rwRenderLog(){
+  var log=[]; try{ log=JSON.parse(lsGet('rw_memlog')||'[]'); }catch(e){}
+  var out=el('memLogOut'); if(!out) return;
+  if(!log.length){ out.innerHTML='<div class="note">Your travel memories will collect here \u2014 each blog and collage you make gets logged as a keepsake.</div>'; return; }
+  var ic={blog:'\ud83d\udcdd',collage:'\ud83d\uddbc\ufe0f'};
+  out.innerHTML=log.map(function(m){
+    var d=new Date(m.at).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
+    return '<div style="display:flex;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid var(--b1)"><span style="font-size:22px">'+(ic[m.kind]||'\u2728')+'</span>'
+      +'<div style="flex:1"><b style="font-size:13px">'+esc2(m.dest)+'</b> <span style="font-size:11px;color:var(--t3)">'+esc2(m.detail||'')+'</span><div style="font-size:10.5px;color:var(--t3)">'+d+'</div></div></div>';
+  }).join('');
+}
+function openGreenTravel(){
+  try{ tabGo('home'); }catch(e){}
+  var sec=el('greenSection');
+  if(!sec){ sec=document.createElement('section'); sec.id='greenSection'; sec.className='xsec v v-home';
+    var host=el('copilotHero'); if(host&&host.parentNode) host.parentNode.insertBefore(sec,host.nextSibling); else document.body.appendChild(sec); }
+  var earned = (typeof badgeEarnedIds==='function') ? badgeEarnedIds().indexOf('green')>=0 : false;
+  var gc = parseInt(lsGet('rw_ct_green')||'0',10)||0;
+  var cards=RW_GREEN_CATS.map(function(c){
+    var items=c.items.map(function(it){
+      return '<label class="green-item"><input type="checkbox" onchange="rwGreenPick(this)"><span>'+esc2(it)+'</span></label>';
+    }).join('');
+    return '<div class="green-card" style="--gc:'+c.accent+'"><div class="green-cat">'+c.emoji+' '+c.title+'</div>'+items+'</div>';
+  }).join('');
+  sec.innerHTML='<div class="xsec-head"><h2 class="xsec-title">\ud83c\udf31 Green <em>travel</em></h2>'
+    +'<button class="tact" onclick="el(\'greenSection\').style.display=\'none\'">\u2715</button></div>'
+    +'<p class="xsec-sub">Travel lighter on the planet \u2014 tick the choices you\u2019re making. 5 green choices earns the \ud83c\udf31 Green Traveller badge.</p>'
+    +'<div class="green-prog"><div class="green-bar" style="width:'+Math.min(100,gc/5*100)+'%"></div></div>'
+    +'<div class="green-progtxt">'+(earned?'\ud83c\udf31 Green Traveller badge earned! Keep it up.':gc+' / 5 green choices \u2014 '+(5-gc)+' to go')+'</div>'
+    +cards
+    +'<div class="green-foot">Every small choice counts. RoamWise is built for travel that leaves places better than it found them. \ud83c\udf0d</div>';
+  sec.style.display=''; sec.scrollIntoView({behavior:'smooth',block:'start'});
+}
+function rwGreenPick(cb){
+  if(cb.checked){
+    try{ badgeBump('green'); }catch(e){}
+    var gc=parseInt(lsGet('rw_ct_green')||'0',10)||0;
+    var bar=document.querySelector('.green-bar'); if(bar) bar.style.width=Math.min(100,gc/5*100)+'%';
+    var tx=document.querySelector('.green-progtxt');
+    var earned=(typeof badgeEarnedIds==='function')?badgeEarnedIds().indexOf('green')>=0:false;
+    if(tx) tx.textContent = earned?'\ud83c\udf31 Green Traveller badge earned! Keep it up.':gc+' / 5 green choices \u2014 '+Math.max(0,5-gc)+' to go';
+    cb.disabled=true; cb.parentNode.style.opacity='.6';
+  }
+}
 function openJourneyCert(){
   try{ tabGo('home'); }catch(e){}
   var it = window._lastItin;
@@ -2681,8 +2867,50 @@ function openJourneyCert(){
 function certShare(){
   var url='https://roamwise.co.in';
   var txt='I just mapped my '+((window._lastItin&&_lastItin.name)||'next')+' journey on RoamWise \ud83c\udfc5\u2708\ufe0f Plan yours:';
-  if(navigator.share){ navigator.share({title:'My RoamWise Journey Certificate',text:txt,url:url}).catch(function(){}); }
-  else { try{ navigator.clipboard.writeText(txt+' '+url); showToast('Share text copied \u2713'); }catch(e){} }
+  rwShareSheet(txt, url, 'journey certificate');
+}
+function rwShareSheet(text, url, whatLabel){
+  var enc=encodeURIComponent, T=enc(text), U=enc(url), TU=enc(text+' '+url);
+  var links=[
+    {id:'whatsapp', label:'WhatsApp', emoji:'\ud83d\udcac', href:'https://wa.me/?text='+TU},
+    {id:'telegram', label:'Telegram', emoji:'\u2708\ufe0f', href:'https://t.me/share/url?url='+U+'&text='+T},
+    {id:'x', label:'X', emoji:'\u2715', href:'https://twitter.com/intent/tweet?text='+T+'&url='+U},
+    {id:'facebook', label:'Facebook', emoji:'\ud83d\udcd8', href:'https://www.facebook.com/sharer/sharer.php?u='+U+'&quote='+T},
+    {id:'reddit', label:'Reddit', emoji:'\ud83d\udc7d', href:'https://www.reddit.com/submit?url='+U+'&title='+T},
+    {id:'copy', label:'Copy link', emoji:'\ud83d\udd17', href:'#copy'},
+    {id:'insta', label:'Instagram', emoji:'\ud83d\udcf7', href:'#insta'},
+    {id:'more', label:'More apps', emoji:'\u2026', href:'#native'}
+  ];
+  var grid=links.map(function(l){
+    return '<button class="share-cell" onclick="rwShareGo(\''+l.id+'\',\''+l.href.replace(/\'/g,"%27")+'\')">'
+      +'<span class="share-emoji">'+l.emoji+'</span><span>'+l.label+'</span></button>';
+  }).join('');
+  window._rwShareCtx={text:text,url:url};
+  var html='<div class="share-modal-inner"><div class="share-head">Share your '+(whatLabel||'trip')+'</div>'
+    +'<div class="share-grid">'+grid+'</div>'
+    +'<button class="tact" style="width:100%;margin-top:6px" onclick="rwCloseShare()">Close</button></div>';
+  var ov=el('rwShareOverlay');
+  if(!ov){ ov=document.createElement('div'); ov.id='rwShareOverlay'; ov.className='share-overlay'; ov.onclick=function(e){ if(e.target===ov) rwCloseShare(); }; document.body.appendChild(ov); }
+  ov.innerHTML=html; ov.style.display='flex';
+}
+function rwCloseShare(){ var ov=el('rwShareOverlay'); if(ov) ov.style.display='none'; }
+function rwShareTrip(){ var nm=(window._lastItin&&_lastItin.name)||'trip'; rwShareSheet('Check out my '+nm+' plan on RoamWise \u2708\ufe0f','https://roamwise.co.in','trip plan'); }
+function rwShareGo(id, href){
+  var ctx=window._rwShareCtx||{text:'',url:''};
+  if(id==='copy'){ try{ navigator.clipboard.writeText(ctx.text+' '+ctx.url); showToast('Link copied \u2713'); }catch(e){}; return; }
+  if(id==='insta'){
+    try{ navigator.clipboard.writeText(ctx.text+' '+ctx.url); }catch(e){}
+    showToast('Caption copied \u2014 opening Instagram to paste \ud83d\udcf7');
+    try{ window.open('https://www.instagram.com/','_blank'); }catch(e){}
+    return;
+  }
+  if(id==='more'){
+    if(navigator.share){ navigator.share({text:ctx.text, url:ctx.url}).then(function(){ try{xpAdd(15,'Shared a trip');}catch(e){} }).catch(function(){}); }
+    else { try{ navigator.clipboard.writeText(ctx.text+' '+ctx.url); showToast('Copied \u2014 paste anywhere'); }catch(e){} }
+    return;
+  }
+  try{ window.open(decodeURIComponent(href.replace(/%27/g,"'")),'_blank','noopener'); try{xpAdd(10,'Shared a trip');}catch(e){} }catch(e){}
+  rwCloseShare();
 }
 function certDownload(){
   /* Uses html2canvas if available; else guides the user to screenshot. */
@@ -4722,6 +4950,8 @@ function buildItin(T, name, costMid, days){
     cnt.innerHTML = (srcBadge||'') + H
       + '<button class="tact" style="display:block;width:100%;margin-top:12px;font-weight:800;background:linear-gradient(135deg,var(--gold,#E8BA6C),var(--gold2,#C8913E));color:#0A0A0C;border:none" onclick="openTripMap(window._lastItin?_lastItin.name:\'\',null)">\ud83d\uddfa\ufe0f See this trip on a map</button>'
       + '<button class="tact" style="display:block;width:100%;margin-top:8px;font-weight:800" onclick="openJourneyCert()">\ud83c\udfc5 Mint journey certificate</button>'
+      + '<button class="tact" style="display:block;width:100%;margin-top:8px;font-weight:800" onclick="rwShareTrip()">\ud83d\udce4 Share this trip</button>'
+      + '<button class="tact" style="display:block;width:100%;margin-top:8px;font-weight:800" onclick="openMemories()">\u270d\ufe0f Turn trip into a blog &amp; collage</button>'
       + '<button class="tact" style="display:block;width:100%;margin-top:8px;font-weight:800" onclick="saveTripOffline()">\u2708\ufe0f Save offline \u2014 works with no signal</button>'
       + travelLinksHTML(name)
       + '<button class="tact" style="width:100%;margin-top:8px;border-color:rgba(22,191,150,.5);color:#16BF96" onclick="syncGo(\''+name.replace(/'/g,"\\'")+'\')">\ud83e\udd1d Sync Circle \u2014 I\u2019m going! See who else is</button>'
@@ -7985,9 +8215,25 @@ function rwBalanceDivs(html){
   return html;
 }
 /* ---- Ailon Tusk answers into the room ---- */
+/* Build a friendly, exact settle-up answer from the live Kitty engine, so
+   @tusk can answer "who owes whom?" in chat without guessing. */
+function chatSettleAnswer(){
+  var k = chatKittyState();
+  if(!k) return '\ud83d\udcb0 No expenses logged yet, boss \u2014 tap "+ Add an expense" when someone pays, and I\u2019ll track who owes whom to the last rupee.';
+  var nm = function(id){ return (k.names[id]||'Someone'); };
+  if(!k.tx.length) return '\u2705 All square! Total spent: \u20b9'+k.total.toLocaleString('en-IN')+' across '+k.people+' \u2014 nobody owes anybody. Mast.';
+  var lines = k.tx.map(function(t){ return '\u2022 '+nm(t.from)+' \u2192 '+nm(t.to)+': \u20b9'+Number(t.amount).toLocaleString('en-IN'); });
+  return '\ud83d\udcb0 Hisaab time! Total \u20b9'+k.total.toLocaleString('en-IN')+' (\u2248\u20b9'+k.perHead.toLocaleString('en-IN')+'/head). Settle with just '+k.tx.length+' payment'+(k.tx.length>1?'s':'')+':\n'+lines.join('\n')+'\n\nTap the \ud83d\udcb0 Kitty pin to mark any of these paid.';
+}
 async function chatAskTusk(q){
   if(!q || !q.trim()) return;
   await chatPost('text', null, '@tusk '+q).catch(function(){});
+  /* Settle-up questions get answered from the live expense ledger (exact),
+     not the AI (which can't see the group's money). */
+  if(/who\s+owes|owes?\s+whom|settle|split|kitty|hisaab|hisab|balance|paisa|kaun.*de|how\s+much.*owe/i.test(q)){
+    var ans = chatSettleAnswer();
+    if(ans){ await chatPost('text', null, ans).catch(function(){}); return; }
+  }
   try{
     var it = cpParseRegex(q);
     it._raw = q;
@@ -8083,6 +8329,60 @@ function chatAddExpense(){
   });
 }
 function chatKittyState(){
+  var expenses = _chatMsgs.filter(function(m){ return m.kind==='expense' && m.payload; });
+  var settles  = _chatMsgs.filter(function(m){ return m.kind==='settle' && m.payload; });
+  if(!expenses.length) return null;
+  var people={}, names={};
+  _chatMsgs.forEach(function(m){ if(m.uid){ people[m.uid]=true; if(m.name) names[m.uid]=m.name; } });
+  expenses.forEach(function(m){ var p=m.payload; if(p.payer){ people[p.payer]=true; if(p.payerName) names[p.payer]=p.payerName; } });
+  var ids=Object.keys(people); var n=ids.length||1;
+  /* Paise-exact settle via the CoordKit engine: build expense records
+     (each split across its participants, or everyone if unspecified) and let
+     rwSettleEngine compute balances + minimal transfers with no lost rupees. */
+  var recs = expenses.map(function(m){
+    var p=m.payload;
+    return { payer:p.payer, amount:p.amount||0, participants:(p.participants&&p.participants.length)?p.participants:ids };
+  });
+  var eng = rwSettleEngine(recs, settles.map(function(m){ return m.payload; }));
+  var total = expenses.reduce(function(s,m){ return s+(m.payload.amount||0); },0);
+  var tx = eng.transfers.map(function(t){ return { from:t.from, to:t.to, amount:t.amount }; });
+  return {total:total, perHead:Math.round(total/n), people:n, names:names, tx:tx, myBal:Math.round(eng.balances[user.uid]||0), count:expenses.length};
+}
+/* ===== CoordKit settle engine (paise-exact, minimal transfers) — shared by
+   the Live Kitty and Ailon Tusk. Money handled in integer paise to avoid float
+   drift; rounding remainder distributed deterministically so shares always sum
+   to the exact amount. ===== */
+function rwSettleEngine(expenses, settles){
+  function toMinor(a){ return Math.round((typeof a==='string'?parseFloat(a):a)*100); }
+  function fromMinor(m){ return Math.round(m)/100; }
+  var bal=Object.create(null);
+  (expenses||[]).forEach(function(e){
+    var amt=toMinor(e.amount||0);
+    var parts=(e.participants&&e.participants.length)?e.participants:[e.payer];
+    var w=parts.map(function(){return 1;}); var tot=w.length;
+    var raw=parts.map(function(){return amt/tot;});
+    var fl=raw.map(function(x){return Math.floor(x);});
+    var rem=amt-fl.reduce(function(a,b){return a+b;},0);
+    var ord=parts.map(function(_,i){return {i:i,f:raw[i]-fl[i]};}).sort(function(a,b){return b.f-a.f||a.i-b.i;});
+    var sh=fl.slice(); for(var k=0;k<rem;k++) sh[ord[k].i]+=1;
+    bal[e.payer]=(bal[e.payer]||0)+amt;
+    parts.forEach(function(p,i){ bal[p]=(bal[p]||0)-sh[i]; });
+  });
+  (settles||[]).forEach(function(s){ if(!s) return; if(bal[s.from]!==undefined) bal[s.from]+=toMinor(s.amount); if(bal[s.to]!==undefined) bal[s.to]-=toMinor(s.amount); });
+  var cr=[], db=[];
+  Object.keys(bal).forEach(function(id){ var v=bal[id]; if(v>0) cr.push({id:id,v:v}); else if(v<0) db.push({id:id,v:-v}); });
+  cr.sort(function(a,b){return b.v-a.v;}); db.sort(function(a,b){return b.v-a.v;});
+  var tx=[], ci=0, di=0;
+  while(ci<cr.length && di<db.length){
+    var pay=Math.min(cr[ci].v, db[di].v);
+    if(pay>0) tx.push({from:db[di].id, to:cr[ci].id, amount:fromMinor(pay)});
+    cr[ci].v-=pay; db[di].v-=pay;
+    if(cr[ci].v===0) ci++; if(db[di].v===0) di++;
+  }
+  var balances={}; Object.keys(bal).forEach(function(id){ balances[id]=fromMinor(bal[id]); });
+  return { balances:balances, transfers:tx };
+}
+function chatKittyState_OLD(){
   var expenses = _chatMsgs.filter(function(m){ return m.kind==='expense' && m.payload; });
   var settles  = _chatMsgs.filter(function(m){ return m.kind==='settle' && m.payload; });
   if(!expenses.length) return null;
