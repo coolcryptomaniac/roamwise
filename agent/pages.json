@@ -1726,5 +1726,113 @@
    67,
    77
   ]
+ },
+ {
+  "slug": "bangkok-thailand",
+  "title": "Bangkok, Thailand",
+  "name": "Bangkok",
+  "country": "Thailand",
+  "best": "January, February, December",
+  "arch": "monsoon",
+  "cl": [
+   32.8,
+   33.4,
+   33.3,
+   36.2,
+   34,
+   32.6,
+   30.8,
+   32.3,
+   31.5,
+   31.7,
+   32.7,
+   33.2
+  ],
+  "scores": [
+   98,
+   95,
+   90,
+   80,
+   60,
+   78,
+   59,
+   80,
+   63,
+   73,
+   92,
+   98
+  ]
+ },
+ {
+  "slug": "phuket-thailand",
+  "title": "Phuket, Thailand",
+  "name": "Phuket",
+  "country": "Thailand",
+  "best": "January, February, March",
+  "arch": "monsoon",
+  "cl": [
+   31.1,
+   33.4,
+   34.2,
+   34.1,
+   32.4,
+   30.7,
+   29.9,
+   29.7,
+   29,
+   29.5,
+   29.8,
+   29.9
+  ],
+  "scores": [
+   95,
+   95,
+   84,
+   84,
+   73,
+   72,
+   76,
+   68,
+   57,
+   69,
+   73,
+   81
+  ]
+ },
+ {
+  "slug": "krabi-thailand",
+  "title": "Krabi, Thailand",
+  "name": "Krabi",
+  "country": "Thailand",
+  "best": "January, February, March",
+  "arch": "monsoon",
+  "cl": [
+   33.5,
+   35.4,
+   35.7,
+   35,
+   33.1,
+   31.3,
+   30.3,
+   30.3,
+   29.5,
+   30.2,
+   30,
+   30.1
+  ],
+  "scores": [
+   87,
+   82,
+   77,
+   75,
+   62,
+   74,
+   72,
+   64,
+   55,
+   68,
+   57,
+   76
+  ]
  }
 ]
