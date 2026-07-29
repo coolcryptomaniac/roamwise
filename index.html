@@ -95,7 +95,7 @@
         "@type": "Offer",
         "price": "100",
         "priceCurrency": "INR",
-        "description": "One-time founder price. No subscription."
+        "description": "One-time founder price for the first 1,000 members. Regular plans apply afterwards."
       }
     }
   ]
@@ -748,6 +748,7 @@ html{-webkit-text-size-adjust:100%}
   <a class="dr-link" onclick="drLangPick()"><span class="ic">🌐</span>Language<span id="drLangVal" style="margin-left:auto;color:var(--t3);font-size:11px"></span></a>
   <div id="drLangList" style="display:none;padding:2px 0 2px 30px"></div>
   <a class="dr-link" onclick="closeDrawer();openSettings()"><span class="ic">⚙️</span>Settings &amp; AI keys</a>
+  <a class="dr-link" onclick="closeDrawer();openBadges()"><span class="ic">🏅</span>My badges &amp; achievements</a>
   <a class="dr-link" href="https://roamwise.co.in/help/" onclick="event.preventDefault();rwOpenSite('help/')" rel="noopener"><span class="ic">❓</span>Help &amp; FAQ</a>
   <a class="dr-link" onclick="closeDrawer();openWizard()"><span class="ic">🧠</span>AI setup wizard (60 sec)</a>
   <a class="dr-link" onclick="closeDrawer();shareApp('app')"><span class="ic">📤</span>Share RoamWise (+15 XP)</a>
@@ -837,13 +838,14 @@ html{-webkit-text-size-adjust:100%}
       </div>
       <div class="price-hero">
         <div class="big-price" id="bigPrice">&#8377;100</div>
-        <div class="price-sub" id="priceSub">One-time &bull; Lifetime &bull; No subscription</div>
-        <div class="price-old" id="priceOld"><s>&#8377;999/year</s> &rarr; <b>&#8377;100 forever</b> &middot; founder price</div>
+        <div class="price-sub" id="priceSub">Founder offer &bull; One-time &bull; No subscription</div>
+        <div class="price-old" id="priceOld"><b>&#8377;100 one-time</b> &middot; founder price for the <b>first 1,000 members</b></div>
+        <div style="font-size:10.5px;color:var(--t3,#888);margin-top:5px;line-height:1.5" id="priceDisclaimer">After the first 1,000, Pro moves to regular pricing (planned yearly &amp; multi-month plans). Lock the one-time founder price now &mdash; it stays yours for life, no renewals.</div>
       </div>
       <div class="trust-row">
         <span class="trust-badge" data-i18n="pay.refund">&#128737;&#65039; 7-day refund &mdash; no questions</span>
         <span class="trust-badge" data-i18n="pay.secure">&#128274; Secure UPI / Card</span>
-        <span class="trust-badge" data-i18n="pay.noAuto">&#9989; One-time, no auto-charge</span>
+        <span class="trust-badge" data-i18n="pay.noAuto">&#9989; One-time &mdash; never auto-charged</span>
       </div>
       <div class="features-grid">
         <div class="feat-item"><span class="feat-ck">&#10003;</span>Full itineraries</div>

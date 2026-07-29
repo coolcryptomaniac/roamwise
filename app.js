@@ -2488,6 +2488,92 @@ function renderPerks(){
 /* ===== SHINOBI XP — traveler ranks ===== */
 var RANKS=[[0,'Genin'],[100,'Chunin'],[300,'Jonin'],[700,'ANBU'],[1500,'Kage']];
 function xpGet(){ return parseInt(lsGet('rw_xp')||'0',10)||0; }
+
+/* ==================== BADGES & ACHIEVEMENTS ====================
+   Complements the XP/rank system with collectible badges. The Founder badge is
+   awarded to the first 1,000 Pro buyers; the rest unlock from real usage
+   milestones tracked in localStorage counters. All offline, all on-device. */
+var RW_BADGES=[
+  {id:'founder', emoji:'\ud83c\udfc5', name:'Founder', desc:'One of the first 1,000 Pro members', accent:'#E8BA6C',
+    test:function(s){ return s.founder; }},
+  {id:'pro', emoji:'\u2b50', name:'Pro Traveller', desc:'Unlocked RoamWise Pro', accent:'#C8913E',
+    test:function(s){ return s.isPro; }},
+  {id:'firstTrip', emoji:'\ud83e\udded', name:'First Steps', desc:'Planned your first trip', accent:'#60A5FA',
+    test:function(s){ return s.trips>=1; }, prog:function(s){ return [Math.min(s.trips,1),1]; }},
+  {id:'planner5', emoji:'\ud83d\uddfa\ufe0f', name:'Trip Architect', desc:'Planned 5 trips', accent:'#4ADE80',
+    test:function(s){ return s.trips>=5; }, prog:function(s){ return [Math.min(s.trips,5),5]; }},
+  {id:'planner20', emoji:'\ud83c\udf0f', name:'Globetrotter', desc:'Planned 20 trips', accent:'#38BDF8',
+    test:function(s){ return s.trips>=20; }, prog:function(s){ return [Math.min(s.trips,20),20]; }},
+  {id:'mapper', emoji:'\ud83d\udccd', name:'Map Reader', desc:'Viewed a trip on the map', accent:'#A78BFA',
+    test:function(s){ return s.maps>=1; }, prog:function(s){ return [Math.min(s.maps,1),1]; }},
+  {id:'crew', emoji:'\ud83e\udd1d', name:'Trip Captain', desc:'Started a group trip', accent:'#FB923C',
+    test:function(s){ return s.groups>=1; }, prog:function(s){ return [Math.min(s.groups,1),1]; }},
+  {id:'saver', emoji:'\ud83d\udcbe', name:'Prepared', desc:'Saved a trip for offline', accent:'#F472B6',
+    test:function(s){ return s.saves>=1; }, prog:function(s){ return [Math.min(s.saves,1),1]; }},
+  {id:'explorer', emoji:'\ud83e\udded', name:'Curious Mind', desc:'Asked Ailon Tusk 10 questions', accent:'#F87171',
+    test:function(s){ return s.asks>=10; }, prog:function(s){ return [Math.min(s.asks,10),10]; }}
+];
+function badgeState(){
+  return {
+    isPro: (typeof isPro!=='undefined' && isPro) || lsGet('rwPro')==='1',
+    founder: lsGet('rw_founder')==='1',
+    trips: parseInt(lsGet('rw_ct_trips')||'0',10)||0,
+    maps: parseInt(lsGet('rw_ct_maps')||'0',10)||0,
+    groups: parseInt(lsGet('rw_ct_groups')||'0',10)||0,
+    saves: parseInt(lsGet('rw_ct_saves')||'0',10)||0,
+    asks: parseInt(lsGet('rw_ct_asks')||'0',10)||0
+  };
+}
+/* bump a usage counter and check for newly-earned badges */
+function badgeBump(kind){
+  var map={trip:'rw_ct_trips',map:'rw_ct_maps',group:'rw_ct_groups',save:'rw_ct_saves',ask:'rw_ct_asks'};
+  var key=map[kind]; if(!key) return;
+  var before=badgeEarnedIds();
+  lsSet(key, String((parseInt(lsGet(key)||'0',10)||0)+1));
+  var after=badgeEarnedIds();
+  after.forEach(function(id){ if(before.indexOf(id)<0) badgeCelebrate(id); });
+}
+function badgeEarnedIds(){
+  var s=badgeState();
+  return RW_BADGES.filter(function(b){ try{ return b.test(s); }catch(e){ return false; } }).map(function(b){ return b.id; });
+}
+function badgeCelebrate(id){
+  var b=RW_BADGES.filter(function(x){return x.id===id;})[0]; if(!b) return;
+  try{ showToast(b.emoji+' Badge unlocked: '+b.name+'!'); }catch(e){}
+  try{ if(typeof xpAdd==='function') xpAdd(25, 'badge:'+id); }catch(e){}
+}
+/* called when a Pro purchase is confirmed — awards Founder if under the cap */
+function badgeAwardFounder(){
+  try{ lsSet('rw_founder','1'); }catch(e){}
+  badgeCelebrate('founder');
+}
+function badgesHTML(){
+  var s=badgeState();
+  var earned=badgeEarnedIds();
+  var cells=RW_BADGES.map(function(b){
+    var on=earned.indexOf(b.id)>=0;
+    var pr=b.prog?b.prog(s):null;
+    return '<div style="text-align:center;padding:12px 8px;border-radius:14px;border:1px solid '+(on?b.accent:'var(--b1)')+';background:'+(on?'linear-gradient(135deg,'+b.accent+'22,'+b.accent+'08)':'var(--bg3)')+';opacity:'+(on?'1':'.6')+'">'
+      +'<div style="font-size:30px;line-height:1;filter:'+(on?'none':'grayscale(1)')+'">'+b.emoji+'</div>'
+      +'<div style="font-size:12px;font-weight:700;color:var(--t1);margin-top:6px">'+b.name+'</div>'
+      +'<div style="font-size:9.5px;color:var(--t3);margin-top:2px;line-height:1.4">'+b.desc+'</div>'
+      +(pr&&!on?'<div style="font-size:9px;color:'+b.accent+';margin-top:4px;font-weight:700">'+pr[0]+'/'+pr[1]+'</div>':(on?'<div style="font-size:9px;color:'+b.accent+';margin-top:4px;font-weight:800">\u2713 EARNED</div>':''))
+      +'</div>';
+  }).join('');
+  return '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:9px">'+cells+'</div>'
+    +'<div style="font-size:10.5px;color:var(--t3);text-align:center;margin-top:10px">'+earned.length+' of '+RW_BADGES.length+' badges earned</div>';
+}
+function openBadges(){
+  try{ tabGo('home'); }catch(e){}
+  var sec=el('badgesSection');
+  if(!sec){
+    sec=document.createElement('section'); sec.id='badgesSection'; sec.className='xsec v v-home';
+    var host=el('copilotHero'); if(host&&host.parentNode) host.parentNode.insertBefore(sec,host.nextSibling); else document.body.appendChild(sec);
+  }
+  sec.innerHTML='<div class="xsec-head"><h2 class="xsec-title">\ud83c\udfc5 Your <em>badges</em></h2><button class="tact" onclick="el(\'badgesSection\').style.display=\'none\'">\u2715</button></div>'
+    +'<p class="xsec-sub">Collectible achievements \u2014 earned as you plan, map, and travel.</p>'+badgesHTML();
+  sec.style.display=''; sec.scrollIntoView({behavior:'smooth',block:'start'});
+}
 function rankOf(x){ var r=RANKS[0]; for(var i=0;i<RANKS.length;i++) if(x>=RANKS[i][0]) r=RANKS[i]; return r; }
 function nextRank(x){ for(var i=0;i<RANKS.length;i++) if(x<RANKS[i][0]) return RANKS[i]; return null; }
 function xpAdd(n, why){
@@ -4494,18 +4580,23 @@ function buildItin(T, name, costMid, days){
   ph.innerHTML = `<div class="mini-spin"></div><span>Building your ${days}-day plan for ${name}...</span>`;
 
   function renderDays(dayList, srcBadge){
+    var DAY_ACCENTS=['#E8BA6C','#60A5FA','#4ADE80','#F87171','#A78BFA','#38BDF8','#FB923C','#F472B6'];
     var H = dayList.map(function(day,i){
       var did = 'day_'+T+'_'+i;
+      var acc = DAY_ACCENTS[i%DAY_ACCENTS.length];
+      var glow = 'rgba('+parseInt(acc.slice(1,3),16)+','+parseInt(acc.slice(3,5),16)+','+parseInt(acc.slice(5,7),16)+',.16)';
       var segs = '';
-      if(day.morning) segs += `<div class="day-seg"><div class="seg-time">Morning</div><div class="seg-desc">${day.morning}</div></div>`;
-      if(day.afternoon) segs += `<div class="day-seg"><div class="seg-time">Afternoon</div><div class="seg-desc">${day.afternoon}</div></div>`;
-      if(day.evening) segs += `<div class="day-seg"><div class="seg-time">Evening</div><div class="seg-desc">${day.evening}</div></div>`;
-      if(day.food) segs += `<div class="day-seg"><div class="seg-time">\ud83c\udf5b Eat</div><div class="seg-desc">${day.food}</div></div>`;
-      return `<div class="day-card"><div class="day-head" onclick="togDay('${did}')"><div><div class="day-num">Day ${day.day}</div><div class="day-title">${day.title||'Exploration'}</div></div><span class="day-arr" id="arr_${did}">▶</span></div>
-        <div class="day-body" id="${did}"><div>${segs}</div>${day.tip?`<div class="day-tip">💡 ${day.tip}</div>`:''}</div></div>`;
+      if(day.morning) segs += '<div class="day-seg"><div class="seg-time"><span class="seg-ic">\u{1F305}</span>Morning</div><div class="seg-desc">'+day.morning+'</div></div>';
+      if(day.afternoon) segs += '<div class="day-seg"><div class="seg-time"><span class="seg-ic">\u2600\uFE0F</span>Afternoon</div><div class="seg-desc">'+day.afternoon+'</div></div>';
+      if(day.evening) segs += '<div class="day-seg"><div class="seg-time"><span class="seg-ic">\u{1F306}</span>Evening</div><div class="seg-desc">'+day.evening+'</div></div>';
+      if(day.food) segs += '<div class="day-seg"><div class="seg-time"><span class="seg-ic">\u{1F35B}</span>Eat</div><div class="seg-desc">'+day.food+'</div></div>';
+      return '<div class="day-card" style="--day-accent:'+acc+';--day-glow:'+glow+'"><div class="day-head" onclick="togDay(\''+did+'\')"><div><div class="day-num"><span class="day-dot"></span>Day '+day.day+'</div><div class="day-title">'+(day.title||'Exploration')+'</div></div><span class="day-arr" id="arr_'+did+'">\u25B6</span></div>'
+        + '<div class="day-body" id="'+did+'"><div>'+segs+'</div>'+(day.tip?'<div class="day-tip">\u{1F4A1} '+day.tip+'</div>':'')+'</div></div>';
     }).join('');
+    try{ badgeBump('trip'); }catch(e){}
     cnt.innerHTML = (srcBadge||'') + H
-      + '<button class="tact" style="display:block;width:100%;margin-top:12px;font-weight:800" onclick="saveTripOffline()">\u2708\ufe0f Save offline \u2014 works with no signal</button>'
+      + '<button class="tact" style="display:block;width:100%;margin-top:12px;font-weight:800;background:linear-gradient(135deg,var(--gold,#E8BA6C),var(--gold2,#C8913E));color:#0A0A0C;border:none" onclick="openTripMap(window._lastItin?_lastItin.name:\'\',null)">\ud83d\uddfa\ufe0f See this trip on a map</button>'
+      + '<button class="tact" style="display:block;width:100%;margin-top:8px;font-weight:800" onclick="saveTripOffline()">\u2708\ufe0f Save offline \u2014 works with no signal</button>'
       + travelLinksHTML(name)
       + '<button class="tact" style="width:100%;margin-top:8px;border-color:rgba(22,191,150,.5);color:#16BF96" onclick="syncGo(\''+name.replace(/'/g,"\\'")+'\')">\ud83e\udd1d Sync Circle \u2014 I\u2019m going! See who else is</button>'
       + '<button class="tact" style="width:100%;margin-top:8px" onclick="compareModels(\''+name.replace(/'/g,"\\'")+'\','+days+')">\u2694\ufe0f Compare AI engines on this trip</button>'
@@ -4790,6 +4881,7 @@ function _adminUnlock(code){
 
 function activatePro(payId, method){
   isPro=true; lsSet('rwPro','1'); lsSet('rw_pro_uid',(user&&user.uid)||'device'); lsSet('rwPayId', payId||'manual');
+  try{ badgeAwardFounder(); }catch(e){}
   closePay(); el('successOverlay').classList.add('open');
   confetti(); refreshProUI();
 }
@@ -5438,7 +5530,7 @@ var RW_TABS = {
   plan:     {icon:'\u2708\ufe0f',      label:'Plan',     run:function(){ tabGo('plan'); }},
   copilot:  {icon:'\ud83e\udded',      label:'Copilot',  run:function(){ tabGo('copilot'); setTimeout(function(){ var i=el('heroInput'); if(i) i.focus(); },300); }},
   explore:  {icon:'\u26e9\ufe0f',      label:'Explore',  run:function(){ tabGo('explore'); }},
-  map:      {icon:'\ud83d\uddfa\ufe0f',label:'Map',      run:function(){ openMapExplorer(); }},
+  map:      {icon:'\ud83d\uddfa\ufe0f',label:'Map',      run:function(){ if(window._lastItin && _lastItin.name){ openTripMap(_lastItin.name,null); } else { openMapExplorer(); } }},
   store:    {icon:'\ud83d\udecd\ufe0f',label:'Store',    run:function(){ tabGo('store'); }},
   film:     {icon:'\ud83c\udfac',      label:'Film',     run:function(){ tabGo('film'); }},
   ratings:  {icon:'\u2b50',            label:'Reviews',  run:function(){ tabGo('extras'); }},
@@ -6849,6 +6941,7 @@ async function cpActionsHTML(it){
 function vaultGet(){ try{ return JSON.parse(lsGet('rw_trips')||'[]'); }catch(e){ return []; } }
 function vaultSave(list){ lsSet('rw_trips', JSON.stringify(list.slice(0,50))); }
 function saveTripOffline(){
+  try{ badgeBump('save'); }catch(e){}
   var it = window._lastItin;
   if(!it || !it.days || !it.days.length){ showToast('Generate an itinerary first'); return; }
   var list = vaultGet();
@@ -7328,6 +7421,7 @@ function rwAgo(ts){
   return Math.floor(s/86400)+'d ago';
 }
 function openGroupPlanner(){
+  try{ badgeBump('group'); }catch(e){}
   var ov=el('grpOverlay');
   if(!ov){
     ov=document.createElement('div'); ov.id='grpOverlay'; ov.className='overlay';
@@ -11035,6 +11129,169 @@ function openMapExplorer(){
   });
 }
 function closeMapExplorer(){ /* inline section — nothing to close */ }
+
+/* ==================== MAP-FIRST ITINERARY VIEW ====================
+   The Wanderlog/Mindtrip experience: an itinerary's stops as numbered, day-
+   coloured pins on an interactive map, connected in day order, tappable to see
+   the stop. Reuses gcode() + rwEnsureLeaflet(). Stops are cached so the map is
+   instant on re-open and viewable offline once loaded. */
+var _tripMap=null, _tripLayers=[];
+var RW_DAY_COLORS=['#E8BA6C','#60A5FA','#4ADE80','#F87171','#A78BFA','#38BDF8','#FB923C','#F472B6'];
+function openTripMap(destName, stops){
+  try{ badgeBump('map'); }catch(e){}
+  /* stops: optional [{day, name, note}]. If not given, we derive from the last
+     rendered itinerary (window._lastItin) or just pin the destination. */
+  try{ tabGo('home'); }catch(e){}
+  var sec=el('tripMapSection');
+  if(!sec){
+    sec=document.createElement('section');
+    sec.id='tripMapSection'; sec.className='xsec v v-home';
+    sec.innerHTML='<div class="xsec-head"><h2 class="xsec-title">\ud83d\uddfa\ufe0f Trip <em>map</em></h2>'
+      +'<button class="tact" onclick="el(\'tripMapSection\').style.display=\'none\'">\u2715 Close</button></div>'
+      +'<p class="xsec-sub" id="tripMapSub">Your itinerary, mapped \u2014 tap a numbered pin or a day to jump.</p>'
+      +'<div style="display:flex;gap:12px;flex-wrap:wrap">'
+      +'<div id="tripMap" style="flex:1 1 340px;height:56vh;min-height:300px;border-radius:16px;overflow:hidden;background:#0E1018;border:1px solid var(--b2,#2A2A36)"></div>'
+      +'<div id="tripMapList" style="flex:1 1 240px;max-height:56vh;overflow-y:auto"></div>'
+      +'</div>';
+    var host=el('copilotHero');
+    if(host && host.parentNode) host.parentNode.insertBefore(sec, host.nextSibling);
+    else document.body.appendChild(sec);
+  }
+  sec.style.display='';
+  sec.scrollIntoView({behavior:'smooth', block:'start'});
+  el('tripMapSub').textContent='Mapping '+destName+'\u2026';
+  el('tripMapList').innerHTML='<div class="note" style="padding:10px">\u23f3 Finding your stops\u2026</div>';
+
+  /* gather stops: passed in, or from the last itinerary, or fallback to dest */
+  var raw = stops && stops.length ? stops : rwDeriveStops(destName);
+  rwEnsureLeaflet(function(ok){
+    if(!ok){ el('tripMapList').innerHTML='<div class="note" style="padding:10px">Map needs internet the first time. Your saved trips still work offline.</div>'; return; }
+    /* geocode destination + each stop (cached) */
+    var cacheKey='rw_tripmap_'+destName.toLowerCase().replace(/[^a-z0-9]/g,'');
+    var cached=null; try{ cached=JSON.parse(lsGet(cacheKey)||'null'); }catch(e){}
+    var geoP;
+    if(cached && cached.pins && cached.pins.length){ geoP=Promise.resolve(cached); }
+    else {
+      geoP = gcode(destName).then(function(center){
+        var jobs = raw.map(function(s){
+          var q=(s.name?s.name+', ':'')+destName;
+          return gcode(q).then(function(g){ return g?{day:s.day,name:s.name||destName,note:s.note||'',lat:g.lat,lon:g.lon}:null; });
+        });
+        return Promise.all(jobs).then(function(pins){
+          pins=(pins||[]).filter(Boolean);
+          if(center){ /* drop pins absurdly far from the destination centroid */
+            pins=pins.filter(function(p){ return Math.abs(p.lat-center.lat)<2 && Math.abs(p.lon-center.lon)<2; }); }
+          var out={center:center, pins:pins};
+          try{ lsSet(cacheKey, JSON.stringify(out)); }catch(e){}
+          return out;
+        });
+      });
+    }
+    geoP.then(function(data){ rwPaintTripMap(destName, data); });
+  });
+}
+/* Pull stops from the most recent itinerary the app rendered, if any. */
+function rwDeriveStops(destName){
+  var it = window._lastItin;
+  if(it && it.days && it.days.length){
+    return it.days.map(function(d,i){
+      var nm = d.place || d.title || (d.morning? String(d.morning).split(/[,.]/)[0] : '');
+      return {day:i+1, name:nm, note:(d.title||'')};
+    }).filter(function(s){ return s.name; });
+  }
+  /* No itinerary yet — fall back to known highlights so the map is still useful. */
+  var target = (destName || (it&&it.name) || '').toLowerCase().trim();
+  /* 1) curated attractions for popular Indian destinations (real, mappable) */
+  var cur = RW_CURATED_STOPS[target];
+  if(!cur){ for(var k in RW_CURATED_STOPS){ if(target.indexOf(k)>=0 || k.indexOf(target)>=0){ cur=RW_CURATED_STOPS[k]; break; } } }
+  if(cur && cur.length){ return cur.map(function(nm,i){ return {day:i+1, name:nm, note:'Highlight'}; }); }
+  /* 2) DB gems if present */
+  try{
+    var d = (typeof DB!=='undefined') ? DB.find(function(x){ return x.name && x.name.toLowerCase()===target; }) : null;
+    if(!d && typeof DB!=='undefined' && target){ d = DB.find(function(x){ return x.name && (target.indexOf(x.name.toLowerCase())>=0 || x.name.toLowerCase().indexOf(target)>=0); }); }
+    if(d && d.gems && d.gems.length){ return d.gems.slice(0,6).map(function(g,i){ return {day:i+1, name:g, note:'Highlight'}; }); }
+  }catch(e){}
+  return [];
+}
+/* Curated real attractions (town/landmark level) for popular Indian destinations.
+   Used to populate the trip map before a full itinerary exists. Extend freely. */
+var RW_CURATED_STOPS = {
+  'rishikesh':['Laxman Jhula','Ram Jhula','Triveni Ghat','Beatles Ashram','Neelkanth Mahadev Temple','Parmarth Niketan'],
+  'haridwar':['Har Ki Pauri','Mansa Devi Temple','Chandi Devi Temple','Bharat Mata Mandir','Maya Devi Temple'],
+  'manali':['Hadimba Temple','Solang Valley','Old Manali','Mall Road','Vashisht Hot Springs','Jogini Falls'],
+  'shimla':['The Ridge','Mall Road','Jakhoo Temple','Christ Church','Kufri','Viceregal Lodge'],
+  'nainital':['Naini Lake','Naina Devi Temple','Snow View Point','Tiffin Top','Mall Road','The Flats'],
+  'almora':['Kasar Devi Temple','Bright End Corner','Nanda Devi Temple','Chitai Golu Devta','Zero Point','Katarmal Sun Temple'],
+  'mussoorie':['Kempty Falls','Gun Hill','Camel\u2019s Back Road','Mall Road','Lal Tibba','Company Garden'],
+  'jaipur':['Amber Fort','Hawa Mahal','City Palace','Jantar Mantar','Nahargarh Fort','Jal Mahal'],
+  'udaipur':['City Palace','Lake Pichola','Jag Mandir','Fateh Sagar Lake','Sajjangarh Palace','Jagdish Temple'],
+  'jaisalmer':['Jaisalmer Fort','Patwon Ki Haveli','Sam Sand Dunes','Gadisar Lake','Kuldhara Village'],
+  'jodhpur':['Mehrangarh Fort','Umaid Bhawan Palace','Jaswant Thada','Clock Tower Market','Mandore Gardens'],
+  'agra':['Taj Mahal','Agra Fort','Mehtab Bagh','Fatehpur Sikri','Itmad-ud-Daulah'],
+  'varanasi':['Dashashwamedh Ghat','Kashi Vishwanath Temple','Assi Ghat','Manikarnika Ghat','Sarnath'],
+  'goa':['Baga Beach','Calangute Beach','Fort Aguada','Basilica of Bom Jesus','Anjuna Beach','Dudhsagar Falls'],
+  'leh':['Leh Palace','Pangong Lake','Shanti Stupa','Nubra Valley','Magnetic Hill','Thiksey Monastery'],
+  'darjeeling':['Tiger Hill','Batasia Loop','Darjeeling Himalayan Railway','Peace Pagoda','Happy Valley Tea Estate'],
+  'munnar':['Tea Gardens','Eravikulam National Park','Mattupetty Dam','Echo Point','Top Station','Attukad Falls'],
+  'kasol':['Kasol Village','Chalal Village','Manikaran Sahib','Tosh Village','Kheerganga Trek'],
+  'delhi':['India Gate','Red Fort','Qutub Minar','Humayun\u2019s Tomb','Lotus Temple','Chandni Chowk'],
+  'mumbai':['Gateway of India','Marine Drive','Elephanta Caves','Chhatrapati Shivaji Terminus','Juhu Beach'],
+  'kochi':['Fort Kochi','Chinese Fishing Nets','Mattancherry Palace','Jew Town','Santa Cruz Basilica']
+};
+function rwPaintTripMap(destName, data){
+  var pins=(data&&data.pins)||[]; var center=data&&data.center;
+  /* build the map */
+  try{ if(_tripMap){ _tripLayers.forEach(function(l){ try{_tripMap.removeLayer(l);}catch(e){} }); _tripLayers=[]; } }catch(e){}
+  if(!_tripMap){
+    _tripMap = L.map('tripMap', {zoomControl:true}).setView(center?[center.lat,center.lon]:[22.9,79.5], center?11:4);
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png', {maxZoom:19, attribution:'\u00a9 OpenStreetMap \u00a9 CARTO'}).addTo(_tripMap);
+  }
+  setTimeout(function(){ try{ _tripMap.invalidateSize(); }catch(e){} }, 250);
+
+  if(!pins.length){
+    el('tripMapSub').textContent='Mapped '+destName;
+    el('tripMapList').innerHTML='<div class="note" style="padding:10px">Showing '+esc2(destName)+'. Plan a full itinerary to map every day\u2019s stops in order.</div>';
+    if(center){ var m=L.marker([center.lat,center.lon]).addTo(_tripMap); _tripLayers.push(m); _tripMap.setView([center.lat,center.lon],11); }
+    return;
+  }
+  /* numbered day-coloured pins + connecting route */
+  var latlngs=[]; var bounds=[];
+  pins.forEach(function(p,i){
+    var col=RW_DAY_COLORS[((p.day||1)-1)%RW_DAY_COLORS.length];
+    var icon=L.divIcon({className:'', html:'<div style="background:'+col+';width:28px;height:28px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center"><span style="transform:rotate(45deg);color:#0A0A0C;font-weight:800;font-size:13px">'+(i+1)+'</span></div>', iconSize:[28,28], iconAnchor:[14,28]});
+    var mk=L.marker([p.lat,p.lon],{icon:icon}).addTo(_tripMap);
+    mk.bindPopup('<b>'+esc2(p.name)+'</b><br><span style="color:#888">Day '+(p.day||1)+(p.note?' \u00b7 '+esc2(p.note):'')+'</span>');
+    mk.on('click', function(){ rwTripListHighlight(i); });
+    _tripLayers.push(mk); latlngs.push([p.lat,p.lon]); bounds.push([p.lat,p.lon]);
+  });
+  if(latlngs.length>1){ var line=L.polyline(latlngs,{color:'#E8BA6C',weight:3,opacity:.6,dashArray:'6,8'}).addTo(_tripMap); _tripLayers.push(line); }
+  try{ _tripMap.fitBounds(bounds,{padding:[40,40],maxZoom:13}); }catch(e){}
+
+  el('tripMapSub').textContent=pins.length+' stops across '+destName+' \u2014 tap a pin or a stop below.';
+  /* side list, grouped by day */
+  var byDay={}; pins.forEach(function(p,i){ (byDay[p.day||1]=byDay[p.day||1]||[]).push({p:p,i:i}); });
+  var html='';
+  Object.keys(byDay).sort(function(a,b){return a-b;}).forEach(function(dy){
+    var col=RW_DAY_COLORS[(dy-1)%RW_DAY_COLORS.length];
+    html+='<div style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:'+col+';margin:10px 2px 5px">Day '+dy+'</div>';
+    byDay[dy].forEach(function(o){
+      html+='<button class="tact" id="tripStop'+o.i+'" style="width:100%;text-align:left;margin-bottom:6px;display:flex;gap:9px;align-items:flex-start" onclick="rwTripFlyTo('+o.i+')">'
+        +'<span style="flex:0 0 auto;width:22px;height:22px;border-radius:50%;background:'+col+';color:#0A0A0C;font-weight:800;font-size:12px;display:flex;align-items:center;justify-content:center">'+(o.i+1)+'</span>'
+        +'<span><b style="font-size:13px">'+esc2(o.p.name)+'</b>'+(o.p.note?'<br><span style="font-size:10.5px;color:var(--t2)">'+esc2(o.p.note)+'</span>':'')+'</span></button>';
+    });
+  });
+  el('tripMapList').innerHTML=html;
+  window._tripPins=pins;
+}
+function rwTripFlyTo(i){
+  var p=(window._tripPins||[])[i]; if(!p||!_tripMap) return;
+  _tripMap.flyTo([p.lat,p.lon], 14, {duration:.6});
+  rwTripListHighlight(i);
+  try{ _tripLayers.forEach(function(l){ if(l.getLatLng && Math.abs(l.getLatLng().lat-p.lat)<1e-6){ l.openPopup(); } }); }catch(e){}
+}
+function rwTripListHighlight(i){
+  try{ document.querySelectorAll('[id^=tripStop]').forEach(function(b){ b.style.background=''; }); var b=el('tripStop'+i); if(b){ b.style.background='rgba(232,186,108,.14)'; b.scrollIntoView({block:'nearest'}); } }catch(e){}
+}
 function rwEnsureLeaflet(cb){
   if(window.L && window.L.map) return cb(true);
   if(!navigator.onLine) return cb(false);
