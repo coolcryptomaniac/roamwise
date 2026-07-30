@@ -1834,5 +1834,113 @@
    57,
    76
   ]
+ },
+ {
+  "slug": "hanoi-vietnam",
+  "title": "Hanoi, Vietnam",
+  "name": "Hanoi",
+  "country": "Vietnam",
+  "best": "February, November, December",
+  "arch": "monsoon",
+  "cl": [
+   21.1,
+   23.7,
+   25.9,
+   32.7,
+   31.1,
+   33.1,
+   32.5,
+   32.5,
+   30.8,
+   29.7,
+   28,
+   22.1
+  ],
+  "scores": [
+   87,
+   96,
+   89,
+   95,
+   62,
+   54,
+   55,
+   59,
+   55,
+   90,
+   98,
+   98
+  ]
+ },
+ {
+  "slug": "da-nang-vietnam",
+  "title": "Da Nang, Vietnam",
+  "name": "Da Nang",
+  "country": "Vietnam",
+  "best": "February, March, April",
+  "arch": "tropical",
+  "cl": [
+   24.7,
+   26.2,
+   28.3,
+   33.6,
+   32.9,
+   35.5,
+   33.2,
+   35.9,
+   31.9,
+   28.2,
+   26.8,
+   24
+  ],
+  "scores": [
+   81,
+   96,
+   95,
+   96,
+   91,
+   68,
+   84,
+   78,
+   61,
+   55,
+   55,
+   62
+  ]
+ },
+ {
+  "slug": "ho-chi-minh-city-vietnam",
+  "title": "Ho Chi Minh City, Vietnam",
+  "name": "Ho Chi Minh City",
+  "country": "Vietnam",
+  "best": "January, February, November",
+  "arch": "monsoon",
+  "cl": [
+   33.3,
+   34.9,
+   36.4,
+   37.2,
+   34.4,
+   32.7,
+   30.8,
+   32,
+   30.7,
+   30.7,
+   32.5,
+   30.5
+  ],
+  "scores": [
+   98,
+   88,
+   79,
+   74,
+   61,
+   70,
+   55,
+   65,
+   55,
+   57,
+   90,
+   86
+  ]
  }
 ]
