@@ -806,3 +806,102 @@ html.reduce-motion *,html.reduce-motion *::before,html.reduce-motion *::after{an
 .mem-pane{animation:dayReveal .25s ease}
 .mem-blog{background:var(--bg2,#12151F);border:1px solid var(--b1);border-radius:14px;padding:16px}
 .mem-blog h3{font-size:17px;color:var(--t1)}
+
+/* ===== TRIP BOARD (chat pins) ===== */
+.board-sec{padding:9px 0;border-bottom:1px solid rgba(255,255,255,.06)}
+.board-sec:last-of-type{border-bottom:none}
+.board-h{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--gold2,#C8913E);margin-bottom:5px}
+.board-v{font-size:12.5px;color:var(--t1);line-height:1.6;padding:2px 0}
+.board-x{font-size:11.5px;color:var(--t3);line-height:1.5}
+.board-tag{font-size:9.5px;font-weight:700;flex:0 0 auto}
+
+/* ===== FUNCTIONAL GREEN NUDGE (in itineraries) ===== */
+.green-nudge{margin-top:14px;border:1px solid rgba(74,222,128,.3);border-radius:16px;padding:14px;background:linear-gradient(135deg,rgba(74,222,128,.08),transparent)}
+.gn-head{font-size:14px;font-weight:800;color:#4ADE80;margin-bottom:3px}
+.gn-sub{font-size:11.5px;color:var(--t2);margin-bottom:11px;line-height:1.5}
+.gn-row{display:flex;align-items:flex-start;gap:10px;padding:9px 0;border-top:1px solid rgba(255,255,255,.06)}
+.gn-ic{font-size:22px;flex:0 0 auto;line-height:1.2}
+.gn-body{flex:1;min-width:0}
+.gn-title{font-size:13px;font-weight:700;color:var(--t1)}
+.gn-why{font-size:11px;color:var(--t2);line-height:1.5;margin:2px 0}
+.gn-save{font-size:11px;font-weight:700;color:#4ADE80}
+.gn-btn{flex:0 0 auto;align-self:center;font-size:11px;font-weight:700;padding:7px 12px;border-radius:20px;border:1px solid #4ADE80;background:transparent;color:#4ADE80;cursor:pointer;white-space:nowrap}
+.gn-btn.on{background:#4ADE80;color:#0A0A0C}
+.gn-btn:disabled{opacity:.9}
+
+/* ===== NEAR ME ===== */
+.nearme-privacy{font-size:11px;color:var(--t2);background:rgba(96,165,250,.08);border:1px solid rgba(96,165,250,.25);border-radius:10px;padding:9px 11px;margin-bottom:12px;line-height:1.5}
+.nearme-group{margin-bottom:16px}
+.nearme-glabel{font-size:12px;font-weight:800;color:var(--gold2,#C8913E);text-transform:uppercase;letter-spacing:.06em;margin-bottom:7px}
+.nearme-item{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--bg2,#12151F);border:1px solid var(--b1,rgba(255,255,255,.06));border-radius:11px;margin-bottom:6px;text-decoration:none;color:var(--t1)}
+.nearme-item:hover{background:var(--bg3,#1A1D28)}
+.nm-ic{font-size:18px;flex:0 0 auto}
+.nm-name{flex:1;font-size:13px;font-weight:600;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.nm-dist{font-size:11px;font-weight:700;color:#60A5FA;flex:0 0 auto}
+
+/* ===== RW CUSTOM ICON SYSTEM ===== */
+.rwi{display:inline-block;vertical-align:middle;flex:0 0 auto}
+.tabbar button .ti .rwi{width:23px;height:23px}
+.tabbar button{color:var(--t2)}
+.tabbar button.on{color:var(--accent,#E8BA6C)}
+.tabbar button.on .ti .rwi{stroke:var(--accent,#E8BA6C)}
+/* drawer icons using rwIcon inherit currentColor too */
+.dr-link .rwi{width:19px;height:19px;vertical-align:middle}
+
+/* ===== CINEMATIC ANIMATED ICONS ===== */
+.rwi-cine{overflow:visible}
+/* neon: pulsing electric breath */
+.rwi-neon{animation:rwNeonPulse 2.8s ease-in-out infinite}
+@keyframes rwNeonPulse{0%,100%{opacity:.82;filter:drop-shadow(0 0 1px #22d3ee)}50%{opacity:1;filter:drop-shadow(0 0 4px #a855f7)}}
+/* mythic: warm ember shimmer */
+.rwi-mythic{animation:rwMythicGlow 3.4s ease-in-out infinite}
+@keyframes rwMythicGlow{0%,100%{opacity:.85;filter:drop-shadow(0 0 1px #f59e0b)}50%{opacity:1;filter:drop-shadow(0 0 4px #fde68a)}}
+/* active tab: intensify the glow + slight lift */
+.tabbar button.on .rwi-cine{animation-duration:1.6s}
+.tabbar button.on .rwi-neon{filter:drop-shadow(0 0 5px #22d3ee) drop-shadow(0 0 9px #a855f7)}
+.tabbar button.on .rwi-mythic{filter:drop-shadow(0 0 5px #f59e0b) drop-shadow(0 0 9px #fde68a)}
+/* respect reduced-motion */
+@media (prefers-reduced-motion: reduce){ .rwi-cine{animation:none!important} }
+
+/* ===== FITNESS-FIRST STAYS ===== */
+.fit-h{font-size:13px;font-weight:800;color:var(--gold2,#C8913E);text-transform:uppercase;letter-spacing:.05em;margin-bottom:9px}
+.fit-grp{margin-bottom:12px}
+.fit-glabel{font-size:12px;font-weight:700;color:var(--t1);margin-bottom:5px}
+.fit-item{display:inline-block;font-size:12px;background:var(--bg2,#12151F);border:1px solid var(--b1);border-radius:9px;padding:6px 11px;margin:0 6px 6px 0;color:var(--t1);text-decoration:none}
+.fit-item:hover{background:var(--bg3,#1A1D28)}
+.fit-tier{display:flex;align-items:center;gap:12px;padding:13px;background:var(--bg2,#12151F);border:1px solid var(--b1);border-radius:13px;margin-bottom:8px;text-decoration:none;color:var(--t1)}
+.fit-tier:hover{border-color:var(--gold,#E8BA6C)}
+.fit-tier-ic{font-size:22px}
+.fit-tier-body{flex:1;display:flex;flex-direction:column}
+.fit-tier-body b{font-size:14px}
+.fit-tier-body span{font-size:11.5px;color:var(--t2)}
+.fit-tier-go{font-size:12px;font-weight:700;color:var(--gold,#E8BA6C)}
+
+/* ===== TRIBE TRAVEL ===== */
+.tribe-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}
+.tribe-card{display:flex;align-items:center;gap:10px;background:var(--bg2,#12151F);border:1px solid var(--b1);border-radius:13px;padding:13px;cursor:pointer;color:var(--t1);font:inherit;text-align:left}
+.tribe-card:hover{border-color:var(--gold,#E8BA6C);background:var(--bg3,#1A1D28)}
+.tribe-ic{font-size:22px;flex:0 0 auto}
+.tribe-name{font-size:12.5px;font-weight:700;line-height:1.3}
+.tribe-result{background:var(--bg2,#12151F);border:1px solid rgba(232,186,108,.25);border-radius:14px;padding:15px}
+.tribe-rh{font-size:16px;font-weight:800;color:var(--t1)}
+.tribe-why{font-size:12.5px;color:var(--t2);margin:4px 0 12px;line-height:1.5}
+.tribe-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--gold2,#C8913E);margin-bottom:8px}
+.tribe-spot{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 0;border-top:1px solid rgba(255,255,255,.06)}
+.tribe-spot-name{font-size:13px;font-weight:600}
+.tribe-spot-acts{display:flex;gap:6px;flex:0 0 auto}
+.tribe-mini{font-size:11px;font-weight:700;padding:5px 10px;border-radius:16px;border:1px solid var(--b2);background:transparent;color:var(--gold,#E8BA6C);cursor:pointer}
+.tribe-mini:hover{background:rgba(232,186,108,.1)}
+
+/* ===== MONEY LAYER ===== */
+.money-card{display:flex;flex-direction:column;gap:3px;width:100%;text-align:left;background:var(--bg2,#12151F);border:1px solid var(--b1);border-radius:13px;padding:14px;margin-bottom:8px;cursor:pointer;color:var(--t1);font:inherit}
+.money-card:hover{border-color:var(--gold,#E8BA6C)}
+.money-card-name{font-size:14px;font-weight:800}
+.money-card-meta{font-size:11.5px;color:var(--t2)}
+.money-detail{background:var(--bg2,#12151F);border:1px solid var(--b1);border-radius:14px;padding:15px}
+.money-dh{font-size:17px;font-weight:800}
+.money-dsub{font-size:12px;color:var(--t2);margin-bottom:12px}
+.money-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--gold2,#C8913E);margin:12px 0 7px}
+.money-exp{display:flex;justify-content:space-between;font-size:13px;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.06)}
+.money-settle{font-size:14px;padding:8px 11px;background:rgba(232,186,108,.08);border-radius:9px;margin-bottom:6px}
+.money-square{font-size:13px;color:#4ADE80;padding:8px 0}

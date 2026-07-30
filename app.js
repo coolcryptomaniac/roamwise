@@ -1434,7 +1434,7 @@ function openSquads(name, month){
      +'<div id="squadList"></div>'
      +'<div style="border-top:1px solid var(--b2);margin-top:14px;padding-top:14px">'
      +'<div style="font-size:12.5px;font-weight:700;color:var(--t1);margin-bottom:8px">Post your own squad</div>'
-     +'<textarea id="squadNote" maxlength="140" placeholder="e.g. 2 of us, budget backpacking, flexible dates \\u00b1 4 days" style="width:100%;background:#12121C;border:1px solid var(--b2);border-radius:11px;padding:10px;color:var(--t1);font-family:Outfit;font-size:13px;min-height:60px"></textarea>'
+     +'<textarea id="squadNote" maxlength="140" placeholder="e.g. 2 of us, budget backpacking, flexible dates ± 4 days" style="width:100%;background:#12121C;border:1px solid var(--b2);border-radius:11px;padding:10px;color:var(--t1);font-family:Outfit;font-size:13px;min-height:60px"></textarea>'
      +'<input id="squadContact" maxlength="80" placeholder="Optional \u2014 how to reach you (Insta handle, WhatsApp link\u2026) \u2014 leave blank to stay private" style="width:100%;margin-top:8px;background:#12121C;border:1px solid var(--b2);border-radius:11px;padding:10px;color:var(--t1);font-family:Outfit;font-size:13px">'
      +'<button class="rzp-main-btn" style="margin-top:10px" onclick="postSquad()">\ud83d\udce2 Post to this Squad board</button>'
      +'</div></div></div>';
@@ -1451,7 +1451,7 @@ function loadSquads(name,month){
   db.collection('squads').where('key','==',key).orderBy('created','desc').limit(20).get().then(function(qs){
     var rows=qs.docs.map(function(d){ return {id:d.id, data:d.data()}; })
       .filter(function(r){ var c=r.data.created; return !c || c.toMillis()>cutoff; });
-    if(!rows.length){ list.innerHTML='<div class="mode-box">No squads posted yet for '+name+' in '+month+' \u2014 be the first \ud83e\udd1d</div>'; return; }
+    if(!rows.length){ list.innerHTML='<div class="mode-box">No squads posted yet for '+name+' in '+month+' \u2014 be the first \ud83e\udd1d<div style="font-size:11px;color:var(--t3);margin-top:6px">Posts you and others make appear right here on this board, grouped by destination + month.</div></div>'; return; }
     list.innerHTML=rows.map(function(r){
       var d2=r.data, mine=(d2.uid===((user||{}).uid));
       return '<div class="ti-day" style="align-items:flex-start;flex-direction:column;gap:4px;padding:12px;border:1px solid var(--b2);border-radius:12px;margin-bottom:8px">'
@@ -2310,8 +2310,11 @@ function renderSpotlight(){
 /* ===== TRAVEL PULSE NEWS — daily-crunched, honest about not being live-live ===== */
 function renderNewsPulse(){
   var g=el('newsGrid'); if(!g) return;
+  var done=false;
+  var giveUp=setTimeout(function(){ if(done) return; done=true; rwNewsPulseFallback(g); }, 6000);
   fetch('news.json',{cache:'no-store'}).then(function(r){ if(!r.ok) throw 0; return r.json(); }).then(function(d){
-    if(!d.items || !d.items.length){ g.innerHTML=''; el('newspulse').style.display='none'; return; }
+    if(done) return; done=true; clearTimeout(giveUp);
+    if(!d.items || !d.items.length){ rwNewsPulseFallback(g); return; }
     var upd=d.updated? new Date(d.updated) : null;
     var when = upd? upd.toLocaleDateString('en-IN',{day:'numeric',month:'short'}) : '';
     g.innerHTML = d.items.map(function(it){
@@ -2323,9 +2326,42 @@ function renderNewsPulse(){
         +'</div>';
     }).join('');
   }).catch(function(){
-    /* graceful no-op: the news.json file may not exist yet on a fresh site — hide, don't error */
-    var sec=el('newspulse'); if(sec) sec.style.display='none';
+    if(done) return; done=true; clearTimeout(giveUp);
+    rwNewsPulseFallback(g);
   });
+}
+/* When there's no daily news.json (no backend cron yet), populate the pulse with
+   AI-generated fresh travel headlines so the section is never empty. Falls back
+   to curated evergreen tips if the AI engine isn't reachable. */
+function rwNewsPulseFallback(g){
+  var CURATED=[
+    {tag:'Visa', crunch:'Thailand, Malaysia & Sri Lanka keep visa-free/eVisa access for Indians — check the latest window before booking.', source:'Travel desk'},
+    {tag:'Money', crunch:'UPI now works at many merchants in UAE, Singapore, France & Sri Lanka — carry less forex.', source:'Payments'},
+    {tag:'Season', crunch:'Monsoon (Jun–Sep) is the cheapest window for Goa, Kerala & the Western Ghats if you don\u2019t mind rain.', source:'Seasonal'},
+    {tag:'Rail', crunch:'IRCTC opens bookings 60 days ahead — set an alarm for Himalayan toy-train and Vande Bharat routes.', source:'Rail'},
+    {tag:'Safety', crunch:'High-altitude trips (Leh, Spiti) need 48h acclimatisation — plan a slow first two days.', source:'Health'}
+  ];
+  function paint(items){
+    var when=new Date().toLocaleDateString('en-IN',{day:'numeric',month:'short'});
+    g.innerHTML=items.map(function(it){
+      return '<div class="exp"><div class="exp-ic">\ud83d\udcf0</div>'
+        +'<div class="exp-where" style="color:var(--gold2);font-size:10.5px;text-transform:uppercase;letter-spacing:.06em">'+esc2(it.tag||'Travel')+'</div>'
+        +'<div class="exp-name" style="font-size:14.5px">'+esc2(String(it.crunch||'')).replace(/[<>]/g,'')+'</div>'
+        +'<div class="exp-desc" style="font-size:11px;color:var(--t3)">'+esc2(it.source||'RoamWise')+' \u00b7 '+when+'</div>'
+        +'</div>';
+    }).join('');
+    var sec=el('newspulse'); if(sec) sec.style.display='';
+  }
+  paint(CURATED); /* show curated instantly */
+  /* then try to upgrade with AI-crunched fresh angles (best-effort) */
+  if(typeof aiCallAny==='function'){
+    var prompt='Give 5 short, useful, CURRENT-style travel tips for Indian travellers (visa windows, best seasons, money/UPI abroad, rail booking, safety). Each: a 2-4 word TAG, then a one-sentence crunch under 22 words. Format each line as TAG | crunch. No preamble.';
+    aiCallAny(prompt, 300, function(err,txt){
+      if(!txt) return;
+      var items=txt.split('\n').map(function(l){ var p=l.split('|'); return p.length>=2?{tag:p[0].replace(/^[-*\d.\s]+/,'').trim(), crunch:p.slice(1).join('|').trim(), source:'AI travel desk'}:null; }).filter(Boolean);
+      if(items.length>=3) paint(items.slice(0,6));
+    });
+  }
 }
 
 document.addEventListener('DOMContentLoaded', function(){
@@ -2745,9 +2781,357 @@ function rwRenderLog(){
       +'<div style="flex:1"><b style="font-size:13px">'+esc2(m.dest)+'</b> <span style="font-size:11px;color:var(--t3)">'+esc2(m.detail||'')+'</span><div style="font-size:10.5px;color:var(--t3)">'+d+'</div></div></div>';
   }).join('');
 }
-function openGreenTravel(){
+/* ===== FUNCTIONAL GREEN NUDGE (in every itinerary) =====
+   Not cosmetic: shows a concrete greener swap for THIS trip with a real rupee +
+   CO2 estimate, and each "I'll do this" logs a green choice (feeds the badge).
+   Estimates are honest ballparks, clearly labelled as approximate. */
+function rwGreenNudge(dest, days){
+  days = days||3;
+  /* crude but honest: intercity trains emit ~80% less CO2 than flying and often
+     cost less; a refillable bottle avoids ~1 plastic bottle/day. We show swaps
+     that apply to almost any trip, with round-number estimates. */
+  var swaps=[
+    {id:'train', ic:'\ud83d\ude86', title:'Take the train, not a short flight',
+     save:'\u2248\u20b91,500 + 120kg CO\u2082', why:'Trains to hill/heritage towns cost less than flights and cut ~80% of the carbon.'},
+    {id:'refill', ic:'\ud83d\udca7', title:'Carry a refillable bottle',
+     save:'\u2248\u20b9'+(days*20)+' + '+days+' plastic bottles', why:'Refill instead of buying water \u2014 saves money every day and skips single-use plastic.'},
+    {id:'localstay', ic:'\ud83c\udfe1', title:'Pick a homestay over a chain hotel',
+     save:'\u2248\u20b9'+(days*400)+' + supports locals', why:'Family homestays are cheaper, lower-impact, and the money stays in the community.'}
+  ];
+  var earnedGreen = (typeof badgeEarnedIds==='function') ? badgeEarnedIds().indexOf('green')>=0 : false;
+  var rows = swaps.map(function(s){
+    return '<div class="gn-row">'
+      +'<span class="gn-ic">'+s.ic+'</span>'
+      +'<div class="gn-body"><div class="gn-title">'+s.title+'</div>'
+        +'<div class="gn-why">'+s.why+'</div>'
+        +'<div class="gn-save">You save '+s.save+'</div></div>'
+      +'<button class="gn-btn" id="gn_'+s.id+'" onclick="rwGreenPickInline(\''+s.id+'\')">I\u2019ll do this</button>'
+      +'</div>';
+  }).join('');
+  return '<div class="green-nudge">'
+    +'<div class="gn-head">\ud83c\udf31 Travel this trip greener \u2014 and save</div>'
+    +'<div class="gn-sub">Small swaps for '+esc2(dest)+'. Each one you pick counts toward your \ud83c\udf31 Green Traveller badge'+(earnedGreen?' (earned \u2713)':'')+'.</div>'
+    +rows
+    +'</div>';
+}
+function rwGreenPickInline(id){
+  var btn=el('gn_'+id); if(btn){ btn.textContent='\u2713 Nice!'; btn.disabled=true; btn.classList.add('on'); }
+  try{ badgeBump('green'); }catch(e){}
+  try{
+    var gc=parseInt(lsGet('rw_ct_green')||'0',10)||0;
+    var earned=(typeof badgeEarnedIds==='function')?badgeEarnedIds().indexOf('green')>=0:false;
+    showToast(earned?'\ud83c\udf31 Green Traveller \u2014 nicely done!':'\ud83c\udf31 Green choice logged \u00b7 '+Math.max(0,5-gc)+' more for the badge');
+  }catch(e){}
+}
+/* ===================== TRIBE TRAVEL =====================
+   Travel with your kind. Match by profession / passion / vibe to the trips and
+   destinations that community actually gravitates to, then connect via Trip
+   Squads. Curated tribe->destination affinities (real communities/scenes),
+   honest that these are starting points, not a guarantee of who you'll meet. */
+var RW_TRIBES=[
+  {id:'devs', ic:'\ud83d\udcbb', name:'Developers & Tech', spots:['Bali (Canggu/Ubud)','Bangalore','Lisbon','Chiang Mai','Goa'], why:'Digital-nomad hubs with fast wifi, coworking & meetups.'},
+  {id:'founders', ic:'\ud83d\ude80', name:'Founders & Startups', spots:['Bangalore','Dubai','Singapore','San Francisco','Gurugram'], why:'Startup density, investor networks, demo-day energy.'},
+  {id:'musicians', ic:'\ud83c\udfb8', name:'Musicians & Artists', spots:['Rishikesh','Goa (Arambol)','Kasol','McLeod Ganj','Varanasi'], why:'Jam circles, open mics, spiritual-creative scenes.'},
+  {id:'yogis', ic:'\ud83e\uddd8', name:'Yoga & Wellness', spots:['Rishikesh','Mysore','Dharamshala','Gokarna','Auroville'], why:'Ashrams, teacher-training, wellness retreats.'},
+  {id:'trekkers', ic:'\u26f0\ufe0f', name:'Trekkers & Adventurers', spots:['Manali','Leh-Ladakh','Spiti','Munsiyari','Sikkim'], why:'High passes, base camps, adventure-sport crews.'},
+  {id:'writers', ic:'\u270d\ufe0f', name:'Writers & Creators', spots:['Pondicherry','Landour','Goa','Shillong','Kasauli'], why:'Quiet, literary towns & creator retreats.'},
+  {id:'photographers', ic:'\ud83d\udcf8', name:'Photographers', spots:['Varanasi','Ladakh','Hampi','Jaisalmer','Ziro Valley'], why:'Iconic light, festivals, landscapes & street life.'},
+  {id:'foodies', ic:'\ud83c\udf5c', name:'Foodies', spots:['Delhi','Lucknow','Amritsar','Kolkata','Hyderabad'], why:'Legendary street food & regional cuisines.'}
+];
+function openTribeTravel(){
   try{ tabGo('home'); }catch(e){}
-  var sec=el('greenSection');
+  var sec=el('tribeSection');
+  if(!sec){ sec=document.createElement('section'); sec.id='tribeSection'; sec.className='xsec v v-home';
+    var host=el('copilotHero'); if(host&&host.parentNode) host.parentNode.insertBefore(sec,host.nextSibling); else document.body.appendChild(sec); }
+  var cards=RW_TRIBES.map(function(t){
+    return '<button class="tribe-card" onclick="rwTribePick(\''+t.id+'\')">'
+      +'<span class="tribe-ic">'+t.ic+'</span>'
+      +'<span class="tribe-name">'+t.name+'</span></button>';
+  }).join('');
+  sec.innerHTML='<div class="xsec-head"><h2 class="xsec-title">\ud83e\udd1d Tribe <em>travel</em></h2>'
+    +'<button class="tact" onclick="el(\'tribeSection\').style.display=\'none\'">\u2715</button></div>'
+    +'<p class="xsec-sub">Travel with your kind. Pick your tribe \u2014 see where that community goes, and find travel buddies who get you.</p>'
+    +'<div class="tribe-grid">'+cards+'</div>'
+    +'<div id="tribeOut" style="margin-top:14px"></div>';
+  sec.style.display=''; sec.scrollIntoView({behavior:'smooth',block:'start'});
+}
+function rwTribeSquad(city){ var m=new Date().toISOString().slice(0,7); try{ openSquads(city, m); }catch(e){ showToast('Open Trip Squads from the group menu'); } }
+function rwTribePick(id){
+  var t=RW_TRIBES.filter(function(x){return x.id===id;})[0]; if(!t) return;
+  var out=el('tribeOut');
+  var spots=t.spots.map(function(s){
+    var city=s.split(' (')[0];
+    return '<div class="tribe-spot">'
+      +'<span class="tribe-spot-name">\ud83d\udccd '+esc2(s)+'</span>'
+      +'<span class="tribe-spot-acts"><button class="tribe-mini" onclick="cpFollow(\''+esc2(city)+'\')">Plan</button>'
+      +'<button class="tribe-mini" onclick="rwTribeSquad(\''+esc2(city)+'\')">Find buddies</button></span>'
+      +'</div>';
+  }).join('');
+  out.innerHTML='<div class="tribe-result"><div class="tribe-rh">'+t.ic+' '+esc2(t.name)+'</div>'
+    +'<div class="tribe-why">'+esc2(t.why)+'</div>'
+    +'<div class="tribe-label">Where your tribe goes:</div>'+spots
+    +'<div style="font-size:10.5px;color:var(--t3);margin-top:10px;line-height:1.5">These are the destinations this community gravitates to \u2014 a starting point, not a guarantee of who you\u2019ll meet. Use \u201cFind buddies\u201d to post in Trip Squads for that city.</div></div>';
+  try{ badgeBump('group'); }catch(e){}
+}
+/* ===================== MONEY LAYER (everyday group money) =====================
+   The settle engine, freed from "trips". Any group — flatmates, friends, family,
+   office lunch — tracks who paid what and sees the minimum payments to settle.
+   Stored locally (rw_money_groups); the same paise-exact rwSettleEngine powers it.
+   This is the universal, use-it-weekly layer. */
+function rwMoneyGroups(){ try{ return JSON.parse(lsGet('rw_money_groups')||'[]'); }catch(e){ return []; } }
+function rwMoneySave(g){ try{ lsSet('rw_money_groups', JSON.stringify(g)); }catch(e){} }
+function openMoneyLayer(){
+  try{ tabGo('home'); }catch(e){}
+  var sec=el('moneySection');
+  if(!sec){ sec=document.createElement('section'); sec.id='moneySection'; sec.className='xsec v v-home';
+    var host=el('copilotHero'); if(host&&host.parentNode) host.parentNode.insertBefore(sec,host.nextSibling); else document.body.appendChild(sec); }
+  sec.innerHTML='<div class="xsec-head"><h2 class="xsec-title">\ud83d\udcb0 Money <em>groups</em></h2>'
+    +'<button class="tact" onclick="el(\'moneySection\').style.display=\'none\'">\u2715</button></div>'
+    +'<p class="xsec-sub">Split anything with anyone \u2014 flatmates, friends, family, office lunch. Fair to the last paisa. Not just for trips.</p>'
+    +'<div id="moneyBody"></div>';
+  sec.style.display=''; sec.scrollIntoView({behavior:'smooth',block:'start'});
+  rwMoneyRender();
+}
+function rwMoneyRender(){
+  var body=el('moneyBody'); if(!body) return;
+  var groups=rwMoneyGroups();
+  var list = groups.length ? groups.map(function(g,i){
+    var eng=rwSettleEngine(g.expenses||[], g.settles||[]);
+    var total=(g.expenses||[]).reduce(function(s,e){return s+(+e.amount||0);},0);
+    var owe=eng.transfers.length;
+    return '<button class="money-card" onclick="rwMoneyOpen('+i+')">'
+      +'<span class="money-card-name">'+esc2(g.name)+'</span>'
+      +'<span class="money-card-meta">\u20b9'+total.toLocaleString('en-IN')+' \u00b7 '+(g.members||[]).length+' people \u00b7 '+(owe?owe+' to settle':'all square')+'</span></button>';
+  }).join('') : '<div class="note">No money groups yet. Create one for your flat, your friends, or this weekend\u2019s plan.</div>';
+  body.innerHTML=list+'<button class="tact" style="width:100%;margin-top:12px;font-weight:800;background:linear-gradient(135deg,var(--gold,#E8BA6C),var(--gold2,#C8913E));color:#0A0A0C;border:none" onclick="rwMoneyNew()">+ New money group</button>';
+}
+function rwMoneyNew(){
+  var f=[{key:'name',label:'Group name',placeholder:'Flat 302 / Goa gang / Office lunch'},
+    {key:'members',label:'Members (comma-separated)',placeholder:'You, Rahul, Priya, Sam'}]; f._submit='Create';
+  rwForm('\ud83d\udcb0 New money group', f, function(v){
+    if(!v.name){ showToast('Give it a name'); return; }
+    var members=(v.members||'').split(',').map(function(x){return x.trim();}).filter(Boolean);
+    if(!members.length) members=['You'];
+    var groups=rwMoneyGroups();
+    groups.unshift({name:v.name, members:members, expenses:[], settles:[], created:Date.now()});
+    rwMoneySave(groups); rwMoneyRender();
+  });
+}
+function rwMoneyOpen(idx){
+  var groups=rwMoneyGroups(); var g=groups[idx]; if(!g) return;
+  var eng=rwSettleEngine(g.expenses||[], g.settles||[]);
+  var total=(g.expenses||[]).reduce(function(s,e){return s+(+e.amount||0);},0);
+  var body=el('moneyBody');
+  var exp=(g.expenses||[]).map(function(e){ return '<div class="money-exp"><span>'+esc2(e.what||'Expense')+' \u00b7 <b>'+esc2(e.payerName||e.payer)+'</b></span><span>\u20b9'+(+e.amount).toLocaleString('en-IN')+'</span></div>'; }).join('') || '<div class="note">No expenses yet.</div>';
+  var settle = eng.transfers.length
+    ? eng.transfers.map(function(t){ return '<div class="money-settle">'+esc2(t.from)+' \u2192 <b>'+esc2(t.to)+'</b>: \u20b9'+Number(t.amount).toLocaleString('en-IN')+'</div>'; }).join('')
+    : '<div class="money-square">\u2705 All square \u2014 nobody owes anyone.</div>';
+  body.innerHTML='<button class="tact" onclick="rwMoneyRender()" style="margin-bottom:10px">\u2190 All groups</button>'
+    +'<div class="money-detail"><div class="money-dh">'+esc2(g.name)+'</div>'
+    +'<div class="money-dsub">\u20b9'+total.toLocaleString('en-IN')+' total \u00b7 '+(g.members||[]).length+' people</div>'
+    +'<div class="money-label">Expenses</div>'+exp
+    +'<button class="tact" style="width:100%;margin:8px 0" onclick="rwMoneyAddExp('+idx+')">+ Add expense</button>'
+    +'<div class="money-label">Settle up (fewest payments)</div>'+settle
+    +'<button class="tact" style="width:100%;margin-top:12px" onclick="rwMoneyShare('+idx+')">\ud83d\udce4 Share settle-up</button>'
+    +'</div>';
+}
+function rwMoneyAddExp(idx){
+  var groups=rwMoneyGroups(); var g=groups[idx]; if(!g) return;
+  var f=[{key:'what',label:'What for?',placeholder:'Groceries, Rent, Dinner'},
+    {key:'amount',label:'Amount (\u20b9)',placeholder:'1200',type:'number'},
+    {key:'payer',label:'Who paid?',type:'select',options:(g.members||['You']).map(function(m){return {value:m,label:m};})}]; f._submit='Add';
+  rwForm('\ud83d\udcb0 Add expense', f, function(v){
+    var amt=parseFloat(v.amount); if(!amt){ showToast('Enter an amount'); return; }
+    g.expenses=g.expenses||[];
+    g.expenses.push({what:v.what||'Expense', amount:Math.round(amt), payer:v.payer||g.members[0], payerName:v.payer||g.members[0], participants:g.members});
+    rwMoneySave(groups); rwMoneyOpen(idx);
+  });
+}
+function rwMoneyShare(idx){
+  var groups=rwMoneyGroups(); var g=groups[idx]; if(!g) return;
+  var eng=rwSettleEngine(g.expenses||[], g.settles||[]);
+  var lines=eng.transfers.length ? eng.transfers.map(function(t){return t.from+' \u2192 '+t.to+': \u20b9'+t.amount;}).join('\n') : 'All square \u2014 nobody owes anyone!';
+  var txt=g.name+' \u2014 settle up:\n'+lines+'\n\n(via RoamWise)';
+  if(typeof rwShareSheet==='function') rwShareSheet(txt,'https://roamwise.co.in','settle-up');
+  else if(navigator.share) navigator.share({text:txt}).catch(function(){});
+  else { try{ navigator.clipboard.writeText(txt); showToast('Copied'); }catch(e){} }
+}
+/* ===================== FITNESS-FIRST STAYS =====================
+   For travellers who won't skip their workout: find gyms / yoga / dance /
+   sports studios at a destination, then suggest staying nearby. Budget→premium.
+   Uses Overpass (OSM) for the fitness venues; stay tiers are guidance, not live
+   bookings (honest — we link out to booking sites for actual availability). */
+var RW_FITNESS_TAGS=[
+  ['leisure','fitness_centre','\ud83c\udfcb\ufe0f','Gyms'],
+  ['leisure','sports_centre','\ud83c\udfc3','Sports centres'],
+  ['sport','yoga','\ud83e\uddd8','Yoga studios'],
+  ['leisure','dance','\ud83d\udc83','Dance studios'],
+  ['sport','swimming','\ud83c\udfca','Swimming'],
+  ['sport','climbing','\ud83e\uddd7','Climbing']
+];
+function openFitnessStays(){
+  try{ tabGo('home'); }catch(e){}
+  var sec=el('fitStaySection');
+  if(!sec){ sec=document.createElement('section'); sec.id='fitStaySection'; sec.className='xsec v v-home';
+    var host=el('copilotHero'); if(host&&host.parentNode) host.parentNode.insertBefore(sec,host.nextSibling); else document.body.appendChild(sec); }
+  var dest=(window._lastItin&&_lastItin.name)||'';
+  sec.innerHTML='<div class="xsec-head"><h2 class="xsec-title">\ud83c\udfcb\ufe0f Fitness-first <em>stays</em></h2>'
+    +'<button class="tact" onclick="el(\'fitStaySection\').style.display=\'none\'">\u2715</button></div>'
+    +'<p class="xsec-sub">Don\u2019t break your streak on holiday. Find gyms, yoga & dance studios at your destination \u2014 then stay nearby.</p>'
+    +'<div style="display:flex;gap:8px;margin-bottom:12px"><input id="fitDest" placeholder="Which city? e.g. Rishikesh" value="'+esc2(dest)+'" style="flex:1;background:#12121C;border:1px solid var(--b2);border-radius:11px;padding:11px;color:var(--t1);font-size:14px">'
+    +'<button class="tact" style="font-weight:800;background:linear-gradient(135deg,var(--gold,#E8BA6C),var(--gold2,#C8913E));color:#0A0A0C;border:none" onclick="rwFitnessFind()">Find</button></div>'
+    +'<div id="fitStayOut"></div>';
+  sec.style.display=''; sec.scrollIntoView({behavior:'smooth',block:'start'});
+}
+async function rwFitnessFind(){
+  var out=el('fitStayOut'); var dest=(el('fitDest').value||'').trim();
+  if(!dest){ out.innerHTML='<div class="note">Type a city first.</div>'; return; }
+  out.innerHTML='<div class="note">\ud83c\udfcb\ufe0f Finding fitness spots in '+esc2(dest)+'\u2026</div>';
+  var geo=null; try{ geo=await gcode(dest); }catch(e){}
+  if(!geo){ out.innerHTML='<div class="note">Couldn\u2019t locate '+esc2(dest)+'. Try a nearby bigger town.</div>'; return; }
+  var radius=6000;
+  var q='[out:json][timeout:15];(';
+  RW_FITNESS_TAGS.forEach(function(t){ q+='node["'+t[0]+'"="'+t[1]+'"](around:'+radius+','+geo.lat+','+geo.lon+');'; });
+  q+=');out body 60;';
+  var venues=[];
+  try{
+    var r=await fetch('https://overpass-api.de/api/interpreter',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:'data='+encodeURIComponent(q)}).then(function(x){return x.json();});
+    venues=(r.elements||[]).map(function(e){
+      var t=e.tags||{}; if(!t.name) return null;
+      var hit=RW_FITNESS_TAGS.filter(function(x){ return t[x[0]]===x[1]; })[0]; if(!hit) return null;
+      return {name:t.name, icon:hit[2], group:hit[3], lat:e.lat, lon:e.lon};
+    }).filter(Boolean);
+  }catch(e){}
+  rwFitnessRender(dest, geo, venues);
+}
+function rwFitnessRender(dest, geo, venues){
+  var out=el('fitStayOut');
+  var tiers=[
+    {t:'Budget', ic:'\ud83d\udcb0', note:'Hostels & guesthouses near a gym', q:'budget hostels'},
+    {t:'Mid', ic:'\ud83c\udfe8', note:'3-star hotels with or near fitness', q:'3 star hotels gym'},
+    {t:'Premium', ic:'\u2728', note:'Resorts & hotels with full gyms/spas', q:'5 star hotel gym spa'}
+  ];
+  var vHtml='';
+  if(venues.length){
+    var groups={}; venues.forEach(function(v){ (groups[v.group]=groups[v.group]||[]).push(v); });
+    vHtml='<div class="fit-venues"><div class="fit-h">\ud83c\udfcb\ufe0f Fitness spots in '+esc2(dest)+'</div>'
+      + Object.keys(groups).map(function(g){
+          return '<div class="fit-grp"><div class="fit-glabel">'+groups[g][0].icon+' '+g+' ('+groups[g].length+')</div>'
+            + groups[g].slice(0,6).map(function(v){ return '<a class="fit-item" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(v.name+' '+dest)+'">'+esc2(v.name)+'</a>'; }).join('')
+            +'</div>';
+        }).join('') + '</div>';
+  } else {
+    vHtml='<div class="note">OSM has few fitness venues mapped for '+esc2(dest)+' \u2014 bigger cities show more. The stay tiers below still help you pick a fitness-friendly base.</div>';
+  }
+  var stayHtml='<div class="fit-h" style="margin-top:16px">\ud83c\udfe8 Where to stay (fitness-friendly)</div>'
+    + tiers.map(function(ti){
+        var url='https://www.booking.com/searchresults.html?ss='+encodeURIComponent(ti.q+' '+dest);
+        return '<a class="fit-tier" target="_blank" rel="noopener" href="'+url+'">'
+          +'<span class="fit-tier-ic">'+ti.ic+'</span>'
+          +'<span class="fit-tier-body"><b>'+ti.t+'</b><span>'+ti.note+'</span></span>'
+          +'<span class="fit-tier-go">Search \u2192</span></a>';
+      }).join('');
+  out.innerHTML=vHtml+stayHtml+'<div style="font-size:10.5px;color:var(--t3);margin-top:10px;line-height:1.5">Venue data from OpenStreetMap. Stay links open live availability on booking sites \u2014 filter by "fitness centre" there for exact matches.</div>';
+}
+/* ===================== NEAR ME (opt-in, privacy-safe) =====================
+   Finds food, things-to-do and points of interest within ~3km of where the
+   user is RIGHT NOW. Location is requested on-demand only (never background,
+   never stored, never sent anywhere but the public OpenStreetMap/Overpass POI
+   query). Honest limit vs Google: OSM data has no live "open now/trending" or
+   ratings for every place. */
+var RW_NEARME_TAGS = [
+  ['amenity','restaurant','\ud83c\udf7d\ufe0f','Eat'],
+  ['amenity','cafe','\u2615','Cafes'],
+  ['amenity','fast_food','\ud83c\udf54','Quick bites'],
+  ['tourism','attraction','\ud83d\udcf8','See'],
+  ['tourism','viewpoint','\ud83c\udf04','Viewpoints'],
+  ['tourism','museum','\ud83c\udfdb\ufe0f','Culture'],
+  ['historic','*','\ud83c\udff0','Heritage'],
+  ['leisure','park','\ud83c\udf33','Parks'],
+  ['amenity','marketplace','\ud83d\uded2','Markets'],
+  ['shop','mall','\ud83d\udecd\ufe0f','Shopping']
+];
+function openNearMe(){
+  try{ tabGo('home'); }catch(e){}
+  var sec=el('nearmeSection');
+  if(!sec){ sec=document.createElement('section'); sec.id='nearmeSection'; sec.className='xsec v v-home';
+    var host=el('copilotHero'); if(host&&host.parentNode) host.parentNode.insertBefore(sec,host.nextSibling); else document.body.appendChild(sec); }
+  sec.innerHTML='<div class="xsec-head"><h2 class="xsec-title">\ud83d\udccd Near <em>me</em></h2>'
+    +'<button class="tact" onclick="el(\'nearmeSection\').style.display=\'none\'">\u2715</button></div>'
+    +'<p class="xsec-sub">Find food, sights & things to do within ~3km of where you are right now.</p>'
+    +'<div class="nearme-privacy">\ud83d\udd12 Your location is used only for this search \u2014 it\u2019s never tracked in the background or saved anywhere.</div>'
+    +'<button class="tact" id="nearmeBtn" style="width:100%;font-weight:800;background:linear-gradient(135deg,var(--gold,#E8BA6C),var(--gold2,#C8913E));color:#0A0A0C;border:none" onclick="rwNearMeLocate()">\ud83d\udccd Find what\u2019s around me</button>'
+    +'<div id="nearmeOut" style="margin-top:14px"></div>';
+  sec.style.display=''; sec.scrollIntoView({behavior:'smooth',block:'start'});
+}
+function rwNearMeLocate(){
+  var out=el('nearmeOut'), btn=el('nearmeBtn');
+  if(!navigator.geolocation){ out.innerHTML='<div class="note">Your browser can\u2019t share location. Try the Tusk copilot \u2014 tell it your city and it\u2019ll suggest things to do.</div>'; return; }
+  if(btn){ btn.disabled=true; btn.textContent='\ud83d\udccd Getting your location\u2026'; }
+  navigator.geolocation.getCurrentPosition(function(pos){
+    var lat=pos.coords.latitude, lon=pos.coords.longitude;
+    if(btn){ btn.textContent='\ud83d\udd0d Searching within 3km\u2026'; }
+    rwNearMeSearch(lat, lon);
+  }, function(err){
+    if(btn){ btn.disabled=false; btn.textContent='\ud83d\udccd Find what\u2019s around me'; }
+    var msg = err.code===1 ? 'Location permission was declined. To use Near Me, allow location for this site in your browser settings \u2014 or just ask Tusk about your city.'
+            : 'Couldn\u2019t get your location right now. Make sure GPS/location is on, then try again.';
+    out.innerHTML='<div class="note">'+msg+'</div>';
+  }, {enableHighAccuracy:true, timeout:12000, maximumAge:60000});
+}
+async function rwNearMeSearch(lat, lon){
+  var out=el('nearmeOut'), btn=el('nearmeBtn');
+  if(!navigator.onLine){ out.innerHTML='<div class="note">You\u2019re offline \u2014 Near Me needs a connection to look up places.</div>'; if(btn){btn.disabled=false;btn.textContent='\ud83d\udccd Find what\u2019s around me';} return; }
+  var radius=3000;
+  var q='[out:json][timeout:15];(';
+  RW_NEARME_TAGS.forEach(function(t){
+    q += t[1]==='*' ? 'node["'+t[0]+'"](around:'+radius+','+lat+','+lon+');'
+                    : 'node["'+t[0]+'"="'+t[1]+'"](around:'+radius+','+lat+','+lon+');';
+  });
+  q += ');out body 120;';
+  try{
+    var r=await fetch('https://overpass-api.de/api/interpreter',{method:'POST',
+      headers:{'Content-Type':'application/x-www-form-urlencoded'},body:'data='+encodeURIComponent(q)})
+      .then(function(x){return x.json();});
+    var items=(r.elements||[]).map(function(e){
+      var t=e.tags||{}; if(!t.name) return null;
+      var hit=RW_NEARME_TAGS.filter(function(x){ return t[x[0]] && (x[1]==='*'||t[x[0]]===x[1]); })[0];
+      if(!hit) return null;
+      var d=rwHaversine(lat,lon,e.lat,e.lon);
+      return {name:t.name, icon:hit[2], group:hit[3], lat:e.lat, lon:e.lon, dist:d,
+              open:t.opening_hours||'', cuisine:t.cuisine||''};
+    }).filter(Boolean);
+    items.sort(function(a,b){ return a.dist-b.dist; });
+    rwNearMeRender(items);
+  }catch(e){
+    out.innerHTML='<div class="note">The places service is busy right now \u2014 try again in a moment.</div>';
+  }
+  if(btn){ btn.disabled=false; btn.textContent='\ud83d\udd04 Search again'; }
+}
+function rwHaversine(la1,lo1,la2,lo2){
+  var R=6371, dLa=(la2-la1)*Math.PI/180, dLo=(lo2-lo1)*Math.PI/180;
+  var a=Math.sin(dLa/2)*Math.sin(dLa/2)+Math.cos(la1*Math.PI/180)*Math.cos(la2*Math.PI/180)*Math.sin(dLo/2)*Math.sin(dLo/2);
+  return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
+}
+function rwNearMeRender(items){
+  var out=el('nearmeOut');
+  if(!items.length){ out.innerHTML='<div class="note">Nothing mapped within 3km in OpenStreetMap here \u2014 you might be somewhere quiet. Ask Tusk for ideas, or try Search again from a busier spot.</div>'; return; }
+  var groups={}; items.forEach(function(i){ (groups[i.group]=groups[i.group]||[]).push(i); });
+  var order=['Eat','Cafes','Quick bites','See','Viewpoints','Culture','Heritage','Parks','Markets','Shopping'];
+  var html=order.filter(function(g){return groups[g];}).map(function(g){
+    var list=groups[g].slice(0,8).map(function(i){
+      var km=i.dist<1 ? Math.round(i.dist*1000)+'m' : i.dist.toFixed(1)+'km';
+      return '<a class="nearme-item" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&destination='+i.lat+','+i.lon+'">'
+        +'<span class="nm-ic">'+i.icon+'</span>'
+        +'<span class="nm-name">'+esc2(i.name)+(i.cuisine?' \u00b7 '+esc2(i.cuisine.split(';')[0]):'')+'</span>'
+        +'<span class="nm-dist">'+km+'</span></a>';
+    }).join('');
+    return '<div class="nearme-group"><div class="nearme-glabel">'+groups[g][0].icon+' '+g+'</div>'+list+'</div>';
+  }).join('');
+  out.innerHTML=html+'<div style="font-size:10.5px;color:var(--t3);margin-top:10px;line-height:1.5">Sorted by distance. Data from OpenStreetMap \u2014 tap any place for directions. Live hours/ratings aren\u2019t always available.</div>';
+}
+
+function openGreenTravel(){
   if(!sec){ sec=document.createElement('section'); sec.id='greenSection'; sec.className='xsec v v-home';
     var host=el('copilotHero'); if(host&&host.parentNode) host.parentNode.insertBefore(sec,host.nextSibling); else document.body.appendChild(sec); }
   var earned = (typeof badgeEarnedIds==='function') ? badgeEarnedIds().indexOf('green')>=0 : false;
@@ -4948,6 +5332,7 @@ function buildItin(T, name, costMid, days){
     }).join('');
     try{ badgeBump('trip'); }catch(e){}
     cnt.innerHTML = (srcBadge||'') + H
+      + rwGreenNudge(name, days)
       + '<button class="tact" style="display:block;width:100%;margin-top:12px;font-weight:800;background:linear-gradient(135deg,var(--gold,#E8BA6C),var(--gold2,#C8913E));color:#0A0A0C;border:none" onclick="openTripMap(window._lastItin?_lastItin.name:\'\',null)">\ud83d\uddfa\ufe0f See this trip on a map</button>'
       + '<button class="tact" style="display:block;width:100%;margin-top:8px;font-weight:800" onclick="openJourneyCert()">\ud83c\udfc5 Mint journey certificate</button>'
       + '<button class="tact" style="display:block;width:100%;margin-top:8px;font-weight:800" onclick="rwShareTrip()">\ud83d\udce4 Share this trip</button>'
@@ -5562,9 +5947,40 @@ var user = null, db = null, authMode = 'in', otpConf = null;
    app opened with no tab bar and no way to move. For an offline-first travel
    app that is the worst possible failure. Guarded: sign-in degrades, the app
    keeps working. */
+/* ===================== RWData — BACKEND PORTABILITY LAYER =====================
+   The migration seam. Today a thin pass-through to Firestore, but ALL NEW data
+   code should call RWData.* instead of db.collection(...) directly. To move to
+   PocketBase / Supabase / self-hosted later, reimplement these methods against
+   the new backend and change RWData.backend — the rest of the app won't change.
+   See RoamWise-Architecture-Migration-Guide.md. Existing db.collection calls
+   still work; migrate them in here incrementally. */
+var RWData = {
+  backend: 'firestore',
+  col: function(name){ return db.collection(name); },
+  subscribe: function(name, buildQuery, onData){
+    try{
+      var q = buildQuery ? buildQuery(db.collection(name)) : db.collection(name);
+      return q.onSnapshot(function(snap){
+        var rows=[]; snap.forEach(function(d){ var o=d.data()||{}; o._id=d.id; rows.push(o); });
+        onData(rows);
+      }, function(err){ console.warn('RWData.subscribe', name, err); });
+    }catch(e){ console.warn('RWData.subscribe', e); return function(){}; }
+  },
+  add: function(name, obj){ return db.collection(name).add(obj); },
+  set: function(name, id, obj, opts){ return db.collection(name).doc(id).set(obj, opts||{}); },
+  get: function(name, id){ return db.collection(name).doc(id).get().then(function(d){ return d.exists?d.data():null; }); },
+  del: function(name, id){ return db.collection(name).doc(id).delete(); },
+  uid: function(){ return (user&&user.uid)||null; }
+};
+function rwInitDataLayer(){ /* hook for future backend init; no-op for Firestore today */ }
 if (AUTH_READY && typeof firebase !== 'undefined') try {
   firebase.initializeApp(FIREBASE_CONFIG);
   db = firebase.firestore();
+  /* FREE cost win: cache Firestore data on the device. Reads hit local memory
+     first (zero server reads, works offline), and only sync deltas when online.
+     Wrapped in try because it fails on multi-tab / private mode — non-fatal. */
+  try{ db.enablePersistence({synchronizeTabs:true}).catch(function(){}); }catch(e){}
+  try{ rwInitDataLayer(); }catch(e){}
   firebase.auth().onAuthStateChanged(function(u){
     user = u;
     try{ if(u) rwCheckBan(); }catch(e){}
@@ -5870,6 +6286,115 @@ function applyShell(){
 }
 applyShell();
 /* Must run AFTER the RW_TABS assignment further down this file — function
+   declarations hoist but `/* ========================= RW ICON SYSTEM =========================
+   Custom line-icons unique to RoamWise. One coherent visual language:
+   24x24 viewBox, 1.75 stroke, round caps/joins, currentColor — so they
+   inherit text colour and the active-tab tint automatically. Designed to
+   feel warm + premium (not generic emoji). Call rwIcon('home') etc. */
+/* rwIcon(name,size) — renders a RoamWise icon in the user's chosen icon theme.
+   Themes: 'line' (clean), 'neon' (cyberpunk glow), 'mythic' (ember/magic glow).
+   Cinematic themes use SVG gradients + a soft glow filter + a breathing/shimmer
+   animation. All vector, all lightweight — sharp at any size, unlike raster art. */
+var RW_ICON_THEME = (function(){ try{ return lsGet('rw_icontheme')||'line'; }catch(e){ return 'line'; } })();
+function rwSetIconTheme(t){
+  RW_ICON_THEME=t; try{ lsSet('rw_icontheme',t); }catch(e){}
+  try{ renderTabbar(); }catch(e){}
+  try{ document.querySelectorAll('[data-rwicon]').forEach(function(n){ n.innerHTML=rwIcon(n.getAttribute('data-rwicon')); }); }catch(e){}
+}
+function openIconThemePicker(){
+  var themes=[
+    ['emoji','\ud83c\udf08 Original Emoji','The classic vibe (default)'],
+    ['line','\u270f\ufe0f Clean Line','Minimal, no glow'],
+    ['neon','\u26a1 Neon Cyberpunk','Electric glow, animated'],
+    ['mythic','\ud83d\udd25 Mythic Fantasy','Ember gold, shimmer']
+  ];
+  var body=themes.map(function(t){
+    var on=RW_ICON_THEME===t[0];
+    var preview = t[0]==='emoji' ? '\ud83c\udfd4\ufe0f' : rwIconThemed(t[0],'home',30);
+    return '<button class="theme-opt" onclick="rwSetIconTheme(\''+t[0]+'\');rwOverlayClose(\'iconThemeOv\');showToast(\'Icon style: '+t[1].replace(/'/g,'').replace(/\ud83c[\udf00-\udfff]|\u26a1|\u270f\ufe0f|\ud83d[\udd00-\uddff]/g,'').trim()+'\')" style="'+(on?'background:rgba(232,186,108,.12)':'')+'">'
+      +'<span class="ti" style="width:34px;height:34px;display:inline-flex;align-items:center;justify-content:center;font-size:22px">'+preview+'</span>'
+      +'<span class="theme-txt"><b>'+t[1]+'</b><small>'+t[2]+'</small></span>'
+      +(on?'<span style="margin-left:auto;color:var(--gold,#E8BA6C)">\u2713</span>':'')+'</button>';
+  }).join('');
+  var ov=el('iconThemeOv');
+  if(!ov){ ov=document.createElement('div'); ov.id='iconThemeOv'; ov.className='overlay'; ov.onclick=function(e){ if(e.target===ov) rwOverlayClose('iconThemeOv'); }; document.body.appendChild(ov); }
+  ov.innerHTML='<div class="sheet" style="max-width:360px"><div class="sheet-h"><b>\u2728 Icon style</b><button onclick="rwOverlayClose(\'iconThemeOv\')" class="tact">\u2715</button></div>'
+    +'<p style="font-size:12px;color:var(--t2);margin:2px 0 12px">Choose your icon look \u2014 clean, or cinematic + animated.</p>'+body+'</div>';
+  ov.classList.add('open');
+}
+/* render a specific icon in a specific theme (for the picker preview) */
+function rwIconThemed(theme,name,size){
+  var prev=RW_ICON_THEME; RW_ICON_THEME=theme; var out=rwIcon(name,size); RW_ICON_THEME=prev; return out;
+}
+var _rwIconDefsInjected=false;
+function rwEnsureIconDefs(){
+  if(_rwIconDefsInjected) return;
+  var svg='<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>'
+    /* neon cyberpunk gradient + glow */
+    +'<linearGradient id="rwgNeon" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#22d3ee"/><stop offset="0.5" stop-color="#a855f7"/><stop offset="1" stop-color="#ec4899"/></linearGradient>'
+    +'<filter id="rwGlowNeon" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="1.1" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>'
+    /* mythic ember gradient + glow */
+    +'<linearGradient id="rwgMythic" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fde68a"/><stop offset="0.5" stop-color="#f59e0b"/><stop offset="1" stop-color="#b45309"/></linearGradient>'
+    +'<radialGradient id="rwgMythicGlow" cx="0.5" cy="0.4" r="0.7"><stop offset="0" stop-color="#7dd3fc"/><stop offset="1" stop-color="#f59e0b"/></radialGradient>'
+    +'<filter id="rwGlowMythic" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="0.9" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>'
+    +'</defs></svg>';
+  var d=document.createElement('div'); d.innerHTML=svg; document.body.appendChild(d.firstChild);
+  _rwIconDefsInjected=true;
+}
+function rwIcon(name, size){
+  size = size || 24;
+  var P = RW_ICON_PATHS[name] || RW_ICON_PATHS.dot;
+  var th = RW_ICON_THEME;
+  if(th==='line'){
+    return '<svg class="rwi" viewBox="0 0 24 24" width="'+size+'" height="'+size+'" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+P+'</svg>';
+  }
+  try{ rwEnsureIconDefs(); }catch(e){}
+  var grad = th==='mythic' ? 'rwgMythic' : 'rwgNeon';
+  var glow = th==='mythic' ? 'rwGlowMythic' : 'rwGlowNeon';
+  var cls  = 'rwi rwi-cine rwi-'+th;
+  return '<svg class="'+cls+'" viewBox="0 0 24 24" width="'+size+'" height="'+size+'" fill="none" '
+    +'stroke="url(#'+grad+')" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" '
+    +'filter="url(#'+glow+')" aria-hidden="true">'+P+'</svg>';
+}
+var RW_ICON_PATHS = {
+  /* home: a peak-roof house — nods to the Himalayan brand */
+  home:'<path d="M4 11.5 12 5l8 6.5"/><path d="M6 10.5V19a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-8.5"/><path d="M10 20v-4.5a2 2 0 0 1 4 0V20"/>',
+  /* plan: paper plane, tilted for motion */
+  plan:'<path d="M21 4 3 11l6 2.5L12 20l3-7.5L21 4Z"/><path d="M9 13.5 21 4"/>',
+  /* copilot: compass with N-S needle — guidance */
+  copilot:'<circle cx="12" cy="12" r="8.5"/><path d="m12 7 2 5-2 5-2-5 2-5Z"/><circle cx="12" cy="12" r="1" fill="currentColor" stroke="none"/>',
+  /* explore: mountains + sun */
+  explore:'<circle cx="17" cy="7" r="2"/><path d="M2 19h20"/><path d="m3 19 5.5-8L13 17"/><path d="m11 19 4-5.5L21 19"/>',
+  /* map: folded map with a pin */
+  map:'<path d="M9 5 3.5 7v12L9 17l6 2 5.5-2V5L15 7 9 5Z"/><path d="M9 5v12M15 7v12"/>',
+  /* store: shopping bag */
+  store:'<path d="M6 8h12l-1 11a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1L6 8Z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/>',
+  /* film: clapperboard */
+  film:'<rect x="3.5" y="9" width="17" height="10.5" rx="1.5"/><path d="M3.8 9 7 4.8l3.2 3.4M9.5 8.6 12.7 4.4M15 8.6l3.2-4.2 1.9 2.4"/>',
+  /* ratings: star */
+  ratings:'<path d="m12 4 2.35 4.9 5.4.7-3.95 3.7 1 5.35L12 16.9 7.2 18.65l1-5.35L4.25 9.6l5.4-.7L12 4Z"/>',
+  /* trips: suitcase */
+  trips:'<rect x="4" y="8" width="16" height="12" rx="2"/><path d="M9 8V6a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2M12 12v4"/>',
+  /* group: two travellers */
+  group:'<circle cx="8.5" cy="8" r="2.5"/><circle cx="16" cy="9" r="2"/><path d="M4 19v-1a4.5 4.5 0 0 1 9 0v1M14.5 19v-1a4 4 0 0 1 5.5-3.7"/>',
+  /* chat: speech bubble with dots */
+  chat:'<path d="M4 6.5A1.5 1.5 0 0 1 5.5 5h13A1.5 1.5 0 0 1 20 6.5v8A1.5 1.5 0 0 1 18.5 16H9l-4 3.5V6.5Z"/><path d="M8.5 10.5h.01M12 10.5h.01M15.5 10.5h.01"/>',
+  /* pro: crown */
+  pro:'<path d="M4 8l3.5 3L12 5.5 16.5 11 20 8l-1.5 9h-13L4 8Z"/>',
+  /* settings: gear (simplified, clean) */
+  settings:'<circle cx="12" cy="12" r="3"/><path d="M12 3v2.5M12 18.5V21M5.6 5.6l1.8 1.8M16.6 16.6l1.8 1.8M3 12h2.5M18.5 12H21M5.6 18.4l1.8-1.8M16.6 7.4l1.8-1.8"/>',
+  /* more: three-line menu with rounded ends */
+  more:'<path d="M4 7h16M4 12h16M4 17h16"/>',
+  /* near: location pin with pulse */
+  near:'<path d="M12 21s6.5-5.5 6.5-10.5a6.5 6.5 0 0 0-13 0C5.5 15.5 12 21 12 21Z"/><circle cx="12" cy="10.5" r="2.25"/>',
+  /* green: leaf */
+  green:'<path d="M5 19c0-8 6-13 14-13 0 8-5 14-13 14M5 19c2-4 5-6.5 8.5-8"/>',
+  /* fitness: dumbbell */
+  fitness:'<path d="M4 9v6M7 7v10M17 7v10M20 9v6M7 12h10"/>',
+  dot:'<circle cx="12" cy="12" r="8.5"/>'
+};
+
+/* Tabbar is rendered on DOMContentLoaded (not inline) because function
    declarations hoist but `var RW_TABS = {...}` does not, so calling
    renderTabbar() inline here silently produced an empty bar. DOMContentLoaded
    fires after all deferred script has executed, which is exactly what we want. */
@@ -5911,7 +6436,8 @@ function renderTabbar(){
   nav.style.gridTemplateColumns='repeat('+ids.length+',1fr)';
   nav.innerHTML = ids.map(function(k){
     var t=RW_TABS[k];
-    return '<button id="tb-'+k+'" onclick="rwTabGo(\''+k+'\')"><span class="ti">'+t.icon+'</span>'+t.label+'</button>';
+    var ic = (RW_ICON_THEME!=='emoji' && typeof rwIcon==='function' && RW_ICON_PATHS[k]) ? rwIcon(k) : t.icon;
+    return '<button id="tb-'+k+'" onclick="rwTabGo(\''+k+'\')"><span class="ti">'+ic+'</span>'+t.label+'</button>';
   }).join('');
   rwTabMark(lsGet('rw_last_tab')||'home');
 }
@@ -6631,6 +7157,31 @@ function rwUserProfile(){
    hill station, "Bir" to Ukraine. For an India-first travel app those are the
    exact queries that must be right, so the best-known travel meaning wins. */
 var RW_PLACE_OVERRIDES = {
+  /* Famous Indian TOWNS/destinations that geocoders miss or mis-rank to foreign
+     namesakes. Curated = never wrong, no network needed. */
+  kanyakumari:{name:'Kanyakumari', admin:'Tamil Nadu', lat:8.0883, lon:77.5385},
+  kanniyakumari:{name:'Kanyakumari', admin:'Tamil Nadu', lat:8.0883, lon:77.5385},
+  capecomorin:{name:'Kanyakumari', admin:'Tamil Nadu', lat:8.0883, lon:77.5385},
+  pondicherry:{name:'Pondicherry', admin:'Puducherry', lat:11.9416, lon:79.8083},
+  puducherry:{name:'Pondicherry', admin:'Puducherry', lat:11.9416, lon:79.8083},
+  hampi:{name:'Hampi', admin:'Karnataka', lat:15.3350, lon:76.4600},
+  khajuraho:{name:'Khajuraho', admin:'Madhya Pradesh', lat:24.8318, lon:79.9199},
+  gokarna:{name:'Gokarna', admin:'Karnataka', lat:14.5479, lon:74.3188},
+  coorg:{name:'Coorg (Kodagu)', admin:'Karnataka', lat:12.4244, lon:75.7382},
+  kodagu:{name:'Coorg (Kodagu)', admin:'Karnataka', lat:12.4244, lon:75.7382},
+  ooty:{name:'Ooty', admin:'Tamil Nadu', lat:11.4102, lon:76.6950},
+  kodaikanal:{name:'Kodaikanal', admin:'Tamil Nadu', lat:10.2381, lon:77.4892},
+  alleppey:{name:'Alleppey (Alappuzha)', admin:'Kerala', lat:9.4981, lon:76.3388},
+  alappuzha:{name:'Alleppey (Alappuzha)', admin:'Kerala', lat:9.4981, lon:76.3388},
+  wayanad:{name:'Wayanad', admin:'Kerala', lat:11.6854, lon:76.1320},
+  spiti:{name:'Spiti Valley', admin:'Himachal Pradesh', lat:32.2464, lon:78.0349},
+  tawang:{name:'Tawang', admin:'Arunachal Pradesh', lat:27.5861, lon:91.8594},
+  ranthambore:{name:'Ranthambore', admin:'Rajasthan', lat:26.0173, lon:76.5026},
+  pushkar:{name:'Pushkar', admin:'Rajasthan', lat:26.4899, lon:74.5511},
+  mountabu:{name:'Mount Abu', admin:'Rajasthan', lat:24.5926, lon:72.7156},
+  mcleodganj:{name:'McLeod Ganj', admin:'Himachal Pradesh', lat:32.2427, lon:76.3234},
+  dharamshala:{name:'Dharamshala', admin:'Himachal Pradesh', lat:32.2190, lon:76.3234},
+  auli:{name:'Auli', admin:'Uttarakhand', lat:30.5286, lon:79.5670},
   /* Indian STATES: absent from any city geocoder, which is how "Kerala"
      resolved to Kerälä in Finland. Anchored to their principal city so
      weather, costs and nearby lookups still work if used as a destination. */
@@ -7095,12 +7646,18 @@ async function cpActionsHTML(it){
     }
     if(geo){ lat=geo.lat; lon=geo.lon; it.dest=geo.name; }
     else {
-      /* Not in our library, not resolvable anywhere: SAY SO. Building a
-         confident themed card around a typo ("asdkjh") is exactly how an
-         assistant gets gamed and screenshotted. */
-      var picks=['Goa','Manali','Jaipur','Udaipur','Rishikesh','Bali'];
+      /* Not in our library, not resolvable anywhere: SAY SO and PROBE. Never
+         build a confident card around a word we only half-recognised (the
+         "grabbed india from 'Kanyakumari south india'" bug). If the user gave
+         a multi-word phrase, echo it back and ask them to confirm the place. */
+      var picks=['Goa','Manali','Jaipur','Udaipur','Rishikesh','Kanyakumari'];
+      var typed = esc2(it.dest||'');
+      var raw = esc2((it._raw||'').trim());
+      var askLine = (raw && raw.toLowerCase()!==String(it.dest||'').toLowerCase())
+        ? '\ud83e\udded I want to get this right rather than guess. You said \u201c'+raw+'\u201d \u2014 which place do you mean? Type it as <b>City, Country</b> (e.g. \u201cKanyakumari, India\u201d), or pick one:'
+        : '\ud83e\udded I couldn\u2019t place \u201c'+typed+'\u201d for sure \u2014 and I\u2019d rather ask than send you the wrong spot. Try <b>City, Country</b> (e.g. \u201cKasol, India\u201d), or pick one:';
       return ['<div class="tk-card"><div class="tk-sec">'
-        +'<div style="font-size:13px;line-height:1.6">\ud83e\udded I couldn\u2019t find a place called \u201c'+esc2(it.dest)+'\u201d \u2014 maybe a spelling slip? Try the city with its country (\u201cKasol, India\u201d), or pick one:</div>'
+        +'<div style="font-size:13px;line-height:1.6">'+askLine+'</div>'
         +'<div class="tk-chips" style="margin-top:9px">'
         + picks.map(function(pn){ return '<button class="tk-chip" onclick="cpFollow(\''+pn+'\')">'+pn+'</button>'; }).join('')
         +'</div></div></div>'];
@@ -7881,7 +8438,8 @@ function tripChatOpen(roomId, roomName){
       +'<div style="display:flex;align-items:center;gap:10px;padding:14px 16px;background:linear-gradient(135deg,rgba(232,186,108,.12),transparent);border-bottom:1px solid var(--b2,#2A2A36)">'
         +'<div style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--gold,#E8BA6C),var(--gold2,#C8913E));display:flex;align-items:center;justify-content:center;font-size:18px;flex:0 0 auto">\ud83d\udc65</div>'
         +'<div style="flex:1;min-width:0"><b id="chatTitle" style="font-size:15px;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Trip chat</b>'
-        +'<span style="font-size:10.5px;color:var(--t3)">\ud83d\udd12 Private to members \u00b7 ask @tusk anything</span></div>'
+        +'<span style="font-size:10.5px;color:var(--t3)">\ud83d\udd12 Private \u00b7 auto-deletes after 30 days \u00b7 tap \u2b07 to save</span></div>'
+        +'<button class="x" onclick="rwChatExport()" title="Backup / export this chat" style="font-size:15px">\u2b07\ufe0f</button>'
         +'<button class="x" onclick="rwReportOpen({room:_chatRoom})" title="Report" style="font-size:14px">\ud83d\udea9</button>'
         +'<button class="x" onclick="tripChatMinimize()" title="Minimize" style="font-size:16px">\u2013</button>'
         +'<button class="x" onclick="tripChatClose()">\u2715</button></div>'
@@ -8191,13 +8749,49 @@ var CHAT_KINDS = {
   decision:{icon:'\u2705', label:'Decision'},
   vote:    {icon:'\ud83d\uddf3\ufe0f', label:'Vote'}
 };
+/* Backup/export the whole chat so users can keep it before the 30-day auto-delete.
+   Downloads a readable .txt (messages + money + decisions + board) + a .json for
+   re-import later. This is why we can safely expire server data: users own a copy. */
+function rwChatExport(){
+  var msgs=_chatMsgs||[];
+  if(!msgs.length){ showToast('Nothing to back up yet'); return; }
+  var title=((el('chatTitle')&&el('chatTitle').textContent)||'RoamWise trip chat');
+  var lines=['RoamWise chat backup \u2014 '+title, 'Saved '+new Date().toLocaleString('en-IN'), '\u2500'.repeat(30), ''];
+  msgs.forEach(function(m){
+    var who=(m.name||'Someone').split(' ')[0];
+    var t=m.at?new Date(m.at).toLocaleString('en-IN',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}):'';
+    var line;
+    if(m.kind==='expense'&&m.payload){ line='\ud83d\udcb0 '+who+' paid \u20b9'+(m.payload.amount||0)+' for '+(m.payload.what||'expense'); }
+    else if(m.kind==='settle'&&m.payload){ line='\u2705 '+who+' settled \u20b9'+(m.payload.amount||0); }
+    else if(m.kind==='decision'&&m.payload){ line='\u2705 Decision: '+(m.payload.q||'')+' \u2192 '+(m.payload.choice||''); }
+    else if(m.kind==='meet'&&m.payload){ line='\ud83d\udccd Meet: '+(m.payload.place||'')+(m.payload.when?' @ '+m.payload.when:''); }
+    else if(m.kind==='plan'&&m.payload){ line='\ud83d\uddd3\ufe0f Plan pinned: '+(m.payload.name||''); }
+    else if(m.kind==='board'&&m.payload){ line='\ud83d\udccb Board: '+(m.payload.title||''); }
+    else { line=who+': '+(m.text||''); }
+    lines.push((t?'['+t+'] ':'')+line);
+  });
+  var txt=lines.join('\n');
+  try{
+    var blob=new Blob([txt],{type:'text/plain'});
+    var a=document.createElement('a'); a.href=URL.createObjectURL(blob);
+    a.download='roamwise-chat-'+(title.replace(/[^a-z0-9]+/gi,'-').toLowerCase())+'.txt';
+    document.body.appendChild(a); a.click(); a.remove();
+    showToast('Chat saved to your device \u2713');
+  }catch(e){
+    try{ navigator.clipboard.writeText(txt); showToast('Chat copied \u2014 paste to save'); }catch(e2){ showToast('Could not export'); }
+  }
+}
 function chatPost(kind, payload, text){
   if(!_chatRoom || !user) return Promise.reject(new Error('no room'));
+  /* expireAt drives the 30-day Firestore TTL policy (set in the console). This is
+     what keeps the DB tiny at scale — messages self-delete; users export to keep. */
+  var expireAt = firebase.firestore.Timestamp.fromMillis(Date.now() + 30*24*60*60*1000);
   return db.collection('tripchats').doc(_chatRoom).collection('msgs').add({
     kind:kind||'text', text:String(text||'').slice(0,1000),
     payload:payload||null, uid:user.uid,
     name:(user.displayName||user.email||'Traveller').split('@')[0],
-    at:firebase.firestore.FieldValue.serverTimestamp()
+    at:firebase.firestore.FieldValue.serverTimestamp(),
+    expireAt: expireAt
   });
 }
 /* Close any unclosed <div>s left by truncation, and strip stray closers, so a
@@ -8293,6 +8887,8 @@ function rwForm(title, fields, onSubmit){
     var common='width:100%;box-sizing:border-box;background:var(--bg3,#1A1A20);border:1px solid var(--b2,#2A2A36);border-radius:12px;padding:12px 13px;color:inherit;font:inherit;font-size:16px;outline:none;margin-bottom:4px';
     var inp = f.type==='textarea'
       ? '<textarea id="rwf_'+i+'" rows="3" placeholder="'+esc2(f.placeholder||'')+'" style="'+common+';resize:vertical">'+esc2(f.value||'')+'</textarea>'
+      : f.type==='select'
+      ? '<select id="rwf_'+i+'" style="'+common+'">'+(f.options||[]).map(function(o){ var v=(o.value!=null?o.value:o), l=(o.label!=null?o.label:o); return '<option value="'+esc2(v)+'"'+(String(f.value)===String(v)?' selected':'')+'>'+esc2(l)+'</option>'; }).join('')+'</select>'
       : '<input id="rwf_'+i+'" type="'+(f.type||'text')+'" inputmode="'+(f.type==='number'?'numeric':'text')+'" placeholder="'+esc2(f.placeholder||'')+'" value="'+esc2(f.value||'')+'" style="'+common+'">';
     return '<label style="display:block;font-size:12px;color:var(--t2);font-weight:600;margin:10px 2px 5px">'+esc2(f.label)+'</label>'+inp
       +(f.hint?'<div style="font-size:10.5px;color:var(--t3);margin:0 2px 2px">'+esc2(f.hint)+'</div>':'');
@@ -8382,36 +8978,6 @@ function rwSettleEngine(expenses, settles){
   var balances={}; Object.keys(bal).forEach(function(id){ balances[id]=fromMinor(bal[id]); });
   return { balances:balances, transfers:tx };
 }
-function chatKittyState_OLD(){
-  var expenses = _chatMsgs.filter(function(m){ return m.kind==='expense' && m.payload; });
-  var settles  = _chatMsgs.filter(function(m){ return m.kind==='settle' && m.payload; });
-  if(!expenses.length) return null;
-  var people={}, names={};
-  _chatMsgs.forEach(function(m){ if(m.uid){ people[m.uid]=true; if(m.name) names[m.uid]=m.name; } });
-  expenses.forEach(function(m){ var p=m.payload; if(p.payer){ people[p.payer]=true; if(p.payerName) names[p.payer]=p.payerName; } });
-  var ids=Object.keys(people); var n=ids.length||1;
-  var bal={}; ids.forEach(function(id){ bal[id]=0; });
-  var total=0;
-  expenses.forEach(function(m){
-    var p=m.payload, amt=p.amount||0; total+=amt;
-    var share = amt/n;
-    if(bal[p.payer]===undefined) bal[p.payer]=0;
-    bal[p.payer]+=amt;
-    ids.forEach(function(id){ bal[id]-=share; });
-  });
-  settles.forEach(function(m){ var p=m.payload; if(bal[p.from]!==undefined) bal[p.from]+=p.amount; if(bal[p.to]!==undefined) bal[p.to]-=p.amount; });
-  var creditors=[], debtors=[];
-  ids.forEach(function(id){ var v=Math.round(bal[id]); if(v>1) creditors.push({id:id,v:v}); else if(v<-1) debtors.push({id:id,v:-v}); });
-  creditors.sort(function(a,b){return b.v-a.v;}); debtors.sort(function(a,b){return b.v-a.v;});
-  var tx=[], ci=0, di=0;
-  while(ci<creditors.length && di<debtors.length){
-    var pay=Math.min(creditors[ci].v, debtors[di].v);
-    tx.push({from:debtors[di].id, to:creditors[ci].id, amount:pay});
-    creditors[ci].v-=pay; debtors[di].v-=pay;
-    if(creditors[ci].v<=1) ci++; if(debtors[di].v<=1) di++;
-  }
-  return {total:total, perHead:Math.round(total/n), people:n, names:names, tx:tx, myBal:Math.round(bal[user.uid]||0), count:expenses.length};
-}
 function chatKittyHTML(){
   var k=chatKittyState();
   if(!k) return '<div style="font-size:12px;color:var(--t3);padding:8px 2px">No expenses yet. Tap <b>+ Add an expense</b> when someone pays for something \u2014 I\u2019ll track who owes whom and how to settle up with the fewest payments.</div>';
@@ -8467,6 +9033,8 @@ function chatRenderPins(){
   chips+='<button class="chat-pin'+(_chatPinView==='decisions'?' on':'')+'" onclick="chatTogglePin(\'decisions\')">\u2705 Decisions'
     +(decisions.length? ' <span class="pin-badge">'+decisions.length+'</span>':'')+'</button>';
   chips+='<button class="chat-pin'+(_chatPinView==='plan'?' on':'')+'" onclick="chatTogglePin(\'plan\')">\ud83d\uddd3\ufe0f Plan</button>';
+  var boardCount = _chatMsgs.filter(function(m){ return m.kind==='board' && m.payload; }).length;
+  chips+='<button class="chat-pin'+(_chatPinView==='board'?' on':'')+'" onclick="chatTogglePin(\'board\')">\ud83d\udccb Board'+(boardCount? ' <span class="pin-badge">'+boardCount+'</span>':'')+'</button>';
   var body='';
   if(_chatPinView==='kitty') body='<div class="pin-body">'+chatKittyHTML()+'</div>';
   else if(_chatPinView==='decisions'){
@@ -8481,9 +9049,79 @@ function chatRenderPins(){
       : '<div style="font-size:12px;color:var(--t3)">No plan pinned yet. Type <b>@tusk plan 3 days in Goa</b> and I\u2019ll draft one everyone sees here.</div>')
       +'<button class="chat-tool" style="width:100%;margin-top:9px;justify-content:center" onclick="chatEditPlan()">\u270f\ufe0f Edit the plan</button></div>';
   }
+  else if(_chatPinView==='board'){ body=chatBoardBody(); }
   host.innerHTML='<div class="pin-row">'+chips+'</div>'+body;
 }
-function chatTogglePin(v){ _chatPinView=(_chatPinView===v)?null:v; chatRenderPins(); }
+/* ===== TRIP BOARD: one dropdown with everything the group needs at a glance —
+   the pinned meeting point, expense summary, locked decisions, and member-added
+   essentials (emergency numbers / tickets / docs). Each essential is marked
+   "shared with group" or "private to me" so personal info never leaks. ===== */
+function chatBoardBody(){
+  var out='<div class="pin-body">';
+  /* 1) Meeting point (latest) */
+  var meet=_chatMsgs.filter(function(m){ return m.kind==='meet' && m.payload; }).slice(-1)[0];
+  out+='<div class="board-sec"><div class="board-h">\ud83d\udccd Meeting point</div>';
+  out+= meet ? '<div class="board-v"><b>'+esc2(meet.payload.place||'')+'</b>'+(meet.payload.when?' \u00b7 '+esc2(meet.payload.when):'')+'</div>'
+             : '<div class="board-x">Not set \u2014 tap \ud83d\udccd Meet point below.</div>';
+  out+='</div>';
+  /* 2) Money (from the live Kitty) */
+  var k=chatKittyState();
+  out+='<div class="board-sec"><div class="board-h">\ud83d\udcb0 Money</div>';
+  if(k){
+    out+='<div class="board-v">Total \u20b9'+k.total.toLocaleString('en-IN')+' \u00b7 \u2248\u20b9'+k.perHead.toLocaleString('en-IN')+'/head';
+    if(k.tx.length){ out+=' \u00b7 '+k.tx.length+' payment'+(k.tx.length>1?'s':'')+' to settle'; } else { out+=' \u00b7 all square \u2705'; }
+    out+='</div>';
+  } else out+='<div class="board-x">No expenses yet.</div>';
+  out+='</div>';
+  /* 3) Locked decisions */
+  var decs=_chatMsgs.filter(function(m){ return m.kind==='decision' && m.payload; });
+  out+='<div class="board-sec"><div class="board-h">\u2705 Decisions</div>';
+  out+= decs.length ? decs.map(function(m){ return '<div class="board-v">'+esc2((m.payload.q||'')+': ')+'<b>'+esc2(m.payload.choice||'')+'</b></div>'; }).join('')
+                    : '<div class="board-x">Nothing locked yet.</div>';
+  out+='</div>';
+  /* 4) Essentials the group added (emergency / tickets / docs) — respect privacy */
+  var items=_chatMsgs.filter(function(m){ return m.kind==='board' && m.payload; });
+  var myUid=(user||{}).uid;
+  var ICON={emergency:'\ud83c\udd98',ticket:'\ud83c\udfab',doc:'\ud83d\udcc4',note:'\ud83d\udccc'};
+  out+='<div class="board-sec"><div class="board-h">\ud83d\udd11 Essentials</div>';
+  var shown=items.filter(function(m){ return m.payload.share!==false || m.uid===myUid; });
+  if(shown.length){
+    out+=shown.map(function(m){
+      var p=m.payload, priv=(p.share===false);
+      return '<div class="board-v" style="display:flex;justify-content:space-between;gap:8px">'
+        +'<span>'+(ICON[p.type]||'\ud83d\udccc')+' <b>'+esc2(p.title||'')+'</b>'+(p.value?': '+esc2(p.value):'')+'</span>'
+        +(priv?'<span class="board-tag" style="color:#F87171">\ud83d\udd12 you</span>':'<span class="board-tag" style="color:#4ADE80">shared</span>')
+        +'</div>';
+    }).join('');
+  } else out+='<div class="board-x">No emergency numbers, tickets or docs added yet.</div>';
+  out+='<button class="chat-tool" style="width:100%;margin-top:9px;justify-content:center" onclick="chatAddBoardItem()">+ Add emergency no. / ticket / doc</button>';
+  out+='</div>';
+  out+='<div style="font-size:10px;color:var(--t3);margin-top:8px;line-height:1.5">Items marked \ud83d\udd12 stay private to you. \u201cShared\u201d items are visible to everyone in this trip \u2014 don\u2019t share OTPs, passwords or full card numbers.</div>';
+  return out+'</div>';
+}
+function chatAddBoardItem(){
+  var f=[
+    {key:'type', label:'What is it?', type:'select', options:[
+      {value:'emergency', label:'\ud83c\udd98 Emergency contact'},
+      {value:'ticket', label:'\ud83c\udfab Ticket / booking ref'},
+      {value:'doc', label:'\ud83d\udcc4 Document / ID note'},
+      {value:'note', label:'\ud83d\udccc Other note'}]},
+    {key:'title', label:'Label', placeholder:'e.g. Hotel front desk, Bus PNR, Insurance'},
+    {key:'value', label:'Detail', placeholder:'e.g. +91 98xxxxxx / PNR 4821 / policy no.'},
+    {key:'share', label:'Who can see it?', type:'select', options:[
+      {value:'yes', label:'\u2705 Share with the group'},
+      {value:'no', label:'\ud83d\udd12 Private to me'}]}
+  ]; f._submit='Add to board';
+  rwForm('\ud83d\udd11 Add an essential', f, function(v){
+    if(!v.title){ showToast('Give it a label'); return; }
+    /* Gentle guard: warn if it looks like a secret being shared with the group */
+    var looksSecret=/otp|password|cvv|\b\d{12,19}\b|pin\b/i.test((v.value||'')+' '+(v.title||''));
+    if(v.share==='yes' && looksSecret && !confirm('This looks like a password/OTP/card number. Share it with the whole group anyway?')){ return; }
+    chatPost('board', {type:v.type||'note', title:v.title.slice(0,60), value:(v.value||'').slice(0,120), share:(v.share!=='no')},
+      '\ud83d\udccb added '+(v.share==='no'?'a private ':'')+'board item: '+v.title.slice(0,40))
+      .then(function(){ _chatPinView='board'; setTimeout(function(){ try{ chatRenderPins(); }catch(e){} },200); });
+  });
+}
 function chatEditPlan(){
   var cur=_chatMsgs.filter(function(m){return m.kind==='plan';}).slice(-1)[0];
   var f=[{key:'text', label:'The shared plan', type:'textarea', value:(cur&&cur.payload&&cur.payload.text)||'', placeholder:'Day 1: reach Goa, check in\nDay 2: North beaches\n\u2026', hint:'Everyone in the chat sees this pinned at the top.'}];
@@ -8510,10 +9148,26 @@ function chatShareBudget(){
   }catch(e){ showToast('Could not build that budget'); }
 }
 function chatSharePlan(){
-  var t = (typeof vaultGet==='function') ? (vaultGet()[0]||null) : null;
-  if(!t){ showToast('Save a trip first, then share it here'); return; }
-  chatPost('plan', {id:t.id, name:t.name, days:(t.days||[]).length},
-    t.name+' \u2014 '+((t.days||[]).length)+'-day plan');
+  var trips = (typeof vaultGet==='function') ? (vaultGet()||[]) : [];
+  if(!trips.length){ showToast('Save a trip first \u2014 plan one, tap \u2708\ufe0f Save offline, then share it here'); return; }
+  function postPlan(t){
+    var existing = _chatMsgs.filter(function(m){ return m.kind==='plan' && m.payload; });
+    var last = existing[existing.length-1];
+    if(last && last.payload && last.payload.id===t.id){
+      showToast('That itinerary is already pinned above \u2705'); _chatPinView='plan'; chatRenderPins(); return;
+    }
+    chatPost('plan', {id:t.id, name:t.name, days:(t.days||[]).length},
+      t.name+' \u2014 '+((t.days||[]).length)+'-day plan')
+      .then(function(){ _chatPinView='plan'; setTimeout(function(){ try{ chatRenderPins(); }catch(e){} },200); });
+  }
+  if(trips.length===1){ postPlan(trips[0]); return; }
+  var f=[ { key:'trip', label:'Which saved trip?', type:'select',
+      options: trips.map(function(t){ return {value:t.id, label:t.name+' ('+((t.days||[]).length)+'d)'}; }) } ];
+  f._submit='Share this itinerary';
+  rwForm('\ud83d\uddd3\ufe0f Pin an itinerary', f, function(v){
+    var t = trips.filter(function(x){ return x.id===v.trip; })[0] || trips[0];
+    postPlan(t);
+  });
 }
 function chatShareMeet(){
   var f=[
@@ -8634,19 +9288,29 @@ function chatBubble(id, m, mine){
       +'<div style="font-size:12.5px;margin-top:2px">'+esc2(p.q||'')+' \u2192 <b>'+esc2(p.choice||'')+'</b></div></div></div>';
   }
   if(kind==='vote'){ return ''; }
+  if(kind==='board'){
+    var p=m.payload||{}, mineB=(m.uid===((user||{}).uid));
+    /* private items are only shown to their owner, even in the log */
+    if(p.share===false && !mineB) return '';
+    var ic={emergency:'\ud83c\udd98',ticket:'\ud83c\udfab',doc:'\ud83d\udcc4',note:'\ud83d\udccc'}[p.type]||'\ud83d\udccc';
+    return '<div style="margin:5px 0;text-align:center"><span style="font-size:11px;color:var(--t2);background:rgba(255,255,255,.05);padding:3px 10px;border-radius:999px">'+ic+' '+esc2((m.name||'Someone').split(' ')[0])+' added '+(p.share===false?'a private ':'')+'board item \u00b7 tap \ud83d\udccb Board</span></div>';
+  }
   if(kind==='meet'){
     var p=m.payload||{};
     var place=p.place||m.text||'', when=p.when||'', city=p.city||place;
-    var mapUrl=p.map||('https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(place+(p.city?', '+p.city:'')));
+    var mapQ=encodeURIComponent(place+(p.city?', '+p.city:''));
+    var mapUrl=p.map||('https://www.google.com/maps/search/?api=1&query='+mapQ);
     var slug=(city||place).toLowerCase().replace(/[^a-z ]/g,'').trim().replace(/\s+/g,'-');
     var bms='https://in.bookmyshow.com/explore/events-'+encodeURIComponent(slug);
-    var zomato='https://www.zomato.com/'+encodeURIComponent((city||'').toLowerCase().replace(/[^a-z]/g,''))+'/restaurants';
+    /* Zomato has no stable city-slug URL (that 404s in the app WebView). Its
+       search endpoint is the reliable one across web + WebView. */
+    var zomato='https://www.zomato.com/search?q='+encodeURIComponent(place+(p.city?' '+p.city:''));
     return '<div style="margin:7px 0"><div style="background:var(--bg2,#12121C);border-left:3px solid #60A5FA;border-radius:9px;padding:10px 12px">'
       +'<div style="font-size:9.5px;color:#60A5FA;font-weight:800;text-transform:uppercase;letter-spacing:.08em">\ud83d\udccd Meeting point \u00b7 '+esc2(m.name||'')+'</div>'
       +'<div style="font-size:13px;font-weight:700;margin:3px 0 1px">'+esc2(place)+'</div>'
       +(when?'<div style="font-size:12px;color:var(--t2)">\ud83d\udd52 '+esc2(when)+'</div>':'')
       +'<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px">'
-      +'<a class="chat-tool" style="text-decoration:none" href="'+esc2(mapUrl)+'" target="_blank" rel="noopener">\ud83d\uddfa\ufe0f Open in Maps</a>'
+      +'<a class="chat-tool" style="text-decoration:none" href="'+esc2(mapUrl)+'" target="_blank" rel="noopener" onclick="return rwOpenMap(\''+mapQ+'\')">\ud83d\uddfa\ufe0f Open in Maps</a>'
       +'<a class="chat-tool" style="text-decoration:none" href="'+esc2(bms)+'" target="_blank" rel="noopener">\ud83c\udfab Events here</a>'
       +'<a class="chat-tool" style="text-decoration:none" href="'+esc2(zomato)+'" target="_blank" rel="noopener">\ud83c\udf7d\ufe0f Food</a>'
       +'</div></div></div>';
@@ -11571,6 +12235,31 @@ function closeMapExplorer(){ /* inline section — nothing to close */ }
    the stop. Reuses gcode() + rwEnsureLeaflet(). Stops are cached so the map is
    instant on re-open and viewable offline once loaded. */
 var _tripMap=null, _tripLayers=[];
+var _tripMapLayers=null, _tripMapMode='streets';
+/* Google-Earth-style base-map switcher: Map / Satellite / Terrain. */
+function rwTripMapTypeChips(){
+  var host=el('tripMapTypes');
+  if(!host){
+    var mapEl=el('tripMap'); if(!mapEl) return;
+    host=document.createElement('div'); host.id='tripMapTypes';
+    host.style.cssText='display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap';
+    mapEl.parentNode.insertBefore(host, mapEl);
+  }
+  var types=[['streets','\ud83d\uddfa\ufe0f Map'],['satellite','\ud83d\udef0\ufe0f Satellite'],['terrain','\u26f0\ufe0f Terrain']];
+  host.innerHTML=types.map(function(t){
+    var on=_tripMapMode===t[0];
+    return '<button onclick="rwTripSetMapType(\''+t[0]+'\')" style="font-size:11.5px;font-weight:700;padding:6px 12px;border-radius:20px;border:1px solid '+(on?'var(--gold,#E8BA6C)':'var(--b2,#2A2A36)')+';background:'+(on?'var(--gold,#E8BA6C)':'var(--bg3,#1A1A20)')+';color:'+(on?'#0A0A0C':'var(--t1)')+';cursor:pointer">'+t[1]+'</button>';
+  }).join('');
+}
+function rwTripSetMapType(mode){
+  if(!_tripMap || !_tripMapLayers) return;
+  ['streets','satellite','terrain'].forEach(function(k){ try{ _tripMap.removeLayer(_tripMapLayers[k]); }catch(e){} });
+  try{ _tripMap.removeLayer(_tripMapLayers.labels); }catch(e){}
+  _tripMapLayers[mode].addTo(_tripMap);
+  /* satellite imagery has no place labels — overlay a labels layer so pins make sense */
+  if(mode==='satellite'){ _tripMapLayers.labels.addTo(_tripMap); }
+  _tripMapMode=mode; rwTripMapTypeChips();
+}
 var RW_DAY_COLORS=['#E8BA6C','#60A5FA','#4ADE80','#F87171','#A78BFA','#38BDF8','#FB923C','#F472B6'];
 function openTripMap(destName, stops){
   try{ badgeBump('map'); }catch(e){}
@@ -11628,26 +12317,56 @@ function openTripMap(destName, stops){
 /* Pull stops from the most recent itinerary the app rendered, if any. */
 function rwDeriveStops(destName){
   var it = window._lastItin;
+  var curatedFor = function(nm){
+    var target=(nm||'').toLowerCase().trim();
+    var cur=RW_CURATED_STOPS[target];
+    if(!cur){ for(var k in RW_CURATED_STOPS){ if(target.indexOf(k)>=0 || k.indexOf(target)>=0){ cur=RW_CURATED_STOPS[k]; break; } } }
+    return cur||null;
+  };
   if(it && it.days && it.days.length){
-    return it.days.map(function(d,i){
-      var nm = d.place || d.title || (d.morning? String(d.morning).split(/[,.]/)[0] : '');
+    /* For destinations we have curated attractions for, those real place names
+       geocode far better than day-theme titles ("Arrival", "Adventure Day").
+       Use curated stops spread across the days; fall back to mining the text
+       only when we have no curated data for this place. */
+    var curated = curatedFor(destName || (it&&it.name));
+    if(curated && curated.length){
+      var nd = it.days.length;
+      return curated.map(function(nm,i){ return {day: Math.min(nd, Math.floor(i*nd/curated.length)+1), name:nm, note:'Highlight'}; });
+    }
+    /* No curated data — mine each day for the most place-like token. */
+    var THEME=/^(arrival|departure|adventure|relax|explore|rest|travel|free|leisure|settling|check|day\s*\d)/i;
+    var stops = it.days.map(function(d,i){
+      var text = d.place || d.morning || d.afternoon || d.title || '';
+      var m = String(text).match(/([A-Z][a-z]+(?:\s+[A-Z][a-z]+){0,3})/);
+      var nm = (d.place) ? d.place : (m ? m[1] : String(text).split(/[,.\u2014-]/)[0].trim());
+      if(THEME.test(nm)) nm=''; /* drop pure day-themes that won't geocode */
       return {day:i+1, name:nm, note:(d.title||'')};
-    }).filter(function(s){ return s.name; });
+    }).filter(function(s){ return s.name && s.name.length>2; });
+    if(stops.length) return stops;
   }
-  /* No itinerary yet — fall back to known highlights so the map is still useful. */
-  var target = (destName || (it&&it.name) || '').toLowerCase().trim();
-  /* 1) curated attractions for popular Indian destinations (real, mappable) */
-  var cur = RW_CURATED_STOPS[target];
-  if(!cur){ for(var k in RW_CURATED_STOPS){ if(target.indexOf(k)>=0 || k.indexOf(target)>=0){ cur=RW_CURATED_STOPS[k]; break; } } }
-  if(cur && cur.length){ return cur.map(function(nm,i){ return {day:i+1, name:nm, note:'Highlight'}; }); }
-  /* 2) DB gems if present */
+  /* No itinerary — curated highlights, then DB gems. */
+  var cur2 = curatedFor(destName || (it&&it.name));
+  if(cur2 && cur2.length){ return cur2.map(function(nm,i){ return {day:i+1, name:nm, note:'Highlight'}; }); }
   try{
-    var d = (typeof DB!=='undefined') ? DB.find(function(x){ return x.name && x.name.toLowerCase()===target; }) : null;
-    if(!d && typeof DB!=='undefined' && target){ d = DB.find(function(x){ return x.name && (target.indexOf(x.name.toLowerCase())>=0 || x.name.toLowerCase().indexOf(target)>=0); }); }
-    if(d && d.gems && d.gems.length){ return d.gems.slice(0,6).map(function(g,i){ return {day:i+1, name:g, note:'Highlight'}; }); }
+    var target=(destName||(it&&it.name)||'').toLowerCase().trim();
+    var dd = (typeof DB!=='undefined') ? DB.find(function(x){ return x.name && x.name.toLowerCase()===target; }) : null;
+    if(!dd && typeof DB!=='undefined' && target){ dd = DB.find(function(x){ return x.name && (target.indexOf(x.name.toLowerCase())>=0 || x.name.toLowerCase().indexOf(target)>=0); }); }
+    if(dd && dd.gems && dd.gems.length){ return dd.gems.slice(0,6).map(function(g,i){ return {day:i+1, name:g, note:'Highlight'}; }); }
   }catch(e){}
   return [];
 }
+/* Open a map location reliably in BOTH the browser and the Android WebView.
+   The app's WebView can choke on google.com/maps deep links; a plain
+   maps.google.com/?q= URL opened via window.open works in both. */
+function rwOpenMap(query){
+  try{
+    var q = decodeURIComponent(query);
+    var url = 'https://maps.google.com/?q='+encodeURIComponent(q);
+    window.open(url, '_blank', 'noopener');
+    return false; /* prevent the <a> default so we control the open */
+  }catch(e){ return true; }
+}
+function rwOpenMapExplorer_noop(){}
 /* Curated real attractions (town/landmark level) for popular Indian destinations.
    Used to populate the trip map before a full itinerary exists. Extend freely. */
 var RW_CURATED_STOPS = {
@@ -11679,9 +12398,17 @@ function rwPaintTripMap(destName, data){
   try{ if(_tripMap){ _tripLayers.forEach(function(l){ try{_tripMap.removeLayer(l);}catch(e){} }); _tripLayers=[]; } }catch(e){}
   if(!_tripMap){
     _tripMap = L.map('tripMap', {zoomControl:true}).setView(center?[center.lat,center.lon]:[22.9,79.5], center?11:4);
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png', {maxZoom:19, attribution:'\u00a9 OpenStreetMap \u00a9 CARTO'}).addTo(_tripMap);
+    /* Base layers incl. a Google-Earth-style satellite view (Esri World Imagery)
+       and topographic terrain. Users toggle between them like Wanderlog. */
+    var _streets = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png', {maxZoom:19, attribution:'\u00a9 OSM \u00a9 CARTO'});
+    var _satellite = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {maxZoom:19, attribution:'\u00a9 Esri'});
+    var _terrain = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {maxZoom:17, attribution:'\u00a9 OpenTopoMap'});
+    var _labels = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_only_labels/{z}/{x}/{y}.png', {maxZoom:19});
+    _tripMapLayers = {streets:_streets, satellite:_satellite, terrain:_terrain, labels:_labels};
+    _streets.addTo(_tripMap); _tripMapMode='streets';
   }
   setTimeout(function(){ try{ _tripMap.invalidateSize(); }catch(e){} }, 250);
+  rwTripMapTypeChips();
 
   if(!pins.length){
     el('tripMapSub').textContent='Mapped '+destName;
