@@ -2050,5 +2050,113 @@
    75,
    61
   ]
+ },
+ {
+  "slug": "singapore-singapore",
+  "title": "Singapore, Singapore",
+  "name": "Singapore",
+  "country": "Singapore",
+  "best": "February, March, July",
+  "arch": "tropical",
+  "cl": [
+   28.9,
+   31,
+   31.9,
+   30.8,
+   30.4,
+   29.9,
+   30.7,
+   29.9,
+   30.1,
+   30,
+   29.4,
+   30.3
+  ],
+  "scores": [
+   55,
+   89,
+   86,
+   75,
+   65,
+   73,
+   88,
+   81,
+   83,
+   81,
+   55,
+   75
+  ]
+ },
+ {
+  "slug": "jakarta-indonesia",
+  "title": "Jakarta, Indonesia",
+  "name": "Jakarta",
+  "country": "Indonesia",
+  "best": "June, July, August",
+  "arch": "tropical",
+  "cl": [
+   31.2,
+   31.1,
+   31.3,
+   32.2,
+   32.5,
+   31.9,
+   32.1,
+   33.7,
+   33.4,
+   34.1,
+   32.4,
+   30.5
+  ],
+  "scores": [
+   56,
+   67,
+   66,
+   65,
+   73,
+   82,
+   88,
+   91,
+   82,
+   80,
+   67,
+   59
+  ]
+ },
+ {
+  "slug": "manila-philippines",
+  "title": "Manila, Philippines",
+  "name": "Manila",
+  "country": "Philippines",
+  "best": "January, February, March",
+  "arch": "monsoon",
+  "cl": [
+   30.6,
+   33,
+   32.9,
+   36.1,
+   34.7,
+   31.9,
+   30.4,
+   30.7,
+   29.9,
+   30,
+   31.8,
+   29.9
+  ],
+  "scores": [
+   97,
+   99,
+   93,
+   80,
+   64,
+   71,
+   55,
+   68,
+   55,
+   62,
+   92,
+   71
+  ]
  }
 ]
