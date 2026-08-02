@@ -1,0 +1,13 @@
+{
+  "appId": "com.gyanverse.roamwise",
+  "appName": "RoamWise",
+  "webDir": "www",
+  "server": {
+    "androidScheme": "https"
+  },
+  "plugins": {
+    "Geolocation": {
+      "permissions": ["location"]
+    }
+  }
+}
