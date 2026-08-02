@@ -905,3 +905,16 @@ html.reduce-motion *,html.reduce-motion *::before,html.reduce-motion *::after{an
 .money-exp{display:flex;justify-content:space-between;font-size:13px;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.06)}
 .money-settle{font-size:14px;padding:8px 11px;background:rgba(232,186,108,.08);border-radius:9px;margin-bottom:6px}
 .money-square{font-size:13px;color:#4ADE80;padding:8px 0}
+
+/* ===== TEXT + ICON SIZE SCALING ===== */
+.rwi{transform:scale(var(--rw-icon-scale,1))}
+.tabbar button .ti{transform:scale(var(--rw-icon-scale,1))}
+
+/* ===== HOME QUICK-ACCESS GRID (hero features, front & center) ===== */
+.qg-wrap{display:grid;grid-template-columns:repeat(4,1fr);gap:9px}
+.qg-tile{display:flex;flex-direction:column;align-items:center;gap:6px;padding:14px 6px;background:var(--bg2,#12151F);border:1px solid var(--b1,rgba(255,255,255,.07));border-radius:16px;cursor:pointer;color:var(--t1);font:inherit;transition:transform .12s ease,border-color .12s ease}
+.qg-tile:active{transform:scale(.95)}
+.qg-tile:hover{border-color:var(--gold,#E8BA6C)}
+.qg-ic{font-size:24px;line-height:1}
+.qg-lbl{font-size:11px;font-weight:600;text-align:center;color:var(--t2);line-height:1.2}
+@media (max-width:360px){ .qg-lbl{font-size:10px} .qg-ic{font-size:22px} }

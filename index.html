@@ -256,6 +256,10 @@ html{-webkit-text-size-adjust:100%}
   .day-seg .seg-time{font-size:11px}
   .logo-text{font-size:19px}
   .nav-ic{font-size:20px!important;padding:8px!important}
+  /* keep the logo and the right-side icons from colliding on narrow web screens */
+  .nav-inner{gap:8px}
+  .logo-wrap{flex:0 0 auto;margin-right:auto}
+  .nav-right{gap:2px;flex-wrap:nowrap}
   /* --- the big one: bottom tab bar like native apps --- */
   .tabbar{padding:9px 6px calc(11px + env(safe-area-inset-bottom))}
   .tabbar button{font-size:11.5px;font-weight:700;letter-spacing:.02em;gap:4px;padding:5px 0}
@@ -381,6 +385,15 @@ html{-webkit-text-size-adjust:100%}
     <div class="stat-cell"><div class="stat-num">12</div><div class="stat-lbl">Crowd months</div></div>
   </div>
 </div></div>
+
+<section class="v v-home" id="quickGrid" style="margin:4px 14px 8px">
+  <div class="qg-wrap">
+    <button class="qg-tile" onclick="openNearMe()"><span class="qg-ic">📍</span><span class="qg-lbl">Near me</span></button>
+    <button class="qg-tile" onclick="openMoneyLayer()"><span class="qg-ic">💰</span><span class="qg-lbl">Split money</span></button>
+    <button class="qg-tile" onclick="openTribeTravel()"><span class="qg-ic">🤝</span><span class="qg-lbl">Tribe travel</span></button>
+    <button class="qg-tile" onclick="openFitnessStays()"><span class="qg-ic">🏋️</span><span class="qg-lbl">Fit stays</span></button>
+  </div>
+</section>
 
 <section class="brief v v-home" id="brief" style="display:none">
   <div class="brief-card">
@@ -747,6 +760,8 @@ html{-webkit-text-size-adjust:100%}
   <a class="dr-link" onclick="drThemePick()"><span class="ic">🎨</span>Theme<span id="drThemeVal" style="margin-left:auto;color:var(--t3);font-size:11px"></span></a>
   <div id="drThemeList" style="display:none;padding:2px 0 2px 30px"></div>
   <a class="dr-link" onclick="closeDrawer();openIconThemePicker()"><span class="ic">✨</span>Icon style<span style="margin-left:auto;color:var(--t3);font-size:11px">tap</span></a>
+  <a class="dr-link" onclick="closeDrawer();openSizeSettings()"><span class="ic">🔤</span>Text &amp; icon size</a>
+  <a class="dr-link" onclick="closeDrawer();rwReplayOnboard()"><span class="ic">👋</span>How it works</a>
   <a class="dr-link" onclick="drLangPick()"><span class="ic">🌐</span>Language<span id="drLangVal" style="margin-left:auto;color:var(--t3);font-size:11px"></span></a>
   <div id="drLangList" style="display:none;padding:2px 0 2px 30px"></div>
   <a class="dr-link" onclick="closeDrawer();openSettings()"><span class="ic">⚙️</span>Settings &amp; AI keys</a>

@@ -1,3 +1,24 @@
+/* ===== GLOBAL ERROR GUARD (billion-download resilience) =====
+   A single unexpected JS error should never freeze or white-screen the app.
+   These catch stray errors + unhandled promise rejections so the app keeps
+   running. Silent by design — we don't spam the user with technical errors. */
+window.addEventListener('error', function(ev){
+  try{ /* swallow benign resource/load errors; log nothing user-facing */ }catch(e){}
+}, true);
+window.addEventListener('unhandledrejection', function(ev){
+  try{ if(ev && ev.preventDefault) ev.preventDefault(); }catch(e){}
+});
+/* Subtle haptic feedback — makes taps feel responsive & premium. No-op where
+   unsupported. Called on key actions (send, pin, pay-success). */
+function rwHaptic(kind){
+  try{
+    if(window.Capacitor && Capacitor.Plugins && Capacitor.Plugins.Haptics){
+      Capacitor.Plugins.Haptics.impact({style: kind==='heavy'?'HEAVY':'LIGHT'}); return;
+    }
+    if(navigator.vibrate){ navigator.vibrate(kind==='heavy'?18:8); }
+  }catch(e){}
+}
+
 
 var DB = [
   {id:"chiang_mai",name:"Chiang Mai",country:"Thailand",region:"Southeast Asia",lat:18.79,lon:98.99,
@@ -302,6 +323,77 @@ var ALL_COUNTRIES = ['Afghanistan','Albania','Algeria','Argentina','Armenia','Au
 var LS = localStorage;
 function lsGet(k){ return LS.getItem(k)||''; }
 function lsSet(k,v){ LS.setItem(k,v); }
+/* ===== FIRST-LAUNCH WALKTHROUGH (onboarding) =====
+   Shows once, introduces the key features, has a Skip option. Report-requested. */
+var RW_ONBOARD=[
+  {ic:'\u2728', t:'Welcome to RoamWise', d:'Your AI travel copilot for smarter trips \u2014 no signup, no subscription.'},
+  {ic:'\ud83e\udded', t:'Plan with Ailon Tusk', d:'Just say \u201cchill 4 days near Rishikesh under 12k\u201d and get a full day-by-day itinerary.'},
+  {ic:'\ud83d\uddfa\ufe0f', t:'See it on a map', d:'Every trip maps out day-by-day with satellite & terrain views.'},
+  {ic:'\ud83d\udc65', t:'Travel together', d:'Group chat with shared money split, decisions, and a trip board \u2014 all in one place.'},
+  {ic:'\ud83d\udccd', t:'Discover nearby', d:'Find food, sights & things to do around you, plus fitness-friendly stays.'}
+];
+function rwMaybeOnboard(){
+  try{ if(lsGet('rw_onboarded')==='1') return; }catch(e){}
+  rwOnboardShow(0);
+}
+function rwOnboardShow(i){
+  var ov=el('rwOnboardOv');
+  if(!ov){ ov=document.createElement('div'); ov.id='rwOnboardOv'; ov.className='overlay'; ov.style.zIndex='4000'; document.body.appendChild(ov); }
+  var s=RW_ONBOARD[i]; if(!s){ rwOnboardDone(); return; }
+  var dots=RW_ONBOARD.map(function(_,k){ return '<span style="width:7px;height:7px;border-radius:50%;background:'+(k===i?'var(--gold,#E8BA6C)':'rgba(255,255,255,.25)')+'"></span>'; }).join('');
+  var last=(i===RW_ONBOARD.length-1);
+  ov.innerHTML='<div class="sheet" style="max-width:360px;text-align:center;padding:26px 22px">'
+    +'<div style="font-size:52px;margin-bottom:10px">'+s.ic+'</div>'
+    +'<div style="font-size:20px;font-weight:800;margin-bottom:8px">'+s.t+'</div>'
+    +'<div style="font-size:14px;color:var(--t2);line-height:1.6;margin-bottom:20px">'+s.d+'</div>'
+    +'<div style="display:flex;gap:6px;justify-content:center;margin-bottom:20px">'+dots+'</div>'
+    +'<button class="tact" style="width:100%;font-weight:800;background:linear-gradient(135deg,var(--gold,#E8BA6C),var(--gold2,#C8913E));color:#0A0A0C;border:none;margin-bottom:8px" onclick="'+(last?'rwOnboardDone()':'rwOnboardShow('+(i+1)+')')+'">'+(last?'Start exploring \u2192':'Next')+'</button>'
+    +'<button class="tact" style="width:100%;background:none;border:none;color:var(--t3);font-size:13px" onclick="rwOnboardDone()">'+(last?'':'Skip')+'</button>'
+    +'</div>';
+  ov.classList.add('open');
+}
+function rwOnboardDone(){
+  try{ lsSet('rw_onboarded','1'); }catch(e){}
+  var ov=el('rwOnboardOv'); if(ov){ ov.classList.remove('open'); }
+}
+function rwReplayOnboard(){ rwOnboardShow(0); }
+
+/* ===== TEXT + ICON SIZE (accessibility) =====
+   Scales the whole UI via a root font-size multiplier + an icon multiplier.
+   Persists across sessions. Applied on boot. */
+function rwApplyUIScale(){
+  var ts=parseFloat(lsGet('rw_textscale')||'1')||1;
+  var is=parseFloat(lsGet('rw_iconscale')||'1')||1;
+  try{
+    document.documentElement.style.setProperty('--rw-text-scale', ts);
+    document.documentElement.style.setProperty('--rw-icon-scale', is);
+    document.documentElement.style.fontSize = (100*ts)+'%';
+  }catch(e){}
+}
+function rwSetTextScale(v){ lsSet('rw_textscale', String(v)); rwApplyUIScale(); }
+function rwSetIconScale(v){ lsSet('rw_iconscale', String(v)); rwApplyUIScale(); try{ renderTabbar(); }catch(e){} }
+function openSizeSettings(){
+  var ts=parseFloat(lsGet('rw_textscale')||'1')||1;
+  var is=parseFloat(lsGet('rw_iconscale')||'1')||1;
+  var textOpts=[['0.9','Small'],['1','Default'],['1.15','Large'],['1.3','Extra large']];
+  var iconOpts=[['0.9','Small'],['1','Default'],['1.2','Large'],['1.4','Extra large']];
+  function row(label, cur, opts, fn){
+    return '<div style="margin-bottom:16px"><div style="font-size:12px;font-weight:700;color:var(--gold2,#C8913E);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">'+label+'</div>'
+      +'<div style="display:flex;gap:8px;flex-wrap:wrap">'
+      + opts.map(function(o){ var on=Math.abs(cur-parseFloat(o[0]))<0.02;
+          return '<button onclick="'+fn+'('+o[0]+');openSizeSettings()" style="flex:1;min-width:70px;font-size:12.5px;font-weight:700;padding:9px;border-radius:10px;border:1px solid '+(on?'var(--gold,#E8BA6C)':'var(--b2,#2A2A36)')+';background:'+(on?'var(--gold,#E8BA6C)':'var(--bg3,#1A1A20)')+';color:'+(on?'#0A0A0C':'var(--t1)')+';cursor:pointer">'+o[1]+'</button>'; }).join('')
+      +'</div></div>';
+  }
+  var ov=el('sizeSettingsOv');
+  if(!ov){ ov=document.createElement('div'); ov.id='sizeSettingsOv'; ov.className='overlay'; ov.onclick=function(e){ if(e.target===ov) rwOverlayClose('sizeSettingsOv'); }; document.body.appendChild(ov); }
+  ov.style.zIndex='1200';
+  ov.innerHTML='<div class="sheet" style="max-width:380px"><div class="sheet-h"><b>\ud83d\udd24 Text &amp; icon size</b><button onclick="rwOverlayClose(\'sizeSettingsOv\')" class="tact">\u2715</button></div>'
+    +'<p style="font-size:12px;color:var(--t2);margin:2px 0 14px">Make everything easier to read.</p>'
+    + row('Text size', ts, textOpts, 'rwSetTextScale')
+    + row('Icon size', is, iconOpts, 'rwSetIconScale')
+    +'<button class="tact" style="width:100%;margin-top:4px" onclick="rwSetTextScale(1);rwSetIconScale(1);openSizeSettings()">Reset to default</button></div>';
+  ov.classList.add('open');
+}
 function el(id){ return document.getElementById(id); }
 
 /* ==================== i18n — LANGUAGE SYSTEM ====================
@@ -3066,7 +3158,22 @@ function openNearMe(){
 }
 function rwNearMeLocate(){
   var out=el('nearmeOut'), btn=el('nearmeBtn');
-  if(!navigator.geolocation){ out.innerHTML='<div class="note">Your browser can\u2019t share location. Try the Tusk copilot \u2014 tell it your city and it\u2019ll suggest things to do.</div>'; return; }
+  /* In the Capacitor-wrapped app, use the NATIVE GPS plugin (real permission
+     prompt + accurate location). Falls through to the browser API on the web. */
+  if(window.Capacitor && Capacitor.Plugins && Capacitor.Plugins.Geolocation){
+    if(btn){ btn.disabled=true; btn.textContent='\ud83d\udccd Getting your location\u2026'; }
+    Capacitor.Plugins.Geolocation.getCurrentPosition({enableHighAccuracy:true, timeout:12000})
+      .then(function(pos){
+        if(btn){ btn.textContent='\ud83d\udd0d Searching within 3km\u2026'; }
+        rwNearMeSearch(pos.coords.latitude, pos.coords.longitude);
+      })
+      .catch(function(){
+        if(btn){ btn.disabled=false; btn.textContent='\ud83d\udccd Find what\u2019s around me'; }
+        rwNearMeManual('Location permission is off for RoamWise.');
+      });
+    return;
+  }
+  if(!navigator.geolocation){ rwNearMeManual('Your device can\u2019t share GPS location.'); return; }
   if(btn){ btn.disabled=true; btn.textContent='\ud83d\udccd Getting your location\u2026'; }
   navigator.geolocation.getCurrentPosition(function(pos){
     var lat=pos.coords.latitude, lon=pos.coords.longitude;
@@ -3074,38 +3181,65 @@ function rwNearMeLocate(){
     rwNearMeSearch(lat, lon);
   }, function(err){
     if(btn){ btn.disabled=false; btn.textContent='\ud83d\udccd Find what\u2019s around me'; }
-    var msg = err.code===1 ? 'Location permission was declined. To use Near Me, allow location for this site in your browser settings \u2014 or just ask Tusk about your city.'
-            : 'Couldn\u2019t get your location right now. Make sure GPS/location is on, then try again.';
-    out.innerHTML='<div class="note">'+msg+'</div>';
+    var why = err.code===1 ? 'Location permission is off for this app.'
+            : 'Couldn\u2019t get GPS right now.';
+    rwNearMeManual(why);
   }, {enableHighAccuracy:true, timeout:12000, maximumAge:60000});
+}
+/* Fallback so Near Me ALWAYS works — even when GPS is blocked (common in the
+   in-app WebView, or when a browser has a stored "denied"). User types a place
+   and we geocode it, then run the same nearby search. */
+function rwNearMeManual(why){
+  var out=el('nearmeOut'); if(!out) return;
+  out.innerHTML='<div class="note" style="margin-bottom:10px">'+esc2(why||'')+' No problem \u2014 type where you are and I\u2019ll find what\u2019s nearby.</div>'
+    +'<div style="display:flex;gap:8px">'
+    +'<input id="nearManualInp" placeholder="Your area or city \u2014 e.g. Rishikesh, Laxman Jhula" style="flex:1;background:#12121C;border:1px solid var(--b2);border-radius:11px;padding:11px;color:var(--t1);font-size:14px">'
+    +'<button class="tact" style="font-weight:800;background:linear-gradient(135deg,var(--gold,#E8BA6C),var(--gold2,#C8913E));color:#0A0A0C;border:none" onclick="rwNearMeManualGo()">Find</button></div>'
+    +'<div style="font-size:10.5px;color:var(--t3);margin-top:8px;line-height:1.5">Tip: to use precise GPS instead, enable Location for RoamWise in your phone Settings \u2192 Apps \u2192 RoamWise \u2192 Permissions, then tap \u201cFind what\u2019s around me\u201d again.</div>';
+}
+async function rwNearMeManualGo(){
+  var inp=el('nearManualInp'), out=el('nearmeOut');
+  var place=(inp&&inp.value||'').trim();
+  if(!place){ if(inp) inp.focus(); return; }
+  out.innerHTML='<div class="note">\ud83d\udd0d Locating '+esc2(place)+'\u2026</div>';
+  var geo=null; try{ geo=await gcode(place); }catch(e){}
+  if(!geo){ out.innerHTML='<div class="note">Couldn\u2019t find \u201c'+esc2(place)+'\u201d. Try a nearby bigger town or a well-known landmark.</div>'; return; }
+  rwNearMeSearch(geo.lat, geo.lon);
 }
 async function rwNearMeSearch(lat, lon){
   var out=el('nearmeOut'), btn=el('nearmeBtn');
   if(!navigator.onLine){ out.innerHTML='<div class="note">You\u2019re offline \u2014 Near Me needs a connection to look up places.</div>'; if(btn){btn.disabled=false;btn.textContent='\ud83d\udccd Find what\u2019s around me';} return; }
-  var radius=3000;
-  var q='[out:json][timeout:15];(';
-  RW_NEARME_TAGS.forEach(function(t){
-    q += t[1]==='*' ? 'node["'+t[0]+'"](around:'+radius+','+lat+','+lon+');'
-                    : 'node["'+t[0]+'"="'+t[1]+'"](around:'+radius+','+lat+','+lon+');';
-  });
-  q += ');out body 120;';
-  try{
-    var r=await fetch('https://overpass-api.de/api/interpreter',{method:'POST',
-      headers:{'Content-Type':'application/x-www-form-urlencoded'},body:'data='+encodeURIComponent(q)})
-      .then(function(x){return x.json();});
-    var items=(r.elements||[]).map(function(e){
-      var t=e.tags||{}; if(!t.name) return null;
-      var hit=RW_NEARME_TAGS.filter(function(x){ return t[x[0]] && (x[1]==='*'||t[x[0]]===x[1]); })[0];
-      if(!hit) return null;
-      var d=rwHaversine(lat,lon,e.lat,e.lon);
-      return {name:t.name, icon:hit[2], group:hit[3], lat:e.lat, lon:e.lon, dist:d,
-              open:t.opening_hours||'', cuisine:t.cuisine||''};
-    }).filter(Boolean);
-    items.sort(function(a,b){ return a.dist-b.dist; });
-    rwNearMeRender(items);
-  }catch(e){
-    out.innerHTML='<div class="note">The places service is busy right now \u2014 try again in a moment.</div>';
+  /* Small towns (Almora, hill stations) have sparse OSM data at 3km. Widen the
+     search progressively until we find a useful number of places. */
+  var radii=[3000, 8000, 15000], items=[], usedRadius=3000;
+  for(var ri=0; ri<radii.length; ri++){
+    usedRadius=radii[ri];
+    if(out) out.innerHTML='<div class="note">\ud83d\udd0d Searching within '+(usedRadius/1000)+'km\u2026</div>';
+    var q='[out:json][timeout:20];(';
+    RW_NEARME_TAGS.forEach(function(t){
+      q += t[1]==='*' ? 'node["'+t[0]+'"](around:'+usedRadius+','+lat+','+lon+');'
+                      : 'node["'+t[0]+'"="'+t[1]+'"](around:'+usedRadius+','+lat+','+lon+');';
+    });
+    q += ');out body 150;';
+    try{
+      var r=await fetch('https://overpass-api.de/api/interpreter',{method:'POST',
+        headers:{'Content-Type':'application/x-www-form-urlencoded'},body:'data='+encodeURIComponent(q)})
+        .then(function(x){return x.json();});
+      items=(r.elements||[]).map(function(e){
+        var t=e.tags||{}; if(!t.name) return null;
+        var hit=RW_NEARME_TAGS.filter(function(x){ return t[x[0]] && (x[1]==='*'||t[x[0]]===x[1]); })[0];
+        if(!hit) return null;
+        var d=rwHaversine(lat,lon,e.lat,e.lon);
+        return {name:t.name, icon:hit[2], group:hit[3], lat:e.lat, lon:e.lon, dist:d,
+                open:t.opening_hours||'', cuisine:t.cuisine||''};
+      }).filter(Boolean);
+      items.sort(function(a,b){ return a.dist-b.dist; });
+      if(items.length>=6) break; /* enough — stop widening */
+    }catch(e){
+      if(ri===radii.length-1){ out.innerHTML='<div class="note">The places service is busy right now \u2014 try again in a moment.</div>'; if(btn){btn.disabled=false;btn.textContent='\ud83d\udd04 Search again';} return; }
+    }
   }
+  rwNearMeRender(items, usedRadius);
   if(btn){ btn.disabled=false; btn.textContent='\ud83d\udd04 Search again'; }
 }
 function rwHaversine(la1,lo1,la2,lo2){
@@ -3113,9 +3247,10 @@ function rwHaversine(la1,lo1,la2,lo2){
   var a=Math.sin(dLa/2)*Math.sin(dLa/2)+Math.cos(la1*Math.PI/180)*Math.cos(la2*Math.PI/180)*Math.sin(dLo/2)*Math.sin(dLo/2);
   return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
 }
-function rwNearMeRender(items){
+function rwNearMeRender(items, radius){
   var out=el('nearmeOut');
-  if(!items.length){ out.innerHTML='<div class="note">Nothing mapped within 3km in OpenStreetMap here \u2014 you might be somewhere quiet. Ask Tusk for ideas, or try Search again from a busier spot.</div>'; return; }
+  var km=radius?(radius/1000):3;
+  if(!items.length){ out.innerHTML='<div class="note">Nothing mapped within '+km+'km in OpenStreetMap here \u2014 you might be in a quiet spot. Small hill towns often have little mapped. Try asking Tusk for ideas instead.</div>'; return; }
   var groups={}; items.forEach(function(i){ (groups[i.group]=groups[i.group]||[]).push(i); });
   var order=['Eat','Cafes','Quick bites','See','Viewpoints','Culture','Heritage','Parks','Markets','Shopping'];
   var html=order.filter(function(g){return groups[g];}).map(function(g){
@@ -3226,7 +3361,7 @@ function openJourneyCert(){
   /* draw the route mini-map */
   rwEnsureLeaflet(function(ok){
     if(!ok){ el('certMap').innerHTML='<div style="padding:30px;text-align:center;color:#888;font-size:12px">Map needs internet the first time</div>'; return; }
-    var cacheKey='rw_tripmap_'+destName.toLowerCase().replace(/[^a-z0-9]/g,'');
+    var cacheKey='rw_tripmap_v2_'+destName.toLowerCase().replace(/[^a-z0-9]/g,'');
     var cached=null; try{ cached=JSON.parse(lsGet(cacheKey)||'null'); }catch(e){}
     var geoP = (cached&&cached.pins&&cached.pins.length) ? Promise.resolve(cached)
       : gcode(destName).then(function(center){
@@ -6398,7 +6533,48 @@ var RW_ICON_PATHS = {
    declarations hoist but `var RW_TABS = {...}` does not, so calling
    renderTabbar() inline here silently produced an empty bar. DOMContentLoaded
    fires after all deferred script has executed, which is exactly what we want. */
-document.addEventListener('DOMContentLoaded', function(){ try{ renderTabbar(); }catch(e){ console.warn('tabbar', e); } });
+document.addEventListener('DOMContentLoaded', function(){ try{ rwApplyUIScale(); }catch(e){} try{ renderTabbar(); }catch(e){ console.warn('tabbar', e); } try{ setTimeout(rwMaybeOnboard, 900); }catch(e){} try{ rwInitBackButton(); }catch(e){} });
+/* ===== BACK BUTTON CONFIRMATION (report #4) =====
+   In the app, pressing hardware back on the home screen closed instantly. Now:
+   if a modal/overlay is open, back closes THAT; on the home screen, back asks to
+   confirm exit (double-tap within 2s, or a dialog in Capacitor). */
+var _rwBackArmed=false;
+function rwInitBackButton(){
+  /* Capacitor hardware back */
+  if(window.Capacitor && Capacitor.Plugins && Capacitor.Plugins.App){
+    try{
+      Capacitor.Plugins.App.addListener('backButton', function(){
+        if(rwCloseTopOverlay()) return;              /* close any open sheet first */
+        if(_rwBackArmed){ Capacitor.Plugins.App.exitApp(); return; }
+        _rwBackArmed=true; showToast('Press back again to exit');
+        setTimeout(function(){ _rwBackArmed=false; }, 2000);
+      });
+    }catch(e){}
+  }
+  /* Browser/PWA back */
+  try{
+    history.pushState({rw:1}, '');
+    window.addEventListener('popstate', function(){
+      if(rwCloseTopOverlay()){ history.pushState({rw:1}, ''); return; }
+      if(_rwBackArmed) return; /* allow real back */
+      _rwBackArmed=true; showToast('Press back again to leave');
+      history.pushState({rw:1}, '');
+      setTimeout(function(){ _rwBackArmed=false; }, 2000);
+    });
+  }catch(e){}
+}
+/* Close the top-most open overlay if any. Returns true if one was closed. */
+function rwCloseTopOverlay(){
+  var ids=['rwOnboardOv','rwFormOverlay','sizeSettingsOv','iconThemeOv','chatOverlay','tripMapSection','nearmeSection','fitStaySection','tribeSection','moneySection'];
+  for(var i=0;i<ids.length;i++){
+    var o=el(ids[i]);
+    if(o && (o.classList.contains('open') || (o.style.display!=='none' && o.style.display!==''))){
+      if(o.classList.contains('overlay')) o.classList.remove('open'); else o.style.display='none';
+      return true;
+    }
+  }
+  return false;
+}
 if(window.matchMedia){ try{ matchMedia('(max-width:768px)').addEventListener('change', function(){ IS_TOUCH_MOBILE = /Android|iPhone|iPad|Mobile/i.test(navigator.userAgent) || matchMedia('(max-width:768px)').matches; applyShell(); }); }catch(e){} }
 
 /* ==================== CUSTOMISABLE BOTTOM NAV ====================
@@ -6722,17 +6898,29 @@ function copilotVoiceHero(){ rwVoiceStart('heroInput'); }
 var _rwVoiceTarget='heroInput';
 function rwVoiceStart(targetId){
   _rwVoiceTarget = targetId || 'heroInput';
-  /* Inside the APK, Android WebView has NO Web Speech API — the mic looked
-     dead there while working fine in Chrome. Use the native bridge instead. */
+  /* Native bridge (old wrapper) if present */
   if(window.RW && typeof RW.startVoice==='function'){
     try{ RW.startVoice(); showToast('\ud83c\udfa4 Listening\u2026'); return; }catch(e){}
   }
+  /* Capacitor SpeechRecognition plugin, if installed in the app build */
+  if(window.Capacitor && Capacitor.Plugins && Capacitor.Plugins.SpeechRecognition){
+    var SRP=Capacitor.Plugins.SpeechRecognition;
+    try{
+      showToast('\ud83c\udfa4 Listening\u2026');
+      Promise.resolve(SRP.requestPermissions&&SRP.requestPermissions()).then(function(){
+        return SRP.start({language:'en-IN', maxResults:1, partialResults:false, popup:false});
+      }).then(function(r){
+        var t=r&&r.matches&&r.matches[0]; if(t){ rwVoiceResult(t); } else { showToast('Didn\u2019t catch that \u2014 try again or type'); }
+      }).catch(function(){ showToast('Mic didn\u2019t start \u2014 allow mic permission, or just type'); });
+      return;
+    }catch(e){}
+  }
   var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if(!SR){ showToast('Voice input isn\u2019t supported here \u2014 typing works!'); return; }
+  if(!SR){ showToast('\ud83c\udfa4 Voice needs the mic add-on \u2014 for now, just type your question, it works great!'); return; }
   var rec=new SR(); rec.lang='en-IN'; rec.interimResults=false;
   rec.onresult=function(ev){ rwVoiceResult(ev.results[0][0].transcript); };
-  rec.onerror=function(){ showToast('Didn\u2019t catch that \u2014 try again or type'); };
-  try{ rec.start(); showToast('\ud83c\udfa4 Listening\u2026'); }catch(e){}
+  rec.onerror=function(e){ showToast((e&&e.error==='not-allowed')?'Mic permission is off \u2014 allow it in Settings, or just type':'Didn\u2019t catch that \u2014 try again or type'); };
+  try{ rec.start(); showToast('\ud83c\udfa4 Listening\u2026'); }catch(e){ showToast('Voice didn\u2019t start \u2014 typing works too!'); }
 }
 /* Called by the native bridge (and by the web path above) */
 function rwVoiceResult(text){
@@ -8441,12 +8629,14 @@ function tripChatOpen(roomId, roomName){
         +'<span style="font-size:10.5px;color:var(--t3)">\ud83d\udd12 Private \u00b7 auto-deletes after 30 days \u00b7 tap \u2b07 to save</span></div>'
         +'<button class="x" onclick="rwChatExport()" title="Backup / export this chat" style="font-size:15px">\u2b07\ufe0f</button>'
         +'<button class="x" onclick="rwReportOpen({room:_chatRoom})" title="Report" style="font-size:14px">\ud83d\udea9</button>'
+        +'<button class="x" onclick="rwChatSizeToggle()" id="chatSizeBtn" title="Panel / full screen" style="font-size:15px">\u2922</button>'
         +'<button class="x" onclick="tripChatMinimize()" title="Minimize" style="font-size:16px">\u2013</button>'
         +'<button class="x" onclick="tripChatClose()">\u2715</button></div>'
       +'<div id="chatPins" style="border-bottom:1px solid var(--b2,#2A2A36);background:var(--bg2,#12121C);padding:8px 12px"></div>'
       +'<div id="chatLog" style="flex:1 1 auto;min-height:0;overflow-y:auto;padding:12px 14px;background:var(--bg,#0A0A0C)"></div>'
       +'<div style="padding:8px 12px 4px;border-top:1px solid var(--b2,#2A2A36);background:var(--bg2,#12121C)">'
       +'<div style="display:flex;gap:6px;overflow-x:auto;padding-bottom:6px;-webkit-overflow-scrolling:touch">'
+      +'<button class="chat-tool" onclick="chatTuskFacilitate()">\u2728 Tusk, sort this out</button>'
       +'<button class="chat-tool" onclick="chatSharePlan()">\ud83d\uddd3\ufe0f Itinerary</button>'
       +'<button class="chat-tool" onclick="chatAddExpense()">\ud83d\udcb0 Add expense</button>'
       +'<button class="chat-tool" onclick="chatShareMeet()">\ud83d\udccd Meet point</button>'
@@ -8466,6 +8656,7 @@ function tripChatOpen(roomId, roomName){
   el('chatTitle').textContent='\ud83d\udcac '+(roomName||'Trip chat');
   try{ rwChatRemember(roomId, roomName||'Trip chat'); }catch(e){}
   rwOverlayOpen('chatOverlay');
+  try{ rwChatApplySize(); }catch(e){}
   /* ensure the room exists with me as a member, then live-subscribe */
   var ref=db.collection('tripchats').doc(roomId);
   ref.get().then(function(d){
@@ -8558,6 +8749,40 @@ function rwChatFabShow(){
   fab.style.display='flex';
 }
 function rwChatFabHide(){ var fab=el('chatFab'); if(fab) fab.style.display='none'; }
+/* Chat size modes: 'full' (default overlay) and 'panel' (docked to the bottom
+   ~55% of the screen, with the app usable above it — no dark backdrop, so you
+   can chat AND browse/plan at the same time). Persists the choice. */
+var _chatSizeMode = (function(){ try{ return lsGet('rw_chatsize')||'full'; }catch(e){ return 'full'; } })();
+function rwChatApplySize(){
+  var ov=el('chatOverlay'); if(!ov) return;
+  var sheet=ov.querySelector('.sheet'); if(!sheet) return;
+  if(_chatSizeMode==='panel'){
+    ov.style.background='transparent';
+    ov.style.backdropFilter='none';
+    ov.style.pointerEvents='none';           /* let taps pass through to the app above */
+    ov.style.alignItems='flex-end';
+    sheet.style.pointerEvents='auto';         /* but the panel itself is interactive */
+    sheet.style.height='58dvh';
+    sheet.style.maxHeight='58dvh';
+    sheet.style.boxShadow='0 -8px 40px rgba(0,0,0,.55)';
+    var b=el('chatSizeBtn'); if(b) b.textContent='\u26f6';   /* maximize glyph */
+  } else {
+    ov.style.background='';
+    ov.style.backdropFilter='';
+    ov.style.pointerEvents='';
+    ov.style.alignItems='';
+    sheet.style.pointerEvents='';
+    sheet.style.height='96dvh';
+    sheet.style.maxHeight='96dvh';
+    sheet.style.boxShadow='';
+    var b2=el('chatSizeBtn'); if(b2) b2.textContent='\u2922';  /* shrink glyph */
+  }
+}
+function rwChatSizeToggle(){
+  _chatSizeMode = (_chatSizeMode==='panel') ? 'full' : 'panel';
+  try{ lsSet('rw_chatsize', _chatSizeMode); }catch(e){}
+  rwChatApplySize();
+}
 /* deterministic room id from a saved trip, so the same trip = the same room */
 function tripChatById(id){ var t=vaultGet().filter(function(x){return x.id===id;})[0]; if(t) tripChatForTrip(t); }
 function tripChatForTrip(trip){
@@ -8881,6 +9106,7 @@ function rwForm(title, fields, onSubmit){
     ov.innerHTML='<div class="sheet" style="max-width:420px"><div class="sheet-head"><b id="rwFormTitle"></b><button class="x" onclick="rwOverlayClose(\'rwFormOverlay\')">\u2715</button></div><div id="rwFormBody" style="padding:6px 4px 16px"></div></div>';
     document.body.appendChild(ov);
   }
+  ov.style.zIndex='3000';   /* always above the chat (panel or full) */
   el('rwFormTitle').textContent=title;
   var body=el('rwFormBody');
   body.innerHTML = fields.map(function(f,i){
@@ -9051,6 +9277,44 @@ function chatRenderPins(){
   }
   else if(_chatPinView==='board'){ body=chatBoardBody(); }
   host.innerHTML='<div class="pin-row">'+chips+'</div>'+body;
+}
+/* Toggle a pin tab open/closed. This was referenced by the pin chips but never
+   defined — which is why Kitty/Decisions/Plan/Board didn't respond to taps. */
+function chatTogglePin(view){
+  try{ rwHaptic(); }catch(e){}
+  _chatPinView = (_chatPinView===view) ? null : view;
+  try{ chatRenderPins(); }catch(e){}
+}
+/* ===== UNIQUE: "Tusk, sort this out" — the group facilitator =====
+   Reads the recent group conversation and produces a clear summary + the single
+   most useful next action (settle money, lock a decision, or poll an open
+   question). No other travel app turns the AI into a group-decision facilitator.
+   This makes the trip-hub genuinely indispensable for planning together. */
+function chatTuskFacilitate(){
+  var recent=(_chatMsgs||[]).slice(-25).map(function(m){
+    var who=(m.name||'Someone').split(' ')[0];
+    if(m.kind==='expense'&&m.payload) return who+' paid \u20b9'+(m.payload.amount||0)+' for '+(m.payload.what||'something');
+    if(m.kind==='decision'&&m.payload) return 'DECIDED: '+(m.payload.q||'')+' \u2192 '+(m.payload.choice||'');
+    if(m.kind==='meet'&&m.payload) return 'Meeting point: '+(m.payload.place||'');
+    if(m.kind==='vote'&&m.payload) return who+' is polling: '+(m.payload.q||'');
+    return who+': '+(m.text||'');
+  }).filter(Boolean).join('\n');
+  if(!recent){ showToast('Chat a bit first, then I\u2019ll help sort it out'); return; }
+  var k=chatKittyState();
+  var moneyLine = k ? ('Money so far: \u20b9'+k.total+' total, '+(k.tx.length?k.tx.length+' payments to settle':'all square')+'.') : 'No expenses yet.';
+  var prompt='You are Ailon Tusk, a warm, witty travel-group facilitator. Read this group trip chat and help them move forward. '
+    +'Give: (1) a one-line summary of where things stand, (2) what\u2019s still undecided, (3) ONE concrete next step. '
+    +'Keep it under 70 words, friendly, a little fun. '+moneyLine+'\n\nChat:\n'+recent;
+  showToast('\u2728 Tusk is reading the chat\u2026');
+  var post=function(txt){ chatPost('text', null, '\u2728 Tusk: '+txt); };
+  if(typeof aiCallAny==='function'){
+    aiCallAny(prompt, 220, function(err, txt){
+      if(txt){ post(String(txt).trim().slice(0,600)); }
+      else { post('Here\u2019s where you\u2019re at \u2014 '+moneyLine+' If you\u2019re stuck on a choice, tap \ud83d\uddf3\ufe0f Poll and I\u2019ll tally it.'); }
+    });
+  } else {
+    post('Here\u2019s where you\u2019re at \u2014 '+moneyLine+' If a decision\u2019s open, start a \ud83d\uddf3\ufe0f Poll and I\u2019ll tally it.');
+  }
 }
 /* ===== TRIP BOARD: one dropdown with everything the group needs at a glance —
    the pinned meeting point, expense summary, locked decisions, and member-added
@@ -12291,7 +12555,7 @@ function openTripMap(destName, stops){
   rwEnsureLeaflet(function(ok){
     if(!ok){ el('tripMapList').innerHTML='<div class="note" style="padding:10px">Map needs internet the first time. Your saved trips still work offline.</div>'; return; }
     /* geocode destination + each stop (cached) */
-    var cacheKey='rw_tripmap_'+destName.toLowerCase().replace(/[^a-z0-9]/g,'');
+    var cacheKey='rw_tripmap_v2_'+destName.toLowerCase().replace(/[^a-z0-9]/g,'');
     var cached=null; try{ cached=JSON.parse(lsGet(cacheKey)||'null'); }catch(e){}
     var geoP;
     if(cached && cached.pins && cached.pins.length){ geoP=Promise.resolve(cached); }
