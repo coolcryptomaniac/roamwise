@@ -1,95 +1,35 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>https://www.roamwise.co.in/</loc><changefreq>weekly</changefreq></url>
-  <url><loc>https://www.roamwise.co.in/guides/</loc><changefreq>weekly</changefreq></url>
-  <url><loc>https://www.roamwise.co.in/blog/</loc><changefreq>weekly</changefreq></url>
-  <url><loc>https://www.roamwise.co.in/privacy.html</loc><changefreq>weekly</changefreq></url>
-  <url><loc>https://www.roamwise.co.in/delete-account.html</loc><changefreq>weekly</changefreq></url>
-  <url><loc>https://www.roamwise.co.in/guides/agra-india.html</loc><changefreq>weekly</changefreq></url>
-  <url><loc>https://www.roamwise.co.in/guides/amritsar-india.html</loc><changefreq>weekly</changefreq></url>
-  <url><loc>https://www.roamwise.co.in/guides/andaman-islands-india.html</loc><changefreq>weekly</changefreq></url>
-  <url><loc>https://www.roamwise.co.in/guides/bangkok-thailand.html</loc><changefreq>weekly</changefreq></url>
-  <url><loc>https://www.roamwise.co.in/guides/binsar-india.html</loc><changefreq>weekly</changefreq></url>
-  <url><loc>https://www.roamwise.co.in/guides/cappadocia-turkey.html</loc><changefreq>weekly</changefreq></url>
-  <url><loc>https://www.roamwise.co.in/guides/chiang-mai-thailand.html</loc><changefreq>weekly</changefreq></url>
-  <url><loc>https://www.roamwise.co.in/guides/colombo-sri-lanka.html</loc><changefreq>weekly</changefreq></url>
-  <url><loc>https://www.roamwise.co.in/guides/cusco-peru.html</loc><changefreq>weekly</changefreq></url>
-  <url><loc>https://www.roamwise.co.in/guides/da-nang-vietnam.html</loc><changefreq>weekly</changefreq></url>
-  <url><loc>https://www.roamwise.co.in/guides/darjeeling-india.html</loc><changefreq>weekly</changefreq></url>
-  <url><loc>https://www.roamwise.co.in/guides/dharamshala-india.html</loc><changefreq>weekly</changefreq></url>
-  <url><loc>https://www.roamwise.co.in/guides/ella-sri-lanka.html</loc><changefreq>weekly</changefreq></url>
-  <url><loc>https://www.roamwise.co.in/guides/gangtok-india.html</loc><changefreq>weekly</changefreq></url>
-  <url><loc>https://www.roamwise.co.in/guides/goa-india.html</loc><changefreq>weekly</changefreq></url>
-  <url><loc>https://www.roamwise.co.in/guides/gokarna-india.html</loc><changefreq>weekly</changefreq></url>
-  <url><loc>https://www.roamwise.co.in/guides/gulmarg-india.html</loc><changefreq>weekly</changefreq></url>
-  <url><loc>https://www.roamwise.co.in/guides/hampi-india.html</loc><changefreq>weekly</changefreq></url>
-  <url><loc>https://www.roamwise.co.in/guides/hanoi-vietnam.html</loc><changefreq>weekly</changefreq></url>
-  <url><loc>https://www.roamwise.co.in/guides/haridwar-india.html</loc><changefreq>weekly</changefreq></url>
-  <url><loc>https://www.roamwise.co.in/guides/ho-chi-minh-city-vietnam.html</loc><changefreq>weekly</changefreq></url>
-  <url><loc>https://www.roamwise.co.in/guides/hoi-an-vietnam.html</loc><changefreq>weekly</changefreq></url>
-  <url><loc>https://www.roamwise.co.in/guides/hong-kong-hong-kong.html</loc><changefreq>weekly</changefreq></url>
-  <url><loc>https://www.roamwise.co.in/guides/jaipur-india.html</loc><changefreq>weekly</changefreq></url>
-  <url><loc>https://www.roamwise.co.in/guides/jaisalmer-india.html</loc><changefreq>weekly</changefreq></url>
-  <url><loc>https://www.roamwise.co.in/guides/jakarta-indonesia.html</loc><changefreq>weekly</changefreq></url>
-  <url><loc>https://www.roamwise.co.in/guides/jodhpur-india.html</loc><changefreq>weekly</changefreq></url>
-  <url><loc>https://www.roamwise.co.in/guides/kandy-sri-lanka.html</loc><changefreq>weekly</changefreq></url>
-  <url><loc>https://www.roamwise.co.in/guides/kasol-india.html</loc><changefreq>weekly</changefreq></url>
-  <url><loc>https://www.roamwise.co.in/guides/kathmandu-nepal.html</loc><changefreq>weekly</changefreq></url>
-  <url><loc>https://www.roamwise.co.in/guides/kausani-india.html</loc><changefreq>weekly</changefreq></url>
-  <url><loc>https://www.roamwise.co.in/guides/kaziranga-india.html</loc><changefreq>weekly</changefreq></url>
-  <url><loc>https://www.roamwise.co.in/guides/khajuraho-india.html</loc><changefreq>weekly</changefreq></url>
-  <url><loc>https://www.roamwise.co.in/guides/kochi-india.html</loc><changefreq>weekly</changefreq></url>
-  <url><loc>https://www.roamwise.co.in/guides/krabi-thailand.html</loc><changefreq>weekly</changefreq></url>
-  <url><loc>https://www.roamwise.co.in/guides/kuala-lumpur-malaysia.html</loc><changefreq>weekly</changefreq></url>
-  <url><loc>https://www.roamwise.co.in/guides/kutch-india.html</loc><changefreq>weekly</changefreq></url>
-  <url><loc>https://www.roamwise.co.in/guides/kyoto-japan.html</loc><changefreq>weekly</changefreq></url>
-  <url><loc>https://www.roamwise.co.in/guides/langkawi-malaysia.html</loc><changefreq>weekly</changefreq></url>
-  <url><loc>https://www.roamwise.co.in/guides/leh-india.html</loc><changefreq>weekly</changefreq></url>
-  <url><loc>https://www.roamwise.co.in/guides/mahabalipuram-india.html</loc><changefreq>weekly</changefreq></url>
-  <url><loc>https://www.roamwise.co.in/guides/male-maldives.html</loc><changefreq>weekly</changefreq></url>
-  <url><loc>https://www.roamwise.co.in/guides/manali-india.html</loc><changefreq>weekly</changefreq></url>
-  <url><loc>https://www.roamwise.co.in/guides/manila-philippines.html</loc><changefreq>weekly</changefreq></url>
-  <url><loc>https://www.roamwise.co.in/guides/marrakech-morocco.html</loc><changefreq>weekly</changefreq></url>
-  <url><loc>https://www.roamwise.co.in/guides/medell-n-colombia.html</loc><changefreq>weekly</changefreq></url>
-  <url><loc>https://www.roamwise.co.in/guides/mount-abu-india.html</loc><changefreq>weekly</changefreq></url>
-  <url><loc>https://www.roamwise.co.in/guides/munnar-india.html</loc><changefreq>weekly</changefreq></url>
-  <url><loc>https://www.roamwise.co.in/guides/munsiyari-india.html</loc><changefreq>weekly</changefreq></url>
-  <url><loc>https://www.roamwise.co.in/guides/mussoorie-india.html</loc><changefreq>weekly</changefreq></url>
-  <url><loc>https://www.roamwise.co.in/guides/mysore-india.html</loc><changefreq>weekly</changefreq></url>
-  <url><loc>https://www.roamwise.co.in/guides/nainital-india.html</loc><changefreq>weekly</changefreq></url>
-  <url><loc>https://www.roamwise.co.in/guides/oaxaca-mexico.html</loc><changefreq>weekly</changefreq></url>
-  <url><loc>https://www.roamwise.co.in/guides/ooty-india.html</loc><changefreq>weekly</changefreq></url>
-  <url><loc>https://www.roamwise.co.in/guides/orchha-india.html</loc><changefreq>weekly</changefreq></url>
-  <url><loc>https://www.roamwise.co.in/guides/osaka-japan.html</loc><changefreq>weekly</changefreq></url>
-  <url><loc>https://www.roamwise.co.in/guides/palawan-philippines.html</loc><changefreq>weekly</changefreq></url>
-  <url><loc>https://www.roamwise.co.in/guides/paro-bhutan.html</loc><changefreq>weekly</changefreq></url>
-  <url><loc>https://www.roamwise.co.in/guides/petra-jordan.html</loc><changefreq>weekly</changefreq></url>
-  <url><loc>https://www.roamwise.co.in/guides/phuket-thailand.html</loc><changefreq>weekly</changefreq></url>
-  <url><loc>https://www.roamwise.co.in/guides/pokhara-nepal.html</loc><changefreq>weekly</changefreq></url>
-  <url><loc>https://www.roamwise.co.in/guides/pondicherry-india.html</loc><changefreq>weekly</changefreq></url>
-  <url><loc>https://www.roamwise.co.in/guides/porto-portugal.html</loc><changefreq>weekly</changefreq></url>
-  <url><loc>https://www.roamwise.co.in/guides/prague-czech-republic.html</loc><changefreq>weekly</changefreq></url>
-  <url><loc>https://www.roamwise.co.in/guides/queenstown-new-zealand.html</loc><changefreq>weekly</changefreq></url>
-  <url><loc>https://www.roamwise.co.in/guides/ranikhet-india.html</loc><changefreq>weekly</changefreq></url>
-  <url><loc>https://www.roamwise.co.in/guides/rishikesh-india.html</loc><changefreq>weekly</changefreq></url>
-  <url><loc>https://www.roamwise.co.in/guides/seoul-south-korea.html</loc><changefreq>weekly</changefreq></url>
-  <url><loc>https://www.roamwise.co.in/guides/shillong-india.html</loc><changefreq>weekly</changefreq></url>
-  <url><loc>https://www.roamwise.co.in/guides/shimla-india.html</loc><changefreq>weekly</changefreq></url>
-  <url><loc>https://www.roamwise.co.in/guides/siem-reap-cambodia.html</loc><changefreq>weekly</changefreq></url>
-  <url><loc>https://www.roamwise.co.in/guides/singapore-singapore.html</loc><changefreq>weekly</changefreq></url>
-  <url><loc>https://www.roamwise.co.in/guides/srinagar-india.html</loc><changefreq>weekly</changefreq></url>
-  <url><loc>https://www.roamwise.co.in/guides/taipei-taiwan.html</loc><changefreq>weekly</changefreq></url>
-  <url><loc>https://www.roamwise.co.in/guides/tawang-india.html</loc><changefreq>weekly</changefreq></url>
-  <url><loc>https://www.roamwise.co.in/guides/tbilisi-georgia.html</loc><changefreq>weekly</changefreq></url>
-  <url><loc>https://www.roamwise.co.in/guides/tokyo-japan.html</loc><changefreq>weekly</changefreq></url>
-  <url><loc>https://www.roamwise.co.in/guides/ubud-indonesia.html</loc><changefreq>weekly</changefreq></url>
-  <url><loc>https://www.roamwise.co.in/guides/udaipur-india.html</loc><changefreq>weekly</changefreq></url>
-  <url><loc>https://www.roamwise.co.in/guides/varanasi-india.html</loc><changefreq>weekly</changefreq></url>
-  <url><loc>https://www.roamwise.co.in/guides/varkala-india.html</loc><changefreq>weekly</changefreq></url>
-  <url><loc>https://www.roamwise.co.in/blog/ev-road-trips-india.html</loc><changefreq>weekly</changefreq></url>
-  <url><loc>https://www.roamwise.co.in/blog/folding-cycle-travel-guide.html</loc><changefreq>weekly</changefreq></url>
-  <url><loc>https://www.roamwise.co.in/blog/hub-and-spoke-india-travel-strategy.html</loc><changefreq>weekly</changefreq></url>
-  <url><loc>https://www.roamwise.co.in/blog/least-crowded-months-world.html</loc><changefreq>weekly</changefreq></url>
-  <url><loc>https://www.roamwise.co.in/blog/premium-volvo-buses-india.html</loc><changefreq>weekly</changefreq></url>
-  <url><loc>https://www.roamwise.co.in/blog/tatkal-10am-hack-irctc.html</loc><changefreq>weekly</changefreq></url>
+<url><loc>https://www.roamwise.co.in/</loc><priority>1.0</priority></url>
+<url><loc>https://www.roamwise.co.in/guides/</loc><priority>0.9</priority></url>
+<url><loc>https://www.roamwise.co.in/blog/</loc><priority>0.9</priority></url>
+<url><loc>https://www.roamwise.co.in/about.html</loc><priority>0.7</priority></url>
+<url><loc>https://www.roamwise.co.in/contact.html</loc><priority>0.6</priority></url>
+<url><loc>https://www.roamwise.co.in/terms.html</loc><priority>0.4</priority></url>
+<url><loc>https://www.roamwise.co.in/privacy.html</loc><priority>0.4</priority></url>
+<url><loc>https://www.roamwise.co.in/creators/</loc><priority>0.6</priority></url>
+<url><loc>https://www.roamwise.co.in/guides/best-time-to-visit-india.html</loc><priority>0.8</priority></url>
+<url><loc>https://www.roamwise.co.in/guides/cappadocia-turkey.html</loc><priority>0.8</priority></url>
+<url><loc>https://www.roamwise.co.in/guides/chiang-mai-thailand.html</loc><priority>0.8</priority></url>
+<url><loc>https://www.roamwise.co.in/guides/cusco-peru.html</loc><priority>0.8</priority></url>
+<url><loc>https://www.roamwise.co.in/guides/hoi-an-vietnam.html</loc><priority>0.8</priority></url>
+<url><loc>https://www.roamwise.co.in/guides/kandy-sri-lanka.html</loc><priority>0.8</priority></url>
+<url><loc>https://www.roamwise.co.in/guides/kyoto-japan.html</loc><priority>0.8</priority></url>
+<url><loc>https://www.roamwise.co.in/guides/low-carbon-travel-india.html</loc><priority>0.8</priority></url>
+<url><loc>https://www.roamwise.co.in/guides/marrakech-morocco.html</loc><priority>0.8</priority></url>
+<url><loc>https://www.roamwise.co.in/guides/medell-n-colombia.html</loc><priority>0.8</priority></url>
+<url><loc>https://www.roamwise.co.in/guides/oaxaca-mexico.html</loc><priority>0.8</priority></url>
+<url><loc>https://www.roamwise.co.in/guides/petra-jordan.html</loc><priority>0.8</priority></url>
+<url><loc>https://www.roamwise.co.in/guides/porto-portugal.html</loc><priority>0.8</priority></url>
+<url><loc>https://www.roamwise.co.in/guides/prague-czech-republic.html</loc><priority>0.8</priority></url>
+<url><loc>https://www.roamwise.co.in/guides/queenstown-new-zealand.html</loc><priority>0.8</priority></url>
+<url><loc>https://www.roamwise.co.in/guides/tbilisi-georgia.html</loc><priority>0.8</priority></url>
+<url><loc>https://www.roamwise.co.in/guides/ubud-indonesia.html</loc><priority>0.8</priority></url>
+<url><loc>https://www.roamwise.co.in/guides/what-things-should-cost-india.html</loc><priority>0.8</priority></url>
+<url><loc>https://www.roamwise.co.in/blog/ev-road-trips-india.html</loc><priority>0.8</priority></url>
+<url><loc>https://www.roamwise.co.in/blog/folding-cycle-travel-guide.html</loc><priority>0.8</priority></url>
+<url><loc>https://www.roamwise.co.in/blog/hub-and-spoke-india-travel-strategy.html</loc><priority>0.8</priority></url>
+<url><loc>https://www.roamwise.co.in/blog/least-crowded-months-world.html</loc><priority>0.8</priority></url>
+<url><loc>https://www.roamwise.co.in/blog/premium-volvo-buses-india.html</loc><priority>0.8</priority></url>
+<url><loc>https://www.roamwise.co.in/blog/tatkal-10am-hack-irctc.html</loc><priority>0.8</priority></url>
 </urlset>

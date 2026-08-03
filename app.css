@@ -600,7 +600,7 @@ body.shell .hamb{display:flex}
 }
 /* Drawer */
 .drawer-bk{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:400;opacity:0;pointer-events:none;transition:opacity .22s}
-.drawer{position:fixed;top:0;right:0;bottom:0;width:min(310px,84vw);z-index:401;background:var(--bg2);border-left:1px solid var(--b1);transform:translateX(102%);transition:transform .26s cubic-bezier(.32,.72,.32,1);display:flex;flex-direction:column;padding:18px 16px calc(18px + env(safe-area-inset-bottom));overflow-y:auto}
+.drawer{position:fixed;top:0;right:0;bottom:0;width:min(310px,84vw);z-index:401;background:var(--bg2);border-left:1px solid var(--b1);transform:translateX(102%);transition:transform .26s cubic-bezier(.32,.72,.32,1);display:flex;flex-direction:column;padding:calc(18px + env(safe-area-inset-top)) 16px calc(18px + env(safe-area-inset-bottom));overflow-y:auto}
 .drawer.open{transform:translateX(0)}
 .drawer-bk.open{opacity:1;pointer-events:auto}
 .dr-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
@@ -738,6 +738,12 @@ html.is-phone .inp,html.is-phone input,html.is-phone select,html.is-phone textar
 html.is-phone .nav-inner{height:50px}
 /* iOS/iPadOS: respect the notch & home indicator via safe-area insets */
 html.os-ios .nav,html.os-ipados .nav{padding-top:env(safe-area-inset-top)}
+/* Safe-area for ALL platforms (Android WebView/Capacitor + PWA) so the top bar
+   never runs under the status bar and the body clears the bottom nav buttons.
+   env() resolves to 0 where there's no inset, so this is safe everywhere. */
+.nav{padding-top:env(safe-area-inset-top)}
+body{padding-bottom:env(safe-area-inset-bottom)}
+.free-bar{padding-top:calc(6px + env(safe-area-inset-top,0px))}
 html.os-ios body,html.os-ipados body{padding-bottom:env(safe-area-inset-bottom)}
 html.os-ios .overlay .sheet,html.os-ipados .overlay .sheet{padding-bottom:calc(env(safe-area-inset-bottom) + 12px)}
 /* Tablets: use the extra width, roomier cards */

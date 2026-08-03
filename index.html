@@ -137,11 +137,11 @@ button,.tact,.dr-link,.tabbar button,.exp,.trek,.rzp-main-btn{user-select:none;-
 .mode-box{border-radius:14px}
 .rzp-main-btn{border-radius:16px;box-shadow:0 10px 26px rgba(196,48,43,.35)}
 /* Floating pill tab bar (Uber/Spotify) */
-.tabbar{left:10px;right:10px;bottom:10px;border-radius:22px;border:1px solid var(--b2);box-shadow:0 12px 40px rgba(0,0,0,.5);max-height:74px;overflow:hidden;align-items:start;padding-bottom:8px!important}
+.tabbar{left:10px;right:10px;bottom:calc(10px + env(safe-area-inset-bottom));border-radius:22px;border:1px solid var(--b2);box-shadow:0 12px 40px rgba(0,0,0,.5);max-height:74px;overflow:hidden;align-items:start;padding-bottom:8px!important}
 .tabbar button{border-radius:15px;margin:0 2px}
 .tabbar button.on{background:linear-gradient(135deg,rgba(196,48,43,.22),rgba(196,48,43,.08))}
 .tabbar button.on::after{display:none}
-body.shell{padding-bottom:calc(96px + env(safe-area-inset-bottom))}
+body.shell{padding-bottom:calc(104px + env(safe-area-inset-bottom))}
 /* Scroll-reveal (Apple) */
 @media (prefers-reduced-motion:no-preference){
   .rv{opacity:0;transform:translateY(16px);transition:opacity .55s ease,transform .55s cubic-bezier(.22,1,.36,1)}
