@@ -2266,5 +2266,113 @@
    84,
    100
   ]
+ },
+ {
+  "slug": "seoul-south-korea",
+  "title": "Seoul, South Korea",
+  "name": "Seoul",
+  "country": "South Korea",
+  "best": "March, April, November",
+  "arch": "monsoon",
+  "cl": [
+   2.7,
+   6.8,
+   10.7,
+   20.5,
+   22.2,
+   29.1,
+   28.8,
+   31.3,
+   27.6,
+   19.5,
+   12.6,
+   2.9
+  ],
+  "scores": [
+   59,
+   69,
+   94,
+   95,
+   84,
+   86,
+   55,
+   77,
+   74,
+   91,
+   95,
+   61
+  ]
+ },
+ {
+  "slug": "taipei-taiwan",
+  "title": "Taipei, Taiwan",
+  "name": "Taipei",
+  "country": "Taiwan",
+  "best": "January, February, December",
+  "arch": "tropical",
+  "cl": [
+   19.5,
+   21.4,
+   22.8,
+   28.3,
+   28,
+   31,
+   33.5,
+   32.6,
+   31.8,
+   27.5,
+   23.7,
+   19.2
+  ],
+  "scores": [
+   95,
+   94,
+   89,
+   82,
+   74,
+   76,
+   68,
+   77,
+   65,
+   55,
+   87,
+   96
+  ]
+ },
+ {
+  "slug": "hong-kong-hong-kong",
+  "title": "Hong Kong, Hong Kong",
+  "name": "Hong Kong",
+  "country": "Hong Kong",
+  "best": "January, October, December",
+  "arch": "tropical",
+  "cl": [
+   20.3,
+   22,
+   22.9,
+   27.5,
+   27.2,
+   29.2,
+   30.8,
+   30.7,
+   30.3,
+   29,
+   25,
+   20.8
+  ],
+  "scores": [
+   99,
+   97,
+   89,
+   55,
+   55,
+   61,
+   65,
+   55,
+   55,
+   98,
+   62,
+   100
+  ]
  }
 ]
