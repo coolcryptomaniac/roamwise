@@ -2374,5 +2374,113 @@
    62,
    100
   ]
+ },
+ {
+  "slug": "dubai-uae",
+  "title": "Dubai, UAE",
+  "name": "Dubai",
+  "country": "UAE",
+  "best": "January, November, December",
+  "arch": "tropical",
+  "cl": [
+   25.8,
+   24.5,
+   27.6,
+   31.7,
+   38.5,
+   42.5,
+   42.6,
+   42.4,
+   40.4,
+   36.6,
+   31.8,
+   26.5
+  ],
+  "scores": [
+   100,
+   90,
+   92,
+   85,
+   50,
+   28,
+   27,
+   29,
+   41,
+   78,
+   100,
+   100
+  ]
+ },
+ {
+  "slug": "abu-dhabi-uae",
+  "title": "Abu Dhabi, UAE",
+  "name": "Abu Dhabi",
+  "country": "UAE",
+  "best": "January, November, December",
+  "arch": "tropical",
+  "cl": [
+   25.2,
+   24.4,
+   27.1,
+   30.8,
+   36.4,
+   40.8,
+   40.1,
+   40.5,
+   38.8,
+   35.3,
+   30.6,
+   25.8
+  ],
+  "scores": [
+   100,
+   95,
+   91,
+   91,
+   75,
+   38,
+   42,
+   39,
+   50,
+   86,
+   100,
+   100
+  ]
+ },
+ {
+  "slug": "doha-qatar",
+  "title": "Doha, Qatar",
+  "name": "Doha",
+  "country": "Qatar",
+  "best": "January, November, December",
+  "arch": "desert",
+  "cl": [
+   25.2,
+   24,
+   26.3,
+   32,
+   37.7,
+   42.9,
+   44.1,
+   40.9,
+   39.6,
+   35,
+   31.2,
+   24.5
+  ],
+  "scores": [
+   100,
+   98,
+   97,
+   97,
+   68,
+   26,
+   18,
+   38,
+   45,
+   87,
+   100,
+   100
+  ]
  }
 ]
