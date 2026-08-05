@@ -2482,5 +2482,113 @@
    100,
    100
   ]
+ },
+ {
+  "slug": "muscat-oman",
+  "title": "Muscat, Oman",
+  "name": "Muscat",
+  "country": "Oman",
+  "best": "January, November, December",
+  "arch": "desert",
+  "cl": [
+   26.4,
+   26.3,
+   29.1,
+   32,
+   37.7,
+   40.5,
+   40.2,
+   35.6,
+   36.3,
+   34.1,
+   31.2,
+   26.2
+  ],
+  "scores": [
+   100,
+   94,
+   99,
+   93,
+   72,
+   40,
+   42,
+   84,
+   80,
+   90,
+   100,
+   100
+  ]
+ },
+ {
+  "slug": "istanbul-turkey",
+  "title": "Istanbul, Turkey",
+  "name": "Istanbul",
+  "country": "Turkey",
+  "best": "July, August, October",
+  "arch": "temperate",
+  "cl": [
+   10.1,
+   12.7,
+   13.8,
+   19.8,
+   20,
+   29.4,
+   31,
+   30.1,
+   26.6,
+   20.7,
+   14.8,
+   11.6
+  ],
+  "scores": [
+   88,
+   97,
+   91,
+   92,
+   92,
+   97,
+   98,
+   99,
+   88,
+   98,
+   91,
+   80
+  ]
+ },
+ {
+  "slug": "antalya-turkey",
+  "title": "Antalya, Turkey",
+  "name": "Antalya",
+  "country": "Turkey",
+  "best": "March, April, October",
+  "arch": "tropical",
+  "cl": [
+   16.1,
+   17,
+   19.3,
+   26,
+   26.8,
+   36.7,
+   37.7,
+   35.6,
+   31.5,
+   27.6,
+   20.6,
+   15.8
+  ],
+  "scores": [
+   84,
+   79,
+   96,
+   99,
+   96,
+   78,
+   67,
+   83,
+   91,
+   100,
+   92,
+   74
+  ]
  }
 ]
