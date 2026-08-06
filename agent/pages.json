@@ -2590,5 +2590,113 @@
    92,
    74
   ]
+ },
+ {
+  "slug": "baku-azerbaijan",
+  "title": "Baku, Azerbaijan",
+  "name": "Baku",
+  "country": "Azerbaijan",
+  "best": "April, August, September",
+  "arch": "temperate",
+  "cl": [
+   8.4,
+   9.3,
+   10.7,
+   19.4,
+   20.8,
+   30,
+   31.4,
+   31.3,
+   26.8,
+   19.3,
+   13.5,
+   9.4
+  ],
+  "scores": [
+   92,
+   95,
+   94,
+   97,
+   95,
+   96,
+   97,
+   99,
+   100,
+   90,
+   95,
+   93
+  ]
+ },
+ {
+  "slug": "almaty-kazakhstan",
+  "title": "Almaty, Kazakhstan",
+  "name": "Almaty",
+  "country": "Kazakhstan",
+  "best": "June, July, August",
+  "arch": "alpine",
+  "cl": [
+   1.5,
+   -1,
+   9.2,
+   17.1,
+   22.2,
+   28.7,
+   30,
+   30.5,
+   20.6,
+   15.9,
+   8,
+   -1.9
+  ],
+  "scores": [
+   52,
+   41,
+   87,
+   87,
+   89,
+   98,
+   96,
+   97,
+   95,
+   89,
+   86,
+   38
+  ]
+ },
+ {
+  "slug": "tashkent-uzbekistan",
+  "title": "Tashkent, Uzbekistan",
+  "name": "Tashkent",
+  "country": "Uzbekistan",
+  "best": "April, September, October",
+  "arch": "temperate",
+  "cl": [
+   8.8,
+   8,
+   13.7,
+   20.8,
+   25.6,
+   34.9,
+   36.1,
+   36.1,
+   28.5,
+   20.9,
+   14,
+   3.8
+  ],
+  "scores": [
+   88,
+   75,
+   83,
+   91,
+   89,
+   88,
+   81,
+   81,
+   99,
+   95,
+   83,
+   61
+  ]
  }
 ]
