@@ -2698,5 +2698,113 @@
    83,
    61
   ]
+ },
+ {
+  "slug": "samarkand-uzbekistan",
+  "title": "Samarkand, Uzbekistan",
+  "name": "Samarkand",
+  "country": "Uzbekistan",
+  "best": "January, June, September",
+  "arch": "temperate",
+  "cl": [
+   11.2,
+   8.8,
+   13.9,
+   20.6,
+   25,
+   34.3,
+   36,
+   35.8,
+   29.1,
+   21.3,
+   15.5,
+   6.5
+  ],
+  "scores": [
+   93,
+   85,
+   83,
+   90,
+   81,
+   92,
+   82,
+   83,
+   99,
+   92,
+   92,
+   73
+  ]
+ },
+ {
+  "slug": "cairo-egypt",
+  "title": "Cairo, Egypt",
+  "name": "Cairo",
+  "country": "Egypt",
+  "best": "January, April, October",
+  "arch": "desert",
+  "cl": [
+   20.8,
+   21.7,
+   25.7,
+   31.7,
+   34.3,
+   40.4,
+   40,
+   39.2,
+   36.3,
+   30.9,
+   25.5,
+   21.5
+  ],
+  "scores": [
+   100,
+   99,
+   99,
+   100,
+   92,
+   41,
+   43,
+   48,
+   80,
+   100,
+   100,
+   100
+  ]
+ },
+ {
+  "slug": "cape-town-south-africa",
+  "title": "Cape Town, South Africa",
+  "name": "Cape Town",
+  "country": "South Africa",
+  "best": "January, February, October",
+  "arch": "monsoon",
+  "cl": [
+   27.7,
+   26.9,
+   25.1,
+   21.9,
+   20.5,
+   19.1,
+   14.8,
+   15.7,
+   17.9,
+   23.2,
+   23.3,
+   24.1
+  ],
+  "scores": [
+   100,
+   99,
+   97,
+   95,
+   97,
+   91,
+   61,
+   83,
+   97,
+   99,
+   98,
+   97
+  ]
  }
 ]
