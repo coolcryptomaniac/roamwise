@@ -130,6 +130,25 @@ button,select,input,textarea{font:inherit}
     <div id="finList"><p class="note">Loading…</p></div>
   </div>
 
+  <div class="card" id="investorBox" style="display:none">
+    <div class="lab">📊 Investor metrics (ARR & sales)</div>
+    <p class="note">A clean snapshot to send investors. Pulls from your logged revenue and lets you add the growth story numbers. Export a one-page summary any time.</p>
+    <div id="investorSummary" style="margin:10px 0"></div>
+    <div style="display:flex;gap:7px;flex-wrap:wrap;margin:10px 0">
+      <button class="btn go" onclick="invEdit()">✏️ Update metrics</button>
+      <button class="btn" onclick="invExport()">⬇️ Export investor summary</button>
+    </div>
+  </div>
+
+  <div class="card" id="contactsBox" style="display:none">
+    <div class="lab">🗂️ Key contacts</div>
+    <p class="note">Investors, VIP customers, high-net-worth leads — with why each matters. Tap to email or call. Everything stays on this device.</p>
+    <div style="display:flex;gap:7px;flex-wrap:wrap;margin:10px 0">
+      <button class="btn go" onclick="contactAdd()">➕ Add contact</button>
+    </div>
+    <div id="contactsList"><p class="note">Loading…</p></div>
+  </div>
+
   <div class="card" id="taxBox" style="display:none">
     <div class="lab">📁 Tax & business documents</div>
     <p class="note">Store GST filings, ITR acknowledgements, invoices and receipts. Paste a link (Drive/DigiLocker) or type the reference — everything's kept in one searchable place.</p>
@@ -296,6 +315,8 @@ firebase.auth().onAuthStateChanged(function(u){
     el('docBox').style.display = ROLE==='admin'?'block':'none';
     el('finConsoleBox').style.display = ROLE==='admin'?'block':'none';
     el('taxBox').style.display = ROLE==='admin'?'block':'none';
+    el('investorBox').style.display = ROLE==='admin'?'block':'none';
+    el('contactsBox').style.display = ROLE==='admin'?'block':'none';
     el('mailBox').style.display = ROLE==='admin'?'block':'none';
     loadToday(); loadTasks(); loadStats();
     if(ROLE==='finance') loadLedger();
@@ -306,6 +327,7 @@ firebase.auth().onAuthStateChanged(function(u){
     if(ROLE==='admin') docLoad();
     if(ROLE==='admin') finLoad();
     if(ROLE==='admin') taxLoad();
+    if(ROLE==='admin'){ setTimeout(function(){ try{ invRender(); contactsRender(); }catch(e){} }, 400); }
   }).catch(function(e){ el('signedOut').innerHTML='<div class="card"><p class="note">Could not check your role: '+esc(e.message)+'</p></div>'; });
 });
 
@@ -660,6 +682,104 @@ function finExport(){
   a.download='roamwise-finance-'+new Date().toISOString().slice(0,10)+'.csv'; a.click();
 }
 
+/* ==================== INVESTOR METRICS (ARR & sales) ==================== */
+function invGet(){ try{ return JSON.parse(localStorage.getItem('rw_inv_metrics')||'{}'); }catch(e){ return {}; } }
+function invSet(m){ try{ localStorage.setItem('rw_inv_metrics', JSON.stringify(m)); }catch(e){} }
+function invRevenueLogged(){
+  var rev=0; (_finRows||[]).forEach(function(x){ if(x.kind==='revenue') rev+=(x.amount||0); }); return rev;
+}
+function invRender(){
+  var host=el('investorSummary'); if(!host) return;
+  var m=invGet();
+  var mrr=+m.mrr||0, users=+m.users||0, paying=+m.paying||0, growth=+m.growth||0;
+  var arr=mrr*12;
+  var loggedRev=invRevenueLogged();
+  function card(label,val,sub){ return '<div style="flex:1;min-width:120px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:12px"><div style="font-size:20px;font-weight:800">'+val+'</div><div style="font-size:11px;color:var(--t3)">'+label+'</div>'+(sub?'<div style="font-size:10px;color:var(--t3);margin-top:2px">'+sub+'</div>':'')+'</div>'; }
+  host.innerHTML='<div style="display:flex;gap:8px;flex-wrap:wrap">'
+    + card('ARR', '₹'+arr.toLocaleString('en-IN'), 'annual recurring')
+    + card('MRR', '₹'+mrr.toLocaleString('en-IN'), 'monthly recurring')
+    + card('Users', users.toLocaleString('en-IN'), paying+' paying')
+    + card('MoM growth', growth+'%', 'month over month')
+    + '</div>'
+    + '<div style="margin-top:8px;font-size:11px;color:var(--t3)">Revenue logged in Finance console: ₹'+loggedRev.toLocaleString('en-IN')+(m.updated?' · updated '+m.updated:'')+'</div>';
+}
+function invEdit(){
+  var m=invGet();
+  showModal('<div class="card"><h3 style="margin:0 0 10px">Update investor metrics</h3>'
+    +'<label class="lab">Monthly recurring revenue (₹ MRR)</label><input id="iv_mrr" class="inp" type="number" value="'+(m.mrr||'')+'">'
+    +'<label class="lab">Total users</label><input id="iv_users" class="inp" type="number" value="'+(m.users||'')+'">'
+    +'<label class="lab">Paying users</label><input id="iv_paying" class="inp" type="number" value="'+(m.paying||'')+'">'
+    +'<label class="lab">Month-over-month growth (%)</label><input id="iv_growth" class="inp" type="number" value="'+(m.growth||'')+'">'
+    +'<div style="display:flex;gap:8px;margin-top:12px"><button class="btn go" style="flex:1;padding:11px" onclick="invSave()">Save</button>'
+    +'<button class="btn" style="padding:11px" onclick="closeModal()">Cancel</button></div></div>');
+}
+function invSave(){
+  var m={ mrr:+el('iv_mrr').value||0, users:+el('iv_users').value||0, paying:+el('iv_paying').value||0,
+          growth:+el('iv_growth').value||0, updated:new Date().toISOString().slice(0,10) };
+  invSet(m); closeModal(); invRender();
+}
+function invExport(){
+  var m=invGet(); var arr=(+m.mrr||0)*12;
+  var txt='RoamWise — Investor Summary ('+new Date().toISOString().slice(0,10)+')\n'
+    +'================================================\n\n'
+    +'ARR (Annual Recurring Revenue): ₹'+arr.toLocaleString('en-IN')+'\n'
+    +'MRR (Monthly Recurring Revenue): ₹'+(+m.mrr||0).toLocaleString('en-IN')+'\n'
+    +'Total users: '+(+m.users||0).toLocaleString('en-IN')+'\n'
+    +'Paying users: '+(+m.paying||0).toLocaleString('en-IN')+'\n'
+    +'Month-over-month growth: '+(+m.growth||0)+'%\n'
+    +'Revenue logged to date: ₹'+invRevenueLogged().toLocaleString('en-IN')+'\n\n'
+    +'RoamWise — AI travel planner for Indian travellers.\n'
+    +'Founder: Mohit Pandey · Almora, Uttarakhand · founder@roamwise.co.in\n';
+  var blob=new Blob([txt],{type:'text/plain'});
+  var a=document.createElement('a'); a.href=URL.createObjectURL(blob);
+  a.download='RoamWise-Investor-Summary.txt'; a.click();
+}
+
+/* ==================== KEY CONTACTS ==================== */
+var CONTACT_TAGS=['Investor','VIP customer','High net worth','Customer','Partner','Press','Advisor','Other'];
+function contactsGet(){ try{ return JSON.parse(localStorage.getItem('rw_contacts')||'[]'); }catch(e){ return []; } }
+function contactsSet(a){ try{ localStorage.setItem('rw_contacts', JSON.stringify(a)); }catch(e){} }
+function contactsRender(){
+  var host=el('contactsList'); if(!host) return;
+  var list=contactsGet();
+  if(!list.length){ host.innerHTML='<p class="note">No contacts yet. Add investors, VIPs and key leads here.</p>'; return; }
+  var tagColor={ 'Investor':'#4ADE80','VIP customer':'#F0A63B','High net worth':'#C084FC','Customer':'#60A5FA','Partner':'#38BDF8','Press':'#FB7185','Advisor':'#FBBF24','Other':'#94A3B8' };
+  host.innerHTML=list.map(function(c,i){
+    var col=tagColor[c.tag]||'#94A3B8';
+    return '<div style="border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:11px;margin-bottom:8px">'
+      +'<div style="display:flex;justify-content:space-between;align-items:start;gap:8px">'
+      +'<div><b style="font-size:14px">'+esc(c.name||'')+'</b>'
+      +'<span style="font-size:10px;font-weight:700;color:'+col+';border:1px solid '+col+';border-radius:20px;padding:1px 7px;margin-left:6px">'+esc(c.tag||'')+'</span></div>'
+      +'<button class="btn" style="padding:3px 8px;font-size:11px" onclick="contactDel('+i+')">✕</button></div>'
+      +(c.why?'<div style="font-size:12px;color:var(--t2);margin-top:5px">'+esc(c.why)+'</div>':'')
+      +'<div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap">'
+      +(c.email?'<a class="btn" style="padding:5px 10px;font-size:12px;text-decoration:none" href="mailto:'+esc(c.email)+'">✉️ '+esc(c.email)+'</a>':'')
+      +(c.phone?'<a class="btn" style="padding:5px 10px;font-size:12px;text-decoration:none" href="tel:'+esc(c.phone)+'">📞 '+esc(c.phone)+'</a>':'')
+      +'</div></div>';
+  }).join('');
+}
+function contactAdd(){
+  showModal('<div class="card"><h3 style="margin:0 0 10px">Add key contact</h3>'
+    +'<label class="lab">Name</label><input id="ct_name" class="inp">'
+    +'<label class="lab">Why they matter</label><input id="ct_why" class="inp" placeholder="e.g. Angel, led seed rounds in travel">'
+    +'<label class="lab">Tag</label><select id="ct_tag" class="inp">'+CONTACT_TAGS.map(function(t){return '<option>'+t+'</option>';}).join('')+'</select>'
+    +'<label class="lab">Email</label><input id="ct_email" class="inp" type="email">'
+    +'<label class="lab">Mobile</label><input id="ct_phone" class="inp" type="tel">'
+    +'<div style="display:flex;gap:8px;margin-top:12px"><button class="btn go" style="flex:1;padding:11px" onclick="contactSave()">Save</button>'
+    +'<button class="btn" style="padding:11px" onclick="closeModal()">Cancel</button></div></div>');
+}
+function contactSave(){
+  var c={ name:el('ct_name').value.trim(), why:el('ct_why').value.trim(), tag:el('ct_tag').value,
+          email:el('ct_email').value.trim(), phone:el('ct_phone').value.trim() };
+  if(!c.name){ alert('Name is required.'); return; }
+  var list=contactsGet(); list.unshift(c); contactsSet(list);
+  closeModal(); contactsRender();
+}
+function contactDel(i){
+  if(!confirm('Remove this contact?')) return;
+  var list=contactsGet(); list.splice(i,1); contactsSet(list); contactsRender();
+}
+
 /* ==================== TAX & BUSINESS DOCUMENTS ==================== */
 var TAX_TYPES=['GST filing','ITR acknowledgement','Invoice','Receipt','Bank statement','Registration / license','Other'];
 function taxLoad(){
@@ -728,14 +848,33 @@ function mailBuild(kind, n){
   }
   var mailto='mailto:?subject='+encodeURIComponent(subject)+'&body='+encodeURIComponent(body);
   el('mailOut').innerHTML='<div style="margin-top:10px;border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:12px">'
+    +'<div style="font-size:11px;color:var(--t3);margin-bottom:4px">TO (investor email)</div>'
+    +'<input id="mailTo" class="inp" placeholder="investor@email.com" style="margin-bottom:10px">'
     +'<div style="font-size:11px;color:var(--t3);margin-bottom:4px">SUBJECT</div>'
-    +'<div style="font-size:13px;font-weight:700;margin-bottom:8px">'+esc(subject)+'</div>'
+    +'<input id="mailSubj" class="inp" style="font-weight:700;margin-bottom:8px" value="'+esc(subject)+'">'
     +'<div style="font-size:11px;color:var(--t3);margin-bottom:4px">BODY</div>'
     +'<textarea id="mailBody" class="inp" style="min-height:180px;font-size:12.5px">'+esc(body)+'</textarea>'
     +'<div style="display:flex;gap:8px;margin-top:10px">'
-    +'<button class="btn go" style="flex:1;padding:10px" onclick="navigator.clipboard.writeText(el(\'mailBody\').value).then(function(){this.textContent=\'Copied!\';}.bind(this))">Copy</button>'
-    +'<a class="btn" style="padding:10px;text-decoration:none" href="'+mailto+'">Open in mail</a></div></div>';
+    +'<button class="btn go" style="flex:1;padding:10px" onclick="mailCopy()">Copy body</button>'
+    +'<button class="btn" style="flex:1;padding:10px" onclick="mailSend()">Open in mail app</button></div>'
+    +'<div style="font-size:10.5px;color:var(--t3);margin-top:8px">Tip: edit any field above, then Open in mail app — it opens your email app with everything pre-filled and ready to send.</div>'
+    +'</div>';
   closeModal();
+}
+/* Robust send: rebuilds the mailto from the LIVE edited fields (the old version
+   built it once before edits, and had no recipient — many mail apps reject that). */
+function mailSend(){
+  var to=(el('mailTo')&&el('mailTo').value.trim())||'';
+  var subj=(el('mailSubj')&&el('mailSubj').value)||'';
+  var body=(el('mailBody')&&el('mailBody').value)||'';
+  var href='mailto:'+encodeURIComponent(to)+'?subject='+encodeURIComponent(subj)+'&body='+encodeURIComponent(body);
+  try{ window.location.href=href; }
+  catch(e){ try{ window.open(href,'_blank'); }catch(e2){ alert('Couldn\u2019t open your mail app. Use Copy body and paste it manually.'); } }
+}
+function mailCopy(){
+  var body=(el('mailBody')&&el('mailBody').value)||'';
+  try{ navigator.clipboard.writeText(body); alert('Email body copied \u2014 paste it into your mail app.'); }
+  catch(e){ alert('Copy failed \u2014 select the text manually.'); }
 }
 
 function loadStats(){
