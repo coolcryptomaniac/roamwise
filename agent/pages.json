@@ -2806,5 +2806,113 @@
    98,
    97
   ]
+ },
+ {
+  "slug": "nairobi-kenya",
+  "title": "Nairobi, Kenya",
+  "name": "Nairobi",
+  "country": "Kenya",
+  "best": "February, June, August",
+  "arch": "tropical",
+  "cl": [
+   26.1,
+   28.4,
+   28.6,
+   26.1,
+   25.3,
+   24.7,
+   24,
+   24.2,
+   26.2,
+   27.3,
+   25.1,
+   25.8
+  ],
+  "scores": [
+   90,
+   97,
+   96,
+   78,
+   90,
+   97,
+   94,
+   98,
+   97,
+   96,
+   84,
+   91
+  ]
+ },
+ {
+  "slug": "zanzibar-tanzania",
+  "title": "Zanzibar, Tanzania",
+  "name": "Zanzibar",
+  "country": "Tanzania",
+  "best": "July, August, September",
+  "arch": "tropical",
+  "cl": [
+   31,
+   33.4,
+   32.2,
+   28.2,
+   29,
+   28.3,
+   28.2,
+   28.8,
+   29.6,
+   30.9,
+   31.6,
+   30.5
+  ],
+  "scores": [
+   75,
+   90,
+   82,
+   55,
+   78,
+   92,
+   95,
+   94,
+   93,
+   90,
+   92,
+   81
+  ]
+ },
+ {
+  "slug": "mauritius-mauritius",
+  "title": "Mauritius, Mauritius",
+  "name": "Mauritius",
+  "country": "Mauritius",
+  "best": "July, August, September",
+  "arch": "temperate",
+  "cl": [
+   26.4,
+   25.4,
+   24.9,
+   25.1,
+   22.4,
+   21.1,
+   21.1,
+   20.9,
+   21.9,
+   22.7,
+   24.6,
+   25.4
+  ],
+  "scores": [
+   58,
+   77,
+   79,
+   86,
+   87,
+   91,
+   95,
+   92,
+   95,
+   85,
+   86,
+   85
+  ]
  }
 ]
