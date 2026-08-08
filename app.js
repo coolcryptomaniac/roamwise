@@ -2862,6 +2862,88 @@ function rwSaveMemory(kind, dest, detail){
   log.unshift({kind:kind,dest:dest,detail:detail,at:Date.now()});
   try{ lsSet('rw_memlog', JSON.stringify(log.slice(0,50))); }catch(e){}
 }
+
+/* ===================== EMOTIONAL JOURNEY LOG =====================
+   Capture how a MOMENT felt, not just what you did. Builds a personal emotional
+   timeline across all your travels — the thing you actually reread years later.
+   Device-only (private). Approved feature, finally built. */
+var RW_MOODS=[
+  {e:'\ud83e\udd29',k:'awestruck',c:'#F0A63B'},
+  {e:'\ud83d\ude0c',k:'at peace',c:'#4ADE80'},
+  {e:'\ud83e\udd17',k:'grateful',c:'#A78BFA'},
+  {e:'\ud83d\ude02',k:'joyful',c:'#38BDF8'},
+  {e:'\ud83d\ude2e',k:'surprised',c:'#FB7185'},
+  {e:'\ud83d\ude25',k:'overwhelmed',c:'#94A3B8'},
+  {e:'\ud83e\udd79',k:'moved',c:'#F472B6'},
+  {e:'\ud83d\ude34',k:'exhausted',c:'#64748B'}
+];
+function journalGet(){ try{ return JSON.parse(lsGet('rw_journal')||'[]'); }catch(e){ return []; } }
+function journalSet(a){ try{ lsSet('rw_journal', JSON.stringify(a.slice(0,300))); }catch(e){} }
+function openJourneyLog(){
+  try{ tabGo('home'); }catch(e){}
+  var sec=el('journeySection');
+  if(!sec){ sec=document.createElement('section'); sec.id='journeySection'; sec.className='xsec v v-home';
+    var host=el('copilotHero'); if(host&&host.parentNode) host.parentNode.insertBefore(sec,host.nextSibling); else document.body.appendChild(sec); }
+  sec.style.display='';
+  var place=(window._lastItin&&window._lastItin.name)||'';
+  sec.innerHTML='<div class="xsec-head"><h2 class="xsec-title">\ud83d\udcd6 Journey <em>journal</em></h2>'
+    +'<button class="tact" onclick="el(\'journeySection\').style.display=\'none\'">\u2715</button></div>'
+    +'<p class="xsec-sub">How did this moment feel? Capture the feeling \u2014 your emotional map of every place you\u2019ve been.</p>'
+    +'<div style="background:var(--bg2,#12151F);border:1px solid var(--b1,rgba(255,255,255,.07));border-radius:16px;padding:16px;margin-bottom:14px">'
+    +'<div style="font-size:12px;color:var(--t3);margin-bottom:8px">HOW ARE YOU FEELING RIGHT NOW?</div>'
+    +'<div id="moodPick" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px">'
+    + RW_MOODS.map(function(m,i){ return '<button class="mood-btn" data-mood="'+i+'" onclick="rwMoodPick('+i+')" style="font-size:24px;background:var(--bg3,#171A24);border:2px solid transparent;border-radius:12px;padding:8px 10px;cursor:pointer" title="'+m.k+'">'+m.e+'</button>'; }).join('')
+    +'</div>'
+    +'<input id="journalPlace" class="rwi-input" placeholder="Where? (e.g. '+esc2(place||'Rishikesh, sunset at the ghat')+')" style="width:100%;background:var(--bg3,#171A24);border:1px solid var(--b2,#2A2A36);border-radius:10px;padding:11px;color:var(--t1);margin-bottom:10px;font:inherit">'
+    +'<textarea id="journalNote" placeholder="What made it special? One honest line\u2026" style="width:100%;min-height:70px;background:var(--bg3,#171A24);border:1px solid var(--b2,#2A2A36);border-radius:10px;padding:11px;color:var(--t1);font:inherit;resize:vertical"></textarea>'
+    +'<button class="tact" style="width:100%;margin-top:10px;font-weight:800;background:linear-gradient(135deg,var(--gold,#E8BA6C),var(--gold2,#C8913E));color:#0A0A0C;border:none" onclick="rwJournalSave()">Save this moment</button>'
+    +'</div>'
+    +'<div id="journalTimeline"></div>';
+  window._journalMood=null;
+  rwJournalRender();
+}
+function rwMoodPick(i){
+  window._journalMood=i;
+  var btns=document.querySelectorAll('#moodPick .mood-btn');
+  btns.forEach(function(b){ var on=+b.getAttribute('data-mood')===i; b.style.borderColor=on?RW_MOODS[i].c:'transparent'; b.style.background=on?'rgba(232,186,108,.12)':'var(--bg3,#171A24)'; });
+}
+function rwJournalSave(){
+  var mood=window._journalMood;
+  if(mood==null){ showToast('Pick how it felt first \ud83d\ude0a'); return; }
+  var place=(el('journalPlace')&&el('journalPlace').value.trim())||'';
+  var note=(el('journalNote')&&el('journalNote').value.trim())||'';
+  if(!place && !note){ showToast('Add a place or a line to remember it by'); return; }
+  var log=journalGet();
+  log.unshift({mood:mood, place:place, note:note, at:Date.now()});
+  journalSet(log);
+  try{ badgeBump('journal'); }catch(e){}
+  try{ rwHaptic(); }catch(e){}
+  showToast('Moment saved \ud83d\udcd6');
+  if(el('journalPlace')) el('journalPlace').value='';
+  if(el('journalNote')) el('journalNote').value='';
+  window._journalMood=null; rwMoodPick(-1);
+  rwJournalRender();
+}
+function rwJournalRender(){
+  var host=el('journalTimeline'); if(!host) return;
+  var log=journalGet();
+  if(!log.length){ host.innerHTML='<div class="note" style="text-align:center;padding:20px;color:var(--t3)">Your emotional map starts with the first moment you save. \u2728</div>'; return; }
+  // group by mood for a quick "how your travels feel" summary
+  var counts={}; log.forEach(function(x){ counts[x.mood]=(counts[x.mood]||0)+1; });
+  var top=Object.keys(counts).sort(function(a,b){return counts[b]-counts[a];})[0];
+  var summary = top!=null ? '<div style="text-align:center;font-size:13px;color:var(--t2);margin-bottom:14px">Your travels mostly feel <b style="color:'+RW_MOODS[top].c+'">'+RW_MOODS[top].e+' '+RW_MOODS[top].k+'</b> \u00b7 '+log.length+' moment'+(log.length>1?'s':'')+' logged</div>' : '';
+  host.innerHTML=summary + log.map(function(x){
+    var m=RW_MOODS[x.mood]||RW_MOODS[0];
+    var d=new Date(x.at).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});
+    return '<div style="display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--b1,rgba(255,255,255,.06))">'
+      +'<div style="font-size:28px;flex:0 0 auto">'+m.e+'</div>'
+      +'<div style="flex:1;min-width:0">'
+      +'<div style="font-size:11px;color:'+m.c+';font-weight:700;text-transform:uppercase;letter-spacing:.04em">'+m.k+(x.place?' \u00b7 '+esc2(x.place):'')+'</div>'
+      +(x.note?'<div style="font-size:14px;color:var(--t1);margin:2px 0">'+esc2(x.note)+'</div>':'')
+      +'<div style="font-size:11px;color:var(--t3)">'+d+'</div>'
+      +'</div></div>';
+  }).join('');
+}
 function rwRenderLog(){
   var log=[]; try{ log=JSON.parse(lsGet('rw_memlog')||'[]'); }catch(e){}
   var out=el('memLogOut'); if(!out) return;
@@ -6912,21 +6994,47 @@ function rwVoiceStart(targetId){
   if(window.RW && typeof RW.startVoice==='function'){
     try{ RW.startVoice(); showToast('\ud83c\udfa4 Listening\u2026'); return; }catch(e){}
   }
-  /* Capacitor SpeechRecognition plugin, if installed in the app build */
+  /* Capacitor SpeechRecognition plugin (community, installed in the app build) */
   if(window.Capacitor && Capacitor.Plugins && Capacitor.Plugins.SpeechRecognition){
     var SRP=Capacitor.Plugins.SpeechRecognition;
-    try{
-      showToast('\ud83c\udfa4 Listening\u2026');
-      Promise.resolve(SRP.requestPermissions&&SRP.requestPermissions()).then(function(){
-        return SRP.start({language:'en-IN', maxResults:1, partialResults:false, popup:false});
-      }).then(function(r){
-        var t=r&&r.matches&&r.matches[0]; if(t){ rwVoiceResult(t); } else { showToast('Didn\u2019t catch that \u2014 try again or type'); }
-      }).catch(function(){ showToast('Mic didn\u2019t start \u2014 allow mic permission, or just type'); });
-      return;
-    }catch(e){}
+    (function(){
+      /* v7 community plugin flow: check availability -> ensure permission ->
+         start with a result listener (some versions resolve start(), others
+         emit 'partialResults'/return matches). We handle both. */
+      function begin(){
+        showToast('\ud83c\udfa4 Listening\u2026');
+        var got=false;
+        try{
+          SRP.addListener && SRP.addListener('partialResults', function(data){
+            var t=data && data.matches && data.matches[0];
+            if(t && !got){ got=true; try{ SRP.stop(); }catch(e){} rwVoiceResult(t); }
+          });
+        }catch(e){}
+        SRP.start({language:'en-IN', maxResults:2, partialResults:true, popup:true})
+          .then(function(r){
+            var t=r && r.matches && r.matches[0];
+            if(t && !got){ got=true; rwVoiceResult(t); }
+            else if(!got){ setTimeout(function(){ if(!got) showToast('Didn\u2019t catch that \u2014 speak clearly, or type'); }, 800); }
+          })
+          .catch(function(){ if(!got) showToast('Mic couldn\u2019t start \u2014 check mic permission in Settings, or type'); });
+      }
+      Promise.resolve(SRP.checkPermissions ? SRP.checkPermissions() : {speechRecognition:'granted'})
+        .then(function(p){
+          var ok = p && (p.speechRecognition==='granted' || p.speechRecognition==='limited');
+          if(ok) return true;
+          return (SRP.requestPermissions ? SRP.requestPermissions() : Promise.resolve({speechRecognition:'granted'}))
+            .then(function(rp){ return rp && rp.speechRecognition==='granted'; });
+        })
+        .then(function(granted){
+          if(granted){ begin(); }
+          else { showToast('Mic permission is off \u2014 allow Microphone in Settings, then tap \ud83c\udfa4 again'); }
+        })
+        .catch(function(){ begin(); }); /* some versions lack checkPermissions — just try */
+    })();
+    return;
   }
   var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if(!SR){ showToast('\ud83c\udfa4 Voice needs the mic add-on \u2014 for now, just type your question, it works great!'); return; }
+  if(!SR){ showToast('\ud83c\udfa4 Voice input needs the app build with the mic add-on \u2014 for now, just type, it works great!'); return; }
   var rec=new SR(); rec.lang='en-IN'; rec.interimResults=false;
   rec.onresult=function(ev){ rwVoiceResult(ev.results[0][0].transcript); };
   rec.onerror=function(e){ showToast((e&&e.error==='not-allowed')?'Mic permission is off \u2014 allow it in Settings, or just type':'Didn\u2019t catch that \u2014 try again or type'); };
@@ -7534,6 +7642,14 @@ function copilotSend(fromHero){
     var hl=el('heroLog'); if(hl) hl.style.display='block';
   } else { _cpTargetLog='cpLog'; }
   cpBubble(t.replace(/[<>]/g,''),'me');
+  /* Ask rather than guess: a too-thin query gets tappable options, not a
+     confident wrong answer. This is the anti-hallucination guard. */
+  try{
+    var _clar = rwTuskNeedsClarity(t);
+    if(_clar){ cpBubble(_clar,'bot'); return; }
+    var _sa = rwStartAnywhere(t);
+    if(_sa){ t = _sa; }   /* pasted link/text -> extract the trip from it */
+  }catch(e){}
   /* App navigation intents: "open settings", "go to store", "show my trips"… */
   var NAV=[[/settings|api key/i,'Settings',function(){openSettings();}],
     [/store|merch/i,'the Store',function(){tabGo('home');var st=el('store');if(st){var fh=st.querySelector('.fold-head');if(fh&&!fh.classList.contains('open'))fh.click();st.scrollIntoView({behavior:'smooth'});}}],
@@ -7590,10 +7706,13 @@ function copilotSend(fromHero){
           + (_cpCtx.budget? ', budget: \u20b9'+_cpCtx.budget : '')
           + '. If the user does not name a new place, they mean this one.\n';
       }
-      var prompt='You are Ailon Tusk \u2014 a witty, warm travel companion with playful Bollywood-masala energy and light Hinglish sprinkles (arre, chalo, mast, boss, scene). '
+      var prompt='You are Ailon Tusk \u2014 a witty, warm, razor-sharp travel companion with playful Bollywood-masala energy and light Hinglish sprinkles (arre, chalo, mast, boss, scene, ekdum). You are the friend who has actually BEEN everywhere and gives it to people straight, with a grin. '
         +'MATCH YOUR LENGTH TO THE QUESTION: a quick factual question (a price, a distance, is-X-open) gets ONE punchy sentence \u2014 do not pad it. Only a genuinely open request (plan my trip, what should I do in X) earns a fuller answer, still under 90 words. '
         +'Personality is seasoning, not the meal: one small filmi flourish max, then the real facts \u2014 numbers, routes, prices, names \u2014 100% accurate and clear. '
-        +'Never invent facts to sound dramatic; if you are unsure, say so plainly with a grin. Do NOT quote real Bollywood dialogues or put words in real actors\u2019 mouths \u2014 use your own filmi-flavoured lines. '
+        +'BE GENUINELY USEFUL: when you suggest a place, add the ONE detail a local would know (best time to go, what to skip, the sneaky cost, the better nearby alternative). That insider nugget is your signature. '
+        +'GROUP TRIPS: if the question involves \u201cwe\u201d, friends, or a group, think like a facilitator \u2014 surface the trade-off clearly (budget vs comfort, beach vs hills, party vs quiet) and suggest a fair middle path or a quick way to decide. '
+        +'CONFLICT/INDECISION: if people want different things, name the split, give each option its honest best case in one line, then recommend one with a reason \u2014 decisiveness with warmth beats fence-sitting. '
+        +'NEVER INVENT: no made-up prices, timings, phone numbers, hotel names or distances. If you do not know or the guide text does not say, say \u201cI\u2019m not certain \u2014 worth checking before you book\u201d and give the safest general guidance instead. A wrong specific is far worse than an honest gap. If the question is ambiguous, ASK ONE short clarifying question with 2-3 concrete options rather than guessing. Never invent facts to sound dramatic; if you are unsure, say so plainly with a grin. Do NOT quote real Bollywood dialogues or put words in real actors\u2019 mouths \u2014 use your own filmi-flavoured lines. '
         +'Read the user intent and mood: if they sound excited, match it; if stressed or on a tight budget, be reassuring and practical, not theatrical. '
         +'Prefer the verified guide text below over your own recollection; if it contradicts you, trust it. No markdown headers, no bullet spam.\n'
         +facts+(hist? 'Conversation so far:\n'+hist+'\n':'')+'User: '+t+'\nCopilot:';
@@ -7647,6 +7766,134 @@ function copilotSend(fromHero){
     }
   }
 }
+
+/* ================= TUSK RICH REPLY SYSTEM (rw-v38) =================
+   Three things competitors do well, built here:
+   1) ACTION RAIL  — every answer ends with tappable actions (map, PDF, budget,
+      save, remind, read aloud) so an answer is never a dead end.
+   2) CLARIFY-DON'T-GUESS — vague or unparseable queries get tappable options
+      instead of a confident wrong answer. This is the anti-hallucination guard.
+   3) REMINDERS — local reminder with optional audio chime.
+   ================================================================= */
+
+/* --- 1. ACTION RAIL --- */
+function rwTuskRail(dest, raw){
+  var d = (dest||'').replace(/'/g, "\\'");
+  var q = (raw||'').replace(/'/g, "\\'").slice(0,120);
+  function btn(icon,label,fn){
+    return '<button onclick="'+fn+'" style="display:inline-flex;align-items:center;gap:5px;background:var(--bg3,#171A24);border:1px solid var(--b2,#2A2A36);border-radius:20px;padding:7px 12px;color:var(--t1,#EDEAE2);font-size:11.5px;font-weight:600;cursor:pointer;margin:3px 4px 0 0">'
+      +'<span>'+icon+'</span>'+label+'</button>';
+  }
+  var h='<div style="margin-top:10px;padding-top:9px;border-top:1px solid var(--b2,#2A2A36)">'
+    +'<div style="font-size:9.5px;color:var(--t3,#7A7870);letter-spacing:.08em;font-weight:700;margin-bottom:5px">DO SOMETHING WITH THIS</div>';
+  if(d) h+=btn('\ud83d\uddfa\ufe0f','Map',"openTripMap('"+d+"',null)");
+  if(d) h+=btn('\ud83d\uddd3\ufe0f','Plan it',"cpGoPlan('"+d+"',0)");
+  h+=btn('\ud83d\udcb0','Budget',"openMoneyLayer()");
+  h+=btn('\u23f0','Remind me',"rwRemindAsk('"+q+"')");
+  h+=btn('\ud83d\udd0a','Read aloud',"rwTuskReadLast()");
+  h+=btn('\ud83d\udcd6','Log feeling',"openJourneyLog()");
+  return h+'</div>';
+}
+function rwTuskReadLast(){
+  try{
+    var log=el(_cpTargetLog)||el('cpLog'); if(!log) return;
+    var bubbles=log.querySelectorAll('div');
+    for(var i=bubbles.length-1;i>=0;i--){
+      var txt=(bubbles[i].textContent||'').trim();
+      if(txt.length>40){ tuskSpeak(txt.slice(0,600)); return; }
+    }
+    showToast('Nothing to read yet');
+  }catch(e){ showToast('Read-aloud unavailable here'); }
+}
+
+/* --- 2. CLARIFY, DON'T GUESS (anti-hallucination) --- */
+function rwTuskAsk(question, options){
+  var chips=options.map(function(o){
+    var send=String(o).replace(/'/g,"\\'");
+    return '<button onclick="rwTuskChip(\''+send+'\')" style="background:rgba(232,186,108,.10);border:1px solid var(--gold,#E8BA6C);border-radius:20px;padding:8px 13px;color:var(--gold,#E8BA6C);font-size:12px;font-weight:700;cursor:pointer;margin:4px 5px 0 0">'+o+'</button>';
+  }).join('');
+  return '<div>'+question+'<div style="margin-top:8px">'+chips+'</div></div>';
+}
+function rwTuskChip(text){
+  var inp=el('heroInput')||el('cpInput');
+  if(inp){ inp.value=text; try{ copilotSend(!!el('heroInput')); }catch(e){} }
+}
+/* Decide whether a query is too thin to answer honestly. Returns a clarifying
+   bubble HTML, or null if the query is answerable. */
+function rwTuskNeedsClarity(t){
+  var q=(t||'').trim();
+  if(!q) return null;
+  var words=q.split(/\s+/).filter(Boolean);
+  var lower=q.toLowerCase();
+  /* greetings / smalltalk are fine — not a clarity problem */
+  if(/^(hi|hey|hello|yo|namaste|hola|sup|thanks|thank you|ok|okay|cool|nice)\b/i.test(lower)) return null;
+  /* single vague word with no place and no travel noun */
+  var vague=/^(trip|travel|plan|holiday|vacation|ghumna|jaana|help|suggest|idea|ideas|where|somewhere|anywhere)$/i;
+  if(words.length<=2 && vague.test(words[0])){
+    return rwTuskAsk('Arre, happy to help \u2014 give me one hint and I\u2019ll do the rest. What kind of trip?',
+      ['Mountains, 3-4 days','Beach & chill','Somewhere cheap near me','A big group trip']);
+  }
+  /* "somewhere nice" style with no place at all */
+  if(words.length<=4 && /\b(somewhere|anywhere|any place|kahin)\b/i.test(lower)){
+    return rwTuskAsk('Ekdum \u2014 but narrow it a touch so I don\u2019t send you somewhere random. Pick a vibe:',
+      ['Hills & quiet','Beach & nightlife','Heritage & food','Adventure & treks']);
+  }
+  return null;
+}
+
+
+/* --- START ANYWHERE (competitor-inspired: Mindtrip's best pattern) ---
+   Paste a blog link, a long chunk of text, or a friend's recommendation, and
+   Tusk pulls the trip out of it instead of you re-typing everything. */
+function rwStartAnywhere(t){
+  var isUrl=/^https?:\/\/\S+$/i.test((t||'').trim());
+  var isLongPaste=(t||'').length>220;
+  if(!isUrl && !isLongPaste) return null;
+  return 'The user pasted '+(isUrl?'a LINK':'a long block of text')+'. Extract the travel intent from it: '
+    +'the destination(s), any dates/duration, budget, and the kind of trip. Then reply with a short, '
+    +'concrete plan for it. If the source is unclear about a detail, say so plainly instead of inventing it.\n\n'
+    +'Pasted content:\n'+(t||'').slice(0,1500);
+}
+/* --- 3. REMINDERS (local, with optional chime) --- */
+function rwRemindAsk(about){
+  var txt=(about||'your trip plan').slice(0,90);
+  rwForm('\u23f0 Remind me', [
+    {key:'what', label:'Remind me about', value:txt},
+    {key:'mins', label:'In how many minutes?', placeholder:'e.g. 60', type:'number', value:'60'}
+  ], function(v){
+    var mins=parseInt(v.mins,10); if(!mins||mins<1){ showToast('Give me a number of minutes'); return; }
+    rwRemindSet(v.what||txt, mins);
+  });
+}
+function rwRemindSet(what, mins){
+  var when=Date.now()+mins*60000;
+  var list=[]; try{ list=JSON.parse(lsGet('rw_reminders')||'[]'); }catch(e){}
+  list.push({what:what, at:when}); try{ lsSet('rw_reminders', JSON.stringify(list.slice(-40))); }catch(e){}
+  try{ if(window.Notification && Notification.permission==='default') Notification.requestPermission(); }catch(e){}
+  setTimeout(function(){ rwRemindFire(what); }, mins*60000);
+  showToast('\u23f0 Reminder set for '+mins+' min from now');
+}
+function rwRemindFire(what){
+  try{
+    if(window.Notification && Notification.permission==='granted'){
+      new Notification('RoamWise reminder', {body:what, icon:'/icon-512.png'});
+    }
+  }catch(e){}
+  try{ rwRemindChime(); }catch(e){}
+  try{ showToast('\u23f0 '+what); }catch(e){}
+}
+function rwRemindChime(){
+  try{
+    var AC=window.AudioContext||window.webkitAudioContext; if(!AC) return;
+    var ctx=new AC(); var o=ctx.createOscillator(); var g=ctx.createGain();
+    o.connect(g); g.connect(ctx.destination); o.type='sine'; o.frequency.value=880;
+    g.gain.setValueAtTime(0.0001, ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.25, ctx.currentTime+0.03);
+    g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime+0.9);
+    o.start(); o.stop(ctx.currentTime+1);
+  }catch(e){}
+}
+
 async function cpFinish(bubble, answerHTML, intents, raw){
   intents._raw = raw;
   try{ rwRemember('user', raw, {dest:intents.dest, topic:intents.topic, days:intents.days}); }catch(e){}
@@ -7656,7 +7903,10 @@ async function cpFinish(bubble, answerHTML, intents, raw){
   if(!parts.length) parts.push('I can handle destinations, dates, budgets, weather, cafes, buses/trains and sharing \u2014 try: \u201cPlan 4 days in Udaipur under \u20b912,000.\u201d');
   try{ rwRemember('tusk', (answerHTML||'').replace(/<[^>]*>/g,' ').slice(0,200), {}); }catch(e){}
   var isCard = actions.length && String(actions[0]).indexOf('tk-card')>-1;
-  bubble.innerHTML = parts.join(isCard? '<div style="height:10px"></div>' : '<hr style="border:none;border-top:1px dashed var(--b2,#2A2A36);margin:10px 0">');
+  var _html = parts.join(isCard? '<div style="height:10px"></div>' : '<hr style="border:none;border-top:1px dashed var(--b2,#2A2A36);margin:10px 0">');
+  /* Every answer ends with tappable actions — an answer is never a dead end. */
+  try{ if(!intents.smalltalk) _html += rwTuskRail(intents.dest||'', raw||''); }catch(e){}
+  bubble.innerHTML = _html;
   var log=el(_cpTargetLog)||el('cpLog');
   if(log){
     /* land the reader at the TOP of the new answer — bottom-scrolling a tall
@@ -8651,6 +8901,7 @@ function tripChatOpen(roomId, roomName){
       +'<button class="chat-tool" onclick="chatAddExpense()">\ud83d\udcb0 Add expense</button>'
       +'<button class="chat-tool" onclick="chatShareMeet()">\ud83d\udccd Meet point</button>'
       +'<button class="chat-tool" onclick="chatNewPoll()">\ud83d\uddf3\ufe0f Poll</button>'
+      +'<button class="chat-tool" onclick="chatWhenAsk()">\ud83d\udcc5 When can everyone go?</button>'
       +'<button class="chat-tool" onclick="chatMarkPaid()">\u2705 Mark paid</button>'
       +'<button class="chat-tool" onclick="chatInvite()">\ud83d\udc65 Invite</button>'
       +'</div>'
@@ -8974,6 +9225,8 @@ async function tkRouteCard(it){
 var CHAT_KINDS = {
   text:    {icon:'', label:''},
   tusk:    {icon:'\u26a1', label:'Ailon Tusk'},
+  when:    {icon:'\ud83d\udcc5', label:'When can everyone go?'},
+  whenvote:{icon:'', label:''},
   budget:  {icon:'\ud83d\udcb0', label:'Budget'},
   plan:    {icon:'\ud83d\uddd3\ufe0f', label:'Itinerary'},
   meet:    {icon:'\ud83d\udccd', label:'Meeting point'},
@@ -9241,6 +9494,98 @@ function chatSettle(toUid, amount){
   chatPost('settle', {from:user.uid, to:toUid, amount:amount},
     (user.displayName||'Someone').split('@')[0]+' settled \u20b9'+amount.toLocaleString('en-IN'));
 }
+
+/* ============ "WHEN CAN EVERYONE GO?" — group date finder (rw-v39) ============
+   The hardest part of any group trip isn't where — it's WHEN. Everyone has
+   different free weekends and it dies in a 200-message thread. This turns it
+   into two taps: propose windows, everyone marks what works, the overlap wins.
+   No competitor does this inside the trip chat. Follows the poll pattern:
+   kind 'when' = the proposal, kind 'whenvote' = one member's availability. */
+function chatWhenAsk(){
+  /* Suggest the next 4 weekends so the common case is zero typing. */
+  var opts=[], d=new Date();
+  for(var i=0;i<28 && opts.length<4;i++){
+    var day=new Date(d.getTime()+i*86400000);
+    if(day.getDay()===6){ /* Saturday */
+      var end=new Date(day.getTime()+86400000);
+      opts.push(day.toLocaleDateString('en-IN',{day:'numeric',month:'short'})+'\u2013'+end.toLocaleDateString('en-IN',{day:'numeric',month:'short'}));
+    }
+  }
+  rwForm('\ud83d\udcc5 When can everyone go?', [
+    {key:'q', label:'What are we deciding?', value:'Which dates work for everyone?'},
+    {key:'o1', label:'Option 1', value:opts[0]||''},
+    {key:'o2', label:'Option 2', value:opts[1]||''},
+    {key:'o3', label:'Option 3', value:opts[2]||''},
+    {key:'o4', label:'Option 4 (optional)', value:opts[3]||''}
+  ], function(v){
+    var options=[v.o1,v.o2,v.o3,v.o4].map(function(x){return (x||'').trim();}).filter(Boolean);
+    if(options.length<2){ showToast('Give at least two date options'); return; }
+    chatPost('when', {q:v.q||'Which dates work?', options:options},
+      '\ud83d\udcc5 ' + (v.q||'Which dates work?'));
+  });
+}
+/* Toggle my availability for one option (multi-select — unlike a normal poll,
+   you can be free on several windows, which is the whole point). */
+function chatWhenToggle(pollId, idx){
+  if(!_chatRoom || !user) return;
+  var mine=null;
+  _chatMsgs.forEach(function(m){ if(m.kind==='whenvote' && m.payload && m.payload.poll===pollId && m.uid===user.uid) mine=m; });
+  var picks=(mine && mine.payload && mine.payload.free) ? mine.payload.free.slice() : [];
+  var at=picks.indexOf(idx);
+  if(at>=0) picks.splice(at,1); else picks.push(idx);
+  chatPost('whenvote', {poll:pollId, free:picks}, '\ud83d\udcc5 updated availability');
+  try{ rwHaptic(); }catch(e){}
+}
+function chatWhenTally(msg){
+  var opts=(msg.payload&&msg.payload.options)||[];
+  var byUser={};
+  _chatMsgs.forEach(function(m){
+    if(m.kind==='whenvote' && m.payload && m.payload.poll===msg._id){
+      byUser[m.uid]={free:m.payload.free||[], name:m.name||'Someone'};
+    }
+  });
+  var counts=opts.map(function(){return 0;});
+  var names=opts.map(function(){return [];});
+  Object.keys(byUser).forEach(function(u){
+    (byUser[u].free||[]).forEach(function(i){
+      if(counts[i]!==undefined){ counts[i]++; names[i].push(byUser[u].name.split(' ')[0]); }
+    });
+  });
+  var people=Object.keys(byUser).length;
+  var best=-1, max=0; counts.forEach(function(c,i){ if(c>max){ max=c; best=i; } });
+  var mine=(byUser[user&&user.uid]||{}).free||[];
+  return {counts:counts, names:names, people:people, best:best, max:max, mine:mine, opts:opts};
+}
+function chatWhenBody(msg){
+  var t=chatWhenTally(msg);
+  var rows=t.opts.map(function(o,i){
+    var isBest = i===t.best && t.max>0;
+    var pct = t.people? Math.round(t.counts[i]/t.people*100) : 0;
+    var picked = t.mine.indexOf(i)>=0;
+    return '<button onclick="chatWhenToggle(\''+msg._id+'\','+i+')" style="display:block;width:100%;text-align:left;margin-bottom:7px;padding:10px 12px;border-radius:11px;cursor:pointer;'
+      +'background:'+(picked?'rgba(74,222,128,.13)':'var(--bg3,#1A1A20)')+';'
+      +'border:1px solid '+(isBest?'#4ADE80':(picked?'rgba(74,222,128,.5)':'var(--b2,#2A2A36)'))+';color:var(--t1,#EDEAE2)">'
+      +'<div style="display:flex;justify-content:space-between;align-items:center;gap:8px">'
+      +'<span style="font-weight:700;font-size:13px">'+(picked?'\u2705 ':'\u2b1c ')+esc2(o)+'</span>'
+      +'<span style="font-size:11px;color:'+(isBest?'#4ADE80':'var(--t3,#7A7870)')+';font-weight:700">'+t.counts[i]+'/'+t.people+(isBest?' \u2b50':'')+'</span></div>'
+      +(t.names[i].length?'<div style="font-size:10.5px;color:var(--t3,#7A7870);margin-top:3px">'+esc2(t.names[i].join(', '))+'</div>':'')
+      +'</button>';
+  }).join('');
+  var verdict = t.max>0
+    ? '<div style="font-size:12px;color:#4ADE80;font-weight:700;margin-top:6px">\u2b50 Best overlap: '+esc2(t.opts[t.best])+' \u2014 works for '+t.max+' of '+t.people+'</div>'
+    : '<div style="font-size:11.5px;color:var(--t3,#7A7870);margin-top:6px">Tap every window that works for you \u2014 you can pick more than one.</div>';
+  return '<div style="margin-top:6px">'+rows+verdict
+    + (t.max>0 ? '<button class="chat-tool" style="width:100%;margin-top:8px;justify-content:center" onclick="chatWhenLock(\''+msg._id+'\')">\u2705 Lock these dates</button>' : '')
+    +'</div>';
+}
+function chatWhenLock(pollId){
+  var msg=_chatMsgs.filter(function(m){return m._id===pollId;})[0]; if(!msg) return;
+  var t=chatWhenTally(msg);
+  if(t.best<0 || !t.max){ showToast('No one has marked availability yet'); return; }
+  chatPost('decision', {q:'Trip dates', choice:t.opts[t.best], poll:pollId},
+    '\u2705 Dates locked: '+t.opts[t.best]+' (works for '+t.max+' of '+t.people+')');
+}
+
 function chatPollTally(pollMsg){
   var votes={};
   _chatMsgs.forEach(function(m){ if(m.kind==='vote' && m.payload && m.payload.poll===pollMsg._id){ votes[m.uid]=m.payload.choice; } });
@@ -9562,6 +9907,14 @@ function chatBubble(id, m, mine){
       +'<div style="font-size:12.5px;margin-top:2px">'+esc2(p.q||'')+' \u2192 <b>'+esc2(p.choice||'')+'</b></div></div></div>';
   }
   if(kind==='vote'){ return ''; }
+  if(kind==='whenvote'){ return ''; }   /* availability updates are silent — the card shows the tally */
+  if(kind==='when'){
+    var pw=m.payload||{};
+    return '<div class="tk-card" style="background:var(--bg2,#12121C);border:1px solid var(--b2,#2A2A36);border-radius:14px;padding:13px;margin:7px 0">'
+      +'<div style="font-size:12px;font-weight:800;color:var(--gold,#E8BA6C);margin-bottom:2px">\ud83d\udcc5 '+esc2(pw.q||'Which dates work?')+'</div>'
+      +'<div style="font-size:10.5px;color:var(--t3,#7A7870);margin-bottom:8px">Asked by '+esc2((m.name||'Someone').split(' ')[0])+' \u00b7 tap all that work for you</div>'
+      + chatWhenBody(m) + '</div>';
+  }
   if(kind==='board'){
     var p=m.payload||{}, mineB=(m.uid===((user||{}).uid));
     /* private items are only shown to their owner, even in the log */

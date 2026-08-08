@@ -924,3 +924,71 @@ html.reduce-motion *,html.reduce-motion *::before,html.reduce-motion *::after{an
 .qg-ic{font-size:24px;line-height:1}
 .qg-lbl{font-size:11px;font-weight:600;text-align:center;color:var(--t2);line-height:1.2}
 @media (max-width:360px){ .qg-lbl{font-size:10px} .qg-ic{font-size:22px} }
+
+/* =====================================================================
+   DESKTOP / MAC LAYER  (rw-v39)
+   The app had ZERO min-width rules — on a large screen it rendered as a
+   stretched phone layout. This layer makes it feel native on desktop:
+   comfortable measure, roomier type, a centred nav pill instead of an
+   edge-to-edge bar, and the chat docked as a side column.
+   ===================================================================== */
+@media (min-width:1024px){
+  body{font-size:15px}
+
+  /* Give content a comfortable reading measure instead of full-bleed */
+  .xsec, .nav-inner, .hero{max-width:1100px}
+  .xsec{padding:0 28px}
+  .hero{padding:56px 28px 34px}
+  .hero h1{font-size:42px}
+
+  /* The floating tab pill spanned the whole monitor — centre and cap it */
+  .tabbar{
+    left:50%!important; right:auto!important;
+    transform:translateX(-50%);
+    width:min(620px, 90vw);
+    bottom:18px!important;
+    border-radius:26px;
+  }
+  .tabbar button{font-size:12.5px}
+  body.shell{padding-bottom:120px}
+
+  /* Cards breathe: more columns where it makes sense */
+  .qg-wrap{grid-template-columns:repeat(4,1fr);gap:14px;max-width:1100px;margin:0 auto}
+  .qg-tile{padding:20px 10px}
+  .qg-ic{font-size:30px}
+  .qg-lbl{font-size:12.5px}
+
+  /* Modals feel cramped at phone width on a big screen */
+  .sheet{max-width:560px}
+
+  /* Drawer: wider, easier to scan with a mouse */
+  .drawer{width:360px}
+
+  /* Hover affordances only make sense with a pointer */
+  .qg-tile:hover{transform:translateY(-2px);border-color:var(--gold,#E8BA6C)}
+  .dr-link:hover{background:rgba(255,255,255,.04)}
+}
+
+@media (min-width:1440px){
+  .xsec, .nav-inner, .hero{max-width:1220px}
+  .hero h1{font-size:48px}
+}
+
+/* Chat as a docked SIDE column on desktop — the bottom-sheet pattern is a
+   phone idiom; on a wide screen the natural place is a right-hand rail, so
+   you can read the app and chat at the same time. */
+@media (min-width:1024px){
+  #chatOverlay.open{align-items:stretch;justify-content:flex-end;padding:0}
+  #chatOverlay .sheet{
+    max-width:420px;width:420px;height:100dvh!important;max-height:100dvh!important;
+    border-radius:0;border-right:none;border-top:none;border-bottom:none;
+  }
+}
+
+/* Pointer-device niceties: real scrollbars styled to match the theme */
+@media (pointer:fine){
+  ::-webkit-scrollbar{width:10px;height:10px}
+  ::-webkit-scrollbar-track{background:transparent}
+  ::-webkit-scrollbar-thumb{background:var(--b2,#2A2A36);border-radius:8px;border:2px solid transparent;background-clip:content-box}
+  ::-webkit-scrollbar-thumb:hover{background:var(--gold,#E8BA6C);background-clip:content-box}
+}

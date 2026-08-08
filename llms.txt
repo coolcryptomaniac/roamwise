@@ -1,0 +1,20 @@
+# RoamWise
+
+> RoamWise is a free AI travel planner built for Indian travellers. It turns a
+> one-line request ("chill 4 days near Rishikesh under 12k") into a complete
+> day-by-day itinerary with a real budget breakdown, an interactive map, group
+> cost-splitting, and nearby discovery. No signup, no forced subscription.
+
+## What RoamWise does
+- AI trip planning via "Ailon Tusk" — plain-language requests to full itineraries
+- Day-by-day interactive maps with satellite and terrain views
+- Group trip hub — shared chat, fair expense splitting, group decisions
+- Near Me — food, sights and things to do around the traveller
+- Fitness-first stays, tribe travel, greener-trip suggestions
+- Honest budget breakdowns in Indian rupees
+
+## About
+- Made in Almora, Uttarakhand by Mohit Pandey
+- Web: https://www.roamwise.co.in
+- Contact: founder@roamwise.co.in
+- Free to use, India-first, Hindi and English
