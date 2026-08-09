@@ -2914,5 +2914,113 @@
    86,
    85
   ]
+ },
+ {
+  "slug": "seychelles-seychelles",
+  "title": "Seychelles, Seychelles",
+  "name": "Seychelles",
+  "country": "Seychelles",
+  "best": "July, August, October",
+  "arch": "tropical",
+  "cl": [
+   29.2,
+   29.3,
+   29.1,
+   29.1,
+   29.3,
+   28.4,
+   26.8,
+   26.6,
+   27.3,
+   27.8,
+   28.4,
+   27.7
+  ],
+  "scores": [
+   71,
+   55,
+   55,
+   55,
+   66,
+   75,
+   93,
+   90,
+   75,
+   96,
+   80,
+   56
+  ]
+ },
+ {
+  "slug": "london-uk",
+  "title": "London, UK",
+  "name": "London",
+  "country": "UK",
+  "best": "June, August, December",
+  "arch": "temperate",
+  "cl": [
+   7.9,
+   11.6,
+   12,
+   13.7,
+   18.4,
+   20,
+   21.8,
+   23.2,
+   19.1,
+   15.7,
+   10.7,
+   9.6
+  ],
+  "scores": [
+   83,
+   86,
+   90,
+   92,
+   91,
+   97,
+   89,
+   96,
+   79,
+   90,
+   92,
+   93
+  ]
+ },
+ {
+  "slug": "edinburgh-uk",
+  "title": "Edinburgh, UK",
+  "name": "Edinburgh",
+  "country": "UK",
+  "best": "June, September, November",
+  "arch": "temperate",
+  "cl": [
+   6.6,
+   8.6,
+   9.1,
+   10.9,
+   15.5,
+   16.3,
+   17.6,
+   18.4,
+   14.6,
+   13.1,
+   9.4,
+   8.8
+  ],
+  "scores": [
+   76,
+   85,
+   84,
+   84,
+   79,
+   92,
+   88,
+   88,
+   93,
+   88,
+   93,
+   82
+  ]
  }
 ]
