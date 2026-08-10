@@ -3022,5 +3022,113 @@
    93,
    82
   ]
+ },
+ {
+  "slug": "paris-france",
+  "title": "Paris, France",
+  "name": "Paris",
+  "country": "France",
+  "best": "April, July, November",
+  "arch": "temperate",
+  "cl": [
+   7,
+   11.3,
+   13,
+   15.3,
+   18.5,
+   20.9,
+   24.3,
+   25.5,
+   19.5,
+   17.1,
+   11,
+   8.2
+  ],
+  "scores": [
+   80,
+   88,
+   87,
+   89,
+   83,
+   86,
+   92,
+   84,
+   85,
+   85,
+   91,
+   86
+  ]
+ },
+ {
+  "slug": "nice-france",
+  "title": "Nice, France",
+  "name": "Nice",
+  "country": "France",
+  "best": "July, August, December",
+  "arch": "temperate",
+  "cl": [
+   13.4,
+   14.8,
+   15.5,
+   18.1,
+   20.3,
+   24,
+   28.6,
+   30.2,
+   24.4,
+   21.3,
+   17,
+   13.8
+  ],
+  "scores": [
+   90,
+   73,
+   69,
+   92,
+   91,
+   94,
+   99,
+   99,
+   81,
+   68,
+   96,
+   99
+  ]
+ },
+ {
+  "slug": "rome-italy",
+  "title": "Rome, Italy",
+  "name": "Rome",
+  "country": "Italy",
+  "best": "January, June, November",
+  "arch": "temperate",
+  "cl": [
+   14.2,
+   16.2,
+   17.5,
+   21,
+   23.5,
+   29.6,
+   34.9,
+   34.7,
+   26.6,
+   22.8,
+   17.5,
+   12.8
+  ],
+  "scores": [
+   95,
+   90,
+   85,
+   95,
+   87,
+   97,
+   87,
+   85,
+   83,
+   81,
+   98,
+   89
+  ]
  }
 ]
