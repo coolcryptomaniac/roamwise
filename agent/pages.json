@@ -3130,5 +3130,113 @@
    98,
    89
   ]
+ },
+ {
+  "slug": "venice-italy",
+  "title": "Venice, Italy",
+  "name": "Venice",
+  "country": "Italy",
+  "best": "July, August, November",
+  "arch": "temperate",
+  "cl": [
+   7.7,
+   11.5,
+   14.3,
+   17.9,
+   21.2,
+   25.4,
+   30.2,
+   31.1,
+   23.8,
+   19.1,
+   12.5,
+   8.6
+  ],
+  "scores": [
+   80,
+   84,
+   79,
+   91,
+   70,
+   83,
+   95,
+   95,
+   78,
+   67,
+   99,
+   86
+  ]
+ },
+ {
+  "slug": "florence-italy",
+  "title": "Florence, Italy",
+  "name": "Florence",
+  "country": "Italy",
+  "best": "June, July, November",
+  "arch": "temperate",
+  "cl": [
+   12,
+   15.1,
+   16.7,
+   20,
+   22.6,
+   27.4,
+   34,
+   34.8,
+   25.6,
+   21.7,
+   15.9,
+   11.1
+  ],
+  "scores": [
+   89,
+   85,
+   84,
+   89,
+   79,
+   94,
+   93,
+   88,
+   79,
+   73,
+   92,
+   89
+  ]
+ },
+ {
+  "slug": "barcelona-spain",
+  "title": "Barcelona, Spain",
+  "name": "Barcelona",
+  "country": "Spain",
+  "best": "February, July, August",
+  "arch": "temperate",
+  "cl": [
+   15.1,
+   17.3,
+   16.8,
+   18.3,
+   20.9,
+   24.5,
+   28.8,
+   29.7,
+   24.5,
+   22.1,
+   18.3,
+   14.6
+  ],
+  "scores": [
+   95,
+   98,
+   91,
+   82,
+   95,
+   91,
+   96,
+   96,
+   89,
+   81,
+   89,
+   96
+  ]
  }
 ]
