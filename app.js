@@ -7957,6 +7957,235 @@ function copilotSend(fromHero){
 }
 
 
+
+
+/* ===== TATKAL PREP (rw-v44) — the LEGITIMATE version of the "Tatkal hack".
+   DELIBERATE DESIGN DECISION: this does NOT auto-fill IRCTC, does NOT bypass
+   CAPTCHA, and does NOT script the booking. Automating IRCTC violates their
+   terms and gets USER ACCOUNTS BANNED — we will not hand our earliest users a
+   tool that does that. What actually loses people Tatkal seats is being
+   unprepared in the first 40 seconds, so we fix THAT: details ready to copy,
+   a synced countdown, and a pre-flight checklist. All on-device. */
+function openTatkal(){
+  try{ tabGo('home'); }catch(e){}
+  var sec=el('tatkalSection');
+  if(!sec){ sec=document.createElement('section'); sec.id='tatkalSection'; sec.className='xsec v v-home';
+    var host=el('copilotHero'); if(host&&host.parentNode) host.parentNode.insertBefore(sec,host.nextSibling); else document.body.appendChild(sec); }
+  sec.style.display='';
+  sec.innerHTML='<div class="xsec-head"><h2 class="xsec-title">\u26a1 Tatkal <em>prep</em></h2>'
+    +'<button class="tact" onclick="rwTatkalStopTimer();el(\'tatkalSection\').style.display=\'none\'">\u2715</button></div>'
+    +'<p class="xsec-sub">Tatkal is won or lost in the first 40 seconds. Have everything ready to paste, and a countdown so you\u2019re logged in before the window opens.</p>'
+    +'<div id="tatkalClock" style="background:var(--bg2,#12151F);border:1px solid var(--gold,#E8BA6C);border-radius:16px;padding:16px;text-align:center;margin-bottom:12px"></div>'
+    +'<div style="background:var(--bg2,#12151F);border:1px solid var(--b1,rgba(255,255,255,.07));border-radius:16px;padding:16px;margin-bottom:12px">'
+    +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">'
+    +'<div style="font-size:11px;color:var(--t3);font-weight:700;letter-spacing:.06em">PASSENGER LIST</div>'
+    +'<button class="tact" style="padding:5px 11px;font-size:11.5px" onclick="rwTatkalAddPax()">+ Add</button></div>'
+    +'<div id="tatkalPax"></div></div>'
+    +'<div style="background:var(--bg2,#12151F);border:1px solid var(--b1,rgba(255,255,255,.07));border-radius:16px;padding:16px">'
+    +'<div style="font-size:11px;color:var(--t3);font-weight:700;letter-spacing:.06em;margin-bottom:9px">PRE-FLIGHT CHECKLIST</div>'
+    +'<div id="tatkalCheck"></div></div>';
+  rwTatkalRenderPax(); rwTatkalRenderCheck(); rwTatkalStartTimer();
+}
+/* --- countdown to the next Tatkal window (10:00 AC / 11:00 non-AC IST) --- */
+var _tatkalTimer=null;
+function rwTatkalStopTimer(){ if(_tatkalTimer){ clearInterval(_tatkalTimer); _tatkalTimer=null; } }
+function rwTatkalStartTimer(){
+  rwTatkalStopTimer();
+  function tick(){
+    var host=el('tatkalClock'); if(!host){ rwTatkalStopTimer(); return; }
+    /* IST regardless of device timezone */
+    var now=new Date();
+    var ist=new Date(now.getTime() + (now.getTimezoneOffset()*60000) + (5.5*3600000));
+    function nextAt(h){
+      var t=new Date(ist); t.setHours(h,0,0,0);
+      if(t<=ist) t.setDate(t.getDate()+1);
+      return t;
+    }
+    var ac=nextAt(10), nac=nextAt(11);
+    var next = ac<nac ? {t:ac,label:'AC classes (10:00 IST)'} : {t:nac,label:'Sleeper / non-AC (11:00 IST)'};
+    var ms=next.t-ist, hh=Math.floor(ms/3600000), mm=Math.floor(ms%3600000/60000), ss=Math.floor(ms%60000/1000);
+    var soon = ms < 10*60000;
+    host.innerHTML='<div style="font-size:11px;color:var(--t3);font-weight:700;letter-spacing:.06em">NEXT TATKAL WINDOW</div>'
+      +'<div style="font-size:34px;font-weight:900;color:'+(soon?'#4ADE80':'var(--gold,#E8BA6C)')+';margin:6px 0;font-variant-numeric:tabular-nums">'
+      + String(hh).padStart(2,'0')+':'+String(mm).padStart(2,'0')+':'+String(ss).padStart(2,'0')+'</div>'
+      +'<div style="font-size:12.5px;color:var(--t2)">'+next.label+'</div>'
+      +(soon?'<div style="font-size:12px;color:#4ADE80;font-weight:700;margin-top:6px">Log in to IRCTC NOW \u2014 be on the booking page before it opens</div>':'')
+      +'<div style="font-size:10.5px;color:var(--t3);margin-top:8px;line-height:1.5">Times are IST. RoamWise never books or logs in for you \u2014 automating IRCTC breaks their rules and can get your account banned.</div>';
+  }
+  tick(); _tatkalTimer=setInterval(tick,1000);
+}
+/* --- passenger master list (on-device only) --- */
+function rwTatkalPax(){ try{ return JSON.parse(lsGet('rw_tatkal_pax')||'[]'); }catch(e){ return []; } }
+function rwTatkalSetPax(a){ try{ lsSet('rw_tatkal_pax', JSON.stringify(a.slice(0,6))); }catch(e){} }
+function rwTatkalAddPax(){
+  rwForm('Add passenger', [
+    {key:'name', label:'Full name (as on ID)'},
+    {key:'age', label:'Age', type:'number'},
+    {key:'gender', label:'Gender (M/F/T)'},
+    {key:'berth', label:'Berth preference', placeholder:'Lower / Upper / Side lower / No preference'}
+  ], function(v){
+    if(!v.name){ showToast('Name is required'); return; }
+    var list=rwTatkalPax(); list.push({name:v.name, age:v.age, gender:(v.gender||'').toUpperCase(), berth:v.berth||''});
+    rwTatkalSetPax(list); rwTatkalRenderPax();
+  });
+}
+function rwTatkalDelPax(i){ var l=rwTatkalPax(); l.splice(i,1); rwTatkalSetPax(l); rwTatkalRenderPax(); }
+function rwTatkalRenderPax(){
+  var host=el('tatkalPax'); if(!host) return;
+  var list=rwTatkalPax();
+  if(!list.length){ host.innerHTML='<div style="font-size:12.5px;color:var(--t3)">Add your regular travellers once. When Tatkal opens you copy them in instead of typing under pressure.</div>'; return; }
+  host.innerHTML=list.map(function(p,i){
+    return '<div style="display:flex;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid var(--b1,rgba(255,255,255,.06))">'
+      +'<div style="flex:1"><b style="font-size:13.5px">'+esc2(p.name)+'</b>'
+      +'<div style="font-size:11.5px;color:var(--t3)">'+esc2(String(p.age||''))+(p.gender?' \u00b7 '+esc2(p.gender):'')+(p.berth?' \u00b7 '+esc2(p.berth):'')+'</div></div>'
+      +'<button class="tact" style="padding:4px 9px;font-size:11px" onclick="rwTatkalCopyPax('+i+')">Copy</button>'
+      +'<button class="tact" style="padding:4px 8px;font-size:11px" onclick="rwTatkalDelPax('+i+')">\u2715</button></div>';
+  }).join('')
+  +'<button class="tact" style="width:100%;margin-top:10px;font-weight:700" onclick="rwTatkalCopyAll()">\ud83d\udccb Copy all passengers</button>';
+}
+function rwTatkalCopyPax(i){
+  var p=rwTatkalPax()[i]; if(!p) return;
+  var txt=p.name+'\t'+(p.age||'')+'\t'+(p.gender||'')+(p.berth?'\t'+p.berth:'');
+  try{ navigator.clipboard.writeText(txt); showToast('Copied \u2014 paste into IRCTC'); }catch(e){ showToast('Copy failed'); }
+}
+function rwTatkalCopyAll(){
+  var txt=rwTatkalPax().map(function(p){ return p.name+'\t'+(p.age||'')+'\t'+(p.gender||'')+(p.berth?'\t'+p.berth:''); }).join('\n');
+  if(!txt){ showToast('No passengers saved yet'); return; }
+  try{ navigator.clipboard.writeText(txt); showToast('All passengers copied'); }catch(e){ showToast('Copy failed'); }
+}
+/* --- checklist --- */
+var RW_TATKAL_STEPS=[
+  'IRCTC username &amp; password remembered (test-login the night before)',
+  'Passenger details saved in IRCTC\u2019s own Master List',
+  'Payment ready \u2014 UPI app open, or saved card / IRCTC eWallet topped up',
+  'Train number &amp; class decided in advance (don\u2019t browse at 10:00)',
+  'Boarding &amp; destination stations confirmed',
+  'Strong network \u2014 switch to mobile data if wifi is flaky',
+  'Logged in and sitting on the booking page 2 minutes early'
+];
+function rwTatkalRenderCheck(){
+  var host=el('tatkalCheck'); if(!host) return;
+  var done={}; try{ done=JSON.parse(lsGet('rw_tatkal_check')||'{}'); }catch(e){}
+  host.innerHTML=RW_TATKAL_STEPS.map(function(t,i){
+    var on=!!done[i];
+    return '<button onclick="rwTatkalToggle('+i+')" style="display:flex;align-items:flex-start;gap:9px;width:100%;text-align:left;background:none;border:none;padding:7px 0;cursor:pointer;color:var(--t1)">'
+      +'<span style="font-size:15px;flex:0 0 auto">'+(on?'\u2705':'\u2b1c')+'</span>'
+      +'<span style="font-size:12.5px;line-height:1.5;'+(on?'color:var(--t3);text-decoration:line-through':'')+'">'+t+'</span></button>';
+  }).join('');
+}
+function rwTatkalToggle(i){
+  var done={}; try{ done=JSON.parse(lsGet('rw_tatkal_check')||'{}'); }catch(e){}
+  done[i]=!done[i]; try{ lsSet('rw_tatkal_check', JSON.stringify(done)); }catch(e){}
+  try{ rwHaptic(); }catch(e){}
+  rwTatkalRenderCheck();
+}
+
+/* ============ ARRIVAL MODE — "your ticket is the start, not the end" (rw-v44)
+   The strategic wedge vs ixigo/ConfirmTkt/IRCTC: on those apps the journey ENDS
+   when the ticket is booked. Here, the arrival station + time is the TRIGGER
+   for a full trip. We deliberately do NOT book tickets (that needs authorised
+   IRCTC partner access) — we own everything around the ticket instead, and
+   deep-link out for the booking itself.
+   ========================================================================== */
+var RW_STATIONS=[
+  {q:'New Delhi (NDLS)', city:'Delhi'},{q:'Haridwar (HW)', city:'Haridwar'},
+  {q:'Rishikesh (RKSH)', city:'Rishikesh'},{q:'Madgaon Goa (MAO)', city:'Goa'},
+  {q:'Bengaluru (SBC)', city:'Bangalore'},{q:'Mumbai CSMT', city:'Mumbai'},
+  {q:'Varanasi (BSB)', city:'Varanasi'},{q:'Jaipur (JP)', city:'Jaipur'},
+  {q:'Kalka (KLK)', city:'Shimla'},{q:'Chennai Central (MAS)', city:'Chennai'},
+  {q:'Kochi (ERS)', city:'Kochi'},{q:'Guwahati (GHY)', city:'Guwahati'}
+];
+function openArrival(){
+  try{ tabGo('home'); }catch(e){}
+  var sec=el('arrivalSection');
+  if(!sec){ sec=document.createElement('section'); sec.id='arrivalSection'; sec.className='xsec v v-home';
+    var host=el('copilotHero'); if(host&&host.parentNode) host.parentNode.insertBefore(sec,host.nextSibling); else document.body.appendChild(sec); }
+  sec.style.display='';
+  sec.innerHTML='<div class="xsec-head"><h2 class="xsec-title">\ud83d\ude82 Arrival <em>mode</em></h2>'
+    +'<button class="tact" onclick="el(\'arrivalSection\').style.display=\'none\'">\u2715</button></div>'
+    +'<p class="xsec-sub">Booked a train? Tell us where you land and when \u2014 we\u2019ll build the trip around your arrival, not around a search box.</p>'
+    +'<div style="background:var(--bg2,#12151F);border:1px solid var(--b1,rgba(255,255,255,.07));border-radius:16px;padding:16px;margin-bottom:14px">'
+    +'<div style="font-size:11px;color:var(--t3);font-weight:700;letter-spacing:.06em;margin-bottom:7px">ARRIVING AT</div>'
+    +'<input id="arrStation" list="arrStationList" placeholder="Station or city \u2014 e.g. Haridwar (HW)" style="width:100%;background:var(--bg3,#1A1A20);border:1px solid var(--b2,#2A2A36);border-radius:10px;padding:11px;color:var(--t1);font:inherit;margin-bottom:10px">'
+    +'<datalist id="arrStationList">'+RW_STATIONS.map(function(x){return '<option value="'+x.q+'">';}).join('')+'</datalist>'
+    +'<div style="display:flex;gap:8px;flex-wrap:wrap">'
+    +'<div style="flex:1;min-width:110px"><div style="font-size:11px;color:var(--t3);font-weight:700;margin-bottom:5px">ARRIVAL TIME</div>'
+    +'<input id="arrTime" type="time" value="06:00" style="width:100%;background:var(--bg3,#1A1A20);border:1px solid var(--b2,#2A2A36);border-radius:10px;padding:10px;color:var(--t1);font:inherit"></div>'
+    +'<div style="flex:1;min-width:110px"><div style="font-size:11px;color:var(--t3);font-weight:700;margin-bottom:5px">HOW MANY DAYS</div>'
+    +'<input id="arrDays" type="number" min="1" max="14" value="3" style="width:100%;background:var(--bg3,#1A1A20);border:1px solid var(--b2,#2A2A36);border-radius:10px;padding:10px;color:var(--t1);font:inherit"></div></div>'
+    +'<button class="tact" style="width:100%;margin-top:12px;font-weight:800;background:linear-gradient(135deg,var(--gold,#E8BA6C),var(--gold2,#C8913E));color:#0A0A0C;border:none;padding:13px" onclick="rwArrivalGo()">Build my trip from this arrival \u2192</button>'
+    +'</div>'
+    +'<div id="arrivalOut"></div>';
+}
+function rwArrivalGo(){
+  var st=(el('arrStation')&&el('arrStation').value||'').trim();
+  var tm=(el('arrTime')&&el('arrTime').value)||'06:00';
+  var dy=parseInt((el('arrDays')&&el('arrDays').value)||'3',10)||3;
+  if(!st){ showToast('Which station are you arriving at?'); return; }
+  var city=st.replace(/\s*\([A-Z]+\)\s*$/,'').trim();
+  var known=RW_STATIONS.filter(function(x){ return x.q.toLowerCase()===st.toLowerCase(); })[0];
+  if(known) city=known.city;
+  var hr=parseInt(tm.split(':')[0],10);
+  var slot = hr<5?'pre-dawn' : hr<9?'early morning' : hr<12?'late morning' : hr<16?'afternoon' : hr<20?'evening' : 'late night';
+  var out=el('arrivalOut');
+  out.innerHTML='<div style="background:var(--bg2,#12151F);border:1px solid var(--gold,#E8BA6C);border-radius:16px;padding:16px;margin-bottom:12px">'
+    +'<div style="font-weight:800;font-size:15px;margin-bottom:4px">\ud83d\ude82 Landing in '+esc2(city)+' at '+esc2(tm)+'</div>'
+    +'<div style="font-size:12.5px;color:var(--t2);line-height:1.6">'+esc2(rwArrivalAdvice(slot, city))+'</div>'
+    +'</div>'
+    +'<div style="display:flex;gap:8px;flex-wrap:wrap">'
+    +'<button class="tact" style="flex:1;min-width:150px;font-weight:800" onclick="rwArrivalPlan(\''+city.replace(/'/g,"\\'")+'\','+dy+',\''+tm+'\')">\ud83d\uddd3\ufe0f Build '+dy+'-day itinerary</button>'
+    +'<button class="tact" style="flex:1;min-width:150px" onclick="rwArrivalNear(\''+city.replace(/'/g,"\\'")+'\')">\ud83d\udccd What\u2019s near the station</button>'
+    +'<button class="tact" style="flex:1;min-width:150px" onclick="openFitnessStays()">\ud83c\udfcb\ufe0f Gyms &amp; stays nearby</button>'
+    +'<button class="tact" style="flex:1;min-width:150px" onclick="rwArrivalBookOut(\''+city.replace(/'/g,"\\'")+'\')">\ud83c\udfab Book the train</button>'
+    +'</div>';
+}
+/* Genuinely useful, non-obvious arrival guidance — the thing a booking app
+   never tells you. Deliberately generic-but-true rather than invented specifics. */
+function rwArrivalAdvice(slot, city){
+  if(slot==='pre-dawn'||slot==='late night')
+    return 'You land when most of '+city+' is asleep. Pre-book your stay for the night BEFORE you arrive so you can check in straight away \u2014 arriving at 3am without a booked room is the classic Indian-rail mistake. Prepaid taxi counters and station retiring rooms are your friends here.';
+  if(slot==='early morning')
+    return 'The best possible arrival slot. Drop bags, get chai, and hit the main sight before the crowds and heat \u2014 you effectively gain a whole extra day.';
+  if(slot==='late morning')
+    return 'Check in first, eat a proper lunch, then start with something indoors or shaded \u2014 the midday sun will eat your energy otherwise.';
+  if(slot==='afternoon')
+    return 'Treat today as a soft start: settle in, walk the local market, eat well. Save the big sights for a full morning tomorrow.';
+  return 'You arrive as '+city+' switches to evening mode \u2014 perfect for a food street and an early night, so tomorrow starts properly.';
+}
+function rwArrivalPlan(city, days, tm){
+  var q='I arrive in '+city+' by train at '+tm+'. Plan '+days+' days starting from that arrival \u2014 account for the arrival time on day 1 (do not plan a full morning if I land in the afternoon).';
+  var inp=el('heroInput')||el('cpInput');
+  if(inp){ inp.value=q; try{ copilotSend(!!el('heroInput')); }catch(e){} }
+  var a=el('arrivalSection'); if(a) a.style.display='none';
+}
+function rwArrivalNear(city){
+  try{ openNearMe(); }catch(e){}
+  setTimeout(function(){
+    var mi=el('nearManualInp');
+    if(mi){ mi.value=city+' railway station'; try{ rwNearMeManualGo(); }catch(e){} }
+    else { try{ rwNearMeManual('Searching around '+city+' station.'); setTimeout(function(){ var m2=el('nearManualInp'); if(m2){ m2.value=city+' railway station'; rwNearMeManualGo(); } },250); }catch(e){} }
+  }, 400);
+}
+/* We don't book tickets (that needs authorised IRCTC partner access) — we send
+   users out to the real booking sites, honestly labelled. */
+function rwArrivalBookOut(city){
+  var ov=el('bookOutOv');
+  if(!ov){ ov=document.createElement('div'); ov.id='bookOutOv'; ov.className='overlay'; ov.style.zIndex='3000';
+    ov.onclick=function(e){ if(e.target===ov) rwOverlayClose('bookOutOv'); }; document.body.appendChild(ov); }
+  function lk(name, url, note){
+    return '<a href="'+url+'" target="_blank" rel="noopener" class="tact" style="display:flex;align-items:center;gap:10px;text-decoration:none;padding:13px;margin-bottom:8px;border-radius:12px">'
+      +'<span style="flex:1"><b style="font-size:14px">'+name+'</b><div style="font-size:11.5px;color:var(--t3)">'+note+'</div></span><span>\u2197</span></a>';
+  }
+  ov.innerHTML='<div class="sheet" style="max-width:400px"><div class="sheet-h"><b>\ud83c\udfab Book your train</b>'
+    +'<button onclick="rwOverlayClose(\'bookOutOv\')" class="tact">\u2715</button></div>'
+    +'<p style="font-size:12px;color:var(--t2);margin:2px 0 12px">RoamWise plans the trip \u2014 booking happens on the official platforms, so you always get real fares and real availability.</p>'
+    + lk('IRCTC', 'https://www.irctc.co.in/', 'The official Indian Railways booking site')
+    + lk('ixigo trains', 'https://www.ixigo.com/trains', 'PNR status, availability prediction')
+    + lk('ConfirmTkt', 'https://www.confirmtkt.com/', 'Confirmation-chance prediction')
+    +'<div style="font-size:11px;color:var(--t3);margin-top:6px;line-height:1.5">Come back after booking and tap \ud83d\ude82 Arrival mode \u2014 we\u2019ll build the trip around your arrival time.</div></div>';
+  ov.classList.add('open');
+}
+
 /* ================= SMART TRAVEL MATCHING ENGINE (rw-v40) =================
    Matches people by travel INTENT — founders, investors, creators and
    travellers heading to similar places at similar times. Cross-device via
@@ -9228,6 +9457,7 @@ function tripChatOpen(roomId, roomName){
       +'<button class="chat-tool" onclick="chatShareMeet()">\ud83d\udccd Meet point</button>'
       +'<button class="chat-tool" onclick="chatNewPoll()">\ud83d\uddf3\ufe0f Poll</button>'
       +'<button class="chat-tool" onclick="chatWhenAsk()">\ud83d\udcc5 When can everyone go?</button>'
+      +'<button class="chat-tool" onclick="chatTrainAsk()">\ud83d\ude82 Pick a train</button>'
       +'<button class="chat-tool" onclick="chatMarkPaid()">\u2705 Mark paid</button>'
       +'<button class="chat-tool" onclick="chatInvite()">\ud83d\udc65 Invite</button>'
       +'</div>'
@@ -9552,6 +9782,8 @@ var CHAT_KINDS = {
   text:    {icon:'', label:''},
   tusk:    {icon:'\u26a1', label:'Ailon Tusk'},
   when:    {icon:'\ud83d\udcc5', label:'When can everyone go?'},
+  train:   {icon:'\ud83d\ude82', label:'Which train?'},
+  trainvote:{icon:'', label:''},
   whenvote:{icon:'', label:''},
   budget:  {icon:'\ud83d\udcb0', label:'Budget'},
   plan:    {icon:'\ud83d\uddd3\ufe0f', label:'Itinerary'},
@@ -9819,6 +10051,91 @@ function chatKittyHTML(){
 function chatSettle(toUid, amount){
   chatPost('settle', {from:user.uid, to:toUid, amount:amount},
     (user.displayName||'Someone').split('@')[0]+' settled \u20b9'+amount.toLocaleString('en-IN'));
+}
+
+
+/* ===== GROUP TRAIN PICKER (rw-v44) — pillar 2 of the rail strategy.
+   On IRCTC/ixigo, group travel means one person books and everyone argues in
+   WhatsApp afterwards. Here: propose 2-4 train options with fares, everyone
+   votes inline, the winner auto-posts as a decision AND drops the fare into
+   the kitty split so nobody chases anyone for money. Reuses the existing
+   poll + settle-engine plumbing. */
+function chatTrainAsk(){
+  rwForm('\ud83d\ude82 Which train should we take?', [
+    {key:'route', label:'Route', placeholder:'e.g. Delhi \u2192 Haridwar', value:''},
+    {key:'o1', label:'Option 1 (train + time + fare)', placeholder:'e.g. Shatabdi 12017, 06:45, \u20b9805'},
+    {key:'o2', label:'Option 2', placeholder:'e.g. Jan Shatabdi 12055, 15:20, \u20b9420'},
+    {key:'o3', label:'Option 3 (optional)', placeholder:''},
+    {key:'o4', label:'Option 4 (optional)', placeholder:''}
+  ], function(v){
+    var options=[v.o1,v.o2,v.o3,v.o4].map(function(x){return (x||'').trim();}).filter(Boolean);
+    if(options.length<2){ showToast('Give at least two train options'); return; }
+    chatPost('train', {route:v.route||'Our train', options:options},
+      '\ud83d\ude82 '+(v.route||'Which train?'));
+  });
+}
+function chatTrainVote(msgId, idx){
+  if(!_chatRoom || !user) return;
+  chatPost('trainvote', {poll:msgId, pick:idx}, '\ud83d\ude82 voted');
+  try{ rwHaptic(); }catch(e){}
+}
+function chatTrainTally(msg){
+  var opts=(msg.payload&&msg.payload.options)||[];
+  var byUser={};
+  _chatMsgs.forEach(function(m){
+    if(m.kind==='trainvote' && m.payload && m.payload.poll===msg._id){
+      byUser[m.uid]={pick:m.payload.pick, name:m.name||'Someone'};
+    }
+  });
+  var counts=opts.map(function(){return 0;}), names=opts.map(function(){return [];});
+  Object.keys(byUser).forEach(function(u){
+    var pk=byUser[u].pick;
+    if(counts[pk]!==undefined){ counts[pk]++; names[pk].push(byUser[u].name.split(' ')[0]); }
+  });
+  var people=Object.keys(byUser).length, best=-1, max=0;
+  counts.forEach(function(c,i){ if(c>max){ max=c; best=i; } });
+  var mine=(byUser[user&&user.uid]||{}).pick;
+  return {counts:counts,names:names,people:people,best:best,max:max,mine:mine,opts:opts};
+}
+/* pull a ₹ fare out of the free-text option so we can split it automatically */
+function rwFareOf(text){
+  var m=String(text||'').match(/(?:\u20b9|rs\.?\s*)\s*([\d,]+)/i);
+  return m ? parseInt(m[1].replace(/,/g,''),10) : 0;
+}
+function chatTrainBody(msg){
+  var t=chatTrainTally(msg);
+  var rows=t.opts.map(function(o,i){
+    var isBest=i===t.best && t.max>0, picked=t.mine===i, fare=rwFareOf(o);
+    return '<button onclick="chatTrainVote(\''+msg._id+'\','+i+')" style="display:block;width:100%;text-align:left;margin-bottom:7px;padding:10px 12px;border-radius:11px;cursor:pointer;'
+      +'background:'+(picked?'rgba(232,186,108,.14)':'var(--bg3,#1A1A20)')+';'
+      +'border:1px solid '+(isBest?'var(--gold,#E8BA6C)':(picked?'rgba(232,186,108,.5)':'var(--b2,#2A2A36)'))+';color:var(--t1,#EDEAE2)">'
+      +'<div style="display:flex;justify-content:space-between;align-items:center;gap:8px">'
+      +'<span style="font-weight:700;font-size:13px">'+(picked?'\u25c9 ':'\u25cb ')+esc2(o)+'</span>'
+      +'<span style="font-size:11px;color:'+(isBest?'var(--gold,#E8BA6C)':'var(--t3,#7A7870)')+';font-weight:700">'+t.counts[i]+'/'+t.people+(isBest?' \u2b50':'')+'</span></div>'
+      +(t.names[i].length?'<div style="font-size:10.5px;color:var(--t3,#7A7870);margin-top:3px">'+esc2(t.names[i].join(', '))+'</div>':'')
+      +(fare?'<div style="font-size:10.5px;color:#4ADE80;margin-top:3px">\u20b9'+fare+' each \u00b7 splits automatically if chosen</div>':'')
+      +'</button>';
+  }).join('');
+  var lock = t.max>0
+    ? '<button class="chat-tool" style="width:100%;margin-top:6px;justify-content:center" onclick="chatTrainLock(\''+msg._id+'\')">\u2705 Lock this train &amp; split the fare</button>'
+    : '<div style="font-size:11.5px;color:var(--t3,#7A7870);margin-top:6px">Tap the train that works for you.</div>';
+  return '<div style="margin-top:6px">'+rows+lock+'</div>';
+}
+function chatTrainLock(msgId){
+  var msg=_chatMsgs.filter(function(m){return m._id===msgId;})[0]; if(!msg) return;
+  var t=chatTrainTally(msg);
+  if(t.best<0||!t.max){ showToast('Nobody has voted yet'); return; }
+  var choice=t.opts[t.best], fare=rwFareOf(choice);
+  chatPost('decision', {q:(msg.payload&&msg.payload.route)||'Train', choice:choice},
+    '\u2705 Train locked: '+choice+' ('+t.max+' of '+t.people+')');
+  if(fare>0 && user){
+    /* drop it straight into the kitty so the fare is already split */
+    chatPost('expense', {amount:fare*Math.max(1,t.people), what:'Train tickets \u2014 '+choice.slice(0,40)},
+      '\ud83d\udcb0 Train fare added to the kitty');
+    showToast('Train locked \u00b7 \u20b9'+fare+' each added to the split');
+  } else {
+    showToast('Train locked \u2705');
+  }
 }
 
 /* ============ "WHEN CAN EVERYONE GO?" — group date finder (rw-v39) ============
@@ -10233,7 +10550,15 @@ function chatBubble(id, m, mine){
       +'<div style="font-size:12.5px;margin-top:2px">'+esc2(p.q||'')+' \u2192 <b>'+esc2(p.choice||'')+'</b></div></div></div>';
   }
   if(kind==='vote'){ return ''; }
-  if(kind==='whenvote'){ return ''; }   /* availability updates are silent — the card shows the tally */
+  if(kind==='whenvote'){ return ''; }
+  if(kind==='trainvote'){ return ''; }
+  if(kind==='train'){
+    var pt=m.payload||{};
+    return '<div class="tk-card" style="background:var(--bg2,#12121C);border:1px solid var(--b2,#2A2A36);border-radius:14px;padding:13px;margin:7px 0">'
+      +'<div style="font-size:12px;font-weight:800;color:var(--gold,#E8BA6C);margin-bottom:2px">\ud83d\ude82 '+esc2(pt.route||'Which train?')+'</div>'
+      +'<div style="font-size:10.5px;color:var(--t3,#7A7870);margin-bottom:8px">Asked by '+esc2((m.name||'Someone').split(' ')[0])+' \u00b7 tap the one that works</div>'
+      + chatTrainBody(m) + '</div>';
+  }   /* availability updates are silent — the card shows the tally */
   if(kind==='when'){
     var pw=m.payload||{};
     return '<div class="tk-card" style="background:var(--bg2,#12121C);border:1px solid var(--b2,#2A2A36);border-radius:14px;padding:13px;margin:7px 0">'

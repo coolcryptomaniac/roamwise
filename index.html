@@ -388,10 +388,10 @@ html{-webkit-text-size-adjust:100%}
 
 <section class="v v-home" id="quickGrid" style="margin:4px 14px 8px">
   <div class="qg-wrap">
+    <button class="qg-tile" onclick="openArrival()"><span class="qg-ic">🚂</span><span class="qg-lbl">Arrival mode</span></button>
+    <button class="qg-tile" onclick="openTatkal()"><span class="qg-ic">⚡</span><span class="qg-lbl">Tatkal prep</span></button>
     <button class="qg-tile" onclick="openNearMe()"><span class="qg-ic">📍</span><span class="qg-lbl">Near me</span></button>
     <button class="qg-tile" onclick="openMoneyLayer()"><span class="qg-ic">💰</span><span class="qg-lbl">Split money</span></button>
-    <button class="qg-tile" onclick="openTribeTravel()"><span class="qg-ic">🤝</span><span class="qg-lbl">Tribe travel</span></button>
-    <button class="qg-tile" onclick="openFitnessStays()"><span class="qg-ic">🏋️</span><span class="qg-lbl">Fit stays</span></button>
   </div>
 </section>
 
@@ -771,6 +771,8 @@ html{-webkit-text-size-adjust:100%}
   <a class="dr-link" onclick="closeDrawer();openSettings()"><span class="ic">⚙️</span>Settings &amp; AI keys</a>
   <a class="dr-link" onclick="closeDrawer();openBadges()"><span class="ic">🏅</span>My badges &amp; achievements</a>
   <a class="dr-link" onclick="closeDrawer();openJourneyCert()"><span class="ic">🎖️</span>Journey certificate</a>
+    <a class="dr-link" onclick="closeDrawer();openArrival()"><span class="ic">🚂</span>Arrival mode <span style="margin-left:auto;font-size:9px;background:var(--gold,#E8BA6C);color:#0A0A0C;padding:1px 6px;border-radius:20px;font-weight:800">NEW</span></a>
+  <a class="dr-link" onclick="closeDrawer();openTatkal()"><span class="ic">⚡</span>Tatkal prep <span style="margin-left:auto;font-size:9px;background:var(--gold,#E8BA6C);color:#0A0A0C;padding:1px 6px;border-radius:20px;font-weight:800">NEW</span></a>
   <a class="dr-link" onclick="closeDrawer();openNearMe()"><span class="ic">📍</span>Near me</a>
   <a class="dr-link" onclick="closeDrawer();openFitnessStays()"><span class="ic">🏋️</span>Fitness-first stays</a>
   <a class="dr-link" onclick="closeDrawer();openTribeTravel()"><span class="ic">🤝</span>Tribe travel</a>
