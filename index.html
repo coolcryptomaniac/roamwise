@@ -333,7 +333,7 @@ html{-webkit-text-size-adjust:100%}
       <button class="btn btn-ghost" data-i18n="nav.plan" onclick="scrollTo(0,document.getElementById('app').offsetTop-10)">Plan</button>
       <button class="xp-chip" id="xpChip" onclick="openDrawer()" title="Your traveler rank">&#129399; <span id="xpChipTxt">Genin</span></button>
       <button class="btn btn-pro" id="proBtn" onclick="openPay()">Pro &#8377;100</button>
-      <button class="btn btn-ghost" id="authBtn" onclick="openAuth()" style="display:none">Sign in</button>
+      <button class="btn" id="authBtn" onclick="openAuth()" style="display:none;background:linear-gradient(135deg,var(--gold,#E8BA6C),var(--gold2,#C8913E));color:#0A0A0C;font-weight:800;border:none;padding:8px 16px;white-space:nowrap">Sign in</button>
       <img class="avatar" id="authAvatar" src="" alt="" style="display:none" onclick="authMenu()">
       <button class="hamb" onclick="openDrawer()" aria-label="Menu">&#9776;</button>
     </div>
@@ -470,8 +470,12 @@ html{-webkit-text-size-adjust:100%}
   </div>
   <div class="slider-row">
     <span class="slider-lbl">$200</span>
-    <input type="range" id="budgetSlider" min="200" max="10000" value="1200" step="50">
+    <input type="range" id="budgetSlider" min="200" max="10000" value="1200" step="10">
     <span class="slider-lbl">$10k+</span>
+  </div>
+  <div class="slider-row" style="justify-content:center;gap:8px;margin-top:6px">
+    <span id="budgetExactSym" style="font-size:13px;color:var(--t2)">₹</span>
+    <input type="number" id="budgetExact" placeholder="Type an exact amount" style="width:150px;background:var(--bg3,#1A1A20);border:1px solid var(--b2,#2A2A36);border-radius:9px;padding:8px 10px;color:var(--t1);font-size:13px;text-align:center">
   </div>
   <div class="divider"></div>
   <div class="sl-label">Interests</div>

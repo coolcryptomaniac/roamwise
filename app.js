@@ -323,6 +323,59 @@ var ALL_COUNTRIES = ['Afghanistan','Albania','Algeria','Argentina','Armenia','Au
 var LS = localStorage;
 function lsGet(k){ return LS.getItem(k)||''; }
 function lsSet(k,v){ LS.setItem(k,v); }
+
+/* ================= PUSH + LOCAL NOTIFICATIONS (rw-v42) =================
+   PUSH: registers the device with Firebase Cloud Messaging (via Capacitor's
+   push-notifications plugin) and stores the token against the signed-in user.
+   This means notifications can be sent to all users FREE, straight from the
+   Firebase Console's Notification composer \u2014 no custom backend needed.
+   LOCAL: upgrades Tusk's "Remind me" from a setTimeout (dies if the app
+   closes) to a real OS-scheduled notification that fires even when closed.
+   ========================================================================== */
+function rwInitPush(){
+  if(!(window.Capacitor && Capacitor.Plugins && Capacitor.Plugins.PushNotifications)) return;
+  var PN=Capacitor.Plugins.PushNotifications;
+  try{
+    PN.checkPermissions().then(function(p){
+      if(p.receive==='granted') return true;
+      return PN.requestPermissions().then(function(r){ return r.receive==='granted'; });
+    }).then(function(ok){
+      if(!ok) return;
+      PN.register();
+      PN.addListener('registration', function(tok){
+        try{ rwSaveDeviceToken(tok.value); }catch(e){}
+      });
+      PN.addListener('registrationError', function(){ /* silent \u2014 push is a bonus, never blocks the app */ });
+      PN.addListener('pushNotificationReceived', function(n){
+        try{ showToast('\ud83d\udce3 '+(n.title||'RoamWise')+(n.body?': '+n.body:'')); }catch(e){}
+      });
+      PN.addListener('pushNotificationActionPerformed', function(){ try{ tabGo('home'); }catch(e){} });
+    }).catch(function(){});
+  }catch(e){}
+}
+function rwSaveDeviceToken(token){
+  if(!token || !user || typeof db==='undefined' || !db) return;
+  db.collection('users').doc(user.uid).set({ pushToken: token, pushTokenAt: firebase.firestore.FieldValue.serverTimestamp() }, {merge:true}).catch(function(){});
+}
+/* Local notification, upgraded from the old setTimeout-only version. Falls
+   back to the JS timer + chime when running outside the app (web/PWA). */
+function rwLocalNotifySchedule(what, mins){
+  if(window.Capacitor && Capacitor.Plugins && Capacitor.Plugins.LocalNotifications){
+    var LN=Capacitor.Plugins.LocalNotifications;
+    try{
+      LN.requestPermissions().then(function(){
+        return LN.schedule({ notifications:[{
+          id: Math.floor(Date.now()%1e8),
+          title:'RoamWise reminder', body: what,
+          schedule:{ at: new Date(Date.now()+mins*60000) }
+        }]});
+      });
+      return true;
+    }catch(e){ return false; }
+  }
+  return false;
+}
+
 /* ===== FIRST-LAUNCH WALKTHROUGH (onboarding) =====
    Shows once, introduces the key features, has a Skip option. Report-requested. */
 var RW_ONBOARD=[
@@ -832,12 +885,35 @@ function fmtMoney(usd){
 })();
 
 var slider = el('budgetSlider');
-slider.addEventListener('input', updateBudget);
-function updateBudget(){
+slider.addEventListener('input', function(){ updateBudget(true); });
+/* BUG FIX (reported by team, Ladakh 40k case): the slider moves in fixed USD
+   steps, so at typical currency rates a single step could jump the DISPLAYED
+   INR value by 4000+, making round numbers like exactly 40,000 nearly
+   impossible to land on by dragging. Fix: a real "type an exact amount" field
+   that's always the source of truth for precision, alongside a finer slider
+   step for anyone who prefers to drag. */
+function updateBudget(fromSlider){
   var v = parseInt(slider.value);
   el('budgetDisplay').innerHTML = v>=10000 ? fmtMoney(10000)+'+' : fmtMoney(v);
   slider.style.setProperty('--pct', ((v-200)/9800*100).toFixed(1)+'%');
+  var cu = CURR.find(function(x){return x.c===AC;}) || {s:'\u20b9', r:1};
+  var ex = el('budgetExact'), sym = el('budgetExactSym');
+  if(sym) sym.textContent = cu.s;
+  if(ex && document.activeElement!==ex){ ex.value = Math.round(v*cu.r); }
 }
+(function(){
+  var ex = el('budgetExact');
+  if(ex){
+    ex.addEventListener('input', function(){
+      var cu = CURR.find(function(x){return x.c===AC;}) || {r:1};
+      var shown = parseFloat(ex.value); if(isNaN(shown) || shown<0) return;
+      var usd = Math.round(shown/cu.r);
+      usd = Math.max(200, Math.min(10000, usd));
+      slider.value = usd;
+      updateBudget(false);
+    });
+  }
+})();
 updateBudget();
 
 el('tagsContainer').addEventListener('click', function(e){
@@ -1692,7 +1768,8 @@ function compareModels(name, days){
   ov.classList.add('open');
   var body=el('cmpBody');
   if(!provs.length){ body.innerHTML='<div class="mode-box">No AI keys yet \u2014 run the 60-second wizard first.</div><button class="rzp-main-btn" onclick="el(\'cmpOverlay\').classList.remove(\'open\');openWizard()">\ud83e\ude84 Open the wizard</button>'; return; }
-  var prompt='Create a compact '+Math.min(days,5)+'-day itinerary for '+name+'. For each day give: a title and one line each for morning, afternoon, evening. Be specific with real place names. Max 140 words total.';
+  var _curSym=(CURR.find(function(x){return x.c===AC;})||{s:'\u20b9'}).s;
+  var prompt='Create a compact '+Math.min(days,5)+'-day itinerary for '+name+'. For each day give: a title and one line each for morning, afternoon, evening. Be specific with real place names. If you mention any cost, use the '+_curSym+' symbol only \u2014 never $ unless '+_curSym+' actually is $. Max 140 words total.';
   body.innerHTML = '<div class="mode-box">Racing '+provs.length+' AI engine'+(provs.length>1?'s':'')+' + the built-in Smart engine on: <b>'+name+'</b>\u2026</div>'
     + provs.map(function(p){ return '<div class="trek" style="margin-bottom:10px"><div class="trek-top"><div class="trek-name">'+p.toUpperCase()+'</div><span class="tbadge hid" id="cmpT_'+p+'">\u23f3</span></div><div style="font-size:11.5px;color:var(--t2);line-height:1.6" id="cmpB_'+p+'">running\u2026</div></div>'; }).join('')
     + '<div class="trek" style="margin-bottom:10px"><div class="trek-top"><div class="trek-name">\u26a1 SMART ENGINE (built-in)</div><span class="tbadge pop">0.0s</span></div><div style="font-size:11.5px;color:var(--t2);line-height:1.6">'+(typeof DAY_TEMPLATES!=='undefined'? DAY_TEMPLATES.slice(0,2).map(function(t,i){return '<b>Day '+(i+1)+' \u2014 '+t.title+':</b> '+t.morning;}).join('<br>')+'<br><i>\u2026instant, offline, zero cost</i>':'')+'</div></div>'
@@ -1957,6 +2034,26 @@ function genPdf(sample){
         for(var sy=180;sy<760;sy+=200) pdf.text('SAMPLE',300,sy,{align:'center',angle:32}); }
     }
     function page(bg){ pdf.setFillColor(bg||PAP); pdf.rect(0,0,600,800,'F'); }
+    /* Full-bleed scenic background (Kafila-style): the destination photo fills
+       the whole page, darkened with a gradient band so text stays readable
+       wherever it sits. Falls back to the flat theme colour if no photo. */
+    function scenicPage(photo, darkTop, darkBottom){
+      if(!photo){ page(); return; }
+      try{
+        pdf.addImage(photo,'JPEG',0,0,600,800);
+        /* layered translucent bands: darker where text will sit (top+bottom),
+           lighter in the middle so the photo still reads as a photo */
+        var steps=[[0,140,0.72],[110,260,0.38],[540,800,0.72]];
+        if(darkTop===false) steps[0][2]=0.15;
+        if(darkBottom===false) steps[2][2]=0.15;
+        steps.forEach(function(b){
+          pdf.setFillColor(TH.deep[0],TH.deep[1],TH.deep[2]);
+          if(pdf.setGState && pdf.GState){ pdf.setGState(new pdf.GState({opacity:b[2]})); }
+          pdf.rect(0,b[0],600,b[1]-b[0],'F');
+        });
+        if(pdf.setGState && pdf.GState){ pdf.setGState(new pdf.GState({opacity:1})); }
+      }catch(e){ page(); }
+    }
     function frame(){ pdf.setDrawColor(GOLD); pdf.setLineWidth(2); pdf.rect(18,18,564,764); pdf.setLineWidth(.6); pdf.rect(26,26,548,748); }
     function foot(pn){
       /* Emotional punctuation on every page — the Kafila move. Deterministic
@@ -2077,10 +2174,7 @@ function genPdf(sample){
       var imgs=ALL[0], avatar=ALL[1], intel=ALL[2], mapDat=ALL[3];
       var hero=imgs[0], gemPics=imgs.slice(1,4).filter(Boolean), dayPics=imgs.slice(4);
       /* ---------- COVER ---------- */
-      pdf.setFillColor(TH.deep[0],TH.deep[1],TH.deep[2]); pdf.rect(0,0,600,800,'F');
-      if(hero){ try{ pdf.addImage(hero,'JPEG',40,250,520,300);
-        pdf.setDrawColor(TH.acc[0],TH.acc[1],TH.acc[2]); pdf.setLineWidth(2); pdf.rect(40,250,520,300);
-      }catch(e){} }
+      scenicPage(hero);   /* full-bleed destination photo, darkened top+bottom for text */
       frame();
       drawMotif(pdf,THK,TH.acc,300,150);
       pdf.setTextColor('#B8B4A8'); pdf.setFontSize(10); pdf.text('A  R O A M W I S E   P R E M I U M   I T I N E R A R Y',300,60,{align:'center'});
@@ -2105,7 +2199,7 @@ function genPdf(sample){
         pdf.text('HAPPENING DURING YOUR TRIP: '+evHit.map(function(e){return e.n;}).join('  +  '),300,132,{align:'center'}); }
       foot(pn);
       /* ---------- WHY THIS JOURNEY + AT-A-GLANCE (Kafila-style overview page) ---------- */
-      pdf.addPage(); pn++; page(); wm(); frame();
+      pdf.addPage(); pn++; scenicPage(gemPics[0]||hero); wm(); frame();
       pdf.setTextColor(TH.acc[0],TH.acc[1],TH.acc[2]); pdf.setFont('times','bold'); pdf.setFontSize(24);
       pdf.text('Why this journey?', 300, 62, {align:'center'});
       pdf.setDrawColor(TH.acc[0],TH.acc[1],TH.acc[2]); pdf.setLineWidth(1.2); pdf.line(260,72,340,72);
@@ -2114,7 +2208,7 @@ function genPdf(sample){
         'Every day here has room to breathe \\u2014 real mornings, a slow lunch, an evening',
         'that doesn\\u2019t feel timed. This is the plan we\\u2019d hand a close friend.'
       ];
-      pdf.setFont('times','italic'); pdf.setFontSize(13.5); pdf.setTextColor(INK);
+      pdf.setFont('times','italic'); pdf.setFontSize(13.5); pdf.setTextColor('#F5F2E8');
       whyLines.forEach(function(ln,li){ pdf.text(ln,300,100+li*20,{align:'center'}); });
       /* trip snapshot grid */
       var snapY=190;
@@ -2142,9 +2236,13 @@ function genPdf(sample){
       var pw2=512/personas.length;
       personas.forEach(function(pz,pzi){
         var px=44+pw2*pzi+pw2/2;
+        /* solid dark fill so the pill reads clearly even on a bright/light
+           patch of the photo — an outline alone isn't enough contrast here */
+        pdf.setFillColor(TH.deep[0],TH.deep[1],TH.deep[2]);
+        pdf.roundedRect(44+pw2*pzi+8, perY+10, pw2-16, 26, 13, 13, 'F');
         pdf.setDrawColor(TH.acc[0],TH.acc[1],TH.acc[2]); pdf.setLineWidth(1);
         pdf.roundedRect(44+pw2*pzi+8, perY+10, pw2-16, 26, 13, 13);
-        pdf.setTextColor(INK); pdf.setFont('helvetica','normal'); pdf.setFontSize(8.5);
+        pdf.setTextColor('#F5F2E8'); pdf.setFont('helvetica','normal'); pdf.setFontSize(8.5);
         pdf.text(pz, px, perY+27, {align:'center'});
       });
       foot(pn);
@@ -6705,7 +6803,7 @@ var RW_ICON_PATHS = {
    declarations hoist but `var RW_TABS = {...}` does not, so calling
    renderTabbar() inline here silently produced an empty bar. DOMContentLoaded
    fires after all deferred script has executed, which is exactly what we want. */
-document.addEventListener('DOMContentLoaded', function(){ try{ rwApplyUIScale(); }catch(e){} try{ renderTabbar(); }catch(e){ console.warn('tabbar', e); } try{ setTimeout(rwMaybeOnboard, 900); }catch(e){} try{ rwInitStatusBar(); }catch(e){} try{ rwInitBackButton(); }catch(e){} });
+document.addEventListener('DOMContentLoaded', function(){ try{ rwApplyUIScale(); }catch(e){} try{ renderTabbar(); }catch(e){ console.warn('tabbar', e); } try{ setTimeout(rwMaybeOnboard, 900); }catch(e){} try{ rwInitStatusBar(); }catch(e){} try{ rwInitBackButton(); }catch(e){} try{ setTimeout(rwInitPush, 1500); }catch(e){} });
 /* ===== BACK BUTTON CONFIRMATION (report #4) =====
    In the app, pressing hardware back on the home screen closed instantly. Now:
    if a modal/overlay is open, back closes THAT; on the home screen, back asks to
@@ -7804,6 +7902,7 @@ function copilotSend(fromHero){
         +'CONFLICT/INDECISION: if people want different things, name the split, give each option its honest best case in one line, then recommend one with a reason \u2014 decisiveness with warmth beats fence-sitting. '
         +'NEVER INVENT: no made-up prices, timings, phone numbers, hotel names or distances. If you do not know or the guide text does not say, say \u201cI\u2019m not certain \u2014 worth checking before you book\u201d and give the safest general guidance instead. A wrong specific is far worse than an honest gap. If the question is ambiguous, ASK ONE short clarifying question with 2-3 concrete options rather than guessing. Never invent facts to sound dramatic; if you are unsure, say so plainly with a grin. Do NOT quote real Bollywood dialogues or put words in real actors\u2019 mouths \u2014 use your own filmi-flavoured lines. '
         +'Read the user intent and mood: if they sound excited, match it; if stressed or on a tight budget, be reassuring and practical, not theatrical. '
+        +'MONEY: the user\u2019s selected currency is '+((CURR.find(function(x){return x.c===AC;})||{s:'\u20b9',c:'INR'}).s)+' ('+AC+'). Always give prices in that symbol, never $ unless AC is literally USD. '
         +'Prefer the verified guide text below over your own recollection; if it contradicts you, trust it. No markdown headers, no bullet spam.\n'
         +facts+(hist? 'Conversation so far:\n'+hist+'\n':'')+'User: '+t+'\nCopilot:';
       aiCallAny(prompt, 260, function(err, txt){
@@ -8092,9 +8191,13 @@ function rwRemindSet(what, mins){
   var when=Date.now()+mins*60000;
   var list=[]; try{ list=JSON.parse(lsGet('rw_reminders')||'[]'); }catch(e){}
   list.push({what:what, at:when}); try{ lsSet('rw_reminders', JSON.stringify(list.slice(-40))); }catch(e){}
-  try{ if(window.Notification && Notification.permission==='default') Notification.requestPermission(); }catch(e){}
-  setTimeout(function(){ rwRemindFire(what); }, mins*60000);
-  showToast('\u23f0 Reminder set for '+mins+' min from now');
+  /* real OS-scheduled notification (survives the app being closed) */
+  var native=false; try{ native=rwLocalNotifySchedule(what, mins); }catch(e){}
+  if(!native){
+    try{ if(window.Notification && Notification.permission==='default') Notification.requestPermission(); }catch(e){}
+    setTimeout(function(){ rwRemindFire(what); }, mins*60000);
+  }
+  showToast('\u23f0 Reminder set for '+mins+' min from now'+(native?' (works even if you close the app)':''));
 }
 function rwRemindFire(what){
   try{

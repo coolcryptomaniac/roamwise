@@ -954,8 +954,14 @@ html.reduce-motion *,html.reduce-motion *::before,html.reduce-motion *::after{an
     width:min(620px, 90vw);
     bottom:18px!important;
     border-radius:26px;
+    z-index:950;              /* BUG FIX: explicit high z-index on desktop so
+                                  nothing in the wider 1100px content column
+                                  can end up stacked above the tab bar */
+    pointer-events:auto;      /* BUG FIX: rule out an inherited pointer-events
+                                  block — reported "Plan" unclickable on
+                                  desktop only; this guarantees clicks land */
   }
-  .tabbar button{font-size:12.5px}
+  .tabbar button{font-size:12.5px; pointer-events:auto; cursor:pointer; position:relative; z-index:1}
   body.shell{padding-bottom:120px}
 
   /* Cards breathe: more columns where it makes sense */
