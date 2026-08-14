@@ -3454,5 +3454,113 @@
    85,
    72
   ]
+ },
+ {
+  "slug": "vienna-austria",
+  "title": "Vienna, Austria",
+  "name": "Vienna",
+  "country": "Austria",
+  "best": "February, July, August",
+  "arch": "alpine",
+  "cl": [
+   5.2,
+   11.8,
+   13.8,
+   17.8,
+   21.1,
+   25.2,
+   28.6,
+   29.9,
+   21.6,
+   15.8,
+   8.3,
+   5.1
+  ],
+  "scores": [
+   74,
+   95,
+   91,
+   93,
+   90,
+   93,
+   96,
+   98,
+   70,
+   94,
+   92,
+   77
+  ]
+ },
+ {
+  "slug": "budapest-hungary",
+  "title": "Budapest, Hungary",
+  "name": "Budapest",
+  "country": "Hungary",
+  "best": "February, March, August",
+  "arch": "alpine",
+  "cl": [
+   5.4,
+   12.5,
+   14.1,
+   18.8,
+   22.9,
+   26.6,
+   30.3,
+   31.1,
+   23.2,
+   16.5,
+   7.8,
+   4.9
+  ],
+  "scores": [
+   67,
+   97,
+   95,
+   94,
+   89,
+   89,
+   93,
+   97,
+   90,
+   94,
+   87,
+   75
+  ]
+ },
+ {
+  "slug": "krakow-poland",
+  "title": "Krakow, Poland",
+  "name": "Krakow",
+  "country": "Poland",
+  "best": "March, May, October",
+  "arch": "alpine",
+  "cl": [
+   2.5,
+   10.5,
+   12.6,
+   16.6,
+   22.4,
+   24.3,
+   26.7,
+   26.5,
+   22.4,
+   15.2,
+   7.1,
+   4.4
+  ],
+  "scores": [
+   49,
+   90,
+   93,
+   91,
+   94,
+   89,
+   89,
+   92,
+   86,
+   93,
+   85,
+   73
+  ]
  }
 ]
