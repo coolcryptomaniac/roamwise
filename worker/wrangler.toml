@@ -1,0 +1,17 @@
+name = "roamwise-api"
+main = "worker.js"
+compatibility_date = "2026-01-01"
+
+# Scheduled job — runs daily at 05:30 UTC (11:00 IST).
+[triggers]
+crons = ["30 5 * * *"]
+
+# Optional KV cache. Create it once with:
+#   npx wrangler kv namespace create RW_KV
+# then paste the id it prints below and uncomment these two lines.
+# [[kv_namespaces]]
+# binding = "RW_KV"
+# id = "PASTE_YOUR_KV_ID_HERE"
+
+# Secrets are NOT stored here. Set them with:
+#   npx wrangler secret put GROQ_API_KEY
