@@ -1,0 +1,102 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Verify a Journey Passport | RoamWise</title>
+<meta name="description" content="Check whether a RoamWise Journey Passport is genuine. Every verified journey is issued into the RoamWise network and can be independently confirmed here.">
+<link rel="canonical" href="https://www.roamwise.co.in/verify.html">
+<meta name="theme-color" content="#0A0C14">
+<meta property="og:title" content="Verify a Journey Passport | RoamWise">
+<meta property="og:description" content="Independently confirm that a RoamWise travel record is genuine.">
+<meta property="og:type" content="website">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:system-ui,-apple-system,'Segoe UI',sans-serif;background:#0A0C14;color:#EDEAE2;line-height:1.7;min-height:100vh}
+a{color:#E8BA6C;text-decoration:none}
+.wrap{max-width:620px;margin:0 auto;padding:28px 20px 60px}
+header{border-bottom:1px solid #1E1E28;padding:14px 0;margin-bottom:30px}
+.brand{font-weight:800;font-size:19px}.brand span{color:#E8BA6C}
+h1{font-size:26px;color:#fff;margin:6px 0 10px}
+.sub{color:#9A968E;font-size:14.5px;margin-bottom:26px}
+.box{background:#11131C;border:1px solid #1E1E28;border-radius:16px;padding:20px}
+label{display:block;font-size:11px;letter-spacing:.07em;color:#7C7A74;font-weight:700;margin-bottom:7px}
+input{width:100%;background:#0A0C14;border:1px solid #2A2A34;border-radius:11px;padding:13px;color:#EDEAE2;
+      font:inherit;font-size:16px;letter-spacing:.05em;text-transform:uppercase}
+input:focus{outline:none;border-color:#E8BA6C}
+button{width:100%;margin-top:12px;background:linear-gradient(135deg,#E8BA6C,#C8913E);color:#0A0C14;
+       font-weight:800;font-size:16px;border:none;border-radius:12px;padding:14px;cursor:pointer}
+#out{margin-top:20px}
+.ok{border:1px solid #4ADE80;background:rgba(74,222,128,.07);border-radius:14px;padding:18px}
+.bad{border:1px solid #E05B5B;background:rgba(224,91,91,.08);border-radius:14px;padding:18px}
+.muted{color:#7C7A74;font-size:12.5px}
+.explain{margin-top:30px;font-size:13px;color:#9A968E;border-top:1px solid #1E1E28;padding-top:18px}
+footer{margin-top:34px;font-size:12.5px;color:#7C7A74}
+</style></head>
+<body><div class="wrap">
+<header><div class="brand">Roam<span>Wise</span></div></header>
+
+<h1>Verify a Journey Passport</h1>
+<p class="sub">Paste a passport ID to confirm whether it is a genuine RoamWise travel record.</p>
+
+<div class="box">
+  <label for="pid">PASSPORT ID</label>
+  <input id="pid" placeholder="RW-XXXXX-XXXXX" autocomplete="off" spellcheck="false">
+  <button onclick="verifyNow()">Verify</button>
+</div>
+
+<div id="out"></div>
+
+<div class="explain">
+  <b style="color:#EDEAE2">Why this can be trusted.</b><br>
+  A Journey Passport is not a picture or a PDF — those can be edited by anyone. It is a record
+  written into the RoamWise network by a signed-in member at the time of stamping. This page
+  checks the ID directly against that network. If a record was not issued by RoamWise, it simply
+  does not exist here, and no amount of copying the app can change that.
+</div>
+
+<footer>RoamWise · Made in Almora, Uttarakhand · <a href="/">roamwise.co.in</a></footer>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<script>
+var FB={apiKey:"AIzaSyDlrtpzpOb1VEmVSd9tHmu7OpmvwWosYsU",authDomain:"roamwisepro.firebaseapp.com",
+projectId:"roamwisepro",storageBucket:"roamwisepro.firebasestorage.app",
+messagingSenderId:"299014744987",appId:"1:299014744987:web:0a9c9e6b5b5c8f4e0d1a2b"};
+var db=null;
+try{ firebase.initializeApp(FB); db=firebase.firestore(); }catch(e){}
+
+function esc(t){ return String(t==null?'':t).replace(/[<>&"]/g,function(c){
+  return {'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c]; }); }
+
+function verifyNow(){
+  var id=(document.getElementById('pid').value||'').trim().toUpperCase();
+  var out=document.getElementById('out');
+  if(!id){ out.innerHTML='<p class="muted">Enter a passport ID above.</p>'; return; }
+  if(!db){ out.innerHTML='<p class="muted">Could not reach the network. Please refresh and try again.</p>'; return; }
+  out.innerHTML='<p class="muted">Checking '+esc(id)+' against the RoamWise network…</p>';
+  db.collection('passports').doc(id).get().then(function(d){
+    if(!d.exists){
+      out.innerHTML='<div class="bad"><div style="font-weight:800;color:#E05B5B;font-size:16px">✗ Not recognised</div>'
+        +'<p style="margin-top:7px;font-size:14px;color:#C9C5BB">No journey with ID <b>'+esc(id)+'</b> exists in the RoamWise network. '
+        +'Either the ID is mistyped, or this record was not issued by RoamWise.</p></div>';
+      return;
+    }
+    var r=d.data()||{};
+    var dt=(r.issued&&r.issued.seconds)? new Date(r.issued.seconds*1000)
+      .toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}) : 'unknown date';
+    out.innerHTML='<div class="ok"><div style="font-weight:800;color:#4ADE80;font-size:16px">✓ Verified journey</div>'
+      +'<div style="font-size:20px;font-weight:800;margin-top:9px">'+esc(r.place)+'</div>'
+      +'<div style="font-size:14px;color:#C9C5BB;margin-top:4px">Traveller: '+esc(r.name||'RoamWise member')+'</div>'
+      +(r.when?'<div style="font-size:14px;color:#C9C5BB">'+esc(r.when)+'</div>':'')
+      +(r.note?'<div style="font-size:14px;color:#C9C5BB;margin-top:4px">“'+esc(r.note)+'”</div>':'')
+      +'<div class="muted" style="margin-top:11px">Stamped '+esc(dt)+' · issued by roamwise.co.in</div></div>';
+  }).catch(function(){
+    out.innerHTML='<p class="muted">Verification failed. Please try again in a moment.</p>';
+  });
+}
+document.getElementById('pid').addEventListener('keydown',function(e){ if(e.key==='Enter') verifyNow(); });
+(function(){
+  var m=location.search.match(/[?&]id=([^&]+)/);
+  if(m){ document.getElementById('pid').value=decodeURIComponent(m[1]).toUpperCase(); verifyNow(); }
+})();
+</script>
+</body></html>

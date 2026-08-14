@@ -16,7 +16,7 @@
  *    caching it would blow the origin's storage quota for no benefit.
  * ------------------------------------------------------------------------- */
 
-var VERSION = 'rw-v44-rail-strategy'
+var VERSION = 'rw-v48-legal-worker'
 var HTML_CACHE = VERSION + '-html';
 var ASSET_CACHE = VERSION + '-assets';
 

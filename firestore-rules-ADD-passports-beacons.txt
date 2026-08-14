@@ -1,0 +1,54 @@
+// RoamWise - Firestore rules to ADD for rw-v45/v46 features
+// Paste these two blocks INSIDE your existing "match /databases/{database}/documents { ... }"
+// alongside your current rules. Pure ASCII only - the Firebase Console rejects
+// smart quotes and em-dashes.
+//
+// WITHOUT THESE, Journey Passport and Beacon will fail silently.
+
+// ---------------------------------------------------------------
+// PASSPORTS - verified journey records.
+// Public READ is intentional: that is what makes /verify.html work
+// for anyone, including people without a RoamWise account.
+// Writes are locked to the signed-in owner, and records are immutable
+// once created (that is what makes them trustworthy proof).
+// ---------------------------------------------------------------
+match /passports/{id} {
+  allow read: if true;
+  allow create: if request.auth != null
+                && request.resource.data.uid == request.auth.uid
+                && request.resource.data.place is string
+                && request.resource.data.place.size() > 0
+                && request.resource.data.place.size() < 120
+                && request.resource.data.verified is bool;
+  // NOTE ON PRIZES: 'verified' is set client-side from a GPS check, which is
+  // good enough to stop casual farming but NOT tamper-proof - a determined
+  // user can forge it. Before paying real cash prizes, audit the top of the
+  // leaderboard by hand, and consider moving verification into a Cloud
+  // Function / Cloudflare Worker that stamps 'verified' server-side.
+  // immutable: a proof you can edit afterwards is not proof
+  allow update, delete: if false;
+}
+
+// ---------------------------------------------------------------
+// BEACONS - short-lived "I am around here and open to meeting people".
+// Doc id is the user's uid, so one live beacon per person, and a user
+// can only ever write or delete their own.
+// Location stored here is ALREADY blurred client-side to ~1km.
+// ---------------------------------------------------------------
+match /beacons/{uid} {
+  allow read: if request.auth != null;              // only signed-in members can browse
+  allow create, update: if request.auth != null
+                && request.auth.uid == uid
+                && request.resource.data.uid == uid
+                && request.resource.data.lat is number
+                && request.resource.data.lon is number;
+  allow delete: if request.auth != null && request.auth.uid == uid;
+}
+
+// ---------------------------------------------------------------
+// RECOMMENDED: set a TTL policy so beacons self-clean.
+// Firebase Console -> Firestore -> TTL -> Create policy
+//   Collection: beacons     Field: expireAt
+//   Collection: passports   (do NOT add a TTL - these are permanent)
+// The app already writes expireAt on every beacon.
+// ---------------------------------------------------------------

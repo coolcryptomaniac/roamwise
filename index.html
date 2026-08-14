@@ -388,6 +388,8 @@ html{-webkit-text-size-adjust:100%}
 
 <section class="v v-home" id="quickGrid" style="margin:4px 14px 8px">
   <div class="qg-wrap">
+    <button class="qg-tile rw-pulse" onclick="openBeacon()"><span class="qg-ic">📡</span><span class="qg-lbl">Beacon</span></button>
+    <button class="qg-tile" onclick="openRealms()"><span class="qg-ic">⚔️</span><span class="qg-lbl">Realms</span></button>
     <button class="qg-tile" onclick="openArrival()"><span class="qg-ic">🚂</span><span class="qg-lbl">Arrival mode</span></button>
     <button class="qg-tile" onclick="openTatkal()"><span class="qg-ic">⚡</span><span class="qg-lbl">Tatkal prep</span></button>
     <button class="qg-tile" onclick="openNearMe()"><span class="qg-ic">📍</span><span class="qg-lbl">Near me</span></button>
@@ -771,7 +773,14 @@ html{-webkit-text-size-adjust:100%}
   <a class="dr-link" onclick="closeDrawer();openSettings()"><span class="ic">⚙️</span>Settings &amp; AI keys</a>
   <a class="dr-link" onclick="closeDrawer();openBadges()"><span class="ic">🏅</span>My badges &amp; achievements</a>
   <a class="dr-link" onclick="closeDrawer();openJourneyCert()"><span class="ic">🎖️</span>Journey certificate</a>
-    <a class="dr-link" onclick="closeDrawer();openArrival()"><span class="ic">🚂</span>Arrival mode <span style="margin-left:auto;font-size:9px;background:var(--gold,#E8BA6C);color:#0A0A0C;padding:1px 6px;border-radius:20px;font-weight:800">NEW</span></a>
+        <a class="dr-link" onclick="closeDrawer();openBeacon()"><span class="ic">📡</span>Beacon — who's nearby <span style="margin-left:auto;font-size:9px;background:#4ADE80;color:#0A0A0C;padding:1px 6px;border-radius:20px;font-weight:800">NEW</span></a>
+    <a class="dr-link" href="/legal/privacy.html" target="_blank"><span class="ic">🔒</span>Privacy policy</a>
+  <a class="dr-link" href="/legal/terms.html" target="_blank"><span class="ic">📜</span>Terms of use</a>
+  <a class="dr-link" href="/legal/contest-rules.html" target="_blank"><span class="ic">🏆</span>Contest rules</a>
+  <a class="dr-link" onclick="closeDrawer();openGuide()"><span class="ic">🎓</span>How to use RoamWise</a>
+  <a class="dr-link" onclick="closeDrawer();openRealms()"><span class="ic">⚔️</span>Realms of Roam <span style="margin-left:auto;font-size:9px;background:var(--gold,#E8BA6C);color:#0A0A0C;padding:1px 6px;border-radius:20px;font-weight:800">GAME</span></a>
+  <a class="dr-link" onclick="closeDrawer();openPassport()"><span class="ic">🛡️</span>Journey passport <span style="margin-left:auto;font-size:9px;background:var(--gold,#E8BA6C);color:#0A0A0C;padding:1px 6px;border-radius:20px;font-weight:800">NEW</span></a>
+  <a class="dr-link" onclick="closeDrawer();openArrival()"><span class="ic">🚂</span>Arrival mode <span style="margin-left:auto;font-size:9px;background:var(--gold,#E8BA6C);color:#0A0A0C;padding:1px 6px;border-radius:20px;font-weight:800">NEW</span></a>
   <a class="dr-link" onclick="closeDrawer();openTatkal()"><span class="ic">⚡</span>Tatkal prep <span style="margin-left:auto;font-size:9px;background:var(--gold,#E8BA6C);color:#0A0A0C;padding:1px 6px;border-radius:20px;font-weight:800">NEW</span></a>
   <a class="dr-link" onclick="closeDrawer();openNearMe()"><span class="ic">📍</span>Near me</a>
   <a class="dr-link" onclick="closeDrawer();openFitnessStays()"><span class="ic">🏋️</span>Fitness-first stays</a>
@@ -1008,6 +1017,7 @@ html{-webkit-text-size-adjust:100%}
 </div>
 
 
+<script src="rw-config.js"></script>
 <script src="destination-photos.js" defer></script>
 <script src="tusk-data.js" defer></script>
 <script src="app.js" defer></script>
