@@ -4420,6 +4420,10 @@ function rwNearMeRender(items, radius){
 }
 
 function openGreenTravel(){
+  try{ tabGo('home'); }catch(e){}
+  /* BUG FIX (rw-v57): `sec` was used without ever being declared, so this
+     threw a ReferenceError and the menu item did nothing at all. */
+  var sec=el('greenSection');
   if(!sec){ sec=document.createElement('section'); sec.id='greenSection'; sec.className='xsec v v-home';
     var host=el('copilotHero'); if(host&&host.parentNode) host.parentNode.insertBefore(sec,host.nextSibling); else document.body.appendChild(sec); }
   var earned = (typeof badgeEarnedIds==='function') ? badgeEarnedIds().indexOf('green')>=0 : false;

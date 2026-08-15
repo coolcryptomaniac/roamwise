@@ -1322,3 +1322,48 @@ body.rw-mode-story .day-narr::first-letter{font-size:2.6em;float:left;line-heigh
 @media (prefers-reduced-motion:reduce){
   .rw-mode-card{transition:none}
 }
+
+/* ===================================================================
+   LAYOUT MODES — VISIBLE ON PHONES TOO (rw-v57)
+   The first pass was too subtle and Atlas's main effect was desktop-only,
+   so on a phone it looked like nothing happened. These rules make each
+   mode unmistakable at ANY width, while staying scoped to the mode class
+   (Classic still inherits nothing).
+   =================================================================== */
+
+/* a small persistent badge so you always know which mode you're in */
+body[data-mode]:not([data-mode="classic"])::after{
+  content:attr(data-mode);position:fixed;left:12px;bottom:calc(96px + env(safe-area-inset-bottom));
+  z-index:300;font-size:9.5px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--gold);background:color-mix(in srgb,var(--bg2) 92%,transparent);
+  border:1px solid color-mix(in srgb,var(--gold) 45%,transparent);
+  border-radius:20px;padding:4px 10px;pointer-events:none;opacity:.9}
+
+/* ---------- ATLAS on phones: route-spine + compact cards ---------- */
+body.rw-mode-atlas .xsec-title{font-size:19px;letter-spacing:-.01em}
+body.rw-mode-atlas .xsec-sub{font-size:12.5px}
+body.rw-mode-atlas .qg-tile{padding:11px 6px}
+body.rw-mode-atlas .qg-ic{font-size:20px}
+body.rw-mode-atlas .qg-lbl{font-size:10px}
+/* every card tightens up — dense, map-like, information-first */
+body.rw-mode-atlas .day-card{margin-bottom:0;padding-top:14px;padding-bottom:14px}
+body.rw-mode-atlas .day-seg{padding:5px 0}
+body.rw-mode-atlas .seg-desc{font-size:13px;line-height:1.5}
+body.rw-mode-atlas .brief{display:none}          /* hide the daily-scroll noise */
+body.rw-mode-atlas #copilotHero{margin-bottom:8px}
+
+/* ---------- STORYBOARD on phones: unmistakably editorial ---------- */
+body.rw-mode-story .qg-wrap{grid-template-columns:1fr 1fr;gap:14px}
+body.rw-mode-story .qg-tile{padding:24px 12px;border-radius:2px}
+body.rw-mode-story .xsec{padding-left:22px;padding-right:22px}
+body.rw-mode-story .xsec-title{font-weight:800}
+body.rw-mode-story .xsec-title em{font-style:italic}
+/* serif display type is the single strongest editorial signal */
+body.rw-mode-story .xsec-title,
+body.rw-mode-story .day-title,
+body.rw-mode-story .rw-open-q{font-family:Georgia,'Times New Roman',serif;letter-spacing:-.01em}
+body.rw-mode-story .day-card{padding:26px 0}
+body.rw-mode-story .seg-desc{font-size:15.5px;line-height:1.78}
+/* a hairline rule above each day, like a magazine section break */
+body.rw-mode-story .day-card::before{content:'';display:block;width:38px;height:2px;
+  background:var(--gold);margin-bottom:16px;opacity:.85}
