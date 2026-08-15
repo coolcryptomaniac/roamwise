@@ -1,0 +1,83 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Team &amp; Investors | RoamWise</title>
+<meta name="description" content="The people building RoamWise — an AI travel planner made in Almora, Uttarakhand for Indian travellers.">
+<link rel="canonical" href="https://www.roamwise.co.in/team/">
+<meta property="og:title" content="Team & Investors | RoamWise">
+<meta property="og:description" content="The people building RoamWise, from the Himalayas.">
+<meta property="og:type" content="website"><meta name="theme-color" content="#0A0C14">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:system-ui,-apple-system,'Segoe UI',sans-serif;background:#0A0C14;color:#C9C5BB;line-height:1.7}
+a{color:#E8BA6C;text-decoration:none}
+.wrap{max-width:940px;margin:0 auto;padding:26px 20px 70px}
+header{border-bottom:1px solid #1E1E28;padding:14px 0;margin-bottom:34px}
+.brand{font-weight:800;font-size:18px;color:#EDEAE2}.brand span{color:#E8BA6C}
+h1{font-size:32px;color:#fff;margin:6px 0 8px;letter-spacing:-.02em}
+.intro{font-size:16px;color:#9A968E;margin-bottom:34px;max-width:560px}
+h2{font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:#E8BA6C;margin:40px 0 18px;font-weight:800}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px}
+.card{background:#11131C;border:1px solid #1E1E28;border-radius:18px;padding:22px;transition:border-color .2s,transform .2s}
+.card:hover{border-color:#E8BA6C;transform:translateY(-2px)}
+.pic{width:74px;height:74px;border-radius:50%;object-fit:cover;margin-bottom:13px;display:block;border:2px solid #2A2A34}
+.mono{width:74px;height:74px;border-radius:50%;margin-bottom:13px;display:flex;align-items:center;justify-content:center;
+      font-size:26px;font-weight:800;color:#0A0C14;background:linear-gradient(135deg,#E8BA6C,#C8913E)}
+.nm{font-size:18px;font-weight:800;color:#EDEAE2}
+.rl{font-size:12.5px;color:#E8BA6C;font-weight:700;margin-bottom:9px}
+.bio{font-size:14px;color:#9A968E;line-height:1.65}
+.lk{margin-top:13px;display:flex;gap:9px;flex-wrap:wrap}
+.lk a{font-size:12px;border:1px solid #2A2A34;border-radius:20px;padding:4px 11px;color:#9A968E}
+.lk a:hover{border-color:#E8BA6C;color:#E8BA6C;text-decoration:none}
+.join{margin-top:44px;background:#11131C;border:1px solid #1E1E28;border-radius:18px;padding:26px;text-align:center}
+.join h3{color:#EDEAE2;font-size:20px;margin-bottom:7px}
+.cta{display:inline-block;background:linear-gradient(135deg,#E8BA6C,#C8913E);color:#0A0C14;font-weight:800;
+     padding:12px 22px;border-radius:12px;margin-top:13px}
+footer{border-top:1px solid #1E1E28;margin-top:44px;padding-top:18px;font-size:13px;color:#7C7A74}
+footer a{margin-right:14px}
+</style></head><body><div class="wrap">
+<header><div class="brand">Roam<span>Wise</span></div></header>
+<h1>The people behind RoamWise</h1>
+<p class="intro" id="intro"></p>
+<div id="teamOut"></div>
+<div class="join">
+  <h3>Want to build this with us?</h3>
+  <p style="font-size:14.5px;color:#9A968E">We're a small team in the Himalayas making travel software for India. If that sounds like your kind of thing, say hello.</p>
+  <a class="cta" href="mailto:founder@roamwise.co.in">founder@roamwise.co.in</a>
+</div>
+<footer>
+  RoamWise · GYANVERSE · Almora, Uttarakhand, India<br>
+  <a href="/">Home</a><a href="/legal/privacy.html">Privacy</a><a href="/legal/terms.html">Terms</a>
+</footer>
+</div>
+<script src="/team-data.js"></script>
+<script>
+function esc(t){return String(t==null?'':t).replace(/[<>&"]/g,function(c){
+  return {'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c];});}
+function initials(n){return String(n||'?').split(/\s+/).slice(0,2).map(function(w){return w.charAt(0);}).join('').toUpperCase();}
+function card(p){
+  var links=p.links||{}, out='';
+  var map={linkedin:'LinkedIn',twitter:'Twitter',instagram:'Instagram',website:'Website',email:'Email'};
+  Object.keys(map).forEach(function(k){
+    var v=links[k]; if(!v) return;
+    var href = k==='email' ? 'mailto:'+v : v;
+    out+='<a href="'+esc(href)+'" target="_blank" rel="noopener">'+map[k]+'</a>';
+  });
+  return '<div class="card">'
+    +(p.photo? '<img class="pic" src="'+esc(p.photo)+'" alt="'+esc(p.name)+'" loading="lazy">'
+             : '<div class="mono">'+esc(initials(p.name))+'</div>')
+    +'<div class="nm">'+esc(p.name)+'</div>'
+    +'<div class="rl">'+esc(p.role||'')+'</div>'
+    +(p.bio?'<div class="bio">'+esc(p.bio)+'</div>':'')
+    +(out?'<div class="lk">'+out+'</div>':'')
+    +'</div>';
+}
+(function(){
+  document.getElementById('intro').textContent = window.RW_TEAM_INTRO || '';
+  var host=document.getElementById('teamOut'), html='';
+  var team=window.RW_TEAM||[], inv=window.RW_INVESTORS||[];
+  if(team.length) html+='<h2>Team</h2><div class="grid">'+team.map(card).join('')+'</div>';
+  if(inv.length)  html+='<h2>Investors &amp; advisors</h2><div class="grid">'+inv.map(card).join('')+'</div>';
+  host.innerHTML = html || '<p style="color:#7C7A74">Team details coming soon.</p>';
+})();
+</script>
+</body></html>
