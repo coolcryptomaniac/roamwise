@@ -391,7 +391,7 @@ html{-webkit-text-size-adjust:100%}
     <button class="qg-tile rw-pulse" onclick="openBeacon()"><span class="qg-ic">📡</span><span class="qg-lbl">Beacon</span></button>
     <button class="qg-tile" onclick="openRealms()"><span class="qg-ic">⚔️</span><span class="qg-lbl">Realms</span></button>
     <button class="qg-tile" onclick="openArrival()"><span class="qg-ic">🚂</span><span class="qg-lbl">Arrival mode</span></button>
-    <button class="qg-tile" onclick="openTatkal()"><span class="qg-ic">⚡</span><span class="qg-lbl">Tatkal prep</span></button>
+    <button class="qg-tile" onclick="openPnrPaste()"><span class="qg-ic">🎫</span><span class="qg-lbl">Paste PNR</span></button>
     <button class="qg-tile" onclick="openNearMe()"><span class="qg-ic">📍</span><span class="qg-lbl">Near me</span></button>
     <button class="qg-tile" onclick="openMoneyLayer()"><span class="qg-ic">💰</span><span class="qg-lbl">Split money</span></button>
   </div>
@@ -763,7 +763,7 @@ html{-webkit-text-size-adjust:100%}
   
 </div></div>
 <div class="dr-grp"><button class="dr-gh" onclick="drToggle(this)">🛠 App<span class="chev">›</span></button><div class="dr-gb">
-  <a class="dr-link" onclick="drThemePick()"><span class="ic">🎨</span>Theme<span id="drThemeVal" style="margin-left:auto;color:var(--t3);font-size:11px"></span></a>
+  <a class="dr-link" onclick="drThemePick()"><span class="ic">🎨</span>Theme &amp; look <span style="margin-left:auto;font-size:9px;background:var(--gold,#E8BA6C);color:#0A0A0C;padding:1px 6px;border-radius:20px;font-weight:800">9 LOOKS</span></a><div style="font-size:10.5px;color:var(--t3);padding:0 0 6px 30px;margin-top:-4px">Nova · Sunset · Crisp &amp; more <span id="drThemeVal"></span></div>
   <div id="drThemeList" style="display:none;padding:2px 0 2px 30px"></div>
   <a class="dr-link" onclick="closeDrawer();openIconThemePicker()"><span class="ic">✨</span>Icon style<span style="margin-left:auto;color:var(--t3);font-size:11px">tap</span></a>
   <a class="dr-link" onclick="closeDrawer();openSizeSettings()"><span class="ic">🔤</span>Text &amp; icon size</a>
@@ -774,7 +774,11 @@ html{-webkit-text-size-adjust:100%}
   <a class="dr-link" onclick="closeDrawer();openBadges()"><span class="ic">🏅</span>My badges &amp; achievements</a>
   <a class="dr-link" onclick="closeDrawer();openJourneyCert()"><span class="ic">🎖️</span>Journey certificate</a>
         <a class="dr-link" onclick="closeDrawer();openBeacon()"><span class="ic">📡</span>Beacon — who's nearby <span style="margin-left:auto;font-size:9px;background:#4ADE80;color:#0A0A0C;padding:1px 6px;border-radius:20px;font-weight:800">NEW</span></a>
-    <a class="dr-link" href="/legal/privacy.html" target="_blank"><span class="ic">🔒</span>Privacy policy</a>
+      <a class="dr-link" href="/team/" target="_blank"><span class="ic">👥</span>Team &amp; investors</a>
+    <a class="dr-link" onclick="closeDrawer();openPrivacyBadge()"><span class="ic">🔒</span>Your data stays yours <span style="margin-left:auto;font-size:9px;background:#4ADE80;color:#0A0A0C;padding:1px 6px;border-radius:20px;font-weight:800">PRIVATE</span></a>
+  <a class="dr-link" onclick="closeDrawer();rwHandoffToPhone()"><span class="ic">📱</span>Continue on phone</a>
+  <a class="dr-link" onclick="closeDrawer();openTatkal()"><span class="ic">⚡</span>Tatkal prep</a>
+  <a class="dr-link" href="/legal/privacy.html" target="_blank"><span class="ic">🔒</span>Privacy policy</a>
   <a class="dr-link" href="/legal/terms.html" target="_blank"><span class="ic">📜</span>Terms of use</a>
   <a class="dr-link" href="/legal/contest-rules.html" target="_blank"><span class="ic">🏆</span>Contest rules</a>
   <a class="dr-link" onclick="closeDrawer();openGuide()"><span class="ic">🎓</span>How to use RoamWise</a>
