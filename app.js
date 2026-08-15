@@ -1081,6 +1081,38 @@ function rwOpenSection(id){
 }
 
 
+
+/* ===== MENU SEARCH (rw-v55) — 64 items is too many to scan, so let people
+   type. Filters links live, auto-opens any group with a match, and shows a
+   clear empty state rather than a blank drawer. */
+function drFilter(q){
+  q=String(q||'').trim().toLowerCase();
+  var groups=document.querySelectorAll('.drawer .dr-grp');
+  var total=0;
+  groups.forEach(function(g){
+    var links=g.querySelectorAll('.dr-link'), shown=0;
+    links.forEach(function(a){
+      var txt=(a.textContent||'').toLowerCase();
+      var hit=!q || txt.indexOf(q)>-1;
+      a.style.display=hit?'':'none';
+      if(hit) shown++;
+    });
+    total+=shown;
+    g.style.display=(q && !shown)?'none':'';
+    if(q && shown) g.classList.add('open');
+    else if(!q) g.classList.remove('open');
+  });
+  /* keep the first group open when the search is cleared */
+  if(!q){ var f=document.querySelector('.drawer .dr-grp'); if(f) f.classList.add('open'); }
+  var empty=el('drEmpty');
+  if(!empty){
+    empty=document.createElement('div'); empty.id='drEmpty'; empty.className='dr-empty';
+    var host=document.querySelector('.drawer'); if(host) host.appendChild(empty);
+  }
+  empty.style.display=(q && !total)?'block':'none';
+  empty.textContent=q? 'Nothing matches \u201c'+q+'\u201d' : '';
+}
+
 /* ============================================================================
    THE OPENING (rw-v54) — the first twenty seconds
    ============================================================================
@@ -7788,7 +7820,8 @@ function tabGo(t){
   }, {passive:true});
 })();
 
-function openDrawer(){ el('drawer').classList.add('open'); el('drawerBk').classList.add('open'); }
+function openDrawer(){
+  try{ var q=el('drSearch'); if(q){ q.value=''; drFilter(''); } }catch(e){} el('drawer').classList.add('open'); el('drawerBk').classList.add('open'); }
 function drToggle(btn){
   var grp=btn.parentElement;
   document.querySelectorAll('.dr-grp.open').forEach(function(g){ if(g!==grp) g.classList.remove('open'); });

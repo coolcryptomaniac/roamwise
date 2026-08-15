@@ -1198,3 +1198,55 @@ html.reduce-motion *,html.reduce-motion *::before,html.reduce-motion *::after{an
   .rw-open-field,.rw-open-hint,.rw-open-skip,.rw-open-think,.rw-open-reveal,.rw-open-cta::after{
     animation:none!important}
 }
+
+/* ===================================================================
+   MENU POLISH (rw-v55)
+   The drawer had 65 items in one 39-deep group, so things genuinely
+   were "hidden". Now: sectioned, searchable, with real touch feedback.
+   All colours come from theme vars, so this stays legible on the light
+   Crisp theme as well as the dark ones.
+   =================================================================== */
+.dr-search{position:relative;margin:2px 0 12px}
+.dr-search input{width:100%;background:var(--bg3);border:1px solid var(--b2);border-radius:12px;
+  padding:11px 36px 11px 13px;color:var(--t1);font:inherit;font-size:13.5px;outline:none;
+  transition:border-color .2s,box-shadow .2s}
+.dr-search input::placeholder{color:var(--t3)}
+.dr-search input:focus{border-color:var(--gold);box-shadow:0 0 0 4px color-mix(in srgb,var(--gold) 14%,transparent)}
+.dr-search-ic{position:absolute;right:12px;top:50%;transform:translateY(-50%);font-size:13px;opacity:.55;pointer-events:none}
+.dr-empty{padding:20px 4px;text-align:center;font-size:13px;color:var(--t3)}
+
+/* group headers: clearer, with a live count so nothing feels buried */
+.dr-gh{position:relative;display:flex;align-items:center;gap:8px;width:100%;
+  font-size:11.5px;letter-spacing:.09em;text-transform:uppercase;font-weight:800;color:var(--t2)}
+.dr-count{margin-left:auto;margin-right:6px;font-size:10px;font-weight:800;letter-spacing:0;
+  background:var(--bg3);border:1px solid var(--b2);color:var(--t3);
+  border-radius:20px;padding:1px 7px;min-width:20px;text-align:center}
+.dr-grp.open .dr-count{background:color-mix(in srgb,var(--gold) 18%,transparent);
+  border-color:color-mix(in srgb,var(--gold) 45%,transparent);color:var(--gold)}
+
+/* breathing room + a real selected/pressed feel */
+.dr-link{position:relative;margin:1px 0;padding:12px 12px 12px 11px;gap:12px;
+  border:1px solid transparent;
+  transition:background .16s ease,border-color .16s ease,transform .1s ease,padding-left .16s ease}
+.dr-link:hover{background:var(--bg3);border-color:var(--b2);padding-left:15px}
+.dr-link:active{transform:scale(.975);background:var(--bg4)}
+/* a gold rail slides in on hover/active — the "you are here" cue */
+.dr-link::before{content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);
+  width:3px;height:0;border-radius:3px;background:var(--gold);transition:height .2s cubic-bezier(.22,1,.36,1)}
+.dr-link:hover::before,.dr-link:active::before{height:58%}
+.dr-link .ic{width:24px;font-size:16px;transition:transform .2s cubic-bezier(.34,1.56,.64,1)}
+.dr-link:hover .ic{transform:scale(1.16)}
+
+/* smoother group expand */
+.dr-gb{overflow:hidden}
+.dr-grp:not(.open) .dr-gb{max-height:0}
+.dr-grp.open .dr-gb{max-height:1400px;transition:max-height .34s cubic-bezier(.22,1,.36,1)}
+
+@media (max-width:1024px){
+  .dr-link{padding:14px 14px 14px 13px;font-size:15px}
+  .dr-link .ic{font-size:19px;width:26px}
+  .dr-gh{font-size:12px;padding:12px 4px}
+}
+@media (prefers-reduced-motion:reduce){
+  .dr-link,.dr-link::before,.dr-link .ic,.dr-gb{transition:none!important}
+}
