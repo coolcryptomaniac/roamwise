@@ -3670,5 +3670,113 @@
    84,
    77
   ]
+ },
+ {
+  "slug": "zurich-switzerland",
+  "title": "Zurich, Switzerland",
+  "name": "Zurich",
+  "country": "Switzerland",
+  "best": "February, August, October",
+  "arch": "alpine",
+  "cl": [
+   5.3,
+   10.1,
+   12.5,
+   14.5,
+   18.2,
+   22,
+   24.9,
+   26.2,
+   18.6,
+   15.6,
+   8.5,
+   4.5
+  ],
+  "scores": [
+   68,
+   92,
+   84,
+   84,
+   78,
+   80,
+   83,
+   91,
+   82,
+   86,
+   83,
+   65
+  ]
+ },
+ {
+  "slug": "interlaken-switzerland",
+  "title": "Interlaken, Switzerland",
+  "name": "Interlaken",
+  "country": "Switzerland",
+  "best": "February, August, November",
+  "arch": "temperate",
+  "cl": [
+   8.1,
+   11.8,
+   12.8,
+   14.6,
+   17.5,
+   21.9,
+   25.1,
+   26.3,
+   18.9,
+   17.8,
+   12.2,
+   7.2
+  ],
+  "scores": [
+   73,
+   89,
+   78,
+   72,
+   75,
+   76,
+   81,
+   93,
+   74,
+   82,
+   86,
+   69
+  ]
+ },
+ {
+  "slug": "reykjavik-iceland",
+  "title": "Reykjavik, Iceland",
+  "name": "Reykjavik",
+  "country": "Iceland",
+  "best": "June, August, September",
+  "arch": "alpine",
+  "cl": [
+   1.8,
+   0.8,
+   3.6,
+   5.3,
+   8.5,
+   10.1,
+   12.7,
+   12,
+   8.8,
+   5.3,
+   3.2,
+   1.6
+  ],
+  "scores": [
+   39,
+   42,
+   60,
+   72,
+   75,
+   87,
+   79,
+   81,
+   85,
+   65,
+   50,
+   32
+  ]
  }
 ]
