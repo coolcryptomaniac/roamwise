@@ -36,6 +36,59 @@ button,select,input,textarea{font:inherit}
 .stat div span{font-size:11px;color:var(--t3)}
 .note{font-size:11.5px;color:var(--t3);line-height:1.6}
 .hide{display:none}
+
+/* ===== TEAM SCOREBOARD (rw-v62) ===== */
+.sc-head{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.sc-sub{font-size:11.5px;color:#7C7A74;margin-top:2px}
+.sc-flag{margin-left:auto;font-size:11px;font-weight:800;letter-spacing:.05em;color:#E8BA6C;
+  background:rgba(232,186,108,.12);border:1px solid rgba(232,186,108,.4);border-radius:20px;padding:4px 11px}
+.sc-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:14px}
+.sc-card{text-align:center;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);
+  border-radius:16px;padding:16px 10px}
+.sc-ring{width:78px;height:78px;display:block;margin:0 auto 8px;transform:rotate(-90deg)}
+.sc-track{fill:none;stroke:rgba(255,255,255,.08);stroke-width:7}
+.sc-fill{fill:none;stroke-width:7;stroke-linecap:round;transition:stroke-dashoffset 1.1s cubic-bezier(.22,1,.36,1)}
+.sc-pct{fill:#EDEAE2;font-size:17px;font-weight:800;text-anchor:middle;transform:rotate(90deg);transform-origin:40px 40px}
+.sc-num{font-size:21px;font-weight:900;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.sc-of{font-size:13px;color:#7C7A74;font-weight:700}
+.sc-lbl{font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:#9A968E;font-weight:700;margin-top:3px}
+.sc-pace{display:inline-block;font-size:10px;font-weight:800;border-radius:20px;padding:2px 9px;margin-top:7px}
+.sc-pace.hit{background:rgba(74,222,128,.16);color:#4ADE80}
+.sc-pace.ok{background:rgba(56,189,248,.14);color:#38BDF8}
+.sc-pace.behind{background:rgba(240,166,59,.14);color:#F0A63B}
+.sc-note{font-size:10px;color:#7C7A74;margin-top:6px}
+.sc-foot{font-size:10.5px;color:#7C7A74;margin-top:12px;line-height:1.55;padding-top:10px;border-top:1px solid rgba(255,255,255,.06)}
+
+/* ===== MY DESK + INTERNS (rw-v63) ===== */
+.dk-hero{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.dk-sub{font-size:11.5px;color:#7C7A74;margin-top:2px}
+.dk-streak{margin-left:auto;font-size:11.5px;font-weight:800;color:#E8BA6C;
+  background:rgba(232,186,108,.12);border:1px solid rgba(232,186,108,.35);border-radius:20px;padding:4px 11px}
+.dk-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-bottom:4px}
+.dk-stat{text-align:center;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:11px 6px}
+.dk-stat b{display:block;font-size:17px;color:#EDEAE2}
+.dk-stat span{font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;color:#7C7A74}
+.dk-done{background:rgba(74,222,128,.1);border:1px solid rgba(74,222,128,.35);color:#4ADE80;
+  border-radius:12px;padding:12px;text-align:center;font-size:13px;font-weight:700;margin:12px 0}
+.dk-lab{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:#7C7A74;font-weight:800;margin:16px 0 8px}
+.dk-log{border-left:2px solid rgba(232,186,108,.4);padding:8px 0 8px 11px;margin-bottom:9px}
+.dk-log-h{display:flex;gap:8px;align-items:center;font-size:12px;color:#EDEAE2}
+.dk-h{margin-left:auto;font-size:10.5px;color:#E8BA6C;font-weight:800}
+.dk-log-b{font-size:12.5px;color:#9A968E;line-height:1.55;margin-top:3px}
+.dk-proof{display:inline-block;font-size:10.5px;color:#38BDF8;margin-top:4px;text-decoration:none}
+.dk-block{font-size:11px;color:#F0A63B;margin-top:4px}
+.dk-doc{display:flex;align-items:center;gap:8px;font-size:12.5px;color:#C9C5BB;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.05)}
+.dk-doc a{color:#E8BA6C;font-size:11.5px;text-decoration:none}
+.dk-pending{font-size:10.5px;color:#57554F}
+.dk-note{font-size:10.5px;color:#7C7A74;margin-top:8px;line-height:1.5}
+.in-card{border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:13px;margin-bottom:10px;background:rgba(255,255,255,.02)}
+.in-top{display:flex;align-items:center;gap:9px}
+.in-dot{flex:0 0 9px;width:9px;height:9px;border-radius:50%}
+.in-sub{font-size:11px;color:#7C7A74;margin-top:2px}
+.in-hrs{font-size:10.5px;color:#E8BA6C;font-weight:700;white-space:nowrap}
+.in-last{font-size:12px;color:#9A968E;margin:8px 0;line-height:1.5}
+.in-actions{display:flex;gap:6px;flex-wrap:wrap}
+.in-actions .btn{flex:1;min-width:88px;font-size:11.5px;padding:7px 8px}
 </style></head><body><div class="wrap">
 <header>
   <div><div class="brand">Roam<em>Wise</em> · team</div><div class="who" id="who">Not signed in</div></div>
@@ -128,6 +181,32 @@ button,select,input,textarea{font:inherit}
       <button class="btn" onclick="finExport()">⬇️ Export CSV</button>
     </div>
     <div id="finList"><p class="note">Loading…</p></div>
+  </div>
+
+  <div class="card" id="myDeskBox" style="display:none">
+    <div class="lab">🪑 My desk</div>
+    <div id="deskOut"><p class="note">Loading…</p></div>
+  </div>
+
+  <div class="card" id="internAdminBox" style="display:none">
+    <div class="lab">👥 Interns</div>
+    <p class="note">Everyone's logs, hours and documents in one place. Add a person once and their desk appears for them automatically.</p>
+    <div id="internAdminOut"><p class="note">Loading…</p></div>
+    <div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:12px">
+      <button class="btn go" onclick="internAdd()">➕ Add a person</button>
+      <button class="btn" onclick="internRefresh()">↻ Refresh</button>
+    </div>
+  </div>
+
+  <div class="card" id="scoreBox" style="display:none">
+    <div class="lab">🎯 This month's mission</div>
+    <p class="note">Live counters for the whole team. Set the monthly targets once — everyone sees the same numbers and the same finish line.</p>
+    <div id="scoreOut"><p class="note">Loading…</p></div>
+    <div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:12px">
+      <button class="btn go" onclick="scoreEdit()">🎯 Set targets</button>
+      <button class="btn" onclick="scoreLogInstalls()">📲 Log installs</button>
+      <button class="btn" onclick="scoreRefresh()">↻ Refresh</button>
+    </div>
   </div>
 
   <div class="card" id="investorBox" style="display:none">
@@ -315,6 +394,9 @@ firebase.auth().onAuthStateChanged(function(u){
     el('docBox').style.display = ROLE==='admin'?'block':'none';
     el('finConsoleBox').style.display = ROLE==='admin'?'block':'none';
     el('taxBox').style.display = ROLE==='admin'?'block':'none';
+    el('scoreBox').style.display = (ROLE==='admin'||ROLE==='staff')?'block':'none';
+    el('myDeskBox').style.display = (ROLE&&ROLE!=='none')?'block':'none';
+    el('internAdminBox').style.display = ROLE==='admin'?'block':'none';
     el('investorBox').style.display = ROLE==='admin'?'block':'none';
     el('contactsBox').style.display = ROLE==='admin'?'block':'none';
     el('mailBox').style.display = ROLE==='admin'?'block':'none';
@@ -327,6 +409,9 @@ firebase.auth().onAuthStateChanged(function(u){
     if(ROLE==='admin') docLoad();
     if(ROLE==='admin') finLoad();
     if(ROLE==='admin') taxLoad();
+    if(ROLE&&ROLE!=='none'){ setTimeout(function(){ try{ deskRender(); }catch(e){} }, 450); }
+    if(ROLE==='admin'){ setTimeout(function(){ try{ internRefresh(); }catch(e){} }, 700); }
+    if(ROLE==='admin'||ROLE==='staff'){ setTimeout(function(){ try{ scoreRefresh(); }catch(e){} }, 500); }
     if(ROLE==='admin'){ setTimeout(function(){ try{ invRender(); contactsRender(); }catch(e){} }, 400); }
   }).catch(function(e){ el('signedOut').innerHTML='<div class="card"><p class="note">Could not check your role: '+esc(e.message)+'</p></div>'; });
 });
@@ -683,6 +768,483 @@ function finExport(){
 }
 
 /* ==================== INVESTOR METRICS (ARR & sales) ==================== */
+
+
+/* ============================================================================
+   MY DESK + INTERN MANAGEMENT (rw-v63)
+   ============================================================================
+   Goal: each person gets ONE page that answers "what do I do today, what have
+   I done, and where are my documents" — and the founder gets the same view
+   across everyone without chasing anyone on WhatsApp.
+
+   SCALABLE BY DESIGN: nothing is hardcoded per person. Everyone lives in the
+   Firestore 'staff' collection. Adding a fourth intern is one form, not a new
+   page. When the founder steps back, the system keeps working because the
+   record IS the process.
+
+   HONEST ON TIME TRACKING: a website cannot truly know how long someone worked
+   — only how long this page was open and focused. So we measure exactly that,
+   call it "time on portal", and treat the DAILY LOG as the real evidence of
+   work. Anything else would be theatre, or surveillance, or both.
+   ========================================================================= */
+
+/* ---------- shared helpers ---------- */
+function deskToday(){ return new Date().toISOString().slice(0,10); }
+function deskMonth(){ return deskToday().slice(0,7); }
+function deskNice(d){ try{ return new Date(d+'T00:00:00').toLocaleDateString('en-IN',{weekday:'short',day:'numeric',month:'short'}); }catch(e){ return d; } }
+function deskMins(ms){ var m=Math.round(ms/60000); return m<60? m+'m' : Math.floor(m/60)+'h '+(m%60?m%60+'m':''); }
+
+/* ---------- session timer: counts only while the tab is actually visible ---------- */
+var _deskT0=Date.now(), _deskAcc=0, _deskVisible=!document.hidden;
+document.addEventListener('visibilitychange', function(){
+  if(document.hidden){ if(_deskVisible){ _deskAcc += Date.now()-_deskT0; _deskVisible=false; } }
+  else { _deskT0=Date.now(); _deskVisible=true; }
+});
+function deskSessionMs(){ return _deskAcc + (_deskVisible ? Date.now()-_deskT0 : 0); }
+/* write a heartbeat every 2 minutes so a closed tab still records the session */
+function deskHeartbeat(){
+  if(!user || typeof db==='undefined' || !db) return;
+  var ms=deskSessionMs(); if(ms<30000) return;
+  db.collection('staff').doc(user.uid).collection('sessions').doc(deskToday())
+    .set({ date:deskToday(), ms:ms, at:firebase.firestore.FieldValue.serverTimestamp() },{merge:true})
+    .catch(function(){});
+}
+setInterval(deskHeartbeat, 120000);
+window.addEventListener('beforeunload', deskHeartbeat);
+
+/* ---------- MY DESK ---------- */
+function deskRender(){
+  var host=el('deskOut'); if(!host) return;
+  if(!user){ host.innerHTML='<p class="note">Sign in to see your desk.</p>'; return; }
+  var me=null;
+  db.collection('staff').doc(user.uid).get().then(function(d){
+    me=d.data()||{};
+    return db.collection('staff').doc(user.uid).collection('logs')
+      .orderBy('date','desc').limit(30).get();
+  }).then(function(qs){
+    var logs=[]; qs.forEach(function(d){ logs.push(d.data()); });
+    return db.collection('staff').doc(user.uid).collection('sessions')
+      .orderBy('date','desc').limit(30).get().then(function(ss){
+        var sess={}; ss.forEach(function(d){ var x=d.data(); sess[x.date]=x.ms||0; });
+        deskPaint(me, logs, sess);
+      });
+  }).catch(function(){ host.innerHTML='<p class="note">Could not load your desk. Check your connection.</p>'; });
+}
+function deskPaint(me, logs, sess){
+  var host=el('deskOut'); if(!host) return;
+  var today=deskToday();
+  var loggedToday = logs.some(function(l){ return l.date===today; });
+  var thisMonth = logs.filter(function(l){ return (l.date||'').slice(0,7)===deskMonth(); });
+  var hoursMonth = Object.keys(sess).filter(function(d){ return d.slice(0,7)===deskMonth(); })
+                     .reduce(function(a,d){ return a+(sess[d]||0); },0);
+  /* streak of consecutive days logged, counting back from today */
+  var have={}; logs.forEach(function(l){ have[l.date]=1; });
+  var streak=0, cur=new Date();
+  for(var i=0;i<60;i++){
+    var k=cur.toISOString().slice(0,10);
+    if(have[k]) streak++;
+    else if(i>0) break;          /* today not logged yet is forgiven */
+    cur.setDate(cur.getDate()-1);
+  }
+  var sheet=me.sheet||'';
+  host.innerHTML=
+     '<div class="dk-hero">'
+    +'<div><b style="font-size:16px">'+esc(me.name||user.displayName||'You')+'</b>'
+    +'<div class="dk-sub">'+esc(me.title||me.role||'Team')+(me.staffId?' · '+esc(me.staffId):'')+'</div></div>'
+    +'<div class="dk-streak">'+(streak>0? '🔥 '+streak+' day'+(streak>1?'s':'') : 'start a streak')+'</div>'
+    +'</div>'
+    +'<div class="dk-stats">'
+    +'<div class="dk-stat"><b>'+thisMonth.length+'</b><span>logs this month</span></div>'
+    +'<div class="dk-stat"><b>'+deskMins(hoursMonth)+'</b><span>on portal</span></div>'
+    +'<div class="dk-stat"><b>'+deskMins(deskSessionMs())+'</b><span>today</span></div>'
+    +'</div>'
+    + (loggedToday
+        ? '<div class="dk-done">✅ Today\'s work is logged. Thank you.</div>'
+        : '<button class="btn go" style="width:100%;padding:13px;margin:12px 0" onclick="deskLog()">✍️ Log today\'s work</button>')
+    + (sheet? '<a class="btn" style="display:block;text-align:center;text-decoration:none;margin-bottom:10px" href="'+esc(sheet)+'" target="_blank" rel="noopener">📊 Open my Google Sheet ↗</a>' : '')
+    + deskDocsHTML(me)
+    + '<div class="dk-lab">RECENT WORK</div>'
+    + (logs.length? logs.slice(0,10).map(function(l){
+        return '<div class="dk-log"><div class="dk-log-h"><b>'+esc(deskNice(l.date))+'</b>'
+          +(l.hours? '<span class="dk-h">'+esc(String(l.hours))+'h</span>':'')+'</div>'
+          +'<div class="dk-log-b">'+esc(l.what||'')+'</div>'
+          +(l.proof? '<a class="dk-proof" href="'+esc(l.proof)+'" target="_blank" rel="noopener">🔗 proof</a>':'')
+          +(l.blockers? '<div class="dk-block">⚠ '+esc(l.blockers)+'</div>':'')
+          +'</div>';
+      }).join('') : '<p class="note">No logs yet. Your first one takes about thirty seconds.</p>');
+}
+function deskDocsHTML(me){
+  var d=me.docs||{};
+  function row(k,label,icon){
+    var url=d[k];
+    return '<div class="dk-doc">'+icon+' <span style="flex:1">'+label+'</span>'
+      + (url? '<a href="'+esc(url)+'" target="_blank" rel="noopener">Open ↗</a>'
+            : '<span class="dk-pending">not issued yet</span>')+'</div>';
+  }
+  return '<div class="dk-lab">MY DOCUMENTS</div>'
+    + row('offer','Offer letter','📄')
+    + row('certificate','Internship certificate','🏅')
+    + row('relieving','Relieving letter','📃')
+    + '<div class="dk-note">Documents are issued by the founder. The certificate is generated from your actual logged contributions.</div>';
+}
+function deskLog(){
+  showModal('<div class="card"><h3 style="margin:0 0 4px">✍️ '+deskNice(deskToday())+'</h3>'
+    +'<p class="note" style="margin-bottom:10px">Short is fine. This is what your certificate is built from later.</p>'
+    +'<label class="lab">What did you do today?</label>'
+    +'<textarea id="lg_what" class="inp" style="min-height:90px" placeholder="e.g. Tested the new Event radar on 3 devices, filed 2 bugs in the sheet, drafted 4 Instagram posts"></textarea>'
+    +'<label class="lab">Hours worked</label><input id="lg_hours" class="inp" type="number" step="0.5" placeholder="e.g. 3">'
+    +'<label class="lab">Proof link (optional)</label><input id="lg_proof" class="inp" placeholder="Sheet row, doc, screenshot, post URL">'
+    +'<label class="lab">Anything blocking you? (optional)</label><input id="lg_block" class="inp" placeholder="e.g. waiting on the new build">'
+    +'<div style="display:flex;gap:8px;margin-top:12px"><button class="btn go" style="flex:1;padding:11px" onclick="deskSaveLog()">Save</button>'
+    +'<button class="btn" style="padding:11px" onclick="closeModal()">Cancel</button></div></div>');
+}
+function deskSaveLog(){
+  var what=(el('lg_what').value||'').trim();
+  if(!what){ alert('Write a line about what you did.'); return; }
+  var rec={ date:deskToday(), what:what, hours:+el('lg_hours').value||0,
+    proof:(el('lg_proof').value||'').trim(), blockers:(el('lg_block').value||'').trim(),
+    name:(user.displayName||''), at:firebase.firestore.FieldValue.serverTimestamp() };
+  db.collection('staff').doc(user.uid).collection('logs').doc(deskToday()).set(rec,{merge:true})
+    .then(function(){ closeModal(); deskRender(); })
+    .catch(function(){ alert('Could not save. Check your connection and try again.'); });
+}
+
+
+/* ---------- FOUNDER VIEW: everyone, at a glance ---------- */
+var _interns=[];
+function internRefresh(){
+  var host=el('internAdminOut'); if(!host) return;
+  host.innerHTML='<p class="note">Loading…</p>';
+  db.collection('staff').get().then(function(qs){
+    var people=[]; qs.forEach(function(d){ var x=d.data()||{}; x._uid=d.id; people.push(x); });
+    people=people.filter(function(p){ return (p.role||'none')!=='none'; });
+    _interns=people;
+    return Promise.all(people.map(function(p){
+      return db.collection('staff').doc(p._uid).collection('logs').orderBy('date','desc').limit(40).get()
+        .then(function(ls){
+          var logs=[]; ls.forEach(function(d){ logs.push(d.data()); });
+          p._logs=logs;
+          return db.collection('staff').doc(p._uid).collection('sessions').limit(40).get();
+        }).then(function(ss){
+          var ms=0; ss.forEach(function(d){ var x=d.data()||{}; if((x.date||'').slice(0,7)===deskMonth()) ms+=x.ms||0; });
+          p._ms=ms; return p;
+        }).catch(function(){ p._logs=p._logs||[]; p._ms=0; return p; });
+    }));
+  }).then(function(){ internPaint(); })
+    .catch(function(){ host.innerHTML='<p class="note">Could not load the team.</p>'; });
+}
+function internPaint(){
+  var host=el('internAdminOut'); if(!host) return;
+  if(!_interns.length){ host.innerHTML='<p class="note">No active team members yet.</p>'; return; }
+  var today=deskToday();
+  host.innerHTML=_interns.map(function(p,i){
+    var logs=p._logs||[];
+    var month=logs.filter(function(l){ return (l.date||'').slice(0,7)===deskMonth(); });
+    var hrs=month.reduce(function(a,l){ return a+(+l.hours||0); },0);
+    var loggedToday=logs.some(function(l){ return l.date===today; });
+    var last=logs[0];
+    var d=p.docs||{};
+    var issued=['offer','certificate','relieving'].filter(function(k){ return d[k]; }).length;
+    return '<div class="in-card">'
+      +'<div class="in-top">'
+      +'<span class="in-dot" style="background:'+(loggedToday?'#4ADE80':'#F0A63B')+'"></span>'
+      +'<span style="flex:1;min-width:0"><b>'+esc(p.name||p.email||p.staffId||'Unnamed')+'</b>'
+      +'<div class="in-sub">'+esc(p.title||p.role||'')+(p.staffId?' · '+esc(p.staffId):'')+'</div></span>'
+      +'<span class="in-hrs">'+month.length+' logs · '+(hrs?hrs+'h':deskMins(p._ms||0))+'</span>'
+      +'</div>'
+      +(last? '<div class="in-last"><b>'+esc(deskNice(last.date))+':</b> '+esc((last.what||'').slice(0,120))+(((last.what||'').length>120)?'…':'')+'</div>'
+            : '<div class="in-last" style="color:#7C7A74">No logs yet.</div>')
+      +'<div class="in-actions">'
+      +'<button class="btn" onclick="internSheet(\''+p._uid+'\')">📊 Sheet</button>'
+      +'<button class="btn" onclick="internDocs(\''+p._uid+'\')">📁 Docs ('+issued+'/3)</button>'
+      +'<button class="btn go" onclick="internCert(\''+p._uid+'\')">🏅 Certificate</button>'
+      +'</div></div>';
+  }).join('');
+}
+function internById(uid){ return _interns.filter(function(p){ return p._uid===uid; })[0]; }
+function internAdd(){
+  showModal('<div class="card"><h3 style="margin:0 0 4px">➕ Add a person</h3>'
+    +'<p class="note" style="margin-bottom:10px">They sign in once with Google, send you their Staff ID, and you activate them here. Nothing else to set up.</p>'
+    +'<label class="lab">Their Staff ID (from their pending screen)</label><input id="ad_sid" class="inp" placeholder="RW-XXXX">'
+    +'<label class="lab">Name</label><input id="ad_name" class="inp">'
+    +'<label class="lab">Title</label><input id="ad_title" class="inp" placeholder="e.g. Marketing &amp; Sales Intern">'
+    +'<label class="lab">Role</label><select id="ad_role" class="inp"><option value="staff">staff</option><option value="marketing">marketing</option><option value="finance">finance</option><option value="admin">admin</option></select>'
+    +'<div style="display:flex;gap:8px;margin-top:12px"><button class="btn go" style="flex:1;padding:11px" onclick="internSaveAdd()">Activate</button>'
+    +'<button class="btn" style="padding:11px" onclick="closeModal()">Cancel</button></div></div>');
+}
+function internSaveAdd(){
+  var sid=(el('ad_sid').value||'').trim().toUpperCase();
+  if(!sid){ alert('Staff ID is required.'); return; }
+  db.collection('staff').where('staffId','==',sid).limit(1).get().then(function(qs){
+    if(qs.empty){ alert('No pending account with that Staff ID. Ask them to sign in once first.'); return; }
+    var doc=qs.docs[0];
+    return doc.ref.set({ name:(el('ad_name').value||'').trim(), title:(el('ad_title').value||'').trim(),
+      role:el('ad_role').value, activatedAt:firebase.firestore.FieldValue.serverTimestamp() },{merge:true})
+      .then(function(){ closeModal(); internRefresh(); });
+  }).catch(function(){ alert('Could not activate.'); });
+}
+function internSheet(uid){
+  var p=internById(uid); if(!p) return;
+  showModal('<div class="card"><h3 style="margin:0 0 4px">📊 '+esc(p.name||'Sheet')+'</h3>'
+    +'<p class="note" style="margin-bottom:10px">Paste their live Google Sheet link. It appears as a button on their desk.</p>'
+    +'<label class="lab">Google Sheet URL</label><input id="sh_url" class="inp" value="'+esc(p.sheet||'')+'" placeholder="https://docs.google.com/spreadsheets/…">'
+    +'<div style="display:flex;gap:8px;margin-top:12px"><button class="btn go" style="flex:1;padding:11px" onclick="internSaveSheet(\''+uid+'\')">Save</button>'
+    +'<button class="btn" style="padding:11px" onclick="closeModal()">Cancel</button></div></div>');
+}
+function internSaveSheet(uid){
+  db.collection('staff').doc(uid).set({ sheet:(el('sh_url').value||'').trim() },{merge:true})
+    .then(function(){ closeModal(); internRefresh(); }).catch(function(){ alert('Could not save.'); });
+}
+function internDocs(uid){
+  var p=internById(uid); if(!p) return; var d=p.docs||{};
+  showModal('<div class="card"><h3 style="margin:0 0 4px">📁 '+esc(p.name||'Documents')+'</h3>'
+    +'<p class="note" style="margin-bottom:10px">Upload the file to Drive, set it to “anyone with the link”, and paste the link here. They see it instantly on their desk.</p>'
+    +'<label class="lab">Offer letter</label><input id="dc_offer" class="inp" value="'+esc(d.offer||'')+'">'
+    +'<label class="lab">Internship certificate</label><input id="dc_cert" class="inp" value="'+esc(d.certificate||'')+'">'
+    +'<label class="lab">Relieving letter</label><input id="dc_rel" class="inp" value="'+esc(d.relieving||'')+'">'
+    +'<div style="display:flex;gap:8px;margin-top:12px"><button class="btn go" style="flex:1;padding:11px" onclick="internSaveDocs(\''+uid+'\')">Save</button>'
+    +'<button class="btn" style="padding:11px" onclick="closeModal()">Cancel</button></div></div>');
+}
+function internSaveDocs(uid){
+  db.collection('staff').doc(uid).set({ docs:{
+      offer:(el('dc_offer').value||'').trim(),
+      certificate:(el('dc_cert').value||'').trim(),
+      relieving:(el('dc_rel').value||'').trim()
+    }},{merge:true}).then(function(){ closeModal(); internRefresh(); }).catch(function(){ alert('Could not save.'); });
+}
+
+
+/* ---------- CERTIFICATE: generated FROM the person's real logged work ----------
+   Not a template with a name dropped in. It reads their actual logs, counts
+   real days and hours, pulls out what they genuinely worked on, and prints a
+   document they can hand to a future employer without embarrassment. That is
+   the whole point — a certificate is only worth anything if it is true. */
+function internCert(uid){
+  var p=internById(uid); if(!p) return;
+  var logs=(p._logs||[]).slice().sort(function(a,b){ return (a.date||'').localeCompare(b.date||''); });
+  if(!logs.length){ alert('No logged work yet — the certificate is built from their daily logs.'); return; }
+  var first=logs[0].date, last=logs[logs.length-1].date;
+  var days=logs.length;
+  var hours=logs.reduce(function(a,l){ return a+(+l.hours||0); },0);
+  /* pull the most substantial contributions, longest first */
+  var highlights=logs.map(function(l){ return (l.what||'').trim(); })
+    .filter(function(t){ return t.length>25; })
+    .sort(function(a,b){ return b.length-a.length; }).slice(0,5);
+  var proofs=logs.filter(function(l){ return l.proof; }).length;
+
+  showModal('<div class="card"><h3 style="margin:0 0 4px">🏅 Certificate for '+esc(p.name||'')+'</h3>'
+    +'<p class="note" style="margin-bottom:10px">Built from '+days+' logged day'+(days>1?'s':'')+(hours?' and '+hours+' recorded hours':'')+'. Edit anything before printing.</p>'
+    +'<label class="lab">Name on certificate</label><input id="ct_name" class="inp" value="'+esc(p.name||'')+'">'
+    +'<label class="lab">Role title</label><input id="ct_title" class="inp" value="'+esc(p.title||'Intern')+'">'
+    +'<label class="lab">From</label><input id="ct_from" class="inp" value="'+esc(first)+'">'
+    +'<label class="lab">To</label><input id="ct_to" class="inp" value="'+esc(last)+'">'
+    +'<label class="lab">Contributions (one per line)</label>'
+    +'<textarea id="ct_hl" class="inp" style="min-height:120px">'+esc(highlights.join('\n'))+'</textarea>'
+    +'<div style="display:flex;gap:8px;margin-top:12px"><button class="btn go" style="flex:1;padding:11px" onclick="internCertPrint('+days+','+hours+','+proofs+')">🖨️ Open &amp; print</button>'
+    +'<button class="btn" style="padding:11px" onclick="closeModal()">Cancel</button></div></div>');
+}
+function internCertPrint(days, hours, proofs){
+  var name=el('ct_name').value||'', title=el('ct_title').value||'Intern';
+  var from=el('ct_from').value||'', to=el('ct_to').value||'';
+  var hl=(el('ct_hl').value||'').split('\n').map(function(x){ return x.trim(); }).filter(Boolean);
+  function nice(d){ try{ return new Date(d+'T00:00:00').toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'}); }catch(e){ return d; } }
+  var ref='RW-CERT-'+(from||'').replace(/-/g,'').slice(2)+'-'+name.replace(/[^A-Za-z]/g,'').slice(0,3).toUpperCase();
+  var w=window.open('','_blank'); if(!w){ alert('Allow pop-ups to open the certificate.'); return; }
+  w.document.write('<!DOCTYPE html><html><head><meta charset="utf-8"><title>'+esc(name)+' — RoamWise Certificate</title><style>'
+    +'@page{size:A4;margin:0}'
+    +'*{margin:0;padding:0;box-sizing:border-box}'
+    +'body{font-family:Georgia,"Times New Roman",serif;background:#0A0C14;color:#EDEAE2;display:flex;align-items:center;justify-content:center;min-height:100vh}'
+    +'.cert{width:210mm;min-height:297mm;padding:24mm 20mm;background:linear-gradient(150deg,#0B0E1A,#141829 45%,#0B0E1A);position:relative;overflow:hidden}'
+    +'.cert::before{content:"";position:absolute;inset:10mm;border:1.5px solid rgba(232,186,108,.45);border-radius:4mm;pointer-events:none}'
+    +'.cert::after{content:"";position:absolute;inset:11.5mm;border:.5px solid rgba(232,186,108,.25);border-radius:3mm;pointer-events:none}'
+    +'.mark{text-align:center;font-size:11px;letter-spacing:.5em;text-transform:uppercase;color:#8A8880;margin-bottom:14mm}'
+    +'h1{text-align:center;font-size:34px;color:#E8BA6C;letter-spacing:-.01em;margin-bottom:3mm}'
+    +'.sub{text-align:center;font-size:13px;color:#9A968E;font-style:italic;margin-bottom:12mm}'
+    +'.awarded{text-align:center;font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:#8A8880;margin-bottom:4mm}'
+    +'.name{text-align:center;font-size:40px;color:#fff;margin-bottom:3mm;letter-spacing:-.02em}'
+    +'.role{text-align:center;font-size:15px;color:#E8BA6C;margin-bottom:10mm}'
+    +'.body{font-size:14px;line-height:1.9;color:#C9C5BB;text-align:center;max-width:150mm;margin:0 auto 10mm}'
+    +'.stats{display:flex;justify-content:center;gap:14mm;margin-bottom:10mm}'
+    +'.stat{text-align:center}.stat b{display:block;font-size:24px;color:#E8BA6C}.stat span{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:#8A8880}'
+    +'.hl-lab{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:#8A8880;text-align:center;margin-bottom:5mm}'
+    +'.hl{max-width:150mm;margin:0 auto 12mm}'
+    +'.hl li{font-size:13px;line-height:1.75;color:#C9C5BB;margin-bottom:2.5mm;list-style:none;padding-left:7mm;position:relative}'
+    +'.hl li::before{content:"◆";position:absolute;left:0;color:#E8BA6C;font-size:9px;top:3px}'
+    +'.sign{display:flex;justify-content:space-between;align-items:flex-end;margin-top:14mm;padding:0 6mm}'
+    +'.sig{text-align:center}.sig .line{width:52mm;border-top:1px solid rgba(232,186,108,.5);margin-bottom:2mm}'
+    +'.sig b{font-size:13px;color:#EDEAE2}.sig span{display:block;font-size:10px;color:#8A8880}'
+    +'.ref{text-align:center;font-size:9px;color:#57554F;letter-spacing:.1em;margin-top:8mm}'
+    +'@media print{body{background:#fff}.cert{box-shadow:none}}'
+    +'</style></head><body><div class="cert">'
+    +'<div class="mark">RoamWise · GYANVERSE</div>'
+    +'<h1>Certificate of Internship</h1>'
+    +'<div class="sub">Made in Almora, Uttarakhand</div>'
+    +'<div class="awarded">This is awarded to</div>'
+    +'<div class="name">'+esc(name)+'</div>'
+    +'<div class="role">'+esc(title)+'</div>'
+    +'<div class="body">who worked with RoamWise from <b>'+esc(nice(from))+'</b> to <b>'+esc(nice(to))+'</b>, '
+    +'contributing to a live product used by real travellers. The work below is drawn from their own daily records kept during the internship.</div>'
+    +'<div class="stats">'
+    +'<div class="stat"><b>'+days+'</b><span>days logged</span></div>'
+    +(hours? '<div class="stat"><b>'+hours+'</b><span>hours recorded</span></div>':'')
+    +(proofs? '<div class="stat"><b>'+proofs+'</b><span>evidenced</span></div>':'')
+    +'</div>'
+    +(hl.length? '<div class="hl-lab">Contributions</div><ul class="hl">'+hl.map(function(h){ return '<li>'+esc(h)+'</li>'; }).join('')+'</ul>' : '')
+    +'<div class="sign">'
+    +'<div class="sig"><div class="line"></div><b>Mohit Pandey</b><span>Founder, RoamWise</span></div>'
+    +'<div class="sig"><div class="line"></div><b>'+esc(nice(to))+'</b><span>Date of issue</span></div>'
+    +'</div>'
+    +'<div class="ref">Ref '+esc(ref)+' · verifiable with the founder at founder@roamwise.co.in</div>'
+    +'</div></body></html>');
+  w.document.close();
+  setTimeout(function(){ try{ w.print(); }catch(e){} }, 600);
+}
+
+/* ============================================================================
+   TEAM SCOREBOARD — this month's mission (rw-v62)
+   ============================================================================
+   Live counters the whole team sees: users, installs, paid. Targets are set
+   once a month and shared, so everyone is chasing the same finish line.
+
+   HONEST DATA NOTES:
+     users  — counted live from the Firestore 'users' collection.
+     paid   — counted live from 'claims'.
+     installs — Play Store install counts are NOT available through a simple
+                API (that needs a Google Play Developer service account), so
+                this is entered by hand from Play Console. The UI says so
+                rather than pretending it's live.
+   ========================================================================= */
+var SCORE_KEY='rw_score_targets';
+function scoreMonthId(){ var d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'); }
+function scoreMonthName(){ return new Date().toLocaleDateString('en-IN',{month:'long',year:'numeric'}); }
+function scoreDaysLeft(){
+  var d=new Date(), end=new Date(d.getFullYear(), d.getMonth()+1, 0);
+  return Math.max(0, end.getDate()-d.getDate());
+}
+function scoreMonthProgress(){
+  var d=new Date(), end=new Date(d.getFullYear(), d.getMonth()+1, 0).getDate();
+  return d.getDate()/end;   /* 0..1 through the month */
+}
+function scoreTargets(){
+  try{
+    var all=JSON.parse(localStorage.getItem(SCORE_KEY)||'{}');
+    return all[scoreMonthId()] || {users:0, installs:0, paid:0, manualInstalls:0};
+  }catch(e){ return {users:0,installs:0,paid:0,manualInstalls:0}; }
+}
+function scoreSaveTargets(t){
+  try{
+    var all=JSON.parse(localStorage.getItem(SCORE_KEY)||'{}');
+    all[scoreMonthId()]=t;
+    localStorage.setItem(SCORE_KEY, JSON.stringify(all));
+  }catch(e){}
+  /* share targets with the team via Firestore so everyone sees the same goal */
+  if(typeof db!=='undefined' && db){
+    db.collection('stats').doc('targets_'+scoreMonthId()).set(t,{merge:true}).catch(function(){});
+  }
+}
+function scoreEdit(){
+  var t=scoreTargets();
+  showModal('<div class="card"><h3 style="margin:0 0 4px">🎯 Targets for '+scoreMonthName()+'</h3>'
+    +'<p class="note" style="margin-bottom:10px">Pick numbers that are a stretch but reachable. Everyone on the team sees these.</p>'
+    +'<label class="lab">New users this month</label><input id="tg_users" class="inp" type="number" value="'+(t.users||'')+'">'
+    +'<label class="lab">App installs this month</label><input id="tg_installs" class="inp" type="number" value="'+(t.installs||'')+'">'
+    +'<label class="lab">Paid conversions this month</label><input id="tg_paid" class="inp" type="number" value="'+(t.paid||'')+'">'
+    +'<div style="display:flex;gap:8px;margin-top:12px"><button class="btn go" style="flex:1;padding:11px" onclick="scoreSaveEdit()">Save targets</button>'
+    +'<button class="btn" style="padding:11px" onclick="closeModal()">Cancel</button></div></div>');
+}
+function scoreSaveEdit(){
+  var t=scoreTargets();
+  t.users=+el('tg_users').value||0;
+  t.installs=+el('tg_installs').value||0;
+  t.paid=+el('tg_paid').value||0;
+  scoreSaveTargets(t); closeModal(); scoreRefresh();
+}
+function scoreLogInstalls(){
+  var t=scoreTargets();
+  showModal('<div class="card"><h3 style="margin:0 0 4px">📲 Installs so far this month</h3>'
+    +'<p class="note" style="margin-bottom:10px">Play Console → Statistics → Installs. Google does not expose this through a simple API, so it is entered by hand.</p>'
+    +'<label class="lab">Installs this month (from Play Console)</label><input id="mi_v" class="inp" type="number" value="'+(t.manualInstalls||'')+'">'
+    +'<div style="display:flex;gap:8px;margin-top:12px"><button class="btn go" style="flex:1;padding:11px" onclick="scoreSaveInstalls()">Save</button>'
+    +'<button class="btn" style="padding:11px" onclick="closeModal()">Cancel</button></div></div>');
+}
+function scoreSaveInstalls(){
+  var t=scoreTargets(); t.manualInstalls=+el('mi_v').value||0;
+  scoreSaveTargets(t); closeModal(); scoreRefresh();
+}
+/* live counts from Firestore */
+var _scoreCache={users:null, paid:null};
+function scoreRefresh(){
+  var host=el('scoreOut'); if(!host) return;
+  host.innerHTML='<p class="note">Counting…</p>';
+  if(typeof db==='undefined' || !db){ scoreRender(0,0); return; }
+  var monthStart=new Date(); monthStart.setDate(1); monthStart.setHours(0,0,0,0);
+  var pu=db.collection('users').get().then(function(qs){
+    var total=0, thisMonth=0;
+    qs.forEach(function(d){
+      total++;
+      var c=(d.data()||{}).created || (d.data()||{}).joined;
+      var ms=c&&c.seconds? c.seconds*1000 : null;
+      if(ms && ms>=monthStart.getTime()) thisMonth++;
+    });
+    return {total:total, month:thisMonth};
+  }).catch(function(){ return {total:0,month:0}; });
+  var pp=db.collection('claims').get().then(function(qs){
+    var total=0, thisMonth=0;
+    qs.forEach(function(d){
+      total++;
+      var c=(d.data()||{}).at || (d.data()||{}).created;
+      var ms=c&&c.seconds? c.seconds*1000 : null;
+      if(ms && ms>=monthStart.getTime()) thisMonth++;
+    });
+    return {total:total, month:thisMonth};
+  }).catch(function(){ return {total:0,month:0}; });
+  Promise.all([pu,pp]).then(function(r){ _scoreCache={users:r[0], paid:r[1]}; scoreRender(r[0], r[1]); });
+}
+function scoreRender(users, paid){
+  var host=el('scoreOut'); if(!host) return;
+  var t=scoreTargets();
+  var left=scoreDaysLeft(), through=scoreMonthProgress();
+
+  function ring(label, now, target, colour, note){
+    var pct = target>0 ? Math.min(100, Math.round(now/target*100)) : 0;
+    /* pace: are we ahead of where the calendar says we should be? */
+    var expected = target>0 ? Math.round(target*through) : 0;
+    var pace = target<=0 ? '' :
+      now>=target ? '<span class="sc-pace hit">🎉 target hit</span>' :
+      now>=expected ? '<span class="sc-pace ok">on pace</span>' :
+      '<span class="sc-pace behind">'+(expected-now)+' behind pace</span>';
+    var dash = 2*Math.PI*34;
+    var off = dash - (dash*pct/100);
+    return '<div class="sc-card">'
+      +'<svg class="sc-ring" viewBox="0 0 80 80">'
+      +'<circle cx="40" cy="40" r="34" class="sc-track"/>'
+      +'<circle cx="40" cy="40" r="34" class="sc-fill" style="stroke:'+colour+';stroke-dasharray:'+dash.toFixed(1)+';stroke-dashoffset:'+off.toFixed(1)+'"/>'
+      +'<text x="40" y="45" class="sc-pct">'+pct+'%</text></svg>'
+      +'<div class="sc-num" style="color:'+colour+'">'+now.toLocaleString('en-IN')+(target?'<span class="sc-of"> / '+target.toLocaleString('en-IN')+'</span>':'')+'</div>'
+      +'<div class="sc-lbl">'+label+'</div>'
+      + pace
+      +(note?'<div class="sc-note">'+note+'</div>':'')
+      +'</div>';
+  }
+
+  var uNow=(users&&users.month)||0, pNow=(paid&&paid.month)||0, iNow=t.manualInstalls||0;
+  var done = (t.users&&uNow>=t.users?1:0)+(t.installs&&iNow>=t.installs?1:0)+(t.paid&&pNow>=t.paid?1:0);
+  var set  = (t.users?1:0)+(t.installs?1:0)+(t.paid?1:0);
+
+  host.innerHTML=
+     '<div class="sc-head">'
+    +'<div><b>'+scoreMonthName()+'</b><div class="sc-sub">'+(left===0?'last day of the month':left+' day'+(left===1?'':'s')+' left')+'</div></div>'
+    +'<div class="sc-flag">'+(set&&done===set?'🏆 all targets hit':done+'/'+(set||3)+' hit')+'</div>'
+    +'</div>'
+    +'<div class="sc-grid">'
+    + ring('New users', uNow, t.users, '#4ADE80', users? 'all time: '+users.total.toLocaleString('en-IN') : '')
+    + ring('Installs', iNow, t.installs, '#38BDF8', 'entered from Play Console')
+    + ring('Paid', pNow, t.paid, '#E8BA6C', paid? 'all time: '+paid.total.toLocaleString('en-IN') : '')
+    +'</div>'
+    +(set? '' : '<p class="note" style="margin-top:10px">No targets set for this month yet — tap <b>🎯 Set targets</b> to give the team a finish line.</p>')
+    +'<div class="sc-foot">Users and paid are counted live from the database. Installs are entered by hand because Play Store counts are not available through a simple API.</div>';
+}
+
 function invGet(){ try{ return JSON.parse(localStorage.getItem('rw_inv_metrics')||'{}'); }catch(e){ return {}; } }
 function invSet(m){ try{ localStorage.setItem('rw_inv_metrics', JSON.stringify(m)); }catch(e){} }
 function invRevenueLogged(){
