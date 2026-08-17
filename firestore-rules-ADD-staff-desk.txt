@@ -1,0 +1,51 @@
+// RoamWise - Firestore rules to ADD for the staff desk (rw-v63)
+// Paste INSIDE your existing "match /databases/{database}/documents { ... }".
+// Pure ASCII only - the Firebase Console rejects smart quotes and em-dashes.
+
+// ---------------------------------------------------------------
+// STAFF - one doc per team member, keyed by their auth uid.
+// A person can read and update their OWN record (name, sheet link).
+// Only an admin can change role or docs - that is what stops someone
+// activating themselves or issuing their own certificate.
+// ---------------------------------------------------------------
+function isAdmin() {
+  return request.auth != null
+    && exists(/databases/$(database)/documents/staff/$(request.auth.uid))
+    && get(/databases/$(database)/documents/staff/$(request.auth.uid)).data.role == 'admin';
+}
+
+match /staff/{uid} {
+  // team members can see the roster; needed for the founder view and the desk
+  allow read: if request.auth != null;
+
+  // first sign-in creates a pending record for yourself only, with no role
+  allow create: if request.auth != null
+                && request.auth.uid == uid
+                && !('role' in request.resource.data);
+
+  // you may edit your own record, but never your role or your documents
+  allow update: if isAdmin()
+                || (request.auth != null && request.auth.uid == uid
+                    && !request.resource.data.diff(resource.data).affectedKeys()
+                          .hasAny(['role','docs','staffId']));
+
+  allow delete: if isAdmin();
+
+  // -------------------------------------------------------------
+  // Daily work logs. You write your own; admins can read everyone's.
+  // Logs are the evidence a certificate is built from, so they are
+  // deliberately NOT deletable by the person who wrote them.
+  // -------------------------------------------------------------
+  match /logs/{day} {
+    allow read: if request.auth != null && (request.auth.uid == uid || isAdmin());
+    allow create, update: if request.auth != null && request.auth.uid == uid;
+    allow delete: if isAdmin();
+  }
+
+  // Session heartbeats - time the portal was open and focused.
+  match /sessions/{day} {
+    allow read: if request.auth != null && (request.auth.uid == uid || isAdmin());
+    allow create, update: if request.auth != null && request.auth.uid == uid;
+    allow delete: if isAdmin();
+  }
+}
