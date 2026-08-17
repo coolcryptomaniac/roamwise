@@ -128,7 +128,49 @@ window.RW_EVENTS = [
   { id:'gdc', roi:{prof:4,money:3,mind:3,cult:3,fun:3,cost:5,drain:4},
     cat:'tech', name:'Game Developers Conference', place:'San Francisco', country:'USA',
     month:3, verified:'typical', vibe:'Games industry: craft talks and hiring.',
-    tips:['The expo pass is far cheaper and still gets you the floor and parties.'] }
+    tips:['The expo pass is far cheaper and still gets you the floor and parties.'] },
+/* ---------------- WORLD MOMENTS (migrated from the legacy Discover "Event
+     Radar" — these are trip TRIGGERS with travel-arbitrage insight, not
+     single-venue events, hence their own category) ---------------- */
+  { id:'fifa26', roi:{prof:0,money:-2,mind:3,cult:5,fun:5,cost:5,drain:3},
+    cat:'moments', name:'FIFA World Cup 2026', place:'USA \u00b7 Mexico \u00b7 Canada, 16 host cities',
+    country:'Multi', start:'2026-06-11', end:'2026-07-19', verified:'confirmed',
+    vibe:'The first 48-team World Cup, across three countries.',
+    tips:['Fan-fest cities beat stadium cities on price \u2014 watch group games in Mexico City (electric and cheap), save NYC for the semis atmosphere.',
+          'Book stays 40km out on transit lines: roughly half price, 30 minutes in.'] },
+  { id:'la28', roi:{prof:0,money:-2,mind:3,cult:5,fun:5,cost:5,drain:3},
+    cat:'moments', name:'LA Olympics 2028', place:'Los Angeles', country:'USA',
+    start:'2028-07-14', end:'2028-07-30', verified:'typical',
+    vibe:'The Games return to Los Angeles.',
+    tips:['Olympic cities empty out AROUND the venues \u2014 Santa Monica and Malibu often run below normal occupancy while Downtown surges. Stay coastal, train in.'] },
+  { id:'wc27', roi:{prof:0,money:-1,mind:4,cult:5,fun:4,cost:4,drain:3},
+    cat:'moments', name:'ICC Cricket World Cup 2027', place:'South Africa \u00b7 Zimbabwe \u00b7 Namibia',
+    country:'Multi', start:'2027-10-01', end:'2027-11-15', verified:'typical',
+    vibe:'The first African ODI World Cup in decades.',
+    tips:['Combine Newlands cricket with the Garden Route.',
+          'Book Cape Town stays 9+ months out \u2014 match-week prices triple.'] },
+  { id:'concerts', roi:{prof:0,money:3,mind:3,cult:4,fun:5,cost:2,drain:2},
+    cat:'moments', name:'Stadium tour season', place:'Global stadium tours', country:'Multi',
+    month:6, verified:'typical', vibe:'Pop\u2019s biggest names on world tours, May\u2013Sept.',
+    tips:['Concert arbitrage: the same world tour often costs 40\u201360% less in Warsaw, Bangkok or S\u00e3o Paulo than London or NYC \u2014 fly there, see the show, and the holiday is effectively free.'] },
+  { id:'f1season', roi:{prof:1,money:-1,mind:2,cult:4,fun:5,cost:4,drain:2},
+    cat:'moments', name:'F1 season flyaways', place:'Singapore \u00b7 Monaco \u00b7 Suzuka', country:'Multi',
+    month:9, verified:'typical', vibe:'The travel-worthy rounds of the F1 calendar.',
+    tips:['Singapore\u2019s night GP is the most tourist-perfect race \u2014 the track wraps the city, so a regular hotel IS a grandstand.',
+          'Book Marina Bay view rooms about 6 months out.'] },
+  { id:'motorvalley', roi:{prof:1,money:0,mind:4,cult:5,fun:5,cost:3,drain:1},
+    cat:'moments', name:'Italy\u2019s Motor Valley pilgrimage', place:'Sant\u2019Agata \u00b7 Maranello \u00b7 Bologna',
+    country:'Italy', month:4, verified:'typical',
+    vibe:'Ferrari, Lamborghini and Ducati within an hour of each other.',
+    tips:['One base near Bologna covers three legendary marques \u2014 factory museums and test-track days cluster there. Best in spring.'] },
+  { id:'skyline', roi:{prof:1,money:0,mind:3,cult:4,fun:3,cost:3,drain:2},
+    cat:'moments', name:'Mega-tower & expo watch', place:'Jeddah \u00b7 Riyadh', country:'Saudi Arabia',
+    month:10, verified:'typical', vibe:'Skyline tourism while a city is being built.',
+    tips:['Jeddah Tower aims to take the world-tallest crown \u2014 the construction-boom years are the cheap years to see a city being born.'] },
+  { id:'launchweek', roi:{prof:1,money:2,mind:1,cult:2,fun:3,cost:3,drain:2},
+    cat:'moments', name:'Flagship phone launch week', place:'Dubai \u00b7 Singapore \u00b7 NYC',
+    country:'Multi', month:9, verified:'typical', vibe:'Launch-day tourism is a real thing.',
+    tips:['Dubai Mall and Singapore Orchard get first stock hours ahead of the West \u2014 pair a city break with a day-one pickup and skip home-country markups.'] }
 ];
 
 window.RW_EVENT_CATS = [
@@ -136,5 +178,6 @@ window.RW_EVENT_CATS = [
   { id:'startup', label:'Startup',    icon:'\ud83d\ude80', color:'#4ADE80' },
   { id:'sports',  label:'Sports',     icon:'\ud83c\udfc3', color:'#38BDF8' },
   { id:'auto',    label:'Automobile', icon:'\ud83d\ude97', color:'#F0A63B' },
-  { id:'tech',    label:'Tech & AI',  icon:'\ud83e\udde0', color:'#7C6BFF' }
+  { id:'tech',    label:'Tech & AI',  icon:'\ud83e\udde0', color:'#7C6BFF' },
+  { id:'moments', label:'World moments', icon:'\ud83c\udf0d', color:'#FB7185' }
 ];
