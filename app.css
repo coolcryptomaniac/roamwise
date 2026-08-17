@@ -1367,3 +1367,57 @@ body.rw-mode-story .seg-desc{font-size:15.5px;line-height:1.78}
 /* a hairline rule above each day, like a magazine section break */
 body.rw-mode-story .day-card::before{content:'';display:block;width:38px;height:2px;
   background:var(--gold);margin-bottom:16px;opacity:.85}
+
+/* ===== EVENT RADAR (rw-v58) ===== */
+.ev-chip{background:var(--bg3);border:1px solid var(--b2);border-radius:20px;padding:7px 13px;
+  color:var(--t2);font:inherit;font-size:12.5px;font-weight:600;cursor:pointer;transition:all .16s}
+.ev-chip:hover{border-color:var(--gold);color:var(--t1)}
+.ev-chip.on{background:color-mix(in srgb,var(--gold) 16%,transparent);border-color:var(--gold);color:var(--gold);font-weight:800}
+.ev-head{font-size:11px;letter-spacing:.1em;text-transform:uppercase;font-weight:800;color:var(--t3);
+  margin:16px 0 9px;padding-bottom:6px;border-bottom:1px solid var(--b1)}
+.ev-card{position:relative;overflow:hidden;border:1px solid var(--b2);border-left:3px solid var(--evc,var(--gold));
+  border-radius:14px;padding:14px;margin-bottom:10px;background:var(--bg2);transition:transform .14s,border-color .16s}
+.ev-card:hover{transform:translateY(-2px);border-color:var(--evc,var(--gold))}
+.ev-card.hot{background:linear-gradient(135deg,color-mix(in srgb,var(--evc) 9%,var(--bg2)),var(--bg2))}
+.ev-card.hot::after{content:'';position:absolute;top:0;bottom:0;width:36%;pointer-events:none;
+  background:linear-gradient(100deg,transparent,color-mix(in srgb,var(--evc) 14%,transparent),transparent);
+  animation:rwSweep 5s ease-in-out infinite}
+.ev-top{display:flex;align-items:flex-start;gap:10px;margin-bottom:7px}
+.ev-ic{font-size:22px;line-height:1}
+.ev-name{font-size:15px;color:var(--t1);letter-spacing:-.01em}
+.ev-where{font-size:11.5px;color:var(--t3);margin-top:2px}
+.ev-days{flex:0 0 auto;font-size:10.5px;font-weight:800;letter-spacing:.03em;color:var(--evc,var(--gold));
+  border:1px solid color-mix(in srgb,var(--evc) 50%,transparent);border-radius:20px;padding:3px 9px;white-space:nowrap}
+.ev-when{font-size:12.5px;color:var(--t2);margin-bottom:6px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.ev-ok{font-size:10px;font-weight:800;color:#4ADE80;background:rgba(74,222,128,.12);
+  border:1px solid rgba(74,222,128,.4);border-radius:20px;padding:1px 8px}
+.ev-maybe{font-size:10px;font-weight:700;color:var(--t3);background:var(--bg3);
+  border:1px solid var(--b2);border-radius:20px;padding:1px 8px}
+.ev-vibe{font-size:12.5px;color:var(--t2);line-height:1.55;margin-bottom:11px}
+.ev-actions{display:flex;gap:7px;flex-wrap:wrap;position:relative;z-index:1}
+.ev-actions .tact{flex:1;min-width:130px;font-size:12px;padding:8px 10px}
+.ev-go{font-weight:800;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#0A0A0C;border:none}
+.ev-tip{font-size:12.5px;color:var(--t2);line-height:1.6;margin-bottom:6px;padding-left:2px}
+@media (prefers-reduced-motion:reduce){ .ev-card.hot::after{animation:none} }
+
+/* ===== EVENT ROI (rw-v59) ===== */
+.roi-badge{font-size:9.5px;font-weight:800;letter-spacing:.06em;border-radius:20px;padding:2px 8px;white-space:nowrap}
+.roi-must{background:linear-gradient(135deg,#E8BA6C,#C8913E);color:#0A0A0C}
+.roi-good{background:rgba(74,222,128,.14);color:#4ADE80;border:1px solid rgba(74,222,128,.45)}
+.roi-ok{background:var(--bg3);color:var(--t2);border:1px solid var(--b2)}
+.roi-meh{background:var(--bg3);color:var(--t3);border:1px solid var(--b2)}
+.roi-bad{background:rgba(224,91,91,.12);color:#E05B5B;border:1px solid rgba(224,91,91,.45)}
+.roi-panel{background:var(--bg3);border:1px solid var(--b2);border-radius:14px;padding:14px}
+.roi-head{display:flex;align-items:center;gap:9px;margin-bottom:8px}
+.roi-net{margin-left:auto;font-size:12px;font-weight:800;color:var(--t2);font-variant-numeric:tabular-nums}
+.roi-why{font-size:12.5px;color:var(--t1);line-height:1.6;margin-bottom:12px}
+.roi-row{display:flex;align-items:center;gap:9px;margin-bottom:6px}
+.roi-lbl{flex:0 0 132px;font-size:11.5px;color:var(--t2)}
+.roi-bar{flex:1;height:7px;border-radius:6px;background:var(--bg4);overflow:hidden;display:flex}
+.roi-bar i{display:block;height:100%;background:linear-gradient(90deg,var(--gold2),var(--gold));border-radius:6px}
+.roi-bar u{display:block;height:100%;background:#E05B5B;border-radius:6px}
+.roi-bar.cost i{background:linear-gradient(90deg,#E05B5B,#B93B3B)}
+.roi-num{flex:0 0 26px;text-align:right;font-size:11px;font-weight:800;color:var(--gold);font-variant-numeric:tabular-nums}
+.roi-num.neg{color:#E05B5B}
+.roi-sep{height:1px;background:var(--b2);margin:10px 0}
+.roi-note{font-size:10.5px;color:var(--t3);line-height:1.55;margin-top:11px;padding-top:9px;border-top:1px solid var(--b1)}
