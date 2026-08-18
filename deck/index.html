@@ -50,6 +50,20 @@ ul{margin:0 0 14px 20px;color:var(--t2)}li{margin-bottom:8px}
 .foot{font-size:12.5px;color:var(--t3);margin-top:26px}
 @media(max-width:640px){.slide{padding:52px 18px;min-height:auto}.dots{display:none}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.card{transition:none}}
+
+/* financial slide (Sakshi revision) */
+.fchart{display:flex;gap:14px;align-items:flex-end;height:200px;margin:18px 0 4px;padding:0 4px}
+.fcol{flex:1;display:flex;flex-direction:column;align-items:center;height:100%;justify-content:flex-end}
+.fbar{width:100%;max-width:56px;height:130px;display:flex;align-items:flex-end;justify-content:center}
+.fbar i{display:block;width:100%;border-radius:7px 7px 0 0;transition:height .8s cubic-bezier(.22,1,.36,1)}
+.frev{font-size:13px;font-weight:800;color:#EDEAE2;margin-top:8px}
+.febit{font-size:10.5px;font-weight:700;margin-top:2px}
+.fyr{font-size:11px;color:#8A8880;margin-top:4px;letter-spacing:.05em}
+.ftable{width:100%;border-collapse:collapse;margin-top:20px;font-size:13px}
+.ftable td{padding:8px 6px;border-bottom:1px solid var(--b,#1E2029);text-align:right}
+.ftable td:first-child{text-align:left;color:#9A968E;font-weight:600}
+.ftable tr td:not(:first-child){color:#EDEAE2;font-variant-numeric:tabular-nums}
+.foot-note{font-size:11.5px;color:#7C7A74;margin-top:16px;line-height:1.6;font-style:italic}
 </style>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
@@ -122,13 +136,15 @@ ul{margin:0 0 14px 20px;color:var(--t2)}li{margin-bottom:8px}
 
 <section class="slide" id="s6">
   <div class="n">05 — Why the moat holds</div>
-  <h2>A model is rentable.<br>Ground truth isn't.</h2>
+  <h2>Public data is the floor.<br>Verified local ground-truth is the moat.</h2>
+  <p class="lead">The fair question every investor asks: if the base data is on the internet, what stops a competitor copying it? The base layer is copyable. The layer that makes RoamWise useful is not.</p>
   <div class="grid g2">
-    <div class="card"><h3>They optimise for coverage</h3><p>A global planner cannot afford to know that Rishikesh autos overcharge at Ram Jhula. RoamWise is worth more precisely because it goes narrow first.</p></div>
-    <div class="card"><h3>Grounded, not generated</h3><p>Answers are built from Wikivoyage, OpenStreetMap and curated cost models — so it can decline to answer instead of inventing a restaurant.</p></div>
-    <div class="card"><h3>Costs scale with users, not with AI</h3><p>Free data sources. No per-query inference bill. Gross margin does not degrade with growth.</p></div>
-    <div class="card"><h3>Trust compounds</h3><p>Every honest refusal — no fake urgency, no invented safety claims — is a reason a traveller returns. That is slow to build and hard to copy.</p></div>
+    <div class="card"><h3>Layer 1 &mdash; Public base (copyable, and that's fine)</h3><p>OpenStreetMap, Wikivoyage, government transit data. Anyone can use these &mdash; they give structure, not truth. They cannot tell you the auto from Rishikesh station to Ram Jhula <em>actually</em> costs &#8377;150, not the &#8377;400 a tourist is quoted.</p></div>
+    <div class="card"><h3>Layer 2 &mdash; Verified ground-truth (the proprietary asset)</h3><p>Real local cost bands, scam patterns and seasonal pricing, each verified by a paid contributor <em>on the ground</em> and stamped with who checked it and when. This does not exist on the internet to scrape &mdash; we create it.</p></div>
+    <div class="card"><h3>How it stays current &mdash; and compounds</h3><p>Contributors re-verify on a rolling cycle; users flag stale prices, which routes back to re-verification. Every month live, the dataset gets more accurate. A copyist starts from zero on launch day &mdash; and is a year behind by the time they match our base.</p></div>
+    <div class="card"><h3>Why a giant won't just do it</h3><p>A global planner optimises for 190 countries and cannot justify paying people to price-check autos in 40 Indian cities. The narrowness that looks like a limitation is exactly what makes the asset defensible.</p></div>
   </div>
+  <p class="foot-note">The model is rentable and the base data is public &mdash; but the verified local layer is built by us, owned by us, and harder to catch every month it runs.</p>
 </section>
 
 <section class="slide" id="s7">
@@ -155,8 +171,26 @@ ul{margin:0 0 14px 20px;color:var(--t2)}li{margin-bottom:8px}
   <p style="margin-top:16px"><span class="tag on">No data sale</span><span class="tag on">No paid placement</span><span class="tag on">No dark patterns</span></p>
 </section>
 
+<section class="slide" id="sfin">
+  <div class="n">08 &mdash; Five-year build-up</div>
+  <h2>How the four lines compound &mdash; and when it turns.</h2>
+  <p class="lead">Bottoms-up from the user funnel, not top-down from market size. Every rupee here traces to an install-to-paying assumption stated below. Conservative on conversion, disciplined on cost.</p>
+  <div class="fchart"><div class="fcol"><div class="fbar"><i style="height:2%;background:linear-gradient(180deg,#E8BA6C,#C8913E)"></i></div><div class="frev">₹0.05Cr</div><div class="febit" style="color:#E0785B">EBITDA -2.6</div><div class="fyr">Y1</div></div><div class="fcol"><div class="fbar"><i style="height:2%;background:linear-gradient(180deg,#E8BA6C,#C8913E)"></i></div><div class="frev">₹0.37Cr</div><div class="febit" style="color:#E0785B">EBITDA -4.23</div><div class="fyr">Y2</div></div><div class="fcol"><div class="fbar"><i style="height:11%;background:linear-gradient(180deg,#E8BA6C,#C8913E)"></i></div><div class="frev">₹1.76Cr</div><div class="febit" style="color:#E0785B">EBITDA -5.64</div><div class="fyr">Y3</div></div><div class="fcol"><div class="fbar"><i style="height:38%;background:linear-gradient(180deg,#E8BA6C,#C8913E)"></i></div><div class="frev">₹6.01Cr</div><div class="febit" style="color:#E0785B">EBITDA -4.99</div><div class="fyr">Y4</div></div><div class="fcol"><div class="fbar"><i style="height:100%;background:linear-gradient(180deg,#E8BA6C,#C8913E)"></i></div><div class="frev">₹15.83Cr</div><div class="febit" style="color:#4ADE80">EBITDA +0.63</div><div class="fyr">Y5</div></div></div>
+  <div class="grid g2" style="margin-top:22px">
+    <div class="card"><h3>The engine</h3><p>Affiliate booking commission and maturing subscriptions do the work &mdash; not the &#8377;100 intro price. Paying users grow 2k &rarr; 67k as trust and multi-year passes compound. Blended ARPU climbs &#8377;150 &rarr; &#8377;1,000.</p></div>
+    <div class="card"><h3>The turn</h3><p>EBITDA crosses positive in Year&nbsp;5 at ~&#8377;15.8&nbsp;Cr revenue. Cumulative burn to breakeven is ~&#8377;17&nbsp;Cr &mdash; which is why this &#8377;4&nbsp;Cr is a first cheque that proves the model, not the whole journey.</p></div>
+  </div>
+  <table class="ftable">
+    <tr><td>MAU</td><td>0.01M</td><td>0.08M</td><td>0.26M</td><td>0.62M</td><td>1.21M</td></tr>
+    <tr><td>Paying</td><td>0k</td><td>2k</td><td>9k</td><td>28k</td><td>67k</td></tr>
+    <tr><td>Revenue &#8377;Cr</td><td>0.05</td><td>0.37</td><td>1.76</td><td>6.01</td><td>15.83</td></tr>
+    <tr><td>EBITDA &#8377;Cr</td><td style="color:#E0785B">-2.6</td><td style="color:#E0785B">-4.23</td><td style="color:#E0785B">-5.64</td><td style="color:#E0785B">-4.99</td><td style="color:#4ADE80">0.63</td></tr>
+  </table>
+  <p class="foot-note">Numbers are a model, not a promise &mdash; shown so the assumptions can be argued with. Move conversion or ARPU and the whole sheet moves; that transparency is the point.</p>
+</section>
+
 <section class="slide" id="s9">
-  <div class="n">08 — Traction & execution</div>
+  <div class="n">09 — Traction & execution</div>
   <h2>Shipped, not slideware</h2>
   <div class="grid g2">
     <div class="card"><h3>66 releases</h3><p>Android app live, PWA live, admin console, agent tooling. Built and shipped by one person.</p></div>
@@ -170,7 +204,7 @@ ul{margin:0 0 14px 20px;color:var(--t2)}li{margin-bottom:8px}
 
 
 <section class="slide" id="s10b">
-  <div class="n">09 — Funding landscape</div>
+  <div class="n">10 — Funding landscape</div>
   <h2>What this category has raised</h2>
   <table>
     <tr><th>Company</th><th>Reported raised</th><th>Where</th><th>Model</th></tr>
@@ -185,7 +219,7 @@ ul{margin:0 0 14px 20px;color:var(--t2)}li{margin-bottom:8px}
 </section>
 
 <section class="slide" id="s10c">
-  <div class="n">10 — The ask</div>
+  <div class="n">11 — The ask</div>
   <h2>₹4 crore <span style="color:var(--t3);font-size:.55em">(≈ $480K)</span><br>for 18 months</h2>
   <p class="lead">Deliberately not a $10M round. This is the amount that removes the actual constraint — and nothing beyond it.</p>
   <div class="grid g2" style="margin-top:20px">
@@ -205,7 +239,7 @@ ul{margin:0 0 14px 20px;color:var(--t2)}li{margin-bottom:8px}
   <p style="margin-top:18px">At this raise the company reaches 40-city verified coverage, iOS parity and a team of three — the point where the data advantage becomes genuinely hard to catch.</p>
 </section>
 <section class="slide" id="s10">
-  <div class="n">11 — Beyond the round</div>
+  <div class="n">12 — Beyond the round</div>
   <h2>Where this goes next</h2>
   <div class="grid g3">
     <div class="card"><span class="ic">🗺️</span><h3>Field data</h3><p>Paid local contributors verifying cost bands and scam patterns city by city. This is the moat — it should be funded first.</p></div>
