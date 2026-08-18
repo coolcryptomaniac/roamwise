@@ -1,51 +1,54 @@
-// RoamWise - Firestore rules to ADD for the staff desk (rw-v63)
-// Paste INSIDE your existing "match /databases/{database}/documents { ... }".
-// Pure ASCII only - the Firebase Console rejects smart quotes and em-dashes.
-
-// ---------------------------------------------------------------
-// STAFF - one doc per team member, keyed by their auth uid.
-// A person can read and update their OWN record (name, sheet link).
-// Only an admin can change role or docs - that is what stops someone
-// activating themselves or issuing their own certificate.
-// ---------------------------------------------------------------
-function isAdmin() {
-  return request.auth != null
-    && exists(/databases/$(database)/documents/staff/$(request.auth.uid))
-    && get(/databases/$(database)/documents/staff/$(request.auth.uid)).data.role == 'admin';
-}
+// RoamWise - staff desk rules (rw-v66). MERGE, do not replace your whole file.
+// ---------------------------------------------------------------------------
+// Your live firestore.rules ALREADY has:
+//   - an admin helper (you renamed it isStaffAdmin; the shipped file still
+//     shows isAdmin backed by an admins/<uid> doc)
+//   - a small  match /staff/{uid} { ... }  block
+//
+// So do this:
+//   1. Do NOT paste any function. Use the admin helper you already have.
+//   2. Find your existing  match /staff/{uid} { ... }  block and REPLACE
+//      THE WHOLE BLOCK with the one below. (It keeps the same read/create
+//      intent and adds the logs, sessions and claims subcollections plus
+//      field-level protection for pay/role/docs.)
+//   3. IMPORTANT NAME CHECK: the block below calls isStaffAdmin(). If your
+//      file's helper is actually named isAdmin(), do a find-replace of
+//      isStaffAdmin -> isAdmin in this block before pasting. Use whichever
+//      name your file actually defines - they must match exactly.
+//
+// Pure ASCII only.
+// ---------------------------------------------------------------------------
 
 match /staff/{uid} {
-  // team members can see the roster; needed for the founder view and the desk
   allow read: if request.auth != null;
 
-  // first sign-in creates a pending record for yourself only, with no role
-  allow create: if request.auth != null
-                && request.auth.uid == uid
-                && !('role' in request.resource.data);
+  // self-register your own pending record only, with no real role
+  allow create: if isStaffAdmin() ||
+    (request.auth != null && request.auth.uid == uid
+     && request.resource.data.role == 'none');
 
-  // you may edit your own record, but never your role or your documents
-  allow update: if isAdmin()
+  // self-edit is allowed EXCEPT the founder-controlled fields; admin can do all
+  allow update: if isStaffAdmin()
                 || (request.auth != null && request.auth.uid == uid
                     && !request.resource.data.diff(resource.data).affectedKeys()
-                          .hasAny(['role','docs','staffId']));
+                          .hasAny(['role','docs','pay','staffId','title','resourceRole','status']));
 
-  allow delete: if isAdmin();
+  allow delete: if isStaffAdmin();
 
-  // -------------------------------------------------------------
-  // Daily work logs. You write your own; admins can read everyone's.
-  // Logs are the evidence a certificate is built from, so they are
-  // deliberately NOT deletable by the person who wrote them.
-  // -------------------------------------------------------------
   match /logs/{day} {
-    allow read: if request.auth != null && (request.auth.uid == uid || isAdmin());
+    allow read: if request.auth != null && (request.auth.uid == uid || isStaffAdmin());
     allow create, update: if request.auth != null && request.auth.uid == uid;
-    allow delete: if isAdmin();
+    allow delete: if isStaffAdmin();
   }
-
-  // Session heartbeats - time the portal was open and focused.
   match /sessions/{day} {
-    allow read: if request.auth != null && (request.auth.uid == uid || isAdmin());
+    allow read: if request.auth != null && (request.auth.uid == uid || isStaffAdmin());
     allow create, update: if request.auth != null && request.auth.uid == uid;
-    allow delete: if isAdmin();
+    allow delete: if isStaffAdmin();
+  }
+  match /claims/{cid} {
+    allow read: if request.auth != null && (request.auth.uid == uid || isStaffAdmin());
+    allow create: if request.auth != null && request.auth.uid == uid
+                  && request.resource.data.status == 'pending';
+    allow update, delete: if isStaffAdmin();
   }
 }
