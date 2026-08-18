@@ -89,6 +89,41 @@ button,select,input,textarea{font:inherit}
 .in-last{font-size:12px;color:#9A968E;margin:8px 0;line-height:1.5}
 .in-actions{display:flex;gap:6px;flex-wrap:wrap}
 .in-actions .btn{flex:1;min-width:88px;font-size:11.5px;padding:7px 8px}
+
+/* ===== PENDING / LEVELS / PAY / RESOURCES (rw-v65) ===== */
+.pend-card{border:1px solid rgba(232,186,108,.3);border-radius:13px;padding:12px;margin-bottom:9px;background:rgba(232,186,108,.05)}
+.pend-top{display:flex;align-items:center;gap:10px}
+.pend-pic{width:38px;height:38px;border-radius:50%;object-fit:cover;flex:0 0 auto}
+.pend-mono{display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#E8BA6C,#C8913E);color:#0A0C14;font-weight:800;font-size:15px}
+.pend-sub{font-size:11px;color:#7C7A74;margin-top:1px}
+.in-res{display:flex;align-items:center;gap:7px;margin:8px 0 4px;font-size:10.5px;color:#7C7A74}
+.in-res-bar{flex:1;height:5px;border-radius:5px;background:rgba(255,255,255,.07);overflow:hidden}
+.in-res-bar i{display:block;height:100%;background:linear-gradient(90deg,#38BDF8,#4ADE80);border-radius:5px}
+.lv-box{background:rgba(232,186,108,.06);border:1px solid rgba(232,186,108,.25);border-radius:13px;padding:11px 13px;margin-bottom:12px}
+.lv-top{display:flex;align-items:center;gap:9px}
+.lv-ic{font-size:22px}
+.lv-sub{font-size:11px;color:#9A968E;margin-top:1px}
+.lv-bar{height:6px;border-radius:6px;background:rgba(255,255,255,.08);overflow:hidden;margin-top:9px}
+.lv-bar i{display:block;height:100%;background:linear-gradient(90deg,#E8BA6C,#C8913E);border-radius:6px;transition:width .5s cubic-bezier(.22,1,.36,1)}
+.pay-box{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:12px}
+.pay-row{display:flex;justify-content:space-between;font-size:12.5px;color:#C9C5BB;padding:4px 0}
+.pay-row b{color:#EDEAE2}
+.pay-hist{display:flex;align-items:center;gap:8px;font-size:12px;color:#9A968E;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.05)}
+.pay-hist b{color:#EDEAE2}
+.pay-tag{font-size:9.5px;font-weight:800;border-radius:20px;padding:2px 8px}
+.pay-tag.ok{background:rgba(74,222,128,.14);color:#4ADE80}
+.pay-tag.due{background:rgba(240,166,59,.14);color:#F0A63B}
+.pay-tag.no{background:rgba(224,91,91,.14);color:#E05B5B}
+.hb-sec{margin-bottom:14px}
+.hb-sec b{color:#E8BA6C;font-size:13px;display:block;margin-bottom:6px}
+.hb-sec ul{margin:0;padding-left:18px}
+.hb-sec li{font-size:12.5px;color:#C9C5BB;line-height:1.6;margin-bottom:5px}
+.rs-role-h{font-size:11.5px;font-weight:800;color:#E8BA6C;margin:12px 0 6px}
+.rs-sec-h{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#7C7A74;margin:8px 0 4px}
+.rs-item{display:flex;align-items:flex-start;gap:9px;padding:7px 0;cursor:pointer;border-bottom:1px solid rgba(255,255,255,.04)}
+.rs-check{font-size:15px;flex:0 0 auto;margin-top:1px}
+.rs-lab{font-size:12.5px;color:#EDEAE2;text-decoration:none}
+.rs-note{font-size:11px;color:#7C7A74;line-height:1.5;margin-top:2px}
 </style></head><body><div class="wrap">
 <header>
   <div><div class="brand">Roam<em>Wise</em> · team</div><div class="who" id="who">Not signed in</div></div>
@@ -188,6 +223,12 @@ button,select,input,textarea{font:inherit}
     <div id="deskOut"><p class="note">Loading…</p></div>
   </div>
 
+  <div class="card" id="pendingBox" style="display:none">
+    <div class="lab">⏳ Pending requests</div>
+    <p class="note">Anyone who has signed in but isn't activated yet shows up here automatically — no need to open Firestore or copy an ID. Just tap Activate.</p>
+    <div id="pendingOut"><p class="note">Loading…</p></div>
+  </div>
+
   <div class="card" id="internAdminBox" style="display:none">
     <div class="lab">👥 Interns</div>
     <p class="note">Everyone's logs, hours and documents in one place. Add a person once and their desk appears for them automatically.</p>
@@ -258,6 +299,7 @@ button,select,input,textarea{font:inherit}
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<script src="../resource-data.js"></script>
 <script>
 function showModal(html){
   var m=el('hrModal');
@@ -319,7 +361,7 @@ function registerPending(u, name){
   if(!u) return Promise.resolve();
   var staffId = 'RW-' + (u.uid.replace(/[^a-zA-Z0-9]/g,'').slice(-4).toUpperCase());
   return db.collection('staff').doc(u.uid).set({
-    staffId: staffId, name: name||'', email: u.email||'',
+    staffId: staffId, name: name||'', email: u.email||'', photo: u.photoURL||'',
     role: 'none', type:'', status:'pending',
     requestedAt: new Date().toISOString()
   }, {merge:true});
@@ -397,6 +439,7 @@ firebase.auth().onAuthStateChanged(function(u){
     el('scoreBox').style.display = (ROLE==='admin'||ROLE==='staff')?'block':'none';
     el('myDeskBox').style.display = (ROLE&&ROLE!=='none')?'block':'none';
     el('internAdminBox').style.display = ROLE==='admin'?'block':'none';
+    el('pendingBox').style.display = ROLE==='admin'?'block':'none';
     el('investorBox').style.display = ROLE==='admin'?'block':'none';
     el('contactsBox').style.display = ROLE==='admin'?'block':'none';
     el('mailBox').style.display = ROLE==='admin'?'block':'none';
@@ -410,7 +453,7 @@ firebase.auth().onAuthStateChanged(function(u){
     if(ROLE==='admin') finLoad();
     if(ROLE==='admin') taxLoad();
     if(ROLE&&ROLE!=='none'){ setTimeout(function(){ try{ deskRender(); }catch(e){} }, 450); }
-    if(ROLE==='admin'){ setTimeout(function(){ try{ internRefresh(); }catch(e){} }, 700); }
+    if(ROLE==='admin'){ setTimeout(function(){ try{ pendingRefresh(); internRefresh(); }catch(e){} }, 700); }
     if(ROLE==='admin'||ROLE==='staff'){ setTimeout(function(){ try{ scoreRefresh(); }catch(e){} }, 500); }
     if(ROLE==='admin'){ setTimeout(function(){ try{ invRender(); contactsRender(); }catch(e){} }, 400); }
   }).catch(function(e){ el('signedOut').innerHTML='<div class="card"><p class="note">Could not check your role: '+esc(e.message)+'</p></div>'; });
@@ -813,12 +856,58 @@ setInterval(deskHeartbeat, 120000);
 window.addEventListener('beforeunload', deskHeartbeat);
 
 /* ---------- MY DESK ---------- */
+
+/* ============================================================================
+   MY RESOURCES — frontend-managed content, backend only for progress (rw-v65)
+   ============================================================================
+   The content (what links, what advice) lives in resource-data.js and is
+   edited directly there — no code change needed to add a role or a link.
+   Firestore is used for exactly one thing: remembering which items a person
+   has ticked off, so the founder can see onboarding progress without asking.
+   ========================================================================= */
+function deskResourcesHTML(me, progress){
+  var common = window.RW_RESOURCE_COMMON;
+  var roleKey = me.resourceRole || me.role || '';
+  var role = (window.RW_ROLE_RESOURCES||{})[roleKey];
+  progress = progress || {};
+  function section(sec, prefix){
+    return '<div class="rs-sec-h">'+esc(sec.heading)+'</div>'
+      + sec.items.map(function(it){
+          var key=prefix+'.'+it.id, done=!!progress[key];
+          return '<div class="rs-item" onclick="deskToggleResource(\''+key+'\')">'
+            +'<span class="rs-check">'+(done?'✅':'⬜')+'</span>'
+            +'<span style="flex:1;min-width:0">'
+            + (it.url && it.url!=='#' && it.url!=='' ? '<a href="'+esc(it.url)+'" target="_blank" rel="noopener" onclick="event.stopPropagation()" class="rs-lab">'+esc(it.label)+' ↗</a>' : '<b class="rs-lab" style="cursor:default">'+esc(it.label)+'</b>')
+            +(it.note? '<div class="rs-note">'+esc(it.note)+'</div>':'')
+            +'</span></div>';
+        }).join('');
+  }
+  var html = '<div class="dk-lab">MY RESOURCES</div>';
+  if(common) html += '<div class="rs-role-h">'+common.icon+' '+esc(common.label)+'</div>' + common.sections.map(function(sec){ return section(sec,'common'); }).join('');
+  if(role) html += '<div class="rs-role-h">'+role.icon+' '+esc(role.label)+'</div>' + role.sections.map(function(sec){ return section(sec,roleKey); }).join('');
+  if(!role) html += '<div class="dk-note">No role-specific resources assigned yet — ask the founder to set your resource set.</div>';
+  return html;
+}
+function deskToggleResource(key){
+  if(!user) return;
+  var cur = (window._deskProgress||{})[key];
+  var val = !cur;
+  var upd={}; upd['resourceProgress.'+key]=val;
+  db.collection('staff').doc(user.uid).set(upd,{merge:true}).then(function(){
+    window._deskProgress = window._deskProgress || {};
+    window._deskProgress[key]=val;
+    try{ if(typeof rwHaptic==='function') rwHaptic(); }catch(e){}
+    deskRender();
+  }).catch(function(){});
+}
+
 function deskRender(){
   var host=el('deskOut'); if(!host) return;
   if(!user){ host.innerHTML='<p class="note">Sign in to see your desk.</p>'; return; }
   var me=null;
   db.collection('staff').doc(user.uid).get().then(function(d){
     me=d.data()||{};
+    window._deskProgress = me.resourceProgress || {};
     return db.collection('staff').doc(user.uid).collection('logs')
       .orderBy('date','desc').limit(30).get();
   }).then(function(qs){
@@ -826,11 +915,15 @@ function deskRender(){
     return db.collection('staff').doc(user.uid).collection('sessions')
       .orderBy('date','desc').limit(30).get().then(function(ss){
         var sess={}; ss.forEach(function(d){ var x=d.data(); sess[x.date]=x.ms||0; });
-        deskPaint(me, logs, sess);
+        return db.collection('staff').doc(user.uid).collection('claims')
+          .orderBy('date','desc').limit(12).get().then(function(cs){
+            var claims=[]; cs.forEach(function(d){ var c=d.data(); c._id=d.id; claims.push(c); });
+            deskPaint(me, logs, sess, claims);
+          }).catch(function(){ deskPaint(me, logs, sess, []); });
       });
   }).catch(function(){ host.innerHTML='<p class="note">Could not load your desk. Check your connection.</p>'; });
 }
-function deskPaint(me, logs, sess){
+function deskPaint(me, logs, sess, claims){
   var host=el('deskOut'); if(!host) return;
   var today=deskToday();
   var loggedToday = logs.some(function(l){ return l.date===today; });
@@ -847,12 +940,19 @@ function deskPaint(me, logs, sess){
     cur.setDate(cur.getDate()-1);
   }
   var sheet=me.sheet||'';
+  var xp=deskXP(logs, streak), lv=deskLevel(xp);
+  var toNext = lv.next? Math.max(0, lv.next-xp) : 0;
+  var pctLv = lv.next? Math.min(100, Math.round(((xp-lv.min)/(lv.next-lv.min))*100)) : 100;
   host.innerHTML=
      '<div class="dk-hero">'
     +'<div><b style="font-size:16px">'+esc(me.name||user.displayName||'You')+'</b>'
     +'<div class="dk-sub">'+esc(me.title||me.role||'Team')+(me.staffId?' · '+esc(me.staffId):'')+'</div></div>'
     +'<div class="dk-streak">'+(streak>0? '🔥 '+streak+' day'+(streak>1?'s':'') : 'start a streak')+'</div>'
     +'</div>'
+    +'<div class="lv-box"><div class="lv-top"><span class="lv-ic">'+lv.icon+'</span>'
+    +'<span style="flex:1"><b>'+lv.name+'</b><div class="lv-sub">'+xp+' points'
+    +(lv.next? ' · '+toNext+' to '+deskLevel(lv.next).name : ' · top level')+'</div></span></div>'
+    +'<div class="lv-bar"><i style="width:'+pctLv+'%"></i></div></div>'
     +'<div class="dk-stats">'
     +'<div class="dk-stat"><b>'+thisMonth.length+'</b><span>logs this month</span></div>'
     +'<div class="dk-stat"><b>'+deskMins(hoursMonth)+'</b><span>on portal</span></div>'
@@ -862,7 +962,13 @@ function deskPaint(me, logs, sess){
         ? '<div class="dk-done">✅ Today\'s work is logged. Thank you.</div>'
         : '<button class="btn go" style="width:100%;padding:13px;margin:12px 0" onclick="deskLog()">✍️ Log today\'s work</button>')
     + (sheet? '<a class="btn" style="display:block;text-align:center;text-decoration:none;margin-bottom:10px" href="'+esc(sheet)+'" target="_blank" rel="noopener">📊 Open my Google Sheet ↗</a>' : '')
+    + deskPayHTML(me)
+    + deskClaimsHTML(claims)
     + deskDocsHTML(me)
+    + deskResourcesHTML(me, window._deskProgress||{})
+    + '<div class="dk-lab">HANDBOOK</div>'
+    + '<button class="btn" style="width:100%" onclick="deskHandbook()">📘 Read the handbook'
+      + (me.handbookAckAt? ' · ✅ read' : ' · not read yet') + '</button>'
     + '<div class="dk-lab">RECENT WORK</div>'
     + (logs.length? logs.slice(0,10).map(function(l){
         return '<div class="dk-log"><div class="dk-log-h"><b>'+esc(deskNice(l.date))+'</b>'
@@ -910,6 +1016,137 @@ function deskSaveLog(){
 }
 
 
+
+/* ============================================================================
+   PAY, CLAIMS, HANDBOOK & LEVELS (rw-v64)
+   ============================================================================
+   Everything a team member needs from induction to exit, in one place.
+   PRIVACY: pay is visible ONLY to the person and to an admin — never in the
+   roster view or leaderboard. Firestore rules enforce this, not just the UI.
+   ========================================================================= */
+var RW_LEVELS=[
+  {min:0,   name:'Joining',    icon:'\ud83c\udf31', next:5},
+  {min:5,   name:'Finding feet',icon:'\ud83d\udc63', next:15},
+  {min:15,  name:'Contributor',icon:'\u2699\ufe0f', next:35},
+  {min:35,  name:'Reliable',   icon:'\ud83d\udee0\ufe0f', next:70},
+  {min:70,  name:'Backbone',   icon:'\ud83c\udfd4\ufe0f', next:120},
+  {min:120, name:'Legend',     icon:'\ud83c\udfc5', next:null}
+];
+function deskXP(logs, streak){
+  var pts=0;
+  (logs||[]).forEach(function(l){
+    pts += 2;
+    if(l.proof) pts += 2;
+    if((l.what||'').length>60) pts += 1;
+  });
+  pts += Math.min(20, (streak||0)*2);
+  return pts;
+}
+function deskLevel(xp){
+  var lv=RW_LEVELS[0];
+  for(var i=0;i<RW_LEVELS.length;i++) if(xp>=RW_LEVELS[i].min) lv=RW_LEVELS[i];
+  return lv;
+}
+function deskPayHTML(me){
+  var p=me.pay||{};
+  if(!p.stipend && !(p.history||[]).length){
+    return '<div class="dk-lab">MY PAY</div><div class="dk-note">Your stipend details will appear here once the founder sets them up.</div>';
+  }
+  var hist=(p.history||[]).slice().sort(function(a,b){ return (b.month||'').localeCompare(a.month||''); }).slice(0,6);
+  return '<div class="dk-lab">MY PAY</div><div class="pay-box">'
+    +'<div class="pay-row"><span>Monthly stipend</span><b>\u20b9'+Number(p.stipend||0).toLocaleString('en-IN')+'</b></div>'
+    +(p.incentive? '<div class="pay-row"><span>Incentive terms</span><b style="font-size:12px;font-weight:600">'+esc(p.incentive)+'</b></div>':'')
+    +(p.payday? '<div class="pay-row"><span>Paid on</span><b>'+esc(p.payday)+' of each month</b></div>':'')
+    +'</div>'
+    +(hist.length? '<div class="dk-lab" style="margin-top:12px">PAYMENT HISTORY</div>'
+      + hist.map(function(h){
+          var paid=h.status==='paid';
+          return '<div class="pay-hist"><span style="flex:1">'+esc(h.month||'')+(h.note?' \u00b7 '+esc(h.note):'')+'</span>'
+            +'<b>\u20b9'+Number(h.amount||0).toLocaleString('en-IN')+'</b>'
+            +'<span class="pay-tag '+(paid?'ok':'due')+'">'+(paid?'paid':'due')+'</span></div>';
+        }).join('') : '')
+    +'<div class="dk-note">Only you and the founder can see this.</div>';
+}
+function deskClaimsHTML(claims){
+  var rows=(claims||[]).slice(0,6);
+  return '<div class="dk-lab">TRAVEL &amp; EXPENSE CLAIMS</div>'
+    +'<button class="btn" style="width:100%;margin-bottom:9px" onclick="deskClaim()">\ud83e\uddfe Claim a company trip expense</button>'
+    +(rows.length? rows.map(function(c){
+        var cls=c.status==='approved'?'ok':c.status==='rejected'?'no':'due';
+        return '<div class="pay-hist"><span style="flex:1">'+esc(c.date||'')+' \u00b7 '+esc((c.what||'').slice(0,44))+'</span>'
+          +'<b>\u20b9'+Number(c.amount||0).toLocaleString('en-IN')+'</b>'
+          +'<span class="pay-tag '+cls+'">'+esc(c.status||'pending')+'</span></div>';
+      }).join('') : '<div class="dk-note">No claims yet.</div>')
+    +'<div class="dk-note">Only for travel you actually did on RoamWise business \u2014 attach the bill or a photo of it. Personal travel is not claimable.</div>';
+}
+function deskClaim(){
+  showModal('<div class="card"><h3 style="margin:0 0 4px">\ud83e\uddfe Company trip expense</h3>'
+    +'<p class="note" style="margin-bottom:10px">Only for travel done <b>on behalf of RoamWise</b>. Attach proof, or it cannot be approved.</p>'
+    +'<label class="lab">Date of travel</label><input id="cl_date" class="inp" type="date" value="'+deskToday()+'">'
+    +'<label class="lab">What was it for?</label><input id="cl_what" class="inp" placeholder="e.g. Field testing Near Me in Rishikesh">'
+    +'<label class="lab">Amount (\u20b9)</label><input id="cl_amt" class="inp" type="number">'
+    +'<label class="lab">Type</label><select id="cl_type" class="inp"><option>Travel (TA)</option><option>Daily allowance (DA)</option><option>Stay</option><option>Other</option></select>'
+    +'<label class="lab">Proof link (bill photo / receipt)</label><input id="cl_proof" class="inp" placeholder="Drive or photo link">'
+    +'<div style="display:flex;gap:8px;margin-top:12px"><button class="btn go" style="flex:1;padding:11px" onclick="deskSaveClaim()">Submit for approval</button>'
+    +'<button class="btn" style="padding:11px" onclick="closeModal()">Cancel</button></div></div>');
+}
+function deskSaveClaim(){
+  var what=(el('cl_what').value||'').trim(), amt=+el('cl_amt').value||0;
+  var proof=(el('cl_proof').value||'').trim();
+  if(!what||!amt){ alert('Add what it was for and the amount.'); return; }
+  if(!proof){ alert('A proof link is required \u2014 claims without a bill cannot be approved.'); return; }
+  db.collection('staff').doc(user.uid).collection('claims').add({
+    date:el('cl_date').value||deskToday(), what:what, amount:amt, type:el('cl_type').value,
+    proof:proof, status:'pending', name:(user.displayName||''),
+    at:firebase.firestore.FieldValue.serverTimestamp()
+  }).then(function(){ closeModal(); deskRender(); }).catch(function(){ alert('Could not submit.'); });
+}
+var RW_HANDBOOK=[
+  { t:'\ud83c\udf1f How we work', items:[
+    'Log your work every day you work. It takes thirty seconds and it is what your certificate is built from.',
+    'Attach proof where you can \u2014 a sheet row, a screenshot, a link. Evidence beats description.',
+    'If you are blocked, say so in your log the same day. Nobody minds a blocker; everybody minds a silent week.',
+    'Ask questions early. A question costs five minutes; a wrong assumption costs a week.'
+  ]},
+  { t:'\u2705 What earns trust', items:[
+    'Finishing what you said you would, or saying clearly that you could not.',
+    'Finding bugs before users do \u2014 the most valuable thing anyone here does.',
+    'Writing things down so the next person does not have to ask.',
+    'Flagging when something feels wrong, even if it is not your area.'
+  ]},
+  { t:'\u26d4 What is not okay', items:[
+    'Sharing RoamWise data, user information, screenshots of internal tools, or unreleased features outside the team.',
+    'Logging work you did not do, or inflating hours. The certificate is built from these records \u2014 falsifying them makes it worthless and is grounds for immediate exit.',
+    'Claiming expenses for personal travel, or any claim without a genuine bill.',
+    'Using company accounts, keys or credentials for anything personal.',
+    'Speaking for RoamWise publicly \u2014 press, partnerships, commitments \u2014 without the founder\u2019s agreement.',
+    'Automating or scraping third-party services (IRCTC, BookMyShow, LinkedIn) in RoamWise\u2019s name.'
+  ]},
+  { t:'\ud83d\udd10 Data and access', items:[
+    'You only get access to what your role needs. If you need more, ask \u2014 do not share logins.',
+    'Never paste user data, keys or credentials into an AI tool, a public doc, or a chat group.',
+    'If you think something leaked or you clicked something odd, tell the founder immediately. Reporting fast is never punished.'
+  ]},
+  { t:'\ud83d\udeaa Leaving well', items:[
+    'Two weeks\u2019 notice where you can, so handover is calm.',
+    'Hand back access, write up what you were mid-way through, and log your last day.',
+    'Your relieving letter and certificate are issued once handover is done \u2014 usually within a week.',
+    'You keep your logs. They are your record of what you built.'
+  ]}
+];
+function deskHandbook(){
+  showModal('<div class="card" style="max-height:78vh;overflow:auto"><h3 style="margin:0 0 4px">\ud83d\udcd8 The RoamWise handbook</h3>'
+    +'<p class="note" style="margin-bottom:12px">Short on rules, clear on the ones that matter. Read it once; it will not change often.</p>'
+    + RW_HANDBOOK.map(function(sec){
+        return '<div class="hb-sec"><b>'+sec.t+'</b><ul>'+sec.items.map(function(i){ return '<li>'+esc(i)+'</li>'; }).join('')+'</ul></div>';
+      }).join('')
+    +'<button class="btn go" style="width:100%;margin-top:10px;padding:11px" onclick="deskAckHandbook()">I\u2019ve read this</button></div>');
+}
+function deskAckHandbook(){
+  db.collection('staff').doc(user.uid).set({ handbookAckAt:firebase.firestore.FieldValue.serverTimestamp() },{merge:true})
+    .then(function(){ closeModal(); deskRender(); }).catch(function(){ closeModal(); });
+}
+
 /* ---------- FOUNDER VIEW: everyone, at a glance ---------- */
 var _interns=[];
 function internRefresh(){
@@ -945,6 +1182,12 @@ function internPaint(){
     var last=logs[0];
     var d=p.docs||{};
     var issued=['offer','certificate','relieving'].filter(function(k){ return d[k]; }).length;
+    var rkey=p.resourceRole||p.role||'', R=(window.RW_ROLE_RESOURCES||{})[rkey];
+    var total=(window.RW_RESOURCE_COMMON? window.RW_RESOURCE_COMMON.sections.reduce(function(a,s){return a+s.items.length;},0):0)
+             + (R? R.sections.reduce(function(a,s){return a+s.items.length;},0):0);
+    var prog=p.resourceProgress||{};
+    var doneN=Object.keys(prog).filter(function(k){ return prog[k]; }).length;
+    var resPct = total? Math.round(Math.min(doneN,total)/total*100) : null;
     return '<div class="in-card">'
       +'<div class="in-top">'
       +'<span class="in-dot" style="background:'+(loggedToday?'#4ADE80':'#F0A63B')+'"></span>'
@@ -952,6 +1195,7 @@ function internPaint(){
       +'<div class="in-sub">'+esc(p.title||p.role||'')+(p.staffId?' · '+esc(p.staffId):'')+'</div></span>'
       +'<span class="in-hrs">'+month.length+' logs · '+(hrs?hrs+'h':deskMins(p._ms||0))+'</span>'
       +'</div>'
+      + (resPct!=null? '<div class="in-res"><span>📚 onboarding</span><div class="in-res-bar"><i style="width:'+resPct+'%"></i></div><span>'+resPct+'%</span></div>' : '')
       +(last? '<div class="in-last"><b>'+esc(deskNice(last.date))+':</b> '+esc((last.what||'').slice(0,120))+(((last.what||'').length>120)?'…':'')+'</div>'
             : '<div class="in-last" style="color:#7C7A74">No logs yet.</div>')
       +'<div class="in-actions">'
@@ -964,11 +1208,12 @@ function internPaint(){
 function internById(uid){ return _interns.filter(function(p){ return p._uid===uid; })[0]; }
 function internAdd(){
   showModal('<div class="card"><h3 style="margin:0 0 4px">➕ Add a person</h3>'
-    +'<p class="note" style="margin-bottom:10px">They sign in once with Google, send you their Staff ID, and you activate them here. Nothing else to set up.</p>'
+    +'<p class="note" style="margin-bottom:10px">Usually you don\'t need this form at all — have them sign in once and they\'ll appear in <b>⏳ Pending requests</b> above with their name and photo, one tap to activate. Use this box only if you already know their Staff ID and want to skip that.</p>'
     +'<label class="lab">Their Staff ID (from their pending screen)</label><input id="ad_sid" class="inp" placeholder="RW-XXXX">'
     +'<label class="lab">Name</label><input id="ad_name" class="inp">'
     +'<label class="lab">Title</label><input id="ad_title" class="inp" placeholder="e.g. Marketing &amp; Sales Intern">'
     +'<label class="lab">Role</label><select id="ad_role" class="inp"><option value="staff">staff</option><option value="marketing">marketing</option><option value="finance">finance</option><option value="admin">admin</option></select>'
+    +'<label class="lab">Resource set</label><select id="ad_res" class="inp">'+(Object.keys(window.RW_ROLE_RESOURCES||{})).map(function(k){ var R=RW_ROLE_RESOURCES[k]; return '<option value="'+k+'">'+esc(R.icon+' '+R.label)+'</option>'; }).join('')+'</select>'
     +'<div style="display:flex;gap:8px;margin-top:12px"><button class="btn go" style="flex:1;padding:11px" onclick="internSaveAdd()">Activate</button>'
     +'<button class="btn" style="padding:11px" onclick="closeModal()">Cancel</button></div></div>');
 }
@@ -979,8 +1224,9 @@ function internSaveAdd(){
     if(qs.empty){ alert('No pending account with that Staff ID. Ask them to sign in once first.'); return; }
     var doc=qs.docs[0];
     return doc.ref.set({ name:(el('ad_name').value||'').trim(), title:(el('ad_title').value||'').trim(),
-      role:el('ad_role').value, activatedAt:firebase.firestore.FieldValue.serverTimestamp() },{merge:true})
-      .then(function(){ closeModal(); internRefresh(); });
+      role:el('ad_role').value, resourceRole:el('ad_res').value, status:'active',
+      activatedAt:firebase.firestore.FieldValue.serverTimestamp() },{merge:true})
+      .then(function(){ closeModal(); internRefresh(); pendingRefresh(); });
   }).catch(function(){ alert('Could not activate.'); });
 }
 function internSheet(uid){
@@ -1098,6 +1344,68 @@ function internCertPrint(days, hours, proofs){
     +'</div></body></html>');
   w.document.close();
   setTimeout(function(){ try{ w.print(); }catch(e){} }, 600);
+}
+
+
+/* ============================================================================
+   PENDING REQUESTS — direct activation, no copying IDs (rw-v65)
+   ============================================================================
+   The old flow: an intern signs in, sees a Staff ID, emails/WhatsApps it to the
+   founder, who then opens Firestore (or types the ID from memory) into a form.
+   That's the "cumbersome" part.
+
+   New flow: every pending account ALREADY exists in Firestore the moment
+   someone signs in (registerPending() already did this). So instead of asking
+   for an ID, we just LIST those pending docs directly — real name, real email,
+   real photo if they used Google. One tap opens a small form to set their
+   title/role and they're in. The Staff ID still exists underneath (useful as
+   a fallback identifier on certificates etc.) but the founder never has to
+   type or copy it again.
+   ========================================================================= */
+function pendingRefresh(){
+  var host=el('pendingOut'); if(!host) return;
+  host.innerHTML='<p class="note">Checking…</p>';
+  db.collection('staff').where('role','==','none').limit(30).get().then(function(qs){
+    var rows=[]; qs.forEach(function(d){ var x=d.data()||{}; x._uid=d.id; rows.push(x); });
+    if(!rows.length){ host.innerHTML='<p class="note">Nobody waiting right now. New sign-ins will appear here automatically.</p>'; return; }
+    rows.sort(function(a,b){ return (b.requestedAt||'').localeCompare(a.requestedAt||''); });
+    host.innerHTML=rows.map(function(p){
+      var when=p.requestedAt? new Date(p.requestedAt).toLocaleDateString('en-IN',{day:'numeric',month:'short'}) : '';
+      return '<div class="pend-card">'
+        +'<div class="pend-top">'
+        +(p.photo? '<img src="'+esc(p.photo)+'" class="pend-pic">' : '<div class="pend-pic pend-mono">'+esc((p.name||p.email||'?').charAt(0).toUpperCase())+'</div>')
+        +'<span style="flex:1;min-width:0"><b>'+esc(p.name||'(no name given)')+'</b>'
+        +'<div class="pend-sub">'+esc(p.email||'')+(when?' · asked '+when:'')+'</div></span>'
+        +'</div>'
+        +'<button class="btn go" style="width:100%;margin-top:8px" onclick="pendingActivate(\''+p._uid+'\')">✅ Activate</button>'
+        +'</div>';
+    }).join('');
+  }).catch(function(){ host.innerHTML='<p class="note">Could not load pending requests.</p>'; });
+}
+function pendingActivate(uid){
+  db.collection('staff').doc(uid).get().then(function(d){
+    var p=d.data()||{};
+    var roleOpts=['staff','marketing','finance','admin'];
+    showModal('<div class="card"><h3 style="margin:0 0 4px">✅ Activate '+esc(p.name||p.email||'')+'</h3>'
+      +'<p class="note" style="margin-bottom:10px">'+esc(p.email||'')+' — this is the account that signed in, verified by Firebase. You are not typing an ID; you are confirming this exact person.</p>'
+      +'<label class="lab">Name</label><input id="pa_name" class="inp" value="'+esc(p.name||'')+'">'
+      +'<label class="lab">Title</label><input id="pa_title" class="inp" placeholder="e.g. Growth &amp; Community Intern">'
+      +'<label class="lab">Role (permissions)</label><select id="pa_role" class="inp">'+roleOpts.map(function(r){return '<option value="'+r+'">'+r+'</option>';}).join('')+'</select>'
+      +'<label class="lab">Resource set (what they see under My Resources)</label>'
+      +'<select id="pa_res" class="inp">'+(Object.keys(window.RW_ROLE_RESOURCES||{})).map(function(k){
+          var R=RW_ROLE_RESOURCES[k]; return '<option value="'+k+'">'+esc(R.icon+' '+R.label)+'</option>';
+        }).join('')+'</select>'
+      +'<div style="display:flex;gap:8px;margin-top:12px"><button class="btn go" style="flex:1;padding:11px" onclick="pendingSaveActivate(\''+uid+'\')">Activate</button>'
+      +'<button class="btn" style="padding:11px" onclick="closeModal()">Cancel</button></div></div>');
+  });
+}
+function pendingSaveActivate(uid){
+  db.collection('staff').doc(uid).set({
+    name:(el('pa_name').value||'').trim(), title:(el('pa_title').value||'').trim(),
+    role:el('pa_role').value, resourceRole:el('pa_res').value,
+    status:'active', activatedAt:firebase.firestore.FieldValue.serverTimestamp()
+  },{merge:true}).then(function(){ closeModal(); pendingRefresh(); internRefresh(); })
+   .catch(function(){ alert('Could not activate.'); });
 }
 
 /* ============================================================================
