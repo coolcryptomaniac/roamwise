@@ -3886,5 +3886,113 @@
    89,
    81
   ]
+ },
+ {
+  "slug": "helsinki-finland",
+  "title": "Helsinki, Finland",
+  "name": "Helsinki",
+  "country": "Finland",
+  "best": "May, June, October",
+  "arch": "alpine",
+  "cl": [
+   -4.4,
+   -1.5,
+   2.1,
+   5.9,
+   16.1,
+   19.6,
+   21,
+   20.7,
+   18,
+   11.1,
+   5.4,
+   2.5
+  ],
+  "scores": [
+   27,
+   33,
+   54,
+   73,
+   100,
+   95,
+   89,
+   91,
+   86,
+   92,
+   69,
+   60
+  ]
+ },
+ {
+  "slug": "dublin-ireland",
+  "title": "Dublin, Ireland",
+  "name": "Dublin",
+  "country": "Ireland",
+  "best": "February, June, December",
+  "arch": "temperate",
+  "cl": [
+   8,
+   10.5,
+   10.4,
+   12.1,
+   15.8,
+   16.8,
+   18.2,
+   19.6,
+   15.9,
+   14.3,
+   11.2,
+   10.3
+  ],
+  "scores": [
+   84,
+   91,
+   83,
+   87,
+   91,
+   94,
+   89,
+   89,
+   91,
+   89,
+   91,
+   92
+  ]
+ },
+ {
+  "slug": "new-york-usa",
+  "title": "New York, USA",
+  "name": "New York",
+  "country": "USA",
+  "best": "September, October, November",
+  "arch": "alpine",
+  "cl": [
+   5,
+   7.2,
+   12,
+   16.2,
+   22.7,
+   29.1,
+   31,
+   28.3,
+   24.9,
+   21.2,
+   14.5,
+   5.4
+  ],
+  "scores": [
+   51,
+   70,
+   72,
+   87,
+   87,
+   87,
+   85,
+   75,
+   96,
+   99,
+   90,
+   69
+  ]
  }
 ]
