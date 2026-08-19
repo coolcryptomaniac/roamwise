@@ -1,0 +1,57 @@
+// RoamWise - referral & payment integrity rules (rw-v71)
+// MERGE into your existing firestore.rules. Uses your existing isAdmin().
+// Pure ASCII only.
+
+// ---------------------------------------------------------------------------
+// CLAIMS - the money path. This is the most security-critical collection you
+// have, because an approved claim both unlocks Pro AND creates a commission.
+//
+// The rules below enforce, at the database (not the UI):
+//   * a user may create ONLY their own claim, ONLY as 'pending'
+//   * a user can NEVER set status - so nobody can self-approve
+//   * a user can NEVER edit a claim after creating it - so a referrer cannot
+//     attach their code to someone else's purchase after the fact
+//   * only an admin can approve, reject, or change anything
+// ---------------------------------------------------------------------------
+match /claims/{cid} {
+  allow read: if request.auth != null
+              && (resource.data.uid == request.auth.uid || isAdmin());
+
+  allow create: if request.auth != null
+                && request.resource.data.uid == request.auth.uid
+                && request.resource.data.status == 'pending'
+                && !('seatCounted' in request.resource.data)
+                && request.resource.data.amount is number
+                && request.resource.data.amount > 0
+                && request.resource.data.amount <= 100000
+                && request.resource.data.utr is string
+                && request.resource.data.utr.size() == 12;
+
+  // Users get NO update rights at all. Approval, rejection and the referral
+  // stamp are all admin-only after creation.
+  allow update, delete: if isAdmin();
+}
+
+// ---------------------------------------------------------------------------
+// META counters. Two DIFFERENT counters, deliberately:
+//   meta/signupCounter - every new sign-up (drives the 7-day free trial)
+//   meta/founderSeats  - PAID, approved seats (drives "seats left")
+// Confusing these is what made the offer look 12-sold when only 4 had paid.
+// ---------------------------------------------------------------------------
+match /meta/{doc} {
+  allow read: if true;
+
+  // the app increments signupCounter inside a transaction on first sign-in
+  allow write: if doc == 'signupCounter' && request.auth != null;
+
+  // ONLY an admin may touch the paid-seat counter
+  allow write: if doc == 'founderSeats' && isAdmin();
+}
+
+// ---------------------------------------------------------------------------
+// PRICING - the founder-offer gate. Read by everyone, written only by you.
+// ---------------------------------------------------------------------------
+match /pricing/{doc} {
+  allow read: if true;
+  allow write: if isAdmin();
+}

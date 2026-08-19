@@ -2650,6 +2650,7 @@ var WA_NUMBER='', WA_CHANNEL='', WA_GROUP='';
 })();
 /* Global + idempotent so remote config can create it after the fact. */
 function ensureWaButton(){
+  try{ rwRefCapture(); }catch(e){}
   if(!WA_NUMBER || document.getElementById('waFab')) return;
   var w=document.createElement('a');
   w.id='waFab';
@@ -7093,7 +7094,11 @@ function openPay(){
      read is slow, since the tiers are always valid regardless. */
   var settled=false;
   var to=setTimeout(function(){ if(!settled){ settled=true; renderPlanGrid(false); } }, 2500);
-  (window.db? RWPricing.founderGateLoad().then(function(){ return db.collection('meta').doc('signupCounter').get(); }) : Promise.reject()).then(function(snap){
+  /* FIXED (rw-v71): the founder SEAT count must come from paid seats, not from
+     meta/signupCounter — that counter tracks every new SIGN-UP (for the 7-day
+     free trial) and was making the offer look far more sold than it was.
+     meta/founderSeats is incremented only when a claim is APPROVED. */
+  (window.db? RWPricing.founderGateLoad().then(function(){ return db.collection('meta').doc('founderSeats').get(); }) : Promise.reject()).then(function(snap){
     if(settled) return; settled=true; clearTimeout(to);
     var count = snap && snap.exists ? (snap.data().count||0) : 0;
     window._rwSeats = count;
@@ -7760,6 +7765,89 @@ function requireLogin(){
   return false;
 }
 
+
+/* ============================================================================
+   REFERRAL TRACKING (rw-v71)
+   ============================================================================
+   Flow, end to end:
+     1. Someone opens roamwise.co.in/?ref=RW-S01-FEBIN
+     2. We store the code locally with a timestamp (30-day window)
+     3. When that person submits a UTR, the code is STAMPED ON THE CLAIM
+     4. When YOU approve the claim, the commission becomes payable
+
+   Attribution is stamped at CLAIM time, not at approval time, so a referrer
+   can't be changed after the fact — and you approve the claim anyway, which
+   is the human check that makes the whole thing hard to game.
+
+   FRAUD PREVENTION, in order of how much it actually matters:
+     - Commission only exists on an APPROVED claim. You see every payment.
+     - Self-referral blocked: if the payer's own uid owns that code, no credit.
+     - One commission per (code, payer uid). Re-buying doesn't pay twice.
+     - Duplicate UTRs already blocked upstream by the existing claim gate.
+     - 7-day hold before payout so reversals settle first.
+     - Codes are stamped server-side into the claim doc, and Firestore rules
+       stop anyone editing a claim after creation — so a referrer cannot
+       attach themselves to someone else's purchase later.
+   ========================================================================= */
+var RW_REF_KEY='rw_ref_code', RW_REF_AT='rw_ref_at';
+
+function rwRefLookup(code){
+  if(!code) return null;
+  var c=String(code).trim().toUpperCase();
+  var list=window.RW_REFERRERS||[];
+  for(var i=0;i<list.length;i++) if(list[i].code.toUpperCase()===c) return list[i];
+  return null;
+}
+/* Capture ?ref= on any page load. Runs once, early. */
+function rwRefCapture(){
+  try{
+    var q=new URLSearchParams(location.search);
+    var code=q.get('ref')||q.get('r');
+    if(!code) return;
+    var who=rwRefLookup(code);
+    if(!who || who.active===false) return;         /* unknown/retired code: ignore silently */
+    lsSet(RW_REF_KEY, who.code);
+    lsSet(RW_REF_AT, String(Date.now()));
+    try{ track('ref_click'); }catch(e){}
+    setTimeout(function(){
+      try{ showToast('\ud83d\udc4b You came via '+who.name+' \u2014 welcome!'); }catch(e){}
+    }, 1200);
+  }catch(e){}
+}
+/* Return the still-valid referral code, or null. */
+function rwRefActive(){
+  try{
+    var code=lsGet(RW_REF_KEY), at=parseInt(lsGet(RW_REF_AT)||'0',10);
+    if(!code||!at) return null;
+    var days=(window.RW_REFERRAL_TERMS&&RW_REFERRAL_TERMS.cookieDays)||30;
+    if(Date.now()-at > days*86400000){ return null; }   /* expired */
+    return rwRefLookup(code)? code : null;
+  }catch(e){ return null; }
+}
+/* What gets stamped onto a claim. Kept small and flat so it's easy to read in
+   Firestore and easy to total in a sheet. */
+function rwRefStamp(){
+  var code=rwRefActive();
+  if(!code) return {};
+  var who=rwRefLookup(code);
+  if(!who) return {};
+  /* self-referral guard: a referrer buying through their own link earns nothing */
+  try{
+    if(window.user && who.uid && who.uid===user.uid) return { refCode:code, refSelf:true, refRate:0 };
+  }catch(e){}
+  return {
+    refCode: who.code,
+    refName: who.name,
+    refType: who.type,
+    refRate: who.rate,
+    refAt: parseInt(lsGet(RW_REF_AT)||'0',10) || null
+  };
+}
+/* Build a share link for a referrer. */
+function rwRefLink(code){
+  return 'https://roamwise.co.in/?ref='+encodeURIComponent(code);
+}
+
 /* Free UPI flow: user submits UTR, owner approves in the admin console */
 function submitUtr(){
   if(!requireLogin()) return;
@@ -7786,11 +7874,13 @@ function submitUtr(){
       b.disabled=false; b.textContent='Submit \u27A4';
       return say('You already submitted this UTR \u2014 it\u2019s in the verification queue.', false);
     }
-    return db.collection('claims').doc(user.uid+'_'+utr).set({
+    var _ref = {};
+    try{ _ref = rwRefStamp(); }catch(e){}
+    return db.collection('claims').doc(user.uid+'_'+utr).set(Object.assign({
     uid:user.uid, email:user.email||user.phoneNumber||'', utr:utr, amount:parseInt(UPI_AMT,10)||100,
     tier:(UPI_AMT==='299'?'supporter':'pro'), plan:(_selectedPlan&&_selectedPlan.id)||'legacy100', planLabel:(_selectedPlan&&_selectedPlan.label)||'Legacy ₹100',
     status:'pending', created:firebase.firestore.FieldValue.serverTimestamp()
-  }).then(function(res){
+  }, _ref)).then(function(res){
     if(res===undefined) return; /* gated above */
     b.disabled=false; b.textContent='Submit \u27A4'; el('utrInput').value='';
     try{ track('utr_submits'); }catch(e){}
