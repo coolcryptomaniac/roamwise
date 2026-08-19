@@ -114,6 +114,30 @@ tr.tot td{border-top:1px solid rgba(232,186,108,.4);font-weight:700;padding-top:
   .slide{padding-bottom:100px}
 }
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+/* ---- polish pass ---- */
+.slide-inner h1,.slide-inner h2{text-wrap:balance}
+.card{transition:transform .25s ease,border-color .25s ease}
+.card:hover{transform:translateY(-3px);border-color:rgba(232,186,108,.35)}
+.card.gold:hover{border-color:rgba(232,186,108,.6)}
+.eyebrow::before{background:linear-gradient(90deg,var(--summit),transparent)}
+h1 em.gold,h2 em.gold{position:relative}
+/* refined stat underline */
+.stat .n{position:relative;display:inline-block}
+.stat .n::after{content:'';position:absolute;left:0;right:40%;bottom:-8px;height:2px;background:linear-gradient(90deg,var(--summit),transparent);opacity:.5}
+
+/* PRINT — one slide per page, light-on-dark preserved */
+@media print{
+  @page{size:1280px 720px;margin:0}
+  html,body{background:var(--ink)!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .deck{height:auto;overflow:visible;scroll-snap-type:none}
+  .nav,.hint{display:none!important}
+  .slide{min-height:720px;height:720px;page-break-after:always;break-after:page;border-bottom:none;
+    scroll-snap-align:none;display:flex}
+  .slide:last-child{page-break-after:auto}
+  .aurora::before,.stars{opacity:1}
+  .card:hover{transform:none}
+}
 </style>
 </head>
 <body>
