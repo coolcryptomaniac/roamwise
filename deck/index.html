@@ -1,355 +1,422 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>RoamWise — investor deck</title>
-<meta name="robots" content="noindex">
+<title>RoamWise — Investor Deck</title>
 <style>
-:root{--bg:#08090F;--bg2:#11131C;--b:#1E2029;--t1:#F2F0EA;--t2:#B9B6AE;--t3:#7A7870;
-      --gold:#E8BA6C;--gold2:#C8913E;--grn:#4ADE80;--vio:#A78BFA}
+:root{
+  --ink:#0B1020; --ink2:#131A2E; --ink3:#1B2440;
+  --summit:#E8BA6C; --summit2:#C8913E;
+  --snow:#F2EFE6; --mist:#8B93A7; --line:#26304C;
+  --pine:#4ADE80; --alert:#E0785B; --sky:#6FA8DC;
+}
 *{margin:0;padding:0;box-sizing:border-box}
-html{scroll-behavior:smooth;scroll-snap-type:y proximity}
-body{background:var(--bg);color:var(--t1);font:16px/1.7 system-ui,-apple-system,'Segoe UI',sans-serif;overflow-x:hidden}
-.slide{min-height:100vh;display:flex;flex-direction:column;justify-content:center;padding:70px 24px;
-       max-width:940px;margin:0 auto;scroll-snap-align:start;position:relative}
-.slide::before{content:'';position:absolute;inset:0;pointer-events:none;z-index:-1;opacity:.5;
-  background:radial-gradient(900px 420px at 15% 8%,rgba(232,186,108,.09),transparent 62%)}
-.n{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold2);font-weight:800;margin-bottom:14px}
-h1{font-size:clamp(34px,7vw,62px);line-height:1.06;letter-spacing:-.03em;margin-bottom:18px}
-h2{font-size:clamp(26px,4.6vw,40px);line-height:1.15;letter-spacing:-.02em;margin-bottom:16px}
-h3{font-size:18px;margin-bottom:7px;color:var(--gold)}
-p{color:var(--t2);margin-bottom:14px;max-width:70ch}
-.lead{font-size:clamp(17px,2.4vw,21px);color:var(--t1)}
-.grid{display:grid;gap:14px;margin-top:20px}
-.g2{grid-template-columns:repeat(auto-fit,minmax(230px,1fr))}
-.g3{grid-template-columns:repeat(auto-fit,minmax(180px,1fr))}
-.card{background:var(--bg2);border:1px solid var(--b);border-radius:16px;padding:19px;
-      transition:transform .25s cubic-bezier(.2,.8,.3,1),border-color .25s}
-.card:hover{transform:translateY(-3px);border-color:rgba(232,186,108,.42)}
-.card .ic{font-size:26px;margin-bottom:9px;display:block}
-.card p{font-size:14px;margin:0;color:var(--t2)}
-.stat{font-size:clamp(32px,5.5vw,50px);font-weight:900;letter-spacing:-.03em;
-      background:linear-gradient(135deg,var(--gold),var(--gold2));-webkit-background-clip:text;
-      background-clip:text;-webkit-text-fill-color:transparent;line-height:1.05}
-.stat.g{background:linear-gradient(135deg,#4ADE80,#16A34A);-webkit-background-clip:text;background-clip:text}
-.lbl{font-size:12px;color:var(--t3);letter-spacing:.06em;text-transform:uppercase;margin-top:4px}
-table{width:100%;border-collapse:collapse;margin-top:18px;font-size:14px}
-th,td{text-align:left;padding:11px 10px;border-bottom:1px solid var(--b)}
-th{color:var(--gold);font-size:11.5px;letter-spacing:.08em;text-transform:uppercase}
-td.y{color:var(--grn);font-weight:700}td.n{color:#E05B5B}
-.quote{border-left:3px solid var(--gold2);padding:6px 0 6px 18px;font-size:17px;color:var(--t1);
-       font-style:italic;margin:18px 0}
-.bar{height:9px;border-radius:5px;background:var(--b);overflow:hidden;margin-top:7px}
-.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--gold),var(--gold2))}
-ul{margin:0 0 14px 20px;color:var(--t2)}li{margin-bottom:8px}
-.tag{display:inline-block;font-size:12px;padding:5px 12px;border-radius:99px;border:1px solid var(--b);
-     color:var(--t2);margin:0 6px 8px 0}
-.tag.on{border-color:var(--gold);color:var(--gold);background:rgba(232,186,108,.1)}
-.brand{font-weight:900;font-size:21px;letter-spacing:-.02em}.brand em{color:var(--gold);font-style:normal}
-.dots{position:fixed;right:16px;top:50%;transform:translateY(-50%);z-index:50;display:flex;flex-direction:column;gap:9px}
-.dots a{width:7px;height:7px;border-radius:99px;background:var(--b);display:block;transition:.2s}
-.dots a:hover{background:var(--gold);transform:scale(1.5)}
-.foot{font-size:12.5px;color:var(--t3);margin-top:26px}
-@media(max-width:640px){.slide{padding:52px 18px;min-height:auto}.dots{display:none}}
-@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.card{transition:none}}
+html{scroll-behavior:smooth}
+body{
+  background:var(--ink); color:var(--snow);
+  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+  -webkit-font-smoothing:antialiased;
+}
+.serif{font-family:Georgia,'Times New Roman',serif}
 
-/* financial slide (Sakshi revision) */
-.fchart{display:flex;gap:14px;align-items:flex-end;height:200px;margin:18px 0 4px;padding:0 4px}
-.fcol{flex:1;display:flex;flex-direction:column;align-items:center;height:100%;justify-content:flex-end}
-.fbar{width:100%;max-width:56px;height:130px;display:flex;align-items:flex-end;justify-content:center}
-.fbar i{display:block;width:100%;border-radius:7px 7px 0 0;transition:height .8s cubic-bezier(.22,1,.36,1)}
-.frev{font-size:13px;font-weight:800;color:#EDEAE2;margin-top:8px}
-.febit{font-size:10.5px;font-weight:700;margin-top:2px}
-.fyr{font-size:11px;color:#8A8880;margin-top:4px;letter-spacing:.05em}
-.ftable{width:100%;border-collapse:collapse;margin-top:20px;font-size:13px}
-.ftable td{padding:8px 6px;border-bottom:1px solid var(--b,#1E2029);text-align:right}
-.ftable td:first-child{text-align:left;color:#9A968E;font-weight:600}
-.ftable tr td:not(:first-child){color:#EDEAE2;font-variant-numeric:tabular-nums}
-.foot-note{font-size:11.5px;color:#7C7A74;margin-top:16px;line-height:1.6;font-style:italic}
+.deck{scroll-snap-type:y mandatory;height:100vh;overflow-y:scroll}
+.slide{
+  scroll-snap-align:start; min-height:100vh; position:relative;
+  display:flex; flex-direction:column; justify-content:center;
+  padding:clamp(28px,6vw,96px); padding-bottom:120px;
+  border-bottom:1px solid var(--line); overflow:hidden;
+}
+.slide-inner{max-width:1000px;width:100%;margin:0 auto;position:relative;z-index:2}
+
+.eyebrow{
+  font-size:12px; letter-spacing:.32em; text-transform:uppercase;
+  color:var(--summit); font-weight:700; margin-bottom:22px;
+  display:flex; align-items:center; gap:12px;
+}
+.eyebrow::before{content:'';width:26px;height:1px;background:var(--summit);display:inline-block}
+
+h1{font-size:clamp(34px,6vw,68px);line-height:1.04;letter-spacing:-.02em;font-weight:400}
+h2{font-size:clamp(28px,4.6vw,50px);line-height:1.08;letter-spacing:-.015em;font-weight:400}
+.lead{font-size:clamp(16px,2vw,21px);line-height:1.6;color:var(--mist);max-width:640px;margin-top:22px}
+.lead strong{color:var(--snow);font-weight:600}
+em.gold{color:var(--summit);font-style:normal}
+
+.aurora::before{
+  content:'';position:absolute;inset:0;z-index:0;pointer-events:none;
+  background:
+    radial-gradient(1200px 500px at 15% -10%, rgba(232,186,108,.10), transparent 60%),
+    radial-gradient(900px 500px at 100% 120%, rgba(111,168,220,.10), transparent 55%);
+}
+.stars{position:absolute;inset:0;z-index:0;pointer-events:none;opacity:.5}
+
+.ridge{position:absolute;left:0;right:0;bottom:0;height:74px;z-index:1;pointer-events:none}
+.ridge svg{width:100%;height:100%;display:block}
+.ridge .fillline{fill:rgba(232,186,108,.05);stroke:rgba(232,186,108,.28);stroke-width:1.2}
+.ridge .peak{fill:var(--summit)}
+.slide-tag{
+  position:absolute;bottom:26px;left:clamp(28px,6vw,96px);z-index:2;
+  font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--mist);
+}
+.slide-tag b{color:var(--summit)}
+
+.grid{display:grid;gap:18px;margin-top:34px}
+.g2{grid-template-columns:1fr 1fr}
+.g3{grid-template-columns:repeat(3,1fr)}
+.g4{grid-template-columns:repeat(4,1fr)}
+.card{
+  background:linear-gradient(160deg,var(--ink2),var(--ink));
+  border:1px solid var(--line); border-radius:16px; padding:22px;
+}
+.card h3{font-size:17px;font-weight:600;margin-bottom:8px;color:var(--snow);letter-spacing:-.01em}
+.card p{font-size:14px;line-height:1.6;color:var(--mist)}
+.card .ic{font-size:24px;margin-bottom:12px;display:block}
+.card.gold{border-color:rgba(232,186,108,.4);background:linear-gradient(160deg,rgba(232,186,108,.08),var(--ink))}
+
+.statrow{display:flex;gap:clamp(20px,5vw,64px);flex-wrap:wrap;margin-top:34px}
+.stat .n{font-size:clamp(34px,5vw,56px);font-weight:700;letter-spacing:-.02em;color:var(--summit);font-variant-numeric:tabular-nums;line-height:1}
+.stat .k{font-size:13px;color:var(--mist);margin-top:8px;max-width:180px;line-height:1.4}
+.stat .n.snow{color:var(--snow)}
+.stat .n.pine{color:var(--pine)}
+
+.chart{display:flex;gap:clamp(10px,2.4vw,26px);align-items:flex-end;height:300px;margin-top:38px}
+.col{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%}
+.col .barwrap{width:100%;max-width:70px;flex:1;display:flex;align-items:flex-end;justify-content:center}
+.col .bar{width:100%;border-radius:8px 8px 0 0;background:linear-gradient(180deg,var(--summit),var(--summit2));min-height:3px;transition:height 1s cubic-bezier(.22,1,.36,1)}
+.col .rev{font-size:15px;font-weight:700;margin-top:10px;color:var(--snow)}
+.col .eb{font-size:11px;font-weight:600;margin-top:3px}
+.col .yr{font-size:12px;color:var(--mist);margin-top:6px;letter-spacing:.06em}
+
+table{width:100%;border-collapse:collapse;margin-top:30px;font-size:14px}
+td,th{padding:11px 10px;text-align:right;border-bottom:1px solid var(--line)}
+th{color:var(--summit);font-weight:600;font-size:12px;letter-spacing:.08em;text-transform:uppercase}
+td:first-child,th:first-child{text-align:left;color:var(--mist)}
+tr td:not(:first-child){color:var(--snow);font-variant-numeric:tabular-nums}
+tr.tot td{border-top:1px solid rgba(232,186,108,.4);font-weight:700;padding-top:13px}
+
+.foot{font-size:11.5px;color:var(--mist);margin-top:26px;line-height:1.6;max-width:720px;font-style:italic}
+.src{font-size:10.5px;color:#5A6076;margin-top:14px;letter-spacing:.02em}
+
+.rail{border-left:3px solid var(--summit);padding-left:22px}
+.badge{display:inline-block;font-size:11px;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--ink);background:var(--summit);border-radius:20px;padding:4px 12px;font-weight:800;margin-bottom:20px}
+
+.nav{position:fixed;right:20px;top:50%;transform:translateY(-50%);z-index:50;display:flex;flex-direction:column;gap:9px}
+.nav a{width:8px;height:8px;border-radius:50%;background:var(--line);transition:all .2s;display:block}
+.nav a:hover,.nav a.on{background:var(--summit);transform:scale(1.3)}
+.hint{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);z-index:50;font-size:11px;color:var(--mist);letter-spacing:.15em;text-transform:uppercase;animation:pulse 2.4s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:.4}50%{opacity:.9}}
+
+@media(max-width:720px){
+  .g2,.g3,.g4{grid-template-columns:1fr}
+  .chart{height:220px}
+  .nav{display:none}
+  .slide{padding-bottom:100px}
+}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
-<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
-</head><body>
+</head>
+<body>
+<div class="nav" id="nav"></div>
+<div class="hint" id="hint">scroll ↓</div>
+<div class="deck" id="deck">
 
-<div class="dots">
-<a href="#s1"></a><a href="#s2"></a><a href="#s3"></a><a href="#s4"></a><a href="#s5"></a>
-<a href="#s6"></a><a href="#s7"></a><a href="#s8"></a><a href="#s9"></a><a href="#s10b"></a><a href="#s10c"></a><a href="#s10"></a><a href="#s11"></a>
-</div>
-
-<section class="slide" id="s1">
-  <div class="brand">Roam<em>Wise</em></div>
-  <h1 style="margin-top:26px">Travel planning that<br>knows the local price.</h1>
-  <p class="lead">An India-first travel planner with something no competitor has: the fair price of an auto-rickshaw, the specific scam you'll meet at the station, and an itinerary that opens with no signal.</p>
-  <div class="grid g3" style="margin-top:34px">
-    <div><div class="stat">195+</div><div class="lbl">countries covered</div></div>
-    <div><div class="stat">66</div><div class="lbl">releases shipped</div></div>
-    <div><div class="stat">1</div><div class="lbl">person building it</div></div>
+<section class="slide aurora" id="s1">
+  <canvas class="stars" id="stars"></canvas>
+  <div class="slide-inner">
+    <div class="eyebrow">RoamWise · Seed Round · 2026</div>
+    <h1 class="serif">The AI travel planner that<br>tells you the truth<br>about <em class="gold">where you're going.</em></h1>
+    <p class="lead">Built in the Himalayas for the way people actually travel India and Asia — grounded in real local pricing, honest road times, and answers it will refuse to fake. <strong>One deck, three audiences: the slides marked for you are near the end.</strong></p>
   </div>
-  <p class="foot">Mohit Pandey · Almora, Uttarakhand · founder@roamwise.co.in</p>
+  <div class="slide-tag"><b>01</b> · roamwise.co.in</div>
 </section>
 
 <section class="slide" id="s2">
-  <div class="n">01 — The problem</div>
-  <h2>Travellers don't lack inspiration.<br>They lack local knowledge.</h2>
-  <p>Every AI trip planner produces the same output: a confident list of the same six places, written in the same voice, with "budget-friendly" where a number should be.</p>
-  <div class="grid g2">
-    <div class="card"><span class="ic">💸</span><h3>No real prices</h3><p>"Affordable" is not a number. Travellers get quoted 3× the local rate because they have no idea what the rate is.</p></div>
-    <div class="card"><span class="ic">🕳️</span><h3>Confident hallucination</h3><p>LLM planners routinely invent restaurants and recommend places that closed years ago.</p></div>
-    <div class="card"><span class="ic">📵</span><h3>Useless offline</h3><p>The moment you most need your itinerary is usually the moment you have no data.</p></div>
-    <div class="card"><span class="ic">🌍</span><h3>Western-centric</h3><p>Built for a traveller flying into Rome, not one taking a sleeper from Delhi.</p></div>
+  <div class="slide-inner">
+    <div class="eyebrow">The Problem</div>
+    <h2 class="serif">Travellers don't lack inspiration.<br>They lack a planner they can <em class="gold">trust.</em></h2>
+    <div class="grid g3">
+      <div class="card"><span class="ic">🤖</span><h3>Generic AI invents things</h3><p>Ask a global chatbot to plan Spiti and it will confidently say a 200km drive takes three hours. It's nine. It names restaurants that closed years ago.</p></div>
+      <div class="card"><span class="ic">🗺️</span><h3>Western tools don't know India</h3><p>They can't tell you the Rishikesh auto costs ₹150, not the ₹400 a tourist is quoted — because that truth isn't on the open internet.</p></div>
+      <div class="card"><span class="ic">💸</span><h3>Nobody splits the real cost</h3><p>Group trips still get planned in chaotic WhatsApp threads, with no honest budget and no way to settle who owes whom.</p></div>
+    </div>
+    <p class="lead"><strong>The gap isn't intelligence. It's ground truth and trust.</strong></p>
   </div>
+  <div class="slide-tag"><b>02</b> · The problem</div>
 </section>
 
-<section class="slide" id="s3">
-  <div class="n">02 — Insight</div>
-  <h2>The gap is not intelligence.<br>It's ground truth.</h2>
-  <div class="quote">Anyone can generate a Goa itinerary. Almost nobody can tell you that the auto to Anjuna should cost ₹180, that "your hotel is closed" is a commission scam, and then show you all of it with your phone in airplane mode.</div>
-  <p>Generic travel advice is now free and infinite. What remains scarce — and defensible — is verified local economic knowledge. That is a data moat, not a model moat, and it compounds.</p>
+<section class="slide aurora" id="s3">
+  <div class="slide-inner">
+    <div class="eyebrow">Why Now</div>
+    <h2 class="serif">The whole market is shifting to<br>exactly what we built.</h2>
+    <div class="statrow">
+      <div class="stat"><div class="n">~30%</div><div class="k">of travellers now use AI to plan trips — and rising fast</div></div>
+      <div class="stat"><div class="n snow">94%</div><div class="k">of them trust an AI recommendation at least as much as traditional sources</div></div>
+      <div class="stat"><div class="n snow">~20%</div><div class="k">let AI actually spend money — most still want a human checkpoint</div></div>
+    </div>
+    <p class="lead">Travellers have decided to <strong>plan with AI but book with their own hands.</strong> That is exactly the behaviour RoamWise is designed around: do the thinking, earn the trust, hand off the booking. The window to own "the AI you plan with" is open right now.</p>
+    <div class="src">Sources: 2026 traveller AI-adoption surveys (IPX1031, TakeUp, Amadeus). Adoption estimates vary widely by source; ~30% is a conservative mainstream read.</div>
+  </div>
+  <div class="slide-tag"><b>03</b> · Why now</div>
 </section>
 
 <section class="slide" id="s4">
-  <div class="n">03 — Product</div>
-  <h2>What RoamWise does that others don't</h2>
-  <div class="grid g2">
-    <div class="card"><span class="ic">🚕</span><h3>Ground-cost engine</h3><p>Auto ₹25–35 base +₹15–20/km. Bike taxi ₹10–15/km. Rooms, meals, intercity fares — bands for India, SE Asia and Europe.</p></div>
-    <div class="card"><span class="ic">🛡️</span><h3>Anti-scam layer</h3><p>The mechanics of each trick — meter refusal, commission runs, passport-as-deposit, dynamic currency conversion at the card machine.</p></div>
-    <div class="card"><span class="ic">📴</span><h3>Offline-first</h3><p>Saved trips, guides, maps and costs open with no connectivity. Survives a dead CDN.</p></div>
-    <div class="card"><span class="ic">🌱</span><h3>Carbon ledger</h3><p>Published DEFRA/IPCC factors, earned badges, shareable certificate — stating emissions <em>avoided</em>, never "removed".</p></div>
-    <div class="card"><span class="ic">📅</span><h3>Crowd calendar</h3><p>Month-by-month crowd index per destination. Timing changes trip quality more than any other decision.</p></div>
-    <div class="card"><span class="ic">💊</span><h3>Situational safety</h3><p>Pharmacies, rabies protocol, monkey hotspots in hill towns — the things that actually go wrong.</p></div>
+  <div class="slide-inner">
+    <div class="eyebrow">The Product</div>
+    <h2 class="serif">RoamWise plans the trip,<br>then proves its own numbers.</h2>
+    <div class="grid g2">
+      <div class="card gold"><h3>Grounded itineraries</h3><p>Day-by-day plans built on real terrain-aware travel times and verified local cost bands — so it can say "that day-trip isn't possible" instead of inventing one.</p></div>
+      <div class="card"><h3>Group coordination</h3><p>Shared trip chat with live cost-splitting down to the paise, date-finding, and one-tap UPI settle-up. This is our wedge — nobody else owns the group.</p></div>
+      <div class="card"><h3>Honest by design</h3><p>No fake urgency, no invented safety claims. Every honest refusal is a reason a traveller comes back. Trust is the product.</p></div>
+      <div class="card"><h3>Built for India, works for the world</h3><p>Mobile-first, UPI-native, Hinglish-fluent — then the same engine serves anyone travelling into these regions.</p></div>
+    </div>
   </div>
+  <div class="slide-tag"><b>04</b> · The product</div>
 </section>
 
-<section class="slide" id="s5">
-  <div class="n">04 — Competition</div>
-  <h2>Know your competitors</h2>
-  <table>
-    <tr><th>Capability</th><th>Mindtrip</th><th>Layla</th><th>Wanderlog</th><th>Google</th><th style="color:#E8BA6C">RoamWise</th></tr>
-    <tr><td>AI itinerary</td><td class="y">Yes</td><td class="y">Yes</td><td class="n">Partial</td><td class="y">Yes</td><td class="y">Yes</td></tr>
-    <tr><td>Local fair-price data</td><td class="n">No</td><td class="n">No</td><td class="n">No</td><td class="n">No</td><td class="y">Yes</td></tr>
-    <tr><td>Scam / overcharge warnings</td><td class="n">No</td><td class="n">No</td><td class="n">No</td><td class="n">No</td><td class="y">Yes</td></tr>
-    <tr><td>Works fully offline</td><td class="n">No</td><td class="n">No</td><td class="y">Partial</td><td class="n">No</td><td class="y">Yes</td></tr>
-    <tr><td>India-first depth</td><td class="n">No</td><td class="n">No</td><td class="n">No</td><td class="n">Partial</td><td class="y">Yes</td></tr>
-    <tr><td>Carbon ledger</td><td class="n">No</td><td class="n">No</td><td class="n">No</td><td class="n">Partial</td><td class="y">Yes</td></tr>
-    <tr><td>Pricing</td><td>Subscription</td><td>Subscription</td><td>Freemium</td><td>Free (ads)</td><td class="y">One-time</td></tr>
-  </table>
-  <p class="foot">Assessment as of July 2026 from public product surfaces. Competitors ship fast — this table is re-verified each quarter, and the underlying claim is not "they can't build this" but "it takes years of field data they have no reason to collect."</p>
+<section class="slide aurora" id="s5">
+  <div class="slide-inner">
+    <div class="eyebrow">Traction — where we honestly are</div>
+    <h2 class="serif">20 signed up. 4 paid.<br><em class="gold">One in five converts — with zero marketing.</em></h2>
+    <div class="statrow">
+      <div class="stat"><div class="n snow">20</div><div class="k">registered users, entirely word-of-mouth</div></div>
+      <div class="stat"><div class="n pine">4</div><div class="k">paid ₹100 for Pro — real money, real card</div></div>
+      <div class="stat"><div class="n">20%</div><div class="k">free-to-paid conversion vs. 2–5% typical for freemium</div></div>
+    </div>
+    <p class="lead">Small numbers, stated plainly — because the <strong>ratio</strong> is the signal. Four strangers paid for a product with no ads, no sales team, no growth spend. The hardest thing to build — willingness to pay — is already here. What we're raising to buy is <strong>reach</strong>, not product-market fit we haven't found.</p>
+  </div>
+  <div class="slide-tag"><b>05</b> · Traction</div>
 </section>
 
 <section class="slide" id="s6">
-  <div class="n">05 — Why the moat holds</div>
-  <h2>Public data is the floor.<br>Verified local ground-truth is the moat.</h2>
-  <p class="lead">The fair question every investor asks: if the base data is on the internet, what stops a competitor copying it? The base layer is copyable. The layer that makes RoamWise useful is not.</p>
-  <div class="grid g2">
-    <div class="card"><h3>Layer 1 &mdash; Public base (copyable, and that's fine)</h3><p>OpenStreetMap, Wikivoyage, government transit data. Anyone can use these &mdash; they give structure, not truth. They cannot tell you the auto from Rishikesh station to Ram Jhula <em>actually</em> costs &#8377;150, not the &#8377;400 a tourist is quoted.</p></div>
-    <div class="card"><h3>Layer 2 &mdash; Verified ground-truth (the proprietary asset)</h3><p>Real local cost bands, scam patterns and seasonal pricing, each verified by a paid contributor <em>on the ground</em> and stamped with who checked it and when. This does not exist on the internet to scrape &mdash; we create it.</p></div>
-    <div class="card"><h3>How it stays current &mdash; and compounds</h3><p>Contributors re-verify on a rolling cycle; users flag stale prices, which routes back to re-verification. Every month live, the dataset gets more accurate. A copyist starts from zero on launch day &mdash; and is a year behind by the time they match our base.</p></div>
-    <div class="card"><h3>Why a giant won't just do it</h3><p>A global planner optimises for 190 countries and cannot justify paying people to price-check autos in 40 Indian cities. The narrowness that looks like a limitation is exactly what makes the asset defensible.</p></div>
+  <div class="slide-inner">
+    <div class="eyebrow">Execution</div>
+    <h2 class="serif">Shipped, not slideware.</h2>
+    <div class="grid g4">
+      <div class="card"><div style="font-size:32px;font-weight:700;color:var(--summit)">Live</div><p style="margin-top:8px">Android app + web app, in the wild today at roamwise.co.in</p></div>
+      <div class="card"><div style="font-size:32px;font-weight:700;color:var(--summit)">1</div><p style="margin-top:8px">Solo founder — product, code, design, content, all of it</p></div>
+      <div class="card"><div style="font-size:32px;font-weight:700;color:var(--summit)">3</div><p style="margin-top:8px">Interns contributing, with a full internal ops system built for them</p></div>
+      <div class="card"><div style="font-size:32px;font-weight:700;color:var(--summit)">₹0</div><p style="margin-top:8px">Raised so far. Everything above was built without outside money</p></div>
+    </div>
+    <p class="lead">A working product with real payers, built by one person with no funding, is the strongest possible proof of <strong>capital efficiency.</strong> Imagine what this founder does with a real team.</p>
   </div>
-  <p class="foot-note">The model is rentable and the base data is public &mdash; but the verified local layer is built by us, owned by us, and harder to catch every month it runs.</p>
+  <div class="slide-tag"><b>06</b> · Execution</div>
 </section>
 
 <section class="slide" id="s7">
-  <div class="n">06 — Market</div>
-  <h2>India's outbound and domestic travel is the fastest-growing large market on earth</h2>
-  <div class="grid g3" style="margin-top:24px">
-    <div><div class="stat">2.5B+</div><div class="lbl">domestic trips / yr (India)</div></div>
-    <div><div class="stat">~30M</div><div class="lbl">outbound travellers</div></div>
-    <div><div class="stat">$6.4T</div><div class="lbl">global travel economy</div></div>
+  <div class="slide-inner">
+    <div class="eyebrow">Defensibility</div>
+    <h2 class="serif">Public data is the floor.<br>Verified local ground-truth is the <em class="gold">moat.</em></h2>
+    <div class="grid g2">
+      <div class="card"><h3>Layer 1 — Public base <span style="color:var(--mist)">(copyable)</span></h3><p>OpenStreetMap, Wikivoyage, transit data. Anyone can use these. They give structure, not truth. On their own they cannot price a Rishikesh auto correctly.</p></div>
+      <div class="card gold"><h3>Layer 2 — Verified ground-truth <span style="color:var(--summit)">(ours)</span></h3><p>Real cost bands, scam patterns and seasonal pricing, each checked by a paid contributor on the ground and stamped who + when. This does not exist online to scrape. We create it.</p></div>
+      <div class="card"><h3>It compounds</h3><p>Contributors re-verify on a cycle; users flag stale prices. A copyist starts from zero on launch day, and is a year behind by the time they match our base.</p></div>
+      <div class="card"><h3>A giant won't do it</h3><p>Optimising for 190 countries, no global player will pay to price-check autos in 40 Indian cities. The narrowness is the defensibility.</p></div>
+    </div>
   </div>
-  <p style="margin-top:22px">The wedge is Indian travellers planning within India and Asia — underserved by Western tools, price-sensitive, mobile-first, and accustomed to paying once rather than subscribing. The same product then works for anyone travelling <em>into</em> these regions.</p>
-  <p class="foot">Figures indicative, from published tourism-ministry and WTTC reporting. Investors should verify independently.</p>
+  <div class="slide-tag"><b>07</b> · Moat</div>
 </section>
 
-<section class="slide" id="s8">
-  <div class="n">07 — Business model</div>
-  <h2>Four revenue lines, none of them a data sale</h2>
-  <div class="grid g2">
-    <div class="card"><h3>One-time Pro</h3><p>₹100 founder price capped at 1,000 members, then tiered subscriptions and 3/5/10-year passes. Prices held one year, reviewed annually.</p></div>
-    <div class="card"><h3>Affiliate commission</h3><p>Flights, stays and activities. Never influences recommendations — the cost engine is computed identically either way.</p></div>
-    <div class="card"><h3>Merchandise</h3><p>Print-on-demand travel tees. ₹499 retail, ~₹172 margin, zero inventory.</p></div>
-    <div class="card"><h3>Advertising</h3><p>Website only. Never inside the app experience.</p></div>
+<section class="slide aurora" id="s8">
+  <div class="slide-inner">
+    <div class="eyebrow">Market</div>
+    <h2 class="serif">A large market, growing fast.</h2>
+    <div class="grid g3">
+      <div class="card"><span class="ic">📱</span><h3>$25.4B → $38.6B</h3><p>India online travel, 2026 → 2031 at ~8.7% CAGR. 78% of bookings are mobile, UPI-led.</p></div>
+      <div class="card"><span class="ic">✈️</span><h3>$23.4B · 11.4% CAGR</h3><p>India outbound tourism — the fastest-growing slice, and where our high-value users sit.</p></div>
+      <div class="card"><span class="ic">🌏</span><h3>Tier-2/3 coming online</h3><p>~1B smartphones in India by 2026; millions of first-time online travellers entering the funnel.</p></div>
+    </div>
+    <p class="lead">We don't need this whole market. We need <strong>the travellers planning within India and Asia</strong> — underserved by Western tools, mobile-first, and now AI-first.</p>
+    <div class="src">Sources: Mordor Intelligence (India online travel, 2026); Future Market Insights (India outbound, 2026). Investors should verify independently.</div>
   </div>
-  <p style="margin-top:16px"><span class="tag on">No data sale</span><span class="tag on">No paid placement</span><span class="tag on">No dark patterns</span></p>
-</section>
-
-<section class="slide" id="sfin">
-  <div class="n">08 &mdash; Five-year build-up</div>
-  <h2>How the four lines compound &mdash; and when it turns.</h2>
-  <p class="lead">Bottoms-up from the user funnel, not top-down from market size. Every rupee here traces to an install-to-paying assumption stated below. Conservative on conversion, disciplined on cost.</p>
-  <div class="fchart"><div class="fcol"><div class="fbar"><i style="height:2%;background:linear-gradient(180deg,#E8BA6C,#C8913E)"></i></div><div class="frev">₹0.05Cr</div><div class="febit" style="color:#E0785B">EBITDA -2.6</div><div class="fyr">Y1</div></div><div class="fcol"><div class="fbar"><i style="height:2%;background:linear-gradient(180deg,#E8BA6C,#C8913E)"></i></div><div class="frev">₹0.37Cr</div><div class="febit" style="color:#E0785B">EBITDA -4.23</div><div class="fyr">Y2</div></div><div class="fcol"><div class="fbar"><i style="height:11%;background:linear-gradient(180deg,#E8BA6C,#C8913E)"></i></div><div class="frev">₹1.76Cr</div><div class="febit" style="color:#E0785B">EBITDA -5.64</div><div class="fyr">Y3</div></div><div class="fcol"><div class="fbar"><i style="height:38%;background:linear-gradient(180deg,#E8BA6C,#C8913E)"></i></div><div class="frev">₹6.01Cr</div><div class="febit" style="color:#E0785B">EBITDA -4.99</div><div class="fyr">Y4</div></div><div class="fcol"><div class="fbar"><i style="height:100%;background:linear-gradient(180deg,#E8BA6C,#C8913E)"></i></div><div class="frev">₹15.83Cr</div><div class="febit" style="color:#4ADE80">EBITDA +0.63</div><div class="fyr">Y5</div></div></div>
-  <div class="grid g2" style="margin-top:22px">
-    <div class="card"><h3>The engine</h3><p>Affiliate booking commission and maturing subscriptions do the work &mdash; not the &#8377;100 intro price. Paying users grow 2k &rarr; 67k as trust and multi-year passes compound. Blended ARPU climbs &#8377;150 &rarr; &#8377;1,000.</p></div>
-    <div class="card"><h3>The turn</h3><p>EBITDA crosses positive in Year&nbsp;5 at ~&#8377;15.8&nbsp;Cr revenue. Cumulative burn to breakeven is ~&#8377;17&nbsp;Cr &mdash; which is why this &#8377;4&nbsp;Cr is a first cheque that proves the model, not the whole journey.</p></div>
-  </div>
-  <table class="ftable">
-    <tr><td>MAU</td><td>0.01M</td><td>0.08M</td><td>0.26M</td><td>0.62M</td><td>1.21M</td></tr>
-    <tr><td>Paying</td><td>0k</td><td>2k</td><td>9k</td><td>28k</td><td>67k</td></tr>
-    <tr><td>Revenue &#8377;Cr</td><td>0.05</td><td>0.37</td><td>1.76</td><td>6.01</td><td>15.83</td></tr>
-    <tr><td>EBITDA &#8377;Cr</td><td style="color:#E0785B">-2.6</td><td style="color:#E0785B">-4.23</td><td style="color:#E0785B">-5.64</td><td style="color:#E0785B">-4.99</td><td style="color:#4ADE80">0.63</td></tr>
-  </table>
-  <p class="foot-note">Numbers are a model, not a promise &mdash; shown so the assumptions can be argued with. Move conversion or ARPU and the whole sheet moves; that transparency is the point.</p>
+  <div class="slide-tag"><b>08</b> · Market</div>
 </section>
 
 <section class="slide" id="s9">
-  <div class="n">09 — Traction & execution</div>
-  <h2>Shipped, not slideware</h2>
-  <div class="grid g2">
-    <div class="card"><h3>66 releases</h3><p>Android app live, PWA live, admin console, agent tooling. Built and shipped by one person.</p></div>
-    <div class="card"><h3>Full stack in production</h3><p>Firestore with rule-level security, offline service worker, R8-minified release builds, signed AAB on Play.</p></div>
-    <div class="card"><h3>Content engine</h3><p>32 indexed pages, 16,000+ words of original guides driving organic acquisition at zero CAC.</p></div>
-    <div class="card"><h3>Creator programme</h3><p>Tiered partner ladder — trial, then revenue share, then lifetime — earned rather than gifted.</p></div>
+  <div class="slide-inner">
+    <div class="eyebrow">Business Model</div>
+    <h2 class="serif">Four revenue lines.<br>None of them a data sale.</h2>
+    <div class="grid g4">
+      <div class="card"><h3>Subscriptions</h3><p>₹100 founder price → tiered subs and 3/5/10-year passes. Recurring, and higher for international users.</p></div>
+      <div class="card"><h3>Affiliate</h3><p>Flights, stays, activities. Never influences a recommendation — the cost engine computes identically either way.</p></div>
+      <div class="card"><h3>Creator partnerships</h3><p>Co-branded and sponsored itineraries. Revenue-share, so cost scales only when revenue does.</p></div>
+      <div class="card"><h3>Merch + ads</h3><p>Print-on-demand travel tees; website-only ads. Small, steady, zero-inventory.</p></div>
+    </div>
+    <p class="lead"><strong>No data sale. No paid placement. No dark patterns.</strong> The trust is the asset — we don't sell it.</p>
   </div>
-  <div class="bar" style="margin-top:20px"><i style="width:66%"></i></div>
-  <p class="foot">Velocity: v1 → v66 solo. The constraint has never been capability. It has been hours.</p>
+  <div class="slide-tag"><b>09</b> · Model</div>
 </section>
 
-
-<section class="slide" id="s10b">
-  <div class="n">10 — Funding landscape</div>
-  <h2>What this category has raised</h2>
-  <table>
-    <tr><th>Company</th><th>Reported raised</th><th>Where</th><th>Model</th></tr>
-    <tr><td><b>Mindtrip</b></td><td>~$12M seed +</td><td>US</td><td>Subscription</td></tr>
-    <tr><td><b>Layla</b></td><td>~$10M (incl. Roam Around acquisition)</td><td>EU/US</td><td>Subscription</td></tr>
-    <tr><td><b>Wanderlog</b></td><td>Y Combinator + seed</td><td>US</td><td>Freemium</td></tr>
-    <tr><td><b>GuideGeek</b> (Matador)</td><td>Backed by parent media group</td><td>US</td><td>Free / B2B</td></tr>
-    <tr><td style="color:var(--gold)"><b>RoamWise</b></td><td style="color:var(--gold)">Bootstrapped — ₹0 raised</td><td>India</td><td>One-time + affiliate</td></tr>
-  </table>
-  <p class="foot" style="margin-top:14px">Figures are <b>reported publicly and must be independently verified</b> on Crunchbase or Tracxn before being quoted in a live pitch. They are directionally useful, not precise — and an investor who catches a wrong number stops trusting the rest of the deck.</p>
-  <p style="margin-top:16px">The point of this slide is not that they raised more. It is that <b>they raised eight figures to build the layer RoamWise already has</b> — and still do not have the local price and offline layers. This was built to v66 on nothing.</p>
-</section>
-
-<section class="slide" id="s10c">
-  <div class="n">11 — The ask</div>
-  <h2>₹4 crore <span style="color:var(--t3);font-size:.55em">(≈ $480K)</span><br>for 18 months</h2>
-  <p class="lead">Deliberately not a $10M round. This is the amount that removes the actual constraint — and nothing beyond it.</p>
-  <div class="grid g2" style="margin-top:20px">
-    <div class="card"><h3>₹1.6 Cr — Field data operations</h3>
-      <p>Paid local contributors verifying cost bands and scam patterns across 40 Indian cities, then Southeast Asia. <b>This is the moat and it is funded first.</b></p>
-      <div class="bar"><i style="width:40%"></i></div></div>
-    <div class="card"><h3>₹1.2 Cr — Two engineers, 18 months</h3>
-      <p>iOS native, regional languages, and removing the founder as the single point of failure.</p>
-      <div class="bar"><i style="width:30%"></i></div></div>
-    <div class="card"><h3>₹0.8 Cr — Distribution</h3>
-      <p>First real marketing spend, creator partnerships, and content scaling on the channel that already converts at zero CAC.</p>
-      <div class="bar"><i style="width:20%"></i></div></div>
-    <div class="card"><h3>₹0.4 Cr — Runway buffer</h3>
-      <p>Infrastructure, compliance, legal, and the 10% that every honest budget needs.</p>
-      <div class="bar"><i style="width:10%"></i></div></div>
-  </div>
-  <p style="margin-top:18px">At this raise the company reaches 40-city verified coverage, iOS parity and a team of three — the point where the data advantage becomes genuinely hard to catch.</p>
-</section>
 <section class="slide" id="s10">
-  <div class="n">12 — Beyond the round</div>
-  <h2>Where this goes next</h2>
-  <div class="grid g3">
-    <div class="card"><span class="ic">🗺️</span><h3>Field data</h3><p>Paid local contributors verifying cost bands and scam patterns city by city. This is the moat — it should be funded first.</p></div>
-    <div class="card"><span class="ic">📱</span><h3>iOS + distribution</h3><p>Native iOS, regional language support, and the first real marketing spend.</p></div>
-    <div class="card"><span class="ic">👥</span><h3>Two engineers</h3><p>To stop being the bottleneck. Everything on this deck was built alone; the ceiling is time, not ideas.</p></div>
+  <div class="slide-inner">
+    <div class="eyebrow">Five-Year Projection</div>
+    <h2 class="serif">Two ARPU pools. One compounding engine.</h2>
+    <div class="chart" id="finchart"></div>
+    <table>
+      <tr><th>₹ Crore</th><th>Y1</th><th>Y2</th><th>Y3</th><th>Y4</th><th>Y5</th></tr>
+      <tr><td>India MAU</td><td>12k</td><td>70k</td><td>230k</td><td>560k</td><td>1.08M</td></tr>
+      <tr><td>Intl MAU</td><td>1.5k</td><td>12k</td><td>55k</td><td>160k</td><td>380k</td></tr>
+      <tr><td>India ARPU</td><td>₹120</td><td>₹300</td><td>₹480</td><td>₹650</td><td>₹800</td></tr>
+      <tr><td>Intl ARPU</td><td>₹600</td><td>₹1,400</td><td>₹2,200</td><td>₹3,000</td><td>₹3,600</td></tr>
+      <tr class="tot"><td>Revenue</td><td>0.04</td><td>0.46</td><td>2.59</td><td>9.90</td><td>28.94</td></tr>
+      <tr class="tot"><td>EBITDA</td><td style="color:var(--alert)">−2.8</td><td style="color:var(--alert)">−4.6</td><td style="color:var(--alert)">−5.9</td><td style="color:var(--alert)">−2.8</td><td style="color:var(--pine)">+11.1</td></tr>
+    </table>
+    <p class="foot">EBITDA turns positive in Year 5 (~38% margin) on ~₹29 Cr revenue; cumulative burn to breakeven ~₹16 Cr. A model, not a promise — every figure traces to a stated funnel and ARPU assumption you're welcome to push on.</p>
   </div>
-  <p style="margin-top:22px">The honest version: this is pre-revenue-scale and solo-built. What it is not is a prototype — it is a shipped, secured, offline-capable product with a defensible data strategy and a founder who has proven he can execute without a team.</p>
+  <div class="slide-tag"><b>10</b> · Financials</div>
 </section>
 
 <section class="slide" id="s11">
-  <div class="brand">Roam<em>Wise</em></div>
-  <h2 style="margin-top:22px">Built in the Himalayas.<br>Priced for the person actually travelling.</h2>
-  <p class="lead">Try it before you decide — that is the whole pitch.</p>
-  <p style="margin-top:20px"><a href="https://www.roamwise.co.in/" style="color:var(--gold);font-weight:800;font-size:19px;text-decoration:none">roamwise.co.in →</a></p>
-  <p class="foot">Mohit Pandey · founder@roamwise.co.in · Almora, Uttarakhand, India<br>
-  Figures marked indicative are from public reporting and should be independently verified.</p>
+  <div class="slide-inner">
+    <div class="eyebrow">Durability of Earnings</div>
+    <h2 class="serif">Predictable revenue up.<br>Cost-to-serve down.</h2>
+    <div class="grid g2">
+      <div class="card"><h3>🔁 Recurring revenue</h3><p>Multi-year passes and subscriptions convert one-time buyers into annual ARPU; creator trips add contracted, repeatable revenue; affiliate compounds with the base.</p></div>
+      <div class="card"><h3>🤖 AI cost minimisation</h3><p>Support, content, itinerary drafting and data QA are largely automated. No per-query model bill — answers use owned data. Margin holds as users 100×.</p></div>
+      <div class="card"><h3>🤝 Creators, two-sided</h3><p>Partnerships drive both revenue and efficient customer acquisition. Paid as revenue-share, never fixed fees.</p></div>
+      <div class="card"><h3>📈 Next revenue, owned assets</h3><p>CoordKit (our settle-up engine, sold B2B), verified-data licensing, and eSIM/fintech attach — each reuses what we already own.</p></div>
+    </div>
+  </div>
+  <div class="slide-tag"><b>11</b> · Durability</div>
 </section>
 
-<div id="deckGate" style="position:fixed;inset:0;z-index:9999;background:linear-gradient(160deg,#0A0E16,#12080C);display:flex;align-items:center;justify-content:center;padding:22px">
-  <div style="max-width:400px;width:100%;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:18px;padding:28px 24px">
-    <div style="font-size:22px;font-weight:800;letter-spacing:-.5px">Roam<em style="color:#E8BA6C;font-style:normal">Wise</em></div>
-    <h2 style="font-size:18px;margin:14px 0 6px;line-height:1.3">A quick hello before the deck</h2>
-    <p style="font-size:12.5px;color:rgba(255,255,255,.6);line-height:1.6;margin-bottom:18px">This is a private investor deck. Tell me who's reading so I can follow up properly — takes 15 seconds.</p>
-    <input id="gName" placeholder="Your name" style="width:100%;box-sizing:border-box;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);border-radius:10px;padding:12px;color:#fff;font-size:14px;margin-bottom:9px;outline:none">
-    <input id="gRole" placeholder="Designation / firm (e.g. Partner, Blume)" style="width:100%;box-sizing:border-box;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);border-radius:10px;padding:12px;color:#fff;font-size:14px;margin-bottom:9px;outline:none">
-    <input id="gPhone" type="tel" placeholder="Phone or email" style="width:100%;box-sizing:border-box;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);border-radius:10px;padding:12px;color:#fff;font-size:14px;margin-bottom:16px;outline:none">
-    <button id="gBtn" onclick="deckEnter()" style="width:100%;background:linear-gradient(135deg,#E8BA6C,#C8913E);border:none;border-radius:10px;padding:13px;color:#1a1206;font-size:15px;font-weight:800;cursor:pointer">View the deck →</button>
-    <p id="gErr" style="font-size:11.5px;color:#E05B5B;margin-top:9px;min-height:14px"></p>
-    <p style="font-size:10.5px;color:rgba(255,255,255,.35);margin-top:4px">Mohit Pandey · founder@roamwise.co.in</p>
+<section class="slide aurora" id="s12">
+  <div class="slide-inner">
+    <div class="eyebrow">The Ask</div>
+    <h2 class="serif">₹4 crore <span style="color:var(--mist);font-size:.6em">(≈ $480K)</span> for 18 months.</h2>
+    <p class="lead">Deliberately not a $10M round. The smallest first cheque that removes the real constraint — and nothing beyond it.</p>
+    <div class="grid g3" style="margin-top:28px">
+      <div class="card gold"><h3>₹1.6 Cr — Field data</h3><p>Paid contributors verifying cost bands and scam patterns across 40 Indian cities. The moat, funded first.</p></div>
+      <div class="card"><h3>₹1.2 Cr — Two engineers</h3><p>iOS native, regional languages, and removing the single-founder bottleneck.</p></div>
+      <div class="card"><h3>₹1.2 Cr — Reach</h3><p>Creator partnerships and targeted growth — turning a 20% conversion into volume.</p></div>
+    </div>
+    <p class="lead" style="margin-top:26px"><strong>The path:</strong> this seed proves the model and builds the moat → Series A of ~₹25–40 Cr in Year 2–3, raised against a working revenue engine and the ground-truth dataset as the asset, to scale into Southeast Asia.</p>
   </div>
+  <div class="slide-tag"><b>12</b> · The ask</div>
+</section>
+
+<section class="slide" id="s13">
+  <div class="slide-inner rail">
+    <div class="badge">For the institutional VC</div>
+    <h2 class="serif">Why this is venture-scale.</h2>
+    <div class="grid g2">
+      <div class="card"><h3>A category is being recut</h3><p>"The AI you plan travel with" is an unowned position forming right now. The winner in India's mobile-first, AI-first shift can extend across South and Southeast Asia — a multi-hundred-million-user surface.</p></div>
+      <div class="card"><h3>A data asset, not just an app</h3><p>The verified ground-truth layer is a compounding, licensable dataset — valuable independent of the app, and the basis of a durable moat and a real Series A story.</p></div>
+      <div class="card"><h3>Capital efficiency as signal</h3><p>Paying users and a live product on ₹0 raised. This is a founder who converts money into output at an unusual rate — the trait that most predicts a good ownership outcome.</p></div>
+      <div class="card"><h3>Clear path to the next round</h3><p>Defined milestones — data across 40 cities, positive unit economics — make the Series A underwriteable, not hopeful.</p></div>
+    </div>
+  </div>
+  <div class="slide-tag"><b>13</b> · For the VC</div>
+</section>
+
+<section class="slide" id="s14">
+  <div class="slide-inner rail">
+    <div class="badge">For the angel investor</div>
+    <h2 class="serif">Why this is a founder to back early.</h2>
+    <div class="grid g2">
+      <div class="card"><h3>You're betting on the person</h3><p>Solo founder who shipped a live app, earned real payers, and built an entire internal ops system — alone, unfunded, from Almora. Angels win on people at this stage; this is the profile.</p></div>
+      <div class="card"><h3>Honesty as a moat</h3><p>A product that refuses to lie in a category full of hallucinating chatbots. That integrity is rare, hard to fake, and exactly what earns long-term user trust.</p></div>
+      <div class="card"><h3>Small round, real ownership</h3><p>A ₹4 Cr round at this stage means meaningful early ownership in something already working — before the Series A markup.</p></div>
+      <div class="card"><h3>You can actually help</h3><p>Intros to travel, creators, or early users move the needle now. This is a founder who will use your help, not just your cheque.</p></div>
+    </div>
+  </div>
+  <div class="slide-tag"><b>14</b> · For the angel</div>
+</section>
+
+<section class="slide" id="s15">
+  <div class="slide-inner rail">
+    <div class="badge">For the strategic & India-focused investor</div>
+    <h2 class="serif">Why this fits the India thesis.</h2>
+    <div class="grid g2">
+      <div class="card"><h3>Built for Bharat, not adapted to it</h3><p>UPI-native, Hinglish-fluent, mobile-first, and priced for how Indians actually pay — once, not endless subscriptions. This didn't get localised from a Western app; it started here.</p></div>
+      <div class="card"><h3>Tier-2/3 is the growth</h3><p>The next hundred million travellers come online from smaller cities. A trustworthy, low-cost, mobile planner is how they're won — and RoamWise is positioned there.</p></div>
+      <div class="card"><h3>Domestic + outbound, one engine</h3><p>The same product serves a family planning Manali and a professional planning Singapore — capturing both the volume and the high-ARPU corridor.</p></div>
+      <div class="card"><h3>Made in the Himalayas</h3><p>A genuine India-origin story with national-pride and export potential — the kind of company that represents Indian software to the world.</p></div>
+    </div>
+  </div>
+  <div class="slide-tag"><b>15</b> · For India</div>
+</section>
+
+<section class="slide aurora" id="s16">
+  <canvas class="stars" id="stars2"></canvas>
+  <div class="slide-inner">
+    <div class="eyebrow">RoamWise</div>
+    <h1 class="serif">Everyone can plan a trip.<br>Almost nobody plans it <em class="gold">honestly.</em></h1>
+    <p class="lead">We're building the travel planner that earns trust by telling the truth — and turning that trust into the most defensible dataset in Indian travel. Come build it with us.</p>
+    <p class="lead" style="margin-top:24px"><strong>Mohit Pandey</strong> · Founder, RoamWise · founder@roamwise.co.in · roamwise.co.in</p>
+  </div>
+  <div class="slide-tag"><b>16</b> · Thank you</div>
+</section>
+
 </div>
+
 <script>
 (function(){
-  var CFG={apiKey:"AIzaSyDlrtpzpOb1VEmVSd9tHmu7OpmvwWosYsU",authDomain:"roamwisepro.firebaseapp.com",projectId:"roamwisepro",storageBucket:"roamwisepro.firebasestorage.app",messagingSenderId:"299014744987",appId:"1:299014744987:web:d5c316743e6d7a10904f3e"};
-  try{ firebase.initializeApp(CFG); window._db=firebase.firestore(); }catch(e){ window._db=null; }
-})();
-var _leadId=null, _deckStart=Date.now(), _maxSlide=0, _slidesSeen={}, _lastSave=0;
-
-/* If they've already entered on this device, skip the gate. */
-try{
-  var prev=localStorage.getItem('rw_deck_lead');
-  if(prev){ _leadId=prev; document.getElementById('deckGate').style.display='none'; deckTrackStart(); }
-}catch(e){}
-
-function deckEnter(){
-  var name=(document.getElementById('gName').value||'').trim();
-  var role=(document.getElementById('gRole').value||'').trim();
-  var phone=(document.getElementById('gPhone').value||'').trim();
-  var err=document.getElementById('gErr');
-  if(name.length<2){ err.textContent='Please enter your name.'; return; }
-  if(phone.length<5){ err.textContent='A phone or email helps me follow up.'; return; }
-  document.getElementById('gBtn').textContent='Opening…';
-  var lead={ name:name, role:role, contact:phone,
-    at:new Date().toISOString(), ua:navigator.userAgent.slice(0,180),
-    ref:document.referrer||'direct', maxSlide:0, seconds:0, slides:{} };
-  function proceed(id){
-    _leadId=id||('local_'+Date.now());
-    try{ localStorage.setItem('rw_deck_lead', _leadId); }catch(e){}
-    document.getElementById('deckGate').style.display='none';
-    deckTrackStart();
-  }
-  if(window._db){
-    _db.collection('deckleads').add(lead)
-      .then(function(ref){ proceed(ref.id); })
-      .catch(function(e){ /* even if the write fails, don't block the investor */ proceed(null); });
-  } else { proceed(null); }
-}
-
-function deckSave(){
-  if(!_leadId || !window._db || String(_leadId).slice(0,6)==='local_') return;
-  var now=Date.now();
-  if(now-_lastSave < 4000) return;   /* throttle writes */
-  _lastSave=now;
-  var secs=Math.round((now-_deckStart)/1000);
-  _db.collection('deckleads').doc(_leadId).update({
-    maxSlide:_maxSlide, seconds:secs, slides:_slidesSeen,
-    lastSeen:new Date().toISOString()
-  }).catch(function(){});
-}
-
-function deckTrackStart(){
   var slides=[].slice.call(document.querySelectorAll('.slide'));
-  var total=slides.length;
-  if('IntersectionObserver' in window){
-    var io=new IntersectionObserver(function(ents){
-      ents.forEach(function(en){
-        if(en.isIntersecting){
-          var idx=slides.indexOf(en.target)+1;
-          if(idx>_maxSlide) _maxSlide=idx;
-          _slidesSeen['s'+idx]=(_slidesSeen['s'+idx]||0)+1;
-          deckSave();
-        }
-      });
-    }, {threshold:0.5});
-    slides.forEach(function(s){ io.observe(s); });
-  }
-  /* periodic heartbeat so time-on-deck is captured even if they stop scrolling */
-  setInterval(deckSave, 8000);
-  /* final save when they leave */
-  window.addEventListener('beforeunload', function(){
-    if(!_leadId || !window._db || String(_leadId).slice(0,6)==='local_') return;
-    var secs=Math.round((Date.now()-_deckStart)/1000);
-    try{
-      _db.collection('deckleads').doc(_leadId).update({
-        maxSlide:_maxSlide, seconds:secs, slides:_slidesSeen,
-        lastSeen:new Date().toISOString(),
-        completed:(_maxSlide>=total)
-      });
-    }catch(e){}
+  var N=slides.length;
+  slides.forEach(function(sl,idx){
+    var W=1000,H=74,seg=W/(N-1);
+    var pts=[];
+    for(var i=0;i<N;i++){
+      var base=H-14-(Math.sin(i*1.7)*8+Math.cos(i*0.9)*6);
+      var y=(i===idx)?10:base;
+      pts.push([i*seg,y]);
+    }
+    var d='M0,'+H+' L0,'+pts[0][1];
+    for(var i=1;i<N;i++) d+=' L'+pts[i][0].toFixed(0)+','+pts[i][1].toFixed(0);
+    d+=' L'+W+','+H+' Z';
+    var peak=pts[idx];
+    var svg='<svg viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="none">'
+      +'<path class="fillline" d="'+d+'"/>'
+      +'<circle class="peak" cx="'+peak[0].toFixed(0)+'" cy="'+peak[1].toFixed(0)+'" r="4"/></svg>';
+    var div=document.createElement('div'); div.className='ridge'; div.innerHTML=svg;
+    sl.appendChild(div);
   });
-}
+
+  var nav=document.getElementById('nav');
+  slides.forEach(function(sl){ var a=document.createElement('a'); a.href='#'+sl.id; nav.appendChild(a); });
+  var dots=[].slice.call(nav.children);
+  var deck=document.getElementById('deck'); var hint=document.getElementById('hint');
+  function onScroll(){
+    var mid=deck.scrollTop+window.innerHeight/2;
+    slides.forEach(function(sl,i){
+      if(sl.offsetTop<=mid && sl.offsetTop+sl.offsetHeight>mid){
+        dots.forEach(function(d){d.classList.remove('on')}); dots[i].classList.add('on');
+      }
+    });
+    if(deck.scrollTop>40 && hint) hint.style.display='none';
+  }
+  deck.addEventListener('scroll', onScroll); onScroll();
+
+  // animate financial bars from data
+  var rev=[0.04,0.46,2.59,9.90,28.94], eb=[-2.8,-4.6,-5.9,-2.8,11.1], yrs=['Y1','Y2','Y3','Y4','Y5'];
+  var mx=Math.max.apply(null,rev), fc=document.getElementById('finchart');
+  if(fc){
+    rev.forEach(function(v,i){
+      var col=document.createElement('div'); col.className='col';
+      var h=Math.max(2,Math.round(v/mx*100));
+      col.innerHTML='<div class="barwrap"><div class="bar" style="height:0%"></div></div>'
+        +'<div class="rev">₹'+v+'Cr</div>'
+        +'<div class="eb" style="color:'+(eb[i]>=0?'var(--pine)':'var(--alert)')+'">'+(eb[i]>=0?'+':'')+eb[i]+'</div>'
+        +'<div class="yr">'+yrs[i]+'</div>';
+      fc.appendChild(col);
+      setTimeout(function(){ col.querySelector('.bar').style.height=h+'%'; }, 200+i*120);
+    });
+  }
+
+  ['stars','stars2'].forEach(function(id){
+    var c=document.getElementById(id); if(!c) return;
+    function draw(){
+      c.width=c.offsetWidth; c.height=c.offsetHeight;
+      var x=c.getContext('2d');
+      for(var i=0;i<70;i++){
+        var px=Math.random()*c.width, py=Math.random()*c.height, r=Math.random()*1.3;
+        x.beginPath(); x.arc(px,py,r,0,7); x.fillStyle='rgba(242,239,230,'+(Math.random()*0.5+0.1)+')'; x.fill();
+      }
+    }
+    setTimeout(draw,60); window.addEventListener('resize',draw);
+  });
+})();
 </script>
-</body></html>
+</body>
+</html>
