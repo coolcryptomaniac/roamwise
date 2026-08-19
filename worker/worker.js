@@ -27,6 +27,58 @@ const CORS = {
 const json = (o, s = 200) =>
   new Response(JSON.stringify(o), { status: s, headers: { 'Content-Type': 'application/json', ...CORS } });
 
+
+/* ============================================================================
+   STAYING FREE FOREVER — the two settings that matter
+   ============================================================================
+   1. EDGE CACHE. Cloudflare's CDN sits IN FRONT of the Worker. If a response
+      carries Cache-Control, the CDN serves repeat requests itself and the
+      Worker is never invoked — so it never counts against the 100k/day.
+      One cache MISS per city per hour reaches the Worker; everything else is
+      free. This is what lets a million users sit inside the free tier.
+
+   2. NEVER WRITE KV PER REQUEST. KV allows only 1,000 writes/day free (vs
+      100,000 reads). This Worker writes ONLY from the cron — twice a day.
+      Never add a per-user counter or log to KV; that is the one change that
+      would break the free tier overnight.
+   ========================================================================= */
+const EDGE = {
+  events: 3600,   /* 1 hour  — refreshed weekly, so an hour is very safe   */
+  news:   1800,   /* 30 min  — refreshed daily                             */
+  health: 60      /* 1 min   — cheap, but no reason to hammer it           */
+};
+/* Serve from the edge cache if we can; otherwise run `build`, cache, return. */
+async function cached(request, ctx, seconds, build){
+  const cache = caches.default;
+  const key = new Request(new URL(request.url).toString(), request);
+  let hit = await cache.match(key);
+  if(hit) return hit;                       /* Worker did no real work      */
+  const fresh = await build();
+  const res = new Response(fresh.body, fresh);
+  res.headers.set('Cache-Control', `public, max-age=${seconds}`);
+  res.headers.set('X-RW-Cache', 'MISS');
+  /* waitUntil lets us return immediately and store in the background */
+  if(ctx && ctx.waitUntil) ctx.waitUntil(cache.put(key, res.clone()));
+  return res;
+}
+
+
+/* /ai is the ONE route that can cost real money (it calls Groq and cannot be
+   cached). Guard it with a per-IP-per-minute limiter built on the cache API —
+   free, and crucially uses NO KV writes. */
+async function aiRateLimited(request){
+  try{
+    const ip = request.headers.get('CF-Connecting-IP') || 'anon';
+    const minute = Math.floor(Date.now() / 60000);
+    const key = new Request(`https://rl.invalid/ai/${ip}/${minute}`);
+    const cache = caches.default;
+    const seen = await cache.match(key);
+    if(seen) return true;                  /* already used this minute */
+    await cache.put(key, new Response('1', { headers:{ 'Cache-Control':'max-age=60' } }));
+    return false;
+  }catch(e){ return false; }              /* never block on limiter failure */
+}
+
 /* ---------------------------------------------------------------- AI proxy */
 async function handleAI(request, env){
   try{
@@ -110,7 +162,7 @@ async function refreshEvents(env){
 
 /* ------------------------------------------------------------------ router */
 export default {
-  async fetch(request, env){
+  async fetch(request, env, ctx){
     if(request.method === 'OPTIONS') return new Response(null, { headers: CORS });
     const url = new URL(request.url);
     const path = url.pathname.replace(/^\/+|\/+$/g, '');
@@ -126,16 +178,24 @@ export default {
         },
       });
     }
-    if(path === 'ai' && request.method === 'POST') return handleAI(request, env);
+    if(path === 'ai' && request.method === 'POST'){
+      if(await aiRateLimited(request))
+        return json({ error: 'Too many requests — try again in a minute.' }, 429);
+      return handleAI(request, env);
+    }
 
     if(path === 'news'){
-      const cached = env.RW_KV ? await env.RW_KV.get('news', 'json') : null;
-      return json({ items: cached || [], cached: !!cached });
+      return cached(request, ctx, EDGE.news, async () => {
+        const c = env.RW_KV ? await env.RW_KV.get('news', 'json') : null;
+        return json({ items: c || [], cached: !!c });
+      });
     }
     if(path === 'events'){
-      const cached = env.RW_KV ? await env.RW_KV.get('events', 'json') : null;
-      return json(cached || { updated: null, count: 0, events: [],
-        note: 'No cached events yet. The weekly cron fills this, or call /events/refresh?token=…' });
+      return cached(request, ctx, EDGE.events, async () => {
+        const c = env.RW_KV ? await env.RW_KV.get('events', 'json') : null;
+        return json(c || { updated: null, count: 0, events: [],
+          note: 'No cached events yet. The weekly cron fills this, or call /events/refresh?token=…' });
+      });
     }
     if(path === 'events/refresh'){
       if(env.REFRESH_TOKEN && url.searchParams.get('token') !== env.REFRESH_TOKEN)
