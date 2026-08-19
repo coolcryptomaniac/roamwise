@@ -135,6 +135,12 @@ button,select,input,textarea{font:inherit}
 .sn-bar i{display:block;height:100%;background:linear-gradient(90deg,#E8BA6C,#4ADE80);border-radius:8px;transition:width .8s cubic-bezier(.22,1,.36,1)}
 .sn-read{font-size:13px;color:#EDEAE2;line-height:1.55;padding:11px;background:rgba(232,186,108,.06);border:1px solid rgba(232,186,108,.25);border-radius:11px}
 .sn-foot{font-size:10.5px;color:#7C7A74;margin-top:9px;line-height:1.5}
+
+.tg-item{padding:9px 0;border-bottom:1px solid rgba(255,255,255,.05)}
+.tg-top{display:flex;align-items:center;gap:8px;font-size:12.5px;color:#EDEAE2;margin-bottom:5px}
+.tg-bar{height:6px;border-radius:6px;background:rgba(255,255,255,.08);overflow:hidden}
+.tg-bar i{display:block;height:100%;border-radius:6px;transition:width .5s cubic-bezier(.22,1,.36,1)}
+.tg-how{font-size:10.5px;color:#7C7A74;margin-top:4px}
 </style></head><body><div class="wrap">
 <header>
   <div><div class="brand">Roam<em>Wise</em> · team</div><div class="who" id="who">Not signed in</div></div>
@@ -314,7 +320,7 @@ button,select,input,textarea{font:inherit}
   </div>
 </div>
 
-<p class="note" style="margin-top:20px">You only ever see what your role needs. Traveller accounts, saved API keys, private chats and raw payment records are not readable from this page — not hidden, actually blocked at the database.</p>
+<p class="note" style="margin-top:20px"></p>
 
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
@@ -455,18 +461,20 @@ firebase.auth().onAuthStateChanged(function(u){
       return;
     }
     ROLE = role;
-    el('roleTag').innerHTML = '<span class="role '+ROLE+'">'+ROLE+'</span>';
+    /* MULTI-ROLE: data.roles is the full list; role stays as the primary. */
+    window.ROLES = (data && data.roles && data.roles.length) ? data.roles : (ROLE? [ROLE] : []);
+    el('roleTag').innerHTML = ROLES.map(function(r){ return '<span class="role '+r+'">'+r+'</span>'; }).join(' ');
     el('signedOut').classList.add('hide'); el('app').classList.remove('hide');
-    el('finBox').style.display = ROLE==='finance'?'block':'none';
-    el('mktBox').style.display = ROLE==='marketing'?'block':'none';
+    el('finBox').style.display = hasRole('finance')?'block':'none';
+    el('mktBox').style.display = (hasRole('marketing')||hasRole('growth'))?'block':'none';
     el('ordBox').style.display = ROLE==='admin'?'block':'none';
     el('leadBox').style.display = ROLE==='admin'?'block':'none';
     el('hrBox').style.display = ROLE==='admin'?'block':'none';
     el('docBox').style.display = ROLE==='admin'?'block':'none';
     el('finConsoleBox').style.display = ROLE==='admin'?'block':'none';
     el('taxBox').style.display = ROLE==='admin'?'block':'none';
-    el('scoreBox').style.display = (ROLE==='admin'||ROLE==='staff')?'block':'none';
-    el('salesBox').style.display = (ROLE==='admin'||ROLE==='staff')?'block':'none';
+    el('scoreBox').style.display = (ROLE&&ROLE!=='none')?'block':'none';
+    el('salesBox').style.display = (ROLE&&ROLE!=='none')?'block':'none';
     el('myDeskBox').style.display = (ROLE&&ROLE!=='none')?'block':'none';
     el('internAdminBox').style.display = ROLE==='admin'?'block':'none';
     el('pendingBox').style.display = ROLE==='admin'?'block':'none';
@@ -520,11 +528,30 @@ var ROLE_ALIASES={ growth:['growth','marketing'], marketing:['marketing','growth
   engineering:['engineering','eng','tech'], content:['content','marketing'],
   design:['design'], bd:['bd','partnerships'], finance:['finance'],
   ops:['ops','operations'], research:['research'], staff:['staff'], admin:['admin'] };
+/* MULTI-ROLE (rw-v73): a person may hold several roles — useful when you're
+   short-handed and one intern covers content AND growth. ROLES is the full
+   list; ROLE stays as the primary for anything that needs a single value. */
+
+/* does this person hold a given role (primary or secondary)? */
+function hasRole(r){
+  if(ROLE===r) return true;
+  return !!(window.ROLES && ROLES.indexOf(r)>-1);
+}
+function myRoles(){
+  var r=[];
+  if(window.ROLES && ROLES.length) r=ROLES.slice();
+  else if(ROLE) r=[ROLE];
+  /* expand each role through its aliases so legacy task values still match */
+  var out={};
+  r.forEach(function(x){
+    out[x]=1;
+    (ROLE_ALIASES[x]||[]).forEach(function(a){ out[a]=1; });
+  });
+  return Object.keys(out);
+}
 function roleMatches(assignee){
   if(!assignee) return false;
-  if(assignee===ROLE) return true;
-  var al=ROLE_ALIASES[ROLE]||[ROLE];
-  return al.indexOf(assignee)>-1;
+  return myRoles().indexOf(assignee)>-1;
 }
 function loadTasks(){
   if(_taskUnsub){ try{ _taskUnsub(); }catch(e){} _taskUnsub=null; }
@@ -736,7 +763,7 @@ function hrSave(){
 }
 
 /* ==================== DOCUMENTS VAULT ==================== */
-var COMPANY={name:'GYANVERSE / RoamWise', founder:'Mohit Pandey', place:'Almora, Uttarakhand'};
+var COMPANY={name:'RoamWise', founder:'Mohit Pandey', place:'Almora, Uttarakhand'};
 function docLoad(){
   db.collection('hrdocs').orderBy('at','desc').limit(60).get().then(function(qs){
     if(qs.empty){ el('docList').innerHTML='<p class="note">No documents yet. Generate one above.</p>'; return; }
@@ -1012,6 +1039,7 @@ function deskPaint(me, logs, sess, claims){
         ? '<div class="dk-done">✅ Today\'s work is logged. Thank you.</div>'
         : '<button class="btn go" style="width:100%;padding:13px;margin:12px 0" onclick="deskLog()">✍️ Log today\'s work</button>')
     + (sheet? '<a class="btn" style="display:block;text-align:center;text-decoration:none;margin-bottom:10px" href="'+esc(sheet)+'" target="_blank" rel="noopener">📊 Open my Google Sheet ↗</a>' : '')
+    + deskTargetsHTML(me, logs)
     + deskOfferHTML(me)
     + deskTeamLinksHTML()
     + deskPayHTML(me)
@@ -1374,7 +1402,7 @@ function internCertPrint(days, hours, proofs){
     +'.ref{text-align:center;font-size:9px;color:#57554F;letter-spacing:.1em;margin-top:8mm}'
     +'@media print{body{background:#fff}.cert{box-shadow:none}}'
     +'</style></head><body><div class="cert">'
-    +'<div class="mark">RoamWise · GYANVERSE</div>'
+    +'<div class="mark">RoamWise</div>'
     +'<h1>Certificate of Internship</h1>'
     +'<div class="sub">Made in Almora, Uttarakhand</div>'
     +'<div class="awarded">This is awarded to</div>'
@@ -1873,6 +1901,11 @@ function staffReset(){
    the founder sets them once. Defaults are seeded per person below for the
    three current interns so nothing has to be typed twice.
    ========================================================================= */
+
+/* Your electronic signature. Drop a transparent PNG at /assets/signature.png
+   (or paste a data: URL here) and it appears above the line on every letter.
+   Left empty = a plain signature line, which is still perfectly valid. */
+var RW_SIGNATURE = '/assets/signature.png';
 var RW_JOIN_DEFAULTS = {
   /* matched loosely on name, case-insensitive */
   'febin':     '2026-08-11',
@@ -1904,52 +1937,66 @@ function deskOfferPrint(){
   db.collection('staff').doc(user.uid).get().then(function(d){
     var me=d.data()||{};
     var j=rwJoinDate(me);
+    var o=me.offer||{};
+    var months=o.months||3, stipend=(me.pay&&me.pay.stipend)||o.stipend||0;
+    var title=me.title||'Intern';
+    var place=o.place||'Dehradun, Uttarakhand';
+    var issued=o.issued||new Date().toISOString().slice(0,10);
+    var resp=o.responsibilities||'Assigned role tasks, clear reporting, and founder-support work as agreed.';
     var w=window.open('','_blank');
     if(!w){ alert('Allow pop-ups to open your offer letter.'); return; }
-    w.document.write('<!DOCTYPE html><html><head><meta charset="utf-8"><title>Offer Letter — '+esc(me.name||'')+'</title><style>'
-      +'@page{size:A4;margin:0}*{margin:0;padding:0;box-sizing:border-box}'
-      +'body{font-family:Georgia,"Times New Roman",serif;background:#fff;color:#14161c;display:flex;justify-content:center}'
-      +'.pg{width:210mm;min-height:297mm;padding:26mm 22mm;position:relative}'
-      +'.hd{border-bottom:2px solid #C8913E;padding-bottom:10mm;margin-bottom:10mm}'
-      +'.br{font-size:22px;color:#C8913E;letter-spacing:-.01em}'
-      +'.sub{font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:#7a7770;margin-top:3mm}'
-      +'h1{font-size:17px;letter-spacing:.06em;text-transform:uppercase;margin:0 0 7mm;color:#14161c}'
-      +'p{font-size:13.5px;line-height:1.95;margin-bottom:5mm}'
-      +'.box{border:1px solid #e2ded4;background:#faf8f3;border-radius:3mm;padding:7mm;margin:7mm 0}'
-      +'.row{display:flex;justify-content:space-between;font-size:13px;padding:2mm 0;border-bottom:1px solid #eee}'
-      +'.row:last-child{border:none}.row b{color:#14161c}'
-      +'ul{margin:0 0 5mm 6mm}li{font-size:13px;line-height:1.85;margin-bottom:2mm}'
-      +'.sig{margin-top:14mm}.line{width:56mm;border-top:1px solid #14161c;margin-bottom:2mm}'
-      +'.ft{position:absolute;bottom:16mm;left:22mm;right:22mm;font-size:10px;color:#8a8880;text-align:center;border-top:1px solid #eee;padding-top:4mm}'
-      +'</style></head><body><div class="pg">'
-      +'<div class="hd"><div class="br">RoamWise</div><div class="sub">GYANVERSE · Almora, Uttarakhand</div></div>'
-      +'<h1>Internship Offer &amp; Confirmation</h1>'
-      +'<p>Date: '+rwNiceDate(new Date().toISOString().slice(0,10))+'</p>'
-      +'<p>Dear '+esc(me.name||'________')+',</p>'
-      +'<p>We are glad to confirm your internship with <b>RoamWise</b>, an AI travel-planning product built in the Himalayas and used by real travellers across India.</p>'
-      +'<div class="box">'
-      +'<div class="row"><span>Position</span><b>'+esc(me.title||'Intern')+'</b></div>'
-      +'<div class="row"><span>Start date</span><b>'+esc(j? rwNiceDate(j):'________')+'</b></div>'
-      +(me.endDate? '<div class="row"><span>End date</span><b>'+esc(rwNiceDate(me.endDate))+'</b></div>':'')
-      +(me.pay&&me.pay.stipend? '<div class="row"><span>Stipend</span><b>₹'+Number(me.pay.stipend).toLocaleString('en-IN')+' / month</b></div>':'')
-      +'<div class="row"><span>Sales incentive</span><b>30% of every sale you refer</b></div>'
-      +'<div class="row"><span>Location</span><b>Remote</b></div>'
+    function row(a,b){ return '<tr><td class="k">'+a+'</td><td>'+b+'</td></tr>'; }
+    w.document.write('<!DOCTYPE html><html><head><meta charset="utf-8"><title>Internship Offer — '+esc(me.name||'')+'</title><style>'
+      +'@page{size:A4;margin:18mm}*{margin:0;padding:0;box-sizing:border-box}'
+      +'body{font-family:Calibri,Segoe UI,Arial,sans-serif;color:#111;font-size:11pt;line-height:1.55}'
+      +'h1{font-size:15pt;letter-spacing:.04em;text-align:center;margin-bottom:8mm;font-weight:700}'
+      +'.meta{width:100%;border-collapse:collapse;margin-bottom:7mm;font-size:10pt}'
+      +'.meta td{border:1px solid #bbb;padding:2.5mm 3mm}'
+      +'p{margin-bottom:4mm}'
+      +'table.terms{width:100%;border-collapse:collapse;margin:5mm 0 7mm;font-size:10.5pt}'
+      +'table.terms th{background:#f1efe9;border:1px solid #bbb;padding:2.5mm 3mm;text-align:left;font-size:9.5pt;letter-spacing:.06em}'
+      +'table.terms td{border:1px solid #bbb;padding:2.5mm 3mm;vertical-align:top}'
+      +'table.terms td.k{width:34%;font-weight:600}'
+      +'.sigwrap{display:flex;justify-content:space-between;gap:12mm;margin-top:10mm}'
+      +'.sigcol{flex:1}'
+      +'.sigcol .lbl{font-size:9.5pt;color:#555;margin-bottom:2mm}'
+      +'.esign{font-family:Georgia,serif;font-size:14pt;font-style:italic;margin-bottom:1mm}'
+      +'.small{font-size:9pt;color:#555;line-height:1.5}'
+      +'.line{border-bottom:1px solid #111;height:8mm;margin-bottom:1.5mm}'
+      +'</style></head><body>'
+      +'<h1>INTERNSHIP OFFER LETTER</h1>'
+      +'<table class="meta"><tr>'
+        +'<td><b>Date:</b> '+esc(rwNiceDate(issued))+'</td>'
+        +'<td><b>Place:</b> '+esc(place)+'</td>'
+        +'<td><b>Start:</b> '+esc(j? rwNiceDate(j):'________')+'</td>'
+      +'</tr></table>'
+      +'<p>To, '+esc(me.name||'________')+'</p>'
+      +'<p><b>Subject: Internship Offer &mdash; '+esc(title)+'</b></p>'
+      +'<p>Dear '+esc((me.name||'').split(' ')[0]||'________')+',</p>'
+      +'<p>We are pleased to offer you a '+months+'-month internship with RoamWise, beginning '+esc(j? rwNiceDate(j):'________')+', as '+esc(title)+'. '
+      +'The internship is structured as a focused, part-time learning and contribution role with emphasis on useful outcomes, clear communication, and sustainable working hours.</p>'
+      +'<table class="terms"><tr><th>TERM</th><th>DETAIL</th></tr>'
+      + row('Duration', months+' months from '+esc(j? rwNiceDate(j):'________')+'.')
+      + row('Stipend', stipend? ('INR '+Number(stipend).toLocaleString('en-IN')+' per month for each active month of the internship.') : 'As agreed in writing.')
+      + row('Sales incentive', '30% of the value of any RoamWise sale made through your personal referral link, in addition to the stipend.')
+      + row('Working time', 'Approximately 2-4 focused hours per working day, with reasonable flexibility.')
+      + row('Mode', 'Primarily remote/flexible; meetings or in-person activity only when genuinely useful.')
+      + row('Responsibilities', esc(resp))
+      + row('Expenses', 'Travel or other out-of-pocket expenses are reimbursable only when approved in writing before the expense is incurred.')
+      + row('Performance &amp; growth', 'Quality, reliability, communication, initiative and business value will guide continuation. Any stipend increase, bonus, extension or future role is discretionary and not automatic.')
+      + row('Confidentiality &amp; conduct', 'Keep non-public company, customer, investor, product, strategy and access information confidential. Maintain respectful communication, honest reporting and professional conduct. Work created specifically for assigned RoamWise tasks may be used by RoamWise; pre-existing work remains yours.')
+      + row('Exit &amp; status', 'Either side may discontinue with 7 days written notice. RoamWise may end earlier for serious misconduct, confidentiality breach or prolonged non-performance. This internship does not guarantee permanent employment.')
+      +'</table>'
+      +'<p>Please confirm acceptance by signing below or replying in writing that you accept these terms.</p>'
+      +'<div class="sigwrap">'
+        +'<div class="sigcol"><div class="lbl">For RoamWise</div>'
+          +'<div class="esign">/s/ Mohit Pandey</div>'
+          +'<div class="small">Electronically signed by Mohit Pandey<br>Founder, RoamWise<br>'+esc(rwNiceDate(issued))+' &middot; '+esc(place)+'</div></div>'
+        +'<div class="sigcol"><div class="lbl">Accepted by Intern</div>'
+          +'<div class="line"></div>'
+          +'<div class="small">Signature<br>Name: '+esc(me.name||'________')+'<br>Date: ______________________</div></div>'
       +'</div>'
-      +'<p><b>What this internship includes</b></p><ul>'
-      +'<li>Real ownership of live work used by paying customers — not shadow projects.</li>'
-      +'<li>A certificate at the end, generated from your own logged contributions.</li>'
-      +'<li>30% commission on every sale made through your referral link, on top of any stipend.</li>'
-      +'<li>Reimbursement of approved travel done on RoamWise business.</li>'
-      +'</ul>'
-      +'<p><b>What we ask</b></p><ul>'
-      +'<li>Log your work on each day you work — it takes about thirty seconds.</li>'
-      +'<li>Keep RoamWise data, user information and unreleased work confidential.</li>'
-      +'<li>Raise problems early. Nobody minds a blocker; everybody minds a silent week.</li>'
-      +'</ul>'
-      +'<p>We are genuinely glad to have you here.</p>'
-      +'<div class="sig"><div class="line"></div><b>Mohit Pandey</b><br><span style="font-size:11px;color:#7a7770">Founder, RoamWise · GYANVERSE</span></div>'
-      +'<div class="ft">RoamWise · roamwise.co.in · founder@roamwise.co.in · Almora, Uttarakhand</div>'
-      +'</div></body></html>');
+      +'</body></html>');
     w.document.close();
     setTimeout(function(){ try{ w.print(); }catch(e){} }, 500);
   });
@@ -1965,6 +2012,107 @@ function deskTeamLinksHTML(){
     +'<a class="btn" style="display:block;text-align:center;text-decoration:none;margin-bottom:8px" href="'+L.whatsapp+'" target="_blank" rel="noopener">💬 Join the RoamWise WhatsApp community ↗</a>'
     +(L.sheet? '<a class="btn" style="display:block;text-align:center;text-decoration:none;margin-bottom:8px" href="'+L.sheet+'" target="_blank" rel="noopener">📊 Team tracker sheet ↗</a>'
              : '<div class="dk-note">Common team sheet link not set yet — paste it into RW_TEAM_LINKS in staff/index.html.</div>');
+}
+
+
+/* ============================================================================
+   ROLE TARGETS (rw-v73) — what "a good month" means for each role
+   ============================================================================
+   Company-wide numbers (users, paid) are on the scoreboard. These are the
+   things a PERSON in a given role actually controls. Deliberately small,
+   countable, and weekly/monthly — targets nobody believes are worse than none.
+   Founder can override any number per person via staff/{uid}.targets.
+   ========================================================================= */
+var RW_ROLE_TARGETS = {
+  growth: { label:'Growth & Community', items:[
+    { k:'signups',  label:'New sign-ups you brought in', target:40, unit:'/month', how:'Tracked by your referral link' },
+    { k:'sales',    label:'Paid conversions referred',   target:8,  unit:'/month', how:'₹30 commission each' },
+    { k:'outreach', label:'Communities / groups posted in', target:12, unit:'/month', how:'Log it in your daily entry' }
+  ]},
+  content: { label:'Content & Social', items:[
+    { k:'posts',    label:'Posts published',            target:12, unit:'/month', how:'Reels, carousels or shorts' },
+    { k:'stories',  label:'Stories / short updates',    target:30, unit:'/month', how:'Keeps the account alive daily' },
+    { k:'followers',label:'New followers added',        target:250,unit:'/month', how:'Across all our handles' },
+    { k:'reuse',    label:'Pieces reused by others',    target:3,  unit:'/month', how:'Content good enough to repost' }
+  ]},
+  marketing: { label:'Marketing & Sales', items:[
+    { k:'sales',    label:'Paid conversions',           target:10, unit:'/month', how:'₹30 commission each' },
+    { k:'leads',    label:'Qualified leads contacted',  target:60, unit:'/month', how:'Logged in the CRM' },
+    { k:'demos',    label:'Product walkthroughs given', target:8,  unit:'/month', how:'Calls or in-person' }
+  ]},
+  qa: { label:'Product & QA', items:[
+    { k:'bugs',     label:'Real bugs filed',            target:20, unit:'/month', how:'With screenshot + steps' },
+    { k:'devices',  label:'Devices tested on',          target:3,  unit:'/month', how:'Different phones matter' },
+    { k:'passes',   label:'Full test passes done',      target:4,  unit:'/month', how:'One per new build' }
+  ]},
+  engineering: { label:'Engineering', items:[
+    { k:'ships',    label:'Changes shipped live',       target:8,  unit:'/month', how:'Merged and deployed' },
+    { k:'fixes',    label:'Bugs fixed',                 target:12, unit:'/month', how:'From the tracker' },
+    { k:'reviews',  label:'Code reviews given',         target:6,  unit:'/month', how:'Reading others\u2019 work counts' }
+  ]},
+  design: { label:'Design', items:[
+    { k:'screens',  label:'Screens / assets delivered', target:10, unit:'/month', how:'Shipped, not drafts' },
+    { k:'iters',    label:'Design iterations on feedback', target:8, unit:'/month', how:'Revising is the job' }
+  ]},
+  bd: { label:'Partnerships / BD', items:[
+    { k:'pitched',  label:'Creators / partners pitched',target:25, unit:'/month', how:'Logged in the CRM' },
+    { k:'replies',  label:'Replies received',           target:8,  unit:'/month', how:'A reply is real progress' },
+    { k:'signed',   label:'Partnerships signed',        target:2,  unit:'/month', how:'Live collab or referral deal' }
+  ]},
+  finance: { label:'Finance', items:[
+    { k:'recon',    label:'Days books reconciled',      target:20, unit:'/month', how:'Claims vs ledger match' },
+    { k:'claims',   label:'Claims reviewed within 48h', target:100,unit:'%',      how:'Nobody waits on money' }
+  ]},
+  ops: { label:'Operations', items:[
+    { k:'orders',   label:'Orders processed on time',   target:100,unit:'%',      how:'Merch and fulfilment' },
+    { k:'sla',      label:'Support replies within 24h', target:100,unit:'%',      how:'Speed is the product' }
+  ]},
+  research: { label:'Research', items:[
+    { k:'verified', label:'Places / prices verified',   target:60, unit:'/month', how:'This IS our moat' },
+    { k:'cities',   label:'Cities covered',             target:3,  unit:'/month', how:'Depth beats breadth' }
+  ]},
+  staff:  { label:'General', items:[
+    { k:'logs',     label:'Days logged',                target:20, unit:'/month', how:'Consistency is the habit' }
+  ]}
+};
+function deskTargetsHTML(me, logs){
+  var roles=(window.ROLES&&ROLES.length)? ROLES : (ROLE?[ROLE]:[]);
+  var sets=roles.map(function(r){ return RW_ROLE_TARGETS[r]; }).filter(Boolean);
+  if(!sets.length) return '';
+  var over=(me&&me.targets)||{};      /* founder overrides */
+  var prog=(me&&me.progress)||{};     /* self-reported progress this month */
+  var mk=deskMonth();
+  var html='<div class="dk-lab">MY TARGETS THIS MONTH</div>';
+  sets.forEach(function(set){
+    html+='<div class="rs-role-h">'+esc(set.label)+'</div>';
+    set.items.forEach(function(it){
+      var tgt = (over[it.k]!=null)? over[it.k] : it.target;
+      var got = (prog[mk] && prog[mk][it.k]) || 0;
+      var pct = tgt>0? Math.min(100, Math.round(got/tgt*100)) : 0;
+      var done = got>=tgt;
+      html+='<div class="tg-item">'
+        +'<div class="tg-top"><span style="flex:1">'+esc(it.label)+'</span>'
+        +'<b style="color:'+(done?'#4ADE80':'var(--gold)')+'">'+got+'<span style="color:var(--t3);font-weight:600"> / '+tgt+' '+esc(it.unit)+'</span></b></div>'
+        +'<div class="tg-bar"><i style="width:'+pct+'%;background:'+(done?'#4ADE80':'linear-gradient(90deg,#C8913E,#E8BA6C)')+'"></i></div>'
+        +'<div class="tg-how">'+esc(it.how)+' · <a onclick="deskBump(\''+it.k+'\')" style="color:var(--gold);cursor:pointer">+1</a></div>'
+        +'</div>';
+    });
+  });
+  html+='<div class="dk-note">Tap +1 as you go. These are your own numbers — the point is to see where the month is heading, not to be graded.</div>';
+  return html;
+}
+function deskBump(k){
+  if(!user) return;
+  var mk=deskMonth();
+  var path='progress.'+mk+'.'+k;
+  var upd={}; upd[path]=firebase.firestore.FieldValue.increment(1);
+  db.collection('staff').doc(user.uid).set({},{merge:true}).then(function(){
+    return db.collection('staff').doc(user.uid).update(upd);
+  }).then(function(){ deskRender(); }).catch(function(){
+    /* first time the map doesn't exist — create it */
+    var o={progress:{}}; o.progress[mk]={}; o.progress[mk][k]=1;
+    db.collection('staff').doc(user.uid).set(o,{merge:true}).then(deskRender).catch(function(){});
+  });
 }
 
 </script>
