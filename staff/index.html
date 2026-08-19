@@ -154,6 +154,8 @@ button,select,input,textarea{font:inherit}
     <input id="authName" class="inp hide" type="text" placeholder="Your full name">
     <button class="btn go" id="authGo" style="width:100%;padding:12px;margin-top:6px" onclick="authEmailGo()">Sign in</button>
     <p id="authErr" style="font-size:12px;color:#F87171;margin:8px 0 0;min-height:16px"></p>
+    <div style="text-align:center;margin-top:9px"><a onclick="staffReset()" style="font-size:12px;color:var(--gold);cursor:pointer;text-decoration:underline">Forgot password? / Set a password</a>
+    <div style="font-size:11px;color:var(--t3);margin-top:5px;line-height:1.5">Signed in with Google before? Then this account has no password yet — use Google above, or tap here to set one.</div></div>
     <div style="text-align:center;font-size:11px;color:var(--t3);margin:12px 0">or</div>
     <button class="btn" style="width:100%;padding:11px" onclick="doAuth()">Continue with Google</button>
   </div>
@@ -507,14 +509,33 @@ function loadToday(){
     return '<div class="task"><div class="tk"><b>'+esc(t[0])+'</b><p>'+esc(t[1])+'</p></div></div>';
   }).join('') || '<p class="note">No standing routine for this role.</p>';
 }
+/* LIVE (rw-v72): onSnapshot instead of get(), so a task assigned in the admin
+   console appears here within a second — no refresh, no re-login.
+   ALSO FIXED: matches on role OR the person's uid, and treats legacy role
+   names as equivalent, because the admin's dropdown and the staff role string
+   had drifted apart (that was the actual reason Febin saw nothing). */
+var _taskUnsub=null;
+var ROLE_ALIASES={ growth:['growth','marketing'], marketing:['marketing','growth'],
+  qa:['qa','support','product'], support:['support','qa'],
+  engineering:['engineering','eng','tech'], content:['content','marketing'],
+  design:['design'], bd:['bd','partnerships'], finance:['finance'],
+  ops:['ops','operations'], research:['research'], staff:['staff'], admin:['admin'] };
+function roleMatches(assignee){
+  if(!assignee) return false;
+  if(assignee===ROLE) return true;
+  var al=ROLE_ALIASES[ROLE]||[ROLE];
+  return al.indexOf(assignee)>-1;
+}
 function loadTasks(){
-  db.collection('tasks').where('assignee','==',ROLE).limit(50).get().then(function(qs){
-    if(qs.empty){ el('taskList').innerHTML='<p class="note">Nothing assigned right now. The daily routine above is your baseline.</p>'; return; }
+  if(_taskUnsub){ try{ _taskUnsub(); }catch(e){} _taskUnsub=null; }
+  _taskUnsub = db.collection('tasks').limit(100).onSnapshot(function(all){
     var rows=[];
-    qs.forEach(function(doc){
-      var t=doc.data(), st=t.status||'todo';
-      rows.push({id:doc.id,t:t,st:st});
+    all.forEach(function(doc){
+      var t=doc.data()||{}, st=t.status||'todo';
+      var mine = roleMatches(t.assignee) || (t.assigneeUid && user && t.assigneeUid===user.uid);
+      if(mine) rows.push({id:doc.id,t:t,st:st});
     });
+    if(!rows.length){ el('taskList').innerHTML='<p class="note">Nothing assigned right now. The daily routine above is your baseline.</p>'; return; }
     rows.sort(function(a,b){ return (a.st==='done')-(b.st==='done'); });
     el('taskList').innerHTML = rows.map(function(r){
       var t=r.t;
@@ -526,11 +547,12 @@ function loadTasks(){
         + ['todo','doing','done'].map(function(s){ return '<option value="'+s+'"'+(r.st===s?' selected':'')+'>'+s+'</option>'; }).join('')
         +'</select></div>';
     }).join('');
-  }).catch(function(e){ el('taskList').innerHTML='<p class="note">Could not load tasks: '+esc(e.message)+'</p>'; });
+  }, function(e){ el('taskList').innerHTML='<p class="note">Could not load tasks: '+esc(e.message)+'</p>'; });
 }
 function setStatus(id,val){
+  /* no reload needed — the live listener repaints automatically */
   db.collection('tasks').doc(id).update({status:val, updatedAt:new Date().toISOString()})
-    .then(loadTasks).catch(function(e){ alert(e.message); });
+    .catch(function(e){ alert(e.message); });
 }
 function logExpense(){
   var what=el('expWhat').value.trim(), amt=parseFloat(el('expAmt').value);
@@ -990,6 +1012,8 @@ function deskPaint(me, logs, sess, claims){
         ? '<div class="dk-done">✅ Today\'s work is logged. Thank you.</div>'
         : '<button class="btn go" style="width:100%;padding:13px;margin:12px 0" onclick="deskLog()">✍️ Log today\'s work</button>')
     + (sheet? '<a class="btn" style="display:block;text-align:center;text-decoration:none;margin-bottom:10px" href="'+esc(sheet)+'" target="_blank" rel="noopener">📊 Open my Google Sheet ↗</a>' : '')
+    + deskOfferHTML(me)
+    + deskTeamLinksHTML()
     + deskPayHTML(me)
     + deskClaimsHTML(claims)
     + deskDocsHTML(me)
@@ -1824,5 +1848,124 @@ function loadStats(){
         +'<div><b>'+opens+'</b><span>app opens (10d)</span></div>';
     }).catch(function(){ el('statBox').innerHTML='<span class="note">Stats unavailable.</span>'; });
 }
+
+/* Password reset for staff. Also solves the "I signed in with Google so I have
+   no password" case — sending a reset lets you SET a password on that same
+   account, after which both Google and email sign-in work. */
+function staffReset(){
+  var email=((el('authEmail')&&el('authEmail').value)||'').trim();
+  var m=el('authErr');
+  if(!email){ if(m){ m.style.color='#F87171'; m.textContent='Type your email above first, then tap this again.'; } return; }
+  firebase.auth().sendPasswordResetEmail(email).then(function(){
+    if(m){ m.style.color='#4ADE80';
+      m.textContent='Reset link sent to '+email+'. Open it, choose a password, then sign in here. Check spam if it is not there in a minute.'; }
+  }).catch(function(e){
+    if(m){ m.style.color='#F87171';
+      m.textContent = (e&&e.code==='auth/user-not-found') ? 'No account with that email yet — create one first.' : ((e&&e.message)||'Could not send the reset email.'); }
+  });
+}
+
+
+/* ============================================================================
+   OFFER LETTER — generated on the person's own desk (rw-v72)
+   ============================================================================
+   Joining dates are FACTS, so they live on the staff record (joined field) and
+   the founder sets them once. Defaults are seeded per person below for the
+   three current interns so nothing has to be typed twice.
+   ========================================================================= */
+var RW_JOIN_DEFAULTS = {
+  /* matched loosely on name, case-insensitive */
+  'febin':     '2026-08-11',
+  'deepanshi': '2026-08-11',
+  'adarsh':    '2026-08-24'
+};
+function rwJoinDate(me){
+  if(me && me.joined) return me.joined;
+  var n=String((me&&me.name)||'').toLowerCase();
+  for(var k in RW_JOIN_DEFAULTS){ if(n.indexOf(k)>-1) return RW_JOIN_DEFAULTS[k]; }
+  return '';
+}
+function rwNiceDate(d){
+  try{ return new Date(d+'T00:00:00').toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'}); }
+  catch(e){ return d||'—'; }
+}
+function deskOfferHTML(me){
+  var j=rwJoinDate(me);
+  return '<div class="dk-lab">MY INTERNSHIP</div>'
+    +'<div class="pay-box">'
+    +'<div class="pay-row"><span>Role</span><b>'+esc(me.title||me.role||'Intern')+'</b></div>'
+    +'<div class="pay-row"><span>Joined</span><b>'+esc(j? rwNiceDate(j) : 'not set')+'</b></div>'
+    +(me.endDate? '<div class="pay-row"><span>Until</span><b>'+esc(rwNiceDate(me.endDate))+'</b></div>':'')
+    +'</div>'
+    +'<button class="btn" style="width:100%;margin-top:9px" onclick="deskOfferPrint()">📄 View / print my offer letter</button>'
+    +'<div class="dk-note">Generated from your record. If a date looks wrong, tell Mohit — he can correct it in one tap.</div>';
+}
+function deskOfferPrint(){
+  db.collection('staff').doc(user.uid).get().then(function(d){
+    var me=d.data()||{};
+    var j=rwJoinDate(me);
+    var w=window.open('','_blank');
+    if(!w){ alert('Allow pop-ups to open your offer letter.'); return; }
+    w.document.write('<!DOCTYPE html><html><head><meta charset="utf-8"><title>Offer Letter — '+esc(me.name||'')+'</title><style>'
+      +'@page{size:A4;margin:0}*{margin:0;padding:0;box-sizing:border-box}'
+      +'body{font-family:Georgia,"Times New Roman",serif;background:#fff;color:#14161c;display:flex;justify-content:center}'
+      +'.pg{width:210mm;min-height:297mm;padding:26mm 22mm;position:relative}'
+      +'.hd{border-bottom:2px solid #C8913E;padding-bottom:10mm;margin-bottom:10mm}'
+      +'.br{font-size:22px;color:#C8913E;letter-spacing:-.01em}'
+      +'.sub{font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:#7a7770;margin-top:3mm}'
+      +'h1{font-size:17px;letter-spacing:.06em;text-transform:uppercase;margin:0 0 7mm;color:#14161c}'
+      +'p{font-size:13.5px;line-height:1.95;margin-bottom:5mm}'
+      +'.box{border:1px solid #e2ded4;background:#faf8f3;border-radius:3mm;padding:7mm;margin:7mm 0}'
+      +'.row{display:flex;justify-content:space-between;font-size:13px;padding:2mm 0;border-bottom:1px solid #eee}'
+      +'.row:last-child{border:none}.row b{color:#14161c}'
+      +'ul{margin:0 0 5mm 6mm}li{font-size:13px;line-height:1.85;margin-bottom:2mm}'
+      +'.sig{margin-top:14mm}.line{width:56mm;border-top:1px solid #14161c;margin-bottom:2mm}'
+      +'.ft{position:absolute;bottom:16mm;left:22mm;right:22mm;font-size:10px;color:#8a8880;text-align:center;border-top:1px solid #eee;padding-top:4mm}'
+      +'</style></head><body><div class="pg">'
+      +'<div class="hd"><div class="br">RoamWise</div><div class="sub">GYANVERSE · Almora, Uttarakhand</div></div>'
+      +'<h1>Internship Offer &amp; Confirmation</h1>'
+      +'<p>Date: '+rwNiceDate(new Date().toISOString().slice(0,10))+'</p>'
+      +'<p>Dear '+esc(me.name||'________')+',</p>'
+      +'<p>We are glad to confirm your internship with <b>RoamWise</b>, an AI travel-planning product built in the Himalayas and used by real travellers across India.</p>'
+      +'<div class="box">'
+      +'<div class="row"><span>Position</span><b>'+esc(me.title||'Intern')+'</b></div>'
+      +'<div class="row"><span>Start date</span><b>'+esc(j? rwNiceDate(j):'________')+'</b></div>'
+      +(me.endDate? '<div class="row"><span>End date</span><b>'+esc(rwNiceDate(me.endDate))+'</b></div>':'')
+      +(me.pay&&me.pay.stipend? '<div class="row"><span>Stipend</span><b>₹'+Number(me.pay.stipend).toLocaleString('en-IN')+' / month</b></div>':'')
+      +'<div class="row"><span>Sales incentive</span><b>30% of every sale you refer</b></div>'
+      +'<div class="row"><span>Location</span><b>Remote</b></div>'
+      +'</div>'
+      +'<p><b>What this internship includes</b></p><ul>'
+      +'<li>Real ownership of live work used by paying customers — not shadow projects.</li>'
+      +'<li>A certificate at the end, generated from your own logged contributions.</li>'
+      +'<li>30% commission on every sale made through your referral link, on top of any stipend.</li>'
+      +'<li>Reimbursement of approved travel done on RoamWise business.</li>'
+      +'</ul>'
+      +'<p><b>What we ask</b></p><ul>'
+      +'<li>Log your work on each day you work — it takes about thirty seconds.</li>'
+      +'<li>Keep RoamWise data, user information and unreleased work confidential.</li>'
+      +'<li>Raise problems early. Nobody minds a blocker; everybody minds a silent week.</li>'
+      +'</ul>'
+      +'<p>We are genuinely glad to have you here.</p>'
+      +'<div class="sig"><div class="line"></div><b>Mohit Pandey</b><br><span style="font-size:11px;color:#7a7770">Founder, RoamWise · GYANVERSE</span></div>'
+      +'<div class="ft">RoamWise · roamwise.co.in · founder@roamwise.co.in · Almora, Uttarakhand</div>'
+      +'</div></body></html>');
+    w.document.close();
+    setTimeout(function(){ try{ w.print(); }catch(e){} }, 500);
+  });
+}
+/* Shared team links — same for everyone, so they live here not in the DB. */
+var RW_TEAM_LINKS = {
+  whatsapp: 'https://chat.whatsapp.com/I5qdkx0B9D8Bogc9IdoXYE',
+  sheet: ''   /* paste the common Google Sheet URL here */
+};
+function deskTeamLinksHTML(){
+  var L=RW_TEAM_LINKS;
+  return '<div class="dk-lab">TEAM</div>'
+    +'<a class="btn" style="display:block;text-align:center;text-decoration:none;margin-bottom:8px" href="'+L.whatsapp+'" target="_blank" rel="noopener">💬 Join the RoamWise WhatsApp community ↗</a>'
+    +(L.sheet? '<a class="btn" style="display:block;text-align:center;text-decoration:none;margin-bottom:8px" href="'+L.sheet+'" target="_blank" rel="noopener">📊 Team tracker sheet ↗</a>'
+             : '<div class="dk-note">Common team sheet link not set yet — paste it into RW_TEAM_LINKS in staff/index.html.</div>');
+}
+
 </script>
 </div></body></html>
