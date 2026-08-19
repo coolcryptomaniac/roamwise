@@ -124,6 +124,17 @@ button,select,input,textarea{font:inherit}
 .rs-check{font-size:15px;flex:0 0 auto;margin-top:1px}
 .rs-lab{font-size:12.5px;color:#EDEAE2;text-decoration:none}
 .rs-note{font-size:11px;color:#7C7A74;line-height:1.5;margin-top:2px}
+
+/* ===== SALES SNAPSHOT (rw-v68) ===== */
+.sn-row{display:flex;align-items:center;gap:10px;justify-content:center;margin:6px 0 12px}
+.sn{text-align:center;min-width:70px}
+.sn-n{font-size:26px;font-weight:900;color:#EDEAE2;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.sn-k{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:#7C7A74;margin-top:2px}
+.sn-arrow{font-size:18px;color:#57554F}
+.sn-bar{height:8px;border-radius:8px;background:rgba(255,255,255,.07);overflow:hidden;margin-bottom:12px}
+.sn-bar i{display:block;height:100%;background:linear-gradient(90deg,#E8BA6C,#4ADE80);border-radius:8px;transition:width .8s cubic-bezier(.22,1,.36,1)}
+.sn-read{font-size:13px;color:#EDEAE2;line-height:1.55;padding:11px;background:rgba(232,186,108,.06);border:1px solid rgba(232,186,108,.25);border-radius:11px}
+.sn-foot{font-size:10.5px;color:#7C7A74;margin-top:9px;line-height:1.5}
 </style></head><body><div class="wrap">
 <header>
   <div><div class="brand">Roam<em>Wise</em> · team</div><div class="who" id="who">Not signed in</div></div>
@@ -133,7 +144,7 @@ button,select,input,textarea{font:inherit}
 <div id="signedOut">
   <div class="card">
     <h2>Team sign-in</h2>
-    <p class="note">Sign in with your email, or create an account. New accounts get a Staff ID to send to Mohit — he switches on your access from the admin panel.</p>
+    <p class="note">Sign in with Google or your email. New accounts are sent to Mohit for approval automatically — nothing for you to send.</p>
     <div id="authTabs" style="display:flex;gap:6px;margin:14px 0 10px">
       <button class="btn go" id="tabSignin" style="flex:1;padding:9px" onclick="authTab('signin')">Sign in</button>
       <button class="btn" id="tabSignup" style="flex:1;padding:9px" onclick="authTab('signup')">Create account</button>
@@ -237,6 +248,13 @@ button,select,input,textarea{font:inherit}
       <button class="btn go" onclick="internAdd()">➕ Add a person</button>
       <button class="btn" onclick="internRefresh()">↻ Refresh</button>
     </div>
+  </div>
+
+  <div class="card" id="salesBox" style="display:none">
+    <div class="lab">📈 Sales snapshot</div>
+    <p class="note">The one number to move: how many sign-ups turn into paying users. Watch it, and try things that push it up.</p>
+    <div id="salesOut"><p class="note">Loading…</p></div>
+    <button class="btn" style="margin-top:10px" onclick="salesRefresh()">↻ Refresh</button>
   </div>
 
   <div class="card" id="scoreBox" style="display:none">
@@ -412,17 +430,26 @@ firebase.auth().onAuthStateChanged(function(u){
     var data = d.data()||{};
     var role = data.role||'none';
     if(role==='none' || !role){
-      /* Signed in fine, but not activated. Show the friendly Staff ID + clear reason. */
-      var sid = data.staffId || ('RW-'+u.uid.replace(/[^a-zA-Z0-9]/g,'').slice(-4).toUpperCase());
+      /* Signed in fine, but not activated yet. NOTHING for them to do — the
+         founder already sees them in the admin app's approval list. A warm
+         welcome beats a chore. */
       el('signedOut').classList.remove('hide'); el('app').classList.add('hide');
-      el('signedOut').innerHTML='<div class="card"><h2>Almost there \u2014 access pending</h2>'
-        +'<p class="note">Your account is created and working. You just need the founder to switch on your access. Send him your Staff ID below.</p>'
-        +'<div style="margin:14px 0;padding:14px;background:rgba(232,186,108,.1);border:1px solid rgba(232,186,108,.3);border-radius:10px;text-align:center">'
-          +'<div style="font-size:10px;letter-spacing:.1em;color:var(--t3);text-transform:uppercase">Your Staff ID</div>'
-          +'<div style="font-size:24px;font-weight:800;font-family:monospace;color:var(--gold);margin-top:3px">'+esc(sid)+'</div></div>'
-        +'<button class="btn go" style="width:100%;padding:11px" onclick="navigator.clipboard.writeText(\''+esc(sid)+'\').then(function(){this.textContent=\'Copied!\';}.bind(this))">Copy Staff ID</button>'
-        +'<a class="btn" style="width:100%;padding:11px;margin-top:8px;text-decoration:none;display:block;text-align:center;box-sizing:border-box" href="mailto:founder@roamwise.co.in?subject=Staff%20access%20request&body='+encodeURIComponent('Hi Mohit, please activate my staff access.\n\nName: '+(data.name||'')+'\nStaff ID: '+sid+'\nEmail: '+(u.email||''))+'">Email it to Mohit</a>'
-        +'<p class="note" style="margin-top:10px">Signed in as '+esc(u.email||'')+' \u00b7 <a href="#" onclick="firebase.auth().signOut();return false" style="color:var(--gold)">sign out</a></p></div>';
+      el('signedOut').innerHTML='<div class="card" style="text-align:center">'
+        +'<div style="font-size:44px;margin-bottom:6px">\ud83c\udfd4\ufe0f</div>'
+        +'<h2 style="margin-bottom:6px">Welcome to RoamWise, '+esc((data.name||u.displayName||'').split(' ')[0]||'friend')+'</h2>'
+        +'<p class="note" style="margin-bottom:16px">You\u2019re signed in and your request has already reached Mohit \u2014 there\u2019s nothing you need to send. He\u2019ll switch on your access and your desk will appear right here.</p>'
+        +'<div style="background:rgba(232,186,108,.08);border:1px solid rgba(232,186,108,.28);border-radius:12px;padding:14px;text-align:left;margin-bottom:14px">'
+        +'<div style="font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--t3);margin-bottom:8px">What happens next</div>'
+        +'<div style="font-size:12.5px;color:var(--t2);line-height:1.9">'
+        +'<div>\u2713 &nbsp;You signed in \u2014 done</div>'
+        +'<div>\u23f3 &nbsp;Mohit approves you and picks your role</div>'
+        +'<div>\ud83e\ude91 &nbsp;Your desk unlocks: daily log, resources, documents</div>'
+        +'</div></div>'
+        +'<div style="font-size:12px;color:var(--t2);line-height:1.7;text-align:left">'
+        +'<b style="color:var(--gold)">While you wait</b><br>Have a look at <a href="/" style="color:var(--gold)">roamwise.co.in</a> and try planning a trip. Noticing something broken or confusing is genuinely the most useful thing a new joiner can do here \u2014 bring it to your first conversation.</div>'
+        +'<button class="btn" style="width:100%;padding:11px;margin-top:16px" onclick="location.reload()">\u21bb Check again</button>'
+        +'<div class="note" style="margin-top:10px">Signed in as '+esc(u.email||'')+'</div>'
+        +'</div>';
       return;
     }
     ROLE = role;
@@ -437,6 +464,7 @@ firebase.auth().onAuthStateChanged(function(u){
     el('finConsoleBox').style.display = ROLE==='admin'?'block':'none';
     el('taxBox').style.display = ROLE==='admin'?'block':'none';
     el('scoreBox').style.display = (ROLE==='admin'||ROLE==='staff')?'block':'none';
+    el('salesBox').style.display = (ROLE==='admin'||ROLE==='staff')?'block':'none';
     el('myDeskBox').style.display = (ROLE&&ROLE!=='none')?'block':'none';
     el('internAdminBox').style.display = ROLE==='admin'?'block':'none';
     el('pendingBox').style.display = ROLE==='admin'?'block':'none';
@@ -454,7 +482,7 @@ firebase.auth().onAuthStateChanged(function(u){
     if(ROLE==='admin') taxLoad();
     if(ROLE&&ROLE!=='none'){ setTimeout(function(){ try{ deskRender(); }catch(e){} }, 450); }
     if(ROLE==='admin'){ setTimeout(function(){ try{ pendingRefresh(); internRefresh(); }catch(e){} }, 700); }
-    if(ROLE==='admin'||ROLE==='staff'){ setTimeout(function(){ try{ scoreRefresh(); }catch(e){} }, 500); }
+    if(ROLE==='admin'||ROLE==='staff'){ setTimeout(function(){ try{ scoreRefresh(); salesRefresh(); }catch(e){} }, 500); }
     if(ROLE==='admin'){ setTimeout(function(){ try{ invRender(); contactsRender(); }catch(e){} }, 400); }
   }).catch(function(e){ el('signedOut').innerHTML='<div class="card"><p class="note">Could not check your role: '+esc(e.message)+'</p></div>'; });
 });
@@ -1406,6 +1434,44 @@ function pendingSaveActivate(uid){
     status:'active', activatedAt:firebase.firestore.FieldValue.serverTimestamp()
   },{merge:true}).then(function(){ closeModal(); pendingRefresh(); internRefresh(); })
    .catch(function(){ alert('Could not activate.'); });
+}
+
+
+/* ============================================================================
+   SALES SNAPSHOT (rw-v68) — registered vs paid, the number staff can move
+   ============================================================================
+   Pulls the same live counts as the scoreboard, but frames them as ONE
+   actionable ratio: conversion. Staff watch this to see if what they're
+   trying is working. Counts are live from Firestore; if the DB isn't ready
+   the card says so rather than showing a fake number. */
+function salesRefresh(){
+  var host=el('salesOut'); if(!host) return;
+  host.innerHTML='<p class="note">Counting…</p>';
+  if(typeof db==='undefined' || !db){ host.innerHTML='<p class="note">Not connected.</p>'; return; }
+  var pu=db.collection('users').get().then(function(qs){ return qs.size; }).catch(function(){ return 0; });
+  var pp=db.collection('claims').get().then(function(qs){ return qs.size; }).catch(function(){ return 0; });
+  Promise.all([pu,pp]).then(function(r){
+    var reg=r[0]||0, paid=r[1]||0;
+    var conv = reg>0 ? (paid/reg*100) : 0;
+    var free = Math.max(0, reg-paid);
+    // plain-language read
+    var read;
+    if(reg<10) read='Still early — every new sign-up matters most right now. Focus on getting real users in.';
+    else if(conv>=15) read='Strong conversion. Whatever you\u2019re doing is working — do more of it.';
+    else if(conv>=5) read='Healthy conversion. Small nudges (a reminder, a better Pro pitch) could lift it further.';
+    else read='Lots of sign-ups aren\u2019t paying yet. Worth asking a few of them why, and trying a clearer Pro offer.';
+    host.innerHTML=
+       '<div class="sn-row">'
+      +'<div class="sn"><div class="sn-n">'+reg.toLocaleString('en-IN')+'</div><div class="sn-k">registered</div></div>'
+      +'<div class="sn-arrow">→</div>'
+      +'<div class="sn"><div class="sn-n" style="color:#4ADE80">'+paid.toLocaleString('en-IN')+'</div><div class="sn-k">paid</div></div>'
+      +'<div class="sn-arrow">=</div>'
+      +'<div class="sn"><div class="sn-n" style="color:#E8BA6C">'+conv.toFixed(conv<10?1:0)+'%</div><div class="sn-k">convert</div></div>'
+      +'</div>'
+      +'<div class="sn-bar"><i style="width:'+Math.min(100,conv).toFixed(0)+'%"></i></div>'
+      +'<div class="sn-read">'+read+'</div>'
+      +'<div class="sn-foot">'+free.toLocaleString('en-IN')+' free users are your warmest leads \u2014 they already chose RoamWise. Live from the database.</div>';
+  });
 }
 
 /* ============================================================================
