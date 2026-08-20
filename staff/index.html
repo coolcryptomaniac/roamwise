@@ -160,6 +160,13 @@ button,select,input,textarea{font:inherit}
 .ref-btns .btn{flex:1;font-size:12.5px;padding:10px 6px}
 
 .sh-box{background:var(--bg3);border:1px solid var(--b2);border-radius:13px;padding:13px;margin-bottom:8px}
+
+.sn-live{display:inline-block;color:#4ADE80;font-weight:800;font-size:9.5px;letter-spacing:.1em;
+  animation:snPulse 2s ease-in-out infinite;margin-right:4px}
+@keyframes snPulse{0%,100%{opacity:1}50%{opacity:.35}}
+
+.pn-sum{font-size:12.5px;color:var(--t2);padding:8px 0;border-bottom:1px solid var(--b1)}
+.pn-row{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--t2);padding:7px 0;border-bottom:1px solid rgba(255,255,255,.04)}
 </style></head><body><div class="wrap">
 <header>
   <div><div class="brand">Roam<em>Wise</em> · team</div><div class="who" id="who">Not signed in</div></div>
@@ -1005,6 +1012,7 @@ function deskRender(){
     me=d.data()||{};
     window._deskProgress = me.resourceProgress || {};
     window._deskPlanDone = me.planDone || {};
+    try{ setTimeout(myPartnersLoad, 700); }catch(e){}
     return db.collection('staff').doc(user.uid).collection('logs')
       .orderBy('date','desc').limit(30).get();
   }).then(function(qs){
@@ -1059,6 +1067,7 @@ function deskPaint(me, logs, sess, claims){
         ? '<div class="dk-done">✅ Today\'s work is logged. Thank you.</div>'
         : '<button class="btn go" style="width:100%;padding:13px;margin:12px 0" onclick="deskLog()">✍️ Log today\'s work</button>')
     + (sheet? '<a class="btn" style="display:block;text-align:center;text-decoration:none;margin-bottom:10px" href="'+esc(sheet)+'" target="_blank" rel="noopener">📊 Open my Google Sheet ↗</a>' : '')
+    + deskPartnerHTML(me)
     + deskRefHTML(me)
     + deskPlanHTML(me)
     + deskTargetsHTML(me, logs)
@@ -1520,32 +1529,37 @@ function pendingSaveActivate(uid){
    the card says so rather than showing a fake number. */
 function salesRefresh(){
   var host=el('salesOut'); if(!host) return;
-  host.innerHTML='<p class="note">Counting…</p>';
+  host.innerHTML='<p class="note">Counting\u2026</p>';
   if(typeof db==='undefined' || !db){ host.innerHTML='<p class="note">Not connected.</p>'; return; }
-  var pu=db.collection('users').get().then(function(qs){ return qs.size; }).catch(function(){ return 0; });
-  var pp=db.collection('claims').get().then(function(qs){ return qs.size; }).catch(function(){ return 0; });
-  Promise.all([pu,pp]).then(function(r){
-    var reg=r[0]||0, paid=r[1]||0;
+  /* LIVE (rw-v80): onSnapshot, so the numbers move the moment someone signs up
+     or a payment is approved — no refresh, no re-login. */
+  var reg=null, paid=null;
+  function paint(){
+    if(reg===null||paid===null) return;
     var conv = reg>0 ? (paid/reg*100) : 0;
     var free = Math.max(0, reg-paid);
-    // plain-language read
     var read;
-    if(reg<10) read='Still early — every new sign-up matters most right now. Focus on getting real users in.';
-    else if(conv>=15) read='Strong conversion. Whatever you\u2019re doing is working — do more of it.';
-    else if(conv>=5) read='Healthy conversion. Small nudges (a reminder, a better Pro pitch) could lift it further.';
-    else read='Lots of sign-ups aren\u2019t paying yet. Worth asking a few of them why, and trying a clearer Pro offer.';
+    if(reg<10) read='Still early \u2014 every new sign-up matters most right now.';
+    else if(conv>=15) read='Strong conversion. Whatever you\u2019re doing is working \u2014 do more of it.';
+    else if(conv>=5) read='Healthy conversion. Small nudges could lift it further.';
+    else read='Lots of sign-ups aren\u2019t paying yet. Worth asking a few of them why.';
     host.innerHTML=
        '<div class="sn-row">'
-      +'<div class="sn"><div class="sn-n">'+reg.toLocaleString('en-IN')+'</div><div class="sn-k">registered</div></div>'
-      +'<div class="sn-arrow">→</div>'
+      +'<div class="sn"><div class="sn-n" id="snReg">'+reg.toLocaleString('en-IN')+'</div><div class="sn-k">registered</div></div>'
+      +'<div class="sn-arrow">\u2192</div>'
       +'<div class="sn"><div class="sn-n" style="color:#4ADE80">'+paid.toLocaleString('en-IN')+'</div><div class="sn-k">paid</div></div>'
       +'<div class="sn-arrow">=</div>'
       +'<div class="sn"><div class="sn-n" style="color:#E8BA6C">'+conv.toFixed(conv<10?1:0)+'%</div><div class="sn-k">convert</div></div>'
       +'</div>'
       +'<div class="sn-bar"><i style="width:'+Math.min(100,conv).toFixed(0)+'%"></i></div>'
       +'<div class="sn-read">'+read+'</div>'
-      +'<div class="sn-foot">'+free.toLocaleString('en-IN')+' free users are your warmest leads \u2014 they already chose RoamWise. Live from the database.</div>';
-  });
+      +'<div class="sn-foot"><span class="sn-live">\u25cf LIVE</span> '+free.toLocaleString('en-IN')+' free users are your warmest leads \u2014 they already chose RoamWise. Updates the moment anything changes.</div>';
+  }
+  db.collection('users').onSnapshot(function(qs){ reg=qs.size; paint(); }, function(){ reg=0; paint(); });
+  db.collection('claims').onSnapshot(function(qs){
+    var n=0; qs.forEach(function(d){ var c=d.data()||{}; if(c.status==='approved') n++; });
+    paid=n; paint();
+  }, function(){ paid=0; paint(); });
 }
 
 /* ============================================================================
@@ -2313,6 +2327,96 @@ function showToastS(m){
   t.style.cssText='position:fixed;left:50%;bottom:26px;transform:translateX(-50%);z-index:9999;background:#E8BA6C;color:#0A0A0C;font-weight:800;padding:11px 18px;border-radius:24px;font-size:13.5px;box-shadow:0 6px 24px rgba(0,0,0,.4)';
   document.body.appendChild(t);
   setTimeout(function(){ t.style.opacity='0'; t.style.transition='opacity .4s'; setTimeout(function(){ t.remove(); },420); }, 1900);
+}
+
+
+/* ============================================================================
+   PARTNER ONBOARDING (rw-v81) — for Deepanshi and any B2B intern
+   ============================================================================
+   One screen. No code file, no deploy. Writes straight to Firestore
+   config/partners, which the app reads. Designed so onboarding the 500th
+   partner is exactly as easy as the first — the whole point of scaling.
+   ========================================================================= */
+var RW_COMM = {
+  stay:      { pct:8,  label:'Homestay / boutique stay' },
+  adventure: { pct:12, label:'Adventure / experience operator' },
+  transport: { pct:5,  label:'Driver / transport' },
+  agency:    { pct:10, label:'Travel agency' },
+  creator:   { pct:15, label:'Creator-led trip' },
+  listing:   { pct:0,  label:'Free listing (no commission)' }
+};
+function deskPartnerHTML(me){
+  if(!hasRole('bd') && !hasRole('growth') && !hasRole('marketing') && ROLE!=='admin') return '';
+  return '<div class="dk-lab">ADD A PARTNER</div>'
+    +'<div class="dk-note" style="margin-bottom:9px">Signed up a homestay or operator? Add them here \u2014 they appear in the app within seconds. No code, no waiting on Mohit.</div>'
+    +'<button class="btn go" style="width:100%;padding:12px" onclick="openPartnerAdd()">\ud83e\udd1d Onboard a business</button>'
+    +'<div id="myPartnersOut" style="margin-top:10px"></div>';
+}
+function openPartnerAdd(){
+  var opts=Object.keys(RW_COMM).map(function(k){
+    return '<option value="'+k+'">'+RW_COMM[k].label+' \u2014 '+RW_COMM[k].pct+'%</option>';
+  }).join('');
+  showModal('<div class="card" style="max-height:82vh;overflow:auto"><h3 style="margin:0 0 4px">\ud83e\udd1d Onboard a business</h3>'
+    +'<p class="note" style="margin-bottom:10px">Only the first three are required. Everything else can be filled in later.</p>'
+    +'<label class="lab">Business name *</label><input id="pa_name" class="inp" placeholder="e.g. Hygge Home Manali">'
+    +'<label class="lab">Type *</label><select id="pa_cat" class="inp">'+opts+'</select>'
+    +'<label class="lab">City / zone *</label><input id="pa_zone" class="inp" placeholder="e.g. Manali">'
+    +'<label class="lab">Area / locality</label><input id="pa_area" class="inp" placeholder="e.g. Khaknal">'
+    +'<label class="lab">Contact person</label><input id="pa_person" class="inp">'
+    +'<label class="lab">Phone</label><input id="pa_phone" class="inp" type="tel">'
+    +'<label class="lab">Email</label><input id="pa_email" class="inp" type="email">'
+    +'<label class="lab">Google rating (if known)</label><input id="pa_rating" class="inp" type="number" step="0.1" placeholder="4.8">'
+    +'<label class="lab">Number of reviews</label><input id="pa_reviews" class="inp" type="number" placeholder="92">'
+    +'<label class="lab">What makes them worth recommending?</label>'
+    +'<textarea id="pa_hook" class="inp" rows="2" placeholder="One honest line a traveller would care about"></textarea>'
+    +'<label class="lab">Status</label><select id="pa_ver" class="inp">'
+      +'<option value="listed">Researched \u2014 not signed yet</option>'
+      +'<option value="signed">MoU signed \u2014 verified partner</option></select>'
+    +'<div class="dk-note" style="margin:8px 0">Only mark <b>MoU signed</b> when you actually hold a signed document. The app shows a verified badge for those, and we do not imply a relationship that does not exist.</div>'
+    +'<div style="display:flex;gap:8px;margin-top:12px"><button class="btn go" style="flex:1;padding:11px" onclick="savePartner()">Add partner</button>'
+    +'<button class="btn" style="padding:11px" onclick="closeModal()">Cancel</button></div></div>');
+}
+function savePartner(){
+  var name=(el('pa_name').value||'').trim();
+  var zone=(el('pa_zone').value||'').trim();
+  if(!name||!zone){ alert('Business name and city are required.'); return; }
+  var cat=el('pa_cat').value;
+  var rec={
+    id:'p_'+name.toLowerCase().replace(/[^a-z0-9]/g,'').slice(0,18)+'_'+Date.now().toString(36).slice(-4),
+    name:name, cat:cat, zone:zone, area:(el('pa_area').value||'').trim(),
+    person:(el('pa_person').value||'').trim(), phone:(el('pa_phone').value||'').trim(),
+    email:(el('pa_email').value||'').trim(),
+    rating:parseFloat(el('pa_rating').value)||null,
+    reviews:parseInt(el('pa_reviews').value,10)||null,
+    hook:(el('pa_hook').value||'').trim(),
+    verified:el('pa_ver').value,
+    commissionPct:RW_COMM[cat].pct,
+    addedBy:(user&&user.uid)||'', addedByName:(user&&user.displayName)||'',
+    at:new Date().toISOString()
+  };
+  db.collection('config').doc('partners').get().then(function(d){
+    var list=(d.exists && Array.isArray((d.data()||{}).list)) ? d.data().list : [];
+    if(list.some(function(x){ return String(x.name||'').toLowerCase()===name.toLowerCase() && x.zone===zone; })){
+      alert(name+' is already listed in '+zone+'.'); return null;
+    }
+    list.push(rec);
+    return db.collection('config').doc('partners').set({ list:list, updatedAt:new Date().toISOString() },{merge:true});
+  }).then(function(r){ if(r!==null){ closeModal(); myPartnersLoad(); showToastS('\u2705 '+name+' added \u2014 live in the app now'); } })
+   .catch(function(e){ alert(e.message); });
+}
+function myPartnersLoad(){
+  var host=el('myPartnersOut'); if(!host||!user) return;
+  db.collection('config').doc('partners').get().then(function(d){
+    var list=(d.exists && Array.isArray((d.data()||{}).list)) ? d.data().list : [];
+    var mine=list.filter(function(p){ return p.addedBy===user.uid; });
+    if(!mine.length){ host.innerHTML='<div class="dk-note">You haven\u2019t added any partners yet.</div>'; return; }
+    var signed=mine.filter(function(p){ return p.verified==='signed'; }).length;
+    host.innerHTML='<div class="pn-sum"><b>'+mine.length+'</b> added \u00b7 <b style="color:#4ADE80">'+signed+'</b> signed</div>'
+      + mine.slice(-6).reverse().map(function(p){
+          return '<div class="pn-row"><span style="flex:1">'+esc(p.name)+' <span class="dk-note" style="margin:0">'+esc(p.zone)+'</span></span>'
+            +'<span class="pay-tag '+(p.verified==='signed'?'ok':'due')+'">'+(p.verified==='signed'?'signed':'listed')+'</span></div>';
+        }).join('');
+  }).catch(function(){});
 }
 
 </script>
