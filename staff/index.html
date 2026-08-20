@@ -141,6 +141,16 @@ button,select,input,textarea{font:inherit}
 .tg-bar{height:6px;border-radius:6px;background:rgba(255,255,255,.08);overflow:hidden}
 .tg-bar i{display:block;height:100%;border-radius:6px;transition:width .5s cubic-bezier(.22,1,.36,1)}
 .tg-how{font-size:10.5px;color:#7C7A74;margin-top:4px}
+
+.pl-months{display:flex;gap:7px;margin-bottom:12px}
+.pl-m{flex:1;text-align:center;font-size:10.5px;padding:7px 4px;border-radius:9px;border:1px solid var(--b2);color:var(--t3)}
+.pl-m.past{border-color:rgba(74,222,128,.35);color:#4ADE80}
+.pl-m.on{border-color:var(--gold);background:rgba(232,186,108,.1);color:var(--gold);font-weight:800}
+.pl-blk{border-left:2px solid var(--b2);padding:9px 0 9px 12px;margin-bottom:10px;opacity:.55}
+.pl-blk.on{border-left-color:var(--gold);opacity:1}
+.pl-h{font-size:12px;color:var(--t2);margin-bottom:6px}
+.pl-h b{color:var(--t1)}
+.pl-g{display:flex;gap:9px;align-items:flex-start;font-size:12.5px;color:var(--t2);padding:5px 0;cursor:pointer;line-height:1.5}
 </style></head><body><div class="wrap">
 <header>
   <div><div class="brand">Roam<em>Wise</em> · team</div><div class="who" id="who">Not signed in</div></div>
@@ -985,6 +995,7 @@ function deskRender(){
   db.collection('staff').doc(user.uid).get().then(function(d){
     me=d.data()||{};
     window._deskProgress = me.resourceProgress || {};
+    window._deskPlanDone = me.planDone || {};
     return db.collection('staff').doc(user.uid).collection('logs')
       .orderBy('date','desc').limit(30).get();
   }).then(function(qs){
@@ -1039,6 +1050,7 @@ function deskPaint(me, logs, sess, claims){
         ? '<div class="dk-done">✅ Today\'s work is logged. Thank you.</div>'
         : '<button class="btn go" style="width:100%;padding:13px;margin:12px 0" onclick="deskLog()">✍️ Log today\'s work</button>')
     + (sheet? '<a class="btn" style="display:block;text-align:center;text-decoration:none;margin-bottom:10px" href="'+esc(sheet)+'" target="_blank" rel="noopener">📊 Open my Google Sheet ↗</a>' : '')
+    + deskPlanHTML(me)
     + deskTargetsHTML(me, logs)
     + deskOfferHTML(me)
     + deskTeamLinksHTML()
@@ -2113,6 +2125,111 @@ function deskBump(k){
     var o={progress:{}}; o.progress[mk]={}; o.progress[mk][k]=1;
     db.collection('staff').doc(user.uid).set(o,{merge:true}).then(deskRender).catch(function(){});
   });
+}
+
+
+/* ============================================================================
+   3-MONTH INTERNSHIP PLAN (rw-v77)
+   ============================================================================
+   Calibrated for an AVERAGE performer, not a star — a plan people actually hit
+   is worth more than an ambitious one they quietly give up on in week three.
+   Month 1 is deliberately light (learning the product IS the work).
+   Founder can override any number via staff/{uid}.plan.
+   ========================================================================= */
+var RW_ROLE_PLAN = {
+  growth: { label:'Growth & Community', months:[
+    { m:1, t:'Learn & start', goals:['Join 15 travel groups/communities','20 sign-ups referred','Post in 8 communities','Read the handbook + use the app for a real trip'] },
+    { m:2, t:'Find what works', goals:['40 sign-ups referred','5 paid conversions','Run 2 WhatsApp-group campaigns','Report which channel converts best'] },
+    { m:3, t:'Double down', goals:['70 sign-ups referred','12 paid conversions','1 community partnership signed','Write a 1-page playbook for the next intern'] }
+  ]},
+  content: { label:'Content & Social', months:[
+    { m:1, t:'Voice & rhythm', goals:['8 posts published','20 stories','Find our tone — 3 sample formats','+150 followers'] },
+    { m:2, t:'Volume & reach', goals:['14 posts','40 stories','5,000 total views','+400 followers','2 posts crossing 1,000 views'] },
+    { m:3, t:'Repeatable', goals:['16 posts','50 stories','15,000 total views','+800 followers','300 likes & 60 shares in the month','A content calendar the next person can run'] }
+  ]},
+  marketing: { label:'Marketing & Sales', months:[
+    { m:1, t:'Learn the pitch', goals:['Talk to 20 potential users','5 paid conversions','30 leads logged in CRM','Understand every objection'] },
+    { m:2, t:'Convert', goals:['12 paid conversions','60 leads contacted','6 product walkthroughs','Write down the 5 objections that kill deals'] },
+    { m:3, t:'Scale', goals:['25 paid conversions','100 leads contacted','50 app installs attributed','A pitch script that works without you'] }
+  ]},
+  qa: { label:'Product & QA', months:[
+    { m:1, t:'Break it', goals:['15 real bugs filed with screenshots','Test on 2 devices','Complete 2 full test passes','Learn the issue format'] },
+    { m:2, t:'Go deeper', goals:['25 bugs filed','3 devices incl. a low-end phone','4 test passes','Find 2 bugs users would have hit'] },
+    { m:3, t:'Own quality', goals:['30 bugs filed','Test every new build within 24h','Write the regression checklist','Zero critical bugs reaching users this month'] }
+  ]},
+  engineering: { label:'Engineering', months:[
+    { m:1, t:'Get oriented', goals:['Set up the project and ship 2 small changes','Fix 5 bugs from the tracker','Read the Firestore rules end to end'] },
+    { m:2, t:'Ship real work', goals:['6 changes shipped live','12 bugs fixed','1 feature owned start to finish','Review 3 pieces of others\u2019 work'] },
+    { m:3, t:'Own an area', goals:['10 changes shipped','15 bugs fixed','1 meaningful feature live for users','Document what you built'] }
+  ]},
+  design: { label:'Design', months:[
+    { m:1, t:'Learn the language', goals:['6 screens or assets delivered','Understand the design tokens','1 improvement proposal'] },
+    { m:2, t:'Ship', goals:['10 assets shipped','2 full screens redesigned','5 iterations on feedback'] },
+    { m:3, t:'Raise the bar', goals:['12 assets shipped','1 flow visibly better than before','A mini style guide the team can reuse'] }
+  ]},
+  bd: { label:'Partnerships / BD', months:[
+    { m:1, t:'Build the list', goals:['Research 60 creators/partners','Pitch 15','Get 3 replies','Learn what they care about'] },
+    { m:2, t:'Get to yes', goals:['Pitch 30','8 replies','1 partnership signed','A pitch template that works'] },
+    { m:3, t:'Close', goals:['Pitch 40','3 partnerships signed','1 collab actually live','Hand over a warm pipeline'] }
+  ]},
+  investor: { label:'Investor Relations', months:[
+    { m:1, t:'Learn the story', goals:['Know the deck cold','Research 40 relevant angels/funds','Draft the outreach email'] },
+    { m:2, t:'Reach out', goals:['30 investors contacted','5 replies','2 intro calls booked','Log everything in CRM'] },
+    { m:3, t:'Follow through', goals:['50 contacted cumulatively','4 meetings','1 written commitment','A living investor pipeline'] }
+  ]},
+  ops: { label:'Operations', months:[
+    { m:1, t:'Keep it running', goals:['Reply to every support message within 24h','Process all orders on time','Learn every recurring issue'] },
+    { m:2, t:'Tighten', goals:['100% on-time fulfilment','Reply within 12h','Write answers to the 10 most common questions'] },
+    { m:3, t:'Systemise', goals:['100% SLA held','A runbook so anyone can cover your role','Propose 2 process improvements'] }
+  ]},
+  finance: { label:'Finance', months:[
+    { m:1, t:'Learn the books', goals:['Reconcile claims vs ledger weekly','Understand every revenue line','Flag anything that looks wrong'] },
+    { m:2, t:'Own the cycle', goals:['All claims reviewed within 48h','Monthly P&L drafted','Expense categories cleaned up'] },
+    { m:3, t:'Get ahead', goals:['Books reconciled 20+ days','Cash-runway forecast built','Compliance calendar for the year'] }
+  ]},
+  research: { label:'Research', months:[
+    { m:1, t:'Learn to verify', goals:['30 places/prices verified','1 city covered properly','Learn what "verified" means here'] },
+    { m:2, t:'Build the moat', goals:['60 verified','2 more cities','Find 5 tourist-scam patterns worth recording'] },
+    { m:3, t:'Compound it', goals:['80 verified','3 cities to real depth','A re-verification schedule so nothing goes stale'] }
+  ]}
+};
+function deskPlanHTML(me){
+  var roles=(window.ROLES&&ROLES.length)? ROLES : (ROLE?[ROLE]:[]);
+  var sets=roles.map(function(r){ return RW_ROLE_PLAN[r]; }).filter(Boolean);
+  if(!sets.length) return '';
+  /* which month are they in? */
+  var j=rwJoinDate(me), mn=1;
+  if(j){ var d=(Date.now()-new Date(j+'T00:00:00').getTime())/86400000; mn=Math.min(3, Math.max(1, Math.floor(d/30)+1)); }
+  var done=(me&&me.planDone)||{};
+  var html='<div class="dk-lab">MY 3-MONTH PLAN</div>'
+    +'<div class="pl-months">'+[1,2,3].map(function(x){
+        return '<div class="pl-m'+(x===mn?' on':'')+(x<mn?' past':'')+'">Month '+x+(x===mn?' · you are here':'')+'</div>';
+      }).join('')+'</div>';
+  sets.forEach(function(set){
+    if(sets.length>1) html+='<div class="rs-role-h">'+esc(set.label)+'</div>';
+    set.months.forEach(function(mo){
+      var open=mo.m===mn;
+      html+='<div class="pl-blk'+(open?' on':'')+'">'
+        +'<div class="pl-h">Month '+mo.m+' · <b>'+esc(mo.t)+'</b>'+(mo.m<mn?' <span style="color:#4ADE80">✓ done</span>':'')+'</div>'
+        + mo.goals.map(function(g,gi){
+            var key=set.label.slice(0,3)+mo.m+'_'+gi, tick=!!done[key];
+            return '<div class="pl-g" onclick="deskPlanTick(\''+key+'\')">'
+              +'<span>'+(tick?'✅':'⬜')+'</span><span style="flex:1'+(tick?';opacity:.55;text-decoration:line-through':'')+'">'+esc(g)+'</span></div>';
+          }).join('')
+        +'</div>';
+    });
+  });
+  html+='<div class="dk-note">Set for a steady, average pace — not a sprint. Month 1 is deliberately light because learning the product properly IS the work. Hitting these is a strong internship.</div>';
+  return html;
+}
+function deskPlanTick(k){
+  if(!user) return;
+  var cur=(window._deskPlanDone||{})[k];
+  var upd={}; upd['planDone.'+k]=!cur;
+  db.collection('staff').doc(user.uid).set({planDone:{}},{merge:true}).then(function(){
+    return db.collection('staff').doc(user.uid).update(upd);
+  }).then(function(){ window._deskPlanDone=window._deskPlanDone||{}; window._deskPlanDone[k]=!cur; deskRender(); })
+   .catch(function(){});
 }
 
 </script>
