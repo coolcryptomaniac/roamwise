@@ -1149,6 +1149,179 @@ function openModePicker(){
 
 
 
+
+/* ============================================================================
+   B2B PARTNERS + LOCAL RIDES (rw-v81)
+   ============================================================================
+   Two things travellers keep asking for that we didn't have:
+     1. "where do I actually stay / who runs the rafting"  -> partner directory
+     2. "how do I get around"                              -> rides
+
+   RANKING is honest and explainable: signed partners first (we've verified
+   them), then by a confidence-weighted rating — a 5.0 from 12 people should
+   not outrank a 4.8 from 900. We show the reasoning, never a black-box score.
+   ========================================================================= */
+
+/* Bayesian-ish weighting so review COUNT matters, not just the average. */
+
+/* Partners come from Firestore (config/partners), seeded by partners-data.js.
+   Same pattern as referrers: the file is a fallback so the directory works
+   offline, Firestore keeps it fresh, and no code file is ever edited. */
+function rwPartnersSync(){
+  try{
+    if(typeof db==='undefined' || !db) return;
+    db.collection('config').doc('partners').get().then(function(d){
+      if(!d.exists) return;
+      var list=(d.data()||{}).list;
+      if(Array.isArray(list) && list.length){
+        var seed=(window.RW_PARTNERS||[]);
+        var have={}; list.forEach(function(p){ have[String(p.name||'').toLowerCase()+'|'+p.zone]=1; });
+        window.RW_PARTNERS = list.concat(seed.filter(function(p){
+          return !have[String(p.name||'').toLowerCase()+'|'+p.zone];
+        }));
+        try{ lsSet('rw_partners_cache', JSON.stringify(window.RW_PARTNERS)); }catch(e){}
+        if(el('partnersOut')) rwPartnersRender();
+      }
+    }).catch(function(){});
+  }catch(e){}
+}
+(function(){ try{ var c=lsGet('rw_partners_cache');
+  if(c){ var l=JSON.parse(c); if(Array.isArray(l)&&l.length) window.RW_PARTNERS=l; } }catch(e){} })();
+
+function rwPartnerScore(p){
+  var C=50, M=4.3;                       /* prior weight, prior mean */
+  var r=p.rating, n=p.reviews||0;
+  if(r==null) return { score:M, why:'no public rating yet' };
+  var sc=((C*M)+(r*n))/(C+n);
+  var why = n>=500 ? 'strongly reviewed ('+n.toLocaleString('en-IN')+')'
+          : n>=100 ? 'well reviewed ('+n+')'
+          : n>=30  ? 'early reviews ('+n+')'
+                   : 'few reviews so far ('+n+')';
+  return { score:sc, why:why };
+}
+function rwPartnersFor(zone, cat){
+  var list=(window.RW_PARTNERS||[]).slice();
+  if(zone) list=list.filter(function(p){ return String(p.zone||'').toLowerCase()===String(zone).toLowerCase(); });
+  if(cat)  list=list.filter(function(p){ return p.cat===cat; });
+  list.forEach(function(p){ var s=rwPartnerScore(p); p._score=s.score; p._why=s.why; });
+  list.sort(function(a,b){
+    var av=a.verified==='signed'?1:0, bv=b.verified==='signed'?1:0;
+    if(av!==bv) return bv-av;                 /* signed partners first */
+    return b._score-a._score;
+  });
+  return list;
+}
+function openPartners(zone, cat){
+  var sec=el('partnersSection');
+  if(!sec){ sec=document.createElement('section'); sec.id='partnersSection'; sec.className='xsec v v-home';
+    var host=el('copilotHero'); if(host&&host.parentNode) host.parentNode.insertBefore(sec,host.nextSibling); else document.body.appendChild(sec); }
+  rwOpenSection(sec.id);
+  window._pZone=zone||window._pZone||'';
+  window._pCat=cat||window._pCat||'';
+  var zones={}; (window.RW_PARTNERS||[]).forEach(function(p){ zones[p.zone]=1; });
+  sec.innerHTML='<div class="xsec-head"><h2 class="xsec-title">\ud83e\udd1d Stay &amp; <em>do</em></h2>'
+    +'<button class="tact" onclick="rwCloseSection(\'partnersSection\')">\u2715</button></div>'
+    +'<p class="xsec-sub">Real places we\u2019ve researched on the ground \u2014 boutique stays and the operators locals actually use.</p>'
+    +'<div class="pt-chips">'
+    +'<button class="ev-chip'+(!window._pCat?' on':'')+'" onclick="openPartners(window._pZone,\'\')">All</button>'
+    +'<button class="ev-chip'+(window._pCat==='stay'?' on':'')+'" onclick="openPartners(window._pZone,\'stay\')">\ud83c\udfe1 Stays</button>'
+    +'<button class="ev-chip'+(window._pCat==='adventure'?' on':'')+'" onclick="openPartners(window._pZone,\'adventure\')">\ud83e\udde1 Adventure</button>'
+    +'</div>'
+    +'<div class="pt-chips" style="margin-bottom:12px">'
+    +'<button class="ev-chip'+(!window._pZone?' on':'')+'" onclick="openPartners(\'\',window._pCat)">Everywhere</button>'
+    + Object.keys(zones).map(function(z){
+        return '<button class="ev-chip'+(window._pZone===z?' on':'')+'" onclick="openPartners(\''+z+'\',window._pCat)">'+esc2(z)+'</button>';
+      }).join('')
+    +'</div><div id="partnersOut"></div>';
+  rwPartnersRender();
+}
+function rwPartnersRender(){
+  var host=el('partnersOut'); if(!host) return;
+  var list=rwPartnersFor(window._pZone, window._pCat);
+  if(!list.length){ host.innerHTML='<div class="note" style="text-align:center;padding:20px;color:var(--t3)">Nothing here yet \u2014 we\u2019re adding partners city by city.</div>'; return; }
+  host.innerHTML=list.map(function(p,i){
+    var T=(window.RW_PARTNER_TIERS||[]).filter(function(t){ return t.id===p.verified; })[0]||{icon:'',label:''};
+    var stars = p.rating!=null ? '\u2b50 '+p.rating.toFixed(1) : '';
+    return '<div class="pt-card'+(p.verified==='signed'?' signed':'')+'">'
+      +'<div class="pt-top">'
+      +'<span class="pt-rank">'+(i+1)+'</span>'
+      +'<span style="flex:1;min-width:0"><b class="pt-name">'+esc2(p.name)+'</b>'
+      +'<div class="pt-where">'+esc2(p.area||'')+' \u00b7 '+esc2(p.zone)+'</div></span>'
+      +(stars?'<span class="pt-rate">'+stars+'</span>':'')
+      +'</div>'
+      +'<div class="pt-hook">'+esc2(p.hook||'')+'</div>'
+      +'<div class="pt-meta">'
+      +'<span class="pt-tag '+(p.verified==='signed'?'ok':'')+'">'+T.icon+' '+esc2(T.label)+'</span>'
+      +'<span class="pt-why">'+esc2(p._why)+'</span>'
+      +(p.badge?'<span class="pt-tag ok">\ud83c\udfc5 '+esc2(p.badge)+'</span>':'')
+      +'</div>'
+      +'<div class="pt-acts">'
+      +'<button class="tact" onclick="rwPartnerMaps(\''+p.id+'\')">\ud83d\uddfa\ufe0f Find it</button>'
+      +'<button class="tact" onclick="rwPartnerPlan(\''+p.id+'\')">\u2728 Plan around it</button>'
+      +'</div></div>';
+  }).join('')
+  +'<div class="pt-foot">Ranked by rating <em>weighted by how many people reviewed</em> \u2014 a 5.0 from 12 people shouldn\u2019t outrank a 4.8 from 900. '
+  +'Entries marked <b>Researched</b> are places we found and rated highly; they are not yet formal partners, and we say so rather than implying otherwise.</div>';
+}
+function rwPartnerById(id){ return (window.RW_PARTNERS||[]).filter(function(p){ return p.id===id; })[0]; }
+function rwPartnerMaps(id){
+  var p=rwPartnerById(id); if(!p) return;
+  var q=encodeURIComponent(p.name+' '+(p.area||'')+' '+p.zone);
+  window.open('https://www.google.com/maps/search/?api=1&query='+q,'_blank','noopener');
+}
+function rwPartnerPlan(id){
+  var p=rwPartnerById(id); if(!p) return;
+  rwCloseSection('partnersSection');
+  var inp=el('heroInput')||el('cpInput');
+  if(inp){
+    inp.value='Plan a trip to '+p.zone+' staying around '+p.area+'. I am looking at '+p.name+'. '
+      +'Give honest travel times, what to do nearby, and a realistic daily budget.';
+    try{ copilotSend(!!el('heroInput')); }catch(e){}
+  }
+}
+
+/* ---------------- LOCAL RIDES ----------------
+   We do NOT resell rides or take a cut here — these are deep links into the
+   apps people already have. Saying so keeps it honest and keeps us out of
+   transport regulation we have no business being in. */
+function rwRidesHTML(place, lat, lon){
+  var q=encodeURIComponent(place||'');
+  var ola  = lat? 'https://book.olacabs.com/?drop_lat='+lat+'&drop_lng='+lon : 'https://book.olacabs.com/';
+  var uber = lat? 'https://m.uber.com/ul/?action=setPickup&dropoff[latitude]='+lat+'&dropoff[longitude]='+lon
+                : 'https://m.uber.com/ul/?action=setPickup';
+  var rapido='https://onelink.to/rapido';
+  return '<div class="ride-box">'
+    +'<div class="ride-h">\ud83d\ude95 Getting around'+(place?' in '+esc2(place):'')+'</div>'
+    +'<div class="ride-btns">'
+    +'<a class="ride" href="'+rapido+'" target="_blank" rel="noopener">\ud83c\udfcd\ufe0f Rapido<span>bikes &amp; autos</span></a>'
+    +'<a class="ride" href="'+ola+'" target="_blank" rel="noopener">\ud83d\ude96 Ola<span>cabs</span></a>'
+    +'<a class="ride" href="'+uber+'" target="_blank" rel="noopener">\ud83d\ude97 Uber<span>cabs</span></a>'
+    +'</div>'
+    +'<button class="tact" style="width:100%;margin-top:8px" onclick="openDriverHire(\''+esc2(place||'')+'\')">\ud83e\uddd1\u200d\u2708\ufe0f Hire a driver for the day</button>'
+    +'<div class="ride-note">We don\u2019t take a cut on rides \u2014 these open the apps you already have. For hill routes a full-day driver usually beats app cabs, which often refuse long mountain trips.</div>'
+    +'</div>';
+}
+/* Full-day driver / sightseeing — the thing Febin's users kept asking for. */
+function openDriverHire(place){
+  var t=(window.RW_TERRAIN && typeof rwTerrainOf==='function') ? rwTerrainOf(place) : 'plains';
+  var rates={ himalayan:[3500,5500], hill:[3000,4500], ghats:[2800,4000],
+              coastal:[2500,3800], desert:[2800,4200], plains:[2200,3500], metro:[2500,4000] };
+  var r=rates[t]||rates.plains;
+  rwForm('\ud83e\uddd1\u200d\u2708\ufe0f Hire a driver'+(place?' \u2014 '+place:''), [], function(){}, 
+    '<div style="text-align:left;line-height:1.75;font-size:13px">'
+    +'<b>What a full day usually costs here</b><br>'
+    +'<span style="font-size:20px;font-weight:800;color:var(--gold)">\u20b9'+r[0].toLocaleString('en-IN')+' \u2013 \u20b9'+r[1].toLocaleString('en-IN')+'</span>'
+    +'<span style="color:var(--t3);font-size:12px"> per day, 8h/80km typical</span><br><br>'
+    +'<b>Before you agree, settle these five things:</b><br>'
+    +'\u2022 Is fuel included? (usually yes)<br>'
+    +'\u2022 Are driver food and stay included on multi-day trips? (usually NOT \u2014 budget \u20b9300\u2013500/day)<br>'
+    +'\u2022 Are tolls and parking extra?<br>'
+    +'\u2022 What happens past 8 hours or 80 km?<br>'
+    +'\u2022 Get the driver\u2019s name and vehicle number in writing before you pay anything.<br><br>'
+    +'<span style="color:var(--t3);font-size:12px">Rates are typical ranges for '+esc2(t)+' terrain, not quotes. '
+    +'Ask your homestay first \u2014 they almost always know a trusted driver and it is usually cheaper than a booking desk.</span></div>');
+}
+
 /* ============================================================================
    EVENT ROI ENGINE (rw-v59)
    ============================================================================
@@ -1999,6 +2172,28 @@ var CURR = [
   {c:'CAD',s:'C$',r:1.36},{c:'SGD',s:'S$',r:1.34},{c:'AED',s:'AED',r:3.67},{c:'THB',s:'฿',r:35}
 ];
 
+
+/* ============================================================================
+   PRO PRICE LABEL (rw-v80) — Febin's currency bug
+   ============================================================================
+   The Pro price genuinely IS 100 rupees, charged over UPI. But showing a bare
+   "₹100" to someone who has selected USD looks like the currency switch is
+   broken. So: show their currency with the rupee price alongside, because the
+   amount they are actually charged is in rupees and hiding that would be worse.
+   ========================================================================= */
+function proPriceLabel(inr){
+  inr = inr || 100;
+  try{
+    if(typeof AC==='undefined' || AC==='INR') return '\u20b9'+inr;
+    var cu=CURR.find(function(x){ return x.c===AC; });
+    if(!cu || !cu.r) return '\u20b9'+inr;
+    var usd = inr/83.5;                     /* INR -> USD base */
+    var v = usd*cu.r;
+    var shown = v<1 ? v.toFixed(2) : (v<10? v.toFixed(1) : Math.round(v));
+    return cu.s+shown+' (\u20b9'+inr+')';
+  }catch(e){ return '\u20b9'+inr; }
+}
+
 function fmtMoney(usd){
   var cu = CURR.find(function(x){return x.c===AC;});
   var v = Math.round(usd*(cu?cu.r:1));
@@ -2142,7 +2337,7 @@ function refreshProUI(){
     if(bar) bar.classList.add('hide');
     if(promo) promo.classList.add('hide');
   } else {
-    if(btn){ btn.textContent='Pro ₹100'; btn.className='btn btn-pro'; btn.onclick=openPay; }
+    if(btn){ btn.textContent='Pro '+proPriceLabel(100); btn.className='btn btn-pro'; btn.onclick=openPay; }
     if(bar) bar.classList.remove('hide');
     if(promo) promo.classList.remove('hide');
     el('freeCount').textContent = freeLeft;
@@ -2186,6 +2381,24 @@ function ssIndex(){
    {t:'My Music',k:'music songs phonk spotify saavn',go:function(){openMusic();}},
    {t:'The RoamWise Film (promo video)',k:'promo film video anthem watch',go:function(){tabGo('home');scrollToId('promofilm');}}
   ];
+  /* DESTINATIONS (rw-v81 — Febin's "Kerala shows No match" bug).
+     The index had every FEATURE but not a single PLACE, so searching a real
+     destination looked like we didn't cover it. Now every known place, region
+     and curated override is searchable and goes straight to planning. */
+  try{
+    var _seen={};
+    var addDest=function(name, label){
+      var k=String(name||'').toLowerCase(); if(!k||_seen[k]) return; _seen[k]=1;
+      ix.push({ t:(label||'\ud83d\udccd Plan a trip to '+name), k:k,
+        go:(function(n){ return function(){ ssClose(); var d=el('destInput'); if(d) d.value=n; tabGo('plan');
+          try{ if(typeof goPlan==='function') goPlan(); }catch(e){} }; })(name) });
+    };
+    Object.keys(rwKnownMap()||{}).forEach(function(k){ addDest(rwKnownMap()[k]); });
+    (window.RW_REGIONS||[]).forEach(function(r){
+      addDest(r.name, '\ud83d\uddfa\ufe0f '+r.name+' \u2014 '+r.blurb);
+      (r.alias||[]).forEach(function(a){ addDest(a, '\ud83d\uddfa\ufe0f '+r.name+' \u2014 '+r.blurb); });
+    });
+  }catch(e){}
   (typeof TREKS!=='undefined'?TREKS:[]).forEach(function(t){ ix.push({t:'Trek: '+t.n,k:t.n.toLowerCase(),go:function(){tabGo('explore');scrollToId('treks');}}); });
   (typeof EVENTS!=='undefined'?EVENTS:[]).forEach(function(e){ ix.push({t:e.ic+' '+e.n,k:e.n.toLowerCase(),go:function(){eventPlan(e.id);}}); });
   (typeof EXPS!=='undefined'?EXPS:[]).forEach(function(e){ ix.push({t:'Experience: '+e.n,k:e.n.toLowerCase(),go:function(){tabGo('explore');scrollToId('exps');}}); });
@@ -2201,7 +2414,11 @@ function ssRun(q){
   if(q.length<2){ out.innerHTML=''; return; }
   var hits=_ssIx.filter(function(x){ return (x.t+' '+x.k).toLowerCase().indexOf(q)>-1; }).slice(0,9);
   out.innerHTML = hits.length? hits.map(function(x,i){ return '<div class="ti-day" style="cursor:pointer;padding:11px 12px;border:1px solid var(--b);border-radius:11px;margin-bottom:7px;background:#0E1018" onclick="_ssGo('+i+')"><b>&#128269;</b><span>'+x.t+'</span></div>'; }).join('')
-    : '<div class="mode-box">No match \u2014 try "trek", "pdf", "events", "store"\u2026 or just plan a trip to "'+q+'" \u2192 <button class="tact" onclick="ssClose();el(\'destInput\').value=\''+q.replace(/'/g,'')+'\';tabGo(\'plan\')">Plan it</button></div>';
+    : '<div class="mode-box" style="text-align:left;line-height:1.7">'
+      +'<b>\ud83c\udf0d We can plan a trip to \u201c'+esc2(q)+'\u201d</b><br>'
+      +'<span style="font-size:12px;color:var(--t2)">RoamWise plans anywhere on Earth \u2014 if it is a real place, we will build you a day-by-day itinerary with honest travel times and local costs.</span><br>'
+      +'<button class="tact" style="margin-top:9px;font-weight:800;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#0A0A0C;border:none" onclick="ssClose();el(\'destInput\').value=\''+q.replace(/'/g,'')+'\';tabGo(\'plan\')">\u2728 Plan '+esc2(q)+' \u2192</button>'
+      +'</div>';
   window._ssHits=hits;
 }
 function _ssGo(i){ var x=window._ssHits[i]; ssClose(); x.go(); }
@@ -2651,6 +2868,7 @@ var WA_NUMBER='', WA_CHANNEL='', WA_GROUP='';
 /* Global + idempotent so remote config can create it after the fact. */
 function ensureWaButton(){
   try{ rwRefCapture(); }catch(e){}
+  try{ setTimeout(rwRefSync, 1500); setTimeout(rwPartnersSync, 1800); }catch(e){}
   if(!WA_NUMBER || document.getElementById('waFab')) return;
   var w=document.createElement('a');
   w.id='waFab';
@@ -6490,7 +6708,7 @@ function runSearch(){
     if(freeLeft<=0){ openPay(); showToast('Daily limit reached — Upgrade for unlimited!'); return; }
     freeLeft--; lsSet('rwFLeft', String(freeLeft));
     el('freeCount').textContent = freeLeft;
-    if(freeLeft===0) showToast('Last free search! Upgrade for ₹100 for unlimited.');
+    if(freeLeft===0) showToast('Last free search! Upgrade for '+proPriceLabel(100)+' for unlimited.');
   }
   var origin = (el('origin').value||'India').trim();
   var days = parseInt(el('dur').value)||14;
@@ -6572,7 +6790,7 @@ function renderCards(results, month, budUSD, origin, days, aiData, travelStyle, 
   H += `</tbody></table></div>`;
   H += adCard(0);
 
-  if(!isPro) H += `<div class="promo" style="margin-bottom:14px" onclick="openPay()"><div class="promo-left">👑</div><div class="promo-text"><strong>Unlock Pro — ₹100 lifetime</strong><span>Full itineraries &bull; Budget tracker &bull; WhatsApp share &amp; more</span></div><div class="promo-price"><span class="promo-amt">₹100</span></div></div>`;
+  if(!isPro) H += `<div class="promo" style="margin-bottom:14px" onclick="openPay()"><div class="promo-left">👑</div><div class="promo-text"><strong>Unlock Pro — ${proPriceLabel(100)} lifetime</strong><span>Full itineraries &bull; Budget tracker &bull; WhatsApp share &amp; more</span></div><div class="promo-price"><span class="promo-amt">${proPriceLabel(100)}</span></div></div>`;
 
   H += `<div class="card-list">`;
 
@@ -6695,7 +6913,7 @@ function renderCards(results, month, budUSD, origin, days, aiData, travelStyle, 
     /* ITINERARY TAB */
     H += `<div class="tab-pane" id="${T}-it">`;
     if(!isPro){
-      H += `<div class="gate" onclick="openPay()"><span class="gate-ico">📅</span><div class="gate-title">Full ${Math.min(days,14)}-day itinerary — Pro only</div><div class="gate-sub">Detailed day-by-day plan with specific places, timings, local tips and restaurant picks. Built from our database, AI-enhanced if a key is added.</div><button class="gate-btn">Unlock for ₹100 →</button></div>`;
+      H += `<div class="gate" onclick="openPay()"><span class="gate-ico">📅</span><div class="gate-title">Full ${Math.min(days,14)}-day itinerary — Pro only</div><div class="gate-sub">Detailed day-by-day plan with specific places, timings, local tips and restaurant picks. Built from our database, AI-enhanced if a key is added.</div><button class="gate-btn">Unlock for ${proPriceLabel(100)} →</button></div>`;
     } else {
       H += `<div id="${T}-iph" class="itin-ph"><div class="mini-spin"></div><span>Click below to build your ${idays}-day plan for ${d.name}</span></div><div id="${T}-ict" style="display:none"></div>`;
     }
@@ -6704,7 +6922,7 @@ function renderCards(results, month, budUSD, origin, days, aiData, travelStyle, 
     /* PRO TOOLS TAB */
     H += `<div class="tab-pane" id="${T}-pt">`;
     if(!isPro){
-      H += `<div class="gate" onclick="openPay()"><span class="gate-ico">👑</span><div class="gate-title">Budget Tracker &bull; Packing List &bull; Compare Table &bull; WhatsApp Share</div><div class="gate-sub">₹100 one-time unlocks all Pro tools forever on this device.</div><button class="gate-btn">Unlock Pro → ₹100</button></div>`;
+      H += `<div class="gate" onclick="openPay()"><span class="gate-ico">👑</span><div class="gate-title">Budget Tracker &bull; Packing List &bull; Compare Table &bull; WhatsApp Share</div><div class="gate-sub">${proPriceLabel(100)} one-time unlocks all Pro tools forever on this device.</div><button class="gate-btn">Unlock Pro → ${proPriceLabel(100)}</button></div>`;
     } else {
       H += `<div class="sub-tabs">
         <button class="stab on" data-p="${P2}" data-tab="bt" onclick="swSub('${P2}','bt')">💰 Budget</button>
@@ -6780,7 +6998,7 @@ function renderCards(results, month, budUSD, origin, days, aiData, travelStyle, 
       H += `<button class="act-btn act-ghost" onclick="swTab('${T}','pt');swSub('${P2}','bt')">💰 Track</button>`;
     } else {
       H += `<button class="act-btn act-gold" onclick="openPay()">📅 Full Itinerary 🔒</button>`;
-      H += `<button class="act-btn act-pm" onclick="openPay()">👑 Unlock Pro — ₹100</button>`;
+      H += `<button class="act-btn act-pm" onclick="openPay()">👑 Unlock Pro — ${proPriceLabel(100)}</button>`;
     }
     H += `<button class="act-btn act-ghost" onclick="swTab('${T}','bk')">✈️ Book</button>`;
     H += `</div></div>`; /* act-bar + card end */
@@ -7795,6 +8013,36 @@ function requireLogin(){
    ========================================================================= */
 var RW_REF_KEY='rw_ref_code', RW_REF_AT='rw_ref_at';
 
+
+/* ============================================================================
+   REFERRERS FROM FIRESTORE (rw-v80) — no more editing GitHub files
+   ============================================================================
+   referral-data.js is now only a SEED/fallback. The live list is in Firestore
+   at config/referrers, editable from the admin panel. The file still works if
+   Firestore is unreachable, so the app never depends on the network to
+   validate a code — it just gets fresher when it can.
+   ========================================================================= */
+function rwRefSync(){
+  try{
+    if(typeof db==='undefined' || !db) return;
+    db.collection('config').doc('referrers').get().then(function(d){
+      if(!d.exists) return;
+      var list=(d.data()||{}).list;
+      if(Array.isArray(list) && list.length){
+        window.RW_REFERRERS = list;
+        try{ lsSet('rw_ref_cache', JSON.stringify(list)); }catch(e){}
+      }
+    }).catch(function(){});
+  }catch(e){}
+}
+/* use the cached copy immediately on boot, before Firestore answers */
+(function(){
+  try{
+    var c=lsGet('rw_ref_cache');
+    if(c){ var l=JSON.parse(c); if(Array.isArray(l)&&l.length) window.RW_REFERRERS=l; }
+  }catch(e){}
+})();
+
 function rwRefLookup(code){
   if(!code) return null;
   var c=String(code).trim().toUpperCase();
@@ -7865,6 +8113,24 @@ function rwRefLink(code){
    the SAME rwRefStamp() writes it onto the claim — so one code path serves
    millions of users with zero extra infrastructure.
    ========================================================================= */
+
+/* live validation as they type a referral code at sign-up */
+function rwRefLiveCheck(){
+  var i=el('authRefCode'), m=el('authRefMsg');
+  if(!i||!m) return;
+  var v=String(i.value||'').trim().toUpperCase();
+  if(!v){ m.textContent=''; m.style.color='var(--t3)'; return; }
+  var w=rwRefLookup(v);
+  if(w && w.active!==false){
+    m.textContent='\u2705 '+w.name+' will get credit for your purchase';
+    m.style.color='#4ADE80';
+    rwRefApply(v, true);      /* store it now so it survives the signup flow */
+  } else {
+    m.textContent='Not a code we recognise \u2014 check the spelling';
+    m.style.color='#E0785B';
+  }
+}
+
 function rwRefApply(code, quiet){
   var who=rwRefLookup(code);
   if(!who || who.active===false) return null;

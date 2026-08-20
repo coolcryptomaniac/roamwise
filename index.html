@@ -367,14 +367,14 @@ html{-webkit-text-size-adjust:100%}
 </section>
 <div class="hero-sky v v-home v-web-only"><div class="kumo" style="top:12%;left:4%"></div><div class="kumo k2" style="top:58%;right:6%"></div><div class="kumo k3" style="top:30%;right:22%"></div><div class="hero">
   <h1><span data-i18n="hero.title1">Escape the crowds.</span><br><em data-i18n="hero.title2">Discover your world.</em></h1>
-  <p data-i18n="hero.sub">The AI travel planner that works for any destination on Earth — smart itineraries, crowd heatmaps, real budget breakdowns and packing lists. No signup. No subscription. Pay once, yours forever.</p>
+  <p data-i18n="hero.sub">The AI travel planner that works for any destination on Earth — smart itineraries, crowd heatmaps, real budget breakdowns and packing lists. Start planning without an account. No subscription — pay once, yours forever.</p>
   <div class="hero-btns">
     <button class="hero-btn hb-gold" data-i18n="hero.startFree" onclick="scrollTo(0,document.getElementById('app').offsetTop-10)">Start Planning &mdash; Free &rarr;</button>
     <button class="hero-btn hb-pm" onclick="openPay()" id="heroProBtn">Unlock Pro &mdash; &#8377;100</button>
   </div>
   <div class="trust-strip">
     <span class="trust-chip"><b>195+</b> countries covered</span>
-    <span class="trust-chip"><b>No signup</b> required</span>
+    <span class="trust-chip"><b>No account</b> needed to start</span>
     <span class="trust-chip"><b>One-time</b> pricing, no subscription</span>
     <span class="trust-chip shinobi-chip"><b>&#129399; Shinobi mode</b> crowd-dodging routes</span>
   </div>
@@ -766,7 +766,8 @@ html{-webkit-text-size-adjust:100%}
 <div class="dr-grp open"><button class="dr-gh" onclick="drToggle(this)">🧳 Travel tools<span class="dr-count">10</span><span class="chev">›</span></button><div class="dr-gb">
   <a class="dr-link" onclick="closeDrawer();openBeacon()"><span class="ic">📡</span>Beacon — who's nearby <span style="margin-left:auto;font-size:9px;background:#4ADE80;color:#0A0A0C;padding:1px 6px;border-radius:20px;font-weight:800">NEW</span></a>
   <a class="dr-link" onclick="closeDrawer();openTatkal()"><span class="ic">⚡</span>Tatkal prep</a>
-    <a class="dr-link" onclick="closeDrawer();openEvents()"><span class="ic">📅</span>Event radar <span style="margin-left:auto;font-size:9px;background:var(--gold,#E8BA6C);color:#0A0A0C;padding:1px 6px;border-radius:20px;font-weight:800">NEW</span></a>
+    <a class="dr-link" onclick="closeDrawer();openPartners()"><span class="ic">🤝</span>Stay &amp; do <span style="margin-left:auto;font-size:9px;background:var(--gold,#E8BA6C);color:#0A0A0C;padding:1px 6px;border-radius:20px;font-weight:800">NEW</span></a>
+  <a class="dr-link" onclick="closeDrawer();openEvents()"><span class="ic">📅</span>Event radar <span style="margin-left:auto;font-size:9px;background:var(--gold,#E8BA6C);color:#0A0A0C;padding:1px 6px;border-radius:20px;font-weight:800">NEW</span></a>
   <a class="dr-link" onclick="closeDrawer();openPnrPaste()"><span class="ic">🎫</span>Paste PNR</a>
   <a class="dr-link" onclick="closeDrawer();openArrival()"><span class="ic">🚂</span>Arrival mode <span style="margin-left:auto;font-size:9px;background:var(--gold,#E8BA6C);color:#0A0A0C;padding:1px 6px;border-radius:20px;font-weight:800">NEW</span></a>
   <a class="dr-link" onclick="closeDrawer();openNearMe()"><span class="ic">📍</span>Near me</a>
@@ -863,6 +864,8 @@ html{-webkit-text-size-adjust:100%}
       <div id="emailPane">
         <input class="auth-inp" type="email" id="authEmail" placeholder="Email address" autocomplete="email">
         <input class="auth-inp" type="password" id="authPass" placeholder="Password (min 6 chars)" autocomplete="current-password">
+        <input class="auth-inp" type="text" id="authRefCode" placeholder="Referral code (optional)" autocapitalize="characters" oninput="rwRefLiveCheck()" style="text-transform:uppercase">
+        <div id="authRefMsg" style="font-size:11.5px;margin:-4px 0 8px;min-height:15px;color:var(--t3)"></div>
         <button class="rzp-main-btn" style="margin-top:2px" onclick="loginEmail()"><span id="authAction">Sign in</span></button>
         <div class="auth-sub" id="authToggleRow">New here? <a onclick="toggleAuthMode()">Create an account</a></div>
       </div>
@@ -1041,6 +1044,8 @@ html{-webkit-text-size-adjust:100%}
 <script src="rw-config.js"></script>
 <script src="events-data.js" defer></script>
 <script src="referral-data.js"></script>
+<script src="partners-data.js"></script>
+<script src="regions-data.js"></script>
 <script src="tusk-learned.js" onerror="void 0"></script>
 <script src="destination-photos.js" defer></script>
 <script src="tusk-data.js" defer></script>
