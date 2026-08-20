@@ -8620,6 +8620,9 @@ function rwKnownMap(){
   var known={};
   try{ (typeof DB!=='undefined'?DB:[]).forEach(function(d){ known[d.name.toLowerCase()]=d.name; }); }catch(e){}
   try{ Object.keys(RW_PLACE_OVERRIDES||{}).forEach(function(k){ var o=RW_PLACE_OVERRIDES[k]; known[o.name.toLowerCase()]=o.name; }); }catch(e){}
+  /* places the daily workflow learned from real user questions (tusk-learned.js) */
+  try{ Object.keys(window.RW_LEARNED_PLACES||{}).forEach(function(k){
+        var o=RW_LEARNED_PLACES[k]; if(o&&o.name) known[String(k).toLowerCase()]=o.name; }); }catch(e){}
   ['kerala','rajasthan','himachal','uttarakhand','karnataka','tamil nadu','gujarat','ladakh','sikkim','meghalaya','punjab','maharashtra','west bengal','odisha','assam','telangana',
    'delhi','new delhi','mumbai','goa','jaipur','agra','kolkata','chennai','bengaluru','bangalore','hyderabad','pune','udaipur','jodhpur','jaisalmer','amritsar','varanasi','lucknow','kochi','mysuru','mysore','ooty','munnar','hampi','pondicherry','rishikesh','haridwar','dehradun','manali','shimla','leh','srinagar','darjeeling','gangtok','shillong','guwahati','bhopal','indore','surat','ahmedabad','almora','nainital','mussoorie','kasol','auli','ziro','gokarna','bangkok','bali','singapore','dubai','kathmandu','pokhara','colombo','hanoi','tokyo','paris','london','rome'].forEach(function(n){ if(!known[n]) known[n]=n.replace(/(^|\s)\w/g,function(m){return m.toUpperCase();}); });
   window._rwKnown = known;
@@ -8683,6 +8686,81 @@ function rwNormalizeQuery(t){
   return t.replace(/\s{2,}/g,' ');
 }
 
+
+/* ============================================================================
+   WORLD GEOCODER (rw-v77) — stop guessing whether a word is a place
+   ============================================================================
+   The real fix for "you" being treated as a destination isn't a longer
+   stop-list — it's ASKING A PLACE DATABASE. We use OpenStreetMap Nominatim:
+   free, worldwide, down to street level, no API key.
+
+   WORKS WITHOUT THE WORKER. If rwApi('geo') exists we proxy through the
+   Cloudflare Worker (better: edge-cached, and it keeps our request rate
+   inside OSM's policy). If not, we call Nominatim directly from the browser.
+   If BOTH fail, we fall back to the local curated DB — never to a guess.
+
+   Results are cached in localStorage forever-ish, because a place's existence
+   does not change.
+   ========================================================================= */
+var RW_GEO_CACHE='rw_geo_v1';
+function rwGeoCacheGet(q){
+  try{ var c=JSON.parse(lsGet(RW_GEO_CACHE)||'{}'); return c[q.toLowerCase()]; }catch(e){ return undefined; }
+}
+function rwGeoCacheSet(q,v){
+  try{
+    var c=JSON.parse(lsGet(RW_GEO_CACHE)||'{}');
+    var keys=Object.keys(c);
+    if(keys.length>400) keys.slice(0,150).forEach(function(k){ delete c[k]; }); /* trim */
+    c[q.toLowerCase()]=v; lsSet(RW_GEO_CACHE, JSON.stringify(c));
+  }catch(e){}
+}
+/* Returns a Promise of {name, display, lat, lon, type, country} or null. */
+function rwGeocode(q){
+  q=String(q||'').trim();
+  if(!q || q.length<2) return Promise.resolve(null);
+  var hit=rwGeoCacheGet(q);
+  if(hit!==undefined) return Promise.resolve(hit);
+
+  /* local curated DB first — instant, offline, and always right for our cities */
+  try{
+    var known=rwKnownMap();
+    var k=q.toLowerCase();
+    if(known[k]){
+      var localv={ name:known[k], display:known[k], lat:null, lon:null, type:'curated', country:'IN' };
+      rwGeoCacheSet(q, localv); return Promise.resolve(localv);
+    }
+  }catch(e){}
+
+  var url;
+  try{ url = (window.rwApi && rwApi('geo')) ? rwApi('geo')+'?q='+encodeURIComponent(q) : null; }catch(e){ url=null; }
+  if(!url) url='https://nominatim.openstreetmap.org/search?format=json&limit=1&addressdetails=1&q='+encodeURIComponent(q);
+
+  return fetch(url, { headers:{ 'Accept':'application/json' } })
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      var a = Array.isArray(d)? d[0] : (d && d.results ? d.results[0] : d);
+      if(!a || !a.lat){ rwGeoCacheSet(q, null); return null; }
+      var v={
+        name: (a.name || String(a.display_name||'').split(',')[0] || q),
+        display: a.display_name || q,
+        lat: parseFloat(a.lat), lon: parseFloat(a.lon),
+        type: a.type || a.class || 'place',
+        country: (a.address && a.address.country_code ? a.address.country_code.toUpperCase() : '')
+      };
+      rwGeoCacheSet(q, v); return v;
+    })
+    .catch(function(){ return null; });   /* offline: never guess, just return null */
+}
+/* Verify a WEAK destination guess before the app acts on it. */
+function rwVerifyDest(parsed){
+  if(!parsed || !parsed.dest || !parsed._weakDest) return Promise.resolve(parsed);
+  return rwGeocode(parsed.dest).then(function(g){
+    if(g){ parsed.dest=g.name; parsed._geo=g; parsed._weakDest=false; }
+    else { parsed._notAPlace=parsed.dest; parsed.dest=null; }   /* honest: we don't know */
+    return parsed;
+  });
+}
+
 function cpParseRegex(t){
   t = rwNormalizeQuery(t);
   /* -------- input hygiene: greetings, smalltalk, junk -------- */
@@ -8708,7 +8786,7 @@ function cpParseRegex(t){
     /* Take EVERY preposition match, not just the first: "what to eat in Manali"
        used to capture "eat" from "to eat" and then look up a guide for a verb.
        Skip common verbs/fillers, and prefer a capitalised candidate. */
-    var VERBS=/^(eat|go|do|see|visit|stay|sleep|travel|reach|get|buy|shop|find|book|know|start|plan|the|a|an|my|it|be|drink|walk|chill|relax|relaxing|peaceful|adventure|romantic|honeymoon|solo|family|spiritual|nature|scenic|foodie|luxury|cheap|party|nightlife|somewhere|anywhere|food|eat|hotel|stay|room|transport|taxi|cab|bus|train|flight|safety|scam|cost|price|money|there|here|that|this|tips|guide|advice|option|thing|under|below|within|over|about|around|say|says|said|mean|means|meant|share|send|give|tell|show|make|curated|budget|rs|inr|not|shadow|all|whole|entire|full|complete|across|multi|north|south|east|west)$/i;
+    var VERBS=/^(you|your|yours|me|my|us|our|them|their|him|her|tusk|ailon|roamwise|it|its|eat|go|do|see|visit|stay|sleep|travel|reach|get|buy|shop|find|book|know|start|plan|the|a|an|my|it|be|drink|walk|chill|relax|relaxing|peaceful|adventure|romantic|honeymoon|solo|family|spiritual|nature|scenic|foodie|luxury|cheap|party|nightlife|somewhere|anywhere|food|eat|hotel|stay|room|transport|taxi|cab|bus|train|flight|safety|scam|cost|price|money|there|here|that|this|tips|guide|advice|option|thing|under|below|within|over|about|around|say|says|said|mean|means|meant|share|send|give|tell|show|make|curated|budget|rs|inr|not|shadow|all|whole|entire|full|complete|across|multi|north|south|east|west)$/i;
     var re=/(?:\bin|\bto|reaching|\bat|visit(?:ing)?|\bfor|around|near)\s+([A-Za-z][a-zA-Z\u00C0-\u024F]{2,}(?:\s[A-Z][a-zA-Z]{2,})?)/g, mm, cands=[];
     while((mm=re.exec(t))!==null){ var w=mm[1].trim(); if(!VERBS.test(w.split(' ')[0])) cands.push(w); }
     var capped = cands.filter(function(w){ return /^[A-Z]/.test(w); });
@@ -8719,7 +8797,7 @@ function cpParseRegex(t){
     /* strip filler + numbers + MOOD words; whatever real word remains is the
        place. Mood words (romantic, solo, chill...) were being mistaken for
        destinations, so they're excluded here. */
-    var STOP=/^(plan|planning|trip|tour|days?|nights?|budget|under|below|within|max|itinerary|itineraries|for|the|a|an|and|with|my|me|please|need|want|going|go|visit|visiting|show|find|make|create|give|about|cost|costs|price|rs|inr|rupees|k|thousand|weather|rain|cafe|cafes|bus|train|flight|volvo|hotel|stay|stays|from|to|in|at|on|next|week|weekend|tomorrow|today|is|are|it|what|how|much|good|best|place|places|chill|relax|relaxing|peaceful|adventure|adventurous|romantic|honeymoon|solo|family|spiritual|nature|scenic|foodie|luxury|cheap|party|nightlife|workation|somewhere|anywhere|nice|cool|amazing|beautiful|food|foods|eat|eating|meal|meals|drink|drinks|hotel|hotels|stay|stays|room|rooms|transport|taxi|cab|auto|rickshaw|bike|scooter|metro|ferry|ticket|tickets|safety|safe|scam|scams|cost|costs|price|prices|money|cash|card|atm|sim|wifi|there|here|that|this|those|these|them|its|option|options|thing|things|idea|ideas|day|days|time|times|international|abroad|foreign|domestic|overseas|all|whole|entire|complete|full||across|throughout|everywhere|anywhere|nationwide|countrywide|multi|multiple|several|various|many||north|south|east|west|northern|southern|eastern|western|central|say|says|said|mean|means|meant|share|send|give|tell|show|curated|shadow|not|should|would|could|will|shall|might|must|reach|reaching|arrive|arriving|leave|leaving|any|some|anyone|anything|something|every|each|does|did|has|have|had|was|were|been|being|got|lets|let|when|where|which|who|whom|whose|why|whats|hows|季|plan|plans|list|tips|tip|guide|guides|advice)$/i;
+    var STOP=/^(you|your|yours|yourself|youre|u|ur|me|my|mine|myself|we|us|our|ours|ourselves|they|them|their|theirs|he|him|his|she|her|hers|who|whos|whom|tusk|ailon|roamwise|bot|ai|assistant|app|chat|hello|hey|hii|namaste|sir|maam|madam|bhai|bro|dude|yes|yeah|yep|nope|sure|thanks|thank|okay|alright|maybe|really|actually|plan|planning|trip|tour|days?|nights?|budget|under|below|within|max|itinerary|itineraries|for|the|a|an|and|with|my|me|please|need|want|going|go|visit|visiting|show|find|make|create|give|about|cost|costs|price|rs|inr|rupees|k|thousand|weather|rain|cafe|cafes|bus|train|flight|volvo|hotel|stay|stays|from|to|in|at|on|next|week|weekend|tomorrow|today|is|are|it|what|how|much|good|best|place|places|chill|relax|relaxing|peaceful|adventure|adventurous|romantic|honeymoon|solo|family|spiritual|nature|scenic|foodie|luxury|cheap|party|nightlife|workation|somewhere|anywhere|nice|cool|amazing|beautiful|food|foods|eat|eating|meal|meals|drink|drinks|hotel|hotels|stay|stays|room|rooms|transport|taxi|cab|auto|rickshaw|bike|scooter|metro|ferry|ticket|tickets|safety|safe|scam|scams|cost|costs|price|prices|money|cash|card|atm|sim|wifi|there|here|that|this|those|these|them|its|option|options|thing|things|idea|ideas|day|days|time|times|international|abroad|foreign|domestic|overseas|all|whole|entire|complete|full||across|throughout|everywhere|anywhere|nationwide|countrywide|multi|multiple|several|various|many||north|south|east|west|northern|southern|eastern|western|central|say|says|said|mean|means|meant|share|send|give|tell|show|curated|shadow|not|should|would|could|will|shall|might|must|reach|reaching|arrive|arriving|leave|leaving|any|some|anyone|anything|something|every|each|does|did|has|have|had|was|were|been|being|got|lets|let|when|where|which|who|whom|whose|why|whats|hows|季|plan|plans|list|tips|tip|guide|guides|advice)$/i;
     var toks=(t.match(/[A-Za-z\u00C0-\u024F]{3,}/g)||[]).filter(function(w){ return !STOP.test(w); });
     if(toks.length){ out.dest=toks[0]; out._weakDest=true; }
   }
@@ -14514,7 +14592,7 @@ function rwCountryRouteHTML(key, days){
 /* ==================== CROSS-QUESTIONING ====================
    When the only candidate destination is a common English word that merely
    HAPPENS to name a hamlet somewhere, guessing is worse than asking. */
-var RW_COMMON_WORDS = /^(all|say|under|over|about|mean|share|send|nice|good|best|top|new|old|big|small|long|short|first|last|next|only|even|both|most|much|many|more|less|same|other|such|own|off|out|up|down|in|on|at|to|for|and|but|or|so|as|if|then|than|when|while|where|why|how|what|who|which|of|be|is|are|was|were|do|did|has|have|had|can|will|would|should|could|may|might|must|no|not|yes|ok|okay|well|just|very|too|also|still|back|again|here|there|now|today|day|days|week|month|year|time|trip|tour|plan|go|going|come|coming|see|do|make|take|get|give|want|need|like|know|think|feel|find|use|work|help|try|ask|tell|call|keep|let|put|show|turn|start|stop|end|open|close|hold|bring|move|live|play|run|walk|talk|read|write|hear|watch|look|seem|leave|stay|book|visit|travel|explore|discover)$/i;
+var RW_COMMON_WORDS = /^(you|your|yours|yourself|youre|u|ur|me|my|mine|myself|we|us|our|ours|they|them|their|he|him|his|she|her|hers|it|its|tusk|ailon|roamwise|bot|ai|assistant|hello|hey|hi|namaste|thanks|thank|please|sorry|all|say|under|over|about|mean|share|send|nice|good|best|top|new|old|big|small|long|short|first|last|next|only|even|both|most|much|many|more|less|same|other|such|own|off|out|up|down|in|on|at|to|for|and|but|or|so|as|if|then|than|when|while|where|why|how|what|who|which|of|be|is|are|was|were|do|did|has|have|had|can|will|would|should|could|may|might|must|no|not|yes|ok|okay|well|just|very|too|also|still|back|again|here|there|now|today|day|days|week|month|year|time|trip|tour|plan|go|going|come|coming|see|do|make|take|get|give|want|need|like|know|think|feel|find|use|work|help|try|ask|tell|call|keep|let|put|show|turn|start|stop|end|open|close|hold|bring|move|live|play|run|walk|talk|read|write|hear|watch|look|seem|leave|stay|book|visit|travel|explore|discover)$/i;
 function rwNeedsClarify(dest, parsed, geo){
   if(!dest) return false;
   if(parsed && parsed.multi) return false;
