@@ -1,0 +1,14 @@
+// RoamWise - chat reactions (rw-v79). MERGE into your existing rules.
+// Pure ASCII only.
+//
+// Reactions live as a map on the message: reactions.<emoji> = [uid, uid...]
+// Anyone in the trip may react, but the rule below makes sure a person can
+// only add or remove THEIR OWN uid, and cannot edit the message text or the
+// author while doing it.
+//
+// Find your existing  match /tripchats/{tripId}/messages/{msgId}  block and
+// add this update rule alongside what you already have.
+
+// allow reacting: only the 'reactions' field may change
+allow update: if request.auth != null
+  && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['reactions']);

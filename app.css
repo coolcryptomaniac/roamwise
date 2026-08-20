@@ -1421,3 +1421,60 @@ body.rw-mode-story .day-card::before{content:'';display:block;width:38px;height:
 .roi-num.neg{color:#E05B5B}
 .roi-sep{height:1px;background:var(--b2);margin:10px 0}
 .roi-note{font-size:10.5px;color:var(--t3);line-height:1.55;margin-top:11px;padding-top:9px;border-top:1px solid var(--b1)}
+
+/* ===== TRIPCHAT — GEN-Z / GEN-ALPHA LAYER (rw-v79) =====
+   Reference points: Instagram DMs (double-tap, reaction pills), Discord
+   (presence, streaks), BeReal (the group having a state). Motion is short and
+   springy — 200-400ms with overshoot — because that's what reads as "alive"
+   to people raised on these apps. Everything degrades gracefully. */
+
+/* message rows + avatars */
+.tc-row{display:flex;align-items:flex-end;gap:7px;margin:5px 0;animation:tcIn .32s cubic-bezier(.34,1.56,.64,1) both}
+.tc-row.me{justify-content:flex-end}
+@keyframes tcIn{from{opacity:0;transform:translateY(9px) scale(.97)}to{opacity:1;transform:none}}
+.tc-av{width:26px;height:26px;border-radius:50%;flex:0 0 auto;display:flex;align-items:center;justify-content:center;
+  font-size:11px;font-weight:800;color:#0A0A0C;background:linear-gradient(135deg,#E8BA6C,#C8913E)}
+.tc-bub{background:var(--bg2,#12121C);color:var(--t1);border:1px solid var(--b2,#2A2A36);
+  border-radius:16px 16px 16px 5px;padding:9px 12px;font-size:12.5px;line-height:1.5;
+  transition:transform .18s cubic-bezier(.34,1.56,.64,1);cursor:pointer;user-select:none;-webkit-user-select:none}
+.tc-bub:active{transform:scale(.97)}
+.tc-bub.me{background:linear-gradient(135deg,var(--gold,#E8BA6C),var(--gold2,#C8913E));color:#0A0A0C;
+  border:none;border-radius:16px 16px 5px 16px}
+.tc-nm{font-size:9.5px;opacity:.65;margin-bottom:2px;font-weight:700}
+
+/* reaction pills — they pile up like Instagram, not a counter */
+.rx-row{display:flex;gap:4px;flex-wrap:wrap;margin-top:-4px;padding-left:4px}
+.rx{font-size:11px;background:var(--bg3,#1A1A20);border:1px solid var(--b2,#2A2A36);border-radius:20px;
+  padding:2px 7px;cursor:pointer;animation:rxPop .3s cubic-bezier(.34,1.56,.64,1) both;transition:transform .15s}
+.rx:active{transform:scale(.9)}
+.rx.mine{border-color:var(--gold,#E8BA6C);background:color-mix(in srgb,var(--gold) 18%,transparent)}
+@keyframes rxPop{from{opacity:0;transform:scale(.4)}to{opacity:1;transform:scale(1)}}
+
+/* the long-press picker */
+.rx-pick{position:fixed;left:50%;bottom:96px;transform:translateX(-50%);z-index:6000;display:flex;gap:6px;
+  background:var(--bg2,#12121C);border:1px solid var(--b2,#2A2A36);border-radius:26px;padding:9px 12px;
+  box-shadow:0 10px 34px rgba(0,0,0,.5);animation:pickIn .28s cubic-bezier(.34,1.56,.64,1) both}
+.rx-pick span{font-size:24px;cursor:pointer;transition:transform .16s cubic-bezier(.34,1.56,.64,1);line-height:1}
+.rx-pick span:active{transform:scale(1.35)}
+@keyframes pickIn{from{opacity:0;transform:translate(-50%,14px) scale(.85)}to{opacity:1;transform:translate(-50%,0) scale(1)}}
+
+/* the floating emoji burst on react */
+.rw-pop{position:fixed;left:50%;bottom:120px;transform:translateX(-50%);z-index:6500;font-size:34px;
+  pointer-events:none;animation:popUp .9s cubic-bezier(.22,1,.36,1) both}
+@keyframes popUp{0%{opacity:0;transform:translate(-50%,0) scale(.5)}
+  25%{opacity:1;transform:translate(-50%,-18px) scale(1.25)}
+  100%{opacity:0;transform:translate(-50%,-90px) scale(.9)}}
+
+/* group vibe strip */
+.tc-vibe{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:7px 11px;margin-bottom:7px;
+  background:linear-gradient(100deg,color-mix(in srgb,var(--gold) 10%,transparent),transparent);
+  border:1px solid var(--b1,#22222C);border-radius:22px;font-size:11px}
+.tc-streak{font-weight:800;color:var(--gold,#E8BA6C);animation:flick 2.6s ease-in-out infinite}
+@keyframes flick{0%,100%{opacity:1}50%{opacity:.62}}
+.tc-vibe-t{color:var(--t2);flex:1}
+.tc-count{color:var(--t3);font-size:10.5px}
+
+@media (prefers-reduced-motion:reduce){
+  .tc-row,.rx,.rx-pick,.rw-pop{animation:none}
+  .tc-bub,.rx{transition:none}
+}

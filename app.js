@@ -6125,6 +6125,10 @@ function pickPlan(planId, priceINR, label){
     var cp = el('cryptoPanel');
     if(!cp && cryptoConfigured()){ cp=document.createElement('div'); cp.id='cryptoPanel'; methods.appendChild(cp); }
     if(cp) cp.innerHTML = cryptoPanelHTML();
+    /* referral badge / "have a code?" prompt, right where money happens */
+    var rb = el('refBadge');
+    if(!rb){ rb=document.createElement('div'); rb.id='refBadge'; methods.appendChild(rb); }
+    try{ rb.innerHTML = rwRefBadgeHTML(); }catch(e){}
   }
 }
 function backToPlanPicker(){
@@ -7846,6 +7850,48 @@ function rwRefStamp(){
 /* Build a share link for a referrer. */
 function rwRefLink(code){
   return 'https://roamwise.co.in/?ref='+encodeURIComponent(code);
+}
+
+
+/* ============================================================================
+   REFERRAL CODE ENTRY (rw-v78)
+   ============================================================================
+   Links are great, but most referrals happen by WORD OF MOUTH — someone says
+   "use my code RW-S02-DEEPA". Without this, every one of those sales is
+   untracked and the referrer never gets paid. This closes that hole.
+
+   BUILT TO SCALE: validation is purely local against referral-data.js (no
+   network, no read cost), the code is stored the same way a link click is, and
+   the SAME rwRefStamp() writes it onto the claim — so one code path serves
+   millions of users with zero extra infrastructure.
+   ========================================================================= */
+function rwRefApply(code, quiet){
+  var who=rwRefLookup(code);
+  if(!who || who.active===false) return null;
+  lsSet(RW_REF_KEY, who.code);
+  lsSet(RW_REF_AT, String(Date.now()));
+  if(!quiet){ try{ showToast('\u2705 Code applied \u2014 '+who.name+' gets credit'); }catch(e){} }
+  try{ track('ref_code_entered'); }catch(e){}
+  return who;
+}
+/* the little "have a referral code?" box */
+function openRefCode(){
+  var cur=rwRefActive();
+  var who=cur? rwRefLookup(cur) : null;
+  rwForm('\ud83c\udf9f\ufe0f Referral code', [
+    { id:'rc', label:'Enter the code you were given', value:cur||'', ph:'e.g. RW-S02-DEEPA' }
+  ], function(v){
+    var code=String(v.rc||'').trim().toUpperCase();
+    if(!code){ showToast('Enter a code first'); return; }
+    var w=rwRefApply(code);
+    if(!w){ showToast('\u274c That code isn\u2019t recognised \u2014 check the spelling'); return; }
+  }, who? ('Currently applied: <b>'+esc2(who.name)+'</b> ('+esc2(who.code)+')') : 'If a friend, creator or team member gave you a code, enter it here so they get credit for your purchase. It costs you nothing.');
+}
+/* Show the applied referrer on the Pro/pay screen, so it's transparent. */
+function rwRefBadgeHTML(){
+  var c=rwRefActive(); if(!c) return '<div style="text-align:center;margin-top:10px"><a onclick="openRefCode()" style="font-size:12px;color:var(--t3);cursor:pointer;text-decoration:underline dotted">Have a referral code?</a></div>';
+  var w=rwRefLookup(c); if(!w) return '';
+  return '<div style="text-align:center;margin-top:10px;font-size:12px;color:var(--gold)">\ud83c\udf9f\ufe0f Referred by <b>'+esc2(w.name)+'</b> \u00b7 <a onclick="openRefCode()" style="color:var(--t3);cursor:pointer;text-decoration:underline dotted">change</a></div>';
 }
 
 /* Free UPI flow: user submits UTR, owner approves in the admin console */
@@ -11541,6 +11587,11 @@ function tripChatOpen(roomId, roomName){
         return chatBubble(m._id, m, m.uid===user.uid);
       }).join('');
       try{ chatRenderPins(); }catch(e){}   /* pinned Kitty / decisions / plan up top */
+      try{
+        var vb=el('tcVibe');
+        if(!vb && log.parentNode){ vb=document.createElement('div'); vb.id='tcVibe'; log.parentNode.insertBefore(vb, log); }
+        if(vb) vb.innerHTML=chatVibeHTML();
+      }catch(e){}
       if(wasNearBottom) log.scrollTop=log.scrollHeight;
     }, function(err){
       /* This is the path the user actually hits when rules are stale, so it
@@ -12556,6 +12607,97 @@ function chatInvite(){
   rwOverlayOpen('chatInviteBox');
 }
 /* ---- render one message by kind ---- */
+
+/* ============================================================================
+   TRIPCHAT — Gen-Z / Gen-Alpha layer (rw-v79)
+   ============================================================================
+   Design read: this generation grew up on Instagram DMs, Discord and BeReal.
+   What they expect from a group chat is not "more features" — it's
+   REACTIONS, REPLIES, STREAKS and PERSONALITY. Specifically:
+     · double-tap to react (Instagram muscle memory)
+     · emoji reactions that pile up, not a like counter
+     · someone typing shown as movement, not text
+     · the group having a visible identity (streak, vibe)
+   Everything here is additive — no existing bubble or handler is replaced.
+   ========================================================================= */
+var RW_REACTS = ['\u2764\ufe0f','\ud83d\ude02','\ud83d\udd25','\ud83d\ude2d','\ud83d\udc40','\ud83d\udc4d'];
+
+/* toggle my reaction on a message (stored as reactions.<emoji> = [uids]) */
+function chatReact(id, emoji){
+  if(!user || !_chatRef) return;
+  var msg=(_chatMsgs||[]).filter(function(m){ return m._id===id; })[0];
+  var have = msg && msg.reactions && msg.reactions[emoji] && msg.reactions[emoji].indexOf(user.uid)>-1;
+  var upd={};
+  upd['reactions.'+emoji] = have
+    ? firebase.firestore.FieldValue.arrayRemove(user.uid)
+    : firebase.firestore.FieldValue.arrayUnion(user.uid);
+  _chatRef.doc(id).update(upd).catch(function(){});
+  if(!have){ try{ rwHaptic&&rwHaptic(); }catch(e){} rwPopHeart(emoji); }
+}
+/* the little floating emoji burst — pure CSS, no library */
+function rwPopHeart(e){
+  var n=document.createElement('div');
+  n.className='rw-pop'; n.textContent=e;
+  document.body.appendChild(n);
+  setTimeout(function(){ n.remove(); }, 900);
+}
+/* render the reaction pills under a bubble */
+function chatReactsHTML(id, m){
+  var r=m.reactions||{}, keys=Object.keys(r).filter(function(k){ return (r[k]||[]).length; });
+  var out='';
+  if(keys.length){
+    out+='<div class="rx-row">'+keys.map(function(k){
+      var mine = user && r[k].indexOf(user.uid)>-1;
+      return '<span class="rx'+(mine?' mine':'')+'" onclick="chatReact(\''+id+'\',\''+k+'\')">'+k+' '+r[k].length+'</span>';
+    }).join('')+'</div>';
+  }
+  return out;
+}
+/* long-press / double-tap opens the reaction picker */
+function chatReactPicker(id, ev){
+  try{ ev && ev.preventDefault(); }catch(e){}
+  var old=el('rxPick'); if(old) old.remove();
+  var d=document.createElement('div');
+  d.id='rxPick'; d.className='rx-pick';
+  d.innerHTML=RW_REACTS.map(function(e){
+    return '<span onclick="chatReact(\''+id+'\',\''+e+'\');document.getElementById(\'rxPick\').remove()">'+e+'</span>';
+  }).join('');
+  document.body.appendChild(d);
+  setTimeout(function(){
+    document.addEventListener('click', function once(){ var x=el('rxPick'); if(x) x.remove(); document.removeEventListener('click',once); }, {once:true});
+  }, 60);
+}
+/* group streak — consecutive days the group has said something */
+function chatStreak(){
+  var msgs=_chatMsgs||[]; if(!msgs.length) return 0;
+  var days={};
+  msgs.forEach(function(m){
+    var t=m.at&&m.at.seconds? m.at.seconds*1000 : (m.ts||0);
+    if(t) days[new Date(t).toISOString().slice(0,10)]=1;
+  });
+  var n=0, cur=new Date();
+  for(var i=0;i<90;i++){
+    var k=cur.toISOString().slice(0,10);
+    if(days[k]) n++;
+    else if(i>0) break;
+    cur.setDate(cur.getDate()-1);
+  }
+  return n;
+}
+/* the header strip: streak + who's here + group vibe */
+function chatVibeHTML(){
+  var st=chatStreak();
+  var msgs=_chatMsgs||[];
+  var people={}; msgs.forEach(function(m){ if(m.uid) people[m.uid]=m.name||'?'; });
+  var n=Object.keys(people).length;
+  var vibe = st>=7 ? 'locked in \ud83d\udd25' : st>=3 ? 'warming up \u2728' : n>2 ? 'the squad is here \ud83d\udc65' : 'just getting started \ud83c\udf31';
+  return '<div class="tc-vibe">'
+    +(st>1? '<span class="tc-streak">\ud83d\udd25 '+st+'-day streak</span>':'')
+    +'<span class="tc-vibe-t">'+vibe+'</span>'
+    +(n? '<span class="tc-count">'+n+' in here</span>':'')
+    +'</div>';
+}
+
 function chatBubble(id, m, mine){
   var kind = m.kind||'text', K = CHAT_KINDS[kind]||CHAT_KINDS.text;
   if(kind==='tusk'){
@@ -12650,11 +12792,17 @@ function chatBubble(id, m, mine){
       +'<div style="font-size:9.5px;color:'+col+';font-weight:800;text-transform:uppercase;letter-spacing:.08em">'+K.icon+' '+K.label+' \u00b7 '+esc2(m.name||'')+'</div>'
       +'<div style="font-size:12.5px;line-height:1.55;margin-top:3px">'+esc2(m.text||'')+'</div></div></div>';
   }
-    return '<div style="display:flex;justify-content:'+(mine?'flex-end':'flex-start')+';margin:4px 0">'
-    +'<div style="max-width:78%;background:'+(mine?'linear-gradient(135deg,var(--gold,#E8BA6C),var(--gold2,#C8913E));color:#0A0A0C':'var(--bg2,#12121C);color:var(--t1);border:1px solid var(--b2,#2A2A36)')
-    +';border-radius:'+(mine?'14px 14px 4px 14px':'14px 14px 14px 4px')+';padding:8px 11px;font-size:12.5px;line-height:1.5">'
-    +(mine?'':'<div style="font-size:9.5px;opacity:.7;margin-bottom:2px">'+esc2(m.name||'Traveller')+'</div>')
-    +esc2(m.text||'')+'</div></div>';
+    /* Gen-Z bubble: double-tap to react (Instagram muscle memory), long-press
+       for the picker, reactions pile up underneath. */
+    return '<div class="tc-row'+(mine?' me':'')+'">'
+    +(mine?'':'<div class="tc-av">'+esc2((m.name||'T').charAt(0).toUpperCase())+'</div>')
+    +'<div style="max-width:78%">'
+    +'<div class="tc-bub'+(mine?' me':'')+'" ondblclick="chatReact(\''+id+'\',\'\u2764\ufe0f\')" oncontextmenu="chatReactPicker(\''+id+'\',event);return false">'
+    +(mine?'':'<div class="tc-nm">'+esc2(m.name||'Traveller')+'</div>')
+    +esc2(m.text||'')
+    +'</div>'
+    + chatReactsHTML(id, m)
+    +'</div></div>';
 }
 
 /* ==================== SAFETY & MODERATION ====================

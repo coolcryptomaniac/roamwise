@@ -171,6 +171,29 @@ window.RW_EVENTS = [
     cat:'moments', name:'Flagship phone launch week', place:'Dubai \u00b7 Singapore \u00b7 NYC',
     country:'Multi', month:9, verified:'typical', vibe:'Launch-day tourism is a real thing.',
     tips:['Dubai Mall and Singapore Orchard get first stock hours ahead of the West \u2014 pair a city break with a day-one pickup and skip home-country markups.'] }
+,
+  /* ---------------- CAMPUS / STUDENT (partnership: E-Cell NMIMS Mumbai) ---------------- */
+  { id:'nmims-esummit', roi:{prof:5,money:3,mind:3,cult:3,fun:4,cost:1,drain:2},
+    cat:'startup', name:'E-Summit \u2014 E-Cell NMIMS Mumbai', place:'NMIMS, Vile Parle, Mumbai',
+    country:'India', month:1, verified:'typical',
+    vibe:'The flagship: Shark Tank-style pitching, Business Mela, 800\u20131000 attendees.',
+    tips:['The single best campus event in Mumbai for meeting founders and early investors.',
+          'Come with a working demo on your phone \u2014 it beats a pitch deck at a student event.'] },
+  { id:'nmims-startupgarage', roi:{prof:5,money:2,mind:4,cult:2,fun:3,cost:1,drain:1},
+    cat:'startup', name:'Startup Garage \u2014 E-Cell NMIMS', place:'NMIMS, Mumbai',
+    country:'India', month:9, verified:'typical',
+    vibe:'Founder-led speaker sessions, 200\u2013250 students.',
+    tips:['Smaller and more useful than the big summits \u2014 you actually get to talk to people.'] },
+  { id:'nmims-venturesome', roi:{prof:4,money:2,mind:3,cult:2,fun:4,cost:1,drain:1},
+    cat:'startup', name:'Venturesome \u2014 E-Cell NMIMS', place:'NMIMS, Mumbai',
+    country:'India', month:10, verified:'typical',
+    vibe:'Student entrepreneurship competition, 150\u2013200 participants.',
+    tips:['Good for spotting talent \u2014 several of the best interns come from these rooms.'] },
+  { id:'nmims-ibl', roi:{prof:4,money:2,mind:4,cult:2,fun:3,cost:1,drain:2},
+    cat:'startup', name:'Indian Business League \u2014 E-Cell NMIMS', place:'NMIMS, Mumbai',
+    country:'India', month:11, verified:'typical',
+    vibe:'National-level business case competition, 50+ colleges.',
+    tips:['National reach \u2014 a good place for a brand to be seen by students outside Mumbai too.'] }
 ];
 
 window.RW_EVENT_CATS = [
@@ -179,5 +202,5 @@ window.RW_EVENT_CATS = [
   { id:'sports',  label:'Sports',     icon:'\ud83c\udfc3', color:'#38BDF8' },
   { id:'auto',    label:'Automobile', icon:'\ud83d\ude97', color:'#F0A63B' },
   { id:'tech',    label:'Tech & AI',  icon:'\ud83e\udde0', color:'#7C6BFF' },
-  { id:'moments', label:'World moments', icon:'\ud83c\udf0d', color:'#FB7185' }
+  { id:'moments', label:'World moments', icon:'\ud83c\udf0d', color:'#FB7185' },
 ];
