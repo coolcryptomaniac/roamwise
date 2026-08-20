@@ -4102,5 +4102,113 @@
    100,
    100
   ]
+ },
+ {
+  "slug": "miami-usa",
+  "title": "Miami, USA",
+  "name": "Miami",
+  "country": "USA",
+  "best": "February, April, November",
+  "arch": "monsoon",
+  "cl": [
+   24.1,
+   23.8,
+   26.5,
+   27.1,
+   31.2,
+   29.8,
+   31.1,
+   31,
+   30.8,
+   28.5,
+   27.5,
+   24.9
+  ],
+  "scores": [
+   89,
+   91,
+   78,
+   95,
+   91,
+   55,
+   89,
+   73,
+   76,
+   71,
+   94,
+   88
+  ]
+ },
+ {
+  "slug": "honolulu-usa",
+  "title": "Honolulu, USA",
+  "name": "Honolulu",
+  "country": "USA",
+  "best": "June, July, September",
+  "arch": "tropical",
+  "cl": [
+   25.4,
+   24.8,
+   25.6,
+   26.3,
+   26.8,
+   27.9,
+   28.5,
+   29.2,
+   29.6,
+   29.1,
+   27.4,
+   27.4
+  ],
+  "scores": [
+   82,
+   97,
+   97,
+   91,
+   79,
+   98,
+   98,
+   94,
+   98,
+   97,
+   97,
+   98
+  ]
+ },
+ {
+  "slug": "vancouver-canada",
+  "title": "Vancouver, Canada",
+  "name": "Vancouver",
+  "country": "Canada",
+  "best": "July, August, September",
+  "arch": "temperate",
+  "cl": [
+   5.2,
+   7.3,
+   9,
+   11.4,
+   15.1,
+   18,
+   23.5,
+   22,
+   18.3,
+   13.1,
+   8.2,
+   7.6
+  ],
+  "scores": [
+   41,
+   71,
+   76,
+   86,
+   89,
+   88,
+   98,
+   90,
+   91,
+   61,
+   51,
+   56
+  ]
  }
 ]
