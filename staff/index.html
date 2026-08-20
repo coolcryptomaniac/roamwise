@@ -151,6 +151,15 @@ button,select,input,textarea{font:inherit}
 .pl-h{font-size:12px;color:var(--t2);margin-bottom:6px}
 .pl-h b{color:var(--t1)}
 .pl-g{display:flex;gap:9px;align-items:flex-start;font-size:12.5px;color:var(--t2);padding:5px 0;cursor:pointer;line-height:1.5}
+
+.ref-box{background:linear-gradient(150deg,rgba(232,186,108,.12),var(--bg2));border:1px solid rgba(232,186,108,.4);border-radius:14px;padding:15px;text-align:center}
+.ref-code{font-size:21px;font-weight:900;letter-spacing:.06em;color:var(--gold);font-family:ui-monospace,monospace}
+.ref-link{font-size:11.5px;color:var(--t2);margin-top:6px;word-break:break-all}
+.ref-rate{font-size:12.5px;color:var(--t1);margin-top:10px;padding-top:9px;border-top:1px solid rgba(232,186,108,.25)}
+.ref-btns{display:flex;gap:7px;margin-top:9px}
+.ref-btns .btn{flex:1;font-size:12.5px;padding:10px 6px}
+
+.sh-box{background:var(--bg3);border:1px solid var(--b2);border-radius:13px;padding:13px;margin-bottom:8px}
 </style></head><body><div class="wrap">
 <header>
   <div><div class="brand">Roam<em>Wise</em> · team</div><div class="who" id="who">Not signed in</div></div>
@@ -1050,6 +1059,7 @@ function deskPaint(me, logs, sess, claims){
         ? '<div class="dk-done">✅ Today\'s work is logged. Thank you.</div>'
         : '<button class="btn go" style="width:100%;padding:13px;margin:12px 0" onclick="deskLog()">✍️ Log today\'s work</button>')
     + (sheet? '<a class="btn" style="display:block;text-align:center;text-decoration:none;margin-bottom:10px" href="'+esc(sheet)+'" target="_blank" rel="noopener">📊 Open my Google Sheet ↗</a>' : '')
+    + deskRefHTML(me)
     + deskPlanHTML(me)
     + deskTargetsHTML(me, logs)
     + deskOfferHTML(me)
@@ -2016,14 +2026,26 @@ function deskOfferPrint(){
 /* Shared team links — same for everyone, so they live here not in the DB. */
 var RW_TEAM_LINKS = {
   whatsapp: 'https://chat.whatsapp.com/I5qdkx0B9D8Bogc9IdoXYE',
-  sheet: ''   /* paste the common Google Sheet URL here */
+  sheet: 'https://docs.google.com/spreadsheets/d/1DT6axL4O364ZRof5tOvNk8n6CxavF4UphWjhO2M65S0/edit',
+  /* Google's own copy URL. Opening this makes THEIR OWN copy — the shared
+     sheet cannot be damaged from it. Safer default for anyone experimenting. */
+  sheetCopy: 'https://docs.google.com/spreadsheets/d/1DT6axL4O364ZRof5tOvNk8n6CxavF4UphWjhO2M65S0/copy',
+  sheetView: 'https://docs.google.com/spreadsheets/d/1DT6axL4O364ZRof5tOvNk8n6CxavF4UphWjhO2M65S0/preview'
 };
 function deskTeamLinksHTML(){
   var L=RW_TEAM_LINKS;
   return '<div class="dk-lab">TEAM</div>'
-    +'<a class="btn" style="display:block;text-align:center;text-decoration:none;margin-bottom:8px" href="'+L.whatsapp+'" target="_blank" rel="noopener">💬 Join the RoamWise WhatsApp community ↗</a>'
-    +(L.sheet? '<a class="btn" style="display:block;text-align:center;text-decoration:none;margin-bottom:8px" href="'+L.sheet+'" target="_blank" rel="noopener">📊 Team tracker sheet ↗</a>'
-             : '<div class="dk-note">Common team sheet link not set yet — paste it into RW_TEAM_LINKS in staff/index.html.</div>');
+    +'<a class="btn" style="display:block;text-align:center;text-decoration:none;margin-bottom:8px" href="'+L.whatsapp+'" target="_blank" rel="noopener">💬 WhatsApp community ↗</a>'
+    +'<div class="sh-box">'
+    +'<b style="font-size:13.5px">📊 Team tracker sheet</b>'
+    +'<div class="dk-note" style="margin:5px 0 9px">The shared sheet everyone updates. Use <b>Open to edit</b> for real work. If you just want to try something, <b>Make my own copy</b> gives you a private duplicate — the team sheet can\'t be broken from it.</div>'
+    +'<div style="display:flex;gap:7px;flex-wrap:wrap">'
+    +'<a class="btn" style="flex:1;min-width:110px;text-align:center;text-decoration:none" href="'+L.sheet+'" target="_blank" rel="noopener">✏️ Open to edit</a>'
+    +'<a class="btn" style="flex:1;min-width:110px;text-align:center;text-decoration:none" href="'+L.sheetCopy+'" target="_blank" rel="noopener">📄 Make my own copy</a>'
+    +'<a class="btn" style="flex:1;min-width:110px;text-align:center;text-decoration:none" href="'+L.sheetView+'" target="_blank" rel="noopener">👀 View only</a>'
+    +'</div>'
+    +'<div class="dk-note" style="margin-top:9px">⚠️ Deleted something by accident? In the sheet: <b>File → Version history → Restore</b>. Nothing is ever really lost.</div>'
+    +'</div>';
 }
 
 
@@ -2230,6 +2252,67 @@ function deskPlanTick(k){
     return db.collection('staff').doc(user.uid).update(upd);
   }).then(function(){ window._deskPlanDone=window._deskPlanDone||{}; window._deskPlanDone[k]=!cur; deskRender(); })
    .catch(function(){});
+}
+
+
+/* ============================================================================
+   MY REFERRAL LINK (rw-v78) — what Deepanshi was asking for
+   ============================================================================
+   Matches the person to their code in referral-data.js by name, so nobody has
+   to be told their code — they just see it. Share buttons are one tap, because
+   a link that's awkward to share doesn't get shared.
+   ========================================================================= */
+function rwMyRef(me){
+  var list=(window.RW_REFERRERS||[]);
+  var n=String((me&&me.name)||'').toLowerCase();
+  var e=String((me&&me.email)||'').toLowerCase();
+  for(var i=0;i<list.length;i++){
+    var r=list[i];
+    if(r.uid && me && r.uid===me.uid) return r;
+    if(r.email && e && r.email.toLowerCase()===e) return r;
+    var first=String(r.name||'').toLowerCase().split(' ')[0];
+    if(first && n && n.indexOf(first)>-1) return r;
+  }
+  return null;
+}
+function deskRefHTML(me){
+  var r=rwMyRef(me);
+  if(!r){
+    return '<div class="dk-lab">MY REFERRAL LINK</div>'
+      +'<div class="dk-note">No referral code assigned to you yet — ask Mohit to add you to referral-data.js and it will appear here.</div>';
+  }
+  var link='https://roamwise.co.in/?ref='+r.code;
+  var pitch='I\u2019ve been using RoamWise \u2014 an AI travel planner built for India. It gives honest road times (a 200km Spiti drive is 9 hours, not 3), real local prices, and splits group costs to the paise. Pro is \u20b9100 one-time, no subscription.\n\n'+link;
+  var wa='https://wa.me/?text='+encodeURIComponent(pitch);
+  return '<div class="dk-lab">MY REFERRAL LINK</div>'
+    +'<div class="ref-box">'
+    +'<div class="ref-code">'+esc(r.code)+'</div>'
+    +'<div class="ref-link" id="myRefLink">'+esc(link)+'</div>'
+    +'<div class="ref-rate">You earn <b>'+Math.round((r.rate||0.3)*100)+'%</b> of every sale through this link \u2014 \u20b9'+Math.round(100*(r.rate||0.3))+' on the \u20b9100 plan.</div>'
+    +'</div>'
+    +'<div class="ref-btns">'
+    +'<button class="btn" onclick="rwRefCopy(\''+link+'\')">\ud83d\udccb Copy link</button>'
+    +'<a class="btn" href="'+wa+'" target="_blank" rel="noopener" style="text-align:center;text-decoration:none">\ud83d\udcac WhatsApp</a>'
+    +'<button class="btn" onclick="rwRefCopyPitch()">\u270d\ufe0f Copy pitch</button>'
+    +'</div>'
+    +'<textarea id="refPitch" style="position:absolute;left:-9999px">'+esc(pitch)+'</textarea>'
+    +'<div class="dk-note">Anyone who opens your link is tagged to you for 30 days. When they pay, your commission appears in the founder\u2019s payout ledger \u2014 and you can also just give people the code <b>'+esc(r.code)+'</b> to type at sign-up.</div>';
+}
+function rwRefCopy(t){
+  try{ navigator.clipboard.writeText(t); showToastS('Link copied'); }
+  catch(e){ alert(t); }
+}
+function rwRefCopyPitch(){
+  var el2=el('refPitch'); if(!el2) return;
+  try{ navigator.clipboard.writeText(el2.value); showToastS('Message copied \u2014 paste it anywhere'); }
+  catch(e){ el2.select(); document.execCommand('copy'); showToastS('Copied'); }
+}
+function showToastS(m){
+  var t=document.createElement('div');
+  t.textContent=m;
+  t.style.cssText='position:fixed;left:50%;bottom:26px;transform:translateX(-50%);z-index:9999;background:#E8BA6C;color:#0A0A0C;font-weight:800;padding:11px 18px;border-radius:24px;font-size:13.5px;box-shadow:0 6px 24px rgba(0,0,0,.4)';
+  document.body.appendChild(t);
+  setTimeout(function(){ t.style.opacity='0'; t.style.transition='opacity .4s'; setTimeout(function(){ t.remove(); },420); }, 1900);
 }
 
 </script>
