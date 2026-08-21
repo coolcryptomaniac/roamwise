@@ -15,9 +15,9 @@ crons = ["30 5 * * *"]
 #   npx wrangler kv namespace create RW_KV
 # Paste the printed id below and UNCOMMENT all three lines.
 # ---------------------------------------------------------------------------
-# [[kv_namespaces]]
-# binding = "RW_KV"
-# id = "PASTE_YOUR_KV_ID_HERE"
+[[kv_namespaces]]
+binding = "RW_KV"
+id = "PASTE_THE_ID_HERE"   # <-- the ONLY line you edit in this file
 
 # ---------------------------------------------------------------------------
 # SECRETS — never written here. Set each with wrangler:
