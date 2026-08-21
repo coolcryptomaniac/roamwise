@@ -1513,3 +1513,139 @@ body.rw-mode-story .day-card::before{content:'';display:block;width:38px;height:
 .ride span{display:block;font-size:10px;color:var(--t3);font-weight:600;margin-top:2px}
 .ride-note{font-size:10.5px;color:var(--t3);line-height:1.55;margin-top:9px}
 @media(prefers-reduced-motion:reduce){.pt-card{animation:none;transition:none}.ride{transition:none}}
+
+/* ===== PAGE SHELL (rw-v82) — real pages, not cards stuffed into home =====
+   A feature that matters deserves the whole screen: its own header, its own
+   URL, and the back button working the way people expect. */
+.rw-page{position:fixed;inset:0;z-index:2400;background:var(--bg,#0A0A0C);
+  overflow-y:auto;-webkit-overflow-scrolling:touch;
+  opacity:0;visibility:hidden;transform:translateY(14px);
+  transition:opacity .26s cubic-bezier(.22,1,.36,1),transform .26s cubic-bezier(.22,1,.36,1),visibility .26s}
+.rw-page.open{opacity:1;visibility:visible;transform:none}
+body.rw-paged{overflow:hidden}
+.rw-page-bar{position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:12px;
+  padding:14px 16px;background:color-mix(in srgb,var(--bg,#0A0A0C) 92%,transparent);
+  backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--b1,#22222C)}
+.rw-back,.rw-share{flex:0 0 auto;width:38px;height:38px;border-radius:50%;border:1px solid var(--b2,#2A2A36);
+  background:var(--bg2,#12121C);color:var(--t1);font-size:17px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:transform .18s cubic-bezier(.34,1.56,.64,1),border-color .18s}
+.rw-back:active,.rw-share:active{transform:scale(.9)}
+.rw-back:hover,.rw-share:hover{border-color:var(--gold,#E8BA6C)}
+.rw-page-t{flex:1;min-width:0}
+.rw-page-t b{display:block;font-size:17px;letter-spacing:-.01em;color:var(--t1)}
+.rw-page-t span{display:block;font-size:11.5px;color:var(--t3);margin-top:1px;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rw-page-body{padding:16px 16px 90px;max-width:760px;margin:0 auto;
+  animation:pgIn .34s cubic-bezier(.22,1,.36,1) .06s both}
+@keyframes pgIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.rw-page-body .xsec{background:none;border:none;padding:0;margin:0}
+
+/* home focus: the primary actions get room, the rest steps back */
+.qg-tile.qg-primary{background:linear-gradient(150deg,color-mix(in srgb,var(--gold) 16%,var(--bg2)),var(--bg2));
+  border-color:rgba(232,186,108,.42)}
+.qg-more{text-align:center;margin:16px 0 4px}
+.qg-more button{background:none;border:1px solid var(--b2);border-radius:24px;padding:10px 20px;
+  color:var(--t2);font:inherit;font-size:12.5px;cursor:pointer;transition:all .18s}
+.qg-more button:hover{border-color:var(--gold);color:var(--t1)}
+@media(prefers-reduced-motion:reduce){.rw-page,.rw-page-body{transition:none;animation:none}}
+
+/* ===== BOOKING / GREEN / SOS (rw-v83) ===== */
+.bk-empty{text-align:center;padding:40px 20px;color:var(--t2)}
+.bk-list{margin-bottom:14px}
+.bk-row{display:flex;align-items:center;gap:11px;padding:13px;border:1px solid var(--b2);border-radius:14px;
+  margin-bottom:9px;background:var(--bg2);animation:ptIn .34s cubic-bezier(.34,1.56,.64,1) both}
+.bk-ic{font-size:22px}
+.bk-row b{font-size:14px;color:var(--t1)}
+.bk-sub{font-size:11.5px;color:var(--t3);margin-top:2px}
+.bk-amt{font-size:13px;font-weight:800;color:var(--gold);white-space:nowrap}
+.bk-x{background:none;border:none;color:var(--t3);font-size:16px;cursor:pointer;padding:4px}
+.bk-total{display:flex;justify-content:space-between;align-items:center;padding:14px;border-radius:14px;
+  background:linear-gradient(140deg,color-mix(in srgb,var(--gold) 14%,var(--bg2)),var(--bg2));
+  border:1px solid rgba(232,186,108,.4)}
+.bk-total b{font-size:21px;color:var(--gold);font-variant-numeric:tabular-nums}
+.bk-note{font-size:11.5px;color:var(--t3);line-height:1.6;margin:10px 0 14px}
+.bk-go{width:100%;padding:15px;border-radius:14px;border:none;font:inherit;font-weight:800;font-size:15px;
+  cursor:pointer;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#0A0A0C;
+  transition:transform .18s cubic-bezier(.34,1.56,.64,1)}
+.bk-go:active{transform:scale(.97)}
+.bk-how{margin-top:16px;padding:14px;border:1px solid var(--b2);border-radius:14px;font-size:12.5px;color:var(--t2);line-height:1.9}
+.bk-how b{color:var(--t1);display:block;margin-bottom:5px}
+#rwBasketBadge{position:absolute;top:-5px;right:-5px;min-width:18px;height:18px;border-radius:9px;
+  background:var(--gold);color:#0A0A0C;font-size:10.5px;font-weight:900;display:none;
+  align-items:center;justify-content:center;padding:0 5px}
+.gr-hero{text-align:center;padding:10px 0 22px}
+.gr-badge{display:inline-block;font-size:11px;letter-spacing:.18em;text-transform:uppercase;font-weight:800;
+  color:#4ADE80;background:rgba(74,222,128,.12);border:1px solid rgba(74,222,128,.4);
+  border-radius:24px;padding:5px 14px;margin-bottom:14px}
+.gr-h{font-size:clamp(21px,4.4vw,29px);line-height:1.2;letter-spacing:-.015em;font-weight:400;
+  font-family:Georgia,serif;color:var(--t1);margin-bottom:10px}
+.gr-sub{font-size:13.5px;color:var(--t2);line-height:1.65;max-width:520px;margin:0 auto}
+.gr-card{border:1px solid var(--b2);border-radius:16px;padding:16px;margin-bottom:12px;background:var(--bg2);
+  animation:ptIn .4s cubic-bezier(.34,1.56,.64,1) both}
+.gr-t{display:flex;align-items:center;gap:10px;margin-bottom:9px}
+.gr-ic{font-size:22px}
+.gr-t b{font-size:15.5px;color:var(--t1)}
+.gr-ul{margin:0 0 10px 17px;padding:0}
+.gr-ul li{font-size:12.5px;color:var(--t2);line-height:1.7;margin-bottom:3px}
+.gr-honest{font-size:12px;color:var(--t2);line-height:1.6;padding:10px;border-radius:11px;
+  background:rgba(74,222,128,.07);border:1px solid rgba(74,222,128,.28)}
+.gr-honest b{color:#4ADE80}
+.gr-cta{border:1px solid rgba(74,222,128,.4);border-radius:16px;padding:18px;margin-top:16px;text-align:center;
+  background:linear-gradient(150deg,rgba(74,222,128,.08),var(--bg2))}
+.gr-foot{font-size:11.5px;color:var(--t3);line-height:1.65;margin-top:16px;text-align:center}
+.sos-top{text-align:center;padding:6px 0 16px}
+.sos-top b{display:block;font-size:17px;color:var(--t1);margin-bottom:5px}
+.sos-nums{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:18px}
+.sos-n{text-decoration:none;text-align:center;padding:12px 4px;border-radius:13px;
+  background:rgba(224,91,91,.12);border:1px solid rgba(224,91,91,.42);display:block;
+  transition:transform .18s cubic-bezier(.34,1.56,.64,1)}
+.sos-n:active{transform:scale(.94)}
+.sos-n b{display:block;font-size:17px;color:#E0785B;font-weight:900}
+.sos-n span{font-size:9.5px;color:var(--t3);display:block;margin-top:2px;line-height:1.3}
+.sos-block{border-left:3px solid var(--gold);padding:11px 0 11px 13px;margin-bottom:14px}
+.sos-block b{display:block;font-size:14px;color:var(--t1);margin-bottom:6px}
+.sos-block div{font-size:12.5px;color:var(--t2);line-height:1.65;margin-bottom:5px}
+@media(prefers-reduced-motion:reduce){.bk-row,.gr-card{animation:none}}
+
+/* ===== INSTANT BOOKING (rw-v84) ===== */
+.st-save{background:rgba(74,222,128,.09);border:1px solid rgba(74,222,128,.35);border-radius:13px;
+  padding:12px;font-size:12.5px;color:var(--t2);line-height:1.6}
+.st-save b{color:#4ADE80}
+.st-card{border:1px solid var(--b2);border-radius:16px;padding:15px;margin-bottom:11px;background:var(--bg2);
+  animation:ptIn .38s cubic-bezier(.34,1.56,.64,1) both;transition:border-color .2s,transform .2s}
+.st-card:hover{border-color:var(--gold);transform:translateY(-2px)}
+.st-top{display:flex;gap:10px;align-items:flex-start;margin-bottom:9px}
+.st-prop{font-size:15px;color:var(--t1)}
+.st-room{font-size:13px;color:var(--gold);font-weight:700;margin-top:2px}
+.st-where{font-size:11.5px;color:var(--t3);margin-top:3px}
+.st-price{font-size:19px;font-weight:900;color:var(--t1);white-space:nowrap;font-variant-numeric:tabular-nums}
+.st-price span{font-size:10.5px;color:var(--t3);font-weight:600;display:block;text-align:right}
+.st-inc{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:8px}
+.st-inc span{font-size:10.5px;background:var(--bg3);border:1px solid var(--b2);border-radius:20px;padding:2px 9px;color:var(--t2)}
+.st-cancel{font-size:11.5px;color:#4ADE80;margin-bottom:11px}
+.st-book{width:100%;padding:12px;border-radius:12px;border:none;font:inherit;font-weight:800;font-size:14px;
+  cursor:pointer;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#0A0A0C;
+  transition:transform .18s cubic-bezier(.34,1.56,.64,1)}
+.st-book:active{transform:scale(.97)}
+.bk-sum{background:var(--bg3);border:1px solid var(--b2);border-radius:13px;padding:13px;margin-bottom:4px}
+.bk-sr{display:flex;justify-content:space-between;gap:10px;font-size:12.5px;color:var(--t3);padding:5px 0}
+.bk-sr b{color:var(--t1);text-align:right}
+.bk-sr.tot{border-top:1px solid var(--b2);margin-top:5px;padding-top:9px;font-size:14px}
+.bk-sr.tot b{color:var(--gold);font-size:18px;font-weight:900}
+.bk-pay-note{font-size:12px;color:var(--t2);line-height:1.6;margin-top:10px;padding:10px;border-radius:11px;
+  background:rgba(74,222,128,.07);border:1px solid rgba(74,222,128,.28)}
+.bk-pay-note b{color:#4ADE80}
+.bk-pay-fine{font-size:10.5px;color:var(--t3);line-height:1.55;margin-top:10px}
+.bkd-wrap{text-align:center;padding:12px 0}
+.bkd-tick{width:66px;height:66px;border-radius:50%;margin:0 auto 14px;display:flex;align-items:center;justify-content:center;
+  font-size:33px;color:#0A0A0C;background:linear-gradient(135deg,#4ADE80,#22C55E);
+  animation:tickPop .55s cubic-bezier(.34,1.56,.64,1) both}
+@keyframes tickPop{0%{transform:scale(0) rotate(-25deg);opacity:0}100%{transform:none;opacity:1}}
+.bkd-h{font-size:23px;font-family:Georgia,serif;font-weight:400;color:var(--t1);margin-bottom:5px}
+.bkd-ref{font-family:ui-monospace,monospace;font-size:15px;font-weight:800;color:var(--gold);letter-spacing:.1em;margin-bottom:18px}
+.bkd-card{text-align:left;background:var(--bg2);border:1px solid var(--b2);border-radius:14px;padding:14px;margin-bottom:14px}
+.bkd-next{text-align:left;font-size:12.5px;color:var(--t2);line-height:1.9;padding:13px;border-radius:13px;
+  border:1px solid var(--b2);margin-bottom:14px}
+.bkd-next b{color:var(--t1);display:block;margin-bottom:4px}
+@media(prefers-reduced-motion:reduce){.st-card,.bkd-tick{animation:none}}

@@ -1073,6 +1073,97 @@ function rwCloseSection(id){
   s.style.display='none';
   s.setAttribute('hidden','');
 }
+
+/* ============================================================================
+   PAGE ROUTER (rw-v82) — stop cramming everything into the home screen
+   ============================================================================
+   THE PROBLEM: every feature (Events, Partners, Modes, Beacon...) injected a
+   <section> into the HOME view. Home became an endless scroll-pile, nothing
+   felt like a real destination, and nothing was linkable.
+
+   THE FIX: real pages. Each major feature gets:
+     · its own URL hash (#/partners) — shareable, and the BACK button works
+     · a full-screen shell with its own header, not a card wedged into home
+     · focus: the page is the only thing on screen
+
+   Everything is additive — the existing open* functions still build their
+   content; they just render into a page shell instead of the home feed.
+   ========================================================================= */
+var RW_PAGES = {
+  partners: { title:'Stay & do',      sub:'Boutique stays and local operators we\u2019ve actually researched', icon:'\ud83e\udd1d', build:function(){ return _pageWrap('partnersSection'); } },
+  events:   { title:'Event radar',    sub:'Music, startup, sport and motoring \u2014 with a trip built around each', icon:'\ud83d\udcc5', build:function(){ return _pageWrap('eventsSection'); } },
+  stays:    { title:'Book a stay',    sub:'Verified rooms \u00b7 you pay the property directly', icon:'\ud83c\udfe1', build:function(){} },
+  booked:   { title:'Confirmed',      sub:'', icon:'\u2705', build:function(){} },
+  booking:  { title:'Your trip',      sub:'Everything you\u2019re booking, in one request', icon:'\ud83e\uddf3', build:function(){} },
+  green:    { title:'RoamWise Green',  sub:'Electric, solar, vegan \u2014 verified, not claimed', icon:'\u26a1', build:function(){} },
+  sos:      { title:'Stranded?',       sub:'Works offline \u2014 the advice a local friend would give', icon:'\ud83c\udd98', build:function(){} },
+  modes:    { title:'Layout',         sub:'Three genuinely different ways to use RoamWise', icon:'\ud83e\udded', build:function(){ return _pageWrap('modeSection'); } }
+};
+function _pageWrap(id){ return id; }
+
+var _rwPageStack=[];
+function rwPageOpen(key, builder){
+  var P=RW_PAGES[key]||{title:key,sub:'',icon:''};
+  var host=el('rwPage');
+  if(!host){
+    host=document.createElement('div'); host.id='rwPage'; host.className='rw-page';
+    document.body.appendChild(host);
+  }
+  host.innerHTML=
+     '<div class="rw-page-bar">'
+    +'<button class="rw-back" onclick="rwPageClose()" aria-label="Back">\u2190</button>'
+    +'<div class="rw-page-t"><b>'+(P.icon||'')+' '+esc2(P.title)+'</b>'
+    +(P.sub?'<span>'+esc2(P.sub)+'</span>':'')+'</div>'
+    +'<button class="rw-share" onclick="rwPageShare(\''+key+'\')" aria-label="Share">\u21d7</button>'
+    +'</div>'
+    +'<div class="rw-page-body" id="rwPageBody"></div>';
+  document.body.classList.add('rw-paged');
+  host.classList.add('open');
+  try{ if(typeof builder==='function') builder(el('rwPageBody')); }catch(e){}
+  try{ if(location.hash!=='#/'+key) history.pushState({rwPage:key},'', '#/'+key); }catch(e){}
+  window.scrollTo(0,0);
+  _rwPageStack.push(key);
+}
+function rwPageClose(){
+  var host=el('rwPage');
+  if(host){ host.classList.remove('open'); setTimeout(function(){ if(host) host.innerHTML=''; },260); }
+  document.body.classList.remove('rw-paged');
+  _rwPageStack.pop();
+  try{ if(String(location.hash||'').indexOf('#/')===0) history.pushState({},'', location.pathname); }catch(e){}
+}
+function rwPageShare(key){
+  var url=location.origin+location.pathname+'#/'+key;
+  try{
+    if(navigator.share) navigator.share({ title:'RoamWise \u2014 '+(RW_PAGES[key]||{}).title, url:url });
+    else { navigator.clipboard.writeText(url); showToast('Link copied'); }
+  }catch(e){ showToast(url); }
+}
+/* back button / direct link support */
+window.addEventListener('popstate', function(){
+  var h=String(location.hash||'');
+  if(h.indexOf('#/')===0){ rwRouteTo(h.slice(2)); }
+  else if(el('rwPage') && el('rwPage').classList.contains('open')){
+    el('rwPage').classList.remove('open');
+    document.body.classList.remove('rw-paged');
+  }
+});
+function rwRouteTo(key){
+  if(key==='partners' && typeof openPartners==='function') return openPartners();
+  if(key==='events'   && typeof openEvents==='function')   return openEvents();
+  if(key==='stays'    && typeof openStays==='function')     return openStays();
+  if(key==='booking'  && typeof openBooking==='function')   return openBooking();
+  if(key==='green'    && typeof openGreen==='function')     return openGreen();
+  if(key==='sos'      && typeof openSOS==='function')       return openSOS();
+  if(key==='modes'    && typeof openModePicker==='function') return openModePicker();
+}
+/* open a deep link on first load */
+document.addEventListener('DOMContentLoaded', function(){
+  setTimeout(function(){
+    var h=String(location.hash||'');
+    if(h.indexOf('#/')===0) rwRouteTo(h.slice(2));
+  }, 900);
+});
+
 function rwOpenSection(id){
   var s=el(id); if(!s) return;
   try{ if(s.dataset.rwcls) s.className=s.dataset.rwcls; }catch(e){}
@@ -1150,6 +1241,344 @@ function openModePicker(){
 
 
 
+
+
+/* ============================================================================
+   INSTANT BOOKING ENGINE (rw-v84) — pilot
+   ============================================================================
+   Researched against MakeMyTrip, Booking.com, Agoda, Expedia and OYO. Two
+   things they all do that we deliberately do NOT:
+     · they charge the property 15-25%  -> we charge 8%
+     · they hold the money 7-14 days    -> the guest pays the property DIRECT
+   Those two facts are the entire reason a property lists with a platform that
+   has 20 users. Everything below is built to preserve them.
+   ========================================================================= */
+function rwRoomsFor(zone){
+  var list=(window.RW_ROOMS||[]).slice();
+  if(zone) list=list.filter(function(r){ return String(r.zone).toLowerCase()===String(zone).toLowerCase(); });
+  return list;
+}
+function rwNights(a,b){
+  try{ var d=(new Date(b)-new Date(a))/86400000; return d>0? Math.round(d):1; }catch(e){ return 1; }
+}
+function openStays(zone){
+  window._stZone = (zone!==undefined? zone : window._stZone) || '';
+  rwPageOpen('stays', function(body){
+    var zones={}; (window.RW_ROOMS||[]).forEach(function(r){ zones[r.zone]=1; });
+    body.innerHTML='<div class="st-save">\ud83d\udcb8 <b>You pay the property directly.</b> We take 8% from them afterwards \u2014 other platforms take 15\u201325%, which is why their rooms cost more.</div>'
+      +'<div class="pt-chips" style="margin:12px 0">'
+      +'<button class="ev-chip'+(!window._stZone?' on':'')+'" onclick="openStays(\'\')">Everywhere</button>'
+      + Object.keys(zones).map(function(z){
+          return '<button class="ev-chip'+(window._stZone===z?' on':'')+'" onclick="openStays(\''+z+'\')">'+esc2(z)+'</button>';
+        }).join('')
+      +'</div><div id="staysOut"></div>';
+    rwStaysRender();
+  });
+}
+function rwStaysRender(){
+  var host=el('staysOut'); if(!host) return;
+  var list=rwRoomsFor(window._stZone);
+  if(!list.length){ host.innerHTML='<div class="note" style="text-align:center;padding:22px;color:var(--t3)">No rooms listed here yet.</div>'; return; }
+  host.innerHTML=list.map(function(r){
+    return '<div class="st-card">'
+      +'<div class="st-top"><span style="flex:1;min-width:0">'
+      +'<b class="st-prop">'+esc2(r.property)+'</b>'
+      +'<div class="st-room">'+esc2(r.room)+'</div>'
+      +'<div class="st-where">'+esc2(r.area)+' \u00b7 '+esc2(r.zone)+' \u00b7 sleeps '+r.maxGuests+'</div>'
+      +'</span>'
+      +'<span class="st-price">\u20b9'+r.price.toLocaleString('en-IN')+'<span>/night</span></span></div>'
+      +'<div class="st-inc">'+(r.inc||[]).map(function(i){ return '<span>'+esc2(i)+'</span>'; }).join('')+'</div>'
+      +'<div class="st-cancel">\u2713 '+esc2(r.cancel||'')+'</div>'
+      +'<button class="st-book" onclick="openRoomBook(\''+r.id+'\')">Book this room \u2192</button>'
+      +'</div>';
+  }).join('')
+  +'<div class="gr-foot">Rates are set by the property, not by us. We never discount someone\u2019s room without asking them first.</div>';
+}
+function rwRoomById(id){ return (window.RW_ROOMS||[]).filter(function(r){ return r.id===id; })[0]; }
+
+/* ---------------- the booking form ---------------- */
+function openRoomBook(id){
+  var r=rwRoomById(id); if(!r) return;
+  var t=new Date(), inD=new Date(t.getTime()+86400000), outD=new Date(t.getTime()+2*86400000);
+  var f=function(d){ return d.toISOString().slice(0,10); };
+  rwForm('\ud83c\udfe1 '+r.property, [
+    { id:'bk_in',    label:'Check in',  type:'date', value:f(inD) },
+    { id:'bk_out',   label:'Check out', type:'date', value:f(outD) },
+    { id:'bk_g',     label:'Guests',    type:'number', value:'2' },
+    { id:'bk_nm',    label:'Your name' },
+    { id:'bk_ph',    label:'Your phone', ph:'10-digit mobile' },
+    { id:'bk_note',  label:'Anything they should know', ph:'arrival time, food needs' }
+  ], function(v){
+    if(!v.bk_nm || !v.bk_ph){ showToast('Name and phone are needed to confirm'); return; }
+    if(!/^\d{10}$/.test(String(v.bk_ph).replace(/\D/g,'').slice(-10))){ showToast('Enter a valid 10-digit mobile'); return; }
+    var n=rwNights(v.bk_in, v.bk_out);
+    rwBookPay(r, { inD:v.bk_in, outD:v.bk_out, nights:n, guests:+v.bk_g||2,
+                   name:v.bk_nm, phone:v.bk_ph, note:v.bk_note||'' });
+  }, esc2(r.room)+' \u00b7 \u20b9'+r.price.toLocaleString('en-IN')+' per night');
+}
+
+/* ---------------- pay: UPI now, or at the property ---------------- */
+function rwBookPay(r, b){
+  var total=r.price*b.nights;
+  var ref='RW'+Date.now().toString(36).toUpperCase().slice(-6);
+  var upi=r.upi || (window.RW_BOOK_TERMS&&RW_BOOK_TERMS.deskUpi) || '';
+  var payUrl='upi://pay?pa='+encodeURIComponent(upi)
+    +'&pn='+encodeURIComponent(r.property)
+    +'&am='+total+'&cu=INR&tn='+encodeURIComponent('RoamWise '+ref);
+  var ov=el('bkPayOv');
+  if(!ov){ ov=document.createElement('div'); ov.id='bkPayOv'; ov.className='overlay'; ov.style.zIndex='4200';
+    ov.onclick=function(x){ if(x.target===ov) rwOverlayClose('bkPayOv'); }; document.body.appendChild(ov); }
+  window._pendingBooking={ r:r, b:b, total:total, ref:ref };
+  ov.innerHTML='<div class="sheet" style="max-width:430px">'
+    +'<div class="sheet-h"><b>Confirm your booking</b><button class="tact" onclick="rwOverlayClose(\'bkPayOv\')">\u2715</button></div>'
+    +'<div class="bk-sum">'
+    +'<div class="bk-sr"><span>'+esc2(r.property)+'</span><b>'+esc2(r.room)+'</b></div>'
+    +'<div class="bk-sr"><span>Dates</span><b>'+esc2(b.inD)+' \u2192 '+esc2(b.outD)+'</b></div>'
+    +'<div class="bk-sr"><span>'+b.nights+' night'+(b.nights>1?'s':'')+' \u00d7 \u20b9'+r.price.toLocaleString('en-IN')+'</span><b>\u20b9'+total.toLocaleString('en-IN')+'</b></div>'
+    +'<div class="bk-sr tot"><span>Total</span><b>\u20b9'+total.toLocaleString('en-IN')+'</b></div>'
+    +'</div>'
+    +'<div class="bk-pay-note">You are paying <b>'+esc2(r.property)+'</b> directly \u2014 the money goes to them, not to us. RoamWise invoices them 8% after your stay.</div>'
+    +(upi? '<a class="bk-go" style="display:block;text-align:center;text-decoration:none;margin-top:12px" href="'+payUrl+'">\ud83d\udcf1 Pay \u20b9'+total.toLocaleString('en-IN')+' now (PhonePe / GPay / any UPI)</a>'
+         : '<div class="bk-pay-note" style="margin-top:12px">This property has not shared a UPI id yet \u2014 choose pay-at-property below.</div>')
+    +'<button class="tact" style="width:100%;margin-top:9px;padding:12px" onclick="rwBookConfirm(\'paid\')">\u2705 I\u2019ve paid \u2014 confirm my booking</button>'
+    +'<button class="tact" style="width:100%;margin-top:7px;padding:12px" onclick="rwBookConfirm(\'cash\')">\ud83d\udcb5 I\u2019ll pay at the property</button>'
+    +'<div class="bk-pay-fine">Booking reference <b>'+ref+'</b>. We cannot verify a UPI payment automatically, so the property confirms receipt \u2014 which is also why nobody can fake a paid booking.</div>'
+    +'</div>';
+  ov.classList.add('open');
+}
+
+/* ---------------- confirm + notify the owner ---------------- */
+function rwBookConfirm(mode){
+  var P=window._pendingBooking; if(!P) return;
+  var r=P.r, b=P.b, total=P.total, ref=P.ref;
+  var rec={ ref:ref, roomId:r.id, partnerId:r.partnerId, property:r.property,
+    room:r.room, zone:r.zone, area:r.area,
+    checkIn:b.inD, checkOut:b.outD, nights:b.nights, guests:b.guests,
+    guestName:b.name, guestPhone:b.phone, note:b.note,
+    amount:total, payMode:(mode==='paid'?'upi':'at-property'),
+    commissionPct:8, commission:Math.round(total*0.08),
+    status:(mode==='paid'?'paid-unverified':'confirmed-pay-later'),
+    at:new Date().toISOString() };
+  try{ rec.ref_code=rwRefActive()||''; }catch(e){}
+  try{ if(window.db) db.collection('roomBookings').doc(ref).set(rec).catch(function(){}); }catch(e){}
+  try{ lsSet('rw_last_booking', JSON.stringify(rec)); }catch(e){}
+  rwOverlayClose('bkPayOv');
+  rwBookOwnerMsg(rec, r);
+  rwBookDone(rec);
+}
+/* the WhatsApp message that reaches the property owner */
+function rwBookOwnerMsg(rec, r){
+  var to=r.ownerWa || (window.RW_BOOK_TERMS&&RW_BOOK_TERMS.desk) || '';
+  var msg='*New RoamWise booking* \u2014 '+rec.ref+'\n\n'
+    +'\ud83c\udfe1 '+rec.property+'\n'
+    +'\ud83d\udecf\ufe0f '+rec.room+'\n'
+    +'\ud83d\udcc5 '+rec.checkIn+' \u2192 '+rec.checkOut+'  ('+rec.nights+' night'+(rec.nights>1?'s':'')+')\n'
+    +'\ud83d\udc65 '+rec.guests+' guest'+(rec.guests>1?'s':'')+'\n\n'
+    +'\ud83d\udc64 '+rec.guestName+'\n'
+    +'\ud83d\udcde '+rec.guestPhone+'\n'
+    +(rec.note? '\ud83d\udcdd '+rec.note+'\n':'')
+    +'\n\ud83d\udcb0 \u20b9'+rec.amount.toLocaleString('en-IN')+' \u2014 '
+    +(rec.payMode==='upi' ? 'guest says PAID by UPI (please confirm receipt)' : 'PAYING AT PROPERTY')+'\n'
+    +'RoamWise commission: \u20b9'+rec.commission.toLocaleString('en-IN')+' (8%), invoiced after checkout.\n\n'
+    +'Reply CONFIRM to accept, or tell us if the room is unavailable.';
+  window._lastOwnerMsg=msg;
+  if(to){ window.open('https://wa.me/'+to+'?text='+encodeURIComponent(msg),'_blank','noopener'); }
+}
+function rwBookDone(rec){
+  rwPageOpen('booked', function(body){
+    body.innerHTML='<div class="bkd-wrap">'
+      +'<div class="bkd-tick">\u2713</div>'
+      +'<h2 class="bkd-h">Booking sent</h2>'
+      +'<div class="bkd-ref">'+esc2(rec.ref)+'</div>'
+      +'<div class="bkd-card">'
+      +'<div class="bk-sr"><span>Property</span><b>'+esc2(rec.property)+'</b></div>'
+      +'<div class="bk-sr"><span>Room</span><b>'+esc2(rec.room)+'</b></div>'
+      +'<div class="bk-sr"><span>Dates</span><b>'+esc2(rec.checkIn)+' \u2192 '+esc2(rec.checkOut)+'</b></div>'
+      +'<div class="bk-sr"><span>Guests</span><b>'+rec.guests+'</b></div>'
+      +'<div class="bk-sr tot"><span>'+(rec.payMode==='upi'?'Paid':'Pay at property')+'</span><b>\u20b9'+rec.amount.toLocaleString('en-IN')+'</b></div>'
+      +'</div>'
+      +'<div class="bkd-next"><b>What happens now</b>'
+      +'<div>The property has your details on WhatsApp already.</div>'
+      +'<div>They confirm the room \u2014 usually within a few hours.</div>'
+      +'<div>Save your reference: <b>'+esc2(rec.ref)+'</b></div></div>'
+      +'<button class="bk-go" onclick="rwBookShare()">\ud83d\udcac Send my booking to the property again</button>'
+      +'<button class="tact" style="width:100%;margin-top:8px;padding:12px" onclick="rwPageClose();tabGo(\'home\')">Done</button>'
+      +'<div class="gr-foot">Keep this reference. If anything is wrong, message the property with it and they can find you instantly.</div>'
+      +'</div>';
+  });
+}
+function rwBookShare(){
+  var m=window._lastOwnerMsg||'';
+  if(!m){ showToast('Nothing to send'); return; }
+  window.open('https://wa.me/?text='+encodeURIComponent(m),'_blank','noopener');
+}
+
+/* ============================================================================
+   BOOKING ENGINE + GREEN + SOS (rw-v83)
+   ========================================================================= */
+
+/* ---------------- REQUEST TO BOOK ----------------
+   One basket for the whole trip: stay, guide, transport, food, things to do.
+   The request reaches the partner immediately; a human confirms. Honest about
+   what it is — we never show a "Confirmed" we haven't actually got. */
+function rwBasket(){ try{ return JSON.parse(lsGet('rw_basket')||'[]'); }catch(e){ return []; } }
+function rwBasketSet(b){ try{ lsSet('rw_basket', JSON.stringify(b)); }catch(e){} rwBasketBadge(); }
+function rwBasketAdd(item){
+  var b=rwBasket();
+  if(b.some(function(x){ return x.id===item.id; })){ showToast('Already in your trip'); return; }
+  b.push(item); rwBasketSet(b);
+  try{ rwHaptic&&rwHaptic(); }catch(e){}
+  showToast('\u2795 Added to your trip \u2014 '+item.name);
+}
+function rwBasketRemove(id){ rwBasketSet(rwBasket().filter(function(x){ return x.id!==id; })); openBooking(); }
+function rwBasketBadge(){
+  var n=rwBasket().length, b=el('rwBasketBadge');
+  if(!b) return;
+  b.textContent=n; b.style.display=n?'flex':'none';
+}
+function rwBookTotal(b){ return b.reduce(function(a,x){ return a+(+x.price||0); },0); }
+function rwCommissionOn(b){
+  var cats={}; (window.RW_BOOK_CATS||[]).forEach(function(c){ cats[c.id]=c.pct; });
+  return b.reduce(function(a,x){ return a+((+x.price||0)*((cats[x.cat]||8)/100)); },0);
+}
+function openBooking(){
+  rwPageOpen('booking', function(body){
+    var b=rwBasket();
+    var total=rwBookTotal(b);
+    var html='';
+    if(!b.length){
+      html='<div class="bk-empty"><div style="font-size:46px">\ud83e\uddf3</div>'
+        +'<b style="display:block;margin:10px 0 6px;font-size:16px">Your trip is empty</b>'
+        +'<span class="note">Add a stay, a guide, a driver or something to do \u2014 then send one request and we\u2019ll get it all confirmed.</span>'
+        +'<button class="tact" style="margin-top:14px;font-weight:800;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#0A0A0C;border:none" onclick="rwPageClose();openPartners()">Browse stays &amp; experiences \u2192</button></div>';
+    } else {
+      html='<div class="bk-list">'+b.map(function(x){
+        var C=(window.RW_BOOK_CATS||[]).filter(function(c){ return c.id===x.cat; })[0]||{icon:'\u2022',label:''};
+        return '<div class="bk-row"><span class="bk-ic">'+C.icon+'</span>'
+          +'<span style="flex:1;min-width:0"><b>'+esc2(x.name)+'</b>'
+          +'<div class="bk-sub">'+esc2(C.label)+(x.where?' \u00b7 '+esc2(x.where):'')+'</div></span>'
+          +'<span class="bk-amt">'+(x.price?'\u20b9'+Number(x.price).toLocaleString('en-IN'):'on request')+'</span>'
+          +'<button class="bk-x" onclick="rwBasketRemove(\''+x.id+'\')">\u2715</button></div>';
+      }).join('')+'</div>'
+      +'<div class="bk-total"><span>Estimated total</span><b>'+(total?'\u20b9'+total.toLocaleString('en-IN'):'on request')+'</b></div>'
+      +'<div class="bk-note">Estimates from partner rate cards. Final prices are confirmed by each partner before you pay anything \u2014 and you pay <b>them</b>, directly, unless a partner offers prepayment.</div>'
+      +'<button class="bk-go" onclick="rwBookRequest()">\ud83d\udce8 Send one request for everything</button>'
+      +'<div class="bk-how"><b>What happens next</b>'
+      +'<div>1 \u00b7 Every partner in your list gets your dates and group size within seconds.</div>'
+      +'<div>2 \u00b7 They confirm availability and a final price \u2014 usually the same day.</div>'
+      +'<div>3 \u00b7 You approve what you want. Nothing is booked until you say yes.</div></div>';
+    }
+    body.innerHTML=html;
+  });
+}
+function rwBookRequest(){
+  var b=rwBasket(); if(!b.length) return;
+  rwForm('\ud83d\udce8 Send your trip request', [
+    { id:'bk_name',  label:'Your name' },
+    { id:'bk_phone', label:'Phone (partners reply here)' },
+    { id:'bk_dates', label:'Dates', ph:'e.g. 14-17 Sept' },
+    { id:'bk_people',label:'How many people', ph:'e.g. 4' },
+    { id:'bk_notes', label:'Anything they should know', ph:'dietary needs, arrival time, budget ceiling' }
+  ], function(v){
+    if(!v.bk_name || !v.bk_phone){ showToast('Name and phone are needed so partners can reply'); return; }
+    var rec={ items:b, name:v.bk_name, phone:v.bk_phone, dates:v.bk_dates||'',
+      people:v.bk_people||'', notes:v.bk_notes||'',
+      estTotal:rwBookTotal(b), estCommission:Math.round(rwCommissionOn(b)),
+      status:'requested', at:new Date().toISOString() };
+    try{ rec.ref=rwRefActive()||''; }catch(e){}
+    var done=function(){
+      showToast('\u2705 Request sent \u2014 partners will reply to '+v.bk_phone);
+      rwBasketSet([]); rwPageClose();
+    };
+    try{
+      if(window.db) db.collection('bookings').add(rec).then(done).catch(done);
+      else done();
+    }catch(e){ done(); }
+  }, 'One message goes to every partner in your trip. Nothing is charged now \u2014 this is a request, not a payment.');
+}
+
+/* ---------------- ROAMWISE GREEN ---------------- */
+function openGreen(){
+  rwPageOpen('green', function(body){
+    var P=window.RW_GREEN_PILLARS||[];
+    body.innerHTML=
+       '<div class="gr-hero">'
+      +'<div class="gr-badge">\u26a1 RoamWise Green</div>'
+      +'<h2 class="gr-h">Travel that leaves the place<br>better than a normal trip would.</h2>'
+      +'<p class="gr-sub">A premium tier where every part of the trip qualifies \u2014 electric mobility, genuinely solar stays, vegan or honest local food, and nature-first activities. Not a label we print. A checklist we verify.</p>'
+      +'</div>'
+      + P.map(function(x){
+          return '<div class="gr-card">'
+            +'<div class="gr-t"><span class="gr-ic">'+x.icon+'</span><b>'+esc2(x.title)+'</b></div>'
+            +'<ul class="gr-ul">'+x.items.map(function(i){ return '<li>'+esc2(i)+'</li>'; }).join('')+'</ul>'
+            +'<div class="gr-honest"><b>Straight talk:</b> '+esc2(x.honest)+'</div>'
+            +'</div>';
+        }).join('')
+      +'<div class="gr-cta">'
+      +'<b>Want a Green trip planned?</b>'
+      +'<p class="note" style="margin:6px 0 12px">Tell us where and when. We build it entirely from verified electric and eco options, and tell you honestly where the network makes it hard.</p>'
+      +'<button class="bk-go" onclick="rwGreenPlan()">\ud83c\udf3f Plan my Green trip</button>'
+      +'</div>'
+      +'<div class="gr-foot">We will always tell you when the greener option is worse \u2014 slower, pricier, or not actually available on your route. A tier you cannot trust is just marketing.</div>';
+  });
+}
+function rwGreenPlan(){
+  rwPageClose();
+  var inp=el('heroInput')||el('cpInput');
+  if(inp){
+    inp.value='Plan me a RoamWise Green trip: electric mobility throughout (EV car or bike, charging stops planned), a solar-powered eco stay, vegan or honest local food, and nature-first activities. Tell me honestly where the EV charging network makes this hard.';
+    try{ copilotSend(!!el('heroInput')); }catch(e){}
+  }
+}
+
+/* ---------------- STRANDED / EMERGENCY ----------------
+   For the moment a trip goes wrong: last bus gone, landslide, phone dying,
+   nobody around. Works OFFLINE because that is exactly when you need it. */
+function openSOS(){
+  rwPageOpen('sos', function(body){
+    body.innerHTML=
+       '<div class="sos-top">'
+      +'<b>You\u2019re not stuck. Work down this list.</b>'
+      +'<span class="note">This page works without internet. Everything here is stored on your phone.</span>'
+      +'</div>'
+      +'<div class="sos-nums">'
+      +'<a class="sos-n" href="tel:112"><b>112</b><span>All emergencies</span></a>'
+      +'<a class="sos-n" href="tel:108"><b>108</b><span>Ambulance</span></a>'
+      +'<a class="sos-n" href="tel:1363"><b>1363</b><span>Tourist helpline</span></a>'
+      +'<a class="sos-n" href="tel:1073"><b>1073</b><span>Road accident</span></a>'
+      +'</div>'
+      +'<div class="sos-block"><b>\ud83d\ude8c Last transport gone</b>'
+      +'<div>Ask at a dhaba or petrol pump for a shared jeep \u2014 in the hills they run later than buses and locals always know.</div>'
+      +'<div>Cargo and milk trucks take passengers on hill routes. Offer fare, sit up front, share the vehicle number with someone.</div>'
+      +'<div>Bus depots often let stranded travellers wait inside overnight. Ask the depot manager, not a conductor.</div></div>'
+      +'<div class="sos-block"><b>\ud83c\udfd4\ufe0f Road blocked or landslide</b>'
+      +'<div>Do not walk past a fresh slide \u2014 second falls are common in the first hours.</div>'
+      +'<div>Ask locals when it usually clears; they will know better than any app.</div>'
+      +'<div>Turn back to the last village with rooms before dark. Sleeping in a vehicle on a hill road is the bigger risk.</div></div>'
+      +'<div class="sos-block"><b>\ud83d\udcb8 No money or phone dying</b>'
+      +'<div>Dhabas and small shops will usually let you charge a phone for free. Ask.</div>'
+      +'<div>UPI works when cards do not, and works with very little signal. Keep one app installed.</div>'
+      +'<div>Write one emergency number on paper. A dead phone means a memorised number is worthless.</div></div>'
+      +'<div class="sos-block"><b>\ud83d\ude28 Feeling unsafe</b>'
+      +'<div>Go where there are lights and people \u2014 a dhaba, a hotel lobby, a petrol pump, a temple or gurudwara.</div>'
+      +'<div>Gurudwaras take anyone in, at any hour, for free. Across most of North India this is the reliable answer.</div>'
+      +'<div>Tell one person your live location and when you will next check in.</div></div>'
+      +'<button class="bk-go" onclick="rwSOSShare()">\ud83d\udccd Share my location with someone</button>'
+      +'<div class="gr-foot">We are not an emergency service and cannot send help. This is the advice a local friend would give \u2014 use official numbers for anything serious.</div>';
+  });
+}
+function rwSOSShare(){
+  if(!navigator.geolocation){ showToast('Location not available on this device'); return; }
+  navigator.geolocation.getCurrentPosition(function(pos){
+    var u='https://maps.google.com/?q='+pos.coords.latitude+','+pos.coords.longitude;
+    var t='I need help. My location: '+u;
+    try{
+      if(navigator.share) navigator.share({ text:t });
+      else window.open('https://wa.me/?text='+encodeURIComponent(t),'_blank','noopener');
+    }catch(e){ showToast(u); }
+  }, function(){ showToast('Could not get your location \u2014 try again with GPS on'); }, {timeout:8000});
+}
+
 /* ============================================================================
    B2B PARTNERS + LOCAL RIDES (rw-v81)
    ============================================================================
@@ -1167,6 +1596,59 @@ function openModePicker(){
 /* Partners come from Firestore (config/partners), seeded by partners-data.js.
    Same pattern as referrers: the file is a fallback so the directory works
    offline, Firestore keeps it fresh, and no code file is ever edited. */
+
+/* ============================================================================
+   CONFIG SYNC (rw-v85) — every data file is now editable from the admin panel
+   ============================================================================
+   ONE pattern for all of them. Each data file stays in the repo as a SEED and
+   an offline fallback; Firestore config/<key> holds the live version; the app
+   merges Firestore over the seed and caches to localStorage.
+
+   Result: the founder never edits a .js file again, the app still works with
+   no network, and adding a new editable dataset is one line in RW_SYNCED.
+   ========================================================================= */
+var RW_SYNCED = [
+  { key:'rooms',     global:'RW_ROOMS',     matchBy:'id'   },
+  { key:'partners',  global:'RW_PARTNERS',  matchBy:'id'   },
+  { key:'referrers', global:'RW_REFERRERS', matchBy:'code' },
+  { key:'events',    global:'RW_EVENTS',    matchBy:'id'   },
+  { key:'regions',   global:'RW_REGIONS',   matchBy:'name' }
+];
+function rwConfigApply(cfg, list){
+  /* Firestore entries WIN; seed entries not present in Firestore are kept. */
+  var seed = window[cfg.global] || [];
+  var k = cfg.matchBy;
+  var have = {};
+  list.forEach(function(x){ if(x && x[k]!=null) have[String(x[k]).toLowerCase()] = 1; });
+  window[cfg.global] = list.concat(seed.filter(function(x){
+    return !(x && x[k]!=null && have[String(x[k]).toLowerCase()]);
+  }));
+  try{ lsSet('rw_cfg_'+cfg.key, JSON.stringify(window[cfg.global])); }catch(e){}
+}
+function rwConfigSyncAll(){
+  RW_SYNCED.forEach(function(cfg){
+    /* cached copy first so the UI is right before the network answers */
+    try{
+      var c = lsGet('rw_cfg_'+cfg.key);
+      if(c){ var l = JSON.parse(c); if(Array.isArray(l) && l.length) window[cfg.global] = l; }
+    }catch(e){}
+    try{
+      if(typeof db === 'undefined' || !db) return;
+      db.collection('config').doc(cfg.key).get().then(function(d){
+        if(!d.exists) return;
+        var list = (d.data() || {}).list;
+        if(Array.isArray(list) && list.length){
+          rwConfigApply(cfg, list);
+          /* repaint whatever happens to be open */
+          try{ if(el('staysOut'))    rwStaysRender(); }catch(e){}
+          try{ if(el('partnersOut')) rwPartnersRender(); }catch(e){}
+          try{ if(el('eventsOut'))   rwEventsRender(); }catch(e){}
+        }
+      }).catch(function(){});
+    }catch(e){}
+  });
+}
+
 function rwPartnersSync(){
   try{
     if(typeof db==='undefined' || !db) return;
@@ -1212,17 +1694,16 @@ function rwPartnersFor(zone, cat){
   return list;
 }
 function openPartners(zone, cat){
-  var sec=el('partnersSection');
-  if(!sec){ sec=document.createElement('section'); sec.id='partnersSection'; sec.className='xsec v v-home';
-    var host=el('copilotHero'); if(host&&host.parentNode) host.parentNode.insertBefore(sec,host.nextSibling); else document.body.appendChild(sec); }
-  rwOpenSection(sec.id);
+  /* rw-v82: renders as a full PAGE, not a card wedged into the home feed. */
+  rwPageOpen('partners', function(body){
+    var sec=document.createElement('section'); sec.id='partnersSection'; sec.className='xsec';
+    body.appendChild(sec);
+  });
+  var sec=el('partnersSection'); if(!sec) return;
   window._pZone=zone||window._pZone||'';
   window._pCat=cat||window._pCat||'';
   var zones={}; (window.RW_PARTNERS||[]).forEach(function(p){ zones[p.zone]=1; });
-  sec.innerHTML='<div class="xsec-head"><h2 class="xsec-title">\ud83e\udd1d Stay &amp; <em>do</em></h2>'
-    +'<button class="tact" onclick="rwCloseSection(\'partnersSection\')">\u2715</button></div>'
-    +'<p class="xsec-sub">Real places we\u2019ve researched on the ground \u2014 boutique stays and the operators locals actually use.</p>'
-    +'<div class="pt-chips">'
+  sec.innerHTML='<div class="pt-chips">'
     +'<button class="ev-chip'+(!window._pCat?' on':'')+'" onclick="openPartners(window._pZone,\'\')">All</button>'
     +'<button class="ev-chip'+(window._pCat==='stay'?' on':'')+'" onclick="openPartners(window._pZone,\'stay\')">\ud83c\udfe1 Stays</button>'
     +'<button class="ev-chip'+(window._pCat==='adventure'?' on':'')+'" onclick="openPartners(window._pZone,\'adventure\')">\ud83e\udde1 Adventure</button>'
@@ -1257,6 +1738,7 @@ function rwPartnersRender(){
       +'</div>'
       +'<div class="pt-acts">'
       +'<button class="tact" onclick="rwPartnerMaps(\''+p.id+'\')">\ud83d\uddfa\ufe0f Find it</button>'
+      +'<button class="tact" onclick="rwPartnerBook(\''+p.id+'\')">\u2795 Add to trip</button>'
       +'<button class="tact" onclick="rwPartnerPlan(\''+p.id+'\')">\u2728 Plan around it</button>'
       +'</div></div>';
   }).join('')
@@ -1269,6 +1751,13 @@ function rwPartnerMaps(id){
   var q=encodeURIComponent(p.name+' '+(p.area||'')+' '+p.zone);
   window.open('https://www.google.com/maps/search/?api=1&query='+q,'_blank','noopener');
 }
+
+function rwPartnerBook(id){
+  var p=rwPartnerById(id); if(!p) return;
+  var cat = p.cat==='adventure' ? 'do' : (p.cat||'stay');
+  rwBasketAdd({ id:p.id, name:p.name, cat:cat, where:(p.area||'')+' \u00b7 '+p.zone, price:0, partner:true });
+}
+
 function rwPartnerPlan(id){
   var p=rwPartnerById(id); if(!p) return;
   rwCloseSection('partnersSection');
@@ -1424,16 +1913,13 @@ function rwEventSoon(e){
   return false;
 }
 function openEvents(cat){
-  try{ tabGo('home'); }catch(e){}
-  var sec=el('eventsSection');
-  if(!sec){ sec=document.createElement('section'); sec.id='eventsSection'; sec.className='xsec v v-home';
-    var host=el('copilotHero'); if(host&&host.parentNode) host.parentNode.insertBefore(sec,host.nextSibling); else document.body.appendChild(sec); }
-  rwOpenSection(sec.id);
+  rwPageOpen('events', function(body){
+    var sec=document.createElement('section'); sec.id='eventsSection'; sec.className='xsec';
+    body.appendChild(sec);
+  });
+  var sec=el('eventsSection'); if(!sec) return;
   window._evCat=cat||window._evCat||'all';
-  sec.innerHTML='<div class="xsec-head"><h2 class="xsec-title">\ud83d\udcc5 Event <em>radar</em></h2>'
-    +'<button class="tact" onclick="rwCloseSection(\'eventsSection\')">\u2715</button></div>'
-    +'<p class="xsec-sub">Music, startup, sports and motoring events \u2014 with a trip built around each one, not just a date.</p>'
-    +'<div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:12px">'
+  sec.innerHTML='<div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:12px">'
     +'<button class="ev-chip'+(window._evCat==='all'?' on':'')+'" onclick="openEvents(\'all\')">All</button>'
     + (window.RW_EVENT_CATS||[]).map(function(c){
         return '<button class="ev-chip'+(window._evCat===c.id?' on':'')+'" onclick="openEvents(\''+c.id+'\')">'+c.icon+' '+c.label+'</button>';
@@ -2868,7 +3354,8 @@ var WA_NUMBER='', WA_CHANNEL='', WA_GROUP='';
 /* Global + idempotent so remote config can create it after the fact. */
 function ensureWaButton(){
   try{ rwRefCapture(); }catch(e){}
-  try{ setTimeout(rwRefSync, 1500); setTimeout(rwPartnersSync, 1800); }catch(e){}
+  try{ setTimeout(rwBasketBadge, 600); }catch(e){}
+  try{ setTimeout(rwConfigSyncAll, 1200); }catch(e){}
   if(!WA_NUMBER || document.getElementById('waFab')) return;
   var w=document.createElement('a');
   w.id='waFab';

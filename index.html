@@ -367,7 +367,7 @@ html{-webkit-text-size-adjust:100%}
 </section>
 <div class="hero-sky v v-home v-web-only"><div class="kumo" style="top:12%;left:4%"></div><div class="kumo k2" style="top:58%;right:6%"></div><div class="kumo k3" style="top:30%;right:22%"></div><div class="hero">
   <h1><span data-i18n="hero.title1">Escape the crowds.</span><br><em data-i18n="hero.title2">Discover your world.</em></h1>
-  <p data-i18n="hero.sub">The AI travel planner that works for any destination on Earth — smart itineraries, crowd heatmaps, real budget breakdowns and packing lists. Start planning without an account. No subscription — pay once, yours forever.</p>
+  <p data-i18n="hero.sub">Plan a less crowded trip you can actually take. Honest travel times, real local prices, and a budget that survives contact with reality — anywhere on Earth. Start without an account.</p>
   <div class="hero-btns">
     <button class="hero-btn hb-gold" data-i18n="hero.startFree" onclick="scrollTo(0,document.getElementById('app').offsetTop-10)">Start Planning &mdash; Free &rarr;</button>
     <button class="hero-btn hb-pm" onclick="openPay()" id="heroProBtn">Unlock Pro &mdash; &#8377;100</button>
@@ -388,13 +388,16 @@ html{-webkit-text-size-adjust:100%}
 
 <section class="v v-home" id="quickGrid" style="margin:4px 14px 8px">
   <div class="qg-wrap">
-    <button class="qg-tile rw-pulse" onclick="openBeacon()"><span class="qg-ic">📡</span><span class="qg-lbl">Beacon</span></button>
-    <button class="qg-tile" onclick="openRealms()"><span class="qg-ic">⚔️</span><span class="qg-lbl">Realms</span></button>
-    <button class="qg-tile" onclick="openArrival()"><span class="qg-ic">🚂</span><span class="qg-lbl">Arrival mode</span></button>
-    <button class="qg-tile" onclick="openEvents()"><span class="qg-ic">📅</span><span class="qg-lbl">Events</span></button>
-    <button class="qg-tile" onclick="openNearMe()"><span class="qg-ic">📍</span><span class="qg-lbl">Near me</span></button>
-    <button class="qg-tile" onclick="openMoneyLayer()"><span class="qg-ic">💰</span><span class="qg-lbl">Split money</span></button>
+    <!-- rw-v82: the FOUR things most people actually came to do. Everything
+         else moved behind "More" so home stays a decision, not a menu. -->
+    <button class="qg-tile qg-primary" onclick="openStays()"><span class="qg-ic">🏡</span><span class="qg-lbl">Book a stay</span></button>
+    <button class="qg-tile qg-primary" onclick="openMoneyLayer()"><span class="qg-ic">💰</span><span class="qg-lbl">Split money</span></button>
+    <button class="qg-tile qg-primary" onclick="openNearMe()"><span class="qg-ic">📍</span><span class="qg-lbl">Near me</span></button>
+    <button class="qg-tile qg-primary" style="position:relative" onclick="openBooking()"><span class="qg-ic">🧳</span><span class="qg-lbl">Your trip</span><span id="rwBasketBadge">0</span></button>
+    <button class="qg-tile qg-primary" onclick="openGreen()"><span class="qg-ic">⚡</span><span class="qg-lbl">Green</span></button>
+    <button class="qg-tile qg-primary" onclick="openEvents()"><span class="qg-ic">📅</span><span class="qg-lbl">Events</span></button>
   </div>
+  <div class="qg-more"><button onclick="openDrawer()">Everything else · Beacon, Realms, Arrival mode, Treks &amp; more →</button></div>
 </section>
 
 <section class="brief v v-home" id="brief" style="display:none">
@@ -766,7 +769,8 @@ html{-webkit-text-size-adjust:100%}
 <div class="dr-grp open"><button class="dr-gh" onclick="drToggle(this)">🧳 Travel tools<span class="dr-count">10</span><span class="chev">›</span></button><div class="dr-gb">
   <a class="dr-link" onclick="closeDrawer();openBeacon()"><span class="ic">📡</span>Beacon — who's nearby <span style="margin-left:auto;font-size:9px;background:#4ADE80;color:#0A0A0C;padding:1px 6px;border-radius:20px;font-weight:800">NEW</span></a>
   <a class="dr-link" onclick="closeDrawer();openTatkal()"><span class="ic">⚡</span>Tatkal prep</a>
-    <a class="dr-link" onclick="closeDrawer();openPartners()"><span class="ic">🤝</span>Stay &amp; do <span style="margin-left:auto;font-size:9px;background:var(--gold,#E8BA6C);color:#0A0A0C;padding:1px 6px;border-radius:20px;font-weight:800">NEW</span></a>
+    <a class="dr-link" onclick="closeDrawer();openSOS()"><span class="ic">🆘</span>Stranded? Get help <span style="margin-left:auto;font-size:9px;background:#E0785B;color:#fff;padding:1px 6px;border-radius:20px;font-weight:800">OFFLINE</span></a>
+  <a class="dr-link" onclick="closeDrawer();openPartners()"><span class="ic">🤝</span>Stay &amp; do <span style="margin-left:auto;font-size:9px;background:var(--gold,#E8BA6C);color:#0A0A0C;padding:1px 6px;border-radius:20px;font-weight:800">NEW</span></a>
   <a class="dr-link" onclick="closeDrawer();openEvents()"><span class="ic">📅</span>Event radar <span style="margin-left:auto;font-size:9px;background:var(--gold,#E8BA6C);color:#0A0A0C;padding:1px 6px;border-radius:20px;font-weight:800">NEW</span></a>
   <a class="dr-link" onclick="closeDrawer();openPnrPaste()"><span class="ic">🎫</span>Paste PNR</a>
   <a class="dr-link" onclick="closeDrawer();openArrival()"><span class="ic">🚂</span>Arrival mode <span style="margin-left:auto;font-size:9px;background:var(--gold,#E8BA6C);color:#0A0A0C;padding:1px 6px;border-radius:20px;font-weight:800">NEW</span></a>
@@ -1045,6 +1049,8 @@ html{-webkit-text-size-adjust:100%}
 <script src="events-data.js" defer></script>
 <script src="referral-data.js"></script>
 <script src="partners-data.js"></script>
+<script src="booking-data.js"></script>
+<script src="rooms-data.js"></script>
 <script src="regions-data.js"></script>
 <script src="tusk-learned.js" onerror="void 0"></script>
 <script src="destination-photos.js" defer></script>
