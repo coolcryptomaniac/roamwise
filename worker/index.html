@@ -1,0 +1,2423 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>RoamWise — team board</title><meta name="robots" content="noindex">
+<style>
+:root{--bg:#08090F;--bg2:#11131C;--bg3:#171A24;--b:#1E2029;--t1:#F2F0EA;--t2:#B9B6AE;--t3:#7A7870;
+      --gold:#E8BA6C;--gold2:#C8913E;--grn:#4ADE80;--red:#E05B5B;--vio:#A78BFA}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--t1);font:15px/1.65 system-ui,-apple-system,'Segoe UI',sans-serif}
+.wrap{max-width:820px;margin:0 auto;padding:18px 16px 60px}
+header{display:flex;justify-content:space-between;align-items:center;padding:12px 0 16px;border-bottom:1px solid var(--b);margin-bottom:18px;flex-wrap:wrap;gap:10px}
+.brand{font-weight:900;font-size:19px}.brand em{color:var(--gold);font-style:normal}
+.who{font-size:12px;color:var(--t3)}
+.role{display:inline-block;font-size:10.5px;padding:3px 9px;border-radius:99px;font-weight:800;letter-spacing:.05em;text-transform:uppercase}
+.role.marketing{background:rgba(167,139,250,.16);color:var(--vio)}
+.role.finance{background:rgba(74,222,128,.14);color:var(--grn)}
+.role.admin{background:rgba(232,186,108,.16);color:var(--gold)}
+.card{background:var(--bg2);border:1px solid var(--b);border-radius:14px;padding:15px 17px;margin-bottom:13px}
+h2{font-size:15px;margin-bottom:9px}
+.lab{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--gold2);font-weight:800;margin-bottom:7px}
+.task{display:flex;gap:11px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.05);align-items:flex-start}
+.task:last-child{border:none}
+.tk{flex:1}.tk b{font-size:13.5px;display:block;margin-bottom:2px}
+.tk p{font-size:12px;color:var(--t2);margin:0}
+.tk .meta{font-size:10.5px;color:var(--t3);margin-top:3px}
+.pill{font-size:10px;padding:3px 8px;border-radius:99px;border:1px solid var(--b);color:var(--t3);white-space:nowrap}
+.pill.todo{border-color:#3A3A46}.pill.doing{border-color:var(--gold);color:var(--gold)}
+.pill.done{border-color:var(--grn);color:var(--grn)}
+button,select,input,textarea{font:inherit}
+.btn{background:var(--bg3);border:1px solid var(--b);color:var(--t1);border-radius:9px;padding:6px 11px;font-size:12px;cursor:pointer}
+.btn:hover{border-color:var(--gold)}
+.btn.go{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#0A0A0C;border:none;font-weight:800}
+.inp{width:100%;background:#0E0F16;border:1px solid var(--b);border-radius:9px;padding:10px;color:var(--t1);outline:none;margin-top:6px}
+.inp:focus{border-color:var(--gold)}
+.stat{display:flex;gap:16px;flex-wrap:wrap}
+.stat div b{display:block;font-size:22px;color:var(--gold)}
+.stat div span{font-size:11px;color:var(--t3)}
+.note{font-size:11.5px;color:var(--t3);line-height:1.6}
+.hide{display:none}
+
+/* ===== TEAM SCOREBOARD (rw-v62) ===== */
+.sc-head{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.sc-sub{font-size:11.5px;color:#7C7A74;margin-top:2px}
+.sc-flag{margin-left:auto;font-size:11px;font-weight:800;letter-spacing:.05em;color:#E8BA6C;
+  background:rgba(232,186,108,.12);border:1px solid rgba(232,186,108,.4);border-radius:20px;padding:4px 11px}
+.sc-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:14px}
+.sc-card{text-align:center;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);
+  border-radius:16px;padding:16px 10px}
+.sc-ring{width:78px;height:78px;display:block;margin:0 auto 8px;transform:rotate(-90deg)}
+.sc-track{fill:none;stroke:rgba(255,255,255,.08);stroke-width:7}
+.sc-fill{fill:none;stroke-width:7;stroke-linecap:round;transition:stroke-dashoffset 1.1s cubic-bezier(.22,1,.36,1)}
+.sc-pct{fill:#EDEAE2;font-size:17px;font-weight:800;text-anchor:middle;transform:rotate(90deg);transform-origin:40px 40px}
+.sc-num{font-size:21px;font-weight:900;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.sc-of{font-size:13px;color:#7C7A74;font-weight:700}
+.sc-lbl{font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:#9A968E;font-weight:700;margin-top:3px}
+.sc-pace{display:inline-block;font-size:10px;font-weight:800;border-radius:20px;padding:2px 9px;margin-top:7px}
+.sc-pace.hit{background:rgba(74,222,128,.16);color:#4ADE80}
+.sc-pace.ok{background:rgba(56,189,248,.14);color:#38BDF8}
+.sc-pace.behind{background:rgba(240,166,59,.14);color:#F0A63B}
+.sc-note{font-size:10px;color:#7C7A74;margin-top:6px}
+.sc-foot{font-size:10.5px;color:#7C7A74;margin-top:12px;line-height:1.55;padding-top:10px;border-top:1px solid rgba(255,255,255,.06)}
+
+/* ===== MY DESK + INTERNS (rw-v63) ===== */
+.dk-hero{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.dk-sub{font-size:11.5px;color:#7C7A74;margin-top:2px}
+.dk-streak{margin-left:auto;font-size:11.5px;font-weight:800;color:#E8BA6C;
+  background:rgba(232,186,108,.12);border:1px solid rgba(232,186,108,.35);border-radius:20px;padding:4px 11px}
+.dk-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-bottom:4px}
+.dk-stat{text-align:center;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:11px 6px}
+.dk-stat b{display:block;font-size:17px;color:#EDEAE2}
+.dk-stat span{font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;color:#7C7A74}
+.dk-done{background:rgba(74,222,128,.1);border:1px solid rgba(74,222,128,.35);color:#4ADE80;
+  border-radius:12px;padding:12px;text-align:center;font-size:13px;font-weight:700;margin:12px 0}
+.dk-lab{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:#7C7A74;font-weight:800;margin:16px 0 8px}
+.dk-log{border-left:2px solid rgba(232,186,108,.4);padding:8px 0 8px 11px;margin-bottom:9px}
+.dk-log-h{display:flex;gap:8px;align-items:center;font-size:12px;color:#EDEAE2}
+.dk-h{margin-left:auto;font-size:10.5px;color:#E8BA6C;font-weight:800}
+.dk-log-b{font-size:12.5px;color:#9A968E;line-height:1.55;margin-top:3px}
+.dk-proof{display:inline-block;font-size:10.5px;color:#38BDF8;margin-top:4px;text-decoration:none}
+.dk-block{font-size:11px;color:#F0A63B;margin-top:4px}
+.dk-doc{display:flex;align-items:center;gap:8px;font-size:12.5px;color:#C9C5BB;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.05)}
+.dk-doc a{color:#E8BA6C;font-size:11.5px;text-decoration:none}
+.dk-pending{font-size:10.5px;color:#57554F}
+.dk-note{font-size:10.5px;color:#7C7A74;margin-top:8px;line-height:1.5}
+.in-card{border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:13px;margin-bottom:10px;background:rgba(255,255,255,.02)}
+.in-top{display:flex;align-items:center;gap:9px}
+.in-dot{flex:0 0 9px;width:9px;height:9px;border-radius:50%}
+.in-sub{font-size:11px;color:#7C7A74;margin-top:2px}
+.in-hrs{font-size:10.5px;color:#E8BA6C;font-weight:700;white-space:nowrap}
+.in-last{font-size:12px;color:#9A968E;margin:8px 0;line-height:1.5}
+.in-actions{display:flex;gap:6px;flex-wrap:wrap}
+.in-actions .btn{flex:1;min-width:88px;font-size:11.5px;padding:7px 8px}
+
+/* ===== PENDING / LEVELS / PAY / RESOURCES (rw-v65) ===== */
+.pend-card{border:1px solid rgba(232,186,108,.3);border-radius:13px;padding:12px;margin-bottom:9px;background:rgba(232,186,108,.05)}
+.pend-top{display:flex;align-items:center;gap:10px}
+.pend-pic{width:38px;height:38px;border-radius:50%;object-fit:cover;flex:0 0 auto}
+.pend-mono{display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#E8BA6C,#C8913E);color:#0A0C14;font-weight:800;font-size:15px}
+.pend-sub{font-size:11px;color:#7C7A74;margin-top:1px}
+.in-res{display:flex;align-items:center;gap:7px;margin:8px 0 4px;font-size:10.5px;color:#7C7A74}
+.in-res-bar{flex:1;height:5px;border-radius:5px;background:rgba(255,255,255,.07);overflow:hidden}
+.in-res-bar i{display:block;height:100%;background:linear-gradient(90deg,#38BDF8,#4ADE80);border-radius:5px}
+.lv-box{background:rgba(232,186,108,.06);border:1px solid rgba(232,186,108,.25);border-radius:13px;padding:11px 13px;margin-bottom:12px}
+.lv-top{display:flex;align-items:center;gap:9px}
+.lv-ic{font-size:22px}
+.lv-sub{font-size:11px;color:#9A968E;margin-top:1px}
+.lv-bar{height:6px;border-radius:6px;background:rgba(255,255,255,.08);overflow:hidden;margin-top:9px}
+.lv-bar i{display:block;height:100%;background:linear-gradient(90deg,#E8BA6C,#C8913E);border-radius:6px;transition:width .5s cubic-bezier(.22,1,.36,1)}
+.pay-box{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:12px}
+.pay-row{display:flex;justify-content:space-between;font-size:12.5px;color:#C9C5BB;padding:4px 0}
+.pay-row b{color:#EDEAE2}
+.pay-hist{display:flex;align-items:center;gap:8px;font-size:12px;color:#9A968E;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.05)}
+.pay-hist b{color:#EDEAE2}
+.pay-tag{font-size:9.5px;font-weight:800;border-radius:20px;padding:2px 8px}
+.pay-tag.ok{background:rgba(74,222,128,.14);color:#4ADE80}
+.pay-tag.due{background:rgba(240,166,59,.14);color:#F0A63B}
+.pay-tag.no{background:rgba(224,91,91,.14);color:#E05B5B}
+.hb-sec{margin-bottom:14px}
+.hb-sec b{color:#E8BA6C;font-size:13px;display:block;margin-bottom:6px}
+.hb-sec ul{margin:0;padding-left:18px}
+.hb-sec li{font-size:12.5px;color:#C9C5BB;line-height:1.6;margin-bottom:5px}
+.rs-role-h{font-size:11.5px;font-weight:800;color:#E8BA6C;margin:12px 0 6px}
+.rs-sec-h{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#7C7A74;margin:8px 0 4px}
+.rs-item{display:flex;align-items:flex-start;gap:9px;padding:7px 0;cursor:pointer;border-bottom:1px solid rgba(255,255,255,.04)}
+.rs-check{font-size:15px;flex:0 0 auto;margin-top:1px}
+.rs-lab{font-size:12.5px;color:#EDEAE2;text-decoration:none}
+.rs-note{font-size:11px;color:#7C7A74;line-height:1.5;margin-top:2px}
+
+/* ===== SALES SNAPSHOT (rw-v68) ===== */
+.sn-row{display:flex;align-items:center;gap:10px;justify-content:center;margin:6px 0 12px}
+.sn{text-align:center;min-width:70px}
+.sn-n{font-size:26px;font-weight:900;color:#EDEAE2;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.sn-k{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:#7C7A74;margin-top:2px}
+.sn-arrow{font-size:18px;color:#57554F}
+.sn-bar{height:8px;border-radius:8px;background:rgba(255,255,255,.07);overflow:hidden;margin-bottom:12px}
+.sn-bar i{display:block;height:100%;background:linear-gradient(90deg,#E8BA6C,#4ADE80);border-radius:8px;transition:width .8s cubic-bezier(.22,1,.36,1)}
+.sn-read{font-size:13px;color:#EDEAE2;line-height:1.55;padding:11px;background:rgba(232,186,108,.06);border:1px solid rgba(232,186,108,.25);border-radius:11px}
+.sn-foot{font-size:10.5px;color:#7C7A74;margin-top:9px;line-height:1.5}
+
+.tg-item{padding:9px 0;border-bottom:1px solid rgba(255,255,255,.05)}
+.tg-top{display:flex;align-items:center;gap:8px;font-size:12.5px;color:#EDEAE2;margin-bottom:5px}
+.tg-bar{height:6px;border-radius:6px;background:rgba(255,255,255,.08);overflow:hidden}
+.tg-bar i{display:block;height:100%;border-radius:6px;transition:width .5s cubic-bezier(.22,1,.36,1)}
+.tg-how{font-size:10.5px;color:#7C7A74;margin-top:4px}
+
+.pl-months{display:flex;gap:7px;margin-bottom:12px}
+.pl-m{flex:1;text-align:center;font-size:10.5px;padding:7px 4px;border-radius:9px;border:1px solid var(--b2);color:var(--t3)}
+.pl-m.past{border-color:rgba(74,222,128,.35);color:#4ADE80}
+.pl-m.on{border-color:var(--gold);background:rgba(232,186,108,.1);color:var(--gold);font-weight:800}
+.pl-blk{border-left:2px solid var(--b2);padding:9px 0 9px 12px;margin-bottom:10px;opacity:.55}
+.pl-blk.on{border-left-color:var(--gold);opacity:1}
+.pl-h{font-size:12px;color:var(--t2);margin-bottom:6px}
+.pl-h b{color:var(--t1)}
+.pl-g{display:flex;gap:9px;align-items:flex-start;font-size:12.5px;color:var(--t2);padding:5px 0;cursor:pointer;line-height:1.5}
+
+.ref-box{background:linear-gradient(150deg,rgba(232,186,108,.12),var(--bg2));border:1px solid rgba(232,186,108,.4);border-radius:14px;padding:15px;text-align:center}
+.ref-code{font-size:21px;font-weight:900;letter-spacing:.06em;color:var(--gold);font-family:ui-monospace,monospace}
+.ref-link{font-size:11.5px;color:var(--t2);margin-top:6px;word-break:break-all}
+.ref-rate{font-size:12.5px;color:var(--t1);margin-top:10px;padding-top:9px;border-top:1px solid rgba(232,186,108,.25)}
+.ref-btns{display:flex;gap:7px;margin-top:9px}
+.ref-btns .btn{flex:1;font-size:12.5px;padding:10px 6px}
+
+.sh-box{background:var(--bg3);border:1px solid var(--b2);border-radius:13px;padding:13px;margin-bottom:8px}
+
+.sn-live{display:inline-block;color:#4ADE80;font-weight:800;font-size:9.5px;letter-spacing:.1em;
+  animation:snPulse 2s ease-in-out infinite;margin-right:4px}
+@keyframes snPulse{0%,100%{opacity:1}50%{opacity:.35}}
+
+.pn-sum{font-size:12.5px;color:var(--t2);padding:8px 0;border-bottom:1px solid var(--b1)}
+.pn-row{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--t2);padding:7px 0;border-bottom:1px solid rgba(255,255,255,.04)}
+</style></head><body><div class="wrap">
+<header>
+  <div><div class="brand">Roam<em>Wise</em> · team</div><div class="who" id="who">Not signed in</div></div>
+  <div><span id="roleTag"></span> <button class="btn" id="authBtn" onclick="doAuth()">Sign in</button></div>
+</header>
+
+<div id="signedOut">
+  <div class="card">
+    <h2>Team sign-in</h2>
+    <p class="note">Sign in with Google or your email. New accounts are sent to Mohit for approval automatically — nothing for you to send.</p>
+    <div id="authTabs" style="display:flex;gap:6px;margin:14px 0 10px">
+      <button class="btn go" id="tabSignin" style="flex:1;padding:9px" onclick="authTab('signin')">Sign in</button>
+      <button class="btn" id="tabSignup" style="flex:1;padding:9px" onclick="authTab('signup')">Create account</button>
+    </div>
+    <input id="authEmail" class="inp" type="email" placeholder="you@email.com" autocomplete="email">
+    <input id="authPass" class="inp" type="password" placeholder="Password (min 6 characters)" autocomplete="current-password">
+    <input id="authName" class="inp hide" type="text" placeholder="Your full name">
+    <button class="btn go" id="authGo" style="width:100%;padding:12px;margin-top:6px" onclick="authEmailGo()">Sign in</button>
+    <p id="authErr" style="font-size:12px;color:#F87171;margin:8px 0 0;min-height:16px"></p>
+    <div style="text-align:center;margin-top:9px"><a onclick="staffReset()" style="font-size:12px;color:var(--gold);cursor:pointer;text-decoration:underline">Forgot password? / Set a password</a>
+    <div style="font-size:11px;color:var(--t3);margin-top:5px;line-height:1.5">Signed in with Google before? Then this account has no password yet — use Google above, or tap here to set one.</div></div>
+    <div style="text-align:center;font-size:11px;color:var(--t3);margin:12px 0">or</div>
+    <button class="btn" style="width:100%;padding:11px" onclick="doAuth()">Continue with Google</button>
+  </div>
+</div>
+
+<div id="app" class="hide">
+  <div class="card" id="todayCard">
+    <div class="lab">Today</div>
+    <div id="todayList"></div>
+  </div>
+
+  <div class="card">
+    <div class="lab">My tasks</div>
+    <div id="taskList"><p class="note">Loading…</p></div>
+  </div>
+
+  <div class="card" id="finBox" style="display:none">
+    <div class="lab">Log an expense</div>
+    <p class="note">Only expenses and notes. Revenue records are entered by the founder — you'll see the totals but can't edit them.</p>
+    <input class="inp" id="expWhat" placeholder="What was it for? e.g. Canva Pro, Jul">
+    <input class="inp" id="expAmt" type="number" placeholder="Amount in ₹">
+    <button class="btn go" style="margin-top:10px;width:100%;padding:11px" onclick="logExpense()">Save entry</button>
+    <div id="ledgerList" style="margin-top:14px"></div>
+  </div>
+
+  <div class="card" id="mktBox" style="display:none">
+    <div class="lab">Creator outreach</div>
+    <p class="note">Creator partnership records only. You can move an outreach stage and add notes — you can't see other CRM segments or anyone's payment details.</p>
+    <div id="crmList" style="margin-top:10px"><p class="note">Loading…</p></div>
+  </div>
+
+  <div class="card" id="ordBox" style="display:none">
+    <div class="lab">🛍️ T-shirt orders</div>
+    <p class="note">Every custom-tee order customers place. Mark each one as you print and ship it. New orders show at the top.</p>
+    <div id="ordList" style="margin-top:10px"><p class="note">Loading…</p></div>
+  </div>
+
+  <div class="card" id="leadBox" style="display:none">
+    <div class="lab">📊 Investor deck views</div>
+    <p class="note">Everyone who opened your private deck link — with how far they scrolled and how long they spent. Sorted by most recent.</p>
+    <div id="leadList" style="margin-top:10px"><p class="note">Loading…</p></div>
+  </div>
+
+  <div class="card" id="hrBox" style="display:none">
+    <div class="lab">👥 Staff & payroll</div>
+    <p class="note">Your team, their role, employment type and pay (fixed + incentive). Add someone by their UID once they've signed in and sent it to you.</p>
+    <div style="margin:10px 0"><button class="btn go" style="width:100%;padding:11px" onclick="hrAddStaff()">➕ Add / edit a team member</button></div>
+    <div id="hrList"><p class="note">Loading…</p></div>
+  </div>
+
+  <div class="card" id="docBox" style="display:none">
+    <div class="lab">📄 Documents vault</div>
+    <p class="note">Generate offer letters, salary slips, resignation acceptance, and leave records — then store them here. Everything's saved and downloadable.</p>
+    <div style="display:flex;gap:7px;flex-wrap:wrap;margin:10px 0">
+      <button class="btn" onclick="docGen('offer')">📝 Offer letter</button>
+      <button class="btn" onclick="docGen('salary')">💰 Salary slip</button>
+      <button class="btn" onclick="docGen('resignation')">👋 Resignation</button>
+      <button class="btn" onclick="docGen('leave')">🏖️ Leave record</button>
+    </div>
+    <div id="docList"><p class="note">Loading…</p></div>
+  </div>
+
+  <div class="card" id="finConsoleBox" style="display:none">
+    <div class="lab">🧾 Finance console</div>
+    <p class="note">Business bills, expenses and revenue in one place — with a live accounts summary. Add each entry as it happens; the totals update automatically.</p>
+    <div id="finSummary" style="margin:10px 0"></div>
+    <div style="display:flex;gap:7px;flex-wrap:wrap;margin:10px 0">
+      <button class="btn go" onclick="finAdd('bill')">🧾 Add bill</button>
+      <button class="btn" onclick="finAdd('expense')">💸 Add expense</button>
+      <button class="btn" onclick="finAdd('revenue')">📈 Add revenue</button>
+      <button class="btn" onclick="finExport()">⬇️ Export CSV</button>
+    </div>
+    <div id="finList"><p class="note">Loading…</p></div>
+  </div>
+
+  <div class="card" id="myDeskBox" style="display:none">
+    <div class="lab">🪑 My desk</div>
+    <div id="deskOut"><p class="note">Loading…</p></div>
+  </div>
+
+  <div class="card" id="pendingBox" style="display:none">
+    <div class="lab">⏳ Pending requests</div>
+    <p class="note">Anyone who has signed in but isn't activated yet shows up here automatically — no need to open Firestore or copy an ID. Just tap Activate.</p>
+    <div id="pendingOut"><p class="note">Loading…</p></div>
+  </div>
+
+  <div class="card" id="internAdminBox" style="display:none">
+    <div class="lab">👥 Interns</div>
+    <p class="note">Everyone's logs, hours and documents in one place. Add a person once and their desk appears for them automatically.</p>
+    <div id="internAdminOut"><p class="note">Loading…</p></div>
+    <div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:12px">
+      <button class="btn go" onclick="internAdd()">➕ Add a person</button>
+      <button class="btn" onclick="internRefresh()">↻ Refresh</button>
+    </div>
+  </div>
+
+  <div class="card" id="salesBox" style="display:none">
+    <div class="lab">📈 Sales snapshot</div>
+    <p class="note">The one number to move: how many sign-ups turn into paying users. Watch it, and try things that push it up.</p>
+    <div id="salesOut"><p class="note">Loading…</p></div>
+    <button class="btn" style="margin-top:10px" onclick="salesRefresh()">↻ Refresh</button>
+  </div>
+
+  <div class="card" id="scoreBox" style="display:none">
+    <div class="lab">🎯 This month's mission</div>
+    <p class="note">Live counters for the whole team. Set the monthly targets once — everyone sees the same numbers and the same finish line.</p>
+    <div id="scoreOut"><p class="note">Loading…</p></div>
+    <div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:12px">
+      <button class="btn go" onclick="scoreEdit()">🎯 Set targets</button>
+      <button class="btn" onclick="scoreLogInstalls()">📲 Log installs</button>
+      <button class="btn" onclick="scoreRefresh()">↻ Refresh</button>
+    </div>
+  </div>
+
+  <div class="card" id="investorBox" style="display:none">
+    <div class="lab">📊 Investor metrics (ARR & sales)</div>
+    <p class="note">A clean snapshot to send investors. Pulls from your logged revenue and lets you add the growth story numbers. Export a one-page summary any time.</p>
+    <div id="investorSummary" style="margin:10px 0"></div>
+    <div style="display:flex;gap:7px;flex-wrap:wrap;margin:10px 0">
+      <button class="btn go" onclick="invEdit()">✏️ Update metrics</button>
+      <button class="btn" onclick="invExport()">⬇️ Export investor summary</button>
+    </div>
+  </div>
+
+  <div class="card" id="contactsBox" style="display:none">
+    <div class="lab">🗂️ Key contacts</div>
+    <p class="note">Investors, VIP customers, high-net-worth leads — with why each matters. Tap to email or call. Everything stays on this device.</p>
+    <div style="display:flex;gap:7px;flex-wrap:wrap;margin:10px 0">
+      <button class="btn go" onclick="contactAdd()">➕ Add contact</button>
+    </div>
+    <div id="contactsList"><p class="note">Loading…</p></div>
+  </div>
+
+  <div class="card" id="taxBox" style="display:none">
+    <div class="lab">📁 Tax & business documents</div>
+    <p class="note">Store GST filings, ITR acknowledgements, invoices and receipts. Paste a link (Drive/DigiLocker) or type the reference — everything's kept in one searchable place.</p>
+    <div style="margin:10px 0"><button class="btn go" style="width:100%;padding:11px" onclick="taxAdd()">➕ Add a tax / business document</button></div>
+    <div id="taxList"><p class="note">Loading…</p></div>
+  </div>
+
+  <div class="card" id="mailBox" style="display:none">
+    <div class="lab">✉️ Outreach & emails</div>
+    <p class="note">Draft investor and lead emails from proven templates — pick a type, fill the name, and get a ready-to-send draft you can copy or open in your mail app.</p>
+    <div style="display:flex;gap:7px;flex-wrap:wrap;margin:10px 0">
+      <button class="btn" onclick="mailGen('investor_intro')">💼 Investor intro</button>
+      <button class="btn" onclick="mailGen('investor_followup')">🔁 Investor follow-up</button>
+      <button class="btn" onclick="mailGen('creator')">🎥 Creator collab</button>
+      <button class="btn" onclick="mailGen('order')">📦 Order update</button>
+    </div>
+    <div id="mailOut"></div>
+  </div>
+
+  <div class="card">
+    <div class="lab">This month</div>
+    <div class="stat" id="statBox"><span class="note">Loading…</span></div>
+  </div>
+</div>
+
+<p class="note" style="margin-top:20px"></p>
+
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<script src="../resource-data.js"></script>
+<script>
+function showModal(html){
+  var m=el('hrModal');
+  if(!m){ m=document.createElement('div'); m.id='hrModal'; m.style.cssText='position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.6);display:flex;align-items:flex-start;justify-content:center;overflow-y:auto;padding:24px 14px'; document.body.appendChild(m); }
+  m.innerHTML='<div style="max-width:440px;width:100%">'+html+'</div>';
+  m.style.display='flex';
+}
+function closeModal(){ var m=el('hrModal'); if(m) m.style.display='none'; }
+
+var CFG={apiKey:"AIzaSyDlrtpzpOb1VEmVSd9tHmu7OpmvwWosYsU",authDomain:"roamwisepro.firebaseapp.com",projectId:"roamwisepro",storageBucket:"roamwisepro.firebasestorage.app",messagingSenderId:"299014744987",appId:"1:299014744987:web:d5c316743e6d7a10904f3e"};
+var db=null,user=null,ROLE='';
+try{ firebase.initializeApp(CFG); db=firebase.firestore(); }catch(e){}
+function el(i){return document.getElementById(i);}
+function esc(t){return String(t==null?'':t).replace(/[<>&]/g,function(c){return{'<':'&lt;','>':'&gt;','&':'&amp;'}[c];});}
+
+var _authMode='signin';
+function authTab(m){
+  _authMode=m;
+  el('tabSignin').className = m==='signin'?'btn go':'btn';
+  el('tabSignup').className = m==='signup'?'btn go':'btn';
+  el('authName').classList.toggle('hide', m!=='signup');
+  el('authGo').textContent = m==='signup'?'Create account':'Sign in';
+  el('authErr').textContent='';
+}
+function authEmailGo(){
+  var email=(el('authEmail').value||'').trim();
+  var pass=(el('authPass').value||'');
+  var errEl=el('authErr'); errEl.textContent='';
+  if(!email || pass.length<6){ errEl.textContent='Enter your email and a password of at least 6 characters.'; return; }
+  el('authGo').textContent='Please wait\u2026';
+  var done=function(){ /* onAuthStateChanged handles the rest */ };
+  var fail=function(e){
+    el('authGo').textContent = _authMode==='signup'?'Create account':'Sign in';
+    var c=e&&e.code||'';
+    var msg = c==='auth/email-already-in-use' ? 'That email already has an account \u2014 switch to Sign in.'
+      : c==='auth/invalid-email' ? 'That email doesn\u2019t look right.'
+      : c==='auth/wrong-password' || c==='auth/invalid-credential' ? 'Wrong email or password.'
+      : c==='auth/user-not-found' ? 'No account with that email \u2014 create one first.'
+      : c==='auth/weak-password' ? 'Password too weak \u2014 use at least 6 characters.'
+      : c==='auth/operation-not-allowed' ? 'Email sign-in isn\u2019t enabled yet. In Firebase Console \u2192 Authentication \u2192 Sign-in method, enable Email/Password.'
+      : (e&&e.message)||'Something went wrong.';
+    errEl.textContent=msg;
+  };
+  if(_authMode==='signup'){
+    var name=(el('authName').value||'').trim();
+    firebase.auth().createUserWithEmailAndPassword(email,pass).then(function(cred){
+      /* set their display name, then register a pending staff record with a
+         friendly auto Staff ID so the founder can find & approve them. */
+      if(name && cred.user) cred.user.updateProfile({displayName:name});
+      return registerPending(cred.user, name);
+    }).then(done).catch(fail);
+  } else {
+    firebase.auth().signInWithEmailAndPassword(email,pass).then(done).catch(fail);
+  }
+}
+/* Create a pending staff doc keyed by UID with an auto Staff ID (RW-XXXX). The
+   founder sees it in the admin panel and assigns a role to activate it. */
+function registerPending(u, name){
+  if(!u) return Promise.resolve();
+  var staffId = 'RW-' + (u.uid.replace(/[^a-zA-Z0-9]/g,'').slice(-4).toUpperCase());
+  return db.collection('staff').doc(u.uid).set({
+    staffId: staffId, name: name||'', email: u.email||'', photo: u.photoURL||'',
+    role: 'none', type:'', status:'pending',
+    requestedAt: new Date().toISOString()
+  }, {merge:true});
+}
+function doAuth(){
+  if(user){ firebase.auth().signOut(); return; }
+  var prov = new firebase.auth.GoogleAuthProvider();
+  prov.setCustomParameters({ prompt:'select_account' }); /* always show the account chooser */
+  /* Only force redirect where popups genuinely can't return: an embedded
+     WebView or a file:// origin. Normal mobile Safari/Chrome CAN do popups, so
+     the old broad UA test was wrong and sent real browsers down a redirect that
+     silently did nothing. Try popup first everywhere; fall back to redirect only
+     when the popup is actually refused. */
+  var mustRedirect = (location.protocol === 'file:')
+    || /; wv\)|\bwv\b/i.test(navigator.userAgent); /* Android WebView marker */
+  if(mustRedirect){
+    firebase.auth().signInWithRedirect(prov).catch(function(e){ alert('Sign-in error: '+e.message); });
+    return;
+  }
+  firebase.auth().signInWithPopup(prov).catch(function(e){
+    var code = e && e.code || '';
+    if(code==='auth/popup-blocked' || code==='auth/popup-closed-by-user' || code==='auth/cancelled-popup-request' || code==='auth/operation-not-supported-in-this-environment'){
+      firebase.auth().signInWithRedirect(prov).catch(function(e2){ alert('Sign-in error: '+e2.message); });
+    } else {
+      alert('Sign-in error: '+(e.message||code||'unknown')+'\n\nIf this keeps happening, this domain may not be in Firebase Auth > Settings > Authorized domains.');
+    }
+  });
+}
+/* Complete a redirect sign-in when the page reloads back from Google. */
+firebase.auth().getRedirectResult().catch(function(e){
+  if(e && e.message) { try{ el('who').textContent = 'Sign-in error: '+e.message; }catch(_){}}
+});
+firebase.auth().onAuthStateChanged(function(u){
+  user=u;
+  el('authBtn').textContent = u? 'Sign out':'Sign in';
+  if(!u){ el('signedOut').classList.remove('hide'); el('app').classList.add('hide'); el('who').textContent='Not signed in'; return; }
+  el('who').textContent = u.email||'';
+  db.collection('staff').doc(u.uid).get().then(function(d){
+    if(!d.exists){
+      /* First time here (e.g. via Google) with no record yet — create a pending
+         one with an auto Staff ID, then show it. */
+      return registerPending(u, u.displayName||'').then(function(){
+        return db.collection('staff').doc(u.uid).get();
+      });
+    }
+    return d;
+  }).then(function(d){
+    var data = d.data()||{};
+    var role = data.role||'none';
+    if(role==='none' || !role){
+      /* Signed in fine, but not activated yet. NOTHING for them to do — the
+         founder already sees them in the admin app's approval list. A warm
+         welcome beats a chore. */
+      el('signedOut').classList.remove('hide'); el('app').classList.add('hide');
+      el('signedOut').innerHTML='<div class="card" style="text-align:center">'
+        +'<div style="font-size:44px;margin-bottom:6px">\ud83c\udfd4\ufe0f</div>'
+        +'<h2 style="margin-bottom:6px">Welcome to RoamWise, '+esc((data.name||u.displayName||'').split(' ')[0]||'friend')+'</h2>'
+        +'<p class="note" style="margin-bottom:16px">You\u2019re signed in and your request has already reached Mohit \u2014 there\u2019s nothing you need to send. He\u2019ll switch on your access and your desk will appear right here.</p>'
+        +'<div style="background:rgba(232,186,108,.08);border:1px solid rgba(232,186,108,.28);border-radius:12px;padding:14px;text-align:left;margin-bottom:14px">'
+        +'<div style="font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--t3);margin-bottom:8px">What happens next</div>'
+        +'<div style="font-size:12.5px;color:var(--t2);line-height:1.9">'
+        +'<div>\u2713 &nbsp;You signed in \u2014 done</div>'
+        +'<div>\u23f3 &nbsp;Mohit approves you and picks your role</div>'
+        +'<div>\ud83e\ude91 &nbsp;Your desk unlocks: daily log, resources, documents</div>'
+        +'</div></div>'
+        +'<div style="font-size:12px;color:var(--t2);line-height:1.7;text-align:left">'
+        +'<b style="color:var(--gold)">While you wait</b><br>Have a look at <a href="/" style="color:var(--gold)">roamwise.co.in</a> and try planning a trip. Noticing something broken or confusing is genuinely the most useful thing a new joiner can do here \u2014 bring it to your first conversation.</div>'
+        +'<button class="btn" style="width:100%;padding:11px;margin-top:16px" onclick="location.reload()">\u21bb Check again</button>'
+        +'<div class="note" style="margin-top:10px">Signed in as '+esc(u.email||'')+'</div>'
+        +'</div>';
+      return;
+    }
+    ROLE = role;
+    /* MULTI-ROLE: data.roles is the full list; role stays as the primary. */
+    window.ROLES = (data && data.roles && data.roles.length) ? data.roles : (ROLE? [ROLE] : []);
+    el('roleTag').innerHTML = ROLES.map(function(r){ return '<span class="role '+r+'">'+r+'</span>'; }).join(' ');
+    el('signedOut').classList.add('hide'); el('app').classList.remove('hide');
+    el('finBox').style.display = hasRole('finance')?'block':'none';
+    el('mktBox').style.display = (hasRole('marketing')||hasRole('growth'))?'block':'none';
+    el('ordBox').style.display = ROLE==='admin'?'block':'none';
+    el('leadBox').style.display = ROLE==='admin'?'block':'none';
+    el('hrBox').style.display = ROLE==='admin'?'block':'none';
+    el('docBox').style.display = ROLE==='admin'?'block':'none';
+    el('finConsoleBox').style.display = ROLE==='admin'?'block':'none';
+    el('taxBox').style.display = ROLE==='admin'?'block':'none';
+    el('scoreBox').style.display = (ROLE&&ROLE!=='none')?'block':'none';
+    el('salesBox').style.display = (ROLE&&ROLE!=='none')?'block':'none';
+    el('myDeskBox').style.display = (ROLE&&ROLE!=='none')?'block':'none';
+    el('internAdminBox').style.display = ROLE==='admin'?'block':'none';
+    el('pendingBox').style.display = ROLE==='admin'?'block':'none';
+    el('investorBox').style.display = ROLE==='admin'?'block':'none';
+    el('contactsBox').style.display = ROLE==='admin'?'block':'none';
+    el('mailBox').style.display = ROLE==='admin'?'block':'none';
+    loadToday(); loadTasks(); loadStats();
+    if(ROLE==='finance') loadLedger();
+    if(ROLE==='marketing') loadCrm();
+    if(ROLE==='admin') loadOrders();
+    if(ROLE==='admin') loadLeads();
+    if(ROLE==='admin') hrLoad();
+    if(ROLE==='admin') docLoad();
+    if(ROLE==='admin') finLoad();
+    if(ROLE==='admin') taxLoad();
+    if(ROLE&&ROLE!=='none'){ setTimeout(function(){ try{ deskRender(); }catch(e){} }, 450); }
+    if(ROLE==='admin'){ setTimeout(function(){ try{ pendingRefresh(); internRefresh(); }catch(e){} }, 700); }
+    if(ROLE==='admin'||ROLE==='staff'){ setTimeout(function(){ try{ scoreRefresh(); salesRefresh(); }catch(e){} }, 500); }
+    if(ROLE==='admin'){ setTimeout(function(){ try{ invRender(); contactsRender(); }catch(e){} }, 400); }
+  }).catch(function(e){ el('signedOut').innerHTML='<div class="card"><p class="note">Could not check your role: '+esc(e.message)+'</p></div>'; });
+});
+
+var DAILY = {
+  marketing:[
+    ['Reply to inbound creators','Anyone who applied via /creators/ — reply the same day. Warm leads go cold in 48 hours.'],
+    ['Send 3 researched pitches','Three personal emails beat thirty templates. Name something specific from their work in line one.'],
+    ['Log every reply','Update the stage in the CRM so nobody gets pitched twice.'],
+    ['One content idea','A guide topic travellers actually search for. Write the title and one line on why.']
+  ],
+  finance:[
+    ['Reconcile yesterday','Match every UPI credit against an order or a Pro unlock. Flag anything unmatched.'],
+    ['Log expenses','Anything spent yesterday, with what it was for. Receipts in the shared drive.'],
+    ['Check refunds/chargebacks','Anything reversed gets removed from the revenue count the same day.'],
+    ['Update the running total','Revenue, expenses, and what that leaves.']
+  ]
+};
+function loadToday(){
+  var list = DAILY[ROLE]||[];
+  el('todayList').innerHTML = list.map(function(t){
+    return '<div class="task"><div class="tk"><b>'+esc(t[0])+'</b><p>'+esc(t[1])+'</p></div></div>';
+  }).join('') || '<p class="note">No standing routine for this role.</p>';
+}
+/* LIVE (rw-v72): onSnapshot instead of get(), so a task assigned in the admin
+   console appears here within a second — no refresh, no re-login.
+   ALSO FIXED: matches on role OR the person's uid, and treats legacy role
+   names as equivalent, because the admin's dropdown and the staff role string
+   had drifted apart (that was the actual reason Febin saw nothing). */
+var _taskUnsub=null;
+var ROLE_ALIASES={ growth:['growth','marketing'], marketing:['marketing','growth'],
+  qa:['qa','support','product'], support:['support','qa'],
+  engineering:['engineering','eng','tech'], content:['content','marketing'],
+  design:['design'], bd:['bd','partnerships'], finance:['finance'],
+  ops:['ops','operations'], research:['research'], staff:['staff'], admin:['admin'] };
+/* MULTI-ROLE (rw-v73): a person may hold several roles — useful when you're
+   short-handed and one intern covers content AND growth. ROLES is the full
+   list; ROLE stays as the primary for anything that needs a single value. */
+
+/* does this person hold a given role (primary or secondary)? */
+function hasRole(r){
+  if(ROLE===r) return true;
+  return !!(window.ROLES && ROLES.indexOf(r)>-1);
+}
+function myRoles(){
+  var r=[];
+  if(window.ROLES && ROLES.length) r=ROLES.slice();
+  else if(ROLE) r=[ROLE];
+  /* expand each role through its aliases so legacy task values still match */
+  var out={};
+  r.forEach(function(x){
+    out[x]=1;
+    (ROLE_ALIASES[x]||[]).forEach(function(a){ out[a]=1; });
+  });
+  return Object.keys(out);
+}
+function roleMatches(assignee){
+  if(!assignee) return false;
+  return myRoles().indexOf(assignee)>-1;
+}
+function loadTasks(){
+  if(_taskUnsub){ try{ _taskUnsub(); }catch(e){} _taskUnsub=null; }
+  _taskUnsub = db.collection('tasks').limit(100).onSnapshot(function(all){
+    var rows=[];
+    all.forEach(function(doc){
+      var t=doc.data()||{}, st=t.status||'todo';
+      var mine = roleMatches(t.assignee) || (t.assigneeUid && user && t.assigneeUid===user.uid);
+      if(mine) rows.push({id:doc.id,t:t,st:st});
+    });
+    if(!rows.length){ el('taskList').innerHTML='<p class="note">Nothing assigned right now. The daily routine above is your baseline.</p>'; return; }
+    rows.sort(function(a,b){ return (a.st==='done')-(b.st==='done'); });
+    el('taskList').innerHTML = rows.map(function(r){
+      var t=r.t;
+      return '<div class="task"><div class="tk"><b>'+esc(t.title)+'</b>'
+        +(t.brief? '<p>'+esc(t.brief)+'</p>':'')
+        +(t.due? '<div class="meta">Due '+esc(t.due)+'</div>':'')
+        +'</div>'
+        +'<select class="btn" onchange="setStatus(\''+r.id+'\',this.value)">'
+        + ['todo','doing','done'].map(function(s){ return '<option value="'+s+'"'+(r.st===s?' selected':'')+'>'+s+'</option>'; }).join('')
+        +'</select></div>';
+    }).join('');
+  }, function(e){ el('taskList').innerHTML='<p class="note">Could not load tasks: '+esc(e.message)+'</p>'; });
+}
+function setStatus(id,val){
+  /* no reload needed — the live listener repaints automatically */
+  db.collection('tasks').doc(id).update({status:val, updatedAt:new Date().toISOString()})
+    .catch(function(e){ alert(e.message); });
+}
+function logExpense(){
+  var what=el('expWhat').value.trim(), amt=parseFloat(el('expAmt').value);
+  if(!what || !(amt>0)){ alert('What it was for, and an amount.'); return; }
+  db.collection('ledger').add({kind:'expense', what:what, amount:amt,
+    enteredBy:user.uid, at:new Date().toISOString()})
+    .then(function(){ el('expWhat').value=''; el('expAmt').value=''; loadLedger(); })
+    .catch(function(e){ alert(e.message); });
+}
+function loadLedger(){
+  db.collection('ledger').limit(60).get().then(function(qs){
+    var rows=[], exp=0, rev=0;
+    qs.forEach(function(d){ var x=d.data(); rows.push(x);
+      if(x.kind==='expense') exp+=(x.amount||0); if(x.kind==='revenue') rev+=(x.amount||0); });
+    rows.sort(function(a,b){ return (b.at||'').localeCompare(a.at||''); });
+    el('ledgerList').innerHTML =
+      '<div class="stat" style="margin-bottom:10px">'
+      +'<div><b>₹'+rev.toLocaleString('en-IN')+'</b><span>revenue logged</span></div>'
+      +'<div><b>₹'+exp.toLocaleString('en-IN')+'</b><span>expenses</span></div>'
+      +'<div><b style="color:'+(rev-exp>=0?'var(--grn)':'var(--red)')+'">₹'+(rev-exp).toLocaleString('en-IN')+'</b><span>net</span></div></div>'
+      + rows.slice(0,12).map(function(x){
+          return '<div class="task"><div class="tk"><b>'+esc(x.what||x.kind)+'</b>'
+            +'<div class="meta">'+esc((x.at||'').slice(0,10))+' · '+esc(x.kind)+'</div></div>'
+            +'<span class="pill">₹'+Number(x.amount||0).toLocaleString('en-IN')+'</span></div>';
+        }).join('');
+  }).catch(function(e){ el('ledgerList').innerHTML='<p class="note">'+esc(e.message)+'</p>'; });
+}
+function loadCrm(){
+  db.collection('crm').where('seg','==','creator').limit(50).get().then(function(qs){
+    if(qs.empty){ el('crmList').innerHTML='<p class="note">No creator records yet.</p>'; return; }
+    var rows=[]; qs.forEach(function(d){ rows.push({id:d.id,x:d.data()}); });
+    el('crmList').innerHTML = rows.map(function(r){
+      var x=r.x, st=x.stage||'new';
+      return '<div class="task"><div class="tk"><b>'+esc(x.name||'(no name)')+'</b>'
+        +'<p>'+esc(x.handle||'')+(x.reach? ' · '+esc(x.reach):'')+(x.niche? ' · '+esc(x.niche):'')+'</p></div>'
+        +'<select class="btn" onchange="setStage(\''+r.id+'\',this.value)">'
+        + ['new','contacted','replied','won','lost'].map(function(s){ return '<option value="'+s+'"'+(st===s?' selected':'')+'>'+s+'</option>'; }).join('')
+        +'</select></div>';
+    }).join('');
+  }).catch(function(e){ el('crmList').innerHTML='<p class="note">'+esc(e.message)+'</p>'; });
+}
+function setStage(id,val){
+  db.collection('crm').doc(id).update({stage:val}).then(loadCrm).catch(function(e){ alert(e.message); });
+}
+function loadOrders(){
+  db.collection('merch').orderBy('at','desc').limit(100).get().then(function(qs){
+    if(qs.empty){ el('ordList').innerHTML='<p class="note">No orders yet. When a customer designs and orders a tee, it appears here.</p>'; return; }
+    var rows=[]; qs.forEach(function(d){ rows.push({id:d.id, x:d.data()}); });
+    var counts={new:0, printing:0, shipped:0};
+    rows.forEach(function(r){ var s=r.x.status||'new'; counts[s]=(counts[s]||0)+1; });
+    el('ordList').innerHTML =
+      '<div style="display:flex;gap:8px;margin-bottom:10px;font-size:11px">'
+      +'<span class="pill" style="background:rgba(232,186,108,.15);color:var(--gold)">'+counts.new+' new</span>'
+      +'<span class="pill" style="background:rgba(167,139,250,.15);color:var(--vio)">'+(counts.printing||0)+' printing</span>'
+      +'<span class="pill" style="background:rgba(74,222,128,.14);color:var(--grn)">'+(counts.shipped||0)+' shipped</span>'
+      +'</div>'
+      + rows.map(function(r){
+        var x=r.x, st=x.status||'new';
+        var art = x.art ? '<a href="'+esc(x.art)+'" target="_blank" rel="noopener" style="color:var(--gold)">view art \u2197</a>' : 'text-only';
+        return '<div class="task" style="flex-direction:column;align-items:stretch;gap:6px;border-bottom:1px solid rgba(255,255,255,.06);padding:10px 0">'
+          +'<div style="display:flex;justify-content:space-between;gap:8px">'
+            +'<b style="font-size:13px">"'+esc(x.slogan||'(no slogan)')+'"</b>'
+            +'<span class="pill">size '+esc(x.size||'?')+'</span></div>'
+          +'<div class="meta" style="font-size:11px;color:var(--t2);line-height:1.6">'
+            +'\ud83d\udccd '+esc(x.place||'\u2014')+' \u00b7 '+art+'<br>'
+            +'\ud83d\udcde '+esc(x.phone||'no phone')+' \u00b7 \u2709\ufe0f '+esc(x.email||'no email')+'<br>'
+            +'\ud83c\udfe0 '+esc(x.addr||'no address')+'<br>'
+            +'\ud83d\udd52 '+esc((x.at||'').slice(0,16).replace('T',' '))+'</div>'
+          +'<select class="btn" onchange="setOrderStatus(\''+r.id+'\',this.value)">'
+          + ['new','printing','shipped','cancelled'].map(function(s){ return '<option value="'+s+'"'+(st===s?' selected':'')+'>'+s+'</option>'; }).join('')
+          +'</select></div>';
+      }).join('');
+  }).catch(function(e){ el('ordList').innerHTML='<p class="note">Could not load orders: '+esc(e.message)+'</p>'; });
+}
+function setOrderStatus(id,val){
+  db.collection('merch').doc(id).update({status:val}).then(loadOrders).catch(function(e){ alert(e.message); });
+}
+function loadLeads(){
+  db.collection('deckleads').orderBy('at','desc').limit(100).get().then(function(qs){
+    if(qs.empty){ el('leadList').innerHTML='<p class="note">No deck views yet. Share the link at roamwise.co.in/deck/ and viewers appear here.</p>'; return; }
+    var rows=[]; qs.forEach(function(d){ rows.push(d.data()); });
+    var totalSlides=13;
+    el('leadList').innerHTML = rows.map(function(x){
+      var depth = Math.round(((x.maxSlide||0)/totalSlides)*100);
+      var mins = Math.floor((x.seconds||0)/60), secs=(x.seconds||0)%60;
+      var timeStr = mins? mins+'m '+secs+'s' : secs+'s';
+      var hot = (x.maxSlide||0)>=totalSlides-1 && (x.seconds||0)>=60;
+      var barColor = depth>=80?'var(--grn)':depth>=40?'var(--gold)':'var(--vio)';
+      var contact = x.contact || [x.email, x.phone].filter(Boolean).join(' · ') || x.email || x.phone || '\u2014';
+      return '<div class="task" style="flex-direction:column;align-items:stretch;gap:5px;border-bottom:1px solid rgba(255,255,255,.06);padding:11px 0">'
+        +'<div style="display:flex;justify-content:space-between;gap:8px;align-items:center">'
+          +'<b style="font-size:13.5px">'+esc(x.name||'(no name)')+(hot?' 🔥':'')+'</b>'
+          +'<span class="pill">'+esc(timeStr)+'</span></div>'
+        +'<div class="meta" style="font-size:11px;color:var(--t2);line-height:1.6">'
+          +(x.role? '💼 '+esc(x.role)+'<br>':'')
+          +'📞 '+esc(contact)+'<br>'
+          +'🕒 '+esc((x.at||'').slice(0,16).replace('T',' '))
+          +(x.completed?' · <span style="color:var(--grn)">read to end</span>':'')+'</div>'
+        +'<div style="display:flex;align-items:center;gap:8px;margin-top:3px">'
+          +'<div style="flex:1;height:6px;background:rgba(255,255,255,.08);border-radius:3px;overflow:hidden">'
+            +'<div style="height:100%;width:'+depth+'%;background:'+barColor+'"></div></div>'
+          +'<span style="font-size:10.5px;color:var(--t3)">slide '+(x.maxSlide||0)+'/'+totalSlides+'</span></div>'
+        +'</div>';
+    }).join('');
+  }).catch(function(e){ el('leadList').innerHTML='<p class="note">Could not load leads: '+esc(e.message)+'</p>'; });
+}
+
+/* ==================== STAFF & PAYROLL ==================== */
+var STAFF_TYPES = ['Full-time','Finance Intern','Marketing Intern','Customer Support Intern'];
+var STAFF_ROLES = ['admin','finance','marketing','support','none'];
+function hrLoad(){
+  db.collection('staff').get().then(function(qs){
+    if(qs.empty){ el('hrList').innerHTML='<p class="note">No team members yet.</p>'; return; }
+    var rows=[]; qs.forEach(function(d){ rows.push({uid:d.id, x:d.data()}); });
+    var pending = rows.filter(function(r){ return (r.x.role||'none')==='none'; });
+    var active = rows.filter(function(r){ return (r.x.role||'none')!=='none'; });
+    var pendHtml = pending.length ? '<div style="background:rgba(232,186,108,.08);border:1px solid rgba(232,186,108,.25);border-radius:10px;padding:10px;margin-bottom:12px">'
+      +'<div style="font-size:11px;font-weight:800;color:var(--gold);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">\u23f3 '+pending.length+' waiting for approval</div>'
+      + pending.map(function(r){
+          return '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;padding:6px 0">'
+            +'<div><b style="font-size:12.5px">'+esc(r.x.name||r.x.email||'New user')+'</b>'
+            +'<div style="font-size:10.5px;color:var(--t3)">'+esc(r.x.staffId||'')+' \u00b7 '+esc(r.x.email||'')+'</div></div>'
+            +'<button class="btn go" style="font-size:11px;padding:5px 11px" onclick="hrAddStaff(\''+r.uid+'\')">Approve / set role</button></div>';
+        }).join('')
+      +'</div>' : '';
+    el('hrList').innerHTML = pendHtml + active.map(function(r){
+      var x=r.x;
+      var fixed=x.salaryFixed||0, inc=x.incentive||0;
+      return '<div style="border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:11px;margin-bottom:9px">'
+        +'<div style="display:flex;justify-content:space-between;gap:8px;align-items:center">'
+          +'<b style="font-size:13.5px">'+esc(x.name||'(unnamed)')+'</b>'
+          +'<span class="pill">'+esc(x.type||'Full-time')+'</span></div>'
+        +'<div style="font-size:11px;color:var(--t2);line-height:1.7;margin-top:4px">'
+          +'\ud83c\udfab '+esc(x.role||'none')+' \u00b7 \ud83d\udce7 '+esc(x.email||'\u2014')+'<br>'
+          +(x.staffId?'\ud83c\udd94 '+esc(x.staffId)+' \u00b7 ':'')+'\ud83d\udcb0 Fixed \u20b9'+fixed.toLocaleString('en-IN')+(inc?' + \u20b9'+inc.toLocaleString('en-IN'):'')
+          +' = <b>\u20b9'+(fixed+inc).toLocaleString('en-IN')+'/mo</b></div>'
+        +'<div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap">'
+          +'<button class="btn" style="font-size:11px;padding:5px 10px" onclick="hrAddStaff(\''+r.uid+'\')">Edit</button>'
+          +'<button class="btn" style="font-size:11px;padding:5px 10px" onclick="docGen(\'salary\',\''+r.uid+'\')">Salary slip</button>'
+          +'<button class="btn" style="font-size:11px;padding:5px 10px" onclick="docGen(\'offer\',\''+r.uid+'\')">Offer letter</button>'
+        +'</div></div>';
+    }).join('');
+  }).catch(function(e){ el('hrList').innerHTML='<p class="note">Could not load staff: '+esc(e.message)+'</p>'; });
+}
+function hrAddStaff(uid){
+  var existing=null;
+  var run=function(){
+    var typeOpts=STAFF_TYPES.map(function(t){return '<option'+(existing&&existing.type===t?' selected':'')+'>'+t+'</option>';}).join('');
+    var roleOpts=STAFF_ROLES.map(function(t){return '<option'+(existing&&existing.role===t?' selected':'')+'>'+t+'</option>';}).join('');
+    var html='<div class="card"><h3 style="margin:0 0 10px">'+(uid?'Edit team member':'Add team member')+'</h3>'
+      +(existing&&existing.staffId?'<div style="margin-bottom:8px;font-size:12px;color:var(--t2)">Staff ID: <b style="color:var(--gold);font-family:monospace">'+esc(existing.staffId)+'</b></div>':'')
+      +'<label class="lab">UID (from their sign-in screen)</label>'
+      +'<input id="hrUid" class="inp" value="'+esc(uid||'')+'"'+(uid?' readonly':'')+' placeholder="paste their UID">'
+      +'<label class="lab">Full name</label><input id="hrName" class="inp" value="'+esc(existing&&existing.name||'')+'">'
+      +'<label class="lab">Email</label><input id="hrEmail" class="inp" value="'+esc(existing&&existing.email||'')+'">'
+      +'<label class="lab">Type</label><select id="hrType" class="inp">'+typeOpts+'</select>'
+      +'<label class="lab">Dashboard role</label><select id="hrRole" class="inp">'+roleOpts+'</select>'
+      +'<label class="lab">Fixed salary (₹/month)</label><input id="hrFixed" class="inp" type="number" value="'+(existing&&existing.salaryFixed||'')+'">'
+      +'<label class="lab">Incentive (₹/month, optional)</label><input id="hrInc" class="inp" type="number" value="'+(existing&&existing.incentive||'')+'">'
+      +'<label class="lab">Joining date</label><input id="hrJoin" class="inp" type="date" value="'+esc(existing&&existing.joined||'')+'">'
+      +'<div style="display:flex;gap:8px;margin-top:12px">'
+        +'<button class="btn go" style="flex:1;padding:11px" onclick="hrSave()">Save</button>'
+        +'<button class="btn" style="padding:11px" onclick="hrLoad();closeModal()">Cancel</button></div></div>';
+    showModal(html);
+  };
+  if(uid){ db.collection('staff').doc(uid).get().then(function(d){ existing=d.data()||{}; run(); }); }
+  else run();
+}
+function hrSave(){
+  var uid=el('hrUid').value.trim();
+  if(!uid){ alert('UID is required — the person sees it on their sign-in screen.'); return; }
+  var rec={
+    name:el('hrName').value.trim(), email:el('hrEmail').value.trim(),
+    type:el('hrType').value, role:el('hrRole').value,
+    salaryFixed:parseInt(el('hrFixed').value||'0',10)||0,
+    incentive:parseInt(el('hrInc').value||'0',10)||0,
+    joined:el('hrJoin').value||'', updatedAt:new Date().toISOString()
+  };
+  db.collection('staff').doc(uid).set(rec,{merge:true}).then(function(){ closeModal(); hrLoad(); })
+    .catch(function(e){ alert('Could not save: '+e.message); });
+}
+
+/* ==================== DOCUMENTS VAULT ==================== */
+var COMPANY={name:'RoamWise', founder:'Mohit Pandey', place:'Almora, Uttarakhand'};
+function docLoad(){
+  db.collection('hrdocs').orderBy('at','desc').limit(60).get().then(function(qs){
+    if(qs.empty){ el('docList').innerHTML='<p class="note">No documents yet. Generate one above.</p>'; return; }
+    var rows=[]; qs.forEach(function(d){ rows.push({id:d.id, x:d.data()}); });
+    el('docList').innerHTML = rows.map(function(r){
+      var x=r.x;
+      return '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.06)">'
+        +'<div><b style="font-size:12.5px">'+esc(x.title||x.kind)+'</b><br><span style="font-size:10.5px;color:var(--t3)">'+esc((x.at||'').slice(0,10))+' · '+esc(x.forName||'')+'</span></div>'
+        +'<button class="btn" style="font-size:11px;padding:5px 10px" onclick="docView(\''+r.id+'\')">Open</button></div>';
+    }).join('');
+  }).catch(function(e){ el('docList').innerHTML='<p class="note">Could not load documents: '+esc(e.message)+'</p>'; });
+}
+function docView(id){
+  db.collection('hrdocs').doc(id).get().then(function(d){
+    var x=d.data()||{};
+    showModal('<div class="card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><h3 style="margin:0">'+esc(x.title||'Document')+'</h3><button class="btn" onclick="closeModal()">✕</button></div>'
+      +'<div style="background:#fff;color:#111;border-radius:8px;padding:22px;font-size:13px;line-height:1.7;white-space:pre-wrap;max-height:60vh;overflow-y:auto">'+esc(x.body||'')+'</div>'
+      +'<div style="display:flex;gap:8px;margin-top:12px"><button class="btn go" style="flex:1;padding:11px" onclick="docPrint(\''+id+'\')">🖨️ Print / Save PDF</button></div></div>');
+  });
+}
+function docPrint(id){
+  db.collection('hrdocs').doc(id).get().then(function(d){
+    var x=d.data()||{};
+    var w=window.open('','_blank');
+    w.document.write('<html><head><title>'+esc(x.title||'Document')+'</title><style>body{font-family:Georgia,serif;max-width:720px;margin:40px auto;padding:0 24px;line-height:1.8;color:#111;white-space:pre-wrap}h1{font-size:18px}</style></head><body>'+esc(x.body||'').replace(/\n/g,'<br>')+'</body></html>');
+    w.document.close(); setTimeout(function(){ w.print(); }, 300);
+  });
+}
+function docGen(kind, uid){
+  var build=function(emp){
+    var today=new Date().toISOString().slice(0,10);
+    var name=emp?emp.name:'', body='', title='';
+    if(kind==='offer'){
+      title='Offer Letter — '+(name||'New hire');
+      body='OFFER OF '+(emp&&emp.type||'EMPLOYMENT').toUpperCase()+'\n\nDate: '+today+'\n\nDear '+(name||'________')+',\n\nWe are pleased to offer you the position of '+(emp&&emp.type||'________')+' at '+COMPANY.name+', based in '+COMPANY.place+'.\n\nCompensation:\n  Fixed: ₹'+((emp&&emp.salaryFixed)||0).toLocaleString('en-IN')+' per month'
+        +((emp&&emp.incentive)?'\n  Incentive: up to ₹'+emp.incentive.toLocaleString('en-IN')+' per month based on performance':'')
+        +'\n  Total: ₹'+(((emp&&emp.salaryFixed)||0)+((emp&&emp.incentive)||0)).toLocaleString('en-IN')+' per month\n\nJoining date: '+((emp&&emp.joined)||'________')+'\n\nWe look forward to working with you.\n\nWarm regards,\n'+COMPANY.founder+'\n'+COMPANY.name;
+    } else if(kind==='salary'){
+      var mon=new Date().toLocaleString('en-IN',{month:'long',year:'numeric'});
+      var fixed=(emp&&emp.salaryFixed)||0, inc=(emp&&emp.incentive)||0;
+      title='Salary Slip — '+mon+' — '+(name||'');
+      body='SALARY SLIP\n'+COMPANY.name+'\n\nFor: '+mon+'\nEmployee: '+(name||'________')+'\nType: '+((emp&&emp.type)||'________')+'\n\nEARNINGS\n  Fixed pay:      ₹'+fixed.toLocaleString('en-IN')+'\n  Incentive:      ₹'+inc.toLocaleString('en-IN')+'\n  ---------------------------------\n  Net payable:    ₹'+(fixed+inc).toLocaleString('en-IN')+'\n\nThis is a system-generated slip and does not require a signature.\n'+COMPANY.name+' · '+today;
+    } else if(kind==='resignation'){
+      title='Resignation Acceptance — '+(name||'');
+      body='RESIGNATION ACCEPTANCE\n\nDate: '+today+'\n\nDear '+(name||'________')+',\n\nThis is to confirm that we have received and accepted your resignation from the position of '+((emp&&emp.type)||'________')+' at '+COMPANY.name+'.\n\nWe thank you for your contributions and wish you the very best.\n\nRegards,\n'+COMPANY.founder+'\n'+COMPANY.name;
+    } else if(kind==='leave'){
+      title='Leave Record — '+(name||'');
+      body='LEAVE RECORD\n\nDate: '+today+'\nEmployee: '+(name||'________')+'\n\nLeave type: ________\nFrom: ________   To: ________\nDays: ____\nReason: ________________________________\n\nApproved by: '+COMPANY.founder+'\n'+COMPANY.name;
+    }
+    var doc={kind:kind, title:title, body:body, forUid:(emp&&emp.uid)||'', forName:name||'', at:new Date().toISOString()};
+    db.collection('hrdocs').add(doc).then(function(ref){ docLoad(); docView(ref.id); })
+      .catch(function(e){ alert('Could not save document: '+e.message); });
+  };
+  if(uid){ db.collection('staff').doc(uid).get().then(function(d){ var e=d.data()||{}; e.uid=uid; build(e); }); }
+  else build(null);
+}
+
+/* ==================== FINANCE CONSOLE ==================== */
+var FIN_CATS = ['Office & rent','Software & tools','Marketing & ads','Travel','Salaries','Contractors','Bank & fees','Taxes','Hardware','Other'];
+var _finRows = [];
+function finLoad(){
+  db.collection('ledger').limit(300).get().then(function(qs){
+    _finRows=[]; qs.forEach(function(d){ var x=d.data(); x._id=d.id; _finRows.push(x); });
+    _finRows.sort(function(a,b){ return (b.at||'').localeCompare(a.at||''); });
+    var rev=0, exp=0, bills=0, due=0;
+    _finRows.forEach(function(x){
+      if(x.kind==='revenue') rev+=(x.amount||0);
+      else if(x.kind==='bill'){ bills+=(x.amount||0); if(x.status!=='paid'){ due+=(x.amount||0); } if(x.status==='paid'){ exp+=(x.amount||0); } }
+      else exp+=(x.amount||0);
+    });
+    el('finSummary').innerHTML='<div class="stat">'
+      +'<div><b>₹'+rev.toLocaleString('en-IN')+'</b><span>revenue</span></div>'
+      +'<div><b>₹'+exp.toLocaleString('en-IN')+'</b><span>spent</span></div>'
+      +'<div><b style="color:'+(due>0?'var(--gold)':'var(--grn)')+'">₹'+due.toLocaleString('en-IN')+'</b><span>bills due</span></div>'
+      +'<div><b style="color:'+(rev-exp>=0?'var(--grn)':'var(--red)')+'">₹'+(rev-exp).toLocaleString('en-IN')+'</b><span>net</span></div></div>';
+    el('finList').innerHTML = _finRows.slice(0,40).map(function(x){
+      var col = x.kind==='revenue'?'var(--grn)': x.kind==='bill'?'var(--gold)':'#F87171';
+      var sign = x.kind==='revenue'?'+':'−';
+      var statusChip = x.kind==='bill' ? ' <span class="pill" style="background:'+(x.status==='paid'?'rgba(74,222,128,.14)':'rgba(232,186,108,.15)')+'">'+(x.status||'unpaid')+'</span>' : '';
+      var payBtn = (x.kind==='bill' && x.status!=='paid') ? '<button class="btn" style="font-size:10px;padding:3px 8px" onclick="finMarkPaid(\''+x._id+'\')">Mark paid</button>' : '';
+      return '<div class="task" style="align-items:flex-start"><div class="tk"><b>'+esc(x.what||x.kind)+'</b>'+statusChip
+        +'<div class="meta">'+esc((x.at||'').slice(0,10))+' · '+esc(x.cat||x.kind)+(x.vendor?' · '+esc(x.vendor):'')+'</div>'+payBtn+'</div>'
+        +'<span class="pill" style="color:'+col+'">'+sign+'₹'+Number(x.amount||0).toLocaleString('en-IN')+'</span></div>';
+    }).join('') || '<p class="note">No entries yet.</p>';
+  }).catch(function(e){ el('finList').innerHTML='<p class="note">Could not load: '+esc(e.message)+'</p>'; });
+}
+function finAdd(kind){
+  var catSel = (kind!=='revenue') ? '<label class="lab">Category</label><select id="finCat" class="inp">'+FIN_CATS.map(function(c){return '<option>'+c+'</option>';}).join('')+'</select>' : '';
+  var vendorField = (kind==='bill') ? '<label class="lab">Vendor / paid to</label><input id="finVendor" class="inp" placeholder="e.g. AWS, landlord, printer">' : '';
+  var dueField = (kind==='bill') ? '<label class="lab">Status</label><select id="finStatus" class="inp"><option value="unpaid">Unpaid (due)</option><option value="paid">Paid</option></select>' : '';
+  var title = kind==='bill'?'🧾 Add a bill':kind==='revenue'?'📈 Add revenue':'💸 Add an expense';
+  showModal('<div class="card"><h3 style="margin:0 0 10px">'+title+'</h3>'
+    +'<label class="lab">Description</label><input id="finWhat" class="inp" placeholder="What is it?">'
+    +'<label class="lab">Amount (₹)</label><input id="finAmt" class="inp" type="number" placeholder="0">'
+    +vendorField+catSel+dueField
+    +'<label class="lab">Date</label><input id="finDate" class="inp" type="date" value="'+new Date().toISOString().slice(0,10)+'">'
+    +'<div style="display:flex;gap:8px;margin-top:12px"><button class="btn go" style="flex:1;padding:11px" onclick="finSave(\''+kind+'\')">Save</button>'
+    +'<button class="btn" style="padding:11px" onclick="closeModal()">Cancel</button></div></div>');
+}
+function finSave(kind){
+  var what=el('finWhat').value.trim();
+  var amt=parseInt(el('finAmt').value||'0',10)||0;
+  if(!what || amt<=0){ alert('Enter a description and amount.'); return; }
+  var rec={ kind:kind, what:what, amount:amt, at:(el('finDate').value||new Date().toISOString().slice(0,10)), enteredBy:user.uid };
+  if(el('finCat')) rec.cat=el('finCat').value;
+  if(el('finVendor')) rec.vendor=el('finVendor').value.trim();
+  if(el('finStatus')) rec.status=el('finStatus').value;
+  db.collection('ledger').add(rec).then(function(){ closeModal(); finLoad(); }).catch(function(e){ alert('Could not save: '+e.message); });
+}
+function finMarkPaid(id){
+  db.collection('ledger').doc(id).update({status:'paid'}).then(finLoad).catch(function(e){ alert(e.message); });
+}
+function finExport(){
+  if(!_finRows.length){ alert('Nothing to export yet.'); return; }
+  var head='Date,Type,Category,Vendor,Description,Amount,Status\n';
+  var body=_finRows.map(function(x){
+    return [ (x.at||'').slice(0,10), x.kind, x.cat||'', x.vendor||'', '"'+String(x.what||'').replace(/"/g,'""')+'"', x.amount||0, x.status||'' ].join(',');
+  }).join('\n');
+  var blob=new Blob([head+body],{type:'text/csv'});
+  var a=document.createElement('a'); a.href=URL.createObjectURL(blob);
+  a.download='roamwise-finance-'+new Date().toISOString().slice(0,10)+'.csv'; a.click();
+}
+
+/* ==================== INVESTOR METRICS (ARR & sales) ==================== */
+
+
+/* ============================================================================
+   MY DESK + INTERN MANAGEMENT (rw-v63)
+   ============================================================================
+   Goal: each person gets ONE page that answers "what do I do today, what have
+   I done, and where are my documents" — and the founder gets the same view
+   across everyone without chasing anyone on WhatsApp.
+
+   SCALABLE BY DESIGN: nothing is hardcoded per person. Everyone lives in the
+   Firestore 'staff' collection. Adding a fourth intern is one form, not a new
+   page. When the founder steps back, the system keeps working because the
+   record IS the process.
+
+   HONEST ON TIME TRACKING: a website cannot truly know how long someone worked
+   — only how long this page was open and focused. So we measure exactly that,
+   call it "time on portal", and treat the DAILY LOG as the real evidence of
+   work. Anything else would be theatre, or surveillance, or both.
+   ========================================================================= */
+
+/* ---------- shared helpers ---------- */
+function deskToday(){ return new Date().toISOString().slice(0,10); }
+function deskMonth(){ return deskToday().slice(0,7); }
+function deskNice(d){ try{ return new Date(d+'T00:00:00').toLocaleDateString('en-IN',{weekday:'short',day:'numeric',month:'short'}); }catch(e){ return d; } }
+function deskMins(ms){ var m=Math.round(ms/60000); return m<60? m+'m' : Math.floor(m/60)+'h '+(m%60?m%60+'m':''); }
+
+/* ---------- session timer: counts only while the tab is actually visible ---------- */
+var _deskT0=Date.now(), _deskAcc=0, _deskVisible=!document.hidden;
+document.addEventListener('visibilitychange', function(){
+  if(document.hidden){ if(_deskVisible){ _deskAcc += Date.now()-_deskT0; _deskVisible=false; } }
+  else { _deskT0=Date.now(); _deskVisible=true; }
+});
+function deskSessionMs(){ return _deskAcc + (_deskVisible ? Date.now()-_deskT0 : 0); }
+/* write a heartbeat every 2 minutes so a closed tab still records the session */
+function deskHeartbeat(){
+  if(!user || typeof db==='undefined' || !db) return;
+  var ms=deskSessionMs(); if(ms<30000) return;
+  db.collection('staff').doc(user.uid).collection('sessions').doc(deskToday())
+    .set({ date:deskToday(), ms:ms, at:firebase.firestore.FieldValue.serverTimestamp() },{merge:true})
+    .catch(function(){});
+}
+setInterval(deskHeartbeat, 120000);
+window.addEventListener('beforeunload', deskHeartbeat);
+
+/* ---------- MY DESK ---------- */
+
+/* ============================================================================
+   MY RESOURCES — frontend-managed content, backend only for progress (rw-v65)
+   ============================================================================
+   The content (what links, what advice) lives in resource-data.js and is
+   edited directly there — no code change needed to add a role or a link.
+   Firestore is used for exactly one thing: remembering which items a person
+   has ticked off, so the founder can see onboarding progress without asking.
+   ========================================================================= */
+function deskResourcesHTML(me, progress){
+  var common = window.RW_RESOURCE_COMMON;
+  var roleKey = me.resourceRole || me.role || '';
+  var role = (window.RW_ROLE_RESOURCES||{})[roleKey];
+  progress = progress || {};
+  function section(sec, prefix){
+    return '<div class="rs-sec-h">'+esc(sec.heading)+'</div>'
+      + sec.items.map(function(it){
+          var key=prefix+'.'+it.id, done=!!progress[key];
+          return '<div class="rs-item" onclick="deskToggleResource(\''+key+'\')">'
+            +'<span class="rs-check">'+(done?'✅':'⬜')+'</span>'
+            +'<span style="flex:1;min-width:0">'
+            + (it.url && it.url!=='#' && it.url!=='' ? '<a href="'+esc(it.url)+'" target="_blank" rel="noopener" onclick="event.stopPropagation()" class="rs-lab">'+esc(it.label)+' ↗</a>' : '<b class="rs-lab" style="cursor:default">'+esc(it.label)+'</b>')
+            +(it.note? '<div class="rs-note">'+esc(it.note)+'</div>':'')
+            +'</span></div>';
+        }).join('');
+  }
+  var html = '<div class="dk-lab">MY RESOURCES</div>';
+  if(common) html += '<div class="rs-role-h">'+common.icon+' '+esc(common.label)+'</div>' + common.sections.map(function(sec){ return section(sec,'common'); }).join('');
+  if(role) html += '<div class="rs-role-h">'+role.icon+' '+esc(role.label)+'</div>' + role.sections.map(function(sec){ return section(sec,roleKey); }).join('');
+  if(!role) html += '<div class="dk-note">No role-specific resources assigned yet — ask the founder to set your resource set.</div>';
+  return html;
+}
+function deskToggleResource(key){
+  if(!user) return;
+  var cur = (window._deskProgress||{})[key];
+  var val = !cur;
+  var upd={}; upd['resourceProgress.'+key]=val;
+  db.collection('staff').doc(user.uid).set(upd,{merge:true}).then(function(){
+    window._deskProgress = window._deskProgress || {};
+    window._deskProgress[key]=val;
+    try{ if(typeof rwHaptic==='function') rwHaptic(); }catch(e){}
+    deskRender();
+  }).catch(function(){});
+}
+
+function deskRender(){
+  var host=el('deskOut'); if(!host) return;
+  if(!user){ host.innerHTML='<p class="note">Sign in to see your desk.</p>'; return; }
+  var me=null;
+  db.collection('staff').doc(user.uid).get().then(function(d){
+    me=d.data()||{};
+    window._deskProgress = me.resourceProgress || {};
+    window._deskPlanDone = me.planDone || {};
+    try{ setTimeout(myPartnersLoad, 700); }catch(e){}
+    return db.collection('staff').doc(user.uid).collection('logs')
+      .orderBy('date','desc').limit(30).get();
+  }).then(function(qs){
+    var logs=[]; qs.forEach(function(d){ logs.push(d.data()); });
+    return db.collection('staff').doc(user.uid).collection('sessions')
+      .orderBy('date','desc').limit(30).get().then(function(ss){
+        var sess={}; ss.forEach(function(d){ var x=d.data(); sess[x.date]=x.ms||0; });
+        return db.collection('staff').doc(user.uid).collection('claims')
+          .orderBy('date','desc').limit(12).get().then(function(cs){
+            var claims=[]; cs.forEach(function(d){ var c=d.data(); c._id=d.id; claims.push(c); });
+            deskPaint(me, logs, sess, claims);
+          }).catch(function(){ deskPaint(me, logs, sess, []); });
+      });
+  }).catch(function(){ host.innerHTML='<p class="note">Could not load your desk. Check your connection.</p>'; });
+}
+function deskPaint(me, logs, sess, claims){
+  var host=el('deskOut'); if(!host) return;
+  var today=deskToday();
+  var loggedToday = logs.some(function(l){ return l.date===today; });
+  var thisMonth = logs.filter(function(l){ return (l.date||'').slice(0,7)===deskMonth(); });
+  var hoursMonth = Object.keys(sess).filter(function(d){ return d.slice(0,7)===deskMonth(); })
+                     .reduce(function(a,d){ return a+(sess[d]||0); },0);
+  /* streak of consecutive days logged, counting back from today */
+  var have={}; logs.forEach(function(l){ have[l.date]=1; });
+  var streak=0, cur=new Date();
+  for(var i=0;i<60;i++){
+    var k=cur.toISOString().slice(0,10);
+    if(have[k]) streak++;
+    else if(i>0) break;          /* today not logged yet is forgiven */
+    cur.setDate(cur.getDate()-1);
+  }
+  var sheet=me.sheet||'';
+  var xp=deskXP(logs, streak), lv=deskLevel(xp);
+  var toNext = lv.next? Math.max(0, lv.next-xp) : 0;
+  var pctLv = lv.next? Math.min(100, Math.round(((xp-lv.min)/(lv.next-lv.min))*100)) : 100;
+  host.innerHTML=
+     '<div class="dk-hero">'
+    +'<div><b style="font-size:16px">'+esc(me.name||user.displayName||'You')+'</b>'
+    +'<div class="dk-sub">'+esc(me.title||me.role||'Team')+(me.staffId?' · '+esc(me.staffId):'')+'</div></div>'
+    +'<div class="dk-streak">'+(streak>0? '🔥 '+streak+' day'+(streak>1?'s':'') : 'start a streak')+'</div>'
+    +'</div>'
+    +'<div class="lv-box"><div class="lv-top"><span class="lv-ic">'+lv.icon+'</span>'
+    +'<span style="flex:1"><b>'+lv.name+'</b><div class="lv-sub">'+xp+' points'
+    +(lv.next? ' · '+toNext+' to '+deskLevel(lv.next).name : ' · top level')+'</div></span></div>'
+    +'<div class="lv-bar"><i style="width:'+pctLv+'%"></i></div></div>'
+    +'<div class="dk-stats">'
+    +'<div class="dk-stat"><b>'+thisMonth.length+'</b><span>logs this month</span></div>'
+    +'<div class="dk-stat"><b>'+deskMins(hoursMonth)+'</b><span>on portal</span></div>'
+    +'<div class="dk-stat"><b>'+deskMins(deskSessionMs())+'</b><span>today</span></div>'
+    +'</div>'
+    + (loggedToday
+        ? '<div class="dk-done">✅ Today\'s work is logged. Thank you.</div>'
+        : '<button class="btn go" style="width:100%;padding:13px;margin:12px 0" onclick="deskLog()">✍️ Log today\'s work</button>')
+    + (sheet? '<a class="btn" style="display:block;text-align:center;text-decoration:none;margin-bottom:10px" href="'+esc(sheet)+'" target="_blank" rel="noopener">📊 Open my Google Sheet ↗</a>' : '')
+    + deskPartnerHTML(me)
+    + deskRefHTML(me)
+    + deskPlanHTML(me)
+    + deskTargetsHTML(me, logs)
+    + deskOfferHTML(me)
+    + deskTeamLinksHTML()
+    + deskPayHTML(me)
+    + deskClaimsHTML(claims)
+    + deskDocsHTML(me)
+    + deskResourcesHTML(me, window._deskProgress||{})
+    + '<div class="dk-lab">HANDBOOK</div>'
+    + '<button class="btn" style="width:100%" onclick="deskHandbook()">📘 Read the handbook'
+      + (me.handbookAckAt? ' · ✅ read' : ' · not read yet') + '</button>'
+    + '<div class="dk-lab">RECENT WORK</div>'
+    + (logs.length? logs.slice(0,10).map(function(l){
+        return '<div class="dk-log"><div class="dk-log-h"><b>'+esc(deskNice(l.date))+'</b>'
+          +(l.hours? '<span class="dk-h">'+esc(String(l.hours))+'h</span>':'')+'</div>'
+          +'<div class="dk-log-b">'+esc(l.what||'')+'</div>'
+          +(l.proof? '<a class="dk-proof" href="'+esc(l.proof)+'" target="_blank" rel="noopener">🔗 proof</a>':'')
+          +(l.blockers? '<div class="dk-block">⚠ '+esc(l.blockers)+'</div>':'')
+          +'</div>';
+      }).join('') : '<p class="note">No logs yet. Your first one takes about thirty seconds.</p>');
+}
+function deskDocsHTML(me){
+  var d=me.docs||{};
+  function row(k,label,icon){
+    var url=d[k];
+    return '<div class="dk-doc">'+icon+' <span style="flex:1">'+label+'</span>'
+      + (url? '<a href="'+esc(url)+'" target="_blank" rel="noopener">Open ↗</a>'
+            : '<span class="dk-pending">not issued yet</span>')+'</div>';
+  }
+  return '<div class="dk-lab">MY DOCUMENTS</div>'
+    + row('offer','Offer letter','📄')
+    + row('certificate','Internship certificate','🏅')
+    + row('relieving','Relieving letter','📃')
+    + '<div class="dk-note">Documents are issued by the founder. The certificate is generated from your actual logged contributions.</div>';
+}
+function deskLog(){
+  showModal('<div class="card"><h3 style="margin:0 0 4px">✍️ '+deskNice(deskToday())+'</h3>'
+    +'<p class="note" style="margin-bottom:10px">Short is fine. This is what your certificate is built from later.</p>'
+    +'<label class="lab">What did you do today?</label>'
+    +'<textarea id="lg_what" class="inp" style="min-height:90px" placeholder="e.g. Tested the new Event radar on 3 devices, filed 2 bugs in the sheet, drafted 4 Instagram posts"></textarea>'
+    +'<label class="lab">Hours worked</label><input id="lg_hours" class="inp" type="number" step="0.5" placeholder="e.g. 3">'
+    +'<label class="lab">Proof link (optional)</label><input id="lg_proof" class="inp" placeholder="Sheet row, doc, screenshot, post URL">'
+    +'<label class="lab">Anything blocking you? (optional)</label><input id="lg_block" class="inp" placeholder="e.g. waiting on the new build">'
+    +'<div style="display:flex;gap:8px;margin-top:12px"><button class="btn go" style="flex:1;padding:11px" onclick="deskSaveLog()">Save</button>'
+    +'<button class="btn" style="padding:11px" onclick="closeModal()">Cancel</button></div></div>');
+}
+function deskSaveLog(){
+  var what=(el('lg_what').value||'').trim();
+  if(!what){ alert('Write a line about what you did.'); return; }
+  var rec={ date:deskToday(), what:what, hours:+el('lg_hours').value||0,
+    proof:(el('lg_proof').value||'').trim(), blockers:(el('lg_block').value||'').trim(),
+    name:(user.displayName||''), at:firebase.firestore.FieldValue.serverTimestamp() };
+  db.collection('staff').doc(user.uid).collection('logs').doc(deskToday()).set(rec,{merge:true})
+    .then(function(){ closeModal(); deskRender(); })
+    .catch(function(){ alert('Could not save. Check your connection and try again.'); });
+}
+
+
+
+/* ============================================================================
+   PAY, CLAIMS, HANDBOOK & LEVELS (rw-v64)
+   ============================================================================
+   Everything a team member needs from induction to exit, in one place.
+   PRIVACY: pay is visible ONLY to the person and to an admin — never in the
+   roster view or leaderboard. Firestore rules enforce this, not just the UI.
+   ========================================================================= */
+var RW_LEVELS=[
+  {min:0,   name:'Joining',    icon:'\ud83c\udf31', next:5},
+  {min:5,   name:'Finding feet',icon:'\ud83d\udc63', next:15},
+  {min:15,  name:'Contributor',icon:'\u2699\ufe0f', next:35},
+  {min:35,  name:'Reliable',   icon:'\ud83d\udee0\ufe0f', next:70},
+  {min:70,  name:'Backbone',   icon:'\ud83c\udfd4\ufe0f', next:120},
+  {min:120, name:'Legend',     icon:'\ud83c\udfc5', next:null}
+];
+function deskXP(logs, streak){
+  var pts=0;
+  (logs||[]).forEach(function(l){
+    pts += 2;
+    if(l.proof) pts += 2;
+    if((l.what||'').length>60) pts += 1;
+  });
+  pts += Math.min(20, (streak||0)*2);
+  return pts;
+}
+function deskLevel(xp){
+  var lv=RW_LEVELS[0];
+  for(var i=0;i<RW_LEVELS.length;i++) if(xp>=RW_LEVELS[i].min) lv=RW_LEVELS[i];
+  return lv;
+}
+function deskPayHTML(me){
+  var p=me.pay||{};
+  if(!p.stipend && !(p.history||[]).length){
+    return '<div class="dk-lab">MY PAY</div><div class="dk-note">Your stipend details will appear here once the founder sets them up.</div>';
+  }
+  var hist=(p.history||[]).slice().sort(function(a,b){ return (b.month||'').localeCompare(a.month||''); }).slice(0,6);
+  return '<div class="dk-lab">MY PAY</div><div class="pay-box">'
+    +'<div class="pay-row"><span>Monthly stipend</span><b>\u20b9'+Number(p.stipend||0).toLocaleString('en-IN')+'</b></div>'
+    +(p.incentive? '<div class="pay-row"><span>Incentive terms</span><b style="font-size:12px;font-weight:600">'+esc(p.incentive)+'</b></div>':'')
+    +(p.payday? '<div class="pay-row"><span>Paid on</span><b>'+esc(p.payday)+' of each month</b></div>':'')
+    +'</div>'
+    +(hist.length? '<div class="dk-lab" style="margin-top:12px">PAYMENT HISTORY</div>'
+      + hist.map(function(h){
+          var paid=h.status==='paid';
+          return '<div class="pay-hist"><span style="flex:1">'+esc(h.month||'')+(h.note?' \u00b7 '+esc(h.note):'')+'</span>'
+            +'<b>\u20b9'+Number(h.amount||0).toLocaleString('en-IN')+'</b>'
+            +'<span class="pay-tag '+(paid?'ok':'due')+'">'+(paid?'paid':'due')+'</span></div>';
+        }).join('') : '')
+    +'<div class="dk-note">Only you and the founder can see this.</div>';
+}
+function deskClaimsHTML(claims){
+  var rows=(claims||[]).slice(0,6);
+  return '<div class="dk-lab">TRAVEL &amp; EXPENSE CLAIMS</div>'
+    +'<button class="btn" style="width:100%;margin-bottom:9px" onclick="deskClaim()">\ud83e\uddfe Claim a company trip expense</button>'
+    +(rows.length? rows.map(function(c){
+        var cls=c.status==='approved'?'ok':c.status==='rejected'?'no':'due';
+        return '<div class="pay-hist"><span style="flex:1">'+esc(c.date||'')+' \u00b7 '+esc((c.what||'').slice(0,44))+'</span>'
+          +'<b>\u20b9'+Number(c.amount||0).toLocaleString('en-IN')+'</b>'
+          +'<span class="pay-tag '+cls+'">'+esc(c.status||'pending')+'</span></div>';
+      }).join('') : '<div class="dk-note">No claims yet.</div>')
+    +'<div class="dk-note">Only for travel you actually did on RoamWise business \u2014 attach the bill or a photo of it. Personal travel is not claimable.</div>';
+}
+function deskClaim(){
+  showModal('<div class="card"><h3 style="margin:0 0 4px">\ud83e\uddfe Company trip expense</h3>'
+    +'<p class="note" style="margin-bottom:10px">Only for travel done <b>on behalf of RoamWise</b>. Attach proof, or it cannot be approved.</p>'
+    +'<label class="lab">Date of travel</label><input id="cl_date" class="inp" type="date" value="'+deskToday()+'">'
+    +'<label class="lab">What was it for?</label><input id="cl_what" class="inp" placeholder="e.g. Field testing Near Me in Rishikesh">'
+    +'<label class="lab">Amount (\u20b9)</label><input id="cl_amt" class="inp" type="number">'
+    +'<label class="lab">Type</label><select id="cl_type" class="inp"><option>Travel (TA)</option><option>Daily allowance (DA)</option><option>Stay</option><option>Other</option></select>'
+    +'<label class="lab">Proof link (bill photo / receipt)</label><input id="cl_proof" class="inp" placeholder="Drive or photo link">'
+    +'<div style="display:flex;gap:8px;margin-top:12px"><button class="btn go" style="flex:1;padding:11px" onclick="deskSaveClaim()">Submit for approval</button>'
+    +'<button class="btn" style="padding:11px" onclick="closeModal()">Cancel</button></div></div>');
+}
+function deskSaveClaim(){
+  var what=(el('cl_what').value||'').trim(), amt=+el('cl_amt').value||0;
+  var proof=(el('cl_proof').value||'').trim();
+  if(!what||!amt){ alert('Add what it was for and the amount.'); return; }
+  if(!proof){ alert('A proof link is required \u2014 claims without a bill cannot be approved.'); return; }
+  db.collection('staff').doc(user.uid).collection('claims').add({
+    date:el('cl_date').value||deskToday(), what:what, amount:amt, type:el('cl_type').value,
+    proof:proof, status:'pending', name:(user.displayName||''),
+    at:firebase.firestore.FieldValue.serverTimestamp()
+  }).then(function(){ closeModal(); deskRender(); }).catch(function(){ alert('Could not submit.'); });
+}
+var RW_HANDBOOK=[
+  { t:'\ud83c\udf1f How we work', items:[
+    'Log your work every day you work. It takes thirty seconds and it is what your certificate is built from.',
+    'Attach proof where you can \u2014 a sheet row, a screenshot, a link. Evidence beats description.',
+    'If you are blocked, say so in your log the same day. Nobody minds a blocker; everybody minds a silent week.',
+    'Ask questions early. A question costs five minutes; a wrong assumption costs a week.'
+  ]},
+  { t:'\u2705 What earns trust', items:[
+    'Finishing what you said you would, or saying clearly that you could not.',
+    'Finding bugs before users do \u2014 the most valuable thing anyone here does.',
+    'Writing things down so the next person does not have to ask.',
+    'Flagging when something feels wrong, even if it is not your area.'
+  ]},
+  { t:'\u26d4 What is not okay', items:[
+    'Sharing RoamWise data, user information, screenshots of internal tools, or unreleased features outside the team.',
+    'Logging work you did not do, or inflating hours. The certificate is built from these records \u2014 falsifying them makes it worthless and is grounds for immediate exit.',
+    'Claiming expenses for personal travel, or any claim without a genuine bill.',
+    'Using company accounts, keys or credentials for anything personal.',
+    'Speaking for RoamWise publicly \u2014 press, partnerships, commitments \u2014 without the founder\u2019s agreement.',
+    'Automating or scraping third-party services (IRCTC, BookMyShow, LinkedIn) in RoamWise\u2019s name.'
+  ]},
+  { t:'\ud83d\udd10 Data and access', items:[
+    'You only get access to what your role needs. If you need more, ask \u2014 do not share logins.',
+    'Never paste user data, keys or credentials into an AI tool, a public doc, or a chat group.',
+    'If you think something leaked or you clicked something odd, tell the founder immediately. Reporting fast is never punished.'
+  ]},
+  { t:'\ud83d\udeaa Leaving well', items:[
+    'Two weeks\u2019 notice where you can, so handover is calm.',
+    'Hand back access, write up what you were mid-way through, and log your last day.',
+    'Your relieving letter and certificate are issued once handover is done \u2014 usually within a week.',
+    'You keep your logs. They are your record of what you built.'
+  ]}
+];
+function deskHandbook(){
+  showModal('<div class="card" style="max-height:78vh;overflow:auto"><h3 style="margin:0 0 4px">\ud83d\udcd8 The RoamWise handbook</h3>'
+    +'<p class="note" style="margin-bottom:12px">Short on rules, clear on the ones that matter. Read it once; it will not change often.</p>'
+    + RW_HANDBOOK.map(function(sec){
+        return '<div class="hb-sec"><b>'+sec.t+'</b><ul>'+sec.items.map(function(i){ return '<li>'+esc(i)+'</li>'; }).join('')+'</ul></div>';
+      }).join('')
+    +'<button class="btn go" style="width:100%;margin-top:10px;padding:11px" onclick="deskAckHandbook()">I\u2019ve read this</button></div>');
+}
+function deskAckHandbook(){
+  db.collection('staff').doc(user.uid).set({ handbookAckAt:firebase.firestore.FieldValue.serverTimestamp() },{merge:true})
+    .then(function(){ closeModal(); deskRender(); }).catch(function(){ closeModal(); });
+}
+
+/* ---------- FOUNDER VIEW: everyone, at a glance ---------- */
+var _interns=[];
+function internRefresh(){
+  var host=el('internAdminOut'); if(!host) return;
+  host.innerHTML='<p class="note">Loading…</p>';
+  db.collection('staff').get().then(function(qs){
+    var people=[]; qs.forEach(function(d){ var x=d.data()||{}; x._uid=d.id; people.push(x); });
+    people=people.filter(function(p){ return (p.role||'none')!=='none'; });
+    _interns=people;
+    return Promise.all(people.map(function(p){
+      return db.collection('staff').doc(p._uid).collection('logs').orderBy('date','desc').limit(40).get()
+        .then(function(ls){
+          var logs=[]; ls.forEach(function(d){ logs.push(d.data()); });
+          p._logs=logs;
+          return db.collection('staff').doc(p._uid).collection('sessions').limit(40).get();
+        }).then(function(ss){
+          var ms=0; ss.forEach(function(d){ var x=d.data()||{}; if((x.date||'').slice(0,7)===deskMonth()) ms+=x.ms||0; });
+          p._ms=ms; return p;
+        }).catch(function(){ p._logs=p._logs||[]; p._ms=0; return p; });
+    }));
+  }).then(function(){ internPaint(); })
+    .catch(function(){ host.innerHTML='<p class="note">Could not load the team.</p>'; });
+}
+function internPaint(){
+  var host=el('internAdminOut'); if(!host) return;
+  if(!_interns.length){ host.innerHTML='<p class="note">No active team members yet.</p>'; return; }
+  var today=deskToday();
+  host.innerHTML=_interns.map(function(p,i){
+    var logs=p._logs||[];
+    var month=logs.filter(function(l){ return (l.date||'').slice(0,7)===deskMonth(); });
+    var hrs=month.reduce(function(a,l){ return a+(+l.hours||0); },0);
+    var loggedToday=logs.some(function(l){ return l.date===today; });
+    var last=logs[0];
+    var d=p.docs||{};
+    var issued=['offer','certificate','relieving'].filter(function(k){ return d[k]; }).length;
+    var rkey=p.resourceRole||p.role||'', R=(window.RW_ROLE_RESOURCES||{})[rkey];
+    var total=(window.RW_RESOURCE_COMMON? window.RW_RESOURCE_COMMON.sections.reduce(function(a,s){return a+s.items.length;},0):0)
+             + (R? R.sections.reduce(function(a,s){return a+s.items.length;},0):0);
+    var prog=p.resourceProgress||{};
+    var doneN=Object.keys(prog).filter(function(k){ return prog[k]; }).length;
+    var resPct = total? Math.round(Math.min(doneN,total)/total*100) : null;
+    return '<div class="in-card">'
+      +'<div class="in-top">'
+      +'<span class="in-dot" style="background:'+(loggedToday?'#4ADE80':'#F0A63B')+'"></span>'
+      +'<span style="flex:1;min-width:0"><b>'+esc(p.name||p.email||p.staffId||'Unnamed')+'</b>'
+      +'<div class="in-sub">'+esc(p.title||p.role||'')+(p.staffId?' · '+esc(p.staffId):'')+'</div></span>'
+      +'<span class="in-hrs">'+month.length+' logs · '+(hrs?hrs+'h':deskMins(p._ms||0))+'</span>'
+      +'</div>'
+      + (resPct!=null? '<div class="in-res"><span>📚 onboarding</span><div class="in-res-bar"><i style="width:'+resPct+'%"></i></div><span>'+resPct+'%</span></div>' : '')
+      +(last? '<div class="in-last"><b>'+esc(deskNice(last.date))+':</b> '+esc((last.what||'').slice(0,120))+(((last.what||'').length>120)?'…':'')+'</div>'
+            : '<div class="in-last" style="color:#7C7A74">No logs yet.</div>')
+      +'<div class="in-actions">'
+      +'<button class="btn" onclick="internSheet(\''+p._uid+'\')">📊 Sheet</button>'
+      +'<button class="btn" onclick="internDocs(\''+p._uid+'\')">📁 Docs ('+issued+'/3)</button>'
+      +'<button class="btn go" onclick="internCert(\''+p._uid+'\')">🏅 Certificate</button>'
+      +'</div></div>';
+  }).join('');
+}
+function internById(uid){ return _interns.filter(function(p){ return p._uid===uid; })[0]; }
+function internAdd(){
+  showModal('<div class="card"><h3 style="margin:0 0 4px">➕ Add a person</h3>'
+    +'<p class="note" style="margin-bottom:10px">Usually you don\'t need this form at all — have them sign in once and they\'ll appear in <b>⏳ Pending requests</b> above with their name and photo, one tap to activate. Use this box only if you already know their Staff ID and want to skip that.</p>'
+    +'<label class="lab">Their Staff ID (from their pending screen)</label><input id="ad_sid" class="inp" placeholder="RW-XXXX">'
+    +'<label class="lab">Name</label><input id="ad_name" class="inp">'
+    +'<label class="lab">Title</label><input id="ad_title" class="inp" placeholder="e.g. Marketing &amp; Sales Intern">'
+    +'<label class="lab">Role</label><select id="ad_role" class="inp"><option value="staff">staff</option><option value="marketing">marketing</option><option value="finance">finance</option><option value="admin">admin</option></select>'
+    +'<label class="lab">Resource set</label><select id="ad_res" class="inp">'+(Object.keys(window.RW_ROLE_RESOURCES||{})).map(function(k){ var R=RW_ROLE_RESOURCES[k]; return '<option value="'+k+'">'+esc(R.icon+' '+R.label)+'</option>'; }).join('')+'</select>'
+    +'<div style="display:flex;gap:8px;margin-top:12px"><button class="btn go" style="flex:1;padding:11px" onclick="internSaveAdd()">Activate</button>'
+    +'<button class="btn" style="padding:11px" onclick="closeModal()">Cancel</button></div></div>');
+}
+function internSaveAdd(){
+  var sid=(el('ad_sid').value||'').trim().toUpperCase();
+  if(!sid){ alert('Staff ID is required.'); return; }
+  db.collection('staff').where('staffId','==',sid).limit(1).get().then(function(qs){
+    if(qs.empty){ alert('No pending account with that Staff ID. Ask them to sign in once first.'); return; }
+    var doc=qs.docs[0];
+    return doc.ref.set({ name:(el('ad_name').value||'').trim(), title:(el('ad_title').value||'').trim(),
+      role:el('ad_role').value, resourceRole:el('ad_res').value, status:'active',
+      activatedAt:firebase.firestore.FieldValue.serverTimestamp() },{merge:true})
+      .then(function(){ closeModal(); internRefresh(); pendingRefresh(); });
+  }).catch(function(){ alert('Could not activate.'); });
+}
+function internSheet(uid){
+  var p=internById(uid); if(!p) return;
+  showModal('<div class="card"><h3 style="margin:0 0 4px">📊 '+esc(p.name||'Sheet')+'</h3>'
+    +'<p class="note" style="margin-bottom:10px">Paste their live Google Sheet link. It appears as a button on their desk.</p>'
+    +'<label class="lab">Google Sheet URL</label><input id="sh_url" class="inp" value="'+esc(p.sheet||'')+'" placeholder="https://docs.google.com/spreadsheets/…">'
+    +'<div style="display:flex;gap:8px;margin-top:12px"><button class="btn go" style="flex:1;padding:11px" onclick="internSaveSheet(\''+uid+'\')">Save</button>'
+    +'<button class="btn" style="padding:11px" onclick="closeModal()">Cancel</button></div></div>');
+}
+function internSaveSheet(uid){
+  db.collection('staff').doc(uid).set({ sheet:(el('sh_url').value||'').trim() },{merge:true})
+    .then(function(){ closeModal(); internRefresh(); }).catch(function(){ alert('Could not save.'); });
+}
+function internDocs(uid){
+  var p=internById(uid); if(!p) return; var d=p.docs||{};
+  showModal('<div class="card"><h3 style="margin:0 0 4px">📁 '+esc(p.name||'Documents')+'</h3>'
+    +'<p class="note" style="margin-bottom:10px">Upload the file to Drive, set it to “anyone with the link”, and paste the link here. They see it instantly on their desk.</p>'
+    +'<label class="lab">Offer letter</label><input id="dc_offer" class="inp" value="'+esc(d.offer||'')+'">'
+    +'<label class="lab">Internship certificate</label><input id="dc_cert" class="inp" value="'+esc(d.certificate||'')+'">'
+    +'<label class="lab">Relieving letter</label><input id="dc_rel" class="inp" value="'+esc(d.relieving||'')+'">'
+    +'<div style="display:flex;gap:8px;margin-top:12px"><button class="btn go" style="flex:1;padding:11px" onclick="internSaveDocs(\''+uid+'\')">Save</button>'
+    +'<button class="btn" style="padding:11px" onclick="closeModal()">Cancel</button></div></div>');
+}
+function internSaveDocs(uid){
+  db.collection('staff').doc(uid).set({ docs:{
+      offer:(el('dc_offer').value||'').trim(),
+      certificate:(el('dc_cert').value||'').trim(),
+      relieving:(el('dc_rel').value||'').trim()
+    }},{merge:true}).then(function(){ closeModal(); internRefresh(); }).catch(function(){ alert('Could not save.'); });
+}
+
+
+/* ---------- CERTIFICATE: generated FROM the person's real logged work ----------
+   Not a template with a name dropped in. It reads their actual logs, counts
+   real days and hours, pulls out what they genuinely worked on, and prints a
+   document they can hand to a future employer without embarrassment. That is
+   the whole point — a certificate is only worth anything if it is true. */
+function internCert(uid){
+  var p=internById(uid); if(!p) return;
+  var logs=(p._logs||[]).slice().sort(function(a,b){ return (a.date||'').localeCompare(b.date||''); });
+  if(!logs.length){ alert('No logged work yet — the certificate is built from their daily logs.'); return; }
+  var first=logs[0].date, last=logs[logs.length-1].date;
+  var days=logs.length;
+  var hours=logs.reduce(function(a,l){ return a+(+l.hours||0); },0);
+  /* pull the most substantial contributions, longest first */
+  var highlights=logs.map(function(l){ return (l.what||'').trim(); })
+    .filter(function(t){ return t.length>25; })
+    .sort(function(a,b){ return b.length-a.length; }).slice(0,5);
+  var proofs=logs.filter(function(l){ return l.proof; }).length;
+
+  showModal('<div class="card"><h3 style="margin:0 0 4px">🏅 Certificate for '+esc(p.name||'')+'</h3>'
+    +'<p class="note" style="margin-bottom:10px">Built from '+days+' logged day'+(days>1?'s':'')+(hours?' and '+hours+' recorded hours':'')+'. Edit anything before printing.</p>'
+    +'<label class="lab">Name on certificate</label><input id="ct_name" class="inp" value="'+esc(p.name||'')+'">'
+    +'<label class="lab">Role title</label><input id="ct_title" class="inp" value="'+esc(p.title||'Intern')+'">'
+    +'<label class="lab">From</label><input id="ct_from" class="inp" value="'+esc(first)+'">'
+    +'<label class="lab">To</label><input id="ct_to" class="inp" value="'+esc(last)+'">'
+    +'<label class="lab">Contributions (one per line)</label>'
+    +'<textarea id="ct_hl" class="inp" style="min-height:120px">'+esc(highlights.join('\n'))+'</textarea>'
+    +'<div style="display:flex;gap:8px;margin-top:12px"><button class="btn go" style="flex:1;padding:11px" onclick="internCertPrint('+days+','+hours+','+proofs+')">🖨️ Open &amp; print</button>'
+    +'<button class="btn" style="padding:11px" onclick="closeModal()">Cancel</button></div></div>');
+}
+function internCertPrint(days, hours, proofs){
+  var name=el('ct_name').value||'', title=el('ct_title').value||'Intern';
+  var from=el('ct_from').value||'', to=el('ct_to').value||'';
+  var hl=(el('ct_hl').value||'').split('\n').map(function(x){ return x.trim(); }).filter(Boolean);
+  function nice(d){ try{ return new Date(d+'T00:00:00').toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'}); }catch(e){ return d; } }
+  var ref='RW-CERT-'+(from||'').replace(/-/g,'').slice(2)+'-'+name.replace(/[^A-Za-z]/g,'').slice(0,3).toUpperCase();
+  var w=window.open('','_blank'); if(!w){ alert('Allow pop-ups to open the certificate.'); return; }
+  w.document.write('<!DOCTYPE html><html><head><meta charset="utf-8"><title>'+esc(name)+' — RoamWise Certificate</title><style>'
+    +'@page{size:A4;margin:0}'
+    +'*{margin:0;padding:0;box-sizing:border-box}'
+    +'body{font-family:Georgia,"Times New Roman",serif;background:#0A0C14;color:#EDEAE2;display:flex;align-items:center;justify-content:center;min-height:100vh}'
+    +'.cert{width:210mm;min-height:297mm;padding:24mm 20mm;background:linear-gradient(150deg,#0B0E1A,#141829 45%,#0B0E1A);position:relative;overflow:hidden}'
+    +'.cert::before{content:"";position:absolute;inset:10mm;border:1.5px solid rgba(232,186,108,.45);border-radius:4mm;pointer-events:none}'
+    +'.cert::after{content:"";position:absolute;inset:11.5mm;border:.5px solid rgba(232,186,108,.25);border-radius:3mm;pointer-events:none}'
+    +'.mark{text-align:center;font-size:11px;letter-spacing:.5em;text-transform:uppercase;color:#8A8880;margin-bottom:14mm}'
+    +'h1{text-align:center;font-size:34px;color:#E8BA6C;letter-spacing:-.01em;margin-bottom:3mm}'
+    +'.sub{text-align:center;font-size:13px;color:#9A968E;font-style:italic;margin-bottom:12mm}'
+    +'.awarded{text-align:center;font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:#8A8880;margin-bottom:4mm}'
+    +'.name{text-align:center;font-size:40px;color:#fff;margin-bottom:3mm;letter-spacing:-.02em}'
+    +'.role{text-align:center;font-size:15px;color:#E8BA6C;margin-bottom:10mm}'
+    +'.body{font-size:14px;line-height:1.9;color:#C9C5BB;text-align:center;max-width:150mm;margin:0 auto 10mm}'
+    +'.stats{display:flex;justify-content:center;gap:14mm;margin-bottom:10mm}'
+    +'.stat{text-align:center}.stat b{display:block;font-size:24px;color:#E8BA6C}.stat span{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:#8A8880}'
+    +'.hl-lab{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:#8A8880;text-align:center;margin-bottom:5mm}'
+    +'.hl{max-width:150mm;margin:0 auto 12mm}'
+    +'.hl li{font-size:13px;line-height:1.75;color:#C9C5BB;margin-bottom:2.5mm;list-style:none;padding-left:7mm;position:relative}'
+    +'.hl li::before{content:"◆";position:absolute;left:0;color:#E8BA6C;font-size:9px;top:3px}'
+    +'.sign{display:flex;justify-content:space-between;align-items:flex-end;margin-top:14mm;padding:0 6mm}'
+    +'.sig{text-align:center}.sig .line{width:52mm;border-top:1px solid rgba(232,186,108,.5);margin-bottom:2mm}'
+    +'.sig b{font-size:13px;color:#EDEAE2}.sig span{display:block;font-size:10px;color:#8A8880}'
+    +'.ref{text-align:center;font-size:9px;color:#57554F;letter-spacing:.1em;margin-top:8mm}'
+    +'@media print{body{background:#fff}.cert{box-shadow:none}}'
+    +'</style></head><body><div class="cert">'
+    +'<div class="mark">RoamWise</div>'
+    +'<h1>Certificate of Internship</h1>'
+    +'<div class="sub">Made in Almora, Uttarakhand</div>'
+    +'<div class="awarded">This is awarded to</div>'
+    +'<div class="name">'+esc(name)+'</div>'
+    +'<div class="role">'+esc(title)+'</div>'
+    +'<div class="body">who worked with RoamWise from <b>'+esc(nice(from))+'</b> to <b>'+esc(nice(to))+'</b>, '
+    +'contributing to a live product used by real travellers. The work below is drawn from their own daily records kept during the internship.</div>'
+    +'<div class="stats">'
+    +'<div class="stat"><b>'+days+'</b><span>days logged</span></div>'
+    +(hours? '<div class="stat"><b>'+hours+'</b><span>hours recorded</span></div>':'')
+    +(proofs? '<div class="stat"><b>'+proofs+'</b><span>evidenced</span></div>':'')
+    +'</div>'
+    +(hl.length? '<div class="hl-lab">Contributions</div><ul class="hl">'+hl.map(function(h){ return '<li>'+esc(h)+'</li>'; }).join('')+'</ul>' : '')
+    +'<div class="sign">'
+    +'<div class="sig"><div class="line"></div><b>Mohit Pandey</b><span>Founder, RoamWise</span></div>'
+    +'<div class="sig"><div class="line"></div><b>'+esc(nice(to))+'</b><span>Date of issue</span></div>'
+    +'</div>'
+    +'<div class="ref">Ref '+esc(ref)+' · verifiable with the founder at founder@roamwise.co.in</div>'
+    +'</div></body></html>');
+  w.document.close();
+  setTimeout(function(){ try{ w.print(); }catch(e){} }, 600);
+}
+
+
+/* ============================================================================
+   PENDING REQUESTS — direct activation, no copying IDs (rw-v65)
+   ============================================================================
+   The old flow: an intern signs in, sees a Staff ID, emails/WhatsApps it to the
+   founder, who then opens Firestore (or types the ID from memory) into a form.
+   That's the "cumbersome" part.
+
+   New flow: every pending account ALREADY exists in Firestore the moment
+   someone signs in (registerPending() already did this). So instead of asking
+   for an ID, we just LIST those pending docs directly — real name, real email,
+   real photo if they used Google. One tap opens a small form to set their
+   title/role and they're in. The Staff ID still exists underneath (useful as
+   a fallback identifier on certificates etc.) but the founder never has to
+   type or copy it again.
+   ========================================================================= */
+function pendingRefresh(){
+  var host=el('pendingOut'); if(!host) return;
+  host.innerHTML='<p class="note">Checking…</p>';
+  db.collection('staff').where('role','==','none').limit(30).get().then(function(qs){
+    var rows=[]; qs.forEach(function(d){ var x=d.data()||{}; x._uid=d.id; rows.push(x); });
+    if(!rows.length){ host.innerHTML='<p class="note">Nobody waiting right now. New sign-ins will appear here automatically.</p>'; return; }
+    rows.sort(function(a,b){ return (b.requestedAt||'').localeCompare(a.requestedAt||''); });
+    host.innerHTML=rows.map(function(p){
+      var when=p.requestedAt? new Date(p.requestedAt).toLocaleDateString('en-IN',{day:'numeric',month:'short'}) : '';
+      return '<div class="pend-card">'
+        +'<div class="pend-top">'
+        +(p.photo? '<img src="'+esc(p.photo)+'" class="pend-pic">' : '<div class="pend-pic pend-mono">'+esc((p.name||p.email||'?').charAt(0).toUpperCase())+'</div>')
+        +'<span style="flex:1;min-width:0"><b>'+esc(p.name||'(no name given)')+'</b>'
+        +'<div class="pend-sub">'+esc(p.email||'')+(when?' · asked '+when:'')+'</div></span>'
+        +'</div>'
+        +'<button class="btn go" style="width:100%;margin-top:8px" onclick="pendingActivate(\''+p._uid+'\')">✅ Activate</button>'
+        +'</div>';
+    }).join('');
+  }).catch(function(){ host.innerHTML='<p class="note">Could not load pending requests.</p>'; });
+}
+function pendingActivate(uid){
+  db.collection('staff').doc(uid).get().then(function(d){
+    var p=d.data()||{};
+    var roleOpts=['staff','marketing','finance','admin'];
+    showModal('<div class="card"><h3 style="margin:0 0 4px">✅ Activate '+esc(p.name||p.email||'')+'</h3>'
+      +'<p class="note" style="margin-bottom:10px">'+esc(p.email||'')+' — this is the account that signed in, verified by Firebase. You are not typing an ID; you are confirming this exact person.</p>'
+      +'<label class="lab">Name</label><input id="pa_name" class="inp" value="'+esc(p.name||'')+'">'
+      +'<label class="lab">Title</label><input id="pa_title" class="inp" placeholder="e.g. Growth &amp; Community Intern">'
+      +'<label class="lab">Role (permissions)</label><select id="pa_role" class="inp">'+roleOpts.map(function(r){return '<option value="'+r+'">'+r+'</option>';}).join('')+'</select>'
+      +'<label class="lab">Resource set (what they see under My Resources)</label>'
+      +'<select id="pa_res" class="inp">'+(Object.keys(window.RW_ROLE_RESOURCES||{})).map(function(k){
+          var R=RW_ROLE_RESOURCES[k]; return '<option value="'+k+'">'+esc(R.icon+' '+R.label)+'</option>';
+        }).join('')+'</select>'
+      +'<div style="display:flex;gap:8px;margin-top:12px"><button class="btn go" style="flex:1;padding:11px" onclick="pendingSaveActivate(\''+uid+'\')">Activate</button>'
+      +'<button class="btn" style="padding:11px" onclick="closeModal()">Cancel</button></div></div>');
+  });
+}
+function pendingSaveActivate(uid){
+  db.collection('staff').doc(uid).set({
+    name:(el('pa_name').value||'').trim(), title:(el('pa_title').value||'').trim(),
+    role:el('pa_role').value, resourceRole:el('pa_res').value,
+    status:'active', activatedAt:firebase.firestore.FieldValue.serverTimestamp()
+  },{merge:true}).then(function(){ closeModal(); pendingRefresh(); internRefresh(); })
+   .catch(function(){ alert('Could not activate.'); });
+}
+
+
+/* ============================================================================
+   SALES SNAPSHOT (rw-v68) — registered vs paid, the number staff can move
+   ============================================================================
+   Pulls the same live counts as the scoreboard, but frames them as ONE
+   actionable ratio: conversion. Staff watch this to see if what they're
+   trying is working. Counts are live from Firestore; if the DB isn't ready
+   the card says so rather than showing a fake number. */
+function salesRefresh(){
+  var host=el('salesOut'); if(!host) return;
+  host.innerHTML='<p class="note">Counting\u2026</p>';
+  if(typeof db==='undefined' || !db){ host.innerHTML='<p class="note">Not connected.</p>'; return; }
+  /* LIVE (rw-v80): onSnapshot, so the numbers move the moment someone signs up
+     or a payment is approved — no refresh, no re-login. */
+  var reg=null, paid=null;
+  function paint(){
+    if(reg===null||paid===null) return;
+    var conv = reg>0 ? (paid/reg*100) : 0;
+    var free = Math.max(0, reg-paid);
+    var read;
+    if(reg<10) read='Still early \u2014 every new sign-up matters most right now.';
+    else if(conv>=15) read='Strong conversion. Whatever you\u2019re doing is working \u2014 do more of it.';
+    else if(conv>=5) read='Healthy conversion. Small nudges could lift it further.';
+    else read='Lots of sign-ups aren\u2019t paying yet. Worth asking a few of them why.';
+    host.innerHTML=
+       '<div class="sn-row">'
+      +'<div class="sn"><div class="sn-n" id="snReg">'+reg.toLocaleString('en-IN')+'</div><div class="sn-k">registered</div></div>'
+      +'<div class="sn-arrow">\u2192</div>'
+      +'<div class="sn"><div class="sn-n" style="color:#4ADE80">'+paid.toLocaleString('en-IN')+'</div><div class="sn-k">paid</div></div>'
+      +'<div class="sn-arrow">=</div>'
+      +'<div class="sn"><div class="sn-n" style="color:#E8BA6C">'+conv.toFixed(conv<10?1:0)+'%</div><div class="sn-k">convert</div></div>'
+      +'</div>'
+      +'<div class="sn-bar"><i style="width:'+Math.min(100,conv).toFixed(0)+'%"></i></div>'
+      +'<div class="sn-read">'+read+'</div>'
+      +'<div class="sn-foot"><span class="sn-live">\u25cf LIVE</span> '+free.toLocaleString('en-IN')+' free users are your warmest leads \u2014 they already chose RoamWise. Updates the moment anything changes.</div>';
+  }
+  db.collection('users').onSnapshot(function(qs){ reg=qs.size; paint(); }, function(){ reg=0; paint(); });
+  db.collection('claims').onSnapshot(function(qs){
+    var n=0; qs.forEach(function(d){ var c=d.data()||{}; if(c.status==='approved') n++; });
+    paid=n; paint();
+  }, function(){ paid=0; paint(); });
+}
+
+/* ============================================================================
+   TEAM SCOREBOARD — this month's mission (rw-v62)
+   ============================================================================
+   Live counters the whole team sees: users, installs, paid. Targets are set
+   once a month and shared, so everyone is chasing the same finish line.
+
+   HONEST DATA NOTES:
+     users  — counted live from the Firestore 'users' collection.
+     paid   — counted live from 'claims'.
+     installs — Play Store install counts are NOT available through a simple
+                API (that needs a Google Play Developer service account), so
+                this is entered by hand from Play Console. The UI says so
+                rather than pretending it's live.
+   ========================================================================= */
+var SCORE_KEY='rw_score_targets';
+function scoreMonthId(){ var d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'); }
+function scoreMonthName(){ return new Date().toLocaleDateString('en-IN',{month:'long',year:'numeric'}); }
+function scoreDaysLeft(){
+  var d=new Date(), end=new Date(d.getFullYear(), d.getMonth()+1, 0);
+  return Math.max(0, end.getDate()-d.getDate());
+}
+function scoreMonthProgress(){
+  var d=new Date(), end=new Date(d.getFullYear(), d.getMonth()+1, 0).getDate();
+  return d.getDate()/end;   /* 0..1 through the month */
+}
+function scoreTargets(){
+  try{
+    var all=JSON.parse(localStorage.getItem(SCORE_KEY)||'{}');
+    return all[scoreMonthId()] || {users:0, installs:0, paid:0, manualInstalls:0};
+  }catch(e){ return {users:0,installs:0,paid:0,manualInstalls:0}; }
+}
+function scoreSaveTargets(t){
+  try{
+    var all=JSON.parse(localStorage.getItem(SCORE_KEY)||'{}');
+    all[scoreMonthId()]=t;
+    localStorage.setItem(SCORE_KEY, JSON.stringify(all));
+  }catch(e){}
+  /* share targets with the team via Firestore so everyone sees the same goal */
+  if(typeof db!=='undefined' && db){
+    db.collection('stats').doc('targets_'+scoreMonthId()).set(t,{merge:true}).catch(function(){});
+  }
+}
+function scoreEdit(){
+  var t=scoreTargets();
+  showModal('<div class="card"><h3 style="margin:0 0 4px">🎯 Targets for '+scoreMonthName()+'</h3>'
+    +'<p class="note" style="margin-bottom:10px">Pick numbers that are a stretch but reachable. Everyone on the team sees these.</p>'
+    +'<label class="lab">New users this month</label><input id="tg_users" class="inp" type="number" value="'+(t.users||'')+'">'
+    +'<label class="lab">App installs this month</label><input id="tg_installs" class="inp" type="number" value="'+(t.installs||'')+'">'
+    +'<label class="lab">Paid conversions this month</label><input id="tg_paid" class="inp" type="number" value="'+(t.paid||'')+'">'
+    +'<div style="display:flex;gap:8px;margin-top:12px"><button class="btn go" style="flex:1;padding:11px" onclick="scoreSaveEdit()">Save targets</button>'
+    +'<button class="btn" style="padding:11px" onclick="closeModal()">Cancel</button></div></div>');
+}
+function scoreSaveEdit(){
+  var t=scoreTargets();
+  t.users=+el('tg_users').value||0;
+  t.installs=+el('tg_installs').value||0;
+  t.paid=+el('tg_paid').value||0;
+  scoreSaveTargets(t); closeModal(); scoreRefresh();
+}
+function scoreLogInstalls(){
+  var t=scoreTargets();
+  showModal('<div class="card"><h3 style="margin:0 0 4px">📲 Installs so far this month</h3>'
+    +'<p class="note" style="margin-bottom:10px">Play Console → Statistics → Installs. Google does not expose this through a simple API, so it is entered by hand.</p>'
+    +'<label class="lab">Installs this month (from Play Console)</label><input id="mi_v" class="inp" type="number" value="'+(t.manualInstalls||'')+'">'
+    +'<div style="display:flex;gap:8px;margin-top:12px"><button class="btn go" style="flex:1;padding:11px" onclick="scoreSaveInstalls()">Save</button>'
+    +'<button class="btn" style="padding:11px" onclick="closeModal()">Cancel</button></div></div>');
+}
+function scoreSaveInstalls(){
+  var t=scoreTargets(); t.manualInstalls=+el('mi_v').value||0;
+  scoreSaveTargets(t); closeModal(); scoreRefresh();
+}
+/* live counts from Firestore */
+var _scoreCache={users:null, paid:null};
+function scoreRefresh(){
+  var host=el('scoreOut'); if(!host) return;
+  host.innerHTML='<p class="note">Counting…</p>';
+  if(typeof db==='undefined' || !db){ scoreRender(0,0); return; }
+  var monthStart=new Date(); monthStart.setDate(1); monthStart.setHours(0,0,0,0);
+  var pu=db.collection('users').get().then(function(qs){
+    var total=0, thisMonth=0;
+    qs.forEach(function(d){
+      total++;
+      var c=(d.data()||{}).created || (d.data()||{}).joined;
+      var ms=c&&c.seconds? c.seconds*1000 : null;
+      if(ms && ms>=monthStart.getTime()) thisMonth++;
+    });
+    return {total:total, month:thisMonth};
+  }).catch(function(){ return {total:0,month:0}; });
+  var pp=db.collection('claims').get().then(function(qs){
+    var total=0, thisMonth=0;
+    qs.forEach(function(d){
+      total++;
+      var c=(d.data()||{}).at || (d.data()||{}).created;
+      var ms=c&&c.seconds? c.seconds*1000 : null;
+      if(ms && ms>=monthStart.getTime()) thisMonth++;
+    });
+    return {total:total, month:thisMonth};
+  }).catch(function(){ return {total:0,month:0}; });
+  Promise.all([pu,pp]).then(function(r){ _scoreCache={users:r[0], paid:r[1]}; scoreRender(r[0], r[1]); });
+}
+function scoreRender(users, paid){
+  var host=el('scoreOut'); if(!host) return;
+  var t=scoreTargets();
+  var left=scoreDaysLeft(), through=scoreMonthProgress();
+
+  function ring(label, now, target, colour, note){
+    var pct = target>0 ? Math.min(100, Math.round(now/target*100)) : 0;
+    /* pace: are we ahead of where the calendar says we should be? */
+    var expected = target>0 ? Math.round(target*through) : 0;
+    var pace = target<=0 ? '' :
+      now>=target ? '<span class="sc-pace hit">🎉 target hit</span>' :
+      now>=expected ? '<span class="sc-pace ok">on pace</span>' :
+      '<span class="sc-pace behind">'+(expected-now)+' behind pace</span>';
+    var dash = 2*Math.PI*34;
+    var off = dash - (dash*pct/100);
+    return '<div class="sc-card">'
+      +'<svg class="sc-ring" viewBox="0 0 80 80">'
+      +'<circle cx="40" cy="40" r="34" class="sc-track"/>'
+      +'<circle cx="40" cy="40" r="34" class="sc-fill" style="stroke:'+colour+';stroke-dasharray:'+dash.toFixed(1)+';stroke-dashoffset:'+off.toFixed(1)+'"/>'
+      +'<text x="40" y="45" class="sc-pct">'+pct+'%</text></svg>'
+      +'<div class="sc-num" style="color:'+colour+'">'+now.toLocaleString('en-IN')+(target?'<span class="sc-of"> / '+target.toLocaleString('en-IN')+'</span>':'')+'</div>'
+      +'<div class="sc-lbl">'+label+'</div>'
+      + pace
+      +(note?'<div class="sc-note">'+note+'</div>':'')
+      +'</div>';
+  }
+
+  var uNow=(users&&users.month)||0, pNow=(paid&&paid.month)||0, iNow=t.manualInstalls||0;
+  var done = (t.users&&uNow>=t.users?1:0)+(t.installs&&iNow>=t.installs?1:0)+(t.paid&&pNow>=t.paid?1:0);
+  var set  = (t.users?1:0)+(t.installs?1:0)+(t.paid?1:0);
+
+  host.innerHTML=
+     '<div class="sc-head">'
+    +'<div><b>'+scoreMonthName()+'</b><div class="sc-sub">'+(left===0?'last day of the month':left+' day'+(left===1?'':'s')+' left')+'</div></div>'
+    +'<div class="sc-flag">'+(set&&done===set?'🏆 all targets hit':done+'/'+(set||3)+' hit')+'</div>'
+    +'</div>'
+    +'<div class="sc-grid">'
+    + ring('New users', uNow, t.users, '#4ADE80', users? 'all time: '+users.total.toLocaleString('en-IN') : '')
+    + ring('Installs', iNow, t.installs, '#38BDF8', 'entered from Play Console')
+    + ring('Paid', pNow, t.paid, '#E8BA6C', paid? 'all time: '+paid.total.toLocaleString('en-IN') : '')
+    +'</div>'
+    +(set? '' : '<p class="note" style="margin-top:10px">No targets set for this month yet — tap <b>🎯 Set targets</b> to give the team a finish line.</p>')
+    +'<div class="sc-foot">Users and paid are counted live from the database. Installs are entered by hand because Play Store counts are not available through a simple API.</div>';
+}
+
+function invGet(){ try{ return JSON.parse(localStorage.getItem('rw_inv_metrics')||'{}'); }catch(e){ return {}; } }
+function invSet(m){ try{ localStorage.setItem('rw_inv_metrics', JSON.stringify(m)); }catch(e){} }
+function invRevenueLogged(){
+  var rev=0; (_finRows||[]).forEach(function(x){ if(x.kind==='revenue') rev+=(x.amount||0); }); return rev;
+}
+function invRender(){
+  var host=el('investorSummary'); if(!host) return;
+  var m=invGet();
+  var mrr=+m.mrr||0, users=+m.users||0, paying=+m.paying||0, growth=+m.growth||0;
+  var arr=mrr*12;
+  var loggedRev=invRevenueLogged();
+  function card(label,val,sub){ return '<div style="flex:1;min-width:120px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:12px"><div style="font-size:20px;font-weight:800">'+val+'</div><div style="font-size:11px;color:var(--t3)">'+label+'</div>'+(sub?'<div style="font-size:10px;color:var(--t3);margin-top:2px">'+sub+'</div>':'')+'</div>'; }
+  host.innerHTML='<div style="display:flex;gap:8px;flex-wrap:wrap">'
+    + card('ARR', '₹'+arr.toLocaleString('en-IN'), 'annual recurring')
+    + card('MRR', '₹'+mrr.toLocaleString('en-IN'), 'monthly recurring')
+    + card('Users', users.toLocaleString('en-IN'), paying+' paying')
+    + card('MoM growth', growth+'%', 'month over month')
+    + '</div>'
+    + '<div style="margin-top:8px;font-size:11px;color:var(--t3)">Revenue logged in Finance console: ₹'+loggedRev.toLocaleString('en-IN')+(m.updated?' · updated '+m.updated:'')+'</div>';
+}
+function invEdit(){
+  var m=invGet();
+  showModal('<div class="card"><h3 style="margin:0 0 10px">Update investor metrics</h3>'
+    +'<label class="lab">Monthly recurring revenue (₹ MRR)</label><input id="iv_mrr" class="inp" type="number" value="'+(m.mrr||'')+'">'
+    +'<label class="lab">Total users</label><input id="iv_users" class="inp" type="number" value="'+(m.users||'')+'">'
+    +'<label class="lab">Paying users</label><input id="iv_paying" class="inp" type="number" value="'+(m.paying||'')+'">'
+    +'<label class="lab">Month-over-month growth (%)</label><input id="iv_growth" class="inp" type="number" value="'+(m.growth||'')+'">'
+    +'<div style="display:flex;gap:8px;margin-top:12px"><button class="btn go" style="flex:1;padding:11px" onclick="invSave()">Save</button>'
+    +'<button class="btn" style="padding:11px" onclick="closeModal()">Cancel</button></div></div>');
+}
+function invSave(){
+  var m={ mrr:+el('iv_mrr').value||0, users:+el('iv_users').value||0, paying:+el('iv_paying').value||0,
+          growth:+el('iv_growth').value||0, updated:new Date().toISOString().slice(0,10) };
+  invSet(m); closeModal(); invRender();
+}
+function invExport(){
+  var m=invGet(); var arr=(+m.mrr||0)*12;
+  var txt='RoamWise — Investor Summary ('+new Date().toISOString().slice(0,10)+')\n'
+    +'================================================\n\n'
+    +'ARR (Annual Recurring Revenue): ₹'+arr.toLocaleString('en-IN')+'\n'
+    +'MRR (Monthly Recurring Revenue): ₹'+(+m.mrr||0).toLocaleString('en-IN')+'\n'
+    +'Total users: '+(+m.users||0).toLocaleString('en-IN')+'\n'
+    +'Paying users: '+(+m.paying||0).toLocaleString('en-IN')+'\n'
+    +'Month-over-month growth: '+(+m.growth||0)+'%\n'
+    +'Revenue logged to date: ₹'+invRevenueLogged().toLocaleString('en-IN')+'\n\n'
+    +'RoamWise — AI travel planner for Indian travellers.\n'
+    +'Founder: Mohit Pandey · Almora, Uttarakhand · founder@roamwise.co.in\n';
+  var blob=new Blob([txt],{type:'text/plain'});
+  var a=document.createElement('a'); a.href=URL.createObjectURL(blob);
+  a.download='RoamWise-Investor-Summary.txt'; a.click();
+}
+
+/* ==================== KEY CONTACTS ==================== */
+var CONTACT_TAGS=['Investor','VIP customer','High net worth','Customer','Partner','Press','Advisor','Other'];
+function contactsGet(){ try{ return JSON.parse(localStorage.getItem('rw_contacts')||'[]'); }catch(e){ return []; } }
+function contactsSet(a){ try{ localStorage.setItem('rw_contacts', JSON.stringify(a)); }catch(e){} }
+function contactsRender(){
+  var host=el('contactsList'); if(!host) return;
+  var list=contactsGet();
+  if(!list.length){ host.innerHTML='<p class="note">No contacts yet. Add investors, VIPs and key leads here.</p>'; return; }
+  var tagColor={ 'Investor':'#4ADE80','VIP customer':'#F0A63B','High net worth':'#C084FC','Customer':'#60A5FA','Partner':'#38BDF8','Press':'#FB7185','Advisor':'#FBBF24','Other':'#94A3B8' };
+  host.innerHTML=list.map(function(c,i){
+    var col=tagColor[c.tag]||'#94A3B8';
+    return '<div style="border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:11px;margin-bottom:8px">'
+      +'<div style="display:flex;justify-content:space-between;align-items:start;gap:8px">'
+      +'<div><b style="font-size:14px">'+esc(c.name||'')+'</b>'
+      +'<span style="font-size:10px;font-weight:700;color:'+col+';border:1px solid '+col+';border-radius:20px;padding:1px 7px;margin-left:6px">'+esc(c.tag||'')+'</span></div>'
+      +'<button class="btn" style="padding:3px 8px;font-size:11px" onclick="contactDel('+i+')">✕</button></div>'
+      +(c.why?'<div style="font-size:12px;color:var(--t2);margin-top:5px">'+esc(c.why)+'</div>':'')
+      +'<div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap">'
+      +(c.email?'<a class="btn" style="padding:5px 10px;font-size:12px;text-decoration:none" href="mailto:'+esc(c.email)+'">✉️ '+esc(c.email)+'</a>':'')
+      +(c.phone?'<a class="btn" style="padding:5px 10px;font-size:12px;text-decoration:none" href="tel:'+esc(c.phone)+'">📞 '+esc(c.phone)+'</a>':'')
+      +'</div></div>';
+  }).join('');
+}
+function contactAdd(){
+  showModal('<div class="card"><h3 style="margin:0 0 10px">Add key contact</h3>'
+    +'<label class="lab">Name</label><input id="ct_name" class="inp">'
+    +'<label class="lab">Why they matter</label><input id="ct_why" class="inp" placeholder="e.g. Angel, led seed rounds in travel">'
+    +'<label class="lab">Tag</label><select id="ct_tag" class="inp">'+CONTACT_TAGS.map(function(t){return '<option>'+t+'</option>';}).join('')+'</select>'
+    +'<label class="lab">Email</label><input id="ct_email" class="inp" type="email">'
+    +'<label class="lab">Mobile</label><input id="ct_phone" class="inp" type="tel">'
+    +'<div style="display:flex;gap:8px;margin-top:12px"><button class="btn go" style="flex:1;padding:11px" onclick="contactSave()">Save</button>'
+    +'<button class="btn" style="padding:11px" onclick="closeModal()">Cancel</button></div></div>');
+}
+function contactSave(){
+  var c={ name:el('ct_name').value.trim(), why:el('ct_why').value.trim(), tag:el('ct_tag').value,
+          email:el('ct_email').value.trim(), phone:el('ct_phone').value.trim() };
+  if(!c.name){ alert('Name is required.'); return; }
+  var list=contactsGet(); list.unshift(c); contactsSet(list);
+  closeModal(); contactsRender();
+}
+function contactDel(i){
+  if(!confirm('Remove this contact?')) return;
+  var list=contactsGet(); list.splice(i,1); contactsSet(list); contactsRender();
+}
+
+/* ==================== TAX & BUSINESS DOCUMENTS ==================== */
+var TAX_TYPES=['GST filing','ITR acknowledgement','Invoice','Receipt','Bank statement','Registration / license','Other'];
+function taxLoad(){
+  db.collection('hrdocs').where('kind','==','tax').limit(80).get().then(function(qs){
+    var rows=[]; qs.forEach(function(d){ rows.push({id:d.id,x:d.data()}); });
+    rows.sort(function(a,b){ return (b.x.at||'').localeCompare(a.x.at||''); });
+    if(!rows.length){ el('taxList').innerHTML='<p class="note">No tax documents yet.</p>'; return; }
+    el('taxList').innerHTML = rows.map(function(r){
+      var x=r.x;
+      return '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.06)">'
+        +'<div><b style="font-size:12.5px">'+esc(x.title||'')+'</b><br><span style="font-size:10.5px;color:var(--t3)">'+esc(x.taxType||'')+' · '+esc((x.at||'').slice(0,10))+(x.period?' · '+esc(x.period):'')+'</span></div>'
+        +(x.link?'<a class="btn" style="font-size:11px;padding:5px 10px;text-decoration:none" href="'+esc(x.link)+'" target="_blank" rel="noopener">Open</a>':'<span class="pill">'+esc(x.ref||'')+'</span>')
+        +'</div>';
+    }).join('');
+  }).catch(function(e){ el('taxList').innerHTML='<p class="note">Could not load: '+esc(e.message)+'</p>'; });
+}
+function taxAdd(){
+  showModal('<div class="card"><h3 style="margin:0 0 10px">Add tax / business document</h3>'
+    +'<label class="lab">Type</label><select id="taxType" class="inp">'+TAX_TYPES.map(function(t){return '<option>'+t+'</option>';}).join('')+'</select>'
+    +'<label class="lab">Title</label><input id="taxTitle" class="inp" placeholder="e.g. GSTR-3B March 2026">'
+    +'<label class="lab">Period (optional)</label><input id="taxPeriod" class="inp" placeholder="e.g. FY 2025-26, Q1">'
+    +'<label class="lab">Link (Drive / DigiLocker)</label><input id="taxLink" class="inp" placeholder="https://…">'
+    +'<label class="lab">…or a reference number</label><input id="taxRef" class="inp" placeholder="ARN / acknowledgement no.">'
+    +'<div style="display:flex;gap:8px;margin-top:12px"><button class="btn go" style="flex:1;padding:11px" onclick="taxSave()">Save</button>'
+    +'<button class="btn" style="padding:11px" onclick="closeModal()">Cancel</button></div></div>');
+}
+function taxSave(){
+  var title=el('taxTitle').value.trim();
+  if(!title){ alert('Give it a title.'); return; }
+  var rec={ kind:'tax', taxType:el('taxType').value, title:title, period:el('taxPeriod').value.trim(),
+    link:el('taxLink').value.trim(), ref:el('taxRef').value.trim(), at:new Date().toISOString() };
+  db.collection('hrdocs').add(rec).then(function(){ closeModal(); taxLoad(); }).catch(function(e){ alert('Could not save: '+e.message); });
+}
+
+/* ==================== OUTREACH & EMAILS ==================== */
+function mailGen(kind){
+  var fields, title;
+  if(kind==='investor_intro'){ title='Investor intro';
+    fields=[{k:'name',l:'Investor name'},{k:'firm',l:'Firm (optional)'}]; }
+  else if(kind==='investor_followup'){ title='Investor follow-up';
+    fields=[{k:'name',l:'Investor name'}]; }
+  else if(kind==='creator'){ title='Creator collab';
+    fields=[{k:'name',l:'Creator name'},{k:'niche',l:'Their niche (e.g. travel vlogs)'}]; }
+  else { title='Order update';
+    fields=[{k:'name',l:'Customer name'},{k:'status',l:'Status (printing / shipped)'}]; }
+  showModal('<div class="card"><h3 style="margin:0 0 10px">'+title+'</h3>'
+    + fields.map(function(f,i){ return '<label class="lab">'+f.l+'</label><input id="ml_'+i+'" class="inp">'; }).join('')
+    +'<div style="display:flex;gap:8px;margin-top:12px"><button class="btn go" style="flex:1;padding:11px" onclick="mailBuild(\''+kind+'\','+fields.length+')">Draft it</button>'
+    +'<button class="btn" style="padding:11px" onclick="closeModal()">Cancel</button></div></div>');
+}
+function mailBuild(kind, n){
+  var v=[]; for(var i=0;i<n;i++){ var e=el('ml_'+i); v.push(e?e.value.trim():''); }
+  var subject='', body='';
+  if(kind==='investor_intro'){
+    subject='RoamWise — AI trip planning for India\u2019s next 200M travellers';
+    body='Hi '+(v[0]||'there')+',\n\nI\u2019m Mohit, founder of RoamWise — an AI travel copilot built for Indian travellers. We turn messy group trip-planning into decided, paid-for, coordinated trips: itineraries, live bill-splitting, and group decisions in one place.\n\nWe\u2019re a solo-built product already live on Android and the web, with real users and a clear wedge WhatsApp can\u2019t copy.\n\n'+(v[1]?'Given '+v[1]+'\u2019s focus on early consumer products, I\u2019d love 15 minutes to walk you through it.':'I\u2019d love 15 minutes to walk you through it.')+'\n\nDeck: https://roamwise.co.in/deck/\n\nWarm regards,\nMohit Pandey\nRoamWise · Almora, Uttarakhand';
+  } else if(kind==='investor_followup'){
+    subject='Following up — RoamWise';
+    body='Hi '+(v[0]||'there')+',\n\nJust floating this back to the top of your inbox. Since I last wrote, we\u2019ve kept shipping — the group trip-hub (live kitty, decision board, shared plans) is now live.\n\nWould a quick call this week work? Deck\u2019s here if useful: https://roamwise.co.in/deck/\n\nThanks for your time,\nMohit';
+  } else if(kind==='creator'){
+    subject='Collab? RoamWise x '+(v[0]||'you');
+    body='Hi '+(v[0]||'there')+',\n\nLove your '+(v[1]||'content')+'. I run RoamWise, an AI trip-planning app for Indian travellers, and I think your audience would genuinely find it useful.\n\nOpen to a collab — happy to tailor something that fits your style. Details: https://roamwise.co.in/creators/\n\nCheers,\nMohit · RoamWise';
+  } else {
+    subject='Your RoamWise order — '+(v[1]||'update');
+    body='Hi '+(v[0]||'there')+',\n\nQuick update on your custom RoamWise tee: it\u2019s now '+(v[1]||'being processed')+'. We\u2019ll let you know as soon as it ships.\n\nThanks for repping RoamWise!\nMohit';
+  }
+  var mailto='mailto:?subject='+encodeURIComponent(subject)+'&body='+encodeURIComponent(body);
+  el('mailOut').innerHTML='<div style="margin-top:10px;border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:12px">'
+    +'<div style="font-size:11px;color:var(--t3);margin-bottom:4px">TO (investor email)</div>'
+    +'<input id="mailTo" class="inp" placeholder="investor@email.com" style="margin-bottom:10px">'
+    +'<div style="font-size:11px;color:var(--t3);margin-bottom:4px">SUBJECT</div>'
+    +'<input id="mailSubj" class="inp" style="font-weight:700;margin-bottom:8px" value="'+esc(subject)+'">'
+    +'<div style="font-size:11px;color:var(--t3);margin-bottom:4px">BODY</div>'
+    +'<textarea id="mailBody" class="inp" style="min-height:180px;font-size:12.5px">'+esc(body)+'</textarea>'
+    +'<div style="display:flex;gap:8px;margin-top:10px">'
+    +'<button class="btn go" style="flex:1;padding:10px" onclick="mailCopy()">Copy body</button>'
+    +'<button class="btn" style="flex:1;padding:10px" onclick="mailSend()">Open in mail app</button></div>'
+    +'<div style="font-size:10.5px;color:var(--t3);margin-top:8px">Tip: edit any field above, then Open in mail app — it opens your email app with everything pre-filled and ready to send.</div>'
+    +'</div>';
+  closeModal();
+}
+/* Robust send: rebuilds the mailto from the LIVE edited fields (the old version
+   built it once before edits, and had no recipient — many mail apps reject that). */
+function mailSend(){
+  var to=(el('mailTo')&&el('mailTo').value.trim())||'';
+  var subj=(el('mailSubj')&&el('mailSubj').value)||'';
+  var body=(el('mailBody')&&el('mailBody').value)||'';
+  var href='mailto:'+encodeURIComponent(to)+'?subject='+encodeURIComponent(subj)+'&body='+encodeURIComponent(body);
+  try{ window.location.href=href; }
+  catch(e){ try{ window.open(href,'_blank'); }catch(e2){ alert('Couldn\u2019t open your mail app. Use Copy body and paste it manually.'); } }
+}
+function mailCopy(){
+  var body=(el('mailBody')&&el('mailBody').value)||'';
+  try{ navigator.clipboard.writeText(body); alert('Email body copied \u2014 paste it into your mail app.'); }
+  catch(e){ alert('Copy failed \u2014 select the text manually.'); }
+}
+
+function loadStats(){
+  var ids=[]; var now=new Date();
+  for(var i=0;i<30;i++){ var d=new Date(now-i*864e5); ids.push(d.toISOString().slice(0,10).replace(/-/g,'')); }
+  Promise.all(ids.slice(0,10).map(function(id){ return db.collection('stats').doc(id).get().catch(function(){return null;}); }))
+    .then(function(docs){
+      var plans=0, opens=0;
+      docs.forEach(function(d){ if(d&&d.exists){ var x=d.data(); plans+=(x.plans||0); opens+=(x.opens||0); } });
+      el('statBox').innerHTML='<div><b>'+plans+'</b><span>trips planned (10d)</span></div>'
+        +'<div><b>'+opens+'</b><span>app opens (10d)</span></div>';
+    }).catch(function(){ el('statBox').innerHTML='<span class="note">Stats unavailable.</span>'; });
+}
+
+/* Password reset for staff. Also solves the "I signed in with Google so I have
+   no password" case — sending a reset lets you SET a password on that same
+   account, after which both Google and email sign-in work. */
+function staffReset(){
+  var email=((el('authEmail')&&el('authEmail').value)||'').trim();
+  var m=el('authErr');
+  if(!email){ if(m){ m.style.color='#F87171'; m.textContent='Type your email above first, then tap this again.'; } return; }
+  firebase.auth().sendPasswordResetEmail(email).then(function(){
+    if(m){ m.style.color='#4ADE80';
+      m.textContent='Reset link sent to '+email+'. Open it, choose a password, then sign in here. Check spam if it is not there in a minute.'; }
+  }).catch(function(e){
+    if(m){ m.style.color='#F87171';
+      m.textContent = (e&&e.code==='auth/user-not-found') ? 'No account with that email yet — create one first.' : ((e&&e.message)||'Could not send the reset email.'); }
+  });
+}
+
+
+/* ============================================================================
+   OFFER LETTER — generated on the person's own desk (rw-v72)
+   ============================================================================
+   Joining dates are FACTS, so they live on the staff record (joined field) and
+   the founder sets them once. Defaults are seeded per person below for the
+   three current interns so nothing has to be typed twice.
+   ========================================================================= */
+
+/* Your electronic signature. Drop a transparent PNG at /assets/signature.png
+   (or paste a data: URL here) and it appears above the line on every letter.
+   Left empty = a plain signature line, which is still perfectly valid. */
+var RW_SIGNATURE = '/assets/signature.png';
+var RW_JOIN_DEFAULTS = {
+  /* matched loosely on name, case-insensitive */
+  'febin':     '2026-08-11',
+  'deepanshi': '2026-08-11',
+  'adarsh':    '2026-08-24'
+};
+function rwJoinDate(me){
+  if(me && me.joined) return me.joined;
+  var n=String((me&&me.name)||'').toLowerCase();
+  for(var k in RW_JOIN_DEFAULTS){ if(n.indexOf(k)>-1) return RW_JOIN_DEFAULTS[k]; }
+  return '';
+}
+function rwNiceDate(d){
+  try{ return new Date(d+'T00:00:00').toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'}); }
+  catch(e){ return d||'—'; }
+}
+function deskOfferHTML(me){
+  var j=rwJoinDate(me);
+  return '<div class="dk-lab">MY INTERNSHIP</div>'
+    +'<div class="pay-box">'
+    +'<div class="pay-row"><span>Role</span><b>'+esc(me.title||me.role||'Intern')+'</b></div>'
+    +'<div class="pay-row"><span>Joined</span><b>'+esc(j? rwNiceDate(j) : 'not set')+'</b></div>'
+    +(me.endDate? '<div class="pay-row"><span>Until</span><b>'+esc(rwNiceDate(me.endDate))+'</b></div>':'')
+    +'</div>'
+    +'<button class="btn" style="width:100%;margin-top:9px" onclick="deskOfferPrint()">📄 View / print my offer letter</button>'
+    +'<div class="dk-note">Generated from your record. If a date looks wrong, tell Mohit — he can correct it in one tap.</div>';
+}
+function deskOfferPrint(){
+  db.collection('staff').doc(user.uid).get().then(function(d){
+    var me=d.data()||{};
+    var j=rwJoinDate(me);
+    var o=me.offer||{};
+    var months=o.months||3, stipend=(me.pay&&me.pay.stipend)||o.stipend||0;
+    var title=me.title||'Intern';
+    var place=o.place||'Dehradun, Uttarakhand';
+    var issued=o.issued||new Date().toISOString().slice(0,10);
+    var resp=o.responsibilities||'Assigned role tasks, clear reporting, and founder-support work as agreed.';
+    var w=window.open('','_blank');
+    if(!w){ alert('Allow pop-ups to open your offer letter.'); return; }
+    function row(a,b){ return '<tr><td class="k">'+a+'</td><td>'+b+'</td></tr>'; }
+    w.document.write('<!DOCTYPE html><html><head><meta charset="utf-8"><title>Internship Offer — '+esc(me.name||'')+'</title><style>'
+      +'@page{size:A4;margin:18mm}*{margin:0;padding:0;box-sizing:border-box}'
+      +'body{font-family:Calibri,Segoe UI,Arial,sans-serif;color:#111;font-size:11pt;line-height:1.55}'
+      +'h1{font-size:15pt;letter-spacing:.04em;text-align:center;margin-bottom:8mm;font-weight:700}'
+      +'.meta{width:100%;border-collapse:collapse;margin-bottom:7mm;font-size:10pt}'
+      +'.meta td{border:1px solid #bbb;padding:2.5mm 3mm}'
+      +'p{margin-bottom:4mm}'
+      +'table.terms{width:100%;border-collapse:collapse;margin:5mm 0 7mm;font-size:10.5pt}'
+      +'table.terms th{background:#f1efe9;border:1px solid #bbb;padding:2.5mm 3mm;text-align:left;font-size:9.5pt;letter-spacing:.06em}'
+      +'table.terms td{border:1px solid #bbb;padding:2.5mm 3mm;vertical-align:top}'
+      +'table.terms td.k{width:34%;font-weight:600}'
+      +'.sigwrap{display:flex;justify-content:space-between;gap:12mm;margin-top:10mm}'
+      +'.sigcol{flex:1}'
+      +'.sigcol .lbl{font-size:9.5pt;color:#555;margin-bottom:2mm}'
+      +'.esign{font-family:Georgia,serif;font-size:14pt;font-style:italic;margin-bottom:1mm}'
+      +'.small{font-size:9pt;color:#555;line-height:1.5}'
+      +'.line{border-bottom:1px solid #111;height:8mm;margin-bottom:1.5mm}'
+      +'</style></head><body>'
+      +'<h1>INTERNSHIP OFFER LETTER</h1>'
+      +'<table class="meta"><tr>'
+        +'<td><b>Date:</b> '+esc(rwNiceDate(issued))+'</td>'
+        +'<td><b>Place:</b> '+esc(place)+'</td>'
+        +'<td><b>Start:</b> '+esc(j? rwNiceDate(j):'________')+'</td>'
+      +'</tr></table>'
+      +'<p>To, '+esc(me.name||'________')+'</p>'
+      +'<p><b>Subject: Internship Offer &mdash; '+esc(title)+'</b></p>'
+      +'<p>Dear '+esc((me.name||'').split(' ')[0]||'________')+',</p>'
+      +'<p>We are pleased to offer you a '+months+'-month internship with RoamWise, beginning '+esc(j? rwNiceDate(j):'________')+', as '+esc(title)+'. '
+      +'The internship is structured as a focused, part-time learning and contribution role with emphasis on useful outcomes, clear communication, and sustainable working hours.</p>'
+      +'<table class="terms"><tr><th>TERM</th><th>DETAIL</th></tr>'
+      + row('Duration', months+' months from '+esc(j? rwNiceDate(j):'________')+'.')
+      + row('Stipend', stipend? ('INR '+Number(stipend).toLocaleString('en-IN')+' per month for each active month of the internship.') : 'As agreed in writing.')
+      + row('Sales incentive', '30% of the value of any RoamWise sale made through your personal referral link, in addition to the stipend.')
+      + row('Working time', 'Approximately 2-4 focused hours per working day, with reasonable flexibility.')
+      + row('Mode', 'Primarily remote/flexible; meetings or in-person activity only when genuinely useful.')
+      + row('Responsibilities', esc(resp))
+      + row('Expenses', 'Travel or other out-of-pocket expenses are reimbursable only when approved in writing before the expense is incurred.')
+      + row('Performance &amp; growth', 'Quality, reliability, communication, initiative and business value will guide continuation. Any stipend increase, bonus, extension or future role is discretionary and not automatic.')
+      + row('Confidentiality &amp; conduct', 'Keep non-public company, customer, investor, product, strategy and access information confidential. Maintain respectful communication, honest reporting and professional conduct. Work created specifically for assigned RoamWise tasks may be used by RoamWise; pre-existing work remains yours.')
+      + row('Exit &amp; status', 'Either side may discontinue with 7 days written notice. RoamWise may end earlier for serious misconduct, confidentiality breach or prolonged non-performance. This internship does not guarantee permanent employment.')
+      +'</table>'
+      +'<p>Please confirm acceptance by signing below or replying in writing that you accept these terms.</p>'
+      +'<div class="sigwrap">'
+        +'<div class="sigcol"><div class="lbl">For RoamWise</div>'
+          +'<div class="esign">/s/ Mohit Pandey</div>'
+          +'<div class="small">Electronically signed by Mohit Pandey<br>Founder, RoamWise<br>'+esc(rwNiceDate(issued))+' &middot; '+esc(place)+'</div></div>'
+        +'<div class="sigcol"><div class="lbl">Accepted by Intern</div>'
+          +'<div class="line"></div>'
+          +'<div class="small">Signature<br>Name: '+esc(me.name||'________')+'<br>Date: ______________________</div></div>'
+      +'</div>'
+      +'</body></html>');
+    w.document.close();
+    setTimeout(function(){ try{ w.print(); }catch(e){} }, 500);
+  });
+}
+/* Shared team links — same for everyone, so they live here not in the DB. */
+var RW_TEAM_LINKS = {
+  whatsapp: 'https://chat.whatsapp.com/I5qdkx0B9D8Bogc9IdoXYE',
+  sheet: 'https://docs.google.com/spreadsheets/d/1DT6axL4O364ZRof5tOvNk8n6CxavF4UphWjhO2M65S0/edit',
+  /* Google's own copy URL. Opening this makes THEIR OWN copy — the shared
+     sheet cannot be damaged from it. Safer default for anyone experimenting. */
+  sheetCopy: 'https://docs.google.com/spreadsheets/d/1DT6axL4O364ZRof5tOvNk8n6CxavF4UphWjhO2M65S0/copy',
+  sheetView: 'https://docs.google.com/spreadsheets/d/1DT6axL4O364ZRof5tOvNk8n6CxavF4UphWjhO2M65S0/preview'
+};
+function deskTeamLinksHTML(){
+  var L=RW_TEAM_LINKS;
+  return '<div class="dk-lab">TEAM</div>'
+    +'<a class="btn" style="display:block;text-align:center;text-decoration:none;margin-bottom:8px" href="'+L.whatsapp+'" target="_blank" rel="noopener">💬 WhatsApp community ↗</a>'
+    +'<div class="sh-box">'
+    +'<b style="font-size:13.5px">📊 Team tracker sheet</b>'
+    +'<div class="dk-note" style="margin:5px 0 9px">The shared sheet everyone updates. Use <b>Open to edit</b> for real work. If you just want to try something, <b>Make my own copy</b> gives you a private duplicate — the team sheet can\'t be broken from it.</div>'
+    +'<div style="display:flex;gap:7px;flex-wrap:wrap">'
+    +'<a class="btn" style="flex:1;min-width:110px;text-align:center;text-decoration:none" href="'+L.sheet+'" target="_blank" rel="noopener">✏️ Open to edit</a>'
+    +'<a class="btn" style="flex:1;min-width:110px;text-align:center;text-decoration:none" href="'+L.sheetCopy+'" target="_blank" rel="noopener">📄 Make my own copy</a>'
+    +'<a class="btn" style="flex:1;min-width:110px;text-align:center;text-decoration:none" href="'+L.sheetView+'" target="_blank" rel="noopener">👀 View only</a>'
+    +'</div>'
+    +'<div class="dk-note" style="margin-top:9px">⚠️ Deleted something by accident? In the sheet: <b>File → Version history → Restore</b>. Nothing is ever really lost.</div>'
+    +'</div>';
+}
+
+
+/* ============================================================================
+   ROLE TARGETS (rw-v73) — what "a good month" means for each role
+   ============================================================================
+   Company-wide numbers (users, paid) are on the scoreboard. These are the
+   things a PERSON in a given role actually controls. Deliberately small,
+   countable, and weekly/monthly — targets nobody believes are worse than none.
+   Founder can override any number per person via staff/{uid}.targets.
+   ========================================================================= */
+var RW_ROLE_TARGETS = {
+  growth: { label:'Growth & Community', items:[
+    { k:'signups',  label:'New sign-ups you brought in', target:40, unit:'/month', how:'Tracked by your referral link' },
+    { k:'sales',    label:'Paid conversions referred',   target:8,  unit:'/month', how:'₹30 commission each' },
+    { k:'outreach', label:'Communities / groups posted in', target:12, unit:'/month', how:'Log it in your daily entry' }
+  ]},
+  content: { label:'Content & Social', items:[
+    { k:'posts',    label:'Posts published',            target:12, unit:'/month', how:'Reels, carousels or shorts' },
+    { k:'stories',  label:'Stories / short updates',    target:30, unit:'/month', how:'Keeps the account alive daily' },
+    { k:'followers',label:'New followers added',        target:250,unit:'/month', how:'Across all our handles' },
+    { k:'reuse',    label:'Pieces reused by others',    target:3,  unit:'/month', how:'Content good enough to repost' }
+  ]},
+  marketing: { label:'Marketing & Sales', items:[
+    { k:'sales',    label:'Paid conversions',           target:10, unit:'/month', how:'₹30 commission each' },
+    { k:'leads',    label:'Qualified leads contacted',  target:60, unit:'/month', how:'Logged in the CRM' },
+    { k:'demos',    label:'Product walkthroughs given', target:8,  unit:'/month', how:'Calls or in-person' }
+  ]},
+  qa: { label:'Product & QA', items:[
+    { k:'bugs',     label:'Real bugs filed',            target:20, unit:'/month', how:'With screenshot + steps' },
+    { k:'devices',  label:'Devices tested on',          target:3,  unit:'/month', how:'Different phones matter' },
+    { k:'passes',   label:'Full test passes done',      target:4,  unit:'/month', how:'One per new build' }
+  ]},
+  engineering: { label:'Engineering', items:[
+    { k:'ships',    label:'Changes shipped live',       target:8,  unit:'/month', how:'Merged and deployed' },
+    { k:'fixes',    label:'Bugs fixed',                 target:12, unit:'/month', how:'From the tracker' },
+    { k:'reviews',  label:'Code reviews given',         target:6,  unit:'/month', how:'Reading others\u2019 work counts' }
+  ]},
+  design: { label:'Design', items:[
+    { k:'screens',  label:'Screens / assets delivered', target:10, unit:'/month', how:'Shipped, not drafts' },
+    { k:'iters',    label:'Design iterations on feedback', target:8, unit:'/month', how:'Revising is the job' }
+  ]},
+  bd: { label:'Partnerships / BD', items:[
+    { k:'pitched',  label:'Creators / partners pitched',target:25, unit:'/month', how:'Logged in the CRM' },
+    { k:'replies',  label:'Replies received',           target:8,  unit:'/month', how:'A reply is real progress' },
+    { k:'signed',   label:'Partnerships signed',        target:2,  unit:'/month', how:'Live collab or referral deal' }
+  ]},
+  finance: { label:'Finance', items:[
+    { k:'recon',    label:'Days books reconciled',      target:20, unit:'/month', how:'Claims vs ledger match' },
+    { k:'claims',   label:'Claims reviewed within 48h', target:100,unit:'%',      how:'Nobody waits on money' }
+  ]},
+  ops: { label:'Operations', items:[
+    { k:'orders',   label:'Orders processed on time',   target:100,unit:'%',      how:'Merch and fulfilment' },
+    { k:'sla',      label:'Support replies within 24h', target:100,unit:'%',      how:'Speed is the product' }
+  ]},
+  research: { label:'Research', items:[
+    { k:'verified', label:'Places / prices verified',   target:60, unit:'/month', how:'This IS our moat' },
+    { k:'cities',   label:'Cities covered',             target:3,  unit:'/month', how:'Depth beats breadth' }
+  ]},
+  staff:  { label:'General', items:[
+    { k:'logs',     label:'Days logged',                target:20, unit:'/month', how:'Consistency is the habit' }
+  ]}
+};
+function deskTargetsHTML(me, logs){
+  var roles=(window.ROLES&&ROLES.length)? ROLES : (ROLE?[ROLE]:[]);
+  var sets=roles.map(function(r){ return RW_ROLE_TARGETS[r]; }).filter(Boolean);
+  if(!sets.length) return '';
+  var over=(me&&me.targets)||{};      /* founder overrides */
+  var prog=(me&&me.progress)||{};     /* self-reported progress this month */
+  var mk=deskMonth();
+  var html='<div class="dk-lab">MY TARGETS THIS MONTH</div>';
+  sets.forEach(function(set){
+    html+='<div class="rs-role-h">'+esc(set.label)+'</div>';
+    set.items.forEach(function(it){
+      var tgt = (over[it.k]!=null)? over[it.k] : it.target;
+      var got = (prog[mk] && prog[mk][it.k]) || 0;
+      var pct = tgt>0? Math.min(100, Math.round(got/tgt*100)) : 0;
+      var done = got>=tgt;
+      html+='<div class="tg-item">'
+        +'<div class="tg-top"><span style="flex:1">'+esc(it.label)+'</span>'
+        +'<b style="color:'+(done?'#4ADE80':'var(--gold)')+'">'+got+'<span style="color:var(--t3);font-weight:600"> / '+tgt+' '+esc(it.unit)+'</span></b></div>'
+        +'<div class="tg-bar"><i style="width:'+pct+'%;background:'+(done?'#4ADE80':'linear-gradient(90deg,#C8913E,#E8BA6C)')+'"></i></div>'
+        +'<div class="tg-how">'+esc(it.how)+' · <a onclick="deskBump(\''+it.k+'\')" style="color:var(--gold);cursor:pointer">+1</a></div>'
+        +'</div>';
+    });
+  });
+  html+='<div class="dk-note">Tap +1 as you go. These are your own numbers — the point is to see where the month is heading, not to be graded.</div>';
+  return html;
+}
+function deskBump(k){
+  if(!user) return;
+  var mk=deskMonth();
+  var path='progress.'+mk+'.'+k;
+  var upd={}; upd[path]=firebase.firestore.FieldValue.increment(1);
+  db.collection('staff').doc(user.uid).set({},{merge:true}).then(function(){
+    return db.collection('staff').doc(user.uid).update(upd);
+  }).then(function(){ deskRender(); }).catch(function(){
+    /* first time the map doesn't exist — create it */
+    var o={progress:{}}; o.progress[mk]={}; o.progress[mk][k]=1;
+    db.collection('staff').doc(user.uid).set(o,{merge:true}).then(deskRender).catch(function(){});
+  });
+}
+
+
+/* ============================================================================
+   3-MONTH INTERNSHIP PLAN (rw-v77)
+   ============================================================================
+   Calibrated for an AVERAGE performer, not a star — a plan people actually hit
+   is worth more than an ambitious one they quietly give up on in week three.
+   Month 1 is deliberately light (learning the product IS the work).
+   Founder can override any number via staff/{uid}.plan.
+   ========================================================================= */
+var RW_ROLE_PLAN = {
+  growth: { label:'Growth & Community', months:[
+    { m:1, t:'Learn & start', goals:['Join 15 travel groups/communities','20 sign-ups referred','Post in 8 communities','Read the handbook + use the app for a real trip'] },
+    { m:2, t:'Find what works', goals:['40 sign-ups referred','5 paid conversions','Run 2 WhatsApp-group campaigns','Report which channel converts best'] },
+    { m:3, t:'Double down', goals:['70 sign-ups referred','12 paid conversions','1 community partnership signed','Write a 1-page playbook for the next intern'] }
+  ]},
+  content: { label:'Content & Social', months:[
+    { m:1, t:'Voice & rhythm', goals:['8 posts published','20 stories','Find our tone — 3 sample formats','+150 followers'] },
+    { m:2, t:'Volume & reach', goals:['14 posts','40 stories','5,000 total views','+400 followers','2 posts crossing 1,000 views'] },
+    { m:3, t:'Repeatable', goals:['16 posts','50 stories','15,000 total views','+800 followers','300 likes & 60 shares in the month','A content calendar the next person can run'] }
+  ]},
+  marketing: { label:'Marketing & Sales', months:[
+    { m:1, t:'Learn the pitch', goals:['Talk to 20 potential users','5 paid conversions','30 leads logged in CRM','Understand every objection'] },
+    { m:2, t:'Convert', goals:['12 paid conversions','60 leads contacted','6 product walkthroughs','Write down the 5 objections that kill deals'] },
+    { m:3, t:'Scale', goals:['25 paid conversions','100 leads contacted','50 app installs attributed','A pitch script that works without you'] }
+  ]},
+  qa: { label:'Product & QA', months:[
+    { m:1, t:'Break it', goals:['15 real bugs filed with screenshots','Test on 2 devices','Complete 2 full test passes','Learn the issue format'] },
+    { m:2, t:'Go deeper', goals:['25 bugs filed','3 devices incl. a low-end phone','4 test passes','Find 2 bugs users would have hit'] },
+    { m:3, t:'Own quality', goals:['30 bugs filed','Test every new build within 24h','Write the regression checklist','Zero critical bugs reaching users this month'] }
+  ]},
+  engineering: { label:'Engineering', months:[
+    { m:1, t:'Get oriented', goals:['Set up the project and ship 2 small changes','Fix 5 bugs from the tracker','Read the Firestore rules end to end'] },
+    { m:2, t:'Ship real work', goals:['6 changes shipped live','12 bugs fixed','1 feature owned start to finish','Review 3 pieces of others\u2019 work'] },
+    { m:3, t:'Own an area', goals:['10 changes shipped','15 bugs fixed','1 meaningful feature live for users','Document what you built'] }
+  ]},
+  design: { label:'Design', months:[
+    { m:1, t:'Learn the language', goals:['6 screens or assets delivered','Understand the design tokens','1 improvement proposal'] },
+    { m:2, t:'Ship', goals:['10 assets shipped','2 full screens redesigned','5 iterations on feedback'] },
+    { m:3, t:'Raise the bar', goals:['12 assets shipped','1 flow visibly better than before','A mini style guide the team can reuse'] }
+  ]},
+  bd: { label:'Partnerships / BD', months:[
+    { m:1, t:'Build the list', goals:['Research 60 creators/partners','Pitch 15','Get 3 replies','Learn what they care about'] },
+    { m:2, t:'Get to yes', goals:['Pitch 30','8 replies','1 partnership signed','A pitch template that works'] },
+    { m:3, t:'Close', goals:['Pitch 40','3 partnerships signed','1 collab actually live','Hand over a warm pipeline'] }
+  ]},
+  investor: { label:'Investor Relations', months:[
+    { m:1, t:'Learn the story', goals:['Know the deck cold','Research 40 relevant angels/funds','Draft the outreach email'] },
+    { m:2, t:'Reach out', goals:['30 investors contacted','5 replies','2 intro calls booked','Log everything in CRM'] },
+    { m:3, t:'Follow through', goals:['50 contacted cumulatively','4 meetings','1 written commitment','A living investor pipeline'] }
+  ]},
+  ops: { label:'Operations', months:[
+    { m:1, t:'Keep it running', goals:['Reply to every support message within 24h','Process all orders on time','Learn every recurring issue'] },
+    { m:2, t:'Tighten', goals:['100% on-time fulfilment','Reply within 12h','Write answers to the 10 most common questions'] },
+    { m:3, t:'Systemise', goals:['100% SLA held','A runbook so anyone can cover your role','Propose 2 process improvements'] }
+  ]},
+  finance: { label:'Finance', months:[
+    { m:1, t:'Learn the books', goals:['Reconcile claims vs ledger weekly','Understand every revenue line','Flag anything that looks wrong'] },
+    { m:2, t:'Own the cycle', goals:['All claims reviewed within 48h','Monthly P&L drafted','Expense categories cleaned up'] },
+    { m:3, t:'Get ahead', goals:['Books reconciled 20+ days','Cash-runway forecast built','Compliance calendar for the year'] }
+  ]},
+  research: { label:'Research', months:[
+    { m:1, t:'Learn to verify', goals:['30 places/prices verified','1 city covered properly','Learn what "verified" means here'] },
+    { m:2, t:'Build the moat', goals:['60 verified','2 more cities','Find 5 tourist-scam patterns worth recording'] },
+    { m:3, t:'Compound it', goals:['80 verified','3 cities to real depth','A re-verification schedule so nothing goes stale'] }
+  ]}
+};
+function deskPlanHTML(me){
+  var roles=(window.ROLES&&ROLES.length)? ROLES : (ROLE?[ROLE]:[]);
+  var sets=roles.map(function(r){ return RW_ROLE_PLAN[r]; }).filter(Boolean);
+  if(!sets.length) return '';
+  /* which month are they in? */
+  var j=rwJoinDate(me), mn=1;
+  if(j){ var d=(Date.now()-new Date(j+'T00:00:00').getTime())/86400000; mn=Math.min(3, Math.max(1, Math.floor(d/30)+1)); }
+  var done=(me&&me.planDone)||{};
+  var html='<div class="dk-lab">MY 3-MONTH PLAN</div>'
+    +'<div class="pl-months">'+[1,2,3].map(function(x){
+        return '<div class="pl-m'+(x===mn?' on':'')+(x<mn?' past':'')+'">Month '+x+(x===mn?' · you are here':'')+'</div>';
+      }).join('')+'</div>';
+  sets.forEach(function(set){
+    if(sets.length>1) html+='<div class="rs-role-h">'+esc(set.label)+'</div>';
+    set.months.forEach(function(mo){
+      var open=mo.m===mn;
+      html+='<div class="pl-blk'+(open?' on':'')+'">'
+        +'<div class="pl-h">Month '+mo.m+' · <b>'+esc(mo.t)+'</b>'+(mo.m<mn?' <span style="color:#4ADE80">✓ done</span>':'')+'</div>'
+        + mo.goals.map(function(g,gi){
+            var key=set.label.slice(0,3)+mo.m+'_'+gi, tick=!!done[key];
+            return '<div class="pl-g" onclick="deskPlanTick(\''+key+'\')">'
+              +'<span>'+(tick?'✅':'⬜')+'</span><span style="flex:1'+(tick?';opacity:.55;text-decoration:line-through':'')+'">'+esc(g)+'</span></div>';
+          }).join('')
+        +'</div>';
+    });
+  });
+  html+='<div class="dk-note">Set for a steady, average pace — not a sprint. Month 1 is deliberately light because learning the product properly IS the work. Hitting these is a strong internship.</div>';
+  return html;
+}
+function deskPlanTick(k){
+  if(!user) return;
+  var cur=(window._deskPlanDone||{})[k];
+  var upd={}; upd['planDone.'+k]=!cur;
+  db.collection('staff').doc(user.uid).set({planDone:{}},{merge:true}).then(function(){
+    return db.collection('staff').doc(user.uid).update(upd);
+  }).then(function(){ window._deskPlanDone=window._deskPlanDone||{}; window._deskPlanDone[k]=!cur; deskRender(); })
+   .catch(function(){});
+}
+
+
+/* ============================================================================
+   MY REFERRAL LINK (rw-v78) — what Deepanshi was asking for
+   ============================================================================
+   Matches the person to their code in referral-data.js by name, so nobody has
+   to be told their code — they just see it. Share buttons are one tap, because
+   a link that's awkward to share doesn't get shared.
+   ========================================================================= */
+function rwMyRef(me){
+  var list=(window.RW_REFERRERS||[]);
+  var n=String((me&&me.name)||'').toLowerCase();
+  var e=String((me&&me.email)||'').toLowerCase();
+  for(var i=0;i<list.length;i++){
+    var r=list[i];
+    if(r.uid && me && r.uid===me.uid) return r;
+    if(r.email && e && r.email.toLowerCase()===e) return r;
+    var first=String(r.name||'').toLowerCase().split(' ')[0];
+    if(first && n && n.indexOf(first)>-1) return r;
+  }
+  return null;
+}
+function deskRefHTML(me){
+  var r=rwMyRef(me);
+  if(!r){
+    return '<div class="dk-lab">MY REFERRAL LINK</div>'
+      +'<div class="dk-note">No referral code assigned to you yet — ask Mohit to add you to referral-data.js and it will appear here.</div>';
+  }
+  var link='https://roamwise.co.in/?ref='+r.code;
+  var pitch='I\u2019ve been using RoamWise \u2014 an AI travel planner built for India. It gives honest road times (a 200km Spiti drive is 9 hours, not 3), real local prices, and splits group costs to the paise. Pro is \u20b9100 one-time, no subscription.\n\n'+link;
+  var wa='https://wa.me/?text='+encodeURIComponent(pitch);
+  return '<div class="dk-lab">MY REFERRAL LINK</div>'
+    +'<div class="ref-box">'
+    +'<div class="ref-code">'+esc(r.code)+'</div>'
+    +'<div class="ref-link" id="myRefLink">'+esc(link)+'</div>'
+    +'<div class="ref-rate">You earn <b>'+Math.round((r.rate||0.3)*100)+'%</b> of every sale through this link \u2014 \u20b9'+Math.round(100*(r.rate||0.3))+' on the \u20b9100 plan.</div>'
+    +'</div>'
+    +'<div class="ref-btns">'
+    +'<button class="btn" onclick="rwRefCopy(\''+link+'\')">\ud83d\udccb Copy link</button>'
+    +'<a class="btn" href="'+wa+'" target="_blank" rel="noopener" style="text-align:center;text-decoration:none">\ud83d\udcac WhatsApp</a>'
+    +'<button class="btn" onclick="rwRefCopyPitch()">\u270d\ufe0f Copy pitch</button>'
+    +'</div>'
+    +'<textarea id="refPitch" style="position:absolute;left:-9999px">'+esc(pitch)+'</textarea>'
+    +'<div class="dk-note">Anyone who opens your link is tagged to you for 30 days. When they pay, your commission appears in the founder\u2019s payout ledger \u2014 and you can also just give people the code <b>'+esc(r.code)+'</b> to type at sign-up.</div>';
+}
+function rwRefCopy(t){
+  try{ navigator.clipboard.writeText(t); showToastS('Link copied'); }
+  catch(e){ alert(t); }
+}
+function rwRefCopyPitch(){
+  var el2=el('refPitch'); if(!el2) return;
+  try{ navigator.clipboard.writeText(el2.value); showToastS('Message copied \u2014 paste it anywhere'); }
+  catch(e){ el2.select(); document.execCommand('copy'); showToastS('Copied'); }
+}
+function showToastS(m){
+  var t=document.createElement('div');
+  t.textContent=m;
+  t.style.cssText='position:fixed;left:50%;bottom:26px;transform:translateX(-50%);z-index:9999;background:#E8BA6C;color:#0A0A0C;font-weight:800;padding:11px 18px;border-radius:24px;font-size:13.5px;box-shadow:0 6px 24px rgba(0,0,0,.4)';
+  document.body.appendChild(t);
+  setTimeout(function(){ t.style.opacity='0'; t.style.transition='opacity .4s'; setTimeout(function(){ t.remove(); },420); }, 1900);
+}
+
+
+/* ============================================================================
+   PARTNER ONBOARDING (rw-v81) — for Deepanshi and any B2B intern
+   ============================================================================
+   One screen. No code file, no deploy. Writes straight to Firestore
+   config/partners, which the app reads. Designed so onboarding the 500th
+   partner is exactly as easy as the first — the whole point of scaling.
+   ========================================================================= */
+var RW_COMM = {
+  stay:      { pct:8,  label:'Homestay / boutique stay' },
+  adventure: { pct:12, label:'Adventure / experience operator' },
+  transport: { pct:5,  label:'Driver / transport' },
+  agency:    { pct:10, label:'Travel agency' },
+  creator:   { pct:15, label:'Creator-led trip' },
+  listing:   { pct:0,  label:'Free listing (no commission)' }
+};
+function deskPartnerHTML(me){
+  if(!hasRole('bd') && !hasRole('growth') && !hasRole('marketing') && ROLE!=='admin') return '';
+  return '<div class="dk-lab">ADD A PARTNER</div>'
+    +'<div class="dk-note" style="margin-bottom:9px">Signed up a homestay or operator? Add them here \u2014 they appear in the app within seconds. No code, no waiting on Mohit.</div>'
+    +'<button class="btn go" style="width:100%;padding:12px" onclick="openPartnerAdd()">\ud83e\udd1d Onboard a business</button>'
+    +'<div id="myPartnersOut" style="margin-top:10px"></div>';
+}
+function openPartnerAdd(){
+  var opts=Object.keys(RW_COMM).map(function(k){
+    return '<option value="'+k+'">'+RW_COMM[k].label+' \u2014 '+RW_COMM[k].pct+'%</option>';
+  }).join('');
+  showModal('<div class="card" style="max-height:82vh;overflow:auto"><h3 style="margin:0 0 4px">\ud83e\udd1d Onboard a business</h3>'
+    +'<p class="note" style="margin-bottom:10px">Only the first three are required. Everything else can be filled in later.</p>'
+    +'<label class="lab">Business name *</label><input id="pa_name" class="inp" placeholder="e.g. Hygge Home Manali">'
+    +'<label class="lab">Type *</label><select id="pa_cat" class="inp">'+opts+'</select>'
+    +'<label class="lab">City / zone *</label><input id="pa_zone" class="inp" placeholder="e.g. Manali">'
+    +'<label class="lab">Area / locality</label><input id="pa_area" class="inp" placeholder="e.g. Khaknal">'
+    +'<label class="lab">Contact person</label><input id="pa_person" class="inp">'
+    +'<label class="lab">Phone</label><input id="pa_phone" class="inp" type="tel">'
+    +'<label class="lab">Email</label><input id="pa_email" class="inp" type="email">'
+    +'<label class="lab">Google rating (if known)</label><input id="pa_rating" class="inp" type="number" step="0.1" placeholder="4.8">'
+    +'<label class="lab">Number of reviews</label><input id="pa_reviews" class="inp" type="number" placeholder="92">'
+    +'<label class="lab">What makes them worth recommending?</label>'
+    +'<textarea id="pa_hook" class="inp" rows="2" placeholder="One honest line a traveller would care about"></textarea>'
+    +'<label class="lab">Status</label><select id="pa_ver" class="inp">'
+      +'<option value="listed">Researched \u2014 not signed yet</option>'
+      +'<option value="signed">MoU signed \u2014 verified partner</option></select>'
+    +'<div class="dk-note" style="margin:8px 0">Only mark <b>MoU signed</b> when you actually hold a signed document. The app shows a verified badge for those, and we do not imply a relationship that does not exist.</div>'
+    +'<div style="display:flex;gap:8px;margin-top:12px"><button class="btn go" style="flex:1;padding:11px" onclick="savePartner()">Add partner</button>'
+    +'<button class="btn" style="padding:11px" onclick="closeModal()">Cancel</button></div></div>');
+}
+function savePartner(){
+  var name=(el('pa_name').value||'').trim();
+  var zone=(el('pa_zone').value||'').trim();
+  if(!name||!zone){ alert('Business name and city are required.'); return; }
+  var cat=el('pa_cat').value;
+  var rec={
+    id:'p_'+name.toLowerCase().replace(/[^a-z0-9]/g,'').slice(0,18)+'_'+Date.now().toString(36).slice(-4),
+    name:name, cat:cat, zone:zone, area:(el('pa_area').value||'').trim(),
+    person:(el('pa_person').value||'').trim(), phone:(el('pa_phone').value||'').trim(),
+    email:(el('pa_email').value||'').trim(),
+    rating:parseFloat(el('pa_rating').value)||null,
+    reviews:parseInt(el('pa_reviews').value,10)||null,
+    hook:(el('pa_hook').value||'').trim(),
+    verified:el('pa_ver').value,
+    commissionPct:RW_COMM[cat].pct,
+    addedBy:(user&&user.uid)||'', addedByName:(user&&user.displayName)||'',
+    at:new Date().toISOString()
+  };
+  db.collection('config').doc('partners').get().then(function(d){
+    var list=(d.exists && Array.isArray((d.data()||{}).list)) ? d.data().list : [];
+    if(list.some(function(x){ return String(x.name||'').toLowerCase()===name.toLowerCase() && x.zone===zone; })){
+      alert(name+' is already listed in '+zone+'.'); return null;
+    }
+    list.push(rec);
+    return db.collection('config').doc('partners').set({ list:list, updatedAt:new Date().toISOString() },{merge:true});
+  }).then(function(r){ if(r!==null){ closeModal(); myPartnersLoad(); showToastS('\u2705 '+name+' added \u2014 live in the app now'); } })
+   .catch(function(e){ alert(e.message); });
+}
+function myPartnersLoad(){
+  var host=el('myPartnersOut'); if(!host||!user) return;
+  db.collection('config').doc('partners').get().then(function(d){
+    var list=(d.exists && Array.isArray((d.data()||{}).list)) ? d.data().list : [];
+    var mine=list.filter(function(p){ return p.addedBy===user.uid; });
+    if(!mine.length){ host.innerHTML='<div class="dk-note">You haven\u2019t added any partners yet.</div>'; return; }
+    var signed=mine.filter(function(p){ return p.verified==='signed'; }).length;
+    host.innerHTML='<div class="pn-sum"><b>'+mine.length+'</b> added \u00b7 <b style="color:#4ADE80">'+signed+'</b> signed</div>'
+      + mine.slice(-6).reverse().map(function(p){
+          return '<div class="pn-row"><span style="flex:1">'+esc(p.name)+' <span class="dk-note" style="margin:0">'+esc(p.zone)+'</span></span>'
+            +'<span class="pay-tag '+(p.verified==='signed'?'ok':'due')+'">'+(p.verified==='signed'?'signed':'listed')+'</span></div>';
+        }).join('');
+  }).catch(function(){});
+}
+
+</script>
+</div></body></html>
