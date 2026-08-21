@@ -1092,6 +1092,8 @@ function rwCloseSection(id){
 var RW_PAGES = {
   partners: { title:'Stay & do',      sub:'Boutique stays and local operators we\u2019ve actually researched', icon:'\ud83e\udd1d', build:function(){ return _pageWrap('partnersSection'); } },
   events:   { title:'Event radar',    sub:'Music, startup, sport and motoring \u2014 with a trip built around each', icon:'\ud83d\udcc5', build:function(){ return _pageWrap('eventsSection'); } },
+  listing:  { title:'Stay & do',      sub:'Every place, ranked by how much we can vouch for it', icon:'\ud83c\udfe1', build:function(){} },
+  experiences: { title:'Experiences', sub:'Certified \u00b7 curated \u00b7 actually tested', icon:'\u2728', build:function(){} },
   stays:    { title:'Book a stay',    sub:'Verified rooms \u00b7 you pay the property directly', icon:'\ud83c\udfe1', build:function(){} },
   booked:   { title:'Confirmed',      sub:'', icon:'\u2705', build:function(){} },
   booking:  { title:'Your trip',      sub:'Everything you\u2019re booking, in one request', icon:'\ud83e\uddf3', build:function(){} },
@@ -1150,6 +1152,8 @@ window.addEventListener('popstate', function(){
 function rwRouteTo(key){
   if(key==='partners' && typeof openPartners==='function') return openPartners();
   if(key==='events'   && typeof openEvents==='function')   return openEvents();
+  if(key==='listing'  && typeof openListing==='function')   return openListing();
+  if(key==='experiences' && typeof openExperiences==='function') return openExperiences();
   if(key==='stays'    && typeof openStays==='function')     return openStays();
   if(key==='booking'  && typeof openBooking==='function')   return openBooking();
   if(key==='green'    && typeof openGreen==='function')     return openGreen();
@@ -1164,11 +1168,49 @@ document.addEventListener('DOMContentLoaded', function(){
   }, 900);
 });
 
+/* rw-v86: ONE change instead of rewriting 20 open* functions.
+   Any section opened through here is MOVED into the page shell, so every
+   feature gets its own full screen, its own back button and its own URL —
+   without touching the function that built it. */
+var RW_SECTION_TITLES = {
+  moneySection:['\ud83d\udcb0','Split money','Who owes whom, to the paise'],
+  nearSection:['\ud83d\udccd','Near me','Food and things to do around you'],
+  beaconSection:['\ud83d\udce1','Beacon','Travellers nearby, safely'],
+  realmsSection:['\u2694\ufe0f','Realms of Roam','Claim territory by actually going there'],
+  arrivalSection:['\ud83d\ude82','Arrival mode','Land, then plan from where you are'],
+  greenSection:['\ud83c\udf3f','Green travel','Lower-impact ways to go'],
+  passportSection:['\ud83d\udec2','Journey passport','Your verified travel record'],
+  tribeSection:['\ud83d\udc65','Tribe travel','Find your kind of traveller'],
+  fitnessSection:['\ud83c\udfcb\ufe0f','Fitness stays','Stay in shape on the road'],
+  guideSection:['\ud83c\udfa7','Narrated guide','Listen as you walk'],
+  tatkalSection:['\ud83c\udfab','Tatkal prep','Ready before the clock starts'],
+  mapSection:['\ud83d\uddfa\ufe0f','Map explorer','See it before you go'],
+  tripMapSection:['\ud83d\uddfa\ufe0f','Trip map','Your itinerary on a map'],
+  badgesSection:['\ud83c\udfc5','Badges','What you\u2019ve earned'],
+  memoriesSection:['\ud83d\udcf7','Memories','Your trips, kept'],
+  journalSection:['\ud83d\udcd3','Journey journal','How the trip actually felt'],
+  agentSection:['\ud83e\udd16','Tusk agent','Watch it think'],
+  evalSection:['\ud83e\uddea','Agent evals','How reliable it really is'],
+  matchSection:['\u2728','Smart matching','Trips that fit you'],
+  certSection:['\ud83c\udf96\ufe0f','Journey certificate','Proof you were there']
+};
 function rwOpenSection(id){
   var s=el(id); if(!s) return;
   try{ if(s.dataset.rwcls) s.className=s.dataset.rwcls; }catch(e){}
   s.removeAttribute('hidden');
   s.style.display='';
+  /* move it into a page shell */
+  try{
+    var t=RW_SECTION_TITLES[id];
+    if(t && typeof rwPageOpen==='function'){
+      RW_PAGES[id]={ title:t[1], sub:t[2], icon:t[0], build:function(){} };
+      rwPageOpen(id, function(body){
+        s.classList.remove('v','v-home');
+        body.appendChild(s);
+        s.style.display='';
+      });
+    }
+  }catch(e){}
 }
 
 
@@ -1411,6 +1453,182 @@ function rwBookShare(){
   var m=window._lastOwnerMsg||'';
   if(!m){ showToast('Nothing to send'); return; }
   window.open('https://wa.me/?text='+encodeURIComponent(m),'_blank','noopener');
+}
+
+
+
+/* ============================================================================
+   THE LISTING (rw-v87) — fluid, Airbnb-class browsing
+   ============================================================================
+   What makes Airbnb's listing feel good is not decoration. It is:
+     · a big image area that holds its shape before anything loads
+     · one clear price, one clear rating, nothing else competing
+     · horizontal collection rails so browsing feels like scanning, not reading
+     · everything reacting instantly to touch
+   Built with CSS only — no image CDN, no library, no layout shift.
+   ========================================================================= */
+function rwBadge(id){
+  var b=(window.RW_BADGES||{})[id]; if(!b) return '';
+  return '<span class="bdg" style="--bc:'+b.color+'" title="'+esc2(b.means)+'">'
+    + b.icon+' '+esc2(b.short)+'</span>';
+}
+/* deterministic gradient per listing, so a card looks identical every load */
+function rwHue(str){
+  var h=0, s=String(str||'');
+  for(var i=0;i<s.length;i++) h=(h*31+s.charCodeAt(i))%360;
+  return h;
+}
+function rwCardArt(x){
+  var h=rwHue(x.id||x.name);
+  return '<div class="lst-art" style="--h1:'+h+';--h2:'+((h+38)%360)+'">'
+    +'<span class="lst-emoji">'+(x.cat==='adventure'?'\ud83e\udde1':x.tier==='green'?'\ud83c\udf3f':'\ud83c\udfe1')+'</span>'
+    +'<span class="lst-shine"></span></div>';
+}
+function openListing(){
+  rwPageOpen('listing', function(body){
+    var cols=(window.RW_COLLECTIONS||[]);
+    body.innerHTML='<div id="lstOut"></div>';
+    var out=el('lstOut');
+    /* collection rails */
+    out.innerHTML = cols.map(function(c){
+      var items=rwListingFor(c.badge);
+      if(!items.length) return '';
+      return '<div class="rail">'
+        +'<div class="rail-h"><b>'+esc2(c.title)+'</b><span>'+esc2(c.tagline)+'</span></div>'
+        +'<div class="rail-s">'+items.map(function(x){ return rwListCard(x,true); }).join('')+'</div>'
+        +'</div>';
+    }).join('')
+    + '<div class="rail-h" style="margin-top:26px"><b>Everything we know</b><span>All places, ranked by how much we can vouch for them.</span></div>'
+    + '<div class="lst-grid">'+rwListingAll().map(function(x){ return rwListCard(x,false); }).join('')+'</div>'
+    + '<div class="gr-foot">A badge is earned, never bought. Places pay us nothing to rank higher \u2014 that is why the ladder is worth reading.</div>';
+  });
+}
+function rwListingAll(){
+  var out=[];
+  (window.RW_PARTNERS||[]).forEach(function(p){ out.push(p); });
+  (window.RW_ROOMS||[]).forEach(function(r){
+    if(!out.some(function(o){ return o.name===r.property; }))
+      out.push({ id:r.id, name:r.property, zone:r.zone, area:r.area, cat:'stay',
+                 price:r.price, badges:['verified'] });
+  });
+  out.forEach(function(x){
+    if(!x.badges){
+      x.badges = x.verified==='signed' ? ['verified'] : ['listed'];
+      if((x.rating||0)>=4.8 && (x.reviews||0)>=200) x.badges.push('loved');
+    }
+  });
+  return out.sort(function(a,b){ return rwBadgeRank(b)-rwBadgeRank(a); });
+}
+function rwBadgeRank(x){
+  var order=['listed','verified','slept','loved','green','local','signature'];
+  return (x.badges||[]).reduce(function(m,b){ return Math.max(m, order.indexOf(b)); }, -1);
+}
+function rwListingFor(badge){
+  return rwListingAll().filter(function(x){ return (x.badges||[]).indexOf(badge)>-1; }).slice(0,8);
+}
+function rwListCard(x, rail){
+  var b=(x.badges||[])[ (x.badges||[]).length-1 ];
+  return '<div class="lst'+(rail?' rail-c':'')+'" onclick="rwListOpen(\''+esc2(x.id)+'\')">'
+    + rwCardArt(x)
+    +'<div class="lst-b">'
+    +'<div class="lst-r"><b>'+esc2(x.name)+'</b>'
+    + (x.rating? '<span class="lst-star">\u2605 '+x.rating.toFixed(1)+'</span>':'')
+    +'</div>'
+    +'<div class="lst-w">'+esc2((x.area||'')+(x.area?' \u00b7 ':'')+(x.zone||''))+'</div>'
+    +'<div class="lst-bd">'+(b?rwBadge(b):'')+'</div>'
+    + (x.price? '<div class="lst-p"><b>\u20b9'+Number(x.price).toLocaleString('en-IN')+'</b> night</div>':'')
+    +'</div></div>';
+}
+function rwListOpen(id){
+  var all=rwListingAll();
+  var x=all.filter(function(p){ return String(p.id)===String(id); })[0];
+  if(!x) return;
+  var B=window.RW_BADGES||{};
+  var ov=el('lstOv');
+  if(!ov){ ov=document.createElement('div'); ov.id='lstOv'; ov.className='overlay'; ov.style.zIndex='4300';
+    ov.onclick=function(e){ if(e.target===ov) rwOverlayClose('lstOv'); }; document.body.appendChild(ov); }
+  ov.innerHTML='<div class="sheet" style="max-width:440px">'
+    +'<div class="sheet-h"><b>'+esc2(x.name)+'</b><button class="tact" onclick="rwOverlayClose(\'lstOv\')">\u2715</button></div>'
+    + rwCardArt(x)
+    +'<div class="lst-w" style="margin:10px 0 6px">'+esc2((x.area||'')+' \u00b7 '+(x.zone||''))+'</div>'
+    + (x.hook? '<div class="xp-hook" style="margin-bottom:10px">'+esc2(x.hook)+'</div>':'')
+    +'<div class="lst-badges">'+(x.badges||[]).map(function(k){
+        var b=B[k]; if(!b) return '';
+        return '<div class="lst-bl"><span style="color:'+b.color+'">'+b.icon+'</span>'
+          +'<span><b>'+esc2(b.label)+'</b><i>'+esc2(b.means)+'</i></span></div>';
+      }).join('')+'</div>'
+    + (x.price? '<div class="bk-total" style="margin-top:12px"><span>From</span><b>\u20b9'+Number(x.price).toLocaleString('en-IN')+'</b></div>':'')
+    +'<button class="bk-go" style="margin-top:12px" onclick="rwOverlayClose(\'lstOv\');openStays(\''+esc2(x.zone||'')+'\')">See rooms &amp; book \u2192</button>'
+    +'</div>';
+  ov.classList.add('open');
+}
+
+/* ============================================================================
+   ROAMWISE EXPERIENCES (rw-v86) — certified, curated, tested
+   ============================================================================
+   The badge only means something if it is hard to earn. Nothing appears here
+   until someone from RoamWise has actually done the trip, and every card names
+   its own weak link. That honesty IS the premium.
+   ========================================================================= */
+function openExperiences(tier){
+  window._xTier = (tier!==undefined? tier : window._xTier) || '';
+  rwPageOpen('experiences', function(body){
+    var L=(window.RW_EXPERIENCES||[]);
+    var tiers={}; L.forEach(function(x){ tiers[x.tier]=1; });
+    body.innerHTML=
+       '<div class="xp-hero">'
+      +'<div class="xp-seal"><span>\u2713</span></div>'
+      +'<h2 class="xp-h">Experiences we have<br>actually been on.</h2>'
+      +'<p class="xp-sub">Not a list scraped from the internet. Every trip here has been walked, ridden and slept through by someone from RoamWise \u2014 and every one tells you where it falls short.</p>'
+      +'</div>'
+      +'<div class="xp-promise">'+(window.RW_EXP_PROMISE||[]).map(function(p){
+          return '<div class="xp-p"><span>\u25c6</span>'+esc2(p)+'</div>'; }).join('')+'</div>'
+      +'<div class="pt-chips" style="margin:18px 0 4px">'
+      +'<button class="ev-chip'+(!window._xTier?' on':'')+'" onclick="openExperiences(\'\')">All</button>'
+      + Object.keys(tiers).map(function(t){
+          var lbl = t==='green'? '\u26a1 Green' : t==='culture'? '\ud83c\udfad Culture' : t;
+          return '<button class="ev-chip'+(window._xTier===t?' on':'')+'" onclick="openExperiences(\''+t+'\')">'+lbl+'</button>';
+        }).join('')
+      +'</div><div id="xpOut"></div>';
+    rwExpRender();
+  });
+}
+function rwExpRender(){
+  var host=el('xpOut'); if(!host) return;
+  var L=(window.RW_EXPERIENCES||[]).filter(function(x){
+    return !window._xTier || x.tier===window._xTier; });
+  if(!L.length){ host.innerHTML='<div class="note" style="text-align:center;padding:22px;color:var(--t3)">Nothing here yet.</div>'; return; }
+  host.innerHTML=L.map(function(x,i){
+    var cert = x.status==='certified';
+    return '<div class="xp-card" style="animation-delay:'+(i*0.07)+'s">'
+      +'<div class="xp-glow"></div>'
+      +'<div class="xp-tag">'+esc2(x.tag||'')+'</div>'
+      +'<h3 class="xp-t">'+esc2(x.title)+'</h3>'
+      +'<div class="xp-meta">'+x.days+' days \u00b7 from \u20b9'+Number(x.from).toLocaleString('en-IN')+' \u00b7 '+esc2(x.zone)+'</div>'
+      +'<div class="xp-hook">'+esc2(x.hook)+'</div>'
+      +'<div class="xp-bundle">'+(x.bundle||[]).map(function(b){
+          return '<div class="xp-b"><span class="xp-bk">'+esc2(b.k)+'</span><span>'+esc2(b.v)+'</span></div>';
+        }).join('')+'</div>'
+      +'<div class="xp-honest"><b>Where it falls short:</b> '+esc2(x.honest||'')+'</div>'
+      +'<div class="xp-best">\ud83d\udcc5 '+esc2(x.best||'')+'</div>'
+      +'<div class="xp-foot">'
+      +'<span class="xp-status '+(cert?'ok':'')+'">'+(cert?'\u2713 Certified \u2014 we have done this':'\u25cb Scouting \u2014 not yet tested by us')+'</span>'
+      +'</div>'
+      +'<button class="xp-go" onclick="rwExpPlan(\''+x.id+'\')">\u2728 Plan this trip</button>'
+      +'</div>';
+  }).join('')
+  +'<div class="gr-foot">A trip stays marked <b>Scouting</b> until one of us has been. We would rather show you an honest shortlist than a certified-looking list we cannot stand behind.</div>';
+}
+function rwExpPlan(id){
+  var x=(window.RW_EXPERIENCES||[]).filter(function(e){ return e.id===id; })[0]; if(!x) return;
+  rwPageClose();
+  var inp=el('heroInput')||el('cpInput');
+  if(inp){
+    inp.value='Plan the RoamWise experience "'+x.title+'" \u2014 '+x.days+' days in '+x.zone+'. '
+      + (x.bundle||[]).map(function(b){ return b.k+': '+b.v; }).join('. ')
+      + '. Give honest travel times, a realistic budget from \u20b9'+x.from+', and tell me what could go wrong.';
+    try{ copilotSend(!!el('heroInput')); }catch(err){}
+  }
 }
 
 /* ============================================================================
