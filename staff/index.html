@@ -167,6 +167,20 @@ button,select,input,textarea{font:inherit}
 
 .pn-sum{font-size:12.5px;color:var(--t2);padding:8px 0;border-bottom:1px solid var(--b1)}
 .pn-row{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--t2);padding:7px 0;border-bottom:1px solid rgba(255,255,255,.04)}
+
+.ern-row{display:flex;gap:9px;margin-bottom:12px}
+.ern{flex:1;text-align:center;background:rgba(255,255,255,.03);border:1px solid var(--b2);border-radius:12px;padding:12px 6px}
+.ern-n{font-size:22px;font-weight:900;color:#EDEAE2;font-variant-numeric:tabular-nums}
+.ern-k{font-size:9.5px;letter-spacing:.07em;text-transform:uppercase;color:#7C7A74;margin-top:3px}
+.ern-mine{background:linear-gradient(150deg,rgba(232,186,108,.1),var(--bg2));border:1px solid rgba(232,186,108,.35);border-radius:14px;padding:14px}
+.ern-h{font-size:12.5px;color:var(--t2);margin-bottom:8px}
+.ern-big{font-size:31px;font-weight:900;color:#E8BA6C;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.ern-sub{font-size:12px;color:var(--t3);margin-top:2px}
+.ern-split{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.ern-tag{font-size:10.5px;font-weight:800;border-radius:20px;padding:3px 9px}
+.ern-tag.ok{background:rgba(74,222,128,.15);color:#4ADE80}
+.ern-tag.hold{background:rgba(240,166,59,.15);color:#F0A63B}
+.ern-tag.pend{background:var(--bg3);color:#7C7A74;border:1px solid var(--b2)}
 </style></head><body><div class="wrap">
 <header>
   <div><div class="brand">Roam<em>Wise</em> · team</div><div class="who" id="who">Not signed in</div></div>
@@ -1013,6 +1027,7 @@ function deskRender(){
     window._deskProgress = me.resourceProgress || {};
     window._deskPlanDone = me.planDone || {};
     try{ setTimeout(myPartnersLoad, 700); }catch(e){}
+    try{ setTimeout(function(){ deskEarnLoad(me); }, 800); }catch(e){}
     return db.collection('staff').doc(user.uid).collection('logs')
       .orderBy('date','desc').limit(30).get();
   }).then(function(qs){
@@ -1068,6 +1083,7 @@ function deskPaint(me, logs, sess, claims){
         : '<button class="btn go" style="width:100%;padding:13px;margin:12px 0" onclick="deskLog()">✍️ Log today\'s work</button>')
     + (sheet? '<a class="btn" style="display:block;text-align:center;text-decoration:none;margin-bottom:10px" href="'+esc(sheet)+'" target="_blank" rel="noopener">📊 Open my Google Sheet ↗</a>' : '')
     + deskPartnerHTML(me)
+    + deskEarnHTML()
     + deskRefHTML(me)
     + deskPlanHTML(me)
     + deskTargetsHTML(me, logs)
@@ -2417,6 +2433,61 @@ function myPartnersLoad(){
             +'<span class="pay-tag '+(p.verified==='signed'?'ok':'due')+'">'+(p.verified==='signed'?'signed':'listed')+'</span></div>';
         }).join('');
   }).catch(function(){});
+}
+
+
+/* ============================================================================
+   MY EARNINGS (rw-v86) — live, per person, fully traceable
+   ============================================================================
+   Every staff member sees the company numbers they're allowed to see AND their
+   own referral earnings, computed from the same approved claims the founder's
+   payout ledger uses. One source of truth, so the numbers can never disagree.
+   ========================================================================= */
+function deskEarnHTML(){
+  return '<div class="dk-lab">THE NUMBERS</div><div id="deskEarnOut"><div class="dk-note">Loading\u2026</div></div>';
+}
+function deskEarnLoad(me){
+  var host=el('deskEarnOut'); if(!host || typeof db==='undefined' || !db) return;
+  var myCode = (rwMyRef(me)||{}).code || '';
+  var myRate = (rwMyRef(me)||{}).rate || 0.30;
+  var reg=null, claims=null;
+  function paint(){
+    if(reg===null || claims===null) return;
+    var paid=claims.filter(function(c){ return c.status==='approved'; });
+    var mine=paid.filter(function(c){ return myCode && c.refCode===myCode && !c.refSelf; });
+    var pend=claims.filter(function(c){ return c.status==='pending' && myCode && c.refCode===myCode; });
+    var earned=mine.reduce(function(a,c){ return a+Math.round((+c.amount||0)*myRate); },0);
+    var HOLD=7*86400000, payable=0, held=0;
+    mine.forEach(function(c){
+      var v=Math.round((+c.amount||0)*myRate);
+      var ts=(c.created&&c.created.seconds)? c.created.seconds*1000 : 0;
+      if(ts && (Date.now()-ts)<HOLD) held+=v; else payable+=v;
+    });
+    var conv = reg>0 ? (paid.length/reg*100) : 0;
+    host.innerHTML=
+       '<div class="ern-row">'
+      +'<div class="ern"><div class="ern-n">'+reg.toLocaleString('en-IN')+'</div><div class="ern-k">registered users</div></div>'
+      +'<div class="ern"><div class="ern-n" style="color:#4ADE80">'+paid.length.toLocaleString('en-IN')+'</div><div class="ern-k">Pro users</div></div>'
+      +'<div class="ern"><div class="ern-n" style="color:#E8BA6C">'+conv.toFixed(conv<10?1:0)+'%</div><div class="ern-k">convert</div></div>'
+      +'</div>'
+      +'<div class="ern-mine">'
+      +'<div class="ern-h">\ud83d\udcb0 My referral earnings'+(myCode?' \u00b7 <span style="color:var(--gold);font-family:ui-monospace,monospace">'+esc(myCode)+'</span>':'')+'</div>'
+      + (!myCode
+         ? '<div class="dk-note">No referral code assigned to you yet \u2014 ask Mohit to add you.</div>'
+         : '<div class="ern-big">\u20b9'+earned.toLocaleString('en-IN')+'</div>'
+           +'<div class="ern-sub">'+mine.length+' sale'+(mine.length===1?'':'s')+' through your code \u00b7 '+Math.round(myRate*100)+'% each</div>'
+           +'<div class="ern-split">'
+           +'<span class="ern-tag ok">\u20b9'+payable.toLocaleString('en-IN')+' payable</span>'
+           +(held? '<span class="ern-tag hold">\u20b9'+held.toLocaleString('en-IN')+' on 7-day hold</span>':'')
+           +(pend.length? '<span class="ern-tag pend">'+pend.length+' awaiting approval</span>':'')
+           +'</div>'
+           +'<div class="dk-note" style="margin-top:9px">Counted only when Mohit approves the payment. A 7-day hold runs before anything becomes payable, so refunds settle first.</div>')
+      +'</div>';
+  }
+  db.collection('users').onSnapshot(function(qs){ reg=qs.size; paint(); }, function(){ reg=0; paint(); });
+  db.collection('claims').onSnapshot(function(qs){
+    var a=[]; qs.forEach(function(d){ a.push(d.data()||{}); }); claims=a; paint();
+  }, function(){ claims=[]; paint(); });
 }
 
 </script>
