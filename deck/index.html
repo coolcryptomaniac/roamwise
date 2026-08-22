@@ -442,5 +442,90 @@ h1 em.gold,h2 em.gold{position:relative}
   });
 })();
 </script>
+
+<!-- Firebase (silent visitor tracking — writes to deckleads if the visitor shared
+     contact info via the invest page; otherwise creates an anonymous session) -->
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<script>
+(function(){
+  /* ---- silent deckleads tracking ---- */
+  var _RWFB={apiKey:"AIzaSyDlrtpzpOb1VEmVSd9tHmu7OpmvwWosYsU",
+    authDomain:"roamwisepro.firebaseapp.com",projectId:"roamwisepro",
+    storageBucket:"roamwisepro.firebasestorage.app",
+    messagingSenderId:"299014744987",
+    appId:"1:299014744987:web:d5c316743e6d7a10904f3e"};
+  var db=null;
+  try{ firebase.initializeApp(_RWFB); db=firebase.firestore(); }catch(e){}
+
+  if(!db) return; /* no tracking if offline or firebase blocked */
+
+  /* Use sessionStorage to persist the doc ref across page events */
+  var KEY='rw_deck_lead_id';
+  var leadId = null;
+  try{ leadId=sessionStorage.getItem(KEY); }catch(e){}
+
+  var ref = leadId ? db.collection('deckleads').doc(leadId) : db.collection('deckleads').doc();
+  leadId = ref.id;
+  try{ sessionStorage.setItem(KEY, leadId); }catch(e){}
+
+  var openedAt = Date.now();
+  var maxScroll = 0;
+  var slideCount = document.querySelectorAll('.slide').length || 16;
+
+  /* Create or touch the doc on open */
+  ref.get().then(function(d){
+    if(!d.exists){
+      /* New anonymous visitor — create with minimal data (rules require name+contact) */
+      ref.set({
+        name:'(anonymous deck visitor)',
+        contact:'—',
+        source: document.referrer || 'direct',
+        userAgent: (navigator.userAgent||'').slice(0,80),
+        openedAt: new Date().toISOString(),
+        slides: slideCount
+      }).catch(function(){});
+    }
+  }).catch(function(){});
+
+  /* Track scroll depth through the deck */
+  var deck = document.getElementById('deck');
+  if(deck){
+    deck.addEventListener('scroll', function(){
+      var pct = Math.min(100, Math.round(
+        deck.scrollTop / (deck.scrollHeight - deck.clientHeight) * 100
+      ));
+      if(pct > maxScroll){
+        maxScroll = pct;
+        ref.update({ scrollPct: maxScroll }).catch(function(){});
+      }
+    }, { passive:true });
+  }
+
+  /* Track slide number via nav dots */
+  var observer = new MutationObserver(function(){
+    var active = document.querySelector('.nav a.on');
+    if(active){
+      var links = [].slice.call(document.querySelectorAll('.nav a'));
+      var slideNum = links.indexOf(active) + 1;
+      if(slideNum > 0) ref.update({ lastSlide: slideNum }).catch(function(){});
+    }
+  });
+  var nav = document.getElementById('nav');
+  if(nav) observer.observe(nav, { attributes:true, subtree:true });
+
+  /* Time spent — update on visibility change and unload */
+  function flush(){
+    var secs = Math.round((Date.now()-openedAt)/1000);
+    ref.update({ timeSeconds: secs, updatedAt: new Date().toISOString() }).catch(function(){});
+  }
+  document.addEventListener('visibilitychange', function(){
+    if(document.hidden) flush();
+    else openedAt = Date.now(); /* resume timing */
+  });
+  window.addEventListener('pagehide', flush);
+})();
+</script>
+
 </body>
 </html>
