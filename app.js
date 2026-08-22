@@ -12933,32 +12933,60 @@ function tripChatOpen(roomId, roomName){
     if(_chatUnsub) _chatUnsub();
     _chatUnsub = ref.collection('msgs').orderBy('at','asc').limitToLast(200).onSnapshot(function(qs){
       var log=el('chatLog'); if(!log) return;
-      /* Capture the whole stream so the Kitty, Decision Board and pinned plan
-         can be computed live from it. These features ARE the message history
-         replayed — no separate schema, works offline once loaded. */
+      /* ====================================================================
+         INCREMENTAL RENDER (rw-v97) — this is why the chat used to flicker
+         ====================================================================
+         The old loop did `log.innerHTML = allMessages.map(...)` on EVERY
+         snapshot. Because each bubble has an entrance animation, every
+         message re-animated every time anyone typed — and asking Tusk wrote
+         two messages, so the whole thread flashed twice.
+
+         Now: we diff. New messages are appended (and only they animate).
+         Changed ones (a reaction, a poll vote) are patched in place. Nothing
+         else is touched. This is what makes a chat feel like a chat.
+      ==================================================================== */
       _chatMsgs = qs.docs.map(function(doc){ var m=doc.data()||{}; m._id=doc.id; return m; });
-      var wasNearBottom = (log.scrollHeight - log.scrollTop - log.clientHeight) < 120;
-      log.innerHTML = _chatMsgs.filter(function(m){ return !rwIsBlocked(m.uid); }).map(function(m){
-        return chatBubble(m._id, m, m.uid===user.uid);
-      }).join('');
-      try{ chatRenderPins(); }catch(e){}   /* pinned Kitty / decisions / plan up top */
-      try{
-        var tb=el('tcTools');
-        if(!tb && log.parentNode){
-          tb=document.createElement('div'); tb.id='tcTools'; tb.className='tc-tools';
-          tb.innerHTML='<button class="tc-t" onclick="openChatPoll()">\ud83d\uddf3\ufe0f Ask the group</button>'
-            +'<button class="tc-t" onclick="openChatGames()">\ud83c\udfae Play</button>'
-            +'<button class="tc-t" onclick="openMoneyLayer()">\ud83d\udcb0 Split</button>'
-            +'<button class="tc-t" onclick="rwChatTuskHint()">\ud83d\udc18 Ask Tusk</button>';
-          log.parentNode.insertBefore(tb, log);
+      var wasNearBottom = (log.scrollHeight - log.scrollTop - log.clientHeight) < 140;
+      var visible = _chatMsgs.filter(function(m){ return !rwIsBlocked(m.uid); });
+
+      _chatSeen = _chatSeen || {};
+      var live = {};
+      visible.forEach(function(m){
+        live[m._id] = 1;
+        var sig = rwMsgSignature(m);
+        var node = document.getElementById('msg_'+m._id);
+        if(!node){
+          /* genuinely new — append and let it animate in, alone */
+          var wrap = document.createElement('div');
+          wrap.id = 'msg_'+m._id;
+          wrap.className = 'tc-msg';
+          wrap.innerHTML = chatBubble(m._id, m, m.uid===user.uid);
+          log.appendChild(wrap);
+          _chatSeen[m._id] = sig;
+        } else if(_chatSeen[m._id] !== sig){
+          /* same message, changed content — patch WITHOUT re-animating */
+          node.classList.add('tc-noanim');
+          node.innerHTML = chatBubble(m._id, m, m.uid===user.uid);
+          _chatSeen[m._id] = sig;
         }
-      }catch(e){}
+      });
+      /* remove anything deleted or newly blocked */
+      Object.keys(_chatSeen).forEach(function(id){
+        if(!live[id]){
+          var n=document.getElementById('msg_'+id);
+          if(n) n.remove();
+          delete _chatSeen[id];
+        }
+      });
+
+      try{ chatRenderPins(); }catch(e){}
+      try{ rwChatToolbar(log); }catch(e){}
       try{
         var vb=el('tcVibe');
         if(!vb && log.parentNode){ vb=document.createElement('div'); vb.id='tcVibe'; log.parentNode.insertBefore(vb, log); }
         if(vb) vb.innerHTML=chatVibeHTML();
       }catch(e){}
-      if(wasNearBottom) log.scrollTop=log.scrollHeight;
+      if(wasNearBottom) log.scrollTop = log.scrollHeight;
     }, function(err){
       /* This is the path the user actually hits when rules are stale, so it
          must say what to DO, not just what failed. */
@@ -14091,20 +14119,72 @@ function rwPollHTML(id, m){
 function rwChatAskTusk(q){
   var question=String(q||'').replace(/^@tusk\s*/i,'').trim();
   if(!question) return;
-  try{
-    chatPost('text', null, '\ud83d\udc18 Tusk is thinking\u2026');
-  }catch(e){}
-  var ctx='You are answering inside a group trip chat. Be brief \u2014 two or three sentences. '
-    +'Use the app\u2019s tools for anything factual. Question: '+question;
+  if(window._tuskBusy){ showToast('Tusk is still working on the last one'); return; }
+  window._tuskBusy = true;
+
+  /* THINKING IS LOCAL, NOT A MESSAGE (rw-v97).
+     Writing "thinking..." to Firestore caused a second full sync and a second
+     flash. It is now a local bubble that never touches the database. */
+  var log=el('chatLog');
+  var ghost=null;
+  if(log){
+    ghost=document.createElement('div');
+    ghost.className='tc-msg tc-ghost';
+    ghost.innerHTML='<div class="tc-row"><div class="tc-av tusk">\ud83d\udc18</div>'
+      +'<div class="tc-bub tusk-think"><b>Ailon Tusk</b>'
+      +'<span class="tk-dots"><i></i><i></i><i></i></span></div></div>';
+    log.appendChild(ghost);
+    log.scrollTop=log.scrollHeight;
+  }
+  function clearGhost(){ if(ghost && ghost.parentNode) ghost.remove(); window._tuskBusy=false; }
+
+  /* GIVE HIM THE ROOM'S CONTEXT so he stops guessing (rw-v97).
+     He was hallucinating because he was answering a bare question with no
+     idea where the group is going, who is in the chat, or what was just said. */
+  var recent=(_chatMsgs||[]).slice(-8).filter(function(m){
+    return m.kind==='text' && m.uid!=='tusk' && m.text;
+  }).map(function(m){ return (m.name||'Someone')+': '+String(m.text).slice(0,140); }).join('\n');
+
+  var dest='';
+  try{ dest=(el('destInput')&&el('destInput').value)||(_cpCtx&&_cpCtx.dest)||''; }catch(e){}
+  var people=0;
+  try{ var seen={}; (_chatMsgs||[]).forEach(function(m){ if(m.uid&&m.uid!=='tusk') seen[m.uid]=1; }); people=Object.keys(seen).length; }catch(e){}
+
+  var ctx='You are answering inside a group trip chat, so the whole group reads your reply.\n'
+    + (dest? 'The group is planning a trip to: '+dest+'.\n' : '')
+    + (people? 'There are '+people+' people in this chat.\n' : '')
+    + (recent? '\nRecent messages:\n'+recent+'\n' : '')
+    + '\nSomeone just asked: "'+question+'"\n\n'
+    + 'RULES: answer in two or three sentences, no headings, no bullet lists \u2014 this is a chat. '
+    + 'Use tools for anything factual: never state a travel time without estimate_travel_time, '
+    + 'never quote a price or a room without search_stays. '
+    + 'If you do not know or a tool returns nothing, say so in one line. Do not guess, and do not '
+    + 'invent places, prices, timings or availability. Being unhelpful is fine; being wrong in front '
+    + 'of a group planning a real trip is not.';
+
+  var done=false;
+  var timer=setTimeout(function(){
+    if(done) return;
+    done=true; clearGhost();
+    chatPost('text', null, '\ud83d\udc18 That one took too long \u2014 ask me again, or try a narrower question.');
+  }, 45000);
+
   try{
     rwAgentRun(ctx, function(){}, function(res){
-      var ans=(res && res.answer) || 'I could not work that one out.';
-      try{
-        chatPost('text', null, '\ud83d\udc18 '+ans);
-      }catch(e){}
+      if(done) return;
+      done=true; clearTimeout(timer);
+      var ans=(res && res.answer) ? String(res.answer).trim() : '';
+      /* strip markdown headings/bullets the model sometimes adds anyway */
+      ans=ans.replace(/^#+\s*/gm,'').replace(/^[\-\*]\s+/gm,'\u00b7 ').trim();
+      clearGhost();
+      chatPost('text', null, '\ud83d\udc18 '+(ans || 'I could not work that one out. Try asking it a different way.'));
     });
-  }catch(e){}
+  }catch(e){
+    done=true; clearTimeout(timer); clearGhost();
+    chatPost('text', null, '\ud83d\udc18 Something went wrong on my side. Try again in a moment.');
+  }
 }
+
 
 /* ============================================================================
    TRIPCHAT — Gen-Z / Gen-Alpha layer (rw-v79)
@@ -14183,6 +14263,34 @@ function chatStreak(){
   return n;
 }
 /* the header strip: streak + who's here + group vibe */
+
+/* A cheap fingerprint of everything that can change inside one message.
+   If this is unchanged we do not touch the DOM node at all. */
+var _chatSeen = {};
+function rwMsgSignature(m){
+  var r=m.reactions||{}, keys=Object.keys(r).sort();
+  var rx=keys.map(function(k){ return k+':'+((r[k]||[]).length); }).join(',');
+  var votes='';
+  if(m.kind==='poll' && m.payload && m.payload.votes){
+    var v=m.payload.votes;
+    votes=Object.keys(v).sort().map(function(u){ return u.slice(0,6)+v[u]; }).join(',');
+  }
+  return (m.text||'').length+'|'+(m.kind||'')+'|'+rx+'|'+votes+'|'+(m.edited||'');
+}
+/* One toolbar, created once, never rebuilt. */
+function rwChatToolbar(log){
+  if(el('tcTools') || !log || !log.parentNode) return;
+  var tb=document.createElement('div');
+  tb.id='tcTools'; tb.className='tc-tools';
+  tb.innerHTML =
+     '<button class="tc-t" onclick="rwChatTuskHint()"><span>\ud83d\udc18</span>Ask Tusk</button>'
+    +'<button class="tc-t" onclick="openChatPoll()"><span>\ud83d\uddf3\ufe0f</span>Decide</button>'
+    +'<button class="tc-t" onclick="openMoneyLayer()"><span>\ud83d\udcb0</span>Split</button>'
+    +'<button class="tc-t" onclick="openChatGames()"><span>\ud83c\udfae</span>Play</button>'
+    +'<button class="tc-t" onclick="openStays()"><span>\ud83c\udfe1</span>Book</button>';
+  log.parentNode.insertBefore(tb, log);
+}
+
 function chatVibeHTML(){
   var st=chatStreak();
   var msgs=_chatMsgs||[];
