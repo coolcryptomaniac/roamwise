@@ -680,7 +680,22 @@ function countUp(id,to,suffix,pre){
     if(p<1) requestAnimationFrame(step); }
   requestAnimationFrame(step);
 }
-setTimeout(function(){ countUp('s1',20); countUp('s2',4); countUp('s3',20,'%'); el('s4').textContent='₹0'; }, 350);
+/* hero stats read the same live doc the dashboard does (rw-v105) */
+function heroStats(){
+  function paint(u,p,r){
+    countUp('s1',u); countUp('s2',p);
+    countUp('s3', u>0? Math.round(p/u*100):0, '%');
+    var n=el('s4'); if(n) n.textContent='\u20b90';
+  }
+  try{
+    if(!window.db) return paint(20,4,400);
+    db.collection('meta').doc('publicStats').onSnapshot(function(d){
+      var v=d.exists?(d.data()||{}):{};
+      paint(v.users!=null?v.users:20, v.paid!=null?v.paid:4, v.revenue||400);
+    }, function(){ paint(20,4,400); });
+  }catch(e){ paint(20,4,400); }
+}
+setTimeout(heroStats, 350);
 
 /* ---- reveal on scroll ---- */
 var io=new IntersectionObserver(function(es){ es.forEach(function(e){ if(e.isIntersecting) e.target.classList.add('in'); }); },{threshold:.12});
@@ -902,7 +917,22 @@ function submitInterest(){
     scrollTo({top:el('doneBox').offsetTop-40,behavior:'smooth'});
     loadBoard();
   };
-  if(db){ db.collection('investors').add(rec).then(finish).catch(finish); } else finish();
+  /* FIXED (rw-v105): this was .then(finish).catch(finish) — it showed
+     "Thank you" even when the write FAILED, so failed submissions looked
+     successful and never reached the pipeline. Now a failure says so. */
+  if(!db){ e.textContent='Not connected. Check your internet and try again.'; return; }
+  var btn=document.activeElement;
+  try{ if(btn && btn.tagName==='BUTTON'){ btn.disabled=true; btn.textContent='Recording\u2026'; } }catch(x){}
+  db.collection('investors').add(rec).then(function(){
+    finish();
+  }).catch(function(err){
+    try{ if(btn && btn.tagName==='BUTTON'){ btn.disabled=false; btn.textContent='Record my commitment'; } }catch(x){}
+    var msg=(err && err.code==='permission-denied')
+      ? 'Could not save \u2014 the database is refusing new commitments. Mohit needs to publish the investor rules. Please tell him, or email founder@roamwise.co.in and we will record it by hand.'
+      : 'Could not save: '+((err&&err.message)||'unknown error')+'. Please try again, or email founder@roamwise.co.in.';
+    e.textContent=msg;
+    e.style.color='var(--alert)';
+  });
 }
 
 /* ---- the satellite ---- */
