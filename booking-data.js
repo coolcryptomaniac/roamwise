@@ -82,3 +82,48 @@ window.RW_GREEN_PILLARS = [
     items:['Guided walks, birding, forest bathing','River and mountain activity with licensed operators','Farm work, foraging and craft with local families','No captive-animal attractions, ever'],
     honest:'We refuse elephant rides and captive-animal shows outright. That is a rule, not a preference.' }
 ];
+
+/* ============================================================================
+   LISTING FEES (rw-v91)
+   ============================================================================
+   A one-time fee that pays for the VERIFICATION WORK — the visit, the price
+   audit, the photos. It buys a listing and a badge. It never buys a ranking
+   position, and the partner page says so.
+
+   WAIVED for places we actively want: genuinely solar-powered stays,
+   family-run homes, and anything we would put in an Experience. Waiving the
+   fee for the best properties is not charity — it is how the directory stays
+   worth reading. The ones who most deserve to be here are usually the least
+   able to pay ₹10,000 up front.
+   ========================================================================= */
+window.RW_LISTING_FEES = [
+  { id:'homestay', label:'Family homestay / small guesthouse', fee:500,
+    rooms:'up to 4 rooms',
+    gets:['Verification call + price check','Listed with a Verified Real badge','Partner portal access'] },
+  { id:'boutique', label:'Boutique stay / villa', fee:2500,
+    rooms:'5-12 rooms',
+    gets:['On-ground or video verification','Photo set','Verified Real badge','Partner portal access'] },
+  { id:'hotel', label:'Hotel / resort', fee:5000,
+    rooms:'13+ rooms',
+    gets:['Full on-ground verification','Photo set','Priority in booking requests','Partner portal access'] },
+  { id:'operator', label:'Adventure operator / agency', fee:5000,
+    rooms:'licence checked',
+    gets:['Licence and safety-equipment check','Verified Real badge','Listed under experiences'] },
+  { id:'chain', label:'Chain / multi-property group', fee:10000,
+    rooms:'per property, 3+ properties',
+    gets:['Verification per property','Account manager','Quarterly re-verification','Priority placement in booking requests'] }
+];
+
+/* Who pays nothing, and why. */
+window.RW_FEE_WAIVERS = [
+  { id:'solar', label:'Runs on Sunshine', test:'Solar powered with evidence we have seen \u2014 a bill or the panels',
+    why:'We want every genuinely solar property in India on this list.' },
+  { id:'family', label:'Family run', test:'Owned and run by the family who lives there',
+    why:'The places that most deserve to be found are usually the least able to pay to be found.' },
+  { id:'experience', label:'Part of a RoamWise Experience', test:'We have used you in a curated trip',
+    why:'If we are sending travellers to you, charging you to be listed is backwards.' },
+  { id:'remote', label:'Somewhere underserved', test:'A district with fewer than five listings',
+    why:'Coverage where nobody else goes is worth more to us than the fee.' },
+  { id:'first50', label:'Founding partner', test:'One of our first 50 partners',
+    why:'You took a chance on a platform with no traffic. That is worth more than \u20b95,000.' }
+];

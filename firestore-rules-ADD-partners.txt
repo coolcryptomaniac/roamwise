@@ -1,0 +1,82 @@
+// RoamWise - PARTNER PORTAL rules. MERGE into your existing firestore.rules.
+// Pure ASCII only. Uses your existing isAdmin() helper.
+//
+// THE WHOLE POINT OF THIS FILE: a partner must be able to edit THEIR OWN
+// listing and see THEIR OWN bookings, and must be unable to touch anyone
+// else's. That is enforced here, at the database. The portal UI hiding a
+// button is not security - anyone can open devtools.
+
+// ---------------------------------------------------------------------------
+// PARTNERS - one doc per property, keyed by the owner's auth uid.
+// ---------------------------------------------------------------------------
+function isPartner(uid) {
+  return request.auth != null && request.auth.uid == uid;
+}
+
+match /partners/{uid} {
+  // A partner reads only their own record. Admin reads all.
+  allow read: if isPartner(uid) || isAdmin();
+
+  // First sign-in creates a PENDING record. They cannot approve themselves,
+  // cannot set their own commission, and cannot mark themselves verified.
+  allow create: if isPartner(uid)
+                && request.resource.data.status == 'pending'
+                && !('commissionPct' in request.resource.data)
+                && !('verified' in request.resource.data)
+                && !('badges' in request.resource.data);
+
+  // A partner may edit their own content ONLY. Everything commercial or
+  // trust-related is admin-only, so a partner can never award themselves a
+  // badge or cut their own commission.
+  allow update: if isAdmin()
+                || (isPartner(uid)
+                    && !request.resource.data.diff(resource.data).affectedKeys()
+                         .hasAny(['status','verified','badges','commissionPct',
+                                  'payoutHold','adminNote','uid']));
+
+  allow delete: if isAdmin();
+}
+
+// ---------------------------------------------------------------------------
+// ROOMS - a partner manages their own rooms as a subcollection.
+// Keeping rooms UNDER the partner doc is what makes the ownership rule simple
+// and impossible to get wrong.
+// ---------------------------------------------------------------------------
+match /partners/{uid}/rooms/{roomId} {
+  allow read: if true;                       // rooms are public - travellers browse them
+  allow create, update, delete: if isPartner(uid) || isAdmin();
+}
+
+// ---------------------------------------------------------------------------
+// BOOKINGS - a partner sees bookings FOR THEIR PROPERTY and may confirm or
+// decline them. They may never change the amount or the commission, because
+// those decide what they owe us.
+// ---------------------------------------------------------------------------
+match /roomBookings/{ref} {
+  allow read: if isAdmin()
+              || (request.auth != null && resource.data.partnerUid == request.auth.uid)
+              || (request.auth != null && resource.data.guestUid == request.auth.uid);
+
+  allow create: if request.auth != null
+                && request.resource.data.status in ['requested','paid-unverified','confirmed-pay-later'];
+
+  // Partner may ONLY move status and add a note. Never amount, never commission.
+  allow update: if isAdmin()
+                || (request.auth != null
+                    && resource.data.partnerUid == request.auth.uid
+                    && request.resource.data.diff(resource.data).affectedKeys()
+                         .hasOnly(['status','partnerNote','confirmedAt']));
+
+  allow delete: if isAdmin();
+}
+
+// ---------------------------------------------------------------------------
+// LEDGER - the finance record. Append-only for everyone, editable by nobody.
+// An entry can be created and then never changed or deleted, which is what
+// makes it worth anything to an auditor.
+// ---------------------------------------------------------------------------
+match /ledger/{entryId} {
+  allow read: if isAdmin();
+  allow create: if isAdmin();
+  allow update, delete: if false;    // IMMUTABLE. Corrections are new entries.
+}
