@@ -12929,7 +12929,7 @@ function tripChatOpen(roomId, roomName){
   var ref=db.collection('tripchats').doc(roomId);
   ref.get().then(function(d){
     if(!d.exists) return ref.set({name:roomName||'Trip', members:[user.uid], owner:user.uid, created:firebase.firestore.FieldValue.serverTimestamp()});
-    try{ window._chatMembers = (d.data().members||[]); }catch(e){}
+    try{ window._chatMembers=(d.data().members||[]); window._chatOwner=(d.data().owner||''); }catch(e){}
     if((d.data().members||[]).indexOf(user.uid)===-1)
       return ref.update({members:firebase.firestore.FieldValue.arrayUnion(user.uid)});
   }).then(function(){
@@ -12937,10 +12937,11 @@ function tripChatOpen(roomId, roomName){
     try{
       if(window._chatMemUnsub) window._chatMemUnsub();
       window._chatMemUnsub = ref.onSnapshot(function(rd){
-        try{ window._chatMembers=(rd.data()||{}).members||[]; }catch(e){}
+        try{ var rr=rd.data()||{}; window._chatMembers=rr.members||[]; window._chatOwner=rr.owner||''; }catch(e){}
         try{ var vb=el('tcVibe'); if(vb) vb.innerHTML=chatVibeHTML(); }catch(e){}
       });
     }catch(e){}
+    try{ rwPresenceStart(); }catch(e){}
     if(_chatUnsub) _chatUnsub();
     _chatUnsub = ref.collection('msgs').orderBy('at','asc').limitToLast(200).onSnapshot(function(qs){
       var log=el('chatLog'); if(!log) return;
@@ -12994,7 +12995,7 @@ function tripChatOpen(roomId, roomName){
       try{
         var vb=el('tcVibe');
         if(!vb && log.parentNode){ vb=document.createElement('div'); vb.id='tcVibe'; log.parentNode.insertBefore(vb, log); }
-        if(vb) vb.innerHTML=chatVibeHTML();
+        if(vb) vb.innerHTML=chatVibeHTML()+rwPhaseHTML();
       }catch(e){}
       if(wasNearBottom) log.scrollTop = log.scrollHeight;
     }, function(err){
@@ -14238,33 +14239,190 @@ function rwMsgSignature(m){
 }
 
 
+
+/* ============================================================================
+   PRESENCE + MEMBERS (rw-v99)
+   ============================================================================
+   WHY THE COUNT SAID 3 WITH NOBODY ELSE THERE: members[] grows by arrayUnion
+   every time a NEW auth uid opens the room. Anonymous sign-in mints a fresh
+   uid whenever storage is cleared, so testing across a few devices or browsers
+   leaves real-but-empty ghost accounts in the list. The number was honest; the
+   accounts were the founder's own.
+
+   FIX: presence is now SEPARATE from membership.
+     MEMBERS = who has the room (room doc)
+     ONLINE  = who pinged in the last 90 seconds (presence subcollection)
+     GHOSTS  = a member who never posted and is not online; the owner can
+               clear them in one tap.
+   And everyone now has a NAME, not just a count.
+   ========================================================================= */
+var RW_PRESENCE_MS = 90*1000;
+var _presUnsub=null, _presTimer=null, _presence={};
+
+function rwPresenceStart(){
+  if(!_chatRoom || !user || !window.db) return;
+  var col=db.collection('tripchats').doc(_chatRoom).collection('presence');
+  var ref=col.doc(user.uid);
+  function beat(){
+    try{ ref.set({ name:(user.displayName||user.email||'Traveller').split('@')[0], at:Date.now() },{merge:true}); }catch(e){}
+  }
+  beat();
+  if(_presTimer) clearInterval(_presTimer);
+  _presTimer=setInterval(function(){ if(!document.hidden) beat(); }, 45000);
+  document.addEventListener('visibilitychange', function(){ if(!document.hidden) beat(); });
+  if(_presUnsub){ try{ _presUnsub(); }catch(e){} }
+  _presUnsub = col.onSnapshot(function(qs){
+    _presence={};
+    qs.forEach(function(d){ _presence[d.id]=d.data()||{}; });
+    try{ var vb=el('tcVibe'); if(vb) vb.innerHTML=chatVibeHTML(); }catch(e){}
+    try{ if(el('memList')) rwMembersRender(); }catch(e){}
+  }, function(){});
+}
+function rwIsOnline(uid){
+  var p=_presence[uid];
+  return !!(p && p.at && (Date.now()-p.at) < RW_PRESENCE_MS);
+}
+function rwMemberName(uid){
+  if(_presence[uid] && _presence[uid].name) return _presence[uid].name;
+  var hits=(_chatMsgs||[]).filter(function(x){ return x.uid===uid && x.name; });
+  if(hits.length) return hits[hits.length-1].name;
+  if(user && uid===user.uid) return 'You';
+  return 'Traveller '+String(uid).slice(0,4);
+}
+function rwMembers(){
+  var list=(window._chatMembers||[]).filter(function(u){ return u && u!=='tusk'; });
+  if(user && list.indexOf(user.uid)===-1) list.push(user.uid);
+  return list;
+}
+function openChatMembers(){
+  var ov=el('memOv');
+  if(!ov){ ov=document.createElement('div'); ov.id='memOv'; ov.className='overlay'; ov.style.zIndex='4500';
+    ov.onclick=function(e){ if(e.target===ov) rwOverlayClose('memOv'); }; document.body.appendChild(ov); }
+  ov.innerHTML='<div class="sheet" style="max-width:420px">'
+    +'<div class="sheet-h"><b>\ud83d\udc65 Who\u2019s in this trip</b>'
+    +'<button class="tact" onclick="rwOverlayClose(\'memOv\')">\u2715</button></div>'
+    +'<div id="memList"></div>'
+    +'<button class="bk-go" style="margin-top:12px" onclick="rwOverlayClose(\'memOv\');chatInvite()">\ud83d\udd17 Invite someone</button>'
+    +'</div>';
+  ov.classList.add('open');
+  rwMembersRender();
+}
+function rwMembersRender(){
+  var host=el('memList'); if(!host) return;
+  var owner=window._chatOwner||'';
+  var iAmOwner = !!(user && owner===user.uid);
+  var rows=rwMembers().map(function(uid){
+    var on=rwIsOnline(uid);
+    var posted=(_chatMsgs||[]).some(function(m){ return m.uid===uid; });
+    return { uid:uid, on:on, name:rwMemberName(uid),
+             ghost: (!posted && !on && uid!==(user&&user.uid)) };
+  }).sort(function(a,b){ return (b.on?1:0)-(a.on?1:0); });
+
+  host.innerHTML = rows.map(function(r){
+    return '<div class="mem-row">'
+      +'<span class="mem-av'+(r.on?' on':'')+'">'+esc2(r.name.charAt(0).toUpperCase())+'</span>'
+      +'<span style="flex:1;min-width:0"><b>'+esc2(r.name)+(r.uid===(user&&user.uid)?' (you)':'')+'</b>'
+      +'<div class="mem-sub">'+(r.on? '<i class="tc-live"></i>online now'
+          : r.ghost? 'never posted \u2014 likely an old test sign-in' : 'offline')+'</div></span>'
+      + (iAmOwner && r.ghost ? '<button class="tact" style="font-size:11px;padding:5px 9px" onclick="rwMemberRemove(\''+r.uid+'\')">Remove</button>':'')
+      +'</div>';
+  }).join('')
+  +'<div class="dk-note" style="margin-top:9px;font-size:11.5px;color:var(--t3)">'
+  + rows.filter(function(r){return r.on;}).length+' online \u00b7 '+rows.length+' member'+(rows.length===1?'':'s')
+  + (iAmOwner && rows.some(function(r){return r.ghost;})
+     ? '<br>Entries marked \u201cnever posted\u201d are usually old sign-ins from testing. Safe to remove.':'')
+  +'</div>';
+}
+function rwMemberRemove(uid){
+  if(!_chatRoom || !user) return;
+  if(!confirm('Remove this member? They can rejoin with the invite link.')) return;
+  db.collection('tripchats').doc(_chatRoom)
+    .update({ members: firebase.firestore.FieldValue.arrayRemove(uid) })
+    .then(function(){
+      db.collection('tripchats').doc(_chatRoom).collection('presence').doc(uid).delete().catch(function(){});
+      rwMembersRender();
+    }).catch(function(e){ showToast((e&&e.message)||'Could not remove'); });
+}
+
+
+/* ============================================================================
+   TRIP LIFECYCLE (rw-v99) — a trip is not one moment, it is five
+   ============================================================================
+   Group chats die between "shall we go somewhere?" and "we're going". They die
+   again after the trip, when the money is still unsettled. So the room knows
+   which phase it is in and surfaces the ONE thing that matters right now.
+
+   Phases are inferred from what the group has actually done, never asked for.
+   ========================================================================= */
+var RW_TRIP_PHASES = [
+  { id:'idea',    icon:'\ud83d\udca1', label:'Just an idea',
+    need:'Nobody has picked a place yet.',
+    cta:{ t:'Ask the group where', fn:'chatNewPoll()' } },
+  { id:'dates',   icon:'\ud83d\udcc5', label:'Finding dates',
+    need:'You have a place. Now the hard part: when.',
+    cta:{ t:'When can everyone go?', fn:'chatWhenAsk()' } },
+  { id:'booking', icon:'\ud83c\udfe1', label:'Booking it',
+    need:'Dates are set. Lock the beds before prices move.',
+    cta:{ t:'Find a stay', fn:'openStays()' } },
+  { id:'onTrip',  icon:'\ud83c\udf92', label:'On the trip',
+    need:'Log what people pay as it happens \u2014 nobody remembers on day four.',
+    cta:{ t:'Add an expense', fn:'chatAddExpense()' } },
+  { id:'settle',  icon:'\ud83e\uddfe', label:'Settling up',
+    need:'The trip is done. Clear the money while everyone still cares.',
+    cta:{ t:'Settle the kitty', fn:'openMoneyLayer()' } }
+];
+function rwTripPhase(){
+  var msgs=_chatMsgs||[];
+  var has=function(k){ return msgs.some(function(m){ return m.kind===k; }); };
+  var expenses=msgs.filter(function(m){ return m.kind==='expense'; }).length;
+  var settled =msgs.filter(function(m){ return m.kind==='settle'; }).length;
+  var booked  =msgs.some(function(m){ return m.kind==='booking' || /booking|confirmed|\bref\b/i.test(m.text||''); });
+  var dated   =msgs.some(function(m){ return m.kind==='dates' || m.kind==='when'; });
+  var place   =msgs.some(function(m){ return m.kind==='dest' || m.kind==='plan'; });
+
+  if(expenses>0 && settled>0) return RW_TRIP_PHASES[4];
+  if(expenses>0)              return RW_TRIP_PHASES[3];
+  if(booked)                  return RW_TRIP_PHASES[3];
+  if(dated)                   return RW_TRIP_PHASES[2];
+  if(place || has('poll'))    return RW_TRIP_PHASES[1];
+  return RW_TRIP_PHASES[0];
+}
+function rwPhaseHTML(){
+  var p=rwTripPhase();
+  var idx=RW_TRIP_PHASES.indexOf(p);
+  return '<div class="ph-wrap">'
+    +'<div class="ph-dots">'
+    + RW_TRIP_PHASES.map(function(x,i){
+        return '<span class="ph-d'+(i<idx?' done':i===idx?' now':'')+'" title="'+esc2(x.label)+'"></span>';
+      }).join('')
+    +'</div>'
+    +'<div class="ph-body"><b>'+p.icon+' '+esc2(p.label)+'</b>'
+    +'<span>'+esc2(p.need)+'</span></div>'
+    +'<button class="ph-cta" onclick="'+p.cta.fn+'">'+esc2(p.cta.t)+'</button>'
+    +'</div>';
+}
+
 function chatVibeHTML(){
   var st=chatStreak();
   var msgs=_chatMsgs||[];
   /* FIXED (rw-v98): this counted anyone who had EVER posted — including Tusk
      and game prompts — so a solo chat claimed "3 in here". Now it uses the
      room's actual member list, and counts humans only. */
-  var n=0, live=0;
+  var n=0, live=0, names=[];
   try{
-    var mem=(window._chatMembers||[]).filter(function(u){ return u && u!=='tusk'; });
+    var mem=rwMembers();
     n=mem.length;
-    var cut=Date.now()-5*60*1000;
-    var seen={};
-    msgs.forEach(function(m){
-      if(!m.uid || m.uid==='tusk') return;
-      var t=(m.at&&m.at.seconds)? m.at.seconds*1000 : 0;
-      if(t>cut) seen[m.uid]=1;
-    });
-    live=Object.keys(seen).length;
+    mem.forEach(function(u){ if(rwIsOnline(u)){ live++; names.push(rwMemberName(u)); } });
   }catch(e){}
   if(!n) n=1;
   var vibe = st>=7 ? 'locked in \ud83d\udd25' : st>=3 ? 'warming up \u2728' : n>2 ? 'the squad is here \ud83d\udc65' : 'just getting started \ud83c\udf31';
   return '<div class="tc-vibe">'
     +(st>1? '<span class="tc-streak">\ud83d\udd25 '+st+'-day streak</span>':'')
     +'<span class="tc-vibe-t">'+vibe+'</span>'
-    +'<span class="tc-count">'
-    + (live? '<i class="tc-live"></i>'+live+' online · ':'')
-    + n+' member'+(n===1?'':'s')+'</span>'
+    +'<span class="tc-count" onclick="openChatMembers()" style="cursor:pointer">'
+    + (live? '<i class="tc-live"></i>'+esc2(names.slice(0,2).join(', '))
+             +(names.length>2? ' +'+(names.length-2):'')+' \u00b7 ':'')
+    + n+' member'+(n===1?'':'s')+' \u203a</span>'
     +'</div>';
 }
 
