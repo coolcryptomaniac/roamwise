@@ -138,6 +138,54 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--gold);bo
 #sat{cursor:default;user-select:none;transition:color .3s}
 #sat:hover{color:var(--vio)}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.reveal{opacity:1;transform:none}}
+
+/* ===== LIVE DASHBOARD / FOUNDING 100 / INCORPORATION (rw-v100) ===== */
+.lvdot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--pine);
+  margin-right:2px;animation:lvd 1.8s ease-in-out infinite}
+@keyframes lvd{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(74,222,128,.6)}50%{opacity:.5;box-shadow:0 0 0 7px rgba(74,222,128,0)}}
+.iv-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-top:18px}
+.iv-c{background:var(--ink2);border:1px solid var(--line);border-radius:15px;padding:17px 13px;text-align:center}
+.iv-c b{display:block;font-size:clamp(24px,5vw,32px);font-weight:900;letter-spacing:-.03em;
+  color:var(--snow);font-variant-numeric:tabular-nums;line-height:1}
+.iv-c span{display:block;font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--mist);margin-top:7px}
+.iv-perk{display:flex;gap:13px;padding:15px;border:1px solid var(--line);border-radius:15px;margin-bottom:10px;
+  background:var(--ink2);transition:border-color .2s,transform .2s}
+.iv-perk:hover{border-color:rgba(232,186,108,.45);transform:translateY(-2px)}
+.iv-pi{font-size:23px;flex:0 0 auto;line-height:1}
+.iv-perk b{display:block;font-size:15px;color:var(--snow);margin-bottom:4px}
+.iv-perk i{display:block;font-style:normal;font-size:13px;color:var(--mist);line-height:1.6}
+.iv-perk u{display:block;text-decoration:none;font-size:11.5px;color:var(--gold);margin-top:6px;opacity:.85}
+.iv-no{padding:13px 15px;border-left:3px solid var(--alert);margin-bottom:10px;background:rgba(224,120,91,.05)}
+.iv-no b{display:block;font-size:14px;color:var(--alert);margin-bottom:3px}
+.iv-no span{font-size:12.5px;color:var(--mist);line-height:1.6}
+.iv-combo{border:1px solid var(--line);border-radius:15px;padding:16px;margin-bottom:11px;cursor:pointer;
+  background:var(--ink2);transition:border-color .2s,transform .18s}
+.iv-combo:hover{border-color:var(--gold);transform:translateY(-2px)}
+.iv-combo.mine{border-color:var(--gold);background:linear-gradient(150deg,rgba(232,186,108,.1),var(--ink2))}
+.iv-cb-top{display:flex;justify-content:space-between;gap:10px;align-items:baseline;margin-bottom:6px;flex-wrap:wrap}
+.iv-cb-top b{font-size:16px;color:var(--snow)}
+.iv-cost{font-size:12px;color:var(--gold);font-weight:700;white-space:nowrap}
+.iv-cb-w{font-size:13px;color:var(--mist);line-height:1.6;margin-bottom:4px}
+.iv-cb-f{font-size:12.5px;color:var(--snow);opacity:.8;line-height:1.55;margin-bottom:10px}
+.iv-bar{position:relative;height:8px;border-radius:8px;background:rgba(255,255,255,.07);overflow:visible}
+.iv-bar i{display:block;height:100%;width:0;border-radius:8px;background:linear-gradient(90deg,var(--gold2),var(--gold));
+  transition:width .9s cubic-bezier(.22,1,.36,1)}
+.iv-bar b{position:absolute;right:0;top:-20px;font-size:11.5px;color:var(--gold);font-weight:800}
+.iv-opt{border:1px solid var(--line);border-radius:15px;padding:17px;margin-bottom:12px;background:var(--ink2)}
+.iv-o-top{display:flex;justify-content:space-between;gap:10px;align-items:baseline;margin-bottom:11px;flex-wrap:wrap}
+.iv-o-top b{font-size:17px;color:var(--snow)}
+.iv-o-top span{font-size:11.5px;color:var(--mist)}
+.iv-o-cost{display:flex;gap:16px;flex-wrap:wrap;padding:11px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);margin-bottom:11px}
+.iv-o-cost span{font-size:11px;color:var(--mist)}
+.iv-o-cost b{display:block;font-size:14px;color:var(--gold);margin-top:2px;font-weight:800}
+.iv-o-ul{margin:0 0 11px 17px;padding:0}
+.iv-o-ul li{font-size:12.5px;color:var(--mist);line-height:1.65;margin-bottom:2px}
+.iv-o-s,.iv-o-w{font-size:12.5px;line-height:1.6;margin-bottom:7px;color:var(--mist)}
+.iv-o-s b{color:var(--pine);margin-right:5px}
+.iv-o-w b{color:var(--warn,#F0A63B);margin-right:5px}
+.iv-o-b{font-size:12.5px;color:var(--snow);padding:10px;border-radius:11px;
+  background:rgba(232,186,108,.07);border:1px solid rgba(232,186,108,.25);line-height:1.55}
+@media(prefers-reduced-motion:reduce){.lvdot{animation:none}.iv-bar i{transition:none}}
 </style>
 </head>
 <body>
@@ -158,6 +206,57 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--gold);bo
   </div>
   <div class="scrollcue">scroll</div>
 </div>
+
+
+<!-- ============ LIVE DASHBOARD ============ -->
+<section><div class="wrap reveal">
+  <div class="eyebrow"><span class="lvdot"></span> Live, not a snapshot</div>
+  <h2 class="serif">The numbers, right now.</h2>
+  <p class="lead">Every other deck shows you a moment someone chose. This updates as it happens — the same counters the founder sees. If a month is bad, you see it the day it happens.</p>
+  <div id="ivLive" class="iv-grid"></div>
+  <p class="note" id="ivStamp" style="margin-top:10px"></p>
+</div></section>
+
+<!-- ============ FOUNDING 100 ============ -->
+<section><div class="wrap reveal">
+  <div class="eyebrow">The first hundred</div>
+  <h2 class="serif">What a Founding Investor gets.</h2>
+  <p class="lead">Chosen against one test: does it cost us almost nothing, and would you genuinely value it? Anything failing either half is not on this list.</p>
+  <div class="seats" id="ivSeats" style="margin:16px 0"></div>
+  <div id="ivPerks"></div>
+  <h2 class="serif" style="font-size:20px;margin-top:32px">And what we will not offer</h2>
+  <div id="ivNot"></div>
+</div></section>
+
+<!-- ============ INCORPORATION VOTE ============ -->
+<section><div class="wrap reveal">
+  <div class="eyebrow">Decide with us</div>
+  <h2 class="serif">Where should RoamWise incorporate?</h2>
+  <p class="lead" id="ivIncNote"></p>
+  <div id="ivCombos"></div>
+
+  <div class="card gold" style="margin-top:22px">
+    <b>Our own analysis, shown so you can attack it</b>
+    <p class="note" style="margin-top:9px;line-height:1.9">
+      Most founders ask <em style="font-style:normal;color:var(--gold)">"which platform is best?"</em> That question has no
+      answer, because it leaves out the only thing that matters before revenue: what you don't yet know.<br><br>
+      The better question is <b>which option costs least per future it keeps open.</b> On that measure,
+      incorporating in India now and flipping to a Delaware parent only if a US fund actually issues a term
+      sheet costs <b>₹15,000 per future kept open</b> — against ₹1,10,200 for Stripe Atlas today.<br><br>
+      <b>Then we attacked our own answer.</b> Flipping later genuinely costs about ₹8 lakh in lawyer, CA and
+      share-swap work. So carrying a Delaware entity from day one pays off only if the probability of a
+      US venture round exceeds <b>41%</b>. Our honest estimate for RoamWise over three years is around
+      <b>5%</b> — travel-tech funding is at a decade low, and we have 4 paying users.<br><br>
+      <span style="color:var(--gold)">The ₹3.3 lakh is spent with certainty, today, out of ₹400 of revenue. The ₹8 lakh is spent only
+      in the world where we already won — and in that world it is a rounding error on the round itself.</span><br><br>
+      <span style="color:var(--mist)">If you think our 5% is wrong, that is exactly the conversation we want to have. Vote above and tell us why.</span>
+    </p>
+  </div>
+
+  <h2 class="serif" style="font-size:20px;margin-top:34px">Every option, with real numbers</h2>
+  <p class="lead">Researched August 2026. Pricing in this category moves — verify before you rely on it.</p>
+  <div id="ivOpts"></div>
+</div></section>
 
 <!-- ============ THE PREDICTION ============ -->
 <section><div class="wrap reveal">
@@ -411,6 +510,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--gold);bo
 </div>
 
 <script src="investor-config.js"></script>
+<script src="incorp-data.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
 <script src="../rw-config.js"></script>
@@ -654,6 +754,116 @@ function submitInterest(){
     }
   });
 })();
+
+/* ---- live company numbers ---- */
+function ivLive(){
+  var host=el('ivLive'); if(!host) return;
+  function paint(v, stampTxt){
+    var conv = v.users>0 ? (v.paid/v.users*100) : 0;
+    host.innerHTML=
+       card(v.users, 'registered travellers', '')
+     + card(v.paid, 'paying users', '#4ADE80')
+     + card(conv.toFixed(conv<10?1:0)+'%', 'convert to paid', 'var(--gold)')
+     + card('\u20b9'+Number(v.revenue||0).toLocaleString('en-IN'), 'revenue to date', '')
+     + card('\u20b90', 'raised to date', 'var(--mist)')
+     + card(v.partners||0, 'partner properties', '');
+    var st=el('ivStamp');
+    if(st) st.textContent = stampTxt;
+  }
+  function card(n,l,c){
+    return '<div class="iv-c"><b'+(c?' style="color:'+c+'"':'')+'>'+n+'</b><span>'+l+'</span></div>';
+  }
+  try{
+    if(!window.db) throw 0;
+    db.collection('meta').doc('publicStats').onSnapshot(function(d){
+      if(!d.exists){ paint({users:20,paid:4,revenue:400,partners:25}, 'Last verified 22 August 2026.'); return; }
+      var v=d.data()||{};
+      paint({ users:v.users||0, paid:v.paid||0, revenue:v.revenue||0, partners:v.partners||25 },
+        'Updating live \u00b7 last change '+(v.updatedAt? new Date(v.updatedAt).toLocaleString('en-IN'):'\u2014'));
+    }, function(){ paint({users:20,paid:4,revenue:400,partners:25}, 'Last verified 22 August 2026.'); });
+  }catch(e){ paint({users:20,paid:4,revenue:400,partners:25}, 'Last verified 22 August 2026.'); }
+}
+
+/* ---- founding 100 ---- */
+function ivFounding(){
+  var seats=el('ivSeats');
+  if(seats){
+    var taken=0;
+    try{ taken=(window._ivTaken||0); }catch(e){}
+    var h='';
+    for(var i=0;i<20;i++) h+='<div class="seat'+(i<taken?' taken':'')+'">'+(i<taken?'\u2b50':(i+1))+'</div>';
+    seats.innerHTML=h+'<div class="note" style="width:100%;margin-top:8px">'+taken+' of 100 taken \u00b7 showing the first 20</div>';
+  }
+  var p=el('ivPerks');
+  if(p) p.innerHTML=(window.RW_FOUNDING_PERKS||[]).map(function(x){
+    return '<div class="iv-perk"><span class="iv-pi">'+x.icon+'</span>'
+      +'<span><b>'+esc(x.title)+'</b>'
+      +'<i>'+esc(x.what)+'</i>'
+      +'<u>'+esc(x.cost)+'</u></span></div>';
+  }).join('');
+  var n=el('ivNot');
+  if(n) n.innerHTML=(window.RW_NOT_OFFERED||[]).map(function(x){
+    return '<div class="iv-no"><b>\u2715 '+esc(x.no)+'</b><span>'+esc(x.why)+'</span></div>';
+  }).join('');
+}
+
+/* ---- incorporation vote ---- */
+function ivIncorp(){
+  var note=el('ivIncNote'); if(note) note.textContent=window.RW_INCORP_NOTE||'';
+  var cb=el('ivCombos');
+  if(cb) cb.innerHTML=(window.RW_INCORP_COMBOS||[]).map(function(c){
+    return '<div class="iv-combo" id="cb_'+c.id+'" onclick="ivVote(\''+c.id+'\')">'
+      +'<div class="iv-cb-top"><b>'+esc(c.label)+'</b><span class="iv-cost">'+esc(c.cost)+'</span></div>'
+      +'<div class="iv-cb-w">'+esc(c.what)+'</div>'
+      +'<div class="iv-cb-f">'+esc(c.fit)+'</div>'
+      +'<div class="iv-bar"><i id="bar_'+c.id+'"></i><b id="pct_'+c.id+'"></b></div>'
+      +'</div>';
+  }).join('');
+  var op=el('ivOpts');
+  if(op) op.innerHTML=(window.RW_INCORP_OPTIONS||[]).map(function(o){
+    return '<div class="iv-opt">'
+      +'<div class="iv-o-top"><b>'+o.flag+' '+esc(o.name)+'</b><span>'+esc(o.juris)+'</span></div>'
+      +'<div class="iv-o-cost"><span>Setup <b>'+esc(o.setup)+'</b></span>'
+      +'<span>Then <b>'+esc(o.year2)+'</b></span>'
+      +'<span>3 years <b>'+esc(o.y3)+'</b></span></div>'
+      +'<ul class="iv-o-ul">'+o.covers.map(function(c){ return '<li>'+esc(c)+'</li>'; }).join('')+'</ul>'
+      +'<div class="iv-o-s"><b>Strength</b> '+esc(o.strength)+'</div>'
+      +'<div class="iv-o-w"><b>Weakness</b> '+esc(o.weakness)+'</div>'
+      +'<div class="iv-o-b">Best if: '+esc(o.bestIf)+'</div>'
+      +'</div>';
+  }).join('');
+  ivVotesLoad();
+}
+function ivVote(id){
+  try{ localStorage.setItem('rw_inc_vote', id); }catch(e){}
+  try{
+    if(window.db) db.collection('meta').doc('incorpVotes')
+      .set({ ['v_'+id]: firebase.firestore.FieldValue.increment(1) }, {merge:true});
+  }catch(e){}
+  ivVotesLoad(id);
+}
+function ivVotesLoad(justVoted){
+  var mine=justVoted; try{ mine=mine||localStorage.getItem('rw_inc_vote'); }catch(e){}
+  function paint(counts){
+    var total=Object.keys(counts).reduce(function(a,k){ return a+(counts[k]||0); },0);
+    (window.RW_INCORP_COMBOS||[]).forEach(function(c){
+      var n=counts['v_'+c.id]||0;
+      var pct= total? Math.round(n/total*100):0;
+      var b=el('bar_'+c.id), t=el('pct_'+c.id), box=el('cb_'+c.id);
+      if(b) b.style.width=pct+'%';
+      if(t) t.textContent= total? pct+'%':'';
+      if(box) box.classList.toggle('mine', mine===c.id);
+    });
+  }
+  try{
+    if(!window.db) return paint({});
+    db.collection('meta').doc('incorpVotes').onSnapshot(function(d){
+      paint(d.exists?(d.data()||{}):{});
+    }, function(){ paint({}); });
+  }catch(e){ paint({}); }
+}
+setTimeout(function(){ try{ ivLive(); ivFounding(); ivIncorp(); }catch(e){} }, 400);
+
 </script>
 </body>
 </html>
