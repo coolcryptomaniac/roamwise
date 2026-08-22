@@ -1,0 +1,22 @@
+// RoamWise - PUBLIC STATS. MERGE into your existing firestore.rules.
+// Pure ASCII only.
+//
+// THE PROBLEM THIS SOLVES:
+// The staff scoreboard was showing 0 users and 0 paid. That was NOT a bug in
+// the page - it was the rules working correctly. /users is readable only by
+// the account owner or an admin, so when a staff member's browser asked for
+// the whole collection it was denied and returned an empty set.
+//
+// Staff SHOULD NOT be able to read traveller accounts. So instead of widening
+// that rule, we publish a single COUNTS document that holds nothing but
+// numbers. No emails, no names, no payment details - just totals.
+//
+// This is also much cheaper: one document read instead of streaming every
+// user record to every staff member's phone.
+
+match /meta/publicStats {
+  // Anyone signed in can read the numbers.
+  allow read: if request.auth != null;
+  // Only an admin writes them.
+  allow write: if isAdmin();
+}

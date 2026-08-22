@@ -21,6 +21,101 @@ function rwHaptic(kind){
 
 
 var DB = [
+/* ---------------------------------------------------------------------------
+   INDIA (rw-v94). The DB had FIFTEEN destinations and not one of them was in
+   India — so every carousel on an India-first product showed Bali and Kyoto.
+   These are the places our own users search for, with honest crowd curves
+   (Jan..Dec, higher = busier), real INR-equivalent daily costs, and the local
+   truth that makes us different from a generic planner.
+--------------------------------------------------------------------------- */
+{ id:'goa', name:'Goa', country:'India', region:'South Asia', lat:15.30, lon:74.12,
+  crowd:[82,74,58,44,36,22,20,24,30,52,78,95],
+  cost:{budget:1400,mid:3200,luxury:8500},
+  brk:{flights:0,stay:1400,food:700,act:600,misc:500},
+  visa:{type:'None',cost:'Domestic',days:0,note:'No permit needed'},
+  bestM:[11,12,1,2], interests:['beach','nightlife','food','heritage','photography'],
+  food:['Fish curry rice','Xacuti','Bebinca','Poi','Feni'],
+  gems:['Divar Island','Netravali bubble lake','Butterfly Beach','Chorao bird sanctuary'],
+  tags:['beach','nightlife','heritage'], cur:'INR', sym:'\u20b9', rate:1,
+  local:'North Goa is loud and social, South Goa is quiet \u2014 pick before you book. Scooter is the only sane transport; taxi rates are cartel-fixed and high.' },
+
+{ id:'manali', name:'Manali', country:'India', region:'South Asia', lat:32.24, lon:77.19,
+  crowd:[38,40,52,68,92,96,72,66,54,48,42,66],
+  cost:{budget:1200,mid:2800,luxury:7000},
+  brk:{flights:0,stay:1200,food:600,act:600,misc:400},
+  visa:{type:'None',cost:'Domestic',days:0,note:'Rohtang Pass needs a permit'},
+  bestM:[3,4,9,10], interests:['mountains','trekking','adventure','cafes','snow'],
+  food:['Siddu','Trout','Babru','Chha Gosht'],
+  gems:['Sethan village','Hamta valley','Chhika','Jana waterfall'],
+  tags:['mountain','adventure','budget'], cur:'INR', sym:'\u20b9', rate:1,
+  local:'May-June is packed and roads crawl. Old Manali is the traveller side; the town is for families. Rohtang needs a permit booked ahead.' },
+
+{ id:'rishikesh', name:'Rishikesh', country:'India', region:'South Asia', lat:30.09, lon:78.27,
+  crowd:[42,48,62,58,78,40,30,34,52,68,58,46],
+  cost:{budget:1000,mid:2500,luxury:6500},
+  brk:{flights:0,stay:1000,food:500,act:600,misc:400},
+  visa:{type:'None',cost:'Domestic',days:0,note:'No permit needed'},
+  bestM:[2,3,10,11], interests:['yoga','rafting','spiritual','trekking','wellness'],
+  food:['Aloo puri','Chotiwala thali','German Bakery cakes'],
+  gems:['Neer Garh waterfall','Kunjapuri sunrise','Patna waterfall','Beatles Ashram at dawn'],
+  tags:['spiritual','adventure','budget'], cur:'INR', sym:'\u20b9', rate:1,
+  local:'Dry city and vegetarian by law \u2014 no alcohol, no meat. Rafting shuts late June to mid September. Auto from the station should be \u20b9150, not \u20b9400.' },
+
+{ id:'spiti', name:'Spiti Valley', country:'India', region:'South Asia', lat:32.24, lon:78.02,
+  crowd:[5,5,8,14,42,66,72,68,52,34,10,5],
+  cost:{budget:1500,mid:3500,luxury:8000},
+  brk:{flights:0,stay:900,food:600,act:700,misc:1300},
+  visa:{type:'None',cost:'Domestic',days:0,note:'Foreign nationals need an Inner Line Permit'},
+  bestM:[6,7,8,9], interests:['mountains','monasteries','photography','stargazing','offbeat'],
+  food:['Thukpa','Momos','Butter tea','Chhang'],
+  gems:['Dhankar lake','Hikkim post office','Langza fossils','Pin valley'],
+  tags:['mountain','offbeat','adventure'], cur:'INR', sym:'\u20b9', rate:1,
+  local:'Roads run at ~22 km/h \u2014 Manali to Kaza is 9-11 hours, not the 5 maps claim. Enter via Kinnaur to acclimatise. Kunzum La is shut November to May.' },
+
+{ id:'kerala_backwaters', name:'Alleppey', country:'India', region:'South Asia', lat:9.49, lon:76.33,
+  crowd:[72,66,52,44,32,26,28,32,44,58,68,88],
+  cost:{budget:1300,mid:3000,luxury:9000},
+  brk:{flights:0,stay:1400,food:600,act:600,misc:400},
+  visa:{type:'None',cost:'Domestic',days:0,note:'No permit needed'},
+  bestM:[10,11,12,1,2], interests:['backwaters','food','nature','slow','photography'],
+  food:['Karimeen pollichathu','Appam with stew','Sadya','Puttu kadala'],
+  gems:['Canoe through the narrow canals','Kumarakom bird sanctuary','Marari beach','Toddy shops inland'],
+  tags:['nature','slow','food'], cur:'INR', sym:'\u20b9', rate:1,
+  local:'Houseboats are cheapest booked in Alleppey itself, not online. A canoe reaches the narrow canals a houseboat physically cannot. Kochi to Munnar is 4-5 hours, not 3.' },
+
+{ id:'jaipur', name:'Jaipur', country:'India', region:'South Asia', lat:26.91, lon:75.79,
+  crowd:[72,78,62,42,28,24,30,34,48,72,86,80],
+  cost:{budget:1100,mid:2600,luxury:8000},
+  brk:{flights:0,stay:1100,food:550,act:550,misc:400},
+  visa:{type:'None',cost:'Domestic',days:0,note:'No permit needed'},
+  bestM:[10,11,12,1,2], interests:['heritage','forts','shopping','food','photography'],
+  food:['Dal baati churma','Laal maas','Pyaaz kachori','Ghewar'],
+  gems:['Panna Meena ka Kund','Chand Baori (Abhaneri)','Nahargarh at sunset','Gaitor cenotaphs'],
+  tags:['heritage','culture','city'], cur:'INR', sym:'\u20b9', rate:1,
+  local:'April to June hits 45C \u2014 not sightseeing weather. Composite monument tickets save real money. Jaipur to Jaisalmer is 10+ hours; take the overnight train.' },
+
+{ id:'varanasi', name:'Varanasi', country:'India', region:'South Asia', lat:25.32, lon:82.97,
+  crowd:[64,60,52,40,32,30,34,38,46,62,78,72],
+  cost:{budget:900,mid:2200,luxury:6000},
+  brk:{flights:0,stay:900,food:450,act:450,misc:400},
+  visa:{type:'None',cost:'Domestic',days:0,note:'No permit needed'},
+  bestM:[10,11,12,1,2], interests:['spiritual','heritage','photography','food','culture'],
+  food:['Kachori sabzi','Malaiyo (winter only)','Banarasi paan','Tamatar chaat'],
+  gems:['Sunrise boat from Assi ghat','Sarnath','Ramnagar Fort','The back lanes at dawn'],
+  tags:['spiritual','heritage','budget'], cur:'INR', sym:'\u20b9', rate:1,
+  local:'Go at dawn \u2014 the ghats are a different place before 7am. Malaiyo only exists in winter mornings. Fixed boat rates are posted; ignore the first quote.' },
+
+{ id:'ziro', name:'Ziro Valley', country:'India', region:'South Asia', lat:27.63, lon:93.83,
+  crowd:[12,14,22,28,34,30,26,28,58,42,20,14],
+  cost:{budget:1200,mid:2800,luxury:6000},
+  brk:{flights:0,stay:1000,food:600,act:600,misc:600},
+  visa:{type:'None',cost:'Inner Line Permit needed',days:0,note:'ILP required for Arunachal Pradesh'},
+  bestM:[3,4,9,10], interests:['offbeat','culture','nature','trekking','music'],
+  food:['Bamboo shoot curry','Smoked pork','Apong rice beer','Pika pila'],
+  gems:['Talley Valley trek','Hong village','Pine groves at Hapoli','Rice-fish farming fields'],
+  tags:['offbeat','culture','nature'], cur:'INR', sym:'\u20b9', rate:1,
+  local:'You need an Inner Line Permit and the drive from Naharlagun is long and rough. This is a place that does not perform for tourists \u2014 which is the point.' },
+
   {id:"chiang_mai",name:"Chiang Mai",country:"Thailand",region:"Southeast Asia",lat:18.79,lon:98.99,
    crowd:[45,50,55,40,28,22,25,28,22,32,55,68],
    cost:{budget:550,mid:950,luxury:2200},brk:{flights:280,stay:160,food:90,act:70,misc:50},
@@ -400,6 +495,31 @@ function rwLocalNotifySchedule(what, mins){
    ========================================================================== */
 
 var RW_AGENT_TOOLS = [
+  { type:'function', function:{ name:'search_stays',
+    description:'Find bookable rooms with real prices in a city. Use whenever the traveller asks where to stay, what it costs, or wants to book.',
+    parameters:{ type:'object', properties:{ zone:{type:'string', description:'City, e.g. "Manali"'}, maxPrice:{type:'number'} }, required:['zone'] } } },
+  { type:'function', function:{ name:'find_partners',
+    description:'Find verified RoamWise partner stays and adventure operators in a place, ranked by how much we can vouch for them.',
+    parameters:{ type:'object', properties:{ zone:{type:'string'}, cat:{type:'string', enum:['stay','adventure']} }, required:['zone'] } } },
+  { type:'function', function:{ name:'open_booking',
+    description:'Open the booking screen for a specific room so the traveller can book it. Use after search_stays when they choose one.',
+    parameters:{ type:'object', properties:{ roomId:{type:'string'} }, required:['roomId'] } } },
+  { type:'function', function:{ name:'my_bookings',
+    description:'Look up the travellers own bookings and their status.',
+    parameters:{ type:'object', properties:{} } } },
+  { type:'function', function:{ name:'share_to_whatsapp',
+    description:'Share a booking, itinerary, split-up or any text to WhatsApp. Use whenever the traveller wants to send something to friends or to a property.',
+    parameters:{ type:'object', properties:{ text:{type:'string'}, kind:{type:'string', enum:['booking','plan','money','other']} }, required:['text'] } } },
+  { type:'function', function:{ name:'travel_compatibility',
+    description:'Explain or run the travel compatibility engine, which matches people on the six behaviours groups argue about rather than on age.',
+    parameters:{ type:'object', properties:{} } } },
+  { type:'function', function:{ name:'open_feature',
+    description:'Open any RoamWise screen by name. Use when the traveller asks for something the app already does.',
+    parameters:{ type:'object', properties:{ feature:{type:'string', enum:['stays','partners','experiences','green','booking','sos','events','compat','listing','money','nearme','beacon','arrival'] } }, required:['feature'] } } },
+  { type:'function', function:{ name:'emergency_help',
+    description:'Bring up the stranded-traveller page. Use immediately if someone says they are stuck, unsafe, missed the last bus, or in trouble.',
+    parameters:{ type:'object', properties:{} } } },
+
   { type:'function', function:{ name:'set_destination',
     description:'Set the active trip destination in the app.',
     parameters:{ type:'object', properties:{ place:{type:'string', description:'City or region, e.g. "Rishikesh"'} }, required:['place'] } } },
@@ -497,6 +617,14 @@ function rwAgentRun(objective, onTrace, onDone){
       +'CRITICAL: never state a travel duration without calling estimate_travel_time first \u2014 '
       +'Indian mountain roads are far slower than distance suggests. '
       +'If a tool returns ok:false, read the error and try a different approach rather than repeating it. '
+      +'YOU CAN RUN THE WHOLE PRODUCT, not just answer questions. Where to stay \u2192 search_stays and quote real prices. '
+      +'They pick one \u2192 open_booking. Local operators \u2192 find_partners, and be honest about which are verified '
+      +'versus merely researched. Anything they want to send to friends or a property \u2192 share_to_whatsapp. '
+      +'Who they travel well with \u2192 travel_compatibility. Any screen they ask for \u2192 open_feature rather than '
+      +'describing it. '
+      +'IF SOMEONE SAYS THEY ARE STUCK, UNSAFE, OR HAVE MISSED THE LAST TRANSPORT: call emergency_help FIRST, talk after. '
+      +'NEVER invent a price, a room, a partner or an availability. If a tool returns nothing, say so plainly \u2014 '
+      +'being useless is recoverable, being wrong about a booking is not. '
       +'When the objective is met, call finish with a short, warm answer for the traveller.'},
     {role:'user', content:objective}
   ];
@@ -538,6 +666,86 @@ function rwAgentRun(objective, onTrace, onDone){
   }
   tick();
 }
+
+/* ---- platform tools (rw-v94): Tusk can now run the whole product ---- */
+RW_AGENT_IMPL.search_stays = function(a){
+  var list=(window.RW_ROOMS||[]).filter(function(r){
+    return (!a.zone || String(r.zone).toLowerCase()===String(a.zone).toLowerCase())
+        && (!a.maxPrice || r.price<=a.maxPrice); });
+  if(!list.length) return { ok:true, found:0, note:'No listed rooms there yet. Offer to plan the trip anyway.' };
+  return { ok:true, found:list.length, rooms:list.slice(0,6).map(function(r){
+    return { id:r.id, property:r.property, room:r.room, price:r.price,
+             sleeps:r.maxGuests, includes:(r.inc||[]).join(', '), cancel:r.cancel }; }) };
+};
+RW_AGENT_IMPL.find_partners = function(a){
+  var list=(typeof rwPartnersFor==='function') ? rwPartnersFor(a.zone, a.cat) : [];
+  if(!list.length) return { ok:true, found:0, note:'No verified partners there yet \u2014 say so honestly.' };
+  return { ok:true, found:list.length, partners:list.slice(0,6).map(function(p){
+    return { name:p.name, area:p.area, rating:p.rating, reviews:p.reviews,
+             status:p.verified, why:p._why, hook:p.hook }; }) };
+};
+RW_AGENT_IMPL.open_booking = function(a){
+  try{ if(typeof openRoomBook==='function'){ openRoomBook(a.roomId); return { ok:true, opened:a.roomId }; } }catch(e){}
+  return { ok:false, error:'Could not open that room' };
+};
+RW_AGENT_IMPL.my_bookings = function(){
+  try{
+    var last=JSON.parse(lsGet('rw_last_booking')||'null');
+    if(!last) return { ok:true, count:0, note:'No bookings on this device yet.' };
+    return { ok:true, count:1, booking:{ ref:last.ref, property:last.property, room:last.room,
+      checkIn:last.checkIn, checkOut:last.checkOut, amount:last.amount, status:last.status } };
+  }catch(e){ return { ok:true, count:0 }; }
+};
+RW_AGENT_IMPL.share_to_whatsapp = function(a){
+  var t=String(a.text||''); if(!t) return { ok:false, error:'nothing to share' };
+  try{ rwWhatsShare(t); return { ok:true, shared:true, kind:a.kind||'other' }; }
+  catch(e){ return { ok:false, error:'could not open WhatsApp' }; }
+};
+RW_AGENT_IMPL.travel_compatibility = function(){
+  var mine=(typeof rwCompatMine==='function')? rwCompatMine():{};
+  var done=Object.keys(mine).length>0;
+  try{ if(typeof openCompat==='function') openCompat(); }catch(e){}
+  return { ok:true, profileSet:done,
+    axes:(window.RW_AXES||[]).map(function(x){ return x.label; }),
+    note: done ? 'Their profile is set; explain who they match with and why.'
+               : 'They have not set a travel style yet \u2014 the six-slider quiz is now open.' };
+};
+RW_AGENT_IMPL.open_feature = function(a){
+  var map={ stays:'openStays', partners:'openPartners', experiences:'openExperiences',
+    green:'openGreen', booking:'openBooking', sos:'openSOS', events:'openEvents',
+    compat:'openCompat', listing:'openListing', money:'openMoneyLayer',
+    nearme:'openNearMe', beacon:'openBeacon', arrival:'openArrival' };
+  var fn=map[a.feature];
+  try{ if(fn && typeof window[fn]==='function'){ window[fn](); return { ok:true, opened:a.feature }; } }catch(e){}
+  return { ok:false, error:'no such screen' };
+};
+RW_AGENT_IMPL.emergency_help = function(){
+  try{ if(typeof openSOS==='function'){ openSOS(); return { ok:true, opened:true,
+    note:'The offline help page is open. Emergency numbers are 112, 108, and 1363 for tourists.' }; } }catch(e){}
+  return { ok:true, note:'Emergency numbers in India: 112 all emergencies, 108 ambulance, 1363 tourist helpline.' };
+};
+
+/* one place for every WhatsApp share in the app */
+function rwWhatsShare(text){
+  var t=String(text||'');
+  try{
+    if(navigator.share){ navigator.share({ text:t }); return true; }
+  }catch(e){}
+  window.open('https://wa.me/?text='+encodeURIComponent(t), '_blank', 'noopener');
+  return true;
+}
+/* format a booking the way a property owner or a friend wants to read it */
+function rwBookingText(b){
+  if(!b) return '';
+  return '*RoamWise booking* \u2014 '+b.ref+'\n\n'
+    +'\ud83c\udfe1 '+b.property+'\n\ud83d\udecf\ufe0f '+b.room+'\n'
+    +'\ud83d\udcc5 '+b.checkIn+' \u2192 '+b.checkOut+' ('+b.nights+' night'+(b.nights>1?'s':'')+')\n'
+    +'\ud83d\udc65 '+b.guests+' guest'+(b.guests>1?'s':'')+'\n'
+    +'\ud83d\udcb0 \u20b9'+Number(b.amount||0).toLocaleString('en-IN')+' \u2014 '
+    +(b.payMode==='upi'?'paid by UPI':'paying at the property')+'\n\n'
+    +'Planned with RoamWise \u00b7 roamwise.co.in';
+}
+
 /* Tool-calling request. Only OpenAI-compatible providers support this, so we
    pick one that does and fall back to plain chat if none is configured. */
 function rwAgentCall(messages, cb){
@@ -1445,12 +1653,22 @@ function rwBookDone(rec){
       +'<div>The property has your details on WhatsApp already.</div>'
       +'<div>They confirm the room \u2014 usually within a few hours.</div>'
       +'<div>Save your reference: <b>'+esc2(rec.ref)+'</b></div></div>'
-      +'<button class="bk-go" onclick="rwBookShare()">\ud83d\udcac Send my booking to the property again</button>'
+      +'<button class="bk-go" onclick="rwBookShare()">\ud83d\udcac Send to the property again</button>'
+      +'<button class="tact" style="width:100%;margin-top:8px;padding:12px" onclick="rwShareMyBooking()">\ud83d\udce4 Share this booking with my group</button>'
       +'<button class="tact" style="width:100%;margin-top:8px;padding:12px" onclick="rwPageClose();tabGo(\'home\')">Done</button>'
       +'<div class="gr-foot">Keep this reference. If anything is wrong, message the property with it and they can find you instantly.</div>'
       +'</div>';
   });
 }
+
+function rwShareMyBooking(){
+  try{
+    var b=JSON.parse(lsGet('rw_last_booking')||'null');
+    if(!b){ showToast('No booking to share'); return; }
+    rwWhatsShare(rwBookingText(b));
+  }catch(e){ showToast('Could not share'); }
+}
+
 function rwBookShare(){
   var m=window._lastOwnerMsg||'';
   if(!m){ showToast('Nothing to send'); return; }
