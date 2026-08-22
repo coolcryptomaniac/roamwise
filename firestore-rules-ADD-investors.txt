@@ -1,0 +1,42 @@
+// RoamWise - INVESTOR PRIVACY. MERGE into your existing firestore.rules.
+// Pure ASCII only. Uses your existing isAdmin().
+//
+// THE PROBLEM THIS SOLVES:
+// The investor page was reading the whole 'investors' collection into the
+// browser to draw its live board. That would have put every investor's NAME,
+// EMAIL and PHONE NUMBER in front of any visitor who opened devtools. It also
+// silently failed, which is why the board looked empty.
+//
+// The fix is the same shape as the staff scoreboard: submissions are
+// WRITE-ONLY for the public, and a separate numbers-only document carries
+// what everyone is allowed to see.
+
+// ---------------------------------------------------------------------------
+// investors - anyone may SUBMIT. Only an admin may READ.
+// ---------------------------------------------------------------------------
+match /investors/{id} {
+  // Nobody but the founder ever reads these. Not even the person who wrote it,
+  // because we do not require sign-in to express interest.
+  allow read: if isAdmin();
+
+  // Anyone may record their interest, but the record must be honest:
+  // an amount, a class, and a status they cannot choose.
+  allow create: if request.resource.data.amount is number
+                && request.resource.data.amount > 0
+                && request.resource.data.status == 'interested'
+                && request.resource.data.name is string
+                && request.resource.data.email is string;
+
+  // Once submitted it cannot be altered by the submitter. The founder
+  // updates status as conversations progress.
+  allow update, delete: if isAdmin();
+}
+
+// ---------------------------------------------------------------------------
+// The public board. NUMBERS ONLY - no names, no emails, no phone numbers.
+// Written by the founder from the admin app.
+// ---------------------------------------------------------------------------
+match /meta/investorStats {
+  allow read: if true;
+  allow write: if isAdmin();
+}
