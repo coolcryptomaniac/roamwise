@@ -84,6 +84,38 @@ window.RW_INCORP_OPTIONS = [
     strength:'$200\u2013300 cheaper than any bundle, and you understand every piece because you did it.',
     weakness:'Requires knowing each step. A missed 83(b) deadline costs far more than the saving.',
     bestIf:'You have done this before, or you have more time than money.' }
+,
+{ id:'inkle', name:'Inkle', flag:'\ud83c\uddee\ud83c\uddf3\ud83c\uddfa\ud83c\uddf8', juris:'US entity, run from India',
+    setup:'from $99/mo', year2:'$99\u2013500/mo by stage',
+    y3:'~$3,500\u2013$18,000',
+    covers:['US bookkeeping and tax filing','Form 5472 and 1120 handled','Delaware franchise tax','India-US transfer pricing','Built for the India-Delaware flip'],
+    strength:'Built specifically for Indian founders running a US entity \u2014 the exact problem the flip creates. Handles the cross-border filings a normal CA will not touch.',
+    weakness:'Ongoing subscription, not a formation service. You still incorporate elsewhere first. Only worth it once you actually have both entities.',
+    bestIf:'You have already flipped, or are about to. Not a first purchase.' },
+
+  { id:'angellist', name:'AngelList Stack', flag:'\ud83c\uddfa\ud83c\uddf8', juris:'Delaware C-Corp',
+    setup:'Free formation', year2:'free tier, paid at scale',
+    y3:'$0\u2013$2,000',
+    covers:['Free Delaware incorporation','Cap table','SAFEs and rolling closes','Banking','Free for early-stage'],
+    strength:'Free is genuinely free at this stage, and the SAFE tooling is what US angels already expect to receive.',
+    weakness:'Deeply tied to the US angel ecosystem. Little use if your investors are Indian and writing CCPS cheques.',
+    bestIf:'Your cap table is going to be mostly US angels writing SAFEs.' },
+
+  { id:'razorpay_rize', name:'Razorpay Rize', flag:'\ud83c\uddee\ud83c\uddf3', juris:'India Pvt Ltd',
+    setup:'\u20b912,000\u201325,000', year2:'compliance packages',
+    y3:'\u20b960,000\u2013\u20b91,20,000',
+    covers:['MCA incorporation end to end','PAN, TAN, DIN, bank account','Compliance calendar','Integrated with Razorpay payments','India-first support'],
+    strength:'The cleanest Indian incorporation path. Built by a company that already understands Indian startup payments, and the support actually answers.',
+    weakness:'India only \u2014 no help if you later need a US parent. Slightly pricier than filing through a local CA directly.',
+    bestIf:'You want an Indian Pvt Ltd done properly without finding your own CA.' },
+
+  { id:'carta', name:'Carta', flag:'\ud83d\udcc8', juris:'Cap table, not formation',
+    setup:'~$2,400/yr at seed', year2:'scales with holders',
+    y3:'~$7,200+',
+    covers:['Cap table of record','409A valuations','Option grants and vesting','Investor reporting','What most VCs expect at Series A'],
+    strength:'The standard. At Series A an investor will ask which cap table you use, and this is the answer that ends the conversation.',
+    weakness:'Expensive before you have a cap table worth managing. A spreadsheet is genuinely fine for one founder and ten angels.',
+    bestIf:'You have raised a priced round. Before that it is a status purchase.' }
 ];
 
 /* The combinations investors actually argue about. */

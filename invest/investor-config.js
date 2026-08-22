@@ -4,6 +4,10 @@
 window.RW_INVEST = {
   bank: { name:'', account:'', ifsc:'', upi:'', holder:'' },
 
+  /* Set these from the admin panel. Left blank the section shows nothing.
+     This is a tip jar, NOT a security — no equity, no claim, no rights. */
+  crypto: { eth:'', btc:'', upi:'coolmohit@ybl' },
+
   classes: [
     { id:'community', label:'Community backer', icon:'🌱', min:10000, max:200000,
       route:'spv', blurb:'You use RoamWise and want a piece of it.' },

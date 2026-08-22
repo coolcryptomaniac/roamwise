@@ -186,6 +186,61 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--gold);bo
 .iv-o-b{font-size:12.5px;color:var(--snow);padding:10px;border-radius:11px;
   background:rgba(232,186,108,.07);border:1px solid rgba(232,186,108,.25);line-height:1.55}
 @media(prefers-reduced-motion:reduce){.lvdot{animation:none}.iv-bar i{transition:none}}
+
+/* ===== LANDSCAPE / RESILIENCE / DISTRIBUTION (rw-v101) ===== */
+.ct-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:18px}
+.ct{background:var(--ink2);border:1px solid var(--line);border-radius:15px;padding:18px 10px;text-align:center}
+.ct b{display:block;font-size:clamp(28px,7vw,42px);font-weight:900;letter-spacing:-.04em;color:var(--alert);line-height:1}
+.ct:last-child b{color:var(--gold)}
+.ct span{display:block;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--mist);margin-top:7px;line-height:1.4}
+.ct-q{border-left:3px solid var(--gold);padding:11px 0 11px 15px;margin-bottom:12px;
+  font-family:Georgia,serif;font-size:15px;color:var(--snow);line-height:1.65;font-style:italic}
+.ct-q span{display:block;font-family:inherit;font-style:normal;font-size:11.5px;color:var(--mist);margin-top:5px}
+.rv{border:1px solid var(--line);border-radius:15px;padding:16px;margin-bottom:11px;background:var(--ink2)}
+.rv-top{display:flex;justify-content:space-between;gap:10px;align-items:baseline;flex-wrap:wrap;margin-bottom:6px}
+.rv-top b{font-size:17px;color:var(--snow)}
+.rv-raise{font-size:11.5px;color:var(--gold);font-weight:700;white-space:nowrap}
+.rv-what{font-size:13.5px;color:var(--mist);line-height:1.6}
+.rv-meta{font-size:11px;color:var(--mist);opacity:.7;margin:5px 0 10px}
+.rv-e,.rv-g{font-size:12.5px;line-height:1.65;margin-bottom:7px;color:var(--mist)}
+.rv-e b{display:block;color:var(--pine);font-size:11px;letter-spacing:.06em;text-transform:uppercase;margin-bottom:2px}
+.rv-g b{display:block;color:var(--gold);font-size:11px;letter-spacing:.06em;text-transform:uppercase;margin-bottom:2px}
+.cl{border-left:3px solid var(--line);padding:11px 0 11px 15px;margin-bottom:13px}
+.cl-k{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--mist);font-weight:700}
+.cl-v{font-size:15px;color:var(--snow);margin:3px 0 3px}
+.cl-n{font-size:12.5px;color:var(--mist);line-height:1.6;opacity:.85}
+.rs{display:flex;gap:13px;padding:15px;border:1px solid var(--line);border-radius:15px;margin-bottom:10px;background:var(--ink2)}
+.rs-i{font-size:22px;flex:0 0 auto;line-height:1.2}
+.rs b{display:block;font-size:15px;color:var(--snow);margin-bottom:3px}
+.rs i{display:block;font-style:normal;font-size:13px;color:var(--gold);line-height:1.55;margin-bottom:5px}
+.rs u{display:block;text-decoration:none;font-size:12.5px;color:var(--mist);line-height:1.65}
+.ds{display:flex;gap:13px;align-items:flex-start;padding:15px;border:1px solid var(--line);
+  border-radius:15px;margin-bottom:10px;background:var(--ink2)}
+.ds.dead{opacity:.55;border-style:dashed}
+.ds-n{flex:0 0 26px;height:26px;border-radius:8px;display:flex;align-items:center;justify-content:center;
+  font-size:12px;font-weight:900;color:#0A0A0C;background:linear-gradient(135deg,var(--gold),var(--gold2))}
+.ds.dead .ds-n{background:var(--line);color:var(--mist)}
+.ds b{display:block;font-size:14.5px;color:var(--snow)}
+.ds i{display:block;font-style:normal;font-size:12.5px;color:var(--mist);line-height:1.55;margin:3px 0}
+.ds u{display:block;text-decoration:none;font-size:12px;color:var(--mist);opacity:.8;line-height:1.55}
+.ds em{display:block;font-style:normal;font-size:10.5px;color:var(--pine);margin-top:5px;font-weight:700}
+.ds.dead em{color:var(--alert)}
+.ds-c{flex:0 0 auto;text-align:right;font-size:16px;font-weight:900;color:var(--pine);white-space:nowrap}
+.ds-c.bad{color:var(--alert)}
+.ds-c small{display:block;font-size:9.5px;color:var(--mist);font-weight:600;margin-top:2px}
+.cy{display:flex;align-items:center;gap:13px;padding:14px;border:1px solid var(--line);
+  border-radius:14px;margin-bottom:9px;background:var(--ink2)}
+.cy-s{font-size:24px;color:var(--gold);flex:0 0 auto;font-weight:700}
+.cy b{display:block;font-size:14px;color:var(--snow)}
+.cy code{display:block;font-size:10.5px;color:var(--mist);word-break:break-all;margin-top:3px;font-family:ui-monospace,monospace}
+.cy-b{flex:0 0 auto;background:transparent;border:1px solid var(--line);color:var(--snow);
+  border-radius:20px;padding:8px 14px;font:inherit;font-size:12px;cursor:pointer}
+.cy-b:hover{border-color:var(--gold);color:var(--gold)}
+@media(max-width:520px){.ct-grid{grid-template-columns:1fr}.ds{flex-wrap:wrap}.ds-c{width:100%;text-align:left}}
+
+.cy.upi{border-color:rgba(232,186,108,.4);background:linear-gradient(150deg,rgba(232,186,108,.08),var(--ink2))}
+.cy-b.pay{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#0A0A0C;border-color:transparent;
+  font-weight:800;text-decoration:none;display:inline-flex;align-items:center}
 </style>
 </head>
 <body>
@@ -194,7 +249,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--gold);bo
 <div class="hero">
   <canvas id="stars"></canvas>
   <div class="wrap">
-    <div class="badge"><span class="dot"></span> Founding round · open now</div>
+    <div class="badge"><span class="dot"></span> Founding round · open now <span id="ivClock" style="opacity:.65;font-variant-numeric:tabular-nums;letter-spacing:.05em"></span></div>
     <h1 class="serif">We wrote down what would happen.<br>Then <em>it happened.</em></h1>
     <p class="sub">RoamWise is an <b>AI-native</b> travel company built in the Himalayas. What we sell is <b>group travel coordination and booking execution for India</b> — matching, deciding, splitting, settling and booking, in one place. Live product, real paying users, <b>₹0 raised</b>. This page is the whole pitch, the cap table, and the commitment form.</p>
     <div class="heroStats">
@@ -390,6 +445,59 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--gold);bo
   </div>
 </div></section>
 
+
+<!-- ============ THE CATEGORY TRUTH ============ -->
+<section><div class="wrap reveal">
+  <div class="eyebrow">The number nobody puts in a deck</div>
+  <h2 class="serif">800 companies are building an AI trip planner.</h2>
+  <div class="ct-grid">
+    <div class="ct"><b>800</b><span>active competitors</span></div>
+    <div class="ct"><b>48</b><span>have raised money</span></div>
+    <div class="ct"><b>10</b><span>have ever exited</span></div>
+  </div>
+  <p class="lead" style="margin-top:16px"><b>If our plan were "build a better planner", the base rate says we lose.</b> So that is not the plan. Here is what four independent reviewers said about this entire category, unprompted, while testing everyone:</p>
+  <div id="ivQuotes"></div>
+  <div class="card gold" style="margin-top:16px">
+    <p class="note" style="color:var(--snow);line-height:1.9;margin:0">
+      Every one of them found the same hole. <b>The group is the unsolved problem</b> — deciding together,
+      splitting money, syncing arrivals, honest drive times. Eight hundred companies competing on
+      itinerary quality, and the thing travellers actually struggle with is sitting untouched.<br><br>
+      <span style="color:var(--gold)">We are not the 801st planner. We are the layer underneath all of them.</span>
+    </p>
+  </div>
+</div></section>
+
+<!-- ============ THE FIELD ============ -->
+<section><div class="wrap reveal">
+  <div class="eyebrow">Who else is out there</div>
+  <h2 class="serif">The whole field, including the parts that flatter them.</h2>
+  <p class="lead">Public figures, researched August 2026. We show what each does better than us, because you will find it anyway.</p>
+  <div id="ivRivals"></div>
+</div></section>
+
+<!-- ============ FUNDING CLIMATE ============ -->
+<section><div class="wrap reveal">
+  <div class="eyebrow">The weather we are raising in</div>
+  <h2 class="serif">Travel-tech funding is at a decade low. We know.</h2>
+  <div id="ivClimate"></div>
+</div></section>
+
+<!-- ============ RESILIENCE ============ -->
+<section><div class="wrap reveal">
+  <div class="eyebrow">Built to survive</div>
+  <h2 class="serif">Why a downturn cannot kill this.</h2>
+  <p class="lead">Not a claim — a structure. Each of these is a decision already made.</p>
+  <div id="ivResil"></div>
+</div></section>
+
+<!-- ============ DISTRIBUTION ============ -->
+<section><div class="wrap reveal">
+  <div class="eyebrow">How we reach travellers</div>
+  <h2 class="serif">Every channel, priced honestly.</h2>
+  <p class="lead">At a ₹100 price point, any channel costing more than ₹100 to acquire a user is underwater. That single constraint decides our entire go-to-market — and it is why we have <b>not</b> started paid ads.</p>
+  <div id="ivDist"></div>
+</div></section>
+
 <!-- ============ COMPETITORS ============ -->
 <section><div class="wrap reveal">
   <div class="eyebrow">Who else is doing this</div>
@@ -500,6 +608,15 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--gold);bo
   </div>
 </div></section>
 
+
+<!-- ============ QUIET SUPPORT ============ -->
+<section><div class="wrap reveal">
+  <div class="eyebrow">No paperwork, no equity</div>
+  <h2 class="serif">If you just want us to keep going.</h2>
+  <p class="lead">Some people want to back a thing without a term sheet, a cap table entry, or a conversation. That is a real impulse and there is no reason to make it awkward. <b>This buys you nothing — no equity, no claim, no rights.</b> It is a tip jar.</p>
+  <div id="ivCryptoBox"></div>
+</div></section>
+
 <div class="wrap foot">
   <b style="color:var(--snow)">RoamWise</b> · Almora, Uttarakhand · founder@roamwise.co.in<br><br>
   This page describes an opportunity to invest in an early-stage venture. Early-stage investments are
@@ -511,6 +628,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--gold);bo
 
 <script src="investor-config.js"></script>
 <script src="incorp-data.js"></script>
+<script src="landscape-data.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
 <script src="../rw-config.js"></script>
@@ -863,6 +981,95 @@ function ivVotesLoad(justVoted){
   }catch(e){ paint({}); }
 }
 setTimeout(function(){ try{ ivLive(); ivFounding(); ivIncorp(); }catch(e){} }, 400);
+
+
+/* ---- landscape rendering ---- */
+function ivLandscape(){
+  var q=el('ivQuotes');
+  if(q) q.innerHTML=(window.RW_REVIEWER_QUOTES||[]).map(function(x){
+    return '<div class="ct-q">\u201c'+esc(x.line)+'\u201d<span>\u2014 '+esc(x.src)+'</span></div>';
+  }).join('');
+
+  var r=el('ivRivals');
+  if(r) r.innerHTML=(window.RW_RIVALS||[]).map(function(x){
+    return '<div class="rv">'
+      +'<div class="rv-top"><b>'+x.flag+' '+esc(x.name)+'</b>'
+      +'<span class="rv-raise">'+esc(x.raised)+' \u00b7 '+esc(x.stage)+'</span></div>'
+      +'<div class="rv-what">'+esc(x.what)+'</div>'
+      +'<div class="rv-meta">'+esc(x.team)+' \u00b7 '+esc(x.model)+'</div>'
+      +'<div class="rv-e"><b>What they do well</b> '+esc(x.edge)+'</div>'
+      +'<div class="rv-g"><b>Where the gap is</b> '+esc(x.gap)+'</div>'
+      +'</div>';
+  }).join('');
+
+  var c=el('ivClimate');
+  if(c) c.innerHTML=(window.RW_FUNDING_CLIMATE||[]).map(function(x){
+    return '<div class="cl"><div class="cl-k">'+esc(x.k)+'</div>'
+      +'<div class="cl-v">'+esc(x.v)+'</div>'
+      +'<div class="cl-n">'+esc(x.note)+'</div></div>';
+  }).join('');
+
+  var rs=el('ivResil');
+  if(rs) rs.innerHTML=(window.RW_RESILIENCE||[]).map(function(x){
+    return '<div class="rs"><span class="rs-i">'+x.icon+'</span>'
+      +'<span><b>'+esc(x.k)+'</b><i>'+esc(x.v)+'</i><u>'+esc(x.why)+'</u></span></div>';
+  }).join('');
+
+  var d=el('ivDist');
+  if(d) d.innerHTML=(window.RW_DISTRIBUTION||[]).map(function(x){
+    var dead = x.rank===7;
+    return '<div class="ds'+(dead?' dead':'')+'">'
+      +'<span class="ds-n">'+x.rank+'</span>'
+      +'<span style="flex:1;min-width:0"><b>'+esc(x.ch)+'</b>'
+      +'<i>'+esc(x.how)+'</i>'
+      +'<u>'+esc(x.why)+'</u>'
+      +'<em>'+esc(x.status)+'</em></span>'
+      +'<span class="ds-c'+(dead?' bad':'')+'">'+esc(x.cac)+'<small>per user</small></span>'
+      +'</div>';
+  }).join('');
+}
+
+/* ---- live clock in the hero ---- */
+function ivClock(){
+  var n=el('ivClock'); if(!n) return;
+  var d=new Date();
+  n.textContent = d.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',second:'2-digit'})
+    +' IST \u00b7 '+d.toLocaleDateString('en-IN',{weekday:'short',day:'numeric',month:'short',year:'numeric'});
+}
+setInterval(ivClock, 1000);
+
+/* ---- quiet support ---- */
+function ivCrypto(){
+  var n=el('ivCryptoBox'); if(!n) return;
+  var c=(window.RW_INVEST && RW_INVEST.crypto) || {};
+  if(!c.eth && !c.btc && !c.upi){
+    n.innerHTML='<p class="note">Addresses are set from the admin panel. Nothing is shown until they are.</p>';
+    return;
+  }
+  var html='';
+  if(c.upi){
+    /* UPI gets a tap-to-pay link as well as copy \u2014 on an Indian phone this
+       opens GPay/PhonePe directly, which is the whole point. */
+    var uri='upi://pay?pa='+encodeURIComponent(c.upi)+'&pn='+encodeURIComponent('RoamWise')
+          +'&cu=INR&tn='+encodeURIComponent('Supporting RoamWise');
+    html+='<div class="cy upi"><span class="cy-s">\u20b9</span>'
+      +'<span style="flex:1;min-width:0"><b>UPI \u00b7 any Indian app</b>'
+      +'<code>'+esc(c.upi)+'</code></span>'
+      +'<a class="cy-b pay" href="'+uri+'">Open</a>'
+      +'<button class="cy-b" onclick="navigator.clipboard.writeText(\''+c.upi+'\');this.textContent=\'Copied\'">Copy</button></div>';
+  }
+  html+=(c.eth? row('Ethereum','\u039e',c.eth):'')+(c.btc? row('Bitcoin','\u20bf',c.btc):'');
+  html+='<p class="note" style="margin-top:10px">This buys you no equity and no claim \u2014 it is a tip jar, not a security. '
+      +'We keep no record of who sent what, and there is nothing to sign. If you want equity, use the form above.</p>';
+  n.innerHTML=html;
+  function row(name,sym,addr){
+    return '<div class="cy"><span class="cy-s">'+sym+'</span>'
+      +'<span style="flex:1;min-width:0"><b>'+name+'</b>'
+      +'<code>'+esc(addr)+'</code></span>'
+      +'<button class="cy-b" onclick="navigator.clipboard.writeText(\''+addr+'\');this.textContent=\'Copied\'">Copy</button></div>';
+  }
+}
+setTimeout(function(){ try{ ivLandscape(); ivClock(); ivCrypto(); }catch(e){} }, 500);
 
 </script>
 </body>
