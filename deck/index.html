@@ -139,8 +139,37 @@ h1 em.gold,h2 em.gold{position:relative}
   .card:hover{transform:none}
 }
 </style>
+
+<style>
+#deckGate{position:fixed;inset:0;z-index:9999;background:#0B1020;display:flex;align-items:center;justify-content:center;padding:20px}
+.gate-box{background:linear-gradient(160deg,#131A2E,#0D1017);border:1px solid rgba(232,186,108,.3);border-radius:20px;padding:28px;max-width:420px;width:100%}
+.gate-box h2{font-size:22px;font-weight:400;letter-spacing:-.01em;margin-bottom:6px;color:#F2EFE6}
+.gate-box p{font-size:13px;color:#8B93A7;line-height:1.6;margin-bottom:20px}
+.gate-fld{display:flex;flex-direction:column;gap:4px;margin-bottom:14px}
+.gate-fld label{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#8B93A7}
+.gate-fld input{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:10px;padding:11px 14px;color:#F2EFE6;font-size:14px;outline:none;width:100%;font-family:inherit}
+.gate-fld input:focus{border-color:rgba(232,186,108,.5)}
+.gate-btn{width:100%;padding:13px;background:linear-gradient(90deg,#C8913E,#E8BA6C);border:none;border-radius:12px;color:#0B1020;font-weight:700;font-size:15px;cursor:pointer;letter-spacing:.01em;margin-top:4px}
+.gate-btn:hover{opacity:.9}
+.gate-note{font-size:11px;color:#5A6076;text-align:center;margin-top:12px;line-height:1.5}
+#gateErr{font-size:12px;color:#E0785B;min-height:18px;margin-top:-8px;margin-bottom:4px}
+</style>
 </head>
 <body>
+
+<div id="deckGate">
+  <div class="gate-box">
+    <div style="font-size:13px;letter-spacing:.2em;text-transform:uppercase;color:#E8BA6C;margin-bottom:14px">RoamWise &middot; Seed 2026</div>
+    <h2 class="serif">Before you read the deck &mdash;</h2>
+    <p>Leave your name and best contact so we know who to follow up with. Takes 10 seconds.</p>
+    <div class="gate-fld"><label>Your name</label><input id="gName" placeholder="Priya Sharma" autocomplete="name"></div>
+    <div class="gate-fld"><label>Email or WhatsApp</label><input id="gContact" placeholder="email or +91..." autocomplete="email" inputmode="email"></div>
+    <div class="gate-fld"><label>Role / fund <span style="opacity:.5">(optional)</span></label><input id="gRole" placeholder="Angel / VC partner / Advisor..."></div>
+    <div id="gateErr"></div>
+    <button class="gate-btn" onclick="gateSubmit()">See the deck &rarr;</button>
+    <p class="gate-note">No spam. Your info goes only to Mohit Pandey, the founder.<br>Or email directly: founder@roamwise.co.in</p>
+  </div>
+</div>
 <div class="nav" id="nav"></div>
 <div class="hint" id="hint">scroll ↓</div>
 <div class="deck" id="deck">
@@ -443,6 +472,55 @@ h1 em.gold,h2 em.gold{position:relative}
 })();
 </script>
 
+
+<script>
+/* ---- investor gate ---- */
+function gateSubmit(){
+  var name=(document.getElementById('gName').value||'').trim();
+  var contact=(document.getElementById('gContact').value||'').trim();
+  var role=(document.getElementById('gRole').value||'').trim();
+  var err=document.getElementById('gateErr');
+  if(!name){ err.textContent='Please enter your name.'; return; }
+  if(!contact){ err.textContent='Please enter an email or WhatsApp number.'; return; }
+  err.textContent='';
+
+  /* Store in sessionStorage so refresh doesn't re-gate */
+  try{ sessionStorage.setItem('rw_deck_name', name); sessionStorage.setItem('rw_deck_contact', contact); }catch(e){}
+
+  /* Create deckleads doc with real investor info */
+  try{
+    if(window._deckRef){
+      window._deckRef.set({
+        name: name,
+        contact: contact,
+        role: role || '',
+        source: document.referrer ? document.referrer.slice(0,120) : 'direct',
+        openedAt: new Date().toISOString(),
+        slides: document.querySelectorAll('.slide').length || 16
+      }, {merge:true}).catch(function(){});
+    } else {
+      /* firebase may not have loaded yet — retry after init */
+      window._deckPendingGate = {name:name, contact:contact, role:role};
+    }
+  }catch(e){}
+
+  /* Show the deck */
+  var gate=document.getElementById('deckGate');
+  if(gate){ gate.style.opacity='0'; gate.style.transition='opacity .4s'; setTimeout(function(){ gate.style.display='none'; }, 400); }
+}
+/* allow pressing Enter in the fields */
+['gName','gContact','gRole'].forEach(function(id){
+  var n=document.getElementById(id);
+  if(n) n.addEventListener('keydown',function(e){ if(e.key==='Enter') gateSubmit(); });
+});
+
+/* If already passed gate in this session, skip it */
+try{
+  if(sessionStorage.getItem('rw_deck_name')){
+    var g=document.getElementById('deckGate'); if(g) g.style.display='none';
+  }
+}catch(e){}
+</script>
 <!-- Firebase (silent visitor tracking — writes to deckleads if the visitor shared
      contact info via the invest page; otherwise creates an anonymous session) -->
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -470,24 +548,33 @@ h1 em.gold,h2 em.gold{position:relative}
   var slideCount = document.querySelectorAll('.slide').length || 16;
   var ref;
 
+  /* Check if gate was already passed — use those real details */
+  var gName='', gContact='';
+  try{ gName=sessionStorage.getItem('rw_deck_name')||''; gContact=sessionStorage.getItem('rw_deck_contact')||''; }catch(e){}
+
   if(leadId){
-    /* Returning visitor in same session — just update the existing doc */
     ref = db.collection('deckleads').doc(leadId);
-    ref.update({ returnAt: new Date().toISOString() }).catch(function(){});
+    if(gName) ref.set({name:gName,contact:gContact},{merge:true}).catch(function(){});
   } else {
-    /* First visit — create a fresh doc. No get() needed (and can't: read is
-       admin-only). Direct set() satisfies the create rule (name + contact). */
     ref = db.collection('deckleads').doc();
     leadId = ref.id;
     try{ sessionStorage.setItem(KEY, leadId); }catch(e){}
     ref.set({
-      name: '(anonymous deck visitor)',
-      contact: '--',       /* ASCII dash — em-dash is 3 bytes, avoid encoding edge cases */
+      name: gName || '(anonymous)',
+      contact: gContact || '--',
       source: document.referrer ? document.referrer.slice(0,120) : 'direct',
-      ua: (navigator.userAgent||'').slice(0,80),
       openedAt: new Date().toISOString(),
       slides: slideCount
     }).catch(function(){});
+  }
+
+  /* Expose ref so gateSubmit() can update it with real details */
+  window._deckRef = ref;
+
+  /* If gate was pending (firebase loaded after gate submit) — flush now */
+  if(window._deckPendingGate){
+    var pg=window._deckPendingGate; window._deckPendingGate=null;
+    ref.set({name:pg.name,contact:pg.contact,role:pg.role||'',openedAt:new Date().toISOString()},{merge:true}).catch(function(){});
   }
 
   /* Track scroll depth through the deck */
