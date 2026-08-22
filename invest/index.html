@@ -646,10 +646,19 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--gold);bo
 <script src="landscape-data.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
-<script src="../rw-config.js"></script>
 <script>
 var db=null;
-try{ if(window.RW_FIREBASE){ firebase.initializeApp(RW_FIREBASE); db=firebase.firestore(); } }catch(e){}
+/* FIXED (this session): the page was checking window.RW_FIREBASE which never
+   exists — rw-config.js exports window.RW_CONFIG (no firebase key). So db
+   was always null: live stats, commitment board, founding seats, crypto wallets
+   from Firestore — all silently dead. Inlined config directly, same pattern as
+   staff/partner pages. */
+var _RWFB={apiKey:"AIzaSyDlrtpzpOb1VEmVSd9tHmu7OpmvwWosYsU",
+  authDomain:"roamwisepro.firebaseapp.com",projectId:"roamwisepro",
+  storageBucket:"roamwisepro.firebasestorage.app",
+  messagingSenderId:"299014744987",
+  appId:"1:299014744987:web:d5c316743e6d7a10904f3e"};
+try{ firebase.initializeApp(_RWFB); db=firebase.firestore(); }catch(e){}
 var I=window.RW_INVEST, picked=null;
 function el(id){ return document.getElementById(id); }
 function esc(s){ return String(s==null?'':s).replace(/[<>&"]/g,function(c){return {'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c];}); }
