@@ -12943,6 +12943,17 @@ function tripChatOpen(roomId, roomName){
       }).join('');
       try{ chatRenderPins(); }catch(e){}   /* pinned Kitty / decisions / plan up top */
       try{
+        var tb=el('tcTools');
+        if(!tb && log.parentNode){
+          tb=document.createElement('div'); tb.id='tcTools'; tb.className='tc-tools';
+          tb.innerHTML='<button class="tc-t" onclick="openChatPoll()">\ud83d\uddf3\ufe0f Ask the group</button>'
+            +'<button class="tc-t" onclick="openChatGames()">\ud83c\udfae Play</button>'
+            +'<button class="tc-t" onclick="openMoneyLayer()">\ud83d\udcb0 Split</button>'
+            +'<button class="tc-t" onclick="rwChatTuskHint()">\ud83d\udc18 Ask Tusk</button>';
+          log.parentNode.insertBefore(tb, log);
+        }
+      }catch(e){}
+      try{
         var vb=el('tcVibe');
         if(!vb && log.parentNode){ vb=document.createElement('div'); vb.id='tcVibe'; log.parentNode.insertBefore(vb, log); }
         if(vb) vb.innerHTML=chatVibeHTML();
@@ -13283,6 +13294,10 @@ function rwChatExport(){
 }
 function chatPost(kind, payload, text){
   if(!_chatRoom || !user) return Promise.reject(new Error('no room'));
+  /* @tusk in the group chat — anyone can ask, the answer lands for everyone */
+  try{
+    if(kind==='text' && /^@tusk\b/i.test(String(text||''))) setTimeout(function(){ rwChatAskTusk(text); }, 300);
+  }catch(e){}
   /* expireAt drives the 30-day Firestore TTL policy (set in the console). This is
      what keeps the DB tiny at scale — messages self-delete; users export to keep. */
   var expireAt = firebase.firestore.Timestamp.fromMillis(Date.now() + 30*24*60*60*1000);
@@ -13963,6 +13978,134 @@ function chatInvite(){
 }
 /* ---- render one message by kind ---- */
 
+
+/* ============================================================================
+   TRIPCHAT ENGINE (rw-v96) — coordination, games, and Tusk in the room
+   ============================================================================
+   A group chat is where trips actually get decided, so this is where the
+   deciding tools live. Three things nobody else puts in one place:
+     · DECIDE  — polls that close themselves and pin the result
+     · PLAY    — games that pass the time on a 9-hour Himalayan drive
+     · ASK     — @tusk in the group, answering with real app data
+   ========================================================================= */
+var RW_CHAT_GAMES = [
+  { id:'twotruths', icon:'\ud83c\udfad', name:'Two truths, one lie',
+    how:'Everyone posts three travel stories. One is invented. Guess.',
+    seed:'\ud83c\udfad *Two truths, one lie* \u2014 post three travel stories, one made up. Rest of you guess!' },
+  { id:'wouldyou', icon:'\u2696\ufe0f', name:'Would you rather',
+    how:'Impossible travel choices. Reveals more than you expect.',
+    pool:['Would you rather: window seat for 20 hours, or aisle seat for 10?',
+          'Would you rather: lose your luggage, or lose your phone charger?',
+          'Would you rather: perfect weather and crowds, or rain and an empty place?',
+          'Would you rather: eat only street food, or only hotel food, all trip?',
+          'Would you rather: no photos allowed, or no music allowed?',
+          'Would you rather: sleep on a night bus, or wake up at 4am for a day bus?'] },
+  { id:'guessplace', icon:'\ud83d\udccd', name:'Where am I?',
+    how:'Post a photo with no caption. First to name the place wins.',
+    seed:'\ud83d\udccd *Where am I?* \u2014 post a photo, no caption. First correct guess wins.' },
+  { id:'countdown', icon:'\u23f3', name:'Trip countdown',
+    how:'Everyone says the one thing they are most looking forward to.',
+    seed:'\u23f3 One thing each \u2014 what are you MOST looking forward to on this trip?' },
+  { id:'packing', icon:'\ud83c\udf92', name:'Packing roulette',
+    how:'Name one thing you always forget. Somebody will save you.',
+    seed:'\ud83c\udf92 *Packing roulette* \u2014 name the one thing you ALWAYS forget. Someone here will remember it for you.' },
+  { id:'budget', icon:'\ud83d\udcb8', name:'Guess the bill',
+    how:'Before the bill arrives, everyone guesses. Closest pays nothing extra.',
+    seed:'\ud83d\udcb8 *Guess the bill* \u2014 everyone guess the total before it arrives. Furthest off buys chai.' }
+];
+
+function rwChatTuskHint(){
+  var i=el('chatInput')||el('chatMsg')||el('tcInput');
+  if(i){ i.value='@tusk '; i.focus(); showToast('Type your question \u2014 the whole group sees the answer'); }
+  else showToast('Start a message with @tusk to ask him anything');
+}
+function openChatGames(){
+  var ov=el('cgOv');
+  if(!ov){ ov=document.createElement('div'); ov.id='cgOv'; ov.className='overlay'; ov.style.zIndex='4400';
+    ov.onclick=function(e){ if(e.target===ov) rwOverlayClose('cgOv'); }; document.body.appendChild(ov); }
+  ov.innerHTML='<div class="sheet" style="max-width:430px">'
+    +'<div class="sheet-h"><b>\ud83c\udfae Pass the time</b><button class="tact" onclick="rwOverlayClose(\'cgOv\')">\u2715</button></div>'
+    +'<p class="note" style="margin-bottom:10px">For the nine-hour drive, the delayed train, the wait for everyone to wake up.</p>'
+    + RW_CHAT_GAMES.map(function(g){
+        return '<div class="cg-row" onclick="rwChatGame(\''+g.id+'\')">'
+          +'<span class="cg-i">'+g.icon+'</span>'
+          +'<span style="flex:1;min-width:0"><b>'+esc2(g.name)+'</b>'
+          +'<div class="note" style="margin:0">'+esc2(g.how)+'</div></span>'
+          +'<span class="cg-go">Start</span></div>';
+      }).join('')
+    +'</div>';
+  ov.classList.add('open');
+}
+function rwChatGame(id){
+  var g=RW_CHAT_GAMES.filter(function(x){ return x.id===id; })[0]; if(!g) return;
+  var text = g.seed || (g.pool? g.pool[Math.floor(Math.random()*g.pool.length)] : g.name);
+  rwOverlayClose('cgOv');
+  try{ chatPost('text', null, text); }catch(e){
+    try{ var i=el('chatInput'); if(i){ i.value=text; i.focus(); } }catch(e2){}
+  }
+}
+
+/* ---------------- DECIDE: polls that close themselves ---------------- */
+function openChatPoll(){
+  rwForm('\ud83d\uddf3\ufe0f Ask the group', [
+    { id:'pq', label:'What are you deciding?', ph:'e.g. Which day do we do the trek?' },
+    { id:'po', label:'Options (comma separated)', ph:'Tuesday, Wednesday, Thursday' }
+  ], function(v){
+    var q=(v.pq||'').trim(), opts=(v.po||'').split(',').map(function(x){return x.trim();}).filter(Boolean);
+    if(!q || opts.length<2){ showToast('Give a question and at least two options'); return; }
+    try{
+      chatPost('poll', { q:q, opts:opts, votes:{} }, q);
+    }catch(e){ showToast('Could not post the poll'); }
+  }, 'Everyone votes, the result pins itself to the top. No more forty messages about one decision.');
+}
+function rwPollVote(id, idx){
+  if(!user || !_chatRoom) return;
+  var u={}; u['payload.votes.'+user.uid]=idx;
+  db.collection('tripchats').doc(_chatRoom).collection('msgs').doc(id).update(u).catch(function(){});
+  try{ rwHaptic&&rwHaptic(); }catch(e){}
+}
+function rwPollHTML(id, m){
+  var p=m.payload||{}, votes=p.votes||{}, opts=p.opts||[];
+  var counts=opts.map(function(){ return 0; });
+  var total=0, mine=null;
+  Object.keys(votes).forEach(function(uid){
+    var i=votes[uid];
+    if(counts[i]!=null){ counts[i]++; total++; }
+    if(user && uid===user.uid) mine=i;
+  });
+  var lead=counts.indexOf(Math.max.apply(null,counts));
+  return '<div class="pl-box">'
+    +'<div class="pl-q">\ud83d\uddf3\ufe0f '+esc2(p.q||'')+'</div>'
+    + opts.map(function(o,i){
+        var pct = total? Math.round(counts[i]/total*100) : 0;
+        return '<div class="pl-o'+(mine===i?' mine':'')+(total&&i===lead?' lead':'')+'" onclick="rwPollVote(\''+id+'\','+i+')">'
+          +'<i style="width:'+pct+'%"></i>'
+          +'<span>'+esc2(o)+'</span><b>'+(total?pct+'%':'')+'</b></div>';
+      }).join('')
+    +'<div class="pl-f">'+(total? total+' vote'+(total>1?'s':'') : 'No votes yet')
+    + (total && counts[lead]>total/2 ? ' \u00b7 <b style="color:#4ADE80">'+esc2(opts[lead])+' wins</b>' : '')
+    +'</div></div>';
+}
+
+/* ---------------- ASK: Tusk in the group ---------------- */
+function rwChatAskTusk(q){
+  var question=String(q||'').replace(/^@tusk\s*/i,'').trim();
+  if(!question) return;
+  try{
+    chatPost('text', null, '\ud83d\udc18 Tusk is thinking\u2026');
+  }catch(e){}
+  var ctx='You are answering inside a group trip chat. Be brief \u2014 two or three sentences. '
+    +'Use the app\u2019s tools for anything factual. Question: '+question;
+  try{
+    rwAgentRun(ctx, function(){}, function(res){
+      var ans=(res && res.answer) || 'I could not work that one out.';
+      try{
+        chatPost('text', null, '\ud83d\udc18 '+ans);
+      }catch(e){}
+    });
+  }catch(e){}
+}
+
 /* ============================================================================
    TRIPCHAT — Gen-Z / Gen-Alpha layer (rw-v79)
    ============================================================================
@@ -13979,14 +14122,14 @@ var RW_REACTS = ['\u2764\ufe0f','\ud83d\ude02','\ud83d\udd25','\ud83d\ude2d','\u
 
 /* toggle my reaction on a message (stored as reactions.<emoji> = [uids]) */
 function chatReact(id, emoji){
-  if(!user || !_chatRef) return;
+  if(!user || !_chatRoom) return;
   var msg=(_chatMsgs||[]).filter(function(m){ return m._id===id; })[0];
   var have = msg && msg.reactions && msg.reactions[emoji] && msg.reactions[emoji].indexOf(user.uid)>-1;
   var upd={};
   upd['reactions.'+emoji] = have
     ? firebase.firestore.FieldValue.arrayRemove(user.uid)
     : firebase.firestore.FieldValue.arrayUnion(user.uid);
-  _chatRef.doc(id).update(upd).catch(function(){});
+  db.collection('tripchats').doc(_chatRoom).collection('msgs').doc(id).update(upd).catch(function(){});
   if(!have){ try{ rwHaptic&&rwHaptic(); }catch(e){} rwPopHeart(emoji); }
 }
 /* the little floating emoji burst — pure CSS, no library */
@@ -14055,6 +14198,10 @@ function chatVibeHTML(){
 
 function chatBubble(id, m, mine){
   var kind = m.kind||'text', K = CHAT_KINDS[kind]||CHAT_KINDS.text;
+  if(kind==='poll'){
+    return '<div class="tc-row"><div class="tc-av">\ud83d\uddf3\ufe0f</div>'
+      +'<div style="max-width:88%">'+rwPollHTML(id, m)+chatReactsHTML(id, m)+'</div></div>';
+  }
   if(kind==='tusk'){
     var richHtml = (m.payload && m.payload.html) ? (typeof rwBalanceDivs==='function' ? rwBalanceDivs(m.payload.html) : m.payload.html) : '';
     var inner = richHtml
