@@ -1090,7 +1090,7 @@ function deskRender(){
     window._deskMe = me;
     try{ setTimeout(myPartnersLoad, 700); }catch(e){}
     try{ rwLiveStart(); setTimeout(function(){ deskEarnLoad(me); }, 400); }catch(e){}
-    try{ setTimeout(rwLivePaint, 60); }catch(e){}
+    try{ setTimeout(rwLivePaint, 40); setTimeout(rwLivePaint, 900); }catch(e){}
     return db.collection('staff').doc(user.uid).collection('logs')
       .orderBy('date','desc').limit(30).get();
   }).then(function(qs){
@@ -2537,13 +2537,17 @@ function rwLiveStart(){
      record to every staff phone. */
   db.collection('meta').doc('publicStats').onSnapshot(function(d){
     var v = d.exists ? (d.data()||{}) : {};
-    RW_LIVE.users   = (v.users   != null) ? v.users   : null;
-    RW_LIVE.paid    = (v.paid    != null) ? v.paid    : null;
-    RW_LIVE.revenue = (v.revenue != null) ? v.revenue : null;
-    RW_LIVE.stale   = v.updatedAt || null;
-    RW_LIVE.missing = !d.exists;
-    rwLivePaint();
-  }, function(){ RW_LIVE.missing = true; rwLivePaint(); });
+    if(d.exists && v.users != null){
+      RW_LIVE.users   = v.users;
+      RW_LIVE.paid    = (v.paid != null) ? v.paid : 0;
+      RW_LIVE.revenue = (v.revenue != null) ? v.revenue : null;
+      RW_LIVE.stale   = v.updatedAt || null;
+      RW_LIVE.missing = false;
+      rwLivePaint();
+    } else {
+      rwLiveFallback();      /* not published yet — try counting ourselves */
+    }
+  }, function(){ rwLiveFallback(); });
   setInterval(rwLiveClock, 1000);
 }
 function rwCountUp(node, to){
@@ -2576,13 +2580,13 @@ function rwLiveHTML(){
     +'<span class="lv-days">'+rwDaysLeftInMonth()+' days left this month</span></div>'
     +'<div class="lv-grid">'
     +'  <div class="lv-card">'
-    +'    <div class="lv-n" id="lvUsers">0</div>'
+    +'    <div class="lv-n" id="lvUsers">'+(RW_LIVE.users!=null?RW_LIVE.users.toLocaleString('en-IN'):'\u2014')+'</div>'
     +'    <div class="lv-k">total users</div>'
     +'    <div class="lv-bar"><i id="lvUsersBar" style="width:0%"></i></div>'
     +'    <div class="lv-goal" id="lvUsersGoal">goal '+RW_GOALS.users.toLocaleString('en-IN')+'</div>'
     +'  </div>'
     +'  <div class="lv-card paid">'
-    +'    <div class="lv-n" id="lvPaid">0</div>'
+    +'    <div class="lv-n" id="lvPaid">'+(RW_LIVE.paid!=null?RW_LIVE.paid.toLocaleString('en-IN'):'\u2014')+'</div>'
     +'    <div class="lv-k">paid users</div>'
     +'    <div class="lv-bar"><i id="lvPaidBar" style="width:0%"></i></div>'
     +'    <div class="lv-goal" id="lvPaidGoal">goal '+RW_GOALS.paid+'</div>'
@@ -2590,6 +2594,25 @@ function rwLiveHTML(){
     +'</div>'
     +'<div class="lv-conv" id="lvConv"></div>'
     +'</div>';
+}
+
+/* If the founder hasn't published the numbers yet, try counting approved
+   payments ourselves. Staff may or may not be allowed to read that collection
+   — if not, we say so plainly instead of showing a misleading zero. */
+function rwLiveFallback(){
+  if(typeof db==='undefined' || !db){ RW_LIVE.missing=true; rwLivePaint(); return; }
+  db.collection('claims').get().then(function(qs){
+    var paid=0, rev=0;
+    qs.forEach(function(d){
+      var c=d.data()||{};
+      if(c.status==='approved'){ paid++; rev += (+c.amount||0); }
+    });
+    RW_LIVE.paid=paid; RW_LIVE.revenue=rev;
+    RW_LIVE.users=null;            /* we genuinely cannot see this */
+    RW_LIVE.missing=false;
+    RW_LIVE.partial=true;
+    rwLivePaint();
+  }).catch(function(){ RW_LIVE.missing=true; rwLivePaint(); });
 }
 function rwLivePaint(){
   var wrap=el('rwLiveWrap'); if(!wrap) return;
@@ -2601,9 +2624,15 @@ function rwLivePaint(){
     return;
   }
   var u=RW_LIVE.users, p=RW_LIVE.paid;
-  if(u===null || p===null) return;
-  rwCountUp(el('lvUsers'), u);
-  rwCountUp(el('lvPaid'), p);
+  if(u===null && p===null) return;
+  if(u!=null) rwCountUp(el('lvUsers'), u);
+  else { var un=el('lvUsers'); if(un){ un.textContent='\u2014'; un.style.fontSize='26px'; } }
+  if(p!=null) rwCountUp(el('lvPaid'), p);
+  if(u==null){
+    var ug0=el('lvUsersGoal');
+    if(ug0) ug0.innerHTML='<span style="color:var(--t3)">ask Mohit to publish</span>';
+    u = 0;
+  }
   var up=Math.min(100, Math.round(u/RW_GOALS.users*100));
   var pp=Math.min(100, Math.round(p/RW_GOALS.paid*100));
   var ub=el('lvUsersBar'), pb=el('lvPaidBar');
