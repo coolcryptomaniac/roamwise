@@ -465,28 +465,30 @@ h1 em.gold,h2 em.gold{position:relative}
   var leadId = null;
   try{ leadId=sessionStorage.getItem(KEY); }catch(e){}
 
-  var ref = leadId ? db.collection('deckleads').doc(leadId) : db.collection('deckleads').doc();
-  leadId = ref.id;
-  try{ sessionStorage.setItem(KEY, leadId); }catch(e){}
-
   var openedAt = Date.now();
   var maxScroll = 0;
   var slideCount = document.querySelectorAll('.slide').length || 16;
+  var ref;
 
-  /* Create or touch the doc on open */
-  ref.get().then(function(d){
-    if(!d.exists){
-      /* New anonymous visitor — create with minimal data (rules require name+contact) */
-      ref.set({
-        name:'(anonymous deck visitor)',
-        contact:'—',
-        source: document.referrer || 'direct',
-        userAgent: (navigator.userAgent||'').slice(0,80),
-        openedAt: new Date().toISOString(),
-        slides: slideCount
-      }).catch(function(){});
-    }
-  }).catch(function(){});
+  if(leadId){
+    /* Returning visitor in same session — just update the existing doc */
+    ref = db.collection('deckleads').doc(leadId);
+    ref.update({ returnAt: new Date().toISOString() }).catch(function(){});
+  } else {
+    /* First visit — create a fresh doc. No get() needed (and can't: read is
+       admin-only). Direct set() satisfies the create rule (name + contact). */
+    ref = db.collection('deckleads').doc();
+    leadId = ref.id;
+    try{ sessionStorage.setItem(KEY, leadId); }catch(e){}
+    ref.set({
+      name: '(anonymous deck visitor)',
+      contact: '--',       /* ASCII dash — em-dash is 3 bytes, avoid encoding edge cases */
+      source: document.referrer ? document.referrer.slice(0,120) : 'direct',
+      ua: (navigator.userAgent||'').slice(0,80),
+      openedAt: new Date().toISOString(),
+      slides: slideCount
+    }).catch(function(){});
+  }
 
   /* Track scroll depth through the deck */
   var deck = document.getElementById('deck');
