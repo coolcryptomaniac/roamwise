@@ -145,8 +145,19 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--gold)}
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
-<script src="../rw-config.js"></script>
 <script>
+/* FIXED (rw-v94): this page looked for window.RW_FIREBASE, but rw-config.js
+   exports window.RW_CONFIG (app settings, not Firebase keys). Firebase never
+   initialised, so every button silently did nothing. The staff page inlines
+   the same config, which is why that one always worked. */
+var RW_FB = {
+  apiKey: "AIzaSyDlrtpzpOb1VEmVSd9tHmu7OpmvwWosYsU",
+  authDomain: "roamwisepro.firebaseapp.com",
+  projectId: "roamwisepro",
+  storageBucket: "roamwisepro.firebasestorage.app",
+  messagingSenderId: "299014744987",
+  appId: "1:299014744987:web:d5c316743e6d7a10904f3e"
+};
 var db=null, auth=null, ME=null, MYID=null, ROOMS=[], BOOKS=[];
 function el(i){ return document.getElementById(i); }
 function esc(t){ return String(t==null?'':t).replace(/[<>&"]/g,function(c){return {'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c];}); }
@@ -156,11 +167,20 @@ function err(m){ var e=el('pErr'); e.textContent=m; e.classList.remove('hide'); 
 function togglePw(){ var p=el('pPass'); p.type = p.type==='password'?'text':'password'; }
 
 try{
-  if(window.RW_FIREBASE){ firebase.initializeApp(RW_FIREBASE); db=firebase.firestore(); auth=firebase.auth(); }
-}catch(e){}
+  firebase.initializeApp(RW_FB);
+  db=firebase.firestore();
+  auth=firebase.auth();
+}catch(e){
+  /* never fail silently again — tell the person what happened */
+  setTimeout(function(){
+    var n=document.getElementById('pErr');
+    if(n){ n.textContent='Could not connect. Check your internet and reload.'; n.classList.remove('hide'); }
+  }, 400);
+}
 
 /* ---------------- auth ---------------- */
 function pLogin(){
+  if(!auth) return err('Not connected yet — give it a second and try again.');
   var e=(el('pEmail').value||'').trim(), p=el('pPass').value||'';
   if(!e||!p) return err('Enter your email and password.');
   auth.signInWithEmailAndPassword(e,p).catch(function(x){
@@ -170,8 +190,10 @@ function pLogin(){
   });
 }
 function pSignup(){
+  if(!auth) return err('Not connected yet — give it a second and try again.');
   var e=(el('pEmail').value||'').trim(), p=el('pPass').value||'';
   if(!e||!p) return err('Enter an email and a password (6+ characters).');
+  if(p.length<6) return err('Password needs at least 6 characters.');
   auth.createUserWithEmailAndPassword(e,p).then(function(c){
     return db.collection('partners').doc(c.user.uid).set({
       email:e, status:'pending', createdAt:new Date().toISOString()
@@ -179,6 +201,7 @@ function pSignup(){
   }).catch(function(x){ err(x.message||'Could not create the account.'); });
 }
 function pReset(){
+  if(!auth) return err('Not connected yet — give it a second and try again.');
   var e=(el('pEmail').value||'').trim();
   if(!e) return err('Type your email above first.');
   auth.sendPasswordResetEmail(e).then(function(){
