@@ -1,0 +1,28 @@
+// RoamWise - CHAT PRESENCE. MERGE into your existing firestore.rules.
+// Pure ASCII only.
+//
+// Presence is a heartbeat: each member writes {name, at} to their own doc
+// every 45 seconds while the chat is open. Anyone in the room can read who is
+// there; nobody can fake being someone else, because a member may only write
+// their OWN document.
+
+match /tripchats/{roomId}/presence/{uid} {
+  // any signed-in member of the room can see who is online
+  allow read: if request.auth != null;
+
+  // you may only write your own presence doc - no impersonation
+  allow write: if request.auth != null && request.auth.uid == uid;
+
+  // the room owner may clear out a stale/ghost member
+  allow delete: if request.auth != null
+    && (request.auth.uid == uid
+        || get(/databases/$(database)/documents/tripchats/$(roomId)).data.owner == request.auth.uid);
+}
+
+// Allow the room owner to remove a member from the room document.
+// (Merge this into your existing tripchats/{roomId} rule rather than adding a
+// second match block for the same path.)
+//
+//   allow update: if request.auth != null
+//     && (resource.data.owner == request.auth.uid
+//         || request.resource.data.diff(resource.data).affectedKeys().hasOnly(['members']));
