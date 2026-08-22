@@ -12909,6 +12909,8 @@ function tripChatOpen(roomId, roomName){
       +'<button class="chat-tool" onclick="chatTrainAsk()">\ud83d\ude82 Pick a train</button>'
       +'<button class="chat-tool" onclick="chatMarkPaid()">\u2705 Mark paid</button>'
       +'<button class="chat-tool" onclick="chatInvite()">\ud83d\udc65 Invite</button>'
+      +'<button class="chat-tool" onclick="openChatGames()">\ud83c\udfae Play</button>'
+      +'<button class="chat-tool" onclick="openStays()">\ud83c\udfe1 Book a stay</button>'
       +'</div>'
       +'<div style="display:flex;gap:8px;align-items:flex-end;padding:4px 0 8px">'
       +'<textarea id="chatInput" rows="1" placeholder="Message the group \u2014 or ask @tusk\u2026" style="flex:1;background:var(--bg3,#1A1A20);border:1px solid var(--b2,#2A2A36);border-radius:22px;padding:12px 16px;color:inherit;font:inherit;resize:none;outline:none;max-height:110px"></textarea>'
@@ -12927,9 +12929,18 @@ function tripChatOpen(roomId, roomName){
   var ref=db.collection('tripchats').doc(roomId);
   ref.get().then(function(d){
     if(!d.exists) return ref.set({name:roomName||'Trip', members:[user.uid], owner:user.uid, created:firebase.firestore.FieldValue.serverTimestamp()});
+    try{ window._chatMembers = (d.data().members||[]); }catch(e){}
     if((d.data().members||[]).indexOf(user.uid)===-1)
       return ref.update({members:firebase.firestore.FieldValue.arrayUnion(user.uid)});
   }).then(function(){
+    /* keep the member list current so the header count is real */
+    try{
+      if(window._chatMemUnsub) window._chatMemUnsub();
+      window._chatMemUnsub = ref.onSnapshot(function(rd){
+        try{ window._chatMembers=(rd.data()||{}).members||[]; }catch(e){}
+        try{ var vb=el('tcVibe'); if(vb) vb.innerHTML=chatVibeHTML(); }catch(e){}
+      });
+    }catch(e){}
     if(_chatUnsub) _chatUnsub();
     _chatUnsub = ref.collection('msgs').orderBy('at','asc').limitToLast(200).onSnapshot(function(qs){
       var log=el('chatLog'); if(!log) return;
@@ -12980,7 +12991,6 @@ function tripChatOpen(roomId, roomName){
       });
 
       try{ chatRenderPins(); }catch(e){}
-      try{ rwChatToolbar(log); }catch(e){}
       try{
         var vb=el('tcVibe');
         if(!vb && log.parentNode){ vb=document.createElement('div'); vb.id='tcVibe'; log.parentNode.insertBefore(vb, log); }
@@ -14117,73 +14127,22 @@ function rwPollHTML(id, m){
 
 /* ---------------- ASK: Tusk in the group ---------------- */
 function rwChatAskTusk(q){
+  /* rw-v98: this used to run a SECOND, weaker agent path in parallel with the
+     app's existing chatTuskFacilitate() — which is the one that produces the
+     proper destination cards. Two agents answering the same message is why the
+     chat filled with "I could not work that one out" next to a good card.
+     There is now one path: the good one. */
   var question=String(q||'').replace(/^@tusk\s*/i,'').trim();
   if(!question) return;
-  if(window._tuskBusy){ showToast('Tusk is still working on the last one'); return; }
+  if(window._tuskBusy) return;
   window._tuskBusy = true;
-
-  /* THINKING IS LOCAL, NOT A MESSAGE (rw-v97).
-     Writing "thinking..." to Firestore caused a second full sync and a second
-     flash. It is now a local bubble that never touches the database. */
-  var log=el('chatLog');
-  var ghost=null;
-  if(log){
-    ghost=document.createElement('div');
-    ghost.className='tc-msg tc-ghost';
-    ghost.innerHTML='<div class="tc-row"><div class="tc-av tusk">\ud83d\udc18</div>'
-      +'<div class="tc-bub tusk-think"><b>Ailon Tusk</b>'
-      +'<span class="tk-dots"><i></i><i></i><i></i></span></div></div>';
-    log.appendChild(ghost);
-    log.scrollTop=log.scrollHeight;
-  }
-  function clearGhost(){ if(ghost && ghost.parentNode) ghost.remove(); window._tuskBusy=false; }
-
-  /* GIVE HIM THE ROOM'S CONTEXT so he stops guessing (rw-v97).
-     He was hallucinating because he was answering a bare question with no
-     idea where the group is going, who is in the chat, or what was just said. */
-  var recent=(_chatMsgs||[]).slice(-8).filter(function(m){
-    return m.kind==='text' && m.uid!=='tusk' && m.text;
-  }).map(function(m){ return (m.name||'Someone')+': '+String(m.text).slice(0,140); }).join('\n');
-
-  var dest='';
-  try{ dest=(el('destInput')&&el('destInput').value)||(_cpCtx&&_cpCtx.dest)||''; }catch(e){}
-  var people=0;
-  try{ var seen={}; (_chatMsgs||[]).forEach(function(m){ if(m.uid&&m.uid!=='tusk') seen[m.uid]=1; }); people=Object.keys(seen).length; }catch(e){}
-
-  var ctx='You are answering inside a group trip chat, so the whole group reads your reply.\n'
-    + (dest? 'The group is planning a trip to: '+dest+'.\n' : '')
-    + (people? 'There are '+people+' people in this chat.\n' : '')
-    + (recent? '\nRecent messages:\n'+recent+'\n' : '')
-    + '\nSomeone just asked: "'+question+'"\n\n'
-    + 'RULES: answer in two or three sentences, no headings, no bullet lists \u2014 this is a chat. '
-    + 'Use tools for anything factual: never state a travel time without estimate_travel_time, '
-    + 'never quote a price or a room without search_stays. '
-    + 'If you do not know or a tool returns nothing, say so in one line. Do not guess, and do not '
-    + 'invent places, prices, timings or availability. Being unhelpful is fine; being wrong in front '
-    + 'of a group planning a real trip is not.';
-
-  var done=false;
-  var timer=setTimeout(function(){
-    if(done) return;
-    done=true; clearGhost();
-    chatPost('text', null, '\ud83d\udc18 That one took too long \u2014 ask me again, or try a narrower question.');
-  }, 45000);
-
+  setTimeout(function(){ window._tuskBusy=false; }, 2500);
   try{
-    rwAgentRun(ctx, function(){}, function(res){
-      if(done) return;
-      done=true; clearTimeout(timer);
-      var ans=(res && res.answer) ? String(res.answer).trim() : '';
-      /* strip markdown headings/bullets the model sometimes adds anyway */
-      ans=ans.replace(/^#+\s*/gm,'').replace(/^[\-\*]\s+/gm,'\u00b7 ').trim();
-      clearGhost();
-      chatPost('text', null, '\ud83d\udc18 '+(ans || 'I could not work that one out. Try asking it a different way.'));
-    });
-  }catch(e){
-    done=true; clearTimeout(timer); clearGhost();
-    chatPost('text', null, '\ud83d\udc18 Something went wrong on my side. Try again in a moment.');
-  }
+    if(typeof chatTuskFacilitate==='function'){ chatTuskFacilitate(question); return; }
+  }catch(e){}
+  try{ if(typeof cpAsk==='function') cpAsk(question); }catch(e){}
 }
+
 
 
 /* ============================================================================
@@ -14277,30 +14236,35 @@ function rwMsgSignature(m){
   }
   return (m.text||'').length+'|'+(m.kind||'')+'|'+rx+'|'+votes+'|'+(m.edited||'');
 }
-/* One toolbar, created once, never rebuilt. */
-function rwChatToolbar(log){
-  if(el('tcTools') || !log || !log.parentNode) return;
-  var tb=document.createElement('div');
-  tb.id='tcTools'; tb.className='tc-tools';
-  tb.innerHTML =
-     '<button class="tc-t" onclick="rwChatTuskHint()"><span>\ud83d\udc18</span>Ask Tusk</button>'
-    +'<button class="tc-t" onclick="openChatPoll()"><span>\ud83d\uddf3\ufe0f</span>Decide</button>'
-    +'<button class="tc-t" onclick="openMoneyLayer()"><span>\ud83d\udcb0</span>Split</button>'
-    +'<button class="tc-t" onclick="openChatGames()"><span>\ud83c\udfae</span>Play</button>'
-    +'<button class="tc-t" onclick="openStays()"><span>\ud83c\udfe1</span>Book</button>';
-  log.parentNode.insertBefore(tb, log);
-}
+
 
 function chatVibeHTML(){
   var st=chatStreak();
   var msgs=_chatMsgs||[];
-  var people={}; msgs.forEach(function(m){ if(m.uid) people[m.uid]=m.name||'?'; });
-  var n=Object.keys(people).length;
+  /* FIXED (rw-v98): this counted anyone who had EVER posted — including Tusk
+     and game prompts — so a solo chat claimed "3 in here". Now it uses the
+     room's actual member list, and counts humans only. */
+  var n=0, live=0;
+  try{
+    var mem=(window._chatMembers||[]).filter(function(u){ return u && u!=='tusk'; });
+    n=mem.length;
+    var cut=Date.now()-5*60*1000;
+    var seen={};
+    msgs.forEach(function(m){
+      if(!m.uid || m.uid==='tusk') return;
+      var t=(m.at&&m.at.seconds)? m.at.seconds*1000 : 0;
+      if(t>cut) seen[m.uid]=1;
+    });
+    live=Object.keys(seen).length;
+  }catch(e){}
+  if(!n) n=1;
   var vibe = st>=7 ? 'locked in \ud83d\udd25' : st>=3 ? 'warming up \u2728' : n>2 ? 'the squad is here \ud83d\udc65' : 'just getting started \ud83c\udf31';
   return '<div class="tc-vibe">'
     +(st>1? '<span class="tc-streak">\ud83d\udd25 '+st+'-day streak</span>':'')
     +'<span class="tc-vibe-t">'+vibe+'</span>'
-    +(n? '<span class="tc-count">'+n+' in here</span>':'')
+    +'<span class="tc-count">'
+    + (live? '<i class="tc-live"></i>'+live+' online · ':'')
+    + n+' member'+(n===1?'':'s')+'</span>'
     +'</div>';
 }
 

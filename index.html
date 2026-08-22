@@ -217,7 +217,7 @@ body.shell{padding-bottom:calc(104px + env(safe-area-inset-bottom))}
 ::-webkit-scrollbar{width:9px;height:9px}
 ::-webkit-scrollbar-thumb{background:#23232E;border-radius:9px}
 ::-webkit-scrollbar-thumb:hover{background:#2E2E3C}
-.chat-tool{flex:0 0 auto;white-space:nowrap;font-size:12px;padding:7px 13px;border-radius:999px;border:1px solid var(--b2,#2A2A36);background:var(--bg3,#1A1A20);color:var(--t2,#C8C8D0);font-weight:600;cursor:pointer;transition:all .15s}
+.chat-tool{flex:0 0 auto;white-space:nowrap;font-size:13px;min-height:42px;padding:10px 16px;border-radius:999px;border:1px solid var(--b2,#2A2A36);background:var(--bg3,#1A1A20);color:var(--t2,#C8C8D0);font-weight:600;cursor:pointer;transition:border-color .16s,color .16s,transform .16s cubic-bezier(.34,1.56,.64,1)}.chat-tool:active{transform:scale(.94)}.chat-tool:first-child{border-color:rgba(232,186,108,.5);color:var(--gold,#E8BA6C);background:linear-gradient(150deg,rgba(232,186,108,.14),var(--bg3,#1A1A20));font-weight:800}
 .pin-row{display:flex;gap:6px;overflow-x:auto;-webkit-overflow-scrolling:touch}
 #chatFab{position:fixed;right:18px;bottom:88px;z-index:8000;width:56px;height:56px;border-radius:50%;border:none;background:linear-gradient(135deg,var(--gold,#E8BA6C),var(--gold2,#C8913E));color:#0A0A0C;font-size:24px;box-shadow:0 6px 20px rgba(232,186,108,.4);cursor:pointer;display:none;align-items:center;justify-content:center;animation:fabIn .25s ease}
 @keyframes fabIn{from{transform:scale(.5);opacity:0}to{transform:scale(1);opacity:1}}
@@ -231,6 +231,16 @@ body.shell{padding-bottom:calc(104px + env(safe-area-inset-bottom))}
 .tusk-more{display:block;width:100%;margin-top:6px;font-size:12px;font-weight:700;color:var(--gold,#E8BA6C);background:transparent;border:1px solid var(--b2,#2A2A36);border-radius:999px;padding:6px 0;cursor:pointer}
 .pin-body{margin-top:9px;background:var(--bg3,#1A1A20);border:1px solid var(--b2,#2A2A36);border-radius:12px;padding:11px 13px;max-height:22dvh;overflow-y:auto;animation:pinIn .18s ease}
 @keyframes pinIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+
+.tc-live{display:inline-block;width:7px;height:7px;border-radius:50%;background:#4ADE80;margin-right:5px;vertical-align:middle;animation:tcLive 1.8s ease-in-out infinite}
+@keyframes tcLive{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(74,222,128,.55)}50%{opacity:.5;box-shadow:0 0 0 6px rgba(74,222,128,0)}}
+.tc-vibe{flex-wrap:nowrap;gap:10px}
+.tc-count{white-space:nowrap;font-variant-numeric:tabular-nums}
+@media (min-width:900px){
+  #chatLog{padding:18px 24px!important}
+  .tc-bub{font-size:14px;padding:11px 15px}
+  .chat-tool{font-size:13.5px;min-height:44px}
+}
 .chat-tool:hover,.chat-tool:active{border-color:var(--gold,#E8BA6C);color:var(--gold,#E8BA6C)}
 </style>
 <style id="rwScale">

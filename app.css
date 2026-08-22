@@ -1798,21 +1798,14 @@ body.rw-paged{overflow:hidden}
 .tc-msg .tc-row{margin:5px 0}
 
 /* toolbar — sits above the log, always visible, never rebuilt */
-.tc-tools{display:flex;gap:8px;overflow-x:auto;padding:10px 2px;margin-bottom:2px;
-  scrollbar-width:none;-webkit-overflow-scrolling:touch;
-  border-bottom:1px solid var(--b1);position:sticky;top:0;z-index:3;
-  background:linear-gradient(180deg,var(--bg) 70%,transparent)}
-.tc-tools::-webkit-scrollbar{display:none}
-.tc-t{flex:0 0 auto;display:flex;flex-direction:column;align-items:center;gap:3px;
-  min-width:64px;min-height:58px;padding:9px 12px;
-  background:var(--bg2);border:1px solid var(--b2);border-radius:16px;
-  color:var(--t2);font:inherit;font-size:10.5px;font-weight:700;cursor:pointer;
-  transition:border-color .18s,transform .16s cubic-bezier(.34,1.56,.64,1),background .18s}
-.tc-t span{font-size:22px;line-height:1}
-.tc-t:active{transform:scale(.92)}
-.tc-t:hover{border-color:var(--gold);color:var(--t1);background:var(--bg3)}
-.tc-t:first-child{border-color:rgba(232,186,108,.45);background:linear-gradient(150deg,rgba(232,186,108,.12),var(--bg2))}
-.tc-t:first-child span{filter:drop-shadow(0 0 8px rgba(232,186,108,.5))}
+
+
+
+
+
+
+
+
 
 /* Tusk in the room */
 .tc-av.tusk{background:linear-gradient(135deg,#A78BFA,#7C5CD6);font-size:15px}
@@ -1836,5 +1829,5 @@ body.rw-paged{overflow:hidden}
 
 @media(prefers-reduced-motion:reduce){
   .tc-msg,.tk-dots i{animation:none}
-  .tc-t{transition:none}
+  
 }
