@@ -217,6 +217,31 @@ button,select,input,textarea{font:inherit}
 .ld-row{display:flex;align-items:center;gap:8px;padding:10px;border:1px solid var(--b2);border-radius:11px;margin-bottom:7px;background:var(--bg2)}
 .ld-row b{font-size:13px}
 .ld-a{display:inline-block;font-size:11.5px;color:var(--gold);text-decoration:none;margin-right:9px;margin-top:3px}
+
+.lv-roi{margin-top:9px;padding-top:9px;border-top:1px solid rgba(255,255,255,.07);font-size:12px;color:var(--t2)}
+.lv-roi b{color:var(--gold)}
+
+.ms-wrap{background:linear-gradient(155deg,#161B2A,#0D1017);border:1px solid rgba(232,186,108,.3);
+  border-radius:18px;padding:17px;margin-bottom:14px;text-align:center;position:relative;overflow:hidden}
+.ms-lab{font-size:9.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--t3);font-weight:800}
+.ms-big{font-size:clamp(40px,12vw,58px);font-weight:900;letter-spacing:-.04em;line-height:1;margin:6px 0 2px;
+  background:linear-gradient(100deg,#E8BA6C,#F5D9A8,#C8913E);-webkit-background-clip:text;background-clip:text;
+  -webkit-text-fill-color:transparent;font-variant-numeric:tabular-nums}
+.ms-sub{font-size:12.5px;color:var(--t2);margin-bottom:14px}
+.ms-bar{position:relative;height:9px;border-radius:9px;background:rgba(255,255,255,.08);overflow:visible;margin-bottom:7px}
+.ms-bar i{display:block;height:100%;border-radius:9px;background:linear-gradient(90deg,#C8913E,#E8BA6C);
+  transition:width 1.2s cubic-bezier(.22,1,.36,1)}
+.ms-tick{position:absolute;top:-3px;width:3px;height:15px;border-radius:2px;background:rgba(255,255,255,.22)}
+.ms-tick.hit{background:#4ADE80;box-shadow:0 0 8px rgba(74,222,128,.7)}
+.ms-row{display:flex;justify-content:space-between;font-size:11px;color:var(--t3);margin-bottom:11px}
+.ms-stage{font-size:12px;color:#4ADE80;line-height:1.55;margin-bottom:6px}
+.ms-next{font-size:11.5px;color:var(--t2);line-height:1.55;margin-bottom:12px}
+.ms-next b{color:var(--gold)}
+.ms-mon{text-align:left;background:rgba(255,255,255,.03);border:1px solid var(--b2);border-radius:13px;padding:13px}
+.ms-mon>b{font-size:13.5px;color:var(--t1);display:block;margin-bottom:4px}
+.ms-tg{font-size:11.5px;color:var(--t3);margin-bottom:8px}
+.ms-tg b{color:var(--gold)}
+.ms-g{font-size:12px;color:var(--t2);line-height:1.6;padding:3px 0}
 </style></head><body><div class="wrap">
 <header>
   <div><div class="brand">Roam<em>Wise</em> · team</div><div class="who" id="who">Not signed in</div></div>
@@ -1062,6 +1087,7 @@ function deskRender(){
     me=d.data()||{};
     window._deskProgress = me.resourceProgress || {};
     window._deskPlanDone = me.planDone || {};
+    window._deskMe = me;
     try{ setTimeout(myPartnersLoad, 700); }catch(e){}
     try{ rwLiveStart(); setTimeout(function(){ deskEarnLoad(me); }, 400); }catch(e){}
     try{ setTimeout(rwLivePaint, 60); }catch(e){}
@@ -1122,6 +1148,7 @@ function deskPaint(me, logs, sess, claims){
     + deskLeadsHTML()
     + deskPartnerHTML(me)
     + rwLiveHTML()
+    + deskMissionHTML()
     + deskEarnHTML()
     + deskRefHTML(me)
     + deskPlanHTML(me)
@@ -2497,18 +2524,26 @@ function myPartnersLoad(){
    works if everyone can see it.
    ========================================================================= */
 var RW_LIVE = { users:null, paid:null, started:false };
-var RW_GOALS = { users:1000, paid:200 };   /* next-month targets */
+var RW_GOALS = { users:1000, paid:200 };
+var RW_TARGET_SPEND = 100000;   /* 3-month budget the team is working to cover */   /* next-month targets */
 
 function rwLiveStart(){
   if(RW_LIVE.started || typeof db==='undefined' || !db) return;
   RW_LIVE.started = true;
-  db.collection('users').onSnapshot(function(qs){
-    RW_LIVE.users = qs.size; rwLivePaint();
-  }, function(){ RW_LIVE.users = 0; rwLivePaint(); });
-  db.collection('claims').onSnapshot(function(qs){
-    var n=0; qs.forEach(function(d){ if((d.data()||{}).status==='approved') n++; });
-    RW_LIVE.paid = n; rwLivePaint();
-  }, function(){ RW_LIVE.paid = 0; rwLivePaint(); });
+  /* FIXED (rw-v95): this used to query /users and /claims directly and always
+     showed 0 — not a page bug, the rules working correctly. Staff cannot read
+     traveller accounts (and should not). We now read ONE counts document that
+     holds only numbers. Cheaper too: one read instead of streaming every user
+     record to every staff phone. */
+  db.collection('meta').doc('publicStats').onSnapshot(function(d){
+    var v = d.exists ? (d.data()||{}) : {};
+    RW_LIVE.users   = (v.users   != null) ? v.users   : null;
+    RW_LIVE.paid    = (v.paid    != null) ? v.paid    : null;
+    RW_LIVE.revenue = (v.revenue != null) ? v.revenue : null;
+    RW_LIVE.stale   = v.updatedAt || null;
+    RW_LIVE.missing = !d.exists;
+    rwLivePaint();
+  }, function(){ RW_LIVE.missing = true; rwLivePaint(); });
   setInterval(rwLiveClock, 1000);
 }
 function rwCountUp(node, to){
@@ -2558,6 +2593,13 @@ function rwLiveHTML(){
 }
 function rwLivePaint(){
   var wrap=el('rwLiveWrap'); if(!wrap) return;
+  if(RW_LIVE.missing){
+    var mw=el('rwLiveWrap');
+    if(mw) mw.innerHTML='<div class="lv-top"><span class="lv-dot" style="background:#F0A63B"></span>'
+      +'<b style="color:#F0A63B">SETTING UP</b></div>'
+      +'<div class="dk-note" style="padding:4px 0">The team numbers aren\u2019t published yet. Mohit can turn them on in one tap from the admin app \u2014 ask him.</div>';
+    return;
+  }
   var u=RW_LIVE.users, p=RW_LIVE.paid;
   if(u===null || p===null) return;
   rwCountUp(el('lvUsers'), u);
@@ -2579,7 +2621,12 @@ function rwLivePaint(){
       : conv>=15 ? 'Conversion is strong. Whatever you\u2019re doing, do more of it.'
       : conv>=5 ? 'Healthy conversion. Small nudges could lift it further.'
       : 'Plenty of sign-ups aren\u2019t paying yet \u2014 worth asking a few of them why.';
-    cn.innerHTML='<span class="lv-pct">'+conv.toFixed(conv<10?1:0)+'%</span> of everyone who signs up ends up paying. '+msg;
+    var rev = RW_LIVE.revenue!=null ? RW_LIVE.revenue : p*100;
+    var need = Math.max(0, Math.ceil((RW_TARGET_SPEND - rev)/100));
+    cn.innerHTML='<span class="lv-pct">'+conv.toFixed(conv<10?1:0)+'%</span> of everyone who signs up ends up paying. '+msg
+      +'<div class="lv-roi"><b>\u20b9'+rev.toLocaleString('en-IN')+'</b> earned so far \u00b7 '
+      +'<b>'+need.toLocaleString('en-IN')+'</b> more paid users to cover the \u20b9'
+      +RW_TARGET_SPEND.toLocaleString('en-IN')+' we\u2019re spending this quarter.</div>';
   }
   rwLiveClock();
 }
@@ -2672,6 +2719,84 @@ function deskLeadMark(btn, name, town){
       by:(user&&user.uid)||'', byName:(user&&user.displayName)||'',
       at:new Date().toISOString() });
   }catch(e){}
+}
+
+
+/* ============================================================================
+   THE COMMON MISSION (rw-v95) — one goal everyone shares
+   ============================================================================
+   Role targets tell each person what THEY should do. This is the number the
+   whole team lives or dies by, shown identically to everyone regardless of
+   role, so a content intern and a QA intern are pushing the same rock.
+
+   The maths is deliberately simple enough to hold in your head:
+     we spend ~Rs 1,00,000 over three months
+     every Pro user pays Rs 100
+     therefore 1,000 paid users = break even
+   Everything else is a step toward that one number.
+   ========================================================================= */
+var RW_MISSION = {
+  spend: 100000,
+  price: 100,
+  months: 3,
+  stages: [
+    { at:100,  label:'Proof',       say:'A hundred people paying means this is a product, not an experiment.' },
+    { at:250,  label:'Momentum',    say:'A quarter of the way. The channel that works is now obvious.' },
+    { at:500,  label:'Halfway',     say:'Half the quarter\u2019s costs covered by travellers, not by the founder.' },
+    { at:1000, label:'Break even',  say:'Everything we spent this quarter is back. From here, every sale is profit.' },
+    { at:1500, label:'Profit',      say:'\u20b950,000 clear. This is the number that makes the next hire possible.' }
+  ],
+  monthPlan: [
+    { m:1, title:'Get the machine running', target:150,
+      all:['Everyone uses RoamWise for one real trip \u2014 you cannot sell what you have not used',
+           'Everyone shares their referral link at least 20 times',
+           'Everyone files 3 things that are wrong with the product',
+           'Team hits 150 paid users between us'] },
+    { m:2, title:'Find what actually works', target:450,
+      all:['Each person reports which channel converted best for them',
+           'We stop doing the two things that clearly do not work',
+           'Everyone brings one partner, creator or community lead',
+           'Team hits 450 paid users cumulative'] },
+    { m:3, title:'Cover our costs', target:1000,
+      all:['Double down only on what worked in month 2',
+           'Everyone writes a one-page handover so the next person starts faster',
+           'Every intern has a certificate built from real logged work',
+           'Team hits 1,000 paid \u2014 the quarter pays for itself'] }
+  ]
+};
+function deskMissionHTML(){
+  var M=RW_MISSION;
+  var paid=(RW_LIVE && RW_LIVE.paid) || 0;
+  var rev=(RW_LIVE && RW_LIVE.revenue!=null)? RW_LIVE.revenue : paid*M.price;
+  var pct=Math.min(100, Math.round(rev/M.spend*100));
+  var need=Math.max(0, Math.ceil((M.spend-rev)/M.price));
+  var stage=M.stages.filter(function(x){ return paid>=x.at; }).pop();
+  var next=M.stages.filter(function(x){ return paid<x.at; })[0];
+  /* which month are we in */
+  var mn=1; try{
+    var j=rwJoinDate(window._deskMe||{});
+    if(j){ var d=(Date.now()-new Date(j+'T00:00:00').getTime())/86400000; mn=Math.min(3,Math.max(1,Math.floor(d/30)+1)); }
+  }catch(e){}
+  var mp=M.monthPlan[mn-1]||M.monthPlan[0];
+  return '<div class="ms-wrap">'
+    +'<div class="ms-lab">THE ONE NUMBER WE ALL SHARE</div>'
+    +'<div class="ms-big">'+need.toLocaleString('en-IN')+'</div>'
+    +'<div class="ms-sub">more paid users and this quarter pays for itself</div>'
+    +'<div class="ms-bar"><i style="width:'+pct+'%"></i>'
+    + M.stages.map(function(st){
+        var l=Math.min(100, Math.round(st.at*M.price/M.spend*100));
+        return '<span class="ms-tick'+(paid>=st.at?' hit':'')+'" style="left:'+l+'%" title="'+esc(st.label)+'"></span>';
+      }).join('')
+    +'</div>'
+    +'<div class="ms-row"><span>\u20b9'+rev.toLocaleString('en-IN')+' in</span><span>\u20b9'+M.spend.toLocaleString('en-IN')+' out</span></div>'
+    + (stage? '<div class="ms-stage">\u2713 '+esc(stage.label)+' \u2014 '+esc(stage.say)+'</div>':'')
+    + (next? '<div class="ms-next">Next: <b>'+esc(next.label)+'</b> at '+next.at.toLocaleString('en-IN')+' paid \u00b7 '+esc(next.say)+'</div>':'')
+    +'<div class="ms-mon"><b>Month '+mp.m+' \u00b7 '+esc(mp.title)+'</b>'
+    +'<div class="ms-tg">Team target this month: <b>'+mp.target.toLocaleString('en-IN')+' paid</b></div>'
+    + mp.all.map(function(g){ return '<div class="ms-g">\u25c6 '+esc(g)+'</div>'; }).join('')
+    +'</div>'
+    +'<div class="dk-note" style="margin-top:9px">Every ' + M.price + '-rupee sale is 0.1% of the way there. Your referral link is the fastest lever any of us has.</div>'
+    +'</div>';
 }
 
 </script>
