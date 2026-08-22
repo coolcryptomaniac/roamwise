@@ -362,7 +362,27 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
     // ---- INVESTOR DECK LEADS (public create, admin read only) ----
-    // Anyone opening the private deck link can create/update THEIR lead doc
+    // ---- INVESTOR SUBMISSIONS ----------------------------------------
+    // Write-only for visitors: no sign-in required to express interest.
+    // Only the founder can read submissions (private contact details).
+    // A separate /meta/investorStats document carries the public board stats.
+    match /investors/{id} {
+      allow read: if isAdmin();
+      allow create: if request.resource.data.amount is number
+                    && request.resource.data.amount > 0
+                    && request.resource.data.status == 'interested'
+                    && request.resource.data.name is string
+                    && request.resource.data.email is string;
+      allow update, delete: if isAdmin();
+    }
+
+    // ---- INVESTOR BOARD STATS (numbers only, no names/emails) ----------
+    match /meta/investorStats {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+        // Anyone opening the private deck link can create/update THEIR lead doc
     // (name, role, contact, scroll depth, time). Only admins can read them.
     match /deckleads/{id} {
       allow create: if request.resource.data.name is string
