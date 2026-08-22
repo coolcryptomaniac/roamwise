@@ -70,6 +70,16 @@ html,body{min-height:100%;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI
 </head>
 <body>
 
+<nav id="sitenav" style="background:#0B1020;border-bottom:1px solid #26304C;padding:10px 16px;display:flex;align-items:center;justify-content:space-between;gap:10px;position:sticky;top:0;z-index:100">
+  <a href="/" style="display:flex;align-items:center;gap:7px;text-decoration:none;color:#F2EFE6;font-size:13px;font-weight:600">
+    <span style="font-size:18px">&#127964;</span> RoamWise
+  </a>
+  <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+    <a href="/deck/" style="color:#8B93A7;font-size:12px;padding:5px 10px;border:1px solid #26304C;border-radius:20px;text-decoration:none;white-space:nowrap">&#128202; Deck</a>
+    <a href="/invest/" style="color:#8B93A7;font-size:12px;padding:5px 10px;border:1px solid #26304C;border-radius:20px;text-decoration:none;white-space:nowrap">&#128300; Full details</a>
+    <a href="/live" style="color:#E8BA6C;font-size:12px;padding:5px 10px;border:1px solid rgba(232,186,108,.4);border-radius:20px;text-decoration:none;white-space:nowrap">&#128200; Live</a>
+  </div>
+</nav>
 <div id="banner">
   <div class="bn">
     <div class="bdot"></div>
@@ -150,13 +160,13 @@ function loadStats(){
     var v=d.exists?(d.data()||{}):{},count=v.count||0,total=v.total||0,pct=RAISE>0?Math.min(100,Math.round(total/RAISE*100)):0;
     cu("sN",count,false);
     if(total>0)cu("sA",total,true);else{var sa=el("sA");if(sa)sa.textContent="--";}
-    var bs=el("bStatus");if(bs)bs.textContent=count+" commitment"+(count!==1?"s":"")+" \u00b7 "+(total>0?fmt(total):"none yet")+" pledged";
+    var bs=el("bStatus");if(bs)bs.textContent=count+" commitment"+(count!==1?"s":"")+" \u00b7 "+(total>0?fmt(total):"amount not published yet")+" pledged";
     var bf=el("bFill");if(bf)bf.style.width=pct+"%";
     var bp=el("bPct");if(bp)bp.textContent=pct+"%";
     renderBoard(v);
   },function(){el("bStatus").textContent="no data yet";el("board").innerHTML="<div style='font-size:13px;color:var(--mist);padding:6px 0'>No commitments recorded yet.<\/div>";});
 }
-function renderBoard(v){var wrap=el("board");if(!wrap)return;var cls=v.byClass||{},order=["angel","vc","institutional","retail","community"],active=order.filter(function(k){return cls[k]&&cls[k].count;});if(!active.length){wrap.innerHTML="<div style='font-size:13px;color:var(--mist);padding:6px 0'>No commitments yet. Be the first one in.<\/div>";return;}wrap.innerHTML=active.map(function(k){var ci=CLASSES.filter(function(c){return c.id===k;})[0]||{};return "<div class='brow'><span style='font-size:18px;margin-right:8px'>"+(ci.icon||"&#128176;")+"<\/span><span style='flex:1;color:var(--mist)'>"+esc(ci.label||k)+"<\/span><span style='text-align:right'><div class='bamt'>"+fmt(cls[k].total||0)+"<\/div><div class='bcnt'>"+cls[k].count+" commitment"+(cls[k].count!==1?"s":"")+"<\/div><\/span><\/div>";}).join("");}
+function renderBoard(v){var wrap=el("board");if(!wrap)return;var cls=v.byType||{},order=["angel","vc","institutional","retail","community"];var ICONS={institutional:"&#127974;",vc:"&#127963;",angel:"&#128519;",retail:"&#128100;",community:"&#127793;"};var NAMES={institutional:"Institutional",vc:"Venture fund",angel:"Angel investor",retail:"Retail investor",community:"Community backer"};var active=order.filter(function(k){return cls[k]&&cls[k].n;});if(!active.length){wrap.innerHTML="<div style='font-size:13px;color:var(--mist);padding:6px 0'>"+(v.count?"Data published but breakdown missing — re-publish from admin.":"No commitments yet. Be the first one in.")+"<\/div>";return;}if(v.largest){var lbl="Largest single commitment";wrap.innerHTML="<div style='font-size:11px;color:var(--mist);letter-spacing:.06em;text-transform:uppercase;margin-bottom:10px'>By class<\/div>";}wrap.innerHTML=(v.largest?"<div style='font-size:11px;color:var(--mist);letter-spacing:.06em;text-transform:uppercase;margin-bottom:10px'>By class<\/div>":"")+active.map(function(k){return "<div class='brow'><span style='font-size:18px;margin-right:8px'>"+(ICONS[k]||"&#128176;")+"<\/span><span style='flex:1;color:var(--mist)'>"+esc(NAMES[k]||k)+"<\/span><span style='text-align:right'><div class='bamt'>"+fmt(cls[k].v||0)+"<\/div><div class='bcnt'>"+cls[k].n+" commitment"+(cls[k].n!==1?"s":"")+"<\/div><\/span><\/div>";}).join("")+(v.largest?"<div class='brow' style='border-top:1px solid rgba(232,186,108,.2);margin-top:4px'><span style='font-size:18px;margin-right:8px'>&#127942;<\/span><span style='flex:1;color:var(--mist)'>Largest single commitment<\/span><span style='text-align:right'><div class='bamt'>"+fmt(v.largest)+"<\/div><div class='bcnt'>type withheld until round closes<\/div><\/span><\/div>":"");}
 function fsSubmit(){var err=el("ferr");err.textContent="";var name=(el("fName").value||"").trim(),email=(el("fEmail").value||"").trim(),amt=parseInt(el("fAmt").value||"0",10)||0;if(!picked)return err.textContent="Pick how you would come in.";if(!name||!email)return err.textContent="Name and email are needed.";if(!amt)return err.textContent="Enter the amount you intend to invest.";if(amt<picked.min)return err.textContent="Minimum for "+picked.label.toLowerCase()+" is "+fmt(picked.min)+".";if(!db)return err.textContent="Not connected \u2014 try again in a moment.";var btn=el("fsub");btn.disabled=true;btn.textContent="Recording\u2026";db.collection("investors").add({name:name,email:email,phone:(el("fPhone").value||"").trim(),cls:picked.id,clsLabel:picked.label,route:picked.route,amount:amt,icon:picked.icon,note:(el("fNote").value||"").trim(),status:"interested",at:new Date().toISOString()}).then(function(){el("finner").style.display="none";el("fdone").style.display="block";el("fdone").innerHTML="<b style='color:var(--pine)'>\u2713 Recorded, "+esc(name.split(" ")[0])+".<\/b><br>Your commitment of <b>"+fmt(amt)+"<\/b> is noted. Mohit will be in touch within 48\u00a0hours.<br><a href='mailto:founder@roamwise.co.in' style='color:var(--gold)'>founder@roamwise.co.in<\/a>";}).catch(function(e){btn.disabled=false;btn.textContent="Record my commitment";err.textContent=e.code==="permission-denied"?"Database refused \u2014 email founder@roamwise.co.in directly.":"Could not save: "+(e.message||"unknown");});}
 loadStats();
 </script>
