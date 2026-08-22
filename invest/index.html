@@ -241,6 +241,20 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--gold);bo
 .cy.upi{border-color:rgba(232,186,108,.4);background:linear-gradient(150deg,rgba(232,186,108,.08),var(--ink2))}
 .cy-b.pay{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#0A0A0C;border-color:transparent;
   font-weight:800;text-decoration:none;display:inline-flex;align-items:center}
+
+.ib-head{text-align:center;padding:20px 14px;border-bottom:1px solid var(--line);
+  background:linear-gradient(160deg,color-mix(in srgb,var(--gold) 8%,transparent),transparent)}
+.ib-n{font-size:clamp(40px,11vw,58px);font-weight:900;letter-spacing:-.04em;line-height:1;
+  background:linear-gradient(100deg,var(--gold),#F5D9A8,var(--gold2));-webkit-background-clip:text;
+  background-clip:text;-webkit-text-fill-color:transparent;font-variant-numeric:tabular-nums}
+.ib-l{font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--mist);margin-top:4px}
+.ib-amt{font-size:22px;font-weight:800;color:var(--snow);margin-top:12px;font-variant-numeric:tabular-nums}
+.ib-bar{height:7px;border-radius:7px;background:rgba(255,255,255,.08);overflow:hidden;margin:11px auto 0;max-width:300px}
+.ib-bar i{display:block;height:100%;border-radius:7px;background:linear-gradient(90deg,var(--gold2),var(--gold));
+  transition:width 1.2s cubic-bezier(.22,1,.36,1)}
+.ib-goal{font-size:11.5px;color:var(--mist);margin-top:7px}
+.ib-priv{font-size:11px;color:var(--mist);line-height:1.6;padding:13px 15px;border-top:1px solid var(--line);
+  background:rgba(255,255,255,.02)}
 </style>
 </head>
 <body>
@@ -597,6 +611,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--gold);bo
     <textarea id="iNote" rows="3" placeholder="Questions, conditions, what interests you"></textarea>
     <button class="btn" onclick="submitInterest()">Record my commitment</button>
     <div class="note" style="margin-top:11px"><b style="color:var(--snow)">No money moves at this step.</b> This records your intent and generates your draft agreement. Nothing binds either side until both sign.</div>
+    <div class="note" style="margin-top:7px"><b style="color:var(--gold)">&#128274; Your details stay private.</b> The public board shows only totals and investor types &mdash; never a name, an email, or who committed how much. Only Mohit sees your submission.</div>
     <div id="err" class="note" style="color:var(--alert);margin-top:9px"></div>
   </div>
 
@@ -761,29 +776,60 @@ var RANKS=[
   {min:0,         t:'🌱 First Mover',    d:'Every big round started here.'}
 ];
 function rankFor(a){ for(var i=0;i<RANKS.length;i++) if(a>=RANKS[i].min) return RANKS[i]; return RANKS[RANKS.length-1]; }
-function paintBoard(rows){
-  var host=el('board');
-  if(!rows.length){
-    host.innerHTML='<div class="brow"><span class="bav">👑</span><span class="bmeta"><b>This spot is empty</b>'
+function paintBoard(v){
+  var host=el('board'); if(!host) return;
+  if(!v || !v.count){
+    host.innerHTML='<div class="brow"><span class="bav">&#128081;</span>'
+      +'<span class="bmeta"><b>This spot is empty</b>'
       +'<span>The first name on this board gets remembered forever. No pressure.</span></span>'
-      +'<span class="bamt" style="color:var(--mist)">—</span></div>';
+      +'<span class="bamt" style="color:var(--mist)">&mdash;</span></div>';
     return;
   }
-  var medals=['🥇','🥈','🥉'];
-  host.innerHTML=rows.slice(0,8).map(function(r,i){
-    var nm = r.showPublic? (r.name||'').split(' ')[0] : 'Mr / Ms ' + String.fromCharCode(88 - (i%3));
-    var rk = rankFor(r.amount||0);
-    return '<div class="brow" style="animation-delay:'+(i*0.07)+'s">'
-      +'<span class="bav">'+(medals[i]||rk.t.split(' ')[0])+'</span>'
-      +'<span class="bmeta"><b>'+esc(nm||'Anonymous')+' <span style="font-size:11px;color:var(--gold);font-weight:700">'+esc(rk.t)+'</span></b>'
-      +'<span>'+esc(rk.d)+'</span></span>'
-      +'<span class="bamt">'+fmt(r.amount||0)+'</span></div>';
-  }).join('')
-  + '<div class="brow" style="background:rgba(232,186,108,.05)"><span class="bav">📊</span>'
-  + '<span class="bmeta"><b>'+rows.length+' committed · '+fmt(rows.reduce(function(a,r){return a+(r.amount||0);},0))+' pledged</b>'
-  + '<span>of a ₹4 Cr round</span></span>'
-  + '<span class="bamt">'+Math.min(100,Math.round(rows.reduce(function(a,r){return a+(r.amount||0);},0)/40000000*100))+'%</span></div>';
+  var target=(window.RW_INVEST && RW_INVEST.raising) || 40000000;
+  var pct=Math.min(100, Math.round((v.pledged||0)/target*100));
+  var byType=v.byType||{};
+  var order=['institutional','vc','angel','retail','community'];
+  var icons={ institutional:'&#127974;', vc:'&#127963;', angel:'&#128519;', retail:'&#128100;', community:'&#127793;' };
+  var names={ institutional:'Institutional', vc:'Venture fund', angel:'Angel', retail:'Retail', community:'Community' };
+  host.innerHTML =
+     '<div class="ib-head">'
+    +'<div class="ib-n" id="ibCount">0</div>'
+    +'<div class="ib-l">commitment'+(v.count===1?'':'s')+' recorded</div>'
+    +'<div class="ib-amt" id="ibAmt">&#8377;0</div>'
+    +'<div class="ib-bar"><i style="width:'+pct+'%"></i></div>'
+    +'<div class="ib-goal">'+pct+'% of the &#8377;'+(target/10000000)+' Cr round</div>'
+    +'</div>'
+    + order.filter(function(k){ return byType[k] && byType[k].n; }).map(function(k,i){
+        var t=byType[k];
+        return '<div class="brow" style="animation-delay:'+(i*0.08)+'s">'
+          +'<span class="bav">'+icons[k]+'</span>'
+          +'<span class="bmeta"><b>'+names[k]+'</b>'
+          +'<span>'+t.n+' '+(t.n===1?'commitment':'commitments')+'</span></span>'
+          +'<span class="bamt">'+fmt(t.v||0)+'</span></div>';
+      }).join('')
+    + (v.largest? '<div class="brow" style="background:rgba(232,186,108,.06)">'
+        +'<span class="bav">&#128011;</span>'
+        +'<span class="bmeta"><b>Largest single commitment</b>'
+        +'<span>type withheld until it closes</span></span>'
+        +'<span class="bamt">'+fmt(v.largest)+'</span></div>' : '')
+    +'<div class="ib-priv">&#128274; Names, emails and per-person amounts are never shown here and never reach this page. '
+    +'Only Mohit sees who committed what. Updated '+(v.updatedAt? new Date(v.updatedAt).toLocaleString('en-IN'):'&mdash;')+'.</div>';
+  countTo('ibCount', v.count||0, '');
+  countTo('ibAmt', v.pledged||0, 'money');
 }
+function countTo(id, to, mode){
+  var n=el(id); if(!n) return;
+  var t0=null, dur=1100;
+  function step(ts){
+    if(!t0) t0=ts;
+    var k=Math.min(1,(ts-t0)/dur);
+    var val=Math.round(to*(1-Math.pow(1-k,3)));
+    n.textContent = (mode==='money') ? fmt(val) : val.toLocaleString('en-IN');
+    if(k<1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+
 function paintSeats(n){
   var total=I.circleSeats||10;
   el('seatN').textContent=total;
@@ -791,15 +837,18 @@ function paintSeats(n){
   el('seats').innerHTML=h;
 }
 function loadBoard(){
-  if(!db){ paintBoard([]); paintSeats(0); return; }
-  db.collection('investors').limit(40).get().then(function(qs){
-    var rows=[], angels=0;
-    qs.forEach(function(d){ var x=d.data()||{}; rows.push(x);
-      if(x.cls==='angel' && x.willFaith) angels++; });
-    rows.sort(function(a,b){ return (b.amount||0)-(a.amount||0); });
-    paintBoard(rows); paintSeats(Math.min(angels, I.circleSeats||10));
-  }).catch(function(){ paintBoard([]); paintSeats(0); });
+  /* PRIVACY FIX (rw-v104): this used to pull the entire investors collection
+     into the browser, which would have exposed every investor's name, email
+     and phone to any visitor. It also silently failed, which is why the board
+     looked empty. Now it reads ONE numbers-only document. */
+  if(!db){ paintBoard(null); paintSeats(0); return; }
+  db.collection('meta').doc('investorStats').onSnapshot(function(d){
+    var v = d.exists ? (d.data()||{}) : null;
+    paintBoard(v);
+    paintSeats(v && v.circleTaken ? v.circleTaken : 0);
+  }, function(){ paintBoard(null); paintSeats(0); });
 }
+
 loadBoard();
 
 /* ---- instrument routing ---- */
@@ -1039,11 +1088,70 @@ function ivClock(){
 setInterval(ivClock, 1000);
 
 /* ---- quiet support ---- */
+
+/* A QR is the only sane way to hand someone a 42-character wallet address on a
+   phone. Rendered from a free image endpoint \u2014 no library, no build step. */
+function ivQR(addr, name){
+  var ov=document.getElementById('qrOv');
+  if(!ov){
+    ov=document.createElement('div'); ov.id='qrOv';
+    ov.style.cssText='position:fixed;inset:0;z-index:9000;background:rgba(0,0,0,.86);display:flex;'
+      +'align-items:center;justify-content:center;padding:24px;backdrop-filter:blur(6px)';
+    ov.onclick=function(){ ov.style.display='none'; };
+    document.body.appendChild(ov);
+  }
+  ov.innerHTML='<div style="text-align:center;max-width:320px">'
+    +'<div style="background:#fff;padding:14px;border-radius:16px;display:inline-block">'
+    +'<img alt="QR" style="display:block;width:230px;height:230px" '
+    +'src="https://api.qrserver.com/v1/create-qr-code/?size=230x230&data='+encodeURIComponent(addr)+'">'
+    +'</div>'
+    +'<div style="color:#F2EFE6;font-size:15px;font-weight:700;margin-top:14px">'+esc(name)+'</div>'
+    +'<code style="display:block;color:#8B93A7;font-size:10.5px;word-break:break-all;margin-top:6px">'+esc(addr)+'</code>'
+    +'<div style="color:#8B93A7;font-size:11.5px;margin-top:12px">Tap anywhere to close</div>'
+    +'</div>';
+  ov.style.display='flex';
+}
 function ivCrypto(){
+  /* FIXED (rw-v103): the crypto rows never appeared because this looked at
+     RW_INVEST.crypto, while the founder's wallets are actually saved by the
+     admin panel into Firestore config/app -> CRYPTO_WALLETS. Now we read the
+     real source, and fall back to the local config if offline. */
+  try{
+    if(window.db){
+      db.collection('config').doc('app').get().then(function(d){
+        var w=(d.exists && (d.data()||{}).CRYPTO_WALLETS) || null;
+        if(w && Object.keys(w).length) ivCryptoPaint(w);
+        else ivCryptoPaint(null);
+      }).catch(function(){ ivCryptoPaint(null); });
+      return;
+    }
+  }catch(e){}
+  ivCryptoPaint(null);
+}
+/* Turn whatever keys the founder saved into readable rows.
+   Keys look like usdt_polygon, eth, btc, usdt_tron. */
+var RW_CHAIN_LABELS = {
+  btc:{ n:'Bitcoin', s:'\u20bf' },
+  eth:{ n:'Ethereum', s:'\u039e' },
+  usdt_polygon:{ n:'USDT \u00b7 Polygon', s:'\u20ae' },
+  usdt_tron:{ n:'USDT \u00b7 Tron', s:'\u20ae' },
+  usdt_eth:{ n:'USDT \u00b7 Ethereum', s:'\u20ae' },
+  usdc:{ n:'USDC', s:'$' },
+  sol:{ n:'Solana', s:'\u25ce' },
+  matic:{ n:'Polygon', s:'\u25c8' }
+};
+function ivCryptoPaint(wallets){
   var n=el('ivCryptoBox'); if(!n) return;
   var c=(window.RW_INVEST && RW_INVEST.crypto) || {};
-  if(!c.eth && !c.btc && !c.upi){
-    n.innerHTML='<p class="note">Addresses are set from the admin panel. Nothing is shown until they are.</p>';
+  /* merge: Firestore wallets win, local config fills gaps */
+  var W = {};
+  if(wallets) Object.keys(wallets).forEach(function(k){ if(wallets[k]) W[k]=wallets[k]; });
+  if(c.eth && !W.eth) W.eth=c.eth;
+  if(c.btc && !W.btc) W.btc=c.btc;
+
+  var haveAny = c.upi || Object.keys(W).length;
+  if(!haveAny){
+    n.innerHTML='<p class="note">Nothing set up yet. Add wallet addresses in the admin panel under Config \u2192 Wallets JSON, and they appear here automatically.</p>';
     return;
   }
   var html='';
@@ -1058,14 +1166,18 @@ function ivCrypto(){
       +'<a class="cy-b pay" href="'+uri+'">Open</a>'
       +'<button class="cy-b" onclick="navigator.clipboard.writeText(\''+c.upi+'\');this.textContent=\'Copied\'">Copy</button></div>';
   }
-  html+=(c.eth? row('Ethereum','\u039e',c.eth):'')+(c.btc? row('Bitcoin','\u20bf',c.btc):'');
+  Object.keys(W).forEach(function(k){
+    var meta = RW_CHAIN_LABELS[k] || { n:k.replace(/_/g,' \u00b7 ').toUpperCase(), s:'\u25c6' };
+    html += row(meta.n, meta.s, W[k]);
+  });
   html+='<p class="note" style="margin-top:10px">This buys you no equity and no claim \u2014 it is a tip jar, not a security. '
       +'We keep no record of who sent what, and there is nothing to sign. If you want equity, use the form above.</p>';
   n.innerHTML=html;
   function row(name,sym,addr){
     return '<div class="cy"><span class="cy-s">'+sym+'</span>'
-      +'<span style="flex:1;min-width:0"><b>'+name+'</b>'
+      +'<span style="flex:1;min-width:0"><b>'+esc(name)+'</b>'
       +'<code>'+esc(addr)+'</code></span>'
+      +'<button class="cy-b" onclick="ivQR(\''+esc(addr)+'\',\''+esc(name)+'\')">QR</button>'
       +'<button class="cy-b" onclick="navigator.clipboard.writeText(\''+addr+'\');this.textContent=\'Copied\'">Copy</button></div>';
   }
 }
