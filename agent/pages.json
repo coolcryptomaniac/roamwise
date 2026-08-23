@@ -4426,5 +4426,113 @@
    100,
    98
   ]
+ },
+ {
+  "slug": "rio-de-janeiro-brazil",
+  "title": "Rio de Janeiro, Brazil",
+  "name": "Rio de Janeiro",
+  "country": "Brazil",
+  "best": "April, June, September",
+  "arch": "tropical",
+  "cl": [
+   29.7,
+   30.5,
+   29.5,
+   28.6,
+   28.9,
+   28.1,
+   24.9,
+   26,
+   28.6,
+   26.9,
+   27.6,
+   29.2
+  ],
+  "scores": [
+   77,
+   92,
+   68,
+   98,
+   95,
+   98,
+   94,
+   91,
+   98,
+   88,
+   85,
+   80
+  ]
+ },
+ {
+  "slug": "buenos-aires-argentina",
+  "title": "Buenos Aires, Argentina",
+  "name": "Buenos Aires",
+  "country": "Argentina",
+  "best": "May, July, September",
+  "arch": "temperate",
+  "cl": [
+   28.5,
+   29.1,
+   25.5,
+   21,
+   15,
+   16.4,
+   13.2,
+   14.9,
+   20.2,
+   23.2,
+   25.6,
+   26.2
+  ],
+  "scores": [
+   94,
+   87,
+   65,
+   82,
+   97,
+   93,
+   98,
+   80,
+   98,
+   91,
+   83,
+   95
+  ]
+ },
+ {
+  "slug": "patagonia-argentina",
+  "title": "Patagonia, Argentina",
+  "name": "Patagonia",
+  "country": "Argentina",
+  "best": "May, October, December",
+  "arch": "tropical",
+  "cl": [
+   14.3,
+   16.5,
+   17.7,
+   23.4,
+   29.4,
+   35,
+   34.3,
+   32.5,
+   32.9,
+   30.6,
+   20.3,
+   20.6
+  ],
+  "scores": [
+   93,
+   92,
+   92,
+   98,
+   100,
+   83,
+   84,
+   92,
+   98,
+   100,
+   99,
+   100
+  ]
  }
 ]
