@@ -363,6 +363,13 @@ button,select,input,textarea{font:inherit}
     <div class="lab">📈 Sales snapshot</div>
     <p class="note">The one number to move: how many sign-ups turn into paying users. Watch it, and try things that push it up.</p>
     <div id="salesOut"><p class="note">Loading…</p></div>
+  <div class="card" id="refStatsBox" style="display:none">
+    <div class="lab">&#127991; My referral stats</div>
+    <p class="note">Everyone using your link is tracked. No personal details shown here &mdash; only counts and amounts.</p>
+    <div id="refStatsOut"><p class="note">Loading&hellip;</p></div>
+    <div id="refDisclaimerBox" style="display:none;margin-top:10px;padding:9px 11px;border-radius:10px;border:1px solid rgba(232,186,108,.25);background:rgba(232,186,108,.05);font-size:11.5px;color:var(--t2);line-height:1.6"></div>
+    <button class="btn" style="margin-top:10px" onclick="refStatsLoad()">&#8635; Refresh</button>
+  </div>
     <button class="btn" style="margin-top:10px" onclick="salesRefresh()">↻ Refresh</button>
   </div>
 
@@ -576,6 +583,7 @@ firebase.auth().onAuthStateChanged(function(u){
     el('taxBox').style.display = ROLE==='admin'?'block':'none';
     el('scoreBox').style.display = (ROLE&&ROLE!=='none')?'block':'none';
     el('salesBox').style.display = (ROLE&&ROLE!=='none')?'block':'none';
+    el('refStatsBox').style.display = (ROLE&&ROLE!=='none')?'block':'none';
     el('myDeskBox').style.display = (ROLE&&ROLE!=='none')?'block':'none';
     el('internAdminBox').style.display = ROLE==='admin'?'block':'none';
     el('pendingBox').style.display = ROLE==='admin'?'block':'none';
@@ -593,7 +601,7 @@ firebase.auth().onAuthStateChanged(function(u){
     if(ROLE==='admin') taxLoad();
     if(ROLE&&ROLE!=='none'){ setTimeout(function(){ try{ deskRender(); }catch(e){} }, 450); }
     if(ROLE==='admin'){ setTimeout(function(){ try{ pendingRefresh(); internRefresh(); }catch(e){} }, 700); }
-    if(ROLE==='admin'||ROLE==='staff'){ setTimeout(function(){ try{ scoreRefresh(); salesRefresh(); }catch(e){} }, 500); }
+    if(ROLE==='admin'||ROLE==='staff'){ setTimeout(function(){ try{ scoreRefresh(); salesRefresh(); refStatsLoad(); }catch(e){} }, 500); }
     if(ROLE==='admin'){ setTimeout(function(){ try{ invRender(); contactsRender(); }catch(e){} }, 400); }
   }).catch(function(e){ el('signedOut').innerHTML='<div class="card"><p class="note">Could not check your role: '+esc(e.message)+'</p></div>'; });
 });
@@ -1609,6 +1617,83 @@ function pendingSaveActivate(uid){
    actionable ratio: conversion. Staff watch this to see if what they're
    trying is working. Counts are live from Firestore; if the DB isn't ready
    the card says so rather than showing a fake number. */
+
+/* ============================================================
+   MY REFERRAL STATS (self-serve — rw-v111)
+   Reads refSignups (signup count) and claims (paid conversions)
+   filtered to this person's ref code. No user data exposed.
+   ============================================================ */
+function refStatsLoad(){
+  var host=document.getElementById('refStatsOut');
+  var discBox=document.getElementById('refDisclaimerBox');
+  if(!host) return;
+  host.innerHTML='<p class="note">Loading&hellip;</p>';
+  /* load referral terms for disclaimer + rates */
+  fb.firestore().collection('config').doc('referralTerms').get().then(function(td){
+    var terms=td.exists?(td.data()||{}):{};
+    var promoOn=terms.active!==false;
+    var disc=terms.disclaimer||'Commission rates and buyer bonuses are promotional and may change or stop at any time without notice.';
+    var endDate=terms.promoEndDate?(' Promo period: until '+terms.promoEndDate+'.'):'';
+    if(discBox){
+      discBox.style.display='block';
+      discBox.innerHTML=(promoOn?'<b style="color:var(--gold)">Promo active</b>':'<b style="color:#E05B5B">Promo paused</b>')+
+        ' &mdash; '+esc(disc)+esc(endDate)+
+        '<br><span style="opacity:.7">Rates: staff '+Math.round((terms.rates&&terms.rates.staff||0.30)*100)+'% &middot; creator '+
+        Math.round((terms.rates&&terms.rates.creator||0.25)*100)+'% &middot; affiliate '+
+        Math.round((terms.rates&&terms.rates.affiliate||0.20)*100)+'% &middot; buyer bonus: '+(promoOn?terms.buyerBonusDays||30:0)+' days</span>';
+    }
+    /* get my ref code */
+    var me=window.RW_REFERRERS||[];
+    var uid=firebase.auth().currentUser&&firebase.auth().currentUser.uid;
+    var myRef=null;
+    for(var i=0;i<me.length;i++){ if(me[i].uid&&me[i].uid===uid){ myRef=me[i]; break; } }
+    if(!myRef){
+      host.innerHTML='<p class="note">No referral code assigned to you yet &mdash; ask the founder to add you.</p>';
+      return;
+    }
+    var code=myRef.code;
+    var rate=myRef.rate||terms.rates&&terms.rates[myRef.type||'staff']||0.30;
+    /* parallel: signups + paid claims */
+    var signups=0, paid=0, gross=0, commission=0, pending=0;
+    var done=0;
+    function finish(){
+      if(++done<2) return;
+      var conv=signups>0?Math.round(paid/signups*100):0;
+      var payable=commission; /* simplified — full hold logic in admin console */
+      host.innerHTML=
+        '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px">'+
+          '<div class="sc-card"><div class="sc-n" style="font-size:26px">'+signups+'</div><div class="sc-k">Signups via link</div></div>'+
+          '<div class="sc-card"><div class="sc-n" style="font-size:26px;color:#4ADE80">'+paid+'</div><div class="sc-k">Paid conversions</div></div>'+
+          '<div class="sc-card"><div class="sc-n" style="font-size:26px;color:var(--gold)">'+(conv?conv+'%':'&mdash;')+'</div><div class="sc-k">Conversion rate</div></div>'+
+        '</div>'+
+        '<div style="border:1px solid var(--b);border-radius:11px;padding:12px">'+
+          '<div style="font-size:12px;color:var(--t3);margin-bottom:6px">EARNINGS &mdash; code <b style="color:var(--gold)">'+esc(code)+'</b> &middot; '+Math.round(rate*100)+'% rate</div>'+
+          '<div style="font-size:22px;font-weight:900;color:var(--gold)">'+money(commission)+'</div>'+
+          '<div style="font-size:12px;color:var(--t3);margin-top:4px">'+money(gross)+' gross &middot; '+(promoOn?'promo active':'<span style="color:#E05B5B">promo paused</span>')+'</div>'+
+          (pending?'<div style="font-size:11.5px;color:#F0A63B;margin-top:4px">'+money(pending)+' pending approval</div>':'')+
+        '</div>'+
+        (paid===0&&signups>0?'<p class="note" style="margin-top:10px">'+signups+' people signed up via your link &mdash; none have paid yet. Share more, remind them what they get for &#x20B9;100.</p>':'')+
+        (signups===0?'<p class="note" style="margin-top:10px">Nobody has used your link yet. Share it &mdash; a WhatsApp message to 10 real contacts converts better than posting in groups.</p>':'');
+    }
+    /* count signups */
+    fb.firestore().collection('refSignups').where('code','==',code).get()
+      .then(function(qs){ signups=qs.size; finish(); })
+      .catch(function(){ finish(); });
+    /* count paid claims */
+    fb.firestore().collection('claims').where('refCode','==',code).get()
+      .then(function(qs){
+        qs.forEach(function(d){
+          var c=d.data()||{}, amt=Number(c.amount||0);
+          if(c.status==='approved'){ paid++; gross+=amt; commission+=Math.round(amt*rate); }
+          if(c.status==='pending') pending+=Math.round(amt*rate);
+        });
+        finish();
+      })
+      .catch(function(){ finish(); });
+  }).catch(function(e){ host.innerHTML='<p class="note">'+esc(e.message)+'</p>'; });
+}
+function money(n){ return n>=0?'₹'+n.toLocaleString('en-IN'):'₹0'; }
+
 function salesRefresh(){
   var host=el('salesOut'); if(!host) return;
   host.innerHTML='<p class="note">Counting\u2026</p>';
