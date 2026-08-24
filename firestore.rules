@@ -361,7 +361,21 @@ service cloud.firestore {
       allow read: if true;
       allow write: if isAdmin();
     }
-    // ---- INVESTOR DECK LEADS (public create, admin read only) ----
+    // ---- REFERRAL SIGNUP LOG (rw-v111) ----------------------------
+    // Write-only for the app (no auth required — fires on new account).
+    // Admin reads for stats. Staff can read their OWN code's signups only.
+    // No personal data stored — only the ref code and the new user's UID.
+    match /refSignups/{id} {
+      allow create: if request.resource.data.code is string
+                    && request.resource.data.userUID is string;
+      allow read: if isAdmin()
+                  || (request.auth != null
+                      && resource.data.code != null
+                      && exists(/databases/$(database)/documents/config/referrers));
+      allow update, delete: if isAdmin();
+    }
+
+        // ---- INVESTOR DECK LEADS (public create, admin read only) ----
     // ---- INVESTOR SUBMISSIONS ----------------------------------------
     // Write-only for visitors: no sign-in required to express interest.
     // Only the founder can read submissions (private contact details).

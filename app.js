@@ -8879,6 +8879,22 @@ if (AUTH_READY && typeof firebase !== 'undefined') try {
           if(res.granted){ showToast('\ud83c\udf89 You\'re traveler #'+res.num+' \u2014 7 days of Pro, free, on us!'); xpAdd(20,'Founding traveler bonus'); }
         }).catch(function(){});
       }
+      /* ref_signup tracking: log once when a referred user creates an account */
+      (function(){
+        try{
+          if(u.metadata && u.metadata.creationTime===u.metadata.lastSignInTime){
+            var _rc=rwRefActive();
+            if(_rc && !lsGet('rw_ref_su_'+u.uid)){
+              lsSet('rw_ref_su_'+u.uid,'1');
+              var _rw=rwRefLookup(_rc)||{};
+              db.collection('refSignups').doc(_rc+'__'+u.uid).set({
+                code:_rc, refName:_rw.name||'', refType:_rw.type||'',
+                userUID:u.uid, at:firebase.firestore.FieldValue.serverTimestamp()
+              }).catch(function(){});
+            }
+          }
+        }catch(e){}
+      })();
       /* ---- ACCOUNT-BOUND PRO (the only source of truth) ---- */
       /* Always kill any previous session's listener first — this is the actual
          bug fix: an old onSnapshot from a prior login was never unsubscribed,
@@ -9088,14 +9104,19 @@ function rwRefSync(){
         try{ lsSet('rw_ref_cache', JSON.stringify(list)); }catch(e){}
       }
     }).catch(function(){});
+    /* referral terms: rates, buyer bonus, promo status, disclaimer */
+    db.collection('config').doc('referralTerms').get().then(function(d){
+      if(!d.exists) return;
+      var t=d.data()||{};
+      window.RW_REFERRAL_TERMS=t;
+      try{ lsSet('rw_ref_terms_cache',JSON.stringify(t)); }catch(e){}
+    }).catch(function(){});
   }catch(e){}
 }
-/* use the cached copy immediately on boot, before Firestore answers */
+/* use cached copies on boot */
 (function(){
-  try{
-    var c=lsGet('rw_ref_cache');
-    if(c){ var l=JSON.parse(c); if(Array.isArray(l)&&l.length) window.RW_REFERRERS=l; }
-  }catch(e){}
+  try{ var c=lsGet('rw_ref_cache'); if(c){ var l=JSON.parse(c); if(Array.isArray(l)&&l.length) window.RW_REFERRERS=l; } }catch(e){}
+  try{ var ct=lsGet('rw_ref_terms_cache'); if(ct) window.RW_REFERRAL_TERMS=JSON.parse(ct); }catch(e){}
 })();
 
 function rwRefLookup(code){
@@ -9244,9 +9265,14 @@ function openRefCode(){
 }
 /* Show the applied referrer on the Pro/pay screen, so it's transparent. */
 function rwRefBadgeHTML(){
-  var c=rwRefActive(); if(!c) return '<div style="text-align:center;margin-top:10px"><a onclick="openRefCode()" style="font-size:12px;color:var(--t3);cursor:pointer;text-decoration:underline dotted">Have a referral code?</a></div>';
+  var c=rwRefActive(); if(!c) return '<div style="text-align:center;margin-top:10px"><a onclick="openRefCode()" style="font-size:10.5px;color:var(--t3);cursor:pointer;text-decoration:underline dotted">Have a referral code?</a></div>';
   var w=rwRefLookup(c); if(!w) return '';
-  return '<div style="text-align:center;margin-top:10px;font-size:12px;color:var(--gold)">\ud83c\udf9f\ufe0f Referred by <b>'+esc2(w.name)+'</b> \u00b7 <a onclick="openRefCode()" style="color:var(--t3);cursor:pointer;text-decoration:underline dotted">change</a></div>';
+  var terms=window.RW_REFERRAL_TERMS||{};
+  var promoOn=terms.active!==false;
+  var bonusDays=promoOn?parseInt(terms.buyerBonusDays||30,10)||30:0;
+  var bonusStr=bonusDays?' &middot; you get <b>'+bonusDays+' bonus days</b> of Pro added':'';
+  var disc=promoOn&&terms.disclaimer?'<div style="font-size:10px;color:var(--t3);margin-top:2px;line-height:1.4">&#9888; '+esc2(terms.disclaimer)+'</div>':'';
+  return '<div style="text-align:center;margin-top:10px;font-size:12px;color:var(--gold)">Referred by <b>'+esc2(w.name)+'</b>'+bonusStr+' &middot; <a onclick="openRefCode()" style="color:var(--t3);cursor:pointer;text-decoration:underline dotted">change</a></div>'+disc;
 }
 
 /* Free UPI flow: user submits UTR, owner approves in the admin console */
@@ -9277,6 +9303,15 @@ function submitUtr(){
     }
     var _ref = {};
     try{ _ref = rwRefStamp(); }catch(e){}
+    /* buyer bonus: stamp bonus days if promo active */
+    var _bonusDays=0;
+    try{
+      var _terms=window.RW_REFERRAL_TERMS||{};
+      if(_ref.refCode && _terms.active!==false){
+        _bonusDays=parseInt(_terms.buyerBonusDays||30,10)||30;
+        _ref.buyerBonusDays=_bonusDays;
+      }
+    }catch(e){}
     return db.collection('claims').doc(user.uid+'_'+utr).set(Object.assign({
     uid:user.uid, email:user.email||user.phoneNumber||'', utr:utr, amount:parseInt(UPI_AMT,10)||100,
     tier:(UPI_AMT==='299'?'supporter':'pro'), plan:(_selectedPlan&&_selectedPlan.id)||'legacy100', planLabel:(_selectedPlan&&_selectedPlan.label)||'Legacy ₹100',
@@ -9285,6 +9320,14 @@ function submitUtr(){
     if(res===undefined) return; /* gated above */
     b.disabled=false; b.textContent='Submit \u27A4'; el('utrInput').value='';
     try{ track('utr_submits'); }catch(e){}
+    try{
+      if(_bonusDays>0 && _ref.refCode){
+        var _who=rwRefLookup(_ref.refCode);
+        setTimeout(function(){
+          showToast('Referred by '+(_who?_who.name:'your friend')+' - you get '+_bonusDays+' bonus days of Pro when verified!');
+        }, 2200);
+      }
+    }catch(e){}
     /* INSTANT provisional unlock — bound to THIS ACCOUNT (not the device) */
     if(user){
       lsSet('rw_pro_temp', String(Date.now()+864e5));
