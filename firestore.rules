@@ -361,7 +361,45 @@ service cloud.firestore {
       allow read: if true;
       allow write: if isAdmin();
     }
-    // ---- REFERRAL SIGNUP LOG (rw-v111) ----------------------------
+    // ---- CROWD REPORTS (rw-v113) — Travel & Earn: Crowd Spotter ----
+    // Any user (signed-in or anonymous) may create. Nobody can read each other's.
+    // Admin reads for crowd calendar aggregation. No personal data in the doc.
+    match /crowdReports/{id} {
+      allow create: if request.resource.data.level is int
+                    && request.resource.data.level >= 1
+                    && request.resource.data.level <= 5
+                    && request.resource.data.place is string;
+      allow read: if isAdmin();
+      allow update, delete: if isAdmin();
+    }
+
+        // ---- PARTNER CLAIMS (institution barter partnerships) ----
+    // Any visitor may claim — we verify eligibility by checking the partnership
+    // allocation in the partnerships doc. Admin reads all claims.
+    // Personal data (name, email, phone) shared only with explicit consent per claim.
+    match /partnerClaims/{id} {
+      allow read: if isAdmin();
+      allow create: if request.resource.data.name is string
+                    && request.resource.data.email is string
+                    && request.resource.data.consent == true
+                    && request.resource.data.partnership is string;
+      allow update, delete: if isAdmin();
+    }
+
+    // ---- PARTNERSHIPS (allocation tracking — counters only, no personal data) ----
+    // Public read so the claim page can show live seat count.
+    // Increment writes allowed for the claimed/role counters (server increments).
+    // Only admin can set caps and initial state.
+    match /partnerships/{id} {
+      allow read: if true;
+      allow create: if isAdmin();
+      allow update: if isAdmin()
+        || (request.resource.data.diff(resource.data).affectedKeys()
+            .hasOnly(['claimed','studentClaimed','organiserClaimed','lastClaimedAt']));
+      allow delete: if isAdmin();
+    }
+
+        // ---- REFERRAL SIGNUP LOG (rw-v111) ----------------------------
     // Write-only for the app (no auth required — fires on new account).
     // Admin reads for stats. Staff can read their OWN code's signups only.
     // No personal data stored — only the ref code and the new user's UID.

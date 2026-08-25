@@ -6730,7 +6730,77 @@ function drawCard(L, name, tiles, heroPhoto){
   if(un) showToast(un+' place(s) still locating \u2014 regenerate in a minute for full pins');
   else showToast('Souvenir-grade \u2014 2400\u00d73200px, ready to print & frame \ud83d\uddbc\ufe0f');
   if(!lsGet('rw_card_xp')){ lsSet('rw_card_xp','1'); xpAdd(25,'Journey Card forged'); }
+  try{ var eb=el('cardEarnBox'); if(eb) eb.style.display='block'; }catch(e){}
 }
+/* ---- Travel & Earn: Journey Card viral share ---- */
+function cardShareWa(){
+  var caption='Just mapped all my trips on RoamWise \u2728\u2708\ufe0f The Journey Card feature is unreal.\n\n'
+    +'AI itineraries + crowd calendars + real local prices, built solo from the Himalayas.\n\n'
+    +'One-time \u20b9100 \u2014 no subscription: roamwise.co.in\n\n'
+    +'#RoamWise #TravelIndia #AITravel #ShinobiMode #IndieApp';
+  try{ navigator.clipboard.writeText(caption).then(function(){ showToast('\ud83d\udcf8 Caption copied! Post on Reels/Shorts, tag @mohucool \u2014 100+ views = free Pro pass for a friend'); }).catch(function(){ if(navigator.share) navigator.share({text:caption}); }); }catch(e){}
+}
+
+/* ============================================================
+   PARTNER CODE REDEMPTION (rw-v115) — NMIMS + future partners
+   User enters code like NMIMS-A1B2C3 in Settings → gets Pro.
+   Admin can see all claims in the admin console.
+   ============================================================ */
+function openPartnerRedeem(){
+  rwForm('&#127891; Redeem a partner code',[
+    {id:'code', label:'Enter your claim code (e.g. NMIMS-A1B2C3)', ph:'NMIMS-XXXXXX'}
+  ], async function(v){
+    var code=(v.code||'').trim().toUpperCase().replace(/\s/g,'');
+    if(!code){ showToast('Enter your code first'); return; }
+    if(!user){ openLogin(); return; }
+    if(!db){ showToast('Not connected — try again in a moment'); return; }
+    // Check if code exists in partnerClaims
+    var snap=await db.collection('partnerClaims').where('code','==',code).get().catch(function(){return null;});
+    if(!snap||snap.empty){ showToast('Code not found. Check it and try again, or email founder@roamwise.co.in'); return; }
+    var claim=snap.docs[0];
+    var data=claim.data();
+    // Check email matches (security: only the person who claimed can redeem)
+    if(data.email && user.email && data.email.toLowerCase()!==user.email.toLowerCase()){
+      showToast('This code was claimed with a different email. Sign in with '+data.email.split('@')[0]+'@…');
+      return;
+    }
+    if(data.proRedeemed){ showToast('Code already redeemed — your Pro is active. Check your profile.'); return; }
+    // Grant Pro
+    try{
+      await db.collection('users').doc(user.uid).set({
+        pro:true, proAt:new Date().toISOString(),
+        proMethod:'partner', proPartner:data.partnership||'partner',
+        proAmount:0, proCode:code
+      },{merge:true});
+      await claim.ref.update({proRedeemed:true, redeemedAt:new Date().toISOString(), redeemedUid:user.uid});
+      showToast('\ud83c\udf89 Lifetime Pro activated! Welcome, '+esc2(data.name?data.name.split(' ')[0]:'friend')+'.');
+      window._proUnlocked=true;
+      applyPro();
+    }catch(e){
+      showToast('Redemption error: '+(e.message||'try again'));
+    }
+  }, 'Enter the NMIMS-XXXXXX code you received after claiming on the partnership page.');
+}
+
+/* ---- Crowd Spotter (Travel & Earn) ---- */
+function openCrowdSpot(place,lat,lon){
+  var labels=['&#127881; Empty','&#129300; Quiet','&#128513; Moderate','&#128548; Busy','&#128561; Very crowded'];
+  rwForm('&#128205; Report crowd now',[
+    {id:'level',label:'How crowded is it right now?',widget:'buttons',options:labels.map(function(l,i){return {value:String(i+1),label:l};})},
+    {id:'note',label:'Anything unusual? (optional)',ph:'festival, roadblock, weather event\u2026'}
+  ],function(v){
+    var level=parseInt(v.level||'3',10);
+    if(!level||level<1||level>5){showToast('Pick a crowd level');return;}
+    var rec={level:level,place:String(place||'').slice(0,80),lat:lat||null,lon:lon||null,at:Date.now(),note:String(v.note||'').slice(0,120)};
+    if(window.user) rec.uid=window.user.uid;
+    if(window.db){
+      db.collection('crowdReports').doc(String(place||'spot').replace(/[^a-z0-9]/gi,'_').slice(0,40)+'_'+Date.now()).set(rec)
+        .then(function(){ xpAdd(5,'Crowd Spotter report'); showToast('Report logged \u2014 +5 XP! Thank you from everyone planning this trip.'); })
+        .catch(function(){ showToast('Saved locally \u2014 will sync when connection is back'); });
+    } else { xpAdd(5,'Crowd Spotter report (offline)'); showToast('+5 XP! Report will sync when connected.'); }
+  },'Your report helps other travellers and earns you Shinobi XP.');
+}
+
 function offerOpen(label){
   var ov=el('openPromptOv');
   if(!ov){ ov=document.createElement('div'); ov.id='openPromptOv'; ov.className='overlay';
@@ -8879,7 +8949,7 @@ if (AUTH_READY && typeof firebase !== 'undefined') try {
           if(res.granted){ showToast('\ud83c\udf89 You\'re traveler #'+res.num+' \u2014 7 days of Pro, free, on us!'); xpAdd(20,'Founding traveler bonus'); }
         }).catch(function(){});
       }
-      /* ref_signup tracking: log once when a referred user creates an account */
+      /* ref_signup tracking: log once when a referred new user creates account */
       (function(){
         try{
           if(u.metadata && u.metadata.creationTime===u.metadata.lastSignInTime){
@@ -9271,7 +9341,7 @@ function rwRefBadgeHTML(){
   var promoOn=terms.active!==false;
   var bonusDays=promoOn?parseInt(terms.buyerBonusDays||30,10)||30:0;
   var bonusStr=bonusDays?' &middot; you get <b>'+bonusDays+' bonus days</b> of Pro added':'';
-  var disc=promoOn&&terms.disclaimer?'<div style="font-size:10px;color:var(--t3);margin-top:2px;line-height:1.4">&#9888; '+esc2(terms.disclaimer)+'</div>':'';
+  var disc=promoOn&&terms.disclaimer?'<div style="font-size:10px;color:var(--t3);margin-top:2px">&#9888; '+esc2(terms.disclaimer)+'</div>':'';
   return '<div style="text-align:center;margin-top:10px;font-size:12px;color:var(--gold)">Referred by <b>'+esc2(w.name)+'</b>'+bonusStr+' &middot; <a onclick="openRefCode()" style="color:var(--t3);cursor:pointer;text-decoration:underline dotted">change</a></div>'+disc;
 }
 
@@ -9303,14 +9373,10 @@ function submitUtr(){
     }
     var _ref = {};
     try{ _ref = rwRefStamp(); }catch(e){}
-    /* buyer bonus: stamp bonus days if promo active */
     var _bonusDays=0;
     try{
       var _terms=window.RW_REFERRAL_TERMS||{};
-      if(_ref.refCode && _terms.active!==false){
-        _bonusDays=parseInt(_terms.buyerBonusDays||30,10)||30;
-        _ref.buyerBonusDays=_bonusDays;
-      }
+      if(_ref.refCode && _terms.active!==false){ _bonusDays=parseInt(_terms.buyerBonusDays||30,10)||30; _ref.buyerBonusDays=_bonusDays; }
     }catch(e){}
     return db.collection('claims').doc(user.uid+'_'+utr).set(Object.assign({
     uid:user.uid, email:user.email||user.phoneNumber||'', utr:utr, amount:parseInt(UPI_AMT,10)||100,
@@ -9320,14 +9386,7 @@ function submitUtr(){
     if(res===undefined) return; /* gated above */
     b.disabled=false; b.textContent='Submit \u27A4'; el('utrInput').value='';
     try{ track('utr_submits'); }catch(e){}
-    try{
-      if(_bonusDays>0 && _ref.refCode){
-        var _who=rwRefLookup(_ref.refCode);
-        setTimeout(function(){
-          showToast('Referred by '+(_who?_who.name:'your friend')+' - you get '+_bonusDays+' bonus days of Pro when verified!');
-        }, 2200);
-      }
-    }catch(e){}
+    try{ if(_bonusDays>0&&_ref.refCode){ var _who=rwRefLookup(_ref.refCode); setTimeout(function(){ showToast('Referred by '+(_who?_who.name:'your friend')+' - you get '+_bonusDays+' bonus days of Pro when verified!'); },2200); } }catch(e){}
     /* INSTANT provisional unlock — bound to THIS ACCOUNT (not the device) */
     if(user){
       lsSet('rw_pro_temp', String(Date.now()+864e5));
@@ -12531,7 +12590,8 @@ async function loadTripExtras(t){
    NO approval and NO traffic minimum. Where a programme exists, the affiliate
    ID is an optional constant appended only if set — so revenue can be switched
    on later by filling one string, with zero code changes. */
-var AFF_SKYSCANNER='', AFF_AGODA='', AFF_GYG='';
+var AFF_SKYSCANNER='', AFF_AGODA='', AFF_GYG='', AFF_TRAVELPAYOUTS='';
+function affTpUrl(domain,path){ if(!AFF_TRAVELPAYOUTS) return 'https://'+domain+(path||''); return 'https://tp.media/click?shmarker='+AFF_TRAVELPAYOUTS+'&target_url='+encodeURIComponent('https://'+domain+(path||'')); }
 function flightUrl(place){
   return 'https://www.google.com/travel/flights?q=' + encodeURIComponent('flights to '+place);
 }
@@ -17912,6 +17972,7 @@ function applyRemoteConfig(cfg){
   set('AFF_SKYSCANNER',   function(v){ AFF_SKYSCANNER=v; });
   set('AFF_AGODA',        function(v){ AFF_AGODA=v; });
   set('AFF_GYG',          function(v){ AFF_GYG=v; });
+  set('AFF_TRAVELPAYOUTS',function(v){ AFF_TRAVELPAYOUTS=v; });
   set('WA_NUMBER',        function(v){ WA_NUMBER=v; ensureWaButton(); });
   set('WA_CHANNEL',       function(v){ WA_CHANNEL=v; });
   set('WA_GROUP',         function(v){ WA_GROUP=v; });

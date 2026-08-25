@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>RoamWise — AI Travel Planner for India | Itineraries, Real Costs & Crowd-Free Routes</title>
+<meta name="description" content="Plan trips that survive contact with reality. Real local prices, honest road times, crowd calendars for 195+ destinations, and AI itineraries built for India. One-time ₹100 unlock.">
+<meta name="keywords" content="India travel planner, Manali itinerary budget, Goa backpacker guide, Leh Ladakh itinerary, Spiti Valley self drive, crowd calendar India, real travel costs India">
+<link rel="canonical" href="https://www.roamwise.co.in/home.html">
+<meta property="og:title" content="RoamWise — Real Travel Guides & AI Planner for India">
+<meta property="og:description" content="Crowd calendars, honest road times, and real budget breakdowns for 195+ destinations.">
+<meta property="og:url" content="https://www.roamwise.co.in/home.html">
+<meta property="og:image" content="https://www.roamwise.co.in/icon-512.png">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="RoamWise">
+<link rel="icon" href="/icons/favicon-32.png">
+<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","name":"RoamWise","url":"https://www.roamwise.co.in","description":"India-first AI travel planner with real local cost data, crowd calendars, and offline itineraries.","potentialAction":{"@type":"SearchAction","target":{"@type":"EntryPoint","urlTemplate":"https://www.roamwise.co.in/?q={search_term_string}"},"query-input":"required name=search_term_string"}},{"@type":"SoftwareApplication","name":"RoamWise Pro","applicationCategory":"TravelApplication","operatingSystem":"Web, Android","offers":{"@type":"Offer","price":"100","priceCurrency":"INR","description":"Lifetime Pro — one-time payment, no subscription"},"aggregateRating":{"@type":"AggregateRating","ratingValue":"4.8","reviewCount":"22","bestRating":"5"},"url":"https://www.roamwise.co.in"},{"@type":"Organization","name":"RoamWise","url":"https://www.roamwise.co.in","logo":"https://www.roamwise.co.in/icon-512.png","foundingDate":"2025","foundingLocation":{"@type":"Place","name":"Almora, Uttarakhand, India"}}]}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#1A1A1A;--ink2:#444;--mist:#888;--line:#E8E4DC;--bg:#FAFAF8;--bg2:#F2EFE6;--night:#0B1020;--navy:#131A2E;--gold:#E8BA6C;--gold2:#C8913E;--pine:#2C7A4B;--pine2:#4ADE80}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:'Outfit',system-ui,sans-serif;background:var(--bg);color:var(--ink);line-height:1.65;-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+
+/* ===== PAGE SWITCHER — the star of the show ===== */
+.switcher{position:sticky;top:0;z-index:200;background:var(--night);border-bottom:1px solid rgba(255,255,255,.08);padding:0 16px;display:flex;align-items:center;justify-content:space-between;height:54px}
+.sw-logo{display:flex;align-items:center;gap:8px;font-weight:800;font-size:16px;color:#F2EFE6}
+.sw-logo img{width:28px;height:28px;border-radius:6px}
+.sw-tabs{display:flex;gap:4px;background:rgba(255,255,255,.07);border-radius:24px;padding:4px}
+.sw-tab{display:flex;align-items:center;gap:6px;padding:6px 14px;border-radius:20px;font-size:12.5px;font-weight:600;cursor:pointer;transition:all .2s;white-space:nowrap;border:none;font-family:inherit}
+.sw-tab.active{background:#fff;color:var(--night)}
+.sw-tab.inactive{color:rgba(255,255,255,.55);background:transparent}
+.sw-tab.inactive:hover{color:#fff;background:rgba(255,255,255,.1)}
+.sw-tab-icon{font-size:14px}
+.sw-hint{font-size:11px;color:rgba(255,255,255,.35);display:none}
+@media(min-width:540px){.sw-hint{display:block}}
+
+/* ===== NAV (below switcher) ===== */
+.nav{background:var(--bg);border-bottom:1px solid var(--line);padding:0 20px;display:flex;align-items:center;justify-content:space-between;height:48px}
+.nav-links{display:flex;gap:4px;align-items:center}
+.nav-links a{font-size:12.5px;font-weight:500;color:var(--ink2);padding:5px 11px;border-radius:20px;transition:all .15s}
+.nav-links a:hover{background:var(--bg2);color:var(--ink)}
+.nav-links a.cta{background:var(--night);color:#fff;padding:7px 16px}
+
+/* ===== HERO ===== */
+.hero{display:grid;grid-template-columns:1fr 400px;gap:48px;max-width:1080px;margin:0 auto;padding:52px 20px 40px;align-items:start}
+.hero-eyebrow{font-size:11px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--gold2);margin-bottom:14px}
+.hero h1{font-family:'Lora',serif;font-size:clamp(30px,4.2vw,48px);line-height:1.18;font-weight:600;color:var(--night);margin-bottom:18px}
+.hero h1 em{font-style:italic;color:var(--gold2)}
+.hero-body{font-size:15.5px;color:var(--ink2);line-height:1.72;margin-bottom:26px;max-width:520px}
+.hero-ctas{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:32px}
+.btn-p{display:inline-flex;align-items:center;gap:7px;background:var(--night);color:#fff;font-weight:700;font-size:14px;padding:13px 22px;border-radius:10px;transition:all .2s}
+.btn-p:hover{background:var(--navy);transform:translateY(-1px)}
+.btn-s{display:inline-flex;align-items:center;gap:7px;background:transparent;color:var(--ink);font-weight:600;font-size:14px;padding:12px 20px;border-radius:10px;border:1.5px solid var(--line);transition:all .2s}
+.btn-s:hover{border-color:var(--ink);background:var(--bg2)}
+.hero-stats{display:flex;gap:24px}
+.hs-n{font-size:22px;font-weight:800;color:var(--night)}
+.hs-k{font-size:11px;color:var(--mist);margin-top:2px}
+
+/* App card */
+.app-card{background:var(--night);border-radius:18px;overflow:hidden;box-shadow:0 20px 60px rgba(11,16,32,.3)}
+.ac-bar{background:rgba(255,255,255,.06);border-bottom:1px solid rgba(255,255,255,.07);padding:11px 14px;display:flex;align-items:center;gap:6px}
+.ac-dot{width:7px;height:7px;border-radius:50%}
+.ac-url{font-size:10.5px;color:rgba(255,255,255,.35);flex:1;text-align:center;font-family:monospace}
+.ac-body{padding:18px}
+.ac-dest{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);border-radius:9px;padding:11px 13px;margin-bottom:11px;display:flex;align-items:center;gap:9px}
+.cbar{display:flex;align-items:center;gap:8px;margin-bottom:5px}
+.cbar-name{font-size:11.5px;color:rgba(255,255,255,.6);width:72px;flex-shrink:0}
+.cbar-track{flex:1;height:4px;background:rgba(255,255,255,.1);border-radius:2px;overflow:hidden}
+.cbar-fill{height:100%;border-radius:2px}
+.cbar-pct{font-size:10px;color:rgba(255,255,255,.35);width:28px;text-align:right}
+.ac-budget{background:rgba(74,222,128,.08);border:1px solid rgba(74,222,128,.2);border-radius:9px;padding:11px 13px;display:flex;justify-content:space-between;align-items:center;margin-top:11px}
+.ac-cta{display:block;margin-top:11px;background:linear-gradient(90deg,var(--gold2),var(--gold));border-radius:9px;padding:10px;text-align:center;font-weight:700;font-size:13px;color:var(--night)}
+
+/* ===== SECTIONS ===== */
+.sec{max-width:1080px;margin:0 auto;padding:44px 20px}
+.sec-head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:24px}
+.sec-head h2{font-family:'Lora',serif;font-size:24px;font-weight:600;color:var(--night)}
+.sec-head a{font-size:12.5px;font-weight:600;color:var(--gold2)}
+.sec-head a:hover{text-decoration:underline}
+
+/* Crowd strip */
+.crowd-strip{background:var(--bg2);border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:24px 20px}
+.crowd-inner{max-width:1080px;margin:0 auto}
+.sect-eyebrow{font-size:10px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--mist);margin-bottom:16px}
+.crowd-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:11px}
+.cdest{background:#fff;border:1px solid var(--line);border-radius:11px;padding:13px}
+.cdest-name{font-size:12.5px;font-weight:700;margin-bottom:8px;color:var(--night)}
+.cmbars{display:flex;gap:2px}
+.cmb{flex:1;height:16px;border-radius:2px}
+.crowd-legend{display:flex;gap:14px;margin-top:12px;font-size:10.5px;color:var(--mist);flex-wrap:wrap}
+.ld{width:9px;height:9px;border-radius:2px;display:inline-block;margin-right:3px}
+
+/* Guides grid */
+.guides-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:14px}
+.gc{border:1px solid var(--line);border-radius:13px;padding:16px;background:#fff;transition:all .2s;display:block}
+.gc:hover{border-color:var(--gold);box-shadow:0 4px 18px rgba(232,186,108,.12);transform:translateY(-2px)}
+.gc-tag{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--mist);margin-bottom:7px}
+.gc-title{font-size:14.5px;font-weight:700;color:var(--night);line-height:1.35;margin-bottom:5px}
+.gc-sub{font-size:11.5px;color:var(--mist)}
+.gc-crowd{display:inline-flex;align-items:center;gap:4px;margin-top:9px;font-size:11px;font-weight:600}
+
+/* Blog */
+.blog-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.bc{border-left:3px solid var(--gold);padding:14px 18px;background:#fff;border-radius:0 11px 11px 0;border:1px solid var(--line);border-left:3px solid var(--gold);transition:all .2s;display:block}
+.bc:hover{box-shadow:0 4px 14px rgba(0,0,0,.06)}
+.bc-tag{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gold2);margin-bottom:6px}
+.bc-title{font-size:14.5px;font-weight:700;color:var(--night);line-height:1.4;margin-bottom:6px}
+.bc-body{font-size:12.5px;color:var(--ink2);line-height:1.6}
+.bc-read{margin-top:9px;font-size:12px;font-weight:600;color:var(--gold2)}
+
+/* Trips */
+.trips-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px}
+.tc{border:1px solid var(--line);border-radius:13px;overflow:hidden;background:#fff;transition:all .2s;display:block}
+.tc:hover{transform:translateY(-2px);box-shadow:0 6px 22px rgba(0,0,0,.08)}
+.tc-banner{background:linear-gradient(135deg,var(--night),var(--navy));padding:16px;color:#fff}
+.tc-days{font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);margin-bottom:5px}
+.tc-title{font-size:15px;font-weight:800;line-height:1.3}
+.tc-body{padding:13px}
+.tc-cost{font-size:12.5px;color:var(--pine);font-weight:700;margin-bottom:5px}
+.tc-desc{font-size:12px;color:var(--ink2);line-height:1.55}
+
+/* Cost table */
+.cost-table{width:100%;border-collapse:collapse;background:#fff;border-radius:12px;overflow:hidden;border:1px solid var(--line)}
+.cost-table th{background:var(--night);color:rgba(255,255,255,.7);font-size:11px;font-weight:600;padding:10px 14px;text-align:left;letter-spacing:.05em}
+.cost-table td{padding:10px 14px;border-bottom:1px solid var(--line);font-size:13px}
+.cost-table tr:last-child td{border-bottom:none}
+.cost-table td:last-child{font-weight:700;color:var(--pine);text-align:right}
+
+/* About */
+.about-wrap{max-width:1080px;margin:0 auto;padding:44px 20px;display:grid;grid-template-columns:1fr 1fr;gap:44px;align-items:start}
+.ab-title{font-family:'Lora',serif;font-size:24px;font-weight:600;color:var(--night);line-height:1.3;margin-bottom:13px}
+.ab-body{font-size:14.5px;color:var(--ink2);line-height:1.78}
+.ab-facts{display:flex;flex-direction:column;gap:12px}
+.af{background:var(--bg2);border-radius:11px;padding:15px;border-left:3px solid var(--gold)}
+.af-title{font-size:13.5px;font-weight:700;color:var(--night);margin-bottom:3px}
+.af-body{font-size:12.5px;color:var(--ink2);line-height:1.6}
+
+/* Tools CTA */
+.tools-strip{background:var(--bg2);border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:28px 20px;text-align:center}
+.tools-strip h3{font-size:18px;font-weight:700;color:var(--night);margin-bottom:6px}
+.tools-strip p{font-size:13.5px;color:var(--ink2);margin-bottom:16px}
+.tools-btns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.tbtn{display:inline-flex;align-items:center;gap:6px;padding:10px 20px;border-radius:10px;font-size:13.5px;font-weight:600;border:1.5px solid var(--line);background:#fff;color:var(--ink);transition:all .2s}
+.tbtn:hover{border-color:var(--ink);background:var(--bg2)}
+
+/* Final CTA */
+.final{background:var(--night);color:#fff;padding:56px 20px;text-align:center}
+.final h2{font-family:'Lora',serif;font-size:clamp(24px,4vw,38px);font-weight:600;margin-bottom:10px}
+.final p{font-size:15px;color:rgba(255,255,255,.55);max-width:460px;margin:0 auto 28px}
+.final-btns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.fc-main{display:inline-flex;align-items:center;gap:7px;background:linear-gradient(90deg,var(--gold2),var(--gold));color:var(--night);font-weight:800;font-size:15px;padding:14px 28px;border-radius:12px;transition:opacity .2s}
+.fc-main:hover{opacity:.9}
+.fc-sec{display:inline-flex;align-items:center;gap:7px;background:rgba(255,255,255,.08);color:#fff;font-weight:600;font-size:14px;padding:13px 22px;border-radius:12px;border:1px solid rgba(255,255,255,.15)}
+.fc-sec:hover{background:rgba(255,255,255,.14)}
+
+footer{background:#07090f;color:rgba(255,255,255,.35);padding:20px;text-align:center;font-size:12px}
+footer a{color:rgba(255,255,255,.45)}
+footer a:hover{color:#fff}
+
+@media(max-width:720px){
+  .hero{grid-template-columns:1fr}
+  .app-card{display:none}
+  .blog-grid{grid-template-columns:1fr}
+  .about-wrap{grid-template-columns:1fr}
+  .sw-tab span:not(.sw-tab-icon){display:none}
+  .sw-tabs{gap:2px}
+}
+</style>
+</head>
+<body>
+
+<!-- ===== THE SWITCHER — sticky at top, always visible ===== -->
+<div class="switcher">
+  <a class="sw-logo" href="/home.html">
+    <img src="/icons/favicon-32.png" alt="RoamWise">
+    RoamWise
+  </a>
+
+  <div class="sw-tabs">
+    <a class="sw-tab active" href="/home.html">
+      <span class="sw-tab-icon">&#128240;</span>
+      <span>Articles &amp; Guides</span>
+    </a>
+    <a class="sw-tab inactive" href="/">
+      <span class="sw-tab-icon">&#9889;</span>
+      <span>AI Trip Planner</span>
+    </a>
+  </div>
+
+  <div class="sw-hint">Switch anytime</div>
+</div>
+
+<!-- Sub-nav -->
+<nav class="nav">
+  <div class="nav-links">
+    <a href="/guides/">Guides</a>
+    <a href="/trips/">Itineraries</a>
+    <a href="/blog/">Blog</a>
+    <a href="/tools/">Tools</a>
+    <a href="/about.html">About</a>
+  </div>
+  <div class="nav-links">
+    <a href="/" class="cta">&#9889; Open Planner</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div>
+    <div class="hero-eyebrow">Built in Almora, Uttarakhand &middot; India</div>
+    <h1>Travel guides with prices<br>India <em>actually</em> pays</h1>
+    <p class="hero-body">Crowd calendars, honest road times, and real budget breakdowns for 195+ destinations — plus an AI itinerary builder that plans trips you can actually take. No affiliate hotels. No inflated estimates.</p>
+    <div class="hero-ctas">
+      <a class="btn-p" href="/">&#9889; Open AI Planner &mdash; Free</a>
+      <a class="btn-s" href="/guides/">Browse 36 Destination Guides</a>
+    </div>
+    <div class="hero-stats">
+      <div><div class="hs-n">36</div><div class="hs-k">Destination guides</div></div>
+      <div><div class="hs-n">195+</div><div class="hs-k">Countries covered</div></div>
+      <div><div class="hs-n">&#8377;100</div><div class="hs-k">One-time Pro unlock</div></div>
+    </div>
+  </div>
+  <div class="app-card">
+    <div class="ac-bar">
+      <div class="ac-dot" style="background:#E05B5B"></div>
+      <div class="ac-dot" style="background:#E8BA6C"></div>
+      <div class="ac-dot" style="background:#4ADE80"></div>
+      <div class="ac-url">roamwise.co.in</div>
+    </div>
+    <div class="ac-body">
+      <div class="ac-dest">
+        <span style="font-size:20px">&#127956;</span>
+        <div><div style="font-size:13.5px;font-weight:600;color:#fff">Spiti Valley, Himachal</div><div style="font-size:11px;color:rgba(255,255,255,.4);margin-top:2px">9-day self-drive &middot; September</div></div>
+      </div>
+      <div style="font-size:10px;color:rgba(255,255,255,.4);letter-spacing:.08em;text-transform:uppercase;margin-bottom:7px">Crowd levels by month</div>
+      <div class="cbar"><span class="cbar-name">June</span><div class="cbar-track"><div class="cbar-fill" style="width:82%;background:#E0785B"></div></div><span class="cbar-pct">82%</span></div>
+      <div class="cbar"><span class="cbar-name">July</span><div class="cbar-track"><div class="cbar-fill" style="width:55%;background:#E8BA6C"></div></div><span class="cbar-pct">55%</span></div>
+      <div class="cbar"><span class="cbar-name">September</span><div class="cbar-track"><div class="cbar-fill" style="width:28%;background:#4ADE80"></div></div><span class="cbar-pct">28%</span></div>
+      <div class="cbar"><span class="cbar-name">October</span><div class="cbar-track"><div class="cbar-fill" style="width:19%;background:#4ADE80"></div></div><span class="cbar-pct">19%</span></div>
+      <div class="ac-budget"><div><div style="font-size:11.5px;color:rgba(255,255,255,.5)">9-day budget (2 sharing)</div></div><div style="font-size:18px;font-weight:800;color:#4ADE80">&#8377;22,400</div></div>
+      <a href="/" class="ac-cta">Unlock full itinerary &mdash; &#8377;100 &rarr;</a>
+    </div>
+  </div>
+</div>
+
+<!-- CROWD CALENDAR -->
+<div class="crowd-strip">
+  <div class="crowd-inner">
+    <div class="sect-eyebrow">&#128197; Crowd calendar &mdash; September 2026</div>
+    <div class="crowd-grid">
+      <div class="cdest"><div class="cdest-name">Manali</div><div class="cmbars"><div class="cmb" style="background:#E0785B"></div><div class="cmb" style="background:#E0785B"></div><div class="cmb" style="background:#E0785B"></div><div class="cmb" style="background:#4ADE80"></div><div class="cmb" style="background:#4ADE80"></div><div class="cmb" style="background:#E8E4DC"></div></div><div style="font-size:11px;color:#2C7A4B;font-weight:600;margin-top:5px">Best now: Sep&ndash;Oct</div></div>
+      <div class="cdest"><div class="cdest-name">Goa</div><div class="cmbars"><div class="cmb" style="background:#E8E4DC"></div><div class="cmb" style="background:#E8E4DC"></div><div class="cmb" style="background:#4ADE80"></div><div class="cmb" style="background:#4ADE80"></div><div class="cmb" style="background:#E8BA6C"></div><div class="cmb" style="background:#E0785B"></div></div><div style="font-size:11px;color:#2C7A4B;font-weight:600;margin-top:5px">Best now: Sep&ndash;Oct</div></div>
+      <div class="cdest"><div class="cdest-name">Rishikesh</div><div class="cmbars"><div class="cmb" style="background:#E8E4DC"></div><div class="cmb" style="background:#E8E4DC"></div><div class="cmb" style="background:#4ADE80"></div><div class="cmb" style="background:#E8BA6C"></div><div class="cmb" style="background:#E8BA6C"></div><div class="cmb" style="background:#E0785B"></div></div><div style="font-size:11px;color:#2C7A4B;font-weight:600;margin-top:5px">Good now: Sep</div></div>
+      <div class="cdest"><div class="cdest-name">Leh Ladakh</div><div class="cmbars"><div class="cmb" style="background:#E0785B"></div><div class="cmb" style="background:#E0785B"></div><div class="cmb" style="background:#4ADE80"></div><div class="cmb" style="background:#E8E4DC"></div><div class="cmb" style="background:#E8E4DC"></div><div class="cmb" style="background:#E8E4DC"></div></div><div style="font-size:11px;color:#C8913E;font-weight:600;margin-top:5px">Last window: Sep</div></div>
+      <div class="cdest"><div class="cdest-name">Kasol</div><div class="cmbars"><div class="cmb" style="background:#E0785B"></div><div class="cmb" style="background:#E8E4DC"></div><div class="cmb" style="background:#4ADE80"></div><div class="cmb" style="background:#4ADE80"></div><div class="cmb" style="background:#E8BA6C"></div><div class="cmb" style="background:#E8E4DC"></div></div><div style="font-size:11px;color:#2C7A4B;font-weight:600;margin-top:5px">Sweet spot: Sep&ndash;Oct</div></div>
+      <div class="cdest"><div class="cdest-name">Hampi</div><div class="cmbars"><div class="cmb" style="background:#E8E4DC"></div><div class="cmb" style="background:#E8E4DC"></div><div class="cmb" style="background:#4ADE80"></div><div class="cmb" style="background:#4ADE80"></div><div class="cmb" style="background:#E8BA6C"></div><div class="cmb" style="background:#E0785B"></div></div><div style="font-size:11px;color:#2C7A4B;font-weight:600;margin-top:5px">Opening up: Sep</div></div>
+    </div>
+    <div class="crowd-legend">
+      <span><span class="ld" style="background:#4ADE80"></span>Low crowds</span>
+      <span><span class="ld" style="background:#E8BA6C"></span>Moderate</span>
+      <span><span class="ld" style="background:#E0785B"></span>Peak</span>
+      <span><span class="ld" style="background:#E8E4DC"></span>Off-season</span>
+      <a href="/" style="margin-left:auto;font-size:12px;font-weight:600;color:var(--gold2)">Full calendar in the app &rarr;</a>
+    </div>
+  </div>
+</div>
+
+<!-- GUIDES -->
+<div class="sec">
+  <div class="sec-head"><h2>Destination guides &mdash; real costs, honest timings</h2><a href="/guides/">All 36 guides &rarr;</a></div>
+  <div class="guides-grid">
+    <a class="gc" href="/guides/rishikesh-uttarakhand.html"><div class="gc-tag">Uttarakhand &middot; India</div><div class="gc-title">Rishikesh: what it actually costs, and what the maps get wrong</div><div class="gc-sub">Auto fares, real rafting prices, which months to avoid</div><div class="gc-crowd" style="color:#2C7A4B">&#128200; Sep&ndash;Nov least crowded</div></a>
+    <a class="gc" href="/guides/spiti-valley-himachal.html"><div class="gc-tag">Himachal Pradesh &middot; India</div><div class="gc-title">Spiti Valley: real drive times, altitude safety & petrol gaps</div><div class="gc-sub">The 200km stretch with zero petrol pumps. What to carry.</div><div class="gc-crowd" style="color:#2C7A4B">&#128200; Sep&ndash;Oct quietest</div></a>
+    <a class="gc" href="/guides/gokarna-karnataka.html"><div class="gc-tag">Karnataka &middot; India</div><div class="gc-title">Gokarna: budget beach without the Goa prices</div><div class="gc-sub">Beach shacks, Om Beach walk, what locals pay vs tourists</div><div class="gc-crowd" style="color:#E8BA6C">&#128200; Oct&ndash;Nov best window</div></a>
+    <a class="gc" href="/guides/mcleodganj-himachal.html"><div class="gc-tag">Himachal Pradesh &middot; India</div><div class="gc-title">McLeodGanj: Tibetan quarter, trek costs & crowd calendar</div><div class="gc-sub">Triund trek real costs, Dharamshala taxi rates, best months</div><div class="gc-crowd" style="color:#2C7A4B">&#128200; Mar&ndash;Apr and Sep best</div></a>
+    <a class="gc" href="/guides/kyoto-japan.html"><div class="gc-tag">Japan &middot; Asia</div><div class="gc-title">Kyoto crowd calendar: the single table that plans your trip</div><div class="gc-sub">Month-by-month crowds, real daily cost from Indian travellers</div><div class="gc-crowd" style="color:#E0785B">&#128200; Apr &amp; Nov = peak</div></a>
+    <a class="gc" href="/guides/hampi-karnataka.html"><div class="gc-tag">Karnataka &middot; India</div><div class="gc-title">Hampi: ruins, bicycles &amp; what to budget per day</div><div class="gc-sub">Hire costs, ideal days, when to avoid heat</div><div class="gc-crowd" style="color:#2C7A4B">&#128200; Nov&ndash;Feb ideal</div></a>
+  </div>
+</div>
+
+<!-- BLOG -->
+<div style="background:var(--bg2);border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:44px 20px">
+  <div style="max-width:1080px;margin:0 auto">
+    <div class="sec-head"><h2>Travel strategy &mdash; angles most guides miss</h2><a href="/blog/">All articles &rarr;</a></div>
+    <div class="blog-grid">
+      <a class="bc" href="/blog/tatkal-10am-hack-irctc.html"><div class="bc-tag">Train travel &middot; India</div><div class="bc-title">The 10:00 AM Tatkal Hack: Guaranteed Last-Minute Train Seats</div><div class="bc-body">Tatkal opens at 10am exactly. The first 7 seconds decide whether you get a seat. Here&rsquo;s the exact IRCTC workflow to beat 80,000 concurrent users.</div><div class="bc-read">Read guide &rarr;</div></a>
+      <a class="bc" href="/blog/hub-and-spoke-india-travel-strategy.html"><div class="bc-tag">Strategy &middot; India</div><div class="bc-title">Hub-and-Spoke: The Fastest Way to Travel India Without Backtracking</div><div class="bc-body">India&rsquo;s train network is built around 8 major hubs. Every small-town trip works better as a day-return than a continuous chain of overnight buses.</div><div class="bc-read">Read guide &rarr;</div></a>
+      <a class="bc" href="/blog/least-crowded-months-world.html"><div class="bc-tag">Crowd calendar &middot; Global</div><div class="bc-title">The Least Crowded Month for 15 Top Destinations (2026 Data)</div><div class="bc-body">One table: the quietest month for each major destination with crowd intensity vs peak season. Time your trip like a local, not a tourist.</div><div class="bc-read">Read guide &rarr;</div></a>
+      <a class="bc" href="/blog/premium-volvo-buses-india.html"><div class="bc-tag">Transport &middot; India</div><div class="bc-title">Volvo B11R Multi-Axle vs Ordinary Buses: Which Berth to Book</div><div class="bc-body">Multi-axle Scania and Mercedes sleepers now run to Spiti, Manali and Coorg. What to book, which berth to avoid, which operators are actually premium.</div><div class="bc-read">Read guide &rarr;</div></a>
+    </div>
+  </div>
+</div>
+
+<!-- TRIPS -->
+<div class="sec">
+  <div class="sec-head"><h2>Budget trip itineraries &mdash; day by day</h2><a href="/trips/">All itineraries &rarr;</a></div>
+  <div class="trips-grid">
+    <a class="tc" href="/trips/manali-4-days-15000.html"><div class="tc-banner"><div class="tc-days">4 days</div><div class="tc-title">Manali under &#8377;15,000</div></div><div class="tc-body"><div class="tc-cost">From &#8377;7,400 per person</div><div class="tc-desc">Rohtang, Old Manali, Solang. Real day-by-day plan including Delhi bus cost.</div></div></a>
+    <a class="tc" href="/trips/goa-solo-backpacker-7-days.html"><div class="tc-banner"><div class="tc-days">7 days</div><div class="tc-title">Solo Backpacker Goa</div></div><div class="tc-body"><div class="tc-cost">From &#8377;9,800 per person</div><div class="tc-desc">North vs South Goa, scooter rental, best beaches for fewer crowds.</div></div></a>
+    <a class="tc" href="/trips/leh-ladakh-solo-1-week.html"><div class="tc-banner"><div class="tc-days">7 days</div><div class="tc-title">Solo 1 Week Leh Ladakh</div></div><div class="tc-body"><div class="tc-cost">From &#8377;15,200 per person</div><div class="tc-desc">No car needed. Pangong + Nubra by shared jeep. Permit guide included.</div></div></a>
+    <a class="tc" href="/trips/spiti-valley-self-drive.html"><div class="tc-banner"><div class="tc-days">9 days</div><div class="tc-title">Self-Drive Spiti Circuit</div></div><div class="tc-body"><div class="tc-cost">From &#8377;11,000 pp (2 sharing)</div><div class="tc-desc">Chandigarh &rarr; Shimla &rarr; Kaza &rarr; Manali. All petrol stops and road conditions.</div></div></a>
+  </div>
+</div>
+
+<!-- WHAT THINGS COST -->
+<div style="background:var(--bg2);border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:44px 20px">
+  <div style="max-width:1080px;margin:0 auto">
+    <div class="sec-head"><h2>What things actually cost in India</h2><a href="/guides/what-things-cost-india.html">Full reference &rarr;</a></div>
+    <table class="cost-table">
+      <thead><tr><th>Item</th><th>Tourist estimate (wrong)</th><th>What locals actually pay</th></tr></thead>
+      <tbody>
+        <tr><td>Auto-rickshaw, 3km city ride</td><td>&#8377;120&ndash;200</td><td>&#8377;35&ndash;55</td></tr>
+        <tr><td>Proper dhaba meal (dal + roti + sabzi)</td><td>&#8377;250&ndash;350</td><td>&#8377;80&ndash;130</td></tr>
+        <tr><td>Budget guesthouse, Himachal hill station</td><td>&#8377;1,800&ndash;2,500/night</td><td>&#8377;600&ndash;900/night</td></tr>
+        <tr><td>River rafting, Rishikesh (16km stretch)</td><td>&#8377;1,500&ndash;2,000/person</td><td>&#8377;350&ndash;500 (shared)</td></tr>
+        <tr><td>Overnight Volvo bus, Delhi&ndash;Manali</td><td>&#8377;2,500&ndash;3,500</td><td>&#8377;900&ndash;1,400 (booked 2 weeks ahead)</td></tr>
+        <tr><td>Scooter rental, Goa (per day)</td><td>&#8377;500&ndash;700</td><td>&#8377;280&ndash;350</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- TOOLS -->
+<div class="tools-strip">
+  <h3>Free tools for travellers &amp; businesses</h3>
+  <p>Standalone tools that work without an account &mdash; share them freely.</p>
+  <div class="tools-btns">
+    <a class="tbtn" href="/tools/policy-scanner.html">&#128209; Corporate Policy Scanner</a>
+    <a class="tbtn" href="/blog/tatkal-10am-hack-irctc.html">&#128642; Tatkal Prep Guide</a>
+    <a class="tbtn" href="/blog/ev-road-trips-india.html">&#9889; EV Road Trip Planner</a>
+    <a class="tbtn" href="/tools/">All tools &rarr;</a>
+  </div>
+</div>
+
+<!-- ABOUT -->
+<div style="border-top:1px solid var(--line)">
+  <div class="about-wrap">
+    <div>
+      <div style="font-size:10.5px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--mist);margin-bottom:11px">About RoamWise</div>
+      <div class="ab-title">Built in a hill town in Uttarakhand by one person who got tired of bad travel data</div>
+      <p class="ab-body">Most travel apps are built in cities by people who last took a bus five years ago. RoamWise is built in Almora &mdash; a Kumaoni hill town in the Himalayas. The local transport times, auto-rickshaw rates, and seasonal crowd data are checked against reality, not scraped from aggregators.<br><br>Solo indie product by Mohit Pandey. No VC money, no affiliate hotel commissions, no incentive to make anything look cheaper or more convenient than it is.</p>
+    </div>
+    <div class="ab-facts">
+      <div class="af"><div class="af-title">&#127970; No affiliate hotels</div><div class="af-body">RoamWise earns nothing from hotel bookings. It recommends what works, not what pays commission.</div></div>
+      <div class="af"><div class="af-title">&#128200; Crowd data from the ground</div><div class="af-body">Crowd calendars are built from on-the-ground research, cross-referenced with public transport booking data.</div></div>
+      <div class="af"><div class="af-title">&#127968; Made in Almora</div><div class="af-body">Every Himalayan price and road time has been verified within a day&rsquo;s drive of where it was written.</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- FINAL CTA -->
+<div class="final">
+  <h2>Plan a trip that survives reality</h2>
+  <p>AI itineraries with real local prices, crowd-dodging timing, and offline maps. &#8377;100 one-time &mdash; no subscription.</p>
+  <div class="final-btns">
+    <a class="fc-main" href="/">&#9889; Open AI Planner &mdash; Free to try</a>
+    <a class="fc-sec" href="/guides/">Browse destination guides</a>
+  </div>
+</div>
+
+<footer>
+  &copy; 2026 RoamWise &nbsp;&middot;&nbsp;
+  <a href="/about.html">About</a> &nbsp;&middot;&nbsp;
+  <a href="/guides/">Guides</a> &nbsp;&middot;&nbsp;
+  <a href="/blog/">Blog</a> &nbsp;&middot;&nbsp;
+  <a href="/trips/">Itineraries</a> &nbsp;&middot;&nbsp;
+  <a href="/tools/">Tools</a> &nbsp;&middot;&nbsp;
+  <a href="/legal/privacy.html">Privacy</a> &nbsp;&middot;&nbsp;
+  <a href="/legal/terms.html">Terms</a> &nbsp;&middot;&nbsp;
+  Built in Almora, Uttarakhand &#127810;
+</footer>
+
+</body>
+</html>
