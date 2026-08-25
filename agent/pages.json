@@ -4642,5 +4642,113 @@
    68,
    92
   ]
+ },
+ {
+  "slug": "sydney-australia",
+  "title": "Sydney, Australia",
+  "name": "Sydney",
+  "country": "Australia",
+  "best": "July, August, October",
+  "arch": "temperate",
+  "cl": [
+   26.6,
+   26.5,
+   25.5,
+   21.9,
+   18.8,
+   16,
+   16.2,
+   19.5,
+   22.2,
+   21.7,
+   25.1,
+   26.9
+  ],
+  "scores": [
+   85,
+   90,
+   93,
+   80,
+   80,
+   83,
+   95,
+   96,
+   93,
+   95,
+   85,
+   93
+  ]
+ },
+ {
+  "slug": "melbourne-australia",
+  "title": "Melbourne, Australia",
+  "name": "Melbourne",
+  "country": "Australia",
+  "best": "February, March, June",
+  "arch": "temperate",
+  "cl": [
+   24.4,
+   26.3,
+   24.7,
+   18,
+   16.3,
+   13.1,
+   12.3,
+   16.9,
+   16.9,
+   19.8,
+   23.5,
+   26
+  ],
+  "scores": [
+   82,
+   99,
+   98,
+   88,
+   95,
+   96,
+   88,
+   95,
+   92,
+   92,
+   91,
+   94
+  ]
+ },
+ {
+  "slug": "cairns-australia",
+  "title": "Cairns, Australia",
+  "name": "Cairns",
+  "country": "Australia",
+  "best": "June, September, October",
+  "arch": "tropical",
+  "cl": [
+   31.2,
+   30.5,
+   29.5,
+   28.6,
+   26.1,
+   25.9,
+   24.6,
+   25.6,
+   27.1,
+   29.1,
+   30.2,
+   30.9
+  ],
+  "scores": [
+   55,
+   61,
+   55,
+   85,
+   90,
+   98,
+   92,
+   92,
+   93,
+   97,
+   92,
+   55
+  ]
  }
 ]
