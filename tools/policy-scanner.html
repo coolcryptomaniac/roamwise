@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Corporate Travel Policy Scanner — RoamWise Tools</title>
+<meta name="description" content="Free tool: upload your company travel policy PDF and get an instant structured summary — hotel limits, flight class rules, per diem, approval thresholds. Powered by AI.">
+<link rel="canonical" href="https://www.roamwise.co.in/tools/policy-scanner.html">
+<meta property="og:title" content="Free Corporate Travel Policy Scanner — RoamWise">
+<meta property="og:description" content="Upload a PDF travel policy and get hotel limits, flight class rules, and per diem in seconds.">
+<link rel="icon" href="/icons/favicon-32.png">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Corporate Travel Policy Scanner","description":"AI-powered tool that reads corporate travel policy PDFs and extracts hotel limits, flight class, per diem, approval thresholds, and more.","url":"https://www.roamwise.co.in/tools/policy-scanner.html","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"INR"},"provider":{"@type":"Organization","name":"RoamWise","url":"https://www.roamwise.co.in"}}</script>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--night:#0B1020;--navy:#131A2E;--gold:#E8BA6C;--gold2:#C8913E;--pine:#4ADE80;--snow:#F2EFE6;--mist:#8B93A7;--line:#26304C;--bg:#0d1122;--card:#111827;--alert:#E0785B}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Outfit',system-ui,sans-serif;background:var(--bg);color:var(--snow);min-height:100vh;-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+
+nav{background:rgba(11,16,32,.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--line);padding:0 20px;display:flex;align-items:center;justify-content:space-between;height:52px;position:sticky;top:0;z-index:100}
+.nav-logo{display:flex;align-items:center;gap:8px;font-weight:800;font-size:16px}
+.nav-logo img{width:28px;height:28px;border-radius:6px}
+.nav-back{font-size:12px;color:var(--mist);padding:6px 12px;border:1px solid var(--line);border-radius:20px;transition:.15s}
+.nav-back:hover{color:var(--snow);border-color:var(--mist)}
+
+.hero{text-align:center;padding:52px 20px 32px}
+.hero-badge{display:inline-flex;align-items:center;gap:7px;background:rgba(232,186,108,.12);border:1px solid rgba(232,186,108,.3);border-radius:20px;padding:5px 14px;font-size:11.5px;font-weight:600;color:var(--gold);margin-bottom:18px;letter-spacing:.04em}
+.hero h1{font-size:clamp(26px,5vw,42px);font-weight:800;line-height:1.2;margin-bottom:12px}
+.hero h1 em{font-style:normal;color:var(--gold)}
+.hero p{font-size:15px;color:var(--mist);max-width:540px;margin:0 auto 8px;line-height:1.65}
+.hero-sub{font-size:12.5px;color:#4A5270;margin-top:6px}
+
+.wrap{max-width:860px;margin:0 auto;padding:0 20px 60px}
+
+/* Upload zone */
+.upload-card{background:var(--card);border:2px dashed var(--line);border-radius:18px;padding:36px 24px;text-align:center;cursor:pointer;transition:all .2s;position:relative;margin-bottom:20px}
+.upload-card:hover,.upload-card.drag{border-color:rgba(232,186,108,.5);background:rgba(232,186,108,.04)}
+.upload-card input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.upload-icon{font-size:40px;margin-bottom:12px;display:block}
+.upload-label{font-size:16px;font-weight:700;margin-bottom:6px}
+.upload-sub{font-size:13px;color:var(--mist)}
+.file-chosen{background:rgba(74,222,128,.08);border:1.5px solid rgba(74,222,128,.3);border-radius:12px;padding:12px 16px;margin-bottom:16px;display:none;align-items:center;gap:12px;font-size:13.5px}
+.file-chosen .fname{font-weight:600;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.file-chosen .fsize{color:var(--mist);font-size:12px;white-space:nowrap}
+
+/* Options */
+.options-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
+.opt-card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px}
+.opt-label{font-size:11px;color:var(--mist);letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px}
+.opt-select{width:100%;background:rgba(255,255,255,.06);border:1px solid var(--line);border-radius:8px;padding:9px 12px;color:var(--snow);font-size:13.5px;font-family:inherit;outline:none;cursor:pointer}
+.opt-select:focus{border-color:rgba(232,186,108,.5)}
+
+/* Scan button */
+.scan-btn{width:100%;padding:16px;background:linear-gradient(90deg,var(--gold2),var(--gold));color:var(--night);font-weight:800;font-size:16px;border:none;border-radius:14px;cursor:pointer;letter-spacing:.02em;transition:opacity .2s;margin-bottom:6px}
+.scan-btn:hover{opacity:.9}
+.scan-btn:disabled{opacity:.5;cursor:not-allowed}
+.scan-note{font-size:11.5px;color:#3A4260;text-align:center}
+
+/* Progress */
+#progress{display:none;margin:20px 0}
+.prog-bar{height:4px;background:rgba(255,255,255,.08);border-radius:4px;overflow:hidden;margin-bottom:12px}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--gold2),var(--gold));border-radius:4px;width:0%;transition:width .6s ease}
+.prog-msg{text-align:center;font-size:13px;color:var(--mist)}
+
+/* Results */
+#results{display:none}
+.results-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;padding-bottom:14px;border-bottom:1px solid var(--line)}
+.results-header h2{font-size:20px;font-weight:700}
+.results-actions{display:flex;gap:8px}
+.rbtn{font-size:12px;font-weight:600;padding:7px 14px;border-radius:8px;cursor:pointer;border:1px solid var(--line);background:transparent;color:var(--snow);transition:.15s;font-family:inherit}
+.rbtn:hover{border-color:var(--mist)}
+.rbtn.primary{background:rgba(232,186,108,.12);border-color:rgba(232,186,108,.3);color:var(--gold)}
+.rbtn.primary:hover{background:rgba(232,186,108,.2)}
+
+/* Policy card grid */
+.policy-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;margin-bottom:16px}
+.pc{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px}
+.pc.highlight{border-color:rgba(232,186,108,.4);background:rgba(232,186,108,.06)}
+.pc.alert{border-color:rgba(224,120,91,.4);background:rgba(224,120,91,.06)}
+.pc.ok{border-color:rgba(74,222,128,.3);background:rgba(74,222,128,.05)}
+.pc-icon{font-size:22px;margin-bottom:8px;display:block}
+.pc-label{font-size:10.5px;color:var(--mist);letter-spacing:.1em;text-transform:uppercase;margin-bottom:5px}
+.pc-value{font-size:17px;font-weight:800;color:var(--snow);line-height:1.2;margin-bottom:4px}
+.pc-sub{font-size:11.5px;color:var(--mist);line-height:1.5}
+
+/* Summary section */
+.summary-card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px;margin-bottom:12px}
+.summary-card h3{font-size:15px;font-weight:700;margin-bottom:12px;color:var(--gold)}
+.rule-row{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.05);font-size:13.5px}
+.rule-row:last-child{border-bottom:none}
+.rule-icon{font-size:16px;flex-shrink:0;margin-top:1px}
+.rule-text{flex:1;color:rgba(255,255,255,.8);line-height:1.5}
+.rule-tag{font-size:10.5px;font-weight:700;padding:2px 8px;border-radius:12px;flex-shrink:0;margin-top:2px}
+.tag-limit{background:rgba(224,120,91,.2);color:var(--alert)}
+.tag-ok{background:rgba(74,222,128,.15);color:var(--pine)}
+.tag-info{background:rgba(139,147,167,.15);color:var(--mist)}
+
+/* Compliance checklist */
+.checklist{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px;margin-bottom:12px}
+.checklist h3{font-size:15px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.check-item{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:13.5px}
+.check-item:last-child{border-bottom:none}
+.check-icon{font-size:15px;flex-shrink:0;width:20px;text-align:center}
+
+/* Error */
+#errMsg{display:none;background:rgba(224,120,91,.1);border:1px solid rgba(224,120,91,.3);border-radius:12px;padding:14px 16px;font-size:13.5px;color:var(--alert);margin:12px 0}
+
+/* CTA */
+.tool-cta{background:linear-gradient(160deg,var(--navy),var(--night));border:1px solid var(--line);border-radius:16px;padding:24px;text-align:center;margin-top:24px}
+.tool-cta h3{font-size:18px;font-weight:700;color:var(--gold);margin-bottom:6px}
+.tool-cta p{font-size:13.5px;color:var(--mist);margin-bottom:16px}
+.tool-cta a{display:inline-block;background:linear-gradient(90deg,var(--gold2),var(--gold));color:var(--night);font-weight:800;font-size:14px;padding:12px 26px;border-radius:10px}
+
+@media(max-width:560px){.options-row{grid-template-columns:1fr}.policy-grid{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="/">
+    <img src="/icons/favicon-32.png" alt="RoamWise">
+    RoamWise Tools
+  </a>
+  <a class="nav-back" href="/">&#8592; Back to planner</a>
+</nav>
+
+<div class="hero">
+  <div class="hero-badge">&#128209; Free AI Tool · No account needed</div>
+  <h1>Corporate Travel Policy<br><em>Scanner</em></h1>
+  <p>Upload your company's travel policy PDF. The AI reads it and extracts every rule that matters — hotel limits, flight class, per diem, approval thresholds — in under 20 seconds.</p>
+  <p class="hero-sub">PDF stays in your browser. Nothing is uploaded to our servers.</p>
+</div>
+
+<div class="wrap">
+
+  <!-- UPLOAD -->
+  <div class="upload-card" id="dropzone">
+    <input type="file" id="pdfFile" accept=".pdf" onchange="onFileChosen(this)">
+    <span class="upload-icon">📄</span>
+    <div class="upload-label">Drop your policy PDF here or tap to browse</div>
+    <div class="upload-sub">PDF only · Max 10MB · Supports English & basic Hindi policies</div>
+  </div>
+
+  <div class="file-chosen" id="fileChosen">
+    <span style="font-size:22px">📎</span>
+    <span class="fname" id="chosenName"></span>
+    <span class="fsize" id="chosenSize"></span>
+    <button onclick="clearFile()" style="background:none;border:none;color:var(--mist);cursor:pointer;font-size:18px;padding:4px">×</button>
+  </div>
+
+  <div class="options-row">
+    <div class="opt-card">
+      <div class="opt-label">Company currency</div>
+      <select class="opt-select" id="currencyPref">
+        <option value="INR">₹ INR (Indian Rupee)</option>
+        <option value="USD">$ USD</option>
+        <option value="EUR">€ EUR</option>
+        <option value="GBP">£ GBP</option>
+      </select>
+    </div>
+    <div class="opt-card">
+      <div class="opt-label">Policy type</div>
+      <select class="opt-select" id="policyType">
+        <option value="corporate">Corporate / Enterprise</option>
+        <option value="startup">Startup / SMB</option>
+        <option value="ngo">NGO / Non-profit</option>
+        <option value="govt">Government / PSU</option>
+      </select>
+    </div>
+  </div>
+
+  <button class="scan-btn" id="scanBtn" onclick="runScan()" disabled>
+    &#128202; Scan Policy — Extract All Rules
+  </button>
+  <p class="scan-note">Powered by Claude AI · Results appear in ~15 seconds</p>
+
+  <div id="errMsg"></div>
+
+  <!-- PROGRESS -->
+  <div id="progress">
+    <div class="prog-bar"><div class="prog-fill" id="progFill"></div></div>
+    <div class="prog-msg" id="progMsg">Reading policy document…</div>
+  </div>
+
+  <!-- RESULTS -->
+  <div id="results">
+    <div class="results-header">
+      <h2>&#10003; Policy extracted</h2>
+      <div class="results-actions">
+        <button class="rbtn" onclick="copyResults()">&#128203; Copy summary</button>
+        <button class="rbtn primary" onclick="printResults()">&#128424; Print / Save PDF</button>
+      </div>
+    </div>
+
+    <div class="policy-grid" id="policyGrid"></div>
+    <div class="summary-card" id="summaryCard">
+      <h3>&#128221; All extracted rules</h3>
+      <div id="rulesList"></div>
+    </div>
+    <div class="checklist" id="checklistCard">
+      <h3>&#9989; Quick compliance checklist<span style="font-size:12px;font-weight:400;color:var(--mist);margin-left:8px">for travellers booking trips</span></h3>
+      <div id="checklistItems"></div>
+    </div>
+    <div style="font-size:11.5px;color:#3A4260;text-align:center;margin-top:8px">
+      AI extraction may miss ambiguous clauses. Always verify critical limits with your HR or finance team.
+    </div>
+  </div>
+
+  <div class="tool-cta">
+    <h3>Planning a business trip?</h3>
+    <p>RoamWise builds the itinerary within your extracted policy limits — real local prices, honest road times, group budget splitting.</p>
+    <a href="/">Open RoamWise Planner →</a>
+  </div>
+
+</div>
+
+<script>
+var pdfBase64 = null;
+var pdfName = '';
+
+/* drag-and-drop */
+var dz = document.getElementById('dropzone');
+dz.addEventListener('dragover', function(e){ e.preventDefault(); dz.classList.add('drag'); });
+dz.addEventListener('dragleave', function(){ dz.classList.remove('drag'); });
+dz.addEventListener('drop', function(e){
+  e.preventDefault(); dz.classList.remove('drag');
+  var f = e.dataTransfer.files[0];
+  if(f && f.type==='application/pdf') processFile(f);
+  else showErr('Please drop a PDF file.');
+});
+
+function onFileChosen(inp){ if(inp.files[0]) processFile(inp.files[0]); }
+
+function processFile(f){
+  if(f.size > 10*1024*1024){ showErr('File is larger than 10MB. Try a compressed version.'); return; }
+  pdfName = f.name;
+  var reader = new FileReader();
+  reader.onload = function(e){
+    pdfBase64 = e.target.result.split(',')[1];
+    document.getElementById('chosenName').textContent = f.name;
+    document.getElementById('chosenSize').textContent = (f.size/1024).toFixed(0)+' KB';
+    document.getElementById('fileChosen').style.display = 'flex';
+    document.getElementById('scanBtn').disabled = false;
+    clearErr();
+  };
+  reader.onerror = function(){ showErr('Could not read the file. Try again.'); };
+  reader.readAsDataURL(f);
+}
+
+function clearFile(){
+  pdfBase64=null; pdfName='';
+  document.getElementById('pdfFile').value='';
+  document.getElementById('fileChosen').style.display='none';
+  document.getElementById('scanBtn').disabled=true;
+  document.getElementById('results').style.display='none';
+  clearErr();
+}
+
+function showErr(msg){ var e=document.getElementById('errMsg'); e.textContent=msg; e.style.display='block'; }
+function clearErr(){ document.getElementById('errMsg').style.display='none'; }
+
+function setProgress(pct, msg){
+  document.getElementById('progFill').style.width = pct+'%';
+  document.getElementById('progMsg').textContent = msg;
+}
+
+async function runScan(){
+  if(!pdfBase64){ showErr('Please select a PDF first.'); return; }
+  clearErr();
+  var btn = document.getElementById('scanBtn');
+  btn.disabled=true; btn.textContent='Scanning…';
+  document.getElementById('progress').style.display='block';
+  document.getElementById('results').style.display='none';
+  setProgress(10, 'Sending policy to AI…');
+
+  var currency = document.getElementById('currencyPref').value;
+  var ptype = document.getElementById('policyType').value;
+
+  var prompt = `You are a corporate travel policy analyst. The attached PDF is a company travel policy document.
+
+Extract ALL travel rules and return ONLY a valid JSON object with this exact structure (no markdown, no preamble):
+
+{
+  "company": "company name if found, else null",
+  "policyVersion": "version/date if found, else null",
+  "currency": "${currency}",
+  "limits": {
+    "hotelPerNight": {"domestic": "amount or null", "international": "amount or null", "note": "any conditions"},
+    "flightClass": {"domestic": "economy/business/first or null", "international": "economy/business/first or null", "note": "any conditions e.g. flights over 6 hours"},
+    "mealPerDiem": {"breakfast": "amount or null", "lunch": "amount or null", "dinner": "amount or null", "daily": "total daily limit or null", "note": "any conditions"},
+    "localTransport": {"daily": "amount or null", "type": "taxi/own vehicle/metro etc or null", "note": "any conditions"},
+    "incidentals": {"daily": "amount or null", "note": "what counts as incidentals"}
+  },
+  "approvals": {
+    "thresholdAmount": "amount above which approval needed or null",
+    "advanceBookingDays": "minimum days before travel for booking or null",
+    "approverRole": "who must approve e.g. manager/CFO or null",
+    "exceptions": "who can approve exceptions or null"
+  },
+  "restrictions": {
+    "blacklistedVendors": ["list of banned hotels/airlines/booking sites if any"],
+    "preferredVendors": ["list of preferred/mandatory vendors if any"],
+    "blackoutDates": "any date restrictions or null",
+    "weekendTravel": "policy on weekend travel or null",
+    "familyAllowed": "can family accompany on business travel? or null",
+    "upgradePolicy": "when upgrades are allowed or null"
+  },
+  "internationalTravel": {
+    "approvalRequired": true or false or null,
+    "visaReimbursed": true or false or null,
+    "travelInsurance": "company provided / employee arranged / null",
+    "perDiemIncrease": "% or amount increase for international or null"
+  },
+  "reimbursement": {
+    "submitWithinDays": "days after trip to submit expenses or null",
+    "receiptRequired": "above what amount is receipt required or null",
+    "paymentMethod": "company card / personal reimbursed / both or null"
+  },
+  "keyFlags": ["list 3-5 most important rules a traveller must know, in plain English, as short bullet points"]
+}
+
+If a field cannot be found in the document, use null. Do not guess. Use exact amounts from the document. Currency is ${currency}.`;
+
+  try{
+    setProgress(25, 'AI reading your policy document…');
+
+    var resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 1800,
+        messages: [{
+          role: 'user',
+          content: [
+            { type: 'document', source: { type: 'base64', media_type: 'application/pdf', data: pdfBase64 } },
+            { type: 'text', text: prompt }
+          ]
+        }]
+      })
+    });
+
+    setProgress(75, 'Structuring results…');
+
+    if(!resp.ok){
+      var err = await resp.json().catch(function(){ return {}; });
+      throw new Error((err.error && err.error.message) || 'API error '+resp.status);
+    }
+
+    var data = await resp.json();
+    var raw = data.content.map(function(c){ return c.text||''; }).join('');
+    var clean = raw.replace(/```json|```/g,'').trim();
+    var policy = JSON.parse(clean);
+
+    setProgress(100, 'Done!');
+    setTimeout(function(){ renderResults(policy, ptype, currency); }, 300);
+
+  }catch(e){
+    document.getElementById('progress').style.display='none';
+    btn.disabled=false; btn.textContent='&#128202; Scan Policy — Extract All Rules';
+    if(e.message.includes('Could not process') || e.message.includes('PDF')){
+      showErr('This PDF could not be read (may be scanned/image-based). Try a text-based PDF.');
+    } else {
+      showErr('Scan failed: '+e.message+'. Check your internet connection and try again.');
+    }
+  }
+}
+
+function renderResults(p, ptype, cur){
+  document.getElementById('progress').style.display='none';
+  document.getElementById('results').style.display='block';
+  document.getElementById('scanBtn').disabled=false;
+  document.getElementById('scanBtn').textContent='&#128202; Scan Policy — Extract All Rules';
+
+  var sym = cur==='INR'?'₹':cur==='USD'?'$':cur==='EUR'?'€':'£';
+  var L = p.limits||{}, A = p.approvals||{}, R = p.restrictions||{}, I = p.internationalTravel||{}, Re = p.reimbursement||{};
+
+  /* GRID CARDS */
+  var cards = [
+    { icon:'🏨', label:'Hotel limit / night', value: (L.hotelPerNight&&(L.hotelPerNight.domestic||L.hotelPerNight.international)) ? sym+(L.hotelPerNight.domestic||L.hotelPerNight.international) : '—', sub: L.hotelPerNight&&L.hotelPerNight.note||'', cls: L.hotelPerNight&&L.hotelPerNight.domestic?'highlight':'' },
+    { icon:'✈️', label:'Flight class', value: (L.flightClass&&L.flightClass.domestic)||'—', sub: L.flightClass&&L.flightClass.note||'', cls:'' },
+    { icon:'🍽️', label:'Daily meal limit', value: (L.mealPerDiem&&L.mealPerDiem.daily)? sym+L.mealPerDiem.daily : '—', sub: L.mealPerDiem&&L.mealPerDiem.note||'', cls:'' },
+    { icon:'🚕', label:'Local transport', value: (L.localTransport&&L.localTransport.daily)? sym+L.localTransport.daily : (L.localTransport&&L.localTransport.type||'—'), sub: L.localTransport&&L.localTransport.note||'', cls:'' },
+    { icon:'✅', label:'Approval above', value: A.thresholdAmount? sym+A.thresholdAmount : '—', sub: A.approverRole? 'Approver: '+A.approverRole : '', cls: A.thresholdAmount?'ok':'' },
+    { icon:'📅', label:'Book advance', value: A.advanceBookingDays? A.advanceBookingDays+' days' : '—', sub: 'Minimum before travel', cls:'' },
+    { icon:'📝', label:'Submit by', value: Re.submitWithinDays? Re.submitWithinDays+' days after trip' : '—', sub: Re.receiptRequired? 'Receipt above '+sym+Re.receiptRequired : '', cls:'' },
+    { icon:'🌍', label:'International', value: I.approvalRequired===true?'Approval required':I.approvalRequired===false?'No approval needed':'—', sub: I.travelInsurance? 'Insurance: '+I.travelInsurance : '', cls: I.approvalRequired?'alert':'' },
+  ];
+  document.getElementById('policyGrid').innerHTML = cards.map(function(c){
+    return '<div class="pc '+(c.cls||'')+'"><span class="pc-icon">'+c.icon+'</span><div class="pc-label">'+c.label+'</div><div class="pc-value">'+c.value+'</div>'+(c.sub?'<div class="pc-sub">'+esc(c.sub)+'</div>':'')+'</div>';
+  }).join('');
+
+  /* RULES LIST */
+  var rules = [];
+  if(L.hotelPerNight&&L.hotelPerNight.domestic) rules.push({icon:'🏨',text:'Hotel max: '+sym+L.hotelPerNight.domestic+' domestic'+(L.hotelPerNight.international?' / '+sym+L.hotelPerNight.international+' international':''),tag:'limit'});
+  if(L.flightClass&&L.flightClass.domestic) rules.push({icon:'✈️',text:'Flights: '+L.flightClass.domestic+' (domestic)'+(L.flightClass.international?' / '+L.flightClass.international+' (international)':'')+(L.flightClass.note?' — '+L.flightClass.note:''),tag:'info'});
+  if(L.mealPerDiem&&L.mealPerDiem.daily) rules.push({icon:'🍽️',text:'Meals: '+sym+L.mealPerDiem.daily+'/day total'+(L.mealPerDiem.note?' — '+L.mealPerDiem.note:''),tag:'limit'});
+  if(A.advanceBookingDays) rules.push({icon:'📅',text:'Book at least '+A.advanceBookingDays+' days in advance',tag:'limit'});
+  if(A.thresholdAmount) rules.push({icon:'✅',text:'Expenses above '+sym+A.thresholdAmount+' need approval from '+( A.approverRole||'manager'),tag:'ok'});
+  if(R.weekendTravel) rules.push({icon:'📋',text:'Weekend travel: '+R.weekendTravel,tag:'info'});
+  if(R.preferredVendors&&R.preferredVendors.length) rules.push({icon:'🤝',text:'Preferred vendors: '+R.preferredVendors.join(', '),tag:'ok'});
+  if(R.blacklistedVendors&&R.blacklistedVendors.length) rules.push({icon:'🚫',text:'Not allowed: '+R.blacklistedVendors.join(', '),tag:'limit'});
+  if(I.visaReimbursed===true) rules.push({icon:'🛂',text:'Visa costs are reimbursed',tag:'ok'});
+  if(I.visaReimbursed===false) rules.push({icon:'🛂',text:'Visa costs not reimbursed — arrange separately',tag:'limit'});
+  if(Re.paymentMethod) rules.push({icon:'💳',text:'Payment: '+Re.paymentMethod,tag:'info'});
+
+  document.getElementById('rulesList').innerHTML = rules.length ? rules.map(function(r){
+    return '<div class="rule-row"><span class="rule-icon">'+r.icon+'</span><span class="rule-text">'+esc(r.text)+'</span><span class="rule-tag tag-'+r.tag+'">'+(r.tag==='limit'?'Limit':r.tag==='ok'?'Required':'Info')+'</span></div>';
+  }).join('') : '<div style="font-size:13px;color:var(--mist);padding:8px 0">No specific rules extracted. The PDF may be image-scanned. Try a text-based PDF.</div>';
+
+  /* KEY FLAGS CHECKLIST */
+  var flags = p.keyFlags||[];
+  document.getElementById('checklistItems').innerHTML = flags.length ? flags.map(function(f){
+    return '<div class="check-item"><span class="check-icon">☐</span><span style="flex:1;color:rgba(255,255,255,.8)">'+esc(f)+'</span></div>';
+  }).join('') : '<div style="font-size:13px;color:var(--mist);">No key flags identified.</div>';
+
+  window._lastPolicy = p;
+  document.getElementById('results').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function esc(s){ return String(s||'').replace(/[<>&"]/g,function(c){return{'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c];}); }
+
+function copyResults(){
+  var p=window._lastPolicy; if(!p){ return; }
+  var L=p.limits||{},A=p.approvals||{},R=p.restrictions||{},I=p.internationalTravel||{},Re=p.reimbursement||{};
+  var sym = (document.getElementById('currencyPref').value==='INR'?'₹':'$');
+  var txt = 'TRAVEL POLICY SUMMARY\n' + (p.company?'Company: '+p.company+'\n':'') + '\n';
+  txt += '=== LIMITS ===\n';
+  if(L.hotelPerNight) txt += 'Hotel: '+sym+(L.hotelPerNight.domestic||'?')+'/night (domestic), '+sym+(L.hotelPerNight.international||'?')+'/night (intl)\n';
+  if(L.flightClass) txt += 'Flights: '+(L.flightClass.domestic||'?')+' domestic, '+(L.flightClass.international||'?')+' international\n';
+  if(L.mealPerDiem&&L.mealPerDiem.daily) txt += 'Meals: '+sym+L.mealPerDiem.daily+'/day\n';
+  if(A.thresholdAmount) txt += 'Approval needed above: '+sym+A.thresholdAmount+'\n';
+  if(A.advanceBookingDays) txt += 'Book at least '+A.advanceBookingDays+' days ahead\n';
+  if(Re.submitWithinDays) txt += 'Submit expenses within '+Re.submitWithinDays+' days\n';
+  txt += '\n=== KEY RULES ===\n'+(p.keyFlags||[]).map(function(f,i){ return (i+1)+'. '+f; }).join('\n');
+  txt += '\n\nGenerated by RoamWise Tools — roamwise.co.in/tools/policy-scanner.html';
+  navigator.clipboard.writeText(txt).then(function(){ alert('Summary copied to clipboard!'); }).catch(function(){ alert('Copy failed — try selecting and copying manually.'); });
+}
+
+function printResults(){
+  window.print();
+}
+</script>
+</body>
+</html>
