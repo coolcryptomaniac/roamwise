@@ -4750,5 +4750,85 @@
    92,
    55
   ]
+ },
+ {
+  "slug": "auckland-new-zealand",
+  "title": "Auckland, New Zealand",
+  "name": "Auckland",
+  "country": "New Zealand",
+  "best": "February, March, May",
+  "arch": "temperate",
+  "cl": [
+   23.6,
+   23.4,
+   20.5,
+   19.4,
+   16.2,
+   15.9,
+   14.3,
+   15.1,
+   16.1,
+   17.1,
+   19.6,
+   22.5
+  ],
+  "scores": [
+   89,
+   92,
+   91,
+   89,
+   92,
+   89,
+   83,
+   90,
+   91,
+   86,
+   89,
+   88
+  ]
+ },
+ {
+  "slug": "fiji-fiji",
+  "title": "Fiji, Fiji",
+  "name": "Fiji",
+  "country": "Fiji",
+  "best": "April, June, July",
+  "arch": "tropical",
+  "cl": [
+   30.8,
+   31.1,
+   29.8,
+   30.6,
+   27.9,
+   27.3,
+   26.7,
+   26.1,
+   26.7,
+   29.1,
+   29.2,
+   30.5
+  ],
+  "scores": [
+   55,
+   55,
+   55,
+   90,
+   65,
+   93,
+   92,
+   87,
+   88,
+   78,
+   67,
+   55
+  ]
+ },
+ {
+  "slug": "udaipur-in-january",
+  "title": "Udaipur in January",
+  "name": "Udaipur·January",
+  "country": "India",
+  "best": "January, February, March",
+  "month": true
  }
 ]
