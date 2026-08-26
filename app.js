@@ -3734,10 +3734,12 @@ function renderForYou(){
   try{
     var live=activeEvents(), evCity=live.length? live[0].city:null;
     var curM=new Date().getMonth();
+    var isClosedNow=function(d){ return d.closedM && d.closedM.indexOf(curM+1)>-1; };
     var seedH=function(str){var x=0;for(var i=0;i<str.length;i++)x=(x*31+str.charCodeAt(i))>>>0;return (x+new Date().getDate())%97;};
     /* Month-aware: in-season (bestM) first, LIVE-event city pinned, daily-shuffled —
        genuinely different by season AND by day, and it scales as DB grows. */
-    var pool=(typeof DB!=='undefined'? DB:[]).slice();
+    var pool=(typeof DB!=='undefined'? DB:[]).slice()
+      .filter(function(d){ return !isClosedNow(d); });
     pool.sort(function(a,b){
       var ea=(evCity===a.name)?-200:0, eb=(evCity===b.name)?-200:0;
       var sa=((a.bestM||[]).indexOf(curM+1)>-1)?-100:0, sb=((b.bestM||[]).indexOf(curM+1)>-1)?-100:0;
@@ -3771,7 +3773,6 @@ function renderForYou(){
         return r;
       }
       var used={}; picks.forEach(function(d){used[d.name]=1;});
-      var isClosedNow=function(d){ return d.closedM && d.closedM.indexOf(curM+1)>-1; };
       var inSeason=pool.filter(function(d){ return (d.bestM||[]).indexOf(curM+1)>-1 && !used[d.name] && !isClosedNow(d); }).slice(0,10)
         .map(function(d){ d._tag='\ud83c\udf1e'; used[d.name]=1; return d; });
       var lowCrowd=pool.filter(function(d){ return d.crowd && !used[d.name] && !isClosedNow(d); })
