@@ -116,6 +116,212 @@ var DB = [
   tags:['offbeat','culture','nature'], cur:'INR', sym:'\u20b9', rate:1,
   local:'You need an Inner Line Permit and the drive from Naharlagun is long and rough. This is a place that does not perform for tourists \u2014 which is the point.' },
 
+/* ---------------------------------------------------------------------------
+   INDIA (rw-v112) \u2014 expansion. Eight India entries meant "Popular now" and its
+   sibling carousels ran dry after Goa/Manali/Jaipur \u2014 everything past that was
+   Bali and Kyoto again. These eighteen cover hills, beaches, deserts, heritage,
+   wildlife and high-altitude adventure, spread across the calendar so the
+   in-season and low-crowd rows actually have real India picks, not just
+   overflow from the international list.
+--------------------------------------------------------------------------- */
+{ id:'munnar', name:'Munnar', country:'India', region:'South Asia', lat:10.09, lon:77.06,
+  crowd:[68,55,48,58,70,28,20,18,24,40,58,92],
+  cost:{budget:103,mid:239,luxury:597},
+  brk:{flights:0,stay:103,food:48,act:48,misc:40},
+  visa:{type:'None',cost:'Domestic',days:0,note:'No permit needed'},
+  bestM:[10,11,12,1,4], interests:['hills','tea','nature','honeymoon','photography'],
+  food:['Kerala sadya','Appam with stew','Malabar biryani','Banana chips'],
+  gems:['Top Station viewpoint at sunrise','Eravikulam National Park (Nilgiri tahr)','Anamudi peak trail','Attukad waterfalls'],
+  tags:['mountain','nature','honeymoon'], cur:'INR', sym:'\u20b9', rate:1,
+  local:'Tea garden views are free from the road \u2014 skip the paid "estate entry" gates near the highway. Eravikulam caps at 3,600 visitors a day; book ahead in season.' },
+
+{ id:'coorg', name:'Coorg', country:'India', region:'South Asia', lat:12.42, lon:75.74,
+  crowd:[55,48,40,50,58,22,18,16,22,38,55,78],
+  cost:{budget:1200,mid:2800,luxury:7000},
+  brk:{flights:0,stay:1200,food:550,act:550,misc:500},
+  visa:{type:'None',cost:'Domestic',days:0,note:'No permit needed'},
+  bestM:[10,11,12,1,3], interests:['coffee','hills','nature','waterfalls','wildlife'],
+  food:['Pandi curry (pork)','Kadambuttu','Coorg-style chicken curry','Estate filter coffee'],
+  gems:['Abbey Falls before the tour buses','Nagarhole tiger reserve safari','Chelavara waterfalls trek','Homestay coffee-picking mornings'],
+  tags:['mountain','nature','food'], cur:'INR', sym:'\u20b9', rate:1,
+  local:'Coffee-picking season is Nov-Jan \u2014 most homestays let you join for free if you ask. Roads flood fast in July-August; check conditions before driving in.' },
+
+{ id:'hampi', name:'Hampi', country:'India', region:'South Asia', lat:15.34, lon:76.46,
+  crowd:[62,58,45,32,20,14,16,18,24,42,60,72],
+  cost:{budget:900,mid:2200,luxury:5500},
+  brk:{flights:0,stay:800,food:500,act:500,misc:400},
+  visa:{type:'None',cost:'Domestic',days:0,note:'No permit needed'},
+  bestM:[10,11,12,1,2], interests:['heritage','ruins','rock climbing','cycling','photography'],
+  food:['Thali on a banana leaf','Jolada rotti','Filter coffee','Riverside cafe pancakes'],
+  gems:['Matanga Hill sunrise','Sunset from Hemakuta Hill','Coracle ride across the Tungabhadra','Boulder-hopping past the Vittala temple crowds'],
+  tags:['heritage','offbeat','photography'], cur:'INR', sym:'\u20b9', rate:1,
+  local:'April to June hits 42C among bare boulders with zero shade \u2014 brutal. Rent a bicycle, not a scooter; many ruins sit across the river reachable only by coracle or footbridge.' },
+
+{ id:'pondicherry', name:'Pondicherry', country:'India', region:'South Asia', lat:11.94, lon:79.81,
+  crowd:[58,52,42,30,22,18,20,24,32,48,62,80],
+  cost:{budget:1200,mid:2600,luxury:6500},
+  brk:{flights:0,stay:1200,food:600,act:400,misc:400},
+  visa:{type:'None',cost:'Domestic',days:0,note:'No permit needed'},
+  bestM:[10,11,12,1,2], interests:['heritage','beach','cafes','yoga','architecture'],
+  food:['French-Tamil fusion','Fresh croissants','Filter coffee','Seafood on the promenade'],
+  gems:['Auroville Matrimandir at sunrise','Paradise Beach boat crossing','White Town lanes before 8am','Serenity Beach for surfing'],
+  tags:['heritage','beach','cafes'], cur:'INR', sym:'\u20b9', rate:1,
+  local:'White Town parking is a nightmare after 10am \u2014 walk or cycle in instead. Auroville needs an online slot booking; the meditation hall itself is silent viewing only.' },
+
+{ id:'rann_kutch', name:'Rann of Kutch', country:'India', region:'South Asia', lat:23.89, lon:69.85,
+  crowd:[70,55,20,5,2,0,0,0,2,15,60,88],
+  cost:{budget:1500,mid:3500,luxury:8500},
+  brk:{flights:0,stay:1500,food:600,act:800,misc:600},
+  visa:{type:'None',cost:'Domestic',days:0,note:'No permit needed for Indian citizens'},
+  bestM:[11,12,1,2], closedM:[6,7,8,9], interests:['desert','festival','photography','offbeat','culture'],
+  food:['Kutchi thali','Bajra rotla','Dabeli','Kutchi dabroti'],
+  gems:['Full moon night on the white salt','Kalo Dungar (Black Hill) sunset','Hodka village crafts walk','Banni grassland birdwatching'],
+  tags:['offbeat','desert','photography'], cur:'INR', sym:'\u20b9', rate:1,
+  local:'The salt crust is only walkable Nov-Feb \u2014 monsoon floods the Rann completely and it stays underwater the rest of the year. Book Rann Utsav tents months ahead; Bhuj homestays are the budget alternative.' },
+
+{ id:'havelock', name:'Havelock Island', country:'India', region:'South Asia', lat:11.97, lon:92.98,
+  crowd:[55,50,40,32,22,10,8,10,16,28,48,68],
+  cost:{budget:1800,mid:4000,luxury:9500},
+  brk:{flights:0,stay:1800,food:800,act:800,misc:600},
+  visa:{type:'None',cost:'Domestic',days:0,note:'Foreign nationals need a Restricted Area Permit on arrival'},
+  bestM:[11,12,1,2,3], interests:['beach','diving','snorkeling','island','honeymoon'],
+  food:['Fresh grilled fish','Andaman crab curry','Coconut prawn curry','Local fruit platters'],
+  gems:['Elephant Beach snorkeling before the noon boats','Radhanagar Beach sunset','Kalapathar rocks at low tide','Night dive off the Havelock jetty'],
+  tags:['beach','diving','island'], cur:'INR', sym:'\u20b9', rate:1,
+  local:'Ferries from Port Blair sell out in season \u2014 book both legs the day you land. Cyclone season (Jun-Sep) can cancel ferries for days; build in buffer time if traveling then.' },
+
+{ id:'darjeeling', name:'Darjeeling', country:'India', region:'South Asia', lat:27.04, lon:88.26,
+  crowd:[45,42,55,68,72,35,25,22,30,52,58,70],
+  cost:{budget:1200,mid:2800,luxury:6800},
+  brk:{flights:0,stay:1200,food:550,act:550,misc:500},
+  visa:{type:'None',cost:'Domestic',days:0,note:'No permit needed'},
+  bestM:[3,4,5,10,11], interests:['tea','mountains','toy train','photography','trekking'],
+  food:['Momos','Thukpa','Darjeeling first-flush tea','Nepali-style thali'],
+  gems:['Tiger Hill sunrise over Kanchenjunga','Toy train up to Ghum','Tea estate walk at Happy Valley','Singalila ridge trek to Sandakphu'],
+  tags:['mountain','tea','photography'], cur:'INR', sym:'\u20b9', rate:1,
+  local:'Kanchenjunga shows up clearly only about 1 morning in 3 \u2014 plan on two sunrise attempts at Tiger Hill. Toy train joy-ride slots sell out; book that specifically, not just the full route.' },
+
+{ id:'gangtok', name:'Gangtok', country:'India', region:'South Asia', lat:27.34, lon:88.61,
+  crowd:[35,38,50,58,62,30,22,20,28,55,58,60],
+  cost:{budget:1300,mid:3000,luxury:7200},
+  brk:{flights:0,stay:1300,food:600,act:600,misc:500},
+  visa:{type:'None',cost:'Domestic',days:0,note:'Inner Line Permit needed for Nathula/Tsomgo/Zuluk'},
+  bestM:[3,4,5,10,11], interests:['mountains','monasteries','adventure','photography','food'],
+  food:['Momos','Thukpa','Gundruk soup','Sikkimese pork curry'],
+  gems:['Tsomgo Lake at dawn before the tour convoy','Rumtek Monastery morning prayers','Zuluk\u2019s zigzag Silk Route road','Kanchenjunga view from Hanuman Tok'],
+  tags:['mountain','offbeat','culture'], cur:'INR', sym:'\u20b9', rate:1,
+  local:'Nathula and Tsomgo need permits arranged a day ahead through a registered agent \u2014 walk-ins get turned back. Roads shut without warning after landslides; keep a buffer day.' },
+
+{ id:'mcleodganj', name:'McLeodganj', country:'India', region:'South Asia', lat:32.24, lon:76.32,
+  crowd:[30,32,42,55,62,45,38,35,42,55,48,40],
+  cost:{budget:1000,mid:2400,luxury:5800},
+  brk:{flights:0,stay:900,food:500,act:500,misc:500},
+  visa:{type:'None',cost:'Domestic',days:0,note:'No permit needed'},
+  bestM:[3,4,5,9,10], interests:['spiritual','trekking','cafes','culture','yoga'],
+  food:['Tibetan momos','Thukpa','Israeli-Tibetan fusion cafes','Butter tea'],
+  gems:['Triund trek at sunrise','Dalai Lama Temple morning prayers','Bhagsu waterfall before the crowds','Naddi viewpoint for the Dhauladhar range'],
+  tags:['spiritual','trekking','offbeat'], cur:'INR', sym:'\u20b9', rate:1,
+  local:'Triund works as a day trek but staying overnight at the top for sunrise is worth the extra weight. July-August brings leeches and landslide-prone roads \u2014 not the best trekking window despite decent weather.' },
+
+{ id:'jaisalmer', name:'Jaisalmer', country:'India', region:'South Asia', lat:26.92, lon:70.91,
+  crowd:[70,62,45,25,12,8,10,14,22,45,68,85],
+  cost:{budget:1100,mid:2600,luxury:7000},
+  brk:{flights:0,stay:1000,food:550,act:600,misc:450},
+  visa:{type:'None',cost:'Domestic',days:0,note:'No permit needed'},
+  bestM:[11,12,1,2], interests:['desert','heritage','camel safari','photography','culture'],
+  food:['Dal baati churma','Ker sangri','Rajasthani thali','Makhaniya lassi'],
+  gems:['Sam sand dunes at sunrise, before the sunset crowds','Kuldhara abandoned village','Desert National Park for the great Indian bustard','Bada Bagh cenotaphs at golden hour'],
+  tags:['desert','heritage','offbeat'], cur:'INR', sym:'\u20b9', rate:1,
+  local:'April to June regularly crosses 45C in open desert \u2014 camel safaris go from uncomfortable to dangerous. Book overnight desert camps directly, not through street agents, to avoid bait-and-switch tents.' },
+
+{ id:'udaipur', name:'Udaipur', country:'India', region:'South Asia', lat:24.59, lon:73.71,
+  crowd:[68,60,48,35,25,20,22,26,32,52,68,88],
+  cost:{budget:1300,mid:3200,luxury:9000},
+  brk:{flights:0,stay:1300,food:600,act:700,misc:600},
+  visa:{type:'None',cost:'Domestic',days:0,note:'No permit needed'},
+  bestM:[10,11,12,1,2], interests:['heritage','lakes','architecture','honeymoon','photography'],
+  food:['Dal baati churma','Laal maas','Mirchi bada','Gatte ki sabzi'],
+  gems:['Sunset boat ride on Lake Pichola','Monsoon Palace at dawn before the crowds','Bagore ki Haveli evening dance show','Jaisamand Lake day trip'],
+  tags:['heritage','lakes','honeymoon'], cur:'INR', sym:'\u20b9', rate:1,
+  local:'April to June is brutally hot for a city built around walking between palaces. Lake levels vary a lot by year \u2014 check current levels before booking a "lake view" room.' },
+
+{ id:'mysore', name:'Mysore', country:'India', region:'South Asia', lat:12.30, lon:76.64,
+  crowd:[55,50,38,28,24,20,22,26,45,78,65,72],
+  cost:{budget:900,mid:2200,luxury:5500},
+  brk:{flights:0,stay:900,food:500,act:450,misc:350},
+  visa:{type:'None',cost:'Domestic',days:0,note:'No permit needed'},
+  bestM:[10,11,12,1,2], interests:['heritage','palace','culture','food','shopping'],
+  food:['Mysore pak','Mysore masala dosa','Bisi bele bath','Filter coffee'],
+  gems:['Mysore Palace lit up on Sunday evening','Chamundi Hill steps at dawn','Devaraja Market spice tour','St. Philomena\u2019s Cathedral'],
+  tags:['heritage','culture','food'], cur:'INR', sym:'\u20b9', rate:1,
+  local:'Palace illumination only runs Sunday evenings and during Dasara \u2014 time your visit or you will miss the famous lights. Dasara (Sep-Oct) triples hotel prices; book two months ahead if traveling then.' },
+
+{ id:'wayanad', name:'Wayanad', country:'India', region:'South Asia', lat:11.69, lon:76.13,
+  crowd:[55,50,42,48,55,20,15,15,22,42,55,72],
+  cost:{budget:1200,mid:2800,luxury:6800},
+  brk:{flights:0,stay:1200,food:550,act:550,misc:500},
+  visa:{type:'None',cost:'Domestic',days:0,note:'No permit needed'},
+  bestM:[10,11,12,1,3], interests:['wildlife','nature','trekking','waterfalls','photography'],
+  food:['Kerala sadya','Wayanad bamboo rice','Kappa with fish curry','Estate black coffee'],
+  gems:['Edakkal Caves petroglyphs','Chembra Peak heart-shaped lake trek','Wayanad Wildlife Sanctuary night safari','Soochipara waterfalls'],
+  tags:['wildlife','nature','trekking'], cur:'INR', sym:'\u20b9', rate:1,
+  local:'Chembra Peak needs a forest-department permit and guide \u2014 walk-ins get turned away in peak season. Wildlife safaris fill up online days ahead; do not rely on showing up at the gate.' },
+
+{ id:'auli', name:'Auli', country:'India', region:'South Asia', lat:30.53, lon:79.57,
+  crowd:[65,60,35,25,20,15,10,10,15,25,35,70],
+  cost:{budget:1400,mid:3200,luxury:7500},
+  brk:{flights:0,stay:1300,food:600,act:800,misc:500},
+  visa:{type:'None',cost:'Domestic',days:0,note:'No permit needed'},
+  bestM:[12,1,2,4,5], interests:['skiing','snow','mountains','cable car','adventure'],
+  food:['Garhwali thali','Aloo ke gutke','Bhang ki chutney','Hot ginger tea at the ropeway station'],
+  gems:['Auli ropeway at sunrise before the ski crowds','Gorson Bugyal meadow trek','Nanda Devi viewpoint','Chhatra Kund frozen lake in winter'],
+  tags:['mountain','adventure','snow'], cur:'INR', sym:'\u20b9', rate:1,
+  local:'Skiing is only viable late December to early March with real snow \u2014 outside that window the slopes are just grass. The ropeway is the best cheap thrill even if you never ski.' },
+
+{ id:'kaziranga', name:'Kaziranga', country:'India', region:'South Asia', lat:26.58, lon:93.17,
+  crowd:[45,42,30,10,5,0,0,0,0,10,50,60],
+  cost:{budget:1500,mid:3200,luxury:7500},
+  brk:{flights:0,stay:1400,food:600,act:800,misc:400},
+  visa:{type:'None',cost:'Domestic',days:0,note:'Park closed mid-April to mid-October for monsoon flooding'},
+  bestM:[11,12,1,2,3], closedM:[5,6,7,8,9,10], interests:['wildlife','safari','birdwatching','nature','photography'],
+  food:['Assamese thali','Khar','Duck curry','Assam tea'],
+  gems:['Central Range jeep safari for one-horned rhinos','Elephant-back safari where available','Diphlu River birdwatching','Kaziranga orchid park'],
+  tags:['wildlife','nature','offbeat'], cur:'INR', sym:'\u20b9', rate:1,
+  local:'The park is fully closed mid-April through mid-October \u2014 monsoon floods the grasslands and animals move to higher ground outside the reserve. Jeep permits sell out at dawn; book the previous evening at the range office.' },
+
+{ id:'khajuraho', name:'Khajuraho', country:'India', region:'South Asia', lat:24.83, lon:79.92,
+  crowd:[55,50,38,28,20,15,15,18,25,45,60,68],
+  cost:{budget:900,mid:2200,luxury:5800},
+  brk:{flights:0,stay:850,food:500,act:500,misc:350},
+  visa:{type:'None',cost:'Domestic',days:0,note:'No permit needed'},
+  bestM:[10,11,12,1,2], interests:['heritage','temples','architecture','photography','culture'],
+  food:['Bundelkhandi thali','Poha','Kalakand sweets','Dal bafla'],
+  gems:['Western Group temples at opening time, before the buses','Sound and light show at the Western Group','Raneh Falls canyon','Panna Tiger Reserve day trip'],
+  tags:['heritage','architecture','offbeat'], cur:'INR', sym:'\u20b9', rate:1,
+  local:'Arrive at the Western Group gate at opening \u2014 by 10am tour buses from Jhansi flood the complex. The town itself is tiny; most travelers day-trip the Eastern and Southern temple groups by bicycle.' },
+
+{ id:'chopta', name:'Chopta', country:'India', region:'South Asia', lat:30.42, lon:79.17,
+  crowd:[15,15,30,50,60,25,10,8,15,40,35,20],
+  cost:{budget:900,mid:2000,luxury:4500},
+  brk:{flights:0,stay:800,food:450,act:450,misc:300},
+  visa:{type:'None',cost:'Domestic',days:0,note:'No permit needed'},
+  bestM:[4,5,9,10,11], interests:['trekking','mountains','camping','photography','offbeat'],
+  food:['Garhwali dal','Maggi at the trailhead dhabas','Bhatt ki churkani','Hot pahadi tea'],
+  gems:['Tungnath \u2014 the world\u2019s highest Shiva temple, at dawn','Chandrashila peak sunrise summit','Deoriatal lake reflecting Chaukhamba','Camping under a genuinely dark sky'],
+  tags:['mountain','trekking','offbeat'], cur:'INR', sym:'\u20b9', rate:1,
+  local:'Tungnath-Chandrashila works as a day hike but the summit sunrise needs a pre-dawn start from Chopta itself. Snow can close the trail December to March \u2014 it is not a year-round trek.' },
+
+{ id:'leh', name:'Leh', country:'India', region:'South Asia', lat:34.15, lon:77.58,
+  crowd:[2,2,3,10,45,75,85,80,55,20,5,2],
+  cost:{budget:1600,mid:3500,luxury:8000},
+  brk:{flights:0,stay:1400,food:700,act:900,misc:500},
+  visa:{type:'None',cost:'Domestic',days:0,note:'Inner Line Permit needed for Nubra, Pangong, Tso Moriri'},
+  bestM:[6,7,8,9], interests:['mountains','adventure','monasteries','photography','biking'],
+  food:['Thukpa','Momos','Skyu','Butter tea','Apricot everything'],
+  gems:['Pangong Lake at sunrise before the day-trippers','Magnetic Hill viewpoint','Nubra Valley dunes on a Bactrian camel','Khardung La summit at dawn for empty roads'],
+  tags:['mountain','adventure','offbeat'], cur:'INR', sym:'\u20b9', rate:1,
+  local:'Take a mandatory acclimatization day doing nothing on arrival \u2014 altitude sickness above 3,500m is not optional to skip. The Manali-Leh highway opens only around June and shuts by October; fly in outside that window.' },
+
   {id:"chiang_mai",name:"Chiang Mai",country:"Thailand",region:"Southeast Asia",lat:18.79,lon:98.99,
    crowd:[45,50,55,40,28,22,25,28,22,32,55,68],
    cost:{budget:550,mid:950,luxury:2200},brk:{flights:280,stay:160,food:90,act:70,misc:50},
@@ -3528,15 +3734,17 @@ function renderForYou(){
   try{
     var live=activeEvents(), evCity=live.length? live[0].city:null;
     var curM=new Date().getMonth();
+    var isClosedNow=function(d){ return d.closedM && d.closedM.indexOf(curM+1)>-1; };
     var seedH=function(str){var x=0;for(var i=0;i<str.length;i++)x=(x*31+str.charCodeAt(i))>>>0;return (x+new Date().getDate())%97;};
     /* Month-aware: in-season (bestM) first, LIVE-event city pinned, daily-shuffled —
        genuinely different by season AND by day, and it scales as DB grows. */
-    var pool=(typeof DB!=='undefined'? DB:[]).slice();
+    var pool=(typeof DB!=='undefined'? DB:[]).slice()
+      .filter(function(d){ return !isClosedNow(d); });
     pool.sort(function(a,b){
       var ea=(evCity===a.name)?-200:0, eb=(evCity===b.name)?-200:0;
       var sa=((a.bestM||[]).indexOf(curM+1)>-1)?-100:0, sb=((b.bestM||[]).indexOf(curM+1)>-1)?-100:0;
       return (ea+sa+seedH(a.name))-(eb+sb+seedH(b.name)); });
-    var picks=pool.slice(0,6);
+    var picks=pool.slice(0,10);
     var EMO={beach:'\ud83c\udfd6\ufe0f',metro:'\ud83c\udf06',sacred:'\ud83d\uded5',tech:'\ud83c\udf03',peak:'\ud83c\udfd4\ufe0f',classic:'\ud83e\udded'};
     var row=document.createElement('div');
     row.innerHTML='<div class="rowhead"><b>Popular now</b><a onclick="tabGo(\'explore\')">All \u2192</a></div><div class="prow">'
@@ -3565,12 +3773,12 @@ function renderForYou(){
         return r;
       }
       var used={}; picks.forEach(function(d){used[d.name]=1;});
-      var inSeason=pool.filter(function(d){ return (d.bestM||[]).indexOf(curM+1)>-1 && !used[d.name]; }).slice(0,6)
+      var inSeason=pool.filter(function(d){ return (d.bestM||[]).indexOf(curM+1)>-1 && !used[d.name] && !isClosedNow(d); }).slice(0,10)
         .map(function(d){ d._tag='\ud83c\udf1e'; used[d.name]=1; return d; });
-      var lowCrowd=pool.filter(function(d){ return d.crowd && !used[d.name]; })
-        .sort(function(a,b){ return a.crowd[curM]-b.crowd[curM]; }).slice(0,6)
+      var lowCrowd=pool.filter(function(d){ return d.crowd && !used[d.name] && !isClosedNow(d); })
+        .sort(function(a,b){ return a.crowd[curM]-b.crowd[curM]; }).slice(0,10)
         .map(function(d){ d._tag=d.crowd[curM]+'%'; used[d.name]=1; return d; });
-      var visaEasy=pool.filter(function(d){ return d.visa && /free|arrival/i.test(d.visa.type) && !used[d.name]; }).slice(0,6)
+      var visaEasy=pool.filter(function(d){ return d.visa && /free|arrival/i.test(d.visa.type) && !used[d.name]; }).slice(0,10)
         .map(function(d){ d._tag='\ud83d\udec2'; return d; });
       var hero=el('copilotHero'), after=hero;
       [miniRow('\ud83c\udf1e In season \u2014 '+MOx[curM], inSeason),
@@ -4287,10 +4495,14 @@ function pdfPreviewHtml(){
   var t=(typeof DAY_TEMPLATES!=='undefined'&&DAY_TEMPLATES[0])||{title:'Arrival',morning:'Check in & wander',afternoon:'The icon sight',evening:'Local dinner',tip:'Get cash from a bank ATM'};
   var box=el('pdfPrev');
   box.style.display='';
+  /* This live preview is the one part of the download flow the user actually
+     SEES on-screen — the downloaded PDF itself can only be static colour, but
+     this box can carry the app's real animated gold gradient (same recipe as
+     .hero h1 em / .intro .it in app.css) so the flow still feels alive. */
   box.innerHTML=
-   '<div style="background:#0E1018;border:2px solid #C8913E;border-radius:10px;padding:18px;text-align:center;margin-bottom:8px">'
+   '<div style="background:#0C1020;border:2px solid #C8913E;border-radius:10px;padding:18px;text-align:center;margin-bottom:8px">'
    +'<div style="font-size:9px;letter-spacing:.2em;color:#8A8880">A ROAMWISE PREMIUM ITINERARY</div>'
-   +'<div style="font-family:Georgia,serif;font-weight:700;font-size:22px;color:#E8BA6C;margin:6px 0 2px">'+d.name.toUpperCase()+'</div>'
+   +'<div style="font-family:Georgia,serif;font-weight:700;font-size:22px;margin:6px 0 2px;background:linear-gradient(120deg,var(--gold2),var(--crim2),var(--pm2),#2AE8B8,var(--gold2));background-size:280% 100%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:gradShift 8s ease infinite">'+d.name.toUpperCase()+'</div>'
    +'<div style="font-size:11px;color:#EDEAE2">'+(d.country||'')+' \u00b7 '+Math.min(C.days||5,10)+' days \u00b7 '+(C.month||'')+'</div>'
    +'<div style="font-size:10px;color:#B8B4A8;margin-top:8px">crafted for</div>'
    +'<div style="font-family:Georgia,serif;font-style:italic;font-weight:700;font-size:16px;color:#E8BA6C">'+nm+'</div>'
@@ -4394,13 +4606,18 @@ function gcode(q){
     .then(function(r){return r.json();}).then(function(d){ var h=d.results&&d.results[0];
       return h? {lat:h.latitude, lon:h.longitude} : null; }).catch(function(){return null;});
 }
+/* Colours pulled straight from the app's own palette (app.css :root) so a
+   downloaded itinerary reads as unmistakably RoamWise, not a generic PDF —
+   deep = one of the app's dark backgrounds (--bg/--bg2/--bg3), acc = one of
+   the app's five accent colours (--gold/--gold2/--teal/--pm/--crim/--crim2),
+   each used once so the six themes stay visually distinct. */
 var PDF_THEMES={
- beach:{deep:[10,42,56],acc:[32,178,170],line:'Sun, salt and slow mornings'},
- metro:{deep:[26,16,42],acc:[171,102,255],line:'Neon nights, skyline days'},
- sacred:{deep:[48,28,14],acc:[224,150,54],line:'Bells, rivers and quiet dawns'},
- tech:{deep:[8,22,38],acc:[64,156,255],line:'Glass towers, future streets'},
- peak:{deep:[16,22,36],acc:[136,116,190],line:'Thin air, tall silence'},
- classic:{deep:[14,16,24],acc:[200,145,62],line:'Old roads, new eyes'}};
+ beach:{deep:[12,16,32],acc:[22,191,150],line:'Sun, salt and slow mornings'},      /* --bg2, --teal */
+ metro:{deep:[7,9,15],acc:[155,89,245],line:'Neon nights, skyline days'},          /* --bg, --pm */
+ sacred:{deep:[18,24,40],acc:[200,145,62],line:'Bells, rivers and quiet dawns'},   /* --bg3, --gold */
+ tech:{deep:[7,9,15],acc:[234,90,80],line:'Glass towers, future streets'},         /* --bg, --crim2 */
+ peak:{deep:[18,24,40],acc:[196,48,43],line:'Thin air, tall silence'},             /* --bg3, --crim */
+ classic:{deep:[12,16,32],acc:[232,186,108],line:'Old roads, new eyes'}};          /* --bg2, --gold2 */
 function hueRGB(h,s,l){ s/=100; l/=100; var k=function(n){return (n+h/30)%12;},
   a=s*Math.min(l,1-l), f=function(n){return l-a*Math.max(-1,Math.min(k(n)-3,Math.min(9-k(n),1)));};
   return [Math.round(255*f(0)),Math.round(255*f(8)),Math.round(255*f(4))]; }
@@ -4478,8 +4695,17 @@ function genPdf(sample){
       'Years from now, you will not remember every mile. You will remember how it felt.',
       'Adventure begins where the ordinary ends.',
       'Every journey ends. The stories never do.'];
-    var THT=themeFor(d), THK=THT.key, TH={deep:THT.deep, acc:THT.acc, line:THT.line};
-    var GOLD='#C8913E', GOLD2='#E8BA6C', CRIM='#C4302B', INK='#1A1A22', PAP='#F7F3EA', MUT='#6B675C', DARK='#0E1018';
+    /* Theme KEY still comes from the shared per-destination detector (used by
+       the homepage carousels too), but the PDF's actual colours are pinned to
+       PDF_THEMES — fixed, on-brand RGB rather than themeFor()'s per-destination
+       hash hue — so every downloaded itinerary carries real RoamWise colours. */
+    var THT=themeFor(d), THK=THT.key, THC=PDF_THEMES[THK], TH={deep:THC.deep, acc:THC.acc, line:THC.line};
+    /* GOLD/GOLD2/CRIM already match app.css --gold/--gold2/--crim exactly; DARK
+       now matches --bg2 too. PAP stays a light cream (not an app dark bg) —
+       the page is deliberately printable, with brand colour carried in the
+       gold frame, footer band and per-theme accents rather than an all-dark
+       fill that would be expensive/impractical to print. */
+    var GOLD='#C8913E', GOLD2='#E8BA6C', CRIM='#C4302B', INK='#1A1A22', PAP='#F7F3EA', MUT='#6B675C', DARK='#0C1020';
     function wm(){
       pdf.setTextColor(229,212,178); pdf.setFont('helvetica','bold'); pdf.setFontSize(23);
       for(var wy=100;wy<790;wy+=128) for(var wx=-50;wx<640;wx+=185) pdf.text('ROAMWISE',wx,wy,{angle:31});
@@ -5164,6 +5390,42 @@ function track(ev){
        surfaced instead of guessed at. */
     db.collection('stats').doc(day).set(inc, {merge:true})
       .catch(function(e){ try{ lsSet('rw_track_err', (e.code||'')+' '+(e.message||e)); }catch(_){} });
+  }catch(e){}
+}
+/* Per-response thumbs up/down on Ailon Tusk bot bubbles (see cpFinish). No
+   per-message record and no user identity — just bumps the same anonymous
+   daily counter track() already writes, under two new event names. Also
+   visually locks the row so a bubble can't be voted twice. */
+function rwTuskFeedback(btn, helpful){
+  try{
+    var row = btn && btn.closest ? btn.closest('.tk-fb') : (btn && btn.parentNode);
+    if(row){
+      if(row.dataset && row.dataset.voted) return; /* already voted, ignore repeat taps */
+      if(row.dataset) row.dataset.voted='1';
+      [].forEach.call(row.querySelectorAll('button'), function(b){
+        b.disabled = true; b.style.cursor='default'; b.style.opacity = (b===btn)? '1':'.3';
+      });
+      if(btn && btn.style) btn.style.transform='scale(1.3)';
+    }
+    track(helpful? 'tusk_helpful' : 'tusk_unhelpful');
+  }catch(e){}
+}
+/* Closes the loop the daily tusk-daily.yml Action was built for but never
+   received data for: log the place name whenever Ailon Tusk's curated engine
+   recognises a destination-shaped query but has nothing for it. Anonymous —
+   place name only, keyed by a slug, so repeats just increment a counter
+   instead of piling up per-user records. An admin can export this collection
+   into data/misses.txt to feed the existing OpenStreetMap resolver. */
+function rwTuskMiss(place){
+  if(!AUTH_READY || !place) return;
+  try{
+    var slug = String(place).toLowerCase().trim().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,80);
+    if(!slug) return;
+    db.collection('tuskMisses').doc(slug).set({
+      place: String(place).slice(0,80),
+      count: firebase.firestore.FieldValue.increment(1),
+      lastAsked: firebase.firestore.FieldValue.serverTimestamp()
+    }, {merge:true}).catch(function(){});
   }catch(e){}
 }
 (function(){ try{
@@ -7727,7 +7989,7 @@ var AI_MODELS = {
   gemini: ['gemini-2.5-flash','gemini-flash-latest'],
   openrouter: ['meta-llama/llama-3.3-70b-instruct:free','mistralai/mistral-small-3.1-24b-instruct:free','google/gemma-3-27b-it:free'],
   mistral: ['mistral-small-latest','open-mistral-nemo'],
-  anthropic: ['claude-sonnet-4-20250514']
+  anthropic: ['claude-sonnet-5']
 };
 var lastAiSource = null; /* {prov, model} of the last successful AI call, or null */
 function extractJSON(txt){
@@ -10820,6 +11082,10 @@ function copilotSend(fromHero){
     if(intents.smalltalk){ cpFinish(thinking, tkSmalltalk(intents.smalltalk), intents, t); return; }
     var kb = cpSmartAnswer(t);
     var place = intents.dest;
+    /* Tusk recognised a place-shaped query but the curated engine has nothing
+       for it — log it anonymously so the (previously unfed) daily learning
+       pipeline in tusk-daily.yml has real place names to resolve. */
+    if(place && !kb){ try{ rwTuskMiss(place); }catch(e){} }
     /* Carry the topic over — but only ONCE per destination (was the nagging repetition). */
     if(place && !new RegExp(place.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'i').test(t) && window._tkCarryShown!==place){
       kb = (kb? kb+'<br>' : '') + '<span style="font-size:11px;color:var(--t3)">\u21b3 still on <b>'+esc2(place)+'</b></span>';
@@ -12076,6 +12342,12 @@ async function cpFinish(bubble, answerHTML, intents, raw){
   var _html = parts.join(isCard? '<div style="height:10px"></div>' : '<hr style="border:none;border-top:1px dashed var(--b2,#2A2A36);margin:10px 0">');
   /* Every answer ends with tappable actions — an answer is never a dead end. */
   try{ if(!intents.smalltalk) _html += rwTuskRail(intents.dest||'', raw||''); }catch(e){}
+  /* Lightweight per-response feedback — bot replies only (cpFinish only ever
+     finishes a 'bot' bubble). Anonymous daily counter, same pattern as track()
+     elsewhere; no per-message record, no user identity. */
+  _html += '<div class="tk-fb" style="margin-top:8px;display:flex;align-items:center;gap:8px;font-size:10.5px;color:var(--t3)">Helpful?'
+    +'<button type="button" onclick="rwTuskFeedback(this,true)" style="background:none;border:none;cursor:pointer;font-size:14px;line-height:1;padding:2px;opacity:.65" aria-label="Helpful">👍</button>'
+    +'<button type="button" onclick="rwTuskFeedback(this,false)" style="background:none;border:none;cursor:pointer;font-size:14px;line-height:1;padding:2px;opacity:.65" aria-label="Not helpful">👎</button></div>';
   bubble.innerHTML = _html;
   var log=el(_cpTargetLog)||el('cpLog');
   if(log){
