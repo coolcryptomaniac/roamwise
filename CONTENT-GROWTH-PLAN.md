@@ -1,4 +1,4 @@
-# Content &amp; growth — Febin's 3-month brief for RoamWise
+# Content & growth — Febin's 3-month brief for RoamWise
 
 This is the running task sheet for **Febin** (owner of Reels, LinkedIn, YouTube and WhatsApp). It covers **three months**, week by week. It is not a wishlist — it is a cadence you can actually hit solo, tied to what RoamWise genuinely does better than everyone else.
 
@@ -93,7 +93,7 @@ Rotate pillars so the feed never feels one-note. Pillar 1 and 2 are our sharpest
 - **Week 7** — "Empty vs Instagram" launch. Reels pairing the famous crowded shot with the genuinely quiet alternative + best month.
 - **Week 8** — Group-travel angle: cost-splitting, shared trip chat, "tribe travel." YouTube long: *"How 5 friends planned one trip without one fight (or one wrong Splitwise)."*
 
-**LinkedIn:** shift from pure story to **insight posts** that get reshared — "Here's what Indians actually overpay for while travelling, with numbers." Tag/di­alogue with travel + startup circles. Second creator-collab announcement as a build-in-public post.
+**LinkedIn:** shift from pure story to **insight posts** that get reshared — "Here's what Indians actually overpay for while travelling, with numbers." Tag/dialogue with travel + startup circles. Second creator-collab announcement as a build-in-public post.
 
 **WhatsApp:** start a weekly "one-line plan" prompt — members reply with a trip idea, you post back the RoamWise plan. Grow toward 400 members via a share-to-unlock guide.
 
