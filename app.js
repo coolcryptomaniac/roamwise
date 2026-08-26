@@ -126,8 +126,8 @@ var DB = [
 --------------------------------------------------------------------------- */
 { id:'munnar', name:'Munnar', country:'India', region:'South Asia', lat:10.09, lon:77.06,
   crowd:[68,55,48,58,70,28,20,18,24,40,58,92],
-  cost:{budget:1300,mid:3000,luxury:7500},
-  brk:{flights:0,stay:1300,food:600,act:600,misc:500},
+  cost:{budget:103,mid:239,luxury:597},
+  brk:{flights:0,stay:103,food:48,act:48,misc:40},
   visa:{type:'None',cost:'Domestic',days:0,note:'No permit needed'},
   bestM:[10,11,12,1,4], interests:['hills','tea','nature','honeymoon','photography'],
   food:['Kerala sadya','Appam with stew','Malabar biryani','Banana chips'],
@@ -173,7 +173,7 @@ var DB = [
   cost:{budget:1500,mid:3500,luxury:8500},
   brk:{flights:0,stay:1500,food:600,act:800,misc:600},
   visa:{type:'None',cost:'Domestic',days:0,note:'No permit needed for Indian citizens'},
-  bestM:[11,12,1,2], interests:['desert','festival','photography','offbeat','culture'],
+  bestM:[11,12,1,2], closedM:[6,7,8,9], interests:['desert','festival','photography','offbeat','culture'],
   food:['Kutchi thali','Bajra rotla','Dabeli','Kutchi dabroti'],
   gems:['Full moon night on the white salt','Kalo Dungar (Black Hill) sunset','Hodka village crafts walk','Banni grassland birdwatching'],
   tags:['offbeat','desert','photography'], cur:'INR', sym:'\u20b9', rate:1,
@@ -283,7 +283,7 @@ var DB = [
   cost:{budget:1500,mid:3200,luxury:7500},
   brk:{flights:0,stay:1400,food:600,act:800,misc:400},
   visa:{type:'None',cost:'Domestic',days:0,note:'Park closed mid-April to mid-October for monsoon flooding'},
-  bestM:[11,12,1,2,3], interests:['wildlife','safari','birdwatching','nature','photography'],
+  bestM:[11,12,1,2,3], closedM:[5,6,7,8,9,10], interests:['wildlife','safari','birdwatching','nature','photography'],
   food:['Assamese thali','Khar','Duck curry','Assam tea'],
   gems:['Central Range jeep safari for one-horned rhinos','Elephant-back safari where available','Diphlu River birdwatching','Kaziranga orchid park'],
   tags:['wildlife','nature','offbeat'], cur:'INR', sym:'\u20b9', rate:1,
@@ -3771,9 +3771,10 @@ function renderForYou(){
         return r;
       }
       var used={}; picks.forEach(function(d){used[d.name]=1;});
-      var inSeason=pool.filter(function(d){ return (d.bestM||[]).indexOf(curM+1)>-1 && !used[d.name]; }).slice(0,10)
+      var isClosedNow=function(d){ return d.closedM && d.closedM.indexOf(curM+1)>-1; };
+      var inSeason=pool.filter(function(d){ return (d.bestM||[]).indexOf(curM+1)>-1 && !used[d.name] && !isClosedNow(d); }).slice(0,10)
         .map(function(d){ d._tag='\ud83c\udf1e'; used[d.name]=1; return d; });
-      var lowCrowd=pool.filter(function(d){ return d.crowd && !used[d.name]; })
+      var lowCrowd=pool.filter(function(d){ return d.crowd && !used[d.name] && !isClosedNow(d); })
         .sort(function(a,b){ return a.crowd[curM]-b.crowd[curM]; }).slice(0,10)
         .map(function(d){ d._tag=d.crowd[curM]+'%'; used[d.name]=1; return d; });
       var visaEasy=pool.filter(function(d){ return d.visa && /free|arrival/i.test(d.visa.type) && !used[d.name]; }).slice(0,10)
