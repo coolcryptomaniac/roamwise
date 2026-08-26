@@ -57,6 +57,13 @@ match /roomBookings/{ref} {
               || (request.auth != null && resource.data.partnerUid == request.auth.uid)
               || (request.auth != null && resource.data.guestUid == request.auth.uid);
 
+  // A booking record carries amount/commissionPct/commission that the CLIENT
+  // computed for display and for the owner's receipt. Do NOT trust them for
+  // money movement: at settlement the admin/Cloud Function recomputes the
+  // commission from the authoritative per-category rate and the confirmed
+  // amount. The update rule below already stops a partner from editing amount
+  // or commission after the fact, so what is billed is server-decided, not
+  // whatever the booking was created with.
   allow create: if request.auth != null
                 && request.resource.data.status in ['requested','paid-unverified','confirmed-pay-later'];
 

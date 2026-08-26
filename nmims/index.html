@@ -161,24 +161,12 @@ a{color:inherit;text-decoration:none}
 .tl-title{font-size:15px;font-weight:700;margin-bottom:4px}
 .tl-desc{font-size:13px;color:var(--mist);line-height:1.6}
 
-/* COMMISSION CALC */
-.calc-section{background:linear-gradient(160deg,rgba(74,222,128,.04),transparent);border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:44px 20px}
-.calc-inner{max-width:760px;margin:0 auto}
-.calc-card{background:var(--card);border:1px solid rgba(74,222,128,.2);border-radius:18px;padding:28px}
-.calc-card h3{font-size:20px;font-weight:800;margin-bottom:6px;text-align:center}
-.calc-card .sub2{font-size:13px;color:var(--mist);text-align:center;margin-bottom:22px}
-.calc-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:14px}
-.cc{background:rgba(74,222,128,.06);border:1px solid rgba(74,222,128,.2);border-radius:12px;padding:16px;text-align:center}
-.cc-n{font-size:20px;font-weight:800;color:var(--pine)}
-.cc-k{font-size:11px;color:var(--mist);margin-top:4px;line-height:1.4}
-.calc-note{font-size:12px;color:var(--mist);text-align:center}
-
 /* FOOTER */
 footer{background:#03040A;border-top:1px solid var(--line);padding:24px 20px;text-align:center;font-size:12px;color:#3A4260}
 footer a{color:#5A6076}
 
 @media(max-width:580px){
-  .alloc-row,.deliverables-grid,.challenge-rules,.calc-row{grid-template-columns:1fr}
+  .alloc-row,.deliverables-grid,.challenge-rules{grid-template-columns:1fr}
   .hero-stats{flex-direction:column}
   .hs:not(:last-child){border-right:none;border-bottom:1px solid var(--line)}
 }
@@ -427,7 +415,6 @@ footer a{color:#5A6076}
         <li>Traveler DNA quiz + creative assets</li>
         <li>Campaign copy and social prompts</li>
         <li>Post-campaign analytics report</li>
-        <li>30% commission on additional paid sign-ups</li>
       </ul>
     </div>
     <div class="dcard">
@@ -440,24 +427,6 @@ footer a{color:#5A6076}
         <li>Stage mention + QR activation point</li>
         <li>1 quiz/challenge promoted to participants</li>
       </ul>
-    </div>
-  </div>
-</div>
-
-<!-- COMMISSION CALCULATOR -->
-<div class="calc-section">
-  <div class="calc-inner">
-    <div class="sh">NMIMS earns from paid sign-ups too</div>
-    <div class="calc-card">
-      <h3>30% commission on every paid Pro sign-up</h3>
-      <p class="sub2">The 500 free passes are the gift. Beyond that, NMIMS earns 30% on every additional paid Pro account attributed to its referral link. At 5,000+ footfall, that adds up fast.</p>
-      <div class="calc-row">
-        <div class="cc"><div class="cc-n">₹7,500</div><div class="cc-k">at 250 paid sign-ups</div></div>
-        <div class="cc"><div class="cc-n">₹15,000</div><div class="cc-k">at 500 paid sign-ups</div></div>
-        <div class="cc"><div class="cc-n">₹30,000</div><div class="cc-k">at 1,000 paid sign-ups</div></div>
-        <div class="cc"><div class="cc-n">₹60,000</div><div class="cc-k">at 2,000 paid sign-ups</div></div>
-      </div>
-      <p class="calc-note">Based on current ₹100 founder price × 30% commission. Only 20% of 5,000 footfall converting = ₹30,000 gross commission. Tracked automatically via NMIMS referral code. Paid separately from the 500 free accounts.</p>
     </div>
   </div>
 </div>
