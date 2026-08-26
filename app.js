@@ -2060,11 +2060,11 @@ function openBooking(){
 function rwBookRequest(){
   var b=rwBasket(); if(!b.length) return;
   rwForm('\ud83d\udce8 Send your trip request', [
-    { id:'bk_name',  label:'Your name' },
-    { id:'bk_phone', label:'Phone (partners reply here)' },
-    { id:'bk_dates', label:'Dates', ph:'e.g. 14-17 Sept' },
-    { id:'bk_people',label:'How many people', ph:'e.g. 4' },
-    { id:'bk_notes', label:'Anything they should know', ph:'dietary needs, arrival time, budget ceiling' }
+    { key:'bk_name',  label:'Your name' },
+    { key:'bk_phone', label:'Phone (partners reply here)' },
+    { key:'bk_dates', label:'Dates', placeholder:'e.g. 14-17 Sept' },
+    { key:'bk_people',label:'How many people', placeholder:'e.g. 4' },
+    { key:'bk_notes', label:'Anything they should know', placeholder:'dietary needs, arrival time, budget ceiling' }
   ], function(v){
     if(!v.bk_name || !v.bk_phone){ showToast('Name and phone are needed so partners can reply'); return; }
     var rec={ items:b, name:v.bk_name, phone:v.bk_phone, dates:v.bk_dates||'',
@@ -6821,8 +6821,8 @@ function openPartnerRedeem(){
 function openCrowdSpot(place,lat,lon){
   var labels=['&#127881; Empty','&#129300; Quiet','&#128513; Moderate','&#128548; Busy','&#128561; Very crowded'];
   rwForm('&#128205; Report crowd now',[
-    {id:'level',label:'How crowded is it right now?',widget:'buttons',options:labels.map(function(l,i){return {value:String(i+1),label:l};})},
-    {id:'note',label:'Anything unusual? (optional)',ph:'festival, roadblock, weather event\u2026'}
+    {key:'level',label:'How crowded is it right now?',widget:'buttons',options:labels.map(function(l,i){return {value:String(i+1),label:l};})},
+    {key:'note',label:'Anything unusual? (optional)',placeholder:'festival, roadblock, weather event\u2026'}
   ],function(v){
     var level=parseInt(v.level||'3',10);
     if(!level||level<1||level>5){showToast('Pick a crowd level');return;}
@@ -14260,8 +14260,8 @@ function rwChatGame(id){
 /* ---------------- DECIDE: polls that close themselves ---------------- */
 function openChatPoll(){
   rwForm('\ud83d\uddf3\ufe0f Ask the group', [
-    { id:'pq', label:'What are you deciding?', ph:'e.g. Which day do we do the trek?' },
-    { id:'po', label:'Options (comma separated)', ph:'Tuesday, Wednesday, Thursday' }
+    { key:'pq', label:'What are you deciding?', placeholder:'e.g. Which day do we do the trek?' },
+    { key:'po', label:'Options (comma separated)', placeholder:'Tuesday, Wednesday, Thursday' }
   ], function(v){
     var q=(v.pq||'').trim(), opts=(v.po||'').split(',').map(function(x){return x.trim();}).filter(Boolean);
     if(!q || opts.length<2){ showToast('Give a question and at least two options'); return; }
