@@ -32,6 +32,8 @@ body{background:var(--bg);color:var(--t1);font-family:'Outfit',sans-serif;font-s
 .logo-text{font-size:17px;font-weight:600;color:var(--t1)}.logo-text span{color:var(--gold2)}
 .nav-right{display:flex;align-items:center;gap:7px;min-width:0;flex:1;justify-content:flex-end}
 .nav-right .lang-wrap{flex:0 0 auto}
+.logo-wrap{flex-shrink:0}
+.nav-right .nav-ic{flex-shrink:0}
 .btn{padding:6px 11px;border-radius:8px;font-family:'Outfit',sans-serif;font-size:11px;font-weight:600;cursor:pointer;border:none;transition:all .15s;letter-spacing:.04em;text-transform:uppercase}
 .btn-ghost{background:transparent;color:var(--t2);border:1px solid var(--b1)}.btn-ghost:hover{color:var(--t1);border-color:var(--b2)}
 .btn-pro{background:linear-gradient(135deg,var(--pm),var(--pm2));color:white}.btn-pro.active{background:linear-gradient(135deg,var(--teal),#2AE8B8);color:#07090F}
@@ -598,7 +600,7 @@ body.shell .hamb{display:flex}
   body.shell .hero{padding-top:32px}
   body.shell .hero-btns{display:none} /* tabs replace them */
   .grid3{grid-template-columns:1fr}
-  .nav-right{gap:5px;margin-left:12px}
+  .nav-right{gap:5px}
   .logo-wrap{margin-right:0}
   .logo-text{font-size:18px}
   /* the first visible nav button (search) must clear the logo */
