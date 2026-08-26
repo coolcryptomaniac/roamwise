@@ -1553,20 +1553,27 @@ function openRoomBook(id){
   var r=rwRoomById(id); if(!r) return;
   var t=new Date(), inD=new Date(t.getTime()+86400000), outD=new Date(t.getTime()+2*86400000);
   var f=function(d){ return d.toISOString().slice(0,10); };
-  rwForm('\ud83c\udfe1 '+r.property, [
-    { id:'bk_in',    label:'Check in',  type:'date', value:f(inD) },
-    { id:'bk_out',   label:'Check out', type:'date', value:f(outD) },
-    { id:'bk_g',     label:'Guests',    type:'number', value:'2' },
-    { id:'bk_nm',    label:'Your name' },
-    { id:'bk_ph',    label:'Your phone', ph:'10-digit mobile' },
-    { id:'bk_note',  label:'Anything they should know', ph:'arrival time, food needs' }
-  ], function(v){
-    if(!v.bk_nm || !v.bk_ph){ showToast('Name and phone are needed to confirm'); return; }
+  /* rwForm reads out[field.key] and renders field.placeholder (see rwFormSubmit),
+     so these MUST use key:/placeholder:. They previously used id:/ph:, which made
+     every value read back undefined and the "Name and phone are needed" guard fire
+     on every submit. */
+  var bkFields=[
+    { key:'bk_in',    label:'Check in',  type:'date', value:f(inD) },
+    { key:'bk_out',   label:'Check out', type:'date', value:f(outD) },
+    { key:'bk_g',     label:'Guests',    type:'number', value:'2' },
+    { key:'bk_nm',    label:'Your name' },
+    { key:'bk_ph',    label:'Your phone', placeholder:'10-digit mobile' },
+    { key:'bk_note',  label:'Anything they should know', placeholder:'arrival time, food needs' }
+  ];
+  /* VIEWING-ONLY: no live booking partnerships are connected yet. */
+  bkFields._notice='\ud83d\udd0e Preview only \u2014 real booking isn\u2019t live yet (no partner hotels connected). This saves your interest; booking opens soon.';
+  rwForm('\ud83c\udfe1 '+r.property, bkFields, function(v){
+    if(!v.bk_nm || !v.bk_ph){ showToast('Name and phone are needed to save your interest'); return; }
     if(!/^\d{10}$/.test(String(v.bk_ph).replace(/\D/g,'').slice(-10))){ showToast('Enter a valid 10-digit mobile'); return; }
     var n=rwNights(v.bk_in, v.bk_out);
     rwBookPay(r, { inD:v.bk_in, outD:v.bk_out, nights:n, guests:+v.bk_g||2,
                    name:v.bk_nm, phone:v.bk_ph, note:v.bk_note||'' });
-  }, esc2(r.room)+' \u00b7 \u20b9'+r.price.toLocaleString('en-IN')+' per night');
+  });
 }
 
 /* ---------------- pay: UPI now, or at the property ---------------- */
@@ -1608,10 +1615,16 @@ function rwBookConfirm(mode){
     checkIn:b.inD, checkOut:b.outD, nights:b.nights, guests:b.guests,
     guestName:b.name, guestPhone:b.phone, note:b.note,
     amount:total, payMode:(mode==='paid'?'upi':'at-property'),
+    /* commissionPct/commission are CLIENT DISPLAY ONLY. They are written for
+       the owner's WhatsApp receipt and the local record; the actual payable
+       commission MUST be recomputed and validated server-side at settlement.
+       Never trust these client-sent amounts for money movement. */
     commissionPct:8, commission:Math.round(total*0.08),
     status:(mode==='paid'?'paid-unverified':'confirmed-pay-later'),
     at:new Date().toISOString() };
-  try{ rec.ref_code=rwRefActive()||''; }catch(e){}
+  /* Attribution hint only, and stored via the canonical stored code. Sanitised
+     at capture (rwRefCapture) / entry (rwRefApply); server recomputes any payout. */
+  try{ rec.ref_code=rwSanitizeRefCode(rwRefActive()||''); }catch(e){}
   try{ if(window.db) db.collection('roomBookings').doc(ref).set(rec).catch(function(){}); }catch(e){}
   try{ lsSet('rw_last_booking', JSON.stringify(rec)); }catch(e){}
   rwOverlayClose('bkPayOv');
@@ -1640,7 +1653,7 @@ function rwBookDone(rec){
   rwPageOpen('booked', function(body){
     body.innerHTML='<div class="bkd-wrap">'
       +'<div class="bkd-tick">\u2713</div>'
-      +'<h2 class="bkd-h">Booking sent</h2>'
+      +'<h2 class="bkd-h">Interest saved</h2>'
       +'<div class="bkd-ref">'+esc2(rec.ref)+'</div>'
       +'<div class="bkd-card">'
       +'<div class="bk-sr"><span>Property</span><b>'+esc2(rec.property)+'</b></div>'
@@ -1650,8 +1663,8 @@ function rwBookDone(rec){
       +'<div class="bk-sr tot"><span>'+(rec.payMode==='upi'?'Paid':'Pay at property')+'</span><b>\u20b9'+rec.amount.toLocaleString('en-IN')+'</b></div>'
       +'</div>'
       +'<div class="bkd-next"><b>What happens now</b>'
-      +'<div>The property has your details on WhatsApp already.</div>'
-      +'<div>They confirm the room \u2014 usually within a few hours.</div>'
+      +'<div>\ud83d\udd0e This is a preview \u2014 real booking isn\u2019t live yet (no partner hotels are connected). We\u2019ve saved your interest, not a confirmed booking.</div>'
+      +'<div>Booking opens soon. We\u2019ll reach out on the number you entered when this property goes live.</div>'
       +'<div>Save your reference: <b>'+esc2(rec.ref)+'</b></div></div>'
       +'<button class="bk-go" onclick="rwBookShare()">\ud83d\udcac Send to the property again</button>'
       +'<button class="tact" style="width:100%;margin-top:8px;padding:12px" onclick="rwShareMyBooking()">\ud83d\udce4 Share this booking with my group</button>'
@@ -2006,6 +2019,11 @@ function rwBasketBadge(){
 }
 function rwBookTotal(b){ return b.reduce(function(a,x){ return a+(+x.price||0); },0); }
 function rwCommissionOn(b){
+  /* DISPLAY ONLY. This estimate is shown to the user for transparency; it must
+     never be treated as the real commission. The payable amount is recomputed
+     server-side (Cloud Function / admin at settlement) from the authoritative
+     per-category rate — a client can trivially edit x.price or the RW_BOOK_CATS
+     percentages, so nothing financial should trust this number. */
   var cats={}; (window.RW_BOOK_CATS||[]).forEach(function(c){ cats[c.id]=c.pct; });
   return b.reduce(function(a,x){ return a+((+x.price||0)*((cats[x.cat]||8)/100)); },0);
 }
@@ -3053,6 +3071,13 @@ var RWPricing = (function(){
     /* The app's public launch date — the founder offer expires at whichever
        comes first: 1000 signups, or 365 days after this date. */
     LAUNCH_DATE: '2026-06-01',
+    /* FOUNDER OFFER: Rs 100 one-time = lifetime Pro, capped at 1000 members
+       (500 free NMIMS seats + 500 paid founders). Once the 1000-seat cap (or
+       the 365-day window) is hit, the founder offer closes permanently and the
+       STANDARD post-founder Pro pricing ladder below applies:
+         Daily Rs 19 / Weekly Rs 99 / Monthly Rs 299 / Quarterly Rs 749 /
+         Yearly Rs 2,499 (30% off Rs 299x12=Rs 3,588) / Lifetime Rs 14,999.
+       Longer duration = bigger discount, so per-day cost falls monotonically. */
     FOUNDER_OFFER: { priceINR:100, maxUsers:1000, maxDays:365, label:'Founder Pro \u2014 \u20b9100 lifetime' },
 
     /* Ongoing freemium tiers, once the founder offer window closes.
@@ -3064,7 +3089,7 @@ var RWPricing = (function(){
         features:['smartAI'] },
       { id:'plus',  label:'Plus',  priceMonthly:99,  priceYearly:999,
         features:['smartAI','proAI','pdfExport','cardStylesBasic'] },
-      { id:'pro',   label:'Pro',   priceMonthly:299, priceYearly:2999,
+      { id:'pro',   label:'Pro',   priceMonthly:299, priceYearly:2499,
         features:['smartAI','proAI','pdfExport','cardStylesBasic','cardStylesAll','adFree','squadsPost','unlimitedPdf'] },
       { id:'elite', label:'Elite', priceMonthly:499, priceYearly:4999,
         features:['smartAI','proAI','pdfExport','cardStylesBasic','cardStylesAll','adFree','squadsPost','unlimitedPdf','movieFree','earlyAccess','prioritySupport'] }
@@ -3082,16 +3107,24 @@ var RWPricing = (function(){
       { tier:'pro',   tierLabel:'Pro',   options:[
         { id:'pro_y3',   years:3,  priceINR:7499 },
         { id:'pro_y5',   years:5,  priceINR:9999 },
-        { id:'pro_y10',  years:10, priceINR:14999 } ] },
+        /* The Pro "longest one-time" is a true LIFETIME pass at Rs 14,999 — the
+           headline post-founder lifetime price. It replaces the old 10-year
+           pass so nothing longer/cheaper undercuts it. Rendered as "Lifetime"
+           via the optional `label`/`lifetime` fields (see renderPlanGrid). */
+        { id:'pro_life', years:99, lifetime:true, label:'Lifetime', priceINR:14999 } ] },
       { tier:'elite', tierLabel:'Elite', options:[
         { id:'elite_y3', years:3,  priceINR:12499 },
         { id:'elite_y5', years:5,  priceINR:17499 },
         { id:'elite_y10',years:10, priceINR:24999 } ] }
     ],
-    /* Short-term micro-passes for a single trip or a quick trial. */
+    /* Short-term Pro passes for a single trip or a quick trial. Priced on the
+       standard post-founder ladder — per-day cost falls as the window grows:
+       Day Rs 19 (Rs 19/day), Week Rs 99 (~Rs 14/day), 3-Month Rs 749
+       (~Rs 8/day). Monthly (Rs 299) and Yearly (Rs 2,499) live in TIERS.pro. */
     SHORT_TERM: [
-      { id:'day',  days:1, priceINR:15, label:'Day Pass' },
-      { id:'week', days:7, priceINR:29, label:'Week Pass' }
+      { id:'day',     days:1,  priceINR:19,  label:'Day Pass' },
+      { id:'week',    days:7,  priceINR:99,  label:'Week Pass' },
+      { id:'quarter', days:90, priceINR:749, label:'3-Month Pass' }
     ]
   };
 
@@ -6748,9 +6781,11 @@ function cardShareWa(){
    ============================================================ */
 function openPartnerRedeem(){
   rwForm('&#127891; Redeem a partner code',[
-    {id:'code', label:'Enter your claim code (e.g. NMIMS-A1B2C3)', ph:'NMIMS-XXXXXX'}
+    /* key:/placeholder: — rwFormSubmit reads out[field.key] and renders
+       field.placeholder; id:/ph: silently read back undefined. */
+    {key:'code', label:'Enter your claim code (e.g. NMIMS-A1B2C3)', placeholder:'NMIMS-XXXXXX'}
   ], async function(v){
-    var code=(v.code||'').trim().toUpperCase().replace(/\s/g,'');
+    var code=rwSanitizeRefCode(v.code);
     if(!code){ showToast('Enter your code first'); return; }
     if(!user){ openLogin(); return; }
     if(!db){ showToast('Not connected — try again in a moment'); return; }
@@ -8469,13 +8504,17 @@ function renderPlanGrid(founderOpen){
 
   /* Monthly / yearly tiers */
   var yearly = lsGet('rw_pay_yearly')==='1';
+  /* Headline "save up to N%" — derived from the real ladder (Pro yearly is ~30%
+     off, the biggest), so this can never drift out of sync with TIERS again. */
+  var maxSave = 0;
+  C.TIERS.forEach(function(t){ var s=RWPricing.yearlySavingsPct(t); if(s>maxSave) maxSave=s; });
   html += '<div style="display:flex;align-items:center;justify-content:center;gap:10px;margin:6px 0 12px">'
     +'<span style="font-size:12px;color:'+(!yearly?'var(--gold2)':'var(--t3)')+'">Monthly</span>'
     +'<label style="position:relative;display:inline-block;width:38px;height:20px">'
     +'<input type="checkbox" id="yearlyToggle" '+(yearly?'checked':'')+' onchange="lsSet(\'rw_pay_yearly\',this.checked?\'1\':\'0\');renderPlanGrid('+(founderOpen?'true':'false')+')" style="opacity:0;width:0;height:0">'
     +'<span style="position:absolute;inset:0;background:'+(yearly?'var(--gold2)':'#333')+';border-radius:20px;transition:.2s"></span>'
     +'<span style="position:absolute;left:'+(yearly?'20px':'2px')+';top:2px;width:16px;height:16px;background:#fff;border-radius:50%;transition:.2s"></span>'
-    +'</label><span style="font-size:12px;color:'+(yearly?'var(--gold2)':'var(--t3)')+'">Yearly <b style="color:#16BF96">(save up to 17%)</b></span></div>';
+    +'</label><span style="font-size:12px;color:'+(yearly?'var(--gold2)':'var(--t3)')+'">Yearly <b style="color:#16BF96">(save up to '+maxSave+'%)</b></span></div>';
 
   html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px">';
   C.TIERS.filter(function(t){return t.id!=='free';}).forEach(function(t){
@@ -8497,8 +8536,12 @@ function renderPlanGrid(founderOpen){
     html += '<div style="font-size:11.5px;font-weight:700;color:var(--gold2);margin-bottom:6px">'+group.tierLabel+'-tier long-term</div>'
       +'<div style="display:flex;gap:8px;margin-bottom:12px">';
     group.options.forEach(function(p){
-      html += '<button class="tact" style="flex:1;text-align:center;padding:10px 6px" onclick="pickPlan(\''+p.id+'\','+p.priceINR+',\''+group.tierLabel+' '+p.years+'-Year Pass\')">'
-        +'<div style="font-size:12px;font-weight:700">'+p.years+'-Year</div><div style="font-size:14px;font-weight:800;color:var(--gold2)">\u20b9'+p.priceINR+'</div></button>';
+      /* A lifetime pass renders with its own label instead of "99-Year", and its
+         pickPlan title reads "<Tier> Lifetime". Non-lifetime passes are unchanged. */
+      var topLabel = p.label || (p.years+'-Year');
+      var payTitle = group.tierLabel+' '+(p.lifetime? 'Lifetime' : p.years+'-Year Pass');
+      html += '<button class="tact" style="flex:1;text-align:center;padding:10px 6px" onclick="pickPlan(\''+p.id+'\','+p.priceINR+',\''+payTitle+'\')">'
+        +'<div style="font-size:12px;font-weight:700">'+topLabel+'</div><div style="font-size:14px;font-weight:800;color:var(--gold2)">\u20b9'+p.priceINR+'</div></button>';
     });
     html += '</div>';
   });
@@ -9154,6 +9197,16 @@ function requireLogin(){
    ========================================================================= */
 var RW_REF_KEY='rw_ref_code', RW_REF_AT='rw_ref_at';
 
+/* Normalise any referral/partner code coming from an untrusted source (URL
+   query/hash/path, a typed box, a pasted code). Uppercase, keep ONLY
+   [A-Z0-9_-], drop everything else, cap at 32 chars. This is the single
+   choke point that keeps a crafted ?ref= value from ever reaching the DOM or
+   Firestore as anything but a plain, bounded token. Function declaration so
+   it is hoisted for earlier callers (e.g. openPartnerRedeem). */
+function rwSanitizeRefCode(x){
+  return String(x==null?'':x).toUpperCase().replace(/[^A-Z0-9_-]/g,'').slice(0,32);
+}
+
 
 /* ============================================================================
    REFERRERS FROM FIRESTORE (rw-v80) — no more editing GitHub files
@@ -9191,7 +9244,8 @@ function rwRefSync(){
 
 function rwRefLookup(code){
   if(!code) return null;
-  var c=String(code).trim().toUpperCase();
+  var c=rwSanitizeRefCode(code);   /* normalise so a lookup can never carry stray chars */
+  if(!c) return null;
   var list=window.RW_REFERRERS||[];
   for(var i=0;i<list.length;i++) if(list[i].code.toUpperCase()===c) return list[i];
   return null;
@@ -9214,6 +9268,7 @@ function rwRefCapture(){
       var pm=String(location.pathname||'').match(/\/r\/([A-Za-z0-9\-_]+)/);
       if(pm) code=pm[1];
     }
+    code=rwSanitizeRefCode(code);                   /* untrusted URL input: bound it before use */
     if(!code) return;
     var who=rwRefLookup(code);
     if(!who || who.active===false) return;         /* unknown/retired code: ignore silently */
@@ -9263,9 +9318,17 @@ function rwRefStamp(){
   if(!code) return {};
   var who=rwRefLookup(code);
   if(!who) return {};
-  /* self-referral guard: a referrer buying through their own link earns nothing */
+  /* Self-referral guard: a referrer buying through their own link earns nothing.
+     Compared against the AUTHENTICATED identity (uid, and email as a fallback),
+     not a local flag, so it can't be bypassed by clearing localStorage. This is
+     still only the client's best effort — the server MUST re-check self-referral
+     at approval before any commission is paid (client refRate is display only). */
   try{
-    if(window.user && who.uid && who.uid===user.uid) return { refCode:code, refSelf:true, refRate:0 };
+    if(window.user){
+      var selfByUid   = who.uid   && user.uid   && who.uid===user.uid;
+      var selfByEmail = who.email && user.email && String(who.email).toLowerCase()===String(user.email).toLowerCase();
+      if(selfByUid || selfByEmail) return { refCode:code, refSelf:true, refRate:0 };
+    }
   }catch(e){}
   return {
     refCode: who.code,
@@ -9298,7 +9361,7 @@ function rwRefLink(code){
 function rwRefLiveCheck(){
   var i=el('authRefCode'), m=el('authRefMsg');
   if(!i||!m) return;
-  var v=String(i.value||'').trim().toUpperCase();
+  var v=rwSanitizeRefCode(i.value);   /* typed code: normalise before lookup */
   if(!v){ m.textContent=''; m.style.color='var(--t3)'; return; }
   var w=rwRefLookup(v);
   if(w && w.active!==false){
@@ -9325,9 +9388,10 @@ function openRefCode(){
   var cur=rwRefActive();
   var who=cur? rwRefLookup(cur) : null;
   rwForm('\ud83c\udf9f\ufe0f Referral code', [
-    { id:'rc', label:'Enter the code you were given', value:cur||'', ph:'e.g. RW-S02-DEEPA' }
+    /* key:/placeholder: \u2014 rwFormSubmit reads out[field.key]; id:/ph: read back undefined. */
+    { key:'rc', label:'Enter the code you were given', value:cur||'', placeholder:'e.g. RW-S02-DEEPA' }
   ], function(v){
-    var code=String(v.rc||'').trim().toUpperCase();
+    var code=rwSanitizeRefCode(v.rc);   /* typed/pasted code: bound it before lookup */
     if(!code){ showToast('Enter a code first'); return; }
     var w=rwRefApply(code);
     if(!w){ showToast('\u274c That code isn\u2019t recognised \u2014 check the spelling'); return; }
@@ -13541,7 +13605,13 @@ function rwForm(title, fields, onSubmit){
   ov.style.zIndex='3000';   /* always above the chat (panel or full) */
   el('rwFormTitle').textContent=title;
   var body=el('rwFormBody');
-  body.innerHTML = fields.map(function(f,i){
+  /* Optional leading read-only notice (e.g. a viewing-only / preview banner).
+     Additive and non-breaking: callers that don't set fields._notice render as before.
+     esc2() keeps it safe even if the text ever comes from data. */
+  var _notice = fields._notice
+    ? '<div style="background:var(--bg3,#1A1A20);border:1px solid var(--b2,#2A2A36);border-radius:12px;padding:10px 12px;margin:2px 2px 8px;font-size:12px;line-height:1.45;color:var(--t2,#B9B9C6)">'+esc2(fields._notice)+'</div>'
+    : '';
+  body.innerHTML = _notice + fields.map(function(f,i){
     var common='width:100%;box-sizing:border-box;background:var(--bg3,#1A1A20);border:1px solid var(--b2,#2A2A36);border-radius:12px;padding:12px 13px;color:inherit;font:inherit;font-size:16px;outline:none;margin-bottom:4px';
     var inp = f.type==='textarea'
       ? '<textarea id="rwf_'+i+'" rows="3" placeholder="'+esc2(f.placeholder||'')+'" style="'+common+';resize:vertical">'+esc2(f.value||'')+'</textarea>'

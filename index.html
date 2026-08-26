@@ -302,6 +302,18 @@ html{-webkit-text-size-adjust:100%}
 .pay-testi .stars{color:#E8BA6C;font-size:12px;letter-spacing:1px}
 .pay-testi .quote{font-size:12.5px;line-height:1.5;color:var(--t1,#fff);margin:4px 0 3px;font-style:italic}
 .pay-testi .who{font-size:10.5px;color:var(--t3,#888)}
+/* ===== page switcher pill (mirrors home.html, dark palette) ===== */
+.switcher{position:relative;z-index:201;background:var(--bg2);border-bottom:1px solid rgba(255,255,255,.08);padding:0 16px;display:flex;align-items:center;justify-content:space-between;height:54px}
+.sw-logo{display:flex;align-items:center;gap:8px;font-weight:800;font-size:16px;color:var(--t1)}
+.sw-logo .sw-mark{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-weight:900;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#0B1020}
+.sw-tabs{display:flex;gap:4px;background:rgba(255,255,255,.07);border-radius:24px;padding:4px}
+.sw-tab{display:flex;align-items:center;gap:6px;padding:6px 14px;border-radius:20px;font-size:12.5px;font-weight:600;cursor:pointer;transition:all .2s;white-space:nowrap;border:none;font-family:inherit;text-decoration:none}
+.sw-tab.active{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#0B1020}
+.sw-tab.inactive{color:var(--t2);background:transparent}
+.sw-tab.inactive:hover{color:var(--t1);background:rgba(255,255,255,.1)}
+.sw-tab-icon{font-size:14px}
+.sw-hint{font-size:11px;color:var(--t2);display:none}
+@media(min-width:540px){.sw-hint{display:block}}
 </style>
 </head>
 <body>
@@ -322,6 +334,14 @@ html{-webkit-text-size-adjust:100%}
   </div>
   <div id="ssOut" style="max-width:640px;margin:8px auto 0;max-height:55vh;overflow:auto"></div>
 </div>
+<div class="switcher">
+  <div class="sw-logo"><span class="sw-mark">R</span>RoamWise</div>
+  <div class="sw-tabs">
+    <a class="sw-tab inactive" href="/home.html"><span class="sw-tab-icon">&#128240;</span> Articles &amp; Guides</a>
+    <a class="sw-tab active" href="/"><span class="sw-tab-icon">&#9889;</span> AI Trip Planner</a>
+  </div>
+  <div class="sw-hint">Switch anytime</div>
+</div>
 <nav class="nav">
   <div class="nav-inner">
     <a class="logo-wrap" href="#" onclick="scrollTo(0,0);return false">
@@ -341,6 +361,7 @@ html{-webkit-text-size-adjust:100%}
       <button class="mode-chip mode-free" id="modeChip" onclick="openSettings()">Smart Mode (free)</button>
       <button class="btn btn-sm" onclick="openSettings()">&#9881; Settings</button>
       <button class="btn btn-ghost" data-i18n="nav.plan" onclick="scrollTo(0,document.getElementById('app').offsetTop-10)">Plan</button>
+      <a class="btn btn-ghost" href="/tools/" style="text-decoration:none">Tools</a>
       <button class="xp-chip" id="xpChip" onclick="openDrawer()" title="Your traveler rank">&#129399; <span id="xpChipTxt">Genin</span></button>
       <button class="btn btn-pro" id="proBtn" onclick="openPay()">Pro &#8377;100</button>
       <button class="btn" id="authBtn" onclick="openAuth()" style="display:none;background:linear-gradient(135deg,var(--gold,#E8BA6C),var(--gold2,#C8913E));color:#0A0A0C;font-weight:800;border:none;padding:8px 16px;white-space:nowrap">Sign in</button>
@@ -717,7 +738,7 @@ html{-webkit-text-size-adjust:100%}
     </div>
     <div>
       <div class="foot-h">Product</div>
-      <a class="foot-link" onclick="scrollTo(0,document.getElementById('app').offsetTop-10)">Plan a trip</a>
+      <a class="foot-link" href="#app" onclick="event.preventDefault();tabGo('plan');scrollTo(0,document.getElementById('app').offsetTop-10)">Plan a trip</a>
       <a class="foot-link" onclick="openPay()">Unlock Pro</a>
       <a class="foot-link" onclick="openSettings()">Settings &amp; AI keys</a>
       <a class="foot-link" href="https://www.roamwise.co.in/blog/" target="_blank">Blog</a>
@@ -782,7 +803,8 @@ html{-webkit-text-size-adjust:100%}
   <a class="dr-link" onclick="closeDrawer();openMusic()"><span class="ic">🎵</span>My Music</a>
   
 </div></div>
-<div class="dr-grp open"><button class="dr-gh" onclick="drToggle(this)">🧳 Travel tools<span class="dr-count">10</span><span class="chev">›</span></button><div class="dr-gb">
+<div class="dr-grp open"><button class="dr-gh" onclick="drToggle(this)">🧳 Travel tools<span class="dr-count">11</span><span class="chev">›</span></button><div class="dr-gb">
+  <a class="dr-link" href="https://roamwise.co.in/tools/" onclick="event.preventDefault();rwOpenSite('tools/')" rel="noopener"><span class="ic">🧰</span>Free tools</a>
   <a class="dr-link" onclick="closeDrawer();openBeacon()"><span class="ic">📡</span>Beacon — who's nearby <span style="margin-left:auto;font-size:9px;background:#4ADE80;color:#0A0A0C;padding:1px 6px;border-radius:20px;font-weight:800">NEW</span></a>
   <a class="dr-link" onclick="closeDrawer();openTatkal()"><span class="ic">⚡</span>Tatkal prep</a>
     <a class="dr-link" href="/partner/" target="_blank" rel="noopener"><span class="ic">🤝</span>Partner login</a>
@@ -927,8 +949,8 @@ html{-webkit-text-size-adjust:100%}
       <div class="price-hero">
         <div class="big-price" id="bigPrice">&#8377;100</div>
         <div class="price-sub" id="priceSub">Founder offer &bull; One-time &bull; No subscription</div>
-        <div class="price-old" id="priceOld"><b>&#8377;100 one-time</b> &middot; founder price for the <b>first 1,000 members</b></div>
-        <div style="font-size:10.5px;color:var(--t3,#888);margin-top:5px;line-height:1.5" id="priceDisclaimer">After the first 1,000, Pro moves to regular pricing (planned yearly &amp; multi-month plans). Lock the one-time founder price now &mdash; it stays yours for life, no renewals.</div>
+        <div class="price-old" id="priceOld"><b>&#8377;100 lifetime</b> &middot; founder price, capped at the <b>first 1,000 Pro members</b> (500 free for NMIMS students + 500 paid)</div>
+        <div style="font-size:10.5px;color:var(--t3,#888);margin-top:5px;line-height:1.5" id="priceDisclaimer">Founder price &mdash; only while spots last. Once 1,000 members join, the &#8377;100 lifetime deal closes and standard pricing begins: Daily &#8377;19, Weekly &#8377;99, Monthly &#8377;299, 3-month &#8377;749, Yearly &#8377;2,499 (30% off), Lifetime &#8377;14,999. Lock the one-time founder price now &mdash; it stays yours for life, no renewals.</div>
       </div>
       <div class="trust-row">
         <span class="trust-badge" data-i18n="pay.refund">&#128737;&#65039; 7-day refund &mdash; no questions</span>
@@ -958,7 +980,7 @@ html{-webkit-text-size-adjust:100%}
         <b style="color:var(--t2)">About these prices</b><br>
         Every price shown is held for <b>one year</b> from your purchase date. After that they are reviewed annually and may go up or down depending on running costs and what the product does by then.<br>
         <b style="color:var(--t2)">What you buy is safe:</b> a change never affects something you already paid for. A lifetime pass stays lifetime; a 3/5/10-year pass runs its full term at the price you paid; an active subscription keeps its rate until its next renewal, and you will be told before any renewal changes.<br>
-        The founder price is limited to the first 1,000 members or one year from launch, whichever comes first &mdash; and it will not return afterwards. All prices in INR, inclusive of applicable taxes.
+        The &#8377;100 lifetime founder price is capped at the first 1,000 Pro members (500 free for NMIMS students + 500 paid) and will not return once filled. After that, standard pricing applies: Daily &#8377;19, Weekly &#8377;99, Monthly &#8377;299, 3-month &#8377;749, Yearly &#8377;2,499 (30% off), Lifetime &#8377;14,999. All prices in INR, inclusive of applicable taxes.
       </div>
       <div id="payMethods" style="display:none">
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">

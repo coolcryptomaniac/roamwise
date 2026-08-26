@@ -17,13 +17,27 @@
 <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
 <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","name":"RoamWise","url":"https://www.roamwise.co.in","description":"India-first AI travel planner with real local cost data, crowd calendars, and offline itineraries.","potentialAction":{"@type":"SearchAction","target":{"@type":"EntryPoint","urlTemplate":"https://www.roamwise.co.in/?q={search_term_string}"},"query-input":"required name=search_term_string"}},{"@type":"SoftwareApplication","name":"RoamWise Pro","applicationCategory":"TravelApplication","operatingSystem":"Web, Android","offers":{"@type":"Offer","price":"100","priceCurrency":"INR","description":"Lifetime Pro — one-time payment, no subscription"},"aggregateRating":{"@type":"AggregateRating","ratingValue":"4.8","reviewCount":"22","bestRating":"5"},"url":"https://www.roamwise.co.in"},{"@type":"Organization","name":"RoamWise","url":"https://www.roamwise.co.in","logo":"https://www.roamwise.co.in/icon-512.png","foundingDate":"2025","foundingLocation":{"@type":"Place","name":"Almora, Uttarakhand, India"}}]}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
-:root{--ink:#1A1A1A;--ink2:#444;--mist:#888;--line:#E8E4DC;--bg:#FAFAF8;--bg2:#F2EFE6;--night:#0B1020;--navy:#131A2E;--gold:#E8BA6C;--gold2:#C8913E;--pine:#2C7A4B;--pine2:#4ADE80}
+:root{--ink:#EDE8DF;--ink2:#8A8680;--mist:#8A8680;--line:rgba(255,255,255,.08);--bg:#07090F;--bg2:#0C1020;--bg3:#121828;--night:#0B1020;--navy:#131A2E;--gold:#C8913E;--gold2:#E8BA6C;--crim2:#EA5A50;--pm:#9B59F5;--pm2:#BF8CFF;--teal:#16BF96;--pine:#16BF96;--pine2:#4ADE80}
 *{margin:0;padding:0;box-sizing:border-box}
 html{scroll-behavior:smooth}
 body{font-family:'Outfit',system-ui,sans-serif;background:var(--bg);color:var(--ink);line-height:1.65;-webkit-font-smoothing:antialiased}
 a{color:inherit;text-decoration:none}
+
+/* ===== SHINOBI DARK THEME — signature app animations ===== */
+@keyframes gradShift{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+@keyframes kumoDrift{0%,100%{transform:translateX(0) scale(1)}50%{transform:translateX(26px) scale(1.05)}}
+.kumo{position:absolute;width:150px;height:82px;pointer-events:none;z-index:0;opacity:.14;background-repeat:no-repeat;background-size:contain;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 150 82'%3E%3Cpath d='M28 66c-12 0-22-8-22-19 0-9 7-17 16-18C25 15 37 5 52 5c13 0 24 7 29 17 3-2 8-4 12-4 11 0 19 8 20 18 9 1 16 8 16 17 0 10-9 13-20 13z' fill='%23C4302B' stroke='%23F2E9E4' stroke-width='4'/%3E%3C/svg%3E");animation:kumoDrift 14s ease-in-out infinite}
+.kumo.k2{width:100px;height:55px;animation-duration:19s;animation-delay:-6s}
+.kumo.k3{width:70px;height:38px;animation-duration:23s;animation-delay:-11s;opacity:.1}
+.hero{position:relative}
+.hero>div:not(.kumo){position:relative;z-index:1}
+.hero .kumo{z-index:0}
+.final{position:relative;overflow:hidden}
+.final>*{position:relative;z-index:1}
+.final .kumo{z-index:0}
+@media(prefers-reduced-motion:reduce){.kumo,.hero h1 em{animation:none}}
 
 /* ===== PAGE SWITCHER — the star of the show ===== */
 .switcher{position:sticky;top:0;z-index:200;background:var(--night);border-bottom:1px solid rgba(255,255,255,.08);padding:0 16px;display:flex;align-items:center;justify-content:space-between;height:54px}
@@ -31,7 +45,7 @@ a{color:inherit;text-decoration:none}
 .sw-logo img{width:28px;height:28px;border-radius:6px}
 .sw-tabs{display:flex;gap:4px;background:rgba(255,255,255,.07);border-radius:24px;padding:4px}
 .sw-tab{display:flex;align-items:center;gap:6px;padding:6px 14px;border-radius:20px;font-size:12.5px;font-weight:600;cursor:pointer;transition:all .2s;white-space:nowrap;border:none;font-family:inherit}
-.sw-tab.active{background:#fff;color:var(--night)}
+.sw-tab.active{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#07090F}
 .sw-tab.inactive{color:rgba(255,255,255,.55);background:transparent}
 .sw-tab.inactive:hover{color:#fff;background:rgba(255,255,255,.1)}
 .sw-tab-icon{font-size:14px}
@@ -43,21 +57,22 @@ a{color:inherit;text-decoration:none}
 .nav-links{display:flex;gap:4px;align-items:center}
 .nav-links a{font-size:12.5px;font-weight:500;color:var(--ink2);padding:5px 11px;border-radius:20px;transition:all .15s}
 .nav-links a:hover{background:var(--bg2);color:var(--ink)}
-.nav-links a.cta{background:var(--night);color:#fff;padding:7px 16px}
+.nav-links a.cta{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#07090F;font-weight:700;padding:7px 16px}
+.nav-links a.cta:hover{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#07090F;opacity:.9}
 
 /* ===== HERO ===== */
 .hero{display:grid;grid-template-columns:1fr 400px;gap:48px;max-width:1080px;margin:0 auto;padding:52px 20px 40px;align-items:start}
 .hero-eyebrow{font-size:11px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--gold2);margin-bottom:14px}
-.hero h1{font-family:'Lora',serif;font-size:clamp(30px,4.2vw,48px);line-height:1.18;font-weight:600;color:var(--night);margin-bottom:18px}
-.hero h1 em{font-style:italic;color:var(--gold2)}
+.hero h1{font-family:'Outfit',sans-serif;font-size:clamp(30px,4.2vw,48px);line-height:1.18;font-weight:700;color:var(--ink);margin-bottom:18px}
+.hero h1 em{font-style:normal;background:linear-gradient(120deg,var(--gold2),var(--crim2),var(--pm2),#2AE8B8,var(--gold2));background-size:280% 100%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:gradShift 8s ease infinite}
 .hero-body{font-size:15.5px;color:var(--ink2);line-height:1.72;margin-bottom:26px;max-width:520px}
 .hero-ctas{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:32px}
-.btn-p{display:inline-flex;align-items:center;gap:7px;background:var(--night);color:#fff;font-weight:700;font-size:14px;padding:13px 22px;border-radius:10px;transition:all .2s}
-.btn-p:hover{background:var(--navy);transform:translateY(-1px)}
-.btn-s{display:inline-flex;align-items:center;gap:7px;background:transparent;color:var(--ink);font-weight:600;font-size:14px;padding:12px 20px;border-radius:10px;border:1.5px solid var(--line);transition:all .2s}
-.btn-s:hover{border-color:var(--ink);background:var(--bg2)}
+.btn-p{display:inline-flex;align-items:center;gap:7px;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#07090F;font-weight:700;font-size:14px;padding:13px 22px;border-radius:10px;box-shadow:0 5px 20px rgba(200,145,62,.2);transition:all .2s}
+.btn-p:hover{transform:translateY(-2px);box-shadow:0 8px 26px rgba(200,145,62,.32)}
+.btn-s{display:inline-flex;align-items:center;gap:7px;background:rgba(255,255,255,.04);color:var(--ink);font-weight:600;font-size:14px;padding:12px 20px;border-radius:10px;border:1.5px solid var(--line);transition:all .2s}
+.btn-s:hover{border-color:var(--gold);background:rgba(255,255,255,.08);transform:translateY(-2px)}
 .hero-stats{display:flex;gap:24px}
-.hs-n{font-size:22px;font-weight:800;color:var(--night)}
+.hs-n{font-size:22px;font-weight:800;color:var(--gold2)}
 .hs-k{font-size:11px;color:var(--mist);margin-top:2px}
 
 /* App card */
@@ -78,7 +93,7 @@ a{color:inherit;text-decoration:none}
 /* ===== SECTIONS ===== */
 .sec{max-width:1080px;margin:0 auto;padding:44px 20px}
 .sec-head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:24px}
-.sec-head h2{font-family:'Lora',serif;font-size:24px;font-weight:600;color:var(--night)}
+.sec-head h2{font-family:'Outfit',sans-serif;font-size:24px;font-weight:700;color:var(--ink)}
 .sec-head a{font-size:12.5px;font-weight:600;color:var(--gold2)}
 .sec-head a:hover{text-decoration:underline}
 
@@ -87,8 +102,9 @@ a{color:inherit;text-decoration:none}
 .crowd-inner{max-width:1080px;margin:0 auto}
 .sect-eyebrow{font-size:10px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--mist);margin-bottom:16px}
 .crowd-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:11px}
-.cdest{background:#fff;border:1px solid var(--line);border-radius:11px;padding:13px}
-.cdest-name{font-size:12.5px;font-weight:700;margin-bottom:8px;color:var(--night)}
+.cdest{background:var(--bg3);border:1px solid var(--line);border-radius:11px;padding:13px;transition:all .2s}
+.cdest:hover{border-color:var(--gold);transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,.35)}
+.cdest-name{font-size:12.5px;font-weight:700;margin-bottom:8px;color:var(--ink)}
 .cmbars{display:flex;gap:2px}
 .cmb{flex:1;height:16px;border-radius:2px}
 .crowd-legend{display:flex;gap:14px;margin-top:12px;font-size:10.5px;color:var(--mist);flex-wrap:wrap}
@@ -96,26 +112,26 @@ a{color:inherit;text-decoration:none}
 
 /* Guides grid */
 .guides-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:14px}
-.gc{border:1px solid var(--line);border-radius:13px;padding:16px;background:#fff;transition:all .2s;display:block}
-.gc:hover{border-color:var(--gold);box-shadow:0 4px 18px rgba(232,186,108,.12);transform:translateY(-2px)}
+.gc{border:1px solid var(--line);border-radius:13px;padding:16px;background:var(--bg2);transition:all .2s;display:block}
+.gc:hover{border-color:var(--gold);box-shadow:0 10px 30px rgba(200,145,62,.18);transform:translateY(-3px)}
 .gc-tag{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--mist);margin-bottom:7px}
-.gc-title{font-size:14.5px;font-weight:700;color:var(--night);line-height:1.35;margin-bottom:5px}
+.gc-title{font-size:14.5px;font-weight:700;color:var(--ink);line-height:1.35;margin-bottom:5px}
 .gc-sub{font-size:11.5px;color:var(--mist)}
 .gc-crowd{display:inline-flex;align-items:center;gap:4px;margin-top:9px;font-size:11px;font-weight:600}
 
 /* Blog */
 .blog-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-.bc{border-left:3px solid var(--gold);padding:14px 18px;background:#fff;border-radius:0 11px 11px 0;border:1px solid var(--line);border-left:3px solid var(--gold);transition:all .2s;display:block}
-.bc:hover{box-shadow:0 4px 14px rgba(0,0,0,.06)}
+.bc{border-left:3px solid var(--gold);padding:14px 18px;background:var(--bg3);border-radius:0 11px 11px 0;border:1px solid var(--line);border-left:3px solid var(--gold);transition:all .2s;display:block}
+.bc:hover{border-left-color:var(--gold2);box-shadow:0 10px 28px rgba(0,0,0,.4);transform:translateY(-2px)}
 .bc-tag{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gold2);margin-bottom:6px}
-.bc-title{font-size:14.5px;font-weight:700;color:var(--night);line-height:1.4;margin-bottom:6px}
+.bc-title{font-size:14.5px;font-weight:700;color:var(--ink);line-height:1.4;margin-bottom:6px}
 .bc-body{font-size:12.5px;color:var(--ink2);line-height:1.6}
 .bc-read{margin-top:9px;font-size:12px;font-weight:600;color:var(--gold2)}
 
 /* Trips */
 .trips-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px}
-.tc{border:1px solid var(--line);border-radius:13px;overflow:hidden;background:#fff;transition:all .2s;display:block}
-.tc:hover{transform:translateY(-2px);box-shadow:0 6px 22px rgba(0,0,0,.08)}
+.tc{border:1px solid var(--line);border-radius:13px;overflow:hidden;background:var(--bg2);transition:all .2s;display:block}
+.tc:hover{transform:translateY(-3px);border-color:var(--gold);box-shadow:0 12px 30px rgba(0,0,0,.45)}
 .tc-banner{background:linear-gradient(135deg,var(--night),var(--navy));padding:16px;color:#fff}
 .tc-days{font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);margin-bottom:5px}
 .tc-title{font-size:15px;font-weight:800;line-height:1.3}
@@ -124,7 +140,7 @@ a{color:inherit;text-decoration:none}
 .tc-desc{font-size:12px;color:var(--ink2);line-height:1.55}
 
 /* Cost table */
-.cost-table{width:100%;border-collapse:collapse;background:#fff;border-radius:12px;overflow:hidden;border:1px solid var(--line)}
+.cost-table{width:100%;border-collapse:collapse;background:var(--bg2);border-radius:12px;overflow:hidden;border:1px solid var(--line)}
 .cost-table th{background:var(--night);color:rgba(255,255,255,.7);font-size:11px;font-weight:600;padding:10px 14px;text-align:left;letter-spacing:.05em}
 .cost-table td{padding:10px 14px;border-bottom:1px solid var(--line);font-size:13px}
 .cost-table tr:last-child td{border-bottom:none}
@@ -132,24 +148,25 @@ a{color:inherit;text-decoration:none}
 
 /* About */
 .about-wrap{max-width:1080px;margin:0 auto;padding:44px 20px;display:grid;grid-template-columns:1fr 1fr;gap:44px;align-items:start}
-.ab-title{font-family:'Lora',serif;font-size:24px;font-weight:600;color:var(--night);line-height:1.3;margin-bottom:13px}
+.ab-title{font-family:'Outfit',sans-serif;font-size:24px;font-weight:700;color:var(--ink);line-height:1.3;margin-bottom:13px}
 .ab-body{font-size:14.5px;color:var(--ink2);line-height:1.78}
 .ab-facts{display:flex;flex-direction:column;gap:12px}
-.af{background:var(--bg2);border-radius:11px;padding:15px;border-left:3px solid var(--gold)}
-.af-title{font-size:13.5px;font-weight:700;color:var(--night);margin-bottom:3px}
+.af{background:var(--bg3);border-radius:11px;padding:15px;border-left:3px solid var(--gold);transition:all .2s}
+.af:hover{transform:translateY(-2px);border-left-color:var(--gold2);box-shadow:0 8px 22px rgba(0,0,0,.35)}
+.af-title{font-size:13.5px;font-weight:700;color:var(--ink);margin-bottom:3px}
 .af-body{font-size:12.5px;color:var(--ink2);line-height:1.6}
 
 /* Tools CTA */
 .tools-strip{background:var(--bg2);border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:28px 20px;text-align:center}
-.tools-strip h3{font-size:18px;font-weight:700;color:var(--night);margin-bottom:6px}
+.tools-strip h3{font-size:18px;font-weight:700;color:var(--ink);margin-bottom:6px}
 .tools-strip p{font-size:13.5px;color:var(--ink2);margin-bottom:16px}
 .tools-btns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
-.tbtn{display:inline-flex;align-items:center;gap:6px;padding:10px 20px;border-radius:10px;font-size:13.5px;font-weight:600;border:1.5px solid var(--line);background:#fff;color:var(--ink);transition:all .2s}
-.tbtn:hover{border-color:var(--ink);background:var(--bg2)}
+.tbtn{display:inline-flex;align-items:center;gap:6px;padding:10px 20px;border-radius:10px;font-size:13.5px;font-weight:600;border:1.5px solid var(--line);background:var(--bg3);color:var(--ink);transition:all .2s}
+.tbtn:hover{border-color:var(--gold);background:rgba(255,255,255,.06);transform:translateY(-2px)}
 
 /* Final CTA */
 .final{background:var(--night);color:#fff;padding:56px 20px;text-align:center}
-.final h2{font-family:'Lora',serif;font-size:clamp(24px,4vw,38px);font-weight:600;margin-bottom:10px}
+.final h2{font-family:'Outfit',sans-serif;font-size:clamp(24px,4vw,38px);font-weight:700;margin-bottom:10px}
 .final p{font-size:15px;color:rgba(255,255,255,.55);max-width:460px;margin:0 auto 28px}
 .final-btns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
 .fc-main{display:inline-flex;align-items:center;gap:7px;background:linear-gradient(90deg,var(--gold2),var(--gold));color:var(--night);font-weight:800;font-size:15px;padding:14px 28px;border-radius:12px;transition:opacity .2s}
@@ -210,6 +227,9 @@ footer a:hover{color:#fff}
 
 <!-- HERO -->
 <div class="hero">
+  <div class="kumo" style="top:8%;right:6%" aria-hidden="true"></div>
+  <div class="kumo k2" style="top:52%;left:2%" aria-hidden="true"></div>
+  <div class="kumo k3" style="top:24%;right:38%" aria-hidden="true"></div>
   <div>
     <div class="hero-eyebrow">Built in Almora, Uttarakhand &middot; India</div>
     <h1>Travel guides with prices<br>India <em>actually</em> pays</h1>
@@ -252,12 +272,12 @@ footer a:hover{color:#fff}
   <div class="crowd-inner">
     <div class="sect-eyebrow">&#128197; Crowd calendar &mdash; September 2026</div>
     <div class="crowd-grid">
-      <div class="cdest"><div class="cdest-name">Manali</div><div class="cmbars"><div class="cmb" style="background:#E0785B"></div><div class="cmb" style="background:#E0785B"></div><div class="cmb" style="background:#E0785B"></div><div class="cmb" style="background:#4ADE80"></div><div class="cmb" style="background:#4ADE80"></div><div class="cmb" style="background:#E8E4DC"></div></div><div style="font-size:11px;color:#2C7A4B;font-weight:600;margin-top:5px">Best now: Sep&ndash;Oct</div></div>
-      <div class="cdest"><div class="cdest-name">Goa</div><div class="cmbars"><div class="cmb" style="background:#E8E4DC"></div><div class="cmb" style="background:#E8E4DC"></div><div class="cmb" style="background:#4ADE80"></div><div class="cmb" style="background:#4ADE80"></div><div class="cmb" style="background:#E8BA6C"></div><div class="cmb" style="background:#E0785B"></div></div><div style="font-size:11px;color:#2C7A4B;font-weight:600;margin-top:5px">Best now: Sep&ndash;Oct</div></div>
-      <div class="cdest"><div class="cdest-name">Rishikesh</div><div class="cmbars"><div class="cmb" style="background:#E8E4DC"></div><div class="cmb" style="background:#E8E4DC"></div><div class="cmb" style="background:#4ADE80"></div><div class="cmb" style="background:#E8BA6C"></div><div class="cmb" style="background:#E8BA6C"></div><div class="cmb" style="background:#E0785B"></div></div><div style="font-size:11px;color:#2C7A4B;font-weight:600;margin-top:5px">Good now: Sep</div></div>
+      <div class="cdest"><div class="cdest-name">Manali</div><div class="cmbars"><div class="cmb" style="background:#E0785B"></div><div class="cmb" style="background:#E0785B"></div><div class="cmb" style="background:#E0785B"></div><div class="cmb" style="background:#4ADE80"></div><div class="cmb" style="background:#4ADE80"></div><div class="cmb" style="background:#E8E4DC"></div></div><div style="font-size:11px;color:#4ADE80;font-weight:600;margin-top:5px">Best now: Sep&ndash;Oct</div></div>
+      <div class="cdest"><div class="cdest-name">Goa</div><div class="cmbars"><div class="cmb" style="background:#E8E4DC"></div><div class="cmb" style="background:#E8E4DC"></div><div class="cmb" style="background:#4ADE80"></div><div class="cmb" style="background:#4ADE80"></div><div class="cmb" style="background:#E8BA6C"></div><div class="cmb" style="background:#E0785B"></div></div><div style="font-size:11px;color:#4ADE80;font-weight:600;margin-top:5px">Best now: Sep&ndash;Oct</div></div>
+      <div class="cdest"><div class="cdest-name">Rishikesh</div><div class="cmbars"><div class="cmb" style="background:#E8E4DC"></div><div class="cmb" style="background:#E8E4DC"></div><div class="cmb" style="background:#4ADE80"></div><div class="cmb" style="background:#E8BA6C"></div><div class="cmb" style="background:#E8BA6C"></div><div class="cmb" style="background:#E0785B"></div></div><div style="font-size:11px;color:#4ADE80;font-weight:600;margin-top:5px">Good now: Sep</div></div>
       <div class="cdest"><div class="cdest-name">Leh Ladakh</div><div class="cmbars"><div class="cmb" style="background:#E0785B"></div><div class="cmb" style="background:#E0785B"></div><div class="cmb" style="background:#4ADE80"></div><div class="cmb" style="background:#E8E4DC"></div><div class="cmb" style="background:#E8E4DC"></div><div class="cmb" style="background:#E8E4DC"></div></div><div style="font-size:11px;color:#C8913E;font-weight:600;margin-top:5px">Last window: Sep</div></div>
-      <div class="cdest"><div class="cdest-name">Kasol</div><div class="cmbars"><div class="cmb" style="background:#E0785B"></div><div class="cmb" style="background:#E8E4DC"></div><div class="cmb" style="background:#4ADE80"></div><div class="cmb" style="background:#4ADE80"></div><div class="cmb" style="background:#E8BA6C"></div><div class="cmb" style="background:#E8E4DC"></div></div><div style="font-size:11px;color:#2C7A4B;font-weight:600;margin-top:5px">Sweet spot: Sep&ndash;Oct</div></div>
-      <div class="cdest"><div class="cdest-name">Hampi</div><div class="cmbars"><div class="cmb" style="background:#E8E4DC"></div><div class="cmb" style="background:#E8E4DC"></div><div class="cmb" style="background:#4ADE80"></div><div class="cmb" style="background:#4ADE80"></div><div class="cmb" style="background:#E8BA6C"></div><div class="cmb" style="background:#E0785B"></div></div><div style="font-size:11px;color:#2C7A4B;font-weight:600;margin-top:5px">Opening up: Sep</div></div>
+      <div class="cdest"><div class="cdest-name">Kasol</div><div class="cmbars"><div class="cmb" style="background:#E0785B"></div><div class="cmb" style="background:#E8E4DC"></div><div class="cmb" style="background:#4ADE80"></div><div class="cmb" style="background:#4ADE80"></div><div class="cmb" style="background:#E8BA6C"></div><div class="cmb" style="background:#E8E4DC"></div></div><div style="font-size:11px;color:#4ADE80;font-weight:600;margin-top:5px">Sweet spot: Sep&ndash;Oct</div></div>
+      <div class="cdest"><div class="cdest-name">Hampi</div><div class="cmbars"><div class="cmb" style="background:#E8E4DC"></div><div class="cmb" style="background:#E8E4DC"></div><div class="cmb" style="background:#4ADE80"></div><div class="cmb" style="background:#4ADE80"></div><div class="cmb" style="background:#E8BA6C"></div><div class="cmb" style="background:#E0785B"></div></div><div style="font-size:11px;color:#4ADE80;font-weight:600;margin-top:5px">Opening up: Sep</div></div>
     </div>
     <div class="crowd-legend">
       <span><span class="ld" style="background:#4ADE80"></span>Low crowds</span>
@@ -273,12 +293,12 @@ footer a:hover{color:#fff}
 <div class="sec">
   <div class="sec-head"><h2>Destination guides &mdash; real costs, honest timings</h2><a href="/guides/">All 36 guides &rarr;</a></div>
   <div class="guides-grid">
-    <a class="gc" href="/guides/rishikesh-uttarakhand.html"><div class="gc-tag">Uttarakhand &middot; India</div><div class="gc-title">Rishikesh: what it actually costs, and what the maps get wrong</div><div class="gc-sub">Auto fares, real rafting prices, which months to avoid</div><div class="gc-crowd" style="color:#2C7A4B">&#128200; Sep&ndash;Nov least crowded</div></a>
-    <a class="gc" href="/guides/spiti-valley-himachal.html"><div class="gc-tag">Himachal Pradesh &middot; India</div><div class="gc-title">Spiti Valley: real drive times, altitude safety & petrol gaps</div><div class="gc-sub">The 200km stretch with zero petrol pumps. What to carry.</div><div class="gc-crowd" style="color:#2C7A4B">&#128200; Sep&ndash;Oct quietest</div></a>
+    <a class="gc" href="/guides/rishikesh-uttarakhand.html"><div class="gc-tag">Uttarakhand &middot; India</div><div class="gc-title">Rishikesh: what it actually costs, and what the maps get wrong</div><div class="gc-sub">Auto fares, real rafting prices, which months to avoid</div><div class="gc-crowd" style="color:#4ADE80">&#128200; Sep&ndash;Nov least crowded</div></a>
+    <a class="gc" href="/guides/spiti-valley-himachal.html"><div class="gc-tag">Himachal Pradesh &middot; India</div><div class="gc-title">Spiti Valley: real drive times, altitude safety & petrol gaps</div><div class="gc-sub">The 200km stretch with zero petrol pumps. What to carry.</div><div class="gc-crowd" style="color:#4ADE80">&#128200; Sep&ndash;Oct quietest</div></a>
     <a class="gc" href="/guides/gokarna-karnataka.html"><div class="gc-tag">Karnataka &middot; India</div><div class="gc-title">Gokarna: budget beach without the Goa prices</div><div class="gc-sub">Beach shacks, Om Beach walk, what locals pay vs tourists</div><div class="gc-crowd" style="color:#E8BA6C">&#128200; Oct&ndash;Nov best window</div></a>
-    <a class="gc" href="/guides/mcleodganj-himachal.html"><div class="gc-tag">Himachal Pradesh &middot; India</div><div class="gc-title">McLeodGanj: Tibetan quarter, trek costs & crowd calendar</div><div class="gc-sub">Triund trek real costs, Dharamshala taxi rates, best months</div><div class="gc-crowd" style="color:#2C7A4B">&#128200; Mar&ndash;Apr and Sep best</div></a>
+    <a class="gc" href="/guides/mcleodganj-himachal.html"><div class="gc-tag">Himachal Pradesh &middot; India</div><div class="gc-title">McLeodGanj: Tibetan quarter, trek costs & crowd calendar</div><div class="gc-sub">Triund trek real costs, Dharamshala taxi rates, best months</div><div class="gc-crowd" style="color:#4ADE80">&#128200; Mar&ndash;Apr and Sep best</div></a>
     <a class="gc" href="/guides/kyoto-japan.html"><div class="gc-tag">Japan &middot; Asia</div><div class="gc-title">Kyoto crowd calendar: the single table that plans your trip</div><div class="gc-sub">Month-by-month crowds, real daily cost from Indian travellers</div><div class="gc-crowd" style="color:#E0785B">&#128200; Apr &amp; Nov = peak</div></a>
-    <a class="gc" href="/guides/hampi-karnataka.html"><div class="gc-tag">Karnataka &middot; India</div><div class="gc-title">Hampi: ruins, bicycles &amp; what to budget per day</div><div class="gc-sub">Hire costs, ideal days, when to avoid heat</div><div class="gc-crowd" style="color:#2C7A4B">&#128200; Nov&ndash;Feb ideal</div></a>
+    <a class="gc" href="/guides/hampi-karnataka.html"><div class="gc-tag">Karnataka &middot; India</div><div class="gc-title">Hampi: ruins, bicycles &amp; what to budget per day</div><div class="gc-sub">Hire costs, ideal days, when to avoid heat</div><div class="gc-crowd" style="color:#4ADE80">&#128200; Nov&ndash;Feb ideal</div></a>
   </div>
 </div>
 
@@ -354,6 +374,8 @@ footer a:hover{color:#fff}
 
 <!-- FINAL CTA -->
 <div class="final">
+  <div class="kumo" style="top:14%;left:8%" aria-hidden="true"></div>
+  <div class="kumo k2" style="bottom:12%;right:10%;top:auto" aria-hidden="true"></div>
   <h2>Plan a trip that survives reality</h2>
   <p>AI itineraries with real local prices, crowd-dodging timing, and offline maps. &#8377;100 one-time &mdash; no subscription.</p>
   <div class="final-btns">

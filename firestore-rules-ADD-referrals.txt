@@ -25,7 +25,22 @@ match /claims/{cid} {
                 && request.resource.data.amount > 0
                 && request.resource.data.amount <= 100000
                 && request.resource.data.utr is string
-                && request.resource.data.utr.size() == 12;
+                && request.resource.data.utr.size() == 12
+                // If a referral code rides along, it must be a plain bounded
+                // token (matches the client's rwSanitizeRefCode: A-Z0-9_-, <=32).
+                // This only validates FORMAT - it does NOT authorise a payout.
+                && (!('refCode' in request.resource.data)
+                    || (request.resource.data.refCode is string
+                        && request.resource.data.refCode.size() <= 32));
+
+  // NOTE ON COMMISSION: any refCode / refRate / commission field the client
+  // sends here is an ATTRIBUTION HINT and DISPLAY value only. Never pay from it.
+  // At approval the admin/Cloud Function MUST (a) re-resolve the code to its
+  // owner from the authoritative referrer table, (b) reject self-referral by
+  // comparing that owner's uid/email to this claim's uid, and (c) recompute the
+  // commission from the server-side rate. The client cannot edit the claim after
+  // creation (no update right below), so these values are frozen for the admin
+  // to verify against - they are inputs to a check, not a payout instruction.
 
   // Users get NO update rights at all. Approval, rejection and the referral
   // stamp are all admin-only after creation.
