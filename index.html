@@ -265,10 +265,9 @@ html{-webkit-text-size-adjust:100%}
   .day-seg .seg-desc{font-size:13.5px}
   .day-seg .seg-time{font-size:11px}
   .logo-text{font-size:19px}
-  .nav-ic{font-size:20px!important;padding:8px!important}
-  /* keep the logo and the right-side icons from colliding on narrow web screens */
+  .nav-ic{font-size:16px!important;padding:6px!important}
+  /* shrink right-side icons so they don't crowd/overlap the logo on narrow web screens */
   .nav-inner{gap:8px}
-  .logo-wrap{flex:0 0 auto;margin-right:auto}
   .nav-right{gap:2px;flex-wrap:nowrap}
   /* --- the big one: bottom tab bar like native apps --- */
   .tabbar{padding:9px 6px calc(11px + env(safe-area-inset-bottom))}
@@ -304,7 +303,7 @@ html{-webkit-text-size-adjust:100%}
 .pay-testi .who{font-size:10.5px;color:var(--t3,#888)}
 /* ===== page switcher pill (mirrors home.html, dark palette) ===== */
 .switcher{position:relative;z-index:201;background:var(--bg2);border-bottom:1px solid rgba(255,255,255,.08);padding:0 16px;display:flex;align-items:center;justify-content:space-between;height:54px}
-.sw-logo{display:flex;align-items:center;gap:8px;font-weight:800;font-size:16px;color:var(--t1)}
+.sw-logo{display:flex;align-items:center;gap:8px;font-weight:800;font-size:16px;color:var(--t1);text-decoration:none}
 .sw-logo .sw-mark{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-weight:900;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#0B1020}
 .sw-tabs{display:flex;gap:4px;background:rgba(255,255,255,.07);border-radius:24px;padding:4px}
 .sw-tab{display:flex;align-items:center;gap:6px;padding:6px 14px;border-radius:20px;font-size:12.5px;font-weight:600;cursor:pointer;transition:all .2s;white-space:nowrap;border:none;font-family:inherit;text-decoration:none}
@@ -314,6 +313,10 @@ html{-webkit-text-size-adjust:100%}
 .sw-tab-icon{font-size:14px}
 .sw-hint{font-size:11px;color:var(--t2);display:none}
 @media(min-width:540px){.sw-hint{display:block}}
+@media(max-width:540px){
+  .sw-tab span:not(.sw-tab-icon){display:none}
+  .sw-tabs{gap:2px}
+}
 </style>
 </head>
 <body>
@@ -335,10 +338,10 @@ html{-webkit-text-size-adjust:100%}
   <div id="ssOut" style="max-width:640px;margin:8px auto 0;max-height:55vh;overflow:auto"></div>
 </div>
 <div class="switcher">
-  <div class="sw-logo"><span class="sw-mark">R</span>RoamWise</div>
+  <a class="sw-logo" href="/"><span class="sw-mark">R</span>RoamWise</a>
   <div class="sw-tabs">
-    <a class="sw-tab inactive" href="/home.html"><span class="sw-tab-icon">&#128240;</span> Articles &amp; Guides</a>
-    <a class="sw-tab active" href="/"><span class="sw-tab-icon">&#9889;</span> AI Trip Planner</a>
+    <a class="sw-tab inactive" href="/home.html"><span class="sw-tab-icon">&#128240;</span> <span>Articles &amp; Guides</span></a>
+    <a class="sw-tab active" href="/"><span class="sw-tab-icon">&#9889;</span> <span>AI Trip Planner</span></a>
   </div>
   <div class="sw-hint">Switch anytime</div>
 </div>
@@ -346,23 +349,11 @@ html{-webkit-text-size-adjust:100%}
   <div class="nav-inner">
     <a class="logo-wrap" href="#" onclick="scrollTo(0,0);return false">
       <div class="logo-icon">R</div>
-      <span class="logo-text">Roam<span>Wise</span></span>
     </a>
     <div class="nav-right">
-      <div class="lang-wrap">
-        <button class="nav-ic" onclick="rwToggleLangMenu()" title="Language / भाषा" style="background:none;border:none;color:var(--t1);font-size:13px;cursor:pointer;padding:6px 8px;display:flex;align-items:center;gap:3px">&#127760; <span id="langLabel">English</span></button>
-        <div id="langMenu" class="lang-menu"></div>
-      </div>
-      <div class="lang-wrap">
-        <button class="nav-ic" onclick="rwToggleThemeMenu()" title="Theme" style="background:none;border:none;color:var(--t1);font-size:15px;cursor:pointer;padding:6px 8px">&#127912;</button>
-        <div id="themeMenu" class="lang-menu"></div>
-      </div>
       <button class="nav-ic" onclick="ssOpen()" title="Search" style="background:none;border:none;color:var(--t1);font-size:17px;cursor:pointer;padding:6px">&#128269;</button>
       <button class="mode-chip mode-free" id="modeChip" onclick="openSettings()">Smart Mode (free)</button>
-      <button class="btn btn-sm" onclick="openSettings()">&#9881; Settings</button>
-      <button class="btn btn-ghost" data-i18n="nav.plan" onclick="scrollTo(0,document.getElementById('app').offsetTop-10)">Plan</button>
-      <a class="btn btn-ghost" href="/tools/" style="text-decoration:none">Tools</a>
-      <button class="xp-chip" id="xpChip" onclick="openDrawer()" title="Your traveler rank">&#129399; <span id="xpChipTxt">Genin</span></button>
+      <button class="xp-chip" id="xpChip" onclick="openBadges()" title="Your traveler rank">&#129399; <span id="xpChipTxt">Genin</span></button>
       <button class="btn btn-pro" id="proBtn" onclick="openPay()">Pro &#8377;100</button>
       <button class="btn" id="authBtn" onclick="openAuth()" style="display:none;background:linear-gradient(135deg,var(--gold,#E8BA6C),var(--gold2,#C8913E));color:#0A0A0C;font-weight:800;border:none;padding:8px 16px;white-space:nowrap">Sign in</button>
       <img class="avatar" id="authAvatar" src="" alt="" style="display:none" onclick="authMenu()">
