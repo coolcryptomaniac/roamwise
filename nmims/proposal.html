@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>RoamWise × E-Cell NMIMS — Commercial Proposal</title>
+<meta name="description" content="Commercial proposal: RoamWise × E-Cell NMIMS Mumbai 2026 campus partnership — 500 lifetime Pro passes, deliverables, timeline and referral economics.">
+<link rel="icon" href="/icons/favicon-32.png">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --night:#07090F;--navy:#0B1020;--card:#111827;--card2:#131A2E;
+  --gold:#E8BA6C;--gold2:#C8913E;--pine:#4ADE80;
+  --snow:#F2EFE6;--mist:#8B93A7;--line:#26304C;
+  --alert:#E0785B;--vio:#818CF8;
+  --nm:#1E40AF;--nm2:#3B82F6;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:'Outfit',system-ui,sans-serif;background:var(--night);color:var(--snow);min-height:100vh;-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+
+.nav{background:rgba(7,9,15,.9);backdrop-filter:blur(12px);border-bottom:1px solid var(--line);padding:0 20px;height:52px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.nav-brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:15px}
+.nav-brand img{width:26px;height:26px;border-radius:6px}
+.nav-badge{font-size:10px;font-weight:700;background:rgba(129,140,248,.2);border:1px solid rgba(129,140,248,.4);color:var(--vio);padding:3px 9px;border-radius:20px;letter-spacing:.06em}
+.nav-back{font-size:12px;color:var(--mist)}
+.nav-back:hover{color:var(--snow)}
+
+.doc-hero{max-width:820px;margin:0 auto;padding:52px 20px 20px;text-align:center}
+.hero-eyebrow{font-size:11px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--nm2);margin-bottom:14px}
+.doc-hero h1{font-size:clamp(26px,5vw,42px);font-weight:900;line-height:1.15;margin-bottom:16px;letter-spacing:-.02em}
+.doc-hero h1 em{font-style:normal;background:linear-gradient(90deg,var(--gold),#F5D9A8);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.doc-hero .sub{font-size:15px;color:var(--mist);max-width:600px;margin:0 auto 28px;line-height:1.7}
+.status-pill{display:inline-flex;align-items:center;gap:8px;background:rgba(129,140,248,.1);border:1px solid rgba(129,140,248,.3);color:var(--vio);border-radius:20px;padding:8px 16px;font-size:12.5px;font-weight:600;margin-bottom:28px}
+
+.dl-row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:8px}
+.dl-btn{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.05);border:1px solid var(--line);color:var(--snow);font-weight:700;font-size:13.5px;padding:11px 20px;border-radius:12px;transition:.2s}
+.dl-btn:hover{border-color:rgba(232,186,108,.5);background:rgba(232,186,108,.08)}
+.dl-btn.primary{background:linear-gradient(90deg,var(--gold2),var(--gold));color:var(--night);border:none}
+.dl-btn.primary:hover{opacity:.9}
+
+.doc-section{max-width:820px;margin:0 auto;padding:40px 20px}
+.sh{font-size:10.5px;font-weight:700;letter-spacing:.24em;text-transform:uppercase;color:var(--mist);margin-bottom:18px;display:flex;align-items:center;gap:10px}
+.sh::after{content:'';flex:1;height:1px;background:var(--line)}
+.sh-num{color:var(--gold)}
+.doc-section h2{font-size:clamp(20px,3.5vw,28px);font-weight:800;margin-bottom:14px;letter-spacing:-.01em}
+.doc-section p{font-size:14.5px;color:var(--mist);line-height:1.75;margin-bottom:14px}
+.doc-section p b, .doc-section li b{color:var(--snow)}
+.doc-section code{background:rgba(255,255,255,.06);border-radius:5px;padding:1px 6px;font-size:.9em}
+
+.perks-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin-bottom:8px}
+.perk{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px}
+.perk-icon{font-size:22px;margin-bottom:10px;display:block}
+.perk-title{font-size:14px;font-weight:700;margin-bottom:5px}
+.perk-sub{font-size:12px;color:var(--mist);line-height:1.55}
+
+.alloc-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:8px 0 8px}
+.alloc-card{background:var(--card2);border:1px solid var(--line);border-radius:14px;padding:20px}
+.alloc-card.gold{border-color:rgba(232,186,108,.4);background:rgba(232,186,108,.05)}
+.alloc-n{font-size:32px;font-weight:900;color:var(--gold);margin-bottom:6px}
+.alloc-label{font-size:14px;font-weight:700;margin-bottom:4px}
+.alloc-sub{font-size:12.5px;color:var(--mist);line-height:1.6}
+
+.math-table{width:100%;border-collapse:collapse;font-size:13.5px;margin:8px 0 16px;border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.math-table th,.math-table td{padding:13px 16px;text-align:left;border-bottom:1px solid var(--line)}
+.math-table th{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--mist);font-weight:700;background:rgba(255,255,255,.03)}
+.math-table td:last-child, .math-table th:last-child{text-align:right;color:var(--gold);font-weight:700;font-variant-numeric:tabular-nums}
+.math-table tr:last-child td{border-bottom:none}
+.math-table tr.final td{background:rgba(74,222,128,.06)}
+.math-table tr.final td:last-child{color:var(--pine)}
+
+.deliverables-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.dcard{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px}
+.dcard h4{font-size:14px;font-weight:700;color:var(--gold);margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.dcard ul{font-size:13px;color:var(--mist);line-height:1.8;list-style:none;padding-left:0}
+.dcard ul li::before{content:'✓ ';color:var(--pine)}
+
+.timeline{display:flex;flex-direction:column;gap:0;margin-top:4px}
+.tl-item{display:flex;gap:18px;padding-bottom:28px;position:relative}
+.tl-item:not(:last-child)::before{content:'';position:absolute;left:19px;top:40px;bottom:0;width:1px;background:var(--line)}
+.tl-dot{width:38px;height:38px;border-radius:50%;border:2px solid var(--gold);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;background:rgba(232,186,108,.08)}
+.tl-content{flex:1;padding-top:6px}
+.tl-phase{font-size:10px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--gold);margin-bottom:4px}
+.tl-title{font-size:15px;font-weight:700;margin-bottom:4px}
+.tl-desc{font-size:13px;color:var(--mist);line-height:1.6}
+
+.challenge-rules{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin:16px 0}
+.cr{background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:12px;padding:14px;text-align:center}
+.cr-icon{font-size:22px;margin-bottom:8px;display:block}
+.cr-title{font-size:12.5px;font-weight:700;margin-bottom:4px}
+.cr-sub{font-size:11.5px;color:var(--mist);line-height:1.5}
+
+.rtable-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:14px;margin-bottom:10px}
+.rtable{width:100%;border-collapse:collapse;font-size:13px;min-width:480px}
+.rtable th,.rtable td{padding:12px 14px;text-align:right;border-bottom:1px solid var(--line)}
+.rtable th:first-child,.rtable td:first-child{text-align:left}
+.rtable thead th{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--mist);font-weight:700;background:rgba(255,255,255,.03)}
+.rtable tbody tr:last-child td{border-bottom:none}
+.rtable td:not(:first-child){color:var(--gold);font-weight:700;font-variant-numeric:tabular-nums}
+
+.callout{background:rgba(129,140,248,.06);border:1px solid rgba(129,140,248,.25);border-radius:14px;padding:18px 20px;font-size:13.5px;color:var(--mist);line-height:1.7;margin:16px 0}
+.callout b{color:var(--snow)}
+
+.next-steps{background:var(--card);border:1px solid rgba(232,186,108,.3);border-radius:16px;padding:24px;text-align:center;margin-top:8px}
+.next-steps h3{font-size:19px;font-weight:800;margin-bottom:8px}
+.next-steps p{margin-bottom:16px}
+
+footer{background:#03040A;border-top:1px solid var(--line);padding:24px 20px;text-align:center;font-size:12px;color:#3A4260}
+footer a{color:#5A6076}
+
+@media(max-width:580px){
+  .alloc-row,.deliverables-grid,.challenge-rules{grid-template-columns:1fr}
+}
+@media print{
+  .nav,.dl-row,footer{display:none}
+  body{background:#fff;color:#111}
+}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-brand">
+    <img src="/icons/favicon-32.png" alt="RoamWise">
+    RoamWise
+    <span class="nav-badge">Commercial Proposal</span>
+  </div>
+  <a class="nav-back" href="/nmims/index.html">← Back to campaign page</a>
+</nav>
+
+<div class="doc-hero">
+  <div class="hero-eyebrow">Commercial Proposal · Proposed AI Travel Partner · 2026</div>
+  <h1>RoamWise <em>×</em> E-Cell NMIMS Mumbai</h1>
+  <p class="sub">A proposal for a campus partnership that gives every eligible NMIMS student and organiser lifetime access to RoamWise Pro, at no cost to NMIMS, in exchange for campaign visibility during the fest. This document lays out the offer, the numbers behind it, and how the campaign would run.</p>
+  <div class="status-pill">🤝 This is a proposed partnership, pending confirmation by NMIMS / E-Cell</div>
+  <div class="dl-row">
+    <a class="dl-btn primary" href="/nmims/RoamWise-NMIMS-Proposal.pdf">⬇ Download PDF</a>
+    <a class="dl-btn" href="/nmims/RoamWise-NMIMS-Proposal.docx">⬇ Download Word (.docx)</a>
+    <a class="dl-btn" href="/nmims/mou.html">📄 View MOU / Annexure</a>
+  </div>
+</div>
+
+<!-- 1. THE OPPORTUNITY -->
+<div class="doc-section">
+  <div class="sh"><span class="sh-num">01</span>&nbsp; The opportunity</div>
+  <h2>Travel planning is still the most annoying part of a trip students actually want to take</h2>
+  <p>NMIMS students travel constantly — long weekends, term breaks, post-exam trips, and the kind of spontaneous plans that get made in a hostel common room at 11pm. What they don't have is a fast, reliable way to plan those trips: generic blog advice, opaque agency pricing, and Instagram spots that turn out overcrowded the moment you arrive.</p>
+  <p>RoamWise was built to fix exactly that gap — AI itineraries with real transport and real costs, crowd calendars that show when a destination is actually worth visiting, and local pricing instead of tourist markup. A campus partnership with E-Cell NMIMS is a natural fit: real reach among the exact audience RoamWise is built for, and a meaningful, no-cost benefit for NMIMS's own community in return.</p>
+  <p>The proposal below is straightforward: RoamWise funds <b>500 lifetime Pro passes</b> for NMIMS students and organisers, and in exchange asks for campaign visibility during the fest window — nothing more. No cash changes hands in either direction for the pass programme itself.</p>
+</div>
+
+<!-- 2. WHAT ROAMWISE OFFERS -->
+<div class="doc-section">
+  <div class="sh"><span class="sh-num">02</span>&nbsp; What RoamWise offers NMIMS students</div>
+  <h2>Lifetime Pro access — 500 seats, split between organisers and students</h2>
+  <p>Every claimed pass includes full lifetime RoamWise Pro, not a trial or a discount code:</p>
+  <div class="perks-grid">
+    <div class="perk"><span class="perk-icon">🧠</span><div class="perk-title">AI Itinerary Builder</div><div class="perk-sub">Full day-by-day plans with real transport, real costs, real timings — not generic suggestions.</div></div>
+    <div class="perk"><span class="perk-icon">⚡</span><div class="perk-title">Ailon Tusk</div><div class="perk-sub">RoamWise's built-in travel copilot — answers trip questions from real guides, weather and cost data, on demand.</div></div>
+    <div class="perk"><span class="perk-icon">💬</span><div class="perk-title">Trip Chat</div><div class="perk-sub">Plan and coordinate a trip with your group in one shared place, instead of scattered WhatsApp threads.</div></div>
+    <div class="perk"><span class="perk-icon">📅</span><div class="perk-title">Crowd Calendars</div><div class="perk-sub">Month-by-month crowd intensity for 195+ destinations. Know when to go before everyone else does.</div></div>
+    <div class="perk"><span class="perk-icon">💰</span><div class="perk-title">Real Local Prices</div><div class="perk-sub">What locals and savvy travellers actually pay — not what tourist aggregators quote.</div></div>
+    <div class="perk"><span class="perk-icon">👥</span><div class="perk-title">Group Budget Splitter</div><div class="perk-sub">Split trip costs across your group. No spreadsheet, no WhatsApp arguments about rounding.</div></div>
+    <div class="perk"><span class="perk-icon">📍</span><div class="perk-title">Offline Maps</div><div class="perk-sub">Full access after one sync. Works in Spiti with zero signal, as it should.</div></div>
+    <div class="perk"><span class="perk-icon">⭐</span><div class="perk-title">Trip Ratings</div><div class="perk-sub">Rate and browse real trip experiences from other travellers, not just star ratings on a listing.</div></div>
+    <div class="perk"><span class="perk-icon">🎫</span><div class="perk-title">Journey Passport</div><div class="perk-sub">Verified digital record of every trip. Share the card, keep the memories permanent.</div></div>
+  </div>
+
+  <p style="margin-top:20px"><b>How the 500 passes are split:</b></p>
+  <div class="alloc-row">
+    <div class="alloc-card gold">
+      <div class="alloc-n">50</div>
+      <div class="alloc-label">🏅 Organiser passes</div>
+      <div class="alloc-sub">Reserved for E-Cell core team and fest organisers who make this happen. Distributed directly by E-Cell leadership.</div>
+    </div>
+    <div class="alloc-card">
+      <div class="alloc-n">450</div>
+      <div class="alloc-label">🎒 Student passes</div>
+      <div class="alloc-sub">Claimed via co-branded QR / the campaign page, while passes last, during a 30-day claim window after the event.</div>
+    </div>
+  </div>
+</div>
+
+<!-- 3. THE VALUE MATH -->
+<div class="doc-section">
+  <div class="sh"><span class="sh-num">03</span>&nbsp; The value math</div>
+  <h2>The honest arithmetic behind "free"</h2>
+  <p>We'd rather show the real numbers than a rounded-up "worth ₹X" headline. Here's how the value actually stacks up, and why the cost to NMIMS lands at zero:</p>
+  <table class="math-table">
+    <tbody>
+      <tr><td>Reference value <span style="color:var(--mist)">(₹299/account retail Pro price × 500 passes)</span></td><td>₹1,49,500</td></tr>
+      <tr><td>Value at RoamWise's founder-offer price <span style="color:var(--mist)">(₹100/account × 500)</span></td><td>₹50,000</td></tr>
+      <tr class="final"><td><b>Actual cost to NMIMS / E-Cell</b></td><td>₹0</td></tr>
+    </tbody>
+  </table>
+  <p>RoamWise absorbs the founder-offer cost itself. We're doing this because campus reach and word-of-mouth among exactly the audience we're building for is worth more to us right now than the cash — not because there's a hidden catch elsewhere in this proposal.</p>
+</div>
+
+<!-- 4. DELIVERABLES -->
+<div class="doc-section">
+  <div class="sh"><span class="sh-num">04</span>&nbsp; What each side brings</div>
+  <h2>Deliverables, matched on both sides</h2>
+  <div class="deliverables-grid">
+    <div class="dcard">
+      <h4>🎁 RoamWise delivers</h4>
+      <ul>
+        <li>500 lifetime Pro accounts (50 + 450 split)</li>
+        <li>Unique claim QR + referral code</li>
+        <li>Traveler DNA quiz + creative assets</li>
+        <li>Campaign copy and social prompts</li>
+        <li>Post-campaign analytics report</li>
+      </ul>
+    </div>
+    <div class="dcard">
+      <h4>🤝 E-Cell NMIMS delivers</h4>
+      <ul>
+        <li>"Official AI Travel Partner" designation</li>
+        <li>Featured as NMIMS's one AI travel partner for the campaign (no other AI travel app promoted alongside)</li>
+        <li>2 collaborative reels + 4 stories</li>
+        <li>1 LinkedIn post + 2 community pushes</li>
+        <li>Stage mention + QR activation point</li>
+        <li>1 quiz/challenge promoted to participants</li>
+      </ul>
+    </div>
+  </div>
+  <p style="margin-top:14px;font-size:12.5px">These are the same deliverables listed on the public campaign page at <code>/nmims/index.html</code> — nothing here is different from what students and organisers see.</p>
+</div>
+
+<!-- 5. TIMELINE -->
+<div class="doc-section">
+  <div class="sh"><span class="sh-num">05</span>&nbsp; Campaign timeline</div>
+  <h2>How the campaign runs, phase by phase</h2>
+  <div class="timeline">
+    <div class="tl-item">
+      <div class="tl-dot">📢</div>
+      <div class="tl-content">
+        <div class="tl-phase">Phase 1 · T−14 to T−7</div>
+        <div class="tl-title">Tease</div>
+        <div class="tl-desc">Collaborative reel: "500 lifetime travel passes are coming to NMIMS." Claim waitlist opens. Building excitement and awareness.</div>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot">🧬</div>
+      <div class="tl-content">
+        <div class="tl-phase">Phase 2 · T−6 to event day</div>
+        <div class="tl-title">Engage</div>
+        <div class="tl-desc">Traveler DNA quiz goes live. Students get their persona, unlock the claim path, registrations tracked.</div>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot">🎒</div>
+      <div class="tl-content">
+        <div class="tl-phase">Phase 3 · Event day to T+7</div>
+        <div class="tl-title">Convert</div>
+        <div class="tl-desc">QR stands on-ground, stage callout, UGC challenge, recap reel, friendly reminder stories. 30-day claim window.</div>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot">📊</div>
+      <div class="tl-content">
+        <div class="tl-phase">Post-event · Within 14 days</div>
+        <div class="tl-title">Report</div>
+        <div class="tl-desc">Joint review: reach, funnel, claims, activations, opted-in leads. Decide on repeat or expansion.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 6. UGC CHALLENGE -->
+<div class="doc-section">
+  <div class="sh"><span class="sh-num">06</span>&nbsp; The UGC reel challenge</div>
+  <h2>A lightweight creative activation, open to more than just video</h2>
+  <p>The campaign prompt is simple: <b>"Where would you disappear for 3 days?"</b> — a 20–30 second Reel or Story showing a chosen destination, why it fits the student's travel personality, and one crowd-avoidance trick. Tag @ecellnmims and @mohucool, use the fest hashtag, and it counts. Top 3 entries get featured on RoamWise's social channels plus bonus gifts.</p>
+  <div class="challenge-rules">
+    <div class="cr"><span class="cr-icon">📱</span><div class="cr-title">Easy to make</div><div class="cr-sub">A phone, one destination idea, and a short prompt. No production setup needed.</div></div>
+    <div class="cr"><span class="cr-icon">📣</span><div class="cr-title">Tag both</div><div class="cr-sub">Tag @ecellnmims + @mohucool and use the fest hashtag to be counted.</div></div>
+    <div class="cr"><span class="cr-icon">🏆</span><div class="cr-title">Win extras</div><div class="cr-sub">Top 3 UGC entries get featured on RoamWise social channels + bonus gifts.</div></div>
+  </div>
+  <p>Students who want to go further than a straight-to-camera Reel can express the same idea through whichever creative form suits them — same tags, same shot at getting featured:</p>
+  <div class="challenge-rules">
+    <div class="cr"><span class="cr-icon">🎤</span><div class="cr-title">Comedy / stand-up</div><div class="cr-sub">A short bit riffing on a dream trip or travel personality.</div></div>
+    <div class="cr"><span class="cr-icon">💃</span><div class="cr-title">Art or dance</div><div class="cr-sub">Paint it, sketch it, dance it — however they'd show the destination.</div></div>
+    <div class="cr"><span class="cr-icon">🎵</span><div class="cr-title">Music</div><div class="cr-sub">An original verse, cover, or beat built around their pick.</div></div>
+    <div class="cr"><span class="cr-icon">🎬</span><div class="cr-title">Acting / skit</div><div class="cr-sub">A tiny scene — a student and a friend, playing it out.</div></div>
+  </div>
+</div>
+
+<!-- 7. REFERRAL / COMMISSION -->
+<div class="doc-section">
+  <div class="sh"><span class="sh-num">07</span>&nbsp; Referral &amp; commission mechanics</div>
+  <h2>If NMIMS drives paid signups too</h2>
+  <p>Separate from the 500 free lifetime passes, NMIMS has its own referral code, <b>NMIMS2026</b>, live in RoamWise's referral system at the standard flat <b>30% commission</b> — the same rate every RoamWise referrer is on. Anyone who signs up for a paid RoamWise plan via <code>roamwise.co.in/nmims/?ref=NMIMS2026</code> or a shared link counts toward this. These figures are not projections invented for this proposal — they are the same numbers worked through in RoamWise's internal <code>PRICING-REFERRAL-MATH.md</code> reference, using the formula <code>signups × price × 30%</code>.</p>
+  <div class="rtable-wrap">
+    <table class="rtable">
+      <thead><tr><th>Paid signups</th><th>Commission due — Pro yearly (₹2,499)</th><th>Commission due — Pro lifetime (₹14,999)</th></tr></thead>
+      <tbody>
+        <tr><td>250</td><td>₹1,87,425</td><td>₹11,24,925</td></tr>
+        <tr><td>500</td><td>₹3,74,850</td><td>₹22,49,850</td></tr>
+        <tr><td>1,000</td><td>₹7,49,700</td><td>₹44,99,700</td></tr>
+        <tr><td>2,000</td><td>₹14,99,400</td><td>₹89,99,400</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p style="font-size:12px">Live standing (paid conversions attributed to NMIMS2026 and commission accrued so far) is tracked in RoamWise's admin view, and can be shared with NMIMS/E-Cell on request once the campaign is live.</p>
+</div>
+
+<!-- 8. PARTNERSHIP STATUS -->
+<div class="doc-section">
+  <div class="sh"><span class="sh-num">08</span>&nbsp; Partnership status</div>
+  <h2>This is currently a proposal, not a signed partnership</h2>
+  <div class="callout">
+    The public campaign page at <code>/nmims/index.html</code> shows <b>"Proposed AI Travel Partner · 2026"</b> in its header, and will only change to <b>"Official AI Travel Partner"</b> once an authorised RoamWise admin confirms the partnership is signed off — that change cannot be triggered by anyone claiming a pass, and is not something this document or the campaign page can pre-empt on its own. This proposal, and the accompanying MOU / Annexure, exist to give NMIMS/E-Cell everything needed to review and confirm the partnership on that basis.
+  </div>
+</div>
+
+<!-- 9. NEXT STEPS -->
+<div class="doc-section">
+  <div class="next-steps">
+    <h3>Next steps</h3>
+    <p>If this looks like a good fit, the next step is reviewing the accompanying MOU / Annexure — a short, formal document covering obligations, term, exclusivity scope, data handling and sign-off — and confirming the partnership in writing.</p>
+    <div class="dl-row">
+      <a class="dl-btn primary" href="/nmims/mou.html">📄 Review the MOU / Annexure</a>
+      <a class="dl-btn" href="mailto:founder@roamwise.co.in">✉️ Email founder@roamwise.co.in</a>
+    </div>
+  </div>
+</div>
+
+<footer>
+  &copy; 2026 RoamWise &nbsp;&middot;&nbsp;
+  <a href="/nmims/index.html">Campaign page</a> &nbsp;&middot;&nbsp;
+  <a href="/nmims/mou.html">MOU / Annexure</a> &nbsp;&middot;&nbsp;
+  <a href="/">Home</a> &nbsp;&middot;&nbsp;
+  <a href="/legal/privacy.html">Privacy</a> &nbsp;&middot;&nbsp;
+  Questions: <a href="mailto:founder@roamwise.co.in">founder@roamwise.co.in</a>
+</footer>
+
+</body>
+</html>
