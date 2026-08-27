@@ -514,7 +514,7 @@ var DB = [
   {id:"pokhara",name:"Pokhara",country:"Nepal",region:"South Asia",lat:28.21,lon:83.99,
    crowd:[45,50,65,70,45,20,15,15,35,90,95,55],
    cost:{budget:450,mid:800,luxury:1800},brk:{flights:150,stay:220,food:120,act:150,misc:80},
-   visa:{type:"Visa Free",cost:"Free — no visa needed",days:0,note:"India-Nepal open border treaty: Indian nationals need only photo ID (a passport if flying) — no visa, no permit, ever."},
+   visa:{type:"Visa Free",cost:"Free — no visa needed",days:0,note:"India-Nepal open border treaty: Indian nationals need no visa. For India-Nepal air travel specifically, carry a valid Indian passport OR an original Indian Voter ID — Aadhaar, PAN card and driving licence are NOT accepted."},
    bestM:[10,11,3,4],interests:["trekking","mountains","lakes","paragliding","adventure"],
    food:["Dal bhat","Newari khaja set","Momos","Sel roti","Gundruk soup"],
    gems:["Sarangkot sunrise over the Annapurnas","World Peace Pagoda across Phewa Lake","Begnas Lake away from the tourist crowds","Mahendra Cave"],
@@ -538,7 +538,7 @@ var DB = [
   {id:"maldives_male",name:"Malé",country:"Maldives",region:"South Asia",lat:4.17,lon:73.51,
    crowd:[85,80,70,55,40,35,35,38,40,45,60,90],
    cost:{budget:2500,mid:4500,luxury:12000},brk:{flights:280,stay:1800,food:400,act:400,misc:200},
-   visa:{type:"Free Visa on Arrival",cost:"Free",days:30,note:"A 30-day free tourist visa is stamped on arrival for every nationality, including India — no pre-approval or online form needed."},
+   visa:{type:"Free Visa on Arrival",cost:"Free",days:30,note:"A 30-day free tourist visa is stamped on arrival for every nationality, including India — but all arriving travellers must submit the free IMUGA Traveller Declaration electronically within 96 hours before arrival."},
    bestM:[11,12,1,2,3],interests:["beach","diving","snorkeling","honeymoon","island"],
    food:["Mas huni","Garudhiya fish soup","Fihunu mas grilled fish","Bondibaiy","Rihaakuru"],
    gems:["Local-island guesthouses instead of a private resort island","Sandbank picnic on a day trip","Manta ray point at Hanifaru Bay (seasonal)","Bioluminescent plankton beaches at night"],
@@ -3853,7 +3853,7 @@ function renderForYou(){
        rows (Popular-now, Low-crowd) get first pick of the shared pool \u2014 so they
        claim their up-to-10 picks from the FULL pool first, and everything else
        becomes filler for the generic rows via the shared `used` map. */
-    var EASY_VISA_TYPES={'visa free':1,'free e-visa':1,'free visa on arrival':1,'eta online':1,'nzeta':1,'tourist card fmm':1};
+    var EASY_VISA_TYPES={'visa free':1,'free e-visa':1,'free visa on arrival':1,'eta':1,'eta online':1,'nzeta':1,'tourist card fmm':1};
     function isEasyVisaFor(d){
       if(!d || d.country==='India' || !d.visa || d.visa.type==='None') return false;
       var t=(d.visa.type||'').toLowerCase();
@@ -7194,6 +7194,15 @@ function openPartnerRedeem(){
       return;
     }
     if(data.proRedeemed){ showToast('Code already redeemed — your Pro is active. Check your profile.'); return; }
+    // Claim codes are issued inside a time-boxed campaign window (e.g. the
+    // NMIMS 30-day claim window) and shouldn't be redeemable indefinitely
+    // after that — expiresAt is a Firestore Timestamp set at claim time
+    // (see nmims/index.html). Absent expiresAt (older claims predating this
+    // field) is treated as no expiry, same precedent as proRedeemed above.
+    if(data.expiresAt && typeof data.expiresAt.toMillis==='function' && data.expiresAt.toMillis()<Date.now()){
+      showToast('This code’s claim window has expired. Email founder@roamwise.co.in if you believe this is a mistake.');
+      return;
+    }
     /* Grant Pro + flip the claim to redeemed in ONE atomic batch. A Firestore
        batch commits all-or-nothing — that atomicity is what actually stops a
        code being redeemed twice (see firestore.rules' matching comments on

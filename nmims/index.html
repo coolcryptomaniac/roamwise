@@ -140,7 +140,7 @@ a{color:inherit;text-decoration:none}
 .cr-icon{font-size:24px;margin-bottom:8px;display:block}
 .cr-title{font-size:12.5px;font-weight:700;margin-bottom:4px}
 .cr-sub{font-size:11.5px;color:var(--mist);line-height:1.5}
-.hashtag{display:inline-flex;align-items:center;gap:6px;background:rgba(129,140,248,.1);border:1px solid rgba(129,140,248,.3);border-radius:20px;padding:6px 14px;font-size:13.5px;font-weight:700;color:var(--vio);cursor:pointer;transition:.2s}
+.hashtag{display:inline-flex;align-items:center;gap:6px;background:rgba(129,140,248,.1);border:1px solid rgba(129,140,248,.3);border-radius:20px;padding:6px 14px;font-size:13.5px;font-family:inherit;font-weight:700;color:var(--vio);cursor:pointer;transition:.2s;margin:0;line-height:normal;-webkit-appearance:none;appearance:none}
 .hashtag:hover{background:rgba(129,140,248,.2)}
 
 /* WHAT NMIMS GETS */
@@ -228,7 +228,7 @@ footer a{color:#5A6076}
   </div>
 
   <p style="font-size:12px;color:var(--mist);max-width:480px;margin:0 auto 28px;line-height:1.6">
-    Here's the honest maths: ₹1,50,000 reference value (₹300/account × 500 passes) → ₹50,000 at the founder-offer price → <b style="color:var(--snow)">₹0 cost to NMIMS</b>. We're covering it because campus reach is worth more to us than the cash.
+    Here's the honest maths: ₹1,49,500 reference value (₹299/account × 500 passes) → ₹50,000 at the founder-offer price → <b style="color:var(--snow)">₹0 cost to NMIMS</b>. We're covering it because campus reach is worth more to us than the cash.
   </p>
 
   <div class="seat-bar-wrap">
@@ -386,10 +386,10 @@ footer a{color:#5A6076}
       </div>
 
       <div style="text-align:center;margin-top:12px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
-        <span class="hashtag" onclick="copyTag('#RoamWise')">📋 #RoamWise</span>
-        <span class="hashtag" onclick="copyTag('@ecellnmims')">📋 @ecellnmims</span>
-        <span class="hashtag" onclick="copyTag('#NMIMS × RoamWise')">📋 #NMIMS × RoamWise</span>
-        <span class="hashtag" onclick="copyTag('#ShinobiMode')">📋 #ShinobiMode</span>
+        <button type="button" class="hashtag" onclick="copyTag('#RoamWise')">📋 #RoamWise</button>
+        <button type="button" class="hashtag" onclick="copyTag('@ecellnmims')">📋 @ecellnmims</button>
+        <button type="button" class="hashtag" onclick="copyTag('#NMIMS × RoamWise')">📋 #NMIMS × RoamWise</button>
+        <button type="button" class="hashtag" onclick="copyTag('#ShinobiMode')">📋 #ShinobiMode</button>
       </div>
       <p style="font-size:11.5px;color:#3A4260;text-align:center;margin-top:12px">Tap a hashtag to copy it</p>
     </div>
@@ -822,13 +822,19 @@ async function submitClaim(){
     persona=Object.keys(count).reduce(function(a,b){return count[a]>=count[b]?a:b;});
   }
 
+  // Redeeming a code more than 30 days after it was claimed defeats the
+  // point of a time-boxed campaign window (see the "30-day claim window"
+  // copy above) — expiresAt is set here, at claim time, so openPartnerRedeem()
+  // in app.js (and isUnredeemedClaim() in firestore.rules) can both reject a
+  // stale code without trusting anything computed later, client-side.
+  var expiresAt=firebase.firestore.Timestamp.fromMillis(Date.now()+30*24*60*60*1000);
   var record={
     name:name, email:email, course:course, role:role,
     phone:phone, code:code, persona:persona,
     partnership:'nmims2026', consent:true,
     consentUpdates:updates, emailVerified:emailVerified,
     proRedeemed:false,
-    status:'claimed', claimedAt:new Date().toISOString(),
+    status:'claimed', claimedAt:new Date().toISOString(), expiresAt:expiresAt,
     at:firebase.firestore.FieldValue.serverTimestamp()
   };
 

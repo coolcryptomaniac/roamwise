@@ -30,17 +30,25 @@ service cloud.firestore {
     function isSelf(uid) {
       return request.auth != null && request.auth.uid == uid;
     }
-    // A partnerClaims/{code} doc counts as redeemable if it exists and its
+    // A partnerClaims/{code} doc counts as redeemable if it exists, its
     // proRedeemed flag is not `true` — treating an ABSENT field as
     // not-yet-redeemed too, so claims created before this flag existed still
-    // work. Shared by the users/{uid} partner-redeem rule and documented
-    // again next to partnerClaims below.
+    // work — AND it has not passed its expiresAt (a Firestore Timestamp set
+    // at claim time, e.g. the NMIMS 30-day claim window in nmims/index.html).
+    // Claims created before expiresAt existed have no such field, so an
+    // absent expiresAt is likewise treated as "not expired" — same precedent
+    // as the proRedeemed check just below. Shared by the users/{uid}
+    // partner-redeem rule and documented again next to partnerClaims below.
     function isUnredeemedClaim(code) {
       return code is string && code.size() > 0 && code.size() <= 64
         && exists(/databases/$(database)/documents/partnerClaims/$(code))
         && (
              !('proRedeemed' in get(/databases/$(database)/documents/partnerClaims/$(code)).data)
           || get(/databases/$(database)/documents/partnerClaims/$(code)).data.proRedeemed == false
+        )
+        && (
+             !('expiresAt' in get(/databases/$(database)/documents/partnerClaims/$(code)).data)
+          || get(/databases/$(database)/documents/partnerClaims/$(code)).data.expiresAt > request.time
         );
     }
 

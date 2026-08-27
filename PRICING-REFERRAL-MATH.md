@@ -57,13 +57,16 @@ the right way to draw the lines:
 | Tier | Monthly | Yearly | Effective monthly (yearly ÷ 12) | Yearly discount vs. ×12 monthly | Features |
 |---|---:|---:|---:|---:|---|
 | **Free** | ₹0 | ₹0 | ₹0 | — | `smartAI` |
-| **Plus** | ₹99 | ₹999 | ₹83.25 | 15.9% | + `proAI`, `pdfExport`, `cardStylesBasic` |
-| **Pro** | ₹299 | ₹2,499 | ₹208.25 | 30.3% | + `cardStylesAll`, `adFree`, `squadsPost`, `unlimitedPdf` |
-| **Elite** | ₹499 | ₹4,999 | ₹416.58 | 16.6% | + `movieFree`, `earlyAccess`, `prioritySupport` |
+| **Plus** | ₹99 | ₹999 | ₹83.25 | 16% | + `proAI`, `pdfExport`, `cardStylesBasic` |
+| **Pro** | ₹299 | ₹2,499 | ₹208.25 | 30% | + `cardStylesAll`, `adFree`, `squadsPost`, `unlimitedPdf` |
+| **Elite** | ₹499 | ₹4,999 | ₹416.58 | 17% | + `movieFree`, `earlyAccess`, `prioritySupport` |
 
-(Yearly discount = `1 − priceYearly/(priceMonthly×12)`, exactly what
-`RWPricing.yearlySavingsPct()` computes. Pro's yearly is the deepest discount
-of the three paid tiers — 299×12 = 3,588 vs. 2,499 charged.)
+(Yearly discount = `1 − priceYearly/(priceMonthly×12)`. The underlying ratio is
+15.91% / 30.35% / 16.51% respectively, but `RWPricing.yearlySavingsPct()` itself
+`Math.round()`s that ratio to a whole percentage before returning it — so the
+values above (16% / 30% / 17%) are what the function actually returns, not the
+raw decimal. Pro's yearly is the deepest discount of the three paid tiers —
+299×12 = 3,588 vs. 2,499 charged.)
 
 ### Long-term one-time passes (`RWPricing.CONFIG.LONG_TERM`)
 
@@ -99,14 +102,22 @@ Three real costs sit between the listed price and RoamWise's net:
 - **(b) Payment gateway fee**: Razorpay's published rate is ~2% + 18% GST on
   that fee. 2% × 1.18 = **2.36% effective**, per `BUSINESS-FINANCE-SETUP.md`
   and `REVENUE-INTEGRATIONS.md`.
-- **(c) GST on the commission itself**: `finance-data.js` tags every
-  commission-flavoured account (`rev_commission`) at the standard 18% GST rate.
-  Modelled conservatively as 18% of the commission amount — i.e. 30% × 18% =
-  **5.4% of the sale price** — as a stress-tested worst case. In practice
-  today's three staff referrers (Febin, Deepanshi, Adarsh) are paid an
-  incentive on top of an internship stipend, not invoicing as GST-registered
-  suppliers, so this leg is not currently triggered — it becomes relevant once
-  creator/affiliate partners large enough to be GST-registered are added.
+- **(c) GST on the commission itself**: this is a hypothetical, conservative
+  modelling assumption, not something `finance-data.js` currently asserts as
+  actual tax treatment. `finance-data.js` has two distinct accounts that must
+  not be conflated: `rev_commission` (an INCOME account — booking commission
+  RoamWise itself earns, tagged at 18% GST) and `exp_referral` (an EXPENSE
+  account — referral commission RoamWise *pays out*, tagged `tds:'194H'`, with
+  **no** GST tag). Neither account currently records GST on a referral payout.
+  The 5.4% figure below is a stress-tested worst case for a future scenario
+  where a GST-registered creator/affiliate invoices RoamWise for their
+  commission and charges GST on top — modelled here as 18% of the commission
+  amount, i.e. 30% × 18% = **5.4% of the sale price**. In practice today's
+  three staff referrers (Febin, Deepanshi, Adarsh) are paid an incentive on top
+  of an internship stipend, not invoicing as GST-registered suppliers, so this
+  leg is not currently triggered — it becomes relevant once creator/affiliate
+  partners large enough to be GST-registered are added. Confirm actual
+  applicability with a CA before relying on this figure.
 
 **Core case (commission + gateway only) — this is the number that matters day
 to day:**
@@ -137,8 +148,17 @@ Net % = 100% − 30% − 2.36% − 5.4% = **62.24%** of the listed price.
 | Elite monthly | ₹499 | ₹26.95 | ₹310.58 | 62.24% |
 | Elite yearly | ₹4,999 | ₹269.95 | ₹3,111.38 | 62.24% |
 
-**Same table under UPI (0% gateway fee, per `RW_REFERRAL_TERMS` and the
-"Plain business UPI" row in `BUSINESS-FINANCE-SETUP.md`):**
+**Same table under UPI (0% gateway fee, per the "Plain business UPI" row in
+`BUSINESS-FINANCE-SETUP.md` — `RW_REFERRAL_TERMS` itself only defines the
+commission rate, hold period and payout floor, not any payment-rail terms):**
+
+**Caveat: this 0% figure is not yet live.** `app.js` currently routes payment
+to the personal UPI handle `coolmohit@ybl` (see `UPI_VPA` in `app.js` and
+`BUSINESS-FINANCE-SETUP.md` §1, which explicitly warns against running
+business money through it). The 0% assumption only holds once/if a registered
+business UPI handle (e.g. `roamwise@icici`) is configured; personal UPI has no
+GST/reconciliation setup backing it and shouldn't be treated as the permanent
+production rail.
 
 Core case: 100% − 30% = **70%** net. Conservative case: 70% − 5.4% = **64.6%** net.
 
@@ -193,10 +213,14 @@ No audience discount modelled here (lifetime is sold as a fixed one-time price,
 not run through the 15%-off affiliate link in the current setup):
 
 - **Partner/Featured (30%):** 14,999 × 0.30 = **₹4,499.70** to the creator
-  RoamWise nets: 14,999 − 4,499.70 = **₹10,499.30** (before gateway fee/GST — apply §2's
-  67.64%-of-net-after-commission logic on top if paid via Razorpay)
+  RoamWise nets: 14,999 − 4,499.70 = **₹10,499.30** before gateway fee/GST.
+  If paid via Razorpay, the 2.36% gateway fee (per §2b) is a percentage of the
+  **original ₹14,999 sale price**, not of the post-commission amount — it's
+  deducted independently, in parallel with the commission, not stacked on top
+  of it: 14,999 × 2.36% ≈ **₹353.98**. Net before any GST-on-commission stress
+  line: 14,999 − 4,499.70 − 353.98 = **₹10,145.32**.
 - For reference, **Applied (25%):** 14,999 × 0.25 = ₹3,749.75 to the creator;
-  RoamWise nets ₹11,249.25.
+  RoamWise nets ₹11,249.25 before gateway fee/GST.
 
 A creator hits the 25-sale "Featured" threshold in `CREATOR-OUTREACH.md` having
 generated roughly 25 × ₹1,784 ≈ ₹44,600–45,000 in RoamWise's net revenue by
@@ -253,27 +277,29 @@ just `signups × price × 0.30`.
 ## 6. TDS Section 194H — when it starts to matter
 
 `finance-data.js`'s `tds_194h` flag: commission/brokerage above **roughly
-₹15,000 to one person in a financial year** attracts TDS withholding, and
-`exp_referral` is already tagged `tds:'194H'` in the chart of accounts.
+₹20,000 to one person in a financial year** attracts TDS withholding (the
+Finance Act 2025 threshold), and `exp_referral` is already tagged `tds:'194H'`
+in the chart of accounts.
 
 At the 30% rate on a ₹2,499 Pro-yearly sale (₹749.70 commission/sale), the
 threshold is crossed at:
 
-15,000 ÷ 749.70 = **20.01 sales** → **a referrer needs to close about 20 Pro
+20,000 ÷ 749.70 = **26.68 sales** → **a referrer needs to close 27 Pro
 yearly sales in one financial year** before RoamWise must start withholding TDS
 on their payouts.
 
-At the Pro lifetime price (₹4,499.70 commission/sale): 15,000 ÷ 4,499.70 =
-**3.33 sales** → **just 4 lifetime sales** crosses the same threshold.
+At the Pro lifetime price (₹4,499.70 commission/sale): 20,000 ÷ 4,499.70 =
+**4.44 sales** → **just 5 lifetime sales** crosses the same threshold.
 
 Today this is not yet operational — the only referrers on the books are the 3
 staff members in `referral-data.js` (Febin, Deepanshi, Adarsh), and TDS on
 their referral incentive is tracked per-person, per financial year. It becomes
 a real compliance line item the moment either (a) a single staff referrer
-closes ~20+ Pro-yearly sales or ~4+ lifetime sales in a year, or (b) a
+closes ~27+ Pro-yearly sales or ~5+ lifetime sales in a year, or (b) a
 creator/affiliate partner is added who could plausibly hit that volume on
 their own — which a campus-scale push like NMIMS (§5) could do well within one
-semester.
+semester. As always, confirm actual applicability to staff/creator payouts
+with a CA.
 
 ---
 
