@@ -3502,6 +3502,46 @@ var RWPricing = (function(){
   };
 })();
 
+/* ===== HONEST STATUS LABEL — the ONLY place a Pro/tier status is turned
+   into user-facing text. This exists because a client-side 7-day founder
+   trial (never written as pro:true in Firestore — see the trialUntil
+   comment near line 9382) used to render the exact same "Pro Active" badge
+   as a genuinely paid/granted account, which is actively misleading: a real
+   user saw "PRO ACTIVE" on-device while an admin panel correctly showed
+   them as FREE. This function computes the TRUE current state and returns a
+   distinct, never-ambiguous label for each one. It changes NOTHING about
+   feature gating — isPro / hasFeature() stay exactly as they were; this is
+   purely about what text gets shown. Every call site that used to hardcode
+   "Pro Active"/"PRO ACTIVE" must call this instead. */
+function rwStatusLabel(){
+  var trialUntil = parseInt(lsGet('rw_trial_until')||'0',10);
+  var trialActive = !!(trialUntil && trialUntil > Date.now());
+  var method = lsGet('rw_pro_method')||'';
+  var tierId = lsGet('rw_tier')||'';
+
+  if(trialActive){
+    var daysLeft = Math.max(1, Math.ceil((trialUntil-Date.now())/864e5));
+    return { code:'trial', text:'TRIAL · '+daysLeft+'d left',
+      sentence:'Your free founding-traveler trial is active — '+daysLeft+' day'+(daysLeft===1?'':'s')+' of Pro left' };
+  }
+  if(typeof isPro==='undefined' || !isPro){
+    return { code:'free', text:'FREE', sentence:'No active Pro entitlement — you’re on the Free plan' };
+  }
+  if(method==='partner'){
+    return { code:'partner', text:'PARTNER PASS',
+      sentence:'Your Partner Pass Pro is active — granted via a free partner/campaign code, not a purchase' };
+  }
+  if(tierId){
+    var t = (typeof RWPricing!=='undefined') ? RWPricing.tierById(tierId) : null;
+    var lbl = (t ? t.label : tierId).toUpperCase();
+    return { code:tierId, text:lbl, sentence:'Your '+lbl+' plan is active' };
+  }
+  /* isPro, but no rw_tier / partner method / active trial → legacy ₹100
+     lifetime founder-offer buyer, grandfathered to elite forever. */
+  return { code:'founder', text:'FOUNDER',
+    sentence:'Your lifetime Founder Pro (₹100 offer) is active' };
+}
+
 /* Country-code (ISO 3166-1 alpha-2) → continent, covering common countries.
    Used to compute a real "N/7 continents" stat instead of just counting
    distinct country strings (which never distinguished USA=North America
@@ -3731,7 +3771,8 @@ function refreshProUI(){
   isPro = lsGet('rwPro')==='1';
   var btn=el('proBtn'), bar=el('freeBar'), promo=el('promoBar');
   if(isPro){
-    if(btn){ btn.textContent='Pro Active'; btn.className='btn btn-pro active'; btn.onclick=function(){ showToast('Pro active on this device!'); }; }
+    var st=rwStatusLabel();
+    if(btn){ btn.textContent=st.text; btn.className='btn btn-pro active'; btn.onclick=function(){ showToast(st.sentence); }; }
     if(bar) bar.classList.add('hide');
     if(promo) promo.classList.add('hide');
   } else {
@@ -7102,8 +7143,11 @@ function drawCard(L, name, tiles, heroPhoto){
     x.fillStyle='#8A8880'; x.font='400 11px Outfit,Arial';
     x.fillText(b2[1].toUpperCase(), bx+bw/2, sy+54);
   });
-  if(isPro){ x.fillStyle='#E8BA6C'; x.font='700 15px Outfit,Arial'; x.textAlign='center';
-    x.fillText('\ud83d\udc51 LIFETIME PRO MEMBER', W/2, sy-16); }
+  if(isPro){ var _cst=rwStatusLabel(); x.fillStyle='#E8BA6C'; x.font='700 15px Outfit,Arial'; x.textAlign='center';
+    /* Honest cert label: never claim "LIFETIME" for a trial or a free
+       partner-code grant \u2014 see rwStatusLabel(). */
+    var certTxt = _cst.code==='trial' ? ('\u23f3 '+_cst.text) : ('\ud83d\udc51 '+_cst.text+' MEMBER');
+    x.fillText(certTxt, W/2, sy-16); }
   /* ===== CERTIFICATE OF ACHIEVEMENT: seal + signature + date ===== */
   var dateStr=new Date().toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'});
   var certY=H-152;
@@ -7218,14 +7262,16 @@ function openPartnerRedeem(){
       },{merge:true});
       batch.update(claimRef, {proRedeemed:true, redeemedAt:new Date().toISOString(), redeemedUid:user.uid});
       await batch.commit();
-      showToast('\ud83c\udf89 Lifetime Pro activated! Welcome, '+esc2(data.name?data.name.split(' ')[0]:'friend')+'.');
+      showToast('\ud83c\udf89 Partner Pass activated! Welcome, '+esc2(data.name?data.name.split(' ')[0]:'friend')+'.');
       window._proUnlocked=true;
       /* Reuse the SAME UI-refresh path a real Firestore pro:true write
          triggers (the users/{uid} onSnapshot listener, ~line 9403, calls this
          too) — there is no separate applyPro() anywhere in the app; calling
          it here used to be a guaranteed crash (ReferenceError) that no UI
-         caller had ever exercised. */
-      isPro=true; lsSet('rwPro','1'); lsSet('rw_pro_uid',user.uid); refreshProUI();
+         caller had ever exercised. Set rw_pro_method locally too (not just via
+         the snapshot round-trip) so rwStatusLabel() shows "PARTNER PASS", not
+         a paid-sounding badge, the instant this resolves. */
+      isPro=true; lsSet('rwPro','1'); lsSet('rw_pro_uid',user.uid); lsSet('rw_pro_method','partner'); refreshProUI();
     }catch(e){
       showToast('Redemption error: '+(e.message||'try again'));
     }
@@ -8881,7 +8927,7 @@ function openPay(){
     showToast('\ud83c\udf89 Pro is FREE for early adopters on this version \u2014 already active on your account!');
     return;
   }
-  if(isPro){ showToast('Pro is already active!'); return; }
+  if(isPro){ showToast(rwStatusLabel().sentence); return; }
   try{ rwRotateTesti(); }catch(e){}
   el('payOverlay').classList.add('open');
   document.body.style.overflow = 'hidden';
@@ -9397,6 +9443,10 @@ if (AUTH_READY && typeof firebase !== 'undefined') try {
             if(count<1000){
               t.set(counterRef,{count:count+1},{merge:true});
               var trialUntil=Date.now()+7*24*3600*1000;
+              /* This grants a CLIENT-SIDE-ONLY trial — pro:true is never written here.
+                 Any UI that shows this status MUST render it via rwStatusLabel()
+                 (never a bare "Pro"/"PRO ACTIVE" string), so it's never mistaken for
+                 a real paid/granted account. */
               t.set(ref,{trialUntil:trialUntil,trialGranted:true},{merge:true});
               return {granted:true, num:count+1};
             } else {
@@ -9436,11 +9486,15 @@ if (AUTH_READY && typeof firebase !== 'undefined') try {
         var trialActive = !cloudPro && trialUntil && trialUntil > Date.now();
         var shouldBePro = cloudPro || provOK || trialActive;
         lsSet('rw_trial_until', trialActive? String(trialUntil) : '');
+        /* Mirror Firestore's proMethod locally so rwStatusLabel() can tell a
+           free partner/campaign-code grant (proMethod:'partner') apart from a
+           real cash purchase or legacy founder grant. */
+        lsSet('rw_pro_method', (cloudPro && d.data().proMethod) || '');
         if(cloudPro){ lsSet('rw_pro_temp',''); lsSet('rw_pro_temp_uid',''); }
         if(shouldBePro){
           if(!isPro){ isPro=true; lsSet('rwPro','1'); lsSet('rw_pro_uid',u.uid); refreshProUI();
-            if(cloudPro){ showToast('Pro active on your account \u2713'); closePay(); }
-            else if(trialActive){ var daysLeft=Math.ceil((trialUntil-Date.now())/864e5); showToast('\u23f3 Free trial active \u2014 '+daysLeft+' day'+(daysLeft===1?'':'s')+' of Pro left'); } }
+            if(cloudPro){ showToast(rwStatusLabel().sentence+' \u2713'); closePay(); }
+            else if(trialActive){ showToast('\u23f3 '+rwStatusLabel().sentence); } }
           isPro=true; lsSet('rw_pro_uid',u.uid); refreshProUI();
         } else {
           /* this account has NO pro \u2192 force-off regardless of any stale local flag */
@@ -10269,7 +10323,7 @@ function applyRegionUI(){
   var p = r==='in'?PRICE_IN:PRICE_WW;
   var hb = el('heroProBtn'); if(hb) hb.innerHTML = 'Unlock Pro \u2014 '+p;
   var pa = el('promoAmt'); if(pa) pa.textContent = p;
-  var dl = el('drProLbl'); if(dl) dl.textContent = isPro ? 'Pro active \u2713' : ('Unlock Pro \u2014 '+p);
+  var dl = el('drProLbl'); if(dl) dl.textContent = isPro ? (rwStatusLabel().text+' \u2713') : ('Unlock Pro \u2014 '+p);
   setPayRegion(r);
 }
 /* saveGumroad removed — Gumroad link/ID now arrive via remote config (admin Config tab). */
