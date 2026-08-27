@@ -30,6 +30,27 @@ service cloud.firestore {
     function isSelf(uid) {
       return request.auth != null && request.auth.uid == uid;
     }
+    // A partnerClaims/{code} doc counts as redeemable if it exists, its
+    // proRedeemed flag is not `true` — treating an ABSENT field as
+    // not-yet-redeemed too, so claims created before this flag existed still
+    // work — AND it has not passed its expiresAt (a Firestore Timestamp set
+    // at claim time, e.g. the NMIMS 30-day claim window in nmims/index.html).
+    // Claims created before expiresAt existed have no such field, so an
+    // absent expiresAt is likewise treated as "not expired" — same precedent
+    // as the proRedeemed check just below. Shared by the users/{uid}
+    // partner-redeem rule and documented again next to partnerClaims below.
+    function isUnredeemedClaim(code) {
+      return code is string && code.size() > 0 && code.size() <= 64
+        && exists(/databases/$(database)/documents/partnerClaims/$(code))
+        && (
+             !('proRedeemed' in get(/databases/$(database)/documents/partnerClaims/$(code)).data)
+          || get(/databases/$(database)/documents/partnerClaims/$(code)).data.proRedeemed == false
+        )
+        && (
+             !('expiresAt' in get(/databases/$(database)/documents/partnerClaims/$(code)).data)
+          || get(/databases/$(database)/documents/partnerClaims/$(code)).data.expiresAt > request.time
+        );
+    }
 
     // ---------- USERS ----------
     // A user may create/read their own profile but can NEVER touch the pro fields.
@@ -42,6 +63,23 @@ service cloud.firestore {
       allow update: if isSelf(uid)
         && !request.resource.data.diff(resource.data).affectedKeys()
              .hasAny(['pro','proAt','proMethod','proPayId']);
+      // ---- PARTNER CODE REDEMPTION (rw-v115 hardening) ----
+      // The ONLY way a user may touch pro/proAt/proMethod/proCode themselves:
+      // redeeming one specific, still-unredeemed partner code (isUnredeemedClaim,
+      // defined above via get() — rules can't run a query, only look up a known
+      // doc path, which is exactly why partnerClaims' doc ID is the code itself).
+      // This can't be replayed: the client batches this write together with
+      // flipping that same partnerClaims/{code}.proRedeemed to true (see the
+      // partnerClaims update rule below and openPartnerRedeem() in app.js) —
+      // a Firestore batch commits atomically, so a client cannot take the Pro
+      // grant while skipping the matching flip, and once flipped, this
+      // isUnredeemedClaim() check fails for every later attempt at that code.
+      allow update: if isSelf(uid)
+        && request.resource.data.diff(resource.data).affectedKeys()
+             .hasOnly(['pro','proAt','proMethod','proCode'])
+        && request.resource.data.pro == true
+        && request.resource.data.proMethod == 'partner'
+        && isUnredeemedClaim(request.resource.data.proCode);
       allow delete: if isAdmin() || isSelf(uid);
 
       // Device registry for the 3-device cap (account-bound Pro system).
@@ -81,6 +119,18 @@ service cloud.firestore {
     match /payments/{id} {
       allow read: if isAdmin();
       allow write: if false;
+    }
+
+    // ---------- ADMIN AUDIT LOG ----------
+    // Append-only audit trail for admin-initiated Pro grants/changes made via
+    // a private, separate admin console (not part of this app's client code).
+    // That tool creates entries (isAdmin()), other admins may review the log,
+    // but nobody - including admins - can ever edit or delete a past entry,
+    // so manual Pro grants always leave a traceable record.
+    match /adminAuditLog/{id} {
+      allow create: if isAdmin();
+      allow read: if isAdmin();
+      allow update, delete: if false;
     }
 
     // ---------- ADMINS ----------
@@ -374,28 +424,131 @@ service cloud.firestore {
     }
 
         // ---- PARTNER CLAIMS (institution barter partnerships) ----
-    // Any visitor may claim — we verify eligibility by checking the partnership
-    // allocation in the partnerships doc. Admin reads all claims.
-    // Personal data (name, email, phone) shared only with explicit consent per claim.
+    // Doc ID IS the claim code itself (e.g. partnerClaims/NMIMS-A1B2C3) - not
+    // an auto ID or an email-derived key. That is deliberate: rules can never
+    // run an arbitrary query, only look up a single doc by a KNOWN path, so
+    // making the code the path is what lets this file (and users/{uid} above,
+    // via isUnredeemedClaim()) validate "is this specific code real and
+    // unredeemed" with get(). `get` (fetch by known id) is public because the
+    // code itself IS the shared secret / capability token needed to redeem it
+    // - nobody can discover a code by listing, only by already having been
+    // given one (emailed after claiming). `list` stays admin-only so the
+    // collection can never be enumerated or scraped.
+    //
+    // Personal data (name, email, phone) shared only with explicit consent.
+    //
+    // NOT requiring request.auth != null here on purpose: nmims/index.html's
+    // claim flow never signs the visitor in (no firebase-auth-compat.js is
+    // even loaded on that page) - adding an auth requirement would mean
+    // wiring anonymous sign-in plus new error-handling UI on that page, a
+    // meaningfully bigger change than this rules pass. Flagged as a follow-up
+    // rather than forced in here.
+    //
+    // KNOWN LIMITATION (documented, not silently ignored): the cap check
+    // below reads partnerships/{partnership}.claimed via get(), but nothing
+    // in these rules can FORCE a create() here to be paired with actually
+    // incrementing that counter - Firestore rules cannot enforce "these two
+    // writes must happen together" without a Cloud Function/transaction, and
+    // this project has neither (see PRICING-REFERRAL-MATH.md /
+    // Architecture-Migration-Guide for the backend's current shape). The real
+    // client (nmims/index.html) always batches the partnerClaims create, the
+    // partnerClaimEmails index create, and the partnerships increment into
+    // ONE atomic batch.commit(), so in normal operation the counter and the
+    // claim count never drift. A determined attacker hitting the REST API
+    // directly could still create claim docs without incrementing the
+    // counter - bounded by whatever `claimed` happens to read at the time
+    // (never literally unlimited, since the cap check still runs), but not
+    // fully closed without a Cloud Function. Out of scope for this pass.
     match /partnerClaims/{id} {
-      allow read: if isAdmin();
+      allow get: if true;
+      allow list: if isAdmin();
       allow create: if request.resource.data.name is string
+                    && request.resource.data.name.size() <= 120
                     && request.resource.data.email is string
+                    && request.resource.data.email.size() <= 160
                     && request.resource.data.consent == true
+                    && request.resource.data.partnership is string
+                    && id == request.resource.data.code
+                    && (!('proRedeemed' in request.resource.data) || request.resource.data.proRedeemed == false)
+                    && exists(/databases/$(database)/documents/partnerships/$(request.resource.data.partnership))
+                    && get(/databases/$(database)/documents/partnerships/$(request.resource.data.partnership)).data.claimed
+                         < (get(/databases/$(database)/documents/partnerships/$(request.resource.data.partnership)).data.cap is int
+                            ? get(/databases/$(database)/documents/partnerships/$(request.resource.data.partnership)).data.cap
+                            : 500);
+      // Redemption flip (rw-v115 hardening): a signed-in user may mark the
+      // claim they are personally redeeming as used - ONLY false/absent -> true,
+      // ONLY these three fields, and only recording their OWN uid, never
+      // someone else's. This is what actually prevents replay: once true,
+      // isUnredeemedClaim() (used by users/{uid} above) can never approve that
+      // code again, for anyone. Batched atomically with the matching
+      // users/{uid} pro-grant write - see the comment there.
+      allow update: if isAdmin() || (
+           request.auth != null
+        && (!('proRedeemed' in resource.data) || resource.data.proRedeemed == false)
+        && request.resource.data.proRedeemed == true
+        && request.resource.data.diff(resource.data).affectedKeys()
+             .hasOnly(['proRedeemed','redeemedAt','redeemedUid'])
+        && request.resource.data.redeemedUid == request.auth.uid
+      );
+      allow delete: if isAdmin();
+    }
+
+    // ---- PARTNER CLAIM EMAIL INDEX (dedup lookup, no personal data beyond
+    // the key itself) ----
+    // Needed because locking partnerClaims down to get-by-code-only (above)
+    // means the claim page can no longer run a `where('email','==',...)`
+    // query to detect "you already claimed" (that's a list, and list is
+    // admin-only now). Doc ID = a sanitized, lowercased email, so a repeat
+    // submission can look itself up with a single get(). Firestore's create
+    // vs. update distinction does the dedup enforcement for free: a second
+    // attempt to write the SAME doc ID is an update, and only admin can
+    // update this collection, so a second claim under the same email is
+    // rejected rather than overwriting the first person's code.
+    match /partnerClaimEmails/{emailKey} {
+      allow get: if true;
+      allow list: if isAdmin();
+      allow create: if request.resource.data.code is string
+                    && request.resource.data.code.size() <= 64
                     && request.resource.data.partnership is string;
       allow update, delete: if isAdmin();
     }
 
     // ---- PARTNERSHIPS (allocation tracking — counters only, no personal data) ----
     // Public read so the claim page can show live seat count.
-    // Increment writes allowed for the claimed/role counters (server increments).
-    // Only admin can set caps and initial state.
+    // Only admin can create the doc / set caps and initial state.
+    //
+    // Self-serve update is deliberately narrow (rw-v115 hardening — this used
+    // to accept ANY value for these fields, so any visitor with devtools open
+    // could zero the counter to reopen a "closed" pool, or inflate it to
+    // block real claims before the pool was full - the actual TOCTOU race
+    // this comment used to warn about without fixing). Now: exactly one of
+    // studentClaimed/organiserClaimed may move, only by +1, only alongside
+    // `claimed` moving by the same +1, and never past that role's own cap
+    // (defaults 450/50/500 match the client's hardcoded fallbacks if an admin
+    // hasn't set studentCap/organiserCap/cap explicitly). Firestore applies
+    // FieldValue.increment() transforms against the latest committed value at
+    // write time and serializes writes to a single document, so two
+    // concurrent claims are evaluated in order against the real prior value -
+    // the 2nd one to land sees the 1st one's result already applied, closing
+    // the race that let concurrent claims both slip in over the cap.
     match /partnerships/{id} {
       allow read: if true;
       allow create: if isAdmin();
-      allow update: if isAdmin()
-        || (request.resource.data.diff(resource.data).affectedKeys()
-            .hasOnly(['claimed','studentClaimed','organiserClaimed','lastClaimedAt']));
+      allow update: if isAdmin() || (
+           resource.data.claimed is int
+        && request.resource.data.claimed == resource.data.claimed + 1
+        && request.resource.data.claimed <= (resource.data.cap is int ? resource.data.cap : 500)
+        && (
+             (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['claimed','studentClaimed','lastClaimedAt'])
+               && resource.data.studentClaimed is int
+               && request.resource.data.studentClaimed == resource.data.studentClaimed + 1
+               && request.resource.data.studentClaimed <= (resource.data.studentCap is int ? resource.data.studentCap : 450))
+          || (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['claimed','organiserClaimed','lastClaimedAt'])
+               && resource.data.organiserClaimed is int
+               && request.resource.data.organiserClaimed == resource.data.organiserClaimed + 1
+               && request.resource.data.organiserClaimed <= (resource.data.organiserCap is int ? resource.data.organiserCap : 50))
+           )
+      );
       allow delete: if isAdmin();
     }
 

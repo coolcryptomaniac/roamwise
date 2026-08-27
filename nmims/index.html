@@ -140,7 +140,7 @@ a{color:inherit;text-decoration:none}
 .cr-icon{font-size:24px;margin-bottom:8px;display:block}
 .cr-title{font-size:12.5px;font-weight:700;margin-bottom:4px}
 .cr-sub{font-size:11.5px;color:var(--mist);line-height:1.5}
-.hashtag{display:inline-flex;align-items:center;gap:6px;background:rgba(129,140,248,.1);border:1px solid rgba(129,140,248,.3);border-radius:20px;padding:6px 14px;font-size:13.5px;font-weight:700;color:var(--vio);cursor:pointer;transition:.2s}
+.hashtag{display:inline-flex;align-items:center;gap:6px;background:rgba(129,140,248,.1);border:1px solid rgba(129,140,248,.3);border-radius:20px;padding:6px 14px;font-size:13.5px;font-family:inherit;font-weight:700;color:var(--vio);cursor:pointer;transition:.2s;margin:0;line-height:normal;-webkit-appearance:none;appearance:none}
 .hashtag:hover{background:rgba(129,140,248,.2)}
 
 /* WHAT NMIMS GETS */
@@ -160,6 +160,15 @@ a{color:inherit;text-decoration:none}
 .tl-phase{font-size:10px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--gold);margin-bottom:4px}
 .tl-title{font-size:15px;font-weight:700;margin-bottom:4px}
 .tl-desc{font-size:13px;color:var(--mist);line-height:1.6}
+
+/* REFERRAL CALCULATOR TABLE */
+.rtable-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:14px}
+.rtable{width:100%;border-collapse:collapse;font-size:13px;min-width:480px}
+.rtable th,.rtable td{padding:12px 14px;text-align:right;border-bottom:1px solid var(--line)}
+.rtable th:first-child,.rtable td:first-child{text-align:left}
+.rtable thead th{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--mist);font-weight:700;background:rgba(255,255,255,.03)}
+.rtable tbody tr:last-child td{border-bottom:none}
+.rtable td:not(:first-child){color:var(--gold);font-weight:700;font-variant-numeric:tabular-nums}
 
 /* FOOTER */
 footer{background:#03040A;border-top:1px solid var(--line);padding:24px 20px;text-align:center;font-size:12px;color:#3A4260}
@@ -195,7 +204,7 @@ footer a{color:#5A6076}
     <div class="collab-x">×</div>
     <div class="collab-nm">E-Cell NMIMS Mumbai</div>
   </div>
-  <div class="hero-eyebrow">Official AI Travel Partner · 2026</div>
+  <div class="hero-eyebrow" id="heroEyebrow">Proposed AI Travel Partner · 2026</div>
   <h1>500 Lifetime Pro passes.<br><em>Yours to keep.</em></h1>
   <p class="hero-sub">NMIMS × RoamWise gives every eligible student and organiser lifetime Pro access — AI itineraries, real local prices, crowd calendars for 195+ destinations. Claim during the fest, keep it forever.</p>
 
@@ -219,7 +228,7 @@ footer a{color:#5A6076}
   </div>
 
   <p style="font-size:12px;color:var(--mist);max-width:480px;margin:0 auto 28px;line-height:1.6">
-    Here's the honest maths: ₹1,50,000 reference value (₹300/account × 500 passes) → ₹50,000 at the founder-offer price → <b style="color:var(--snow)">₹0 cost to NMIMS</b>. We're covering it because campus reach is worth more to us than the cash.
+    Here's the honest maths: ₹1,49,500 reference value (₹299/account × 500 passes) → ₹50,000 at the founder-offer price → <b style="color:var(--snow)">₹0 cost to NMIMS</b>. We're covering it because campus reach is worth more to us than the cash.
   </p>
 
   <div class="seat-bar-wrap">
@@ -305,7 +314,7 @@ footer a{color:#5A6076}
       </div>
       <div class="fld">
         <label>College email or personal email</label>
-        <input class="fi" id="cEmail" type="email" placeholder="priya@nmims.in or priya@gmail.com">
+        <input class="fi" id="cEmail" type="email" placeholder="priya@nmims.in or priya@gmail.com" onblur="checkEmailDomain()" oninput="checkEmailDomain()">
       </div>
       <div class="fld">
         <label>Programme / Course</label>
@@ -313,12 +322,17 @@ footer a{color:#5A6076}
       </div>
       <div class="fld">
         <label>I am a</label>
-        <select class="fi fi-select" id="cRole">
+        <select class="fi fi-select" id="cRole" onchange="onRoleChange()">
           <option value="">Select your role</option>
           <option value="student">NMIMS Student</option>
           <option value="organiser">E-Cell Organiser / Core Team</option>
           <option value="faculty">Faculty / Staff</option>
         </select>
+      </div>
+      <div id="emailWarn" style="display:none;font-size:12px;color:var(--gold);background:rgba(232,186,108,.08);border:1px solid rgba(232,186,108,.25);border-radius:10px;padding:10px 12px;margin:-6px 0 14px;line-height:1.5"></div>
+      <div class="fld" id="orgCodeFld" style="display:none">
+        <label>Organiser invite code</label>
+        <input class="fi" id="cOrgCode" placeholder="Ask your E-Cell lead for this code" autocomplete="off">
       </div>
       <div class="fld">
         <label>WhatsApp (optional — for claim confirmation)</label>
@@ -372,10 +386,10 @@ footer a{color:#5A6076}
       </div>
 
       <div style="text-align:center;margin-top:12px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
-        <span class="hashtag" onclick="copyTag('#RoamWise')">📋 #RoamWise</span>
-        <span class="hashtag" onclick="copyTag('@ecellnmims')">📋 @ecellnmims</span>
-        <span class="hashtag" onclick="copyTag('#NMIMS × RoamWise')">📋 #NMIMS × RoamWise</span>
-        <span class="hashtag" onclick="copyTag('#ShinobiMode')">📋 #ShinobiMode</span>
+        <button type="button" class="hashtag" onclick="copyTag('#RoamWise')">📋 #RoamWise</button>
+        <button type="button" class="hashtag" onclick="copyTag('@ecellnmims')">📋 @ecellnmims</button>
+        <button type="button" class="hashtag" onclick="copyTag('#NMIMS × RoamWise')">📋 #NMIMS × RoamWise</button>
+        <button type="button" class="hashtag" onclick="copyTag('#ShinobiMode')">📋 #ShinobiMode</button>
       </div>
       <p style="font-size:11.5px;color:#3A4260;text-align:center;margin-top:12px">Tap a hashtag to copy it</p>
     </div>
@@ -446,8 +460,59 @@ footer a{color:#5A6076}
   </div>
 </div>
 
+<!-- REFERRAL COMMISSION CALCULATOR -->
+<div class="nmims-section">
+  <div class="sh">If NMIMS drives paid signups too</div>
+  <p style="font-size:13.5px;color:var(--mist);line-height:1.7;margin-bottom:16px">
+    Separate from the 500 free lifetime passes: NMIMS's own referral code is <b style="color:var(--snow)">NMIMS2026</b>, live in RoamWise's referral system at the standard flat <b style="color:var(--snow)">30% commission</b> (same rate every RoamWise referrer is on — see <code>referral-data.js</code>). Anyone who signs up for a paid RoamWise plan via <code>roamwise.co.in/nmims/?ref=NMIMS2026</code> or a shared link counts toward this. These aren't projections we made up for this page — they're the same numbers in <code>PRICING-REFERRAL-MATH.md</code>'s NMIMS projection table, just <code>signups × price × 30%</code>.
+  </p>
+  <div class="rtable-wrap">
+    <table class="rtable">
+      <thead><tr><th>Paid signups</th><th>Commission due — Pro yearly (₹2,499)</th><th>Commission due — Pro lifetime (₹14,999)</th></tr></thead>
+      <tbody>
+        <tr><td>250</td><td>₹1,87,425</td><td>₹11,24,925</td></tr>
+        <tr><td>500</td><td>₹3,74,850</td><td>₹22,49,850</td></tr>
+        <tr><td>1,000</td><td>₹7,49,700</td><td>₹44,99,700</td></tr>
+        <tr><td>2,000</td><td>₹14,99,400</td><td>₹89,99,400</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p style="font-size:11.5px;color:#3A4260;margin-top:10px">Live standing (paid conversions attributed to NMIMS2026 and commission accrued so far) is tracked in the admin view, not shown publicly here.</p>
+</div>
+
+<!-- DOCUMENTS -->
+<div class="nmims-section">
+  <div class="sh">For institutional review</div>
+  <div class="deliverables-grid">
+    <div class="dcard">
+      <h4>📄 Commercial Proposal</h4>
+      <ul style="list-style:none">
+        <li style="margin-bottom:8px">The full pitch — opportunity, deliverables, timeline, UGC challenge and referral economics, in one document.</li>
+      </ul>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:8px">
+        <a href="/nmims/proposal.html" style="font-size:12.5px;font-weight:700;color:var(--gold)">View page →</a>
+        <a href="/nmims/RoamWise-NMIMS-Proposal.pdf" style="font-size:12.5px;color:var(--mist)">PDF</a>
+        <a href="/nmims/RoamWise-NMIMS-Proposal.docx" style="font-size:12.5px;color:var(--mist)">Word</a>
+      </div>
+    </div>
+    <div class="dcard">
+      <h4>🤝 MOU / Annexure</h4>
+      <ul style="list-style:none">
+        <li style="margin-bottom:8px">The short, formal contractual document — defined terms, obligations, exclusivity scope, data handling and sign-off.</li>
+      </ul>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:8px">
+        <a href="/nmims/mou.html" style="font-size:12.5px;font-weight:700;color:var(--gold)">View page →</a>
+        <a href="/nmims/RoamWise-NMIMS-MOU.pdf" style="font-size:12.5px;color:var(--mist)">PDF</a>
+        <a href="/nmims/RoamWise-NMIMS-MOU.docx" style="font-size:12.5px;color:var(--mist)">Word</a>
+      </div>
+    </div>
+  </div>
+</div>
+
 <footer>
   &copy; 2026 RoamWise &nbsp;&middot;&nbsp;
+  <a href="/nmims/proposal.html">Commercial Proposal</a> &nbsp;&middot;&nbsp;
+  <a href="/nmims/mou.html">MOU / Annexure</a> &nbsp;&middot;&nbsp;
   <a href="/">Home</a> &nbsp;&middot;&nbsp;
   <a href="/about.html">About</a> &nbsp;&middot;&nbsp;
   <a href="/legal/privacy.html">Privacy</a> &nbsp;&middot;&nbsp;
@@ -458,12 +523,53 @@ footer a{color:#5A6076}
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
 <script>
+/* ---- REFERRAL CAPTURE (?ref=/?r=) ----
+   This static campaign page doesn't load app.js/referral-data.js, but a link
+   like roamwise.co.in/nmims/?ref=NMIMS2026 should still attribute correctly
+   if the visitor later opens the main app on the same origin. This is a
+   deliberately minimal re-implementation of app.js's rwSanitizeRefCode() +
+   rwRefCapture() (~line 9593/9641): same sanitize rule ([A-Z0-9_-], <=32
+   chars), same localStorage keys (rw_ref_code / rw_ref_at), so the two pages
+   are compatible without loading the full app bundle here. No live
+   validation against the referrer list happens on this page — that check
+   (and the buyer-bonus toast) happens once in the main app. */
+(function(){
+  try{
+    var q=new URLSearchParams(location.search);
+    var code=q.get('ref')||q.get('r')||q.get('utm_content')||q.get('referral');
+    if(!code) return;
+    code=String(code).toUpperCase().replace(/[^A-Z0-9_-]/g,'').slice(0,32);
+    if(!code) return;
+    localStorage.setItem('rw_ref_code', code);
+    localStorage.setItem('rw_ref_at', String(Date.now()));
+  }catch(e){}
+})();
+
 /* ---- Firebase ---- */
 var db=null;
 try{
   firebase.initializeApp({apiKey:"AIzaSyDlrtpzpOb1VEmVSd9tHmu7OpmvwWosYsU",authDomain:"roamwisepro.firebaseapp.com",projectId:"roamwisepro",storageBucket:"roamwisepro.firebasestorage.app",messagingSenderId:"299014744987",appId:"1:299014744987:web:d5c316743e6d7a10904f3e"});
   db=firebase.firestore();
 }catch(e){}
+
+/* ---- ORGANISER INVITE CODE ----
+   The real invite-code VALUE is not chosen or stored here — it must be set
+   by an admin directly in the Firestore console, at:
+     config/nmimsOrganiserCode  { code: "<the real shared invite code>" }
+   That doc is public-readable (see firestore.rules `config/{doc}`) but only
+   admin-writable, so the page can fetch it at runtime without the code ever
+   being hardcoded in this source file. If the doc doesn't exist yet, the
+   Organiser role is treated as "not yet configured" and claims are blocked
+   with a clear message rather than silently allowed. */
+var orgCodeVal=null, orgCodeLoaded=false;
+function loadOrgCode(){
+  if(!db){ orgCodeLoaded=true; return; }
+  db.collection('config').doc('nmimsOrganiserCode').get().then(function(d){
+    orgCodeVal = (d.exists && d.data() && d.data().code) ? String(d.data().code) : null;
+    orgCodeLoaded=true;
+  }).catch(function(){ orgCodeLoaded=true; });
+}
+loadOrgCode();
 
 /* ---- SEAT COUNTER ---- */
 var TOTAL_SEATS = 500;
@@ -482,6 +588,14 @@ function loadSeats(){
     if(ns) ns.textContent=left;
     if(sf) sf.style.width=pct+'%';
     if(sp) sp.textContent=claimed+' / '+TOTAL_SEATS+' claimed ('+pct+'%)';
+    /* Proposed -> Official badge toggle: defaults to "Proposed" so this page
+       never overstates the partnership's status on its own. Flips to
+       "Official" only once an admin sets officialConfirmed:true on this same
+       doc from the Firebase console/admin tooling — partnerships/{id}'s rules
+       only allow that field via isAdmin(), never via a self-serve claim
+       write, so a visitor can never flip this themselves. */
+    var eyebrow=document.getElementById('heroEyebrow');
+    if(eyebrow) eyebrow.textContent = data.officialConfirmed===true ? 'Official AI Travel Partner · 2026' : 'Proposed AI Travel Partner · 2026';
   }, function(){
     var ns=document.getElementById('navSeatsLeft'); if(ns) ns.textContent='500';
     var sp=document.getElementById('seatsLeftPct'); if(sp) sp.textContent='0 / 500 claimed';
@@ -633,6 +747,37 @@ function generateCode(name, email){
   return 'NMIMS-'+hex;
 }
 
+/* ---- Role-dependent field toggling + soft email-domain check ----
+   These are deliberately advisory, not hard blocks — students and faculty
+   legitimately use personal email for a fest sign-up. The organiser invite
+   code below IS a hard block, since it's the actual eligibility gate for
+   that pass pool. */
+function onRoleChange(){
+  var role=document.getElementById('cRole').value;
+  var orgFld=document.getElementById('orgCodeFld');
+  if(orgFld) orgFld.style.display = (role==='organiser') ? '' : 'none';
+  checkEmailDomain();
+}
+
+function looksLikeNmimsEmail(email){
+  return /nmims/i.test(email);
+}
+
+function checkEmailDomain(){
+  var role=document.getElementById('cRole').value;
+  var email=(document.getElementById('cEmail').value||'').trim();
+  var warn=document.getElementById('emailWarn');
+  if(!warn) return;
+  var isCollegeRole = (role==='student' || role==='faculty');
+  if(isCollegeRole && email && /\S+@\S+\.\S+/.test(email) && !looksLikeNmimsEmail(email)){
+    warn.style.display='block';
+    warn.textContent="This doesn't look like an NMIMS email — that's fine, plenty of students use a personal one. We'll just flag it for a quick manual check before the pass is treated as fully verified.";
+  } else {
+    warn.style.display='none';
+    warn.textContent='';
+  }
+}
+
 async function submitClaim(){
   var err=document.getElementById('claimErr');
   err.textContent='';
@@ -643,21 +788,41 @@ async function submitClaim(){
   var phone=(document.getElementById('cPhone').value||'').trim();
   var consent=document.getElementById('cConsent').checked;
   var updates=document.getElementById('cUpdates').checked;
+  var orgCode=(document.getElementById('cOrgCode')?document.getElementById('cOrgCode').value:'').trim();
   if(!name||!email) return err.textContent='Name and email are required.';
   if(!role) return err.textContent='Please select your role.';
   if(!consent) return err.textContent='Consent is required to claim your pass.';
   if(!/\S+@\S+\.\S+/.test(email)) return err.textContent='Please enter a valid email address.';
   if(!db) return err.textContent='Connection error — please try again in a moment.';
 
+  // Organiser pass pool is gated behind a shared invite code (hard block —
+  // this is the actual eligibility check, unlike the soft email warning below).
+  if(role==='organiser'){
+    if(!orgCodeLoaded) return err.textContent='Still checking organiser eligibility — try again in a second.';
+    if(!orgCodeVal) return err.textContent='Organiser claims aren’t open yet. Ask your E-Cell lead or email founder@roamwise.co.in.';
+    if(!orgCode || orgCode.trim().toLowerCase()!==orgCodeVal.trim().toLowerCase()){
+      return err.textContent='That organiser invite code doesn’t match. Double-check with your E-Cell team lead.';
+    }
+  }
+
+  // Soft, non-blocking email-domain check for student/faculty roles — flagged
+  // on the record for admin review rather than trusted automatically.
+  var emailVerified = (role==='organiser') ? true : looksLikeNmimsEmail(email);
+
   var btn=document.getElementById('claimBtn');
   btn.disabled=true; btn.textContent='Claiming…';
 
-  // Check if email already claimed
-  var existingSnap=await db.collection('partnerClaims').where('email','==',email).where('partnership','==','nmims2026').get().catch(function(){return null;});
-  if(existingSnap && !existingSnap.empty){
-    var existDoc=existingSnap.docs[0].data();
+  // Check if email already claimed. partnerClaims' doc ID is now the claim
+  // CODE itself (rw-v115 hardening — see firestore.rules), so a plain
+  // `where('email','==',...)` query no longer works (querying/listing that
+  // collection is admin-only now). Instead, look up a small separate index
+  // doc keyed by a sanitized email — a single get() by known id.
+  var emailKey=email.toLowerCase().replace(/[^a-z0-9]/g,'_').slice(0,140);
+  var existingSnap=await db.collection('partnerClaimEmails').doc(emailKey).get().catch(function(){return null;});
+  if(existingSnap && existingSnap.exists){
+    var existCode=(existingSnap.data()||{}).code||'NMIMS-CLAIMED';
     btn.disabled=false; btn.textContent='🎒 Claim my free lifetime Pro →';
-    showSuccess(name.split(' ')[0], existDoc.code||'NMIMS-CLAIMED', true);
+    showSuccess(name.split(' ')[0], existCode, true);
     return;
   }
 
@@ -688,23 +853,39 @@ async function submitClaim(){
     persona=Object.keys(count).reduce(function(a,b){return count[a]>=count[b]?a:b;});
   }
 
+  // Redeeming a code more than 30 days after it was claimed defeats the
+  // point of a time-boxed campaign window (see the "30-day claim window"
+  // copy above) — expiresAt is set here, at claim time, so openPartnerRedeem()
+  // in app.js (and isUnredeemedClaim() in firestore.rules) can both reject a
+  // stale code without trusting anything computed later, client-side.
+  var expiresAt=firebase.firestore.Timestamp.fromMillis(Date.now()+30*24*60*60*1000);
   var record={
     name:name, email:email, course:course, role:role,
     phone:phone, code:code, persona:persona,
     partnership:'nmims2026', consent:true,
-    consentUpdates:updates,
-    status:'claimed', claimedAt:new Date().toISOString(),
+    consentUpdates:updates, emailVerified:emailVerified,
+    proRedeemed:false,
+    status:'claimed', claimedAt:new Date().toISOString(), expiresAt:expiresAt,
     at:firebase.firestore.FieldValue.serverTimestamp()
   };
 
   try{
-    await db.collection('partnerClaims').doc('nmims2026_'+email.replace(/[^a-z0-9]/gi,'_')).set(record);
-    // Increment counter
-    await db.collection('partnerships').doc('nmims2026').set({
+    // Three writes, one atomic batch — the claim doc (ID = code, per
+    // firestore.rules), the email-dedup index doc, and the allocation
+    // counter all commit together or not at all. This is also what the
+    // partnerClaims `create` rule's cap check assumes: in normal operation
+    // the counter and the claim count can never drift apart.
+    var batch=db.batch();
+    batch.set(db.collection('partnerClaims').doc(code), record);
+    batch.set(db.collection('partnerClaimEmails').doc(emailKey), {
+      code:code, partnership:'nmims2026', at:firebase.firestore.FieldValue.serverTimestamp()
+    });
+    batch.set(db.collection('partnerships').doc('nmims2026'), {
       claimed:firebase.firestore.FieldValue.increment(1),
       [role==='organiser'?'organiserClaimed':'studentClaimed']:firebase.firestore.FieldValue.increment(1),
       lastClaimedAt:new Date().toISOString()
     },{merge:true});
+    await batch.commit();
     btn.disabled=false;
     showSuccess(name.split(' ')[0], code, false);
   }catch(e){

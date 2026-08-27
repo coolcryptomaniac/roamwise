@@ -45,6 +45,18 @@ window.RW_REFERRERS = [
 
   /* ---- AFFILIATES / OTHERS ---- */
   /* { code:'RW-A01-RAHUL', name:'Rahul', type:'affiliate', rate:0.30, active:true }, */
+
+  /* ---- CAMPUS / INSTITUTIONAL PARTNERSHIPS ----
+     JUDGMENT CALL: none of staff/creator/affiliate really fits an institution
+     (E-Cell NMIMS), so this introduces a 4th type: 'campus'. The code is also
+     deliberately NOT in the RW-<TYPE><NN>-<NAME> shape above — it needs to be
+     short and guessable-on-sight for print/QR/stage-callout use across an
+     entire campus, not a person's payout-sheet lookup. rwSanitizeRefCode()
+     (app.js) only requires [A-Z0-9_-] and <=32 chars, so 'NMIMS2026' is a
+     valid code as-is. Commission still flows to RoamWise <-> E-Cell NMIMS
+     per the partnership terms, at the same flat 30% everyone else is on. */
+  { code:'NMIMS2026', name:'E-Cell NMIMS Mumbai', type:'campus', rate:0.30, active:true,
+    note:'Campus partnership — nmims/index.html claim page + on-campus referral push' },
 ];
 
 /* Payout rules, shown to referrers so nothing is ambiguous later. */

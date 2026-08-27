@@ -514,7 +514,7 @@ var DB = [
   {id:"pokhara",name:"Pokhara",country:"Nepal",region:"South Asia",lat:28.21,lon:83.99,
    crowd:[45,50,65,70,45,20,15,15,35,90,95,55],
    cost:{budget:450,mid:800,luxury:1800},brk:{flights:150,stay:220,food:120,act:150,misc:80},
-   visa:{type:"Visa Free",cost:"Free — no visa needed",days:0,note:"India-Nepal open border treaty: Indian nationals need only photo ID (a passport if flying) — no visa, no permit, ever."},
+   visa:{type:"Visa Free",cost:"Free — no visa needed",days:0,note:"India-Nepal open border treaty: Indian nationals need no visa. For India-Nepal air travel specifically, carry a valid Indian passport OR an original Indian Voter ID — Aadhaar, PAN card and driving licence are NOT accepted."},
    bestM:[10,11,3,4],interests:["trekking","mountains","lakes","paragliding","adventure"],
    food:["Dal bhat","Newari khaja set","Momos","Sel roti","Gundruk soup"],
    gems:["Sarangkot sunrise over the Annapurnas","World Peace Pagoda across Phewa Lake","Begnas Lake away from the tourist crowds","Mahendra Cave"],
@@ -538,7 +538,7 @@ var DB = [
   {id:"maldives_male",name:"Malé",country:"Maldives",region:"South Asia",lat:4.17,lon:73.51,
    crowd:[85,80,70,55,40,35,35,38,40,45,60,90],
    cost:{budget:2500,mid:4500,luxury:12000},brk:{flights:280,stay:1800,food:400,act:400,misc:200},
-   visa:{type:"Free Visa on Arrival",cost:"Free",days:30,note:"A 30-day free tourist visa is stamped on arrival for every nationality, including India — no pre-approval or online form needed."},
+   visa:{type:"Free Visa on Arrival",cost:"Free",days:30,note:"A 30-day free tourist visa is stamped on arrival for every nationality, including India — but all arriving travellers must submit the free IMUGA Traveller Declaration electronically within 96 hours before arrival."},
    bestM:[11,12,1,2,3],interests:["beach","diving","snorkeling","honeymoon","island"],
    food:["Mas huni","Garudhiya fish soup","Fihunu mas grilled fish","Bondibaiy","Rihaakuru"],
    gems:["Local-island guesthouses instead of a private resort island","Sandbank picnic on a day trip","Manta ray point at Hanifaru Bay (seasonal)","Bioluminescent plankton beaches at night"],
@@ -3502,6 +3502,46 @@ var RWPricing = (function(){
   };
 })();
 
+/* ===== HONEST STATUS LABEL — the ONLY place a Pro/tier status is turned
+   into user-facing text. This exists because a client-side 7-day founder
+   trial (never written as pro:true in Firestore — see the trialUntil
+   comment near line 9382) used to render the exact same "Pro Active" badge
+   as a genuinely paid/granted account, which is actively misleading: a real
+   user saw "PRO ACTIVE" on-device while an admin panel correctly showed
+   them as FREE. This function computes the TRUE current state and returns a
+   distinct, never-ambiguous label for each one. It changes NOTHING about
+   feature gating — isPro / hasFeature() stay exactly as they were; this is
+   purely about what text gets shown. Every call site that used to hardcode
+   "Pro Active"/"PRO ACTIVE" must call this instead. */
+function rwStatusLabel(){
+  var trialUntil = parseInt(lsGet('rw_trial_until')||'0',10);
+  var trialActive = !!(trialUntil && trialUntil > Date.now());
+  var method = lsGet('rw_pro_method')||'';
+  var tierId = lsGet('rw_tier')||'';
+
+  if(trialActive){
+    var daysLeft = Math.max(1, Math.ceil((trialUntil-Date.now())/864e5));
+    return { code:'trial', text:'TRIAL · '+daysLeft+'d left',
+      sentence:'Your free founding-traveler trial is active — '+daysLeft+' day'+(daysLeft===1?'':'s')+' of Pro left' };
+  }
+  if(typeof isPro==='undefined' || !isPro){
+    return { code:'free', text:'FREE', sentence:'No active Pro entitlement — you’re on the Free plan' };
+  }
+  if(method==='partner'){
+    return { code:'partner', text:'PARTNER PASS',
+      sentence:'Your Partner Pass Pro is active — granted via a free partner/campaign code, not a purchase' };
+  }
+  if(tierId){
+    var t = (typeof RWPricing!=='undefined') ? RWPricing.tierById(tierId) : null;
+    var lbl = (t ? t.label : tierId).toUpperCase();
+    return { code:tierId, text:lbl, sentence:'Your '+lbl+' plan is active' };
+  }
+  /* isPro, but no rw_tier / partner method / active trial → legacy ₹100
+     lifetime founder-offer buyer, grandfathered to elite forever. */
+  return { code:'founder', text:'FOUNDER',
+    sentence:'Your lifetime Founder Pro (₹100 offer) is active' };
+}
+
 /* Country-code (ISO 3166-1 alpha-2) → continent, covering common countries.
    Used to compute a real "N/7 continents" stat instead of just counting
    distinct country strings (which never distinguished USA=North America
@@ -3731,7 +3771,8 @@ function refreshProUI(){
   isPro = lsGet('rwPro')==='1';
   var btn=el('proBtn'), bar=el('freeBar'), promo=el('promoBar');
   if(isPro){
-    if(btn){ btn.textContent='Pro Active'; btn.className='btn btn-pro active'; btn.onclick=function(){ showToast('Pro active on this device!'); }; }
+    var st=rwStatusLabel();
+    if(btn){ btn.textContent=st.text; btn.className='btn btn-pro active'; btn.onclick=function(){ showToast(st.sentence); }; }
     if(bar) bar.classList.add('hide');
     if(promo) promo.classList.add('hide');
   } else {
@@ -3853,7 +3894,7 @@ function renderForYou(){
        rows (Popular-now, Low-crowd) get first pick of the shared pool \u2014 so they
        claim their up-to-10 picks from the FULL pool first, and everything else
        becomes filler for the generic rows via the shared `used` map. */
-    var EASY_VISA_TYPES={'visa free':1,'free e-visa':1,'free visa on arrival':1,'eta online':1,'nzeta':1,'tourist card fmm':1};
+    var EASY_VISA_TYPES={'visa free':1,'free e-visa':1,'free visa on arrival':1,'eta':1,'eta online':1,'nzeta':1,'tourist card fmm':1};
     function isEasyVisaFor(d){
       if(!d || d.country==='India' || !d.visa || d.visa.type==='None') return false;
       var t=(d.visa.type||'').toLowerCase();
@@ -4451,7 +4492,7 @@ function reportSquad(id){
 
 /* ===== 60-SECOND AI KEY WIZARD ===== */
 var WIZ=[
- {p:'groq',n:'Groq (Llama 3.3 70B)',url:'https://console.groq.com/keys',why:'\u2705 No card ever \u00b7 fastest replies \u00b7 ~1,000 calls/day',ph:'gsk_\u2026',
+ {p:'groq',n:'Groq (auto-picks best model)',url:'https://console.groq.com/keys',why:'\u2705 No card ever \u00b7 fastest replies \u00b7 ~1,000 calls/day',ph:'gsk_\u2026',
   steps:['Sign up free (Google login works \u2014 no card asked)','Tap \u201cCreate API Key\u201d, give it any name','Copy it NOW \u2014 Groq shows it only once'],
   trouble:'Lost it? Just create another key \u2014 unlimited keys, still no card.'},
  {p:'cerebras',n:'Cerebras',url:'https://cloud.cerebras.ai',why:'\u2705 No card \u00b7 biggest daily volume (~1M tokens/day)',ph:'csk-\u2026',
@@ -7102,8 +7143,11 @@ function drawCard(L, name, tiles, heroPhoto){
     x.fillStyle='#8A8880'; x.font='400 11px Outfit,Arial';
     x.fillText(b2[1].toUpperCase(), bx+bw/2, sy+54);
   });
-  if(isPro){ x.fillStyle='#E8BA6C'; x.font='700 15px Outfit,Arial'; x.textAlign='center';
-    x.fillText('\ud83d\udc51 LIFETIME PRO MEMBER', W/2, sy-16); }
+  if(isPro){ var _cst=rwStatusLabel(); x.fillStyle='#E8BA6C'; x.font='700 15px Outfit,Arial'; x.textAlign='center';
+    /* Honest cert label: never claim "LIFETIME" for a trial or a free
+       partner-code grant \u2014 see rwStatusLabel(). */
+    var certTxt = _cst.code==='trial' ? ('\u23f3 '+_cst.text) : ('\ud83d\udc51 '+_cst.text+' MEMBER');
+    x.fillText(certTxt, W/2, sy-16); }
   /* ===== CERTIFICATE OF ACHIEVEMENT: seal + signature + date ===== */
   var dateStr=new Date().toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'});
   var certY=H-152;
@@ -7176,28 +7220,58 @@ function openPartnerRedeem(){
     if(!code){ showToast('Enter your code first'); return; }
     if(!user){ openLogin(); return; }
     if(!db){ showToast('Not connected — try again in a moment'); return; }
-    // Check if code exists in partnerClaims
-    var snap=await db.collection('partnerClaims').where('code','==',code).get().catch(function(){return null;});
-    if(!snap||snap.empty){ showToast('Code not found. Check it and try again, or email founder@roamwise.co.in'); return; }
-    var claim=snap.docs[0];
-    var data=claim.data();
-    // Check email matches (security: only the person who claimed can redeem)
+    /* partnerClaims' doc ID IS the code itself (rw-v115 hardening) — fetch by
+       known path with .doc(), not a `where('code','==',...)` query. Firestore
+       rules can only validate a specific doc by path (get()/exists()), never
+       an arbitrary query, so this is also what lets the rules confirm a code
+       is real and unredeemed before granting Pro below. */
+    var claimRef=db.collection('partnerClaims').doc(code);
+    var snap=await claimRef.get().catch(function(){return null;});
+    if(!snap||!snap.exists){ showToast('Code not found. Check it and try again, or email founder@roamwise.co.in'); return; }
+    var data=snap.data()||{};
+    // Soft UX check only — only the person who was emailed the code SHOULD
+    // redeem it, but the real security boundary against replay/reuse now
+    // lives in firestore.rules (one-time redemption via a batched write),
+    // not in this client-side email comparison.
     if(data.email && user.email && data.email.toLowerCase()!==user.email.toLowerCase()){
       showToast('This code was claimed with a different email. Sign in with '+data.email.split('@')[0]+'@…');
       return;
     }
     if(data.proRedeemed){ showToast('Code already redeemed — your Pro is active. Check your profile.'); return; }
-    // Grant Pro
+    // Claim codes are issued inside a time-boxed campaign window (e.g. the
+    // NMIMS 30-day claim window) and shouldn't be redeemable indefinitely
+    // after that — expiresAt is a Firestore Timestamp set at claim time
+    // (see nmims/index.html). Absent expiresAt (older claims predating this
+    // field) is treated as no expiry, same precedent as proRedeemed above.
+    if(data.expiresAt && typeof data.expiresAt.toMillis==='function' && data.expiresAt.toMillis()<Date.now()){
+      showToast('This code’s claim window has expired. Email founder@roamwise.co.in if you believe this is a mistake.');
+      return;
+    }
+    /* Grant Pro + flip the claim to redeemed in ONE atomic batch. A Firestore
+       batch commits all-or-nothing — that atomicity is what actually stops a
+       code being redeemed twice (see firestore.rules' matching comments on
+       users/{uid} and partnerClaims/{id}). The users/{uid} write must touch
+       ONLY pro/proAt/proMethod/proCode — that exact field set is what the
+       rules' partner-redeem exception checks for; anything else in this
+       write (e.g. the old proPartner/proAmount fields) would be rejected. */
     try{
-      await db.collection('users').doc(user.uid).set({
+      var batch=db.batch();
+      batch.set(db.collection('users').doc(user.uid), {
         pro:true, proAt:new Date().toISOString(),
-        proMethod:'partner', proPartner:data.partnership||'partner',
-        proAmount:0, proCode:code
+        proMethod:'partner', proCode:code
       },{merge:true});
-      await claim.ref.update({proRedeemed:true, redeemedAt:new Date().toISOString(), redeemedUid:user.uid});
-      showToast('\ud83c\udf89 Lifetime Pro activated! Welcome, '+esc2(data.name?data.name.split(' ')[0]:'friend')+'.');
+      batch.update(claimRef, {proRedeemed:true, redeemedAt:new Date().toISOString(), redeemedUid:user.uid});
+      await batch.commit();
+      showToast('\ud83c\udf89 Partner Pass activated! Welcome, '+esc2(data.name?data.name.split(' ')[0]:'friend')+'.');
       window._proUnlocked=true;
-      applyPro();
+      /* Reuse the SAME UI-refresh path a real Firestore pro:true write
+         triggers (the users/{uid} onSnapshot listener, ~line 9403, calls this
+         too) — there is no separate applyPro() anywhere in the app; calling
+         it here used to be a guaranteed crash (ReferenceError) that no UI
+         caller had ever exercised. Set rw_pro_method locally too (not just via
+         the snapshot round-trip) so rwStatusLabel() shows "PARTNER PASS", not
+         a paid-sounding badge, the instant this resolves. */
+      isPro=true; lsSet('rwPro','1'); lsSet('rw_pro_uid',user.uid); lsSet('rw_pro_method','partner'); refreshProUI();
     }catch(e){
       showToast('Redemption error: '+(e.message||'try again'));
     }
@@ -8107,8 +8181,18 @@ function loadPhotosForCard(d, ci){
 }
 
 /* OPTIONAL AI ENHANCEMENT */
+/* Static per-provider fallback chains. NOTE on groq: llama-3.3-70b-versatile
+   and llama-3.1-8b-instant were BOTH deprecated by Groq on 2026-08-16 for
+   free/developer-tier keys (still usable on enterprise committed-spend
+   plans, hence kept as a last-resort entry here) — a key that only ever
+   tried those two used to exhaust this list and surface a scary "model does
+   not exist" error even though the KEY itself was perfectly valid. The
+   current recommended replacements are the openai/gpt-oss models. This list
+   is only the fallback of last resort, though: testKey()/aiCall() prefer a
+   LIVE model list fetched from Groq's own /openai/v1/models endpoint with
+   the user's key when possible, since that's always current. */
 var AI_MODELS = {
-  groq: ['llama-3.3-70b-versatile','llama-3.1-8b-instant'],
+  groq: ['openai/gpt-oss-120b','openai/gpt-oss-20b','llama-3.3-70b-versatile'],
   cerebras: ['llama-3.3-70b','llama3.1-8b'],
   github: ['gpt-4o','Meta-Llama-3.1-70B-Instruct'],
   gemini: ['gemini-2.5-flash','gemini-flash-latest'],
@@ -8182,7 +8266,15 @@ function aiRequest(prov, key, model, prompt, maxTok, jsonMode){
 function aiCall(prompt, maxTok, cb, jsonMode){
   var prov=activeProv, key=lsGet('rwKey_'+prov);
   if(prov==='smart' || !key){ lastAiSource=null; cb(null,null); return; }
-  var models = AI_MODELS[prov]||[]; var i=0;
+  var models = AI_MODELS[prov]||[];
+  /* Groq: put whatever testKey() last discovered as a REAL working model for
+     THIS key (via Groq's live /models endpoint) first in line, ahead of the
+     static guesses — it's always at least as current as this hardcoded list. */
+  if(prov==='groq'){
+    var discovered = lsGet('rwKey_groq_model');
+    if(discovered && models.indexOf(discovered)===-1) models=[discovered].concat(models);
+  }
+  var i=0;
   function attempt(lastErr){
     if(i>=models.length){ lastAiSource=null; cb(lastErr||'All models failed', null); return; }
     var m=models[i++];
@@ -8227,22 +8319,61 @@ function aiCallAny(prompt, maxTok, cb, jsonMode){
 
 /* Key tester
  — used by the Test buttons in Settings */
-function testKey(prov){
-  var key=(el(prov+'Key').value||'').trim() || lsGet('rwKey_'+prov);
-  var st=el(prov+'Status');
-  if(!key){ st.textContent='no key'; st.className='key-status ks-empty'; return; }
-  st.textContent='testing…'; st.className='key-status ks-empty';
-  var models=AI_MODELS[prov], i=0;
+function testKeyFallbackChain(prov, key, st){
+  var models=AI_MODELS[prov]||[], i=0;
   (function tryM(lastErr){
     if(i>=models.length){ st.textContent='✗ '+String(lastErr).slice(0,60); st.className='key-status ks-bad'; showToast('Key failed: '+String(lastErr).slice(0,80)); return; }
     var m=models[i++];
     aiRequest(prov,key,m,'Reply with exactly: OK',10)
-      .then(function(){ st.textContent='✓ working ('+m+')'; st.className='key-status ks-ok'; showToast(prov+' key verified \u2713'); })
+      .then(function(){ st.textContent='✓ working ('+m+')'; st.className='key-status ks-ok'; showToast(prov+' key verified ✓'); if(prov==='groq') lsSet('rwKey_groq_model', m); })
       .catch(function(e){
         if(e.httpStatus===401||e.httpStatus===403){ st.textContent='✗ invalid key'; st.className='key-status ks-bad'; showToast('Key rejected — regenerate it and paste again'); }
         else tryM(e.message||e);
       });
   })(null);
+}
+function testKey(prov){
+  var key=(el(prov+'Key').value||'').trim() || lsGet('rwKey_'+prov);
+  var st=el(prov+'Status');
+  if(!key){ st.textContent='no key'; st.className='key-status ks-empty'; return; }
+  st.textContent='testing…'; st.className='key-status ks-empty';
+
+  /* GROQ: ask Groq itself which models this key can actually use right now,
+     via its OpenAI-compatible /models endpoint, instead of betting everything
+     on one hardcoded model string. This is what actually fixes "the model
+     `llama-3.1-8b-instant` does not exist" — that model (and
+     llama-3.3-70b-versatile) were both deprecated by Groq on 2026-08-16, so a
+     fixed test model can go stale again the same way; a live lookup can't. */
+  if(prov==='groq'){
+    fetch('https://api.groq.com/openai/v1/models', {headers:{'Authorization':'Bearer '+key}})
+      .then(function(r){ return r.json().then(function(d){ return {status:r.status, data:d}; }); })
+      .then(function(res){
+        if(res.status===401 || res.status===403){
+          st.textContent='✗ invalid key'; st.className='key-status ks-bad';
+          showToast('Key rejected — regenerate it and paste again');
+          return;
+        }
+        var ids=((res.data && res.data.data)||[]).map(function(m){ return m.id; }).filter(Boolean);
+        if(!ids.length){ testKeyFallbackChain(prov, key, st); return; }
+        /* Prefer a current flagship "versatile"/70B-class model if this key
+           can use one, else just take the first non-audio/non-guard model —
+           the user only cares that SOMETHING works, not the exact name. */
+        var pick = ids.filter(function(id){ return /gpt-oss-120b/i.test(id); })[0]
+                || ids.filter(function(id){ return /70b/i.test(id) && !/whisper|guard|tts/i.test(id); })[0]
+                || ids.filter(function(id){ return !/whisper|guard|tts|distil/i.test(id); })[0]
+                || ids[0];
+        lsSet('rwKey_groq_model', pick);
+        st.textContent='✓ working ('+pick+')'; st.className='key-status ks-ok';
+        showToast('groq key verified ✓');
+      })
+      .catch(function(){
+        /* Live list unreachable (network hiccup, CORS, etc.) — fall back to
+           the static chain rather than blocking the user. */
+        testKeyFallbackChain(prov, key, st);
+      });
+    return;
+  }
+  testKeyFallbackChain(prov, key, st);
 }
 
 /* MAIN SEARCH */
@@ -8323,6 +8454,7 @@ function runSearch(){
 
 /* RENDER RESULTS — built entirely with template literals */
 function renderCards(results, month, budUSD, origin, days, aiData, travelStyle, isGenericResult){
+  itinBuilt = {};
   var mi = MONTHS.indexOf(month);
   var provLabel = activeProv==='smart' ? 'Smart Search' : (lsGet('rwKey_'+activeProv) ? activeProv.charAt(0).toUpperCase()+activeProv.slice(1)+' AI' : 'Smart Search');
 
@@ -8852,7 +8984,7 @@ function openPay(){
     showToast('\ud83c\udf89 Pro is FREE for early adopters on this version \u2014 already active on your account!');
     return;
   }
-  if(isPro){ showToast('Pro is already active!'); return; }
+  if(isPro){ showToast(rwStatusLabel().sentence); return; }
   try{ rwRotateTesti(); }catch(e){}
   el('payOverlay').classList.add('open');
   document.body.style.overflow = 'hidden';
@@ -9125,7 +9257,7 @@ function secPanelHTML(){
 }
 
 var PROV_META = {
-  groq:     {label:'Groq \u00b7 Llama 3.3 70B', hint:'console.groq.com/keys \u2014 free, no card. Starts with gsk_', url:'https://console.groq.com/keys', ph:'gsk_...'},
+  groq:     {label:'Groq \u00b7 auto-picks best model', hint:'console.groq.com/keys \u2014 free, no card. Starts with gsk_', url:'https://console.groq.com/keys', ph:'gsk_...'},
   cerebras: {label:'Cerebras \u00b7 Llama 3.3 70B', hint:'cloud.cerebras.ai \u2014 free, no card, ~1M tokens/day', url:'https://cloud.cerebras.ai', ph:'csk-...'},
   github:   {label:'GitHub Models \u00b7 GPT-4o', hint:'github.com/settings/tokens \u2014 free with a GitHub account', url:'https://github.com/settings/tokens', ph:'ghp_...'},
   gemini:   {label:'Google Gemini 2.5 Flash', hint:'aistudio.google.com \u2014 free tier covers 2.5 Flash (Pro/Flash-Lite are paid)', url:'https://aistudio.google.com/apikey', ph:'AIzaSy...'},
@@ -9368,6 +9500,10 @@ if (AUTH_READY && typeof firebase !== 'undefined') try {
             if(count<1000){
               t.set(counterRef,{count:count+1},{merge:true});
               var trialUntil=Date.now()+7*24*3600*1000;
+              /* This grants a CLIENT-SIDE-ONLY trial — pro:true is never written here.
+                 Any UI that shows this status MUST render it via rwStatusLabel()
+                 (never a bare "Pro"/"PRO ACTIVE" string), so it's never mistaken for
+                 a real paid/granted account. */
               t.set(ref,{trialUntil:trialUntil,trialGranted:true},{merge:true});
               return {granted:true, num:count+1};
             } else {
@@ -9407,11 +9543,15 @@ if (AUTH_READY && typeof firebase !== 'undefined') try {
         var trialActive = !cloudPro && trialUntil && trialUntil > Date.now();
         var shouldBePro = cloudPro || provOK || trialActive;
         lsSet('rw_trial_until', trialActive? String(trialUntil) : '');
+        /* Mirror Firestore's proMethod locally so rwStatusLabel() can tell a
+           free partner/campaign-code grant (proMethod:'partner') apart from a
+           real cash purchase or legacy founder grant. */
+        lsSet('rw_pro_method', (cloudPro && d.data().proMethod) || '');
         if(cloudPro){ lsSet('rw_pro_temp',''); lsSet('rw_pro_temp_uid',''); }
         if(shouldBePro){
           if(!isPro){ isPro=true; lsSet('rwPro','1'); lsSet('rw_pro_uid',u.uid); refreshProUI();
-            if(cloudPro){ showToast('Pro active on your account \u2713'); closePay(); }
-            else if(trialActive){ var daysLeft=Math.ceil((trialUntil-Date.now())/864e5); showToast('\u23f3 Free trial active \u2014 '+daysLeft+' day'+(daysLeft===1?'':'s')+' of Pro left'); } }
+            if(cloudPro){ showToast(rwStatusLabel().sentence+' \u2713'); closePay(); }
+            else if(trialActive){ showToast('\u23f3 '+rwStatusLabel().sentence); } }
           isPro=true; lsSet('rw_pro_uid',u.uid); refreshProUI();
         } else {
           /* this account has NO pro \u2192 force-off regardless of any stale local flag */
@@ -10240,7 +10380,7 @@ function applyRegionUI(){
   var p = r==='in'?PRICE_IN:PRICE_WW;
   var hb = el('heroProBtn'); if(hb) hb.innerHTML = 'Unlock Pro \u2014 '+p;
   var pa = el('promoAmt'); if(pa) pa.textContent = p;
-  var dl = el('drProLbl'); if(dl) dl.textContent = isPro ? 'Pro active \u2713' : ('Unlock Pro \u2014 '+p);
+  var dl = el('drProLbl'); if(dl) dl.textContent = isPro ? (rwStatusLabel().text+' \u2713') : ('Unlock Pro \u2014 '+p);
   setPayRegion(r);
 }
 /* saveGumroad removed — Gumroad link/ID now arrive via remote config (admin Config tab). */
