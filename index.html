@@ -10,11 +10,11 @@
 <meta name="keywords" content="AI travel planner, trip itinerary generator, travel budget calculator, avoid crowds travel, offbeat destinations">
 <meta property="og:type" content="website">
 <meta property="og:title" content="RoamWise Pro — AI Travel Planner">
-<meta property="og:description" content="Escape the crowds. AI itineraries, budgets & crowd heatmaps for 195+ destinations. Pay once, yours forever.">
+<meta property="og:description" content="Escape the crowds. AI itineraries, budgets & crowd heatmaps for 195+ countries. Pay once, yours forever.">
 <meta property="og:url" content="https://www.roamwise.co.in">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="RoamWise Pro — AI Travel Planner">
-<meta name="twitter:description" content="AI itineraries, budgets & crowd heatmaps for 195+ destinations. One-time unlock, lifetime access.">
+<meta name="twitter:description" content="AI itineraries, budgets & crowd heatmaps for 195+ countries. One-time unlock, lifetime access.">
 <!-- ===== BRAND ENTITY SIGNALS =====
      Google decides "which RoamWise did they mean" from structured data and
      entity consistency, not from keyword density. roamwise.app is a live and
@@ -242,17 +242,6 @@ body.shell{padding-bottom:calc(104px + env(safe-area-inset-bottom))}
   .chat-tool{font-size:13.5px;min-height:44px}
 }
 .chat-tool:hover,.chat-tool:active{border-color:var(--gold,#E8BA6C);color:var(--gold,#E8BA6C)}
-#rwCreatorBanner{background:linear-gradient(90deg,#0d0a00,#1a1000,#0d0a00);border-bottom:1px solid rgba(232,186,108,.25);padding:10px 34px 10px 14px;text-align:center;position:relative;overflow:hidden}
-#rwCreatorBanner::before{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(232,186,108,.07),transparent);animation:rwcbSweep 3s ease-in-out infinite}
-@keyframes rwcbSweep{0%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
-.rwcb-row{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;position:relative;max-width:1040px;margin:0 auto}
-.rwcb-dot{width:8px;height:8px;border-radius:50%;background:var(--gold2,#E8BA6C);animation:rwcbBlink 1.4s ease-in-out infinite;flex-shrink:0}
-@keyframes rwcbBlink{0%,100%{opacity:1;box-shadow:0 0 6px var(--gold2,#E8BA6C)}50%{opacity:.3;box-shadow:none}}
-.rwcb-txt{font-family:'Outfit',sans-serif;font-size:12.5px;font-weight:600;letter-spacing:.02em;color:var(--t1,#EDE8DF)}
-.rwcb-txt em{color:var(--gold,#C8913E);font-style:normal}
-.rwcb-txt a{color:var(--gold2,#E8BA6C);font-weight:800;text-decoration:none;border-bottom:1px solid rgba(232,186,108,.5);margin-left:4px;white-space:nowrap}
-.rwcb-close{position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--t2,#8A8680);font-size:19px;line-height:1;cursor:pointer;padding:4px 8px}
-.rwcb-close:hover{color:var(--gold2,#E8BA6C)}
 </style>
 <style id="rwScale">
 /* ===== Native-app scale — bigger, thumb-friendly on mobile & tablet ===== */
@@ -371,27 +360,17 @@ html{-webkit-text-size-adjust:100%}
   </div>
 </nav>
 
-<div id="rwCreatorBanner" style="display:none">
-  <div class="rwcb-row">
-    <div class="rwcb-dot"></div>
-    <div class="rwcb-txt"><em>Travel creators &amp; influencers</em> &middot; Upload your itineraries, travel videos/reels &amp; blog posts &middot; Show off <em>Ailon Tusk</em>, <em>Trip Chat</em> &amp; trip ratings to your audience &middot; Earn <em>25&ndash;30%</em> referral commission (lifetime Pro for top creators) <a href="/creators/index.html">Apply free &rarr;</a></div>
+<div id="influBanner" style="background:linear-gradient(90deg,rgba(155,89,245,.14),rgba(232,186,108,.10));border-bottom:1px solid rgba(232,186,108,.22);padding:9px 14px;overflow:hidden;position:relative">
+  <div style="max-width:960px;margin:0 auto;display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:12px">
+    <span style="font-size:16px;flex-shrink:0">🎬</span>
+    <span style="flex:1;min-width:200px;color:var(--t1);line-height:1.5">
+      <b style="color:var(--gold2)">Travel creator?</b> Post your itineraries, reels &amp; trip reviews on RoamWise — use Ailon Tusk, trip chat &amp; ratings, then <b style="color:var(--gold2)">earn up to 30% commission</b> on every Pro sign-up from your audience.
+    </span>
+    <a href="https://roamwise.co.in/creators/" onclick="event.preventDefault();rwOpenSite('creators/')" style="flex-shrink:0;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#07090F;font-weight:800;font-size:11.5px;padding:7px 14px;border-radius:20px;text-decoration:none;white-space:nowrap">Join as Creator →</a>
+    <button onclick="document.getElementById('influBanner').style.display='none';try{lsSet('rw_influ_dismiss','1')}catch(e){}" style="background:none;border:none;color:var(--t3);font-size:16px;cursor:pointer;padding:2px 4px;flex-shrink:0" aria-label="Dismiss">✕</button>
   </div>
-  <button class="rwcb-close" onclick="rwDismissCreatorBanner()" aria-label="Dismiss">&times;</button>
 </div>
-<script>
-(function(){
-  try{
-    if(localStorage.getItem('rw_creatorBannerDismissed')==='1') return;
-    var b=document.getElementById('rwCreatorBanner');
-    if(b) b.style.display='block';
-  }catch(e){}
-})();
-function rwDismissCreatorBanner(){
-  try{ localStorage.setItem('rw_creatorBannerDismissed','1'); }catch(e){}
-  var b=document.getElementById('rwCreatorBanner');
-  if(b) b.style.display='none';
-}
-</script>
+<script>try{ if(lsGet('rw_influ_dismiss')){ var _ib=document.getElementById('influBanner'); if(_ib) _ib.style.display='none'; } }catch(e){}</script>
 
 <div class="free-bar" id="freeBar">
   <span>Free searches today: <strong id="freeCount">5</strong> left</span>
@@ -756,12 +735,13 @@ function rwDismissCreatorBanner(){
   <div class="foot-inner">
     <div>
       <div class="foot-brand"><div class="logo-icon">RW</div><span class="logo-text">Roam<span>Wise</span> Pro</span></div>
-      <p class="foot-tag">The one-payment travel planner. Built in the Himalayas &#127956;&#65039; for travelers everywhere &mdash; itineraries, budgets and crowd-free routes for 195+ destinations.</p>
+      <p class="foot-tag">The one-payment travel planner. Built in the Himalayas &#127956;&#65039; for travelers everywhere &mdash; itineraries, budgets and crowd-free routes for 195+ countries.</p>
     </div>
     <div>
       <div class="foot-h">Product</div>
       <a class="foot-link" href="#app" onclick="event.preventDefault();tabGo('plan');scrollTo(0,document.getElementById('app').offsetTop-10)">Plan a trip</a>
       <a class="foot-link" onclick="openPay()">Unlock Pro</a>
+      <a class="foot-link" href="https://www.roamwise.co.in/tools/" target="_blank" rel="noopener">Free Tools</a>
       <a class="foot-link" onclick="openSettings()">Settings &amp; AI keys</a>
       <a class="foot-link" href="https://www.roamwise.co.in/blog/" target="_blank">Blog</a>
     </div>
@@ -796,13 +776,15 @@ function rwDismissCreatorBanner(){
   <div class="dr-search"><input id="drSearch" placeholder="Search the menu…" oninput="drFilter(this.value)" autocomplete="off"><span class="dr-search-ic">🔍</span></div>
   <div class="dr-grp open"><button class="dr-gh" onclick="drToggle(this)">🧭 Travel<span class="chev">›</span></button><div class="dr-gb">
   <a class="dr-link" onclick="closeDrawer();tabGo('plan')"><span class="ic">✈️</span>Plan a trip</a>
+<a class="dr-link" href="https://www.roamwise.co.in/tools/" target="_blank" rel="noopener"><span class="ic">🧰</span>Free Tools</a>
+<a class="dr-link" href="https://www.roamwise.co.in/home.html"><span class="ic">📰</span>Guides &amp; Blog (articles)</a>
   <a class="dr-link" onclick="closeDrawer();cpFocusHero()"><span class="ic">🧭</span>Copilot chat</a>
   <a class="dr-link" onclick="closeDrawer();openMapExplorer()"><span class="ic">🗺️</span>Live world map</a>
   <a class="dr-link" onclick="closeDrawer();openGroupPlanner()"><span class="ic">🤝</span>Group planner</a>
   <a class="dr-link" onclick="closeDrawer();openGroupChat()"><span class="ic">💬</span>Group chat</a>
   <a class="dr-link" onclick="closeDrawer();tabGo('film')"><span class="ic">🎬</span>The Film</a>
-  <a class="dr-link" href="https://roamwise.co.in/creators/" onclick="event.preventDefault();rwOpenSite('creators/')" rel="noopener"><span class="ic">🤝</span>Creator collabs</a>
-  <a class="dr-link" href="https://roamwise.co.in/partnership/" onclick="event.preventDefault();rwOpenSite('partnership/')" rel="noopener"><span class="ic">🚀</span>Partnerships</a>
+  <a class="dr-link" href="https://roamwise.co.in/partners/" onclick="event.preventDefault();rwOpenSite('partners/')" rel="noopener"><span class="ic">🤝</span>Partner with us</a>
+<a class="dr-link" onclick="closeDrawer();openPartnerRedeem()"><span class="ic">🎓</span>Redeem a partner code</a>
   <a class="dr-link" onclick="closeDrawer();tabGo('store')"><span class="ic">🛍️</span>Store</a>
   <a class="dr-link" onclick="closeDrawer();tabGo('extras')"><span class="ic">⭐</span>Ratings &amp; traveler wall</a>
   <a class="dr-link" onclick="closeDrawer();openVault()"><span class="ic">✈️</span>My Trips (offline)</a>
@@ -1100,11 +1082,6 @@ function rwDismissCreatorBanner(){
         <div id="tabPickWrap"></div>
         <div id="keyBoxes"></div>
 
-      </div>
-
-      <div class="key-section">
-        <div class="key-sec-title">Redeem Code <small style="font-size:10px;font-weight:400;color:var(--t3);text-transform:none;letter-spacing:0">&mdash; got a partner claim code (e.g. NMIMS-A1B2C3)?</small></div>
-        <button class="rzp-main-btn" style="width:100%" onclick="openPartnerRedeem()">&#127891; Redeem a partner code</button>
       </div>
 
       <!-- Owner setup moved to the Admin console (Config tab) — nothing here for users to fill. -->

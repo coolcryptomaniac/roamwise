@@ -325,8 +325,8 @@ var DB = [
   {id:"chiang_mai",name:"Chiang Mai",country:"Thailand",region:"Southeast Asia",lat:18.79,lon:98.99,
    crowd:[45,50,55,40,28,22,25,28,22,32,55,68],
    cost:{budget:550,mid:950,luxury:2200},brk:{flights:280,stay:160,food:90,act:70,misc:50},
-   visa:{type:"Free e-Visa",cost:"Free for Indians",days:30,note:"Apply at thaievisa.go.th before travel"},
-   bestM:[10,11,12],interests:["culture","temples","food","nature","trekking","wellness","photography"],
+   visa:{type:"Free e-Visa",cost:"Free for Indians",days:30,note:"Apply at thaievisa.go.th before travel"},visaEase:"easy",
+   bestM:[9,10,11],interests:["culture","temples","food","nature","trekking","wellness","photography"],
    food:["Khao Soi","Pad Thai","Mango Sticky Rice","Som Tam","Larb"],
    gems:["Doi Inthanon National Park","Elephant Nature Park","Sunday Walking Street Wualai","Wat Umong"],
    tags:["budget","nature","culture","food","solo","couple","digital_nomad"],
@@ -337,8 +337,8 @@ var DB = [
   {id:"bali_ubud",name:"Ubud",country:"Indonesia",region:"Southeast Asia",lat:-8.51,lon:115.26,
    crowd:[55,60,58,50,35,30,75,78,40,45,55,62],
    cost:{budget:600,mid:1100,luxury:2500},brk:{flights:320,stay:200,food:100,act:80,misc:50},
-   visa:{type:"Free Visa on Arrival",cost:"Free 30 days",days:30,note:"Extended to 60 days for free — check Imigrasi Indonesia"},
-   bestM:[5,6,9,10],interests:["culture","wellness","photography","nature","food","art","temples"],
+   visa:{type:"Free Visa on Arrival",cost:"Free 30 days",days:30,note:"Extended to 60 days for free — check Imigrasi Indonesia"},visaEase:"easy",
+   bestM:[4,5,8,9],interests:["culture","wellness","photography","nature","food","art","temples"],
    food:["Nasi Goreng","Babi Guling","Bebek Betutu","Gado Gado","Ayam Betutu"],
    gems:["Tegallalang Rice Terraces","Campuhan Ridge Walk","Tirta Empul Temple","Pura Taman Saraswati"],
    tags:["wellness","culture","photography","couple","luxury"],
@@ -349,8 +349,8 @@ var DB = [
   {id:"hoi_an",name:"Hoi An",country:"Vietnam",region:"Southeast Asia",lat:15.88,lon:108.33,
    crowd:[60,65,58,50,35,28,32,38,30,45,58,65],
    cost:{budget:450,mid:800,luxury:1800},brk:{flights:260,stay:130,food:70,act:60,misc:40},
-   visa:{type:"E-Visa",cost:"$25 USD",days:90,note:"Apply at evisa.xuatnhapcanh.gov.vn — single entry 90 days"},
-   bestM:[2,3,4,10,11,12],interests:["history","culture","food","photography","beaches","cycling","tailoring"],
+   visa:{type:"E-Visa",cost:"$25 USD",days:90,note:"Apply at evisa.xuatnhapcanh.gov.vn — single entry 90 days"},visaEase:"easy",
+   bestM:[1,2,3,9,10,11],interests:["history","culture","food","photography","beaches","cycling","tailoring"],
    food:["Cao Lau","White Rose Dumplings","Banh Mi","Mi Quang","Com Ga"],
    gems:["An Bang Beach","My Son Sanctuary","Tra Que Herb Village","Marble Mountains Da Nang","Cham Island snorkeling"],
    tags:["budget","history","food","solo","couple","photography"],
@@ -361,8 +361,8 @@ var DB = [
   {id:"kyoto",name:"Kyoto",country:"Japan",region:"East Asia",lat:35.01,lon:135.77,
    crowd:[50,55,88,85,65,55,65,68,55,90,82,70],
    cost:{budget:1200,mid:2000,luxury:4000},brk:{flights:550,stay:400,food:280,act:200,misc:120},
-   visa:{type:"E-Visa Required",cost:"Free (processing fee varies)",days:90,note:"Apply at Indian Consulate — takes 5-7 business days"},
-   bestM:[1,2,6,7,9],interests:["culture","temples","history","photography","food","nature","art"],
+   visa:{type:"E-Visa Required",cost:"Free (processing fee varies)",days:90,note:"Apply at Indian Consulate — takes 5-7 business days"},visaEase:"medium",
+   bestM:[12,1,5,6,8],interests:["culture","temples","history","photography","food","nature","art"],
    food:["Kaiseki","Yudofu","Matcha sweets","Kyoto-style ramen","Tofu dishes"],
    gems:["Fushimi Inari at 5am","Arashiyama bamboo grove at dawn","Philosopher's Path in autumn","Nishiki Market","Kurama Onsen"],
    tags:["culture","history","photography","couple","luxury"],
@@ -373,8 +373,8 @@ var DB = [
   {id:"marrakech",name:"Marrakech",country:"Morocco",region:"North Africa",lat:31.63,lon:-7.99,
    crowd:[40,45,55,65,50,38,35,40,50,55,42,45],
    cost:{budget:700,mid:1200,luxury:2800},brk:{flights:380,stay:200,food:100,act:120,misc:80},
-   visa:{type:"Visa Free",cost:"Free",days:90,note:"Indian passport holders get 90 days visa-free — NO visa needed!"},
-   bestM:[3,4,10,11,1,2],interests:["culture","history","food","souks","photography","architecture","desert"],
+   visa:{type:"Visa Free",cost:"Free",days:90,note:"Indian passport holders get 90 days visa-free — NO visa needed!"},visaEase:"easy",
+   bestM:[2,3,9,10,12,1],interests:["culture","history","food","souks","photography","architecture","desert"],
    food:["Tagine","Couscous","Pastilla","Harira soup","Msemen","Mint tea"],
    gems:["Erg Chebbi Desert at sunset","Chefchaouen Blue City","Ourika Valley","Madrasa Ben Youssef","El Badi Palace ruins"],
    tags:["culture","food","photography","couple","solo","adventure"],
@@ -385,8 +385,8 @@ var DB = [
   {id:"tbilisi",name:"Tbilisi",country:"Georgia",region:"Caucasus",lat:41.69,lon:44.83,
    crowd:[20,22,30,45,55,60,65,65,55,45,28,22],
    cost:{budget:600,mid:1000,luxury:2200},brk:{flights:350,stay:160,food:80,act:60,misc:40},
-   visa:{type:"Visa Free",cost:"Free",days:365,note:"Indians get 365 days visa-free in Georgia — one year stay allowed!"},
-   bestM:[4,5,6,9,10],interests:["culture","wine","history","trekking","food","architecture","nightlife"],
+   visa:{type:"Visa Free",cost:"Free",days:365,note:"Indians get 365 days visa-free in Georgia — one year stay allowed!"},visaEase:"easy",
+   bestM:[3,4,5,8,9],interests:["culture","wine","history","trekking","food","architecture","nightlife"],
    food:["Khinkali","Khachapuri","Mtsvadi","Lobiani","Georgian wine and chacha"],
    gems:["Kazbegi National Park Gergeti Trinity Church","Vardzia Cave Monastery","Sighnaghi Wine Town","Svaneti region","Mtskheta ancient capital"],
    tags:["budget","culture","wine","solo","couple","digital_nomad"],
@@ -397,8 +397,8 @@ var DB = [
   {id:"cappadocia",name:"Cappadocia",country:"Turkey",region:"Western Asia",lat:38.67,lon:34.85,
    crowd:[35,38,55,70,60,55,65,68,62,55,40,35],
    cost:{budget:850,mid:1500,luxury:3200},brk:{flights:400,stay:280,food:120,act:180,misc:80},
-   visa:{type:"E-Visa",cost:"$51 USD",days:90,note:"Apply at evisa.gov.tr — instant approval, valid 180 days"},
-   bestM:[4,5,9,10],interests:["photography","ballooning","history","caves","hiking","culture","wine"],
+   visa:{type:"E-Visa",cost:"$51 USD",days:90,note:"Apply at evisa.gov.tr — instant approval, valid 180 days"},visaEase:"easy",
+   bestM:[3,4,8,9],interests:["photography","ballooning","history","caves","hiking","culture","wine"],
    food:["Testi Kebab","Manti Turkish dumplings","Baklava","Turkish breakfast","Gözleme"],
    gems:["Hot air balloon at sunrise","Ihlara Valley gorge hike","Underground city Derinkuyu","Rose Valley sunset hike","Local wine tasting Urgup"],
    tags:["photography","couple","luxury","culture","adventure"],
@@ -409,8 +409,8 @@ var DB = [
   {id:"porto",name:"Porto",country:"Portugal",region:"Southern Europe",lat:41.15,lon:-8.61,
    crowd:[28,30,40,55,65,75,88,85,65,50,32,28],
    cost:{budget:1100,mid:1800,luxury:3500},brk:{flights:580,stay:280,food:140,act:120,misc:80},
-   visa:{type:"Schengen Visa",cost:"~€80",days:90,note:"Apply at Portuguese Embassy or VFS Global India — 90 days in 180"},
-   bestM:[4,5,9,10,1,2],interests:["food","wine","history","architecture","culture","photography","beaches"],
+   visa:{type:"Schengen Visa",cost:"~€80",days:90,note:"Apply at Portuguese Embassy or VFS Global India — 90 days in 180"},visaEase:"hard",
+   bestM:[3,4,8,9,12,1],interests:["food","wine","history","architecture","culture","photography","beaches"],
    food:["Francesinha","Bacalhau","Pastel de nata","Porto wine","Tripas à moda do Porto"],
    gems:["Douro Valley wine country day trip","Livraria Lello bookshop","Fado music in Alfama","Sintra day trip from Lisbon","Costa Nova striped houses"],
    tags:["culture","food","wine","couple","history","photography"],
@@ -421,8 +421,8 @@ var DB = [
   {id:"prague",name:"Prague",country:"Czech Republic",region:"Central Europe",lat:50.08,lon:14.44,
    crowd:[30,32,45,62,70,78,88,85,68,55,35,30],
    cost:{budget:1000,mid:1700,luxury:3500},brk:{flights:550,stay:260,food:130,act:110,misc:70},
-   visa:{type:"Schengen Visa",cost:"~€80",days:90,note:"Czech Republic is in Schengen — apply at Embassy in India"},
-   bestM:[4,5,10,11,1,2],interests:["history","architecture","food","beer","culture","photography","Christmas markets"],
+   visa:{type:"Schengen Visa",cost:"~€80",days:90,note:"Czech Republic is in Schengen — apply at Embassy in India"},visaEase:"hard",
+   bestM:[3,4,9,10,12,1],interests:["history","architecture","food","beer","culture","photography","Christmas markets"],
    food:["Svíčková beef","Trdelník","Czech goulash","Pilsner beer","Smažený sýr"],
    gems:["Prague Castle at dawn","Charles Bridge before 7am","Český Krumlov day trip","Josefov Jewish Quarter","Vinohrady local neighborhood"],
    tags:["culture","history","beer","couple","budget","photography"],
@@ -433,8 +433,8 @@ var DB = [
   {id:"cusco",name:"Cusco",country:"Peru",region:"South America",lat:-13.52,lon:-71.97,
    crowd:[45,40,35,38,55,50,65,62,45,48,50,52],
    cost:{budget:800,mid:1400,luxury:2800},brk:{flights:650,stay:180,food:80,act:200,misc:90},
-   visa:{type:"Visa Free",cost:"Free",days:183,note:"Indian passport holders get 183 days visa-free in Peru!"},
-   bestM:[6,7,8,9],interests:["history","trekking","adventure","culture","photography","ruins","nature"],
+   visa:{type:"Visa Free",cost:"Free",days:183,note:"Indian passport holders get 183 days visa-free in Peru!"},visaEase:"easy",
+   bestM:[5,6,7,8],interests:["history","trekking","adventure","culture","photography","ruins","nature"],
    food:["Ceviche","Lomo Saltado","Cuy roasted guinea pig","Chicha morada","Quinoa soup"],
    gems:["Machu Picchu at sunrise","Rainbow Mountain","Huacachina desert oasis","Lake Titicaca","Sacred Valley Pisac market"],
    tags:["adventure","history","trekking","solo","photography"],
@@ -445,8 +445,8 @@ var DB = [
   {id:"medellin",name:"Medellín",country:"Colombia",region:"South America",lat:6.25,lon:-75.56,
    crowd:[38,40,45,52,42,38,40,38,42,48,40,38],
    cost:{budget:700,mid:1200,luxury:2400},brk:{flights:600,stay:150,food:70,act:80,misc:50},
-   visa:{type:"Visa Free",cost:"Free",days:90,note:"Colombian tourist card issued on arrival — 90 days free"},
-   bestM:[1,2,3,8,9,10],interests:["culture","food","nightlife","nature","coffee","paragliding","art"],
+   visa:{type:"Visa Free",cost:"Free",days:90,note:"Colombian tourist card issued on arrival — 90 days free"},visaEase:"easy",
+   bestM:[12,1,2,7,8,9],interests:["culture","food","nightlife","nature","coffee","paragliding","art"],
    food:["Bandeja Paisa","Arepas","Sancocho","Colombian coffee","Empanadas","Horchata"],
    gems:["Pablo Escobar tours (controversial)","Guatapé rock El Peñol","Coffee region Salento","Parque Arví cable car","El Poblado neighborhood"],
    tags:["culture","food","nightlife","solo","digital_nomad","couple"],
@@ -457,8 +457,8 @@ var DB = [
   {id:"petra",name:"Petra",country:"Jordan",region:"Middle East",lat:30.33,lon:35.44,
    crowd:[30,35,50,55,48,38,35,38,45,52,35,28],
    cost:{budget:1100,mid:1800,luxury:3500},brk:{flights:500,stay:250,food:130,act:180,misc:80},
-   visa:{type:"Jordan Pass",cost:"$70 JOD (includes entry to Petra)",days:14,note:"Jordan Pass covers visa + Petra entry — buy at jordanpass.jo"},
-   bestM:[3,4,10,11,1,2],interests:["history","archaeology","desert","hiking","photography","culture","adventure"],
+   visa:{type:"Jordan Pass",cost:"$70 JOD (includes entry to Petra)",days:14,note:"Jordan Pass covers visa + Petra entry — buy at jordanpass.jo"},visaEase:"easy",
+   bestM:[2,3,9,10,12,1],interests:["history","archaeology","desert","hiking","photography","culture","adventure"],
    food:["Mansaf","Maqluba","Falafel and hummus","Knafeh","Bedouin tea"],
    gems:["Petra by Night candles ceremony","Little Petra","Wadi Rum desert camping","Dead Sea float","Jerash Roman ruins"],
    tags:["history","photography","couple","culture","adventure"],
@@ -469,8 +469,8 @@ var DB = [
   {id:"kandy",name:"Kandy",country:"Sri Lanka",region:"South Asia",lat:7.29,lon:80.63,
    crowd:[35,38,55,45,30,25,30,28,30,45,52,40],
    cost:{budget:500,mid:900,luxury:2000},brk:{flights:220,stay:150,food:80,act:60,misc:40},
-   visa:{type:"ETA Online",cost:"$20-50 USD",days:30,note:"Apply at eta.gov.lk — instant approval"},
-   bestM:[1,2,7,8,9,10],interests:["culture","tea","temples","wildlife","beaches","nature","trekking"],
+   visa:{type:"ETA Online",cost:"$20-50 USD",days:30,note:"Apply at eta.gov.lk — instant approval"},visaEase:"easy",
+   bestM:[12,1,6,7,8,9],interests:["culture","tea","temples","wildlife","beaches","nature","trekking"],
    food:["Rice and curry","Kottu roti","Hoppers","String hoppers","Pol sambol","Ceylon tea"],
    gems:["Temple of the Tooth Relic ceremony","Sinharaja rainforest","Ella nine arch bridge","Yala wildlife safari","Mirissa whale watching"],
    tags:["budget","culture","nature","food","solo","couple"],
@@ -481,8 +481,8 @@ var DB = [
   {id:"queenstown",name:"Queenstown",country:"New Zealand",region:"Oceania",lat:-45.03,lon:168.66,
    crowd:[62,58,50,40,35,30,32,38,45,52,55,62],
    cost:{budget:2200,mid:3500,luxury:6000},brk:{flights:1100,stay:600,food:280,act:400,misc:150},
-   visa:{type:"NZeTA",cost:"NZD 17 online",days:90,note:"Apply at immigration.govt.nz — New Zealand ETA for Indians"},
-   bestM:[6,7,8,9],interests:["adventure","skiing","bungee","nature","photography","wine","hiking"],
+   visa:{type:"NZeTA",cost:"NZD 17 online",days:90,note:"Apply at immigration.govt.nz — New Zealand ETA for Indians"},visaEase:"medium",
+   bestM:[5,6,7,8],interests:["adventure","skiing","bungee","nature","photography","wine","hiking"],
    food:["Hāngi Maori feast","Whitebait fritters","Green-lipped mussels","Hokey pokey ice cream","Pinot Noir Central Otago"],
    gems:["Milford Sound cruise","Routeburn Track hike","Fiordland National Park","Glenorchy Lord of the Rings","Cardrona ski resort"],
    tags:["adventure","nature","luxury","couple","skiing","photography"],
@@ -493,119 +493,14 @@ var DB = [
   {id:"oaxaca",name:"Oaxaca",country:"Mexico",region:"North America",lat:17.07,lon:-96.72,
    crowd:[40,38,45,55,50,42,60,55,42,45,35,42],
    cost:{budget:700,mid:1200,luxury:2500},brk:{flights:680,stay:150,food:80,act:80,misc:50},
-   visa:{type:"Tourist Card FMM",cost:"Free",days:180,note:"Free tourist card on arrival — no pre-visa needed for Indians!"},
-   bestM:[10,11,1,2,3],interests:["food","culture","art","mezcal","history","archaeology","textiles"],
+   visa:{type:"Tourist Card FMM",cost:"Free",days:180,note:"Free tourist card on arrival — no pre-visa needed for Indians!"},visaEase:"medium",
+   bestM:[9,10,12,1,2],interests:["food","culture","art","mezcal","history","archaeology","textiles"],
    food:["Mole negro sauce","Tlayuda","Chapulines grasshoppers","Memelas","Mezcal","Tasajo"],
    gems:["Day of the Dead Dia de Muertos festival","Monte Albán Zapotec ruins","Hierve el Agua petrified waterfalls","Tule Tree","Etla Valley markets"],
    tags:["food","culture","solo","photography","art"],
    cur:"MXN",sym:"$",rate:17,local:{meal:"60-150 MXN",restaurant:"200-500 MXN",hotel:"600-1800 MXN",colectivo:"15 MXN",mezcal:"80-150 MXN"},
    photos:["oaxaca mexico monte alban ruins sunset","day of dead oaxaca mexico calavera","oaxaca colorful streets buildings","hierve agua petrified waterfalls oaxaca","oaxaca mole negro food market"],
-   yt:"Oaxaca Mexico travel guide food culture",wiki:"Oaxaca_City",flag:"MX"},
-
-/* ---------------------------------------------------------------------------
-   EASY-VISA + MONSOON-COVERAGE expansion (rw-v129). The "Easy visa for Indians"
-   row was starving because most international entries carry visas that are
-   genuinely NOT low-friction (Schengen, Jordan Pass, multi-day e-Visas), and
-   "In season" was thin for Jun-Aug because almost every existing international
-   pick peaks in the Northern winter/spring. These eight are all destinations
-   Indian passport holders can enter with little to no visa friction, and most
-   of them are genuinely at their best during the monsoon months back home.
---------------------------------------------------------------------------- */
-  {id:"pokhara",name:"Pokhara",country:"Nepal",region:"South Asia",lat:28.21,lon:83.99,
-   crowd:[45,50,65,70,45,20,15,15,35,90,95,55],
-   cost:{budget:450,mid:800,luxury:1800},brk:{flights:150,stay:220,food:120,act:150,misc:80},
-   visa:{type:"Visa Free",cost:"Free — no visa needed",days:0,note:"India-Nepal open border treaty: Indian nationals need no visa. For India-Nepal air travel specifically, carry a valid Indian passport OR an original Indian Voter ID — Aadhaar, PAN card and driving licence are NOT accepted."},
-   bestM:[10,11,3,4],interests:["trekking","mountains","lakes","paragliding","adventure"],
-   food:["Dal bhat","Newari khaja set","Momos","Sel roti","Gundruk soup"],
-   gems:["Sarangkot sunrise over the Annapurnas","World Peace Pagoda across Phewa Lake","Begnas Lake away from the tourist crowds","Mahendra Cave"],
-   tags:["mountain","adventure","budget"],
-   cur:"NPR",sym:"Rs",rate:133,local:{meal:"150-300 Rs",restaurant:"400-900 Rs",hotel:"800-2500 Rs",taxi:"200-400 Rs",sim:"300 Rs"},
-   photos:["pokhara phewa lake annapurna reflection","nepal pokhara paragliding sarangkot","annapurna base camp trek nepal","pokhara world peace pagoda sunset","nepal himalaya mountain range clear sky"],
-   yt:"Pokhara Nepal travel guide",wiki:"Pokhara",flag:"NP"},
-
-  {id:"paro_bhutan",name:"Paro",country:"Bhutan",region:"South Asia",lat:27.43,lon:89.42,
-   crowd:[25,30,55,70,50,20,15,15,45,75,60,30],
-   cost:{budget:2200,mid:3800,luxury:7000},brk:{flights:300,stay:900,food:300,act:500,misc:200},
-   visa:{type:"Permit on Arrival",cost:"No visa fee — Sustainable Development Fee ~₹1,200/day for Indians",days:0,note:"Indian nationals need no visa, just an online entry permit issued within a day, plus a daily Sustainable Development Fee that is far lower than the fee other nationalities pay."},
-   bestM:[3,4,5,9,10],interests:["monasteries","mountains","trekking","culture","festivals"],
-   food:["Ema datshi","Red rice","Momos","Suja butter tea","Kewa datshi"],
-   gems:["Tiger's Nest (Paro Taktsang) at dawn","Chele La Pass viewpoint","Punakha Dzong at the river confluence","Paro Tshechu masked-dance festival"],
-   tags:["mountain","culture","offbeat"],
-   cur:"BTN",sym:"Nu.",rate:83,local:{meal:"150-300 Nu.",restaurant:"400-800 Nu.",hotel:"1500-4000 Nu.",taxi:"300-600 Nu.",sdf:"~1200 Nu./day for Indians"},
-   photos:["tigers nest monastery bhutan paro","bhutan punakha dzong river","paro valley bhutan mountains","bhutan monk festival tshechu","bhutan prayer flags himalaya"],
-   yt:"Bhutan Paro Thimphu travel guide",wiki:"Paro,_Bhutan",flag:"BT"},
-
-  {id:"maldives_male",name:"Malé",country:"Maldives",region:"South Asia",lat:4.17,lon:73.51,
-   crowd:[85,80,70,55,40,35,35,38,40,45,60,90],
-   cost:{budget:2500,mid:4500,luxury:12000},brk:{flights:280,stay:1800,food:400,act:400,misc:200},
-   visa:{type:"Free Visa on Arrival",cost:"Free",days:30,note:"A 30-day free tourist visa is stamped on arrival for every nationality, including India — but all arriving travellers must submit the free IMUGA Traveller Declaration electronically within 96 hours before arrival."},
-   bestM:[11,12,1,2,3],interests:["beach","diving","snorkeling","honeymoon","island"],
-   food:["Mas huni","Garudhiya fish soup","Fihunu mas grilled fish","Bondibaiy","Rihaakuru"],
-   gems:["Local-island guesthouses instead of a private resort island","Sandbank picnic on a day trip","Manta ray point at Hanifaru Bay (seasonal)","Bioluminescent plankton beaches at night"],
-   tags:["beach","island","honeymoon","luxury"],
-   cur:"MVR",sym:"Rf",rate:15.4,local:{meal:"40-90 Rf",restaurant:"150-400 Rf",resort:"3000-15000 Rf",speedboat_transfer:"500-2500 Rf",sim:"150 Rf"},
-   photos:["maldives overwater villa turquoise lagoon","maldives male aerial atoll","maldives snorkeling coral reef","maldives sandbank picnic sunset","maldives local island beach"],
-   yt:"Maldives travel guide budget",wiki:"Maldives",flag:"MV"},
-
-  {id:"mauritius_pl",name:"Port Louis",country:"Mauritius",region:"East Africa",lat:-20.16,lon:57.50,
-   crowd:[42,38,32,38,42,55,72,75,58,50,45,78],
-   cost:{budget:1400,mid:2400,luxury:5500},brk:{flights:450,stay:600,food:250,act:250,misc:150},
-   visa:{type:"Visa Free",cost:"Free",days:60,note:"Indian passport holders get visa-free entry for up to 60 days — no application, just book and fly."},
-   bestM:[6,7,8,9],interests:["beach","hiking","wildlife","whale watching","watersports"],
-   food:["Dholl puri","Gateau piment","Rougaille","Mine frite","Alouda"],
-   gems:["Le Morne Brabant hike at dawn","Black River Gorges National Park trails","Chamarel seven-coloured earth","Whale and dolphin watching off Tamarin (Jul-Oct)"],
-   tags:["beach","nature","adventure"],
-   cur:"MUR",sym:"Rs",rate:46,local:{meal:"150-300 Rs",restaurant:"500-1200 Rs",hotel:"2000-6000 Rs",taxi:"300-600 Rs",sim:"250 Rs"},
-   photos:["mauritius le morne brabant beach","mauritius chamarel seven colored earth","mauritius black river gorges hike","mauritius whale watching tamarin","port louis mauritius aerial"],
-   yt:"Mauritius travel guide",wiki:"Mauritius",flag:"MU"},
-
-  {id:"seychelles_mahe",name:"Victoria",country:"Seychelles",region:"East Africa",lat:-4.62,lon:55.45,
-   crowd:[55,52,48,50,48,50,62,65,50,48,50,68],
-   cost:{budget:1800,mid:3200,luxury:7500},brk:{flights:500,stay:900,food:350,act:350,misc:150},
-   visa:{type:"Free Visa on Arrival",cost:"Free",days:30,note:"A free Visitor's Permit is issued on arrival to every nationality, including India — extendable up to 3 months total, no pre-visa needed."},
-   bestM:[6,7,8,9],interests:["beach","diving","snorkeling","nature","honeymoon"],
-   food:["Grilled red snapper","Octopus curry","Ladob banana","Bat curry (chauve-souris)","Kat kat banann"],
-   gems:["Anse Source d'Argent at opening time","Vallée de Mai palm forest (coco de mer)","La Digue by bicycle","Aldabra giant tortoise sanctuaries"],
-   tags:["beach","island","honeymoon","luxury"],
-   cur:"SCR",sym:"Rs",rate:13.5,local:{meal:"100-200 Rs",restaurant:"350-800 Rs",hotel:"2500-8000 Rs",taxi:"200-500 Rs",sim:"200 Rs"},
-   photos:["seychelles anse source dargent beach rocks","la digue seychelles bicycle","seychelles vallee de mai coco de mer","seychelles mahe island aerial","seychelles snorkeling clear water"],
-   yt:"Seychelles travel guide",wiki:"Seychelles",flag:"SC"},
-
-  {id:"perhentian_islands",name:"Perhentian Islands",country:"Malaysia",region:"Southeast Asia",lat:5.91,lon:102.73,
-   crowd:[0,0,25,35,45,60,85,90,55,40,0,0],
-   cost:{budget:600,mid:1100,luxury:2600},brk:{flights:300,stay:250,food:130,act:150,misc:80},
-   visa:{type:"Visa Free",cost:"Free",days:30,note:"Malaysia has granted Indian passport holders visa-free entry for up to 30 days since December 2023 (periodically extended) — no application needed."},
-   bestM:[6,7,8],closedM:[11,12,1,2],interests:["diving","snorkeling","beach","island","backpacking"],
-   food:["Nasi lemak","Char kway teow","Roti canai","Ais kacang","Grilled satay"],
-   gems:["Turtle Point night snorkel","Rainforest jungle-trek across the island","Coral Bay sunset","Shark Point reef dive (blacktip reef sharks)"],
-   tags:["beach","island","budget","adventure"],
-   cur:"MYR",sym:"RM",rate:4.7,local:{meal:"8-15 RM",restaurant:"25-60 RM",chalet:"60-150 RM",boat_transfer:"70-90 RM",sim:"30 RM"},
-   photos:["perhentian islands malaysia turquoise water","perhentian island snorkeling turtle","malaysia island beach jungle","perhentian kecil long beach sunset","malaysia coral reef diving"],
-   yt:"Perhentian Islands Malaysia travel guide",wiki:"Perhentian_Islands",flag:"MY"},
-
-  {id:"maasai_mara",name:"Maasai Mara",country:"Kenya",region:"East Africa",lat:-1.50,lon:35.14,
-   crowd:[52,55,28,22,25,52,82,88,78,58,32,58],
-   cost:{budget:1600,mid:3000,luxury:8000},brk:{flights:450,stay:1200,food:300,act:800,misc:200},
-   visa:{type:"eTA",cost:"$30 USD",days:90,note:"Kenya requires an Electronic Travel Authorization — apply online at etakenya.go.ke, typically approved in 2-3 business days (not instant, so plan ahead)."},
-   bestM:[7,8,9],interests:["wildlife","safari","photography","nature","birdwatching"],
-   food:["Nyama choma","Ugali","Sukuma wiki","Pilau","Kenyan chai"],
-   gems:["Great Migration river crossings at the Mara River (Jul-Sep)","Hot air balloon safari at sunrise","Maasai village cultural visit","Mara Triangle for lower crowds than the main reserve"],
-   tags:["wildlife","adventure","photography"],
-   cur:"KES",sym:"KSh",rate:129,local:{meal:"300-600 KSh",restaurant:"1000-2500 KSh",safari_lodge:"8000-25000 KSh",game_drive:"often included or 3000-6000 KSh",sim:"500 KSh"},
-   photos:["maasai mara great migration river crossing","kenya safari lion savanna","maasai mara hot air balloon sunrise","kenya wildebeest herd plains","maasai village kenya culture"],
-   yt:"Maasai Mara Kenya safari guide",wiki:"Maasai_Mara",flag:"KE"},
-
-  {id:"nadi_fiji",name:"Nadi",country:"Fiji",region:"Oceania",lat:-17.80,lon:177.42,
-   crowd:[45,42,40,45,55,65,78,78,65,55,45,60],
-   cost:{budget:2000,mid:3500,luxury:7500},brk:{flights:900,stay:900,food:300,act:300,misc:150},
-   visa:{type:"Visa Free",cost:"Free",days:120,note:"Indian nationals get visa-free entry to Fiji for up to 4 months — no visa needed, just an onward ticket and proof of funds."},
-   bestM:[6,7,8,9,10],interests:["beach","diving","island","watersports","honeymoon"],
-   food:["Kokoda (Fijian ceviche)","Lovo feast","Palusami","Fijian curry","Kava ceremony"],
-   gems:["Cloud 9 floating platform day trip","Mamanuca Islands hop by boat","Sabeto mud pools and hot springs","Sigatoka sand dunes"],
-   tags:["beach","island","honeymoon","adventure"],
-   cur:"FJD",sym:"FJ$",rate:2.25,local:{meal:"8-15 FJ$",restaurant:"25-50 FJ$",resort:"150-500 FJ$",boat_day_trip:"80-150 FJ$",sim:"30 FJ$"},
-   photos:["fiji nadi beach turquoise water","mamanuca islands fiji aerial","fiji kava ceremony tradition","fiji snorkeling coral reef","sigatoka sand dunes fiji"],
-   yt:"Fiji Nadi travel guide",wiki:"Nadi,_Fiji",flag:"FJ"}
+   yt:"Oaxaca Mexico travel guide food culture",wiki:"Oaxaca_City",flag:"MX"}
 ];
 /* Static country reference data — zero network calls needed. */
 var COUNTRY_INFO = {
@@ -3502,46 +3397,6 @@ var RWPricing = (function(){
   };
 })();
 
-/* ===== HONEST STATUS LABEL — the ONLY place a Pro/tier status is turned
-   into user-facing text. This exists because a client-side 7-day founder
-   trial (never written as pro:true in Firestore — see the trialUntil
-   comment near line 9382) used to render the exact same "Pro Active" badge
-   as a genuinely paid/granted account, which is actively misleading: a real
-   user saw "PRO ACTIVE" on-device while an admin panel correctly showed
-   them as FREE. This function computes the TRUE current state and returns a
-   distinct, never-ambiguous label for each one. It changes NOTHING about
-   feature gating — isPro / hasFeature() stay exactly as they were; this is
-   purely about what text gets shown. Every call site that used to hardcode
-   "Pro Active"/"PRO ACTIVE" must call this instead. */
-function rwStatusLabel(){
-  var trialUntil = parseInt(lsGet('rw_trial_until')||'0',10);
-  var trialActive = !!(trialUntil && trialUntil > Date.now());
-  var method = lsGet('rw_pro_method')||'';
-  var tierId = lsGet('rw_tier')||'';
-
-  if(trialActive){
-    var daysLeft = Math.max(1, Math.ceil((trialUntil-Date.now())/864e5));
-    return { code:'trial', text:'TRIAL · '+daysLeft+'d left',
-      sentence:'Your free founding-traveler trial is active — '+daysLeft+' day'+(daysLeft===1?'':'s')+' of Pro left' };
-  }
-  if(typeof isPro==='undefined' || !isPro){
-    return { code:'free', text:'FREE', sentence:'No active Pro entitlement — you’re on the Free plan' };
-  }
-  if(method==='partner'){
-    return { code:'partner', text:'PARTNER PASS',
-      sentence:'Your Partner Pass Pro is active — granted via a free partner/campaign code, not a purchase' };
-  }
-  if(tierId){
-    var t = (typeof RWPricing!=='undefined') ? RWPricing.tierById(tierId) : null;
-    var lbl = (t ? t.label : tierId).toUpperCase();
-    return { code:tierId, text:lbl, sentence:'Your '+lbl+' plan is active' };
-  }
-  /* isPro, but no rw_tier / partner method / active trial → legacy ₹100
-     lifetime founder-offer buyer, grandfathered to elite forever. */
-  return { code:'founder', text:'FOUNDER',
-    sentence:'Your lifetime Founder Pro (₹100 offer) is active' };
-}
-
 /* Country-code (ISO 3166-1 alpha-2) → continent, covering common countries.
    Used to compute a real "N/7 continents" stat instead of just counting
    distinct country strings (which never distinguished USA=North America
@@ -3771,8 +3626,7 @@ function refreshProUI(){
   isPro = lsGet('rwPro')==='1';
   var btn=el('proBtn'), bar=el('freeBar'), promo=el('promoBar');
   if(isPro){
-    var st=rwStatusLabel();
-    if(btn){ btn.textContent=st.text; btn.className='btn btn-pro active'; btn.onclick=function(){ showToast(st.sentence); }; }
+    if(btn){ btn.textContent='Pro Active'; btn.className='btn btn-pro active'; btn.onclick=function(){ showToast('Pro active on this device!'); }; }
     if(bar) bar.classList.add('hide');
     if(promo) promo.classList.add('hide');
   } else {
@@ -3890,29 +3744,7 @@ function renderForYou(){
       var ea=(evCity===a.name)?-200:0, eb=(evCity===b.name)?-200:0;
       var sa=((a.bestM||[]).indexOf(curM+1)>-1)?-100:0, sb=((b.bestM||[]).indexOf(curM+1)>-1)?-100:0;
       return (ea+sa+seedH(a.name))-(eb+sb+seedH(b.name)); });
-    /* "In season" and "Easy visa" are specialty rows that starve fast if generic
-       rows (Popular-now, Low-crowd) get first pick of the shared pool \u2014 so they
-       claim their up-to-10 picks from the FULL pool first, and everything else
-       becomes filler for the generic rows via the shared `used` map. */
-    var EASY_VISA_TYPES={'visa free':1,'free e-visa':1,'free visa on arrival':1,'eta':1,'eta online':1,'nzeta':1,'tourist card fmm':1};
-    function isEasyVisaFor(d){
-      if(!d || d.country==='India' || !d.visa || d.visa.type==='None') return false;
-      var t=(d.visa.type||'').toLowerCase();
-      if(EASY_VISA_TYPES[t]) return true;
-      /* A plain "E-Visa"/"E-Visa Required" usually means a multi-day document-
-         upload process (Vietnam, Japan) \u2014 not low-friction. The one exception
-         is a country whose own visa note confirms genuinely instant/same-day
-         approval (Turkey's e-Visa is instant online). */
-      if(t==='e-visa' && /instant/i.test(d.visa.note||'')) return true;
-      return false;
-    }
-    var used={};
-    var inSeason=pool.filter(function(d){ return (d.bestM||[]).indexOf(curM+1)>-1; }).slice(0,10)
-      .map(function(d){ d._tag='\ud83c\udf1e'; used[d.name]=1; return d; });
-    var visaEasy=pool.filter(function(d){ return isEasyVisaFor(d) && !used[d.name]; }).slice(0,10)
-      .map(function(d){ d._tag='\ud83d\udec2'; used[d.name]=1; return d; });
-    var picks=pool.filter(function(d){ return !used[d.name]; }).slice(0,10);
-    picks.forEach(function(d){ used[d.name]=1; });
+    var picks=pool.slice(0,10);
     var EMO={beach:'\ud83c\udfd6\ufe0f',metro:'\ud83c\udf06',sacred:'\ud83d\uded5',tech:'\ud83c\udf03',peak:'\ud83c\udfd4\ufe0f',classic:'\ud83e\udded'};
     var row=document.createElement('div');
     row.innerHTML='<div class="rowhead"><b>Popular now</b><a onclick="tabGo(\'explore\')">All \u2192</a></div><div class="prow">'
@@ -3940,12 +3772,21 @@ function renderForYou(){
         setTimeout(function(){ rwPaintPhotos(r, list); }, 900); /* stagger behind Popular-now's queue */
         return r;
       }
-      /* inSeason and visaEasy were already carved out of the full pool above,
-         before Popular-now/picks ran \u2014 this row only needs the leftover-based
-         Low-crowd list; used{} already reflects inSeason+visaEasy+picks. */
+      var used={}; picks.forEach(function(d){used[d.name]=1;});
+      var inSeason=pool.filter(function(d){ return (d.bestM||[]).indexOf(curM+1)>-1 && !used[d.name] && !isClosedNow(d); }).slice(0,10)
+        .map(function(d){ d._tag='\ud83c\udf1e'; used[d.name]=1; return d; });
       var lowCrowd=pool.filter(function(d){ return d.crowd && !used[d.name] && !isClosedNow(d); })
         .sort(function(a,b){ return a.crowd[curM]-b.crowd[curM]; }).slice(0,10)
         .map(function(d){ d._tag=d.crowd[curM]+'%'; used[d.name]=1; return d; });
+      /* FIXED (verified against code, not assumed): "Easy visa" is meant to
+         be international-only, but the fragile /free|arrival/i regex on a
+         freeform display string silently excluded genuinely-easy e-visa/ETA
+         destinations (Vietnam, Turkey, Sri Lanka, Jordan) while accidentally
+         letting India's own 'None/Domestic' entries slip in for anyone whose
+         wording happened to match. Now filters on country!=='India' plus a
+         clean visaEase:'easy' field set per international destination. */
+      var visaEasy=pool.filter(function(d){ return d.country && d.country!=='India' && d.visaEase==='easy' && !used[d.name]; }).slice(0,10)
+        .map(function(d){ d._tag='\ud83d\udec2'; used[d.name]=1; return d; });
       var hero=el('copilotHero'), after=hero;
       [miniRow('\ud83c\udf1e In season \u2014 '+MOx[curM], inSeason),
        miniRow('\ud83e\udd2b Low-crowd escapes this month', lowCrowd),
@@ -4492,7 +4333,7 @@ function reportSquad(id){
 
 /* ===== 60-SECOND AI KEY WIZARD ===== */
 var WIZ=[
- {p:'groq',n:'Groq (auto-picks best model)',url:'https://console.groq.com/keys',why:'\u2705 No card ever \u00b7 fastest replies \u00b7 ~1,000 calls/day',ph:'gsk_\u2026',
+ {p:'groq',n:'Groq (Llama 3.3 70B)',url:'https://console.groq.com/keys',why:'\u2705 No card ever \u00b7 fastest replies \u00b7 ~1,000 calls/day',ph:'gsk_\u2026',
   steps:['Sign up free (Google login works \u2014 no card asked)','Tap \u201cCreate API Key\u201d, give it any name','Copy it NOW \u2014 Groq shows it only once'],
   trouble:'Lost it? Just create another key \u2014 unlimited keys, still no card.'},
  {p:'cerebras',n:'Cerebras',url:'https://cloud.cerebras.ai',why:'\u2705 No card \u00b7 biggest daily volume (~1M tokens/day)',ph:'csk-\u2026',
@@ -7143,11 +6984,8 @@ function drawCard(L, name, tiles, heroPhoto){
     x.fillStyle='#8A8880'; x.font='400 11px Outfit,Arial';
     x.fillText(b2[1].toUpperCase(), bx+bw/2, sy+54);
   });
-  if(isPro){ var _cst=rwStatusLabel(); x.fillStyle='#E8BA6C'; x.font='700 15px Outfit,Arial'; x.textAlign='center';
-    /* Honest cert label: never claim "LIFETIME" for a trial or a free
-       partner-code grant \u2014 see rwStatusLabel(). */
-    var certTxt = _cst.code==='trial' ? ('\u23f3 '+_cst.text) : ('\ud83d\udc51 '+_cst.text+' MEMBER');
-    x.fillText(certTxt, W/2, sy-16); }
+  if(isPro){ x.fillStyle='#E8BA6C'; x.font='700 15px Outfit,Arial'; x.textAlign='center';
+    x.fillText('\ud83d\udc51 LIFETIME PRO MEMBER', W/2, sy-16); }
   /* ===== CERTIFICATE OF ACHIEVEMENT: seal + signature + date ===== */
   var dateStr=new Date().toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'});
   var certY=H-152;
@@ -7220,58 +7058,37 @@ function openPartnerRedeem(){
     if(!code){ showToast('Enter your code first'); return; }
     if(!user){ openLogin(); return; }
     if(!db){ showToast('Not connected — try again in a moment'); return; }
-    /* partnerClaims' doc ID IS the code itself (rw-v115 hardening) — fetch by
-       known path with .doc(), not a `where('code','==',...)` query. Firestore
-       rules can only validate a specific doc by path (get()/exists()), never
-       an arbitrary query, so this is also what lets the rules confirm a code
-       is real and unredeemed before granting Pro below. */
-    var claimRef=db.collection('partnerClaims').doc(code);
-    var snap=await claimRef.get().catch(function(){return null;});
-    if(!snap||!snap.exists){ showToast('Code not found. Check it and try again, or email founder@roamwise.co.in'); return; }
-    var data=snap.data()||{};
-    // Soft UX check only — only the person who was emailed the code SHOULD
-    // redeem it, but the real security boundary against replay/reuse now
-    // lives in firestore.rules (one-time redemption via a batched write),
-    // not in this client-side email comparison.
+    // Check if code exists in partnerClaims
+    var snap=await db.collection('partnerClaims').where('code','==',code).get().catch(function(){return null;});
+    if(!snap||snap.empty){ showToast('Code not found. Check it and try again, or email founder@roamwise.co.in'); return; }
+    var claim=snap.docs[0];
+    var data=claim.data();
+    // Check email matches (security: only the person who claimed can redeem)
     if(data.email && user.email && data.email.toLowerCase()!==user.email.toLowerCase()){
       showToast('This code was claimed with a different email. Sign in with '+data.email.split('@')[0]+'@…');
       return;
     }
     if(data.proRedeemed){ showToast('Code already redeemed — your Pro is active. Check your profile.'); return; }
-    // Claim codes are issued inside a time-boxed campaign window (e.g. the
-    // NMIMS 30-day claim window) and shouldn't be redeemable indefinitely
-    // after that — expiresAt is a Firestore Timestamp set at claim time
-    // (see nmims/index.html). Absent expiresAt (older claims predating this
-    // field) is treated as no expiry, same precedent as proRedeemed above.
-    if(data.expiresAt && typeof data.expiresAt.toMillis==='function' && data.expiresAt.toMillis()<Date.now()){
-      showToast('This code’s claim window has expired. Email founder@roamwise.co.in if you believe this is a mistake.');
-      return;
-    }
-    /* Grant Pro + flip the claim to redeemed in ONE atomic batch. A Firestore
-       batch commits all-or-nothing — that atomicity is what actually stops a
-       code being redeemed twice (see firestore.rules' matching comments on
-       users/{uid} and partnerClaims/{id}). The users/{uid} write must touch
-       ONLY pro/proAt/proMethod/proCode — that exact field set is what the
-       rules' partner-redeem exception checks for; anything else in this
-       write (e.g. the old proPartner/proAmount fields) would be rejected. */
+    // Grant Pro
     try{
-      var batch=db.batch();
-      batch.set(db.collection('users').doc(user.uid), {
+      await db.collection('users').doc(user.uid).set({
         pro:true, proAt:new Date().toISOString(),
-        proMethod:'partner', proCode:code
+        proMethod:'partner', proPartner:data.partnership||'partner',
+        proAmount:0, proCode:code
       },{merge:true});
-      batch.update(claimRef, {proRedeemed:true, redeemedAt:new Date().toISOString(), redeemedUid:user.uid});
-      await batch.commit();
-      showToast('\ud83c\udf89 Partner Pass activated! Welcome, '+esc2(data.name?data.name.split(' ')[0]:'friend')+'.');
-      window._proUnlocked=true;
-      /* Reuse the SAME UI-refresh path a real Firestore pro:true write
-         triggers (the users/{uid} onSnapshot listener, ~line 9403, calls this
-         too) — there is no separate applyPro() anywhere in the app; calling
-         it here used to be a guaranteed crash (ReferenceError) that no UI
-         caller had ever exercised. Set rw_pro_method locally too (not just via
-         the snapshot round-trip) so rwStatusLabel() shows "PARTNER PASS", not
-         a paid-sounding badge, the instant this resolves. */
-      isPro=true; lsSet('rwPro','1'); lsSet('rw_pro_uid',user.uid); lsSet('rw_pro_method','partner'); refreshProUI();
+      await claim.ref.update({proRedeemed:true, redeemedAt:new Date().toISOString(), redeemedUid:user.uid});
+      /* Partner-granted Pro counts toward the combined 1000-account founder-era
+         cap, same as paid seats (secured Firestore rule: +1 only, on this one
+         field, signed-in users only — see firestore.rules pricing/founder). */
+      try{ db.collection('pricing').doc('founder').set({count:firebase.firestore.FieldValue.increment(1)},{merge:true}); }catch(e){}
+      /* FIXED: applyPro() does not exist anywhere in this file — that dead
+         call meant redemption silently failed to update the UI even when the
+         Firestore write succeeded. isPro/rwPro + refreshProUI() is the actual
+         pattern used everywhere else Pro gets unlocked (see line ~8838, 9149,
+         9287, 9731) — mirroring it here for consistency. */
+      isPro=true; lsSet('rwPro','1'); lsSet('rw_pro_uid',user.uid);
+      showToast('\ud83c\udf89 Lifetime Pro activated! Welcome, '+esc2(data.name?data.name.split(' ')[0]:'friend')+'.');
+      refreshProUI();
     }catch(e){
       showToast('Redemption error: '+(e.message||'try again'));
     }
@@ -8043,7 +7860,7 @@ function smartSearch(month, budUSD, ctryQuery, crowd, interests){
     });
     sc += Math.max(0, 60 - Math.abs(d.cost.mid-budUSD)/30);
     sc -= budgetPenalty;
-    if(d.bestM.indexOf(mi)>=0) sc += 28;
+    if(d.bestM.indexOf(mi+1)>=0) sc += 28; /* FIXED: mi is 0-based (MONTHS.indexOf), bestM is 1-based */
     scores.push({d:d, sc:sc, cs:cs});
   });
   scores.sort(function(a,b){ return b.sc-a.sc; });
@@ -8181,18 +7998,8 @@ function loadPhotosForCard(d, ci){
 }
 
 /* OPTIONAL AI ENHANCEMENT */
-/* Static per-provider fallback chains. NOTE on groq: llama-3.3-70b-versatile
-   and llama-3.1-8b-instant were BOTH deprecated by Groq on 2026-08-16 for
-   free/developer-tier keys (still usable on enterprise committed-spend
-   plans, hence kept as a last-resort entry here) — a key that only ever
-   tried those two used to exhaust this list and surface a scary "model does
-   not exist" error even though the KEY itself was perfectly valid. The
-   current recommended replacements are the openai/gpt-oss models. This list
-   is only the fallback of last resort, though: testKey()/aiCall() prefer a
-   LIVE model list fetched from Groq's own /openai/v1/models endpoint with
-   the user's key when possible, since that's always current. */
 var AI_MODELS = {
-  groq: ['openai/gpt-oss-120b','openai/gpt-oss-20b','llama-3.3-70b-versatile'],
+  groq: ['llama-3.3-70b-versatile','llama-3.1-8b-instant'],
   cerebras: ['llama-3.3-70b','llama3.1-8b'],
   github: ['gpt-4o','Meta-Llama-3.1-70B-Instruct'],
   gemini: ['gemini-2.5-flash','gemini-flash-latest'],
@@ -8266,15 +8073,7 @@ function aiRequest(prov, key, model, prompt, maxTok, jsonMode){
 function aiCall(prompt, maxTok, cb, jsonMode){
   var prov=activeProv, key=lsGet('rwKey_'+prov);
   if(prov==='smart' || !key){ lastAiSource=null; cb(null,null); return; }
-  var models = AI_MODELS[prov]||[];
-  /* Groq: put whatever testKey() last discovered as a REAL working model for
-     THIS key (via Groq's live /models endpoint) first in line, ahead of the
-     static guesses — it's always at least as current as this hardcoded list. */
-  if(prov==='groq'){
-    var discovered = lsGet('rwKey_groq_model');
-    if(discovered && models.indexOf(discovered)===-1) models=[discovered].concat(models);
-  }
-  var i=0;
+  var models = AI_MODELS[prov]||[]; var i=0;
   function attempt(lastErr){
     if(i>=models.length){ lastAiSource=null; cb(lastErr||'All models failed', null); return; }
     var m=models[i++];
@@ -8319,61 +8118,22 @@ function aiCallAny(prompt, maxTok, cb, jsonMode){
 
 /* Key tester
  — used by the Test buttons in Settings */
-function testKeyFallbackChain(prov, key, st){
-  var models=AI_MODELS[prov]||[], i=0;
-  (function tryM(lastErr){
-    if(i>=models.length){ st.textContent='✗ '+String(lastErr).slice(0,60); st.className='key-status ks-bad'; showToast('Key failed: '+String(lastErr).slice(0,80)); return; }
-    var m=models[i++];
-    aiRequest(prov,key,m,'Reply with exactly: OK',10)
-      .then(function(){ st.textContent='✓ working ('+m+')'; st.className='key-status ks-ok'; showToast(prov+' key verified ✓'); if(prov==='groq') lsSet('rwKey_groq_model', m); })
-      .catch(function(e){
-        if(e.httpStatus===401||e.httpStatus===403){ st.textContent='✗ invalid key'; st.className='key-status ks-bad'; showToast('Key rejected — regenerate it and paste again'); }
-        else tryM(e.message||e);
-      });
-  })(null);
-}
 function testKey(prov){
   var key=(el(prov+'Key').value||'').trim() || lsGet('rwKey_'+prov);
   var st=el(prov+'Status');
   if(!key){ st.textContent='no key'; st.className='key-status ks-empty'; return; }
   st.textContent='testing…'; st.className='key-status ks-empty';
-
-  /* GROQ: ask Groq itself which models this key can actually use right now,
-     via its OpenAI-compatible /models endpoint, instead of betting everything
-     on one hardcoded model string. This is what actually fixes "the model
-     `llama-3.1-8b-instant` does not exist" — that model (and
-     llama-3.3-70b-versatile) were both deprecated by Groq on 2026-08-16, so a
-     fixed test model can go stale again the same way; a live lookup can't. */
-  if(prov==='groq'){
-    fetch('https://api.groq.com/openai/v1/models', {headers:{'Authorization':'Bearer '+key}})
-      .then(function(r){ return r.json().then(function(d){ return {status:r.status, data:d}; }); })
-      .then(function(res){
-        if(res.status===401 || res.status===403){
-          st.textContent='✗ invalid key'; st.className='key-status ks-bad';
-          showToast('Key rejected — regenerate it and paste again');
-          return;
-        }
-        var ids=((res.data && res.data.data)||[]).map(function(m){ return m.id; }).filter(Boolean);
-        if(!ids.length){ testKeyFallbackChain(prov, key, st); return; }
-        /* Prefer a current flagship "versatile"/70B-class model if this key
-           can use one, else just take the first non-audio/non-guard model —
-           the user only cares that SOMETHING works, not the exact name. */
-        var pick = ids.filter(function(id){ return /gpt-oss-120b/i.test(id); })[0]
-                || ids.filter(function(id){ return /70b/i.test(id) && !/whisper|guard|tts/i.test(id); })[0]
-                || ids.filter(function(id){ return !/whisper|guard|tts|distil/i.test(id); })[0]
-                || ids[0];
-        lsSet('rwKey_groq_model', pick);
-        st.textContent='✓ working ('+pick+')'; st.className='key-status ks-ok';
-        showToast('groq key verified ✓');
-      })
-      .catch(function(){
-        /* Live list unreachable (network hiccup, CORS, etc.) — fall back to
-           the static chain rather than blocking the user. */
-        testKeyFallbackChain(prov, key, st);
+  var models=AI_MODELS[prov], i=0;
+  (function tryM(lastErr){
+    if(i>=models.length){ st.textContent='✗ '+String(lastErr).slice(0,60); st.className='key-status ks-bad'; showToast('Key failed: '+String(lastErr).slice(0,80)); return; }
+    var m=models[i++];
+    aiRequest(prov,key,m,'Reply with exactly: OK',10)
+      .then(function(){ st.textContent='✓ working ('+m+')'; st.className='key-status ks-ok'; showToast(prov+' key verified \u2713'); })
+      .catch(function(e){
+        if(e.httpStatus===401||e.httpStatus===403){ st.textContent='✗ invalid key'; st.className='key-status ks-bad'; showToast('Key rejected — regenerate it and paste again'); }
+        else tryM(e.message||e);
       });
-    return;
-  }
-  testKeyFallbackChain(prov, key, st);
+  })(null);
 }
 
 /* MAIN SEARCH */
@@ -8454,7 +8214,6 @@ function runSearch(){
 
 /* RENDER RESULTS — built entirely with template literals */
 function renderCards(results, month, budUSD, origin, days, aiData, travelStyle, isGenericResult){
-  itinBuilt = {};
   var mi = MONTHS.indexOf(month);
   var provLabel = activeProv==='smart' ? 'Smart Search' : (lsGet('rwKey_'+activeProv) ? activeProv.charAt(0).toUpperCase()+activeProv.slice(1)+' AI' : 'Smart Search');
 
@@ -8463,7 +8222,7 @@ function renderCards(results, month, budUSD, origin, days, aiData, travelStyle, 
   H += `<div class="cmp-wrap"><table class="cmp-table"><thead><tr><th>Destination</th><th>Crowd in ${month}</th><th>Mid budget</th><th>Visa (India)</th><th>Best months</th></tr></thead><tbody>`;
   results.forEach(function(r){
     var d=r.d, cs=r.cs, bl = cs<35?'badge-low':cs<60?'badge-mid':'badge-hi', ct = cs<35?'Low':cs<60?'Moderate':'Busy';
-    var bm = d.bestM.length ? d.bestM.slice(0,3).map(function(m){return MO[m];}).join(', ') : 'Year-round';
+    var bm = d.bestM.length ? d.bestM.slice(0,3).map(function(m){return MO[m-1]||m;}).join(', ') : 'Year-round';
     H += `<tr><td><strong>${flagEmoji(d.flag)} ${d.name}</strong>${d.country?`<br><span style="font-size:10px;color:#4A4946">${d.country}</span>`:''}</td><td><span class="badge ${bl}" style="font-size:11px">${cs}% ${ct}</span></td><td>${fmtMoney(d.cost.mid)}</td><td style="font-size:11px">${d.visa.type}<br><span style="color:#16BF96">${d.visa.cost}</span></td><td style="font-size:11px">${bm}</td></tr>`;
   });
   H += `</tbody></table></div>`;
@@ -8504,7 +8263,7 @@ function renderCards(results, month, budUSD, origin, days, aiData, travelStyle, 
 
     /* Card head */
     var flagIco = flagEmoji(d.flag);
-    var bestMonthsLabel = d.bestM.length ? d.bestM.slice(0,3).map(function(m){return MO[m];}).join(', ') : 'Year-round';
+    var bestMonthsLabel = d.bestM.length ? d.bestM.slice(0,3).map(function(m){return MO[m-1]||m;}).join(', ') : 'Year-round';
     H += `<div class="card-head">
       <div>
         <div class="card-rank${feat?' gold':''}">${feat ? (isGenericResult ? '📍 Your pick' : '⭐ Top pick for '+month) : (isGenericResult ? 'Alternative '+ci : 'Option '+(ci+1))}</div>
@@ -8563,7 +8322,7 @@ function renderCards(results, month, budUSD, origin, days, aiData, travelStyle, 
       }).join('')}</div>
       <div class="sec-label">📅 Best months to visit</div>
       <div class="bm-grid">${MO.map(function(m,idx){
-        var best = d.bestM.indexOf(idx)>=0;
+        var best = d.bestM.indexOf(idx+1)>=0; /* FIXED: idx is 0-based (MO array), bestM is 1-based */
         return `<div class="bm${best?' best':''}${idx===mi?' sel':''}">${m}</div>`;
       }).join('')}</div>
     </div>`;
@@ -8984,7 +8743,7 @@ function openPay(){
     showToast('\ud83c\udf89 Pro is FREE for early adopters on this version \u2014 already active on your account!');
     return;
   }
-  if(isPro){ showToast(rwStatusLabel().sentence); return; }
+  if(isPro){ showToast('Pro is already active!'); return; }
   try{ rwRotateTesti(); }catch(e){}
   el('payOverlay').classList.add('open');
   document.body.style.overflow = 'hidden';
@@ -9257,7 +9016,7 @@ function secPanelHTML(){
 }
 
 var PROV_META = {
-  groq:     {label:'Groq \u00b7 auto-picks best model', hint:'console.groq.com/keys \u2014 free, no card. Starts with gsk_', url:'https://console.groq.com/keys', ph:'gsk_...'},
+  groq:     {label:'Groq \u00b7 Llama 3.3 70B', hint:'console.groq.com/keys \u2014 free, no card. Starts with gsk_', url:'https://console.groq.com/keys', ph:'gsk_...'},
   cerebras: {label:'Cerebras \u00b7 Llama 3.3 70B', hint:'cloud.cerebras.ai \u2014 free, no card, ~1M tokens/day', url:'https://cloud.cerebras.ai', ph:'csk-...'},
   github:   {label:'GitHub Models \u00b7 GPT-4o', hint:'github.com/settings/tokens \u2014 free with a GitHub account', url:'https://github.com/settings/tokens', ph:'ghp_...'},
   gemini:   {label:'Google Gemini 2.5 Flash', hint:'aistudio.google.com \u2014 free tier covers 2.5 Flash (Pro/Flash-Lite are paid)', url:'https://aistudio.google.com/apikey', ph:'AIzaSy...'},
@@ -9500,10 +9259,6 @@ if (AUTH_READY && typeof firebase !== 'undefined') try {
             if(count<1000){
               t.set(counterRef,{count:count+1},{merge:true});
               var trialUntil=Date.now()+7*24*3600*1000;
-              /* This grants a CLIENT-SIDE-ONLY trial — pro:true is never written here.
-                 Any UI that shows this status MUST render it via rwStatusLabel()
-                 (never a bare "Pro"/"PRO ACTIVE" string), so it's never mistaken for
-                 a real paid/granted account. */
               t.set(ref,{trialUntil:trialUntil,trialGranted:true},{merge:true});
               return {granted:true, num:count+1};
             } else {
@@ -9543,15 +9298,11 @@ if (AUTH_READY && typeof firebase !== 'undefined') try {
         var trialActive = !cloudPro && trialUntil && trialUntil > Date.now();
         var shouldBePro = cloudPro || provOK || trialActive;
         lsSet('rw_trial_until', trialActive? String(trialUntil) : '');
-        /* Mirror Firestore's proMethod locally so rwStatusLabel() can tell a
-           free partner/campaign-code grant (proMethod:'partner') apart from a
-           real cash purchase or legacy founder grant. */
-        lsSet('rw_pro_method', (cloudPro && d.data().proMethod) || '');
         if(cloudPro){ lsSet('rw_pro_temp',''); lsSet('rw_pro_temp_uid',''); }
         if(shouldBePro){
           if(!isPro){ isPro=true; lsSet('rwPro','1'); lsSet('rw_pro_uid',u.uid); refreshProUI();
-            if(cloudPro){ showToast(rwStatusLabel().sentence+' \u2713'); closePay(); }
-            else if(trialActive){ showToast('\u23f3 '+rwStatusLabel().sentence); } }
+            if(cloudPro){ showToast('Pro active on your account \u2713'); closePay(); }
+            else if(trialActive){ var daysLeft=Math.ceil((trialUntil-Date.now())/864e5); showToast('\u23f3 Free trial active \u2014 '+daysLeft+' day'+(daysLeft===1?'':'s')+' of Pro left'); } }
           isPro=true; lsSet('rw_pro_uid',u.uid); refreshProUI();
         } else {
           /* this account has NO pro \u2192 force-off regardless of any stale local flag */
@@ -10380,7 +10131,7 @@ function applyRegionUI(){
   var p = r==='in'?PRICE_IN:PRICE_WW;
   var hb = el('heroProBtn'); if(hb) hb.innerHTML = 'Unlock Pro \u2014 '+p;
   var pa = el('promoAmt'); if(pa) pa.textContent = p;
-  var dl = el('drProLbl'); if(dl) dl.textContent = isPro ? (rwStatusLabel().text+' \u2713') : ('Unlock Pro \u2014 '+p);
+  var dl = el('drProLbl'); if(dl) dl.textContent = isPro ? 'Pro active \u2713' : ('Unlock Pro \u2014 '+p);
   setPayRegion(r);
 }
 /* saveGumroad removed — Gumroad link/ID now arrive via remote config (admin Config tab). */

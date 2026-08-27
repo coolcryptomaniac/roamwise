@@ -16,7 +16,7 @@
  *    caching it would blow the origin's storage quota for no benefit.
  * ------------------------------------------------------------------------- */
 
-var VERSION = 'rw-v116-nmims'
+var VERSION = 'rw-v118-nmims-docs'
 var HTML_CACHE = VERSION + '-html';
 var ASSET_CACHE = VERSION + '-assets';
 
