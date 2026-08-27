@@ -4492,7 +4492,7 @@ function reportSquad(id){
 
 /* ===== 60-SECOND AI KEY WIZARD ===== */
 var WIZ=[
- {p:'groq',n:'Groq (Llama 3.3 70B)',url:'https://console.groq.com/keys',why:'\u2705 No card ever \u00b7 fastest replies \u00b7 ~1,000 calls/day',ph:'gsk_\u2026',
+ {p:'groq',n:'Groq (auto-picks best model)',url:'https://console.groq.com/keys',why:'\u2705 No card ever \u00b7 fastest replies \u00b7 ~1,000 calls/day',ph:'gsk_\u2026',
   steps:['Sign up free (Google login works \u2014 no card asked)','Tap \u201cCreate API Key\u201d, give it any name','Copy it NOW \u2014 Groq shows it only once'],
   trouble:'Lost it? Just create another key \u2014 unlimited keys, still no card.'},
  {p:'cerebras',n:'Cerebras',url:'https://cloud.cerebras.ai',why:'\u2705 No card \u00b7 biggest daily volume (~1M tokens/day)',ph:'csk-\u2026',
@@ -8181,8 +8181,18 @@ function loadPhotosForCard(d, ci){
 }
 
 /* OPTIONAL AI ENHANCEMENT */
+/* Static per-provider fallback chains. NOTE on groq: llama-3.3-70b-versatile
+   and llama-3.1-8b-instant were BOTH deprecated by Groq on 2026-08-16 for
+   free/developer-tier keys (still usable on enterprise committed-spend
+   plans, hence kept as a last-resort entry here) — a key that only ever
+   tried those two used to exhaust this list and surface a scary "model does
+   not exist" error even though the KEY itself was perfectly valid. The
+   current recommended replacements are the openai/gpt-oss models. This list
+   is only the fallback of last resort, though: testKey()/aiCall() prefer a
+   LIVE model list fetched from Groq's own /openai/v1/models endpoint with
+   the user's key when possible, since that's always current. */
 var AI_MODELS = {
-  groq: ['llama-3.3-70b-versatile','llama-3.1-8b-instant'],
+  groq: ['openai/gpt-oss-120b','openai/gpt-oss-20b','llama-3.3-70b-versatile'],
   cerebras: ['llama-3.3-70b','llama3.1-8b'],
   github: ['gpt-4o','Meta-Llama-3.1-70B-Instruct'],
   gemini: ['gemini-2.5-flash','gemini-flash-latest'],
@@ -8256,7 +8266,15 @@ function aiRequest(prov, key, model, prompt, maxTok, jsonMode){
 function aiCall(prompt, maxTok, cb, jsonMode){
   var prov=activeProv, key=lsGet('rwKey_'+prov);
   if(prov==='smart' || !key){ lastAiSource=null; cb(null,null); return; }
-  var models = AI_MODELS[prov]||[]; var i=0;
+  var models = AI_MODELS[prov]||[];
+  /* Groq: put whatever testKey() last discovered as a REAL working model for
+     THIS key (via Groq's live /models endpoint) first in line, ahead of the
+     static guesses — it's always at least as current as this hardcoded list. */
+  if(prov==='groq'){
+    var discovered = lsGet('rwKey_groq_model');
+    if(discovered && models.indexOf(discovered)===-1) models=[discovered].concat(models);
+  }
+  var i=0;
   function attempt(lastErr){
     if(i>=models.length){ lastAiSource=null; cb(lastErr||'All models failed', null); return; }
     var m=models[i++];
@@ -8301,22 +8319,61 @@ function aiCallAny(prompt, maxTok, cb, jsonMode){
 
 /* Key tester
  — used by the Test buttons in Settings */
-function testKey(prov){
-  var key=(el(prov+'Key').value||'').trim() || lsGet('rwKey_'+prov);
-  var st=el(prov+'Status');
-  if(!key){ st.textContent='no key'; st.className='key-status ks-empty'; return; }
-  st.textContent='testing…'; st.className='key-status ks-empty';
-  var models=AI_MODELS[prov], i=0;
+function testKeyFallbackChain(prov, key, st){
+  var models=AI_MODELS[prov]||[], i=0;
   (function tryM(lastErr){
     if(i>=models.length){ st.textContent='✗ '+String(lastErr).slice(0,60); st.className='key-status ks-bad'; showToast('Key failed: '+String(lastErr).slice(0,80)); return; }
     var m=models[i++];
     aiRequest(prov,key,m,'Reply with exactly: OK',10)
-      .then(function(){ st.textContent='✓ working ('+m+')'; st.className='key-status ks-ok'; showToast(prov+' key verified \u2713'); })
+      .then(function(){ st.textContent='✓ working ('+m+')'; st.className='key-status ks-ok'; showToast(prov+' key verified ✓'); if(prov==='groq') lsSet('rwKey_groq_model', m); })
       .catch(function(e){
         if(e.httpStatus===401||e.httpStatus===403){ st.textContent='✗ invalid key'; st.className='key-status ks-bad'; showToast('Key rejected — regenerate it and paste again'); }
         else tryM(e.message||e);
       });
   })(null);
+}
+function testKey(prov){
+  var key=(el(prov+'Key').value||'').trim() || lsGet('rwKey_'+prov);
+  var st=el(prov+'Status');
+  if(!key){ st.textContent='no key'; st.className='key-status ks-empty'; return; }
+  st.textContent='testing…'; st.className='key-status ks-empty';
+
+  /* GROQ: ask Groq itself which models this key can actually use right now,
+     via its OpenAI-compatible /models endpoint, instead of betting everything
+     on one hardcoded model string. This is what actually fixes "the model
+     `llama-3.1-8b-instant` does not exist" — that model (and
+     llama-3.3-70b-versatile) were both deprecated by Groq on 2026-08-16, so a
+     fixed test model can go stale again the same way; a live lookup can't. */
+  if(prov==='groq'){
+    fetch('https://api.groq.com/openai/v1/models', {headers:{'Authorization':'Bearer '+key}})
+      .then(function(r){ return r.json().then(function(d){ return {status:r.status, data:d}; }); })
+      .then(function(res){
+        if(res.status===401 || res.status===403){
+          st.textContent='✗ invalid key'; st.className='key-status ks-bad';
+          showToast('Key rejected — regenerate it and paste again');
+          return;
+        }
+        var ids=((res.data && res.data.data)||[]).map(function(m){ return m.id; }).filter(Boolean);
+        if(!ids.length){ testKeyFallbackChain(prov, key, st); return; }
+        /* Prefer a current flagship "versatile"/70B-class model if this key
+           can use one, else just take the first non-audio/non-guard model —
+           the user only cares that SOMETHING works, not the exact name. */
+        var pick = ids.filter(function(id){ return /gpt-oss-120b/i.test(id); })[0]
+                || ids.filter(function(id){ return /70b/i.test(id) && !/whisper|guard|tts/i.test(id); })[0]
+                || ids.filter(function(id){ return !/whisper|guard|tts|distil/i.test(id); })[0]
+                || ids[0];
+        lsSet('rwKey_groq_model', pick);
+        st.textContent='✓ working ('+pick+')'; st.className='key-status ks-ok';
+        showToast('groq key verified ✓');
+      })
+      .catch(function(){
+        /* Live list unreachable (network hiccup, CORS, etc.) — fall back to
+           the static chain rather than blocking the user. */
+        testKeyFallbackChain(prov, key, st);
+      });
+    return;
+  }
+  testKeyFallbackChain(prov, key, st);
 }
 
 /* MAIN SEARCH */
@@ -9200,7 +9257,7 @@ function secPanelHTML(){
 }
 
 var PROV_META = {
-  groq:     {label:'Groq \u00b7 Llama 3.3 70B', hint:'console.groq.com/keys \u2014 free, no card. Starts with gsk_', url:'https://console.groq.com/keys', ph:'gsk_...'},
+  groq:     {label:'Groq \u00b7 auto-picks best model', hint:'console.groq.com/keys \u2014 free, no card. Starts with gsk_', url:'https://console.groq.com/keys', ph:'gsk_...'},
   cerebras: {label:'Cerebras \u00b7 Llama 3.3 70B', hint:'cloud.cerebras.ai \u2014 free, no card, ~1M tokens/day', url:'https://cloud.cerebras.ai', ph:'csk-...'},
   github:   {label:'GitHub Models \u00b7 GPT-4o', hint:'github.com/settings/tokens \u2014 free with a GitHub account', url:'https://github.com/settings/tokens', ph:'ghp_...'},
   gemini:   {label:'Google Gemini 2.5 Flash', hint:'aistudio.google.com \u2014 free tier covers 2.5 Flash (Pro/Flash-Lite are paid)', url:'https://aistudio.google.com/apikey', ph:'AIzaSy...'},
