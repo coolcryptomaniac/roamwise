@@ -305,7 +305,7 @@ footer a{color:#5A6076}
       </div>
       <div class="fld">
         <label>College email or personal email</label>
-        <input class="fi" id="cEmail" type="email" placeholder="priya@nmims.in or priya@gmail.com">
+        <input class="fi" id="cEmail" type="email" placeholder="priya@nmims.in or priya@gmail.com" onblur="checkEmailDomain()" oninput="checkEmailDomain()">
       </div>
       <div class="fld">
         <label>Programme / Course</label>
@@ -313,12 +313,17 @@ footer a{color:#5A6076}
       </div>
       <div class="fld">
         <label>I am a</label>
-        <select class="fi fi-select" id="cRole">
+        <select class="fi fi-select" id="cRole" onchange="onRoleChange()">
           <option value="">Select your role</option>
           <option value="student">NMIMS Student</option>
           <option value="organiser">E-Cell Organiser / Core Team</option>
           <option value="faculty">Faculty / Staff</option>
         </select>
+      </div>
+      <div id="emailWarn" style="display:none;font-size:12px;color:var(--gold);background:rgba(232,186,108,.08);border:1px solid rgba(232,186,108,.25);border-radius:10px;padding:10px 12px;margin:-6px 0 14px;line-height:1.5"></div>
+      <div class="fld" id="orgCodeFld" style="display:none">
+        <label>Organiser invite code</label>
+        <input class="fi" id="cOrgCode" placeholder="Ask your E-Cell lead for this code" autocomplete="off">
       </div>
       <div class="fld">
         <label>WhatsApp (optional — for claim confirmation)</label>
@@ -464,6 +469,25 @@ try{
   firebase.initializeApp({apiKey:"AIzaSyDlrtpzpOb1VEmVSd9tHmu7OpmvwWosYsU",authDomain:"roamwisepro.firebaseapp.com",projectId:"roamwisepro",storageBucket:"roamwisepro.firebasestorage.app",messagingSenderId:"299014744987",appId:"1:299014744987:web:d5c316743e6d7a10904f3e"});
   db=firebase.firestore();
 }catch(e){}
+
+/* ---- ORGANISER INVITE CODE ----
+   The real invite-code VALUE is not chosen or stored here — it must be set
+   by an admin directly in the Firestore console, at:
+     config/nmimsOrganiserCode  { code: "<the real shared invite code>" }
+   That doc is public-readable (see firestore.rules `config/{doc}`) but only
+   admin-writable, so the page can fetch it at runtime without the code ever
+   being hardcoded in this source file. If the doc doesn't exist yet, the
+   Organiser role is treated as "not yet configured" and claims are blocked
+   with a clear message rather than silently allowed. */
+var orgCodeVal=null, orgCodeLoaded=false;
+function loadOrgCode(){
+  if(!db){ orgCodeLoaded=true; return; }
+  db.collection('config').doc('nmimsOrganiserCode').get().then(function(d){
+    orgCodeVal = (d.exists && d.data() && d.data().code) ? String(d.data().code) : null;
+    orgCodeLoaded=true;
+  }).catch(function(){ orgCodeLoaded=true; });
+}
+loadOrgCode();
 
 /* ---- SEAT COUNTER ---- */
 var TOTAL_SEATS = 500;
@@ -633,6 +657,37 @@ function generateCode(name, email){
   return 'NMIMS-'+hex;
 }
 
+/* ---- Role-dependent field toggling + soft email-domain check ----
+   These are deliberately advisory, not hard blocks — students and faculty
+   legitimately use personal email for a fest sign-up. The organiser invite
+   code below IS a hard block, since it's the actual eligibility gate for
+   that pass pool. */
+function onRoleChange(){
+  var role=document.getElementById('cRole').value;
+  var orgFld=document.getElementById('orgCodeFld');
+  if(orgFld) orgFld.style.display = (role==='organiser') ? '' : 'none';
+  checkEmailDomain();
+}
+
+function looksLikeNmimsEmail(email){
+  return /nmims/i.test(email);
+}
+
+function checkEmailDomain(){
+  var role=document.getElementById('cRole').value;
+  var email=(document.getElementById('cEmail').value||'').trim();
+  var warn=document.getElementById('emailWarn');
+  if(!warn) return;
+  var isCollegeRole = (role==='student' || role==='faculty');
+  if(isCollegeRole && email && /\S+@\S+\.\S+/.test(email) && !looksLikeNmimsEmail(email)){
+    warn.style.display='block';
+    warn.textContent="This doesn't look like an NMIMS email — that's fine, plenty of students use a personal one. We'll just flag it for a quick manual check before the pass is treated as fully verified.";
+  } else {
+    warn.style.display='none';
+    warn.textContent='';
+  }
+}
+
 async function submitClaim(){
   var err=document.getElementById('claimErr');
   err.textContent='';
@@ -643,11 +698,26 @@ async function submitClaim(){
   var phone=(document.getElementById('cPhone').value||'').trim();
   var consent=document.getElementById('cConsent').checked;
   var updates=document.getElementById('cUpdates').checked;
+  var orgCode=(document.getElementById('cOrgCode')?document.getElementById('cOrgCode').value:'').trim();
   if(!name||!email) return err.textContent='Name and email are required.';
   if(!role) return err.textContent='Please select your role.';
   if(!consent) return err.textContent='Consent is required to claim your pass.';
   if(!/\S+@\S+\.\S+/.test(email)) return err.textContent='Please enter a valid email address.';
   if(!db) return err.textContent='Connection error — please try again in a moment.';
+
+  // Organiser pass pool is gated behind a shared invite code (hard block —
+  // this is the actual eligibility check, unlike the soft email warning below).
+  if(role==='organiser'){
+    if(!orgCodeLoaded) return err.textContent='Still checking organiser eligibility — try again in a second.';
+    if(!orgCodeVal) return err.textContent='Organiser claims aren’t open yet. Ask your E-Cell lead or email founder@roamwise.co.in.';
+    if(!orgCode || orgCode.trim().toLowerCase()!==orgCodeVal.trim().toLowerCase()){
+      return err.textContent='That organiser invite code doesn’t match. Double-check with your E-Cell team lead.';
+    }
+  }
+
+  // Soft, non-blocking email-domain check for student/faculty roles — flagged
+  // on the record for admin review rather than trusted automatically.
+  var emailVerified = (role==='organiser') ? true : looksLikeNmimsEmail(email);
 
   var btn=document.getElementById('claimBtn');
   btn.disabled=true; btn.textContent='Claiming…';
@@ -692,7 +762,7 @@ async function submitClaim(){
     name:name, email:email, course:course, role:role,
     phone:phone, code:code, persona:persona,
     partnership:'nmims2026', consent:true,
-    consentUpdates:updates,
+    consentUpdates:updates, emailVerified:emailVerified,
     status:'claimed', claimedAt:new Date().toISOString(),
     at:firebase.firestore.FieldValue.serverTimestamp()
   };
