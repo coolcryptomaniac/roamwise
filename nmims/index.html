@@ -781,12 +781,17 @@ async function submitClaim(){
   var btn=document.getElementById('claimBtn');
   btn.disabled=true; btn.textContent='Claiming…';
 
-  // Check if email already claimed
-  var existingSnap=await db.collection('partnerClaims').where('email','==',email).where('partnership','==','nmims2026').get().catch(function(){return null;});
-  if(existingSnap && !existingSnap.empty){
-    var existDoc=existingSnap.docs[0].data();
+  // Check if email already claimed. partnerClaims' doc ID is now the claim
+  // CODE itself (rw-v115 hardening — see firestore.rules), so a plain
+  // `where('email','==',...)` query no longer works (querying/listing that
+  // collection is admin-only now). Instead, look up a small separate index
+  // doc keyed by a sanitized email — a single get() by known id.
+  var emailKey=email.toLowerCase().replace(/[^a-z0-9]/g,'_').slice(0,140);
+  var existingSnap=await db.collection('partnerClaimEmails').doc(emailKey).get().catch(function(){return null;});
+  if(existingSnap && existingSnap.exists){
+    var existCode=(existingSnap.data()||{}).code||'NMIMS-CLAIMED';
     btn.disabled=false; btn.textContent='🎒 Claim my free lifetime Pro →';
-    showSuccess(name.split(' ')[0], existDoc.code||'NMIMS-CLAIMED', true);
+    showSuccess(name.split(' ')[0], existCode, true);
     return;
   }
 
@@ -822,18 +827,28 @@ async function submitClaim(){
     phone:phone, code:code, persona:persona,
     partnership:'nmims2026', consent:true,
     consentUpdates:updates, emailVerified:emailVerified,
+    proRedeemed:false,
     status:'claimed', claimedAt:new Date().toISOString(),
     at:firebase.firestore.FieldValue.serverTimestamp()
   };
 
   try{
-    await db.collection('partnerClaims').doc('nmims2026_'+email.replace(/[^a-z0-9]/gi,'_')).set(record);
-    // Increment counter
-    await db.collection('partnerships').doc('nmims2026').set({
+    // Three writes, one atomic batch — the claim doc (ID = code, per
+    // firestore.rules), the email-dedup index doc, and the allocation
+    // counter all commit together or not at all. This is also what the
+    // partnerClaims `create` rule's cap check assumes: in normal operation
+    // the counter and the claim count can never drift apart.
+    var batch=db.batch();
+    batch.set(db.collection('partnerClaims').doc(code), record);
+    batch.set(db.collection('partnerClaimEmails').doc(emailKey), {
+      code:code, partnership:'nmims2026', at:firebase.firestore.FieldValue.serverTimestamp()
+    });
+    batch.set(db.collection('partnerships').doc('nmims2026'), {
       claimed:firebase.firestore.FieldValue.increment(1),
       [role==='organiser'?'organiserClaimed':'studentClaimed']:firebase.firestore.FieldValue.increment(1),
       lastClaimedAt:new Date().toISOString()
     },{merge:true});
+    await batch.commit();
     btn.disabled=false;
     showSuccess(name.split(' ')[0], code, false);
   }catch(e){

@@ -7176,28 +7176,47 @@ function openPartnerRedeem(){
     if(!code){ showToast('Enter your code first'); return; }
     if(!user){ openLogin(); return; }
     if(!db){ showToast('Not connected — try again in a moment'); return; }
-    // Check if code exists in partnerClaims
-    var snap=await db.collection('partnerClaims').where('code','==',code).get().catch(function(){return null;});
-    if(!snap||snap.empty){ showToast('Code not found. Check it and try again, or email founder@roamwise.co.in'); return; }
-    var claim=snap.docs[0];
-    var data=claim.data();
-    // Check email matches (security: only the person who claimed can redeem)
+    /* partnerClaims' doc ID IS the code itself (rw-v115 hardening) — fetch by
+       known path with .doc(), not a `where('code','==',...)` query. Firestore
+       rules can only validate a specific doc by path (get()/exists()), never
+       an arbitrary query, so this is also what lets the rules confirm a code
+       is real and unredeemed before granting Pro below. */
+    var claimRef=db.collection('partnerClaims').doc(code);
+    var snap=await claimRef.get().catch(function(){return null;});
+    if(!snap||!snap.exists){ showToast('Code not found. Check it and try again, or email founder@roamwise.co.in'); return; }
+    var data=snap.data()||{};
+    // Soft UX check only — only the person who was emailed the code SHOULD
+    // redeem it, but the real security boundary against replay/reuse now
+    // lives in firestore.rules (one-time redemption via a batched write),
+    // not in this client-side email comparison.
     if(data.email && user.email && data.email.toLowerCase()!==user.email.toLowerCase()){
       showToast('This code was claimed with a different email. Sign in with '+data.email.split('@')[0]+'@…');
       return;
     }
     if(data.proRedeemed){ showToast('Code already redeemed — your Pro is active. Check your profile.'); return; }
-    // Grant Pro
+    /* Grant Pro + flip the claim to redeemed in ONE atomic batch. A Firestore
+       batch commits all-or-nothing — that atomicity is what actually stops a
+       code being redeemed twice (see firestore.rules' matching comments on
+       users/{uid} and partnerClaims/{id}). The users/{uid} write must touch
+       ONLY pro/proAt/proMethod/proCode — that exact field set is what the
+       rules' partner-redeem exception checks for; anything else in this
+       write (e.g. the old proPartner/proAmount fields) would be rejected. */
     try{
-      await db.collection('users').doc(user.uid).set({
+      var batch=db.batch();
+      batch.set(db.collection('users').doc(user.uid), {
         pro:true, proAt:new Date().toISOString(),
-        proMethod:'partner', proPartner:data.partnership||'partner',
-        proAmount:0, proCode:code
+        proMethod:'partner', proCode:code
       },{merge:true});
-      await claim.ref.update({proRedeemed:true, redeemedAt:new Date().toISOString(), redeemedUid:user.uid});
+      batch.update(claimRef, {proRedeemed:true, redeemedAt:new Date().toISOString(), redeemedUid:user.uid});
+      await batch.commit();
       showToast('\ud83c\udf89 Lifetime Pro activated! Welcome, '+esc2(data.name?data.name.split(' ')[0]:'friend')+'.');
       window._proUnlocked=true;
-      applyPro();
+      /* Reuse the SAME UI-refresh path a real Firestore pro:true write
+         triggers (the users/{uid} onSnapshot listener, ~line 9403, calls this
+         too) — there is no separate applyPro() anywhere in the app; calling
+         it here used to be a guaranteed crash (ReferenceError) that no UI
+         caller had ever exercised. */
+      isPro=true; lsSet('rwPro','1'); lsSet('rw_pro_uid',user.uid); refreshProUI();
     }catch(e){
       showToast('Redemption error: '+(e.message||'try again'));
     }
