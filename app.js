@@ -326,7 +326,7 @@ var DB = [
    crowd:[45,50,55,40,28,22,25,28,22,32,55,68],
    cost:{budget:550,mid:950,luxury:2200},brk:{flights:280,stay:160,food:90,act:70,misc:50},
    visa:{type:"Free e-Visa",cost:"Free for Indians",days:30,note:"Apply at thaievisa.go.th before travel"},
-   bestM:[9,10,11],interests:["culture","temples","food","nature","trekking","wellness","photography"],
+   bestM:[10,11,12],interests:["culture","temples","food","nature","trekking","wellness","photography"],
    food:["Khao Soi","Pad Thai","Mango Sticky Rice","Som Tam","Larb"],
    gems:["Doi Inthanon National Park","Elephant Nature Park","Sunday Walking Street Wualai","Wat Umong"],
    tags:["budget","nature","culture","food","solo","couple","digital_nomad"],
@@ -338,7 +338,7 @@ var DB = [
    crowd:[55,60,58,50,35,30,75,78,40,45,55,62],
    cost:{budget:600,mid:1100,luxury:2500},brk:{flights:320,stay:200,food:100,act:80,misc:50},
    visa:{type:"Free Visa on Arrival",cost:"Free 30 days",days:30,note:"Extended to 60 days for free — check Imigrasi Indonesia"},
-   bestM:[4,5,8,9],interests:["culture","wellness","photography","nature","food","art","temples"],
+   bestM:[5,6,9,10],interests:["culture","wellness","photography","nature","food","art","temples"],
    food:["Nasi Goreng","Babi Guling","Bebek Betutu","Gado Gado","Ayam Betutu"],
    gems:["Tegallalang Rice Terraces","Campuhan Ridge Walk","Tirta Empul Temple","Pura Taman Saraswati"],
    tags:["wellness","culture","photography","couple","luxury"],
@@ -350,7 +350,7 @@ var DB = [
    crowd:[60,65,58,50,35,28,32,38,30,45,58,65],
    cost:{budget:450,mid:800,luxury:1800},brk:{flights:260,stay:130,food:70,act:60,misc:40},
    visa:{type:"E-Visa",cost:"$25 USD",days:90,note:"Apply at evisa.xuatnhapcanh.gov.vn — single entry 90 days"},
-   bestM:[1,2,3,9,10,11],interests:["history","culture","food","photography","beaches","cycling","tailoring"],
+   bestM:[2,3,4,10,11,12],interests:["history","culture","food","photography","beaches","cycling","tailoring"],
    food:["Cao Lau","White Rose Dumplings","Banh Mi","Mi Quang","Com Ga"],
    gems:["An Bang Beach","My Son Sanctuary","Tra Que Herb Village","Marble Mountains Da Nang","Cham Island snorkeling"],
    tags:["budget","history","food","solo","couple","photography"],
@@ -362,7 +362,7 @@ var DB = [
    crowd:[50,55,88,85,65,55,65,68,55,90,82,70],
    cost:{budget:1200,mid:2000,luxury:4000},brk:{flights:550,stay:400,food:280,act:200,misc:120},
    visa:{type:"E-Visa Required",cost:"Free (processing fee varies)",days:90,note:"Apply at Indian Consulate — takes 5-7 business days"},
-   bestM:[0,1,5,6,8],interests:["culture","temples","history","photography","food","nature","art"],
+   bestM:[1,2,6,7,9],interests:["culture","temples","history","photography","food","nature","art"],
    food:["Kaiseki","Yudofu","Matcha sweets","Kyoto-style ramen","Tofu dishes"],
    gems:["Fushimi Inari at 5am","Arashiyama bamboo grove at dawn","Philosopher's Path in autumn","Nishiki Market","Kurama Onsen"],
    tags:["culture","history","photography","couple","luxury"],
@@ -374,7 +374,7 @@ var DB = [
    crowd:[40,45,55,65,50,38,35,40,50,55,42,45],
    cost:{budget:700,mid:1200,luxury:2800},brk:{flights:380,stay:200,food:100,act:120,misc:80},
    visa:{type:"Visa Free",cost:"Free",days:90,note:"Indian passport holders get 90 days visa-free — NO visa needed!"},
-   bestM:[2,3,9,10,0,1],interests:["culture","history","food","souks","photography","architecture","desert"],
+   bestM:[3,4,10,11,1,2],interests:["culture","history","food","souks","photography","architecture","desert"],
    food:["Tagine","Couscous","Pastilla","Harira soup","Msemen","Mint tea"],
    gems:["Erg Chebbi Desert at sunset","Chefchaouen Blue City","Ourika Valley","Madrasa Ben Youssef","El Badi Palace ruins"],
    tags:["culture","food","photography","couple","solo","adventure"],
@@ -386,7 +386,7 @@ var DB = [
    crowd:[20,22,30,45,55,60,65,65,55,45,28,22],
    cost:{budget:600,mid:1000,luxury:2200},brk:{flights:350,stay:160,food:80,act:60,misc:40},
    visa:{type:"Visa Free",cost:"Free",days:365,note:"Indians get 365 days visa-free in Georgia — one year stay allowed!"},
-   bestM:[3,4,5,8,9],interests:["culture","wine","history","trekking","food","architecture","nightlife"],
+   bestM:[4,5,6,9,10],interests:["culture","wine","history","trekking","food","architecture","nightlife"],
    food:["Khinkali","Khachapuri","Mtsvadi","Lobiani","Georgian wine and chacha"],
    gems:["Kazbegi National Park Gergeti Trinity Church","Vardzia Cave Monastery","Sighnaghi Wine Town","Svaneti region","Mtskheta ancient capital"],
    tags:["budget","culture","wine","solo","couple","digital_nomad"],
@@ -398,7 +398,7 @@ var DB = [
    crowd:[35,38,55,70,60,55,65,68,62,55,40,35],
    cost:{budget:850,mid:1500,luxury:3200},brk:{flights:400,stay:280,food:120,act:180,misc:80},
    visa:{type:"E-Visa",cost:"$51 USD",days:90,note:"Apply at evisa.gov.tr — instant approval, valid 180 days"},
-   bestM:[3,4,8,9],interests:["photography","ballooning","history","caves","hiking","culture","wine"],
+   bestM:[4,5,9,10],interests:["photography","ballooning","history","caves","hiking","culture","wine"],
    food:["Testi Kebab","Manti Turkish dumplings","Baklava","Turkish breakfast","Gözleme"],
    gems:["Hot air balloon at sunrise","Ihlara Valley gorge hike","Underground city Derinkuyu","Rose Valley sunset hike","Local wine tasting Urgup"],
    tags:["photography","couple","luxury","culture","adventure"],
@@ -410,7 +410,7 @@ var DB = [
    crowd:[28,30,40,55,65,75,88,85,65,50,32,28],
    cost:{budget:1100,mid:1800,luxury:3500},brk:{flights:580,stay:280,food:140,act:120,misc:80},
    visa:{type:"Schengen Visa",cost:"~€80",days:90,note:"Apply at Portuguese Embassy or VFS Global India — 90 days in 180"},
-   bestM:[3,4,8,9,0,1],interests:["food","wine","history","architecture","culture","photography","beaches"],
+   bestM:[4,5,9,10,1,2],interests:["food","wine","history","architecture","culture","photography","beaches"],
    food:["Francesinha","Bacalhau","Pastel de nata","Porto wine","Tripas à moda do Porto"],
    gems:["Douro Valley wine country day trip","Livraria Lello bookshop","Fado music in Alfama","Sintra day trip from Lisbon","Costa Nova striped houses"],
    tags:["culture","food","wine","couple","history","photography"],
@@ -422,7 +422,7 @@ var DB = [
    crowd:[30,32,45,62,70,78,88,85,68,55,35,30],
    cost:{budget:1000,mid:1700,luxury:3500},brk:{flights:550,stay:260,food:130,act:110,misc:70},
    visa:{type:"Schengen Visa",cost:"~€80",days:90,note:"Czech Republic is in Schengen — apply at Embassy in India"},
-   bestM:[3,4,9,10,0,1],interests:["history","architecture","food","beer","culture","photography","Christmas markets"],
+   bestM:[4,5,10,11,1,2],interests:["history","architecture","food","beer","culture","photography","Christmas markets"],
    food:["Svíčková beef","Trdelník","Czech goulash","Pilsner beer","Smažený sýr"],
    gems:["Prague Castle at dawn","Charles Bridge before 7am","Český Krumlov day trip","Josefov Jewish Quarter","Vinohrady local neighborhood"],
    tags:["culture","history","beer","couple","budget","photography"],
@@ -434,7 +434,7 @@ var DB = [
    crowd:[45,40,35,38,55,50,65,62,45,48,50,52],
    cost:{budget:800,mid:1400,luxury:2800},brk:{flights:650,stay:180,food:80,act:200,misc:90},
    visa:{type:"Visa Free",cost:"Free",days:183,note:"Indian passport holders get 183 days visa-free in Peru!"},
-   bestM:[5,6,7,8],interests:["history","trekking","adventure","culture","photography","ruins","nature"],
+   bestM:[6,7,8,9],interests:["history","trekking","adventure","culture","photography","ruins","nature"],
    food:["Ceviche","Lomo Saltado","Cuy roasted guinea pig","Chicha morada","Quinoa soup"],
    gems:["Machu Picchu at sunrise","Rainbow Mountain","Huacachina desert oasis","Lake Titicaca","Sacred Valley Pisac market"],
    tags:["adventure","history","trekking","solo","photography"],
@@ -446,7 +446,7 @@ var DB = [
    crowd:[38,40,45,52,42,38,40,38,42,48,40,38],
    cost:{budget:700,mid:1200,luxury:2400},brk:{flights:600,stay:150,food:70,act:80,misc:50},
    visa:{type:"Visa Free",cost:"Free",days:90,note:"Colombian tourist card issued on arrival — 90 days free"},
-   bestM:[0,1,2,7,8,9],interests:["culture","food","nightlife","nature","coffee","paragliding","art"],
+   bestM:[1,2,3,8,9,10],interests:["culture","food","nightlife","nature","coffee","paragliding","art"],
    food:["Bandeja Paisa","Arepas","Sancocho","Colombian coffee","Empanadas","Horchata"],
    gems:["Pablo Escobar tours (controversial)","Guatapé rock El Peñol","Coffee region Salento","Parque Arví cable car","El Poblado neighborhood"],
    tags:["culture","food","nightlife","solo","digital_nomad","couple"],
@@ -458,7 +458,7 @@ var DB = [
    crowd:[30,35,50,55,48,38,35,38,45,52,35,28],
    cost:{budget:1100,mid:1800,luxury:3500},brk:{flights:500,stay:250,food:130,act:180,misc:80},
    visa:{type:"Jordan Pass",cost:"$70 JOD (includes entry to Petra)",days:14,note:"Jordan Pass covers visa + Petra entry — buy at jordanpass.jo"},
-   bestM:[2,3,9,10,0,1],interests:["history","archaeology","desert","hiking","photography","culture","adventure"],
+   bestM:[3,4,10,11,1,2],interests:["history","archaeology","desert","hiking","photography","culture","adventure"],
    food:["Mansaf","Maqluba","Falafel and hummus","Knafeh","Bedouin tea"],
    gems:["Petra by Night candles ceremony","Little Petra","Wadi Rum desert camping","Dead Sea float","Jerash Roman ruins"],
    tags:["history","photography","couple","culture","adventure"],
@@ -470,7 +470,7 @@ var DB = [
    crowd:[35,38,55,45,30,25,30,28,30,45,52,40],
    cost:{budget:500,mid:900,luxury:2000},brk:{flights:220,stay:150,food:80,act:60,misc:40},
    visa:{type:"ETA Online",cost:"$20-50 USD",days:30,note:"Apply at eta.gov.lk — instant approval"},
-   bestM:[0,1,6,7,8,9],interests:["culture","tea","temples","wildlife","beaches","nature","trekking"],
+   bestM:[1,2,7,8,9,10],interests:["culture","tea","temples","wildlife","beaches","nature","trekking"],
    food:["Rice and curry","Kottu roti","Hoppers","String hoppers","Pol sambol","Ceylon tea"],
    gems:["Temple of the Tooth Relic ceremony","Sinharaja rainforest","Ella nine arch bridge","Yala wildlife safari","Mirissa whale watching"],
    tags:["budget","culture","nature","food","solo","couple"],
@@ -482,7 +482,7 @@ var DB = [
    crowd:[62,58,50,40,35,30,32,38,45,52,55,62],
    cost:{budget:2200,mid:3500,luxury:6000},brk:{flights:1100,stay:600,food:280,act:400,misc:150},
    visa:{type:"NZeTA",cost:"NZD 17 online",days:90,note:"Apply at immigration.govt.nz — New Zealand ETA for Indians"},
-   bestM:[5,6,7,8],interests:["adventure","skiing","bungee","nature","photography","wine","hiking"],
+   bestM:[6,7,8,9],interests:["adventure","skiing","bungee","nature","photography","wine","hiking"],
    food:["Hāngi Maori feast","Whitebait fritters","Green-lipped mussels","Hokey pokey ice cream","Pinot Noir Central Otago"],
    gems:["Milford Sound cruise","Routeburn Track hike","Fiordland National Park","Glenorchy Lord of the Rings","Cardrona ski resort"],
    tags:["adventure","nature","luxury","couple","skiing","photography"],
@@ -494,13 +494,118 @@ var DB = [
    crowd:[40,38,45,55,50,42,60,55,42,45,35,42],
    cost:{budget:700,mid:1200,luxury:2500},brk:{flights:680,stay:150,food:80,act:80,misc:50},
    visa:{type:"Tourist Card FMM",cost:"Free",days:180,note:"Free tourist card on arrival — no pre-visa needed for Indians!"},
-   bestM:[9,10,0,1,2],interests:["food","culture","art","mezcal","history","archaeology","textiles"],
+   bestM:[10,11,1,2,3],interests:["food","culture","art","mezcal","history","archaeology","textiles"],
    food:["Mole negro sauce","Tlayuda","Chapulines grasshoppers","Memelas","Mezcal","Tasajo"],
    gems:["Day of the Dead Dia de Muertos festival","Monte Albán Zapotec ruins","Hierve el Agua petrified waterfalls","Tule Tree","Etla Valley markets"],
    tags:["food","culture","solo","photography","art"],
    cur:"MXN",sym:"$",rate:17,local:{meal:"60-150 MXN",restaurant:"200-500 MXN",hotel:"600-1800 MXN",colectivo:"15 MXN",mezcal:"80-150 MXN"},
    photos:["oaxaca mexico monte alban ruins sunset","day of dead oaxaca mexico calavera","oaxaca colorful streets buildings","hierve agua petrified waterfalls oaxaca","oaxaca mole negro food market"],
-   yt:"Oaxaca Mexico travel guide food culture",wiki:"Oaxaca_City",flag:"MX"}
+   yt:"Oaxaca Mexico travel guide food culture",wiki:"Oaxaca_City",flag:"MX"},
+
+/* ---------------------------------------------------------------------------
+   EASY-VISA + MONSOON-COVERAGE expansion (rw-v129). The "Easy visa for Indians"
+   row was starving because most international entries carry visas that are
+   genuinely NOT low-friction (Schengen, Jordan Pass, multi-day e-Visas), and
+   "In season" was thin for Jun-Aug because almost every existing international
+   pick peaks in the Northern winter/spring. These eight are all destinations
+   Indian passport holders can enter with little to no visa friction, and most
+   of them are genuinely at their best during the monsoon months back home.
+--------------------------------------------------------------------------- */
+  {id:"pokhara",name:"Pokhara",country:"Nepal",region:"South Asia",lat:28.21,lon:83.99,
+   crowd:[45,50,65,70,45,20,15,15,35,90,95,55],
+   cost:{budget:450,mid:800,luxury:1800},brk:{flights:150,stay:220,food:120,act:150,misc:80},
+   visa:{type:"Visa Free",cost:"Free — no visa needed",days:0,note:"India-Nepal open border treaty: Indian nationals need only photo ID (a passport if flying) — no visa, no permit, ever."},
+   bestM:[10,11,3,4],interests:["trekking","mountains","lakes","paragliding","adventure"],
+   food:["Dal bhat","Newari khaja set","Momos","Sel roti","Gundruk soup"],
+   gems:["Sarangkot sunrise over the Annapurnas","World Peace Pagoda across Phewa Lake","Begnas Lake away from the tourist crowds","Mahendra Cave"],
+   tags:["mountain","adventure","budget"],
+   cur:"NPR",sym:"Rs",rate:133,local:{meal:"150-300 Rs",restaurant:"400-900 Rs",hotel:"800-2500 Rs",taxi:"200-400 Rs",sim:"300 Rs"},
+   photos:["pokhara phewa lake annapurna reflection","nepal pokhara paragliding sarangkot","annapurna base camp trek nepal","pokhara world peace pagoda sunset","nepal himalaya mountain range clear sky"],
+   yt:"Pokhara Nepal travel guide",wiki:"Pokhara",flag:"NP"},
+
+  {id:"paro_bhutan",name:"Paro",country:"Bhutan",region:"South Asia",lat:27.43,lon:89.42,
+   crowd:[25,30,55,70,50,20,15,15,45,75,60,30],
+   cost:{budget:2200,mid:3800,luxury:7000},brk:{flights:300,stay:900,food:300,act:500,misc:200},
+   visa:{type:"Permit on Arrival",cost:"No visa fee — Sustainable Development Fee ~₹1,200/day for Indians",days:0,note:"Indian nationals need no visa, just an online entry permit issued within a day, plus a daily Sustainable Development Fee that is far lower than the fee other nationalities pay."},
+   bestM:[3,4,5,9,10],interests:["monasteries","mountains","trekking","culture","festivals"],
+   food:["Ema datshi","Red rice","Momos","Suja butter tea","Kewa datshi"],
+   gems:["Tiger's Nest (Paro Taktsang) at dawn","Chele La Pass viewpoint","Punakha Dzong at the river confluence","Paro Tshechu masked-dance festival"],
+   tags:["mountain","culture","offbeat"],
+   cur:"BTN",sym:"Nu.",rate:83,local:{meal:"150-300 Nu.",restaurant:"400-800 Nu.",hotel:"1500-4000 Nu.",taxi:"300-600 Nu.",sdf:"~1200 Nu./day for Indians"},
+   photos:["tigers nest monastery bhutan paro","bhutan punakha dzong river","paro valley bhutan mountains","bhutan monk festival tshechu","bhutan prayer flags himalaya"],
+   yt:"Bhutan Paro Thimphu travel guide",wiki:"Paro,_Bhutan",flag:"BT"},
+
+  {id:"maldives_male",name:"Malé",country:"Maldives",region:"South Asia",lat:4.17,lon:73.51,
+   crowd:[85,80,70,55,40,35,35,38,40,45,60,90],
+   cost:{budget:2500,mid:4500,luxury:12000},brk:{flights:280,stay:1800,food:400,act:400,misc:200},
+   visa:{type:"Free Visa on Arrival",cost:"Free",days:30,note:"A 30-day free tourist visa is stamped on arrival for every nationality, including India — no pre-approval or online form needed."},
+   bestM:[11,12,1,2,3],interests:["beach","diving","snorkeling","honeymoon","island"],
+   food:["Mas huni","Garudhiya fish soup","Fihunu mas grilled fish","Bondibaiy","Rihaakuru"],
+   gems:["Local-island guesthouses instead of a private resort island","Sandbank picnic on a day trip","Manta ray point at Hanifaru Bay (seasonal)","Bioluminescent plankton beaches at night"],
+   tags:["beach","island","honeymoon","luxury"],
+   cur:"MVR",sym:"Rf",rate:15.4,local:{meal:"40-90 Rf",restaurant:"150-400 Rf",resort:"3000-15000 Rf",speedboat_transfer:"500-2500 Rf",sim:"150 Rf"},
+   photos:["maldives overwater villa turquoise lagoon","maldives male aerial atoll","maldives snorkeling coral reef","maldives sandbank picnic sunset","maldives local island beach"],
+   yt:"Maldives travel guide budget",wiki:"Maldives",flag:"MV"},
+
+  {id:"mauritius_pl",name:"Port Louis",country:"Mauritius",region:"East Africa",lat:-20.16,lon:57.50,
+   crowd:[42,38,32,38,42,55,72,75,58,50,45,78],
+   cost:{budget:1400,mid:2400,luxury:5500},brk:{flights:450,stay:600,food:250,act:250,misc:150},
+   visa:{type:"Visa Free",cost:"Free",days:60,note:"Indian passport holders get visa-free entry for up to 60 days — no application, just book and fly."},
+   bestM:[6,7,8,9],interests:["beach","hiking","wildlife","whale watching","watersports"],
+   food:["Dholl puri","Gateau piment","Rougaille","Mine frite","Alouda"],
+   gems:["Le Morne Brabant hike at dawn","Black River Gorges National Park trails","Chamarel seven-coloured earth","Whale and dolphin watching off Tamarin (Jul-Oct)"],
+   tags:["beach","nature","adventure"],
+   cur:"MUR",sym:"Rs",rate:46,local:{meal:"150-300 Rs",restaurant:"500-1200 Rs",hotel:"2000-6000 Rs",taxi:"300-600 Rs",sim:"250 Rs"},
+   photos:["mauritius le morne brabant beach","mauritius chamarel seven colored earth","mauritius black river gorges hike","mauritius whale watching tamarin","port louis mauritius aerial"],
+   yt:"Mauritius travel guide",wiki:"Mauritius",flag:"MU"},
+
+  {id:"seychelles_mahe",name:"Victoria",country:"Seychelles",region:"East Africa",lat:-4.62,lon:55.45,
+   crowd:[55,52,48,50,48,50,62,65,50,48,50,68],
+   cost:{budget:1800,mid:3200,luxury:7500},brk:{flights:500,stay:900,food:350,act:350,misc:150},
+   visa:{type:"Free Visa on Arrival",cost:"Free",days:30,note:"A free Visitor's Permit is issued on arrival to every nationality, including India — extendable up to 3 months total, no pre-visa needed."},
+   bestM:[6,7,8,9],interests:["beach","diving","snorkeling","nature","honeymoon"],
+   food:["Grilled red snapper","Octopus curry","Ladob banana","Bat curry (chauve-souris)","Kat kat banann"],
+   gems:["Anse Source d'Argent at opening time","Vallée de Mai palm forest (coco de mer)","La Digue by bicycle","Aldabra giant tortoise sanctuaries"],
+   tags:["beach","island","honeymoon","luxury"],
+   cur:"SCR",sym:"Rs",rate:13.5,local:{meal:"100-200 Rs",restaurant:"350-800 Rs",hotel:"2500-8000 Rs",taxi:"200-500 Rs",sim:"200 Rs"},
+   photos:["seychelles anse source dargent beach rocks","la digue seychelles bicycle","seychelles vallee de mai coco de mer","seychelles mahe island aerial","seychelles snorkeling clear water"],
+   yt:"Seychelles travel guide",wiki:"Seychelles",flag:"SC"},
+
+  {id:"perhentian_islands",name:"Perhentian Islands",country:"Malaysia",region:"Southeast Asia",lat:5.91,lon:102.73,
+   crowd:[0,0,25,35,45,60,85,90,55,40,0,0],
+   cost:{budget:600,mid:1100,luxury:2600},brk:{flights:300,stay:250,food:130,act:150,misc:80},
+   visa:{type:"Visa Free",cost:"Free",days:30,note:"Malaysia has granted Indian passport holders visa-free entry for up to 30 days since December 2023 (periodically extended) — no application needed."},
+   bestM:[6,7,8],closedM:[11,12,1,2],interests:["diving","snorkeling","beach","island","backpacking"],
+   food:["Nasi lemak","Char kway teow","Roti canai","Ais kacang","Grilled satay"],
+   gems:["Turtle Point night snorkel","Rainforest jungle-trek across the island","Coral Bay sunset","Shark Point reef dive (blacktip reef sharks)"],
+   tags:["beach","island","budget","adventure"],
+   cur:"MYR",sym:"RM",rate:4.7,local:{meal:"8-15 RM",restaurant:"25-60 RM",chalet:"60-150 RM",boat_transfer:"70-90 RM",sim:"30 RM"},
+   photos:["perhentian islands malaysia turquoise water","perhentian island snorkeling turtle","malaysia island beach jungle","perhentian kecil long beach sunset","malaysia coral reef diving"],
+   yt:"Perhentian Islands Malaysia travel guide",wiki:"Perhentian_Islands",flag:"MY"},
+
+  {id:"maasai_mara",name:"Maasai Mara",country:"Kenya",region:"East Africa",lat:-1.50,lon:35.14,
+   crowd:[52,55,28,22,25,52,82,88,78,58,32,58],
+   cost:{budget:1600,mid:3000,luxury:8000},brk:{flights:450,stay:1200,food:300,act:800,misc:200},
+   visa:{type:"eTA",cost:"$30 USD",days:90,note:"Kenya requires an Electronic Travel Authorization — apply online at etakenya.go.ke, typically approved in 2-3 business days (not instant, so plan ahead)."},
+   bestM:[7,8,9],interests:["wildlife","safari","photography","nature","birdwatching"],
+   food:["Nyama choma","Ugali","Sukuma wiki","Pilau","Kenyan chai"],
+   gems:["Great Migration river crossings at the Mara River (Jul-Sep)","Hot air balloon safari at sunrise","Maasai village cultural visit","Mara Triangle for lower crowds than the main reserve"],
+   tags:["wildlife","adventure","photography"],
+   cur:"KES",sym:"KSh",rate:129,local:{meal:"300-600 KSh",restaurant:"1000-2500 KSh",safari_lodge:"8000-25000 KSh",game_drive:"often included or 3000-6000 KSh",sim:"500 KSh"},
+   photos:["maasai mara great migration river crossing","kenya safari lion savanna","maasai mara hot air balloon sunrise","kenya wildebeest herd plains","maasai village kenya culture"],
+   yt:"Maasai Mara Kenya safari guide",wiki:"Maasai_Mara",flag:"KE"},
+
+  {id:"nadi_fiji",name:"Nadi",country:"Fiji",region:"Oceania",lat:-17.80,lon:177.42,
+   crowd:[45,42,40,45,55,65,78,78,65,55,45,60],
+   cost:{budget:2000,mid:3500,luxury:7500},brk:{flights:900,stay:900,food:300,act:300,misc:150},
+   visa:{type:"Visa Free",cost:"Free",days:120,note:"Indian nationals get visa-free entry to Fiji for up to 4 months — no visa needed, just an onward ticket and proof of funds."},
+   bestM:[6,7,8,9,10],interests:["beach","diving","island","watersports","honeymoon"],
+   food:["Kokoda (Fijian ceviche)","Lovo feast","Palusami","Fijian curry","Kava ceremony"],
+   gems:["Cloud 9 floating platform day trip","Mamanuca Islands hop by boat","Sabeto mud pools and hot springs","Sigatoka sand dunes"],
+   tags:["beach","island","honeymoon","adventure"],
+   cur:"FJD",sym:"FJ$",rate:2.25,local:{meal:"8-15 FJ$",restaurant:"25-50 FJ$",resort:"150-500 FJ$",boat_day_trip:"80-150 FJ$",sim:"30 FJ$"},
+   photos:["fiji nadi beach turquoise water","mamanuca islands fiji aerial","fiji kava ceremony tradition","fiji snorkeling coral reef","sigatoka sand dunes fiji"],
+   yt:"Fiji Nadi travel guide",wiki:"Nadi,_Fiji",flag:"FJ"}
 ];
 /* Static country reference data — zero network calls needed. */
 var COUNTRY_INFO = {
@@ -3744,7 +3849,29 @@ function renderForYou(){
       var ea=(evCity===a.name)?-200:0, eb=(evCity===b.name)?-200:0;
       var sa=((a.bestM||[]).indexOf(curM+1)>-1)?-100:0, sb=((b.bestM||[]).indexOf(curM+1)>-1)?-100:0;
       return (ea+sa+seedH(a.name))-(eb+sb+seedH(b.name)); });
-    var picks=pool.slice(0,10);
+    /* "In season" and "Easy visa" are specialty rows that starve fast if generic
+       rows (Popular-now, Low-crowd) get first pick of the shared pool \u2014 so they
+       claim their up-to-10 picks from the FULL pool first, and everything else
+       becomes filler for the generic rows via the shared `used` map. */
+    var EASY_VISA_TYPES={'visa free':1,'free e-visa':1,'free visa on arrival':1,'eta online':1,'nzeta':1,'tourist card fmm':1};
+    function isEasyVisaFor(d){
+      if(!d || d.country==='India' || !d.visa || d.visa.type==='None') return false;
+      var t=(d.visa.type||'').toLowerCase();
+      if(EASY_VISA_TYPES[t]) return true;
+      /* A plain "E-Visa"/"E-Visa Required" usually means a multi-day document-
+         upload process (Vietnam, Japan) \u2014 not low-friction. The one exception
+         is a country whose own visa note confirms genuinely instant/same-day
+         approval (Turkey's e-Visa is instant online). */
+      if(t==='e-visa' && /instant/i.test(d.visa.note||'')) return true;
+      return false;
+    }
+    var used={};
+    var inSeason=pool.filter(function(d){ return (d.bestM||[]).indexOf(curM+1)>-1; }).slice(0,10)
+      .map(function(d){ d._tag='\ud83c\udf1e'; used[d.name]=1; return d; });
+    var visaEasy=pool.filter(function(d){ return isEasyVisaFor(d) && !used[d.name]; }).slice(0,10)
+      .map(function(d){ d._tag='\ud83d\udec2'; used[d.name]=1; return d; });
+    var picks=pool.filter(function(d){ return !used[d.name]; }).slice(0,10);
+    picks.forEach(function(d){ used[d.name]=1; });
     var EMO={beach:'\ud83c\udfd6\ufe0f',metro:'\ud83c\udf06',sacred:'\ud83d\uded5',tech:'\ud83c\udf03',peak:'\ud83c\udfd4\ufe0f',classic:'\ud83e\udded'};
     var row=document.createElement('div');
     row.innerHTML='<div class="rowhead"><b>Popular now</b><a onclick="tabGo(\'explore\')">All \u2192</a></div><div class="prow">'
@@ -3772,14 +3899,12 @@ function renderForYou(){
         setTimeout(function(){ rwPaintPhotos(r, list); }, 900); /* stagger behind Popular-now's queue */
         return r;
       }
-      var used={}; picks.forEach(function(d){used[d.name]=1;});
-      var inSeason=pool.filter(function(d){ return (d.bestM||[]).indexOf(curM+1)>-1 && !used[d.name] && !isClosedNow(d); }).slice(0,10)
-        .map(function(d){ d._tag='\ud83c\udf1e'; used[d.name]=1; return d; });
+      /* inSeason and visaEasy were already carved out of the full pool above,
+         before Popular-now/picks ran \u2014 this row only needs the leftover-based
+         Low-crowd list; used{} already reflects inSeason+visaEasy+picks. */
       var lowCrowd=pool.filter(function(d){ return d.crowd && !used[d.name] && !isClosedNow(d); })
         .sort(function(a,b){ return a.crowd[curM]-b.crowd[curM]; }).slice(0,10)
         .map(function(d){ d._tag=d.crowd[curM]+'%'; used[d.name]=1; return d; });
-      var visaEasy=pool.filter(function(d){ return d.visa && /free|arrival/i.test(d.visa.type) && !used[d.name]; }).slice(0,10)
-        .map(function(d){ d._tag='\ud83d\udec2'; return d; });
       var hero=el('copilotHero'), after=hero;
       [miniRow('\ud83c\udf1e In season \u2014 '+MOx[curM], inSeason),
        miniRow('\ud83e\udd2b Low-crowd escapes this month', lowCrowd),
