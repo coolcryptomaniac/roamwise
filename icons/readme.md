@@ -1,1 +1,1 @@
-
+icons/app-icon-source.png is the canonical master source. All other files in this folder (favicon-32.png, apple-touch-icon.png, icon-192.png, icon-384.png, icon-512.png, icon-maskable-512.png) are generated from it at their exact pixel dimensions — icon-maskable-512.png additionally pads the source to ~80% scale, centered on the source's navy background, per the PWA maskable-icon safe-zone spec.
