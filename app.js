@@ -8351,6 +8351,7 @@ function runSearch(){
 
 /* RENDER RESULTS — built entirely with template literals */
 function renderCards(results, month, budUSD, origin, days, aiData, travelStyle, isGenericResult){
+  itinBuilt = {};
   var mi = MONTHS.indexOf(month);
   var provLabel = activeProv==='smart' ? 'Smart Search' : (lsGet('rwKey_'+activeProv) ? activeProv.charAt(0).toUpperCase()+activeProv.slice(1)+' AI' : 'Smart Search');
 
