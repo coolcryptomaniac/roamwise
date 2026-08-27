@@ -161,6 +161,15 @@ a{color:inherit;text-decoration:none}
 .tl-title{font-size:15px;font-weight:700;margin-bottom:4px}
 .tl-desc{font-size:13px;color:var(--mist);line-height:1.6}
 
+/* REFERRAL CALCULATOR TABLE */
+.rtable-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:14px}
+.rtable{width:100%;border-collapse:collapse;font-size:13px;min-width:480px}
+.rtable th,.rtable td{padding:12px 14px;text-align:right;border-bottom:1px solid var(--line)}
+.rtable th:first-child,.rtable td:first-child{text-align:left}
+.rtable thead th{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--mist);font-weight:700;background:rgba(255,255,255,.03)}
+.rtable tbody tr:last-child td{border-bottom:none}
+.rtable td:not(:first-child){color:var(--gold);font-weight:700;font-variant-numeric:tabular-nums}
+
 /* FOOTER */
 footer{background:#03040A;border-top:1px solid var(--line);padding:24px 20px;text-align:center;font-size:12px;color:#3A4260}
 footer a{color:#5A6076}
@@ -195,7 +204,7 @@ footer a{color:#5A6076}
     <div class="collab-x">×</div>
     <div class="collab-nm">E-Cell NMIMS Mumbai</div>
   </div>
-  <div class="hero-eyebrow">Official AI Travel Partner · 2026</div>
+  <div class="hero-eyebrow" id="heroEyebrow">Proposed AI Travel Partner · 2026</div>
   <h1>500 Lifetime Pro passes.<br><em>Yours to keep.</em></h1>
   <p class="hero-sub">NMIMS × RoamWise gives every eligible student and organiser lifetime Pro access — AI itineraries, real local prices, crowd calendars for 195+ destinations. Claim during the fest, keep it forever.</p>
 
@@ -451,6 +460,26 @@ footer a{color:#5A6076}
   </div>
 </div>
 
+<!-- REFERRAL COMMISSION CALCULATOR -->
+<div class="nmims-section">
+  <div class="sh">If NMIMS drives paid signups too</div>
+  <p style="font-size:13.5px;color:var(--mist);line-height:1.7;margin-bottom:16px">
+    Separate from the 500 free lifetime passes: NMIMS's own referral code is <b style="color:var(--snow)">NMIMS2026</b>, live in RoamWise's referral system at the standard flat <b style="color:var(--snow)">30% commission</b> (same rate every RoamWise referrer is on — see <code>referral-data.js</code>). Anyone who signs up for a paid RoamWise plan via <code>roamwise.co.in/nmims/?ref=NMIMS2026</code> or a shared link counts toward this. These aren't projections we made up for this page — they're the same numbers in <code>PRICING-REFERRAL-MATH.md</code>'s NMIMS projection table, just <code>signups × price × 30%</code>.
+  </p>
+  <div class="rtable-wrap">
+    <table class="rtable">
+      <thead><tr><th>Paid signups</th><th>Commission due — Pro yearly (₹2,499)</th><th>Commission due — Pro lifetime (₹14,999)</th></tr></thead>
+      <tbody>
+        <tr><td>250</td><td>₹1,87,425</td><td>₹11,24,925</td></tr>
+        <tr><td>500</td><td>₹3,74,850</td><td>₹22,49,850</td></tr>
+        <tr><td>1,000</td><td>₹7,49,700</td><td>₹44,99,700</td></tr>
+        <tr><td>2,000</td><td>₹14,99,400</td><td>₹89,99,400</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p style="font-size:11.5px;color:#3A4260;margin-top:10px">Live standing (paid conversions attributed to NMIMS2026 and commission accrued so far) is tracked in the admin view, not shown publicly here.</p>
+</div>
+
 <footer>
   &copy; 2026 RoamWise &nbsp;&middot;&nbsp;
   <a href="/">Home</a> &nbsp;&middot;&nbsp;
@@ -463,6 +492,28 @@ footer a{color:#5A6076}
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
 <script>
+/* ---- REFERRAL CAPTURE (?ref=/?r=) ----
+   This static campaign page doesn't load app.js/referral-data.js, but a link
+   like roamwise.co.in/nmims/?ref=NMIMS2026 should still attribute correctly
+   if the visitor later opens the main app on the same origin. This is a
+   deliberately minimal re-implementation of app.js's rwSanitizeRefCode() +
+   rwRefCapture() (~line 9593/9641): same sanitize rule ([A-Z0-9_-], <=32
+   chars), same localStorage keys (rw_ref_code / rw_ref_at), so the two pages
+   are compatible without loading the full app bundle here. No live
+   validation against the referrer list happens on this page — that check
+   (and the buyer-bonus toast) happens once in the main app. */
+(function(){
+  try{
+    var q=new URLSearchParams(location.search);
+    var code=q.get('ref')||q.get('r')||q.get('utm_content')||q.get('referral');
+    if(!code) return;
+    code=String(code).toUpperCase().replace(/[^A-Z0-9_-]/g,'').slice(0,32);
+    if(!code) return;
+    localStorage.setItem('rw_ref_code', code);
+    localStorage.setItem('rw_ref_at', String(Date.now()));
+  }catch(e){}
+})();
+
 /* ---- Firebase ---- */
 var db=null;
 try{
@@ -506,6 +557,14 @@ function loadSeats(){
     if(ns) ns.textContent=left;
     if(sf) sf.style.width=pct+'%';
     if(sp) sp.textContent=claimed+' / '+TOTAL_SEATS+' claimed ('+pct+'%)';
+    /* Proposed -> Official badge toggle: defaults to "Proposed" so this page
+       never overstates the partnership's status on its own. Flips to
+       "Official" only once an admin sets officialConfirmed:true on this same
+       doc from the Firebase console/admin tooling — partnerships/{id}'s rules
+       only allow that field via isAdmin(), never via a self-serve claim
+       write, so a visitor can never flip this themselves. */
+    var eyebrow=document.getElementById('heroEyebrow');
+    if(eyebrow) eyebrow.textContent = data.officialConfirmed===true ? 'Official AI Travel Partner · 2026' : 'Proposed AI Travel Partner · 2026';
   }, function(){
     var ns=document.getElementById('navSeatsLeft'); if(ns) ns.textContent='500';
     var sp=document.getElementById('seatsLeftPct'); if(sp) sp.textContent='0 / 500 claimed';
