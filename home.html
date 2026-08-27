@@ -186,6 +186,17 @@ footer a:hover{color:#fff}
   .sw-tab span:not(.sw-tab-icon){display:none}
   .sw-tabs{gap:2px}
 }
+#rwCreatorBanner{background:linear-gradient(90deg,#0d0a00,#1a1000,#0d0a00);border-bottom:1px solid rgba(232,186,108,.25);padding:10px 34px 10px 14px;text-align:center;position:relative;overflow:hidden}
+#rwCreatorBanner::before{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(232,186,108,.07),transparent);animation:rwcbSweep 3s ease-in-out infinite}
+@keyframes rwcbSweep{0%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
+.rwcb-row{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;position:relative;max-width:1040px;margin:0 auto}
+.rwcb-dot{width:8px;height:8px;border-radius:50%;background:var(--gold2,#E8BA6C);animation:rwcbBlink 1.4s ease-in-out infinite;flex-shrink:0}
+@keyframes rwcbBlink{0%,100%{opacity:1;box-shadow:0 0 6px var(--gold2,#E8BA6C)}50%{opacity:.3;box-shadow:none}}
+.rwcb-txt{font-family:'Outfit',sans-serif;font-size:12.5px;font-weight:600;letter-spacing:.02em;color:var(--t1,#EDE8DF)}
+.rwcb-txt em{color:var(--gold,#C8913E);font-style:normal}
+.rwcb-txt a{color:var(--gold2,#E8BA6C);font-weight:800;text-decoration:none;border-bottom:1px solid rgba(232,186,108,.5);margin-left:4px;white-space:nowrap}
+.rwcb-close{position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--t2,#8A8680);font-size:19px;line-height:1;cursor:pointer;padding:4px 8px}
+.rwcb-close:hover{color:var(--gold2,#E8BA6C)}
 </style>
 </head>
 <body>
@@ -224,6 +235,28 @@ footer a:hover{color:#fff}
     <a href="/" class="cta">&#9889; Open Planner</a>
   </div>
 </nav>
+
+<div id="rwCreatorBanner" style="display:none">
+  <div class="rwcb-row">
+    <div class="rwcb-dot"></div>
+    <div class="rwcb-txt"><em>Travel creators &amp; influencers</em> &middot; Upload your itineraries, travel videos/reels &amp; blog posts &middot; Show off <em>Ailon Tusk</em>, <em>Trip Chat</em> &amp; trip ratings to your audience &middot; Earn <em>25&ndash;30%</em> referral commission (lifetime Pro for top creators) <a href="/creators/index.html">Apply free &rarr;</a></div>
+  </div>
+  <button class="rwcb-close" onclick="rwDismissCreatorBanner()" aria-label="Dismiss">&times;</button>
+</div>
+<script>
+(function(){
+  try{
+    if(localStorage.getItem('rw_creatorBannerDismissed')==='1') return;
+    var b=document.getElementById('rwCreatorBanner');
+    if(b) b.style.display='block';
+  }catch(e){}
+})();
+function rwDismissCreatorBanner(){
+  try{ localStorage.setItem('rw_creatorBannerDismissed','1'); }catch(e){}
+  var b=document.getElementById('rwCreatorBanner');
+  if(b) b.style.display='none';
+}
+</script>
 
 <!-- HERO -->
 <div class="hero">
