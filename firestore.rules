@@ -121,6 +121,18 @@ service cloud.firestore {
       allow write: if false;
     }
 
+    // ---------- ADMIN AUDIT LOG ----------
+    // Append-only audit trail for admin-initiated Pro grants/changes made via
+    // a private, separate admin console (not part of this app's client code).
+    // That tool creates entries (isAdmin()), other admins may review the log,
+    // but nobody - including admins - can ever edit or delete a past entry,
+    // so manual Pro grants always leave a traceable record.
+    match /adminAuditLog/{id} {
+      allow create: if isAdmin();
+      allow read: if isAdmin();
+      allow update, delete: if false;
+    }
+
     // ---------- ADMINS ----------
     // Never writable from any client. Add your own UID manually in the Firebase Console.
     match /admins/{uid} {
