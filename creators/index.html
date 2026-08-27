@@ -37,12 +37,17 @@ textarea{min-height:96px;resize:vertical}
 .chk input{width:auto;margin-top:4px}
 .brand{font-weight:800;letter-spacing:-.01em}
 .brand em{color:var(--gold);font-style:normal}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;background:linear-gradient(90deg,rgba(232,186,108,.16),rgba(200,145,62,.06));border:1px solid rgba(232,186,108,.4);border-radius:999px;padding:6px 14px;font-size:11px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--gold);margin-bottom:16px}
+.hero-badge .dot{width:7px;height:7px;border-radius:50%;background:var(--gold);flex-shrink:0;animation:heroPulse 1.4s ease-in-out infinite}
+@keyframes heroPulse{0%,100%{opacity:1;box-shadow:0 0 6px var(--gold)}50%{opacity:.35;box-shadow:none}}
+h1 em{font-style:normal;background:linear-gradient(130deg,var(--gold),#F5D9A8,var(--gold2));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
 </style></head>
 <body><div class="wrap">
 <div class="brand" style="font-size:20px;margin-bottom:22px">Roam<em>Wise</em></div>
 
-<h1>Partner with RoamWise.</h1>
-<p class="sub">Built by one person in Almora — no team, no investors, no ad budget. Which means I can pay creators properly out of revenue, but I can't give the product away. Here's an honest ladder: you earn more as you deliver more.</p>
+<div class="hero-badge"><span class="dot"></span> Now casting: travel creators</div>
+<h1>Lights. Camera. <em>Commission.</em></h1>
+<p class="sub">You've already got the audience, the itineraries, the reels that stop the scroll mid-swipe. We've got <b>Ailon Tusk</b> (our AI trip copilot), <b>Trip Chat</b> (gets a whole squad planning on one thread), and trip ratings your followers actually believe. Post your trip, tag your journey, and get paid every time someone books because you sent them. Built by one person in Almora — no team, no investors, no ad budget — so the split is honest and it comes out of real revenue: you earn more as you deliver more. No dance number required, but we won't stop you.</p>
 
 <div class="card">
   <div class="tier">
