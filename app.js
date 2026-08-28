@@ -13202,6 +13202,52 @@ async function loadTripExtras(t){
    on later by filling one string, with zero code changes. */
 var AFF_SKYSCANNER='', AFF_AGODA='', AFF_GYG='', AFF_TRAVELPAYOUTS='';
 function affTpUrl(domain,path){ if(!AFF_TRAVELPAYOUTS) return 'https://'+domain+(path||''); return 'https://tp.media/click?shmarker='+AFF_TRAVELPAYOUTS+'&target_url='+encodeURIComponent('https://'+domain+(path||'')); }
+
+/* ==================== CENTRAL AFFILIATE LINK SYSTEM (rw-v95) ====================
+   Every new affiliate slot (see affiliate-config.js for the registry + the
+   network-wrap helpers rwTpWrap/rwCuelinksWrap/rwEarnKaroWrap/rwAdmitadWrap)
+   lives behind ONE function so a link is never accidentally wrapped twice.
+   All of these start empty — zero revenue, zero behaviour change — until an
+   admin fills the matching key in Firestore config/app. */
+var AFF_VIATOR='', AFF_SAFETYWING='', AFF_KLOOK='', AFF_12GO='', AFF_TRIPCOM='',
+    AFF_HOSTELWORLD='', AFF_AMAZON='', AFF_FLIPKART='', AFF_YATRA='', AFF_CLEARTRIP='',
+    AFF_CUELINKS='', AFF_EARNKARO='', AFF_ADMITAD='';
+var RW_AFF_VARMAP = {
+  booking:'AFF_BOOKING', agoda:'AFF_AGODA', gyg:'AFF_GYG', skyscanner:'AFF_SKYSCANNER',
+  klook:'AFF_KLOOK', '12go':'AFF_12GO', viator:'AFF_VIATOR', safetywing:'AFF_SAFETYWING',
+  tripcom:'AFF_TRIPCOM', hostelworld:'AFF_HOSTELWORLD', amazonin:'AFF_AMAZON',
+  flipkart:'AFF_FLIPKART', yatra:'AFF_YATRA', cleartrip:'AFF_CLEARTRIP'
+};
+/* rwAffLink(programId, destUrl) — the ONE place every outbound booking link
+   should route through. Picks exactly one mechanism, in this priority order,
+   and never combines two:
+     1. direct-ID param on the merchant's own domain, if the program has one
+        AND its config key is filled in (e.g. Booking's aid=)
+     2. the Travelpayouts marker wrap, but ONLY for programs we've actually
+        checked are reachable through Travelpayouts (prog.tpPartner===true),
+        and only if a marker id is configured
+     3. a generic network wrap (Admitad, then Cuelinks, then EarnKaro — first
+        one with a config key set wins), which can wrap ANY destination URL
+     4. the plain, unwrapped URL — always a safe fallback, never broken */
+function rwAffLink(programId, destUrl){
+  try{
+    var prog = (window.RW_AFFILIATE_PROGRAMS||[]).filter(function(p){ return p.id===programId; })[0];
+    if(!prog || !destUrl) return destUrl;
+    var varName = RW_AFF_VARMAP[programId];
+    var directId = varName ? window[varName] : '';
+    if(prog.paramName && directId){
+      var sep = destUrl.indexOf('?')>-1 ? '&' : '?';
+      return destUrl + sep + prog.paramName + '=' + encodeURIComponent(directId);
+    }
+    if(prog.tpPartner && typeof AFF_TRAVELPAYOUTS!=='undefined' && AFF_TRAVELPAYOUTS){
+      return rwTpWrap(destUrl);
+    }
+    if(typeof AFF_ADMITAD!=='undefined' && AFF_ADMITAD) return rwAdmitadWrap(destUrl);
+    if(typeof AFF_CUELINKS!=='undefined' && AFF_CUELINKS) return rwCuelinksWrap(destUrl);
+    if(typeof AFF_EARNKARO!=='undefined' && AFF_EARNKARO) return rwEarnKaroWrap(destUrl);
+    return destUrl;
+  }catch(e){ return destUrl; }
+}
 function flightUrl(place){
   return 'https://www.google.com/travel/flights?q=' + encodeURIComponent('flights to '+place);
 }
@@ -18589,6 +18635,19 @@ function applyRemoteConfig(cfg){
   set('AFF_AGODA',        function(v){ AFF_AGODA=v; });
   set('AFF_GYG',          function(v){ AFF_GYG=v; });
   set('AFF_TRAVELPAYOUTS',function(v){ AFF_TRAVELPAYOUTS=v; });
+  set('AFF_VIATOR',       function(v){ AFF_VIATOR=v; });
+  set('AFF_SAFETYWING',   function(v){ AFF_SAFETYWING=v; });
+  set('AFF_KLOOK',        function(v){ AFF_KLOOK=v; });
+  set('AFF_12GO',         function(v){ AFF_12GO=v; });
+  set('AFF_TRIPCOM',      function(v){ AFF_TRIPCOM=v; });
+  set('AFF_HOSTELWORLD',  function(v){ AFF_HOSTELWORLD=v; });
+  set('AFF_AMAZON',       function(v){ AFF_AMAZON=v; });
+  set('AFF_FLIPKART',     function(v){ AFF_FLIPKART=v; });
+  set('AFF_YATRA',        function(v){ AFF_YATRA=v; });
+  set('AFF_CLEARTRIP',    function(v){ AFF_CLEARTRIP=v; });
+  set('AFF_CUELINKS',     function(v){ AFF_CUELINKS=v; });
+  set('AFF_EARNKARO',     function(v){ AFF_EARNKARO=v; });
+  set('AFF_ADMITAD',      function(v){ AFF_ADMITAD=v; });
   set('WA_NUMBER',        function(v){ WA_NUMBER=v; ensureWaButton(); });
   set('WA_CHANNEL',       function(v){ WA_CHANNEL=v; });
   set('WA_GROUP',         function(v){ WA_GROUP=v; });
