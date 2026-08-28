@@ -607,6 +607,71 @@ var DB = [
    photos:["fiji nadi beach turquoise water","mamanuca islands fiji aerial","fiji kava ceremony tradition","fiji snorkeling coral reef","sigatoka sand dunes fiji"],
    yt:"Fiji Nadi travel guide",wiki:"Nadi,_Fiji",flag:"FJ"}
 ];
+/* ==================== IATA LOOKUP (rw-v95) ====================
+   Skyscanner deep-links need real 3-letter airport codes, not free-text city
+   names. This is a compact, hand-checked lookup — every destination in DB
+   above, plus the major Indian cities travellers most often fly from — NOT
+   an exhaustive worldwide gazetteer. Where a place has no airport of its own
+   (hill towns, valleys) it maps to the nearest airport actually used to
+   reach it; where even that isn't confident enough to state as fact, the
+   place is deliberately left OUT of this table rather than guessed, so the
+   caller falls back to the always-correct Google Flights link instead of a
+   broken Skyscanner URL. Keys are lower-cased for lookup. */
+var RW_IATA = {
+  /* ---- India: DB destinations ---- */
+  'goa':'GOI', 'manali':'KUU', 'rishikesh':'DED', 'spiti valley':'KUU',
+  'alleppey':'COK', 'jaipur':'JAI', 'varanasi':'VNS', 'munnar':'COK',
+  'coorg':'IXE', 'hampi':'HBX', 'pondicherry':'PNY', 'rann of kutch':'BHJ',
+  'havelock island':'IXZ', 'darjeeling':'IXB', 'gangtok':'IXB',
+  'mcleodganj':'DHM', 'jaisalmer':'JSA', 'udaipur':'UDR', 'mysore':'MYQ',
+  'wayanad':'CCJ', 'auli':'DED', 'kaziranga':'JRH', 'khajuraho':'HJR',
+  'leh':'IXL',
+  /* ziro valley and chopta intentionally omitted — no airport within a
+     distance confident enough to call "the" airport for that place. */
+
+  /* ---- International: DB destinations ---- */
+  'chiang mai':'CNX', 'ubud':'DPS', 'hoi an':'DAD', 'kyoto':'KIX',
+  'marrakech':'RAK', 'tbilisi':'TBS', 'cappadocia':'NAV', 'porto':'OPO',
+  'prague':'PRG', 'cusco':'CUZ', 'medellín':'MDE', 'medellin':'MDE',
+  'petra':'AMM', 'kandy':'CMB', 'queenstown':'ZQN', 'oaxaca':'OAX',
+  'pokhara':'PKR', 'paro':'PBH', 'malé':'MLE', 'male':'MLE',
+  'port louis':'MRU', 'victoria':'SEZ', 'perhentian islands':'KBR',
+  'maasai mara':'NBO', 'nadi':'NAN',
+
+  /* ---- Major Indian cities (common trip origins) ---- */
+  'delhi':'DEL', 'new delhi':'DEL', 'mumbai':'BOM', 'bangalore':'BLR',
+  'bengaluru':'BLR', 'chennai':'MAA', 'kolkata':'CCU', 'hyderabad':'HYD',
+  'pune':'PNQ', 'ahmedabad':'AMD', 'kochi':'COK', 'cochin':'COK',
+  'lucknow':'LKO', 'chandigarh':'IXC', 'indore':'IDR', 'guwahati':'GAU',
+  'bhubaneswar':'BBI', 'amritsar':'ATQ', 'srinagar':'SXR', 'nagpur':'NAG',
+  'patna':'PAT'
+};
+/* Best-effort resolve: exact match, then match on the part before the first
+   comma (handles "Goa, India" style strings). Returns null — never a guess —
+   when nothing confident is found. */
+function rwIata(place){
+  if(!place) return null;
+  var k = String(place).trim().toLowerCase();
+  if(RW_IATA[k]) return RW_IATA[k];
+  var first = k.split(',')[0].trim();
+  if(RW_IATA[first]) return RW_IATA[first];
+  return null;
+}
+/* Builds a real Skyscanner route URL, or returns null if either end can't be
+   resolved to a real IATA code — callers MUST fall back to Google Flights
+   in that case rather than ever emitting a broken Skyscanner link. */
+function rwSkyscannerUrl(origin, dest){
+  var o = rwIata(origin), d = rwIata(dest);
+  if(!o || !d) return null;
+  return rwAffLink('skyscanner', 'https://www.skyscanner.co.in/transport/flights/'+o.toLowerCase()+'/'+d.toLowerCase()+'/');
+}
+/* Destination-only Skyscanner "flights to X" browse URL — needs just the
+   destination resolved, no origin. */
+function rwSkyscannerToUrl(dest){
+  var d = rwIata(dest);
+  if(!d) return null;
+  return rwAffLink('skyscanner', 'https://www.skyscanner.co.in/transport/flights-to/'+d.toLowerCase()+'/');
+}
 /* Static country reference data — zero network calls needed. */
 var COUNTRY_INFO = {
   'afghanistan':{iso:'AF',capital:'Kabul',currency:'Afghan Afghani',language:'Pashto, Dari'},
@@ -1921,7 +1986,8 @@ function rwBookPay(r, b){
 function rwBookConfirm(mode){
   var P=window._pendingBooking; if(!P) return;
   var r=P.r, b=P.b, total=P.total, ref=P.ref;
-  var rec={ ref:ref, roomId:r.id, partnerId:r.partnerId, property:r.property,
+  var rec={ ref:ref, roomId:r.id, partnerUid:r.partnerId, guestUid:(user&&user.uid)||'',
+    property:r.property,
     room:r.room, zone:r.zone, area:r.area,
     checkIn:b.inD, checkOut:b.outD, nights:b.nights, guests:b.guests,
     guestName:b.name, guestPhone:b.phone, note:b.note,
@@ -2346,7 +2412,7 @@ function openBooking(){
     if(!b.length){
       html='<div class="bk-empty"><div style="font-size:46px">\ud83e\uddf3</div>'
         +'<b style="display:block;margin:10px 0 6px;font-size:16px">Your trip is empty</b>'
-        +'<span class="note">Add a stay, a guide, a driver or something to do \u2014 then send one request and we\u2019ll get it all confirmed.</span>'
+        +'<span class="note">Add a stay or an experience \u2014 then send one request and we\u2019ll get it all confirmed. (Guides, transport, food and celebrations bookings are coming soon.)</span>'
         +'<button class="tact" style="margin-top:14px;font-weight:800;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#0A0A0C;border:none" onclick="rwPageClose();openPartners()">Browse stays &amp; experiences \u2192</button></div>';
     } else {
       html='<div class="bk-list">'+b.map(function(x){
@@ -3439,6 +3505,24 @@ var RWPricing = (function(){
     ]
   };
 
+  /* Short, human-readable display strings for every feature key used across
+     TIERS[*].features — kept here, next to TIERS, so a new feature key added
+     to a tier is a two-line change (the key + its label) instead of a key
+     that silently renders as nothing in the pay modal's feature checklist. */
+  var FEATURE_LABELS = {
+    smartAI:         'Smart AI itinerary builder',
+    proAI:           'Pro AI trip enhancement',
+    pdfExport:       'PDF export',
+    cardStylesBasic: 'Basic card styles',
+    cardStylesAll:   'All card styles',
+    adFree:          'Ad-free',
+    squadsPost:      'Post to Squads',
+    unlimitedPdf:    'Unlimited PDF exports',
+    movieFree:       'Free trip movie/reel',
+    earlyAccess:     'Early access to new features',
+    prioritySupport: 'Priority support'
+  };
+
   function daysSinceLaunch(){ return (Date.now()-new Date(CONFIG.LAUNCH_DATE).getTime())/864e5; }
 
   /* Founder offer is open only while BOTH conditions hold: under the user
@@ -3491,6 +3575,7 @@ var RWPricing = (function(){
 
   return {
     CONFIG: CONFIG,
+    FEATURE_LABELS: FEATURE_LABELS,
     founderOfferOpen: founderOfferOpen,
     founderGateLoad: founderGateLoad,
     founderGate: function(){ return _founderGate; },
@@ -4292,8 +4377,9 @@ function musRender(mode){
 var ADSENSE_ID='ca-pub-4943859484482348'; /* live */
 var ADSENSE_SLOT=''; /* set in admin Config once you create an ad unit */
 var AFF_BOOKING=''; /* Booking.com affiliate aid (optional) */
-function stayUrl(place){ var u='https://www.booking.com/searchresults.html?ss='+encodeURIComponent(place);
-  if(AFF_BOOKING) u+='&aid='+AFF_BOOKING; return u; }
+function stayUrl(place){
+  return rwAffLink('booking', 'https://www.booking.com/searchresults.html?ss='+encodeURIComponent(place));
+}
 var WA_NUMBER='', WA_CHANNEL='', WA_GROUP='';
 (function(){
   /* AdSense loads on the WEBSITE ONLY — never inside the app WebView.
@@ -6264,7 +6350,7 @@ function rwFitnessRender(dest, geo, venues){
   }
   var stayHtml='<div class="fit-h" style="margin-top:16px">\ud83c\udfe8 Where to stay (fitness-friendly)</div>'
     + tiers.map(function(ti){
-        var url='https://www.booking.com/searchresults.html?ss='+encodeURIComponent(ti.q+' '+dest);
+        var url=stayUrl(ti.q+' '+dest);
         return '<a class="fit-tier" target="_blank" rel="noopener" href="'+url+'">'
           +'<span class="fit-tier-ic">'+ti.ic+'</span>'
           +'<span class="fit-tier-body"><b>'+ti.t+'</b><span>'+ti.note+'</span></span>'
@@ -7951,13 +8037,31 @@ function buildHacks(d, mi, month){
 
 var UPI_VPA = 'coolmohit@ybl', UPI_NAME = 'RoamWise Pro', UPI_AMT = '100';
 var _selectedPlan = null; /* set by pickPlan() — drives the amount/label for whatever the user is actually buying */
-function pickPlan(planId, priceINR, label){
-  _selectedPlan = {id:planId, priceINR:priceINR, label:label};
+/* Renders the real feature checklist for whatever the user just picked, into
+   #planFeatures, reusing the same .features-grid/.feat-item/.feat-ck markup
+   the static pre-selection teaser uses so it looks native. tierId is the
+   RWPricing.CONFIG.TIERS id whose benefits this purchase actually grants —
+   every purchasable option (monthly/yearly tier, long-term pass, short-term
+   pass, or the legacy founder offer) maps to one, so this never renders blank. */
+function _renderPlanFeatures(tierId){
+  var box = el('planFeatures'); if(!box) return;
+  var tier = RWPricing.tierById(tierId);
+  var labels = RWPricing.FEATURE_LABELS;
+  box.innerHTML = (tier.features||[]).map(function(f){
+    return '<div class="feat-item"><span class="feat-ck">✓</span>'+(labels[f]||f)+'</div>';
+  }).join('');
+}
+function pickPlan(planId, priceINR, label, tierId){
+  _selectedPlan = {id:planId, priceINR:priceINR, label:label, tierId:tierId};
   UPI_AMT = String(priceINR); UPI_NAME = 'RoamWise '+label;
   qrBuilt = false; /* force QR rebuild for the new amount */
   var qc = el('qrcode'); if(qc) qc.innerHTML='';
   buildQR();
   var ph = el('planHeader'); if(ph) ph.textContent = label+' \u2014 \u20b9'+priceINR;
+  /* Founder offer (and any legacy call site that doesn't pass a tierId) grants
+     the same lifetime benefits legacy \u20b9100 buyers get \u2014 see currentTier(). */
+  _renderPlanFeatures(tierId || 'elite');
+  var teaser = el('staticFeaturesTeaser'); if(teaser) teaser.style.display='none';
   var picker = el('planPicker'); if(picker) picker.style.display='none';
   var methods = el('payMethods'); if(methods){
     methods.style.display='block';
@@ -7973,6 +8077,7 @@ function pickPlan(planId, priceINR, label){
 function backToPlanPicker(){
   var picker = el('planPicker'); if(picker) picker.style.display='block';
   var methods = el('payMethods'); if(methods) methods.style.display='none';
+  var teaser = el('staticFeaturesTeaser'); if(teaser) teaser.style.display='';
 }
 /* setTier() removed — replaced by pickPlan(), which drives the full tier grid */
 function upiParams(){ return 'pa='+UPI_VPA+'&pn='+encodeURIComponent(UPI_NAME)+'&am='+UPI_AMT+'&cu=INR&tn='+encodeURIComponent('RoamWise Pro Lifetime'); }
@@ -8658,15 +8763,7 @@ function renderCards(results, month, budUSD, origin, days, aiData, travelStyle, 
     /* BOOK TAB */
     H += `<div class="tab-pane" id="${T}-bk"><div class="card-body" style="padding-top:0">
       <div class="sec-label" style="margin-top:4px">Book this trip</div>
-      <div class="book-grid">
-        <a class="book-link" href="https://www.skyscanner.com/transport/flights/${encodeURIComponent(origin)}/${enc}/" target="_blank" rel="noopener"><span class="book-ico">✈️</span><span class="book-name">Skyscanner</span><span class="book-sub">Flights</span></a>
-        <a class="book-link" href="https://www.booking.com/search.html?ss=${enc}" target="_blank" rel="noopener"><span class="book-ico">🏨</span><span class="book-name">Booking.com</span><span class="book-sub">Hotels</span></a>
-        <a class="book-link" href="https://www.getyourguide.com/s/?q=${enc}" target="_blank" rel="noopener"><span class="book-ico">🎫</span><span class="book-name">GetYourGuide</span><span class="book-sub">Tours</span></a>
-        <a class="book-link" href="https://www.viator.com/search/${enc}" target="_blank" rel="noopener"><span class="book-ico">🗺️</span><span class="book-name">Viator</span><span class="book-sub">Experiences</span></a>
-        <a class="book-link" href="https://www.airbnb.com/s/${enc}/homes" target="_blank" rel="noopener"><span class="book-ico">🏠</span><span class="book-name">Airbnb</span><span class="book-sub">Stays</span></a>
-        <a class="book-link" href="https://www.safetywing.com" target="_blank" rel="noopener"><span class="book-ico">🛡️</span><span class="book-name">SafetyWing</span><span class="book-sub">Insurance</span></a>
-      </div>
-      <p style="font-size:10px;color:#4A4946;text-align:center;margin-top:7px">Affiliate links — commission at no extra cost</p>
+      ${rwBookGridHTML(origin, d.name, enc)}
     </div></div>`;
 
     /* ACTION BAR */
@@ -9017,7 +9114,7 @@ function renderPlanGrid(founderOpen){
 
   var html='';
   if(founderOpen){
-    html += '<button class="pay-tab on" style="width:100%;margin-bottom:14px" onclick="pickPlan(\'founder\','+C.FOUNDER_OFFER.priceINR+',\'Founder Pro \u2014 Lifetime\')">'
+    html += '<button class="pay-tab on" style="width:100%;margin-bottom:14px" onclick="pickPlan(\'founder\','+C.FOUNDER_OFFER.priceINR+',\'Founder Pro \u2014 Lifetime\',\'elite\')">'
       +'\ud83c\udf1f Founder Pro \u2014 \u20b9'+C.FOUNDER_OFFER.priceINR+' <small>One payment, forever \u2014 this exact price never comes back</small></button>';
   }
 
@@ -9040,7 +9137,7 @@ function renderPlanGrid(founderOpen){
     var price = yearly? t.priceYearly : t.priceMonthly;
     var per = yearly? '/yr' : '/mo';
     var save = RWPricing.yearlySavingsPct(t);
-    html += '<button class="tact" style="text-align:left;padding:12px" onclick="pickPlan(\''+t.id+(yearly?'_y':'_m')+'\','+price+',\''+t.label+' '+(yearly?'Yearly':'Monthly')+'\')">'
+    html += '<button class="tact" style="text-align:left;padding:12px" onclick="pickPlan(\''+t.id+(yearly?'_y':'_m')+'\','+price+',\''+t.label+' '+(yearly?'Yearly':'Monthly')+'\',\''+t.id+'\')">'
       +'<div style="font-weight:800;color:var(--gold2);font-size:13px">'+t.label+'</div>'
       +'<div style="font-size:17px;font-weight:800;margin-top:2px">\u20b9'+price+'<span style="font-size:11px;color:var(--t3);font-weight:400">'+per+'</span></div>'
       +(yearly&&save>0? '<div style="font-size:10px;color:#16BF96">save '+save+'%</div>' : '')
@@ -9059,7 +9156,7 @@ function renderPlanGrid(founderOpen){
          pickPlan title reads "<Tier> Lifetime". Non-lifetime passes are unchanged. */
       var topLabel = p.label || (p.years+'-Year');
       var payTitle = group.tierLabel+' '+(p.lifetime? 'Lifetime' : p.years+'-Year Pass');
-      html += '<button class="tact" style="flex:1;text-align:center;padding:10px 6px" onclick="pickPlan(\''+p.id+'\','+p.priceINR+',\''+payTitle+'\')">'
+      html += '<button class="tact" style="flex:1;text-align:center;padding:10px 6px" onclick="pickPlan(\''+p.id+'\','+p.priceINR+',\''+payTitle+'\',\''+group.tier+'\')">'
         +'<div style="font-size:12px;font-weight:700">'+topLabel+'</div><div style="font-size:14px;font-weight:800;color:var(--gold2)">\u20b9'+p.priceINR+'</div></button>';
     });
     html += '</div>';
@@ -9069,7 +9166,7 @@ function renderPlanGrid(founderOpen){
   html += '<div class="section-label">\u26a1 Just need it for one trip?</div>'
     +'<div style="display:flex;gap:8px;margin-bottom:6px">';
   C.SHORT_TERM.forEach(function(p){
-    html += '<button class="tact" style="flex:1;text-align:center;padding:10px 6px" onclick="pickPlan(\''+p.id+'\','+p.priceINR+',\''+p.label+'\')">'
+    html += '<button class="tact" style="flex:1;text-align:center;padding:10px 6px" onclick="pickPlan(\''+p.id+'\','+p.priceINR+',\''+p.label+'\',\'pro\')">'
       +'<div style="font-size:12px;font-weight:700">'+p.label+'</div><div style="font-size:14px;font-weight:800;color:var(--gold2)">\u20b9'+p.priceINR+'</div></button>';
   });
   html += '</div>';
@@ -10470,7 +10567,7 @@ function openCopilot(){
       +'<div style="display:flex;gap:6px;flex-wrap:wrap;margin:2px 0 6px" id="cpChips"></div>'
       +'<div style="display:flex;gap:8px;align-items:flex-end">'
       +'<textarea id="cpInput" rows="1" placeholder="Type or speak your plan\u2026" style="flex:1;background:var(--bg3,#1A1A20);border:1px solid var(--b2,#2A2A36);border-radius:12px;padding:11px 12px;color:inherit;font:inherit;resize:none;outline:none"></textarea>'
-      +'<button class="tact" id="cpMic" style="padding:11px 12px" onclick="copilotVoice()">\ud83c\udfa4</button>'
+      +'<button class="tact" id="cpMic" style="padding:11px 12px" onclick="rwVoiceStart(\'cpInput\')">\ud83c\udfa4</button>'
       +'<button class="tact" style="padding:11px 14px;font-weight:800;background:linear-gradient(135deg,var(--gold,#E8BA6C),var(--gold2,#C8913E));color:#0A0A0C;border:none" onclick="copilotSend()">\u27a4</button>'
       +'</div>'
       +'<div style="font-size:9.5px;color:var(--t3);margin-top:6px;line-height:1.5">Copilot plans, calculates and links \u2014 transport &amp; stays open partner sites; nothing is booked or charged inside the app.</div>'
@@ -13202,6 +13299,52 @@ async function loadTripExtras(t){
    on later by filling one string, with zero code changes. */
 var AFF_SKYSCANNER='', AFF_AGODA='', AFF_GYG='', AFF_TRAVELPAYOUTS='';
 function affTpUrl(domain,path){ if(!AFF_TRAVELPAYOUTS) return 'https://'+domain+(path||''); return 'https://tp.media/click?shmarker='+AFF_TRAVELPAYOUTS+'&target_url='+encodeURIComponent('https://'+domain+(path||'')); }
+
+/* ==================== CENTRAL AFFILIATE LINK SYSTEM (rw-v95) ====================
+   Every new affiliate slot (see affiliate-config.js for the registry + the
+   network-wrap helpers rwTpWrap/rwCuelinksWrap/rwEarnKaroWrap/rwAdmitadWrap)
+   lives behind ONE function so a link is never accidentally wrapped twice.
+   All of these start empty — zero revenue, zero behaviour change — until an
+   admin fills the matching key in Firestore config/app. */
+var AFF_VIATOR='', AFF_SAFETYWING='', AFF_KLOOK='', AFF_12GO='', AFF_TRIPCOM='',
+    AFF_HOSTELWORLD='', AFF_AMAZON='', AFF_FLIPKART='', AFF_YATRA='', AFF_CLEARTRIP='',
+    AFF_CUELINKS='', AFF_EARNKARO='', AFF_ADMITAD='';
+var RW_AFF_VARMAP = {
+  booking:'AFF_BOOKING', agoda:'AFF_AGODA', gyg:'AFF_GYG', skyscanner:'AFF_SKYSCANNER',
+  klook:'AFF_KLOOK', '12go':'AFF_12GO', viator:'AFF_VIATOR', safetywing:'AFF_SAFETYWING',
+  tripcom:'AFF_TRIPCOM', hostelworld:'AFF_HOSTELWORLD', amazonin:'AFF_AMAZON',
+  flipkart:'AFF_FLIPKART', yatra:'AFF_YATRA', cleartrip:'AFF_CLEARTRIP'
+};
+/* rwAffLink(programId, destUrl) — the ONE place every outbound booking link
+   should route through. Picks exactly one mechanism, in this priority order,
+   and never combines two:
+     1. direct-ID param on the merchant's own domain, if the program has one
+        AND its config key is filled in (e.g. Booking's aid=)
+     2. the Travelpayouts marker wrap, but ONLY for programs we've actually
+        checked are reachable through Travelpayouts (prog.tpPartner===true),
+        and only if a marker id is configured
+     3. a generic network wrap (Admitad, then Cuelinks, then EarnKaro — first
+        one with a config key set wins), which can wrap ANY destination URL
+     4. the plain, unwrapped URL — always a safe fallback, never broken */
+function rwAffLink(programId, destUrl){
+  try{
+    var prog = (window.RW_AFFILIATE_PROGRAMS||[]).filter(function(p){ return p.id===programId; })[0];
+    if(!prog || !destUrl) return destUrl;
+    var varName = RW_AFF_VARMAP[programId];
+    var directId = varName ? window[varName] : '';
+    if(prog.paramName && directId){
+      var sep = destUrl.indexOf('?')>-1 ? '&' : '?';
+      return destUrl + sep + prog.paramName + '=' + encodeURIComponent(directId);
+    }
+    if(prog.tpPartner && typeof AFF_TRAVELPAYOUTS!=='undefined' && AFF_TRAVELPAYOUTS){
+      return rwTpWrap(destUrl);
+    }
+    if(typeof AFF_ADMITAD!=='undefined' && AFF_ADMITAD) return rwAdmitadWrap(destUrl);
+    if(typeof AFF_CUELINKS!=='undefined' && AFF_CUELINKS) return rwCuelinksWrap(destUrl);
+    if(typeof AFF_EARNKARO!=='undefined' && AFF_EARNKARO) return rwEarnKaroWrap(destUrl);
+    return destUrl;
+  }catch(e){ return destUrl; }
+}
 function flightUrl(place){
   return 'https://www.google.com/travel/flights?q=' + encodeURIComponent('flights to '+place);
 }
@@ -13210,12 +13353,10 @@ function trainBusUrl(place){
   return 'https://www.rome2rio.com/s/' + encodeURIComponent(place);
 }
 function stayUrlAgoda(place){
-  var u='https://www.agoda.com/search?city='+encodeURIComponent(place);
-  if(AFF_AGODA) u+='&cid='+AFF_AGODA; return u;
+  return rwAffLink('agoda', 'https://www.agoda.com/search?city='+encodeURIComponent(place));
 }
 function thingsUrl(place){
-  var u='https://www.getyourguide.com/s/?q='+encodeURIComponent(place);
-  if(AFF_GYG) u+='&partner_id='+AFF_GYG; return u;
+  return rwAffLink('gyg', 'https://www.getyourguide.com/s/?q='+encodeURIComponent(place));
 }
 function travelLinksHTML(place){
   var L=[
@@ -13229,6 +13370,63 @@ function travelLinksHTML(place){
         return '<a class="tact" style="text-align:center;text-decoration:none;font-size:12px;padding:10px 6px" target="_blank" rel="noopener" href="'+x[1]+'" onclick="try{track(\'aff_click\')}catch(e){}">'+x[0]+'</a>';
       }).join('')
     + '</div>';
+}
+
+/* Compare Destinations "Book this trip" tab — every link routes through the
+   central rwAffLink() system so none is ever wrapped twice, and the
+   commission line only claims a real commission when something is actually
+   active (Airbnb has no registered program here, so it always stays plain —
+   never fabricated). */
+function rwBookGridHTML(origin, destName, enc){
+  /* Skyscanner needs real IATA codes on both ends (see RW_IATA above). When
+     either origin or destination doesn't resolve, we do NOT emit a broken
+     Skyscanner link — the working Google Flights search takes that slot
+     instead, for this card only. rwSkyscannerUrl() already routes through
+     rwAffLink() internally, so it is never wrapped a second time here. */
+  /* Build the plain (unwrapped) Skyscanner URL from the SAME IATA-derived
+     domain+path as the affiliate-wrapped one, so the only possible
+     difference between skyPlain and skyHref is an actual appended affiliate
+     value — not a structural mismatch that would always read as "active". */
+  var skyO = rwIata(origin), skyD = rwIata(destName);
+  var skyIsFallback = !(skyO && skyD);
+  var skyPlain = skyIsFallback ? '' : 'https://www.skyscanner.co.in/transport/flights/'+skyO.toLowerCase()+'/'+skyD.toLowerCase()+'/';
+  var skyAff = skyIsFallback ? null : rwAffLink('skyscanner', skyPlain);
+  var skyHref = skyAff || ('https://www.google.com/travel/flights?q='+encodeURIComponent('flights from '+origin+' to '+destName));
+
+  var plain = {
+    booking:    'https://www.booking.com/searchresults.html?ss='+enc,
+    gyg:        'https://www.getyourguide.com/s/?q='+enc,
+    viator:     'https://www.viator.com/search/'+enc,
+    airbnb:     'https://www.airbnb.com/s/'+enc+'/homes',
+    safetywing: 'https://www.safetywing.com'
+  };
+  var hrefs = {
+    skyscanner: skyHref,
+    booking:    rwAffLink('booking', plain.booking),
+    gyg:        rwAffLink('gyg', plain.gyg),
+    viator:     rwAffLink('viator', plain.viator),
+    airbnb:     plain.airbnb, /* no Airbnb affiliate program registered — plain, not fabricated */
+    safetywing: rwAffLink('safetywing', plain.safetywing)
+  };
+  var anyActive = (!skyIsFallback && skyHref !== skyPlain) ||
+    Object.keys(plain).some(function(k){ return hrefs[k] !== plain[k]; });
+
+  var items = [
+    [skyIsFallback?'Google Flights':'Skyscanner', skyIsFallback?'🛩️':'✈️', 'Flights', hrefs.skyscanner],
+    ['Booking.com','🏨','Hotels', hrefs.booking],
+    ['GetYourGuide','🎫','Tours', hrefs.gyg],
+    ['Viator','🗺️','Experiences', hrefs.viator],
+    ['Airbnb','🏠','Stays', hrefs.airbnb],
+    ['SafetyWing','🛡️','Insurance', hrefs.safetywing]
+  ];
+  var grid = items.map(function(x){
+    return '<a class="book-link" href="'+x[3]+'" target="_blank" rel="noopener"><span class="book-ico">'+x[1]+'</span><span class="book-name">'+x[0]+'</span><span class="book-sub">'+x[2]+'</span></a>';
+  }).join('');
+  var note = anyActive
+    ? 'Affiliate links — commission at no extra cost'
+    : 'Direct links to each site — no affiliate relationship active yet';
+  return '<div class="book-grid">'+grid+'</div>'
+    +'<p style="font-size:10px;color:#4A4946;text-align:center;margin-top:7px">'+note+'</p>';
 }
 
 /* ==================== TRIP NOTIFICATIONS ====================
@@ -16304,16 +16502,16 @@ var RW_PLATFORMS = [
    url:'https://www.ixigo.com/'},
   {n:'Skyscanner', ico:'\ud83d\udd0d', best:'Comparing every airline at once; "everywhere" search for cheap dates',
    watch:'It is a search engine \u2014 you book on the airline/OTA it sends you to',
-   url:'https://www.skyscanner.co.in/'},
+   url:'https://www.skyscanner.co.in/', aff:'skyscanner'},
   {n:'Google Flights', ico:'\ud83d\udee9\ufe0f', best:'Fastest date-grid and price tracking alerts',
    watch:'Does not show every budget carrier; check IndiGo/Akasa direct too',
    url:'https://www.google.com/travel/flights'},
   {n:'Booking.com', ico:'\ud83c\udfe8', best:'Largest stay inventory; free-cancellation filter is excellent',
    watch:'Prices exclude taxes until late in the flow \u2014 compare the final page',
-   url:'https://www.booking.com/'},
+   url:'https://www.booking.com/', aff:'booking'},
   {n:'Agoda', ico:'\ud83c\udf0f', best:'Often cheapest across Asia for the same room',
    watch:'Check whether breakfast/taxes are included before comparing',
-   url:'https://www.agoda.com/'},
+   url:'https://www.agoda.com/', aff:'agoda'},
   {n:'Airbnb', ico:'\ud83c\udfe1', best:'Homestays and longer stays; kitchens for budget trips',
    watch:'Cleaning + service fees can add 20\u201330% \u2014 judge on the total, not the nightly',
    url:'https://www.airbnb.co.in/'},
@@ -16330,10 +16528,11 @@ function rwPlatformsHTML(){
     +'<div class="tk-meta">What each platform is actually good at \u2014 and where it stings</div></div>'
     +'<div class="tk-sec">'
     + RW_PLATFORMS.map(function(p){
+        var href = p.aff ? rwAffLink(p.aff, p.url) : p.url;
         return '<div style="padding:9px 0;border-bottom:1px solid rgba(255,255,255,.05)">'
           +'<div style="display:flex;justify-content:space-between;align-items:center;gap:8px">'
           +'<b style="font-size:13px">'+p.ico+' '+esc2(p.n)+'</b>'
-          +'<a class="tk-chip" style="font-size:10.5px;padding:4px 9px;text-decoration:none" target="_blank" rel="noopener" href="'+p.url+'">Open \u2197</a></div>'
+          +'<a class="tk-chip" style="font-size:10.5px;padding:4px 9px;text-decoration:none" target="_blank" rel="noopener" href="'+href+'">Open \u2197</a></div>'
           +'<div style="font-size:11.5px;color:var(--t2);margin-top:3px;line-height:1.5">\u2714\ufe0f '+esc2(p.best)+'</div>'
           +'<div style="font-size:11.5px;color:#E8BA6C;margin-top:2px;line-height:1.5">\u26a0\ufe0f '+esc2(p.watch)+'</div>'
           +'</div>';
@@ -16676,7 +16875,15 @@ var RW_ACTIONS = {
        schedule so a dead partner never sits in the app again. */
     ['Evera (all-EV)', function(){ return 'https://www.evera.co.in/'; }, '\u26a1', 'IN'],
     ['Xanh SM (all-EV)', function(){ return 'https://xanhsm.com/'; }, '\ud83c\udf3f', 'SEA'],
-    ['Uber Green', function(q,lat,lon){ return lat? 'https://m.uber.com/ul/?action=setPickup&pickup=my_location&dropoff[latitude]='+lat+'&dropoff[longitude]='+lon : 'https://m.uber.com/ul/?action=setPickup&pickup=my_location'; }, '\ud83c\udf3f'],
+    /* Uber runs a real affiliate program (developer.uber.com/docs/riders/
+       affiliate-program) and is also carried as a campaign on Cuelinks and
+       EarnKaro \u2014 checked via WebSearch, Aug 2026 \u2014 so it is eligible for the
+       central system's generic-network wrap (registry entry in
+       affiliate-config.js has no confirmed direct URL param, so this can
+       only ever pick up a network wrap, never a fabricated one). Ola's
+       "refer and earn" is a rider-to-rider credit scheme, not a publisher
+       affiliate program, so its link is left exactly as a plain deep link. */
+    ['Uber Green', function(q,lat,lon){ return rwAffLink('uber', lat? 'https://m.uber.com/ul/?action=setPickup&pickup=my_location&dropoff[latitude]='+lat+'&dropoff[longitude]='+lon : 'https://m.uber.com/ul/?action=setPickup&pickup=my_location'); }, '\ud83c\udf3f'],
     ['Ola',    function(q,lat,lon){ return lat? 'https://book.olacabs.com/?drop_lat='+lat+'&drop_lng='+lon : 'https://book.olacabs.com/'; }, '\ud83d\ude95'],
     ['Rapido', function(){ return 'https://onelink.to/rapido'; }, '\ud83c\udfcd\ufe0f'],
     ['Porter (goods)', function(){ return 'https://porter.in/'; }, '\ud83d\ude9a']
@@ -16700,8 +16907,8 @@ var RW_ACTIONS = {
     ['Zepto',   function(q){ return 'https://www.zeptonow.com/search?query='+encodeURIComponent(q||''); }, '\ud83d\udef5']
   ],
   shop: [
-    ['Amazon',   function(q){ return 'https://www.amazon.in/s?k='+encodeURIComponent(q||''); }, '\ud83d\udce6'],
-    ['Flipkart', function(q){ return 'https://www.flipkart.com/search?q='+encodeURIComponent(q||''); }, '\ud83d\udecd\ufe0f'],
+    ['Amazon',   function(q){ return rwAffLink('amazonin', 'https://www.amazon.in/s?k='+encodeURIComponent(q||'')); }, '\ud83d\udce6'],
+    ['Flipkart', function(q){ return rwAffLink('flipkart', 'https://www.flipkart.com/search?q='+encodeURIComponent(q||'')); }, '\ud83d\udecd\ufe0f'],
     ['Myntra',   function(q){ return 'https://www.myntra.com/'+encodeURIComponent(String(q||'').replace(/\s+/g,'-')); }, '\ud83d\udc55']
   ],
   stay: [
@@ -16709,7 +16916,14 @@ var RW_ACTIONS = {
     ['Agoda',   function(q){ return 'https://www.agoda.com/search?city='+encodeURIComponent(q||''); }, '\ud83d\udecf\ufe0f']
   ],
   fly: [
-    ['Skyscanner', function(q){ return 'https://www.skyscanner.co.in/transport/flights-to/'+encodeURIComponent(String(q||'').slice(0,3).toLowerCase()); }, '\u2708\ufe0f'],
+    /* Slicing the first 3 letters of a free-text place name (the old code)
+       is not a real IATA code \u2014 "Manali" became "man", which is nobody's
+       airport. rwSkyscannerToUrl() resolves a real code via RW_IATA and
+       returns null when it can't; rwActionHubHTML() below drops any chip
+       whose URL is null, so an unresolved place simply loses the Skyscanner
+       chip rather than ever linking somewhere wrong \u2014 Google Flights, right
+       next to it, always still works. */
+    ['Skyscanner', function(q){ return rwSkyscannerToUrl(q||''); }, '\u2708\ufe0f'],
     ['Google Flights', function(q){ return 'https://www.google.com/travel/flights?q='+encodeURIComponent('flights to '+(q||'')); }, '\ud83d\udee9\ufe0f']
   ],
   rail: [
@@ -16752,10 +16966,11 @@ function rwActionHubHTML(kind, query, dest, lat, lon, cc){
     +'<div style="font-weight:800;font-size:13.5px">'+titles[kind]+(query? ' \u2014 '+esc2(query):'')+'</div>'
     +'<div style="font-size:11px;color:var(--t3);margin-top:2px">Opens in the app you already use, search filled in, your saved payment. I can\u2019t take payments inside RoamWise \u2014 and honestly you wouldn\u2019t want me to.</div>'
     +'<div class="tk-chips" style="margin-top:10px">'
-    + list.map(function(a){
-        var url = a[1](query, lat, lon);
-        return '<a class="tk-chip gold" style="text-decoration:none" target="_blank" rel="noopener" href="'+url+'">'+a[2]+' '+a[0]+'</a>';
-      }).join('')
+    + list.map(function(a){ return {url:a[1](query, lat, lon), label:a[0], icon:a[2]}; })
+        .filter(function(x){ return !!x.url; }) /* an unresolvable link (e.g. Skyscanner with no IATA match) never renders rather than pointing somewhere broken */
+        .map(function(x){
+          return '<a class="tk-chip gold" style="text-decoration:none" target="_blank" rel="noopener" href="'+x.url+'">'+x.icon+' '+x.label+'</a>';
+        }).join('')
     +'</div></div></div>';
 }
 
@@ -18589,6 +18804,19 @@ function applyRemoteConfig(cfg){
   set('AFF_AGODA',        function(v){ AFF_AGODA=v; });
   set('AFF_GYG',          function(v){ AFF_GYG=v; });
   set('AFF_TRAVELPAYOUTS',function(v){ AFF_TRAVELPAYOUTS=v; });
+  set('AFF_VIATOR',       function(v){ AFF_VIATOR=v; });
+  set('AFF_SAFETYWING',   function(v){ AFF_SAFETYWING=v; });
+  set('AFF_KLOOK',        function(v){ AFF_KLOOK=v; });
+  set('AFF_12GO',         function(v){ AFF_12GO=v; });
+  set('AFF_TRIPCOM',      function(v){ AFF_TRIPCOM=v; });
+  set('AFF_HOSTELWORLD',  function(v){ AFF_HOSTELWORLD=v; });
+  set('AFF_AMAZON',       function(v){ AFF_AMAZON=v; });
+  set('AFF_FLIPKART',     function(v){ AFF_FLIPKART=v; });
+  set('AFF_YATRA',        function(v){ AFF_YATRA=v; });
+  set('AFF_CLEARTRIP',    function(v){ AFF_CLEARTRIP=v; });
+  set('AFF_CUELINKS',     function(v){ AFF_CUELINKS=v; });
+  set('AFF_EARNKARO',     function(v){ AFF_EARNKARO=v; });
+  set('AFF_ADMITAD',      function(v){ AFF_ADMITAD=v; });
   set('WA_NUMBER',        function(v){ WA_NUMBER=v; ensureWaButton(); });
   set('WA_CHANNEL',       function(v){ WA_CHANNEL=v; });
   set('WA_GROUP',         function(v){ WA_GROUP=v; });
@@ -18610,6 +18838,29 @@ function applyRemoteConfig(cfg){
   /* Gumroad values feed the existing localStorage readers untouched. */
   set('GUM_URL',          function(v){ lsSet('rw_gum_url', v); });
   set('GUM_PID',          function(v){ lsSet('rw_gum_pid', v); });
+
+  /* ---- Admin-controlled custom head-script slot (rw-v95) ----
+     Lets an admin drop in a verified third-party script (e.g. a Travelpayouts
+     Drive snippet, once confirmed via their own dashboard) purely through
+     Firestore config — no code deploy needed. Both fields must be explicitly
+     set AND customHeadScriptVerified must be the literal boolean true; any
+     other value (missing, false, a string "true", etc.) leaves this fully
+     inert, exactly like every other slot in this file that starts empty. Same
+     createElement+async+appendChild bootstrap pattern already used for
+     AdSense above — the concern with an unverified URL was trusting the URL,
+     not this mechanism. Guarded so a second Firestore fetch never injects the
+     same tag twice. */
+  try{
+    if(cfg.customHeadScriptUrl && cfg.customHeadScriptVerified===true && /^https:\/\//.test(cfg.customHeadScriptUrl)){
+      if(!document.querySelector('script[data-rw-custom-head="1"]')){
+        var chs=document.createElement('script');
+        chs.async=true;
+        chs.src=cfg.customHeadScriptUrl;
+        chs.setAttribute('data-rw-custom-head','1');
+        document.head.appendChild(chs);
+      }
+    }
+  }catch(e){}
 }
 (function(){
   function boot(){

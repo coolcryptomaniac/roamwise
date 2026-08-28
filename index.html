@@ -980,7 +980,10 @@ function rwDismissCreatorBanner(){
         <span class="trust-badge" data-i18n="pay.secure">&#128274; Secure UPI / Card</span>
         <span class="trust-badge" data-i18n="pay.noAuto">&#9989; One-time &mdash; never auto-charged</span>
       </div>
-      <div class="features-grid">
+      <!-- Generic "why go Pro" teaser shown only before a plan is picked; once
+           pickPlan() fires it is hidden and a real per-plan feature list (built
+           from RWPricing.CONFIG.TIERS[*].features) takes over inside #payMethods. -->
+      <div class="features-grid" id="staticFeaturesTeaser">
         <div class="feat-item"><span class="feat-ck">&#10003;</span>Full itineraries</div>
         <div class="feat-item"><span class="feat-ck">&#10003;</span>Budget tracker</div>
         <div class="feat-item"><span class="feat-ck">&#10003;</span>WhatsApp share</div>
@@ -1007,9 +1010,10 @@ function rwDismissCreatorBanner(){
       </div>
       <div id="payMethods" style="display:none">
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
-        <button class="tact" style="font-size:11px;padding:6px 10px" onclick="backToPlanPicker()">\u2190 Change plan</button>
+        <button class="tact" style="font-size:11px;padding:6px 10px" onclick="backToPlanPicker()">&#8592; Change plan</button>
         <div id="planHeader" style="font-size:13px;font-weight:700;color:var(--gold2)"></div>
       </div>
+      <div class="features-grid" id="planFeatures"></div>
       <div class="section-label">&#129399; Pay directly &mdash; zero middlemen, zero extra fees</div>
       <div class="upi-apps">
         <button class="upi-app phonepe" onclick="payVia('phonepe')"><span class="ua-ic" style="background:#fff"><svg width="18" height="18" viewBox="0 0 24 24"><circle cx="12" cy="12" r="12" fill="#5F259F"/><text x="12" y="16.5" text-anchor="middle" font-family="Arial" font-weight="bold" font-size="11" fill="#fff">&#2346;&#2375;</text></svg></span>PhonePe</button>
@@ -1118,6 +1122,7 @@ function rwDismissCreatorBanner(){
 <script src="referral-data.js"></script>
 <script src="partners-data.js"></script>
 <script src="booking-data.js"></script>
+<script src="affiliate-config.js"></script>
 <script src="rooms-data.js"></script>
 <script src="experiences-data.js"></script>
 <script src="badges-data.js"></script>
