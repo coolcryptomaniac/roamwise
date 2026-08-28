@@ -10528,7 +10528,7 @@ function openCopilot(){
       +'<div style="display:flex;gap:6px;flex-wrap:wrap;margin:2px 0 6px" id="cpChips"></div>'
       +'<div style="display:flex;gap:8px;align-items:flex-end">'
       +'<textarea id="cpInput" rows="1" placeholder="Type or speak your plan\u2026" style="flex:1;background:var(--bg3,#1A1A20);border:1px solid var(--b2,#2A2A36);border-radius:12px;padding:11px 12px;color:inherit;font:inherit;resize:none;outline:none"></textarea>'
-      +'<button class="tact" id="cpMic" style="padding:11px 12px" onclick="copilotVoice()">\ud83c\udfa4</button>'
+      +'<button class="tact" id="cpMic" style="padding:11px 12px" onclick="rwVoiceStart(\'cpInput\')">\ud83c\udfa4</button>'
       +'<button class="tact" style="padding:11px 14px;font-weight:800;background:linear-gradient(135deg,var(--gold,#E8BA6C),var(--gold2,#C8913E));color:#0A0A0C;border:none" onclick="copilotSend()">\u27a4</button>'
       +'</div>'
       +'<div style="font-size:9.5px;color:var(--t3);margin-top:6px;line-height:1.5">Copilot plans, calculates and links \u2014 transport &amp; stays open partner sites; nothing is booked or charged inside the app.</div>'
