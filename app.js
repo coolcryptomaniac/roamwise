@@ -3504,6 +3504,24 @@ var RWPricing = (function(){
     ]
   };
 
+  /* Short, human-readable display strings for every feature key used across
+     TIERS[*].features — kept here, next to TIERS, so a new feature key added
+     to a tier is a two-line change (the key + its label) instead of a key
+     that silently renders as nothing in the pay modal's feature checklist. */
+  var FEATURE_LABELS = {
+    smartAI:         'Smart AI itinerary builder',
+    proAI:           'Pro AI trip enhancement',
+    pdfExport:       'PDF export',
+    cardStylesBasic: 'Basic card styles',
+    cardStylesAll:   'All card styles',
+    adFree:          'Ad-free',
+    squadsPost:      'Post to Squads',
+    unlimitedPdf:    'Unlimited PDF exports',
+    movieFree:       'Free trip movie/reel',
+    earlyAccess:     'Early access to new features',
+    prioritySupport: 'Priority support'
+  };
+
   function daysSinceLaunch(){ return (Date.now()-new Date(CONFIG.LAUNCH_DATE).getTime())/864e5; }
 
   /* Founder offer is open only while BOTH conditions hold: under the user
@@ -3556,6 +3574,7 @@ var RWPricing = (function(){
 
   return {
     CONFIG: CONFIG,
+    FEATURE_LABELS: FEATURE_LABELS,
     founderOfferOpen: founderOfferOpen,
     founderGateLoad: founderGateLoad,
     founderGate: function(){ return _founderGate; },
@@ -8017,13 +8036,31 @@ function buildHacks(d, mi, month){
 
 var UPI_VPA = 'coolmohit@ybl', UPI_NAME = 'RoamWise Pro', UPI_AMT = '100';
 var _selectedPlan = null; /* set by pickPlan() — drives the amount/label for whatever the user is actually buying */
-function pickPlan(planId, priceINR, label){
-  _selectedPlan = {id:planId, priceINR:priceINR, label:label};
+/* Renders the real feature checklist for whatever the user just picked, into
+   #planFeatures, reusing the same .features-grid/.feat-item/.feat-ck markup
+   the static pre-selection teaser uses so it looks native. tierId is the
+   RWPricing.CONFIG.TIERS id whose benefits this purchase actually grants —
+   every purchasable option (monthly/yearly tier, long-term pass, short-term
+   pass, or the legacy founder offer) maps to one, so this never renders blank. */
+function _renderPlanFeatures(tierId){
+  var box = el('planFeatures'); if(!box) return;
+  var tier = RWPricing.tierById(tierId);
+  var labels = RWPricing.FEATURE_LABELS;
+  box.innerHTML = (tier.features||[]).map(function(f){
+    return '<div class="feat-item"><span class="feat-ck">✓</span>'+(labels[f]||f)+'</div>';
+  }).join('');
+}
+function pickPlan(planId, priceINR, label, tierId){
+  _selectedPlan = {id:planId, priceINR:priceINR, label:label, tierId:tierId};
   UPI_AMT = String(priceINR); UPI_NAME = 'RoamWise '+label;
   qrBuilt = false; /* force QR rebuild for the new amount */
   var qc = el('qrcode'); if(qc) qc.innerHTML='';
   buildQR();
   var ph = el('planHeader'); if(ph) ph.textContent = label+' \u2014 \u20b9'+priceINR;
+  /* Founder offer (and any legacy call site that doesn't pass a tierId) grants
+     the same lifetime benefits legacy \u20b9100 buyers get \u2014 see currentTier(). */
+  _renderPlanFeatures(tierId || 'elite');
+  var teaser = el('staticFeaturesTeaser'); if(teaser) teaser.style.display='none';
   var picker = el('planPicker'); if(picker) picker.style.display='none';
   var methods = el('payMethods'); if(methods){
     methods.style.display='block';
@@ -8039,6 +8076,7 @@ function pickPlan(planId, priceINR, label){
 function backToPlanPicker(){
   var picker = el('planPicker'); if(picker) picker.style.display='block';
   var methods = el('payMethods'); if(methods) methods.style.display='none';
+  var teaser = el('staticFeaturesTeaser'); if(teaser) teaser.style.display='';
 }
 /* setTier() removed — replaced by pickPlan(), which drives the full tier grid */
 function upiParams(){ return 'pa='+UPI_VPA+'&pn='+encodeURIComponent(UPI_NAME)+'&am='+UPI_AMT+'&cu=INR&tn='+encodeURIComponent('RoamWise Pro Lifetime'); }
@@ -9075,7 +9113,7 @@ function renderPlanGrid(founderOpen){
 
   var html='';
   if(founderOpen){
-    html += '<button class="pay-tab on" style="width:100%;margin-bottom:14px" onclick="pickPlan(\'founder\','+C.FOUNDER_OFFER.priceINR+',\'Founder Pro \u2014 Lifetime\')">'
+    html += '<button class="pay-tab on" style="width:100%;margin-bottom:14px" onclick="pickPlan(\'founder\','+C.FOUNDER_OFFER.priceINR+',\'Founder Pro \u2014 Lifetime\',\'elite\')">'
       +'\ud83c\udf1f Founder Pro \u2014 \u20b9'+C.FOUNDER_OFFER.priceINR+' <small>One payment, forever \u2014 this exact price never comes back</small></button>';
   }
 
@@ -9098,7 +9136,7 @@ function renderPlanGrid(founderOpen){
     var price = yearly? t.priceYearly : t.priceMonthly;
     var per = yearly? '/yr' : '/mo';
     var save = RWPricing.yearlySavingsPct(t);
-    html += '<button class="tact" style="text-align:left;padding:12px" onclick="pickPlan(\''+t.id+(yearly?'_y':'_m')+'\','+price+',\''+t.label+' '+(yearly?'Yearly':'Monthly')+'\')">'
+    html += '<button class="tact" style="text-align:left;padding:12px" onclick="pickPlan(\''+t.id+(yearly?'_y':'_m')+'\','+price+',\''+t.label+' '+(yearly?'Yearly':'Monthly')+'\',\''+t.id+'\')">'
       +'<div style="font-weight:800;color:var(--gold2);font-size:13px">'+t.label+'</div>'
       +'<div style="font-size:17px;font-weight:800;margin-top:2px">\u20b9'+price+'<span style="font-size:11px;color:var(--t3);font-weight:400">'+per+'</span></div>'
       +(yearly&&save>0? '<div style="font-size:10px;color:#16BF96">save '+save+'%</div>' : '')
@@ -9117,7 +9155,7 @@ function renderPlanGrid(founderOpen){
          pickPlan title reads "<Tier> Lifetime". Non-lifetime passes are unchanged. */
       var topLabel = p.label || (p.years+'-Year');
       var payTitle = group.tierLabel+' '+(p.lifetime? 'Lifetime' : p.years+'-Year Pass');
-      html += '<button class="tact" style="flex:1;text-align:center;padding:10px 6px" onclick="pickPlan(\''+p.id+'\','+p.priceINR+',\''+payTitle+'\')">'
+      html += '<button class="tact" style="flex:1;text-align:center;padding:10px 6px" onclick="pickPlan(\''+p.id+'\','+p.priceINR+',\''+payTitle+'\',\''+group.tier+'\')">'
         +'<div style="font-size:12px;font-weight:700">'+topLabel+'</div><div style="font-size:14px;font-weight:800;color:var(--gold2)">\u20b9'+p.priceINR+'</div></button>';
     });
     html += '</div>';
@@ -9127,7 +9165,7 @@ function renderPlanGrid(founderOpen){
   html += '<div class="section-label">\u26a1 Just need it for one trip?</div>'
     +'<div style="display:flex;gap:8px;margin-bottom:6px">';
   C.SHORT_TERM.forEach(function(p){
-    html += '<button class="tact" style="flex:1;text-align:center;padding:10px 6px" onclick="pickPlan(\''+p.id+'\','+p.priceINR+',\''+p.label+'\')">'
+    html += '<button class="tact" style="flex:1;text-align:center;padding:10px 6px" onclick="pickPlan(\''+p.id+'\','+p.priceINR+',\''+p.label+'\',\'pro\')">'
       +'<div style="font-size:12px;font-weight:700">'+p.label+'</div><div style="font-size:14px;font-weight:800;color:var(--gold2)">\u20b9'+p.priceINR+'</div></button>';
   });
   html += '</div>';
