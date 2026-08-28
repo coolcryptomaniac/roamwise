@@ -1986,7 +1986,8 @@ function rwBookPay(r, b){
 function rwBookConfirm(mode){
   var P=window._pendingBooking; if(!P) return;
   var r=P.r, b=P.b, total=P.total, ref=P.ref;
-  var rec={ ref:ref, roomId:r.id, partnerId:r.partnerId, property:r.property,
+  var rec={ ref:ref, roomId:r.id, partnerUid:r.partnerId, guestUid:(user&&user.uid)||'',
+    property:r.property,
     room:r.room, zone:r.zone, area:r.area,
     checkIn:b.inD, checkOut:b.outD, nights:b.nights, guests:b.guests,
     guestName:b.name, guestPhone:b.phone, note:b.note,
@@ -13382,13 +13383,18 @@ function rwBookGridHTML(origin, destName, enc){
      Skyscanner link — the working Google Flights search takes that slot
      instead, for this card only. rwSkyscannerUrl() already routes through
      rwAffLink() internally, so it is never wrapped a second time here. */
-  var skyAff = rwSkyscannerUrl(origin, destName);
-  var skyIsFallback = !skyAff;
-  var skyPlain = 'https://www.skyscanner.com/transport/flights/'+encodeURIComponent(origin)+'/'+enc+'/'; /* unresolved-but-would-be-plain, for the active-wrap check only */
+  /* Build the plain (unwrapped) Skyscanner URL from the SAME IATA-derived
+     domain+path as the affiliate-wrapped one, so the only possible
+     difference between skyPlain and skyHref is an actual appended affiliate
+     value — not a structural mismatch that would always read as "active". */
+  var skyO = rwIata(origin), skyD = rwIata(destName);
+  var skyIsFallback = !(skyO && skyD);
+  var skyPlain = skyIsFallback ? '' : 'https://www.skyscanner.co.in/transport/flights/'+skyO.toLowerCase()+'/'+skyD.toLowerCase()+'/';
+  var skyAff = skyIsFallback ? null : rwAffLink('skyscanner', skyPlain);
   var skyHref = skyAff || ('https://www.google.com/travel/flights?q='+encodeURIComponent('flights from '+origin+' to '+destName));
 
   var plain = {
-    booking:    'https://www.booking.com/search.html?ss='+enc,
+    booking:    'https://www.booking.com/searchresults.html?ss='+enc,
     gyg:        'https://www.getyourguide.com/s/?q='+enc,
     viator:     'https://www.viator.com/search/'+enc,
     airbnb:     'https://www.airbnb.com/s/'+enc+'/homes',

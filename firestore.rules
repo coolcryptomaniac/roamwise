@@ -278,8 +278,11 @@ service cloud.firestore {
           // small payload; cap the kind so nothing arbitrary is stored
           && (!('kind' in request.resource.data)
               || request.resource.data.kind in ['text','tusk','budget','plan','meet','poll','paid']);
-        allow update, delete: if false;
+        allow delete: if false;
         allow update: if request.auth != null
+          && !isBanned()
+          && roomExists()
+          && isMember()
           && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['reactions']);
       }
     }
@@ -747,8 +750,12 @@ service cloud.firestore {
     }
 
     // ---- PUBLIC STATS (aggregate numbers shown on marketing pages) ----
-    // Live-only addition, carried over as-is: signed-in read (matches the
-    // page that displays it), admin-only write, no personal data.
+    // Live-only addition, carried over as-is. The `request.auth != null`
+    // read below is redundant: the wildcard meta/{doc} block above already
+    // grants `allow read: if true` for every meta doc including this one,
+    // and rules are OR'd, so this doc is actually PUBLICLY readable with no
+    // sign-in required - matching live.html, which reads it unauthenticated.
+    // Admin-only write, no personal data.
     match /meta/publicStats {
       allow read: if request.auth != null;
       allow write: if isAdmin();
@@ -818,7 +825,9 @@ service cloud.firestore {
                     && request.resource.data.status == 'pending'
                     && !('commissionPct' in request.resource.data)
                     && !('verified' in request.resource.data)
-                    && !('badges' in request.resource.data);
+                    && !('badges' in request.resource.data)
+                    && !('payoutHold' in request.resource.data)
+                    && !('adminNote' in request.resource.data);
       allow update: if isAdmin()
                     || (isPartner(uid)
                         && !request.resource.data.diff(resource.data).affectedKeys()
@@ -846,7 +855,9 @@ service cloud.firestore {
                   || (request.auth != null && resource.data.partnerUid == request.auth.uid)
                   || (request.auth != null && resource.data.guestUid == request.auth.uid);
       allow create: if request.auth != null
-                    && request.resource.data.status in ['requested','paid-unverified','confirmed-pay-later'];
+                    && request.resource.data.status in ['requested','paid-unverified','confirmed-pay-later']
+                    && request.resource.data.guestUid == request.auth.uid
+                    && exists(/databases/$(database)/documents/partners/$(request.resource.data.partnerUid));
       allow update: if isAdmin()
                     || (request.auth != null
                         && resource.data.partnerUid == request.auth.uid
