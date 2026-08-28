@@ -30,5 +30,10 @@ when.
    leftover old block does not get replaced by a new one, it gets combined
    with it. That is exactly what caused the 2026-08-28 regressions above.
 4. Click Publish.
-5. Save a dated copy of the file you just deployed into this folder (see
+5. Update the `meta/rulesVersion` Firestore document's `version` field to
+   match the version marker in the header of the file you just deployed
+   (e.g. `v15.8`) - the app's staleness probe reads that doc to tell the
+   founder whether the deployed rules are current, and skipping this step
+   makes that check report stale/incorrect information.
+6. Save a dated copy of the file you just deployed into this folder (see
    naming above) so the next person auditing the rules can see history.

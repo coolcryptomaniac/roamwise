@@ -7306,19 +7306,20 @@ function openPartnerRedeem(){
     if(!code){ showToast('Enter your code first'); return; }
     if(!user){ openLogin(); return; }
     if(!db){ showToast('Not connected — try again in a moment'); return; }
-    /* partnerClaims' doc ID IS the code itself (rw-v115 hardening) — fetch by
+    /* partnerClaims' doc ID IS the code itself (rw-v116 hardening) — fetch by
        known path with .doc(), not a `where('code','==',...)` query. Firestore
        rules can only validate a specific doc by path (get()/exists()), never
-       an arbitrary query, so this is also what lets the rules confirm a code
-       is real and unredeemed before granting Pro below. */
+       an arbitrary query, so this is also what lets the rules confirm — via
+       isRedeemedByCaller() — that THIS caller already redeemed this exact
+       code before granting Pro below (see the two-step write further down). */
     var claimRef=db.collection('partnerClaims').doc(code);
     var snap=await claimRef.get().catch(function(){return null;});
     if(!snap||!snap.exists){ showToast('Code not found. Check it and try again, or email founder@roamwise.co.in'); return; }
     var data=snap.data()||{};
     // Soft UX check only — only the person who was emailed the code SHOULD
     // redeem it, but the real security boundary against replay/reuse now
-    // lives in firestore.rules (one-time redemption via a batched write),
-    // not in this client-side email comparison.
+    // lives in firestore.rules (one-time redemption via two sequential,
+    // awaited writes — see below), not in this client-side email comparison.
     if(data.email && user.email && data.email.toLowerCase()!==user.email.toLowerCase()){
       showToast('This code was claimed with a different email. Sign in with '+data.email.split('@')[0]+'@…');
       return;
@@ -7333,21 +7334,33 @@ function openPartnerRedeem(){
       showToast('This code’s claim window has expired. Email founder@roamwise.co.in if you believe this is a mistake.');
       return;
     }
-    /* Grant Pro + flip the claim to redeemed in ONE atomic batch. A Firestore
-       batch commits all-or-nothing — that atomicity is what actually stops a
-       code being redeemed twice (see firestore.rules' matching comments on
-       users/{uid} and partnerClaims/{id}). The users/{uid} write must touch
-       ONLY pro/proAt/proMethod/proCode — that exact field set is what the
-       rules' partner-redeem exception checks for; anything else in this
-       write (e.g. the old proPartner/proAmount fields) would be rejected. */
+    /* Flip the claim to redeemed FIRST, as its own separate, AWAITED write,
+       THEN grant Pro on users/{uid} — in that exact order, NOT as one atomic
+       batch. firestore.rules' users/{uid} partner-grant rule now calls
+       isRedeemedByCaller(code), which get()s partnerClaims/{code} and only
+       approves the grant once proRedeemed==true and redeemedUid==this uid
+       are ALREADY committed — a get() inside a security rule only ever sees
+       already-committed state, never a sibling pending write in the same
+       batch, so batching these two writes together would make the grant
+       rule reject every time. Sequencing them like this (redeem, await,
+       then grant) is what actually stops a code being redeemed twice: once
+       the flip commits, isRedeemedByCaller() only ever matches this one uid,
+       so no other account can replay the same code again. The users/{uid}
+       write must touch ONLY pro/proAt/proMethod/proCode — that exact field
+       set is what the rules' partner-redeem exception checks for; anything
+       else in this write (e.g. the old proPartner/proAmount fields) would be
+       rejected. */
     try{
-      var batch=db.batch();
-      batch.set(db.collection('users').doc(user.uid), {
+      await claimRef.update({proRedeemed:true, redeemedAt:new Date().toISOString(), redeemedUid:user.uid});
+    }catch(e){
+      showToast('Redemption error: '+(e.message||'try again'));
+      return;
+    }
+    try{
+      await db.collection('users').doc(user.uid).set({
         pro:true, proAt:new Date().toISOString(),
         proMethod:'partner', proCode:code
       },{merge:true});
-      batch.update(claimRef, {proRedeemed:true, redeemedAt:new Date().toISOString(), redeemedUid:user.uid});
-      await batch.commit();
       showToast('\ud83c\udf89 Partner Pass activated! Welcome, '+esc2(data.name?data.name.split(' ')[0]:'friend')+'.');
       window._proUnlocked=true;
       /* Reuse the SAME UI-refresh path a real Firestore pro:true write
@@ -7359,7 +7372,12 @@ function openPartnerRedeem(){
          a paid-sounding badge, the instant this resolves. */
       isPro=true; lsSet('rwPro','1'); lsSet('rw_pro_uid',user.uid); lsSet('rw_pro_method','partner'); refreshProUI();
     }catch(e){
-      showToast('Redemption error: '+(e.message||'try again'));
+      /* The claim is ALREADY marked redeemed at this point (the first write
+         above succeeded) — it cannot be silently retried by re-running this
+         flow, since the code now shows as redeemed. Surface that clearly
+         instead of a generic error so the user contacts support rather than
+         assuming the code is simply broken. */
+      showToast('Your code was redeemed, but activating Pro failed — contact founder@roamwise.co.in with your code so we can finish this manually.');
     }
   }, 'Enter the NMIMS-XXXXXX code you received after claiming on the partnership page.');
 }

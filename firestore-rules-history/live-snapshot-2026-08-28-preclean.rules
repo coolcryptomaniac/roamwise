@@ -1,4 +1,26 @@
 // ============================================================================
+//  *** DO NOT DEPLOY THIS FILE ***
+// ----------------------------------------------------------------------------
+//  This is an ARCHIVED, NON-DEPLOYABLE snapshot: an as-found copy of what was
+//  actually LIVE in the Firebase Console on 2026-08-28, kept only as an audit
+//  record of the pre-cleanup state - see firestore-rules-history/README.md.
+//  It documents real, currently-exploitable holes that existed in that live
+//  state, including (but not limited to):
+//    - a blanket `tripchats/{room}: allow read, write: if request.auth !=
+//      null` that let ANY signed-in user read/write ANY trip chat room and
+//      message, bypassing the membership check entirely;
+//    - an unchecked `meta/{doc}: allow write: if doc=='signupCounter' &&
+//      request.auth != null` with no anti-tampering check, letting ANY
+//      signed-in user set or delete the founder-offer signup counter to any
+//      value.
+//  Deploying this file would re-open both holes (and the other duplicated
+//  `match` blocks documented in the root file's header) all over again.
+//
+//  Deploy the root `firestore.rules` file instead - that is the single
+//  source of truth for what should be live. This file is history, not a
+//  candidate for the Rules tab.
+// ============================================================================
+//
 //  RoamWise - Firestore Security Rules   (STABLE BUILD v15.5 / vc75)
 // ----------------------------------------------------------------------------
 //  HOW TO DEPLOY (2 minutes, do this whenever rules change):

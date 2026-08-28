@@ -1,11 +1,16 @@
 // ============================================================================
-//  RoamWise - Firestore Security Rules   (STABLE BUILD v15.7 / vc77 - 2026-08-28)
+//  RoamWise - Firestore Security Rules   (STABLE BUILD v15.8 / vc78 - 2026-08-28)
 // ----------------------------------------------------------------------------
 //  HOW TO DEPLOY (2 minutes, do this whenever rules change):
 //    1. Firebase Console  ->  your project  ->  Build  ->  Firestore Database
 //    2. Click the  "Rules"  tab at the top
 //    3. Select all existing text, delete it, paste THIS ENTIRE FILE
 //    4. Click  "Publish"
+//    5. Update the  meta/rulesVersion  Firestore document (the `version`
+//       field, see the match block below) to match the version marker in
+//       this header (e.g. "v15.8") - the app's staleness probe reads that
+//       doc to tell the founder whether the deployed rules are current, and
+//       it goes stale/wrong the moment this step is skipped.
 //  That's it. Changes are live in ~10 seconds.
 //
 //  FULL REPLACE ONLY - this is a firm rule, not a suggestion: always select
@@ -70,22 +75,36 @@ service cloud.firestore {
     function isSelf(uid) {
       return request.auth != null && request.auth.uid == uid;
     }
-    // A partnerClaims/{code} doc counts as redeemable if it exists, its
-    // proRedeemed flag is not `true` — treating an ABSENT field as
-    // not-yet-redeemed too, so claims created before this flag existed still
-    // work — AND it has not passed its expiresAt (a Firestore Timestamp set
-    // at claim time, e.g. the NMIMS 30-day claim window in nmims/index.html).
-    // Claims created before expiresAt existed have no such field, so an
-    // absent expiresAt is likewise treated as "not expired" — same precedent
-    // as the proRedeemed check just below. Shared by the users/{uid}
-    // partner-redeem rule and documented again next to partnerClaims below.
-    function isUnredeemedClaim(code) {
+    // A partnerClaims/{code} doc grants Pro to the CALLER only after it has
+    // ALREADY been flipped to redeemed by that same caller — proRedeemed
+    // must be true (not merely absent/false) AND redeemedUid must equal the
+    // caller's own uid — and it has not passed its expiresAt (a Firestore
+    // Timestamp set at claim time, e.g. the NMIMS 30-day claim window in
+    // nmims/index.html). Claims created before expiresAt existed have no
+    // such field, so an absent expiresAt is treated as "not expired". Shared
+    // by the users/{uid} partner-redeem rule and documented again next to
+    // partnerClaims below.
+    //
+    // SECURITY (closes a multi-account replay hole): this used to be
+    // isUnredeemedClaim(code) — true whenever proRedeemed was NOT yet true —
+    // which only checked the CODE's state, never WHO was redeeming it. Since
+    // Firestore rules can't force two separate document writes to happen
+    // together, a client could skip the partnerClaims flip entirely and
+    // write straight to users/{uid}: the code would stay "unredeemed"
+    // forever, letting a second, third, Nth account replay the exact same
+    // leaked code for unlimited Pro grants. Inverting the check to require
+    // the claim be redeemed FIRST, as its own already-committed write, and
+    // bound to this exact caller's uid, means the users/{uid} grant can only
+    // ever succeed once per code, for the one account that redeemed it.
+    // This still does not guarantee the two writes happen in a single
+    // transaction — it guarantees that whichever account's uid got written
+    // to redeemedUid is the only account that can ever pass this check for
+    // that code.
+    function isRedeemedByCaller(code) {
       return code is string && code.size() > 0 && code.size() <= 64
         && exists(/databases/$(database)/documents/partnerClaims/$(code))
-        && (
-             !('proRedeemed' in get(/databases/$(database)/documents/partnerClaims/$(code)).data)
-          || get(/databases/$(database)/documents/partnerClaims/$(code)).data.proRedeemed == false
-        )
+        && get(/databases/$(database)/documents/partnerClaims/$(code)).data.proRedeemed == true
+        && get(/databases/$(database)/documents/partnerClaims/$(code)).data.redeemedUid == request.auth.uid
         && (
              !('expiresAt' in get(/databases/$(database)/documents/partnerClaims/$(code)).data)
           || get(/databases/$(database)/documents/partnerClaims/$(code)).data.expiresAt > request.time
@@ -103,23 +122,33 @@ service cloud.firestore {
       allow update: if isSelf(uid)
         && !request.resource.data.diff(resource.data).affectedKeys()
              .hasAny(['pro','proAt','proMethod','proPayId']);
-      // ---- PARTNER CODE REDEMPTION (rw-v115 hardening) ----
+      // ---- PARTNER CODE REDEMPTION (rw-v116 hardening) ----
       // The ONLY way a user may touch pro/proAt/proMethod/proCode themselves:
-      // redeeming one specific, still-unredeemed partner code (isUnredeemedClaim,
-      // defined above via get() — rules can't run a query, only look up a known
-      // doc path, which is exactly why partnerClaims' doc ID is the code itself).
-      // This can't be replayed: the client batches this write together with
-      // flipping that same partnerClaims/{code}.proRedeemed to true (see the
-      // partnerClaims update rule below and openPartnerRedeem() in app.js) —
-      // a Firestore batch commits atomically, so a client cannot take the Pro
-      // grant while skipping the matching flip, and once flipped, this
-      // isUnredeemedClaim() check fails for every later attempt at that code.
+      // redeeming a partner code that THEY THEMSELVES have already redeemed
+      // (isRedeemedByCaller, defined above via get() — rules can't run a
+      // query, only look up a known doc path, which is exactly why
+      // partnerClaims' doc ID is the code itself).
+      //
+      // ORDER MATTERS: the client must flip partnerClaims/{code}.proRedeemed
+      // to true (and set redeemedUid to its own uid) as a FULLY SEPARATE,
+      // AWAITED write FIRST — see openPartnerRedeem() in app.js. Only once
+      // that write has actually committed does this rule's get() see it, and
+      // only then can this users/{uid} grant write succeed. A single atomic
+      // batch does NOT work here: get() inside a rule only ever sees already-
+      // committed state, never a sibling pending write in the same batch, so
+      // batching these two writes together would make this check fail every
+      // time. This closes the multi-account replay gap (previously, any
+      // client could grant itself Pro just by citing a not-yet-redeemed code,
+      // skipping the partnerClaims flip, so the same leaked code could be
+      // replayed by unlimited accounts) — it does NOT add transactional
+      // atomicity between the two writes; see the comment on
+      // isRedeemedByCaller() above for what guarantee this actually provides.
       allow update: if isSelf(uid)
         && request.resource.data.diff(resource.data).affectedKeys()
              .hasOnly(['pro','proAt','proMethod','proCode'])
         && request.resource.data.pro == true
         && request.resource.data.proMethod == 'partner'
-        && isUnredeemedClaim(request.resource.data.proCode);
+        && isRedeemedByCaller(request.resource.data.proCode);
       allow delete: if isAdmin() || isSelf(uid);
 
       // Device registry for the 3-device cap (account-bound Pro system).
@@ -242,9 +271,41 @@ service cloud.firestore {
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['pinHash']);
     }
 
+    // ---------- STATS (anonymous daily funnel counters) ----------
+    // WAS: `allow write: if true` - literally any caller, signed in or not,
+    // could set/overwrite ANY field to ANY value on ANY day's doc, or delete
+    // it outright. Verified against the actual client (app.js's track(),
+    // ~line 5643): it always does
+    // `db.collection('stats').doc(day).set({ev: FieldValue.increment(1)},
+    // {merge:true})` for exactly one of a fixed set of known event names -
+    // and it deliberately does NOT check `user`/sign-in state, since events
+    // like 'visits' and 'searches' must be counted for anonymous, pre-login
+    // traffic too. So this can't be locked to request.auth != null without
+    // breaking real anonymous funnel tracking - instead the SHAPE is locked
+    // down: exactly one of these known keys, moved by exactly +1 from
+    // whatever it already was (0 if new), same anti-tampering pattern as
+    // meta/signupCounter below. No caller, signed in or not, can inject an
+    // unknown field or jam an arbitrary value into any day's doc anymore.
+    function statsBump(key) {
+      return request.resource.data.diff(resource == null ? {} : resource.data)
+               .affectedKeys().hasOnly([key])
+        && request.resource.data[key] is int
+        && request.resource.data[key] ==
+             ((resource != null && key in resource.data && resource.data[key] is int)
+               ? resource.data[key] + 1 : 1);
+    }
     match /stats/{day} {
       allow read: if isAdmin();
-      allow write: if true;
+      allow create, update: if statsBump('arena_runs') || statsBump('atlas_cert_made')
+        || statsBump('aff_click') || statsBump('copilot_uses') || statsBump('event_plans')
+        || statsBump('img_scans') || statsBump('nudge_shown') || statsBump('nudge_yes')
+        || statsBump('pay_opens') || statsBump('pdf_generated') || statsBump('pdf_opens')
+        || statsBump('pdf_paid') || statsBump('pwa_dismissed') || statsBump('pwa_installed')
+        || statsBump('ref_click') || statsBump('ref_code_entered') || statsBump('searches')
+        || statsBump('signups') || statsBump('trip_saved') || statsBump('tusk_helpful')
+        || statsBump('tusk_unhelpful') || statsBump('utr_submits') || statsBump('video_made')
+        || statsBump('video_opens') || statsBump('visits') || statsBump('wiz_opens');
+      allow delete: if isAdmin();
     }
 
     // ---------- RATINGS & TESTIMONIALS ----------
@@ -288,8 +349,31 @@ service cloud.firestore {
     // (`if false`) - that would make submitted reports permanently
     // unreadable by anyone, contradicting the documented "anonymous safety
     // report" intent of the first block. Dropped the duplicate; kept this one.
+    //
+    // WAS: `allow create: if true` with zero shape check - any caller could
+    // write an arbitrarily-shaped, arbitrarily-large doc here. Verified
+    // against the two real client write paths (app.js): reportSquad() sends
+    // {type:'squad', targetId, by, created}; rwBeaconReport() sends
+    // {kind:'beacon', target, why, by, at}. Neither matches the sibling
+    // abuse/{id} collection's 'reason' field name, so this validates the
+    // actual shapes instead - free text and identifiers are size-capped and
+    // no extra field can be smuggled in.
     match /reports/{reportId} {
-      allow create: if true;
+      allow create: if
+           (request.resource.data.type == 'squad'
+             && request.resource.data.targetId is string
+             && request.resource.data.targetId.size() <= 200
+             && request.resource.data.by is string
+             && request.resource.data.by.size() <= 128
+             && request.resource.data.keys().hasOnly(['type','targetId','by','created']))
+        || (request.resource.data.kind == 'beacon'
+             && request.resource.data.target is string
+             && request.resource.data.target.size() <= 200
+             && (!('why' in request.resource.data)
+                 || (request.resource.data.why is string && request.resource.data.why.size() <= 600))
+             && (request.resource.data.by == null
+                 || (request.resource.data.by is string && request.resource.data.by.size() <= 128))
+             && request.resource.data.keys().hasOnly(['kind','target','why','by','at']));
       allow read, update, delete: if isAdmin();
     }
 
@@ -675,9 +759,10 @@ service cloud.firestore {
     // an auto ID or an email-derived key. That is deliberate: rules can never
     // run an arbitrary query, only look up a single doc by a KNOWN path, so
     // making the code the path is what lets this file (and users/{uid} above,
-    // via isUnredeemedClaim()) validate "is this specific code real and
-    // unredeemed" with get(). `get` (fetch by known id) is public because the
-    // code itself IS the shared secret / capability token needed to redeem it
+    // via isRedeemedByCaller()) validate "is this specific code real and
+    // already redeemed by this caller" with get(). `get` (fetch by known id)
+    // is public because the code itself IS the shared secret / capability
+    // token needed to redeem it
     // - nobody can discover a code by listing, only by already having been
     // given one (emailed after claiming). `list` stays admin-only so the
     // collection can never be enumerated or scraped.
@@ -722,13 +807,16 @@ service cloud.firestore {
                          < (get(/databases/$(database)/documents/partnerships/$(request.resource.data.partnership)).data.cap is int
                             ? get(/databases/$(database)/documents/partnerships/$(request.resource.data.partnership)).data.cap
                             : 500);
-      // Redemption flip (rw-v115 hardening): a signed-in user may mark the
+      // Redemption flip (rw-v116 hardening): a signed-in user may mark the
       // claim they are personally redeeming as used - ONLY false/absent -> true,
       // ONLY these three fields, and only recording their OWN uid, never
-      // someone else's. This is what actually prevents replay: once true,
-      // isUnredeemedClaim() (used by users/{uid} above) can never approve that
-      // code again, for anyone. Batched atomically with the matching
-      // users/{uid} pro-grant write - see the comment there.
+      // someone else's. This MUST commit before the matching users/{uid}
+      // pro-grant write is even attempted (see openPartnerRedeem() in app.js
+      // and the comment on isRedeemedByCaller() above) - only once this write
+      // has landed does isRedeemedByCaller() see redeemedUid==this caller and
+      // let the grant through, and it can never approve the same code for a
+      // second account since redeemedUid is now fixed to whoever redeemed it
+      // first.
       allow update: if isAdmin() || (
            request.auth != null
         && (!('proRedeemed' in resource.data) || resource.data.proRedeemed == false)
@@ -799,18 +887,32 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
 
-    // ---- REFERRAL SIGNUP LOG (rw-v111) ----------------------------
+    // ---- REFERRAL SIGNUP LOG (rw-v112) ----------------------------
     // Write-only for the app (no auth required — fires on new account).
-    // Admin reads for stats. Staff can read their OWN code's signups only.
     // No personal data stored — only the ref code and the new user's UID.
-    // (Identical in the repo file and live Firestore already - no conflict.)
+    //
+    // WAS: comment claimed "Staff can read their OWN code's signups only",
+    // but the actual condition (isAdmin() || any signed-in user, so long as
+    // resource.data.code was non-null AND config/referrers merely EXISTS)
+    // let ANY signed-in app user read EVERY signup record - no per-code
+    // ownership check at all. True ownership lives in config/referrers'
+    // `list` array of {uid, code, ...} maps (see rwRefSync() in app.js) -
+    // Firestore Rules has no predicate/loop to test "does this array contain
+    // an entry matching (request.auth.uid, resource.data.code)" without
+    // restructuring that mapping into a per-uid doc rules could look up by
+    // path, which is beyond this pass. Minimal safe fix: read is admin-only
+    // now, matching the comment to the actual (tightened) behavior. Data
+    // here is low-sensitivity (only a ref code + the referred user's UID, no
+    // PII), so this is a conservative call either way - but note it means
+    // staff/index.html's refStatsLoad() self-serve "my referral stats" query
+    // (a where('code','==',myCode) list against this collection) now gets
+    // permission-denied for non-admin staff. Flagged as a follow-up:
+    // restoring self-serve stats needs either a per-uid mapping doc or a
+    // Cloud Function to serve the aggregate.
     match /refSignups/{id} {
       allow create: if request.resource.data.code is string
                     && request.resource.data.userUID is string;
-      allow read: if isAdmin()
-                  || (request.auth != null
-                      && resource.data.code != null
-                      && exists(/databases/$(database)/documents/config/referrers));
+      allow read: if isAdmin();
       allow update, delete: if isAdmin();
     }
 
@@ -850,14 +952,50 @@ service cloud.firestore {
 
     // Anyone opening the private deck link can create/update THEIR lead doc
     // (name, role, contact, scroll depth, time). Only admins can read them.
+    //
+    // WAS: `allow update: if resource != null` - any caller, unauthenticated,
+    // could set ANY field to ANY value/size on ANY existing lead by id, with
+    // zero shape check. Verified against the real client (deck/index.html):
+    // the gate form re-sends {name,contact,role,source,openedAt,slides} once
+    // a visitor identifies themselves (an UPDATE, since the anonymous
+    // tracking doc already exists by then), and the silent tracker separately
+    // updates {scrollPct}, {lastSlide}, and {timeSeconds,updatedAt}. So
+    // name/contact genuinely ARE updated after create here (unlike the
+    // suggested "never touch identity fields" shape) - locked instead to
+    // this real field set with the same size caps as create. There is still
+    // no per-lead ownership check (the deck page has no auth), so a caller
+    // who already knows/guesses a specific lead id could still overwrite
+    // that lead's name/contact with junk - a lower-severity gap left open on
+    // purpose here (same class of limitation already documented elsewhere in
+    // this file for partnerClaims/partnerships), since closing it fully
+    // needs either auth on the deck page or a Cloud Function.
     match /deckleads/{id} {
       allow create: if request.resource.data.name is string
         && request.resource.data.name.size() <= 120
         && request.resource.data.contact is string
         && request.resource.data.contact.size() <= 160;
-      // tracking updates (scroll depth, time) don't resend name - allow any
-      // update to an existing lead so engagement data actually records.
-      allow update: if resource != null;
+      allow update: if resource != null
+        && request.resource.data.diff(resource.data).affectedKeys()
+             .hasOnly(['name','contact','role','source','openedAt','slides',
+                       'scrollPct','lastSlide','timeSeconds','updatedAt'])
+        && (!('name' in request.resource.data)
+            || (request.resource.data.name is string && request.resource.data.name.size() <= 120))
+        && (!('contact' in request.resource.data)
+            || (request.resource.data.contact is string && request.resource.data.contact.size() <= 160))
+        && (!('role' in request.resource.data)
+            || (request.resource.data.role is string && request.resource.data.role.size() <= 120))
+        && (!('source' in request.resource.data)
+            || (request.resource.data.source is string && request.resource.data.source.size() <= 120))
+        && (!('openedAt' in request.resource.data) || request.resource.data.openedAt is string)
+        && (!('updatedAt' in request.resource.data) || request.resource.data.updatedAt is string)
+        && (!('slides' in request.resource.data) || request.resource.data.slides is int)
+        && (!('scrollPct' in request.resource.data)
+            || (request.resource.data.scrollPct is int
+                && request.resource.data.scrollPct >= 0 && request.resource.data.scrollPct <= 100))
+        && (!('lastSlide' in request.resource.data)
+            || (request.resource.data.lastSlide is int && request.resource.data.lastSlide >= 0))
+        && (!('timeSeconds' in request.resource.data)
+            || (request.resource.data.timeSeconds is int && request.resource.data.timeSeconds >= 0));
       allow read, delete: if isAdmin();
     }
 
