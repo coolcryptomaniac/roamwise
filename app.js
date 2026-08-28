@@ -607,6 +607,71 @@ var DB = [
    photos:["fiji nadi beach turquoise water","mamanuca islands fiji aerial","fiji kava ceremony tradition","fiji snorkeling coral reef","sigatoka sand dunes fiji"],
    yt:"Fiji Nadi travel guide",wiki:"Nadi,_Fiji",flag:"FJ"}
 ];
+/* ==================== IATA LOOKUP (rw-v95) ====================
+   Skyscanner deep-links need real 3-letter airport codes, not free-text city
+   names. This is a compact, hand-checked lookup — every destination in DB
+   above, plus the major Indian cities travellers most often fly from — NOT
+   an exhaustive worldwide gazetteer. Where a place has no airport of its own
+   (hill towns, valleys) it maps to the nearest airport actually used to
+   reach it; where even that isn't confident enough to state as fact, the
+   place is deliberately left OUT of this table rather than guessed, so the
+   caller falls back to the always-correct Google Flights link instead of a
+   broken Skyscanner URL. Keys are lower-cased for lookup. */
+var RW_IATA = {
+  /* ---- India: DB destinations ---- */
+  'goa':'GOI', 'manali':'KUU', 'rishikesh':'DED', 'spiti valley':'KUU',
+  'alleppey':'COK', 'jaipur':'JAI', 'varanasi':'VNS', 'munnar':'COK',
+  'coorg':'IXE', 'hampi':'HBX', 'pondicherry':'PNY', 'rann of kutch':'BHJ',
+  'havelock island':'IXZ', 'darjeeling':'IXB', 'gangtok':'IXB',
+  'mcleodganj':'DHM', 'jaisalmer':'JSA', 'udaipur':'UDR', 'mysore':'MYQ',
+  'wayanad':'CCJ', 'auli':'DED', 'kaziranga':'JRH', 'khajuraho':'HJR',
+  'leh':'IXL',
+  /* ziro valley and chopta intentionally omitted — no airport within a
+     distance confident enough to call "the" airport for that place. */
+
+  /* ---- International: DB destinations ---- */
+  'chiang mai':'CNX', 'ubud':'DPS', 'hoi an':'DAD', 'kyoto':'KIX',
+  'marrakech':'RAK', 'tbilisi':'TBS', 'cappadocia':'NAV', 'porto':'OPO',
+  'prague':'PRG', 'cusco':'CUZ', 'medellín':'MDE', 'medellin':'MDE',
+  'petra':'AMM', 'kandy':'CMB', 'queenstown':'ZQN', 'oaxaca':'OAX',
+  'pokhara':'PKR', 'paro':'PBH', 'malé':'MLE', 'male':'MLE',
+  'port louis':'MRU', 'victoria':'SEZ', 'perhentian islands':'KBR',
+  'maasai mara':'NBO', 'nadi':'NAN',
+
+  /* ---- Major Indian cities (common trip origins) ---- */
+  'delhi':'DEL', 'new delhi':'DEL', 'mumbai':'BOM', 'bangalore':'BLR',
+  'bengaluru':'BLR', 'chennai':'MAA', 'kolkata':'CCU', 'hyderabad':'HYD',
+  'pune':'PNQ', 'ahmedabad':'AMD', 'kochi':'COK', 'cochin':'COK',
+  'lucknow':'LKO', 'chandigarh':'IXC', 'indore':'IDR', 'guwahati':'GAU',
+  'bhubaneswar':'BBI', 'amritsar':'ATQ', 'srinagar':'SXR', 'nagpur':'NAG',
+  'patna':'PAT'
+};
+/* Best-effort resolve: exact match, then match on the part before the first
+   comma (handles "Goa, India" style strings). Returns null — never a guess —
+   when nothing confident is found. */
+function rwIata(place){
+  if(!place) return null;
+  var k = String(place).trim().toLowerCase();
+  if(RW_IATA[k]) return RW_IATA[k];
+  var first = k.split(',')[0].trim();
+  if(RW_IATA[first]) return RW_IATA[first];
+  return null;
+}
+/* Builds a real Skyscanner route URL, or returns null if either end can't be
+   resolved to a real IATA code — callers MUST fall back to Google Flights
+   in that case rather than ever emitting a broken Skyscanner link. */
+function rwSkyscannerUrl(origin, dest){
+  var o = rwIata(origin), d = rwIata(dest);
+  if(!o || !d) return null;
+  return rwAffLink('skyscanner', 'https://www.skyscanner.co.in/transport/flights/'+o.toLowerCase()+'/'+d.toLowerCase()+'/');
+}
+/* Destination-only Skyscanner "flights to X" browse URL — needs just the
+   destination resolved, no origin. */
+function rwSkyscannerToUrl(dest){
+  var d = rwIata(dest);
+  if(!d) return null;
+  return rwAffLink('skyscanner', 'https://www.skyscanner.co.in/transport/flights-to/'+d.toLowerCase()+'/');
+}
 /* Static country reference data — zero network calls needed. */
 var COUNTRY_INFO = {
   'afghanistan':{iso:'AF',capital:'Kabul',currency:'Afghan Afghani',language:'Pashto, Dari'},
@@ -8659,7 +8724,7 @@ function renderCards(results, month, budUSD, origin, days, aiData, travelStyle, 
     /* BOOK TAB */
     H += `<div class="tab-pane" id="${T}-bk"><div class="card-body" style="padding-top:0">
       <div class="sec-label" style="margin-top:4px">Book this trip</div>
-      ${rwBookGridHTML(origin, enc)}
+      ${rwBookGridHTML(origin, d.name, enc)}
     </div></div>`;
 
     /* ACTION BAR */
@@ -13273,9 +13338,18 @@ function travelLinksHTML(place){
    commission line only claims a real commission when something is actually
    active (Airbnb has no registered program here, so it always stays plain —
    never fabricated). */
-function rwBookGridHTML(origin, enc){
-  var raw = {
-    skyscanner: 'https://www.skyscanner.com/transport/flights/'+encodeURIComponent(origin)+'/'+enc+'/',
+function rwBookGridHTML(origin, destName, enc){
+  /* Skyscanner needs real IATA codes on both ends (see RW_IATA above). When
+     either origin or destination doesn't resolve, we do NOT emit a broken
+     Skyscanner link — the working Google Flights search takes that slot
+     instead, for this card only. rwSkyscannerUrl() already routes through
+     rwAffLink() internally, so it is never wrapped a second time here. */
+  var skyAff = rwSkyscannerUrl(origin, destName);
+  var skyIsFallback = !skyAff;
+  var skyPlain = 'https://www.skyscanner.com/transport/flights/'+encodeURIComponent(origin)+'/'+enc+'/'; /* unresolved-but-would-be-plain, for the active-wrap check only */
+  var skyHref = skyAff || ('https://www.google.com/travel/flights?q='+encodeURIComponent('flights from '+origin+' to '+destName));
+
+  var plain = {
     booking:    'https://www.booking.com/search.html?ss='+enc,
     gyg:        'https://www.getyourguide.com/s/?q='+enc,
     viator:     'https://www.viator.com/search/'+enc,
@@ -13283,24 +13357,26 @@ function rwBookGridHTML(origin, enc){
     safetywing: 'https://www.safetywing.com'
   };
   var hrefs = {
-    skyscanner: rwAffLink('skyscanner', raw.skyscanner),
-    booking:    rwAffLink('booking', raw.booking),
-    gyg:        rwAffLink('gyg', raw.gyg),
-    viator:     rwAffLink('viator', raw.viator),
-    airbnb:     raw.airbnb, /* no Airbnb affiliate program registered — plain, not fabricated */
-    safetywing: rwAffLink('safetywing', raw.safetywing)
+    skyscanner: skyHref,
+    booking:    rwAffLink('booking', plain.booking),
+    gyg:        rwAffLink('gyg', plain.gyg),
+    viator:     rwAffLink('viator', plain.viator),
+    airbnb:     plain.airbnb, /* no Airbnb affiliate program registered — plain, not fabricated */
+    safetywing: rwAffLink('safetywing', plain.safetywing)
   };
-  var anyActive = Object.keys(raw).some(function(k){ return hrefs[k] !== raw[k]; });
+  var anyActive = (!skyIsFallback && skyHref !== skyPlain) ||
+    Object.keys(plain).some(function(k){ return hrefs[k] !== plain[k]; });
+
   var items = [
-    ['skyscanner','✈️','Skyscanner','Flights'],
-    ['booking','🏨','Booking.com','Hotels'],
-    ['gyg','🎫','GetYourGuide','Tours'],
-    ['viator','🗺️','Viator','Experiences'],
-    ['airbnb','🏠','Airbnb','Stays'],
-    ['safetywing','🛡️','SafetyWing','Insurance']
+    [skyIsFallback?'Google Flights':'Skyscanner', skyIsFallback?'🛩️':'✈️', 'Flights', hrefs.skyscanner],
+    ['Booking.com','🏨','Hotels', hrefs.booking],
+    ['GetYourGuide','🎫','Tours', hrefs.gyg],
+    ['Viator','🗺️','Experiences', hrefs.viator],
+    ['Airbnb','🏠','Stays', hrefs.airbnb],
+    ['SafetyWing','🛡️','Insurance', hrefs.safetywing]
   ];
   var grid = items.map(function(x){
-    return '<a class="book-link" href="'+hrefs[x[0]]+'" target="_blank" rel="noopener"><span class="book-ico">'+x[1]+'</span><span class="book-name">'+x[2]+'</span><span class="book-sub">'+x[3]+'</span></a>';
+    return '<a class="book-link" href="'+x[3]+'" target="_blank" rel="noopener"><span class="book-ico">'+x[1]+'</span><span class="book-name">'+x[0]+'</span><span class="book-sub">'+x[2]+'</span></a>';
   }).join('');
   var note = anyActive
     ? 'Affiliate links — commission at no extra cost'
@@ -16796,7 +16872,14 @@ var RW_ACTIONS = {
     ['Agoda',   function(q){ return 'https://www.agoda.com/search?city='+encodeURIComponent(q||''); }, '\ud83d\udecf\ufe0f']
   ],
   fly: [
-    ['Skyscanner', function(q){ return 'https://www.skyscanner.co.in/transport/flights-to/'+encodeURIComponent(String(q||'').slice(0,3).toLowerCase()); }, '\u2708\ufe0f'],
+    /* Slicing the first 3 letters of a free-text place name (the old code)
+       is not a real IATA code \u2014 "Manali" became "man", which is nobody's
+       airport. rwSkyscannerToUrl() resolves a real code via RW_IATA and
+       returns null when it can't; rwActionHubHTML() below drops any chip
+       whose URL is null, so an unresolved place simply loses the Skyscanner
+       chip rather than ever linking somewhere wrong \u2014 Google Flights, right
+       next to it, always still works. */
+    ['Skyscanner', function(q){ return rwSkyscannerToUrl(q||''); }, '\u2708\ufe0f'],
     ['Google Flights', function(q){ return 'https://www.google.com/travel/flights?q='+encodeURIComponent('flights to '+(q||'')); }, '\ud83d\udee9\ufe0f']
   ],
   rail: [
@@ -16839,10 +16922,11 @@ function rwActionHubHTML(kind, query, dest, lat, lon, cc){
     +'<div style="font-weight:800;font-size:13.5px">'+titles[kind]+(query? ' \u2014 '+esc2(query):'')+'</div>'
     +'<div style="font-size:11px;color:var(--t3);margin-top:2px">Opens in the app you already use, search filled in, your saved payment. I can\u2019t take payments inside RoamWise \u2014 and honestly you wouldn\u2019t want me to.</div>'
     +'<div class="tk-chips" style="margin-top:10px">'
-    + list.map(function(a){
-        var url = a[1](query, lat, lon);
-        return '<a class="tk-chip gold" style="text-decoration:none" target="_blank" rel="noopener" href="'+url+'">'+a[2]+' '+a[0]+'</a>';
-      }).join('')
+    + list.map(function(a){ return {url:a[1](query, lat, lon), label:a[0], icon:a[2]}; })
+        .filter(function(x){ return !!x.url; }) /* an unresolvable link (e.g. Skyscanner with no IATA match) never renders rather than pointing somewhere broken */
+        .map(function(x){
+          return '<a class="tk-chip gold" style="text-decoration:none" target="_blank" rel="noopener" href="'+x.url+'">'+x.icon+' '+x.label+'</a>';
+        }).join('')
     +'</div></div></div>';
 }
 
