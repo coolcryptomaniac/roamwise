@@ -2411,7 +2411,7 @@ function openBooking(){
     if(!b.length){
       html='<div class="bk-empty"><div style="font-size:46px">\ud83e\uddf3</div>'
         +'<b style="display:block;margin:10px 0 6px;font-size:16px">Your trip is empty</b>'
-        +'<span class="note">Add a stay, a guide, a driver or something to do \u2014 then send one request and we\u2019ll get it all confirmed.</span>'
+        +'<span class="note">Add a stay or an experience \u2014 then send one request and we\u2019ll get it all confirmed. (Guides, transport, food and celebrations bookings are coming soon.)</span>'
         +'<button class="tact" style="margin-top:14px;font-weight:800;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#0A0A0C;border:none" onclick="rwPageClose();openPartners()">Browse stays &amp; experiences \u2192</button></div>';
     } else {
       html='<div class="bk-list">'+b.map(function(x){
