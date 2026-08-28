@@ -249,10 +249,25 @@ service cloud.firestore {
       allow read: if request.auth != null
         && (resource == null || request.auth.uid in resource.data.members);
       allow create: if request.auth != null && request.auth.uid in request.resource.data.members;
-      // only let a signed-in user add THEMSELVES to members (join), nothing else destructive
+      // only let a signed-in, non-banned user add THEMSELVES to members (join
+      // via a shared room-id/link, see chatInvite() / tripChatOpen() in
+      // app.js), nothing else destructive.
+      //
+      // SECURITY: previously this only checked (a) the requester ends up IN
+      // the new members list and (b) no existing member was removed. It never
+      // checked that the requester was already a member OR that the only uid
+      // being added was their own, and never checked isBanned() - so ANY
+      // signed-in user (including a banned one) could add themselves, or
+      // anyone else, to ANY existing room's members array and gain full
+      // read/write access to that private chat. Fixed by additionally
+      // requiring !isBanned() and that the set of uids being added is empty
+      // or exactly {request.auth.uid} (i.e. you can only ever add yourself).
       allow update: if request.auth != null
+        && !isBanned()
         && request.auth.uid in request.resource.data.members
-        && (resource.data.members.toSet().difference(request.resource.data.members.toSet()).size() == 0);
+        && resource.data.members.toSet().difference(request.resource.data.members.toSet()).size() == 0
+        && request.resource.data.members.toSet().difference(resource.data.members.toSet())
+             .difference([request.auth.uid].toSet()).size() == 0;
       match /msgs/{msgId} {
         // LATENT BUG FIXED: get() on a room that does not exist returns null,
         // and reading .data.members off null makes the whole rule evaluation
