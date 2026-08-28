@@ -884,7 +884,8 @@ service cloud.firestore {
                     && !('verified' in request.resource.data)
                     && !('badges' in request.resource.data)
                     && !('payoutHold' in request.resource.data)
-                    && !('adminNote' in request.resource.data);
+                    && !('adminNote' in request.resource.data)
+                    && !('uid' in request.resource.data);
       allow update: if isAdmin()
                     || (isPartner(uid)
                         && !request.resource.data.diff(resource.data).affectedKeys()

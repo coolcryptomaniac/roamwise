@@ -18851,7 +18851,7 @@ function applyRemoteConfig(cfg){
      not this mechanism. Guarded so a second Firestore fetch never injects the
      same tag twice. */
   try{
-    if(cfg.customHeadScriptUrl && cfg.customHeadScriptVerified===true){
+    if(cfg.customHeadScriptUrl && cfg.customHeadScriptVerified===true && /^https:\/\//.test(cfg.customHeadScriptUrl)){
       if(!document.querySelector('script[data-rw-custom-head="1"]')){
         var chs=document.createElement('script');
         chs.async=true;
