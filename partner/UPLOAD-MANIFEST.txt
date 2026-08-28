@@ -1,0 +1,6 @@
+Target repository: coolcryptomaniac/roamwise
+Target base branch: main
+Suggested branch: partner-dropin-v1
+
+Upload the entire contents of the included partner/ directory to repository path /partner/.
+Then open a pull request from partner-dropin-v1 to main using PR-DESCRIPTION.md as the body.
