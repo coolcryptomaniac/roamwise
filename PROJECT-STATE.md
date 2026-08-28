@@ -231,3 +231,13 @@ keytool -genkeypair -v -keystore build/rw.keystore -alias roamwise -keyalg RSA -
 
 ## Skills-check reminder for future sessions
 Always re-read this file, then check `/mnt/user-data/outputs/` for the latest shipped files before assuming anything is missing.
+
+## gstack (garrytan/gstack) — evaluated 2026-08-28, decided: not adopted
+This Claude Code environment's native `security-review`, `code-review`, `run`
+and `design` skills already cover gstack's main value (role-based audit/QA/
+ship commands). Don't re-evaluate unless the native skill set changes. See
+`GROWTH-AND-MARKET-INTEL.md` for the full reasoning plus a dated growth/market
+research digest (Naval Ravikant, YC, NVIDIA/physical-AI capital, travel/
+finance/business AI news) — refresh that file periodically via the Friday
+research prompt in `AUTOPILOT-PLAYBOOK.md` rather than redoing this from
+scratch.

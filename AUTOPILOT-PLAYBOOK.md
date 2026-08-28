@@ -34,8 +34,13 @@ Zero accountants until ₹10L/yr.
 
 ### Friday — RESEARCH (15 min)
 Prompt: "Search the web for: new travel app launches this week, new free AI
-APIs I could add as providers, and one growth tactic a competitor used."
-One insight per week compounds into an unassailable lead.
+APIs I could add as providers, and one growth tactic a competitor used. Also
+check for anything new this week from Naval Ravikant, Y Combinator, or
+NVIDIA's Jensen Huang that's relevant to a solo-founder AI product, and any
+notable travel-AI, finance-AI, or business-AI news."
+One insight per week compounds into an unassailable lead. See
+`GROWTH-AND-MARKET-INTEL.md` for the 2026-08-28 baseline read of these —
+refresh it periodically rather than re-deriving from scratch each time.
 
 ### Saturday — COMMUNITY (10 min)
 Reply to every review, approve claims, message 3 power users personally.
