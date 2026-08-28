@@ -18794,6 +18794,29 @@ function applyRemoteConfig(cfg){
   /* Gumroad values feed the existing localStorage readers untouched. */
   set('GUM_URL',          function(v){ lsSet('rw_gum_url', v); });
   set('GUM_PID',          function(v){ lsSet('rw_gum_pid', v); });
+
+  /* ---- Admin-controlled custom head-script slot (rw-v95) ----
+     Lets an admin drop in a verified third-party script (e.g. a Travelpayouts
+     Drive snippet, once confirmed via their own dashboard) purely through
+     Firestore config — no code deploy needed. Both fields must be explicitly
+     set AND customHeadScriptVerified must be the literal boolean true; any
+     other value (missing, false, a string "true", etc.) leaves this fully
+     inert, exactly like every other slot in this file that starts empty. Same
+     createElement+async+appendChild bootstrap pattern already used for
+     AdSense above — the concern with an unverified URL was trusting the URL,
+     not this mechanism. Guarded so a second Firestore fetch never injects the
+     same tag twice. */
+  try{
+    if(cfg.customHeadScriptUrl && cfg.customHeadScriptVerified===true){
+      if(!document.querySelector('script[data-rw-custom-head="1"]')){
+        var chs=document.createElement('script');
+        chs.async=true;
+        chs.src=cfg.customHeadScriptUrl;
+        chs.setAttribute('data-rw-custom-head','1');
+        document.head.appendChild(chs);
+      }
+    }
+  }catch(e){}
 }
 (function(){
   function boot(){
