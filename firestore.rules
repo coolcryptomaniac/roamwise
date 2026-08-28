@@ -118,6 +118,8 @@ service cloud.firestore {
         && request.resource.data.amount <= 100000
         && request.resource.data.utr is string
         && request.resource.data.utr.size() == 12
+        && request.resource.data.utr.matches('^[0-9]{12}$')
+        && id == request.auth.uid + '_' + request.resource.data.utr
         && (!('refCode' in request.resource.data)
             || (request.resource.data.refCode is string
                 && request.resource.data.refCode.size() <= 32));
@@ -131,14 +133,47 @@ service cloud.firestore {
     // fully correct: app.js's syncGo() writes to pulse/intents with dynamic
     // per-key increment fields and NO `count` field at all (that strict rule
     // would reject it), while pulseBump() writes to a per-key pulse doc WITH a
-    // `count` field that should stay validated. This merged rule requires the
-    // `count` field to be an int ONLY when the write actually includes one,
-    // so both real write patterns keep working and `count` still can't be
-    // written with a bogus type when it is present.
+    // fixed {n, m, count, at} shape that should stay validated.
+    //
+    // Two real write shapes hit this collection, split below by doc id:
+    //  - pulse/intents (id == 'intents'): syncGo() merges exactly ONE dynamic
+    //    per-trip key -> FieldValue.increment(1) per call, e.g. {"paris_soon": 3}.
+    //    The key name comes from free-text trip name + month, so it can't be
+    //    enumerated in advance. Firestore Rules has no loop/quantifier to
+    //    validate an unknown map key's value (MapDiff/Set only expose
+    //    affectedKeys()/hasOnly()/hasAny() etc. over key *names*, never a way
+    //    to index into the map by a name pulled from a Set) - so the actual
+    //    numeric type/sign of that one dynamic field can't be checked here.
+    //    What IS enforced: at most one key may change per write (matching the
+    //    real client, which only ever bumps one key at a time), no existing
+    //    key may be deleted, and the map can't be grown past a sane size -
+    //    this bounds the blast radius even though the value itself is opaque.
+    //    Closing that residual gap for real needs either a Cloud Function to
+    //    validate after write, or restructuring intents as per-key
+    //    subdocuments (pulse/intents/{key}) so the key becomes a path segment
+    //    rules CAN see - a data-model change, intentionally not made here.
+    //  - pulse/{pulseKey(name,month)} (any other id): pulseBump() writes the
+    //    fixed {n, m, count, at} shape - fully validated since the field
+    //    names are known.
     match /pulse/{id} {
       allow read: if true;
       allow create, update: if request.auth != null
-        && (!('count' in request.resource.data) || request.resource.data.count is int);
+        && (
+          (id == 'intents'
+            && (resource == null || request.resource.data.diff(resource.data).removedKeys().size() == 0)
+            && (resource == null
+                  ? request.resource.data.size() == 1
+                  : request.resource.data.diff(resource.data).affectedKeys().size() == 1)
+            && request.resource.data.size() <= 5000)
+          || (id != 'intents'
+              && request.resource.data.keys().hasOnly(['n','m','count','at'])
+              && (!('n' in request.resource.data)
+                  || (request.resource.data.n is string && request.resource.data.n.size() <= 60))
+              && (!('m' in request.resource.data)
+                  || (request.resource.data.m is string && request.resource.data.m.size() <= 40))
+              && (!('count' in request.resource.data)
+                  || (request.resource.data.count is int && request.resource.data.count >= 0)))
+        );
     }
 
     match /requests/{id} {
@@ -856,7 +891,9 @@ service cloud.firestore {
     // manage the listings.
     match /partners/{uid}/rooms/{roomId} {
       allow read: if true;
-      allow create, update, delete: if isPartner(uid) || isAdmin();
+      allow create, update, delete: if (isPartner(uid)
+                                         && exists(/databases/$(database)/documents/partners/$(uid)))
+                                        || isAdmin();
     }
 
     // ---- ROOM BOOKINGS --------------------------------------------------
