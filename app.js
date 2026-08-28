@@ -4292,8 +4292,9 @@ function musRender(mode){
 var ADSENSE_ID='ca-pub-4943859484482348'; /* live */
 var ADSENSE_SLOT=''; /* set in admin Config once you create an ad unit */
 var AFF_BOOKING=''; /* Booking.com affiliate aid (optional) */
-function stayUrl(place){ var u='https://www.booking.com/searchresults.html?ss='+encodeURIComponent(place);
-  if(AFF_BOOKING) u+='&aid='+AFF_BOOKING; return u; }
+function stayUrl(place){
+  return rwAffLink('booking', 'https://www.booking.com/searchresults.html?ss='+encodeURIComponent(place));
+}
 var WA_NUMBER='', WA_CHANNEL='', WA_GROUP='';
 (function(){
   /* AdSense loads on the WEBSITE ONLY — never inside the app WebView.
@@ -6264,7 +6265,7 @@ function rwFitnessRender(dest, geo, venues){
   }
   var stayHtml='<div class="fit-h" style="margin-top:16px">\ud83c\udfe8 Where to stay (fitness-friendly)</div>'
     + tiers.map(function(ti){
-        var url='https://www.booking.com/searchresults.html?ss='+encodeURIComponent(ti.q+' '+dest);
+        var url=stayUrl(ti.q+' '+dest);
         return '<a class="fit-tier" target="_blank" rel="noopener" href="'+url+'">'
           +'<span class="fit-tier-ic">'+ti.ic+'</span>'
           +'<span class="fit-tier-body"><b>'+ti.t+'</b><span>'+ti.note+'</span></span>'
@@ -8658,15 +8659,7 @@ function renderCards(results, month, budUSD, origin, days, aiData, travelStyle, 
     /* BOOK TAB */
     H += `<div class="tab-pane" id="${T}-bk"><div class="card-body" style="padding-top:0">
       <div class="sec-label" style="margin-top:4px">Book this trip</div>
-      <div class="book-grid">
-        <a class="book-link" href="https://www.skyscanner.com/transport/flights/${encodeURIComponent(origin)}/${enc}/" target="_blank" rel="noopener"><span class="book-ico">✈️</span><span class="book-name">Skyscanner</span><span class="book-sub">Flights</span></a>
-        <a class="book-link" href="https://www.booking.com/search.html?ss=${enc}" target="_blank" rel="noopener"><span class="book-ico">🏨</span><span class="book-name">Booking.com</span><span class="book-sub">Hotels</span></a>
-        <a class="book-link" href="https://www.getyourguide.com/s/?q=${enc}" target="_blank" rel="noopener"><span class="book-ico">🎫</span><span class="book-name">GetYourGuide</span><span class="book-sub">Tours</span></a>
-        <a class="book-link" href="https://www.viator.com/search/${enc}" target="_blank" rel="noopener"><span class="book-ico">🗺️</span><span class="book-name">Viator</span><span class="book-sub">Experiences</span></a>
-        <a class="book-link" href="https://www.airbnb.com/s/${enc}/homes" target="_blank" rel="noopener"><span class="book-ico">🏠</span><span class="book-name">Airbnb</span><span class="book-sub">Stays</span></a>
-        <a class="book-link" href="https://www.safetywing.com" target="_blank" rel="noopener"><span class="book-ico">🛡️</span><span class="book-name">SafetyWing</span><span class="book-sub">Insurance</span></a>
-      </div>
-      <p style="font-size:10px;color:#4A4946;text-align:center;margin-top:7px">Affiliate links — commission at no extra cost</p>
+      ${rwBookGridHTML(origin, enc)}
     </div></div>`;
 
     /* ACTION BAR */
@@ -13256,12 +13249,10 @@ function trainBusUrl(place){
   return 'https://www.rome2rio.com/s/' + encodeURIComponent(place);
 }
 function stayUrlAgoda(place){
-  var u='https://www.agoda.com/search?city='+encodeURIComponent(place);
-  if(AFF_AGODA) u+='&cid='+AFF_AGODA; return u;
+  return rwAffLink('agoda', 'https://www.agoda.com/search?city='+encodeURIComponent(place));
 }
 function thingsUrl(place){
-  var u='https://www.getyourguide.com/s/?q='+encodeURIComponent(place);
-  if(AFF_GYG) u+='&partner_id='+AFF_GYG; return u;
+  return rwAffLink('gyg', 'https://www.getyourguide.com/s/?q='+encodeURIComponent(place));
 }
 function travelLinksHTML(place){
   var L=[
@@ -13275,6 +13266,47 @@ function travelLinksHTML(place){
         return '<a class="tact" style="text-align:center;text-decoration:none;font-size:12px;padding:10px 6px" target="_blank" rel="noopener" href="'+x[1]+'" onclick="try{track(\'aff_click\')}catch(e){}">'+x[0]+'</a>';
       }).join('')
     + '</div>';
+}
+
+/* Compare Destinations "Book this trip" tab — every link routes through the
+   central rwAffLink() system so none is ever wrapped twice, and the
+   commission line only claims a real commission when something is actually
+   active (Airbnb has no registered program here, so it always stays plain —
+   never fabricated). */
+function rwBookGridHTML(origin, enc){
+  var raw = {
+    skyscanner: 'https://www.skyscanner.com/transport/flights/'+encodeURIComponent(origin)+'/'+enc+'/',
+    booking:    'https://www.booking.com/search.html?ss='+enc,
+    gyg:        'https://www.getyourguide.com/s/?q='+enc,
+    viator:     'https://www.viator.com/search/'+enc,
+    airbnb:     'https://www.airbnb.com/s/'+enc+'/homes',
+    safetywing: 'https://www.safetywing.com'
+  };
+  var hrefs = {
+    skyscanner: rwAffLink('skyscanner', raw.skyscanner),
+    booking:    rwAffLink('booking', raw.booking),
+    gyg:        rwAffLink('gyg', raw.gyg),
+    viator:     rwAffLink('viator', raw.viator),
+    airbnb:     raw.airbnb, /* no Airbnb affiliate program registered — plain, not fabricated */
+    safetywing: rwAffLink('safetywing', raw.safetywing)
+  };
+  var anyActive = Object.keys(raw).some(function(k){ return hrefs[k] !== raw[k]; });
+  var items = [
+    ['skyscanner','✈️','Skyscanner','Flights'],
+    ['booking','🏨','Booking.com','Hotels'],
+    ['gyg','🎫','GetYourGuide','Tours'],
+    ['viator','🗺️','Viator','Experiences'],
+    ['airbnb','🏠','Airbnb','Stays'],
+    ['safetywing','🛡️','SafetyWing','Insurance']
+  ];
+  var grid = items.map(function(x){
+    return '<a class="book-link" href="'+hrefs[x[0]]+'" target="_blank" rel="noopener"><span class="book-ico">'+x[1]+'</span><span class="book-name">'+x[2]+'</span><span class="book-sub">'+x[3]+'</span></a>';
+  }).join('');
+  var note = anyActive
+    ? 'Affiliate links — commission at no extra cost'
+    : 'Direct links to each site — no affiliate relationship active yet';
+  return '<div class="book-grid">'+grid+'</div>'
+    +'<p style="font-size:10px;color:#4A4946;text-align:center;margin-top:7px">'+note+'</p>';
 }
 
 /* ==================== TRIP NOTIFICATIONS ====================
@@ -16350,16 +16382,16 @@ var RW_PLATFORMS = [
    url:'https://www.ixigo.com/'},
   {n:'Skyscanner', ico:'\ud83d\udd0d', best:'Comparing every airline at once; "everywhere" search for cheap dates',
    watch:'It is a search engine \u2014 you book on the airline/OTA it sends you to',
-   url:'https://www.skyscanner.co.in/'},
+   url:'https://www.skyscanner.co.in/', aff:'skyscanner'},
   {n:'Google Flights', ico:'\ud83d\udee9\ufe0f', best:'Fastest date-grid and price tracking alerts',
    watch:'Does not show every budget carrier; check IndiGo/Akasa direct too',
    url:'https://www.google.com/travel/flights'},
   {n:'Booking.com', ico:'\ud83c\udfe8', best:'Largest stay inventory; free-cancellation filter is excellent',
    watch:'Prices exclude taxes until late in the flow \u2014 compare the final page',
-   url:'https://www.booking.com/'},
+   url:'https://www.booking.com/', aff:'booking'},
   {n:'Agoda', ico:'\ud83c\udf0f', best:'Often cheapest across Asia for the same room',
    watch:'Check whether breakfast/taxes are included before comparing',
-   url:'https://www.agoda.com/'},
+   url:'https://www.agoda.com/', aff:'agoda'},
   {n:'Airbnb', ico:'\ud83c\udfe1', best:'Homestays and longer stays; kitchens for budget trips',
    watch:'Cleaning + service fees can add 20\u201330% \u2014 judge on the total, not the nightly',
    url:'https://www.airbnb.co.in/'},
@@ -16376,10 +16408,11 @@ function rwPlatformsHTML(){
     +'<div class="tk-meta">What each platform is actually good at \u2014 and where it stings</div></div>'
     +'<div class="tk-sec">'
     + RW_PLATFORMS.map(function(p){
+        var href = p.aff ? rwAffLink(p.aff, p.url) : p.url;
         return '<div style="padding:9px 0;border-bottom:1px solid rgba(255,255,255,.05)">'
           +'<div style="display:flex;justify-content:space-between;align-items:center;gap:8px">'
           +'<b style="font-size:13px">'+p.ico+' '+esc2(p.n)+'</b>'
-          +'<a class="tk-chip" style="font-size:10.5px;padding:4px 9px;text-decoration:none" target="_blank" rel="noopener" href="'+p.url+'">Open \u2197</a></div>'
+          +'<a class="tk-chip" style="font-size:10.5px;padding:4px 9px;text-decoration:none" target="_blank" rel="noopener" href="'+href+'">Open \u2197</a></div>'
           +'<div style="font-size:11.5px;color:var(--t2);margin-top:3px;line-height:1.5">\u2714\ufe0f '+esc2(p.best)+'</div>'
           +'<div style="font-size:11.5px;color:#E8BA6C;margin-top:2px;line-height:1.5">\u26a0\ufe0f '+esc2(p.watch)+'</div>'
           +'</div>';
@@ -16722,7 +16755,15 @@ var RW_ACTIONS = {
        schedule so a dead partner never sits in the app again. */
     ['Evera (all-EV)', function(){ return 'https://www.evera.co.in/'; }, '\u26a1', 'IN'],
     ['Xanh SM (all-EV)', function(){ return 'https://xanhsm.com/'; }, '\ud83c\udf3f', 'SEA'],
-    ['Uber Green', function(q,lat,lon){ return lat? 'https://m.uber.com/ul/?action=setPickup&pickup=my_location&dropoff[latitude]='+lat+'&dropoff[longitude]='+lon : 'https://m.uber.com/ul/?action=setPickup&pickup=my_location'; }, '\ud83c\udf3f'],
+    /* Uber runs a real affiliate program (developer.uber.com/docs/riders/
+       affiliate-program) and is also carried as a campaign on Cuelinks and
+       EarnKaro \u2014 checked via WebSearch, Aug 2026 \u2014 so it is eligible for the
+       central system's generic-network wrap (registry entry in
+       affiliate-config.js has no confirmed direct URL param, so this can
+       only ever pick up a network wrap, never a fabricated one). Ola's
+       "refer and earn" is a rider-to-rider credit scheme, not a publisher
+       affiliate program, so its link is left exactly as a plain deep link. */
+    ['Uber Green', function(q,lat,lon){ return rwAffLink('uber', lat? 'https://m.uber.com/ul/?action=setPickup&pickup=my_location&dropoff[latitude]='+lat+'&dropoff[longitude]='+lon : 'https://m.uber.com/ul/?action=setPickup&pickup=my_location'); }, '\ud83c\udf3f'],
     ['Ola',    function(q,lat,lon){ return lat? 'https://book.olacabs.com/?drop_lat='+lat+'&drop_lng='+lon : 'https://book.olacabs.com/'; }, '\ud83d\ude95'],
     ['Rapido', function(){ return 'https://onelink.to/rapido'; }, '\ud83c\udfcd\ufe0f'],
     ['Porter (goods)', function(){ return 'https://porter.in/'; }, '\ud83d\ude9a']
@@ -16746,8 +16787,8 @@ var RW_ACTIONS = {
     ['Zepto',   function(q){ return 'https://www.zeptonow.com/search?query='+encodeURIComponent(q||''); }, '\ud83d\udef5']
   ],
   shop: [
-    ['Amazon',   function(q){ return 'https://www.amazon.in/s?k='+encodeURIComponent(q||''); }, '\ud83d\udce6'],
-    ['Flipkart', function(q){ return 'https://www.flipkart.com/search?q='+encodeURIComponent(q||''); }, '\ud83d\udecd\ufe0f'],
+    ['Amazon',   function(q){ return rwAffLink('amazonin', 'https://www.amazon.in/s?k='+encodeURIComponent(q||'')); }, '\ud83d\udce6'],
+    ['Flipkart', function(q){ return rwAffLink('flipkart', 'https://www.flipkart.com/search?q='+encodeURIComponent(q||'')); }, '\ud83d\udecd\ufe0f'],
     ['Myntra',   function(q){ return 'https://www.myntra.com/'+encodeURIComponent(String(q||'').replace(/\s+/g,'-')); }, '\ud83d\udc55']
   ],
   stay: [

@@ -81,7 +81,20 @@ window.RW_AFFILIATE_PROGRAMS = [
     region:'india', category:'other',    tpPartner:false },
   { id:'cleartrip',  label:'ClearTrip',    domain:'www.cleartrip.com',
     paramName:'ref', /* verify exact param name before launch */
-    region:'india', category:'other',    tpPartner:false }
+    region:'india', category:'other',    tpPartner:false },
+
+  /* Uber: has a real publisher affiliate program (developer.uber.com/docs/
+     riders/affiliate-program) and turns up as a live campaign on Cuelinks
+     and EarnKaro — confirmed via WebSearch, Aug 2026. No stable direct URL
+     param is publicly documented, so paramName stays null; this entry only
+     exists so rwAffLink() can route Uber links through a generic network
+     wrap (Cuelinks/EarnKaro/Admitad) if one is configured — never a
+     fabricated direct param. Ola was checked too: its only public program is
+     a rider-to-rider "refer and earn" credit scheme, not a publisher
+     affiliate program, so it deliberately has no entry here and its links
+     stay plain. */
+  { id:'uber',       label:'Uber',         domain:'m.uber.com',
+    paramName:null,          region:'both',  category:'other',   tpPartner:false }
 ];
 
 /* ==================== GENERIC NETWORK WRAPS ====================
