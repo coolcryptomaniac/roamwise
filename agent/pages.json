@@ -4854,5 +4854,29 @@
   "country": "India",
   "best": "January, February, March",
   "month": true
+ },
+ {
+  "slug": "udaipur-in-may",
+  "title": "Udaipur in May",
+  "name": "Udaipur·May",
+  "country": "India",
+  "best": "January, February, March",
+  "month": true
+ },
+ {
+  "slug": "udaipur-in-june",
+  "title": "Udaipur in June",
+  "name": "Udaipur·June",
+  "country": "India",
+  "best": "January, February, March",
+  "month": true
+ },
+ {
+  "slug": "udaipur-in-july",
+  "title": "Udaipur in July",
+  "name": "Udaipur·July",
+  "country": "India",
+  "best": "January, February, March",
+  "month": true
  }
 ]
