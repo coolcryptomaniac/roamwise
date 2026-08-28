@@ -297,12 +297,19 @@ service cloud.firestore {
       // read/write access to that private chat. Fixed by additionally
       // requiring !isBanned() and that the set of uids being added is empty
       // or exactly {request.auth.uid} (i.e. you can only ever add yourself).
+      //
+      // SECURITY: the members-array checks above never restricted WHICH
+      // fields the update could touch, so a member could ride along a valid
+      // self-join with a change to any other room field (name/owner/etc) in
+      // the same write. Fixed by requiring the diff only ever touches
+      // 'members'.
       allow update: if request.auth != null
         && !isBanned()
         && request.auth.uid in request.resource.data.members
         && resource.data.members.toSet().difference(request.resource.data.members.toSet()).size() == 0
         && request.resource.data.members.toSet().difference(resource.data.members.toSet())
-             .difference([request.auth.uid].toSet()).size() == 0;
+             .difference([request.auth.uid].toSet()).size() == 0
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['members']);
       match /msgs/{msgId} {
         // LATENT BUG FIXED: get() on a room that does not exist returns null,
         // and reading .data.members off null makes the whole rule evaluation
@@ -889,10 +896,17 @@ service cloud.firestore {
     // Room listings under a partner's own account. Public read (travelers
     // browse rooms without an account); only that partner or an admin may
     // manage the listings.
+    //
+    // SECURITY: checking exists(partners/{uid}) only proves the partner doc
+    // exists, not that an admin has actually approved/verified the account -
+    // an unverified (still 'pending') partner could already create/manage
+    // room listings. Fixed by additionally requiring the partner doc's
+    // verified field be true; admins still bypass this entirely.
     match /partners/{uid}/rooms/{roomId} {
       allow read: if true;
       allow create, update, delete: if (isPartner(uid)
-                                         && exists(/databases/$(database)/documents/partners/$(uid)))
+                                         && exists(/databases/$(database)/documents/partners/$(uid))
+                                         && get(/databases/$(database)/documents/partners/$(uid)).data.verified == true)
                                         || isAdmin();
     }
 
@@ -906,10 +920,15 @@ service cloud.firestore {
       allow read: if isAdmin()
                   || (request.auth != null && resource.data.partnerUid == request.auth.uid)
                   || (request.auth != null && resource.data.guestUid == request.auth.uid);
+      // SECURITY: exists(partners/{partnerUid}) only proves the partner doc
+      // exists, not that an admin has approved/verified it - a guest could
+      // book a still-'pending', unverified partner. Fixed by additionally
+      // requiring that partner doc's verified field be true.
       allow create: if request.auth != null
                     && request.resource.data.status in ['requested','paid-unverified','confirmed-pay-later']
                     && request.resource.data.guestUid == request.auth.uid
-                    && exists(/databases/$(database)/documents/partners/$(request.resource.data.partnerUid));
+                    && exists(/databases/$(database)/documents/partners/$(request.resource.data.partnerUid))
+                    && get(/databases/$(database)/documents/partners/$(request.resource.data.partnerUid)).data.verified == true;
       allow update: if isAdmin()
                     || (request.auth != null
                         && resource.data.partnerUid == request.auth.uid
