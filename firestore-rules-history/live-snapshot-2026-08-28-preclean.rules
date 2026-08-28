@@ -1,0 +1,574 @@
+// ============================================================================
+//  RoamWise - Firestore Security Rules   (STABLE BUILD v15.5 / vc75)
+// ----------------------------------------------------------------------------
+//  HOW TO DEPLOY (2 minutes, do this whenever rules change):
+//    1. Firebase Console  ->  your project  ->  Build  ->  Firestore Database
+//    2. Click the  "Rules"  tab at the top
+//    3. Select all existing text, delete it, paste THIS ENTIRE FILE
+//    4. Click  "Publish"
+//  That's it. Changes are live in ~10 seconds.
+//
+//  IF THE T-SHIRT "ORDER" BUTTON ERRORS  -> the 'merch' rule below wasn't live.
+//  IF STAFF LOGIN WON'T PROCEED          -> the 'staff' rule below wasn't live,
+//                                           OR that account has no staff/{uid}
+//                                           doc yet (add it in Firestore).
+//
+//  Covers: merch (t-shirt orders), staff (team roles), users, payments,
+//  ratings, reports, tripchats, and 19 more collections. Everything the app
+//  writes to has a matching rule here - deploying this fixes permission-denied.
+// ============================================================================
+
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // You are admin only if a doc exists at admins/<your-uid>.
+    // That doc can ONLY be created from the Firebase Console (no client can write it).
+    function isAdmin() {
+      return request.auth != null
+        && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    }
+    function isSelf(uid) {
+      return request.auth != null && request.auth.uid == uid;
+    }
+
+    function isUnredeemedClaim(code) {
+  return code is string && code.size() > 0 && code.size() <= 64
+    && exists(/databases/$(database)/documents/partnerClaims/$(code))
+    && (
+         !('proRedeemed' in get(/databases/$(database)/documents/partnerClaims/$(code)).data)
+      || get(/databases/$(database)/documents/partnerClaims/$(code)).data.proRedeemed == false
+    )
+    && (
+         !('expiresAt' in get(/databases/$(database)/documents/partnerClaims/$(code)).data)
+      || get(/databases/$(database)/documents/partnerClaims/$(code)).data.expiresAt > request.time
+    );
+}
+
+    // ---------- USERS ----------
+    match /users/{uid} {
+  allow read: if isSelf(uid) || isAdmin();
+  allow create: if isSelf(uid)
+    && !request.resource.data.keys().hasAny(['pro','proAt','proMethod','proPayId']);
+  allow update: if isAdmin();
+  allow update: if isSelf(uid)
+    && !request.resource.data.diff(resource.data).affectedKeys()
+         .hasAny(['pro','proAt','proMethod','proPayId']);
+  allow update: if isSelf(uid)
+    && request.resource.data.diff(resource.data).affectedKeys()
+         .hasOnly(['pro','proAt','proMethod','proCode'])
+    && request.resource.data.pro == true
+    && request.resource.data.proMethod == 'partner'
+    && isUnredeemedClaim(request.resource.data.proCode);
+  allow delete: if isAdmin() || isSelf(uid);
+
+  match /devices/{deviceId} {
+    allow read, write: if isSelf(uid);
+  }
+}
+
+    match /claims/{id} {
+      allow create: if request.auth != null
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.status == 'pending'
+        && request.resource.data.utr is string
+        && request.resource.data.utr.size() >= 8
+        && request.resource.data.utr.size() <= 40;
+      allow read: if isAdmin() || (request.auth != null && resource.data.uid == request.auth.uid);
+      allow update, delete: if isAdmin();
+    }
+
+    match /pulse/{id} {
+      allow read: if true;
+      allow create, update: if request.auth != null
+        && request.resource.data.count is int;
+    }
+
+    match /requests/{id} {
+      allow create: if request.auth != null
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.text is string
+        && request.resource.data.text.size() <= 200;
+      allow read: if isAdmin();
+    }
+
+    match /payments/{id} {
+      allow read: if isAdmin();
+      allow write: if false;
+    }
+
+    match /admins/{uid} {
+      allow read: if isSelf(uid);
+      allow update: if isSelf(uid)
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['pinHash']);
+    }
+
+    match /stats/{day} {
+      allow read: if isAdmin();
+      allow write: if true;
+    }
+
+    match /ratings/{uid} {
+      allow read: if true;
+      allow create, update: if isSelf(uid)
+        && request.resource.data.stars is int
+        && request.resource.data.stars >= 1
+        && request.resource.data.stars <= 5
+        && (!('text' in request.resource.data) || request.resource.data.text.size() <= 200);
+      allow delete: if isSelf(uid);
+    }
+
+    match /squads/{squadId} {
+      allow read: if true;
+      allow create: if request.auth != null
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.note.size() <= 140
+        && (!('contact' in request.resource.data) || request.resource.data.contact.size() <= 80);
+      allow delete: if request.auth != null && resource.data.uid == request.auth.uid;
+      allow update: if false;
+    }
+
+    match /reports/{reportId} {
+      allow create: if true;
+      allow read, update, delete: if isAdmin();
+    }
+
+    match /tripchats/{roomId} {
+      allow read: if request.auth != null
+        && (resource == null || request.auth.uid in resource.data.members);
+      allow create: if request.auth != null && request.auth.uid in request.resource.data.members;
+      allow update: if request.auth != null
+        && request.auth.uid in request.resource.data.members
+        && (resource.data.members.toSet().difference(request.resource.data.members.toSet()).size() == 0);
+      match /msgs/{msgId} {
+        function roomExists() {
+          return exists(/databases/$(database)/documents/tripchats/$(roomId));
+        }
+        function isMember() {
+          return request.auth.uid in
+            get(/databases/$(database)/documents/tripchats/$(roomId)).data.members;
+        }
+        allow read: if request.auth != null && roomExists() && isMember();
+        allow create: if request.auth != null
+          && !isBanned()
+          && roomExists()
+          && isMember()
+          && request.resource.data.uid == request.auth.uid
+          && request.resource.data.text is string
+          && request.resource.data.text.size() <= 1000
+          && (!('kind' in request.resource.data)
+              || request.resource.data.kind in ['text','tusk','budget','plan','meet','poll','paid']);
+        allow update, delete: if false;
+        allow update: if request.auth != null
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['reactions']);
+      }
+    }
+
+    match /meta/rulesVersion {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /secrets/{uid} {
+      allow read, write, delete: if isSelf(uid);
+    }
+
+    match /config/{doc} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /crm/{id} {
+      allow read, update, delete: if isAdmin();
+      allow read: if isMarketing() && resource.data.seg == 'creator';
+      allow update: if isMarketing()
+        && resource.data.seg == 'creator'
+        && request.resource.data.diff(resource.data).affectedKeys()
+             .hasOnly(['stage','note','lastPitch','lastPitchAt']);
+      allow create: if isAdmin() || (
+           request.resource.data.seg == 'creator'
+        && request.resource.data.consent == true
+        && request.resource.data.source == 'creators page (inbound)'
+        && request.resource.data.stage == 'new'
+        && request.resource.data.name is string  && request.resource.data.name.size()  <= 120
+        && request.resource.data.email is string && request.resource.data.email.size() <= 160
+        && request.resource.data.note is string  && request.resource.data.note.size()  <= 1200
+        && request.resource.data.tier == 'applied'
+        && request.resource.data.refSales == 0
+        && request.resource.data.refRevenue == 0
+        && (!('code' in request.resource.data) || request.resource.data.code == '')
+        && (!('proGranted' in request.resource.data))
+      );
+    }
+
+    function staffRole() {
+      return request.auth != null
+        && exists(/databases/$(database)/documents/staff/$(request.auth.uid))
+        ? get(/databases/$(database)/documents/staff/$(request.auth.uid)).data.role
+        : '';
+    }
+    function isMarketing() { return staffRole() == 'marketing'; }
+    function isFinance()   { return staffRole() == 'finance'; }
+    function isStaff()     { return isMarketing() || isFinance(); }
+
+    match /staff/{uid} {
+      allow read: if isAdmin() || (request.auth != null && request.auth.uid == uid);
+      allow create: if isAdmin() ||
+        (request.auth != null && request.auth.uid == uid
+         && request.resource.data.role == 'none');
+      allow update, delete: if isAdmin();
+    }
+
+    match /tasks/{id} {
+      allow read: if isAdmin() || isStaff();
+      allow create, delete: if isAdmin();
+      allow update: if isAdmin() || (
+           isStaff()
+        && resource.data.assignee == staffRole()
+        && request.resource.data.assignee == resource.data.assignee
+        && request.resource.data.title == resource.data.title
+        && request.resource.data.diff(resource.data).affectedKeys()
+             .hasOnly(['status','note','updatedAt','proofUrl'])
+      );
+    }
+
+    match /ledger/{id} {
+      allow read: if isAdmin() || isFinance();
+      allow create, update: if isAdmin() || (
+           isFinance()
+        && request.resource.data.kind in ['expense','note']
+        && request.resource.data.amount is number
+        && request.resource.data.amount <= 100000
+        && request.resource.data.enteredBy == request.auth.uid
+      );
+      allow delete: if isAdmin();
+    }
+
+    function isBanned() {
+      return exists(/databases/$(database)/documents/bans/$(request.auth.uid));
+    }
+    match /bans/{uid} {
+      allow read: if isAdmin() || (request.auth != null && request.auth.uid == uid);
+      allow write: if isAdmin();
+    }
+
+    match /abuse/{id} {
+      allow create: if request.auth != null
+        && !isBanned()
+        && request.resource.data.reporter == request.auth.uid
+        && request.resource.data.reason is string
+        && request.resource.data.reason.size() <= 600
+        && request.resource.data.status == 'open';
+      allow read, update, delete: if isAdmin();
+    }
+
+    match /merch/{id} {
+      allow create: if request.auth != null && !isBanned()
+        && request.resource.data.status == 'new'
+        && request.resource.data.slogan is string && request.resource.data.slogan.size() <= 120
+        && request.resource.data.addr is string   && request.resource.data.addr.size() <= 400;
+      allow read: if isAdmin() || (request.auth != null && resource.data.uid == request.auth.uid);
+      allow update, delete: if isAdmin();
+    }
+
+    match /meta/{doc} {
+      allow read: if true;
+      allow create: if isAdmin();
+      allow delete: if isAdmin();
+      allow update: if isAdmin() || (
+        doc == 'signupCounter'
+        && request.auth != null
+        && request.resource.data.count is int
+        && request.resource.data.count == resource.data.count + 1
+        && request.resource.data.keys().hasOnly(['count'])
+      );
+    }
+
+    match /pricing/{doc} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /deckleads/{id} {
+      allow create: if request.resource.data.name is string
+        && request.resource.data.name.size() <= 120
+        && request.resource.data.contact is string
+        && request.resource.data.contact.size() <= 160;
+      allow update: if resource != null;
+      allow read, delete: if isAdmin();
+    }
+
+    match /hrdocs/{id} {
+      allow read, write: if isAdmin();
+    }
+
+match /pulse/{doc} {
+  allow read: if true;
+  allow write: if request.auth != null;
+}
+
+match /tripchats/{room} {
+  allow read, write: if request.auth != null;
+  match /msgs/{msg} {
+    allow read: if request.auth != null;
+    allow create: if request.auth != null
+                  && request.resource.data.uid == request.auth.uid;
+    allow update, delete: if request.auth != null
+                  && resource.data.uid == request.auth.uid;
+  }
+}
+match /pulse/{doc} {
+  allow read: if true;
+  allow write: if request.auth != null;
+}
+
+match /tripchats/{room} {
+  allow read, write: if request.auth != null;
+  match /msgs/{msg} {
+    allow read: if request.auth != null;
+    allow create: if request.auth != null
+                  && request.resource.data.uid == request.auth.uid;
+    allow update, delete: if request.auth != null
+                  && resource.data.uid == request.auth.uid;
+  }
+}
+
+match /squads/{post} {
+  allow read: if request.auth != null;
+  allow create: if request.auth != null
+                && request.resource.data.uid == request.auth.uid
+                && request.resource.data.note is string
+                && request.resource.data.note.size() < 200;
+  allow delete: if request.auth != null
+                && resource.data.uid == request.auth.uid;
+}
+
+match /reports/{r} {
+  allow create: if request.auth != null;
+  allow read, update, delete: if false;
+}
+
+match /passports/{id} {
+  allow read: if true;
+  allow create: if request.auth != null
+                && request.resource.data.uid == request.auth.uid
+                && request.resource.data.place is string
+                && request.resource.data.place.size() > 0
+                && request.resource.data.place.size() < 120
+                && request.resource.data.verified is bool;
+  allow update, delete: if false;
+}
+
+match /beacons/{uid} {
+  allow read: if request.auth != null;
+  allow create, update: if request.auth != null
+                && request.auth.uid == uid
+                && request.resource.data.uid == uid
+                && request.resource.data.lat is number
+                && request.resource.data.lon is number;
+  allow delete: if request.auth != null && request.auth.uid == uid;
+}
+
+function isStaffAdmin() {
+  return request.auth != null
+    && exists(/databases/$(database)/documents/staff/$(request.auth.uid))
+    && get(/databases/$(database)/documents/staff/$(request.auth.uid)).data.role == 'admin';
+}
+
+match /staff/{uid} {
+  allow read: if request.auth != null;
+  allow create: if request.auth != null
+                && request.auth.uid == uid
+                && !('role' in request.resource.data);
+  allow update: if isStaffAdmin()
+                || (request.auth != null && request.auth.uid == uid
+                    && !request.resource.data.diff(resource.data).affectedKeys()
+                          .hasAny(['role','docs','staffId']));
+  allow delete: if isStaffAdmin();
+
+  match /logs/{day} {
+    allow read: if request.auth != null && (request.auth.uid == uid || isStaffAdmin());
+    allow create, update: if request.auth != null && request.auth.uid == uid;
+    allow delete: if isAdmin();
+  }
+
+  match /sessions/{day} {
+    allow read: if request.auth != null && (request.auth.uid == uid || isStaffAdmin());
+    allow create, update: if request.auth != null && request.auth.uid == uid;
+    allow delete: if isStaffAdmin();
+  }
+}
+
+match /claims/{cid} {
+  allow read: if request.auth != null
+              && (resource.data.uid == request.auth.uid || isAdmin());
+
+  allow create: if request.auth != null
+                && request.resource.data.uid == request.auth.uid
+                && request.resource.data.status == 'pending'
+                && !('seatCounted' in request.resource.data)
+                && request.resource.data.amount is number
+                && request.resource.data.amount > 0
+                && request.resource.data.amount <= 100000
+                && request.resource.data.utr is string
+                && request.resource.data.utr.size() == 12
+                && (!('refCode' in request.resource.data)
+                    || (request.resource.data.refCode is string
+                        && request.resource.data.refCode.size() <= 32));
+
+  allow update, delete: if isAdmin();
+}
+
+match /meta/{doc} {
+  allow read: if true;
+  allow write: if doc == 'signupCounter' && request.auth != null;
+  allow write: if doc == 'founderSeats' && isAdmin();
+}
+
+match /pricing/{doc} {
+  allow read: if true;
+  allow write: if isAdmin();
+  allow update: if doc == 'founder'
+    && request.auth != null
+    && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['count'])
+    && request.resource.data.count == (resource.data.count is int ? resource.data.count : 0) + 1;
+}
+
+match /refSignups/{id} {
+  allow create: if request.resource.data.code is string
+                && request.resource.data.userUID is string;
+  allow read: if isAdmin()
+              || (request.auth != null
+                  && resource.data.code != null
+                  && exists(/databases/$(database)/documents/config/referrers));
+  allow update, delete: if isAdmin();
+}
+
+function isPartner(uid) {
+  return request.auth != null && request.auth.uid == uid;
+}
+
+match /partners/{uid} {
+  allow read: if isPartner(uid) || isAdmin();
+  allow create: if isPartner(uid)
+                && request.resource.data.status == 'pending'
+                && !('commissionPct' in request.resource.data)
+                && !('verified' in request.resource.data)
+                && !('badges' in request.resource.data);
+  allow update: if isAdmin()
+                || (isPartner(uid)
+                    && !request.resource.data.diff(resource.data).affectedKeys()
+                         .hasAny(['status','verified','badges','commissionPct',
+                                  'payoutHold','adminNote','uid']));
+  allow delete: if isAdmin();
+}
+
+match /partners/{uid}/rooms/{roomId} {
+  allow read: if true;
+  allow create, update, delete: if isPartner(uid) || isAdmin();
+}
+
+match /roomBookings/{ref} {
+  allow read: if isAdmin()
+              || (request.auth != null && resource.data.partnerUid == request.auth.uid)
+              || (request.auth != null && resource.data.guestUid == request.auth.uid);
+  allow create: if request.auth != null
+                && request.resource.data.status in ['requested','paid-unverified','confirmed-pay-later'];
+  allow update: if isAdmin()
+                || (request.auth != null
+                    && resource.data.partnerUid == request.auth.uid
+                    && request.resource.data.diff(resource.data).affectedKeys()
+                         .hasOnly(['status','partnerNote','confirmedAt']));
+  allow delete: if isAdmin();
+}
+
+match /ledger/{entryId} {
+  allow read: if isAdmin();
+  allow create: if isAdmin();
+  allow update, delete: if false;
+}
+
+match /meta/publicStats {
+  allow read: if request.auth != null;
+  allow write: if isAdmin();
+}
+
+match /investors/{id} {
+  allow read: if isAdmin();
+  allow create: if request.resource.data.amount is number
+                && request.resource.data.amount > 0
+                && request.resource.data.status == 'interested'
+                && request.resource.data.name is string
+                && request.resource.data.email is string;
+  allow update, delete: if isAdmin();
+}
+
+match /meta/investorStats {
+  allow read: if true;
+  allow write: if isAdmin();
+}
+
+match /adminAuditLog/{id} {
+  allow create: if isAdmin();
+  allow read: if isAdmin();
+  allow update, delete: if false;
+}
+
+match /partnerClaims/{id} {
+  allow get: if true;
+  allow list: if isAdmin();
+  allow create: if request.resource.data.name is string
+                && request.resource.data.name.size() <= 120
+                && request.resource.data.email is string
+                && request.resource.data.email.size() <= 160
+                && request.resource.data.consent == true
+                && request.resource.data.partnership is string
+                && id == request.resource.data.code
+                && (!('proRedeemed' in request.resource.data) || request.resource.data.proRedeemed == false)
+                && exists(/databases/$(database)/documents/partnerships/$(request.resource.data.partnership))
+                && get(/databases/$(database)/documents/partnerships/$(request.resource.data.partnership)).data.claimed
+                     < (get(/databases/$(database)/documents/partnerships/$(request.resource.data.partnership)).data.cap is int
+                        ? get(/databases/$(database)/documents/partnerships/$(request.resource.data.partnership)).data.cap
+                        : 500);
+  allow update: if isAdmin() || (
+       request.auth != null
+    && (!('proRedeemed' in resource.data) || resource.data.proRedeemed == false)
+    && request.resource.data.proRedeemed == true
+    && request.resource.data.diff(resource.data).affectedKeys()
+         .hasOnly(['proRedeemed','redeemedAt','redeemedUid'])
+    && request.resource.data.redeemedUid == request.auth.uid
+  );
+  allow delete: if isAdmin();
+}
+
+match /partnerClaimEmails/{emailKey} {
+  allow get: if true;
+  allow list: if isAdmin();
+  allow create: if request.resource.data.code is string
+                && request.resource.data.code.size() <= 64
+                && request.resource.data.partnership is string;
+  allow update, delete: if isAdmin();
+}
+
+match /partnerships/{id} {
+  allow read: if true;
+  allow create: if isAdmin();
+  allow update: if isAdmin() || (
+       resource.data.claimed is int
+    && request.resource.data.claimed == resource.data.claimed + 1
+    && request.resource.data.claimed <= (resource.data.cap is int ? resource.data.cap : 500)
+    && (
+         (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['claimed','studentClaimed','lastClaimedAt'])
+           && resource.data.studentClaimed is int
+           && request.resource.data.studentClaimed == resource.data.studentClaimed + 1
+           && request.resource.data.studentClaimed <= (resource.data.studentCap is int ? resource.data.studentCap : 450))
+      || (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['claimed','organiserClaimed','lastClaimedAt'])
+           && resource.data.organiserClaimed is int
+           && request.resource.data.organiserClaimed == resource.data.organiserClaimed + 1
+           && request.resource.data.organiserClaimed <= (resource.data.organiserCap is int ? resource.data.organiserCap : 50))
+       )
+  );
+  allow delete: if isAdmin();
+}
+
+  }
+}
