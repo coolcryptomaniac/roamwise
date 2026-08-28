@@ -410,6 +410,18 @@ service cloud.firestore {
     match /pricing/{doc} {
       allow read: if true;
       allow write: if isAdmin();
+      // FIXED: partner-redeemed seats (e.g. NMIMS's 500 free grants) never
+      // counted toward the combined 1000-account founder-era cap, because
+      // this doc was admin-only and openPartnerRedeem() had nowhere safe to
+      // write. Narrow carve-out, same shape as meta/signupCounter and the
+      // partnerships/{id} counters elsewhere in this file: a signed-in user
+      // may move ONLY 'founder'.count, ONLY by exactly +1, nothing else on
+      // this doc, ever. Batched atomically with the matching users/{uid}
+      // and partnerClaims/{code} writes in openPartnerRedeem() - see app.js.
+      allow update: if doc == 'founder'
+        && request.auth != null
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['count'])
+        && request.resource.data.count == (resource.data.count is int ? resource.data.count : 0) + 1;
     }
     // ---- CROWD REPORTS (rw-v113) — Travel & Earn: Crowd Spotter ----
     // Any user (signed-in or anonymous) may create. Nobody can read each other's.

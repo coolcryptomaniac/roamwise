@@ -8043,7 +8043,7 @@ function smartSearch(month, budUSD, ctryQuery, crowd, interests){
     });
     sc += Math.max(0, 60 - Math.abs(d.cost.mid-budUSD)/30);
     sc -= budgetPenalty;
-    if(d.bestM.indexOf(mi)>=0) sc += 28;
+    if(d.bestM.indexOf(mi+1)>=0) sc += 28; /* mi is 0-based (MONTHS.indexOf), bestM is 1-based */
     scores.push({d:d, sc:sc, cs:cs});
   });
   scores.sort(function(a,b){ return b.sc-a.sc; });
@@ -8463,7 +8463,7 @@ function renderCards(results, month, budUSD, origin, days, aiData, travelStyle, 
   H += `<div class="cmp-wrap"><table class="cmp-table"><thead><tr><th>Destination</th><th>Crowd in ${month}</th><th>Mid budget</th><th>Visa (India)</th><th>Best months</th></tr></thead><tbody>`;
   results.forEach(function(r){
     var d=r.d, cs=r.cs, bl = cs<35?'badge-low':cs<60?'badge-mid':'badge-hi', ct = cs<35?'Low':cs<60?'Moderate':'Busy';
-    var bm = d.bestM.length ? d.bestM.slice(0,3).map(function(m){return MO[m];}).join(', ') : 'Year-round';
+    var bm = d.bestM.length ? d.bestM.slice(0,3).map(function(m){return MO[m-1]||m;}).join(', ') : 'Year-round';
     H += `<tr><td><strong>${flagEmoji(d.flag)} ${d.name}</strong>${d.country?`<br><span style="font-size:10px;color:#4A4946">${d.country}</span>`:''}</td><td><span class="badge ${bl}" style="font-size:11px">${cs}% ${ct}</span></td><td>${fmtMoney(d.cost.mid)}</td><td style="font-size:11px">${d.visa.type}<br><span style="color:#16BF96">${d.visa.cost}</span></td><td style="font-size:11px">${bm}</td></tr>`;
   });
   H += `</tbody></table></div>`;
@@ -8504,7 +8504,7 @@ function renderCards(results, month, budUSD, origin, days, aiData, travelStyle, 
 
     /* Card head */
     var flagIco = flagEmoji(d.flag);
-    var bestMonthsLabel = d.bestM.length ? d.bestM.slice(0,3).map(function(m){return MO[m];}).join(', ') : 'Year-round';
+    var bestMonthsLabel = d.bestM.length ? d.bestM.slice(0,3).map(function(m){return MO[m-1]||m;}).join(', ') : 'Year-round';
     H += `<div class="card-head">
       <div>
         <div class="card-rank${feat?' gold':''}">${feat ? (isGenericResult ? '📍 Your pick' : '⭐ Top pick for '+month) : (isGenericResult ? 'Alternative '+ci : 'Option '+(ci+1))}</div>
@@ -8563,7 +8563,7 @@ function renderCards(results, month, budUSD, origin, days, aiData, travelStyle, 
       }).join('')}</div>
       <div class="sec-label">📅 Best months to visit</div>
       <div class="bm-grid">${MO.map(function(m,idx){
-        var best = d.bestM.indexOf(idx)>=0;
+        var best = d.bestM.indexOf(idx+1)>=0; /* idx is 0-based (MO array), bestM is 1-based */
         return `<div class="bm${best?' best':''}${idx===mi?' sel':''}">${m}</div>`;
       }).join('')}</div>
     </div>`;
@@ -9754,12 +9754,21 @@ function rwRefSync(){
         try{ lsSet('rw_ref_cache', JSON.stringify(list)); }catch(e){}
       }
     }).catch(function(){});
-    /* referral terms: rates, buyer bonus, promo status, disclaimer */
+    /* referral terms: rates, buyer bonus, promo status, disclaimer.
+       FIXED: referral-data.js sets window.RW_REFERRAL_TERMS as a static
+       flat-30%-for-everyone object at page load. This Firestore fetch used
+       to completely OVERWRITE that object once it resolved -- meaning the
+       effective referral terms silently depended on whether config/referralTerms
+       had ever been saved in the admin console, and on script/network timing.
+       Two systems, one variable, no reconciliation. Now this MERGES onto the
+       static baseline instead of replacing it, so a not-yet-configured
+       Firestore doc can never blank out real defaults, and an explicitly-set
+       Firestore field always wins over the static one where it's actually set. */
     db.collection('config').doc('referralTerms').get().then(function(d){
       if(!d.exists) return;
       var t=d.data()||{};
-      window.RW_REFERRAL_TERMS=t;
-      try{ lsSet('rw_ref_terms_cache',JSON.stringify(t)); }catch(e){}
+      window.RW_REFERRAL_TERMS = Object.assign({}, window.RW_REFERRAL_TERMS||{}, t);
+      try{ lsSet('rw_ref_terms_cache',JSON.stringify(window.RW_REFERRAL_TERMS)); }catch(e){}
     }).catch(function(){});
   }catch(e){}
 }
