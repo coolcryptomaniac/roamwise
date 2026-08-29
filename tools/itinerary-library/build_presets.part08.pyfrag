@@ -1,0 +1,40 @@
+
+Do **not** silently force a preset when the user gives meaningful constraints such as a specific month, exact budget, accessibility need, crowd-avoidance requirement, fixed hotel, unusual transport rule, permit-sensitive requirement, or custom style/tags. In that case, keep the existing live planner and optionally use the preset only as a scaffold.
+
+`preset-loader.js` already implements this conservative rule.
+
+## Integration
+
+Add once near the existing premium itinerary scripts:
+
+```html
+<script src="itinerary-library/preset-loader.js" defer></script>
+```
+
+Before a broad live-generation call, ask the library for a hit:
+
+```js
+const hit = await window.RW_PRESETS?.find({{
+  destination: document.querySelector('#destInput')?.value,
+  duration: Number(document.querySelector('#dur')?.value || 0),
+  month: document.querySelector('#month')?.value,
+  style: document.querySelector('#style')?.value,
+  crowd: document.querySelector('#crowd')?.value,
+  budgetExact: document.querySelector('#budgetExact')?.value,
+  tags: window.currentPlannerTags || []
+}});
+
+if (hit) {{
+  window.RW_PRESETS.renderInto('#results', hit);
+  return; // skip expensive generation for this broad request
+}}
+```
+
+For an explicit user action such as "Load ready-made itinerary", call with `forcePreset:true`.
+
+```js
+const hit = await RW_PRESETS.find({{ destination:'Ladakh', duration:6, forcePreset:true }});
+RW_PRESETS.renderInto('#results', hit);
+```
+
+Each HTML also supports a theme override:
