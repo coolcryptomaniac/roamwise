@@ -7393,7 +7393,7 @@ function openPartnerRedeem(){
       var userRef=db.collection('users').doc(user.uid);
       var uSnap=await userRef.get();
       if(!uSnap.exists){
-        await userRef.set({email:user.email||'', phone:user.phoneNumber||'', name:user.displayName||'', created:firebase.firestore.FieldValue.serverTimestamp()});
+        await userRef.set({email:user.email||'', phone:user.phoneNumber||'', name:user.displayName||'', created:firebase.firestore.FieldValue.serverTimestamp()}, {merge:true});
       }
       await userRef.update({
         pro:true, proAt:new Date().toISOString(),
