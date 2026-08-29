@@ -1,0 +1,40 @@
+    c.save()
+
+manifest={'version':'1.0.0','generated':'2026-08-29','purpose':'RoamWise cached cinematic itinerary fallbacks','themes':THEME_META,'variants':VARIANTS,'destinations':[]}
+for dest in C:
+    dd={'slug':dest['slug'],'name':dest['name'],'country':dest['country'],'region':dest['region'],'category':dest['category'],'theme':dest['theme'],'aliases':dest['aliases'],'gateway':dest['gateway'],'season':dest['season'],'notes':dest['notes'],'variants':{}}
+    ddir=OUT/'presets'/dest['slug']; ddir.mkdir()
+    for idx,(var_key,meta) in enumerate(VARIANTS.items()):
+        n=dest['days'][idx]
+        days=build_days(dest,n)
+        hp=ddir/f'{var_key}.html'; pp=ddir/f'{var_key}.pdf'
+        hp.write_text(html_doc(dest,var_key,n,days),encoding='utf-8')
+        make_pdf(pp,dest,var_key,n,days)
+        dd['variants'][var_key]={'days':n,'html':f'presets/{dest["slug"]}/{var_key}.html','pdf':f'presets/{dest["slug"]}/{var_key}.pdf'}
+    manifest['destinations'].append(dd)
+
+(OUT/'manifest.json').write_text(json.dumps(manifest,indent=2,ensure_ascii=False),encoding='utf-8')
+(OUT/'data'/'destinations.json').write_text(json.dumps(C,indent=2,ensure_ascii=False),encoding='utf-8')
+
+LOADER=r'''
+/* RoamWise Preset Library Loader v1.0.0
+   Cached fallback only: return null when the request contains specific planning constraints.
+*/
+(()=>{
+  const ROOT=(document.currentScript?.src||'').replace(/preset-loader\.js(?:\?.*)?$/,'');
+  let manifestPromise;
+  const norm=s=>(s||'').toLowerCase().normalize('NFKD').replace(/[^a-z0-9]+/g,' ').trim();
+  async function manifest(){return manifestPromise||(manifestPromise=fetch(ROOT+'manifest.json',{cache:'force-cache'}).then(r=>{if(!r.ok)throw Error('preset manifest '+r.status);return r.json()}));}
+  function specific(o={}){
+    const style=norm(o.style), crowd=norm(o.crowd), month=norm(o.month), budget=String(o.budgetExact||o.exactBudget||'').trim();
+    const tags=Array.isArray(o.tags)?o.tags.filter(Boolean):[];
+    const mobility=norm(o.accessibility||o.mobility), hotel=norm(o.hotel||o.fixedHotel), transport=norm(o.transportRestriction);
+    return !!(month||budget||mobility||hotel||transport||tags.length|| (crowd&& !['any','normal','default'].includes(crowd)) || (style&& !['','balanced','classic','default'].includes(style)));
+  }
+  function score(d,q){const n=norm(q); if(!n)return 0; let s=0; if(norm(d.name)===n)s+=100; if(norm(d.slug)===n)s+=100; if(norm(d.name).includes(n)||n.includes(norm(d.name)))s+=55; for(const a of d.aliases||[]){const x=norm(a);if(x===n)s+=90;else if(x.includes(n)||n.includes(x))s+=45;} if(norm(d.region).includes(n))s+=20; return s;}
+  function nearestVariant(d,days){const entries=Object.entries(d.variants); if(!days)return d.variants.signature?['signature',d.variants.signature]:entries[0]; let best=entries[0],gap=Infinity; for(const e of entries){const g=Math.abs(Number(e[1].days)-Number(days));if(g<gap){gap=g;best=e}}return best;}
+  async function find(o={}){
+    if(!o.forcePreset && specific(o))return null;
+    const m=await manifest(), ranked=m.destinations.map(d=>[score(d,o.destination||o.query),d]).sort((a,b)=>b[0]-a[0]);
+    if(!ranked.length||ranked[0][0]<20)return null;
+    const d=ranked[0][1], [variant,v]=nearestVariant(d,o.duration||o.days);
