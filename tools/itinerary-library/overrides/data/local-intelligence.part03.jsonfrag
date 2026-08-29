@@ -1,0 +1,154 @@
+oKeys": [
+      "Hanoi",
+      "Hoi An",
+      "Hue",
+      "Ho Chi Minh City",
+      "Vietnam"
+    ]
+  },
+  "japan": {
+    "journeyStyle": "rail-culture",
+    "food": "Sushi, ramen, soba, izakaya dishes and regional specialties",
+    "movement": "Rail-first; local metro/bus + walking; luggage forwarding can reduce friction",
+    "etiquette": "Quiet public-transport etiquette and shrine/onsen rules matter",
+    "signature": "Tokyo neon, Kyoto machiya/temples, alpine towns and seasonal detail",
+    "photoKeys": [
+      "Tokyo",
+      "Kyoto",
+      "Osaka",
+      "Japan"
+    ]
+  },
+  "south-korea": {
+    "journeyStyle": "urban-coast",
+    "food": "Bibimbap, barbecue, noodles, market food and Jeju specialties",
+    "movement": "KTX between major cities; metro/bus in Seoul/Busan",
+    "etiquette": "Temple and bathhouse etiquette differs from nightlife districts; keep both contexts distinct",
+    "signature": "Seoul layers, Busan coast, hanok texture and Jeju volcanic landscapes",
+    "photoKeys": [
+      "Seoul",
+      "Busan",
+      "Jeju"
+    ]
+  },
+  "uae": {
+    "journeyStyle": "future-desert",
+    "food": "Emirati dishes, Levantine/Gulf food, diverse global dining",
+    "movement": "Metro/taxi in Dubai; road transfer to Abu Dhabi/desert",
+    "etiquette": "Modesty/respect expectations vary by venue; desert experiences should use reputable operators",
+    "signature": "Future skyline, old creek, dunes and monumental cultural architecture",
+    "photoKeys": [
+      "Dubai",
+      "Abu Dhabi"
+    ]
+  },
+  "turkey": {
+    "journeyStyle": "crossroads",
+    "food": "Kebabs, meze, pide, breakfast spreads and regional Anatolian dishes",
+    "movement": "Metro/ferry in Istanbul; flight/bus for long intercity legs",
+    "etiquette": "Mosque etiquette is straightforward but important; bazaars are best enjoyed without rushed haggling",
+    "signature": "Bosphorus ferries, Cappadocian geology, bazaars and Aegean ruins",
+    "photoKeys": [
+      "Istanbul",
+      "Cappadocia",
+      "Izmir",
+      "Turkey"
+    ]
+  },
+  "egypt": {
+    "journeyStyle": "nile-desert",
+    "food": "Koshari, ful, taameya, grilled dishes and Nile-side meals",
+    "movement": "Driver/rail/flight mix; Nile cruises only when they fit the pace",
+    "etiquette": "Heat and site security procedures shape timing; active religious spaces need respectful dress",
+    "signature": "Nile light, desert stone, temple axes and Cairo street layers",
+    "photoKeys": [
+      "Cairo",
+      "Luxor",
+      "Aswan",
+      "Egypt"
+    ]
+  },
+  "italy": {
+    "journeyStyle": "slow-heritage",
+    "food": "Regional pasta, pizza traditions, cicchetti, gelato and local markets",
+    "movement": "High-speed rail between major cities; walk/transit inside historic centers",
+    "etiquette": "Church dress and neighborhood meal rhythms matter; avoid turning every day into museum sprints",
+    "signature": "Roman layers, Tuscan streets, Venetian water and regional food rituals",
+    "photoKeys": [
+      "Rome",
+      "Florence",
+      "Venice",
+      "Italy"
+    ]
+  },
+  "switzerland": {
+    "journeyStyle": "alpine-rail",
+    "food": "Cheese dishes, rösti, bakery stops and regional mountain fare",
+    "movement": "Rail is the journey; mountain lifts/boats connect local legs",
+    "etiquette": "Weather can change high-alpine plans quickly; quiet trail and hut etiquette matters",
+    "signature": "Glacier valleys, lake-rail transitions and high mountain panoramas",
+    "photoKeys": [
+      "Zurich",
+      "Interlaken",
+      "Zermatt",
+      "Lucerne",
+      "Switzerland"
+    ]
+  },
+  "iceland": {
+    "journeyStyle": "volcanic-road",
+    "food": "Lamb/fish dishes, rye bread, skyr and simple road-trip food",
+    "movement": "Self-drive or tour vehicle; wind and road closures override schedules",
+    "etiquette": "Stay on marked terrain around geothermal/coastal zones; weather is operational, not decorative",
+    "signature": "Lava fields, waterfalls, black coasts and geothermal steam",
+    "photoKeys": [
+      "Reykjavik",
+      "Iceland",
+      "Vik"
+    ]
+  },
+  "greece": {
+    "journeyStyle": "aegean-heritage",
+    "food": "Meze, souvlaki, seafood, pies and island specialties",
+    "movement": "Ferries + flights for islands; metro/walk in Athens",
+    "etiquette": "Orthodox churches and small island communities have quieter norms than resort strips",
+    "signature": "Marble ruins, whitewashed islands, Meteora cliffs and blue-hour harbors",
+    "photoKeys": [
+      "Athens",
+      "Santorini",
+      "Meteora",
+      "Greece"
+    ]
+  },
+  "new-zealand": {
+    "journeyStyle": "southern-road",
+    "food": "Cafe culture, seafood, lamb dishes and regional produce",
+    "movement": "Road-trip first on South Island; ferries/short flights selectively",
+    "etiquette": "Trail weather and DOC guidance matter; Maori names/cultural sites deserve correct, respectful use",
+    "signature": "Fiords, alpine roads, braided rivers and dark-sky landscapes",
+    "photoKeys": [
+      "Queenstown",
+      "Christchurch",
+      "Milford Sound",
+      "New Zealand"
+    ]
+  },
+  "kenya-tanzania": {
+    "journeyStyle": "safari",
+    "food": "Swahili/coastal dishes, nyama choma, ugali and lodge/local meals",
+    "movement": "4x4 safari circuits + regional flights where useful",
+    "etiquette": "Wildlife distance rules and guide quality matter more than getting closer for a photo",
+    "signature": "Savannah horizons, migration country, crater landscapes and Maasai cultural context",
+    "photoKeys": [
+      "Nairobi",
+      "Serengeti",
+      "Masai Mara",
+      "Ngorongoro"
+    ]
+  },
+  "nepal-heritage": {
+    "journeyStyle": "himalayan-valley",
+    "food": "Dal bhat, momos, Newari dishes and tea-house staples",
+    "movement": "Tourist bus/private car between valleys; walking/taxis in city cores",
+    "etiquette": "Temples mix Hindu/Buddhist practice; clockwise movement and footwear rules vary by site",
+    "signature": "Kathmandu courtyards, Pokhara lake light and Chitwan lowl
