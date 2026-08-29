@@ -60,18 +60,18 @@ for hp in sorted((OUT/'presets').glob('*/*.html')):
     text = text.replace('<script src="../../assets/preset-runtime.js"></script>', SHARE_STAMP+'<script src="../../assets/preset-runtime.js"></script>', 1)
     hp.write_text(text, encoding='utf-8')
 
+# Keep v1.1 runtime/styles/loader exactly aligned with the handoff package.
 for src, dst in [
     (OVR/'assets/preset-runtime.js', OUT/'assets/preset-runtime.js'),
     (OVR/'assets/preset-library.css', OUT/'assets/preset-library.css'),
     (OVR/'assets/roamwise-mark.svg', OUT/'assets/roamwise-mark.svg'),
     (OVR/'preset-loader.js', OUT/'preset-loader.js'),
-    (OVR/'index.html', OUT/'index.html'),
-    (OVR/'README.md', OUT/'README.md'),
     (OVR/'data/local-intelligence.json', OUT/'data/local-intelligence.json'),
 ]:
     dst.parent.mkdir(parents=True, exist_ok=True)
     shutil.copyfile(src, dst)
 
+# Add one local-intelligence page to each static PDF. Personalized PDFs should be printed from share-mode HTML.
 def wrap(c, text, x, y, width, size=10, leading=14):
     words=str(text).split(); line=''; lines=[]
     for w in words:
@@ -115,6 +115,13 @@ manifest['version']='1.1.0'
 manifest['localIntelligence']='data/local-intelligence.json'
 manifest['shareAttribution']='Made by RoamWise for <user>'
 (OUT/'manifest.json').write_text(json.dumps(manifest,indent=2,ensure_ascii=False),encoding='utf-8')
+
+readme=OUT/'README.md'
+if readme.exists():
+    txt=readme.read_text(encoding='utf-8').replace('v1.0.0','v1.1.0',1)
+    if '## Local intelligence & sharing' not in txt:
+        txt += '''\n## Local intelligence & sharing\n\nThe v1.1 cinematic runtime adds destination-specific photo hooks, lazy local/day maps, local food/movement/etiquette/visual context, and share mode attribution (`Made by RoamWise for <user>`). Normal viewing stays clean; personalized attribution is activated for share/print flows.\n'''
+    readme.write_text(txt,encoding='utf-8')
 
 htmls=list((OUT/'presets').glob('*/*.html')); pdfs=list((OUT/'presets').glob('*/*.pdf'))
 assert len(htmls)==192, len(htmls)
