@@ -5271,21 +5271,21 @@ function genPdf(sample){
         ty += 52;
         /* food + tip + budget band */
         var fd=(A&&A.food)||((d.food||[])[i%Math.max(1,(d.food||[]).length)]||'');
-        pdf.setFillColor('#F3E2C0'); pdf.roundedRect(44,y-8,512,58,7,7,'F');
+        pdf.setFillColor('#F3E2C0'); pdf.roundedRect(44,ty-8,512,58,7,7,'F');
         pdf.setTextColor('#7A2E1E'); pdf.setFont('helvetica','bold'); pdf.setFontSize(10);
-        pdf.text('\ud83c\udf5b EAT TODAY',56,y+8);
+        pdf.text('\ud83c\udf5b EAT TODAY',56,ty+8);
         pdf.setFont('helvetica','normal'); pdf.setTextColor(INK); pdf.setFontSize(10);
-        pdf.text(pdf.splitTextToSize(fd||'Ask three locals one question: \u201cwhere do YOU eat?\u201d',300),56,y+22);
+        pdf.text(pdf.splitTextToSize(fd||'Ask three locals one question: \u201cwhere do YOU eat?\u201d',300),56,ty+22);
         pdf.setTextColor('#7A5A16'); pdf.setFontSize(9);
-        pdf.text(pdf.splitTextToSize('\ud83e\udd77 '+((A&&A.tip)||T2.tip||'Carry small notes; big bills slow every purchase.'),190),380,y+8);
+        pdf.text(pdf.splitTextToSize('\ud83e\udd77 '+((A&&A.tip)||T2.tip||'Carry small notes; big bills slow every purchase.'),190),380,ty+8);
         if(perDay){ pdf.setTextColor(MUT); pdf.setFontSize(9.5);
-          pdf.text('\ud83d\udcb0 Day budget ('+o.party.toLowerCase()+', '+o.pace.toLowerCase()+'): ~$'+Math.round(perDay*paceAdj*partyMul),44,y+66); }
+          pdf.text('\ud83d\udcb0 Day budget ('+o.party.toLowerCase()+', '+o.pace.toLowerCase()+'): ~$'+Math.round(perDay*paceAdj*partyMul),44,ty+66); }
         /* ---- Fill the previously-blank lower half with real, grounded data ----
            Two-column panel: destination fast facts (region/country/tags — all
            already in the database, not invented) + an actual crowd-by-month
            comparison (d.crowd is real per-destination data used elsewhere in
            the app, e.g. the ninja-hacks crowd-dodge callouts). */
-        var fy = y + 84;
+        var fy = ty + 84;
         if(fy < 700){
           pdf.setDrawColor(TH.acc[0],TH.acc[1],TH.acc[2]); pdf.setLineWidth(0.8);
           pdf.line(44, fy, 556, fy);
@@ -5439,7 +5439,7 @@ function genPdf(sample){
         }catch(e){ pdf.save(fname); } }
       xpAdd(20,'Premium itinerary forged');
       try{ track('pdf_generated'); lsSet('rw_pdf_count', String((parseInt(lsGet('rw_pdf_count')||'0',10)||0)+1)); }catch(e){}
-    });
+    }).catch(function(err){ console.error('genPdf failed', err); showToast('Could not build the PDF — please try again'); });
   });
 }
 
@@ -10663,8 +10663,8 @@ function cpBubble(html, who){
   var log=el(_cpTargetLog)||el('cpLog'); if(!log) return;
   var b=document.createElement('div');
   b.style.cssText = who==='me'
-    ? 'margin:6px 0 6px 40px;background:linear-gradient(135deg,var(--gold,#E8BA6C),var(--gold2,#C8913E));color:#0A0A0C;border-radius:14px 14px 4px 14px;padding:10px 12px;font-size:12.5px'
-    : 'margin:6px 40px 6px 0;background:var(--bg2,#12121C);border:1px solid var(--b2,#2A2A36);border-radius:14px 14px 14px 4px;padding:10px 12px;font-size:12.5px;line-height:1.55';
+    ? 'margin:6px 0 6px 40px;background:linear-gradient(135deg,var(--gold,#E8BA6C),var(--gold2,#C8913E));color:#0A0A0C;border-radius:14px 14px 4px 14px;padding:10px 12px;font-size:12.5px;white-space:pre-line'
+    : 'margin:6px 40px 6px 0;background:var(--bg2,#12121C);border:1px solid var(--b2,#2A2A36);border-radius:14px 14px 14px 4px;padding:10px 12px;font-size:12.5px;line-height:1.55;white-space:pre-line';
   b.innerHTML=html;
   /* Hero log sits ABOVE the input, so newest goes at the BOTTOM of that log —
      i.e. directly above the box where the eye and thumb already are. */
@@ -11477,7 +11477,7 @@ function copilotSend(fromHero){
         +'BE GENUINELY USEFUL: when you suggest a place, add the ONE detail a local would know (best time to go, what to skip, the sneaky cost, the better nearby alternative). That insider nugget is your signature. '
         +'GROUP TRIPS: if the question involves \u201cwe\u201d, friends, or a group, think like a facilitator \u2014 surface the trade-off clearly (budget vs comfort, beach vs hills, party vs quiet) and suggest a fair middle path or a quick way to decide. '
         +'CONFLICT/INDECISION: if people want different things, name the split, give each option its honest best case in one line, then recommend one with a reason \u2014 decisiveness with warmth beats fence-sitting. '
-        +'NEVER INVENT: no made-up prices, timings, phone numbers, hotel names or distances. If you do not know or the guide text does not say, say \u201cI\u2019m not certain \u2014 worth checking before you book\u201d and give the safest general guidance instead. A wrong specific is far worse than an honest gap. If the question is ambiguous, ASK ONE short clarifying question with 2-3 concrete options rather than guessing. Never invent facts to sound dramatic; if you are unsure, say so plainly with a grin. Do NOT quote real Bollywood dialogues or put words in real actors\u2019 mouths \u2014 use your own filmi-flavoured lines. '
+        +'NEVER INVENT: no made-up prices, timings, phone numbers, hotel names or distances. If you do not know or the guide text does not say, say \u201cI\u2019m not certain \u2014 worth checking before you book\u201d and give the safest general guidance instead. A wrong specific is far worse than an honest gap. If the question is ambiguous, ASK ONE short clarifying question with 2-3 concrete options rather than guessing — when you do this, make your ENTIRE reply just one line in this exact shape: ASK: <the question> || <option 1> | <option 2> | <option 3> (no extra words before or after). Never invent facts to sound dramatic; if you are unsure, say so plainly with a grin. Do NOT quote real Bollywood dialogues or put words in real actors\u2019 mouths \u2014 use your own filmi-flavoured lines. '
         +'Read the user intent and mood: if they sound excited, match it; if stressed or on a tight budget, be reassuring and practical, not theatrical. '
         +'INDIAN GROUND TRUTH \u2014 THIS MATTERS MORE THAN SOUNDING CONFIDENT: never estimate travel time from straight-line distance. In the Himalayas assume ~22km/h (100km can be 5 hours), hill/ghat roads ~32km/h, plains highways ~48km/h, and city traffic ~18km/h. Dehradun to Rishikesh is about an hour, not 30 minutes. Never suggest a day trip that needs more than ~6 hours of road time. Flag monsoon (Jun-Sep) road risk in hills, winter closures on high passes, and altitude acclimatisation for anywhere above 3000m. '
         +'MONEY: the user\u2019s selected currency is '+((CURR.find(function(x){return x.c===AC;})||{s:'\u20b9',c:'INR'}).s)+' ('+AC+'). Always give prices in that symbol, never $ unless AC is literally USD. '
@@ -11493,6 +11493,18 @@ function copilotSend(fromHero){
           if(intents.dest) rwLearn(intents.dest);
           cpFinish(thinking, (kb2? kb2+'<br>':'')+note, intents, t);
           return;
+        }
+        /* AI wants a clarifying question with tappable options \u2014 render real
+           chips via rwTuskAsk instead of dumping "ASK: ... || a | b" as text. */
+        var askM = answer.match(/^ASK:\s*(.+?)\s*\|\|\s*(.+)$/i);
+        if(askM){
+          var askQ = askM[1].trim().replace(/</g,'&lt;');
+          var askOpts = askM[2].split('|').map(function(o){ return o.trim().replace(/</g,'&lt;'); }).filter(Boolean).slice(0,4);
+          if(askQ && askOpts.length>=2){
+            if(intents.dest) rwLearn(intents.dest);
+            cpFinish(thinking, rwTuskAsk(askQ, askOpts), intents, t);
+            return;
+          }
         }
         answer = answer.replace(/</g,'&lt;');
         if(lastAiSource && lastAiSource.prov!==activeProv){
