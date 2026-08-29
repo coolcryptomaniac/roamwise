@@ -1,0 +1,1884 @@
+{
+  "version": "1.1.0",
+  "generated": "2026-08-29",
+  "purpose": "RoamWise cached cinematic itinerary fallbacks",
+  "themes": {
+    "crimson-moon": {
+      "label": "Crimson Moon",
+      "accent": "#ff2d36",
+      "accent2": "#7bc7ff",
+      "tag": "HIGH ALTITUDE // NIGHT SKY // SHINOBI ROAD"
+    },
+    "scarlet-pilgrim": {
+      "label": "Scarlet Pilgrim",
+      "accent": "#ff3434",
+      "accent2": "#ffb45d",
+      "tag": "PILGRIMAGE // HERITAGE // SCARLET SCROLL"
+    },
+    "eastern-frontier": {
+      "label": "Eastern Frontier",
+      "accent": "#ff3545",
+      "accent2": "#53dfb5",
+      "tag": "FOREST // WATER // FRONTIER DOSSIER"
+    },
+    "crimson-expedition": {
+      "label": "Crimson Expedition",
+      "accent": "#ff3045",
+      "accent2": "#ffc857",
+      "tag": "EXPEDITION // ROAD // FIELD INTEL"
+    }
+  },
+  "variants": {
+    "essential": {
+      "label": "Essential",
+      "desc": "Fast first-timer route with the non-negotiable highlights."
+    },
+    "signature": {
+      "label": "Signature",
+      "desc": "Balanced RoamWise default with breathing room and strong variety."
+    },
+    "deep-dive": {
+      "label": "Deep Dive",
+      "desc": "Slower route with secondary places, culture and recovery time."
+    },
+    "expedition": {
+      "label": "Expedition",
+      "desc": "Longest ready-made route with remote legs, buffers and deeper exploration."
+    }
+  },
+  "destinations": [
+    {
+      "slug": "ladakh",
+      "name": "Ladakh High-Altitude Circuit",
+      "country": "India",
+      "region": "Ladakh",
+      "category": "road-trip",
+      "theme": "crimson-moon",
+      "aliases": [
+        "leh",
+        "leh ladakh",
+        "ladakh road trip",
+        "nubra pangong"
+      ],
+      "gateway": "Leh",
+      "season": "May-Sep",
+      "notes": "High altitude: preserve acclimatization, hydration and road buffers. Recheck permits and road status locally.",
+      "variants": {
+        "essential": {
+          "days": 4,
+          "html": "presets/ladakh/essential.html",
+          "pdf": "presets/ladakh/essential.pdf"
+        },
+        "signature": {
+          "days": 6,
+          "html": "presets/ladakh/signature.html",
+          "pdf": "presets/ladakh/signature.pdf"
+        },
+        "deep-dive": {
+          "days": 8,
+          "html": "presets/ladakh/deep-dive.html",
+          "pdf": "presets/ladakh/deep-dive.pdf"
+        },
+        "expedition": {
+          "days": 10,
+          "html": "presets/ladakh/expedition.html",
+          "pdf": "presets/ladakh/expedition.pdf"
+        }
+      }
+    },
+    {
+      "slug": "kashmir",
+      "name": "Kashmir Valley & Alpine Lakes",
+      "country": "India",
+      "region": "Jammu & Kashmir",
+      "category": "scenic",
+      "theme": "crimson-moon",
+      "aliases": [
+        "srinagar",
+        "kashmir",
+        "gulmarg pahalgam"
+      ],
+      "gateway": "Srinagar",
+      "season": "Apr-Oct",
+      "notes": "Mountain access and security conditions can change. Keep routes flexible and verify local advisories.",
+      "variants": {
+        "essential": {
+          "days": 4,
+          "html": "presets/kashmir/essential.html",
+          "pdf": "presets/kashmir/essential.pdf"
+        },
+        "signature": {
+          "days": 6,
+          "html": "presets/kashmir/signature.html",
+          "pdf": "presets/kashmir/signature.pdf"
+        },
+        "deep-dive": {
+          "days": 8,
+          "html": "presets/kashmir/deep-dive.html",
+          "pdf": "presets/kashmir/deep-dive.pdf"
+        },
+        "expedition": {
+          "days": 10,
+          "html": "presets/kashmir/expedition.html",
+          "pdf": "presets/kashmir/expedition.pdf"
+        }
+      }
+    },
+    {
+      "slug": "spiti",
+      "name": "Spiti Valley Himalayan Loop",
+      "country": "India",
+      "region": "Himachal Pradesh",
+      "category": "road-trip",
+      "theme": "crimson-expedition",
+      "aliases": [
+        "spiti valley",
+        "kaza",
+        "kinnaur spiti"
+      ],
+      "gateway": "Shimla / Manali",
+      "season": "May-Oct",
+      "notes": "Long road days, altitude and seasonal closures define this circuit. Do not compress acclimatization or night driving.",
+      "variants": {
+        "essential": {
+          "days": 5,
+          "html": "presets/spiti/essential.html",
+          "pdf": "presets/spiti/essential.pdf"
+        },
+        "signature": {
+          "days": 7,
+          "html": "presets/spiti/signature.html",
+          "pdf": "presets/spiti/signature.pdf"
+        },
+        "deep-dive": {
+          "days": 10,
+          "html": "presets/spiti/deep-dive.html",
+          "pdf": "presets/spiti/deep-dive.pdf"
+        },
+        "expedition": {
+          "days": 12,
+          "html": "presets/spiti/expedition.html",
+          "pdf": "presets/spiti/expedition.pdf"
+        }
+      }
+    },
+    {
+      "slug": "manali",
+      "name": "Manali, Solang & Kullu Valley",
+      "country": "India",
+      "region": "Himachal Pradesh",
+      "category": "mountain",
+      "theme": "crimson-expedition",
+      "aliases": [
+        "manali",
+        "kullu manali",
+        "solang valley"
+      ],
+      "gateway": "Manali",
+      "season": "Mar-Jun / Sep-Nov",
+      "notes": "Activities and high-road access are weather dependent. Use licensed operators for adventure sports.",
+      "variants": {
+        "essential": {
+          "days": 3,
+          "html": "presets/manali/essential.html",
+          "pdf": "presets/manali/essential.pdf"
+        },
+        "signature": {
+          "days": 5,
+          "html": "presets/manali/signature.html",
+          "pdf": "presets/manali/signature.pdf"
+        },
+        "deep-dive": {
+          "days": 7,
+          "html": "presets/manali/deep-dive.html",
+          "pdf": "presets/manali/deep-dive.pdf"
+        },
+        "expedition": {
+          "days": 9,
+          "html": "presets/manali/expedition.html",
+          "pdf": "presets/manali/expedition.pdf"
+        }
+      }
+    },
+    {
+      "slug": "kumaon",
+      "name": "Kumaon: Almora, Binsar, Jageshwar & Munsiyari",
+      "country": "India",
+      "region": "Uttarakhand",
+      "category": "mountain",
+      "theme": "crimson-moon",
+      "aliases": [
+        "almora",
+        "kumaon",
+        "binsar",
+        "jageshwar",
+        "munsiyari"
+      ],
+      "gateway": "Kathgodam / Pantnagar",
+      "season": "Mar-Jun / Oct-Dec",
+      "notes": "Mountain roads are slow and monsoon-sensitive. Keep one flexible buffer on longer loops.",
+      "variants": {
+        "essential": {
+          "days": 4,
+          "html": "presets/kumaon/essential.html",
+          "pdf": "presets/kumaon/essential.pdf"
+        },
+        "signature": {
+          "days": 6,
+          "html": "presets/kumaon/signature.html",
+          "pdf": "presets/kumaon/signature.pdf"
+        },
+        "deep-dive": {
+          "days": 8,
+          "html": "presets/kumaon/deep-dive.html",
+          "pdf": "presets/kumaon/deep-dive.pdf"
+        },
+        "expedition": {
+          "days": 11,
+          "html": "presets/kumaon/expedition.html",
+          "pdf": "presets/kumaon/expedition.pdf"
+        }
+      }
+    },
+    {
+      "slug": "chardham",
+      "name": "Char Dham Scarlet Pilgrim Path",
+      "country": "India",
+      "region": "Uttarakhand",
+      "category": "pilgrimage",
+      "theme": "scarlet-pilgrim",
+      "aliases": [
+        "char dham",
+        "kedarnath badrinath",
+        "yamunotri gangotri"
+      ],
+      "gateway": "Haridwar / Dehradun",
+      "season": "May-Jun / Sep-Oct",
+      "notes": "Pilgrimage registrations, transport rules, trekking access and weather can change. Verify official Uttarakhand updates.",
+      "variants": {
+        "essential": {
+          "days": 8,
+          "html": "presets/chardham/essential.html",
+          "pdf": "presets/chardham/essential.pdf"
+        },
+        "signature": {
+          "days": 10,
+          "html": "presets/chardham/signature.html",
+          "pdf": "presets/chardham/signature.pdf"
+        },
+        "deep-dive": {
+          "days": 12,
+          "html": "presets/chardham/deep-dive.html",
+          "pdf": "presets/chardham/deep-dive.pdf"
+        },
+        "expedition": {
+          "days": 14,
+          "html": "presets/chardham/expedition.html",
+          "pdf": "presets/chardham/expedition.pdf"
+        }
+      }
+    },
+    {
+      "slug": "rishikesh-mussoorie",
+      "name": "Rishikesh & Mussoorie Escape",
+      "country": "India",
+      "region": "Uttarakhand",
+      "category": "wellness",
+      "theme": "scarlet-pilgrim",
+      "aliases": [
+        "rishikesh",
+        "mussoorie",
+        "dehradun rishikesh"
+      ],
+      "gateway": "Dehradun",
+      "season": "Sep-Jun",
+      "notes": "River activities are seasonal and regulated. Use authorized rafting/adventure operators.",
+      "variants": {
+        "essential": {
+          "days": 3,
+          "html": "presets/rishikesh-mussoorie/essential.html",
+          "pdf": "presets/rishikesh-mussoorie/essential.pdf"
+        },
+        "signature": {
+          "days": 4,
+          "html": "presets/rishikesh-mussoorie/signature.html",
+          "pdf": "presets/rishikesh-mussoorie/signature.pdf"
+        },
+        "deep-dive": {
+          "days": 6,
+          "html": "presets/rishikesh-mussoorie/deep-dive.html",
+          "pdf": "presets/rishikesh-mussoorie/deep-dive.pdf"
+        },
+        "expedition": {
+          "days": 8,
+          "html": "presets/rishikesh-mussoorie/expedition.html",
+          "pdf": "presets/rishikesh-mussoorie/expedition.pdf"
+        }
+      }
+    },
+    {
+      "slug": "rajasthan",
+      "name": "Rajasthan Royal Desert Circuit",
+      "country": "India",
+      "region": "Rajasthan",
+      "category": "culture",
+      "theme": "scarlet-pilgrim",
+      "aliases": [
+        "rajasthan",
+        "jaipur jodhpur udaipur",
+        "royal rajasthan"
+      ],
+      "gateway": "Jaipur",
+      "season": "Oct-Mar",
+      "notes": "Desert temperatures swing sharply. Heritage sites can be crowded; start early and preserve water/rest.",
+      "variants": {
+        "essential": {
+          "days": 5,
+          "html": "presets/rajasthan/essential.html",
+          "pdf": "presets/rajasthan/essential.pdf"
+        },
+        "signature": {
+          "days": 8,
+          "html": "presets/rajasthan/signature.html",
+          "pdf": "presets/rajasthan/signature.pdf"
+        },
+        "deep-dive": {
+          "days": 11,
+          "html": "presets/rajasthan/deep-dive.html",
+          "pdf": "presets/rajasthan/deep-dive.pdf"
+        },
+        "expedition": {
+          "days": 14,
+          "html": "presets/rajasthan/expedition.html",
+          "pdf": "presets/rajasthan/expedition.pdf"
+        }
+      }
+    },
+    {
+      "slug": "golden-triangle",
+      "name": "Delhi - Agra - Jaipur Golden Triangle",
+      "country": "India",
+      "region": "North India",
+      "category": "culture",
+      "theme": "scarlet-pilgrim",
+      "aliases": [
+        "golden triangle",
+        "delhi agra jaipur"
+      ],
+      "gateway": "Delhi",
+      "season": "Oct-Mar",
+      "notes": "Book major monuments ahead where useful and avoid unrealistic same-day city hopping.",
+      "variants": {
+        "essential": {
+          "days": 3,
+          "html": "presets/golden-triangle/essential.html",
+          "pdf": "presets/golden-triangle/essential.pdf"
+        },
+        "signature": {
+          "days": 5,
+          "html": "presets/golden-triangle/signature.html",
+          "pdf": "presets/golden-triangle/signature.pdf"
+        },
+        "deep-dive": {
+          "days": 7,
+          "html": "presets/golden-triangle/deep-dive.html",
+          "pdf": "presets/golden-triangle/deep-dive.pdf"
+        },
+        "expedition": {
+          "days": 9,
+          "html": "presets/golden-triangle/expedition.html",
+          "pdf": "presets/golden-triangle/expedition.pdf"
+        }
+      }
+    },
+    {
+      "slug": "varanasi-ayodhya",
+      "name": "Varanasi & Ayodhya Sacred Cities",
+      "country": "India",
+      "region": "Uttar Pradesh",
+      "category": "pilgrimage",
+      "theme": "scarlet-pilgrim",
+      "aliases": [
+        "varanasi",
+        "banaras",
+        "ayodhya varanasi"
+      ],
+      "gateway": "Varanasi",
+      "season": "Oct-Mar",
+      "notes": "Respect religious queues, local restrictions and photography rules around active worship spaces.",
+      "variants": {
+        "essential": {
+          "days": 3,
+          "html": "presets/varanasi-ayodhya/essential.html",
+          "pdf": "presets/varanasi-ayodhya/essential.pdf"
+        },
+        "signature": {
+          "days": 4,
+          "html": "presets/varanasi-ayodhya/signature.html",
+          "pdf": "presets/varanasi-ayodhya/signature.pdf"
+        },
+        "deep-dive": {
+          "days": 6,
+          "html": "presets/varanasi-ayodhya/deep-dive.html",
+          "pdf": "presets/varanasi-ayodhya/deep-dive.pdf"
+        },
+        "expedition": {
+          "days": 7,
+          "html": "presets/varanasi-ayodhya/expedition.html",
+          "pdf": "presets/varanasi-ayodhya/expedition.pdf"
+        }
+      }
+    },
+    {
+      "slug": "goa",
+      "name": "Goa Coast, Heritage & Hinterland",
+      "country": "India",
+      "region": "Goa",
+      "category": "beach",
+      "theme": "eastern-frontier",
+      "aliases": [
+        "goa",
+        "north goa",
+        "south goa"
+      ],
+      "gateway": "Goa",
+      "season": "Nov-Feb",
+      "notes": "Waterfall and wildlife access is seasonal. Avoid unsafe swimming and unofficial adventure operators.",
+      "variants": {
+        "essential": {
+          "days": 3,
+          "html": "presets/goa/essential.html",
+          "pdf": "presets/goa/essential.pdf"
+        },
+        "signature": {
+          "days": 5,
+          "html": "presets/goa/signature.html",
+          "pdf": "presets/goa/signature.pdf"
+        },
+        "deep-dive": {
+          "days": 7,
+          "html": "presets/goa/deep-dive.html",
+          "pdf": "presets/goa/deep-dive.pdf"
+        },
+        "expedition": {
+          "days": 9,
+          "html": "presets/goa/expedition.html",
+          "pdf": "presets/goa/expedition.pdf"
+        }
+      }
+    },
+    {
+      "slug": "kerala",
+      "name": "Kerala Backwaters, Hills & Coast",
+      "country": "India",
+      "region": "Kerala",
+      "category": "scenic",
+      "theme": "eastern-frontier",
+      "aliases": [
+        "kerala",
+        "munnar alleppey",
+        "god own country"
+      ],
+      "gateway": "Kochi",
+      "season": "Sep-Mar",
+      "notes": "Monsoon changes road and water conditions. Wildlife and boating activities depend on local operations.",
+      "variants": {
+        "essential": {
+          "days": 5,
+          "html": "presets/kerala/essential.html",
+          "pdf": "presets/kerala/essential.pdf"
+        },
+        "signature": {
+          "days": 7,
+          "html": "presets/kerala/signature.html",
+          "pdf": "presets/kerala/signature.pdf"
+        },
+        "deep-dive": {
+          "days": 10,
+          "html": "presets/kerala/deep-dive.html",
+          "pdf": "presets/kerala/deep-dive.pdf"
+        },
+        "expedition": {
+          "days": 13,
+          "html": "presets/kerala/expedition.html",
+          "pdf": "presets/kerala/expedition.pdf"
+        }
+      }
+    },
+    {
+      "slug": "andaman",
+      "name": "Andaman Islands Dive & Beach Circuit",
+      "country": "India",
+      "region": "Andaman & Nicobar Islands",
+      "category": "island",
+      "theme": "eastern-frontier",
+      "aliases": [
+        "andaman",
+        "port blair havelock",
+        "swaraj dweep"
+      ],
+      "gateway": "Port Blair",
+      "season": "Nov-Apr",
+      "notes": "Keep a ferry/weather buffer. Marine activities should use licensed operators and respect reef rules.",
+      "variants": {
+        "essential": {
+          "days": 4,
+          "html": "presets/andaman/essential.html",
+          "pdf": "presets/andaman/essential.pdf"
+        },
+        "signature": {
+          "days": 6,
+          "html": "presets/andaman/signature.html",
+          "pdf": "presets/andaman/signature.pdf"
+        },
+        "deep-dive": {
+          "days": 8,
+          "html": "presets/andaman/deep-dive.html",
+          "pdf": "presets/andaman/deep-dive.pdf"
+        },
+        "expedition": {
+          "days": 10,
+          "html": "presets/andaman/expedition.html",
+          "pdf": "presets/andaman/expedition.pdf"
+        }
+      }
+    },
+    {
+      "slug": "sikkim",
+      "name": "Sikkim Monasteries & High Lakes",
+      "country": "India",
+      "region": "Sikkim",
+      "category": "mountain",
+      "theme": "eastern-frontier",
+      "aliases": [
+        "sikkim",
+        "gangtok",
+        "north sikkim"
+      ],
+      "gateway": "Gangtok / Bagdogra",
+      "season": "Mar-Jun / Oct-Dec",
+      "notes": "Protected-area permits, altitude and road conditions govern high-lake and North Sikkim access.",
+      "variants": {
+        "essential": {
+          "days": 4,
+          "html": "presets/sikkim/essential.html",
+          "pdf": "presets/sikkim/essential.pdf"
+        },
+        "signature": {
+          "days": 6,
+          "html": "presets/sikkim/signature.html",
+          "pdf": "presets/sikkim/signature.pdf"
+        },
+        "deep-dive": {
+          "days": 8,
+          "html": "presets/sikkim/deep-dive.html",
+          "pdf": "presets/sikkim/deep-dive.pdf"
+        },
+        "expedition": {
+          "days": 10,
+          "html": "presets/sikkim/expedition.html",
+          "pdf": "presets/sikkim/expedition.pdf"
+        }
+      }
+    },
+    {
+      "slug": "northeast-grand",
+      "name": "North-East Grand Expedition",
+      "country": "India",
+      "region": "Assam, Meghalaya & Arunachal Pradesh",
+      "category": "expedition",
+      "theme": "eastern-frontier",
+      "aliases": [
+        "north east india",
+        "assam meghalaya arunachal",
+        "northeast circuit"
+      ],
+      "gateway": "Guwahati",
+      "season": "Oct-Apr",
+      "notes": "Permits, wildlife seasons and mountain roads vary by state. Preserve at least one contingency day.",
+      "variants": {
+        "essential": {
+          "days": 8,
+          "html": "presets/northeast-grand/essential.html",
+          "pdf": "presets/northeast-grand/essential.pdf"
+        },
+        "signature": {
+          "days": 10,
+          "html": "presets/northeast-grand/signature.html",
+          "pdf": "presets/northeast-grand/signature.pdf"
+        },
+        "deep-dive": {
+          "days": 13,
+          "html": "presets/northeast-grand/deep-dive.html",
+          "pdf": "presets/northeast-grand/deep-dive.pdf"
+        },
+        "expedition": {
+          "days": 16,
+          "html": "presets/northeast-grand/expedition.html",
+          "pdf": "presets/northeast-grand/expedition.pdf"
+        }
+      }
+    },
+    {
+      "slug": "tawang",
+      "name": "Tawang & Sela Pass Circuit",
+      "country": "India",
+      "region": "Arunachal Pradesh",
+      "category": "mountain",
+      "theme": "eastern-frontier",
+      "aliases": [
+        "tawang",
+        "sela pass",
+        "dirang tawang"
+      ],
+      "gateway": "Guwahati / Tezpur",
+      "season": "Oct-Apr",
+      "notes": "Arunachal permits and frontier-sector permissions are separate considerations. Verify before departure.",
+      "variants": {
+        "essential": {
+          "days": 5,
+          "html": "presets/tawang/essential.html",
+          "pdf": "presets/tawang/essential.pdf"
+        },
+        "signature": {
+          "days": 7,
+          "html": "presets/tawang/signature.html",
+          "pdf": "presets/tawang/signature.pdf"
+        },
+        "deep-dive": {
+          "days": 9,
+          "html": "presets/tawang/deep-dive.html",
+          "pdf": "presets/tawang/deep-dive.pdf"
+        },
+        "expedition": {
+          "days": 11,
+          "html": "presets/tawang/expedition.html",
+          "pdf": "presets/tawang/expedition.pdf"
+        }
+      }
+    },
+    {
+      "slug": "meghalaya",
+      "name": "Meghalaya Cloud & Living Roots Circuit",
+      "country": "India",
+      "region": "Meghalaya",
+      "category": "nature",
+      "theme": "eastern-frontier",
+      "aliases": [
+        "meghalaya",
+        "shillong cherrapunji",
+        "sohra dawki"
+      ],
+      "gateway": "Shillong / Guwahati",
+      "season": "Oct-Apr",
+      "notes": "Heavy rain changes cave, waterfall and road safety. Use local guides for technical caves and remote trails.",
+      "variants": {
+        "essential": {
+          "days": 4,
+          "html": "presets/meghalaya/essential.html",
+          "pdf": "presets/meghalaya/essential.pdf"
+        },
+        "signature": {
+          "days": 6,
+          "html": "presets/meghalaya/signature.html",
+          "pdf": "presets/meghalaya/signature.pdf"
+        },
+        "deep-dive": {
+          "days": 8,
+          "html": "presets/meghalaya/deep-dive.html",
+          "pdf": "presets/meghalaya/deep-dive.pdf"
+        },
+        "expedition": {
+          "days": 10,
+          "html": "presets/meghalaya/expedition.html",
+          "pdf": "presets/meghalaya/expedition.pdf"
+        }
+      }
+    },
+    {
+      "slug": "hampi-badami",
+      "name": "Hampi, Badami & Deccan Ruins",
+      "country": "India",
+      "region": "Karnataka",
+      "category": "heritage",
+      "theme": "scarlet-pilgrim",
+      "aliases": [
+        "hampi",
+        "badami hampi",
+        "vijayanagara"
+      ],
+      "gateway": "Hospet / Hubballi",
+      "season": "Oct-Feb",
+      "notes": "Midday heat is intense outside winter. Use early starts and protect fragile heritage surfaces.",
+      "variants": {
+        "essential": {
+          "days": 3,
+          "html": "presets/hampi-badami/essential.html",
+          "pdf": "presets/hampi-badami/essential.pdf"
+        },
+        "signature": {
+          "days": 5,
+          "html": "presets/hampi-badami/signature.html",
+          "pdf": "presets/hampi-badami/signature.pdf"
+        },
+        "deep-dive": {
+          "days": 7,
+          "html": "presets/hampi-badami/deep-dive.html",
+          "pdf": "presets/hampi-badami/deep-dive.pdf"
+        },
+        "expedition": {
+          "days": 9,
+          "html": "presets/hampi-badami/expedition.html",
+          "pdf": "presets/hampi-badami/expedition.pdf"
+        }
+      }
+    },
+    {
+      "slug": "kutch",
+      "name": "Great Rann of Kutch & Craft Villages",
+      "country": "India",
+      "region": "Gujarat",
+      "category": "culture",
+      "theme": "crimson-expedition",
+      "aliases": [
+        "kutch",
+        "rann of kutch",
+        "bhuj"
+      ],
+      "gateway": "Bhuj",
+      "season": "Nov-Feb",
+      "notes": "Salt-desert access and festival logistics are seasonal. Long drives need daylight and fuel planning.",
+      "variants": {
+        "essential": {
+          "days": 3,
+          "html": "presets/kutch/essential.html",
+          "pdf": "presets/kutch/essential.pdf"
+        },
+        "signature": {
+          "days": 5,
+          "html": "presets/kutch/signature.html",
+          "pdf": "presets/kutch/signature.pdf"
+        },
+        "deep-dive": {
+          "days": 7,
+          "html": "presets/kutch/deep-dive.html",
+          "pdf": "presets/kutch/deep-dive.pdf"
+        },
+        "expedition": {
+          "days": 9,
+          "html": "presets/kutch/expedition.html",
+          "pdf": "presets/kutch/expedition.pdf"
+        }
+      }
+    },
+    {
+      "slug": "lakshadweep",
+      "name": "Lakshadweep Lagoon Escape",
+      "country": "India",
+      "region": "Lakshadweep",
+      "category": "island",
+      "theme": "eastern-frontier",
+      "aliases": [
+        "lakshadweep",
+        "agatti",
+        "bangaram"
+      ],
+      "gateway": "Agatti",
+      "season": "Oct-May",
+      "notes": "Entry permissions and island access rules apply. Marine transfers are weather dependent.",
+      "variants": {
+        "essential": {
+          "days": 4,
+          "html": "presets/lakshadweep/essential.html",
+          "pdf": "presets/lakshadweep/essential.pdf"
+        },
+        "signature": {
+          "days": 5,
+          "html": "presets/lakshadweep/signature.html",
+          "pdf": "presets/lakshadweep/signature.pdf"
+        },
+        "deep-dive": {
+          "days": 7,
+          "html": "presets/lakshadweep/deep-dive.html",
+          "pdf": "presets/lakshadweep/deep-dive.pdf"
+        },
+        "expedition": {
+          "days": 9,
+          "html": "presets/lakshadweep/expedition.html",
+          "pdf": "presets/lakshadweep/expedition.pdf"
+        }
+      }
+    },
+    {
+      "slug": "sri-lanka",
+      "name": "Sri Lanka Cultural Triangle to South Coast",
+      "country": "Sri Lanka",
+      "region": "Island-wide",
+      "category": "culture",
+      "theme": "scarlet-pilgrim",
+      "aliases": [
+        "sri lanka",
+        "ceylon",
+        "colombo kandy ella"
+      ],
+      "gateway": "Colombo",
+      "season": "Dec-Apr south/west; seasonal elsewhere",
+      "notes": "Rail, wildlife and monsoon patterns vary by region; keep transport reservations and weather in view.",
+      "variants": {
+        "essential": {
+          "days": 5,
+          "html": "presets/sri-lanka/essential.html",
+          "pdf": "presets/sri-lanka/essential.pdf"
+        },
+        "signature": {
+          "days": 7,
+          "html": "presets/sri-lanka/signature.html",
+          "pdf": "presets/sri-lanka/signature.pdf"
+        },
+        "deep-dive": {
+          "days": 10,
+          "html": "presets/sri-lanka/deep-dive.html",
+          "pdf": "presets/sri-lanka/deep-dive.pdf"
+        },
+        "expedition": {
+          "days": 13,
+          "html": "presets/sri-lanka/expedition.html",
+          "pdf": "presets/sri-lanka/expedition.pdf"
+        }
+      }
+    },
+    {
+      "slug": "thailand",
+      "name": "Thailand Bangkok, North & Islands",
+      "country": "Thailand",
+      "region": "Multi-region",
+      "category": "culture",
+      "theme": "eastern-frontier",
+      "aliases": [
+        "thailand",
+        "bangkok chiang mai",
+        "thai islands"
+      ],
+      "gateway": "Bangkok",
+      "season": "Nov-Feb generally",
+      "notes": "Avoid wildlife attractions that rely on harmful animal handling. Marine trips depend on seasonal sea conditions.",
+      "variants": {
+        "essential": {
+          "days": 5,
+          "html": "presets/thailand/essential.html",
+          "pdf": "presets/thailand/essential.pdf"
+        },
+        "signature": {
+          "days": 8,
+          "html": "presets/thailand/signature.html",
+          "pdf": "presets/thailand/signature.pdf"
+        },
+        "deep-dive": {
+          "days": 11,
+          "html": "presets/thailand/deep-dive.html",
+          "pdf": "presets/thailand/deep-dive.pdf"
+        },
+        "expedition": {
+          "days": 14,
+          "html": "presets/thailand/expedition.html",
+          "pdf": "presets/thailand/expedition.pdf"
+        }
+      }
+    },
+    {
+      "slug": "bali",
+      "name": "Bali Temples, Volcanoes & Coast",
+      "country": "Indonesia",
+      "region": "Bali",
+      "category": "island",
+      "theme": "eastern-frontier",
+      "aliases": [
+        "bali",
+        "ubud bali",
+        "denpasar"
+      ],
+      "gateway": "Denpasar",
+      "season": "Apr-Oct",
+      "notes": "Traffic can consume hours. Volcano hikes and boat trips need weather-aware licensed operators.",
+      "variants": {
+        "essential": {
+          "days": 4,
+          "html": "presets/bali/essential.html",
+          "pdf": "presets/bali/essential.pdf"
+        },
+        "signature": {
+          "days": 6,
+          "html": "presets/bali/signature.html",
+          "pdf": "presets/bali/signature.pdf"
+        },
+        "deep-dive": {
+          "days": 8,
+          "html": "presets/bali/deep-dive.html",
+          "pdf": "presets/bali/deep-dive.pdf"
+        },
+        "expedition": {
+          "days": 10,
+          "html": "presets/bali/expedition.html",
+          "pdf": "presets/bali/expedition.pdf"
+        }
+      }
+    },
+    {
+      "slug": "vietnam",
+      "name": "Vietnam North-to-South Highlights",
+      "country": "Vietnam",
+      "region": "Multi-region",
+      "category": "culture",
+      "theme": "eastern-frontier",
+      "aliases": [
+        "vietnam",
+        "hanoi hoi an saigon",
+        "vietnam circuit"
+      ],
+      "gateway": "Hanoi / Ho Chi Minh City",
+      "season": "Regional; spring/autumn often easiest",
+      "notes": "Domestic transport is efficient but long; avoid stacking flights, trains and tours too tightly.",
+      "variants": {
+        "essential": {
+          "days": 6,
+          "html": "presets/vietnam/essential.html",
+          "pdf": "presets/vietnam/essential.pdf"
+        },
+        "signature": {
+          "days": 9,
+          "html": "presets/vietnam/signature.html",
+          "pdf": "presets/vietnam/signature.pdf"
+        },
+        "deep-dive": {
+          "days": 12,
+          "html": "presets/vietnam/deep-dive.html",
+          "pdf": "presets/vietnam/deep-dive.pdf"
+        },
+        "expedition": {
+          "days": 15,
+          "html": "presets/vietnam/expedition.html",
+          "pdf": "presets/vietnam/expedition.pdf"
+        }
+      }
+    },
+    {
+      "slug": "japan",
+      "name": "Japan Tokyo - Kyoto - Alps",
+      "country": "Japan",
+      "region": "Honshu",
+      "category": "culture",
+      "theme": "crimson-moon",
+      "aliases": [
+        "japan",
+        "tokyo kyoto",
+        "japan golden route"
+      ],
+      "gateway": "Tokyo",
+      "season": "Mar-May / Oct-Nov",
+      "notes": "Peak seasons sell out quickly. Use rail strategically rather than assuming one pass is always best value.",
+      "variants": {
+        "essential": {
+          "days": 5,
+          "html": "presets/japan/essential.html",
+          "pdf": "presets/japan/essential.pdf"
+        },
+        "signature": {
+          "days": 8,
+          "html": "presets/japan/signature.html",
+          "pdf": "presets/japan/signature.pdf"
+        },
+        "deep-dive": {
+          "days": 11,
+          "html": "presets/japan/deep-dive.html",
+          "pdf": "presets/japan/deep-dive.pdf"
+        },
+        "expedition": {
+          "days": 14,
+          "html": "presets/japan/expedition.html",
+          "pdf": "presets/japan/expedition.pdf"
+        }
+      }
+    },
+    {
+      "slug": "south-korea",
+      "name": "South Korea Seoul, Busan & Jeju",
+      "country": "South Korea",
+      "region": "Multi-region",
+      "category": "culture",
+      "theme": "crimson-moon",
+      "aliases": [
+        "south korea",
+        "korea",
+        "seoul busan jeju"
+      ],
+      "gateway": "Seoul",
+      "season": "Apr-Jun / Sep-Nov",
+      "notes": "Some tours require passport details and fixed booking. Weather can affect Jeju flights/ferries.",
+      "variants": {
+        "essential": {
+          "days": 5,
+          "html": "presets/south-korea/essential.html",
+          "pdf": "presets/south-korea/essential.pdf"
+        },
+        "signature": {
+          "days": 7,
+          "html": "presets/south-korea/signature.html",
+          "pdf": "presets/south-korea/signature.pdf"
+        },
+        "deep-dive": {
+          "days": 10,
+          "html": "presets/south-korea/deep-dive.html",
+          "pdf": "presets/south-korea/deep-dive.pdf"
+        },
+        "expedition": {
+          "days": 12,
+          "html": "presets/south-korea/expedition.html",
+          "pdf": "presets/south-korea/expedition.pdf"
+        }
+      }
+    },
+    {
+      "slug": "uae",
+      "name": "Dubai & Abu Dhabi Future-Desert Circuit",
+      "country": "United Arab Emirates",
+      "region": "Dubai & Abu Dhabi",
+      "category": "city",
+      "theme": "crimson-expedition",
+      "aliases": [
+        "dubai",
+        "abu dhabi",
+        "uae"
+      ],
+      "gateway": "Dubai",
+      "season": "Nov-Mar",
+      "notes": "Desert heat is serious outside winter. Use licensed operators and respect dress/behavior rules at religious sites.",
+      "variants": {
+        "essential": {
+          "days": 3,
+          "html": "presets/uae/essential.html",
+          "pdf": "presets/uae/essential.pdf"
+        },
+        "signature": {
+          "days": 5,
+          "html": "presets/uae/signature.html",
+          "pdf": "presets/uae/signature.pdf"
+        },
+        "deep-dive": {
+          "days": 7,
+          "html": "presets/uae/deep-dive.html",
+          "pdf": "presets/uae/deep-dive.pdf"
+        },
+        "expedition": {
+          "days": 9,
+          "html": "presets/uae/expedition.html",
+          "pdf": "presets/uae/expedition.pdf"
+        }
+      }
+    },
+    {
+      "slug": "turkey",
+      "name": "Türkiye Istanbul, Cappadocia & Aegean",
+      "country": "Türkiye",
+      "region": "Multi-region",
+      "category": "culture",
+      "theme": "scarlet-pilgrim",
+      "aliases": [
+        "turkey",
+        "turkiye",
+        "istanbul cappadocia"
+      ],
+      "gateway": "Istanbul",
+      "season": "Apr-Jun / Sep-Oct",
+      "notes": "Balloon flights and boats are weather dependent. Historic sites reward early starts.",
+      "variants": {
+        "essential": {
+          "days": 6,
+          "html": "presets/turkey/essential.html",
+          "pdf": "presets/turkey/essential.pdf"
+        },
+        "signature": {
+          "days": 9,
+          "html": "presets/turkey/signature.html",
+          "pdf": "presets/turkey/signature.pdf"
+        },
+        "deep-dive": {
+          "days": 12,
+          "html": "presets/turkey/deep-dive.html",
+          "pdf": "presets/turkey/deep-dive.pdf"
+        },
+        "expedition": {
+          "days": 15,
+          "html": "presets/turkey/expedition.html",
+          "pdf": "presets/turkey/expedition.pdf"
+        }
+      }
+    },
+    {
+      "slug": "egypt",
+      "name": "Egypt Nile & Desert Civilizations",
+      "country": "Egypt",
+      "region": "Nile Valley",
+      "category": "heritage",
+      "theme": "scarlet-pilgrim",
+      "aliases": [
+        "egypt",
+        "cairo luxor",
+        "nile egypt"
+      ],
+      "gateway": "Cairo",
+      "season": "Oct-Apr",
+      "notes": "Use licensed guides/transport where helpful and protect against heat. Site access and museum locations can change.",
+      "variants": {
+        "essential": {
+          "days": 5,
+          "html": "presets/egypt/essential.html",
+          "pdf": "presets/egypt/essential.pdf"
+        },
+        "signature": {
+          "days": 8,
+          "html": "presets/egypt/signature.html",
+          "pdf": "presets/egypt/signature.pdf"
+        },
+        "deep-dive": {
+          "days": 11,
+          "html": "presets/egypt/deep-dive.html",
+          "pdf": "presets/egypt/deep-dive.pdf"
+        },
+        "expedition": {
+          "days": 14,
+          "html": "presets/egypt/expedition.html",
+          "pdf": "presets/egypt/expedition.pdf"
+        }
+      }
+    },
+    {
+      "slug": "italy",
+      "name": "Italy Rome, Florence & Venice",
+      "country": "Italy",
+      "region": "Multi-region",
+      "category": "culture",
+      "theme": "scarlet-pilgrim",
+      "aliases": [
+        "italy",
+        "rome florence venice",
+        "italy classic"
+      ],
+      "gateway": "Rome",
+      "season": "Apr-Jun / Sep-Oct",
+      "notes": "Major museums and attractions can require timed entry. Avoid overpacking too many cities into short trips.",
+      "variants": {
+        "essential": {
+          "days": 6,
+          "html": "presets/italy/essential.html",
+          "pdf": "presets/italy/essential.pdf"
+        },
+        "signature": {
+          "days": 9,
+          "html": "presets/italy/signature.html",
+          "pdf": "presets/italy/signature.pdf"
+        },
+        "deep-dive": {
+          "days": 12,
+          "html": "presets/italy/deep-dive.html",
+          "pdf": "presets/italy/deep-dive.pdf"
+        },
+        "expedition": {
+          "days": 15,
+          "html": "presets/italy/expedition.html",
+          "pdf": "presets/italy/expedition.pdf"
+        }
+      }
+    },
+    {
+      "slug": "switzerland",
+      "name": "Swiss Alps Grand Rail Circuit",
+      "country": "Switzerland",
+      "region": "Alps",
+      "category": "mountain",
+      "theme": "crimson-moon",
+      "aliases": [
+        "switzerland",
+        "swiss alps",
+        "zurich interlaken zermatt"
+      ],
+      "gateway": "Zurich",
+      "season": "Jun-Sep / Dec-Mar",
+      "notes": "Mountain visibility and cable-car operations are weather dependent. Check point-to-point fares against passes.",
+      "variants": {
+        "essential": {
+          "days": 5,
+          "html": "presets/switzerland/essential.html",
+          "pdf": "presets/switzerland/essential.pdf"
+        },
+        "signature": {
+          "days": 7,
+          "html": "presets/switzerland/signature.html",
+          "pdf": "presets/switzerland/signature.pdf"
+        },
+        "deep-dive": {
+          "days": 10,
+          "html": "presets/switzerland/deep-dive.html",
+          "pdf": "presets/switzerland/deep-dive.pdf"
+        },
+        "expedition": {
+          "days": 13,
+          "html": "presets/switzerland/expedition.html",
+          "pdf": "presets/switzerland/expedition.pdf"
+        }
+      }
+    },
+    {
+      "slug": "iceland",
+      "name": "Iceland Ring Road & Highlands Edge",
+      "country": "Iceland",
+      "region": "Island-wide",
+      "category": "road-trip",
+      "theme": "crimson-expedition",
+      "aliases": [
+        "iceland",
+        "ring road iceland",
+        "reykjavik iceland"
+      ],
+      "gateway": "Reykjavik",
+      "season": "Jun-Sep for full loop",
+      "notes": "Wind, road closures and rapidly changing weather are the main planning constraints. Never ignore road advisories.",
+      "variants": {
+        "essential": {
+          "days": 5,
+          "html": "presets/iceland/essential.html",
+          "pdf": "presets/iceland/essential.pdf"
+        },
+        "signature": {
+          "days": 8,
+          "html": "presets/iceland/signature.html",
+          "pdf": "presets/iceland/signature.pdf"
+        },
+        "deep-dive": {
+          "days": 11,
+          "html": "presets/iceland/deep-dive.html",
+          "pdf": "presets/iceland/deep-dive.pdf"
+        },
+        "expedition": {
+          "days": 14,
+          "html": "presets/iceland/expedition.html",
+          "pdf": "presets/iceland/expedition.pdf"
+        }
+      }
+    },
+    {
+      "slug": "greece",
+      "name": "Greece Athens, Islands & Meteora",
+      "country": "Greece",
+      "region": "Mainland & Islands",
+      "category": "culture",
+      "theme": "eastern-frontier",
+      "aliases": [
+        "greece",
+        "athens santorini",
+        "greek islands"
+      ],
+      "gateway": "Athens",
+      "season": "May-Jun / Sep-Oct",
+      "notes": "Ferry schedules and winds shape island plans. Avoid connecting a critical flight directly after a long ferry.",
+      "variants": {
+        "essential": {
+          "days": 5,
+          "html": "presets/greece/essential.html",
+          "pdf": "presets/greece/essential.pdf"
+        },
+        "signature": {
+          "days": 8,
+          "html": "presets/greece/signature.html",
+          "pdf": "presets/greece/signature.pdf"
+        },
+        "deep-dive": {
+          "days": 11,
+          "html": "presets/greece/deep-dive.html",
+          "pdf": "presets/greece/deep-dive.pdf"
+        },
+        "expedition": {
+          "days": 14,
+          "html": "presets/greece/expedition.html",
+          "pdf": "presets/greece/expedition.pdf"
+        }
+      }
+    },
+    {
+      "slug": "new-zealand",
+      "name": "New Zealand South Island Road Expedition",
+      "country": "New Zealand",
+      "region": "South Island",
+      "category": "road-trip",
+      "theme": "crimson-expedition",
+      "aliases": [
+        "new zealand",
+        "south island new zealand",
+        "queenstown road trip"
+      ],
+      "gateway": "Christchurch / Queenstown",
+      "season": "Nov-Apr",
+      "notes": "Driving distances are deceptive. Preserve daylight, weather buffers and rest between major adventure days.",
+      "variants": {
+        "essential": {
+          "days": 7,
+          "html": "presets/new-zealand/essential.html",
+          "pdf": "presets/new-zealand/essential.pdf"
+        },
+        "signature": {
+          "days": 10,
+          "html": "presets/new-zealand/signature.html",
+          "pdf": "presets/new-zealand/signature.pdf"
+        },
+        "deep-dive": {
+          "days": 14,
+          "html": "presets/new-zealand/deep-dive.html",
+          "pdf": "presets/new-zealand/deep-dive.pdf"
+        },
+        "expedition": {
+          "days": 18,
+          "html": "presets/new-zealand/expedition.html",
+          "pdf": "presets/new-zealand/expedition.pdf"
+        }
+      }
+    },
+    {
+      "slug": "kenya-tanzania",
+      "name": "Kenya & Tanzania Great Migration Safari",
+      "country": "Kenya & Tanzania",
+      "region": "East Africa",
+      "category": "safari",
+      "theme": "crimson-expedition",
+      "aliases": [
+        "kenya safari",
+        "tanzania safari",
+        "serengeti masai mara"
+      ],
+      "gateway": "Nairobi / Kilimanjaro",
+      "season": "Season depends on migration goals",
+      "notes": "Migration location varies by month and year. Use reputable operators and avoid crowding wildlife.",
+      "variants": {
+        "essential": {
+          "days": 6,
+          "html": "presets/kenya-tanzania/essential.html",
+          "pdf": "presets/kenya-tanzania/essential.pdf"
+        },
+        "signature": {
+          "days": 9,
+          "html": "presets/kenya-tanzania/signature.html",
+          "pdf": "presets/kenya-tanzania/signature.pdf"
+        },
+        "deep-dive": {
+          "days": 12,
+          "html": "presets/kenya-tanzania/deep-dive.html",
+          "pdf": "presets/kenya-tanzania/deep-dive.pdf"
+        },
+        "expedition": {
+          "days": 15,
+          "html": "presets/kenya-tanzania/expedition.html",
+          "pdf": "presets/kenya-tanzania/expedition.pdf"
+        }
+      }
+    },
+    {
+      "slug": "nepal-heritage",
+      "name": "Nepal Kathmandu, Pokhara & Chitwan",
+      "country": "Nepal",
+      "region": "Central Nepal",
+      "category": "culture",
+      "theme": "scarlet-pilgrim",
+      "aliases": [
+        "nepal",
+        "kathmandu pokhara",
+        "nepal tour"
+      ],
+      "gateway": "Kathmandu",
+      "season": "Oct-Nov / Mar-Apr",
+      "notes": "Mountain weather can affect domestic flights. Wildlife experiences should follow park rules and ethical distance.",
+      "variants": {
+        "essential": {
+          "days": 5,
+          "html": "presets/nepal-heritage/essential.html",
+          "pdf": "presets/nepal-heritage/essential.pdf"
+        },
+        "signature": {
+          "days": 7,
+          "html": "presets/nepal-heritage/signature.html",
+          "pdf": "presets/nepal-heritage/signature.pdf"
+        },
+        "deep-dive": {
+          "days": 9,
+          "html": "presets/nepal-heritage/deep-dive.html",
+          "pdf": "presets/nepal-heritage/deep-dive.pdf"
+        },
+        "expedition": {
+          "days": 12,
+          "html": "presets/nepal-heritage/expedition.html",
+          "pdf": "presets/nepal-heritage/expedition.pdf"
+        }
+      }
+    },
+    {
+      "slug": "bhutan",
+      "name": "Bhutan Paro, Thimphu & Punakha",
+      "country": "Bhutan",
+      "region": "Western Bhutan",
+      "category": "culture",
+      "theme": "scarlet-pilgrim",
+      "aliases": [
+        "bhutan",
+        "paro thimphu",
+        "tiger nest bhutan"
+      ],
+      "gateway": "Paro",
+      "season": "Mar-May / Sep-Nov",
+      "notes": "Entry, guide and sustainable-development rules depend on nationality and current policy; verify official requirements.",
+      "variants": {
+        "essential": {
+          "days": 5,
+          "html": "presets/bhutan/essential.html",
+          "pdf": "presets/bhutan/essential.pdf"
+        },
+        "signature": {
+          "days": 7,
+          "html": "presets/bhutan/signature.html",
+          "pdf": "presets/bhutan/signature.pdf"
+        },
+        "deep-dive": {
+          "days": 9,
+          "html": "presets/bhutan/deep-dive.html",
+          "pdf": "presets/bhutan/deep-dive.pdf"
+        },
+        "expedition": {
+          "days": 11,
+          "html": "presets/bhutan/expedition.html",
+          "pdf": "presets/bhutan/expedition.pdf"
+        }
+      }
+    },
+    {
+      "slug": "maldives",
+      "name": "Maldives Atoll Reset",
+      "country": "Maldives",
+      "region": "Atolls",
+      "category": "island",
+      "theme": "eastern-frontier",
+      "aliases": [
+        "maldives",
+        "male maldives",
+        "maldives resort"
+      ],
+      "gateway": "Malé",
+      "season": "Nov-Apr",
+      "notes": "Seaplane/boat transfers are schedule and weather dependent. Follow local-island dress and marine-conservation rules.",
+      "variants": {
+        "essential": {
+          "days": 4,
+          "html": "presets/maldives/essential.html",
+          "pdf": "presets/maldives/essential.pdf"
+        },
+        "signature": {
+          "days": 5,
+          "html": "presets/maldives/signature.html",
+          "pdf": "presets/maldives/signature.pdf"
+        },
+        "deep-dive": {
+          "days": 7,
+          "html": "presets/maldives/deep-dive.html",
+          "pdf": "presets/maldives/deep-dive.pdf"
+        },
+        "expedition": {
+          "days": 9,
+          "html": "presets/maldives/expedition.html",
+          "pdf": "presets/maldives/expedition.pdf"
+        }
+      }
+    },
+    {
+      "slug": "everest-base-camp",
+      "name": "Everest Base Camp Trek",
+      "country": "Nepal",
+      "region": "Khumbu",
+      "category": "trek",
+      "theme": "crimson-expedition",
+      "aliases": [
+        "everest base camp",
+        "ebc",
+        "khumbu trek"
+      ],
+      "gateway": "Kathmandu / Lukla",
+      "season": "Mar-May / Oct-Nov",
+      "notes": "Serious altitude itinerary: never remove acclimatization merely to match a short request. Weather can disrupt Lukla flights.",
+      "variants": {
+        "essential": {
+          "days": 12,
+          "html": "presets/everest-base-camp/essential.html",
+          "pdf": "presets/everest-base-camp/essential.pdf"
+        },
+        "signature": {
+          "days": 14,
+          "html": "presets/everest-base-camp/signature.html",
+          "pdf": "presets/everest-base-camp/signature.pdf"
+        },
+        "deep-dive": {
+          "days": 16,
+          "html": "presets/everest-base-camp/deep-dive.html",
+          "pdf": "presets/everest-base-camp/deep-dive.pdf"
+        },
+        "expedition": {
+          "days": 18,
+          "html": "presets/everest-base-camp/expedition.html",
+          "pdf": "presets/everest-base-camp/expedition.pdf"
+        }
+      }
+    },
+    {
+      "slug": "annapurna-circuit",
+      "name": "Annapurna Circuit & Thorong La",
+      "country": "Nepal",
+      "region": "Annapurna",
+      "category": "trek",
+      "theme": "crimson-expedition",
+      "aliases": [
+        "annapurna circuit",
+        "thorong la",
+        "annapurna trek"
+      ],
+      "gateway": "Kathmandu / Pokhara",
+      "season": "Mar-Apr / Oct-Nov",
+      "notes": "Thorong La is a serious high pass. Weather, altitude and local trail advice override a preset schedule.",
+      "variants": {
+        "essential": {
+          "days": 11,
+          "html": "presets/annapurna-circuit/essential.html",
+          "pdf": "presets/annapurna-circuit/essential.pdf"
+        },
+        "signature": {
+          "days": 14,
+          "html": "presets/annapurna-circuit/signature.html",
+          "pdf": "presets/annapurna-circuit/signature.pdf"
+        },
+        "deep-dive": {
+          "days": 17,
+          "html": "presets/annapurna-circuit/deep-dive.html",
+          "pdf": "presets/annapurna-circuit/deep-dive.pdf"
+        },
+        "expedition": {
+          "days": 20,
+          "html": "presets/annapurna-circuit/expedition.html",
+          "pdf": "presets/annapurna-circuit/expedition.pdf"
+        }
+      }
+    },
+    {
+      "slug": "kilimanjaro",
+      "name": "Kilimanjaro Summit Expedition",
+      "country": "Tanzania",
+      "region": "Kilimanjaro",
+      "category": "trek",
+      "theme": "crimson-expedition",
+      "aliases": [
+        "kilimanjaro",
+        "kili",
+        "machame route"
+      ],
+      "gateway": "Moshi / Arusha",
+      "season": "Jan-Mar / Jun-Oct",
+      "notes": "Use a licensed operator and a route length that supports acclimatization. Summit success is never guaranteed.",
+      "variants": {
+        "essential": {
+          "days": 7,
+          "html": "presets/kilimanjaro/essential.html",
+          "pdf": "presets/kilimanjaro/essential.pdf"
+        },
+        "signature": {
+          "days": 8,
+          "html": "presets/kilimanjaro/signature.html",
+          "pdf": "presets/kilimanjaro/signature.pdf"
+        },
+        "deep-dive": {
+          "days": 9,
+          "html": "presets/kilimanjaro/deep-dive.html",
+          "pdf": "presets/kilimanjaro/deep-dive.pdf"
+        },
+        "expedition": {
+          "days": 10,
+          "html": "presets/kilimanjaro/expedition.html",
+          "pdf": "presets/kilimanjaro/expedition.pdf"
+        }
+      }
+    },
+    {
+      "slug": "inca-trail",
+      "name": "Inca Trail to Machu Picchu",
+      "country": "Peru",
+      "region": "Cusco Region",
+      "category": "trek",
+      "theme": "scarlet-pilgrim",
+      "aliases": [
+        "inca trail",
+        "machu picchu trek",
+        "classic inca trail"
+      ],
+      "gateway": "Cusco",
+      "season": "May-Sep",
+      "notes": "Classic trail permits are limited and guide rules apply. Acclimatize in Cusco/Sacred Valley before the trek.",
+      "variants": {
+        "essential": {
+          "days": 5,
+          "html": "presets/inca-trail/essential.html",
+          "pdf": "presets/inca-trail/essential.pdf"
+        },
+        "signature": {
+          "days": 6,
+          "html": "presets/inca-trail/signature.html",
+          "pdf": "presets/inca-trail/signature.pdf"
+        },
+        "deep-dive": {
+          "days": 8,
+          "html": "presets/inca-trail/deep-dive.html",
+          "pdf": "presets/inca-trail/deep-dive.pdf"
+        },
+        "expedition": {
+          "days": 10,
+          "html": "presets/inca-trail/expedition.html",
+          "pdf": "presets/inca-trail/expedition.pdf"
+        }
+      }
+    },
+    {
+      "slug": "tour-du-mont-blanc",
+      "name": "Tour du Mont Blanc",
+      "country": "France / Italy / Switzerland",
+      "region": "Alps",
+      "category": "trek",
+      "theme": "crimson-moon",
+      "aliases": [
+        "tour du mont blanc",
+        "tmb",
+        "mont blanc trek"
+      ],
+      "gateway": "Chamonix",
+      "season": "Jun-Sep",
+      "notes": "Hut bookings are competitive and weather changes quickly. Variants should not encourage unsafe rushing over passes.",
+      "variants": {
+        "essential": {
+          "days": 7,
+          "html": "presets/tour-du-mont-blanc/essential.html",
+          "pdf": "presets/tour-du-mont-blanc/essential.pdf"
+        },
+        "signature": {
+          "days": 9,
+          "html": "presets/tour-du-mont-blanc/signature.html",
+          "pdf": "presets/tour-du-mont-blanc/signature.pdf"
+        },
+        "deep-dive": {
+          "days": 11,
+          "html": "presets/tour-du-mont-blanc/deep-dive.html",
+          "pdf": "presets/tour-du-mont-blanc/deep-dive.pdf"
+        },
+        "expedition": {
+          "days": 13,
+          "html": "presets/tour-du-mont-blanc/expedition.html",
+          "pdf": "presets/tour-du-mont-blanc/expedition.pdf"
+        }
+      }
+    },
+    {
+      "slug": "patagonia-w",
+      "name": "Torres del Paine W Trek",
+      "country": "Chile",
+      "region": "Patagonia",
+      "category": "trek",
+      "theme": "crimson-expedition",
+      "aliases": [
+        "patagonia w trek",
+        "torres del paine",
+        "w circuit"
+      ],
+      "gateway": "Puerto Natales",
+      "season": "Nov-Mar",
+      "notes": "Patagonian wind and weather are serious. Reserve camps/refugios and keep a flexible buffer.",
+      "variants": {
+        "essential": {
+          "days": 5,
+          "html": "presets/patagonia-w/essential.html",
+          "pdf": "presets/patagonia-w/essential.pdf"
+        },
+        "signature": {
+          "days": 6,
+          "html": "presets/patagonia-w/signature.html",
+          "pdf": "presets/patagonia-w/signature.pdf"
+        },
+        "deep-dive": {
+          "days": 8,
+          "html": "presets/patagonia-w/deep-dive.html",
+          "pdf": "presets/patagonia-w/deep-dive.pdf"
+        },
+        "expedition": {
+          "days": 10,
+          "html": "presets/patagonia-w/expedition.html",
+          "pdf": "presets/patagonia-w/expedition.pdf"
+        }
+      }
+    },
+    {
+      "slug": "markha-valley",
+      "name": "Markha Valley Trek",
+      "country": "India",
+      "region": "Ladakh",
+      "category": "trek",
+      "theme": "crimson-expedition",
+      "aliases": [
+        "markha valley",
+        "markha trek",
+        "ladakh trek"
+      ],
+      "gateway": "Leh",
+      "season": "Jun-Sep",
+      "notes": "Arrive acclimatized in Leh before starting. High-pass weather and river conditions dictate safe progress.",
+      "variants": {
+        "essential": {
+          "days": 7,
+          "html": "presets/markha-valley/essential.html",
+          "pdf": "presets/markha-valley/essential.pdf"
+        },
+        "signature": {
+          "days": 8,
+          "html": "presets/markha-valley/signature.html",
+          "pdf": "presets/markha-valley/signature.pdf"
+        },
+        "deep-dive": {
+          "days": 9,
+          "html": "presets/markha-valley/deep-dive.html",
+          "pdf": "presets/markha-valley/deep-dive.pdf"
+        },
+        "expedition": {
+          "days": 10,
+          "html": "presets/markha-valley/expedition.html",
+          "pdf": "presets/markha-valley/expedition.pdf"
+        }
+      }
+    },
+    {
+      "slug": "kashmir-great-lakes",
+      "name": "Kashmir Great Lakes Trek",
+      "country": "India",
+      "region": "Kashmir",
+      "category": "trek",
+      "theme": "crimson-moon",
+      "aliases": [
+        "kashmir great lakes",
+        "kgl trek",
+        "great lakes kashmir"
+      ],
+      "gateway": "Srinagar / Sonamarg",
+      "season": "Jul-Sep",
+      "notes": "Season, permits and local security conditions matter. Use a reputable trekking operator and keep a buffer day.",
+      "variants": {
+        "essential": {
+          "days": 7,
+          "html": "presets/kashmir-great-lakes/essential.html",
+          "pdf": "presets/kashmir-great-lakes/essential.pdf"
+        },
+        "signature": {
+          "days": 8,
+          "html": "presets/kashmir-great-lakes/signature.html",
+          "pdf": "presets/kashmir-great-lakes/signature.pdf"
+        },
+        "deep-dive": {
+          "days": 9,
+          "html": "presets/kashmir-great-lakes/deep-dive.html",
+          "pdf": "presets/kashmir-great-lakes/deep-dive.pdf"
+        },
+        "expedition": {
+          "days": 10,
+          "html": "presets/kashmir-great-lakes/expedition.html",
+          "pdf": "presets/kashmir-great-lakes/expedition.pdf"
+        }
+      }
+    },
+    {
+      "slug": "hampta-pass",
+      "name": "Hampta Pass & Chandratal Trek",
+      "country": "India",
+      "region": "Himachal Pradesh",
+      "category": "trek",
+      "theme": "crimson-expedition",
+      "aliases": [
+        "hampta pass",
+        "hampta trek",
+        "chandratal trek"
+      ],
+      "gateway": "Manali",
+      "season": "Jun-Sep",
+      "notes": "Pass and Chandratal access are seasonal. Do not force the lake extension if roads or weather are unsafe.",
+      "variants": {
+        "essential": {
+          "days": 5,
+          "html": "presets/hampta-pass/essential.html",
+          "pdf": "presets/hampta-pass/essential.pdf"
+        },
+        "signature": {
+          "days": 6,
+          "html": "presets/hampta-pass/signature.html",
+          "pdf": "presets/hampta-pass/signature.pdf"
+        },
+        "deep-dive": {
+          "days": 7,
+          "html": "presets/hampta-pass/deep-dive.html",
+          "pdf": "presets/hampta-pass/deep-dive.pdf"
+        },
+        "expedition": {
+          "days": 8,
+          "html": "presets/hampta-pass/expedition.html",
+          "pdf": "presets/hampta-pass/expedition.pdf"
+        }
+      }
+    },
+    {
+      "slug": "chadar-trek",
+      "name": "Chadar Frozen River Trek",
+      "country": "India",
+      "region": "Ladakh / Zanskar",
+      "category": "winter-expedition",
+      "theme": "crimson-moon",
+      "aliases": [
+        "chadar trek",
+        "frozen river trek",
+        "zanskar chadar"
+      ],
+      "gateway": "Leh",
+      "season": "Jan-Feb only when officially open",
+      "notes": "Extreme cold and unstable ice make this a specialist guided expedition. Official opening and on-ground ice assessment are mandatory.",
+      "variants": {
+        "essential": {
+          "days": 8,
+          "html": "presets/chadar-trek/essential.html",
+          "pdf": "presets/chadar-trek/essential.pdf"
+        },
+        "signature": {
+          "days": 9,
+          "html": "presets/chadar-trek/signature.html",
+          "pdf": "presets/chadar-trek/signature.pdf"
+        },
+        "deep-dive": {
+          "days": 10,
+          "html": "presets/chadar-trek/deep-dive.html",
+          "pdf": "presets/chadar-trek/deep-dive.pdf"
+        },
+        "expedition": {
+          "days": 11,
+          "html": "presets/chadar-trek/expedition.html",
+          "pdf": "presets/chadar-trek/expedition.pdf"
+        }
+      }
+    }
+  ],
+  "features": [
+    "local-intelligence",
+    "rw-photo-reuse",
+    "lazy-local-maps",
+    "journey-style-motifs",
+    "personalized-social-stamp"
+  ]
+}
