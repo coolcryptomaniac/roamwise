@@ -6650,7 +6650,21 @@ function rwShareSheet(text, url, whatLabel){
   ov.innerHTML=html; ov.style.display='flex';
 }
 function rwCloseShare(){ var ov=el('rwShareOverlay'); if(ov) ov.style.display='none'; }
-function rwShareTrip(){ var nm=(window._lastItin&&_lastItin.name)||'trip'; rwShareSheet('Check out my '+nm+' plan on RoamWise \u2708\ufe0f','https://roamwise.co.in','trip plan'); }
+function rwShareTrip(){
+  var nm=(window._lastItin&&_lastItin.name)||'trip';
+  /* If the itinerary on screen came from the ready-made preset library,
+     share the actual cached page (named for the sharer) instead of the
+     generic homepage link \u2014 RW_PRESETS.shareUrl() adds share=1 and shows
+     "Made by RoamWise for <name>" on the shared page. */
+  if(window._lastItin && _lastItin.preset && _lastItin.hit && typeof RW_PRESETS!=='undefined' && RW_PRESETS.shareUrl){
+    var who = (typeof user!=='undefined' && user && (user.displayName || (user.email||'').split('@')[0])) || lsGet('rw_name') || '';
+    var theme = (_lastItin.hit && _lastItin.hit.theme) || undefined;
+    var url = RW_PRESETS.shareUrl(_lastItin.hit, who, theme);
+    rwShareSheet('Check out my '+nm+' plan on RoamWise \u2708\ufe0f', url, 'trip plan');
+    return;
+  }
+  rwShareSheet('Check out my '+nm+' plan on RoamWise \u2708\ufe0f','https://roamwise.co.in','trip plan');
+}
 function rwShareGo(id, href){
   var ctx=window._rwShareCtx||{text:'',url:''};
   if(id==='copy'){ try{ navigator.clipboard.writeText(ctx.text+' '+ctx.url); showToast('Link copied \u2713'); }catch(e){}; return; }
@@ -8999,29 +9013,92 @@ function buildItin(T, name, costMid, days){
     return '<div class="itin-src smart">\u26a1 Smart engine (built-in templates)'+(extra?' \u00b7 '+extra:'')+' \u2014 add a working AI key in Settings for a personalised plan</div>';
   }
 
-  var prov=activeProv, key=lsGet('rwKey_'+prov);
-  if(prov!=='smart' && key){
-    var p = 'You are an expert local guide. Build a '+days+'-day itinerary for '+name+' in '+((el('month')||{}).value||'any month')+'. Budget ~$'+Math.round(costMid/83.5)+' USD/person. Return ONLY JSON (no prose, no markdown): {"days":[{"day":1,"title":"short theme","morning":"SPECIFIC named place + what to do (with timing like 8:30 AM)","afternoon":"SPECIFIC named place + insider tip","evening":"named restaurant/street + exact dish to order","food":"one local speciality with 4-word description","tip":"practical money/crowd/culture tip"}]}. Exactly '+days+' days, every place REAL and specific to '+name+', each field under 110 chars.';
-    aiCall(p, 2200, function(err, txt){
-      if(txt){
-        var d=extractJSON(txt);
-        if(d && d.days && d.days.length){
-          d.days.forEach(function(x,i){ x.day=x.day||i+1; });
-          window._lastItin={name:name, days:d.days, ai:true, model:(lastAiSource||{}).model};
-          var who = lastAiSource? (lastAiSource.prov.charAt(0).toUpperCase()+lastAiSource.prov.slice(1)+' \u00b7 '+lastAiSource.model) : 'AI';
-          renderDays(d.days, '<div class="itin-src ai">\ud83e\udd16 AI \u00b7 '+who+' \u00b7 personalised for '+name+'</div>');
-          return;
-        }
-        err='AI replied in a broken format';
-      }
-      var list=[]; for(var i=0;i<days && i<DAY_TEMPLATES.length;i++){ var t=DAY_TEMPLATES[i]; list.push({day:i+1,title:t.title,morning:t.morning,afternoon:t.afternoon,evening:t.evening,tip:t.tip}); }
-      window._lastItin={name:name, days:list, ai:false};
-      renderDays(list, err? '<div class="itin-src err">\u26a0 '+String(err).slice(0,90)+' \u2014 showing the built-in Smart plan instead. Test your key in Settings.</div>' : smartBadge());
-    }, true);
-  } else {
+  /* ---- Ready-made preset library (itinerary-library/) -----------------
+     Additive cache in front of / behind the live planner. It never
+     replaces this Classic renderer or the premium Cinematic engine.
+     - Pre-check: try a cached preset first for broad, unconstrained asks
+       so the user gets an instant result without spending an AI call.
+     - Fallback: if the live AI generation actually fails (network error,
+       timeout, broken reply), try the preset library again \u2014 loosening
+       the query \u2014 before ever showing the user a bare error. */
+  function rwPresetQuery(loose){
+    var q = { destination:name, duration:days };
+    if(!loose){
+      q.month = (el('month')||{}).value||'';
+      q.budgetExact = (el('budgetExact')||{}).value||'';
+      q.crowd = (el('crowd')||{}).value||'';
+    } else {
+      q.forcePreset = true; /* bypass the "too specific" guard as a last resort */
+    }
+    return q;
+  }
+  function rwDisplayName(){
+    try{ return (typeof user!=='undefined' && user && (user.displayName || (user.email||'').split('@')[0])) || lsGet('rw_name') || ''; }catch(e){ return ''; }
+  }
+  function presetBadge(offline){
+    return '<div class="itin-src preset'+(offline?' preset-offline':'')+'">'
+      + (offline ? '\ud83d\udcbe Ready-made \u00b7 offline/cached (live planner unavailable)' : '\ud83d\udce6 Ready-made \u00b7 cached itinerary for '+esc2(name))
+      + '</div>';
+  }
+  function renderPreset(hit, offline){
+    if(!hit) return false;
+    var displayName = rwDisplayName();
+    var ok = RW_PRESETS.renderInto(cnt, hit, displayName?{user:displayName}:{});
+    if(!ok) return false;
+    cnt.insertAdjacentHTML('afterbegin', presetBadge(offline));
+    ph.style.display='none'; cnt.style.display='block'; itinBuilt[T]=true;
+    window._lastItin={name:name, preset:true, hit:hit, offline:!!offline, days:hit.days};
+    try{ badgeBump('trip'); }catch(e){}
+    return true;
+  }
+  function rwHasPresets(){ return typeof RW_PRESETS!=='undefined' && RW_PRESETS.find; }
+
+  function smartFallback(err){
     var list=[]; for(var i=0;i<days && i<DAY_TEMPLATES.length;i++){ var t=DAY_TEMPLATES[i]; list.push({day:i+1,title:t.title,morning:t.morning,afternoon:t.afternoon,evening:t.evening,tip:t.tip}); }
     window._lastItin={name:name, days:list, ai:false};
-    renderDays(list, smartBadge());
+    renderDays(list, err? '<div class="itin-src err">\u26a0 '+String(err).slice(0,90)+' \u2014 showing the built-in Smart plan instead. Test your key in Settings.</div>' : smartBadge());
+  }
+  /* Live generation failed (network/AI error) \u2014 try the cached preset
+     library (progressively loosened) before ever surfacing an error. */
+  function rwOfflineFallback(err){
+    if(!rwHasPresets()){ smartFallback(err); return; }
+    RW_PRESETS.find(rwPresetQuery(false)).then(function(hit){
+      if(hit) return hit;
+      return RW_PRESETS.find(rwPresetQuery(true));
+    }).then(function(hit){
+      if(!hit || !renderPreset(hit, true)) smartFallback(err);
+    }).catch(function(){ smartFallback(err); });
+  }
+
+  function runLive(){
+    var prov=activeProv, key=lsGet('rwKey_'+prov);
+    if(prov!=='smart' && key){
+      var p = 'You are an expert local guide. Build a '+days+'-day itinerary for '+name+' in '+((el('month')||{}).value||'any month')+'. Budget ~$'+Math.round(costMid/83.5)+' USD/person. Return ONLY JSON (no prose, no markdown): {"days":[{"day":1,"title":"short theme","morning":"SPECIFIC named place + what to do (with timing like 8:30 AM)","afternoon":"SPECIFIC named place + insider tip","evening":"named restaurant/street + exact dish to order","food":"one local speciality with 4-word description","tip":"practical money/crowd/culture tip"}]}. Exactly '+days+' days, every place REAL and specific to '+name+', each field under 110 chars.';
+      aiCall(p, 2200, function(err, txt){
+        if(txt){
+          var d=extractJSON(txt);
+          if(d && d.days && d.days.length){
+            d.days.forEach(function(x,i){ x.day=x.day||i+1; });
+            window._lastItin={name:name, days:d.days, ai:true, model:(lastAiSource||{}).model};
+            var who = lastAiSource? (lastAiSource.prov.charAt(0).toUpperCase()+lastAiSource.prov.slice(1)+' \u00b7 '+lastAiSource.model) : 'AI';
+            renderDays(d.days, '<div class="itin-src ai">\ud83e\udd16 AI \u00b7 '+who+' \u00b7 personalised for '+name+'</div>');
+            return;
+          }
+          err='AI replied in a broken format';
+        }
+        rwOfflineFallback(err);
+      }, true);
+    } else {
+      smartFallback();
+    }
+  }
+
+  if(rwHasPresets()){
+    RW_PRESETS.find(rwPresetQuery(false)).then(function(hit){
+      if(!hit || !renderPreset(hit, false)) runLive();
+    }).catch(function(){ runLive(); });
+  } else {
+    runLive();
   }
 }
 
