@@ -32,8 +32,11 @@ jobs:
         run: |
           python tools/itinerary-library/build_presets.py
           python tools/itinerary-library/enhance_v1_1.py
+          python tools/itinerary-library/apply_v2_ui.py
       - name: Static integrity checks
         run: |
+          node --check itinerary-library/assets/preset-runtime.js
+          node --check itinerary-library/assets/preset-carousel-v2.js
           python - <<'PY'
           from pathlib import Path
           import json
@@ -47,7 +50,11 @@ jobs:
           assert all(p.stat().st_size > 1000 for p in pdfs)
           assert all('share-stamp' in p.read_text() for p in htmls)
           assert all('local-intel-section' in p.read_text() for p in htmls)
-          print('48 destinations / 192 HTML / 192 PDF: PASS')
+          assert all('preset-carousel-v2.js' in p.read_text() for p in htmls)
+          v2=(root/'assets/preset-carousel-v2.js').read_text()
+          assert 'scroll-snap-type:x mandatory' in v2
+          assert 'openstreetmap.org/export/embed.html' in v2
+          print('48 destinations / 192 HTML / 192 PDF / carousel v2: PASS')
           PY
       - name: Commit generated library to this integration branch
         run: |
@@ -57,6 +64,6 @@ jobs:
           if git diff --cached --quiet; then
             echo 'Generated library already up to date.'
           else
-            git commit -m 'build: generate cinematic itinerary preset library v1.1'
+            git commit -m 'build: generate cinematic itinerary preset library v2 UI'
             git push
           fi
