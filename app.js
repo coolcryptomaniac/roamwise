@@ -8187,16 +8187,31 @@ function buildQR(){
 function smartSearch(month, budUSD, ctryQuery, crowd, interests){
   var mi = MONTHS.indexOf(month);
   var ctry = (ctryQuery||'').toLowerCase().trim();
+  /* If the destination is an autocomplete-style "City, Country" value (the common/default
+     flow — see DEST_NAMES and the live Photon-typeahead dropdown), the part before the first
+     comma IS the city the user actually picked. Match against d.name specifically in that case
+     so a query like "Rishikesh, India" doesn't match every other destination in India via the
+     country segment. A bare, comma-free query (e.g. just "India") keeps the broader OR-based
+     name/country/region matching so browsing-by-country still works. */
+  var ctryCity = ctry.indexOf(',')>=0 ? ctry.split(',')[0].trim() : '';
   var scores = [];
   DB.forEach(function(d){
     var budgetGap = Math.max(0, d.cost.budget - budUSD);
     var budgetPenalty = budgetGap / 25; /* soft penalty, never excludes */
+    var nameLc = d.name.toLowerCase();
+    var exactCityMatch = false;
     if(ctry && ctry!=='anywhere in the world' && ctry.indexOf('anywhere')<0){
-      var hit = d.name.toLowerCase().indexOf(ctry)>=0
-             || d.country.toLowerCase().indexOf(ctry)>=0
-             || d.region.toLowerCase().indexOf(ctry)>=0
-             || ctry.indexOf(d.country.toLowerCase())>=0
-             || ctry.indexOf(d.name.toLowerCase())>=0;
+      var hit;
+      if(ctryCity){
+        hit = nameLc.indexOf(ctryCity)>=0 || ctryCity.indexOf(nameLc)>=0;
+        if(hit) exactCityMatch = true;
+      } else {
+        hit = nameLc.indexOf(ctry)>=0
+           || d.country.toLowerCase().indexOf(ctry)>=0
+           || d.region.toLowerCase().indexOf(ctry)>=0
+           || ctry.indexOf(d.country.toLowerCase())>=0
+           || ctry.indexOf(nameLc)>=0;
+      }
       if(!hit) return;
     }
     var sc=0, cs=d.crowd[mi];
@@ -8210,6 +8225,12 @@ function smartSearch(month, budUSD, ctryQuery, crowd, interests){
     sc += Math.max(0, 60 - Math.abs(d.cost.mid-budUSD)/30);
     sc -= budgetPenalty;
     if(d.bestM.indexOf(mi+1)>=0) sc += 28; /* mi is 0-based (MONTHS.indexOf), bestM is 1-based */
+    /* Defense-in-depth: strongly favor an exact/near-exact city-name match against the parsed
+       "City, Country" query so the destination the user actually asked for always ranks first,
+       even in edge cases where multiple destinations legitimately pass the filter above.
+       Bonus is well above the realistic combined max of the other bonuses (~50 crowd + 18*few
+       interests + 60 budget-fit + 28 month-fit) so it always wins. */
+    if(exactCityMatch) sc += 500;
     scores.push({d:d, sc:sc, cs:cs});
   });
   scores.sort(function(a,b){ return b.sc-a.sc; });
@@ -18549,22 +18570,31 @@ function openTripMap(destName, stops){
     var geoP;
     if(cached && cached.pins && cached.pins.length){ geoP=Promise.resolve(cached); }
     else {
-      geoP = gcode(destName).then(function(center){
-        var jobs = raw.map(function(s){
-          var q=(s.name?s.name+', ':'')+destName;
-          return gcode(q).then(function(g){ return g?{day:s.day,name:s.name||destName,note:s.note||'',lat:g.lat,lon:g.lon}:null; });
-        });
-        return Promise.all(jobs).then(function(pins){
-          pins=(pins||[]).filter(Boolean);
-          if(center){ /* drop pins absurdly far from the destination centroid */
-            pins=pins.filter(function(p){ return Math.abs(p.lat-center.lat)<2 && Math.abs(p.lon-center.lon)<2; }); }
-          var out={center:center, pins:pins};
-          try{ lsSet(cacheKey, JSON.stringify(out)); }catch(e){}
-          return out;
-        });
+      geoP = rwGeocodeStopsNear(destName, raw).then(function(out){
+        try{ lsSet(cacheKey, JSON.stringify(out)); }catch(e){}
+        return out;
       });
     }
     geoP.then(function(data){ rwPaintTripMap(destName, data); });
+  });
+}
+/* Geocode a destination centroid + a list of {day,name,note} stops, discarding any
+   stop that resolves absurdly far (>=2 degrees lat/lon) from the destination's own
+   centroid. Extracted out of openTripMap()'s inline logic so it's the ONE sanity-
+   bounded, cached-friendly geocoding path — reused as-is (not duplicated) by the
+   Cinematic Itinerary add-on (roamwise-premium-itinerary.js) via window.rwGeocodeStopsNear.
+   Returns a Promise<{center:{lat,lon}|null, pins:[{day,name,note,lat,lon}]}>. */
+function rwGeocodeStopsNear(destName, rawStops){
+  var jobs = (rawStops||[]).map(function(s){
+    var q=(s.name?s.name+', ':'')+destName;
+    return gcode(q).then(function(g){ return g?{day:s.day,name:s.name||destName,note:s.note||'',lat:g.lat,lon:g.lon}:null; });
+  });
+  return Promise.all([gcode(destName), Promise.all(jobs)]).then(function(res){
+    var center=res[0], pins=(res[1]||[]).filter(Boolean);
+    if(center){ /* drop pins absurdly far from the destination centroid */
+      pins=pins.filter(function(p){ return Math.abs(p.lat-center.lat)<2 && Math.abs(p.lon-center.lon)<2; });
+    }
+    return {center:center, pins:pins};
   });
 }
 /* Pull stops from the most recent itinerary the app rendered, if any. */
@@ -18989,3 +19019,11 @@ function applyRemoteConfig(cfg){
 window.rwIsPro = function(){
   try{ return RWPricing.currentTier().id !== 'free'; }catch(e){ return false; }
 };
+/* More bridges for the Cinematic Itinerary add-on: rwDeriveStops() already knows how
+   to turn a destination (+ the last built itinerary, curated real POIs, or DB gems)
+   into real named stops, and rwGeocodeStopsNear() geocodes + sanity-bounds them the
+   same way openTripMap() does. These are plain top-level function declarations so
+   they're already on window in a browser, but we assign explicitly here so the
+   dependency is obvious and doesn't silently break if app.js is ever wrapped/bundled. */
+window.rwDeriveStops = rwDeriveStops;
+window.rwGeocodeStopsNear = rwGeocodeStopsNear;

@@ -183,8 +183,38 @@
     return ctx.destination;
   }
 
+  /* Ask app.js's rwDeriveStops() for the real day→place mapping for this destination.
+   * rwDeriveStops() already prefers RW_CURATED_STOPS (hand-curated real POIs) when
+   * available, otherwise mines window._lastItin.days for named places, otherwise
+   * falls back to the DB entry's gems[] — all far more reliable than regex-scraping
+   * the rendered #results text. window._lastItin is only trustworthy for THIS
+   * destination if its .name matches; if it belongs to a different destination
+   * (e.g. Cinematic was toggled without opening the Itinerary tab for this search
+   * yet), temporarily hide it from rwDeriveStops() so it falls through to its own
+   * curated/DB-gems fallback instead of mining a stale, unrelated itinerary.
+   */
+  function safeDeriveStops(destination) {
+    if (typeof window.rwDeriveStops !== 'function') return null;
+    try {
+      const it = window._lastItin;
+      const matches = it && it.name && String(it.name).trim().toLowerCase() === String(destination).trim().toLowerCase();
+      if (it && !matches) {
+        const saved = window._lastItin;
+        window._lastItin = null;
+        try { return window.rwDeriveStops(destination); }
+        finally { window._lastItin = saved; }
+      }
+      return window.rwDeriveStops(destination);
+    } catch (_) { return null; }
+  }
+
   function buildRoute(days, ctx) {
-    const route = days.map(d => ({day:d.n, place:derivePlace(d,ctx), title:d.title}));
+    const appStops = safeDeriveStops(ctx.destination);
+    const route = (Array.isArray(appStops) && appStops.length)
+      ? appStops.map(s => ({day: s.day, place: s.name, title: s.note || ''}))
+      /* Fallback only if the app.js bridge isn't available for some reason
+       * (e.g. an older cached app.js) — same regex-based guess as before. */
+      : days.map(d => ({day:d.n, place:derivePlace(d,ctx), title:d.title}));
     const compact = [];
     route.forEach(r => {
       if (!compact.length || compact[compact.length-1].place.toLowerCase() !== r.place.toLowerCase() || compact[compact.length-1].day !== r.day) compact.push(r);
@@ -354,8 +384,32 @@
 
   function weatherIcon(code){if(code==null)return'◐'; if(code===0)return'☀';if([1,2].includes(code))return'◑';if(code===3)return'☁';if([45,48].includes(code))return'≋';if([51,53,55,61,63,65,80,81,82].includes(code))return'☂';if([71,73,75,77,85,86].includes(code))return'❄';if([95,96,99].includes(code))return'ϟ';return'◐'}
 
+  /* Pre-validate the whole route against the destination's own centroid using the
+   * EXACT same geocode + "reject pins >=2° away" sanity bound that openTripMap()
+   * uses in app.js (reused, not re-implemented, via window.rwGeocodeStopsNear).
+   * This is a bulk pre-check only — per-point elevation/name/country enrichment
+   * below still goes through the module's own cached geocode() so the existing
+   * weather/elevation strip keeps working exactly as before for every stop that
+   * passes the bound check. Stops that fail it are treated as ungeocoded, the
+   * same graceful-degradation path already used when geocoding is unavailable. */
+  async function boundedStopNames(route,ctx){
+    if (typeof window.rwGeocodeStopsNear !== 'function') return null;
+    try {
+      const stopsForCheck = route.map(r => ({day:r.day, name:r.place, note:r.title}));
+      const bounded = await window.rwGeocodeStopsNear(ctx.destination, stopsForCheck);
+      return new Set((bounded?.pins||[]).map(p => `${p.day}|${String(p.name||'').toLowerCase()}`));
+    } catch (_) { return null; }
+  }
+
   async function hydrateRoute(route,ctx,token){
-    const resolved=[]; for(const r of route){if(token!==state.renderToken)return;const g=await geocode(r.place,ctx);resolved.push({...r,geo:g}); await sleep(80)}
+    const validated = await boundedStopNames(route,ctx);
+    if (token!==state.renderToken) return;
+    const resolved=[];
+    for(const r of route){
+      if(token!==state.renderToken)return;
+      if (validated && !validated.has(`${r.day}|${r.place.toLowerCase()}`)) { resolved.push({...r, geo:null}); continue; }
+      const g=await geocode(r.place,ctx);resolved.push({...r,geo:g}); await sleep(80);
+    }
     state.routePoints=resolved.filter(x=>x.geo);
     updateElevations(resolved); updateWeather(resolved); if(state.routePoints.length>=1) await initLeaflet(state.routePoints);
   }
