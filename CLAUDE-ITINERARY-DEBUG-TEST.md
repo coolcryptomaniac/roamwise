@@ -20,6 +20,7 @@ Debug and validate the generated `/itinerary-library/` cache and its eventual in
 - Confirm every `manifest.json` HTML/PDF path exists.
 - Confirm no preset contains broken relative references to `preset-runtime.js`, CSS, `destination-photos.js` or `icon-512.png`.
 - Confirm the generator is deterministic: run it twice and verify no unexpected diff.
+- GitHub's Jekyll/site CI passed on PR #63, but the external Cloudflare Workers build check reported failure. Determine the exact Cloudflare cause before recommending merge. Treat it as a deployment/asset/configuration investigation; do not modify auth, production Worker bindings or deployment configuration speculatively just to turn the check green.
 
 ### Matching/fallback
 - Broad `Ladakh`, 6 days => preset hit.
