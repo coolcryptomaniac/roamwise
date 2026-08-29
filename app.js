@@ -18943,3 +18943,11 @@ function applyRemoteConfig(cfg){
   }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', boot); else boot();
 })();
+
+/* Bridge for the optional Cinematic Itinerary add-on (roamwise-premium-itinerary.js):
+   it checks window.rwIsPro() first, before falling back to unreliable localStorage
+   heuristics. Route it through the real RWPricing tier so the Pro gate reflects
+   actual subscription status instead of a guess. */
+window.rwIsPro = function(){
+  try{ return RWPricing.currentTier().id !== 'free'; }catch(e){ return false; }
+};
