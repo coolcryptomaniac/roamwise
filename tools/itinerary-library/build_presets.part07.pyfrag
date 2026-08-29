@@ -1,0 +1,40 @@
+    return {...d,variant,days:v.days,html:ROOT+v.html,pdf:ROOT+v.pdf,matchScore:ranked[0][0]};
+  }
+  function renderInto(target,hit){const el=typeof target==='string'?document.querySelector(target):target;if(!el||!hit)return false;el.innerHTML='';const f=document.createElement('iframe');f.src=hit.html;f.title=hit.name+' itinerary';f.loading='eager';f.style.cssText='width:100%;min-height:86vh;border:0;border-radius:18px;background:#050507';f.setAttribute('allow','fullscreen');el.appendChild(f);return true;}
+  async function tryRender(target,o){const h=await find(o);if(!h)return null;renderInto(target,h);return h;}
+  window.RW_PRESETS={manifest,find,specific,renderInto,tryRender,root:ROOT};
+})();
+'''
+(OUT/'preset-loader.js').write_text(LOADER,encoding='utf-8')
+
+# Library browser index
+cards=[]
+for d in manifest['destinations']:
+    links=' '.join(f'<a href="{v[1]["html"]}">{VARIANTS[v[0]]["label"]} {v[1]["days"]}d</a>' for v in d['variants'].items())
+    cards.append(f'<article><b>{html.escape(d["name"])}</b><span>{html.escape(d["country"])} · {html.escape(d["region"])} · {html.escape(d["category"])}</span><div>{links}</div></article>')
+INDEX=f'''<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>RoamWise Preset Itinerary Library</title><style>body{{margin:0;background:#070709;color:#f6f3ef;font-family:system-ui;padding:38px}}h1{{font-size:clamp(40px,7vw,82px);margin:0 0 8px;letter-spacing:-.05em}}p{{color:#aaa;max-width:850px;line-height:1.6}}.grid{{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;margin-top:30px}}article{{background:#111117;border:1px solid #282832;border-radius:18px;padding:18px}}article b{{display:block;font-size:18px;margin-bottom:8px}}article span{{display:block;color:#8e8b88;font-size:12px;margin-bottom:14px}}a{{display:inline-block;color:#fff;text-decoration:none;border:1px solid #383842;border-radius:999px;padding:7px 9px;margin:3px;font-size:11px}}a:hover{{border-color:#ff3045;color:#ff6c78}}.n{{color:#ff4557}}</style></head><body><div class="n">ROAMWISE // OFFLINE-FIRST CACHE</div><h1>Preset Itinerary Library</h1><p>{len(C)} destinations and expeditions × 4 trip depths = <b>{len(C)*4} HTML itineraries + {len(C)*4} PDFs</b>. Use these for instant broad requests; defer to the live planner whenever the user supplies meaningful constraints.</p><div class="grid">{''.join(cards)}</div></body></html>'''
+(OUT/'index.html').write_text(INDEX,encoding='utf-8')
+
+README=f'''# RoamWise Preset Itinerary Library v1.0.0
+
+This folder is a pre-generated fallback cache for the RoamWise cinematic itinerary engine.
+
+## What is included
+
+- **{len(C)} important destinations / expeditions**
+- **4 ready-made trip depths per destination**: Essential, Signature, Deep Dive, Expedition
+- **{len(C)*4} HTML files + {len(C)*4} PDF files**
+- Four cinematic theme families: `crimson-moon`, `scarlet-pilgrim`, `eastern-frontier`, `crimson-expedition`
+- `manifest.json` with aliases, durations and file paths
+- `preset-loader.js` for zero-API matching and instant loading
+- `index.html` to browse every preset
+- `data/destinations.json` source catalog
+
+## Intended decision rule
+
+Use a cached preset when a user asks broadly, for example:
+
+- "Plan Ladakh"
+- "5 days in Goa"
+- "Tawang itinerary"
+- "Everest Base Camp itinerary"
