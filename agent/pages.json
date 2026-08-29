@@ -4878,5 +4878,29 @@
   "country": "India",
   "best": "January, February, March",
   "month": true
+ },
+ {
+  "slug": "udaipur-in-august",
+  "title": "Udaipur in August",
+  "name": "Udaipur·August",
+  "country": "India",
+  "best": "January, February, March",
+  "month": true
+ },
+ {
+  "slug": "udaipur-in-september",
+  "title": "Udaipur in September",
+  "name": "Udaipur·September",
+  "country": "India",
+  "best": "January, February, March",
+  "month": true
+ },
+ {
+  "slug": "udaipur-in-october",
+  "title": "Udaipur in October",
+  "name": "Udaipur·October",
+  "country": "India",
+  "best": "January, February, March",
+  "month": true
  }
 ]
