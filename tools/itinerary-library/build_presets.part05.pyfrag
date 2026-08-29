@@ -1,0 +1,40 @@
+    c.setFillColor(HexColor(accent)); c.setFont('Helvetica-Bold',24); c.drawString(M,PAGE_H-55,'MISSION PROFILE')
+    c.setFillColor(HexColor('#eeeae6')); c.setFont('Helvetica-Bold',11)
+    profile=[('Preset',VARIANTS[var_key]['label']),('Duration',f'{n} days'),('Gateway',dest['gateway']),('Best window',dest['season'])]
+    y=PAGE_H-90
+    for k,v in profile:
+        c.setFillColor(HexColor('#16161c')); c.roundRect(M,y-32,PAGE_W-2*M,30,7,fill=1,stroke=0)
+        c.setFillColor(HexColor(accent2)); c.setFont('Helvetica-Bold',8); c.drawString(M+12,y-15,k.upper())
+        c.setFillColor(HexColor('#ffffff')); c.setFont('Helvetica-Bold',10); c.drawRightString(PAGE_W-M-12,y-15,str(v)[:55]); y-=39
+    y-=10
+    c.setFillColor(HexColor(accent)); c.setFont('Helvetica-Bold',18); c.drawString(M,y,'ROUTE SCROLL'); y-=28
+    names=[s['name'] for s in dest['stops'][:10]]
+    for i,name in enumerate(names):
+        if y<70: c.showPage(); c.setFillColor(HexColor('#08080b')); c.rect(0,0,PAGE_W,PAGE_H,fill=1,stroke=0); y=PAGE_H-55
+        c.setStrokeColor(HexColor(accent)); c.setLineWidth(2)
+        if i<len(names)-1: c.line(M+12,y-4,M+12,y-30)
+        c.setFillColor(HexColor(accent)); c.circle(M+12,y,5,fill=1,stroke=0)
+        c.setFillColor(HexColor('#f2eeea')); c.setFont('Helvetica-Bold',10); c.drawString(M+28,y-4,name[:65]); y-=31
+    c.setFillColor(HexColor('#8f8a87')); c.setFont('Helvetica',8); c.drawString(M,35,'Route order is a cached scaffold. Live conditions take priority.')
+    c.showPage()
+    # day pages
+    for d in days:
+        c.setFillColor(HexColor('#08080b')); c.rect(0,0,PAGE_W,PAGE_H,fill=1,stroke=0)
+        c.setFillColor(HexColor(accent)); c.roundRect(M,PAGE_H-110,68,68,10,fill=1,stroke=0)
+        c.setFillColor(HexColor('#ffffff')); c.setFont('Helvetica-Bold',8); c.drawCentredString(M+34,PAGE_H-66,'DAY')
+        c.setFont('Helvetica-Bold',24); c.drawCentredString(M+34,PAGE_H-91,f'{d["num"]:02d}')
+        c.setFillColor(HexColor('#ffffff')); c.setFont('Helvetica-Bold',18)
+        title=wrap_text(d['title'],'Helvetica-Bold',18,PAGE_W-M-125)
+        ty=PAGE_H-62
+        for ln in title[:2]: c.drawString(M+86,ty,ln); ty-=22
+        y=PAGE_H-145
+        for label,txt in [('MORNING',d['morning']),('AFTERNOON',d['afternoon']),('EVENING',d['evening'])]:
+            c.setFillColor(HexColor('#17171d')); c.roundRect(M,y-112,PAGE_W-2*M,103,10,fill=1,stroke=0)
+            c.setFillColor(HexColor(accent2)); c.setFont('Helvetica-Bold',8); c.drawString(M+13,y-28,label)
+            pdf_text(c,txt,M+13,y-47,PAGE_W-2*M-26,size=10,leading=14,color=HexColor('#d3ceca'),max_lines=4)
+            y-=123
+        c.setFillColor(HexColor('#171018')); c.roundRect(M,y-110,PAGE_W-2*M,101,10,fill=1,stroke=0)
+        c.setFillColor(HexColor(accent)); c.setFont('Helvetica-Bold',8); c.drawString(M+13,y-28,'FIELD INTEL')
+        pdf_text(c,d['intel'],M+13,y-47,PAGE_W-2*M-26,size=9.4,leading=13,color=HexColor('#e0d5d2'),max_lines=5)
+        c.setFillColor(HexColor('#77726f')); c.setFont('Helvetica',7.5); c.drawRightString(PAGE_W-M,25,f'{dest["name"]} / {VARIANTS[var_key]["label"]} / RoamWise preset')
+        c.showPage()
