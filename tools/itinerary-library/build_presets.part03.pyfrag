@@ -1,0 +1,40 @@
+RUNTIME=r'''
+(()=>{const p=document.querySelector('.progress');if(p)addEventListener('scroll',()=>{const d=document.documentElement;p.style.width=((d.scrollTop/Math.max(1,d.scrollHeight-d.clientHeight))*100)+'%'});const io=new IntersectionObserver(es=>es.forEach(e=>e.isIntersecting&&e.target.classList.add('show')),{threshold:.08});document.querySelectorAll('.day').forEach(x=>io.observe(x));const qs=new URLSearchParams(location.search),theme=qs.get('theme');if(theme&&['crimson-moon','scarlet-pilgrim','eastern-frontier','crimson-expedition'].includes(theme)){document.body.className='theme-'+theme}document.querySelectorAll('[data-theme]').forEach(b=>b.onclick=()=>{document.body.className='theme-'+b.dataset.theme});})();
+'''
+(OUT/'assets'/'preset-runtime.js').write_text(RUNTIME,encoding='utf-8')
+
+# SVG route with labels. Coordinates zigzag vertically.
+def route_svg(stops):
+    n=min(len(stops),10); shown=stops[:n]
+    W,H=1000,max(360,110*n)
+    pts=[]
+    for i,s in enumerate(shown):
+        x=140 if i%2==0 else 820
+        y=80+i*((H-160)/max(1,n-1))
+        pts.append((x,y,s['name']))
+    if len(pts)==1: pts.append((820,260,'Explore'))
+    d='M '+ ' L '.join(f'{x:.0f},{y:.0f}' for x,y,_ in pts)
+    labels=[]
+    for i,(x,y,name) in enumerate(pts):
+        tx=x+24 if x<500 else x-24; anchor='start' if x<500 else 'end'
+        labels.append(f'<circle cx="{x}" cy="{y}" r="8"/><text x="{tx}" y="{y+5}" text-anchor="{anchor}">{html.escape(name[:34])}</text>')
+    return f'''<svg viewBox="0 0 {W} {H}" role="img" aria-label="Route overview"><path class="ghost" d="{d}"/><path id="missionPath" class="line" d="{d}"/>{''.join(labels)}<text class="shinobi"><textPath href="#missionPath" startOffset="2%">🥷<animate attributeName="startOffset" from="2%" to="96%" dur="18s" repeatCount="indefinite"/></textPath></text></svg>'''
+
+def html_doc(dest,var_key,n,days):
+    t=THEME_META[dest['theme']]
+    aliases=', '.join(dest['aliases'][:4])
+    chips=f"{dest['country']} // {dest['region']} // {dest['category'].upper()}"
+    daycards=[]
+    for d in days:
+        daycards.append(f'''<article class="day glass"><div class="day-no">{d['num']:02d}</div><div class="day-body"><h3>{html.escape(d['title'])}</h3><div class="chips"><span class="chip">DAY {d['num']}</span><span class="chip">{html.escape(dest['region'])}</span><span class="chip">{html.escape(VARIANTS[var_key]['label'])}</span></div><div class="phases"><div class="phase"><b>Morning</b>{html.escape(d['morning'])}</div><div class="phase"><b>Afternoon</b>{html.escape(d['afternoon'])}</div><div class="phase"><b>Evening</b>{html.escape(d['evening'])}</div></div><div class="intel"><b>Field intel</b> {html.escape(d['intel'])}</div></div></article>''')
+    return f'''<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>{html.escape(dest['name'])} - {VARIANTS[var_key]['label']} | RoamWise</title><link rel="stylesheet" href="../../assets/preset-library.css"></head><body class="theme-{dest['theme']}"><div class="progress"></div><header class="hero"><div class="moon"></div><div class="hero-inner"><div class="kicker">ROAMWISE PRESET // {html.escape(t['tag'])}</div><h1>{html.escape(dest['name'])}: <span>{VARIANTS[var_key]['label']}</span></h1><p class="sub">{n} DAYS // {html.escape(chips)}</p><div class="hero-line"></div><p class="sub" style="font-size:15px;letter-spacing:.025em;color:#aaa">{html.escape(VARIANTS[var_key]['desc'])}</p><div class="toolbar"><button data-theme="crimson-moon">Crimson Moon</button><button data-theme="scarlet-pilgrim">Scarlet Pilgrim</button><button data-theme="eastern-frontier">Eastern Frontier</button><button data-theme="crimson-expedition">Crimson Expedition</button><a href="{var_key}.pdf">PDF</a></div></div></header><main id="preset-content"><section class="section"><h2>Mission <em>Profile</em></h2><p class="lead">Pre-generated RoamWise fallback itinerary for instant loading when the traveller has not requested highly specific constraints. It is deliberately route-first and can be replaced by live planning whenever dates, exact budget, mobility, weather, crowd, permit or booking constraints matter.</p><div class="stats"><div class="stat glass"><b>Preset</b><span>{VARIANTS[var_key]['label']}</span></div><div class="stat glass"><b>Duration</b><span>{n} days</span></div><div class="stat glass"><b>Gateway</b><span>{html.escape(dest['gateway'])}</span></div><div class="stat glass"><b>Best window</b><span>{html.escape(dest['season'])}</span></div></div></section><section class="section"><h2>Animated <em>Route</em></h2><p class="lead">The shinobi marker travels through the cached route. Exact transport, weather, road and permit conditions should still be refreshed at runtime.</p><div class="route glass">{route_svg(dest['stops'])}</div></section><section class="section"><h2>Day-by-day <em>Scroll</em></h2><div class="timeline">{''.join(daycards)}</div></section><section class="section"><h2>Preset <em>Rules</em></h2><div class="glass" style="padding:24px;border-radius:20px"><p class="lead" style="margin:0"><b>Aliases:</b> {html.escape(aliases)}<br><b>Operational note:</b> {html.escape(dest['notes'])}<br><br>Use this cached itinerary for broad destination requests. If the user specifies a month, exact budget, accessibility need, crowd constraint, fixed hotel, transport restriction, permit-sensitive activity or unusual duration, RoamWise should fall back to the live planner and treat this preset only as a starting scaffold.</p></div></section></main><footer class="footer">ROAMWISE CINEMATIC PRESET LIBRARY // Generated fallback content, not a guarantee of access, weather, permits, safety, pricing or availability. Verify time-sensitive conditions before travel.</footer><script src="../../assets/preset-runtime.js"></script></body></html>'''
+
+# PDF drawing helpers
+PAGE_W,PAGE_H=A4
+M=34
+
+def wrap_text(text,font,size,maxw):
+    words=text.split(); lines=[]; cur=''
+    for w in words:
+        cand=(cur+' '+w).strip()
+        if stringWidth(cand,font,size)<=maxw: cur=cand
