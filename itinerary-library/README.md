@@ -12,6 +12,8 @@ This folder is a pre-generated fallback cache for the RoamWise cinematic itinera
 - `preset-loader.js` for zero-API matching and instant loading
 - `index.html` to browse every preset
 - `data/destinations.json` source catalog
+- `data/local-intelligence.json` destination-specific food, movement, etiquette and visual context
+- `DESTINATION-CATALOG.md` human-readable route/duration inventory
 
 ## Intended decision rule
 
@@ -24,11 +26,11 @@ Use a cached preset when a user asks broadly, for example:
 
 Do **not** silently force a preset when the user gives meaningful constraints such as a specific month, exact budget, accessibility need, crowd-avoidance requirement, fixed hotel, unusual transport rule, permit-sensitive requirement, or custom style/tags. In that case, keep the existing live planner and optionally use the preset only as a scaffold.
 
-`preset-loader.js` already implements this conservative rule.
+`preset-loader.js` implements this conservative rule.
 
 ## Integration
 
-Add once near the existing premium itinerary scripts:
+Add once near the existing premium itinerary scripts only after the Claude/local regression checklist passes:
 
 ```html
 <script src="itinerary-library/preset-loader.js" defer></script>
@@ -66,15 +68,26 @@ Each HTML also supports a theme override:
 presets/ladakh/signature.html?theme=eastern-frontier
 ```
 
-## Folder placement
+## Local cinematic intelligence
 
-Recommended repository path:
+- HTML presets reuse the existing repo-level `destination-photos.js` / `window.RW_PHOTOS_DATA` when a destination or stop has a verified match. No second photo service is required.
+- The first matched image becomes the cinematic hero; up to five matches become a Local Frames gallery. If none load, the original cinematic gradient remains intact.
+- Every destination has a local food, movement, etiquette/context and visual-signature profile in `data/local-intelligence.json`.
+- The schematic animated shinobi route remains offline-safe. A real local map is loaded lazily only when the traveller opens it, including per-day local maps.
+- Journey-style motifs (coastal, sacred, heritage, high-altitude, trek, safari, etc.) layer on top of the four cinematic themes.
+
+## Social attribution
+
+Use `RW_PRESETS.shareUrl(hit, userName, theme)` or append `?share=1&user=Name` to a preset HTML URL. Share mode displays the RoamWise brand mark and `Made by RoamWise for Name`. The normal reading view stays unwatermarked. Print/Save-PDF from that personalized share view also carries the stamp. Static pre-generated PDFs cannot contain a future user's name; they contain generic RoamWise branding plus the destination's local-intelligence page.
+
+## Folder placement
 
 ```
 /itinerary-library/
   manifest.json
   preset-loader.js
   index.html
+  DESTINATION-CATALOG.md
   assets/
   data/
   presets/
@@ -82,10 +95,16 @@ Recommended repository path:
 
 No database, Firestore, worker or API is needed to serve the cache. GitHub Pages / static hosting can serve it directly.
 
+## Deterministic generation
+
+The source generator lives in `/tools/itinerary-library/`. The workflow `.github/workflows/build-itinerary-library.yml` regenerates the full static cache and verifies exactly 48 destinations, 192 HTML presets and 192 PDFs before committing generated output to the integration branch.
+
+Do not hand-edit hundreds of generated preset files. Fix the source data/runtime/generator and regenerate instead.
+
+## AI handoff and testing
+
+Read repository-root `AI-ROLES-AND-HANDOFF.md` for the ChatGPT/Claude division of responsibility. Claude Code should use `CLAUDE-ITINERARY-DEBUG-TEST.md` for repo-local, browser/mobile and regression validation before this feature is connected to the live planner.
+
 ## Safety / freshness
 
 These are fallback route designs, not live operational guarantees. Weather, road status, permits, park openings, border/frontier access, transport, pricing and availability must be refreshed when relevant. Expedition presets deliberately keep conservative durations instead of shortening high-altitude routes to an unsafe number of days.
-
-## Local intelligence & sharing
-
-The v1.1 cinematic runtime adds destination-specific photo hooks, lazy local/day maps, local food/movement/etiquette/visual context, and share mode attribution (`Made by RoamWise for <user>`). Normal viewing stays clean; personalized attribution is activated for share/print flows.
