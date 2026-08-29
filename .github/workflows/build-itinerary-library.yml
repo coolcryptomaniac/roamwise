@@ -1,0 +1,62 @@
+name: Build itinerary preset library
+
+on:
+  push:
+    branches:
+      - feature/itinerary-library-v1.1
+    paths:
+      - 'tools/itinerary-library/**'
+      - '.github/workflows/build-itinerary-library.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install deterministic build dependencies
+        run: python -m pip install --disable-pip-version-check reportlab==4.2.5 pypdf==5.1.0
+      - name: Generate the complete static cache
+        env:
+          ROAMWISE_ITINERARY_OUT: ${{ github.workspace }}/itinerary-library
+          ROAMWISE_ITINERARY_ZIP: /tmp/roamwise-itinerary-library.zip
+        run: |
+          python tools/itinerary-library/build_presets.py
+          python tools/itinerary-library/enhance_v1_1.py
+      - name: Static integrity checks
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import json
+          root=Path('itinerary-library')
+          manifest=json.loads((root/'manifest.json').read_text())
+          htmls=list((root/'presets').glob('*/*.html'))
+          pdfs=list((root/'presets').glob('*/*.pdf'))
+          assert len(manifest['destinations']) == 48
+          assert len(htmls) == 192
+          assert len(pdfs) == 192
+          assert all(p.stat().st_size > 1000 for p in pdfs)
+          assert all('share-stamp' in p.read_text() for p in htmls)
+          assert all('local-intel-section' in p.read_text() for p in htmls)
+          print('48 destinations / 192 HTML / 192 PDF: PASS')
+          PY
+      - name: Commit generated library to this integration branch
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add itinerary-library
+          if git diff --cached --quiet; then
+            echo 'Generated library already up to date.'
+          else
+            git commit -m 'build: generate cinematic itinerary preset library v1.1'
+            git push
+          fi
