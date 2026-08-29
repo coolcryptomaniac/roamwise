@@ -8597,6 +8597,13 @@ function runSearch(){
   var isGenericResult = false;
   var destLower = (dest||'').toLowerCase().trim();
   var wantsSpecificPlace = destLower && destLower !== 'anywhere' && destLower.indexOf('anywhere') < 0;
+  /* A "City, Country" style query (the autocomplete/typeahead flow) went through smartSearch's
+     city-specific matching path, which legitimately narrows to just the matched city/cities.
+     Padding that out with an unfiltered global search would reintroduce unrelated destinations
+     (e.g. "Rishikesh, India" pulling in Munnar), defeating the point of that narrowing — so for
+     a city-qualified query that found at least one real match, show fewer than 3 cards instead
+     of topping up with unrelated places. */
+  var isCityQualified = destLower.indexOf(',') >= 0;
 
   if(wantsSpecificPlace && topR.length < 3){
     if(topR.length === 0){
@@ -8607,8 +8614,10 @@ function runSearch(){
         return r.d.name.toLowerCase() !== generic.name.toLowerCase();
       });
       topR = [{ d:generic, sc:999, cs:generic.crowd[MONTHS.indexOf(month)] }].concat(alts0).slice(0,3);
-    } else {
-      /* Found some curated matches but fewer than 3 — top up with global best */
+    } else if(!isCityQualified){
+      /* Found some curated matches but fewer than 3 — top up with global best.
+         Skipped for city-qualified queries (see isCityQualified note above) since a specific
+         city legitimately matching just 1-2 destinations is expected, not a gap to fill. */
       var foundIds = topR.map(function(r){ return r.d.id; });
       var alts1 = smartSearch(month, budUSD, '', crowd, interests).filter(function(r){
         return foundIds.indexOf(r.d.id) < 0;
@@ -8626,7 +8635,11 @@ function runSearch(){
   var hasKey = lsGet('rwKey_'+activeProv);
   if(activeProv!=='smart' && hasKey){
     var destList = topR.map(function(r){ return r.d.name+'/'+r.d.country; }).join(' | ');
-    var aiPrompt = 'Briefly enhance these travel destinations for a traveler from '+origin+' in '+month+' ($'+budUSD+' budget, interests: '+interests.join(',')+'). Destinations: '+destList+'. Return ONLY valid JSON with this exact shape: {"e":[{"id":"'+topR[0].d.id+'","desc":"2 vivid sentences","tip":"1 practical tip for '+month+'"},{"id":"'+topR[1].d.id+'","desc":"2 vivid sentences","tip":"1 tip"},{"id":"'+topR[2].d.id+'","desc":"2 vivid sentences","tip":"1 tip"}]}';
+    var shapeItems = topR.map(function(r, i){
+      var tipCopy = i===0 ? '1 practical tip for '+month : '1 tip';
+      return '{"id":"'+r.d.id+'","desc":"2 vivid sentences","tip":"'+tipCopy+'"}';
+    }).join(',');
+    var aiPrompt = 'Briefly enhance these travel destinations for a traveler from '+origin+' in '+month+' ($'+budUSD+' budget, interests: '+interests.join(',')+'). Destinations: '+destList+'. Return ONLY valid JSON with this exact shape: {"e":['+shapeItems+']}';
     aiCall(aiPrompt, 600, function(err, txt){
       clearInterval(tick); btn.disabled=false; btn.innerHTML='<span class="shim-line"></span>🔍 Find My Destinations — Works Without Any API Key';
       var aiData = null;
@@ -18591,9 +18604,11 @@ function rwGeocodeStopsNear(destName, rawStops){
   });
   return Promise.all([gcode(destName), Promise.all(jobs)]).then(function(res){
     var center=res[0], pins=(res[1]||[]).filter(Boolean);
-    if(center){ /* drop pins absurdly far from the destination centroid */
-      pins=pins.filter(function(p){ return Math.abs(p.lat-center.lat)<2 && Math.abs(p.lon-center.lon)<2; });
-    }
+    if(!center) return {center:null, pins:[]}; /* no valid centroid to sanity-check against — reject all pins rather than trust them unvalidated */
+    /* drop pins absurdly far from the destination centroid — true radial distance (haversine),
+       not a lat/lon box, so a diagonal point isn't wrongly let through (a box check would allow
+       up to ~2.8deg diagonally even though it caps each axis at 2deg). Cap ~222km (111km/deg * 2deg). */
+    pins=pins.filter(function(p){ return rwHaversine(center.lat, center.lon, p.lat, p.lon) < 222; });
     return {center:center, pins:pins};
   });
 }
