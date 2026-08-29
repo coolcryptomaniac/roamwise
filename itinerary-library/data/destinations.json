@@ -1,0 +1,2880 @@
+[
+  {
+    "slug": "ladakh",
+    "name": "Ladakh High-Altitude Circuit",
+    "country": "India",
+    "region": "Ladakh",
+    "category": "road-trip",
+    "theme": "crimson-moon",
+    "days": [
+      4,
+      6,
+      8,
+      10
+    ],
+    "aliases": [
+      "leh",
+      "leh ladakh",
+      "ladakh road trip",
+      "nubra pangong"
+    ],
+    "gateway": "Leh",
+    "season": "May-Sep",
+    "stops": [
+      {
+        "name": "Leh",
+        "focus": "acclimatize, Old Town, Shanti Stupa and local food"
+      },
+      {
+        "name": "Sham Valley",
+        "focus": "Indus-side monasteries, Magnetic Hill corridor and village stops"
+      },
+      {
+        "name": "Khardung La - Nubra",
+        "focus": "high pass crossing, Diskit and Hunder dunes"
+      },
+      {
+        "name": "Nubra Valley",
+        "focus": "villages, monasteries and a slower valley morning"
+      },
+      {
+        "name": "Shyok - Pangong",
+        "focus": "remote road, changing geology and Pangong arrival"
+      },
+      {
+        "name": "Pangong Lake",
+        "focus": "sunrise, shoreline viewpoints and minimal-impact time by the lake"
+      },
+      {
+        "name": "Chang La - Leh",
+        "focus": "return over the high road with monastery options"
+      },
+      {
+        "name": "Leh Buffer",
+        "focus": "market, cafe, museum, contingency or rest day"
+      },
+      {
+        "name": "Tso Moriri",
+        "focus": "Changthang plateau, lake landscapes and nomadic culture"
+      },
+      {
+        "name": "Tso Kar - Leh",
+        "focus": "salt-lake country and high plateau return"
+      }
+    ],
+    "notes": "High altitude: preserve acclimatization, hydration and road buffers. Recheck permits and road status locally."
+  },
+  {
+    "slug": "kashmir",
+    "name": "Kashmir Valley & Alpine Lakes",
+    "country": "India",
+    "region": "Jammu & Kashmir",
+    "category": "scenic",
+    "theme": "crimson-moon",
+    "days": [
+      4,
+      6,
+      8,
+      10
+    ],
+    "aliases": [
+      "srinagar",
+      "kashmir",
+      "gulmarg pahalgam"
+    ],
+    "gateway": "Srinagar",
+    "season": "Apr-Oct",
+    "stops": [
+      {
+        "name": "Srinagar",
+        "focus": "Dal Lake, old city, gardens and houseboat atmosphere"
+      },
+      {
+        "name": "Gulmarg",
+        "focus": "meadows, gondola sector and mountain viewpoints"
+      },
+      {
+        "name": "Pahalgam",
+        "focus": "Lidder Valley, village walks and pine landscapes"
+      },
+      {
+        "name": "Aru Valley",
+        "focus": "quiet valley day and trailheads"
+      },
+      {
+        "name": "Sonamarg",
+        "focus": "Sindh valley, glacier viewpoints and alpine scenery"
+      },
+      {
+        "name": "Gurez Valley",
+        "focus": "remote mountain valley and village culture"
+      },
+      {
+        "name": "Doodhpathri",
+        "focus": "meadows and lower-crowd scenic day"
+      },
+      {
+        "name": "Srinagar Buffer",
+        "focus": "crafts, food walk and weather buffer"
+      }
+    ],
+    "notes": "Mountain access and security conditions can change. Keep routes flexible and verify local advisories."
+  },
+  {
+    "slug": "spiti",
+    "name": "Spiti Valley Himalayan Loop",
+    "country": "India",
+    "region": "Himachal Pradesh",
+    "category": "road-trip",
+    "theme": "crimson-expedition",
+    "days": [
+      5,
+      7,
+      10,
+      12
+    ],
+    "aliases": [
+      "spiti valley",
+      "kaza",
+      "kinnaur spiti"
+    ],
+    "gateway": "Shimla / Manali",
+    "season": "May-Oct",
+    "stops": [
+      {
+        "name": "Shimla - Sarahan",
+        "focus": "Himalayan transition and temple-town stop"
+      },
+      {
+        "name": "Sangla - Chitkul",
+        "focus": "Baspa Valley villages and last-road landscapes"
+      },
+      {
+        "name": "Kalpa",
+        "focus": "Kinnaur Kailash viewpoints and orchard country"
+      },
+      {
+        "name": "Nako - Tabo",
+        "focus": "high-desert transition, lake and ancient monastery"
+      },
+      {
+        "name": "Dhankar - Pin Valley",
+        "focus": "clifftop monastery and Pin Valley landscapes"
+      },
+      {
+        "name": "Kaza",
+        "focus": "market, cafes and acclimatization"
+      },
+      {
+        "name": "Key - Kibber",
+        "focus": "monastery, high villages and wildlife country"
+      },
+      {
+        "name": "Hikkim - Komic - Langza",
+        "focus": "fossil country and high settlements"
+      },
+      {
+        "name": "Chandratal",
+        "focus": "high-altitude lake camp sector"
+      },
+      {
+        "name": "Kunzum - Manali",
+        "focus": "high pass exit and dramatic road day"
+      }
+    ],
+    "notes": "Long road days, altitude and seasonal closures define this circuit. Do not compress acclimatization or night driving."
+  },
+  {
+    "slug": "manali",
+    "name": "Manali, Solang & Kullu Valley",
+    "country": "India",
+    "region": "Himachal Pradesh",
+    "category": "mountain",
+    "theme": "crimson-expedition",
+    "days": [
+      3,
+      5,
+      7,
+      9
+    ],
+    "aliases": [
+      "manali",
+      "kullu manali",
+      "solang valley"
+    ],
+    "gateway": "Manali",
+    "season": "Mar-Jun / Sep-Nov",
+    "stops": [
+      {
+        "name": "Old Manali",
+        "focus": "river, cafes, temple lanes and arrival"
+      },
+      {
+        "name": "Solang Valley",
+        "focus": "mountain activities and viewpoints"
+      },
+      {
+        "name": "Atal Tunnel - Sissu",
+        "focus": "Lahaul day trip and waterfall landscapes"
+      },
+      {
+        "name": "Naggar",
+        "focus": "castle, art, old villages and valley views"
+      },
+      {
+        "name": "Kullu",
+        "focus": "crafts, river valley and local food"
+      },
+      {
+        "name": "Jana - Rumsu",
+        "focus": "village roads, waterfalls and slower mountain culture"
+      },
+      {
+        "name": "Kasol - Manikaran",
+        "focus": "Parvati Valley contrast and riverside walks"
+      },
+      {
+        "name": "Manali Buffer",
+        "focus": "shopping, spa, cafe or weather buffer"
+      }
+    ],
+    "notes": "Activities and high-road access are weather dependent. Use licensed operators for adventure sports."
+  },
+  {
+    "slug": "kumaon",
+    "name": "Kumaon: Almora, Binsar, Jageshwar & Munsiyari",
+    "country": "India",
+    "region": "Uttarakhand",
+    "category": "mountain",
+    "theme": "crimson-moon",
+    "days": [
+      4,
+      6,
+      8,
+      11
+    ],
+    "aliases": [
+      "almora",
+      "kumaon",
+      "binsar",
+      "jageshwar",
+      "munsiyari"
+    ],
+    "gateway": "Kathgodam / Pantnagar",
+    "season": "Mar-Jun / Oct-Dec",
+    "stops": [
+      {
+        "name": "Almora",
+        "focus": "ridge town, local market, Kumaoni food and sunset"
+      },
+      {
+        "name": "Binsar",
+        "focus": "forest sanctuary, Zero Point and quiet mountain stay"
+      },
+      {
+        "name": "Jageshwar",
+        "focus": "cedar forest and temple cluster"
+      },
+      {
+        "name": "Kausani",
+        "focus": "Himalayan panorama, tea and village pace"
+      },
+      {
+        "name": "Chaukori",
+        "focus": "orchards, ridge views and stargazing"
+      },
+      {
+        "name": "Munsiyari",
+        "focus": "Panchachuli views and frontier-town atmosphere"
+      },
+      {
+        "name": "Khaliya Top",
+        "focus": "day hike and alpine ridge views"
+      },
+      {
+        "name": "Birthi - Thal",
+        "focus": "waterfall and mountain-road return"
+      },
+      {
+        "name": "Nainital",
+        "focus": "lake, old town and easy finale"
+      }
+    ],
+    "notes": "Mountain roads are slow and monsoon-sensitive. Keep one flexible buffer on longer loops."
+  },
+  {
+    "slug": "chardham",
+    "name": "Char Dham Scarlet Pilgrim Path",
+    "country": "India",
+    "region": "Uttarakhand",
+    "category": "pilgrimage",
+    "theme": "scarlet-pilgrim",
+    "days": [
+      8,
+      10,
+      12,
+      14
+    ],
+    "aliases": [
+      "char dham",
+      "kedarnath badrinath",
+      "yamunotri gangotri"
+    ],
+    "gateway": "Haridwar / Dehradun",
+    "season": "May-Jun / Sep-Oct",
+    "stops": [
+      {
+        "name": "Haridwar - Barkot",
+        "focus": "pilgrimage launch and Yamuna valley approach"
+      },
+      {
+        "name": "Yamunotri",
+        "focus": "temple trek day with pacing and return"
+      },
+      {
+        "name": "Uttarkashi",
+        "focus": "river valley transfer and recovery"
+      },
+      {
+        "name": "Gangotri",
+        "focus": "Bhagirathi valley pilgrimage"
+      },
+      {
+        "name": "Guptkashi",
+        "focus": "long transfer toward Kedarnath sector"
+      },
+      {
+        "name": "Kedarnath",
+        "focus": "trek/authorized transport sector and temple visit"
+      },
+      {
+        "name": "Kedarnath Buffer",
+        "focus": "descent, recovery and weather buffer"
+      },
+      {
+        "name": "Joshimath",
+        "focus": "Alaknanda valley transfer"
+      },
+      {
+        "name": "Badrinath",
+        "focus": "temple, Mana village and high valley"
+      },
+      {
+        "name": "Rudraprayag",
+        "focus": "descent through confluences"
+      },
+      {
+        "name": "Rishikesh",
+        "focus": "Ganga finale and rest"
+      }
+    ],
+    "notes": "Pilgrimage registrations, transport rules, trekking access and weather can change. Verify official Uttarakhand updates."
+  },
+  {
+    "slug": "rishikesh-mussoorie",
+    "name": "Rishikesh & Mussoorie Escape",
+    "country": "India",
+    "region": "Uttarakhand",
+    "category": "wellness",
+    "theme": "scarlet-pilgrim",
+    "days": [
+      3,
+      4,
+      6,
+      8
+    ],
+    "aliases": [
+      "rishikesh",
+      "mussoorie",
+      "dehradun rishikesh"
+    ],
+    "gateway": "Dehradun",
+    "season": "Sep-Jun",
+    "stops": [
+      {
+        "name": "Rishikesh",
+        "focus": "ghats, suspension-bridge area, cafes and Ganga evening"
+      },
+      {
+        "name": "Rishikesh Adventure",
+        "focus": "rafting sector or guided hike when conditions permit"
+      },
+      {
+        "name": "Narendra Nagar",
+        "focus": "ridge views and wellness pace"
+      },
+      {
+        "name": "Dehradun",
+        "focus": "forest research heritage, food and city reset"
+      },
+      {
+        "name": "Mussoorie",
+        "focus": "Mall Road, Landour and mountain views"
+      },
+      {
+        "name": "Landour",
+        "focus": "walks, bakeries and quieter cantonment lanes"
+      },
+      {
+        "name": "Dhanaulti",
+        "focus": "cedar forests and hill drive"
+      },
+      {
+        "name": "Rishikesh Buffer",
+        "focus": "yoga, spa, cafe and flexible departure"
+      }
+    ],
+    "notes": "River activities are seasonal and regulated. Use authorized rafting/adventure operators."
+  },
+  {
+    "slug": "rajasthan",
+    "name": "Rajasthan Royal Desert Circuit",
+    "country": "India",
+    "region": "Rajasthan",
+    "category": "culture",
+    "theme": "scarlet-pilgrim",
+    "days": [
+      5,
+      8,
+      11,
+      14
+    ],
+    "aliases": [
+      "rajasthan",
+      "jaipur jodhpur udaipur",
+      "royal rajasthan"
+    ],
+    "gateway": "Jaipur",
+    "season": "Oct-Mar",
+    "stops": [
+      {
+        "name": "Jaipur",
+        "focus": "Amber, City Palace quarter, bazaars and food"
+      },
+      {
+        "name": "Pushkar - Ajmer",
+        "focus": "lake, old town and pilgrimage contrast"
+      },
+      {
+        "name": "Jodhpur",
+        "focus": "Mehrangarh, blue lanes and rooftop evening"
+      },
+      {
+        "name": "Osian",
+        "focus": "desert edge, temples and sunset"
+      },
+      {
+        "name": "Jaisalmer",
+        "focus": "fort city and havelis"
+      },
+      {
+        "name": "Thar Desert",
+        "focus": "dunes, village culture and starry night"
+      },
+      {
+        "name": "Udaipur",
+        "focus": "lakes, palace quarter and old city"
+      },
+      {
+        "name": "Kumbhalgarh",
+        "focus": "fort walls and Aravalli drive"
+      },
+      {
+        "name": "Ranakpur",
+        "focus": "Jain architecture and forested valleys"
+      },
+      {
+        "name": "Bundi",
+        "focus": "stepwells, palace murals and quieter heritage"
+      },
+      {
+        "name": "Jaipur Buffer",
+        "focus": "shopping, crafts and departure"
+      }
+    ],
+    "notes": "Desert temperatures swing sharply. Heritage sites can be crowded; start early and preserve water/rest."
+  },
+  {
+    "slug": "golden-triangle",
+    "name": "Delhi - Agra - Jaipur Golden Triangle",
+    "country": "India",
+    "region": "North India",
+    "category": "culture",
+    "theme": "scarlet-pilgrim",
+    "days": [
+      3,
+      5,
+      7,
+      9
+    ],
+    "aliases": [
+      "golden triangle",
+      "delhi agra jaipur"
+    ],
+    "gateway": "Delhi",
+    "season": "Oct-Mar",
+    "stops": [
+      {
+        "name": "Old & New Delhi",
+        "focus": "monuments, markets and food contrasts"
+      },
+      {
+        "name": "Agra",
+        "focus": "Taj Mahal, fort and riverfront heritage"
+      },
+      {
+        "name": "Fatehpur Sikri",
+        "focus": "Mughal city stop en route"
+      },
+      {
+        "name": "Jaipur",
+        "focus": "Amber, city palace quarter and bazaars"
+      },
+      {
+        "name": "Jaipur Craft Day",
+        "focus": "block print, food and slower neighborhood exploration"
+      },
+      {
+        "name": "Delhi Buffer",
+        "focus": "museum, Mehrauli or departure buffer"
+      }
+    ],
+    "notes": "Book major monuments ahead where useful and avoid unrealistic same-day city hopping."
+  },
+  {
+    "slug": "varanasi-ayodhya",
+    "name": "Varanasi & Ayodhya Sacred Cities",
+    "country": "India",
+    "region": "Uttar Pradesh",
+    "category": "pilgrimage",
+    "theme": "scarlet-pilgrim",
+    "days": [
+      3,
+      4,
+      6,
+      7
+    ],
+    "aliases": [
+      "varanasi",
+      "banaras",
+      "ayodhya varanasi"
+    ],
+    "gateway": "Varanasi",
+    "season": "Oct-Mar",
+    "stops": [
+      {
+        "name": "Varanasi Ghats",
+        "focus": "sunrise boat, old lanes and evening aarti"
+      },
+      {
+        "name": "Sarnath",
+        "focus": "Buddhist heritage and quieter afternoon"
+      },
+      {
+        "name": "Varanasi Food & Craft",
+        "focus": "silk, music, food and neighborhood walks"
+      },
+      {
+        "name": "Ayodhya",
+        "focus": "temple city and Sarayu riverfront"
+      },
+      {
+        "name": "Ayodhya Heritage",
+        "focus": "slower sacred-city exploration"
+      },
+      {
+        "name": "Varanasi Buffer",
+        "focus": "revisit ghats and flexible departure"
+      }
+    ],
+    "notes": "Respect religious queues, local restrictions and photography rules around active worship spaces."
+  },
+  {
+    "slug": "goa",
+    "name": "Goa Coast, Heritage & Hinterland",
+    "country": "India",
+    "region": "Goa",
+    "category": "beach",
+    "theme": "eastern-frontier",
+    "days": [
+      3,
+      5,
+      7,
+      9
+    ],
+    "aliases": [
+      "goa",
+      "north goa",
+      "south goa"
+    ],
+    "gateway": "Goa",
+    "season": "Nov-Feb",
+    "stops": [
+      {
+        "name": "Panaji - Fontainhas",
+        "focus": "Latin quarter, riverfront and food"
+      },
+      {
+        "name": "North Goa",
+        "focus": "beaches, forts and sunset"
+      },
+      {
+        "name": "South Goa",
+        "focus": "quieter beaches and coastal villages"
+      },
+      {
+        "name": "Old Goa",
+        "focus": "churches and heritage"
+      },
+      {
+        "name": "Dudhsagar Hinterland",
+        "focus": "waterfall/forest sector when access is open"
+      },
+      {
+        "name": "Spice Country",
+        "focus": "plantation, village and local cuisine"
+      },
+      {
+        "name": "Goa Slow Day",
+        "focus": "wellness, cafe, beach and flexible exploration"
+      }
+    ],
+    "notes": "Waterfall and wildlife access is seasonal. Avoid unsafe swimming and unofficial adventure operators."
+  },
+  {
+    "slug": "kerala",
+    "name": "Kerala Backwaters, Hills & Coast",
+    "country": "India",
+    "region": "Kerala",
+    "category": "scenic",
+    "theme": "eastern-frontier",
+    "days": [
+      5,
+      7,
+      10,
+      13
+    ],
+    "aliases": [
+      "kerala",
+      "munnar alleppey",
+      "god own country"
+    ],
+    "gateway": "Kochi",
+    "season": "Sep-Mar",
+    "stops": [
+      {
+        "name": "Kochi",
+        "focus": "Fort Kochi, Mattancherry and waterfront"
+      },
+      {
+        "name": "Munnar",
+        "focus": "tea country, viewpoints and cool hills"
+      },
+      {
+        "name": "Munnar Nature Day",
+        "focus": "guided nature sector and plantation landscape"
+      },
+      {
+        "name": "Thekkady",
+        "focus": "forest edge, spice country and lake sector"
+      },
+      {
+        "name": "Kumarakom",
+        "focus": "backwaters and birdlife"
+      },
+      {
+        "name": "Alappuzha",
+        "focus": "houseboat/day-cruise backwater experience"
+      },
+      {
+        "name": "Varkala",
+        "focus": "cliff beach and slow coast"
+      },
+      {
+        "name": "Kovalam - Trivandrum",
+        "focus": "coast and city heritage"
+      },
+      {
+        "name": "Wayanad",
+        "focus": "forest-hill extension"
+      },
+      {
+        "name": "Kochi Buffer",
+        "focus": "food, shopping and departure"
+      }
+    ],
+    "notes": "Monsoon changes road and water conditions. Wildlife and boating activities depend on local operations."
+  },
+  {
+    "slug": "andaman",
+    "name": "Andaman Islands Dive & Beach Circuit",
+    "country": "India",
+    "region": "Andaman & Nicobar Islands",
+    "category": "island",
+    "theme": "eastern-frontier",
+    "days": [
+      4,
+      6,
+      8,
+      10
+    ],
+    "aliases": [
+      "andaman",
+      "port blair havelock",
+      "swaraj dweep"
+    ],
+    "gateway": "Port Blair",
+    "season": "Nov-Apr",
+    "stops": [
+      {
+        "name": "Port Blair",
+        "focus": "arrival, waterfront and Cellular Jail heritage"
+      },
+      {
+        "name": "Swaraj Dweep",
+        "focus": "ferry, beach arrival and island sunset"
+      },
+      {
+        "name": "Radhanagar",
+        "focus": "beach day and forest-edge walks"
+      },
+      {
+        "name": "Reef Day",
+        "focus": "licensed snorkeling/diving based on sea conditions"
+      },
+      {
+        "name": "Shaheed Dweep",
+        "focus": "smaller-island pace and beaches"
+      },
+      {
+        "name": "Port Blair Heritage",
+        "focus": "museum, harbor and local food"
+      },
+      {
+        "name": "Baratang Sector",
+        "focus": "only if official access/logistics suit the trip"
+      },
+      {
+        "name": "Island Buffer",
+        "focus": "ferry/weather buffer before flight"
+      }
+    ],
+    "notes": "Keep a ferry/weather buffer. Marine activities should use licensed operators and respect reef rules."
+  },
+  {
+    "slug": "sikkim",
+    "name": "Sikkim Monasteries & High Lakes",
+    "country": "India",
+    "region": "Sikkim",
+    "category": "mountain",
+    "theme": "eastern-frontier",
+    "days": [
+      4,
+      6,
+      8,
+      10
+    ],
+    "aliases": [
+      "sikkim",
+      "gangtok",
+      "north sikkim"
+    ],
+    "gateway": "Gangtok / Bagdogra",
+    "season": "Mar-Jun / Oct-Dec",
+    "stops": [
+      {
+        "name": "Gangtok",
+        "focus": "ridge city, monastery, market and views"
+      },
+      {
+        "name": "Tsomgo Sector",
+        "focus": "high lake and permitted mountain corridor"
+      },
+      {
+        "name": "Namchi - Ravangla",
+        "focus": "monasteries, sculpture and south-Sikkim hills"
+      },
+      {
+        "name": "Pelling",
+        "focus": "monastery, skywalk sector and Kanchenjunga views"
+      },
+      {
+        "name": "Yuksom",
+        "focus": "historic village and trekking gateway"
+      },
+      {
+        "name": "Lachen",
+        "focus": "North Sikkim road staging"
+      },
+      {
+        "name": "Gurudongmar Sector",
+        "focus": "high-altitude day only when permitted and suitable"
+      },
+      {
+        "name": "Lachung",
+        "focus": "valley stay and village pace"
+      },
+      {
+        "name": "Yumthang Sector",
+        "focus": "seasonal alpine valley"
+      },
+      {
+        "name": "Gangtok Buffer",
+        "focus": "weather/permit buffer and departure"
+      }
+    ],
+    "notes": "Protected-area permits, altitude and road conditions govern high-lake and North Sikkim access."
+  },
+  {
+    "slug": "northeast-grand",
+    "name": "North-East Grand Expedition",
+    "country": "India",
+    "region": "Assam, Meghalaya & Arunachal Pradesh",
+    "category": "expedition",
+    "theme": "eastern-frontier",
+    "days": [
+      8,
+      10,
+      13,
+      16
+    ],
+    "aliases": [
+      "north east india",
+      "assam meghalaya arunachal",
+      "northeast circuit"
+    ],
+    "gateway": "Guwahati",
+    "season": "Oct-Apr",
+    "stops": [
+      {
+        "name": "Guwahati",
+        "focus": "Brahmaputra gateway and city reset"
+      },
+      {
+        "name": "Kaziranga",
+        "focus": "wildlife sector when park operations are open"
+      },
+      {
+        "name": "Shillong",
+        "focus": "hill city, food and music culture"
+      },
+      {
+        "name": "Sohra",
+        "focus": "waterfalls, caves and Khasi landscapes"
+      },
+      {
+        "name": "Nongriat",
+        "focus": "living-root-bridge trek and village night"
+      },
+      {
+        "name": "Dawki - Mawlynnong",
+        "focus": "river corridor and village landscapes"
+      },
+      {
+        "name": "Dirang",
+        "focus": "Arunachal mountain-road staging"
+      },
+      {
+        "name": "Sela - Tawang",
+        "focus": "high-pass road to monastery country"
+      },
+      {
+        "name": "Tawang",
+        "focus": "monastery, culture and memorial sector"
+      },
+      {
+        "name": "High Lakes Sector",
+        "focus": "permit-dependent Tawang high country"
+      },
+      {
+        "name": "Bomdila",
+        "focus": "descent and monastery stop"
+      },
+      {
+        "name": "Guwahati Buffer",
+        "focus": "long-road contingency and departure"
+      }
+    ],
+    "notes": "Permits, wildlife seasons and mountain roads vary by state. Preserve at least one contingency day."
+  },
+  {
+    "slug": "tawang",
+    "name": "Tawang & Sela Pass Circuit",
+    "country": "India",
+    "region": "Arunachal Pradesh",
+    "category": "mountain",
+    "theme": "eastern-frontier",
+    "days": [
+      5,
+      7,
+      9,
+      11
+    ],
+    "aliases": [
+      "tawang",
+      "sela pass",
+      "dirang tawang"
+    ],
+    "gateway": "Guwahati / Tezpur",
+    "season": "Oct-Apr",
+    "stops": [
+      {
+        "name": "Tezpur - Dirang",
+        "focus": "foothills to mountain staging"
+      },
+      {
+        "name": "Dirang",
+        "focus": "village, monastery and acclimatization"
+      },
+      {
+        "name": "Sela Pass - Tawang",
+        "focus": "high-pass road and dramatic arrival"
+      },
+      {
+        "name": "Tawang",
+        "focus": "monastery, craft and town culture"
+      },
+      {
+        "name": "High Lakes",
+        "focus": "permit-dependent alpine-lake sector"
+      },
+      {
+        "name": "Bum La Option",
+        "focus": "only when officially permitted and road-safe"
+      },
+      {
+        "name": "Jang - Dirang",
+        "focus": "waterfall sector and descent"
+      },
+      {
+        "name": "Bomdila",
+        "focus": "monastery and mountain-town halt"
+      },
+      {
+        "name": "Guwahati Exit",
+        "focus": "long return with buffer"
+      }
+    ],
+    "notes": "Arunachal permits and frontier-sector permissions are separate considerations. Verify before departure."
+  },
+  {
+    "slug": "meghalaya",
+    "name": "Meghalaya Cloud & Living Roots Circuit",
+    "country": "India",
+    "region": "Meghalaya",
+    "category": "nature",
+    "theme": "eastern-frontier",
+    "days": [
+      4,
+      6,
+      8,
+      10
+    ],
+    "aliases": [
+      "meghalaya",
+      "shillong cherrapunji",
+      "sohra dawki"
+    ],
+    "gateway": "Shillong / Guwahati",
+    "season": "Oct-Apr",
+    "stops": [
+      {
+        "name": "Shillong",
+        "focus": "market, cafes, music and hill-city orientation"
+      },
+      {
+        "name": "Sohra",
+        "focus": "waterfalls, caves and cliff landscapes"
+      },
+      {
+        "name": "Nongriat",
+        "focus": "living-root-bridge trek"
+      },
+      {
+        "name": "Mawsynram",
+        "focus": "caves, rain country and villages"
+      },
+      {
+        "name": "Dawki",
+        "focus": "river corridor and border landscapes"
+      },
+      {
+        "name": "Mawlynnong",
+        "focus": "village, roots and forest walks"
+      },
+      {
+        "name": "Jaintia Hills",
+        "focus": "quieter cave/waterfall extension"
+      },
+      {
+        "name": "Shillong Buffer",
+        "focus": "food, craft and weather buffer"
+      }
+    ],
+    "notes": "Heavy rain changes cave, waterfall and road safety. Use local guides for technical caves and remote trails."
+  },
+  {
+    "slug": "hampi-badami",
+    "name": "Hampi, Badami & Deccan Ruins",
+    "country": "India",
+    "region": "Karnataka",
+    "category": "heritage",
+    "theme": "scarlet-pilgrim",
+    "days": [
+      3,
+      5,
+      7,
+      9
+    ],
+    "aliases": [
+      "hampi",
+      "badami hampi",
+      "vijayanagara"
+    ],
+    "gateway": "Hospet / Hubballi",
+    "season": "Oct-Feb",
+    "stops": [
+      {
+        "name": "Hampi Sacred Center",
+        "focus": "temples, river and bazaar ruins"
+      },
+      {
+        "name": "Hampi Royal Center",
+        "focus": "palaces, stepwells and elephant stables"
+      },
+      {
+        "name": "Anegundi",
+        "focus": "village, river and quieter ruins"
+      },
+      {
+        "name": "Badami",
+        "focus": "rock-cut caves and sandstone town"
+      },
+      {
+        "name": "Pattadakal",
+        "focus": "temple architecture and world-heritage landscape"
+      },
+      {
+        "name": "Aihole",
+        "focus": "early temple experimentation and village setting"
+      },
+      {
+        "name": "Hampi Buffer",
+        "focus": "sunrise/sunset revisit and slow exploration"
+      }
+    ],
+    "notes": "Midday heat is intense outside winter. Use early starts and protect fragile heritage surfaces."
+  },
+  {
+    "slug": "kutch",
+    "name": "Great Rann of Kutch & Craft Villages",
+    "country": "India",
+    "region": "Gujarat",
+    "category": "culture",
+    "theme": "crimson-expedition",
+    "days": [
+      3,
+      5,
+      7,
+      9
+    ],
+    "aliases": [
+      "kutch",
+      "rann of kutch",
+      "bhuj"
+    ],
+    "gateway": "Bhuj",
+    "season": "Nov-Feb",
+    "stops": [
+      {
+        "name": "Bhuj",
+        "focus": "palaces, museum and food"
+      },
+      {
+        "name": "White Rann",
+        "focus": "salt desert and sunset"
+      },
+      {
+        "name": "Dhordo - Hodka",
+        "focus": "craft villages and desert stays"
+      },
+      {
+        "name": "Nirona",
+        "focus": "artisan traditions and village workshops"
+      },
+      {
+        "name": "Mandvi",
+        "focus": "coast, palace and shipbuilding heritage"
+      },
+      {
+        "name": "Dholavira",
+        "focus": "Harappan archaeology and long desert road"
+      },
+      {
+        "name": "Kalo Dungar",
+        "focus": "high point and salt-landscape views"
+      },
+      {
+        "name": "Bhuj Buffer",
+        "focus": "craft shopping and departure"
+      }
+    ],
+    "notes": "Salt-desert access and festival logistics are seasonal. Long drives need daylight and fuel planning."
+  },
+  {
+    "slug": "lakshadweep",
+    "name": "Lakshadweep Lagoon Escape",
+    "country": "India",
+    "region": "Lakshadweep",
+    "category": "island",
+    "theme": "eastern-frontier",
+    "days": [
+      4,
+      5,
+      7,
+      9
+    ],
+    "aliases": [
+      "lakshadweep",
+      "agatti",
+      "bangaram"
+    ],
+    "gateway": "Agatti",
+    "season": "Oct-May",
+    "stops": [
+      {
+        "name": "Agatti",
+        "focus": "lagoon arrival and acclimatization to island pace"
+      },
+      {
+        "name": "Lagoon Day",
+        "focus": "licensed snorkeling/kayak sector based on sea state"
+      },
+      {
+        "name": "Bangaram Sector",
+        "focus": "beach, reef and low-impact island time"
+      },
+      {
+        "name": "Thinnakara Sector",
+        "focus": "sandbar/lagoon excursion when permitted"
+      },
+      {
+        "name": "Dive Day",
+        "focus": "licensed diving or glass-bottom alternative"
+      },
+      {
+        "name": "Island Culture",
+        "focus": "local food and community-respectful exploration"
+      },
+      {
+        "name": "Weather Buffer",
+        "focus": "boat/flight contingency and slow beach day"
+      }
+    ],
+    "notes": "Entry permissions and island access rules apply. Marine transfers are weather dependent."
+  },
+  {
+    "slug": "sri-lanka",
+    "name": "Sri Lanka Cultural Triangle to South Coast",
+    "country": "Sri Lanka",
+    "region": "Island-wide",
+    "category": "culture",
+    "theme": "scarlet-pilgrim",
+    "days": [
+      5,
+      7,
+      10,
+      13
+    ],
+    "aliases": [
+      "sri lanka",
+      "ceylon",
+      "colombo kandy ella"
+    ],
+    "gateway": "Colombo",
+    "season": "Dec-Apr south/west; seasonal elsewhere",
+    "stops": [
+      {
+        "name": "Colombo - Negombo",
+        "focus": "arrival and coastal reset"
+      },
+      {
+        "name": "Sigiriya",
+        "focus": "rock fortress and village country"
+      },
+      {
+        "name": "Polonnaruwa",
+        "focus": "ancient-city heritage and reservoirs"
+      },
+      {
+        "name": "Kandy",
+        "focus": "Temple of the Tooth area and hill-city culture"
+      },
+      {
+        "name": "Nuwara Eliya",
+        "focus": "tea country and cool highlands"
+      },
+      {
+        "name": "Ella",
+        "focus": "rail-country scenery and hikes"
+      },
+      {
+        "name": "Yala Sector",
+        "focus": "wildlife drive when conditions suit"
+      },
+      {
+        "name": "Mirissa - Weligama",
+        "focus": "south coast and beach pace"
+      },
+      {
+        "name": "Galle",
+        "focus": "fort city and coast heritage"
+      },
+      {
+        "name": "Bentota",
+        "focus": "lagoon/coast relaxation"
+      },
+      {
+        "name": "Colombo Buffer",
+        "focus": "food and departure"
+      }
+    ],
+    "notes": "Rail, wildlife and monsoon patterns vary by region; keep transport reservations and weather in view."
+  },
+  {
+    "slug": "thailand",
+    "name": "Thailand Bangkok, North & Islands",
+    "country": "Thailand",
+    "region": "Multi-region",
+    "category": "culture",
+    "theme": "eastern-frontier",
+    "days": [
+      5,
+      8,
+      11,
+      14
+    ],
+    "aliases": [
+      "thailand",
+      "bangkok chiang mai",
+      "thai islands"
+    ],
+    "gateway": "Bangkok",
+    "season": "Nov-Feb generally",
+    "stops": [
+      {
+        "name": "Bangkok",
+        "focus": "river, temples, markets and food"
+      },
+      {
+        "name": "Ayutthaya",
+        "focus": "historic capital day"
+      },
+      {
+        "name": "Chiang Mai",
+        "focus": "old city, food and temples"
+      },
+      {
+        "name": "Chiang Mai Hills",
+        "focus": "ethical nature/culture day with vetted operators"
+      },
+      {
+        "name": "Chiang Rai",
+        "focus": "temples and northern landscapes"
+      },
+      {
+        "name": "Krabi",
+        "focus": "limestone coast and beach arrival"
+      },
+      {
+        "name": "Island Day",
+        "focus": "boat day based on marine conditions"
+      },
+      {
+        "name": "Khao Sok",
+        "focus": "jungle/lake extension"
+      },
+      {
+        "name": "Bangkok Buffer",
+        "focus": "shopping, food and departure"
+      }
+    ],
+    "notes": "Avoid wildlife attractions that rely on harmful animal handling. Marine trips depend on seasonal sea conditions."
+  },
+  {
+    "slug": "bali",
+    "name": "Bali Temples, Volcanoes & Coast",
+    "country": "Indonesia",
+    "region": "Bali",
+    "category": "island",
+    "theme": "eastern-frontier",
+    "days": [
+      4,
+      6,
+      8,
+      10
+    ],
+    "aliases": [
+      "bali",
+      "ubud bali",
+      "denpasar"
+    ],
+    "gateway": "Denpasar",
+    "season": "Apr-Oct",
+    "stops": [
+      {
+        "name": "Ubud",
+        "focus": "arts, food, rice-country orientation"
+      },
+      {
+        "name": "Central Bali",
+        "focus": "water temples and terraced landscapes"
+      },
+      {
+        "name": "Mount Batur Sector",
+        "focus": "sunrise hike only with suitable conditions/guide"
+      },
+      {
+        "name": "East Bali",
+        "focus": "temples, water palaces and coastal views"
+      },
+      {
+        "name": "Nusa Sector",
+        "focus": "boat transfer and dramatic coast"
+      },
+      {
+        "name": "Uluwatu",
+        "focus": "cliffs, temple and sunset"
+      },
+      {
+        "name": "Seminyak - Canggu",
+        "focus": "cafes, beach and nightlife"
+      },
+      {
+        "name": "Bali Buffer",
+        "focus": "spa, food and flexible departure"
+      }
+    ],
+    "notes": "Traffic can consume hours. Volcano hikes and boat trips need weather-aware licensed operators."
+  },
+  {
+    "slug": "vietnam",
+    "name": "Vietnam North-to-South Highlights",
+    "country": "Vietnam",
+    "region": "Multi-region",
+    "category": "culture",
+    "theme": "eastern-frontier",
+    "days": [
+      6,
+      9,
+      12,
+      15
+    ],
+    "aliases": [
+      "vietnam",
+      "hanoi hoi an saigon",
+      "vietnam circuit"
+    ],
+    "gateway": "Hanoi / Ho Chi Minh City",
+    "season": "Regional; spring/autumn often easiest",
+    "stops": [
+      {
+        "name": "Hanoi",
+        "focus": "old quarter, food and lakes"
+      },
+      {
+        "name": "Ninh Binh",
+        "focus": "karst landscapes and river sector"
+      },
+      {
+        "name": "Ha Long / Lan Ha",
+        "focus": "bay cruise sector"
+      },
+      {
+        "name": "Hue",
+        "focus": "imperial heritage"
+      },
+      {
+        "name": "Hoi An",
+        "focus": "old town, food and countryside"
+      },
+      {
+        "name": "Da Nang",
+        "focus": "coast and modern-city reset"
+      },
+      {
+        "name": "Ho Chi Minh City",
+        "focus": "history, markets and food"
+      },
+      {
+        "name": "Mekong Delta",
+        "focus": "waterways and local life"
+      },
+      {
+        "name": "Central Highlands Option",
+        "focus": "slower inland extension"
+      },
+      {
+        "name": "Departure Buffer",
+        "focus": "shopping and flexible exit"
+      }
+    ],
+    "notes": "Domestic transport is efficient but long; avoid stacking flights, trains and tours too tightly."
+  },
+  {
+    "slug": "japan",
+    "name": "Japan Tokyo - Kyoto - Alps",
+    "country": "Japan",
+    "region": "Honshu",
+    "category": "culture",
+    "theme": "crimson-moon",
+    "days": [
+      5,
+      8,
+      11,
+      14
+    ],
+    "aliases": [
+      "japan",
+      "tokyo kyoto",
+      "japan golden route"
+    ],
+    "gateway": "Tokyo",
+    "season": "Mar-May / Oct-Nov",
+    "stops": [
+      {
+        "name": "Tokyo",
+        "focus": "neighborhood contrast, food and skyline"
+      },
+      {
+        "name": "Tokyo Culture Day",
+        "focus": "museum, shrine and old-town sector"
+      },
+      {
+        "name": "Hakone / Fuji Sector",
+        "focus": "onsen and mountain views when clear"
+      },
+      {
+        "name": "Kanazawa",
+        "focus": "gardens, old districts and craft"
+      },
+      {
+        "name": "Takayama",
+        "focus": "mountain town and traditional streets"
+      },
+      {
+        "name": "Kyoto East",
+        "focus": "temples, lanes and early-morning walking"
+      },
+      {
+        "name": "Kyoto West",
+        "focus": "Arashiyama and quieter temple choices"
+      },
+      {
+        "name": "Nara",
+        "focus": "temples and park"
+      },
+      {
+        "name": "Osaka",
+        "focus": "street food and night energy"
+      },
+      {
+        "name": "Hiroshima - Miyajima",
+        "focus": "history and island shrine"
+      },
+      {
+        "name": "Tokyo/Osaka Buffer",
+        "focus": "shopping and departure"
+      }
+    ],
+    "notes": "Peak seasons sell out quickly. Use rail strategically rather than assuming one pass is always best value."
+  },
+  {
+    "slug": "south-korea",
+    "name": "South Korea Seoul, Busan & Jeju",
+    "country": "South Korea",
+    "region": "Multi-region",
+    "category": "culture",
+    "theme": "crimson-moon",
+    "days": [
+      5,
+      7,
+      10,
+      12
+    ],
+    "aliases": [
+      "south korea",
+      "korea",
+      "seoul busan jeju"
+    ],
+    "gateway": "Seoul",
+    "season": "Apr-Jun / Sep-Nov",
+    "stops": [
+      {
+        "name": "Seoul Old & New",
+        "focus": "palaces, markets and modern districts"
+      },
+      {
+        "name": "Seoul Neighborhoods",
+        "focus": "design, cafes and river life"
+      },
+      {
+        "name": "Gyeongju",
+        "focus": "Silla heritage and tomb landscapes"
+      },
+      {
+        "name": "Busan",
+        "focus": "coast, market and hillside neighborhoods"
+      },
+      {
+        "name": "Jeju",
+        "focus": "volcanic island arrival and coast"
+      },
+      {
+        "name": "Jeju Nature Day",
+        "focus": "oreum/trail/waterfall sector"
+      },
+      {
+        "name": "DMZ Option",
+        "focus": "official tour when operating"
+      },
+      {
+        "name": "Seoul Buffer",
+        "focus": "shopping, food and departure"
+      }
+    ],
+    "notes": "Some tours require passport details and fixed booking. Weather can affect Jeju flights/ferries."
+  },
+  {
+    "slug": "uae",
+    "name": "Dubai & Abu Dhabi Future-Desert Circuit",
+    "country": "United Arab Emirates",
+    "region": "Dubai & Abu Dhabi",
+    "category": "city",
+    "theme": "crimson-expedition",
+    "days": [
+      3,
+      5,
+      7,
+      9
+    ],
+    "aliases": [
+      "dubai",
+      "abu dhabi",
+      "uae"
+    ],
+    "gateway": "Dubai",
+    "season": "Nov-Mar",
+    "stops": [
+      {
+        "name": "Old Dubai",
+        "focus": "creek, souks and heritage districts"
+      },
+      {
+        "name": "Downtown Dubai",
+        "focus": "skyline, architecture and evening"
+      },
+      {
+        "name": "Desert Sector",
+        "focus": "licensed desert experience and sunset"
+      },
+      {
+        "name": "Abu Dhabi",
+        "focus": "Grand Mosque area, museums and Corniche"
+      },
+      {
+        "name": "Saadiyat / Yas",
+        "focus": "culture or theme-park choice"
+      },
+      {
+        "name": "Hatta",
+        "focus": "mountain/desert contrast"
+      },
+      {
+        "name": "Dubai Buffer",
+        "focus": "beach, shopping and departure"
+      }
+    ],
+    "notes": "Desert heat is serious outside winter. Use licensed operators and respect dress/behavior rules at religious sites."
+  },
+  {
+    "slug": "turkey",
+    "name": "Türkiye Istanbul, Cappadocia & Aegean",
+    "country": "Türkiye",
+    "region": "Multi-region",
+    "category": "culture",
+    "theme": "scarlet-pilgrim",
+    "days": [
+      6,
+      9,
+      12,
+      15
+    ],
+    "aliases": [
+      "turkey",
+      "turkiye",
+      "istanbul cappadocia"
+    ],
+    "gateway": "Istanbul",
+    "season": "Apr-Jun / Sep-Oct",
+    "stops": [
+      {
+        "name": "Istanbul Historic Core",
+        "focus": "mosques, palace quarter and bazaars"
+      },
+      {
+        "name": "Bosphorus Istanbul",
+        "focus": "waterfront neighborhoods and ferry"
+      },
+      {
+        "name": "Cappadocia",
+        "focus": "valleys, cave architecture and sunset"
+      },
+      {
+        "name": "Cappadocia Dawn",
+        "focus": "balloon option subject to weather"
+      },
+      {
+        "name": "Ephesus",
+        "focus": "classical ruins and Aegean transfer"
+      },
+      {
+        "name": "Pamukkale",
+        "focus": "travertines and archaeology"
+      },
+      {
+        "name": "Antalya",
+        "focus": "old town and Mediterranean coast"
+      },
+      {
+        "name": "Fethiye",
+        "focus": "coastal landscapes and optional boat day"
+      },
+      {
+        "name": "Istanbul Buffer",
+        "focus": "food, shopping and departure"
+      }
+    ],
+    "notes": "Balloon flights and boats are weather dependent. Historic sites reward early starts."
+  },
+  {
+    "slug": "egypt",
+    "name": "Egypt Nile & Desert Civilizations",
+    "country": "Egypt",
+    "region": "Nile Valley",
+    "category": "heritage",
+    "theme": "scarlet-pilgrim",
+    "days": [
+      5,
+      8,
+      11,
+      14
+    ],
+    "aliases": [
+      "egypt",
+      "cairo luxor",
+      "nile egypt"
+    ],
+    "gateway": "Cairo",
+    "season": "Oct-Apr",
+    "stops": [
+      {
+        "name": "Cairo - Giza",
+        "focus": "pyramids, museum sector and city context"
+      },
+      {
+        "name": "Saqqara",
+        "focus": "older pyramid complexes and archaeology"
+      },
+      {
+        "name": "Luxor East Bank",
+        "focus": "temples and Nile evening"
+      },
+      {
+        "name": "Luxor West Bank",
+        "focus": "tombs and desert-edge monuments"
+      },
+      {
+        "name": "Nile Cruise Sector",
+        "focus": "river journey toward Aswan"
+      },
+      {
+        "name": "Edfu - Kom Ombo",
+        "focus": "temple stops along the Nile"
+      },
+      {
+        "name": "Aswan",
+        "focus": "islands, Nubian culture and river"
+      },
+      {
+        "name": "Abu Simbel",
+        "focus": "long day/flight option to monumental temples"
+      },
+      {
+        "name": "Red Sea Option",
+        "focus": "recovery on the coast"
+      },
+      {
+        "name": "Cairo Buffer",
+        "focus": "food, museum and departure"
+      }
+    ],
+    "notes": "Use licensed guides/transport where helpful and protect against heat. Site access and museum locations can change."
+  },
+  {
+    "slug": "italy",
+    "name": "Italy Rome, Florence & Venice",
+    "country": "Italy",
+    "region": "Multi-region",
+    "category": "culture",
+    "theme": "scarlet-pilgrim",
+    "days": [
+      6,
+      9,
+      12,
+      15
+    ],
+    "aliases": [
+      "italy",
+      "rome florence venice",
+      "italy classic"
+    ],
+    "gateway": "Rome",
+    "season": "Apr-Jun / Sep-Oct",
+    "stops": [
+      {
+        "name": "Rome Ancient Core",
+        "focus": "Forum/Colosseum sector and neighborhoods"
+      },
+      {
+        "name": "Vatican & Baroque Rome",
+        "focus": "museum/church sector and evening walk"
+      },
+      {
+        "name": "Florence",
+        "focus": "Renaissance core and viewpoints"
+      },
+      {
+        "name": "Tuscany",
+        "focus": "hill-town/wine-country day"
+      },
+      {
+        "name": "Cinque Terre Option",
+        "focus": "coastal rail and hikes based on conditions"
+      },
+      {
+        "name": "Venice",
+        "focus": "lagoon city and quieter backstreets"
+      },
+      {
+        "name": "Bologna",
+        "focus": "food city and arcades"
+      },
+      {
+        "name": "Dolomites Option",
+        "focus": "mountain extension"
+      },
+      {
+        "name": "Milan",
+        "focus": "design/architecture and departure option"
+      },
+      {
+        "name": "Rome/Milan Buffer",
+        "focus": "flexible final day"
+      }
+    ],
+    "notes": "Major museums and attractions can require timed entry. Avoid overpacking too many cities into short trips."
+  },
+  {
+    "slug": "switzerland",
+    "name": "Swiss Alps Grand Rail Circuit",
+    "country": "Switzerland",
+    "region": "Alps",
+    "category": "mountain",
+    "theme": "crimson-moon",
+    "days": [
+      5,
+      7,
+      10,
+      13
+    ],
+    "aliases": [
+      "switzerland",
+      "swiss alps",
+      "zurich interlaken zermatt"
+    ],
+    "gateway": "Zurich",
+    "season": "Jun-Sep / Dec-Mar",
+    "stops": [
+      {
+        "name": "Lucerne",
+        "focus": "lake, old town and mountain backdrop"
+      },
+      {
+        "name": "Interlaken",
+        "focus": "lakes and alpine gateway"
+      },
+      {
+        "name": "Lauterbrunnen",
+        "focus": "waterfalls and valley villages"
+      },
+      {
+        "name": "Jungfrau Region",
+        "focus": "high-alpine rail/cable-car day as weather permits"
+      },
+      {
+        "name": "Zermatt",
+        "focus": "car-free village and Matterhorn views"
+      },
+      {
+        "name": "Gornergrat Sector",
+        "focus": "mountain railway/hiking day"
+      },
+      {
+        "name": "Glacier Express Sector",
+        "focus": "scenic rail segment"
+      },
+      {
+        "name": "St Moritz",
+        "focus": "Engadin landscapes"
+      },
+      {
+        "name": "Zurich",
+        "focus": "old town, lake and departure"
+      }
+    ],
+    "notes": "Mountain visibility and cable-car operations are weather dependent. Check point-to-point fares against passes."
+  },
+  {
+    "slug": "iceland",
+    "name": "Iceland Ring Road & Highlands Edge",
+    "country": "Iceland",
+    "region": "Island-wide",
+    "category": "road-trip",
+    "theme": "crimson-expedition",
+    "days": [
+      5,
+      8,
+      11,
+      14
+    ],
+    "aliases": [
+      "iceland",
+      "ring road iceland",
+      "reykjavik iceland"
+    ],
+    "gateway": "Reykjavik",
+    "season": "Jun-Sep for full loop",
+    "stops": [
+      {
+        "name": "Reykjavik - Golden Circle",
+        "focus": "geothermal and waterfall landmarks"
+      },
+      {
+        "name": "South Coast",
+        "focus": "waterfalls, black-sand coast and glacier views"
+      },
+      {
+        "name": "Skaftafell - Jokulsarlon",
+        "focus": "glacier-country and lagoon"
+      },
+      {
+        "name": "Eastfjords",
+        "focus": "remote coast and fishing towns"
+      },
+      {
+        "name": "Myvatn",
+        "focus": "volcanic landscapes and geothermal areas"
+      },
+      {
+        "name": "Akureyri",
+        "focus": "north Iceland base and fjord atmosphere"
+      },
+      {
+        "name": "Snaefellsnes",
+        "focus": "peninsula landscapes"
+      },
+      {
+        "name": "Reykjavik",
+        "focus": "city and geothermal spa option"
+      },
+      {
+        "name": "Highlands Option",
+        "focus": "only with suitable vehicle/season"
+      },
+      {
+        "name": "Weather Buffer",
+        "focus": "road/weather contingency"
+      }
+    ],
+    "notes": "Wind, road closures and rapidly changing weather are the main planning constraints. Never ignore road advisories."
+  },
+  {
+    "slug": "greece",
+    "name": "Greece Athens, Islands & Meteora",
+    "country": "Greece",
+    "region": "Mainland & Islands",
+    "category": "culture",
+    "theme": "eastern-frontier",
+    "days": [
+      5,
+      8,
+      11,
+      14
+    ],
+    "aliases": [
+      "greece",
+      "athens santorini",
+      "greek islands"
+    ],
+    "gateway": "Athens",
+    "season": "May-Jun / Sep-Oct",
+    "stops": [
+      {
+        "name": "Athens",
+        "focus": "Acropolis sector, neighborhoods and food"
+      },
+      {
+        "name": "Meteora",
+        "focus": "monasteries and rock landscapes"
+      },
+      {
+        "name": "Delphi Option",
+        "focus": "archaeology and mountain setting"
+      },
+      {
+        "name": "Santorini",
+        "focus": "caldera villages and sunset"
+      },
+      {
+        "name": "Santorini Slow Day",
+        "focus": "walks, archaeology or beach"
+      },
+      {
+        "name": "Naxos / Paros",
+        "focus": "Cycladic island pace"
+      },
+      {
+        "name": "Crete Option",
+        "focus": "food, coast and archaeology"
+      },
+      {
+        "name": "Athens Buffer",
+        "focus": "museum, market and departure"
+      }
+    ],
+    "notes": "Ferry schedules and winds shape island plans. Avoid connecting a critical flight directly after a long ferry."
+  },
+  {
+    "slug": "new-zealand",
+    "name": "New Zealand South Island Road Expedition",
+    "country": "New Zealand",
+    "region": "South Island",
+    "category": "road-trip",
+    "theme": "crimson-expedition",
+    "days": [
+      7,
+      10,
+      14,
+      18
+    ],
+    "aliases": [
+      "new zealand",
+      "south island new zealand",
+      "queenstown road trip"
+    ],
+    "gateway": "Christchurch / Queenstown",
+    "season": "Nov-Apr",
+    "stops": [
+      {
+        "name": "Christchurch - Tekapo",
+        "focus": "lakes, dark sky and alpine transition"
+      },
+      {
+        "name": "Aoraki / Mount Cook",
+        "focus": "valley walks and glacier views"
+      },
+      {
+        "name": "Wanaka",
+        "focus": "lake town and hiking options"
+      },
+      {
+        "name": "Queenstown",
+        "focus": "adventure base and food"
+      },
+      {
+        "name": "Milford Sound",
+        "focus": "fiord road/cruise sector"
+      },
+      {
+        "name": "Te Anau",
+        "focus": "lake and Fiordland buffer"
+      },
+      {
+        "name": "West Coast",
+        "focus": "glacier-country road"
+      },
+      {
+        "name": "Punakaiki",
+        "focus": "coastal formations and rainforest"
+      },
+      {
+        "name": "Abel Tasman",
+        "focus": "coast walk/kayak sector"
+      },
+      {
+        "name": "Kaikoura",
+        "focus": "marine landscapes"
+      },
+      {
+        "name": "Christchurch Buffer",
+        "focus": "weather and departure"
+      }
+    ],
+    "notes": "Driving distances are deceptive. Preserve daylight, weather buffers and rest between major adventure days."
+  },
+  {
+    "slug": "kenya-tanzania",
+    "name": "Kenya & Tanzania Great Migration Safari",
+    "country": "Kenya & Tanzania",
+    "region": "East Africa",
+    "category": "safari",
+    "theme": "crimson-expedition",
+    "days": [
+      6,
+      9,
+      12,
+      15
+    ],
+    "aliases": [
+      "kenya safari",
+      "tanzania safari",
+      "serengeti masai mara"
+    ],
+    "gateway": "Nairobi / Kilimanjaro",
+    "season": "Season depends on migration goals",
+    "stops": [
+      {
+        "name": "Nairobi / Arusha",
+        "focus": "arrival and safari briefing"
+      },
+      {
+        "name": "Amboseli",
+        "focus": "elephants and Kilimanjaro views"
+      },
+      {
+        "name": "Lake Naivasha / Nakuru",
+        "focus": "rift landscapes and birdlife"
+      },
+      {
+        "name": "Masai Mara",
+        "focus": "big-game drives and plains"
+      },
+      {
+        "name": "Mara Deep Day",
+        "focus": "full safari day and conservancy options"
+      },
+      {
+        "name": "Serengeti",
+        "focus": "cross-border/flight transition and game drives"
+      },
+      {
+        "name": "Serengeti Deep Day",
+        "focus": "full plains day"
+      },
+      {
+        "name": "Ngorongoro",
+        "focus": "caldera wildlife and highlands"
+      },
+      {
+        "name": "Tarangire",
+        "focus": "baobabs and elephants"
+      },
+      {
+        "name": "Zanzibar Option",
+        "focus": "coastal recovery"
+      },
+      {
+        "name": "Departure Buffer",
+        "focus": "flight/road buffer"
+      }
+    ],
+    "notes": "Migration location varies by month and year. Use reputable operators and avoid crowding wildlife."
+  },
+  {
+    "slug": "nepal-heritage",
+    "name": "Nepal Kathmandu, Pokhara & Chitwan",
+    "country": "Nepal",
+    "region": "Central Nepal",
+    "category": "culture",
+    "theme": "scarlet-pilgrim",
+    "days": [
+      5,
+      7,
+      9,
+      12
+    ],
+    "aliases": [
+      "nepal",
+      "kathmandu pokhara",
+      "nepal tour"
+    ],
+    "gateway": "Kathmandu",
+    "season": "Oct-Nov / Mar-Apr",
+    "stops": [
+      {
+        "name": "Kathmandu Valley",
+        "focus": "heritage squares, stupas and neighborhoods"
+      },
+      {
+        "name": "Bhaktapur - Patan",
+        "focus": "historic-city architecture and craft"
+      },
+      {
+        "name": "Pokhara",
+        "focus": "lake, mountain views and relaxed pace"
+      },
+      {
+        "name": "Pokhara Nature Day",
+        "focus": "viewpoint or day hike"
+      },
+      {
+        "name": "Chitwan",
+        "focus": "wildlife sector and river plains"
+      },
+      {
+        "name": "Chitwan Nature Day",
+        "focus": "guided park activities"
+      },
+      {
+        "name": "Bandipur",
+        "focus": "hill town and slower overland stop"
+      },
+      {
+        "name": "Kathmandu Buffer",
+        "focus": "food, shopping and departure"
+      }
+    ],
+    "notes": "Mountain weather can affect domestic flights. Wildlife experiences should follow park rules and ethical distance."
+  },
+  {
+    "slug": "bhutan",
+    "name": "Bhutan Paro, Thimphu & Punakha",
+    "country": "Bhutan",
+    "region": "Western Bhutan",
+    "category": "culture",
+    "theme": "scarlet-pilgrim",
+    "days": [
+      5,
+      7,
+      9,
+      11
+    ],
+    "aliases": [
+      "bhutan",
+      "paro thimphu",
+      "tiger nest bhutan"
+    ],
+    "gateway": "Paro",
+    "season": "Mar-May / Sep-Nov",
+    "stops": [
+      {
+        "name": "Paro",
+        "focus": "valley arrival and dzong architecture"
+      },
+      {
+        "name": "Thimphu",
+        "focus": "capital culture, craft and museums"
+      },
+      {
+        "name": "Dochula - Punakha",
+        "focus": "pass views and valley descent"
+      },
+      {
+        "name": "Punakha",
+        "focus": "dzong, rivers and village landscapes"
+      },
+      {
+        "name": "Phobjikha Option",
+        "focus": "glacial valley and nature"
+      },
+      {
+        "name": "Paro Valley",
+        "focus": "monasteries and local pace"
+      },
+      {
+        "name": "Tiger’s Nest",
+        "focus": "iconic hike with conservative pacing"
+      },
+      {
+        "name": "Paro Buffer",
+        "focus": "weather/rest and departure"
+      }
+    ],
+    "notes": "Entry, guide and sustainable-development rules depend on nationality and current policy; verify official requirements."
+  },
+  {
+    "slug": "maldives",
+    "name": "Maldives Atoll Reset",
+    "country": "Maldives",
+    "region": "Atolls",
+    "category": "island",
+    "theme": "eastern-frontier",
+    "days": [
+      4,
+      5,
+      7,
+      9
+    ],
+    "aliases": [
+      "maldives",
+      "male maldives",
+      "maldives resort"
+    ],
+    "gateway": "Malé",
+    "season": "Nov-Apr",
+    "stops": [
+      {
+        "name": "Malé / Transfer",
+        "focus": "arrival and resort/local-island transfer"
+      },
+      {
+        "name": "Lagoon Day",
+        "focus": "snorkeling, swimming and reef etiquette"
+      },
+      {
+        "name": "Ocean Day",
+        "focus": "licensed dive or marine excursion"
+      },
+      {
+        "name": "Island Culture",
+        "focus": "local-island visit where appropriate"
+      },
+      {
+        "name": "Sandbank / Sail",
+        "focus": "weather-dependent water day"
+      },
+      {
+        "name": "Wellness Day",
+        "focus": "spa, beach and slow travel"
+      },
+      {
+        "name": "Marine Buffer",
+        "focus": "weather/transfer contingency"
+      }
+    ],
+    "notes": "Seaplane/boat transfers are schedule and weather dependent. Follow local-island dress and marine-conservation rules."
+  },
+  {
+    "slug": "everest-base-camp",
+    "name": "Everest Base Camp Trek",
+    "country": "Nepal",
+    "region": "Khumbu",
+    "category": "trek",
+    "theme": "crimson-expedition",
+    "days": [
+      12,
+      14,
+      16,
+      18
+    ],
+    "aliases": [
+      "everest base camp",
+      "ebc",
+      "khumbu trek"
+    ],
+    "gateway": "Kathmandu / Lukla",
+    "season": "Mar-May / Oct-Nov",
+    "stops": [
+      {
+        "name": "Lukla - Phakding",
+        "focus": "trek launch and river valley"
+      },
+      {
+        "name": "Namche Bazaar",
+        "focus": "major climb into Sherpa hub"
+      },
+      {
+        "name": "Namche Acclimatization",
+        "focus": "hike high, sleep low and mountain views"
+      },
+      {
+        "name": "Tengboche",
+        "focus": "monastery ridge and Everest views"
+      },
+      {
+        "name": "Dingboche",
+        "focus": "higher valley and slower pacing"
+      },
+      {
+        "name": "Dingboche Acclimatization",
+        "focus": "controlled altitude day"
+      },
+      {
+        "name": "Lobuche",
+        "focus": "glacier-side approach"
+      },
+      {
+        "name": "Gorak Shep - EBC",
+        "focus": "base-camp objective and return"
+      },
+      {
+        "name": "Kala Patthar",
+        "focus": "sunrise viewpoint if conditions/health allow"
+      },
+      {
+        "name": "Pheriche",
+        "focus": "descent and recovery"
+      },
+      {
+        "name": "Namche Return",
+        "focus": "longer descent to familiar altitude"
+      },
+      {
+        "name": "Lukla",
+        "focus": "trek completion and flight buffer"
+      },
+      {
+        "name": "Kathmandu Buffer",
+        "focus": "weather buffer for Lukla aviation"
+      }
+    ],
+    "notes": "Serious altitude itinerary: never remove acclimatization merely to match a short request. Weather can disrupt Lukla flights."
+  },
+  {
+    "slug": "annapurna-circuit",
+    "name": "Annapurna Circuit & Thorong La",
+    "country": "Nepal",
+    "region": "Annapurna",
+    "category": "trek",
+    "theme": "crimson-expedition",
+    "days": [
+      11,
+      14,
+      17,
+      20
+    ],
+    "aliases": [
+      "annapurna circuit",
+      "thorong la",
+      "annapurna trek"
+    ],
+    "gateway": "Kathmandu / Pokhara",
+    "season": "Mar-Apr / Oct-Nov",
+    "stops": [
+      {
+        "name": "Besisahar - Dharapani",
+        "focus": "trail access and valley start"
+      },
+      {
+        "name": "Chame",
+        "focus": "forest and mountain valley"
+      },
+      {
+        "name": "Upper Pisang",
+        "focus": "dry-side landscapes and acclimatization"
+      },
+      {
+        "name": "Manang",
+        "focus": "major acclimatization base"
+      },
+      {
+        "name": "Manang Acclimatization",
+        "focus": "high hike and recovery"
+      },
+      {
+        "name": "Yak Kharka",
+        "focus": "higher grazing country"
+      },
+      {
+        "name": "Thorong Phedi",
+        "focus": "pass staging"
+      },
+      {
+        "name": "Thorong La - Muktinath",
+        "focus": "high-pass crossing and descent"
+      },
+      {
+        "name": "Marpha",
+        "focus": "apple country and stone village"
+      },
+      {
+        "name": "Tatopani",
+        "focus": "lower valley and hot-spring sector"
+      },
+      {
+        "name": "Ghorepani",
+        "focus": "forest climb and ridge villages"
+      },
+      {
+        "name": "Poon Hill",
+        "focus": "sunrise ridge and descent"
+      },
+      {
+        "name": "Pokhara Buffer",
+        "focus": "recovery and transport contingency"
+      }
+    ],
+    "notes": "Thorong La is a serious high pass. Weather, altitude and local trail advice override a preset schedule."
+  },
+  {
+    "slug": "kilimanjaro",
+    "name": "Kilimanjaro Summit Expedition",
+    "country": "Tanzania",
+    "region": "Kilimanjaro",
+    "category": "trek",
+    "theme": "crimson-expedition",
+    "days": [
+      7,
+      8,
+      9,
+      10
+    ],
+    "aliases": [
+      "kilimanjaro",
+      "kili",
+      "machame route"
+    ],
+    "gateway": "Moshi / Arusha",
+    "season": "Jan-Mar / Jun-Oct",
+    "stops": [
+      {
+        "name": "Trailhead - Forest Camp",
+        "focus": "rainforest start and measured pace"
+      },
+      {
+        "name": "Moorland Camp",
+        "focus": "vegetation transition and steady gain"
+      },
+      {
+        "name": "Lava Tower Acclimatization",
+        "focus": "climb-high acclimatization day"
+      },
+      {
+        "name": "Barranco",
+        "focus": "dramatic valley and recovery"
+      },
+      {
+        "name": "Karanga",
+        "focus": "technical-looking but non-climbing trail sections"
+      },
+      {
+        "name": "Barafu",
+        "focus": "summit staging and early rest"
+      },
+      {
+        "name": "Uhuru Summit - Descent",
+        "focus": "night ascent, summit attempt and major descent"
+      },
+      {
+        "name": "Mweka Exit",
+        "focus": "forest descent and expedition finish"
+      },
+      {
+        "name": "Moshi Recovery",
+        "focus": "buffer, gear and departure"
+      }
+    ],
+    "notes": "Use a licensed operator and a route length that supports acclimatization. Summit success is never guaranteed."
+  },
+  {
+    "slug": "inca-trail",
+    "name": "Inca Trail to Machu Picchu",
+    "country": "Peru",
+    "region": "Cusco Region",
+    "category": "trek",
+    "theme": "scarlet-pilgrim",
+    "days": [
+      5,
+      6,
+      8,
+      10
+    ],
+    "aliases": [
+      "inca trail",
+      "machu picchu trek",
+      "classic inca trail"
+    ],
+    "gateway": "Cusco",
+    "season": "May-Sep",
+    "stops": [
+      {
+        "name": "Cusco Acclimatization",
+        "focus": "altitude adjustment and Inca/colonial context"
+      },
+      {
+        "name": "Sacred Valley",
+        "focus": "ruins, villages and lower-altitude night"
+      },
+      {
+        "name": "Inca Trail Day 1",
+        "focus": "trail entry and valley walking"
+      },
+      {
+        "name": "Dead Woman’s Pass Sector",
+        "focus": "hardest climbing day with pacing"
+      },
+      {
+        "name": "Cloud Forest Ruins",
+        "focus": "high passes, ruins and changing ecology"
+      },
+      {
+        "name": "Sun Gate - Machu Picchu",
+        "focus": "iconic arrival and citadel sector"
+      },
+      {
+        "name": "Aguas Calientes / Cusco",
+        "focus": "recovery and rail return"
+      },
+      {
+        "name": "Cusco Buffer",
+        "focus": "permit/transport/weather contingency"
+      }
+    ],
+    "notes": "Classic trail permits are limited and guide rules apply. Acclimatize in Cusco/Sacred Valley before the trek."
+  },
+  {
+    "slug": "tour-du-mont-blanc",
+    "name": "Tour du Mont Blanc",
+    "country": "France / Italy / Switzerland",
+    "region": "Alps",
+    "category": "trek",
+    "theme": "crimson-moon",
+    "days": [
+      7,
+      9,
+      11,
+      13
+    ],
+    "aliases": [
+      "tour du mont blanc",
+      "tmb",
+      "mont blanc trek"
+    ],
+    "gateway": "Chamonix",
+    "season": "Jun-Sep",
+    "stops": [
+      {
+        "name": "Chamonix - Les Houches",
+        "focus": "trail launch and valley transition"
+      },
+      {
+        "name": "Les Contamines",
+        "focus": "alpine meadows and village night"
+      },
+      {
+        "name": "Les Chapieux",
+        "focus": "higher pass country"
+      },
+      {
+        "name": "Courmayeur",
+        "focus": "Italian-side mountain town"
+      },
+      {
+        "name": "Val Ferret",
+        "focus": "big Mont Blanc massif views"
+      },
+      {
+        "name": "La Fouly",
+        "focus": "Swiss valley and quieter trail"
+      },
+      {
+        "name": "Champex",
+        "focus": "lake and mountain village"
+      },
+      {
+        "name": "Trient",
+        "focus": "pass crossing and compact village"
+      },
+      {
+        "name": "Chamonix Return",
+        "focus": "final high viewpoints and completion"
+      },
+      {
+        "name": "Chamonix Buffer",
+        "focus": "weather/recovery day"
+      }
+    ],
+    "notes": "Hut bookings are competitive and weather changes quickly. Variants should not encourage unsafe rushing over passes."
+  },
+  {
+    "slug": "patagonia-w",
+    "name": "Torres del Paine W Trek",
+    "country": "Chile",
+    "region": "Patagonia",
+    "category": "trek",
+    "theme": "crimson-expedition",
+    "days": [
+      5,
+      6,
+      8,
+      10
+    ],
+    "aliases": [
+      "patagonia w trek",
+      "torres del paine",
+      "w circuit"
+    ],
+    "gateway": "Puerto Natales",
+    "season": "Nov-Mar",
+    "stops": [
+      {
+        "name": "Puerto Natales - Park",
+        "focus": "logistics, transfer and first trail sector"
+      },
+      {
+        "name": "Grey Glacier",
+        "focus": "lake/glacier landscapes"
+      },
+      {
+        "name": "Paine Grande",
+        "focus": "central staging and weather flexibility"
+      },
+      {
+        "name": "French Valley",
+        "focus": "long out-and-back mountain day"
+      },
+      {
+        "name": "Los Cuernos",
+        "focus": "lakeshore and horned peaks"
+      },
+      {
+        "name": "Central Sector",
+        "focus": "transfer toward tower trail"
+      },
+      {
+        "name": "Base Torres",
+        "focus": "iconic viewpoint hike"
+      },
+      {
+        "name": "Puerto Natales Buffer",
+        "focus": "wind/weather contingency and recovery"
+      }
+    ],
+    "notes": "Patagonian wind and weather are serious. Reserve camps/refugios and keep a flexible buffer."
+  },
+  {
+    "slug": "markha-valley",
+    "name": "Markha Valley Trek",
+    "country": "India",
+    "region": "Ladakh",
+    "category": "trek",
+    "theme": "crimson-expedition",
+    "days": [
+      7,
+      8,
+      9,
+      10
+    ],
+    "aliases": [
+      "markha valley",
+      "markha trek",
+      "ladakh trek"
+    ],
+    "gateway": "Leh",
+    "season": "Jun-Sep",
+    "stops": [
+      {
+        "name": "Leh Acclimatization",
+        "focus": "essential high-altitude preparation"
+      },
+      {
+        "name": "Trailhead - Skiu",
+        "focus": "river valley and village entry"
+      },
+      {
+        "name": "Markha",
+        "focus": "village trekking and monastery landscapes"
+      },
+      {
+        "name": "Hankar",
+        "focus": "higher valley and mountain views"
+      },
+      {
+        "name": "Nimaling",
+        "focus": "high camp and Kang Yatse backdrop"
+      },
+      {
+        "name": "Kongmaru La",
+        "focus": "high-pass crossing and descent"
+      },
+      {
+        "name": "Shang Sumdo",
+        "focus": "trail exit"
+      },
+      {
+        "name": "Leh Buffer",
+        "focus": "recovery and road/health contingency"
+      }
+    ],
+    "notes": "Arrive acclimatized in Leh before starting. High-pass weather and river conditions dictate safe progress."
+  },
+  {
+    "slug": "kashmir-great-lakes",
+    "name": "Kashmir Great Lakes Trek",
+    "country": "India",
+    "region": "Kashmir",
+    "category": "trek",
+    "theme": "crimson-moon",
+    "days": [
+      7,
+      8,
+      9,
+      10
+    ],
+    "aliases": [
+      "kashmir great lakes",
+      "kgl trek",
+      "great lakes kashmir"
+    ],
+    "gateway": "Srinagar / Sonamarg",
+    "season": "Jul-Sep",
+    "stops": [
+      {
+        "name": "Sonamarg Trailhead",
+        "focus": "trek start and alpine ascent"
+      },
+      {
+        "name": "Nichnai",
+        "focus": "meadow camp and pass approach"
+      },
+      {
+        "name": "Vishansar - Kishansar",
+        "focus": "twin-lake landscapes"
+      },
+      {
+        "name": "Gadsar Pass",
+        "focus": "high pass and lake chain"
+      },
+      {
+        "name": "Satsar",
+        "focus": "multiple alpine lakes and meadow camp"
+      },
+      {
+        "name": "Gangbal",
+        "focus": "big lake beneath Harmukh massif"
+      },
+      {
+        "name": "Naranag",
+        "focus": "descent and trail finish"
+      },
+      {
+        "name": "Srinagar Buffer",
+        "focus": "weather/transport contingency"
+      }
+    ],
+    "notes": "Season, permits and local security conditions matter. Use a reputable trekking operator and keep a buffer day."
+  },
+  {
+    "slug": "hampta-pass",
+    "name": "Hampta Pass & Chandratal Trek",
+    "country": "India",
+    "region": "Himachal Pradesh",
+    "category": "trek",
+    "theme": "crimson-expedition",
+    "days": [
+      5,
+      6,
+      7,
+      8
+    ],
+    "aliases": [
+      "hampta pass",
+      "hampta trek",
+      "chandratal trek"
+    ],
+    "gateway": "Manali",
+    "season": "Jun-Sep",
+    "stops": [
+      {
+        "name": "Manali - Jobra",
+        "focus": "trail approach and forest start"
+      },
+      {
+        "name": "Jwara / Balu ka Ghera",
+        "focus": "valley ascent and pass staging"
+      },
+      {
+        "name": "Hampta Pass - Shea Goru",
+        "focus": "pass crossing into Lahaul landscape"
+      },
+      {
+        "name": "Chatru",
+        "focus": "descent and road pickup"
+      },
+      {
+        "name": "Chandratal Option",
+        "focus": "lake extension only if road/weather open"
+      },
+      {
+        "name": "Manali Return",
+        "focus": "high-road return and recovery"
+      },
+      {
+        "name": "Manali Buffer",
+        "focus": "weather and departure contingency"
+      }
+    ],
+    "notes": "Pass and Chandratal access are seasonal. Do not force the lake extension if roads or weather are unsafe."
+  },
+  {
+    "slug": "chadar-trek",
+    "name": "Chadar Frozen River Trek",
+    "country": "India",
+    "region": "Ladakh / Zanskar",
+    "category": "winter-expedition",
+    "theme": "crimson-moon",
+    "days": [
+      8,
+      9,
+      10,
+      11
+    ],
+    "aliases": [
+      "chadar trek",
+      "frozen river trek",
+      "zanskar chadar"
+    ],
+    "gateway": "Leh",
+    "season": "Jan-Feb only when officially open",
+    "stops": [
+      {
+        "name": "Leh Winter Acclimatization",
+        "focus": "cold and altitude adaptation"
+      },
+      {
+        "name": "Leh Acclimatization 2",
+        "focus": "medical/gear checks and contingency"
+      },
+      {
+        "name": "Chilling - River Entry",
+        "focus": "expedition launch and ice assessment"
+      },
+      {
+        "name": "Shingra Koma Sector",
+        "focus": "frozen-river travel and camp"
+      },
+      {
+        "name": "Tibb Cave Sector",
+        "focus": "ice formations and winter canyon"
+      },
+      {
+        "name": "Nerak Sector",
+        "focus": "waterfall/canyon objective when conditions permit"
+      },
+      {
+        "name": "Return Chadar",
+        "focus": "reverse route with dynamic ice"
+      },
+      {
+        "name": "Chilling Exit",
+        "focus": "road pickup and expedition finish"
+      },
+      {
+        "name": "Leh Buffer",
+        "focus": "weather/road contingency and recovery"
+      }
+    ],
+    "notes": "Extreme cold and unstable ice make this a specialist guided expedition. Official opening and on-ground ice assessment are mandatory."
+  }
+]

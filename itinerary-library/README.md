@@ -12,7 +12,6 @@ This folder is a pre-generated fallback cache for the RoamWise cinematic itinera
 - `preset-loader.js` for zero-API matching and instant loading
 - `index.html` to browse every preset
 - `data/destinations.json` source catalog
-- `legacy-originals/` containing the exact earlier Ladakh, Char Dham and North-East cinematic HTML/PDF samples
 
 ## Intended decision rule
 
@@ -87,13 +86,6 @@ No database, Firestore, worker or API is needed to serve the cache. GitHub Pages
 
 These are fallback route designs, not live operational guarantees. Weather, road status, permits, park openings, border/frontier access, transport, pricing and availability must be refreshed when relevant. Expedition presets deliberately keep conservative durations instead of shortening high-altitude routes to an unsafe number of days.
 
+## Local intelligence & sharing
 
-## Local cinematic intelligence
-- HTML presets now reuse the existing repo-level `destination-photos.js` / `window.RW_PHOTOS_DATA` when a destination or stop has a verified match. No second photo service is required.
-- The first matched image becomes the cinematic hero; up to five matches become a Local Frames gallery. If none load, the original cinematic gradient remains intact.
-- Every destination has a local food, movement, etiquette/context and visual-signature profile in `data/local-intelligence.json`.
-- The schematic animated route remains offline-safe. A real local map is loaded lazily only when the traveller opens it, including per-day local maps.
-- Journey-style motifs (coastal, sacred, heritage, high-altitude, trek, safari, etc.) layer on top of the four cinematic themes.
-
-## Social attribution
-Use `RW_PRESETS.shareUrl(hit, userName, theme)` or append `?share=1&user=Name` to a preset HTML URL. Share mode displays the RoamWise brand mark and exactly `Made by RoamWise for Name`. The normal reading view stays unwatermarked. Print/Save-PDF from that personalized share view also carries the stamp. Static pre-generated PDFs cannot contain a future user's name; they contain generic RoamWise branding plus the destination's local-intelligence page.
+The v1.1 cinematic runtime adds destination-specific photo hooks, lazy local/day maps, local food/movement/etiquette/visual context, and share mode attribution (`Made by RoamWise for <user>`). Normal viewing stays clean; personalized attribution is activated for share/print flows.

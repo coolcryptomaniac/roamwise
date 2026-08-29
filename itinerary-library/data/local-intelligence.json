@@ -1,0 +1,614 @@
+{
+  "ladakh": {
+    "journeyStyle": "high-altitude",
+    "food": "Skyu/Leh-style momos, thukpa, skyu and butter tea",
+    "movement": "Shared taxis / local cabs; high-pass road days need buffers",
+    "etiquette": "Acclimatize before high passes; monasteries are active religious spaces",
+    "signature": "Indus monasteries, Nubra villages, Changthang light",
+    "photoKeys": [
+      "Leh",
+      "Nubra",
+      "Pangong"
+    ]
+  },
+  "kashmir": {
+    "journeyStyle": "alpine",
+    "food": "Kahwa, wazwan dishes, girda/lavasa breads",
+    "movement": "Local cab for valley legs; shikara only where useful",
+    "etiquette": "Dress/respect cues vary by shrine and neighborhood; ask before close-up portraits",
+    "signature": "Dal mornings, walnut/wood craft, meadow-to-alpine transitions",
+    "photoKeys": [
+      "Srinagar",
+      "Gulmarg",
+      "Pahalgam",
+      "Sonamarg"
+    ]
+  },
+  "spiti": {
+    "journeyStyle": "high-altitude",
+    "food": "Thukpa, momos, local barley dishes and village meals",
+    "movement": "Road-trip vehicle with high-clearance preference; fuel and cash buffers",
+    "etiquette": "Village homestays are part of the experience; keep altitude days deliberately slow",
+    "signature": "Mud monasteries, fossil villages, cold-desert geology",
+    "photoKeys": [
+      "Kaza",
+      "Spiti",
+      "Tabo",
+      "Chandratal"
+    ]
+  },
+  "manali": {
+    "journeyStyle": "alpine",
+    "food": "Himachali dham, siddu, trout and orchard produce",
+    "movement": "Local cab/bus plus short walks; high-road access changes with weather",
+    "etiquette": "Old villages reward walking; adventure activities should use licensed operators",
+    "signature": "Cedar valleys, old Manali lanes, Lahaul contrast",
+    "photoKeys": [
+      "Manali",
+      "Solang",
+      "Sissu",
+      "Naggar"
+    ]
+  },
+  "kumaon": {
+    "journeyStyle": "himalayan-ridge",
+    "food": "Bhatt ki churkani, aloo ke gutke, bal mithai, singori",
+    "movement": "Hill taxi/shared jeep; road time is longer than map distance suggests",
+    "etiquette": "Temple/forest stops are quiet places; village markets are better than rushed checklist tourism",
+    "signature": "Aipan, deodar forests, ridge sunsets and Panchachuli views",
+    "photoKeys": [
+      "Almora",
+      "Binsar",
+      "Jageshwar",
+      "Kausani",
+      "Munsiyari"
+    ]
+  },
+  "chardham": {
+    "journeyStyle": "sacred",
+    "food": "Simple pahadi thalis, mandua dishes, tea and pilgrim-route meals",
+    "movement": "Road transfers plus trekking/authorized local transport where applicable",
+    "etiquette": "Temple etiquette, registration, weather and queue conditions take priority over pace",
+    "signature": "River confluences, pilgrimage footpaths, cedar and high-Himalayan temple landscapes",
+    "photoKeys": [
+      "Yamunotri",
+      "Gangotri",
+      "Kedarnath",
+      "Badrinath",
+      "Rishikesh"
+    ]
+  },
+  "rishikesh-mussoorie": {
+    "journeyStyle": "river-hills",
+    "food": "Garhwali dishes, cafe food, chai, bakery stops in Landour",
+    "movement": "Walk + local cab; rafting only with authorized operators",
+    "etiquette": "Keep ghats respectful during worship; wellness time works better without over-scheduling",
+    "signature": "Ganga evenings, suspension-bridge walks, Landour ridge atmosphere",
+    "photoKeys": [
+      "Rishikesh",
+      "Mussoorie",
+      "Landour",
+      "Dehradun"
+    ]
+  },
+  "rajasthan": {
+    "journeyStyle": "desert-heritage",
+    "food": "Dal baati churma, ker sangri, kachori, laal maas where preferred",
+    "movement": "Train/road between cities; old-city cores are often best on foot/e-rickshaw",
+    "etiquette": "Ask before photographing people; heat and fort walking deserve slower pacing",
+    "signature": "Blue lanes, stepwells, havelis, desert light and craft workshops",
+    "photoKeys": [
+      "Jaipur",
+      "Jodhpur",
+      "Jaisalmer",
+      "Udaipur",
+      "Bundi"
+    ]
+  },
+  "golden-triangle": {
+    "journeyStyle": "imperial-heritage",
+    "food": "Delhi chaat, Agra petha/Mughlai, Jaipur kachori and thali",
+    "movement": "Rail/expressway between cities; metro/e-rickshaw/walking inside dense cores",
+    "etiquette": "Major monuments reward opening-hour starts; keep market time separate from monument sprints",
+    "signature": "Mughal geometry, bazaars and Rajput fort silhouettes",
+    "photoKeys": [
+      "Delhi",
+      "Agra",
+      "Jaipur"
+    ]
+  },
+  "varanasi-ayodhya": {
+    "journeyStyle": "sacred-river",
+    "food": "Kachori-sabzi, tamatar chaat, lassi and satvik temple-town meals",
+    "movement": "Walk/boat/e-rickshaw in dense cores; road/rail between cities",
+    "etiquette": "Active cremation and worship areas demand restraint with cameras and conversation",
+    "signature": "Sunrise river light, temple lanes, music and ritual rhythm",
+    "photoKeys": [
+      "Varanasi",
+      "Sarnath",
+      "Ayodhya"
+    ]
+  },
+  "goa": {
+    "journeyStyle": "coastal",
+    "food": "Goan fish curry, xacuti, cafreal, poi and local sweets",
+    "movement": "Scooter only for confident licensed riders; taxis/buses for mixed groups",
+    "etiquette": "Old Goa and village churches differ from beach zones; respect active worship and village quiet",
+    "signature": "Laterite forts, Fontainhas color, estuaries and quieter southern beaches",
+    "photoKeys": [
+      "Panaji",
+      "Goa",
+      "Old Goa",
+      "Palolem"
+    ]
+  },
+  "kerala": {
+    "journeyStyle": "tropical-water",
+    "food": "Appam-stew, puttu-kadala, sadya, seafood and Malabar dishes",
+    "movement": "Train/road plus ferry/backwater boats; avoid unnecessary private-car hops in cities",
+    "etiquette": "Temple access/dress rules vary; backwater villages benefit from low-noise, low-waste travel",
+    "signature": "Tea hills, spice country, canals and Arabian Sea sunsets",
+    "photoKeys": [
+      "Kochi",
+      "Munnar",
+      "Alappuzha",
+      "Thekkady",
+      "Varkala"
+    ]
+  },
+  "andaman": {
+    "journeyStyle": "island-marine",
+     "food": "Seafood, Bengali/Tamil-influenced island meals and coconut-forward dishes",
+    "movement": "Ferries are the backbone; build weather buffers between islands",
+    "etiquette": "Marine rules and protected areas matter more than squeezing in one more beach",
+    "signature": "Turquoise shallows, mangroves, dive sites and forested island horizons",
+    "photoKeys": [
+      "Port Blair",
+      "Havelock",
+      "Neil Island",
+      "Andaman"
+    ]
+  },
+  "sikkim": {
+    "journeyStyle": "himalayan-monastery",
+    "food": "Momos, thukpa, gundruk, churpi and local teas",
+    "movement": "Local/shared cabs; permit-sensitive high-altitude sectors need flexible sequencing",
+    "etiquette": "Monasteries reward quiet behavior; high lakes require weather/permit checks",
+    "signature": "Prayer flags, rhododendron slopes and Kanchenjunga viewpoints",
+    "photoKeys": [
+      "Gangtok",
+      "Pelling",
+      "Tsomgo",
+      "Sikkim"
+    ]
+  },
+  "northeast-grand": {
+    "journeyStyle": "eastern-frontier",
+    "food": "Regional thalis, smoked meats where preferred, bamboo-shoot dishes and local teas",
+    "movement": "Road/rail/flight mix; terrain makes transfer days part of the itinerary",
+    "etiquette": "Each state and community is distinct; avoid treating “North-East” as one culture",
+    "signature": "Living roots, tea landscapes, monasteries, river valleys and tribal craft traditions",
+    "photoKeys": [
+      "Guwahati",
+      "Shillong",
+      "Tawang",
+      "Kaziranga",
+      "Meghalaya"
+    ]
+  },
+  "tawang": {
+    "journeyStyle": "eastern-himalaya",
+    "food": "Momos, thukpa, zan and Monpa-style local meals",
+    "movement": "Mountain road vehicle; Sela/Bum La sectors need weather and permit awareness",
+    "etiquette": "Monasteries and memorial spaces deserve quiet pacing; altitude rises quickly",
+    "signature": "Monpa culture, high lakes, monastery silhouettes and Sela landscapes",
+    "photoKeys": [
+      "Tawang",
+      "Sela Pass",
+      "Dirang",
+      "Bomdila"
+    ]
+  },
+  "meghalaya": {
+    "journeyStyle": "cloud-forest",
+    "food": "Jadoh, dohneiihong where preferred, tungrymbai and local market snacks",
+    "movement": "Shared/local cabs; many highlights require walking and stairs",
+    "etiquette": "Living-root bridges are community landscapes, not amusement parks; pace to village norms",
+    "signature": "Cloud forests, limestone caves, root bridges and clear river valleys",
+    "photoKeys": [
+      "Shillong",
+      "Cherrapunji",
+      "Mawlynnong",
+      "Dawki",
+      "Meghalaya"
+    ]
+  },
+  "hampi-badami": {
+    "journeyStyle": "deccan-stone",
+    "food": "North Karnataka meals, jolada rotti, local breakfast and banana-area cafes",
+    "movement": "Auto/two-wheeler/bicycle around Hampi; road transfer to Badami/Aihole/Pattadakal",
+    "etiquette": "Heat management is essential; temple ruins and active shrines require different etiquette",
+    "signature": "Granite boulders, Vijayanagara ruins and Chalukyan rock-cut architecture",
+    "photoKeys": [
+      "Hampi",
+      "Badami",
+      "Aihole",
+      "Pattadakal"
+    ]
+  },
+  "kutch": {
+    "journeyStyle": "salt-desert",
+    "food": "Kutchi dabeli, bajra rotla, kadhi and village foods",
+    "movement": "Road vehicle between craft villages and Rann sectors",
+    "etiquette": "Craft visits work best as conversations, not bargaining marathons; border-zone rules can change",
+    "signature": "White salt horizons, bhungas, embroidery and desert villages",
+    "photoKeys": [
+      "Bhuj",
+      "Rann of Kutch",
+      "Mandvi",
+      "Kutch"
+    ]
+  },
+  "lakshadweep": {
+    "journeyStyle": "lagoon",
+    "food": "Fresh fish, coconut-rich island cooking and simple local meals",
+    "movement": "Authorized boat/flight connections; island permissions shape the route",
+    "etiquette": "Reef-safe behavior and local community norms matter on small islands",
+    "signature": "Lagoon blues, coral shallows and low-rise island life",
+    "photoKeys": [
+      "Lakshadweep",
+      "Agatti"
+    ]
+  },
+  "sri-lanka": {
+    "journeyStyle": "tropical-heritage",
+    "food": "Hoppers, kottu, rice-and-curry, string hoppers and seafood",
+    "movement": "Rail is scenic on hill-country legs; tuk-tuks useful locally",
+    "etiquette": "Temple clothing rules are important; wildlife viewing should stay with responsible operators",
+    "signature": "Tea country, ancient cities, rail curves and south-coast light",
+    "photoKeys": [
+      "Colombo",
+      "Kandy",
+      "Ella",
+      "Sigiriya",
+      "Galle"
+    ]
+  },
+  "thailand": {
+    "journeyStyle": "tropical-city-island",
+    "food": "Street noodles, curries, som tam, regional northern dishes and island seafood",
+    "movement": "BTS/MRT in Bangkok, rail/flight for long hops, ferries for islands",
+    "etiquette": "Temple dress and shoe etiquette matter; avoid exploitative animal attractions",
+    "signature": "Bangkok night texture, northern temples, limestone islands and markets",
+    "photoKeys": [
+      "Bangkok",
+      "Chiang Mai",
+      "Krabi",
+      "Phuket"
+    ]
+  },
+  "bali": {
+    "journeyStyle": "volcanic-island",
+    "food": "Nasi campur, sate lilit, babi guling where preferred, vegetarian warung food",
+    "movement": "Driver/scooter depending confidence; traffic makes distance deceptive",
+    "etiquette": "Temple sarong rules and ceremony access should be respected; avoid staging sacred moments",
+    "signature": "Rice terraces, volcanic silhouettes, temple gates and black-sand/coastal light",
+    "photoKeys": [
+      "Ubud",
+      "Bali",
+      "Canggu",
+      "Uluwatu"
+    ]
+  },
+  "vietnam": {
+    "journeyStyle": "long-country",
+    "food": "Pho, bun cha, banh mi, regional central dishes and coffee",
+    "movement": "Rail/flight between regions; Grab/local taxis in cities",
+    "etiquette": "Street crossing and food markets have their own rhythm; dress modestly at pagodas",
+    "signature": "Hanoi lanes, karst bays, lantern towns and Mekong textures",
+    "photoKeys": [
+      "Hanoi",
+      "Hoi An",
+      "Hue",
+      "Ho Chi Minh City",
+      "Vietnam"
+    ]
+  },
+  "japan": {
+    "journeyStyle": "rail-culture",
+    "food": "Sushi, ramen, soba, izakaya dishes and regional specialties",
+    "movement": "Rail-first; local metro/bus + walking; luggage forwarding can reduce friction",
+    "etiquette": "Quiet public-transport etiquette and shrine/onsen rules matter",
+    "signature": "Tokyo neon, Kyoto machiya/temples, alpine towns and seasonal detail",
+    "photoKeys": [
+      "Tokyo",
+      "Kyoto",
+      "Osaka",
+      "Japan"
+    ]
+  },
+  "south-korea": {
+    "journeyStyle": "urban-coast",
+    "food": "Bibimbap, barbecue, noodles, market food and Jeju specialties",
+    "movement": "KTX between major cities; metro/bus in Seoul/Busan",
+    "etiquette": "Temple and bathhouse etiquette differs from nightlife districts; keep both contexts distinct",
+    "signature": "Seoul layers, Busan coast, hanok texture and Jeju volcanic landscapes",
+    "photoKeys": [
+      "Seoul",
+      "Busan",
+      "Jeju"
+    ]
+  },
+  "uae": {
+    "journeyStyle": "future-desert",
+    "food": "Emirati dishes, Levantine/Gulf food, diverse global dining",
+    "movement": "Metro/taxi in Dubai; road transfer to Abu Dhabi/desert",
+    "etiquette": "Modesty/respect expectations vary by venue; desert experiences should use reputable operators",
+    "signature": "Future skyline, old creek, dunes and monumental cultural architecture",
+    "photoKeys": [
+      "Dubai",
+      "Abu Dhabi"
+    ]
+  },
+  "turkey": {
+    "journeyStyle": "crossroads",
+    "food": "Kebabs, meze, pide, breakfast spreads and regional Anatolian dishes",
+    "movement": "Metro/ferry in Istanbul; flight/bus for long intercity legs",
+    "etiquette": "Mosque etiquette is straightforward but important; bazaars are best enjoyed without rushed haggling",
+    "signature": "Bosphorus ferries, Cappadocian geology, bazaars and Aegean ruins",
+    "photoKeys": [
+      "Istanbul",
+      "Cappadocia",
+      "Izmir",
+      "Turkey"
+    ]
+  },
+  "egypt": {
+    "journeyStyle": "nile-desert",
+    "food": "Koshari, ful, taameya, grilled dishes and Nile-side meals",
+    "movement": "Driver/rail/flight mix; Nile cruises only when they fit the pace",
+    "etiquette": "Heat and site security procedures shape timing; active religious spaces need respectful dress",
+    "signature": "Nile light, desert stone, temple axes and Cairo street layers",
+    "photoKeys": [
+      "Cairo",
+      "Luxor",
+      "Aswan",
+      "Egypt"
+    ]
+  },
+  "italy": {
+    "journeyStyle": "slow-heritage",
+    "food": "Regional pasta, pizza traditions, cicchetti, gelato and local markets",
+    "movement": "High-speed rail between major cities; walk/transit inside historic centers",
+    "etiquette": "Church dress and neighborhood meal rhythms matter; avoid turning every day into museum sprints",
+    "signature": "Roman layers, Tuscan streets, Venetian water and regional food rituals",
+    "photoKeys": [
+      "Rome",
+      "Florence",
+      "Venice",
+      "Italy"
+    ]
+  },
+  "switzerland": {
+    "journeyStyle": "alpine-rail",
+    "food": "Cheese dishes, rösti, bakery stops and regional mountain fare",
+    "movement": "Rail is the journey; mountain lifts/boats connect local legs",
+    "etiquette": "Weather can change high-alpine plans quickly; quiet trail and hut etiquette matters",
+    "signature": "Glacier valleys, lake-rail transitions and high mountain panoramas",
+    "photoKeys": [
+      "Zurich",
+      "Interlaken",
+      "Zermatt",
+      "Lucerne",
+      "Switzerland"
+    ]
+  },
+  "iceland": {
+    "journeyStyle": "volcanic-road",
+    "food": "Lamb/fish dishes, rye bread, skyr and simple road-trip food",
+    "movement": "Self-drive or tour vehicle; wind and road closures override schedules",
+    "etiquette": "Stay on marked terrain around geothermal/coastal zones; weather is operational, not decorative",
+    "signature": "Lava fields, waterfalls, black coasts and geothermal steam",
+    "photoKeys": [
+      "Reykjavik",
+      "Iceland",
+      "Vik"
+    ]
+  },
+  "greece": {
+    "journeyStyle": "aegean-heritage",
+    "food": "Meze, souvlaki, seafood, pies and island specialties",
+    "movement": "Ferries + flights for islands; metro/walk in Athens",
+    "etiquette": "Orthodox churches and small island communities have quieter norms than resort strips",
+    "signature": "Marble ruins, whitewashed islands, Meteora cliffs and blue-hour harbors",
+    "photoKeys": [
+      "Athens",
+      "Santorini",
+      "Meteora",
+      "Greece"
+    ]
+  },
+  "new-zealand": {
+    "journeyStyle": "southern-road",
+    "food": "Cafe culture, seafood, lamb dishes and regional produce",
+    "movement": "Road-trip first on South Island; ferries/short flights selectively",
+    "etiquette": "Trail weather and DOC guidance matter; Maori names/cultural sites deserve correct, respectful use",
+    "signature": "Fiords, alpine roads, braided rivers and dark-sky landscapes",
+    "photoKeys": [
+      "Queenstown",
+      "Christchurch",
+      "Milford Sound",
+      "New Zealand"
+    ]
+  },
+  "kenya-tanzania": {
+    "journeyStyle": "safari",
+    "food": "Swahili/coastal dishes, nyama choma, ugali and lodge/local meals",
+    "movement": "4x4 safari circuits + regional flights where useful",
+    "etiquette": "Wildlife distance rules and guide quality matter more than getting closer for a photo",
+    "signature": "Savannah horizons, migration country, crater landscapes and Maasai cultural context",
+    "photoKeys": [
+      "Nairobi",
+      "Serengeti",
+      "Masai Mara",
+      "Ngorongoro"
+    ]
+  },
+  "nepal-heritage": {
+    "journeyStyle": "himalayan-valley",
+    "food": "Dal bhat, momos, Newari dishes and tea-house staples",
+    "movement": "Tourist bus/private car between valleys; walking/taxis in city cores",
+    "etiquette": "Temples mix Hindu/Buddhist practice; clockwise movement and footwear rules vary by site",
+    "signature": "Kathmandu courtyards, Pokhara lake light and Chitwan lowland contrast",
+    "photoKeys": [
+      "Kathmandu",
+      "Pokhara",
+      "Chitwan"
+    ]
+  },
+  "bhutan": {
+    "journeyStyle": "himalayan-kingdom",
+    "food": "Ema datshi, red rice, momos and local vegetable/meat dishes",
+    "movement": "Road travel between valleys; walking is central at dzongs and Tiger’s Nest",
+    "etiquette": "Dzong/monastery dress and photography rules deserve attention; pace follows valleys, not distance",
+    "signature": "Prayer flags, dzongs, forest passes and farmhouse landscapes",
+    "photoKeys": [
+      "Paro",
+      "Thimphu",
+      "Punakha",
+      "Bhutan"
+    ]
+  },
+  "maldives": {
+    "journeyStyle": "atoll",
+    "food": "Tuna, coconut, roshi and island/resort seafood",
+    "movement": "Speedboat/seaplane/domestic flight by atoll; transfers define usable time",
+    "etiquette": "Local-island norms differ from resorts; reef-safe water activity is non-negotiable",
+    "signature": "Lagoon gradients, sandbanks and low-island horizons",
+    "photoKeys": [
+      "Maldives",
+      "Male"
+    ]
+  },
+  "everest-base-camp": {
+    "journeyStyle": "trek-high-altitude",
+    "food": "Dal bhat, momos, soups and tea-house meals",
+    "movement": "On foot after Lukla/road gateway; acclimatization days are route infrastructure",
+    "etiquette": "Altitude discipline outranks itinerary ambition; respect porter/guide workloads and village rhythm",
+    "signature": "Suspension bridges, mani stones, monasteries and Khumbu glacier terrain",
+    "photoKeys": [
+      "Lukla",
+      "Namche Bazaar",
+      "Everest Base Camp",
+      "Khumbu"
+    ]
+  },
+  "annapurna-circuit": {
+    "journeyStyle": "trek-high-altitude",
+    "food": "Dal bhat, noodle soups, Tibetan-influenced high-valley food",
+    "movement": "Trek + local jeep segments where appropriate; road development changes stage character",
+    "etiquette": "Thorong La needs acclimatization and weather judgment, not schedule pressure",
+    "signature": "Marsyangdi valleys, Manang culture, high pass and Kali Gandaki landscapes",
+    "photoKeys": [
+      "Manang",
+      "Annapurna",
+      "Thorong La",
+      "Jomsom"
+    ]
+  },
+  "kilimanjaro": {
+    "journeyStyle": "summit-expedition",
+    "food": "Guide-team camp meals, soups, starches and hydration-focused food",
+    "movement": "Trek with licensed operator/support crew",
+    "etiquette": "Pole pole pacing, guide instructions and acclimatization strategy matter more than speed",
+    "signature": "Rainforest-to-alpine-desert transitions and summit dawn",
+    "photoKeys": [
+      "Kilimanjaro",
+      "Moshi"
+    ]
+  },
+  "inca-trail": {
+    "journeyStyle": "andes-heritage",
+    "food": "Andean soups, quinoa/potato dishes and Cusco regional food",
+    "movement": "Trek under regulated access; rail/road for non-trail legs",
+    "etiquette": "Permit/porter rules and archaeological-site respect shape the trip",
+    "signature": "Cloud forest, stone trail, high passes and Inca masonry",
+    "photoKeys": [
+      "Cusco",
+      "Machu Picchu",
+      "Inca Trail"
+    ]
+  },
+  "tour-du-mont-blanc": {
+    "journeyStyle": "alpine-trek",
+    "food": "Refuge meals, cheese, charcuterie, polenta/pasta and bakery stops",
+    "movement": "Trek + local bus/lift shortcuts when needed",
+    "etiquette": "Hut booking, trail weather and border-crossing simplicity still require disciplined planning",
+    "signature": "Mont Blanc massif views, flower meadows and refuge culture",
+    "photoKeys": [
+      "Chamonix",
+      "Courmayeur",
+      "Mont Blanc"
+    ]
+  },
+  "patagonia-w": {
+    "journeyStyle": "wind-expedition",
+    "food": "Simple lodge/refugio meals, Chilean dishes and packed trail food",
+    "movement": "Trek + park bus/catamaran links",
+    "etiquette": "Wind can change plans fast; park trail rules and booking logistics are structural",
+    "signature": "Granite towers, glacial lakes and enormous Patagonian weather",
+    "photoKeys": [
+      "Torres del Paine",
+      "Patagonia",
+      "Puerto Natales"
+    ]
+  },
+  "markha-valley": {
+    "journeyStyle": "trek-high-altitude",
+    "food": "Tea-house/homestay Ladakhi meals, thukpa, momos and simple staples",
+    "movement": "Trek with road transfer from Leh",
+    "etiquette": "Acclimatize in Leh first; homestay etiquette and water discipline matter",
+    "signature": "Ladakhi villages, canyon walls, monasteries and high passes",
+    "photoKeys": [
+      "Leh",
+      "Markha Valley",
+      "Hemis"
+    ]
+  },
+  "kashmir-great-lakes": {
+    "journeyStyle": "alpine-trek",
+    "food": "Camp meals plus Kashmiri food before/after trek",
+    "movement": "Trek with road transfers to trailheads",
+    "etiquette": "Trail access/security/weather can change; campsite impact should stay minimal",
+    "signature": "Successive alpine lakes, meadows and dramatic passes",
+    "photoKeys": [
+      "Srinagar",
+      "Kashmir Great Lakes",
+      "Sonamarg"
+    ]
+  },
+  "hampta-pass": {
+    "journeyStyle": "alpine-trek",
+    "food": "Camp meals, Himachali food before/after trek",
+    "movement": "Trek + Manali road transfers; Chandratal leg is road/weather dependent",
+    "etiquette": "Fast landscape/altitude change means layering and pacing matter",
+    "signature": "Kullu green valleys to Lahaul cold desert and Chandratal blues",
+    "photoKeys": [
+      "Manali",
+      "Hampta Pass",
+      "Chandratal"
+    ]
+  },
+  "chadar-trek": {
+    "journeyStyle": "winter-expedition",
+    "food": "Hot soups, tea and expedition camp meals",
+    "movement": "Winter expedition on foot with specialist logistics",
+    "etiquette": "Ice conditions, rescue planning and experienced local leadership are essential",
+    "signature": "Frozen Zanskar gorge, ice textures and winter village culture",
+    "photoKeys": [
+      "Leh",
+      "Zanskar",
+      "Chadar Trek"
+    ]
+  }
+}
