@@ -5271,21 +5271,21 @@ function genPdf(sample){
         ty += 52;
         /* food + tip + budget band */
         var fd=(A&&A.food)||((d.food||[])[i%Math.max(1,(d.food||[]).length)]||'');
-        pdf.setFillColor('#F3E2C0'); pdf.roundedRect(44,y-8,512,58,7,7,'F');
+        pdf.setFillColor('#F3E2C0'); pdf.roundedRect(44,ty-8,512,58,7,7,'F');
         pdf.setTextColor('#7A2E1E'); pdf.setFont('helvetica','bold'); pdf.setFontSize(10);
-        pdf.text('\ud83c\udf5b EAT TODAY',56,y+8);
+        pdf.text('\ud83c\udf5b EAT TODAY',56,ty+8);
         pdf.setFont('helvetica','normal'); pdf.setTextColor(INK); pdf.setFontSize(10);
-        pdf.text(pdf.splitTextToSize(fd||'Ask three locals one question: \u201cwhere do YOU eat?\u201d',300),56,y+22);
+        pdf.text(pdf.splitTextToSize(fd||'Ask three locals one question: \u201cwhere do YOU eat?\u201d',300),56,ty+22);
         pdf.setTextColor('#7A5A16'); pdf.setFontSize(9);
-        pdf.text(pdf.splitTextToSize('\ud83e\udd77 '+((A&&A.tip)||T2.tip||'Carry small notes; big bills slow every purchase.'),190),380,y+8);
+        pdf.text(pdf.splitTextToSize('\ud83e\udd77 '+((A&&A.tip)||T2.tip||'Carry small notes; big bills slow every purchase.'),190),380,ty+8);
         if(perDay){ pdf.setTextColor(MUT); pdf.setFontSize(9.5);
-          pdf.text('\ud83d\udcb0 Day budget ('+o.party.toLowerCase()+', '+o.pace.toLowerCase()+'): ~$'+Math.round(perDay*paceAdj*partyMul),44,y+66); }
+          pdf.text('\ud83d\udcb0 Day budget ('+o.party.toLowerCase()+', '+o.pace.toLowerCase()+'): ~$'+Math.round(perDay*paceAdj*partyMul),44,ty+66); }
         /* ---- Fill the previously-blank lower half with real, grounded data ----
            Two-column panel: destination fast facts (region/country/tags — all
            already in the database, not invented) + an actual crowd-by-month
            comparison (d.crowd is real per-destination data used elsewhere in
            the app, e.g. the ninja-hacks crowd-dodge callouts). */
-        var fy = y + 84;
+        var fy = ty + 84;
         if(fy < 700){
           pdf.setDrawColor(TH.acc[0],TH.acc[1],TH.acc[2]); pdf.setLineWidth(0.8);
           pdf.line(44, fy, 556, fy);
@@ -5439,7 +5439,7 @@ function genPdf(sample){
         }catch(e){ pdf.save(fname); } }
       xpAdd(20,'Premium itinerary forged');
       try{ track('pdf_generated'); lsSet('rw_pdf_count', String((parseInt(lsGet('rw_pdf_count')||'0',10)||0)+1)); }catch(e){}
-    });
+    }).catch(function(err){ console.error('genPdf failed', err); showToast('Could not build the PDF — please try again'); });
   });
 }
 
@@ -7306,24 +7306,35 @@ function openPartnerRedeem(){
     if(!code){ showToast('Enter your code first'); return; }
     if(!user){ openLogin(); return; }
     if(!db){ showToast('Not connected — try again in a moment'); return; }
-    /* partnerClaims' doc ID IS the code itself (rw-v115 hardening) — fetch by
+    /* partnerClaims' doc ID IS the code itself (rw-v116 hardening) — fetch by
        known path with .doc(), not a `where('code','==',...)` query. Firestore
        rules can only validate a specific doc by path (get()/exists()), never
-       an arbitrary query, so this is also what lets the rules confirm a code
-       is real and unredeemed before granting Pro below. */
+       an arbitrary query, so this is also what lets the rules confirm — via
+       isRedeemedByCaller() — that THIS caller already redeemed this exact
+       code before granting Pro below (see the two-step write further down). */
     var claimRef=db.collection('partnerClaims').doc(code);
     var snap=await claimRef.get().catch(function(){return null;});
     if(!snap||!snap.exists){ showToast('Code not found. Check it and try again, or email founder@roamwise.co.in'); return; }
     var data=snap.data()||{};
     // Soft UX check only — only the person who was emailed the code SHOULD
     // redeem it, but the real security boundary against replay/reuse now
-    // lives in firestore.rules (one-time redemption via a batched write),
-    // not in this client-side email comparison.
+    // lives in firestore.rules (one-time redemption via two sequential,
+    // awaited writes — see below), not in this client-side email comparison.
     if(data.email && user.email && data.email.toLowerCase()!==user.email.toLowerCase()){
       showToast('This code was claimed with a different email. Sign in with '+data.email.split('@')[0]+'@…');
       return;
     }
-    if(data.proRedeemed){ showToast('Code already redeemed — your Pro is active. Check your profile.'); return; }
+    // A claim already flipped to redeemed by THIS SAME uid is not "nothing to
+    // do" — it means a PRIOR attempt got as far as flipping partnerClaims but
+    // then failed on the users/{uid} grant write below (see the create-vs-
+    // update gap explained next to that write). That must be resumable on a
+    // later attempt, not treated as a dead end, so only block here when the
+    // code was redeemed by a DIFFERENT uid.
+    var alreadyRedeemedByMe = !!(data.proRedeemed && data.redeemedUid===user.uid);
+    if(data.proRedeemed && !alreadyRedeemedByMe){
+      showToast('Code already redeemed — your Pro is active. Check your profile.');
+      return;
+    }
     // Claim codes are issued inside a time-boxed campaign window (e.g. the
     // NMIMS 30-day claim window) and shouldn't be redeemable indefinitely
     // after that — expiresAt is a Firestore Timestamp set at claim time
@@ -7333,21 +7344,61 @@ function openPartnerRedeem(){
       showToast('This code’s claim window has expired. Email founder@roamwise.co.in if you believe this is a mistake.');
       return;
     }
-    /* Grant Pro + flip the claim to redeemed in ONE atomic batch. A Firestore
-       batch commits all-or-nothing — that atomicity is what actually stops a
-       code being redeemed twice (see firestore.rules' matching comments on
-       users/{uid} and partnerClaims/{id}). The users/{uid} write must touch
-       ONLY pro/proAt/proMethod/proCode — that exact field set is what the
-       rules' partner-redeem exception checks for; anything else in this
-       write (e.g. the old proPartner/proAmount fields) would be rejected. */
+    /* Flip the claim to redeemed FIRST, as its own separate, AWAITED write,
+       THEN grant Pro on users/{uid} — in that exact order, NOT as one atomic
+       batch. firestore.rules' users/{uid} partner-grant rule now calls
+       isRedeemedByCaller(code), which get()s partnerClaims/{code} and only
+       approves the grant once proRedeemed==true and redeemedUid==this uid
+       are ALREADY committed — a get() inside a security rule only ever sees
+       already-committed state, never a sibling pending write in the same
+       batch, so batching these two writes together would make the grant
+       rule reject every time. Sequencing them like this (redeem, await,
+       then grant) is what actually stops a code being redeemed twice: once
+       the flip commits, isRedeemedByCaller() only ever matches this one uid,
+       so no other account can replay the same code again. The users/{uid}
+       write must touch ONLY pro/proAt/proMethod/proCode — that exact field
+       set is what the rules' partner-redeem exception checks for; anything
+       else in this write (e.g. the old proPartner/proAmount fields) would be
+       rejected.
+       Skip this flip entirely when alreadyRedeemedByMe — partnerClaims'
+       update rule only allows proRedeemed false/absent -> true (see
+       firestore.rules), so re-sending it once it's already true would be
+       REJECTED by the rules, aborting this retry before it ever reaches the
+       grant step below that actually needs resuming. */
+    if(!alreadyRedeemedByMe){
+      try{
+        await claimRef.update({proRedeemed:true, redeemedAt:new Date().toISOString(), redeemedUid:user.uid});
+      }catch(e){
+        showToast('Redemption error: '+(e.message||'try again'));
+        return;
+      }
+    }
     try{
-      var batch=db.batch();
-      batch.set(db.collection('users').doc(user.uid), {
+      /* CodeRabbit-flagged gap: set(data,{merge:true}) against a users/{uid}
+         doc that does NOT yet exist is a CREATE, not an update, in Firestore
+         semantics — and the users/{uid} create rule explicitly forbids
+         pro/proAt/proMethod/proPayId on create (users can never self-grant
+         Pro at signup). If this profile doc hadn't been created yet (e.g.
+         the onAuthStateChanged first-sign-in write, ~line 9582, hadn't landed
+         yet), this whole write used to be silently rejected — AFTER the
+         claim above was already flipped to redeemed, permanently, with no
+         path to ever retry it (a create can only happen once, and it would
+         always be rejected the same way).
+         Fix: explicitly check existence first. If missing, create the SAME
+         bare minimal profile shape used on first sign-in (no pro fields —
+         satisfies the create rule) as its own separate write, THEN grant Pro
+         via a genuine update() (not a merge-set) — since the doc now exists,
+         this is a real update and the isRedeemedByCaller()-gated update rule
+         applies normally, same as the already-exists case. */
+      var userRef=db.collection('users').doc(user.uid);
+      var uSnap=await userRef.get();
+      if(!uSnap.exists){
+        await userRef.set({email:user.email||'', phone:user.phoneNumber||'', name:user.displayName||'', created:firebase.firestore.FieldValue.serverTimestamp()}, {merge:true});
+      }
+      await userRef.update({
         pro:true, proAt:new Date().toISOString(),
         proMethod:'partner', proCode:code
-      },{merge:true});
-      batch.update(claimRef, {proRedeemed:true, redeemedAt:new Date().toISOString(), redeemedUid:user.uid});
-      await batch.commit();
+      });
       showToast('\ud83c\udf89 Partner Pass activated! Welcome, '+esc2(data.name?data.name.split(' ')[0]:'friend')+'.');
       window._proUnlocked=true;
       /* Reuse the SAME UI-refresh path a real Firestore pro:true write
@@ -7359,7 +7410,12 @@ function openPartnerRedeem(){
          a paid-sounding badge, the instant this resolves. */
       isPro=true; lsSet('rwPro','1'); lsSet('rw_pro_uid',user.uid); lsSet('rw_pro_method','partner'); refreshProUI();
     }catch(e){
-      showToast('Redemption error: '+(e.message||'try again'));
+      /* The claim is ALREADY marked redeemed at this point (the first write
+         above succeeded) — it cannot be silently retried by re-running this
+         flow, since the code now shows as redeemed. Surface that clearly
+         instead of a generic error so the user contacts support rather than
+         assuming the code is simply broken. */
+      showToast('Your code was redeemed, but activating Pro failed — contact founder@roamwise.co.in with your code so we can finish this manually.');
     }
   }, 'Enter the NMIMS-XXXXXX code you received after claiming on the partnership page.');
 }
@@ -10607,8 +10663,8 @@ function cpBubble(html, who){
   var log=el(_cpTargetLog)||el('cpLog'); if(!log) return;
   var b=document.createElement('div');
   b.style.cssText = who==='me'
-    ? 'margin:6px 0 6px 40px;background:linear-gradient(135deg,var(--gold,#E8BA6C),var(--gold2,#C8913E));color:#0A0A0C;border-radius:14px 14px 4px 14px;padding:10px 12px;font-size:12.5px'
-    : 'margin:6px 40px 6px 0;background:var(--bg2,#12121C);border:1px solid var(--b2,#2A2A36);border-radius:14px 14px 14px 4px;padding:10px 12px;font-size:12.5px;line-height:1.55';
+    ? 'margin:6px 0 6px 40px;background:linear-gradient(135deg,var(--gold,#E8BA6C),var(--gold2,#C8913E));color:#0A0A0C;border-radius:14px 14px 4px 14px;padding:10px 12px;font-size:12.5px;white-space:pre-line'
+    : 'margin:6px 40px 6px 0;background:var(--bg2,#12121C);border:1px solid var(--b2,#2A2A36);border-radius:14px 14px 14px 4px;padding:10px 12px;font-size:12.5px;line-height:1.55;white-space:pre-line';
   b.innerHTML=html;
   /* Hero log sits ABOVE the input, so newest goes at the BOTTOM of that log —
      i.e. directly above the box where the eye and thumb already are. */
@@ -11421,7 +11477,7 @@ function copilotSend(fromHero){
         +'BE GENUINELY USEFUL: when you suggest a place, add the ONE detail a local would know (best time to go, what to skip, the sneaky cost, the better nearby alternative). That insider nugget is your signature. '
         +'GROUP TRIPS: if the question involves \u201cwe\u201d, friends, or a group, think like a facilitator \u2014 surface the trade-off clearly (budget vs comfort, beach vs hills, party vs quiet) and suggest a fair middle path or a quick way to decide. '
         +'CONFLICT/INDECISION: if people want different things, name the split, give each option its honest best case in one line, then recommend one with a reason \u2014 decisiveness with warmth beats fence-sitting. '
-        +'NEVER INVENT: no made-up prices, timings, phone numbers, hotel names or distances. If you do not know or the guide text does not say, say \u201cI\u2019m not certain \u2014 worth checking before you book\u201d and give the safest general guidance instead. A wrong specific is far worse than an honest gap. If the question is ambiguous, ASK ONE short clarifying question with 2-3 concrete options rather than guessing. Never invent facts to sound dramatic; if you are unsure, say so plainly with a grin. Do NOT quote real Bollywood dialogues or put words in real actors\u2019 mouths \u2014 use your own filmi-flavoured lines. '
+        +'NEVER INVENT: no made-up prices, timings, phone numbers, hotel names or distances. If you do not know or the guide text does not say, say \u201cI\u2019m not certain \u2014 worth checking before you book\u201d and give the safest general guidance instead. A wrong specific is far worse than an honest gap. If the question is ambiguous, ASK ONE short clarifying question with 2-3 concrete options rather than guessing — when you do this, make your ENTIRE reply just one line in this exact shape: ASK: <the question> || <option 1> | <option 2> | <option 3> (no extra words before or after). Never invent facts to sound dramatic; if you are unsure, say so plainly with a grin. Do NOT quote real Bollywood dialogues or put words in real actors\u2019 mouths \u2014 use your own filmi-flavoured lines. '
         +'Read the user intent and mood: if they sound excited, match it; if stressed or on a tight budget, be reassuring and practical, not theatrical. '
         +'INDIAN GROUND TRUTH \u2014 THIS MATTERS MORE THAN SOUNDING CONFIDENT: never estimate travel time from straight-line distance. In the Himalayas assume ~22km/h (100km can be 5 hours), hill/ghat roads ~32km/h, plains highways ~48km/h, and city traffic ~18km/h. Dehradun to Rishikesh is about an hour, not 30 minutes. Never suggest a day trip that needs more than ~6 hours of road time. Flag monsoon (Jun-Sep) road risk in hills, winter closures on high passes, and altitude acclimatisation for anywhere above 3000m. '
         +'MONEY: the user\u2019s selected currency is '+((CURR.find(function(x){return x.c===AC;})||{s:'\u20b9',c:'INR'}).s)+' ('+AC+'). Always give prices in that symbol, never $ unless AC is literally USD. '
@@ -11437,6 +11493,18 @@ function copilotSend(fromHero){
           if(intents.dest) rwLearn(intents.dest);
           cpFinish(thinking, (kb2? kb2+'<br>':'')+note, intents, t);
           return;
+        }
+        /* AI wants a clarifying question with tappable options \u2014 render real
+           chips via rwTuskAsk instead of dumping "ASK: ... || a | b" as text. */
+        var askM = answer.match(/^ASK:\s*(.+?)\s*\|\|\s*(.+)$/i);
+        if(askM){
+          var askQ = askM[1].trim().replace(/</g,'&lt;');
+          var askOpts = askM[2].split('|').map(function(o){ return o.trim().replace(/</g,'&lt;'); }).filter(Boolean).slice(0,4);
+          if(askQ && askOpts.length>=2){
+            if(intents.dest) rwLearn(intents.dest);
+            cpFinish(thinking, rwTuskAsk(askQ, askOpts), intents, t);
+            return;
+          }
         }
         answer = answer.replace(/</g,'&lt;');
         if(lastAiSource && lastAiSource.prov!==activeProv){
@@ -18875,3 +18943,11 @@ function applyRemoteConfig(cfg){
   }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', boot); else boot();
 })();
+
+/* Bridge for the optional Cinematic Itinerary add-on (roamwise-premium-itinerary.js):
+   it checks window.rwIsPro() first, before falling back to unreliable localStorage
+   heuristics. Route it through the real RWPricing tier so the Pro gate reflects
+   actual subscription status instead of a guess. */
+window.rwIsPro = function(){
+  try{ return RWPricing.currentTier().id !== 'free'; }catch(e){ return false; }
+};

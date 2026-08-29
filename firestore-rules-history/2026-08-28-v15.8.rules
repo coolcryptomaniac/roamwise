@@ -1,5 +1,5 @@
 // ============================================================================
-//  RoamWise - Firestore Security Rules   (STABLE BUILD v15.11 / vc80 - 2026-08-29)
+//  RoamWise - Firestore Security Rules   (STABLE BUILD v15.8 / vc78 - 2026-08-28)
 // ----------------------------------------------------------------------------
 //  HOW TO DEPLOY (2 minutes, do this whenever rules change):
 //    1. Firebase Console  ->  your project  ->  Build  ->  Firestore Database
@@ -8,7 +8,7 @@
 //    4. Click  "Publish"
 //    5. Update the  meta/rulesVersion  Firestore document (the `version`
 //       field, see the match block below) to match the version marker in
-//       this header (e.g. "v15.11") - the app's staleness probe reads that
+//       this header (e.g. "v15.8") - the app's staleness probe reads that
 //       doc to tell the founder whether the deployed rules are current, and
 //       it goes stale/wrong the moment this step is skipped.
 //  That's it. Changes are live in ~10 seconds.
@@ -30,58 +30,6 @@
 //  IF STAFF LOGIN WON'T PROCEED          -> the 'staff' rule below wasn't live,
 //                                           OR that account has no staff/{uid}
 //                                           doc yet (add it in Firestore).
-//
-//  v15.11: reverted the partnerClaims/{id} create auth requirement added in
-//  v15.10 (item 1 below) after discovering it breaks 100% of real NMIMS claim
-//  submissions - nmims/index.html's submitClaim() has zero Firebase Auth
-//  wired in, so every genuine claim create would have been rejected with
-//  permission-denied. create is back to field-shape/cap validation only, no
-//  auth requirement. This is documented as an ACCEPTED, OPEN RISK, not a fix:
-//  see the match block below for the full explanation and the options left
-//  for the site owner to decide between.
-//
-//  v15.10: CodeRabbit PR #60 follow-up round, 4 more findings. (1) partnerClaims/
-//  {id} create now additionally requires isAdmin() OR a verified caller whose
-//  own auth token email matches the claim's stated email - previously ANY
-//  caller could invent an arbitrary claim (any code/email) and self-redeem it
-//  for a free Pro grant with zero real partner distribution involved. NOTE:
-//  nmims/index.html's claim form does not currently sign visitors in at all,
-//  so this is a KNOWN BREAKING CHANGE for that page until it is updated to
-//  authenticate first - see the match block below. (2) the expiresAt check
-//  moved from isRedeemedByCaller() (grant time) to the partnerClaims/{id}
-//  update rule's initial redemption transition (redemption time) - checking
-//  it at grant time could permanently strand a legitimately on-time
-//  redemption if the follow-up users/{uid} grant write failed and was retried
-//  after expiry. (3) pricing/founder's update-rule comment corrected - it
-//  falsely claimed the count+1 increment was batched atomically with
-//  openPartnerRedeem()'s writes; that function performs two sequential
-//  awaited writes, never a batch, and never touches pricing/founder at all
-//  (rule logic unchanged). (4) app.js's partner-redeem profile-creation
-//  set() now uses {merge:true} so it can't clobber fields written by a
-//  concurrent process between the existence check and this write.
-//
-//  v15.9: CodeRabbit PR #60 follow-up round - three quick fixes. (1) reports/
-//  {reportId} create now requires the client-supplied `created` (squad) /
-//  `at` (beacon) field to actually `is timestamp` (both are always
-//  FieldValue.serverTimestamp() from app.js's reportSquad()/rwBeaconReport()),
-//  not just present, closing off a spoofed-value path. (2) deckleads/{id}
-//  create AND update now cap `openedAt`/`updatedAt` (ISO strings from
-//  deck/index.html's new Date().toISOString(), <=24 chars) at size()<=40 -
-//  previously only `create` skipped validating openedAt entirely, and update
-//  checked type but not length, letting an anonymous caller stuff an
-//  oversized string into either field. (3) ledger/{id}'s isFinance() update
-//  branch now also requires resource.data.enteredBy == request.auth.uid (in
-//  addition to the existing request.resource.data check) - previously a
-//  finance-role user could update ANY ledger doc, including admin-created
-//  ones, as long as the new data had a permitted kind/amount and their own
-//  uid on enteredBy; now a finance user can only ever touch a record they
-//  themselves originally entered. isAdmin() is unaffected by all three.
-//  Two other CodeRabbit findings from the same round - the partnerClaims/
-//  partnerships allocation-counter TOCTOU, and pricing/founder.count having
-//  no binding to a real redemption event - are pre-existing, heavy-lift,
-//  architectural gaps left untouched here; see the match blocks below for
-//  the standing explanation of why a rules-only patch can't fully close
-//  them.
 //
 //  v15.7: re-audited a fresh copy of the LIVE Firebase Console rules (pasted
 //  2026-08-28) against this file. Confirmed the live console still had NINE
@@ -130,23 +78,12 @@ service cloud.firestore {
     // A partnerClaims/{code} doc grants Pro to the CALLER only after it has
     // ALREADY been flipped to redeemed by that same caller — proRedeemed
     // must be true (not merely absent/false) AND redeemedUid must equal the
-    // caller's own uid. Shared by the users/{uid} partner-redeem rule and
-    // documented again next to partnerClaims below.
-    //
-    // EXPIRY (v15.10): deliberately NOT checked here. expiresAt (a Firestore
+    // caller's own uid — and it has not passed its expiresAt (a Firestore
     // Timestamp set at claim time, e.g. the NMIMS 30-day claim window in
-    // nmims/index.html) is enforced ONLY at the partnerClaims/{id} update
-    // rule's initial false/absent -> true redemption transition, below.
-    // Checking it again here — at grant time, potentially long after the
-    // redemption flip already committed — used to mean a valid, on-time
-    // redemption could be permanently locked out of ever granting Pro: if
-    // the users/{uid} write failed for an unrelated reason (e.g. a dropped
-    // connection) and the user retried after expiresAt had since passed,
-    // this function would start rejecting the retry forever, even though the
-    // redemption itself legitimately happened before expiry. Once
-    // redeemedUid is already bound to the caller and proRedeemed is already
-    // true, that redemption already happened validly and the grant must be
-    // retryable indefinitely.
+    // nmims/index.html). Claims created before expiresAt existed have no
+    // such field, so an absent expiresAt is treated as "not expired". Shared
+    // by the users/{uid} partner-redeem rule and documented again next to
+    // partnerClaims below.
     //
     // SECURITY (closes a multi-account replay hole): this used to be
     // isUnredeemedClaim(code) — true whenever proRedeemed was NOT yet true —
@@ -167,7 +104,11 @@ service cloud.firestore {
       return code is string && code.size() > 0 && code.size() <= 64
         && exists(/databases/$(database)/documents/partnerClaims/$(code))
         && get(/databases/$(database)/documents/partnerClaims/$(code)).data.proRedeemed == true
-        && get(/databases/$(database)/documents/partnerClaims/$(code)).data.redeemedUid == request.auth.uid;
+        && get(/databases/$(database)/documents/partnerClaims/$(code)).data.redeemedUid == request.auth.uid
+        && (
+             !('expiresAt' in get(/databases/$(database)/documents/partnerClaims/$(code)).data)
+          || get(/databases/$(database)/documents/partnerClaims/$(code)).data.expiresAt > request.time
+        );
     }
 
     // ---------- USERS ----------
@@ -424,7 +365,6 @@ service cloud.firestore {
              && request.resource.data.targetId.size() <= 200
              && request.resource.data.by is string
              && request.resource.data.by.size() <= 128
-             && request.resource.data.created is timestamp
              && request.resource.data.keys().hasOnly(['type','targetId','by','created']))
         || (request.resource.data.kind == 'beacon'
              && request.resource.data.target is string
@@ -433,7 +373,6 @@ service cloud.firestore {
                  || (request.resource.data.why is string && request.resource.data.why.size() <= 600))
              && (request.resource.data.by == null
                  || (request.resource.data.by is string && request.resource.data.by.size() <= 128))
-             && request.resource.data.at is timestamp
              && request.resource.data.keys().hasOnly(['kind','target','why','by','at']));
       allow read, update, delete: if isAdmin();
     }
@@ -710,13 +649,6 @@ service cloud.firestore {
         && request.resource.data.amount is number
         && request.resource.data.amount <= 100000
         && request.resource.data.enteredBy == request.auth.uid
-        // A finance-role (non-admin) caller may only ever touch a record
-        // they themselves entered - on create resource is null (nothing to
-        // own yet), but on update the EXISTING doc's enteredBy must already
-        // match this caller, otherwise a finance user could overwrite
-        // someone else's (including an admin's) ledger entry just by
-        // supplying a permitted kind/amount and their own uid.
-        && (resource == null || resource.data.enteredBy == request.auth.uid)
       );
       allow delete: if isAdmin();
     }
@@ -802,17 +734,8 @@ service cloud.firestore {
       // write. Narrow carve-out, same shape as meta/signupCounter and the
       // partnerships/{id} counters elsewhere in this file: a signed-in user
       // may move ONLY 'founder'.count, ONLY by exactly +1, nothing else on
-      // this doc, ever.
-      //
-      // CORRECTED (v15.10): the comment here previously claimed this
-      // increment was "batched atomically with the matching users/{uid} and
-      // partnerClaims/{code} writes in openPartnerRedeem()". That was never
-      // true: openPartnerRedeem() (app.js) performs two separate SEQUENTIAL
-      // awaited writes - first partnerClaims/{code}.update(), then, only
-      // after that resolves, users/{uid}.update() - never a single atomic
-      // batch, and it never touches pricing/founder at all. As of this
-      // version no client code moves 'founder'.count; this carve-out exists
-      // for a future write path, not a currently-exercised one.
+      // this doc, ever. Batched atomically with the matching users/{uid}
+      // and partnerClaims/{code} writes in openPartnerRedeem() - see app.js.
       allow update: if doc == 'founder'
         && request.auth != null
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['count'])
@@ -846,36 +769,12 @@ service cloud.firestore {
     //
     // Personal data (name, email, phone) shared only with explicit consent.
     //
-    // ACCEPTED, OPEN RISK (self-service Pro grant hole, v15.10 attempted a
-    // fix, reverted in v15.11): create below has NO auth requirement beyond
-    // field-shape/cap validation. That means ANY caller (signed in or not)
-    // can invent a claim doc for an arbitrary code/email of their choosing,
-    // immediately flip it via the update rule below to
-    // proRedeemed:true/redeemedUid:self, then grant themselves Pro via
-    // users/{uid}'s isRedeemedByCaller() path - entirely bypassing the "a
-    // real partner claimant received this code by email" model, as long as
-    // they can guess or brute-force a valid, unredeemed code and its
-    // associated email. v15.10 tried to close this by additionally requiring
-    // isAdmin() OR a verified Firebase Auth caller whose own token email
-    // matched the claim's stated email - but nmims/index.html's submitClaim()
-    // (the only real client that creates these docs) has ZERO Firebase Auth
-    // wired in (no firebase-auth-compat.js is even loaded on that page), so
-    // that change rejected 100% of genuine claim submissions with
-    // permission-denied. It has been reverted here.
-    //
-    // This risk is being left OPEN, not silently ignored, pending a real
-    // product decision by the site owner - this pass does not guess at which
-    // of these to take:
-    //   (a) add a sign-in step to the NMIMS claim page before allowing claim
-    //       creation (e.g. Google sign-in, which sets token.email_verified
-    //       automatically), then reinstate the v15.10 auth check;
-    //   (b) accept the risk as-is: this is a bounded campus promotion (the
-    //       500-seat partnerships/{id}.cap check below already caps total
-    //       exposure) rather than a high-value target, so the cost of a
-    //       successful abuse is limited; or
-    //   (c) move claim creation through a Cloud Function that verifies email
-    //       ownership server-side (e.g. a magic-link or OTP) without
-    //       requiring a full Firebase Auth sign-in on the page.
+    // NOT requiring request.auth != null here on purpose: nmims/index.html's
+    // claim flow never signs the visitor in (no firebase-auth-compat.js is
+    // even loaded on that page) - adding an auth requirement would mean
+    // wiring anonymous sign-in plus new error-handling UI on that page, a
+    // meaningfully bigger change than this rules pass. Flagged as a follow-up
+    // rather than forced in here.
     //
     // KNOWN LIMITATION (documented, not silently ignored): the cap check
     // below reads partnerships/{partnership}.claimed via get(), but nothing
@@ -918,16 +817,6 @@ service cloud.firestore {
       // let the grant through, and it can never approve the same code for a
       // second account since redeemedUid is now fixed to whoever redeemed it
       // first.
-      //
-      // EXPIRY (v15.10): checked HERE, on the initial false/absent -> true
-      // transition only, not in isRedeemedByCaller() / at grant time. This is
-      // the step that actually represents "the redemption happened" - once it
-      // has committed, that action is done and valid, regardless of whether
-      // expiresAt later passes before the (separate, retryable) users/{uid}
-      // grant write succeeds. Checking expiry again at grant time used to let
-      // a legitimate, on-time redemption get permanently stuck if the grant
-      // write failed for an unrelated reason and the retry landed after
-      // expiresAt - see isRedeemedByCaller() above for the full history.
       allow update: if isAdmin() || (
            request.auth != null
         && (!('proRedeemed' in resource.data) || resource.data.proRedeemed == false)
@@ -935,7 +824,6 @@ service cloud.firestore {
         && request.resource.data.diff(resource.data).affectedKeys()
              .hasOnly(['proRedeemed','redeemedAt','redeemedUid'])
         && request.resource.data.redeemedUid == request.auth.uid
-        && (!('expiresAt' in resource.data) || resource.data.expiresAt > request.time)
       );
       allow delete: if isAdmin();
     }
@@ -1085,9 +973,7 @@ service cloud.firestore {
       allow create: if request.resource.data.name is string
         && request.resource.data.name.size() <= 120
         && request.resource.data.contact is string
-        && request.resource.data.contact.size() <= 160
-        && (!('openedAt' in request.resource.data)
-            || (request.resource.data.openedAt is string && request.resource.data.openedAt.size() <= 40));
+        && request.resource.data.contact.size() <= 160;
       allow update: if resource != null
         && request.resource.data.diff(resource.data).affectedKeys()
              .hasOnly(['name','contact','role','source','openedAt','slides',
@@ -1100,10 +986,8 @@ service cloud.firestore {
             || (request.resource.data.role is string && request.resource.data.role.size() <= 120))
         && (!('source' in request.resource.data)
             || (request.resource.data.source is string && request.resource.data.source.size() <= 120))
-        && (!('openedAt' in request.resource.data)
-            || (request.resource.data.openedAt is string && request.resource.data.openedAt.size() <= 40))
-        && (!('updatedAt' in request.resource.data)
-            || (request.resource.data.updatedAt is string && request.resource.data.updatedAt.size() <= 40))
+        && (!('openedAt' in request.resource.data) || request.resource.data.openedAt is string)
+        && (!('updatedAt' in request.resource.data) || request.resource.data.updatedAt is string)
         && (!('slides' in request.resource.data) || request.resource.data.slides is int)
         && (!('scrollPct' in request.resource.data)
             || (request.resource.data.scrollPct is int
