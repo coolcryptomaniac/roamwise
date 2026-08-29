@@ -7340,7 +7340,12 @@ function openPartnerRedeem(){
     // after that — expiresAt is a Firestore Timestamp set at claim time
     // (see nmims/index.html). Absent expiresAt (older claims predating this
     // field) is treated as no expiry, same precedent as proRedeemed above.
-    if(data.expiresAt && typeof data.expiresAt.toMillis==='function' && data.expiresAt.toMillis()<Date.now()){
+    // Skip this check when alreadyRedeemedByMe: that means partnerClaims was
+    // already validly flipped to redeemed by this exact user BEFORE expiry,
+    // and this attempt is only resuming the Pro-grant write that failed last
+    // time — firestore.rules already allows that retry regardless of
+    // subsequent expiry, so blocking it here would defeat that fix.
+    if(!alreadyRedeemedByMe && data.expiresAt && typeof data.expiresAt.toMillis==='function' && data.expiresAt.toMillis()<Date.now()){
       showToast('This code’s claim window has expired. Email founder@roamwise.co.in if you believe this is a mistake.');
       return;
     }
@@ -11498,15 +11503,18 @@ function copilotSend(fromHero){
            chips via rwTuskAsk instead of dumping "ASK: ... || a | b" as text. */
         var askM = answer.match(/^ASK:\s*(.+?)\s*\|\|\s*(.+)$/i);
         if(askM){
-          var askQ = askM[1].trim().replace(/</g,'&lt;');
-          var askOpts = askM[2].split('|').map(function(o){ return o.trim().replace(/</g,'&lt;'); }).filter(Boolean).slice(0,4);
+          /* rwTuskAsk() does its own full HTML/attribute escaping of the raw
+             question + option text below — don't pre-escape here (that
+             would double-escape) and don't skip it (that's the XSS bug). */
+          var askQ = askM[1].trim();
+          var askOpts = askM[2].split('|').map(function(o){ return o.trim(); }).filter(Boolean).slice(0,4);
           if(askQ && askOpts.length>=2){
             if(intents.dest) rwLearn(intents.dest);
             cpFinish(thinking, rwTuskAsk(askQ, askOpts), intents, t);
             return;
           }
         }
-        answer = answer.replace(/</g,'&lt;');
+        answer = escHtml(answer);
         if(lastAiSource && lastAiSource.prov!==activeProv){
           answer += '<br><span style="font-size:10.5px;color:var(--t3)">\u21aa answered by <b>'+esc2(lastAiSource.prov)+'</b> \u2014 '+esc2(activeProv)+' was unavailable</span>';
         }
@@ -12678,12 +12686,42 @@ function rwTuskReadLast(){
 }
 
 /* --- 2. CLARIFY, DON'T GUESS (anti-hallucination) --- */
+/* Plain HTML-content escape: safe to drop text between tags (innerHTML).
+   Order matters — & must go first or the entity escapes below would
+   themselves get re-escaped. Quotes are escaped too (defense in depth)
+   even though they're not strictly required outside an attribute. */
+function escHtml(s){
+  return String(s==null?'':s)
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;')
+    .replace(/'/g,'&#39;');
+}
+/* Attribute-safe escape for text that is interpolated into a single-quoted
+   JS string literal INSIDE a double-quoted HTML attribute, e.g.
+   onclick="fn('VALUE')". Two escaping problems stack here and the order is
+   load-bearing:
+     1) Make the raw text safe as the JS string literal's contents: escape
+        backslashes FIRST (\ -> \\), then escape the literal's own quote
+        char (' -> \'). Escaping backslashes first matters because a
+        trailing backslash right before a quote would otherwise combine
+        with the quote-escape's inserted backslash and neutralise it
+        (e.g. a trailing \ followed by our escaped \' would read as an
+        escaped backslash followed by a REAL quote, closing the string).
+     2) HTML-attribute-escape the result for the surrounding double quotes:
+        & first, then ".  (No need to escape < / > here — this text isn't
+        HTML content, it's an attribute value.) */
+function escHtmlAttr(s){
+  var jsSafe = String(s==null?'':s).replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+  return jsSafe.replace(/&/g,'&amp;').replace(/"/g,'&quot;');
+}
 function rwTuskAsk(question, options){
   var chips=options.map(function(o){
-    var send=String(o).replace(/'/g,"\\'");
-    return '<button onclick="rwTuskChip(\''+send+'\')" style="background:rgba(232,186,108,.10);border:1px solid var(--gold,#E8BA6C);border-radius:20px;padding:8px 13px;color:var(--gold,#E8BA6C);font-size:12px;font-weight:700;cursor:pointer;margin:4px 5px 0 0">'+o+'</button>';
+    var send=escHtmlAttr(o);
+    return '<button onclick="rwTuskChip(\''+send+'\')" style="background:rgba(232,186,108,.10);border:1px solid var(--gold,#E8BA6C);border-radius:20px;padding:8px 13px;color:var(--gold,#E8BA6C);font-size:12px;font-weight:700;cursor:pointer;margin:4px 5px 0 0">'+escHtml(o)+'</button>';
   }).join('');
-  return '<div>'+question+'<div style="margin-top:8px">'+chips+'</div></div>';
+  return '<div>'+escHtml(question)+'<div style="margin-top:8px">'+chips+'</div></div>';
 }
 function rwTuskChip(text){
   var inp=el('heroInput')||el('cpInput');
