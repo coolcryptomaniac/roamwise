@@ -7324,7 +7324,17 @@ function openPartnerRedeem(){
       showToast('This code was claimed with a different email. Sign in with '+data.email.split('@')[0]+'@…');
       return;
     }
-    if(data.proRedeemed){ showToast('Code already redeemed — your Pro is active. Check your profile.'); return; }
+    // A claim already flipped to redeemed by THIS SAME uid is not "nothing to
+    // do" — it means a PRIOR attempt got as far as flipping partnerClaims but
+    // then failed on the users/{uid} grant write below (see the create-vs-
+    // update gap explained next to that write). That must be resumable on a
+    // later attempt, not treated as a dead end, so only block here when the
+    // code was redeemed by a DIFFERENT uid.
+    var alreadyRedeemedByMe = !!(data.proRedeemed && data.redeemedUid===user.uid);
+    if(data.proRedeemed && !alreadyRedeemedByMe){
+      showToast('Code already redeemed — your Pro is active. Check your profile.');
+      return;
+    }
     // Claim codes are issued inside a time-boxed campaign window (e.g. the
     // NMIMS 30-day claim window) and shouldn't be redeemable indefinitely
     // after that — expiresAt is a Firestore Timestamp set at claim time
@@ -7349,18 +7359,46 @@ function openPartnerRedeem(){
        write must touch ONLY pro/proAt/proMethod/proCode — that exact field
        set is what the rules' partner-redeem exception checks for; anything
        else in this write (e.g. the old proPartner/proAmount fields) would be
-       rejected. */
-    try{
-      await claimRef.update({proRedeemed:true, redeemedAt:new Date().toISOString(), redeemedUid:user.uid});
-    }catch(e){
-      showToast('Redemption error: '+(e.message||'try again'));
-      return;
+       rejected.
+       Skip this flip entirely when alreadyRedeemedByMe — partnerClaims'
+       update rule only allows proRedeemed false/absent -> true (see
+       firestore.rules), so re-sending it once it's already true would be
+       REJECTED by the rules, aborting this retry before it ever reaches the
+       grant step below that actually needs resuming. */
+    if(!alreadyRedeemedByMe){
+      try{
+        await claimRef.update({proRedeemed:true, redeemedAt:new Date().toISOString(), redeemedUid:user.uid});
+      }catch(e){
+        showToast('Redemption error: '+(e.message||'try again'));
+        return;
+      }
     }
     try{
-      await db.collection('users').doc(user.uid).set({
+      /* CodeRabbit-flagged gap: set(data,{merge:true}) against a users/{uid}
+         doc that does NOT yet exist is a CREATE, not an update, in Firestore
+         semantics — and the users/{uid} create rule explicitly forbids
+         pro/proAt/proMethod/proPayId on create (users can never self-grant
+         Pro at signup). If this profile doc hadn't been created yet (e.g.
+         the onAuthStateChanged first-sign-in write, ~line 9582, hadn't landed
+         yet), this whole write used to be silently rejected — AFTER the
+         claim above was already flipped to redeemed, permanently, with no
+         path to ever retry it (a create can only happen once, and it would
+         always be rejected the same way).
+         Fix: explicitly check existence first. If missing, create the SAME
+         bare minimal profile shape used on first sign-in (no pro fields —
+         satisfies the create rule) as its own separate write, THEN grant Pro
+         via a genuine update() (not a merge-set) — since the doc now exists,
+         this is a real update and the isRedeemedByCaller()-gated update rule
+         applies normally, same as the already-exists case. */
+      var userRef=db.collection('users').doc(user.uid);
+      var uSnap=await userRef.get();
+      if(!uSnap.exists){
+        await userRef.set({email:user.email||'', phone:user.phoneNumber||'', name:user.displayName||'', created:firebase.firestore.FieldValue.serverTimestamp()});
+      }
+      await userRef.update({
         pro:true, proAt:new Date().toISOString(),
         proMethod:'partner', proCode:code
-      },{merge:true});
+      });
       showToast('\ud83c\udf89 Partner Pass activated! Welcome, '+esc2(data.name?data.name.split(' ')[0]:'friend')+'.');
       window._proUnlocked=true;
       /* Reuse the SAME UI-refresh path a real Firestore pro:true write
