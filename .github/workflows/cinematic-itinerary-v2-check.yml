@@ -1,0 +1,37 @@
+name: Cinematic itinerary v2 checks
+
+on:
+  push:
+    branches:
+      - feature/itinerary-library-v1.1
+    paths:
+      - 'roamwise-premium-itinerary.js'
+      - 'roamwise-premium-itinerary.css'
+      - '.github/workflows/cinematic-itinerary-v2-check.yml'
+  pull_request:
+    paths:
+      - 'roamwise-premium-itinerary.js'
+      - 'roamwise-premium-itinerary.css'
+
+permissions:
+  contents: read
+
+jobs:
+  static-checks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: JavaScript syntax
+        run: node --check roamwise-premium-itinerary.js
+      - name: Cinematic v2 invariants
+        run: |
+          grep -q "rw-day-carousel" roamwise-premium-itinerary.js
+          grep -q "openstreetmap.org/export/embed.html" roamwise-premium-itinerary.js
+          grep -q "rwCineResultLauncher" roamwise-premium-itinerary.js
+          grep -q "Full details" roamwise-premium-itinerary.js
+          grep -q "window.isPro===true" roamwise-premium-itinerary.js
+          grep -q "prefers-reduced-motion" roamwise-premium-itinerary.css
+          ! grep -q "unpkg.com/leaflet" roamwise-premium-itinerary.js
+          ! grep -q "fallbackDays" roamwise-premium-itinerary.js
+          echo "Cinematic v2 static invariants: PASS"
