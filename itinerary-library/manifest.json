@@ -1874,11 +1874,6 @@
       }
     }
   ],
-  "features": [
-    "local-intelligence",
-    "rw-photo-reuse",
-    "lazy-local-maps",
-    "journey-style-motifs",
-    "personalized-social-stamp"
-  ]
+  "localIntelligence": "data/local-intelligence.json",
+  "shareAttribution": "Made by RoamWise for <user>"
 }

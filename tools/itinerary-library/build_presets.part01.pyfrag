@@ -1,0 +1,40 @@
+from pathlib import Path
+import os, json, math, re, textwrap, html, zipfile, shutil, zlib, base64
+from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import A4
+from reportlab.lib.colors import HexColor, Color
+from reportlab.pdfbase.pdfmetrics import stringWidth
+
+ROOT=Path(__file__).resolve().parents[2]
+OUT=Path(os.environ.get('ROAMWISE_ITINERARY_OUT', str(ROOT/'itinerary-library')))
+if OUT.exists(): shutil.rmtree(OUT)
+(OUT/'assets').mkdir(parents=True); (OUT/'data').mkdir(); (OUT/'scripts').mkdir(); (OUT/'presets').mkdir()
+VARIANTS={
+ 'essential':{'label':'Essential','desc':'Fast first-timer route with the non-negotiable highlights.'},
+ 'signature':{'label':'Signature','desc':'Balanced RoamWise default with breathing room and strong variety.'},
+ 'deep-dive':{'label':'Deep Dive','desc':'Slower route with secondary places, culture and recovery time.'},
+ 'expedition':{'label':'Expedition','desc':'Longest ready-made route with remote legs, buffers and deeper exploration.'},
+}
+cat=(Path(__file__).parent/'catalog.zlib.b64').read_text().strip()
+C=json.loads(zlib.decompress(base64.b64decode(cat)).decode('utf-8'))
+
+THEME_META={
+ 'crimson-moon': {'label':'Crimson Moon','accent':'#ff2d36','accent2':'#7bc7ff','tag':'HIGH ALTITUDE // NIGHT SKY // SHINOBI ROAD'},
+ 'scarlet-pilgrim': {'label':'Scarlet Pilgrim','accent':'#ff3434','accent2':'#ffb45d','tag':'PILGRIMAGE // HERITAGE // SCARLET SCROLL'},
+ 'eastern-frontier': {'label':'Eastern Frontier','accent':'#ff3545','accent2':'#53dfb5','tag':'FOREST // WATER // FRONTIER DOSSIER'},
+ 'crimson-expedition': {'label':'Crimson Expedition','accent':'#ff3045','accent2':'#ffc857','tag':'EXPEDITION // ROAD // FIELD INTEL'},
+}
+
+# Build days from canonical stops while keeping contiguous route progression.
+def build_days(dest, n):
+    stops=dest['stops']
+    m=len(stops)
+    if n <= m:
+        groups=[]
+        for i in range(n):
+            a=round(i*m/n); b=round((i+1)*m/n)
+            if b<=a: b=a+1
+            groups.append(stops[a:min(b,m)])
+    else:
+        groups=[[s] for s in stops]
+        while len(groups)<n:

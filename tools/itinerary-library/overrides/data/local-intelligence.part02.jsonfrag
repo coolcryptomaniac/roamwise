@@ -1,0 +1,149 @@
+ "food": "Seafood, Bengali/Tamil-influenced island meals and coconut-forward dishes",
+    "movement": "Ferries are the backbone; build weather buffers between islands",
+    "etiquette": "Marine rules and protected areas matter more than squeezing in one more beach",
+    "signature": "Turquoise shallows, mangroves, dive sites and forested island horizons",
+    "photoKeys": [
+      "Port Blair",
+      "Havelock",
+      "Neil Island",
+      "Andaman"
+    ]
+  },
+  "sikkim": {
+    "journeyStyle": "himalayan-monastery",
+    "food": "Momos, thukpa, gundruk, churpi and local teas",
+    "movement": "Local/shared cabs; permit-sensitive high-altitude sectors need flexible sequencing",
+    "etiquette": "Monasteries reward quiet behavior; high lakes require weather/permit checks",
+    "signature": "Prayer flags, rhododendron slopes and Kanchenjunga viewpoints",
+    "photoKeys": [
+      "Gangtok",
+      "Pelling",
+      "Tsomgo",
+      "Sikkim"
+    ]
+  },
+  "northeast-grand": {
+    "journeyStyle": "eastern-frontier",
+    "food": "Regional thalis, smoked meats where preferred, bamboo-shoot dishes and local teas",
+    "movement": "Road/rail/flight mix; terrain makes transfer days part of the itinerary",
+    "etiquette": "Each state and community is distinct; avoid treating “North-East” as one culture",
+    "signature": "Living roots, tea landscapes, monasteries, river valleys and tribal craft traditions",
+    "photoKeys": [
+      "Guwahati",
+      "Shillong",
+      "Tawang",
+      "Kaziranga",
+      "Meghalaya"
+    ]
+  },
+  "tawang": {
+    "journeyStyle": "eastern-himalaya",
+    "food": "Momos, thukpa, zan and Monpa-style local meals",
+    "movement": "Mountain road vehicle; Sela/Bum La sectors need weather and permit awareness",
+    "etiquette": "Monasteries and memorial spaces deserve quiet pacing; altitude rises quickly",
+    "signature": "Monpa culture, high lakes, monastery silhouettes and Sela landscapes",
+    "photoKeys": [
+      "Tawang",
+      "Sela Pass",
+      "Dirang",
+      "Bomdila"
+    ]
+  },
+  "meghalaya": {
+    "journeyStyle": "cloud-forest",
+    "food": "Jadoh, dohneiihong where preferred, tungrymbai and local market snacks",
+    "movement": "Shared/local cabs; many highlights require walking and stairs",
+    "etiquette": "Living-root bridges are community landscapes, not amusement parks; pace to village norms",
+    "signature": "Cloud forests, limestone caves, root bridges and clear river valleys",
+    "photoKeys": [
+      "Shillong",
+      "Cherrapunji",
+      "Mawlynnong",
+      "Dawki",
+      "Meghalaya"
+    ]
+  },
+  "hampi-badami": {
+    "journeyStyle": "deccan-stone",
+    "food": "North Karnataka meals, jolada rotti, local breakfast and banana-area cafes",
+    "movement": "Auto/two-wheeler/bicycle around Hampi; road transfer to Badami/Aihole/Pattadakal",
+    "etiquette": "Heat management is essential; temple ruins and active shrines require different etiquette",
+    "signature": "Granite boulders, Vijayanagara ruins and Chalukyan rock-cut architecture",
+    "photoKeys": [
+      "Hampi",
+      "Badami",
+      "Aihole",
+      "Pattadakal"
+    ]
+  },
+  "kutch": {
+    "journeyStyle": "salt-desert",
+    "food": "Kutchi dabeli, bajra rotla, kadhi and village foods",
+    "movement": "Road vehicle between craft villages and Rann sectors",
+    "etiquette": "Craft visits work best as conversations, not bargaining marathons; border-zone rules can change",
+    "signature": "White salt horizons, bhungas, embroidery and desert villages",
+    "photoKeys": [
+      "Bhuj",
+      "Rann of Kutch",
+      "Mandvi",
+      "Kutch"
+    ]
+  },
+  "lakshadweep": {
+    "journeyStyle": "lagoon",
+    "food": "Fresh fish, coconut-rich island cooking and simple local meals",
+    "movement": "Authorized boat/flight connections; island permissions shape the route",
+    "etiquette": "Reef-safe behavior and local community norms matter on small islands",
+    "signature": "Lagoon blues, coral shallows and low-rise island life",
+    "photoKeys": [
+      "Lakshadweep",
+      "Agatti"
+    ]
+  },
+  "sri-lanka": {
+    "journeyStyle": "tropical-heritage",
+    "food": "Hoppers, kottu, rice-and-curry, string hoppers and seafood",
+    "movement": "Rail is scenic on hill-country legs; tuk-tuks useful locally",
+    "etiquette": "Temple clothing rules are important; wildlife viewing should stay with responsible operators",
+    "signature": "Tea country, ancient cities, rail curves and south-coast light",
+    "photoKeys": [
+      "Colombo",
+      "Kandy",
+      "Ella",
+      "Sigiriya",
+      "Galle"
+    ]
+  },
+  "thailand": {
+    "journeyStyle": "tropical-city-island",
+    "food": "Street noodles, curries, som tam, regional northern dishes and island seafood",
+    "movement": "BTS/MRT in Bangkok, rail/flight for long hops, ferries for islands",
+    "etiquette": "Temple dress and shoe etiquette matter; avoid exploitative animal attractions",
+    "signature": "Bangkok night texture, northern temples, limestone islands and markets",
+    "photoKeys": [
+      "Bangkok",
+      "Chiang Mai",
+      "Krabi",
+      "Phuket"
+    ]
+  },
+  "bali": {
+    "journeyStyle": "volcanic-island",
+    "food": "Nasi campur, sate lilit, babi guling where preferred, vegetarian warung food",
+    "movement": "Driver/scooter depending confidence; traffic makes distance deceptive",
+    "etiquette": "Temple sarong rules and ceremony access should be respected; avoid staging sacred moments",
+    "signature": "Rice terraces, volcanic silhouettes, temple gates and black-sand/coastal light",
+    "photoKeys": [
+      "Ubud",
+      "Bali",
+      "Canggu",
+      "Uluwatu"
+    ]
+  },
+  "vietnam": {
+    "journeyStyle": "long-country",
+    "food": "Pho, bun cha, banh mi, regional central dishes and coffee",
+    "movement": "Rail/flight between regions; Grab/local taxis in cities",
+    "etiquette": "Street crossing and food markets have their own rhythm; dress modestly at pagodas",
+    "signature": "Hanoi lanes, karst bays, lantern towns and Mekong textures",
+    "phot

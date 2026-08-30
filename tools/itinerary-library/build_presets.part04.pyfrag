@@ -1,0 +1,40 @@
+        else:
+            if cur: lines.append(cur)
+            cur=w
+    if cur: lines.append(cur)
+    return lines
+
+def pdf_text(c,text,x,y,maxw,font='Helvetica',size=10,leading=13,color=HexColor('#d4cfcb'),max_lines=None):
+    c.setFont(font,size); c.setFillColor(color)
+    lines=wrap_text(text,font,size,maxw)
+    if max_lines: lines=lines[:max_lines]
+    for ln in lines:
+        c.drawString(x,y,ln); y-=leading
+    return y
+
+def pdf_bg(c,accent,accent2):
+    c.setFillColor(HexColor('#070709')); c.rect(0,0,PAGE_W,PAGE_H,fill=1,stroke=0)
+    c.setFillColor(HexColor('#101016')); c.rect(0,PAGE_H*0.48,PAGE_W,PAGE_H*0.52,fill=1,stroke=0)
+    c.setFillColor(Color(*tuple(v/255 for v in (90,5,15)),alpha=1)); c.circle(PAGE_W-105,PAGE_H-110,72,fill=1,stroke=0)
+    c.setFillColor(HexColor(accent)); c.circle(PAGE_W-105,PAGE_H-110,61,fill=1,stroke=0)
+    c.setFillColor(HexColor(accent2)); c.circle(PAGE_W-105,PAGE_H-110,13,fill=1,stroke=0)
+
+def make_pdf(path,dest,var_key,n,days):
+    t=THEME_META[dest['theme']]; accent=t['accent']; accent2=t['accent2']
+    c=canvas.Canvas(str(path),pagesize=A4)
+    # cover
+    pdf_bg(c,accent,accent2)
+    c.setFillColor(HexColor(accent2)); c.setFont('Helvetica-Bold',8); c.drawString(M,PAGE_H-70,'ROAMWISE PRESET // '+t['tag'])
+    c.setFillColor(HexColor('#ffffff')); c.setFont('Helvetica-Bold',34)
+    title_lines=wrap_text(dest['name'].upper(),'Helvetica-Bold',34,PAGE_W-2*M)
+    y=PAGE_H-190
+    for ln in title_lines[:3]: c.drawString(M,y,ln); y-=39
+    c.setFillColor(HexColor(accent)); c.setFont('Helvetica-Bold',26); c.drawString(M,y-8,VARIANTS[var_key]['label'].upper()); y-=55
+    c.setStrokeColor(HexColor(accent)); c.setLineWidth(2); c.line(M,y,PAGE_W-170,y)
+    c.setFillColor(HexColor('#ddd8d3')); c.setFont('Helvetica-Bold',12); c.drawString(M,y-32,f'{n} DAYS // {dest["country"]} // {dest["region"]}')
+    c.setFillColor(HexColor('#aaa5a1')); c.setFont('Helvetica',10); y2=y-60
+    y2=pdf_text(c,VARIANTS[var_key]['desc'],M,y2,PAGE_W-2*M,size=10,leading=14,color=HexColor('#aaa5a1'))
+    c.setFillColor(HexColor('#88837f')); c.setFont('Helvetica',9); c.drawString(M,54,'Cached cinematic itinerary - time-sensitive details must be refreshed before travel.')
+    c.showPage()
+    # profile + route
+    c.setFillColor(HexColor('#08080b')); c.rect(0,0,PAGE_W,PAGE_H,fill=1,stroke=0)

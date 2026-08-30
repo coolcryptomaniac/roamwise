@@ -1,0 +1,49 @@
+
+```
+presets/ladakh/signature.html?theme=eastern-frontier
+```
+
+## Folder placement
+
+Recommended repository path:
+
+```
+/itinerary-library/
+  manifest.json
+  preset-loader.js
+  index.html
+  assets/
+  data/
+  presets/
+```
+
+No database, Firestore, worker or API is needed to serve the cache. GitHub Pages / static hosting can serve it directly.
+
+## Safety / freshness
+
+These are fallback route designs, not live operational guarantees. Weather, road status, permits, park openings, border/frontier access, transport, pricing and availability must be refreshed when relevant. Expedition presets deliberately keep conservative durations instead of shortening high-altitude routes to an unsafe number of days.
+'''
+(OUT/'README.md').write_text(README,encoding='utf-8')
+
+# Add a tiny Claude Code handoff prompt.
+(OUT/'CLAUDE-CODE-MERGE-NOTES.md').write_text('''# Claude Code merge notes
+
+1. Copy this whole folder to `/itinerary-library/`.
+2. Add `<script src="itinerary-library/preset-loader.js" defer></script>` after the current planner/premium scripts.
+3. In the itinerary generation handler, call `RW_PRESETS.find(...)` before any expensive generation.
+4. If a hit is returned, `RW_PRESETS.renderInto("#results", hit)` and stop. If null, leave the existing planner path unchanged.
+5. Add a small **Ready-made / Live** label in the premium result UI so the user always knows which source produced the itinerary.
+6. Do not replace the existing Classic result renderer or premium cinematic engine; this library is an additive cache.
+7. Run the existing smoke tests plus: broad Ladakh -> preset; Ladakh + exact September/₹40k/Avoid crowds -> live planner; EBC -> no unsafe short preset; unknown destination -> live planner.
+''',encoding='utf-8')
+
+# Copy build script into package for reproducibility.
+shutil.copy(Path(__file__), OUT/'scripts'/'build_presets.py')
+
+# checks
+files=list(OUT.rglob('*'))
+htmls=[p for p in files if p.suffix=='.html' and 'presets' in p.parts]
+pdfs=[p for p in files if p.suffix=='.pdf']
+assert len(htmls)==len(C)*4, (len(htmls),len(C)*4)
+assert len(pdfs)==len(C)*4
+

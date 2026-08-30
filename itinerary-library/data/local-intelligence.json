@@ -158,7 +158,7 @@
   },
   "andaman": {
     "journeyStyle": "island-marine",
-    "food": "Seafood, Bengali/Tamil-influenced island meals and coconut-forward dishes",
+     "food": "Seafood, Bengali/Tamil-influenced island meals and coconut-forward dishes",
     "movement": "Ferries are the backbone; build weather buffers between islands",
     "etiquette": "Marine rules and protected areas matter more than squeezing in one more beach",
     "signature": "Turquoise shallows, mangroves, dive sites and forested island horizons",

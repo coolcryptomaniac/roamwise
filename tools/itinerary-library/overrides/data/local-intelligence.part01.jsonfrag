@@ -1,0 +1,161 @@
+{
+  "ladakh": {
+    "journeyStyle": "high-altitude",
+    "food": "Skyu/Leh-style momos, thukpa, skyu and butter tea",
+    "movement": "Shared taxis / local cabs; high-pass road days need buffers",
+    "etiquette": "Acclimatize before high passes; monasteries are active religious spaces",
+    "signature": "Indus monasteries, Nubra villages, Changthang light",
+    "photoKeys": [
+      "Leh",
+      "Nubra",
+      "Pangong"
+    ]
+  },
+  "kashmir": {
+    "journeyStyle": "alpine",
+    "food": "Kahwa, wazwan dishes, girda/lavasa breads",
+    "movement": "Local cab for valley legs; shikara only where useful",
+    "etiquette": "Dress/respect cues vary by shrine and neighborhood; ask before close-up portraits",
+    "signature": "Dal mornings, walnut/wood craft, meadow-to-alpine transitions",
+    "photoKeys": [
+      "Srinagar",
+      "Gulmarg",
+      "Pahalgam",
+      "Sonamarg"
+    ]
+  },
+  "spiti": {
+    "journeyStyle": "high-altitude",
+    "food": "Thukpa, momos, local barley dishes and village meals",
+    "movement": "Road-trip vehicle with high-clearance preference; fuel and cash buffers",
+    "etiquette": "Village homestays are part of the experience; keep altitude days deliberately slow",
+    "signature": "Mud monasteries, fossil villages, cold-desert geology",
+    "photoKeys": [
+      "Kaza",
+      "Spiti",
+      "Tabo",
+      "Chandratal"
+    ]
+  },
+  "manali": {
+    "journeyStyle": "alpine",
+    "food": "Himachali dham, siddu, trout and orchard produce",
+    "movement": "Local cab/bus plus short walks; high-road access changes with weather",
+    "etiquette": "Old villages reward walking; adventure activities should use licensed operators",
+    "signature": "Cedar valleys, old Manali lanes, Lahaul contrast",
+    "photoKeys": [
+      "Manali",
+      "Solang",
+      "Sissu",
+      "Naggar"
+    ]
+  },
+  "kumaon": {
+    "journeyStyle": "himalayan-ridge",
+    "food": "Bhatt ki churkani, aloo ke gutke, bal mithai, singori",
+    "movement": "Hill taxi/shared jeep; road time is longer than map distance suggests",
+    "etiquette": "Temple/forest stops are quiet places; village markets are better than rushed checklist tourism",
+    "signature": "Aipan, deodar forests, ridge sunsets and Panchachuli views",
+    "photoKeys": [
+      "Almora",
+      "Binsar",
+      "Jageshwar",
+      "Kausani",
+      "Munsiyari"
+    ]
+  },
+  "chardham": {
+    "journeyStyle": "sacred",
+    "food": "Simple pahadi thalis, mandua dishes, tea and pilgrim-route meals",
+    "movement": "Road transfers plus trekking/authorized local transport where applicable",
+    "etiquette": "Temple etiquette, registration, weather and queue conditions take priority over pace",
+    "signature": "River confluences, pilgrimage footpaths, cedar and high-Himalayan temple landscapes",
+    "photoKeys": [
+      "Yamunotri",
+      "Gangotri",
+      "Kedarnath",
+      "Badrinath",
+      "Rishikesh"
+    ]
+  },
+  "rishikesh-mussoorie": {
+    "journeyStyle": "river-hills",
+    "food": "Garhwali dishes, cafe food, chai, bakery stops in Landour",
+    "movement": "Walk + local cab; rafting only with authorized operators",
+    "etiquette": "Keep ghats respectful during worship; wellness time works better without over-scheduling",
+    "signature": "Ganga evenings, suspension-bridge walks, Landour ridge atmosphere",
+    "photoKeys": [
+      "Rishikesh",
+      "Mussoorie",
+      "Landour",
+      "Dehradun"
+    ]
+  },
+  "rajasthan": {
+    "journeyStyle": "desert-heritage",
+    "food": "Dal baati churma, ker sangri, kachori, laal maas where preferred",
+    "movement": "Train/road between cities; old-city cores are often best on foot/e-rickshaw",
+    "etiquette": "Ask before photographing people; heat and fort walking deserve slower pacing",
+    "signature": "Blue lanes, stepwells, havelis, desert light and craft workshops",
+    "photoKeys": [
+      "Jaipur",
+      "Jodhpur",
+      "Jaisalmer",
+      "Udaipur",
+      "Bundi"
+    ]
+  },
+  "golden-triangle": {
+    "journeyStyle": "imperial-heritage",
+    "food": "Delhi chaat, Agra petha/Mughlai, Jaipur kachori and thali",
+    "movement": "Rail/expressway between cities; metro/e-rickshaw/walking inside dense cores",
+    "etiquette": "Major monuments reward opening-hour starts; keep market time separate from monument sprints",
+    "signature": "Mughal geometry, bazaars and Rajput fort silhouettes",
+    "photoKeys": [
+      "Delhi",
+      "Agra",
+      "Jaipur"
+    ]
+  },
+  "varanasi-ayodhya": {
+    "journeyStyle": "sacred-river",
+    "food": "Kachori-sabzi, tamatar chaat, lassi and satvik temple-town meals",
+    "movement": "Walk/boat/e-rickshaw in dense cores; road/rail between cities",
+    "etiquette": "Active cremation and worship areas demand restraint with cameras and conversation",
+    "signature": "Sunrise river light, temple lanes, music and ritual rhythm",
+    "photoKeys": [
+      "Varanasi",
+      "Sarnath",
+      "Ayodhya"
+    ]
+  },
+  "goa": {
+    "journeyStyle": "coastal",
+    "food": "Goan fish curry, xacuti, cafreal, poi and local sweets",
+    "movement": "Scooter only for confident licensed riders; taxis/buses for mixed groups",
+    "etiquette": "Old Goa and village churches differ from beach zones; respect active worship and village quiet",
+    "signature": "Laterite forts, Fontainhas color, estuaries and quieter southern beaches",
+    "photoKeys": [
+      "Panaji",
+      "Goa",
+      "Old Goa",
+      "Palolem"
+    ]
+  },
+  "kerala": {
+    "journeyStyle": "tropical-water",
+    "food": "Appam-stew, puttu-kadala, sadya, seafood and Malabar dishes",
+    "movement": "Train/road plus ferry/backwater boats; avoid unnecessary private-car hops in cities",
+    "etiquette": "Temple access/dress rules vary; backwater villages benefit from low-noise, low-waste travel",
+    "signature": "Tea hills, spice country, canals and Arabian Sea sunsets",
+    "photoKeys": [
+      "Kochi",
+      "Munnar",
+      "Alappuzha",
+      "Thekkady",
+      "Varkala"
+    ]
+  },
+  "andaman": {
+    "journeyStyle": "island-marine",
+    

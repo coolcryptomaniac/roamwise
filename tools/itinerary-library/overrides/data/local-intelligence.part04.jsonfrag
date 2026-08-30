@@ -1,0 +1,153 @@
+and contrast",
+    "photoKeys": [
+      "Kathmandu",
+      "Pokhara",
+      "Chitwan"
+    ]
+  },
+  "bhutan": {
+    "journeyStyle": "himalayan-kingdom",
+    "food": "Ema datshi, red rice, momos and local vegetable/meat dishes",
+    "movement": "Road travel between valleys; walking is central at dzongs and Tiger’s Nest",
+    "etiquette": "Dzong/monastery dress and photography rules deserve attention; pace follows valleys, not distance",
+    "signature": "Prayer flags, dzongs, forest passes and farmhouse landscapes",
+    "photoKeys": [
+      "Paro",
+      "Thimphu",
+      "Punakha",
+      "Bhutan"
+    ]
+  },
+  "maldives": {
+    "journeyStyle": "atoll",
+    "food": "Tuna, coconut, roshi and island/resort seafood",
+    "movement": "Speedboat/seaplane/domestic flight by atoll; transfers define usable time",
+    "etiquette": "Local-island norms differ from resorts; reef-safe water activity is non-negotiable",
+    "signature": "Lagoon gradients, sandbanks and low-island horizons",
+    "photoKeys": [
+      "Maldives",
+      "Male"
+    ]
+  },
+  "everest-base-camp": {
+    "journeyStyle": "trek-high-altitude",
+    "food": "Dal bhat, momos, soups and tea-house meals",
+    "movement": "On foot after Lukla/road gateway; acclimatization days are route infrastructure",
+    "etiquette": "Altitude discipline outranks itinerary ambition; respect porter/guide workloads and village rhythm",
+    "signature": "Suspension bridges, mani stones, monasteries and Khumbu glacier terrain",
+    "photoKeys": [
+      "Lukla",
+      "Namche Bazaar",
+      "Everest Base Camp",
+      "Khumbu"
+    ]
+  },
+  "annapurna-circuit": {
+    "journeyStyle": "trek-high-altitude",
+    "food": "Dal bhat, noodle soups, Tibetan-influenced high-valley food",
+    "movement": "Trek + local jeep segments where appropriate; road development changes stage character",
+    "etiquette": "Thorong La needs acclimatization and weather judgment, not schedule pressure",
+    "signature": "Marsyangdi valleys, Manang culture, high pass and Kali Gandaki landscapes",
+    "photoKeys": [
+      "Manang",
+      "Annapurna",
+      "Thorong La",
+      "Jomsom"
+    ]
+  },
+  "kilimanjaro": {
+    "journeyStyle": "summit-expedition",
+    "food": "Guide-team camp meals, soups, starches and hydration-focused food",
+    "movement": "Trek with licensed operator/support crew",
+    "etiquette": "Pole pole pacing, guide instructions and acclimatization strategy matter more than speed",
+    "signature": "Rainforest-to-alpine-desert transitions and summit dawn",
+    "photoKeys": [
+      "Kilimanjaro",
+      "Moshi"
+    ]
+  },
+  "inca-trail": {
+    "journeyStyle": "andes-heritage",
+    "food": "Andean soups, quinoa/potato dishes and Cusco regional food",
+    "movement": "Trek under regulated access; rail/road for non-trail legs",
+    "etiquette": "Permit/porter rules and archaeological-site respect shape the trip",
+    "signature": "Cloud forest, stone trail, high passes and Inca masonry",
+    "photoKeys": [
+      "Cusco",
+      "Machu Picchu",
+      "Inca Trail"
+    ]
+  },
+  "tour-du-mont-blanc": {
+    "journeyStyle": "alpine-trek",
+    "food": "Refuge meals, cheese, charcuterie, polenta/pasta and bakery stops",
+    "movement": "Trek + local bus/lift shortcuts when needed",
+    "etiquette": "Hut booking, trail weather and border-crossing simplicity still require disciplined planning",
+    "signature": "Mont Blanc massif views, flower meadows and refuge culture",
+    "photoKeys": [
+      "Chamonix",
+      "Courmayeur",
+      "Mont Blanc"
+    ]
+  },
+  "patagonia-w": {
+    "journeyStyle": "wind-expedition",
+    "food": "Simple lodge/refugio meals, Chilean dishes and packed trail food",
+    "movement": "Trek + park bus/catamaran links",
+    "etiquette": "Wind can change plans fast; park trail rules and booking logistics are structural",
+    "signature": "Granite towers, glacial lakes and enormous Patagonian weather",
+    "photoKeys": [
+      "Torres del Paine",
+      "Patagonia",
+      "Puerto Natales"
+    ]
+  },
+  "markha-valley": {
+    "journeyStyle": "trek-high-altitude",
+    "food": "Tea-house/homestay Ladakhi meals, thukpa, momos and simple staples",
+    "movement": "Trek with road transfer from Leh",
+    "etiquette": "Acclimatize in Leh first; homestay etiquette and water discipline matter",
+    "signature": "Ladakhi villages, canyon walls, monasteries and high passes",
+    "photoKeys": [
+      "Leh",
+      "Markha Valley",
+      "Hemis"
+    ]
+  },
+  "kashmir-great-lakes": {
+    "journeyStyle": "alpine-trek",
+    "food": "Camp meals plus Kashmiri food before/after trek",
+    "movement": "Trek with road transfers to trailheads",
+    "etiquette": "Trail access/security/weather can change; campsite impact should stay minimal",
+    "signature": "Successive alpine lakes, meadows and dramatic passes",
+    "photoKeys": [
+      "Srinagar",
+      "Kashmir Great Lakes",
+      "Sonamarg"
+    ]
+  },
+  "hampta-pass": {
+    "journeyStyle": "alpine-trek",
+    "food": "Camp meals, Himachali food before/after trek",
+    "movement": "Trek + Manali road transfers; Chandratal leg is road/weather dependent",
+    "etiquette": "Fast landscape/altitude change means layering and pacing matter",
+    "signature": "Kullu green valleys to Lahaul cold desert and Chandratal blues",
+    "photoKeys": [
+      "Manali",
+      "Hampta Pass",
+      "Chandratal"
+    ]
+  },
+  "chadar-trek": {
+    "journeyStyle": "winter-expedition",
+    "food": "Hot soups, tea and expedition camp meals",
+    "movement": "Winter expedition on foot with specialist logistics",
+    "etiquette": "Ice conditions, rescue planning and experienced local leadership are essential",
+    "signature": "Frozen Zanskar gorge, ice textures and winter village culture",
+    "photoKeys": [
+      "Leh",
+      "Zanskar",
+      "Chadar Trek"
+    ]
+  }
+}
