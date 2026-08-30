@@ -3,18 +3,24 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="robots" content="noindex,nofollow">
-<title>RoamWise Partner</title>
+<meta name="robots" content="index,follow">
+<title>RoamWise Partner — List a Stay & Manage Bookings</title>
+<meta name="description" content="Join RoamWise as a verified homestay, hotel or local stay partner. Manage rooms, booking requests, verification and guest payment preferences from one dashboard.">
+<link rel="canonical" href="https://roamwise.co.in/partner/">
+<meta property="og:title" content="RoamWise Partner — Host, book and grow">
+<meta property="og:description" content="List your stay, get verified, manage booking requests and reach RoamWise travellers.">
+<meta property="og:image" content="https://roamwise.co.in/icon-512.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="app.css">
+<link rel="stylesheet" href="marketplace-v2.css">
 </head>
 <body>
 <nav class="nav"><div class="navin">
   <a class="brand" href="../"><i class="logo">RW</i>Roam<span>Wise</span></a>
   <div class="navspace"></div>
-  <button class="navbtn desktop" id="homeBtn">Customer</button>
+  <button class="navbtn desktop" id="homeBtn">Book a stay</button>
   <button class="navbtn desktop" id="joinBtn">List your place</button>
   <button class="navbtn" id="modeBtn">Test mode</button>
   <button class="navbtn" id="signOutBtn" style="display:none">Sign out</button>
@@ -23,12 +29,12 @@
   <section class="hero">
     <span class="eyebrow" id="eyebrow">RoamWise Partner</span>
     <h1 id="heroTitle">A simpler way to <em>host, book and grow.</em></h1>
-    <p id="heroText">Verified RoamWise stays come first. When we do not have enough local choices, we widen the search automatically.</p>
+    <p id="heroText">Verified RoamWise stays come first. Hosts keep control of rooms, rates and confirmation while travellers get one clear booking journey.</p>
   </section>
   <div class="modebar" id="modebar"></div>
   <section class="rolegrid" id="rolegrid"></section>
   <section id="view"></section>
-  <div class="footer">RoamWise · partner & booking workspace</div>
+  <div class="footer">RoamWise · verified partner & booking marketplace</div>
 </main>
 <div class="modal" id="modal"><div class="modalbox" id="modalbox"></div></div>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -37,5 +43,6 @@
 <script src="config.js"></script>
 <script src="core.js"></script>
 <script src="app.js"></script>
+<script src="marketplace-v2.js"></script>
 </body>
 </html>
