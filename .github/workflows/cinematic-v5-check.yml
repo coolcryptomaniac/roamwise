@@ -1,0 +1,46 @@
+name: Cinematic v5 checks
+
+on:
+  pull_request:
+    paths:
+      - 'roamwise-premium-itinerary.js'
+      - 'roamwise-premium-itinerary.css'
+      - '.github/workflows/cinematic-v5-check.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  cinematic-v5:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: JavaScript syntax
+        run: node --check roamwise-premium-itinerary.js
+      - name: Required v5 capabilities
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -q "VERSION='5.0.0'" roamwise-premium-itinerary.js
+          grep -q 'class SlippyMap' roamwise-premium-itinerary.js
+          grep -q 'tile.openstreetmap.org' roamwise-premium-itinerary.js
+          grep -q 'router.project-osrm.org' roamwise-premium-itinerary.js
+          grep -q 'routing.openstreetmap.de' roamwise-premium-itinerary.js
+          grep -q 'commons.wikimedia.org/w/api.php' roamwise-premium-itinerary.js
+          grep -q 'data-rw-day-map' roamwise-premium-itinerary.js
+          grep -q 'Morning → Evening route' roamwise-premium-itinerary.js
+          grep -q 'buildCinematicPdf' roamwise-premium-itinerary.js
+          grep -q 'Matching saved itinerary PDF' roamwise-premium-itinerary.js
+          grep -q 'rw-slippy-road' roamwise-premium-itinerary.css
+          grep -q 'rw-slippy-traveler' roamwise-premium-itinerary.css
+          grep -q 'prefers-reduced-motion' roamwise-premium-itinerary.css
+      - name: Guard against old fragile map dependency
+        shell: bash
+        run: |
+          set -euo pipefail
+          ! grep -qi 'unpkg.com/leaflet' roamwise-premium-itinerary.js
+          ! grep -qi 'L.map(' roamwise-premium-itinerary.js
+      - name: Scope summary
+        run: |
+          echo 'Cinematic v5 static checks passed.'
