@@ -1,4 +1,5 @@
 (()=>{
+  const runtimeSrc=document.currentScript?.src||'';
   const qs=new URLSearchParams(location.search);
   const p=document.querySelector('.progress');
   if(p)addEventListener('scroll',()=>{const d=document.documentElement;p.style.width=((d.scrollTop/Math.max(1,d.scrollHeight-d.clientHeight))*100)+'%'});
@@ -36,4 +37,6 @@
   async function photos(){const db=await loadRootPhotos();if(!db)return;let keys=[];try{keys=JSON.parse(body.dataset.photoKeys||'[]')}catch(e){}keys=[body.dataset.gateway,body.dataset.destination,...keys].filter(Boolean);const found=[];const seen=new Set();for(const k of keys){const hit=findPhoto(db,k);if(hit&&!seen.has(hit[1])){seen.add(hit[1]);found.push(hit);if(found.length>=5)break}}if(!found.length)return;const hero=document.querySelector('.hero-photo');if(hero){hero.style.backgroundImage=`url("${upgradePhoto(found[0][1])}")`;hero.classList.add('ready')}
     const anchor=document.querySelector('.local-intel-section')||document.querySelector('main .section');if(!anchor)return;const sec=document.createElement('section');sec.className='section local-photo-section';sec.id='rwLocalPhotos';sec.innerHTML='<h2>Local <em>Frames</em></h2><p class="lead">Destination imagery is pulled from the existing RoamWise photo library when a verified local match exists. The cinematic engine keeps the route readable even when imagery is unavailable.</p><div class="local-frames"></div>';const grid=sec.querySelector('.local-frames');found.slice(0,5).forEach(([name,url])=>{const f=document.createElement('figure');f.className='local-frame';f.innerHTML='<img loading="lazy" referrerpolicy="no-referrer" alt="'+esc(name)+'"><span>'+esc(name)+'</span>';f.querySelector('img').src=upgradePhoto(url);grid.appendChild(f)});anchor.after(sec)}
   photos();
+  function loadV3(){try{const base=runtimeSrc?new URL('./',runtimeSrc):new URL('../../assets/',location.href);if(!document.querySelector('link[data-rw-cinematic-v3]')){const l=document.createElement('link');l.rel='stylesheet';l.dataset.rwCinematicV3='1';l.href=new URL('cinematic-v3.css',base).href;document.head.appendChild(l)}if(!document.querySelector('script[data-rw-cinematic-v3]')){const s=document.createElement('script');s.dataset.rwCinematicV3='1';s.src=new URL('cinematic-v3.js',base).href;s.defer=true;document.body.appendChild(s)}}catch(e){}}
+  loadV3();
 })();
