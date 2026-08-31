@@ -1,0 +1,47 @@
+// CREATOR STUDIO RULES PATCH — merge into the ONE canonical firestore.rules file.
+// Do not paste this beside duplicate old match blocks. The repository's
+// firestore.rules is full-replace-only by design.
+//
+// Required for Creator Studio verified earnings/referral activation.
+// Creator can read only their own ledger; only the true RoamWise admin can
+// write money, tiers, referral activation and content review state.
+match /creatorEarnings/{uid} {
+  allow read: if isSelf(uid) || isAdmin() || isFinance();
+  allow create, update, delete: if isAdmin();
+}
+
+// RECOMMENDED hardening for the EXISTING /crm/{id} inbound creator create arm.
+// Replace only the anonymous creator-application condition inside that block
+// with this bounded shape; keep the existing admin/marketing read/update arms.
+// The public creators/index.html sends exactly these fields.
+//
+// allow create: if isAdmin() || (
+//      request.resource.data.keys().hasOnly([
+//        'seg','name','email','handle','reach','niche','note','consent','source',
+//        'stage','tier','refSales','refRevenue','code','createdAt'
+//      ])
+//   && request.resource.data.seg == 'creator'
+//   && request.resource.data.consent == true
+//   && request.resource.data.source == 'creators page (inbound)'
+//   && request.resource.data.stage == 'new'
+//   && request.resource.data.name is string
+//   && request.resource.data.name.size() > 0
+//   && request.resource.data.name.size() <= 120
+//   && request.resource.data.email is string
+//   && request.resource.data.email.size() > 3
+//   && request.resource.data.email.size() <= 160
+//   && request.resource.data.handle is string
+//   && request.resource.data.handle.size() <= 200
+//   && request.resource.data.reach is string
+//   && request.resource.data.reach.size() <= 40
+//   && request.resource.data.niche is string
+//   && request.resource.data.niche.size() <= 160
+//   && request.resource.data.note is string
+//   && request.resource.data.note.size() <= 1200
+//   && request.resource.data.createdAt is string
+//   && request.resource.data.createdAt.size() <= 40
+//   && request.resource.data.tier == 'applied'
+//   && request.resource.data.refSales == 0
+//   && request.resource.data.refRevenue == 0
+//   && request.resource.data.code == ''
+// );
