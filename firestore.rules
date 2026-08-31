@@ -1,5 +1,5 @@
 // ============================================================================
-//  RoamWise - Firestore Security Rules   (STABLE BUILD v16.0 / creator+booking - 2026-08-31)
+//  RoamWise - Firestore Security Rules   (STABLE BUILD v17.0 / Platform V5 - 2026-09-01)
 // ----------------------------------------------------------------------------
 //  HOW TO DEPLOY (2 minutes, do this whenever rules change):
 //    1. Firebase Console  ->  your project  ->  Build  ->  Firestore Database
@@ -8,7 +8,7 @@
 //    4. Click  "Publish"
 //    5. Update the  meta/rulesVersion  Firestore document (the `version`
 //       field, see the match block below) to match the version marker in
-//       this header (e.g. "v15.11") - the app's staleness probe reads that
+//       this header (e.g. "v17.0") - the app's staleness probe reads that
 //       doc to tell the founder whether the deployed rules are current, and
 //       it goes stale/wrong the moment this step is skipped.
 //  That's it. Changes are live in ~10 seconds.
@@ -1248,6 +1248,71 @@ service cloud.firestore {
       allow create, update, delete: if isAdmin();
     }
     // ---- CREATOR STUDIO V4 END -----------------------------------------
+
+    // ---- PLATFORM V5 PRIVACY / INVESTOR / CROWD BEGIN -------------------
+    // Private-chat learning is explicit opt-in. The browser may create a sample
+    // only for the currently authenticated user AND only while that user's
+    // consent doc says enabled=true. Samples are write-only to the traveller;
+    // only admins can inspect/delete them for the improvement pipeline.
+    match /aiLearningConsents/{uid} {
+      allow read: if isAdmin() || isSelf(uid);
+      allow create, update: if isSelf(uid)
+        && request.resource.data.keys().hasOnly(['uid','enabled','version','updatedAt'])
+        && request.resource.data.uid == uid
+        && request.resource.data.enabled is bool
+        && request.resource.data.version is string
+        && request.resource.data.version.size() <= 48;
+      allow delete: if isAdmin() || isSelf(uid);
+    }
+
+    match /aiLearningSamples/{id} {
+      allow create: if request.auth != null
+        && request.resource.data.keys().hasOnly([
+             'uid','channel','role','text','meta','clientAt','consentVersion','createdAt'
+           ])
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.channel in ['ailon','trip_chat']
+        && request.resource.data.role in ['user','assistant','feedback']
+        && request.resource.data.text is string
+        && request.resource.data.text.size() >= 2
+        && request.resource.data.text.size() <= 1400
+        && request.resource.data.meta is map
+        && request.resource.data.clientAt is string
+        && request.resource.data.clientAt.size() <= 40
+        && request.resource.data.consentVersion is string
+        && request.resource.data.consentVersion.size() <= 48
+        && exists(/databases/$(database)/documents/aiLearningConsents/$(request.auth.uid))
+        && get(/databases/$(database)/documents/aiLearningConsents/$(request.auth.uid)).data.enabled == true;
+      allow read: if isAdmin();
+      allow update: if false;
+      allow delete: if isAdmin();
+    }
+
+    // Founder/private cap-table source of truth. Never public-readable. Public
+    // investor interest continues to use the existing write-only /investors
+    // collection; actual securities records live here only after review/KYC.
+    match /capTable/{id} {
+      allow read, create, update, delete: if isAdmin();
+    }
+    match /fundingRounds/{id} {
+      allow read, create, update, delete: if isAdmin();
+    }
+    match /investorRelations/{id} {
+      allow read, create, update, delete: if isAdmin();
+    }
+
+    // Aggregated crowd intelligence is safe to cache publicly. Raw traveller
+    // reports remain protected by the existing crowdReports rule. Only an admin
+    // or trusted server pipeline can publish a computed signal/alternative.
+    match /crowdSignals/{id} {
+      allow read: if true;
+      allow create, update, delete: if isAdmin();
+    }
+    match /crowdAlternatives/{id} {
+      allow read: if true;
+      allow create, update, delete: if isAdmin();
+    }
+    // ---- PLATFORM V5 PRIVACY / INVESTOR / CROWD END ---------------------
 
     // ---- PARTNERS (hotel/hostel/operator accounts) ---------------------
     // Live-only addition, carried over as-is. A partner may read/create/edit
