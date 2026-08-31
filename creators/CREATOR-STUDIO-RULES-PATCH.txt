@@ -1,73 +1,91 @@
-// CREATOR STUDIO RULES PATCH — merge into the ONE canonical firestore.rules file.
-// Do not paste this beside duplicate old match blocks. The repository's
-// firestore.rules is full-replace-only by design.
-//
-// 1) VERIFIED CREATOR IDENTITY
-// The Studio may create/update only its own creatorAccounts/{uid} document,
-// and the identity email MUST equal Firebase Auth's token email. emailVerified
-// MUST reflect the auth token's email_verified claim and be true. This is the
-// record the founder console trusts when matching a public creator application.
+// CREATOR STUDIO V4 RULES PATCH — merge into the ONE canonical firestore.rules file.
+// FULL REPLACE discipline still applies when publishing rules to Firebase Console.
+// The important change from v3: a verified user may CLAIM an identity, but only
+// an admin can set registered:true/status:'active'. Creator Studio gates on that.
+
 match /creatorAccounts/{uid} {
   allow read: if isSelf(uid) || isAdmin();
-  allow create, update: if isSelf(uid)
+
+  // A Firebase-verified user can create only a non-privileged identity claim.
+  allow create: if isSelf(uid)
+    && request.auth.token.email_verified == true
     && request.resource.data.keys().hasOnly([
-      'uid','email','emailVerified','createdAt','updatedAt'
+      'uid','email','emailVerified','status','registered','createdAt','updatedAt'
     ])
     && request.resource.data.uid == request.auth.uid
-    && request.resource.data.email is string
-    && request.resource.data.email.size() > 3
-    && request.resource.data.email.size() <= 160
     && request.resource.data.email == request.auth.token.email
     && request.resource.data.emailVerified == true
-    && request.auth.token.email_verified == true
+    && request.resource.data.status == 'claimed'
+    && request.resource.data.registered == false
     && request.resource.data.createdAt is string
     && request.resource.data.createdAt.size() <= 40
     && request.resource.data.updatedAt is string
     && request.resource.data.updatedAt.size() <= 40;
-  allow delete: if isSelf(uid) || isAdmin();
+
+  // Once the doc exists, creator may refresh only their verified email markers.
+  // They can never touch registration/application/approval fields.
+  allow update: if isAdmin() || (
+    isSelf(uid)
+    && request.auth.token.email_verified == true
+    && request.resource.data.uid == resource.data.uid
+    && request.resource.data.email == request.auth.token.email
+    && request.resource.data.emailVerified == true
+    && request.resource.data.diff(resource.data).affectedKeys()
+         .hasOnly(['email','emailVerified','updatedAt'])
+  );
+  allow delete: if isAdmin();
 }
 
-// 2) VERIFIED CREATOR MONEY / REVIEW LEDGER
-// Creator can read only their own ledger; only the true RoamWise admin can
-// write money, tiers, referral activation and content review state. Finance can
-// read reconciled totals but cannot mutate creator payout state.
+// Private creator submissions. Media bytes stay on Instagram/YouTube/blog hosts;
+// this stores only bounded HTTPS links + metadata.
+match /creatorContent/{uid}/submissions/{itemId} {
+  function registeredCreator() {
+    return isSelf(uid)
+      && request.auth.token.email_verified == true
+      && exists(/databases/$(database)/documents/creatorAccounts/$(uid))
+      && get(/databases/$(database)/documents/creatorAccounts/$(uid)).data.registered == true
+      && get(/databases/$(database)/documents/creatorAccounts/$(uid)).data.status == 'active';
+  }
+  allow read: if registeredCreator() || isAdmin();
+  allow create: if registeredCreator()
+    && request.resource.data.keys().hasOnly([
+      'ownerUid','provider','kind','providerId','title','destination','url','note',
+      'reviewStatus','visibility','createdAt','updatedAt'
+    ])
+    && request.resource.data.ownerUid == uid
+    && request.resource.data.provider in ['instagram','youtube','blog']
+    && request.resource.data.kind is string && request.resource.data.kind.size() <= 30
+    && request.resource.data.providerId is string && request.resource.data.providerId.size() <= 200
+    && request.resource.data.title is string && request.resource.data.title.size() > 0 && request.resource.data.title.size() <= 160
+    && request.resource.data.destination is string && request.resource.data.destination.size() <= 100
+    && request.resource.data.url is string && request.resource.data.url.size() <= 700
+    && request.resource.data.url.matches('^https://.*')
+    && request.resource.data.note is string && request.resource.data.note.size() <= 500
+    && request.resource.data.reviewStatus == 'submitted'
+    && request.resource.data.visibility == 'private'
+    && request.resource.data.createdAt is string && request.resource.data.createdAt.size() <= 40
+    && request.resource.data.updatedAt is string && request.resource.data.updatedAt.size() <= 40;
+  allow update: if isAdmin() || (
+    registeredCreator()
+    && request.resource.data.ownerUid == uid
+    && request.resource.data.reviewStatus == resource.data.reviewStatus
+    && request.resource.data.visibility == resource.data.visibility
+    && request.resource.data.diff(resource.data).affectedKeys()
+         .hasOnly(['title','destination','url','note','provider','kind','providerId','updatedAt'])
+  );
+  allow delete: if registeredCreator() || isAdmin();
+}
+
+// Tiny public projection created only by admin after review. This is safe to
+// cache aggressively at the CDN and avoids exposing creator-private documents.
+match /creatorShowcase/{uid}/posts/{itemId} {
+  allow read: if true;
+  allow create, update, delete: if isAdmin();
+}
+
+// Creator money/review ledger: owner reads, admin writes. Finance can read
+// reconciled totals but cannot mutate referral/tier/payout state.
 match /creatorEarnings/{uid} {
   allow read: if isSelf(uid) || isAdmin() || isFinance();
   allow create, update, delete: if isAdmin();
 }
-
-// 3) RECOMMENDED hardening for the EXISTING /crm/{id} inbound creator create arm.
-// Replace only the anonymous creator-application condition inside that block
-// with this bounded shape; keep the existing admin/marketing read/update arms.
-// The public creators/index.html sends exactly these fields.
-//
-// allow create: if isAdmin() || (
-//      request.resource.data.keys().hasOnly([
-//        'seg','name','email','handle','reach','niche','note','consent','source',
-//        'stage','tier','refSales','refRevenue','code','createdAt'
-//      ])
-//   && request.resource.data.seg == 'creator'
-//   && request.resource.data.consent == true
-//   && request.resource.data.source == 'creators page (inbound)'
-//   && request.resource.data.stage == 'new'
-//   && request.resource.data.name is string
-//   && request.resource.data.name.size() > 0
-//   && request.resource.data.name.size() <= 120
-//   && request.resource.data.email is string
-//   && request.resource.data.email.size() > 3
-//   && request.resource.data.email.size() <= 160
-//   && request.resource.data.handle is string
-//   && request.resource.data.handle.size() <= 200
-//   && request.resource.data.reach is string
-//   && request.resource.data.reach.size() <= 40
-//   && request.resource.data.niche is string
-//   && request.resource.data.niche.size() <= 160
-//   && request.resource.data.note is string
-//   && request.resource.data.note.size() <= 1200
-//   && request.resource.data.createdAt is string
-//   && request.resource.data.createdAt.size() <= 40
-//   && request.resource.data.tier == 'applied'
-//   && request.resource.data.refSales == 0
-//   && request.resource.data.refRevenue == 0
-//   && request.resource.data.code == ''
-// );
