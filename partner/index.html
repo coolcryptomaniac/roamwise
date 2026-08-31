@@ -3,12 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#07080d">
+<meta name="theme-color" content="#080a0f">
 <meta name="robots" content="index,follow">
-<title>RoamWise Stays — Verified Direct Hosts & Host Studio</title>
-<meta name="description" content="Find verified direct RoamWise stays or list your hotel or homestay. Request-to-book, host confirmation, clear payment status and an 8% host commission model.">
+<title>RoamWise Stays — Verified Direct Stays & Host Dashboard</title>
+<meta name="description" content="Find verified direct RoamWise stays or list your hotel or homestay. Clear request-to-book status, host confirmation before payment, and a simple host dashboard.">
 <link rel="canonical" href="https://roamwise.co.in/partner/">
-<meta property="og:title" content="RoamWise Stays — Verified Direct Hosts">
+<meta property="og:title" content="RoamWise Stays — Verified Direct Stays">
 <meta property="og:description" content="Verified local stays first. Request a room, wait for host confirmation, then pay using the method you chose.">
 <meta property="og:image" content="https://roamwise.co.in/icon-512.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -17,15 +17,16 @@
 <link rel="stylesheet" href="app.css">
 <link rel="stylesheet" href="marketplace-v2.css">
 <link rel="stylesheet" href="marketplace-v3.css">
+<link rel="stylesheet" href="marketplace-v4.css">
 </head>
 <body>
 <nav class="nav"><div class="navin">
-  <a class="brand" href="../"><i class="logo">RW</i>Roam<span>Wise</span></a>
+  <a class="brand" href="../" aria-label="RoamWise home"><i class="logo">RW</i>Roam<span>Wise</span></a>
   <div class="navspace"></div>
-  <button class="navbtn desktop" id="homeBtn">Find stays</button>
-  <button class="navbtn desktop" id="joinBtn">List your place</button>
-  <button class="navbtn" id="modeBtn">Test mode</button>
-  <button class="navbtn" id="signOutBtn" style="display:none">Sign out</button>
+  <button class="navbtn desktop" id="homeBtn" type="button">Find stays</button>
+  <button class="navbtn desktop" id="joinBtn" type="button">List your place</button>
+  <button class="navbtn" id="modeBtn" type="button">Test mode</button>
+  <button class="navbtn" id="signOutBtn" type="button" style="display:none">Sign out</button>
 </div></nav>
 <main class="page">
   <section class="hero">
@@ -45,8 +46,10 @@
 <script src="config.js"></script>
 <script src="core.js"></script>
 <script src="app.js"></script>
-<!-- v3 capture guards intentionally load before the older v2 progressive enhancement. -->
+<!-- v3 trust/booking capture guards load before the older v2 enhancement. -->
 <script src="marketplace-v3.js"></script>
 <script src="marketplace-v2.js"></script>
+<!-- v4 is presentation + additional client guardrails; it never relaxes v3/rules. -->
+<script src="marketplace-v4.js"></script>
 </body>
 </html>
