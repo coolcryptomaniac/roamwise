@@ -35,6 +35,7 @@ jobs:
       - name: Marketplace trust and integration invariants
         run: |
           python - <<'PY'
+          import re
           from pathlib import Path
 
           index = Path('partner/index.html').read_text()
@@ -63,15 +64,18 @@ jobs:
           assert 'match /partners/{uid}/rooms/{roomId}' in rules
           assert '.data.verified == true' in rules
           assert 'match /roomBookings/{ref}' in rules
-          assert "guestUid == request.auth.uid" in rules
+          assert 'guestUid == request.auth.uid' in rules
 
-          # v4 must not introduce client-side card/KYC/payment-processing fields.
-          forbidden = ['cardnumber', 'card_number', 'cvv', 'cvc', 'privatekey', 'client_secret', 'bankpassword']
-          compact = v4.lower().replace(' ', '').replace('-', '').replace('_', '')
-          for token in forbidden:
-              assert token.replace('_','') not in compact, f'forbidden sensitive field in v4: {token}'
+          # Reject newly introduced sensitive collection fields, but allow safety copy
+          # that explicitly tells users NOT to submit these values.
+          sensitive = r'(card[_-]?number|cvv|cvc|bank[_-]?password|client[_-]?secret|private[_-]?key)'
+          field_patterns = [
+              rf'(?:id|name)=["\'][^"\']*{sensitive}',
+              rf'\b{sensitive}\b\s*:',
+          ]
+          for pattern in field_patterns:
+              assert not re.search(pattern, v4, re.I), f'forbidden sensitive field pattern in v4: {pattern}'
 
-          # Lightweight structural smoke check for the new stylesheet.
           assert css.count('{') == css.count('}'), 'unbalanced CSS braces'
           assert '@media(max-width:620px)' in css
           assert ':focus-visible' in css
