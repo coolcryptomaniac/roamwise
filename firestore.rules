@@ -1,5 +1,5 @@
 // ============================================================================
-//  RoamWise - Firestore Security Rules   (STABLE BUILD v15.11 / vc80 - 2026-08-29)
+//  RoamWise - Firestore Security Rules   (STABLE BUILD v16.0 / creator+booking - 2026-08-31)
 // ----------------------------------------------------------------------------
 //  HOW TO DEPLOY (2 minutes, do this whenever rules change):
 //    1. Firebase Console  ->  your project  ->  Build  ->  Firestore Database
@@ -1155,6 +1155,100 @@ service cloud.firestore {
       return request.auth != null && request.auth.uid == uid;
     }
 
+    // ---- CREATOR STUDIO V4 BEGIN ---------------------------------------
+    // CREATOR STUDIO V4 RULES PATCH — merge into the ONE canonical firestore.rules file.
+    // FULL REPLACE discipline still applies when publishing rules to Firebase Console.
+    // The important change from v3: a verified user may CLAIM an identity, but only
+    // an admin can set registered:true/status:'active'. Creator Studio gates on that.
+
+    match /creatorAccounts/{uid} {
+      allow read: if isSelf(uid) || isAdmin();
+
+      // A Firebase-verified user can create only a non-privileged identity claim.
+      allow create: if isSelf(uid)
+        && request.auth.token.email_verified == true
+        && request.resource.data.keys().hasOnly([
+          'uid','email','emailVerified','status','registered','createdAt','updatedAt'
+        ])
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.email == request.auth.token.email
+        && request.resource.data.emailVerified == true
+        && request.resource.data.status == 'claimed'
+        && request.resource.data.registered == false
+        && request.resource.data.createdAt is string
+        && request.resource.data.createdAt.size() <= 40
+        && request.resource.data.updatedAt is string
+        && request.resource.data.updatedAt.size() <= 40;
+
+      // Once the doc exists, creator may refresh only their verified email markers.
+      // They can never touch registration/application/approval fields.
+      allow update: if isAdmin() || (
+        isSelf(uid)
+        && request.auth.token.email_verified == true
+        && request.resource.data.uid == resource.data.uid
+        && request.resource.data.email == request.auth.token.email
+        && request.resource.data.emailVerified == true
+        && request.resource.data.diff(resource.data).affectedKeys()
+             .hasOnly(['email','emailVerified','updatedAt'])
+      );
+      allow delete: if isAdmin();
+    }
+
+    // Private creator submissions. Media bytes stay on Instagram/YouTube/blog hosts;
+    // this stores only bounded HTTPS links + metadata.
+    match /creatorContent/{uid}/submissions/{itemId} {
+      function registeredCreator() {
+        return isSelf(uid)
+          && request.auth.token.email_verified == true
+          && exists(/databases/$(database)/documents/creatorAccounts/$(uid))
+          && get(/databases/$(database)/documents/creatorAccounts/$(uid)).data.registered == true
+          && get(/databases/$(database)/documents/creatorAccounts/$(uid)).data.status == 'active';
+      }
+      allow read: if registeredCreator() || isAdmin();
+      allow create: if registeredCreator()
+        && request.resource.data.keys().hasOnly([
+          'ownerUid','provider','kind','providerId','title','destination','url','note',
+          'reviewStatus','visibility','createdAt','updatedAt'
+        ])
+        && request.resource.data.ownerUid == uid
+        && request.resource.data.provider in ['instagram','youtube','blog']
+        && request.resource.data.kind is string && request.resource.data.kind.size() <= 30
+        && request.resource.data.providerId is string && request.resource.data.providerId.size() <= 200
+        && request.resource.data.title is string && request.resource.data.title.size() > 0 && request.resource.data.title.size() <= 160
+        && request.resource.data.destination is string && request.resource.data.destination.size() <= 100
+        && request.resource.data.url is string && request.resource.data.url.size() <= 700
+        && request.resource.data.url.matches('^https://.*')
+        && request.resource.data.note is string && request.resource.data.note.size() <= 500
+        && request.resource.data.reviewStatus == 'submitted'
+        && request.resource.data.visibility == 'private'
+        && request.resource.data.createdAt is string && request.resource.data.createdAt.size() <= 40
+        && request.resource.data.updatedAt is string && request.resource.data.updatedAt.size() <= 40;
+      allow update: if isAdmin() || (
+        registeredCreator()
+        && request.resource.data.ownerUid == uid
+        && request.resource.data.reviewStatus == resource.data.reviewStatus
+        && request.resource.data.visibility == resource.data.visibility
+        && request.resource.data.diff(resource.data).affectedKeys()
+             .hasOnly(['title','destination','url','note','provider','kind','providerId','updatedAt'])
+      );
+      allow delete: if registeredCreator() || isAdmin();
+    }
+
+    // Tiny public projection created only by admin after review. This is safe to
+    // cache aggressively at the CDN and avoids exposing creator-private documents.
+    match /creatorShowcase/{uid}/posts/{itemId} {
+      allow read: if true;
+      allow create, update, delete: if isAdmin();
+    }
+
+    // Creator money/review ledger: owner reads, admin writes. Finance can read
+    // reconciled totals but cannot mutate referral/tier/payout state.
+    match /creatorEarnings/{uid} {
+      allow read: if isSelf(uid) || isAdmin() || isFinance();
+      allow create, update, delete: if isAdmin();
+    }
+    // ---- CREATOR STUDIO V4 END -----------------------------------------
+
     // ---- PARTNERS (hotel/hostel/operator accounts) ---------------------
     // Live-only addition, carried over as-is. A partner may read/create/edit
     // only their own account; sensitive fields the founder controls
@@ -1209,11 +1303,37 @@ service cloud.firestore {
       // exists, not that an admin has approved/verified it - a guest could
       // book a still-'pending', unverified partner. Fixed by additionally
       // requiring that partner doc's verified field be true.
+      // v16: browser checks are UX only. Authorization also requires a fresh,
+      // Firebase-verified identity and a currently approved room. Price/amount
+      // are bound to the public room document so a direct REST write cannot
+      // invent a cheaper booking or target a pending/unapproved host.
       allow create: if request.auth != null
-                    && request.resource.data.status in ['requested','paid-unverified','confirmed-pay-later']
+                    && request.auth.token.email_verified == true
+                    && request.resource.data.keys().hasOnly([
+                         'ref','status','bookingVersion','partnerUid','propertyId','roomId',
+                         'guestUid','guestName','guestEmail','guestPhone','note','property',
+                         'room','zone','area','checkIn','checkOut','guests','nights','roomPrice',
+                         'amount','commissionPctSnapshot','paymentMethod','paymentSnapshot',
+                         'paymentStatus','createdAt','at'
+                       ])
+                    && request.resource.data.status == 'requested'
                     && request.resource.data.guestUid == request.auth.uid
+                    && request.resource.data.partnerUid is string
+                    && request.resource.data.roomId is string
+                    && request.resource.data.nights is int
+                    && request.resource.data.nights > 0
+                    && request.resource.data.guests is int
+                    && request.resource.data.guests > 0
+                    && request.resource.data.roomPrice is number
+                    && request.resource.data.amount is number
                     && exists(/databases/$(database)/documents/partners/$(request.resource.data.partnerUid))
-                    && get(/databases/$(database)/documents/partners/$(request.resource.data.partnerUid)).data.verified == true;
+                    && get(/databases/$(database)/documents/partners/$(request.resource.data.partnerUid)).data.verified == true
+                    && exists(/databases/$(database)/documents/partners/$(request.resource.data.partnerUid)/rooms/$(request.resource.data.roomId))
+                    && get(/databases/$(database)/documents/partners/$(request.resource.data.partnerUid)/rooms/$(request.resource.data.roomId)).data.marketplaceApproved == true
+                    && get(/databases/$(database)/documents/partners/$(request.resource.data.partnerUid)/rooms/$(request.resource.data.roomId)).data.partnerUid == request.resource.data.partnerUid
+                    && get(/databases/$(database)/documents/partners/$(request.resource.data.partnerUid)/rooms/$(request.resource.data.roomId)).data.open != false
+                    && request.resource.data.roomPrice == get(/databases/$(database)/documents/partners/$(request.resource.data.partnerUid)/rooms/$(request.resource.data.roomId)).data.price
+                    && request.resource.data.amount == request.resource.data.roomPrice * request.resource.data.nights;
       allow update: if isAdmin()
                     || (request.auth != null
                         && resource.data.partnerUid == request.auth.uid
