@@ -1,0 +1,47 @@
+name: Partner marketplace checks
+
+on:
+  pull_request:
+    paths:
+      - 'partner/**'
+      - '.github/workflows/partner-marketplace-check.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  partner-marketplace:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: JavaScript syntax
+        run: |
+          node --check partner/core.js
+          node --check partner/app.js
+          node --check partner/marketplace-v2.js
+      - name: Integration invariants
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -q 'marketplace-v2.css' partner/index.html
+          grep -q 'marketplace-v2.js' partner/index.html
+          grep -q "bookingVersion:'marketplace-v2'" partner/marketplace-v2.js
+          grep -q 'roomBookings' partner/marketplace-v2.js
+          grep -q 'RoamWise verification' partner/marketplace-v2.js
+          grep -q 'HOST STUDIO' partner/marketplace-v2.js
+          grep -q 'pay_at_property' partner/marketplace-v2.js
+          grep -q 'upi_after_confirmation' partner/marketplace-v2.js
+          grep -q 'secure_link_after_confirmation' partner/marketplace-v2.js
+      - name: Public frontend secret guard
+        shell: bash
+        run: |
+          set -euo pipefail
+          ! grep -Eqi '(rzp_(live|test)_[A-Za-z0-9]{12,}|sk_(live|test)_[A-Za-z0-9]{12,}|BEGIN (RSA |EC )?PRIVATE KEY)' partner/marketplace-v2.js partner/marketplace-v2.css
+          ! grep -Eqi 'cardNumber|cvv|cvc' partner/marketplace-v2.js
+      - name: Booking safety copy
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -q 'Do not prepay until the host confirms availability' partner/marketplace-v2.js
+          grep -q 'RoamWise does not store card numbers' partner/marketplace-v2.js
