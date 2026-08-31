@@ -20,7 +20,10 @@ function fb(){
   try{return {db:firebase.firestore(),auth:firebase.auth()}}catch(e){return {db:null,auth:null}}
 }
 function user(){try{return firebase.auth().currentUser}catch(e){return null}}
-function isoDay(d){return d.toISOString().slice(0,10)}
+function isoDay(d){
+  var y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),day=String(d.getDate()).padStart(2,'0');
+  return y+'-'+m+'-'+day;
+}
 function today(){var d=new Date();d.setHours(0,0,0,0);return isoDay(d)}
 function dayAfter(v){var d=new Date(v+'T12:00:00');if(isNaN(d))return today();d.setDate(d.getDate()+1);return isoDay(d)}
 function nights(a,b){
@@ -226,13 +229,12 @@ async function hostOverview(){
     var pd=p.data()||{};
     var rq=await p.ref.collection('rooms').limit(100).get();
     var bq=await F.db.collection('roomBookings').where('partnerUid','==',u.uid).limit(100).get();
-    var rooms=0,live=0,requests=0,confirmed=0,completed=0,potential=0,overdue=0,rows=[];
+    var rooms=0,live=0,requests=0,confirmed=0,potential=0,overdue=0,rows=[];
     rq.forEach(function(r){rooms++;var x=r.data()||{};if(x.open!==false&&x.marketplaceApproved===true)live++});
     bq.forEach(function(d){
       var x=d.data()||{},st=String(x.status||'requested');
       if(st==='requested')requests++;
       if(st==='confirmed')confirmed++;
-      if(st==='completed')completed++;
       if(st==='requested'||st==='confirmed')potential+=Number(x.amount||0);
       var at=Date.parse(x.at||'');if(st==='requested'&&at&&Date.now()-at>86400000)overdue++;
       rows.push(x);
@@ -288,5 +290,5 @@ function init(){
 }
 
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
-window.RWPartnerMarketplaceV4={version:'4.0.0',upgrade:upgrade,dateGuard:dateGuard,phoneOk:phoneOk};
+window.RWPartnerMarketplaceV4={version:'4.0.1',upgrade:upgrade,dateGuard:dateGuard,phoneOk:phoneOk};
 })();
