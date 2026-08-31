@@ -1,0 +1,42 @@
+name: Generate platform Firestore v16 rules
+
+on:
+  push:
+    branches:
+      - feature/creator-payments-legal-admin-v4
+    paths:
+      - 'creators/CREATOR-STUDIO-RULES-PATCH.txt'
+      - 'scripts/apply-platform-rules-v16.py'
+      - '.github/workflows/generate-platform-rules-v16.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Apply creator and booking authorization hardening
+        run: python scripts/apply-platform-rules-v16.py
+      - name: Validate generated rules invariants
+        run: |
+          grep -q 'CREATOR STUDIO V4 BEGIN' firestore.rules
+          grep -q "request.auth.token.email_verified == true" firestore.rules
+          grep -q "marketplaceApproved == true" firestore.rules
+          grep -q "request.resource.data.roomPrice ==" firestore.rules
+          grep -q "request.resource.data.amount ==" firestore.rules
+          git diff --check
+      - name: Persist generated canonical rules
+        run: |
+          if git diff --quiet -- firestore.rules; then
+            echo 'Canonical rules already current.'
+            exit 0
+          fi
+          git config user.name 'roamwise-security-bot'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+          git add firestore.rules
+          git commit -m 'security: generate canonical Creator v4 and booking rules [skip ci]'
+          git push origin HEAD:${GITHUB_REF_NAME}
