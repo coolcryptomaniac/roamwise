@@ -1,0 +1,66 @@
+name: Platform V5 guardrails
+
+on:
+  push:
+    branches: [platform-v5]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+  schedule:
+    - cron: '17 2 * * 1'
+
+permissions:
+  contents: write
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'pull_request' && github.head_ref || github.ref_name }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Validate Platform V5 JavaScript
+        run: |
+          node --check platform-v5/atlas-shinobi.js
+          node --check platform-v5/learning-consent.js
+          node --check platform-v5/performance.js
+          node --check platform-v5/cinematic-map-v51.js
+          node --check payments/provider-registry.mjs
+          node --check payments/router-core.mjs
+          node --check payments/webhook-verify.mjs
+          node --check payments/worker.mjs
+          node --check rw-config.js
+
+      - name: Build canonical full-replace Firestore rules
+        run: python3 scripts/apply-platform-rules-v17.py
+
+      - name: Check canonical rules invariants
+        run: |
+          grep -q 'STABLE BUILD v17.0 / Platform V5' firestore.rules
+          test "$(grep -c 'match /aiLearningSamples/{id}' firestore.rules)" -eq 1
+          test "$(grep -c 'match /capTable/{id}' firestore.rules)" -eq 1
+          test "$(grep -c 'match /crowdSignals/{id}' firestore.rules)" -eq 1
+          grep -q 'v16: browser checks are UX only' firestore.rules
+          grep -q 'CREATOR STUDIO V4 BEGIN' firestore.rules
+
+      - name: Check no secret-looking values were committed to V5 modules
+        run: |
+          ! grep -RIE '(sk-[A-Za-z0-9]{20,}|ghp_[A-Za-z0-9]{20,}|xox[baprs]-[A-Za-z0-9-]{10,})' platform-v5 payments || false
+
+      - name: Commit canonical rules when generator changed them
+        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+        run: |
+          if git diff --quiet -- firestore.rules; then
+            echo 'firestore.rules already canonical'
+            exit 0
+          fi
+          git config user.name 'roamwise-platform-bot'
+          git config user.email 'bot@roamwise.co.in'
+          git add firestore.rules
+          git commit -m 'Platform V5: regenerate canonical Firestore v17 rules'
+          git push
