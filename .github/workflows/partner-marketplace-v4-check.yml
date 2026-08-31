@@ -1,0 +1,79 @@
+name: Partner Marketplace v4 check
+
+on:
+  pull_request:
+    paths:
+      - 'partner/**'
+      - 'firestore.rules'
+      - '.github/workflows/partner-marketplace-v4-check.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'partner/**'
+      - 'firestore.rules'
+      - '.github/workflows/partner-marketplace-v4-check.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: JavaScript syntax
+        run: |
+          node --check partner/core.js
+          node --check partner/app.js
+          node --check partner/marketplace-v2.js
+          node --check partner/marketplace-v3.js
+          node --check partner/marketplace-v4.js
+      - name: Marketplace trust and integration invariants
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          index = Path('partner/index.html').read_text()
+          v3 = Path('partner/marketplace-v3.js').read_text()
+          v4 = Path('partner/marketplace-v4.js').read_text()
+          css = Path('partner/marketplace-v4.css').read_text()
+          rules = Path('firestore.rules').read_text()
+          doc = Path('partner/MARKETPLACE-V4.md').read_text()
+
+          required_index = [
+              'marketplace-v4.css',
+              'marketplace-v3.js',
+              'marketplace-v2.js',
+              'marketplace-v4.js',
+          ]
+          for token in required_index:
+              assert token in index, f'missing index asset: {token}'
+          assert index.index('marketplace-v3.js') < index.index('marketplace-v2.js') < index.index('marketplace-v4.js')
+
+          for token in ['marketplaceApproved===true', 'emailVerified', 'paymentSnapshot', "u.protocol==='https:'", "status:'requested'"]:
+              assert token in v3, f'v3 trust invariant missing: {token}'
+
+          for token in ['phoneOk', 'bookingGuard', 'rwV4AckBox', 'Host Today', '90 nights', 'do not prepay', 'marketplaceApproved']:
+              assert token.lower() in v4.lower() or token.lower() in doc.lower(), f'v4 invariant missing: {token}'
+
+          assert 'match /partners/{uid}/rooms/{roomId}' in rules
+          assert '.data.verified == true' in rules
+          assert 'match /roomBookings/{ref}' in rules
+          assert "guestUid == request.auth.uid" in rules
+
+          # v4 must not introduce client-side card/KYC/payment-processing fields.
+          forbidden = ['cardnumber', 'card_number', 'cvv', 'cvc', 'privatekey', 'client_secret', 'bankpassword']
+          compact = v4.lower().replace(' ', '').replace('-', '').replace('_', '')
+          for token in forbidden:
+              assert token.replace('_','') not in compact, f'forbidden sensitive field in v4: {token}'
+
+          # Lightweight structural smoke check for the new stylesheet.
+          assert css.count('{') == css.count('}'), 'unbalanced CSS braces'
+          assert '@media(max-width:620px)' in css
+          assert ':focus-visible' in css
+          print('Partner Marketplace v4 static checks passed')
+          PY
