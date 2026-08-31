@@ -4926,5 +4926,29 @@
   "country": "India",
   "best": "January, October, November",
   "month": true
+ },
+ {
+  "slug": "jaipur-in-february",
+  "title": "Jaipur in February",
+  "name": "Jaipur·February",
+  "country": "India",
+  "best": "January, October, November",
+  "month": true
+ },
+ {
+  "slug": "jaipur-in-march",
+  "title": "Jaipur in March",
+  "name": "Jaipur·March",
+  "country": "India",
+  "best": "January, October, November",
+  "month": true
+ },
+ {
+  "slug": "jaipur-in-april",
+  "title": "Jaipur in April",
+  "name": "Jaipur·April",
+  "country": "India",
+  "best": "January, October, November",
+  "month": true
  }
 ]
