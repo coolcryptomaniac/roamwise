@@ -1,0 +1,55 @@
+name: Creator Studio checks
+
+on:
+  pull_request:
+    paths:
+      - 'creators/**'
+      - '.github/workflows/creator-studio-check.yml'
+  push:
+    paths:
+      - 'creators/**'
+      - '.github/workflows/creator-studio-check.yml'
+
+jobs:
+  creator-studio:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: JavaScript syntax
+        run: |
+          node --check creators/studio.js
+          node --check creators/admin.js
+      - name: Creator Studio invariants
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          landing=Path('creators/index.html').read_text()
+          dash=Path('creators/dashboard.html').read_text()
+          studio=Path('creators/studio.js').read_text()
+          admin=Path('creators/admin.js').read_text()
+          patch=Path('creators/CREATOR-STUDIO-RULES-PATCH.txt').read_text()
+
+          required_landing=["tier:'applied'","refSales:0","refRevenue:0","code:''","creators page (inbound)"]
+          for token in required_landing:
+              assert token in landing, f'missing CRM application field: {token}'
+          assert 'studio.js' in dash and 'studio-v2.js' not in dash
+          assert "collection('creatorEarnings').doc(S.user.uid).get()" in studio
+          forbidden=[
+              "collection('creatorEarnings').doc(S.user.uid).set(",
+              "collection('creatorEarnings').doc(S.user.uid).update(",
+              "collection('creatorEarnings').doc(S.user.uid).delete("
+          ]
+          for token in forbidden:
+              assert token not in studio, f'creator client must never write verified ledger: {token}'
+          assert "collection('config').doc('referrers')" in admin
+          assert "type:'creator'" in admin
+          assert 'contentReviews.' in admin
+          assert 'match /creatorEarnings/{uid}' in patch
+          assert 'allow create, update, delete: if isAdmin();' in patch
+          assert 'allow read: if isSelf(uid) || isAdmin() || isFinance();' in patch
+          print('Creator Studio security/integration invariants OK')
+          PY
+      - name: No stale runtime
+        run: |
+          test ! -e creators/studio-v1.js
+          ! grep -R "studio-v2.js" creators/dashboard.html creators/index.html
