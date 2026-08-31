@@ -1,54 +1,45 @@
-# RoamWise Partner — drop-in folder
+# RoamWise Stays & Host Studio
 
-This folder is designed to replace the current `/partner/` folder in the RoamWise repository without requiring edits to `index.html`, `app.js`, `app.css`, `rw-config.js`, or a Worker.
+`/partner/` is the production marketplace for direct RoamWise stays and the host workspace.
 
-## Upload
+- Live marketplace: `https://roamwise.co.in/partner/`
+- Deliberate four-role test lab: `https://roamwise.co.in/partner/?lab=1&mode=demo`
+- v3 architecture and test contract: `MARKETPLACE-V3.md`
 
-Copy **all files in this folder** into your repository's existing `partner/` directory:
+## Production experience
 
-- `partner/index.html`
-- `partner/app.css`
-- `partner/config.js`
-- `partner/core.js`
-- `partner/app.js`
-- `partner/README.md`
-- `partner/OPTIONAL-FIRESTORE-RULES.txt`
-- `partner/TEST-CHECKLIST.md`
+Normal visitors see three paths: **Find stays**, **List your place**, and **Host dashboard**. The Founder/Admin role is hidden unless the authenticated UID has an `admins/{uid}` record.
 
-Then visit:
+Direct rooms are not trusted merely because a public room document exists. Marketplace v3 requires the public projection `marketplaceApproved:true` and a matching `partnerUid` before the card remains in the verified-stay list. The canonical Firestore rules independently require the parent partner record's `verified == true` before room writes and booking creation.
 
-- Normal live portal: `https://roamwise.co.in/partner/`
-- Full four-role test lab: `https://roamwise.co.in/partner/?lab=1&mode=demo`
+## Host lifecycle
 
-On the production domain the normal `/partner/` URL defaults to live accounts. The dummy role simulator only appears when you deliberately open the lab URL.
+1. Create/sign into Firebase account.
+2. Verify email.
+3. Submit property and verification attestations.
+4. Founder reviews owner/contact, rates/location and walkthrough readiness.
+5. Approval writes `status:'active'` and boolean `verified:true`.
+6. Existing/new rooms receive the public `marketplaceApproved:true` projection.
+7. Host manages rooms, rates, booking requests, marketplace imagery/amenities and optional post-confirmation payment preferences.
 
-GitHub Pages will serve `partner/index.html` automatically.
+The v3 founder view also detects old active partner records that still carry the legacy non-boolean verification value and offers an explicit repair/migration.
 
-## Two workspaces
+## Traveller booking lifecycle
 
-### Test everything
-This is the default. It uses browser-local dummy data and lets you switch between:
+1. Search dates and destination.
+2. Only verified direct rooms survive v3 validation; external hotel choices can still appear when direct supply is thin.
+3. Traveller signs in with a **verified email**.
+4. Request is created in `roomBookings` with status `requested`.
+5. Payment preference is snapshotted into the booking, but no payment action is shown while the request is pending.
+6. Host confirms or declines using the existing Partner dashboard.
+7. After confirmation, the traveller gets exactly the snapshotted instruction: pay at property, UPI, or an HTTPS hosted payment page.
+8. Completed stays feed the existing commission/earnings calculation.
 
-1. Customer
-2. Property owner
-3. RoamWise partner
-4. Admin / staff
+RoamWise does not collect card numbers in this static frontend and v3 does not pretend to provide escrow, automated refunds, bank settlement or real-time inventory locking.
 
-The data is shared across those four roles in the same browser, so you can test the complete loop immediately.
+## Data model
 
-Recommended flow:
-
-1. Property owner → submit a new property.
-2. Admin / staff → approve it.
-3. RoamWise partner → select the newly approved property and add/edit a room.
-4. Customer → search that destination and request the room.
-5. RoamWise partner → confirm the request.
-6. Customer → My trips shows `confirmed`.
-7. Admin / staff → mark it completed.
-8. Partner earnings now count the stay; pending/confirmed bookings do not count as earned commission.
-
-### Use live accounts
-This uses the same Firebase project and document shapes already used by the current RoamWise repository:
+Existing collections remain the source of truth:
 
 - `partners/{uid}`
 - `partners/{uid}/rooms/{roomId}`
@@ -59,36 +50,12 @@ This uses the same Firebase project and document shapes already used by the curr
 
 No second database is introduced.
 
-## Travel choices
+## Security rules
 
-The public page never asks travellers to understand suppliers, APIs or referral systems. It simply shows RoamWise verified stays first and adds “More choices” where local RoamWise supply is thin.
+Use the repository root `firestore.rules` as the canonical rules source. It is full-replace-only when publishing in Firebase Console. `OPTIONAL-FIRESTORE-RULES.txt` is now a deprecated reference warning, not a deployable alternative.
 
-In Admin / staff, you can paste **public partner/deep links** for Travelpayouts, Expedia, Trawex or BookingXML-style contracted feeds. The link may contain these placeholders:
+Do **not** weaken the rules to make a UI path work. Marketplace v3 was specifically built to match the hardened contract: boolean verified host, authenticated guest-owned booking create, and narrowly scoped host booking updates.
 
-- `{destination}`
-- `{checkin}`
-- `{checkout}`
-- `{guests}`
+## Public travel providers
 
-Example:
-
-`https://example.com/search?city={destination}&from={checkin}&to={checkout}`
-
-### Important security rule
-
-Do **not** paste secret API tokens into this static website. GitHub Pages files and public Firestore config can be inspected by visitors. This folder works immediately with public affiliate/white-label links. If a provider later requires a secret token for live inventory search or booking, put that token in a private server function and keep this frontend unchanged.
-
-## Existing Firestore rules
-
-The repository already contains `firestore-rules-ADD-partners.txt`. If your current live partner portal can sign up, save rooms and read bookings, the matching rules are likely already published and no rules change is needed.
-
-If Live mode returns a permissions message, compare the Firebase Console rules with `OPTIONAL-FIRESTORE-RULES.txt`. **Do not replace your complete Firestore rules with that small file**; it is only the partner block to merge into the existing rules.
-
-## What was deliberately fixed
-
-- Commission is counted only for completed/checked-out stays.
-- Partner cannot self-approve in the intended rules model.
-- Direct RoamWise rooms are shown before outside choices.
-- No secret provider credentials are exposed in public JS.
-- The folder has no dependency on root RoamWise JS/CSS, so a future root refactor should not silently break the partner portal.
-- Public copy avoids backend/database/API terminology.
+Admin can still configure public/deep links for outside travel choices. Public URLs may use `{destination}`, `{checkin}`, `{checkout}` and `{guests}` placeholders. Secret provider/API/payment credentials must never be placed in this GitHub Pages folder or public Firestore config.
