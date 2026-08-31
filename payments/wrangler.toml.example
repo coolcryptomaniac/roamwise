@@ -1,0 +1,28 @@
+name = "roamwise-payments"
+main = "worker.mjs"
+compatibility_date = "2026-08-01"
+
+# Do not put payment secrets in this file. Use `wrangler secret put ...`.
+[vars]
+ALLOWED_ORIGINS = "https://roamwise.co.in,https://www.roamwise.co.in"
+CASHFREE_API_VERSION = "2026-01-01"
+CASHFREE_ENV = "sandbox"
+PAYPAL_ENV = "sandbox"
+ALLOW_MANUAL_UPI = "false"
+
+# Fee inputs are ROUTING ESTIMATES only and should be updated to your actual
+# merchant agreement/promotions. The router never treats these as settlement truth.
+PAY_RAZORPAY_FEE_BPS = "200"
+PAY_CASHFREE_FEE_BPS = "195"
+PAY_STRIPE_FEE_BPS = "300"
+PAY_PAYPAL_FEE_BPS = "440"
+
+# Configure catalog in the dashboard or as a secret/var. Prices are minor units.
+# Example only — replace with actual RoamWise products before deployment.
+PRODUCT_CATALOG_JSON = '''{"example":{"prices":{"INR":10000,"USD":500},"recurring":false}}'''
+
+# Optional D1 idempotency/audit store:
+# [[d1_databases]]
+# binding = "PAYMENTS_DB"
+# database_name = "roamwise-payments"
+# database_id = "<create-in-cloudflare>"
