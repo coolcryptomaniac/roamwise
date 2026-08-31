@@ -2,15 +2,41 @@
 // Do not paste this beside duplicate old match blocks. The repository's
 // firestore.rules is full-replace-only by design.
 //
-// Required for Creator Studio verified earnings/referral activation.
+// 1) VERIFIED CREATOR IDENTITY
+// The Studio may create/update only its own creatorAccounts/{uid} document,
+// and the identity email MUST equal Firebase Auth's token email. emailVerified
+// MUST reflect the auth token's email_verified claim and be true. This is the
+// record the founder console trusts when matching a public creator application.
+match /creatorAccounts/{uid} {
+  allow read: if isSelf(uid) || isAdmin();
+  allow create, update: if isSelf(uid)
+    && request.resource.data.keys().hasOnly([
+      'uid','email','emailVerified','createdAt','updatedAt'
+    ])
+    && request.resource.data.uid == request.auth.uid
+    && request.resource.data.email is string
+    && request.resource.data.email.size() > 3
+    && request.resource.data.email.size() <= 160
+    && request.resource.data.email == request.auth.token.email
+    && request.resource.data.emailVerified == true
+    && request.auth.token.email_verified == true
+    && request.resource.data.createdAt is string
+    && request.resource.data.createdAt.size() <= 40
+    && request.resource.data.updatedAt is string
+    && request.resource.data.updatedAt.size() <= 40;
+  allow delete: if isSelf(uid) || isAdmin();
+}
+
+// 2) VERIFIED CREATOR MONEY / REVIEW LEDGER
 // Creator can read only their own ledger; only the true RoamWise admin can
-// write money, tiers, referral activation and content review state.
+// write money, tiers, referral activation and content review state. Finance can
+// read reconciled totals but cannot mutate creator payout state.
 match /creatorEarnings/{uid} {
   allow read: if isSelf(uid) || isAdmin() || isFinance();
   allow create, update, delete: if isAdmin();
 }
 
-// RECOMMENDED hardening for the EXISTING /crm/{id} inbound creator create arm.
+// 3) RECOMMENDED hardening for the EXISTING /crm/{id} inbound creator create arm.
 // Replace only the anonymous creator-application condition inside that block
 // with this bounded shape; keep the existing admin/marketing read/update arms.
 // The public creators/index.html sends exactly these fields.
