@@ -30,19 +30,22 @@ All are in `sitemap.xml` and indexable.
 |---|---|---|
 | `/staff/` | Interns you have added | Their own tasks and role-limited data. **Cannot read travellers, API keys, private chats or payments** |
 | `/deck/` | Investors and advisors you send it to | Public-safe content and your funding ask. No user data |
+| `/admin/` | Founder/admin accounts only | Auth-gated operations, revenue reconciliation and investor CRM |
 
-Both carry `<meta name="robots" content="noindex">`, are absent from
-`sitemap.xml`, are `Disallow`ed in `robots.txt`, and are **linked from nowhere
-public**.
+All carry `<meta name="robots" content="noindex">` and are absent from
+`sitemap.xml`. `/admin/` additionally requires Firebase Authentication and an
+immutable `admins/{uid}` record before any business data is loaded.
 
 ### Be clear about what that does and doesn't mean
 
-**These pages are not password-protected.** Anyone with the exact URL can load
-them. What that person gets is very different, though:
+`/staff/` and `/deck/` can be loaded by anyone with the exact URL. `/admin/` is
+password-protected and rejects authenticated accounts without an admin record.
+In every case, Firestore rules—not URL secrecy—protect the data:
 
 - `/staff/` without a staff record → *"No role assigned"* and nothing else. The
   Firestore rules do the protecting, not the URL.
 - `/deck/` → your pitch. Nothing sensitive, just not for strangers.
+- `/admin/` without both valid credentials and `admins/{uid}` → no console data.
 
 **The URL is obscurity. The rules are security.** That distinction matters — if
 a link leaks, you revoke access in the Team panel; you don't change the URL.
@@ -53,14 +56,9 @@ a link leaks, you revoke access in the Team panel; you don't change the URL.
 
 | Thing | Where it lives |
 |---|---|
-| **Admin console** | `rw-admin-console.html` on your device, or `RWAdmin.apk` |
 | **Keystore** | Offline backup only. Never in the repo |
 | **Firebase service account** | GitHub Actions secret only |
 | **API keys** | User devices (BYOK) or GitHub secrets. Never committed |
-
-The admin console is deliberately not hosted. If it were on the site, its URL
-would be one guess away from your whole business — and although Firestore rules
-would still block the data, there is no reason to take the chance.
 
 ---
 
