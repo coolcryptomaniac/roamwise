@@ -1,12 +1,30 @@
-# RoamWise Pro 🥷🏔️
+RoamWise Opening Bundle
+=======================
 
-**Live app:** open this repository's GitHub Pages URL.
+This is a standalone replacement bundle for the old/new conflicting opening loaders.
 
-The AI travel planner that shows you the least-crowded month for any place on
-Earth — itineraries, treks, budgets, ninja hacks. Built in the Himalayas by
-[@mohucool](https://youtube.com/@mohucool).
+Files
+-----
+- assets/roamwise-opening-poster.png
+- assets/roamwise-opening.mp4
+- assets/roamwise-opening.gif
+- roamwise-opening.css
+- roamwise-opening.js
 
----
-© 2026 Mohit Pandey. **All rights reserved.**
-This code is published source-visible for hosting purposes only. No permission
-is granted to copy, modify, redistribute, or create derivative works.
+Integration
+-----------
+1. Copy `assets/` into the same public folder as the page that loads first.
+2. Include in the page head:
+   `<link rel="stylesheet" href="roamwise-opening.css">`
+3. Include before `</body>`:
+   `<script src="roamwise-opening.js"></script>`
+4. Remove or disable the previous intro/loader code so only one opening animation runs.
+5. If your repo previously used a different intro timeout, remove that old timeout.
+
+Behavior
+--------
+- shows once per browser session
+- 9:16 mobile-first composition that scales to desktop
+- skips automatically after ~6.5 seconds
+- skip button included
+- uses MP4 when playable, otherwise shows animated UI over poster
