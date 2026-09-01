@@ -36,6 +36,26 @@ jobs:
           node --check payments/worker.mjs
           node --check rw-config.js
 
+      - name: Guard cinematic startup quality
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+
+          atlas = Path('platform-v5/atlas-shinobi.js').read_text()
+          config = Path('rw-config.js').read_text()
+
+          assert 'GSHHS-derived coastline geometry' in atlas, 'startup atlas must use coastline-derived geometry'
+          land = re.search(r'var LAND="([^"]+)";', atlas)
+          assert land and len(land.group(1)) > 5000, 'world coastline vector is unexpectedly crude'
+          assert atlas.count('<animateMotion') == 1, 'startup must have one restrained traveller, not a runner swarm'
+          assert 'rw-atlas-runner.r2' not in atlas and 'ninja(2)' not in atlas, 'old multi-runner animation returned'
+          assert 'dur="5.05s"' in atlas and 'rwStride .72s' in atlas, 'cinematic motion cadence changed unexpectedly'
+          assert 'cinematicDurationMs: 6300' in config, 'intro must have enough time to finish cleanly'
+          assert "sessionStorage.getItem('rw_intro')" in config, 'show-once-per-session behavior must remain intact'
+          print('Cinematic startup guardrails OK')
+          PY
+
       - name: Build canonical full-replace Firestore rules
         run: python3 scripts/apply-platform-rules-v17.py
 
