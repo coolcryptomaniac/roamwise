@@ -227,7 +227,11 @@ service cloud.firestore {
     // always sends a numeric `amount`, so the hardened shape is what the app
     // actually sends - the looser rule was strictly weaker, never needed.
     match /claims/{id} {
-      allow create: if request.auth != null
+      // Admin console records paid-outside-app revenue and runs a temporary
+      // zero-value rules probe. Admin identity remains anchored to the
+      // console-only admins/{uid} document.
+      allow create: if isAdmin()
+        || (request.auth != null
         && request.resource.data.uid == request.auth.uid
         && request.resource.data.status == 'pending'
         && !('seatCounted' in request.resource.data)
@@ -236,11 +240,1180 @@ service cloud.firestore {
         && request.resource.data.amount <= 100000
         && request.resource.data.utr is string
         && request.resource.data.utr.size() == 12
-        && request.resource.data.utr.matches('^[0-9]{12}$')
+        && request.resource.data.utr.matches('^[0-9]{12}
+      allow read: if isAdmin() || (request.auth != null && resource.data.uid == request.auth.uid);
+      allow update, delete: if isAdmin();
+    }
+
+    // ---------- SYNC CIRCLE / TRAVEL PULSE (anonymous aggregate demand) ----------
+    // MERGE NOTE: live had two conflicting pulse/{..} blocks - one requiring
+    // `count is int` on every write, one just requiring auth. Neither alone is
+    // fully correct: app.js's syncGo() writes to pulse/intents with dynamic
+    // per-key increment fields and NO `count` field at all (that strict rule
+    // would reject it), while pulseBump() writes to a per-key pulse doc WITH a
+    // fixed {n, m, count, at} shape that should stay validated.
+    //
+    // Two real write shapes hit this collection, split below by doc id:
+    //  - pulse/intents (id == 'intents'): syncGo() merges exactly ONE dynamic
+    //    per-trip key -> FieldValue.increment(1) per call, e.g. {"paris_soon": 3}.
+    //    The key name comes from free-text trip name + month, so it can't be
+    //    enumerated in advance. Firestore Rules has no loop/quantifier to
+    //    validate an unknown map key's value (MapDiff/Set only expose
+    //    affectedKeys()/hasOnly()/hasAny() etc. over key *names*, never a way
+    //    to index into the map by a name pulled from a Set) - so the actual
+    //    numeric type/sign of that one dynamic field can't be checked here.
+    //    What IS enforced: at most one key may change per write (matching the
+    //    real client, which only ever bumps one key at a time), no existing
+    //    key may be deleted, and the map can't be grown past a sane size -
+    //    this bounds the blast radius even though the value itself is opaque.
+    //    Closing that residual gap for real needs either a Cloud Function to
+    //    validate after write, or restructuring intents as per-key
+    //    subdocuments (pulse/intents/{key}) so the key becomes a path segment
+    //    rules CAN see - a data-model change, intentionally not made here.
+    //  - pulse/{pulseKey(name,month)} (any other id): pulseBump() writes the
+    //    fixed {n, m, count, at} shape - fully validated since the field
+    //    names are known.
+    match /pulse/{id} {
+      allow read: if true;
+      allow create, update: if request.auth != null
+        && (
+          (id == 'intents'
+            && (resource == null || request.resource.data.diff(resource.data).removedKeys().size() == 0)
+            && (resource == null
+                  ? request.resource.data.size() == 1
+                  : request.resource.data.diff(resource.data).affectedKeys().size() == 1)
+            && request.resource.data.size() <= 5000)
+          || (id != 'intents'
+              && request.resource.data.keys().hasOnly(['n','m','count','at'])
+              && (!('n' in request.resource.data)
+                  || (request.resource.data.n is string && request.resource.data.n.size() <= 60))
+              && (!('m' in request.resource.data)
+                  || (request.resource.data.m is string && request.resource.data.m.size() <= 40))
+              && (!('count' in request.resource.data)
+                  || (request.resource.data.count is int && request.resource.data.count >= 0)))
+        );
+    }
+
+    match /requests/{id} {
+      allow create: if request.auth != null
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.text is string
+        && request.resource.data.text.size() <= 200;
+      allow read: if isAdmin();
+    }
+
+    // ---------- PAYMENTS LOG ----------
+    match /payments/{id} {
+      allow read: if isAdmin();
+      allow write: if false;
+    }
+
+    // ---------- ADMIN AUDIT LOG ----------
+    // Append-only audit trail for admin-initiated Pro grants/changes made via
+    // a private, separate admin console (not part of this app's client code).
+    // That tool creates entries (isAdmin()), other admins may review the log,
+    // but nobody - including admins - can ever edit or delete a past entry,
+    // so manual Pro grants always leave a traceable record.
+    match /adminAuditLog/{id} {
+      allow create: if isAdmin();
+      allow read: if isAdmin();
+      allow update, delete: if false;
+    }
+
+    // ---------- ADMINS ----------
+    // Never writable from any client. Add your own UID manually in the Firebase Console.
+    match /admins/{uid} {
+      allow read: if isSelf(uid);
+      // You may set ONLY your own pinHash (the second-factor lock). You can
+      // never grant yourself admin status - that stays Console-only.
+      allow update: if isSelf(uid)
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['pinHash']);
+    }
+
+    // ---------- STATS (anonymous daily funnel counters) ----------
+    // WAS: `allow write: if true` - literally any caller, signed in or not,
+    // could set/overwrite ANY field to ANY value on ANY day's doc, or delete
+    // it outright. Verified against the actual client (app.js's track(),
+    // ~line 5643): it always does
+    // `db.collection('stats').doc(day).set({ev: FieldValue.increment(1)},
+    // {merge:true})` for exactly one of a fixed set of known event names -
+    // and it deliberately does NOT check `user`/sign-in state, since events
+    // like 'visits' and 'searches' must be counted for anonymous, pre-login
+    // traffic too. So this can't be locked to request.auth != null without
+    // breaking real anonymous funnel tracking - instead the SHAPE is locked
+    // down: exactly one of these known keys, moved by exactly +1 from
+    // whatever it already was (0 if new), same anti-tampering pattern as
+    // meta/signupCounter below. No caller, signed in or not, can inject an
+    // unknown field or jam an arbitrary value into any day's doc anymore.
+    function statsBump(key) {
+      return request.resource.data.diff(resource == null ? {} : resource.data)
+               .affectedKeys().hasOnly([key])
+        && request.resource.data[key] is int
+        && request.resource.data[key] ==
+             ((resource != null && key in resource.data && resource.data[key] is int)
+               ? resource.data[key] + 1 : 1);
+    }
+    match /stats/{day} {
+      allow read: if isAdmin();
+      allow create, update: if statsBump('arena_runs') || statsBump('atlas_cert_made')
+        || statsBump('aff_click') || statsBump('copilot_uses') || statsBump('event_plans')
+        || statsBump('img_scans') || statsBump('nudge_shown') || statsBump('nudge_yes')
+        || statsBump('pay_opens') || statsBump('pdf_generated') || statsBump('pdf_opens')
+        || statsBump('pdf_paid') || statsBump('pwa_dismissed') || statsBump('pwa_installed')
+        || statsBump('ref_click') || statsBump('ref_code_entered') || statsBump('searches')
+        || statsBump('signups') || statsBump('trip_saved') || statsBump('tusk_helpful')
+        || statsBump('tusk_unhelpful') || statsBump('utr_submits') || statsBump('video_made')
+        || statsBump('video_opens') || statsBump('visits') || statsBump('wiz_opens');
+      allow delete: if isAdmin();
+    }
+
+    // ---------- RATINGS & TESTIMONIALS ----------
+    // Public read (needed for the average-score + testimonial wall). One doc per
+    // user (doc id = uid), so "one rating per account" is enforced server-side.
+    match /ratings/{uid} {
+      allow read: if true;
+      allow create, update: if isSelf(uid)
+        && request.resource.data.stars is int
+        && request.resource.data.stars >= 1
+        && request.resource.data.stars <= 5
+        && (!('text' in request.resource.data) || request.resource.data.text.size() <= 200);
+      allow delete: if isSelf(uid);
+    }
+
+    // ---------- TRIP SQUADS ----------
+    // Safe, destination-anchored posts. Public read, owner-only delete, immutable
+    // once created (delete + repost instead of editing in place).
+    // MERGE NOTE: live had a second, near-duplicate squads/{post} block that
+    // required auth just to READ (auth!=null instead of true). Not a security
+    // hole either way, but the app's own openSquads() already requires
+    // sign-in client-side before it ever queries squads (app.js), so nothing
+    // actually depends on the read being auth-gated at the rules layer. Kept
+    // the more open, previously-documented `read: if true` and dropped the
+    // stricter duplicate.
+    match /squads/{squadId} {
+      allow read: if true;
+      allow create: if request.auth != null
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.note.size() <= 140
+        && (!('contact' in request.resource.data) || request.resource.data.contact.size() <= 80);
+      allow delete: if request.auth != null && resource.data.uid == request.auth.uid;
+      allow update: if false;
+    }
+
+    // ---------- REPORTS (moderation flags) ----------
+    // Write-only from clients (including anonymous - safety reports shouldn't
+    // require an account); only admin can read/manage them.
+    // MERGE NOTE: live had a conflicting reports/{r} duplicate requiring auth
+    // to create AND blocking read/update/delete outright, even for admin
+    // (`if false`) - that would make submitted reports permanently
+    // unreadable by anyone, contradicting the documented "anonymous safety
+    // report" intent of the first block. Dropped the duplicate; kept this one.
+    //
+    // WAS: `allow create: if true` with zero shape check - any caller could
+    // write an arbitrarily-shaped, arbitrarily-large doc here. Verified
+    // against the two real client write paths (app.js): reportSquad() sends
+    // {type:'squad', targetId, by, created}; rwBeaconReport() sends
+    // {kind:'beacon', target, why, by, at}. Neither matches the sibling
+    // abuse/{id} collection's 'reason' field name, so this validates the
+    // actual shapes instead - free text and identifiers are size-capped and
+    // no extra field can be smuggled in.
+    match /reports/{reportId} {
+      allow create: if
+           (request.resource.data.type == 'squad'
+             && request.resource.data.targetId is string
+             && request.resource.data.targetId.size() <= 200
+             && request.resource.data.by is string
+             && request.resource.data.by.size() <= 128
+             && request.resource.data.created is timestamp
+             && request.resource.data.keys().hasOnly(['type','targetId','by','created']))
+        || (request.resource.data.kind == 'beacon'
+             && request.resource.data.target is string
+             && request.resource.data.target.size() <= 200
+             && (!('why' in request.resource.data)
+                 || (request.resource.data.why is string && request.resource.data.why.size() <= 600))
+             && (request.resource.data.by == null
+                 || (request.resource.data.by is string && request.resource.data.by.size() <= 128))
+             && request.resource.data.at is timestamp
+             && request.resource.data.keys().hasOnly(['kind','target','why','by','at']));
+      allow read, update, delete: if isAdmin();
+    }
+
+    // ---------- TRIP CHATS (private group rooms) ----------
+    // Readable/writable ONLY by uids listed on the room's members array - this
+    // is the actual security boundary, enforced here not just in the UI. The
+    // room is created by a signed-in user who must include themselves; joining
+    // appends your own uid. Messages are per-member, signed with the sender uid.
+    //
+    // *** SECURITY: live Firestore ALSO had a second, blanket tripchats/{room}
+    // block: `allow read, write: if request.auth != null` for the room doc AND
+    // its msgs subcollection - i.e. ANY signed-in user (not just members) could
+    // read or write ANY trip chat room and its messages, completely bypassing
+    // the membership check this block enforces. That duplicate is a real,
+    // currently-live hole and has been REMOVED ENTIRELY. Only this
+    // member-checked version is kept. ***
+    match /tripchats/{roomId} {
+      // NOTE: resource is NULL for a document that doesn't exist yet, so the old
+      // rule made the existence check itself fail - tripChatOpen() does a
+      // .get() first to decide whether to create the room, and that .get()
+      // was permission-denied every time. Result: group chat never opened.
+      allow read: if request.auth != null
+        && (resource == null || request.auth.uid in resource.data.members);
+      allow create: if request.auth != null && request.auth.uid in request.resource.data.members;
+      // only let a signed-in, non-banned user add THEMSELVES to members (join
+      // via a shared room-id/link, see chatInvite() / tripChatOpen() in
+      // app.js), nothing else destructive.
+      //
+      // SECURITY: previously this only checked (a) the requester ends up IN
+      // the new members list and (b) no existing member was removed. It never
+      // checked that the requester was already a member OR that the only uid
+      // being added was their own, and never checked isBanned() - so ANY
+      // signed-in user (including a banned one) could add themselves, or
+      // anyone else, to ANY existing room's members array and gain full
+      // read/write access to that private chat. Fixed by additionally
+      // requiring !isBanned() and that the set of uids being added is empty
+      // or exactly {request.auth.uid} (i.e. you can only ever add yourself).
+      //
+      // SECURITY: the members-array checks above never restricted WHICH
+      // fields the update could touch, so a member could ride along a valid
+      // self-join with a change to any other room field (name/owner/etc) in
+      // the same write. Fixed by requiring the diff only ever touches
+      // 'members'.
+      allow update: if request.auth != null
+        && !isBanned()
+        && request.auth.uid in request.resource.data.members
+        && resource.data.members.toSet().difference(request.resource.data.members.toSet()).size() == 0
+        && request.resource.data.members.toSet().difference(resource.data.members.toSet())
+             .difference([request.auth.uid].toSet()).size() == 0
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['members']);
+      match /msgs/{msgId} {
+        // LATENT BUG FIXED: get() on a room that does not exist returns null,
+        // and reading .data.members off null makes the whole rule evaluation
+        // fail - which surfaces to the user as "Missing or insufficient
+        // permissions" even when they are a legitimate member. Guard with
+        // exists() FIRST; && short-circuits, so get() only runs on a real doc.
+        function roomExists() {
+          return exists(/databases/$(database)/documents/tripchats/$(roomId));
+        }
+        function isMember() {
+          return request.auth.uid in
+            get(/databases/$(database)/documents/tripchats/$(roomId)).data.members;
+        }
+        allow read: if request.auth != null && roomExists() && isMember();
+        allow create: if request.auth != null
+          && !isBanned()
+          && roomExists()
+          && isMember()
+          && request.resource.data.uid == request.auth.uid
+          && request.resource.data.text is string
+          && request.resource.data.text.size() <= 1000
+          // structured messages (budget/itinerary/poll/meet/paid/tusk) carry a
+          // small payload; cap the kind so nothing arbitrary is stored
+          && (!('kind' in request.resource.data)
+              || request.resource.data.kind in ['text','tusk','budget','plan','meet','poll','paid']);
+        allow delete: if false;
+        allow update: if request.auth != null
+          && !isBanned()
+          && roomExists()
+          && isMember()
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['reactions']);
+      }
+    }
+
+    // ---------- RULES VERSION PROBE ----------
+    // Public-readable, admin-written. Lets the app tell the founder definitively
+    // whether the deployed rules are current, instead of everyone guessing when
+    // a feature returns "insufficient permissions".
+    match /meta/rulesVersion {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // ---------- SECRETS (end-to-end encrypted API-key backup) ----------
+    // Ciphertext only: encrypted in the user's browser with a passphrase we
+    // never receive. Strictly owner-only - no admin read, because there is
+    // no legitimate reason for anyone but the user to touch this document.
+    match /secrets/{uid} {
+      allow read, write, delete: if isSelf(uid);
+    }
+
+    // ---------- CONFIG (owner-managed app settings) ----------
+    // Affiliate IDs, Gumroad link/ID, WhatsApp numbers, wallets, promo URL.
+    // Publicly readable (the app needs them), writable ONLY by admin - this
+    // must NOT live in the meta collection, which any signed-in user can write.
+    match /config/{doc} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // ---------- CRM (contact database: personal data, admin-only) ----------
+    // Never publicly readable - it holds names and emails of real people.
+    match /crm/{id} {
+      allow read, update, delete: if isAdmin();
+      // Marketing intern: creator-partnership records only, and only to move
+      // outreach along. They never see other CRM segments (investors, etc).
+      allow read: if isMarketing() && resource.data.seg == 'creator';
+      allow update: if isMarketing()
+        && resource.data.seg == 'creator'
+        && request.resource.data.diff(resource.data).affectedKeys()
+             .hasOnly(['stage','note','lastPitch','lastPitchAt']);
+      // Inbound creator applications from /creators/ - anyone may CREATE, but
+      // only with consent explicitly true and marked inbound, and nobody but an
+      // admin can ever read the collection back. This is deliberately the only
+      // way personal contact data enters the CRM without the founder typing it:
+      // the person opts in themselves. Size caps stop the form being abused as
+      // free storage.
+      allow create: if isAdmin() || (
+           request.resource.data.seg == 'creator'
+        && request.resource.data.consent == true
+        && request.resource.data.source == 'creators page (inbound)'
+        && request.resource.data.stage == 'new'
+        && request.resource.data.name is string  && request.resource.data.name.size()  <= 120
+        && request.resource.data.email is string && request.resource.data.email.size() <= 160
+        && request.resource.data.note is string  && request.resource.data.note.size()  <= 1200
+        // An applicant must NOT be able to award themselves the ladder. Tier,
+        // referral counts and the affiliate code are set by the founder only -
+        // otherwise anyone could POST tier:'featured' and claim Pro for life.
+        && request.resource.data.tier == 'applied'
+        && request.resource.data.refSales == 0
+        && request.resource.data.refRevenue == 0
+        && (!('code' in request.resource.data) || request.resource.data.code == '')
+        && (!('proGranted' in request.resource.data))
+      );
+    }
+
+    // ---------- STAFF ROLES (least-privilege for interns) ----------
+    // The founder is the only true admin (admins/{uid}). Interns get a role
+    // that unlocks exactly what their job needs and nothing else. Critically:
+    // NEITHER intern role can read users, secrets, tripchats or raw payment
+    // records - those hold personal data and API keys that no intern needs
+    // to do marketing or bookkeeping. Access is proven by a staff doc the
+    // founder (or another staff-admin) creates/activates.
+    function staffRole() {
+      return request.auth != null
+        && exists(/databases/$(database)/documents/staff/$(request.auth.uid))
+        ? get(/databases/$(database)/documents/staff/$(request.auth.uid)).data.role
+        : '';
+    }
+    function isMarketing() { return staffRole() == 'marketing'; }
+    function isFinance()   { return staffRole() == 'finance'; }
+    function isStaff()     { return isMarketing() || isFinance(); }
+    // A SEPARATE, narrower admin concept from isAdmin(): someone whose staff/
+    // record itself carries role=='admin' (e.g. an ops lead promoted in the
+    // staff system) rather than a true Console-managed admins/{uid} doc. This
+    // was live already (as a second, standalone staff/{uid} block) and is
+    // genuinely needed - staff/index.html's "founder view" (hrLoad(),
+    // internRefresh()) runs `db.collection('staff').get()`, an unfiltered
+    // LIST across the whole collection, gated client-side to ROLE==='admin'
+    // (derived from this exact field). A plain isSelf(uid) check cannot make
+    // that list succeed for any doc but the caller's own, so a role-blind
+    // "any signed-in user" rule is not what the feature needs - only
+    // isAdmin() or isStaffAdmin() is.
+    function isStaffAdmin() {
+      return request.auth != null
+        && exists(/databases/$(database)/documents/staff/$(request.auth.uid))
+        && get(/databases/$(database)/documents/staff/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    // ---------- STAFF ----------
+    // MERGE NOTE (changes live behavior - read carefully): live Firestore had
+    // TWO staff/{uid} blocks that genuinely conflicted, not just in
+    // permissiveness:
+    //   1) admin-or-self read, create requires role=='none', update/delete
+    //      admin-only (no self-update at all).
+    //   2) ANY signed-in user (not just staff) could read the ENTIRE staff
+    //      roster; create required the `role` field to be ABSENT rather than
+    //      =='none'; update allowed isStaffAdmin() OR self-update of
+    //      everything except role/docs/staffId; plus logs/ and sessions/
+    //      subcollections with their own rules (not present in block 1, or
+    //      anywhere in the repo file, at all).
+    // Resolution, checked against the real client (staff/index.html):
+    //   - registerPending() (the actual first-login self-registration write)
+    //     sends `role:'none'` EXPLICITLY, not an absent field - so block (2)'s
+    //     create condition would have REJECTED every real signup. Block (1)'s
+    //     `role=='none'` check is what the client actually satisfies; kept.
+    //   - The only places that `.get()` the whole staff collection
+    //     (hrLoad(), internRefresh()) are gated to ROLE==='admin' in the UI -
+    //     never to "any signed-in user". Block (2)'s blanket
+    //     `read: if auth!=null` for literally everyone (including ordinary,
+    //     non-staff app users) is broader than the feature needs and is
+    //     dropped; isAdmin()/isStaffAdmin()/self covers every real caller.
+    //   - Self-service edits ARE real and currently used
+    //     (deskAckHandbook -> handbookAckAt, deskToggleResource ->
+    //     resourceProgress.*, planDone), all via set({...},{merge:true}) on
+    //     the caller's OWN doc. Block (1)'s admin-only update would break all
+    //     of these today. Block (2)'s self-update-except-role/docs/staffId
+    //     carve-out is the one actually needed; adopted here alongside
+    //     isAdmin()/isStaffAdmin() full-update access (role activation,
+    //     docs/sheet edits by the founder/staff-admin - see
+    //     internSaveAdd/internSaveSheet/internSaveDocs, all called only from
+    //     the admin-gated founder-view UI).
+    //   - logs/ and sessions/ subcollections are real, actively read/written
+    //     by the client (deskPaint's own-log/session reads, internRefresh's
+    //     per-person log/session rollups) and had NO rule anywhere in the
+    //     repo file - carried over from live as-is, with isAdmin() unioned
+    //     into the staff-admin checks for consistency with the rest of this
+    //     file (every other collection lets the true founder admin in too).
+    match /staff/{uid} {
+      allow read: if isAdmin() || isStaffAdmin() || isSelf(uid);
+      allow create: if isAdmin() ||
+        (isSelf(uid) && request.resource.data.role == 'none');
+      allow update: if isAdmin() || isStaffAdmin() || (
+        isSelf(uid)
+        && !request.resource.data.diff(resource.data).affectedKeys()
+             .hasAny(['role','docs','staffId'])
+      );
+      allow delete: if isAdmin() || isStaffAdmin();
+
+      match /logs/{day} {
+        allow read: if isSelf(uid) || isAdmin() || isStaffAdmin();
+        allow create, update: if isSelf(uid);
+        allow delete: if isAdmin();
+      }
+      match /sessions/{day} {
+        allow read: if isSelf(uid) || isAdmin() || isStaffAdmin();
+        allow create, update: if isSelf(uid);
+        allow delete: if isAdmin() || isStaffAdmin();
+      }
+    }
+
+    // ---------- TASKS (the intern work board) ----------
+    match /tasks/{id} {
+      allow read: if isAdmin() || isStaff();
+      allow create, delete: if isAdmin();
+      // Staff may only move their OWN task along and add notes - they cannot
+      // reassign work, change the brief, or edit someone else's task.
+      allow update: if isAdmin() || (
+           isStaff()
+        && resource.data.assignee == staffRole()
+        && request.resource.data.assignee == resource.data.assignee
+        && request.resource.data.title == resource.data.title
+        && request.resource.data.diff(resource.data).affectedKeys()
+             .hasOnly(['status','note','updatedAt','proofUrl'])
+      );
+    }
+
+    // ---------- LEDGER (finance intern: aggregates only) ----------
+    // Deliberately a SEPARATE collection of summary rows the founder writes,
+    // rather than opening the raw claims/payments collections - those carry
+    // payer identities and UPI references an intern has no business seeing.
+    // MERGE NOTE: live had a second, more restrictive ledger/{entryId} block
+    // (admin-only create, update/delete always false) that would silently
+    // remove the finance intern's ability to log expenses at all. This repo
+    // file's existing version already matches live's FIRST, feature-complete
+    // ledger/{id} block, so it's kept unchanged and the restrictive duplicate
+    // is dropped.
+    match /ledger/{id} {
+      allow read: if isAdmin() || isFinance();
+      allow create, update: if isAdmin() || (
+           isFinance()
+        && request.resource.data.kind in ['expense','note']
+        && request.resource.data.amount is number
+        && request.resource.data.amount <= 100000
+        && request.resource.data.enteredBy == request.auth.uid
+        // A finance-role (non-admin) caller may only ever touch a record
+        // they themselves entered - on create resource is null (nothing to
+        // own yet), but on update the EXISTING doc's enteredBy must already
+        // match this caller, otherwise a finance user could overwrite
+        // someone else's (including an admin's) ledger entry just by
+        // supplying a permitted kind/amount and their own uid.
+        && (resource == null || resource.data.enteredBy == request.auth.uid)
+      );
+      allow delete: if isAdmin();
+    }
+
+    // ---------- BANS (enforced server-side, not just in the UI) ----------
+    // A ban has to bite at the DATA layer. If it only hides buttons, anyone who
+    // opens devtools is back in. isBanned() is called by every social write
+    // below, so a banned uid cannot post, chat, join a squad or report.
+    function isBanned() {
+      return exists(/databases/$(database)/documents/bans/$(request.auth.uid));
+    }
+    match /bans/{uid} {
+      allow read: if isAdmin() || (request.auth != null && request.auth.uid == uid);
+      allow write: if isAdmin();
+    }
+
+    // ---------- REPORTS (abuse reports from travellers) ----------
+    match /abuse/{id} {
+      allow create: if request.auth != null
+        && !isBanned()
+        && request.resource.data.reporter == request.auth.uid
+        && request.resource.data.reason is string
+        && request.resource.data.reason.size() <= 600
+        && request.resource.data.status == 'open';
+      allow read, update, delete: if isAdmin();
+    }
+
+    // ---------- MERCH ORDERS ----------
+    match /merch/{id} {
+      allow create: if request.auth != null && !isBanned()
+        && request.resource.data.status == 'new'
+        && request.resource.data.slogan is string && request.resource.data.slogan.size() <= 120
+        && request.resource.data.addr is string   && request.resource.data.addr.size() <= 400;
+      allow read: if isAdmin() || (request.auth != null && resource.data.uid == request.auth.uid);
+      allow update, delete: if isAdmin();
+    }
+
+    // ---------- META (shared counters + the founder-offer gate) ----------
+    // WAS: allow write when request.auth != null - which let ANY signed-in
+    // user rewrite the founder signup counter: set it to 0 to keep the Rs 100
+    // lifetime offer open forever, or to a huge number to slam it shut. The
+    // counter is now increment-by-exactly-one and can never be lowered.
+    //
+    // MERGE NOTE (security regression risk, avoided): live had a second,
+    // looser meta/{doc} block whose signupCounter write rule dropped the
+    // increment-by-exactly-1 anti-tampering check entirely (`write: if
+    // doc=='signupCounter' && auth!=null`, no comparison against the prior
+    // value) - i.e. it reopened exactly the exploit this block's own comment
+    // says was deliberately closed. That duplicate is dropped; this stricter
+    // block is kept as-is. Its `founderSeats` carve-out (`write: if
+    // doc=='founderSeats' && isAdmin()`) needed nothing folding in - any
+    // admin can already create/update/delete ANY meta doc including
+    // founderSeats via the isAdmin() branches below, so it was already fully
+    // covered and redundant, not a missing capability.
+    match /meta/{doc} {
+      allow read: if true;
+      allow create: if isAdmin();
+      allow delete: if isAdmin();
+      allow update: if isAdmin() || (
+        // the ONLY self-serve write: bump the signup counter by exactly 1
+        doc == 'signupCounter'
+        && request.auth != null
+        && request.resource.data.count is int
+        && request.resource.data.count == resource.data.count + 1
+        && request.resource.data.keys().hasOnly(['count'])
+      );
+    }
+
+    // ---------- PRICING GATE (server truth, not the device clock) ----------
+    // The founder window used to be judged client-side from daysSinceLaunch(),
+    // which reads the PHONE's clock - set the date back and the offer reopens.
+    // Admin-owned document; everyone reads it, only an admin can move it.
+    // MERGE NOTE: live had a plain-admin-only duplicate of this same doc path
+    // with no founder-count carve-out; this repo version is a strict superset
+    // (adds the narrow +1 counter carve-out below) so the live duplicate is
+    // simply dropped as redundant.
+    match /pricing/{doc} {
+      allow read: if true;
+      allow write: if isAdmin();
+      // FIXED: partner-redeemed seats (e.g. NMIMS's 500 free grants) never
+      // counted toward the combined 1000-account founder-era cap, because
+      // this doc was admin-only and openPartnerRedeem() had nowhere safe to
+      // write. Narrow carve-out, same shape as meta/signupCounter and the
+      // partnerships/{id} counters elsewhere in this file: a signed-in user
+      // may move ONLY 'founder'.count, ONLY by exactly +1, nothing else on
+      // this doc, ever.
+      //
+      // CORRECTED (v15.10): the comment here previously claimed this
+      // increment was "batched atomically with the matching users/{uid} and
+      // partnerClaims/{code} writes in openPartnerRedeem()". That was never
+      // true: openPartnerRedeem() (app.js) performs two separate SEQUENTIAL
+      // awaited writes - first partnerClaims/{code}.update(), then, only
+      // after that resolves, users/{uid}.update() - never a single atomic
+      // batch, and it never touches pricing/founder at all. As of this
+      // version no client code moves 'founder'.count; this carve-out exists
+      // for a future write path, not a currently-exercised one.
+      allow update: if doc == 'founder'
+        && request.auth != null
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['count'])
+        && request.resource.data.count == (resource.data.count is int ? resource.data.count : 0) + 1;
+    }
+
+    // ---- CROWD REPORTS (rw-v113) — Travel & Earn: Crowd Spotter ----
+    // Any user (signed-in or anonymous) may create. Nobody can read each other's.
+    // Admin reads for crowd calendar aggregation. No personal data in the doc.
+    match /crowdReports/{id} {
+      allow create: if request.resource.data.level is int
+                    && request.resource.data.level >= 1
+                    && request.resource.data.level <= 5
+                    && request.resource.data.place is string;
+      allow read: if isAdmin();
+      allow update, delete: if isAdmin();
+    }
+
+    // ---- PARTNER CLAIMS (institution barter partnerships) ----
+    // Doc ID IS the claim code itself (e.g. partnerClaims/NMIMS-A1B2C3) - not
+    // an auto ID or an email-derived key. That is deliberate: rules can never
+    // run an arbitrary query, only look up a single doc by a KNOWN path, so
+    // making the code the path is what lets this file (and users/{uid} above,
+    // via isRedeemedByCaller()) validate "is this specific code real and
+    // already redeemed by this caller" with get(). `get` (fetch by known id)
+    // is public because the code itself IS the shared secret / capability
+    // token needed to redeem it
+    // - nobody can discover a code by listing, only by already having been
+    // given one (emailed after claiming). `list` stays admin-only so the
+    // collection can never be enumerated or scraped.
+    //
+    // Personal data (name, email, phone) shared only with explicit consent.
+    //
+    // ACCEPTED, OPEN RISK (self-service Pro grant hole, v15.10 attempted a
+    // fix, reverted in v15.11): create below has NO auth requirement beyond
+    // field-shape/cap validation. That means ANY caller (signed in or not)
+    // can invent a claim doc for an arbitrary code/email of their choosing,
+    // immediately flip it via the update rule below to
+    // proRedeemed:true/redeemedUid:self, then grant themselves Pro via
+    // users/{uid}'s isRedeemedByCaller() path - entirely bypassing the "a
+    // real partner claimant received this code by email" model, as long as
+    // they can guess or brute-force a valid, unredeemed code and its
+    // associated email. v15.10 tried to close this by additionally requiring
+    // isAdmin() OR a verified Firebase Auth caller whose own token email
+    // matched the claim's stated email - but nmims/index.html's submitClaim()
+    // (the only real client that creates these docs) has ZERO Firebase Auth
+    // wired in (no firebase-auth-compat.js is even loaded on that page), so
+    // that change rejected 100% of genuine claim submissions with
+    // permission-denied. It has been reverted here.
+    //
+    // This risk is being left OPEN, not silently ignored, pending a real
+    // product decision by the site owner - this pass does not guess at which
+    // of these to take:
+    //   (a) add a sign-in step to the NMIMS claim page before allowing claim
+    //       creation (e.g. Google sign-in, which sets token.email_verified
+    //       automatically), then reinstate the v15.10 auth check;
+    //   (b) accept the risk as-is: this is a bounded campus promotion (the
+    //       500-seat partnerships/{id}.cap check below already caps total
+    //       exposure) rather than a high-value target, so the cost of a
+    //       successful abuse is limited; or
+    //   (c) move claim creation through a Cloud Function that verifies email
+    //       ownership server-side (e.g. a magic-link or OTP) without
+    //       requiring a full Firebase Auth sign-in on the page.
+    //
+    // KNOWN LIMITATION (documented, not silently ignored): the cap check
+    // below reads partnerships/{partnership}.claimed via get(), but nothing
+    // in these rules can FORCE a create() here to be paired with actually
+    // incrementing that counter - Firestore rules cannot enforce "these two
+    // writes must happen together" without a Cloud Function/transaction, and
+    // this project has neither (see PRICING-REFERRAL-MATH.md /
+    // Architecture-Migration-Guide for the backend's current shape). The real
+    // client (nmims/index.html) always batches the partnerClaims create, the
+    // partnerClaimEmails index create, and the partnerships increment into
+    // ONE atomic batch.commit(), so in normal operation the counter and the
+    // claim count never drift. A determined attacker hitting the REST API
+    // directly could still create claim docs without incrementing the
+    // counter - bounded by whatever `claimed` happens to read at the time
+    // (never literally unlimited, since the cap check still runs), but not
+    // fully closed without a Cloud Function. Out of scope for this pass.
+    match /partnerClaims/{id} {
+      allow get: if true;
+      allow list: if isAdmin();
+      allow create: if request.resource.data.name is string
+                    && request.resource.data.name.size() <= 120
+                    && request.resource.data.email is string
+                    && request.resource.data.email.size() <= 160
+                    && request.resource.data.consent == true
+                    && request.resource.data.partnership is string
+                    && id == request.resource.data.code
+                    && (!('proRedeemed' in request.resource.data) || request.resource.data.proRedeemed == false)
+                    && exists(/databases/$(database)/documents/partnerships/$(request.resource.data.partnership))
+                    && get(/databases/$(database)/documents/partnerships/$(request.resource.data.partnership)).data.claimed
+                         < (get(/databases/$(database)/documents/partnerships/$(request.resource.data.partnership)).data.cap is int
+                            ? get(/databases/$(database)/documents/partnerships/$(request.resource.data.partnership)).data.cap
+                            : 500);
+      // Redemption flip (rw-v116 hardening): a signed-in user may mark the
+      // claim they are personally redeeming as used - ONLY false/absent -> true,
+      // ONLY these three fields, and only recording their OWN uid, never
+      // someone else's. This MUST commit before the matching users/{uid}
+      // pro-grant write is even attempted (see openPartnerRedeem() in app.js
+      // and the comment on isRedeemedByCaller() above) - only once this write
+      // has landed does isRedeemedByCaller() see redeemedUid==this caller and
+      // let the grant through, and it can never approve the same code for a
+      // second account since redeemedUid is now fixed to whoever redeemed it
+      // first.
+      //
+      // EXPIRY (v15.10): checked HERE, on the initial false/absent -> true
+      // transition only, not in isRedeemedByCaller() / at grant time. This is
+      // the step that actually represents "the redemption happened" - once it
+      // has committed, that action is done and valid, regardless of whether
+      // expiresAt later passes before the (separate, retryable) users/{uid}
+      // grant write succeeds. Checking expiry again at grant time used to let
+      // a legitimate, on-time redemption get permanently stuck if the grant
+      // write failed for an unrelated reason and the retry landed after
+      // expiresAt - see isRedeemedByCaller() above for the full history.
+      allow update: if isAdmin() || (
+           request.auth != null
+        && (!('proRedeemed' in resource.data) || resource.data.proRedeemed == false)
+        && request.resource.data.proRedeemed == true
+        && request.resource.data.diff(resource.data).affectedKeys()
+             .hasOnly(['proRedeemed','redeemedAt','redeemedUid'])
+        && request.resource.data.redeemedUid == request.auth.uid
+        && (!('expiresAt' in resource.data) || resource.data.expiresAt > request.time)
+      );
+      allow delete: if isAdmin();
+    }
+
+    // ---- PARTNER CLAIM EMAIL INDEX (dedup lookup, no personal data beyond
+    // the key itself) ----
+    // Needed because locking partnerClaims down to get-by-code-only (above)
+    // means the claim page can no longer run a `where('email','==',...)`
+    // query to detect "you already claimed" (that's a list, and list is
+    // admin-only now). Doc ID = a sanitized, lowercased email, so a repeat
+    // submission can look itself up with a single get(). Firestore's create
+    // vs. update distinction does the dedup enforcement for free: a second
+    // attempt to write the SAME doc ID is an update, and only admin can
+    // update this collection, so a second claim under the same email is
+    // rejected rather than overwriting the first person's code.
+    match /partnerClaimEmails/{emailKey} {
+      allow get: if true;
+      allow list: if isAdmin();
+      allow create: if request.resource.data.code is string
+                    && request.resource.data.code.size() <= 64
+                    && request.resource.data.partnership is string;
+      allow update, delete: if isAdmin();
+    }
+
+    // ---- PARTNERSHIPS (allocation tracking — counters only, no personal data) ----
+    // Public read so the claim page can show live seat count.
+    // Only admin can create the doc / set caps and initial state.
+    //
+    // Self-serve update is deliberately narrow (rw-v115 hardening — this used
+    // to accept ANY value for these fields, so any visitor with devtools open
+    // could zero the counter to reopen a "closed" pool, or inflate it to
+    // block real claims before the pool was full - the actual TOCTOU race
+    // this comment used to warn about without fixing). Now: exactly one of
+    // studentClaimed/organiserClaimed may move, only by +1, only alongside
+    // `claimed` moving by the same +1, and never past that role's own cap
+    // (defaults 450/50/500 match the client's hardcoded fallbacks if an admin
+    // hasn't set studentCap/organiserCap/cap explicitly). Firestore applies
+    // FieldValue.increment() transforms against the latest committed value at
+    // write time and serializes writes to a single document, so two
+    // concurrent claims are evaluated in order against the real prior value -
+    // the 2nd one to land sees the 1st one's result already applied, closing
+    // the race that let concurrent claims both slip in over the cap.
+    match /partnerships/{id} {
+      allow read: if true;
+      allow create: if isAdmin();
+      allow update: if isAdmin() || (
+           resource.data.claimed is int
+        && request.resource.data.claimed == resource.data.claimed + 1
+        && request.resource.data.claimed <= (resource.data.cap is int ? resource.data.cap : 500)
+        && (
+             (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['claimed','studentClaimed','lastClaimedAt'])
+               && resource.data.studentClaimed is int
+               && request.resource.data.studentClaimed == resource.data.studentClaimed + 1
+               && request.resource.data.studentClaimed <= (resource.data.studentCap is int ? resource.data.studentCap : 450))
+          || (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['claimed','organiserClaimed','lastClaimedAt'])
+               && resource.data.organiserClaimed is int
+               && request.resource.data.organiserClaimed == resource.data.organiserClaimed + 1
+               && request.resource.data.organiserClaimed <= (resource.data.organiserCap is int ? resource.data.organiserCap : 50))
+           )
+      );
+      allow delete: if isAdmin();
+    }
+
+    // ---- REFERRAL SIGNUP LOG (rw-v112) ----------------------------
+    // Write-only for the app (no auth required — fires on new account).
+    // No personal data stored — only the ref code and the new user's UID.
+    //
+    // WAS: comment claimed "Staff can read their OWN code's signups only",
+    // but the actual condition (isAdmin() || any signed-in user, so long as
+    // resource.data.code was non-null AND config/referrers merely EXISTS)
+    // let ANY signed-in app user read EVERY signup record - no per-code
+    // ownership check at all. True ownership lives in config/referrers'
+    // `list` array of {uid, code, ...} maps (see rwRefSync() in app.js) -
+    // Firestore Rules has no predicate/loop to test "does this array contain
+    // an entry matching (request.auth.uid, resource.data.code)" without
+    // restructuring that mapping into a per-uid doc rules could look up by
+    // path, which is beyond this pass. Minimal safe fix: read is admin-only
+    // now, matching the comment to the actual (tightened) behavior. Data
+    // here is low-sensitivity (only a ref code + the referred user's UID, no
+    // PII), so this is a conservative call either way - but note it means
+    // staff/index.html's refStatsLoad() self-serve "my referral stats" query
+    // (a where('code','==',myCode) list against this collection) now gets
+    // permission-denied for non-admin staff. Flagged as a follow-up:
+    // restoring self-serve stats needs either a per-uid mapping doc or a
+    // Cloud Function to serve the aggregate.
+    match /refSignups/{id} {
+      allow create: if request.resource.data.code is string
+                    && request.resource.data.userUID is string;
+      allow read: if isAdmin();
+      allow update, delete: if isAdmin();
+    }
+
+    // ---- INVESTOR SUBMISSIONS ----------------------------------------
+    // Write-only for visitors: no sign-in required to express interest.
+    // Only the founder can read submissions (private contact details).
+    // A separate /meta/investorStats document carries the public board stats.
+    // (Identical in the repo file and live Firestore already - no conflict.)
+    match /investors/{id} {
+      allow read: if isAdmin();
+      allow create: if request.resource.data.amount is number
+                    && request.resource.data.amount > 0
+                    && request.resource.data.status == 'interested'
+                    && request.resource.data.name is string
+                    && request.resource.data.email is string;
+      allow update, delete: if isAdmin();
+    }
+
+    // ---- INVESTOR BOARD STATS (numbers only, no names/emails) ----------
+    // (Identical in the repo file and live Firestore already - no conflict.)
+    match /meta/investorStats {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // ---- PUBLIC STATS (aggregate numbers shown on marketing pages) ----
+    // Live-only addition, carried over as-is. The `request.auth != null`
+    // read below is redundant: the wildcard meta/{doc} block above already
+    // grants `allow read: if true` for every meta doc including this one,
+    // and rules are OR'd, so this doc is actually PUBLICLY readable with no
+    // sign-in required - matching live.html, which reads it unauthenticated.
+    // Admin-only write, no personal data.
+    match /meta/publicStats {
+      allow read: if request.auth != null;
+      allow write: if isAdmin();
+    }
+
+    // Anyone opening the private deck link can create/update THEIR lead doc
+    // (name, role, contact, scroll depth, time). Only admins can read them.
+    //
+    // WAS: `allow update: if resource != null` - any caller, unauthenticated,
+    // could set ANY field to ANY value/size on ANY existing lead by id, with
+    // zero shape check. Verified against the real client (deck/index.html):
+    // the gate form re-sends {name,contact,role,source,openedAt,slides} once
+    // a visitor identifies themselves (an UPDATE, since the anonymous
+    // tracking doc already exists by then), and the silent tracker separately
+    // updates {scrollPct}, {lastSlide}, and {timeSeconds,updatedAt}. So
+    // name/contact genuinely ARE updated after create here (unlike the
+    // suggested "never touch identity fields" shape) - locked instead to
+    // this real field set with the same size caps as create. There is still
+    // no per-lead ownership check (the deck page has no auth), so a caller
+    // who already knows/guesses a specific lead id could still overwrite
+    // that lead's name/contact with junk - a lower-severity gap left open on
+    // purpose here (same class of limitation already documented elsewhere in
+    // this file for partnerClaims/partnerships), since closing it fully
+    // needs either auth on the deck page or a Cloud Function.
+    match /deckleads/{id} {
+      allow create: if request.resource.data.name is string
+        && request.resource.data.name.size() <= 120
+        && request.resource.data.contact is string
+        && request.resource.data.contact.size() <= 160
+        && (!('openedAt' in request.resource.data)
+            || (request.resource.data.openedAt is string && request.resource.data.openedAt.size() <= 40));
+      allow update: if resource != null
+        && request.resource.data.diff(resource.data).affectedKeys()
+             .hasOnly(['name','contact','role','source','openedAt','slides',
+                       'scrollPct','lastSlide','timeSeconds','updatedAt'])
+        && (!('name' in request.resource.data)
+            || (request.resource.data.name is string && request.resource.data.name.size() <= 120))
+        && (!('contact' in request.resource.data)
+            || (request.resource.data.contact is string && request.resource.data.contact.size() <= 160))
+        && (!('role' in request.resource.data)
+            || (request.resource.data.role is string && request.resource.data.role.size() <= 120))
+        && (!('source' in request.resource.data)
+            || (request.resource.data.source is string && request.resource.data.source.size() <= 120))
+        && (!('openedAt' in request.resource.data)
+            || (request.resource.data.openedAt is string && request.resource.data.openedAt.size() <= 40))
+        && (!('updatedAt' in request.resource.data)
+            || (request.resource.data.updatedAt is string && request.resource.data.updatedAt.size() <= 40))
+        && (!('slides' in request.resource.data) || request.resource.data.slides is int)
+        && (!('scrollPct' in request.resource.data)
+            || (request.resource.data.scrollPct is int
+                && request.resource.data.scrollPct >= 0 && request.resource.data.scrollPct <= 100))
+        && (!('lastSlide' in request.resource.data)
+            || (request.resource.data.lastSlide is int && request.resource.data.lastSlide >= 0))
+        && (!('timeSeconds' in request.resource.data)
+            || (request.resource.data.timeSeconds is int && request.resource.data.timeSeconds >= 0));
+      allow read, delete: if isAdmin();
+    }
+
+    // ---- HR DOCUMENTS (offer letters, salary slips, etc.) admin only ----
+    match /hrdocs/{id} {
+      allow read, write: if isAdmin();
+    }
+
+    // ---- TRAVEL PASSPORTS (visited-place stamps) ----------------------
+    // Live-only addition, carried over as-is: public read (the passport is a
+    // shareable, public-facing badge), owner-only create, immutable
+    // afterwards (no update/delete from the client).
+    match /passports/{id} {
+      allow read: if true;
+      allow create: if request.auth != null
+                    && request.resource.data.uid == request.auth.uid
+                    && request.resource.data.place is string
+                    && request.resource.data.place.size() > 0
+                    && request.resource.data.place.size() < 120
+                    && request.resource.data.verified is bool;
+      allow update, delete: if false;
+    }
+
+    // ---- LIVE BEACONS (real-time "I'm here" location pins) -------------
+    // Live-only addition, carried over as-is: signed-in read, strictly
+    // owner-only write of one's own beacon doc (doc id == uid), with a
+    // required lat/lon pair.
+    match /beacons/{uid} {
+      allow read: if request.auth != null;
+      allow create, update: if request.auth != null
+                    && request.auth.uid == uid
+                    && request.resource.data.uid == uid
+                    && request.resource.data.lat is number
+                    && request.resource.data.lon is number;
+      allow delete: if request.auth != null && request.auth.uid == uid;
+    }
+
+    // A partner (hotel/hostel/tour operator) account is proven by owning the
+    // partners/{uid} doc itself - doc id == the partner's own auth uid.
+    function isPartner(uid) {
+      return request.auth != null && request.auth.uid == uid;
+    }
+
+    // ---- CREATOR STUDIO V4 BEGIN ---------------------------------------
+    // CREATOR STUDIO V4 RULES PATCH — merge into the ONE canonical firestore.rules file.
+    // FULL REPLACE discipline still applies when publishing rules to Firebase Console.
+    // The important change from v3: a verified user may CLAIM an identity, but only
+    // an admin can set registered:true/status:'active'. Creator Studio gates on that.
+
+    match /creatorAccounts/{uid} {
+      allow read: if isSelf(uid) || isAdmin();
+
+      // A Firebase-verified user can create only a non-privileged identity claim.
+      allow create: if isSelf(uid)
+        && request.auth.token.email_verified == true
+        && request.resource.data.keys().hasOnly([
+          'uid','email','emailVerified','status','registered','createdAt','updatedAt'
+        ])
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.email == request.auth.token.email
+        && request.resource.data.emailVerified == true
+        && request.resource.data.status == 'claimed'
+        && request.resource.data.registered == false
+        && request.resource.data.createdAt is string
+        && request.resource.data.createdAt.size() <= 40
+        && request.resource.data.updatedAt is string
+        && request.resource.data.updatedAt.size() <= 40;
+
+      // Once the doc exists, creator may refresh only their verified email markers.
+      // They can never touch registration/application/approval fields.
+      allow update: if isAdmin() || (
+        isSelf(uid)
+        && request.auth.token.email_verified == true
+        && request.resource.data.uid == resource.data.uid
+        && request.resource.data.email == request.auth.token.email
+        && request.resource.data.emailVerified == true
+        && request.resource.data.diff(resource.data).affectedKeys()
+             .hasOnly(['email','emailVerified','updatedAt'])
+      );
+      allow delete: if isAdmin();
+    }
+
+    // Private creator submissions. Media bytes stay on Instagram/YouTube/blog hosts;
+    // this stores only bounded HTTPS links + metadata.
+    match /creatorContent/{uid}/submissions/{itemId} {
+      function registeredCreator() {
+        return isSelf(uid)
+          && request.auth.token.email_verified == true
+          && exists(/databases/$(database)/documents/creatorAccounts/$(uid))
+          && get(/databases/$(database)/documents/creatorAccounts/$(uid)).data.registered == true
+          && get(/databases/$(database)/documents/creatorAccounts/$(uid)).data.status == 'active';
+      }
+      allow read: if registeredCreator() || isAdmin();
+      allow create: if registeredCreator()
+        && request.resource.data.keys().hasOnly([
+          'ownerUid','provider','kind','providerId','title','destination','url','note',
+          'reviewStatus','visibility','createdAt','updatedAt'
+        ])
+        && request.resource.data.ownerUid == uid
+        && request.resource.data.provider in ['instagram','youtube','blog']
+        && request.resource.data.kind is string && request.resource.data.kind.size() <= 30
+        && request.resource.data.providerId is string && request.resource.data.providerId.size() <= 200
+        && request.resource.data.title is string && request.resource.data.title.size() > 0 && request.resource.data.title.size() <= 160
+        && request.resource.data.destination is string && request.resource.data.destination.size() <= 100
+        && request.resource.data.url is string && request.resource.data.url.size() <= 700
+        && request.resource.data.url.matches('^https://.*')
+        && request.resource.data.note is string && request.resource.data.note.size() <= 500
+        && request.resource.data.reviewStatus == 'submitted'
+        && request.resource.data.visibility == 'private'
+        && request.resource.data.createdAt is string && request.resource.data.createdAt.size() <= 40
+        && request.resource.data.updatedAt is string && request.resource.data.updatedAt.size() <= 40;
+      allow update: if isAdmin() || (
+        registeredCreator()
+        && request.resource.data.ownerUid == uid
+        && request.resource.data.reviewStatus == resource.data.reviewStatus
+        && request.resource.data.visibility == resource.data.visibility
+        && request.resource.data.diff(resource.data).affectedKeys()
+             .hasOnly(['title','destination','url','note','provider','kind','providerId','updatedAt'])
+      );
+      allow delete: if registeredCreator() || isAdmin();
+    }
+
+    // Tiny public projection created only by admin after review. This is safe to
+    // cache aggressively at the CDN and avoids exposing creator-private documents.
+    match /creatorShowcase/{uid}/posts/{itemId} {
+      allow read: if true;
+      allow create, update, delete: if isAdmin();
+    }
+
+    // Creator money/review ledger: owner reads, admin writes. Finance can read
+    // reconciled totals but cannot mutate referral/tier/payout state.
+    match /creatorEarnings/{uid} {
+      allow read: if isSelf(uid) || isAdmin() || isFinance();
+      allow create, update, delete: if isAdmin();
+    }
+    // ---- CREATOR STUDIO V4 END -----------------------------------------
+
+    // ---- PLATFORM V5 PRIVACY / INVESTOR / CROWD BEGIN -------------------
+    // Private-chat learning is explicit opt-in. The browser may create a sample
+    // only for the currently authenticated user AND only while that user's
+    // consent doc says enabled=true. Samples are write-only to the traveller;
+    // only admins can inspect/delete them for the improvement pipeline.
+    match /aiLearningConsents/{uid} {
+      allow read: if isAdmin() || isSelf(uid);
+      allow create, update: if isSelf(uid)
+        && request.resource.data.keys().hasOnly(['uid','enabled','version','updatedAt'])
+        && request.resource.data.uid == uid
+        && request.resource.data.enabled is bool
+        && request.resource.data.version is string
+        && request.resource.data.version.size() <= 48;
+      allow delete: if isAdmin() || isSelf(uid);
+    }
+
+    match /aiLearningSamples/{id} {
+      allow create: if request.auth != null
+        && request.resource.data.keys().hasOnly([
+             'uid','channel','role','text','meta','clientAt','consentVersion','createdAt'
+           ])
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.channel in ['ailon','trip_chat']
+        && request.resource.data.role in ['user','assistant','feedback']
+        && request.resource.data.text is string
+        && request.resource.data.text.size() >= 2
+        && request.resource.data.text.size() <= 1400
+        && request.resource.data.meta is map
+        && request.resource.data.clientAt is string
+        && request.resource.data.clientAt.size() <= 40
+        && request.resource.data.consentVersion is string
+        && request.resource.data.consentVersion.size() <= 48
+        && exists(/databases/$(database)/documents/aiLearningConsents/$(request.auth.uid))
+        && get(/databases/$(database)/documents/aiLearningConsents/$(request.auth.uid)).data.enabled == true;
+      allow read: if isAdmin();
+      allow update: if false;
+      allow delete: if isAdmin();
+    }
+
+    // Founder/private cap-table source of truth. Never public-readable. Public
+    // investor interest continues to use the existing write-only /investors
+    // collection; actual securities records live here only after review/KYC.
+    match /capTable/{id} {
+      allow read, create, update, delete: if isAdmin();
+    }
+    match /fundingRounds/{id} {
+      allow read, create, update, delete: if isAdmin();
+    }
+    match /investorRelations/{id} {
+      allow read, create, update, delete: if isAdmin();
+    }
+
+    // Aggregated crowd intelligence is safe to cache publicly. Raw traveller
+    // reports remain protected by the existing crowdReports rule. Only an admin
+    // or trusted server pipeline can publish a computed signal/alternative.
+    match /crowdSignals/{id} {
+      allow read: if true;
+      allow create, update, delete: if isAdmin();
+    }
+    match /crowdAlternatives/{id} {
+      allow read: if true;
+      allow create, update, delete: if isAdmin();
+    }
+    // ---- PLATFORM V5 PRIVACY / INVESTOR / CROWD END ---------------------
+
+    // ---- PARTNERS (hotel/hostel/operator accounts) ---------------------
+    // Live-only addition, carried over as-is. A partner may read/create/edit
+    // only their own account; sensitive fields the founder controls
+    // (verification, badges, commission rate, payout holds, admin notes,
+    // and the uid itself) can never be touched by the partner's own update.
+    match /partners/{uid} {
+      allow read: if isPartner(uid) || isAdmin();
+      allow create: if isPartner(uid)
+                    && request.resource.data.status == 'pending'
+                    && !('commissionPct' in request.resource.data)
+                    && !('verified' in request.resource.data)
+                    && !('badges' in request.resource.data)
+                    && !('payoutHold' in request.resource.data)
+                    && !('adminNote' in request.resource.data)
+                    && !('uid' in request.resource.data);
+      allow update: if isAdmin()
+                    || (isPartner(uid)
+                        && !request.resource.data.diff(resource.data).affectedKeys()
+                             .hasAny(['status','verified','badges','commissionPct',
+                                      'payoutHold','adminNote','uid']));
+      allow delete: if isAdmin();
+    }
+
+    // Room listings under a partner's own account. Public read (travelers
+    // browse rooms without an account); only that partner or an admin may
+    // manage the listings.
+    //
+    // SECURITY: checking exists(partners/{uid}) only proves the partner doc
+    // exists, not that an admin has actually approved/verified the account -
+    // an unverified (still 'pending') partner could already create/manage
+    // room listings. Fixed by additionally requiring the partner doc's
+    // verified field be true; admins still bypass this entirely.
+    match /partners/{uid}/rooms/{roomId} {
+      allow read: if true;
+      allow create, update, delete: if (isPartner(uid)
+                                         && exists(/databases/$(database)/documents/partners/$(uid))
+                                         && get(/databases/$(database)/documents/partners/$(uid)).data.verified == true)
+                                        || isAdmin();
+    }
+
+    // ---- ROOM BOOKINGS --------------------------------------------------
+    // Live-only addition, carried over as-is. Visible only to the two
+    // parties on the booking (the partner and the guest) or an admin. Any
+    // signed-in user may create a booking request; only the owning partner
+    // may move it along (status/note/confirmation), never touching who the
+    // parties are.
+    match /roomBookings/{ref} {
+      allow read: if isAdmin()
+                  || (request.auth != null && resource.data.partnerUid == request.auth.uid)
+                  || (request.auth != null && resource.data.guestUid == request.auth.uid);
+      // SECURITY: exists(partners/{partnerUid}) only proves the partner doc
+      // exists, not that an admin has approved/verified it - a guest could
+      // book a still-'pending', unverified partner. Fixed by additionally
+      // requiring that partner doc's verified field be true.
+      // v16: browser checks are UX only. Authorization also requires a fresh,
+      // Firebase-verified identity and a currently approved room. Price/amount
+      // are bound to the public room document so a direct REST write cannot
+      // invent a cheaper booking or target a pending/unapproved host.
+      allow create: if request.auth != null
+                    && request.auth.token.email_verified == true
+                    && request.resource.data.keys().hasOnly([
+                         'ref','status','bookingVersion','partnerUid','propertyId','roomId',
+                         'guestUid','guestName','guestEmail','guestPhone','note','property',
+                         'room','zone','area','checkIn','checkOut','guests','nights','roomPrice',
+                         'amount','commissionPctSnapshot','paymentMethod','paymentSnapshot',
+                         'paymentStatus','createdAt','at'
+                       ])
+                    && request.resource.data.status == 'requested'
+                    && request.resource.data.guestUid == request.auth.uid
+                    && request.resource.data.partnerUid is string
+                    && request.resource.data.roomId is string
+                    && request.resource.data.nights is int
+                    && request.resource.data.nights > 0
+                    && request.resource.data.guests is int
+                    && request.resource.data.guests > 0
+                    && request.resource.data.roomPrice is number
+                    && request.resource.data.amount is number
+                    && exists(/databases/$(database)/documents/partners/$(request.resource.data.partnerUid))
+                    && get(/databases/$(database)/documents/partners/$(request.resource.data.partnerUid)).data.verified == true
+                    && exists(/databases/$(database)/documents/partners/$(request.resource.data.partnerUid)/rooms/$(request.resource.data.roomId))
+                    && get(/databases/$(database)/documents/partners/$(request.resource.data.partnerUid)/rooms/$(request.resource.data.roomId)).data.marketplaceApproved == true
+                    && get(/databases/$(database)/documents/partners/$(request.resource.data.partnerUid)/rooms/$(request.resource.data.roomId)).data.partnerUid == request.resource.data.partnerUid
+                    && get(/databases/$(database)/documents/partners/$(request.resource.data.partnerUid)/rooms/$(request.resource.data.roomId)).data.open != false
+                    && request.resource.data.roomPrice == get(/databases/$(database)/documents/partners/$(request.resource.data.partnerUid)/rooms/$(request.resource.data.roomId)).data.price
+                    && request.resource.data.amount == request.resource.data.roomPrice * request.resource.data.nights;
+      allow update: if isAdmin()
+                    || (request.auth != null
+                        && resource.data.partnerUid == request.auth.uid
+                        && request.resource.data.diff(resource.data).affectedKeys()
+                             .hasOnly(['status','partnerNote','confirmedAt']));
+      allow delete: if isAdmin();
+    }
+
+  }
+}
+)
         && id == request.auth.uid + '_' + request.resource.data.utr
         && (!('refCode' in request.resource.data)
             || (request.resource.data.refCode is string
-                && request.resource.data.refCode.size() <= 32));
+                && request.resource.data.refCode.size() <= 32)));
       allow read: if isAdmin() || (request.auth != null && resource.data.uid == request.auth.uid);
       allow update, delete: if isAdmin();
     }
