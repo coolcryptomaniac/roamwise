@@ -43,6 +43,11 @@ jobs:
 
           atlas = Path('platform-v5/atlas-shinobi.js').read_text()
           config = Path('rw-config.js').read_text()
+          app_css = Path('app.css').read_text()
+
+          assert Path('app-base.css').exists(), 'canonical base stylesheet copy missing'
+          assert '@import url("./app-base.css")' in app_css, 'root stylesheet must preserve canonical base CSS'
+          assert '#intro,.intro{display:none!important' in app_css, 'legacy splash must be hidden at first paint'
 
           assert "ROOT_ID = 'rwOpening'" in atlas, 'canonical opening root missing'
           assert '/assets/roamwise-opening.mp4' in atlas, 'approved MP4 must be the canonical film'
@@ -52,10 +57,16 @@ jobs:
           assert '@media (min-width:900px)' in atlas, 'desktop-responsive opening layout missing'
           assert 'prefers-reduced-motion:reduce' in atlas, 'reduced-motion fallback missing'
           assert 'rwIntroThunder' in atlas and 'rwIntroRain' in atlas and 'rwIntroMatrix' in atlas, 'cinematic atmosphere regressed'
+          assert 'rwShinobiGlobe' in atlas and 'rw-shinobi' in atlas, 'moving red-cloak shinobi overlay missing'
+          assert 'rwFlameTip' in atlas and 'rwEmber' in atlas and 'rw-fire' in atlas, 'fire/spark loading bar missing'
+          assert 'if (document.body) mount();' in atlas, 'opening must mount immediately when body exists'
           assert 'animateMotion' not in atlas and 'GSHHS-derived coastline geometry' not in atlas, 'retired vector atlas returned'
+
           assert 'cinematicDurationMs: 6800' in config, 'opening duration changed unexpectedly'
           assert 'window.__RW_INTRO_SHOULD_SHOW' in config, 'pre-app intro hand-off missing'
-          assert '#intro{display:none!important}' in config, 'legacy intro can flash over canonical opening'
+          assert "document.getElementById('intro')" in config and 'legacy.remove()' in config, 'legacy splash node must be removed synchronously'
+          assert '#intro,.intro{display:none!important' in config, 'preboot splash suppression missing'
+          assert 's.async=false' in config and "load('platform-v5/atlas-shinobi.js', true)" in config, 'opening must load first at high priority'
           assert "sessionStorage.setItem('rw_intro','1')" in config, 'show-once-per-session behavior missing'
           print('Canonical startup guardrails OK')
           PY
