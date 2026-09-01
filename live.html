@@ -83,7 +83,7 @@ html,body{min-height:100%;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI
 <div id="banner">
   <div class="bn">
     <div class="bdot"></div>
-    <div class="btxt"><em>RoamWise &middot; Seed 2026</em> &nbsp;&middot;&nbsp; Raising <em>&#8377;4 Cr</em> for 8% &nbsp;&middot;&nbsp; <span id="bStatus">Loading&hellip;</span></div>
+    <div class="btxt"><em>RoamWise &middot; Seed 2026</em> &nbsp;&middot;&nbsp; <em>$500K minimum · $2.5M target · $5M hard cap</em> &nbsp;&middot;&nbsp; <span id="bStatus">Loading&hellip;</span></div>
     <div id="bBar"><div id="bTrack"><div id="bFill"></div></div><span id="bPct">0%</span></div>
   </div>
 </div>
@@ -98,7 +98,7 @@ html,body{min-height:100%;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI
   <div class="sh">Live numbers</div>
   <div class="srow">
     <div class="sc"><div class="sn w" id="sU">&#8212;</div><div class="sk">Registered users</div></div>
-    <div class="sc"><div class="sn g" id="sP">&#8212;</div><div class="sk">Paying users</div></div>
+    <div class="sc"><div class="sn g" id="sP">&#8212;</div><div class="sk">Revenue (₹)</div></div>
     <div class="sc"><div class="sn" id="sC">&#8212;</div><div class="sk">Conversion rate</div></div>
     <div class="sc"><div class="sn w" id="sN">&#8212;</div><div class="sk">Total commitments</div></div>
     <div class="sc"><div class="sn" id="sA">&#8212;</div><div class="sk">Amount pledged</div></div>
@@ -142,7 +142,7 @@ html,body{min-height:100%;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI
 <script>
 var db=null;
 try{firebase.initializeApp({apiKey:"AIzaSyDlrtpzpOb1VEmVSd9tHmu7OpmvwWosYsU",authDomain:"roamwisepro.firebaseapp.com",projectId:"roamwisepro",storageBucket:"roamwisepro.firebasestorage.app",messagingSenderId:"299014744987",appId:"1:299014744987:web:d5c316743e6d7a10904f3e"});db=firebase.firestore();}catch(e){}
-var I=window.RW_INVEST||{},RAISE=I.raising||40000000,CLASSES=(I.classes||[]).filter(function(c){return c.id!=="institutional";}),picked=null;
+var I=window.RW_INVEST||{},RAISE=I.raising||237500000,CLASSES=(I.classes||[]).filter(function(c){return c.id!=="institutional";}),picked=null;
 function el(id){return document.getElementById(id);}
 function esc(s){return String(s==null?"":s).replace(/[<>&"]/g,function(c){return{"<":"&lt;",">":"&gt;","&":"&amp;","\"":" &quot;"}[c];});}
 function fmt(n){return "\u20b9"+(+n).toLocaleString("en-IN");}
@@ -154,8 +154,9 @@ function cu(id,to,gold){var n=el(id);if(!n||!to)return;var t0=null,dur=1200;func
 el("cgrid").innerHTML=CLASSES.map(function(c,i){return "<button class=\"cbtn\" onclick=\"cpick("+i+")\">"+"<span class=\"ci\">"+c.icon+"</span>"+"<div class=\"cl\">"+esc(c.label)+"</div>"+"<div class=\"cr\">"+fmt(c.min)+(c.max<1000000000?" \u2013 "+fmt(c.max):"+")+  "</div></button>";}).join("");
 function cpick(i){picked=CLASSES[i];var bs=document.querySelectorAll(".cbtn");bs.forEach(function(b){b.classList.remove("on");});if(bs[i])bs[i].classList.add("on");if(!el("fAmt").value)el("fAmt").placeholder=picked.min.toLocaleString("en-IN");}
 function loadStats(){
-  if(!db){el("sU").textContent="20";el("sP").textContent="4";el("sC").textContent="20%";return;}
-  db.collection("meta").doc("publicStats").onSnapshot(function(d){var v=d.exists?(d.data()||{}):{};var u=v.users!=null?v.users:20,p=v.paid!=null?v.paid:4;cu("sU",u,false);cu("sP",p,false);var cv=el("sC");if(cv)cv.textContent=(u?Math.round(p/u*100):0)+"%";},function(){el("sU").textContent="20";el("sP").textContent="4";el("sC").textContent="20%";});
+  function baseline(){el("sU").textContent="26";el("sP").textContent="500";el("sC").textContent="₹21K/mo";}
+  if(!db){baseline();return;}
+  db.collection("meta").doc("publicStats").onSnapshot(function(d){var v=d.exists?(d.data()||{}):{};var u=v.users!=null?v.users:26,r=v.revenue!=null?v.revenue:500;cu("sU",u,false);cu("sP",r,false);var cv=el("sC");if(cv)cv.textContent="₹21K/mo";},baseline);
   db.collection("meta").doc("investorStats").onSnapshot(function(d){
     var v=d.exists?(d.data()||{}):{},count=v.count||0,total=v.total||0,pct=RAISE>0?Math.min(100,Math.round(total/RAISE*100)):0;
     cu("sN",count,false);
