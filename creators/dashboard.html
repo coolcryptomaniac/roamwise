@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#07090f">
+<title>Creator Studio — RoamWise</title>
+<meta name="description" content="RoamWise Creator Studio: referral code, verified earnings, content submissions and creator profile tools.">
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" href="../icons/favicon-32.png">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="studio.css">
+</head>
+<body>
+<nav class="cs-nav"><a class="cs-brand" href="../"><img src="../icon-512.png" alt=""><b>Roam<span>Wise</span></b></a><div></div><a href="./">Creator program</a><button id="csSignOut" hidden>Sign out</button></nav>
+<main id="csApp">
+<section class="cs-auth" id="csAuth">
+  <div class="cs-auth-art"><div class="cs-moon"></div><div class="cs-grid"></div><div class="cs-auth-copy"><small>ROAMWISE CREATOR NETWORK</small><h1>Turn journeys into <em>income.</em></h1><p>One workspace for referral attribution, travel content, social profiles and verified commission.</p></div></div>
+  <div class="cs-auth-form"><span class="cs-kicker">CREATOR STUDIO</span><h2>Sign in or create your account</h2><p>Use the same email as your creator application. Email verification is required before RoamWise can activate a payout/referral identity.</p><div id="csLoginFields"><label>Email<input id="csEmail" type="email" autocomplete="email" placeholder="you@example.com"></label><label>Password<input id="csPass" type="password" autocomplete="current-password" placeholder="6+ characters"></label><div class="cs-auth-actions"><button id="csLogin">Sign in</button><button id="csCreate">Create account</button></div><button class="cs-link" id="csReset">Forgot password?</button></div><div id="csVerifyBox" hidden><div class="cs-msg"><b>Verify your email to continue.</b><br>RoamWise uses Firebase's verified email claim to stop another person from claiming your creator application or referral payouts.</div><div class="cs-auth-actions"><button id="csVerifySend">Send verification email</button><button id="csVerifyReload">I verified — continue</button></div></div><div id="csAuthMsg"></div><p style="font-size:12px;color:#777d8b">Not applied yet? <a href="./" style="color:#ffc857">Apply first →</a></p></div>
+</section>
+<section id="csDash" class="cs-dash" hidden>
+  <header class="cs-hero"><div class="cs-hero-grid"></div><div class="cs-hero-moon"></div><div class="cs-hero-copy"><small>CREATOR COMMAND CENTRE</small><h1 id="csHello">Your RoamWise studio</h1><p id="csTierLine">Build useful travel work. Verified referrals move your creator tier.</p><div class="cs-hero-actions"><button id="csCopyLink">Copy referral link</button><a href="../" target="_blank" rel="noopener">Open RoamWise ↗</a></div></div><div class="cs-code-card"><small>YOUR VERIFIED REFERRAL CODE</small><strong id="csCode">PENDING</strong><span id="csRate">Review in progress</span></div></header>
+  <section class="cs-stats" id="csStats"></section>
+  <div class="cs-grid2">
+    <section class="cs-panel"><div class="cs-panel-head"><div><small>PROFILE</small><h2>Your creator identity</h2></div><span id="csProfileStatus" class="cs-status">Under review</span></div><div class="cs-fields"><label>Display name<input id="csName" maxlength="120"></label><label>Creator niche<input id="csNiche" maxlength="120" placeholder="Himalayan treks, food trails…"></label><label>Instagram<input id="csInstagram" placeholder="https://instagram.com/…"></label><label>YouTube<input id="csYoutube" placeholder="https://youtube.com/@…"></label><label>TikTok / Shorts profile<input id="csTiktok" placeholder="https://…"></label><label>Website / blog<input id="csWebsite" placeholder="https://…"></label><label>Payout preference<select id="csPayoutPref"><option value="UPI">UPI</option><option value="Bank transfer">Bank transfer</option><option value="Discuss with RoamWise">Discuss with RoamWise</option></select></label><label class="full">Short bio<textarea id="csBio" maxlength="800" placeholder="What should travellers know about you?"></textarea></label></div><div class="cs-actions"><button id="csSaveProfile">Save profile</button><span id="csProfileMsg"></span></div></section>
+    <aside class="cs-panel cs-ref-panel"><div class="cs-panel-head"><div><small>GROWTH</small><h2>Your referral link</h2></div></div><div class="cs-ref-link"><input id="csRefLink" readonly placeholder="Activates after review"><button id="csCopyLink2">Copy</button></div><div class="cs-tier-track"><div class="cs-tier-step on"><b>Applied</b><span>25%</span><small>after code activation</small></div><i></i><div class="cs-tier-step" id="csPartnerTier"><b>Partner</b><span>30%</span><small>1 approved piece or 5 verified sales</small></div><i></i><div class="cs-tier-step" id="csFeaturedTier"><b>Featured</b><span>30%</span><small>25 verified sales or dedicated feature</small></div></div><div class="cs-ref-note" id="csRefNote">Your code is activated by RoamWise after verified application/account matching. The creator cannot edit the verified rate, sales or payout totals.</div></aside>
+  </div>
+  <section class="cs-panel cs-content-panel"><div class="cs-panel-head"><div><small>CONTENT VAULT</small><h2>Submit what you create</h2><p>Add itineraries, Reels, YouTube videos and blog posts. Review status shown here comes from RoamWise’s verified ledger, not from creator-editable data.</p></div><button id="csAddContent">+ Add content</button></div><div id="csContentList" class="cs-content-list"></div></section>
+  <section class="cs-panel cs-payout-panel"><div class="cs-panel-head"><div><small>EARNINGS & PAYOUT</small><h2>Verified money only</h2><p id="csLedgerNote">Earnings are read from RoamWise's admin-owned reconciliation feed.</p></div></div><div id="csPayoutDetails"></div></section>
+</section>
+</main>
+<div class="cs-modal" id="csModal"><div class="cs-modalbox" id="csModalBox"></div></div>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<script src="studio.js"></script>
+</body>
+</html>

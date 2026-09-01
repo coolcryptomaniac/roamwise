@@ -2,6 +2,7 @@
    Places real users asked about that Tusk did not know, resolved once
    against OpenStreetMap so they work offline from now on.
    Last updated: 2026-08-28  */
+   Last updated: 2026-08-31  */
 window.RW_LEARNED_PLACES = {
 }
 ;

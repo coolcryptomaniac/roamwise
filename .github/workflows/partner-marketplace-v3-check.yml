@@ -1,0 +1,71 @@
+name: Partner Marketplace v3 checks
+
+on:
+  pull_request:
+    paths:
+      - 'partner/**'
+      - 'firestore.rules'
+      - '.github/workflows/partner-marketplace-v3-check.yml'
+  push:
+    paths:
+      - 'partner/**'
+      - 'firestore.rules'
+      - '.github/workflows/partner-marketplace-v3-check.yml'
+
+jobs:
+  partner-marketplace-v3:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: JavaScript syntax
+        run: node --check partner/marketplace-v3.js
+      - name: Marketplace trust and booking invariants
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          idx=Path('partner/index.html').read_text()
+          js=Path('partner/marketplace-v3.js').read_text()
+          rules=Path('firestore.rules').read_text()
+          doc=Path('partner/MARKETPLACE-V3.md').read_text()
+
+          assert 'marketplace-v3.css' in idx
+          assert 'marketplace-v3.js' in idx
+          assert idx.index('marketplace-v3.js') < idx.index('marketplace-v2.js'), 'v3 capture guards must load before v2'
+
+          required=[
+            'marketplaceApproved===true',
+            "verified:true",
+            'paymentSnapshot',
+            'emailVerified',
+            '[data-liveapprove]',
+            "u.protocol==='https:'",
+            "bookingVersion:'marketplace-v3'",
+            "status:'requested'"
+          ]
+          for token in required:
+            assert token in js, f'missing v3 invariant: {token}'
+
+          assert "verified:'signed'" not in js, 'production v3 must not write the old verification string'
+          assert '.data.verified == true' in rules
+          assert 'request.resource.data.guestUid == request.auth.uid' in rules
+          assert 'does **not** claim to be an escrow or card processor' in doc
+          assert 'root `firestore.rules`' in doc
+          print('Partner Marketplace v3 invariants OK')
+          PY
+      - name: Public frontend secret guard
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+          text='\n'.join(Path(p).read_text(errors='ignore') for p in [
+            'partner/marketplace-v3.js','partner/index.html','partner/MARKETPLACE-V3.md'
+          ])
+          patterns={
+            'Stripe live secret': r'sk_live_[A-Za-z0-9]{12,}',
+            'Razorpay secret-looking token': r'rzp_(?:live|test)_[A-Za-z0-9]{12,}:[A-Za-z0-9]{8,}',
+            'private key block': r'-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----'
+          }
+          for name,pat in patterns.items():
+            assert not re.search(pat,text), f'possible {name} committed to public partner files'
+          print('No obvious payment/private-key secret patterns found')
+          PY

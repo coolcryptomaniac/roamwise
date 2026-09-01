@@ -4902,5 +4902,53 @@
   "country": "India",
   "best": "January, February, March",
   "month": true
+ },
+ {
+  "slug": "udaipur-in-november",
+  "title": "Udaipur in November",
+  "name": "Udaipur·November",
+  "country": "India",
+  "best": "January, February, March",
+  "month": true
+ },
+ {
+  "slug": "udaipur-in-december",
+  "title": "Udaipur in December",
+  "name": "Udaipur·December",
+  "country": "India",
+  "best": "January, February, March",
+  "month": true
+ },
+ {
+  "slug": "jaipur-in-january",
+  "title": "Jaipur in January",
+  "name": "Jaipur·January",
+  "country": "India",
+  "best": "January, October, November",
+  "month": true
+ },
+ {
+  "slug": "jaipur-in-february",
+  "title": "Jaipur in February",
+  "name": "Jaipur·February",
+  "country": "India",
+  "best": "January, October, November",
+  "month": true
+ },
+ {
+  "slug": "jaipur-in-march",
+  "title": "Jaipur in March",
+  "name": "Jaipur·March",
+  "country": "India",
+  "best": "January, October, November",
+  "month": true
+ },
+ {
+  "slug": "jaipur-in-april",
+  "title": "Jaipur in April",
+  "name": "Jaipur·April",
+  "country": "India",
+  "best": "January, October, November",
+  "month": true
  }
 ]

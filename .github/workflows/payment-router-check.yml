@@ -1,0 +1,49 @@
+name: Payment router checks
+
+on:
+  pull_request:
+    paths: ['payments/**','.github/workflows/payment-router-check.yml']
+  push:
+    paths: ['payments/**','.github/workflows/payment-router-check.yml']
+
+jobs:
+  payments:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: '22'}
+      - name: JavaScript syntax
+        run: |
+          node --check payments/router-core.mjs
+          node --check payments/webhook-verify.mjs
+          node --check payments/worker.mjs
+      - name: Routing invariants
+        run: |
+          node --input-type=module <<'NODE'
+          import {routePayment,shouldFallback} from './payments/router-core.mjs';
+          const env={
+            RAZORPAY_KEY_ID:'test',RAZORPAY_KEY_SECRET:'test',
+            CASHFREE_APP_ID:'test',CASHFREE_SECRET_KEY:'test',
+            STRIPE_SECRET_KEY:'test',PAYPAL_CLIENT_ID:'test',PAYPAL_CLIENT_SECRET:'test',
+            PAY_RAZORPAY_FEE_BPS:'200',PAY_CASHFREE_FEE_BPS:'195'
+          };
+          const india=routePayment({amountMinor:100000,country:'IN',currency:'INR',method:'upi'},env);
+          if(india.recommended?.provider!=='cashfree') throw new Error('expected configured lower-cost Cashfree route');
+          const intl=routePayment({amountMinor:10000,country:'US',currency:'USD',method:'paypal'},env);
+          if(intl.recommended?.provider!=='paypal') throw new Error('expected PayPal for explicit paypal method');
+          if(!shouldFallback(429)||!shouldFallback(503)||shouldFallback(400)) throw new Error('unsafe fallback policy');
+          console.log('routing invariants OK');
+          NODE
+      - name: Public secret guard
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+          text='\n'.join(p.read_text(errors='ignore') for p in Path('payments').glob('*') if p.is_file())
+          patterns=[r'sk_live_[A-Za-z0-9]{12,}',r'rzp_live_[A-Za-z0-9]{12,}',r'-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----']
+          for pat in patterns:
+              assert not re.search(pat,text), f'possible live secret committed: {pat}'
+          assert 'YOUR_KEY_SECRET' not in text
+          print('secret guard OK')
+          PY

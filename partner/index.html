@@ -3,32 +3,41 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="robots" content="noindex,nofollow">
-<title>RoamWise Partner</title>
+<meta name="theme-color" content="#080a0f">
+<meta name="robots" content="index,follow">
+<title>RoamWise Stays — Verified Direct Stays & Host Dashboard</title>
+<meta name="description" content="Find verified direct RoamWise stays or list your hotel or homestay. Clear request-to-book status, host confirmation before payment, and a simple host dashboard.">
+<link rel="canonical" href="https://roamwise.co.in/partner/">
+<meta property="og:title" content="RoamWise Stays — Verified Direct Stays">
+<meta property="og:description" content="Verified local stays first. Request a room, wait for host confirmation, then pay using the method you chose.">
+<meta property="og:image" content="https://roamwise.co.in/icon-512.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="app.css">
+<link rel="stylesheet" href="marketplace-v2.css">
+<link rel="stylesheet" href="marketplace-v3.css">
+<link rel="stylesheet" href="marketplace-v4.css">
 </head>
 <body>
 <nav class="nav"><div class="navin">
-  <a class="brand" href="../"><i class="logo">RW</i>Roam<span>Wise</span></a>
+  <a class="brand" href="../" aria-label="RoamWise home"><i class="logo">RW</i>Roam<span>Wise</span></a>
   <div class="navspace"></div>
-  <button class="navbtn desktop" id="homeBtn">Customer</button>
-  <button class="navbtn desktop" id="joinBtn">List your place</button>
-  <button class="navbtn" id="modeBtn">Test mode</button>
-  <button class="navbtn" id="signOutBtn" style="display:none">Sign out</button>
+  <button class="navbtn desktop" id="homeBtn" type="button">Find stays</button>
+  <button class="navbtn desktop" id="joinBtn" type="button">List your place</button>
+  <button class="navbtn" id="modeBtn" type="button">Test mode</button>
+  <button class="navbtn" id="signOutBtn" type="button" style="display:none">Sign out</button>
 </div></nav>
 <main class="page">
   <section class="hero">
-    <span class="eyebrow" id="eyebrow">RoamWise Partner</span>
-    <h1 id="heroTitle">A simpler way to <em>host, book and grow.</em></h1>
-    <p id="heroText">Verified RoamWise stays come first. When we do not have enough local choices, we widen the search automatically.</p>
+    <span class="eyebrow" id="eyebrow">RoamWise Stays</span>
+    <h1 id="heroTitle">Stay local. <em>Book with confidence.</em></h1>
+    <p id="heroText">Verified direct hosts, request-to-book confirmation, and no prepayment before availability is confirmed.</p>
   </section>
   <div class="modebar" id="modebar"></div>
-  <section class="rolegrid" id="rolegrid"></section>
-  <section id="view"></section>
-  <div class="footer">RoamWise · partner & booking workspace</div>
+  <section class="rolegrid" id="rolegrid" aria-label="Marketplace sections"></section>
+  <section id="view" aria-live="polite"></section>
+  <div class="footer">RoamWise · verified direct stays · host-controlled rates</div>
 </main>
 <div class="modal" id="modal"><div class="modalbox" id="modalbox"></div></div>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -37,5 +46,10 @@
 <script src="config.js"></script>
 <script src="core.js"></script>
 <script src="app.js"></script>
+<!-- v3 trust/booking capture guards load before the older v2 enhancement. -->
+<script src="marketplace-v3.js"></script>
+<script src="marketplace-v2.js"></script>
+<!-- v4 is presentation + additional client guardrails; it never relaxes v3/rules. -->
+<script src="marketplace-v4.js"></script>
 </body>
 </html>

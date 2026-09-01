@@ -4,36 +4,55 @@
    Nothing else in the app needs to change, and you can flip back instantly.
    ========================================================================= */
 window.RW_CONFIG = {
-
-  /* 'firebase'   = current production. Everything talks straight to Firestore.
-     'worker'     = route AI + heavy calls through your Cloudflare Worker.
-     'auto'       = try the worker, fall back to firebase if it is unreachable.
-     Start with 'firebase'. Switch to 'auto' to test safely in production.     */
+  /* firebase = current production; worker = API/AI/payment worker; auto = worker
+     when configured, otherwise the existing Firebase/device path. */
   backend: 'firebase',
-
-  /* Your deployed Worker URL. Leave blank until you have one.
-     e.g. 'https://roamwise-api.<your-subdomain>.workers.dev'                  */
   workerUrl: '',
-
-  /* Feature switches — turn things off instantly without a rebuild.           */
   features: {
-    beacon:   true,
-    realms:   true,
+    beacon: true,
+    realms: true,
     passport: true,
-    contest:  true,   // set false to hide prize messaging (e.g. during review)
-    webPush:  false   // turn on after you add the VAPID key below
+    contest: true,
+    webPush: false,
+    atlasIntroV5: true,
+    cinematicMapV51: true,
+    privateLearningConsent: true,
+    performanceV5: true
   },
-
-  /* Web push (browser). Get this from:
-     Firebase Console > Project settings > Cloud Messaging > Web Push certificates */
+  maps: {
+    renderer: 'maplibre',
+    /* OpenFreeMap is the zero-key default renderer. It is a public service, not
+       an SLA. Set styleUrl to your own PMTiles/MapLibre style later for full
+       infrastructure independence without changing itinerary code. */
+    styleUrl: 'https://tiles.openfreemap.org/styles/liberty',
+    maplibreJs: 'https://unpkg.com/maplibre-gl@5/dist/maplibre-gl.js',
+    maplibreCss: 'https://unpkg.com/maplibre-gl@5/dist/maplibre-gl.css',
+    pmtilesUrl: ''
+  },
   vapidKey: ''
 };
 
-/* Helper the app uses to decide where to send a request. Safe if unset. */
 window.rwApi = function(path){
   var c = window.RW_CONFIG || {};
   if ((c.backend === 'worker' || c.backend === 'auto') && c.workerUrl) {
     return c.workerUrl.replace(/\/+$/,'') + '/' + String(path||'').replace(/^\/+/,'');
   }
-  return null; // null => caller uses the existing direct-to-Firebase path
+  return null;
 };
+
+/* Platform V5 is intentionally modular. These scripts are tiny and can be
+   disabled individually above; heavyweight MapLibre itself is NOT downloaded
+   until the traveller actually opens a Cinematic map. */
+(function(){
+  var f=(window.RW_CONFIG&&window.RW_CONFIG.features)||{};
+  var list=[];
+  if(f.performanceV5) list.push('platform-v5/performance.js');
+  if(f.atlasIntroV5) list.push('platform-v5/atlas-shinobi.js');
+  if(f.privateLearningConsent) list.push('platform-v5/learning-consent.js');
+  if(f.cinematicMapV51) list.push('platform-v5/cinematic-map-v51.js');
+  list.forEach(function(src){
+    if(document.querySelector('script[data-rw-v5="'+src+'"]')) return;
+    var s=document.createElement('script');s.src=src;s.async=true;s.dataset.rwV5=src;
+    document.head.appendChild(s);
+  });
+})();

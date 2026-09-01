@@ -1,48 +1,16 @@
-// OPTIONAL PARTNER BLOCK ONLY.
-// Merge this into the existing RoamWise firestore.rules if the Firebase Console
-// does not already contain equivalent partner rules. DO NOT replace the full
-// rules file with this snippet.
-
-function isPartner(uid) {
-  return request.auth != null && request.auth.uid == uid;
-}
-
-match /partners/{uid} {
-  allow read: if isPartner(uid) || isAdmin();
-
-  allow create: if isPartner(uid)
-                && request.resource.data.status == 'pending'
-                && !('commissionPct' in request.resource.data)
-                && !('verified' in request.resource.data)
-                && !('badges' in request.resource.data);
-
-  allow update: if isAdmin()
-                || (isPartner(uid)
-                    && !request.resource.data.diff(resource.data).affectedKeys()
-                         .hasAny(['status','verified','badges','commissionPct',
-                                  'payoutHold','adminNote','uid']));
-
-  allow delete: if isAdmin();
-}
-
-match /partners/{uid}/rooms/{roomId} {
-  allow read: if true;
-  allow create, update, delete: if isPartner(uid) || isAdmin();
-}
-
-match /roomBookings/{ref} {
-  allow read: if isAdmin()
-              || (request.auth != null && resource.data.partnerUid == request.auth.uid)
-              || (request.auth != null && resource.data.guestUid == request.auth.uid);
-
-  allow create: if request.auth != null
-                && request.resource.data.status in ['requested','paid-unverified','confirmed-pay-later'];
-
-  allow update: if isAdmin()
-                || (request.auth != null
-                    && resource.data.partnerUid == request.auth.uid
-                    && request.resource.data.diff(resource.data).affectedKeys()
-                         .hasOnly(['status','partnerNote','confirmedAt']));
-
-  allow delete: if isAdmin();
-}
+// DEPRECATED REFERENCE — DO NOT DEPLOY THIS FILE BY ITSELF.
+//
+// Partner Marketplace v3 is designed against the repository root `firestore.rules`.
+// That full file is the source of truth and is FULL-REPLACE-ONLY when publishing
+// rules in Firebase Console. Older versions of this optional snippet were weaker
+// than the canonical rules and could let a pending/unverified partner manage rooms.
+//
+// The important v3 contract in the canonical rules is:
+//   1) partner account starts status:'pending' and cannot self-edit verified/status;
+//   2) partner room writes require the parent partner's `verified == true`;
+//   3) booking creation requires guestUid == authenticated uid AND parent partner
+//      `verified == true`;
+//   4) partner booking updates are limited to status/partnerNote/confirmedAt.
+//
+// See ../firestore.rules for the complete, current implementation. Do not paste
+// this file into Firebase and do not widen those permissions to make the UI work.
