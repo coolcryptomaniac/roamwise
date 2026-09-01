@@ -4,6 +4,13 @@ on:
   pull_request:
     paths:
       - 'partner/**'
+      - 'firestore.rules'
+      - '.github/workflows/partner-marketplace-check.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'partner/**'
+      - 'firestore.rules'
       - '.github/workflows/partner-marketplace-check.yml'
   workflow_dispatch:
 
@@ -15,33 +22,74 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
       - name: JavaScript syntax
         run: |
           node --check partner/core.js
           node --check partner/app.js
-          node --check partner/marketplace-v2.js
-      - name: Integration invariants
-        shell: bash
+          node --check partner/marketplace.js
+      - name: Canonical runtime and trust invariants
         run: |
-          set -euo pipefail
-          grep -q 'marketplace-v2.css' partner/index.html
-          grep -q 'marketplace-v2.js' partner/index.html
-          grep -q "bookingVersion:'marketplace-v2'" partner/marketplace-v2.js
-          grep -q 'roomBookings' partner/marketplace-v2.js
-          grep -q 'RoamWise verification' partner/marketplace-v2.js
-          grep -q 'HOST STUDIO' partner/marketplace-v2.js
-          grep -q 'pay_at_property' partner/marketplace-v2.js
-          grep -q 'upi_after_confirmation' partner/marketplace-v2.js
-          grep -q 'secure_link_after_confirmation' partner/marketplace-v2.js
-      - name: Public frontend secret guard
-        shell: bash
-        run: |
-          set -euo pipefail
-          ! grep -Eqi '(rzp_(live|test)_[A-Za-z0-9]{12,}|sk_(live|test)_[A-Za-z0-9]{12,}|BEGIN (RSA |EC )?PRIVATE KEY)' partner/marketplace-v2.js partner/marketplace-v2.css
-          ! grep -Eqi 'cardNumber|cvv|cvc' partner/marketplace-v2.js
-      - name: Booking safety copy
-        shell: bash
-        run: |
-          set -euo pipefail
-          grep -q 'Do not prepay until the host confirms availability' partner/marketplace-v2.js
-          grep -q 'RoamWise does not store card numbers' partner/marketplace-v2.js
+          python - <<'PY'
+          from pathlib import Path
+          import re
+
+          idx = Path('partner/index.html').read_text()
+          js = Path('partner/marketplace.js').read_text()
+          css = Path('partner/marketplace.css').read_text()
+          rules = Path('firestore.rules').read_text()
+
+          assert 'marketplace.css' in idx
+          assert 'marketplace.js' in idx
+          assert not re.search(r'marketplace-v\d+', idx, re.I), 'versioned marketplace runtime must not be loaded'
+
+          stale = [
+            'partner/marketplace-v2.js','partner/marketplace-v2.css',
+            'partner/marketplace-v3.js','partner/marketplace-v3.css',
+            'partner/marketplace-v4.js','partner/marketplace-v4.css'
+          ]
+          for path in stale:
+              assert not Path(path).exists(), f'stale runtime remains: {path}'
+
+          required = [
+            'marketplaceApproved===true',
+            'verified:true',
+            'paymentSnapshot',
+            'emailVerified',
+            'getIdToken(true)',
+            'safeHttps',
+            "bookingVersion:'marketplace'",
+            "status:'requested'",
+            'HOST STUDIO',
+            'rwMarketAck',
+            'validPhone',
+            'ownerAttestation',
+            'walkthroughConsent',
+            'HOST TODAY'
+          ]
+          for token in required:
+              assert token in js, f'missing canonical marketplace invariant: {token}'
+
+          assert 'match /partners/{uid}/rooms/{roomId}' in rules
+          assert '.data.verified == true' in rules
+          assert 'match /roomBookings/{ref}' in rules
+          assert 'request.resource.data.guestUid == request.auth.uid' in rules
+
+          assert css.count('{') == css.count('}'), 'unbalanced marketplace CSS braces'
+          assert ':focus-visible' in css
+          assert '@media(max-width:620px)' in css
+
+          # Never introduce client-side payment secrets/card collection.
+          secret_patterns = [
+            r'sk_live_[A-Za-z0-9]{12,}',
+            r'rzp_(?:live|test)_[A-Za-z0-9]{12,}:[A-Za-z0-9]{8,}',
+            r'-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----',
+            r'(?:id|name)=["\'][^"\']*(?:card[_-]?number|cvv|cvc|bank[_-]?password|client[_-]?secret)'
+          ]
+          for pat in secret_patterns:
+              assert not re.search(pat, js, re.I), f'possible sensitive client field/secret: {pat}'
+
+          print('Canonical Partner Marketplace checks passed')
+          PY
