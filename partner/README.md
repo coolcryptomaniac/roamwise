@@ -4,13 +4,22 @@
 
 - Live marketplace: `https://roamwise.co.in/partner/`
 - Deliberate four-role test lab: `https://roamwise.co.in/partner/?lab=1&mode=demo`
-- v3 architecture and test contract: `MARKETPLACE-V3.md`
+- Canonical architecture and runtime contract: `MARKETPLACE.md`
+
+## Runtime architecture
+
+The page has one base renderer and one marketplace enhancement layer:
+
+- `app.js` + `app.css` — base roles, search, rooms, bookings, admin and demo rendering.
+- `marketplace.js` + `marketplace.css` — production trust checks, richer marketplace UX, Host Studio, booking guardrails and host operating summary.
+
+Do not add back or load `marketplace-v2`, `marketplace-v3` or `marketplace-v4` assets. Those generations were consolidated because stacking them created duplicate click capture, DOM observers, auth subscriptions and competing CSS at runtime.
 
 ## Production experience
 
 Normal visitors see three paths: **Find stays**, **List your place**, and **Host dashboard**. The Founder/Admin role is hidden unless the authenticated UID has an `admins/{uid}` record.
 
-Direct rooms are not trusted merely because a public room document exists. Marketplace v3 requires the public projection `marketplaceApproved:true` and a matching `partnerUid` before the card remains in the verified-stay list. The canonical Firestore rules independently require the parent partner record's `verified == true` before room writes and booking creation.
+Direct rooms are not trusted merely because a public room document exists. The canonical marketplace requires the public projection `marketplaceApproved:true` and a matching `partnerUid` before a card remains in the verified-stay list. The canonical Firestore rules independently require the parent partner record's `verified == true` before protected room/booking operations.
 
 ## Host lifecycle
 
@@ -22,20 +31,20 @@ Direct rooms are not trusted merely because a public room document exists. Marke
 6. Existing/new rooms receive the public `marketplaceApproved:true` projection.
 7. Host manages rooms, rates, booking requests, marketplace imagery/amenities and optional post-confirmation payment preferences.
 
-The v3 founder view also detects old active partner records that still carry the legacy non-boolean verification value and offers an explicit repair/migration.
+The founder view detects old active partner records that still carry a legacy non-boolean verification value and offers an explicit repair/migration.
 
 ## Traveller booking lifecycle
 
 1. Search dates and destination.
-2. Only verified direct rooms survive v3 validation; external hotel choices can still appear when direct supply is thin.
+2. Only verified direct rooms survive canonical validation; external hotel choices can still appear when direct supply is thin.
 3. Traveller signs in with a **verified email**.
-4. Request is created in `roomBookings` with status `requested`.
-5. Payment preference is snapshotted into the booking, but no payment action is shown while the request is pending.
-6. Host confirms or declines using the existing Partner dashboard.
-7. After confirmation, the traveller gets exactly the snapshotted instruction: pay at property, UPI, or an HTTPS hosted payment page.
-8. Completed stays feed the existing commission/earnings calculation.
+4. The runtime re-reads the live room immediately before request creation.
+5. Request is created in `roomBookings` with status `requested`.
+6. Payment preference is snapshotted into the booking, but no payment action is shown while the request is pending.
+7. Host confirms or declines using the existing Partner dashboard.
+8. After confirmation, the traveller gets exactly the snapshotted instruction: pay at property, UPI, or an HTTPS hosted payment page.
 
-RoamWise does not collect card numbers in this static frontend and v3 does not pretend to provide escrow, automated refunds, bank settlement or real-time inventory locking.
+RoamWise does not collect card numbers in this static frontend and does not pretend to provide escrow, automated refunds, bank settlement or real-time inventory locking.
 
 ## Data model
 
@@ -52,9 +61,9 @@ No second database is introduced.
 
 ## Security rules
 
-Use the repository root `firestore.rules` as the canonical rules source. It is full-replace-only when publishing in Firebase Console. `OPTIONAL-FIRESTORE-RULES.txt` is now a deprecated reference warning, not a deployable alternative.
+Use the repository root `firestore.rules` as the canonical rules source. It is full-replace-only when publishing in Firebase Console. `OPTIONAL-FIRESTORE-RULES.txt` is a deprecated reference warning, not a deployable alternative.
 
-Do **not** weaken the rules to make a UI path work. Marketplace v3 was specifically built to match the hardened contract: boolean verified host, authenticated guest-owned booking create, and narrowly scoped host booking updates.
+Do **not** weaken the rules to make a UI path work.
 
 ## Public travel providers
 
