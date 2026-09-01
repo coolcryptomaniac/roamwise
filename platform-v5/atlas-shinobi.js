@@ -1,68 +1,184 @@
-/* RoamWise Platform V5 — cinematic atlas intro.
- * Accurate GSHHS-derived coastline geometry, one restrained shinobi traveller,
- * zero image/video requests. Vector artwork stays sharp on high-DPI/8K screens.
+/* RoamWise Platform V6 — canonical cinematic opening.
+ * One startup runtime only. Uses the approved RoamWise portrait film asset,
+ * responsive desktop framing, graceful poster/GIF fallback, rain, lightning
+ * and Matrix-inspired atmosphere. The legacy #intro is suppressed in rw-config.
  */
-(function(){'use strict';
-var LAND="M0.0,47.1L16.8,55.5L28.7,55.5L0.0,58.6L0.0,47.1ZM1000.0,58.6L986.5,59.6L997.6,66.8L954.5,73.5L953.8,84.7L935.2,100.4L933.3,83.3L959.2,66.3L895.7,75.9L875.6,88.5L892.8,93.3L890.0,106.0L854.2,133.1L858.6,146.9L851.5,149.1L850.8,148.2L848.8,133.3L836.5,136.1L838.6,129.3L827.0,135.0L840.8,140.0L831.1,147.0L838.8,164.1L823.6,182.5L796.1,188.1L802.8,216.6L791.1,224.1L777.6,210.9L775.6,222.8L789.7,246.0L773.0,225.9L771.5,201.3L761.8,203.1L754.0,183.0L723.0,203.9L715.4,226.3L702.5,184.5L696.7,189.1L684.6,174.7L649.2,171.5L635.9,160.6L642.5,178.5L657.0,172.5L666.1,184.6L652.8,200.0L620.7,212.7L590.5,162.0L600.4,141.7L576.1,142.2L572.4,133.9L615.0,128.3L601.7,117.1L609.1,111.0L594.4,119.4L583.7,113.6L580.5,129.4L562.7,131.0L566.9,137.8L564.4,142.8L537.6,115.3L551.4,132.0L544.6,138.5L524.3,119.3L509.3,122.7L494.1,142.0L473.6,135.9L474.2,123.4L495.5,122.3L486.7,107.3L527.3,92.6L523.9,82.0L529.6,80.2L530.2,91.3L553.8,90.5L565.3,75.8L584.3,73.7L559.5,71.8L570.9,58.8L562.9,56.2L549.1,64.7L553.0,74.3L544.0,85.1L535.6,87.1L529.9,73.8L515.7,77.8L514.0,70.5L519.8,71.0L521.4,69.9L514.2,67.1L568.4,41.2L615.0,52.6L588.5,52.5L603.9,62.4L622.5,56.0L620.2,48.0L689.6,49.6L685.4,40.9L699.0,35.6L704.5,48.8L692.0,54.1L700.4,55.3L707.4,47.7L712.7,47.2L714.2,50.7L718.8,51.6L715.7,47.4L710.9,46.3L704.9,46.6L707.9,35.8L732.3,44.9L723.6,33.7L789.3,21.4L816.5,27.0L812.1,26.9L815.5,28.8L797.3,33.4L793.1,36.0L989.1,44.5L1000.0,47.1L1000.0,58.6ZM588.7,157.3L618.1,216.1L642.8,219.3L608.9,263.8L613.5,293.6L596.2,307.8L598.6,320.9L575.0,348.7L555.6,352.4L532.8,302.9L538.5,282.4L524.2,252.0L527.0,237.9L510.6,230.5L475.8,235.9L453.4,213.5L452.8,185.9L484.8,144.4L527.1,140.1L528.4,150.6L552.7,161.0L560.3,153.1L588.7,157.3ZM268.4,205.1L276.6,228.7L262.0,220.9L257.2,210.5L212.5,196.1L180.7,156.2L195.9,181.8L188.4,177.0L156.3,135.5L153.5,107.7L159.7,106.6L139.1,85.4L93.6,70.2L78.5,76.0L85.7,69.1L56.7,86.6L46.2,88.8L64.3,76.4L38.5,69.1L53.4,59.7L33.0,56.8L55.0,54.5L36.5,49.0L65.3,40.0L124.2,48.1L144.3,42.4L202.2,54.9L206.3,48.2L197.7,49.2L205.0,47.2L235.3,52.5L237.5,38.3L256.9,52.6L262.4,44.5L270.7,45.0L268.5,54.9L239.4,61.1L248.3,64.2L236.2,76.3L271.3,87.8L278.5,99.6L287.4,84.2L282.8,66.9L306.9,70.4L309.2,79.4L321.2,72.8L340.7,89.5L331.2,93.4L345.3,96.8L305.6,108.1L320.5,105.6L314.5,108.9L330.7,116.7L308.8,118.6L289.0,140.8L289.2,133.7L285.5,136.3L286.1,140.5L288.9,141.4L290.2,144.8L273.3,158.2L277.7,171.2L276.2,176.6L255.6,159.5L228.4,169.8L233.7,195.0L258.9,187.2L253.0,203.3L268.4,205.1ZM296.2,405.9L289.9,387.4L298.5,381.0L304.7,304.2L289.1,293.1L274.3,262.6L286.0,238.5L278.0,222.5L286.7,226.7L300.9,213.3L300.8,223.4L305.5,214.1L328.1,218.4L337.0,231.2L357.5,237.5L361.4,246.5L353.6,254.7L371.7,252.6L403.3,271.0L386.2,314.7L364.6,324.6L349.6,352.0L337.7,347.3L340.1,362.1L319.4,369.8L310.1,403.9L296.2,405.9ZM906.2,363.8L864.3,342.5L819.8,351.1L816.6,314.3L850.0,290.9L860.0,294.7L866.6,282.7L879.3,284.9L876.1,293.9L890.6,301.8L895.9,281.4L926.8,334.2L916.6,360.3L906.2,363.8ZM375.8,73.5L351.4,55.8L360.1,53.4L350.9,55.6L360.4,50.4L350.9,51.5L360.2,50.2L348.3,42.2L356.4,39.0L297.1,20.1L341.1,10.8L333.0,8.8L386.4,7.8L377.0,5.1L464.2,9.6L440.9,13.0L455.3,13.2L438.9,21.5L449.2,24.1L436.8,24.4L446.2,27.3L437.5,27.8L443.3,33.9L423.0,34.9L440.3,42.6L418.7,42.8L438.6,43.8L385.7,58.4L375.8,73.5ZM916.7,279.7L886.0,274.3L863.7,254.2L901.5,261.2L916.7,279.7ZM819.4,261.8L806.3,258.7L802.5,246.6L825.4,229.4L830.6,247.1L819.4,261.8ZM625.0,325.0L622.0,301.5L636.9,285.2L640.2,295.4L625.0,325.0ZM316.7,67.8L283.2,60.5L299.9,53.9L286.1,44.2L251.3,40.9L273.5,33.2L310.3,42.6L305.4,45.5L314.7,46.6L307.2,47.6L329.7,53.9L311.3,54.0L320.8,64.0L308.4,62.5L316.7,67.8ZM788.9,265.7L782.2,259.4L764.5,233.6L788.1,249.2L794.7,259.5L788.9,265.7ZM891.3,145.0L863.5,149.1L893.0,128.1L891.3,145.0ZM219.5,43.6L174.0,44.0L190.4,43.1L169.1,38.9L203.4,34.4L219.5,43.6ZM504.9,95.7L484.1,102.8L493.5,97.7L485.2,97.5L492.6,93.1L483.9,87.3L486.1,77.6L504.9,95.7ZM244.7,9.8L323.4,6.4L330.2,7.8L283.2,16.6L293.2,17.6L274.8,26.1L250.9,24.8L273.7,17.5L259.7,13.8L276.1,16.0L268.9,13.7L287.6,12.1L280.6,12.1L286.6,10.4L244.7,9.8ZM831.9,264.7L833.5,247.9L847.7,245.0L834.2,248.8L842.9,252.3L841.3,263.0L835.4,257.7L831.9,264.7ZM984.2,370.6L963.0,385.9L963.4,383.3L984.2,370.6ZM816.7,275.3L799.6,272.8L792.2,269.9L808.4,268.9L816.7,275.3ZM985.9,370.6L985.9,359.0L984.7,359.0L979.7,351.3L996.0,360.9L985.9,370.6ZM353.8,110.2L335.0,109.1L344.7,98.1L342.0,104.3L353.8,110.2ZM291.7,191.4L272.6,183.3L270.1,183.2L266.6,185.6L264.0,185.7L266.6,183.2L274.6,181.7L291.7,191.4ZM844.4,211.9L835.1,209.4L835.1,195.4L839.8,195.9L844.4,211.9ZM462.5,58.6L436.9,62.4L431.9,57.3L462.5,58.6ZM851.7,228.6L838.6,229.1L848.4,221.1L851.7,228.6ZM482.5,96.4L471.9,90.5L482.9,87.6L482.5,96.4ZM905.0,122.4L888.8,127.8L894.2,116.1L905.0,122.4ZM894.4,114.8L893.4,96.1L896.4,89.9L902.1,106.9L894.4,114.8ZM310.2,195.3L301.6,198.2L293.1,195.8L310.2,195.3ZM179.7,33.7L158.1,40.9L150.0,38.3L153.5,31.3L179.7,33.7ZM727.4,229.3L721.4,225.9L722.8,221.1L727.4,229.3ZM911.1,377.1L901.9,369.6L911.3,369.9L911.1,377.1ZM256.3,31.0L231.1,23.6L279.6,29.7L256.3,31.0ZM319.1,410.7L314.7,411.8L300.1,410.7L309.0,404.6L319.1,410.7ZM690.0,25.8L649.1,33.0L690.6,23.7L690.0,25.8ZM275.0,63.4L269.4,61.2L257.9,63.0L262.2,56.1L275.0,63.4ZM207.2,26.9L173.2,28.7L196.9,24.0L207.2,26.9ZM238.3,17.7L249.1,16.9L231.6,13.7L264.2,16.9L238.3,17.7ZM559.8,18.4L537.8,20.4L548.3,19.3L529.6,16.0L559.8,18.4ZM361.6,255.3L360.2,250.3L365.6,250.8L361.6,255.3ZM863.0,158.8L859.9,152.0L863.8,150.5L866.9,153.1L863.0,158.8ZM838.9,176.4L833.7,180.5L837.7,175.6L838.9,176.4ZM922.7,262.2L915.6,268.5L912.0,266.4L922.7,262.2ZM259.6,32.8L258.4,40.5L250.0,39.8L259.6,32.8ZM806.7,195.1L803.5,191.5L808.1,191.1L806.7,195.1ZM230.7,33.1L224.4,40.1L214.8,36.2L230.7,33.1ZM660.0,42.0L642.8,38.7L657.0,34.9L660.0,42.0ZM157.6,107.5L146.1,101.2L143.2,100.6L151.5,102.0L157.6,107.5ZM844.4,280.2L847.6,275.4L853.6,274.7L844.4,280.2ZM543.5,137.4L535.2,139.5L534.7,138.2L543.5,137.4ZM238.1,36.0L235.3,32.4L249.5,32.6L238.1,36.0ZM526.8,134.4L522.7,129.6L525.6,128.6L526.8,134.4ZM895.6,27.3L885.5,25.9L903.9,28.0L895.6,27.3ZM872.7,152.2L866.7,151.9L873.9,149.3L872.7,152.2ZM855.4,243.4L856.8,252.7L854.6,250.7L853.9,246.9L855.4,243.4ZM863.5,261.4L858.4,258.2L862.0,258.7L863.5,261.4ZM963.9,315.7L958.2,312.8L955.5,309.1L963.9,315.7ZM229.8,28.2L223.3,27.4L214.3,27.6L226.4,24.5L229.8,28.2ZM168.9,22.6L179.6,22.6L159.5,26.7L168.9,22.6ZM825.0,276.8L827.6,273.8L831.1,275.3L825.0,276.8ZM777.8,17.9L757.9,16.0L778.1,15.3L777.8,17.9ZM575.0,14.9L565.7,17.1L549.3,14.3L563.3,13.2L575.0,14.9ZM834.5,274.2L837.9,276.2L832.8,275.7L834.5,274.2ZM231.8,48.7L227.9,44.4L235.7,47.4L231.8,48.7ZM843.2,218.2L841.7,223.4L842.2,217.6L843.2,218.2ZM848.6,214.1L847.3,215.4L845.2,213.0L848.6,214.1ZM886.0,273.7L883.8,272.2L886.4,272.3L886.0,273.7ZM794.6,254.7L792.0,256.1L792.6,254.8L794.6,254.7ZM832.5,219.1L825.5,225.5L831.9,216.4L832.5,219.1ZM842.0,217.1L838.6,215.0L842.1,215.9L842.0,217.1ZM221.2,18.1L209.9,19.8L207.1,16.7L221.2,18.1ZM778.7,20.6L784.7,16.4L793.0,19.1L778.7,20.6ZM279.6,36.1L275.5,33.1L288.7,35.7L279.6,36.1ZM288.4,197.3L284.1,197.5L282.4,196.0L288.4,197.3ZM835.6,279.5L833.3,279.6L830.4,278.0L835.6,279.5ZM332.2,111.6L329.7,116.0L329.0,114.6L332.2,111.6ZM995.0,300.9L994.2,303.8L992.4,302.8L995.0,300.9ZM70.0,192.6L67.3,194.1L67.1,190.4L70.0,192.6Z";
-var ROUTE="M160 139 C214 93 258 108 294 130 C382 150 459 92 569 73 C648 61 688 126 721 163 C770 216 833 105 888 145";
-function atlas(){
- var pins=[[160,139],[294,130],[569,73],[721,163],[888,145]];
- return `<svg class="rwAtlas" viewBox="0 0 1000 500" role="img" aria-label="World coastline map with a RoamWise travel route">
- <defs>
-  <linearGradient id="rwSea" x2="0" y2="1"><stop stop-color="#030407"/><stop offset=".55" stop-color="#090b10"/><stop offset="1" stop-color="#030407"/></linearGradient>
-  <linearGradient id="rwLand" x2="1" y2="1"><stop stop-color="#35373e"/><stop offset=".55" stop-color="#23262d"/><stop offset="1" stop-color="#15171c"/></linearGradient>
-  <linearGradient id="rwTrail" x2="1"><stop stop-color="#7c1f25"/><stop offset=".48" stop-color="#ce4147"/><stop offset=".76" stop-color="#e8ba6c"/><stop offset="1" stop-color="#f1d8a9"/></linearGradient>
-  <filter id="rwGlow" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="3.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-  <filter id="rwShadow" x="-70%" y="-70%" width="240%" height="240%"><feDropShadow dx="0" dy="7" stdDeviation="5" flood-opacity=".8"/></filter>
- </defs>
- <rect width="1000" height="500" fill="url(#rwSea)"/>
- <g class="rwGrid">${[74,162,250,338,426].map(y=>`<path d="M0 ${y}H1000"/>`).join('')}${[83,167,250,333,417,500,583,667,750,833,917].map(x=>`<path d="M${x} 0V500"/>`).join('')}</g>
- <path class="rwLand" d="${LAND}"/>
- <path class="rwTrailGlow" d="${ROUTE}"/><path class="rwTrail" d="${ROUTE}"/>
- <g class="rwPins">${pins.map((p,i)=>`<g class="p p${i+1}" transform="translate(${p[0]} ${p[1]})"><circle class="halo" r="10"/><circle class="core" r="3.4"/></g>`).join('')}</g>
- <g class="rwTraveler" opacity="0">
-  <g class="rwTravelerArt" transform="translate(-23 -30) scale(.72)" filter="url(#rwShadow)">
-   <circle class="head" cx="23" cy="10" r="6"/><path class="band" d="M15 10h15l11-5-4 9-9 2-12 1z"/>
-   <path class="body" d="M21 16c7-1 11 5 9 12l-4 9 13 9-4 6-14-11-7 12-7-4 9-17-10-7 4-6z"/>
-   <path class="cloak" d="M18 18c7 0 13 5 11 16l-11 8-7-7 3-13z"/><path class="scarf" d="M30 15l16 2-12 4z"/><circle class="eye" cx="25" cy="10" r="1.2"/>
-  </g>
-  <animateMotion path="${ROUTE}" dur="5.05s" begin="1s" fill="freeze" rotate="auto"/>
-  <animate attributeName="opacity" values="0;.94;.97;.88;0" keyTimes="0;.07;.55;.91;1" dur="5.05s" begin="1s" fill="freeze"/>
- </g>
- </svg>`;
-}
-function styles(){return `<style id="rwAtlasCss">
-.intro{display:block!important;background:#020306!important;overflow:hidden!important;transition:none!important}
-.intro:before{content:"";position:absolute;inset:-10%;background:radial-gradient(55% 52% at 68% 24%,#7b171d18,transparent 72%),radial-gradient(45% 42% at 24% 72%,#e8ba6c0d,transparent 74%);animation:rwBreath 7s ease both}
-.intro:after{content:"";position:absolute;inset:0;z-index:20;pointer-events:none;background:linear-gradient(#0009 0,transparent 14%,transparent 84%,#000b 100%),radial-gradient(ellipse,transparent 50%,#0009 100%)}
-.intro .kumo,.intro>.ninja{display:none!important}
-.introMap{position:absolute!important;left:50%!important;right:auto!important;bottom:8%!important;width:min(1120px,112vw)!important;height:min(59vh,570px)!important;transform:translateX(-50%) scale(1.035);background:none!important;opacity:0!important;z-index:1!important;animation:rwMapIn 1.65s cubic-bezier(.16,1,.3,1) .15s forwards}
-.rwAtlas{width:100%;height:100%;display:block;overflow:visible;filter:drop-shadow(0 28px 52px #0009)}.rwGrid path{stroke:#b7bac5;stroke-width:.55;opacity:.065;vector-effect:non-scaling-stroke}
-.rwLand{fill:url(#rwLand);stroke:#c9cbd45f;stroke-width:.72;vector-effect:non-scaling-stroke}.rwTrailGlow{fill:none;stroke:#c4302b;stroke-width:8;opacity:.07;filter:url(#rwGlow);vector-effect:non-scaling-stroke}
-.rwTrail{fill:none;stroke:url(#rwTrail);stroke-width:2.15;stroke-linecap:round;stroke-dasharray:1500;stroke-dashoffset:1500;filter:url(#rwGlow);vector-effect:non-scaling-stroke;animation:rwDraw 4.7s cubic-bezier(.22,.7,.2,1) .9s forwards}
-.rwPins .halo{fill:none;stroke:#e8ba6c;stroke-width:1;opacity:0;transform-box:fill-box;transform-origin:center}.rwPins .core{fill:#f2d09a;stroke:#6e4320;stroke-width:1;opacity:0}
-.rwPins .p1{--d:1.15s}.rwPins .p2{--d:2.05s}.rwPins .p3{--d:3s}.rwPins .p4{--d:4.05s}.rwPins .p5{--d:5.05s}.rwPins .core{animation:rwPin .4s ease var(--d) forwards}.rwPins .halo{animation:rwHalo 2s ease-out var(--d) infinite}
-.rwTravelerArt{transform-box:fill-box;transform-origin:center;animation:rwStride .72s ease-in-out 1s infinite}.rwTraveler .head,.rwTraveler .body{fill:#07080b;stroke:#b7bac3;stroke-width:.55}.rwTraveler .cloak{fill:#111218;stroke:#6e1e24;stroke-width:.7}.rwTraveler .band{fill:#b5262d}.rwTraveler .scarf{fill:#8f1f25;transform-box:fill-box;transform-origin:left center;animation:rwScarf .9s ease-in-out 1s infinite alternate}.rwTraveler .eye{fill:#ffd7d9;filter:drop-shadow(0 0 4px #e43a42)}
-.intro .it{position:absolute!important;z-index:12;top:15.5%;left:50%;transform:translateX(-50%);margin:0!important;font-size:clamp(34px,6vw,72px)!important;font-weight:600!important;letter-spacing:.34em!important;text-indent:.34em!important;line-height:1!important;white-space:nowrap;background:linear-gradient(100deg,#f2eadc,#d7c5a6 36%,#e8ba6c 58%,#f4efe8)!important;background-size:220% auto!important;-webkit-background-clip:text!important;background-clip:text!important;-webkit-text-fill-color:transparent!important;opacity:0;filter:blur(8px);animation:rwTitle 1.4s cubic-bezier(.16,1,.3,1) .55s forwards,rwSheen 7s linear 1.8s infinite!important}
-.intro .is{position:absolute!important;z-index:12;top:calc(15.5% + clamp(52px,7vw,86px));left:50%;transform:translateX(-50%);margin:0!important;color:#9f252b!important;font-size:10px!important;font-weight:700!important;letter-spacing:.48em!important;text-indent:.48em!important;opacity:0;animation:rwFade 1s ease 1.25s forwards!important}
-.intro .ig{position:absolute!important;z-index:12;left:50%;bottom:4.8%;transform:translateX(-50%);width:100%;text-align:center;margin:0!important;color:#e3e0d87a!important;font-size:10px!important;letter-spacing:.22em;text-transform:uppercase;opacity:0;animation:rwFade 1s ease 2s forwards!important}
-.rwCineSkip{position:absolute;z-index:25;right:18px;bottom:17px;color:#fff5;font:500 9px/1.2 system-ui;letter-spacing:.16em;text-transform:uppercase;opacity:0;animation:rwFade .8s ease 2.35s forwards}
-.intro.bye{animation:rwExit .68s cubic-bezier(.4,0,.2,1) both!important;pointer-events:none!important}
-@keyframes rwBreath{from{transform:scale(1.04);opacity:.4}to{transform:scale(1);opacity:1}}@keyframes rwMapIn{from{opacity:0;transform:translateX(-50%) scale(1.055);filter:blur(9px)}to{opacity:.96;transform:translateX(-50%) scale(1);filter:none}}@keyframes rwDraw{to{stroke-dashoffset:0}}@keyframes rwPin{to{opacity:1}}@keyframes rwHalo{from{opacity:.5;transform:scale(.55)}to{opacity:0;transform:scale(1.65)}}@keyframes rwStride{0%,100%{translate:0 0;rotate:-1deg}50%{translate:0 -1.5px;rotate:1deg}}@keyframes rwScarf{from{transform:rotate(-5deg)}to{transform:rotate(5deg)}}@keyframes rwTitle{from{opacity:0;filter:blur(8px);transform:translateX(-50%) translateY(13px) scale(.985)}to{opacity:1;filter:none;transform:translateX(-50%)}}@keyframes rwSheen{to{background-position:220% center}}@keyframes rwFade{to{opacity:1}}@keyframes rwExit{to{opacity:0;filter:blur(5px);transform:scale(1.018)}}
-@media(max-width:620px){.introMap{bottom:12%!important;width:118vw!important;height:49vh!important}.intro .it{top:18%!important;font-size:clamp(30px,10vw,50px)!important;letter-spacing:.25em!important;text-indent:.25em!important}.intro .is{top:calc(18% + 58px)!important;font-size:8.5px!important;letter-spacing:.36em!important;text-indent:.36em!important}.intro .ig{bottom:5.8%!important;font-size:8px!important;letter-spacing:.14em!important}.rwCineSkip{right:12px;bottom:12px;font-size:8px}}
-@media(prefers-reduced-motion:reduce){.introMap,.rwTrail,.rwPins *,.rwTravelerArt,.rwTraveler .scarf,.intro .it,.intro .is,.intro .ig,.rwCineSkip{animation:none!important}.introMap{opacity:.96!important;transform:translateX(-50%)!important;filter:none!important}.rwTrail{stroke-dashoffset:0!important}.rwPins .core{opacity:1!important}.rwTraveler{display:none!important}.intro .it,.intro .is,.intro .ig{opacity:1!important;filter:none!important}}
-</style>`}
-function boot(){
- var intro=document.getElementById('intro'),map=intro&&intro.querySelector('.introMap');if(!intro||!map||map.dataset.rwAtlas==='cine2')return;
- map.dataset.rwAtlas='cine2';var old=document.getElementById('rwAtlasCss');if(old)old.remove();document.head.insertAdjacentHTML('beforeend',styles());map.innerHTML=atlas();
- intro.querySelectorAll('.rwCineSkip').forEach(n=>n.remove());intro.insertAdjacentHTML('beforeend','<span class="rwCineSkip">tap to enter</span>');
- var tag=intro.querySelector('.ig');if(tag)tag.textContent='escape the crowds · discover your world';
- var allow=false,nativeRemove=intro.remove.bind(intro),start=performance.now(),hold=6300;
- intro.addEventListener('click',function(){allow=true},{capture:true,once:true});
- intro.remove=function(){if(allow||performance.now()-start>=hold)nativeRemove()};
- var ob=new MutationObserver(function(){if(intro.classList.contains('bye')&&!allow&&performance.now()-start<hold)intro.classList.remove('bye')});
- ob.observe(intro,{attributes:true,attributeFilter:['class']});
- setTimeout(function(){if(!document.documentElement.contains(intro))return;allow=true;ob.disconnect();intro.classList.add('bye');setTimeout(nativeRemove,680)},hold);
-}
-if(document.getElementById('intro'))boot();else document.addEventListener('DOMContentLoaded',boot,{once:true});
+(function(){
+  'use strict';
+
+  var ROOT_ID = 'rwOpening';
+  var DURATION = Number((((window.RW_CONFIG||{}).intro||{}).cinematicDurationMs) || 6800);
+  var SHOULD_SHOW = window.__RW_INTRO_SHOULD_SHOW === true;
+
+  function removeLegacy(){
+    var legacy = document.getElementById('intro');
+    if (legacy) legacy.remove();
+  }
+
+  function finishBoot(){
+    document.documentElement.classList.add('rw-opening-mounted');
+  }
+
+  if (!SHOULD_SHOW) {
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', function(){ removeLegacy(); finishBoot(); }, {once:true});
+    } else {
+      removeLegacy(); finishBoot();
+    }
+    return;
+  }
+
+  var css = `
+  #${ROOT_ID}{
+    --rw-violet:#7b38ff;--rw-pink:#ff3fbd;--rw-hot:#ff566e;--rw-gold:#ffd06f;
+    position:fixed;inset:0;z-index:2147483000;overflow:hidden;isolation:isolate;
+    display:grid;place-items:center;background:
+      radial-gradient(circle at 48% 16%,rgba(119,46,255,.50),transparent 39%),
+      radial-gradient(circle at 74% 67%,rgba(255,43,153,.31),transparent 37%),
+      radial-gradient(circle at 20% 76%,rgba(136,20,89,.34),transparent 38%),
+      linear-gradient(145deg,#130621 0%,#260824 48%,#10051b 100%);
+    opacity:1;transition:opacity .58s ease,filter .58s ease;color:#fff;
+    font-family:'Outfit',system-ui,-apple-system,Segoe UI,sans-serif;
+  }
+  #${ROOT_ID}.rw-closing{opacity:0;filter:blur(8px);pointer-events:none}
+  #${ROOT_ID} .rw-bg,#${ROOT_ID} .rw-film,#${ROOT_ID} .rw-poster,#${ROOT_ID} .rw-fx{position:absolute;inset:0;width:100%;height:100%}
+  #${ROOT_ID} .rw-bg{
+    background-image:linear-gradient(rgba(12,2,20,.34),rgba(12,2,20,.34)),url('/assets/roamwise-opening-poster.png');
+    background-position:center 48%;background-size:cover;filter:blur(28px) saturate(1.35) brightness(.52);transform:scale(1.12);
+  }
+  #${ROOT_ID} .rw-stage{position:relative;z-index:2;width:100%;height:100%;display:grid;place-items:center;overflow:hidden}
+  #${ROOT_ID} .rw-media{position:relative;width:100%;height:100%;overflow:hidden;background:#16051e}
+  #${ROOT_ID} .rw-film,#${ROOT_ID} .rw-poster{object-fit:cover;object-position:center;transition:opacity .38s ease;transform:scale(1.015)}
+  #${ROOT_ID} .rw-film{opacity:0;z-index:2}
+  #${ROOT_ID}.rw-video-ready .rw-film{opacity:1}
+  #${ROOT_ID}.rw-video-ready .rw-poster{opacity:0}
+  #${ROOT_ID}.rw-video-failed .rw-poster{content:url('/assets/roamwise-opening.gif')}
+  #${ROOT_ID} .rw-sheen{position:absolute;inset:-30%;z-index:4;pointer-events:none;background:linear-gradient(115deg,transparent 38%,rgba(255,255,255,.11) 48%,rgba(255,184,244,.16) 50%,transparent 60%);transform:translateX(-65%) rotate(-4deg);animation:rwIntroSheen 3.5s ease-in-out infinite}
+  #${ROOT_ID} .rw-matrix{z-index:5;opacity:.28;mix-blend-mode:screen;background-image:
+    repeating-linear-gradient(90deg,transparent 0 29px,rgba(255,52,191,.13) 30px,transparent 31px 58px),
+    repeating-linear-gradient(180deg,transparent 0 25px,rgba(185,79,255,.08) 26px,transparent 27px 52px);
+    background-size:58px 52px;animation:rwIntroMatrix 7s linear infinite}
+  #${ROOT_ID} .rw-rain{z-index:6;opacity:.50;background-image:repeating-linear-gradient(103deg,transparent 0 21px,rgba(255,205,255,.22) 22px,transparent 23px 45px);background-size:100% 32px;animation:rwIntroRain .48s linear infinite;filter:blur(.2px)}
+  #${ROOT_ID} .rw-thunder{z-index:7;opacity:0;background:
+    radial-gradient(circle at 7% 28%,rgba(184,95,255,.52),transparent 19%),
+    radial-gradient(circle at 91% 24%,rgba(255,70,207,.45),transparent 18%);
+    animation:rwIntroThunder 4.8s steps(1,end) infinite;mix-blend-mode:screen}
+  #${ROOT_ID} .rw-brandDesk{display:none;position:absolute;z-index:9;left:7vw;top:50%;transform:translateY(-58%);width:min(42vw,690px);text-align:left}
+  #${ROOT_ID} .rw-brandDesk h1{margin:0;font:800 clamp(62px,7vw,128px)/.86 Georgia,'Times New Roman',serif;letter-spacing:.015em;text-transform:uppercase;background:linear-gradient(90deg,#8244ff 0%,#f052e5 29%,#ff5e8c 55%,#ff954d 78%,#ffd475 100%);background-size:220% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 24px rgba(255,65,193,.33));animation:rwIntroBrand 3.2s linear infinite,rwIntroBrandGlow 2.2s ease-in-out infinite alternate}
+  #${ROOT_ID} .rw-brandDesk p{margin:20px 0 0;color:rgba(255,236,248,.83);font-weight:600;letter-spacing:.48em;font-size:clamp(12px,1vw,18px);text-transform:uppercase}
+  #${ROOT_ID} .rw-loadDesk{display:none;margin-top:clamp(80px,13vh,160px);width:min(380px,30vw)}
+  #${ROOT_ID} .rw-loadDesk span{display:block;margin-bottom:12px;color:rgba(255,207,233,.78);font-size:12px;letter-spacing:.42em;text-transform:uppercase}
+  #${ROOT_ID} .rw-track{height:5px;border:1px solid rgba(255,100,202,.36);border-radius:99px;background:rgba(255,37,174,.10);overflow:visible;position:relative}
+  #${ROOT_ID} .rw-track i{display:block;height:100%;width:0;border-radius:inherit;background:linear-gradient(90deg,#ff38bd,#ff77d6,#ffd476);box-shadow:0 0 17px rgba(255,83,205,.88);animation:rwIntroLoad 6.15s ease-out forwards}
+  #${ROOT_ID} .rw-skip{position:absolute;right:max(16px,env(safe-area-inset-right));bottom:max(18px,env(safe-area-inset-bottom));z-index:12;border:1px solid rgba(255,255,255,.18);background:rgba(12,5,20,.38);backdrop-filter:blur(12px);color:rgba(255,245,252,.80);border-radius:999px;padding:10px 14px;font:600 10px/1 'Outfit',system-ui,sans-serif;letter-spacing:.20em;text-transform:uppercase;cursor:pointer}
+  #${ROOT_ID} .rw-skip:focus-visible{outline:2px solid #ff77d6;outline-offset:3px}
+  #${ROOT_ID} .rw-vignette{position:absolute;inset:0;z-index:8;pointer-events:none;box-shadow:inset 0 0 150px rgba(8,0,15,.55),inset 0 -90px 140px rgba(6,0,12,.48)}
+
+  @media (min-width:900px) and (min-aspect-ratio:4/3){
+    #${ROOT_ID}{place-items:stretch}
+    #${ROOT_ID} .rw-stage{display:block}
+    #${ROOT_ID} .rw-media{position:absolute;right:3vw;top:4vh;width:min(43vw,520px);height:92vh;border-radius:28px;box-shadow:0 34px 120px rgba(0,0,0,.58),0 0 0 1px rgba(255,255,255,.10),0 0 90px rgba(255,40,177,.10)}
+    #${ROOT_ID} .rw-film,#${ROOT_ID} .rw-poster{object-fit:cover}
+    #${ROOT_ID} .rw-brandDesk,#${ROOT_ID} .rw-loadDesk{display:block}
+    #${ROOT_ID} .rw-bg{filter:blur(32px) saturate(1.6) brightness(.47);background-position:center 45%}
+  }
+  @media (max-width:899px),(max-aspect-ratio:4/3){
+    #${ROOT_ID} .rw-media{border-radius:0}
+    #${ROOT_ID} .rw-film,#${ROOT_ID} .rw-poster{object-fit:cover;object-position:center center}
+  }
+  @media (prefers-reduced-motion:reduce){
+    #${ROOT_ID} .rw-film{display:none!important}
+    #${ROOT_ID} .rw-poster{opacity:1!important}
+    #${ROOT_ID} .rw-sheen,#${ROOT_ID} .rw-matrix,#${ROOT_ID} .rw-rain,#${ROOT_ID} .rw-thunder,#${ROOT_ID} .rw-brandDesk h1,#${ROOT_ID} .rw-track i{animation:none!important}
+    #${ROOT_ID} .rw-track i{width:100%}
+  }
+  @keyframes rwIntroRain{from{background-position:0 -20px}to{background-position:-8px 32px}}
+  @keyframes rwIntroMatrix{from{background-position:0 -80px,0 -30px}to{background-position:0 260px,0 178px}}
+  @keyframes rwIntroThunder{0%,17%,19%,52%,54%,100%{opacity:0}18%,53%{opacity:.46}18.4%,53.4%{opacity:.10}}
+  @keyframes rwIntroSheen{0%,18%{transform:translateX(-70%) rotate(-4deg);opacity:0}36%{opacity:.6}62%,100%{transform:translateX(72%) rotate(-4deg);opacity:0}}
+  @keyframes rwIntroBrand{from{background-position:0% 50%}to{background-position:220% 50%}}
+  @keyframes rwIntroBrandGlow{from{filter:drop-shadow(0 0 12px rgba(126,60,255,.28))}to{filter:drop-shadow(0 0 30px rgba(255,79,188,.52))}}
+  @keyframes rwIntroLoad{from{width:0}to{width:100%}}
+  `;
+
+  function mount(){
+    removeLegacy();
+    if (document.getElementById(ROOT_ID)) return;
+
+    var style = document.createElement('style');
+    style.id = 'rw-opening-style';
+    style.textContent = css;
+    document.head.appendChild(style);
+
+    var root = document.createElement('section');
+    root.id = ROOT_ID;
+    root.setAttribute('role','dialog');
+    root.setAttribute('aria-label','RoamWise cinematic opening');
+    root.innerHTML = ''+
+      '<div class="rw-bg" aria-hidden="true"></div>'+
+      '<div class="rw-stage">'+
+        '<div class="rw-media">'+
+          '<img class="rw-poster" src="/assets/roamwise-opening-poster.png" alt="RoamWise Shinobi Atlas opening artwork">'+
+          '<video class="rw-film" muted playsinline preload="auto" aria-hidden="true">'+
+            '<source src="/assets/roamwise-opening.mp4" type="video/mp4">'+
+          '</video>'+
+          '<div class="rw-sheen" aria-hidden="true"></div>'+
+        '</div>'+
+        '<div class="rw-brandDesk" aria-hidden="true"><h1>ROAMWISE</h1><p>Shinobi Atlas</p><div class="rw-loadDesk"><span>Loading</span><div class="rw-track"><i></i></div></div></div>'+
+      '</div>'+
+      '<div class="rw-fx rw-matrix" aria-hidden="true"></div>'+
+      '<div class="rw-fx rw-rain" aria-hidden="true"></div>'+
+      '<div class="rw-fx rw-thunder" aria-hidden="true"></div>'+
+      '<div class="rw-vignette" aria-hidden="true"></div>'+
+      '<button class="rw-skip" type="button">Skip</button>';
+
+    document.body.appendChild(root);
+    finishBoot();
+
+    var video = root.querySelector('.rw-film');
+    var poster = root.querySelector('.rw-poster');
+    var skip = root.querySelector('.rw-skip');
+    var closed = false;
+    var closeTimer = null;
+
+    function close(){
+      if (closed) return;
+      closed = true;
+      if (closeTimer) clearTimeout(closeTimer);
+      root.classList.add('rw-closing');
+      try { video.pause(); } catch (_) {}
+      setTimeout(function(){
+        root.remove();
+        if (style.parentNode) style.remove();
+      }, 620);
+    }
+
+    skip.addEventListener('click', close);
+    root.addEventListener('pointerdown', function(e){
+      if (e.target === root || e.target.classList.contains('rw-bg')) close();
+    });
+    window.addEventListener('keydown', function esc(e){
+      if (e.key === 'Escape') { close(); window.removeEventListener('keydown', esc); }
+    });
+
+    video.addEventListener('canplay', function(){
+      root.classList.add('rw-video-ready');
+      var play = video.play();
+      if (play && typeof play.catch === 'function') play.catch(function(){});
+    }, {once:true});
+    video.addEventListener('ended', close, {once:true});
+    video.addEventListener('error', function(){
+      root.classList.add('rw-video-failed');
+      poster.src = '/assets/roamwise-opening.gif';
+    }, {once:true});
+
+    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      closeTimer = setTimeout(close, Math.min(DURATION, 4200));
+    } else {
+      closeTimer = setTimeout(close, DURATION);
+    }
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', mount, {once:true});
+  else mount();
 })();
