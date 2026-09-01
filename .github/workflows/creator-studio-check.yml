@@ -23,8 +23,11 @@ jobs:
         run: |
           python - <<'PY'
           from pathlib import Path
+          import re
+
           landing=Path('creators/index.html').read_text()
           dash=Path('creators/dashboard.html').read_text()
+          admin_html=Path('creators/admin.html').read_text()
           studio=Path('creators/studio.js').read_text()
           admin=Path('creators/admin.js').read_text()
           patch=Path('creators/CREATOR-STUDIO-RULES-PATCH.txt').read_text()
@@ -33,7 +36,9 @@ jobs:
           for token in required_landing:
               assert token in landing, f'missing CRM application field: {token}'
 
-          assert 'studio.js' in dash and 'studio-v2.js' not in dash
+          assert 'studio.js' in dash and not re.search(r'studio-v\d+\.js', dash)
+          assert 'admin.js' in admin_html and not re.search(r'admin-v\d+\.js', admin_html)
+          assert not Path('creators/admin-v4.js').exists(), 'stale admin-v4.js must be deleted'
           assert 'csVerifySend' in dash and 'csVerifyReload' in dash
           assert 'emailVerified' in studio
           assert "collection('creatorAccounts').doc(S.user.uid)" in studio
@@ -47,11 +52,19 @@ jobs:
           for token in forbidden:
               assert token not in studio, f'creator client must never write verified ledger: {token}'
 
-          assert "collection('creatorAccounts')" in admin
-          assert "collection('config').doc('referrers')" in admin
-          assert 'Activation blocked: application email does not match the verified Firebase identity.' in admin
-          assert "type:'creator'" in admin
-          assert 'contentReviews.' in admin
+          required_admin=[
+              "collection('creatorAccounts')",
+              "collection('config').doc('referrers')",
+              "collectionGroup('submissions')",
+              "collection('creatorShowcase')",
+              'Application email does not match the verified identity.',
+              "type:'creator'",
+              'contentReviews.',
+              'registered:true',
+              'emailVerified'
+          ]
+          for token in required_admin:
+              assert token in admin, f'missing canonical admin invariant: {token}'
 
           assert 'match /creatorAccounts/{uid}' in patch
           assert 'request.resource.data.email == request.auth.token.email' in patch
@@ -59,10 +72,11 @@ jobs:
           assert 'match /creatorEarnings/{uid}' in patch
           assert 'allow create, update, delete: if isAdmin();' in patch
           assert 'allow read: if isSelf(uid) || isAdmin() || isFinance();' in patch
-          print('Creator Studio security/integration invariants OK')
+          print('Canonical Creator Studio/Admin checks passed')
           PY
       - name: No stale runtime
         run: |
           test ! -e creators/studio-v1.js
           test ! -e creators/studio-v2.js
-          ! grep -R "studio-v2.js" creators/dashboard.html creators/index.html
+          test ! -e creators/admin-v4.js
+          ! grep -R -E "(studio|admin)-v[0-9]+\.js" creators/dashboard.html creators/admin.html creators/index.html
