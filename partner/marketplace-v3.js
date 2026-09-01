@@ -1,34 +1,628 @@
-/* RoamWise Partner Marketplace v3 — trust, verified listings and complete request-to-book flow. */
-(function(){'use strict';
-var Q=new URLSearchParams(location.search),DEMO=Q.get('mode')==='demo'||Q.get('lab')==='1',PROD=/^(www\.)?roamwise\.co\.in$/i.test(location.hostname);
-var $=(s,r)=>(r||document).querySelector(s),$$=(s,r)=>Array.from((r||document).querySelectorAll(s)),cache={},admin=false,syncing=false;
-var esc=v=>String(v==null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-var now=()=>new Date().toISOString(),money=n=>'₹'+Math.round(Number(n||0)).toLocaleString('en-IN');
-function fb(){try{return{db:firebase.firestore(),auth:firebase.auth()}}catch(e){return{db:null,auth:null}}} function usr(){try{return firebase.auth().currentUser}catch(e){return null}}
-function https(v){try{var u=new URL(String(v||'').trim());return u.protocol==='https:'?u.href:''}catch(e){return''}} function upi(v){return /^[\w.\-]{2,}@[A-Za-z][A-Za-z0-9.\-]{1,}$/.test(String(v||'').trim())}
-function data(b){try{return JSON.parse(b.dataset.book||'{}')}catch(e){return null}} function close(){var m=$('#modal');if(m)m.classList.remove('open')} function modal(h){var m=$('#modal'),b=$('#modalbox');if(!m||!b)return;b.innerHTML=h;m.classList.add('open')}
-function key(x){return x.partnerUid+'/'+x.roomId} async function room(x,fresh){var f=fb(),k=key(x);if(!fresh&&cache[k])return cache[k];if(!f.db||!x.partnerUid||!x.roomId)return null;try{var d=await f.db.collection('partners').doc(x.partnerUid).collection('rooms').doc(x.roomId).get();if(!d.exists)return null;var r=d.data()||{};r._id=d.id;cache[k]=r;return r}catch(e){return null}}
-function approved(r,x){return !!(r&&r.marketplaceApproved===true&&r.open!==false&&String(r.partnerUid||'')===String(x.partnerUid||''))}
-function listing(x,r){return Object.assign({},x,{partnerUid:r.partnerUid,roomId:r._id,propertyId:x.propertyId||r.partnerUid,name:r.property||x.name,room:r.room||x.room,zone:r.zone||x.zone,area:r.area||x.area,price:Number(r.price||x.price||0),maxGuests:Number(r.maxGuests||2),heroImage:https(r.heroImage),cancel:String(r.cancel||x.cancel||'').slice(0,400),paymentPublic:{upiId:upi(r.paymentPublic&&r.paymentPublic.upiId)?r.paymentPublic.upiId:'',paymentLink:https(r.paymentPublic&&r.paymentPublic.paymentLink)}})}
-async function validateCards(){if(DEMO)return;await Promise.all($$('.result.direct').map(async c=>{var b=$('[data-book]',c),x=b&&data(b);if(!x)return;c.classList.add('rw-v3-checking');var r=await room(x,false);if(!approved(r,x)){c.remove();return}b.dataset.book=JSON.stringify(listing(x,r));b.textContent='View stay & request';c.classList.remove('rw-v3-checking');c.classList.add('rw-v3-verified');var p=$('.pill.green',c);if(p)p.textContent='✓ Verified host'}));var h=$('#results');if(h&&!$('.result.direct',h)&&!$('#rwV3NoDirect'))h.insertAdjacentHTML('afterbegin','<div id="rwV3NoDirect" class="rw-v3-empty"><b>No verified direct stay is live here yet.</b><span>RoamWise only labels rooms verified after host approval. More hotel choices remain available below.</span></div>')}
-function polish(){if(!PROD||DEMO)return;document.body.classList.add('rw-partner-v3');$$('.role[data-role]').forEach(b=>{var r=b.dataset.role;if(r==='admin'){b.style.display=admin?'':'none';return}var M={customer:['⌂','Find stays','Verified direct stays'],owner:['＋','List your place','Hotel or homestay application'],partner:['⌘','Host dashboard','Rooms, requests & earnings']}[r];if(!M)return;$('.ic',b).textContent=M[0];$('b',b).textContent=M[1];$('small',b).textContent=M[2]});var role=($('.role.on[data-role]')||{}).dataset||{},e=$('#eyebrow'),t=$('#heroTitle'),p=$('#heroText');if(role.role==='owner'){e.textContent='HOST WITH ROAMWISE · 8% COMMISSION';t.innerHTML='Keep your rates. <em>Keep more.</em>';p.textContent='Verify your email, submit your property, pass review, then manage rooms and direct guest requests.'}else if(role.role==='partner'){e.textContent='HOST COMMAND CENTRE';t.innerHTML='Your rooms. <em>Your guest relationship.</em>';p.textContent='Manage rooms, requests, payment preferences and completed-stay earnings from one workspace.'}else{e.textContent='ROAMWISE STAYS · VERIFIED DIRECT HOSTS';t.innerHTML='Stay local. <em>Book with confidence.</em>';p.textContent='Verified local stays first, host confirmation before payment, and ₹0 guest booking fee.'}if(!$('#rwV3Trust'))$('.hero').insertAdjacentHTML('beforeend','<div id="rwV3Trust" class="rw-v3-trust"><span><b>8%</b> host commission</span><span><b>₹0</b> guest fee</span><span><b>Verified</b> before listing</span><span><b>Direct</b> host confirmation</span></div>');if(!$('#rwV3How'))$('.footer').insertAdjacentHTML('beforebegin','<section id="rwV3How" class="rw-v3-how"><small>HOW DIRECT BOOKING WORKS</small><div><article><b>01</b><h3>Request</h3><p>Choose a verified room, dates and payment preference.</p></article><article><b>02</b><h3>Host confirms</h3><p>The property checks availability before any payment action appears.</p></article><article><b>03</b><h3>Pay as chosen</h3><p>Pay at property, verified UPI, or an HTTPS hosted checkout page.</p></article></div></section>')}
-async function who(){var u=usr(),f=fb();admin=false;if(u&&f.db)try{admin=(await f.db.collection('admins').doc(u.uid).get()).exists}catch(e){}polish();if(admin)legacy()}
-function requireVerifiedOwner(e){if(DEMO)return false;var b=e.target.closest&&e.target.closest('#submitOwner'),u=usr();if(!b||!u||u.emailVerified)return false;e.preventDefault();e.stopImmediatePropagation();u.sendEmailVerification().catch(()=>{});alert('Verify your email before submitting a property. We sent a verification link; open it and reload this page.');return true}
-async function approve(id){var f=fb(),u=usr(),a=await f.db.collection('admins').doc(u.uid).get();if(!a.exists)throw Error('Founder/admin access required.');var ref=f.db.collection('partners').doc(id),d=await ref.get();if(!d.exists)throw Error('Partner not found.');var p=d.data()||{},v=p.verification||{};if(!(v.ownerAttestation&&v.rateAttestation&&v.walkthroughConsent)&&!confirm('Legacy application: continue only if owner/contact, rates/location and walkthrough readiness were checked manually. Approve?'))return;await ref.set({status:'active',verified:true,verifiedState:'verified',commissionPct:Number(p.commissionPct||8),approvedAt:now(),verification:Object.assign({},v,{identity:'verified',property:'verified',overall:'verified',reviewedAt:now()})},{merge:true});var q=await ref.collection('rooms').limit(100).get(),jobs=[];q.forEach(r=>jobs.push(r.ref.set({marketplaceApproved:true,partnerUid:id,partnerVerifiedAt:now(),updatedAt:now()},{merge:true})));await Promise.all(jobs);location.reload()}
-function interceptApprove(e){var b=e.target.closest&&e.target.closest('[data-liveapprove]');if(!b)return false;e.preventDefault();e.stopImmediatePropagation();b.disabled=true;b.textContent='Approving…';approve(b.dataset.liveapprove).catch(x=>{b.disabled=false;b.textContent='Approve';alert(x.message||x)});return true}
-async function legacy(){if(!admin||!$('#saveTravel')||$('#rwLegacyRepair'))return;var f=fb();try{var q=await f.db.collection('partners').where('status','==','active').limit(100).get(),bad=[];q.forEach(d=>{if((d.data()||{}).verified!==true)bad.push(d)});if(!bad.length)return;var n=document.createElement('div');n.id='rwLegacyRepair';n.className='rw-v3-adminfix';n.innerHTML='<div><b>'+bad.length+' legacy active partner(s) need repair</b><span>Old approval stored verified:&quot;signed&quot; but Firestore requires boolean true.</span></div><button>Repair now</button>';$('#view').insertBefore(n,$('#view').firstChild);$('button',n).onclick=async function(){this.disabled=true;for(var d of bad){var ref=d.ref;await ref.set({verified:true,verifiedState:'verified'},{merge:true});var rq=await ref.collection('rooms').limit(100).get(),jobs=[];rq.forEach(r=>jobs.push(r.ref.set({marketplaceApproved:true,partnerUid:d.id,partnerVerifiedAt:now(),updatedAt:now()},{merge:true})));await Promise.all(jobs)}location.reload()}}catch(e){}}
-async function syncRooms(){if(DEMO||syncing)return;var u=usr(),f=fb();if(!u||!f.db)return;syncing=true;try{var p=await f.db.collection('partners').doc(u.uid).get(),d=p.exists?p.data():null;if(!d||d.status!=='active'||d.verified!==true)return;var q=await p.ref.collection('rooms').limit(100).get(),jobs=[];q.forEach(r=>{var x=r.data()||{};if(x.marketplaceApproved!==true||x.partnerUid!==u.uid)jobs.push(r.ref.set({marketplaceApproved:true,partnerUid:u.uid,partnerVerifiedAt:d.approvedAt||now(),updatedAt:now()},{merge:true}))});await Promise.all(jobs)}catch(e){}finally{syncing=false}}
-function hostGuard(e){var b=e.target.closest&&e.target.closest('#rwHostSave');if(!b)return false;var raw=String(($('#rwHostPayLink')||{}).value||'').trim();if(raw&&!https(raw)){e.preventDefault();e.stopImmediatePropagation();var m=$('#rwHostMsg');if(m)m.textContent='Hosted payment links must use HTTPS.';return true}setTimeout(syncRooms,1200);return false}
-function ctx(){return{checkIn:String(($('#checkin')||{}).value||''),checkOut:String(($('#checkout')||{}).value||''),guests:Math.max(1,Number(($('#guests')||{}).value||1))}} function nights(a,b){var d=Math.round((new Date(b+'T12:00:00')-new Date(a+'T12:00:00'))/86400000);return d>0?d:0}
-function methods(r){var p=r.paymentPublic||{},a=[{id:'pay_at_property',name:'Pay at property',sub:'No prepayment through RoamWise.'}];if(upi(p.upiId))a.push({id:'upi_after_confirmation',name:'UPI after confirmation',sub:'UPI unlocks only after confirmation.'});if(https(p.paymentLink))a.push({id:'secure_link_after_confirmation',name:'Secure payment page',sub:'HTTPS hosted checkout after confirmation.'});return a}
-function openBook(x,r){var c=ctx(),ns=nights(c.checkIn,c.checkOut);if(!ns)return alert('Choose valid check-in and check-out dates.');if(c.guests>Number(r.maxGuests||2))return alert('This room sleeps up to '+Number(r.maxGuests||2)+' guests.');x=listing(x,r);var total=x.price*ns;modal('<div class="rw-v3-book"><button id="rwV3Close" class="rw-v3-x">×</button><div class="rw-v3-bookhero" '+(x.heroImage?'style="background-image:linear-gradient(180deg,rgba(6,8,15,.1),rgba(6,8,15,.94)),url(&quot;'+esc(x.heroImage)+'&quot;)"':'')+'><small>✓ VERIFIED ROAMWISE HOST</small><h2>'+esc(x.name)+'</h2><p>'+esc([x.room,x.area||x.zone].filter(Boolean).join(' · '))+'</p></div><div class="rw-v3-bookgrid"><section><h3>Request this stay</h3><div class="rw-v3-dates"><span><b>'+esc(c.checkIn)+'</b>Check-in</span><span><b>'+esc(c.checkOut)+'</b>Check-out</span><span><b>'+c.guests+'</b>Guests</span></div><label>Name<input id="rwV3Name" autocomplete="name"></label><label>Phone / WhatsApp<input id="rwV3Phone" autocomplete="tel"></label><label>Arrival note<textarea id="rwV3Note" maxlength="500"></textarea></label><div class="rw-v3-pay"><b>Pay only after confirmation</b>'+methods(r).map((m,i)=>'<label><input type="radio" name="rwV3Pay" value="'+m.id+'" '+(i?'':'checked')+'><span><strong>'+m.name+'</strong><small>'+m.sub+'</small></span></label>').join('')+'</div><div id="rwV3Auth"></div><button id="rwV3Send" class="rw-v3-primary">Send request →</button><p class="rw-v3-fine">No card data is collected. The payment instruction is snapshotted from this verified room when you request it.</p></section><aside><div class="rw-v3-price"><span>'+money(x.price)+'/night</span><p>'+money(x.price)+' × '+ns+' nights</p><b>'+money(total)+'</b><small>Total stay · ₹0 guest booking fee</small></div><div class="rw-v3-policy"><b>Cancellation</b><span>'+esc(x.cancel||'The host confirms terms before payment.')+'</span></div></aside></div></div>');$('#rwV3Close').onclick=close;$('#rwV3Send').onclick=()=>send(x,r,c,ns,total)}
-function authBox(x,r){var h=$('#rwV3Auth'),f=fb();h.innerHTML='<div class="rw-v3-auth"><b>Sign in to send the request</b><input id="rwV3Email" type="email" placeholder="Email"><input id="rwV3Pass" type="password" placeholder="Password (6+ characters)"><div><button id="rwV3Login">Sign in</button><button id="rwV3Create">Create account</button></div><small id="rwV3Msg"></small></div>';function go(create){var e=$('#rwV3Email').value.trim(),p=$('#rwV3Pass').value;if(!e||p.length<6)return $('#rwV3Msg').textContent='Enter a valid email and 6+ character password.';(create?f.auth.createUserWithEmailAndPassword(e,p):f.auth.signInWithEmailAndPassword(e,p)).then(async z=>{var u=(z&&z.user)||usr();if(!u.emailVerified){await u.sendEmailVerification().catch(()=>{});$('#rwV3Msg').textContent='Verify your email, reload, then send the request.';return}openBook(x,r)}).catch(e=>$('#rwV3Msg').textContent=e.message||'Sign in failed.')}$('#rwV3Login').onclick=()=>go(false);$('#rwV3Create').onclick=()=>go(true)}
-async function send(x,r,c,ns,total){var u=usr();if(!u)return authBox(x,r);if(!u.emailVerified){u.sendEmailVerification().catch(()=>{});return alert('Verify your email before booking. We sent the verification link again.')}var name=String(($('#rwV3Name')||{}).value||'').trim().slice(0,120),phone=String(($('#rwV3Phone')||{}).value||'').trim().slice(0,80),note=String(($('#rwV3Note')||{}).value||'').trim().slice(0,500),method=($('input[name="rwV3Pay"]:checked')||{}).value||'pay_at_property';if(!name)return alert('Add the traveller name.');var snap={kind:method};if(method==='upi_after_confirmation'){if(!upi(r.paymentPublic&&r.paymentPublic.upiId))return alert('UPI is no longer available.');snap.upiId=r.paymentPublic.upiId}if(method==='secure_link_after_confirmation'){var url=https(r.paymentPublic&&r.paymentPublic.paymentLink);if(!url)return alert('Payment link is no longer available.');snap.url=url}var latest=await room(x,true);if(!approved(latest,x))return alert('This room is no longer approved for direct booking.');var rec={ref:'RW-'+Date.now().toString(36).toUpperCase(),status:'requested',bookingVersion:'marketplace-v3',partnerUid:x.partnerUid,propertyId:x.propertyId||x.partnerUid,roomId:x.roomId,guestUid:u.uid,guestName:name,guestEmail:u.email||'',guestPhone:phone,note:note,property:x.name||'',room:x.room||'',zone:x.zone||'',area:x.area||'',checkIn:c.checkIn,checkOut:c.checkOut,guests:c.guests,nights:ns,roomPrice:Number(x.price||0),amount:total,commissionPctSnapshot:Number(x.commissionPct||8),paymentMethod:method,paymentSnapshot:snap,paymentStatus:'awaiting_host_confirmation',createdAt:firebase.firestore.FieldValue.serverTimestamp(),at:now()};var b=$('#rwV3Send');b.disabled=true;b.textContent='Sending…';try{await fb().db.collection('roomBookings').add(rec);modal('<div class="rw-v3-success"><span>✓</span><small>REQUEST SENT</small><h2>'+esc(rec.ref)+'</h2><p>'+esc(rec.property)+' now has your request. Payment remains locked until the host confirms.</p><button id="rwV3Done" class="rw-v3-primary">Done</button></div>');$('#rwV3Done').onclick=()=>{close();setTimeout(payments,150)}}catch(e){b.disabled=false;b.textContent='Send request →';alert(e.message||e)}}
-function interceptBook(e){if(DEMO)return false;var b=e.target.closest&&e.target.closest('[data-book]');if(!b)return false;e.preventDefault();e.stopImmediatePropagation();var x=data(b);if(!x)return true;b.disabled=true;var old=b.textContent;b.textContent='Checking…';room(x,true).then(r=>{if(!approved(r,x))throw Error('This room is not currently verified for direct booking.');openBook(x,r)}).catch(e=>alert(e.message||e)).finally(()=>{b.disabled=false;b.textContent=old});return true}
-function upiLink(b){var p=(b.paymentSnapshot||{}).upiId;if(!upi(p))return'';return'upi://pay?'+new URLSearchParams({pa:p,pn:b.property||'RoamWise Host',am:String(Number(b.amount||0).toFixed(2)),cu:'INR',tn:'RoamWise '+(b.ref||'booking')})}
-async function payments(){if(DEMO||!$('#results')||$('#rwV3Bookings'))return;var u=usr(),f=fb();if(!u||!f.db)return;try{var q=await f.db.collection('roomBookings').where('guestUid','==',u.uid).limit(50).get(),a=[];q.forEach(d=>a.push(Object.assign({_id:d.id},d.data()||{})));if(!a.length)return;a.sort((x,y)=>String(y.at||'').localeCompare(String(x.at||'')));var s=document.createElement('section');s.id='rwV3Bookings';s.className='rw-v3-bookings';s.innerHTML='<div class="rw-v3-sectionhead"><small>MY DIRECT STAYS</small><h2>Requests & payment status</h2></div>'+a.map(b=>{var st=b.status||'requested',act=st==='requested'?'<span class="rw-v3-wait">Waiting for host confirmation — do not prepay</span>':st==='declined'?'<span class="rw-v3-declined">Host could not confirm this request</span>':'';if(st==='confirmed'||st==='completed'){if(b.paymentMethod==='pay_at_property')act='<span class="rw-v3-payready">Pay at property · no online payment needed</span>';else if(b.paymentMethod==='upi_after_confirmation'&&upiLink(b))act='<a class="rw-v3-paybtn" href="'+esc(upiLink(b))+'">Pay '+money(b.amount)+' by UPI</a>';else if(b.paymentMethod==='secure_link_after_confirmation'&&https(b.paymentSnapshot&&b.paymentSnapshot.url))act='<a class="rw-v3-paybtn" target="_blank" rel="noopener" href="'+esc(https(b.paymentSnapshot.url))+'">Open secure payment page ↗</a>';else act='<span class="rw-v3-payready">Confirmed · contact host for payment</span>'}return'<article><div><b>'+esc(b.property||'Stay')+'</b><span>'+esc(b.room||'')+' · '+esc(b.checkIn||'')+' → '+esc(b.checkOut||'')+'</span></div><em>'+esc(st)+'</em><strong>'+money(b.amount||0)+'</strong>'+act+'</article>'}).join('');$('#results').appendChild(s);$$('#results > .card').forEach(c=>{var h=$('h2',c);if(h&&h.textContent.trim()==='My trips')c.style.display='none'})}catch(e){}}
-function repaint(){polish();validateCards();if($('#addRoom'))syncRooms();if(admin)legacy();setTimeout(payments,80)}
-document.addEventListener('click',e=>{if(requireVerifiedOwner(e))return;if(interceptApprove(e))return;if(hostGuard(e))return;if(e.target.closest&&e.target.closest('#roomSave'))setTimeout(()=>{cache={};syncRooms()},1200);interceptBook(e)},true);
-function init(){polish();var v=$('#view');if(v)new MutationObserver(()=>setTimeout(repaint,60)).observe(v,{childList:true,subtree:true});var f=fb();if(f.auth)f.auth.onAuthStateChanged(()=>{cache={};setTimeout(()=>{who();syncRooms();repaint()},80)});setTimeout(repaint,300);setTimeout(repaint,1100)}
-if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();window.RWPartnerMarketplaceV3={version:'3.0.0',validateCards:validateCards,syncRooms:syncRooms,payments:payments};
+/* RoamWise Partner Marketplace v3.1
+ * Trust layer for verified direct stays, request-to-book and confirmation-gated payment.
+ * Security-sensitive booking data is refreshed from Firestore immediately before create.
+ */
+(function () {
+  'use strict';
+
+  var query = new URLSearchParams(location.search);
+  var DEMO = query.get('mode') === 'demo' || query.get('lab') === '1';
+  var PROD = /^(www\.)?roamwise\.co\.in$/i.test(location.hostname);
+  var roomCache = {};
+  var admin = false;
+  var syncingRooms = false;
+
+  function $(selector, root) { return (root || document).querySelector(selector); }
+  function $$(selector, root) { return Array.from((root || document).querySelectorAll(selector)); }
+  function esc(value) {
+    return String(value == null ? '' : value).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+  function now() { return new Date().toISOString(); }
+  function money(value) { return '₹' + Math.round(Number(value || 0)).toLocaleString('en-IN'); }
+  function firebaseParts() {
+    try { return { db: firebase.firestore(), auth: firebase.auth() }; }
+    catch (_) { return { db: null, auth: null }; }
+  }
+  function user() {
+    try { return firebase.auth().currentUser; }
+    catch (_) { return null; }
+  }
+  function safeHttps(value) {
+    try {
+      var u = new URL(String(value || '').trim());
+      return u.protocol === 'https:' ? u.href : '';
+    } catch (_) { return ''; }
+  }
+  function validUpi(value) {
+    return /^[\w.\-]{2,}@[A-Za-z][A-Za-z0-9.\-]{1,}$/.test(String(value || '').trim());
+  }
+  function closeModal() {
+    var m = $('#modal');
+    if (m) m.classList.remove('open');
+  }
+  function showModal(html) {
+    var m = $('#modal'), box = $('#modalbox');
+    if (!m || !box) return;
+    box.innerHTML = html;
+    m.classList.add('open');
+  }
+  function bookingData(button) {
+    try { return JSON.parse(button.dataset.book || '{}'); }
+    catch (_) { return null; }
+  }
+  function roomKey(listing) { return listing.partnerUid + '/' + listing.roomId; }
+
+  async function getRoom(listing, fresh) {
+    var F = firebaseParts();
+    var key = roomKey(listing);
+    if (!fresh && roomCache[key]) return roomCache[key];
+    if (!F.db || !listing.partnerUid || !listing.roomId) return null;
+    try {
+      var doc = await F.db.collection('partners').doc(listing.partnerUid)
+        .collection('rooms').doc(listing.roomId).get();
+      if (!doc.exists) return null;
+      var room = doc.data() || {};
+      room._id = doc.id;
+      roomCache[key] = room;
+      return room;
+    } catch (_) { return null; }
+  }
+
+  function roomIsApproved(room, listing) {
+    return !!(
+      room &&
+      room.marketplaceApproved === true &&
+      room.open !== false &&
+      String(room.partnerUid || '') === String(listing.partnerUid || '')
+    );
+  }
+
+  function freshListing(listing, room) {
+    var publicPay = room.paymentPublic || {};
+    return Object.assign({}, listing, {
+      partnerUid: room.partnerUid,
+      roomId: room._id,
+      propertyId: listing.propertyId || room.partnerUid,
+      name: room.property || listing.name,
+      room: room.room || listing.room,
+      zone: room.zone || listing.zone,
+      area: room.area || listing.area,
+      price: Number(room.price || 0),
+      maxGuests: Number(room.maxGuests || 2),
+      heroImage: safeHttps(room.heroImage),
+      cancel: String(room.cancel || listing.cancel || '').slice(0, 400),
+      paymentPublic: {
+        upiId: validUpi(publicPay.upiId) ? publicPay.upiId : '',
+        paymentLink: safeHttps(publicPay.paymentLink)
+      }
+    });
+  }
+
+  async function validateDirectCards() {
+    if (DEMO) return;
+    await Promise.all($$('.result.direct').map(async function (card) {
+      var button = $('[data-book]', card);
+      var listing = button && bookingData(button);
+      if (!listing) return;
+      card.classList.add('rw-v3-checking');
+      var room = await getRoom(listing, false);
+      if (!roomIsApproved(room, listing)) {
+        card.remove();
+        return;
+      }
+      button.dataset.book = JSON.stringify(freshListing(listing, room));
+      button.textContent = 'View stay & request';
+      card.classList.remove('rw-v3-checking');
+      card.classList.add('rw-v3-verified');
+      var badge = $('.pill.green', card);
+      if (badge) badge.textContent = '✓ Verified host';
+    }));
+
+    var results = $('#results');
+    if (results && !$('.result.direct', results) && !$('#rwV3NoDirect')) {
+      results.insertAdjacentHTML('afterbegin',
+        '<div id="rwV3NoDirect" class="rw-v3-empty">' +
+        '<b>No verified direct stay is live here yet.</b>' +
+        '<span>RoamWise only labels rooms verified after host approval. More hotel choices remain available below.</span>' +
+        '</div>');
+    }
+  }
+
+  function polishProduction() {
+    if (!PROD || DEMO) return;
+    document.body.classList.add('rw-partner-v3');
+    $$('.role[data-role]').forEach(function (button) {
+      var role = button.dataset.role;
+      if (role === 'admin') {
+        button.style.display = admin ? '' : 'none';
+        return;
+      }
+      var labels = {
+        customer: ['⌂', 'Find stays', 'Verified direct stays'],
+        owner: ['＋', 'List your place', 'Hotel or homestay application'],
+        partner: ['⌘', 'Host dashboard', 'Rooms, requests & earnings']
+      }[role];
+      if (!labels) return;
+      $('.ic', button).textContent = labels[0];
+      $('b', button).textContent = labels[1];
+      $('small', button).textContent = labels[2];
+    });
+
+    var active = $('.role.on[data-role]');
+    var role = active ? active.dataset.role : 'customer';
+    var eyebrow = $('#eyebrow'), title = $('#heroTitle'), text = $('#heroText');
+    if (role === 'owner') {
+      eyebrow.textContent = 'HOST WITH ROAMWISE · 8% COMMISSION';
+      title.innerHTML = 'Keep your rates. <em>Keep more.</em>';
+      text.textContent = 'Verify your email, submit your property, pass review, then manage rooms and direct guest requests.';
+    } else if (role === 'partner') {
+      eyebrow.textContent = 'HOST COMMAND CENTRE';
+      title.innerHTML = 'Your rooms. <em>Your guest relationship.</em>';
+      text.textContent = 'Manage rooms, requests, payment preferences and completed-stay earnings from one workspace.';
+    } else {
+      eyebrow.textContent = 'ROAMWISE STAYS · VERIFIED DIRECT HOSTS';
+      title.innerHTML = 'Stay local. <em>Book with confidence.</em>';
+      text.textContent = 'Verified local stays first, host confirmation before payment, and ₹0 guest booking fee.';
+    }
+
+    if (!$('#rwV3Trust')) {
+      $('.hero').insertAdjacentHTML('beforeend',
+        '<div id="rwV3Trust" class="rw-v3-trust">' +
+        '<span><b>8%</b> host commission</span>' +
+        '<span><b>₹0</b> guest fee</span>' +
+        '<span><b>Verified</b> before listing</span>' +
+        '<span><b>Direct</b> host confirmation</span>' +
+        '</div>');
+    }
+    if (!$('#rwV3How')) {
+      $('.footer').insertAdjacentHTML('beforebegin',
+        '<section id="rwV3How" class="rw-v3-how"><small>HOW DIRECT BOOKING WORKS</small><div>' +
+        '<article><b>01</b><h3>Request</h3><p>Choose a verified room, dates and payment preference.</p></article>' +
+        '<article><b>02</b><h3>Host confirms</h3><p>The property checks availability before any payment action appears.</p></article>' +
+        '<article><b>03</b><h3>Pay as chosen</h3><p>Pay at property, verified UPI, or an HTTPS hosted checkout page.</p></article>' +
+        '</div></section>');
+    }
+  }
+
+  async function loadIdentity() {
+    var current = user(), F = firebaseParts();
+    admin = false;
+    if (current && F.db) {
+      try { admin = (await F.db.collection('admins').doc(current.uid).get()).exists; }
+      catch (_) { admin = false; }
+    }
+    polishProduction();
+    if (admin) showLegacyRepair();
+  }
+
+  function requireVerifiedOwner(event) {
+    if (DEMO) return false;
+    var button = event.target.closest && event.target.closest('#submitOwner');
+    var current = user();
+    if (!button || !current || current.emailVerified) return false;
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    current.sendEmailVerification().catch(function () {});
+    alert('Verify your email before submitting a property. We sent a verification link; open it and reload this page.');
+    return true;
+  }
+
+  async function approvePartner(uid) {
+    var F = firebaseParts(), current = user();
+    if (!F.db || !current) throw new Error('Sign in as founder/admin first.');
+    var adminDoc = await F.db.collection('admins').doc(current.uid).get();
+    if (!adminDoc.exists) throw new Error('Founder/admin access required.');
+
+    var ref = F.db.collection('partners').doc(uid);
+    var doc = await ref.get();
+    if (!doc.exists) throw new Error('Partner not found.');
+    var partner = doc.data() || {}, verification = partner.verification || {};
+    if (!(verification.ownerAttestation && verification.rateAttestation && verification.walkthroughConsent)) {
+      if (!confirm('Legacy application: continue only if owner/contact, rates/location and walkthrough readiness were checked manually. Approve?')) return;
+    }
+
+    await ref.set({
+      status: 'active',
+      verified: true,
+      verifiedState: 'verified',
+      commissionPct: Number(partner.commissionPct || 8),
+      approvedAt: now(),
+      verification: Object.assign({}, verification, {
+        identity: 'verified', property: 'verified', overall: 'verified', reviewedAt: now()
+      })
+    }, { merge: true });
+
+    var rooms = await ref.collection('rooms').limit(100).get();
+    var jobs = [];
+    rooms.forEach(function (room) {
+      jobs.push(room.ref.set({
+        marketplaceApproved: true,
+        partnerUid: uid,
+        partnerVerifiedAt: now(),
+        updatedAt: now()
+      }, { merge: true }));
+    });
+    await Promise.all(jobs);
+    location.reload();
+  }
+
+  function interceptApproval(event) {
+    var button = event.target.closest && event.target.closest('[data-liveapprove]');
+    if (!button) return false;
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    button.disabled = true;
+    button.textContent = 'Approving…';
+    approvePartner(button.dataset.liveapprove).catch(function (err) {
+      button.disabled = false;
+      button.textContent = 'Approve';
+      alert(err.message || err);
+    });
+    return true;
+  }
+
+  async function showLegacyRepair() {
+    if (!admin || !$('#saveTravel') || $('#rwLegacyRepair')) return;
+    var F = firebaseParts();
+    try {
+      var query = await F.db.collection('partners').where('status', '==', 'active').limit(100).get();
+      var legacy = [];
+      query.forEach(function (doc) { if ((doc.data() || {}).verified !== true) legacy.push(doc); });
+      if (!legacy.length) return;
+      var panel = document.createElement('div');
+      panel.id = 'rwLegacyRepair';
+      panel.className = 'rw-v3-adminfix';
+      panel.innerHTML = '<div><b>' + legacy.length + ' legacy active partner(s) need repair</b>' +
+        '<span>Old approval used a non-boolean verification value, but Firestore requires verified:true.</span></div>' +
+        '<button>Repair now</button>';
+      $('#view').insertBefore(panel, $('#view').firstChild);
+      $('button', panel).onclick = async function () {
+        this.disabled = true;
+        for (var i = 0; i < legacy.length; i++) {
+          var ref = legacy[i].ref;
+          await ref.set({ verified: true, verifiedState: 'verified' }, { merge: true });
+          var rooms = await ref.collection('rooms').limit(100).get();
+          var jobs = [];
+          rooms.forEach(function (room) {
+            jobs.push(room.ref.set({
+              marketplaceApproved: true,
+              partnerUid: ref.id,
+              partnerVerifiedAt: now(),
+              updatedAt: now()
+            }, { merge: true }));
+          });
+          await Promise.all(jobs);
+        }
+        location.reload();
+      };
+    } catch (_) {}
+  }
+
+  async function syncApprovedRooms() {
+    if (DEMO || syncingRooms) return;
+    var current = user(), F = firebaseParts();
+    if (!current || !F.db) return;
+    syncingRooms = true;
+    try {
+      var partnerDoc = await F.db.collection('partners').doc(current.uid).get();
+      var partner = partnerDoc.exists ? partnerDoc.data() : null;
+      if (!partner || partner.status !== 'active' || partner.verified !== true) return;
+      var rooms = await partnerDoc.ref.collection('rooms').limit(100).get();
+      var jobs = [];
+      rooms.forEach(function (room) {
+        var data = room.data() || {};
+        if (data.marketplaceApproved !== true || data.partnerUid !== current.uid) {
+          jobs.push(room.ref.set({
+            marketplaceApproved: true,
+            partnerUid: current.uid,
+            partnerVerifiedAt: partner.approvedAt || now(),
+            updatedAt: now()
+          }, { merge: true }));
+        }
+      });
+      await Promise.all(jobs);
+    } catch (_) {}
+    finally { syncingRooms = false; }
+  }
+
+  function guardHostPaymentLink(event) {
+    var button = event.target.closest && event.target.closest('#rwHostSave');
+    if (!button) return false;
+    var raw = String(($('#rwHostPayLink') || {}).value || '').trim();
+    if (raw && !safeHttps(raw)) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      var msg = $('#rwHostMsg');
+      if (msg) msg.textContent = 'Hosted payment links must use HTTPS.';
+      return true;
+    }
+    setTimeout(syncApprovedRooms, 1200);
+    return false;
+  }
+
+  function currentTrip() {
+    return {
+      checkIn: String(($('#checkin') || {}).value || ''),
+      checkOut: String(($('#checkout') || {}).value || ''),
+      guests: Math.max(1, Number(($('#guests') || {}).value || 1))
+    };
+  }
+  function nightsBetween(from, to) {
+    var n = Math.round((new Date(to + 'T12:00:00') - new Date(from + 'T12:00:00')) / 86400000);
+    return n > 0 ? n : 0;
+  }
+  function paymentMethods(room) {
+    var pay = room.paymentPublic || {};
+    var methods = [{ id: 'pay_at_property', name: 'Pay at property', sub: 'No prepayment through RoamWise.' }];
+    if (validUpi(pay.upiId)) methods.push({ id: 'upi_after_confirmation', name: 'UPI after confirmation', sub: 'UPI unlocks only after confirmation.' });
+    if (safeHttps(pay.paymentLink)) methods.push({ id: 'secure_link_after_confirmation', name: 'Secure payment page', sub: 'HTTPS hosted checkout after confirmation.' });
+    return methods;
+  }
+
+  function openBooking(listing, room) {
+    var trip = currentTrip();
+    var nights = nightsBetween(trip.checkIn, trip.checkOut);
+    if (!nights) return alert('Choose valid check-in and check-out dates.');
+    if (trip.guests > Number(room.maxGuests || 2)) return alert('This room sleeps up to ' + Number(room.maxGuests || 2) + ' guests.');
+    var fresh = freshListing(listing, room);
+    var total = fresh.price * nights;
+    showModal(
+      '<div class="rw-v3-book"><button id="rwV3Close" class="rw-v3-x">×</button>' +
+      '<div class="rw-v3-bookhero" ' + (fresh.heroImage ? 'style="background-image:linear-gradient(180deg,rgba(6,8,15,.1),rgba(6,8,15,.94)),url(&quot;' + esc(fresh.heroImage) + '&quot;)"' : '') + '>' +
+      '<small>✓ VERIFIED ROAMWISE HOST</small><h2>' + esc(fresh.name) + '</h2><p>' + esc([fresh.room, fresh.area || fresh.zone].filter(Boolean).join(' · ')) + '</p></div>' +
+      '<div class="rw-v3-bookgrid"><section><h3>Request this stay</h3>' +
+      '<div class="rw-v3-dates"><span><b>' + esc(trip.checkIn) + '</b>Check-in</span><span><b>' + esc(trip.checkOut) + '</b>Check-out</span><span><b>' + trip.guests + '</b>Guests</span></div>' +
+      '<label>Name<input id="rwV3Name" autocomplete="name"></label>' +
+      '<label>Phone / WhatsApp<input id="rwV3Phone" autocomplete="tel"></label>' +
+      '<label>Arrival note<textarea id="rwV3Note" maxlength="500"></textarea></label>' +
+      '<div class="rw-v3-pay"><b>Pay only after confirmation</b>' + paymentMethods(fresh).map(function (method, i) {
+        return '<label><input type="radio" name="rwV3Pay" value="' + method.id + '" ' + (i ? '' : 'checked') + '>' +
+          '<span><strong>' + method.name + '</strong><small>' + method.sub + '</small></span></label>';
+      }).join('') + '</div>' +
+      '<div id="rwV3Auth"></div><button id="rwV3Send" class="rw-v3-primary">Send request →</button>' +
+      '<p class="rw-v3-fine">The final amount and payment destination are revalidated from the live room immediately before your request is written.</p>' +
+      '</section><aside><div class="rw-v3-price"><span>' + money(fresh.price) + '/night</span><p>' + money(fresh.price) + ' × ' + nights + ' nights</p><b>' + money(total) + '</b><small>Total stay · ₹0 guest booking fee</small></div>' +
+      '<div class="rw-v3-policy"><b>Cancellation</b><span>' + esc(fresh.cancel || 'The host confirms terms before payment.') + '</span></div></aside></div></div>'
+    );
+    $('#rwV3Close').onclick = closeModal;
+    $('#rwV3Send').onclick = function () { submitBooking(fresh, trip, nights); };
+  }
+
+  async function ensureVerifiedAuth(current) {
+    if (!current) return null;
+    await current.reload();
+    current = user();
+    if (!current || !current.emailVerified) return null;
+    // Force a fresh Firebase ID token so Firestore Rules sees email_verified=true immediately.
+    await current.getIdToken(true);
+    return current;
+  }
+
+  function showBookingAuth(listing, room) {
+    var host = $('#rwV3Auth'), F = firebaseParts();
+    if (!host || !F.auth) return;
+    host.innerHTML = '<div class="rw-v3-auth"><b>Sign in to send the request</b>' +
+      '<input id="rwV3Email" type="email" placeholder="Email"><input id="rwV3Pass" type="password" placeholder="Password (6+ characters)">' +
+      '<div><button id="rwV3Login">Sign in</button><button id="rwV3Create">Create account</button></div><small id="rwV3Msg"></small></div>';
+
+    async function go(create) {
+      var email = $('#rwV3Email').value.trim(), pass = $('#rwV3Pass').value;
+      if (!email || pass.length < 6) return $('#rwV3Msg').textContent = 'Enter a valid email and 6+ character password.';
+      try {
+        var result = create ? await F.auth.createUserWithEmailAndPassword(email, pass) : await F.auth.signInWithEmailAndPassword(email, pass);
+        var current = (result && result.user) || user();
+        current = await ensureVerifiedAuth(current);
+        if (!current) {
+          var pending = user();
+          if (pending) await pending.sendEmailVerification().catch(function () {});
+          $('#rwV3Msg').textContent = 'Verify your email, then reload this page and continue.';
+          return;
+        }
+        openBooking(listing, room);
+      } catch (err) {
+        $('#rwV3Msg').textContent = err.message || 'Sign in failed.';
+      }
+    }
+    $('#rwV3Login').onclick = function () { go(false); };
+    $('#rwV3Create').onclick = function () { go(true); };
+  }
+
+  async function submitBooking(modalListing, trip, nights) {
+    var current = user();
+    if (!current) {
+      var cachedRoom = await getRoom(modalListing, true);
+      return showBookingAuth(modalListing, cachedRoom || modalListing);
+    }
+    current = await ensureVerifiedAuth(current);
+    if (!current) {
+      var pending = user();
+      if (pending) pending.sendEmailVerification().catch(function () {});
+      return alert('Verify your email before booking. We sent the verification link again.');
+    }
+
+    var name = String(($('#rwV3Name') || {}).value || '').trim().slice(0, 120);
+    var phone = String(($('#rwV3Phone') || {}).value || '').trim().slice(0, 80);
+    var note = String(($('#rwV3Note') || {}).value || '').trim().slice(0, 500);
+    var method = ($('input[name="rwV3Pay"]:checked') || {}).value || 'pay_at_property';
+    if (!name) return alert('Add the traveller name.');
+
+    // Critical integrity check: discard every modal-time price/payment field and rebuild from a fresh room read.
+    var latestRoom = await getRoom(modalListing, true);
+    if (!roomIsApproved(latestRoom, modalListing)) return alert('This room is no longer approved for direct booking.');
+    var latest = freshListing(modalListing, latestRoom);
+    if (!latest.price || latest.price <= 0) return alert('The host is updating this room price. Please try again shortly.');
+    if (trip.guests > latest.maxGuests) return alert('The room capacity changed. It now sleeps up to ' + latest.maxGuests + ' guests.');
+
+    var snapshot = { kind: method };
+    if (method === 'upi_after_confirmation') {
+      if (!validUpi(latest.paymentPublic.upiId)) return alert('UPI is no longer available for this room. Choose another payment method.');
+      snapshot.upiId = latest.paymentPublic.upiId;
+    } else if (method === 'secure_link_after_confirmation') {
+      var paymentUrl = safeHttps(latest.paymentPublic.paymentLink);
+      if (!paymentUrl) return alert('The secure payment page is no longer available. Choose another payment method.');
+      snapshot.url = paymentUrl;
+    } else if (method !== 'pay_at_property') {
+      return alert('That payment method is no longer available.');
+    }
+
+    var amount = latest.price * nights;
+    var record = {
+      ref: 'RW-' + Date.now().toString(36).toUpperCase(),
+      status: 'requested',
+      bookingVersion: 'marketplace-v3',
+      partnerUid: latest.partnerUid,
+      propertyId: latest.propertyId || latest.partnerUid,
+      roomId: latest.roomId,
+      guestUid: current.uid,
+      guestName: name,
+      guestEmail: current.email || '',
+      guestPhone: phone,
+      note: note,
+      property: latest.name || '',
+      room: latest.room || '',
+      zone: latest.zone || '',
+      area: latest.area || '',
+      checkIn: trip.checkIn,
+      checkOut: trip.checkOut,
+      guests: trip.guests,
+      nights: nights,
+      roomPrice: latest.price,
+      amount: amount,
+      commissionPctSnapshot: Number(latest.commissionPct || 8),
+      paymentMethod: method,
+      paymentSnapshot: snapshot,
+      paymentStatus: 'awaiting_host_confirmation',
+      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+      at: now()
+    };
+
+    var button = $('#rwV3Send');
+    if (button) { button.disabled = true; button.textContent = 'Sending…'; }
+    try {
+      await firebaseParts().db.collection('roomBookings').add(record);
+      showModal('<div class="rw-v3-success"><span>✓</span><small>REQUEST SENT</small><h2>' + esc(record.ref) + '</h2>' +
+        '<p>' + esc(record.property) + ' now has your request. Payment remains locked until the host confirms.</p>' +
+        '<button id="rwV3Done" class="rw-v3-primary">Done</button></div>');
+      $('#rwV3Done').onclick = function () { closeModal(); setTimeout(renderPaymentStatuses, 150); };
+    } catch (err) {
+      if (button) { button.disabled = false; button.textContent = 'Send request →'; }
+      alert(err.message || err);
+    }
+  }
+
+  function interceptBooking(event) {
+    if (DEMO) return false;
+    var button = event.target.closest && event.target.closest('[data-book]');
+    if (!button) return false;
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    var listing = bookingData(button);
+    if (!listing) return true;
+    button.disabled = true;
+    var old = button.textContent;
+    button.textContent = 'Checking…';
+    getRoom(listing, true).then(function (room) {
+      if (!roomIsApproved(room, listing)) throw new Error('This room is not currently verified for direct booking.');
+      openBooking(listing, room);
+    }).catch(function (err) {
+      alert(err.message || err);
+    }).finally(function () {
+      button.disabled = false;
+      button.textContent = old;
+    });
+    return true;
+  }
+
+  function upiDeepLink(booking) {
+    var upiId = (booking.paymentSnapshot || {}).upiId;
+    if (!validUpi(upiId)) return '';
+    return 'upi://pay?' + new URLSearchParams({
+      pa: upiId,
+      pn: booking.property || 'RoamWise Host',
+      am: String(Number(booking.amount || 0).toFixed(2)),
+      cu: 'INR',
+      tn: 'RoamWise ' + (booking.ref || 'booking')
+    });
+  }
+
+  async function renderPaymentStatuses() {
+    if (DEMO || !$('#results') || $('#rwV3Bookings')) return;
+    var current = user(), F = firebaseParts();
+    if (!current || !F.db) return;
+    try {
+      var query = await F.db.collection('roomBookings').where('guestUid', '==', current.uid).limit(50).get();
+      var bookings = [];
+      query.forEach(function (doc) { bookings.push(Object.assign({ _id: doc.id }, doc.data() || {})); });
+      if (!bookings.length) return;
+      bookings.sort(function (a, b) { return String(b.at || '').localeCompare(String(a.at || '')); });
+      var section = document.createElement('section');
+      section.id = 'rwV3Bookings';
+      section.className = 'rw-v3-bookings';
+      section.innerHTML = '<div class="rw-v3-sectionhead"><small>MY DIRECT STAYS</small><h2>Requests & payment status</h2></div>' + bookings.map(function (booking) {
+        var status = booking.status || 'requested';
+        var action = '';
+        if (status === 'requested') action = '<span class="rw-v3-wait">Waiting for host confirmation — do not prepay</span>';
+        else if (status === 'declined') action = '<span class="rw-v3-declined">Host could not confirm this request</span>';
+        else if (status === 'confirmed' || status === 'completed') {
+          if (booking.paymentMethod === 'pay_at_property') action = '<span class="rw-v3-payready">Pay at property · no online payment needed</span>';
+          else if (booking.paymentMethod === 'upi_after_confirmation' && upiDeepLink(booking)) action = '<a class="rw-v3-paybtn" href="' + esc(upiDeepLink(booking)) + '">Pay ' + money(booking.amount) + ' by UPI</a>';
+          else if (booking.paymentMethod === 'secure_link_after_confirmation' && safeHttps((booking.paymentSnapshot || {}).url)) action = '<a class="rw-v3-paybtn" target="_blank" rel="noopener" href="' + esc(safeHttps(booking.paymentSnapshot.url)) + '">Open secure payment page ↗</a>';
+          else action = '<span class="rw-v3-payready">Confirmed · contact host for payment</span>';
+        }
+        return '<article><div><b>' + esc(booking.property || 'Stay') + '</b><span>' + esc(booking.room || '') + ' · ' + esc(booking.checkIn || '') + ' → ' + esc(booking.checkOut || '') + '</span></div>' +
+          '<em>' + esc(status) + '</em><strong>' + money(booking.amount || 0) + '</strong>' + action + '</article>';
+      }).join('');
+      $('#results').appendChild(section);
+      $$('#results > .card').forEach(function (card) {
+        var heading = $('h2', card);
+        if (heading && heading.textContent.trim() === 'My trips') card.style.display = 'none';
+      });
+    } catch (_) {}
+  }
+
+  function repaint() {
+    polishProduction();
+    validateDirectCards();
+    if ($('#addRoom')) syncApprovedRooms();
+    if (admin) showLegacyRepair();
+    setTimeout(renderPaymentStatuses, 80);
+  }
+
+  function captureClick(event) {
+    if (requireVerifiedOwner(event)) return;
+    if (interceptApproval(event)) return;
+    if (guardHostPaymentLink(event)) return;
+    if (event.target.closest && event.target.closest('#roomSave')) {
+      setTimeout(function () { roomCache = {}; syncApprovedRooms(); }, 1200);
+    }
+    interceptBooking(event);
+  }
+
+  // Registered immediately so this capture guard exists before marketplace-v2.js is evaluated.
+  document.addEventListener('click', captureClick, true);
+
+  function init() {
+    polishProduction();
+    var view = $('#view');
+    if (view) new MutationObserver(function () { setTimeout(repaint, 60); }).observe(view, { childList: true, subtree: true });
+    var F = firebaseParts();
+    if (F.auth) F.auth.onAuthStateChanged(function () {
+      roomCache = {};
+      setTimeout(function () { loadIdentity(); syncApprovedRooms(); repaint(); }, 80);
+    });
+    setTimeout(repaint, 300);
+    setTimeout(repaint, 1100);
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init, { once: true });
+  else init();
+
+  window.RWPartnerMarketplaceV3 = {
+    version: '3.1.0',
+    validateCards: validateDirectCards,
+    syncRooms: syncApprovedRooms,
+    payments: renderPaymentStatuses
+  };
 })();
