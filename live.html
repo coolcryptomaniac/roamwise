@@ -66,6 +66,11 @@ html,body{min-height:100%;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI
 .lcard .lt{font-size:13px;font-weight:600}
 .lcard .ls{font-size:11.5px;color:var(--mist);margin-top:2px}
 @media(max-width:580px){.frow{grid-template-columns:1fr}.lrow{grid-template-columns:1fr}#clkH{font-size:clamp(46px,18vw,90px)}}
+
+/* funding projection + cap scenarios */
+.proj{overflow-x:auto;-webkit-overflow-scrolling:touch;border:1px solid var(--line);border-radius:14px;background:var(--ink2)}
+.pt{width:100%;border-collapse:collapse;min-width:720px;font-size:12.5px}.pt th,.pt td{text-align:left;padding:11px 12px;border-bottom:1px solid var(--line);vertical-align:top}.pt th{color:var(--mist);font-size:10.5px;text-transform:uppercase;letter-spacing:.06em}.pt tr:last-child td{border-bottom:0}.pt .hi td{color:var(--gold);font-weight:700}
+.pnote{font-size:11.5px;color:var(--mist);line-height:1.6;margin-top:9px}
 </style>
 </head>
 <body>
@@ -99,10 +104,29 @@ html,body{min-height:100%;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI
   <div class="srow">
     <div class="sc"><div class="sn w" id="sU">&#8212;</div><div class="sk">Registered users</div></div>
     <div class="sc"><div class="sn g" id="sP">&#8212;</div><div class="sk">Revenue (₹)</div></div>
-    <div class="sc"><div class="sn" id="sC">&#8212;</div><div class="sk">Conversion rate</div></div>
+    <div class="sc"><div class="sn" id="sC">&#8212;</div><div class="sk">Monthly intern burn</div></div>
     <div class="sc"><div class="sn w" id="sN">&#8212;</div><div class="sk">Total commitments</div></div>
     <div class="sc"><div class="sn" id="sA">&#8212;</div><div class="sk">Amount pledged</div></div>
   </div>
+
+  <div class="sh">Funding projection</div>
+  <div class="proj"><table class="pt">
+    <tr><th>Close</th><th>Product 30%</th><th>Distribution 25%</th><th>Supply/data 25%</th><th>Trust/legal 10%</th><th>Reserve 10%</th></tr>
+    <tr><td>$500K minimum<br><small>₹4.75 Cr</small></td><td>₹1.43 Cr</td><td>₹1.19 Cr</td><td>₹1.19 Cr</td><td>₹0.48 Cr</td><td>₹0.48 Cr</td></tr>
+    <tr class="hi"><td>$2.5M target<br><small>₹23.75 Cr</small></td><td>₹7.13 Cr</td><td>₹5.94 Cr</td><td>₹5.94 Cr</td><td>₹2.38 Cr</td><td>₹2.38 Cr</td></tr>
+    <tr><td>$5M hard cap<br><small>₹47.50 Cr</small></td><td>₹14.25 Cr</td><td>₹11.88 Cr</td><td>₹11.88 Cr</td><td>₹4.75 Cr</td><td>₹4.75 Cr</td></tr>
+  </table></div>
+  <p class="pnote">Approximate conversion at ₹95/$; larger deployment is unlocked against measurable operating milestones.</p>
+
+  <div class="sh">Founder ownership possibilities</div>
+  <div class="proj"><table class="pt">
+    <tr><th>Illustrative path</th><th>After Seed</th><th>After A</th><th>After B</th><th>After C</th><th>After IPO</th><th>Control outcome</th></tr>
+    <tr class="hi"><td>Founder-majority</td><td>76.5%</td><td>67.3%</td><td>60.6%</td><td>55.7%</td><td>50.2%</td><td>Economic + voting majority</td></tr>
+    <tr><td>Balanced-control</td><td>72.0%</td><td>59.0%</td><td>50.2%</td><td>44.2%</td><td>37.5%</td><td>Minority economics; special voting structure required</td></tr>
+    <tr><td>Maximum-growth</td><td>67.5%</td><td>52.7%</td><td>42.1%</td><td>35.8%</td><td>29.4%</td><td>Minority; control only if lawfully negotiated</td></tr>
+    <tr><td>Total sale</td><td colspan="5">Founder percentage becomes 0% after closing unless rollover equity is retained</td><td>Control transfers to acquirer</td></tr>
+  </table></div>
+  <p class="pnote">Illustrative, starting Founder 90% / ESOP 10%. Not an issued cap table, valuation promise or securities offer. Full assumptions and control/exit structures are on the detailed investor page.</p>
 
   <div class="sh">Who&#8217;s in</div>
   <div class="card"><div id="board"><div style="font-size:13px;color:var(--mist);padding:6px 0">Loading&hellip;</div></div></div>
