@@ -20,8 +20,8 @@ window.RW_CONFIG = {
     performanceV5: true
   },
   intro: {
-    /* First page load only. The intro remains tap-to-skip at any moment. */
-    cinematicDurationMs: 6300
+    /* Canonical opening film. Tap/escape remains available to skip. */
+    cinematicDurationMs: 6800
   },
   maps: {
     renderer: 'maplibre',
@@ -44,41 +44,31 @@ window.rwApi = function(path){
   return null;
 };
 
-/* The legacy monolithic app still owns the intro timer. Keep its existing
-   session semantics, but widen only the old 2600ms trailer timeout so the
-   cinematic atlas can finish. This bridge self-removes after intercepting that
-   one timer, so every other setTimeout in the app remains native. */
+/* Canonical startup hand-off.
+   rw-config executes before app.js, so it captures whether THIS browser session
+   has already seen the intro, then reserves the existing rw_intro key before the
+   legacy app can schedule its old loader. The old #intro is hidden at parse time,
+   which prevents the old and new loaders from ever cross-fading on screen. */
 (function(){
-  var nativeSetTimeout = window.setTimeout;
-  try {
-    if (sessionStorage.getItem('rw_intro')) {
-      var existing = document.getElementById('intro');
-      if (existing) existing.remove();
-      return;
-    }
-  } catch (_) {}
+  var seen = false;
+  try { seen = sessionStorage.getItem('rw_intro') === '1'; } catch (_) {}
+  window.__RW_INTRO_SHOULD_SHOW = !seen;
 
-  var active = true;
-  var duration = Number((((window.RW_CONFIG||{}).intro||{}).cinematicDurationMs)||6300);
-  window.setTimeout = function(fn, delay){
-    if (active && delay === 2600 && typeof fn === 'function' && fn.name === 'killIntro') {
-      active = false;
-      window.setTimeout = nativeSetTimeout;
-      return nativeSetTimeout(fn, duration);
-    }
-    return nativeSetTimeout.apply(window, arguments);
-  };
-  nativeSetTimeout(function(){
-    if (active) {
-      active = false;
-      window.setTimeout = nativeSetTimeout;
-    }
-  }, 15000);
+  if (!seen) {
+    try { sessionStorage.setItem('rw_intro','1'); } catch (_) {}
+  }
+
+  if (seen) document.documentElement.classList.add('rw-opening-skip');
+
+  var boot = document.createElement('style');
+  boot.id = 'rw-opening-boot-style';
+  boot.textContent = '#intro{display:none!important}'+
+    'html:not(.rw-opening-skip):not(.rw-opening-mounted) body:before{content:"";position:fixed;inset:0;z-index:2147482999;background:radial-gradient(circle at 50% 18%,rgba(118,45,255,.36),transparent 38%),radial-gradient(circle at 66% 74%,rgba(255,49,164,.23),transparent 38%),linear-gradient(145deg,#130621,#260824 50%,#10051b);pointer-events:none}';
+  document.head.appendChild(boot);
 })();
 
-/* Platform V5 is intentionally modular. These scripts are tiny and can be
-   disabled individually above; heavyweight MapLibre itself is NOT downloaded
-   until the traveller actually opens a Cinematic map. */
+/* Platform modules stay individually switchable. The atlas-shinobi path is now
+   the ONE canonical opening runtime; it no longer draws a second vector atlas. */
 (function(){
   var f=(window.RW_CONFIG&&window.RW_CONFIG.features)||{};
   var list=[];
@@ -88,7 +78,10 @@ window.rwApi = function(path){
   if(f.cinematicMapV51) list.push('platform-v5/cinematic-map-v51.js');
   list.forEach(function(src){
     if(document.querySelector('script[data-rw-v5="'+src+'"]')) return;
-    var s=document.createElement('script');s.src=src;s.async=true;s.dataset.rwV5=src;
+    var s=document.createElement('script');
+    s.src=src;
+    s.async=true;
+    s.dataset.rwV5=src;
     if(src.indexOf('atlas-shinobi')!==-1 && 'fetchPriority' in s) s.fetchPriority='high';
     document.head.appendChild(s);
   });
