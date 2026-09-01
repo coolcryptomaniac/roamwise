@@ -4950,5 +4950,29 @@
   "country": "India",
   "best": "January, October, November",
   "month": true
+ },
+ {
+  "slug": "jaipur-in-may",
+  "title": "Jaipur in May",
+  "name": "Jaipur·May",
+  "country": "India",
+  "best": "January, October, November",
+  "month": true
+ },
+ {
+  "slug": "jaipur-in-june",
+  "title": "Jaipur in June",
+  "name": "Jaipur·June",
+  "country": "India",
+  "best": "January, October, November",
+  "month": true
+ },
+ {
+  "slug": "jaipur-in-july",
+  "title": "Jaipur in July",
+  "name": "Jaipur·July",
+  "country": "India",
+  "best": "January, October, November",
+  "month": true
  }
 ]
