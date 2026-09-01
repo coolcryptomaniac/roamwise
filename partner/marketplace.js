@@ -95,14 +95,17 @@ function verificationPanel(){
   n.innerHTML='<div class="rw-market-sectionhead"><small>ROAMWISE VERIFICATION</small><h3>Before we review your place</h3></div><div class="rw-market-verify-grid"><label><input type="checkbox" id="rwOwnerAuth"> I am the owner or authorised to list this property.</label><label><input type="checkbox" id="rwRateAuth"> Rates and room details are accurate.</label><label><input type="checkbox" id="rwWalkAuth"> I can join a remote walkthrough if requested.</label><label>Public location / listing URL<input id="rwPublicLocation" placeholder="https://maps.google.com/… or official listing"></label></div><p>Do not upload Aadhaar, PAN, passport, bank passwords or card data here.</p>';
   var b=$('#submitOwner');b.parentElement.insertBefore(n,b)
 }
-async function submitVerifiedOwner(event){
+function submitVerifiedOwner(event){
   if(DEMO)return false;var b=event.target.closest&&event.target.closest('#submitOwner'),u=user();if(!b||!u)return false;
   event.preventDefault();event.stopImmediatePropagation();
-  u=await ensureVerifiedAuth(u);if(!u){var p=user();if(p)p.sendEmailVerification().catch(function(){});alert('Verify your email before submitting a property. We sent the verification link again.');return true}
-  if(['rwOwnerAuth','rwRateAuth','rwWalkAuth'].some(function(id){return !(document.getElementById(id)||{}).checked})){alert('Complete the three verification confirmations first.');return true}
-  var doc={email:u.email||'',ownerName:String(($('#oname')||{}).value||'').trim(),ownerWa:String(($('#ophone')||{}).value||'').trim(),name:String(($('#oprop')||{}).value||'').trim(),zone:String(($('#ozone')||{}).value||'').trim(),area:String(($('#oarea')||{}).value||'').trim(),type:String(($('#otype')||{}).value||''),roomCount:Math.max(1,Number(($('#orooms')||{}).value||1)),startPrice:Math.max(1,Number(($('#oprice')||{}).value||1)),website:cleanHttp(($('#oweb')||{}).value),hook:String(($('#ohook')||{}).value||'').trim(),status:'pending',verification:{ownerAttestation:true,rateAttestation:true,walkthroughConsent:true,publicLocationUrl:cleanHttp(($('#rwPublicLocation')||{}).value),identity:'pending',property:'pending',payout:'pending',overall:'pending'},bookingPolicy:{requestToBook:true},updatedAt:now()};
-  if(!doc.ownerName||!doc.name||!doc.zone){alert('Add owner name, property name and city.');return true}
-  try{var F=fb(),old=await F.db.collection('partners').doc(u.uid).get();if(!old.exists)doc.createdAt=now();await F.db.collection('partners').doc(u.uid).set(doc,{merge:true});location.reload()}catch(e){alert('Could not submit property: '+(e.message||e))}return true
+  (async function(){
+    u=await ensureVerifiedAuth(u);if(!u){var pending=user();if(pending)pending.sendEmailVerification().catch(function(){});alert('Verify your email before submitting a property. We sent the verification link again.');return}
+    if(['rwOwnerAuth','rwRateAuth','rwWalkAuth'].some(function(id){return !(document.getElementById(id)||{}).checked})){alert('Complete the three verification confirmations first.');return}
+    var doc={email:u.email||'',ownerName:String(($('#oname')||{}).value||'').trim(),ownerWa:String(($('#ophone')||{}).value||'').trim(),name:String(($('#oprop')||{}).value||'').trim(),zone:String(($('#ozone')||{}).value||'').trim(),area:String(($('#oarea')||{}).value||'').trim(),type:String(($('#otype')||{}).value||''),roomCount:Math.max(1,Number(($('#orooms')||{}).value||1)),startPrice:Math.max(1,Number(($('#oprice')||{}).value||1)),website:cleanHttp(($('#oweb')||{}).value),hook:String(($('#ohook')||{}).value||'').trim(),status:'pending',verification:{ownerAttestation:true,rateAttestation:true,walkthroughConsent:true,publicLocationUrl:cleanHttp(($('#rwPublicLocation')||{}).value),identity:'pending',property:'pending',payout:'pending',overall:'pending'},bookingPolicy:{requestToBook:true},updatedAt:now()};
+    if(!doc.ownerName||!doc.name||!doc.zone){alert('Add owner name, property name and city.');return}
+    try{var F=fb(),old=await F.db.collection('partners').doc(u.uid).get();if(!old.exists)doc.createdAt=now();await F.db.collection('partners').doc(u.uid).set(doc,{merge:true});location.reload()}catch(e){alert('Could not submit property: '+(e.message||e))}
+  })().catch(function(e){alert(e.message||e)});
+  return true
 }
 
 async function approvePartner(uid){
@@ -176,5 +179,5 @@ function init(){
   var F=fb();if(F.auth)F.auth.onAuthStateChanged(function(){roomCache={};lastHostKey='';setTimeout(function(){loadIdentity();syncApprovedRooms();repaint()},80)});repaint();setTimeout(repaint,350);setTimeout(repaint,1100)
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
-window.RWPartnerMarketplace={version:'5.0.0-canonical',validateCards:validateCards,syncRooms:syncApprovedRooms,payments:paymentStatuses};
+window.RWPartnerMarketplace={version:'5.0.1-canonical',validateCards:validateCards,syncRooms:syncApprovedRooms,payments:paymentStatuses};
 })();
