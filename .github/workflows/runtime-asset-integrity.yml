@@ -1,0 +1,78 @@
+name: Runtime asset integrity
+
+on:
+  pull_request:
+    paths:
+      - '**/*.html'
+      - '**/*.js'
+      - '**/*.css'
+      - '.github/workflows/runtime-asset-integrity.yml'
+  push:
+    branches: [main]
+    paths:
+      - '**/*.html'
+      - '**/*.js'
+      - '**/*.css'
+      - '.github/workflows/runtime-asset-integrity.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  asset-integrity:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Detect duplicate and multi-generation runtime assets
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+          from collections import defaultdict
+
+          failures=[]
+          attr=re.compile(r'(?:src|href)\s*=\s*["\']([^"\']+\.(?:js|css)(?:[?#][^"\']*)?)["\']',re.I)
+          version=re.compile(r'-v\d+(?:\.\d+)*(?=\.(?:js|css)$)',re.I)
+
+          for html in Path('.').rglob('*.html'):
+              try:
+                  text=html.read_text(errors='ignore')
+              except Exception:
+                  continue
+              refs=[]
+              for raw in attr.findall(text):
+                  if re.match(r'^(?:https?:)?//|^data:',raw,re.I):
+                      continue
+                  clean=raw.split('?',1)[0].split('#',1)[0]
+                  refs.append(clean)
+
+              seen=defaultdict(int)
+              for ref in refs:
+                  seen[ref]+=1
+              for ref,count in seen.items():
+                  if count>1:
+                      failures.append(f'{html}: duplicate runtime reference {ref} x{count}')
+
+              groups=defaultdict(list)
+              for ref in refs:
+                  base=Path(ref).name.lower()
+                  canonical=version.sub('',base)
+                  groups[canonical].append(ref)
+              for canonical,items in groups.items():
+                  unique=list(dict.fromkeys(items))
+                  if len(unique)>1 and any(version.search(Path(x).name) for x in unique):
+                      failures.append(f'{html}: multi-generation runtime for {canonical}: {unique}')
+
+          # Critical pages must be explicitly canonical.
+          partner=Path('partner/index.html').read_text()
+          creator=Path('creators/admin.html').read_text()
+          assert 'marketplace.js' in partner and 'marketplace.css' in partner
+          assert not re.search(r'marketplace-v\d+',partner,re.I)
+          assert 'admin.js' in creator and not re.search(r'admin-v\d+\.js',creator,re.I)
+
+          if failures:
+              print('\n'.join('ERROR: '+x for x in failures))
+              raise SystemExit(1)
+          print('No duplicate or multi-generation JS/CSS runtime references found in HTML.')
+          PY
