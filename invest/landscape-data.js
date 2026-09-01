@@ -82,9 +82,9 @@ window.RW_FUNDING_CLIMATE = [
    intention.
    ========================================================================= */
 window.RW_RESILIENCE = [
-  { icon:'\ud83d\udd25', k:'Burn is a rounding error',
-    v:'One founder, no office, no agency, no cloud bill worth naming. Monthly fixed cost is under \u20b95,000.',
-    why:'A company that costs nothing to run cannot be killed by a funding winter. It can only be killed by the founder stopping.' },
+  { icon:'\ud83d\udd25', k:'Lean operating base',
+    v:'One founder, three interns, no office and no agency. Confirmed intern payroll burn is \u20b921,000 per month, before any future founder/cofounder salaries.',
+    why:'The base is lean, but it is not zero. Hiring and distribution spend should unlock only against retention, paid conversion and revenue milestones.' },
 
   { icon:'\ud83d\udcb0', k:'Revenue from day one, three ways',
     v:'\u20b9100 lifetime Pro \u00b7 8% booking commission \u00b7 partner listing fees.',
