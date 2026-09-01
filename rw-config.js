@@ -45,10 +45,9 @@ window.rwApi = function(path){
 };
 
 /* Canonical startup hand-off.
-   rw-config executes before app.js, so it captures whether THIS browser session
-   has already seen the intro, then reserves the existing rw_intro key before the
-   legacy app can schedule its old loader. The old #intro is hidden at parse time,
-   which prevents the old and new loaders from ever cross-fading on screen. */
+   app.css now suppresses the old splash at FIRST PAINT. This block also removes
+   the dead #intro node synchronously before app.js gets a chance to run its old
+   timer, then places the cinematic violet/pink preboot veil until V6 mounts. */
 (function(){
   var seen = false;
   try { seen = sessionStorage.getItem('rw_intro') === '1'; } catch (_) {}
@@ -60,29 +59,38 @@ window.rwApi = function(path){
 
   if (seen) document.documentElement.classList.add('rw-opening-skip');
 
+  var legacy = document.getElementById('intro');
+  if (legacy) legacy.remove();
+
   var boot = document.createElement('style');
   boot.id = 'rw-opening-boot-style';
-  boot.textContent = '#intro{display:none!important}'+
-    'html:not(.rw-opening-skip):not(.rw-opening-mounted) body:before{content:"";position:fixed;inset:0;z-index:2147482999;background:radial-gradient(circle at 50% 18%,rgba(118,45,255,.36),transparent 38%),radial-gradient(circle at 66% 74%,rgba(255,49,164,.23),transparent 38%),linear-gradient(145deg,#130621,#260824 50%,#10051b);pointer-events:none}';
+  boot.textContent = '#intro,.intro{display:none!important;visibility:hidden!important;opacity:0!important}'+
+    'html:not(.rw-opening-skip):not(.rw-opening-mounted) body:before{content:"";position:fixed;inset:0;z-index:2147482999;background:radial-gradient(circle at 50% 18%,rgba(118,45,255,.42),transparent 38%),radial-gradient(circle at 66% 74%,rgba(255,49,164,.28),transparent 38%),linear-gradient(145deg,#130621,#260824 50%,#10051b);pointer-events:none}';
   document.head.appendChild(boot);
 })();
 
-/* Platform modules stay individually switchable. The atlas-shinobi path is now
-   the ONE canonical opening runtime; it no longer draws a second vector atlas. */
+/* Platform modules stay individually switchable. The opening runtime is loaded
+   FIRST, high-priority and ordered, so the approved cinematic screen mounts as
+   soon as its tiny JS arrives instead of waiting behind unrelated modules. */
 (function(){
   var f=(window.RW_CONFIG&&window.RW_CONFIG.features)||{};
-  var list=[];
-  if(f.performanceV5) list.push('platform-v5/performance.js');
-  if(f.atlasIntroV5) list.push('platform-v5/atlas-shinobi.js');
-  if(f.privateLearningConsent) list.push('platform-v5/learning-consent.js');
-  if(f.cinematicMapV51) list.push('platform-v5/cinematic-map-v51.js');
-  list.forEach(function(src){
+
+  function load(src, opening){
     if(document.querySelector('script[data-rw-v5="'+src+'"]')) return;
     var s=document.createElement('script');
     s.src=src;
-    s.async=true;
     s.dataset.rwV5=src;
-    if(src.indexOf('atlas-shinobi')!==-1 && 'fetchPriority' in s) s.fetchPriority='high';
+    if(opening){
+      s.async=false;
+      if('fetchPriority' in s) s.fetchPriority='high';
+    } else {
+      s.async=true;
+    }
     document.head.appendChild(s);
-  });
+  }
+
+  if(f.atlasIntroV5) load('platform-v5/atlas-shinobi.js', true);
+  if(f.performanceV5) load('platform-v5/performance.js', false);
+  if(f.privateLearningConsent) load('platform-v5/learning-consent.js', false);
+  if(f.cinematicMapV51) load('platform-v5/cinematic-map-v51.js', false);
 })();
