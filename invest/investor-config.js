@@ -22,21 +22,22 @@ window.RW_INVEST = {
   ],
 
   useOfFunds: [
-    { k:'Incorporation, legal & compliance', v:'₹2–3 L', pct:6 },
-    { k:'Verified ground-truth data · 40 cities', v:'₹1.6 Cr', pct:40 },
-    { k:'Two engineers · iOS + regional languages', v:'₹1.2 Cr', pct:30 },
-    { k:'Reach · creator partnerships & growth', v:'₹1.2 Cr', pct:24 }
+    { k:'Product reliability, mobile & AI quality', v:'30% of each close', pct:30 },
+    { k:'Distribution · creators, referrals & campuses', v:'25% of each close', pct:25 },
+    { k:'Travel supply & verified local data', v:'25% of each close', pct:25 },
+    { k:'Trust, safety, legal & compliance', v:'10% of each close', pct:10 },
+    { k:'Milestone runway reserve', v:'10% of each close', pct:10 }
   ],
   longRunLegal: '₹20–50 lakh across 10–20 years',
 
-  /* Cap table basis — 10,000,000 shares keeps every future round a clean
-     integer, even at trillion-dollar scale. No fractional-share mess, ever. */
-  /* 10,000,000 authorised shares keeps every future round clean integers,
-     even at trillion-rupee scale. */
-  shares: { authorised: 10000000, founderHeld: 8280000, poolReserved: 920000 },
-  preMoney: 460000000,   /* ₹46 Cr pre-money */
-  raising:  40000000,    /* ₹4 Cr for 8% */
-  roundPct: 0.08,
+  /* Flexible Seed financing. INR conversions use approximately ₹95/USD.
+     Economic and legal terms are final only in executed financing documents. */
+  minimumClose: 47500000,
+  raising:     237500000,
+  hardCap:     475000000,
+  roundPct: null,
+  preMoney: null,
+  shares: null,
 
   /* GENUINE ESOP — carved BEFORE the round, so the team is funded out of the
      founder's stake and not quietly out of investors' later. */
@@ -45,11 +46,10 @@ window.RW_INVEST = {
   /* Forward plan, favourable case. Selling less each round is what a company
      with real numbers earns the right to do. */
   roadmap: [
-    { r:'Seed · now',  sell:8,  raise:'₹4 Cr',    post:'₹50 Cr',      founder:82.8 },
-    { r:'Series A',    sell:12, raise:'₹40 Cr',   post:'₹333 Cr',     founder:71.4 },
-    { r:'Series B',    sell:10, raise:'₹200 Cr',  post:'₹2,000 Cr',   founder:63.3 },
-    { r:'Series C',    sell:8,  raise:'₹800 Cr',  post:'₹10,000 Cr',  founder:57.7 },
-    { r:'IPO',         sell:6,  raise:'₹5,000 Cr',post:'₹83,333 Cr',  founder:54.2 }
+    { r:'Seed · minimum close', sell:'TBD', raise:'$500K · ≈ ₹4.75 Cr', post:'Negotiated', founder:'TBD' },
+    { r:'Seed · target close',  sell:'TBD', raise:'$2.5M · ≈ ₹23.75 Cr', post:'Negotiated', founder:'TBD' },
+    { r:'Seed · hard cap',      sell:'TBD', raise:'$5M · ≈ ₹47.5 Cr', post:'Absolute maximum', founder:'TBD' },
+    { r:'Series A',             sell:'TBD', raise:'Milestone-based', post:'After Seed proof', founder:'TBD' }
   ],
 
   /* Angel founding-circle perks — first 10 who commit on faith. */
