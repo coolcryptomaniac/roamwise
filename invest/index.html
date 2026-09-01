@@ -255,6 +255,18 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--gold);bo
 .ib-goal{font-size:11.5px;color:var(--mist);margin-top:7px}
 .ib-priv{font-size:11px;color:var(--mist);line-height:1.6;padding:13px 15px;border-top:1px solid var(--line);
   background:rgba(255,255,255,.02)}
+
+/* projection + ownership scenarios */
+.cap-note{font-size:12.5px;color:var(--mist);line-height:1.65;margin-top:10px}
+.table-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;border:1px solid var(--line);border-radius:15px;margin:16px 0;background:var(--ink2)}
+.table-scroll .captable{margin:0;min-width:760px}
+.table-scroll .captable th,.table-scroll .captable td{padding:12px 14px}
+.table-scroll .captable tr:last-child td{border-bottom:0}
+.scenario-label{display:inline-flex;padding:4px 9px;border-radius:999px;font-size:11px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;background:rgba(232,186,108,.12);color:var(--gold)}
+.path-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:16px}
+.path-card{border:1px solid var(--line);border-radius:15px;padding:17px;background:var(--ink2)}
+.path-card h3{font-size:15px;color:var(--snow);margin:8px 0 6px}.path-card p{font-size:13px;color:var(--mist);line-height:1.6}
+@media(max-width:720px){.path-grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -357,6 +369,60 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--gold);bo
     <div class="card"><b>Terms</b><p class="note" style="margin-top:7px">SAFE, convertible or priced equity depending on entity and investor jurisdiction. Valuation, dilution and investor rights are negotiated in compliant documents — not promised by this webpage.</p></div>
   </div>
   <div class="warn"><b>Why the range is wide.</b><br>The company is one month into operation. Capital is therefore staged against measurable proof: active users, retention, paid conversion, revenue, booking/partner activity and acquisition efficiency. A larger close must buy faster validated scaling, not simply a larger budget.</div>
+</div></section>
+
+<!-- ============ FUNDING PROJECTION + OWNERSHIP PATHS ============ -->
+<section><div class="wrap reveal">
+  <div class="eyebrow">Capital deployment at every close</div>
+  <h2 class="serif">The same priorities, scaled to the capital actually closed.</h2>
+  <p class="lead">The $2.5M target is the operating plan. The $500K minimum is a focused first phase; the $5M hard-cap plan accelerates only after traction supports it. INR below uses approximately ₹95 per US dollar.</p>
+  <div class="table-scroll"><table class="captable">
+    <tr><th>Use</th><th>Share</th><th>$500K minimum</th><th>$2.5M target</th><th>$5M hard cap</th></tr>
+    <tr><td>Product reliability, mobile & AI</td><td>30%</td><td>₹1.43 Cr</td><td>₹7.13 Cr</td><td>₹14.25 Cr</td></tr>
+    <tr><td>Distribution</td><td>25%</td><td>₹1.19 Cr</td><td>₹5.94 Cr</td><td>₹11.88 Cr</td></tr>
+    <tr><td>Travel supply & verified local data</td><td>25%</td><td>₹1.19 Cr</td><td>₹5.94 Cr</td><td>₹11.88 Cr</td></tr>
+    <tr><td>Trust, safety, legal & compliance</td><td>10%</td><td>₹0.48 Cr</td><td>₹2.38 Cr</td><td>₹4.75 Cr</td></tr>
+    <tr><td>Milestone runway reserve</td><td>10%</td><td>₹0.48 Cr</td><td>₹2.38 Cr</td><td>₹4.75 Cr</td></tr>
+    <tr class="you"><td>Total primary capital</td><td>100%</td><td>₹4.75 Cr</td><td>₹23.75 Cr</td><td>₹47.50 Cr</td></tr>
+  </table></div>
+  <p class="cap-note">Primary financing belongs to the company. Any founder secondary sale is separate, board/investor-approved where required, and disclosed; it does not masquerade as operating capital.</p>
+</div></section>
+
+<section><div class="wrap reveal">
+  <div class="eyebrow">Illustrative fully-diluted cap table</div>
+  <h2 class="serif">From founder-majority at IPO to minority economics with control.</h2>
+  <p class="lead">These are scenario models—not issued shares, an offer price or promised dilution. Each path starts with a planning capitalization of <b>Founder 90% / ESOP 10%</b>, then compounds the stated dilution at Seed, A, B, C and IPO. SAFEs, option-pool refreshes, preferences and secondary sales can change real outcomes.</p>
+  <div class="table-scroll"><table class="captable">
+    <tr><th>Stage</th><th>Founder-majority path<br><small>15% · 12% · 10% · 8% · 10%</small></th><th>Balanced-control path<br><small>20% · 18% · 15% · 12% · 15%</small></th><th>Maximum-growth path<br><small>25% · 22% · 20% · 15% · 18%</small></th></tr>
+    <tr><td>Formation model</td><td>90.0%</td><td>90.0%</td><td>90.0%</td></tr>
+    <tr><td>After Seed</td><td>76.5%</td><td>72.0%</td><td>67.5%</td></tr>
+    <tr><td>After Series A</td><td>67.3%</td><td>59.0%</td><td>52.7%</td></tr>
+    <tr><td>After Series B</td><td>60.6%</td><td>50.2%</td><td>42.1%</td></tr>
+    <tr><td>After Series C</td><td>55.7%</td><td>44.2%</td><td>35.8%</td></tr>
+    <tr class="you"><td>Immediately after illustrative IPO</td><td>50.2% founder<br><small>5.6% ESOP · 44.3% investors/public</small></td><td>37.5% founder<br><small>4.2% ESOP · 58.3% investors/public</small></td><td>29.4% founder<br><small>3.3% ESOP · 67.4% investors/public</small></td></tr>
+  </table></div>
+  <p class="cap-note">The founder-majority path preserves more than 50% economic ownership in this illustration. The other paths make the founder an economic minority; control would then require a lawful governance structure and is never implied by ownership alone.</p>
+
+  <div class="path-grid">
+    <div class="path-card"><span class="scenario-label">Path A</span><h3>Economic majority through IPO</h3><p>Use disciplined primary dilution, pro-rata participation and limited option-pool refreshes. Founder retains over 50% in this illustration; one-share/one-vote control follows naturally while the majority remains.</p></div>
+    <div class="path-card"><span class="scenario-label">Path B</span><h3>Minority economics, protected control</h3><p>Possible tools include founder super-voting shares, board nomination rights, reserved matters and voting agreements. A 10:1 class would give 37.5% economic ownership roughly 85.7% of votes in a simple two-class model, but law, listing rules and sunset clauses govern.</p></div>
+    <div class="path-card"><span class="scenario-label">Path C</span><h3>Partial or complete exit</h3><p>A secondary sale lets the founder sell part of personal holdings while the company raises primary capital. A strategic acquisition or IPO sell-down can produce a larger exit; a complete sale leaves the founder with 0% afterward unless rollover equity or employment terms are negotiated.</p></div>
+  </div>
+</div></section>
+
+<section><div class="wrap reveal">
+  <div class="eyebrow">Control and exit architecture</div>
+  <h2 class="serif">Control must be earned, documented and capable of ending.</h2>
+  <div class="table-scroll"><table class="captable">
+    <tr><th>Structure</th><th>Founder economics</th><th>Control</th><th>Investor protection / trigger</th></tr>
+    <tr><td>Ordinary founder-majority</td><td>Above 50%</td><td>Voting majority</td><td>Protective provisions for major transactions</td></tr>
+    <tr><td>Dual-class / superior-vote shares</td><td>Can fall below 50%</td><td>Higher votes per founder share</td><td>Transfer, death, departure, time or ownership-threshold sunset</td></tr>
+    <tr><td>Board and reserved-matter rights</td><td>Any level</td><td>Specified appointments or vetoes</td><td>Limited list, fiduciary duties, independent directors and expiry</td></tr>
+    <tr><td>Partial founder secondary</td><td>Reduced, not zero</td><td>Depends on remaining votes and agreements</td><td>Board approval, investor consent and clear disclosure</td></tr>
+    <tr><td>Total strategic sale</td><td>0% after closing unless rollover</td><td>Transfers to acquirer</td><td>Drag/tag, preference waterfall, escrow, earn-out and tax terms</td></tr>
+    <tr><td>IPO sell-down</td><td>Founder chooses/accepts a lower stake</td><td>Depends on post-IPO class structure</td><td>Exchange rules, lock-ups, public disclosure and governance standards</td></tr>
+  </table></div>
+  <div class="warn"><b>Not a magic-control clause.</b><br>Indian superior-rights shares and U.S.-style dual-class structures operate under different rules. Any structure must be designed before financing with company and securities counsel. Investor liquidation preferences, anti-dilution, option pools, drag/tag rights and IPO conversion rules can materially change both payout and control.</div>
 </div></section>
 
 <!-- ============ LIVE NUMBERS ============ -->
