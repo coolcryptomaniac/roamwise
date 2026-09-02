@@ -4974,5 +4974,29 @@
   "country": "India",
   "best": "January, October, November",
   "month": true
+ },
+ {
+  "slug": "jaipur-in-august",
+  "title": "Jaipur in August",
+  "name": "Jaipur·August",
+  "country": "India",
+  "best": "January, October, November",
+  "month": true
+ },
+ {
+  "slug": "jaipur-in-september",
+  "title": "Jaipur in September",
+  "name": "Jaipur·September",
+  "country": "India",
+  "best": "January, October, November",
+  "month": true
+ },
+ {
+  "slug": "jaipur-in-october",
+  "title": "Jaipur in October",
+  "name": "Jaipur·October",
+  "country": "India",
+  "best": "January, October, November",
+  "month": true
  }
 ]
