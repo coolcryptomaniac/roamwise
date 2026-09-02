@@ -77,7 +77,7 @@ window.rwApi=function(path){var c=window.RW_CONFIG||{};if((c.backend==='worker'|
   /* openingEnhance augments the canonical #rwOpening root only; it never creates
      a second loader. Keeping it here preserves the approved motion + sound cues. */
   if(f.openingEnhance)load('platform-v5/opening-enhance.js', true);
-  if(f.deviceCompat)load('platform-v5/device-compat.js', false);
+  if(f.deviceCompat)load('platform-v5/device-compat.js', true);
   if(f.performanceV5)load('platform-v5/performance.js', false);
   if(f.privateLearningConsent)load('platform-v5/learning-consent.js', false);
   if(f.cinematicMapV51)load('platform-v5/cinematic-map-v51.js', false);
