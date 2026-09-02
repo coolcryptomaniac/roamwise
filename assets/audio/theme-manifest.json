@@ -1,0 +1,14 @@
+{
+  "theme": "Rave to Hell / Kumaon Shadow Rite",
+  "source": "user-supplied WAV",
+  "asset": "rave-to-hell-theme-10s.mp3",
+  "sha256": "a2cb564211b86c52d3cc88aa4bdd21bdfd757644038195912ac30abc1af88358",
+  "segments": {
+    "opening": {"start": 0, "duration": 6.6},
+    "action": {"start": 2.2, "duration": 2.2},
+    "transition": {"start": 4.4, "duration": 1.4},
+    "success": {"start": 6.0, "duration": 2.0},
+    "tap": {"start": 8.0, "duration": 0.24}
+  },
+  "settings": ["rw_audio_enabled", "rw_sfx_enabled", "rw_haptics_enabled"]
+}
