@@ -27,6 +27,9 @@ jobs:
       - name: Validate Platform V5 JavaScript
         run: |
           node --check platform-v5/atlas-shinobi.js
+          node --check platform-v5/opening-enhance.js
+          node --check platform-v5/audio-theme.js
+          node --check platform-v5/device-compat.js
           node --check platform-v5/learning-consent.js
           node --check platform-v5/performance.js
           node --check platform-v5/cinematic-map-v51.js
@@ -44,6 +47,8 @@ jobs:
           atlas = Path('platform-v5/atlas-shinobi.js').read_text()
           config = Path('rw-config.js').read_text()
           app_css = Path('app.css').read_text()
+          compat = Path('platform-v5/device-compat.js').read_text()
+          audio = Path('platform-v5/audio-theme.js').read_text()
 
           assert Path('app-base.css').exists(), 'canonical base stylesheet copy missing'
           assert '@import url("./app-base.css")' in app_css, 'root stylesheet must preserve canonical base CSS'
@@ -63,12 +68,24 @@ jobs:
           assert 'animateMotion' not in atlas and 'GSHHS-derived coastline geometry' not in atlas, 'retired vector atlas returned'
 
           assert 'cinematicDurationMs: 6800' in config, 'opening duration changed unexpectedly'
+          assert "storageKey: 'rw_opening_seen_v61'" in config, 'persistent opening key missing'
           assert 'window.__RW_INTRO_SHOULD_SHOW' in config, 'pre-app intro hand-off missing'
           assert "document.getElementById('intro')" in config and 'legacy.remove()' in config, 'legacy splash node must be removed synchronously'
           assert '#intro,.intro{display:none!important' in config, 'preboot splash suppression missing'
-          assert 's.async=false' in config and "load('platform-v5/atlas-shinobi.js', true)" in config, 'opening must load first at high priority'
-          assert "sessionStorage.setItem('rw_intro','1')" in config, 'show-once-per-session behavior missing'
-          print('Canonical startup guardrails OK')
+          assert "load('platform-v5/atlas-shinobi.js', true)" in config, 'opening must load first at high priority'
+          assert "load('platform-v5/device-compat.js', true)" in config, 'auth/device compatibility must load deterministically'
+          assert "localStorage.setItem(key,'1')" in config, 'opening must be show-once-per-install, not once-per-session'
+          assert 'window.rwOpeningReplay' in config, 'explicit opening replay path missing'
+          assert 'sessionStorage.setItem' not in config, 'session-based intro ownership returned'
+
+          assert 'signInWithRedirect' in compat and '__RW_AUTH_INFLIGHT' in compat, 'serialized mobile auth guard missing'
+          assert "h==='localhost'" in compat and 'isNativePlatform' in compat, 'Capacitor app detection missing'
+          assert "Facebook & Apple sign-in are coming soon" in compat, 'unconfigured social providers must be suppressed'
+          assert '#modeChip{display:none!important}' in compat, 'narrow Android header guard missing'
+
+          assert "theme.preload='auto'" in audio, 'opening theme must preload'
+          assert 'rwAudioUnlockHint' in audio, 'browser autoplay recovery hint missing'
+          print('Canonical startup/auth/device guardrails OK')
           PY
 
       - name: Build canonical full-replace Firestore rules
