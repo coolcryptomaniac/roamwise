@@ -17,7 +17,8 @@ window.RW_CONFIG = {
     atlasIntroV5: true,
     cinematicMapV51: true,
     privateLearningConsent: true,
-    performanceV5: true
+    performanceV5: true,
+    audioTheme: true
   },
   intro: {
     /* Canonical opening film. Tap/escape remains available to skip. */
@@ -93,4 +94,5 @@ window.rwApi = function(path){
   if(f.performanceV5) load('platform-v5/performance.js', false);
   if(f.privateLearningConsent) load('platform-v5/learning-consent.js', false);
   if(f.cinematicMapV51) load('platform-v5/cinematic-map-v51.js', false);
+  if(f.audioTheme) load('platform-v5/audio-only.js', false);
 })();
