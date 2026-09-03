@@ -10482,7 +10482,7 @@ var RW_ICON_PATHS = {
    declarations hoist but `var RW_TABS = {...}` does not, so calling
    renderTabbar() inline here silently produced an empty bar. DOMContentLoaded
    fires after all deferred script has executed, which is exactly what we want. */
-document.addEventListener('DOMContentLoaded', function(){ try{ rwApplyMode(); }catch(e){} try{ rwApplyUIScale(); }catch(e){} try{ renderTabbar(); }catch(e){ console.warn('tabbar', e); } try{ setTimeout(function(){ if(!rwOpeningSeen()) rwOpeningShow(); else rwMaybeOnboard(); }, 700); }catch(e){} try{ rwInitStatusBar(); }catch(e){} try{ rwInitBackButton(); }catch(e){} try{ setTimeout(rwInitPush, 1500); }catch(e){} try{ setTimeout(rwInitWebPush, 2200); }catch(e){} });
+document.addEventListener('DOMContentLoaded', function(){ try{ rwApplyMode(); }catch(e){} try{ rwApplyUIScale(); }catch(e){} try{ renderTabbar(); }catch(e){ console.warn('tabbar', e); } try{ setTimeout(function(){ if(!rwOpeningSeen()) rwOpeningShow(); else rwMaybeOnboard(); }, 700); }catch(e){} try{ rwInitStatusBar(); }catch(e){} try{ rwInitBackButton(); }catch(e){} try{ setTimeout(rwInitPush, 1500); }catch(e){} try{ setTimeout(rwInitWebPush, 2200); }catch(e){} /* warm up the voice list early so it's ready by the time tuskSpeak() needs it */ try{ if(window.speechSynthesis){ speechSynthesis.getVoices(); speechSynthesis.addEventListener('voiceschanged', function(){ try{ speechSynthesis.getVoices(); }catch(e){} }, {once:true}); } }catch(e){} });
 /* ===== BACK BUTTON CONFIRMATION (report #4) =====
    In the app, pressing hardware back on the home screen closed instantly. Now:
    if a modal/overlay is open, back closes THAT; on the home screen, back asks to
@@ -12974,7 +12974,9 @@ function rwRemindFire(what){
 function rwRemindChime(){
   try{
     var AC=window.AudioContext||window.webkitAudioContext; if(!AC) return;
-    var ctx=new AC(); var o=ctx.createOscillator(); var g=ctx.createGain();
+    var ctx=new AC();
+    try{ ctx.resume(); }catch(e2){}
+    var o=ctx.createOscillator(); var g=ctx.createGain();
     o.connect(g); g.connect(ctx.destination); o.type='sine'; o.frequency.value=880;
     g.gain.setValueAtTime(0.0001, ctx.currentTime);
     g.gain.exponentialRampToValueAtTime(0.25, ctx.currentTime+0.03);
@@ -18256,8 +18258,11 @@ function tuskSpeak(text){
     var vs=speechSynthesis.getVoices();
     var pick=vs.filter(function(v){ return /hi-IN|en-IN/i.test(v.lang); })[0];
     if(pick) u.voice=pick;
+    /* Android WebView often accepts .speak() but silently produces no audio
+       without throwing — surface an error toast so the user isn't left guessing */
+    u.onerror = function(){ showToast('🔊 Voice unavailable on this device'); };
     speechSynthesis.speak(u);
-  }catch(e){}
+  }catch(e){ showToast('🔊 Voice unavailable on this device'); }
 }
 /* a shareable "voice note" bubble: shows the witty line + a play button */
 function tuskVoiceNoteHTML(place, entry){
