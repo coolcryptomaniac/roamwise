@@ -66,27 +66,32 @@
     radial-gradient(circle at 91% 24%,rgba(255,70,207,.45),transparent 18%);
     animation:rwIntroThunder 4.8s steps(1,end) infinite;mix-blend-mode:screen}
 
-  /* Original red-cloak traveler overlay. It deliberately reads as a graphic
-     silhouette so it complements the approved artwork instead of fighting it. */
+  /* Deep-black/crimson traveler overlay. It deliberately reads as a graphic
+     silhouette so it complements the approved artwork instead of fighting it.
+     Position/rotation/scale and the cloak, scarf and leg poses are all driven
+     per-frame by the requestAnimationFrame physics sim below (see runShinobiPhysics) —
+     the left/top/transform/--legL-angle/--legR-angle values here are only the
+     resting pose shown before the intro is unpaused (rw-started). */
   #${ROOT_ID} .rw-shinobi{
-    position:absolute;z-index:8;left:15%;top:64%;width:clamp(64px,11vw,96px);height:clamp(96px,17vw,144px);
-    pointer-events:none;filter:drop-shadow(0 9px 13px rgba(0,0,0,.56)) drop-shadow(0 0 12px rgba(255,44,96,.36));
-    animation:rwShinobiGlobe 5.85s cubic-bezier(.38,.02,.20,1) .35s both;
+    position:absolute;z-index:8;left:12%;top:69%;width:clamp(64px,11vw,96px);height:clamp(96px,17vw,144px);
+    pointer-events:none;filter:drop-shadow(0 9px 13px rgba(0,0,0,.60)) drop-shadow(0 0 12px rgba(178,20,56,.34));
+    transform:translate(-50%,-50%) rotate(-9deg) scale(.92);
     transform-origin:50% 88%;
+    --rw-glow-o:.28;--rw-glow-sx:.65;
   }
-  #${ROOT_ID} .rw-shinobi .rw-head{position:absolute;left:39%;top:4%;width:24%;aspect-ratio:1;border-radius:50%;background:#08070b;box-shadow:inset -3px -2px 0 rgba(255,255,255,.06)}
-  #${ROOT_ID} .rw-shinobi .rw-hair{position:absolute;left:44%;top:-2%;width:13%;height:16%;background:#09070b;border-radius:70% 30% 55% 45%;transform:rotate(-14deg);box-shadow:5px -7px 0 -2px #09070b}
-  #${ROOT_ID} .rw-shinobi .rw-body{position:absolute;left:31%;top:20%;width:38%;height:51%;border-radius:30% 30% 18% 18%;background:linear-gradient(135deg,#5d0717 0%,#b2172d 45%,#4b0612 100%);box-shadow:inset -8px 0 12px rgba(0,0,0,.30),inset 5px 0 10px rgba(255,86,98,.12)}
-  #${ROOT_ID} .rw-shinobi .rw-cloak{position:absolute;left:16%;top:28%;width:68%;height:57%;clip-path:polygon(18% 0,79% 5%,100% 76%,73% 67%,82% 100%,52% 84%,27% 99%,32% 69%,0 78%);background:linear-gradient(120deg,#520611 0%,#cb1833 42%,#790a1c 70%,#2e040d 100%);transform-origin:52% 5%;animation:rwCloakFlare .62s ease-in-out infinite alternate;box-shadow:0 0 10px rgba(255,28,72,.32)}
-  #${ROOT_ID} .rw-shinobi .rw-emblem{position:absolute;left:38%;top:43%;width:25%;aspect-ratio:1;border:2px solid rgba(240,222,218,.72);border-radius:50%;opacity:.75}
-  #${ROOT_ID} .rw-shinobi .rw-emblem:before,#${ROOT_ID} .rw-shinobi .rw-emblem:after{content:"";position:absolute;left:50%;top:15%;width:2px;height:70%;background:rgba(240,222,218,.68);transform-origin:center}
+  #${ROOT_ID} .rw-shinobi .rw-head{position:absolute;left:39%;top:4%;width:24%;aspect-ratio:1;border-radius:50%;background:#07060a;box-shadow:inset -3px -2px 0 rgba(255,255,255,.05)}
+  #${ROOT_ID} .rw-shinobi .rw-hair{position:absolute;left:44%;top:-2%;width:13%;height:16%;background:#08060a;border-radius:70% 30% 55% 45%;transform:rotate(-14deg);box-shadow:5px -7px 0 -2px #08060a}
+  #${ROOT_ID} .rw-shinobi .rw-body{position:absolute;left:31%;top:20%;width:38%;height:51%;border-radius:30% 30% 18% 18%;background:linear-gradient(135deg,#150408 0%,#7a0f26 45%,#0e030a 100%);box-shadow:inset -8px 0 12px rgba(0,0,0,.42),inset 5px 0 10px rgba(190,30,60,.14)}
+  #${ROOT_ID} .rw-shinobi .rw-cloak{position:absolute;left:16%;top:28%;width:68%;height:57%;clip-path:polygon(18% 0,79% 5%,100% 76%,73% 67%,82% 100%,52% 84%,27% 99%,32% 69%,0 78%);background:linear-gradient(120deg,#050408 0%,#1c0810 28%,#87102c 47%,#170509 66%,#08060a 100%);transform-origin:52% 5%;box-shadow:0 0 10px rgba(178,20,56,.30)}
+  #${ROOT_ID} .rw-shinobi .rw-emblem{position:absolute;left:38%;top:43%;width:25%;aspect-ratio:1;border:2px solid rgba(200,54,68,.70);border-radius:50%;opacity:.78}
+  #${ROOT_ID} .rw-shinobi .rw-emblem:before,#${ROOT_ID} .rw-shinobi .rw-emblem:after{content:"";position:absolute;left:50%;top:15%;width:2px;height:70%;background:rgba(200,54,68,.66);transform-origin:center}
   #${ROOT_ID} .rw-shinobi .rw-emblem:before{transform:rotate(45deg)}
   #${ROOT_ID} .rw-shinobi .rw-emblem:after{transform:rotate(-45deg)}
-  #${ROOT_ID} .rw-shinobi .rw-leg{position:absolute;top:69%;width:12%;height:28%;background:#0b0910;border-radius:30% 30% 12% 12%;transform-origin:50% 5%}
-  #${ROOT_ID} .rw-shinobi .rw-leg.l{left:37%;transform:rotate(8deg)}
-  #${ROOT_ID} .rw-shinobi .rw-leg.r{right:36%;transform:rotate(-11deg)}
-  #${ROOT_ID} .rw-shinobi .rw-scarf{position:absolute;left:59%;top:18%;width:55%;height:10%;border-radius:99px;background:linear-gradient(90deg,#ca1732,rgba(202,23,50,0));transform-origin:0 50%;animation:rwScarf  .46s ease-in-out infinite alternate}
-  #${ROOT_ID} .rw-shinobi:after{content:"";position:absolute;left:30%;bottom:3%;width:46%;height:8%;border-radius:50%;background:radial-gradient(ellipse,rgba(255,177,84,.72),rgba(255,38,86,.30) 42%,transparent 70%);filter:blur(3px);opacity:.75;animation:rwLandingGlow .56s ease-in-out infinite alternate}
+  #${ROOT_ID} .rw-shinobi .rw-leg{position:absolute;top:69%;width:12%;height:28%;background:#0a0810;border-radius:30% 30% 12% 12%;transform-origin:50% 5%}
+  #${ROOT_ID} .rw-shinobi .rw-leg.l{left:37%;transform:rotate(var(--legL-angle,8deg))}
+  #${ROOT_ID} .rw-shinobi .rw-leg.r{right:36%;transform:rotate(var(--legR-angle,-11deg))}
+  #${ROOT_ID} .rw-shinobi .rw-scarf{position:absolute;left:59%;top:18%;width:55%;height:10%;border-radius:99px;background:linear-gradient(90deg,#8a1026,rgba(138,16,38,0));transform-origin:0 50%}
+  #${ROOT_ID} .rw-shinobi:after{content:"";position:absolute;left:30%;bottom:3%;width:46%;height:8%;border-radius:50%;background:radial-gradient(ellipse,rgba(255,208,111,.60),rgba(178,20,56,.32) 45%,transparent 72%);filter:blur(3px);opacity:var(--rw-glow-o,.28);transform:scaleX(var(--rw-glow-sx,.65))}
 
   #${ROOT_ID} .rw-brandDesk{display:none;position:absolute;z-index:9;left:7vw;top:50%;transform:translateY(-58%);width:min(42vw,690px);text-align:left}
   #${ROOT_ID} .rw-brandDesk h1{margin:0;font:800 clamp(62px,7vw,128px)/.86 Georgia,'Times New Roman',serif;letter-spacing:.015em;text-transform:uppercase;background:linear-gradient(90deg,#8244ff 0%,#f052e5 29%,#ff5e8c 55%,#ff954d 78%,#ffd475 100%);background-size:220% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 24px rgba(255,65,193,.33));animation:rwIntroBrand 3.2s linear infinite,rwIntroBrandGlow 2.2s ease-in-out infinite alternate}
@@ -121,7 +126,7 @@
   #${ROOT_ID} .rw-audio-start b{font-size:19px;line-height:1}
   #${ROOT_ID} .rw-audio-help{font-size:11px;color:rgba(255,239,249,.72);letter-spacing:.04em}
   #${ROOT_ID}:not(.rw-started) .rw-film{visibility:hidden}
-  #${ROOT_ID}:not(.rw-started) .rw-sheen,#${ROOT_ID}:not(.rw-started) .rw-matrix,#${ROOT_ID}:not(.rw-started) .rw-rain,#${ROOT_ID}:not(.rw-started) .rw-thunder,#${ROOT_ID}:not(.rw-started) .rw-shinobi,#${ROOT_ID}:not(.rw-started) .rw-cloak,#${ROOT_ID}:not(.rw-started) .rw-scarf,#${ROOT_ID}:not(.rw-started) .rw-track i,#${ROOT_ID}:not(.rw-started) .rw-fire b{animation-play-state:paused!important}
+  #${ROOT_ID}:not(.rw-started) .rw-sheen,#${ROOT_ID}:not(.rw-started) .rw-matrix,#${ROOT_ID}:not(.rw-started) .rw-rain,#${ROOT_ID}:not(.rw-started) .rw-thunder,#${ROOT_ID}:not(.rw-started) .rw-track i,#${ROOT_ID}:not(.rw-started) .rw-fire b{animation-play-state:paused!important}
 
   @media (min-width:900px) and (min-aspect-ratio:4/3){
     #${ROOT_ID}{place-items:stretch}
@@ -139,7 +144,7 @@
   }
   @media (prefers-reduced-motion:reduce){
     #${ROOT_ID} .rw-film{display:none!important}
-    #${ROOT_ID} .rw-sheen,#${ROOT_ID} .rw-matrix,#${ROOT_ID} .rw-rain,#${ROOT_ID} .rw-thunder,#${ROOT_ID} .rw-brandDesk h1,#${ROOT_ID} .rw-track i,#${ROOT_ID} .rw-shinobi,#${ROOT_ID} .rw-cloak,#${ROOT_ID} .rw-scarf,#${ROOT_ID} .rw-fire b{animation:none!important}
+    #${ROOT_ID} .rw-sheen,#${ROOT_ID} .rw-matrix,#${ROOT_ID} .rw-rain,#${ROOT_ID} .rw-thunder,#${ROOT_ID} .rw-brandDesk h1,#${ROOT_ID} .rw-track i,#${ROOT_ID} .rw-fire b{animation:none!important}
     #${ROOT_ID} .rw-track i{width:100%}
     #${ROOT_ID} .rw-shinobi{display:none}
   }
@@ -154,23 +159,10 @@
   @keyframes rwFlameTip{from{transform:translateY(-54%) rotate(40deg) scale(.88,1.08)}to{transform:translateY(-58%) rotate(49deg) scale(1.05,.90)}}
   @keyframes rwSparkTip{from{transform:translateY(-50%) scale(.75);opacity:.76}to{transform:translateY(-50%) scale(1.2);opacity:1}}
   @keyframes rwEmber{0%{transform:translate(-50%,-50%) scale(.55);opacity:0}18%{opacity:1}100%{transform:translate(calc(-50% + var(--dx)),calc(-50% + var(--dy))) scale(.10);opacity:0}}
-  @keyframes rwCloakFlare{from{transform:rotate(-3deg) skewX(-2deg)}to{transform:rotate(4deg) skewX(3deg)}}
-  @keyframes rwScarf{from{transform:rotate(7deg) scaleX(.88)}to{transform:rotate(-8deg) scaleX(1.12)}}
-  @keyframes rwLandingGlow{from{transform:scaleX(.65);opacity:.34}to{transform:scaleX(1.15);opacity:.82}}
-  @keyframes rwShinobiGlobe{
-    0%{left:12%;top:69%;transform:translate(-50%,-50%) rotate(-9deg) scale(.92)}
-    9%{left:18%;top:60%;transform:translate(-50%,-50%) rotate(-14deg) scale(1)}
-    18%{left:28%;top:48%;transform:translate(-50%,-50%) rotate(-4deg) scale(1.07)}
-    26%{left:34%;top:57%;transform:translate(-50%,-50%) rotate(7deg) scale(.98)}
-    36%{left:43%;top:43%;transform:translate(-50%,-50%) rotate(-9deg) scale(1.09)}
-    47%{left:55%;top:34%;transform:translate(-50%,-50%) rotate(3deg) scale(1.12)}
-    57%{left:64%;top:51%;transform:translate(-50%,-50%) rotate(8deg) scale(1.00)}
-    68%{left:70%;top:39%;transform:translate(-50%,-50%) rotate(-8deg) scale(1.06)}
-    79%{left:61%;top:32%;transform:translate(-50%,-50%) rotate(-13deg) scale(1.10)}
-    89%{left:70%;top:43%;transform:translate(-50%,-50%) rotate(6deg) scale(1.02)}
-    100%{left:78%;top:47%;transform:translate(-50%,-50%) rotate(2deg) scale(.96)}
-  }
   `;
+  /* The shinobi's motion (position, lean, squash-stretch, cloak/scarf sway,
+     leg gait) is no longer a fixed @keyframes path — see runShinobiPhysics(),
+     a small requestAnimationFrame kinematics sim wired up below. */
 
   function fireBits(){
     return '<span class="rw-fire" aria-hidden="true"><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b></span>';
@@ -178,6 +170,211 @@
 
   function track(){
     return '<div class="rw-track"><i>'+fireBits()+'</i></div>';
+  }
+
+  /* Hand-rolled requestAnimationFrame kinematics for the shinobi globe-jump.
+   * Replaces the old single fixed @keyframes path with 3 chained ballistic
+   * (projectile-motion) leap arcs, so the traversal reads as an actual
+   * running leap sequence (launch -> apex -> fall -> impact -> next launch)
+   * instead of one smooth cartoonish glide. Total run time matches the
+   * previous animation exactly: 350ms hold + 5850ms of leaping.
+   */
+  function runShinobiPhysics(shinobi){
+    var legL = shinobi.querySelector('.rw-leg.l');
+    var legR = shinobi.querySelector('.rw-leg.r');
+    var cloak = shinobi.querySelector('.rw-cloak');
+    var scarf = shinobi.querySelector('.rw-scarf');
+
+    // Same start/land waypoints the old fixed keyframes used (values lifted
+    // from its 0%/26%/57%/100% left/top marks), now chained as 3 leaps with
+    // real launch -> apex -> landing arcs instead of interpolated percentages.
+    var START_X = 12, START_Y = 69;
+    var LEAP_DEFS = [
+      { x1: 34, y1: 57, apexY: 44, dur: 1900 },
+      { x1: 64, y1: 51, apexY: 30, dur: 2000 },
+      { x1: 78, y1: 47, apexY: 28, dur: 1650 }
+    ];
+    var CONTACT_MS = 150;   // brief ground-contact/compression pause between leaps
+    var LAND_HOLD_MS = 260; // extra settle time after the final landing for squash/glow decay
+    var START_DELAY = 350;  // matches the old animation-delay
+
+    var MAX_LEAN = 34;      // deg, cap on velocity-derived rotation
+    var LEAN_SCALE = 0.62;
+    var VY_REF = .34;       // %/ms — reference vertical speed used to normalize gait/impact intensity
+
+    // Precompute each leap's real ballistic parameters (x(t)=x0+vx*t,
+    // y(t)=y0+vy*t+0.5*g*t^2) from its start/end height and apex height:
+    // rise time t_up=sqrt(2*hUp/g), fall time t_down=sqrt(2*hDown/g), with
+    // t_up+t_down pinned to the leap's total duration.
+    var x0 = START_X, y0 = START_Y;
+    LEAP_DEFS.forEach(function(leap){
+      leap.x0 = x0; leap.y0 = y0;
+      leap.vx = (leap.x1 - x0) / leap.dur;
+      var hUp = Math.max(y0 - leap.apexY, 1);
+      var hDown = Math.max(leap.y1 - leap.apexY, 1);
+      var ratio = Math.sqrt(hUp / hDown);
+      var tUp = leap.dur * ratio / (1 + ratio);
+      var tDown = leap.dur - tUp;
+      leap.g = (2 * hUp) / (tUp * tUp);
+      leap.vy0 = -leap.g * tUp;
+      leap.impactVy = leap.vy0 + leap.g * leap.dur;
+      x0 = leap.x1; y0 = leap.y1;
+    });
+
+    // Flatten into a timeline of leap / ground-contact segments.
+    var segments = [];
+    var t = 0;
+    LEAP_DEFS.forEach(function(leap, i){
+      segments.push({ type:'leap', leap:leap, start:t, end:t+leap.dur });
+      t += leap.dur;
+      var isLast = i === LEAP_DEFS.length - 1;
+      var contactDur = isLast ? LAND_HOLD_MS : CONTACT_MS;
+      segments.push({ type:'contact', x:leap.x1, y:leap.y1, impactV:leap.impactVy, start:t, end:t+contactDur });
+      t += contactDur;
+    });
+    var TOTAL_MS = t;
+
+    function clamp(v, lo, hi){ return v < lo ? lo : (v > hi ? hi : v); }
+    function springK(base, dt){ return 1 - Math.pow(1 - base, dt / 16.67); }
+
+    // Spring-follow state for the secondary motion (cloak/scarf lag the
+    // body's real velocity instead of looping on a fixed timer) plus the
+    // impact squash-stretch and landing-glow decay.
+    var pose = {
+      cloakA:-3, cloakSkew:-2, scarfA:7, scarfSx:1,
+      legLA:8, legRA:-11,
+      sx:1, sy:1, glow:0
+    };
+
+    var rafId = null;
+    var launchTime = null;
+    var lastSegIndex = -1;
+
+    function findSegment(elapsed){
+      for (var i = 0; i < segments.length; i++){
+        if (elapsed <= segments[i].end || i === segments.length - 1) return i;
+      }
+      return segments.length - 1;
+    }
+
+    function triggerImpact(impactVy){
+      var intensity = clamp(Math.abs(impactVy) / VY_REF, 0, 1);
+      pose.sy = clamp(1 - intensity * .38, .60, .96);
+      pose.sx = clamp(1 + intensity * .32, 1.04, 1.55);
+      pose.glow = clamp(.4 + intensity * .8, 0, 1);
+    }
+
+    function legTargetsFor(vyNow, inContact){
+      var vyNorm = clamp(vyNow / VY_REF, -1, 1);
+      // Rising (vyNorm<0) => legs trail back and tuck; falling toward a
+      // landing (vyNorm>0) or already on the ground => legs extend to plant.
+      var tuck = inContact ? 0 : (1 - vyNorm) / 2;
+      var TUCK_L = 34, TUCK_R = -34, PLANT_L = -8, PLANT_R = 10;
+      return {
+        l: PLANT_L + tuck * (TUCK_L - PLANT_L),
+        r: PLANT_R + tuck * (TUCK_R - PLANT_R)
+      };
+    }
+
+    function applyDom(x, y, rotDeg){
+      shinobi.style.left = x + '%';
+      shinobi.style.top = y + '%';
+      shinobi.style.transform = 'translate(-50%,-50%) rotate(' + rotDeg.toFixed(2) + 'deg) scale(' +
+        pose.sx.toFixed(3) + ',' + pose.sy.toFixed(3) + ')';
+      shinobi.style.setProperty('--legL-angle', pose.legLA.toFixed(2) + 'deg');
+      shinobi.style.setProperty('--legR-angle', pose.legRA.toFixed(2) + 'deg');
+      shinobi.style.setProperty('--rw-glow-o', (.20 + pose.glow * .60).toFixed(3));
+      shinobi.style.setProperty('--rw-glow-sx', (.55 + pose.glow * .65).toFixed(3));
+      if (cloak) cloak.style.transform = 'rotate(' + pose.cloakA.toFixed(2) + 'deg) skewX(' + pose.cloakSkew.toFixed(2) + 'deg)';
+      if (scarf) scarf.style.transform = 'rotate(' + pose.scarfA.toFixed(2) + 'deg) scaleX(' + pose.scarfSx.toFixed(3) + ')';
+    }
+
+    var lastNow = null;
+    function frame(now){
+      if (launchTime == null) launchTime = now;
+      var dt = lastNow == null ? 16.67 : Math.min(now - lastNow, 48);
+      lastNow = now;
+      var elapsed = now - launchTime - START_DELAY;
+
+      var x, y, rotTarget = 0, vyNow = 0, inContact = false;
+      if (elapsed < 0) {
+        x = START_X; y = START_Y;
+      } else if (elapsed >= TOTAL_MS) {
+        var lastLeap = LEAP_DEFS[LEAP_DEFS.length - 1];
+        x = lastLeap.x1; y = lastLeap.y1; inContact = true;
+      } else {
+        var segIdx = findSegment(elapsed);
+        var seg = segments[segIdx];
+        if (segIdx !== lastSegIndex && seg.type === 'contact') {
+          triggerImpact(seg.impactV);
+        }
+        lastSegIndex = segIdx;
+        if (seg.type === 'leap') {
+          var lt = elapsed - seg.start;
+          var leap = seg.leap;
+          x = leap.x0 + leap.vx * lt;
+          y = leap.y0 + leap.vy0 * lt + 0.5 * leap.g * lt * lt;
+          vyNow = leap.vy0 + leap.g * lt;
+          rotTarget = clamp(Math.atan2(vyNow, leap.vx) * 180 / Math.PI * LEAN_SCALE, -MAX_LEAN, MAX_LEAN);
+        } else {
+          x = seg.x; y = seg.y; inContact = true;
+        }
+      }
+
+      // Spring-follow secondary motion: cloak/scarf lag the real horizontal
+      // + vertical velocity instead of looping on a fixed timer.
+      var vyNorm = clamp(vyNow / VY_REF, -1, 1);
+      var activeVx = 0;
+      if (!inContact && elapsed >= 0 && elapsed < TOTAL_MS) {
+        var si = findSegment(elapsed);
+        if (segments[si].type === 'leap') activeVx = segments[si].leap.vx;
+      }
+      var cloakTarget = clamp(-(activeVx * 1000) * .55 + vyNorm * 5, -18, 14);
+      var cloakSkewTarget = clamp(vyNorm * 6, -7, 7);
+      var scarfTarget = clamp(-(activeVx * 1000) * .85 + vyNorm * 9, -24, 18);
+      var scarfSxTarget = clamp(1 + Math.abs(activeVx * 1000) * .012, .85, 1.30);
+
+      var kCloak = springK(.10, dt);
+      var kScarf = springK(.17, dt);
+      var kLeg = springK(.30, dt);
+      var kSquash = springK(.40, dt);
+      var kGlow = springK(.12, dt);
+
+      pose.cloakA += (cloakTarget - pose.cloakA) * kCloak;
+      pose.cloakSkew += (cloakSkewTarget - pose.cloakSkew) * kCloak;
+      pose.scarfA += (scarfTarget - pose.scarfA) * kScarf;
+      pose.scarfSx += (scarfSxTarget - pose.scarfSx) * kScarf;
+
+      var legTargets = legTargetsFor(vyNow, inContact);
+      pose.legLA += (legTargets.l - pose.legLA) * kLeg;
+      pose.legRA += (legTargets.r - pose.legRA) * kLeg;
+
+      pose.sx += (1 - pose.sx) * kSquash;
+      pose.sy += (1 - pose.sy) * kSquash;
+      pose.glow += (0 - pose.glow) * kGlow;
+
+      applyDom(x, y, rotTarget);
+
+      if (elapsed < TOTAL_MS + 400) {
+        rafId = requestAnimationFrame(frame);
+      } else {
+        rafId = null;
+      }
+    }
+
+    return {
+      start: function(){
+        if (rafId != null) return;
+        launchTime = null;
+        lastNow = null;
+        lastSegIndex = -1;
+        rafId = requestAnimationFrame(frame);
+      },
+      stop: function(){
+        if (rafId != null) cancelAnimationFrame(rafId);
+        rafId = null;
+      }
+    };
   }
 
   function mount(){
@@ -223,6 +420,8 @@
     var video = root.querySelector('.rw-film');
     var startButton = root.querySelector('.rw-audio-start');
     var skip = root.querySelector('.rw-skip');
+    var shinobiEl = root.querySelector('.rw-shinobi');
+    var shinobiPhysics = shinobiEl ? runShinobiPhysics(shinobiEl) : null;
     var closed = false;
     var started = false;
     var videoReady = false;
@@ -232,6 +431,8 @@
       if (started || closed) return;
       started = true;
       root.classList.add('rw-started');
+      var reducedMotionNow = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (shinobiPhysics && !reducedMotionNow) shinobiPhysics.start();
       try {
         window.dispatchEvent(new CustomEvent('rw:opening-start'));
       } catch (_) {}
@@ -264,6 +465,7 @@
       if (closed) return;
       closed = true;
       if (closeTimer) clearTimeout(closeTimer);
+      if (shinobiPhysics) shinobiPhysics.stop();
       root.classList.add('rw-closing');
       try { video.pause(); } catch (_) {}
       try { window.dispatchEvent(new CustomEvent('rw:opening-end')); } catch (_) {}
