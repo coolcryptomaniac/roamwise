@@ -39,7 +39,7 @@
     font-family:'Outfit',system-ui,-apple-system,Segoe UI,sans-serif;
   }
   #${ROOT_ID}.rw-closing{opacity:0;filter:blur(8px);pointer-events:none}
-  #${ROOT_ID} .rw-bg,#${ROOT_ID} .rw-film,#${ROOT_ID} .rw-fx{position:absolute;inset:0;width:100%;height:100%}
+  #${ROOT_ID} .rw-bg,#${ROOT_ID} .rw-film,#${ROOT_ID} .rw-film-gif,#${ROOT_ID} .rw-fx{position:absolute;inset:0;width:100%;height:100%}
   #${ROOT_ID} .rw-bg{
     background:
       radial-gradient(circle at 52% 42%,rgba(150,49,255,.38),transparent 25%),
@@ -55,6 +55,12 @@
   #${ROOT_ID} .rw-film{opacity:0;z-index:2}
   #${ROOT_ID}.rw-video-ready .rw-film{opacity:1}
   #${ROOT_ID}.rw-video-failed .rw-film{display:none}
+  /* GIF fallback: a still image element, never a <source> inside <video>
+     (browsers don't support animated GIF as a video-element source at all).
+     Its src is only assigned by JS once the video actually errors, so the
+     ~5MB GIF is never fetched on the normal (video-plays-fine) path. */
+  #${ROOT_ID} .rw-film-gif{object-fit:cover;object-position:center;opacity:0;z-index:2;display:none}
+  #${ROOT_ID}.rw-video-failed .rw-film-gif{display:block;opacity:1}
   #${ROOT_ID} .rw-sheen{position:absolute;inset:-30%;z-index:4;pointer-events:none;background:linear-gradient(115deg,transparent 38%,rgba(255,255,255,.11) 48%,rgba(255,184,244,.16) 50%,transparent 60%);transform:translateX(-65%) rotate(-4deg);animation:rwIntroSheen 3.5s ease-in-out infinite}
   #${ROOT_ID} .rw-matrix{z-index:5;opacity:.28;mix-blend-mode:screen;background-image:
     repeating-linear-gradient(90deg,transparent 0 29px,rgba(255,52,191,.13) 30px,transparent 31px 58px),
@@ -125,7 +131,7 @@
   #${ROOT_ID} .rw-audio-start:active{transform:scale(.97)}
   #${ROOT_ID} .rw-audio-start b{font-size:19px;line-height:1}
   #${ROOT_ID} .rw-audio-help{font-size:11px;color:rgba(255,239,249,.72);letter-spacing:.04em}
-  #${ROOT_ID}:not(.rw-started) .rw-film{visibility:hidden}
+  #${ROOT_ID}:not(.rw-started) .rw-film,#${ROOT_ID}:not(.rw-started) .rw-film-gif{visibility:hidden}
   #${ROOT_ID}:not(.rw-started) .rw-sheen,#${ROOT_ID}:not(.rw-started) .rw-matrix,#${ROOT_ID}:not(.rw-started) .rw-rain,#${ROOT_ID}:not(.rw-started) .rw-thunder,#${ROOT_ID}:not(.rw-started) .rw-track i,#${ROOT_ID}:not(.rw-started) .rw-fire b{animation-play-state:paused!important}
 
   @media (min-width:900px) and (min-aspect-ratio:4/3){
@@ -143,7 +149,7 @@
     #${ROOT_ID} .rw-film{object-fit:cover;object-position:center center}
   }
   @media (prefers-reduced-motion:reduce){
-    #${ROOT_ID} .rw-film{display:none!important}
+    #${ROOT_ID} .rw-film,#${ROOT_ID} .rw-film-gif{display:none!important}
     #${ROOT_ID} .rw-sheen,#${ROOT_ID} .rw-matrix,#${ROOT_ID} .rw-rain,#${ROOT_ID} .rw-thunder,#${ROOT_ID} .rw-brandDesk h1,#${ROOT_ID} .rw-track i,#${ROOT_ID} .rw-fire b{animation:none!important}
     #${ROOT_ID} .rw-track i{width:100%}
     #${ROOT_ID} .rw-shinobi{display:none}
@@ -175,9 +181,14 @@
   /* Hand-rolled requestAnimationFrame kinematics for the shinobi globe-jump.
    * Replaces the old single fixed @keyframes path with 3 chained ballistic
    * (projectile-motion) leap arcs, so the traversal reads as an actual
-   * running leap sequence (launch -> apex -> fall -> impact -> next launch)
-   * instead of one smooth cartoonish glide. Total run time matches the
-   * previous animation exactly: 350ms hold + 5850ms of leaping.
+   * running leap sequence (crouch -> launch -> apex -> fall -> impact ->
+   * next crouch) instead of one smooth cartoonish glide. Arcs are kept flat
+   * and quick (a modest apex rise, not a floaty bounce) and rotation is
+   * capped low so the torso stays upright with only a subtle lean into the
+   * direction of travel. All motion is computed from real elapsed time (see
+   * `elapsed`/`dt` below), not fixed per-frame steps, so pacing is identical
+   * regardless of frame rate. Total run time matches the previous animation
+   * exactly: 350ms hold + 5850ms of leaping.
    */
   function runShinobiPhysics(shinobi){
     var legL = shinobi.querySelector('.rw-leg.l');
@@ -189,18 +200,33 @@
     // from its 0%/26%/57%/100% left/top marks), now chained as 3 leaps with
     // real launch -> apex -> landing arcs instead of interpolated percentages.
     var START_X = 12, START_Y = 69;
+    // Apex heights are now only a modest rise above the higher of each leap's
+    // two endpoints (~8%), not a big floaty bulge (was 13-21%). Same start/end
+    // waypoints and durations as before, so the traversal still lands in the
+    // same places at the same times — only the shape of the arc in between is
+    // flatter and reads as a committed running leap rather than a bounce.
     var LEAP_DEFS = [
-      { x1: 34, y1: 57, apexY: 44, dur: 1900 },
-      { x1: 64, y1: 51, apexY: 30, dur: 2000 },
-      { x1: 78, y1: 47, apexY: 28, dur: 1650 }
+      { x1: 34, y1: 57, apexY: 49, dur: 1900 },
+      { x1: 64, y1: 51, apexY: 43, dur: 2000 },
+      { x1: 78, y1: 47, apexY: 39, dur: 1650 }
     ];
     var CONTACT_MS = 150;   // brief ground-contact/compression pause between leaps
     var LAND_HOLD_MS = 260; // extra settle time after the final landing for squash/glow decay
     var START_DELAY = 350;  // matches the old animation-delay
 
-    var MAX_LEAN = 34;      // deg, cap on velocity-derived rotation
-    var LEAN_SCALE = 0.62;
+    // Real parkour/leap traversal keeps the torso upright and controlled — a
+    // subtle lean into the direction of travel, not a visible tumble. Both
+    // values cut roughly in half from the previous pass, which read as a
+    // leaning/tumbling silhouette.
+    var MAX_LEAN = 16;      // deg, cap on velocity-derived rotation
+    var LEAN_SCALE = 0.32;
     var VY_REF = .34;       // %/ms — reference vertical speed used to normalize gait/impact intensity
+
+    // Brief crouch/wind-up before each launch (anticipation) — legs/torso
+    // compress for the last ~100ms of ground contact right before takeoff,
+    // on top of the existing post-landing squash-stretch settle.
+    var ANTICIPATION_MS = 100;
+    var CROUCH_SX = 1.10, CROUCH_SY = 0.90;
 
     // Precompute each leap's real ballistic parameters (x(t)=x0+vx*t,
     // y(t)=y0+vy*t+0.5*g*t^2) from its start/end height and apex height:
@@ -321,6 +347,25 @@
         }
       }
 
+      // Anticipation: a brief crouch/wind-up in the last ANTICIPATION_MS
+      // before each launch (including the very first one, off the initial
+      // hold). 0 while airborne or freshly landed, ramping to 1 right as the
+      // next leap's launch instant arrives.
+      var crouchT = 0;
+      if (elapsed < 0) {
+        crouchT = clamp(1 - (0 - elapsed) / ANTICIPATION_MS, 0, 1);
+      } else if (elapsed < TOTAL_MS) {
+        var crouchSegIdx = findSegment(elapsed);
+        var crouchSeg = segments[crouchSegIdx];
+        if (crouchSeg.type === 'contact' && crouchSegIdx + 1 < segments.length) {
+          var nextLaunch = segments[crouchSegIdx + 1].start;
+          crouchT = clamp(1 - (nextLaunch - elapsed) / ANTICIPATION_MS, 0, 1);
+        }
+      }
+      if (crouchT > 0 && inContact) {
+        y += crouchT * 0.8; // sink very slightly into the ground right before takeoff
+      }
+
       // Spring-follow secondary motion: cloak/scarf lag the real horizontal
       // + vertical velocity instead of looping on a fixed timer.
       var vyNorm = clamp(vyNow / VY_REF, -1, 1);
@@ -349,8 +394,14 @@
       pose.legLA += (legTargets.l - pose.legLA) * kLeg;
       pose.legRA += (legTargets.r - pose.legRA) * kLeg;
 
-      pose.sx += (1 - pose.sx) * kSquash;
-      pose.sy += (1 - pose.sy) * kSquash;
+      // Squash/stretch target is 1/1 at rest, but blends toward the crouch
+      // pose during the pre-launch anticipation window computed above — the
+      // same spring that eases the post-landing impact squash back to
+      // neutral now also eases it into (and back out of) the wind-up crouch.
+      var squashTargetSx = 1 + (CROUCH_SX - 1) * crouchT;
+      var squashTargetSy = 1 - (1 - CROUCH_SY) * crouchT;
+      pose.sx += (squashTargetSx - pose.sx) * kSquash;
+      pose.sy += (squashTargetSy - pose.sy) * kSquash;
       pose.glow += (0 - pose.glow) * kGlow;
 
       applyDom(x, y, rotTarget);
@@ -399,7 +450,7 @@
       '<div class="rw-stage">'+
         '<div class="rw-media">'+
           '<video class="rw-film" muted playsinline preload="auto" aria-hidden="true">'+
-            '<source src="/assets/roamwise-opening.mp4" type="video/mp4">'+
+            '<source src="assets/roamwise-opening.mp4" type="video/mp4">'+
           '</video>'+
           '<div class="rw-sheen" aria-hidden="true"></div>'+
           '<div class="rw-shinobi" aria-hidden="true"><i class="rw-hair"></i><i class="rw-head"></i><i class="rw-body"></i><i class="rw-cloak"></i><i class="rw-emblem"></i><i class="rw-leg l"></i><i class="rw-leg r"></i><i class="rw-scarf"></i></div>'+
@@ -418,6 +469,15 @@
     finishBoot();
 
     var video = root.querySelector('.rw-film');
+    /* Built via the DOM rather than as innerHTML markup so this stays a still
+       fallback that only ever loads its ~5MB GIF on the video's actual error
+       path (see the video 'error' listener below) — never a poster/preview
+       image fetched up front. */
+    var filmGif = document.createElement('img');
+    filmGif.className = 'rw-film-gif';
+    filmGif.alt = '';
+    filmGif.setAttribute('aria-hidden', 'true');
+    video.insertAdjacentElement('afterend', filmGif);
     var startButton = root.querySelector('.rw-audio-start');
     var skip = root.querySelector('.rw-skip');
     var shinobiEl = root.querySelector('.rw-shinobi');
@@ -492,6 +552,9 @@
     video.addEventListener('ended', close, {once:true});
     video.addEventListener('error', function(){
       root.classList.add('rw-video-failed');
+      /* The GIF is only fetched now, on the actual failure path, so the
+         normal (video-plays-fine) path never pays for its ~5MB download. */
+      if (filmGif && !filmGif.src) filmGif.src = 'assets/roamwise-opening.gif';
     }, {once:true});
 
     /* Native WebViews and previously-authorised browsers can start immediately.
