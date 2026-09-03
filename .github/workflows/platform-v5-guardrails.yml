@@ -62,7 +62,7 @@ jobs:
           assert '@media (min-width:900px)' in atlas, 'desktop-responsive opening layout missing'
           assert 'prefers-reduced-motion:reduce' in atlas, 'reduced-motion fallback missing'
           assert 'rwIntroThunder' in atlas and 'rwIntroRain' in atlas and 'rwIntroMatrix' in atlas, 'cinematic atmosphere regressed'
-          assert 'rwShinobiGlobe' in atlas and 'rw-shinobi' in atlas, 'moving red-cloak shinobi overlay missing'
+          assert 'runShinobiPhysics' in atlas and 'rw-shinobi' in atlas, 'moving red-cloak shinobi overlay missing'
           assert 'rwFlameTip' in atlas and 'rwEmber' in atlas and 'rw-fire' in atlas, 'fire/spark loading bar missing'
           assert 'if (document.body) mount();' in atlas, 'opening must mount immediately when body exists'
           assert 'animateMotion' not in atlas and 'GSHHS-derived coastline geometry' not in atlas, 'retired vector atlas returned'
