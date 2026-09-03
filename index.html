@@ -361,6 +361,12 @@ html{-webkit-text-size-adjust:100%}
     </div>
     <div class="nav-right">
       <button class="nav-ic" onclick="ssOpen()" title="Search" style="background:none;border:none;color:var(--t1);font-size:17px;cursor:pointer;padding:6px">&#128269;</button>
+      <!-- Persistent 1-tap Settings shortcut (Sound Effects/Voice Narration toggles
+           live at the top of this modal). Kept visible on mobile ("shell") too —
+           unlike .mode-chip, .nav-ic is not hidden by body.shell CSS — so users no
+           longer have to go More tab -> drawer -> scroll -> expand "More" group ->
+           Settings & AI keys to reach it. That deeper path still works unchanged. -->
+      <button class="nav-ic" id="rwSettingsShortcut" onclick="openSettings()" title="Settings" aria-label="Settings" style="background:none;border:none;color:var(--t1);font-size:17px;cursor:pointer;padding:6px">&#9881;&#65039;</button>
       <button class="mode-chip mode-free" id="modeChip" onclick="openSettings()">Smart Mode (free)</button>
       <button class="xp-chip" id="xpChip" onclick="openBadges()" title="Your traveler rank">&#129399; <span id="xpChipTxt">Genin</span></button>
       <button class="btn btn-pro" id="proBtn" onclick="openPay()">Pro &#8377;100</button>
