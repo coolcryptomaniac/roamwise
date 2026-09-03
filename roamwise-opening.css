@@ -16,17 +16,15 @@
   color:var(--rw-intro-text);
 }
 #rwOpening.rw-hide{opacity:0; pointer-events:none; transition:opacity .55s ease;}
-#rwOpening .rw-posterWrap{
+#rwOpening .rw-mediaWrap{
   position:relative; width:min(88vw,44vh); aspect-ratio:9/16; max-height:92vh;
   border-radius:2.2rem; overflow:hidden;
   box-shadow:0 30px 120px rgba(0,0,0,.55), 0 0 0 1px rgba(255,255,255,.08);
 }
-#rwOpening .rw-video,#rwOpening .rw-poster{
+#rwOpening .rw-video{
   position:absolute; inset:0; width:100%; height:100%; object-fit:cover;
 }
-#rwOpening .rw-video{opacity:0; transition:opacity .4s ease;}
-#rwOpening.rw-video-ready .rw-video{opacity:1;}
-#rwOpening.rw-video-ready .rw-poster{opacity:0; transition:opacity .4s ease;}
+#rwOpening .rw-video{opacity:1; transition:opacity .4s ease;}
 #rwOpening .rw-matrix,#rwOpening .rw-rain,#rwOpening .rw-lightning,#rwOpening .rw-ui{position:absolute; inset:0; pointer-events:none;}
 #rwOpening .rw-matrix{background-image:repeating-linear-gradient(90deg,transparent 0 22px, rgba(255,74,193,.05) 22px 23px, transparent 23px 45px); mix-blend-mode:screen; opacity:.45; animation:rwFloat 11s linear infinite;}
 #rwOpening .rw-rain{background-image:repeating-linear-gradient(100deg, rgba(255,190,255,.14) 0 1px, transparent 1px 28px); background-size:100% 34px; animation:rwRain .5s linear infinite; opacity:.45;}
@@ -55,7 +53,7 @@
 #rwOpening .rw-skip{position:absolute; right:1rem; bottom:1rem; font:600 .72rem/1 system-ui,sans-serif; letter-spacing:.2em; color:rgba(255,255,255,.7); background:rgba(8,8,16,.35); border:1px solid rgba(255,255,255,.12); padding:.55rem .75rem; border-radius:999px; pointer-events:auto; cursor:pointer;}
 #rwOpening .rw-fog{position:absolute; inset:auto -10% -10% -10%; height:36%; background:radial-gradient(circle at 50% 100%, rgba(255,46,178,.22), transparent 55%); filter:blur(26px);}
 @media (min-width:980px){
-  #rwOpening .rw-posterWrap{width:min(37vh,31vw); max-height:88vh;}
+  #rwOpening .rw-mediaWrap{width:min(37vh,31vw); max-height:88vh;}
 }
 @media (prefers-reduced-motion:reduce){
   #rwOpening *{animation:none !important; transition:none !important;}

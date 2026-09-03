@@ -7,12 +7,11 @@
     var wrap=document.createElement('div');
     wrap.id='rwOpening';
     wrap.innerHTML=''
-      +'<div class="rw-posterWrap">'
-      +'<img class="rw-poster" src="assets/roamwise-opening-poster.png" alt="Roamwise opening" />'
+      +'<div class="rw-mediaWrap">'
       +'<video class="rw-video" muted playsinline preload="auto"><source src="assets/roamwise-opening.mp4" type="video/mp4"></video>'
       +'<div class="rw-matrix"></div><div class="rw-rain"></div><div class="rw-lightning"></div>'
       +'<div class="rw-brand"><h1>ROAMWISE</h1><p>SHINOBI ATLAS</p></div>'
-      +'<div class="rw-loader"><div class="rw-loaderLabel">Loading</div><div class="rw-progress"><i></i></div></div>'
+      +'<div class="rw-loader"><div class="rw-loaderLabel">Sound on &middot; entering RoamWise</div><div class="rw-progress"><i></i></div></div>'
       +'<button class="rw-skip" type="button" aria-label="Skip intro">Skip</button>'
       +'<div class="rw-fog"></div></div>';
     document.body.appendChild(wrap);

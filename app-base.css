@@ -324,6 +324,21 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:17px;heigh
 /* SETTINGS */
 .key-section{margin-bottom:16px}
 .key-sec-title{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--t3);margin-bottom:10px}
+.rw-sound-settings{padding:14px;border:1px solid color-mix(in srgb,var(--pm) 30%,var(--b1));border-radius:14px;background:linear-gradient(135deg,rgba(155,89,245,.09),rgba(232,186,108,.05))}
+.rw-sound-row{display:flex;align-items:center;justify-content:space-between;gap:16px}
+.rw-sound-row strong{display:block;font-size:14px;color:var(--t1)}
+.rw-sound-row span{display:block;margin-top:3px;font-size:11px;color:var(--t3)}
+.rw-sound-switch{position:relative;display:block;width:48px;height:28px;flex:0 0 auto;cursor:pointer}
+.rw-sound-switch input{position:absolute;opacity:0;pointer-events:none}
+.rw-sound-switch i{position:absolute;inset:0;border-radius:99px;background:var(--b2);box-shadow:inset 0 0 0 1px var(--b2);transition:background .2s,box-shadow .2s}
+.rw-sound-switch i::after{content:'';position:absolute;left:3px;top:3px;width:22px;height:22px;border-radius:50%;background:#fff;box-shadow:0 2px 7px rgba(0,0,0,.28);transition:transform .22s cubic-bezier(.34,1.56,.64,1)}
+.rw-sound-switch input:checked+i{background:linear-gradient(135deg,var(--pm),var(--pm2));box-shadow:0 0 16px rgba(155,89,245,.28)}
+.rw-sound-switch input:checked+i::after{transform:translateX(20px)}
+.rw-sound-switch input:focus-visible+i{outline:2px solid var(--gold2);outline-offset:3px}
+.rw-volume-row{display:grid;grid-template-columns:auto 1fr 40px;align-items:center;gap:10px;margin-top:14px;font-size:11px;color:var(--t2)}
+.rw-volume-row input{width:100%;accent-color:var(--pm);cursor:pointer}
+.rw-volume-row output{text-align:right;font-variant-numeric:tabular-nums;color:var(--t1)}
+.rw-sound-note{margin:9px 0 0;font-size:10.5px;line-height:1.5;color:var(--t3)}
 .prov-select{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:12px}
 .prov-btn{padding:9px 8px;border:1px solid var(--b1);border-radius:9px;background:var(--bg3);cursor:pointer;text-align:center;font-family:'Outfit',sans-serif;transition:all .15s}
 .prov-btn.on{border-color:var(--pm);background:rgba(155,89,245,.1)}.prov-btn .pn{font-size:16px;font-weight:600;color:var(--t1);display:block;margin-bottom:2px}.prov-btn .ps{font-size:10px}.ps-free{color:var(--teal)}.ps-paid{color:var(--amber)}

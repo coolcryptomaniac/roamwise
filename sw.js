@@ -16,7 +16,7 @@
  *    caching it would blow the origin's storage quota for no benefit.
  * ------------------------------------------------------------------------- */
 
-var VERSION = 'rw-v116-nmims'
+var VERSION = 'rw-v117-persistent-audio';
 var HTML_CACHE = VERSION + '-html';
 var ASSET_CACHE = VERSION + '-assets';
 
@@ -28,6 +28,9 @@ var PRECACHE = [
   '/index.html',
   '/app.css',
   '/app.js',
+  '/rw-config.js',
+  '/platform-v5/audio-only.js',
+  '/platform-v5/atlas-shinobi.js',
   '/destination-photos.js',
   '/manifest.webmanifest',
   '/icons/icon-192.png',

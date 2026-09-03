@@ -90,9 +90,11 @@ window.rwApi = function(path){
     document.head.appendChild(s);
   }
 
+  /* Audio must register before the opener. Dynamic scripts marked async=false
+     execute in insertion order, giving the intro one authoritative sound gate. */
+  if(f.audioTheme) load('platform-v5/audio-only.js', true);
   if(f.atlasIntroV5) load('platform-v5/atlas-shinobi.js', true);
   if(f.performanceV5) load('platform-v5/performance.js', false);
   if(f.privateLearningConsent) load('platform-v5/learning-consent.js', false);
   if(f.cinematicMapV51) load('platform-v5/cinematic-map-v51.js', false);
-  if(f.audioTheme) load('platform-v5/audio-only.js', false);
 })();

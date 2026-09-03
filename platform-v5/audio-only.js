@@ -1,86 +1,333 @@
-/* RoamWise audio-only v1. No Firestore, haptics, auth, payment or startup coupling. */
-(function(){'use strict';
-  var SRC='/assets/audio/rave-to-hell-theme-10s.mp3';
-  var KEY='rw_audio_enabled';
-  var DEFAULT_VOLUME=0.24;
-  var audio=null, unlocked=false, unlockBound=false;
+/* RoamWise persistent audio engine.
+ *
+ * The previous implementation depended on a media file that was not actually
+ * decodable audio. This engine generates a restrained cinematic ambience
+ * with the Web Audio API, so startup audio works online, offline and inside the
+ * Capacitor app without a media download. Browsers that require a user gesture
+ * are unlocked by the opening screen before its animation begins.
+ */
+(function(){
+  'use strict';
 
-  function enabled(){
-    try { var v=localStorage.getItem(KEY); return v===null ? true : v!=='0'; }
-    catch(_){ return true; }
+  var ENABLED_KEY = 'rw_audio_enabled';
+  var VOLUME_KEY = 'rw_audio_volume';
+  var DEFAULT_VOLUME = 0.22;
+  var MIN_VOLUME = 0;
+  var MAX_VOLUME = 0.55;
+  var ctx = null;
+  var master = null;
+  var pulseTimer = null;
+
+  function readEnabled(){
+    try {
+      var value = localStorage.getItem(ENABLED_KEY);
+      return value === null ? true : value !== '0';
+    } catch (_) { return true; }
   }
-  function remember(v){ try { localStorage.setItem(KEY,v?'1':'0'); } catch(_){} }
-  function getAudio(){
-    if(audio) return audio;
-    audio=new Audio(SRC);
-    audio.loop=true;
-    audio.preload='metadata';
-    audio.volume=DEFAULT_VOLUME;
-    audio.setAttribute('playsinline','');
-    return audio;
+
+  function clampVolume(value){
+    var number = Number(value);
+    if (!isFinite(number)) number = DEFAULT_VOLUME;
+    return Math.max(MIN_VOLUME, Math.min(MAX_VOLUME, number));
   }
-  function stop(){ if(audio){ audio.pause(); audio.currentTime=0; } }
+
+  function readVolume(){
+    try {
+      var value = localStorage.getItem(VOLUME_KEY);
+      return value === null ? DEFAULT_VOLUME : clampVolume(value);
+    } catch (_) { return DEFAULT_VOLUME; }
+  }
+
+  var state = {
+    enabled: readEnabled(),
+    volume: readVolume(),
+    playing: false,
+    blocked: false,
+    supported: true
+  };
+
+  function remember(){
+    try {
+      localStorage.setItem(ENABLED_KEY, state.enabled ? '1' : '0');
+      localStorage.setItem(VOLUME_KEY, String(state.volume));
+    } catch (_) {}
+  }
+
+  function snapshot(){
+    return {
+      enabled: state.enabled,
+      volume: state.volume,
+      playing: state.playing,
+      blocked: state.blocked,
+      supported: state.supported
+    };
+  }
+
+  function emit(){
+    try {
+      window.dispatchEvent(new CustomEvent('rw:audio-state', { detail: snapshot() }));
+    } catch (_) {}
+  }
+
+  function setParam(param, value, seconds){
+    if (!param || !ctx) return;
+    var now = ctx.currentTime || 0;
+    try {
+      param.cancelScheduledValues(now);
+      param.setValueAtTime(Number(param.value) || 0, now);
+      param.linearRampToValueAtTime(value, now + (seconds || 0.01));
+    } catch (_) { param.value = value; }
+  }
+
+  function connect(source, destination){
+    if (source && source.connect) source.connect(destination);
+    return source;
+  }
+
+  function makeOscillator(type, frequency, level, detune){
+    var oscillator = ctx.createOscillator();
+    var gain = ctx.createGain();
+    oscillator.type = type;
+    oscillator.frequency.value = frequency;
+    if (oscillator.detune) oscillator.detune.value = detune || 0;
+    gain.gain.value = level;
+    connect(oscillator, gain);
+    connect(gain, master);
+    oscillator.start();
+    return oscillator;
+  }
+
+  function makeAir(){
+    if (!ctx.createBuffer || !ctx.createBufferSource || !ctx.createBiquadFilter) return;
+    var frames = Math.max(1, Math.floor(ctx.sampleRate * 2));
+    var buffer = ctx.createBuffer(1, frames, ctx.sampleRate);
+    var data = buffer.getChannelData(0);
+    for (var i = 0; i < frames; i++) data[i] = (Math.random() * 2 - 1) * 0.24;
+    var source = ctx.createBufferSource();
+    var filter = ctx.createBiquadFilter();
+    var gain = ctx.createGain();
+    source.buffer = buffer;
+    source.loop = true;
+    filter.type = 'lowpass';
+    filter.frequency.value = 520;
+    gain.gain.value = 0.025;
+    connect(source, filter);
+    connect(filter, gain);
+    connect(gain, master);
+    source.start();
+  }
+
+  function chime(){
+    if (!ctx || ctx.state !== 'running' || !state.enabled || !master) return;
+    var now = ctx.currentTime;
+    var oscillator = ctx.createOscillator();
+    var gain = ctx.createGain();
+    oscillator.type = 'sine';
+    oscillator.frequency.setValueAtTime(220, now);
+    oscillator.frequency.exponentialRampToValueAtTime(329.63, now + 1.8);
+    gain.gain.setValueAtTime(0.0001, now);
+    gain.gain.exponentialRampToValueAtTime(0.022, now + 0.12);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + 2.8);
+    connect(oscillator, gain);
+    connect(gain, master);
+    oscillator.start(now);
+    oscillator.stop(now + 2.9);
+  }
+
+  function buildGraph(){
+    if (ctx && master) return true;
+    var AudioContextClass = window.AudioContext || window.webkitAudioContext;
+    if (!AudioContextClass) {
+      state.supported = false;
+      state.blocked = false;
+      syncUI();
+      emit();
+      return false;
+    }
+
+    try {
+      ctx = new AudioContextClass();
+      master = ctx.createGain();
+      master.gain.value = 0;
+
+      var destination = ctx.destination;
+      if (ctx.createDynamicsCompressor) {
+        var compressor = ctx.createDynamicsCompressor();
+        compressor.threshold.value = -24;
+        compressor.knee.value = 18;
+        compressor.ratio.value = 4;
+        compressor.attack.value = 0.08;
+        compressor.release.value = 0.42;
+        connect(master, compressor);
+        connect(compressor, destination);
+      } else {
+        connect(master, destination);
+      }
+
+      makeOscillator('sine', 55, 0.23, -5);
+      makeOscillator('sine', 82.41, 0.075, 4);
+      makeOscillator('triangle', 110, 0.025, -8);
+      makeAir();
+      pulseTimer = setInterval(chime, 7200);
+      return true;
+    } catch (_) {
+      state.supported = false;
+      state.blocked = false;
+      syncUI();
+      emit();
+      return false;
+    }
+  }
+
   function play(){
-    if(!enabled()) return Promise.resolve(false);
-    var a=getAudio();
-    var p=a.play();
-    if(p&&typeof p.then==='function'){
-      return p.then(function(){ unlocked=true; return true; }).catch(function(){ bindUnlock(); return false; });
+    if (!state.enabled) {
+      state.playing = false;
+      syncUI();
+      return Promise.resolve(false);
     }
-    unlocked=true; return Promise.resolve(true);
+    if (!buildGraph()) return Promise.resolve(false);
+    if (!pulseTimer) pulseTimer = setInterval(chime, 7200);
+
+    var resume;
+    try { resume = ctx.resume ? ctx.resume() : Promise.resolve(); }
+    catch (error) { resume = Promise.reject(error); }
+
+    return Promise.resolve(resume).then(function(){
+      if (ctx.state && ctx.state !== 'running') throw new Error('audio-blocked');
+      setParam(master.gain, state.volume, 0.7);
+      state.playing = true;
+      state.blocked = false;
+      syncUI();
+      emit();
+      return true;
+    }).catch(function(){
+      state.playing = false;
+      state.blocked = true;
+      syncUI();
+      emit();
+      return false;
+    });
   }
-  function bindUnlock(){
-    if(unlockBound||!enabled()) return;
-    unlockBound=true;
-    function unlock(){
-      if(!enabled()) return cleanup();
-      play().finally(cleanup);
+
+  function pause(reset){
+    state.playing = false;
+    state.blocked = false;
+    if (master) setParam(master.gain, 0, 0.22);
+    if (ctx && ctx.suspend) {
+      setTimeout(function(){
+        if (!state.playing) {
+          try { ctx.suspend(); } catch (_) {}
+        }
+      }, 250);
     }
-    function cleanup(){
-      unlockBound=false;
-      document.removeEventListener('pointerdown',unlock,true);
-      document.removeEventListener('touchend',unlock,true);
-      document.removeEventListener('keydown',unlock,true);
+    if (reset && pulseTimer) {
+      clearInterval(pulseTimer);
+      pulseTimer = null;
     }
-    document.addEventListener('pointerdown',unlock,true);
-    document.addEventListener('touchend',unlock,true);
-    document.addEventListener('keydown',unlock,true);
+    syncUI();
+    emit();
   }
-  function setEnabled(v){
-    remember(!!v);
-    updateSetting();
-    if(v) play(); else stop();
+
+  function setEnabled(value){
+    state.enabled = !!value;
+    remember();
+    if (state.enabled) return play();
+    pause(false);
+    return Promise.resolve(false);
   }
-  function updateSetting(){
-    var b=document.getElementById('rwAudioToggle');
-    if(!b) return;
-    var on=enabled();
-    b.textContent=on?'On':'Off';
-    b.setAttribute('aria-pressed',on?'true':'false');
-    b.style.background=on?'linear-gradient(135deg,#a35dff,#df57c9)':'#222533';
-    b.style.color='#fff';
+
+  function setVolume(value){
+    state.volume = clampVolume(value);
+    remember();
+    if (master && state.playing) setParam(master.gain, state.volume, 0.12);
+    syncUI();
+    emit();
+    return state.volume;
   }
+
+  function isEnabled(){ return state.enabled; }
+  function isPlaying(){ return state.playing && !!ctx && (!ctx.state || ctx.state === 'running'); }
+  function getVolume(){ return state.volume; }
+
+  function syncUI(){
+    var toggle = document.getElementById('rwAudioToggle');
+    var slider = document.getElementById('rwAudioVolume');
+    var value = document.getElementById('rwAudioVolumeValue');
+    var status = document.getElementById('rwAudioStatus');
+    if (toggle) {
+      toggle.checked = state.enabled;
+      toggle.setAttribute('aria-checked', state.enabled ? 'true' : 'false');
+    }
+    if (slider) slider.value = String(Math.round((state.volume / MAX_VOLUME) * 100));
+    if (value) value.textContent = Math.round((state.volume / MAX_VOLUME) * 100) + '%';
+    if (status) {
+      if (!state.supported) status.textContent = 'Audio is unavailable in this browser';
+      else if (!state.enabled) status.textContent = 'Muted';
+      else if (state.blocked) status.textContent = 'Tap the opening once to start audio';
+      else if (state.playing) status.textContent = 'Playing across RoamWise';
+      else status.textContent = 'Ready';
+    }
+  }
+
   function mountSetting(){
-    if(document.getElementById('rwAudioSetting')) return;
-    var overlay=document.getElementById('settingsOverlay');
-    if(!overlay) return;
-    var host=overlay.querySelector('.modal')||overlay.querySelector('.settings')||overlay.firstElementChild;
-    if(!host) return;
-    var row=document.createElement('div');
-    row.id='rwAudioSetting';
-    row.style.cssText='display:flex;align-items:center;justify-content:space-between;gap:16px;margin:14px 0 4px;padding:13px 14px;border:1px solid rgba(255,255,255,.09);border-radius:14px;background:rgba(255,255,255,.035);font:500 14px/1.35 Outfit,system-ui,sans-serif;color:#f4eef8';
-    row.innerHTML='<div><div style="font-weight:700">Theme music</div><div style="font-size:11px;opacity:.65;margin-top:2px">Rave to Hell · stored only on this device</div></div><button id="rwAudioToggle" type="button" aria-label="Toggle RoamWise theme music" style="border:0;border-radius:999px;padding:8px 15px;font-weight:800;cursor:pointer"></button>';
-    host.appendChild(row);
-    row.querySelector('button').addEventListener('click',function(){setEnabled(!enabled());});
-    updateSetting();
+    if (document.getElementById('rwAudioSetting')) return;
+    var body = document.querySelector('#settingsOverlay .modal-body');
+    if (!body) return;
+    var section = document.createElement('section');
+    section.id = 'rwAudioSetting';
+    section.className = 'key-section rw-sound-settings';
+    section.innerHTML = ''+
+      '<div class="key-sec-title">Sound</div>'+
+      '<div class="rw-sound-row">'+
+        '<div><strong>Cinematic audio</strong><span id="rwAudioStatus" aria-live="polite">Ready</span></div>'+
+        '<label class="rw-sound-switch" aria-label="Mute or unmute RoamWise audio">'+
+          '<input id="rwAudioToggle" type="checkbox" role="switch"><i aria-hidden="true"></i>'+
+        '</label>'+
+      '</div>'+
+      '<label class="rw-volume-row" for="rwAudioVolume">'+
+        '<span>Volume</span><input id="rwAudioVolume" type="range" min="0" max="100" step="1">'+
+        '<output id="rwAudioVolumeValue" for="rwAudioVolume"></output>'+
+      '</label>'+
+      '<p class="rw-sound-note">On by default for the opening and the rest of the site. Your mute and volume choices stay on this device.</p>';
+    body.insertBefore(section, body.firstChild);
+
+    var toggle = document.getElementById('rwAudioToggle');
+    var slider = document.getElementById('rwAudioVolume');
+    toggle.addEventListener('change', function(){ setEnabled(toggle.checked); });
+    slider.addEventListener('input', function(){ setVolume((Number(slider.value) / 100) * MAX_VOLUME); });
+    syncUI();
   }
+
+  function unlock(){
+    if (state.enabled && !isPlaying()) play();
+  }
+
+  window.RWAudio = {
+    play: play,
+    pause: pause,
+    stop: function(){ pause(true); },
+    setEnabled: setEnabled,
+    isEnabled: isEnabled,
+    isPlaying: isPlaying,
+    setVolume: setVolume,
+    getVolume: getVolume,
+    getState: snapshot,
+    unlock: unlock
+  };
+
+  document.addEventListener('pointerdown', unlock, { capture:true, passive:true });
+  document.addEventListener('touchend', unlock, { capture:true, passive:true });
+  document.addEventListener('keydown', unlock, true);
+  document.addEventListener('visibilitychange', function(){
+    if (document.hidden) pause(false);
+    else if (state.enabled) play();
+  });
+
   function init(){
     mountSetting();
-    if(enabled()) play();
-    var mo=new MutationObserver(function(){ if(!document.getElementById('rwAudioSetting')) mountSetting(); });
-    if(document.body) mo.observe(document.body,{childList:true,subtree:true});
+    if (state.enabled) play();
   }
 
-  window.RWAudio={play:play,stop:stop,setEnabled:setEnabled,isEnabled:enabled};
-  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',init,{once:true}); else init();
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init, {once:true});
+  else init();
 })();

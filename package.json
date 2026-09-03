@@ -3,6 +3,8 @@
   "version": "1.0.0",
   "description": "RoamWise Pro \u2014 AI travel planner (Capacitor Android wrapper)",
   "scripts": {
+    "test": "node --test tests/*.test.js",
+    "check": "node --check app.js && node --check rw-config.js && node --check platform-v5/audio-only.js && node --check platform-v5/atlas-shinobi.js",
     "sync": "npx cap sync android",
     "open": "npx cap open android"
   },
