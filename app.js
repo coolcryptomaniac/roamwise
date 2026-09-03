@@ -13028,21 +13028,14 @@ function rwRemindFire(what){
       new Notification('RoamWise reminder', {body:what, icon:'/icon-512.png'});
     }
   }catch(e){}
-  try{ rwRemindChime(); }catch(e){}
+  /* Route through the same RoamWise audio-manifest cue player used elsewhere
+     (rwHaptic, copilotSend, tabGo) instead of a bespoke oscillator beep, so
+     there is one cue engine and one mute switch (rw_audio_enabled). A
+     reminder firing is a notification event, which is exactly what
+     success_feedback's "notification-success" haptic + short sting are
+     designed for. */
+  try{ rwPlayCue('success_feedback'); }catch(e){}
   try{ showToast('\u23f0 '+what); }catch(e){}
-}
-function rwRemindChime(){
-  try{
-    var AC=window.AudioContext||window.webkitAudioContext; if(!AC) return;
-    var ctx=new AC();
-    try{ ctx.resume(); }catch(e2){}
-    var o=ctx.createOscillator(); var g=ctx.createGain();
-    o.connect(g); g.connect(ctx.destination); o.type='sine'; o.frequency.value=880;
-    g.gain.setValueAtTime(0.0001, ctx.currentTime);
-    g.gain.exponentialRampToValueAtTime(0.25, ctx.currentTime+0.03);
-    g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime+0.9);
-    o.start(); o.stop(ctx.currentTime+1);
-  }catch(e){}
 }
 
 async function cpFinish(bubble, answerHTML, intents, raw){
