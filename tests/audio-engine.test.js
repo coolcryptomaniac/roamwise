@@ -4,61 +4,18 @@ const path = require('node:path');
 const test = require('node:test');
 const vm = require('node:vm');
 
-function audioParam(initial = 0) {
-  return {
-    value: initial,
-    cancelScheduledValues() {},
-    setValueAtTime(value) { this.value = value; },
-    linearRampToValueAtTime(value) { this.value = value; },
-    exponentialRampToValueAtTime(value) { this.value = value; }
-  };
-}
-
-class MockNode {
-  connect() { return this; }
-}
-
-class MockAudioContext {
+class MockAudio {
   constructor() {
+    this.paused = true;
+    this.loop = false;
+    this.preload = '';
+    this.src = '';
+    this.volume = 1;
     this.currentTime = 0;
-    this.destination = new MockNode();
-    this.sampleRate = 8000;
-    this.state = 'suspended';
   }
-  createGain() { const node = new MockNode(); node.gain = audioParam(); return node; }
-  createOscillator() {
-    const node = new MockNode();
-    node.frequency = audioParam();
-    node.detune = audioParam();
-    node.start = () => {};
-    node.stop = () => {};
-    return node;
-  }
-  createDynamicsCompressor() {
-    const node = new MockNode();
-    node.threshold = audioParam();
-    node.knee = audioParam();
-    node.ratio = audioParam();
-    node.attack = audioParam();
-    node.release = audioParam();
-    return node;
-  }
-  createBuffer(_channels, frames) {
-    const data = new Float32Array(frames);
-    return { getChannelData: () => data };
-  }
-  createBufferSource() {
-    const node = new MockNode();
-    node.start = () => {};
-    return node;
-  }
-  createBiquadFilter() {
-    const node = new MockNode();
-    node.frequency = audioParam();
-    return node;
-  }
-  resume() { this.state = 'running'; return Promise.resolve(); }
-  suspend() { this.state = 'suspended'; return Promise.resolve(); }
+  canPlayType() { return ''; } /* pretend no ogg support so tests exercise the .mp3 fallback path */
+  play() { this.paused = false; return Promise.resolve(); }
+  pause() { this.paused = true; }
 }
 
 function loadEngine(saved = {}) {
@@ -74,7 +31,7 @@ function loadEngine(saved = {}) {
     createElement() { throw new Error('Settings should not mount without its host'); }
   };
   const window = {
-    AudioContext: MockAudioContext,
+    Audio: MockAudio,
     addEventListener() {},
     dispatchEvent() {}
   };

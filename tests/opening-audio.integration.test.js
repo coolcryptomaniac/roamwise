@@ -40,9 +40,21 @@ test('settings and offline shell include the new audio engine', () => {
   assert.match(worker, /platform-v5\/atlas-shinobi\.js/);
 });
 
-test('the corrupt pseudo-MP3 is gone and generated audio has no media dependency', () => {
+test('the corrupt pseudo-MP3 is gone and the ambient bed plays a real uploaded asset', () => {
   assert.equal(fs.existsSync(path.join(root, 'assets', 'audio', 'rave-to-hell-theme-10s.mp3')), false);
   const audio = read('platform-v5/audio-only.js');
-  assert.doesNotMatch(audio, /new Audio\(|\.mp3|\.wav|\.ogg/);
-  assert.match(audio, /AudioContext/);
+  /* The synthesized Web Audio oscillator/noise generator (and its unwanted
+     looping chime) was removed in favor of real, licensed ambient playback
+     from assets/audio/ambient-theme-30s.{mp3,ogg} — see the header comment
+     in audio-only.js for why. Assert the real-file path is present and the
+     synthesized generator is gone. */
+  assert.match(audio, /ambient-theme-30s/);
+  assert.doesNotMatch(audio, /createOscillator|createBufferSource|createBiquadFilter|AudioContext/);
+  assert.match(audio, /new AudioCtor\(\)|window\.Audio/);
+
+  /* Still gated by the same single Settings mute switch and volume state. */
+  assert.match(audio, /rw_audio_enabled/);
+  assert.match(audio, /rw_audio_volume/);
+  assert.match(audio, /state\.enabled/);
+  assert.match(audio, /normalizedVolume|audioEl\.volume/);
 });

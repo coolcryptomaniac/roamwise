@@ -1,10 +1,30 @@
 /* RoamWise persistent audio engine.
  *
- * The previous implementation depended on a media file that was not actually
- * decodable audio. This engine generates a restrained cinematic ambience
- * with the Web Audio API, so startup audio works online, offline and inside the
- * Capacitor app without a media download. Browsers that require a user gesture
- * are unlocked by the opening screen before its animation begins.
+ * HISTORY / WHY THIS FILE LOOKS THE WAY IT DOES:
+ * An earlier version depended on a media file that was not actually decodable
+ * audio, so a later revision replaced it with a purely synthesized (Web Audio
+ * oscillator + filtered noise) ambience with zero file dependency, guaranteed
+ * offline-safe by tests/opening-audio.integration.test.js's "no media
+ * dependency" assertion. That synthesized drone included a periodic
+ * `chime()` sine sweep (originally every 7.2s) meant to read as a subtle
+ * cinematic accent.
+ *
+ * In production this was reported as an unwanted harsh chime that played on
+ * a loop for as long as the Sound setting was on, with no way to stop it
+ * short of muting in Settings. Per an explicit product decision, the
+ * synthesized generator (oscillators, filtered-noise "air" bed, and the
+ * periodic chime) has been removed entirely and replaced with real,
+ * licensed/uploaded audio playback of assets/audio/ambient-theme-30s
+ * (.mp3/.ogg), looped, from the same RoamWise "Rave to Hell / Kumaon Shadow
+ * Rite" theme already used for the other manifest-driven cues in app.js's
+ * rwPlayCue(). This is a deliberate reversal of the previous no-file-
+ * dependency guarantee, not an accidental regression of it — do not revert
+ * this back to a synthesized generator. The existing rw_audio_enabled /
+ * rw_audio_volume Settings toggle and slider still gate this real-file
+ * playback exactly as before, so there is still exactly one mute switch for
+ * every sound in the app. If the ambient file ever fails to load or play
+ * (missing asset, decode error, autoplay block), this fails silently and
+ * leaves the rest of the app - and the existing live planner - unaffected.
  */
 (function(){
   'use strict';
@@ -14,9 +34,9 @@
   var DEFAULT_VOLUME = 0.22;
   var MIN_VOLUME = 0;
   var MAX_VOLUME = 0.55;
-  var ctx = null;
-  var master = null;
-  var pulseTimer = null;
+  var AMBIENT_BASE = 'assets/audio/ambient-theme-30s';
+  var audioEl = null;
+  var audioFormat = null;
 
   function readEnabled(){
     try {
@@ -69,113 +89,37 @@
     } catch (_) {}
   }
 
-  function setParam(param, value, seconds){
-    if (!param || !ctx) return;
-    var now = ctx.currentTime || 0;
+  function normalizedVolume(){
+    return Math.max(0, Math.min(1, state.volume / MAX_VOLUME));
+  }
+
+  function pickFormat(el){
+    if (audioFormat !== null) return audioFormat;
     try {
-      param.cancelScheduledValues(now);
-      param.setValueAtTime(Number(param.value) || 0, now);
-      param.linearRampToValueAtTime(value, now + (seconds || 0.01));
-    } catch (_) { param.value = value; }
+      audioFormat = (el.canPlayType && el.canPlayType('audio/ogg; codecs="vorbis"')) ? '.ogg' : '.mp3';
+    } catch (_) { audioFormat = '.mp3'; }
+    return audioFormat;
   }
 
-  function connect(source, destination){
-    if (source && source.connect) source.connect(destination);
-    return source;
-  }
-
-  function makeOscillator(type, frequency, level, detune){
-    var oscillator = ctx.createOscillator();
-    var gain = ctx.createGain();
-    oscillator.type = type;
-    oscillator.frequency.value = frequency;
-    if (oscillator.detune) oscillator.detune.value = detune || 0;
-    gain.gain.value = level;
-    connect(oscillator, gain);
-    connect(gain, master);
-    oscillator.start();
-    return oscillator;
-  }
-
-  function makeAir(){
-    if (!ctx.createBuffer || !ctx.createBufferSource || !ctx.createBiquadFilter) return;
-    var frames = Math.max(1, Math.floor(ctx.sampleRate * 2));
-    var buffer = ctx.createBuffer(1, frames, ctx.sampleRate);
-    var data = buffer.getChannelData(0);
-    for (var i = 0; i < frames; i++) data[i] = (Math.random() * 2 - 1) * 0.24;
-    var source = ctx.createBufferSource();
-    var filter = ctx.createBiquadFilter();
-    var gain = ctx.createGain();
-    source.buffer = buffer;
-    source.loop = true;
-    filter.type = 'lowpass';
-    filter.frequency.value = 520;
-    gain.gain.value = 0.025;
-    connect(source, filter);
-    connect(filter, gain);
-    connect(gain, master);
-    source.start();
-  }
-
-  function chime(){
-    if (!ctx || ctx.state !== 'running' || !state.enabled || !master) return;
-    var now = ctx.currentTime;
-    var oscillator = ctx.createOscillator();
-    var gain = ctx.createGain();
-    oscillator.type = 'sine';
-    oscillator.frequency.setValueAtTime(220, now);
-    oscillator.frequency.exponentialRampToValueAtTime(329.63, now + 1.8);
-    gain.gain.setValueAtTime(0.0001, now);
-    gain.gain.exponentialRampToValueAtTime(0.022, now + 0.12);
-    gain.gain.exponentialRampToValueAtTime(0.0001, now + 2.8);
-    connect(oscillator, gain);
-    connect(gain, master);
-    oscillator.start(now);
-    oscillator.stop(now + 2.9);
-  }
-
-  function buildGraph(){
-    if (ctx && master) return true;
-    var AudioContextClass = window.AudioContext || window.webkitAudioContext;
-    if (!AudioContextClass) {
+  function ensureElement(){
+    if (audioEl) return audioEl;
+    var AudioCtor = window.Audio;
+    if (typeof AudioCtor !== 'function') {
       state.supported = false;
-      state.blocked = false;
-      syncUI();
-      emit();
-      return false;
+      return null;
     }
-
     try {
-      ctx = new AudioContextClass();
-      master = ctx.createGain();
-      master.gain.value = 0;
-
-      var destination = ctx.destination;
-      if (ctx.createDynamicsCompressor) {
-        var compressor = ctx.createDynamicsCompressor();
-        compressor.threshold.value = -24;
-        compressor.knee.value = 18;
-        compressor.ratio.value = 4;
-        compressor.attack.value = 0.08;
-        compressor.release.value = 0.42;
-        connect(master, compressor);
-        connect(compressor, destination);
-      } else {
-        connect(master, destination);
-      }
-
-      makeOscillator('sine', 55, 0.23, -5);
-      makeOscillator('sine', 82.41, 0.075, 4);
-      makeOscillator('triangle', 110, 0.025, -8);
-      makeAir();
-      pulseTimer = setInterval(chime, 7200);
-      return true;
+      var el = new AudioCtor();
+      el.loop = true;
+      el.preload = 'auto';
+      el.src = AMBIENT_BASE + pickFormat(el);
+      el.volume = normalizedVolume();
+      audioEl = el;
+      return audioEl;
     } catch (_) {
       state.supported = false;
-      state.blocked = false;
-      syncUI();
-      emit();
-      return false;
+      audioEl = null;
+      return null;
     }
   }
 
@@ -185,16 +129,19 @@
       syncUI();
       return Promise.resolve(false);
     }
-    if (!buildGraph()) return Promise.resolve(false);
-    if (!pulseTimer) pulseTimer = setInterval(chime, 7200);
+    var el = ensureElement();
+    if (!el) {
+      state.blocked = false;
+      syncUI();
+      emit();
+      return Promise.resolve(false);
+    }
+    el.volume = normalizedVolume();
 
-    var resume;
-    try { resume = ctx.resume ? ctx.resume() : Promise.resolve(); }
-    catch (error) { resume = Promise.reject(error); }
+    var result;
+    try { result = el.play(); } catch (error) { result = Promise.reject(error); }
 
-    return Promise.resolve(resume).then(function(){
-      if (ctx.state && ctx.state !== 'running') throw new Error('audio-blocked');
-      setParam(master.gain, state.volume, 0.7);
+    return Promise.resolve(result).then(function(){
       state.playing = true;
       state.blocked = false;
       syncUI();
@@ -212,17 +159,9 @@
   function pause(reset){
     state.playing = false;
     state.blocked = false;
-    if (master) setParam(master.gain, 0, 0.22);
-    if (ctx && ctx.suspend) {
-      setTimeout(function(){
-        if (!state.playing) {
-          try { ctx.suspend(); } catch (_) {}
-        }
-      }, 250);
-    }
-    if (reset && pulseTimer) {
-      clearInterval(pulseTimer);
-      pulseTimer = null;
+    if (audioEl) {
+      try { audioEl.pause(); } catch (_) {}
+      if (reset) { try { audioEl.currentTime = 0; } catch (_) {} }
     }
     syncUI();
     emit();
@@ -239,14 +178,14 @@
   function setVolume(value){
     state.volume = clampVolume(value);
     remember();
-    if (master && state.playing) setParam(master.gain, state.volume, 0.12);
+    if (audioEl) audioEl.volume = normalizedVolume();
     syncUI();
     emit();
     return state.volume;
   }
 
   function isEnabled(){ return state.enabled; }
-  function isPlaying(){ return state.playing && !!ctx && (!ctx.state || ctx.state === 'running'); }
+  function isPlaying(){ return !!(state.playing && audioEl && !audioEl.paused); }
   function getVolume(){ return state.volume; }
 
   function syncUI(){
