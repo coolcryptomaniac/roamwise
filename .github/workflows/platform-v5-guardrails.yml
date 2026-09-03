@@ -27,6 +27,7 @@ jobs:
       - name: Validate Platform V5 JavaScript
         run: |
           node --check platform-v5/atlas-shinobi.js
+          node --check platform-v5/audio-only.js
           node --check platform-v5/learning-consent.js
           node --check platform-v5/performance.js
           node --check platform-v5/cinematic-map-v51.js
@@ -35,6 +36,7 @@ jobs:
           node --check payments/webhook-verify.mjs
           node --check payments/worker.mjs
           node --check rw-config.js
+          node --test tests/*.test.js
 
       - name: Guard canonical startup quality
         run: |
@@ -51,9 +53,11 @@ jobs:
 
           assert "ROOT_ID = 'rwOpening'" in atlas, 'canonical opening root missing'
           assert '/assets/roamwise-opening.mp4' in atlas, 'approved MP4 must be the canonical film'
-          assert '/assets/roamwise-opening-poster.png' in atlas, 'poster fallback missing'
-          assert '/assets/roamwise-opening.gif' in atlas, 'GIF fallback missing'
-          assert 'rw-video-failed' in atlas and "video.addEventListener('error'" in atlas, 'video failure fallback missing'
+          assert '/assets/roamwise-opening-poster.png' not in atlas, 'removed loading photo returned'
+          assert '<img' not in atlas, 'opening must not render a loading photo'
+          assert not Path('assets/roamwise-opening-poster.png').exists(), 'removed loading photo still shipped'
+          assert 'conic-gradient' in atlas and 'rw-video-failed' in atlas, 'CSS video fallback missing'
+          assert 'rw-audio-gate' in atlas and 'RWAudio.play()' in atlas, 'opening audio gate missing'
           assert '@media (min-width:900px)' in atlas, 'desktop-responsive opening layout missing'
           assert 'prefers-reduced-motion:reduce' in atlas, 'reduced-motion fallback missing'
           assert 'rwIntroThunder' in atlas and 'rwIntroRain' in atlas and 'rwIntroMatrix' in atlas, 'cinematic atmosphere regressed'
@@ -66,7 +70,10 @@ jobs:
           assert 'window.__RW_INTRO_SHOULD_SHOW' in config, 'pre-app intro hand-off missing'
           assert "document.getElementById('intro')" in config and 'legacy.remove()' in config, 'legacy splash node must be removed synchronously'
           assert '#intro,.intro{display:none!important' in config, 'preboot splash suppression missing'
-          assert 's.async=false' in config and "load('platform-v5/atlas-shinobi.js', true)" in config, 'opening must load first at high priority'
+          audio_load = "load('platform-v5/audio-only.js', true)"
+          opening_load = "load('platform-v5/atlas-shinobi.js', true)"
+          assert 's.async=false' in config and audio_load in config and opening_load in config, 'ordered audio/opening modules missing'
+          assert config.index(audio_load) < config.index(opening_load), 'audio must load before the opening'
           assert "sessionStorage.setItem('rw_intro','1')" in config, 'show-once-per-session behavior missing'
           print('Canonical startup guardrails OK')
           PY

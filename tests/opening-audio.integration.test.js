@@ -1,0 +1,48 @@
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const path = require('node:path');
+const test = require('node:test');
+
+const root = path.join(__dirname, '..');
+const read = file => fs.readFileSync(path.join(root, file), 'utf8');
+
+test('cinematic opening has no loading photo dependency', () => {
+  const opening = read('platform-v5/atlas-shinobi.js');
+  assert.doesNotMatch(opening, /roamwise-opening-poster|rw-poster|<img/i);
+  assert.match(opening, /CSS fallback/);
+  assert.equal(fs.existsSync(path.join(root, 'assets', 'roamwise-opening-poster.png')), false);
+});
+
+test('audio loads before the cinematic opener and gates its animation', () => {
+  const config = read('rw-config.js');
+  const audioIndex = config.indexOf("load('platform-v5/audio-only.js', true)");
+  const openingIndex = config.indexOf("load('platform-v5/atlas-shinobi.js', true)");
+  assert.ok(audioIndex > -1 && openingIndex > audioIndex);
+
+  const opening = read('platform-v5/atlas-shinobi.js');
+  assert.match(opening, /Tap to begin with sound/);
+  assert.match(opening, /Promise\.resolve\(RWAudio\.play\(\)\)/);
+  assert.match(opening, /rw-started/);
+  assert.match(opening, /closeTimer = setTimeout\(close/);
+
+  assert.match(opening, /localStorage\.setItem\('rw_opening','1'\)/);
+});
+
+test('settings and offline shell include the new audio engine', () => {
+  const audio = read('platform-v5/audio-only.js');
+  assert.match(audio, /#settingsOverlay \.modal-body/);
+  assert.match(audio, /id=\"rwAudioToggle\"/);
+  assert.match(audio, /id=\"rwAudioVolume\"/);
+
+  const worker = read('sw.js');
+  assert.match(worker, /rw-v117-persistent-audio/);
+  assert.match(worker, /platform-v5\/audio-only\.js/);
+  assert.match(worker, /platform-v5\/atlas-shinobi\.js/);
+});
+
+test('the corrupt pseudo-MP3 is gone and generated audio has no media dependency', () => {
+  assert.equal(fs.existsSync(path.join(root, 'assets', 'audio', 'rave-to-hell-theme-10s.mp3')), false);
+  const audio = read('platform-v5/audio-only.js');
+  assert.doesNotMatch(audio, /new Audio\(|\.mp3|\.wav|\.ogg/);
+  assert.match(audio, /AudioContext/);
+});
