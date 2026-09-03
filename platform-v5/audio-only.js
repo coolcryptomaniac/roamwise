@@ -31,7 +31,17 @@
 
   var ENABLED_KEY = 'rw_audio_enabled';
   var VOLUME_KEY = 'rw_audio_volume';
-  var DEFAULT_VOLUME = 0.22;
+  /* Manifest (assets/audio/roamwise-audio-manifest.json) marks the ambient
+     bed as the one intentionally-looping asset ("loop": true, meant to read
+     as continuous background music) — every other cue is a short one-shot.
+     So looping is kept, but the starting volume for anyone who hasn't yet
+     touched the Settings slider is deliberately quiet: DEFAULT_VOLUME here
+     is on the engine's 0..MAX_VOLUME storage scale, and normalizedVolume()
+     divides by MAX_VOLUME to get the real <audio>.volume — 0.11/0.55 = 0.2,
+     i.e. a quiet background presence (~20%) rather than the previous ~40%
+     default, which is what actually made a forever-looping bed feel
+     "annoying". Never touches a volume a user has explicitly set. */
+  var DEFAULT_VOLUME = 0.11;
   var MIN_VOLUME = 0;
   var MAX_VOLUME = 0.55;
   var AMBIENT_BASE = 'assets/audio/ambient-theme-30s';

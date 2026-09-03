@@ -44,7 +44,10 @@ function rwAudioThemeEnabled(){
   try{ var v=localStorage.getItem('rw_audio_enabled'); return v===null ? true : v!=='0'; }catch(e){ return true; }
 }
 function rwAudioThemeVolume(){
-  try{ var v=Number(localStorage.getItem('rw_audio_volume')); return isFinite(v)&&v>0 ? v : 0.22; }catch(e){ return 0.22; }
+  /* Fallback (0.11 on the engine's 0..0.55 ambient scale) must match
+     platform-v5/audio-only.js's DEFAULT_VOLUME so an unset preference sounds
+     the same quiet ~20% starting level everywhere. */
+  try{ var v=Number(localStorage.getItem('rw_audio_volume')); return isFinite(v)&&v>0 ? v : 0.11; }catch(e){ return 0.11; }
 }
 function rwPlayCue(name){
   if(!rwAudioThemeEnabled()) return false;
