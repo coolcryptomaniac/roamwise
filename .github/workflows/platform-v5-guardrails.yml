@@ -52,7 +52,8 @@ jobs:
           assert '#intro,.intro{display:none!important' in app_css, 'legacy splash must be hidden at first paint'
 
           assert "ROOT_ID = 'rwOpening'" in atlas, 'canonical opening root missing'
-          assert '/assets/roamwise-opening.mp4' in atlas, 'approved MP4 must be the canonical film'
+          assert 'src="assets/roamwise-opening.mp4"' in atlas, 'approved MP4 must be the canonical film'
+          assert 'src="/assets/roamwise-opening.mp4"' not in atlas, 'canonical film must use a relative path (absolute path 404s outside domain-root contexts)'
           assert '/assets/roamwise-opening-poster.png' not in atlas, 'removed loading photo returned'
           assert '<img' not in atlas, 'opening must not render a loading photo'
           assert not Path('assets/roamwise-opening-poster.png').exists(), 'removed loading photo still shipped'
