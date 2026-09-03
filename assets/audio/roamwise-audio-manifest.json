@@ -1,0 +1,56 @@
+{
+  "themeName": "Rave to Hell / Kumaon Shadow Rite",
+  "sourceFile": "Kumaon Shadow Rite(2).wav",
+  "recommendedDefaultState": "on",
+  "userToggleKey": "rw_audio_enabled",
+  "assets": [
+    {
+      "event": "site_opening",
+      "fileMp3": "opening-theme-30s.mp3",
+      "fileOgg": "opening-theme-30s.ogg",
+      "durationSeconds": 30,
+      "loop": false,
+      "haptic": "impact-medium"
+    },
+    {
+      "event": "hero_cta_or_big_action",
+      "fileMp3": "cta-action-10s.mp3",
+      "fileOgg": "cta-action-10s.ogg",
+      "durationSeconds": 10,
+      "loop": false,
+      "haptic": "selection-then-impact-light"
+    },
+    {
+      "event": "card_transition_or_modal_open",
+      "fileMp3": "transition-10s.mp3",
+      "fileOgg": "transition-10s.ogg",
+      "durationSeconds": 10,
+      "loop": false,
+      "haptic": "impact-light"
+    },
+    {
+      "event": "tap_feedback",
+      "fileMp3": "tap-sting-5s.mp3",
+      "fileOgg": "tap-sting-5s.ogg",
+      "durationSeconds": 5,
+      "loop": false,
+      "haptic": "selection"
+    },
+    {
+      "event": "success_feedback",
+      "fileMp3": "success-sting-5s.mp3",
+      "fileOgg": "success-sting-5s.ogg",
+      "durationSeconds": 5,
+      "loop": false,
+      "haptic": "notification-success"
+    },
+    {
+      "event": "ambient_background_when_user_enables_sound",
+      "fileMp3": "ambient-theme-30s.mp3",
+      "fileOgg": "ambient-theme-30s.ogg",
+      "durationSeconds": 30,
+      "loop": true,
+      "haptic": "none"
+    }
+  ]
+}
