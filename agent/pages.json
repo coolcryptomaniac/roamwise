@@ -4998,5 +4998,29 @@
   "country": "India",
   "best": "January, October, November",
   "month": true
+ },
+ {
+  "slug": "jaipur-in-november",
+  "title": "Jaipur in November",
+  "name": "Jaipur·November",
+  "country": "India",
+  "best": "January, October, November",
+  "month": true
+ },
+ {
+  "slug": "jaipur-in-december",
+  "title": "Jaipur in December",
+  "name": "Jaipur·December",
+  "country": "India",
+  "best": "January, October, November",
+  "month": true
+ },
+ {
+  "slug": "jodhpur-in-january",
+  "title": "Jodhpur in January",
+  "name": "Jodhpur·January",
+  "country": "India",
+  "best": "January, March, November",
+  "month": true
  }
 ]
