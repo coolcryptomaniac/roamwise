@@ -235,6 +235,12 @@
       try {
         window.dispatchEvent(new CustomEvent('rw:opening-start'));
       } catch (_) {}
+      /* site_opening cue from the audio manifest — fires once the audio gate
+         has cleared (or immediately when audio is muted/unsupported), so it
+         never doubles up with the ambient bed RWAudio.play() already started.
+         rwPlayCue lives in app.js (kept out of this module's own no-media-file
+         Web Audio engine) and reads the same rw_audio_enabled/volume keys. */
+      try { if (typeof window.rwPlayCue === 'function') window.rwPlayCue('site_opening'); } catch (_) {}
       if (videoReady) {
         var videoPlay = video.play();
         if (videoPlay && typeof videoPlay.catch === 'function') videoPlay.catch(function(){});

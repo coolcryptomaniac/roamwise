@@ -13,10 +13,64 @@ window.addEventListener('unhandledrejection', function(ev){
 function rwHaptic(kind){
   try{
     if(window.Capacitor && Capacitor.Plugins && Capacitor.Plugins.Haptics){
-      Capacitor.Plugins.Haptics.impact({style: kind==='heavy'?'HEAVY':'LIGHT'}); return;
-    }
-    if(navigator.vibrate){ navigator.vibrate(kind==='heavy'?18:8); }
+      Capacitor.Plugins.Haptics.impact({style: kind==='heavy'?'HEAVY':'LIGHT'});
+    } else if(navigator.vibrate){ navigator.vibrate(kind==='heavy'?18:8); }
   }catch(e){}
+  /* Every rwHaptic() call already marks a "key action" (send, pin, toggle,
+     pay-success…) — reuse that same call graph to play the matching
+     tap/success sting from the RoamWise audio manifest instead of adding
+     ad-hoc Audio() calls at each of these sites. */
+  try{ rwPlayCue(kind==='heavy' ? 'success_feedback' : 'tap_feedback'); }catch(e){}
+}
+/* ===== EVENT AUDIO CUES (assets/audio/roamwise-audio-manifest.json) =====
+   platform-v5/audio-only.js is a deliberately file-free, purely synthesized
+   Web Audio engine (see its own header comment + tests/opening-audio.integration
+   .test.js, which pins it to have zero .mp3/.ogg/media dependency for offline
+   reliability). The actual produced "Rave to Hell" stings/themes uploaded to
+   assets/audio/ therefore need a separate, small player — this one — that
+   still respects the SAME master mute (rw_audio_enabled) and volume
+   (rw_audio_volume) the Settings "Sound" toggle already controls, so there is
+   exactly one mute switch for the user regardless of which engine is playing. */
+var RW_CUE_FILES = {
+  site_opening: 'opening-theme-30s',
+  hero_cta_or_big_action: 'cta-action-10s',
+  card_transition_or_modal_open: 'transition-10s',
+  tap_feedback: 'tap-sting-5s',
+  success_feedback: 'success-sting-5s'
+};
+var _rwCueCache = {};
+var _rwCueFormat = null;
+function rwAudioThemeEnabled(){
+  try{ var v=localStorage.getItem('rw_audio_enabled'); return v===null ? true : v!=='0'; }catch(e){ return true; }
+}
+function rwAudioThemeVolume(){
+  try{ var v=Number(localStorage.getItem('rw_audio_volume')); return isFinite(v)&&v>0 ? v : 0.22; }catch(e){ return 0.22; }
+}
+function rwPlayCue(name){
+  if(!rwAudioThemeEnabled()) return false;
+  var base = RW_CUE_FILES[name];
+  if(!base || typeof window.Audio!=='function') return false;
+  try{
+    var node = _rwCueCache[name];
+    if(!node){
+      node = new Audio();
+      if(_rwCueFormat===null){
+        try{ _rwCueFormat = (node.canPlayType && node.canPlayType('audio/ogg; codecs="vorbis"')) ? '.ogg' : '.mp3'; }
+        catch(e){ _rwCueFormat = '.mp3'; }
+      }
+      node.src = 'assets/audio/'+base+_rwCueFormat;
+      node.preload = 'auto';
+      _rwCueCache[name] = node;
+    }
+    /* rw_audio_volume is stored on the engine's 0..0.55 ambient scale — map it
+       onto an audible 0..1 range for these short one-shot stings, with a
+       floor so they're not inaudible when the ambient bed is set low. */
+    node.volume = Math.max(0.18, Math.min(1, rwAudioThemeVolume()/0.55));
+    try{ node.currentTime = 0; }catch(e){}
+    var played = node.play();
+    if(played && played.catch) played.catch(function(){});
+    return true;
+  }catch(e){ return false; }
 }
 
 
@@ -9363,6 +9417,7 @@ function _adminUnlock(code){
 function activatePro(payId, method){
   isPro=true; lsSet('rwPro','1'); lsSet('rw_pro_uid',(user&&user.uid)||'device'); lsSet('rwPayId', payId||'manual');
   try{ badgeAwardFounder(); }catch(e){}
+  try{ rwHaptic('heavy'); }catch(e){}
   closePay(); el('successOverlay').classList.add('open');
   confetti(); refreshProUI();
 }
@@ -9554,6 +9609,7 @@ function renderKeyBoxes(){
 }
 function openSettings(){
   renderKeyBoxes();
+  try{ rwVoiceMountSetting(); }catch(e){}
   try{ var tp=el('tabPickWrap'); if(tp) tp.innerHTML=rwTabPickerHTML(); }catch(e){}
   /* ---- UI simplification ----
      Provider choice and API keys are power-user territory: Smart Search works
@@ -10625,6 +10681,8 @@ function rwTabToggle(k){
   var host=el('tabPickWrap'); if(host) host.innerHTML=rwTabPickerHTML();
 }
 function tabGo(t){
+  /* Major screen/view transition — the manifest's card_transition_or_modal_open cue. */
+  try{ rwPlayCue('card_transition_or_modal_open'); }catch(e){}
   try{useBump('tab_'+t);}catch(e){}
   try{ if(window._rvAll) _rvAll(); }catch(e){}
   try{ rwTabMark(t); }catch(e){}
@@ -11581,6 +11639,8 @@ async function rwResolvePlace(name){
 function copilotSend(fromHero){
   var inp = el(fromHero? 'heroInput' : 'cpInput');
   var t=(inp && inp.value||'').trim(); if(!t) return;
+  /* Primary CTA of the app — asking Tusk to plan/answer something. */
+  try{ rwPlayCue('hero_cta_or_big_action'); }catch(e){}
   inp.value='';
   if(fromHero){
     /* Conversation flows vertically right on the page — no popup. */
@@ -18238,9 +18298,46 @@ function tuskSpeakable(text){
     .replace(/\s{2,}/g, ' ')
     .trim();
 }
+/* Voice narration (tuskSpeak) is a separate concern from the theme/SFX engine
+   in platform-v5/audio-only.js — it's TTS, not media playback — so it gets its
+   own Settings toggle rather than being silently controlled by rw_audio_enabled. */
+var RW_VOICE_KEY = 'rw_voice_enabled';
+function rwVoiceEnabled(){
+  try{ var v=localStorage.getItem(RW_VOICE_KEY); return v===null ? true : v!=='0'; }catch(e){ return true; }
+}
+function rwVoiceSetEnabled(on){
+  try{ localStorage.setItem(RW_VOICE_KEY, on?'1':'0'); }catch(e){}
+  try{ if(!on && window.speechSynthesis) speechSynthesis.cancel(); }catch(e){}
+}
+function rwVoiceMountSetting(){
+  if(el('rwVoiceSetting')) return;
+  var body = document.querySelector('#settingsOverlay .modal-body');
+  if(!body) return;
+  var section = document.createElement('section');
+  section.id = 'rwVoiceSetting';
+  section.className = 'key-section rw-sound-settings';
+  section.innerHTML = ''
+    +'<div class="rw-sound-row">'
+    +  '<div><strong>Voice narration</strong><span>Tusk’s read-aloud voice notes and guide narration</span></div>'
+    +  '<label class="rw-sound-switch" aria-label="Mute or unmute voice narration">'
+    +    '<input id="rwVoiceToggle" type="checkbox" role="switch"><i aria-hidden="true"></i>'
+    +  '</label>'
+    +'</div>';
+  var anchor = el('rwAudioSetting');
+  if(anchor && anchor.parentNode===body) anchor.insertAdjacentElement('afterend', section);
+  else body.insertBefore(section, body.firstChild);
+  var toggle = el('rwVoiceToggle');
+  toggle.checked = rwVoiceEnabled();
+  toggle.setAttribute('aria-checked', toggle.checked?'true':'false');
+  toggle.addEventListener('change', function(){
+    rwVoiceSetEnabled(toggle.checked);
+    toggle.setAttribute('aria-checked', toggle.checked?'true':'false');
+  });
+}
 function tuskSpeak(text){
   var say = tuskSpeakable(text);
   if(!say) return;
+  if(!rwVoiceEnabled()){ showToast('🔇 Voice narration is muted — turn it back on in Settings'); return; }
   if(window.RW && typeof RW.speak==='function'){ try{ RW.speak(say); return; }catch(e){} }
   /* Capacitor Text-to-Speech plugin (works in the app where WebView speechSynthesis often doesn't) */
   if(window.Capacitor && Capacitor.Plugins && Capacitor.Plugins.TextToSpeech){
