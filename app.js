@@ -9722,6 +9722,15 @@ if (AUTH_READY && typeof firebase !== 'undefined') try {
   try{ db.enablePersistence({synchronizeTabs:true}).catch(function(){}); }catch(e){}
   try{ rwInitDataLayer(); }catch(e){}
   firebase.auth().onAuthStateChanged(function(u){
+    /* Password accounts must verify ownership before any profile, trial or cloud feature is created. */
+    if(rwIsUnverifiedPasswordUser(u)){
+      pendingVerificationEmail=(u&&u.email)||pendingVerificationEmail;
+      if(!rwEmailAuthBusy){
+        firebase.auth().signOut().catch(function(){});
+        setTimeout(function(){rwShowVerificationPane(pendingVerificationEmail,'Verify your email before using your RoamWise account.');},0);
+      }
+      u=null;
+    }
     user = u;
     try{ if(u) rwCheckBan(); }catch(e){}
     var btn = el('authBtn'), av = el('authAvatar');
@@ -9846,61 +9855,117 @@ if (AUTH_READY && typeof firebase !== 'undefined') try {
   document.addEventListener('DOMContentLoaded', function(){ var b=el('authBtn'); if(b) b.style.display='none'; });
 }
 
-function openAuth(){ el('authOverlay').classList.add('open'); }
-function closeAuth(){ el('authOverlay').classList.remove('open'); authError(''); }
-function authError(m){ var e=el('authErr'); if(!m){e.style.display='none';return;} e.textContent=m; e.style.display='block'; }
+var pendingVerificationEmail='', rwEmailAuthBusy=false;
+function rwIsUnverifiedPasswordUser(u){
+  return !!(u && !u.emailVerified && u.providerData && u.providerData.some(function(p){return p.providerId==='password';}));
+}
+function rwNativeAuthPlugin(){
+  try{
+    var c=window.Capacitor, nativePlatform=!!(c&&typeof c.isNativePlatform==='function'&&c.isNativePlatform());
+    var p=c&&c.Plugins&&c.Plugins.FirebaseAuthentication;
+    return nativePlatform&&p&&typeof p.signInWithGoogle==='function'?p:null;
+  }catch(e){return null;}
+}
+function rwIsNativePlatform(){
+  try{return !!(window.Capacitor&&typeof Capacitor.isNativePlatform==='function'&&Capacitor.isNativePlatform());}
+  catch(e){return /RoamWiseApp/i.test(navigator.userAgent);}
+}
+function authError(m){var e=el('authErr');if(!m){e.style.display='none';return;}e.textContent=m;e.style.display='block';}
+function rwShowEmailPane(){
+  var ep=el('emailPane'),vp=el('emailVerifyPane');if(ep)ep.style.display='';if(vp)vp.style.display='none';
+  authMode='in';var a=el('authAction');if(a)a.textContent='Sign in';
+  var r=el('authToggleRow');if(r)r.innerHTML='New here? <a onclick="toggleAuthMode()">Create an account</a>';
+  authError('');
+}
+function rwShowVerificationPane(email,message){
+  pendingVerificationEmail=email||pendingVerificationEmail||'your email';
+  var ep=el('emailPane'),vp=el('emailVerifyPane'),out=el('authVerifyEmail'),msg=el('authVerifyMsg');
+  if(ep)ep.style.display='none';if(vp)vp.style.display='';if(out)out.textContent=pendingVerificationEmail;
+  if(msg)msg.textContent=message||'Open the verification link we sent, then return here and sign in.';
+  el('authOverlay').classList.add('open');authError('');
+}
+function openAuth(){rwShowEmailPane();el('authOverlay').classList.add('open');}
+function closeAuth(){el('authOverlay').classList.remove('open');authError('');rwShowEmailPane();}
 function friendly(e){
   var c=(e&&e.code)||'';
-  if(c.indexOf('wrong-password')>-1||c.indexOf('invalid-credential')>-1) return 'Wrong email or password.';
-  if(c.indexOf('email-already-in-use')>-1) return 'Account exists \u2014 sign in instead.';
-  if(c.indexOf('weak-password')>-1) return 'Password needs at least 6 characters.';
-  if(c.indexOf('invalid-email')>-1) return 'That email doesn\u2019t look right.';
-  if(c.indexOf('too-many-requests')>-1) return 'Too many tries \u2014 wait a minute.';
+  if(c.indexOf('wrong-password')>-1||c.indexOf('invalid-credential')>-1)return 'Wrong email or password.';
+  if(c.indexOf('email-already-in-use')>-1)return 'Account exists — sign in instead.';
+  if(c.indexOf('weak-password')>-1)return 'Password needs at least 6 characters.';
+  if(c.indexOf('invalid-email')>-1)return 'That email doesn’t look right.';
+  if(c.indexOf('too-many-requests')>-1)return 'Too many tries — wait a minute.';
+  if(c.indexOf('network')>-1)return 'No connection — check your internet and try again.';
   return (e&&e.message)||'Something went wrong.';
 }
+function rwGoogleError(e){
+  var s=String((e&&e.code)||'')+' '+String((e&&e.message)||'');
+  if(/cancel|canceled|cancelled/i.test(s))return 'Google sign-in was cancelled.';
+  if(/developer|12500|10:|configuration/i.test(s))return 'Google sign-in is not configured for this app build yet. Update the app after Firebase Android setup is completed.';
+  return friendly(e);
+}
 function loginGoogle(){
-  if(!AUTH_READY) return showToast('Accounts not configured yet');
-  if(window.RW || /RoamWiseApp/i.test(navigator.userAgent)){
-    showToast('Google blocks its login inside apps like this one \u2014 use Email (10 seconds), or Google on roamwise.co.in: same account, same Pro.');
-    var em=el('authEmail'); if(em) em.focus();
+  if(!AUTH_READY)return showToast('Accounts not configured yet');
+  var p=rwNativeAuthPlugin(),b=el('googleAuthBtn');
+  if(p){
+    if(b){b.disabled=true;b.setAttribute('aria-busy','true');}
+    p.signInWithGoogle({skipNativeAuth:true}).then(function(r){
+      var token=r&&r.credential&&r.credential.idToken;if(!token)throw new Error('Google did not return an ID token.');
+      return firebase.auth().signInWithCredential(firebase.auth.GoogleAuthProvider.credential(token));
+    }).then(function(){closeAuth();showToast('Signed in with Google ✓');})
+      .catch(function(e){authError(rwGoogleError(e));})
+      .then(function(){if(b){b.disabled=false;b.removeAttribute('aria-busy');}});
     return;
   }
+  if(rwIsNativePlatform())return authError('Google sign-in needs the latest RoamWise app build. Email sign-in works now.');
   firebase.auth().signInWithPopup(new firebase.auth.GoogleAuthProvider())
-    .then(function(){ closeAuth(); showToast('Signed in \u2713'); })
-    .catch(function(e){ authError(friendly(e)); });
-}
-function loginSocial(which){
-  if(!AUTH_READY) return showToast('Accounts not configured yet');
-  var prov = which==='facebook' ? new firebase.auth.FacebookAuthProvider()
-           : new firebase.auth.OAuthProvider('apple.com');
-  firebase.auth().signInWithPopup(prov)
-    .then(function(){ closeAuth(); showToast('Signed in \u2713'); })
-    .catch(function(e){
-      var c=(e&&e.code)||'';
-      if(c.indexOf('operation-not-allowed')>-1) authError(which.charAt(0).toUpperCase()+which.slice(1)+' login isn\u2019t switched on yet \u2014 use Google or Email meanwhile.');
-      else if(c.indexOf('account-exists-with-different-credential')>-1) authError('This email already has an account \u2014 sign in with the method you used first.');
-      else authError(friendly(e));
-    });
+    .then(function(){closeAuth();showToast('Signed in with Google ✓');})
+    .catch(function(e){authError(rwGoogleError(e));});
 }
 function toggleAuthMode(){
-  authMode = authMode==='in' ? 'up' : 'in';
-  el('authAction').textContent = authMode==='in' ? 'Sign in' : 'Create account';
-  el('authToggleRow').innerHTML = authMode==='in'
-    ? 'New here? <a onclick="toggleAuthMode()">Create an account</a>'
-    : 'Already have an account? <a onclick="toggleAuthMode()">Sign in</a>';
+  authMode=authMode==='in'?'up':'in';el('authAction').textContent=authMode==='in'?'Sign in':'Create account';
+  el('authToggleRow').innerHTML=authMode==='in'?'New here? <a onclick="toggleAuthMode()">Create an account</a>':'Already have an account? <a onclick="toggleAuthMode()">Sign in</a>';
+  authError('');
+}
+function rwSetAuthBusy(busy,label){
+  var b=el('authEmailBtn'),s=el('authAction');if(b)b.disabled=!!busy;if(s)s.textContent=label||(authMode==='in'?'Sign in':'Create account');
+}
+function rwSendVerificationAndSignOut(u,email,message){
+  var failed='';
+  return u.sendEmailVerification().catch(function(e){failed=friendly(e);}).then(function(){return firebase.auth().signOut().catch(function(){});})
+    .then(function(){
+      rwShowVerificationPane(email,failed?'We could not send another link: '+failed+' You can try Resend in a minute.':message);
+      return {verificationPending:true};
+    });
 }
 function loginEmail(){
-  if(!AUTH_READY) return showToast('Accounts not configured yet');
-  var em=el('authEmail').value.trim(), pw=el('authPass').value;
-  if(!em||!pw) return authError('Enter email and password.');
-  var p = authMode==='in'
-    ? firebase.auth().signInWithEmailAndPassword(em,pw)
-    : firebase.auth().createUserWithEmailAndPassword(em,pw).then(function(c){
-        try{ c.user.sendEmailVerification(); showToast('Verification email sent \u2014 check your inbox'); }catch(e){}
-        try{ track('signups'); }catch(e){}
-        return c; });
-  p.then(function(){ closeAuth(); showToast('Signed in \u2713'); }).catch(function(e){ authError(friendly(e)); });
+  if(!AUTH_READY)return showToast('Accounts not configured yet');
+  var em=el('authEmail').value.trim(),pw=el('authPass').value,creating=authMode==='up';
+  if(!em||!pw)return authError('Enter email and password.');if(pw.length<6)return authError('Password needs at least 6 characters.');
+  rwEmailAuthBusy=true;rwSetAuthBusy(true,creating?'Creating account…':'Signing in…');authError('');
+  var p=creating?firebase.auth().createUserWithEmailAndPassword(em,pw).then(function(c){
+      try{track('signups');}catch(e){}
+      return rwSendVerificationAndSignOut(c.user,em,'Verification email sent. Open the link, then return and sign in.');
+    }):firebase.auth().signInWithEmailAndPassword(em,pw).then(function(c){
+      return c.user.reload().catch(function(){}).then(function(){return c;});
+    }).then(function(c){
+      if(rwIsUnverifiedPasswordUser(c.user))return rwSendVerificationAndSignOut(c.user,em,'Your email is not verified yet. We sent a fresh verification link.');
+      return c;
+    });
+  p.then(function(r){if(!(r&&r.verificationPending)){closeAuth();showToast('Email verified — signed in ✓');}})
+    .catch(function(e){authError(friendly(e));})
+    .then(function(){rwEmailAuthBusy=false;rwSetAuthBusy(false);});
 }
+function resendVerification(){
+  var em=el('authEmail').value.trim()||pendingVerificationEmail,pw=el('authPass').value;
+  if(!em||!pw){rwShowEmailPane();return authError('Enter your email and password, then tap Sign in to resend the link.');}
+  authMode='in';loginEmail();
+}
+function resetPassword(){
+  if(!AUTH_READY)return showToast('Accounts not configured yet');
+  var em=el('authEmail').value.trim();if(!em)return authError('Enter your email address first.');
+  firebase.auth().sendPasswordResetEmail(em).then(function(){authError('');showToast('Password reset email sent ✓');})
+    .catch(function(e){authError(friendly(e));});
+}
+
 function showPhone(){ el('emailPane').style.display='none'; el('phonePane').style.display=''; }
 function showEmail(){ el('phonePane').style.display='none'; el('emailPane').style.display=''; }
 var recaptcha = null;
