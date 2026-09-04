@@ -22,59 +22,7 @@ function rwHaptic(kind){
      ad-hoc Audio() calls at each of these sites. */
   try{ rwPlayCue(kind==='heavy' ? 'success_feedback' : 'tap_feedback'); }catch(e){}
 }
-/* ===== EVENT AUDIO CUES (assets/audio/roamwise-audio-manifest.json) =====
-   platform-v5/audio-only.js is a deliberately file-free, purely synthesized
-   Web Audio engine (see its own header comment + tests/opening-audio.integration
-   .test.js, which pins it to have zero .mp3/.ogg/media dependency for offline
-   reliability). The actual produced "Rave to Hell" stings/themes uploaded to
-   assets/audio/ therefore need a separate, small player — this one — that
-   still respects the SAME master mute (rw_audio_enabled) and volume
-   (rw_audio_volume) the Settings "Sound" toggle already controls, so there is
-   exactly one mute switch for the user regardless of which engine is playing. */
-var RW_CUE_FILES = {
-  site_opening: 'opening-theme-30s',
-  hero_cta_or_big_action: 'cta-action-10s',
-  card_transition_or_modal_open: 'transition-10s',
-  tap_feedback: 'tap-sting-5s',
-  success_feedback: 'success-sting-5s'
-};
-var _rwCueCache = {};
-var _rwCueFormat = null;
-function rwAudioThemeEnabled(){
-  try{ var v=localStorage.getItem('rw_audio_enabled'); return v===null ? true : v!=='0'; }catch(e){ return true; }
-}
-function rwAudioThemeVolume(){
-  /* Fallback (0.11 on the engine's 0..0.55 ambient scale) must match
-     platform-v5/audio-only.js's DEFAULT_VOLUME so an unset preference sounds
-     the same quiet ~20% starting level everywhere. */
-  try{ var v=Number(localStorage.getItem('rw_audio_volume')); return isFinite(v)&&v>0 ? v : 0.11; }catch(e){ return 0.11; }
-}
-function rwPlayCue(name){
-  if(!rwAudioThemeEnabled()) return false;
-  var base = RW_CUE_FILES[name];
-  if(!base || typeof window.Audio!=='function') return false;
-  try{
-    var node = _rwCueCache[name];
-    if(!node){
-      node = new Audio();
-      if(_rwCueFormat===null){
-        try{ _rwCueFormat = (node.canPlayType && node.canPlayType('audio/ogg; codecs="vorbis"')) ? '.ogg' : '.mp3'; }
-        catch(e){ _rwCueFormat = '.mp3'; }
-      }
-      node.src = 'assets/audio/'+base+_rwCueFormat;
-      node.preload = 'auto';
-      _rwCueCache[name] = node;
-    }
-    /* rw_audio_volume is stored on the engine's 0..0.55 ambient scale — map it
-       onto an audible 0..1 range for these short one-shot stings, with a
-       floor so they're not inaudible when the ambient bed is set low. */
-    node.volume = Math.max(0.18, Math.min(1, rwAudioThemeVolume()/0.55));
-    try{ node.currentTime = 0; }catch(e){}
-    var played = node.play();
-    if(played && played.catch) played.catch(function(){});
-    return true;
-  }catch(e){ return false; }
-}
+// RW_CUE_FILES, rwAudioThemeEnabled, rwAudioThemeVolume, rwPlayCue moved to js/audio/cues.js
 
 
 // DB destinations array moved to js/data/destinations.js
@@ -10130,70 +10078,7 @@ function cpBubble(html, who){
   return b;
 }
 var _cpRec=null;
-function copilotVoiceHero(){ rwVoiceStart('heroInput'); }
-var _rwVoiceTarget='heroInput';
-function rwVoiceStart(targetId){
-  _rwVoiceTarget = targetId || 'heroInput';
-  /* Native bridge (old wrapper) if present */
-  if(window.RW && typeof RW.startVoice==='function'){
-    try{ RW.startVoice(); showToast('\ud83c\udfa4 Listening\u2026'); return; }catch(e){}
-  }
-  /* Capacitor SpeechRecognition plugin (community, installed in the app build) */
-  if(window.Capacitor && Capacitor.Plugins && Capacitor.Plugins.SpeechRecognition){
-    var SRP=Capacitor.Plugins.SpeechRecognition;
-    (function(){
-      /* v7 community plugin flow: check availability -> ensure permission ->
-         start with a result listener (some versions resolve start(), others
-         emit 'partialResults'/return matches). We handle both. */
-      function begin(){
-        showToast('\ud83c\udfa4 Listening\u2026');
-        var got=false;
-        try{
-          SRP.addListener && SRP.addListener('partialResults', function(data){
-            var t=data && data.matches && data.matches[0];
-            if(t && !got){ got=true; try{ SRP.stop(); }catch(e){} rwVoiceResult(t); }
-          });
-        }catch(e){}
-        SRP.start({language:'en-IN', maxResults:2, partialResults:true, popup:true})
-          .then(function(r){
-            var t=r && r.matches && r.matches[0];
-            if(t && !got){ got=true; rwVoiceResult(t); }
-            else if(!got){ setTimeout(function(){ if(!got) showToast('Didn\u2019t catch that \u2014 speak clearly, or type'); }, 800); }
-          })
-          .catch(function(){ if(!got) showToast('Mic couldn\u2019t start \u2014 check mic permission in Settings, or type'); });
-      }
-      Promise.resolve(SRP.checkPermissions ? SRP.checkPermissions() : {speechRecognition:'granted'})
-        .then(function(p){
-          var ok = p && (p.speechRecognition==='granted' || p.speechRecognition==='limited');
-          if(ok) return true;
-          return (SRP.requestPermissions ? SRP.requestPermissions() : Promise.resolve({speechRecognition:'granted'}))
-            .then(function(rp){ return rp && rp.speechRecognition==='granted'; });
-        })
-        .then(function(granted){
-          if(granted){ begin(); }
-          else { showToast('Mic permission is off \u2014 allow Microphone in Settings, then tap \ud83c\udfa4 again'); }
-        })
-        .catch(function(){ begin(); }); /* some versions lack checkPermissions — just try */
-    })();
-    return;
-  }
-  var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if(!SR){ showToast('\ud83c\udfa4 Voice input needs the app build with the mic add-on \u2014 for now, just type, it works great!'); return; }
-  var rec=new SR(); rec.lang='en-IN'; rec.interimResults=false;
-  rec.onresult=function(ev){ rwVoiceResult(ev.results[0][0].transcript); };
-  rec.onerror=function(e){ showToast((e&&e.error==='not-allowed')?'Mic permission is off \u2014 allow it in Settings, or just type':'Didn\u2019t catch that \u2014 try again or type'); };
-  try{ rec.start(); showToast('\ud83c\udfa4 Listening\u2026'); }catch(e){ showToast('Voice didn\u2019t start \u2014 typing works too!'); }
-}
-/* Called by the native bridge (and by the web path above) */
-function rwVoiceResult(text){
-  var inp = el(_rwVoiceTarget) || el('heroInput'); if(!inp || !text) return;
-  inp.value = text;
-  copilotSend(_rwVoiceTarget==='heroInput');
-}
-function rwVoiceState(state, msg){
-  if(state==='error' && msg) showToast(msg);
-  if(state==='listening') showToast('\ud83c\udfa4 Listening\u2026');
-}
+// copilotVoiceHero, rwVoiceStart, rwVoiceResult, rwVoiceState moved to js/voice/voice-input.js
 /* ---- tier 2: deterministic parser (no key needed) ---- */
 var _cpCtx = null;  /* last resolved {dest,days,budget} — conversational memory */
 /* Rolling memory of the last 10 exchanges. _cpCtx holds the CURRENT trip state;
@@ -12217,44 +12102,7 @@ function rwStartAnywhere(t){
     +'concrete plan for it. If the source is unclear about a detail, say so plainly instead of inventing it.\n\n'
     +'Pasted content:\n'+(t||'').slice(0,1500);
 }
-/* --- 3. REMINDERS (local, with optional chime) --- */
-function rwRemindAsk(about){
-  var txt=(about||'your trip plan').slice(0,90);
-  rwForm('\u23f0 Remind me', [
-    {key:'what', label:'Remind me about', value:txt},
-    {key:'mins', label:'In how many minutes?', placeholder:'e.g. 60', type:'number', value:'60'}
-  ], function(v){
-    var mins=parseInt(v.mins,10); if(!mins||mins<1){ showToast('Give me a number of minutes'); return; }
-    rwRemindSet(v.what||txt, mins);
-  });
-}
-function rwRemindSet(what, mins){
-  var when=Date.now()+mins*60000;
-  var list=[]; try{ list=JSON.parse(lsGet('rw_reminders')||'[]'); }catch(e){}
-  list.push({what:what, at:when}); try{ lsSet('rw_reminders', JSON.stringify(list.slice(-40))); }catch(e){}
-  /* real OS-scheduled notification (survives the app being closed) */
-  var native=false; try{ native=rwLocalNotifySchedule(what, mins); }catch(e){}
-  if(!native){
-    try{ if(window.Notification && Notification.permission==='default') Notification.requestPermission(); }catch(e){}
-    setTimeout(function(){ rwRemindFire(what); }, mins*60000);
-  }
-  showToast('\u23f0 Reminder set for '+mins+' min from now'+(native?' (works even if you close the app)':''));
-}
-function rwRemindFire(what){
-  try{
-    if(window.Notification && Notification.permission==='granted'){
-      new Notification('RoamWise reminder', {body:what, icon:'/icon-512.png'});
-    }
-  }catch(e){}
-  /* Route through the same RoamWise audio-manifest cue player used elsewhere
-     (rwHaptic, copilotSend, tabGo) instead of a bespoke oscillator beep, so
-     there is one cue engine and one mute switch (rw_audio_enabled). A
-     reminder firing is a notification event, which is exactly what
-     success_feedback's "notification-success" haptic + short sting are
-     designed for. */
-  try{ rwPlayCue('success_feedback'); }catch(e){}
-  try{ showToast('\u23f0 '+what); }catch(e){}
-}
+// rwRemindAsk, rwRemindSet, rwRemindFire moved to js/audio/reminders.js
 
 async function cpFinish(bubble, answerHTML, intents, raw){
   intents._raw = raw;
@@ -17375,18 +17223,7 @@ function tuskQuip(vibeOrPlace, entry){
   _tuskRecent.push(pick); if(_tuskRecent.length>8) _tuskRecent.shift();
   return pick;
 }
-/* speak a line via TTS — native bridge in-app, Web Speech on the web */
-/* Strip emoji/pictographs before speaking. Device TTS reads them aloud as
-   "fire", "grinning face with sweat" etc., which wrecked the joke every time.
-   Also expand a few Hinglish contractions so the delivery lands. */
-function tuskSpeakable(text){
-  return String(text||'')
-    .replace(/[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\u{FE00}-\u{FE0F}\u{1F1E6}-\u{1F1FF}\u{2B00}-\u{2BFF}\u{2190}-\u{21FF}\u{2300}-\u{23FF}]/gu, ' ')
-    .replace(/\u2014|\u2013/g, ', ')     /* em/en dash -> a real pause */
-    .replace(/\.\.\./g, ', ')
-    .replace(/\s{2,}/g, ' ')
-    .trim();
-}
+// tuskSpeakable moved to js/voice/tusk-speak.js
 /* Voice narration (tuskSpeak) is a separate concern from the theme/SFX engine
    in platform-v5/audio-only.js — it's TTS, not media playback — so it gets its
    own Settings toggle rather than being silently controlled by rw_audio_enabled. */
@@ -17423,33 +17260,7 @@ function rwVoiceMountSetting(){
     toggle.setAttribute('aria-checked', toggle.checked?'true':'false');
   });
 }
-function tuskSpeak(text){
-  var say = tuskSpeakable(text);
-  if(!say) return;
-  if(!rwVoiceEnabled()){ showToast('🔇 Voice narration is muted — turn it back on in Settings'); return; }
-  if(window.RW && typeof RW.speak==='function'){ try{ RW.speak(say); return; }catch(e){} }
-  /* Capacitor Text-to-Speech plugin (works in the app where WebView speechSynthesis often doesn't) */
-  if(window.Capacitor && Capacitor.Plugins && Capacitor.Plugins.TextToSpeech){
-    try{ Capacitor.Plugins.TextToSpeech.speak({ text: say, lang:'en-IN', rate:1.0 }); return; }catch(e){}
-  }
-  text = say;
-  try{
-    if(!window.speechSynthesis){ showToast('\ud83d\udd0a Read-aloud isn\u2019t available here \u2014 the text is on screen above'); return; }
-    speechSynthesis.cancel();
-    var u=new SpeechSynthesisUtterance(text);
-    /* slightly slower and lower than default: reads as a wry aside rather than
-       an announcement. Hindi voice handles Hinglish word shapes better. */
-    u.lang='hi-IN'; u.rate=0.94; u.pitch=0.92; u.volume=1;
-    /* prefer an Indian-English/Hindi voice if the device has one */
-    var vs=speechSynthesis.getVoices();
-    var pick=vs.filter(function(v){ return /hi-IN|en-IN/i.test(v.lang); })[0];
-    if(pick) u.voice=pick;
-    /* Android WebView often accepts .speak() but silently produces no audio
-       without throwing — surface an error toast so the user isn't left guessing */
-    u.onerror = function(){ showToast('🔊 Voice unavailable on this device'); };
-    speechSynthesis.speak(u);
-  }catch(e){ showToast('🔊 Voice unavailable on this device'); }
-}
+// tuskSpeak moved to js/voice/tusk-speak.js
 /* a shareable "voice note" bubble: shows the witty line + a play button */
 function tuskVoiceNoteHTML(place, entry){
   var line=tuskQuip(place, entry);
