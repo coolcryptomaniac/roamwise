@@ -37,6 +37,11 @@ test('audio and cues load before the cinematic opener, which starts automaticall
   assert.match(opening, /rw-shinobi--tertiary/);
   assert.match(opening, /rw-loader-mask/);
   assert.match(opening, /rwFireBolt/);
+  assert.match(opening, /rw-motion-trail/);
+  assert.match(opening, /--rw-trail-o/);
+  assert.match(opening, /trailSpeed/);
+  assert.match(opening, /height:16px/);
+  assert.match(opening, /min-width:148px/);
   assert.match(opening, /root\.addEventListener\('click', close\)/);
   assert.doesNotMatch(opening, /Promise\.resolve\(RWAudio\.play\(\)\)/);
   assert.match(opening, /webkit-playsinline/);
@@ -56,7 +61,7 @@ test('settings and offline shell include the new audio engine', () => {
   assert.match(audio, /id=\"rwAudioVolume\"/);
 
   const worker = read('sw.js');
-  assert.match(worker, /rw-v119-globe-fire-live/);
+  assert.match(worker, /rw-v120-neon-shinobi-loader/);
   assert.match(worker, /js\/audio\/focus\.js/);
   assert.match(worker, /platform-v5\/audio-only\.js/);
   assert.match(worker, /platform-v5\/atlas-shinobi\.js/);
