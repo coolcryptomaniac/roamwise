@@ -30,14 +30,12 @@
    NOTE: the GLOBAL ERROR GUARD (window 'error'/'unhandledrejection'
    listeners) that used to sit at the very top of app.js is deliberately
    NOT here — see js/core/error-guard.js for why it needs to load FIRST
-   instead. Also NOT here: the Firebase/Firestore app init, the
-   onAuthStateChanged callback (which also nudges the encrypted-key-sync
-   auto-restore), and the PLAY_MODE-gated billing UI swap — those remain in
-   app.js because they are tightly entangled with the user/db/AUTH_READY
-   global auth state every other function in the app reads, and with the
-   FIREBASE_CONFIG values immediately above them; relocating that block
-   safely would need its own separately-reviewed pass, not a verbatim
-   move. */
+   instead. Also NOT here (as of the final modularization pass): the
+   Firebase/Firestore app init, the onAuthStateChanged callback (which also
+   nudges the encrypted-key-sync auto-restore), and the PLAY_MODE-gated
+   billing UI swap — those moved verbatim to js/boot/auth-init.js, loaded
+   deferred immediately before app.js so `user`/`db`/`AUTH_READY` exist as
+   globals before app.js (and this file, which loads after it) run. */
 
 /* ================= PUSH + LOCAL NOTIFICATIONS (rw-v42) =================
    PUSH: registers the device with Firebase Cloud Messaging (via Capacitor's

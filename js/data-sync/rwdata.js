@@ -3,9 +3,8 @@
 // migration seam (a thin pass-through to Firestore today; new data code
 // should call RWData.* instead of db.collection(...) directly so a future
 // swap to another backend touches only this file). Depends on the global
-// `db`/`user` variables, which remain declared in app.js next to the
-// Firebase/auth init block — see js/boot/auth-init.js's own header for why
-// that block itself was not moved in this phase.
+// `db`/`user` variables, now declared in js/boot/auth-init.js (moved there
+// in the final modularization pass, loaded before this file's callers run).
 /* ===================== RWData — BACKEND PORTABILITY LAYER =====================
    The migration seam. Today a thin pass-through to Firestore, but ALL NEW data
    code should call RWData.* instead of db.collection(...) directly. To move to
