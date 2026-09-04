@@ -508,10 +508,11 @@
           window.rwPlayCue('site_opening', { resumeAmbient: resumeAmbient });
         }
       } catch (_) {}
-      if (videoReady) {
-        var videoPlay = video.play();
-        if (videoPlay && typeof videoPlay.catch === 'function') videoPlay.catch(function(){});
-      }
+      /* Calling play before canplay intentionally kicks browsers that ignore
+         preload while media is hidden behind the sound gate. The film is
+         muted/inline, so this is permitted; canplay retries if still needed. */
+      var videoPlay = video.play();
+      if (videoPlay && typeof videoPlay.catch === 'function') videoPlay.catch(function(){});
       var reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       closeTimer = setTimeout(close, reduced ? Math.min(DURATION, 4200) : DURATION);
     }

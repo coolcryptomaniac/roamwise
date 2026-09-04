@@ -27,6 +27,9 @@ test('audio loads before the cinematic opener and gates its animation', () => {
   assert.match(opening, /webkit-playsinline/);
   assert.match(opening, /rw-started/);
   assert.match(opening, /closeTimer = setTimeout\(close/);
+  const beginVisual = opening.slice(opening.indexOf('function beginVisual'), opening.indexOf('function startExperience'));
+  assert.match(beginVisual, /var videoPlay = video\.play\(\)/);
+  assert.doesNotMatch(beginVisual, /if \(videoReady\)/);
 
   assert.match(opening, /localStorage\.setItem\('rw_opening','1'\)/);
 });
