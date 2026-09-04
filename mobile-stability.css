@@ -1,0 +1,117 @@
+/* RoamWise phone-width containment and composer controls. */
+html,
+body {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+@supports (overflow-x: clip) {
+  html,
+  body { overflow-x: clip; }
+}
+
+.nav,
+.nav-inner,
+.nav-right,
+#copilotHero,
+.copilot-compose {
+  box-sizing: border-box;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.nav-inner { width: 100%; }
+.nav-right > * { flex-shrink: 0; }
+
+#siteSearch,
+#siteSearch * { box-sizing: border-box; }
+
+#siteSearch > div:first-child,
+#ssOut {
+  width: 100%;
+  min-width: 0;
+}
+
+#ssInput {
+  width: 100%;
+  min-width: 0;
+  flex: 1 1 auto !important;
+}
+
+#siteSearch > div:first-child > button { flex: 0 0 auto; }
+
+.copilot-compose,
+#heroInput,
+.copilot-actions,
+#heroModels { min-width: 0; }
+
+@media (max-width: 600px) {
+  #copilotHero {
+    width: auto !important;
+    margin-left: 10px !important;
+    margin-right: 10px !important;
+  }
+
+  .copilot-compose {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      "input input"
+      "models actions";
+    gap: 10px 8px;
+    padding: 12px !important;
+  }
+
+  #heroInput {
+    grid-area: input;
+    width: 100% !important;
+    max-width: 100%;
+    padding: 8px !important;
+    overflow-wrap: anywhere;
+  }
+
+  .copilot-actions {
+    grid-area: actions;
+    position: static !important;
+    gap: 6px !important;
+    align-self: center;
+  }
+
+  #heroModels {
+    grid-area: models;
+    position: static !important;
+    max-width: none !important;
+    flex-wrap: nowrap !important;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+    align-self: center;
+  }
+
+  #heroModels::-webkit-scrollbar { display: none; }
+  .free-bar { flex-wrap: wrap; row-gap: 3px; }
+}
+
+@media (max-width: 540px) {
+  .nav { padding-left: 8px !important; padding-right: 8px !important; }
+  .nav-inner { gap: 4px !important; }
+  .logo-wrap { margin-right: 0 !important; }
+  .sw-tabs { margin-right: 0 !important; gap: 0 !important; }
+  .sw-tab { padding-left: 8px !important; padding-right: 8px !important; }
+  .nav-right { gap: 3px !important; }
+  .nav-right .xp-chip { display: none !important; }
+  .nav-right .nav-ic,
+  .hamb { width: 34px; height: 34px; padding: 4px !important; }
+  .nav-right .btn-pro { padding: 6px 7px !important; }
+}
+
+@media (max-width: 370px) {
+  .nav { padding-left: 5px !important; padding-right: 5px !important; }
+  .nav-inner { gap: 2px !important; }
+  .sw-tab { padding-left: 6px !important; padding-right: 6px !important; }
+  .nav-right { gap: 2px !important; }
+  .nav-right .nav-ic,
+  .hamb { width: 32px; height: 32px; }
+}

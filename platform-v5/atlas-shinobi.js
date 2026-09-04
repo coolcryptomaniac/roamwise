@@ -449,7 +449,7 @@
       '<div class="rw-bg" aria-hidden="true"></div>'+
       '<div class="rw-stage">'+
         '<div class="rw-media">'+
-          '<video class="rw-film" muted playsinline preload="auto" aria-hidden="true">'+
+          '<video class="rw-film" muted playsinline webkit-playsinline preload="auto" aria-hidden="true">'+
             '<source src="assets/roamwise-opening.mp4" type="video/mp4">'+
           '</video>'+
           '<div class="rw-sheen" aria-hidden="true"></div>'+
@@ -487,7 +487,7 @@
     var videoReady = false;
     var closeTimer = null;
 
-    function beginVisual(){
+    function beginVisual(withSound){
       if (started || closed) return;
       started = true;
       root.classList.add('rw-started');
@@ -496,16 +496,16 @@
       try {
         window.dispatchEvent(new CustomEvent('rw:opening-start'));
       } catch (_) {}
-      /* site_opening cue from the audio manifest — fires once the audio gate
-         has cleared (or immediately when audio is muted/unsupported). If the
-         user has opted into "Loop background music", the ambient bed's
-         RWAudio.play() was already started by startExperience() above, so
-         this one-shot cue plays alongside it exactly once; when looping is
-         off (the default) this cue IS the opening's only music — no
-         continuous ambient bed is started. rwPlayCue lives in app.js (kept
-         out of this module's own no-media-file Web Audio engine) and reads
-         the same rw_audio_enabled/volume keys. */
-      try { if (typeof window.rwPlayCue === 'function') window.rwPlayCue('site_opening'); } catch (_) {}
+      /* Audible autoplay is blocked on Safari, Chrome and Firefox until a
+         user gesture. startExperience() calls this synchronously from the
+         gate button so the cue receives that gesture. The global audio-focus
+         owner pauses any ambient bed first and may resume it after this cue. */
+      try {
+        if (withSound && typeof window.rwPlayCue === 'function') {
+          var resumeAmbient = !!(window.RWAudio && RWAudio.isLoopEnabled && RWAudio.isLoopEnabled());
+          window.rwPlayCue('site_opening', { resumeAmbient: resumeAmbient });
+        }
+      } catch (_) {}
       if (videoReady) {
         var videoPlay = video.play();
         if (videoPlay && typeof videoPlay.catch === 'function') videoPlay.catch(function(){});
@@ -516,18 +516,9 @@
 
     function startExperience(){
       if (started || closed) return;
-      /* Only route through the ambient-bed audio-unlock gate (which calls
-         RWAudio.play()) if the user has actually opted into "Loop background
-         music". Otherwise this cinematic open must not silently start the
-         continuous ambient loop — the 'site_opening' cue fired from
-         beginVisual() below is this intro's music either way. */
-      if (!window.RWAudio || !RWAudio.isEnabled || !RWAudio.isEnabled() || !RWAudio.isLoopEnabled || !RWAudio.isLoopEnabled()) {
-        beginVisual();
-        return;
-      }
-      Promise.resolve(RWAudio.play()).then(function(playing){
-        if (playing || !RWAudio.getState || !RWAudio.getState().supported) beginVisual();
-      }).catch(function(){});
+      /* Keep this synchronous: delaying the cue behind a Promise loses the
+         transient user activation on iOS Safari and Android Chrome. */
+      beginVisual(true);
     }
 
     function close(){
@@ -537,6 +528,7 @@
       if (shinobiPhysics) shinobiPhysics.stop();
       root.classList.add('rw-closing');
       try { video.pause(); } catch (_) {}
+      try { if (typeof window.rwStopCue === 'function') window.rwStopCue(true); } catch (_) {}
       try { window.dispatchEvent(new CustomEvent('rw:opening-end')); } catch (_) {}
       setTimeout(function(){
         root.remove();
@@ -566,10 +558,12 @@
       if (filmGif && !filmGif.src) filmGif.src = 'assets/roamwise-opening.gif';
     }, {once:true});
 
-    /* Native WebViews and previously-authorised browsers can start immediately.
-       Other browsers keep the film paused behind the explicit sound gate, so
-       the cinematic animation itself never runs silently. */
-    startExperience();
+    /* Browsers cannot promise audible autoplay. Sound-enabled visits wait for
+       the explicit gesture; users who deliberately muted sound start the
+       visual immediately and never face an unnecessary gate. */
+    var soundEnabled = true;
+    try { soundEnabled = !window.RWAudio || !RWAudio.isEnabled || RWAudio.isEnabled(); } catch (_) {}
+    if (!soundEnabled) beginVisual(false);
   }
 
   /* rw-config is loaded near the bottom of index.html, so body already exists in
