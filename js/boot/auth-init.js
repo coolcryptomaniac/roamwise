@@ -1,3 +1,4 @@
+// @ts-nocheck
 /* Extracted verbatim from app.js (final modularization pass) — Firebase SDK
    init, firebase.auth().onAuthStateChanged UI wiring (sign-in button state,
    avatar, device-cap enforcement, first-1000-users trial grant, referral

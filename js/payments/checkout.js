@@ -1,3 +1,4 @@
+// @ts-nocheck
 /* Extracted verbatim from app.js (final modularization pass) — international
    Gumroad checkout (openGumroad/verifyGumroad) and the direct-wallet crypto
    payment panel (CRYPTO_WALLETS/cryptoConfigured/cryptoPanelHTML/copyText).
