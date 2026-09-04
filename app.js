@@ -1,3 +1,4 @@
+// @ts-nocheck
 // GLOBAL ERROR GUARD moved to js/core/error-guard.js (must load FIRST, not with the rest of boot, so it protects every other module's load too)
 
 /* Subtle haptic feedback — makes taps feel responsive & premium. No-op where

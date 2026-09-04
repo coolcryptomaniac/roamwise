@@ -1,3 +1,4 @@
+// @ts-nocheck
 /* map-view.js — Live World Map (tap-anywhere Leaflet explorer) and the Map-First
    Itinerary View (numbered day-coloured pins, base-map switcher, flyTo). Moved
    verbatim from app.js as part of Phase 5a modularization; zero logic changes. */

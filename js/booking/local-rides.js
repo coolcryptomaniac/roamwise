@@ -1,3 +1,4 @@
+// @ts-nocheck
 /* Moved from app.js (Phase 3 modularization) — local rides + stranded/
    emergency helpers: openSOS/rwSOSShare and rwRidesHTML/openDriverHire.
    Pure code motion, zero logic changes. Depends on globals defined

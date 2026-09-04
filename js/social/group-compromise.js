@@ -1,3 +1,4 @@
+// @ts-nocheck
 /* ==================== SOCIAL: GROUP COMPROMISE ENGINE ====================
    Extracted verbatim from app.js (Phase 4c modularization).
    Self-contained: scores destinations against everyone's interests/budget/diet

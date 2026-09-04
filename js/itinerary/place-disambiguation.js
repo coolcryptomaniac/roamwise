@@ -1,3 +1,4 @@
+// @ts-nocheck
 // Moved verbatim from app.js (Phase 7a) — Place Disambiguation: turns
 // GeoNames feature_code hints into a "which one did you mean?" prompt
 // instead of silently sending the traveller to the wrong namesake.

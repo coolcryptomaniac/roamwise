@@ -1,3 +1,4 @@
+// @ts-nocheck
 /* journey-log.js — Emotional Journey Log (mood-tagged journal entries) and the
    Journey Log + Digital Card feature: the visited-places log, the shareable
    Shinobi-style digital journey card (drawCard, card styles), and the Travel &

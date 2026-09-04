@@ -1,3 +1,4 @@
+// @ts-nocheck
 // Moved verbatim from app.js (Phase 5c) — buildItin: the itinerary
 // generation core (Classic planner). Called from onclick="buildItin(...)"
 // in destination-card markup app.js generates dynamically, and internally

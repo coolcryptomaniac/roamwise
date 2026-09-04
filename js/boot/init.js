@@ -1,3 +1,4 @@
+// @ts-nocheck
 /* ==================== BOOT SEQUENCE ====================
    Extracted verbatim from app.js (Phase 6b modularization) — the final
    piece of the app.js -> js/ migration. Loaded LAST, immediately after

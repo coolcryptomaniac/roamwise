@@ -1,3 +1,4 @@
+// @ts-nocheck
 // Moved verbatim from app.js (Phase 5c) — Pro/tier status display code.
 // This is a zero-logic-change relocation: entitlement gating itself
 // (isPro / hasFeature(), the latter already living in js/pricing/tiers.js)

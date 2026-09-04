@@ -1,3 +1,4 @@
+// @ts-check
 /* ============================================================================
    js/pricing/tiers.js
    ----------------------------------------------------------------------------
@@ -15,6 +16,20 @@
    literal implementation of "pricing can change anytime" — there's exactly
    one place it lives.
    ========================================================================= */
+/**
+ * @typedef {Object} RWTier
+ * @property {string} id
+ * @property {string} label
+ * @property {number} priceMonthly
+ * @property {number} priceYearly
+ * @property {string[]} features
+ */
+/**
+ * @typedef {Object} RWFounderGate
+ * @property {boolean} [closed]
+ * @property {number} [count]
+ * @property {string} [closesOn] YYYY-MM-DD
+ */
 var RWPricing = (function(){
   var CONFIG = {
     /* The app's public launch date — the founder offer expires at whichever
@@ -95,6 +110,11 @@ var RWPricing = (function(){
     prioritySupport: 'Priority support'
   };
 
+  /**
+   * Fractional days elapsed since CONFIG.LAUNCH_DATE, per the local device
+   * clock (see the SERVER TRUTH note below for why this is a fallback only).
+   * @returns {number}
+   */
   function daysSinceLaunch(){ return (Date.now()-new Date(CONFIG.LAUNCH_DATE).getTime())/864e5; }
 
   /* Founder offer is open only while BOTH conditions hold: under the user
@@ -104,7 +124,15 @@ var RWPricing = (function(){
      answer now comes from pricing/founder in Firestore (admin-writable only);
      the local check is kept as a fallback for offline, and is deliberately the
      STRICTER of the two — offline can only ever close the offer, never open it. */
-  var _founderGate = null;   /* {closed:bool, count:int, closesOn:'YYYY-MM-DD'} */
+  /** @type {RWFounderGate|null} */
+  var _founderGate = null;
+  /**
+   * Load the server-side founder-offer gate from Firestore (`pricing/founder`),
+   * caching the result in `_founderGate`. Resolves to `null` (never rejects)
+   * when Firestore isn't available or the read fails, so callers can treat a
+   * missing gate as "fall back to the local, stricter check".
+   * @returns {Promise<RWFounderGate|null>}
+   */
   function founderGateLoad(){
     if(!window.db) return Promise.resolve(null);
     return db.collection('pricing').doc('founder').get().then(function(d){
@@ -112,6 +140,13 @@ var RWPricing = (function(){
       return _founderGate;
     }).catch(function(){ return null; });
   }
+  /**
+   * Whether the founder offer is still open, combining the server-side gate
+   * (authoritative, closes-only) with the local device-clock/signup-count
+   * fallback checks.
+   * @param {number} [signupCountSoFar]
+   * @returns {boolean}
+   */
   function founderOfferOpen(signupCountSoFar){
     /* explicit server verdict wins outright */
     if(_founderGate && _founderGate.closed === true) return false;
@@ -125,20 +160,37 @@ var RWPricing = (function(){
       && daysSinceLaunch() < CONFIG.FOUNDER_OFFER.maxDays;
   }
 
+  /**
+   * Look up a tier by id, falling back to the first entry in CONFIG.TIERS
+   * (the 'free' tier) when the id isn't found.
+   * @param {string} id
+   * @returns {RWTier}
+   */
   function tierById(id){ return CONFIG.TIERS.find(function(t){return t.id===id;}) || CONFIG.TIERS[0]; }
 
   /* The user's active tier, derived from what's actually stored — legacy
      one-time ₹100 Pro buyers are grandfathered at 'elite' forever, exactly
      as promised when they bought it. New purchases store an explicit
      tier id; nothing here assumes only one possible paid state. */
+  /**
+   * @returns {RWTier}
+   */
   function currentTier(){
     if(lsGet('rw_tier')) return tierById(lsGet('rw_tier'));
     if(isPro) return tierById('elite'); /* legacy ₹100 lifetime / founder offer buyers */
     return tierById('free');
   }
 
+  /**
+   * @param {string} name Feature key, e.g. one of FEATURE_LABELS' keys.
+   * @returns {boolean}
+   */
   function hasFeature(name){ return currentTier().features.indexOf(name) > -1; }
 
+  /**
+   * @param {RWTier} tier
+   * @returns {number} Rounded percent saved by paying yearly vs. monthly x12.
+   */
   function yearlySavingsPct(tier){
     if(!tier.priceMonthly) return 0;
     var fullYear = tier.priceMonthly*12;

@@ -1,3 +1,4 @@
+// @ts-nocheck
 /* Moved verbatim from app.js (Phase 5b modularization). See js/itinerary/CLAUDE-CODE-MERGE-NOTES.md-style
    convention: this file is loaded via a classic <script> tag before app.js in index.html,
    so its functions/vars are plain globals other files (including app.js) already call. */

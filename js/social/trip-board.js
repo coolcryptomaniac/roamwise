@@ -1,3 +1,4 @@
+// @ts-nocheck
 /* ==================== SOCIAL: TRIP BOARD ====================
    Extracted verbatim from app.js (Phase 4c modularization).
    "The Trip Hub" — Live Kitty (expenses/settle-up), the Decision Board (polls,

@@ -1,3 +1,4 @@
+// @ts-nocheck
 /* ==================== COPILOT: TUSK RICH REPLY SYSTEM ====================
    Extracted verbatim from app.js (Phase 4b modularization).
 

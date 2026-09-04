@@ -1,3 +1,4 @@
+// @ts-nocheck
 // Moved verbatim from app.js (Phase 7a) — Premium PDF Itinerary export:
 // openPdfFlow/pdfPreviewHtml/pdfPick/genPdf and their image/theme/wiki
 // helpers (loadJsPdf, blobToJpeg, fetchImg64, fetchBmp, wikiAction,

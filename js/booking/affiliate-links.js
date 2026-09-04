@@ -1,3 +1,4 @@
+// @ts-nocheck
 /* Moved from app.js (Phase 3 modularization) — the central affiliate/deep-link
    system: stayUrl/stayUrlAgoda/thingsUrl, the AFF_* constants, rwAffLink() and
    the booking-platform comparison grid (rwBookGridHTML). Pure code motion,

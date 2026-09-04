@@ -1,3 +1,4 @@
+// @ts-nocheck
 /* ==================== SOCIAL: GROUP CHAT SHARED STATE ====================
    Extracted verbatim from app.js (Phase 4c modularization).
    The Secure Trip Group Chat (js/social/group-chat.js + group-chat-social.js)

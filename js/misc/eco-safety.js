@@ -1,3 +1,4 @@
+// @ts-nocheck
 /* Eco / safety travel features — moved verbatim from app.js (Phase 6a).
    Covers: Green/Eco travel categories, the in-itinerary Functional Green
    Nudge, Off-Grid Safety (satellite/rescue guidance), Responsible Travel,

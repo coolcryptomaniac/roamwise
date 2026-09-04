@@ -1,3 +1,4 @@
+// @ts-nocheck
 /* ==================== SOCIAL: COORDKIT + MONEY LAYER ====================
    Extracted verbatim from app.js (Phase 4 modularization).
      - rwSettleEngine: paise-exact, minimal-transfer settle-up algorithm shared

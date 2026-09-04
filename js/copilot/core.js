@@ -1,3 +1,4 @@
+// @ts-nocheck
 /* ==================== COPILOT: CORE (chat + parser + intent memory + world resolver) ====================
    Extracted verbatim from app.js (Phase 4b modularization).
 

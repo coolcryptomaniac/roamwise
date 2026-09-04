@@ -1,3 +1,4 @@
+// @ts-nocheck
 /* Gamification progression system — moved verbatim from app.js (Phase 6a).
    Covers Perks, Shinobi XP ranks (Genin..Kage) + rank/XP helpers, Badges &
    Achievements, the honest SHA-256 Proof Stamp fingerprint, and the separate

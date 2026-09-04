@@ -1,3 +1,4 @@
+// @ts-check
 /* ============================================================================
    js/data/iata.js
    ----------------------------------------------------------------------------
@@ -17,6 +18,7 @@
    place is deliberately left OUT of this table rather than guessed, so the
    caller falls back to the always-correct Google Flights link instead of a
    broken Skyscanner URL. Keys are lower-cased for lookup. */
+/** @type {Object<string, string>} Lower-cased place name -> 3-letter IATA airport code. */
 var RW_IATA = {
   /* ---- India: DB destinations ---- */
   'goa':'GOI', 'manali':'KUU', 'rishikesh':'DED', 'spiti valley':'KUU',
@@ -49,6 +51,10 @@ var RW_IATA = {
 /* Best-effort resolve: exact match, then match on the part before the first
    comma (handles "Goa, India" style strings). Returns null — never a guess —
    when nothing confident is found. */
+/**
+ * @param {string} place Free-text place name, e.g. "Goa" or "Goa, India".
+ * @returns {string|null} 3-letter IATA code, or null if no confident match.
+ */
 function rwIata(place){
   if(!place) return null;
   var k = String(place).trim().toLowerCase();

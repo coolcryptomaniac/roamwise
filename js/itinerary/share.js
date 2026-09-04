@@ -1,3 +1,4 @@
+// @ts-nocheck
 /* share.js — Share / virality: the generic multi-platform share sheet (rwShareSheet,
    rwCloseShare, rwShareGo), rwShareTrip() for sharing the current itinerary, and the
    app-referral share helpers (doShare, shareApp, shareTrek). Moved verbatim from
