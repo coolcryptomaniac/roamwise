@@ -28,3 +28,26 @@ id = "PASTE_THE_ID_HERE"   # <-- the ONLY line you edit in this file
 #
 # All three are OPTIONAL. /health tells you which are actually configured.
 # ---------------------------------------------------------------------------
+
+# ---------------------------------------------------------------------------
+# R2 — OPTIONAL object storage. No route in worker.js uses this yet; this is
+# scaffolding for future use (e.g. server-side PDF caching — see
+# CLOUDFLARE-MIGRATION-SETUP.md section D). Uncomment once a real bucket
+# exists:
+#   1. Cloudflare dashboard -> R2 -> Create bucket -> name it (e.g. "roamwise-data")
+#   2. Uncomment the block below (bucket_name must match exactly what you created)
+#
+# [[r2_buckets]]
+# binding = "RW_BUCKET"
+# bucket_name = "roamwise-data"
+# ---------------------------------------------------------------------------
+
+# ---------------------------------------------------------------------------
+# WORKERS AI — OPTIONAL. No route in worker.js calls this yet; this is
+# example syntax only, for future use (see CLOUDFLARE-MIGRATION-SETUP.md
+# section E for the free-tier strategy before actually enabling this).
+# Uncomment to bind Workers AI to this Worker as `env.AI`:
+#
+# [ai]
+# binding = "AI"
+# ---------------------------------------------------------------------------
