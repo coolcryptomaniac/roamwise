@@ -136,12 +136,12 @@
   #${ROOT_ID} .rw-skip{position:absolute;right:max(16px,env(safe-area-inset-right));top:max(18px,env(safe-area-inset-top));z-index:18;min-width:116px;border:1px solid rgba(255,208,111,.72);background:linear-gradient(135deg,rgba(31,8,34,.90),rgba(89,18,76,.82));backdrop-filter:blur(14px);box-shadow:0 9px 28px rgba(0,0,0,.42),0 0 18px rgba(255,73,186,.22);color:#fff7df;border-radius:999px;padding:14px 18px;font:800 13px/1 'Outfit',system-ui,sans-serif;letter-spacing:.10em;text-transform:uppercase;cursor:pointer}
   #${ROOT_ID} .rw-skip:focus-visible{outline:2px solid #ff77d6;outline-offset:3px}
   #${ROOT_ID} .rw-vignette{position:absolute;inset:0;z-index:10;pointer-events:none;box-shadow:inset 0 0 150px rgba(8,0,15,.55),inset 0 -90px 140px rgba(6,0,12,.48)}
-  #${ROOT_ID} .rw-audio-gate{position:absolute;z-index:16;left:50%;bottom:17%;width:min(520px,calc(100% - 32px));transform:translateX(-50%);display:grid;justify-items:center;gap:10px;text-align:center;pointer-events:none}
-  #${ROOT_ID} .rw-stat-card{width:100%;box-sizing:border-box;padding:15px 18px;border:1px solid rgba(255,255,255,.16);border-radius:18px;background:linear-gradient(135deg,rgba(12,5,24,.72),rgba(53,9,48,.54));backdrop-filter:blur(14px);box-shadow:0 18px 52px rgba(0,0,0,.34);animation:rwStatFloat 2.4s ease-in-out infinite alternate}
-  #${ROOT_ID} .rw-stat-kicker{display:block;margin-bottom:6px;color:#ffd06f;font:800 9px/1 'Outfit',system-ui,sans-serif;letter-spacing:.24em;text-transform:uppercase}
-  #${ROOT_ID} .rw-stat-value{display:block;color:#fff;font:800 clamp(20px,4.8vw,31px)/1.1 'Outfit',system-ui,sans-serif;text-shadow:0 0 22px rgba(255,69,190,.32)}
-  #${ROOT_ID} .rw-stat-detail{display:block;margin-top:7px;color:rgba(255,239,249,.76);font:500 11px/1.45 'Outfit',system-ui,sans-serif;letter-spacing:.025em}
-  #${ROOT_ID} .rw-skip-hint{padding:8px 13px;border-radius:999px;background:rgba(7,3,14,.48);color:rgba(255,245,252,.82);font:700 9px/1 'Outfit',system-ui,sans-serif;letter-spacing:.18em;text-transform:uppercase}
+  #${ROOT_ID} .rw-audio-gate{position:absolute;z-index:16;left:50%;bottom:18%;width:min(430px,calc(100% - 40px));transform:translateX(-50%);display:grid;justify-items:center;gap:9px;text-align:center;pointer-events:none}
+  #${ROOT_ID} .rw-stat-card{width:100%;box-sizing:border-box;padding:11px 14px;border:1px solid transparent;border-radius:16px;background:linear-gradient(135deg,rgba(10,4,20,.48),rgba(55,9,48,.28)) padding-box,linear-gradient(110deg,rgba(255,208,111,.24),rgba(255,63,189,.82),rgba(123,56,255,.72),rgba(255,208,111,.24)) border-box;background-size:100% 100%,240% 100%;backdrop-filter:blur(9px);box-shadow:0 14px 38px rgba(0,0,0,.30),0 0 24px rgba(255,63,189,.10);animation:rwStatFloat 3.4s ease-in-out infinite alternate,rwStatBorder 5s linear infinite}
+  #${ROOT_ID} .rw-stat-kicker{display:block;margin-bottom:5px;color:#ffd98a;font:800 8px/1 'Outfit',system-ui,sans-serif;letter-spacing:.23em;text-transform:uppercase}
+  #${ROOT_ID} .rw-stat-value{display:block;color:#fff;font:800 clamp(16px,3.7vw,23px)/1.16 'Outfit',system-ui,sans-serif;text-shadow:0 0 18px rgba(255,69,190,.28)}
+  #${ROOT_ID} .rw-stat-detail{display:block;margin-top:5px;color:rgba(255,239,249,.74);font:500 10px/1.4 'Outfit',system-ui,sans-serif;letter-spacing:.02em}
+  #${ROOT_ID} .rw-skip-hint{padding:7px 12px;border-radius:999px;background:rgba(7,3,14,.38);color:rgba(255,245,252,.80);font:700 8px/1 'Outfit',system-ui,sans-serif;letter-spacing:.17em;text-transform:uppercase}
   #${ROOT_ID}:not(.rw-started) .rw-film,#${ROOT_ID}:not(.rw-started) .rw-film-gif{visibility:hidden}
   #${ROOT_ID}:not(.rw-started) .rw-sheen,#${ROOT_ID}:not(.rw-started) .rw-matrix,#${ROOT_ID}:not(.rw-started) .rw-rain,#${ROOT_ID}:not(.rw-started) .rw-thunder,#${ROOT_ID}:not(.rw-started) .rw-track i,#${ROOT_ID}:not(.rw-started) .rw-fire b{animation-play-state:paused!important}
 
@@ -178,7 +178,8 @@
   @keyframes rwSparkTip{from{transform:translateY(-50%) scale(.75);opacity:.76}to{transform:translateY(-50%) scale(1.2);opacity:1}}
   @keyframes rwEmber{0%{transform:translate(-50%,-50%) scale(.55);opacity:0}18%{opacity:1}100%{transform:translate(calc(-50% + var(--dx)),calc(-50% + var(--dy))) scale(.10);opacity:0}}
   @keyframes rwFireBolt{0%,71%,75%,100%{opacity:0}72%{opacity:1}73%{opacity:.28}74%{opacity:.86}}
-  @keyframes rwStatFloat{from{transform:translateY(0);border-color:rgba(255,255,255,.14)}to{transform:translateY(-4px);border-color:rgba(255,93,205,.32)}}
+  @keyframes rwStatFloat{from{transform:translateY(0)}to{transform:translateY(-3px)}}
+  @keyframes rwStatBorder{from{background-position:0 0,0% 50%}to{background-position:0 0,240% 50%}}
   `;
   /* The shinobi's motion (position, lean, squash-stretch, cloak/scarf sway,
      leg gait) is no longer a fixed @keyframes path — see runShinobiPhysics(),
@@ -535,11 +536,11 @@
     var statTimer = null;
     var now = new Date();
     var dateLabel = now.toLocaleDateString('en-IN', {day:'numeric', month:'short'});
+    /* Two calm, readable cards across the 6.8s film. More rapid messages
+       looked busy and disappeared before people could actually read them. */
     var stats = [
       ['Today · '+dateLabel, 'Checking today\'s world update…', 'Fresh insight for your local date.'],
-      ['RoamWise signal', '5 free searches every day', 'Start planning instantly — no account needed.'],
-      ['Travel fact', 'About 4 minutes per degree', 'Solar time shifts roughly four minutes for each degree of longitude.'],
-      ['Route intelligence', '3 signals, one smarter route', 'Budget, travel time and crowd preference work together.']
+      ['RoamWise signal', '5 free searches every day', 'Fast planning — no account needed.']
     ];
 
     function showStat(stat){
@@ -553,7 +554,7 @@
       statTimer = setInterval(function(){
         index = (index + 1) % stats.length;
         showStat(stats[index]);
-      }, 1900);
+      }, 3400);
     }
 
     function cleanInsight(value){
