@@ -124,13 +124,12 @@
   #${ROOT_ID} .rw-skip{position:absolute;right:max(16px,env(safe-area-inset-right));bottom:max(18px,env(safe-area-inset-bottom));z-index:14;border:1px solid rgba(255,255,255,.18);background:rgba(12,5,20,.38);backdrop-filter:blur(12px);color:rgba(255,245,252,.80);border-radius:999px;padding:10px 14px;font:600 10px/1 'Outfit',system-ui,sans-serif;letter-spacing:.20em;text-transform:uppercase;cursor:pointer}
   #${ROOT_ID} .rw-skip:focus-visible{outline:2px solid #ff77d6;outline-offset:3px}
   #${ROOT_ID} .rw-vignette{position:absolute;inset:0;z-index:10;pointer-events:none;box-shadow:inset 0 0 150px rgba(8,0,15,.55),inset 0 -90px 140px rgba(6,0,12,.48)}
-  #${ROOT_ID} .rw-audio-gate{position:absolute;inset:0;z-index:16;display:grid;place-content:center;justify-items:center;gap:10px;padding:24px;text-align:center;background:rgba(8,2,14,.34);backdrop-filter:blur(3px);transition:opacity .28s ease,visibility .28s ease}
-  #${ROOT_ID}.rw-started .rw-audio-gate{opacity:0;visibility:hidden;pointer-events:none}
-  #${ROOT_ID} .rw-audio-start{display:flex;align-items:center;gap:11px;border:1px solid rgba(255,255,255,.28);border-radius:999px;padding:13px 22px;background:linear-gradient(135deg,rgba(255,65,175,.92),rgba(117,54,255,.94));box-shadow:0 12px 42px rgba(168,44,255,.34);color:#fff;font:800 13px/1 'Outfit',system-ui,sans-serif;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;transition:transform .18s ease,box-shadow .18s ease}
-  #${ROOT_ID} .rw-audio-start:hover{transform:translateY(-2px);box-shadow:0 16px 52px rgba(255,57,173,.42)}
-  #${ROOT_ID} .rw-audio-start:active{transform:scale(.97)}
-  #${ROOT_ID} .rw-audio-start b{font-size:19px;line-height:1}
-  #${ROOT_ID} .rw-audio-help{font-size:11px;color:rgba(255,239,249,.72);letter-spacing:.04em}
+  #${ROOT_ID} .rw-audio-gate{position:absolute;z-index:16;left:50%;bottom:12%;width:min(520px,calc(100% - 32px));transform:translateX(-50%);display:grid;justify-items:center;gap:10px;text-align:center;pointer-events:none}
+  #${ROOT_ID} .rw-stat-card{width:100%;box-sizing:border-box;padding:15px 18px;border:1px solid rgba(255,255,255,.16);border-radius:18px;background:linear-gradient(135deg,rgba(12,5,24,.72),rgba(53,9,48,.54));backdrop-filter:blur(14px);box-shadow:0 18px 52px rgba(0,0,0,.34);animation:rwStatFloat 2.4s ease-in-out infinite alternate}
+  #${ROOT_ID} .rw-stat-kicker{display:block;margin-bottom:6px;color:#ffd06f;font:800 9px/1 'Outfit',system-ui,sans-serif;letter-spacing:.24em;text-transform:uppercase}
+  #${ROOT_ID} .rw-stat-value{display:block;color:#fff;font:800 clamp(20px,4.8vw,31px)/1.1 'Outfit',system-ui,sans-serif;text-shadow:0 0 22px rgba(255,69,190,.32)}
+  #${ROOT_ID} .rw-stat-detail{display:block;margin-top:7px;color:rgba(255,239,249,.76);font:500 11px/1.45 'Outfit',system-ui,sans-serif;letter-spacing:.025em}
+  #${ROOT_ID} .rw-skip-hint{padding:8px 13px;border-radius:999px;background:rgba(7,3,14,.48);color:rgba(255,245,252,.82);font:700 9px/1 'Outfit',system-ui,sans-serif;letter-spacing:.18em;text-transform:uppercase}
   #${ROOT_ID}:not(.rw-started) .rw-film,#${ROOT_ID}:not(.rw-started) .rw-film-gif{visibility:hidden}
   #${ROOT_ID}:not(.rw-started) .rw-sheen,#${ROOT_ID}:not(.rw-started) .rw-matrix,#${ROOT_ID}:not(.rw-started) .rw-rain,#${ROOT_ID}:not(.rw-started) .rw-thunder,#${ROOT_ID}:not(.rw-started) .rw-track i,#${ROOT_ID}:not(.rw-started) .rw-fire b{animation-play-state:paused!important}
 
@@ -165,6 +164,7 @@
   @keyframes rwFlameTip{from{transform:translateY(-54%) rotate(40deg) scale(.88,1.08)}to{transform:translateY(-58%) rotate(49deg) scale(1.05,.90)}}
   @keyframes rwSparkTip{from{transform:translateY(-50%) scale(.75);opacity:.76}to{transform:translateY(-50%) scale(1.2);opacity:1}}
   @keyframes rwEmber{0%{transform:translate(-50%,-50%) scale(.55);opacity:0}18%{opacity:1}100%{transform:translate(calc(-50% + var(--dx)),calc(-50% + var(--dy))) scale(.10);opacity:0}}
+  @keyframes rwStatFloat{from{transform:translateY(0);border-color:rgba(255,255,255,.14)}to{transform:translateY(-4px);border-color:rgba(255,93,205,.32)}}
   `;
   /* The shinobi's motion (position, lean, squash-stretch, cloak/scarf sway,
      leg gait) is no longer a fixed @keyframes path — see runShinobiPhysics(),
@@ -449,21 +449,21 @@
       '<div class="rw-bg" aria-hidden="true"></div>'+
       '<div class="rw-stage">'+
         '<div class="rw-media">'+
-          '<video class="rw-film" muted playsinline webkit-playsinline preload="auto" aria-hidden="true">'+
+          '<video class="rw-film" muted autoplay playsinline webkit-playsinline preload="auto" aria-hidden="true">'+
             '<source src="assets/roamwise-opening.mp4" type="video/mp4">'+
           '</video>'+
           '<div class="rw-sheen" aria-hidden="true"></div>'+
           '<div class="rw-shinobi" aria-hidden="true"><i class="rw-hair"></i><i class="rw-head"></i><i class="rw-body"></i><i class="rw-cloak"></i><i class="rw-emblem"></i><i class="rw-leg l"></i><i class="rw-leg r"></i><i class="rw-scarf"></i></div>'+
-          '<div class="rw-loadMobile"><span>Sound on &middot; entering RoamWise</span>'+track()+'</div>'+
+          '<div class="rw-loadMobile"><span>Entering RoamWise</span>'+track()+'</div>'+
         '</div>'+
-        '<div class="rw-brandDesk" aria-hidden="true"><h1>ROAMWISE</h1><p>Shinobi Atlas</p><div class="rw-loadDesk"><span>Sound on &middot; entering RoamWise</span>'+track()+'</div></div>'+
+        '<div class="rw-brandDesk" aria-hidden="true"><h1>ROAMWISE</h1><p>Shinobi Atlas</p><div class="rw-loadDesk"><span>Entering RoamWise</span>'+track()+'</div></div>'+
       '</div>'+
       '<div class="rw-fx rw-matrix" aria-hidden="true"></div>'+
       '<div class="rw-fx rw-rain" aria-hidden="true"></div>'+
       '<div class="rw-fx rw-thunder" aria-hidden="true"></div>'+
       '<div class="rw-vignette" aria-hidden="true"></div>'+
-      '<div class="rw-audio-gate"><button class="rw-audio-start" type="button"><b aria-hidden="true">&#9835;</b><span>Tap to begin with sound</span></button><div class="rw-audio-help">Mute or change volume anytime in Settings</div></div>'+
-      '<button class="rw-skip" type="button">Skip</button>';
+      '<div class="rw-audio-gate rw-auto-info" aria-live="polite"><div class="rw-stat-card"><span class="rw-stat-kicker">RoamWise signal</span><strong class="rw-stat-value">5 free searches every day</strong><small class="rw-stat-detail">Start planning instantly &mdash; no account needed.</small></div><div class="rw-skip-hint">Tap anywhere to skip</div></div>'+
+      '<button class="rw-skip" type="button" aria-label="Skip intro">Skip intro</button>';
 
     document.body.appendChild(root);
     finishBoot();
@@ -478,14 +478,30 @@
     filmGif.alt = '';
     filmGif.setAttribute('aria-hidden', 'true');
     video.insertAdjacentElement('afterend', filmGif);
-    var startButton = root.querySelector('.rw-audio-start');
     var skip = root.querySelector('.rw-skip');
+    var statValue = root.querySelector('.rw-stat-value');
+    var statDetail = root.querySelector('.rw-stat-detail');
     var shinobiEl = root.querySelector('.rw-shinobi');
     var shinobiPhysics = shinobiEl ? runShinobiPhysics(shinobiEl) : null;
     var closed = false;
     var started = false;
     var videoReady = false;
     var closeTimer = null;
+    var statTimer = null;
+    var stats = [
+      ['5 free searches every day', 'Start planning instantly — no account needed.'],
+      ['About 4 minutes per degree', 'Travel fact: solar time shifts roughly four minutes for each degree of longitude.'],
+      ['3 signals, one smarter route', 'RoamWise plans around your budget, travel time and crowd preference together.']
+    ];
+
+    function cycleStats(){
+      var index = 0;
+      statTimer = setInterval(function(){
+        index = (index + 1) % stats.length;
+        if (statValue) statValue.textContent = stats[index][0];
+        if (statDetail) statDetail.textContent = stats[index][1];
+      }, 1900);
+    }
 
     function beginVisual(withSound){
       if (started || closed) return;
@@ -496,12 +512,10 @@
       try {
         window.dispatchEvent(new CustomEvent('rw:opening-start'));
       } catch (_) {}
-      /* Audible autoplay is blocked on Safari, Chrome and Firefox until a
-         user gesture. startExperience() calls this synchronously from the
-         gate button so the cue receives that gesture. The global audio-focus
-         owner pauses any ambient bed first and may resume it after this cue.
-         Do not call RWAudio.play() here: starting ambient before the cue would
-         recreate the simultaneous-playback bug this focus handoff prevents. */
+      /* The ordered startup loader makes the one-shot cue available before
+         the opener. Audible autoplay may still be blocked by browser policy;
+         the visual never waits for it. Do not call RWAudio.play() here:
+         starting ambient before the cue would recreate overlapping audio. */
       try {
         if (withSound && typeof window.rwPlayCue === 'function') {
           var resumeAmbient = !!(window.RWAudio && RWAudio.isLoopEnabled && RWAudio.isLoopEnabled());
@@ -517,17 +531,11 @@
       closeTimer = setTimeout(close, reduced ? Math.min(DURATION, 4200) : DURATION);
     }
 
-    function startExperience(){
-      if (started || closed) return;
-      /* Keep this synchronous: delaying the cue behind a Promise loses the
-         transient user activation on iOS Safari and Android Chrome. */
-      beginVisual(true);
-    }
-
     function close(){
       if (closed) return;
       closed = true;
       if (closeTimer) clearTimeout(closeTimer);
+      if (statTimer) clearInterval(statTimer);
       if (shinobiPhysics) shinobiPhysics.stop();
       root.classList.add('rw-closing');
       try { video.pause(); } catch (_) {}
@@ -540,7 +548,7 @@
     }
 
     skip.addEventListener('click', close);
-    startButton.addEventListener('click', startExperience);
+    root.addEventListener('click', close);
     window.addEventListener('keydown', function esc(e){
       if (e.key === 'Escape') { close(); window.removeEventListener('keydown', esc); }
     });
@@ -561,12 +569,11 @@
       if (filmGif && !filmGif.src) filmGif.src = 'assets/roamwise-opening.gif';
     }, {once:true});
 
-    /* Browsers cannot promise audible autoplay. Sound-enabled visits wait for
-       the explicit gesture; users who deliberately muted sound start the
-       visual immediately and never face an unnecessary gate. */
-    var soundEnabled = true;
-    try { soundEnabled = !window.RWAudio || !RWAudio.isEnabled || RWAudio.isEnabled(); } catch (_) {}
-    if (!soundEnabled) beginVisual(false);
+    cycleStats();
+    /* Start the muted inline film and all visual effects immediately. The
+       cue is attempted at the same time and fails silently where audible
+       autoplay is prohibited; tapping anywhere is reserved only for skip. */
+    beginVisual(true);
   }
 
   /* rw-config is loaded near the bottom of index.html, so body already exists in
