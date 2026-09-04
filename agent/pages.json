@@ -5022,5 +5022,29 @@
   "country": "India",
   "best": "January, March, November",
   "month": true
+ },
+ {
+  "slug": "jodhpur-in-february",
+  "title": "Jodhpur in February",
+  "name": "Jodhpur·February",
+  "country": "India",
+  "best": "January, March, November",
+  "month": true
+ },
+ {
+  "slug": "jodhpur-in-march",
+  "title": "Jodhpur in March",
+  "name": "Jodhpur·March",
+  "country": "India",
+  "best": "January, March, November",
+  "month": true
+ },
+ {
+  "slug": "jodhpur-in-april",
+  "title": "Jodhpur in April",
+  "name": "Jodhpur·April",
+  "country": "India",
+  "best": "January, March, November",
+  "month": true
  }
 ]
