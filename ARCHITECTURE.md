@@ -173,24 +173,50 @@ for what that would actually take). Any new `js/` file must be inserted
 into `index.html` in the correct position: after everything it depends
 on, before anything that calls its globals.
 
-## The `tools/check-line-limits.js` rule
+## Line-limit enforcement: ESLint `max-lines` / `max-lines-per-function`
 
-Enforced by `npm run check`. For every file under `js/` (recursive):
-- **Hard cap: 1000 lines.** Exceeding it fails the check (non-zero exit).
-- **Soft target: 300–500 lines.** Exceeding it prints a warning but does
-  not fail.
-- `app.js` itself is explicitly exempted — it's the shrinking migration
-  source, not a normal module, and the exemption is meant to be removed
-  once the migration completes.
+Line limits are now enforced via standard ESLint rules (`eslint.config.js`,
+flat config), run with `npm run lint`, rather than the old bespoke
+`tools/check-line-limits.js` script:
 
-Current state (verified via `npm run check`): 56 files, all under the
-1000-line hard cap; 8 files over the 500-line soft target
-(`js/copilot/core.js` 931, `js/itinerary/pdf-export.js` 742,
-`js/itinerary/certificates.js` 624, `js/data/destinations.js` 596,
-`js/social/group-chat.js` 562, `js/misc/misc-features-3.js` 566,
-`js/social/trip-board.js` 557, `js/copilot/rich-reply.js` 555). These are
-pre-existing warnings, not new problems — they're candidates for a future
-split but aren't blocking anything today.
+- **`max-lines`: 500 (error).** This is the hard enforcement ceiling for
+  every file matched by the config (`js/**/*.js` and `app.js`), configured
+  with `skipBlankLines: true, skipComments: true` (the standard way to
+  configure this rule, so well-commented files aren't penalized). 500 lines
+  matches common enterprise ESLint configs and this codebase's own prior
+  300–500 "soft target" — it's now the enforced number rather than just a
+  warning threshold.
+- **`max-lines-per-function`: 50 (warning, not error).** An aspirational,
+  industry-standard "clean code" target for new code — not a hard gate on
+  this existing, already-substantially-modularized codebase, which still
+  has plenty of pre-existing larger functions. Same `skipBlankLines` /
+  `skipComments` options.
+
+`app.js` is included in the lint scope (unlike the old script, which
+exempted it) since ESLint's per-file `max-lines` finding is informational
+either way; it isn't being split as part of this change.
+
+**Current state (first ESLint pass, effective line counts —
+i.e. `skipBlankLines`/`skipComments` — so they differ from raw `wc -l`):**
+6 files exceed the 500-line `max-lines` ceiling and are deferred to a
+future modularization pass rather than fixed in this PR (more than a
+handful, so — per this codebase's own extraction methodology — a real
+SRP-based split, not a mechanical chop, is warranted for each):
+`app.js` (4866), `js/copilot/core.js` (721), `js/itinerary/pdf-export.js`
+(664), `js/itinerary/certificates.js` (538), `js/data/destinations.js`
+(515), `js/misc/misc-features-3.js` (508). None of these are in the
+auth/payments-adjacent `js/boot/`, `js/data-sync/`, or `js/payments/`
+directories.
+
+`npm run lint` is **not** yet part of `npm run check` — this first pass
+also surfaces several hundred `eslint:recommended` findings unrelated to
+line limits (mostly pre-existing empty `catch` blocks flagged by
+`no-empty`, plus a handful of `no-dupe-keys`/`no-redeclare`/
+`no-useless-escape` findings), which are real but out of scope for this
+PR to fix wholesale. `tools/check-line-limits.js` therefore remains wired
+into `npm run check` as a stopgap for now; retiring it in favor of
+`npm run lint` is a follow-up once the codebase is clean enough for
+`lint` to be a passing CI gate.
 
 ## Extraction methodology (proven across ~10 merged phases)
 
