@@ -1,0 +1,18 @@
+/* Shared stylesheet for RoamWise's legal pages (legal/privacy.html,
+   legal/terms.html, legal/contest-rules.html). Extracted from three
+   byte-identical inline <style> blocks — see PR that introduced this file
+   for details. */
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:system-ui,-apple-system,sans-serif;background:#0A0C14;color:#C9C5BB;line-height:1.75;font-size:15.5px}
+a{color:#E8BA6C;text-decoration:none}
+.wrap{max-width:760px;margin:0 auto;padding:26px 20px 70px}
+header{border-bottom:1px solid #1E1E28;padding:14px 0;margin-bottom:26px}
+.brand{font-weight:800;font-size:18px;color:#EDEAE2}.brand span{color:#E8BA6C}
+h1{font-size:27px;color:#fff;margin:8px 0 6px}
+h2{font-size:18px;color:#E8BA6C;margin:26px 0 8px}
+h3{font-size:15px;color:#EDEAE2;margin:16px 0 6px}
+p{margin-bottom:12px}
+ul{margin:0 0 14px 22px}li{margin-bottom:6px}
+.upd{font-size:13px;color:#7C7A74;margin-bottom:20px}
+.box{background:#11131C;border-left:3px solid #E8BA6C;border-radius:8px;padding:14px 17px;margin:16px 0}
+footer{border-top:1px solid #1E1E28;margin-top:36px;padding-top:16px;font-size:13px;color:#7C7A74}

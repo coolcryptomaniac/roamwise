@@ -1,0 +1,438 @@
+/* app-base partial 5/6: desktop/Mac responsive layer, docked chat column, cinematic polish, results panel/starfield, group picker, Atlas/Storyboard itinerary modes (desktop + phone variants). */
+/* =====================================================================
+   DESKTOP / MAC LAYER  (rw-v39)
+   The app had ZERO min-width rules — on a large screen it rendered as a
+   stretched phone layout. This layer makes it feel native on desktop:
+   comfortable measure, roomier type, a centred nav pill instead of an
+   edge-to-edge bar, and the chat docked as a side column.
+   ===================================================================== */
+@media (min-width:1024px){
+  body{font-size:15px}
+
+  /* Give content a comfortable reading measure instead of full-bleed */
+  .xsec, .nav-inner, .hero{max-width:1100px}
+  .xsec{padding:0 28px}
+  .hero{padding:56px 28px 34px}
+  .hero h1{font-size:42px}
+
+  /* The floating tab pill spanned the whole monitor — centre and cap it */
+  .tabbar{
+    left:50%!important; right:auto!important;
+    transform:translateX(-50%);
+    width:min(620px, 90vw);
+    bottom:18px!important;
+    border-radius:26px;
+    z-index:950;              /* BUG FIX: explicit high z-index on desktop so
+                                  nothing in the wider 1100px content column
+                                  can end up stacked above the tab bar */
+    pointer-events:auto;      /* BUG FIX: rule out an inherited pointer-events
+                                  block — reported "Plan" unclickable on
+                                  desktop only; this guarantees clicks land */
+  }
+  .tabbar button{font-size:12.5px; pointer-events:auto; cursor:pointer; position:relative; z-index:1}
+  body.shell{padding-bottom:120px}
+
+  /* Cards breathe: more columns where it makes sense */
+  .qg-wrap{grid-template-columns:repeat(4,1fr);gap:14px;max-width:1100px;margin:0 auto}
+  .qg-tile{padding:20px 10px}
+  .qg-ic{font-size:30px}
+  .qg-lbl{font-size:12.5px}
+
+  /* Modals feel cramped at phone width on a big screen */
+  .sheet{max-width:560px}
+
+  /* Drawer: wider, easier to scan with a mouse */
+  .drawer{width:360px}
+
+  /* Hover affordances only make sense with a pointer */
+  .qg-tile:hover{transform:translateY(-2px);border-color:var(--gold,#E8BA6C)}
+  .dr-link:hover{background:rgba(255,255,255,.04)}
+}
+
+@media (min-width:1440px){
+  .xsec, .nav-inner, .hero{max-width:1220px}
+  .hero h1{font-size:48px}
+}
+
+/* Chat as a docked SIDE column on desktop — the bottom-sheet pattern is a
+   phone idiom; on a wide screen the natural place is a right-hand rail, so
+   you can read the app and chat at the same time. */
+@media (min-width:1024px){
+  #chatOverlay.open{align-items:stretch;justify-content:flex-end;padding:0}
+  #chatOverlay .sheet{
+    max-width:420px;width:420px;height:100dvh!important;max-height:100dvh!important;
+    border-radius:0;border-right:none;border-top:none;border-bottom:none;
+  }
+}
+
+/* Pointer-device niceties: real scrollbars styled to match the theme */
+@media (pointer:fine){
+  ::-webkit-scrollbar{width:10px;height:10px}
+  ::-webkit-scrollbar-track{background:transparent}
+  ::-webkit-scrollbar-thumb{background:var(--b2,#2A2A36);border-radius:8px;border:2px solid transparent;background-clip:content-box}
+  ::-webkit-scrollbar-thumb:hover{background:var(--gold,#E8BA6C);background-clip:content-box}
+}
+
+/* ===== CINEMATIC POLISH (rw-v46) — real CSS animation, no video files ===== */
+@keyframes rwBeaconPulse{
+  0%{box-shadow:0 0 0 0 rgba(74,222,128,.55)}
+  70%{box-shadow:0 0 0 18px rgba(74,222,128,0)}
+  100%{box-shadow:0 0 0 0 rgba(74,222,128,0)}
+}
+.rw-pulse{animation:rwBeaconPulse 2s infinite}
+@keyframes rwRise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+#beaconSection>*,#realmsSection>*,#guideSection>*,#passportSection>*{animation:rwRise .34s cubic-bezier(.22,1,.36,1) both}
+#beaconSection>*:nth-child(2),#realmsSection>*:nth-child(2),#guideSection>*:nth-child(2){animation-delay:.05s}
+#beaconSection>*:nth-child(3),#realmsSection>*:nth-child(3),#guideSection>*:nth-child(3){animation-delay:.1s}
+#beaconSection>*:nth-child(4),#realmsSection>*:nth-child(4),#guideSection>*:nth-child(4){animation-delay:.15s}
+/* realm banner shimmer — the "house colours" feel */
+@keyframes rwSheen{0%{background-position:-200% 0}100%{background-position:200% 0}}
+.rw-sheen{background-image:linear-gradient(100deg,transparent 20%,rgba(255,255,255,.09) 40%,transparent 60%);
+  background-size:200% 100%;animation:rwSheen 3.4s linear infinite}
+@media (prefers-reduced-motion:reduce){
+  .rw-pulse,.rw-sheen{animation:none}
+  #beaconSection>*,#realmsSection>*,#guideSection>*,#passportSection>*{animation:none}
+}
+
+/* ===================================================================
+   CINEMATIC LAYER (rw-v53) — pure CSS, no video, no libraries.
+   Aurora depth + starfield + light-sweep. The look: God-of-War gold on
+   deep space, with Netflix-style staggered reveals.
+   =================================================================== */
+@keyframes rwAurora{
+  0%{background-position:0% 50%;filter:hue-rotate(0deg)}
+  50%{background-position:100% 50%;filter:hue-rotate(18deg)}
+  100%{background-position:0% 50%;filter:hue-rotate(0deg)}
+}
+@keyframes rwOrbit{to{transform:rotate(360deg)}}
+@keyframes rwPulseGlow{
+  0%,100%{box-shadow:0 0 22px rgba(232,186,108,.28),inset 0 0 22px rgba(232,186,108,.06)}
+  50%{box-shadow:0 0 46px rgba(232,186,108,.55),inset 0 0 30px rgba(232,186,108,.12)}
+}
+@keyframes rwSweep{0%{transform:translateX(-120%)}100%{transform:translateX(220%)}}
+@keyframes rwCount{from{opacity:0;transform:translateY(14px) scale(.94)}to{opacity:1;transform:none}}
+@keyframes rwRowIn{from{opacity:0;transform:translateX(-14px)}to{opacity:1;transform:none}}
+@keyframes rwTwinkle{0%,100%{opacity:.15}50%{opacity:.7}}
+
+/* the hero results panel */
+.rw-cine-panel{
+  position:relative;overflow:hidden;border-radius:22px;padding:26px 20px;margin-bottom:16px;
+  background:linear-gradient(120deg,#0B0E1A,#141829,#0E1220,#1A1430,#0B0E1A);
+  background-size:400% 400%;animation:rwAurora 14s ease infinite,rwPulseGlow 5s ease-in-out infinite;
+  border:1px solid rgba(232,186,108,.32);
+}
+/* starfield, drawn with radial-gradients so there are no image requests */
+.rw-cine-panel::before{
+  content:'';position:absolute;inset:0;pointer-events:none;
+  background-image:
+    radial-gradient(1.6px 1.6px at 12% 22%,#fff,transparent),
+    radial-gradient(1.4px 1.4px at 68% 14%,#fff,transparent),
+    radial-gradient(1.8px 1.8px at 84% 62%,#fff,transparent),
+    radial-gradient(1.2px 1.2px at 32% 78%,#fff,transparent),
+    radial-gradient(1.5px 1.5px at 52% 44%,#fff,transparent),
+    radial-gradient(1.3px 1.3px at 92% 34%,#fff,transparent),
+    radial-gradient(1.1px 1.1px at 22% 54%,#fff,transparent);
+  opacity:.5;animation:rwTwinkle 4.5s ease-in-out infinite;
+}
+/* the light sweep across the panel */
+.rw-cine-panel::after{
+  content:'';position:absolute;top:0;bottom:0;width:46%;pointer-events:none;
+  background:linear-gradient(100deg,transparent,rgba(255,255,255,.11),transparent);
+  animation:rwSweep 5.5s ease-in-out infinite;
+}
+.rw-cine-grid{position:relative;z-index:1;display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:14px}
+.rw-cine-metric{text-align:center;animation:rwCount .6s cubic-bezier(.22,1,.36,1) both}
+.rw-cine-metric:nth-child(2){animation-delay:.09s}
+.rw-cine-metric:nth-child(3){animation-delay:.18s}
+.rw-cine-metric:nth-child(4){animation-delay:.27s}
+.rw-cine-num{font-size:38px;font-weight:900;line-height:1;letter-spacing:-.03em;
+  text-shadow:0 0 24px currentColor;font-variant-numeric:tabular-nums}
+.rw-cine-lbl{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#EDEAE2;margin-top:7px;font-weight:700}
+.rw-cine-note{font-size:10px;color:#8A8880;margin-top:3px}
+.rw-cine-sum{position:relative;z-index:1;text-align:center;margin-top:18px;padding-top:14px;
+  border-top:1px solid rgba(255,255,255,.09);font-size:12.5px;color:#C9C5BB}
+
+/* result rows sweep in one after another, Netflix-style */
+.rw-cine-row{display:flex;gap:11px;align-items:flex-start;padding:11px 13px;margin-bottom:7px;
+  border-radius:13px;background:rgba(255,255,255,.028);border:1px solid rgba(255,255,255,.06);
+  animation:rwRowIn .45s cubic-bezier(.22,1,.36,1) both}
+.rw-cine-row:hover{background:rgba(255,255,255,.055);border-color:rgba(232,186,108,.35)}
+.rw-cine-dot{flex:0 0 9px;width:9px;height:9px;border-radius:50%;margin-top:5px;box-shadow:0 0 12px currentColor}
+
+/* the loading orb — a small spaceship-console feel while the suite runs */
+.rw-cine-load{text-align:center;padding:34px 0}
+.rw-cine-orb{width:64px;height:64px;margin:0 auto;border-radius:50%;position:relative;
+  background:radial-gradient(circle at 34% 34%,#E8BA6C,#8B5E2A 62%,#2A1B0C);
+  box-shadow:0 0 40px rgba(232,186,108,.5)}
+.rw-cine-orb::after{content:'';position:absolute;inset:-13px;border-radius:50%;
+  border:2px solid transparent;border-top-color:#E8BA6C;border-right-color:rgba(232,186,108,.35);
+  animation:rwOrbit 1.15s linear infinite}
+
+/* the run button, with its own sheen */
+.rw-cine-btn{position:relative;overflow:hidden;border:none!important;
+  background:linear-gradient(135deg,#E8BA6C,#C8913E)!important;color:#0A0C14!important}
+.rw-cine-btn::after{content:'';position:absolute;top:0;bottom:0;width:40%;
+  background:linear-gradient(100deg,transparent,rgba(255,255,255,.42),transparent);
+  animation:rwSweep 3.2s ease-in-out infinite}
+
+@media (prefers-reduced-motion:reduce){
+  .rw-cine-panel,.rw-cine-panel::before,.rw-cine-panel::after,.rw-cine-metric,
+  .rw-cine-row,.rw-cine-orb::after,.rw-cine-btn::after{animation:none!important}
+}
+
+/* ===================================================================
+   THE OPENING (rw-v54) — first twenty seconds.
+   Full-bleed, unhurried, one question. Everything here is CSS; there is
+   no image, video or font to download, so it paints almost instantly
+   even on a slow Indian mobile connection. That speed IS the polish.
+   =================================================================== */
+.rw-open{position:fixed;inset:0;z-index:99998;display:flex;align-items:center;justify-content:center;
+  background:#07090F;overflow:hidden;animation:rwOpenIn .8s cubic-bezier(.22,1,.36,1) both}
+@keyframes rwOpenIn{from{opacity:0}to{opacity:1}}
+.rw-open-out{animation:rwOpenOut .7s cubic-bezier(.4,0,.2,1) both}
+@keyframes rwOpenOut{to{opacity:0;transform:scale(1.04)}}
+
+/* a slow sky: two drifting nebulae + stars, all gradients */
+.rw-open-sky{position:absolute;inset:-20%;pointer-events:none;
+  background:
+    radial-gradient(closest-side at 22% 28%,rgba(124,107,255,.20),transparent 70%),
+    radial-gradient(closest-side at 78% 68%,rgba(232,186,108,.16),transparent 70%),
+    radial-gradient(closest-side at 60% 18%,rgba(56,189,248,.10),transparent 70%);
+  animation:rwDrift 26s ease-in-out infinite alternate}
+@keyframes rwDrift{to{transform:translate3d(-4%,3%,0) scale(1.08)}}
+.rw-open-sky::after{content:'';position:absolute;inset:0;
+  background-image:
+    radial-gradient(1.5px 1.5px at 14% 18%,#fff,transparent),
+    radial-gradient(1.2px 1.2px at 62% 12%,#fff,transparent),
+    radial-gradient(1.7px 1.7px at 82% 44%,#fff,transparent),
+    radial-gradient(1.3px 1.3px at 36% 72%,#fff,transparent),
+    radial-gradient(1.4px 1.4px at 72% 82%,#fff,transparent),
+    radial-gradient(1.1px 1.1px at 48% 38%,#fff,transparent),
+    radial-gradient(1.6px 1.6px at 90% 22%,#fff,transparent),
+    radial-gradient(1.2px 1.2px at 8% 58%,#fff,transparent);
+  opacity:.42;animation:rwTwinkle 5s ease-in-out infinite}
+
+.rw-open-inner{position:relative;z-index:1;width:100%;max-width:560px;padding:28px;text-align:center}
+.rw-open-mark{font-size:12px;letter-spacing:.42em;text-transform:uppercase;color:#8A8880;
+  font-weight:700;margin-bottom:26px;animation:rwUp .9s cubic-bezier(.22,1,.36,1) both}
+.rw-open-q{font-size:clamp(30px,7.5vw,46px);line-height:1.16;color:#fff;font-weight:800;
+  letter-spacing:-.03em;margin-bottom:30px;animation:rwUp 1s cubic-bezier(.22,1,.36,1) .12s both}
+.rw-open-q em{font-style:normal;background:linear-gradient(100deg,#E8BA6C,#FFD79A,#C8913E);
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
+  background-size:200% auto;animation:rwShimmerText 4.5s linear infinite}
+@keyframes rwShimmerText{to{background-position:200% center}}
+@keyframes rwUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+
+.rw-open-field{display:flex;gap:10px;align-items:center;background:rgba(255,255,255,.05);
+  border:1px solid rgba(255,255,255,.14);border-radius:18px;padding:7px 7px 7px 20px;
+  backdrop-filter:blur(12px);animation:rwUp 1s cubic-bezier(.22,1,.36,1) .24s both;
+  transition:border-color .25s,box-shadow .25s}
+.rw-open-field:focus-within{border-color:rgba(232,186,108,.75);box-shadow:0 0 0 5px rgba(232,186,108,.10)}
+.rw-open-field input{flex:1;min-width:0;background:none;border:none;outline:none;color:#fff;
+  font:inherit;font-size:16px;padding:13px 0}
+.rw-open-field input::placeholder{color:#6E6C66}
+.rw-open-field button{flex:0 0 auto;width:48px;height:48px;border-radius:14px;border:none;cursor:pointer;
+  background:linear-gradient(135deg,#E8BA6C,#C8913E);color:#07090F;font-size:21px;font-weight:800;
+  transition:transform .18s cubic-bezier(.34,1.56,.64,1)}
+.rw-open-field button:hover{transform:scale(1.08)}
+.rw-open-field button:active{transform:scale(.94)}
+
+.rw-open-hint{font-size:12.5px;color:#6E6C66;margin-top:16px;animation:rwUp 1s cubic-bezier(.22,1,.36,1) .34s both}
+.rw-open-skip{display:block;margin:26px auto 0;background:none;border:none;color:#57554F;
+  font:inherit;font-size:12.5px;cursor:pointer;text-decoration:underline;text-underline-offset:4px;
+  animation:rwUp 1s cubic-bezier(.22,1,.36,1) .46s both}
+.rw-open-skip:hover{color:#9A968E}
+
+.rw-shake{animation:rwShake .45s}
+@keyframes rwShake{0%,100%{transform:none}20%,60%{transform:translateX(-7px)}40%,80%{transform:translateX(7px)}}
+
+.rw-open-think{animation:rwUp .5s cubic-bezier(.22,1,.36,1) both}
+.rw-open-thinktxt{margin-top:22px;font-size:15px;color:#9A968E;line-height:1.7}
+.rw-open-thinktxt b{color:#EDEAE2}
+
+.rw-open-reveal{animation:rwUp .75s cubic-bezier(.22,1,.36,1) both}
+.rw-open-answer{font-size:clamp(17px,4.4vw,21px);line-height:1.62;color:#EDEAE2;font-weight:500;
+  margin:22px 0 30px;letter-spacing:-.01em}
+.rw-open-cta{background:linear-gradient(135deg,#E8BA6C,#C8913E);color:#07090F;border:none;
+  border-radius:15px;padding:16px 30px;font:inherit;font-size:16px;font-weight:800;cursor:pointer;
+  position:relative;overflow:hidden;transition:transform .18s cubic-bezier(.34,1.56,.64,1)}
+.rw-open-cta:hover{transform:translateY(-2px) scale(1.02)}
+.rw-open-cta::after{content:'';position:absolute;top:0;bottom:0;width:38%;
+  background:linear-gradient(100deg,transparent,rgba(255,255,255,.45),transparent);
+  animation:rwSweep 3s ease-in-out infinite}
+
+@media (prefers-reduced-motion:reduce){
+  .rw-open,.rw-open-sky,.rw-open-sky::after,.rw-open-mark,.rw-open-q,.rw-open-q em,
+  .rw-open-field,.rw-open-hint,.rw-open-skip,.rw-open-think,.rw-open-reveal,.rw-open-cta::after{
+    animation:none!important}
+}
+
+/* ===================================================================
+   MENU POLISH (rw-v55)
+   The drawer had 65 items in one 39-deep group, so things genuinely
+   were "hidden". Now: sectioned, searchable, with real touch feedback.
+   All colours come from theme vars, so this stays legible on the light
+   Crisp theme as well as the dark ones.
+   =================================================================== */
+.dr-search{position:relative;margin:2px 0 12px}
+.dr-search input{width:100%;background:var(--bg3);border:1px solid var(--b2);border-radius:12px;
+  padding:11px 36px 11px 13px;color:var(--t1);font:inherit;font-size:13.5px;outline:none;
+  transition:border-color .2s,box-shadow .2s}
+.dr-search input::placeholder{color:var(--t3)}
+.dr-search input:focus{border-color:var(--gold);box-shadow:0 0 0 4px color-mix(in srgb,var(--gold) 14%,transparent)}
+.dr-search-ic{position:absolute;right:12px;top:50%;transform:translateY(-50%);font-size:13px;opacity:.55;pointer-events:none}
+.dr-empty{padding:20px 4px;text-align:center;font-size:13px;color:var(--t3)}
+
+/* group headers: clearer, with a live count so nothing feels buried */
+.dr-gh{position:relative;display:flex;align-items:center;gap:8px;width:100%;
+  font-size:11.5px;letter-spacing:.09em;text-transform:uppercase;font-weight:800;color:var(--t2)}
+.dr-count{margin-left:auto;margin-right:6px;font-size:10px;font-weight:800;letter-spacing:0;
+  background:var(--bg3);border:1px solid var(--b2);color:var(--t3);
+  border-radius:20px;padding:1px 7px;min-width:20px;text-align:center}
+.dr-grp.open .dr-count{background:color-mix(in srgb,var(--gold) 18%,transparent);
+  border-color:color-mix(in srgb,var(--gold) 45%,transparent);color:var(--gold)}
+
+/* breathing room + a real selected/pressed feel */
+.dr-link{position:relative;margin:1px 0;padding:12px 12px 12px 11px;gap:12px;
+  border:1px solid transparent;
+  transition:background .16s ease,border-color .16s ease,transform .1s ease,padding-left .16s ease}
+.dr-link:hover{background:var(--bg3);border-color:var(--b2);padding-left:15px}
+.dr-link:active{transform:scale(.975);background:var(--bg4)}
+/* a gold rail slides in on hover/active — the "you are here" cue */
+.dr-link::before{content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);
+  width:3px;height:0;border-radius:3px;background:var(--gold);transition:height .2s cubic-bezier(.22,1,.36,1)}
+.dr-link:hover::before,.dr-link:active::before{height:58%}
+.dr-link .ic{width:24px;font-size:16px;transition:transform .2s cubic-bezier(.34,1.56,.64,1)}
+.dr-link:hover .ic{transform:scale(1.16)}
+
+/* smoother group expand */
+.dr-gb{overflow:hidden}
+.dr-grp:not(.open) .dr-gb{max-height:0}
+.dr-grp.open .dr-gb{max-height:1400px;transition:max-height .34s cubic-bezier(.22,1,.36,1)}
+
+@media (max-width:1024px){
+  .dr-link{padding:14px 14px 14px 13px;font-size:15px}
+  .dr-link .ic{font-size:19px;width:26px}
+  .dr-gh{font-size:12px;padding:12px 4px}
+}
+@media (prefers-reduced-motion:reduce){
+  .dr-link,.dr-link::before,.dr-link .ic,.dr-gb{transition:none!important}
+}
+
+/* ===================================================================
+   LAYOUT MODES (rw-v56)
+   Every rule below is scoped to body.rw-mode-atlas or body.rw-mode-story.
+   Classic mode adds NO class, so it inherits nothing from here and is
+   byte-for-byte the app that already worked. That is the safety guarantee.
+   =================================================================== */
+
+/* the picker cards */
+.rw-mode-card{display:block;width:100%;text-align:left;margin-bottom:10px;padding:14px;
+  border-radius:15px;cursor:pointer;background:var(--bg3);border:1px solid var(--b2);color:var(--t1);
+  transition:border-color .18s,background .18s,transform .12s}
+.rw-mode-card:hover{border-color:var(--gold);transform:translateY(-1px)}
+.rw-mode-card:active{transform:scale(.985)}
+.rw-mode-card.on{border-color:var(--gold);background:color-mix(in srgb,var(--gold) 10%,var(--bg3))}
+.rw-mode-top{display:flex;align-items:center;gap:10px;margin-bottom:6px;font-size:14.5px}
+.rw-mode-ic{font-size:22px}
+.rw-mode-tag{font-size:10px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;
+  color:var(--gold);border:1px solid color-mix(in srgb,var(--gold) 45%,transparent);
+  border-radius:20px;padding:1px 8px;margin-left:4px}
+.rw-mode-desc{font-size:12.5px;color:var(--t2);line-height:1.55}
+.rw-mode-best{font-size:11px;color:var(--t3);margin-top:5px;font-style:italic}
+
+/* ============ ATLAS — map-first ============
+   The map stops being a feature you open and becomes the frame you plan
+   inside. On wide screens it pins to the right; on phones it becomes a
+   sticky strip at the top so you never lose your bearings. */
+body.rw-mode-atlas .xsec{max-width:1240px}
+@media (min-width:1024px){
+  body.rw-mode-atlas #tripMapSection{
+    position:fixed;top:64px;right:20px;bottom:110px;width:42vw;max-width:560px;z-index:120;
+    margin:0;overflow:auto;border-radius:20px;border:1px solid var(--b2);
+    background:var(--bg2);box-shadow:0 18px 60px rgba(0,0,0,.42)}
+  body.rw-mode-atlas .xsec:not(#tripMapSection),
+  body.rw-mode-atlas .brief,
+  body.rw-mode-atlas #copilotHero{margin-right:calc(42vw + 44px);max-width:none}
+}
+/* day cards become route cards: numbered, connected by a spine */
+body.rw-mode-atlas .day-card{position:relative;padding-left:46px;border-left:none}
+body.rw-mode-atlas .day-card::before{content:'';position:absolute;left:19px;top:0;bottom:-14px;
+  width:2px;background:linear-gradient(180deg,var(--gold),transparent)}
+body.rw-mode-atlas .day-card::after{content:'';position:absolute;left:13px;top:20px;
+  width:14px;height:14px;border-radius:50%;background:var(--gold);
+  box-shadow:0 0 0 4px var(--bg),0 0 16px color-mix(in srgb,var(--gold) 60%,transparent)}
+body.rw-mode-atlas .day-card:last-child::before{display:none}
+body.rw-mode-atlas .qg-wrap{grid-template-columns:repeat(auto-fit,minmax(96px,1fr))}
+
+/* ============ STORYBOARD — editorial ============
+   One thing at a time, big type, air. Closer to a travel magazine than a
+   dashboard: fewer competing elements, longer line-height, quieter chrome. */
+body.rw-mode-story .xsec{max-width:720px;padding-left:26px;padding-right:26px}
+body.rw-mode-story{font-size:16.5px;line-height:1.8}
+body.rw-mode-story .xsec-title{font-size:clamp(26px,6vw,38px);letter-spacing:-.03em;line-height:1.2}
+body.rw-mode-story .xsec-sub{font-size:15.5px;color:var(--t2);line-height:1.75;max-width:56ch}
+body.rw-mode-story .xsec-head{flex-direction:column;align-items:flex-start;gap:6px;margin-bottom:18px}
+body.rw-mode-story .day-card{border:none;border-radius:0;padding:30px 0;
+  border-bottom:1px solid var(--b1);background:none;box-shadow:none}
+body.rw-mode-story .day-title{font-size:22px;letter-spacing:-.02em}
+body.rw-mode-story .seg-desc{font-size:16px;line-height:1.8;color:var(--t1)}
+body.rw-mode-story .seg-time{font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--t3)}
+/* quieter chrome so the words lead */
+body.rw-mode-story .qg-wrap{grid-template-columns:repeat(2,1fr);gap:12px}
+body.rw-mode-story .qg-tile{padding:20px 12px;background:none;border:1px solid var(--b1)}
+body.rw-mode-story .brief,body.rw-mode-story .promo-bar{opacity:.85}
+body.rw-mode-story .tabbar{background:color-mix(in srgb,var(--bg) 92%,transparent)}
+/* a drop-cap on the first paragraph of a day — the magazine tell */
+body.rw-mode-story .day-narr::first-letter{font-size:2.6em;float:left;line-height:.86;
+  padding:4px 9px 0 0;color:var(--gold);font-weight:800}
+
+@media (prefers-reduced-motion:reduce){
+  .rw-mode-card{transition:none}
+}
+
+/* ===================================================================
+   LAYOUT MODES — VISIBLE ON PHONES TOO (rw-v57)
+   The first pass was too subtle and Atlas's main effect was desktop-only,
+   so on a phone it looked like nothing happened. These rules make each
+   mode unmistakable at ANY width, while staying scoped to the mode class
+   (Classic still inherits nothing).
+   =================================================================== */
+
+/* a small persistent badge so you always know which mode you're in */
+body[data-mode]:not([data-mode="classic"])::after{
+  content:attr(data-mode);position:fixed;left:12px;bottom:calc(96px + env(safe-area-inset-bottom));
+  z-index:300;font-size:9.5px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--gold);background:color-mix(in srgb,var(--bg2) 92%,transparent);
+  border:1px solid color-mix(in srgb,var(--gold) 45%,transparent);
+  border-radius:20px;padding:4px 10px;pointer-events:none;opacity:.9}
+
+/* ---------- ATLAS on phones: route-spine + compact cards ---------- */
+body.rw-mode-atlas .xsec-title{font-size:19px;letter-spacing:-.01em}
+body.rw-mode-atlas .xsec-sub{font-size:12.5px}
+body.rw-mode-atlas .qg-tile{padding:11px 6px}
+body.rw-mode-atlas .qg-ic{font-size:20px}
+body.rw-mode-atlas .qg-lbl{font-size:10px}
+/* every card tightens up — dense, map-like, information-first */
+body.rw-mode-atlas .day-card{margin-bottom:0;padding-top:14px;padding-bottom:14px}
+body.rw-mode-atlas .day-seg{padding:5px 0}
+body.rw-mode-atlas .seg-desc{font-size:13px;line-height:1.5}
+body.rw-mode-atlas .brief{display:none}          /* hide the daily-scroll noise */
+body.rw-mode-atlas #copilotHero{margin-bottom:8px}
+
+/* ---------- STORYBOARD on phones: unmistakably editorial ---------- */
+body.rw-mode-story .qg-wrap{grid-template-columns:1fr 1fr;gap:14px}
+body.rw-mode-story .qg-tile{padding:24px 12px;border-radius:2px}
+body.rw-mode-story .xsec{padding-left:22px;padding-right:22px}
+body.rw-mode-story .xsec-title{font-weight:800}
+body.rw-mode-story .xsec-title em{font-style:italic}
+/* serif display type is the single strongest editorial signal */
+body.rw-mode-story .xsec-title,
+body.rw-mode-story .day-title,
+body.rw-mode-story .rw-open-q{font-family:Georgia,'Times New Roman',serif;letter-spacing:-.01em}
+body.rw-mode-story .day-card{padding:26px 0}
+body.rw-mode-story .seg-desc{font-size:15.5px;line-height:1.78}
+/* a hairline rule above each day, like a magazine section break */
+body.rw-mode-story .day-card::before{content:'';display:block;width:38px;height:2px;
+  background:var(--gold);margin-bottom:16px;opacity:.85}
+
