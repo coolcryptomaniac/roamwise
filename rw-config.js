@@ -95,6 +95,7 @@ window.rwApi = function(path){
      execute in insertion order, giving the intro one authoritative sound gate. */
   if(f.audioTheme) load('js/audio/focus.js', true);
   if(f.audioTheme) load('platform-v5/audio-only.js', true);
+  if(f.audioTheme) load('js/audio/cues.js', true);
   if(f.atlasIntroV5) load('platform-v5/atlas-shinobi.js', true);
   if(f.performanceV5) load('platform-v5/performance.js', false);
   if(f.privateLearningConsent) load('platform-v5/learning-consent.js', false);

@@ -13,21 +13,26 @@ test('cinematic opening has no loading photo dependency', () => {
   assert.equal(fs.existsSync(path.join(root, 'assets', 'roamwise-opening-poster.png')), false);
 });
 
-test('audio loads before the cinematic opener and gates its animation', () => {
+test('audio and cues load before the cinematic opener, which starts automatically', () => {
   const config = read('rw-config.js');
   const focusIndex = config.indexOf("load('js/audio/focus.js', true)");
   const audioIndex = config.indexOf("load('platform-v5/audio-only.js', true)");
+  const cuesIndex = config.indexOf("load('js/audio/cues.js', true)");
   const openingIndex = config.indexOf("load('platform-v5/atlas-shinobi.js', true)");
-  assert.ok(focusIndex > -1 && audioIndex > focusIndex && openingIndex > audioIndex);
+  assert.ok(focusIndex > -1 && audioIndex > focusIndex && cuesIndex > audioIndex && openingIndex > cuesIndex);
 
   const opening = read('platform-v5/atlas-shinobi.js');
-  assert.match(opening, /Tap to begin with sound/);
+  assert.doesNotMatch(opening, /Tap to begin with sound/);
   assert.match(opening, /beginVisual\(true\)/);
+  assert.match(opening, /muted autoplay playsinline webkit-playsinline/);
+  assert.match(opening, /Tap anywhere to skip/);
+  assert.match(opening, /5 free searches every day/);
+  assert.match(opening, /root\.addEventListener\('click', close\)/);
   assert.doesNotMatch(opening, /Promise\.resolve\(RWAudio\.play\(\)\)/);
   assert.match(opening, /webkit-playsinline/);
   assert.match(opening, /rw-started/);
   assert.match(opening, /closeTimer = setTimeout\(close/);
-  const beginVisual = opening.slice(opening.indexOf('function beginVisual'), opening.indexOf('function startExperience'));
+  const beginVisual = opening.slice(opening.indexOf('function beginVisual'), opening.indexOf('function close'));
   assert.match(beginVisual, /var videoPlay = video\.play\(\)/);
   assert.doesNotMatch(beginVisual, /if \(videoReady\)/);
 
