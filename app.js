@@ -3164,9 +3164,9 @@ function rwSaveMemory(kind, dest, detail){
 
 // Green Travel UI (openGreenTravel/rwGreenPick) moved to js/misc/eco-safety.js
 
-// openJourneyCert + certShare moved to js/itinerary/certificates.js
+// openJourneyCert + certShare moved to js/itinerary/journey-certificate.js
 // rwShareSheet/rwCloseShare/rwShareTrip/rwShareGo moved to js/itinerary/share.js
-// certDownload moved to js/itinerary/certificates.js
+// certDownload moved to js/itinerary/journey-certificate.js
 
 // rankOf/nextRank/xpAdd/xpPaint + daily streak XP bonus moved to js/game/badges.js
 
@@ -3400,7 +3400,7 @@ function saveOrDownload(dataUrl, filename){
   if(window.RW && RW.saveCard){ RW.saveCard(dataUrl); showToast('Saving to Downloads/RoamWise\u2026'); return; }
   var a=document.createElement('a'); a.href=dataUrl; a.download=filename; a.click();
 }
-// ATLAS CERTIFICATE + JOURNEY MOVIE moved to js/itinerary/certificates.js
+// ATLAS CERTIFICATE moved to js/itinerary/atlas-certificate.js; JOURNEY MOVIE moved to js/itinerary/journey-movie.js
 
 // CHEAP/LUXE hack pools moved to js/itinerary/ninja-hacks.js
 
@@ -5449,7 +5449,8 @@ function rwMatchShow(rows, me){
     }).join('');
 }
 
-// Tusk Rich Reply System (rwTuskRail, escHtml/escHtmlAttr, rwTuskAsk, rwTuskNeedsClarity, rwStartAnywhere, cpFinish, cpGoPlan, cpActionsHTML) moved to js/copilot/rich-reply.js
+// Tusk Rich Reply System (rwTuskRail, escHtmlAttr, rwTuskAsk, rwTuskNeedsClarity, rwStartAnywhere, cpFinish, cpGoPlan, cpActionsHTML) moved to js/copilot/rich-reply.js
+// escHtml() moved to js/core/text-utils.js (deduped; was reused by js/copilot/core.js)
 
 // vaultGet/vaultSave/saveTripOffline moved to js/itinerary/trip-vault.js
 /* --- Overlay history stack ---
@@ -5492,7 +5493,10 @@ window.addEventListener('popstate', function(){
 // Group Compromise Engine (RW_INTERESTS, grpMembers/grpTagsFor/grpScoreMember/grpCompromise, openGroupPlanner/grpRender/grpAdd/grpRemove/grpResults) moved to js/social/group-compromise.js
 // Shared trip-chat room state (_chatUnsub, _chatRoom, _chatMsgs, chatPost) moved to js/social/group-state.js
 // Secure Trip Group Chat (openGroupChat/tripChatOpen and friends, plus reactions/streak/presence/members/vibe/chatBubble/moderation) moved to js/social/group-chat.js and js/social/group-chat-social.js
-// Trip Board / "When can everyone go?" / Group Train Picker (Kitty, polls, board, plan) moved to js/social/trip-board.js
+// Live Kitty (expense split) moved to js/social/expense-split.js; Group Train Picker
+// moved to js/social/train-picker.js; "When can everyone go?" moved to
+// js/social/trip-scheduling-poll.js; remaining Trip Board coordination layer
+// (polls, board, plan, Tusk facilitator) moved to js/social/trip-board.js
 
 // Tusk persona (smalltalk, masala framing, tkClarifyHTML/tkMiniCard/tkRouteCard) moved to js/copilot/tusk-persona.js
 
@@ -5559,9 +5563,9 @@ function rwFormSubmit(){
 // OFF-GRID SAFETY (RW_OFFGRID/rwOffgridHTML) moved to js/misc/eco-safety.js
 
 
-// SOUND OF PLACE moved to js/misc/misc-features-3.js
+// SOUND OF PLACE moved to js/misc/sound-of-place.js
 
-// SIGNATURE FOOD moved to js/misc/misc-features-3.js
+// SIGNATURE FOOD moved to js/misc/signature-food.js
 
 
 // RESPONSIBLE TRAVEL (RW_RESPONSIBLE/rwResponsibleHTML) moved to js/misc/eco-safety.js
@@ -5573,17 +5577,17 @@ function rwFormSubmit(){
 // MONKEY SAFETY (RW_MONKEY/rwMonkeyFor/rwMonkeyHTML) moved to js/misc/eco-safety.js
 
 
-// DESTINATION VIBE moved to js/misc/misc-features-3.js
+// DESTINATION VIBE moved to js/misc/destination-vibe.js
 
-// TREKKING (RW_TREKS/rwTrekListHTML/rwTrekOps) moved to js/misc/misc-features-3.js
+// TREKKING (RW_TREKS/rwTrekListHTML/rwTrekOps) moved to js/misc/trek-vault.js
 
-// ATHLETE MODE (medical + fitness POI lookups) moved to js/misc/misc-features-3.js
+// ATHLETE MODE (medical + fitness POI lookups) moved to js/misc/athlete-mode.js
 
-// LIVE LOCATION ("near me" geolocation answer) moved to js/misc/misc-features-3.js
+// LIVE LOCATION ("near me" geolocation answer) moved to js/misc/live-location.js
 
-// BOOKING PLATFORM COMPARISON moved to js/misc/misc-features-3.js
+// BOOKING PLATFORM COMPARISON moved to js/misc/booking-platform-compare.js
 
-// LOCAL ECOSYSTEM moved to js/misc/misc-features-3.js
+// LOCAL ECOSYSTEM moved to js/misc/local-ecosystem.js
 
 
 // LOW-CARBON TRAVEL (RW_EMIT/rwCO2/rwGreenSwapHTML/eco ledger+badges) moved to js/misc/eco-safety.js
@@ -5591,7 +5595,8 @@ function rwFormSubmit(){
 
 
 
-// CERTIFICATE VERIFICATION + ECO CERTIFICATE (rwCertHash, rwVerifyPanelHTML, rwVerifyRun, rwEcoCert, rwCertShare) moved to js/itinerary/certificates.js
+// CERTIFICATE VERIFICATION (rwCertHash, rwVerifyPanelHTML, rwVerifyRun) moved to js/itinerary/certificate-verify.js
+// ECO CERTIFICATE (rwEcoCert, rwCertShare) moved to js/itinerary/eco-certificate.js
 
 // ON-TRIP ACTION HUB (RW_ACTIONS, rwActionIntent, rwActionQuery, rwActionHubHTML)
 // moved to js/booking/actions.js

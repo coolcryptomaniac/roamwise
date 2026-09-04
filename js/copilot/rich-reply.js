@@ -61,18 +61,7 @@ function rwTuskReadLast(){
 }
 
 /* --- 2. CLARIFY, DON'T GUESS (anti-hallucination) --- */
-/* Plain HTML-content escape: safe to drop text between tags (innerHTML).
-   Order matters — & must go first or the entity escapes below would
-   themselves get re-escaped. Quotes are escaped too (defense in depth)
-   even though they're not strictly required outside an attribute. */
-function escHtml(s){
-  return String(s==null?'':s)
-    .replace(/&/g,'&amp;')
-    .replace(/</g,'&lt;')
-    .replace(/>/g,'&gt;')
-    .replace(/"/g,'&quot;')
-    .replace(/'/g,'&#39;');
-}
+// escHtml() moved to js/core/text-utils.js (already reused by js/copilot/core.js).
 /* Attribute-safe escape for text that is interpolated into a single-quoted
    JS string literal INSIDE a double-quoted HTML attribute, e.g.
    onclick="fn('VALUE')". Two escaping problems stack here and the order is
