@@ -433,3 +433,40 @@ function rwPressureHTML(place){
     +'<div style="font-size:11px;color:var(--t3);margin-top:6px">Not a reason to skip it \u2014 a reason to go off-season, start early, and check current rules before booking.</div>'
     +'</div>';
 }
+
+/* ---- Green Travel UI page (renders RW_GREEN_CATS above as a checklist) ---- */
+function openGreenTravel(){
+  try{ tabGo('home'); }catch(e){}
+  /* BUG FIX (rw-v57): `sec` was used without ever being declared, so this
+     threw a ReferenceError and the menu item did nothing at all. */
+  var sec=el('greenSection');
+  if(!sec){ sec=document.createElement('section'); sec.id='greenSection'; sec.className='xsec v v-home';
+    var host=el('copilotHero'); if(host&&host.parentNode) host.parentNode.insertBefore(sec,host.nextSibling); else document.body.appendChild(sec); }
+  var earned = (typeof badgeEarnedIds==='function') ? badgeEarnedIds().indexOf('green')>=0 : false;
+  var gc = parseInt(lsGet('rw_ct_green')||'0',10)||0;
+  var cards=RW_GREEN_CATS.map(function(c){
+    var items=c.items.map(function(it){
+      return '<label class="green-item"><input type="checkbox" onchange="rwGreenPick(this)"><span>'+esc2(it)+'</span></label>';
+    }).join('');
+    return '<div class="green-card" style="--gc:'+c.accent+'"><div class="green-cat">'+c.emoji+' '+c.title+'</div>'+items+'</div>';
+  }).join('');
+  sec.innerHTML='<div class="xsec-head"><h2 class="xsec-title">\ud83c\udf31 Green <em>travel</em></h2>'
+    +'<button class="tact" onclick="rwCloseSection(\'greenSection\')">\u2715</button></div>'
+    +'<p class="xsec-sub">Travel lighter on the planet \u2014 tick the choices you\u2019re making. 5 green choices earns the \ud83c\udf31 Green Traveller badge.</p>'
+    +'<div class="green-prog"><div class="green-bar" style="width:'+Math.min(100,gc/5*100)+'%"></div></div>'
+    +'<div class="green-progtxt">'+(earned?'\ud83c\udf31 Green Traveller badge earned! Keep it up.':gc+' / 5 green choices \u2014 '+(5-gc)+' to go')+'</div>'
+    +cards
+    +'<div class="green-foot">Every small choice counts. RoamWise is built for travel that leaves places better than it found them. \ud83c\udf0d</div>';
+  rwOpenSection(sec.id); sec.scrollIntoView({behavior:'smooth',block:'start'});
+}
+function rwGreenPick(cb){
+  if(cb.checked){
+    try{ badgeBump('green'); }catch(e){}
+    var gc=parseInt(lsGet('rw_ct_green')||'0',10)||0;
+    var bar=document.querySelector('.green-bar'); if(bar) bar.style.width=Math.min(100,gc/5*100)+'%';
+    var tx=document.querySelector('.green-progtxt');
+    var earned=(typeof badgeEarnedIds==='function')?badgeEarnedIds().indexOf('green')>=0:false;
+    if(tx) tx.textContent = earned?'\ud83c\udf31 Green Traveller badge earned! Keep it up.':gc+' / 5 green choices \u2014 '+Math.max(0,5-gc)+' to go';
+    cb.disabled=true; cb.parentNode.style.opacity='.6';
+  }
+}
