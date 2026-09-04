@@ -174,25 +174,164 @@ beta if it fits the same edge-deployment model as the existing
 `worker/`. Until a concrete capability gap appears, adding a Python
 backend would be solving a problem the app doesn't have.
 
-## 6. Sequencing recommendation
+## 7. Capacitor version/compatibility check
 
-In order of what to actually do first, given everything above:
+Checked directly against this repo's own manifests, not from memory:
+
+- `package.json` pins `@capacitor/android`, `@capacitor/core`, and
+  `@capacitor/cli` at `^6.1.0`, with `@capacitor/geolocation` at `^6.0.1`
+  and `@capacitor/app` / `@capacitor/haptics` at `^6.0.0`. The one
+  community plugin in use, `@capacitor-community/speech-recognition`, is
+  pinned at `^6.0.0`. Every native dependency in the app is on the
+  Capacitor **6.x** line — nothing is mixed across majors today, which is
+  the easy part to get wrong and this repo doesn't have that problem.
+- `capacitor.config.json` is a plain, unexceptional config: `webDir:
+  "www"`, `androidScheme: "https"`, and a `Geolocation` permissions block.
+  Nothing in it is major-version-specific or would need to change for an
+  upgrade on its own.
+- As of this document's writing, Capacitor 7 is the latest known stable
+  major (released in early 2025, raising minimum Android/iOS OS-version
+  floors and Node tooling requirements, per Capacitor's own release
+  notes at the time). **Flag this honestly: this assistant's training
+  data has a cutoff, and Capacitor's release cadence means an 8.x or
+  later major may already exist by the time this is read.** Before
+  acting on this section, check https://capacitorjs.com (or run `npm
+  view @capacitor/core versions --json`) for the actual current latest
+  major, rather than trusting this document's version number indefinitely.
+- This document will not invent specific breaking-change line items
+  between 6.x and whatever the actual latest major is — that list should
+  come from Capacitor's own official upgrade guide (`capacitorjs.com/docs/updating`)
+  at the time the upgrade is actually attempted, checked against the six
+  plugins this app actually uses (listed above), not guessed at now.
+- **Compatibility with the `app.js`/`js/` modularization work (§3 above,
+  no-bundler/no-ES-modules, classic `<script>` tags, ~290 `onclick=`-driven
+  globals): this is not blocked by a Capacitor upgrade, on this or any
+  future major.** Capacitor's role is narrow and stable across its
+  majors — it packages `webDir` (`www`) as static assets and serves them
+  from a native WebView shell (`androidScheme: "https"` in the config
+  above controls how those assets are addressed inside that WebView). It
+  does not care whether the app inside that WebView uses a bundler, ES
+  modules, or classic scripts; it has never required any of those. A
+  future Capacitor major upgrade and the React/Next.js decision in §4 are
+  fully independent choices — upgrading Capacitor does not force a
+  rendering-layer rewrite, and adopting a bundler for new code (§4 Phase
+  A) does not require a Capacitor upgrade first. Stated explicitly here so
+  a future reader doesn't treat these as coupled when they aren't.
+- Recommended near-term action: run `npx cap doctor` (bundled with
+  `@capacitor/cli`, already a devDependency) to get a live, repo-specific
+  compatibility report, then decide whether staying on 6.x a while longer
+  or upgrading is worth the (likely small, six-plugin) effort. This is
+  housekeeping, not a project.
+
+## 8. FastAPI / Python backend — honest assessment
+
+Re-confirming §5 above with the same finding, stated plainly for this
+section's purpose: Python in this repo today is **only** offline build/
+content-generation tooling —
+`itinerary-library/scripts/build_presets.py` and the scripts under
+`tools/itinerary-library/` (`build_presets.py`, `apply_v2_ui.py`,
+`enhance_v1_1.py`) plus `scripts/apply-platform-rules-v16.py` /
+`-v17.py`. None of these run as part of a deployed service or a live
+request path today. There is no existing FastAPI usage, no ASGI app, and
+no ambient ticket calling for one — this section is not describing
+something in progress.
+
+**When would FastAPI actually make sense here?** Only when a concrete
+need appears that genuinely can't be met by what's already in place —
+the Cloudflare Worker (§2, plain JS/the Workers runtime) or Firebase.
+Realistic triggers, none of which currently exist in this app:
+- Heavy, synchronous PDF rendering or document generation beyond what
+  `roamwise-premium-itinerary.js` / `js/itinerary/pdf-export.js` already
+  do client-side or via existing libraries — if that ever needed a
+  server-side renderer too heavy for a Worker's CPU-time limits.
+- Non-trivial data processing/ETL work that's awkward in JS but has a
+  mature Python library with no good JS equivalent.
+- A hard dependency on a Python-only ML/data library with no practical
+  JS alternative (something narrower than "we want AI features" — the
+  app already does that today by proxying Groq through the existing
+  Worker's `/ai` endpoint, which needs no Python at all).
+
+None of those apply today. This document deliberately does **not**
+schedule FastAPI as a roadmap item with a target phase or date — doing
+so would be inventing a need the app doesn't currently have. Treat it as
+**available if a specific future need arises**, not as work to plan
+toward.
+
+**If it is ever pursued**, the realistic shape is:
+- FastAPI would run as its own separate, independently deployed service
+  — e.g. Fly.io, Railway, a small VPS, or similar — **not** on Cloudflare
+  Workers. Workers' native JS/V8 runtime doesn't run arbitrary Python/ASGI
+  apps like FastAPI. Cloudflare does offer a separate **Python Workers**
+  beta (Python-via-Pyodide, running on the same Workers runtime) — worth
+  knowing about, but it comes with real limitations (a curated/limited
+  set of importable packages, cold-start and startup-time behavior
+  different from V8-native JS Workers, and beta-status caveats) that make
+  it a different tool from "run any FastAPI app," not a drop-in
+  replacement for a real Python host. Anyone evaluating this path should
+  verify current Python Workers capabilities directly against whatever
+  the specific need turns out to be, rather than assuming parity with a
+  normal FastAPI deployment.
+- This would be a new deployed surface with its own hosting bill, uptime
+  ownership, and secrets management — not free the way the existing
+  static-hosting + Worker setup mostly is. That cost should be weighed
+  against the concrete need that justified it in the first place.
+
+## 9. Android Nearby Connections API / mesh networking — cross-repo, planning only
+
+See the new, dedicated `MESH-NETWORK-PLAN.md` for the full spec. Summary
+for this document's sequencing purposes: this is a **native Android**
+feature (Google's Nearby Connections API), it does **not** belong in this
+repo's `js/` codebase or `worker/` Worker, and real implementation work is
+blocked on this session gaining access to the separate
+`roamwiseapkaabbuild` repo. Nothing here changes anything in
+`roamwise` today; this repo's job for now is limited to writing the spec
+so that a future session with access to that repo can act on it.
+
+## 10. Sequencing recommendation (revised)
+
+In order of what to actually do first, given everything above, including
+the three new tracks from §7-§9:
 
 1. **Cloudflare Pages migration (§1).** Low-risk, immediately valuable,
    doesn't block or require anything else. Do this first.
-2. **Fix the existing Workers dashboard misconfiguration (§2).** Needs a
+2. **Capacitor version/compatibility check (§7).** Also low-risk
+   housekeeping: run `npx cap doctor`, check capacitorjs.com for the
+   actual current latest major (this document's Capacitor-7-as-latest
+   note may already be stale by the time it's read), and decide whether
+   an upgrade of the app's six native plugins is worth doing now. Doesn't
+   block or depend on anything else in this list, including §4's
+   React/Next.js decision (see §7's explicit note on why those are
+   independent).
+3. **Fix the existing Workers dashboard misconfiguration (§2).** Needs a
    human with Cloudflare account access (Root Directory, project name,
    real KV namespace ID) — not a code change, but worth doing once
    someone with dashboard access is available, so `worker/` becomes an
    actually-working CI/CD pipeline instead of a permanently-red check.
-3. **Continue TypeScript JSDoc adoption, file by file (§3).** Ongoing,
+4. **Continue TypeScript JSDoc adoption, file by file (§3).** Ongoing,
    low-cost hygiene that doesn't require a decision on bundlers/React —
    keep doing it opportunistically as files get touched anyway.
-4. **React/Next.js (§4) — treat as a deliberate, opt-in, staged decision
+5. **React/Next.js (§4) — treat as a deliberate, opt-in, staged decision
    for later.** Not blocking anything above. Only start Phase A once
    there's an explicit decision to invest in it, since Phases B and C
    are real engineering time against a live app, not a quick add-on.
+6. **FastAPI (§8) stays parked, not scheduled.** No concrete need
+   exists today. Revisit only if/when a specific requirement appears
+   that Cloudflare Workers or Firebase genuinely can't cover.
+7. **Nearby Connections / mesh networking (§9, full spec in
+   `MESH-NETWORK-PLAN.md`) is blocked on `roamwiseapkaabbuild` repo
+   access and lives in that other repo, not this one.** It does not
+   block, and is not blocked by, anything else in this list — it's a
+   separate, larger initiative tracked independently. Once repo access
+   is granted, the phased outline in `MESH-NETWORK-PLAN.md` (spec →
+   bare native Android proof-of-concept → Capacitor plugin bridge →
+   integration with `js/social/tribe-beacon.js` and
+   `js/itinerary/trip-vault.js`) is the recommended path — starting with
+   a native-only prototype, not a full Capacitor integration on day one.
 
-Nothing in this document should be read as a commitment to do #4 — it's
-here so that if/when the user decides to pursue it, there's a realistic
-plan instead of an open-ended rewrite.
+Nothing in this document should be read as a commitment to do #5 (React/
+Next.js) or #6 (FastAPI) — they're here so that if/when the user decides
+to pursue either, there's a realistic plan instead of an open-ended
+rewrite or an invented requirement. #7 (mesh networking) is real,
+wanted, cross-repo work — it's sequenced last here only because it can't
+proceed at all from this repo until access to `roamwiseapkaabbuild` is
+granted, not because it's low priority.
