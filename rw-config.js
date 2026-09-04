@@ -66,7 +66,7 @@ window.rwApi = function(path){
   var boot = document.createElement('style');
   boot.id = 'rw-opening-boot-style';
   boot.textContent = '#intro,.intro{display:none!important;visibility:hidden!important;opacity:0!important}'+
-    'html:not(.rw-opening-skip):not(.rw-opening-mounted) body:before{content:"";position:fixed;inset:0;z-index:2147482999;background:#16051e url("assets/roamwise-opening-first.webp") center/cover no-repeat;pointer-events:none}';
+    'html:not(.rw-opening-skip):not(.rw-opening-mounted) body:before{content:"";position:fixed;inset:0;z-index:2147482999;background:linear-gradient(180deg,transparent 0 67%,rgba(8,2,14,.76) 83%,#08020e 100%),#16051e url("assets/roamwise-opening-first.webp") center/cover no-repeat;pointer-events:none}';
   document.head.appendChild(boot);
 })();
 
@@ -75,7 +75,7 @@ window.rwApi = function(path){
    soon as its tiny JS arrives instead of waiting behind unrelated modules. */
 (function(){
   var f=(window.RW_CONFIG&&window.RW_CONFIG.features)||{};
-  var build='rw-v119-globe-fire-live';
+  var build='rw-v121-hollywood-smooth-read';
 
   function load(src, opening){
     if(document.querySelector('script[data-rw-v5="'+src+'"]')) return;
