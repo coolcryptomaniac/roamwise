@@ -1,7 +1,7 @@
-/* RoamWise Platform V6.2 — canonical cinematic opening.
- * One startup runtime only. Approved film + CSS fallback, responsive
- * device framing, rain/lightning/matrix atmosphere, a restrained red-cloak
- * shinobi globe-jump overlay, and a fire/spark loading bar.
+/* RoamWise Platform V6.3 — canonical cinematic opening.
+ * One startup runtime only. Globe-first film continuity, responsive device
+ * framing, rain/lightning/matrix atmosphere, three continent-route shinobi,
+ * a single fire/lightning loading bar, and a dated live insight card.
  */
 (function(){
   'use strict';
@@ -48,11 +48,9 @@
     filter:saturate(1.25) brightness(.72);transform:scale(1.04);
   }
   #${ROOT_ID} .rw-stage{position:relative;z-index:2;width:100%;height:100%;display:grid;place-items:center;overflow:hidden}
-  #${ROOT_ID} .rw-media{position:relative;width:100%;height:100%;overflow:hidden;background:
-    radial-gradient(circle at 50% 42%,rgba(129,49,255,.42),transparent 28%),
-    radial-gradient(circle at 54% 70%,rgba(255,44,125,.30),transparent 38%),#16051e}
-  #${ROOT_ID} .rw-film{object-fit:cover;object-position:center;transition:opacity .38s ease;transform:scale(1.015)}
-  #${ROOT_ID} .rw-film{opacity:0;z-index:2}
+  #${ROOT_ID} .rw-media{position:relative;width:100%;height:100%;overflow:hidden;background:#16051e url('assets/roamwise-opening-first.webp') center/cover no-repeat}
+  #${ROOT_ID} .rw-film{object-fit:cover;object-position:center;transition:opacity .16s ease;transform:scale(1.015)}
+  #${ROOT_ID} .rw-film{opacity:0;z-index:2;background:#16051e}
   #${ROOT_ID}.rw-video-ready .rw-film{opacity:1}
   #${ROOT_ID}.rw-video-failed .rw-film{display:none}
   /* GIF fallback: a still image element, never a <source> inside <video>
@@ -70,7 +68,10 @@
   #${ROOT_ID} .rw-thunder{z-index:7;opacity:0;background:
     radial-gradient(circle at 7% 28%,rgba(184,95,255,.52),transparent 19%),
     radial-gradient(circle at 91% 24%,rgba(255,70,207,.45),transparent 18%);
-    animation:rwIntroThunder 4.8s steps(1,end) infinite;mix-blend-mode:screen}
+    animation:rwIntroThunder 2.9s steps(1,end) infinite;mix-blend-mode:screen}
+  #${ROOT_ID} .rw-thunder:before,#${ROOT_ID} .rw-thunder:after{content:"";position:absolute;top:-8%;width:5px;height:58%;opacity:.18;background:linear-gradient(#fff,#b568ff 28%,#ff4bc8 68%,transparent);clip-path:polygon(40% 0,100% 0,62% 39%,100% 39%,20% 100%,42% 52%,0 52%);filter:drop-shadow(0 0 9px #d977ff);animation:rwBoltCrack 2.9s steps(1,end) infinite}
+  #${ROOT_ID} .rw-thunder:before{left:12%;transform:rotate(8deg)}
+  #${ROOT_ID} .rw-thunder:after{right:11%;transform:rotate(-11deg);animation-delay:1.35s}
 
   /* Deep-black/crimson traveler overlay. It deliberately reads as a graphic
      silhouette so it complements the approved artwork instead of fighting it.
@@ -79,7 +80,7 @@
      the left/top/transform/--legL-angle/--legR-angle values here are only the
      resting pose shown before the intro is unpaused (rw-started). */
   #${ROOT_ID} .rw-shinobi{
-    position:absolute;z-index:8;left:12%;top:69%;width:clamp(64px,11vw,96px);height:clamp(96px,17vw,144px);
+    position:absolute;z-index:8;left:50%;top:52%;width:clamp(52px,9vw,78px);height:clamp(78px,13.5vw,117px);
     pointer-events:none;filter:drop-shadow(0 9px 13px rgba(0,0,0,.60)) drop-shadow(0 0 12px rgba(178,20,56,.34));
     transform:translate(-50%,-50%) rotate(-9deg) scale(.92);
     transform-origin:50% 88%;
@@ -98,20 +99,23 @@
   #${ROOT_ID} .rw-shinobi .rw-leg.r{right:36%;transform:rotate(var(--legR-angle,-11deg))}
   #${ROOT_ID} .rw-shinobi .rw-scarf{position:absolute;left:59%;top:18%;width:55%;height:10%;border-radius:99px;background:linear-gradient(90deg,#8a1026,rgba(138,16,38,0));transform-origin:0 50%}
   #${ROOT_ID} .rw-shinobi:after{content:"";position:absolute;left:30%;bottom:3%;width:46%;height:8%;border-radius:50%;background:radial-gradient(ellipse,rgba(255,208,111,.60),rgba(178,20,56,.32) 45%,transparent 72%);filter:blur(3px);opacity:var(--rw-glow-o,.28);transform:scaleX(var(--rw-glow-sx,.65))}
+  #${ROOT_ID} .rw-shinobi--secondary{width:clamp(38px,6.7vw,58px);height:clamp(57px,10vw,87px);opacity:.82;filter:drop-shadow(0 7px 10px rgba(0,0,0,.66)) drop-shadow(0 0 10px rgba(123,56,255,.38))}
+  #${ROOT_ID} .rw-shinobi--tertiary{width:clamp(34px,6vw,52px);height:clamp(51px,9vw,78px);opacity:.70;filter:drop-shadow(0 7px 10px rgba(0,0,0,.66)) drop-shadow(0 0 9px rgba(255,63,189,.34))}
 
   #${ROOT_ID} .rw-brandDesk{display:none;position:absolute;z-index:9;left:7vw;top:50%;transform:translateY(-58%);width:min(42vw,690px);text-align:left}
   #${ROOT_ID} .rw-brandDesk h1{margin:0;font:800 clamp(62px,7vw,128px)/.86 Georgia,'Times New Roman',serif;letter-spacing:.015em;text-transform:uppercase;background:linear-gradient(90deg,#8244ff 0%,#f052e5 29%,#ff5e8c 55%,#ff954d 78%,#ffd475 100%);background-size:220% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 24px rgba(255,65,193,.33));animation:rwIntroBrand 3.2s linear infinite,rwIntroBrandGlow 2.2s ease-in-out infinite alternate}
   #${ROOT_ID} .rw-brandDesk p{margin:20px 0 0;color:rgba(255,236,248,.83);font-weight:600;letter-spacing:.48em;font-size:clamp(12px,1vw,18px);text-transform:uppercase}
 
-  #${ROOT_ID} .rw-loadDesk{display:none;margin-top:clamp(80px,13vh,160px);width:min(390px,31vw)}
-  #${ROOT_ID} .rw-loadMobile{position:absolute;z-index:11;left:14%;right:14%;bottom:max(28px,4.2vh);text-align:center}
-  #${ROOT_ID} .rw-loadDesk>span,#${ROOT_ID} .rw-loadMobile>span{display:block;margin-bottom:12px;color:rgba(255,207,233,.82);font-size:11px;letter-spacing:.42em;text-transform:uppercase;text-shadow:0 0 10px rgba(255,54,188,.35)}
-  #${ROOT_ID} .rw-track{height:6px;border:1px solid rgba(255,100,202,.42);border-radius:99px;background:rgba(255,37,174,.11);overflow:visible;position:relative;box-shadow:0 0 18px rgba(255,44,174,.13)}
+  #${ROOT_ID} .rw-loader-mask{position:absolute;z-index:10;left:0;right:0;bottom:0;height:19%;pointer-events:none;background:linear-gradient(180deg,transparent 0%,rgba(8,2,14,.84) 38%,#08020e 76%)}
+  #${ROOT_ID} .rw-loadDesk{display:none;margin-top:clamp(80px,13vh,160px);width:min(440px,34vw)}
+  #${ROOT_ID} .rw-loadMobile{position:absolute;z-index:11;left:9%;right:9%;bottom:max(28px,4.2vh);text-align:center}
+  #${ROOT_ID} .rw-loadDesk>span,#${ROOT_ID} .rw-loadMobile>span{display:block;margin-bottom:15px;color:#ffe5f4;font-size:12px;font-weight:800;letter-spacing:.36em;text-transform:uppercase;text-shadow:0 0 12px rgba(255,54,188,.62)}
+  #${ROOT_ID} .rw-track{height:10px;border:1px solid rgba(255,151,220,.66);border-radius:99px;background:rgba(255,37,174,.13);overflow:visible;position:relative;box-shadow:0 0 23px rgba(255,44,174,.30),inset 0 0 8px rgba(255,255,255,.10)}
   #${ROOT_ID} .rw-track i{position:relative;display:block;height:100%;width:0;border-radius:inherit;background:linear-gradient(90deg,#d92169 0%,#ff3b9e 38%,#ff753c 72%,#ffd36b 100%);box-shadow:0 0 17px rgba(255,83,205,.88),0 0 22px rgba(255,112,50,.26);animation:rwIntroLoad 6.15s ease-out forwards}
-  #${ROOT_ID} .rw-track i:before{content:"";position:absolute;right:-8px;top:50%;width:22px;height:25px;transform:translateY(-54%) rotate(45deg);border-radius:70% 22% 70% 32%;background:radial-gradient(circle at 62% 64%,#fff5c4 0 13%,#ffc64f 20% 38%,#ff6a25 52% 68%,rgba(255,31,90,.25) 78%,transparent 79%);filter:drop-shadow(0 0 9px #ff622d);animation:rwFlameTip .20s ease-in-out infinite alternate}
-  #${ROOT_ID} .rw-track i:after{content:"";position:absolute;right:-5px;top:50%;width:8px;height:8px;border-radius:50%;transform:translateY(-50%);background:#fff8d8;box-shadow:0 0 9px #ffd66f,0 0 18px #ff5c37,0 0 28px rgba(255,45,135,.8);animation:rwSparkTip .28s ease-in-out infinite alternate}
-  #${ROOT_ID} .rw-fire{position:absolute;right:-7px;top:50%;width:26px;height:28px;transform:translate(50%,-50%);pointer-events:none}
-  #${ROOT_ID} .rw-fire b{position:absolute;left:50%;top:50%;width:4px;height:4px;border-radius:50%;background:var(--rw-ember);box-shadow:0 0 7px #ff792e;opacity:0;animation:rwEmber var(--dur,.82s) ease-out var(--delay,0s) infinite}
+  #${ROOT_ID} .rw-track i:before{content:"";position:absolute;right:-13px;top:50%;width:36px;height:42px;transform:translateY(-54%) rotate(45deg);border-radius:70% 22% 70% 32%;background:radial-gradient(circle at 62% 64%,#fffce1 0 10%,#ffd75c 18% 34%,#ff762c 48% 65%,rgba(255,31,90,.28) 76%,transparent 78%);filter:drop-shadow(0 0 12px #ff622d) drop-shadow(0 0 20px rgba(255,39,150,.55));animation:rwFlameTip .16s ease-in-out infinite alternate}
+  #${ROOT_ID} .rw-track i:after{content:"";position:absolute;right:-7px;top:50%;width:11px;height:11px;border-radius:50%;transform:translateY(-50%);background:#fffbe6;box-shadow:0 0 11px #fff0a1,0 0 22px #ff7137,0 0 38px rgba(255,45,135,.92);animation:rwSparkTip .22s ease-in-out infinite alternate}
+  #${ROOT_ID} .rw-fire{position:absolute;right:-10px;top:50%;width:46px;height:48px;transform:translate(50%,-50%);pointer-events:none}
+  #${ROOT_ID} .rw-fire b{position:absolute;left:50%;top:50%;width:5px;height:5px;border-radius:50%;background:var(--rw-ember);box-shadow:0 0 9px #ff792e;opacity:0;animation:rwEmber var(--dur,.82s) ease-out var(--delay,0s) infinite}
   #${ROOT_ID} .rw-fire b:nth-child(1){--dx:-13px;--dy:-31px;--dur:.78s;--delay:-.18s}
   #${ROOT_ID} .rw-fire b:nth-child(2){--dx:10px;--dy:-28px;--dur:.66s;--delay:-.41s;width:3px;height:3px}
   #${ROOT_ID} .rw-fire b:nth-child(3){--dx:-4px;--dy:-38px;--dur:.91s;--delay:-.12s;width:2px;height:2px}
@@ -120,11 +124,19 @@
   #${ROOT_ID} .rw-fire b:nth-child(6){--dx:5px;--dy:-42px;--dur:1.02s;--delay:-.64s;width:2px;height:2px}
   #${ROOT_ID} .rw-fire b:nth-child(7){--dx:20px;--dy:-34px;--dur:.84s;--delay:-.06s;width:3px;height:3px}
   #${ROOT_ID} .rw-fire b:nth-child(8){--dx:-8px;--dy:-24px;--dur:.62s;--delay:-.29s;width:2px;height:2px}
+  #${ROOT_ID} .rw-fire b:nth-child(9){--dx:27px;--dy:-45px;--dur:.72s;--delay:-.44s}
+  #${ROOT_ID} .rw-fire b:nth-child(10){--dx:-26px;--dy:-49px;--dur:.88s;--delay:-.11s;width:3px;height:3px}
+  #${ROOT_ID} .rw-fire b:nth-child(11){--dx:31px;--dy:-21px;--dur:.64s;--delay:-.35s;width:3px;height:3px}
+  #${ROOT_ID} .rw-fire b:nth-child(12){--dx:-31px;--dy:-27px;--dur:.79s;--delay:-.57s}
+  #${ROOT_ID} .rw-fire em{position:absolute;left:54%;top:42%;width:4px;height:29px;background:linear-gradient(#fff,#ffe26b 35%,#a854ff 100%);clip-path:polygon(38% 0,100% 0,60% 42%,100% 42%,10% 100%,38% 55%,0 55%);opacity:0;filter:drop-shadow(0 0 7px #fff06a);animation:rwFireBolt 1.05s steps(1,end) infinite}
+  #${ROOT_ID} .rw-fire em:nth-of-type(1){transform:translate(-31px,-31px) rotate(-48deg);animation-delay:-.18s}
+  #${ROOT_ID} .rw-fire em:nth-of-type(2){transform:translate(22px,-35px) rotate(44deg);animation-delay:-.62s}
+  #${ROOT_ID} .rw-fire em:nth-of-type(3){transform:translate(32px,2px) rotate(86deg);animation-delay:-.39s}
 
-  #${ROOT_ID} .rw-skip{position:absolute;right:max(16px,env(safe-area-inset-right));bottom:max(18px,env(safe-area-inset-bottom));z-index:14;border:1px solid rgba(255,255,255,.18);background:rgba(12,5,20,.38);backdrop-filter:blur(12px);color:rgba(255,245,252,.80);border-radius:999px;padding:10px 14px;font:600 10px/1 'Outfit',system-ui,sans-serif;letter-spacing:.20em;text-transform:uppercase;cursor:pointer}
+  #${ROOT_ID} .rw-skip{position:absolute;right:max(16px,env(safe-area-inset-right));top:max(18px,env(safe-area-inset-top));z-index:18;min-width:116px;border:1px solid rgba(255,208,111,.72);background:linear-gradient(135deg,rgba(31,8,34,.90),rgba(89,18,76,.82));backdrop-filter:blur(14px);box-shadow:0 9px 28px rgba(0,0,0,.42),0 0 18px rgba(255,73,186,.22);color:#fff7df;border-radius:999px;padding:14px 18px;font:800 13px/1 'Outfit',system-ui,sans-serif;letter-spacing:.10em;text-transform:uppercase;cursor:pointer}
   #${ROOT_ID} .rw-skip:focus-visible{outline:2px solid #ff77d6;outline-offset:3px}
   #${ROOT_ID} .rw-vignette{position:absolute;inset:0;z-index:10;pointer-events:none;box-shadow:inset 0 0 150px rgba(8,0,15,.55),inset 0 -90px 140px rgba(6,0,12,.48)}
-  #${ROOT_ID} .rw-audio-gate{position:absolute;z-index:16;left:50%;bottom:12%;width:min(520px,calc(100% - 32px));transform:translateX(-50%);display:grid;justify-items:center;gap:10px;text-align:center;pointer-events:none}
+  #${ROOT_ID} .rw-audio-gate{position:absolute;z-index:16;left:50%;bottom:17%;width:min(520px,calc(100% - 32px));transform:translateX(-50%);display:grid;justify-items:center;gap:10px;text-align:center;pointer-events:none}
   #${ROOT_ID} .rw-stat-card{width:100%;box-sizing:border-box;padding:15px 18px;border:1px solid rgba(255,255,255,.16);border-radius:18px;background:linear-gradient(135deg,rgba(12,5,24,.72),rgba(53,9,48,.54));backdrop-filter:blur(14px);box-shadow:0 18px 52px rgba(0,0,0,.34);animation:rwStatFloat 2.4s ease-in-out infinite alternate}
   #${ROOT_ID} .rw-stat-kicker{display:block;margin-bottom:6px;color:#ffd06f;font:800 9px/1 'Outfit',system-ui,sans-serif;letter-spacing:.24em;text-transform:uppercase}
   #${ROOT_ID} .rw-stat-value{display:block;color:#fff;font:800 clamp(20px,4.8vw,31px)/1.1 'Outfit',system-ui,sans-serif;text-shadow:0 0 22px rgba(255,69,190,.32)}
@@ -157,6 +169,7 @@
   @keyframes rwIntroRain{from{background-position:0 -20px}to{background-position:-8px 32px}}
   @keyframes rwIntroMatrix{from{background-position:0 -80px,0 -30px}to{background-position:0 260px,0 178px}}
   @keyframes rwIntroThunder{0%,17%,19%,52%,54%,100%{opacity:0}18%,53%{opacity:.46}18.4%,53.4%{opacity:.10}}
+  @keyframes rwBoltCrack{0%,12%,14%,51%,53%,100%{opacity:0}12.4%,51.4%{opacity:.92}13%,52%{opacity:.20}}
   @keyframes rwIntroSheen{0%,18%{transform:translateX(-70%) rotate(-4deg);opacity:0}36%{opacity:.6}62%,100%{transform:translateX(72%) rotate(-4deg);opacity:0}}
   @keyframes rwIntroBrand{from{background-position:0% 50%}to{background-position:220% 50%}}
   @keyframes rwIntroBrandGlow{from{filter:drop-shadow(0 0 12px rgba(126,60,255,.28))}to{filter:drop-shadow(0 0 30px rgba(255,79,188,.52))}}
@@ -164,6 +177,7 @@
   @keyframes rwFlameTip{from{transform:translateY(-54%) rotate(40deg) scale(.88,1.08)}to{transform:translateY(-58%) rotate(49deg) scale(1.05,.90)}}
   @keyframes rwSparkTip{from{transform:translateY(-50%) scale(.75);opacity:.76}to{transform:translateY(-50%) scale(1.2);opacity:1}}
   @keyframes rwEmber{0%{transform:translate(-50%,-50%) scale(.55);opacity:0}18%{opacity:1}100%{transform:translate(calc(-50% + var(--dx)),calc(-50% + var(--dy))) scale(.10);opacity:0}}
+  @keyframes rwFireBolt{0%,71%,75%,100%{opacity:0}72%{opacity:1}73%{opacity:.28}74%{opacity:.86}}
   @keyframes rwStatFloat{from{transform:translateY(0);border-color:rgba(255,255,255,.14)}to{transform:translateY(-4px);border-color:rgba(255,93,205,.32)}}
   `;
   /* The shinobi's motion (position, lean, squash-stretch, cloak/scarf sway,
@@ -171,11 +185,15 @@
      a small requestAnimationFrame kinematics sim wired up below. */
 
   function fireBits(){
-    return '<span class="rw-fire" aria-hidden="true"><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b></span>';
+    return '<span class="rw-fire" aria-hidden="true"><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><em></em><em></em><em></em></span>';
   }
 
   function track(){
     return '<div class="rw-track"><i>'+fireBits()+'</i></div>';
+  }
+
+  function traveler(extraClass){
+    return '<div class="rw-shinobi '+(extraClass||'')+'" aria-hidden="true"><i class="rw-hair"></i><i class="rw-head"></i><i class="rw-body"></i><i class="rw-cloak"></i><i class="rw-emblem"></i><i class="rw-leg l"></i><i class="rw-leg r"></i><i class="rw-scarf"></i></div>';
   }
 
   /* Hand-rolled requestAnimationFrame kinematics for the shinobi globe-jump.
@@ -190,7 +208,8 @@
    * regardless of frame rate. Total run time matches the previous animation
    * exactly: 350ms hold + 5850ms of leaping.
    */
-  function runShinobiPhysics(shinobi){
+  function runShinobiPhysics(shinobi, route){
+    route = route || {};
     var legL = shinobi.querySelector('.rw-leg.l');
     var legR = shinobi.querySelector('.rw-leg.r');
     var cloak = shinobi.querySelector('.rw-cloak');
@@ -199,20 +218,20 @@
     // Same start/land waypoints the old fixed keyframes used (values lifted
     // from its 0%/26%/57%/100% left/top marks), now chained as 3 leaps with
     // real launch -> apex -> landing arcs instead of interpolated percentages.
-    var START_X = 12, START_Y = 69;
+    var START_X = Number(route.x || 50), START_Y = Number(route.y || 52);
     // Apex heights are now only a modest rise above the higher of each leap's
     // two endpoints (~8%), not a big floaty bulge (was 13-21%). Same start/end
     // waypoints and durations as before, so the traversal still lands in the
     // same places at the same times — only the shape of the arc in between is
     // flatter and reads as a committed running leap rather than a bounce.
-    var LEAP_DEFS = [
-      { x1: 34, y1: 57, apexY: 49, dur: 1900 },
-      { x1: 64, y1: 51, apexY: 43, dur: 2000 },
-      { x1: 78, y1: 47, apexY: 39, dur: 1650 }
-    ];
+    var LEAP_DEFS = (route.leaps || [
+      { x1: 73, y1: 47, apexY: 40, dur: 1600 },
+      { x1: 92, y1: 42, apexY: 34, dur: 1050 },
+      { x0: 8, y0: 41, x1: 28, y1: 39, apexY: 31, dur: 1500 }
+    ]).map(function(leap){ return Object.assign({}, leap); });
     var CONTACT_MS = 150;   // brief ground-contact/compression pause between leaps
     var LAND_HOLD_MS = 260; // extra settle time after the final landing for squash/glow decay
-    var START_DELAY = 350;  // matches the old animation-delay
+    var START_DELAY = Number(route.delay == null ? 280 : route.delay);
 
     // Real parkour/leap traversal keeps the torso upright and controlled — a
     // subtle lean into the direction of travel, not a visible tumble. Both
@@ -234,6 +253,8 @@
     // t_up+t_down pinned to the leap's total duration.
     var x0 = START_X, y0 = START_Y;
     LEAP_DEFS.forEach(function(leap){
+      if (Number.isFinite(leap.x0)) x0 = leap.x0;
+      if (Number.isFinite(leap.y0)) y0 = leap.y0;
       leap.x0 = x0; leap.y0 = y0;
       leap.vx = (leap.x1 - x0) / leap.dur;
       var hUp = Math.max(y0 - leap.apexY, 1);
@@ -449,11 +470,14 @@
       '<div class="rw-bg" aria-hidden="true"></div>'+
       '<div class="rw-stage">'+
         '<div class="rw-media">'+
-          '<video class="rw-film" muted autoplay playsinline webkit-playsinline preload="auto" aria-hidden="true">'+
+          '<video class="rw-film" muted autoplay playsinline webkit-playsinline preload="auto" poster="assets/roamwise-opening-first.webp" aria-hidden="true">'+
             '<source src="assets/roamwise-opening.mp4" type="video/mp4">'+
           '</video>'+
           '<div class="rw-sheen" aria-hidden="true"></div>'+
-          '<div class="rw-shinobi" aria-hidden="true"><i class="rw-hair"></i><i class="rw-head"></i><i class="rw-body"></i><i class="rw-cloak"></i><i class="rw-emblem"></i><i class="rw-leg l"></i><i class="rw-leg r"></i><i class="rw-scarf"></i></div>'+
+          traveler('rw-shinobi--primary')+
+          traveler('rw-shinobi--secondary')+
+          traveler('rw-shinobi--tertiary')+
+          '<div class="rw-loader-mask" aria-hidden="true"></div>'+
           '<div class="rw-loadMobile"><span>Entering RoamWise</span>'+track()+'</div>'+
         '</div>'+
         '<div class="rw-brandDesk" aria-hidden="true"><h1>ROAMWISE</h1><p>Shinobi Atlas</p><div class="rw-loadDesk"><span>Entering RoamWise</span>'+track()+'</div></div>'+
@@ -462,8 +486,8 @@
       '<div class="rw-fx rw-rain" aria-hidden="true"></div>'+
       '<div class="rw-fx rw-thunder" aria-hidden="true"></div>'+
       '<div class="rw-vignette" aria-hidden="true"></div>'+
-      '<div class="rw-audio-gate rw-auto-info" aria-live="polite"><div class="rw-stat-card"><span class="rw-stat-kicker">RoamWise signal</span><strong class="rw-stat-value">5 free searches every day</strong><small class="rw-stat-detail">Start planning instantly &mdash; no account needed.</small></div><div class="rw-skip-hint">Tap anywhere to skip</div></div>'+
-      '<button class="rw-skip" type="button" aria-label="Skip intro">Skip intro</button>';
+      '<div class="rw-audio-gate rw-auto-info" aria-live="polite"><div class="rw-stat-card"><span class="rw-stat-kicker">Today&#39;s travel signal</span><strong class="rw-stat-value">Checking today&#39;s world update&hellip;</strong><small class="rw-stat-detail">Fresh insight for your local date.</small></div><div class="rw-skip-hint">Tap anywhere to skip</div></div>'+
+      '<button class="rw-skip" type="button" aria-label="Skip intro">Skip&nbsp; &#8594;</button>';
 
     document.body.appendChild(root);
     finishBoot();
@@ -479,28 +503,113 @@
     filmGif.setAttribute('aria-hidden', 'true');
     video.insertAdjacentElement('afterend', filmGif);
     var skip = root.querySelector('.rw-skip');
+    var statKicker = root.querySelector('.rw-stat-kicker');
     var statValue = root.querySelector('.rw-stat-value');
     var statDetail = root.querySelector('.rw-stat-detail');
-    var shinobiEl = root.querySelector('.rw-shinobi');
-    var shinobiPhysics = shinobiEl ? runShinobiPhysics(shinobiEl) : null;
+    var shinobiEls = root.querySelectorAll('.rw-shinobi');
+    /* Route 1 is deliberately Africa -> India -> across the globe to North
+       America. The two smaller travellers take different continental paths,
+       so the atlas feels inhabited without turning into visual clutter. */
+    var routes = [
+      {x:50,y:52,delay:260,leaps:[
+        {x1:73,y1:47,apexY:40,dur:1600},
+        {x1:92,y1:42,apexY:34,dur:1050},
+        {x0:8,y0:41,x1:28,y1:39,apexY:31,dur:1500}
+      ]},
+      {x:38,y:59,delay:760,leaps:[
+        {x1:57,y1:38,apexY:31,dur:1750},
+        {x1:82,y1:43,apexY:34,dur:1850}
+      ]},
+      {x:24,y:40,delay:1180,leaps:[
+        {x1:55,y1:36,apexY:28,dur:1850},
+        {x1:51,y1:57,apexY:32,dur:1900}
+      ]}
+    ];
+    var shinobiPhysics = Array.prototype.map.call(shinobiEls, function(el, index){
+      return runShinobiPhysics(el, routes[index]);
+    });
     var closed = false;
     var started = false;
     var videoReady = false;
     var closeTimer = null;
     var statTimer = null;
+    var now = new Date();
+    var dateLabel = now.toLocaleDateString('en-IN', {day:'numeric', month:'short'});
     var stats = [
-      ['5 free searches every day', 'Start planning instantly — no account needed.'],
-      ['About 4 minutes per degree', 'Travel fact: solar time shifts roughly four minutes for each degree of longitude.'],
-      ['3 signals, one smarter route', 'RoamWise plans around your budget, travel time and crowd preference together.']
+      ['Today · '+dateLabel, 'Checking today\'s world update…', 'Fresh insight for your local date.'],
+      ['RoamWise signal', '5 free searches every day', 'Start planning instantly — no account needed.'],
+      ['Travel fact', 'About 4 minutes per degree', 'Solar time shifts roughly four minutes for each degree of longitude.'],
+      ['Route intelligence', '3 signals, one smarter route', 'Budget, travel time and crowd preference work together.']
     ];
+
+    function showStat(stat){
+      if (statKicker) statKicker.textContent = stat[0];
+      if (statValue) statValue.textContent = stat[1];
+      if (statDetail) statDetail.textContent = stat[2];
+    }
 
     function cycleStats(){
       var index = 0;
       statTimer = setInterval(function(){
         index = (index + 1) % stats.length;
-        if (statValue) statValue.textContent = stats[index][0];
-        if (statDetail) statDetail.textContent = stats[index][1];
+        showStat(stats[index]);
       }, 1900);
+    }
+
+    function cleanInsight(value){
+      var text = String(value || '').replace(/<[^>]*>/g,'').replace(/\s+/g,' ').trim();
+      if (text.length > 92) text = text.slice(0, 89).replace(/\s+\S*$/,'') + '…';
+      return text;
+    }
+
+    function useNewsJson(data){
+      var updated = data && data.updated ? new Date(data.updated) : null;
+      var age = updated && !Number.isNaN(updated.getTime()) ? Math.abs(Date.now() - updated.getTime()) : Infinity;
+      var item = data && data.items && data.items[0];
+      if (!item || age > 36 * 60 * 60 * 1000) throw new Error('stale travel feed');
+      var headline = cleanInsight(item.crunch || item.headline);
+      if (!headline) throw new Error('empty travel feed');
+      stats[0] = ['Live travel update · '+dateLabel, headline, cleanInsight(item.source || 'RoamWise Travel Pulse')];
+      showStat(stats[0]);
+    }
+
+    function useWikimedia(data){
+      var story = data && data.news && data.news[0] && data.news[0].story;
+      story = cleanInsight(story);
+      if (!story) throw new Error('no same-day current event');
+      stats[0] = ['World update · '+dateLabel, story, 'Wikimedia current events · checked today'];
+      showStat(stats[0]);
+    }
+
+    function useOnThisDay(data){
+      var selected = data && data.selected && data.selected[0];
+      var insight = cleanInsight(selected && selected.text);
+      if (!insight) return;
+      stats[0] = ['On this day · '+dateLabel, insight, 'A date-matched travel and culture insight'];
+      showStat(stats[0]);
+    }
+
+    function loadDailySignal(){
+      var yyyy = now.getFullYear();
+      var mm = String(now.getMonth()+1).padStart(2,'0');
+      var dd = String(now.getDate()).padStart(2,'0');
+      fetch('news.json?date='+yyyy+'-'+mm+'-'+dd, {cache:'no-store'})
+        .then(function(response){ if (!response.ok) throw new Error('no daily feed'); return response.json(); })
+        .then(useNewsJson)
+        .catch(function(){
+          return fetch('https://api.wikimedia.org/feed/v1/wikipedia/en/featured/'+yyyy+'/'+mm+'/'+dd, {cache:'no-store'})
+            .then(function(response){ if (!response.ok) throw new Error('no current events'); return response.json(); })
+            .then(useWikimedia);
+        })
+        .catch(function(){
+          return fetch('https://api.wikimedia.org/feed/v1/wikipedia/en/onthisday/selected/'+mm+'/'+dd, {cache:'no-store'})
+            .then(function(response){ if (!response.ok) throw new Error('no daily insight'); return response.json(); })
+            .then(useOnThisDay);
+        })
+        .catch(function(){
+          stats[0] = ['Today · '+dateLabel, 'Travel farther, plan lighter', 'RoamWise keeps this card useful even when you are offline.'];
+          showStat(stats[0]);
+        });
     }
 
     function beginVisual(withSound){
@@ -508,7 +617,7 @@
       started = true;
       root.classList.add('rw-started');
       var reducedMotionNow = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-      if (shinobiPhysics && !reducedMotionNow) shinobiPhysics.start();
+      if (!reducedMotionNow) shinobiPhysics.forEach(function(physics){ physics.start(); });
       try {
         window.dispatchEvent(new CustomEvent('rw:opening-start'));
       } catch (_) {}
@@ -536,7 +645,7 @@
       closed = true;
       if (closeTimer) clearTimeout(closeTimer);
       if (statTimer) clearInterval(statTimer);
-      if (shinobiPhysics) shinobiPhysics.stop();
+      shinobiPhysics.forEach(function(physics){ physics.stop(); });
       root.classList.add('rw-closing');
       try { video.pause(); } catch (_) {}
       try { if (typeof window.rwStopCue === 'function') window.rwStopCue(true); } catch (_) {}
@@ -561,6 +670,12 @@
         if (play && typeof play.catch === 'function') play.catch(function(){});
       }
     }, {once:true});
+    video.addEventListener('loadedmetadata', function(){
+      /* The encoded film begins with a short black frame. The continuity
+         image is already visible, then playback joins it at the first globe
+         frame instead of flashing the discarded splash. */
+      try { if (video.currentTime < .2) video.currentTime = .22; } catch (_) {}
+    }, {once:true});
     video.addEventListener('ended', close, {once:true});
     video.addEventListener('error', function(){
       root.classList.add('rw-video-failed');
@@ -569,6 +684,7 @@
       if (filmGif && !filmGif.src) filmGif.src = 'assets/roamwise-opening.gif';
     }, {once:true});
 
+    loadDailySignal();
     cycleStats();
     /* Start the muted inline film and all visual effects immediately. The
        cue is attempted at the same time and fails silently where audible

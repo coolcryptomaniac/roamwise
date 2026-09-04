@@ -66,7 +66,7 @@ window.rwApi = function(path){
   var boot = document.createElement('style');
   boot.id = 'rw-opening-boot-style';
   boot.textContent = '#intro,.intro{display:none!important;visibility:hidden!important;opacity:0!important}'+
-    'html:not(.rw-opening-skip):not(.rw-opening-mounted) body:before{content:"";position:fixed;inset:0;z-index:2147482999;background:radial-gradient(circle at 50% 18%,rgba(118,45,255,.42),transparent 38%),radial-gradient(circle at 66% 74%,rgba(255,49,164,.28),transparent 38%),linear-gradient(145deg,#130621,#260824 50%,#10051b);pointer-events:none}';
+    'html:not(.rw-opening-skip):not(.rw-opening-mounted) body:before{content:"";position:fixed;inset:0;z-index:2147482999;background:#16051e url("assets/roamwise-opening-first.webp") center/cover no-repeat;pointer-events:none}';
   document.head.appendChild(boot);
 })();
 
@@ -75,7 +75,7 @@ window.rwApi = function(path){
    soon as its tiny JS arrives instead of waiting behind unrelated modules. */
 (function(){
   var f=(window.RW_CONFIG&&window.RW_CONFIG.features)||{};
-  var build='rw-v118-mobile-audio-fresh';
+  var build='rw-v119-globe-fire-live';
 
   function load(src, opening){
     if(document.querySelector('script[data-rw-v5="'+src+'"]')) return;
