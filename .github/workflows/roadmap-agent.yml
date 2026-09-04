@@ -1,0 +1,64 @@
+name: RoamWise Roadmap Agent — Weekly
+
+# Weekly strategic-review agent. Gathers repo/business signal, calls the
+# Claude API to synthesize recommendations, and posts the result as a
+# GitHub Issue for a human to triage. It NEVER commits code, opens a PR, or
+# touches auth/payments/Pro-entitlement/Firestore/deployment — see
+# ROADMAP-AGENT.md for the full boundary and the one-time secret setup.
+#
+# Weekly (not daily) is deliberate: strategic recommendations don't change
+# meaningfully day to day, and a daily cadence would just repeat itself while
+# spending API budget for no extra signal.
+on:
+  schedule:
+    - cron: '0 6 * * 1'    # Monday 06:00 UTC (11:30 IST)
+  workflow_dispatch:         # manual "Run now" button
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  roadmap:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+
+      - name: Gather repo + business context
+        run: node tools/roadmap-agent/gather-context.js
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Generate report via Claude API
+        id: generate
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          ROADMAP_AGENT_MODEL: ${{ vars.ROADMAP_AGENT_MODEL }}
+        run: |
+          if [ -z "$ANTHROPIC_API_KEY" ]; then
+            echo "::error::ANTHROPIC_API_KEY repository secret is not set. \
+          Add it at Settings -> Secrets and variables -> Actions -> New repository \
+          secret (name: ANTHROPIC_API_KEY). See ROADMAP-AGENT.md for details. \
+          The Roadmap Agent cannot generate this week's report without it."
+            exit 1
+          fi
+          node tools/roadmap-agent/generate-report.js
+
+      - name: Post report as GitHub Issue
+        if: success()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const body = fs.readFileSync('report.md', 'utf8');
+            const d = new Date().toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata', day: 'numeric', month: 'short', year: 'numeric' });
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `🗺️ Roadmap agent — weekly report — ${d}`,
+              body,
+              labels: ['roadmap-agent'],
+            });
