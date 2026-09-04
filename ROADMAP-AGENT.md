@@ -98,6 +98,46 @@ Optional: to pin a specific model instead of the default
 Variables** with the model ID to use. This is read at runtime rather than
 hardcoded so it's easy to update as model names change.
 
+## Alternative: no separate API key, via a Claude Code scheduled trigger
+
+The GitHub-Actions-plus-`ANTHROPIC_API_KEY` design above is the default and
+stays fully documented — if the repo owner does get a standalone Anthropic
+API key later, adding it as the `ANTHROPIC_API_KEY` secret is still all that's
+needed and nothing else here changes.
+
+**But that key doesn't have to exist for this to run on a recurring basis.**
+If the repo owner already has a Claude Code plan, Claude Code on the web
+(https://code.claude.com/docs/en/claude-code-on-the-web) supports scheduled
+triggers: a saved prompt that fires on a cron-like cadence against this repo,
+running as a normal Claude Code session under the owner's existing plan — no
+extra billed API key, and no GitHub Actions secret to manage.
+
+To set this up as the weekly cadence instead of (or alongside) the Actions
+workflow:
+
+1. In Claude Code on the web, open this repo and create a scheduled trigger
+   with roughly the cadence in `.github/workflows/roadmap-agent.yml`
+   (Monday mornings).
+2. Give it a prompt along these lines: *"Run
+   `tools/roadmap-agent/gather-context.js` in this repo, then read the
+   resulting `context.md` and write a roadmap report yourself — you have
+   full reasoning ability, so skip calling a separate model API — following
+   the exact five-section structure and constraints in
+   `tools/roadmap-agent/generate-report.js`'s `SYSTEM_PROMPT` (new features,
+   upgrades, deprecate/delete/simplify, business strategy grounded in the
+   business docs, and long-term health framed as durable practices, never a
+   specific lifespan promise). Post the result as a new GitHub Issue labeled
+   `roadmap-agent`, titled with today's date."*
+3. That's the whole setup — the trigger reuses the same `gather-context.js`
+   script (nothing about that script changes), it just replaces the
+   `generate-report.js` → Anthropic-API-call step with the Claude Code
+   session doing the synthesis itself, the same way this week's manually-run
+   report was produced.
+
+This path and the GitHub Actions path are not mutually exclusive — running
+both would just produce two reports a week from two mechanisms. Pick one as
+primary; the other stays documented here as a fallback.
+
 ## Local testing without a live API key
 
 ```
