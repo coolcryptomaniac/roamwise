@@ -499,7 +499,9 @@
       /* Audible autoplay is blocked on Safari, Chrome and Firefox until a
          user gesture. startExperience() calls this synchronously from the
          gate button so the cue receives that gesture. The global audio-focus
-         owner pauses any ambient bed first and may resume it after this cue. */
+         owner pauses any ambient bed first and may resume it after this cue.
+         Do not call RWAudio.play() here: starting ambient before the cue would
+         recreate the simultaneous-playback bug this focus handoff prevents. */
       try {
         if (withSound && typeof window.rwPlayCue === 'function') {
           var resumeAmbient = !!(window.RWAudio && RWAudio.isLoopEnabled && RWAudio.isLoopEnabled());
