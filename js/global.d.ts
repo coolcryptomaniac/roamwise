@@ -29,6 +29,8 @@ interface Window {
   RWAudio?: RWAudioGlobal;
   /** Defined in js/audio/focus.js. */
   RWAudioFocus?: RWAudioFocusGlobal;
+  /** Defined in js/core/include-partial.js; re-runs the data-include fetch-and-inject pass. */
+  includeAllPartials?: () => void;
 }
 
 /**
