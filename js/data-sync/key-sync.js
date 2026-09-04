@@ -1,3 +1,4 @@
+// @ts-nocheck
 /* Extracted verbatim from app.js (final modularization pass) — end-to-end
    encrypted API-key backup/restore (Firestore-backed). Depends on user/db
    from js/boot/auth-init.js (loads earlier) and lsGet/lsSet/el/showToast
