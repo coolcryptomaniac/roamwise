@@ -1,3 +1,4 @@
+// @ts-nocheck
 /* ==================== CORE: DOM UTILS ====================
    Extracted verbatim from app.js (Phase 6a modularization).
    Loaded FIRST in index.html's script chain — before every other js/*

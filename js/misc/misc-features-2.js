@@ -1,3 +1,4 @@
+// @ts-nocheck
 /* Misc travel features (2/3) — moved verbatim from app.js (Phase 6a).
    Covers the Daily Briefing (date/location/weather aware), house ad slots,
    the Trek Vault + Fresh Experiences (with the shared wishlist), Travel

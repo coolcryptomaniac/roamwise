@@ -1,3 +1,4 @@
+// @ts-nocheck
 /* Realms of Roam / Journey Passport game system — moved verbatim from
    app.js (Phase 6a modularization). Covers seasons/glory/verified claims,
    houses/realms map, and the Journey Passport (stamp/verify) flow. */

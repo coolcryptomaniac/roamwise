@@ -1,3 +1,4 @@
+// @ts-nocheck
 // Moved verbatim from app.js (Phase 7a) — Pollution + Happiness Meters:
 // indicative, country-level air-quality and World-Happiness-Report bands
 // rendered on destination cards. Called from renderCards() in app.js.

@@ -1,3 +1,4 @@
+// @ts-nocheck
 /* ==================== COPILOT: TUSK KNOWLEDGE + LEARNING LAYER ====================
    Extracted verbatim from app.js (Phase 4b modularization).
    Wikivoyage (CC BY-SA, keyless, open CORS) is the built-in engine's real

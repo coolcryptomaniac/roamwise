@@ -1,3 +1,4 @@
+// @ts-nocheck
 /* --- 3. REMINDERS (local, with optional chime) --- */
 function rwRemindAsk(about){
   var txt=(about||'your trip plan').slice(0,90);

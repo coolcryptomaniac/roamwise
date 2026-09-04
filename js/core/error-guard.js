@@ -1,3 +1,4 @@
+// @ts-nocheck
 /* ==================== CORE: GLOBAL ERROR GUARD ====================
    Extracted verbatim from the very top of app.js (Phase 6b modularization).
    Loaded FIRST — before every other js/* module and before app.js — rather

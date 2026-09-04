@@ -1,3 +1,4 @@
+// @ts-nocheck
 /* ==================== SOCIAL: SECURE TRIP GROUP CHAT (core) ====================
    Extracted verbatim from app.js (Phase 4c modularization).
    Room lifecycle: opening/picking a room, sending, minimizing, panel/full size

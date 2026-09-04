@@ -1,3 +1,4 @@
+// @ts-nocheck
 /* Misc travel features (3/3) — moved verbatim from app.js (Phase 6a).
    Covers Sound of Place, Signature Food, Destination Vibe, the Trek Vault
    (grades/costs/operators comparison), Athlete Mode (medical + fitness

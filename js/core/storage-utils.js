@@ -1,3 +1,4 @@
+// @ts-check
 /* ==================== CORE: STORAGE UTILS ====================
    Extracted verbatim from app.js (Phase 4b modularization).
    Loaded FIRST in index.html's script chain — BEFORE js/data/*, and before
@@ -10,5 +11,19 @@
    utility (zero dependencies on anything else in the app) first removes
    that hazard for every module, regardless of their relative order. ==== */
 var LS = localStorage;
+
+/**
+ * Read a value from localStorage, defaulting to an empty string when the
+ * key is missing or storage returns null/undefined.
+ * @param {string} k
+ * @returns {string}
+ */
 function lsGet(k){ return LS.getItem(k)||''; }
+
+/**
+ * Write a value to localStorage.
+ * @param {string} k
+ * @param {string} v
+ * @returns {void}
+ */
 function lsSet(k,v){ LS.setItem(k,v); }

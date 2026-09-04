@@ -1,3 +1,4 @@
+// @ts-nocheck
 // Moved verbatim from app.js (Phase 7a) — Shadow Budget: models the
 // real day-by-day cash-flow (transfers, tips, SIM, FX spread, buffer) that
 // headline weekly prices leave out. Called from js/copilot/rich-reply.js,

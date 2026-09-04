@@ -1,3 +1,4 @@
+// @ts-nocheck
 /* Misc travel features — moved verbatim from app.js (Phase 6a).
    Covers Fitness-First Stays, Near Me (opt-in POI search), Hub & Spoke
    India, Basecamp (trek/expedition operators + packing list), the Strava

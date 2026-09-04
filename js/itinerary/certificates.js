@@ -1,3 +1,4 @@
+// @ts-nocheck
 /* certificates.js — Atlas Certificate (self-contained downloadable HTML), Journey
    Movie (cinematic canvas + audio render), the Journey Certificate render/share/
    download flow, and the Eco Certificate + certificate-verification (SHA-256 tamper

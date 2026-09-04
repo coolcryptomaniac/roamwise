@@ -1,3 +1,4 @@
+// @ts-nocheck
 /* ==================== COPILOT: TUSK ANSWER CARDS ====================
    Extracted verbatim from app.js (Phase 4b modularization).
    One themed, animated card per destination answer instead of a stack of

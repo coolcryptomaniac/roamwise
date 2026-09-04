@@ -1,3 +1,4 @@
+// @ts-nocheck
 /* One audible owner at a time across cues, music, speech, video and Web Audio. */
 (function () {
   'use strict';

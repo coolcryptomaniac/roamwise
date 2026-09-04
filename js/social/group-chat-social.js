@@ -1,3 +1,4 @@
+// @ts-nocheck
 /* ==================== SOCIAL: SECURE TRIP GROUP CHAT (reactions, presence, ====================
    members, vibe/phase, the message renderer, and safety/moderation)
    Extracted verbatim from app.js (Phase 4c modularization).

@@ -1,3 +1,4 @@
+// @ts-nocheck
 // Moved verbatim from app.js (Phase 7a) — RWData: the backend-portability
 // migration seam (a thin pass-through to Firestore today; new data code
 // should call RWData.* instead of db.collection(...) directly so a future

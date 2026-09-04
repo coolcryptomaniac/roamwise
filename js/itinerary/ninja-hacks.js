@@ -1,3 +1,4 @@
+// @ts-nocheck
 /* ninja-hacks.js — Ninja Hacks engine: deterministic per-destination cheap/luxury
    tips, region facts, and buildHacks() used by renderCards(). Moved verbatim from
    app.js as part of Phase 5a modularization; zero logic changes. */

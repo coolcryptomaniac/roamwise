@@ -1,3 +1,4 @@
+// @ts-nocheck
 /* ==================== SOCIAL: TRIBE + BEACON + TRIP SQUADS ====================
    Extracted verbatim from app.js (Phase 4 modularization). Three related but
    independent opt-in social-discovery features:

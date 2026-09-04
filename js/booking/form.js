@@ -1,3 +1,4 @@
+// @ts-nocheck
 /* Moved from app.js (Phase 3 modularization) — the booking form + pay flow:
    the INSTANT BOOKING ENGINE (room search/booking form/UPI pay/confirm/
    notify-owner) and the REQUEST TO BOOK basket scaffolding. Pure code

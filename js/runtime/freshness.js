@@ -1,3 +1,4 @@
+// @ts-nocheck
 /* Keep an installed PWA on the newest deployed code while retaining offline fallback. */
 (function () {
   'use strict';

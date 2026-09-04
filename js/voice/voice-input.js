@@ -1,3 +1,4 @@
+// @ts-nocheck
 function copilotVoiceHero(){ rwVoiceStart('heroInput'); }
 var _rwVoiceTarget='heroInput';
 function rwVoiceStart(targetId){

@@ -1,3 +1,4 @@
+// @ts-nocheck
 /* ==================== COPILOT: AILON TUSK PERSONA ====================
    Extracted verbatim from app.js (Phase 4b modularization).
 

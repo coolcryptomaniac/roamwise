@@ -1,3 +1,4 @@
+// @ts-nocheck
 /* speak a line via TTS — native bridge in-app, Web Speech on the web */
 /* Strip emoji/pictographs before speaking. Device TTS reads them aloud as
    "fire", "grinning face with sweat" etc., which wrecked the joke every time.

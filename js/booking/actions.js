@@ -1,3 +1,4 @@
+// @ts-nocheck
 /* Moved from app.js (Phase 3 modularization) — the ON-TRIP ACTION HUB:
    RW_ACTIONS map, rwActionIntent, rwActionQuery and the rwActionHubHTML
    comparison-chip renderer. Pure code motion, zero logic changes.

@@ -1,3 +1,4 @@
+// @ts-nocheck
 /* trip-vault.js — offline Trip Vault (saved trips in localStorage, viewable with
    zero signal) and trip extras: weather, currency and safety essentials shown
    alongside a saved trip. Moved verbatim from app.js as part of Phase 5a
