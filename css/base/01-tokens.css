@@ -1,0 +1,27 @@
+/* app-base partial 1/6: design tokens — root CSS vars, theme variants (data-theme=...), global keyframes, base body rules. */
+
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--crim:#C4302B;--crim2:#EA5A50;--bg:#07090F;--bg2:#0C1020;--bg3:#121828;--bg4:#182030;--b1:rgba(255,255,255,.07);--b2:rgba(255,255,255,.12);--gold:#C8913E;--gold2:#E8BA6C;--teal:#16BF96;--red:#D84F4F;--amber:#E09030;--pm:#9B59F5;--pm2:#BF8CFF;--t1:#EDE8DF;--t2:#8A8680;--t3:#4A4946}
+/* ===== THEMES: switch via <html data-theme="..."> — all colors cascade from these vars ===== */
+/* Midnight (default dark) is :root above. */
+html[data-theme="obsidian"]{--bg:#000000;--bg2:#0A0A0A;--bg3:#141414;--bg4:#1C1C1C;--b1:rgba(255,255,255,.06);--b2:rgba(255,255,255,.1);--t1:#F5F5F5;--t2:#9A9A9A;--t3:#555}
+html[data-theme="daylight"]{--bg:#F7F6F3;--bg2:#FFFFFF;--bg3:#EFEDE8;--bg4:#E6E3DC;--b1:rgba(0,0,0,.08);--b2:rgba(0,0,0,.14);--t1:#1A1A1A;--t2:#5A5A5A;--t3:#9A9A9A;--gold:#B67B2E;--gold2:#C8913E}
+html[data-theme="paper"]{--bg:#FBF7EF;--bg2:#FFFDF8;--bg3:#F2EBDD;--bg4:#E8DFCB;--b1:rgba(60,40,20,.08);--b2:rgba(60,40,20,.15);--t1:#2A2118;--t2:#6B5D4A;--t3:#A89B85;--gold:#A9772B;--gold2:#C08B3C}
+html[data-theme="forest"]{--bg:#0A1410;--bg2:#0E1B15;--bg3:#13251C;--bg4:#1A3227;--b1:rgba(160,255,200,.07);--b2:rgba(160,255,200,.13);--t1:#E8F0EA;--t2:#8AA595;--t3:#4A5D52;--gold:#3FB984;--gold2:#5FD9A4;--teal:#16BF96}
+html[data-theme="nova"]{--bg:#0B0E1A;--bg2:#141829;--bg3:#1C2138;--bg4:#252B47;--b1:rgba(150,170,255,.09);--b2:rgba(150,170,255,.16);--t1:#EEF0FA;--t2:#9AA3C4;--t3:#5A6288;--gold:#7C6BFF;--gold2:#A78BFA;--teal:#22D3EE}
+html[data-theme="sunset"]{--bg:#160D14;--bg2:#22131E;--bg3:#2E1A28;--bg4:#3D2235;--b1:rgba(255,180,200,.08);--b2:rgba(255,180,200,.15);--t1:#FCEEF3;--t2:#C79BAE;--t3:#7D5A6B;--gold:#FF6B9D;--gold2:#FFA07A;--teal:#FFB86C}
+html[data-theme="crisp"]{--bg:#F7F8FC;--bg2:#FFFFFF;--bg3:#F1F3F9;--bg4:#E7EAF3;--b1:rgba(20,30,60,.07);--b2:rgba(20,30,60,.12);--t1:#131A2B;--t2:#5A6480;--t3:#9AA2B8;--gold:#3B5BFF;--gold2:#6B85FF;--teal:#0EA5E9}
+html[data-theme="crisp"] .logo-icon,html[data-theme="crisp"] .hb-gold{color:#fff}
+html[data-theme="crisp"] .nav{background:rgba(255,255,255,.92)}
+html[data-theme="crisp"] .tabbar{background:rgba(255,255,255,.97)}
+html[data-theme="minimal"]{--bg:#FFFFFF;--bg2:#FAFAFA;--bg3:#F4F4F4;--bg4:#ECECEC;--b1:rgba(0,0,0,.06);--b2:rgba(0,0,0,.1);--t1:#111111;--t2:#666666;--t3:#AAAAAA;--gold:#111111;--gold2:#333333}
+/* light themes need their inline dark backgrounds softened where CSS uses raw #07090F */
+html[data-theme="daylight"] .logo-icon,html[data-theme="paper"] .logo-icon,html[data-theme="minimal"] .logo-icon,html[data-theme="daylight"] .hb-gold,html[data-theme="paper"] .hb-gold,html[data-theme="minimal"] .hb-gold{color:#fff}
+html[data-theme="daylight"] .nav,html[data-theme="paper"] .nav,html[data-theme="minimal"] .nav{background:rgba(255,255,255,.9)}
+body{background:var(--bg);color:var(--t1);font-family:'Outfit',sans-serif;font-size:14px;line-height:1.6;overflow-x:hidden}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes fadeup{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+@keyframes shimmer{0%{left:-100%}100%{left:200%}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+@keyframes pop{0%{transform:scale(.8);opacity:0}100%{transform:scale(1);opacity:1}}
+@keyframes fall{to{transform:translateY(110vh) rotate(720deg);opacity:0}}
