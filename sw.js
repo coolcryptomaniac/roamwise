@@ -18,7 +18,7 @@
  *    caching it would blow the origin's storage quota for no benefit.
  * ------------------------------------------------------------------------- */
 
-var VERSION = 'rw-v118-mobile-audio-fresh';
+var VERSION = 'rw-v119-globe-fire-live';
 var HTML_CACHE = VERSION + '-html';
 var ASSET_CACHE = VERSION + '-assets';
 
@@ -37,6 +37,7 @@ var PRECACHE = [
   '/js/audio/cues.js',
   '/platform-v5/audio-only.js',
   '/platform-v5/atlas-shinobi.js',
+  '/assets/roamwise-opening-first.webp',
   '/destination-photos.js',
   '/manifest.webmanifest',
   '/icons/icon-192.png',

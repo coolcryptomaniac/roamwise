@@ -6,10 +6,13 @@ const test = require('node:test');
 const root = path.join(__dirname, '..');
 const read = file => fs.readFileSync(path.join(root, file), 'utf8');
 
-test('cinematic opening has no loading photo dependency', () => {
+test('cinematic opening uses one lightweight globe continuity frame', () => {
   const opening = read('platform-v5/atlas-shinobi.js');
-  assert.doesNotMatch(opening, /roamwise-opening-poster|rw-poster|<img/i);
-  assert.match(opening, /CSS fallback/);
+  assert.doesNotMatch(opening, /roamwise-opening-poster|rw-poster/);
+  assert.match(opening, /Globe-first film continuity/);
+  assert.match(opening, /roamwise-opening-first\.webp/);
+  assert.match(opening, /video\.currentTime = \.22/);
+  assert.ok(fs.statSync(path.join(root, 'assets', 'roamwise-opening-first.webp')).size < 100000);
   assert.equal(fs.existsSync(path.join(root, 'assets', 'roamwise-opening-poster.png')), false);
 });
 
@@ -27,6 +30,13 @@ test('audio and cues load before the cinematic opener, which starts automaticall
   assert.match(opening, /muted autoplay playsinline webkit-playsinline/);
   assert.match(opening, /Tap anywhere to skip/);
   assert.match(opening, /5 free searches every day/);
+  assert.match(opening, /Live travel update/);
+  assert.match(opening, /Wikimedia current events/);
+  assert.match(opening, /Africa -> India/);
+  assert.match(opening, /rw-shinobi--secondary/);
+  assert.match(opening, /rw-shinobi--tertiary/);
+  assert.match(opening, /rw-loader-mask/);
+  assert.match(opening, /rwFireBolt/);
   assert.match(opening, /root\.addEventListener\('click', close\)/);
   assert.doesNotMatch(opening, /Promise\.resolve\(RWAudio\.play\(\)\)/);
   assert.match(opening, /webkit-playsinline/);
@@ -46,7 +56,7 @@ test('settings and offline shell include the new audio engine', () => {
   assert.match(audio, /id=\"rwAudioVolume\"/);
 
   const worker = read('sw.js');
-  assert.match(worker, /rw-v118-mobile-audio-fresh/);
+  assert.match(worker, /rw-v119-globe-fire-live/);
   assert.match(worker, /js\/audio\/focus\.js/);
   assert.match(worker, /platform-v5\/audio-only\.js/);
   assert.match(worker, /platform-v5\/atlas-shinobi\.js/);
