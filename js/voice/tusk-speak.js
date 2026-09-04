@@ -11,10 +11,32 @@ function tuskSpeakable(text){
     .trim();
 }
 
+function tuskStopSpeech(){
+  try{ if(window.RW && typeof RW.stopSpeaking==='function') RW.stopSpeaking(); }catch(e){}
+  try{ if(window.RW && typeof RW.stopSpeak==='function') RW.stopSpeak(); }catch(e){}
+  try{
+    if(window.Capacitor && Capacitor.Plugins && Capacitor.Plugins.TextToSpeech &&
+       typeof Capacitor.Plugins.TextToSpeech.stop==='function') Capacitor.Plugins.TextToSpeech.stop();
+  }catch(e){}
+  try{ if(window.speechSynthesis) speechSynthesis.cancel(); }catch(e){}
+}
+
+function tuskClaimSpeechFocus(){
+  tuskStopSpeech();
+  try{
+    if(window.RWAudioFocus && RWAudioFocus.claim) RWAudioFocus.claim('speech', tuskStopSpeech);
+  }catch(e){}
+}
+
+function tuskReleaseSpeechFocus(){
+  try{ if(window.RWAudioFocus && RWAudioFocus.release) RWAudioFocus.release('speech'); }catch(e){}
+}
+
 function tuskSpeak(text){
   var say = tuskSpeakable(text);
   if(!say) return;
   if(!rwVoiceEnabled()){ showToast('🔇 Voice narration is muted — turn it back on in Settings'); return; }
+  tuskClaimSpeechFocus();
   if(window.RW && typeof RW.speak==='function'){ try{ RW.speak(say); return; }catch(e){} }
   /* Capacitor Text-to-Speech plugin (works in the app where WebView speechSynthesis often doesn't) */
   if(window.Capacitor && Capacitor.Plugins && Capacitor.Plugins.TextToSpeech){
@@ -34,7 +56,8 @@ function tuskSpeak(text){
     if(pick) u.voice=pick;
     /* Android WebView often accepts .speak() but silently produces no audio
        without throwing — surface an error toast so the user isn't left guessing */
-    u.onerror = function(){ showToast('🔊 Voice unavailable on this device'); };
+    u.onend = tuskReleaseSpeechFocus;
+    u.onerror = function(){ tuskReleaseSpeechFocus(); showToast('🔊 Voice unavailable on this device'); };
     speechSynthesis.speak(u);
-  }catch(e){ showToast('🔊 Voice unavailable on this device'); }
+  }catch(e){ tuskReleaseSpeechFocus(); showToast('🔊 Voice unavailable on this device'); }
 }

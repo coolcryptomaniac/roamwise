@@ -75,11 +75,12 @@ window.rwApi = function(path){
    soon as its tiny JS arrives instead of waiting behind unrelated modules. */
 (function(){
   var f=(window.RW_CONFIG&&window.RW_CONFIG.features)||{};
+  var build='rw-v118-mobile-audio-fresh';
 
   function load(src, opening){
     if(document.querySelector('script[data-rw-v5="'+src+'"]')) return;
     var s=document.createElement('script');
-    s.src=src;
+    s.src=src+(src.indexOf('?')===-1?'?':'&')+'v='+build;
     s.dataset.rwV5=src;
     if(opening){
       s.async=false;
@@ -92,6 +93,7 @@ window.rwApi = function(path){
 
   /* Audio must register before the opener. Dynamic scripts marked async=false
      execute in insertion order, giving the intro one authoritative sound gate. */
+  if(f.audioTheme) load('js/audio/focus.js', true);
   if(f.audioTheme) load('platform-v5/audio-only.js', true);
   if(f.atlasIntroV5) load('platform-v5/atlas-shinobi.js', true);
   if(f.performanceV5) load('platform-v5/performance.js', false);

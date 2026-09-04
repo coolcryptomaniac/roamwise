@@ -156,6 +156,7 @@
       el.preload = 'auto';
       el.src = AMBIENT_BASE + pickFormat(el);
       el.volume = normalizedVolume();
+      el._rwAudioOwner = 'ambient';
       audioEl = el;
       return audioEl;
     } catch (_) {
@@ -178,6 +179,11 @@
       emit();
       return Promise.resolve(false);
     }
+    var focus = window.RWAudioFocus;
+    if (focus && focus.current && focus.current() && focus.current() !== 'ambient') {
+      return Promise.resolve(false);
+    }
+    if (focus && focus.claim) focus.claim('ambient', function(){ pause(false); });
     el.volume = normalizedVolume();
 
     var result;
@@ -192,6 +198,7 @@
     }).catch(function(){
       state.playing = false;
       state.blocked = true;
+      if (focus && focus.release) focus.release('ambient');
       syncUI();
       emit();
       return false;
@@ -205,6 +212,8 @@
       try { audioEl.pause(); } catch (_) {}
       if (reset) { try { audioEl.currentTime = 0; } catch (_) {} }
     }
+    var focus = window.RWAudioFocus;
+    if (focus && focus.release) focus.release('ambient');
     syncUI();
     emit();
   }
@@ -314,7 +323,9 @@
   function unlock(){
     /* Browser autoplay-unlock gesture — only relevant to the looping ambient
        bed, which now only auto-plays when the user has opted into looping. */
-    if (state.enabled && state.loopEnabled && !isPlaying()) play();
+    var focus = window.RWAudioFocus;
+    var owner = focus && focus.current ? focus.current() : null;
+    if (state.enabled && state.loopEnabled && !isPlaying() && (!owner || owner === 'ambient')) play();
   }
 
   window.RWAudio = {
@@ -337,7 +348,11 @@
   document.addEventListener('keydown', unlock, true);
   document.addEventListener('visibilitychange', function(){
     if (document.hidden) pause(false);
-    else if (state.enabled && state.loopEnabled) play();
+    else if (state.enabled && state.loopEnabled) {
+      var focus = window.RWAudioFocus;
+      var owner = focus && focus.current ? focus.current() : null;
+      if (!owner || owner === 'ambient') play();
+    }
   });
 
   function init(){

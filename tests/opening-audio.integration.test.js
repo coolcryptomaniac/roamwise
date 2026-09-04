@@ -15,13 +15,16 @@ test('cinematic opening has no loading photo dependency', () => {
 
 test('audio loads before the cinematic opener and gates its animation', () => {
   const config = read('rw-config.js');
+  const focusIndex = config.indexOf("load('js/audio/focus.js', true)");
   const audioIndex = config.indexOf("load('platform-v5/audio-only.js', true)");
   const openingIndex = config.indexOf("load('platform-v5/atlas-shinobi.js', true)");
-  assert.ok(audioIndex > -1 && openingIndex > audioIndex);
+  assert.ok(focusIndex > -1 && audioIndex > focusIndex && openingIndex > audioIndex);
 
   const opening = read('platform-v5/atlas-shinobi.js');
   assert.match(opening, /Tap to begin with sound/);
-  assert.match(opening, /Promise\.resolve\(RWAudio\.play\(\)\)/);
+  assert.match(opening, /beginVisual\(true\)/);
+  assert.doesNotMatch(opening, /Promise\.resolve\(RWAudio\.play\(\)\)/);
+  assert.match(opening, /webkit-playsinline/);
   assert.match(opening, /rw-started/);
   assert.match(opening, /closeTimer = setTimeout\(close/);
 
@@ -35,9 +38,31 @@ test('settings and offline shell include the new audio engine', () => {
   assert.match(audio, /id=\"rwAudioVolume\"/);
 
   const worker = read('sw.js');
-  assert.match(worker, /rw-v117-persistent-audio/);
+  assert.match(worker, /rw-v118-mobile-audio-fresh/);
+  assert.match(worker, /js\/audio\/focus\.js/);
   assert.match(worker, /platform-v5\/audio-only\.js/);
   assert.match(worker, /platform-v5\/atlas-shinobi\.js/);
+});
+
+test('deploy freshness is network-first for code and reloads on a new controller', () => {
+  const worker = read('sw.js');
+  const freshness = read('js/runtime/freshness.js');
+  assert.match(worker, /var isCode =/);
+  assert.match(worker, /fetch\(req, \{ cache: 'no-store' \}\)/);
+  assert.match(freshness, /updateViaCache: 'none'/);
+  assert.match(freshness, /controllerchange/);
+  assert.match(freshness, /window\.location\.reload\(\)/);
+});
+
+test('mobile composer and search controls cannot overlap or widen the page', () => {
+  const html = read('index.html');
+  const css = read('mobile-stability.css');
+  assert.match(html, /class="copilot-compose"/);
+  assert.match(html, /class="copilot-actions"/);
+  assert.match(css, /grid-template-areas:/);
+  assert.match(css, /"models actions"/);
+  assert.match(css, /#ssInput[\s\S]*min-width: 0/);
+  assert.match(css, /@media \(max-width: 540px\)[\s\S]*\.xp-chip/);
 });
 
 test('the corrupt pseudo-MP3 is gone and the ambient bed plays a real uploaded asset', () => {

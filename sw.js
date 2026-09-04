@@ -8,15 +8,17 @@
  *    forever and you can't push a fix. Network-first means users always get the
  *    latest app when online, and still get a working app offline.
  *
- * 2) Static assets (icons, guides, blog pages) -> CACHE FIRST, refreshed in the
- *    background. These are small and rarely change, so speed wins.
+ * 2) Code/config assets -> NETWORK FIRST with the HTTP cache bypassed. A new
+ *    deploy must never execute an older JS/CSS/config bundle while online.
  *
- * 3) Never cached: Firebase/Firestore, ads, geocoding/weather APIs, YouTube,
+ * 3) Immutable media/assets -> CACHE FIRST, refreshed in the background.
+ *
+ * 4) Never cached: Firebase/Firestore, ads, geocoding/weather APIs, YouTube,
  *    and promo.mp4. Live data must stay live, and the video is tens of MB —
  *    caching it would blow the origin's storage quota for no benefit.
  * ------------------------------------------------------------------------- */
 
-var VERSION = 'rw-v117-persistent-audio';
+var VERSION = 'rw-v118-mobile-audio-fresh';
 var HTML_CACHE = VERSION + '-html';
 var ASSET_CACHE = VERSION + '-assets';
 
@@ -27,8 +29,12 @@ var PRECACHE = [
   '/',
   '/index.html',
   '/app.css',
+  '/mobile-stability.css',
   '/app.js',
   '/rw-config.js',
+  '/js/runtime/freshness.js',
+  '/js/audio/focus.js',
+  '/js/audio/cues.js',
   '/platform-v5/audio-only.js',
   '/platform-v5/atlas-shinobi.js',
   '/destination-photos.js',
@@ -76,24 +82,26 @@ self.addEventListener('fetch', function (e) {
 
   var isHTML = req.mode === 'navigate' ||
     (req.headers.get('accept') || '').indexOf('text/html') > -1;
+  var isCode = /\.(?:css|js|mjs|json|webmanifest)$/i.test(url.pathname);
 
-  if (isHTML) {
-    /* Network first: always the freshest app when online. */
+  if (isHTML || isCode) {
+    /* Network first and bypass the browser HTTP cache. This is the critical
+       path for deploy freshness; Cache Storage remains the offline fallback. */
     e.respondWith(
-      fetch(req).then(function (res) {
+      fetch(req, { cache: 'no-store' }).then(function (res) {
         var copy = res.clone();
-        caches.open(HTML_CACHE).then(function (c) { c.put(req, copy); });
+        caches.open(isHTML ? HTML_CACHE : ASSET_CACHE).then(function (c) { c.put(req, copy); });
         return res;
       }).catch(function () {
         return caches.match(req).then(function (hit) {
-          return hit || caches.match('/index.html');
+          return hit || (isHTML ? caches.match('/index.html') : Response.error());
         });
       })
     );
     return;
   }
 
-  /* Static: cache first, then refresh in the background for next time. */
+  /* Immutable media/assets: cache first, then refresh in the background. */
   e.respondWith(
     caches.match(req).then(function (hit) {
       var net = fetch(req).then(function (res) {
