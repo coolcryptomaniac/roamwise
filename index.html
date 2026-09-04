@@ -330,6 +330,22 @@ html{-webkit-text-size-adjust:100%}
   #xpChipTxt{display:none}
   .xp-chip{gap:0;padding:4px 7px}
 }
+/* Android/mobile-web crowding fix: the persistent Settings gear (#rwSettingsShortcut)
+   added a 6th interactive control (search, gear, rank badge, PRO, sign-in/avatar,
+   hamburger) to a header row that only ever had breathing room budgeted for 5. At
+   real phone widths (~390px, the reported device — the SAME already-existing
+   max-width:400px "very narrow phone" tier used just above) that left the rank
+   badge squeezed to a near-invisible clipped sliver between the gear and the PRO
+   pill. Rather than shrinking every icon further (which would make them hard to
+   tap) or hiding the new gear (which defeats the reason it was added), this drops
+   the purely decorative rank/XP badge — the same "lowest priority collapses first"
+   rule already used above for its label text — one step further, freeing enough
+   width for gear + search + PRO + hamburger to sit with clear, even, tappable gaps. */
+@media(max-width:400px){
+  .nav-right .xp-chip{display:none}
+  .nav-right{gap:6px}
+  .nav-right .btn-pro{padding:6px 9px;font-size:10px}
+}
 </style>
 </head>
 <body>

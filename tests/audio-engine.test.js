@@ -64,7 +64,10 @@ test('audio is on by default and starts the persistent engine', async () => {
   assert.equal(api.getState().blocked, false);
 });
 
-test('mute and volume persist and unmute resumes audio', async () => {
+test('mute and volume persist, but unmuting alone does not resume the looping ambient bed', async () => {
+  /* Looping is opt-in only (rw_audio_loop_enabled, default off) per explicit
+     product decision — turning the master Sound toggle back on must NOT by
+     itself restart a continuous ambient loop the user never asked to loop. */
   const { api, storage } = loadEngine();
   await api.setEnabled(false);
   assert.equal(api.isEnabled(), false);
@@ -74,8 +77,8 @@ test('mute and volume persist and unmute resumes audio', async () => {
   assert.equal(api.setVolume(0.4), 0.4);
   assert.equal(storage.get('rw_audio_volume'), '0.4');
 
-  assert.equal(await api.setEnabled(true), true);
-  assert.equal(api.isPlaying(), true);
+  assert.equal(await api.setEnabled(true), false);
+  assert.equal(api.isPlaying(), false);
   assert.equal(storage.get('rw_audio_enabled'), '1');
 });
 
@@ -84,4 +87,29 @@ test('saved mute preference is honoured on the next visit', () => {
   assert.equal(api.isEnabled(), false);
   assert.equal(api.isPlaying(), false);
   assert.equal(api.getVolume(), 0.15);
+});
+
+test('looping the ambient bed is opt-in only, off by default, and persists once turned on', async () => {
+  const { api, storage } = loadEngine();
+  assert.equal(api.isLoopEnabled(), false);
+  assert.equal(api.isPlaying(), false);
+  assert.equal(storage.has('rw_audio_loop_enabled'), false);
+
+  assert.equal(await api.setLoopEnabled(true), true);
+  assert.equal(api.isLoopEnabled(), true);
+  assert.equal(api.isPlaying(), true);
+  assert.equal(storage.get('rw_audio_loop_enabled'), '1');
+
+  await api.setLoopEnabled(false);
+  assert.equal(api.isLoopEnabled(), false);
+  assert.equal(api.isPlaying(), false);
+  assert.equal(storage.get('rw_audio_loop_enabled'), '0');
+
+  const { api: api2 } = loadEngine({ rw_audio_loop_enabled: '1' });
+  assert.equal(api2.isLoopEnabled(), true);
+  /* init() kicks off play() as a fire-and-forget promise chain when the
+     saved preference already has looping on — flush microtasks before
+     checking that it actually started playing. */
+  await new Promise((resolve) => { setTimeout(resolve, 0); });
+  assert.equal(api2.isPlaying(), true);
 });

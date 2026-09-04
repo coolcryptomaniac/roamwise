@@ -16,6 +16,16 @@ var RW_CUE_FILES = {
 };
 var _rwCueCache = {};
 var _rwCueFormat = null;
+/* Guard against overlapping/simultaneous one-shot cues. A single user action
+   can end up calling rwPlayCue() more than once in quick succession (e.g. a
+   tap that both bumps a badge/haptic AND triggers a screen transition, each
+   wired to a different cue). This is a small decorative audio system, not a
+   full audio mixer, so rather than building real ducking/crossfade logic we
+   simply refuse to start a NEW cue while the debounce window from the last
+   one is still open — the user hears one clean sting instead of two or three
+   layered on top of each other. */
+var _rwCueLastStart = 0;
+var RW_CUE_DEBOUNCE_MS = 260;
 function rwAudioThemeEnabled(){
   try{ var v=localStorage.getItem('rw_audio_enabled'); return v===null ? true : v!=='0'; }catch(e){ return true; }
 }
@@ -29,6 +39,9 @@ function rwPlayCue(name){
   if(!rwAudioThemeEnabled()) return false;
   var base = RW_CUE_FILES[name];
   if(!base || typeof window.Audio!=='function') return false;
+  var _now = Date.now();
+  if(_now - _rwCueLastStart < RW_CUE_DEBOUNCE_MS) return false;
+  _rwCueLastStart = _now;
   try{
     var node = _rwCueCache[name];
     if(!node){

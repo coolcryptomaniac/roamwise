@@ -497,10 +497,14 @@
         window.dispatchEvent(new CustomEvent('rw:opening-start'));
       } catch (_) {}
       /* site_opening cue from the audio manifest — fires once the audio gate
-         has cleared (or immediately when audio is muted/unsupported), so it
-         never doubles up with the ambient bed RWAudio.play() already started.
-         rwPlayCue lives in app.js (kept out of this module's own no-media-file
-         Web Audio engine) and reads the same rw_audio_enabled/volume keys. */
+         has cleared (or immediately when audio is muted/unsupported). If the
+         user has opted into "Loop background music", the ambient bed's
+         RWAudio.play() was already started by startExperience() above, so
+         this one-shot cue plays alongside it exactly once; when looping is
+         off (the default) this cue IS the opening's only music — no
+         continuous ambient bed is started. rwPlayCue lives in app.js (kept
+         out of this module's own no-media-file Web Audio engine) and reads
+         the same rw_audio_enabled/volume keys. */
       try { if (typeof window.rwPlayCue === 'function') window.rwPlayCue('site_opening'); } catch (_) {}
       if (videoReady) {
         var videoPlay = video.play();
@@ -512,7 +516,12 @@
 
     function startExperience(){
       if (started || closed) return;
-      if (!window.RWAudio || !RWAudio.isEnabled || !RWAudio.isEnabled()) {
+      /* Only route through the ambient-bed audio-unlock gate (which calls
+         RWAudio.play()) if the user has actually opted into "Loop background
+         music". Otherwise this cinematic open must not silently start the
+         continuous ambient loop — the 'site_opening' cue fired from
+         beginVisual() below is this intro's music either way. */
+      if (!window.RWAudio || !RWAudio.isEnabled || !RWAudio.isEnabled() || !RWAudio.isLoopEnabled || !RWAudio.isLoopEnabled()) {
         beginVisual();
         return;
       }
