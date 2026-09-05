@@ -138,9 +138,9 @@ function rwBookConfirm(mode){
     at:new Date().toISOString() };
   /* Attribution hint only, and stored via the canonical stored code. Sanitised
      at capture (rwRefCapture) / entry (rwRefApply); server recomputes any payout. */
-  try{ rec.ref_code=rwSanitizeRefCode(rwRefActive()||''); }catch(e){}
-  try{ if(window.db) db.collection('roomBookings').doc(ref).set(rec).catch(function(){}); }catch(e){}
-  try{ lsSet('rw_last_booking', JSON.stringify(rec)); }catch(e){}
+  try{ rec.ref_code=rwSanitizeRefCode(rwRefActive()||''); }catch(e){ /* best-effort, ignore */ }
+  try{ if(window.db) db.collection('roomBookings').doc(ref).set(rec).catch(function(){}); }catch(e){ /* best-effort Firestore write, ignore */ }
+  try{ lsSet('rw_last_booking', JSON.stringify(rec)); }catch(e){ /* storage best-effort, ignore */ }
   rwOverlayClose('bkPayOv');
   rwBookOwnerMsg(rec, r);
   rwBookDone(rec);
@@ -207,12 +207,12 @@ function rwBookShare(){
    The request reaches the partner immediately; a human confirms. Honest about
    what it is — we never show a "Confirmed" we haven't actually got. */
 function rwBasket(){ try{ return JSON.parse(lsGet('rw_basket')||'[]'); }catch(e){ return []; } }
-function rwBasketSet(b){ try{ lsSet('rw_basket', JSON.stringify(b)); }catch(e){} rwBasketBadge(); }
+function rwBasketSet(b){ try{ lsSet('rw_basket', JSON.stringify(b)); }catch(e){ /* storage best-effort, ignore */ } rwBasketBadge(); }
 function rwBasketAdd(item){
   var b=rwBasket();
   if(b.some(function(x){ return x.id===item.id; })){ showToast('Already in your trip'); return; }
   b.push(item); rwBasketSet(b);
-  try{ rwHaptic&&rwHaptic(); }catch(e){}
+  try{ rwHaptic&&rwHaptic(); }catch(e){ /* haptic feedback is a nice-to-have, ignore */ }
   showToast('\u2795 Added to your trip \u2014 '+item.name);
 }
 function rwBasketRemove(id){ rwBasketSet(rwBasket().filter(function(x){ return x.id!==id; })); openBooking(); }
@@ -275,7 +275,7 @@ function rwBookRequest(){
       people:v.bk_people||'', notes:v.bk_notes||'',
       estTotal:rwBookTotal(b), estCommission:Math.round(rwCommissionOn(b)),
       status:'requested', at:new Date().toISOString() };
-    try{ rec.ref=rwRefActive()||''; }catch(e){}
+    try{ rec.ref=rwRefActive()||''; }catch(e){ /* best-effort, ignore */ }
     var done=function(){
       showToast('\u2705 Request sent \u2014 partners will reply to '+v.bk_phone);
       rwBasketSet([]); rwPageClose();

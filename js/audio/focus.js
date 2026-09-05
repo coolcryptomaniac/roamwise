@@ -11,7 +11,7 @@
       window.dispatchEvent(new CustomEvent('rw:audio-focus', {
         detail: { active: !!owner, owner: typeof owner === 'string' ? owner : 'media' }
       }));
-    } catch (_) {}
+    } catch (_) { /* best-effort, ignore */ }
   }
 
   function claim(owner, stop) {
@@ -24,7 +24,7 @@
     currentOwner = null;
     currentStop = null;
     if (typeof stopPrevious === 'function') {
-      try { stopPrevious(); } catch (_) {}
+      try { stopPrevious(); } catch (_) { /* best-effort, ignore */ }
     }
     currentOwner = owner;
     currentStop = typeof stop === 'function' ? stop : null;
@@ -53,7 +53,7 @@
     if (!media || !/^(AUDIO|VIDEO)$/.test(media.tagName || '')) return;
     if (media.muted || media.volume === 0 || media._rwAudioOwner) return;
     claim(media, function () {
-      try { media.pause(); } catch (_) {}
+      try { media.pause(); } catch (_) { /* best-effort, ignore */ }
     });
   }, true);
 

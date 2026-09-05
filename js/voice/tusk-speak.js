@@ -14,24 +14,24 @@ function tuskSpeakable(text){
 }
 
 function tuskStopSpeech(){
-  try{ if(window.RW && typeof RW.stopSpeaking==='function') RW.stopSpeaking(); }catch(e){}
-  try{ if(window.RW && typeof RW.stopSpeak==='function') RW.stopSpeak(); }catch(e){}
+  try{ if(window.RW && typeof RW.stopSpeaking==='function') RW.stopSpeaking(); }catch(e){ /* best-effort, ignore */ }
+  try{ if(window.RW && typeof RW.stopSpeak==='function') RW.stopSpeak(); }catch(e){ /* best-effort, ignore */ }
   try{
     if(window.Capacitor && Capacitor.Plugins && Capacitor.Plugins.TextToSpeech &&
        typeof Capacitor.Plugins.TextToSpeech.stop==='function') Capacitor.Plugins.TextToSpeech.stop();
-  }catch(e){}
-  try{ if(window.speechSynthesis) speechSynthesis.cancel(); }catch(e){}
+  }catch(e){ /* best-effort, ignore */ }
+  try{ if(window.speechSynthesis) speechSynthesis.cancel(); }catch(e){ /* voice narration best-effort, ignore */ }
 }
 
 function tuskClaimSpeechFocus(){
   tuskStopSpeech();
   try{
     if(window.RWAudioFocus && RWAudioFocus.claim) RWAudioFocus.claim('speech', tuskStopSpeech);
-  }catch(e){}
+  }catch(e){ /* best-effort, ignore */ }
 }
 
 function tuskReleaseSpeechFocus(){
-  try{ if(window.RWAudioFocus && RWAudioFocus.release) RWAudioFocus.release('speech'); }catch(e){}
+  try{ if(window.RWAudioFocus && RWAudioFocus.release) RWAudioFocus.release('speech'); }catch(e){ /* best-effort, ignore */ }
 }
 
 function tuskSpeak(text){
@@ -39,10 +39,10 @@ function tuskSpeak(text){
   if(!say) return;
   if(!rwVoiceEnabled()){ showToast('🔇 Voice narration is muted — turn it back on in Settings'); return; }
   tuskClaimSpeechFocus();
-  if(window.RW && typeof RW.speak==='function'){ try{ RW.speak(say); return; }catch(e){} }
+  if(window.RW && typeof RW.speak==='function'){ try{ RW.speak(say); return; }catch(e){ /* best-effort, ignore */ } }
   /* Capacitor Text-to-Speech plugin (works in the app where WebView speechSynthesis often doesn't) */
   if(window.Capacitor && Capacitor.Plugins && Capacitor.Plugins.TextToSpeech){
-    try{ Capacitor.Plugins.TextToSpeech.speak({ text: say, lang:'en-IN', rate:1.0 }); return; }catch(e){}
+    try{ Capacitor.Plugins.TextToSpeech.speak({ text: say, lang:'en-IN', rate:1.0 }); return; }catch(e){ /* best-effort, ignore */ }
   }
   text = say;
   try{
