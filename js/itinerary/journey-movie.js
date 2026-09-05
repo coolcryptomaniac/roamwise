@@ -9,7 +9,7 @@
 function openMovie(){
   if(!window._rwCard || !window._rwCine){ showToast('Forge your Journey Card first \u2014 then the movie'); return; }
   if((_rwCine.pts||[]).length<2){ showToast('Log at least 2 located places for a movie'); return; }
-  try{ track('video_opens'); }catch(e){}
+  try{ track('video_opens'); }catch(e){ /* analytics best-effort, ignore */ }
   if(isPro || lsGet('rw_movie_ok')) return cineRender();
   if(perksUnlocked().indexOf('documented')>-1 && !lsGet('rw_movie_perk_used')){
     lsSet('rw_movie_perk_used','1');
@@ -59,7 +59,7 @@ function cineRender(opts){
   opts=opts||{};
   var ST=CARD_STYLES[(_rwCine&&_rwCine.style)||'neon']||CARD_STYLES.neon;
   showToast('\ud83c\udfac Rolling\u2026 rendering your journey film');
-  try{ track('video_made'); }catch(e){}
+  try{ track('video_made'); }catch(e){ /* analytics best-effort, ignore */ }
   var C=_rwCine, S=2;
   var VW=1080, VH=1920, cv=document.createElement('canvas'); cv.width=VW; cv.height=VH;
   var x=cv.getContext('2d');
@@ -79,7 +79,7 @@ function cineRender(opts){
 
   /* audio */
   var AC=window.AudioContext||window.webkitAudioContext, ctx=null, dest=null;
-  if(!opts.mute){ try{ ctx=new AC(); try{ctx.resume();}catch(e2){} dest=ctx.createMediaStreamDestination(); cineMusic(ctx,dest,DUR);}catch(e){} }
+  if(!opts.mute){ try{ ctx=new AC(); try{ctx.resume();}catch(e2){ /* best-effort, ignore */ } dest=ctx.createMediaStreamDestination(); cineMusic(ctx,dest,DUR);}catch(e){ /* best-effort, ignore */ } }
   var stream=cv.captureStream(30);
   if(dest && dest.stream.getAudioTracks().length) stream.addTrack(dest.stream.getAudioTracks()[0]);
   var mime=['video/webm;codecs=vp8,opus','video/webm;codecs=vp9,opus','video/webm'].find(function(m){return window.MediaRecorder && MediaRecorder.isTypeSupported(m);});
@@ -87,7 +87,7 @@ function cineRender(opts){
   var rec=new MediaRecorder(stream,{mimeType:mime, videoBitsPerSecond:6e6}), chunks=[];
   rec.ondataavailable=function(e){ if(e.data.size) chunks.push(e.data); };
   rec.onstop=function(){
-    if(ctx) try{ctx.close();}catch(e){}
+    if(ctx) try{ctx.close();}catch(e){ /* best-effort, ignore */ }
     var blob=new Blob(chunks,{type:'video/webm'});
     if(blob.size<2000 && !opts.mute){ showToast('Retrying without music\u2026'); return cineRender({mute:true}); }
     if(blob.size<2000){ showToast('\u26a0 Recording failed \u2014 try Chrome'); return; }
@@ -206,7 +206,7 @@ function cineRender(opts){
     }
 
     if(t<DUR) requestAnimationFrame(frame); else rec.stop();
-   }catch(err){ try{rec.stop();}catch(e2){} showToast('Film wrapped early \u2014 saved what rendered'); }
+   }catch(err){ try{rec.stop();}catch(e2){ /* best-effort, ignore */ } showToast('Film wrapped early \u2014 saved what rendered'); }
   }
   requestAnimationFrame(frame);
 }

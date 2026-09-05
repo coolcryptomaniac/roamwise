@@ -20,7 +20,7 @@ var RW_MED_TAGS = [
 async function rwMedNear(lat, lon, radius){
   radius = radius || 5000;
   var key='rw_med_'+lat.toFixed(2)+'_'+lon.toFixed(2);
-  try{ var c=JSON.parse(lsGet(key)||'null'); if(c && Date.now()-c.at < 30*864e5) return c.items; }catch(e){}
+  try{ var c=JSON.parse(lsGet(key)||'null'); if(c && Date.now()-c.at < 30*864e5) return c.items; }catch(e){ /* parse best-effort, ignore malformed/missing data */ }
   if(!navigator.onLine) return [];
   var q='[out:json][timeout:12];('
     + RW_MED_TAGS.map(function(t){ return 'node["'+t[0]+'"="'+t[1]+'"](around:'+radius+','+lat+','+lon+');'; }).join('')
@@ -74,7 +74,7 @@ var RW_FIT_TAGS = [
 async function rwFitNear(lat, lon, radius){
   radius = radius || 6000;
   var key='rw_fit_'+lat.toFixed(2)+'_'+lon.toFixed(2);
-  try{ var c=JSON.parse(lsGet(key)||'null'); if(c && Date.now()-c.at < 30*864e5) return c.items; }catch(e){}
+  try{ var c=JSON.parse(lsGet(key)||'null'); if(c && Date.now()-c.at < 30*864e5) return c.items; }catch(e){ /* parse best-effort, ignore malformed/missing data */ }
   if(!navigator.onLine) return [];
   var q='[out:json][timeout:12];('
     + RW_FIT_TAGS.map(function(t){ return 'node["'+t[0]+'"="'+t[1]+'"](around:'+radius+','+lat+','+lon+');'; }).join('')

@@ -46,7 +46,7 @@ function chatWhenToggle(pollId, idx){
   var at=picks.indexOf(idx);
   if(at>=0) picks.splice(at,1); else picks.push(idx);
   chatPost('whenvote', {poll:pollId, free:picks}, '\ud83d\udcc5 updated availability');
-  try{ rwHaptic(); }catch(e){}
+  try{ rwHaptic(); }catch(e){ /* haptic feedback is a nice-to-have, ignore */ }
 }
 function chatWhenTally(msg){
   var opts=(msg.payload&&msg.payload.options)||[];

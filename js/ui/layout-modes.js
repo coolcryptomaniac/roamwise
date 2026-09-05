@@ -32,15 +32,15 @@ function rwApplyMode(id){
   var b=document.body; if(!b) return;
   RW_MODES.forEach(function(m){ b.classList.remove('rw-mode-'+m.id); });
   if(id!=='classic') b.classList.add('rw-mode-'+id);
-  try{ b.setAttribute('data-mode', id); }catch(e){}
+  try{ b.setAttribute('data-mode', id); }catch(e){ /* best-effort, ignore */ }
 }
 function rwSetMode(id){
-  try{ lsSet('rw_mode', id); }catch(e){}
+  try{ lsSet('rw_mode', id); }catch(e){ /* storage best-effort, ignore */ }
   rwApplyMode(id);
-  try{ rwHaptic('heavy'); }catch(e){}
+  try{ rwHaptic('heavy'); }catch(e){ /* haptic feedback is a nice-to-have, ignore */ }
   var m=RW_MODES.filter(function(x){ return x.id===id; })[0];
   showToast((m?m.icon+' '+m.name:'Mode')+' \u00b7 '+(m?m.tag:''));
-  try{ openModePicker(); }catch(e){}
+  try{ openModePicker(); }catch(e){ /* best-effort, ignore */ }
 }
 function openModePicker(){
   var cur=rwMode();

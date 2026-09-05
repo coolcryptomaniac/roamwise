@@ -23,21 +23,21 @@ var RW_UI_THEMES = [
 function rwSetTheme(id){
   if(id==='midnight'){ document.documentElement.removeAttribute('data-theme'); }
   else{ document.documentElement.setAttribute('data-theme', id); }
-  try{ lsSet('rw_theme', id); }catch(e){}
+  try{ lsSet('rw_theme', id); }catch(e){ /* storage best-effort, ignore */ }
   /* keep the mobile status-bar color in sync */
   try{
     var th=RW_UI_THEMES.filter(function(x){return x.id===id;})[0];
     var mt=document.querySelector('meta[name="theme-color"]');
     if(mt && th) mt.setAttribute('content', th.dot);
-  }catch(e){}
-  try{ var lbl=el('themeLabel'); if(lbl){ var T=RW_UI_THEMES.filter(function(x){return x.id===id;})[0]; lbl.textContent=T?T.name:'Theme'; } }catch(e){}
+  }catch(e){ /* best-effort, ignore */ }
+  try{ var lbl=el('themeLabel'); if(lbl){ var T=RW_UI_THEMES.filter(function(x){return x.id===id;})[0]; lbl.textContent=T?T.name:'Theme'; } }catch(e){ /* best-effort, ignore */ }
 }
 function rwToggleThemeMenu(){
   var m=el('themeMenu'); if(!m) return;
   m.style.display = m.style.display==='block'?'none':'block';
 }
 function rwInitTheme(){
-  var saved=''; try{ saved=lsGet('rw_theme'); }catch(e){}
+  var saved=''; try{ saved=lsGet('rw_theme'); }catch(e){ /* storage best-effort, ignore */ }
   var m=el('themeMenu');
   if(m){
     m.innerHTML = RW_UI_THEMES.map(function(T){
@@ -54,7 +54,7 @@ function rwInitTheme(){
     }).join('');
   }
   rwSetTheme(saved || 'midnight');
-  try{ drThemeSync(); }catch(e){}
+  try{ drThemeSync(); }catch(e){ /* best-effort, ignore */ }
 }
 function drThemePick(){
   var l=el('drThemeList'); if(!l) return;
@@ -78,7 +78,7 @@ function drThemeSync(){
   try{
     var tv=el('drThemeVal'); if(tv){ var T=RW_UI_THEMES.filter(function(x){return x.id===(lsGet('rw_theme')||'midnight');})[0]; tv.textContent=T?T.name:''; }
     var lv=el('drLangVal'); if(lv){ var L=RW_LANGS.filter(function(x){return x.code===RW_LANG;})[0]; lv.textContent=L?L.native:''; }
-  }catch(e){}
+  }catch(e){ /* storage best-effort, ignore */ }
 }
 
 /* ---- from app.js lines 11503-11624: Living Themes (RW_THEMES, rwPickTheme, rwApplyTheme, rwStartFx/rwStopFx) ---- */
@@ -200,7 +200,7 @@ function rwStartFx(kind, tint){
     try{
       var mode=lsGet('rw_theme_mode');
       rwApplyTheme(mode && RW_THEMES[mode] ? mode : rwPickTheme());
-    }catch(e){}
+    }catch(e){ /* storage best-effort, ignore */ }
   }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', boot); else boot();
 })();

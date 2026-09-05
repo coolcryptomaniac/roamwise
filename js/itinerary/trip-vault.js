@@ -15,7 +15,7 @@
 function vaultGet(){ try{ return JSON.parse(lsGet('rw_trips')||'[]'); }catch(e){ return []; } }
 function vaultSave(list){ lsSet('rw_trips', JSON.stringify(list.slice(0,50))); }
 function saveTripOffline(){
-  try{ badgeBump('save'); }catch(e){}
+  try{ badgeBump('save'); }catch(e){ /* badge/progression update is a nice-to-have, ignore */ }
   var it = window._lastItin;
   if(!it || !it.days || !it.days.length){ showToast('Generate an itinerary first'); return; }
   var list = vaultGet();
@@ -28,8 +28,8 @@ function saveTripOffline(){
   });
   vaultSave(list);
   showToast('\u2708\ufe0f Saved offline \u2014 works with no signal');
-  try{ track('trip_saved'); }catch(e){}
-  try{ xpAdd(10,'Trip saved for offline'); }catch(e){}
+  try{ track('trip_saved'); }catch(e){ /* analytics best-effort, ignore */ }
+  try{ xpAdd(10,'Trip saved for offline'); }catch(e){ /* best-effort, ignore */ }
 }
 
 function openVault(){
@@ -141,12 +141,12 @@ async function loadTripExtras(t){
           +'<div style="font-weight:800;font-size:12.5px;margin-bottom:8px">\u26c5 Next 7 days in '+String(t.name).replace(/[<>]/g,'')+'</div>'
           +'<div style="display:flex;gap:4px;overflow-x:auto">'+days+'</div></div>');
         /* act on the forecast instead of just displaying it */
-        try{ var rs = rainSwapHTML(t, w.daily); if(rs) live.push(rs); }catch(e){}
+        try{ var rs = rainSwapHTML(t, w.daily); if(rs) live.push(rs); }catch(e){ /* best-effort, ignore */ }
         /* and the shadow budget for this trip, if we know the destination */
         try{
           var dbe = cpDbFind(t.name) || costEntryForPlace(await rwResolvePlace(t.name));
           if(dbe) live.push(shadowBudgetHTML(dbe, t.days.length, 'mid'));
-        }catch(e){}
+        }catch(e){ /* best-effort, ignore */ }
       }
     }
     /* currency mini-panel: INR vs the majors */
@@ -160,7 +160,7 @@ async function loadTripExtras(t){
         live.push('<div style="background:var(--bg2,#12121C);border:1px solid var(--b2,#2A2A36);border-radius:14px;padding:12px 14px;margin-bottom:10px">'
           +'<div style="font-weight:800;font-size:12.5px;margin-bottom:6px">\ud83d\udcb1 Your \u20b91,000 abroad <span style="font-weight:400;font-size:9.5px;color:var(--t3)">ECB rates \u00b7 '+fx.date+'</span></div>'+rows+'</div>');
       }
-    }catch(e){}
+    }catch(e){ /* best-effort, ignore */ }
     el('tripLive').outerHTML = live.join('') || '';
   }catch(e){ var tl=el('tripLive'); if(tl) tl.textContent='\u26c5 Forecast unavailable right now.'; }
 }

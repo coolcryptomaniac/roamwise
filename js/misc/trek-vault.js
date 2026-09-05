@@ -113,5 +113,5 @@ function rwTrekLog(name){
   if(i>-1) d.splice(i,1); else d.push(name);
   lsSet('rw_treks', JSON.stringify(d));
   showToast(i>-1? 'Removed' : '\u26f0\ufe0f Logged \u2014 '+d.length+' trek'+(d.length>1?'s':'')+' done');
-  try{ rwXpAdd(25, 'trek logged'); }catch(e){}
+  try{ rwXpAdd(25, 'trek logged'); }catch(e){ /* best-effort, ignore */ }
 }

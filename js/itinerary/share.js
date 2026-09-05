@@ -46,19 +46,19 @@ function rwShareTrip(){
 }
 function rwShareGo(id, href){
   var ctx=window._rwShareCtx||{text:'',url:''};
-  if(id==='copy'){ try{ navigator.clipboard.writeText(ctx.text+' '+ctx.url); showToast('Link copied \u2713'); }catch(e){}; return; }
+  if(id==='copy'){ try{ navigator.clipboard.writeText(ctx.text+' '+ctx.url); showToast('Link copied \u2713'); }catch(e){ /* clipboard best-effort, ignore */ }; return; }
   if(id==='insta'){
-    try{ navigator.clipboard.writeText(ctx.text+' '+ctx.url); }catch(e){}
+    try{ navigator.clipboard.writeText(ctx.text+' '+ctx.url); }catch(e){ /* clipboard best-effort, ignore */ }
     showToast('Caption copied \u2014 opening Instagram to paste \ud83d\udcf7');
-    try{ window.open('https://www.instagram.com/','_blank'); }catch(e){}
+    try{ window.open('https://www.instagram.com/','_blank'); }catch(e){ /* best-effort, ignore */ }
     return;
   }
   if(id==='more'){
-    if(navigator.share){ navigator.share({text:ctx.text, url:ctx.url}).then(function(){ try{xpAdd(15,'Shared a trip');}catch(e){} }).catch(function(){}); }
-    else { try{ navigator.clipboard.writeText(ctx.text+' '+ctx.url); showToast('Copied \u2014 paste anywhere'); }catch(e){} }
+    if(navigator.share){ navigator.share({text:ctx.text, url:ctx.url}).then(function(){ try{xpAdd(15,'Shared a trip');}catch(e){ /* best-effort, ignore */ } }).catch(function(){}); }
+    else { try{ navigator.clipboard.writeText(ctx.text+' '+ctx.url); showToast('Copied \u2014 paste anywhere'); }catch(e){ /* clipboard best-effort, ignore */ } }
     return;
   }
-  try{ window.open(decodeURIComponent(href.replace(/%27/g,"'")),'_blank','noopener'); try{xpAdd(10,'Shared a trip');}catch(e){} }catch(e){}
+  try{ window.open(decodeURIComponent(href.replace(/%27/g,"'")),'_blank','noopener'); try{xpAdd(10,'Shared a trip');}catch(e){ /* best-effort, ignore */ } }catch(e){ /* best-effort, ignore */ }
   rwCloseShare();
 }
 

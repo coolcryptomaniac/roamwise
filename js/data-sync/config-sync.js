@@ -25,7 +25,7 @@ function rwConfigApply(cfg, list){
   window[cfg.global] = list.concat(seed.filter(function(x){
     return !(x && x[k]!=null && have[String(x[k]).toLowerCase()]);
   }));
-  try{ lsSet('rw_cfg_'+cfg.key, JSON.stringify(window[cfg.global])); }catch(e){}
+  try{ lsSet('rw_cfg_'+cfg.key, JSON.stringify(window[cfg.global])); }catch(e){ /* storage best-effort, ignore */ }
 }
 function rwConfigSyncAll(){
   RW_SYNCED.forEach(function(cfg){
@@ -33,7 +33,7 @@ function rwConfigSyncAll(){
     try{
       var c = lsGet('rw_cfg_'+cfg.key);
       if(c){ var l = JSON.parse(c); if(Array.isArray(l) && l.length) window[cfg.global] = l; }
-    }catch(e){}
+    }catch(e){ /* parse best-effort, ignore malformed/missing data */ }
     try{
       if(typeof db === 'undefined' || !db) return;
       db.collection('config').doc(cfg.key).get().then(function(d){
@@ -42,11 +42,11 @@ function rwConfigSyncAll(){
         if(Array.isArray(list) && list.length){
           rwConfigApply(cfg, list);
           /* repaint whatever happens to be open */
-          try{ if(el('staysOut'))    rwStaysRender(); }catch(e){}
-          try{ if(el('partnersOut')) rwPartnersRender(); }catch(e){}
-          try{ if(el('eventsOut'))   rwEventsRender(); }catch(e){}
+          try{ if(el('staysOut'))    rwStaysRender(); }catch(e){ /* best-effort, ignore */ }
+          try{ if(el('partnersOut')) rwPartnersRender(); }catch(e){ /* best-effort, ignore */ }
+          try{ if(el('eventsOut'))   rwEventsRender(); }catch(e){ /* best-effort, ignore */ }
         }
       }).catch(function(){});
-    }catch(e){}
+    }catch(e){ /* best-effort Firestore write, ignore */ }
   });
 }

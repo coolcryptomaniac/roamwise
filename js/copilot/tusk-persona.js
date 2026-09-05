@@ -115,7 +115,7 @@ async function tkMiniCard(it){
           if(bl.length) out.push('<div class="tk-lab">'+esc2(sec.line)+'</div>'+bl.map(function(b){return '<div class="tk-bul">'+esc2(b)+'</div>';}).join(''));
         });
       }
-    }catch(e){}
+    }catch(e){ /* best-effort, ignore */ }
     var g = rwGroundFor(geo || {cc: dbHit&&dbHit.country==='India' ? 'IN':''});
     if(g){
       if(it.topic==='stay') out.push('<div class="tk-lab">Typical per night</div><div style="font-size:12px;color:var(--t2)">'+g.d.stay.map(function(r){return r[0]+' <b>'+r[1]+'</b>';}).join(' \u00b7 ')+'</div>');
@@ -326,8 +326,8 @@ function rwVoiceEnabled(){
   try{ var v=localStorage.getItem(RW_VOICE_KEY); return v===null ? true : v!=='0'; }catch(e){ return true; }
 }
 function rwVoiceSetEnabled(on){
-  try{ localStorage.setItem(RW_VOICE_KEY, on?'1':'0'); }catch(e){}
-  try{ if(!on && window.speechSynthesis) speechSynthesis.cancel(); }catch(e){}
+  try{ localStorage.setItem(RW_VOICE_KEY, on?'1':'0'); }catch(e){ /* storage best-effort, ignore */ }
+  try{ if(!on && window.speechSynthesis) speechSynthesis.cancel(); }catch(e){ /* voice narration best-effort, ignore */ }
 }
 function rwVoiceMountSetting(){
   if(el('rwVoiceSetting')) return;

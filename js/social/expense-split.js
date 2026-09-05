@@ -21,7 +21,7 @@ function chatAddExpense(){
     var split=v.split?parseInt(v.split,10):0;
     chatPost('expense', {what:v.what, amount:Math.round(amt), payer:user.uid, payerName:who, split:split||0},
       who+' paid \u20b9'+Math.round(amt).toLocaleString('en-IN')+' for '+v.what)
-      .then(function(){ _chatPinView='kitty'; setTimeout(function(){ try{ chatRenderPins(); }catch(e){} }, 200); });
+      .then(function(){ _chatPinView='kitty'; setTimeout(function(){ try{ chatRenderPins(); }catch(e){ /* best-effort, ignore */ } }, 200); });
   });
 }
 function chatKittyState(){

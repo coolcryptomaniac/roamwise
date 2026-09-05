@@ -49,6 +49,6 @@ function openPnrPaste(){
           +(r.status&&/WL/.test(r.status)?'<div style="font-size:12px;color:#F0A63B;margin-top:6px">\u26a0\ufe0f Still waitlisted \u2014 keep a backup plan until it confirms.</div>':'')
           +'<div style="font-size:11px;color:var(--t3);margin-top:6px">Check the station and time above, then build your trip.</div></div>';
       }, 350);
-    }catch(e){}
+    }catch(e){ /* best-effort, ignore */ }
   });
 }

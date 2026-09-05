@@ -54,7 +54,7 @@ function renderPromo(){
    absolute URL in the browser. */
 function rwOpenSite(path){
   var url = 'https://roamwise.co.in/' + String(path||'').replace(/^\//,'');
-  if(IS_APP || IS_STANDALONE){ try{ return openExternally(url); }catch(e){} }
+  if(IS_APP || IS_STANDALONE){ try{ return openExternally(url); }catch(e){ /* best-effort, ignore */ } }
   window.open(url, '_blank', 'noopener');
 }
 function openExternally(url){
@@ -100,8 +100,8 @@ function playPromo(host){
   if(host && host.parentNode) host.parentNode.replaceChild(wrap, host);
   else if(el('promoTop')) el('promoTop').appendChild(wrap);
   filmAttachDiagnostics();
-  var v=el('filmInline'); if(v){ try{ v.play(); }catch(e){} }
-  try{ track('video_opens'); }catch(e){}
+  var v=el('filmInline'); if(v){ try{ v.play(); }catch(e){ /* best-effort, ignore */ } }
+  try{ track('video_opens'); }catch(e){ /* analytics best-effort, ignore */ }
 }
 function openMusic(mode){
   useBump('music');

@@ -12,12 +12,12 @@ function rwRemindAsk(about){
 }
 function rwRemindSet(what, mins){
   var when=Date.now()+mins*60000;
-  var list=[]; try{ list=JSON.parse(lsGet('rw_reminders')||'[]'); }catch(e){}
-  list.push({what:what, at:when}); try{ lsSet('rw_reminders', JSON.stringify(list.slice(-40))); }catch(e){}
+  var list=[]; try{ list=JSON.parse(lsGet('rw_reminders')||'[]'); }catch(e){ /* parse best-effort, ignore malformed/missing data */ }
+  list.push({what:what, at:when}); try{ lsSet('rw_reminders', JSON.stringify(list.slice(-40))); }catch(e){ /* storage best-effort, ignore */ }
   /* real OS-scheduled notification (survives the app being closed) */
-  var native=false; try{ native=rwLocalNotifySchedule(what, mins); }catch(e){}
+  var native=false; try{ native=rwLocalNotifySchedule(what, mins); }catch(e){ /* best-effort, ignore */ }
   if(!native){
-    try{ if(window.Notification && Notification.permission==='default') Notification.requestPermission(); }catch(e){}
+    try{ if(window.Notification && Notification.permission==='default') Notification.requestPermission(); }catch(e){ /* best-effort, ignore */ }
     setTimeout(function(){ rwRemindFire(what); }, mins*60000);
   }
   showToast('\u23f0 Reminder set for '+mins+' min from now'+(native?' (works even if you close the app)':''));
@@ -27,15 +27,15 @@ function rwRemindFire(what){
     if(window.Notification && Notification.permission==='granted'){
       new Notification('RoamWise reminder', {body:what, icon:'/icon-512.png'});
     }
-  }catch(e){}
+  }catch(e){ /* best-effort, ignore */ }
   /* Route through the same RoamWise audio-manifest cue player used elsewhere
      (rwHaptic, copilotSend, tabGo) instead of a bespoke oscillator beep, so
      there is one cue engine and one mute switch (rw_audio_enabled). A
      reminder firing is a notification event, which is exactly what
      success_feedback's "notification-success" haptic + short sting are
      designed for. */
-  try{ rwPlayCue('success_feedback'); }catch(e){}
-  try{ showToast('\u23f0 '+what); }catch(e){}
+  try{ rwPlayCue('success_feedback'); }catch(e){ /* best-effort, ignore */ }
+  try{ showToast('\u23f0 '+what); }catch(e){ /* toast is a nice-to-have, ignore */ }
 }
 
 /* --- 4. TRIP COUNTDOWN NOTIFICATIONS (extracted verbatim from app.js,
@@ -70,7 +70,7 @@ function tripReminderCheck(){
     var msg = days===0 ? 'Your '+t.name+' trip starts today \u2014 itinerary is offline-ready \ud83e\udd77'
             : days===1 ? 'Tomorrow: '+t.name+'. Packing list ready?'
             : days+' days to '+t.name+' \u2014 tap to review your plan';
-    try{ new Notification('RoamWise', {body:msg, icon:'icons/icon-192.png', tag:t.id}); }catch(e){}
+    try{ new Notification('RoamWise', {body:msg, icon:'icons/icon-192.png', tag:t.id}); }catch(e){ /* best-effort, ignore */ }
   });
 }
 

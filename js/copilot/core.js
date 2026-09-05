@@ -82,7 +82,7 @@ function openCopilot(){
   setTimeout(function(){ var i=el('cpInput'); if(i) i.focus(); },150);
 }
 function cpFocusHero(){
-  try{ tabGo('home'); }catch(e){}
+  try{ tabGo('home'); }catch(e){ /* best-effort nav helper, ignore */ }
   var h=el('copilotHero'); if(!h) { openCopilot(); return; }
   h.scrollIntoView({behavior:'smooth', block:'center'});
   setTimeout(function(){ var i=el('heroInput'); if(i) i.focus(); }, 420);
@@ -91,11 +91,11 @@ function closeCopilot(){ rwOverlayClose('cpOverlay'); }
 /* One tap = truly fresh: visible log, rolling memory, trip context, stored turns. */
 function cpClearChat(){
   _cpTurns=[]; _cpHist=[]; _cpCtx=null; window._tkLastAns=null; window._tkCarryShown=null;
-  try{ localStorage.removeItem('rw_turns'); }catch(e){}
+  try{ localStorage.removeItem('rw_turns'); }catch(e){ /* storage best-effort, ignore */ }
   var log=el('cpLog'); if(log) log.innerHTML='';
   var hl=el('heroLog'); if(hl) hl.innerHTML='';
-  try{ cpBubble('\ud83e\uddf9 Fresh start — history cleared. Tell me your plan.','bot'); }catch(e){}
-  try{ showToast('Chat cleared'); }catch(e){}
+  try{ cpBubble('\ud83e\uddf9 Fresh start — history cleared. Tell me your plan.','bot'); }catch(e){ /* best-effort, ignore */ }
+  try{ showToast('Chat cleared'); }catch(e){ /* toast is a nice-to-have, ignore */ }
 }
 var _cpTargetLog='cpLog';
 function cpBubble(html, who){
@@ -122,7 +122,7 @@ var _cpTurns = [];
 function rwRemember(role, text, meta){
   _cpTurns.push({role:role, text:String(text||'').slice(0,300), meta:meta||{}, at:Date.now()});
   if(_cpTurns.length>10) _cpTurns.shift();
-  try{ if(lsGet('rw_keep_chat')==='1') lsSet('rw_turns', JSON.stringify(_cpTurns.slice(-10))); }catch(e){}
+  try{ if(lsGet('rw_keep_chat')==='1') lsSet('rw_turns', JSON.stringify(_cpTurns.slice(-10))); }catch(e){ /* storage best-effort, ignore */ }
 }
 function rwRecall(n){ return _cpTurns.slice(-(n||5)); }
 function rwAskedBefore(topic){
@@ -132,7 +132,7 @@ function rwAskedBefore(topic){
    turns made Tusk drag stale context into brand-new chats ("still on X" when
    the user had moved on days ago). Opt back in with rw_keep_chat='1'. */
 if(lsGet('rw_keep_chat')==='1'){ try{ _cpTurns = JSON.parse(lsGet('rw_turns')||'[]'); }catch(e){ _cpTurns=[]; } }
-else { _cpTurns=[]; try{ localStorage.removeItem('rw_turns'); }catch(e){} }
+else { _cpTurns=[]; try{ localStorage.removeItem('rw_turns'); }catch(e){ /* storage best-effort, ignore */ } }
 var _cpHist = []; /* [{q,a}] capped — gives the AI real conversational memory */
 function cpModelChips(targetId){
   var host = el(targetId); if(!host) return;
@@ -215,7 +215,7 @@ async function rwMiniSearch(q){
         out.absUrl='https://en.wikipedia.org/wiki/'+encodeURIComponent(d.pages[0].key);
       }
     }).catch(function(){}));
-  try{ await Promise.all(jobs); }catch(e){}
+  try{ await Promise.all(jobs); }catch(e){ /* best-effort, ignore */ }
   return (out.abs || out.hits.length) ? out : null;
 }
 function rwWebAnswerHTML(q, res){
@@ -250,11 +250,11 @@ function rwWebAnswerHTML(q, res){
 function rwKnownMap(){
   if(window._rwKnown) return window._rwKnown;
   var known={};
-  try{ (typeof DB!=='undefined'?DB:[]).forEach(function(d){ known[d.name.toLowerCase()]=d.name; }); }catch(e){}
-  try{ Object.keys(RW_PLACE_OVERRIDES||{}).forEach(function(k){ var o=RW_PLACE_OVERRIDES[k]; known[o.name.toLowerCase()]=o.name; }); }catch(e){}
+  try{ (typeof DB!=='undefined'?DB:[]).forEach(function(d){ known[d.name.toLowerCase()]=d.name; }); }catch(e){ /* best-effort, ignore */ }
+  try{ Object.keys(RW_PLACE_OVERRIDES||{}).forEach(function(k){ var o=RW_PLACE_OVERRIDES[k]; known[o.name.toLowerCase()]=o.name; }); }catch(e){ /* best-effort, ignore */ }
   /* places the daily workflow learned from real user questions (tusk-learned.js) */
   try{ Object.keys(window.RW_LEARNED_PLACES||{}).forEach(function(k){
-        var o=RW_LEARNED_PLACES[k]; if(o&&o.name) known[String(k).toLowerCase()]=o.name; }); }catch(e){}
+        var o=RW_LEARNED_PLACES[k]; if(o&&o.name) known[String(k).toLowerCase()]=o.name; }); }catch(e){ /* best-effort, ignore */ }
   ['kerala','rajasthan','himachal','uttarakhand','karnataka','tamil nadu','gujarat','ladakh','sikkim','meghalaya','punjab','maharashtra','west bengal','odisha','assam','telangana',
    'delhi','new delhi','mumbai','goa','jaipur','agra','kolkata','chennai','bengaluru','bangalore','hyderabad','pune','udaipur','jodhpur','jaisalmer','amritsar','varanasi','lucknow','kochi','mysuru','mysore','ooty','munnar','hampi','pondicherry','rishikesh','haridwar','dehradun','manali','shimla','leh','srinagar','darjeeling','gangtok','shillong','guwahati','bhopal','indore','surat','ahmedabad','almora','nainital','mussoorie','kasol','auli','ziro','gokarna','bangkok','bali','singapore','dubai','kathmandu','pokhara','colombo','hanoi','tokyo','paris','london','rome'].forEach(function(n){ if(!known[n]) known[n]=n.replace(/(^|\s)\w/g,function(m){return m.toUpperCase();}); });
   window._rwKnown = known;
@@ -344,7 +344,7 @@ function rwGeoCacheSet(q,v){
     var keys=Object.keys(c);
     if(keys.length>400) keys.slice(0,150).forEach(function(k){ delete c[k]; }); /* trim */
     c[q.toLowerCase()]=v; lsSet(RW_GEO_CACHE, JSON.stringify(c));
-  }catch(e){}
+  }catch(e){ /* parse best-effort, ignore malformed/missing data */ }
 }
 /* Returns a Promise of {name, display, lat, lon, type, country} or null. */
 function rwGeocode(q){
@@ -361,7 +361,7 @@ function rwGeocode(q){
       var localv={ name:known[k], display:known[k], lat:null, lon:null, type:'curated', country:'IN' };
       rwGeoCacheSet(q, localv); return Promise.resolve(localv);
     }
-  }catch(e){}
+  }catch(e){ /* best-effort, ignore */ }
 
   var url;
   try{ url = (window.rwApi && rwApi('geo')) ? rwApi('geo')+'?q='+encodeURIComponent(q) : null; }catch(e){ url=null; }
@@ -564,7 +564,7 @@ function cpParseRegex(t){
   if(out.dest && !_junk) _cpCtx = {dest:out.dest, days:out.days, budget:out.budget};
   else if(out._country) _cpCtx = {dest:null, days:out.days, budget:out.budget, country:out._country};
   /* learn what this user tends to ask for — powers personalisation over time */
-  try{ rwLearnIntent(out); }catch(e){}
+  try{ rwLearnIntent(out); }catch(e){ /* best-effort, ignore */ }
   return out;
 }
 /* ---- SELF-IMPROVING INTENT MEMORY ----
@@ -574,7 +574,7 @@ function cpParseRegex(t){
    suggestions. Stored on-device; nothing leaves the phone unless the user opts
    into aggregate sharing. This is the honest "learns from user data". */
 function rwLearnIntent(parsed){
-  var m={}; try{ m=JSON.parse(lsGet('rw_intent_profile')||'{}'); }catch(e){}
+  var m={}; try{ m=JSON.parse(lsGet('rw_intent_profile')||'{}'); }catch(e){ /* parse best-effort, ignore malformed/missing data */ }
   m.vibes=m.vibes||{}; m.budgets=m.budgets||[]; m.days=m.days||[]; m.topics=m.topics||{}; m.count=(m.count||0)+1;
   if(parsed.topic) m.topics[parsed.topic]=(m.topics[parsed.topic]||0)+1;
   (parsed.vibe||[]).forEach(function(v){ m.vibes[v]=(m.vibes[v]||0)+1; });
@@ -604,7 +604,7 @@ async function rwResolvePlace(name){
   if(!name) return null;
   var key='rw_geo_'+String(name).toLowerCase().replace(/[^a-z0-9]/g,'');
   if(RW_PLACE_CACHE[key]) return RW_PLACE_CACHE[key];
-  try{ var c=JSON.parse(lsGet(key)||'null'); if(c){ RW_PLACE_CACHE[key]=c; return c; } }catch(e){}
+  try{ var c=JSON.parse(lsGet(key)||'null'); if(c){ RW_PLACE_CACHE[key]=c; return c; } }catch(e){ /* parse best-effort, ignore malformed/missing data */ }
   /* curated meaning first — no network needed, and never wrong */
   var ovKey = String(name).toLowerCase().replace(/[^a-z]/g,'');
   if(RW_PLACE_OVERRIDES[ovKey]){
@@ -658,7 +658,7 @@ function copilotSend(fromHero){
   var inp = el(fromHero? 'heroInput' : 'cpInput');
   var t=(inp && inp.value||'').trim(); if(!t) return;
   /* Primary CTA of the app — asking Tusk to plan/answer something. */
-  try{ rwPlayCue('hero_cta_or_big_action'); }catch(e){}
+  try{ rwPlayCue('hero_cta_or_big_action'); }catch(e){ /* best-effort, ignore */ }
   inp.value='';
   if(fromHero){
     /* Conversation flows vertically right on the page — no popup. */
@@ -673,7 +673,7 @@ function copilotSend(fromHero){
     if(_clar){ cpBubble(_clar,'bot'); return; }
     var _sa = rwStartAnywhere(t);
     if(_sa){ t = _sa; }   /* pasted link/text -> extract the trip from it */
-  }catch(e){}
+  }catch(e){ /* best-effort, ignore */ }
   /* App navigation intents: "open settings", "go to store", "show my trips"… */
   var NAV=[[/settings|api key/i,'Settings',function(){openSettings();}],
     [/store|merch/i,'the Store',function(){tabGo('home');var st=el('store');if(st){var fh=st.querySelector('.fold-head');if(fh&&!fh.classList.contains('open'))fh.click();st.scrollIntoView({behavior:'smooth'});}}],
@@ -689,8 +689,8 @@ function copilotSend(fromHero){
     for(var ni=0;ni<NAV.length;ni++){
       if(NAV[ni][0].test(t)){
         cpBubble('\ud83d\udc49 Opening '+NAV[ni][1]+'\u2026','bot');
-        try{ NAV[ni][2](); }catch(e){}
-        try{ track('copilot_uses'); }catch(e){}
+        try{ NAV[ni][2](); }catch(e){ /* best-effort, ignore */ }
+        try{ track('copilot_uses'); }catch(e){ /* analytics best-effort, ignore */ }
         return;
       }
     }
@@ -720,7 +720,7 @@ function copilotSend(fromHero){
           for(var _pk in RW_PLACE_FACTS){ if(_pfq.indexOf(_pk)>=0){ _pf=RW_PLACE_FACTS[_pk]; break; } }
           if(_pf) facts = 'AUTHORITATIVE curated facts (trust these over everything else): '+_pf+'\n' + facts;
         }
-      }catch(e){}
+      }catch(e){ /* best-effort, ignore */ }
       /* Explicit state beats hoping the model infers it from the transcript. */
       var recent = rwRecall(6).map(function(t){ return (t.role==='user'?'User: ':'Assistant: ')+t.text; }).join('\n');
       if(recent) facts += 'Recent conversation:\n'+recent+'\n';
@@ -786,7 +786,7 @@ function copilotSend(fromHero){
     /* Tusk recognised a place-shaped query but the curated engine has nothing
        for it — log it anonymously so the (previously unfed) daily learning
        pipeline in tusk-daily.yml has real place names to resolve. */
-    if(place && !kb){ try{ rwTuskMiss(place); }catch(e){} }
+    if(place && !kb){ try{ rwTuskMiss(place); }catch(e){ /* best-effort, ignore */ } }
     /* Carry the topic over — but only ONCE per destination (was the nagging repetition). */
     if(place && !new RegExp(place.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'i').test(t) && window._tkCarryShown!==place){
       kb = (kb? kb+'<br>' : '') + '<span style="font-size:11px;color:var(--t3)">\u21b3 still on <b>'+esc2(place)+'</b></span>';

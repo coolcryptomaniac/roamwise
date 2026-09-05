@@ -72,9 +72,9 @@ function chatRenderPins(){
 /* Toggle a pin tab open/closed. This was referenced by the pin chips but never
    defined — which is why Kitty/Decisions/Plan/Board didn't respond to taps. */
 function chatTogglePin(view){
-  try{ rwHaptic(); }catch(e){}
+  try{ rwHaptic(); }catch(e){ /* haptic feedback is a nice-to-have, ignore */ }
   _chatPinView = (_chatPinView===view) ? null : view;
-  try{ chatRenderPins(); }catch(e){}
+  try{ chatRenderPins(); }catch(e){ /* best-effort, ignore */ }
 }
 /* ===== UNIQUE: "Tusk, sort this out" — the group facilitator =====
    Reads the recent group conversation and produces a clear summary + the single
@@ -174,7 +174,7 @@ function chatAddBoardItem(){
     if(v.share==='yes' && looksSecret && !confirm('This looks like a password/OTP/card number. Share it with the whole group anyway?')){ return; }
     chatPost('board', {type:v.type||'note', title:v.title.slice(0,60), value:(v.value||'').slice(0,120), share:(v.share!=='no')},
       '\ud83d\udccb added '+(v.share==='no'?'a private ':'')+'board item: '+v.title.slice(0,40))
-      .then(function(){ _chatPinView='board'; setTimeout(function(){ try{ chatRenderPins(); }catch(e){} },200); });
+      .then(function(){ _chatPinView='board'; setTimeout(function(){ try{ chatRenderPins(); }catch(e){ /* best-effort, ignore */ } },200); });
   });
 }
 function chatEditPlan(){
@@ -183,7 +183,7 @@ function chatEditPlan(){
   f._submit='Save plan';
   rwForm('\ud83d\uddd3\ufe0f Edit the plan', f, function(v){
     chatPost('plan', {text:(v.text||'').slice(0,2000)}, '\ud83d\uddd3\ufe0f updated the plan')
-      .then(function(){ _chatPinView='plan'; setTimeout(function(){ try{ chatRenderPins(); }catch(e){} }, 200); });
+      .then(function(){ _chatPinView='plan'; setTimeout(function(){ try{ chatRenderPins(); }catch(e){ /* best-effort, ignore */ } }, 200); });
   });
 }
 
@@ -213,7 +213,7 @@ function chatSharePlan(){
     }
     chatPost('plan', {id:t.id, name:t.name, days:(t.days||[]).length},
       t.name+' \u2014 '+((t.days||[]).length)+'-day plan')
-      .then(function(){ _chatPinView='plan'; setTimeout(function(){ try{ chatRenderPins(); }catch(e){} },200); });
+      .then(function(){ _chatPinView='plan'; setTimeout(function(){ try{ chatRenderPins(); }catch(e){ /* best-effort, ignore */ } },200); });
   }
   if(trips.length===1){ postPlan(trips[0]); return; }
   var f=[ { key:'trip', label:'Which saved trip?', type:'select',
@@ -291,7 +291,7 @@ function rwPollVote(id, idx){
   if(!user || !_chatRoom) return;
   var u={}; u['payload.votes.'+user.uid]=idx;
   db.collection('tripchats').doc(_chatRoom).collection('msgs').doc(id).update(u).catch(function(){});
-  try{ rwHaptic&&rwHaptic(); }catch(e){}
+  try{ rwHaptic&&rwHaptic(); }catch(e){ /* haptic feedback is a nice-to-have, ignore */ }
 }
 function rwPollHTML(id, m){
   var p=m.payload||{}, votes=p.votes||{}, opts=p.opts||[];

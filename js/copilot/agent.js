@@ -76,7 +76,7 @@ var RW_AGENT_TOOLS = [
 var RW_AGENT_IMPL = {
   set_destination: function(a){
     if(!a.place) return {ok:false, error:'place is required'};
-    try{ var d=el('destInput'); if(d) d.value=a.place; }catch(e){}
+    try{ var d=el('destInput'); if(d) d.value=a.place; }catch(e){ /* best-effort, ignore */ }
     window._agentDest=a.place;
     return {ok:true, destination:a.place, terrain:rwTerrainOf(a.place), ground_truth:rwGroundTruth(a.place)||'normal roads'};
   },
@@ -114,7 +114,7 @@ var RW_AGENT_IMPL = {
   },
   find_nearby: function(a){
     if(!a.place) return {ok:false, error:'place is required'};
-    try{ openNearMe(); setTimeout(function(){ var i=el('nearManualInp'); if(i){ i.value=a.place; rwNearMeManualGo(); } }, 300); }catch(e){}
+    try{ openNearMe(); setTimeout(function(){ var i=el('nearManualInp'); if(i){ i.value=a.place; rwNearMeManualGo(); } }, 300); }catch(e){ /* best-effort, ignore */ }
     return {ok:true, opened:'near_me', searching:a.place, note:'Results are rendering in the app for the user to see.'};
   },
   show_map: function(a){
@@ -174,7 +174,7 @@ function rwAgentRun(objective, onTrace, onDone){
       var finished=null;
       calls.forEach(function(c){
         var name=(c.function&&c.function.name)||'', args={};
-        try{ args=JSON.parse((c.function&&c.function.arguments)||'{}'); }catch(e){}
+        try{ args=JSON.parse((c.function&&c.function.arguments)||'{}'); }catch(e){ /* parse best-effort, ignore malformed/missing data */ }
         record('action', {tool:name, args:args});
         var impl=RW_AGENT_IMPL[name];
         var out = impl ? (function(){ try{ return impl(args); }catch(e){ return {ok:false, error:String(e&&e.message||e)}; } })()
@@ -208,7 +208,7 @@ RW_AGENT_IMPL.find_partners = function(a){
              status:p.verified, why:p._why, hook:p.hook }; }) };
 };
 RW_AGENT_IMPL.open_booking = function(a){
-  try{ if(typeof openRoomBook==='function'){ openRoomBook(a.roomId); return { ok:true, opened:a.roomId }; } }catch(e){}
+  try{ if(typeof openRoomBook==='function'){ openRoomBook(a.roomId); return { ok:true, opened:a.roomId }; } }catch(e){ /* best-effort, ignore */ }
   return { ok:false, error:'Could not open that room' };
 };
 RW_AGENT_IMPL.my_bookings = function(){
@@ -227,7 +227,7 @@ RW_AGENT_IMPL.share_to_whatsapp = function(a){
 RW_AGENT_IMPL.travel_compatibility = function(){
   var mine=(typeof rwCompatMine==='function')? rwCompatMine():{};
   var done=Object.keys(mine).length>0;
-  try{ if(typeof openCompat==='function') openCompat(); }catch(e){}
+  try{ if(typeof openCompat==='function') openCompat(); }catch(e){ /* best-effort, ignore */ }
   return { ok:true, profileSet:done,
     axes:(window.RW_AXES||[]).map(function(x){ return x.label; }),
     note: done ? 'Their profile is set; explain who they match with and why.'
@@ -239,12 +239,12 @@ RW_AGENT_IMPL.open_feature = function(a){
     compat:'openCompat', listing:'openListing', money:'openMoneyLayer',
     nearme:'openNearMe', beacon:'openBeacon', arrival:'openArrival' };
   var fn=map[a.feature];
-  try{ if(fn && typeof window[fn]==='function'){ window[fn](); return { ok:true, opened:a.feature }; } }catch(e){}
+  try{ if(fn && typeof window[fn]==='function'){ window[fn](); return { ok:true, opened:a.feature }; } }catch(e){ /* best-effort, ignore */ }
   return { ok:false, error:'no such screen' };
 };
 RW_AGENT_IMPL.emergency_help = function(){
   try{ if(typeof openSOS==='function'){ openSOS(); return { ok:true, opened:true,
-    note:'The offline help page is open. Emergency numbers are 112, 108, and 1363 for tourists.' }; } }catch(e){}
+    note:'The offline help page is open. Emergency numbers are 112, 108, and 1363 for tourists.' }; } }catch(e){ /* best-effort, ignore */ }
   return { ok:true, note:'Emergency numbers in India: 112 all emergencies, 108 ambulance, 1363 tourist helpline.' };
 };
 
@@ -253,7 +253,7 @@ function rwWhatsShare(text){
   var t=String(text||'');
   try{
     if(navigator.share){ navigator.share({ text:t }); return true; }
-  }catch(e){}
+  }catch(e){ /* share best-effort, ignore */ }
   window.open('https://wa.me/?text='+encodeURIComponent(t), '_blank', 'noopener');
   return true;
 }
@@ -292,7 +292,7 @@ function rwAgentCall(messages, cb){
 
 /* --- the visible reasoning trace (useful UX AND the thing to film for a demo) --- */
 function openAgent(){
-  try{ tabGo('home'); }catch(e){}
+  try{ tabGo('home'); }catch(e){ /* best-effort nav helper, ignore */ }
   var sec=el('agentSection');
   if(!sec){ sec=document.createElement('section'); sec.id='agentSection'; sec.className='xsec v v-home';
     var host=el('copilotHero'); if(host&&host.parentNode) host.parentNode.insertBefore(sec,host.nextSibling); else document.body.appendChild(sec); }

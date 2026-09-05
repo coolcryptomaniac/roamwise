@@ -63,6 +63,6 @@ function rwExpPlan(id){
     inp.value='Plan the RoamWise experience "'+x.title+'" \u2014 '+x.days+' days in '+x.zone+'. '
       + (x.bundle||[]).map(function(b){ return b.k+': '+b.v; }).join('. ')
       + '. Give honest travel times, a realistic budget from \u20b9'+x.from+', and tell me what could go wrong.';
-    try{ copilotSend(!!el('heroInput')); }catch(err){}
+    try{ copilotSend(!!el('heroInput')); }catch(err){ /* best-effort, ignore */ }
   }
 }

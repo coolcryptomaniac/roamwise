@@ -5,11 +5,11 @@
    move, zero logic changes. */
 
 function openJourneyCert(){
-  try{ tabGo('home'); }catch(e){}
+  try{ tabGo('home'); }catch(e){ /* best-effort nav helper, ignore */ }
   var it = window._lastItin;
   var destName = (it && it.name) || '';
   var stops = rwDeriveStops(destName);
-  if(!destName){ try{ showToast('Plan a trip first \u2014 then mint its certificate \ud83c\udfc5'); }catch(e){}; return; }
+  if(!destName){ try{ showToast('Plan a trip first \u2014 then mint its certificate \ud83c\udfc5'); }catch(e){ /* toast is a nice-to-have, ignore */ }; return; }
 
   var name = lsGet('rw_name') || (window.user && user.displayName) || 'A Traveler';
   var rank = (typeof rankOf==='function') ? rankOf(xpGet())[1] : 'Explorer';
@@ -69,7 +69,7 @@ function openJourneyCert(){
   rwEnsureLeaflet(function(ok){
     if(!ok){ el('certMap').innerHTML='<div style="padding:30px;text-align:center;color:#888;font-size:12px">Map needs internet the first time</div>'; return; }
     var cacheKey='rw_tripmap_v2_'+destName.toLowerCase().replace(/[^a-z0-9]/g,'');
-    var cached=null; try{ cached=JSON.parse(lsGet(cacheKey)||'null'); }catch(e){}
+    var cached=null; try{ cached=JSON.parse(lsGet(cacheKey)||'null'); }catch(e){ /* parse best-effort, ignore malformed/missing data */ }
     var geoP = (cached&&cached.pins&&cached.pins.length) ? Promise.resolve(cached)
       : gcode(destName).then(function(center){
           return Promise.all(stops.map(function(s){ return gcode(s.name+', '+destName).then(function(g){ return g?{name:s.name,lat:g.lat,lon:g.lon}:null; }); }))
@@ -85,8 +85,8 @@ function openJourneyCert(){
         L.marker([p.lat,p.lon],{icon:ic}).addTo(m); pts.push([p.lat,p.lon]); bounds.push([p.lat,p.lon]);
       });
       if(pts.length>1) L.polyline(pts,{color:'#E8BA6C',weight:2.5,opacity:.7,dashArray:'5,7'}).addTo(m);
-      if(bounds.length) try{ m.fitBounds(bounds,{padding:[30,30],maxZoom:12}); }catch(e){}
-      setTimeout(function(){ try{ m.invalidateSize(); }catch(e){} },300);
+      if(bounds.length) try{ m.fitBounds(bounds,{padding:[30,30],maxZoom:12}); }catch(e){ /* best-effort, ignore */ }
+      setTimeout(function(){ try{ m.invalidateSize(); }catch(e){ /* best-effort, ignore */ } },300);
     });
   });
 }

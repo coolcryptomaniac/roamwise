@@ -44,7 +44,7 @@ function rwResumeAmbient(){
   try{
     if(window.RWAudio && RWAudio.isEnabled && RWAudio.isEnabled() &&
        RWAudio.isLoopEnabled && RWAudio.isLoopEnabled()) RWAudio.play();
-  }catch(e){}
+  }catch(e){ /* best-effort, ignore */ }
 }
 
 /**
@@ -59,8 +59,8 @@ function rwStopCue(resumeAmbient){
   _rwCueCurrentName = '';
   _rwCuePlayToken += 1;
   if(_rwCueNode){
-    try{ _rwCueNode.pause(); }catch(e){}
-    try{ _rwCueNode.currentTime = 0; }catch(e){}
+    try{ _rwCueNode.pause(); }catch(e){ /* best-effort, ignore */ }
+    try{ _rwCueNode.currentTime = 0; }catch(e){ /* best-effort, ignore */ }
   }
   var focus = window.RWAudioFocus;
   if(focus && focus.release) focus.release('cue');
@@ -134,17 +134,17 @@ function rwPlayCue(name, options){
   var node = rwEnsureCueNode();
   if(!node) return false;
   var ambientPlaying = false;
-  try{ ambientPlaying = !!(window.RWAudio && RWAudio.isPlaying && RWAudio.isPlaying()); }catch(e){}
+  try{ ambientPlaying = !!(window.RWAudio && RWAudio.isPlaying && RWAudio.isPlaying()); }catch(e){ /* best-effort, ignore */ }
   _rwCueResumeAmbient = _rwCueResumeAmbient || ambientPlaying || !!(options && options.resumeAmbient);
 
   /* Reuse one element and stop it before every source change. Different cue
      names can therefore never layer, even when fired outside the debounce. */
-  try{ node.pause(); }catch(e){}
-  try{ node.currentTime = 0; }catch(e){}
+  try{ node.pause(); }catch(e){ /* best-effort, ignore */ }
+  try{ node.currentTime = 0; }catch(e){ /* best-effort, ignore */ }
   var source = 'assets/audio/'+base+_rwCueFormat;
   if(node.getAttribute ? node.getAttribute('src') !== source : node.src !== source){
     node.src = source;
-    try{ if(node.load) node.load(); }catch(e){}
+    try{ if(node.load) node.load(); }catch(e){ /* best-effort, ignore */ }
   }
   node.volume = Math.max(0.18, Math.min(1, rwAudioThemeVolume()/0.55));
   _rwCueCurrentName = name;

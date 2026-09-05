@@ -42,7 +42,7 @@ var WA_NUMBER='', WA_CHANNEL='', WA_GROUP='';
         if(slot) a.setAttribute('data-ad-slot', slot);
         if(!a.getAttribute('data-ad-slot')){ return; }  /* skip: would never fill */
         a.style.display='block';
-        try{ (adsbygoogle=window.adsbygoogle||[]).push({}); }catch(e){}
+        try{ (adsbygoogle=window.adsbygoogle||[]).push({}); }catch(e){ /* best-effort, ignore */ }
       });
     }
   }
@@ -51,9 +51,9 @@ var WA_NUMBER='', WA_CHANNEL='', WA_GROUP='';
 })();
 /* Global + idempotent so remote config can create it after the fact. */
 function ensureWaButton(){
-  try{ rwRefCapture(); rwRefStickUrl(); }catch(e){}
-  try{ setTimeout(rwBasketBadge, 600); }catch(e){}
-  try{ setTimeout(rwConfigSyncAll, 1200); }catch(e){}
+  try{ rwRefCapture(); rwRefStickUrl(); }catch(e){ /* best-effort, ignore */ }
+  try{ setTimeout(rwBasketBadge, 600); }catch(e){ /* best-effort, ignore */ }
+  try{ setTimeout(rwConfigSyncAll, 1200); }catch(e){ /* best-effort, ignore */ }
   if(!WA_NUMBER || document.getElementById('waFab')) return;
   var w=document.createElement('a');
   w.id='waFab';

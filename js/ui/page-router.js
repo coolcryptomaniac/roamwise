@@ -11,7 +11,7 @@ function rwCloseSection(id){
   try{
     s.dataset.rwcls = s.className;              /* remember for reopen */
     s.className = s.className.replace(/\bv-[a-z]+\b/g,'').replace(/(^|\s)v(\s|$)/g,' ').trim();
-  }catch(e){}
+  }catch(e){ /* best-effort, ignore */ }
   s.style.display='none';
   s.setAttribute('hidden','');
 }
@@ -64,8 +64,8 @@ function rwPageOpen(key, builder){
     +'<div class="rw-page-body" id="rwPageBody"></div>';
   document.body.classList.add('rw-paged');
   host.classList.add('open');
-  try{ if(typeof builder==='function') builder(el('rwPageBody')); }catch(e){}
-  try{ if(location.hash!=='#/'+key) history.pushState({rwPage:key},'', '#/'+key); }catch(e){}
+  try{ if(typeof builder==='function') builder(el('rwPageBody')); }catch(e){ /* best-effort, ignore */ }
+  try{ if(location.hash!=='#/'+key) history.pushState({rwPage:key},'', '#/'+key); }catch(e){ /* best-effort, ignore */ }
   window.scrollTo(0,0);
   _rwPageStack.push(key);
 }
@@ -74,7 +74,7 @@ function rwPageClose(){
   if(host){ host.classList.remove('open'); setTimeout(function(){ if(host) host.innerHTML=''; },260); }
   document.body.classList.remove('rw-paged');
   _rwPageStack.pop();
-  try{ if(String(location.hash||'').indexOf('#/')===0) history.pushState({},'', location.pathname); }catch(e){}
+  try{ if(String(location.hash||'').indexOf('#/')===0) history.pushState({},'', location.pathname); }catch(e){ /* best-effort, ignore */ }
 }
 function rwPageShare(key){
   var url=location.origin+location.pathname+'#/'+key;
@@ -135,7 +135,7 @@ var RW_SECTION_TITLES = {
 };
 function rwOpenSection(id){
   var s=el(id); if(!s) return;
-  try{ if(s.dataset.rwcls) s.className=s.dataset.rwcls; }catch(e){}
+  try{ if(s.dataset.rwcls) s.className=s.dataset.rwcls; }catch(e){ /* best-effort, ignore */ }
   s.removeAttribute('hidden');
   s.style.display='';
   /* move it into a page shell */
@@ -149,5 +149,5 @@ function rwOpenSection(id){
         s.style.display='';
       });
     }
-  }catch(e){}
+  }catch(e){ /* best-effort, ignore */ }
 }

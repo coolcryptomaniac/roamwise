@@ -77,7 +77,7 @@ async function downloadAtlasCertificate(){
   if(!window._rwCard || !window._rwCine){ showToast('Forge your Journey Card first — then the certificate'); return; }
   showToast('📜 Engraving your Atlas Certificate…');
   var C=_rwCine, L=logGet();
-  var PR={}; try{ PR=JSON.parse(lsGet('rw_profile')||'{}'); }catch(e){}
+  var PR={}; try{ PR=JSON.parse(lsGet('rw_profile')||'{}'); }catch(e){ /* parse best-effort, ignore malformed/missing data */ }
   var name=PR.name||lsGet('rw_name')||'A Traveler';
   var xp=xpGet(), r=rankOf(xp);
   var withCoords=L.filter(function(e){ return typeof e.lat==='number' && typeof e.lon==='number'; });
@@ -169,7 +169,7 @@ async function downloadAtlasCertificate(){
     showToast('📜 Atlas Certificate downloaded — open it in any browser');
   }
   xpAdd(15,'Atlas Certificate engraved');
-  try{ track('atlas_cert_made'); }catch(e){}
+  try{ track('atlas_cert_made'); }catch(e){ /* analytics best-effort, ignore */ }
 }
 function cardPNG(){ if(window._rwCard) saveOrDownload(_rwCard.toDataURL('image/png'),'roamwise-journey.png'); }
 function cardJPG(){ if(window._rwCard) saveOrDownload(_rwCard.toDataURL('image/jpeg',0.92),'roamwise-journey.jpg'); }

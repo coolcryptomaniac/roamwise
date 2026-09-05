@@ -18,7 +18,7 @@ var RW_STATIONS=[
   {q:'Kochi (ERS)', city:'Kochi'},{q:'Guwahati (GHY)', city:'Guwahati'}
 ];
 function openArrival(){
-  try{ tabGo('home'); }catch(e){}
+  try{ tabGo('home'); }catch(e){ /* best-effort nav helper, ignore */ }
   var sec=el('arrivalSection');
   if(!sec){ sec=document.createElement('section'); sec.id='arrivalSection'; sec.className='xsec v v-home';
     var host=el('copilotHero'); if(host&&host.parentNode) host.parentNode.insertBefore(sec,host.nextSibling); else document.body.appendChild(sec); }
@@ -77,15 +77,15 @@ function rwArrivalAdvice(slot, city){
 function rwArrivalPlan(city, days, tm){
   var q='I arrive in '+city+' by train at '+tm+'. Plan '+days+' days starting from that arrival \u2014 account for the arrival time on day 1 (do not plan a full morning if I land in the afternoon).';
   var inp=el('heroInput')||el('cpInput');
-  if(inp){ inp.value=q; try{ copilotSend(!!el('heroInput')); }catch(e){} }
+  if(inp){ inp.value=q; try{ copilotSend(!!el('heroInput')); }catch(e){ /* best-effort, ignore */ } }
   rwCloseSection('arrivalSection');
 }
 function rwArrivalNear(city){
-  try{ openNearMe(); }catch(e){}
+  try{ openNearMe(); }catch(e){ /* best-effort, ignore */ }
   setTimeout(function(){
     var mi=el('nearManualInp');
-    if(mi){ mi.value=city+' railway station'; try{ rwNearMeManualGo(); }catch(e){} }
-    else { try{ rwNearMeManual('Searching around '+city+' station.'); setTimeout(function(){ var m2=el('nearManualInp'); if(m2){ m2.value=city+' railway station'; rwNearMeManualGo(); } },250); }catch(e){} }
+    if(mi){ mi.value=city+' railway station'; try{ rwNearMeManualGo(); }catch(e){ /* best-effort, ignore */ } }
+    else { try{ rwNearMeManual('Searching around '+city+' station.'); setTimeout(function(){ var m2=el('nearManualInp'); if(m2){ m2.value=city+' railway station'; rwNearMeManualGo(); } },250); }catch(e){ /* best-effort, ignore */ } }
   }, 400);
 }
 /* We don't book tickets (that needs authorised IRCTC partner access) — we send

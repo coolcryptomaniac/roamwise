@@ -18,7 +18,7 @@ function openProfile(){
   if(!ov){ ov=document.createElement('div'); ov.id='profOverlay'; ov.className='overlay';
     ov.innerHTML='<div class="modal" style="max-width:440px;max-height:88vh;overflow:auto"><button class="modal-close" onclick="el(\'profOverlay\').classList.remove(\'open\')">\u00d7</button><div class="modal-head"><div class="modal-title">\ud83d\udc64 My Traveler Profile</div><div class="modal-sub">Tell RoamWise who\u2019s traveling</div></div><div class="modal-body" id="profBody"></div></div>';
     document.body.appendChild(ov); }
-  var P2={}; try{P2=JSON.parse(lsGet('rw_profile')||'{}');}catch(e){}
+  var P2={}; try{P2=JSON.parse(lsGet('rw_profile')||'{}');}catch(e){ /* parse best-effort, ignore malformed/missing data */ }
   var avs=['adventurer','ninja','fox','owl','bear','robot'].map(function(s,i){
     var u2='https://api.dicebear.com/9.x/'+(i<2?'adventurer':'bottts')+'/svg?seed='+s;
     return '<img src="'+u2+'" data-u="'+u2+'" onclick="profAv(this)" style="width:52px;height:52px;border-radius:50%;cursor:pointer;border:2px solid '+((P2.av===u2)?'var(--gold)':'var(--b2)')+'">';

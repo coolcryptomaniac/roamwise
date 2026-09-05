@@ -24,7 +24,7 @@ async function osmAttractions(lat, lon, radiusM){
   try{
     var c=JSON.parse(lsGet(key)||'null');
     if(c && (Date.now()-c.at) < 30*864e5) return c.items;
-  }catch(e){}
+  }catch(e){ /* parse best-effort, ignore malformed/missing data */ }
   if(!navigator.onLine) return [];
   var filters = OSM_KINDS.map(function(k){
     return 'node["'+k[0]+'"="'+k[1]+'"](around:'+radiusM+','+lat+','+lon+');';

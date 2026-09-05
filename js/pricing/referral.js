@@ -67,7 +67,7 @@ function rwRefSync(){
       var list=(d.data()||{}).list;
       if(Array.isArray(list) && list.length){
         window.RW_REFERRERS = list;
-        try{ lsSet('rw_ref_cache', JSON.stringify(list)); }catch(e){}
+        try{ lsSet('rw_ref_cache', JSON.stringify(list)); }catch(e){ /* storage best-effort, ignore */ }
       }
     }).catch(function(){});
     /* referral terms: rates, buyer bonus, promo status, disclaimer.
@@ -84,14 +84,14 @@ function rwRefSync(){
       if(!d.exists) return;
       var t=d.data()||{};
       window.RW_REFERRAL_TERMS = Object.assign({}, window.RW_REFERRAL_TERMS||{}, t);
-      try{ lsSet('rw_ref_terms_cache',JSON.stringify(window.RW_REFERRAL_TERMS)); }catch(e){}
+      try{ lsSet('rw_ref_terms_cache',JSON.stringify(window.RW_REFERRAL_TERMS)); }catch(e){ /* storage best-effort, ignore */ }
     }).catch(function(){});
-  }catch(e){}
+  }catch(e){ /* best-effort Firestore write, ignore */ }
 }
 /* use cached copies on boot */
 (function(){
-  try{ var c=lsGet('rw_ref_cache'); if(c){ var l=JSON.parse(c); if(Array.isArray(l)&&l.length) window.RW_REFERRERS=l; } }catch(e){}
-  try{ var ct=lsGet('rw_ref_terms_cache'); if(ct) window.RW_REFERRAL_TERMS=JSON.parse(ct); }catch(e){}
+  try{ var c=lsGet('rw_ref_cache'); if(c){ var l=JSON.parse(c); if(Array.isArray(l)&&l.length) window.RW_REFERRERS=l; } }catch(e){ /* parse best-effort, ignore malformed/missing data */ }
+  try{ var ct=lsGet('rw_ref_terms_cache'); if(ct) window.RW_REFERRAL_TERMS=JSON.parse(ct); }catch(e){ /* parse best-effort, ignore malformed/missing data */ }
 })();
 
 function rwRefLookup(code){
@@ -126,11 +126,11 @@ function rwRefCapture(){
     if(!who || who.active===false) return;         /* unknown/retired code: ignore silently */
     lsSet(RW_REF_KEY, who.code);
     lsSet(RW_REF_AT, String(Date.now()));
-    try{ track('ref_click'); }catch(e){}
+    try{ track('ref_click'); }catch(e){ /* analytics best-effort, ignore */ }
     setTimeout(function(){
-      try{ showToast('\ud83d\udc4b You came via '+who.name+' \u2014 welcome!'); }catch(e){}
+      try{ showToast('\ud83d\udc4b You came via '+who.name+' \u2014 welcome!'); }catch(e){ /* toast is a nice-to-have, ignore */ }
     }, 1200);
-  }catch(e){}
+  }catch(e){ /* analytics best-effort, ignore */ }
 }
 /* Return the still-valid referral code, or null. */
 
@@ -143,7 +143,7 @@ function rwRefStickUrl(){
     if(u.searchParams.get('ref')===c) return;
     u.searchParams.set('ref', c);
     history.replaceState({}, '', u.toString());
-  }catch(e){}
+  }catch(e){ /* best-effort, ignore */ }
 }
 /* A referrer's own link should also survive an app install: stash it where the
    installed PWA can read it on first run. */
@@ -151,7 +151,7 @@ function rwRefPersist(){
   try{
     var c=rwRefActive(); if(!c) return;
     if(window.caches) return;   /* nothing extra needed; localStorage covers it */
-  }catch(e){}
+  }catch(e){ /* storage best-effort, ignore */ }
 }
 
 function rwRefActive(){
@@ -181,7 +181,7 @@ function rwRefStamp(){
       var selfByEmail = who.email && user.email && String(who.email).toLowerCase()===String(user.email).toLowerCase();
       if(selfByUid || selfByEmail) return { refCode:code, refSelf:true, refRate:0 };
     }
-  }catch(e){}
+  }catch(e){ /* best-effort, ignore */ }
   return {
     refCode: who.code,
     refName: who.name,
@@ -231,8 +231,8 @@ function rwRefApply(code, quiet){
   if(!who || who.active===false) return null;
   lsSet(RW_REF_KEY, who.code);
   lsSet(RW_REF_AT, String(Date.now()));
-  if(!quiet){ try{ showToast('\u2705 Code applied \u2014 '+who.name+' gets credit'); }catch(e){} }
-  try{ track('ref_code_entered'); }catch(e){}
+  if(!quiet){ try{ showToast('\u2705 Code applied \u2014 '+who.name+' gets credit'); }catch(e){ /* toast is a nice-to-have, ignore */ } }
+  try{ track('ref_code_entered'); }catch(e){ /* analytics best-effort, ignore */ }
   return who;
 }
 /* the little "have a referral code?" box */

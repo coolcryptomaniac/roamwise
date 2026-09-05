@@ -5,7 +5,7 @@ function rwVoiceStart(targetId){
   _rwVoiceTarget = targetId || 'heroInput';
   /* Native bridge (old wrapper) if present */
   if(window.RW && typeof RW.startVoice==='function'){
-    try{ RW.startVoice(); showToast('\ud83c\udfa4 Listening\u2026'); return; }catch(e){}
+    try{ RW.startVoice(); showToast('\ud83c\udfa4 Listening\u2026'); return; }catch(e){ /* toast is a nice-to-have, ignore */ }
   }
   /* Capacitor SpeechRecognition plugin (community, installed in the app build) */
   if(window.Capacitor && Capacitor.Plugins && Capacitor.Plugins.SpeechRecognition){
@@ -20,9 +20,9 @@ function rwVoiceStart(targetId){
         try{
           SRP.addListener && SRP.addListener('partialResults', function(data){
             var t=data && data.matches && data.matches[0];
-            if(t && !got){ got=true; try{ SRP.stop(); }catch(e){} rwVoiceResult(t); }
+            if(t && !got){ got=true; try{ SRP.stop(); }catch(e){ /* best-effort, ignore */ } rwVoiceResult(t); }
           });
-        }catch(e){}
+        }catch(e){ /* best-effort, ignore */ }
         SRP.start({language:'en-IN', maxResults:2, partialResults:true, popup:true})
           .then(function(r){
             var t=r && r.matches && r.matches[0];

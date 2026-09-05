@@ -46,8 +46,8 @@ function rwStateHTML(key, days){
    runs on its six built-in countries. */
 function rwMergeExtData(){
   if(window._rwDataMerged) return;
-  try{ if(typeof RW_COUNTRY_ROUTES_EXT!=='undefined'){ for(var k in RW_COUNTRY_ROUTES_EXT){ if(!RW_COUNTRY_ROUTES[k]) RW_COUNTRY_ROUTES[k]=RW_COUNTRY_ROUTES_EXT[k]; } } }catch(e){}
-  try{ if(typeof RW_FOOD_EXT!=='undefined'){ for(var f in RW_FOOD_EXT){ if(!RW_FOOD[f]) RW_FOOD[f]=RW_FOOD_EXT[f]; } } }catch(e){}
+  try{ if(typeof RW_COUNTRY_ROUTES_EXT!=='undefined'){ for(var k in RW_COUNTRY_ROUTES_EXT){ if(!RW_COUNTRY_ROUTES[k]) RW_COUNTRY_ROUTES[k]=RW_COUNTRY_ROUTES_EXT[k]; } } }catch(e){ /* best-effort, ignore */ }
+  try{ if(typeof RW_FOOD_EXT!=='undefined'){ for(var f in RW_FOOD_EXT){ if(!RW_FOOD[f]) RW_FOOD[f]=RW_FOOD_EXT[f]; } } }catch(e){ /* best-effort, ignore */ }
   window._rwDataMerged = true;
 }
 function rwDetectCountry(t){
@@ -60,7 +60,7 @@ function rwDetectCountry(t){
       var aliases=Object.keys(RW_COUNTRY_ALIAS).sort(function(a,b){ return b.length-a.length; });
       for(var a=0;a<aliases.length;a++){ if(lower.indexOf(' '+aliases[a]+' ')>-1) return RW_COUNTRY_ALIAS[aliases[a]]; }
     }
-  }catch(e){}
+  }catch(e){ /* best-effort, ignore */ }
   /* 2) direct key match (india, japan, etc.) */
   var keys=Object.keys(RW_COUNTRY_ROUTES);
   for(var i=0;i<keys.length;i++){ if(lower.indexOf(' '+keys[i]+' ')>-1) return keys[i]; }

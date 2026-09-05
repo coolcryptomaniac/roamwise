@@ -59,8 +59,8 @@ function track(ev){
        just stayed empty with no clue why. Record the last failure so it can be
        surfaced instead of guessed at. */
     db.collection('stats').doc(day).set(inc, {merge:true})
-      .catch(function(e){ try{ lsSet('rw_track_err', (e.code||'')+' '+(e.message||e)); }catch(_){} });
-  }catch(e){}
+      .catch(function(e){ try{ lsSet('rw_track_err', (e.code||'')+' '+(e.message||e)); }catch(_){ /* storage best-effort, ignore */ } });
+  }catch(e){ /* best-effort Firestore write, ignore */ }
 }
 /* Per-response thumbs up/down on Ailon Tusk bot bubbles (see cpFinish). No
    per-message record and no user identity — just bumps the same anonymous
@@ -78,7 +78,7 @@ function rwTuskFeedback(btn, helpful){
       if(btn && btn.style) btn.style.transform='scale(1.3)';
     }
     track(helpful? 'tusk_helpful' : 'tusk_unhelpful');
-  }catch(e){}
+  }catch(e){ /* analytics best-effort, ignore */ }
 }
 /* Closes the loop the daily tusk-daily.yml Action was built for but never
    received data for: log the place name whenever Ailon Tusk's curated engine
@@ -96,11 +96,11 @@ function rwTuskMiss(place){
       count: firebase.firestore.FieldValue.increment(1),
       lastAsked: firebase.firestore.FieldValue.serverTimestamp()
     }, {merge:true}).catch(function(){});
-  }catch(e){}
+  }catch(e){ /* best-effort Firestore write, ignore */ }
 }
 (function(){ try{
   if(!sessionStorage.getItem('rw_v')){ sessionStorage.setItem('rw_v','1'); setTimeout(function(){ track('visits'); }, 1500); }
-}catch(e){} })();
+}catch(e){ /* analytics best-effort, ignore */ } })();
 
 /* ===== CONVERSION NUDGE — one-time, after the user has felt the value ===== */
 function maybeNudge(){
@@ -121,7 +121,7 @@ function maybeNudge(){
         track('nudge_shown');
       }, 2500);
     }
-  }catch(e){}
+  }catch(e){ /* analytics best-effort, ignore */ }
 }
 
 /* ===== TRAVEL PULSE — anonymous aggregate demand (no identities, no contact) ===== */
@@ -130,7 +130,7 @@ function pulseBump(name,month){
   if(!AUTH_READY || !user) return;
   try{ db.collection('pulse').doc(pulseKey(name,month)).set({
     n:String(name).slice(0,60), m:month, count: firebase.firestore.FieldValue.increment(1),
-    at: firebase.firestore.FieldValue.serverTimestamp()},{merge:true}); }catch(e){}
+    at: firebase.firestore.FieldValue.serverTimestamp()},{merge:true}); }catch(e){ /* best-effort Firestore write, ignore */ }
 }
 function pulseShow(name,month,elId){
   if(!AUTH_READY) return;
@@ -138,5 +138,5 @@ function pulseShow(name,month,elId){
     if(!d.exists) return;
     var c=d.data().count||0; if(c<2) return;
     var t=el(elId); if(t){ t.style.display=''; t.innerHTML='\ud83d\udd25 <b>'+c+' travelers</b> planned '+name+' for '+month+' recently \u2014 you\u2019re in good company'; }
-  }); }catch(e){}
+  }); }catch(e){ /* best-effort Firestore write, ignore */ }
 }

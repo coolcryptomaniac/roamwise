@@ -52,7 +52,7 @@ async function rwAutoBackup(){
     var rec=await rwEncryptSecrets(bundle, pass);
     rec.updated=firebase.firestore.FieldValue.serverTimestamp();
     await db.collection('secrets').doc(user.uid).set(rec);
-  }catch(e){}
+  }catch(e){ /* best-effort Firestore write, ignore */ }
 }
 async function rwSyncKeysUp(){
   var pass=(el('secPass')&&el('secPass').value||'').trim();
@@ -83,8 +83,8 @@ async function rwSyncKeysDown(silent){
     var n=0;
     Object.keys(bundle).forEach(function(p){ if(bundle[p]){ lsSet('rwKey_'+p, bundle[p]); n++; } });
     if(el('secRemember') && el('secRemember').checked) lsSet('rw_sec_pass', pass);
-    try{ renderKeyBoxes(); openSettings(); }catch(e){}
-    try{ cpModelChips('heroModels'); cpModelChips('cpModels'); }catch(e){}
+    try{ renderKeyBoxes(); openSettings(); }catch(e){ /* non-critical render step, ignore */ }
+    try{ cpModelChips('heroModels'); cpModelChips('cpModels'); }catch(e){ /* best-effort, ignore */ }
     if(st && !silent){ st.textContent='\u2713 Restored '+n+' key(s) to this device.'; st.style.color='#4ADE80'; }
     else if(n) showToast('\ud83d\udd11 '+n+' AI key(s) restored');
     return true;
@@ -100,7 +100,7 @@ async function rwForgetSynced(){
     el('secStatus').textContent='Backup deleted.'; el('secStatus').style.color='var(--t3)';
   }catch(e){ el('secStatus').textContent='Delete failed: '+(e.message||e); }
 }
-function lsRemove(k){ try{ localStorage.removeItem(k); }catch(e){} }
+function lsRemove(k){ try{ localStorage.removeItem(k); }catch(e){ /* storage best-effort, ignore */ } }
 function rwOfferBackup(){
   if(lsGet('rw_sec_pass') || lsGet('rw_sec_declined')==='1') return;
   if(!user || !user.uid) return;

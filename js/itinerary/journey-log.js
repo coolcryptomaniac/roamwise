@@ -20,9 +20,9 @@ var RW_MOODS=[
   {e:'\ud83d\ude34',k:'exhausted',c:'#64748B'}
 ];
 function journalGet(){ try{ return JSON.parse(lsGet('rw_journal')||'[]'); }catch(e){ return []; } }
-function journalSet(a){ try{ lsSet('rw_journal', JSON.stringify(a.slice(0,300))); }catch(e){} }
+function journalSet(a){ try{ lsSet('rw_journal', JSON.stringify(a.slice(0,300))); }catch(e){ /* storage best-effort, ignore */ } }
 function openJourneyLog(){
-  try{ tabGo('home'); }catch(e){}
+  try{ tabGo('home'); }catch(e){ /* best-effort nav helper, ignore */ }
   var sec=el('journeySection');
   if(!sec){ sec=document.createElement('section'); sec.id='journeySection'; sec.className='xsec v v-home';
     var host=el('copilotHero'); if(host&&host.parentNode) host.parentNode.insertBefore(sec,host.nextSibling); else document.body.appendChild(sec); }
@@ -58,8 +58,8 @@ function rwJournalSave(){
   var log=journalGet();
   log.unshift({mood:mood, place:place, note:note, at:Date.now()});
   journalSet(log);
-  try{ badgeBump('journal'); }catch(e){}
-  try{ rwHaptic(); }catch(e){}
+  try{ badgeBump('journal'); }catch(e){ /* badge/progression update is a nice-to-have, ignore */ }
+  try{ rwHaptic(); }catch(e){ /* haptic feedback is a nice-to-have, ignore */ }
   showToast('Moment saved \ud83d\udcd6');
   if(el('journalPlace')) el('journalPlace').value='';
   if(el('journalNote')) el('journalNote').value='';
@@ -87,7 +87,7 @@ function rwJournalRender(){
   }).join('');
 }
 function rwRenderLog(){
-  var log=[]; try{ log=JSON.parse(lsGet('rw_memlog')||'[]'); }catch(e){}
+  var log=[]; try{ log=JSON.parse(lsGet('rw_memlog')||'[]'); }catch(e){ /* parse best-effort, ignore malformed/missing data */ }
   var out=el('memLogOut'); if(!out) return;
   if(!log.length){ out.innerHTML='<div class="note">Your travel memories will collect here \u2014 each blog and collage you make gets logged as a keepsake.</div>'; return; }
   var ic={blog:'\ud83d\udcdd',collage:'\ud83d\uddbc\ufe0f'};
@@ -446,7 +446,7 @@ function drawCard(L, name, tiles, heroPhoto){
   if(un) showToast(un+' place(s) still locating \u2014 regenerate in a minute for full pins');
   else showToast('Souvenir-grade \u2014 2400\u00d73200px, ready to print & frame \ud83d\uddbc\ufe0f');
   if(!lsGet('rw_card_xp')){ lsSet('rw_card_xp','1'); xpAdd(25,'Journey Card forged'); }
-  try{ var eb=el('cardEarnBox'); if(eb) eb.style.display='block'; }catch(e){}
+  try{ var eb=el('cardEarnBox'); if(eb) eb.style.display='block'; }catch(e){ /* best-effort, ignore */ }
 }
 /* ---- Travel & Earn: Journey Card viral share ---- */
 function cardShareWa(){
@@ -454,5 +454,5 @@ function cardShareWa(){
     +'AI itineraries + crowd calendars + real local prices, built solo from the Himalayas.\n\n'
     +'One-time \u20b9100 \u2014 no subscription: roamwise.co.in\n\n'
     +'#RoamWise #TravelIndia #AITravel #ShinobiMode #IndieApp';
-  try{ navigator.clipboard.writeText(caption).then(function(){ showToast('\ud83d\udcf8 Caption copied! Post on Reels/Shorts, tag @mohucool \u2014 100+ views = free Pro pass for a friend'); }).catch(function(){ if(navigator.share) navigator.share({text:caption}); }); }catch(e){}
+  try{ navigator.clipboard.writeText(caption).then(function(){ showToast('\ud83d\udcf8 Caption copied! Post on Reels/Shorts, tag @mohucool \u2014 100+ views = free Pro pass for a friend'); }).catch(function(){ if(navigator.share) navigator.share({text:caption}); }); }catch(e){ /* clipboard best-effort, ignore */ }
 }

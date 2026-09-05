@@ -43,7 +43,7 @@ var RW_FOOD = {
   bali:       ['Babi guling',         'Suckling pig \u2014 the ceremonial dish, best at a warung before noon.',                     'babi guling balinese']
 };
 function rwFoodFor(place){
-  try{ rwMergeExtData(); }catch(e){}
+  try{ rwMergeExtData(); }catch(e){ /* best-effort, ignore */ }
   var k=String(place||'').toLowerCase().trim().replace(/\s+/g,'');
   return RW_FOOD[k] || RW_FOOD[String(place||'').toLowerCase().trim()] || null;
 }

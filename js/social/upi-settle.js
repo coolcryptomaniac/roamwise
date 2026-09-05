@@ -20,14 +20,14 @@ function rwUpiSetMine(){
   ], function(v){
     var vpa=(v.vpa||'').trim();
     if(vpa && !rwUpiValid(vpa)){ showToast('That doesn\u2019t look like a UPI ID \u2014 e.g. name@okicici'); return; }
-    try{ lsSet('rw_upi', vpa); }catch(e){}
+    try{ lsSet('rw_upi', vpa); }catch(e){ /* storage best-effort, ignore */ }
     /* share it to the group so the "pay" buttons can find it */
     if(vpa && _chatRoom && user && typeof db!=='undefined' && db){
       db.collection('users').doc(user.uid).set({upi:vpa, name:(user.displayName||'Traveller')},{merge:true}).catch(function(){});
     }
     showToast(vpa? 'UPI ID saved \u00b7 friends can now pay you in one tap' : 'UPI ID cleared');
-    try{ rwMoneyRender(); }catch(e){}
-    try{ chatRenderPins(); }catch(e){}
+    try{ rwMoneyRender(); }catch(e){ /* best-effort, ignore */ }
+    try{ chatRenderPins(); }catch(e){ /* best-effort, ignore */ }
   });
 }
 /* Build the standard UPI intent URL. */
@@ -64,7 +64,7 @@ function rwUpiOpen(vpa, name, amount, note){
   var url=rwUpiLink(vpa, name, amount, note);
   var isMobile=/Android|iPhone|iPad|iPod/i.test(navigator.userAgent||'');
   if(isMobile){
-    try{ window.location.href=url; }catch(e){}
+    try{ window.location.href=url; }catch(e){ /* best-effort, ignore */ }
     /* if no UPI app handles it, nothing visibly happens — give a way out */
     setTimeout(function(){ rwUpiFallback(vpa, name, amount, url); }, 1800);
   } else {
@@ -85,12 +85,12 @@ function rwUpiFallback(vpa, name, amount, url){
     +'<div style="font-size:11px;color:var(--t3);line-height:1.55;margin-top:6px">Opens your own UPI app (GPay, PhonePe, Paytm\u2026) with the amount filled in. RoamWise never handles the money and can\u2019t see whether it went through \u2014 mark it settled once it\u2019s done.</div></div>';
   ov.classList.add('open');
 }
-function rwCopy(t){ try{ navigator.clipboard.writeText(t); }catch(e){} }
+function rwCopy(t){ try{ navigator.clipboard.writeText(t); }catch(e){ /* clipboard best-effort, ignore */ } }
 function rwUpiAskFor(name, amount){
   if(!_chatRoom){ return; }
   try{
     chatPost('text', null, '\ud83d\udcb3 '+ (name||'Someone') +', can you drop your UPI ID here? Settling up \u20b9'+Number(amount).toFixed(0)+'.');
-  }catch(e){}
+  }catch(e){ /* best-effort, ignore */ }
 }
 
 /* Chat kitty works in uids, so look the payee's UPI up by uid. */
@@ -100,7 +100,7 @@ function rwUpiPayUid(uid, amount){
     var u=d.exists? (d.data()||{}) : {};
     if(!u.upi){
       showToast((u.name||'They')+' haven\u2019t added a UPI ID yet');
-      try{ chatPost('text', null, '\ud83d\udcb3 Can you drop your UPI ID here? Settling up \u20b9'+Number(amount).toFixed(0)+'.'); }catch(e){}
+      try{ chatPost('text', null, '\ud83d\udcb3 Can you drop your UPI ID here? Settling up \u20b9'+Number(amount).toFixed(0)+'.'); }catch(e){ /* best-effort, ignore */ }
       return;
     }
     rwUpiOpen(u.upi, u.name||'Traveller', amount, 'RoamWise trip settle');

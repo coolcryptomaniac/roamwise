@@ -68,7 +68,7 @@ function grpCompromise(members){
   return scored.slice(0,5);
 }
 function openGroupPlanner(){
-  try{ badgeBump('group'); }catch(e){}
+  try{ badgeBump('group'); }catch(e){ /* badge/progression update is a nice-to-have, ignore */ }
   var ov=el('grpOverlay');
   if(!ov){
     ov=document.createElement('div'); ov.id='grpOverlay'; ov.className='overlay';

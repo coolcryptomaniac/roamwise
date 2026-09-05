@@ -34,7 +34,7 @@ function chatReact(id, emoji){
     ? firebase.firestore.FieldValue.arrayRemove(user.uid)
     : firebase.firestore.FieldValue.arrayUnion(user.uid);
   db.collection('tripchats').doc(_chatRoom).collection('msgs').doc(id).update(upd).catch(function(){});
-  if(!have){ try{ rwHaptic&&rwHaptic(); }catch(e){} rwPopHeart(emoji); }
+  if(!have){ try{ rwHaptic&&rwHaptic(); }catch(e){ /* haptic feedback is a nice-to-have, ignore */ } rwPopHeart(emoji); }
 }
 /* the little floating emoji burst — pure CSS, no library */
 function rwPopHeart(e){
@@ -57,7 +57,7 @@ function chatReactsHTML(id, m){
 }
 /* long-press / double-tap opens the reaction picker */
 function chatReactPicker(id, ev){
-  try{ ev && ev.preventDefault(); }catch(e){}
+  try{ ev && ev.preventDefault(); }catch(e){ /* best-effort, ignore */ }
   var old=el('rxPick'); if(old) old.remove();
   var d=document.createElement('div');
   d.id='rxPick'; d.className='rx-pick';
@@ -128,18 +128,18 @@ function rwPresenceStart(){
   var col=db.collection('tripchats').doc(_chatRoom).collection('presence');
   var ref=col.doc(user.uid);
   function beat(){
-    try{ ref.set({ name:(user.displayName||user.email||'Traveller').split('@')[0], at:Date.now() },{merge:true}); }catch(e){}
+    try{ ref.set({ name:(user.displayName||user.email||'Traveller').split('@')[0], at:Date.now() },{merge:true}); }catch(e){ /* best-effort, ignore */ }
   }
   beat();
   if(_presTimer) clearInterval(_presTimer);
   _presTimer=setInterval(function(){ if(!document.hidden) beat(); }, 45000);
   document.addEventListener('visibilitychange', function(){ if(!document.hidden) beat(); });
-  if(_presUnsub){ try{ _presUnsub(); }catch(e){} }
+  if(_presUnsub){ try{ _presUnsub(); }catch(e){ /* best-effort, ignore */ } }
   _presUnsub = col.onSnapshot(function(qs){
     _presence={};
     qs.forEach(function(d){ _presence[d.id]=d.data()||{}; });
-    try{ var vb=el('tcVibe'); if(vb) vb.innerHTML=chatVibeHTML(); }catch(e){}
-    try{ if(el('memList')) rwMembersRender(); }catch(e){}
+    try{ var vb=el('tcVibe'); if(vb) vb.innerHTML=chatVibeHTML(); }catch(e){ /* best-effort, ignore */ }
+    try{ if(el('memList')) rwMembersRender(); }catch(e){ /* best-effort, ignore */ }
   }, function(){});
 }
 function rwIsOnline(uid){
@@ -277,7 +277,7 @@ function chatVibeHTML(){
     var mem=rwMembers();
     n=mem.length;
     mem.forEach(function(u){ if(rwIsOnline(u)){ live++; names.push(rwMemberName(u)); } });
-  }catch(e){}
+  }catch(e){ /* best-effort, ignore */ }
   if(!n) n=1;
   var vibe = st>=7 ? 'locked in \ud83d\udd25' : st>=3 ? 'warming up \u2728' : n>2 ? 'the squad is here \ud83d\udc65' : 'just getting started \ud83c\udf31';
   return '<div class="tc-vibe">'
@@ -448,10 +448,10 @@ function rwReportSend(ctx){
 /* local block: hides them for you immediately, before any moderation happens */
 function rwBlock(uid){
   if(!uid) return;
-  var b=[]; try{ b=JSON.parse(lsGet('rw_blocked')||'[]'); }catch(e){}
+  var b=[]; try{ b=JSON.parse(lsGet('rw_blocked')||'[]'); }catch(e){ /* parse best-effort, ignore malformed/missing data */ }
   if(b.indexOf(uid)===-1){ b.push(uid); lsSet('rw_blocked', JSON.stringify(b)); }
   showToast('Blocked \u2014 their messages are hidden for you');
-  try{ if(_chatRoom) tripChatOpen(_chatRoom); }catch(e){}
+  try{ if(_chatRoom) tripChatOpen(_chatRoom); }catch(e){ /* best-effort, ignore */ }
 }
 function rwIsBlocked(uid){
   try{ return (JSON.parse(lsGet('rw_blocked')||'[]')).indexOf(uid)>-1; }catch(e){ return false; }

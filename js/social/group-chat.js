@@ -13,7 +13,7 @@
    tapping "Group" expecting chat. This opens a room for any group name, so it
    works before a trip is even saved. */
 function openGroupChat(){
-  if(!window.user || !user.uid){ showToast('Sign in to use group chat'); try{ openAuth(); }catch(e){} return; }
+  if(!window.user || !user.uid){ showToast('Sign in to use group chat'); try{ openAuth(); }catch(e){ /* best-effort, ignore */ } return; }
   /* Show recent chats so people return to an existing conversation instead of
      always starting fresh. History is remembered per device. */
   var recents = rwChatRecents();
@@ -52,7 +52,7 @@ function rwChatRemember(id, name){
     var list = rwChatRecents().filter(function(r){ return r.id!==id; });
     list.unshift({id:id, name:name||'Trip chat', at:Date.now()});
     lsSet('rw_chat_recents', JSON.stringify(list.slice(0,12)));
-  }catch(e){}
+  }catch(e){ /* storage best-effort, ignore */ }
 }
 function rwAgo(ts){
   var s=Math.round((Date.now()-ts)/1000);
@@ -71,7 +71,7 @@ function rwAgo(ts){
    It is NOT end-to-end encrypted — Firestore can see message text — so the UI
    says exactly that rather than overpromising. */
 function tripChatOpen(roomId, roomName){
-  if(!user || !user.uid){ showToast('Sign in to use group chat'); try{ openAuth(); }catch(e){} return; }
+  if(!user || !user.uid){ showToast('Sign in to use group chat'); try{ openAuth(); }catch(e){ /* best-effort, ignore */ } return; }
   _chatRoom=roomId;
   var ov=el('chatOverlay');
   if(!ov){
@@ -112,14 +112,14 @@ function tripChatOpen(roomId, roomName){
     el('chatInput').addEventListener('input',function(){ this.style.height='auto'; this.style.height=Math.min(this.scrollHeight,110)+'px'; });
   }
   el('chatTitle').textContent='\ud83d\udcac '+(roomName||'Trip chat');
-  try{ rwChatRemember(roomId, roomName||'Trip chat'); }catch(e){}
+  try{ rwChatRemember(roomId, roomName||'Trip chat'); }catch(e){ /* best-effort, ignore */ }
   rwOverlayOpen('chatOverlay');
-  try{ rwChatApplySize(); }catch(e){}
+  try{ rwChatApplySize(); }catch(e){ /* best-effort, ignore */ }
   /* ensure the room exists with me as a member, then live-subscribe */
   var ref=db.collection('tripchats').doc(roomId);
   ref.get().then(function(d){
     if(!d.exists) return ref.set({name:roomName||'Trip', members:[user.uid], owner:user.uid, created:firebase.firestore.FieldValue.serverTimestamp()});
-    try{ window._chatMembers=(d.data().members||[]); window._chatOwner=(d.data().owner||''); }catch(e){}
+    try{ window._chatMembers=(d.data().members||[]); window._chatOwner=(d.data().owner||''); }catch(e){ /* best-effort, ignore */ }
     if((d.data().members||[]).indexOf(user.uid)===-1)
       return ref.update({members:firebase.firestore.FieldValue.arrayUnion(user.uid)});
   }).then(function(){
@@ -127,11 +127,11 @@ function tripChatOpen(roomId, roomName){
     try{
       if(window._chatMemUnsub) window._chatMemUnsub();
       window._chatMemUnsub = ref.onSnapshot(function(rd){
-        try{ var rr=rd.data()||{}; window._chatMembers=rr.members||[]; window._chatOwner=rr.owner||''; }catch(e){}
-        try{ var vb=el('tcVibe'); if(vb) vb.innerHTML=chatVibeHTML(); }catch(e){}
+        try{ var rr=rd.data()||{}; window._chatMembers=rr.members||[]; window._chatOwner=rr.owner||''; }catch(e){ /* best-effort, ignore */ }
+        try{ var vb=el('tcVibe'); if(vb) vb.innerHTML=chatVibeHTML(); }catch(e){ /* best-effort, ignore */ }
       });
-    }catch(e){}
-    try{ rwPresenceStart(); }catch(e){}
+    }catch(e){ /* best-effort, ignore */ }
+    try{ rwPresenceStart(); }catch(e){ /* best-effort, ignore */ }
     if(_chatUnsub) _chatUnsub();
     _chatUnsub = ref.collection('msgs').orderBy('at','asc').limitToLast(200).onSnapshot(function(qs){
       var log=el('chatLog'); if(!log) return;
@@ -181,12 +181,12 @@ function tripChatOpen(roomId, roomName){
         }
       });
 
-      try{ chatRenderPins(); }catch(e){}
+      try{ chatRenderPins(); }catch(e){ /* best-effort, ignore */ }
       try{
         var vb=el('tcVibe');
         if(!vb && log.parentNode){ vb=document.createElement('div'); vb.id='tcVibe'; log.parentNode.insertBefore(vb, log); }
         if(vb) vb.innerHTML=chatVibeHTML()+rwPhaseHTML();
-      }catch(e){}
+      }catch(e){ /* best-effort, ignore */ }
       if(wasNearBottom) log.scrollTop = log.scrollHeight;
     }, function(err){
       /* This is the path the user actually hits when rules are stale, so it
@@ -291,7 +291,7 @@ function rwChatApplySize(){
 }
 function rwChatSizeToggle(){
   _chatSizeMode = (_chatSizeMode==='panel') ? 'full' : 'panel';
-  try{ lsSet('rw_chatsize', _chatSizeMode); }catch(e){}
+  try{ lsSet('rw_chatsize', _chatSizeMode); }catch(e){ /* storage best-effort, ignore */ }
   rwChatApplySize();
 }
 /* deterministic room id from a saved trip, so the same trip = the same room */
@@ -518,7 +518,7 @@ function rwChatGame(id){
   var text = g.seed || (g.pool? g.pool[Math.floor(Math.random()*g.pool.length)] : g.name);
   rwOverlayClose('cgOv');
   try{ chatPost('text', null, text); }catch(e){
-    try{ var i=el('chatInput'); if(i){ i.value=text; i.focus(); } }catch(e2){}
+    try{ var i=el('chatInput'); if(i){ i.value=text; i.focus(); } }catch(e2){ /* best-effort, ignore */ }
   }
 }
 
@@ -537,8 +537,8 @@ function rwChatAskTusk(q){
   setTimeout(function(){ window._tuskBusy=false; }, 2500);
   try{
     if(typeof chatTuskFacilitate==='function'){ chatTuskFacilitate(question); return; }
-  }catch(e){}
-  try{ if(typeof cpAsk==='function') cpAsk(question); }catch(e){}
+  }catch(e){ /* best-effort, ignore */ }
+  try{ if(typeof cpAsk==='function') cpAsk(question); }catch(e){ /* best-effort, ignore */ }
 }
 
 

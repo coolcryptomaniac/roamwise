@@ -100,7 +100,7 @@ var RW_TRIBES=[
   {id:'foodies', ic:'\ud83c\udf5c', name:'Foodies', spots:['Delhi','Lucknow','Amritsar','Kolkata','Hyderabad'], why:'Legendary street food & regional cuisines.'}
 ];
 function openTribeTravel(){
-  try{ tabGo('home'); }catch(e){}
+  try{ tabGo('home'); }catch(e){ /* best-effort nav helper, ignore */ }
   var sec=el('tribeSection');
   if(!sec){ sec=document.createElement('section'); sec.id='tribeSection'; sec.className='xsec v v-home';
     var host=el('copilotHero'); if(host&&host.parentNode) host.parentNode.insertBefore(sec,host.nextSibling); else document.body.appendChild(sec); }
@@ -132,7 +132,7 @@ function rwTribePick(id){
     +'<div class="tribe-why">'+esc2(t.why)+'</div>'
     +'<div class="tribe-label">Where your tribe goes:</div>'+spots
     +'<div style="font-size:10.5px;color:var(--t3);margin-top:10px;line-height:1.5">These are the destinations this community gravitates to \u2014 a starting point, not a guarantee of who you\u2019ll meet. Use \u201cFind buddies\u201d to post in Trip Squads for that city.</div></div>';
-  try{ badgeBump('group'); }catch(e){}
+  try{ badgeBump('group'); }catch(e){ /* badge/progression update is a nice-to-have, ignore */ }
 }
 
 /* ================= BEACON — nearby tribe matching (rw-v46) =================
@@ -156,7 +156,7 @@ function rwBlur(v){ return Math.round(v*100)/100; }
 function rwBeaconMine(){ try{ return JSON.parse(lsGet('rw_beacon')||'null'); }catch(e){ return null; } }
 
 function openBeacon(){
-  try{ tabGo('home'); }catch(e){}
+  try{ tabGo('home'); }catch(e){ /* best-effort nav helper, ignore */ }
   var sec=el('beaconSection');
   if(!sec){ sec=document.createElement('section'); sec.id='beaconSection'; sec.className='xsec v v-home';
     var host=el('copilotHero'); if(host&&host.parentNode) host.parentNode.insertBefore(sec,host.nextSibling); else document.body.appendChild(sec); }
@@ -178,7 +178,7 @@ function openBeacon(){
   if(mine) rwBeaconFind();
 }
 function rwBeaconLight(){
-  if(!user){ showToast('Sign in first \u2014 beacons are tied to real accounts for safety'); try{ openAuth(); }catch(e){} return; }
+  if(!user){ showToast('Sign in first \u2014 beacons are tied to real accounts for safety'); try{ openAuth(); }catch(e){ /* best-effort, ignore */ } return; }
   var chosen=[];
   var chips=RW_TRIBE_TAGS.map(function(t,i){
     return '<button id="btag'+i+'" onclick="rwBeaconTag('+i+')" style="background:var(--bg3,#1A1A20);border:1px solid var(--b2,#2A2A36);border-radius:20px;padding:7px 12px;color:var(--t1);font-size:12px;cursor:pointer;margin:3px">'+t+'</button>';
@@ -206,7 +206,7 @@ function rwBeaconTag(i){
   var b=el('btag'+i); if(b){ var on=list.indexOf(t)>=0;
     b.style.borderColor=on?'var(--gold,#E8BA6C)':'var(--b2,#2A2A36)';
     b.style.background=on?'rgba(232,186,108,.14)':'var(--bg3,#1A1A20)'; }
-  try{ rwHaptic(); }catch(e){}
+  try{ rwHaptic(); }catch(e){ /* haptic feedback is a nice-to-have, ignore */ }
 }
 function rwBeaconGo(){
   var tags=window._beaconTags||[];
@@ -222,8 +222,8 @@ function rwBeaconGo(){
       expireAt: firebase.firestore.Timestamp.fromMillis(Date.now()+2*60*60*1000),
       lit: firebase.firestore.FieldValue.serverTimestamp() };
     db.collection('beacons').doc(user.uid).set(rec).then(function(){
-      try{ lsSet('rw_beacon', JSON.stringify({lat:blat,lon:blon,tags:tags,at:Date.now()})); }catch(e){}
-      try{ rwHaptic('heavy'); }catch(e){}
+      try{ lsSet('rw_beacon', JSON.stringify({lat:blat,lon:blon,tags:tags,at:Date.now()})); }catch(e){ /* storage best-effort, ignore */ }
+      try{ rwHaptic('heavy'); }catch(e){ /* haptic feedback is a nice-to-have, ignore */ }
       rwOverlayClose('beaconSetupOv');
       showToast('\ud83d\udce1 Beacon lit for 2 hours');
       openBeacon();
@@ -240,7 +240,7 @@ function rwBeaconGo(){
 }
 function rwBeaconOff(){
   if(user && typeof db!=='undefined' && db){ db.collection('beacons').doc(user.uid).delete().catch(function(){}); }
-  try{ lsSet('rw_beacon',''); }catch(e){}
+  try{ lsSet('rw_beacon',''); }catch(e){ /* storage best-effort, ignore */ }
   showToast('\ud83c\udf19 Beacon off \u2014 you\u2019re invisible again');
   openBeacon();
 }

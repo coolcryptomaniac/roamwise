@@ -14,7 +14,7 @@ var RW_ONBOARD=[
   {ic:'\ud83d\udccd', t:'Discover nearby', d:'Find food, sights & things to do around you, plus fitness-friendly stays.'}
 ];
 function rwMaybeOnboard(){
-  try{ if(lsGet('rw_onboarded')==='1') return; }catch(e){}
+  try{ if(lsGet('rw_onboarded')==='1') return; }catch(e){ /* storage best-effort, ignore */ }
   rwOnboardShow(0);
 }
 function rwOnboardShow(i){
@@ -34,7 +34,7 @@ function rwOnboardShow(i){
   ov.classList.add('open');
 }
 function rwOnboardDone(){
-  try{ lsSet('rw_onboarded','1'); }catch(e){}
+  try{ lsSet('rw_onboarded','1'); }catch(e){ /* storage best-effort, ignore */ }
   var ov=el('rwOnboardOv'); if(ov){ ov.classList.remove('open'); }
 }
 function rwReplayOnboard(){ rwOnboardShow(0); }

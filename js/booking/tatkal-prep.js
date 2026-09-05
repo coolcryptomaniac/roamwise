@@ -9,7 +9,7 @@
    unprepared in the first 40 seconds, so we fix THAT: details ready to copy,
    a synced countdown, and a pre-flight checklist. All on-device. */
 function openTatkal(){
-  try{ tabGo('home'); }catch(e){}
+  try{ tabGo('home'); }catch(e){ /* best-effort nav helper, ignore */ }
   var sec=el('tatkalSection');
   if(!sec){ sec=document.createElement('section'); sec.id='tatkalSection'; sec.className='xsec v v-home';
     var host=el('copilotHero'); if(host&&host.parentNode) host.parentNode.insertBefore(sec,host.nextSibling); else document.body.appendChild(sec); }
@@ -58,7 +58,7 @@ function rwTatkalStartTimer(){
 }
 /* --- passenger master list (on-device only) --- */
 function rwTatkalPax(){ try{ return JSON.parse(lsGet('rw_tatkal_pax')||'[]'); }catch(e){ return []; } }
-function rwTatkalSetPax(a){ try{ lsSet('rw_tatkal_pax', JSON.stringify(a.slice(0,6))); }catch(e){} }
+function rwTatkalSetPax(a){ try{ lsSet('rw_tatkal_pax', JSON.stringify(a.slice(0,6))); }catch(e){ /* storage best-effort, ignore */ } }
 function rwTatkalAddPax(){
   rwForm('Add passenger', [
     {key:'name', label:'Full name (as on ID)'},
@@ -107,7 +107,7 @@ var RW_TATKAL_STEPS=[
 ];
 function rwTatkalRenderCheck(){
   var host=el('tatkalCheck'); if(!host) return;
-  var done={}; try{ done=JSON.parse(lsGet('rw_tatkal_check')||'{}'); }catch(e){}
+  var done={}; try{ done=JSON.parse(lsGet('rw_tatkal_check')||'{}'); }catch(e){ /* parse best-effort, ignore malformed/missing data */ }
   host.innerHTML=RW_TATKAL_STEPS.map(function(t,i){
     var on=!!done[i];
     return '<button onclick="rwTatkalToggle('+i+')" style="display:flex;align-items:flex-start;gap:9px;width:100%;text-align:left;background:none;border:none;padding:7px 0;cursor:pointer;color:var(--t1)">'
@@ -116,8 +116,8 @@ function rwTatkalRenderCheck(){
   }).join('');
 }
 function rwTatkalToggle(i){
-  var done={}; try{ done=JSON.parse(lsGet('rw_tatkal_check')||'{}'); }catch(e){}
-  done[i]=!done[i]; try{ lsSet('rw_tatkal_check', JSON.stringify(done)); }catch(e){}
-  try{ rwHaptic(); }catch(e){}
+  var done={}; try{ done=JSON.parse(lsGet('rw_tatkal_check')||'{}'); }catch(e){ /* parse best-effort, ignore malformed/missing data */ }
+  done[i]=!done[i]; try{ lsSet('rw_tatkal_check', JSON.stringify(done)); }catch(e){ /* storage best-effort, ignore */ }
+  try{ rwHaptic(); }catch(e){ /* haptic feedback is a nice-to-have, ignore */ }
   rwTatkalRenderCheck();
 }

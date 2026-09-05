@@ -55,7 +55,7 @@ var RW_GUIDE=[
    go:'openNearMe()'}
 ];
 function openGuide(){
-  try{ tabGo('home'); }catch(e){}
+  try{ tabGo('home'); }catch(e){ /* best-effort nav helper, ignore */ }
   var sec=el('guideSection');
   if(!sec){ sec=document.createElement('section'); sec.id='guideSection'; sec.className='xsec v v-home';
     var host=el('copilotHero'); if(host&&host.parentNode) host.parentNode.insertBefore(sec,host.nextSibling); else document.body.appendChild(sec); }
@@ -94,7 +94,7 @@ function rwGuidePlayAll(){
   function next(){
     if(i>=RW_GUIDE.length){ _guideQueue=null; return; }
     var g=RW_GUIDE[i++];
-    try{ tuskSpeak(g.title+'. '+g.say); }catch(e){}
+    try{ tuskSpeak(g.title+'. '+g.say); }catch(e){ /* voice narration best-effort, ignore */ }
     /* pace roughly to the length of the narration */
     _guideQueue=setTimeout(next, Math.max(9000, g.say.length*68));
   }
@@ -102,6 +102,6 @@ function rwGuidePlayAll(){
 }
 function rwGuideStop(){
   if(_guideQueue){ clearTimeout(_guideQueue); _guideQueue=null; }
-  try{ if(window.speechSynthesis) speechSynthesis.cancel(); }catch(e){}
-  try{ if(window.Capacitor&&Capacitor.Plugins&&Capacitor.Plugins.TextToSpeech) Capacitor.Plugins.TextToSpeech.stop(); }catch(e){}
+  try{ if(window.speechSynthesis) speechSynthesis.cancel(); }catch(e){ /* voice narration best-effort, ignore */ }
+  try{ if(window.Capacitor&&Capacitor.Plugins&&Capacitor.Plugins.TextToSpeech) Capacitor.Plugins.TextToSpeech.stop(); }catch(e){ /* best-effort, ignore */ }
 }

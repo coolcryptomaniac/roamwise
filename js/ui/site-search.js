@@ -70,14 +70,14 @@ function ssIndex(){
       var k=String(name||'').toLowerCase(); if(!k||_seen[k]) return; _seen[k]=1;
       ix.push({ t:(label||'\ud83d\udccd Plan a trip to '+name), k:k,
         go:(function(n){ return function(){ ssClose(); var d=el('destInput'); if(d) d.value=n; tabGo('plan');
-          try{ if(typeof goPlan==='function') goPlan(); }catch(e){} }; })(name) });
+          try{ if(typeof goPlan==='function') goPlan(); }catch(e){ /* best-effort, ignore */ } }; })(name) });
     };
     Object.keys(rwKnownMap()||{}).forEach(function(k){ addDest(rwKnownMap()[k]); });
     (window.RW_REGIONS||[]).forEach(function(r){
       addDest(r.name, '\ud83d\uddfa\ufe0f '+r.name+' \u2014 '+r.blurb);
       (r.alias||[]).forEach(function(a){ addDest(a, '\ud83d\uddfa\ufe0f '+r.name+' \u2014 '+r.blurb); });
     });
-  }catch(e){}
+  }catch(e){ /* best-effort nav helper, ignore */ }
   (typeof TREKS!=='undefined'?TREKS:[]).forEach(function(t){ ix.push({t:'Trek: '+t.n,k:t.n.toLowerCase(),go:function(){tabGo('explore');scrollToId('treks');}}); });
   (typeof EVENTS!=='undefined'?EVENTS:[]).forEach(function(e){ ix.push({t:e.ic+' '+e.n,k:e.n.toLowerCase(),go:function(){eventPlan(e.id);}}); });
   (typeof EXPS!=='undefined'?EXPS:[]).forEach(function(e){ ix.push({t:'Experience: '+e.n,k:e.n.toLowerCase(),go:function(){tabGo('explore');scrollToId('exps');}}); });

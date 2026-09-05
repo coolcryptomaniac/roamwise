@@ -56,7 +56,7 @@ async function rwVerifyHere(place){
     }
   }catch(e){ return {ok:false, why:'Location unavailable \u2014 allow location to earn Glory'}; }
   if(!pos||!pos.coords) return {ok:false, why:'Could not read your location'};
-  var geo=null; try{ geo=await gcode(place); }catch(e){}
+  var geo=null; try{ geo=await gcode(place); }catch(e){ /* best-effort, ignore */ }
   if(!geo) return {ok:false, why:'Could not place "'+place+'" on the map'};
   var km=rwHaversine(pos.coords.latitude, pos.coords.longitude, geo.lat, geo.lon);
   if(km<=60) return {ok:true, km:km};
@@ -197,7 +197,7 @@ function rwHouse(){ try{ return lsGet('rw_house')||''; }catch(e){ return ''; } }
 function rwHouseObj(){ var h=rwHouse(); return RW_HOUSES.filter(function(x){return x.id===h;})[0]||null; }
 
 function openRealms(){
-  try{ tabGo('home'); }catch(e){}
+  try{ tabGo('home'); }catch(e){ /* best-effort nav helper, ignore */ }
   var sec=el('realmsSection');
   if(!sec){ sec=document.createElement('section'); sec.id='realmsSection'; sec.className='xsec v v-home';
     var host=el('copilotHero'); if(host&&host.parentNode) host.parentNode.insertBefore(sec,host.nextSibling); else document.body.appendChild(sec); }
@@ -223,9 +223,9 @@ function rwRealmsPickHouse(){
     +'</div>';
 }
 function rwRealmsJoin(id){
-  try{ lsSet('rw_house', id); }catch(e){}
+  try{ lsSet('rw_house', id); }catch(e){ /* storage best-effort, ignore */ }
   var H=RW_HOUSES.filter(function(x){return x.id===id;})[0];
-  try{ rwHaptic('heavy'); }catch(e){}
+  try{ rwHaptic('heavy'); }catch(e){ /* haptic feedback is a nice-to-have, ignore */ }
   showToast(H.sigil+' You have sworn to '+H.name);
   openRealms();
 }
@@ -244,7 +244,7 @@ function rwRealmsHome(H){
     +'<div style="font-size:12.5px;color:var(--t2);line-height:1.65">Travel there, then stamp it in your \ud83d\udee1\ufe0f Journey Passport. The stamp is verified against the RoamWise network, so a realm can only be held by someone who genuinely went. Most recent verified claims hold the territory.</div>'
     +'<button class="tact" style="width:100%;margin-top:11px;font-weight:800;background:linear-gradient(135deg,var(--gold,#E8BA6C),var(--gold2,#C8913E));color:#0A0A0C;border:none" onclick="openPassport()">\ud83d\udee1\ufe0f Stamp a journey to claim</button></div>';
 }
-function rwRealmsLeave(){ try{ lsSet('rw_house',''); }catch(e){} openRealms(); }
+function rwRealmsLeave(){ try{ lsSet('rw_house',''); }catch(e){ /* storage best-effort, ignore */ } openRealms(); }
 /* Build the live map from real verified passports across the whole network. */
 function rwRealmsLoadMap(){
   var host=el('realmMap'); if(!host) return;
@@ -311,7 +311,7 @@ function rwPassportId(){
   return 'RW-'+t+'-'+r;
 }
 function openPassport(){
-  try{ tabGo('home'); }catch(e){}
+  try{ tabGo('home'); }catch(e){ /* best-effort nav helper, ignore */ }
   var sec=el('passportSection');
   if(!sec){ sec=document.createElement('section'); sec.id='passportSection'; sec.className='xsec v v-home';
     var host=el('copilotHero'); if(host&&host.parentNode) host.parentNode.insertBefore(sec,host.nextSibling); else document.body.appendChild(sec); }
@@ -328,7 +328,7 @@ function openPassport(){
   rwPassportLoad();
 }
 function rwPassportIssue(){
-  if(!user){ showToast('Sign in first \u2014 a stamp has to be tied to a real account'); try{ openAuth(); }catch(e){} return; }
+  if(!user){ showToast('Sign in first \u2014 a stamp has to be tied to a real account'); try{ openAuth(); }catch(e){ /* best-effort, ignore */ } return; }
   if(typeof db==='undefined' || !db){ showToast('You\u2019re offline \u2014 stamping needs a connection'); return; }
   var last=(window._lastItin&&window._lastItin.name)||'';
   rwForm('\ud83d\udee1\ufe0f Stamp a journey', [
@@ -348,7 +348,7 @@ function rwPassportIssue(){
         issued: firebase.firestore.FieldValue.serverTimestamp(),
         issuer:'roamwise.co.in' };
       return db.collection('passports').doc(id).set(rec).then(function(){
-        try{ badgeBump('passport'); rwHaptic('heavy'); }catch(e){}
+        try{ badgeBump('passport'); rwHaptic('heavy'); }catch(e){ /* haptic feedback is a nice-to-have, ignore */ }
         if(chk.ok){
           var g=rwClaimGlory(rec);
           showToast('\ud83d\udee1\ufe0f Verified claim \u00b7 +'+g+' Glory');
@@ -425,6 +425,6 @@ function rwPassportVerify(id){
   try{
     var m=location.search.match(/[?&]verify=([^&]+)/);
     if(m){ setTimeout(function(){ openPassport(); setTimeout(function(){ rwPassportVerify(decodeURIComponent(m[1]).toUpperCase()); }, 500); }, 1200); }
-  }catch(e){}
+  }catch(e){ /* best-effort, ignore */ }
 })();
 

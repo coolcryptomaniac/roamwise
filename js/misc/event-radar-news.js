@@ -45,7 +45,7 @@ function eventPlan(id){
   var i=el('destInput'); if(i) i.value=e.city;
   var m=el('month'); if(m) m.selectedIndex=e.month;
   tabGo('plan'); showToast(e.ic+' '+e.n+' \u2014 destination & month pre-filled. Hit Search!');
-  try{ track('event_plans'); }catch(x){}
+  try{ track('event_plans'); }catch(x){ /* analytics best-effort, ignore */ }
 }
 function renderEvents(){
   var g=el('evtGrid'); if(!g) return;

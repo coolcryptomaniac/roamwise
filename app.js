@@ -171,7 +171,7 @@ rwInitDestAutocomplete();
 (function(){ try{
   var t=parseInt(lsGet('rw_pro_temp')||'0',10);
   if(t && Date.now()>t){ lsSet('rw_pro_temp',''); lsSet('rw_pro_temp_uid',''); }
-}catch(e){} })();
+}catch(e){ /* storage best-effort, ignore */ } })();
 // Moved to js/ui/site-search.js (Phase 5b) — site search (ssIndex/ssOpen/ssClose/ssRun/_ssGo)
 // Moved to js/ui/card-painter.js (Phase 5b) — adaptive "for you" rendering (useBump, FORYOU_DEFS, renderForYou) + shared card photo painter (RW_PHOTOS, rwLoadPhotoMap, rwPaintPhotos)
 // TRAVEL ECONOMY LIVE TICKER (renderTicker) moved to js/misc/engagement.js (modularization round 5)
@@ -245,7 +245,7 @@ rwInitDestAutocomplete();
 
 
 // TRAVELER DNA (DNA_QS/openDna/dnaPick/dnaSave/applyDna) moved to js/misc/traveler-dna.js (modularization round 5)
-try{ applyDna(); }catch(e){}
+try{ applyDna(); }catch(e){ /* best-effort, ignore */ }
 
 // JOURNEY LOG + DIGITAL CARD moved to js/itinerary/journey-log.js — except the
 // initial logPaint() call below, kept here because it must run after el() (defined
@@ -369,12 +369,12 @@ function submitUtr(){
       return say('You already submitted this UTR \u2014 it\u2019s in the verification queue.', false);
     }
     var _ref = {};
-    try{ _ref = rwRefStamp(); }catch(e){}
+    try{ _ref = rwRefStamp(); }catch(e){ /* best-effort, ignore */ }
     var _bonusDays=0;
     try{
       var _terms=window.RW_REFERRAL_TERMS||{};
       if(_ref.refCode && _terms.active!==false){ _bonusDays=parseInt(_terms.buyerBonusDays||30,10)||30; _ref.buyerBonusDays=_bonusDays; }
-    }catch(e){}
+    }catch(e){ /* best-effort, ignore */ }
     return db.collection('claims').doc(user.uid+'_'+utr).set(Object.assign({
     uid:user.uid, email:user.email||user.phoneNumber||'', utr:utr, amount:parseInt(UPI_AMT,10)||100,
     tier:(UPI_AMT==='299'?'supporter':'pro'), plan:(_selectedPlan&&_selectedPlan.id)||'legacy100', planLabel:(_selectedPlan&&_selectedPlan.label)||'Legacy ₹100',
@@ -382,8 +382,8 @@ function submitUtr(){
   }, _ref)).then(function(res){
     if(res===undefined) return; /* gated above */
     b.disabled=false; b.textContent='Submit \u27A4'; el('utrInput').value='';
-    try{ track('utr_submits'); }catch(e){}
-    try{ if(_bonusDays>0&&_ref.refCode){ var _who=rwRefLookup(_ref.refCode); setTimeout(function(){ showToast('Referred by '+(_who?_who.name:'your friend')+' - you get '+_bonusDays+' bonus days of Pro when verified!'); },2200); } }catch(e){}
+    try{ track('utr_submits'); }catch(e){ /* analytics best-effort, ignore */ }
+    try{ if(_bonusDays>0&&_ref.refCode){ var _who=rwRefLookup(_ref.refCode); setTimeout(function(){ showToast('Referred by '+(_who?_who.name:'your friend')+' - you get '+_bonusDays+' bonus days of Pro when verified!'); },2200); } }catch(e){ /* toast is a nice-to-have, ignore */ }
     /* INSTANT provisional unlock — bound to THIS ACCOUNT (not the device) */
     if(user){
       lsSet('rw_pro_temp', String(Date.now()+864e5));
@@ -432,7 +432,7 @@ function detectRegion(){
     var tz = Intl.DateTimeFormat().resolvedOptions().timeZone || '';
     var lang = (navigator.language||'').toLowerCase();
     if(tz==='Asia/Calcutta'||tz==='Asia/Kolkata'||lang.endsWith('-in')) return 'in';
-  }catch(e){}
+  }catch(e){ /* best-effort, ignore */ }
   return 'ww';
 }
 function setPayRegion(r){

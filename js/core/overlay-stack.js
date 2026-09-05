@@ -10,7 +10,7 @@ function rwOverlayOpen(id, closeFn){
   var ov=el(id); if(!ov) return;
   ov.classList.add('open'); document.body.style.overflow='hidden';
   _rwOvStack.push({id:id, close:closeFn});
-  try{ history.pushState({rwOverlay:id}, ''); }catch(e){}
+  try{ history.pushState({rwOverlay:id}, ''); }catch(e){ /* best-effort, ignore */ }
 }
 function rwOverlayClose(id){
   var ov=el(id); if(ov) ov.classList.remove('open');
