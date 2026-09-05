@@ -6,6 +6,11 @@ legitimate work (see "History" below for why this rewrite happened).
 
 ## Read first (in this order)
 
+0. `DOCS-INDEX.md` — the full, current/historical status of every `.md` doc
+   in this repo (~65 files), with a one-line purpose and "read this when..."
+   for each. Check it before opening any doc not already listed below, to
+   avoid burning AI credits re-discovering which docs are relevant vs.
+   historical/superseded.
 1. `ARCHITECTURE.md` (if present) — the current module map and load order.
    This doc is meant to save future sessions from re-deriving the `js/`
    structure via expensive repo-wide greps every time. If it doesn't exist
