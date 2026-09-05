@@ -8,10 +8,10 @@
 function perksData(){
   var xp=xpGet();
   var streak=parseInt(lsGet('rw_streak')||'0',10)||0;
-  var wish=0; try{ wish=JSON.parse(lsGet('rw_wish')||'[]').length; }catch(e){}
+  var wish=0; try{ wish=JSON.parse(lsGet('rw_wish')||'[]').length; }catch(e){ /* parse best-effort, ignore malformed/missing data */ }
   var pdfs=parseInt(lsGet('rw_pdf_count')||'0',10)||0;
   var squads=parseInt(lsGet('rw_squad_count')||'0',10)||0;
-  var use={}; try{ use=JSON.parse(lsGet('rw_use')||'{}'); }catch(e){}
+  var use={}; try{ use=JSON.parse(lsGet('rw_use')||'{}'); }catch(e){ /* parse best-effort, ignore malformed/missing data */ }
   var planUses=use.plan||0;
   return {xp:xp, streak:streak, wish:wish, pdfs:pdfs, squads:squads, planUses:planUses};
 }
@@ -106,12 +106,12 @@ function badgeEarnedIds(){
 }
 function badgeCelebrate(id){
   var b=RW_BADGES.filter(function(x){return x.id===id;})[0]; if(!b) return;
-  try{ showToast(b.emoji+' Badge unlocked: '+b.name+'!'); }catch(e){}
-  try{ if(typeof xpAdd==='function') xpAdd(25, 'badge:'+id); }catch(e){}
+  try{ showToast(b.emoji+' Badge unlocked: '+b.name+'!'); }catch(e){ /* toast is a nice-to-have, ignore */ }
+  try{ if(typeof xpAdd==='function') xpAdd(25, 'badge:'+id); }catch(e){ /* best-effort, ignore */ }
 }
 /* called when a Pro purchase is confirmed — awards Founder if under the cap */
 function badgeAwardFounder(){
-  try{ lsSet('rw_founder','1'); }catch(e){}
+  try{ lsSet('rw_founder','1'); }catch(e){ /* storage best-effort, ignore */ }
   badgeCelebrate('founder');
 }
 function badgesHTML(){
@@ -131,7 +131,7 @@ function badgesHTML(){
     +'<div style="font-size:10.5px;color:var(--t3);text-align:center;margin-top:10px">'+earned.length+' of '+RW_BADGES.length+' badges earned</div>';
 }
 function openBadges(){
-  try{ tabGo('home'); }catch(e){}
+  try{ tabGo('home'); }catch(e){ /* best-effort nav helper, ignore */ }
   var sec=el('badgesSection');
   if(!sec){
     sec=document.createElement('section'); sec.id='badgesSection'; sec.className='xsec v v-home';
@@ -175,7 +175,7 @@ function xpPaint(){
       lsSet('rw_streak',String(st)); lsSet('rw_prevday',today);
       setTimeout(function(){ xpAdd(20*Math.min(st,3),'Daily return \u00b7 '+st+'-day streak'); },3200);
     } else xpPaint();
-  }catch(e){}
+  }catch(e){ /* storage best-effort, ignore */ }
 })();
 
 
@@ -242,7 +242,7 @@ function rwChallengeDone(id){
   var c=RW_CHALLENGES.filter(function(x){ return x.id===id; })[0]; if(!c) return;
   d.done=(d.done||[]).concat([id]); rwXpSave(d);
   rwXpAdd(c.xp, c.name);
-  try{ rwProgressPanel(); }catch(e){}
+  try{ rwProgressPanel(); }catch(e){ /* best-effort, ignore */ }
 }
 function rwProgressHTML(){
   var d=rwXp(), L=rwXpLevel(d.xp||0), done=d.done||[];

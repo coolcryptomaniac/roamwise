@@ -14,7 +14,7 @@
     try {
       if (sessionStorage.getItem('rw_sw_reload') === BUILD) return;
       sessionStorage.setItem('rw_sw_reload', BUILD);
-    } catch (_) {}
+    } catch (_) { /* best-effort, ignore */ }
     window.location.reload();
   });
 
