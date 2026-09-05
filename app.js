@@ -200,12 +200,7 @@ rwInitDestAutocomplete();
 // FUNNEL TRACKER (track/rwTuskFeedback/rwTuskMiss + one-time visit-tracking IIFE) moved to js/misc/engagement.js (modularization round 5)
 
 // CONVERSION NUDGE (maybeNudge) + TRAVEL PULSE (pulseKey/pulseBump/pulseShow) moved to js/misc/engagement.js (modularization round 5)
-/* ===== TRAILER ===== */
-function killIntro(){ var i=el('intro'); if(i){ i.classList.add('bye'); setTimeout(function(){ i.remove(); },700);} }
-(function(){ try{
-  if(sessionStorage.getItem('rw_intro')){ var i=el('intro'); if(i) i.remove(); return; }
-  sessionStorage.setItem('rw_intro','1'); setTimeout(killIntro, 2600);
-}catch(e){ killIntro(); } })();
+// TRAILER (killIntro + first-launch trailer-dismiss IIFE) moved to js/ui/onboarding.js (modularization round 5)
 
 // Perks, Shinobi XP ranks, and Badges & Achievements moved to js/game/badges.js
 

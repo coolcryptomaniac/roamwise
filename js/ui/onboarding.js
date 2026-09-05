@@ -39,3 +39,17 @@ function rwOnboardDone(){
 }
 function rwReplayOnboard(){ rwOnboardShow(0); }
 
+
+/* Moved verbatim from app.js (modularization round 5) — the trailer/intro
+   video dismiss is the same "first-launch experience" concern this file
+   already owns. #intro sits right after <body> in index.html (long before
+   any <script> tag), so this — unlike the true DOM-dependent boot IIFEs in
+   js/ui/currency-budget.js — needed no deferred-init wrapping: el('intro')
+   already resolves correctly regardless of exactly where in the load order
+   this file sits. */
+/* ===== TRAILER ===== */
+function killIntro(){ var i=el('intro'); if(i){ i.classList.add('bye'); setTimeout(function(){ i.remove(); },700);} }
+(function(){ try{
+  if(sessionStorage.getItem('rw_intro')){ var i=el('intro'); if(i) i.remove(); return; }
+  sessionStorage.setItem('rw_intro','1'); setTimeout(killIntro, 2600);
+}catch(e){ killIntro(); } })();

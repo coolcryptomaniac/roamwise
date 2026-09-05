@@ -33,7 +33,7 @@ found nearby, not that the function is undocumented.
 | `aiCallAny` | `js/copilot/ai-providers.js` | 105 | back to Ailon Tusk's own engine. Auth/quota errors skip to the NEXT PROVIDER. |
 | `aiRequest` | `js/copilot/ai-providers.js` | 22 |  |
 | `applyDna` | `js/misc/traveler-dna.js` | 36 |  |
-| `applyRegionUI` | `app.js` | 453 |  |
+| `applyRegionUI` | `app.js` | 448 |  |
 | `applyRemoteConfig` | `js/boot/init.js` | 284 |  |
 | `applyShell` | `js/ui/adaptive-shell.js` | 62 |  |
 | `askName` | `js/itinerary/journey-log.js` | 144 | el() lives later in app.js itself; this file loads before app.js. |
@@ -141,7 +141,7 @@ found nearby, not that the function is undocumented.
 | `deleteAccount` | `js/boot/auth-init.js` | 354 |  |
 | `deleteVaultTrip` | `js/itinerary/trip-vault.js` | 67 |  |
 | `delSquad` | `js/social/tribe-beacon.js` | 79 |  |
-| `detectRegion` | `app.js` | 435 |  |
+| `detectRegion` | `app.js` | 430 |  |
 | `detectTheme` | `js/itinerary/pdf-assets.js` | 125 |  |
 | `dnaPick` | `js/misc/traveler-dna.js` | 25 |  |
 | `dnaSave` | `js/misc/traveler-dna.js` | 29 |  |
@@ -194,7 +194,7 @@ found nearby, not that the function is undocumented.
 | `journalGet` | `js/itinerary/journey-log.js` | 22 |  |
 | `journalSet` | `js/itinerary/journey-log.js` | 23 |  |
 | `keyProvider` | `js/ui/key-wizard.js` | 30 |  |
-| `killIntro` | `app.js` | 204 | ===== TRAILER ===== |
+| `killIntro` | `js/ui/onboarding.js` | 51 | ===== TRAILER ===== |
 | `loadJsPdf` | `js/itinerary/pdf-assets.js` | 13 | roamwise-premium-itinerary.js. |
 | `loadPhotosForCard` | `js/itinerary/search-engine.js` | 161 |  |
 | `loadSquads` | `js/social/tribe-beacon.js` | 41 |  |
@@ -251,7 +251,7 @@ found nearby, not that the function is undocumented.
 | `openJourneyCert` | `js/itinerary/journey-certificate.js` | 7 | move, zero logic changes. |
 | `openJourneyLog` | `js/itinerary/journey-log.js` | 24 |  |
 | `openLbox` | `js/itinerary/result-cards.js` | 426 | LIGHTBOX |
-| `openLegal` | `app.js` | 466 |  |
+| `openLegal` | `app.js` | 461 |  |
 | `openListing` | `js/misc/listings.js` | 29 |  |
 | `openMapExplorer` | `js/itinerary/map-view.js` | 13 |  |
 | `openMatchEngine` | `js/social/travel-matching.js` | 26 |  |
@@ -802,7 +802,7 @@ found nearby, not that the function is undocumented.
 | `secPanelHTML` | `js/data-sync/key-sync.js` | 115 |  |
 | `sendOtp` | `js/boot/auth-init.js` | 315 |  |
 | `setCardStyle` | `js/itinerary/journey-log.js` | 198 |  |
-| `setPayRegion` | `app.js` | 443 |  |
+| `setPayRegion` | `app.js` | 438 |  |
 | `setProv` | `js/ui/settings-modal.js` | 208 |  |
 | `shadowBudget` | `js/itinerary/shadow-budget.js` | 59 |  |
 | `shadowBudgetHTML` | `js/itinerary/shadow-budget.js` | 92 |  |
@@ -823,7 +823,7 @@ found nearby, not that the function is undocumented.
 | `stayUrlAgoda` | `js/booking/affiliate-links.js` | 75 |  |
 | `stravaConnect` | `js/misc/misc-features.js` | 344 |  |
 | `submitRating` | `js/misc/ratings.js` | 52 |  |
-| `submitUtr` | `app.js` | 351 | Free UPI flow: user submits UTR, owner approves in the admin console |
+| `submitUtr` | `app.js` | 346 | Free UPI flow: user submits UTR, owner approves in the admin console |
 | `swSub` | `js/itinerary/result-cards.js` | 378 |  |
 | `swTab` | `js/itinerary/result-cards.js` | 369 | TAB SWITCHING |
 | `syncGo` | `js/misc/engagement.js` | 36 | ===== SYNC CIRCLE — anonymous "I'm going" intent counts (no PII) ===== |
