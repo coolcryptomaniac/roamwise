@@ -31,7 +31,7 @@ function chatTrainAsk(){
 function chatTrainVote(msgId, idx){
   if(!_chatRoom || !user) return;
   chatPost('trainvote', {poll:msgId, pick:idx}, '\ud83d\ude82 voted');
-  try{ rwHaptic(); }catch(e){}
+  try{ rwHaptic(); }catch(e){ /* haptic feedback is a nice-to-have, ignore */ }
 }
 function chatTrainTally(msg){
   var opts=(msg.payload&&msg.payload.options)||[];

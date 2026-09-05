@@ -13,7 +13,7 @@ function chatPost(kind, payload, text){
   /* @tusk in the group chat — anyone can ask, the answer lands for everyone */
   try{
     if(kind==='text' && /^@tusk\b/i.test(String(text||''))) setTimeout(function(){ rwChatAskTusk(text); }, 300);
-  }catch(e){}
+  }catch(e){ /* best-effort, ignore */ }
   /* expireAt drives the 30-day Firestore TTL policy (set in the console). This is
      what keeps the DB tiny at scale — messages self-delete; users export to keep. */
   var expireAt = firebase.firestore.Timestamp.fromMillis(Date.now() + 30*24*60*60*1000);

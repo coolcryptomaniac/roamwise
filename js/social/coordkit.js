@@ -49,9 +49,9 @@ function rwSettleEngine(expenses, settles){
    Stored locally (rw_money_groups); the same paise-exact rwSettleEngine powers it.
    This is the universal, use-it-weekly layer. */
 function rwMoneyGroups(){ try{ return JSON.parse(lsGet('rw_money_groups')||'[]'); }catch(e){ return []; } }
-function rwMoneySave(g){ try{ lsSet('rw_money_groups', JSON.stringify(g)); }catch(e){} }
+function rwMoneySave(g){ try{ lsSet('rw_money_groups', JSON.stringify(g)); }catch(e){ /* storage best-effort, ignore */ } }
 function openMoneyLayer(){
-  try{ tabGo('home'); }catch(e){}
+  try{ tabGo('home'); }catch(e){ /* best-effort nav helper, ignore */ }
   var sec=el('moneySection');
   if(!sec){ sec=document.createElement('section'); sec.id='moneySection'; sec.className='xsec v v-home';
     var host=el('copilotHero'); if(host&&host.parentNode) host.parentNode.insertBefore(sec,host.nextSibling); else document.body.appendChild(sec); }
@@ -126,5 +126,5 @@ function rwMoneyShare(idx){
   var txt=g.name+' \u2014 settle up:\n'+lines+'\n\n(via RoamWise)';
   if(typeof rwShareSheet==='function') rwShareSheet(txt,'https://roamwise.co.in','settle-up');
   else if(navigator.share) navigator.share({text:txt}).catch(function(){});
-  else { try{ navigator.clipboard.writeText(txt); showToast('Copied'); }catch(e){} }
+  else { try{ navigator.clipboard.writeText(txt); showToast('Copied'); }catch(e){ /* clipboard best-effort, ignore */ } }
 }

@@ -24,7 +24,7 @@ var RW_MATCH_INTENT=[
   {id:'work',     label:'Co-work / remote'}
 ];
 function openMatchEngine(){
-  try{ tabGo('home'); }catch(e){}
+  try{ tabGo('home'); }catch(e){ /* best-effort nav helper, ignore */ }
   var sec=el('matchSection');
   if(!sec){ sec=document.createElement('section'); sec.id='matchSection'; sec.className='xsec v v-home';
     var host=el('copilotHero'); if(host&&host.parentNode) host.parentNode.insertBefore(sec,host.nextSibling); else document.body.appendChild(sec); }
@@ -71,7 +71,7 @@ function rwMatchSetup(){
   ], function(v){
     var prof={role:(v.role||'traveller').toLowerCase().trim(), dest:v.dest||'', when:v.when||'',
               about:v.about||'', contact:v.contact||'', intents:me.intents||['buddies']};
-    try{ lsSet('rw_match_me', JSON.stringify(prof)); }catch(e){}
+    try{ lsSet('rw_match_me', JSON.stringify(prof)); }catch(e){ /* storage best-effort, ignore */ }
     rwMatchRender(prof); showToast('Travel card saved');
   });
 }

@@ -97,10 +97,10 @@ function rwCompatMine(){
 function rwCompatSave(){
   var m={};
   (window.RW_AXES||[]).forEach(function(x){ m[x.k]=+((el('cq_'+x.k)||{}).value||3); });
-  try{ lsSet('rw_compat', JSON.stringify(m)); }catch(e){}
+  try{ lsSet('rw_compat', JSON.stringify(m)); }catch(e){ /* storage best-effort, ignore */ }
   try{
     if(window.db && window.user) db.collection('users').doc(user.uid).set({compat:m},{merge:true});
-  }catch(e){}
+  }catch(e){ /* best-effort Firestore write, ignore */ }
   showToast('\u2705 Saved \u2014 this is how we\u2019ll match you');
   rwCompatShow();
 }
