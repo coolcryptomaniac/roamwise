@@ -198,125 +198,15 @@ var CURR = [
    ========================================================================= */
 // proPriceLabel/fmtMoney moved to js/pricing/tiers.js (modularization round 5)
 
-/* CURRENCIES UI */
-(function(){
-  var cg = el('currGrid');
-  CURR.forEach(function(cu){
-    var b = document.createElement('button');
-    b.className = 'cbtn'+(cu.c==='INR'?' on':'');
-    b.dataset.c = cu.c;
-    b.innerHTML = `<span class="sym">${cu.s}</span><span class="code">${cu.c}</span>`;
-    b.onclick = function(){
-      AC = cu.c;
-      document.querySelectorAll('.cbtn').forEach(function(x){ x.classList.toggle('on', x.dataset.c===cu.c); });
-      updateBudget();
-    };
-    cg.appendChild(b);
-  });
-})();
-
-var slider = el('budgetSlider');
-slider.addEventListener('input', function(){ updateBudget(true); });
-/* BUG FIX (reported by team, Ladakh 40k case): the slider moves in fixed USD
-   steps, so at typical currency rates a single step could jump the DISPLAYED
-   INR value by 4000+, making round numbers like exactly 40,000 nearly
-   impossible to land on by dragging. Fix: a real "type an exact amount" field
-   that's always the source of truth for precision, alongside a finer slider
-   step for anyone who prefers to drag. */
-function updateBudget(fromSlider){
-  var v = parseInt(slider.value);
-  el('budgetDisplay').innerHTML = v>=10000 ? fmtMoney(10000)+'+' : fmtMoney(v);
-  slider.style.setProperty('--pct', ((v-200)/9800*100).toFixed(1)+'%');
-  var cu = CURR.find(function(x){return x.c===AC;}) || {s:'\u20b9', r:1};
-  var ex = el('budgetExact'), sym = el('budgetExactSym');
-  if(sym) sym.textContent = cu.s;
-  if(ex && document.activeElement!==ex){ ex.value = Math.round(v*cu.r); }
-}
-(function(){
-  var ex = el('budgetExact');
-  if(ex){
-    ex.addEventListener('input', function(){
-      var cu = CURR.find(function(x){return x.c===AC;}) || {r:1};
-      var shown = parseFloat(ex.value); if(isNaN(shown) || shown<0) return;
-      var usd = Math.round(shown/cu.r);
-      usd = Math.max(200, Math.min(10000, usd));
-      slider.value = usd;
-      updateBudget(false);
-    });
-  }
-})();
-updateBudget();
+// Currency grid + budget slider wiring moved to js/ui/currency-budget.js (modularization round 5)
+rwInitCurrencyBudget();
 
 el('tagsContainer').addEventListener('click', function(e){
   if(e.target.classList.contains('tag')) e.target.classList.toggle('on');
 });
 
-/* DESTINATION AUTOCOMPLETE */
-var DEST_NAMES = [];
-DB.forEach(function(d){ DEST_NAMES.push(d.name+', '+d.country); });
-DEST_NAMES.push('Anywhere in the world','Southeast Asia','Europe','South America','Middle East','East Asia','North America','Africa','Oceania','Caucasus','Central Europe','Southern Europe','South Asia','North Africa','Western Asia');
-ALL_COUNTRIES.forEach(function(c){ if(DEST_NAMES.indexOf(c)<0) DEST_NAMES.push(c); });
-
-(function(){
-  var inp = el('destInput'), dd = el('destDD'), sv = '', liveTimer = null, lastQ = '';
-  var TYPE_ICON = {city:'\ud83c\udfd9\ufe0f', town:'\ud83c\udfd8\ufe0f', village:'\ud83c\udfe1', hamlet:'\ud83c\udfe1',
-    country:'\ud83c\udf0f', state:'\ud83d\uddfa\ufe0f', region:'\ud83d\uddfa\ufe0f', island:'\ud83c\udfdd\ufe0f',
-    peak:'\u26f0\ufe0f', mountain:'\u26f0\ufe0f', volcano:'\ud83c\udf0b', beach:'\ud83c\udfd6\ufe0f',
-    attraction:'\ud83c\udfaf', monument:'\ud83c\udfdb\ufe0f', castle:'\ud83c\udff0', temple:'\u26e9\ufe0f',
-    national_park:'\ud83c\udfde\ufe0f', waterfall:'\ud83d\udca7', lake:'\ud83c\udf0a', museum:'\ud83c\udfdb\ufe0f',
-    viewpoint:'\ud83d\udcf8', zoo:'\ud83e\udd81', theme_park:'\ud83c\udfa1'};
-  function addOpt(label, value, meta, cls){
-    var opt = document.createElement('div');
-    opt.className = 'cddo' + (cls?' '+cls:'');
-    opt.innerHTML = label + (meta? ' <span style="color:var(--t3);font-size:10px">'+meta+'</span>' : '');
-    opt.onmousedown = function(){ inp.value=value; sv=value; dd.classList.remove('open'); };
-    dd.appendChild(opt);
-  }
-  function renderLocal(q){
-    dd.innerHTML = '';
-    var m = q ? DEST_NAMES.filter(function(n){ return n.toLowerCase().indexOf(q.toLowerCase())>=0; }) : DEST_NAMES;
-    m.slice(0, q?4:8).forEach(function(n){ addOpt('\u26a1 '+n, n, 'crowd data ready'); });
-    return m.length;
-  }
-  function renderLive(q, feats){
-    if(q !== (inp.value||'').trim()) return; /* stale response */
-    var seen = {};
-    dd.querySelectorAll('.cddo').forEach(function(o){ seen[o.textContent.replace(/\u26a1 |\ud83c[\udf00-\udfff]|\s+crowd data ready/g,'').trim().toLowerCase()]=1; });
-    feats.slice(0,7).forEach(function(f){
-      var p = f.properties||{};
-      if(!p.name) return;
-      var parts = [p.name];
-      if(p.city && p.city!==p.name) parts.push(p.city);
-      else if(p.state && p.state!==p.name) parts.push(p.state);
-      if(p.country) parts.push(p.country);
-      var label = parts.join(', ');
-      if(seen[label.toLowerCase()]) return; seen[label.toLowerCase()]=1;
-      var icon = TYPE_ICON[p.osm_value] || TYPE_ICON[p.type] || '\ud83c\udf0d';
-      var kind = (p.osm_value||p.type||'').replace(/_/g,' ');
-      addOpt(icon+' '+label, label, kind);
-    });
-    if(dd.children.length) dd.classList.add('open'); else dd.classList.remove('open');
-  }
-  function showDD(q){
-    q = (q||'').trim();
-    var localHits = renderLocal(q);
-    if(dd.children.length) dd.classList.add('open'); else if(!q) dd.classList.remove('open');
-    clearTimeout(liveTimer);
-    if(q.length < 2) return;
-    /* live worldwide places — Photon (OpenStreetMap), free, made for autocomplete */
-    liveTimer = setTimeout(function(){
-      if(q===lastQ) return; lastQ=q;
-      fetch('https://photon.komoot.io/api/?limit=8&q='+encodeURIComponent(q))
-        .then(function(r){ return r.json(); })
-        .then(function(j){ renderLive(q, j.features||[]); })
-        .catch(function(){ /* offline / blocked: curated list still works */ });
-    }, 280);
-  }
-  inp.addEventListener('input', function(){ sv=''; lastQ=''; showDD(inp.value); });
-  inp.addEventListener('focus', function(){ lastQ=''; showDD(inp.value); });
-  inp.addEventListener('blur', function(){ setTimeout(function(){ dd.classList.remove('open'); },150); });
-  window.getDestVal = function(){ return sv || inp.value || 'Anywhere'; };
-})();
+// DEST_NAMES build-up + destination autocomplete IIFE moved to js/ui/dest-autocomplete.js (modularization round 5)
+rwInitDestAutocomplete();
 
 // refreshProUI (Pro button/free-bar/promo-bar paint) moved to js/ui/status-tier.js (Phase 5c)
 
