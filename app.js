@@ -145,8 +145,8 @@ var COUNTRY_INFO = {
   'uzbekistan':{iso:'UZ',capital:'Tashkent',currency:'Uzbekistani Som',language:'Uzbek'},
   'vietnam':{iso:'VN',capital:'Hanoi',currency:'Vietnamese Đồng',language:'Vietnamese'},
   'zambia':{iso:'ZM',capital:'Lusaka',currency:'Zambian Kwacha',language:'English'},
-  'zimbabwe':{iso:'ZW',capital:'Harare',currency:'US Dollar',language:'English'},
-  'china':{iso:'CN',capital:'Beijing',currency:'Renminbi',language:'Mandarin'}
+  'zimbabwe':{iso:'ZW',capital:'Harare',currency:'US Dollar',language:'English'}
+  // 'china' duplicate key removed (identical entry already exists above, line ~57) — no-dupe-keys fix, zero behavior change
 };
 
 var ALL_COUNTRIES = ['Afghanistan','Albania','Algeria','Argentina','Armenia','Australia','Austria','Azerbaijan','Bahrain','Bangladesh','Belgium','Bolivia','Brazil','Bulgaria','Cambodia','Canada','Chile','China','Colombia','Costa Rica','Croatia','Czech Republic','Denmark','Ecuador','Egypt','Estonia','Ethiopia','Finland','France','Georgia','Germany','Ghana','Greece','Hungary','Iceland','India','Indonesia','Iran','Iraq','Ireland','Israel','Italy','Jamaica','Japan','Jordan','Kazakhstan','Kenya','Kuwait','Laos','Latvia','Lebanon','Malaysia','Maldives','Malta','Mexico','Mongolia','Morocco','Myanmar','Namibia','Nepal','Netherlands','New Zealand','Nigeria','Norway','Oman','Pakistan','Panama','Peru','Philippines','Poland','Portugal','Qatar','Romania','Russia','Rwanda','Saudi Arabia','Senegal','Serbia','Singapore','Slovakia','Slovenia','South Africa','South Korea','Spain','Sri Lanka','Sweden','Switzerland','Taiwan','Tanzania','Thailand','Tunisia','Turkey','Uganda','Ukraine','United Arab Emirates','United Kingdom','United States','Uruguay','Uzbekistan','Vietnam','Zambia','Zimbabwe',
@@ -632,6 +632,7 @@ function renderPromo(){
   var top=el('promoTop'), box=el('promoBox');
   /* The film section below already renders the player; a second copy in the
      billboard meant two players in one view. Billboard only shows on Home. */
+  // eslint-disable-next-line no-constant-condition, no-constant-binary-expression -- intentional kill-switch: block below is deliberately disabled (see comment above), not a stray leftover
   if(false && PROMO_YT_ID && top){
     top.innerHTML='<div class="bb" id="promoBB" onclick="playPromo(this)">'
      +'<img id="promoThumb" alt="RoamWise film" style="opacity:0;transition:opacity .5s ease">'

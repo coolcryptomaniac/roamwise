@@ -100,6 +100,7 @@ function genPdf(sample){
         .replace(/[\u2018\u2019\u02bc]/g,"'").replace(/[\u201c\u201d]/g,'"')
         .replace(/[\u2013\u2014]/g,'-').replace(/\u2026/g,'...').replace(/\u20b9/g,'Rs ')
         .replace(/[\u00b7\u2022]/g,'-')
+        // eslint-disable-next-line no-misleading-character-class -- intentional: \uFE0F (variation selector) and \u200D (ZWJ) are deliberately included so emoji modifiers get stripped along with the base glyphs jsPDF's default font can't render; not a stray literal combining character
         .replace(/[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\u2190-\u21FF\uFE0F\u200D\u2726\u2713\u2B06-\u2B07]/gu,'')
         .replace(/  +/g,' ').trim(); }
     pdf.text=function(s,x2,y2,o){ return _rawText(clean(s),x2,y2,o); };
