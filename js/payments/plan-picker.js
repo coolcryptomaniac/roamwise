@@ -139,19 +139,31 @@ function rwCountdownParts(){
   };
 }
 function rwFounderBannerHTML(){
-  var C = RWPricing.CONFIG, seats = window._rwSeats;
-  var left = (typeof seats==='number') ? Math.max(0, C.FOUNDER_OFFER.maxUsers - seats) : null;
+  var C = RWPricing.CONFIG;
+  /* PUBLIC seats-left number: computed once in js/pricing/founder-seats.js
+     from the shared pricing/founder.count (every grant path \u2014 admin-approved
+     manual payment AND NMIMS partner-code redemption \u2014 can legally move this
+     doc, see that file's header) and the NMIMS Proposed/Official flag, so it
+     can never drift the way the old inline "maxUsers - seats" math did when
+     a grant path bypassed the counter entirely. window._rwSeatsLeft is set
+     by openPay() before this HTML is ever rendered; null means "not safe to
+     show a number" (a read failed), never a fabricated value. */
+  var left = window._rwSeatsLeft;
+  var seats = window._rwSeats; /* raw claimed count, only used for the progress bar width */
   return '<div style="text-align:center">'
     +'<div style="font-size:10px;letter-spacing:.14em;text-transform:uppercase;opacity:.9">Founding members only</div>'
     +'<div style="font-size:20px;font-weight:900;margin:3px 0 1px">\u20b9'+C.FOUNDER_OFFER.priceINR+' \u00b7 Pro for life</div>'
     +'<div style="font-size:11.5px;opacity:.92">One payment. This price does not come back.</div>'
     +'<div id="cdWrap" style="display:flex;gap:6px;justify-content:center;margin:9px 0 4px"></div>'
-    +(left!==null
+    +(typeof left==='number'
         ? '<div style="font-size:11px;opacity:.92">'
           +'<b>'+left.toLocaleString('en-IN')+'</b> of '+C.FOUNDER_OFFER.maxUsers.toLocaleString('en-IN')+' seats left'
           +'<div style="height:5px;background:rgba(0,0,0,.25);border-radius:3px;margin-top:5px;overflow:hidden">'
-          +'<div style="width:'+Math.min(100, Math.round((seats/C.FOUNDER_OFFER.maxUsers)*100))+'%;height:100%;background:rgba(255,255,255,.85)"></div></div></div>'
-        : '')
+          +'<div style="width:'+Math.min(100, Math.round(((typeof seats==='number'?seats:(C.FOUNDER_OFFER.maxUsers-left))/C.FOUNDER_OFFER.maxUsers)*100))+'%;height:100%;background:rgba(255,255,255,.85)"></div></div></div>'
+        /* read failed \u2014 fall back to a generic, non-misleading line instead of
+           inventing a count (e.g. defaulting to 0 claimed, which would falsely
+           advertise all 1,000 seats as open) */
+        : '<div style="font-size:11px;opacity:.92">Seats limited \u2014 first come, first served</div>')
     +'</div>';
 }
 function rwCountdownCells(p){
@@ -225,13 +237,37 @@ function openPay(){
   /* FIXED (rw-v71): the founder SEAT count must come from paid seats, not from
      meta/signupCounter — that counter tracks every new SIGN-UP (for the 7-day
      free trial) and was making the offer look far more sold than it was.
-     meta/founderSeats is incremented only when a claim is APPROVED. */
-  (window.db? RWPricing.founderGateLoad().then(function(){ return db.collection('meta').doc('founderSeats').get(); }) : Promise.reject()).then(function(snap){
+     FIXED (this pass): the count itself now comes from pricing/founder.count,
+     not meta/founderSeats.count. meta/founderSeats is isAdmin()-only to write
+     (see firestore.rules), so any seat granted through a non-admin path —
+     chiefly openPartnerRedeem()'s NMIMS partner-code redemption — could never
+     be counted there and the public banner kept looking far MORE open than
+     reality (the original bug report: "still shows 1,000 left" after real
+     seats were claimed). pricing/founder.count is the doc every grant path
+     can legally increment by exactly +1 (see js/pricing/founder-seats.js and
+     firestore.rules' pricing/{doc} update rule), so it's the one source of
+     truth read here (loadPublicSeatsLeft, js/pricing/founder-seats.js), and
+     its raw claimed-count is re-derived below from founderGate() — populated
+     by the founderGateLoad() call just before it — instead of a second parse
+     of the gate doc. The NMIMS Proposed/Official flag is read alongside it
+     so the public number can additionally reserve NMIMS's 500 seats once
+     that partnership goes from "Proposed" to "Official" (founder-seats.js). */
+  (window.db? RWPricing.founderGateLoad().then(function(){ return RWFounderSeats.loadPublicSeatsLeft(db); }) : Promise.reject()).then(function(result){
     if(settled) return; settled=true; clearTimeout(to);
-    var count = snap && snap.exists ? (snap.data().count||0) : 0;
+    /* founderGateLoad() already cached pricing/founder's raw data for the
+       open/closed gate check below — reuse it for the claimed-count the
+       progress bar and founderOfferOpen()'s cap check need, instead of a
+       second parse of the same document. */
+    var gate = RWPricing.founderGate();
+    var count = (gate && typeof gate.count==='number') ? gate.count : 0;
     window._rwSeats = count;
+    window._rwSeatsLeft = (result && result.ok) ? result.left : null;
     renderPlanGrid(RWPricing.founderOfferOpen(count));
-  }).catch(function(){ if(settled) return; settled=true; clearTimeout(to); renderPlanGrid(RWPricing.founderOfferOpen()); });
+  }).catch(function(){
+    if(settled) return; settled=true; clearTimeout(to);
+    window._rwSeats = null; window._rwSeatsLeft = null;
+    renderPlanGrid(RWPricing.founderOfferOpen());
+  });
 }
 function renderPlanGrid(founderOpen){
   var C = RWPricing.CONFIG;

@@ -5,7 +5,7 @@ Regenerate with `npm run index` after any modularization change that
 adds, moves, or removes a top-level function (see ARCHITECTURE.md's
 "low AI credit usage" section for how this fits into the workflow).
 
-Generated: 2026-09-05 · 877 top-level functions across 126 files.
+Generated: 2026-09-05 · 877 top-level functions across 127 files.
 
 Scope: `app.js` and `js/**/*.js` only (not root-level data/config
 files like `rw-config.js` or `events-data.js`, and not `platform-v5/`
@@ -17,14 +17,14 @@ found nearby, not that the function is undocumented.
 
 | Function | File | Line | Purpose |
 |---|---|---|---|
-| `_adminUnlock` | `js/payments/plan-picker.js` | 317 | Keep old manual TXN ID as an admin backdoor only — hidden from UI |
+| `_adminUnlock` | `js/payments/plan-picker.js` | 353 | Keep old manual TXN ID as an admin backdoor only — hidden from UI |
 | `_b64` | `js/data-sync/key-sync.js` | 19 |  |
 | `_doOpenNow` | `js/core/app-utils.js` | 77 |  |
 | `_pageWrap` | `js/ui/page-router.js` | 47 |  |
 | `_renderPlanFeatures` | `js/payments/plan-picker.js` | 28 | pass, or the legacy founder offer) maps to one, so this never renders blank. |
 | `_ssGo` | `js/ui/site-search.js` | 103 |  |
 | `_unb64` | `js/data-sync/key-sync.js` | 20 |  |
-| `activatePro` | `js/payments/plan-picker.js` | 321 |  |
+| `activatePro` | `js/payments/plan-picker.js` | 357 |  |
 | `activeEvents` | `js/misc/event-radar-news.js` | 32 |  |
 | `adCard` | `js/misc/misc-features-2.js` | 53 |  |
 | `addSpend` | `js/itinerary/result-cards.js` | 391 | BUDGET TRACKER |
@@ -108,12 +108,12 @@ found nearby, not that the function is undocumented.
 | `closeDrawer` | `js/ui/adaptive-shell.js` | 387 |  |
 | `closeLbox` | `js/itinerary/result-cards.js` | 427 |  |
 | `closeMapExplorer` | `js/itinerary/map-view.js` | 40 |  |
-| `closePay` | `js/payments/plan-picker.js` | 306 |  |
+| `closePay` | `js/payments/plan-picker.js` | 342 |  |
 | `closeSettings` | `js/ui/settings-modal.js` | 206 |  |
-| `closeSuccess` | `js/payments/plan-picker.js` | 329 |  |
+| `closeSuccess` | `js/payments/plan-picker.js` | 365 |  |
 | `closeVault` | `js/itinerary/trip-vault.js` | 66 |  |
 | `compareModels` | `js/ui/key-wizard.js` | 103 | ===== MODEL COMPARISON ARENA ===== |
-| `confetti` | `js/payments/plan-picker.js` | 344 |  |
+| `confetti` | `js/payments/plan-picker.js` | 380 |  |
 | `confirmOtp` | `js/boot/auth-init.js` | 324 |  |
 | `continentFor` | `js/itinerary/atlas-certificate.js` | 61 | first, fall back to coordinates for older/incomplete log entries. |
 | `continentForCC` | `js/itinerary/atlas-certificate.js` | 40 |  |
@@ -175,7 +175,7 @@ found nearby, not that the function is undocumented.
 | `friendly` | `js/boot/auth-init.js` | 232 |  |
 | `gcode` | `js/itinerary/pdf-assets.js` | 95 |  |
 | `genPdf` | `js/itinerary/pdf-export.js` | 85 | Image/geo/theme helper toolkit (loadJsPdf, blobToJpeg, fetchImg64, fetchBmp, wikiAction/openverseThumb/imgTry/wikiAny/wikiThumb, EMG_NUM/emg |
-| `goHome` | `js/payments/plan-picker.js` | 336 | Returns the user to a clean home view — closes any open overlay, scrolls to top |
+| `goHome` | `js/payments/plan-picker.js` | 372 | Returns the user to a clean home view — closes any open overlay, scrolls to top |
 | `groundHTML` | `js/itinerary/ground-costs.js` | 83 |  |
 | `grpAdd` | `js/social/group-compromise.js` | 114 |  |
 | `grpCompromise` | `js/social/group-compromise.js` | 53 |  |
@@ -264,7 +264,7 @@ found nearby, not that the function is undocumented.
 | `openPartnerRedeem` | `js/payments/partner-redeem.js` | 16 | ============================================================ |
 | `openPartners` | `js/misc/partners.js` | 62 |  |
 | `openPassport` | `js/game/realms.js` | 313 |  |
-| `openPay` | `js/payments/plan-picker.js` | 208 |  |
+| `openPay` | `js/payments/plan-picker.js` | 220 |  |
 | `openPdfFlow` | `js/itinerary/pdf-export.js` | 22 | var PDF_CTX=null; /* {d, days, month} set when user opens the flow |
 | `openPnrPaste` | `js/booking/pnr-parser.js` | 25 |  |
 | `openPrivacyBadge` | `js/misc/trust-conversion.js` | 10 | 2) Desktop planners should finish on their phone — a QR beats "download our app". |
@@ -329,7 +329,7 @@ found nearby, not that the function is undocumented.
 | `renderNewsPulse` | `js/misc/event-radar-news.js` | 84 | ===== TRAVEL PULSE NEWS — daily-crunched, honest about not being live-live ===== |
 | `renderPack` | `js/misc/misc-features.js` | 324 |  |
 | `renderPerks` | `js/game/badges.js` | 41 |  |
-| `renderPlanGrid` | `js/payments/plan-picker.js` | 236 |  |
+| `renderPlanGrid` | `js/payments/plan-picker.js` | 272 |  |
 | `renderPromo` | `js/misc/promo-music.js` | 18 | var PROMO_YT_ID='3MRlvs9bdPQ'; /* official RoamWise promo |
 | `renderRatings` | `js/misc/ratings.js` | 8 | var PLAYSTORE_URL=''; /* paste your Play Store listing URL once published — unlocks the "Rate on Play Store" nudge |
 | `renderSpotlight` | `js/misc/event-radar-news.js` | 62 |  |
@@ -433,7 +433,7 @@ found nearby, not that the function is undocumented.
 | `rwConfigApply` | `js/data-sync/config-sync.js` | 19 |  |
 | `rwConfigSyncAll` | `js/data-sync/config-sync.js` | 30 |  |
 | `rwCopy` | `js/social/upi-settle.js` | 88 |  |
-| `rwCountdownCells` | `js/payments/plan-picker.js` | 157 |  |
+| `rwCountdownCells` | `js/payments/plan-picker.js` | 169 |  |
 | `rwCountdownParts` | `js/payments/plan-picker.js` | 128 |  |
 | `rwCountryRouteHTML` | `js/copilot/region-routes.js` | 70 |  |
 | `rwCueIsPlaying` | `js/audio/cues.js` | 168 |  |
@@ -683,7 +683,7 @@ found nearby, not that the function is undocumented.
 | `rwROIPanel` | `js/misc/events.js` | 46 |  |
 | `rwRoomById` | `js/booking/form.js` | 62 |  |
 | `rwRoomsFor` | `js/booking/form.js` | 21 | ========================================================================= |
-| `rwRotateTesti` | `js/payments/plan-picker.js` | 200 |  |
+| `rwRotateTesti` | `js/payments/plan-picker.js` | 212 |  |
 | `rwRoundRect` | `js/itinerary/memories-studio.js` | 115 |  |
 | `rwRouteTo` | `js/ui/page-router.js` | 95 |  |
 | `rwRulesCheck` | `js/runtime/rules-check.js` | 11 |  |
@@ -714,12 +714,12 @@ found nearby, not that the function is undocumented.
 | `rwSoundFor` | `js/misc/sound-of-place.js` | 62 |  |
 | `rwSoundHTML` | `js/misc/sound-of-place.js` | 74 |  |
 | `rwStartAnywhere` | `js/copilot/rich-reply.js` | 123 | Tusk pulls the trip out of it instead of you re-typing everything. |
-| `rwStartCountdown` | `js/payments/plan-picker.js` | 165 |  |
+| `rwStartCountdown` | `js/payments/plan-picker.js` | 177 |  |
 | `rwStartFx` | `js/ui/themes.js` | 137 |  |
 | `rwStateHTML` | `js/copilot/region-routes.js` | 12 |  |
 | `rwStatusLabel` | `js/ui/status-tier.js` | 22 | "Pro Active"/"PRO ACTIVE" must call this instead. |
 | `rwStaysRender` | `js/booking/form.js` | 43 |  |
-| `rwStopCountdown` | `js/payments/plan-picker.js` | 184 |  |
+| `rwStopCountdown` | `js/payments/plan-picker.js` | 196 |  |
 | `rwStopCue` | `js/audio/cues.js` | 56 |  |
 | `rwStopFx` | `js/ui/themes.js` | 136 |  |
 | `rwStyledSheet` | `js/copilot/answer-cards.js` | 132 |  |

@@ -31,12 +31,14 @@ works fully without it.
 As of this commit, `app.js` is **629 lines** (down from ~19,300 at the
 start of the modularization effort, down from 3,099 after the prior
 "modularization-final" pass, and down from 1,207 after "round 4") and
-there are **125 files** under `js/`, organized into 16 subdirectories,
+there are **126 files** under `js/`, organized into 16 subdirectories,
 plus **9 files** under `css/`. This is the state after the "round 5"
 pass — see "Modularization round 5" near the bottom of this document for
 what was found (a mis-categorization in round 4's own closing
 assessment) and for the honest, re-verified case that what's left now
-really is the practical floor.
+really is the practical floor. (126, not round 5's own 125, because
+`js/pricing/founder-seats.js` merged in from an unrelated, concurrently-
+landed bug-fix pass on `main` — see the `js/pricing/` entry below.)
 
 ### `js/core/` — shared low-level utilities (7 files)
 - `app-utils.js` — `rwHaptic`/`showToast`/`scrollToId`/`offerOpen`/
@@ -66,11 +68,21 @@ really is the practical floor.
 - `key-sync.js` — AI-key cross-device sync
 - `config-sync.js` — remote-config sync
 
-### `js/pricing/` — monetization mechanics (2 files)
+### `js/pricing/` — monetization mechanics (3 files)
 - `tiers.js` (257 lines) — pricing tier definitions, plus `fmtMoney`/
   `proPriceLabel` (money-display helpers moved verbatim from app.js in
   round 5; they read app.js's `CURR`/`AC` currency state by name,
   resolved at call time)
+- `founder-seats.js` — PUBLIC Founder-offer seat-counter math (isolated,
+  well-commented, unit-tested — see `tests/founder-seats.test.js`). Computes
+  "seats left" from `pricing/founder.count` (the one counter every seat-grant
+  path can legally increment, per firestore.rules) and the NMIMS
+  Proposed/Official flag (`partnerships/nmims2026.officialConfirmed`),
+  additionally reserving 500 seats once that partnership is Official. Read
+  this file's header comment for the root-cause writeup of why the counter
+  used to be wrong. Merged in from main after round 5's PR was opened —
+  unrelated to the modularization effort, a bug-fix pass that landed
+  concurrently.
 - `referral.js` (262 lines) — referral/affiliate tracking: capture a
   `?ref=` link or typed code, validate against the referrer directory,
   persist it for the attribution window, and stamp it onto a purchase
