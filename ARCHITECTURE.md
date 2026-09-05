@@ -4,9 +4,13 @@ This is the current, ground-truthed source of truth for how the RoamWise
 codebase is put together. It exists so a future AI agent or human
 contributor can understand the project in one read instead of re-deriving
 it via expensive repo-wide greps every session. Every number and file
-path below was verified against the repo at commit `e74eaa2` on the
-`claude/modularization-final-pass` branch (2026-09-05) — re-run the
-commands in each section's footnote if you suspect drift.
+path below was verified against the repo on the
+`claude/modularization-round4-and-ai-index` branch (2026-09-05) — re-run
+the commands in each section's footnote if you suspect drift.
+
+**Before grepping the repo for "where is function X defined?" or "which
+file owns feature Y?", read `FUNCTION-INDEX.md` first** — see the
+"Low AI credit usage: FUNCTION-INDEX.md" section below.
 
 ## Overview
 
@@ -24,11 +28,13 @@ works fully without it.
 
 ## Module map
 
-As of this commit, `app.js` is **3,099 lines** (down from ~19,300 at the
-start of the modularization effort) and there are **105 files** under
-`js/`, organized into 16 subdirectories, plus **9 files** under `css/`.
-This is the state after the "modularization-final" pass — see the closing
-note at the bottom of this document.
+As of this commit, `app.js` is **1,207 lines** (down from ~19,300 at the
+start of the modularization effort, and down from 3,099 after the prior
+"modularization-final" pass) and there are **115 files** under `js/`,
+organized into 16 subdirectories, plus **9 files** under `css/`. This is
+the state after the "round 4" pass — see "Modularization round 4" near the
+bottom of this document for what was found and why the remainder resists
+further splitting.
 
 ### `js/core/` — shared low-level utilities (6 files)
 - `dom-utils.js` — DOM helper functions
@@ -38,13 +44,16 @@ note at the bottom of this document.
 - `storage-utils.js` — `localStorage` read/write helpers
 - `text-utils.js` — string/text formatting + HTML-escaping helpers
 
-### `js/data/` — static reference data + lookup helpers (4 files)
+### `js/data/` — static reference data + lookup helpers (5 files)
 - `destinations.js` (597 lines, pure data — see "Confirmed unchanged"
   below) — the `DB` destination database
 - `iata.js` — airport/IATA code lookup
 - `place-overrides.js` (111 lines) — curated lat/lon overrides for
   Indian destinations that population-ranked geocoders mis-resolve
 - `regions.js` — region/country grouping data
+- `country-info.js` — `COUNTRY_INFO` (per-country ISO/capital/currency/
+  language) + `ALL_COUNTRIES` name list; moved verbatim from app.js in
+  modularization round 4
 
 ### `js/data-sync/` — cross-device data portability (3 files)
 - `rwdata.js` — `RWData`, the backend-portability abstraction layer
@@ -69,8 +78,18 @@ note at the bottom of this document.
   payment-claim writer that calls this file's `rwRefStamp()` — is
   payments/entitlement code and deliberately stays in `app.js`.
 
-### `js/payments/` (1 file)
+### `js/payments/` (3 files)
 - `checkout.js` — Gumroad/direct-crypto-wallet checkout UI panels
+- `partner-redeem.js` — `openPartnerRedeem()`, the partner claim-code ->
+  Pro grant flow (NMIMS and future partners); moved verbatim from app.js
+  in modularization round 4 (Pro-entitlement/Firestore code — relocation
+  only, zero logic changes, per `CLAUDE.md`'s relocation-is-fine rule)
+- `plan-picker.js` — the pay modal: UPI QR/deep-link helpers, the plan
+  grid, the founder-offer countdown banner, rotating testimonials, and
+  the pay/success overlay lifecycle; moved verbatim from app.js in
+  modularization round 4. `submitUtr()` (the function that actually
+  writes a payment claim) deliberately stays in app.js — see "Modularization
+  round 4" below
 
 ### `js/audio/` (3 files)
 - `cues.js` — manifest-driven one-shot sound cues
@@ -110,7 +129,7 @@ note at the bottom of this document.
 - `trip-scheduling-poll.js` — "when can everyone go" scheduling polls
 - `upi-settle.js` — UPI-based group expense settle-up
 
-### `js/copilot/` — "Tusk" AI travel assistant (9 files)
+### `js/copilot/` — "Tusk" AI travel assistant (10 files)
 - `core.js` (813 lines — over the soft target, see "Confirmed unchanged"
   below) — chat core, deterministic parser, intent memory, world resolver
 - `rich-reply.js` (545 lines) — action rail, clarify-don't-guess, and
@@ -122,16 +141,28 @@ note at the bottom of this document.
 - `agent-evals.js` — agent eval harness
 - `clarify.js` — small clarify-flow helper
 - `region-routes.js` — multi-city/region route building
+- `ai-providers.js` — the provider-agnostic AI request layer
+  (`aiRequest`/`aiCall`/`aiCallAny`/`testKey`/`testKeyFallbackChain`/
+  `extractJSON`); moved verbatim from app.js in modularization round 4.
+  Depends on `activeProv`/`AI_MODELS`/`lastAiSource`, which deliberately
+  stayed in app.js (see "Modularization round 4" below)
 
-### `js/itinerary/` — trip building and itinerary features (21 files)
-- `atlas-certificate.js`, `eco-certificate.js`, `journey-certificate.js`,
-  `certificate-verify.js` — the downloadable-certificate family
+### `js/itinerary/` — trip building and itinerary features (25 files)
+- `atlas-certificate.js` — the downloadable Atlas Certificate + Journey
+  Card export actions; also now hosts `CONTINENT_BY_CC`/`continentForCC`/
+  `continentForLatLon`/`continentFor` (moved from app.js in round 4 — this
+  file is their only caller, the "N/7 continents" stat)
+- `eco-certificate.js`, `journey-certificate.js`, `certificate-verify.js`
+  — the rest of the downloadable-certificate family
 - `build.js` — `buildItin`, the itinerary construction engine
 - `camera-itinerary.js` — camera/photo-based itinerary capture
 - `ground-costs.js`, `ground-truth.js` — real-world cost/scam ground-truth data
 - `journey-log.js` (458 lines) — mood-tagged journal entries
 - `journey-movie.js` — auto-generated trip recap video/slideshow
 - `map-view.js` (334 lines) — Leaflet-based live world map
+- `memories-studio.js` — the post-trip Memories Studio: AI-generated trip
+  blog, photo collage, memory log (`openMemories` and friends); moved
+  verbatim from app.js in round 4
 - `meters.js` — pollution + happiness meters
 - `ninja-hacks.js` — deterministic per-destination cheap/luxury hack suggestions
 - `pdf-assets.js`, `pdf-export.js` (608 lines — over the soft target, see
@@ -139,11 +170,19 @@ note at the bottom of this document.
 - `place-disambiguation.js` — resolves ambiguous place names
 - `rain-contingency.js` — weather-contingency day planning
 - `real-attractions.js` — OSM-sourced real attraction listings
+- `result-cards.js` — `runSearch()` (the search button's click handler)
+  and `renderCards()` (the entire results DOM), plus card-level
+  interactions (`swTab`/`swSub`/`addSpend`/`togPack`/`openLbox`/
+  `closeLbox`); moved verbatim from app.js in round 4
+- `search-engine.js` — `smartSearch()` (zero-API-key destination scorer),
+  `flagEmoji`/`lookupCountryInfo`/`buildGenericDestination`, and the
+  Wikipedia photo pipeline (`loadPhotosForCard` and friends); moved
+  verbatim from app.js in round 4
 - `shadow-budget.js` — models a trip's shadow/hidden budget
 - `share.js` — generic multi-platform share sheet
 - `trip-vault.js` — offline saved-trips vault (localStorage)
 
-### `js/ui/` — cross-cutting UI chrome (12 files)
+### `js/ui/` — cross-cutting UI chrome (13 files)
 - `adaptive-shell.js` (402 lines) — adaptive app shell
 - `card-painter.js` (239 lines) — card rendering, incl. `tkFold`/`tkToggle`
   (the shared fold/unfold accordion helper, relocated here from
@@ -151,6 +190,9 @@ note at the bottom of this document.
   "Structural changes" below)
 - `form-modal.js` — generic form-in-a-modal builder (`rwForm`)
 - `how-to-guide.js` — in-app how-to guide
+- `key-wizard.js` — the 60-second AI key onboarding wizard plus the
+  model comparison arena (`compareModels`); moved verbatim from app.js
+  in modularization round 4
 - `layout-modes.js` — layout/density mode switching
 - `onboarding.js` — first-run onboarding flow
 - `opening.js` — cinematic opening sequence glue
@@ -164,15 +206,23 @@ note at the bottom of this document.
 - `badges.js` (278 lines) — badge progression system
 - `realms.js` (430 lines) — "Realms of Roam" / Journey Passport game system
 
-### `js/misc/` — miscellaneous feature groups (16 files)
+### `js/misc/` — miscellaneous feature groups (18 files)
 Single-purpose feature files too small individually to warrant their own
 subdirectory: `athlete-mode.js`, `booking-platform-compare.js`,
-`destination-vibe.js`, `eco-safety.js` (473 lines), `events.js`,
-`experiences.js`, `green-trip.js`, `listings.js`, `live-location.js`,
-`local-ecosystem.js`, `misc-features.js` (393 lines),
-`misc-features-2.js` (371 lines — sequentially-numbered grab-bag files
-from the same extraction phase), `partners.js`, `signature-food.js`,
-`sound-of-place.js`, `trek-vault.js`.
+`destination-vibe.js`, `eco-safety.js` (473 lines),
+`event-radar-news.js` — the home-screen "world's biggest moments" event
+radar and travel-pulse news panels (`EVENTS`/`activeEvents`/
+`renderEventBanner`/`renderNewsPulse` and friends; moved verbatim from
+app.js in round 4 — distinct from the unrelated `RW_EVENTS` partner
+directory in `events.js` below), `events.js`, `experiences.js`,
+`green-trip.js`, `listings.js`, `live-location.js`, `local-ecosystem.js`,
+`misc-features.js` (393 lines), `misc-features-2.js` (371 lines —
+sequentially-numbered grab-bag files from the same extraction phase),
+`partners.js`, `promo-music.js` — the self-hosted promo-film player
+(`renderPromo`/`playPromo`/`filmPlayerHTML` and friends) and the "My
+Music" Spotify/JioSaavn panel (`openMusic`/`musRender`); moved verbatim
+from app.js in round 4, `signature-food.js`, `sound-of-place.js`,
+`trek-vault.js`.
 
 ### `js/runtime/` (2 files)
 - `freshness.js` — keeps an installed PWA updated to the newest deployed
@@ -279,15 +329,16 @@ flat config), run with `npm run lint`:
 
 **Current state (effective line counts — i.e. after `skipBlankLines`/
 `skipComments` — so these differ from raw `wc -l` used elsewhere in this
-doc):** 4 files exceed the 500-line `max-lines` ceiling: `app.js` (2,276
-effective lines — `max-lines` counts only non-blank/non-comment lines,
-so this is well below the raw 3,099 and is not a normal `js/` module
-subject to the same expectation — see "app.js is exempt in spirit"
-below), `js/copilot/core.js` (616), `js/data/destinations.js` (515, pure
-data), `js/itinerary/pdf-export.js` (531). Two files that were over the
-raw-line soft target before this pass — `js/copilot/rich-reply.js` and
+doc):** 4 files exceed the 500-line `max-lines` ceiling: `app.js` (690
+effective lines as of modularization round 4, down from 2,276 before it
+— `max-lines` counts only non-blank/non-comment lines, so this is well
+below the raw 1,207 and is not a normal `js/` module subject to the same
+expectation — see "app.js is exempt in spirit" below), `js/copilot/core.js`
+(616), `js/data/destinations.js` (515, pure data), `js/itinerary/pdf-export.js`
+(531). Two files that were over the raw-line soft target before the
+modularization-final pass — `js/copilot/rich-reply.js` and
 `js/social/group-chat.js` — are now **under** the enforced 500-line
-ceiling on an effective-line basis after this pass's `tkFold`/`tkToggle`
+ceiling on an effective-line basis after that pass's `tkFold`/`tkToggle`
 relocation, even though their raw `wc -l` (545 and 545 respectively) is
 still marginally over the older 300–500 "soft target" convention used by
 `tools/check-line-limits.js`.
@@ -304,7 +355,7 @@ gate — see below.
 `npm run lint`'s full findings, as of this pass:
 
 ```
-no-unused-vars:          1,073 warnings
+no-unused-vars:          1,095 warnings
 no-empty:                  455 errors
 max-lines-per-function:    31 warnings
 no-useless-escape:         15 errors
@@ -312,8 +363,23 @@ no-redeclare:              10 errors
 no-useless-assignment:      5 errors
 max-lines:                  4 errors
 --------------------------------------
-TOTAL:  489 errors, 1,104 warnings
+TOTAL:  489 errors, 1,126 warnings
 ```
+
+The `no-unused-vars` warning count rose from 1,073 to 1,095 (+22) purely
+as a mechanical side effect of modularization round 4's `app.js` splits:
+ESLint lints each classic script file in isolation and has no notion of
+"this global is actually called from a different file's `onclick=`
+string" — so every top-level function that moved out of the giant,
+internally-self-referencing `app.js` into its own small file now reads,
+from that one file's perspective, as "declared but never used" even
+though its real callers (verified by grep before every move) are exactly
+as before. This is the same pre-existing false-positive category that
+already accounts for a large share of the other ~100+ `js/` files'
+warnings in a no-bundler/no-ES-modules codebase (see "no bundler, no ES
+modules" in `CLAUDE.md`) — it is not a new or genuine problem, and the
+error count (the number that would actually matter if `lint` ever becomes
+a CI gate) did not move at all.
 
 The modularization-final pass fixed every occurrence in the four
 categories most likely to hide a real latent bug — `no-dupe-keys`,
@@ -327,7 +393,7 @@ this pass and remain open follow-ups. Retiring
 `tools/check-line-limits.js` in favor of `npm run lint` as the CI gate is
 a follow-up once `no-empty` is triaged.
 
-## Extraction methodology (proven across ~12 merged phases)
+## Extraction methodology (proven across ~13 merged phases)
 
 When moving code out of `app.js` into `js/`, or splitting an oversized
 `js/` file, follow the pattern established by the phases that got
@@ -370,40 +436,132 @@ function that actually writes a payment claim — was deliberately left in
 `app.js` rather than swept along with it, because touching the payment
 write path is out of scope for a pure-relocation change.
 
-## Modularization status: considered complete as of 2026-09-05
+## Modularization round 4 (2026-09-05): app.js 3,099 -> 1,207 lines
 
-As of this commit (`e74eaa2`, `claude/modularization-final-pass`),
-`app.js` is 3,099 lines (from ~19,300), there are 105 files under `js/`
-across 16 subdirectories, and every genuinely self-contained, cleanly-
-extractable chunk found by this pass's fresh audit — `tkFold`/`tkToggle`
-(misfiled generic UI helper) and the referral-tracking block — has been
-extracted. The files still over the raw-line soft target
-(`js/copilot/core.js`, `js/itinerary/pdf-export.js`,
-`js/data/destinations.js`, `js/social/group-chat.js`) were each
-individually re-examined with fresh eyes (not just trusting prior
-comments) and confirmed to be either pure data, or genuinely
-tightly-interleaved logic that a split would only fragment across files
-without reducing real complexity — see the per-file notes above.
+The prior pass ("modularization-final") had concluded `app.js`'s
+remaining ~3,100 lines were a wide, shallow collection of small, diverse
+feature handlers not worth splitting further. A fresh, skeptical re-audit
+of that same file this round found that several of those "small handlers"
+were in fact substantial (100-260+ line), genuinely single-purpose,
+cleanly-separable chunks that had simply never been individually examined
+at that granularity before. Nine were extracted, in order of extraction:
 
-**This modularization effort is considered complete and stable.**
-Further splits of `js/` files or of `app.js` should only happen for a
-*genuine new single-responsibility violation* discovered in the course
-of other work — e.g. a file that grows because two unrelated features
-got bolted onto it, or a helper that's misfiled the way `tkFold`/
-`tkToggle` were — not as a mechanical exercise to chase a smaller
-line-count number. `app.js`'s remaining ~3,100 lines are a wide,
-shallow collection of many small (10–60 line), genuinely diverse
-feature handlers (profile/lifetime-list, music panel, ratings, AI-key
-wizard, model-comparison arena, event radar, travel-pulse news, funnel
-tracking, post-trip memories studio, traveler DNA, the payment/plan-
-picker flow, global commerce/region detection, etc.) — extracting these
-further would mean either dozens of very small single-function files
-(worse for an AI agent or human to navigate, not better) or grouping
-unrelated features together under an artificial theme (the same SRP
-violation this whole effort has been correcting). Prefer leaving `app.js`
-as the intentionally-exempt, still-shrinking miscellany file it already
-is, and extract from it opportunistically when a real, nameable, reusable
-concern (like the referral system in this pass) is found.
+1. `js/copilot/ai-providers.js` — the AI provider request layer
+   (`aiRequest`/`aiCall`/`aiCallAny`/`testKey`/`testKeyFallbackChain`/
+   `extractJSON`), ~180 lines.
+2. `js/itinerary/memories-studio.js` — the post-trip Memories Studio
+   (AI blog + photo collage + memory log), ~160 lines.
+3. `js/ui/key-wizard.js` — the 60-second AI key wizard + model comparison
+   arena, ~160 lines.
+4. `js/misc/event-radar-news.js` — the home-screen event radar + travel
+   pulse news panels, ~125 lines.
+5. `js/payments/partner-redeem.js` — the partner claim-code -> Pro grant
+   flow, ~130 lines (Pro-entitlement/Firestore code, relocated per
+   `CLAUDE.md`'s relocation-is-fine rule; zero logic changed).
+6. `js/payments/plan-picker.js` — the pay modal, plan grid, founder-offer
+   countdown banner, and testimonials, ~350 lines (same relocation-only
+   rule as above).
+7. `js/itinerary/search-engine.js` + `js/itinerary/result-cards.js` — the
+   core "search for destinations, render result cards" pipeline
+   (`smartSearch`/`runSearch`/`renderCards` and their helpers), the single
+   largest remaining chunk at ~530 lines combined, split into two files
+   by SRP (destination/photo resolution vs. search execution + card
+   rendering).
+8. `js/data/country-info.js` — pure static country data (`COUNTRY_INFO`/
+   `ALL_COUNTRIES`), ~115 lines; and `CONTINENT_BY_CC`/`continentForCC`/
+   `continentForLatLon`/`continentFor` colocated into
+   `js/itinerary/atlas-certificate.js`, their only caller.
+9. `js/misc/promo-music.js` — the promo-film player + "My Music" panel,
+   ~125 lines.
+
+All nine were verbatim moves (grepped every call site first, including
+dynamically-generated `onclick=` strings, per the methodology below) and
+verified with `node --check`, `npm test`, `npm run check`, `npm run lint`
+(error count unchanged at 489 — see the lint note below), and a real
+Playwright pass against a local static server: typed a search, clicked
+Search, confirmed result cards render, switched a card tab, opened/closed
+the photo lightbox, and opened the relocated wizard/pay-modal/music-panel
+overlays — not just a static/syntax check.
+
+**What's left in `app.js` (1,207 lines) and why it resists further
+splitting:** a full top-level scan (`grep -n '^function \|^var \|^(function'
+app.js`) shows the remainder is genuinely different in kind from what was
+just extracted — not more of the same:
+
+- **Top-level, parse-time boot wiring**, interleaved between the small
+  functions rather than separable from them: the currency-grid IIFE, the
+  budget-slider `addEventListener` wiring, the destination-autocomplete
+  IIFE (live Photon API calls + `window.getDestVal`), the free-search
+  daily-reset IIFE, the provisional-Pro-expiry-check IIFE, the one-time
+  visit-tracking IIFE, and the intro/trailer dismiss IIFE. Each directly
+  manipulates specific `index.html` element IDs (`el('currGrid')`,
+  `el('budgetSlider')`, `el('destInput')`, etc.) at the exact moment
+  `app.js` executes in the load order — moving any of them to a file that
+  loads earlier or later changes *when* they run against the DOM, which
+  is exactly the top-level/parse-time hazard this doc's load-order
+  section warns about, not merely a relocation.
+- **Core app state `var`s** other files close over by name at runtime:
+  `isPro`, `freeLeft`, `activeProv`, `spends`, `itinBuilt`, `qrBuilt`,
+  `AC`, `MONTHS`, `MO`, `CURR`, `AI_MODELS`, `lastAiSource`, `PRICE_IN`/
+  `PRICE_WW`, `payRegion`, `LEGAL`. These aren't a "feature" to extract;
+  they're the shared state the rest of the app (including the files
+  extracted this round) reads and writes.
+- **Core utilities called from `onclick=` attributes across the entire
+  codebase**, not just app.js: `rwHaptic`, `showToast`, `fmtMoney`,
+  `proPriceLabel`, `scrollToId`, `saveOrDownload`.
+- **`submitUtr()`** (the function that actually writes a payment claim to
+  Firestore) and **`detectRegion`/`setPayRegion`/`applyRegionUI`**
+  (the latter called at top level via `applyRegionUI();` — another
+  parse-time call site) were deliberately left untouched this round: the
+  first is payments/entitlement logic best left minimally disturbed, and
+  the second has the same top-level-call hazard described above.
+- **A residual handful of genuinely small (15-70 line), diverse feature
+  handlers** still sandwiched between the boot IIFEs above: the privacy
+  badge / web-to-app handoff, profile + "Lifetime List", the WhatsApp
+  button, ratings, Sync Circle, Tusk feedback/miss tracking, the
+  conversion nudge, the anonymous "Travel Pulse" popularity counter, the
+  intro/trailer, Traveler DNA, the Crowd Spotter + "open now" quick
+  action, and `openLegal`. Each is too small and too entangled with the
+  boot IIFEs immediately before/after it to safely relocate without
+  either fragmenting into many trivial single-function files (worse to
+  navigate, not better) or grouping unrelated features under an
+  artificial theme — the same SRP violation this effort corrects, not
+  one to reintroduce.
+
+**Given this, `app.js`'s remaining ~1,200 lines are the genuine app
+bootstrap/dispatch core** described by the task that requested this pass.
+Future sessions: re-run the same fresh, skeptical top-level scan before
+assuming this is still accurate — but do not force further splits of the
+boot-wiring IIFEs or state vars listed above without first re-verifying,
+against the current `index.html`, that doing so doesn't change execution
+order relative to the DOM elements and globals they touch.
+
+## Low AI credit usage: `FUNCTION-INDEX.md`
+
+**Before grepping the repo to answer "where is function X defined?" or
+"which file owns feature Y?", read `FUNCTION-INDEX.md` first.** It's a
+generated, flat lookup table — function name, defining file, line number,
+and a best-effort one-line purpose — covering every top-level
+`function NAME(...)` and `window.NAME = function` declaration across
+`app.js` and all of `js/**/*.js` (876 entries as of this pass). Reading
+that one file in full is far cheaper, in tokens and turns, than even a
+single repo-wide `grep -rn "function someFunc"` across 115+ files,
+and it's usually a single Ctrl-F away from the answer.
+
+It's generated by `tools/generate-function-index.js` (a small, one-off,
+regex-based line scanner — not a real AST parser, by design: it's meant
+to be a cheap, "good enough" lookup table, not a build tool) via
+`npm run index`. **Regenerate it after any modularization change that
+adds, moves, or removes a top-level function** — a stale index actively
+misleads a future session, which is worse than no index at all. The
+script's own header comment documents exactly what patterns it does and
+doesn't recognize (see `tools/generate-function-index.js`).
+
+Example of the workflow this replaces: a future session asked "where is
+`compareModels` defined?" would previously need
+`grep -rn "function compareModels" .` (or worse, a blind read through
+app.js). Instead: open `FUNCTION-INDEX.md`, search for `compareModels`,
+find `js/ui/key-wizard.js` at the listed line — done, no repo scan.
 
 ## Known follow-ups (not done in this pass, tracked here so they aren't re-discovered from scratch)
 
