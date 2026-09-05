@@ -48,7 +48,7 @@ function openPdfFlow(T, name, days, month){
    + payBlock;
   window._pdfOpts={party:'Solo',pace:'Balanced'};
   ov.classList.add('open');
-  try{ track('pdf_opens'); }catch(e){}
+  try{ track('pdf_opens'); }catch(e){ /* analytics best-effort, ignore */ }
 }
 function pdfPreviewHtml(){
   var C=PDF_CTX; if(!C) return;
@@ -188,7 +188,7 @@ function genPdf(sample){
       return job(w.wiki, w.alt || (String(w.wiki).split(' ').slice(0,3).join(' ')));
     });
     /* --- traveler profile for the cover --- */
-    var PR={}; try{ PR=JSON.parse(lsGet('rw_profile')||'{}'); }catch(e){}
+    var PR={}; try{ PR=JSON.parse(lsGet('rw_profile')||'{}'); }catch(e){ /* parse best-effort, ignore malformed/missing data */ }
     var avP = PR.av? (PR.av.indexOf('data:')===0? Promise.resolve(PR.av) : fetchImg64(PR.av).catch(function(){return null;})) : Promise.resolve(null);
     /* --- events overlapping the trip window --- */
     var t0=start||new Date(), t1=new Date(t0.getTime()+days*864e5);
@@ -286,7 +286,7 @@ function genPdf(sample){
       pdf.text(o.party+' - '+o.pace+' pace'+(start?(' - from '+start.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'})):''),300,676,{align:'center'});
       if(notes){ pdf.setFontSize(10); pdf.text('"'+notes+'"',300,698,{align:'center'}); }
       if(AIP){ pdf.setTextColor('#16BF96'); pdf.setFontSize(9.5); pdf.text('* Personalised by AI - real places, real timings *',300,720,{align:'center'}); }
-      if(avatar){ try{ pdf.addImage(avatar,'JPEG',40,38,52,52); pdf.setDrawColor(TH.acc[0],TH.acc[1],TH.acc[2]); pdf.setLineWidth(1.6); pdf.rect(40,38,52,52); }catch(e){} }
+      if(avatar){ try{ pdf.addImage(avatar,'JPEG',40,38,52,52); pdf.setDrawColor(TH.acc[0],TH.acc[1],TH.acc[2]); pdf.setLineWidth(1.6); pdf.rect(40,38,52,52); }catch(e){ /* best-effort, ignore */ } }
       if(PR&&(PR.name||PR.style)){ pdf.setTextColor('#B8B4A8'); pdf.setFontSize(8.5);
         pdf.text((PR.name||name)+(PR.style? ' - '+PR.style+' soul':'')+(PR.loc? ' - '+PR.loc:''),40,104);
         if(PR.bio){ pdf.setFont('times','italic'); pdf.text('"'+String(PR.bio).slice(0,54)+'"',40,118); pdf.setFont('helvetica','normal'); } }
@@ -347,7 +347,7 @@ function genPdf(sample){
         pdf.setTextColor(TH.acc[0],TH.acc[1],TH.acc[2]); pdf.setFont('times','bold'); pdf.setFontSize(24);
         pdf.text('Your Map & Pins',44,62);
         try{ pdf.addImage(mapDat.img,'JPEG',40,80,520,347);
-          pdf.setDrawColor(TH.acc[0],TH.acc[1],TH.acc[2]); pdf.setLineWidth(1.6); pdf.rect(40,80,520,347); }catch(e){}
+          pdf.setDrawColor(TH.acc[0],TH.acc[1],TH.acc[2]); pdf.setLineWidth(1.6); pdf.rect(40,80,520,347); }catch(e){ /* best-effort, ignore */ }
         var ly=452;
         pdf.setFontSize(10.5); pdf.setFont('helvetica','normal');
         pdf.setTextColor(INK); pdf.text('STAR = '+d.name+' center',44,ly); ly+=16;
@@ -364,7 +364,7 @@ function genPdf(sample){
           pdf.textWithLink('Google Maps  ->  tap to open',44,ly,{url:gmU}); ly+=15;
           pdf.textWithLink('MapmyIndia  ->  tap to open',44,ly,{url:mmU}); ly+=15;
           pdf.textWithLink('OpenStreetMap  ->  tap to open',44,ly,{url:osU}); ly+=15;
-        }catch(e){}
+        }catch(e){ /* best-effort, ignore */ }
         if(evHit.length){ ly+=6; pdf.setTextColor(TH.acc[0],TH.acc[1],TH.acc[2]);
           pdf.text('Event nearby during your dates: '+evHit[0].n,44,ly); }
         foot(pn);
@@ -386,7 +386,7 @@ function genPdf(sample){
         pdf.text((A&&A.title)||T2.title||'Exploration',100,52);
         pdf.setFont('helvetica','normal'); pdf.setFontSize(9.5); pdf.setTextColor('#B8B4A8');
         pdf.text((dt? dt.toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long'})+' - ':'')+d.name,100,68);
-        try{ drawMotif(pdf,THK,TH.acc,505,58); }catch(e){}
+        try{ drawMotif(pdf,THK,TH.acc,505,58); }catch(e){ /* best-effort, ignore */ }
         if(i===0 && notes){ pdf.setTextColor(TH.acc[0],TH.acc[1],TH.acc[2]); pdf.setFontSize(9);
           pdf.text('Special focus: '+notes, 100, 82); }
         /* ---- NARRATIVE DAY (Kafila-style): story prose, then highlights,
@@ -510,7 +510,7 @@ function genPdf(sample){
       ['Greet before you ask \u2014 two seconds of hello changes every interaction.','Dress one notch more modestly at religious sites than the street suggests.','Haggling is a smile game where both sides should win.','Photograph people only after a nod \u2014 the nod is the picture\u2019s soul.'].forEach(function(c2){ pdf.text(pdf.splitTextToSize('\u2022 '+c2,500),52,y3); y3+=15; });
       /* gem photo strip */
       if(gemPics.length){ var gx3=44;
-        gemPics.slice(0,3).forEach(function(im){ try{ pdf.addImage(im,'JPEG',gx3,y3+8,164,110); pdf.setDrawColor(GOLD); pdf.rect(gx3,y3+8,164,110); gx3+=172; }catch(e){} });
+        gemPics.slice(0,3).forEach(function(im){ try{ pdf.addImage(im,'JPEG',gx3,y3+8,164,110); pdf.setDrawColor(GOLD); pdf.rect(gx3,y3+8,164,110); gx3+=172; }catch(e){ /* best-effort, ignore */ } });
         y3+=126; }
       foot(pn);
       /* ---------- LOCAL INTEL & STREET WISDOM ---------- */
@@ -592,7 +592,7 @@ function genPdf(sample){
         pdf.text('Unlock Pro \u2014 Rs 100 lifetime',300,560,{align:'center'});
         pdf.setTextColor('#B8B4A8'); pdf.setFont('helvetica','normal'); pdf.setFontSize(11);
         pdf.text('roamwise.co.in  \u00b7  or the \u20b910 one-off in the app',300,586,{align:'center'});
-        try{ pdf.textWithLink('Open RoamWise \u2192',300,614,{align:'center',url:'https://www.roamwise.co.in'}); }catch(e){}
+        try{ pdf.textWithLink('Open RoamWise \u2192',300,614,{align:'center',url:'https://www.roamwise.co.in'}); }catch(e){ /* best-effort, ignore */ }
         foot(pn);
       }
       window._pdfDbg={pages:pn, hero:!!hero, dayPics:dayPics.filter(Boolean).length, gems:gemPics.length, map:!!mapDat, intel:!!intel, av:!!avatar, ev:evHit.length, sample:!!window._pdfSample};
@@ -602,7 +602,7 @@ function genPdf(sample){
           if(w2) showToast('\ud83d\udc41 Preview opened \u2014 hit the viewer\u2019s \u2b07 to save'); else pdf.save(fname);
         }catch(e){ pdf.save(fname); } }
       xpAdd(20,'Premium itinerary forged');
-      try{ track('pdf_generated'); lsSet('rw_pdf_count', String((parseInt(lsGet('rw_pdf_count')||'0',10)||0)+1)); }catch(e){}
+      try{ track('pdf_generated'); lsSet('rw_pdf_count', String((parseInt(lsGet('rw_pdf_count')||'0',10)||0)+1)); }catch(e){ /* analytics best-effort, ignore */ }
     }).catch(function(err){ console.error('genPdf failed', err); showToast('Could not build the PDF — please try again'); });
   });
 }

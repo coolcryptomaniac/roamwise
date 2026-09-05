@@ -13,7 +13,7 @@ var _rwMap=null, _rwMarker=null;
 function openMapExplorer(){
   /* Inline, not a popup: the map lives in the page so scrolling, back-button
      and the rest of the app keep working around it. */
-  try{ tabGo('home'); }catch(e){}
+  try{ tabGo('home'); }catch(e){ /* best-effort nav helper, ignore */ }
   var sec=el('mapSection');
   if(!sec){
     sec=document.createElement('section');
@@ -34,7 +34,7 @@ function openMapExplorer(){
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {maxZoom:18, attribution:'\u00a9 OpenStreetMap'}).addTo(_rwMap);
       _rwMap.on('click', function(e){ rwMapPoint(e.latlng.lat, e.latlng.lng); });
     }
-    setTimeout(function(){ try{ _rwMap.invalidateSize(); }catch(e){} }, 250);
+    setTimeout(function(){ try{ _rwMap.invalidateSize(); }catch(e){ /* best-effort, ignore */ } }, 250);
   });
 }
 function closeMapExplorer(){ /* inline section — nothing to close */ }
@@ -63,8 +63,8 @@ function rwTripMapTypeChips(){
 }
 function rwTripSetMapType(mode){
   if(!_tripMap || !_tripMapLayers) return;
-  ['streets','satellite','terrain'].forEach(function(k){ try{ _tripMap.removeLayer(_tripMapLayers[k]); }catch(e){} });
-  try{ _tripMap.removeLayer(_tripMapLayers.labels); }catch(e){}
+  ['streets','satellite','terrain'].forEach(function(k){ try{ _tripMap.removeLayer(_tripMapLayers[k]); }catch(e){ /* best-effort, ignore */ } });
+  try{ _tripMap.removeLayer(_tripMapLayers.labels); }catch(e){ /* best-effort, ignore */ }
   _tripMapLayers[mode].addTo(_tripMap);
   /* satellite imagery has no place labels — overlay a labels layer so pins make sense */
   if(mode==='satellite'){ _tripMapLayers.labels.addTo(_tripMap); }
@@ -72,10 +72,10 @@ function rwTripSetMapType(mode){
 }
 var RW_DAY_COLORS=['#E8BA6C','#60A5FA','#4ADE80','#F87171','#A78BFA','#38BDF8','#FB923C','#F472B6'];
 function openTripMap(destName, stops){
-  try{ badgeBump('map'); }catch(e){}
+  try{ badgeBump('map'); }catch(e){ /* badge/progression update is a nice-to-have, ignore */ }
   /* stops: optional [{day, name, note}]. If not given, we derive from the last
      rendered itinerary (window._lastItin) or just pin the destination. */
-  try{ tabGo('home'); }catch(e){}
+  try{ tabGo('home'); }catch(e){ /* best-effort nav helper, ignore */ }
   var sec=el('tripMapSection');
   if(!sec){
     sec=document.createElement('section');
@@ -102,12 +102,12 @@ function openTripMap(destName, stops){
     if(!ok){ el('tripMapList').innerHTML='<div class="note" style="padding:10px">Map needs internet the first time. Your saved trips still work offline.</div>'; return; }
     /* geocode destination + each stop (cached) */
     var cacheKey='rw_tripmap_v2_'+destName.toLowerCase().replace(/[^a-z0-9]/g,'');
-    var cached=null; try{ cached=JSON.parse(lsGet(cacheKey)||'null'); }catch(e){}
+    var cached=null; try{ cached=JSON.parse(lsGet(cacheKey)||'null'); }catch(e){ /* parse best-effort, ignore malformed/missing data */ }
     var geoP;
     if(cached && cached.pins && cached.pins.length){ geoP=Promise.resolve(cached); }
     else {
       geoP = rwGeocodeStopsNear(destName, raw).then(function(out){
-        try{ lsSet(cacheKey, JSON.stringify(out)); }catch(e){}
+        try{ lsSet(cacheKey, JSON.stringify(out)); }catch(e){ /* storage best-effort, ignore */ }
         return out;
       });
     }
@@ -173,7 +173,7 @@ function rwDeriveStops(destName){
     var dd = (typeof DB!=='undefined') ? DB.find(function(x){ return x.name && x.name.toLowerCase()===target; }) : null;
     if(!dd && typeof DB!=='undefined' && target){ dd = DB.find(function(x){ return x.name && (target.indexOf(x.name.toLowerCase())>=0 || x.name.toLowerCase().indexOf(target)>=0); }); }
     if(dd && dd.gems && dd.gems.length){ return dd.gems.slice(0,6).map(function(g,i){ return {day:i+1, name:g, note:'Highlight'}; }); }
-  }catch(e){}
+  }catch(e){ /* best-effort, ignore */ }
   return [];
 }
 /* Open a map location reliably in BOTH the browser and the Android WebView.
@@ -216,7 +216,7 @@ var RW_CURATED_STOPS = {
 function rwPaintTripMap(destName, data){
   var pins=(data&&data.pins)||[]; var center=data&&data.center;
   /* build the map */
-  try{ if(_tripMap){ _tripLayers.forEach(function(l){ try{_tripMap.removeLayer(l);}catch(e){} }); _tripLayers=[]; } }catch(e){}
+  try{ if(_tripMap){ _tripLayers.forEach(function(l){ try{_tripMap.removeLayer(l);}catch(e){ /* best-effort, ignore */ } }); _tripLayers=[]; } }catch(e){ /* best-effort, ignore */ }
   if(!_tripMap){
     _tripMap = L.map('tripMap', {zoomControl:true}).setView(center?[center.lat,center.lon]:[22.9,79.5], center?11:4);
     /* Base layers incl. a Google-Earth-style satellite view (Esri World Imagery)
@@ -228,7 +228,7 @@ function rwPaintTripMap(destName, data){
     _tripMapLayers = {streets:_streets, satellite:_satellite, terrain:_terrain, labels:_labels};
     _streets.addTo(_tripMap); _tripMapMode='streets';
   }
-  setTimeout(function(){ try{ _tripMap.invalidateSize(); }catch(e){} }, 250);
+  setTimeout(function(){ try{ _tripMap.invalidateSize(); }catch(e){ /* best-effort, ignore */ } }, 250);
   rwTripMapTypeChips();
 
   if(!pins.length){
@@ -248,7 +248,7 @@ function rwPaintTripMap(destName, data){
     _tripLayers.push(mk); latlngs.push([p.lat,p.lon]); bounds.push([p.lat,p.lon]);
   });
   if(latlngs.length>1){ var line=L.polyline(latlngs,{color:'#E8BA6C',weight:3,opacity:.6,dashArray:'6,8'}).addTo(_tripMap); _tripLayers.push(line); }
-  try{ _tripMap.fitBounds(bounds,{padding:[40,40],maxZoom:13}); }catch(e){}
+  try{ _tripMap.fitBounds(bounds,{padding:[40,40],maxZoom:13}); }catch(e){ /* best-effort, ignore */ }
 
   el('tripMapSub').textContent=pins.length+' stops across '+destName+' \u2014 tap a pin or a stop below.';
   /* side list, grouped by day */
@@ -270,10 +270,10 @@ function rwTripFlyTo(i){
   var p=(window._tripPins||[])[i]; if(!p||!_tripMap) return;
   _tripMap.flyTo([p.lat,p.lon], 14, {duration:.6});
   rwTripListHighlight(i);
-  try{ _tripLayers.forEach(function(l){ if(l.getLatLng && Math.abs(l.getLatLng().lat-p.lat)<1e-6){ l.openPopup(); } }); }catch(e){}
+  try{ _tripLayers.forEach(function(l){ if(l.getLatLng && Math.abs(l.getLatLng().lat-p.lat)<1e-6){ l.openPopup(); } }); }catch(e){ /* best-effort, ignore */ }
 }
 function rwTripListHighlight(i){
-  try{ document.querySelectorAll('[id^=tripStop]').forEach(function(b){ b.style.background=''; }); var b=el('tripStop'+i); if(b){ b.style.background='rgba(232,186,108,.14)'; b.scrollIntoView({block:'nearest'}); } }catch(e){}
+  try{ document.querySelectorAll('[id^=tripStop]').forEach(function(b){ b.style.background=''; }); var b=el('tripStop'+i); if(b){ b.style.background='rgba(232,186,108,.14)'; b.scrollIntoView({block:'nearest'}); } }catch(e){ /* best-effort, ignore */ }
 }
 function rwEnsureLeaflet(cb){
   if(window.L && window.L.map) return cb(true);
@@ -287,7 +287,7 @@ function rwEnsureLeaflet(cb){
 async function rwMapPoint(lat, lon){
   var info=el('rwMapInfo'); if(!info) return;
   info.innerHTML='\u23f3 Reading that spot\u2026';
-  try{ if(_rwMarker) _rwMap.removeLayer(_rwMarker); _rwMarker=L.marker([lat,lon]).addTo(_rwMap); }catch(e){}
+  try{ if(_rwMarker) _rwMap.removeLayer(_rwMarker); _rwMarker=L.marker([lat,lon]).addTo(_rwMap); }catch(e){ /* best-effort, ignore */ }
   var name=null, country='', admin='', elev;
   try{
     /* Reverse lookup via Open-Meteo's own geocoder (keyless): find the nearest

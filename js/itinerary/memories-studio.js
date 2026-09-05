@@ -11,10 +11,10 @@
    and a memory log. Cross-post via the share sheet to text platforms; collages
    download for Instagram/Facebook (those need manual upload — no web post API). */
 function openMemories(){
-  try{ tabGo('home'); }catch(e){}
+  try{ tabGo('home'); }catch(e){ /* best-effort nav helper, ignore */ }
   var it=window._lastItin;
   var dest=(it&&it.name)||'';
-  if(!dest){ try{ showToast('Plan or finish a trip first \u2014 then turn it into a story \u270d\ufe0f'); }catch(e){}; return; }
+  if(!dest){ try{ showToast('Plan or finish a trip first \u2014 then turn it into a story \u270d\ufe0f'); }catch(e){ /* toast is a nice-to-have, ignore */ }; return; }
   var sec=el('memSection');
   if(!sec){ sec=document.createElement('section'); sec.id='memSection'; sec.className='xsec v v-home';
     var host=el('copilotHero'); if(host&&host.parentNode) host.parentNode.insertBefore(sec,host.nextSibling); else document.body.appendChild(sec); }
@@ -57,14 +57,14 @@ function rwGenBlog(){
         +'<button class="tact" style="flex:1;min-width:120px" onclick="rwBlogCopy()">\ud83d\udccb Copy</button>'
         +'<button class="tact" style="flex:1;min-width:120px" onclick="rwBlogCrosspost()">\ud83d\ude80 Cross-post</button></div>'
         +'<div style="font-size:11px;color:var(--t3);margin-top:8px">Cross-post opens Medium, Reddit, X or Dev.to with your draft ready. Instagram/Facebook: use the collage tab.</div>';
-      try{ rwSaveMemory('blog', dest, title); }catch(e){}
+      try{ rwSaveMemory('blog', dest, title); }catch(e){ /* best-effort, ignore */ }
     });
   } else { out.innerHTML='<div class="note">AI engine unavailable.</div>'; }
 }
-function rwBlogCopy(){ if(window._rwBlog){ try{ navigator.clipboard.writeText(_rwBlog.title+'\n\n'+_rwBlog.body); showToast('Blog copied \u2713'); }catch(e){} } }
+function rwBlogCopy(){ if(window._rwBlog){ try{ navigator.clipboard.writeText(_rwBlog.title+'\n\n'+_rwBlog.body); showToast('Blog copied \u2713'); }catch(e){ /* clipboard best-effort, ignore */ } } }
 function rwBlogCrosspost(){
   if(!window._rwBlog) return;
-  try{ navigator.clipboard.writeText(_rwBlog.title+'\n\n'+_rwBlog.body); }catch(e){}
+  try{ navigator.clipboard.writeText(_rwBlog.title+'\n\n'+_rwBlog.body); }catch(e){ /* clipboard best-effort, ignore */ }
   var title=encodeURIComponent(_rwBlog.title), url=encodeURIComponent('https://roamwise.co.in');
   var ov=el('rwShareOverlay')||document.createElement('div');
   ov.id='rwShareOverlay'; ov.className='share-overlay'; ov.onclick=function(e){if(e.target===ov)rwCloseShare();};
@@ -110,7 +110,7 @@ function rwDrawCollage(imgs){
   ctx.fillText('made on RoamWise', W/2, H-14);
   c.style.display='block';
   el('memCollageBtns').innerHTML='<div style="display:flex;gap:8px;margin-top:10px"><button class="tact" style="flex:1;font-weight:800" onclick="rwCollageSave()">\u2b07\ufe0f Save collage</button><button class="tact" style="flex:1;font-weight:800" onclick="rwCollageShare()">\ud83d\udce4 Share</button></div><div style="font-size:11px;color:var(--t3);margin-top:6px">Save it, then post to Instagram or Facebook (they need manual upload).</div>';
-  try{ rwSaveMemory('collage', dest, imgs.length+' photos'); }catch(e){}
+  try{ rwSaveMemory('collage', dest, imgs.length+' photos'); }catch(e){ /* best-effort, ignore */ }
 }
 function rwRoundRect(ctx,x,y,w,h,r){ ctx.beginPath(); ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r); ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath(); }
 function rwCollageSave(){ var c=el('memCanvas'); if(c){ try{ saveOrDownload(c.toDataURL('image/jpeg',0.92),'roamwise-collage.jpg'); }catch(e){ showToast('Long-press the collage to save'); } } }
@@ -125,8 +125,8 @@ function rwCollageShare(){
 }
 /* ---- Memory log ---- */
 function rwSaveMemory(kind, dest, detail){
-  var log=[]; try{ log=JSON.parse(lsGet('rw_memlog')||'[]'); }catch(e){}
+  var log=[]; try{ log=JSON.parse(lsGet('rw_memlog')||'[]'); }catch(e){ /* parse best-effort, ignore malformed/missing data */ }
   log.unshift({kind:kind,dest:dest,detail:detail,at:Date.now()});
-  try{ lsSet('rw_memlog', JSON.stringify(log.slice(0,50))); }catch(e){}
+  try{ lsSet('rw_memlog', JSON.stringify(log.slice(0,50))); }catch(e){ /* storage best-effort, ignore */ }
 }
 

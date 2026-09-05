@@ -47,8 +47,8 @@ function scanImageRun(file, key){
       ]}]})
     }).then(function(r){ return r.json(); }).then(function(d){
       var txt='';
-      try{ txt=d.candidates[0].content.parts.map(function(p){return p.text||'';}).join(''); }catch(e){}
-      var out=null; try{ out=JSON.parse(txt.replace(/```json|```/g,'').trim()); }catch(e){}
+      try{ txt=d.candidates[0].content.parts.map(function(p){return p.text||'';}).join(''); }catch(e){ /* best-effort, ignore */ }
+      var out=null; try{ out=JSON.parse(txt.replace(/```json|```/g,'').trim()); }catch(e){ /* parse best-effort, ignore malformed/missing data */ }
       if(!out || !out.places || !out.places.length){
         thinking.innerHTML='I couldn\u2019t find recognisable places in that image. A screenshot with visible place names or captions works best.';
         return;
@@ -61,7 +61,7 @@ function scanImageRun(file, key){
               +'<button class="tact" style="font-size:11px;padding:5px 9px;flex:0 0 auto" onclick="cpGoPlan(\''+nm+'\')">Plan \u2192</button></div>';
           }).join('')
         +'<div style="font-size:10.5px;color:var(--t3);margin-top:8px">Read from your image by Gemini on your own key \u2014 nothing was uploaded to RoamWise.</div>';
-      try{ track('img_scans'); }catch(e){}
+      try{ track('img_scans'); }catch(e){ /* analytics best-effort, ignore */ }
     }).catch(function(e){ thinking.innerHTML='Scan failed: '+(e.message||e); });
   };
   fr.readAsDataURL(file);

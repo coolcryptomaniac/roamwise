@@ -49,7 +49,7 @@ function buildItin(T, name, costMid, days){
       return '<div class="day-card" style="--day-accent:'+acc+';--day-glow:'+glow+'"><div class="day-head" onclick="togDay(\''+did+'\')"><div><div class="day-num"><span class="day-dot"></span>Day '+day.day+'</div><div class="day-title">'+(day.title||'Exploration')+'</div></div><span class="day-arr" id="arr_'+did+'">\u25B6</span></div>'
         + '<div class="day-body" id="'+did+'"><div>'+segs+'</div>'+(day.tip?'<div class="day-tip">\u{1F4A1} '+day.tip+'</div>':'')+'</div></div>';
     }).join('');
-    try{ badgeBump('trip'); }catch(e){}
+    try{ badgeBump('trip'); }catch(e){ /* badge/progression update is a nice-to-have, ignore */ }
     var whyBanner = '<div style=\"text-align:center;padding:16px 14px;margin-bottom:14px;border:1px solid var(--b1,rgba(255,255,255,.07));border-radius:14px;background:var(--bg2,#12151F)\">'
       +'<div style=\"font-style:italic;color:var(--t1,#EDEAE2);font-size:13.5px;line-height:1.6\">Not rushed. Not a checklist. <b>'+esc2(name)+'</b>, paced the way a good trip should be.</div></div>';
     cnt.innerHTML = (srcBadge||'') + whyBanner + H
@@ -104,7 +104,7 @@ function buildItin(T, name, costMid, days){
     cnt.insertAdjacentHTML('afterbegin', presetBadge(offline));
     ph.style.display='none'; cnt.style.display='block'; itinBuilt[T]=true;
     window._lastItin={name:name, preset:true, hit:hit, offline:!!offline, days:hit.days};
-    try{ badgeBump('trip'); }catch(e){}
+    try{ badgeBump('trip'); }catch(e){ /* badge/progression update is a nice-to-have, ignore */ }
     return true;
   }
   function rwHasPresets(){ return typeof RW_PRESETS!=='undefined' && RW_PRESETS.find; }

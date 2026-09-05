@@ -15,8 +15,8 @@
 // call time, so load order relative to those files doesn't matter.
 /* MAIN SEARCH */
 function runSearch(){
-  try{ xpAdd(10, "Mission planned"); }catch(e){}
-  try{ track('searches'); maybeNudge(); }catch(e){}
+  try{ xpAdd(10, "Mission planned"); }catch(e){ /* best-effort, ignore */ }
+  try{ track('searches'); maybeNudge(); }catch(e){ /* analytics best-effort, ignore */ }
   var month = el('month').value;
   if(!month){ showToast('Please select a travel month'); return; }
   if(!isPro){
@@ -93,7 +93,7 @@ function runSearch(){
     aiCall(aiPrompt, 600, function(err, txt){
       clearInterval(tick); btn.disabled=false; btn.innerHTML='<span class="shim-line"></span>🔍 Find My Destinations — Works Without Any API Key';
       var aiData = null;
-      if(txt){ try{ aiData = JSON.parse(txt); }catch(x){} }
+      if(txt){ try{ aiData = JSON.parse(txt); }catch(x){ /* parse best-effort, ignore malformed/missing data */ } }
       renderCards(topR, month, budUSD, origin, days, aiData, style, isGenericResult);
     });
   } else {
@@ -330,7 +330,7 @@ function renderCards(results, month, budUSD, origin, days, aiData, travelStyle, 
   try{
     var top = results[0] && results[0].d;
     if(top){ pulseBump(top.name, month); results.forEach(function(r){ pulseShow(r.d.name, month, 'pulse_'+r.T); }); }
-  }catch(e){}
+  }catch(e){ /* best-effort, ignore */ }
 
   setTimeout(function(){
     document.querySelectorAll('.crowd-bar[data-w]').forEach(function(bar){ bar.style.width = bar.dataset.w+'%'; });
