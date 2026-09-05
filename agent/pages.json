@@ -5046,5 +5046,29 @@
   "country": "India",
   "best": "January, March, November",
   "month": true
+ },
+ {
+  "slug": "jodhpur-in-may",
+  "title": "Jodhpur in May",
+  "name": "Jodhpur·May",
+  "country": "India",
+  "best": "January, March, November",
+  "month": true
+ },
+ {
+  "slug": "jodhpur-in-june",
+  "title": "Jodhpur in June",
+  "name": "Jodhpur·June",
+  "country": "India",
+  "best": "January, March, November",
+  "month": true
+ },
+ {
+  "slug": "jodhpur-in-july",
+  "title": "Jodhpur in July",
+  "name": "Jodhpur·July",
+  "country": "India",
+  "best": "January, March, November",
+  "month": true
  }
 ]
