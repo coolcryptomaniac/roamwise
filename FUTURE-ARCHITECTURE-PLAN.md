@@ -89,10 +89,12 @@ fixable from a code change alone.
 ## 3. TypeScript
 
 See the separate `TYPESCRIPT-MIGRATION.md` for the actual recommended
-path (gradual JSDoc-based typing, file by file, no build step required)
-— as of this writing that document doesn't exist yet in `main`;
-TypeScript-readiness work is in progress on the `claude/typescript-readiness`
-branch. This section is intentionally short so as not to duplicate it.
+path (gradual JSDoc-based typing, file by file, no build step required).
+**Update (2026-09-05): this has since merged into `main`** — `tsconfig.json`,
+`js/global.d.ts`, and `npm run typecheck` (`tsc --noEmit`) are all live and
+passing today; `TYPESCRIPT-MIGRATION.md` documents the current, working
+setup rather than a future plan. This section is intentionally short so as
+not to duplicate it.
 
 The one architectural point worth stating here: a **hard** switch to
 real `.ts` files with a compiler step would only make sense if the
