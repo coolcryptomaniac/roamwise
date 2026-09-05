@@ -99,8 +99,8 @@ var RWFounderSeats = (function(){
    * count itself is still trustworthy and withholding the whole number over
    * one optional flag would be a worse user experience than a bounded,
    * explainable (at most 500-seat) undercount of the reservation.
-   * @param {{exists:boolean, data:function():any}|null|undefined} founderSnap
-   * @param {{exists:boolean, data:function():any}|null|undefined} nmimsSnap
+   * @param {{exists:boolean, data:()=>any}|null|undefined} founderSnap
+   * @param {{exists:boolean, data:()=>any}|null|undefined} nmimsSnap
    * @returns {{ok:true, left:number}|{ok:false, left:null}}
    */
   function computeFromSnapshots(founderSnap, nmimsSnap){
