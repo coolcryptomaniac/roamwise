@@ -411,21 +411,29 @@ close to being an ordinary-sized file regardless.)
 `npm run lint` is **not** part of `npm run check`, which still uses
 `tools/check-line-limits.js` (raw-line-based, 1000-line hard cap,
 300–500 soft-target warning) as the CI-blocking gate.
-`npm run lint`'s full findings, as of round 5:
+`npm run lint`'s full findings, as of the `no-empty` triage pass
+(2026-09-05, PR #133, following round 5):
 
 ```
-no-unused-vars:          1,100 warnings
-no-empty:                  455 errors
-max-lines-per-function:    32 warnings
-no-useless-escape:         15 errors
+no-unused-vars:          1,103 warnings
+max-lines-per-function:     32 warnings
+no-useless-escape:          15 errors
 max-lines:                   3 errors
 --------------------------------------
-TOTAL:  473 errors, 1,132 warnings
+TOTAL:   18 errors, 1,135 warnings
 ```
 
-(`no-redeclare` and `no-useless-assignment` triaged to zero this round —
-see "Modularization round 5" above for the fixes and "Known follow-ups"
-below for how they were categorized.)
+(`no-redeclare` and `no-useless-assignment` triaged to zero in round 5 —
+see "Modularization round 5" above. `no-empty` triaged to zero in the
+follow-up pass immediately after (PR #133) — see "Known follow-ups"
+below for how both were categorized. The `no-unused-vars` baseline drifted
+from round 5's own recorded 1,100 to 1,103 in the meantime — unrelated to
+either triage pass; per this doc's "Module map" note, `js/pricing/founder-seats.js`
+merged into `main` from a concurrent, unrelated bug-fix pass after round 5's
+PR landed, adding a few more of the same pre-existing per-file-isolation
+false positives described below. The `no-empty` pass itself changed zero
+warnings — every edit added a comment inside an already-empty catch block,
+not a logic or variable-usage change.)
 
 The `no-unused-vars` warning count rose from 1,095 (round 4) to 1,100
 (+5) and `max-lines-per-function` from 31 to 32 (+1) purely as a
@@ -457,9 +465,15 @@ categories most likely to hide a real latent bug — `no-dupe-keys`,
 occurrences, mostly pre-existing empty `catch(e){}` blocks — a defensive
 pattern, not obviously a bug, but numerous enough to need its own
 triage pass) and `no-useless-escape` were explicitly out of scope for
-this pass and remain open follow-ups. Retiring
-`tools/check-line-limits.js` in favor of `npm run lint` as the CI gate is
-a follow-up once `no-empty` is triaged.
+that pass and were tracked as open follow-ups; `no-empty` was triaged
+to zero in PR #133 immediately after round 5 (see "Known follow-ups"
+below) — every one of the 455 occurrences turned out to be an empty
+`catch` block (no non-catch empty-block bugs were found), and every one
+was a legitimate best-effort/defensive swallow, not a latent bug; each
+got a one-line clarifying comment rather than a behavior change. Only
+`no-useless-escape` (15) and `max-lines` (3) remain as open error-level
+follow-ups. Retiring `tools/check-line-limits.js` in favor of `npm run
+lint` as the CI gate is correspondingly closer now.
 
 ## Extraction methodology (proven across ~14 merged phases)
 
@@ -873,10 +887,41 @@ round 5"'s own advice) remains the source of truth.
 
 ## Known follow-ups (not done in this pass, tracked here so they aren't re-discovered from scratch)
 
-- **`no-empty` (455 occurrences)** — mostly `catch(e){}` defensive
-  blocks. Needs its own triage pass to distinguish "genuinely fine to
-  swallow" from "silently hiding a real failure," at a scale too large
-  for a single pass alongside other work.
+- ~~`no-empty` (455 occurrences)~~ — **triaged to zero in PR #133.**
+  Every one of the 455 turned out to be an empty `catch(e){}` (or a
+  differently-named binding — `e2`, `err`, `_`) with genuinely nothing
+  else in the block — not a single non-catch empty block (`if(x){}`,
+  an incomplete function body, etc.) was found anywhere in the codebase,
+  so the "empty stub that looks like a forgotten bug" and "dead/vestigial
+  block, safe to delete" categories this kind of triage usually has to
+  split out both turned out to be empty sets here. Every catch was one of
+  a small number of repeated best-effort/defensive-swallow patterns —
+  analytics pings (`track(...)`), non-critical Firestore writes/reads,
+  `localStorage`/`JSON.parse` best-effort caching, haptics/toast/voice/
+  render calls that are nice-to-haves not blocking paths, and boot-sequence
+  steps deliberately isolated so one failing step (e.g. push-notification
+  setup) can't take down the rest of app init — including in
+  `js/payments/plan-picker.js`, `js/pricing/referral.js`, and
+  `js/boot/auth-init.js`, which were read first and most carefully given
+  their entitlement/payment/auth proximity, per `CLAUDE.md`'s rule that
+  behavior changes there need separate review (none were made — this pass
+  is comment-only). Fixed with a scripted pass: for each occurrence,
+  brace-matched backward from the `catch` to its own `try` block (handling
+  nested `try`/`catch` on the same line correctly, e.g.
+  `js/itinerary/journey-movie.js`'s `try{ctx=new AC(); try{ctx.resume();}catch(e2){}...}catch(e){}`)
+  and classified the try-body text against the pattern list above to pick
+  a matching one-line clarifying comment (e.g. `/* analytics best-effort,
+  ignore */`, `/* best-effort Firestore write, ignore */`), falling back to
+  a generic `/* best-effort, ignore */` when no more specific pattern
+  matched — never a blind, context-free comment. A hand-reviewed sample
+  (roughly 1-in-15, stratified across all 84 touched files, plus every
+  occurrence in the three payments/auth/referral files above) confirmed
+  no case was actually a latent bug worth flagging for a human decision.
+  Verified with `node --check` on all 84 touched files, `npm test`
+  (45/45), `npm run check`, and `npm run lint` (455 → 0 `no-empty`
+  errors, 473 → 18 total errors, zero change to the 1,135 warnings since
+  no variable usage or logic changed — only comments were inserted into
+  already-empty blocks).
 - **`no-useless-escape` (15 occurrences)** — regex escapes that are
   unnecessary but not wrong; low bug risk, cosmetic cleanup. Not
   triaged this round — genuinely lower value than `no-redeclare`/
@@ -898,8 +943,10 @@ round 5"'s own advice) remains the source of truth.
   `openBooking()`'s empty- and non-empty-basket paths). Lint errors:
   488 → 473.
 - Retiring `tools/check-line-limits.js` in favor of `npm run lint` as
-  the `npm run check` gate is now closer: only `no-empty` (455) and
-  `no-useless-escape` (15) remain untriaged among the error-level rules.
+  the `npm run check` gate is now much closer: only `no-useless-escape`
+  (15) and `max-lines` (3, all pre-existing and already documented above)
+  remain among the error-level rules — `no-empty` (455) was the last
+  large one and is now at zero.
 
 ## Related documents
 
