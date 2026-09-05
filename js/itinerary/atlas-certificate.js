@@ -5,7 +5,62 @@
    the same _rwCard/_rwCine canvas (from js/itinerary/journey-log.js) and sit in the
    same UI action row as the Atlas Certificate button. Split out of
    js/itinerary/certificates.js (which bundled 5 unrelated certificate/movie
-   features) as an SRP cleanup; verbatim move, zero logic changes. */
+   features) as an SRP cleanup; verbatim move, zero logic changes.
+   CONTINENT_BY_CC/continentForCC/continentForLatLon/continentFor below were
+   later moved here verbatim from app.js (modularization round 4) — this is
+   their only caller (the "N/7 continents" stat just below). */
+
+/* Country-code (ISO 3166-1 alpha-2) → continent, covering common countries.
+   Used to compute a real "N/7 continents" stat instead of just counting
+   distinct country strings (which never distinguished USA=North America
+   from, say, France=Europe in any meaningful aggregate way). */
+var CONTINENT_BY_CC = {
+  US:'North America',CA:'North America',MX:'North America',CU:'North America',JM:'North America',
+  PA:'North America',CR:'North America',GT:'North America',HN:'North America',NI:'North America',
+  BZ:'North America',BS:'North America',DO:'North America',HT:'North America',
+  BR:'South America',AR:'South America',CL:'South America',CO:'South America',PE:'South America',
+  VE:'South America',EC:'South America',BO:'South America',PY:'South America',UY:'South America',
+  GY:'South America',SR:'South America',
+  GB:'Europe',FR:'Europe',DE:'Europe',IT:'Europe',ES:'Europe',PT:'Europe',NL:'Europe',BE:'Europe',
+  CH:'Europe',AT:'Europe',SE:'Europe',NO:'Europe',DK:'Europe',FI:'Europe',IE:'Europe',PL:'Europe',
+  CZ:'Europe',GR:'Europe',HU:'Europe',RO:'Europe',BG:'Europe',HR:'Europe',RS:'Europe',UA:'Europe',
+  RU:'Europe',IS:'Europe',SK:'Europe',SI:'Europe',EE:'Europe',LV:'Europe',LT:'Europe',LU:'Europe',
+  MT:'Europe',CY:'Europe',
+  IN:'Asia',CN:'Asia',JP:'Asia',KR:'Asia',TH:'Asia',VN:'Asia',ID:'Asia',MY:'Asia',SG:'Asia',
+  PH:'Asia',NP:'Asia',LK:'Asia',BD:'Asia',PK:'Asia',KH:'Asia',LA:'Asia',MM:'Asia',MN:'Asia',
+  TW:'Asia',HK:'Asia',KZ:'Asia',UZ:'Asia',GE:'Asia',AM:'Asia',AZ:'Asia',
+  AE:'Middle East',SA:'Middle East',QA:'Middle East',KW:'Middle East',BH:'Middle East',OM:'Middle East',
+  IL:'Middle East',JO:'Middle East',LB:'Middle East',TR:'Middle East',IR:'Middle East',IQ:'Middle East',
+  EG:'Africa',ZA:'Africa',MA:'Africa',KE:'Africa',TZ:'Africa',NG:'Africa',ET:'Africa',GH:'Africa',
+  TN:'Africa',DZ:'Africa',UG:'Africa',RW:'Africa',NA:'Africa',BW:'Africa',ZW:'Africa',MU:'Africa',
+  SC:'Africa',SN:'Africa',CI:'Africa',CM:'Africa',
+  AU:'Oceania',NZ:'Oceania',FJ:'Oceania',PG:'Oceania',WS:'Oceania',VU:'Oceania',
+  PF:'Oceania',NC:'Oceania'
+};
+function continentForCC(cc){ return CONTINENT_BY_CC[(cc||'').toUpperCase()] || null; }
+/* Fallback for entries with no countryCode at all — including everything
+   logged before this fix existed. Rough lat/lon bounding boxes; not survey-
+   grade, but good enough to retroactively fix "Continents 0/7" for existing
+   journey logs instead of requiring people to re-log every past entry. */
+function continentForLatLon(lat, lon){
+  if(typeof lat!=='number' || typeof lon!=='number') return null;
+  if(lat < -60) return null; /* Antarctica — vanishingly rare to log, excluded from the 7-way split */
+  if(lat < -10 && lon > 110 && lon <= 180) return 'Oceania';
+  if(lat < 0 && lon >= -180 && lon < -140) return 'Oceania'; /* Pacific islands */
+  if(lon >= -170 && lon < -35 && lat >= 8) return 'North America';
+  if(lon >= -85 && lon < -33 && lat < 8 && lat >= -60) return 'South America';
+  if(lon >= 25 && lon < 63 && lat >= 12 && lat < 42) return 'Middle East';
+  if(lon >= -25 && lon < 45 && lat >= 35 && lat <= 72) return 'Europe';
+  if(lon >= -20 && lon < 52 && lat >= -35 && lat < 35) return 'Africa';
+  if(lon >= 45 && lon <= 180 && lat >= -10 && lat < 80) return 'Asia';
+  if(lon >= -180 && lon < -25 && lat >= 5) return 'North America'; /* far western wrap */
+  return null;
+}
+/* Single entry point used everywhere: try the reliable country-code path
+   first, fall back to coordinates for older/incomplete log entries. */
+function continentFor(entry){
+  return continentForCC(entry.countryCode) || continentForLatLon(entry.lat, entry.lon);
+}
 
 /* ===== ATLAS CERTIFICATE — self-contained downloadable HTML journey certificate =====
  * Design tokens (palette, ornate-double border, filter-based layer tabs, percentage-
