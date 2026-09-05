@@ -91,7 +91,7 @@ function rwTuskAsk(question, options){
 }
 function rwTuskChip(text){
   var inp=el('heroInput')||el('cpInput');
-  if(inp){ inp.value=text; try{ copilotSend(!!el('heroInput')); }catch(e){} }
+  if(inp){ inp.value=text; try{ copilotSend(!!el('heroInput')); }catch(e){ /* best-effort, ignore */ } }
 }
 /* Decide whether a query is too thin to answer honestly. Returns a clarifying
    bubble HTML, or null if the query is answerable. */
@@ -133,16 +133,16 @@ function rwStartAnywhere(t){
 
 async function cpFinish(bubble, answerHTML, intents, raw){
   intents._raw = raw;
-  try{ rwRemember('user', raw, {dest:intents.dest, topic:intents.topic, days:intents.days}); }catch(e){}
+  try{ rwRemember('user', raw, {dest:intents.dest, topic:intents.topic, days:intents.days}); }catch(e){ /* best-effort, ignore */ }
   var actions = await cpActionsHTML(intents);
   var parts=[]; if(answerHTML) parts.push(answerHTML);
   if(actions.length) parts.push(actions.join('<br><br>'));
   if(!parts.length) parts.push('I can handle destinations, dates, budgets, weather, cafes, buses/trains and sharing \u2014 try: \u201cPlan 4 days in Udaipur under \u20b912,000.\u201d');
-  try{ rwRemember('tusk', (answerHTML||'').replace(/<[^>]*>/g,' ').slice(0,200), {}); }catch(e){}
+  try{ rwRemember('tusk', (answerHTML||'').replace(/<[^>]*>/g,' ').slice(0,200), {}); }catch(e){ /* best-effort, ignore */ }
   var isCard = actions.length && String(actions[0]).indexOf('tk-card')>-1;
   var _html = parts.join(isCard? '<div style="height:10px"></div>' : '<hr style="border:none;border-top:1px dashed var(--b2,#2A2A36);margin:10px 0">');
   /* Every answer ends with tappable actions — an answer is never a dead end. */
-  try{ if(!intents.smalltalk) _html += rwTuskRail(intents.dest||'', raw||''); }catch(e){}
+  try{ if(!intents.smalltalk) _html += rwTuskRail(intents.dest||'', raw||''); }catch(e){ /* best-effort, ignore */ }
   /* Lightweight per-response feedback — bot replies only (cpFinish only ever
      finishes a 'bot' bubble). Anonymous daily counter, same pattern as track()
      elsewhere; no per-message record, no user identity. */
@@ -158,14 +158,14 @@ async function cpFinish(bubble, answerHTML, intents, raw){
     log.scrollTop = topPos>0 ? topPos : 0;
   }
   _cpHist.push({q:raw, a:bubble.textContent.slice(0,300)}); if(_cpHist.length>8) _cpHist.shift();
-  try{ track('copilot_uses'); }catch(e){}
+  try{ track('copilot_uses'); }catch(e){ /* analytics best-effort, ignore */ }
 }
 function cpGoPlan(dest, days){
   closeCopilot();
   var di=el('destInput'); if(di) di.value=dest;
   if(days){ var ds=el('days'); if(ds){ var opt=[].slice.call(ds.options||[]).filter(function(o){ return parseInt(o.value,10)===parseInt(days,10); })[0]; if(opt) ds.value=opt.value; } }
   tabGo('plan');
-  try{ runSearch(); }catch(e){}
+  try{ runSearch(); }catch(e){ /* best-effort, ignore */ }
 }
 async function cpActionsHTML(it){
   var H=[];
@@ -173,11 +173,11 @@ async function cpActionsHTML(it){
   if(it.smalltalk) return [];
   /* state-scope request: routes through the state, not a random village */
   if(it._state){
-    try{ return [rwStateHTML(it._state, it.days)]; }catch(e){}
+    try{ return [rwStateHTML(it._state, it.days)]; }catch(e){ /* best-effort, ignore */ }
   }
   /* country-scope request: answer with circuits, not a single city */
   if(it._country){
-    try{ return [rwCountryRouteHTML(it._country, it.days)]; }catch(e){}
+    try{ return [rwCountryRouteHTML(it._country, it.days)]; }catch(e){ /* best-effort, ignore */ }
   }
   /* conversation recall */
   if(/\b(what did i ask|what have we|remind me what|earlier i (said|asked)|our conversation|chat history)\b/i.test(String(it._raw||''))){
@@ -196,7 +196,7 @@ async function cpActionsHTML(it){
   }
   /* rules health check */
   if(/\b(rules|permission|permissions|insufficient|blocked|firestore)\b/i.test(String(it._raw||''))){
-    setTimeout(function(){ try{ rwRulesCheck(); }catch(e){} }, 60);
+    setTimeout(function(){ try{ rwRulesCheck(); }catch(e){ /* best-effort, ignore */ } }, 60);
     return ['<div class="tk-card tk-mini"><div class="tk-sec"><div style="font-size:12.5px">Checking which Firestore rules are live\u2026</div></div></div>'];
   }
   /* certificate verification */
@@ -256,7 +256,7 @@ async function cpActionsHTML(it){
     var _mdp = it.dest || (_cpCtx && _cpCtx.dest) || '';
     var _mdg = _mdp ? (cpDbFind(String(_mdp)) || await rwResolvePlace(_mdp)) : null;
     var _mdi = [];
-    if(_mdg){ try{ _mdi = await rwMedNear(_mdg.lat, _mdg.lon); }catch(e){} }
+    if(_mdg){ try{ _mdi = await rwMedNear(_mdg.lat, _mdg.lon); }catch(e){ /* best-effort, ignore */ } }
     return [rwMedHTML(_mdp, _mdi)];
   }
   /* athlete / fitness mode */
@@ -264,7 +264,7 @@ async function cpActionsHTML(it){
     var _fp = it.dest || (_cpCtx && _cpCtx.dest) || '';
     var _fg = _fp ? (cpDbFind(String(_fp)) || await rwResolvePlace(_fp)) : null;
     var _fi = [];
-    if(_fg) { try{ _fi = await rwFitNear(_fg.lat, _fg.lon); }catch(e){} }
+    if(_fg) { try{ _fi = await rwFitNear(_fg.lat, _fg.lon); }catch(e){ /* best-effort, ignore */ } }
     return [rwAthleteHTML(_fp, _fi)];
   }
   /* trip merch */
@@ -274,7 +274,7 @@ async function cpActionsHTML(it){
   }
   /* live location */
   if(rwIsNearMe(it._raw||'')){
-    try{ return [await rwNearMeHTML(it._raw||'')]; }catch(e){}
+    try{ return [await rwNearMeHTML(it._raw||'')]; }catch(e){ /* best-effort, ignore */ }
   }
   /* booking platform comparison */
   if(/\b(where (to |should i )?book|which (site|platform|app)|compare (booking|platforms?|sites?)|makemytrip|make my trip|ixigo|skyscanner|thomas cook|best booking)\b/i.test(String(it._raw||''))){
@@ -303,11 +303,11 @@ async function cpActionsHTML(it){
   }
   /* multi-city route card */
   if(it.multi && it.stops && it.stops.length>=2){
-    try{ return [await tkRouteCard(it)]; }catch(e){}
+    try{ return [await tkRouteCard(it)]; }catch(e){ /* best-effort, ignore */ }
   }
   /* compact answer for topic follow-ups on a remembered destination */
   if(it._inherited && it.topic && it.dest){
-    try{ return [await tkMiniCard(it)]; }catch(e){}
+    try{ return [await tkMiniCard(it)]; }catch(e){ /* best-effort, ignore */ }
   }
   var dbHit = it.dest ? cpDbFind(String(it.dest)) : null;
   var lat = dbHit? dbHit.lat : null, lon = dbHit? dbHit.lon : null, geo=null;
@@ -324,7 +324,7 @@ async function cpActionsHTML(it){
         if(rwIsAmbiguous(_cands, (typeof RW_HOME_CC!=='undefined'? RW_HOME_CC : 'IN'))){
           return [rwDisambigHTML(it.dest, _cands)];
         }
-      }catch(e){}
+      }catch(e){ /* best-effort, ignore */ }
     }
     geo = await rwResolvePlace(it.dest);
     /* legacy low-confidence path, kept as a backstop */
@@ -332,7 +332,7 @@ async function cpActionsHTML(it){
       try{
         var _c2 = await rwCandidates(it.dest);
         if(_c2.length>1) return [rwDisambigHTML(it.dest, _c2)];
-      }catch(e){}
+      }catch(e){ /* best-effort, ignore */ }
       return [tkClarifyHTML(it.dest, geo)];
     }
     if(geo){ lat=geo.lat; lon=geo.lon; it.dest=geo.name; }
@@ -356,7 +356,7 @@ async function cpActionsHTML(it){
   }
   var used={}, headHTML='';
   if(it.dest){
-    try{ await rwLoadPhotoMap(); }catch(e){}
+    try{ await rwLoadPhotoMap(); }catch(e){ /* best-effort, ignore */ }
     var nm=String(it.dest).replace(/[<>]/g,'');
     var meta=[];
     if(dbHit) meta.push(dbHit.country);
@@ -397,7 +397,7 @@ async function cpActionsHTML(it){
           if(itin) H.push(tkFold('\ud83d\uddd3\ufe0f Mini itinerary \u2014 taste of the days', itin));
         }
       }
-    }catch(e){}
+    }catch(e){ /* best-effort, ignore */ }
     H.push('<div class="tk-lab">Plan it</div>'+tkItinChips(it.dest));
   }
   /* weather */

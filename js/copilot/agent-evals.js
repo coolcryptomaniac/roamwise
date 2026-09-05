@@ -93,7 +93,7 @@ function rwEvalScore(rs){
   };
 }
 function openEval(){
-  try{ tabGo('home'); }catch(e){}
+  try{ tabGo('home'); }catch(e){ /* best-effort nav helper, ignore */ }
   var sec=el('evalSection');
   if(!sec){ sec=document.createElement('section'); sec.id='evalSection'; sec.className='xsec v v-home';
     var host=el('copilotHero'); if(host&&host.parentNode) host.parentNode.insertBefore(sec,host.nextSibling); else document.body.appendChild(sec); }

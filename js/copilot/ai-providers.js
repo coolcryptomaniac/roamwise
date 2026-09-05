@@ -11,11 +11,11 @@
 // load order relative to app.js does not matter (see ARCHITECTURE.md).
 function extractJSON(txt){
   if(!txt) return null;
-  try{ return JSON.parse(txt); }catch(e){}
+  try{ return JSON.parse(txt); }catch(e){ /* parse best-effort, ignore malformed/missing data */ }
   var a=txt.indexOf('{'), b=txt.lastIndexOf('}');
-  if(a>-1 && b>a){ try{ return JSON.parse(txt.slice(a,b+1)); }catch(e){} }
+  if(a>-1 && b>a){ try{ return JSON.parse(txt.slice(a,b+1)); }catch(e){ /* parse best-effort, ignore malformed/missing data */ } }
   a=txt.indexOf('['); b=txt.lastIndexOf(']');
-  if(a>-1 && b>a){ try{ var arr=JSON.parse(txt.slice(a,b+1)); return {days:arr}; }catch(e){} }
+  if(a>-1 && b>a){ try{ var arr=JSON.parse(txt.slice(a,b+1)); return {days:arr}; }catch(e){ /* parse best-effort, ignore malformed/missing data */ } }
   return null;
 }
 

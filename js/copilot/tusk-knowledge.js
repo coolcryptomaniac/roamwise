@@ -40,7 +40,7 @@ async function wvGuide(place){
   try{
     var c=JSON.parse(lsGet(key)||'null');
     if(c && (Date.now()-c.at) < WV_CACHE_DAYS*864e5) return c;
-  }catch(e){}
+  }catch(e){ /* parse best-effort, ignore malformed/missing data */ }
   if(!navigator.onLine) return null;
   try{
     var api='https://en.wikivoyage.org/w/api.php?origin=*&format=json&';
@@ -116,7 +116,7 @@ function rwLearn(place){
     var m=JSON.parse(lsGet('rw_learn')||'{}');
     var k=wvSlug(place); m[k]=(m[k]||0)+1;
     lsSet('rw_learn', JSON.stringify(m));
-  }catch(e){}
+  }catch(e){ /* parse best-effort, ignore malformed/missing data */ }
 }
 function rwTopInterests(n){
   try{
