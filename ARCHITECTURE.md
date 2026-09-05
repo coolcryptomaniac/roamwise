@@ -5,8 +5,8 @@ codebase is put together. It exists so a future AI agent or human
 contributor can understand the project in one read instead of re-deriving
 it via expensive repo-wide greps every session. Every number and file
 path below was verified against the repo on the
-`claude/modularization-round4-and-ai-index` branch (2026-09-05) — re-run
-the commands in each section's footnote if you suspect drift.
+`claude/modularization-round5-ai-optimizations` branch (2026-09-05) —
+re-run the commands in each section's footnote if you suspect drift.
 
 **Before grepping the repo for "where is function X defined?" or "which
 file owns feature Y?", read `FUNCTION-INDEX.md` first** — see the
@@ -28,15 +28,22 @@ works fully without it.
 
 ## Module map
 
-As of this commit, `app.js` is **1,207 lines** (down from ~19,300 at the
-start of the modularization effort, and down from 3,099 after the prior
-"modularization-final" pass) and there are **115 files** under `js/`,
-organized into 16 subdirectories, plus **9 files** under `css/`. This is
-the state after the "round 4" pass — see "Modularization round 4" near the
-bottom of this document for what was found and why the remainder resists
-further splitting.
+As of this commit, `app.js` is **629 lines** (down from ~19,300 at the
+start of the modularization effort, down from 3,099 after the prior
+"modularization-final" pass, and down from 1,207 after "round 4") and
+there are **125 files** under `js/`, organized into 16 subdirectories,
+plus **9 files** under `css/`. This is the state after the "round 5"
+pass — see "Modularization round 5" near the bottom of this document for
+what was found (a mis-categorization in round 4's own closing
+assessment) and for the honest, re-verified case that what's left now
+really is the practical floor.
 
-### `js/core/` — shared low-level utilities (6 files)
+### `js/core/` — shared low-level utilities (7 files)
+- `app-utils.js` — `rwHaptic`/`showToast`/`scrollToId`/`offerOpen`/
+  `_doOpenNow`/`saveOrDownload`: generic, `onclick=`-invoked UI utilities
+  that used to live in app.js under a "core utilities" label that
+  (per round 5's re-audit) didn't actually justify keeping them there —
+  see "Modularization round 5" below
 - `dom-utils.js` — DOM helper functions
 - `error-guard.js` — global `window.onerror`/error-boundary wiring
 - `include-partial.js` — lightweight static HTML partial includes
@@ -45,8 +52,7 @@ further splitting.
 - `text-utils.js` — string/text formatting + HTML-escaping helpers
 
 ### `js/data/` — static reference data + lookup helpers (5 files)
-- `destinations.js` (597 lines, pure data — see "Confirmed unchanged"
-  below) — the `DB` destination database
+- `destinations.js` (597 lines, pure data) — the `DB` destination database
 - `iata.js` — airport/IATA code lookup
 - `place-overrides.js` (111 lines) — curated lat/lon overrides for
   Indian destinations that population-ranked geocoders mis-resolve
@@ -61,12 +67,15 @@ further splitting.
 - `config-sync.js` — remote-config sync
 
 ### `js/pricing/` — monetization mechanics (2 files)
-- `tiers.js` (212 lines) — pricing tier definitions
+- `tiers.js` (257 lines) — pricing tier definitions, plus `fmtMoney`/
+  `proPriceLabel` (money-display helpers moved verbatim from app.js in
+  round 5; they read app.js's `CURR`/`AC` currency state by name,
+  resolved at call time)
 - `referral.js` (262 lines) — referral/affiliate tracking: capture a
   `?ref=` link or typed code, validate against the referrer directory,
   persist it for the attribution window, and stamp it onto a purchase
-  claim. Extracted from app.js in the modularization-final pass (see
-  "Structural changes" below). Note: `submitUtr()` — the actual
+  claim. Extracted from app.js in the modularization-final pass.
+  Note: `submitUtr()` — the actual
   payment-claim writer that calls this file's `rwRefStamp()` — is
   payments/entitlement code and deliberately stays in `app.js`.
 
@@ -94,7 +103,9 @@ further splitting.
 
 ### `js/booking/` (7 files)
 - `actions.js` — on-trip action hub
-- `affiliate-links.js` — central affiliate/deep-link builder
+- `affiliate-links.js` (168 lines) — central affiliate/deep-link builder,
+  plus `rwSkyscannerUrl`/`rwSkyscannerToUrl` (moved verbatim from app.js
+  in round 5 — natural fit, both build on this file's `rwAffLink()`)
 - `arrival-mode.js` — first-hours-at-destination arrival flow
 - `form.js` (288 lines) — booking form + pay flow
 - `local-rides.js` — local rides + stranded-traveler flows
@@ -108,8 +119,8 @@ further splitting.
 - `group-chat.js` (545 lines) — secure trip group chat: room lifecycle
   (open/send/close/minimize/panel-vs-full sizing), the in-room Tusk-bot
   answering path, and the in-room games. Re-audited in the
-  modularization-final pass — see "Confirmed unchanged" below for why
-  it isn't split further.
+  modularization-final pass and confirmed as one cohesive unit, not
+  further split.
 - `group-chat-social.js` (477 lines) — reactions/streak/presence/member/
   moderation layer that renders on top of `group-chat.js`'s rooms
 - `group-compromise.js` — group decision/compromise engine
@@ -122,8 +133,9 @@ further splitting.
 - `upi-settle.js` — UPI-based group expense settle-up
 
 ### `js/copilot/` — "Tusk" AI travel assistant (10 files)
-- `core.js` (813 lines — over the soft target, see "Confirmed unchanged"
-  below) — chat core, deterministic parser, intent memory, world resolver
+- `core.js` (813 lines — over the soft target, but confirmed as one
+  cohesive unit in a prior pass, not further split) — chat core,
+  deterministic parser, intent memory, world resolver
 - `rich-reply.js` (545 lines) — action rail, clarify-don't-guess, and
   `cpFinish`/`cpActionsHTML` (the answer-assembly dispatcher)
 - `tusk-persona.js` — persona/voice definition (masala smalltalk, quips)
@@ -139,7 +151,10 @@ further splitting.
   Depends on `activeProv`/`AI_MODELS`/`lastAiSource`, which deliberately
   stayed in app.js (see "Modularization round 4" below)
 
-### `js/itinerary/` — trip building and itinerary features (25 files)
+### `js/itinerary/` — trip building and itinerary features (24 files)
+(the round-4 doc said 25 here; a fresh `ls js/itinerary | wc -l` this
+round found 24 — pre-existing drift in the prior doc, not a round-5
+change, corrected here)
 - `atlas-certificate.js` — the downloadable Atlas Certificate + Journey
   Card export actions; also now hosts `CONTINENT_BY_CC`/`continentForCC`/
   `continentForLatLon`/`continentFor` (moved from app.js in round 4 — this
@@ -157,8 +172,9 @@ further splitting.
   verbatim from app.js in round 4
 - `meters.js` — pollution + happiness meters
 - `ninja-hacks.js` — deterministic per-destination cheap/luxury hack suggestions
-- `pdf-assets.js`, `pdf-export.js` (608 lines — over the soft target, see
-  "Confirmed unchanged" below) — premium PDF itinerary export
+- `pdf-assets.js`, `pdf-export.js` (608 lines — over the soft target, but
+  confirmed as one cohesive unit in a prior pass, not further split) —
+  premium PDF itinerary export
 - `place-disambiguation.js` — resolves ambiguous place names
 - `rain-contingency.js` — weather-contingency day planning
 - `real-attractions.js` — OSM-sourced real attraction listings
@@ -174,19 +190,28 @@ further splitting.
 - `share.js` — generic multi-platform share sheet
 - `trip-vault.js` — offline saved-trips vault (localStorage)
 
-### `js/ui/` — cross-cutting UI chrome (13 files)
+### `js/ui/` — cross-cutting UI chrome (15 files)
 - `adaptive-shell.js` (402 lines) — adaptive app shell
 - `card-painter.js` (239 lines) — card rendering, incl. `tkFold`/`tkToggle`
   (the shared fold/unfold accordion helper, relocated here from
-  `js/social/group-chat.js` in the modularization-final pass — see
-  "Structural changes" below)
+  `js/social/group-chat.js` in the modularization-final pass)
+- `currency-budget.js` (81 lines) — currency-grid + budget-slider boot
+  wiring, added in round 5 via a deferred-init pattern: exposes
+  `rwInitCurrencyBudget()`, called from app.js at the exact line the old
+  top-level IIFE used to occupy — see "Modularization round 5" below
+- `dest-autocomplete.js` (85 lines) — destination-autocomplete dropdown
+  boot wiring, added in round 5 the same way, exposing
+  `rwInitDestAutocomplete()`
 - `form-modal.js` — generic form-in-a-modal builder (`rwForm`)
 - `how-to-guide.js` — in-app how-to guide
 - `key-wizard.js` — the 60-second AI key onboarding wizard plus the
   model comparison arena (`compareModels`); moved verbatim from app.js
   in modularization round 4
 - `layout-modes.js` — layout/density mode switching
-- `onboarding.js` — first-run onboarding flow
+- `onboarding.js` (55 lines) — first-run onboarding flow, plus
+  `killIntro()` + the first-launch trailer-dismiss IIFE (moved verbatim
+  from app.js in round 5 — same "first-launch experience" concern this
+  file already owned)
 - `opening.js` — cinematic opening sequence glue
 - `page-router.js` — lightweight client-side page routing
 - `settings-modal.js` — settings modal
@@ -198,10 +223,26 @@ further splitting.
 - `badges.js` (278 lines) — badge progression system
 - `realms.js` (430 lines) — "Realms of Roam" / Journey Passport game system
 
-### `js/misc/` — miscellaneous feature groups (18 files)
+### `js/misc/` — miscellaneous feature groups (25 files)
 Single-purpose feature files too small individually to warrant their own
-subdirectory: `athlete-mode.js`, `booking-platform-compare.js`,
+subdirectory: `adsense-whatsapp.js` (65 lines) — the gated AdSense
+loader + WhatsApp FAB boot IIFE; moved verbatim from app.js in round 5.
+Unlike the true boot IIFEs handled with a deferred-init pattern in
+`js/ui/currency-budget.js`, this one didn't need that treatment: it
+already defensively checks `document.readyState` itself and defers to
+`DOMContentLoaded` when needed, so it's safe to run as a plain
+top-level script regardless of load position — see "Modularization
+round 5" below. `athlete-mode.js`, `booking-platform-compare.js`,
+`crowd-spotter.js` (24 lines) — `openCrowdSpot`, the Crowd Spotter
+"Travel & Earn" report form; moved verbatim from app.js in round 5.
 `destination-vibe.js`, `eco-safety.js` (473 lines),
+`engagement.js` (142 lines) — five originally-adjacent app.js sections
+(TRAVEL ECONOMY LIVE TICKER, SYNC CIRCLE, FUNNEL TRACKER, CONVERSION
+NUDGE, TRAVEL PULSE) grouped here in round 5 because they share one
+real, pre-existing theme (anonymous no-PII engagement signals +
+conversion nudges) that app.js's own section comments already named —
+`renderTicker`/`syncGo`/`track`/`rwTuskFeedback`/`rwTuskMiss`/
+`maybeNudge`/`pulseKey`/`pulseBump`/`pulseShow`.
 `event-radar-news.js` — the home-screen "world's biggest moments" event
 radar and travel-pulse news panels (`EVENTS`/`activeEvents`/
 `renderEventBanner`/`renderNewsPulse` and friends; moved verbatim from
@@ -210,11 +251,23 @@ directory in `events.js` below), `events.js`, `experiences.js`,
 `green-trip.js`, `listings.js`, `live-location.js`, `local-ecosystem.js`,
 `misc-features.js` (393 lines), `misc-features-2.js` (371 lines —
 sequentially-numbered grab-bag files from the same extraction phase),
-`partners.js`, `promo-music.js` — the self-hosted promo-film player
-(`renderPromo`/`playPromo`/`filmPlayerHTML` and friends) and the "My
-Music" Spotify/JioSaavn panel (`openMusic`/`musRender`); moved verbatim
-from app.js in round 4, `signature-food.js`, `sound-of-place.js`,
-`trek-vault.js`.
+`partners.js`, `profile.js` (78 lines) — `STYLE_POOL`/`openProfile`/
+`profAv`/`profUpload`/`profPick`/`profSave`, the Profile + Lifetime List
+feature; moved verbatim from app.js in round 5. `promo-music.js` — the
+self-hosted promo-film player (`renderPromo`/`playPromo`/
+`filmPlayerHTML` and friends) and the "My Music" Spotify/JioSaavn panel
+(`openMusic`/`musRender`); moved verbatim from app.js in round 4.
+`ratings.js` (62 lines) — `PLAYSTORE_URL`/`renderRatings`/
+`openRateForm`/`paintStars`/`submitRating`; moved verbatim from app.js
+in round 5. `signature-food.js`, `sound-of-place.js`, `trek-vault.js`,
+`traveler-dna.js` (41 lines) — `DNA_QS`/`openDna`/`dnaPick`/`dnaSave`/
+`applyDna`, the Traveler DNA personalization quiz; moved verbatim from
+app.js in round 5 (the `try{ applyDna(); }catch(e){}` top-level call
+stays in app.js — see "Modularization round 5" below). `trust-
+conversion.js` (43 lines) — `openPrivacyBadge`/`rwHandoffToPhone`, the
+privacy-trust-anchor modal and web-to-app QR handoff; moved verbatim
+from app.js in round 5 (these two were already grouped under one
+section header in app.js, a real pairing, not an artificial one).
 
 ### `js/runtime/` (2 files)
 - `freshness.js` — keeps an installed PWA updated to the newest deployed
@@ -321,57 +374,68 @@ flat config), run with `npm run lint`:
 
 **Current state (effective line counts — i.e. after `skipBlankLines`/
 `skipComments` — so these differ from raw `wc -l` used elsewhere in this
-doc):** 4 files exceed the 500-line `max-lines` ceiling: `app.js` (690
-effective lines as of modularization round 4, down from 2,276 before it
-— `max-lines` counts only non-blank/non-comment lines, so this is well
-below the raw 1,207 and is not a normal `js/` module subject to the same
-expectation — see "app.js is exempt in spirit" below), `js/copilot/core.js`
-(616), `js/data/destinations.js` (515, pure data), `js/itinerary/pdf-export.js`
-(531). Two files that were over the raw-line soft target before the
-modularization-final pass — `js/copilot/rich-reply.js` and
-`js/social/group-chat.js` — are now **under** the enforced 500-line
-ceiling on an effective-line basis after that pass's `tkFold`/`tkToggle`
-relocation, even though their raw `wc -l` (545 and 545 respectively) is
-still marginally over the older 300–500 "soft target" convention used by
-`tools/check-line-limits.js`.
+doc):** as of round 5, `app.js` no longer appears in the `max-lines`
+violation list at all — its 629 raw lines (down from 1,207 after round 4)
+are now well under the 500-line effective-line ceiling, having crossed
+that threshold sometime during round 5's extractions. Only **3 files**
+now exceed the 500-line `max-lines` ceiling, all pre-existing and
+untouched by round 5: `js/copilot/core.js` (616), `js/data/destinations.js`
+(515, pure data), `js/itinerary/pdf-export.js` (531). Two files that were
+over the raw-line soft target before the modularization-final pass —
+`js/copilot/rich-reply.js` and `js/social/group-chat.js` — are now
+**under** the enforced 500-line ceiling on an effective-line basis after
+that pass's `tkFold`/`tkToggle` relocation, even though their raw `wc -l`
+(545 and 545 respectively) is still marginally over the older 300–500
+"soft target" convention used by `tools/check-line-limits.js`.
 
 `app.js` is not literally exempted in the ESLint config (unlike the old
 `tools/check-line-limits.js` script, which explicitly skipped it), but is
 exempt in spirit: it is the shrinking migration source, not a normal
 `js/` module, and `npm run lint` is informational for it, not a merge
-gate — see below.
+gate — see below. (As of round 5, `app.js` is small enough — 629 raw
+lines — that this distinction barely matters for it any more; it's
+close to being an ordinary-sized file regardless.)
 
 `npm run lint` is **not** part of `npm run check`, which still uses
 `tools/check-line-limits.js` (raw-line-based, 1000-line hard cap,
 300–500 soft-target warning) as the CI-blocking gate.
-`npm run lint`'s full findings, as of this pass:
+`npm run lint`'s full findings, as of round 5:
 
 ```
-no-unused-vars:          1,095 warnings
+no-unused-vars:          1,100 warnings
 no-empty:                  455 errors
-max-lines-per-function:    31 warnings
+max-lines-per-function:    32 warnings
 no-useless-escape:         15 errors
-no-redeclare:              10 errors
-no-useless-assignment:      5 errors
-max-lines:                  4 errors
+max-lines:                   3 errors
 --------------------------------------
-TOTAL:  489 errors, 1,126 warnings
+TOTAL:  473 errors, 1,132 warnings
 ```
 
-The `no-unused-vars` warning count rose from 1,073 to 1,095 (+22) purely
-as a mechanical side effect of modularization round 4's `app.js` splits:
-ESLint lints each classic script file in isolation and has no notion of
-"this global is actually called from a different file's `onclick=`
-string" — so every top-level function that moved out of the giant,
-internally-self-referencing `app.js` into its own small file now reads,
-from that one file's perspective, as "declared but never used" even
-though its real callers (verified by grep before every move) are exactly
-as before. This is the same pre-existing false-positive category that
-already accounts for a large share of the other ~100+ `js/` files'
-warnings in a no-bundler/no-ES-modules codebase (see "no bundler, no ES
-modules" in `CLAUDE.md`) — it is not a new or genuine problem, and the
-error count (the number that would actually matter if `lint` ever becomes
-a CI gate) did not move at all.
+(`no-redeclare` and `no-useless-assignment` triaged to zero this round —
+see "Modularization round 5" above for the fixes and "Known follow-ups"
+below for how they were categorized.)
+
+The `no-unused-vars` warning count rose from 1,095 (round 4) to 1,100
+(+5) and `max-lines-per-function` from 31 to 32 (+1) purely as a
+mechanical side effect of round 5's `app.js` splits, for the same reason
+as round 4's own note below: ESLint lints each classic script file in
+isolation and has no notion of "this global is actually called from a
+different file's `onclick=` string" — so every top-level function that
+moved out of `app.js` into its own small file now reads, from that one
+file's perspective, as "declared but never used" even though its real
+callers (verified by grep before every move) are exactly as before. This
+is the same pre-existing false-positive category that already accounts
+for a large share of the other ~100+ `js/` files' warnings in a
+no-bundler/no-ES-modules codebase (see "no bundler, no ES modules" in
+`CLAUDE.md`) — it is not a new or genuine problem. The **error** count —
+the number that would actually matter if `lint` ever becomes a CI gate —
+went *down* this round, twice: first 489 → 488 (one of the four
+`max-lines` violations — `app.js` itself — dropped below the
+500-effective-line threshold as a direct, genuine result of the
+shrinkage, not a side effect), then 488 → 473 from triaging
+`no-redeclare` (10) and `no-useless-assignment` (5) to zero — see
+"Modularization round 5" above for the fixes and "Known follow-ups"
+below for the categorization.
 
 The modularization-final pass fixed every occurrence in the four
 categories most likely to hide a real latent bug — `no-dupe-keys`,
@@ -385,7 +449,7 @@ this pass and remain open follow-ups. Retiring
 `tools/check-line-limits.js` in favor of `npm run lint` as the CI gate is
 a follow-up once `no-empty` is triaged.
 
-## Extraction methodology (proven across ~13 merged phases)
+## Extraction methodology (proven across ~14 merged phases)
 
 When moving code out of `app.js` into `js/`, or splitting an oversized
 `js/` file, follow the pattern established by the phases that got
@@ -403,7 +467,21 @@ When moving code out of `app.js` into `js/`, or splitting an oversized
 4. **Add the new file's `<script>` tag to `index.html`** in the correct
    dependency position per the load-order rule above (remembering that
    only top-level/parse-time references are order-sensitive — see
-   above).
+   above). If the code being moved is a top-level IIFE that queries a
+   *specific* `index.html` element at parse time (a true "boot IIFE," not
+   just a function that happens to be called from one) — the one case
+   where a raw verbatim move genuinely would change execution order —
+   use the **deferred-init pattern** round 5 established instead of
+   leaving it in `app.js`: wrap the IIFE's body, unchanged, in a named
+   function in the new file, and leave a single one-line call to that
+   function in `app.js` at the *exact* line the old IIFE occupied. This
+   preserves execution order byte-for-byte (the call site doesn't move,
+   only the code's home file does) while still shrinking `app.js`. See
+   `js/ui/currency-budget.js` and `js/ui/dest-autocomplete.js` for
+   worked examples, and "Modularization round 5" below for how this was
+   distinguished from IIFEs that only *look* order-sensitive but aren't
+   (e.g. `js/misc/adsense-whatsapp.js`, which already defers to
+   `DOMContentLoaded` itself and needed no wrapping at all).
 5. **Verify before merging:** `node --check` on every touched file,
    `npm test`, `npm run check` (line-limit + syntax + typecheck),
    `npm run lint` (confirm the error count went down, not up), then a
@@ -528,6 +606,184 @@ boot-wiring IIFEs or state vars listed above without first re-verifying,
 against the current `index.html`, that doing so doesn't change execution
 order relative to the DOM elements and globals they touch.
 
+> **Correction (round 5):** the "too entangled to relocate" and
+> "moving would change execution order" reasoning above turned out to be
+> half right. It correctly identified a real hazard (true boot IIFEs that
+> query specific DOM elements at parse time) but then over-applied that
+> hazard to code that didn't actually have it — see "Modularization round
+> 5" immediately below for the specifics and the fix. Read the round 5
+> section as the current, corrected assessment; this round 4 section is
+> kept as an accurate historical record of what round 4 actually found
+> and did, not as standing guidance.
+
+## Modularization round 5 (2026-09-05): app.js 1,207 -> 629 lines
+
+Round 4's own closing assessment (immediately above) was the explicit
+brief for this round: verify it with fresh eyes rather than rubber-stamp
+it, specifically checking (a) whether any "boot IIFE" was actually *not*
+order-dependent and could be extracted with a deferred-init pattern, and
+(b) whether any of the "small handlers" were genuinely reusable/misplaced
+utilities rather than core app logic. Both turned out to be true, for
+different subsets of what was left:
+
+**(a) Six "core utilities called from `onclick=` attributes"
+(`rwHaptic`, `showToast`, `fmtMoney`, `proPriceLabel`, `scrollToId`,
+`saveOrDownload`) were mis-categorized, not actually boot-order-sensitive.**
+Round 4's reasoning for leaving these in app.js was that they're called
+from `onclick=` attributes "across the entire codebase, not just
+app.js" — but that's precisely the property that makes relocating them
+*safe*, per this doc's own "Load order" section: an `onclick=` call only
+ever fires after a user interaction, which is necessarily after every
+script on the page (including wherever these functions now live) has
+finished loading. Grepped every call site repo-wide first (including
+dynamically-generated `onclick=` strings) and confirmed none of the six
+is ever called at another file's top level / parse time — every call site
+is inside a function body or an `onclick=` attribute. Moved `rwHaptic`/
+`showToast`/`scrollToId`(+`VIEW_OF`)/`offerOpen`/`_doOpenNow`/
+`saveOrDownload` to the new `js/core/app-utils.js`; moved `fmtMoney`/
+`proPriceLabel` into the existing `js/pricing/tiers.js` (they read
+app.js's `CURR`/`AC` currency state by name, which — same reasoning —
+is resolved at call time, long after app.js has run).
+
+**(b) Two genuine boot IIFEs *were* real (currency grid + budget slider,
+destination autocomplete) — both handled with a new deferred-init
+pattern, not a raw move.** These two directly query specific `index.html`
+elements (`el('currGrid')`, `el('budgetSlider')`, `el('destInput')`) at
+the exact moment they run, so moving the *code* to a file that loads at a
+different point genuinely would have changed *when* it runs relative to
+the DOM — round 4 was right that this is a real hazard. The fix, applied
+for the first time this round: keep the code's *execution point* fixed by
+leaving a single function call in `app.js` at the exact original line,
+and move only the code's *definition* — as a named function, not an
+anonymous IIFE — to an earlier-loading file. `rwInitCurrencyBudget()` and
+`rwInitDestAutocomplete()` (`js/ui/currency-budget.js`,
+`js/ui/dest-autocomplete.js`) are the result: execution order is
+byte-for-byte identical to before (verified with a Playwright pass that
+also diffed the exact same scripted checks against an unmodified
+`origin/main` worktree on a separate port, to catch anything a same-repo
+before/after diff might miss), but the code no longer lives in `app.js`.
+
+**(c) A third category emerged that round 4 didn't distinguish: IIFEs
+that *look* like boot IIFEs but are actually already-defensive and don't
+need the deferred-init treatment at all.** The ADSense + WhatsApp-FAB
+IIFE (`js/misc/adsense-whatsapp.js`) checks `document.readyState` itself
+and defers to `DOMContentLoaded` when the DOM isn't ready yet, and the
+first-launch trailer-dismiss IIFE (folded into `js/ui/onboarding.js`)
+queries `#intro`, which sits immediately after `<body>` in `index.html` —
+long before any `<script>` tag — so it's always available regardless of
+load position. Both moved as plain verbatim code, no wrapping needed.
+
+**(d) The "residual handful of genuinely small, diverse feature
+handlers"** round 4 judged "too entangled with the boot IIFEs
+immediately before/after [them] to safely relocate" turned out to have
+no actual entanglement — each is a self-contained set of functions with
+no shared local state with its neighbors, just topical proximity in a
+large file. Round 4's fear (fragmenting into many trivial single-function
+files, or grouping unrelated features under an artificial theme) is a
+real failure mode, so each was checked against it individually rather
+than moved reflexively:
+- `openPrivacyBadge`/`rwHandoffToPhone` -> `js/misc/trust-conversion.js`
+  (a real, pre-existing pairing — one app.js section header already
+  named both "PRIVACY TRUST ANCHOR + WEB-TO-APP HANDOFF")
+- `DNA_QS`/`openDna`/`dnaPick`/`dnaSave`/`applyDna` -> new
+  `js/misc/traveler-dna.js` (the `try{ applyDna(); }catch(e){}` top-level
+  call — genuinely parse-time — stays in `app.js` at its original line)
+- `PLAYSTORE_URL`/`renderRatings`/`openRateForm`/`paintStars`/
+  `submitRating` -> new `js/misc/ratings.js`
+- `STYLE_POOL`/`openProfile`/`profAv`/`profUpload`/`profPick`/`profSave`
+  -> new `js/misc/profile.js`
+- `openCrowdSpot` -> new `js/misc/crowd-spotter.js`
+- `renderTicker`/`syncGo`/`track`/`rwTuskFeedback`/`rwTuskMiss`/
+  `maybeNudge`/`pulseKey`/`pulseBump`/`pulseShow` -> new
+  `js/misc/engagement.js` — the one deliberate *grouping* this round,
+  justified because these five originally-adjacent app.js sections
+  (TRAVEL ECONOMY LIVE TICKER, SYNC CIRCLE, FUNNEL TRACKER, CONVERSION
+  NUDGE, TRAVEL PULSE) all share one real, pre-existing theme —
+  anonymous, no-PII engagement signals and conversion nudges — already
+  named as such by app.js's own section comments, not an invented one
+- `rwSkyscannerUrl`/`rwSkyscannerToUrl` -> appended to the existing
+  `js/booking/affiliate-links.js` (both build on that file's
+  `rwAffLink()`)
+
+Every extraction this round was grepped for call sites first (including
+dynamically-generated `onclick=` strings), and every block was extracted
+*programmatically* from the pre-edit `app.js` — exact line ranges sliced
+with a small Python script, not manually retyped — specifically to
+eliminate transcription risk on the emoji/Unicode-heavy HTML template
+strings many of these functions build. Verified with `node --check` on
+every touched file, `npm test` (27/27), `npm run check`, `npm run lint`
+(errors *dropped* from 489 to 488 — `app.js` crossed below the
+`max-lines:500` effective-line threshold entirely as a genuine result of
+the shrinkage, not a side effect; warnings rose by 6, the same
+`no-unused-vars`/`max-lines-per-function` false-positive pattern round 4
+already documented), and a Playwright pass against a local static server
+for every commit, including diffing scripted before/after checks against
+an unmodified `origin/main` worktree for the two true deferred-init
+extractions and the trailer-dismiss move, to positively confirm zero
+behavior difference rather than merely assume it from the diff.
+
+**What's left in `app.js` (629 lines) and why this really is the
+practical floor now** — a fresh top-level scan (`grep -n '^function \|^var
+\|^(function\|^try{' app.js`) after all of the above:
+
+- **Core app state `var`s** other files close over by name at runtime:
+  `AC`, `AUTH_ENABLED`, `isPro`, `freeLeft`, `activeProv`, `spends`,
+  `itinBuilt`, `qrBuilt`, `MONTHS`, `MO`, `CURR`, `AI_MODELS`,
+  `lastAiSource`, `PRICE_IN`/`PRICE_WW`, `payRegion`, `LEGAL`. Unchanged
+  from round 4's assessment — these are the shared state the rest of the
+  app reads and writes, not a "feature" to extract.
+- **Two small, genuinely state-mutating boot blocks**: the free-search
+  daily-reset IIFE (directly reassigns app.js's own `freeLeft` var — if
+  moved to a file that loads *before* app.js's `var freeLeft = 5;`
+  declaration runs, that later `var freeLeft = 5` would silently
+  overwrite whatever the moved code computed, a real behavior change,
+  not just a load-order nicety) and the provisional-Pro-expiry-check
+  IIFE. Both are ~5-7 lines; the deferred-init pattern *would* work here
+  too, but the effort-to-benefit ratio is poor at this size — noted as a
+  future micro-optimization, not done this round.
+- **Two calls into deferred-init'd boot wiring**
+  (`rwInitCurrencyBudget()`, `rwInitDestAutocomplete()`) plus one
+  `addEventListener` (`#tagsContainer`) between them — all genuinely
+  parse-time, all deliberately left as thin call sites per (a)/(b) above.
+- **The `try{ applyDna(); }catch(e){}` and `logPaint();` top-level
+  calls** — genuinely parse-time invocations of functions now defined in
+  earlier-loading files; the call sites themselves can't move without
+  either duplicating them or reintroducing the exact hazard this round
+  fixed elsewhere.
+- **`submitUtr()`** (the function that actually writes a payment claim to
+  Firestore, ~90 lines) and **`detectRegion`/`setPayRegion`/
+  `applyRegionUI`** (the latter called at top level via `applyRegionUI();`)
+  were deliberately left untouched again this round. Unlike round 4's
+  broader "payments/entitlement code stays" framing, `CLAUDE.md`'s
+  current, corrected scope explicitly permits relocating this kind of
+  code (file location isn't special; only behavior changes need separate
+  review) — so this isn't a hard rule, it's a judgment call: `submitUtr()`
+  is the single highest-blast-radius function left in the file (it
+  directly grants Pro entitlement and handles the fraud/anti-bot gates),
+  it's already a clean, self-contained, non-fragmenting block, and moving
+  it would add real review burden for zero architectural benefit. A
+  future session with a specific reason to touch this code (not just "it
+  could move") should feel free to relocate it verbatim with the same
+  rigor used elsewhere in this document — but doing so purely to shave
+  ~90 more lines off `app.js` is not recommended.
+- **`openLegal`/`LEGAL`** (~10 lines) and **the mode-chip IIFE** (~8
+  lines) are the last of the truly small handlers — extracting either
+  now would be exactly the "many trivial single-function files" failure
+  mode this document has warned against throughout; left as-is.
+- **~150 lines are marker comments** documenting where earlier phases'
+  code went (dating back to round 1) — genuinely useful for future greps
+  (see the extraction methodology's step 3), not dead weight to clean up.
+
+**This is a materially smaller and more honest "floor" than round 4's:**
+629 lines vs. round 4's ~1,200, with every remaining block re-justified
+individually above rather than described in aggregate. A future session
+should still re-run the same fresh, skeptical scan before assuming this
+is unchanged — `index.html` and the app's DOM structure can shift — but
+should expect genuinely diminishing returns: what's left is core state,
+thin deferred-init call sites, two parse-time function calls that can't
+relocate without duplication, one deliberately-conservative payments
+function, and a handful of blocks under 15 lines each.
+
 ## Low AI credit usage: `FUNCTION-INDEX.md`
 
 **Before grepping the repo to answer "where is function X defined?" or
@@ -535,7 +791,7 @@ order relative to the DOM elements and globals they touch.
 generated, flat lookup table — function name, defining file, line number,
 and a best-effort one-line purpose — covering every top-level
 `function NAME(...)` and `window.NAME = function` declaration across
-`app.js` and all of `js/**/*.js` (876 entries as of this pass). Reading
+`app.js` and all of `js/**/*.js` (877 entries as of this pass). Reading
 that one file in full is far cheaper, in tokens and turns, than even a
 single repo-wide `grep -rn "function someFunc"` across 115+ files,
 and it's usually a single Ctrl-F away from the answer.
@@ -562,13 +818,28 @@ find `js/ui/key-wizard.js` at the listed line — done, no repo scan.
   swallow" from "silently hiding a real failure," at a scale too large
   for a single pass alongside other work.
 - **`no-useless-escape` (15 occurrences)** — regex escapes that are
-  unnecessary but not wrong; low bug risk, cosmetic cleanup.
-- **`no-redeclare` (10 occurrences)** and **`no-useless-assignment` (5
-  occurrences)** — not yet triaged; worth a look before treating
-  `npm run lint` as a CI-blocking gate.
+  unnecessary but not wrong; low bug risk, cosmetic cleanup. Not
+  triaged this round — genuinely lower value than `no-redeclare`/
+  `no-useless-assignment` were, per the task that requested this pass.
+- ~~`no-redeclare` (10 occurrences) and `no-useless-assignment` (5
+  occurrences)~~ — **triaged in round 5, both now at zero.** All 15
+  were the same pattern: a short-named local (`place`, `v`, `sx2`, `an`,
+  `gx`, `p`, `html`, `txt`, `elev`, `vHtml`, `devclass`) reused across
+  mutually-exclusive branches (an early-`return`ed `if`, or an
+  exhaustive `if`/`else-if`/`else` chain) within one long function, or a
+  defensive `var x=''`/`var x=null` initializer that every branch
+  overwrites before any read. Confirmed each case individually by
+  reading the surrounding control flow (not just applying the rule
+  mechanically) before renaming/de-initializing — no logic changed, only
+  identifier names and removed-but-dead initial values. Verified with
+  `node --check` on every touched file, `npm test`, `npm run check`, and
+  a Playwright pass exercising the affected code paths directly (all 4
+  `group-chat-social.js` message-kind branches, `rwDetectDevice()`,
+  `openBooking()`'s empty- and non-empty-basket paths). Lint errors:
+  488 → 473.
 - Retiring `tools/check-line-limits.js` in favor of `npm run lint` as
-  the `npm run check` gate, once the above are triaged enough that
-  `lint` can pass cleanly (or with an intentional, documented allowlist).
+  the `npm run check` gate is now closer: only `no-empty` (455) and
+  `no-useless-escape` (15) remain untriaged among the error-level rules.
 
 ## Related documents
 
