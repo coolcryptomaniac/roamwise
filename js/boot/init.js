@@ -56,15 +56,15 @@ function rwInitPush(){
       if(!ok) return;
       PN.register();
       PN.addListener('registration', function(tok){
-        try{ rwSaveDeviceToken(tok.value); }catch(e){}
+        try{ rwSaveDeviceToken(tok.value); }catch(e){ /* best-effort, ignore */ }
       });
       PN.addListener('registrationError', function(){ /* silent \u2014 push is a bonus, never blocks the app */ });
       PN.addListener('pushNotificationReceived', function(n){
-        try{ showToast('\ud83d\udce3 '+(n.title||'RoamWise')+(n.body?': '+n.body:'')); }catch(e){}
+        try{ showToast('\ud83d\udce3 '+(n.title||'RoamWise')+(n.body?': '+n.body:'')); }catch(e){ /* toast is a nice-to-have, ignore */ }
       });
-      PN.addListener('pushNotificationActionPerformed', function(){ try{ tabGo('home'); }catch(e){} });
+      PN.addListener('pushNotificationActionPerformed', function(){ try{ tabGo('home'); }catch(e){ /* best-effort nav helper, ignore */ } });
     }).catch(function(){});
-  }catch(e){}
+  }catch(e){ /* toast is a nice-to-have, ignore */ }
 }
 function rwSaveDeviceToken(token){
   if(!token || !user || typeof db==='undefined' || !db) return;
@@ -100,22 +100,22 @@ document.addEventListener('DOMContentLoaded', function(){
 
 
 document.addEventListener('DOMContentLoaded', function(){
-  try{ rwInitDevice(); }catch(e){}
-  try{ rwInitLang(); }catch(e){}
-  try{ rwInitTheme(); }catch(e){}
-  try{ renderEventBanner(); }catch(e){}
-  try{ renderEvents(); }catch(e){}
-  try{ renderSpotlight(); }catch(e){}
-  try{ renderTicker(); }catch(e){}
-  try{ renderForYou(); }catch(e){}
-  try{ tripReminderCheck(); }catch(e){}
+  try{ rwInitDevice(); }catch(e){ /* best-effort, ignore */ }
+  try{ rwInitLang(); }catch(e){ /* best-effort, ignore */ }
+  try{ rwInitTheme(); }catch(e){ /* best-effort, ignore */ }
+  try{ renderEventBanner(); }catch(e){ /* non-critical render step, ignore */ }
+  try{ renderEvents(); }catch(e){ /* non-critical render step, ignore */ }
+  try{ renderSpotlight(); }catch(e){ /* non-critical render step, ignore */ }
+  try{ renderTicker(); }catch(e){ /* non-critical render step, ignore */ }
+  try{ renderForYou(); }catch(e){ /* non-critical render step, ignore */ }
+  try{ tripReminderCheck(); }catch(e){ /* best-effort, ignore */ }
   /* one cheap call keeps every INR figure honest instead of hardcoding 88 */
   try{
     if(navigator.onLine) fetch('https://api.frankfurter.dev/v1/latest?base=USD&symbols=INR')
       .then(function(r){return r.json();})
       .then(function(d){ if(d && d.rates && d.rates.INR) window._rwFxINR = d.rates.INR; })
       .catch(function(){});
-  }catch(e){}
+  }catch(e){ /* best-effort, ignore */ }
   /* Home declutter: heavy sections collapse behind slim headers — the scroll
      keeps only the essentials (video, copilot, quick start). One tap expands. */
   try{
@@ -125,7 +125,7 @@ document.addEventListener('DOMContentLoaded', function(){
     try{
       var pf=el('promofilm'), cr=el('creator');
       if(pf && cr && cr.parentNode) cr.parentNode.insertBefore(pf, cr);
-    }catch(e){}
+    }catch(e){ /* best-effort, ignore */ }
     [['ratings','\u2b50 Ratings & traveler wall'],['store','\ud83d\udecd Store'],['creator','\ud83c\udfd4\ufe0f About the creator'],].forEach(function(f){
       var sec=el(f[0]); if(!sec || sec.dataset.folded) return;
       sec.dataset.folded='1';
@@ -136,15 +136,15 @@ document.addEventListener('DOMContentLoaded', function(){
       head.onclick=function(){ head.classList.toggle('open'); body.classList.toggle('open'); };
       sec.appendChild(head); sec.appendChild(body);
     });
-  }catch(e){}
+  }catch(e){ /* best-effort, ignore */ }
   try{
     cpModelChips('heroModels');
     var hi=el('heroInput');
     if(hi) hi.addEventListener('keydown',function(e){ if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); copilotSend(true); } });
-  }catch(e){}  /* fire any due trip countdown reminders */
-  try{ renderPromo(); }catch(e){}
-  try{ renderNewsPulse(); }catch(e){}
-  try{ renderRatings(); }catch(e){}
+  }catch(e){ /* best-effort, ignore */ }  /* fire any due trip countdown reminders */
+  try{ renderPromo(); }catch(e){ /* non-critical render step, ignore */ }
+  try{ renderNewsPulse(); }catch(e){ /* non-critical render step, ignore */ }
+  try{ renderRatings(); }catch(e){ /* non-critical render step, ignore */ }
   /* Apple-style scroll reveal */
   try{
     if('IntersectionObserver' in window){
@@ -157,7 +157,7 @@ document.addEventListener('DOMContentLoaded', function(){
       window._rvAll=function(){ setTimeout(revealVisible, 60); };
       setTimeout(function(){ document.querySelectorAll('.rv:not(.inview)').forEach(function(n3){ n3.classList.add('inview'); }); }, 5000);
     }
-  }catch(e){}
+  }catch(e){ /* best-effort, ignore */ }
 });
 
 
@@ -170,7 +170,7 @@ document.addEventListener('DOMContentLoaded', function(){
 });
 
 
-document.addEventListener('DOMContentLoaded', function(){ try{ rwApplyMode(); }catch(e){} try{ rwApplyUIScale(); }catch(e){} try{ renderTabbar(); }catch(e){ console.warn('tabbar', e); } try{ setTimeout(function(){ if(!rwOpeningSeen()) rwOpeningShow(); else rwMaybeOnboard(); }, 700); }catch(e){} try{ rwInitStatusBar(); }catch(e){} try{ rwInitBackButton(); }catch(e){} try{ setTimeout(rwInitPush, 1500); }catch(e){} try{ setTimeout(rwInitWebPush, 2200); }catch(e){} /* warm up the voice list early so it's ready by the time tuskSpeak() needs it */ try{ if(window.speechSynthesis){ speechSynthesis.getVoices(); speechSynthesis.addEventListener('voiceschanged', function(){ try{ speechSynthesis.getVoices(); }catch(e){} }, {once:true}); } }catch(e){} });
+document.addEventListener('DOMContentLoaded', function(){ try{ rwApplyMode(); }catch(e){ /* best-effort, ignore */ } try{ rwApplyUIScale(); }catch(e){ /* best-effort, ignore */ } try{ renderTabbar(); }catch(e){ console.warn('tabbar', e); } try{ setTimeout(function(){ if(!rwOpeningSeen()) rwOpeningShow(); else rwMaybeOnboard(); }, 700); }catch(e){ /* best-effort, ignore */ } try{ rwInitStatusBar(); }catch(e){ /* best-effort, ignore */ } try{ rwInitBackButton(); }catch(e){ /* best-effort, ignore */ } try{ setTimeout(rwInitPush, 1500); }catch(e){ /* best-effort, ignore */ } try{ setTimeout(rwInitWebPush, 2200); }catch(e){ /* best-effort, ignore */ } /* warm up the voice list early so it's ready by the time tuskSpeak() needs it */ try{ if(window.speechSynthesis){ speechSynthesis.getVoices(); speechSynthesis.addEventListener('voiceschanged', function(){ try{ speechSynthesis.getVoices(); }catch(e){ /* voice narration best-effort, ignore */ } }, {once:true}); } }catch(e){ /* voice narration best-effort, ignore */ } });
 
 
 /* ===== WEB PUSH (rw-v48) — browser notifications, opt-in and guarded.
@@ -192,7 +192,7 @@ function rwInitWebPush(){
         db.collection('users').doc(user.uid).set({webPushToken:tok}, {merge:true}).catch(function(){});
       }
     }).catch(function(){});
-  }catch(e){}
+  }catch(e){ /* best-effort Firestore write, ignore */ }
 }
 
 
@@ -247,11 +247,11 @@ function rwInitWebPush(){
     if(!deferred) return;
     deferred.prompt();
     deferred.userChoice.then(function(c){
-      try{ track(c && c.outcome==='accepted' ? 'pwa_installed' : 'pwa_dismissed'); }catch(e){}
+      try{ track(c && c.outcome==='accepted' ? 'pwa_installed' : 'pwa_dismissed'); }catch(e){ /* analytics best-effort, ignore */ }
       deferred=null; closeBar();
     });
   };
-  window.addEventListener('appinstalled', function(){ closeBar(); try{ track('pwa_installed'); }catch(e){} });
+  window.addEventListener('appinstalled', function(){ closeBar(); try{ track('pwa_installed'); }catch(e){ /* analytics best-effort, ignore */ } });
 
   /* --- iPhone/iPad: Safari has no install prompt API, so show the manual
          Share -> Add to Home Screen steps instead (only on real iOS Safari). --- */
@@ -284,7 +284,7 @@ var RW_CFG = {};
 function applyRemoteConfig(cfg){
   if(!cfg || typeof cfg!=='object') return;
   RW_CFG = cfg;
-  function set(k, fn){ if(cfg[k]!=null && cfg[k]!=='') try{ fn(cfg[k]); }catch(e){} }
+  function set(k, fn){ if(cfg[k]!=null && cfg[k]!=='') try{ fn(cfg[k]); }catch(e){ /* best-effort, ignore */ } }
   set('AFF_BOOKING',      function(v){ AFF_BOOKING=v; });
   set('AFF_SKYSCANNER',   function(v){ AFF_SKYSCANNER=v; });
   set('AFF_AGODA',        function(v){ AFF_AGODA=v; });
@@ -315,7 +315,7 @@ function applyRemoteConfig(cfg){
        Accept only real media URLs; anything else is kept as the "watch on"
        link instead of breaking the player. */
     if(/\.(mp4|webm|mov|m4v)(\?|$)/i.test(v)) PROMO_MP4_URL = v;
-    else { PROMO_EXT_URL = v; try{ console.warn('PROMO_MP4_URL must be a direct .mp4 link; got:', v); }catch(e){} }
+    else { PROMO_EXT_URL = v; try{ console.warn('PROMO_MP4_URL must be a direct .mp4 link; got:', v); }catch(e){ /* best-effort diagnostic logging, ignore */ } }
   });
   set('SPOTIFY_ARTIST_ID',function(v){ SPOTIFY_ARTIST_ID=v; });
   set('SPOTIFY_PLAYLIST_ID',function(v){ SPOTIFY_PLAYLIST_ID=v; });
@@ -346,18 +346,18 @@ function applyRemoteConfig(cfg){
         document.head.appendChild(chs);
       }
     }
-  }catch(e){}
+  }catch(e){ /* best-effort, ignore */ }
 }
 (function(){
   function boot(){
-    try{ var cached=JSON.parse(lsGet('rw_cfg')||'null'); if(cached) applyRemoteConfig(cached); }catch(e){}
+    try{ var cached=JSON.parse(lsGet('rw_cfg')||'null'); if(cached) applyRemoteConfig(cached); }catch(e){ /* parse best-effort, ignore malformed/missing data */ }
     try{
       if(window.db){
         db.collection('config').doc('app').get().then(function(snap){
           if(snap.exists){ var c=snap.data(); lsSet('rw_cfg', JSON.stringify(c)); applyRemoteConfig(c); }
         }).catch(function(){ /* offline or rules not yet published — cached copy already applied */ });
       }
-    }catch(e){}
+    }catch(e){ /* best-effort Firestore write, ignore */ }
   }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', boot); else boot();
 })();

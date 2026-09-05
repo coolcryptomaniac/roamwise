@@ -53,7 +53,7 @@ function pickPlan(planId, priceINR, label, tierId){
     /* referral badge / "have a code?" prompt, right where money happens */
     var rb = el('refBadge');
     if(!rb){ rb=document.createElement('div'); rb.id='refBadge'; methods.appendChild(rb); }
-    try{ rb.innerHTML = rwRefBadgeHTML(); }catch(e){}
+    try{ rb.innerHTML = rwRefBadgeHTML(); }catch(e){ /* best-effort, ignore */ }
   }
 }
 function backToPlanPicker(){
@@ -101,7 +101,7 @@ function buildQR(){
       qrBuilt = true; _qrBuiltAmt = UPI_AMT;
       var lbl=el('qrAmtLbl'); if(lbl) lbl.textContent='\ud83d\udcf7 Scan \u2022 \u20b9'+UPI_AMT+' \u2022 UPI: '+UPI_VPA;
     }
-  }catch(e){}
+  }catch(e){ /* best-effort, ignore */ }
 }
 
 /* ==================== FOUNDER OFFER — REAL COUNTDOWN ====================
@@ -218,13 +218,13 @@ function rwRotateTesti(){
   if(w) w.innerHTML=t[1];
 }
 function openPay(){
-  try{ track('pay_opens'); }catch(e){}
+  try{ track('pay_opens'); }catch(e){ /* analytics best-effort, ignore */ }
   if(typeof PLAY_MODE!=='undefined' && PLAY_MODE && !window.RWBilling){
     showToast('\ud83c\udf89 Pro is FREE for early adopters on this version \u2014 already active on your account!');
     return;
   }
   if(isPro){ showToast(rwStatusLabel().sentence); return; }
-  try{ rwRotateTesti(); }catch(e){}
+  try{ rwRotateTesti(); }catch(e){ /* best-effort, ignore */ }
   el('payOverlay').classList.add('open');
   document.body.style.overflow = 'hidden';
   var picker=el('planPicker'); if(picker) picker.innerHTML='<div style="text-align:center;font-size:12px;color:var(--t3);padding:10px">Loading plans\u2026</div>';
@@ -356,8 +356,8 @@ function _adminUnlock(code){
 
 function activatePro(payId, method){
   isPro=true; lsSet('rwPro','1'); lsSet('rw_pro_uid',(user&&user.uid)||'device'); lsSet('rwPayId', payId||'manual');
-  try{ badgeAwardFounder(); }catch(e){}
-  try{ rwHaptic('heavy'); }catch(e){}
+  try{ badgeAwardFounder(); }catch(e){ /* badge/progression update is a nice-to-have, ignore */ }
+  try{ rwHaptic('heavy'); }catch(e){ /* haptic feedback is a nice-to-have, ignore */ }
   closePay(); el('successOverlay').classList.add('open');
   confetti(); refreshProUI();
 }

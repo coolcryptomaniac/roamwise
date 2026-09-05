@@ -42,7 +42,7 @@ if(PLAY_MODE){ document.addEventListener('DOMContentLoaded', function(){
       /* Listing edition: Pro free for early adopters (Play billing policy) */
       isPro=true; lsSet('rwPro','1'); refreshProUI(); var pb=el('promoBar'); if(pb) pb.style.display='none';
     }
-  }catch(e){}
+  }catch(e){ /* storage best-effort, ignore */ }
 });}
 /* Called by the native Play Billing bridge after a verified purchase */
 function playProGranted(){ activatePro('google-play','Google Play'); showToast('Pro unlocked via Google Play \u2713'); }
@@ -62,8 +62,8 @@ if (AUTH_READY && typeof firebase !== 'undefined') try {
   /* FREE cost win: cache Firestore data on the device. Reads hit local memory
      first (zero server reads, works offline), and only sync deltas when online.
      Wrapped in try because it fails on multi-tab / private mode — non-fatal. */
-  try{ db.enablePersistence({synchronizeTabs:true}).catch(function(){}); }catch(e){}
-  try{ rwInitDataLayer(); }catch(e){}
+  try{ db.enablePersistence({synchronizeTabs:true}).catch(function(){}); }catch(e){ /* best-effort Firestore op, ignore */ }
+  try{ rwInitDataLayer(); }catch(e){ /* best-effort, ignore */ }
   firebase.auth().onAuthStateChanged(function(u){
     /* Password accounts must verify ownership before any profile, trial or cloud feature is created. */
     if(rwIsUnverifiedPasswordUser(u)){
@@ -75,14 +75,14 @@ if (AUTH_READY && typeof firebase !== 'undefined') try {
       u=null;
     }
     user = u;
-    try{ if(u) rwCheckBan(); }catch(e){}
+    try{ if(u) rwCheckBan(); }catch(e){ /* best-effort, ignore */ }
     var btn = el('authBtn'), av = el('authAvatar');
     if(u){
       btn.style.display='none';
       av.style.display=''; av.src = u.photoURL || ('https://api.dicebear.com/9.x/initials/svg?seed='+encodeURIComponent(u.email||u.phoneNumber||'RW'));
       /* Keys are wiped locally on sign-out; if the user opted into the
          encrypted backup, bring them straight back on sign-in. */
-      if(lsGet('rw_sec_pass')) setTimeout(function(){ try{ rwSyncKeysDown(true); }catch(e){} }, 600);
+      if(lsGet('rw_sec_pass')) setTimeout(function(){ try{ rwSyncKeysDown(true); }catch(e){ /* best-effort, ignore */ } }, 600);
       var ref = db.collection('users').doc(u.uid);
       ref.get().then(function(d){
         if(!d.exists) ref.set({email:u.email||'', phone:u.phoneNumber||'', name:u.displayName||'', created:firebase.firestore.FieldValue.serverTimestamp()});
@@ -103,7 +103,7 @@ if (AUTH_READY && typeof firebase !== 'undefined') try {
             }
           }
         }).catch(function(){});
-      }catch(e){}
+      }catch(e){ /* best-effort Firestore write, ignore */ }
       /* ---- FIRST 1000 USERS: 7-day free Pro trial, granted once on true first sign-in ----
          u.metadata.creationTime === lastSignInTime is Firebase's own signal for "this is a
          brand-new account, not a returning login." The 1000-cap is enforced via an atomic
@@ -150,13 +150,13 @@ if (AUTH_READY && typeof firebase !== 'undefined') try {
               }).catch(function(){});
             }
           }
-        }catch(e){}
+        }catch(e){ /* best-effort Firestore write, ignore */ }
       })();
       /* ---- ACCOUNT-BOUND PRO (the only source of truth) ---- */
       /* Always kill any previous session's listener first — this is the actual
          bug fix: an old onSnapshot from a prior login was never unsubscribed,
          so a late/cached callback could revive Pro moments after logout. */
-      if(window._proUnsub){ try{ window._proUnsub(); }catch(e){} window._proUnsub=null; }
+      if(window._proUnsub){ try{ window._proUnsub(); }catch(e){ /* best-effort, ignore */ } window._proUnsub=null; }
       window._proUnsub = ref.onSnapshot(function(d){
         var cloudPro = d.exists && d.data().pro === true;
         var provOK = (parseInt(lsGet('rw_pro_temp')||'0',10) > Date.now()) && (lsGet('rw_pro_temp_uid')===u.uid);
@@ -184,14 +184,14 @@ if (AUTH_READY && typeof firebase !== 'undefined') try {
       btn.style.display=''; av.style.display='none';
       /* AUTHORITATIVE: no signed-in user means no Pro, full stop — this runs on
          every sign-out regardless of how it happened (button, expiry, error). */
-      if(window._proUnsub){ try{ window._proUnsub(); }catch(e){} window._proUnsub=null; }
+      if(window._proUnsub){ try{ window._proUnsub(); }catch(e){ /* best-effort, ignore */ } window._proUnsub=null; }
       if(isPro || lsGet('rwPro')==='1'){ wipeSession(); }
     }
   });
 } catch(e){
   /* Sign-in, Pro sync and cloud backup are unavailable this session; saved
      trips, the planner, Ailon Tusk and the map all still work offline. */
-  try{ console.warn('Firebase unavailable — running offline:', e && e.message); }catch(_){}
+  try{ console.warn('Firebase unavailable — running offline:', e && e.message); }catch(_){ /* best-effort diagnostic logging, ignore */ }
   db = null;
 } else {
   /* Firebase not configured yet — app still fully works in device-only mode */
@@ -285,7 +285,7 @@ function loginEmail(){
   if(!em||!pw)return authError('Enter email and password.');if(pw.length<6)return authError('Password needs at least 6 characters.');
   rwEmailAuthBusy=true;rwSetAuthBusy(true,creating?'Creating account…':'Signing in…');authError('');
   var p=creating?firebase.auth().createUserWithEmailAndPassword(em,pw).then(function(c){
-      try{track('signups');}catch(e){}
+      try{track('signups');}catch(e){ /* analytics best-effort, ignore */ }
       return rwSendVerificationAndSignOut(c.user,em,'Verification email sent. Open the link, then return and sign in.');
     }):firebase.auth().signInWithEmailAndPassword(em,pw).then(function(c){
       return c.user.reload().catch(function(){}).then(function(){return c;});
@@ -339,15 +339,15 @@ function wipeSession(){
     activeProv='smart'; lsSet('rwProv','smart');
   }
   isPro=false;
-  try{ refreshProUI(); }catch(e){}
-  try{ if(el('settingsOverlay') && el('settingsOverlay').classList.contains('open')) openSettings(); }catch(e){}
+  try{ refreshProUI(); }catch(e){ /* best-effort, ignore */ }
+  try{ if(el('settingsOverlay') && el('settingsOverlay').classList.contains('open')) openSettings(); }catch(e){ /* best-effort, ignore */ }
 }
 function authMenu(){
   if(!user){ openAuth(); return; }
   if(confirm('Sign out of RoamWise?\n\nThis clears Pro and your AI keys from this device. Your account keeps its Pro \u2014 sign back in to restore it.')){
     var uid=user.uid, devId=lsGet('rw_devid');
     /* de-register this device from the account */
-    try{ if(uid&&devId&&db) db.collection('users').doc(uid).collection('devices').doc(devId).delete().catch(function(){}); }catch(e){}
+    try{ if(uid&&devId&&db) db.collection('users').doc(uid).collection('devices').doc(devId).delete().catch(function(){}); }catch(e){ /* best-effort Firestore write, ignore */ }
     firebase.auth().signOut().then(function(){ wipeSession(); showToast('Signed out \u2014 Pro & keys cleared from this device'); });
   }
 }
@@ -380,4 +380,4 @@ function requireLogin(){
    here verbatim since it registers on the same onAuthStateChanged event as
    the block above and drawerAccount (js/ui/adaptive-shell.js) is already a
    global by the time this fires. */
-if (AUTH_READY) try{ firebase.auth().onAuthStateChanged(drawerAccount); }catch(e){}
+if (AUTH_READY) try{ firebase.auth().onAuthStateChanged(drawerAccount); }catch(e){ /* auth best-effort, ignore */ }
