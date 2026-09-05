@@ -836,6 +836,29 @@ it) are documented in the script's own header comment. Regenerate with
 stylesheet `<link>`, or a `data-include` reference; `npm run index:all`
 regenerates both indexes in one command.
 
+### `npm run mod-status`: "is there more to do here, and is this doc still accurate?"
+
+Also added in round 5: `tools/modularization-status.js` answers two
+questions a session otherwise has to re-derive by hand at the start of
+every modularization pass. First, a **drift check** — it parses the
+three headline numbers out of this document's own "Module map" opening
+paragraph (app.js line count, js/ file count, css/ file count), compares
+them against the actual current repo state, and prints a clear
+PASS/DRIFT verdict per number, so a stale ARCHITECTURE.md is caught in
+under a second instead of silently misleading a session (see this
+file's own "History" section for why that matters — it's the exact
+failure mode a stale contract file caused once already in this repo).
+Second, a **recent-history view** — the last 15 commits matching
+`git log --oneline --all -i --grep=modulariz` (the same command this
+document's own "History" section already tells a session to run by
+hand), so "what did the last few passes actually do" is a single `npm
+run mod-status` instead of a manual `git log` + grep + read. Both checks
+together typically answer "is there more to do here" well enough that a
+session doesn't need to open this whole ~850-line document just to get
+oriented — though for anything beyond a quick sanity check, this
+document (and a fresh top-level `grep` of `app.js`, per "Modularization
+round 5"'s own advice) remains the source of truth.
+
 ## Known follow-ups (not done in this pass, tracked here so they aren't re-discovered from scratch)
 
 - **`no-empty` (455 occurrences)** — mostly `catch(e){}` defensive
