@@ -28,7 +28,7 @@ function rwHandoffToPhone(){
   try{
     var t=(window._lastItin&&window._lastItin.name)||'';
     if(t) url+='?plan='+encodeURIComponent(t);
-  }catch(e){}
+  }catch(e){ /* best-effort, ignore */ }
   var qr='https://api.qrserver.com/v1/create-qr-code/?size=220x220&margin=10&data='+encodeURIComponent(url);
   var ov=el('handoffOv');
   if(!ov){ ov=document.createElement('div'); ov.id='handoffOv'; ov.className='overlay'; ov.style.zIndex='3200';

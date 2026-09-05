@@ -117,7 +117,7 @@ function openEvents(cat){
     +'style="width:100%;background:var(--bg3,#1A1A20);border:1px solid var(--b2,#2A2A36);border-radius:11px;padding:11px;color:var(--t1);font:inherit;margin-bottom:14px">'
     +'<div id="eventsOut"></div>';
   rwEventsRender();
-  try{ rwEventsSync(); }catch(e){}
+  try{ rwEventsSync(); }catch(e){ /* best-effort, ignore */ }
 }
 function rwEventsRender(){
   var host=el('eventsOut'); if(!host) return;
@@ -208,7 +208,7 @@ function rwEventsSync(){
       window._evSynced = { count: added.length, updated: d.updated };
       if(el('eventsOut')) rwEventsRender();
     }).catch(function(){});
-  }catch(e){}
+  }catch(e){ /* best-effort, ignore */ }
 }
 
 function rwEventById(id){ return (window.RW_EVENTS||[]).filter(function(e){ return e.id===id; })[0]; }
@@ -249,6 +249,6 @@ function rwEventPlan(id){
     +'Use honest India road times if travel is overland, give a realistic budget, and flag anything I must arrange in advance (permits, tickets, acclimatisation).';
   rwCloseSection('eventsSection');
   var inp=el('heroInput')||el('cpInput');
-  if(inp){ inp.value=q; try{ copilotSend(!!el('heroInput')); }catch(err){} }
+  if(inp){ inp.value=q; try{ copilotSend(!!el('heroInput')); }catch(err){ /* best-effort, ignore */ } }
   showToast('\u2728 Planning your '+e.name+' trip');
 }

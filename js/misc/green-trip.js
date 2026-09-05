@@ -29,6 +29,6 @@ function rwGreenPlan(){
   var inp=el('heroInput')||el('cpInput');
   if(inp){
     inp.value='Plan me a RoamWise Green trip: electric mobility throughout (EV car or bike, charging stops planned), a solar-powered eco stay, vegan or honest local food, and nature-first activities. Tell me honestly where the EV charging network makes this hard.';
-    try{ copilotSend(!!el('heroInput')); }catch(e){}
+    try{ copilotSend(!!el('heroInput')); }catch(e){ /* best-effort, ignore */ }
   }
 }

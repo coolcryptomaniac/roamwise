@@ -358,7 +358,7 @@ function rwMerchSubmit(place){
   }
   if(!window.db || !window.user || !user.uid){
     showToast('Sign in first \u2014 the order needs an account to track it');
-    try{ openAuth(); }catch(e){}
+    try{ openAuth(); }catch(e){ /* best-effort, ignore */ }
     return;
   }
   db.collection('merch').add(order).then(done).catch(function(e){

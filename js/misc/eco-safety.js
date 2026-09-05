@@ -57,12 +57,12 @@ function rwGreenNudge(dest, days){
 }
 function rwGreenPickInline(id){
   var btn=el('gn_'+id); if(btn){ btn.textContent='\u2713 Nice!'; btn.disabled=true; btn.classList.add('on'); }
-  try{ badgeBump('green'); }catch(e){}
+  try{ badgeBump('green'); }catch(e){ /* badge/progression update is a nice-to-have, ignore */ }
   try{
     var gc=parseInt(lsGet('rw_ct_green')||'0',10)||0;
     var earned=(typeof badgeEarnedIds==='function')?badgeEarnedIds().indexOf('green')>=0:false;
     showToast(earned?'\ud83c\udf31 Green Traveller \u2014 nicely done!':'\ud83c\udf31 Green choice logged \u00b7 '+Math.max(0,5-gc)+' more for the badge');
-  }catch(e){}
+  }catch(e){ /* storage best-effort, ignore */ }
 }
 /* ==================== OFF-GRID SAFETY ====================
    The one "space tech" integration that genuinely belongs in a travel app.
@@ -437,7 +437,7 @@ function rwPressureHTML(place){
 
 /* ---- Green Travel UI page (renders RW_GREEN_CATS above as a checklist) ---- */
 function openGreenTravel(){
-  try{ tabGo('home'); }catch(e){}
+  try{ tabGo('home'); }catch(e){ /* best-effort nav helper, ignore */ }
   /* BUG FIX (rw-v57): `sec` was used without ever being declared, so this
      threw a ReferenceError and the menu item did nothing at all. */
   var sec=el('greenSection');
@@ -462,7 +462,7 @@ function openGreenTravel(){
 }
 function rwGreenPick(cb){
   if(cb.checked){
-    try{ badgeBump('green'); }catch(e){}
+    try{ badgeBump('green'); }catch(e){ /* badge/progression update is a nice-to-have, ignore */ }
     var gc=parseInt(lsGet('rw_ct_green')||'0',10)||0;
     var bar=document.querySelector('.green-bar'); if(bar) bar.style.width=Math.min(100,gc/5*100)+'%';
     var tx=document.querySelector('.green-progtxt');

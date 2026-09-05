@@ -19,7 +19,7 @@ var RW_FITNESS_TAGS=[
   ['sport','climbing','\ud83e\uddd7','Climbing']
 ];
 function openFitnessStays(){
-  try{ tabGo('home'); }catch(e){}
+  try{ tabGo('home'); }catch(e){ /* best-effort nav helper, ignore */ }
   var sec=el('fitStaySection');
   if(!sec){ sec=document.createElement('section'); sec.id='fitStaySection'; sec.className='xsec v v-home';
     var host=el('copilotHero'); if(host&&host.parentNode) host.parentNode.insertBefore(sec,host.nextSibling); else document.body.appendChild(sec); }
@@ -36,7 +36,7 @@ async function rwFitnessFind(){
   var out=el('fitStayOut'); var dest=(el('fitDest').value||'').trim();
   if(!dest){ out.innerHTML='<div class="note">Type a city first.</div>'; return; }
   out.innerHTML='<div class="note">\ud83c\udfcb\ufe0f Finding fitness spots in '+esc2(dest)+'\u2026</div>';
-  var geo=null; try{ geo=await gcode(dest); }catch(e){}
+  var geo=null; try{ geo=await gcode(dest); }catch(e){ /* best-effort, ignore */ }
   if(!geo){ out.innerHTML='<div class="note">Couldn\u2019t locate '+esc2(dest)+'. Try a nearby bigger town.</div>'; return; }
   var radius=6000;
   var q='[out:json][timeout:15];(';
@@ -50,7 +50,7 @@ async function rwFitnessFind(){
       var hit=RW_FITNESS_TAGS.filter(function(x){ return t[x[0]]===x[1]; })[0]; if(!hit) return null;
       return {name:t.name, icon:hit[2], group:hit[3], lat:e.lat, lon:e.lon};
     }).filter(Boolean);
-  }catch(e){}
+  }catch(e){ /* best-effort, ignore */ }
   rwFitnessRender(dest, geo, venues);
 }
 function rwFitnessRender(dest, geo, venues){
@@ -101,7 +101,7 @@ var RW_NEARME_TAGS = [
   ['shop','mall','\ud83d\udecd\ufe0f','Shopping']
 ];
 function openNearMe(){
-  try{ tabGo('home'); }catch(e){}
+  try{ tabGo('home'); }catch(e){ /* best-effort nav helper, ignore */ }
   var sec=el('nearmeSection');
   if(!sec){ sec=document.createElement('section'); sec.id='nearmeSection'; sec.className='xsec v v-home';
     var host=el('copilotHero'); if(host&&host.parentNode) host.parentNode.insertBefore(sec,host.nextSibling); else document.body.appendChild(sec); }
@@ -159,7 +159,7 @@ async function rwNearMeManualGo(){
   var place=(inp&&inp.value||'').trim();
   if(!place){ if(inp) inp.focus(); return; }
   out.innerHTML='<div class="note">\ud83d\udd0d Locating '+esc2(place)+'\u2026</div>';
-  var geo=null; try{ geo=await gcode(place); }catch(e){}
+  var geo=null; try{ geo=await gcode(place); }catch(e){ /* best-effort, ignore */ }
   if(!geo){ out.innerHTML='<div class="note">Couldn\u2019t find \u201c'+esc2(place)+'\u201d. Try a nearby bigger town or a well-known landmark.</div>'; return; }
   rwNearMeSearch(geo.lat, geo.lon);
 }

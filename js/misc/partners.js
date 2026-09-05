@@ -27,14 +27,14 @@ function rwPartnersSync(){
         window.RW_PARTNERS = list.concat(seed.filter(function(p){
           return !have[String(p.name||'').toLowerCase()+'|'+p.zone];
         }));
-        try{ lsSet('rw_partners_cache', JSON.stringify(window.RW_PARTNERS)); }catch(e){}
+        try{ lsSet('rw_partners_cache', JSON.stringify(window.RW_PARTNERS)); }catch(e){ /* storage best-effort, ignore */ }
         if(el('partnersOut')) rwPartnersRender();
       }
     }).catch(function(){});
-  }catch(e){}
+  }catch(e){ /* best-effort Firestore write, ignore */ }
 }
 (function(){ try{ var c=lsGet('rw_partners_cache');
-  if(c){ var l=JSON.parse(c); if(Array.isArray(l)&&l.length) window.RW_PARTNERS=l; } }catch(e){} })();
+  if(c){ var l=JSON.parse(c); if(Array.isArray(l)&&l.length) window.RW_PARTNERS=l; } }catch(e){ /* parse best-effort, ignore malformed/missing data */ } })();
 
 function rwPartnerScore(p){
   var C=50, M=4.3;                       /* prior weight, prior mean */
@@ -131,6 +131,6 @@ function rwPartnerPlan(id){
   if(inp){
     inp.value='Plan a trip to '+p.zone+' staying around '+p.area+'. I am looking at '+p.name+'. '
       +'Give honest travel times, what to do nearby, and a realistic daily budget.';
-    try{ copilotSend(!!el('heroInput')); }catch(e){}
+    try{ copilotSend(!!el('heroInput')); }catch(e){ /* best-effort, ignore */ }
   }
 }

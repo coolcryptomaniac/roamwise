@@ -33,7 +33,7 @@ async function rwNearMeHTML(rawq){
   }
   var place = await rwReverse(pos.lat, pos.lon);
   var spots = [];
-  try{ spots = await osmAttractions(pos.lat, pos.lon, 6000); }catch(e){}
+  try{ spots = await osmAttractions(pos.lat, pos.lon, 6000); }catch(e){ /* best-effort, ignore */ }
   var kind = rwActionIntent(rawq);
   var extra = kind ? rwActionHubHTML(kind, rwActionQuery(rawq, kind, place||''), place||'', pos.lat, pos.lon) : '';
   return '<div class="tk-card tk-mini"><div class="tk-sec">'
