@@ -1,14 +1,18 @@
 name: RoamWise Roadmap Agent — Weekly
 
-# Weekly strategic-review agent. Gathers repo/business signal, calls the
-# Claude API to synthesize recommendations, and posts the result as a
-# GitHub Issue for a human to triage. It NEVER commits code, opens a PR, or
-# touches auth/payments/Pro-entitlement/Firestore/deployment — see
-# ROADMAP-AGENT.md for the full boundary and the one-time secret setup.
+# Weekly strategic-review agent. Gathers repo/business signal and either:
+#   - auto-generates the full report via the Claude API, if an
+#     ANTHROPIC_API_KEY repository secret is present, or
+#   - (default, no secret required) posts a reminder Issue with the gathered
+#     context and a call-to-action to run the roadmap agent manually via a
+#     Claude Code session, the same way issue #124 was produced.
+# Either path posts a GitHub Issue for a human to triage. It NEVER commits
+# code, opens a PR, or touches auth/payments/Pro-entitlement/Firestore/
+# deployment — see ROADMAP-AGENT.md for the full boundary and setup options.
 #
 # Weekly (not daily) is deliberate: strategic recommendations don't change
 # meaningfully day to day, and a daily cadence would just repeat itself while
-# spending API budget for no extra signal.
+# spending API budget (or triage attention) for no extra signal.
 on:
   schedule:
     - cron: '0 6 * * 1'    # Monday 06:00 UTC (11:30 IST)
@@ -21,6 +25,11 @@ permissions:
 jobs:
   roadmap:
     runs-on: ubuntu-latest
+    env:
+      # Presence-only checks, evaluated once so every step's `if:` can reuse
+      # them — same pattern as the MAILU check in roamwise-agent-daily.yml.
+      ROADMAP_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      MAILU: ${{ secrets.MAIL_USERNAME }}
     steps:
       - uses: actions/checkout@v4
 
@@ -32,23 +41,19 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      # --- Path A: ANTHROPIC_API_KEY secret is set --------------------------
+      # Full auto-generated report, exactly as originally built. Nothing
+      # changes here if/when the repo owner adds the secret later.
       - name: Generate report via Claude API
         id: generate
+        if: env.ROADMAP_KEY != ''
         env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          ANTHROPIC_API_KEY: ${{ env.ROADMAP_KEY }}
           ROADMAP_AGENT_MODEL: ${{ vars.ROADMAP_AGENT_MODEL }}
-        run: |
-          if [ -z "$ANTHROPIC_API_KEY" ]; then
-            echo "::error::ANTHROPIC_API_KEY repository secret is not set. \
-          Add it at Settings -> Secrets and variables -> Actions -> New repository \
-          secret (name: ANTHROPIC_API_KEY). See ROADMAP-AGENT.md for details. \
-          The Roadmap Agent cannot generate this week's report without it."
-            exit 1
-          fi
-          node tools/roadmap-agent/generate-report.js
+        run: node tools/roadmap-agent/generate-report.js
 
-      - name: Post report as GitHub Issue
-        if: success()
+      - name: Post full report as GitHub Issue
+        if: env.ROADMAP_KEY != ''
         uses: actions/github-script@v7
         with:
           script: |
@@ -62,3 +67,67 @@ jobs:
               body,
               labels: ['roadmap-agent'],
             });
+
+      # --- Path B (default): no ANTHROPIC_API_KEY secret --------------------
+      # No secret required at all — this only needs the GITHUB_TOKEN Actions
+      # already provides. Posts the gathered context plus a clear
+      # call-to-action, and relies on GitHub's own "new issue" notification
+      # email to reach the repo owner (see ROADMAP-AGENT.md for how to make
+      # sure that's turned on).
+      - name: Post reminder Issue (no ANTHROPIC_API_KEY set)
+        id: remind
+        if: env.ROADMAP_KEY == ''
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const MAX_CONTEXT_CHARS = 50000; // stay well under the 65536-char issue body limit
+            let ctx = fs.readFileSync('context.md', 'utf8');
+            if (ctx.length > MAX_CONTEXT_CHARS) {
+              ctx = ctx.slice(0, MAX_CONTEXT_CHARS) + `\n...[truncated, ${ctx.length - MAX_CONTEXT_CHARS} more chars — see the workflow run logs for the full context.md]`;
+            }
+            const d = new Date().toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata', day: 'numeric', month: 'short', year: 'numeric' });
+            const body = [
+              'No `ANTHROPIC_API_KEY` repository secret is set, so the Roadmap Agent ' +
+                'could not auto-generate this week\'s full report via the Claude API. ' +
+                'The context below was still gathered automatically — nothing else is missing.',
+              '### What to do',
+              '**Ask your Claude Code session to review the gathered context below and ' +
+                'post the full roadmap analysis as a new issue** — the same way ' +
+                '#124 was produced manually. Have it follow the exact five-section ' +
+                'structure and constraints in `tools/roadmap-agent/generate-report.js`\'s ' +
+                '`SYSTEM_PROMPT` (new features, upgrades, deprecate/delete/simplify, ' +
+                'business strategy grounded in the business docs, and long-term health ' +
+                'framed as durable practices, never a specific lifespan promise).',
+              'See `ROADMAP-AGENT.md` for the full no-API-key workflow (including how to ' +
+                'set up a recurring Claude Code scheduled trigger instead of doing this by hand ' +
+                'each week), and for how to add `ANTHROPIC_API_KEY` later if you\'d rather this ' +
+                'step auto-generate the report going forward.',
+              `<details><summary>Gathered context (context.md, ${ctx.length} chars)</summary>\n\n${ctx}\n\n</details>`,
+            ].join('\n\n');
+            const issue = await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `🔔 Weekly Roadmap Agent Reminder — ${d}`,
+              body,
+              labels: ['roadmap-agent'],
+            });
+            core.setOutput('issue_url', issue.data.html_url);
+
+      # Best-effort bonus: if the repo owner already configured the same
+      # MAIL_USERNAME/MAIL_APP_PASSWORD/TO_EMAIL secrets used by the daily
+      # ops workflow (.github/workflows/roamwise-agent-daily.yml), reuse them
+      # to also send a direct email — no new secret needed either way, this
+      # is purely opportunistic reuse of an already-working mechanism.
+      - name: Email reminder (only if mail secrets are already set)
+        if: env.ROADMAP_KEY == '' && env.MAILU != ''
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          username: ${{ secrets.MAIL_USERNAME }}
+          password: ${{ secrets.MAIL_APP_PASSWORD }}
+          subject: "🔔 RoamWise Roadmap Agent — weekly reminder"
+          to: ${{ secrets.TO_EMAIL }}
+          from: RoamWise Agent
+          body: "No ANTHROPIC_API_KEY secret is set, so this week's roadmap report needs to be run manually. See: ${{ steps.remind.outputs.issue_url }}"
