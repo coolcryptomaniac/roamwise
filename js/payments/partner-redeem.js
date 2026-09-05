@@ -121,6 +121,27 @@ function openPartnerRedeem(){
         pro:true, proAt:new Date().toISOString(),
         proMethod:'partner', proCode:code
       });
+      /* FOUNDER SEAT COUNTING BUG FIX: a partner-redeemed seat is still one
+         of the shared 1,000 lifetime-Pro seats \u2014 it must count against that
+         same pool, not sit on top of it as 1,000 extra (see CLAUDE.md's
+         Founder-offer notes). Before this, NOTHING in this function ever
+         touched a shared counter: firestore.rules' meta/founderSeats is
+         isAdmin()-only to write, and this runs as an ordinary signed-in
+         user, so that doc was never reachable from here. firestore.rules'
+         pricing/{doc} match block already carves out exactly this case \u2014
+         a signed-in user may move pricing/founder.count by exactly +1 and
+         nothing else \u2014 but no caller ever used it until now (see that
+         rule's own comment: "this carve-out exists for a future write
+         path, not a currently-exercised one"). This IS that path. Best-
+         effort and non-blocking: the seat is already genuinely granted by
+         the update() above, so a failure here (e.g. the doc not existing
+         yet on a brand-new deployment) must never undo or block the user's
+         Pro access \u2014 it would only make the PUBLIC counter briefly stale,
+         which self-corrects on the next successful redemption or admin
+         payment. */
+      db.collection('pricing').doc('founder').update({
+        count: firebase.firestore.FieldValue.increment(1)
+      }).catch(function(){});
       showToast('\ud83c\udf89 Partner Pass activated! Welcome, '+esc2(data.name?data.name.split(' ')[0]:'friend')+'.');
       window._proUnlocked=true;
       /* Reuse the SAME UI-refresh path a real Firestore pro:true write

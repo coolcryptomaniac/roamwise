@@ -60,8 +60,16 @@ further splitting.
 - `key-sync.js` — AI-key cross-device sync
 - `config-sync.js` — remote-config sync
 
-### `js/pricing/` — monetization mechanics (2 files)
+### `js/pricing/` — monetization mechanics (3 files)
 - `tiers.js` (212 lines) — pricing tier definitions
+- `founder-seats.js` — PUBLIC Founder-offer seat-counter math (isolated,
+  well-commented, unit-tested — see `tests/founder-seats.test.js`). Computes
+  "seats left" from `pricing/founder.count` (the one counter every seat-grant
+  path can legally increment, per firestore.rules) and the NMIMS
+  Proposed/Official flag (`partnerships/nmims2026.officialConfirmed`),
+  additionally reserving 500 seats once that partnership is Official. Read
+  this file's header comment for the root-cause writeup of why the counter
+  used to be wrong.
 - `referral.js` (262 lines) — referral/affiliate tracking: capture a
   `?ref=` link or typed code, validate against the referrer directory,
   persist it for the attribution window, and stamp it onto a purchase
