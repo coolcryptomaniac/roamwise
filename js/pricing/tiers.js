@@ -210,3 +210,48 @@ var RWPricing = (function(){
     yearlySavingsPct: yearlySavingsPct
   };
 })();
+
+/* ============================================================================
+   MONEY DISPLAY HELPERS — moved verbatim from app.js (modularization round 5).
+   Global functions (not RWPricing.* members) because every existing call site
+   across the codebase calls them bare, as `fmtMoney(...)` / `proPriceLabel(...)`.
+   Both read `CURR`/`AC` (the currency table + active-currency code), which
+   remain core app state declared in app.js — reading another file's `var` by
+   name from inside a function body is resolved at call time, long after every
+   script has loaded, so this relocation carries no load-order risk (see
+   ARCHITECTURE.md's "Load order: why it's load-bearing" section).
+   ========================================================================= */
+/* ============================================================================
+   PRO PRICE LABEL (rw-v80) — Febin's currency bug
+   ============================================================================
+   The Pro price genuinely IS 100 rupees, charged over UPI. But showing a bare
+   "₹100" to someone who has selected USD looks like the currency switch is
+   broken. So: show their currency with the rupee price alongside, because the
+   amount they are actually charged is in rupees and hiding that would be worse.
+   ========================================================================= */
+function proPriceLabel(inr){
+  inr = inr || 100;
+  try{
+    if(typeof AC==='undefined' || AC==='INR') return '₹'+inr;
+    var cu=CURR.find(function(x){ return x.c===AC; });
+    if(!cu || !cu.r) return '₹'+inr;
+    var usd = inr/83.5;                     /* INR -> USD base */
+    var v = usd*cu.r;
+    var shown = v<1 ? v.toFixed(2) : (v<10? v.toFixed(1) : Math.round(v));
+    return cu.s+shown+' (₹'+inr+')';
+  }catch(e){ return '₹'+inr; }
+}
+
+function fmtMoney(usd){
+  var cu = CURR.find(function(x){return x.c===AC;});
+  var v = Math.round(usd*(cu?cu.r:1));
+  var s = cu?cu.s:'$';
+  if(AC==='INR'){
+    if(v>=10000000) return s+(v/10000000).toFixed(2)+'Cr';
+    if(v>=100000) return s+(v/100000).toFixed(1)+'L';
+    if(v>=1000) return s+(v/1000).toFixed(0)+'k';
+    return s+v;
+  }
+  if(v>=1000) return s+(v/1000).toFixed(1)+'k';
+  return s+v;
+}

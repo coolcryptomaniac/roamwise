@@ -1,20 +1,7 @@
 // @ts-nocheck
 // GLOBAL ERROR GUARD moved to js/core/error-guard.js (must load FIRST, not with the rest of boot, so it protects every other module's load too)
 
-/* Subtle haptic feedback — makes taps feel responsive & premium. No-op where
-   unsupported. Called on key actions (send, pin, pay-success). */
-function rwHaptic(kind){
-  try{
-    if(window.Capacitor && Capacitor.Plugins && Capacitor.Plugins.Haptics){
-      Capacitor.Plugins.Haptics.impact({style: kind==='heavy'?'HEAVY':'LIGHT'});
-    } else if(navigator.vibrate){ navigator.vibrate(kind==='heavy'?18:8); }
-  }catch(e){}
-  /* Every rwHaptic() call already marks a "key action" (send, pin, toggle,
-     pay-success…) — reuse that same call graph to play the matching
-     tap/success sting from the RoamWise audio manifest instead of adding
-     ad-hoc Audio() calls at each of these sites. */
-  try{ rwPlayCue(kind==='heavy' ? 'success_feedback' : 'tap_feedback'); }catch(e){}
-}
+// rwHaptic moved to js/core/app-utils.js (modularization round 5)
 // RW_CUE_FILES, rwAudioThemeEnabled, rwAudioThemeVolume, rwPlayCue moved to js/audio/cues.js
 
 
@@ -209,32 +196,7 @@ var CURR = [
    broken. So: show their currency with the rupee price alongside, because the
    amount they are actually charged is in rupees and hiding that would be worse.
    ========================================================================= */
-function proPriceLabel(inr){
-  inr = inr || 100;
-  try{
-    if(typeof AC==='undefined' || AC==='INR') return '\u20b9'+inr;
-    var cu=CURR.find(function(x){ return x.c===AC; });
-    if(!cu || !cu.r) return '\u20b9'+inr;
-    var usd = inr/83.5;                     /* INR -> USD base */
-    var v = usd*cu.r;
-    var shown = v<1 ? v.toFixed(2) : (v<10? v.toFixed(1) : Math.round(v));
-    return cu.s+shown+' (\u20b9'+inr+')';
-  }catch(e){ return '\u20b9'+inr; }
-}
-
-function fmtMoney(usd){
-  var cu = CURR.find(function(x){return x.c===AC;});
-  var v = Math.round(usd*(cu?cu.r:1));
-  var s = cu?cu.s:'$';
-  if(AC==='INR'){
-    if(v>=10000000) return s+(v/10000000).toFixed(2)+'Cr';
-    if(v>=100000) return s+(v/100000).toFixed(1)+'L';
-    if(v>=1000) return s+(v/1000).toFixed(0)+'k';
-    return s+v;
-  }
-  if(v>=1000) return s+(v/1000).toFixed(1)+'k';
-  return s+v;
-}
+// proPriceLabel/fmtMoney moved to js/pricing/tiers.js (modularization round 5)
 
 /* CURRENCIES UI */
 (function(){
@@ -796,30 +758,7 @@ function openCrowdSpot(place,lat,lon){
   },'Your report helps other travellers and earns you Shinobi XP.');
 }
 
-function offerOpen(label){
-  var ov=el('openPromptOv');
-  if(!ov){ ov=document.createElement('div'); ov.id='openPromptOv'; ov.className='overlay';
-    ov.innerHTML='<div class="modal" style="max-width:340px;text-align:center"><div class="modal-body" id="openPromptBody"></div></div>';
-    document.body.appendChild(ov); }
-  el('openPromptBody').innerHTML=
-     '<div style="font-size:34px;margin-bottom:8px">\ud83d\udcd5</div>'
-    +'<div style="font-weight:700;font-size:15.5px;color:var(--t1);margin-bottom:4px">'+label+' saved</div>'
-    +'<div style="font-size:12.5px;color:var(--t3);margin-bottom:16px">to Downloads/RoamWise</div>'
-    +'<div style="display:flex;gap:8px">'
-    +'<button class="tact" style="flex:1" onclick="el(\'openPromptOv\').classList.remove(\'open\')">Later</button>'
-    +'<button class="rzp-main-btn" style="flex:1;margin:0" onclick="_doOpenNow()">\ud83d\udc41 Open now</button>'
-    +'</div>';
-  ov.classList.add('open');
-}
-function _doOpenNow(){
-  el('openPromptOv').classList.remove('open');
-  try{ if(window.RW && RW.openLastSaved) RW.openLastSaved(); else showToast('Check Downloads/RoamWise to open it'); }
-  catch(e){ showToast('Check Downloads/RoamWise to open it'); }
-}
-function saveOrDownload(dataUrl, filename){
-  if(window.RW && RW.saveCard){ RW.saveCard(dataUrl); showToast('Saving to Downloads/RoamWise\u2026'); return; }
-  var a=document.createElement('a'); a.href=dataUrl; a.download=filename; a.click();
-}
+// offerOpen/_doOpenNow/saveOrDownload moved to js/core/app-utils.js (modularization round 5)
 // ATLAS CERTIFICATE moved to js/itinerary/atlas-certificate.js; JOURNEY MOVIE moved to js/itinerary/journey-movie.js
 
 // CHEAP/LUXE hack pools moved to js/itinerary/ninja-hacks.js
@@ -841,15 +780,7 @@ function saveOrDownload(dataUrl, filename){
 
 // #tmode change-listener DOMContentLoaded handler moved to js/boot/init.js
 
-var VIEW_OF={promofilm:'film',creator:'film',store:'store',ratings:'extras',treks:'explore',exps:'explore',circuits:'explore',ev:'explore',events:'explore',hubspoke:'explore',basecamp:'explore',jlog:'explore',app:'plan',brief:'home',aipulse:'explore',newspulse:'explore'};
-function scrollToId(id){
-  if(document.body.classList.contains('shell') && VIEW_OF[id]){
-    tabGo(VIEW_OF[id]);
-    setTimeout(function(){ var s=el(id); if(s) window.scrollTo({top:s.offsetTop-56,behavior:'smooth'}); },60);
-    return;
-  }
-  var s=el(id); if(s) window.scrollTo({top:s.offsetTop-56,behavior:'smooth'});
-}
+// VIEW_OF/scrollToId moved to js/core/app-utils.js (modularization round 5)
 
 // Ninja Hacks engine (REGION_FACTS, MO_FULL, nameHash, buildHacks) moved to js/itinerary/ninja-hacks.js
 
@@ -895,14 +826,7 @@ var lastAiSource = null; /* {prov, model} of the last successful AI call, or nul
 
 
 
-/* TOAST */
-function showToast(msg){
-  var t = document.createElement('div');
-  t.style.cssText = 'position:fixed;top:62px;left:50%;transform:translateX(-50%);background:#9B59F5;color:#fff;padding:10px 18px;border-radius:10px;font-weight:600;font-size:13px;z-index:9999;box-shadow:0 4px 20px rgba(155,89,245,.4);max-width:92vw;text-align:center;pointer-events:none;white-space:nowrap';
-  t.textContent = msg;
-  document.body.appendChild(t);
-  setTimeout(function(){ t.remove(); }, 2800);
-}
+// showToast moved to js/core/app-utils.js (modularization round 5)
 
 document.addEventListener('keydown', function(ev){
   if(ev.key==='Escape'){
