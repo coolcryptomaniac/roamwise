@@ -5,11 +5,11 @@
 
 /* ---- from app.js lines 2810-3026: adaptive "for you" rendering (useBump, FORYOU_DEFS, renderForYou) + shared card photo painter (RW_PHOTOS, rwLoadPhotoMap, rwPaintPhotos) ---- */
 /* ===== ADAPTIVE "FOR YOU" (usage-aware UI) ===== */
-function useBump(k){ try{ var u=JSON.parse(lsGet('rw_use')||'{}'); u[k]=(u[k]||0)+1; lsSet('rw_use',JSON.stringify(u)); }catch(e){} }
+function useBump(k){ try{ var u=JSON.parse(lsGet('rw_use')||'{}'); u[k]=(u[k]||0)+1; lsSet('rw_use',JSON.stringify(u)); }catch(e){ /* parse best-effort, ignore malformed/missing data */ } }
 var FORYOU_DEFS={copilot:['\ud83e\udded Copilot',function(){cpFocusHero();}],map:['\ud83d\uddfa\ufe0f Map',function(){openMapExplorer();}],group:['\ud83e\udd1d Group',function(){openGroupPlanner();}],trips:['\u2708\ufe0f Trips',function(){openVault();}],plan:['\ud83e\udded Plan',function(){tabGo('plan');}],treks:['\u26f0 Treks',function(){tabGo('explore');scrollToId('treks');}],card:['\ud83d\uddfa Card',function(){tabGo('explore');scrollToId('jlog');}],events:['\ud83c\udfdf Events',function(){tabGo('explore');scrollToId('events');}],store:['\ud83d\udecd Store',function(){tabGo('home');scrollToId('store');}],pdf:['\ud83d\udcd5 PDF',function(){tabGo('plan');}],search:['\ud83d\udd0d Search',function(){ssOpen();}],profile:['\ud83d\udc64 Profile',function(){openProfile();}]};
 function renderForYou(){
   var host=el('brief'); if(!host) return;
-  var u={}; try{u=JSON.parse(lsGet('rw_use')||'{}');}catch(e){}
+  var u={}; try{u=JSON.parse(lsGet('rw_use')||'{}');}catch(e){ /* parse best-effort, ignore malformed/missing data */ }
   var keys=Object.keys(FORYOU_DEFS).sort(function(a,b){return (u[b]||0)-(u[a]||0);});
   var wrap=document.createElement('div');
   var tiles=keys.map(function(k){
@@ -94,7 +94,7 @@ function renderForYou(){
        miniRow('\ud83d\udec2 Easy visa for Indians', visaEasy)].forEach(function(r){
         if(r && after && after.parentNode){ after.parentNode.insertBefore(r, after.nextSibling); after=r; }
       });
-    }catch(e){}
+    }catch(e){ /* best-effort, ignore */ }
     /* real photos over the gradients — SEQUENTIAL queue (weserv rate-limit safe) */
     rwPaintPhotos(row, picks);
     var cards=row.querySelectorAll('.pcard');
@@ -116,7 +116,7 @@ function renderForYou(){
         .then(function(){ return {key:key,u:seen}; });
     }
     /* photo painting handled by rwPaintPhotos(row, picks) above */
-    }catch(e){}
+    }catch(e){ /* storage best-effort, ignore */ }
 }
 
 /* ===== SHARED CARD PHOTO PAINTER =====

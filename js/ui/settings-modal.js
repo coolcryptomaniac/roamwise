@@ -14,10 +14,10 @@ function rwApplyUIScale(){
     document.documentElement.style.setProperty('--rw-text-scale', ts);
     document.documentElement.style.setProperty('--rw-icon-scale', is);
     document.documentElement.style.fontSize = (100*ts)+'%';
-  }catch(e){}
+  }catch(e){ /* best-effort, ignore */ }
 }
 function rwSetTextScale(v){ lsSet('rw_textscale', String(v)); rwApplyUIScale(); }
-function rwSetIconScale(v){ lsSet('rw_iconscale', String(v)); rwApplyUIScale(); try{ renderTabbar(); }catch(e){} }
+function rwSetIconScale(v){ lsSet('rw_iconscale', String(v)); rwApplyUIScale(); try{ renderTabbar(); }catch(e){ /* non-critical render step, ignore */ } }
 function openSizeSettings(){
   var ts=parseFloat(lsGet('rw_textscale')||'1')||1;
   var is=parseFloat(lsGet('rw_iconscale')||'1')||1;
@@ -90,8 +90,8 @@ function t(key, def){
 }
 function rwSetLang(code){
   RW_LANG = code;
-  try{ lsSet('rw_lang', code); }catch(e){}
-  try{ document.documentElement.setAttribute('lang', code); }catch(e){}
+  try{ lsSet('rw_lang', code); }catch(e){ /* storage best-effort, ignore */ }
+  try{ document.documentElement.setAttribute('lang', code); }catch(e){ /* best-effort, ignore */ }
   rwApplyLang();
 }
 /* Swap all tagged elements. English is the source of truth in the HTML, so for
@@ -111,14 +111,14 @@ function rwApplyLang(){
     var orig=n.getAttribute('data-i18n-ph-orig');
     n.setAttribute('placeholder', (RW_LANG==='en') ? orig : t(key, orig));
   });
-  try{ var lbl=el('langLabel'); if(lbl){ var L=RW_LANGS.filter(function(x){return x.code===RW_LANG;})[0]; lbl.textContent=L?L.native:'English'; } }catch(e){}
+  try{ var lbl=el('langLabel'); if(lbl){ var L=RW_LANGS.filter(function(x){return x.code===RW_LANG;})[0]; lbl.textContent=L?L.native:'English'; } }catch(e){ /* best-effort, ignore */ }
 }
 function rwToggleLangMenu(){
   var m=el('langMenu'); if(!m) return;
   m.style.display = m.style.display==='block'?'none':'block';
 }
 function rwInitLang(){
-  var saved=''; try{ saved=lsGet('rw_lang'); }catch(e){}
+  var saved=''; try{ saved=lsGet('rw_lang'); }catch(e){ /* storage best-effort, ignore */ }
   RW_LANG = saved || 'en';
   /* build the picker menu */
   var m=el('langMenu');
@@ -127,7 +127,7 @@ function rwInitLang(){
       return '<button class="lang-opt" onclick="rwSetLang(\''+L.code+'\');rwToggleLangMenu()">'+L.native+'<small>'+L.label+'</small></button>';
     }).join('');
   }
-  try{ document.documentElement.setAttribute('lang', RW_LANG); }catch(e){}
+  try{ document.documentElement.setAttribute('lang', RW_LANG); }catch(e){ /* best-effort, ignore */ }
   rwApplyLang();
 }
 
@@ -162,8 +162,8 @@ function renderKeyBoxes(){
 }
 function openSettings(){
   renderKeyBoxes();
-  try{ rwVoiceMountSetting(); }catch(e){}
-  try{ var tp=el('tabPickWrap'); if(tp) tp.innerHTML=rwTabPickerHTML(); }catch(e){}
+  try{ rwVoiceMountSetting(); }catch(e){ /* best-effort, ignore */ }
+  try{ var tp=el('tabPickWrap'); if(tp) tp.innerHTML=rwTabPickerHTML(); }catch(e){ /* best-effort, ignore */ }
   /* ---- UI simplification ----
      Provider choice and API keys are power-user territory: Smart Search works
      with no key at all, so for most people these sections are noise that makes

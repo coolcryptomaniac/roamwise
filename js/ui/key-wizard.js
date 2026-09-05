@@ -54,7 +54,7 @@ function openProvider(url){
     showToast('Copy the key in the popup, then paste it back here');
   }
 }
-function openWizard(){ wizI=0; wizPaint(); el('wizOverlay').classList.add('open'); try{track('wiz_opens');}catch(e){} }
+function openWizard(){ wizI=0; wizPaint(); el('wizOverlay').classList.add('open'); try{track('wiz_opens');}catch(e){ /* analytics best-effort, ignore */ } }
 function wizPaint(){
   var w=WIZ[wizI], has=!!lsGet('rwKey_'+w.p);
   var armed=['groq','cerebras','github','gemini','openrouter','mistral','anthropic'].filter(function(p){return lsGet('rwKey_'+p);});
@@ -80,7 +80,7 @@ function wizTest(prov,key,stEl,onOk){
   stEl.textContent='Testing '+prov+'\u2026'; stEl.style.color='var(--t3)';
   aiRequest(prov, key, AI_MODELS[prov][0], 'Reply with exactly: OK', 10)
     .then(function(){ lsSet('rwKey_'+prov,key); activeProv=prov; lsSet('rwProv',prov);
-      try{ rwAutoBackup(); rwOfferBackup(); }catch(e){}
+      try{ rwAutoBackup(); rwOfferBackup(); }catch(e){ /* best-effort, ignore */ }
       stEl.textContent='\u2705 '+prov.charAt(0).toUpperCase()+prov.slice(1)+' is working \u2014 saved & set as your engine.'; stEl.style.color='#16BF96';
       if(onOk) setTimeout(onOk,1200); })
     .catch(function(e){ stEl.textContent='\u274c '+String(e.message||e).slice(0,70); stEl.style.color='#E05B5B'; });
@@ -136,6 +136,6 @@ function compareModels(name, days){
     var rich=results.slice().sort(function(a,b){return b.w-a.w;})[0];
     el('cmpVerdict').innerHTML='<div class="mode-box">\ud83c\udfc6 <b>Insights:</b> fastest \u2014 <b>'+fast.p+'</b> ('+fast.dt+'s) \u00b7 most detailed \u2014 <b>'+rich.p+'</b> ('+rich.w+' words) \u00b7 the Smart engine wins on speed & offline; AI wins on personal detail. Set your favourite in Settings.</div>';
   }
-  try{ track('arena_runs'); }catch(e){}
+  try{ track('arena_runs'); }catch(e){ /* analytics best-effort, ignore */ }
 }
 

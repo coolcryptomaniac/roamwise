@@ -29,12 +29,12 @@ function rwHaptic(kind){
     if(window.Capacitor && Capacitor.Plugins && Capacitor.Plugins.Haptics){
       Capacitor.Plugins.Haptics.impact({style: kind==='heavy'?'HEAVY':'LIGHT'});
     } else if(navigator.vibrate){ navigator.vibrate(kind==='heavy'?18:8); }
-  }catch(e){}
+  }catch(e){ /* best-effort, ignore */ }
   /* Every rwHaptic() call already marks a "key action" (send, pin, toggle,
      pay-success…) — reuse that same call graph to play the matching
      tap/success sting from the RoamWise audio manifest instead of adding
      ad-hoc Audio() calls at each of these sites. */
-  try{ rwPlayCue(kind==='heavy' ? 'success_feedback' : 'tap_feedback'); }catch(e){}
+  try{ rwPlayCue(kind==='heavy' ? 'success_feedback' : 'tap_feedback'); }catch(e){ /* best-effort, ignore */ }
 }
 
 /* TOAST */

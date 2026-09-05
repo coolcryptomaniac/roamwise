@@ -80,9 +80,9 @@ applyShell();
    animation. All vector, all lightweight — sharp at any size, unlike raster art. */
 var RW_ICON_THEME = (function(){ try{ return lsGet('rw_icontheme')||'line'; }catch(e){ return 'line'; } })();
 function rwSetIconTheme(t){
-  RW_ICON_THEME=t; try{ lsSet('rw_icontheme',t); }catch(e){}
-  try{ renderTabbar(); }catch(e){}
-  try{ document.querySelectorAll('[data-rwicon]').forEach(function(n){ n.innerHTML=rwIcon(n.getAttribute('data-rwicon')); }); }catch(e){}
+  RW_ICON_THEME=t; try{ lsSet('rw_icontheme',t); }catch(e){ /* storage best-effort, ignore */ }
+  try{ renderTabbar(); }catch(e){ /* non-critical render step, ignore */ }
+  try{ document.querySelectorAll('[data-rwicon]').forEach(function(n){ n.innerHTML=rwIcon(n.getAttribute('data-rwicon')); }); }catch(e){ /* best-effort, ignore */ }
 }
 function openIconThemePicker(){
   var themes=[
@@ -131,7 +131,7 @@ function rwIcon(name, size){
   if(th==='line'){
     return '<svg class="rwi" viewBox="0 0 24 24" width="'+size+'" height="'+size+'" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+P+'</svg>';
   }
-  try{ rwEnsureIconDefs(); }catch(e){}
+  try{ rwEnsureIconDefs(); }catch(e){ /* best-effort, ignore */ }
   var grad = th==='mythic' ? 'rwgMythic' : 'rwgNeon';
   var glow = th==='mythic' ? 'rwGlowMythic' : 'rwGlowNeon';
   var cls  = 'rwi rwi-cine rwi-'+th;
@@ -196,7 +196,7 @@ function rwInitStatusBar(){
       SB.setStyle({style:'DARK'});
       SB.setBackgroundColor({color:'#07090F'});
     }
-  }catch(e){}
+  }catch(e){ /* best-effort, ignore */ }
 }
 function rwInitBackButton(){
   /* Capacitor hardware back */
@@ -208,7 +208,7 @@ function rwInitBackButton(){
         _rwBackArmed=true; showToast('Press back again to exit');
         setTimeout(function(){ _rwBackArmed=false; }, 2000);
       });
-    }catch(e){}
+    }catch(e){ /* toast is a nice-to-have, ignore */ }
   }
   /* Browser/PWA back */
   try{
@@ -220,7 +220,7 @@ function rwInitBackButton(){
       history.pushState({rw:1}, '');
       setTimeout(function(){ _rwBackArmed=false; }, 2000);
     });
-  }catch(e){}
+  }catch(e){ /* toast is a nice-to-have, ignore */ }
 }
 /* Close the top-most open overlay if any. Returns true if one was closed. */
 function rwCloseTopOverlay(){
@@ -234,7 +234,7 @@ function rwCloseTopOverlay(){
   }
   return false;
 }
-if(window.matchMedia){ try{ matchMedia('(max-width:768px)').addEventListener('change', function(){ IS_TOUCH_MOBILE = /Android|iPhone|iPad|Mobile/i.test(navigator.userAgent) || matchMedia('(max-width:768px)').matches; applyShell(); }); }catch(e){} }
+if(window.matchMedia){ try{ matchMedia('(max-width:768px)').addEventListener('change', function(){ IS_TOUCH_MOBILE = /Android|iPhone|iPad|Mobile/i.test(navigator.userAgent) || matchMedia('(max-width:768px)').matches; applyShell(); }); }catch(e){ /* best-effort, ignore */ } }
 
 /* ==================== CUSTOMISABLE BOTTOM NAV ====================
    The tab bar used to be hardcoded, so reaching Store/Copilot/Settings meant
@@ -262,7 +262,7 @@ function rwTabIds(){
   try{
     var v=JSON.parse(lsGet('rw_tabs')||'null');
     if(v && v.length>=3 && v.every(function(k){ return RW_TABS[k]; })) return v.slice(0,5);
-  }catch(e){}
+  }catch(e){ /* parse best-effort, ignore malformed/missing data */ }
   return RW_TABS_DEFAULT;
 }
 function renderTabbar(){
@@ -279,7 +279,7 @@ function renderTabbar(){
 function rwTabGo(k){
   var t=RW_TABS[k]; if(!t) return;
   rwTabMark(k); lsSet('rw_last_tab', k);
-  try{ t.run(); }catch(e){}
+  try{ t.run(); }catch(e){ /* best-effort, ignore */ }
   /* A view whose sections all failed to render used to leave a blank screen
      with nothing but the background animation — indistinguishable from a crash.
      Check after paint and say something useful instead. */
@@ -326,10 +326,10 @@ function rwTabToggle(k){
 }
 function tabGo(t){
   /* Major screen/view transition — the manifest's card_transition_or_modal_open cue. */
-  try{ rwPlayCue('card_transition_or_modal_open'); }catch(e){}
-  try{useBump('tab_'+t);}catch(e){}
-  try{ if(window._rvAll) _rvAll(); }catch(e){}
-  try{ rwTabMark(t); }catch(e){}
+  try{ rwPlayCue('card_transition_or_modal_open'); }catch(e){ /* best-effort, ignore */ }
+  try{useBump('tab_'+t);}catch(e){ /* best-effort, ignore */ }
+  try{ if(window._rvAll) _rvAll(); }catch(e){ /* best-effort, ignore */ }
+  try{ rwTabMark(t); }catch(e){ /* best-effort, ignore */ }
   if(t==='pro'){ openPay(); return; }
   if(t==='more'){ openDrawer(); return; }
   if(document.body.classList.contains('shell')){
@@ -346,7 +346,7 @@ function tabGo(t){
     window.scrollTo({top:0,behavior:'auto'});
     /* Drawer links call tabGo directly, so the guard cannot live only in
        rwTabGo — that is how a blank screen slipped through. */
-    setTimeout(function(){ try{ rwEmptyViewGuard(); }catch(e){} }, 350);
+    setTimeout(function(){ try{ rwEmptyViewGuard(); }catch(e){ /* best-effort, ignore */ } }, 350);
   } else {
     if(t==='home') window.scrollTo({top:0,behavior:'smooth'});
     if(t==='plan'){ var a=el('app'); if(a) window.scrollTo({top:a.offsetTop-58,behavior:'smooth'}); }
@@ -378,7 +378,7 @@ function tabGo(t){
 })();
 
 function openDrawer(){
-  try{ var q=el('drSearch'); if(q){ q.value=''; drFilter(''); } }catch(e){} el('drawer').classList.add('open'); el('drawerBk').classList.add('open'); }
+  try{ var q=el('drSearch'); if(q){ q.value=''; drFilter(''); } }catch(e){ /* best-effort, ignore */ } el('drawer').classList.add('open'); el('drawerBk').classList.add('open'); }
 function drToggle(btn){
   var grp=btn.parentElement;
   document.querySelectorAll('.dr-grp.open').forEach(function(g){ if(g!==grp) g.classList.remove('open'); });

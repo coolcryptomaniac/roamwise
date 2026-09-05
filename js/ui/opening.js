@@ -63,7 +63,7 @@ function rwOpeningGo(){
         else finish('India has a place for exactly that. Tell Tusk the same line inside and it\u2019ll build the whole trip \u2014 days, budget, and a map.');
       });
     }
-  }catch(e){}
+  }catch(e){ /* best-effort, ignore */ }
 }
 function rwOpeningEnter(seed){
   rwOpeningDone();
@@ -72,11 +72,11 @@ function rwOpeningEnter(seed){
       var i=el('heroInput'); if(i){ i.value=seed; i.focus(); }
       if(typeof tabGo==='function') tabGo('home');
       showToast('\u2728 Ask Tusk \u2014 it already knows what you want');
-    }catch(e){}
+    }catch(e){ /* toast is a nice-to-have, ignore */ }
   }, 420);
 }
 function rwOpeningDone(){
-  try{ lsSet('rw_opening','1'); }catch(e){}
+  try{ lsSet('rw_opening','1'); }catch(e){ /* storage best-effort, ignore */ }
   var ov=el('rwOpening'); if(!ov) return;
   ov.classList.add('rw-open-out');
   document.body.style.overflow='';

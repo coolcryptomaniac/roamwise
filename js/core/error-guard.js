@@ -17,8 +17,8 @@
    module chain. Silent by design — we don't spam the user with technical
    errors. */
 window.addEventListener('error', function(ev){
-  try{ /* swallow benign resource/load errors; log nothing user-facing */ }catch(e){}
+  try{ /* swallow benign resource/load errors; log nothing user-facing */ }catch(e){ /* best-effort, ignore */ }
 }, true);
 window.addEventListener('unhandledrejection', function(ev){
-  try{ if(ev && ev.preventDefault) ev.preventDefault(); }catch(e){}
+  try{ if(ev && ev.preventDefault) ev.preventDefault(); }catch(e){ /* best-effort, ignore */ }
 });
