@@ -16,8 +16,10 @@
    one of those calls is a function-body reference resolved when the user
    actually sends a message, long after every script on the page (including
    app.js) has finished loading. tkFold/tkToggle are deliberately NOT moved
-   here even though cpActionsHTML uses them — they are also used by
-   app.js's persona and shadow-budget code, so they stay put as a shared
+   here even though cpActionsHTML uses them — they live in
+   js/ui/card-painter.js (final modularization pass; previously
+   js/social/group-chat.js, before that app.js) since js/copilot/tusk-persona.js
+   and js/copilot/answer-cards.js call them too, so they stay a shared
    global rather than being duplicated or arbitrarily reassigned to one
    consumer. ==== */
 

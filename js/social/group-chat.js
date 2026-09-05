@@ -300,29 +300,11 @@ function tripChatForTrip(trip){
   var id = 'trip_'+wvSlug(trip.name)+'_'+String(trip.id||'').slice(-6);
   tripChatOpen(id, trip.name+' group');
 }
-
-
-
-
-
-
-/* ---- fold: crisp by default, full detail one tap away ---- */
-function tkFold(label, inner){
-  return '<div class="tk-foldwrap"><button class="tk-foldbtn" onclick="tkToggle(this)"><span>'+label+'</span><b class="tk-arr">\u25be</b></button>'
-    +'<div class="tk-fold">'+inner+'</div></div>';
-}
-function tkToggle(btn){
-  var w=btn.parentNode, f=w.querySelector('.tk-fold');
-  var open=w.classList.toggle('open');
-  btn.querySelector('.tk-arr').textContent = open? '\u25b4':'\u25be';
-}
-
-
-
-
-
-
-
+// tkFold/tkToggle (generic fold/unfold accordion helper, unrelated to chat)
+// moved to js/ui/card-painter.js in the final modularization pass — it is a
+// shared UI helper also called by js/copilot/rich-reply.js, tusk-persona.js
+// and answer-cards.js, so it belongs with other shared card-rendering code,
+// not filed under one caller.
 
 
 /* ==================== CHAT: TUSK BOT + COORDINATION ====================

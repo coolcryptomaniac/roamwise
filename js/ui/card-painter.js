@@ -221,4 +221,19 @@ function rwPaintPhotos(rowEl, list){
   }
 }
 
-
+/* ---- fold: crisp by default, full detail one tap away ----
+   Moved from js/social/group-chat.js (final modularization pass) — this is
+   a generic fold/unfold accordion helper with no chat-specific logic; it
+   just happened to be defined in group-chat.js historically. Shared by
+   js/copilot/rich-reply.js, js/copilot/tusk-persona.js and
+   js/copilot/answer-cards.js as well as this file, hence living here with
+   other shared card-rendering helpers rather than under one caller. */
+function tkFold(label, inner){
+  return '<div class="tk-foldwrap"><button class="tk-foldbtn" onclick="tkToggle(this)"><span>'+label+'</span><b class="tk-arr">\u25be</b></button>'
+    +'<div class="tk-fold">'+inner+'</div></div>';
+}
+function tkToggle(btn){
+  var w=btn.parentNode, f=w.querySelector('.tk-fold');
+  var open=w.classList.toggle('open');
+  btn.querySelector('.tk-arr').textContent = open? '\u25b4':'\u25be';
+}
