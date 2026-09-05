@@ -411,10 +411,10 @@ function drawCard(L, name, tiles, heroPhoto){
   x.fillStyle='#B8B4A8'; x.font='400 12px Georgia,serif';
   x.fillText('This certifies that '+name+' has journeyed '+L.length+' destination'+(L.length===1?'':'s')+' \u00b7 rank of '+r[1], W/2, certY+30);
   /* wax-style circular seal (left) */
-  var sx2=150, syl=certY+36;
-  x.save(); x.translate(sx2,syl);
+  var sx3=150, syl=certY+36;
+  x.save(); x.translate(sx3,syl);
   x.fillStyle=(ST.pin); x.globalAlpha=.9;
-  x.beginPath(); for(var pa=0;pa<16;pa++){ var an=pa*Math.PI/8, rr=pa%2?30:36; x[pa?'lineTo':'moveTo'](Math.cos(an)*rr,Math.sin(an)*rr); } x.closePath(); x.fill();
+  x.beginPath(); for(var pa=0;pa<16;pa++){ var an2=pa*Math.PI/8, rr=pa%2?30:36; x[pa?'lineTo':'moveTo'](Math.cos(an2)*rr,Math.sin(an2)*rr); } x.closePath(); x.fill();
   x.globalAlpha=1; x.strokeStyle='rgba(255,255,255,.6)'; x.lineWidth=1.5; x.beginPath(); x.arc(0,0,24,0,7); x.stroke();
   x.fillStyle='#fff'; x.font='700 13px Georgia,serif'; x.textAlign='center'; x.fillText('RW',0,-2);
   x.font='600 7px Outfit,Arial'; x.fillText('VERIFIED',0,10);

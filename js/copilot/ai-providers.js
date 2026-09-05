@@ -55,7 +55,7 @@ function aiRequest(prov, key, model, prompt, maxTok, jsonMode){
         if(typeof em!=='string') em=JSON.stringify(em).slice(0,120);
         var e=new Error(em); e.httpStatus=res.status; throw e;
       }
-      var txt='';
+      var txt;
       if(prov==='anthropic') txt=(data.content||[]).filter(function(b){return b.type==='text';}).map(function(b){return b.text;}).join('');
       else if(prov==='gemini') txt=((((data.candidates||[])[0]||{}).content||{}).parts||[]).map(function(p){return p.text||'';}).join('');
       else txt=(((data.choices||[])[0]||{}).message||{}).content||'';

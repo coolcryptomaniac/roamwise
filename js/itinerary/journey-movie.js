@@ -190,18 +190,18 @@ function cineRender(opts){
       /* camera frames the current hop, tightening as the plane flies */
       var midX=(A.x+B.x)/2, midY=(A.y+B.y)/2;
       var hopSpan=Math.max(30, (Math.max(Math.abs(A.x-B.x),Math.abs(A.y-B.y)))*2.2);
-      var v=view(midX,midY, hopSpan);
-      drawTrail(v,k,e);
-      drawPins(v,k + (e>0.98?1:0));
-      plane(v,A,B,e);
+      var vHop=view(midX,midY, hopSpan);
+      drawTrail(vHop,k,e);
+      drawPins(vHop,k + (e>0.98?1:0));
+      plane(vHop,A,B,e);
       var toName=(names[k+1]||'Next stop').slice(0,18), fromName=(names[k]||'').slice(0,18);
       caption('CHAPTER '+(k+1)+' \u2192 '+(k+2), toName, k===0? 'the journey begins \u00b7 from '+fromName : 'flying in from '+fromName, 1);
     } else {
       /* FINAL SEGMENT — OUTRO: zoom back out over the full trail, thanks note */
       var ot=(t-INTRO-hops*SEG)/OUTRO, e3=ease(Math.min(1,ot));
       var spanAll2=Math.max(60, Math.max(maxX-minX,maxY-minY)*1.5);
-      var v=view((minX+maxX)/2,(minY+maxY)/2, spanAll2*(0.9+0.35*e3));
-      drawTrail(v,legs.length-1,null); drawPins(v,legs.length-1);
+      var vOutro=view((minX+maxX)/2,(minY+maxY)/2, spanAll2*(0.9+0.35*e3));
+      drawTrail(vOutro,legs.length-1,null); drawPins(vOutro,legs.length-1);
       caption('THANK YOU FOR TRAVELING', (C.name||'').toUpperCase(), 'make your own film \u00b7 roamwise.co.in', Math.min(1,ot*1.4));
     }
 
