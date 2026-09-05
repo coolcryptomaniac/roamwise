@@ -5,7 +5,7 @@ Regenerate with `npm run index` after any modularization change that
 adds, moves, or removes a top-level function (see ARCHITECTURE.md's
 "low AI credit usage" section for how this fits into the workflow).
 
-Generated: 2026-09-05 · 877 top-level functions across 119 files.
+Generated: 2026-09-05 · 877 top-level functions across 123 files.
 
 Scope: `app.js` and `js/**/*.js` only (not root-level data/config
 files like `rw-config.js` or `events-data.js`, and not `platform-v5/`
@@ -32,8 +32,8 @@ found nearby, not that the function is undocumented.
 | `aiCall` | `js/copilot/ai-providers.js` | 74 | Tries each model for the active provider; cb(errorString\|null, text\|null) |
 | `aiCallAny` | `js/copilot/ai-providers.js` | 105 | back to Ailon Tusk's own engine. Auth/quota errors skip to the NEXT PROVIDER. |
 | `aiRequest` | `js/copilot/ai-providers.js` | 22 |  |
-| `applyDna` | `app.js` | 617 |  |
-| `applyRegionUI` | `app.js` | 840 |  |
+| `applyDna` | `js/misc/traveler-dna.js` | 36 |  |
+| `applyRegionUI` | `app.js` | 632 |  |
 | `applyRemoteConfig` | `js/boot/init.js` | 284 |  |
 | `applyShell` | `js/ui/adaptive-shell.js` | 62 |  |
 | `askName` | `js/itinerary/journey-log.js` | 144 | el() lives later in app.js itself; this file loads before app.js. |
@@ -141,10 +141,10 @@ found nearby, not that the function is undocumented.
 | `deleteAccount` | `js/boot/auth-init.js` | 354 |  |
 | `deleteVaultTrip` | `js/itinerary/trip-vault.js` | 67 |  |
 | `delSquad` | `js/social/tribe-beacon.js` | 79 |  |
-| `detectRegion` | `app.js` | 822 |  |
+| `detectRegion` | `app.js` | 614 |  |
 | `detectTheme` | `js/itinerary/pdf-assets.js` | 125 |  |
-| `dnaPick` | `app.js` | 606 |  |
-| `dnaSave` | `app.js` | 610 |  |
+| `dnaPick` | `js/misc/traveler-dna.js` | 25 |  |
+| `dnaSave` | `js/misc/traveler-dna.js` | 29 |  |
 | `doShare` | `js/itinerary/share.js` | 67 |  |
 | `downloadAtlasCertificate` | `js/itinerary/atlas-certificate.js` | 76 |  |
 | `drawCard` | `js/itinerary/journey-log.js` | 201 |  |
@@ -157,7 +157,7 @@ found nearby, not that the function is undocumented.
 | `drToggle` | `js/ui/adaptive-shell.js` | 382 |  |
 | `el` | `js/core/dom-utils.js` | 17 | removes that hazard for every module, regardless of relative order. |
 | `emgFor` | `js/itinerary/pdf-assets.js` | 93 |  |
-| `ensureWaButton` | `app.js` | 351 | Global + idempotent so remote config can create it after the fact. |
+| `ensureWaButton` | `app.js` | 231 | Global + idempotent so remote config can create it after the fact. |
 | `esc2` | `js/core/text-utils.js` | 19 |  |
 | `escHtml` | `js/core/text-utils.js` | 28 | logic changes. |
 | `escHtmlAttr` | `js/copilot/rich-reply.js` | 81 | HTML content, it's an attribute value.) |
@@ -194,7 +194,7 @@ found nearby, not that the function is undocumented.
 | `journalGet` | `js/itinerary/journey-log.js` | 22 |  |
 | `journalSet` | `js/itinerary/journey-log.js` | 23 |  |
 | `keyProvider` | `js/ui/key-wizard.js` | 30 |  |
-| `killIntro` | `app.js` | 542 | ===== TRAILER ===== |
+| `killIntro` | `app.js` | 366 | ===== TRAILER ===== |
 | `loadJsPdf` | `js/itinerary/pdf-assets.js` | 13 | roamwise-premium-itinerary.js. |
 | `loadPhotosForCard` | `js/itinerary/search-engine.js` | 161 |  |
 | `loadSquads` | `js/social/tribe-beacon.js` | 41 |  |
@@ -212,7 +212,7 @@ found nearby, not that the function is undocumented.
 | `lsSet` | `js/core/storage-utils.js` | 29 |  |
 | `makeCard` | `js/itinerary/journey-log.js` | 152 |  |
 | `mapsRoute` | `js/misc/misc-features-2.js` | 174 | ===== COMMUTE & TRACK ===== |
-| `maybeNudge` | `app.js` | 504 | ===== CONVERSION NUDGE — one-time, after the user has felt the value ===== |
+| `maybeNudge` | `app.js` | 328 | ===== CONVERSION NUDGE — one-time, after the user has felt the value ===== |
 | `mercY` | `js/itinerary/journey-log.js` | 186 |  |
 | `metersBlock` | `js/itinerary/meters.js` | 7 |  |
 | `modeBox` | `js/misc/misc-features-2.js` | 167 |  |
@@ -232,8 +232,8 @@ found nearby, not that the function is undocumented.
 | `openChatPoll` | `js/social/trip-board.js` | 278 | ---------------- DECIDE: polls that close themselves ---------------- |
 | `openCompat` | `js/social/compat.js` | 66 | the quiz |
 | `openCopilot` | `js/copilot/core.js` | 54 | exactly that. |
-| `openCrowdSpot` | `app.js` | 633 | ---- Crowd Spotter (Travel & Earn) ---- |
-| `openDna` | `app.js` | 598 |  |
+| `openCrowdSpot` | `app.js` | 425 | ---- Crowd Spotter (Travel & Earn) ---- |
+| `openDna` | `js/misc/traveler-dna.js` | 17 |  |
 | `openDrawer` | `js/ui/adaptive-shell.js` | 380 |  |
 | `openDriverHire` | `js/booking/local-rides.js` | 78 | Full-day driver / sightseeing — the thing Febin's users kept asking for. |
 | `openEval` | `js/copilot/agent-evals.js` | 95 |  |
@@ -251,7 +251,7 @@ found nearby, not that the function is undocumented.
 | `openJourneyCert` | `js/itinerary/journey-certificate.js` | 7 | move, zero logic changes. |
 | `openJourneyLog` | `js/itinerary/journey-log.js` | 24 |  |
 | `openLbox` | `js/itinerary/result-cards.js` | 426 | LIGHTBOX |
-| `openLegal` | `app.js` | 853 |  |
+| `openLegal` | `app.js` | 645 |  |
 | `openListing` | `js/misc/listings.js` | 29 |  |
 | `openMapExplorer` | `js/itinerary/map-view.js` | 13 |  |
 | `openMatchEngine` | `js/social/travel-matching.js` | 26 |  |
@@ -267,10 +267,10 @@ found nearby, not that the function is undocumented.
 | `openPay` | `js/payments/plan-picker.js` | 208 |  |
 | `openPdfFlow` | `js/itinerary/pdf-export.js` | 22 | var PDF_CTX=null; /* {d, days, month} set when user opens the flow |
 | `openPnrPaste` | `js/booking/pnr-parser.js` | 25 |  |
-| `openPrivacyBadge` | `app.js` | 47 | 2) Desktop planners should finish on their phone \u2014 a QR beats "download our app". |
-| `openProfile` | `app.js` | 247 |  |
+| `openPrivacyBadge` | `js/misc/trust-conversion.js` | 10 | 2) Desktop planners should finish on their phone — a QR beats "download our app". |
+| `openProfile` | `js/misc/profile.js` | 15 |  |
 | `openProvider` | `js/ui/key-wizard.js` | 44 |  |
-| `openRateForm` | `app.js` | 389 |  |
+| `openRateForm` | `js/misc/ratings.js` | 30 |  |
 | `openRealms` | `js/game/realms.js` | 199 |  |
 | `openRefCode` | `js/pricing/referral.js` | 239 | the little "have a referral code?" box |
 | `openRewards` | `js/game/realms.js` | 129 | --- Rewards page: honest about how prizes actually work --- |
@@ -292,7 +292,7 @@ found nearby, not that the function is undocumented.
 | `osmAttractionsHTML` | `js/itinerary/real-attractions.js` | 52 |  |
 | `osmCacheKey` | `js/itinerary/real-attractions.js` | 20 |  |
 | `packTog` | `js/misc/misc-features.js` | 332 |  |
-| `paintStars` | `app.js` | 406 |  |
+| `paintStars` | `js/misc/ratings.js` | 47 |  |
 | `payVia` | `js/payments/plan-picker.js` | 66 |  |
 | `pdfPick` | `js/itinerary/pdf-export.js` | 83 |  |
 | `pdfPreviewHtml` | `js/itinerary/pdf-export.js` | 53 |  |
@@ -303,15 +303,15 @@ found nearby, not that the function is undocumented.
 | `playProGranted` | `js/boot/auth-init.js` | 48 | Called by the native Play Billing bridge after a verified purchase |
 | `playPromo` | `js/misc/promo-music.js` | 96 |  |
 | `postSquad` | `js/social/tribe-beacon.js` | 61 |  |
-| `profAv` | `app.js` | 292 |  |
-| `profPick` | `app.js` | 297 |  |
-| `profSave` | `app.js` | 298 |  |
-| `profUpload` | `app.js` | 294 |  |
+| `profAv` | `js/misc/profile.js` | 60 |  |
+| `profPick` | `js/misc/profile.js` | 65 |  |
+| `profSave` | `js/misc/profile.js` | 66 |  |
+| `profUpload` | `js/misc/profile.js` | 62 |  |
 | `proofStamp` | `js/game/badges.js` | 191 | choose to — the design is anchor-ready, deliberately not anchor-billed. |
 | `proPriceLabel` | `js/pricing/tiers.js` | 232 | ========================================================================= |
-| `pulseBump` | `app.js` | 527 |  |
-| `pulseKey` | `app.js` | 526 | ===== TRAVEL PULSE — anonymous aggregate demand (no identities, no contact) ===== |
-| `pulseShow` | `app.js` | 533 |  |
+| `pulseBump` | `app.js` | 351 |  |
+| `pulseKey` | `app.js` | 350 | ===== TRAVEL PULSE — anonymous aggregate demand (no identities, no contact) ===== |
+| `pulseShow` | `app.js` | 357 |  |
 | `rainSwapApply` | `js/itinerary/rain-contingency.js` | 37 |  |
 | `rainSwapHTML` | `js/itinerary/rain-contingency.js` | 17 |  |
 | `rankOf` | `js/game/badges.js` | 147 |  |
@@ -331,10 +331,10 @@ found nearby, not that the function is undocumented.
 | `renderPerks` | `js/game/badges.js` | 41 |  |
 | `renderPlanGrid` | `js/payments/plan-picker.js` | 236 |  |
 | `renderPromo` | `js/misc/promo-music.js` | 18 | var PROMO_YT_ID='3MRlvs9bdPQ'; /* official RoamWise promo |
-| `renderRatings` | `app.js` | 367 | var PLAYSTORE_URL=''; /* paste your Play Store listing URL once published — unlocks the "Rate on Play Store" nudge |
+| `renderRatings` | `js/misc/ratings.js` | 8 | var PLAYSTORE_URL=''; /* paste your Play Store listing URL once published — unlocks the "Rate on Play Store" nudge |
 | `renderSpotlight` | `js/misc/event-radar-news.js` | 62 |  |
 | `renderTabbar` | `js/ui/adaptive-shell.js` | 268 |  |
-| `renderTicker` | `app.js` | 229 | ===== TRAVEL ECONOMY LIVE TICKER ===== |
+| `renderTicker` | `app.js` | 178 | ===== TRAVEL ECONOMY LIVE TICKER ===== |
 | `renderTreks` | `js/misc/misc-features-2.js` | 100 |  |
 | `reportSquad` | `js/social/tribe-beacon.js` | 81 |  |
 | `requestFeature` | `js/misc/misc-features.js` | 336 | ===== STRAVA (lite link — full OAuth needs your Strava API app later) ===== |
@@ -509,7 +509,7 @@ found nearby, not that the function is undocumented.
 | `rwGuideSay` | `js/ui/how-to-guide.js` | 84 |  |
 | `rwGuideStop` | `js/ui/how-to-guide.js` | 103 |  |
 | `rwHandleHref` | `js/social/tribe-beacon.js` | 292 |  |
-| `rwHandoffToPhone` | `app.js` | 63 | there's no library to bundle; falls back to a copyable link. |
+| `rwHandoffToPhone` | `js/misc/trust-conversion.js` | 26 | there's no library to bundle; falls back to a copyable link. |
 | `rwHaptic` | `js/core/app-utils.js` | 27 | unsupported. Called on key actions (send, pin, pay-success). |
 | `rwHaversine` | `js/misc/misc-features.js` | 202 |  |
 | `rwHouse` | `js/game/realms.js` | 196 |  |
@@ -707,8 +707,8 @@ found nearby, not that the function is undocumented.
 | `rwShareTrip` | `js/itinerary/share.js` | 32 |  |
 | `rwShowEmailPane` | `js/boot/auth-init.js` | 217 |  |
 | `rwShowVerificationPane` | `js/boot/auth-init.js` | 223 |  |
-| `rwSkyscannerToUrl` | `app.js` | 20 | destination resolved, no origin. |
-| `rwSkyscannerUrl` | `app.js` | 13 | in that case rather than ever emitting a broken Skyscanner link. |
+| `rwSkyscannerToUrl` | `js/booking/affiliate-links.js` | 164 | destination resolved, no origin. |
+| `rwSkyscannerUrl` | `js/booking/affiliate-links.js` | 157 | in that case rather than ever emitting a broken Skyscanner link. |
 | `rwSlogans` | `js/misc/misc-features-2.js` | 242 |  |
 | `rwSOSShare` | `js/booking/local-rides.js` | 44 |  |
 | `rwSoundFor` | `js/misc/sound-of-place.js` | 62 |  |
@@ -758,8 +758,8 @@ found nearby, not that the function is undocumented.
 | `rwTripSetMapType` | `js/itinerary/map-view.js` | 64 |  |
 | `rwTuskAsk` | `js/copilot/rich-reply.js` | 85 |  |
 | `rwTuskChip` | `js/copilot/rich-reply.js` | 92 |  |
-| `rwTuskFeedback` | `app.js` | 467 | visually locks the row so a bubble can't be voted twice. |
-| `rwTuskMiss` | `app.js` | 487 | into data/misses.txt to feed the existing OpenStreetMap resolver. |
+| `rwTuskFeedback` | `app.js` | 291 | visually locks the row so a bubble can't be voted twice. |
+| `rwTuskMiss` | `app.js` | 311 | into data/misses.txt to feed the existing OpenStreetMap resolver. |
 | `rwTuskNeedsClarity` | `js/copilot/rich-reply.js` | 98 | bubble HTML, or null if the query is answerable. |
 | `rwTuskRail` | `js/copilot/rich-reply.js` | 36 | --- 1. ACTION RAIL --- |
 | `rwTuskReadLast` | `js/copilot/rich-reply.js` | 53 |  |
@@ -802,7 +802,7 @@ found nearby, not that the function is undocumented.
 | `secPanelHTML` | `js/data-sync/key-sync.js` | 115 |  |
 | `sendOtp` | `js/boot/auth-init.js` | 315 |  |
 | `setCardStyle` | `js/itinerary/journey-log.js` | 198 |  |
-| `setPayRegion` | `app.js` | 830 |  |
+| `setPayRegion` | `app.js` | 622 |  |
 | `setProv` | `js/ui/settings-modal.js` | 208 |  |
 | `shadowBudget` | `js/itinerary/shadow-budget.js` | 59 |  |
 | `shadowBudgetHTML` | `js/itinerary/shadow-budget.js` | 92 |  |
@@ -822,11 +822,11 @@ found nearby, not that the function is undocumented.
 | `stayUrl` | `js/booking/affiliate-links.js` | 11 | var AFF_BOOKING=''; /* Booking.com affiliate aid (optional) |
 | `stayUrlAgoda` | `js/booking/affiliate-links.js` | 75 |  |
 | `stravaConnect` | `js/misc/misc-features.js` | 344 |  |
-| `submitRating` | `app.js` | 411 |  |
-| `submitUtr` | `app.js` | 738 | Free UPI flow: user submits UTR, owner approves in the admin console |
+| `submitRating` | `js/misc/ratings.js` | 52 |  |
+| `submitUtr` | `app.js` | 530 | Free UPI flow: user submits UTR, owner approves in the admin console |
 | `swSub` | `js/itinerary/result-cards.js` | 378 |  |
 | `swTab` | `js/itinerary/result-cards.js` | 369 | TAB SWITCHING |
-| `syncGo` | `app.js` | 424 | ===== SYNC CIRCLE — anonymous "I'm going" intent counts (no PII) ===== |
+| `syncGo` | `app.js` | 248 | ===== SYNC CIRCLE — anonymous "I'm going" intent counts (no PII) ===== |
 | `t` | `js/ui/settings-modal.js` | 86 | translate a key; falls back to the provided default (or the key) |
 | `tabGo` | `js/ui/adaptive-shell.js` | 327 |  |
 | `testKey` | `js/copilot/ai-providers.js` | 143 |  |
@@ -848,7 +848,7 @@ found nearby, not that the function is undocumented.
 | `togDay` | `js/itinerary/build.js` | 161 |  |
 | `toggleAuthMode` | `js/boot/auth-init.js` | 266 |  |
 | `togPack` | `js/itinerary/result-cards.js` | 419 |  |
-| `track` | `app.js` | 450 | ===== FUNNEL TRACKER — anonymous daily counters for the owner dashboard ===== |
+| `track` | `app.js` | 274 | ===== FUNNEL TRACKER — anonymous daily counters for the owner dashboard ===== |
 | `trackBar` | `js/misc/misc-features-2.js` | 188 |  |
 | `trainBusUrl` | `js/booking/affiliate-links.js` | 71 |  |
 | `travelLinksHTML` | `js/booking/affiliate-links.js` | 81 |  |

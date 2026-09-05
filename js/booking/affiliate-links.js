@@ -148,3 +148,21 @@ function rwBookGridHTML(origin, destName, enc){
   return '<div class="book-grid">'+grid+'</div>'
     +'<p style="font-size:10px;color:#4A4946;text-align:center;margin-top:7px">'+note+'</p>';
 }
+
+/* Moved verbatim from app.js (modularization round 5) — natural fit here since
+   both build on rwAffLink() above and rwIata() (js/data/iata.js). */
+/* Builds a real Skyscanner route URL, or returns null if either end can't be
+   resolved to a real IATA code — callers MUST fall back to Google Flights
+   in that case rather than ever emitting a broken Skyscanner link. */
+function rwSkyscannerUrl(origin, dest){
+  var o = rwIata(origin), d = rwIata(dest);
+  if(!o || !d) return null;
+  return rwAffLink('skyscanner', 'https://www.skyscanner.co.in/transport/flights/'+o.toLowerCase()+'/'+d.toLowerCase()+'/');
+}
+/* Destination-only Skyscanner "flights to X" browse URL — needs just the
+   destination resolved, no origin. */
+function rwSkyscannerToUrl(dest){
+  var d = rwIata(dest);
+  if(!d) return null;
+  return rwAffLink('skyscanner', 'https://www.skyscanner.co.in/transport/flights-to/'+d.toLowerCase()+'/');
+}
