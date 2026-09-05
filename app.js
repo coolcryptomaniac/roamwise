@@ -1552,6 +1552,27 @@ function openPartnerRedeem(){
         pro:true, proAt:new Date().toISOString(),
         proMethod:'partner', proCode:code
       });
+      /* FOUNDER SEAT COUNTING BUG FIX: a partner-redeemed seat is still one
+         of the shared 1,000 lifetime-Pro seats \u2014 it must count against that
+         same pool, not sit on top of it as 1,000 extra (see CLAUDE.md's
+         Founder-offer notes). Before this, NOTHING in this function ever
+         touched a shared counter: firestore.rules' meta/founderSeats is
+         isAdmin()-only to write, and this runs as an ordinary signed-in
+         user, so that doc was never reachable from here. firestore.rules'
+         pricing/{doc} match block already carves out exactly this case \u2014
+         a signed-in user may move pricing/founder.count by exactly +1 and
+         nothing else \u2014 but no caller ever used it until now (see that
+         rule's own comment: "this carve-out exists for a future write
+         path, not a currently-exercised one"). This IS that path. Best-
+         effort and non-blocking: the seat is already genuinely granted by
+         the update() above, so a failure here (e.g. the doc not existing
+         yet on a brand-new deployment) must never undo or block the user's
+         Pro access \u2014 it would only make the PUBLIC counter briefly stale,
+         which self-corrects on the next successful redemption or admin
+         payment. */
+      db.collection('pricing').doc('founder').update({
+        count: firebase.firestore.FieldValue.increment(1)
+      }).catch(function(){});
       showToast('\ud83c\udf89 Partner Pass activated! Welcome, '+esc2(data.name?data.name.split(' ')[0]:'friend')+'.');
       window._proUnlocked=true;
       /* Reuse the SAME UI-refresh path a real Firestore pro:true write
@@ -2562,19 +2583,31 @@ function rwCountdownParts(){
   };
 }
 function rwFounderBannerHTML(){
-  var C = RWPricing.CONFIG, seats = window._rwSeats;
-  var left = (typeof seats==='number') ? Math.max(0, C.FOUNDER_OFFER.maxUsers - seats) : null;
+  var C = RWPricing.CONFIG;
+  /* PUBLIC seats-left number: computed once in js/pricing/founder-seats.js
+     from the shared pricing/founder.count (every grant path \u2014 admin-approved
+     manual payment AND NMIMS partner-code redemption \u2014 can legally move this
+     doc, see that file's header) and the NMIMS Proposed/Official flag, so it
+     can never drift the way the old inline "maxUsers - seats" math did when
+     a grant path bypassed the counter entirely. window._rwSeatsLeft is set
+     by openPay() before this HTML is ever rendered; null means "not safe to
+     show a number" (a read failed), never a fabricated value. */
+  var left = window._rwSeatsLeft;
+  var seats = window._rwSeats; /* raw claimed count, only used for the progress bar width */
   return '<div style="text-align:center">'
     +'<div style="font-size:10px;letter-spacing:.14em;text-transform:uppercase;opacity:.9">Founding members only</div>'
     +'<div style="font-size:20px;font-weight:900;margin:3px 0 1px">\u20b9'+C.FOUNDER_OFFER.priceINR+' \u00b7 Pro for life</div>'
     +'<div style="font-size:11.5px;opacity:.92">One payment. This price does not come back.</div>'
     +'<div id="cdWrap" style="display:flex;gap:6px;justify-content:center;margin:9px 0 4px"></div>'
-    +(left!==null
+    +(typeof left==='number'
         ? '<div style="font-size:11px;opacity:.92">'
           +'<b>'+left.toLocaleString('en-IN')+'</b> of '+C.FOUNDER_OFFER.maxUsers.toLocaleString('en-IN')+' seats left'
           +'<div style="height:5px;background:rgba(0,0,0,.25);border-radius:3px;margin-top:5px;overflow:hidden">'
-          +'<div style="width:'+Math.min(100, Math.round((seats/C.FOUNDER_OFFER.maxUsers)*100))+'%;height:100%;background:rgba(255,255,255,.85)"></div></div></div>'
-        : '')
+          +'<div style="width:'+Math.min(100, Math.round(((typeof seats==='number'?seats:(C.FOUNDER_OFFER.maxUsers-left))/C.FOUNDER_OFFER.maxUsers)*100))+'%;height:100%;background:rgba(255,255,255,.85)"></div></div></div>'
+        /* read failed \u2014 fall back to a generic, non-misleading line instead of
+           inventing a count (e.g. defaulting to 0 claimed, which would falsely
+           advertise all 1,000 seats as open) */
+        : '<div style="font-size:11px;opacity:.92">Seats limited \u2014 first come, first served</div>')
     +'</div>';
 }
 function rwCountdownCells(p){
@@ -2648,13 +2681,37 @@ function openPay(){
   /* FIXED (rw-v71): the founder SEAT count must come from paid seats, not from
      meta/signupCounter — that counter tracks every new SIGN-UP (for the 7-day
      free trial) and was making the offer look far more sold than it was.
-     meta/founderSeats is incremented only when a claim is APPROVED. */
-  (window.db? RWPricing.founderGateLoad().then(function(){ return db.collection('meta').doc('founderSeats').get(); }) : Promise.reject()).then(function(snap){
+     FIXED (this pass): the count itself now comes from pricing/founder.count,
+     not meta/founderSeats.count. meta/founderSeats is isAdmin()-only to write
+     (see firestore.rules), so any seat granted through a non-admin path —
+     chiefly openPartnerRedeem()'s NMIMS partner-code redemption — could never
+     be counted there and the public banner kept looking far MORE open than
+     reality (the original bug report: "still shows 1,000 left" after real
+     seats were claimed). pricing/founder.count is the doc every grant path
+     can legally increment by exactly +1 (see js/pricing/founder-seats.js and
+     firestore.rules' pricing/{doc} update rule), so it's the one source of
+     truth read here (loadPublicSeatsLeft, js/pricing/founder-seats.js), and
+     its raw claimed-count is re-derived below from founderGate() — populated
+     by the founderGateLoad() call just before it — instead of a second parse
+     of the gate doc. The NMIMS Proposed/Official flag is read alongside it
+     so the public number can additionally reserve NMIMS's 500 seats once
+     that partnership goes from "Proposed" to "Official" (founder-seats.js). */
+  (window.db? RWPricing.founderGateLoad().then(function(){ return RWFounderSeats.loadPublicSeatsLeft(db); }) : Promise.reject()).then(function(result){
     if(settled) return; settled=true; clearTimeout(to);
-    var count = snap && snap.exists ? (snap.data().count||0) : 0;
+    /* founderGateLoad() already cached pricing/founder's raw data for the
+       open/closed gate check below — reuse it for the claimed-count the
+       progress bar and founderOfferOpen()'s cap check need, instead of a
+       second parse of the same document. */
+    var gate = RWPricing.founderGate();
+    var count = (gate && typeof gate.count==='number') ? gate.count : 0;
     window._rwSeats = count;
+    window._rwSeatsLeft = (result && result.ok) ? result.left : null;
     renderPlanGrid(RWPricing.founderOfferOpen(count));
-  }).catch(function(){ if(settled) return; settled=true; clearTimeout(to); renderPlanGrid(RWPricing.founderOfferOpen()); });
+  }).catch(function(){
+    if(settled) return; settled=true; clearTimeout(to);
+    window._rwSeats = null; window._rwSeatsLeft = null;
+    renderPlanGrid(RWPricing.founderOfferOpen());
+  });
 }
 function renderPlanGrid(founderOpen){
   var C = RWPricing.CONFIG;
@@ -2926,7 +2983,7 @@ function applyRegionUI(){
 // Gumroad international checkout (openGumroad/verifyGumroad) moved to js/payments/checkout.js
 var LEGAL = {
   privacy: {t:'Privacy Policy', h:'<h4>What we collect</h4>Nothing on a server. RoamWise runs entirely in your browser \u2014 your searches, budgets and preferences are stored only on your device (localStorage) and never sent to us.<h4>Payments</h4>Payments happen directly over UPI to the owner (India) or via Gumroad (worldwide). We never see or store your card, UPI or bank details \u2014 only a payment/license ID used to unlock Pro on your device.<h4>Third-party data</h4>Destination photos and descriptions come from Wikipedia\u2019s public API. Optional AI features call the provider you configure (Gemini, Groq or Anthropic) using your own key, directly from your browser.<h4>Contact</h4>Questions? Reach us via YouTube @mohucool.'},
-  terms: {t:'Terms & Refunds', h:'<h4>The deal</h4>Pro is a one-time purchase that unlocks all Pro features on the device/browser where it is activated. No subscription, no recurring charges.<h4>Refunds</h4>If Pro does not work for you, contact us within 7 days of purchase with your payment or license ID and we\u2019ll make it right. Gumroad purchases also follow Gumroad\u2019s buyer protection.<h4>Estimates</h4>All prices, budgets and crowd levels shown are estimates for planning \u2014 always verify visas, prices and conditions before you travel.<h4>Fair use</h4>One purchase = one traveler. Please don\u2019t redistribute license keys.'}
+  terms: {t:'Terms & Refunds', h:'<h4>The deal</h4>The \u20b9100 Founder offer is a one-time purchase, capped at the first 1,000 launch seats, that unlocks all Pro features for life on the account it is activated on \u2014 no subscription, no recurring charges, ever, for that purchase. Outside the Founder offer, Plus/Pro/Elite are ongoing subscriptions billed monthly or yearly, and separate, higher-priced one-time lifetime and long-term passes are also available \u2014 see the Pricing page for the current list.<h4>Refunds</h4>If Pro does not work for you, contact us within 7 days of purchase with your payment or license ID and we\u2019ll make it right. Gumroad purchases also follow Gumroad\u2019s buyer protection.<h4>Estimates</h4>All prices, budgets and crowd levels shown are estimates for planning \u2014 always verify visas, prices and conditions before you travel.<h4>Fair use</h4>One purchase = one traveler. Please don\u2019t redistribute license keys.'}
 };
 function openLegal(which){
   var L = LEGAL[which]; if(!L) return;
