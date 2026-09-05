@@ -8,6 +8,9 @@
     "lint": "eslint js app.js",
     "check": "node --check app.js && node --check rw-config.js && node --check platform-v5/audio-only.js && node --check platform-v5/atlas-shinobi.js && node --check js/audio/focus.js && node --check js/audio/cues.js && node --check js/runtime/freshness.js && node --check js/voice/tusk-speak.js && node --check roamwise-premium-itinerary.js && node tools/check-line-limits.js && npm run typecheck",
     "index": "node tools/generate-function-index.js",
+    "index:css": "node tools/generate-css-index.js",
+    "index:all": "npm run index && npm run index:css",
+    "mod-status": "node tools/modularization-status.js",
     "sync": "npx cap sync android",
     "open": "npx cap open android"
   },

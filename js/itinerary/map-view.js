@@ -288,7 +288,7 @@ async function rwMapPoint(lat, lon){
   var info=el('rwMapInfo'); if(!info) return;
   info.innerHTML='\u23f3 Reading that spot\u2026';
   try{ if(_rwMarker) _rwMap.removeLayer(_rwMarker); _rwMarker=L.marker([lat,lon]).addTo(_rwMap); }catch(e){}
-  var name=null, country='', admin='', elev=null;
+  var name=null, country='', admin='', elev;
   try{
     /* Reverse lookup via Open-Meteo's own geocoder (keyless): find the nearest
        named place by searching around the tapped coordinates. */

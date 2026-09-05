@@ -18,7 +18,7 @@ function rwDetectDevice(){
   var plat = (navigator.platform||'');
   var maxTouch = navigator.maxTouchPoints||0;
   var w = window.innerWidth, h = window.innerHeight;
-  var os='other', devclass='desktop';
+  var os='other', devclass;
   // --- OS ---
   if(/iphone|ipod/.test(uaLower)) os='ios';
   else if(/ipad/.test(uaLower) || (plat==='MacIntel' && maxTouch>1)) os='ipados'; // modern iPad reports as Mac + touch

@@ -609,10 +609,10 @@ async function rwResolvePlace(name){
   var ovKey = String(name).toLowerCase().replace(/[^a-z]/g,'');
   if(RW_PLACE_OVERRIDES[ovKey]){
     var o = RW_PLACE_OVERRIDES[ovKey];
-    var place = {name:o.name, country:'India', cc:'IN', admin:o.admin, lat:o.lat, lon:o.lon,
+    var placeOv = {name:o.name, country:'India', cc:'IN', admin:o.admin, lat:o.lat, lon:o.lon,
                  pop:null, elev:null, tz:'Asia/Kolkata'};
-    RW_PLACE_CACHE[key]=place; lsSet(key, JSON.stringify(place));
-    return place;
+    RW_PLACE_CACHE[key]=placeOv; lsSet(key, JSON.stringify(placeOv));
+    return placeOv;
   }
   if(!navigator.onLine) return null;
   try{

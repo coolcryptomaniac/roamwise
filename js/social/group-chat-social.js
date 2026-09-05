@@ -324,19 +324,19 @@ function chatBubble(id, m, mine){
       +'</div></div>';
   }
   if(kind==='expense'){
-    var p=m.payload||{};
+    var pExp=m.payload||{};
     return '<div style="margin:6px 0"><div style="background:var(--bg2,#12121C);border-left:3px solid #4ADE80;border-radius:9px;padding:8px 12px">'
       +'<div style="font-size:9.5px;color:#4ADE80;font-weight:800;text-transform:uppercase;letter-spacing:.08em">\ud83d\udcb0 Expense</div>'
-      +'<div style="font-size:12.5px;margin-top:2px"><b>'+esc2(p.payerName||m.name||'Someone')+'</b> paid <b style="color:var(--gold,#E8BA6C)">\u20b9'+((p.amount||0).toLocaleString('en-IN'))+'</b> for '+esc2(p.what||'')+'</div></div></div>';
+      +'<div style="font-size:12.5px;margin-top:2px"><b>'+esc2(pExp.payerName||m.name||'Someone')+'</b> paid <b style="color:var(--gold,#E8BA6C)">\u20b9'+((pExp.amount||0).toLocaleString('en-IN'))+'</b> for '+esc2(pExp.what||'')+'</div></div></div>';
   }
   if(kind==='settle'){
     return '<div style="margin:5px 0;text-align:center"><span style="font-size:11px;color:#4ADE80;background:rgba(74,222,128,.1);padding:3px 10px;border-radius:999px">\u2705 '+esc2(m.text||'settled up')+'</span></div>';
   }
   if(kind==='decision'){
-    var p=m.payload||{};
+    var pDec=m.payload||{};
     return '<div style="margin:6px 0"><div style="background:linear-gradient(135deg,rgba(74,222,128,.12),transparent);border:1px solid rgba(74,222,128,.3);border-radius:11px;padding:9px 12px">'
       +'<div style="font-size:9.5px;color:#4ADE80;font-weight:800;text-transform:uppercase;letter-spacing:.08em">\u2705 Decided \u00b7 pinned up top</div>'
-      +'<div style="font-size:12.5px;margin-top:2px">'+esc2(p.q||'')+' \u2192 <b>'+esc2(p.choice||'')+'</b></div></div></div>';
+      +'<div style="font-size:12.5px;margin-top:2px">'+esc2(pDec.q||'')+' \u2192 <b>'+esc2(pDec.choice||'')+'</b></div></div></div>';
   }
   if(kind==='vote'){ return ''; }
   if(kind==='whenvote'){ return ''; }
@@ -356,22 +356,22 @@ function chatBubble(id, m, mine){
       + chatWhenBody(m) + '</div>';
   }
   if(kind==='board'){
-    var p=m.payload||{}, mineB=(m.uid===((user||{}).uid));
+    var pBoard=m.payload||{}, mineB=(m.uid===((user||{}).uid));
     /* private items are only shown to their owner, even in the log */
-    if(p.share===false && !mineB) return '';
-    var ic={emergency:'\ud83c\udd98',ticket:'\ud83c\udfab',doc:'\ud83d\udcc4',note:'\ud83d\udccc'}[p.type]||'\ud83d\udccc';
-    return '<div style="margin:5px 0;text-align:center"><span style="font-size:11px;color:var(--t2);background:rgba(255,255,255,.05);padding:3px 10px;border-radius:999px">'+ic+' '+esc2((m.name||'Someone').split(' ')[0])+' added '+(p.share===false?'a private ':'')+'board item \u00b7 tap \ud83d\udccb Board</span></div>';
+    if(pBoard.share===false && !mineB) return '';
+    var ic={emergency:'\ud83c\udd98',ticket:'\ud83c\udfab',doc:'\ud83d\udcc4',note:'\ud83d\udccc'}[pBoard.type]||'\ud83d\udccc';
+    return '<div style="margin:5px 0;text-align:center"><span style="font-size:11px;color:var(--t2);background:rgba(255,255,255,.05);padding:3px 10px;border-radius:999px">'+ic+' '+esc2((m.name||'Someone').split(' ')[0])+' added '+(pBoard.share===false?'a private ':'')+'board item \u00b7 tap \ud83d\udccb Board</span></div>';
   }
   if(kind==='meet'){
-    var p=m.payload||{};
-    var place=p.place||m.text||'', when=p.when||'', city=p.city||place;
-    var mapQ=encodeURIComponent(place+(p.city?', '+p.city:''));
-    var mapUrl=p.map||('https://www.google.com/maps/search/?api=1&query='+mapQ);
+    var pMeet=m.payload||{};
+    var place=pMeet.place||m.text||'', when=pMeet.when||'', city=pMeet.city||place;
+    var mapQ=encodeURIComponent(place+(pMeet.city?', '+pMeet.city:''));
+    var mapUrl=pMeet.map||('https://www.google.com/maps/search/?api=1&query='+mapQ);
     var slug=(city||place).toLowerCase().replace(/[^a-z ]/g,'').trim().replace(/\s+/g,'-');
     var bms='https://in.bookmyshow.com/explore/events-'+encodeURIComponent(slug);
     /* Zomato has no stable city-slug URL (that 404s in the app WebView). Its
        search endpoint is the reliable one across web + WebView. */
-    var zomato='https://www.zomato.com/search?q='+encodeURIComponent(place+(p.city?' '+p.city:''));
+    var zomato='https://www.zomato.com/search?q='+encodeURIComponent(place+(pMeet.city?' '+pMeet.city:''));
     return '<div style="margin:7px 0"><div style="background:var(--bg2,#12121C);border-left:3px solid #60A5FA;border-radius:9px;padding:10px 12px">'
       +'<div style="font-size:9.5px;color:#60A5FA;font-weight:800;text-transform:uppercase;letter-spacing:.08em">\ud83d\udccd Meeting point \u00b7 '+esc2(m.name||'')+'</div>'
       +'<div style="font-size:13px;font-weight:700;margin:3px 0 1px">'+esc2(place)+'</div>'

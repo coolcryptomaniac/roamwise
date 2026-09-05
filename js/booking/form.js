@@ -235,7 +235,7 @@ function openBooking(){
   rwPageOpen('booking', function(body){
     var b=rwBasket();
     var total=rwBookTotal(b);
-    var html='';
+    var html;
     if(!b.length){
       html='<div class="bk-empty"><div style="font-size:46px">\ud83e\uddf3</div>'
         +'<b style="display:block;margin:10px 0 6px;font-size:16px">Your trip is empty</b>'

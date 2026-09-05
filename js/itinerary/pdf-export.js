@@ -509,8 +509,8 @@ function genPdf(sample){
       pdf.setTextColor(INK); pdf.setFont('helvetica','normal'); pdf.setFontSize(10.5);
       ['Greet before you ask \u2014 two seconds of hello changes every interaction.','Dress one notch more modestly at religious sites than the street suggests.','Haggling is a smile game where both sides should win.','Photograph people only after a nod \u2014 the nod is the picture\u2019s soul.'].forEach(function(c2){ pdf.text(pdf.splitTextToSize('\u2022 '+c2,500),52,y3); y3+=15; });
       /* gem photo strip */
-      if(gemPics.length){ var gx=44;
-        gemPics.slice(0,3).forEach(function(im){ try{ pdf.addImage(im,'JPEG',gx,y3+8,164,110); pdf.setDrawColor(GOLD); pdf.rect(gx,y3+8,164,110); gx+=172; }catch(e){} });
+      if(gemPics.length){ var gx3=44;
+        gemPics.slice(0,3).forEach(function(im){ try{ pdf.addImage(im,'JPEG',gx3,y3+8,164,110); pdf.setDrawColor(GOLD); pdf.rect(gx3,y3+8,164,110); gx3+=172; }catch(e){} });
         y3+=126; }
       foot(pn);
       /* ---------- LOCAL INTEL & STREET WISDOM ---------- */

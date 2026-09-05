@@ -60,7 +60,7 @@ function rwFitnessRender(dest, geo, venues){
     {t:'Mid', ic:'\ud83c\udfe8', note:'3-star hotels with or near fitness', q:'3 star hotels gym'},
     {t:'Premium', ic:'\u2728', note:'Resorts & hotels with full gyms/spas', q:'5 star hotel gym spa'}
   ];
-  var vHtml='';
+  var vHtml;
   if(venues.length){
     var groups={}; venues.forEach(function(v){ (groups[v.group]=groups[v.group]||[]).push(v); });
     vHtml='<div class="fit-venues"><div class="fit-h">\ud83c\udfcb\ufe0f Fitness spots in '+esc2(dest)+'</div>'
