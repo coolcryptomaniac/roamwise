@@ -5,6 +5,7 @@
    Also expand a few Hinglish contractions so the delivery lands. */
 function tuskSpeakable(text){
   return String(text||'')
+    // eslint-disable-next-line no-misleading-character-class -- intentional: \u{FE00}-\u{FE0F} is the Variation Selector block, deliberately included in this class so it gets stripped along with the emoji it modifies; not a stray literal combining character
     .replace(/[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\u{FE00}-\u{FE0F}\u{1F1E6}-\u{1F1FF}\u{2B00}-\u{2BFF}\u{2190}-\u{21FF}\u{2300}-\u{23FF}]/gu, ' ')
     .replace(/\u2014|\u2013/g, ', ')     /* em/en dash -> a real pause */
     .replace(/\.\.\./g, ', ')

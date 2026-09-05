@@ -14,9 +14,11 @@
         toggle settings, and tuskVoiceNoteHTML.
 
    tkFold/tkToggle (the fold/unfold UI helper tkMiniCard uses) are NOT moved
-   here — they are shared with js/copilot/rich-reply.js and app.js's own
-   shadow-budget code, so they stay in app.js as a shared global rather than
-   being arbitrarily assigned to one consumer. ==== */
+   here — they live in js/ui/card-painter.js (final modularization pass;
+   previously js/social/group-chat.js, before that app.js) since
+   js/copilot/rich-reply.js and js/copilot/answer-cards.js call them too, so
+   they stay a shared global rather than being arbitrarily assigned to one
+   consumer. ==== */
 
 /* ==================== AILON TUSK \u2014 FULL MASALA PERSONA ====================
    Big, dramatic Bollywood energy with light Hinglish sprinkles. The rule that
