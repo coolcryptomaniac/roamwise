@@ -56,13 +56,16 @@ Why this shape:
 - **A trial costs you nothing** — software has no marginal cost — but it lets
   them evaluate honestly, which is what produces a real recommendation.
 - **Lifetime is earned at 25 sales.** By then that creator has generated
-  roughly Rs 45,000+ net, so a Rs 14,999-value pass is cheap.
+  roughly Rs 37,000+ net (25 × ~Rs 1,487 at Partner rate, live Rs 2,499
+  price), so a Rs 14,999-value pass is cheap.
 - Promotion is **automatic** at each threshold in the admin, so nobody has to
   trust you to remember.
 
-Margin check on a Rs 2,999 Pro year: 15% audience discount leaves Rs 2,549;
-25% commission is Rs 637; you keep **Rs 1,912 (64%)** — with no other
-acquisition cost. At Partner rates you keep Rs 1,784 (60%).
+Margin check on the live Rs 2,499 Pro year: 15% audience discount leaves
+Rs 2,124; 25% commission is Rs 531; you keep **Rs 1,593 (64%)** — with no
+other acquisition cost. At Partner rates you keep Rs 1,487 (60%). (See
+`PRICING-REFERRAL-MATH.md` §3 for the full worked derivation, including the
+figures at the old Rs 2,999 price point for comparison.)
 
 ## The tools
 

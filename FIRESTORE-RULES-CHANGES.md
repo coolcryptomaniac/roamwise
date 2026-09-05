@@ -1,8 +1,31 @@
 # firestore.rules — what each block does, and what changed
 
-Line numbers refer to the current `firestore.rules` (141 lines) shipped in this zip.
-Paste the **whole file** into Firebase Console → Firestore → Rules → Publish.
-Replacing everything is safe: this file is the complete ruleset, not a fragment.
+> **Stale-doc notice (2026-09-05):** This doc was written against a
+> **141-line** `firestore.rules` covering ~14 top-level collections (`users`,
+> `claims`, `pulse`, `requests`, `payments`, `admins`, `stats`, `ratings`,
+> `squads`, `reports`, `secrets`, `config`, `crm`, `meta`). The live
+> `firestore.rules` is now **1,416 lines** and defines 50+ top-level
+> collections — `staff`, `tasks`, `ledger`, `bans`, `abuse`, `merch`,
+> `pricing`, `crowdReports`, `partnerClaims`, `partnerships`, `refSignups`,
+> `investors`, `deckleads`, `hrdocs`, `passports`, `beacons`, `creatorAccounts`
+> and related creator-economy collections, `capTable`, `fundingRounds`,
+> `partners`/`rooms`, `roomBookings`, and more — that this doc does not cover
+> at all. **All line numbers below are wrong for the current file.** The
+> three collections this doc focuses on (`secrets`, `config`, `crm`) still
+> exist with broadly the access model described below, but `crm` has since
+> gained additional carve-outs (e.g. a marketing-intern role scoped to
+> `seg == 'creator'` records) not documented here. **For current rules
+> content, read `firestore.rules` directly. For the current deploy process,
+> see `firestore-rules-history/README.md`.** The rest of this document is
+> kept as a historical record of the v34/v35/v42 rule additions and the
+> "admins document" debugging methodology below, both still conceptually
+> useful even though the line numbers have drifted.
+
+Line numbers below refer to the historical **141-line** version of
+`firestore.rules` this doc was originally written against — not the current
+file. When publishing rules today, always paste the **whole current file**
+into Firebase Console → Firestore → Rules → Publish; replacing everything is
+safe because it is always the complete ruleset, never a fragment.
 
 ---
 

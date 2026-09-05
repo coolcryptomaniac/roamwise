@@ -25,11 +25,17 @@ legitimate work (see "History" below for why this rewrite happened).
 RoamWise is mid-migration from a single ~19,300-line `app.js` into small,
 single-purpose modules under `js/{core,data,pricing,audio,voice,booking,
 social,copilot,itinerary,ui,runtime}/*.js`. As of this writing `app.js` is
-down to ~10,600 lines; roughly 8-10 phased PRs have already landed this
-(search `git log --oneline --all | grep -i modulariz` for the full history:
-Phase 0+1, 2, 3, 4a, 4b, 4c, 5a, 5b, ...). This is an active, human-authorized,
-ongoing workstream — treat it as the default context for this repo, not an
-exception.
+down to **629 lines** (verify live via `wc -l app.js` or `npm run mod-status`,
+which cross-checks the figure against `ARCHITECTURE.md`); roughly **18**
+phased PRs have already landed this (search
+`git log --oneline --all --merges | grep -i modulariz` for the full history:
+Phase 0+1, 2, 3, 4a, 4b, 4c, 5a, 5b, 5c, 6, 6a, 6b, 7, 7a, the "final" pass,
+HTML/CSS pass, "continued" pass, round 4, round 5, ...). This is an active,
+human-authorized, ongoing workstream — treat it as the default context for
+this repo, not an exception. Given how close `app.js` now is to fully
+extracted, treat remaining lines there as likely near the practical floor —
+check `ARCHITECTURE.md` before assuming there's a large amount of further
+extraction left to do.
 
 Key constraints, by design:
 
@@ -49,7 +55,7 @@ Key constraints, by design:
   migration is complete — it's the shrinking migration source, not a normal
   module.
 
-## Extraction/verification methodology (proven across ~10 merged phases)
+## Extraction/verification methodology (proven across ~18 merged phases)
 
 When moving code out of `app.js` into `js/`, follow the pattern the prior
 phases established:
