@@ -25,9 +25,25 @@ id = "PASTE_THE_ID_HERE"   # <-- the ONLY line you edit in this file
 #   npx wrangler secret put GROQ_API_KEY      # optional: enables /ai proxy
 #   npx wrangler secret put TICKETMASTER_KEY  # optional: enables /events
 #   npx wrangler secret put REFRESH_TOKEN     # recommended: protects /events/refresh
+#   npx wrangler secret put CASHFREE_APP_ID       # optional: enables /cashfree/order
+#   npx wrangler secret put CASHFREE_SECRET_KEY   # optional: enables /cashfree/order
 #
-# All three are OPTIONAL. /health tells you which are actually configured.
+# All are OPTIONAL. /health tells you which are actually configured. See
+# CASHFREE-INTEGRATION-SETUP.md for the exact Cashfree setup walkthrough
+# (sandbox vs live, the Firestore config flag that turns it on for users).
 # ---------------------------------------------------------------------------
+
+# ---------------------------------------------------------------------------
+# CASHFREE — non-secret config only. CASHFREE_ENV picks the Order Create API
+# base URL (sandbox.cashfree.com vs api.cashfree.com); it is a config choice,
+# not a secret, so it lives here, not in `wrangler secret put`. Defaults to
+# sandbox — flip to "live" only after end-to-end sandbox testing (see
+# CASHFREE-INTEGRATION-SETUP.md).
+# ---------------------------------------------------------------------------
+[vars]
+CASHFREE_ENV = "sandbox"
+# CASHFREE_API_VERSION = "2023-08-01"   # optional override; handler defaults to this
+# PAYMENT_RETURN_URL = "https://roamwise.co.in/"   # optional: Cashfree order_meta.return_url
 
 # ---------------------------------------------------------------------------
 # R2 — OPTIONAL object storage. No route in worker.js uses this yet; this is

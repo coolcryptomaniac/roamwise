@@ -33,6 +33,8 @@
      GET  /events/refresh      force a refresh (token-protected) -> handlers/events.js
      GET  /geo                 geocoding proxy            -> handlers/geo.js
      GET  /leads                partner lead finder        -> handlers/leads.js
+     POST /cashfree/order              create a Cashfree order (secrets stay server-side) -> handlers/cashfree.js
+     GET  /cashfree/order/:id/status   confirm order_status with Cashfree     -> handlers/cashfree.js
 
    Cron: runs daily; refreshes news every run, events once a week (Mondays).
 
@@ -47,6 +49,7 @@ import { refreshNews, handleNews } from './handlers/news.js';
 import { refreshEvents, handleEvents, handleEventsRefresh } from './handlers/events.js';
 import { handleGeo } from './handlers/geo.js';
 import { handleLeads } from './handlers/leads.js';
+import { handleCashfreeOrder, handleCashfreeOrderStatus } from './handlers/cashfree.js';
 
 /* ------------------------------------------------------------------ router */
 export default {
@@ -73,7 +76,12 @@ export default {
 
     if(path === 'events/refresh') return handleEventsRefresh(request, env);
 
-    return json({ error: 'not found', try: ['/health', '/ai', '/news', '/events', '/geo', '/leads'] }, 404);
+    if(path === 'cashfree/order' && request.method === 'POST') return handleCashfreeOrder(request, env);
+
+    const cfStatus = path.match(/^cashfree\/order\/([^/]+)\/status$/);
+    if(cfStatus && request.method === 'GET') return handleCashfreeOrderStatus(env, cfStatus[1]);
+
+    return json({ error: 'not found', try: ['/health', '/ai', '/news', '/events', '/geo', '/leads', '/cashfree/order'] }, 404);
   },
 
   /* ONE scheduled handler. News daily; events on Mondays only, to stay well
