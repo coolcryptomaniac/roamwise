@@ -1,0 +1,50 @@
+name: Repo health (tests, checks, doc drift)
+
+# Runs the checks this repo's own docs already describe as CI gates
+# (npm test, npm run check — see ARCHITECTURE.md's "Line-limit enforcement"
+# section, which calls `npm run check` "the CI-blocking gate") but that no
+# workflow previously actually ran. Also runs `npm run mod-status` and fails
+# if it reports drift, so ARCHITECTURE.md's headline numbers (app.js line
+# count, js/ file count, css/ file count) can't silently go stale again the
+# way this task's own docs-refresh pass had to fix by hand — see CLAUDE.md's
+# "History" section for why a stale contract doc is worth guarding against.
+#
+# `npm run lint` is intentionally NOT a blocking step here: ARCHITECTURE.md
+# documents it as informational (1,000+ pre-existing no-unused-vars warnings
+# are a known false-positive pattern in this no-bundler codebase — see
+# CLAUDE.md's "no bundler, no ES modules" note), not a merge gate. It still
+# runs, with its output visible in the job log, so a genuinely new lint
+# *error* (the only category that already sits near zero) is easy to spot
+# without failing the build over the pre-existing warning baseline.
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  health:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: '22'}
+      - name: Install dependencies
+        run: npm ci
+      - name: Unit tests (npm test)
+        run: npm test
+      - name: Syntax + line-limit + typecheck (npm run check)
+        run: npm run check
+      - name: ARCHITECTURE.md drift check (npm run mod-status)
+        run: |
+          npm run mod-status | tee /tmp/mod-status.out
+          if grep -q 'DRIFT' /tmp/mod-status.out; then
+            echo "::error::ARCHITECTURE.md's headline numbers have drifted from the live repo — see the drift check output above. Update ARCHITECTURE.md's Module map numbers (app.js line count / js/ file count / css/ file count) to match."
+            exit 1
+          fi
+      - name: Lint (informational — see note above, not a merge gate)
+        run: npm run lint
+        continue-on-error: true
