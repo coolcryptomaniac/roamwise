@@ -38,7 +38,7 @@ function blobToJpeg(b){
 }
 function fetchImg64(url){
   /* weserv proxy: any source -> CORS-open, resized, guaranteed JPEG */
-  var u0=String(url).replace(/\/thumb\/([0-9a-f]\/[0-9a-f]{2}\/[^\/]+)\/\d+px-[^\/]+$/,'/$1'); /* wikimedia: use ORIGINAL, let proxy resize */
+  var u0=String(url).replace(/\/thumb\/([0-9a-f]\/[0-9a-f]{2}\/[^/]+)\/\d+px-[^/]+$/,'/$1'); /* wikimedia: use ORIGINAL, let proxy resize */
   var prox='https://images.weserv.nl/?w=820&q=82&output=jpg&url='+encodeURIComponent(u0.replace(/^https?:\/\//,''));
   function toData(b){ return new Promise(function(res,rej){ var fr=new FileReader(); fr.onload=function(){res(fr.result);}; fr.onerror=function(){rej(0);}; fr.readAsDataURL(b); }); }
   return fetch(prox).then(function(r){ if(!r.ok) throw 0; return r.blob(); })

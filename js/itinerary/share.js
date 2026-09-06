@@ -17,7 +17,7 @@ function rwShareSheet(text, url, whatLabel){
     {id:'more', label:'More apps', emoji:'\u2026', href:'#native'}
   ];
   var grid=links.map(function(l){
-    return '<button class="share-cell" onclick="rwShareGo(\''+l.id+'\',\''+l.href.replace(/\'/g,"%27")+'\')">'
+    return '<button class="share-cell" onclick="rwShareGo(\''+l.id+'\',\''+l.href.replace(/'/g,"%27")+'\')">'
       +'<span class="share-emoji">'+l.emoji+'</span><span>'+l.label+'</span></button>';
   }).join('');
   window._rwShareCtx={text:text,url:url};

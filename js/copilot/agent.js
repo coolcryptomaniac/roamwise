@@ -67,6 +67,9 @@ var RW_AGENT_TOOLS = [
   { type:'function', function:{ name:'parse_ticket',
     description:'Extract PNR, train, stations, date and status from a pasted booking SMS.',
     parameters:{ type:'object', properties:{ text:{type:'string'} }, required:['text'] } } },
+  { type:'function', function:{ name:'destination_facts',
+    description:'Look up RoamWise’s own curated facts for a destination — best months to visit, typical daily cost in INR, signature food, hidden gems, and ground-truth local advice a local would know. Call this BEFORE answering any factual question about a SPECIFIC place (best time to go, what to eat, hidden spots, rough daily budget) instead of relying on your own memory, so you never invent a fact RoamWise already has curated and verified.',
+    parameters:{ type:'object', properties:{ place:{type:'string', description:'City or destination name, e.g. "Goa"'} }, required:['place'] } } },
   { type:'function', function:{ name:'finish',
     description:'Call when the objective is complete. Provide the final answer for the user.',
     parameters:{ type:'object', properties:{ answer:{type:'string'} }, required:['answer'] } } }
@@ -127,6 +130,20 @@ var RW_AGENT_IMPL = {
     if(!r.found) return {ok:false, error:'no ticket details found in that text'};
     return {ok:true, ticket:r};
   },
+  destination_facts: function(a){
+    if(!a.place) return {ok:false, error:'place is required'};
+    var hit = (typeof cpDbFind==='function') ? cpDbFind(String(a.place)) : null;
+    if(!hit) return {ok:true, found:false, place:a.place,
+      note:'RoamWise has no curated entry for "'+a.place+'" — say that plainly rather than inventing specifics; general, non-specific guidance is fine.'};
+    var MONTHS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    return {ok:true, found:true, name:hit.name, country:hit.country, region:hit.region,
+      best_months:(hit.bestM||[]).map(function(m){ return MONTHS[m-1]||m; }),
+      daily_cost_inr: hit.cost||null,
+      signature_food: hit.food||[],
+      hidden_gems: hit.gems||[],
+      local_tip: hit.local||'',
+      visa: hit.visa||null};
+  },
   finish: function(a){ return {ok:true, done:true, answer:a.answer||''}; }
 };
 
@@ -139,6 +156,9 @@ function rwAgentRun(objective, onTrace, onDone){
       +'Work in steps: pick ONE tool at a time, read its result, then decide the next step. '
       +'CRITICAL: never state a travel duration without calling estimate_travel_time first \u2014 '
       +'Indian mountain roads are far slower than distance suggests. '
+      +'CRITICAL: never state a best-time-to-visit, typical daily cost, signature food or hidden-gem claim about a '
+      +'SPECIFIC place without calling destination_facts first \u2014 if it comes back found:false, say plainly that '
+      +'RoamWise has no curated entry for that place rather than inventing specifics. '
       +'If a tool returns ok:false, read the error and try a different approach rather than repeating it. '
       +'YOU CAN RUN THE WHOLE PRODUCT, not just answer questions. Where to stay \u2192 search_stays and quote real prices. '
       +'They pick one \u2192 open_booking. Local operators \u2192 find_partners, and be honest about which are verified '
@@ -270,24 +290,55 @@ function rwBookingText(b){
 }
 
 /* Tool-calling request. Only OpenAI-compatible providers support this, so we
-   pick one that does and fall back to plain chat if none is configured. */
+   pick one that does and fall back to plain chat if none is configured.
+
+   PROVIDER INDEPENDENCE + TIMEOUT (quality fix): this used to try exactly one
+   provider with no request timeout at all — unlike js/copilot/ai-providers.js's
+   aiRequest(), which both aborts after 15s and (via aiCallAny) falls through
+   every other armed provider before giving up. A single stalled connection to
+   the chosen tool-calling provider used to hang the whole agent loop
+   indefinitely (the "Tusk is thinking…" spinner never resolves, and the
+   step-ceiling in rwAgentRun only counts completed steps, not elapsed time —
+   it can't rescue a call that never returns). Now this mirrors that same
+   proven pattern: abort any single attempt after 20s (a little more headroom
+   than plain chat's 15s, since a tool-schema request is a larger payload for
+   the provider to parse), and on a timeout or an auth/quota-shaped failure,
+   try the NEXT configured tool-calling provider before giving up — exactly
+   the "one provider failing must never take the answer down" rule
+   aiCallAny's own header comment already states for the rest of the app. */
 function rwAgentCall(messages, cb){
-  var provs=['groq','cerebras','openrouter','mistral'];
-  var prov=provs.filter(function(p){ return lsGet('rwKey_'+p); })[0];
-  if(!prov){ cb('no tool-calling provider configured'); return; }
+  var provs=['groq','cerebras','openrouter','mistral'].filter(function(p){ return lsGet('rwKey_'+p); });
+  if(!provs.length){ cb('no tool-calling provider configured'); return; }
   var bases={groq:'https://api.groq.com/openai/v1', cerebras:'https://api.cerebras.ai/v1',
              openrouter:'https://openrouter.ai/api/v1', mistral:'https://api.mistral.ai/v1'};
-  var model=(AI_MODELS[prov]||['llama-3.3-70b-versatile'])[0];
-  fetch(bases[prov]+'/chat/completions', {
-    method:'POST',
-    headers:{'Content-Type':'application/json','Authorization':'Bearer '+lsGet('rwKey_'+prov)},
-    body:JSON.stringify({model:model, messages:messages, tools:RW_AGENT_TOOLS, tool_choice:'auto', max_tokens:900})
-  }).then(function(r){ return r.json(); })
-    .then(function(d){
-      var m=d&&d.choices&&d.choices[0]&&d.choices[0].message;
-      if(!m){ cb((d&&d.error&&d.error.message)||'no message'); return; }
-      cb(null, m);
-    }).catch(function(e){ cb(String(e&&e.message||e)); });
+  var i=0;
+  (function attempt(lastErr){
+    if(i>=provs.length){ cb(lastErr||'All tool-calling providers failed'); return; }
+    var prov=provs[i++];
+    var model=(AI_MODELS[prov]||['llama-3.3-70b-versatile'])[0];
+    var ctrl = ('AbortController' in window)? new AbortController() : null;
+    var tmr = ctrl? setTimeout(function(){ ctrl.abort(); }, 20000) : null;
+    fetch(bases[prov]+'/chat/completions', {
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+lsGet('rwKey_'+prov)},
+      body:JSON.stringify({model:model, messages:messages, tools:RW_AGENT_TOOLS, tool_choice:'auto', max_tokens:900}),
+      signal: ctrl? ctrl.signal : undefined
+    }).then(function(r){ return r.json().then(function(d){ return {status:r.status, data:d}; }); })
+      .then(function(res){
+        clearTimeout(tmr);
+        var d=res.data, m=d&&d.choices&&d.choices[0]&&d.choices[0].message;
+        if(!m){
+          var em=(d&&d.error&&d.error.message)||'no message';
+          if(res.status===401||res.status===403||/quota|billing|rate.?limit/i.test(String(em))){ attempt(em); return; }
+          cb(em); return;
+        }
+        cb(null, m);
+      }).catch(function(e){
+        clearTimeout(tmr);
+        if(e && e.name==='AbortError'){ attempt('Timed out after 20s — check your connection'); return; }
+        attempt(String(e&&e.message||e));
+      });
+  })(null);
 }
 
 /* --- the visible reasoning trace (useful UX AND the thing to film for a demo) --- */

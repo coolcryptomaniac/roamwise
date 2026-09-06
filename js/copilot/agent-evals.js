@@ -36,7 +36,12 @@ var RW_EVALS = [
   { id:'e9', objective:'Budget 50000 for 5 days in Goa, comfort style, and show the map',
     must:['calculate_budget','show_map'], minSteps:3 },
   { id:'e10', objective:'What is the capital of France?',
-    must:[], minSteps:1, offTopic:true }
+    must:[], minSteps:1, offTopic:true },
+  { id:'e11', objective:'What are Goa’s hidden gems, and when’s the best time to go?',
+    /* the grounding test: this must come from RoamWise's own curated DB via
+       destination_facts, not the model's own (possibly wrong/outdated)
+       recollection of Goa. */
+    must:['destination_facts'], minSteps:2 }
 ];
 function rwEvalRun(onProgress, onDone){
   var results=[], i=0;
