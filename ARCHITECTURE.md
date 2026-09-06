@@ -28,17 +28,30 @@ works fully without it.
 
 ## Module map
 
-As of this commit, `app.js` is **629 lines** (down from ~19,300 at the
-start of the modularization effort, down from 3,099 after the prior
-"modularization-final" pass, and down from 1,207 after "round 4") and
-there are **126 files** under `js/`, organized into 16 subdirectories,
-plus **9 files** under `css/`. This is the state after the "round 5"
-pass — see "Modularization round 5" near the bottom of this document for
-what was found (a mis-categorization in round 4's own closing
-assessment) and for the honest, re-verified case that what's left now
-really is the practical floor. (126, not round 5's own 125, because
-`js/pricing/founder-seats.js` merged in from an unrelated, concurrently-
-landed bug-fix pass on `main` — see the `js/pricing/` entry below.)
+As of this commit (post PRs #138-143), `app.js` is **565 lines** (down
+from ~19,300 at the start of the modularization effort, down from 3,099
+after the prior "modularization-final" pass, down from 1,207 after
+"round 4", and down from 629 after "round 5" — the further drop since
+round 5 is incidental to unrelated feature PRs #138-143 touching app.js
+in passing, not a new extraction round) and there are **135 files** under `js/`,
+organized into **17 top-level subdirectories** (16 from round 5 plus the
+new `js/admin/`) plus one nested subdirectory (`js/payments/providers/`),
+plus **9 files** under `css/`. Two new top-level feature areas landed
+since round 5:
+
+- **`js/admin/` (6 files, added in PR #140)** — a real, data-grounded
+  internal admin dashboard (business metrics, compliance, staff,
+  referral liability, dev requests, investor summary). Loaded only by
+  `admin/index.html` (a separate page, not part of the main app's
+  `index.html` script chain) — see the `js/admin/` entry below.
+- **`js/payments/providers/` (2 files, added in PR #142)** — provider
+  implementations for the new pluggable payment gateway adapter
+  (`js/payments/gateway-adapter.js`, also added in PR #142) — see the
+  `js/payments/` entry below.
+
+Run `npm run mod-status` before trusting any of these numbers — it
+cross-checks this section's headline figures against the live repo and
+prints PASS/DRIFT per number in under a second.
 
 ### `js/core/` — shared low-level utilities (7 files)
 - `app-utils.js` — `rwHaptic`/`showToast`/`scrollToId`/`offerOpen`/
@@ -91,7 +104,37 @@ landed bug-fix pass on `main` — see the `js/pricing/` entry below.)
   payment-claim writer that calls this file's `rwRefStamp()` — is
   payments/entitlement code and deliberately stays in `app.js`.
 
-### `js/payments/` (3 files)
+### `js/admin/` (6 files, added in PR #140)
+Internal admin dashboard logic, loaded only by `admin/index.html` (a
+separate page from the main app — not part of `index.html`'s script
+chain). Each file is a self-contained tab's worth of read-mostly
+reporting logic, deliberately honest about what it can and can't compute
+from real data (per each file's own header comment, several explicitly
+avoid fabricating a number/score where the underlying data doesn't
+support one):
+- `business-metrics.js` (189 lines) — real, data-grounded MRR/ARR/EBITDA
+  for the "Business" tab, computed from approved payment claims matched
+  against `RWPricing.CONFIG` (`js/pricing/tiers.js`) — nothing invented.
+- `referral-liability.js` (110 lines) — real total commission owed to
+  referrers/creators, computed from the same claims data.
+- `compliance-checklist.js` (124 lines) — a plain, honest compliance
+  checklist (not a fabricated "compliance score").
+- `staff-manager.js` (111 lines) — view/edit UI for the existing
+  referrer/staff registry.
+- `dev-requests.js` (109 lines) — dev-request tracking; its own header
+  notes there's no real, safe way for this web page to do more than
+  track/display requests (no live code-execution capability implied).
+- `investor-summary.js` (60 lines) — a clean, read-only rollup meant to
+  be screenshotted for an investor update.
+
+### `js/payments/` (4 files, plus a nested `providers/` subdirectory)
+- `gateway-adapter.js` (added in PR #142) — the pluggable payment
+  gateway adapter: `RWPaymentGateway`, the provider interface every
+  concrete payment method implements, and the selection logic that picks
+  a provider from `RW_PAYMENT_PROVIDER`/`config/app.PAYMENT_PROVIDER`.
+  Modeled on the same one-registry pattern `js/booking/affiliate-links.js`
+  already uses for affiliate routing. See `PAYMENT-GATEWAY-ARCHITECTURE.md`
+  for the full provider-interface contract and how to add a new gateway.
 - `checkout.js` — Gumroad/direct-crypto-wallet checkout UI panels
 - `partner-redeem.js` — `openPartnerRedeem()`, the partner claim-code ->
   Pro grant flow (NMIMS and future partners); moved verbatim from app.js
@@ -103,6 +146,19 @@ landed bug-fix pass on `main` — see the `js/pricing/` entry below.)
   modularization round 4. `submitUtr()` (the function that actually
   writes a payment claim) deliberately stays in app.js — see "Modularization
   round 4" below
+
+#### `js/payments/providers/` (2 files, added in PR #142)
+- `manual-upi-adapter.js` (176 lines) — implements the
+  `RWPaymentGateway` provider interface for RoamWise's real, currently-live
+  checkout method (manual UPI/UTR entry, the same flow `plan-picker.js`'s
+  UI drives) — this is the provider actually wired up in production via
+  `index.html`'s script order (`gateway-adapter.js` loads first, then this
+  file registers itself with it).
+- `mock-adapter.js` (39 lines) — a test-only mock provider implementation.
+  Explicitly **not** wired into production: not referenced by
+  `index.html`, and no config value ever resolves `RW_PAYMENT_PROVIDER` to
+  it (per the file's own header comment) — exists purely so the adapter
+  interface has a second, trivial implementation to test against.
 
 ### `js/audio/` (3 files)
 - `cues.js` — manifest-driven one-shot sound cues
@@ -844,10 +900,12 @@ function, and a handful of blocks under 15 lines each.
 generated, flat lookup table — function name, defining file, line number,
 and a best-effort one-line purpose — covering every top-level
 `function NAME(...)` and `window.NAME = function` declaration across
-`app.js` and all of `js/**/*.js` (877 entries as of this pass). Reading
-that one file in full is far cheaper, in tokens and turns, than even a
-single repo-wide `grep -rn "function someFunc"` across 125+ files,
-and it's usually a single Ctrl-F away from the answer.
+`app.js` and all of `js/**/*.js` (878 entries as of this doc's latest
+regeneration — regenerate with `npm run index` any time you suspect
+drift, per the note above). Reading that one file in full is far
+cheaper, in tokens and turns, than even a single repo-wide
+`grep -rn "function someFunc"` across 135+ files, and it's usually a
+single Ctrl-F away from the answer.
 
 It's generated by `tools/generate-function-index.js` (a small, one-off,
 regex-based line scanner — not a real AST parser, by design: it's meant
@@ -1018,3 +1076,7 @@ round 5"'s own advice) remains the source of truth.
 - **`AI-ROLES-AND-HANDOFF.md`** — shared ChatGPT/Claude responsibilities
   and repo-wide safety rules (rule 7: auth/payments/entitlement/
   Firestore/deployment behavior changes need separate human review).
+- **`PAYMENT-GATEWAY-ARCHITECTURE.md`** — the provider interface for
+  `js/payments/gateway-adapter.js` + `js/payments/providers/*`, and the
+  step-by-step guide for adding a new payment gateway. Read before
+  touching `js/payments/**`.
