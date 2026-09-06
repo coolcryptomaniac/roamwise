@@ -270,7 +270,8 @@ function rwInitWebPush(){
 
 /* ==================== REMOTE CONFIG (owner values, zero user input) =========
    Every owner-only value — affiliate IDs, WhatsApp numbers, Gumroad link/ID,
-   promo video URL, music embeds, crypto wallets, Play Store URL — now lives in
+   promo video URL, music embeds, crypto wallets, Play Store URL, the active
+   payment provider id — now lives in
    ONE Firestore doc (config/app) that only the admin console can write (rules:
    public read, isAdmin write). The user app just reads it. Two-phase apply:
    1) cached copy from localStorage immediately (works offline / first paint),
@@ -324,6 +325,12 @@ function applyRemoteConfig(cfg){
   /* Gumroad values feed the existing localStorage readers untouched. */
   set('GUM_URL',          function(v){ lsSet('rw_gum_url', v); });
   set('GUM_PID',          function(v){ lsSet('rw_gum_pid', v); });
+  /* Pluggable payment gateway (see js/payments/gateway-adapter.js) — the one
+     config-driven selection point a future second provider flips on. Unset
+     (the default) leaves RW_PAYMENT_PROVIDER at 'manual_upi', today's real
+     behavior, so this key changes nothing until an admin deliberately sets
+     it to a provider id that has actually registered an adapter. */
+  set('PAYMENT_PROVIDER', function(v){ if(typeof v==='string' && v) RW_PAYMENT_PROVIDER=v; });
 
   /* ---- Admin-controlled custom head-script slot (rw-v95) ----
      Lets an admin drop in a verified third-party script (e.g. a Travelpayouts
