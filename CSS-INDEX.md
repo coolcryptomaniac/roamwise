@@ -6,7 +6,7 @@ CSS class selector, a stylesheet `<link>`, or a `data-include` partial
 reference (see ARCHITECTURE.md's "low AI credit usage" section — this
 is FUNCTION-INDEX.md's sibling for CSS/HTML instead of JS functions).
 
-Generated: 2026-09-05 · 859 CSS class selectors across 9 files · 9 linked stylesheets · 4 `data-include` partials, scanned across 462 HTML files.
+Generated: 2026-09-06 · 859 CSS class selectors across 9 files · 9 linked stylesheets · 4 `data-include` partials, scanned across 462 HTML files.
 
 Scope: the CSS-class table only covers `css/**/*.css` (matching
 ARCHITECTURE.md's "9 files under css/") — it does NOT cover
@@ -32,22 +32,22 @@ responsive/state overrides, not a collision.
 | `.ac-place` | `css/base/04-accounts-and-extras.css:57` |
 | `.ac-row` | `css/base/04-accounts-and-extras.css:55` |
 | `.ac-tip` | `css/base/04-accounts-and-extras.css:43`, `css/base/04-accounts-and-extras.css:44` |
-| `.act-bar` | `css/base/02-shell.css:231`, `css/base/02-shell.css:344` |
-| `.act-btn` | `css/base/02-shell.css:232` |
-| `.act-ghost` | `css/base/02-shell.css:250`, `css/base/02-shell.css:250` |
-| `.act-gold` | `css/base/02-shell.css:248`, `css/base/02-shell.css:248` |
-| `.act-pm` | `css/base/02-shell.css:251` |
-| `.act-wa` | `css/base/02-shell.css:249` |
-| `.active` | `css/base/02-shell.css:14` |
+| `.act-bar` | `css/base/02-shell.css:232`, `css/base/02-shell.css:345` |
+| `.act-btn` | `css/base/02-shell.css:233` |
+| `.act-ghost` | `css/base/02-shell.css:251`, `css/base/02-shell.css:251` |
+| `.act-gold` | `css/base/02-shell.css:249`, `css/base/02-shell.css:249` |
+| `.act-pm` | `css/base/02-shell.css:252` |
+| `.act-wa` | `css/base/02-shell.css:250` |
+| `.active` | `css/base/02-shell.css:15` |
 | `.ad-cta` | `css/base/03-features-legacy.css:136`, `css/base/03-features-legacy.css:138` |
 | `.ad-ic` | `css/base/03-features-legacy.css:133` |
 | `.ad-lbl` | `css/base/03-features-legacy.css:137` |
 | `.ad-s` | `css/base/03-features-legacy.css:135` |
 | `.ad-t` | `css/base/03-features-legacy.css:134` |
 | `.adcard` | `css/base/03-features-legacy.css:132`, `css/base/03-features-legacy.css:133`, `css/base/03-features-legacy.css:134`, `css/base/03-features-legacy.css:135`, `css/base/03-features-legacy.css:136`, `css/base/03-features-legacy.css:138`, `css/base/03-features-legacy.css:138` |
-| `.add-btn` | `css/base/02-shell.css:207` |
-| `.add-row` | `css/base/02-shell.css:205` |
-| `.ai` | `css/base/02-shell.css:329` |
+| `.add-btn` | `css/base/02-shell.css:208` |
+| `.add-row` | `css/base/02-shell.css:206` |
+| `.ai` | `css/base/02-shell.css:330` |
 | `.auth-btn` | `css/base/04-accounts-and-extras.css:5`, `css/base/04-accounts-and-extras.css:6`, `css/base/04-accounts-and-extras.css:7` |
 | `.auth-div` | `css/base/04-accounts-and-extras.css:8`, `css/base/04-accounts-and-extras.css:9`, `css/base/04-accounts-and-extras.css:9` |
 | `.auth-err` | `css/base/04-accounts-and-extras.css:14` |
@@ -56,22 +56,22 @@ responsive/state overrides, not a collision.
 | `.auth-sub` | `css/base/04-accounts-and-extras.css:12`, `css/base/04-accounts-and-extras.css:13` |
 | `.av` | `css/base/04-accounts-and-extras.css:47` |
 | `.avatar` | `css/base/04-accounts-and-extras.css:3` |
-| `.badge` | `css/base/02-shell.css:105` |
-| `.badge-cost` | `css/base/02-shell.css:109` |
-| `.badge-hi` | `css/base/02-shell.css:108` |
-| `.badge-low` | `css/base/02-shell.css:106` |
-| `.badge-mid` | `css/base/02-shell.css:107` |
-| `.badge-sea` | `css/base/02-shell.css:110` |
-| `.badges` | `css/base/02-shell.css:104`, `css/base/02-shell.css:344` |
+| `.badge` | `css/base/02-shell.css:106` |
+| `.badge-cost` | `css/base/02-shell.css:110` |
+| `.badge-hi` | `css/base/02-shell.css:109` |
+| `.badge-low` | `css/base/02-shell.css:107` |
+| `.badge-mid` | `css/base/02-shell.css:108` |
+| `.badge-sea` | `css/base/02-shell.css:111` |
+| `.badges` | `css/base/02-shell.css:105`, `css/base/02-shell.css:345` |
 | `.bar` | `css/base/04-accounts-and-extras.css:30`, `css/guide-page.css:20`, `css/guide-page.css:21` |
-| `.bar-chart` | `css/base/02-shell.css:150` |
-| `.bc` | `css/base/02-shell.css:151`, `css/base/02-shell.css:153`, `css/base/02-shell.css:153` |
-| `.bc-bar` | `css/base/02-shell.css:152`, `css/base/02-shell.css:153` |
-| `.bc-lbl` | `css/base/02-shell.css:152`, `css/base/02-shell.css:153` |
+| `.bar-chart` | `css/base/02-shell.css:151` |
+| `.bc` | `css/base/02-shell.css:152`, `css/base/02-shell.css:154`, `css/base/02-shell.css:154` |
+| `.bc-bar` | `css/base/02-shell.css:153`, `css/base/02-shell.css:154` |
+| `.bc-lbl` | `css/base/02-shell.css:153`, `css/base/02-shell.css:154` |
 | `.bdg` | `css/base/06-commerce-and-social.css:354` |
-| `.best` | `css/base/02-shell.css:156`, `css/guide-page.css:22` |
+| `.best` | `css/base/02-shell.css:157`, `css/guide-page.css:22` |
 | `.bi` | `css/base/03-features-legacy.css:106` |
-| `.big-price` | `css/base/02-shell.css:273` |
+| `.big-price` | `css/base/02-shell.css:274` |
 | `.bk-amt` | `css/base/06-commerce-and-social.css:192` |
 | `.bk-empty` | `css/base/06-commerce-and-social.css:185` |
 | `.bk-go` | `css/base/06-commerce-and-social.css:199`, `css/base/06-commerce-and-social.css:202` |
@@ -93,18 +93,18 @@ responsive/state overrides, not a collision.
 | `.bkd-ref` | `css/base/06-commerce-and-social.css:277` |
 | `.bkd-tick` | `css/base/06-commerce-and-social.css:272`, `css/base/06-commerce-and-social.css:282` |
 | `.bkd-wrap` | `css/base/06-commerce-and-social.css:271` |
-| `.bm` | `css/base/02-shell.css:155`, `css/base/02-shell.css:156`, `css/base/02-shell.css:156` |
-| `.bm-grid` | `css/base/02-shell.css:154` |
+| `.bm` | `css/base/02-shell.css:156`, `css/base/02-shell.css:157`, `css/base/02-shell.css:157` |
+| `.bm-grid` | `css/base/02-shell.css:155` |
 | `.board-h` | `css/base/04-accounts-and-extras.css:202` |
 | `.board-sec` | `css/base/04-accounts-and-extras.css:200`, `css/base/04-accounts-and-extras.css:201` |
 | `.board-tag` | `css/base/04-accounts-and-extras.css:205` |
 | `.board-v` | `css/base/04-accounts-and-extras.css:203` |
 | `.board-x` | `css/base/04-accounts-and-extras.css:204` |
-| `.book-grid` | `css/base/02-shell.css:226`, `css/base/02-shell.css:344` |
-| `.book-ico` | `css/base/02-shell.css:229` |
-| `.book-link` | `css/base/02-shell.css:227`, `css/base/02-shell.css:228` |
-| `.book-name` | `css/base/02-shell.css:229` |
-| `.book-sub` | `css/base/02-shell.css:229` |
+| `.book-grid` | `css/base/02-shell.css:227`, `css/base/02-shell.css:345` |
+| `.book-ico` | `css/base/02-shell.css:230` |
+| `.book-link` | `css/base/02-shell.css:228`, `css/base/02-shell.css:229` |
+| `.book-name` | `css/base/02-shell.css:230` |
+| `.book-sub` | `css/base/02-shell.css:230` |
 | `.box` | `css/legal-page.css:17`, `css/marketing-page.css:17` |
 | `.brand` | `css/legal-page.css:10`, `css/legal-page.css:10`, `css/marketing-page.css:9`, `css/marketing-page.css:9` |
 | `.brief` | `css/base/03-features-legacy.css:96`, `css/base/05-desktop-and-discovery.css:355`, `css/base/05-desktop-and-discovery.css:384`, `css/base/05-desktop-and-discovery.css:420` |
@@ -114,34 +114,34 @@ responsive/state overrides, not a collision.
 | `.brief-head` | `css/base/03-features-legacy.css:99` |
 | `.brief-row` | `css/base/03-features-legacy.css:105`, `css/base/03-features-legacy.css:106`, `css/base/03-features-legacy.css:107` |
 | `.brief-wx` | `css/base/03-features-legacy.css:102`, `css/base/03-features-legacy.css:103`, `css/base/03-features-legacy.css:104` |
-| `.brk-fill` | `css/base/02-shell.css:163` |
-| `.brk-fill-gold` | `css/base/02-shell.css:163` |
-| `.brk-lbl` | `css/base/02-shell.css:163` |
-| `.brk-list` | `css/base/02-shell.css:161` |
-| `.brk-pct` | `css/base/02-shell.css:164` |
-| `.brk-row` | `css/base/02-shell.css:162` |
-| `.brk-track` | `css/base/02-shell.css:163` |
-| `.brk-val` | `css/base/02-shell.css:164` |
-| `.btn` | `css/base/02-shell.css:12`, `css/base/04-accounts-and-extras.css:31`, `css/base/04-accounts-and-extras.css:32`, `css/base/04-accounts-and-extras.css:117`, `css/base/04-accounts-and-extras.css:135` |
-| `.btn-ghost` | `css/base/02-shell.css:13`, `css/base/02-shell.css:13`, `css/base/03-features-legacy.css:245` |
-| `.btn-pro` | `css/base/02-shell.css:14`, `css/base/02-shell.css:14` |
-| `.btn-sm` | `css/base/02-shell.css:15`, `css/base/03-features-legacy.css:245` |
-| `.budget-label` | `css/base/02-shell.css:56` |
-| `.budget-row` | `css/base/02-shell.css:55` |
-| `.budget-val` | `css/base/02-shell.css:57` |
+| `.brk-fill` | `css/base/02-shell.css:164` |
+| `.brk-fill-gold` | `css/base/02-shell.css:164` |
+| `.brk-lbl` | `css/base/02-shell.css:164` |
+| `.brk-list` | `css/base/02-shell.css:162` |
+| `.brk-pct` | `css/base/02-shell.css:165` |
+| `.brk-row` | `css/base/02-shell.css:163` |
+| `.brk-track` | `css/base/02-shell.css:164` |
+| `.brk-val` | `css/base/02-shell.css:165` |
+| `.btn` | `css/base/02-shell.css:13`, `css/base/04-accounts-and-extras.css:31`, `css/base/04-accounts-and-extras.css:32`, `css/base/04-accounts-and-extras.css:117`, `css/base/04-accounts-and-extras.css:135` |
+| `.btn-ghost` | `css/base/02-shell.css:14`, `css/base/02-shell.css:14`, `css/base/03-features-legacy.css:245` |
+| `.btn-pro` | `css/base/02-shell.css:15`, `css/base/02-shell.css:15` |
+| `.btn-sm` | `css/base/02-shell.css:16`, `css/base/03-features-legacy.css:245` |
+| `.budget-label` | `css/base/02-shell.css:57` |
+| `.budget-row` | `css/base/02-shell.css:56` |
+| `.budget-val` | `css/base/02-shell.css:58` |
 | `.bye` | `css/base/03-features-legacy.css:141` |
 | `.c-tl` | `css/base/04-accounts-and-extras.css:29` |
 | `.c-tr` | `css/base/04-accounts-and-extras.css:29` |
-| `.card` | `css/base/02-shell.css:88`, `css/base/02-shell.css:89`, `css/base/02-shell.css:89`, `css/base/02-shell.css:90`, `css/base/02-shell.css:90`, `css/guide-page.css:25`, `css/guide-page.css:26`, `css/guide-page.css:27` |
-| `.card-body` | `css/base/02-shell.css:112`, `css/base/02-shell.css:344` |
-| `.card-ctry` | `css/base/02-shell.css:103` |
-| `.card-head` | `css/base/02-shell.css:101`, `css/base/02-shell.css:344` |
-| `.card-list` | `css/base/02-shell.css:87` |
-| `.card-name` | `css/base/02-shell.css:103` |
-| `.card-rank` | `css/base/02-shell.css:102`, `css/base/02-shell.css:102` |
-| `.cbtn` | `css/base/02-shell.css:52`, `css/base/02-shell.css:53`, `css/base/02-shell.css:53`, `css/base/02-shell.css:54`, `css/base/02-shell.css:54`, `css/base/02-shell.css:54`, `css/base/04-accounts-and-extras.css:118` |
-| `.cdd` | `css/base/02-shell.css:49`, `css/base/02-shell.css:49` |
-| `.cddo` | `css/base/02-shell.css:50`, `css/base/02-shell.css:50` |
+| `.card` | `css/base/02-shell.css:89`, `css/base/02-shell.css:90`, `css/base/02-shell.css:90`, `css/base/02-shell.css:91`, `css/base/02-shell.css:91`, `css/guide-page.css:25`, `css/guide-page.css:26`, `css/guide-page.css:27` |
+| `.card-body` | `css/base/02-shell.css:113`, `css/base/02-shell.css:345` |
+| `.card-ctry` | `css/base/02-shell.css:104` |
+| `.card-head` | `css/base/02-shell.css:102`, `css/base/02-shell.css:345` |
+| `.card-list` | `css/base/02-shell.css:88` |
+| `.card-name` | `css/base/02-shell.css:104` |
+| `.card-rank` | `css/base/02-shell.css:103`, `css/base/02-shell.css:103` |
+| `.cbtn` | `css/base/02-shell.css:53`, `css/base/02-shell.css:54`, `css/base/02-shell.css:54`, `css/base/02-shell.css:55`, `css/base/02-shell.css:55`, `css/base/02-shell.css:55`, `css/base/04-accounts-and-extras.css:118` |
+| `.cdd` | `css/base/02-shell.css:50`, `css/base/02-shell.css:50` |
+| `.cddo` | `css/base/02-shell.css:51`, `css/base/02-shell.css:51` |
 | `.cert` | `css/base/04-accounts-and-extras.css:59` |
 | `.cert-badge` | `css/base/04-accounts-and-extras.css:163` |
 | `.cert-badges` | `css/base/04-accounts-and-extras.css:162` |
@@ -168,18 +168,18 @@ responsive/state overrides, not a collision.
 | `.cg-go` | `css/base/06-commerce-and-social.css:400` |
 | `.cg-i` | `css/base/06-commerce-and-social.css:398`, `css/base/06-commerce-and-social.css:459` |
 | `.cg-row` | `css/base/06-commerce-and-social.css:394`, `css/base/06-commerce-and-social.css:396`, `css/base/06-commerce-and-social.css:397`, `css/base/06-commerce-and-social.css:399`, `css/base/06-commerce-and-social.css:458` |
-| `.chev` | `css/base/02-shell.css:237`, `css/base/02-shell.css:238`, `css/base/02-shell.css:244`, `css/base/02-shell.css:245` |
+| `.chev` | `css/base/02-shell.css:238`, `css/base/02-shell.css:239`, `css/base/02-shell.css:245`, `css/base/02-shell.css:246` |
 | `.circ` | `css/base/03-features-legacy.css:69` |
 | `.circ-meta` | `css/base/03-features-legacy.css:75` |
 | `.circ-name` | `css/base/03-features-legacy.css:70` |
 | `.circ-path` | `css/base/03-features-legacy.css:72` |
 | `.circ-where` | `css/base/03-features-legacy.css:71` |
-| `.cmp-detail` | `css/base/02-shell.css:218`, `css/base/02-shell.css:219`, `css/base/02-shell.css:220`, `css/base/02-shell.css:220` |
-| `.cmp-table` | `css/base/02-shell.css:83`, `css/base/02-shell.css:84`, `css/base/02-shell.css:85`, `css/base/02-shell.css:85`, `css/base/02-shell.css:344`, `css/base/02-shell.css:344` |
-| `.cmp-wrap` | `css/base/02-shell.css:82` |
-| `.code` | `css/base/02-shell.css:53`, `css/base/02-shell.css:54` |
+| `.cmp-detail` | `css/base/02-shell.css:219`, `css/base/02-shell.css:220`, `css/base/02-shell.css:221`, `css/base/02-shell.css:221` |
+| `.cmp-table` | `css/base/02-shell.css:84`, `css/base/02-shell.css:85`, `css/base/02-shell.css:86`, `css/base/02-shell.css:86`, `css/base/02-shell.css:345`, `css/base/02-shell.css:345` |
+| `.cmp-wrap` | `css/base/02-shell.css:83` |
+| `.code` | `css/base/02-shell.css:54`, `css/base/02-shell.css:55` |
 | `.com` | `css/base/04-accounts-and-extras.css:20` |
-| `.conf` | `css/base/02-shell.css:338` |
+| `.conf` | `css/base/02-shell.css:339` |
 | `.corner` | `css/base/04-accounts-and-extras.css:28` |
 | `.cost` | `css/base/06-commerce-and-social.css:50` |
 | `.cp-arr` | `css/base/03-features-legacy.css:74` |
@@ -196,45 +196,45 @@ responsive/state overrides, not a collision.
 | `.cp-sub` | `css/base/06-commerce-and-social.css:370` |
 | `.cp-v` | `css/base/06-commerce-and-social.css:382` |
 | `.cp-why` | `css/base/06-commerce-and-social.css:390` |
-| `.crowd-bar` | `css/base/02-shell.css:124` |
-| `.crowd-bar-hi` | `css/base/02-shell.css:125` |
-| `.crowd-bar-low` | `css/base/02-shell.css:125` |
-| `.crowd-bar-mid` | `css/base/02-shell.css:125` |
-| `.crowd-lbl` | `css/base/02-shell.css:121` |
-| `.crowd-note` | `css/base/02-shell.css:126` |
-| `.crowd-pct` | `css/base/02-shell.css:122` |
-| `.crowd-row` | `css/base/02-shell.css:120` |
-| `.crowd-section` | `css/base/02-shell.css:119` |
-| `.crowd-track` | `css/base/02-shell.css:123` |
+| `.crowd-bar` | `css/base/02-shell.css:125` |
+| `.crowd-bar-hi` | `css/base/02-shell.css:126` |
+| `.crowd-bar-low` | `css/base/02-shell.css:126` |
+| `.crowd-bar-mid` | `css/base/02-shell.css:126` |
+| `.crowd-lbl` | `css/base/02-shell.css:122` |
+| `.crowd-note` | `css/base/02-shell.css:127` |
+| `.crowd-pct` | `css/base/02-shell.css:123` |
+| `.crowd-row` | `css/base/02-shell.css:121` |
+| `.crowd-section` | `css/base/02-shell.css:120` |
+| `.crowd-track` | `css/base/02-shell.css:124` |
 | `.cta` | `css/marketing-page.css:23`, `css/marketing-page.css:25` |
-| `.curr-grid` | `css/base/02-shell.css:51`, `css/base/02-shell.css:344` |
-| `.cw` | `css/base/02-shell.css:49` |
+| `.curr-grid` | `css/base/02-shell.css:52`, `css/base/02-shell.css:345` |
+| `.cw` | `css/base/02-shell.css:50` |
 | `.dan` | `css/base/03-features-legacy.css:171` |
-| `.day-arr` | `css/base/02-shell.css:176`, `css/base/02-shell.css:177` |
-| `.day-body` | `css/base/02-shell.css:178`, `css/base/02-shell.css:178`, `css/base/02-shell.css:181` |
-| `.day-card` | `css/base/02-shell.css:168`, `css/base/02-shell.css:169`, `css/base/05-desktop-and-discovery.css:359`, `css/base/05-desktop-and-discovery.css:360`, `css/base/05-desktop-and-discovery.css:362`, `css/base/05-desktop-and-discovery.css:365`, `css/base/05-desktop-and-discovery.css:376`, `css/base/05-desktop-and-discovery.css:417`, `css/base/05-desktop-and-discovery.css:433`, `css/base/05-desktop-and-discovery.css:436` |
-| `.day-dot` | `css/base/02-shell.css:174` |
-| `.day-head` | `css/base/02-shell.css:170`, `css/base/02-shell.css:171`, `css/base/02-shell.css:172` |
+| `.day-arr` | `css/base/02-shell.css:177`, `css/base/02-shell.css:178` |
+| `.day-body` | `css/base/02-shell.css:179`, `css/base/02-shell.css:179`, `css/base/02-shell.css:182` |
+| `.day-card` | `css/base/02-shell.css:169`, `css/base/02-shell.css:170`, `css/base/05-desktop-and-discovery.css:359`, `css/base/05-desktop-and-discovery.css:360`, `css/base/05-desktop-and-discovery.css:362`, `css/base/05-desktop-and-discovery.css:365`, `css/base/05-desktop-and-discovery.css:376`, `css/base/05-desktop-and-discovery.css:417`, `css/base/05-desktop-and-discovery.css:433`, `css/base/05-desktop-and-discovery.css:436` |
+| `.day-dot` | `css/base/02-shell.css:175` |
+| `.day-head` | `css/base/02-shell.css:171`, `css/base/02-shell.css:172`, `css/base/02-shell.css:173` |
 | `.day-narr` | `css/base/05-desktop-and-discovery.css:387` |
-| `.day-num` | `css/base/02-shell.css:173`, `css/base/02-shell.css:174` |
-| `.day-seg` | `css/base/02-shell.css:182`, `css/base/02-shell.css:183`, `css/base/02-shell.css:184`, `css/base/02-shell.css:185`, `css/base/05-desktop-and-discovery.css:418` |
-| `.day-tip` | `css/base/02-shell.css:189` |
-| `.day-title` | `css/base/02-shell.css:175`, `css/base/05-desktop-and-discovery.css:378`, `css/base/05-desktop-and-discovery.css:431` |
-| `.desc` | `css/base/02-shell.css:127` |
-| `.divider` | `css/base/02-shell.css:63` |
-| `.divider-or` | `css/base/02-shell.css:284`, `css/base/02-shell.css:285`, `css/base/02-shell.css:285`, `css/base/02-shell.css:285`, `css/base/02-shell.css:285` |
+| `.day-num` | `css/base/02-shell.css:174`, `css/base/02-shell.css:175` |
+| `.day-seg` | `css/base/02-shell.css:183`, `css/base/02-shell.css:184`, `css/base/02-shell.css:185`, `css/base/02-shell.css:186`, `css/base/05-desktop-and-discovery.css:418` |
+| `.day-tip` | `css/base/02-shell.css:190` |
+| `.day-title` | `css/base/02-shell.css:176`, `css/base/05-desktop-and-discovery.css:378`, `css/base/05-desktop-and-discovery.css:431` |
+| `.desc` | `css/base/02-shell.css:128` |
+| `.divider` | `css/base/02-shell.css:64` |
+| `.divider-or` | `css/base/02-shell.css:285`, `css/base/02-shell.css:286`, `css/base/02-shell.css:286`, `css/base/02-shell.css:286`, `css/base/02-shell.css:286` |
 | `.dl-btn` | `css/base/03-features-legacy.css:93` |
 | `.dna-opt` | `css/base/03-features-legacy.css:87`, `css/base/03-features-legacy.css:88` |
 | `.dna-opts` | `css/base/03-features-legacy.css:86` |
 | `.dna-q` | `css/base/03-features-legacy.css:84`, `css/base/03-features-legacy.css:85` |
-| `.done` | `css/base/02-shell.css:215`, `css/base/02-shell.css:215`, `css/base/06-commerce-and-social.css:485` |
+| `.done` | `css/base/02-shell.css:216`, `css/base/02-shell.css:216`, `css/base/06-commerce-and-social.css:485` |
 | `.dotgrid` | `css/base/04-accounts-and-extras.css:63` |
 | `.dr-acct` | `css/base/03-features-legacy.css:265`, `css/base/03-features-legacy.css:266`, `css/base/03-features-legacy.css:267`, `css/base/03-features-legacy.css:267` |
 | `.dr-count` | `css/base/05-desktop-and-discovery.css:289`, `css/base/05-desktop-and-discovery.css:292` |
 | `.dr-empty` | `css/base/05-desktop-and-discovery.css:284` |
-| `.dr-gb` | `css/base/02-shell.css:239`, `css/base/02-shell.css:240`, `css/base/05-desktop-and-discovery.css:309`, `css/base/05-desktop-and-discovery.css:310`, `css/base/05-desktop-and-discovery.css:311`, `css/base/05-desktop-and-discovery.css:319` |
-| `.dr-gh` | `css/base/02-shell.css:235`, `css/base/02-shell.css:237`, `css/base/02-shell.css:238`, `css/base/05-desktop-and-discovery.css:287`, `css/base/05-desktop-and-discovery.css:316` |
-| `.dr-grp` | `css/base/02-shell.css:234`, `css/base/02-shell.css:238`, `css/base/02-shell.css:240`, `css/base/05-desktop-and-discovery.css:292`, `css/base/05-desktop-and-discovery.css:310`, `css/base/05-desktop-and-discovery.css:311` |
+| `.dr-gb` | `css/base/02-shell.css:240`, `css/base/02-shell.css:241`, `css/base/05-desktop-and-discovery.css:309`, `css/base/05-desktop-and-discovery.css:310`, `css/base/05-desktop-and-discovery.css:311`, `css/base/05-desktop-and-discovery.css:319` |
+| `.dr-gh` | `css/base/02-shell.css:236`, `css/base/02-shell.css:238`, `css/base/02-shell.css:239`, `css/base/05-desktop-and-discovery.css:287`, `css/base/05-desktop-and-discovery.css:316` |
+| `.dr-grp` | `css/base/02-shell.css:235`, `css/base/02-shell.css:239`, `css/base/02-shell.css:241`, `css/base/05-desktop-and-discovery.css:292`, `css/base/05-desktop-and-discovery.css:310`, `css/base/05-desktop-and-discovery.css:311` |
 | `.dr-head` | `css/base/03-features-legacy.css:262` |
 | `.dr-link` | `css/base/03-features-legacy.css:270`, `css/base/03-features-legacy.css:271`, `css/base/03-features-legacy.css:271`, `css/base/03-features-legacy.css:272`, `css/base/04-accounts-and-extras.css:238`, `css/base/05-desktop-and-discovery.css:49`, `css/base/05-desktop-and-discovery.css:296`, `css/base/05-desktop-and-discovery.css:299`, `css/base/05-desktop-and-discovery.css:300`, `css/base/05-desktop-and-discovery.css:302`, `css/base/05-desktop-and-discovery.css:304`, `css/base/05-desktop-and-discovery.css:304`, `css/base/05-desktop-and-discovery.css:305`, `css/base/05-desktop-and-discovery.css:306`, `css/base/05-desktop-and-discovery.css:314`, `css/base/05-desktop-and-discovery.css:315`, `css/base/05-desktop-and-discovery.css:319`, `css/base/05-desktop-and-discovery.css:319`, `css/base/05-desktop-and-discovery.css:319` |
 | `.dr-out` | `css/base/03-features-legacy.css:273` |
@@ -249,8 +249,8 @@ responsive/state overrides, not a collision.
 | `.drawer` | `css/base/03-features-legacy.css:259`, `css/base/03-features-legacy.css:260`, `css/base/05-desktop-and-discovery.css:45` |
 | `.drawer-bk` | `css/base/03-features-legacy.css:258`, `css/base/03-features-legacy.css:261` |
 | `.e` | `css/base/03-features-legacy.css:267` |
-| `.err` | `css/base/02-shell.css:331` |
-| `.err-box` | `css/base/02-shell.css:77` |
+| `.err` | `css/base/02-shell.css:332` |
+| `.err-box` | `css/base/02-shell.css:78` |
 | `.ev` | `css/base/03-features-legacy.css:77` |
 | `.ev-actions` | `css/base/06-commerce-and-social.css:28`, `css/base/06-commerce-and-social.css:29` |
 | `.ev-card` | `css/base/06-commerce-and-social.css:9`, `css/base/06-commerce-and-social.css:11`, `css/base/06-commerce-and-social.css:12`, `css/base/06-commerce-and-social.css:13`, `css/base/06-commerce-and-social.css:32` |
@@ -282,13 +282,13 @@ responsive/state overrides, not a collision.
 | `.exp-where` | `css/base/03-features-legacy.css:187` |
 | `.fchip` | `css/base/03-features-legacy.css:160`, `css/base/03-features-legacy.css:161` |
 | `.fchips` | `css/base/03-features-legacy.css:159` |
-| `.feat-ck` | `css/base/02-shell.css:277` |
-| `.feat-item` | `css/base/02-shell.css:276` |
-| `.featured` | `css/base/02-shell.css:89` |
-| `.features-grid` | `css/base/02-shell.css:275` |
+| `.feat-ck` | `css/base/02-shell.css:278` |
+| `.feat-item` | `css/base/02-shell.css:277` |
+| `.featured` | `css/base/02-shell.css:90` |
+| `.features-grid` | `css/base/02-shell.css:276` |
 | `.fest-line` | `css/base/03-features-legacy.css:193` |
-| `.field` | `css/base/02-shell.css:44` |
-| `.field-label` | `css/base/02-shell.css:45` |
+| `.field` | `css/base/02-shell.css:45` |
+| `.field-label` | `css/base/02-shell.css:46` |
 | `.fit-glabel` | `css/base/04-accounts-and-extras.css:258` |
 | `.fit-grp` | `css/base/04-accounts-and-extras.css:257` |
 | `.fit-h` | `css/base/04-accounts-and-extras.css:256` |
@@ -297,10 +297,10 @@ responsive/state overrides, not a collision.
 | `.fit-tier-body` | `css/base/04-accounts-and-extras.css:264`, `css/base/04-accounts-and-extras.css:265`, `css/base/04-accounts-and-extras.css:266` |
 | `.fit-tier-go` | `css/base/04-accounts-and-extras.css:267` |
 | `.fit-tier-ic` | `css/base/04-accounts-and-extras.css:263` |
-| `.fold-body` | `css/base/02-shell.css:246`, `css/base/02-shell.css:247` |
-| `.fold-head` | `css/base/02-shell.css:242`, `css/base/02-shell.css:244`, `css/base/02-shell.css:245` |
-| `.food-list` | `css/base/02-shell.css:130` |
-| `.food-tag` | `css/base/02-shell.css:131` |
+| `.fold-body` | `css/base/02-shell.css:247`, `css/base/02-shell.css:248` |
+| `.fold-head` | `css/base/02-shell.css:243`, `css/base/02-shell.css:245`, `css/base/02-shell.css:246` |
+| `.food-list` | `css/base/02-shell.css:131` |
+| `.food-tag` | `css/base/02-shell.css:132` |
 | `.foot` | `css/base/04-accounts-and-extras.css:64` |
 | `.foot-brand` | `css/base/03-features-legacy.css:32` |
 | `.foot-h` | `css/base/03-features-legacy.css:34` |
@@ -308,18 +308,18 @@ responsive/state overrides, not a collision.
 | `.foot-legal` | `css/base/03-features-legacy.css:37` |
 | `.foot-link` | `css/base/03-features-legacy.css:35`, `css/base/03-features-legacy.css:36` |
 | `.foot-tag` | `css/base/03-features-legacy.css:33` |
-| `.form-card` | `css/base/02-shell.css:41`, `css/base/02-shell.css:344` |
-| `.form-title` | `css/base/02-shell.css:42` |
-| `.free-bar` | `css/base/02-shell.css:19`, `css/base/02-shell.css:20`, `css/base/04-accounts-and-extras.css:129` |
-| `.free-link` | `css/base/02-shell.css:20` |
-| `.gate` | `css/base/02-shell.css:193`, `css/base/02-shell.css:194` |
-| `.gate-btn` | `css/base/02-shell.css:195` |
-| `.gate-ico` | `css/base/02-shell.css:194` |
-| `.gate-sub` | `css/base/02-shell.css:194` |
-| `.gate-title` | `css/base/02-shell.css:194` |
-| `.gem-dot` | `css/base/02-shell.css:134` |
-| `.gem-list` | `css/base/02-shell.css:132` |
-| `.gem-tag` | `css/base/02-shell.css:133` |
+| `.form-card` | `css/base/02-shell.css:42`, `css/base/02-shell.css:345` |
+| `.form-title` | `css/base/02-shell.css:43` |
+| `.free-bar` | `css/base/02-shell.css:20`, `css/base/02-shell.css:21`, `css/base/04-accounts-and-extras.css:129` |
+| `.free-link` | `css/base/02-shell.css:21` |
+| `.gate` | `css/base/02-shell.css:194`, `css/base/02-shell.css:195` |
+| `.gate-btn` | `css/base/02-shell.css:196` |
+| `.gate-ico` | `css/base/02-shell.css:195` |
+| `.gate-sub` | `css/base/02-shell.css:195` |
+| `.gate-title` | `css/base/02-shell.css:195` |
+| `.gem-dot` | `css/base/02-shell.css:135` |
+| `.gem-list` | `css/base/02-shell.css:133` |
+| `.gem-tag` | `css/base/02-shell.css:134` |
 | `.gn-body` | `css/base/04-accounts-and-extras.css:213` |
 | `.gn-btn` | `css/base/04-accounts-and-extras.css:217`, `css/base/04-accounts-and-extras.css:218`, `css/base/04-accounts-and-extras.css:219` |
 | `.gn-head` | `css/base/04-accounts-and-extras.css:209` |
@@ -329,7 +329,7 @@ responsive/state overrides, not a collision.
 | `.gn-sub` | `css/base/04-accounts-and-extras.css:210` |
 | `.gn-title` | `css/base/04-accounts-and-extras.css:214` |
 | `.gn-why` | `css/base/04-accounts-and-extras.css:215` |
-| `.gold` | `css/base/02-shell.css:102`, `css/base/04-accounts-and-extras.css:81`, `css/base/04-accounts-and-extras.css:102` |
+| `.gold` | `css/base/02-shell.css:103`, `css/base/04-accounts-and-extras.css:81`, `css/base/04-accounts-and-extras.css:102` |
 | `.google` | `css/base/04-accounts-and-extras.css:7` |
 | `.googleapis` | `css/base/04-accounts-and-extras.css:20` |
 | `.gpay` | `css/base/03-features-legacy.css:219` |
@@ -353,37 +353,37 @@ responsive/state overrides, not a collision.
 | `.green-prog` | `css/base/04-accounts-and-extras.css:182` |
 | `.green-progtxt` | `css/base/04-accounts-and-extras.css:184` |
 | `.grid` | `css/guide-page.css:24` |
-| `.grid3` | `css/base/02-shell.css:43`, `css/base/02-shell.css:344`, `css/base/03-features-legacy.css:250` |
+| `.grid3` | `css/base/02-shell.css:44`, `css/base/02-shell.css:345`, `css/base/03-features-legacy.css:250` |
 | `.hack` | `css/base/03-features-legacy.css:211`, `css/base/03-features-legacy.css:212`, `css/base/03-features-legacy.css:213` |
 | `.hamb` | `css/base/03-features-legacy.css:233`, `css/base/03-features-legacy.css:243` |
-| `.hb-gold` | `css/base/01-tokens.css:14`, `css/base/01-tokens.css:19`, `css/base/01-tokens.css:19`, `css/base/01-tokens.css:19`, `css/base/02-shell.css:28`, `css/base/02-shell.css:29` |
-| `.hb-pm` | `css/base/02-shell.css:30`, `css/base/02-shell.css:31` |
+| `.hb-gold` | `css/base/01-tokens.css:14`, `css/base/01-tokens.css:19`, `css/base/01-tokens.css:19`, `css/base/01-tokens.css:19`, `css/base/02-shell.css:29`, `css/base/02-shell.css:30` |
+| `.hb-pm` | `css/base/02-shell.css:31`, `css/base/02-shell.css:32` |
 | `.hd` | `css/base/04-accounts-and-extras.css:25`, `css/base/04-accounts-and-extras.css:26`, `css/base/04-accounts-and-extras.css:27` |
-| `.heatmap` | `css/base/02-shell.css:138`, `css/base/02-shell.css:344` |
-| `.hero` | `css/base/02-shell.css:22`, `css/base/02-shell.css:23`, `css/base/02-shell.css:24`, `css/base/02-shell.css:25`, `css/base/02-shell.css:344`, `css/base/03-features-legacy.css:11`, `css/base/03-features-legacy.css:12`, `css/base/03-features-legacy.css:41`, `css/base/03-features-legacy.css:248`, `css/base/05-desktop-and-discovery.css:13`, `css/base/05-desktop-and-discovery.css:15`, `css/base/05-desktop-and-discovery.css:16`, `css/base/05-desktop-and-discovery.css:53`, `css/base/05-desktop-and-discovery.css:54` |
-| `.hero-btn` | `css/base/02-shell.css:27` |
-| `.hero-btns` | `css/base/02-shell.css:26`, `css/base/03-features-legacy.css:249` |
+| `.heatmap` | `css/base/02-shell.css:139`, `css/base/02-shell.css:345` |
+| `.hero` | `css/base/02-shell.css:23`, `css/base/02-shell.css:24`, `css/base/02-shell.css:25`, `css/base/02-shell.css:26`, `css/base/02-shell.css:345`, `css/base/03-features-legacy.css:11`, `css/base/03-features-legacy.css:12`, `css/base/03-features-legacy.css:41`, `css/base/03-features-legacy.css:248`, `css/base/05-desktop-and-discovery.css:13`, `css/base/05-desktop-and-discovery.css:15`, `css/base/05-desktop-and-discovery.css:16`, `css/base/05-desktop-and-discovery.css:53`, `css/base/05-desktop-and-discovery.css:54` |
+| `.hero-btn` | `css/base/02-shell.css:28` |
+| `.hero-btns` | `css/base/02-shell.css:27`, `css/base/03-features-legacy.css:249` |
 | `.hero-sky` | `css/base/03-features-legacy.css:7`, `css/base/03-features-legacy.css:8`, `css/base/03-features-legacy.css:8`, `css/base/03-features-legacy.css:9`, `css/base/03-features-legacy.css:10`, `css/base/03-features-legacy.css:11`, `css/base/03-features-legacy.css:41`, `css/base/03-features-legacy.css:41` |
 | `.hid` | `css/base/03-features-legacy.css:170` |
-| `.hide` | `css/base/02-shell.css:20`, `css/base/02-shell.css:34` |
-| `.hm` | `css/base/02-shell.css:139`, `css/base/02-shell.css:141` |
-| `.hm-g` | `css/base/02-shell.css:140` |
-| `.hm-month` | `css/base/02-shell.css:142` |
-| `.hm-o` | `css/base/02-shell.css:140` |
-| `.hm-pct` | `css/base/02-shell.css:143` |
-| `.hm-r` | `css/base/02-shell.css:140` |
+| `.hide` | `css/base/02-shell.css:21`, `css/base/02-shell.css:35` |
+| `.hm` | `css/base/02-shell.css:140`, `css/base/02-shell.css:142` |
+| `.hm-g` | `css/base/02-shell.css:141` |
+| `.hm-month` | `css/base/02-shell.css:143` |
+| `.hm-o` | `css/base/02-shell.css:141` |
+| `.hm-pct` | `css/base/02-shell.css:144` |
+| `.hm-r` | `css/base/02-shell.css:141` |
 | `.hot` | `css/base/06-commerce-and-social.css:12`, `css/base/06-commerce-and-social.css:13`, `css/base/06-commerce-and-social.css:32` |
 | `.hx` | `css/base/03-features-legacy.css:210` |
 | `.hx-ic` | `css/base/03-features-legacy.css:213` |
 | `.ic` | `css/base/03-features-legacy.css:272`, `css/base/05-desktop-and-discovery.css:305`, `css/base/05-desktop-and-discovery.css:306`, `css/base/05-desktop-and-discovery.css:315`, `css/base/05-desktop-and-discovery.css:319` |
 | `.ig` | `css/base/03-features-legacy.css:144` |
 | `.in-app` | `css/base/03-features-legacy.css:64` |
-| `.info-card` | `css/base/02-shell.css:145` |
-| `.info-detail` | `css/base/02-shell.css:147` |
-| `.info-flag` | `css/base/02-shell.css:146` |
-| `.info-name` | `css/base/02-shell.css:147` |
-| `.inp` | `css/base/02-shell.css:46`, `css/base/02-shell.css:47`, `css/base/02-shell.css:48`, `css/base/02-shell.css:48`, `css/base/04-accounts-and-extras.css:120` |
-| `.inp-row` | `css/base/02-shell.css:282` |
+| `.info-card` | `css/base/02-shell.css:146` |
+| `.info-detail` | `css/base/02-shell.css:148` |
+| `.info-flag` | `css/base/02-shell.css:147` |
+| `.info-name` | `css/base/02-shell.css:148` |
+| `.inp` | `css/base/02-shell.css:47`, `css/base/02-shell.css:48`, `css/base/02-shell.css:49`, `css/base/02-shell.css:49`, `css/base/04-accounts-and-extras.css:120` |
+| `.inp-row` | `css/base/02-shell.css:283` |
 | `.intl-btn` | `css/base/03-features-legacy.css:26`, `css/base/03-features-legacy.css:27` |
 | `.intl-note` | `css/base/03-features-legacy.css:28` |
 | `.intro` | `css/base/03-features-legacy.css:140`, `css/base/03-features-legacy.css:141`, `css/base/03-features-legacy.css:142`, `css/base/03-features-legacy.css:143`, `css/base/03-features-legacy.css:144`, `css/base/03-features-legacy.css:145` |
@@ -394,38 +394,38 @@ responsive/state overrides, not a collision.
 | `.is-tablet` | `css/base/04-accounts-and-extras.css:133` |
 | `.is-touch` | `css/base/04-accounts-and-extras.css:117`, `css/base/04-accounts-and-extras.css:117`, `css/base/04-accounts-and-extras.css:117`, `css/base/04-accounts-and-extras.css:118`, `css/base/04-accounts-and-extras.css:118` |
 | `.it` | `css/base/03-features-legacy.css:142` |
-| `.itin-ph` | `css/base/02-shell.css:190` |
-| `.itin-src` | `css/base/02-shell.css:328`, `css/base/02-shell.css:329`, `css/base/02-shell.css:330`, `css/base/02-shell.css:331`, `css/base/02-shell.css:332`, `css/base/02-shell.css:333` |
-| `.k-clear` | `css/base/02-shell.css:336`, `css/base/02-shell.css:336` |
-| `.k-inp` | `css/base/02-shell.css:334`, `css/base/02-shell.css:334` |
-| `.k-save` | `css/base/02-shell.css:335` |
+| `.itin-ph` | `css/base/02-shell.css:191` |
+| `.itin-src` | `css/base/02-shell.css:329`, `css/base/02-shell.css:330`, `css/base/02-shell.css:331`, `css/base/02-shell.css:332`, `css/base/02-shell.css:333`, `css/base/02-shell.css:334` |
+| `.k-clear` | `css/base/02-shell.css:337`, `css/base/02-shell.css:337` |
+| `.k-inp` | `css/base/02-shell.css:335`, `css/base/02-shell.css:335` |
+| `.k-save` | `css/base/02-shell.css:336` |
 | `.k2` | `css/base/03-features-legacy.css:206` |
 | `.k3` | `css/base/03-features-legacy.css:207` |
-| `.key-box` | `css/base/02-shell.css:320` |
-| `.key-box-hint` | `css/base/02-shell.css:323`, `css/base/02-shell.css:324` |
-| `.key-box-name` | `css/base/02-shell.css:321` |
-| `.key-row` | `css/base/02-shell.css:325` |
-| `.key-sec-title` | `css/base/02-shell.css:301` |
-| `.key-section` | `css/base/02-shell.css:300` |
-| `.key-status` | `css/base/02-shell.css:322` |
-| `.ks-bad` | `css/base/02-shell.css:327` |
-| `.ks-empty` | `css/base/02-shell.css:322` |
-| `.ks-ok` | `css/base/02-shell.css:326` |
-| `.ks-set` | `css/base/02-shell.css:322` |
+| `.key-box` | `css/base/02-shell.css:321` |
+| `.key-box-hint` | `css/base/02-shell.css:324`, `css/base/02-shell.css:325` |
+| `.key-box-name` | `css/base/02-shell.css:322` |
+| `.key-row` | `css/base/02-shell.css:326` |
+| `.key-sec-title` | `css/base/02-shell.css:302` |
+| `.key-section` | `css/base/02-shell.css:301` |
+| `.key-status` | `css/base/02-shell.css:323` |
+| `.ks-bad` | `css/base/02-shell.css:328` |
+| `.ks-empty` | `css/base/02-shell.css:323` |
+| `.ks-ok` | `css/base/02-shell.css:327` |
+| `.ks-set` | `css/base/02-shell.css:323` |
 | `.kumo` | `css/base/03-features-legacy.css:145`, `css/base/03-features-legacy.css:202`, `css/base/03-features-legacy.css:205`, `css/base/03-features-legacy.css:206`, `css/base/03-features-legacy.css:207` |
 | `.lang-wrap` | `css/base/02-shell.css:9`, `css/base/03-features-legacy.css:247` |
-| `.lb-close` | `css/base/02-shell.css:341` |
+| `.lb-close` | `css/base/02-shell.css:342` |
 | `.lead` | `css/base/06-commerce-and-social.css:412`, `css/base/06-commerce-and-social.css:413` |
 | `.legal-body` | `css/base/03-features-legacy.css:38`, `css/base/03-features-legacy.css:39`, `css/base/03-features-legacy.css:40` |
-| `.lightbox` | `css/base/02-shell.css:339`, `css/base/02-shell.css:339`, `css/base/02-shell.css:340` |
-| `.live-bar` | `css/base/02-shell.css:79` |
-| `.live-dot` | `css/base/02-shell.css:80` |
-| `.load-txt` | `css/base/02-shell.css:74`, `css/base/02-shell.css:75` |
-| `.loader` | `css/base/02-shell.css:72` |
+| `.lightbox` | `css/base/02-shell.css:340`, `css/base/02-shell.css:340`, `css/base/02-shell.css:341` |
+| `.live-bar` | `css/base/02-shell.css:80` |
+| `.live-dot` | `css/base/02-shell.css:81` |
+| `.load-txt` | `css/base/02-shell.css:75`, `css/base/02-shell.css:76` |
+| `.loader` | `css/base/02-shell.css:73` |
 | `.log` | `css/base/04-accounts-and-extras.css:53`, `css/base/04-accounts-and-extras.css:54` |
 | `.log-chip` | `css/base/03-features-legacy.css:90`, `css/base/03-features-legacy.css:91` |
-| `.log-list` | `css/base/02-shell.css:208` |
-| `.log-row` | `css/base/02-shell.css:209`, `css/base/03-features-legacy.css:89` |
+| `.log-list` | `css/base/02-shell.css:209` |
+| `.log-row` | `css/base/02-shell.css:210`, `css/base/03-features-legacy.css:89` |
 | `.logo-icon` | `css/base/01-tokens.css:14`, `css/base/01-tokens.css:19`, `css/base/01-tokens.css:19`, `css/base/01-tokens.css:19`, `css/base/02-shell.css:6` |
 | `.logo-text` | `css/base/02-shell.css:7`, `css/base/02-shell.css:7`, `css/base/03-features-legacy.css:253` |
 | `.logo-wrap` | `css/base/02-shell.css:5`, `css/base/02-shell.css:10`, `css/base/03-features-legacy.css:252` |
@@ -457,19 +457,19 @@ responsive/state overrides, not a collision.
 | `.meter-top` | `css/base/03-features-legacy.css:195`, `css/base/03-features-legacy.css:196` |
 | `.meter-track` | `css/base/03-features-legacy.css:197` |
 | `.mine` | `css/base/06-commerce-and-social.css:81`, `css/base/06-commerce-and-social.css:411` |
-| `.mini-spin` | `css/base/02-shell.css:191` |
-| `.modal` | `css/base/02-shell.css:265` |
-| `.modal-body` | `css/base/02-shell.css:270` |
-| `.modal-close` | `css/base/02-shell.css:269` |
-| `.modal-crown` | `css/base/02-shell.css:268` |
-| `.modal-head` | `css/base/02-shell.css:267` |
-| `.modal-lg` | `css/base/02-shell.css:266` |
-| `.modal-sub` | `css/base/02-shell.css:268` |
-| `.modal-title` | `css/base/02-shell.css:268` |
-| `.mode-ai` | `css/base/02-shell.css:17` |
+| `.mini-spin` | `css/base/02-shell.css:192` |
+| `.modal` | `css/base/02-shell.css:266` |
+| `.modal-body` | `css/base/02-shell.css:271` |
+| `.modal-close` | `css/base/02-shell.css:270` |
+| `.modal-crown` | `css/base/02-shell.css:269` |
+| `.modal-head` | `css/base/02-shell.css:268` |
+| `.modal-lg` | `css/base/02-shell.css:267` |
+| `.modal-sub` | `css/base/02-shell.css:269` |
+| `.modal-title` | `css/base/02-shell.css:269` |
+| `.mode-ai` | `css/base/02-shell.css:18` |
 | `.mode-box` | `css/base/03-features-legacy.css:191`, `css/base/03-features-legacy.css:192` |
-| `.mode-chip` | `css/base/02-shell.css:16`, `css/base/03-features-legacy.css:245` |
-| `.mode-free` | `css/base/02-shell.css:17` |
+| `.mode-chip` | `css/base/02-shell.css:17`, `css/base/03-features-legacy.css:245` |
+| `.mode-free` | `css/base/02-shell.css:18` |
 | `.money-card` | `css/base/04-accounts-and-extras.css:286`, `css/base/04-accounts-and-extras.css:287` |
 | `.money-card-meta` | `css/base/04-accounts-and-extras.css:289` |
 | `.money-card-name` | `css/base/04-accounts-and-extras.css:288` |
@@ -484,9 +484,9 @@ responsive/state overrides, not a collision.
 | `.n2` | `css/base/03-features-legacy.css:112` |
 | `.n3` | `css/base/03-features-legacy.css:113` |
 | `.nav` | `css/base/01-tokens.css:15`, `css/base/01-tokens.css:20`, `css/base/01-tokens.css:20`, `css/base/01-tokens.css:20`, `css/base/02-shell.css:3`, `css/base/03-features-legacy.css:231`, `css/base/04-accounts-and-extras.css:123`, `css/base/04-accounts-and-extras.css:123`, `css/base/04-accounts-and-extras.css:127` |
-| `.nav-ic` | `css/base/02-shell.css:11`, `css/base/03-features-legacy.css:255`, `css/base/04-accounts-and-extras.css:117` |
+| `.nav-ic` | `css/base/02-shell.css:11`, `css/base/02-shell.css:12`, `css/base/03-features-legacy.css:255`, `css/base/04-accounts-and-extras.css:117` |
 | `.nav-inner` | `css/base/02-shell.css:4`, `css/base/04-accounts-and-extras.css:121`, `css/base/04-accounts-and-extras.css:133`, `css/base/04-accounts-and-extras.css:136`, `css/base/04-accounts-and-extras.css:137`, `css/base/05-desktop-and-discovery.css:13`, `css/base/05-desktop-and-discovery.css:53` |
-| `.nav-right` | `css/base/02-shell.css:8`, `css/base/02-shell.css:9`, `css/base/02-shell.css:11`, `css/base/03-features-legacy.css:245`, `css/base/03-features-legacy.css:245`, `css/base/03-features-legacy.css:245`, `css/base/03-features-legacy.css:247`, `css/base/03-features-legacy.css:251`, `css/base/03-features-legacy.css:255` |
+| `.nav-right` | `css/base/02-shell.css:8`, `css/base/02-shell.css:9`, `css/base/02-shell.css:11`, `css/base/02-shell.css:12`, `css/base/03-features-legacy.css:245`, `css/base/03-features-legacy.css:245`, `css/base/03-features-legacy.css:245`, `css/base/03-features-legacy.css:247`, `css/base/03-features-legacy.css:251`, `css/base/03-features-legacy.css:255` |
 | `.nearme-glabel` | `css/base/04-accounts-and-extras.css:224` |
 | `.nearme-group` | `css/base/04-accounts-and-extras.css:223` |
 | `.nearme-item` | `css/base/04-accounts-and-extras.css:225`, `css/base/04-accounts-and-extras.css:226` |
@@ -499,18 +499,18 @@ responsive/state overrides, not a collision.
 | `.nm-name` | `css/base/04-accounts-and-extras.css:228` |
 | `.now` | `css/base/06-commerce-and-social.css:486` |
 | `.ok` | `css/base/06-commerce-and-social.css:131`, `css/base/06-commerce-and-social.css:318` |
-| `.on` | `css/base/02-shell.css:54`, `css/base/02-shell.css:54`, `css/base/02-shell.css:54`, `css/base/02-shell.css:67`, `css/base/02-shell.css:115`, `css/base/02-shell.css:116`, `css/base/02-shell.css:160`, `css/base/02-shell.css:160`, `css/base/02-shell.css:199`, `css/base/02-shell.css:199`, `css/base/02-shell.css:319`, `css/base/03-features-legacy.css:24`, `css/base/03-features-legacy.css:25`, `css/base/03-features-legacy.css:88`, `css/base/03-features-legacy.css:126`, `css/base/03-features-legacy.css:161`, `css/base/03-features-legacy.css:223`, `css/base/03-features-legacy.css:224`, `css/base/03-features-legacy.css:239`, `css/base/03-features-legacy.css:240`, `css/base/04-accounts-and-extras.css:32`, `css/base/04-accounts-and-extras.css:34`, `css/base/04-accounts-and-extras.css:194`, `css/base/04-accounts-and-extras.css:218`, `css/base/04-accounts-and-extras.css:235`, `css/base/04-accounts-and-extras.css:236`, `css/base/04-accounts-and-extras.css:249`, `css/base/04-accounts-and-extras.css:250`, `css/base/04-accounts-and-extras.css:251`, `css/base/05-desktop-and-discovery.css:335`, `css/base/06-commerce-and-social.css:6`, `css/base/06-commerce-and-social.css:472` |
-| `.open` | `css/base/02-shell.css:49`, `css/base/02-shell.css:177`, `css/base/02-shell.css:178`, `css/base/02-shell.css:238`, `css/base/02-shell.css:240`, `css/base/02-shell.css:245`, `css/base/02-shell.css:247`, `css/base/02-shell.css:253`, `css/base/02-shell.css:339`, `css/base/03-features-legacy.css:177`, `css/base/03-features-legacy.css:260`, `css/base/03-features-legacy.css:261`, `css/base/04-accounts-and-extras.css:90`, `css/base/05-desktop-and-discovery.css:61`, `css/base/05-desktop-and-discovery.css:292`, `css/base/05-desktop-and-discovery.css:310`, `css/base/05-desktop-and-discovery.css:311`, `css/base/06-commerce-and-social.css:155` |
+| `.on` | `css/base/02-shell.css:55`, `css/base/02-shell.css:55`, `css/base/02-shell.css:55`, `css/base/02-shell.css:68`, `css/base/02-shell.css:116`, `css/base/02-shell.css:117`, `css/base/02-shell.css:161`, `css/base/02-shell.css:161`, `css/base/02-shell.css:200`, `css/base/02-shell.css:200`, `css/base/02-shell.css:320`, `css/base/03-features-legacy.css:24`, `css/base/03-features-legacy.css:25`, `css/base/03-features-legacy.css:88`, `css/base/03-features-legacy.css:126`, `css/base/03-features-legacy.css:161`, `css/base/03-features-legacy.css:223`, `css/base/03-features-legacy.css:224`, `css/base/03-features-legacy.css:239`, `css/base/03-features-legacy.css:240`, `css/base/04-accounts-and-extras.css:32`, `css/base/04-accounts-and-extras.css:34`, `css/base/04-accounts-and-extras.css:194`, `css/base/04-accounts-and-extras.css:218`, `css/base/04-accounts-and-extras.css:235`, `css/base/04-accounts-and-extras.css:236`, `css/base/04-accounts-and-extras.css:249`, `css/base/04-accounts-and-extras.css:250`, `css/base/04-accounts-and-extras.css:251`, `css/base/05-desktop-and-discovery.css:335`, `css/base/06-commerce-and-social.css:6`, `css/base/06-commerce-and-social.css:472` |
+| `.open` | `css/base/02-shell.css:50`, `css/base/02-shell.css:178`, `css/base/02-shell.css:179`, `css/base/02-shell.css:239`, `css/base/02-shell.css:241`, `css/base/02-shell.css:246`, `css/base/02-shell.css:248`, `css/base/02-shell.css:254`, `css/base/02-shell.css:340`, `css/base/03-features-legacy.css:177`, `css/base/03-features-legacy.css:260`, `css/base/03-features-legacy.css:261`, `css/base/04-accounts-and-extras.css:90`, `css/base/05-desktop-and-discovery.css:61`, `css/base/05-desktop-and-discovery.css:292`, `css/base/05-desktop-and-discovery.css:310`, `css/base/05-desktop-and-discovery.css:311`, `css/base/06-commerce-and-social.css:155` |
 | `.os-ios` | `css/base/04-accounts-and-extras.css:123`, `css/base/04-accounts-and-extras.css:130`, `css/base/04-accounts-and-extras.css:131` |
 | `.os-ipados` | `css/base/04-accounts-and-extras.css:123`, `css/base/04-accounts-and-extras.css:130`, `css/base/04-accounts-and-extras.css:131` |
 | `.os-mac` | `css/base/04-accounts-and-extras.css:139` |
-| `.overlay` | `css/base/02-shell.css:253`, `css/base/02-shell.css:253`, `css/base/04-accounts-and-extras.css:131`, `css/base/04-accounts-and-extras.css:131` |
-| `.pack-chk` | `css/base/02-shell.css:214`, `css/base/02-shell.css:215` |
-| `.pack-item` | `css/base/02-shell.css:212`, `css/base/02-shell.css:213`, `css/base/02-shell.css:215`, `css/base/02-shell.css:215` |
-| `.pack-list` | `css/base/02-shell.css:211` |
-| `.pack-txt` | `css/base/02-shell.css:215`, `css/base/02-shell.css:216` |
-| `.page` | `css/base/02-shell.css:40` |
-| `.pay-inp` | `css/base/02-shell.css:282`, `css/base/02-shell.css:282` |
+| `.overlay` | `css/base/02-shell.css:254`, `css/base/02-shell.css:254`, `css/base/04-accounts-and-extras.css:131`, `css/base/04-accounts-and-extras.css:131` |
+| `.pack-chk` | `css/base/02-shell.css:215`, `css/base/02-shell.css:216` |
+| `.pack-item` | `css/base/02-shell.css:213`, `css/base/02-shell.css:214`, `css/base/02-shell.css:216`, `css/base/02-shell.css:216` |
+| `.pack-list` | `css/base/02-shell.css:212` |
+| `.pack-txt` | `css/base/02-shell.css:216`, `css/base/02-shell.css:217` |
+| `.page` | `css/base/02-shell.css:41` |
+| `.pay-inp` | `css/base/02-shell.css:283`, `css/base/02-shell.css:283` |
 | `.pay-tab` | `css/base/03-features-legacy.css:22`, `css/base/03-features-legacy.css:23`, `css/base/03-features-legacy.css:24`, `css/base/03-features-legacy.css:25` |
 | `.pay-tabs` | `css/base/03-features-legacy.css:21` |
 | `.pcard` | `css/base/04-accounts-and-extras.css:105` |
@@ -520,43 +520,43 @@ responsive/state overrides, not a collision.
 | `.ph-dots` | `css/base/06-commerce-and-social.css:483` |
 | `.ph-wrap` | `css/base/06-commerce-and-social.css:480`, `css/base/06-commerce-and-social.css:494` |
 | `.phonepe` | `css/base/03-features-legacy.css:218` |
-| `.photo-big` | `css/base/02-shell.css:93`, `css/base/02-shell.css:93`, `css/base/02-shell.css:94`, `css/base/02-shell.css:344` |
-| `.photo-city` | `css/base/02-shell.css:98` |
-| `.photo-country` | `css/base/02-shell.css:99` |
-| `.photo-overlay` | `css/base/02-shell.css:97` |
-| `.photo-sm` | `css/base/02-shell.css:96`, `css/base/02-shell.css:96`, `css/base/02-shell.css:96`, `css/base/02-shell.css:344` |
-| `.photo-small-col` | `css/base/02-shell.css:95` |
-| `.photos` | `css/base/02-shell.css:92`, `css/base/02-shell.css:344` |
+| `.photo-big` | `css/base/02-shell.css:94`, `css/base/02-shell.css:94`, `css/base/02-shell.css:95`, `css/base/02-shell.css:345` |
+| `.photo-city` | `css/base/02-shell.css:99` |
+| `.photo-country` | `css/base/02-shell.css:100` |
+| `.photo-overlay` | `css/base/02-shell.css:98` |
+| `.photo-sm` | `css/base/02-shell.css:97`, `css/base/02-shell.css:97`, `css/base/02-shell.css:97`, `css/base/02-shell.css:345` |
+| `.photo-small-col` | `css/base/02-shell.css:96` |
+| `.photos` | `css/base/02-shell.css:93`, `css/base/02-shell.css:345` |
 | `.pl-box` | `css/base/06-commerce-and-social.css:401` |
 | `.pl-f` | `css/base/06-commerce-and-social.css:414` |
 | `.pl-o` | `css/base/06-commerce-and-social.css:403`, `css/base/06-commerce-and-social.css:406`, `css/base/06-commerce-and-social.css:407`, `css/base/06-commerce-and-social.css:409`, `css/base/06-commerce-and-social.css:410`, `css/base/06-commerce-and-social.css:411`, `css/base/06-commerce-and-social.css:412`, `css/base/06-commerce-and-social.css:413`, `css/base/06-commerce-and-social.css:454` |
 | `.pl-q` | `css/base/06-commerce-and-social.css:402`, `css/base/06-commerce-and-social.css:455` |
 | `.plane` | `css/base/04-accounts-and-extras.css:45` |
-| `.pn` | `css/base/02-shell.css:319` |
+| `.pn` | `css/base/02-shell.css:320` |
 | `.pname` | `css/base/04-accounts-and-extras.css:48` |
 | `.pol` | `css/base/04-accounts-and-extras.css:37` |
 | `.pop` | `css/base/03-features-legacy.css:169` |
 | `.prank` | `css/base/04-accounts-and-extras.css:49` |
-| `.preset` | `css/base/02-shell.css:332`, `css/base/02-shell.css:333` |
-| `.preset-offline` | `css/base/02-shell.css:333` |
-| `.price-hero` | `css/base/02-shell.css:272` |
-| `.price-old` | `css/base/02-shell.css:274` |
-| `.price-sub` | `css/base/02-shell.css:274` |
-| `.price-table` | `css/base/02-shell.css:165`, `css/base/02-shell.css:166`, `css/base/02-shell.css:166`, `css/base/02-shell.css:166` |
+| `.preset` | `css/base/02-shell.css:333`, `css/base/02-shell.css:334` |
+| `.preset-offline` | `css/base/02-shell.css:334` |
+| `.price-hero` | `css/base/02-shell.css:273` |
+| `.price-old` | `css/base/02-shell.css:275` |
+| `.price-sub` | `css/base/02-shell.css:275` |
+| `.price-table` | `css/base/02-shell.css:166`, `css/base/02-shell.css:167`, `css/base/02-shell.css:167`, `css/base/02-shell.css:167` |
 | `.profile` | `css/base/04-accounts-and-extras.css:46` |
-| `.promo` | `css/base/02-shell.css:33`, `css/base/02-shell.css:34`, `css/base/02-shell.css:34` |
-| `.promo-amt` | `css/base/02-shell.css:38` |
+| `.promo` | `css/base/02-shell.css:34`, `css/base/02-shell.css:35`, `css/base/02-shell.css:35` |
+| `.promo-amt` | `css/base/02-shell.css:39` |
 | `.promo-bar` | `css/base/05-desktop-and-discovery.css:384` |
-| `.promo-left` | `css/base/02-shell.css:35` |
-| `.promo-price` | `css/base/02-shell.css:37` |
-| `.promo-sub` | `css/base/02-shell.css:38` |
-| `.promo-text` | `css/base/02-shell.css:36`, `css/base/02-shell.css:36` |
-| `.prov-btn` | `css/base/02-shell.css:318`, `css/base/02-shell.css:319`, `css/base/02-shell.css:319`, `css/base/02-shell.css:319` |
-| `.prov-select` | `css/base/02-shell.css:317`, `css/base/02-shell.css:344` |
+| `.promo-left` | `css/base/02-shell.css:36` |
+| `.promo-price` | `css/base/02-shell.css:38` |
+| `.promo-sub` | `css/base/02-shell.css:39` |
+| `.promo-text` | `css/base/02-shell.css:37`, `css/base/02-shell.css:37` |
+| `.prov-btn` | `css/base/02-shell.css:319`, `css/base/02-shell.css:320`, `css/base/02-shell.css:320`, `css/base/02-shell.css:320` |
+| `.prov-select` | `css/base/02-shell.css:318`, `css/base/02-shell.css:345` |
 | `.prow` | `css/base/04-accounts-and-extras.css:103`, `css/base/04-accounts-and-extras.css:104` |
-| `.ps` | `css/base/02-shell.css:319` |
-| `.ps-free` | `css/base/02-shell.css:319` |
-| `.ps-paid` | `css/base/02-shell.css:319` |
+| `.ps` | `css/base/02-shell.css:320` |
+| `.ps-free` | `css/base/02-shell.css:320` |
+| `.ps-paid` | `css/base/02-shell.css:320` |
 | `.pt-acts` | `css/base/06-commerce-and-social.css:133`, `css/base/06-commerce-and-social.css:134` |
 | `.pt-card` | `css/base/06-commerce-and-social.css:115`, `css/base/06-commerce-and-social.css:119`, `css/base/06-commerce-and-social.css:120`, `css/base/06-commerce-and-social.css:146` |
 | `.pt-chips` | `css/base/06-commerce-and-social.css:114` |
@@ -576,10 +576,10 @@ responsive/state overrides, not a collision.
 | `.qg-primary` | `css/base/06-commerce-and-social.css:176` |
 | `.qg-tile` | `css/base/04-accounts-and-extras.css:304`, `css/base/04-accounts-and-extras.css:305`, `css/base/04-accounts-and-extras.css:306`, `css/base/05-desktop-and-discovery.css:37`, `css/base/05-desktop-and-discovery.css:48`, `css/base/05-desktop-and-discovery.css:383`, `css/base/05-desktop-and-discovery.css:413`, `css/base/05-desktop-and-discovery.css:425`, `css/base/06-commerce-and-social.css:176` |
 | `.qg-wrap` | `css/base/04-accounts-and-extras.css:303`, `css/base/05-desktop-and-discovery.css:36`, `css/base/05-desktop-and-discovery.css:366`, `css/base/05-desktop-and-discovery.css:382`, `css/base/05-desktop-and-discovery.css:424` |
-| `.qr-apps` | `css/base/02-shell.css:288` |
-| `.qr-inner` | `css/base/02-shell.css:287` |
-| `.qr-lbl` | `css/base/02-shell.css:287` |
-| `.qr-wrap` | `css/base/02-shell.css:286` |
+| `.qr-apps` | `css/base/02-shell.css:289` |
+| `.qr-inner` | `css/base/02-shell.css:288` |
+| `.qr-lbl` | `css/base/02-shell.css:288` |
+| `.qr-wrap` | `css/base/02-shell.css:287` |
 | `.qt` | `css/base/03-features-legacy.css:85` |
 | `.rail` | `css/base/06-commerce-and-social.css:329` |
 | `.rail-c` | `css/base/06-commerce-and-social.css:336` |
@@ -655,11 +655,11 @@ responsive/state overrides, not a collision.
 | `.rw-shake` | `css/base/05-desktop-and-discovery.css:246` |
 | `.rw-share` | `css/base/06-commerce-and-social.css:160`, `css/base/06-commerce-and-social.css:164`, `css/base/06-commerce-and-social.css:165` |
 | `.rw-sheen` | `css/base/05-desktop-and-discovery.css:90`, `css/base/05-desktop-and-discovery.css:93` |
-| `.rw-sound-note` | `css/base/02-shell.css:316` |
-| `.rw-sound-row` | `css/base/02-shell.css:303`, `css/base/02-shell.css:304`, `css/base/02-shell.css:305` |
-| `.rw-sound-settings` | `css/base/02-shell.css:302` |
-| `.rw-sound-switch` | `css/base/02-shell.css:306`, `css/base/02-shell.css:307`, `css/base/02-shell.css:308`, `css/base/02-shell.css:309`, `css/base/02-shell.css:310`, `css/base/02-shell.css:311`, `css/base/02-shell.css:312` |
-| `.rw-volume-row` | `css/base/02-shell.css:313`, `css/base/02-shell.css:314`, `css/base/02-shell.css:315` |
+| `.rw-sound-note` | `css/base/02-shell.css:317` |
+| `.rw-sound-row` | `css/base/02-shell.css:304`, `css/base/02-shell.css:305`, `css/base/02-shell.css:306` |
+| `.rw-sound-settings` | `css/base/02-shell.css:303` |
+| `.rw-sound-switch` | `css/base/02-shell.css:307`, `css/base/02-shell.css:308`, `css/base/02-shell.css:309`, `css/base/02-shell.css:310`, `css/base/02-shell.css:311`, `css/base/02-shell.css:312`, `css/base/02-shell.css:313` |
+| `.rw-volume-row` | `css/base/02-shell.css:314`, `css/base/02-shell.css:315`, `css/base/02-shell.css:316` |
 | `.rwi` | `css/base/04-accounts-and-extras.css:232`, `css/base/04-accounts-and-extras.css:233`, `css/base/04-accounts-and-extras.css:236`, `css/base/04-accounts-and-extras.css:238`, `css/base/04-accounts-and-extras.css:299` |
 | `.rwi-cine` | `css/base/04-accounts-and-extras.css:241`, `css/base/04-accounts-and-extras.css:249`, `css/base/04-accounts-and-extras.css:253` |
 | `.rwi-mythic` | `css/base/04-accounts-and-extras.css:246`, `css/base/04-accounts-and-extras.css:251` |
@@ -667,18 +667,18 @@ responsive/state overrides, not a collision.
 | `.rx` | `css/base/06-commerce-and-social.css:78`, `css/base/06-commerce-and-social.css:80`, `css/base/06-commerce-and-social.css:81`, `css/base/06-commerce-and-social.css:109`, `css/base/06-commerce-and-social.css:110` |
 | `.rx-pick` | `css/base/06-commerce-and-social.css:85`, `css/base/06-commerce-and-social.css:88`, `css/base/06-commerce-and-social.css:89`, `css/base/06-commerce-and-social.css:109` |
 | `.rx-row` | `css/base/06-commerce-and-social.css:77` |
-| `.rzp-main-btn` | `css/base/02-shell.css:279`, `css/base/02-shell.css:280` |
-| `.rzp-main-sub` | `css/base/02-shell.css:281` |
-| `.save-btn` | `css/base/02-shell.css:283` |
+| `.rzp-main-btn` | `css/base/02-shell.css:280`, `css/base/02-shell.css:281` |
+| `.rzp-main-sub` | `css/base/02-shell.css:282` |
+| `.save-btn` | `css/base/02-shell.css:284` |
 | `.seal` | `css/base/04-accounts-and-extras.css:60` |
-| `.search-btn` | `css/base/02-shell.css:68`, `css/base/02-shell.css:69`, `css/base/02-shell.css:70` |
-| `.sec-label` | `css/base/02-shell.css:118`, `css/base/03-features-legacy.css:210` |
-| `.section-label` | `css/base/02-shell.css:278` |
-| `.seg-desc` | `css/base/02-shell.css:188`, `css/base/05-desktop-and-discovery.css:379`, `css/base/05-desktop-and-discovery.css:419`, `css/base/05-desktop-and-discovery.css:434` |
-| `.seg-ic` | `css/base/02-shell.css:187` |
-| `.seg-time` | `css/base/02-shell.css:186`, `css/base/02-shell.css:187`, `css/base/05-desktop-and-discovery.css:380` |
-| `.sel` | `css/base/02-shell.css:47`, `css/base/02-shell.css:153`, `css/base/02-shell.css:153`, `css/base/02-shell.css:156` |
-| `.selected` | `css/base/02-shell.css:141` |
+| `.search-btn` | `css/base/02-shell.css:69`, `css/base/02-shell.css:70`, `css/base/02-shell.css:71` |
+| `.sec-label` | `css/base/02-shell.css:119`, `css/base/03-features-legacy.css:210` |
+| `.section-label` | `css/base/02-shell.css:279` |
+| `.seg-desc` | `css/base/02-shell.css:189`, `css/base/05-desktop-and-discovery.css:379`, `css/base/05-desktop-and-discovery.css:419`, `css/base/05-desktop-and-discovery.css:434` |
+| `.seg-ic` | `css/base/02-shell.css:188` |
+| `.seg-time` | `css/base/02-shell.css:187`, `css/base/02-shell.css:188`, `css/base/05-desktop-and-discovery.css:380` |
+| `.sel` | `css/base/02-shell.css:48`, `css/base/02-shell.css:154`, `css/base/02-shell.css:154`, `css/base/02-shell.css:157` |
+| `.selected` | `css/base/02-shell.css:142` |
 | `.share-cell` | `css/base/04-accounts-and-extras.css:177`, `css/base/04-accounts-and-extras.css:178` |
 | `.share-emoji` | `css/base/04-accounts-and-extras.css:179` |
 | `.share-fab` | `css/base/03-features-legacy.css:199`, `css/base/03-features-legacy.css:200` |
@@ -686,23 +686,23 @@ responsive/state overrides, not a collision.
 | `.share-head` | `css/base/04-accounts-and-extras.css:175` |
 | `.share-modal-inner` | `css/base/04-accounts-and-extras.css:172`, `css/base/04-accounts-and-extras.css:173` |
 | `.share-overlay` | `css/base/04-accounts-and-extras.css:171`, `css/base/04-accounts-and-extras.css:173` |
-| `.sheet` | `css/base/02-shell.css:257`, `css/base/02-shell.css:262`, `css/base/02-shell.css:264`, `css/base/02-shell.css:264`, `css/base/04-accounts-and-extras.css:131`, `css/base/04-accounts-and-extras.css:131`, `css/base/05-desktop-and-discovery.css:42`, `css/base/05-desktop-and-discovery.css:62` |
-| `.sheet-head` | `css/base/02-shell.css:259`, `css/base/02-shell.css:261` |
+| `.sheet` | `css/base/02-shell.css:258`, `css/base/02-shell.css:263`, `css/base/02-shell.css:265`, `css/base/02-shell.css:265`, `css/base/04-accounts-and-extras.css:131`, `css/base/04-accounts-and-extras.css:131`, `css/base/05-desktop-and-discovery.css:42`, `css/base/05-desktop-and-discovery.css:62` |
+| `.sheet-head` | `css/base/02-shell.css:260`, `css/base/02-shell.css:262` |
 | `.shell` | `css/base/03-features-legacy.css:54`, `css/base/03-features-legacy.css:55`, `css/base/03-features-legacy.css:56`, `css/base/03-features-legacy.css:57`, `css/base/03-features-legacy.css:58`, `css/base/03-features-legacy.css:59`, `css/base/03-features-legacy.css:60`, `css/base/03-features-legacy.css:61`, `css/base/03-features-legacy.css:64`, `css/base/03-features-legacy.css:65`, `css/base/03-features-legacy.css:241`, `css/base/03-features-legacy.css:242`, `css/base/03-features-legacy.css:243`, `css/base/03-features-legacy.css:245`, `css/base/03-features-legacy.css:245`, `css/base/03-features-legacy.css:245`, `css/base/03-features-legacy.css:247`, `css/base/03-features-legacy.css:248`, `css/base/03-features-legacy.css:249`, `css/base/05-desktop-and-discovery.css:33` |
-| `.shim-line` | `css/base/02-shell.css:70` |
+| `.shim-line` | `css/base/02-shell.css:71` |
 | `.shinobi-chip` | `css/base/03-features-legacy.css:208`, `css/base/03-features-legacy.css:209` |
 | `.signed` | `css/base/06-commerce-and-social.css:120` |
 | `.site-footer` | `css/base/03-features-legacy.css:29` |
-| `.sl-label` | `css/base/02-shell.css:64` |
-| `.slider-lbl` | `css/base/02-shell.css:59` |
-| `.slider-row` | `css/base/02-shell.css:58` |
-| `.smart` | `css/base/02-shell.css:330` |
+| `.sl-label` | `css/base/02-shell.css:65` |
+| `.slider-lbl` | `css/base/02-shell.css:60` |
+| `.slider-row` | `css/base/02-shell.css:59` |
+| `.smart` | `css/base/02-shell.css:331` |
 | `.snd-btn` | `css/base/03-features-legacy.css:125`, `css/base/03-features-legacy.css:126` |
 | `.sos-block` | `css/base/06-commerce-and-social.css:237`, `css/base/06-commerce-and-social.css:238`, `css/base/06-commerce-and-social.css:239` |
 | `.sos-n` | `css/base/06-commerce-and-social.css:231`, `css/base/06-commerce-and-social.css:234`, `css/base/06-commerce-and-social.css:235`, `css/base/06-commerce-and-social.css:236` |
 | `.sos-nums` | `css/base/06-commerce-and-social.css:230` |
 | `.sos-top` | `css/base/06-commerce-and-social.css:228`, `css/base/06-commerce-and-social.css:229` |
-| `.spin-ring` | `css/base/02-shell.css:73` |
+| `.spin-ring` | `css/base/02-shell.css:74` |
 | `.src` | `css/base/03-features-legacy.css:48` |
 | `.st-book` | `css/base/06-commerce-and-social.css:258`, `css/base/06-commerce-and-social.css:261` |
 | `.st-cancel` | `css/base/06-commerce-and-social.css:257` |
@@ -714,8 +714,8 @@ responsive/state overrides, not a collision.
 | `.st-save` | `css/base/06-commerce-and-social.css:243`, `css/base/06-commerce-and-social.css:245` |
 | `.st-top` | `css/base/06-commerce-and-social.css:249` |
 | `.st-where` | `css/base/06-commerce-and-social.css:252` |
-| `.stab` | `css/base/02-shell.css:198`, `css/base/02-shell.css:199` |
-| `.stab-pane` | `css/base/02-shell.css:199`, `css/base/02-shell.css:199` |
+| `.stab` | `css/base/02-shell.css:199`, `css/base/02-shell.css:200` |
+| `.stab-pane` | `css/base/02-shell.css:200`, `css/base/02-shell.css:200` |
 | `.stat` | `css/base/04-accounts-and-extras.css:51`, `css/base/04-accounts-and-extras.css:52` |
 | `.stat-cell` | `css/base/03-features-legacy.css:17` |
 | `.stat-lbl` | `css/base/03-features-legacy.css:19` |
@@ -724,25 +724,25 @@ responsive/state overrides, not a collision.
 | `.stats-row` | `css/base/03-features-legacy.css:16`, `css/base/03-features-legacy.css:20` |
 | `.strava` | `css/base/03-features-legacy.css:52` |
 | `.sub` | `css/base/04-accounts-and-extras.css:27` |
-| `.sub-tabs` | `css/base/02-shell.css:197` |
-| `.suc-ck` | `css/base/02-shell.css:297` |
-| `.suc-f` | `css/base/02-shell.css:296` |
-| `.success-card` | `css/base/02-shell.css:293` |
-| `.success-close` | `css/base/02-shell.css:298` |
-| `.success-feats` | `css/base/02-shell.css:295` |
-| `.success-ico` | `css/base/02-shell.css:294` |
-| `.success-sub` | `css/base/02-shell.css:294` |
-| `.success-title` | `css/base/02-shell.css:294` |
-| `.sym` | `css/base/02-shell.css:53`, `css/base/02-shell.css:54` |
+| `.sub-tabs` | `css/base/02-shell.css:198` |
+| `.suc-ck` | `css/base/02-shell.css:298` |
+| `.suc-f` | `css/base/02-shell.css:297` |
+| `.success-card` | `css/base/02-shell.css:294` |
+| `.success-close` | `css/base/02-shell.css:299` |
+| `.success-feats` | `css/base/02-shell.css:296` |
+| `.success-ico` | `css/base/02-shell.css:295` |
+| `.success-sub` | `css/base/02-shell.css:295` |
+| `.success-title` | `css/base/02-shell.css:295` |
+| `.sym` | `css/base/02-shell.css:54`, `css/base/02-shell.css:55` |
 | `.sz-xl` | `css/base/04-accounts-and-extras.css:137` |
 | `.tab` | `css/base/04-accounts-and-extras.css:33`, `css/base/04-accounts-and-extras.css:34`, `css/base/04-accounts-and-extras.css:118` |
-| `.tab-btn` | `css/base/02-shell.css:114`, `css/base/02-shell.css:115` |
-| `.tab-pane` | `css/base/02-shell.css:116`, `css/base/02-shell.css:116` |
+| `.tab-btn` | `css/base/02-shell.css:115`, `css/base/02-shell.css:116` |
+| `.tab-pane` | `css/base/02-shell.css:117`, `css/base/02-shell.css:117` |
 | `.tabbar` | `css/base/01-tokens.css:16`, `css/base/03-features-legacy.css:223`, `css/base/03-features-legacy.css:224`, `css/base/03-features-legacy.css:235`, `css/base/03-features-legacy.css:236`, `css/base/03-features-legacy.css:237`, `css/base/03-features-legacy.css:238`, `css/base/03-features-legacy.css:239`, `css/base/03-features-legacy.css:240`, `css/base/03-features-legacy.css:241`, `css/base/04-accounts-and-extras.css:233`, `css/base/04-accounts-and-extras.css:234`, `css/base/04-accounts-and-extras.css:235`, `css/base/04-accounts-and-extras.css:236`, `css/base/04-accounts-and-extras.css:249`, `css/base/04-accounts-and-extras.css:250`, `css/base/04-accounts-and-extras.css:251`, `css/base/04-accounts-and-extras.css:300`, `css/base/05-desktop-and-discovery.css:19`, `css/base/05-desktop-and-discovery.css:32`, `css/base/05-desktop-and-discovery.css:385` |
-| `.tabs` | `css/base/02-shell.css:113` |
+| `.tabs` | `css/base/02-shell.css:114` |
 | `.tact` | `css/base/03-features-legacy.css:181`, `css/base/03-features-legacy.css:182`, `css/base/04-accounts-and-extras.css:117`, `css/base/06-commerce-and-social.css:29`, `css/base/06-commerce-and-social.css:134` |
-| `.tag` | `css/base/02-shell.css:66`, `css/base/02-shell.css:67` |
-| `.tags` | `css/base/02-shell.css:65` |
+| `.tag` | `css/base/02-shell.css:67`, `css/base/02-shell.css:68` |
+| `.tags` | `css/base/02-shell.css:66` |
 | `.tbadge` | `css/base/03-features-legacy.css:168`, `css/base/03-features-legacy.css:169`, `css/base/03-features-legacy.css:170`, `css/base/03-features-legacy.css:171`, `css/base/03-features-legacy.css:172` |
 | `.tc-av` | `css/base/06-commerce-and-social.css:66`, `css/base/06-commerce-and-social.css:442` |
 | `.tc-bub` | `css/base/06-commerce-and-social.css:68`, `css/base/06-commerce-and-social.css:71`, `css/base/06-commerce-and-social.css:72`, `css/base/06-commerce-and-social.css:110`, `css/base/06-commerce-and-social.css:443`, `css/base/06-commerce-and-social.css:445` |
@@ -756,14 +756,14 @@ responsive/state overrides, not a collision.
 | `.tc-vibe` | `css/base/06-commerce-and-social.css:100` |
 | `.tc-vibe-t` | `css/base/06-commerce-and-social.css:105` |
 | `.temp` | `css/base/04-accounts-and-extras.css:38` |
-| `.tfield` | `css/base/02-shell.css:206`, `css/base/02-shell.css:206` |
+| `.tfield` | `css/base/02-shell.css:207`, `css/base/02-shell.css:207` |
 | `.ti` | `css/base/03-features-legacy.css:238`, `css/base/03-features-legacy.css:240`, `css/base/04-accounts-and-extras.css:233`, `css/base/04-accounts-and-extras.css:236`, `css/base/04-accounts-and-extras.css:300` |
 | `.ti-day` | `css/base/03-features-legacy.css:178`, `css/base/03-features-legacy.css:179` |
-| `.tier` | `css/base/02-shell.css:159`, `css/base/02-shell.css:160`, `css/base/02-shell.css:160` |
-| `.tier-lbl` | `css/base/02-shell.css:160` |
-| `.tier-note` | `css/base/02-shell.css:160` |
-| `.tier-row` | `css/base/02-shell.css:158`, `css/base/02-shell.css:344` |
-| `.tier-val` | `css/base/02-shell.css:160`, `css/base/02-shell.css:160` |
+| `.tier` | `css/base/02-shell.css:160`, `css/base/02-shell.css:161`, `css/base/02-shell.css:161` |
+| `.tier-lbl` | `css/base/02-shell.css:161` |
+| `.tier-note` | `css/base/02-shell.css:161` |
+| `.tier-row` | `css/base/02-shell.css:159`, `css/base/02-shell.css:345` |
+| `.tier-val` | `css/base/02-shell.css:161`, `css/base/02-shell.css:161` |
 | `.tk-arr` | `css/base/04-accounts-and-extras.css:91` |
 | `.tk-bul` | `css/base/04-accounts-and-extras.css:76`, `css/base/04-accounts-and-extras.css:77`, `css/base/04-accounts-and-extras.css:107`, `css/base/04-accounts-and-extras.css:108` |
 | `.tk-card` | `css/base/04-accounts-and-extras.css:67`, `css/base/04-accounts-and-extras.css:95`, `css/base/04-accounts-and-extras.css:96`, `css/base/04-accounts-and-extras.css:110` |
@@ -804,21 +804,21 @@ responsive/state overrides, not a collision.
 | `.tribe-spot-acts` | `css/base/04-accounts-and-extras.css:281` |
 | `.tribe-spot-name` | `css/base/04-accounts-and-extras.css:280` |
 | `.tribe-why` | `css/base/04-accounts-and-extras.css:277` |
-| `.trk-bg` | `css/base/02-shell.css:203` |
-| `.trk-cell` | `css/base/02-shell.css:202` |
-| `.trk-cells` | `css/base/02-shell.css:201` |
-| `.trk-fill` | `css/base/02-shell.css:204` |
-| `.trk-lbl` | `css/base/02-shell.css:202` |
-| `.trk-val` | `css/base/02-shell.css:202` |
+| `.trk-bg` | `css/base/02-shell.css:204` |
+| `.trk-cell` | `css/base/02-shell.css:203` |
+| `.trk-cells` | `css/base/02-shell.css:202` |
+| `.trk-fill` | `css/base/02-shell.css:205` |
+| `.trk-lbl` | `css/base/02-shell.css:203` |
+| `.trk-val` | `css/base/02-shell.css:203` |
 | `.trust-chip` | `css/base/03-features-legacy.css:14`, `css/base/03-features-legacy.css:15`, `css/base/03-features-legacy.css:231` |
 | `.trust-strip` | `css/base/03-features-legacy.css:13` |
 | `.tusk` | `css/base/06-commerce-and-social.css:442` |
 | `.tusk-think` | `css/base/06-commerce-and-social.css:443`, `css/base/06-commerce-and-social.css:445` |
-| `.txn-btn` | `css/base/02-shell.css:291` |
-| `.txn-inp` | `css/base/02-shell.css:290`, `css/base/02-shell.css:290` |
-| `.txn-lbl` | `css/base/02-shell.css:289` |
-| `.txn-note` | `css/base/02-shell.css:289` |
-| `.txn-sec` | `css/base/02-shell.css:289` |
+| `.txn-btn` | `css/base/02-shell.css:292` |
+| `.txn-inp` | `css/base/02-shell.css:291`, `css/base/02-shell.css:291` |
+| `.txn-lbl` | `css/base/02-shell.css:290` |
+| `.txn-note` | `css/base/02-shell.css:290` |
+| `.txn-sec` | `css/base/02-shell.css:290` |
 | `.ua-ic` | `css/base/03-features-legacy.css:217` |
 | `.upd` | `css/legal-page.css:16` |
 | `.upi-any` | `css/base/03-features-legacy.css:221` |
@@ -838,22 +838,22 @@ responsive/state overrides, not a collision.
 | `.v-store` | `css/base/03-features-legacy.css:59` |
 | `.v-web-only` | `css/base/03-features-legacy.css:64` |
 | `.vis` | `css/base/03-features-legacy.css:129` |
-| `.visa-card` | `css/base/02-shell.css:148` |
-| `.visa-cost` | `css/base/02-shell.css:149` |
-| `.visa-ico` | `css/base/02-shell.css:149` |
-| `.visa-note` | `css/base/02-shell.css:149` |
-| `.visa-title` | `css/base/02-shell.css:149` |
-| `.wa-btn` | `css/base/02-shell.css:224` |
-| `.wa-card` | `css/base/02-shell.css:222` |
-| `.wa-sub` | `css/base/02-shell.css:223` |
-| `.wa-title` | `css/base/02-shell.css:223` |
+| `.visa-card` | `css/base/02-shell.css:149` |
+| `.visa-cost` | `css/base/02-shell.css:150` |
+| `.visa-ico` | `css/base/02-shell.css:150` |
+| `.visa-note` | `css/base/02-shell.css:150` |
+| `.visa-title` | `css/base/02-shell.css:150` |
+| `.wa-btn` | `css/base/02-shell.css:225` |
+| `.wa-card` | `css/base/02-shell.css:223` |
+| `.wa-sub` | `css/base/02-shell.css:224` |
+| `.wa-title` | `css/base/02-shell.css:224` |
 | `.wapay` | `css/base/03-features-legacy.css:220` |
-| `.why-box` | `css/base/02-shell.css:128`, `css/base/02-shell.css:129` |
+| `.why-box` | `css/base/02-shell.css:129`, `css/base/02-shell.css:130` |
 | `.wm` | `css/base/03-features-legacy.css:104` |
 | `.worst` | `css/guide-page.css:23` |
 | `.wrap` | `css/base/04-accounts-and-extras.css:23`, `css/legal-page.css:8`, `css/marketing-page.css:7` |
 | `.wt` | `css/base/03-features-legacy.css:103` |
-| `.x` | `css/base/02-shell.css:262` |
+| `.x` | `css/base/02-shell.css:263` |
 | `.xh` | `css/base/03-features-legacy.css:153` |
 | `.xp-b` | `css/base/06-commerce-and-social.css:310` |
 | `.xp-bar` | `css/base/03-features-legacy.css:149` |
@@ -882,7 +882,7 @@ responsive/state overrides, not a collision.
 | `.xsec-head` | `css/base/03-features-legacy.css:156`, `css/base/05-desktop-and-discovery.css:375` |
 | `.xsec-sub` | `css/base/03-features-legacy.css:158`, `css/base/05-desktop-and-discovery.css:374`, `css/base/05-desktop-and-discovery.css:412` |
 | `.xsec-title` | `css/base/03-features-legacy.css:157`, `css/base/03-features-legacy.css:157`, `css/base/05-desktop-and-discovery.css:373`, `css/base/05-desktop-and-discovery.css:411`, `css/base/05-desktop-and-discovery.css:427`, `css/base/05-desktop-and-discovery.css:428`, `css/base/05-desktop-and-discovery.css:430` |
-| `.yt-link` | `css/base/02-shell.css:135`, `css/base/02-shell.css:136` |
+| `.yt-link` | `css/base/02-shell.css:136`, `css/base/02-shell.css:137` |
 
 ## Stylesheets — "which pages link `X.css`?"
 
