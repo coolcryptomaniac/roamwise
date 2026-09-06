@@ -5070,5 +5070,29 @@
   "country": "India",
   "best": "January, March, November",
   "month": true
+ },
+ {
+  "slug": "jodhpur-in-august",
+  "title": "Jodhpur in August",
+  "name": "Jodhpur·August",
+  "country": "India",
+  "best": "January, March, November",
+  "month": true
+ },
+ {
+  "slug": "jodhpur-in-september",
+  "title": "Jodhpur in September",
+  "name": "Jodhpur·September",
+  "country": "India",
+  "best": "January, March, November",
+  "month": true
+ },
+ {
+  "slug": "jodhpur-in-october",
+  "title": "Jodhpur in October",
+  "name": "Jodhpur·October",
+  "country": "India",
+  "best": "January, March, November",
+  "month": true
  }
 ]
