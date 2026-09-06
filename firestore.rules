@@ -1,6 +1,11 @@
 // Admin console manual-revenue fix: 2026-09-01
+// v17.1 (2026-09-06): admin business dashboard — added finance/costs (owner-
+// entered monthly expenses backing the Business tab's EBITDA-style view) and
+// devRequests/{id} (the Dev/AI Requests task queue). Both admin-only, both
+// narrowly scoped to the one collection/doc each feature actually needs. No
+// existing rule was loosened.
 // ============================================================================
-//  RoamWise - Firestore Security Rules   (STABLE BUILD v17.0 / Platform V5 - 2026-09-01)
+//  RoamWise - Firestore Security Rules   (STABLE BUILD v17.1 / Platform V5 - 2026-09-06)
 // ----------------------------------------------------------------------------
 //  HOW TO DEPLOY (2 minutes, do this whenever rules change):
 //    1. Firebase Console  ->  your project  ->  Build  ->  Firestore Database
@@ -822,6 +827,29 @@ service cloud.firestore {
         && request.auth != null
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['count'])
         && request.resource.data.count == (resource.data.count is int ? resource.data.count : 0) + 1;
+    }
+
+    // ---------- FINANCE (owner-entered monthly expenses, admin console) ----------
+    // Backs the admin Business tab's EBITDA-style view (js/admin/business-metrics.js).
+    // There is no real expense ledger in Firestore, so finance/costs is a single,
+    // hand-edited doc of monthly expense figures the founder fills in — narrowly
+    // scoped to this one doc (not a whole open `finance` collection) since it is
+    // the only finance doc this feature needs, per the same least-privilege pattern
+    // as pricing/founder and config/{doc} elsewhere in this file. Admin-only in both
+    // directions: this is financial planning data, not something even the finance
+    // staff role (see isFinance() below) needs write access to.
+    match /finance/costs {
+      allow read, write: if isAdmin();
+    }
+
+    // ---------- DEV / AI REQUESTS (admin console task queue) ----------
+    // Backs the admin "Dev/AI Requests" tab (js/admin/dev-requests.js) — a durable
+    // place to log a task ("fix X", "build Y") for a human, or a future scheduled
+    // job, to pick up. This is NOT a way for the app to control any AI session; it
+    // is a plain admin-only Firestore queue, same access shape as adminAuditLog,
+    // except mutable (status moves from open -> done, or a bad entry gets deleted).
+    match /devRequests/{id} {
+      allow read, create, update, delete: if isAdmin();
     }
 
     // ---- CROWD REPORTS (rw-v113) — Travel & Earn: Crowd Spotter ----
