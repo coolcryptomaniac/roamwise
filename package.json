@@ -11,6 +11,7 @@
     "index:css": "node tools/generate-css-index.js",
     "index:all": "npm run index && npm run index:css",
     "mod-status": "node tools/modularization-status.js",
+    "evals": "node tools/run-evals.js",
     "sync": "npx cap sync android",
     "open": "npx cap open android"
   },
