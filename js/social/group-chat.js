@@ -27,7 +27,7 @@ function openGroupChat(){
   var body=el('chatPickBody');
   var list = recents.length
     ? recents.map(function(r){
-        return '<button class="tact" style="width:100%;text-align:left;margin-bottom:7px;display:flex;justify-content:space-between;align-items:center;gap:8px" onclick="rwOverlayClose(\'chatPickOverlay\');tripChatOpen(\''+r.id+'\',\''+esc2(r.name).replace(/\'/g,"")+'\')">'
+        return '<button class="tact" style="width:100%;text-align:left;margin-bottom:7px;display:flex;justify-content:space-between;align-items:center;gap:8px" onclick="rwOverlayClose(\'chatPickOverlay\');tripChatOpen(\''+r.id+'\',\''+esc2(r.name).replace(/'/g,"")+'\')">'
           +'<span><b style="font-size:13.5px">'+esc2(r.name)+'</b><br><span style="font-size:10.5px;color:var(--t3)">last opened '+rwAgo(r.at)+'</span></span>'
           +'<span style="color:var(--t3);font-size:18px">\u203a</span></button>';
       }).join('')
