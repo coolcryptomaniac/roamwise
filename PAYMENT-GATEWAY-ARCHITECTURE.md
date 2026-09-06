@@ -151,6 +151,19 @@ business decisions:
 3. `app.js`'s `submitUtr()` is a pure one-line delegation to
    `RWPaymentGateway.verifyPayment()`.
 
+## Gateway #2: Cashfree (added — see CASHFREE-INTEGRATION-SETUP.md)
+
+`js/payments/providers/cashfree-adapter.js` is a second, real gateway
+adapter, registered as `'cashfree'`. It is not the default — behavior is
+unchanged for every live user until an admin sets
+`config/app.PAYMENT_PROVIDER` to `'cashfree'` in Firestore, per
+`CASHFREE-INTEGRATION-SETUP.md`, which has the full setup/secrets/testing
+walkthrough. Its server-side order-creation endpoint
+(`POST /cashfree/order`) lives on the existing `worker/` Worker
+(`roamwise-api`), not on the separate `payments/` multi-provider router —
+see that setup doc and the header comment in `worker/handlers/cashfree.js`
+for why.
+
 ## Adding gateway #2 (e.g., a real Razorpay integration)
 
 1. Decide whether the new gateway should be a thin client wrapper around
