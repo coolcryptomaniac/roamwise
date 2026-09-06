@@ -317,11 +317,29 @@ opening/animation modules: `atlas-shinobi.js`, `audio-only.js`,
 `performance.js`).
 
 ### `worker/` — optional Cloudflare Worker (not loaded by the app by default)
-`worker.js` implements `/health`, `/ai` (Groq proxy), `/news`, `/events`,
+`worker.js` is a thin entry point (routing table + `fetch()`/`scheduled()`
+dispatch only) that routes `/health`, `/ai` (Groq proxy), `/news`, `/events`,
 `/events/refresh`, `/geo` (Nominatim proxy), and `/leads` (OpenStreetMap-
-based partner lead finder), plus a daily cron (`wrangler.toml`). See
-`FUTURE-ARCHITECTURE-PLAN.md` for its role in the Cloudflare migration
-plan.
+based partner lead finder) to per-route handlers under `worker/handlers/`
+(`health.js`, `ai.js`, `news.js`, `events.js`, `geo.js`, `leads.js`), plus
+shared HTTP helpers (`CORS`, `json`, `cached`, `EDGE`) in `worker/lib/http.js`,
+and runs a daily cron (`wrangler.toml`). See `FUTURE-ARCHITECTURE-PLAN.md`
+for its role in the Cloudflare migration plan.
+
+Unlike the frontend's classic-`<script>`-tag / `app.js` constraint, this
+Worker deploys via Cloudflare's "modules" format (`worker.js` uses
+`export default { fetch, scheduled }`), which wrangler bundles with esbuild
+before upload — real ES `import`/`export` between files works here, same as
+Node, verified via `wrangler deploy --dry-run` producing one bundled output
+containing all handlers. The one real constraint (inherent to Cloudflare,
+not this codebase) is that exactly one file may be the `main` entry with
+`export default { fetch, scheduled }` — every other file, including
+`worker/handlers/*.js` and `worker/lib/http.js`, must stick to named
+exports. A prior in-session attempt broke because a second file
+(`events-refresh.js`) had its *own* competing `export default`, which
+`wrangler.toml`'s single `main = "worker.js"` silently never invoked — not
+because imports themselves don't work. See the header comment in
+`worker/worker.js` for the full account.
 
 ### `payments/` — server-side payment router (separate service, not `js/payments/`)
 A Cloudflare Worker service (`worker.mjs`, `provider-registry.mjs`,
