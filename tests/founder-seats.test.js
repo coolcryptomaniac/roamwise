@@ -167,3 +167,126 @@ test('loadPublicSeatsLeft: no db available at all -> safe fallback, never throws
   assert.equal(result.ok, false);
   assert.equal(result.left, null);
 });
+
+// ---- loadPublicSeatsLeftFromFounderSnap: the PERF (2026-09-06) fix. The
+// pay-modal open flow in js/payments/plan-picker.js used to call
+// RWPricing.founderGateLoad() (reads pricing/founder) then immediately
+// loadPublicSeatsLeft(db) (reads pricing/founder AGAIN, plus
+// partnerships/nmims2026) — two live reads of the exact same document on
+// every single pay-modal open. loadPublicSeatsLeftFromFounderSnap() takes
+// the already-fetched pricing/founder snapshot instead of re-reading it, so
+// it should only ever touch partnerships/nmims2026. A fakeDb that THROWS if
+// 'pricing/founder' is ever queried is the enforcement mechanism below: any
+// regression that reintroduces the duplicate read fails these tests, not
+// just a manual count.
+function fakeDbNoFounderRead({ nmimsSigned, nmimsExists = true, nmimsRejects = false }) {
+  return {
+    collection(name) {
+      return {
+        doc(id) {
+          return {
+            get() {
+              if (name === 'pricing' && id === 'founder') {
+                throw new Error('regression: loadPublicSeatsLeftFromFounderSnap must not re-read pricing/founder');
+              }
+              if (name === 'partnerships' && id === 'nmims2026') {
+                return nmimsRejects
+                  ? Promise.reject(new Error('permission-denied'))
+                  : Promise.resolve(snap(nmimsExists, { officialConfirmed: nmimsSigned }));
+              }
+              throw new Error('unexpected path in test: ' + name + '/' + id);
+            }
+          };
+        }
+      };
+    }
+  };
+}
+
+test('loadPublicSeatsLeftFromFounderSnap: 5 claimed (pre-fetched snapshot), unsigned -> 995, without re-reading pricing/founder', async () => {
+  const RWFounderSeats = loadModule();
+  const founderSnap = snap(true, { count: 5 });
+  const result = await RWFounderSeats.loadPublicSeatsLeftFromFounderSnap(fakeDbNoFounderRead({ nmimsSigned: false }), founderSnap);
+  assert.equal(result.ok, true);
+  assert.equal(result.left, 995);
+});
+
+test('loadPublicSeatsLeftFromFounderSnap: 5 claimed (pre-fetched snapshot), signed -> 495', async () => {
+  const RWFounderSeats = loadModule();
+  const founderSnap = snap(true, { count: 5 });
+  const result = await RWFounderSeats.loadPublicSeatsLeftFromFounderSnap(fakeDbNoFounderRead({ nmimsSigned: true }), founderSnap);
+  assert.equal(result.ok, true);
+  assert.equal(result.left, 495);
+});
+
+test('loadPublicSeatsLeftFromFounderSnap: same result as loadPublicSeatsLeft for identical inputs (behavior-neutral, only the read count changed)', async () => {
+  const RWFounderSeats = loadModule();
+  const viaOldPath = await RWFounderSeats.loadPublicSeatsLeft(fakeDb({ founderCount: 5, nmimsSigned: true }));
+  const viaNewPath = await RWFounderSeats.loadPublicSeatsLeftFromFounderSnap(fakeDbNoFounderRead({ nmimsSigned: true }), snap(true, { count: 5 }));
+  assert.deepEqual(viaNewPath, viaOldPath);
+});
+
+test('loadPublicSeatsLeftFromFounderSnap: missing pre-fetched snapshot -> safe fallback, never a fabricated count', async () => {
+  const RWFounderSeats = loadModule();
+  const result = await RWFounderSeats.loadPublicSeatsLeftFromFounderSnap(fakeDbNoFounderRead({ nmimsSigned: false }), null);
+  assert.equal(result.ok, false);
+  assert.equal(result.left, null);
+});
+
+test('loadPublicSeatsLeftFromFounderSnap: no db available at all -> safe fallback, never throws', async () => {
+  const RWFounderSeats = loadModule();
+  const result = await RWFounderSeats.loadPublicSeatsLeftFromFounderSnap(null, snap(true, { count: 5 }));
+  assert.equal(result.ok, false);
+  assert.equal(result.left, null);
+});
+
+// ---- Integration: the exact call chain js/payments/plan-picker.js uses
+// (RWPricing.founderGateLoad().then(() => RWFounderSeats.loadPublicSeatsLeftFromFounderSnap(db, RWPricing.founderGateSnap())))
+// loaded together in one vm context with a read-counting fake db, proving
+// pricing/founder is read exactly ONCE for the whole flow (was twice before
+// this fix).
+function loadPricingAndSeatsModules() {
+  const context = { window: {} };
+  vm.createContext(context);
+  vm.runInContext(read('js/pricing/tiers.js'), context);
+  vm.runInContext(read('js/pricing/founder-seats.js'), context);
+  return context;
+}
+
+function fakeDbWithReadCounts({ founderCount, nmimsSigned }) {
+  const counts = { 'pricing/founder': 0, 'partnerships/nmims2026': 0 };
+  const db = {
+    collection(name) {
+      return {
+        doc(id) {
+          return {
+            get() {
+              counts[name + '/' + id] = (counts[name + '/' + id] || 0) + 1;
+              if (name === 'pricing' && id === 'founder') return Promise.resolve(snap(true, { count: founderCount }));
+              if (name === 'partnerships' && id === 'nmims2026') return Promise.resolve(snap(true, { officialConfirmed: nmimsSigned }));
+              throw new Error('unexpected path in test: ' + name + '/' + id);
+            }
+          };
+        }
+      };
+    }
+  };
+  return { db, counts };
+}
+
+test('PERF: the plan-picker pay-modal-open chain reads pricing/founder exactly ONCE (was twice pre-fix)', async () => {
+  const ctx = loadPricingAndSeatsModules();
+  const { db, counts } = fakeDbWithReadCounts({ founderCount: 5, nmimsSigned: false });
+  ctx.window.db = db;
+  ctx.db = db; // founderGateLoad() references the bare `db` global, matching app.js's global `db`
+
+  // Exact chain from js/payments/plan-picker.js's openPay():
+  const gate = await ctx.RWPricing.founderGateLoad();
+  const result = await ctx.RWFounderSeats.loadPublicSeatsLeftFromFounderSnap(db, ctx.RWPricing.founderGateSnap());
+
+  assert.equal(gate.count, 5);
+  assert.equal(result.ok, true);
+  assert.equal(result.left, 995);
+  assert.equal(counts['pricing/founder'], 1, 'pricing/founder should be read exactly once for the whole pay-modal-open flow');
+  assert.equal(counts['partnerships/nmims2026'], 1, 'partnerships/nmims2026 should still be read exactly once');
+});

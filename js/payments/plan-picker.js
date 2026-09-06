@@ -231,13 +231,23 @@ function openPay(){
      seats were claimed). pricing/founder.count is the doc every grant path
      can legally increment by exactly +1 (see js/pricing/founder-seats.js and
      firestore.rules' pricing/{doc} update rule), so it's the one source of
-     truth read here (loadPublicSeatsLeft, js/pricing/founder-seats.js), and
-     its raw claimed-count is re-derived below from founderGate() — populated
-     by the founderGateLoad() call just before it — instead of a second parse
-     of the gate doc. The NMIMS Proposed/Official flag is read alongside it
-     so the public number can additionally reserve NMIMS's 500 seats once
-     that partnership goes from "Proposed" to "Official" (founder-seats.js). */
-  (window.db? RWPricing.founderGateLoad().then(function(){ return RWFounderSeats.loadPublicSeatsLeft(db); }) : Promise.reject()).then(function(result){
+     truth read here (loadPublicSeatsLeftFromFounderSnap,
+     js/pricing/founder-seats.js), and its raw claimed-count is re-derived
+     below from founderGate() — populated by the founderGateLoad() call just
+     before it — instead of a second parse of the gate doc. The NMIMS
+     Proposed/Official flag is read alongside it so the public number can
+     additionally reserve NMIMS's 500 seats once that partnership goes from
+     "Proposed" to "Official" (founder-seats.js).
+     PERF (2026-09-06): this used to call loadPublicSeatsLeft(db), which
+     re-reads pricing/founder itself — a second live read of the exact same
+     document founderGateLoad() just fetched, on every single pay-modal
+     open. loadPublicSeatsLeftFromFounderSnap() reuses founderGateLoad()'s
+     already-fetched snapshot (RWPricing.founderGateSnap()) instead, cutting
+     this flow from 3 Firestore reads to 2 (see tests/founder-seats.test.js
+     and PR notes for the before/after read count). */
+  (window.db? RWPricing.founderGateLoad().then(function(){
+    return RWFounderSeats.loadPublicSeatsLeftFromFounderSnap(db, RWPricing.founderGateSnap());
+  }) : Promise.reject()).then(function(result){
     if(settled) return; settled=true; clearTimeout(to);
     /* founderGateLoad() already cached pricing/founder's raw data for the
        open/closed gate check below — reuse it for the claimed-count the

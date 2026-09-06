@@ -126,6 +126,18 @@ var RWPricing = (function(){
      STRICTER of the two — offline can only ever close the offer, never open it. */
   /** @type {RWFounderGate|null} */
   var _founderGate = null;
+  /* PERF (2026-09-06): also keep the raw DocumentSnapshot this resolved from,
+     not just its .data(). js/pricing/founder-seats.js's loadPublicSeatsLeft()
+     needs a {exists, data()} snapshot shape (it's what computeFromSnapshots()
+     is unit-tested against), and the plan-picker pay-modal open flow used to
+     call founderGateLoad() then loadPublicSeatsLeft() right after it — two
+     separate live reads of the exact same pricing/founder document on every
+     single pay-modal open. Exposing the snapshot here (founderGateSnap())
+     lets that caller reuse this one read instead of firing a second,
+     wasteful one — see js/pricing/founder-seats.js's
+     loadPublicSeatsLeftFromFounderSnap() and js/payments/plan-picker.js's
+     call site. */
+  var _founderGateSnap = null;
   /**
    * Load the server-side founder-offer gate from Firestore (`pricing/founder`),
    * caching the result in `_founderGate`. Resolves to `null` (never rejects)
@@ -136,6 +148,7 @@ var RWPricing = (function(){
   function founderGateLoad(){
     if(!window.db) return Promise.resolve(null);
     return db.collection('pricing').doc('founder').get().then(function(d){
+      _founderGateSnap = d;
       _founderGate = d.exists ? d.data() : null;
       return _founderGate;
     }).catch(function(){ return null; });
@@ -203,6 +216,7 @@ var RWPricing = (function(){
     founderOfferOpen: founderOfferOpen,
     founderGateLoad: founderGateLoad,
     founderGate: function(){ return _founderGate; },
+    founderGateSnap: function(){ return _founderGateSnap; },
     daysSinceLaunch: daysSinceLaunch,
     tierById: tierById,
     currentTier: currentTier,

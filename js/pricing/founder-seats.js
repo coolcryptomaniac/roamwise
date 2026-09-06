@@ -88,6 +88,36 @@ var RWFounderSeats = (function(){
   }
 
   /**
+   * PERF (2026-09-06): identical to loadPublicSeatsLeft, except it takes an
+   * already-fetched pricing/founder snapshot instead of reading that
+   * document itself. js/payments/plan-picker.js's pay-modal open flow always
+   * calls RWPricing.founderGateLoad() (which reads pricing/founder for the
+   * open/closed gate check) immediately before this — calling the original
+   * loadPublicSeatsLeft() right after that meant reading pricing/founder
+   * TWICE, back to back, on every single pay-modal open. This variant reuses
+   * founderGateLoad()'s already-fetched snapshot (RWPricing.founderGateSnap())
+   * and only fires the one Firestore read this function actually still
+   * needs on its own: partnerships/nmims2026. Same fallback/never-throws
+   * contract as loadPublicSeatsLeft; loadPublicSeatsLeft itself is
+   * unchanged (and still covered by its own tests below) for any future
+   * caller that hasn't already fetched pricing/founder.
+   * @param {*} dbRef Firestore instance, same contract as loadPublicSeatsLeft
+   *   (falls back to window.db when falsy — still runtime-optional, just not
+   *   TS-optional, since a required param can't follow it in the signature).
+   * @param {{exists:boolean, data:()=>any}|null|undefined} founderSnap
+   *   Already-fetched pricing/founder snapshot (e.g. RWPricing.founderGateSnap()).
+   * @returns {Promise<{ok:true, left:number}|{ok:false, left:null}>}
+   */
+  function loadPublicSeatsLeftFromFounderSnap(dbRef, founderSnap){
+    var _db = dbRef || (typeof window !== 'undefined' ? window.db : null);
+    if(!_db) return Promise.resolve({ ok:false, left:null });
+    return _db.collection('partnerships').doc('nmims2026').get().then(function(s){ return s; }, function(){ return null; })
+      .then(function(nmimsSnap){
+        return computeFromSnapshots(founderSnap, nmimsSnap);
+      }).catch(function(){ return { ok:false, left:null }; });
+  }
+
+  /**
    * Same computation as loadPublicSeatsLeft, but taking already-fetched
    * Firestore DocumentSnapshot-shaped objects — the seam unit tests mock
    * against, so the live Firestore round trip never needs to run in CI.
@@ -120,6 +150,7 @@ var RWFounderSeats = (function(){
     NMIMS_RESERVED: NMIMS_RESERVED,
     computeSeatsLeft: computeSeatsLeft,
     computeFromSnapshots: computeFromSnapshots,
-    loadPublicSeatsLeft: loadPublicSeatsLeft
+    loadPublicSeatsLeft: loadPublicSeatsLeft,
+    loadPublicSeatsLeftFromFounderSnap: loadPublicSeatsLeftFromFounderSnap
   };
 })();
