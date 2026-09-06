@@ -98,7 +98,7 @@ function renderForYou(){
     /* real photos over the gradients — SEQUENTIAL queue (weserv rate-limit safe) */
     rwPaintPhotos(row, picks);
     var cards=row.querySelectorAll('.pcard');
-    function proxOf(u){ return 'https://images.weserv.nl/?w=300&h=500&fit=cover&q=78&output=jpg&url='+encodeURIComponent(String(u).replace(/\/thumb\/([0-9a-f]\/[0-9a-f]{2}\/[^\/]+)\/\d+px-[^\/]+$/,'/$1').replace(/^https?:\/\//,'')); }
+    function proxOf(u){ return 'https://images.weserv.nl/?w=300&h=500&fit=cover&q=78&output=jpg&url='+encodeURIComponent(String(u).replace(/\/thumb\/([0-9a-f]\/[0-9a-f]{2}\/[^/]+)\/\d+px-[^/]+$/,'/$1').replace(/^https?:\/\//,'')); }
     function paintCard(ci,prox){ if(!cards[ci]) return; cards[ci].style.background='url('+prox+')'; var pe=cards[ci].querySelector('.pe'); if(pe) pe.style.display='none'; }
     function loadOne(u,ci){ return new Promise(function(res){
       var prox=proxOf(u), im=new Image(), tries=0;

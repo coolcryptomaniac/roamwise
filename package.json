@@ -11,6 +11,11 @@
     "index:css": "node tools/generate-css-index.js",
     "index:all": "npm run index && npm run index:css",
     "mod-status": "node tools/modularization-status.js",
+    "evals": "node tools/run-evals.js",
+    "related-links": "node tools/generate-related-links.js",
+    "related-links:check": "node tools/generate-related-links.js --check",
+    "sitemap": "node tools/generate-sitemap.js",
+    "sitemap:check": "node tools/generate-sitemap.js --check",
     "sync": "npx cap sync android",
     "open": "npx cap open android"
   },

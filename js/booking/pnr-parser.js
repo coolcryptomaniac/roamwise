@@ -9,9 +9,9 @@ function rwParsePNR(text){
   if(pnr) out.pnr=pnr[1];
   var trn=t.match(/\b(\d{5})\b(?!\d)/);
   if(trn && trn[1]!==out.pnr) out.train=trn[1];
-  var nm=t.match(/\b(\d{5})\s*[\/\-]?\s*([A-Z][A-Za-z\s]{3,28}(?:EXP|EXPRESS|SF|SUPERFAST|RAJDHANI|SHATABDI|DURONTO|VANDE BHARAT|JANSHATABDI|MAIL))/i);
+  var nm=t.match(/\b(\d{5})\s*[/-]?\s*([A-Z][A-Za-z\s]{3,28}(?:EXP|EXPRESS|SF|SUPERFAST|RAJDHANI|SHATABDI|DURONTO|VANDE BHARAT|JANSHATABDI|MAIL))/i);
   if(nm) out.trainName=nm[2].trim();
-  var dt=t.match(/\b(\d{1,2})[-\/\s]([A-Za-z]{3,9}|\d{1,2})[-\/\s](\d{2,4})\b/);
+  var dt=t.match(/\b(\d{1,2})[-/\s]([A-Za-z]{3,9}|\d{1,2})[-/\s](\d{2,4})\b/);
   if(dt) out.date=dt[0];
   var seg=t.match(/\b([A-Z]{2,5})\s*(?:-|to|\u2192|=>)\s*([A-Z]{2,5})\b/);
   if(seg){ out.from=seg[1]; out.to=seg[2]; }

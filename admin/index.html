@@ -40,6 +40,12 @@
       <button class="on" data-page="overview" onclick="goPage('overview',this)">Overview</button>
       <button data-page="money" onclick="goPage('money',this)">Money</button>
       <button data-page="users" onclick="goPage('users',this)">Users</button>
+      <button data-page="business" onclick="goPage('business',this)">Business</button>
+      <button data-page="referrals" onclick="goPage('referrals',this)">Referrals</button>
+      <button data-page="staff" onclick="goPage('staff',this)">Staff</button>
+      <button data-page="compliance" onclick="goPage('compliance',this)">Compliance</button>
+      <button data-page="devrequests" onclick="goPage('devrequests',this)">Dev/AI Requests</button>
+      <button data-page="investors" onclick="goPage('investors',this)">Investor view</button>
       <button data-page="outreach" onclick="goPage('outreach',this)">VC outreach</button>
       <button data-page="rules" onclick="goPage('rules',this)">Rules</button>
     </nav></aside>
@@ -72,6 +78,28 @@
         <div class="card"><h2>Publish checklist</h2><div class="rule-step"><b>1</b><div><b>Copy latest rules</b><div class="meta">Copies the reviewed <code>firestore.rules</code> from this deployment.</div></div></div><div class="rule-step"><b>2</b><div><b>Open Firebase Rules → select all → paste → Publish</b><div class="meta">Then return here and run the live test. No source editing required.</div></div></div><div class="rule-step"><b>3</b><div><b>Correct a revenue record</b><div class="meta">Money → use Edit or Delete beside the founder-entered payment. Revenue recalculates automatically.</div></div></div></div></div>
         <div class="alert"><b>Why rules are not editable in the app:</b> letting client code rewrite its own permissions would make one stolen admin session capable of disabling every safeguard. The console keeps deployment explicit while removing programming.</div>
       </section>
+      <section id="business" class="section"><div class="eyebrow">Business metrics</div><h1 class="title">MRR, ARR and EBITDA — computed, not guessed.</h1><p class="lead">Revenue is matched against the live pricing ladder from real approved payments. Expenses are whatever you enter below — there is no fabricated cost line.</p>
+        <div id="businessMetrics"><div class="empty">Loading…</div></div>
+        <div class="card" style="margin-top:14px"><h2>Monthly expenses (owner-entered)</h2><p>Stored at <code>finance/costs</code>, admin-only. Categories match the chart of accounts in <code>finance-data.js</code>. Leave a category at 0 if it doesn't apply yet.</p><div id="expenseFields" class="fields"></div><button class="btn primary" style="margin-top:12px" onclick="saveCosts()">Save expenses</button></div>
+      </section>
+      <section id="referrals" class="section"><div class="eyebrow">Referral / creator liability</div><h1 class="title">What RoamWise owes its referrers.</h1><p class="lead">Computed from approved claims carrying real referral attribution (<code>refCode</code>/<code>refRate</code> stamped by the live site) — self-referrals are always excluded.</p>
+        <div id="referralLiability"><div class="empty">Loading…</div></div>
+      </section>
+      <section id="staff" class="section"><div class="eyebrow">Staff &amp; referrer registry</div><h1 class="title">Who's on the payout sheet.</h1><p class="lead">Edits here save to <code>config/referrers</code> — the same document the live site validates referral codes against.</p>
+        <div id="staffList"><div class="empty">Loading…</div></div>
+        <button class="btn primary" style="margin-top:12px" onclick="openReferrerForm()">Add referrer</button>
+      </section>
+      <section id="compliance" class="section"><div class="eyebrow">Compliance</div><h1 class="title">A plain checklist, not a fake score.</h1><p class="lead">Each item cites where it comes from. You flip the status by hand — nothing here auto-grades compliance.</p>
+        <div id="complianceList"><div class="empty">Loading…</div></div>
+      </section>
+      <section id="devrequests" class="section"><div class="eyebrow">Dev / AI requests</div><h1 class="title">Log a task for a human (or an AI session) to pick up.</h1><p class="lead">Honest scope: this page cannot directly control a Claude Code or ChatGPT session — those are interactive assistant sessions, not an API. What it CAN do is keep a durable task queue: saved to Firestore always, and optionally opened as a real GitHub issue too.</p>
+        <div class="card"><h2>New request</h2><div class="fields"><div class="field full"><label>Title</label><input id="devReqTitle" class="input" placeholder="e.g. Fix the PDF export watermark"></div><div class="field full"><label>Detail (optional)</label><textarea id="devReqDetail" class="input"></textarea></div><div class="field"><label>Priority</label><select id="devReqPriority" class="input"><option value="normal" selected>Normal</option><option value="high">High</option><option value="low">Low</option></select></div><div class="field"><label>Also open a GitHub issue?</label><select id="devReqGithub" class="input"><option value="no">No, Firestore only</option><option value="yes">Yes</option></select></div></div><button class="btn primary" style="margin-top:12px" onclick="submitDevRequest()">Log request</button></div>
+        <div class="card" style="margin-top:14px"><h2>GitHub issue settings (optional)</h2><p>Kept only on this device, exactly like the AI-personalization key on the VC outreach tab.</p><div class="fields"><div class="field"><label>Repo (owner/repo)</label><input id="devReqRepo" class="input" placeholder="coolcryptomaniac/roamwise"></div><div class="field"><label>Personal access token</label><input id="devReqToken" class="input" type="password" autocomplete="off"></div></div><button class="btn" style="margin-top:10px" onclick="saveDevRequestGithub()">Save on this device</button></div>
+        <div class="card" style="margin-top:14px"><h2>Queue</h2><div id="devRequestsList"><div class="empty">Loading…</div></div></div>
+      </section>
+      <section id="investors" class="section"><div class="eyebrow">Investor view</div><h1 class="title">Screenshot-ready.</h1><p class="lead">A read-only rollup of the numbers above — nothing new is computed here.</p>
+        <div id="investorSummary" class="card"><div class="empty">Loading…</div></div>
+      </section>
     </main>
   </div>
 </div>
@@ -80,10 +108,20 @@
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
 <script src="investors-data.js"></script>
+<script src="../referral-data.js"></script>
+<script src="../finance-data.js"></script>
+<script src="../js/pricing/tiers.js"></script>
+<script src="../js/admin/business-metrics.js"></script>
+<script src="../js/admin/referral-liability.js"></script>
+<script src="../js/admin/compliance-checklist.js"></script>
+<script src="../js/admin/staff-manager.js"></script>
+<script src="../js/admin/dev-requests.js"></script>
+<script src="../js/admin/investor-summary.js"></script>
 <script>
 const FIREBASE_CONFIG={apiKey:"AIzaSyDlrtpzpOb1VEmVSd9tHmu7OpmvwWosYsU",authDomain:"roamwisepro.firebaseapp.com",projectId:"roamwisepro",appId:"1:299014744987:web:d5c316743e6d7a10904f3e"};
 firebase.initializeApp(FIREBASE_CONFIG); const auth=firebase.auth(),db=firebase.firestore(),FV=firebase.firestore.FieldValue;
 let USERS=[],CLAIMS=[],PAYMENTS=[],LEDGER=[],VCS=[],CURRENT_ADMIN=null,RULES_OK=false,VCH_CURRENT=[],VCH_HISTORY=[],VCH_LOADING=false,VCH_LOADED=false,VCH_ERROR="";
+let REFERRERS_LIVE=[],FINANCE_COSTS={},COMPLIANCE_OVERRIDES={},DEV_REQUESTS=[],LAST_LIABILITY=null,LAST_BUSINESS_SUMMARY=null,LAST_EBITDA=null,REV_TOTAL=0;
 let PITCH={users:26,revenue:500,burn:21000,team:3,min:500000,target:2500000,hard:5000000,stage:"Seed / late pre-seed",thesis:"The AI-native operating system between wanting to travel and completing the trip."};
 const $=id=>document.getElementById(id); const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 function toast(msg,bad=false){const t=$("toast");t.textContent=msg;t.style.borderColor=bad?"var(--red)":"var(--green)";t.classList.remove("hidden");clearTimeout(t._timer);t._timer=setTimeout(()=>t.classList.add("hidden"),4500)}
@@ -93,7 +131,125 @@ function goPage(id,button){document.querySelectorAll(".section").forEach(x=>x.cl
 $("loginForm").addEventListener("submit",async e=>{e.preventDefault();$("loginBtn").disabled=true;$("loginError").classList.add("hidden");try{await auth.signInWithEmailAndPassword($("loginEmail").value.trim(),$("loginPass").value)}catch(err){showLoginError(err.message)}finally{$("loginBtn").disabled=false}});
 function showLoginError(msg){$("loginError").textContent=msg;$("loginError").classList.remove("hidden")} async function signOut(){await auth.signOut()}
 auth.onAuthStateChanged(async user=>{if(!user){CURRENT_ADMIN=null;$("login").classList.remove("hidden");$("app").classList.add("hidden");return}try{const admin=await db.collection("admins").doc(user.uid).get();if(!admin.exists)throw new Error("This account is authenticated but is not listed in admins/"+user.uid+".");CURRENT_ADMIN=user;$("login").classList.add("hidden");$("app").classList.remove("hidden");$("syncStatus").innerHTML="<b>●</b> Signed in as "+esc(user.email);startData()}catch(err){showLoginError(err.message);await auth.signOut()}});
-function startData(){db.collection("users").onSnapshot(s=>{USERS=s.docs.map(d=>({id:d.id,...d.data()}));renderAll()},e=>toast("Users: "+e.message,true));db.collection("claims").orderBy("created","desc").limit(500).onSnapshot(s=>{CLAIMS=s.docs.map(d=>({id:d.id,...d.data()}));renderAll()},e=>toast("Claims: "+e.message,true));db.collection("payments").limit(500).onSnapshot(s=>{PAYMENTS=s.docs.map(d=>({id:d.id,...d.data()}));renderAll()},e=>toast("Payments: "+e.message,true));db.collection("ledger").orderBy("postedAt","desc").limit(150).onSnapshot(s=>{LEDGER=s.docs.map(d=>({id:d.id,...d.data()}));renderAll()},()=>{});db.collection("crm").where("seg","==","investor").limit(700).onSnapshot(s=>{VCS=s.docs.map(d=>({id:d.id,...d.data()}));renderVCs()},e=>toast("Investor CRM: "+e.message,true));loadPitchConfig();loadAiSettings()}
+function startData(){db.collection("users").onSnapshot(s=>{USERS=s.docs.map(d=>({id:d.id,...d.data()}));renderAll()},e=>toast("Users: "+e.message,true));db.collection("claims").orderBy("created","desc").limit(500).onSnapshot(s=>{CLAIMS=s.docs.map(d=>({id:d.id,...d.data()}));renderAll()},e=>toast("Claims: "+e.message,true));db.collection("payments").limit(500).onSnapshot(s=>{PAYMENTS=s.docs.map(d=>({id:d.id,...d.data()}));renderAll()},e=>toast("Payments: "+e.message,true));db.collection("ledger").orderBy("postedAt","desc").limit(150).onSnapshot(s=>{LEDGER=s.docs.map(d=>({id:d.id,...d.data()}));renderAll()},()=>{});db.collection("crm").where("seg","==","investor").limit(700).onSnapshot(s=>{VCS=s.docs.map(d=>({id:d.id,...d.data()}));renderVCs()},e=>toast("Investor CRM: "+e.message,true));loadPitchConfig();loadAiSettings();startBusinessData()}
+function startBusinessData(){
+  db.collection("config").doc("referrers").onSnapshot(d=>{REFERRERS_LIVE=(d.exists&&Array.isArray((d.data()||{}).list))?d.data().list:[];renderStaff();renderReferrals()},e=>toast("Referrers: "+e.message,true));
+  db.collection("finance").doc("costs").onSnapshot(d=>{FINANCE_COSTS=d.exists?d.data():{};renderBusiness()},e=>toast("Expenses: "+e.message,true));
+  db.collection("config").doc("complianceChecklist").onSnapshot(d=>{COMPLIANCE_OVERRIDES=d.exists?d.data():{};renderCompliance()},e=>toast("Compliance: "+e.message,true));
+  db.collection("devRequests").orderBy("createdAt","desc").limit(200).onSnapshot(s=>{DEV_REQUESTS=s.docs.map(d=>({id:d.id,...d.data()}));renderDevRequests()},e=>toast("Dev requests: "+e.message,true));
+  loadDevRequestGithubSettings();
+}
+/* Referrer registry used by Business/Referrals/Staff — REFERRERS_LIVE (config/referrers,
+   editable in the Staff tab) wins once loaded; falls back to the static referral-data.js
+   seed (window.RW_REFERRERS) so figures are never empty before that doc has ever been saved. */
+function activeReferrers(){return REFERRERS_LIVE.length?REFERRERS_LIVE:(window.RW_REFERRERS||[])}
+/* One row per currently-Pro account: their most recent approved/succeeded payment amount,
+   normalized to INR (claims store rupees; payments store paise, same /100 convention
+   renderAll() already uses for kRevenue). 0 for a comp/trial/legacy grant with no payment
+   on file — counted as a user, never assigned a fabricated price. */
+function proRevenueRecords(){
+  return USERS.filter(u=>u.pro).map(u=>{
+    const claims=CLAIMS.filter(c=>c.uid===u.id&&c.status==="approved"&&Number(c.amount)>0)
+      .map(c=>({amountINR:Number(c.amount)||0,at:c.receivedDate||c.decidedAt||""}));
+    const pays=PAYMENTS.filter(p=>paymentSucceeded(p)&&(p.uid===u.id||(u.email&&p.email===u.email)))
+      .map(p=>({amountINR:(Number(p.amount)||0)/100,at:p.receivedDate||p.created||""}));
+    const all=claims.concat(pays).sort((a,b)=>String(b.at||"").localeCompare(String(a.at||"")));
+    return {amountINR:all.length?all[0].amountINR:0};
+  });
+}
+function renderBusiness(){
+  if(!$("businessMetrics"))return;
+  const summary=RWBusinessMetrics.summarizeRevenue(proRevenueRecords(),RWPricing.CONFIG);
+  const expenses=RWBusinessMetrics.sumMonthlyExpenses(FINANCE_COSTS,window.RW_ACCOUNTS);
+  const ebitda=RWBusinessMetrics.computeEbitda(summary.mrrINR,expenses.totalINR);
+  LAST_BUSINESS_SUMMARY=summary;LAST_EBITDA=ebitda;
+  $("businessMetrics").innerHTML=RWBusinessMetrics.renderBusinessMetricsHtml(summary,ebitda,{money,esc});
+  renderExpenseFields();renderInvestorTab();
+}
+function renderExpenseFields(){
+  if(!$("expenseFields"))return;
+  const acc=window.RW_ACCOUNTS||{};
+  $("expenseFields").innerHTML=Object.keys(acc).filter(id=>acc[id].type==="expense").map(id=>{
+    const v=Number(FINANCE_COSTS[id])||0;
+    return `<div class="field"><label>${esc(acc[id].label)}</label><input id="cost_${id}" class="input" type="number" min="0" value="${v}"></div>`;
+  }).join("");
+}
+async function saveCosts(){
+  const acc=window.RW_ACCOUNTS||{},doc={};
+  Object.keys(acc).forEach(id=>{if(acc[id].type==="expense"){const el=$("cost_"+id);if(el)doc[id]=Number(el.value)||0}});
+  try{await db.collection("finance").doc("costs").set({...doc,updatedAt:FV.serverTimestamp(),updatedBy:CURRENT_ADMIN.uid});toast("Expenses saved.")}catch(e){toast(friendlyError(e),true)}
+}
+function approvedRefRecords(){
+  return CLAIMS.filter(c=>c.status==="approved"&&c.refCode).map(c=>({amountINR:Number(c.amount)||0,refCode:c.refCode,refRate:c.refRate,refSelf:c.refSelf===true}));
+}
+function renderReferrals(){
+  if(!$("referralLiability"))return;
+  LAST_LIABILITY=RWReferralLiability.computeReferralLiability(approvedRefRecords(),activeReferrers(),window.RW_REFERRAL_TERMS||{});
+  $("referralLiability").innerHTML=RWReferralLiability.renderReferralLiabilityHtml(LAST_LIABILITY,{money,esc});
+  renderCompliance();renderStaff();
+}
+function renderStaff(){
+  if(!$("staffList"))return;
+  $("staffList").innerHTML=RWStaffManager.renderStaffTableHtml(activeReferrers(),(LAST_LIABILITY||{byCode:{}}).byCode,{money,esc});
+}
+function openReferrerForm(code){
+  const existing=code?activeReferrers().find(r=>RWStaffManager.sanitizeCode(r.code)===RWStaffManager.sanitizeCode(code)):null;
+  openModal(`<div class="modalhead"><h2>${existing?"Edit referrer":"Add referrer"}</h2><button class="btn" onclick="closeModal()">Close</button></div><div class="fields">${RWStaffManager.referrerFormHtml(existing)}</div><button class="btn primary" style="width:100%;margin-top:12px" onclick="saveReferrer()">Save</button>`)
+}
+async function saveReferrer(){
+  const input=RWStaffManager.readReferrerForm($),norm=RWStaffManager.normalizeReferrer(input);
+  if(!norm.ok)return toast(norm.error,true);
+  const updated=RWStaffManager.upsertReferrer(activeReferrers().slice(),norm.referrer);
+  try{await db.collection("config").doc("referrers").set({list:updated,updatedAt:FV.serverTimestamp(),updatedBy:CURRENT_ADMIN.uid});closeModal();toast("Referrer saved.")}catch(e){toast(friendlyError(e),true)}
+}
+async function deleteReferrer(code){
+  if(!confirm("Remove this referrer from the registry? Existing commission history is not affected."))return;
+  const updated=RWStaffManager.removeReferrer(activeReferrers().slice(),code);
+  try{await db.collection("config").doc("referrers").set({list:updated,updatedAt:FV.serverTimestamp(),updatedBy:CURRENT_ADMIN.uid});toast("Referrer removed.")}catch(e){toast(friendlyError(e),true)}
+}
+function renderCompliance(){
+  if(!$("complianceList"))return;
+  const items=RWComplianceChecklist.mergeChecklist(COMPLIANCE_OVERRIDES);
+  const tdsLimit=((window.RW_TAX_FLAGS||[]).find(f=>f.id==="tds_194h")||{}).limit||20000;
+  const tdsFlags=LAST_LIABILITY?RWReferralLiability.tdsFlagsForReferrers(LAST_LIABILITY,tdsLimit):[];
+  $("complianceList").innerHTML=RWComplianceChecklist.renderChecklistHtml(items,tdsFlags,esc);
+}
+async function setComplianceStatus(id,status){
+  const patch={};patch[id]=status;
+  try{await db.collection("config").doc("complianceChecklist").set(patch,{merge:true});toast("Updated.")}catch(e){toast(friendlyError(e),true)}
+}
+function renderDevRequests(){
+  if(!$("devRequestsList"))return;
+  $("devRequestsList").innerHTML=RWDevRequests.renderRequestsHtml(DEV_REQUESTS,{esc,when});
+}
+function loadDevRequestGithubSettings(){
+  const s=RWDevRequests.loadGithubSettings();
+  if($("devReqRepo"))$("devReqRepo").value=s.repo;
+  if($("devReqToken"))$("devReqToken").value=s.token;
+}
+function saveDevRequestGithub(){RWDevRequests.saveGithubSettings($("devReqToken").value,$("devReqRepo").value);toast("GitHub settings saved on this device.")}
+async function submitDevRequest(){
+  const norm=RWDevRequests.normalizeRequest({title:$("devReqTitle").value,detail:$("devReqDetail").value,priority:$("devReqPriority").value});
+  if(!norm.ok)return toast(norm.error,true);
+  const wantsGithub=$("devReqGithub").value==="yes";
+  try{
+    const ref=await db.collection("devRequests").add({...norm.request,createdAt:FV.serverTimestamp(),createdBy:CURRENT_ADMIN.uid});
+    if(wantsGithub){
+      const s=RWDevRequests.loadGithubSettings();
+      try{const issue=await RWDevRequests.createGithubIssue(s.repo,s.token,norm.request);await ref.set({githubIssueUrl:issue.html_url,githubIssueNumber:issue.number},{merge:true});toast("Logged and opened GitHub issue #"+issue.number+".")}
+      catch(ghErr){toast("Saved to Firestore, but the GitHub issue failed: "+ghErr.message,true)}
+    }else{toast("Dev/AI request logged.")}
+    $("devReqTitle").value="";$("devReqDetail").value=""
+  }catch(e){toast(friendlyError(e),true)}
+}
+async function markDevRequestDone(id){try{await db.collection("devRequests").doc(id).set({status:"done",doneAt:FV.serverTimestamp()},{merge:true})}catch(e){toast(friendlyError(e),true)}}
+async function deleteDevRequest(id){if(!confirm("Delete this request?"))return;try{await db.collection("devRequests").doc(id).delete()}catch(e){toast(friendlyError(e),true)}}
+function renderInvestorTab(){
+  if(!$("investorSummary")||!LAST_BUSINESS_SUMMARY)return;
+  const userStats={totalUsers:USERS.length,proUsers:USERS.filter(u=>u.pro).length,totalApprovedRevenueINR:REV_TOTAL};
+  const summary=RWInvestorSummary.buildSummary(userStats,LAST_BUSINESS_SUMMARY,LAST_EBITDA);
+  $("investorSummary").innerHTML=RWInvestorSummary.renderInvestorSummaryHtml(summary,{money});
+}
 function paymentSucceeded(p){const s=String(p.status||"").toLowerCase();return Number(p.amount||0)>0&&!["failed","cancelled","refunded"].includes(s)} function paidFor(uid){const u=USERS.find(x=>x.id===uid)||{};return CLAIMS.filter(c=>c.uid===uid&&c.status==="approved"&&Number(c.amount)>0).concat(PAYMENTS.filter(p=>paymentSucceeded(p)&&(p.uid===uid||(u.email&&p.email===u.email))))} function explained(u){return !u.pro||paidFor(u.id).length||["comp","test","trial","partner"].includes(String(u.proMethod||u.compReason||"").toLowerCase())} function unresolved(){return USERS.filter(u=>u.pro&&!explained(u))}
 /* FOUNDER SEAT COUNTING BUG FIX: whether a Founder seat has already been
    counted toward the shared 1,000-seat pool is a property of the PAYMENT
@@ -111,7 +267,7 @@ function paymentSucceeded(p){const s=String(p.status||"").toLowerCase();return N
    flow anyone would actually use for a pre-existing real payment never
    incremented the shared counter. */
 function seatAlreadyCounted(uid){return CLAIMS.some(c=>c.uid===uid&&c.status==="approved"&&c.seatCounted===true)}
-function renderAll(){const claimRev=CLAIMS.filter(c=>c.status==="approved").reduce((n,c)=>n+Number(c.amount||0),0),gatewayRev=Math.round(PAYMENTS.filter(paymentSucceeded).reduce((n,p)=>n+Number(p.amount||0),0)/100),rev=claimRev+gatewayRev;$("kUsers").textContent=USERS.length;$("kPro").textContent=USERS.filter(u=>u.pro).length;$("kRevenue").textContent=money(rev);$("kIssues").textContent=unresolved().length;renderQueue();renderReconcile();renderRevenue();renderUsers();PITCH.users=USERS.length||PITCH.users;PITCH.revenue=rev||PITCH.revenue;fillPitch();renderPitchSummary()}
+function renderAll(){const claimRev=CLAIMS.filter(c=>c.status==="approved").reduce((n,c)=>n+Number(c.amount||0),0),gatewayRev=Math.round(PAYMENTS.filter(paymentSucceeded).reduce((n,p)=>n+Number(p.amount||0),0)/100),rev=claimRev+gatewayRev;REV_TOTAL=rev;$("kUsers").textContent=USERS.length;$("kPro").textContent=USERS.filter(u=>u.pro).length;$("kRevenue").textContent=money(rev);$("kIssues").textContent=unresolved().length;renderQueue();renderReconcile();renderRevenue();renderUsers();PITCH.users=USERS.length||PITCH.users;PITCH.revenue=rev||PITCH.revenue;fillPitch();renderPitchSummary();renderBusiness();renderReferrals()}
 function renderQueue(){const rows=unresolved();$("actionQueue").innerHTML=rows.length?rows.map(u=>`<div class="row"><div class="grow"><strong>${esc(u.email||u.id)}</strong><div class="meta">Pro access exists, but no approved payment or comp reason exists.</div></div><button class="btn primary small" onclick="openPayment('${u.id}')">Repair</button></div>`).join(""):`<div class="empty">No revenue mismatches. Your records are reconciled.</div>`}
 function renderReconcile(){const rows=unresolved();$("reconcileList").innerHTML=rows.length?rows.map(u=>`<div class="row"><div class="grow"><strong>${esc(u.email||u.id)}</strong><div class="meta">${esc(u.id)} · granted ${when(u.proAt)}</div></div><button class="btn primary small" onclick="openPayment('${u.id}')">Record payment</button><button class="btn small" onclick="setComp('${u.id}')">Mark comp</button></div>`).join(""):`<div class="empty">Nothing to repair.</div>`}
 function refKey(v){return String(v||"").trim().toLowerCase().replace(/[^a-z0-9]/g,"").slice(0,64)}

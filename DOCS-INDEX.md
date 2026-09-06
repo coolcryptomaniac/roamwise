@@ -29,6 +29,12 @@ no longer match the repo — flagged explicitly below and in the PR summary.
 | `TYPESCRIPT-MIGRATION.md` | How the JSDoc-based, zero-build-step TypeScript-readiness layer works (`tsc --noEmit`, `// @ts-check`, `js/global.d.ts`) and how to convert another file. | current (matches live `tsconfig.json`/`package.json`) | Before adding type annotations to a `js/` file, or running `npm run typecheck`. |
 | `CLOUDFLARE-MIGRATION-SETUP.md` | Literal, dashboard-click-level guide for migrating hosting to Cloudflare Pages/Workers/R2/Workers AI while keeping Firestore. | current (verified line-by-line against `worker/wrangler.toml` — matches exactly) | Before touching Cloudflare Pages/Workers deployment, or `worker/wrangler.toml`. |
 
+## AI copilot (Ailon Tusk) — read when touching `js/copilot/`
+
+| File | Purpose | Status | Read this when... |
+|---|---|---|---|
+| `AILON-TUSK-ROADMAP.md` | Honest scoping of what "self-learning AI" can and can't mean for an LLM-API-based product with no training infrastructure of its own; documents the eval-harness wiring (`npm run evals`), the `destination_facts` agent tool, and the `rwAgentCall` timeout/fallback fix, plus what's proposed-but-not-built and why. | current | Before proposing or implementing any "self-improving"/"learning"/"AI engine" change to `js/copilot/*.js` — read this first to avoid re-deriving (or overclaiming) what's actually feasible here. |
+
 ## Worker (Cloudflare) — read when touching `worker/`
 
 | File | Purpose | Status | Read this when... |
