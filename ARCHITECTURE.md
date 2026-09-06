@@ -947,6 +947,30 @@ it) are documented in the script's own header comment. Regenerate with
 stylesheet `<link>`, or a `data-include` reference; `npm run index:all`
 regenerates both indexes in one command.
 
+### `sitemap.xml` / related-links: regenerate after adding any content page
+
+Two more generated artifacts drift the same way `FUNCTION-INDEX.md` and
+`CSS-INDEX.md` do, and PR #138's `repo-health-check.yml` (added in PR #146)
+now runs `npm test` in CI, which includes `npm run sitemap:check` and
+`npm run related-links:check` — so drift here fails the build, not just
+looks stale. `tools/generate-sitemap.js` (`npm run sitemap`) rebuilds
+`sitemap.xml` from every file actually on disk under `guides/`, `blog/`,
+and `trips/`; `tools/generate-related-links.js` (`npm run related-links`)
+rewrites the auto-generated "Related guides/articles/itineraries" block
+(delimited by `<!-- rw:related-links:start/end -->`) near the bottom of
+every page in those same three directories. **Any change that adds,
+removes, or renames a page under `guides/`, `blog/`, or `trips/` — whether
+by hand, by upload, or by an agent script — must run
+`npm run sitemap && npm run related-links` and commit the result before
+merging**, or the next `npm test` run (locally or in CI) fails on drift.
+The two scheduled content-publishing workflows that write new `guides/`
+pages automatically (`.github/workflows/roamwise-agent-publisher.yml`,
+daily, and `.github/workflows/roamwise-agent-weekly-seo.yml`, weekly) each
+run both commands as a step before their commit step, specifically to
+prevent this recurring — a manual page addition (e.g. via the GitHub
+web upload UI) is the remaining case that still needs a human to remember
+this rule.
+
 ### `npm run mod-status`: "is there more to do here, and is this doc still accurate?"
 
 Also added in round 5: `tools/modularization-status.js` answers two

@@ -20,6 +20,10 @@ jobs:
         with: { node-version: 20}
       - name: Regenerate SEO pages from the live app database
         run: node agent/seo-refresh.js
+      - name: Regenerate sitemap and related-links for any new pages
+        run: |
+          npm run sitemap
+          npm run related-links
       - name: Commit if anything changed
         run: |
           git config user.name "roamwise-agent"

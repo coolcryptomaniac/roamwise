@@ -23,6 +23,10 @@ jobs:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           PAGES_PER_DAY: ${{ github.event.inputs.pages || '3' }}
         run: node agent/publish-daily.js
+      - name: Regenerate sitemap and related-links for any new pages
+        run: |
+          npm run sitemap
+          npm run related-links
       - name: Commit new pages
         run: |
           git config user.name "roamwise-agent"
