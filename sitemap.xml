@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://www.roamwise.co.in/</loc><changefreq>weekly</changefreq></url>
-  <url><loc>https://www.roamwise.co.in/guides/</loc><changefreq>weekly</changefreq></url>
-  <url><loc>https://www.roamwise.co.in/blog/</loc><changefreq>weekly</changefreq></url>
   <url><loc>https://www.roamwise.co.in/privacy.html</loc><changefreq>weekly</changefreq></url>
   <url><loc>https://www.roamwise.co.in/delete-account.html</loc><changefreq>weekly</changefreq></url>
+  <url><loc>https://www.roamwise.co.in/guides/</loc><changefreq>weekly</changefreq></url>
   <url><loc>https://www.roamwise.co.in/guides/abu-dhabi-uae.html</loc><changefreq>weekly</changefreq></url>
   <url><loc>https://www.roamwise.co.in/guides/agra-india.html</loc><changefreq>weekly</changefreq></url>
   <url><loc>https://www.roamwise.co.in/guides/alleppey-kerala.html</loc><changefreq>weekly</changefreq></url>
@@ -208,10 +207,16 @@
   <url><loc>https://www.roamwise.co.in/guides/what-things-should-cost-india.html</loc><changefreq>weekly</changefreq></url>
   <url><loc>https://www.roamwise.co.in/guides/zanzibar-tanzania.html</loc><changefreq>weekly</changefreq></url>
   <url><loc>https://www.roamwise.co.in/guides/zurich-switzerland.html</loc><changefreq>weekly</changefreq></url>
+  <url><loc>https://www.roamwise.co.in/blog/</loc><changefreq>weekly</changefreq></url>
   <url><loc>https://www.roamwise.co.in/blog/ev-road-trips-india.html</loc><changefreq>weekly</changefreq></url>
   <url><loc>https://www.roamwise.co.in/blog/folding-cycle-travel-guide.html</loc><changefreq>weekly</changefreq></url>
   <url><loc>https://www.roamwise.co.in/blog/hub-and-spoke-india-travel-strategy.html</loc><changefreq>weekly</changefreq></url>
   <url><loc>https://www.roamwise.co.in/blog/least-crowded-months-world.html</loc><changefreq>weekly</changefreq></url>
   <url><loc>https://www.roamwise.co.in/blog/premium-volvo-buses-india.html</loc><changefreq>weekly</changefreq></url>
   <url><loc>https://www.roamwise.co.in/blog/tatkal-10am-hack-irctc.html</loc><changefreq>weekly</changefreq></url>
+  <url><loc>https://www.roamwise.co.in/trips/</loc><changefreq>weekly</changefreq></url>
+  <url><loc>https://www.roamwise.co.in/trips/goa-solo-backpacker-7-days.html</loc><changefreq>weekly</changefreq></url>
+  <url><loc>https://www.roamwise.co.in/trips/leh-ladakh-solo-1-week.html</loc><changefreq>weekly</changefreq></url>
+  <url><loc>https://www.roamwise.co.in/trips/manali-4-days-15000.html</loc><changefreq>weekly</changefreq></url>
+  <url><loc>https://www.roamwise.co.in/trips/spiti-valley-self-drive.html</loc><changefreq>weekly</changefreq></url>
 </urlset>
