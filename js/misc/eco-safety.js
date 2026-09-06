@@ -298,7 +298,7 @@ function rwMonkeyHTML(place){
     +'<div class="tk-bul">Government hospitals in India provide anti-rabies vaccine free. Ambulance <b>108</b>, emergency <b>112</b>.</div>'
     +'</div>'
     +'<div class="tk-sec"><div class="tk-chips">'
-    +'<button class="tk-chip gold" onclick="cpFollow(\'pharmacy near '+String(place).replace(/\'/g,'')+'\')">\ud83d\udc8a Nearest medical</button>'
+    +'<button class="tk-chip gold" onclick="cpFollow(\'pharmacy near '+String(place).replace(/'/g,'')+'\')">\ud83d\udc8a Nearest medical</button>'
     +'</div></div>'
     +'<div class="tk-foot">General guidance, not medical advice \u2014 for any bite, see a doctor today.</div></div>';
 }

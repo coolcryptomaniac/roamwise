@@ -429,29 +429,31 @@ close to being an ordinary-sized file regardless.)
 `npm run lint` is **not** part of `npm run check`, which still uses
 `tools/check-line-limits.js` (raw-line-based, 1000-line hard cap,
 300–500 soft-target warning) as the CI-blocking gate.
-`npm run lint`'s full findings, as of the `no-empty` triage pass
-(2026-09-05, PR #133, following round 5):
+`npm run lint`'s full findings, as of the `no-useless-escape` triage pass
+(2026-09-06, following the `no-empty` pass / PR #133):
 
 ```
 no-unused-vars:          1,103 warnings
 max-lines-per-function:     32 warnings
-no-useless-escape:          15 errors
-max-lines:                   3 errors
+max-lines:                    3 errors
 --------------------------------------
-TOTAL:   18 errors, 1,135 warnings
+TOTAL:    3 errors, 1,135 warnings
 ```
 
 (`no-redeclare` and `no-useless-assignment` triaged to zero in round 5 —
 see "Modularization round 5" above. `no-empty` triaged to zero in the
-follow-up pass immediately after (PR #133) — see "Known follow-ups"
-below for how both were categorized. The `no-unused-vars` baseline drifted
-from round 5's own recorded 1,100 to 1,103 in the meantime — unrelated to
-either triage pass; per this doc's "Module map" note, `js/pricing/founder-seats.js`
-merged into `main` from a concurrent, unrelated bug-fix pass after round 5's
-PR landed, adding a few more of the same pre-existing per-file-isolation
-false positives described below. The `no-empty` pass itself changed zero
-warnings — every edit added a comment inside an already-empty catch block,
-not a logic or variable-usage change.)
+follow-up pass immediately after (PR #133), and `no-useless-escape`
+triaged to zero in the pass immediately after that — see "Known
+follow-ups" below for how all three were categorized. The `no-unused-vars`
+baseline drifted from round 5's own recorded 1,100 to 1,103 in the
+meantime — unrelated to any triage pass; per this doc's "Module map" note,
+`js/pricing/founder-seats.js` merged into `main` from a concurrent,
+unrelated bug-fix pass after round 5's PR landed, adding a few more of the
+same pre-existing per-file-isolation false positives described below.
+Both the `no-empty` and `no-useless-escape` passes changed zero warnings —
+one added a comment inside an already-empty catch block, the other
+removed only backslashes that regex/string semantics didn't need; neither
+touched variable usage or logic.)
 
 The `no-unused-vars` warning count rose from 1,095 (round 4) to 1,100
 (+5) and `max-lines-per-function` from 31 to 32 (+1) purely as a
@@ -488,10 +490,17 @@ to zero in PR #133 immediately after round 5 (see "Known follow-ups"
 below) — every one of the 455 occurrences turned out to be an empty
 `catch` block (no non-catch empty-block bugs were found), and every one
 was a legitimate best-effort/defensive swallow, not a latent bug; each
-got a one-line clarifying comment rather than a behavior change. Only
-`no-useless-escape` (15) and `max-lines` (3) remain as open error-level
-follow-ups. Retiring `tools/check-line-limits.js` in favor of `npm run
-lint` as the CI gate is correspondingly closer now.
+got a one-line clarifying comment rather than a behavior change.
+`no-useless-escape` (15) was triaged to zero in the pass immediately
+after that (see "Known follow-ups" below) — every occurrence was a
+genuinely-unnecessary escape (verified with before/after regex tests
+against representative sample input, not just read-and-assume), so all
+15 were mechanically removed with zero behavior change. Only `max-lines`
+(3, pre-existing and re-confirmed as still the practical judgment — see
+"Module map" above) remains as an open error-level follow-up.
+`tools/check-line-limits.js` could now be retired in favor of `npm run
+lint` as the CI gate with only 3 pre-existing, already-documented
+`max-lines` violations standing between `npm run lint` and a clean run.
 
 ## Extraction methodology (proven across ~14 merged phases)
 
@@ -940,10 +949,32 @@ round 5"'s own advice) remains the source of truth.
   errors, 473 → 18 total errors, zero change to the 1,135 warnings since
   no variable usage or logic changed — only comments were inserted into
   already-empty blocks).
-- **`no-useless-escape` (15 occurrences)** — regex escapes that are
-  unnecessary but not wrong; low bug risk, cosmetic cleanup. Not
-  triaged this round — genuinely lower value than `no-redeclare`/
-  `no-useless-assignment` were, per the task that requested this pass.
+- ~~`no-useless-escape` (15 occurrences)~~ — **triaged to zero
+  (2026-09-06).** Every occurrence was inspected individually rather than
+  bulk-autofixed, split into two genuine patterns, both confirmed
+  behavior-neutral with a before/after regex or string test against
+  representative sample input, not just by reading the diff:
+  (1) `\/` and `\-` inside regex character classes
+  (`js/booking/pnr-parser.js` lines 12/14, `js/itinerary/pdf-assets.js`
+  line 41, `js/ui/card-painter.js` line 101) — `/` never needs escaping
+  inside a `[...]` class per the ECMAScript grammar (only the bare
+  delimiter-adjacent `/` outside a class does, which is why some `\/` in
+  these same lines were correctly left alone), and a trailing `-` in a
+  class isn't treated as a range starter; tested each regex against
+  train-SMS/date/wikimedia-thumbnail-URL sample strings before and after
+  and confirmed identical match results. (2) `\'` inside `'...'`-delimited
+  plain strings or inside regex literals (`js/itinerary/build.js` lines
+  53-54, `js/itinerary/share.js` line 20, `js/misc/eco-safety.js` line
+  301, `js/social/group-chat.js` line 30) — a backslash-escaped quote
+  character that doesn't match the enclosing string's own quote style (or
+  that appears inside a regex literal, which isn't quote-delimited at
+  all) is a no-op; confirmed each string/regex's runtime value is
+  byte-for-byte identical before and after. No occurrence changed
+  semantics; all 15 were safe, mechanical removals. Verified with
+  `node --check` on every touched file, `npm test`, `npm run check`, and
+  `npm run lint` (18 → 3 total errors, zero change to the 1,135 warnings
+  since no variable usage or logic changed — only redundant backslashes
+  were removed).
 - ~~`no-redeclare` (10 occurrences) and `no-useless-assignment` (5
   occurrences)~~ — **triaged in round 5, both now at zero.** All 15
   were the same pattern: a short-named local (`place`, `v`, `sx2`, `an`,
@@ -960,11 +991,20 @@ round 5"'s own advice) remains the source of truth.
   `group-chat-social.js` message-kind branches, `rwDetectDevice()`,
   `openBooking()`'s empty- and non-empty-basket paths). Lint errors:
   488 → 473.
-- Retiring `tools/check-line-limits.js` in favor of `npm run lint` as
-  the `npm run check` gate is now much closer: only `no-useless-escape`
-  (15) and `max-lines` (3, all pre-existing and already documented above)
-  remain among the error-level rules — `no-empty` (455) was the last
-  large one and is now at zero.
+- `npm run lint` is now down to 3 total errors, all `max-lines`
+  (`js/copilot/core.js`, `js/data/destinations.js`,
+  `js/itinerary/pdf-export.js` — pre-existing, re-confirmed in this pass
+  as still the correct judgment, not re-split; see "Module map" above
+  for why each is a cohesive unit). `no-empty`, `no-redeclare`,
+  `no-useless-assignment`, and `no-useless-escape` are all at zero.
+  This is likely the practical floor for `npm run lint`'s error count
+  without either (a) further splitting the 3 `max-lines` files, which
+  prior passes and this one both judged not worth the SRP cost, or
+  (b) raising the `max-lines` threshold — neither is a mechanical/
+  comment-only change, so neither was done here. Retiring
+  `tools/check-line-limits.js` in favor of `npm run lint` as the
+  `npm run check` gate is now realistic whenever a future session wants
+  to make that switch.
 
 ## Related documents
 
