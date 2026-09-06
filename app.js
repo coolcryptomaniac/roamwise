@@ -125,7 +125,7 @@ var freeLeft = 5;
 var activeProv = lsGet('rwProv')||'smart';
 var spends = {};
 var itinBuilt = {};
-var qrBuilt = false;
+// qrBuilt (payment-QR-rebuilt flag) moved to js/payments/providers/manual-upi-adapter.js (pluggable payment gateway pass)
 
 var MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
 var MO = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
@@ -342,79 +342,15 @@ document.addEventListener('keydown', function(ev){
 // rwRefStamp, rwRefLink, rwRefLiveCheck, rwRefApply, openRefCode,
 // rwRefBadgeHTML) moved to js/pricing/referral.js
 
-/* Free UPI flow: user submits UTR, owner approves in the admin console */
+/* Free UPI flow: user submits UTR, owner approves in the admin console.
+   Moved verbatim behind the pluggable payment gateway (this pass) — the
+   full body (DOM reads, Firestore claim write, provisional unlock, admin
+   notify) now lives in js/payments/providers/manual-upi-adapter.js's
+   verifyPayment(), reached via RWPaymentGateway.current(). This wrapper
+   keeps the exact same global name submitUtr() that #utrBtn's
+   onclick="submitUtr()" in index.html calls. */
 function submitUtr(){
-  if(!requireLogin()) return;
-  var utr = (el('utrInput').value||'').trim().replace(/\s/g,'');
-  var msg = el('utrMsg');
-  function say(t, ok){ msg.textContent=t; msg.style.display='block'; msg.style.color=ok?'#16BF96':'#D84F4F'; msg.style.background=ok?'rgba(22,191,150,.08)':'rgba(216,79,79,.08)'; }
-  if(!/^\d{12}$/.test(utr)) return say('A real UPI UTR is exactly 12 digits \u2014 find it in your payment app under the \u20b9100 transaction\u2019s details.', false);
-  if(!AUTH_READY) return say('Owner hasn\u2019t enabled account unlocks yet \u2014 hold on to your UTR and try again soon.', false);
-  var b = el('utrBtn'); b.disabled=true; b.textContent='Sending\u2026';
-  /* anti-bot: email accounts must be verified before claiming */
-  if(user.providerData && user.providerData.some(function(p){return p.providerId==='password';}) && !user.emailVerified){
-    b.disabled=false; b.textContent='Submit \u27A4';
-    user.sendEmailVerification().catch(function(){});
-    return say('Verify your email first \u2014 we just sent (or re-sent) the link. Tap it, reopen the app, then submit your UTR.', false);
-  }
-  /* fraud gate: rejected-before accounts and duplicate UTRs are blocked */
-  db.collection('claims').where('uid','==',user.uid).get().then(function(snap){
-    var mine = snap.docs.map(function(d){return d.data();});
-    if(mine.some(function(c){return c.status==='rejected';})){
-      b.disabled=false; b.textContent='Submit \u27A4';
-      return say('A previous claim from this account was rejected. Contact the owner via YouTube @mohucool with payment proof to unlock.', false);
-    }
-    if(mine.some(function(c){return c.utr===utr;})){
-      b.disabled=false; b.textContent='Submit \u27A4';
-      return say('You already submitted this UTR \u2014 it\u2019s in the verification queue.', false);
-    }
-    var _ref = {};
-    try{ _ref = rwRefStamp(); }catch(e){ /* best-effort, ignore */ }
-    var _bonusDays=0;
-    try{
-      var _terms=window.RW_REFERRAL_TERMS||{};
-      if(_ref.refCode && _terms.active!==false){ _bonusDays=parseInt(_terms.buyerBonusDays||30,10)||30; _ref.buyerBonusDays=_bonusDays; }
-    }catch(e){ /* best-effort, ignore */ }
-    return db.collection('claims').doc(user.uid+'_'+utr).set(Object.assign({
-    uid:user.uid, email:user.email||user.phoneNumber||'', utr:utr, amount:parseInt(UPI_AMT,10)||100,
-    tier:(UPI_AMT==='299'?'supporter':'pro'), plan:(_selectedPlan&&_selectedPlan.id)||'legacy100', planLabel:(_selectedPlan&&_selectedPlan.label)||'Legacy ₹100',
-    status:'pending', created:firebase.firestore.FieldValue.serverTimestamp()
-  }, _ref)).then(function(res){
-    if(res===undefined) return; /* gated above */
-    b.disabled=false; b.textContent='Submit \u27A4'; el('utrInput').value='';
-    try{ track('utr_submits'); }catch(e){ /* analytics best-effort, ignore */ }
-    try{ if(_bonusDays>0&&_ref.refCode){ var _who=rwRefLookup(_ref.refCode); setTimeout(function(){ showToast('Referred by '+(_who?_who.name:'your friend')+' - you get '+_bonusDays+' bonus days of Pro when verified!'); },2200); } }catch(e){ /* toast is a nice-to-have, ignore */ }
-    /* INSTANT provisional unlock — bound to THIS ACCOUNT (not the device) */
-    if(user){
-      lsSet('rw_pro_temp', String(Date.now()+864e5));
-      lsSet('rw_pro_temp_uid', user.uid);
-      /* Store which plan was actually bought so RWPricing.currentTier() reflects
-         it correctly — a founder/legacy buyer is 'elite' forever as promised;
-         anyone buying a specific tier gets exactly that tier, not everything. */
-      var boughtTierId = 'elite'; /* default: founder / long-term / short-term passes all grant full access */
-      if(_selectedPlan){
-        var pid = _selectedPlan.id;
-        if(pid.indexOf('plus')===0) boughtTierId='plus';
-        else if(pid.indexOf('pro')===0) boughtTierId='pro';
-        else if(pid.indexOf('elite')===0) boughtTierId='elite';
-      }
-      lsSet('rw_tier', boughtTierId);
-      isPro=true; lsSet('rwPro','1'); lsSet('rw_pro_uid',user.uid); refreshProUI();
-      say('\ud83c\udf89 Pro unlocked INSTANTLY for your account! Verification completes in the background \u2014 nothing more to do.', true);
-    } else {
-      say('Submitted \u2713 Verification completes shortly \u2014 Pro activates on your account automatically.', true);
-    }
-    setTimeout(closePay, 1800);
-    if(OWNER_NOTIFY_EMAIL){
-      fetch('https://formsubmit.co/ajax/'+OWNER_NOTIFY_EMAIL, {method:'POST',
-        headers:{'Content-Type':'application/json','Accept':'application/json'},
-        body: JSON.stringify({_subject:'RoamWise: new \u20b9100 UPI claim', user:(user&&user.email)||'', utr:utr})
-      }).catch(function(){});
-    }
-  }); }).catch(function(){
-    b.disabled=false; b.textContent='Submit \u27A4';
-    say('Could not send \u2014 check your connection and try again.', false);
-  });
+  RWPaymentGateway.verifyPayment();
 }
 
 // Moved to js/ui/adaptive-shell.js (Phase 5b) — adaptive shell + RW icon system (IS_APP/IS_STANDALONE/IS_TOUCH_MOBILE, applyShell, rwSetIconTheme, openIconThemePicker, rwIcon, RW_ICON_PATHS)

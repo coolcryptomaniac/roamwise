@@ -2,8 +2,7 @@
 // PAY MODAL / PLAN PICKER — extracted verbatim from app.js (modularization
 // round 4). Pro-entitlement/payment UI code; relocated per CLAUDE.md (file
 // location isn't sensitive for this refactor, only behavior changes are —
-// zero logic changed in this move). Covers: the UPI QR/deep-link payment
-// helpers (upiParams/payVia/buildQR), the plan-grid picker (pickPlan/
+// zero logic changed in this move). Covers: the plan-grid picker (pickPlan/
 // backToPlanPicker/_renderPlanFeatures/renderPlanGrid), the founder-offer
 // real countdown banner (rwFounderDeadline/rwCountdownParts/
 // rwFounderBannerHTML/rwCountdownCells/rwStartCountdown/rwStopCountdown),
@@ -17,8 +16,17 @@
 // rwStatusLabel, badgeAwardFounder, requireLogin, cryptoConfigured/
 // cryptoPanelHTML, rwRefBadgeHTML, qrBuilt, MONTHS) — all resolved at call
 // time, so load order relative to those files doesn't matter.
-var UPI_VPA = 'coolmohit@ybl', UPI_NAME = 'RoamWise Pro', UPI_AMT = '100';
+//
+// PLUGGABLE PAYMENT GATEWAY (this pass): the UPI QR/deep-link payment
+// helpers that used to live here (upiParams/payVia/buildQR, and the
+// UPI_VPA/UPI_NAME/UPI_AMT module state) moved verbatim behind the
+// RWPaymentGateway adapter interface — see js/payments/gateway-adapter.js
+// and js/payments/providers/manual-upi-adapter.js. payVia()/buildQR() below
+// are now thin wrappers that delegate to RWPaymentGateway.current() (today,
+// always the manual-UPI adapter — the config flag that would ever point
+// elsewhere defaults to that same provider, so behavior is unchanged).
 var _selectedPlan = null; /* set by pickPlan() — drives the amount/label for whatever the user is actually buying */
+var _currentOrder = null; /* set by pickPlan() via RWPaymentGateway.createOrder() — the adapter-defined order object payVia()/buildQR() hand to the active provider */
 /* Renders the real feature checklist for whatever the user just picked, into
    #planFeatures, reusing the same .features-grid/.feat-item/.feat-ck markup
    the static pre-selection teaser uses so it looks native. tierId is the
@@ -35,9 +43,7 @@ function _renderPlanFeatures(tierId){
 }
 function pickPlan(planId, priceINR, label, tierId){
   _selectedPlan = {id:planId, priceINR:priceINR, label:label, tierId:tierId};
-  UPI_AMT = String(priceINR); UPI_NAME = 'RoamWise '+label;
-  qrBuilt = false; /* force QR rebuild for the new amount */
-  var qc = el('qrcode'); if(qc) qc.innerHTML='';
+  _currentOrder = RWPaymentGateway.createOrder(priceINR, {planId:planId, label:label, tierId:tierId});
   buildQR();
   var ph = el('planHeader'); if(ph) ph.textContent = label+' \u2014 \u20b9'+priceINR;
   /* Founder offer (and any legacy call site that doesn't pass a tierId) grants
@@ -62,8 +68,12 @@ function backToPlanPicker(){
   var teaser = el('staticFeaturesTeaser'); if(teaser) teaser.style.display='';
 }
 /* setTier() removed — replaced by pickPlan(), which drives the full tier grid */
-function upiParams(){ return 'pa='+UPI_VPA+'&pn='+encodeURIComponent(UPI_NAME)+'&am='+UPI_AMT+'&cu=INR&tn='+encodeURIComponent('RoamWise Pro Lifetime'); }
+/* upiParams()/UPI_VPA/UPI_NAME/UPI_AMT moved to js/payments/providers/manual-upi-adapter.js (pluggable payment gateway pass) */
 function payVia(app){
+  /* These two flat, fixed-price micro-flows (Journey Movie render / PDF
+     export — see js/itinerary/journey-movie.js and js/itinerary/pdf-export.js)
+     aren’t tied to a picked plan/order at all, so they stay a plain inline
+     UPI deep link here rather than going through the adapter. */
   if(app==='generic50'){
     var deep50='upi://pay?pa='+UPI_VPA+'&pn='+encodeURIComponent(UPI_NAME)+'&am=50&cu=INR&tn=RoamWise%20Movie';
     location.href=deep50; showToast('Pay \u20b950, then come back and tap Render'); return;
@@ -73,35 +83,10 @@ function payVia(app){
     location.href=deep10; showToast('Pay \u20b910, then come back and tap Generate'); return;
   }
   if(!requireLogin()) return;
-  if(!IS_TOUCH_MOBILE && !IS_APP){ showToast('Scan the QR below with your phone camera or any UPI app'); var q=document.querySelector('.qr-wrap'); if(q) q.scrollIntoView({behavior:'smooth',block:'center'}); return; }
-  var generic = 'upi://pay?' + upiParams();
-  var deep = generic;
-  if(app==='gpay') deep = 'tez://upi/pay?' + upiParams();
-  if(app==='phonepe') deep = 'phonepe://pay?' + upiParams();
-  if(app==='whatsapp') {
-    deep = generic;
-    showToast('If WhatsApp is not in the picker: WhatsApp \u2192 any chat \u2192 \ud83d\udcce \u2192 Payment \u2192 pay \u20b9100 to coolmohit@ybl');
-  }
-  var t0 = Date.now();
-  /* try the app-specific scheme; if nothing handles it in ~1.2s, fall back to the generic UPI chooser */
-  window.location.href = deep;
-  if(deep !== generic){
-    setTimeout(function(){ if(Date.now()-t0 < 2200 && !document.hidden){ window.location.href = generic; } }, 1200);
-  }
-  setTimeout(function(){ showToast('After paying, come back and paste your UTR below \u2b07\ufe0f'); }, 3000);
+  RWPaymentGateway.openCheckout(_currentOrder, app);
 }
-var _qrBuiltAmt = null;
 function buildQR(){
-  if(qrBuilt && _qrBuiltAmt===UPI_AMT) return; /* real fix: previously this hardcoded am=100
-    regardless of the selected tier — Supporter/other tiers showed a ₹100 QR by mistake */
-  try{
-    if(typeof QRCode!=='undefined'){
-      var qc=el('qrcode'); if(qc) qc.innerHTML='';
-      new QRCode(el('qrcode'), {text:'upi://pay?'+upiParams(), width:134, height:134, colorDark:'#000', colorLight:'#fff', correctLevel:QRCode.CorrectLevel.M});
-      qrBuilt = true; _qrBuiltAmt = UPI_AMT;
-      var lbl=el('qrAmtLbl'); if(lbl) lbl.textContent='\ud83d\udcf7 Scan \u2022 \u20b9'+UPI_AMT+' \u2022 UPI: '+UPI_VPA;
-    }
-  }catch(e){ /* best-effort, ignore */ }
+  RWPaymentGateway.buildQR(_currentOrder);
 }
 
 /* ==================== FOUNDER OFFER — REAL COUNTDOWN ====================
