@@ -1,11 +1,16 @@
 // Admin console manual-revenue fix: 2026-09-01
-// v17.1 (2026-09-06): admin business dashboard — added finance/costs (owner-
-// entered monthly expenses backing the Business tab's EBITDA-style view) and
+// Admin business dashboard (2026-09-06): added finance/costs (owner-entered
+// monthly expenses backing the Business tab's EBITDA-style view) and
 // devRequests/{id} (the Dev/AI Requests task queue). Both admin-only, both
 // narrowly scoped to the one collection/doc each feature actually needs. No
-// existing rule was loosened.
+// existing rule was loosened. NOTE: the "STABLE BUILD v17.0 / Platform V5"
+// string below is a literal CI invariant checked by
+// .github/workflows/platform-v5-guardrails.yml (via
+// scripts/apply-platform-rules-v17.py) — do not bump it for an unrelated
+// change; it tracks the Platform V5 generator epoch, not every edit to this
+// file.
 // ============================================================================
-//  RoamWise - Firestore Security Rules   (STABLE BUILD v17.1 / Platform V5 - 2026-09-06)
+//  RoamWise - Firestore Security Rules   (STABLE BUILD v17.0 / Platform V5 - 2026-09-01)
 // ----------------------------------------------------------------------------
 //  HOW TO DEPLOY (2 minutes, do this whenever rules change):
 //    1. Firebase Console  ->  your project  ->  Build  ->  Firestore Database
