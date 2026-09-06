@@ -50,8 +50,8 @@ function buildItin(T, name, costMid, days){
         + '<div class="day-body" id="'+did+'"><div>'+segs+'</div>'+(day.tip?'<div class="day-tip">\u{1F4A1} '+day.tip+'</div>':'')+'</div></div>';
     }).join('');
     try{ badgeBump('trip'); }catch(e){ /* badge/progression update is a nice-to-have, ignore */ }
-    var whyBanner = '<div style=\"text-align:center;padding:16px 14px;margin-bottom:14px;border:1px solid var(--b1,rgba(255,255,255,.07));border-radius:14px;background:var(--bg2,#12151F)\">'
-      +'<div style=\"font-style:italic;color:var(--t1,#EDEAE2);font-size:13.5px;line-height:1.6\">Not rushed. Not a checklist. <b>'+esc2(name)+'</b>, paced the way a good trip should be.</div></div>';
+    var whyBanner = '<div style="text-align:center;padding:16px 14px;margin-bottom:14px;border:1px solid var(--b1,rgba(255,255,255,.07));border-radius:14px;background:var(--bg2,#12151F)">'
+      +'<div style="font-style:italic;color:var(--t1,#EDEAE2);font-size:13.5px;line-height:1.6">Not rushed. Not a checklist. <b>'+esc2(name)+'</b>, paced the way a good trip should be.</div></div>';
     cnt.innerHTML = (srcBadge||'') + whyBanner + H
       + rwGreenNudge(name, days)
       + '<button class="tact" style="display:block;width:100%;margin-top:12px;font-weight:800;background:linear-gradient(135deg,var(--gold,#E8BA6C),var(--gold2,#C8913E));color:#0A0A0C;border:none" onclick="openTripMap(window._lastItin?_lastItin.name:\'\',null)">\ud83d\uddfa\ufe0f See this trip on a map</button>'
