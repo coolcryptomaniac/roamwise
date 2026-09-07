@@ -14,6 +14,7 @@ export function handleHealth(env){
       kv:     !!env.RW_KV,
       events: !!env.TICKETMASTER_KEY,
       refreshProtected: !!env.REFRESH_TOKEN,
+      push: !!env.FIREBASE_SERVICE_ACCOUNT_JSON,
     },
   });
 }

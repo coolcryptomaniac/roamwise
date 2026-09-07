@@ -35,6 +35,7 @@
      GET  /leads                partner lead finder        -> handlers/leads.js
      POST /cashfree/order              create a Cashfree order (secrets stay server-side) -> handlers/cashfree.js
      GET  /cashfree/order/:id/status   confirm order_status with Cashfree     -> handlers/cashfree.js
+     POST /push/send                   admin-only: send an FCM push to one user -> handlers/push.js
 
    Cron: runs daily; refreshes news every run, events once a week (Mondays).
 
@@ -50,6 +51,7 @@ import { refreshEvents, handleEvents, handleEventsRefresh } from './handlers/eve
 import { handleGeo } from './handlers/geo.js';
 import { handleLeads } from './handlers/leads.js';
 import { handleCashfreeOrder, handleCashfreeOrderStatus } from './handlers/cashfree.js';
+import { handlePushSend } from './handlers/push.js';
 
 /* ------------------------------------------------------------------ router */
 export default {
@@ -81,7 +83,9 @@ export default {
     const cfStatus = path.match(/^cashfree\/order\/([^/]+)\/status$/);
     if(cfStatus && request.method === 'GET') return handleCashfreeOrderStatus(env, cfStatus[1]);
 
-    return json({ error: 'not found', try: ['/health', '/ai', '/news', '/events', '/geo', '/leads', '/cashfree/order'] }, 404);
+    if(path === 'push/send' && request.method === 'POST') return handlePushSend(request, env);
+
+    return json({ error: 'not found', try: ['/health', '/ai', '/news', '/events', '/geo', '/leads', '/cashfree/order', '/push/send'] }, 404);
   },
 
   /* ONE scheduled handler. News daily; events on Mondays only, to stay well
