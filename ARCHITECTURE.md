@@ -33,7 +33,7 @@ from ~19,300 at the start of the modularization effort, down from 3,099
 after the prior "modularization-final" pass, down from 1,207 after
 "round 4", and down from 629 after "round 5" — the further drop since
 round 5 is incidental to unrelated feature PRs #138-143 touching app.js
-in passing, not a new extraction round) and there are **135 files** under `js/`,
+in passing, not a new extraction round) and there are **136 files** under `js/`,
 organized into **17 top-level subdirectories** (16 from round 5 plus the
 new `js/admin/`) plus one nested subdirectory (`js/payments/providers/`),
 plus **9 files** under `css/`. Two new top-level feature areas landed
