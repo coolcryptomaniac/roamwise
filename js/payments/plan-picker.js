@@ -7,11 +7,12 @@
 // real countdown banner (rwFounderDeadline/rwCountdownParts/
 // rwFounderBannerHTML/rwCountdownCells/rwStartCountdown/rwStopCountdown),
 // rotating testimonials (rwRotateTesti), and the pay/success overlay
-// lifecycle (openPay/closePay/_adminUnlock/activatePro/closeSuccess/
-// goHome/confetti). submitUtr() — the function that actually WRITES a
-// payment claim to Firestore — deliberately stays in app.js, same as prior
-// phases: this file only builds and drives the picker UI. Depends on
-// runtime globals from app.js/js/pricing/tiers.js (RWPricing, el, showToast,
+// lifecycle (openPay/closePay/_adminUnlock/activatePro/grantPurchase/
+// rwTierForPlan/closeSuccess/goHome/confetti). submitUtr() — the function
+// that actually WRITES a payment claim to Firestore — deliberately stays in
+// app.js, same as prior phases: this file only builds and drives the picker
+// UI. Depends on runtime globals from app.js/js/pricing/subscription-plans.js
+// + one-off-plans.js (RWPricing, el, showToast,
 // isPro, user, db, lsGet/lsSet, track, rwHaptic, refreshProUI,
 // rwStatusLabel, badgeAwardFounder, requireLogin, cryptoConfigured/
 // cryptoPanelHTML, rwRefBadgeHTML, qrBuilt, MONTHS) — all resolved at call
@@ -21,12 +22,21 @@
 // helpers that used to live here (upiParams/payVia/buildQR, and the
 // UPI_VPA/UPI_NAME/UPI_AMT module state) moved verbatim behind the
 // RWPaymentGateway adapter interface — see js/payments/gateway-adapter.js
-// and js/payments/providers/manual-upi-adapter.js. payVia()/buildQR() below
-// are now thin wrappers that delegate to RWPaymentGateway.current() (today,
-// always the manual-UPI adapter — the config flag that would ever point
-// elsewhere defaults to that same provider, so behavior is unchanged).
+// and js/payments/providers/manual-upi-adapter.js.
+//
+// SUBSCRIPTION-VS-ONE-OFF GATING (Cashfree pass): manual UPI is now called
+// directly via RWPaymentGateway.provider('manual_upi') — a permanent,
+// always-available baseline for EVERY purchase category, never something
+// RW_PAYMENT_PROVIDER can silently swap out (Cashfree isn't approved for
+// subscriptions yet, and manual UPI must stay a genuine choice even where
+// Cashfree is offered — see PAYMENT-GATEWAY-ARCHITECTURE.md). Cashfree is a
+// separate, additional option — payViaCashfree()/_renderCashfreeOption()
+// below — offered only for one-off-category plans, and only once an admin
+// has turned it on (RW_PAYMENT_PROVIDER==='cashfree'). See
+// js/payments/gateway-adapter.js's header for the fuller rationale.
 var _selectedPlan = null; /* set by pickPlan() — drives the amount/label for whatever the user is actually buying */
-var _currentOrder = null; /* set by pickPlan() via RWPaymentGateway.createOrder() — the adapter-defined order object payVia()/buildQR() hand to the active provider */
+var _currentOrder = null; /* set by pickPlan() via the manual-UPI adapter's createOrder() — the order object payVia()/buildQR() hand to it */
+var _cfOrder = null;      /* set by pickPlan(), one-off plans only, when Cashfree is turned on — the order object payViaCashfree() hands to the Cashfree adapter */
 /* Renders the real feature checklist for whatever the user just picked, into
    #planFeatures, reusing the same .features-grid/.feat-item/.feat-ck markup
    the static pre-selection teaser uses so it looks native. tierId is the
@@ -41,9 +51,20 @@ function _renderPlanFeatures(tierId){
     return '<div class="feat-item"><span class="feat-ck">✓</span>'+(labels[f]||f)+'</div>';
   }).join('');
 }
-function pickPlan(planId, priceINR, label, tierId){
-  _selectedPlan = {id:planId, priceINR:priceINR, label:label, tierId:tierId};
-  _currentOrder = RWPaymentGateway.createOrder(priceINR, {planId:planId, label:label, tierId:tierId});
+function pickPlan(planId, priceINR, label, tierId, category){
+  /* category: 'subscription' (Free/Plus/Pro/Elite monthly+yearly) or
+     'oneoff' (Founder offer, long-term passes, short-term passes) \u2014 see
+     renderPlanGrid()'s call sites below for which is which. Defaults to
+     the SAFER of the two ('subscription' \u2014 Cashfree stays hidden) for any
+     legacy/test call site that omits it, per the fail-closed rule this
+     gate needs: never show a not-yet-approved payment method for a
+     purchase type just because a caller forgot to pass its category. */
+  category = category || 'subscription';
+  _selectedPlan = {id:planId, priceINR:priceINR, label:label, tierId:tierId, category:category};
+  /* Manual UPI is a permanent, always-offered baseline for every purchase
+     category \u2014 called directly on its own adapter (not RWPaymentGateway.
+     current()) so RW_PAYMENT_PROVIDER can never silently take it away. */
+  _currentOrder = RWPaymentGateway.provider('manual_upi').createOrder(priceINR, {planId:planId, label:label, tierId:tierId, category:category});
   buildQR();
   var ph = el('planHeader'); if(ph) ph.textContent = label+' \u2014 \u20b9'+priceINR;
   /* Founder offer (and any legacy call site that doesn't pass a tierId) grants
@@ -61,6 +82,39 @@ function pickPlan(planId, priceINR, label, tierId){
     if(!rb){ rb=document.createElement('div'); rb.id='refBadge'; methods.appendChild(rb); }
     try{ rb.innerHTML = rwRefBadgeHTML(); }catch(e){ /* best-effort, ignore */ }
   }
+  _renderCashfreeOption(category, priceINR, planId, label, tierId);
+}
+
+/* SUBSCRIPTION-VS-ONE-OFF GATING: shows/builds the "Pay via Cashfree" option
+   only for a one-off-category plan, and only once an admin has turned
+   Cashfree on (config/app.PAYMENT_PROVIDER -> RW_PAYMENT_PROVIDER ===
+   'cashfree', per js/boot/init.js's applyRemoteConfig) \u2014 see
+   js/payments/gateway-adapter.js's header for why this doesn't go through
+   RWPaymentGateway.current(). TO LIFT THIS for subscriptions once Cashfree's
+   merchant account is approved for recurring payments: change the
+   `category==='oneoff'` check below to always true (or drop it) \u2014 every
+   other piece of this gate (the RW_PAYMENT_PROVIDER flag, the adapter
+   registration) already supports subscriptions unmodified, this one line is
+   the entire gate. */
+function _renderCashfreeOption(category, priceINR, planId, label, tierId){
+  _cfOrder = null;
+  var box = el('cashfreeOption'); if(!box) return;
+  var cf = RWPaymentGateway.provider('cashfree');
+  var cashfreeOn = (category === 'oneoff') && RW_PAYMENT_PROVIDER === 'cashfree' && !!cf;
+  if(!cashfreeOn){ box.style.display = 'none'; return; }
+  _cfOrder = cf.createOrder(priceINR, {planId:planId, label:label, tierId:tierId, category:category});
+  box.style.display = 'block';
+}
+
+/* Explicit, additional Cashfree checkout \u2014 see _renderCashfreeOption() for
+   when the button that calls this is actually shown. Never reached through
+   RWPaymentGateway.current()/openCheckout(), by design (see
+   gateway-adapter.js's header). */
+function payViaCashfree(){
+  if(!requireLogin()) return;
+  var cf = RWPaymentGateway.provider('cashfree');
+  if(!cf || !_cfOrder){ showToast('Cashfree checkout isn\u2019t available for this purchase \u2014 pick a plan again, or pay via UPI below.'); return; }
+  cf.openCheckout(_cfOrder, 'cashfree');
 }
 function backToPlanPicker(){
   var picker = el('planPicker'); if(picker) picker.style.display='block';
@@ -83,10 +137,11 @@ function payVia(app){
     location.href=deep10; showToast('Pay \u20b910, then come back and tap Generate'); return;
   }
   if(!requireLogin()) return;
-  RWPaymentGateway.openCheckout(_currentOrder, app);
+  RWPaymentGateway.provider('manual_upi').openCheckout(_currentOrder, app);
 }
 function buildQR(){
-  RWPaymentGateway.buildQR(_currentOrder);
+  var m = RWPaymentGateway.provider('manual_upi');
+  if(m) m.buildQR(_currentOrder);
 }
 
 /* ==================== FOUNDER OFFER — REAL COUNTDOWN ====================
@@ -275,7 +330,7 @@ function renderPlanGrid(founderOpen){
 
   var html='';
   if(founderOpen){
-    html += '<button class="pay-tab on" style="width:100%;margin-bottom:14px" onclick="pickPlan(\'founder\','+C.FOUNDER_OFFER.priceINR+',\'Founder Pro \u2014 Lifetime\',\'elite\')">'
+    html += '<button class="pay-tab on" style="width:100%;margin-bottom:14px" onclick="pickPlan(\'founder\','+C.FOUNDER_OFFER.priceINR+',\'Founder Pro \u2014 Lifetime\',\'elite\',\'oneoff\')">'
       +'\ud83c\udf1f Founder Pro \u2014 \u20b9'+C.FOUNDER_OFFER.priceINR+' <small>One payment, forever \u2014 this exact price never comes back</small></button>';
   }
 
@@ -298,7 +353,7 @@ function renderPlanGrid(founderOpen){
     var price = yearly? t.priceYearly : t.priceMonthly;
     var per = yearly? '/yr' : '/mo';
     var save = RWPricing.yearlySavingsPct(t);
-    html += '<button class="tact" style="text-align:left;padding:12px" onclick="pickPlan(\''+t.id+(yearly?'_y':'_m')+'\','+price+',\''+t.label+' '+(yearly?'Yearly':'Monthly')+'\',\''+t.id+'\')">'
+    html += '<button class="tact" style="text-align:left;padding:12px" onclick="pickPlan(\''+t.id+(yearly?'_y':'_m')+'\','+price+',\''+t.label+' '+(yearly?'Yearly':'Monthly')+'\',\''+t.id+'\',\'subscription\')">'
       +'<div style="font-weight:800;color:var(--gold2);font-size:13px">'+t.label+'</div>'
       +'<div style="font-size:17px;font-weight:800;margin-top:2px">\u20b9'+price+'<span style="font-size:11px;color:var(--t3);font-weight:400">'+per+'</span></div>'
       +(yearly&&save>0? '<div style="font-size:10px;color:#16BF96">save '+save+'%</div>' : '')
@@ -317,7 +372,7 @@ function renderPlanGrid(founderOpen){
          pickPlan title reads "<Tier> Lifetime". Non-lifetime passes are unchanged. */
       var topLabel = p.label || (p.years+'-Year');
       var payTitle = group.tierLabel+' '+(p.lifetime? 'Lifetime' : p.years+'-Year Pass');
-      html += '<button class="tact" style="flex:1;text-align:center;padding:10px 6px" onclick="pickPlan(\''+p.id+'\','+p.priceINR+',\''+payTitle+'\',\''+group.tier+'\')">'
+      html += '<button class="tact" style="flex:1;text-align:center;padding:10px 6px" onclick="pickPlan(\''+p.id+'\','+p.priceINR+',\''+payTitle+'\',\''+group.tier+'\',\'oneoff\')">'
         +'<div style="font-size:12px;font-weight:700">'+topLabel+'</div><div style="font-size:14px;font-weight:800;color:var(--gold2)">\u20b9'+p.priceINR+'</div></button>';
     });
     html += '</div>';
@@ -327,7 +382,7 @@ function renderPlanGrid(founderOpen){
   html += '<div class="section-label">\u26a1 Just need it for one trip?</div>'
     +'<div style="display:flex;gap:8px;margin-bottom:6px">';
   C.SHORT_TERM.forEach(function(p){
-    html += '<button class="tact" style="flex:1;text-align:center;padding:10px 6px" onclick="pickPlan(\''+p.id+'\','+p.priceINR+',\''+p.label+'\',\'pro\')">'
+    html += '<button class="tact" style="flex:1;text-align:center;padding:10px 6px" onclick="pickPlan(\''+p.id+'\','+p.priceINR+',\''+p.label+'\',\'pro\',\'oneoff\')">'
       +'<div style="font-size:12px;font-weight:700">'+p.label+'</div><div style="font-size:14px;font-weight:800;color:var(--gold2)">\u20b9'+p.priceINR+'</div></button>';
   });
   html += '</div>';
@@ -351,6 +406,55 @@ function _adminUnlock(code){
 
 function activatePro(payId, method){
   isPro=true; lsSet('rwPro','1'); lsSet('rw_pro_uid',(user&&user.uid)||'device'); lsSet('rwPayId', payId||'manual');
+  try{ badgeAwardFounder(); }catch(e){ /* badge/progression update is a nice-to-have, ignore */ }
+  try{ rwHaptic('heavy'); }catch(e){ /* haptic feedback is a nice-to-have, ignore */ }
+  closePay(); el('successOverlay').classList.add('open');
+  confetti(); refreshProUI();
+}
+
+/* PER-PRODUCT FULFILLMENT (shared): derives which RWPricing tier a specific
+   purchased plan id actually grants. This is the exact, proven branching
+   logic the manual-UPI/UTR claim flow's instant provisional unlock has used
+   since launch (previously inlined in js/payments/providers/
+   manual-upi-adapter.js's verifyPayment() — extracted here, zero logic
+   change, so every confirmed-payment success path can share it instead of
+   re-deriving/reinventing it): a Founder/long-term/short-term one-off pass
+   defaults to 'elite' (full access, matching what those passes have always
+   granted); a subscription-tier purchase (planId starting 'plus'/'pro'/
+   'elite') grants exactly that tier, never a blanket "everything unlocked".
+   @param {string} [planId] e.g. _selectedPlan.id (manual UPI) or an order's
+     .planId (Cashfree) — the exact plan id pickPlan() was called with.
+   @returns {string} an RWPricing.CONFIG.TIERS id
+*/
+function rwTierForPlan(planId){
+  var boughtTierId = 'elite'; /* default: founder / long-term / short-term passes all grant full access */
+  if(planId){
+    if(planId.indexOf('plus')===0) boughtTierId='plus';
+    else if(planId.indexOf('pro')===0) boughtTierId='pro';
+    else if(planId.indexOf('elite')===0) boughtTierId='elite';
+  }
+  return boughtTierId;
+}
+
+/* PER-PRODUCT FULFILLMENT (shared): grants Pro AND the correct tier for
+   whatever was actually purchased, per rwTierForPlan() above — the
+   real-time-confirmed-payment counterpart to activatePro() (which stays as
+   the blanket "grant everything" fulfillment for the purchase paths that
+   have no per-product concept at all: Gumroad's flat $4.99 international
+   offer, the Google Play grant, and the admin backdoor — see their call
+   sites). Any NEW confirmed-payment success path that DOES know which
+   specific plan was bought (today: Cashfree's real-time PAID status check —
+   see js/payments/providers/cashfree-adapter.js) must call this, not
+   activatePro(), so a Plus/Pro monthly buyer doesn't get Elite by mistake
+   and a Founder/long-term/short-term buyer still gets full access exactly
+   as the manual-UPI flow already promises.
+   @param {string} payId
+   @param {string} method
+   @param {string} [planId] the exact plan id that was actually purchased
+*/
+function grantPurchase(payId, method, planId){
+  isPro=true; lsSet('rwPro','1'); lsSet('rw_pro_uid',(user&&user.uid)||'device'); lsSet('rwPayId', payId||'manual');
+  lsSet('rw_tier', rwTierForPlan(planId));
   try{ badgeAwardFounder(); }catch(e){ /* badge/progression update is a nice-to-have, ignore */ }
   try{ rwHaptic('heavy'); }catch(e){ /* haptic feedback is a nice-to-have, ignore */ }
   closePay(); el('successOverlay').classList.add('open');

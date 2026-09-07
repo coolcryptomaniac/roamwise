@@ -1,7 +1,7 @@
 // @ts-nocheck
 // Moved verbatim from app.js (Phase 5c) — Pro/tier status display code.
 // This is a zero-logic-change relocation: entitlement gating itself
-// (isPro / hasFeature(), the latter already living in js/pricing/tiers.js)
+// (isPro / hasFeature(), the latter now living in js/pricing/subscription-plans.js)
 // is untouched; only the "what text/UI does the user see for their current
 // status" layer moved. rwStatusLabel() is the single honest-label source
 // of truth (see its own comment below); refreshProUI() is the DOM-facing

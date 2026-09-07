@@ -114,7 +114,9 @@ var AUTH_ENABLED = (typeof FIREBASE_CONFIG!=='undefined') && FIREBASE_CONFIG.api
 /* Pro is account-bound. With accounts ON, never trust the local flag at boot —
    the auth snapshot re-grants it for the right account. Without accounts
    (pure device mode) the local flag is all we have. */
-// RWPricing (pricing engine CONFIG + tier/feature helpers) moved to js/pricing/tiers.js
+// RWPricing (pricing engine CONFIG + tier/feature helpers) moved to
+// js/pricing/subscription-plans.js + js/pricing/one-off-plans.js
+// (split in the subscription-vs-one-off Cashfree gating pass)
 
 // rwStatusLabel (honest Pro/tier status label) moved to js/ui/status-tier.js (Phase 5c)
 
@@ -145,7 +147,9 @@ var CURR = [
    broken. So: show their currency with the rupee price alongside, because the
    amount they are actually charged is in rupees and hiding that would be worse.
    ========================================================================= */
-// proPriceLabel/fmtMoney moved to js/pricing/tiers.js (modularization round 5)
+// proPriceLabel/fmtMoney moved to js/pricing/tiers.js (modularization round
+// 5), then to js/pricing/one-off-plans.js/subscription-plans.js respectively
+// (subscription-vs-one-off Cashfree gating pass)
 
 // Currency grid + budget slider wiring moved to js/ui/currency-budget.js (modularization round 5)
 rwInitCurrencyBudget();
@@ -346,11 +350,17 @@ document.addEventListener('keydown', function(ev){
    Moved verbatim behind the pluggable payment gateway (this pass) — the
    full body (DOM reads, Firestore claim write, provisional unlock, admin
    notify) now lives in js/payments/providers/manual-upi-adapter.js's
-   verifyPayment(), reached via RWPaymentGateway.current(). This wrapper
-   keeps the exact same global name submitUtr() that #utrBtn's
-   onclick="submitUtr()" in index.html calls. */
+   verifyPayment(). This wrapper keeps the exact same global name
+   submitUtr() that #utrBtn's onclick="submitUtr()" in index.html calls.
+   SUBSCRIPTION-VS-ONE-OFF GATING: calls the manual-UPI adapter directly
+   (RWPaymentGateway.provider('manual_upi')) rather than RWPaymentGateway.
+   current() — the UTR box is manual-UPI-specific UI shown for every
+   purchase, and RW_PAYMENT_PROVIDER may now resolve to 'cashfree' (which
+   has no verifyPayment() at all), so routing through current() would
+   silently no-op this button once Cashfree is turned on. See
+   js/payments/gateway-adapter.js's header for the fuller rationale. */
 function submitUtr(){
-  RWPaymentGateway.verifyPayment();
+  RWPaymentGateway.provider('manual_upi').verifyPayment();
 }
 
 // Moved to js/ui/adaptive-shell.js (Phase 5b) — adaptive shell + RW icon system (IS_APP/IS_STANDALONE/IS_TOUCH_MOBILE, applyShell, rwSetIconTheme, openIconThemePicker, rwIcon, RW_ICON_PATHS)

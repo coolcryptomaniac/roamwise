@@ -180,8 +180,13 @@ function loadCashfreeAdapter(overrides){
     track: () => {},
     user: { uid: 'u1', email: 'a@b.com', phoneNumber: '+919999999999' },
     activateProCalls: [],
+    grantPurchaseCalls: [],
   }, overrides || {});
   context.activatePro = function(payId, method){ context.activateProCalls.push({ payId, method }); };
+  // grantPurchase() (js/payments/plan-picker.js) is the real, per-product
+  // fulfillment function the confirmed-PAID success path must call instead
+  // of a blanket activatePro() — see the fulfillment-gap-fix test below.
+  context.grantPurchase = function(payId, method, planId){ context.grantPurchaseCalls.push({ payId, method, planId }); };
   vm.createContext(context);
   vm.runInContext(read('js/payments/gateway-adapter.js'), context);
   vm.runInContext(read('js/payments/providers/cashfree-adapter.js'), context);
@@ -216,7 +221,7 @@ test('createOrder(): posts amount/customer/meta to rwApi("cashfree/order") and r
   assert.equal(ctx._cfOrderPromise, ctx._cfOrderPromise); // sanity: still the same promise object
 });
 
-test('createOrder() -> openCheckout(): full success path confirms order_status PAID before calling activatePro()', async () => {
+test('createOrder() -> openCheckout(): full success path confirms order_status PAID before calling grantPurchase() (never a blanket activatePro())', async () => {
   const statusCalls = [];
   const ctx = loadCashfreeAdapter({
     rwApi: (p) => 'https://worker.example/' + p,
@@ -235,8 +240,14 @@ test('createOrder() -> openCheckout(): full success path confirms order_status P
   await new Promise((resolve) => setTimeout(resolve, 0));
   await new Promise((resolve) => setTimeout(resolve, 0));
   await new Promise((resolve) => setTimeout(resolve, 0));
-  assert.equal(ctx.activateProCalls.length, 1, 'activatePro() must be called exactly once after a confirmed PAID status');
-  assert.equal(ctx.activateProCalls[0].method, 'cashfree');
+  // FULFILLMENT FIX: the confirmed-PAID success path must call the real,
+  // per-product fulfillment function (grantPurchase(), which branches on
+  // exactly what was purchased via rwTierForPlan()) — not a blanket
+  // activatePro() that grants the same thing regardless of product.
+  assert.equal(ctx.grantPurchaseCalls.length, 1, 'grantPurchase() must be called exactly once after a confirmed PAID status');
+  assert.equal(ctx.grantPurchaseCalls[0].method, 'cashfree');
+  assert.equal(ctx.grantPurchaseCalls[0].planId, 'pro_m', 'the exact purchased plan id must be passed through so the right tier gets granted');
+  assert.equal(ctx.activateProCalls.length, 0, 'the blanket activatePro() must NOT be called for a plan-aware Cashfree purchase');
   assert.equal(statusCalls.length, 1);
 });
 
@@ -252,6 +263,7 @@ test('openCheckout(): Cashfree SDK reporting an error (cancel/failure) never cal
   await new Promise((resolve) => setTimeout(resolve, 0));
   await new Promise((resolve) => setTimeout(resolve, 0));
   assert.equal(ctx.activateProCalls.length, 0);
+  assert.equal(ctx.grantPurchaseCalls.length, 0);
 });
 
 test('openCheckout(): SDK resolves without error but order never confirms PAID -> no activatePro(), no crash', async () => {
@@ -268,6 +280,7 @@ test('openCheckout(): SDK resolves without error but order never confirms PAID -
   ctx.RWPaymentGateway.openCheckout({}, 'any');
   for(let i = 0; i < 8; i++) await new Promise((resolve) => setTimeout(resolve, 0));
   assert.equal(ctx.activateProCalls.length, 0);
+  assert.equal(ctx.grantPurchaseCalls.length, 0);
 });
 
 test('createOrder(): a network/order-creation failure surfaces through openCheckout() without throwing', async () => {
@@ -281,6 +294,7 @@ test('createOrder(): a network/order-creation failure surfaces through openCheck
   await new Promise((resolve) => setTimeout(resolve, 0));
   await new Promise((resolve) => setTimeout(resolve, 0));
   assert.equal(ctx.activateProCalls.length, 0);
+  assert.equal(ctx.grantPurchaseCalls.length, 0);
 });
 
 test('createOrder(): when rwApi() returns null (Worker not configured), openCheckout() fails gracefully instead of hanging', async () => {
@@ -289,6 +303,7 @@ test('createOrder(): when rwApi() returns null (Worker not configured), openChec
   assert.doesNotThrow(() => ctx.RWPaymentGateway.openCheckout({}, 'any'));
   await new Promise((resolve) => setTimeout(resolve, 0));
   assert.equal(ctx.activateProCalls.length, 0);
+  assert.equal(ctx.grantPurchaseCalls.length, 0);
 });
 
 test('cashfree-adapter.js registers itself as "cashfree" without disturbing the default manual_upi provider', () => {

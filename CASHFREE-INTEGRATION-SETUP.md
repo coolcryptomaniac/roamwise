@@ -34,18 +34,46 @@ and maintaining a second Worker/project/DNS route for one gateway.
   `createOrder()` calls the endpoint above via the existing `rwApi()`
   helper (`rw-config.js`); `openCheckout()` loads Cashfree's official
   Checkout JS SDK (`https://sdk.cashfree.com/js/v3/cashfree.js`) and drives
-  it, then polls the status endpoint and calls the existing `activatePro()`
-  global (the same function `verifyGumroad()` in `js/payments/checkout.js`
-  already uses for a hosted-checkout gateway's success path) once the order
-  is confirmed `PAID`.
+  it, then polls the status endpoint and, once the order is confirmed
+  `PAID`, calls `grantPurchase(orderId, 'cashfree', planId)`
+  (`js/payments/plan-picker.js`) — the exact per-product tier-derivation
+  logic the manual-UPI/UTR flow's instant provisional unlock already uses,
+  reused here so a Plus/Pro monthly buyer gets exactly that tier and a
+  Founder/long-term/short-term buyer gets full access, not a blanket grant
+  for every product. **(Fixed in the subscription-vs-one-off gating pass —
+  an earlier version of this integration called the generic `activatePro()`
+  for every Cashfree purchase regardless of what was actually bought; see
+  `PAYMENT-GATEWAY-ARCHITECTURE.md`'s "Per-product fulfillment" section.)**
 - `index.html` — one new `<script>` tag registering the adapter, right
-  after `manual-upi-adapter.js`. `plan-picker.js`/`partner-redeem.js`/
-  `checkout.js` are untouched.
+  after `manual-upi-adapter.js`. `partner-redeem.js`/`checkout.js` are
+  untouched; `plan-picker.js` gained explicit, category-gated wiring for
+  Cashfree in the subscription-vs-one-off pass — see below.
 - `tests/cashfree-payment.test.js` — unit tests (mocked network, no real
   credentials) for both the Worker handler and the client adapter: success,
   Cashfree-side order failure, invalid/missing amount, missing customer
-  phone, network errors, checkout-cancelled, and the not-yet-`PAID` status
-  path.
+  phone, network errors, checkout-cancelled, the not-yet-`PAID` status
+  path, and (added in the gating pass) that a confirmed `PAID` status calls
+  `grantPurchase()` with the correct plan id rather than the blanket
+  `activatePro()`.
+
+## Subscription-vs-one-off gating (added in a later pass)
+
+Cashfree is approved on this merchant account for one-off/one-time payments
+only — recurring subscriptions are **not yet** approved (may need more
+business documentation/presence first). So Cashfree is now offered ONLY
+when the purchase being made is one-off (Founder offer, long-term/short-
+term passes) — never for a Plus/Pro/Elite monthly-or-yearly subscription
+purchase, regardless of `config/app.PAYMENT_PROVIDER`. Manual UPI remains
+available for every purchase, subscription or one-off, as a genuine choice.
+
+This didn't require a new config field: `config/app.PAYMENT_PROVIDER`
+still works exactly as step 4 below describes ("the one field that turns
+Cashfree on"), it's just no longer the ONLY gate — `js/payments/
+plan-picker.js`'s `_renderCashfreeOption()` additionally checks the
+selected plan's category before showing the Cashfree button at all. See
+`PAYMENT-GATEWAY-ARCHITECTURE.md`'s "Subscription vs. one-off gating"
+section for the full mapping and exactly which one line to change once
+Cashfree's subscription approval comes through.
 
 Nothing here changes `config/app.PAYMENT_PROVIDER`'s default — it's still
 `manual_upi` (see step 4 for the one Firestore field that switches it).
@@ -115,11 +143,18 @@ npx wrangler deploy
    `PAYMENT-GATEWAY-ARCHITECTURE.md`. Leaving it unset (or setting it back
    to `"manual_upi"`) reverts every user to today's UPI/UTR flow instantly,
    no deploy needed.
-3. Open the app, tap a plan, tap any payment button in the pay sheet (the
-   button labels still say GPay/PhonePe/etc. — with `PAYMENT_PROVIDER` set
-   to `cashfree` they all route to Cashfree's own hosted checkout, which
-   presents its own full method picker; relabeling those buttons is a
-   follow-up UI change, out of scope here).
+3. Open the app and tap a **one-off/one-time plan** (Founder offer, a
+   long-term pass, or a short-term pass) — a new "Pay via Cashfree —
+   instant, automatic unlock" button/section appears alongside the
+   existing GPay/PhonePe/WhatsApp/"Any other UPI app" buttons (which keep
+   working exactly as before; they still drive the manual-UPI flow, never
+   Cashfree). Tapping the Cashfree button opens Cashfree's own hosted
+   checkout, which presents its own full method picker (cards, UPI,
+   netbanking). Tapping a **subscription** plan (Plus/Pro/Elite monthly or
+   yearly) does NOT show the Cashfree button at all, even with
+   `PAYMENT_PROVIDER` set to `cashfree` — see
+   `PAYMENT-GATEWAY-ARCHITECTURE.md`'s "Subscription vs. one-off gating"
+   section for why (Cashfree isn't approved for recurring payments yet).
 4. Use [Cashfree's documented sandbox test card/UPI/netbanking
    credentials](https://www.cashfree.com/docs) (their dashboard's own
    sandbox testing guide — these change over time, so don't hardcode them
@@ -159,7 +194,9 @@ Only after step 4 is fully green:
 
 - **Entitlement is granted client-side, gated on one status check.** The
   adapter polls `GET /cashfree/order/:id/status` up to 3 times (1.5s apart)
-  right after checkout and calls `activatePro()` the moment it sees `PAID`.
+  right after checkout and calls `grantPurchase()` (the correct per-product
+  tier grant, not a blanket one — see "Subscription-vs-one-off gating"
+  above) the moment it sees `PAID`.
   There is no Cashfree **webhook** wired up in this PR — `payments/`'s
   already-built `verifyCashfree()` webhook-signature verifier
   (`payments/webhook-verify.mjs`) is a natural next step if you want
@@ -182,3 +219,15 @@ Only after step 4 is fully green:
   reasonable place to reconsider that (e.g. reuse `payments/`'s
   origin-allowlist pattern in `payments/worker.mjs`'s `cors()`/
   `allowedOrigin()`) if you want to tighten it later.
+- **Cashfree takes a ~2% commission per transaction** through their
+  Payment Gateway — unlike manual UPI (`roamwise@ybl`), which has none.
+  This is a real cost difference the owner should factor into pricing/
+  margin decisions; it isn't surfaced to the buyer in the app UI today.
+- **Only one-off/one-time payments are approved on this merchant account
+  today** — Cashfree has NOT yet approved recurring subscription payments
+  (may need more business documentation/presence first). The app enforces
+  this at the UI level (see "Subscription-vs-one-off gating" above); it is
+  not just a documentation note — attempting to route a subscription
+  purchase through Cashfree would likely also be rejected by Cashfree
+  itself, since the merchant account isn't provisioned for it, but the app
+  should never even attempt that call in the first place.

@@ -248,7 +248,12 @@ test('loadPublicSeatsLeftFromFounderSnap: no db available at all -> safe fallbac
 function loadPricingAndSeatsModules() {
   const context = { window: {} };
   vm.createContext(context);
-  vm.runInContext(read('js/pricing/tiers.js'), context);
+  // RWPricing is defined by subscription-plans.js and extended (founderGateLoad
+  // et al.) by one-off-plans.js — same load order as index.html, required
+  // since one-off-plans.js mutates the RWPricing object subscription-plans.js
+  // creates rather than redefining it (subscription-vs-one-off split).
+  vm.runInContext(read('js/pricing/subscription-plans.js'), context);
+  vm.runInContext(read('js/pricing/one-off-plans.js'), context);
   vm.runInContext(read('js/pricing/founder-seats.js'), context);
   return context;
 }

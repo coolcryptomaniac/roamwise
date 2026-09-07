@@ -29,7 +29,7 @@
    Depends on (by name, resolved when rwInitCurrencyBudget() is actually
    called from app.js — i.e. after every script on the page has loaded,
    same as before): `CURR`/`AC` (currency table + active currency,
-   app.js) and `fmtMoney` (js/pricing/tiers.js). */
+   app.js) and `fmtMoney` (js/pricing/subscription-plans.js). */
 function rwInitCurrencyBudget(){
   (function(){
     var cg = el('currGrid');
