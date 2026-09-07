@@ -8,7 +8,8 @@
    - Revenue side: every currently-Pro account's most recent APPROVED payment
      amount (from claims/payments, exactly the records the existing Money tab
      already treats as real revenue) is matched against the live price list
-     in RWPricing.CONFIG (js/pricing/tiers.js — the single source of truth
+     in RWPricing.CONFIG (js/pricing/subscription-plans.js + one-off-plans.js
+     — the single source of truth
      the rest of the app already reads prices from). A match against a
      recurring monthly/yearly tier price contributes to MRR/ARR; a match
      against a one-time price (Founder ₹100, a long-term pass, a short-term

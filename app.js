@@ -114,7 +114,9 @@ var AUTH_ENABLED = (typeof FIREBASE_CONFIG!=='undefined') && FIREBASE_CONFIG.api
 /* Pro is account-bound. With accounts ON, never trust the local flag at boot —
    the auth snapshot re-grants it for the right account. Without accounts
    (pure device mode) the local flag is all we have. */
-// RWPricing (pricing engine CONFIG + tier/feature helpers) moved to js/pricing/tiers.js
+// RWPricing (pricing engine CONFIG + tier/feature helpers) moved to
+// js/pricing/subscription-plans.js + js/pricing/one-off-plans.js
+// (split in the subscription-vs-one-off Cashfree gating pass)
 
 // rwStatusLabel (honest Pro/tier status label) moved to js/ui/status-tier.js (Phase 5c)
 
@@ -145,7 +147,9 @@ var CURR = [
    broken. So: show their currency with the rupee price alongside, because the
    amount they are actually charged is in rupees and hiding that would be worse.
    ========================================================================= */
-// proPriceLabel/fmtMoney moved to js/pricing/tiers.js (modularization round 5)
+// proPriceLabel/fmtMoney moved to js/pricing/tiers.js (modularization round
+// 5), then to js/pricing/one-off-plans.js/subscription-plans.js respectively
+// (subscription-vs-one-off Cashfree gating pass)
 
 // Currency grid + budget slider wiring moved to js/ui/currency-budget.js (modularization round 5)
 rwInitCurrencyBudget();

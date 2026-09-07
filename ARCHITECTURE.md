@@ -28,12 +28,13 @@ works fully without it.
 
 ## Module map
 
-As of this commit (post PRs #138-143), `app.js` is **565 lines** (down
-from ~19,300 at the start of the modularization effort, down from 3,099
-after the prior "modularization-final" pass, down from 1,207 after
-"round 4", and down from 629 after "round 5" — the further drop since
-round 5 is incidental to unrelated feature PRs #138-143 touching app.js
-in passing, not a new extraction round) and there are **136 files** under `js/`,
+As of this commit (post PRs #138-143, plus the subscription-vs-one-off
+Cashfree gating pass), `app.js` is **575 lines** (down from ~19,300 at the
+start of the modularization effort, down from 3,099 after the prior
+"modularization-final" pass, down from 1,207 after "round 4", and down from
+629 after "round 5" — the further changes since round 5 are incidental to
+unrelated feature PRs #138-143 and this pass's `submitUtr()` one-line
+rewire, not a new extraction round) and there are **137 files** under `js/`,
 organized into **17 top-level subdirectories** (16 from round 5 plus the
 new `js/admin/`) plus one nested subdirectory (`js/payments/providers/`),
 plus **9 files** under `css/`. Two new top-level feature areas landed
@@ -81,11 +82,27 @@ prints PASS/DRIFT per number in under a second.
 - `key-sync.js` — AI-key cross-device sync
 - `config-sync.js` — remote-config sync
 
-### `js/pricing/` — monetization mechanics (3 files)
-- `tiers.js` (257 lines) — pricing tier definitions, plus `fmtMoney`/
-  `proPriceLabel` (money-display helpers moved verbatim from app.js in
-  round 5; they read app.js's `CURR`/`AC` currency state by name,
-  resolved at call time)
+### `js/pricing/` — monetization mechanics (4 files)
+- `subscription-plans.js` (149 lines) — the RECURRING subscription half of
+  the former `tiers.js` (split in the subscription-vs-one-off Cashfree
+  gating pass): defines the `RWPricing` global, `CONFIG.TIERS`
+  (Free/Plus/Pro/Elite monthly+yearly), `FEATURE_LABELS`, and the
+  tier-lookup helpers (`tierById`/`currentTier`/`hasFeature`/
+  `yearlySavingsPct`) every purchase category resolves its granted
+  benefits through — plus `fmtMoney` (generic currency display, moved
+  verbatim from app.js in round 5; reads app.js's `CURR`/`AC` currency
+  state by name, resolved at call time).
+- `one-off-plans.js` (186 lines) — the ONE-OFF/one-time-purchase half:
+  extends the `RWPricing` object `subscription-plans.js` creates (loaded
+  right after it in `index.html`) with `CONFIG.FOUNDER_OFFER`/`LONG_TERM`/
+  `SHORT_TERM`, the founder-offer gate helpers
+  (`founderOfferOpen`/`founderGateLoad`/`founderGate`/`founderGateSnap`/
+  `daysSinceLaunch`), and `proPriceLabel` (every call site passes the
+  Founder offer's ₹100). See `PAYMENT-GATEWAY-ARCHITECTURE.md`'s
+  "Subscription vs. one-off gating" section for the full plan-category
+  mapping (this is the same mapping `js/payments/plan-picker.js`'s
+  `pickPlan()` category argument uses to gate the Cashfree checkout
+  option).
 - `founder-seats.js` — PUBLIC Founder-offer seat-counter math (isolated,
   well-commented, unit-tested — see `tests/founder-seats.test.js`). Computes
   "seats left" from `pricing/founder.count` (the one counter every seat-grant
@@ -128,32 +145,59 @@ support one):
   be screenshotted for an investor update.
 
 ### `js/payments/` (4 files, plus a nested `providers/` subdirectory)
-- `gateway-adapter.js` (added in PR #142) — the pluggable payment
-  gateway adapter: `RWPaymentGateway`, the provider interface every
-  concrete payment method implements, and the selection logic that picks
-  a provider from `RW_PAYMENT_PROVIDER`/`config/app.PAYMENT_PROVIDER`.
-  Modeled on the same one-registry pattern `js/booking/affiliate-links.js`
-  already uses for affiliate routing. See `PAYMENT-GATEWAY-ARCHITECTURE.md`
-  for the full provider-interface contract and how to add a new gateway.
+- `gateway-adapter.js` (added in PR #142; extended in the subscription-vs-
+  one-off Cashfree gating pass) — the pluggable payment gateway adapter:
+  `RWPaymentGateway`, the provider interface every concrete payment method
+  implements, `register()`/`current()` (the original single-active-provider
+  swap mechanism, still used by any future n-th provider and covered by
+  tests/payment-gateway-adapter.test.js), and the newer `provider(id)`
+  accessor that fetches one specific registered adapter by id — what
+  `plan-picker.js`'s real checkout flow now uses instead of `current()`,
+  since manual UPI must be a permanent baseline no `RW_PAYMENT_PROVIDER`
+  flip can replace, and Cashfree needs to be simultaneously AVAILABLE
+  alongside it (not swapped in for it) on one-off plans. Modeled on the
+  same one-registry pattern `js/booking/affiliate-links.js` already uses
+  for affiliate routing. See `PAYMENT-GATEWAY-ARCHITECTURE.md` for the full
+  provider-interface contract, and its "Subscription vs. one-off gating"
+  section for why `current()` stopped being what the real checkout flow
+  uses for its two concrete gateways.
 - `checkout.js` — Gumroad/direct-crypto-wallet checkout UI panels
 - `partner-redeem.js` — `openPartnerRedeem()`, the partner claim-code ->
   Pro grant flow (NMIMS and future partners); moved verbatim from app.js
   in modularization round 4 (Pro-entitlement/Firestore code — relocation
   only, zero logic changes, per `CLAUDE.md`'s relocation-is-fine rule)
-- `plan-picker.js` — the pay modal: UPI QR/deep-link helpers, the plan
-  grid, the founder-offer countdown banner, rotating testimonials, and
-  the pay/success overlay lifecycle; moved verbatim from app.js in
+- `plan-picker.js` (489 lines) — the pay modal: UPI QR/deep-link helpers,
+  the plan grid (now tagging every plan with a 'subscription'/'oneoff'
+  category — see `pickPlan()`), the Cashfree-gating functions
+  (`_renderCashfreeOption`/`payViaCashfree`), the founder-offer countdown
+  banner, rotating testimonials, the pay/success overlay lifecycle, and the
+  shared per-product fulfillment helpers `rwTierForPlan()`/
+  `grantPurchase()` (extracted from manual-upi-adapter.js's verifyPayment()
+  in the Cashfree fulfillment-gap fix, so Cashfree's real-time PAID
+  confirmation grants the correct tier for whatever was actually
+  purchased, not a blanket Pro grant). Moved verbatim from app.js in
   modularization round 4. `submitUtr()` (the function that actually
   writes a payment claim) deliberately stays in app.js — see "Modularization
   round 4" below
 
-#### `js/payments/providers/` (2 files, added in PR #142)
-- `manual-upi-adapter.js` (176 lines) — implements the
+#### `js/payments/providers/` (3 files, added in PR #142; Cashfree added
+in a later pass)
+- `manual-upi-adapter.js` (184 lines) — implements the
   `RWPaymentGateway` provider interface for RoamWise's real, currently-live
   checkout method (manual UPI/UTR entry, the same flow `plan-picker.js`'s
-  UI drives) — this is the provider actually wired up in production via
-  `index.html`'s script order (`gateway-adapter.js` loads first, then this
-  file registers itself with it).
+  UI drives) — reached via `RWPaymentGateway.provider('manual_upi')` as a
+  permanent baseline for every purchase category (see `gateway-adapter.js`
+  above), not via `current()`.
+- `cashfree-adapter.js` (160 lines) — implements the `RWPaymentGateway`
+  provider interface for Cashfree, a real payment gateway (approved for
+  one-off/one-time payments only so far — see
+  `CASHFREE-INTEGRATION-SETUP.md`). Offered only for one-off-category
+  plans via `plan-picker.js`'s `payViaCashfree()`
+  (`RWPaymentGateway.provider('cashfree')`), gated on
+  `RW_PAYMENT_PROVIDER==='cashfree'`. On a confirmed `PAID` status (polled
+  from `worker/handlers/cashfree.js`'s status endpoint), calls
+  `grantPurchase()` (plan-picker.js) with the actual purchased plan id —
+  not a blanket Pro grant.
 - `mock-adapter.js` (39 lines) — a test-only mock provider implementation.
   Explicitly **not** wired into production: not referenced by
   `index.html`, and no config value ever resolves `RW_PAYMENT_PROVIDER` to
