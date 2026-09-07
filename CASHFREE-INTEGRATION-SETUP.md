@@ -190,13 +190,119 @@ Only after step 4 is fully green:
    Worker being live/configured doesn't by itself route any real user
    traffic to it.
 
+## Entitlement persistence (fixed — see trust model below)
+
+**The gap (found investigating PR #153's Founder-counter bug, fixed in the
+entitlement-persistence PR):** `grantPurchase()` (`js/payments/plan-picker.js`)
+only ever set **local** entitlement — `isPro`/localStorage — for a confirmed
+Cashfree purchase. It never wrote anything to Firestore. That meant:
+
+1. A customer who paid via Cashfree lost Pro the moment they cleared
+   browser storage, switched devices, or reinstalled the Android app — no
+   account-bound record of the purchase existed anywhere.
+2. Worse: `js/boot/auth-init.js`'s account-bound `users/{uid}` `onSnapshot`
+   listener runs on **every** sign-in/page load and force-sets `isPro=false`
+   the instant it sees Firestore has no `pro:true` and no live
+   `rw_pro_temp`/`rw_pro_temp_uid` grace window — so the local grant could
+   vanish on the **very next reload**, not just after a storage clear.
+   `manual-upi-adapter.js`'s `verifyPayment()` already avoids this for the
+   UTR-claim flow via a 24h `rw_pro_temp` grace window; Cashfree's
+   `grantPurchase()` call site never set one.
+3. The Founder-offer seat counter (`pricing/founder.count`) was also never
+   incremented for Cashfree-bought Founder seats — see PR #153, fixed
+   separately in `js/payments/providers/cashfree-adapter.js`.
+
+**The fix, and the trust model behind it:**
+
+- `js/payments/plan-picker.js`'s `grantPurchase()` now sets the same
+  `rw_pro_temp`/`rw_pro_temp_uid` 24h grace window `manual-upi-adapter.js`
+  already uses, so the local grant survives reloads while the durable record
+  below awaits admin approval (same mechanism, zero new logic).
+- `js/payments/providers/cashfree-adapter.js`'s `openCheckout()` now also
+  calls `_cfRecordOrder()` — a best-effort, non-blocking write of a
+  `cashfreeOrders/{orderId}` doc (`uid`, `cfOrderId`, `planId`, `amountINR`,
+  `status:'pending'`, `createdAt`) the instant the Worker's status-check
+  endpoint confirms `PAID`. This closes the "zero server-side record this
+  payment ever happened" gap immediately, even before anyone approves it.
+- **This does NOT let the buyer self-grant `users/{uid}.pro`.** The obvious
+  next move — a Firestore rule letting the buyer flip their own `pro:true`
+  once a `cashfreeOrders` doc exists — was deliberately **not** implemented,
+  because the one already-proven pattern in this repo that shape would
+  naturally mirror (`partnerClaims/{id}`'s self-service create, used by
+  `openPartnerRedeem()`) has a *documented, accepted, open* forgery risk:
+  `firestore.rules` explicitly notes that `create` on `partnerClaims/{id}`
+  has no auth requirement beyond field-shape validation, so **any** signed-in
+  caller can already invent a claim doc for an arbitrary code and self-redeem
+  it (v15.10 tried to close this, v15.11 reverted the fix because it broke
+  real NMIMS claim submissions — see `firestore.rules`' own changelog).
+  Cloning that shape onto a real-money purchase path would let anyone grant
+  themselves permanent Pro for ₹0 — strictly worse than the bug this PR
+  fixes. A **non-forgeable** self-service grant needs a `cashfreeOrders`
+  write that only a trusted server could have made — i.e.
+  `worker/handlers/cashfree.js`'s status-check endpoint writing that doc
+  itself via a Firestore REST call, authenticated with a **Firebase
+  Admin/service-account credential**. No such credential exists anywhere in
+  this repo today (checked: no `firebase-admin` dependency, no
+  service-account JSON, no OAuth2/JWT-signing code in `worker/` or
+  `payments/`).
+- Instead, `firestore.rules`' new `cashfreeOrders/{orderId}` block mirrors
+  **`claims/{id}`'s** proven shape (the manual-UPI/UTR flow): the buyer can
+  self-create a `status:'pending'` receipt bound to their own uid (bounded
+  amount/plan-id/order-id fields, doc ID pinned to the real Cashfree order
+  id so a second account can't hijack it), but **only an admin can update,
+  delete, or ever move it to `approved`** — and nothing in this collection
+  can touch `users/{uid}.pro` directly; that still only ever happens via the
+  pre-existing `isAdmin()` branch on `users/{uid}`, exercised through
+  `admin/index.html`'s existing, unmodified `saveManualPayment()` flow (the
+  same atomic user+claim+ledger+audit-log write manual UPI already uses).
+  `admin/index.html` gained a small "Pending Cashfree payments" panel
+  (`renderCashfreeQueue()`) so these receipts are actually visible to the
+  admin instead of sitting silently in Firestore.
+- **Net effect:** paying customers are no longer at risk of silently losing
+  Pro (closed immediately via the grace window + durable receipt), and the
+  security model stays exactly as strict as it was before this PR — zero new
+  client-writable path to `pro:true` was added. The remaining gap is
+  **speed**: entitlement persistence is now admin-approved (like manual UPI),
+  not instant/automatic (like the rest of the Cashfree flow). Closing that
+  last gap for real needs the follow-up below.
+
+### Follow-up: fully automatic, still-secure entitlement persistence
+
+To make Cashfree entitlement persistence fully automatic (no admin step),
+`worker/handlers/cashfree.js`'s `handleCashfreeOrderStatus()` needs to write
+the `cashfreeOrders/{orderId}` doc itself, server-side, the moment it
+confirms `PAID` with Cashfree — at which point `firestore.rules` could safely
+let the buyer read that Worker-authored doc and flip their own `pro:true` in
+response (a real, non-forgeable version of the pattern this PR intentionally
+did NOT build client-side-only). That requires:
+
+1. A **Firebase service-account JSON** provisioned as a new Worker secret
+   (`npx wrangler secret put FIREBASE_SERVICE_ACCOUNT`, e.g.) — generate one
+   from Firebase Console → Project Settings → Service Accounts.
+2. Worker-side code to mint a short-lived Google OAuth2 access token from
+   that service account (RS256-signed JWT bearer flow — Cloudflare Workers'
+   `crypto.subtle.sign` supports this; no `firebase-admin` npm package is
+   needed, just a fetch to `oauth2.googleapis.com/token`) and use it to call
+   the Firestore REST API (`PATCH .../documents/cashfreeOrders/{orderId}`).
+3. A `firestore.rules` update letting the buyer transition their own
+   `users/{uid}.pro` when a `cashfreeOrders/{orderId}` doc they own shows
+   `status:'PAID'` (Worker-authored) and `claimed:false`, flipping `claimed`
+   to `true` in the same write — mirroring `openPartnerRedeem()`'s
+   two-sequential-writes shape, but gated on a doc only the Worker could
+   have written, not a self-asserted one.
+
+This is real infrastructure work (a new secret + Worker-side crypto/HTTP
+code + a rules change), not a small addition — flagging it here rather than
+building it speculatively without the owner's service-account credential in
+hand.
+
 ## Known limitations to review before relying on this for real revenue
 
-- **Entitlement is granted client-side, gated on one status check.** The
-  adapter polls `GET /cashfree/order/:id/status` up to 3 times (1.5s apart)
-  right after checkout and calls `grantPurchase()` (the correct per-product
-  tier grant, not a blanket one — see "Subscription-vs-one-off gating"
-  above) the moment it sees `PAID`.
+- **Checkout confirmation is granted client-side, gated on one status
+  check.** The adapter polls `GET /cashfree/order/:id/status` up to 3 times
+  (1.5s apart) right after checkout and calls `grantPurchase()` (the correct
+  per-product tier grant, not a blanket one — see "Subscription-vs-one-off
+  gating" above) the moment it sees `PAID`.
   There is no Cashfree **webhook** wired up in this PR — `payments/`'s
   already-built `verifyCashfree()` webhook-signature verifier
   (`payments/webhook-verify.mjs`) is a natural next step if you want

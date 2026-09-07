@@ -242,7 +242,14 @@ term buyer gets full (`'elite'`-equivalent) access, exactly as promised.
   reinvented), so the tier granted always matches what was actually bought.
   This replaced an earlier version of this integration that called the
   blanket `activatePro()` for every Cashfree purchase regardless of
-  product — a real gap, now fixed.
+  product — a real gap, now fixed. `grantPurchase()` ALSO now sets a 24h
+  `rw_pro_temp`/`rw_pro_temp_uid` grace window (matching manual UPI's
+  `verifyPayment()`) and `openCheckout()` writes a durable, admin-approved
+  `cashfreeOrders/{orderId}` receipt — see CASHFREE-INTEGRATION-SETUP.md's
+  "Entitlement persistence" section and `firestore.rules`' `cashfreeOrders/
+  {orderId}` block for the full fix and its trust model (a real gap: this
+  local-only grant used to be the ONLY place Cashfree entitlement lived at
+  all).
 - `activatePro()` itself is unchanged and remains the correct call for the
   purchase paths that have no per-product concept at all: Gumroad's flat
   international offer (`js/payments/checkout.js`'s `verifyGumroad()`),
