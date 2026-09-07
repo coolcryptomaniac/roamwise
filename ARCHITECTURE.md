@@ -34,7 +34,9 @@ start of the modularization effort, down from 3,099 after the prior
 "modularization-final" pass, down from 1,207 after "round 4", and down from
 629 after "round 5" — the further changes since round 5 are incidental to
 unrelated feature PRs #138-143 and this pass's `submitUtr()` one-line
-rewire, not a new extraction round) and there are **137 files** under `js/`,
+rewire, not a new extraction round) and there are **138 files** under `js/`
+(137 as of PRs #138-143, plus `js/core/push-notifications.js` added by the
+push-notifications infrastructure pass — see the `js/core/` entry below),
 organized into **17 top-level subdirectories** (16 from round 5 plus the
 new `js/admin/`) plus one nested subdirectory (`js/payments/providers/`),
 plus **9 files** under `css/`. Two new top-level feature areas landed
@@ -54,7 +56,7 @@ Run `npm run mod-status` before trusting any of these numbers — it
 cross-checks this section's headline figures against the live repo and
 prints PASS/DRIFT per number in under a second.
 
-### `js/core/` — shared low-level utilities (7 files)
+### `js/core/` — shared low-level utilities (8 files)
 - `app-utils.js` — `rwHaptic`/`showToast`/`scrollToId`/`offerOpen`/
   `_doOpenNow`/`saveOrDownload`: generic, `onclick=`-invoked UI utilities
   that used to live in app.js under a "core utilities" label that
@@ -64,6 +66,15 @@ prints PASS/DRIFT per number in under a second.
 - `error-guard.js` — global `window.onerror`/error-boundary wiring
 - `include-partial.js` — lightweight static HTML partial includes
 - `overlay-stack.js` — shared modal/overlay z-index and back-button stack
+- `push-notifications.js` — unified web (Firebase Cloud Messaging) + Android
+  (Capacitor push-notifications plugin) opt-in and token registration;
+  writes `users/{uid}.pushTokens.{deviceId}` (tagged by platform), mounts
+  the Settings opt-in toggle. Relocated + rewritten from
+  `js/boot/init.js`'s `rwInitPush`/`rwSaveDeviceToken`/`rwInitWebPush` (see
+  the marker comments left there and in app.js) to add per-user opt-in
+  gating and the unified token schema — see PUSH-NOTIFICATIONS-SETUP.md.
+  Server-side send path lives in `worker/handlers/push.js` (admin-only,
+  not part of this app's classic-`<script>` chain).
 - `storage-utils.js` — `localStorage` read/write helpers
 - `text-utils.js` — string/text formatting + HTML-escaping helpers
 
@@ -419,11 +430,18 @@ opening/animation modules: `atlas-shinobi.js`, `audio-only.js`,
 ### `worker/` — optional Cloudflare Worker (not loaded by the app by default)
 `worker.js` is a thin entry point (routing table + `fetch()`/`scheduled()`
 dispatch only) that routes `/health`, `/ai` (Groq proxy), `/news`, `/events`,
-`/events/refresh`, `/geo` (Nominatim proxy), and `/leads` (OpenStreetMap-
-based partner lead finder) to per-route handlers under `worker/handlers/`
-(`health.js`, `ai.js`, `news.js`, `events.js`, `geo.js`, `leads.js`), plus
-shared HTTP helpers (`CORS`, `json`, `cached`, `EDGE`) in `worker/lib/http.js`,
-and runs a daily cron (`wrangler.toml`). See `FUTURE-ARCHITECTURE-PLAN.md`
+`/events/refresh`, `/geo` (Nominatim proxy), `/leads` (OpenStreetMap-
+based partner lead finder), `/cashfree/order`+`/cashfree/order/:id/status`
+(see `worker/handlers/cashfree.js`), and `/push/send` (admin-only FCM send —
+see `worker/handlers/push.js` and PUSH-NOTIFICATIONS-SETUP.md) to per-route
+handlers under `worker/handlers/` (`health.js`, `ai.js`, `news.js`,
+`events.js`, `geo.js`, `leads.js`, `cashfree.js`, `push.js`), plus shared
+HTTP helpers (`CORS`, `json`, `cached`, `EDGE`) in `worker/lib/http.js` and
+Google/Firebase auth helpers (`firebase-verify.js` — verifies a Firebase ID
+token via Google's JWKS, no Admin SDK needed; `service-account.js` — mints a
+service-account OAuth2 access token; `firestore-rest.js` — minimal Firestore
+REST reads/writes authenticated with that token) used only by `push.js`, and
+runs a daily cron (`wrangler.toml`). See `FUTURE-ARCHITECTURE-PLAN.md`
 for its role in the Cloudflare migration plan.
 
 Unlike the frontend's classic-`<script>`-tag / `app.js` constraint, this
