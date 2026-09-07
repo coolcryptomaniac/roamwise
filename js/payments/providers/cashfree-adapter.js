@@ -79,7 +79,7 @@ var CashfreeAdapter = {
 
   createOrder: function(amount, meta){
     meta = meta || {};
-    var shell = {amountINR: amount, planId: meta.planId, tierId: meta.tierId, label: meta.label, provider: 'cashfree', ready: false};
+    var shell = {amountINR: amount, planId: meta.planId, tierId: meta.tierId, label: meta.label, category: meta.category, provider: 'cashfree', ready: false};
     var endpoint = (typeof rwApi === 'function') ? rwApi('cashfree/order') : null;
     if(!endpoint){
       _cfOrderPromise = Promise.reject(new Error('Cashfree checkout is not configured on this deployment yet.'));
@@ -119,7 +119,7 @@ var CashfreeAdapter = {
     }).then(function(ready){
       var cashfree = Cashfree({mode: ready.environment === 'production' ? 'production' : 'sandbox'});
       return cashfree.checkout({paymentSessionId: ready.paymentSessionId, redirectTarget: '_modal'}).then(function(result){
-        return {result: result, orderId: ready.orderId};
+        return {result: result, orderId: ready.orderId, planId: ready.planId};
       });
     }).then(function(res){
       var result = res.result || {};
@@ -135,7 +135,18 @@ var CashfreeAdapter = {
       _cfConfirmPaid(res.orderId, 3).then(function(paid){
         if(paid){
           try{ track('cashfree_paid'); }catch(e){ /* analytics best-effort, ignore */ }
-          activatePro(res.orderId || 'cashfree', 'cashfree');
+          /* FULFILLMENT FIX: Cashfree's confirmation is real-time/automatic —
+             unlike the manual-UPI/UTR flow's honor-system admin approval,
+             there is no human review step before granting anything here, so
+             this MUST branch per what was actually purchased rather than a
+             single blanket Pro grant. grantPurchase() (js/payments/
+             plan-picker.js) is the exact same per-product fulfillment logic
+             the manual-UPI flow's instant provisional unlock already uses
+             (rwTierForPlan()) — reused here, not reinvented, so a Plus/Pro
+             monthly buyer gets exactly that tier and a Founder/long-term/
+             short-term buyer still gets full access, never the other way
+             around. */
+          grantPurchase(res.orderId || 'cashfree', 'cashfree', res.planId);
         } else {
           showToast('Payment is still processing with Cashfree — if it completed, Pro will unlock automatically shortly. Contact support if it does not.');
         }

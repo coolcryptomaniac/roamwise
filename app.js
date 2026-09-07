@@ -346,11 +346,17 @@ document.addEventListener('keydown', function(ev){
    Moved verbatim behind the pluggable payment gateway (this pass) — the
    full body (DOM reads, Firestore claim write, provisional unlock, admin
    notify) now lives in js/payments/providers/manual-upi-adapter.js's
-   verifyPayment(), reached via RWPaymentGateway.current(). This wrapper
-   keeps the exact same global name submitUtr() that #utrBtn's
-   onclick="submitUtr()" in index.html calls. */
+   verifyPayment(). This wrapper keeps the exact same global name
+   submitUtr() that #utrBtn's onclick="submitUtr()" in index.html calls.
+   SUBSCRIPTION-VS-ONE-OFF GATING: calls the manual-UPI adapter directly
+   (RWPaymentGateway.provider('manual_upi')) rather than RWPaymentGateway.
+   current() — the UTR box is manual-UPI-specific UI shown for every
+   purchase, and RW_PAYMENT_PROVIDER may now resolve to 'cashfree' (which
+   has no verifyPayment() at all), so routing through current() would
+   silently no-op this button once Cashfree is turned on. See
+   js/payments/gateway-adapter.js's header for the fuller rationale. */
 function submitUtr(){
-  RWPaymentGateway.verifyPayment();
+  RWPaymentGateway.provider('manual_upi').verifyPayment();
 }
 
 // Moved to js/ui/adaptive-shell.js (Phase 5b) — adaptive shell + RW icon system (IS_APP/IS_STANDALONE/IS_TOUCH_MOBILE, applyShell, rwSetIconTheme, openIconThemePicker, rwIcon, RW_ICON_PATHS)

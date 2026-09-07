@@ -76,7 +76,30 @@
    the same Firestore remote-config doc + apply pattern every other
    owner-controlled flag in this app already uses (see js/boot/init.js's
    applyRemoteConfig) — and defaults to 'manual_upi', today's real behavior,
-   so an unset flag changes nothing. */
+   so an unset flag changes nothing.
+
+   SUBSCRIPTION-VS-ONE-OFF GATING (added alongside the Cashfree integration):
+   Cashfree is approved for one-off/one-time payments only — recurring
+   subscription payments are NOT yet approved on this merchant account (see
+   PAYMENT-GATEWAY-ARCHITECTURE.md and CASHFREE-INTEGRATION-SETUP.md). Manual
+   UPI must also stay a genuine, always-offered choice, not something a
+   single admin flag can silently replace. Because of this, `RWPaymentGateway.
+   current()`'s "one active provider for everything" model is no longer what
+   js/payments/plan-picker.js's real checkout flow uses for its two concrete
+   gateways: manual UPI is called directly via `RWPaymentGateway.
+   provider('manual_upi')` (a permanent baseline, every purchase category),
+   and Cashfree is offered as an explicit ADDITIONAL option, via
+   `RWPaymentGateway.provider('cashfree')`, only when `RW_PAYMENT_PROVIDER
+   === 'cashfree'` (the existing "Cashfree is turned on" flag) AND the
+   selected plan's category is 'oneoff' — see plan-picker.js's pickPlan()/
+   _renderCashfreeOption(). The register()/current() facade below is left
+   fully intact for a hypothetical FUTURE n-th provider that wants the
+   original simple single-active-provider swap semantics (and is still
+   covered by tests/payment-gateway-adapter.test.js) — it just isn't how
+   THIS app's two real gateways are wired together into the pay modal
+   anymore. See PAYMENT-GATEWAY-ARCHITECTURE.md's "Subscription vs. one-off
+   gating" section for the "how to lift this once subscriptions are
+   approved" note. */
 
 var RW_PAYMENT_PROVIDER = 'manual_upi';
 var RW_PAYMENT_ADAPTERS = {};
@@ -94,6 +117,18 @@ var RWPaymentGateway = {
      — never a hard failure that would block checkout. */
   current: function(){
     return RW_PAYMENT_ADAPTERS[RW_PAYMENT_PROVIDER] || RW_PAYMENT_ADAPTERS.manual_upi || null;
+  },
+
+  /* Fetches ONE SPECIFIC registered adapter by id, bypassing RW_PAYMENT_
+     PROVIDER/current() entirely — added for the subscription-vs-one-off
+     gating pass, where the checkout UI needs to hold two adapters
+     (manual UPI + Cashfree) available at once rather than a single "current"
+     one. Returns null if that id never registered (e.g. Cashfree's script
+     tag was removed from index.html, or it's a deployment where the Worker
+     endpoint isn't configured) — every caller already treats a missing
+     adapter as "this option isn't available", never a hard failure. */
+  provider: function(id){
+    return RW_PAYMENT_ADAPTERS[id] || null;
   },
 
   createOrder: function(amount, meta){

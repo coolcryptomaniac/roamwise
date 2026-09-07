@@ -17,16 +17,27 @@
      - app.js: submitUtr()'s full body, and the `var qrBuilt = false;`
        declaration that used to sit in app.js's top-of-file state block
        (see the one-line marker left at each original location).
-   plan-picker.js's payVia()/buildQR()/pickPlan() and app.js's submitUtr()
-   are now thin wrappers that call RWPaymentGateway, which resolves to this
-   adapter by default (config/app.PAYMENT_PROVIDER unset -> 'manual_upi').
-   The public, onclick="..."-referenced function names (payVia, buildQR,
-   pickPlan, submitUtr) are unchanged — only what runs inside them moved.
+   plan-picker.js's payVia()/buildQR()/pickPlan() call this adapter directly
+   (RWPaymentGateway.provider('manual_upi') — manual UPI is a permanent,
+   always-offered baseline, never swapped out by RW_PAYMENT_PROVIDER; see
+   gateway-adapter.js's header for why, added in the subscription-vs-one-off
+   Cashfree gating pass) and app.js's submitUtr() is a thin wrapper around
+   this adapter's verifyPayment(). The public, onclick="..."-referenced
+   function names (payVia, buildQR, pickPlan, submitUtr) are unchanged —
+   only what runs inside them moved.
 
-   Depends on runtime globals from app.js / js/pricing/tiers.js / js/pricing/
-   referral.js (el, showToast, requireLogin, IS_TOUCH_MOBILE, IS_APP, user,
-   db, AUTH_READY, isPro, lsSet, track, closePay, refreshProUI, rwRefStamp,
-   rwRefLookup, OWNER_NOTIFY_EMAIL, firebase, QRCode) and on _selectedPlan
+   SUBSEQUENT CHANGE (Cashfree fulfillment-gap fix): verifyPayment()'s
+   per-product tier derivation (which RWPricing tier a specific purchased
+   plan grants) was extracted into js/payments/plan-picker.js's
+   rwTierForPlan() so Cashfree's real-time PAID confirmation can reuse the
+   exact same, proven logic instead of a blanket Pro grant — see that
+   function's header. Zero behavior change here: same inputs, same outputs.
+
+   Depends on runtime globals from app.js / js/pricing/subscription-plans.js
+   + one-off-plans.js / js/pricing/referral.js (el, showToast, requireLogin,
+   IS_TOUCH_MOBILE, IS_APP, user, db, AUTH_READY, isPro, lsSet, track,
+   closePay, refreshProUI, rwRefStamp, rwRefLookup, OWNER_NOTIFY_EMAIL,
+   firebase, QRCode) and on _selectedPlan/rwTierForPlan
    (js/payments/plan-picker.js) — all resolved at call time, same
    cross-file pattern this codebase already relies on throughout the
    modularization (see plan-picker.js's own header comment). */
@@ -50,7 +61,7 @@ var ManualUpiAdapter = {
     UPI_NAME = 'RoamWise ' + (meta.label || '');
     qrBuilt = false; /* force QR rebuild for the new amount */
     var qc = el('qrcode'); if(qc) qc.innerHTML='';
-    return {amountINR: amount, vpa: UPI_VPA, name: UPI_NAME, planId: meta.planId, tierId: meta.tierId, label: meta.label};
+    return {amountINR: amount, vpa: UPI_VPA, name: UPI_NAME, planId: meta.planId, tierId: meta.tierId, label: meta.label, category: meta.category};
   },
 
   /* Moved verbatim from plan-picker.js's buildQR(). `order` is accepted for
@@ -145,15 +156,12 @@ var ManualUpiAdapter = {
         lsSet('rw_pro_temp_uid', user.uid);
         /* Store which plan was actually bought so RWPricing.currentTier() reflects
            it correctly — a founder/legacy buyer is 'elite' forever as promised;
-           anyone buying a specific tier gets exactly that tier, not everything. */
-        var boughtTierId = 'elite'; /* default: founder / long-term / short-term passes all grant full access */
-        if(_selectedPlan){
-          var pid = _selectedPlan.id;
-          if(pid.indexOf('plus')===0) boughtTierId='plus';
-          else if(pid.indexOf('pro')===0) boughtTierId='pro';
-          else if(pid.indexOf('elite')===0) boughtTierId='elite';
-        }
-        lsSet('rw_tier', boughtTierId);
+           anyone buying a specific tier gets exactly that tier, not everything.
+           rwTierForPlan() (js/payments/plan-picker.js) is this exact branching
+           logic, extracted so any other confirmed-payment path (e.g. Cashfree's
+           real-time PAID check) can share it instead of re-deriving it —
+           zero behavior change here, same lookup, same result. */
+        lsSet('rw_tier', rwTierForPlan(_selectedPlan && _selectedPlan.id));
         isPro=true; lsSet('rwPro','1'); lsSet('rw_pro_uid',user.uid); refreshProUI();
         say('🎉 Pro unlocked INSTANTLY for your account! Verification completes in the background — nothing more to do.', true);
       } else {

@@ -1048,6 +1048,20 @@ function rwDismissCreatorBanner(){
         <div id="planHeader" style="font-size:13px;font-weight:700;color:var(--gold2)"></div>
       </div>
       <div class="features-grid" id="planFeatures"></div>
+      <!-- Cashfree: an ADDITIONAL, one-off-purchase-only checkout option —
+           hidden by default and only shown/populated by pickPlan() ->
+           _renderCashfreeOption() (js/payments/plan-picker.js) when both
+           (a) the selected plan is a one-off/one-time purchase, not a
+           recurring subscription (Cashfree isn't approved for those yet —
+           see PAYMENT-GATEWAY-ARCHITECTURE.md), and (b) an admin has turned
+           Cashfree on. Manual UPI below is never hidden by this — it stays
+           a genuine choice for every purchase, subscription or one-off. -->
+      <div id="cashfreeOption" style="display:none;margin-bottom:12px">
+        <div class="section-label">&#9889; Instant checkout &mdash; cards / UPI / netbanking via Cashfree</div>
+        <button class="upi-any" onclick="payViaCashfree()">&#128179; Pay via Cashfree &mdash; instant, automatic unlock</button>
+        <div class="upi-note">Secured by Cashfree, a licensed payment aggregator. Available for one-time purchases only, for now.</div>
+        <div class="divider-or">or pay directly below &mdash; zero middlemen, zero extra fees</div>
+      </div>
       <div class="section-label">&#129399; Pay directly &mdash; zero middlemen, zero extra fees</div>
       <div class="upi-apps">
         <button class="upi-app phonepe" onclick="payVia('phonepe')"><span class="ua-ic" style="background:#fff"><svg width="18" height="18" viewBox="0 0 24 24"><circle cx="12" cy="12" r="12" fill="#5F259F"/><text x="12" y="16.5" text-anchor="middle" font-family="Arial" font-weight="bold" font-size="11" fill="#fff">&#2346;&#2375;</text></svg></span>PhonePe</button>
