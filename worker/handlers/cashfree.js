@@ -34,8 +34,14 @@
    Cashfree order_amount is a decimal amount in the currency's major unit
    (rupees), not paise — matches this app's existing amount convention
    (js/payments/gateway-adapter.js: "this app has only ever dealt in plain
-   rupees"), so no unit conversion happens here. */
+   rupees"), so no unit conversion happens here.
+
+   PRICE INTEGRITY: the `amount` this endpoint is asked to charge is
+   validated against worker/lib/pricing.js's server-side price table for the
+   request's `meta.planId` before Cashfree is ever called — see that file's
+   header for the exact price-tampering exploit this closes. */
 import { json } from '../lib/http.js';
+import { priceForPlan } from '../lib/pricing.js';
 
 const SANDBOX_BASE = 'https://sandbox.cashfree.com';
 const LIVE_BASE = 'https://api.cashfree.com';
@@ -78,6 +84,19 @@ export async function handleCashfreeOrder(request, env){
   }
 
   const meta = (body && body.meta) || {};
+
+  /* PRICE INTEGRITY (see this file's header + worker/lib/pricing.js): never
+     trust the client-supplied `amount` — look up the real price for the
+     claimed plan and reject anything that doesn't match exactly, BEFORE an
+     order (and a real, chargeable payment_session_id) is ever created. */
+  const knownPrice = priceForPlan(meta.planId);
+  if(knownPrice == null){
+    return json({ error: 'unknown_plan', message: 'Could not verify the price for this plan.' }, 400);
+  }
+  if(amount !== knownPrice){
+    return json({ error: 'amount_mismatch', message: 'The submitted amount does not match this plan’s real price.' }, 400);
+  }
+
   const orderId = 'rw_' + safeId(Date.now() + '_' + Math.random().toString(36).slice(2, 8));
 
   const orderBody = {
