@@ -31,7 +31,7 @@ function openPdfFlow(T, name, days, month){
     document.body.appendChild(ov);
   }
   var payBlock = isPro ? '<button class="rzp-main-btn" onclick="genPdf()">\u2728 Generate my PDF (free with Pro)</button>'
-    : '<div class="mode-box" style="margin-bottom:10px">\ud83d\udcb0 <b>\u20b910 one-off</b> \u2014 or free with Pro. Pay via any UPI app to <b>coolmohit@ybl</b>, then tap generate.</div>'
+    : '<div class="mode-box" style="margin-bottom:10px">\ud83d\udcb0 <b>\u20b910 one-off</b> \u2014 or free with Pro. Pay via any UPI app to <b>roamwise@ybl</b>, then tap generate.</div>'
       +'<div style="display:flex;gap:7px;margin-bottom:10px"><button class="tact" style="flex:1" onclick="payVia(\'generic10\')">\ud83d\udcb3 Pay \u20b910 via UPI</button></div>'
       +'<button class="rzp-main-btn" onclick="track(\'pdf_paid\');genPdf()">\u2705 I\u2019ve paid \u20b910 \u2014 Generate full PDF</button>'
       +'<div style="text-align:center;margin:10px 0 4px;font-size:11px;color:var(--t3)">\u2014 or try it first \u2014</div>'

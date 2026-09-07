@@ -17,7 +17,7 @@ The setup that works, in order:
 
 ## 1. Why not personal UPI
 
-You are currently taking payments on `coolmohit@ybl`. That works at ten
+You are currently taking payments on `roamwise@ybl`. That works at ten
 payments a month and breaks at a hundred, for four reasons:
 
 - **Tax.** Personal and business income mixed in one account is very hard to
@@ -26,7 +26,7 @@ payments a month and breaks at a hundred, for four reasons:
   does not tell you which order it was for.
 - **Limits.** Personal UPI caps (typically ₹1 lakh/day) will eventually block a
   legitimate sale.
-- **It looks amateur.** "Pay coolmohit@ybl" costs you conversions on a ₹15,000
+- **It looks amateur.** "Pay roamwise@ybl" costs you conversions on a ₹15,000
   trek booking, whatever the product is worth.
 
 ---
@@ -144,7 +144,7 @@ exports and the gateway's read-only dashboard.
 
 1. **Udyam registration** — free, 10 minutes, today
 2. **Current account** with a bank offering a good statement export
-3. **Business UPI handle** on that account, replace `coolmohit@ybl` everywhere
+3. **Business UPI handle** on that account, replace `roamwise@ybl` everywhere
 4. **Zoho Books** free tier, connect the bank feed
 5. **Finance intern** gets Zoho Staff access + the `/staff` board
 6. **Razorpay** when manual matching costs you more than an hour a week

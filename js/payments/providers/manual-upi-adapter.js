@@ -31,7 +31,7 @@
    cross-file pattern this codebase already relies on throughout the
    modularization (see plan-picker.js's own header comment). */
 
-var UPI_VPA = 'coolmohit@ybl', UPI_NAME = 'RoamWise Pro', UPI_AMT = '100';
+var UPI_VPA = 'roamwise@ybl', UPI_NAME = 'RoamWise Pro', UPI_AMT = '100';
 var qrBuilt = false;
 var _qrBuiltAmt = null;
 
@@ -83,7 +83,7 @@ var ManualUpiAdapter = {
     if(method==='phonepe') deep = 'phonepe://pay?' + _upiParams();
     if(method==='whatsapp') {
       deep = generic;
-      showToast('If WhatsApp is not in the picker: WhatsApp → any chat → 📎 → Payment → pay ₹100 to coolmohit@ybl');
+      showToast('If WhatsApp is not in the picker: WhatsApp → any chat → 📎 → Payment → pay ₹100 to roamwise@ybl');
     }
     var t0 = Date.now();
     /* try the app-specific scheme; if nothing handles it in ~1.2s, fall back to the generic UPI chooser */

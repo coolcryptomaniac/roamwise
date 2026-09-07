@@ -198,7 +198,7 @@ business decisions:
   (each wrapped method still calls straight through to the real
   implementation). Confirmed the real onclick chain reaches
   `RWPaymentGateway.current()` (`manual_upi`) with the exact order
-  (`amountINR:99`, `vpa:'coolmohit@ybl'`, `name:'RoamWise Plus Monthly'`,
+  (`amountINR:99`, `vpa:'roamwise@ybl'`, `name:'RoamWise Plus Monthly'`,
   `planId:'plus_m'`, `tierId:'plus'`, `label:'Plus Monthly'`) and method
   (`'any'`) the picked plan implies, with zero uncaught JS errors. Firebase
   network calls were blocked for this run (using the offline-degradation
