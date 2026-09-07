@@ -20,7 +20,7 @@ function openMovie(){
   if(!ov){ ov=document.createElement('div'); ov.id='movOverlay'; ov.className='overlay';
     ov.innerHTML='<div class="modal" style="max-width:400px"><button class="modal-close" onclick="el(\'movOverlay\').classList.remove(\'open\')">\u00d7</button>'
     +'<div class="modal-head"><div class="modal-title">\ud83c\udfac Journey Film</div><div class="modal-sub">5-second chapters \u00b7 a plane flies your route \u00b7 music</div></div>'
-    +'<div class="modal-body"><div class="mode-box" style="margin-bottom:10px">\ud83d\udcb0 <b>\u20b950 one-off</b> \u2014 or free with Pro. Pay via any UPI app to <b>coolmohit@ybl</b>, then render.</div>'
+    +'<div class="modal-body"><div class="mode-box" style="margin-bottom:10px">\ud83d\udcb0 <b>\u20b950 one-off</b> \u2014 or free with Pro. Pay via any UPI app to <b>roamwise@ybl</b>, then render.</div>'
     +'<button class="tact" style="width:100%;margin-bottom:8px" onclick="payVia(\'generic50\')">\ud83d\udcb3 Pay \u20b950 via UPI</button>'
     +'<button class="rzp-main-btn" onclick="lsSet(\'rw_movie_ok\',\'1\');el(\'movOverlay\').classList.remove(\'open\');cineRender()">\u2705 I\u2019ve paid \u20b950 \u2014 Render my movie</button>'
     +'<div style="font-size:10px;color:var(--t3);text-align:center;margin-top:6px">Honor system \u2014 you\u2019re funding a solo Himalayan builder \ud83c\udfd4\ufe0f</div></div></div>';

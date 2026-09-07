@@ -86,7 +86,7 @@ window.RW_BOOK_TERMS = {
   commissionPct: 8,
   otaRange: '15-25%',
   desk: '',                 /* RoamWise fallback WhatsApp, digits only */
-  deskUpi: 'coolmohit@ybl', /* used only if a property has no UPI of its own */
+  deskUpi: 'roamwise@ybl', /* used only if a property has no UPI of its own */
   promise: [
     'The guest pays the property directly. We never hold your money.',
     'We invoice 8% after the guest has checked out. Nothing is deducted upfront.',

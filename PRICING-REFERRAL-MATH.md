@@ -153,7 +153,7 @@ Net % = 100% − 30% − 2.36% − 5.4% = **62.24%** of the listed price.
 commission rate, hold period and payout floor, not any payment-rail terms):**
 
 **Caveat: this 0% figure is not yet live.** `app.js` currently routes payment
-to the personal UPI handle `coolmohit@ybl` (see `UPI_VPA` in `app.js` and
+to the personal UPI handle `roamwise@ybl` (see `UPI_VPA` in `app.js` and
 `BUSINESS-FINANCE-SETUP.md` §1, which explicitly warns against running
 business money through it). The 0% assumption only holds once/if a registered
 business UPI handle (e.g. `roamwise@icici`) is configured; personal UPI has no

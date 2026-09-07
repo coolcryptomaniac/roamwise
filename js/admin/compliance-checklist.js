@@ -41,7 +41,7 @@ var RWComplianceChecklist = (function(){
       id: 'business_upi_separation',
       label: 'Business payments run through a registered business UPI/current account, not personal UPI',
       defaultStatus: 'open',
-      evidence: 'BUSINESS-FINANCE-SETUP.md §1 + PRICING-REFERRAL-MATH.md §2: app.js still routes to the personal handle coolmohit@ybl as of this writing.'
+      evidence: 'BUSINESS-FINANCE-SETUP.md §1 + PRICING-REFERRAL-MATH.md §2: app.js still routes to the personal handle roamwise@ybl as of this writing.'
     },
     {
       id: 'gst_registration',

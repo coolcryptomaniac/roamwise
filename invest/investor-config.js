@@ -6,7 +6,7 @@ window.RW_INVEST = {
 
   /* Set these from the admin panel. Left blank the section shows nothing.
      This is a tip jar, NOT a security — no equity, no claim, no rights. */
-  crypto: { eth:'', btc:'', upi:'coolmohit@ybl' },
+  crypto: { eth:'', btc:'', upi:'roamwise@ybl' },
 
   classes: [
     { id:'community', label:'Community backer', icon:'🌱', min:10000, max:200000,

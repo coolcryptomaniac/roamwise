@@ -208,17 +208,17 @@ test("payVia('generic50')/payVia('generic10') (the standalone Journey-Movie/PDF-
   const ctx = loadPlanPicker();
   // Deliberately do NOT touch RWPaymentGateway's registration here — these
   // two branches must never reach it, using only the live UPI_VPA/UPI_NAME
-  // globals manual-upi-adapter.js declares (defaults: 'coolmohit@ybl' /
+  // globals manual-upi-adapter.js declares (defaults: 'roamwise@ybl' /
   // 'RoamWise Pro'), exactly like the original inline code did.
   const spyAdapter = ctx.RWMockPaymentAdapter();
   ctx.RWPaymentGateway.register('manual_upi', spyAdapter);
   ctx.location = {href: ''};
 
   ctx.payVia('generic50');
-  assert.equal(ctx.location.href, 'upi://pay?pa=coolmohit@ybl&pn=' + encodeURIComponent('RoamWise Pro') + '&am=50&cu=INR&tn=RoamWise%20Movie');
+  assert.equal(ctx.location.href, 'upi://pay?pa=roamwise@ybl&pn=' + encodeURIComponent('RoamWise Pro') + '&am=50&cu=INR&tn=RoamWise%20Movie');
 
   ctx.payVia('generic10');
-  assert.equal(ctx.location.href, 'upi://pay?pa=coolmohit@ybl&pn=' + encodeURIComponent('RoamWise Pro') + '&am=10&cu=INR&tn=RoamWise%20PDF');
+  assert.equal(ctx.location.href, 'upi://pay?pa=roamwise@ybl&pn=' + encodeURIComponent('RoamWise Pro') + '&am=10&cu=INR&tn=RoamWise%20PDF');
 
   assert.equal(spyAdapter.calls.openCheckout.length, 0, 'generic50/generic10 must never reach the gateway adapter');
 });
