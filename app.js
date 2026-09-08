@@ -14,7 +14,7 @@
 
 // LS, lsGet, lsSet moved to js/core/storage-utils.js
 
-// PUSH + LOCAL NOTIFICATIONS (rwInitPush/rwSaveDeviceToken/rwLocalNotifySchedule) moved to js/boot/init.js
+// PUSH (rwInitPush/rwSaveDeviceToken) moved to js/boot/init.js, then on to js/core/push-notifications.js; LOCAL NOTIFICATIONS (rwLocalNotifySchedule) stayed in js/boot/init.js
 
 
 
@@ -435,7 +435,7 @@ applyRegionUI();
 
 
 
-// WEB PUSH (rwInitWebPush) moved to js/boot/init.js
+// WEB PUSH (rwInitWebPush) moved to js/boot/init.js, then on to js/core/push-notifications.js
 
 // Realms of Roam / Journey Passport game system moved to js/game/realms.js
 

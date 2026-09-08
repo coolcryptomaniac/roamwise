@@ -27,10 +27,15 @@ id = "PASTE_THE_ID_HERE"   # <-- the ONLY line you edit in this file
 #   npx wrangler secret put REFRESH_TOKEN     # recommended: protects /events/refresh
 #   npx wrangler secret put CASHFREE_APP_ID       # optional: enables /cashfree/order
 #   npx wrangler secret put CASHFREE_SECRET_KEY   # optional: enables /cashfree/order
+#   npx wrangler secret put FIREBASE_SERVICE_ACCOUNT_JSON  # optional: enables POST /push/send
 #
 # All are OPTIONAL. /health tells you which are actually configured. See
 # CASHFREE-INTEGRATION-SETUP.md for the exact Cashfree setup walkthrough
-# (sandbox vs live, the Firestore config flag that turns it on for users).
+# (sandbox vs live, the Firestore config flag that turns it on for users) and
+# PUSH-NOTIFICATIONS-SETUP.md for the push-notification setup walkthrough
+# (FIREBASE_SERVICE_ACCOUNT_JSON is the full service-account JSON key file's
+# contents, pasted as one secret value — never a plaintext value in this
+# file, and never shipped to the browser; see worker/lib/service-account.js).
 # ---------------------------------------------------------------------------
 
 # ---------------------------------------------------------------------------

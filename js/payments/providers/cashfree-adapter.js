@@ -147,6 +147,34 @@ var CashfreeAdapter = {
              short-term buyer still gets full access, never the other way
              around. */
           grantPurchase(res.orderId || 'cashfree', 'cashfree', res.planId);
+          /* FOUNDER SEAT COUNTING BUG FIX (2026-09-07): a Founder-offer seat
+             bought through Cashfree is still one of the shared 1,000
+             lifetime-Pro seats — it must count against that pool, same as
+             the admin-manual-payment and NMIMS-partner-redemption paths
+             already do (js/pricing/founder-seats.js). Before this, NOTHING
+             in the Cashfree flow ever touched pricing/founder.count: this is
+             a real-time, server-confirmed (_cfConfirmPaid()) purchase with
+             no human review step, so it was never routed through the admin
+             console's saveManualPayment() — the only other place this
+             counter moves. Once Cashfree was gated on for one-off purchases
+             (which includes the Founder offer — see plan-picker.js's
+             renderPlanGrid()), every Founder seat sold this way was
+             invisible to the PUBLIC seats-left counter, making the offer
+             look far more open than reality (e.g. showing "999 left" when
+             real paid seats — some via Cashfree, uncounted — already put it
+             at 995 or lower). Same firestore.rules carve-out
+             openPartnerRedeem() already uses (pricing/{doc} allows a
+             signed-in user to move ONLY 'founder'.count, ONLY by exactly
+             +1) — no rules change needed. Best-effort and non-blocking: Pro
+             is already granted by grantPurchase() above, so a failure here
+             must never undo or block that — it would only leave the PUBLIC
+             counter briefly stale, which self-corrects on the next
+             successful sale or admin repair. */
+          if(res.planId === 'founder' && typeof db !== 'undefined' && db){
+            db.collection('pricing').doc('founder').update({
+              count: firebase.firestore.FieldValue.increment(1)
+            }).catch(function(){});
+          }
         } else {
           showToast('Payment is still processing with Cashfree — if it completed, Pro will unlock automatically shortly. Contact support if it does not.');
         }

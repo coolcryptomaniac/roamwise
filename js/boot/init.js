@@ -8,18 +8,19 @@
    inside app.js's own execution stream. This preserves their relative
    registration order against every other DOMContentLoaded/readystatechange
    listener in the app (all of which fire in registration order):
-     1. PUSH + LOCAL NOTIFICATIONS (rwInitPush/rwSaveDeviceToken/
-        rwLocalNotifySchedule) — called by the central boot handler below.
+     1. PUSH (rwPushInit and friends) — relocated to js/core/push-notifications.js
+        (see the marker below); LOCAL NOTIFICATIONS (rwLocalNotifySchedule)
+        stay here — called by the central boot handler below.
      2. Deep-link-on-first-load DOMContentLoaded handler.
      3. Main page-render DOMContentLoaded handler (device/lang/theme init,
         home page declutter/reveal wiring).
      4. #tmode select change-listener DOMContentLoaded handler.
      5. Central boot DOMContentLoaded handler — applies the UI mode/scale,
         renders the tab bar, triggers the cinematic opening or onboarding,
-        initializes the status bar/back button, and lazily kicks off native
-        + web push registration and TTS voice warm-up.
-     6. WEB PUSH (rwInitWebPush) — browser notification registration,
-        called by #5 above.
+        initializes the status bar/back button, and lazily kicks off push
+        registration and TTS voice warm-up.
+     6. WEB PUSH — relocated to js/core/push-notifications.js (see the
+        marker below), called by #5 above.
      7. PWA — service worker registration + install-prompt UI (Android/
         Chrome real prompt, iOS Safari manual instructions).
      8. REMOTE CONFIG — fetches owner-only config (affiliate IDs, WhatsApp
@@ -37,39 +38,13 @@
    deferred immediately before app.js so `user`/`db`/`AUTH_READY` exist as
    globals before app.js (and this file, which loads after it) run. */
 
-/* ================= PUSH + LOCAL NOTIFICATIONS (rw-v42) =================
-   PUSH: registers the device with Firebase Cloud Messaging (via Capacitor's
-   push-notifications plugin) and stores the token against the signed-in user.
-   This means notifications can be sent to all users FREE, straight from the
-   Firebase Console's Notification composer \u2014 no custom backend needed.
-   LOCAL: upgrades Tusk's "Remind me" from a setTimeout (dies if the app
-   closes) to a real OS-scheduled notification that fires even when closed.
-   ========================================================================== */
-function rwInitPush(){
-  if(!(window.Capacitor && Capacitor.Plugins && Capacitor.Plugins.PushNotifications)) return;
-  var PN=Capacitor.Plugins.PushNotifications;
-  try{
-    PN.checkPermissions().then(function(p){
-      if(p.receive==='granted') return true;
-      return PN.requestPermissions().then(function(r){ return r.receive==='granted'; });
-    }).then(function(ok){
-      if(!ok) return;
-      PN.register();
-      PN.addListener('registration', function(tok){
-        try{ rwSaveDeviceToken(tok.value); }catch(e){ /* best-effort, ignore */ }
-      });
-      PN.addListener('registrationError', function(){ /* silent \u2014 push is a bonus, never blocks the app */ });
-      PN.addListener('pushNotificationReceived', function(n){
-        try{ showToast('\ud83d\udce3 '+(n.title||'RoamWise')+(n.body?': '+n.body:'')); }catch(e){ /* toast is a nice-to-have, ignore */ }
-      });
-      PN.addListener('pushNotificationActionPerformed', function(){ try{ tabGo('home'); }catch(e){ /* best-effort nav helper, ignore */ } });
-    }).catch(function(){});
-  }catch(e){ /* toast is a nice-to-have, ignore */ }
-}
-function rwSaveDeviceToken(token){
-  if(!token || !user || typeof db==='undefined' || !db) return;
-  db.collection('users').doc(user.uid).set({ pushToken: token, pushTokenAt: firebase.firestore.FieldValue.serverTimestamp() }, {merge:true}).catch(function(){});
-}
+/* PUSH (rwInitPush/rwSaveDeviceToken/rwInitWebPush, rw-v42) relocated to
+   js/core/push-notifications.js and rewritten there to add per-user opt-in
+   gating + a unified pushTokens map (web + Android tagged by platform,
+   instead of two separate top-level fields) \u2014 see PUSH-NOTIFICATIONS-SETUP.md
+   and that file's header comment for the full rationale. That file loads
+   before this one (see index.html), so rwPushInit() below is already a real
+   global by the time the central boot handler calls it. */
 /* Local notification, upgraded from the old setTimeout-only version. Falls
    back to the JS timer + chime when running outside the app (web/PWA). */
 function rwLocalNotifySchedule(what, mins){
@@ -170,30 +145,11 @@ document.addEventListener('DOMContentLoaded', function(){
 });
 
 
-document.addEventListener('DOMContentLoaded', function(){ try{ rwApplyMode(); }catch(e){ /* best-effort, ignore */ } try{ rwApplyUIScale(); }catch(e){ /* best-effort, ignore */ } try{ renderTabbar(); }catch(e){ console.warn('tabbar', e); } try{ setTimeout(function(){ if(!rwOpeningSeen()) rwOpeningShow(); else rwMaybeOnboard(); }, 700); }catch(e){ /* best-effort, ignore */ } try{ rwInitStatusBar(); }catch(e){ /* best-effort, ignore */ } try{ rwInitBackButton(); }catch(e){ /* best-effort, ignore */ } try{ setTimeout(rwInitPush, 1500); }catch(e){ /* best-effort, ignore */ } try{ setTimeout(rwInitWebPush, 2200); }catch(e){ /* best-effort, ignore */ } /* warm up the voice list early so it's ready by the time tuskSpeak() needs it */ try{ if(window.speechSynthesis){ speechSynthesis.getVoices(); speechSynthesis.addEventListener('voiceschanged', function(){ try{ speechSynthesis.getVoices(); }catch(e){ /* voice narration best-effort, ignore */ } }, {once:true}); } }catch(e){ /* voice narration best-effort, ignore */ } });
+document.addEventListener('DOMContentLoaded', function(){ try{ rwApplyMode(); }catch(e){ /* best-effort, ignore */ } try{ rwApplyUIScale(); }catch(e){ /* best-effort, ignore */ } try{ renderTabbar(); }catch(e){ console.warn('tabbar', e); } try{ setTimeout(function(){ if(!rwOpeningSeen()) rwOpeningShow(); else rwMaybeOnboard(); }, 700); }catch(e){ /* best-effort, ignore */ } try{ rwInitStatusBar(); }catch(e){ /* best-effort, ignore */ } try{ rwInitBackButton(); }catch(e){ /* best-effort, ignore */ } try{ setTimeout(rwPushInit, 1500); }catch(e){ /* best-effort, ignore */ } /* warm up the voice list early so it's ready by the time tuskSpeak() needs it */ try{ if(window.speechSynthesis){ speechSynthesis.getVoices(); speechSynthesis.addEventListener('voiceschanged', function(){ try{ speechSynthesis.getVoices(); }catch(e){ /* voice narration best-effort, ignore */ } }, {once:true}); } }catch(e){ /* voice narration best-effort, ignore */ } });
 
 
-/* ===== WEB PUSH (rw-v48) — browser notifications, opt-in and guarded.
-   Off unless RW_CONFIG.features.webPush is true AND a VAPID key is set, so it
-   can never break production by accident. The Android app already gets push
-   via the native Capacitor plugin; this covers desktop + mobile web. */
-function rwInitWebPush(){
-  try{
-    var C=window.RW_CONFIG||{};
-    if(!C.features || !C.features.webPush || !C.vapidKey) return;   /* opt-in only */
-    if(window.Capacitor) return;                                    /* native app handles its own */
-    if(!('serviceWorker' in navigator) || !window.firebase || !firebase.messaging) return;
-    navigator.serviceWorker.register('/firebase-messaging-sw.js').then(function(reg){
-      var m=firebase.messaging();
-      return m.requestPermission ? m.requestPermission().then(function(){ return m.getToken({vapidKey:C.vapidKey, serviceWorkerRegistration:reg}); })
-                                 : m.getToken({vapidKey:C.vapidKey, serviceWorkerRegistration:reg});
-    }).then(function(tok){
-      if(tok && user && typeof db!=='undefined' && db){
-        db.collection('users').doc(user.uid).set({webPushToken:tok}, {merge:true}).catch(function(){});
-      }
-    }).catch(function(){});
-  }catch(e){ /* best-effort Firestore write, ignore */ }
-}
+/* WEB PUSH (rw-v48) relocated to js/core/push-notifications.js — see the
+   marker near the top of this file. */
 
 
 
