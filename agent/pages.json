@@ -5094,5 +5094,53 @@
   "country": "India",
   "best": "January, March, November",
   "month": true
+ },
+ {
+  "slug": "jodhpur-in-november",
+  "title": "Jodhpur in November",
+  "name": "Jodhpur·November",
+  "country": "India",
+  "best": "January, March, November",
+  "month": true
+ },
+ {
+  "slug": "jodhpur-in-december",
+  "title": "Jodhpur in December",
+  "name": "Jodhpur·December",
+  "country": "India",
+  "best": "January, March, November",
+  "month": true
+ },
+ {
+  "slug": "jaisalmer-in-january",
+  "title": "Jaisalmer in January",
+  "name": "Jaisalmer·January",
+  "country": "India",
+  "best": "January, March, November",
+  "month": true
+ },
+ {
+  "slug": "jaisalmer-in-february",
+  "title": "Jaisalmer in February",
+  "name": "Jaisalmer·February",
+  "country": "India",
+  "best": "January, March, November",
+  "month": true
+ },
+ {
+  "slug": "jaisalmer-in-march",
+  "title": "Jaisalmer in March",
+  "name": "Jaisalmer·March",
+  "country": "India",
+  "best": "January, March, November",
+  "month": true
+ },
+ {
+  "slug": "jaisalmer-in-april",
+  "title": "Jaisalmer in April",
+  "name": "Jaisalmer·April",
+  "country": "India",
+  "best": "January, March, November",
+  "month": true
  }
 ]

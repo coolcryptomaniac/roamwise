@@ -110,7 +110,7 @@ test('handleCashfreeOrder: CASHFREE_ENV=live routes to api.cashfree.com and repo
   const realFetch = global.fetch;
   global.fetch = async (url) => { seenUrl = url; return { ok: true, status: 200, json: async () => REAL_ORDER_RESPONSE }; };
   try{
-    const res = await handleCashfreeOrder(jsonRequest({ amount: 100, customer: { phone: '9999999999' } }), env);
+    const res = await handleCashfreeOrder(jsonRequest({ amount: 100, customer: { phone: '9999999999' }, meta: { planId: 'founder' } }), env);
     const body = await res.json();
     assert.equal(seenUrl, 'https://api.cashfree.com/pg/orders');
     assert.equal(body.environment, 'production');
@@ -123,7 +123,7 @@ test('handleCashfreeOrder: propagates a Cashfree-side order failure without a ha
   const realFetch = global.fetch;
   global.fetch = async () => ({ ok: false, status: 422, json: async () => ({ message: 'customer_details.customer_phone is required' }) });
   try{
-    const res = await handleCashfreeOrder(jsonRequest({ amount: 299, customer: { phone: '9999999999' } }), env);
+    const res = await handleCashfreeOrder(jsonRequest({ amount: 299, customer: { phone: '9999999999' }, meta: { planId: 'pro_m' } }), env);
     assert.equal(res.status, 422);
     const body = await res.json();
     assert.equal(body.error, 'cashfree_order_failed');
@@ -137,9 +137,62 @@ test('handleCashfreeOrder: a network error talking to Cashfree returns 502, neve
   const realFetch = global.fetch;
   global.fetch = async () => { throw new Error('getaddrinfo ENOTFOUND'); };
   try{
-    const res = await handleCashfreeOrder(jsonRequest({ amount: 299, customer: { phone: '9999999999' } }), env);
+    const res = await handleCashfreeOrder(jsonRequest({ amount: 299, customer: { phone: '9999999999' }, meta: { planId: 'pro_m' } }), env);
     assert.equal(res.status, 502);
     assert.equal((await res.json()).error, 'network_error');
+  } finally { global.fetch = realFetch; }
+});
+
+// ---------------------------------------------------------------------------
+// PRICE-TAMPERING FIX (worker/lib/pricing.js) — a client that has been
+// tampered with (dev tools / direct fetch to this endpoint, bypassing the
+// UI entirely) must never be able to buy an expensive plan for a fraction
+// of its real price by sending a mismatched `amount`.
+// ---------------------------------------------------------------------------
+test('handleCashfreeOrder: rejects an amount that does not match the claimed plan\'s real price (price tampering)', async () => {
+  const { handleCashfreeOrder } = await loadHandler();
+  const env = { CASHFREE_APP_ID: 'id', CASHFREE_SECRET_KEY: 'secret' };
+  let fetchCalled = false;
+  const realFetch = global.fetch;
+  global.fetch = async () => { fetchCalled = true; };
+  try{
+    // real price of elite_y10 (Elite 10-year pass) is ₹24,999 — try to pay ₹1
+    const res = await handleCashfreeOrder(jsonRequest({
+      amount: 1, customer: { phone: '9999999999' }, meta: { planId: 'elite_y10' }
+    }), env);
+    assert.equal(res.status, 400);
+    assert.equal((await res.json()).error, 'amount_mismatch');
+    assert.equal(fetchCalled, false, 'must never reach Cashfree with a tampered amount');
+  } finally { global.fetch = realFetch; }
+});
+
+test('handleCashfreeOrder: rejects an unrecognized/missing planId even if the amount looks plausible', async () => {
+  const { handleCashfreeOrder } = await loadHandler();
+  const env = { CASHFREE_APP_ID: 'id', CASHFREE_SECRET_KEY: 'secret' };
+  let fetchCalled = false;
+  const realFetch = global.fetch;
+  global.fetch = async () => { fetchCalled = true; };
+  try{
+    const res = await handleCashfreeOrder(jsonRequest({ amount: 299, customer: { phone: '9999999999' } }), env);
+    assert.equal(res.status, 400);
+    assert.equal((await res.json()).error, 'unknown_plan');
+    assert.equal(fetchCalled, false);
+  } finally { global.fetch = realFetch; }
+});
+
+test('handleCashfreeOrder: accepts every real plan id at its exact configured price', async () => {
+  const { handleCashfreeOrder } = await loadHandler();
+  const { PLAN_PRICES } = await import(path.join(root, 'worker/lib/pricing.js'));
+  const env = { CASHFREE_APP_ID: 'id', CASHFREE_SECRET_KEY: 'secret' };
+  const realFetch = global.fetch;
+  global.fetch = async () => ({ ok: true, status: 200, json: async () => REAL_ORDER_RESPONSE });
+  try{
+    for(const [planId, price] of Object.entries(PLAN_PRICES)){
+      const res = await handleCashfreeOrder(jsonRequest({
+        amount: price, customer: { phone: '9999999999' }, meta: { planId }
+      }), env);
+      assert.equal(res.status, 200, `${planId} at its real price ${price} should be accepted`);
+    }
   } finally { global.fetch = realFetch; }
 });
 
@@ -251,6 +304,117 @@ test('createOrder() -> openCheckout(): full success path confirms order_status P
   assert.equal(statusCalls.length, 1);
 });
 
+// FOUNDER SEAT COUNTING BUG FIX (2026-09-07): a Founder-offer purchase
+// confirmed PAID through Cashfree must move pricing/founder.count by +1 —
+// same shared-pool counter the admin-manual-payment and NMIMS-partner-
+// redemption paths already move (js/pricing/founder-seats.js) — since
+// nothing else in the Cashfree flow ever touched it before this fix, and
+// Cashfree is offered for exactly this purchase (Founder is a 'oneoff'-
+// category plan — see plan-picker.js's renderPlanGrid()). Left uncounted,
+// every Founder seat sold this way made the PUBLIC seats-left counter
+// overstate how many seats remained (the reported "999 left" bug).
+function fakeFounderDb(opts){
+  opts = opts || {};
+  var calls = [];
+  return {
+    _calls: calls,
+    collection: function(name){
+      return { doc: function(id){
+        return { update: function(data){
+          calls.push({ collection: name, doc: id, data: data });
+          return opts.rejects ? Promise.reject(new Error('permission-denied')) : Promise.resolve();
+        } };
+      } };
+    }
+  };
+}
+var FAKE_FIREBASE = { firestore: { FieldValue: { increment: function(n){ return { __increment: n }; } } } };
+
+test('openCheckout(): a confirmed-PAID Founder-offer purchase increments pricing/founder.count by exactly +1', async () => {
+  var db = fakeFounderDb();
+  const ctx = loadCashfreeAdapter({
+    rwApi: (p) => 'https://worker.example/' + p,
+    fetch: async (url) => {
+      if(String(url).indexOf('/status') !== -1) return { json: async () => ({ order_status: 'PAID' }) };
+      return { ok: true, json: async () => ({ payment_session_id: 'session_abc', order_id: 'rw_1', environment: 'sandbox' }) };
+    },
+    Cashfree: () => ({ checkout: () => Promise.resolve({}) }),
+    db: db,
+    firebase: FAKE_FIREBASE
+  });
+  selectCashfree(ctx);
+  ctx.RWPaymentGateway.createOrder(100, { planId: 'founder', label: 'Founder Pro — Lifetime', tierId: 'elite', category: 'oneoff' });
+  ctx.RWPaymentGateway.openCheckout({}, 'any');
+  for(let i = 0; i < 6; i++) await new Promise((resolve) => setTimeout(resolve, 0));
+  assert.equal(ctx.grantPurchaseCalls.length, 1, 'Pro must still be granted');
+  assert.equal(ctx.grantPurchaseCalls[0].planId, 'founder');
+  assert.equal(db._calls.length, 1, 'exactly one pricing/founder write, not zero and not a double-count');
+  assert.equal(db._calls[0].collection, 'pricing');
+  assert.equal(db._calls[0].doc, 'founder');
+  // Compare fields directly rather than assert.deepEqual(): the increment
+  // sentinel object is constructed inside the vm context's own Object
+  // realm, so it is structurally (but not reference-)equal to one built in
+  // this file's realm — deepStrictEqual's prototype check would false-fail.
+  assert.equal(Object.keys(db._calls[0].data).join(','), 'count');
+  assert.equal(db._calls[0].data.count.__increment, 1);
+});
+
+test('openCheckout(): a confirmed-PAID purchase of a NON-Founder plan never touches pricing/founder.count', async () => {
+  var db = fakeFounderDb();
+  const ctx = loadCashfreeAdapter({
+    rwApi: (p) => 'https://worker.example/' + p,
+    fetch: async (url) => {
+      if(String(url).indexOf('/status') !== -1) return { json: async () => ({ order_status: 'PAID' }) };
+      return { ok: true, json: async () => ({ payment_session_id: 'session_abc', order_id: 'rw_1', environment: 'sandbox' }) };
+    },
+    Cashfree: () => ({ checkout: () => Promise.resolve({}) }),
+    db: db,
+    firebase: FAKE_FIREBASE
+  });
+  selectCashfree(ctx);
+  ctx.RWPaymentGateway.createOrder(299, { planId: 'pro_y', label: 'Pro Yearly', tierId: 'pro', category: 'subscription' });
+  ctx.RWPaymentGateway.openCheckout({}, 'any');
+  for(let i = 0; i < 6; i++) await new Promise((resolve) => setTimeout(resolve, 0));
+  assert.equal(ctx.grantPurchaseCalls.length, 1, 'Pro must still be granted');
+  assert.equal(db._calls.length, 0, 'a non-Founder purchase must never move the Founder seat counter');
+});
+
+test('openCheckout(): a Founder purchase still grants Pro even if the founder.count write fails (best-effort, non-blocking)', async () => {
+  var db = fakeFounderDb({ rejects: true });
+  const ctx = loadCashfreeAdapter({
+    rwApi: (p) => 'https://worker.example/' + p,
+    fetch: async (url) => {
+      if(String(url).indexOf('/status') !== -1) return { json: async () => ({ order_status: 'PAID' }) };
+      return { ok: true, json: async () => ({ payment_session_id: 'session_abc', order_id: 'rw_1', environment: 'sandbox' }) };
+    },
+    Cashfree: () => ({ checkout: () => Promise.resolve({}) }),
+    db: db,
+    firebase: FAKE_FIREBASE
+  });
+  selectCashfree(ctx);
+  ctx.RWPaymentGateway.createOrder(100, { planId: 'founder', label: 'Founder Pro — Lifetime', tierId: 'elite', category: 'oneoff' });
+  assert.doesNotThrow(() => ctx.RWPaymentGateway.openCheckout({}, 'any'));
+  for(let i = 0; i < 6; i++) await new Promise((resolve) => setTimeout(resolve, 0));
+  assert.equal(ctx.grantPurchaseCalls.length, 1, 'Pro grant must not be undone by a counter-write failure');
+});
+
+test('openCheckout(): a Founder purchase with no Firestore available (offline) grants Pro without throwing', async () => {
+  const ctx = loadCashfreeAdapter({
+    rwApi: (p) => 'https://worker.example/' + p,
+    fetch: async (url) => {
+      if(String(url).indexOf('/status') !== -1) return { json: async () => ({ order_status: 'PAID' }) };
+      return { ok: true, json: async () => ({ payment_session_id: 'session_abc', order_id: 'rw_1', environment: 'sandbox' }) };
+    },
+    Cashfree: () => ({ checkout: () => Promise.resolve({}) })
+    // deliberately no db/firebase in context — matches offline/not-yet-loaded reality
+  });
+  selectCashfree(ctx);
+  ctx.RWPaymentGateway.createOrder(100, { planId: 'founder', label: 'Founder Pro — Lifetime', tierId: 'elite', category: 'oneoff' });
+  assert.doesNotThrow(() => ctx.RWPaymentGateway.openCheckout({}, 'any'));
+  for(let i = 0; i < 6; i++) await new Promise((resolve) => setTimeout(resolve, 0));
+  assert.equal(ctx.grantPurchaseCalls.length, 1, 'Pro must still be granted with no Firestore connection');
+});
+
 test('openCheckout(): Cashfree SDK reporting an error (cancel/failure) never calls activatePro()', async () => {
   const ctx = loadCashfreeAdapter({
     rwApi: (p) => 'https://worker.example/' + p,
@@ -334,7 +498,14 @@ function fakeDb(){
       return {
         doc(id){
           return {
-            set(data){ writes.push({ collection: name, id, data }); return Promise.resolve(); }
+            set(data){ writes.push({ collection: name, id, data }); return Promise.resolve(); },
+            // A confirmed-PAID Founder purchase also runs the (separately
+            // tested — see fakeFounderDb()/FAKE_FIREBASE below)
+            // pricing/founder.count increment through this same success
+            // handler now (merged fix, PR #153). No-op it here so `writes`
+            // stays scoped to the cashfreeOrders receipt this helper exists
+            // to verify.
+            update(){ return Promise.resolve(); }
           };
         }
       };
@@ -347,6 +518,7 @@ test('_cfRecordOrder (via openCheckout, confirmed PAID): writes a PENDING cashfr
   const ctx = loadCashfreeAdapter({
     rwApi: (p) => 'https://worker.example/' + p,
     db,
+    firebase: FAKE_FIREBASE,
     fetch: async (url) => {
       if(String(url).indexOf('/status') !== -1) return { json: async () => ({ order_status: 'PAID' }) };
       return { ok: true, json: async () => ({ payment_session_id: 'session_abc', order_id: 'rw_order_9', environment: 'sandbox' }) };
@@ -374,7 +546,12 @@ test('_cfRecordOrder (via openCheckout, confirmed PAID): writes a PENDING cashfr
 test('_cfRecordOrder: a receipt-write failure is best-effort and never blocks/undoes the Pro grant already given', async () => {
   const ctx = loadCashfreeAdapter({
     rwApi: (p) => 'https://worker.example/' + p,
-    db: { collection: () => ({ doc: () => ({ set: () => Promise.reject(new Error('offline')) }) }) },
+    // set() (the cashfreeOrders receipt) rejects; update() (the separately
+    // tested pricing/founder.count increment, now sharing this same success
+    // handler per the PR #153 merge) still needs to resolve so this test
+    // stays focused on the receipt-write failure it's named for.
+    db: { collection: () => ({ doc: () => ({ set: () => Promise.reject(new Error('offline')), update: () => Promise.resolve() }) }) },
+    firebase: FAKE_FIREBASE,
     fetch: async (url) => {
       if(String(url).indexOf('/status') !== -1) return { json: async () => ({ order_status: 'PAID' }) };
       return { ok: true, json: async () => ({ payment_session_id: 'session_abc', order_id: 'rw_order_9', environment: 'sandbox' }) };

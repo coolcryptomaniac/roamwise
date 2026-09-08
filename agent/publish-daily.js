@@ -1,7 +1,6 @@
-/* RoamWise Agent — daily SEO publisher.
-   Publishes N data-rich pages/day from agent/topics.json using REAL climate
-   data (Open-Meteo, free, no key). Optional GEMINI_API_KEY secret upgrades
-   the prose. Queue self-extends with month pages → 1,500+ page runway. */
+/* RoamWise Agent — rich weekly SEO publisher.
+   Climate numbers come from Open-Meteo. Long-form prose is published only
+   when grounded generation, multimedia and quality checks all succeed. */
 const fs = require('fs');
 const N = parseInt(process.env.PAGES_PER_DAY || '3', 10);
 const BASE = 'https://www.roamwise.co.in';
@@ -9,9 +8,9 @@ const YEAR = new Date().getFullYear();
 const MON = ['January','February','March','April','May','June','July','August','September','October','November','December'];
 const slug = s => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 
-const CSS = `*{margin:0;padding:0;box-sizing:border-box}body{font-family:system-ui,-apple-system,'Segoe UI',sans-serif;background:#0A0C14;color:#EDEAE2;line-height:1.75;font-size:16px}a{color:#E8BA6C;text-decoration:none}a:hover{text-decoration:underline}.wrap{max-width:760px;margin:0 auto;padding:24px 20px 60px}header{border-bottom:1px solid #1E1E28;padding:14px 0;margin-bottom:28px}header .brand{font-weight:800;font-size:18px}header .brand span{color:#C4302B}header nav{font-size:13px;color:#8A8880;margin-top:4px}header nav a{margin-right:14px;color:#8A8880}h1{font-size:30px;line-height:1.25;margin:10px 0 14px;color:#fff}h2{font-size:21px;margin:34px 0 10px;color:#E8BA6C}h3{font-size:16px;margin:20px 0 8px}p{margin-bottom:14px;color:#C9C5BB}ul{margin:0 0 16px 22px;color:#C9C5BB}li{margin-bottom:7px}table{width:100%;border-collapse:collapse;margin:14px 0 22px;font-size:14px}th{text-align:left;color:#E8BA6C;font-size:12px;text-transform:uppercase;letter-spacing:.06em;padding:8px;border-bottom:1px solid #2A2A34}td{padding:8px;border-bottom:1px solid #17171F;color:#C9C5BB}.bar{height:8px;border-radius:4px;background:#1E1E28;overflow:hidden;min-width:90px}.bar i{display:block;height:100%;border-radius:4px}.best{color:#16BF96;font-weight:700}.worst{color:#E8524A;font-weight:700}.callout{border:1px solid rgba(232,186,108,.35);background:rgba(232,186,108,.06);border-radius:14px;padding:16px 18px;margin:20px 0}.cta{display:block;text-align:center;background:linear-gradient(135deg,#E8BA6C,#C8913E);color:#0A0C14!important;font-weight:800;border-radius:14px;padding:16px;margin:30px 0;font-size:17px;text-decoration:none!important}.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;margin:20px 0}.card{border:1px solid #1E1E28;border-radius:14px;padding:15px;background:#0E1018}.card b{display:block;color:#fff;margin-bottom:4px}.card span{font-size:12.5px;color:#8A8880}footer{border-top:1px solid #1E1E28;margin-top:44px;padding-top:18px;font-size:12.5px;color:#54524C}.meta{font-size:13px;color:#54524C;margin-bottom:18px}`;
+const CSS = `*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Outfit',system-ui,-apple-system,'Segoe UI',sans-serif;background:#07090F;color:#EDE8DF;line-height:1.75;font-size:16px}a{color:#E8BA6C;text-decoration:none}a:hover{text-decoration:underline}.wrap{max-width:820px;margin:0 auto;padding:24px 20px 70px}header{border-bottom:1px solid rgba(255,255,255,.08);padding:14px 0;margin-bottom:28px}header .brand{font-weight:800;font-size:20px}header .brand span{color:#E8BA6C}header nav{font-size:13px;color:#8A8680;margin-top:5px}header nav a{margin-right:16px;color:#8A8680}h1{font-size:clamp(30px,7vw,46px);line-height:1.14;margin:10px 0 14px;color:#fff}h2{font-size:24px;margin:38px 0 12px;color:#E8BA6C}h3{font-size:18px;margin:24px 0 8px;color:#EDE8DF}p{margin-bottom:16px;color:#C9C5BB}ul,ol{margin:0 0 18px 24px;color:#C9C5BB}li{margin-bottom:8px}table{width:100%;border-collapse:collapse;margin:16px 0 24px;font-size:14px}th{text-align:left;color:#E8BA6C;font-size:12px;text-transform:uppercase;letter-spacing:.06em;padding:9px;border-bottom:1px solid #2A2A34}td{padding:9px;border-bottom:1px solid #17171F;color:#C9C5BB}.bar{height:8px;border-radius:4px;background:#1E1E28;overflow:hidden;min-width:90px}.bar i{display:block;height:100%;border-radius:4px}.best{color:#16BF96;font-weight:700}.worst{color:#EA5A50;font-weight:700}.callout{border:1px solid rgba(232,186,108,.35);background:linear-gradient(135deg,rgba(232,186,108,.08),rgba(155,89,245,.06));border-radius:16px;padding:18px 20px;margin:22px 0}.cta{display:block;text-align:center;background:linear-gradient(135deg,#C8913E,#E8BA6C);color:#07090F!important;font-weight:800;border-radius:14px;padding:17px;margin:32px 0;font-size:17px;text-decoration:none!important;box-shadow:0 12px 32px rgba(200,145,62,.18)}.grid,.media-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin:22px 0}.card,figure{border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:15px;background:#0C1020}.card b{display:block;color:#fff;margin-bottom:4px}.card span,figcaption{font-size:12.5px;color:#8A8680}figure{padding:8px;overflow:hidden}figure img{display:block;width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:11px;margin-bottom:8px}.video{position:relative;padding-top:56.25%;margin:24px 0;border-radius:16px;overflow:hidden;border:1px solid rgba(232,186,108,.24);background:#0C1020}.video iframe{position:absolute;inset:0;width:100%;height:100%;border:0}footer{border-top:1px solid #1E1E28;margin-top:48px;padding-top:18px;font-size:12.5px;color:#54524C}.meta{font-size:13px;color:#8A8680;margin-bottom:18px}`;
 
-const head = (title, desc, canon, ld) => `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${title}</title><meta name="description" content="${desc}"><link rel="canonical" href="${canon}"><meta property="og:title" content="${title}"><meta property="og:description" content="${desc}"><meta property="og:type" content="article"><meta property="og:url" content="${canon}"><meta name="theme-color" content="#0A0C14">${ld ? `<script type="application/ld+json">${JSON.stringify(ld)}</script>` : ''}<style>${CSS}</style></head><body><div class="wrap"><header><div class="brand">🥷 Roam<span>Wise</span> Pro</div><nav><a href="${BASE}/">App</a><a href="${BASE}/guides/">Travel Guides</a><a href="${BASE}/blog/">Blog</a></nav></header>`;
+const head = (title, desc, canon, ld) => `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${title}</title><meta name="description" content="${desc}"><link rel="canonical" href="${canon}"><meta property="og:title" content="${title}"><meta property="og:description" content="${desc}"><meta property="og:type" content="article"><meta property="og:url" content="${canon}"><meta property="og:image" content="${BASE}/icon-512.png"><meta name="theme-color" content="#07090F"><link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">${ld ? `<script type="application/ld+json">${JSON.stringify(ld)}</script>` : ''}<style>${CSS}</style></head><body><div class="wrap"><header><div class="brand">🏔️ Roam<span>Wise</span></div><nav><a href="${BASE}/">Planner</a><a href="${BASE}/guides/">Travel Guides</a><a href="${BASE}/trips/">Itineraries</a><a href="${BASE}/blog/">Blog</a></nav></header>`;
 const foot = () => `<footer>© ${YEAR} RoamWise · Mohit Pandey, Almora, India · Climate data: Open-Meteo (ERA5) · Figures indicative — verify before booking.<br><a href="${BASE}/privacy.html">Privacy</a> · <a href="${BASE}/">Open the free planner →</a></footer></div></body></html>`;
 const cta = n => `<a class="cta" href="${BASE}/?utm_source=guide&utm_medium=seo">🥷 Plan ${n} free — crowd calendar, budget & AI itinerary →</a>`;
 
@@ -75,6 +74,63 @@ async function gemini(prompt) {
   } catch (e) { return null; }
 }
 
+function cleanGeneratedHtml(value) {
+  return String(value || '')
+    .replace(/^```(?:html)?\s*/i, '').replace(/\s*```$/i, '')
+    .replace(/<\/?(?:html|head|body)[^>]*>/gi, '')
+    .replace(/<script[\s\S]*?<\/script>/gi, '')
+    .replace(/\son\w+\s*=\s*(['"])[\s\S]*?\1/gi, '')
+    .trim();
+}
+
+async function richArticle({ name, country, month, bestNames, toughest, climateSummary }) {
+  const key = process.env.GEMINI_API_KEY;
+  if (!key) throw new Error('GEMINI_API_KEY is required for grounded 3000+ word publishing');
+  const model = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
+  const angle = month ? `${name} in ${month}` : `${name}, ${country}`;
+  const prompt = `Research and write a genuinely useful 3,200–3,800 word travel guide about ${angle} for Indian and international independent travellers.
+
+Known measured climate context from Open-Meteo: ${climateSummary}. Best overall months: ${bestNames}. Toughest measured month: ${toughest}.
+
+Use Google Search grounding. Return HTML fragments only—no Markdown, document wrapper, H1, style or script. Use H2, H3, p, ul, ol, table, strong, blockquote and a tags. Cover: who this trip suits; neighbourhood/route orientation; realistic 3/5/7-day itineraries; transport with last-mile detail; current cost ranges with a clear date/currency caveat; food; stays by traveller type; crowds; weather; accessibility; responsible travel; scams; safety and emergency planning; connectivity; packing; FAQs; and a practical pre-departure checklist. Separate measured facts from estimates. Never invent opening hours, fares, rules, phone numbers or safety claims. Tell readers to verify volatile details with linked official sources.
+
+Deep-link naturally to at least four trustworthy external source domains and at least four relevant RoamWise guide/blog/itinerary pages. Include one real, relevant, embeddable YouTube video using exactly <div class="video"><iframe loading="lazy" src="https://www.youtube-nocookie.com/embed/VIDEO_ID" title="..."></iframe></div>. Prefer an official tourism, conservation, transport or established travel publisher video. Do not use affiliate links. Do not copy source phrasing. End with an H2 titled Sources and verification containing the most useful sources and their access date.`;
+  const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      contents: [{ parts: [{ text: prompt }] }],
+      tools: [{ google_search: {} }],
+      generationConfig: { temperature: 0.25, maxOutputTokens: 16384 }
+    })
+  });
+  if (!response.ok) throw new Error(`grounded generation failed: ${response.status}`);
+  const data = await response.json();
+  const html = cleanGeneratedHtml((data.candidates?.[0]?.content?.parts || []).map(p => p.text || '').join('\n'));
+  const words = (html.replace(/<[^>]+>/g, ' ').match(/[\p{L}\p{N}][\p{L}\p{N}'’-]*/gu) || []).length;
+  if (words < 3000) throw new Error(`grounded draft too short: ${words} words`);
+  if (!/youtube-nocookie\.com\/embed\/[\w-]{6,}/i.test(html)) throw new Error('grounded draft has no valid YouTube embed');
+  return html;
+}
+
+async function commonsGallery(name) {
+  const api = new URL('https://commons.wikimedia.org/w/api.php');
+  api.searchParams.set('action', 'query'); api.searchParams.set('format', 'json');
+  api.searchParams.set('generator', 'search'); api.searchParams.set('gsrsearch', `${name} travel landmark`);
+  api.searchParams.set('gsrnamespace', '6'); api.searchParams.set('gsrlimit', '8');
+  api.searchParams.set('prop', 'imageinfo'); api.searchParams.set('iiprop', 'url|mime'); api.searchParams.set('iiurlwidth', '1200');
+  api.searchParams.set('origin', '*');
+  const data = await j(api.toString());
+  const images = Object.values(data.query?.pages || {}).flatMap(page => {
+    const info = page.imageinfo?.[0];
+    return info && /^image\/(?:jpeg|png|webp)$/.test(info.mime || '')
+      ? [{ title: page.title.replace(/^File:/, ''), src: info.thumburl || info.url, page: info.descriptionurl }]
+      : [];
+  }).slice(0, 3);
+  if (images.length < 2) throw new Error(`not enough reusable Wikimedia images for ${name}`);
+  return `<h2>See ${name} before you go</h2><div class="media-grid">${images.map(image => `<figure><a href="${image.page}" rel="noopener noreferrer"><img loading="lazy" src="${image.src}" alt="${name}: ${image.title.replace(/["<>]/g, '')}"></a><figcaption>${image.title} · Wikimedia Commons (open source page for creator and licence)</figcaption></figure>`).join('')}</div>`;
+}
+
 function monthTable(cl, scores) {
   const best = scores.indexOf(Math.max(...scores)), worst = scores.indexOf(Math.min(...scores));
   return `<table><tr><th>Month</th><th>Day / Night</th><th>Rain</th><th>Travel score</th></tr>` + cl.map((c, i) => {
@@ -121,11 +177,15 @@ async function makeGuide(task, reg) {
   let intro = `<p>${name} is ${A.vibe}. The numbers below are real — monthly weather computed from the ERA5 climate archive for ${name}'s exact coordinates — so this page answers the question most guides dodge: <strong>which months are actually worth your leave days?</strong></p><p>The short answer: aim for <strong>${bestNames}</strong>, skip ${MON[worstIdx]} if you can, and read the packing notes before you book. ${A.bonus}.</p>`;
   const g = await gemini(`Write 2 short paragraphs (total 90-120 words, plain HTML <p> tags only, no headings) introducing ${name}, ${country} for travelers deciding WHEN to go. Facts to weave in naturally: best months are ${bestNames}; toughest is ${MON[worstIdx]}; climate style: ${arch}. Warm, specific, no fluff, no exclamation marks.`);
   if (g && g.includes('<p>')) intro = g;
+  const rich = await richArticle({ name, country, bestNames, toughest: MON[worstIdx], climateSummary: cl.map((c, i) => `${MON[i]} ${c.hi}/${c.lo}°C, ${c.rain}mm rain`).join('; ') });
+  const gallery = await commonsGallery(name);
 
   const html = head(title, desc, canon, ld) + `
 <div class="meta">Travel Guide · ${country} · Updated ${MON[new Date().getMonth()]} ${YEAR}</div>
 <h1>Best Time to Visit ${name}: the Month-by-Month Truth</h1>
 ${intro}
+${gallery}
+${rich}
 <h2>📊 ${name} weather, all 12 months (real data)</h2>
 ${monthTable(cl, scores)}
 <div class="callout"><strong>🥷 The verdict:</strong> <strong>${bestNames}</strong> are the smart-money months. ${MON[worstIdx]} scores lowest — ${A.warn.toLowerCase()}.</div>
@@ -155,6 +215,8 @@ async function makeMonth(task, reg) {
   const desc = `${name} in ${MON[mi]}: ~${hi}°C days, travel score ${s}/100. What it feels like, what to pack, and whether to book — with a free AI planner.`;
   const canon = `${BASE}/guides/${sl}.html`;
   const A = ARCH[parent.arch];
+  const rich = await richArticle({ name, country, month: MON[mi], bestNames: parent.best, toughest: 'see the full month table', climateSummary: `${MON[mi]} average daytime temperature ${hi}°C; weather-comfort score ${s}/100` });
+  const gallery = await commonsGallery(name);
   const faq = [
     [`Is ${MON[mi]} a good time to visit ${name}?`, `It scores ${s}/100 on our weather-comfort index — ${verdictWord} month. The top window overall is ${parent.best}.`],
     [`How hot is ${name} in ${MON[mi]}?`, `Daytime averages around ${hi}°C. ${A.warn}.`],
@@ -165,6 +227,8 @@ async function makeMonth(task, reg) {
 <div class="meta">Month Guide · ${country} · Updated ${MON[new Date().getMonth()]} ${YEAR}</div>
 <h1>${name} in ${MON[mi]}: the Honest Answer</h1>
 <p>Thinking about ${name} for a ${MON[mi]} trip? Here is the real picture, from actual climate data: daytime temperatures average <strong>${hi}°C</strong>, and the month scores <strong>${s}/100</strong> on our travel-comfort index. That makes it ${verdictWord} pick — the standout window for ${name} remains <strong>${parent.best}</strong>.</p>
+${gallery}
+${rich}
 <div class="callout"><strong>🥷 Quick verdict:</strong> ${s > 70 ? `Book it. ${MON[mi]} is one of ${name}'s sweet spots — ${A.bonus.toLowerCase()}.` : s > 45 ? `Workable with eyes open. ${A.warn}.` : `Only if dates are fixed. ${A.warn} Consider shifting to ${parent.best} if you can.`}</div>
 <h2>🎒 Packing for ${MON[mi]}</h2>
 <p>Pack ${A.pack}. ${name} is ${A.vibe}, and ${MON[mi]} sits ${s > 60 ? 'inside' : 'outside'} its comfort zone — dress for the score, not the brochure.</p>
@@ -211,8 +275,9 @@ function rebuildHub(reg) {
       topics.done.push(task);
       await new Promise(r => setTimeout(r, 1200)); /* be polite to free APIs */
     } catch (e) {
-      console.log('⚠️ skip', task.name, String(e.message || e).slice(0, 80));
-      topics.done.push({ ...task, err: 1 });
+      console.log('⚠️ retain for retry', task.name, String(e.message || e).slice(0, 160));
+      topics.queue.unshift(task);
+      break;
     }
   }
   saveReg(reg); fs.writeFileSync('agent/topics.json', JSON.stringify(topics));
