@@ -110,7 +110,7 @@ test('handleCashfreeOrder: CASHFREE_ENV=live routes to api.cashfree.com and repo
   const realFetch = global.fetch;
   global.fetch = async (url) => { seenUrl = url; return { ok: true, status: 200, json: async () => REAL_ORDER_RESPONSE }; };
   try{
-    const res = await handleCashfreeOrder(jsonRequest({ amount: 100, customer: { phone: '9999999999' } }), env);
+    const res = await handleCashfreeOrder(jsonRequest({ amount: 100, customer: { phone: '9999999999' }, meta: { planId: 'founder' } }), env);
     const body = await res.json();
     assert.equal(seenUrl, 'https://api.cashfree.com/pg/orders');
     assert.equal(body.environment, 'production');
@@ -123,7 +123,7 @@ test('handleCashfreeOrder: propagates a Cashfree-side order failure without a ha
   const realFetch = global.fetch;
   global.fetch = async () => ({ ok: false, status: 422, json: async () => ({ message: 'customer_details.customer_phone is required' }) });
   try{
-    const res = await handleCashfreeOrder(jsonRequest({ amount: 299, customer: { phone: '9999999999' } }), env);
+    const res = await handleCashfreeOrder(jsonRequest({ amount: 299, customer: { phone: '9999999999' }, meta: { planId: 'pro_m' } }), env);
     assert.equal(res.status, 422);
     const body = await res.json();
     assert.equal(body.error, 'cashfree_order_failed');
@@ -137,9 +137,62 @@ test('handleCashfreeOrder: a network error talking to Cashfree returns 502, neve
   const realFetch = global.fetch;
   global.fetch = async () => { throw new Error('getaddrinfo ENOTFOUND'); };
   try{
-    const res = await handleCashfreeOrder(jsonRequest({ amount: 299, customer: { phone: '9999999999' } }), env);
+    const res = await handleCashfreeOrder(jsonRequest({ amount: 299, customer: { phone: '9999999999' }, meta: { planId: 'pro_m' } }), env);
     assert.equal(res.status, 502);
     assert.equal((await res.json()).error, 'network_error');
+  } finally { global.fetch = realFetch; }
+});
+
+// ---------------------------------------------------------------------------
+// PRICE-TAMPERING FIX (worker/lib/pricing.js) — a client that has been
+// tampered with (dev tools / direct fetch to this endpoint, bypassing the
+// UI entirely) must never be able to buy an expensive plan for a fraction
+// of its real price by sending a mismatched `amount`.
+// ---------------------------------------------------------------------------
+test('handleCashfreeOrder: rejects an amount that does not match the claimed plan\'s real price (price tampering)', async () => {
+  const { handleCashfreeOrder } = await loadHandler();
+  const env = { CASHFREE_APP_ID: 'id', CASHFREE_SECRET_KEY: 'secret' };
+  let fetchCalled = false;
+  const realFetch = global.fetch;
+  global.fetch = async () => { fetchCalled = true; };
+  try{
+    // real price of elite_y10 (Elite 10-year pass) is ₹24,999 — try to pay ₹1
+    const res = await handleCashfreeOrder(jsonRequest({
+      amount: 1, customer: { phone: '9999999999' }, meta: { planId: 'elite_y10' }
+    }), env);
+    assert.equal(res.status, 400);
+    assert.equal((await res.json()).error, 'amount_mismatch');
+    assert.equal(fetchCalled, false, 'must never reach Cashfree with a tampered amount');
+  } finally { global.fetch = realFetch; }
+});
+
+test('handleCashfreeOrder: rejects an unrecognized/missing planId even if the amount looks plausible', async () => {
+  const { handleCashfreeOrder } = await loadHandler();
+  const env = { CASHFREE_APP_ID: 'id', CASHFREE_SECRET_KEY: 'secret' };
+  let fetchCalled = false;
+  const realFetch = global.fetch;
+  global.fetch = async () => { fetchCalled = true; };
+  try{
+    const res = await handleCashfreeOrder(jsonRequest({ amount: 299, customer: { phone: '9999999999' } }), env);
+    assert.equal(res.status, 400);
+    assert.equal((await res.json()).error, 'unknown_plan');
+    assert.equal(fetchCalled, false);
+  } finally { global.fetch = realFetch; }
+});
+
+test('handleCashfreeOrder: accepts every real plan id at its exact configured price', async () => {
+  const { handleCashfreeOrder } = await loadHandler();
+  const { PLAN_PRICES } = await import(path.join(root, 'worker/lib/pricing.js'));
+  const env = { CASHFREE_APP_ID: 'id', CASHFREE_SECRET_KEY: 'secret' };
+  const realFetch = global.fetch;
+  global.fetch = async () => ({ ok: true, status: 200, json: async () => REAL_ORDER_RESPONSE });
+  try{
+    for(const [planId, price] of Object.entries(PLAN_PRICES)){
+      const res = await handleCashfreeOrder(jsonRequest({
+        amount: price, customer: { phone: '9999999999' }, meta: { planId }
+      }), env);
+      assert.equal(res.status, 200, `${planId} at its real price ${price} should be accepted`);
+    }
   } finally { global.fetch = realFetch; }
 });
 
