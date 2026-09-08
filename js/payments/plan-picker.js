@@ -455,6 +455,26 @@ function rwTierForPlan(planId){
 function grantPurchase(payId, method, planId){
   isPro=true; lsSet('rwPro','1'); lsSet('rw_pro_uid',(user&&user.uid)||'device'); lsSet('rwPayId', payId||'manual');
   lsSet('rw_tier', rwTierForPlan(planId));
+  /* ENTITLEMENT-PERSISTENCE FIX: this local grant was previously the ONLY
+     place Cashfree entitlement lived - no users/{uid}.pro write happened
+     anywhere (see js/payments/providers/cashfree-adapter.js's
+     _cfRecordOrder() and firestore.rules' cashfreeOrders/{orderId} block
+     for the durable, admin-visible record that now closes that gap). That
+     made the bug worse than "loses Pro after a reinstall": js/boot/
+     auth-init.js's account-bound users/{uid} onSnapshot listener runs on
+     EVERY sign-in/page-load and force-sets isPro=false the instant it sees
+     cloud Firestore data with no pro:true and no live rw_pro_temp grace
+     window - so a Cashfree buyer's local grant could vanish on the very
+     next reload, not just after clearing storage. manual-upi-adapter.js's
+     verifyPayment() already solves exactly this for the UTR-claim flow by
+     setting a 24h rw_pro_temp/rw_pro_temp_uid grace window that auth-init.js
+     honors (see its provOK check) while the claim awaits admin approval -
+     reused verbatim here so a Cashfree buyer gets the same protection while
+     their cashfreeOrders receipt awaits admin approval. */
+  if(user){
+    lsSet('rw_pro_temp', String(Date.now()+864e5));
+    lsSet('rw_pro_temp_uid', user.uid);
+  }
   try{ badgeAwardFounder(); }catch(e){ /* badge/progression update is a nice-to-have, ignore */ }
   try{ rwHaptic('heavy'); }catch(e){ /* haptic feedback is a nice-to-have, ignore */ }
   closePay(); el('successOverlay').classList.add('open');

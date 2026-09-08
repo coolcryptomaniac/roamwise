@@ -475,3 +475,155 @@ test('cashfree-adapter.js registers itself as "cashfree" without disturbing the 
   assert.equal(ctx.RW_PAYMENT_PROVIDER, 'manual_upi', 'registering a new adapter must not change the default provider');
   assert.ok(ctx.RWPaymentGateway.current() === null || ctx.RWPaymentGateway.current().id !== 'cashfree');
 });
+
+// ---------------------------------------------------------------------------
+// 3. ENTITLEMENT-PERSISTENCE FIX — confirmed-PAID Cashfree purchases used to
+//    write NOTHING server-side (grantPurchase() only ever set localStorage),
+//    so a paying customer lost Pro on a storage clear/reinstall/device swap.
+//    Two pieces now close that gap:
+//      a) cashfree-adapter.js's _cfRecordOrder() — best-effort, non-blocking
+//         write of a PENDING cashfreeOrders/{orderId} receipt (see
+//         firestore.rules for why this can never self-grant pro:true).
+//      b) plan-picker.js's grantPurchase() — a 24h rw_pro_temp/
+//         rw_pro_temp_uid grace window (the exact mechanism manual-upi-
+//         adapter.js's verifyPayment() already uses) so the local grant
+//         survives js/boot/auth-init.js's account-bound onSnapshot re-check
+//         on the very next reload, while the receipt awaits admin approval.
+// ---------------------------------------------------------------------------
+function fakeDb(){
+  const writes = [];
+  return {
+    writes,
+    collection(name){
+      return {
+        doc(id){
+          return {
+            set(data){ writes.push({ collection: name, id, data }); return Promise.resolve(); },
+            // A confirmed-PAID Founder purchase also runs the (separately
+            // tested — see fakeFounderDb()/FAKE_FIREBASE below)
+            // pricing/founder.count increment through this same success
+            // handler now (merged fix, PR #153). No-op it here so `writes`
+            // stays scoped to the cashfreeOrders receipt this helper exists
+            // to verify.
+            update(){ return Promise.resolve(); }
+          };
+        }
+      };
+    }
+  };
+}
+
+test('_cfRecordOrder (via openCheckout, confirmed PAID): writes a PENDING cashfreeOrders/{orderId} receipt with the exact expected shape', async () => {
+  const db = fakeDb();
+  const ctx = loadCashfreeAdapter({
+    rwApi: (p) => 'https://worker.example/' + p,
+    db,
+    firebase: FAKE_FIREBASE,
+    fetch: async (url) => {
+      if(String(url).indexOf('/status') !== -1) return { json: async () => ({ order_status: 'PAID' }) };
+      return { ok: true, json: async () => ({ payment_session_id: 'session_abc', order_id: 'rw_order_9', environment: 'sandbox' }) };
+    },
+    Cashfree: () => ({ checkout: () => Promise.resolve({}) })
+  });
+  selectCashfree(ctx);
+  ctx.RWPaymentGateway.createOrder(499, { planId: 'founder', label: 'Founder Pro — Lifetime', tierId: 'elite' });
+  ctx.RWPaymentGateway.openCheckout({}, 'any');
+  for(let i = 0; i < 8; i++) await new Promise((resolve) => setTimeout(resolve, 0));
+
+  assert.equal(ctx.grantPurchaseCalls.length, 1, 'the local grant must still happen — this receipt is additive, not a replacement');
+  assert.equal(db.writes.length, 1, 'exactly one cashfreeOrders receipt must be written per confirmed-PAID purchase');
+  const w = db.writes[0];
+  assert.equal(w.collection, 'cashfreeOrders');
+  assert.equal(w.id, 'rw_order_9', 'the doc id must be the real Cashfree order id (firestore.rules keys the collection by it)');
+  assert.equal(w.data.uid, 'u1');
+  assert.equal(w.data.cfOrderId, 'rw_order_9');
+  assert.equal(w.data.planId, 'founder');
+  assert.equal(w.data.amountINR, 499);
+  assert.equal(w.data.status, 'pending', 'must never write status other than pending — only an admin can move it to approved');
+  assert.ok(!('pro' in w.data), 'must never itself write a pro field — nothing here can grant Pro directly, see firestore.rules');
+});
+
+test('_cfRecordOrder: a receipt-write failure is best-effort and never blocks/undoes the Pro grant already given', async () => {
+  const ctx = loadCashfreeAdapter({
+    rwApi: (p) => 'https://worker.example/' + p,
+    // set() (the cashfreeOrders receipt) rejects; update() (the separately
+    // tested pricing/founder.count increment, now sharing this same success
+    // handler per the PR #153 merge) still needs to resolve so this test
+    // stays focused on the receipt-write failure it's named for.
+    db: { collection: () => ({ doc: () => ({ set: () => Promise.reject(new Error('offline')), update: () => Promise.resolve() }) }) },
+    firebase: FAKE_FIREBASE,
+    fetch: async (url) => {
+      if(String(url).indexOf('/status') !== -1) return { json: async () => ({ order_status: 'PAID' }) };
+      return { ok: true, json: async () => ({ payment_session_id: 'session_abc', order_id: 'rw_order_9', environment: 'sandbox' }) };
+    },
+    Cashfree: () => ({ checkout: () => Promise.resolve({}) })
+  });
+  selectCashfree(ctx);
+  ctx.RWPaymentGateway.createOrder(499, { planId: 'founder' });
+  assert.doesNotThrow(() => ctx.RWPaymentGateway.openCheckout({}, 'any'));
+  for(let i = 0; i < 8; i++) await new Promise((resolve) => setTimeout(resolve, 0));
+  assert.equal(ctx.grantPurchaseCalls.length, 1, 'grantPurchase() must still fire even though the receipt write rejected');
+});
+
+test('_cfRecordOrder: no db / no signed-in user — no-ops silently, never throws', async () => {
+  const ctx = loadCashfreeAdapter({
+    rwApi: (p) => 'https://worker.example/' + p,
+    user: null,
+    fetch: async (url) => {
+      if(String(url).indexOf('/status') !== -1) return { json: async () => ({ order_status: 'PAID' }) };
+      return { ok: true, json: async () => ({ payment_session_id: 'session_abc', order_id: 'rw_order_9', environment: 'sandbox' }) };
+    },
+    Cashfree: () => ({ checkout: () => Promise.resolve({}) })
+  });
+  selectCashfree(ctx);
+  ctx.RWPaymentGateway.createOrder(499, { planId: 'founder' });
+  assert.doesNotThrow(() => ctx.RWPaymentGateway.openCheckout({}, 'any'));
+  for(let i = 0; i < 8; i++) await new Promise((resolve) => setTimeout(resolve, 0));
+});
+
+// ---------------------------------------------------------------------------
+// 4. plan-picker.js's grantPurchase() — the rw_pro_temp grace window
+// ---------------------------------------------------------------------------
+function loadGrantPurchase(overrides){
+  const ls = {};
+  const context = Object.assign({
+    console,
+    window: {},
+    setTimeout: () => {},
+    Math,
+    el: () => ({ classList: { add(){}, remove(){} } }),
+    document: {
+      body: { style: {}, appendChild(){} },
+      createElement: () => ({ style: {}, remove(){} })
+    },
+    lsGet: (k) => (k in ls ? ls[k] : null),
+    lsSet: (k, v) => { ls[k] = v; },
+    badgeAwardFounder: () => {},
+    rwHaptic: () => {},
+    confetti: () => {},
+    refreshProUI: () => {},
+    isPro: false,
+    user: { uid: 'u1' }
+  }, overrides || {});
+  context._ls = ls;
+  vm.createContext(context);
+  vm.runInContext(read('js/payments/plan-picker.js'), context);
+  return context;
+}
+
+test('grantPurchase(): sets a 24h rw_pro_temp/rw_pro_temp_uid grace window bound to the signed-in account — the exact protection manual-upi-adapter.js\'s verifyPayment() already gives the UTR-claim flow, so the local grant survives auth-init.js\'s account-bound onSnapshot re-check on the very next reload while the cashfreeOrders receipt awaits admin approval', () => {
+  const ctx = loadGrantPurchase();
+  const before = Date.now();
+  ctx.grantPurchase('rw_order_9', 'cashfree', 'pro_m');
+  assert.equal(ctx.isPro, true);
+  assert.equal(ctx._ls.rw_pro_temp_uid, 'u1');
+  const temp = parseInt(ctx._ls.rw_pro_temp, 10);
+  assert.ok(temp >= before + 24 * 3600 * 1000 - 2000 && temp <= before + 24 * 3600 * 1000 + 5000, 'grace window must be ~24h out, matching manual-upi-adapter.js exactly (864e5 ms)');
+});
+
+test('grantPurchase(): no signed-in user (guest/device-only) — grants locally without throwing and without setting an orphaned grace window', () => {
+  const ctx = loadGrantPurchase({ user: null });
+  assert.doesNotThrow(() => ctx.grantPurchase('rw_order_9', 'cashfree', 'pro_m'));
+  assert.equal(ctx.isPro, true);
+  assert.equal(ctx._ls.rw_pro_temp_uid, undefined);
+});

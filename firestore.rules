@@ -1,3 +1,13 @@
+// Cashfree entitlement-persistence fix (2026-09-07): added cashfreeOrders/
+// {orderId} - a signed-in buyer may self-report a PENDING receipt of a
+// confirmed-PAID Cashfree purchase (mirrors claims/{id}'s proven manual-UPI
+// shape), but nothing in this collection can set users/{uid}.pro - only an
+// admin can approve one, via the pre-existing admin/index.html reconciliation
+// flow. No existing rule was loosened; see the match block below for the
+// full trust-model writeup, including why this deliberately does NOT mirror
+// partnerClaims/{id}'s self-service create shape (that shape has a
+// documented, accepted, open forgery risk - see that match block - which
+// would be far more damaging applied to a real-money purchase path).
 // Admin console manual-revenue fix: 2026-09-01
 // Admin business dashboard (2026-09-06): added finance/costs (owner-entered
 // monthly expenses backing the Business tab's EBITDA-style view) and
@@ -265,6 +275,82 @@ service cloud.firestore {
         && (!('refCode' in request.resource.data)
             || (request.resource.data.refCode is string
                 && request.resource.data.refCode.size() <= 32)));
+      allow read: if isAdmin() || (request.auth != null && resource.data.uid == request.auth.uid);
+      allow update, delete: if isAdmin();
+    }
+
+    // ---------- CASHFREE ORDERS (purchase receipt, admin-approved) ----------
+    // FIX for the "Cashfree payments never persist to Firestore" gap: before
+    // this, a confirmed-PAID Cashfree purchase (js/payments/providers/
+    // cashfree-adapter.js's openCheckout(), after worker/handlers/
+    // cashfree.js's status-check endpoint verifies order_status==='PAID'
+    // server-side) only ever called grantPurchase() (js/payments/
+    // plan-picker.js), which sets isPro/localStorage ONLY - it never touched
+    // users/{uid}.pro. A customer who cleared storage, switched devices, or
+    // reinstalled lost Pro despite having genuinely paid - see PR history for
+    // the full investigation (CASHFREE-INTEGRATION-SETUP.md's "Entitlement
+    // persistence" section has the complete writeup).
+    //
+    // WHY THIS COLLECTION DOES NOT ITSELF GRANT users/{uid}.pro (important -
+    // read before "simplifying" this): the obvious-looking fix is to let the
+    // signed-in buyer flip their own users/{uid}.pro the moment a doc exists
+    // here confirming their order, mirroring partnerClaims/{id} + the
+    // isRedeemedByCaller() self-service grant on users/{uid} above. That
+    // pattern is NOT actually safe to clone here. Look at partnerClaims/{id}'s
+    // `create` rule (below): it has NO auth requirement beyond field-shape
+    // validation - literally any caller can invent a claim doc for an
+    // arbitrary code and self-redeem it - and that gap is explicitly
+    // documented there as an ACCEPTED, OPEN RISK (v15.10 tried to close it,
+    // v15.11 reverted the fix because it broke the real NMIMS claim client).
+    // The reason that residual risk is tolerable for partnerClaims is that
+    // it's a bounded campus promotion with a capped seat count. Cloning that
+    // exact shape onto a real-money purchase path would let ANY signed-in
+    // user grant themselves permanent Pro for zero real payment, with no cap
+    // at all - strictly worse than today's bug (today's bug loses genuine
+    // customers' entitlement; a naive self-service mirror here would instead
+    // GIVE AWAY free Pro to anyone who asks). A truly non-forgeable version
+    // needs a doc here that only a trusted server could have written - i.e.
+    // worker/handlers/cashfree.js's status-check endpoint writing this doc
+    // itself via a Firestore REST call, authenticated with a Firebase Admin/
+    // service-account credential. No such credential exists anywhere in this
+    // repo today (checked: no firebase-admin, no service-account JSON, no
+    // OAuth2/JWT-signing code in worker/ or payments/) - provisioning one is
+    // a real, separate infra step for the site owner (a new Worker secret;
+    // see CASHFREE-INTEGRATION-SETUP.md's "Follow-up" section for exactly
+    // what's needed), not something to fabricate insecurely here.
+    //
+    // What this DOES do, safely, with only what already exists: mirrors
+    // claims/{id}'s proven manual-UPI shape exactly - the signed-in buyer
+    // may create a PENDING, self-reported receipt of what they believe they
+    // paid (closing the "we have zero server-side record this payment ever
+    // happened at all" visibility gap immediately), but nothing here can
+    // ever set pro:true - only an admin can read/update/delete after
+    // reviewing it against the real Cashfree dashboard (admin/index.html's
+    // existing saveManualPayment() flow - unmodified by this change - is
+    // what actually grants Pro, via the users/{uid} isAdmin() branch above).
+    // Slower than an automatic grant, but real and non-forgeable, exactly
+    // like the manual-UPI/UTR claims flow this mirrors.
+    //
+    // Doc ID IS the Cashfree order id (cfOrderId) - same reasoning as
+    // partnerClaims being keyed by code: it means a second account cannot
+    // "create" over an already-claimed order id (Firestore treats a write to
+    // an existing doc path as an update, not a create, regardless of which
+    // client API made the call - and update is admin-only below), so a given
+    // Cashfree order can only ever be receipted by one account.
+    match /cashfreeOrders/{orderId} {
+      allow create: if request.auth != null
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.status == 'pending'
+        && request.resource.data.cfOrderId is string
+        && request.resource.data.cfOrderId.size() > 0
+        && request.resource.data.cfOrderId.size() <= 64
+        && orderId == request.resource.data.cfOrderId
+        && request.resource.data.planId is string
+        && request.resource.data.planId.size() <= 60
+        && request.resource.data.amountINR is number
+        && request.resource.data.amountINR > 0
+        && request.resource.data.amountINR <= 100000
+        && request.resource.data.keys().hasOnly(['uid','cfOrderId','planId','amountINR','status','createdAt']);
       allow read: if isAdmin() || (request.auth != null && resource.data.uid == request.auth.uid);
       allow update, delete: if isAdmin();
     }

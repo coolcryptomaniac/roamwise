@@ -74,6 +74,35 @@ function _cfConfirmPaid(orderId, attemptsLeft){
   }).catch(function(){ return false; });
 }
 
+/* ENTITLEMENT-PERSISTENCE FIX: grantPurchase() (js/payments/plan-picker.js)
+   only ever sets LOCAL (localStorage/device-only) entitlement — before this,
+   NOTHING wrote any server-side record of a Cashfree purchase anywhere, so a
+   customer who cleared storage, switched devices, or reinstalled lost Pro
+   despite having genuinely paid (see firestore.rules' cashfreeOrders/
+   {orderId} block for the full trust-model writeup on why this creates a
+   PENDING, admin-approved receipt rather than self-granting pro:true
+   directly — a fully automatic, still-secure self-service grant needs the
+   Worker to hold a Firebase Admin/service-account credential, which does not
+   exist in this repo today; see CASHFREE-INTEGRATION-SETUP.md's "Follow-up"
+   section). Best-effort and non-blocking, same discipline as
+   openPartnerRedeem()'s founder.count increment — a write failure here must
+   never undo or block the Pro access grantPurchase() already granted. */
+function _cfRecordOrder(orderId, planId, amountINR){
+  try{
+    var u = (typeof user !== 'undefined') ? user : null;
+    if(!u || !u.uid) return;
+    if(typeof db === 'undefined' || !db) return;
+    db.collection('cashfreeOrders').doc(String(orderId)).set({
+      uid: u.uid,
+      cfOrderId: String(orderId),
+      planId: planId || '',
+      amountINR: Number(amountINR) || 0,
+      status: 'pending',
+      createdAt: new Date().toISOString()
+    }).catch(function(){});
+  }catch(e){ /* best-effort, ignore */ }
+}
+
 var CashfreeAdapter = {
   id: 'cashfree',
 
@@ -119,7 +148,7 @@ var CashfreeAdapter = {
     }).then(function(ready){
       var cashfree = Cashfree({mode: ready.environment === 'production' ? 'production' : 'sandbox'});
       return cashfree.checkout({paymentSessionId: ready.paymentSessionId, redirectTarget: '_modal'}).then(function(result){
-        return {result: result, orderId: ready.orderId, planId: ready.planId};
+        return {result: result, orderId: ready.orderId, planId: ready.planId, amountINR: ready.amountINR};
       });
     }).then(function(res){
       var result = res.result || {};
@@ -147,6 +176,12 @@ var CashfreeAdapter = {
              short-term buyer still gets full access, never the other way
              around. */
           grantPurchase(res.orderId || 'cashfree', 'cashfree', res.planId);
+          /* ENTITLEMENT-PERSISTENCE FIX: write the admin-approved
+             cashfreeOrders/{orderId} receipt this file's header comment and
+             _cfRecordOrder() above describe — grantPurchase() only ever
+             wrote LOCAL entitlement, so this is what actually survives a
+             cleared device. */
+          _cfRecordOrder(res.orderId || 'cashfree', res.planId, res.amountINR);
           /* FOUNDER SEAT COUNTING BUG FIX (2026-09-07): a Founder-offer seat
              bought through Cashfree is still one of the shared 1,000
              lifetime-Pro seats — it must count against that pool, same as
