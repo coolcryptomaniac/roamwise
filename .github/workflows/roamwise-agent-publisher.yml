@@ -1,12 +1,12 @@
-name: RoamWise Agent — Daily SEO Publisher
+name: RoamWise Agent — Weekly Rich Guide Publisher
 on:
   schedule:
-    - cron: '0 5 * * *'    # 10:30 IST daily
+    - cron: '0 5 * * 3'    # Wednesday 10:30 IST
   workflow_dispatch:
     inputs:
       pages:
         description: 'Pages to publish this run'
-        default: '3'
+        default: '1'
 
 permissions:
   contents: write
@@ -21,8 +21,11 @@ jobs:
       - name: Publish new SEO pages
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-          PAGES_PER_DAY: ${{ github.event.inputs.pages || '3' }}
+          GEMINI_MODEL: gemini-2.5-flash
+          PAGES_PER_DAY: ${{ github.event.inputs.pages || '1' }}
         run: node agent/publish-daily.js
+      - name: Enforce rich-content quality gate
+        run: node agent/validate-rich-content.js published.txt
       - name: Regenerate sitemap and related-links for any new pages
         run: |
           npm run sitemap
