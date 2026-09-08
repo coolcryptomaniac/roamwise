@@ -82,17 +82,17 @@ window.addEventListener("load",()=>{
   };
 
   window.copyAndOpenGmail=async function(id){
-    const v=VCS.find(x=>x.id===id);if(!v||!v.email)return toast("No verified professional email is saved for this target.",true);
+    const email=await draftRecipient(id);if(!email)return;
     await saveDraft(id,"opened-gmail");
     const subject=$("draftSubject").value.trim(),body=$("draftBody").value.trim();
     try{await navigator.clipboard.writeText(subject+"\n\n"+body)}catch{}
-    const url=`https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(v.email)}&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    const url=`https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(email)}&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
     window.open(url,"_blank","noopener");toast("Full draft copied and Gmail opened.")
   };
   window.openGmailOnly=async function(id){
-    const v=VCS.find(x=>x.id===id);if(!v||!v.email)return toast("No verified professional email is saved for this target.",true);
+    const email=await draftRecipient(id);if(!email)return;
     await saveDraft(id,"opened-gmail");
-    const url=`https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(v.email)}&su=${encodeURIComponent($("draftSubject").value)}&body=${encodeURIComponent($("draftBody").value)}`;
+    const url=`https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(email)}&su=${encodeURIComponent($("draftSubject").value)}&body=${encodeURIComponent($("draftBody").value)}`;
     window.open(url,"_blank","noopener");
   };
 
@@ -117,7 +117,7 @@ window.addEventListener("load",()=>{
       try{const clean={seg:"investor",name:v.name||"",firm:v.firm||"",email:v.email||"",stage:v.stage||"",cheque:v.cheque||"",sectors:v.sectors||"",thesis:v.thesis||"",website:v.website||"",linkedin:v.linkedin||"",location:v.location||"",status:"research",source:v.source||sourceLabel(v),sourceUrl:v.sourceUrl||v.website||"",matchScore:fitScore(v),approachability:Number(v.approachability||0),vchRank:v.vchRank||0,createdAt:FV.serverTimestamp(),createdBy:CURRENT_ADMIN.uid};const ref=await db.collection("crm").add(clean);v={...v,...clean,id:ref.id,_suggested:false,_source:"saved"};VCS.push(v);id=ref.id;toast("Target saved to your private pipeline.")}catch(e){toast(friendlyError(e),true);return}
     }
     const d=v.draftBody?{subject:v.draftSubject,body:v.draftBody}:baseDraft(v),m=vcInterestMeta(v);
-    openModal(`<div class="modalhead"><div><div class="eyebrow">Review before sending</div><h2>${esc(v.name||v.firm)}</h2></div><button class="btn" onclick="closeModal()">Close</button></div><div class="alert ${m.score>=82?"good":""}"><b>Estimated investor interest: ${m.score}% · ${esc(m.label)}</b><div class="meta">${esc(m.reasons.join(" · ")||"fit/access baseline")}. This estimates alignment and outreach priority; it is not a claim about the VC’s private intent.</div></div>${v.source?`<div class="alert"><b>Source:</b> ${esc(v.source)}${v._source==="vch-historical"||String(v.source).includes("historical")?" — re-verify current stage, thesis and route before sending.":""}</div>`:""}<div class="field"><label>Subject</label><input id="draftSubject" class="input" value="${esc(d.subject)}"></div><div class="field" style="margin-top:10px"><label>Investor-specific email</label><textarea id="draftBody" class="input" style="min-height:340px">${esc(d.body)}</textarea></div><div class="actions" style="margin-top:12px"><button id="aiDraftBtn" class="btn primary" onclick="aiImproveDraft('${id}')">AI personalize</button><button class="btn" onclick="saveDraft('${id}')">Save</button><button class="btn" onclick="copyDraft()">Copy full draft</button>${v.email?`<button class="btn good" onclick="copyAndOpenGmail('${id}')">Copy + open Gmail</button><button class="btn good" onclick="openGmailOnly('${id}')">Open Gmail</button><button class="btn" onclick="openEmail('${id}')">Email app</button>`:""}</div><div class="meta" style="margin-top:10px">For safety, the browser opens a send-ready Gmail compose instead of silently sending. Review each claim and recipient before pressing Send.</div>`);
+    openModal(`<div class="modalhead"><div><div class="eyebrow">Review before sending</div><h2>${esc(v.name||v.firm)}</h2></div><button class="btn" onclick="closeModal()">Close</button></div><div class="alert ${m.score>=82?"good":""}"><b>Estimated investor interest: ${m.score}% · ${esc(m.label)}</b><div class="meta">${esc(m.reasons.join(" · ")||"fit/access baseline")}. This estimates alignment and outreach priority; it is not a claim about the VC’s private intent.</div></div>${v.source?`<div class="alert"><b>Source:</b> ${esc(v.source)}${v._source==="vch-historical"||String(v.source).includes("historical")?" — re-verify current stage, thesis and route before sending.":""}</div>`:""}<div class="field"><label>Recipient email</label><input id="draftRecipient" class="input" type="email" value="${esc(v.email||"")}" placeholder="Add the verified public or consented address"></div><div class="field" style="margin-top:10px"><label>Subject</label><input id="draftSubject" class="input" value="${esc(d.subject)}"></div><div class="field" style="margin-top:10px"><label>Investor-specific email</label><textarea id="draftBody" class="input" style="min-height:340px">${esc(d.body)}</textarea></div><div class="actions" style="margin-top:12px"><button id="aiDraftBtn" class="btn primary" onclick="aiImproveDraft('${id}')">AI personalize</button><button class="btn" onclick="saveDraft('${id}')">Save</button><button class="btn" onclick="copyDraft()">Copy full draft</button><button class="btn good" onclick="copyAndOpenGmail('${id}')">Copy + open Gmail</button><button class="btn good" onclick="openGmailOnly('${id}')">Open Gmail</button><button class="btn" onclick="openEmail('${id}')">Email app</button></div><div class="meta" style="margin-top:10px">Every pitch has the same send options. If the source had no address, add a verified public or consented recipient before opening the composer.</div>`);
   };
 
   window.aiImproveDraft=async function(id){
