@@ -34,19 +34,23 @@ start of the modularization effort, down from 3,099 after the prior
 "modularization-final" pass, down from 1,207 after "round 4", and down from
 629 after "round 5" — the further changes since round 5 are incidental to
 unrelated feature PRs #138-143 and this pass's `submitUtr()` one-line
-rewire, not a new extraction round) and there are **138 files** under `js/`
-(137 as of PRs #138-143, plus `js/core/push-notifications.js` added by the
-push-notifications infrastructure pass — see the `js/core/` entry below),
+rewire, not a new extraction round) and there are **142 files** under `js/`
+(137 as of PRs #138-143, plus 4 new `js/admin/` files added by the
+admin-dashboard-expansion pass, plus `js/core/push-notifications.js` added
+by the push-notifications infrastructure pass — see the `js/core/` and
+`js/admin/` entries below),
 organized into **17 top-level subdirectories** (16 from round 5 plus the
 new `js/admin/`) plus one nested subdirectory (`js/payments/providers/`),
 plus **9 files** under `css/`. Two new top-level feature areas landed
 since round 5:
 
-- **`js/admin/` (6 files, added in PR #140)** — a real, data-grounded
-  internal admin dashboard (business metrics, compliance, staff,
-  referral liability, dev requests, investor summary). Loaded only by
-  `admin/index.html` (a separate page, not part of the main app's
-  `index.html` script chain) — see the `js/admin/` entry below.
+- **`js/admin/` (10 files — 6 added in PR #140, plus 4 more from the
+  admin-dashboard-expansion pass)** — a real, data-grounded internal admin
+  dashboard (business metrics, compliance, staff, referral liability, dev
+  requests, investor summary, user activity, promos, notifications, and an
+  Overview command center). Loaded only by `admin/index.html` (a separate
+  page, not part of the main app's `index.html` script chain) — see the
+  `js/admin/` entry below.
 - **`js/payments/providers/` (2 files, added in PR #142)** — provider
   implementations for the new pluggable payment gateway adapter
   (`js/payments/gateway-adapter.js`, also added in PR #142) — see the
@@ -132,7 +136,7 @@ prints PASS/DRIFT per number in under a second.
   payment-claim writer that calls this file's `rwRefStamp()` — is
   payments/entitlement code and deliberately stays in `app.js`.
 
-### `js/admin/` (6 files, added in PR #140)
+### `js/admin/` (10 files — 6 from PR #140, 4 from the admin-dashboard-expansion PR)
 Internal admin dashboard logic, loaded only by `admin/index.html` (a
 separate page from the main app — not part of `index.html`'s script
 chain). Each file is a self-contained tab's worth of read-mostly
@@ -154,6 +158,25 @@ support one):
   track/display requests (no live code-execution capability implied).
 - `investor-summary.js` (60 lines) — a clean, read-only rollup meant to
   be screenshotted for an investor update.
+- `user-activity.js` (81 lines) — DAU/WAU/MAU for the "Activity" tab,
+  computed from `users/{uid}.lastActive` (new instrumentation added in
+  `js/boot/auth-init.js` alongside this file — there was no admin-readable
+  per-user activity timestamp before it). States plainly that activity
+  before this shipped is not knowable and never estimates it.
+- `promo-manager.js` (154 lines) — create/view/deactivate promo codes for
+  the "Promos" tab, stored at `config/promoCodes` in the same
+  admin-write/public-read list-in-one-doc shape `config/referrers`
+  already uses. Checkout has no generic promo-code input yet — this file
+  only manages the codes themselves; `redeemedCount` is stored but never
+  incremented by any live path.
+- `notification-composer.js` (81 lines) — compose/queue push
+  notifications at `notificationQueue/{id}` for the "Notifications" tab.
+  Not wired to a send endpoint — the parallel `claude/push-notifications`
+  branch's admin-only `POST /push/send` was unmerged as of this file.
+- `dashboard-home.js` (63 lines) — the Overview tab's "command center"
+  card: a thin aggregator of numbers already computed by the modules
+  above, linking straight into each tab. This is the single-dashboard
+  landing view.
 
 ### `js/payments/` (4 files, plus a nested `providers/` subdirectory)
 - `gateway-adapter.js` (added in PR #142; extended in the subscription-vs-

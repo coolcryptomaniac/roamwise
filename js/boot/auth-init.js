@@ -87,6 +87,21 @@ if (AUTH_READY && typeof firebase !== 'undefined') try {
       ref.get().then(function(d){
         if(!d.exists) ref.set({email:u.email||'', phone:u.phoneNumber||'', name:u.displayName||'', created:firebase.firestore.FieldValue.serverTimestamp()});
       });
+      /* ---- DAU instrumentation (added alongside js/admin/user-activity.js) ----
+         REVENUE-GROWTH-STRATEGY.md flagged that this codebase has NO per-user
+         activity/login timestamp anywhere admin-readable (the existing
+         devices/{deviceId}.last field below is per-device, and its Firestore
+         rule is isSelf(uid)-only — admin cannot read it). This is the minimal
+         fix: one plain field on the user's own doc, updated every time this
+         callback fires (sign-in AND every subsequent app-open while already
+         signed in, since onAuthStateChanged re-fires on load). Merge-only, so
+         it never touches any other field — in particular never the pro/proAt/
+         proMethod/proPayId blocklist, so no firestore.rules change is needed:
+         it rides the existing generic self-write rule on users/{uid} exactly
+         like pushTokens does. Honest limitation: this can only measure
+         activity from the moment this shipped forward — there is no way to
+         retroactively know how active any account was before today. */
+      try{ ref.set({lastActive: firebase.firestore.FieldValue.serverTimestamp()}, {merge:true}); }catch(e){ /* best-effort, ignore */ }
       /* ---- device fingerprint (stable per browser/app install) ---- */
       var devId=lsGet('rw_devid'); if(!devId){ devId='d_'+Math.random().toString(36).slice(2)+Date.now().toString(36); lsSet('rw_devid',devId); }
       /* ---- register this account+device pair; enforce a 3-device cap ---- */

@@ -41,6 +41,9 @@
       <button data-page="money" onclick="goPage('money',this)">Money</button>
       <button data-page="users" onclick="goPage('users',this)">Users</button>
       <button data-page="business" onclick="goPage('business',this)">Business</button>
+      <button data-page="activity" onclick="goPage('activity',this)">Activity</button>
+      <button data-page="promos" onclick="goPage('promos',this)">Promos</button>
+      <button data-page="notifications" onclick="goPage('notifications',this)">Notifications</button>
       <button data-page="referrals" onclick="goPage('referrals',this)">Referrals</button>
       <button data-page="staff" onclick="goPage('staff',this)">Staff</button>
       <button data-page="compliance" onclick="goPage('compliance',this)">Compliance</button>
@@ -52,6 +55,7 @@
     <main>
       <section id="overview" class="section on"><div class="eyebrow">Today</div><h1 class="title">One queue, no buried actions.</h1><p class="lead">Revenue repairs, users, investor follow-ups and rule health are visible from one mobile-friendly command center.</p>
         <div class="grid kpis"><div class="card kpi"><b id="kUsers">—</b><span>users</span></div><div class="card kpi"><b id="kPro">—</b><span>Pro accounts</span></div><div class="card kpi"><b id="kRevenue">—</b><span>recorded revenue</span></div><div class="card kpi warn"><b id="kIssues">—</b><span>needs attention</span></div></div>
+        <div class="card" style="margin-top:14px"><h2>Command center</h2><p>The most important numbers and actions, first — jump straight into any section.</p><div id="dashboardHome"><div class="empty">Loading…</div></div></div>
         <div class="grid two" style="margin-top:14px"><div class="card"><h2>Action queue</h2><p>Only items requiring a decision appear here.</p><div id="actionQueue" class="list"><div class="empty">Loading…</div></div></div>
         <div class="card"><h2>Fundraising snapshot</h2><p>Live operating facts used in personalized VC drafts.</p><div id="pitchSummary" class="list"></div><button class="btn" onclick="goPage('outreach')">Open outreach desk</button></div></div>
       </section>
@@ -82,6 +86,23 @@
         <div id="businessMetrics"><div class="empty">Loading…</div></div>
         <div class="card" style="margin-top:14px"><h2>Monthly expenses (owner-entered)</h2><p>Stored at <code>finance/costs</code>, admin-only. Categories match the chart of accounts in <code>finance-data.js</code>. Leave a category at 0 if it doesn't apply yet.</p><div id="expenseFields" class="fields"></div><button class="btn primary" style="margin-top:12px" onclick="saveCosts()">Save expenses</button></div>
       </section>
+      <section id="activity" class="section"><div class="eyebrow">DAU / user activity</div><h1 class="title">Who's actually using RoamWise, day to day.</h1><p class="lead">Computed from <code>users/{uid}.lastActive</code>, a real timestamp written on every sign-in and app-open. Tracking only started when this shipped — nothing before that is knowable, and this page never guesses at it.</p>
+        <div id="activityDashboard"><div class="empty">Loading…</div></div>
+      </section>
+      <section id="promos" class="section"><div class="eyebrow">Offers</div><h1 class="title">Promo codes — create, view, deactivate.</h1><p class="lead">Stored at <code>config/promoCodes</code>, the same admin-write/public-read Firestore shape the referrer registry already uses. Checkout does not read these yet — see the page for exact wiring status.</p>
+        <div id="promoList"><div class="empty">Loading…</div></div>
+        <button class="btn primary" style="margin-top:12px" onclick="openPromoForm()">Add promo code</button>
+      </section>
+      <section id="notifications" class="section"><div class="eyebrow">Push notifications</div><h1 class="title">Compose now, send once a sender exists.</h1><p class="lead">Queued at <code>notificationQueue/{id}</code>, admin-only. Not wired to a live send endpoint yet — see the page for exact status.</p>
+        <div class="card"><h2>New notification</h2><div class="fields">
+          <div class="field full"><label>Title</label><input id="notifTitle" class="input" placeholder="e.g. Your trip to Jaipur starts tomorrow"></div>
+          <div class="field full"><label>Body</label><textarea id="notifBody" class="input"></textarea></div>
+          <div class="field"><label>Target</label><select id="notifTargetType" class="input"><option value="all" selected>All users</option><option value="uid">One user (UID)</option></select></div>
+          <div class="field"><label>Target UID (if one user)</label><input id="notifTargetUid" class="input" placeholder="Firebase UID"></div>
+          <div class="field full"><label>Open URL (optional)</label><input id="notifUrl" class="input" placeholder="https://www.roamwise.co.in/live/"></div></div>
+          <button class="btn primary" style="margin-top:12px" onclick="queueNotification()">Add to queue</button></div>
+        <div class="card" style="margin-top:14px"><h2>Queue</h2><div id="notificationQueueList"><div class="empty">Loading…</div></div></div>
+      </section>
       <section id="referrals" class="section"><div class="eyebrow">Referral / creator liability</div><h1 class="title">What RoamWise owes its referrers.</h1><p class="lead">Computed from approved claims carrying real referral attribution (<code>refCode</code>/<code>refRate</code> stamped by the live site) — self-referrals are always excluded.</p>
         <div id="referralLiability"><div class="empty">Loading…</div></div>
       </section>
@@ -110,6 +131,19 @@
 <script src="investors-data.js"></script>
 <script src="../referral-data.js"></script>
 <script src="../finance-data.js"></script>
+<!-- BUG FIX (found while verifying this PR's new dashboard sections in a real
+     browser, not just static review): this tag pointed at a file that has
+     never existed in this repo, js/pricing/tiers.js — RWPricing is actually
+     defined across js/pricing/subscription-plans.js (CONFIG.TIERS + the
+     RWPricing object itself) and js/pricing/one-off-plans.js (extends the
+     same CONFIG with FOUNDER_OFFER/LONG_TERM/SHORT_TERM). With the old
+     404'ing tag, `RWPricing` was undefined the instant admin/index.html
+     loaded, so renderBusiness() (Business tab, Investor tab, and now this
+     PR's Overview "command center" card, all of which read
+     RWBusinessMetrics.summarizeRevenue(...,RWPricing.CONFIG)) threw on
+     every single Firestore snapshot — a pre-existing defect, not something
+     this PR introduced; verified via `git diff origin/main -- admin/index.html`
+     before fixing. -->
 <script src="../js/pricing/subscription-plans.js"></script>
 <script src="../js/pricing/one-off-plans.js"></script>
 <script src="../js/admin/business-metrics.js"></script>
@@ -118,11 +152,16 @@
 <script src="../js/admin/staff-manager.js"></script>
 <script src="../js/admin/dev-requests.js"></script>
 <script src="../js/admin/investor-summary.js"></script>
+<script src="../js/admin/user-activity.js"></script>
+<script src="../js/admin/promo-manager.js"></script>
+<script src="../js/admin/notification-composer.js"></script>
+<script src="../js/admin/dashboard-home.js"></script>
 <script>
 const FIREBASE_CONFIG={apiKey:"AIzaSyDlrtpzpOb1VEmVSd9tHmu7OpmvwWosYsU",authDomain:"roamwisepro.firebaseapp.com",projectId:"roamwisepro",appId:"1:299014744987:web:d5c316743e6d7a10904f3e"};
 firebase.initializeApp(FIREBASE_CONFIG); const auth=firebase.auth(),db=firebase.firestore(),FV=firebase.firestore.FieldValue;
 let USERS=[],CLAIMS=[],PAYMENTS=[],LEDGER=[],VCS=[],CURRENT_ADMIN=null,RULES_OK=false,VCH_CURRENT=[],VCH_HISTORY=[],VCH_LOADING=false,VCH_LOADED=false,VCH_ERROR="";
 let REFERRERS_LIVE=[],FINANCE_COSTS={},COMPLIANCE_OVERRIDES={},DEV_REQUESTS=[],LAST_LIABILITY=null,LAST_BUSINESS_SUMMARY=null,LAST_EBITDA=null,REV_TOTAL=0;
+let PROMO_CODES=[],NOTIFICATION_QUEUE=[];
 let PITCH={users:26,revenue:500,burn:21000,team:3,min:500000,target:2500000,hard:5000000,stage:"Seed / late pre-seed",thesis:"The AI-native operating system between wanting to travel and completing the trip."};
 const $=id=>document.getElementById(id); const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 function toast(msg,bad=false){const t=$("toast");t.textContent=msg;t.style.borderColor=bad?"var(--red)":"var(--green)";t.classList.remove("hidden");clearTimeout(t._timer);t._timer=setTimeout(()=>t.classList.add("hidden"),4500)}
@@ -138,6 +177,8 @@ function startBusinessData(){
   db.collection("finance").doc("costs").onSnapshot(d=>{FINANCE_COSTS=d.exists?d.data():{};renderBusiness()},e=>toast("Expenses: "+e.message,true));
   db.collection("config").doc("complianceChecklist").onSnapshot(d=>{COMPLIANCE_OVERRIDES=d.exists?d.data():{};renderCompliance()},e=>toast("Compliance: "+e.message,true));
   db.collection("devRequests").orderBy("createdAt","desc").limit(200).onSnapshot(s=>{DEV_REQUESTS=s.docs.map(d=>({id:d.id,...d.data()}));renderDevRequests()},e=>toast("Dev requests: "+e.message,true));
+  db.collection("config").doc("promoCodes").onSnapshot(d=>{PROMO_CODES=(d.exists&&Array.isArray((d.data()||{}).list))?d.data().list:[];renderPromos();renderDashboardHome()},e=>toast("Promo codes: "+e.message,true));
+  db.collection("notificationQueue").orderBy("createdAt","desc").limit(200).onSnapshot(s=>{NOTIFICATION_QUEUE=s.docs.map(d=>({id:d.id,...d.data()}));renderNotifications();renderDashboardHome()},e=>toast("Notification queue: "+e.message,true));
   loadDevRequestGithubSettings();
 }
 /* Referrer registry used by Business/Referrals/Staff — REFERRERS_LIVE (config/referrers,
@@ -165,7 +206,7 @@ function renderBusiness(){
   const ebitda=RWBusinessMetrics.computeEbitda(summary.mrrINR,expenses.totalINR);
   LAST_BUSINESS_SUMMARY=summary;LAST_EBITDA=ebitda;
   $("businessMetrics").innerHTML=RWBusinessMetrics.renderBusinessMetricsHtml(summary,ebitda,{money,esc});
-  renderExpenseFields();renderInvestorTab();
+  renderExpenseFields();renderInvestorTab();renderDashboardHome();
 }
 function renderExpenseFields(){
   if(!$("expenseFields"))return;
@@ -251,6 +292,74 @@ function renderInvestorTab(){
   const summary=RWInvestorSummary.buildSummary(userStats,LAST_BUSINESS_SUMMARY,LAST_EBITDA);
   $("investorSummary").innerHTML=RWInvestorSummary.renderInvestorSummaryHtml(summary,{money});
 }
+/* ---------------------------------------------------------------------
+   User activity / DAU
+--------------------------------------------------------------------- */
+function renderActivity(){
+  if(!$("activityDashboard"))return;
+  const stats=RWUserActivity.computeActivityStats(USERS.map(u=>({lastActive:u.lastActive})));
+  $("activityDashboard").innerHTML=RWUserActivity.renderActivityHtml(stats,{esc});
+  return stats;
+}
+/* ---------------------------------------------------------------------
+   Promo codes — config/promoCodes, same admin-write/public-read shape
+   as config/referrers (js/admin/staff-manager.js).
+--------------------------------------------------------------------- */
+function renderPromos(){
+  if(!$("promoList"))return;
+  $("promoList").innerHTML=RWPromoManager.renderPromoListHtml(PROMO_CODES,{esc});
+}
+function openPromoForm(code){
+  const existing=code?PROMO_CODES.find(p=>RWPromoManager.sanitizeCode(p.code)===RWPromoManager.sanitizeCode(code)):null;
+  openModal(`<div class="modalhead"><h2>${existing?"Edit promo code":"Add promo code"}</h2><button class="btn" onclick="closeModal()">Close</button></div><div class="fields">${RWPromoManager.promoFormHtml(existing)}</div><button class="btn primary" style="width:100%;margin-top:12px" onclick="savePromo()">Save</button>`)
+}
+async function savePromo(){
+  const input=RWPromoManager.readPromoForm($),norm=RWPromoManager.normalizePromo(input);
+  if(!norm.ok)return toast(norm.error,true);
+  const updated=RWPromoManager.upsertPromo(PROMO_CODES.slice(),norm.promo);
+  try{await db.collection("config").doc("promoCodes").set({list:updated,updatedAt:FV.serverTimestamp(),updatedBy:CURRENT_ADMIN.uid});closeModal();toast("Promo code saved.")}catch(e){toast(friendlyError(e),true)}
+}
+async function togglePromoActive(code,reactivate){
+  const updated=RWPromoManager.setActive(PROMO_CODES.slice(),code,reactivate);
+  try{await db.collection("config").doc("promoCodes").set({list:updated,updatedAt:FV.serverTimestamp(),updatedBy:CURRENT_ADMIN.uid});toast(reactivate?"Promo code reactivated.":"Promo code deactivated.")}catch(e){toast(friendlyError(e),true)}
+}
+/* ---------------------------------------------------------------------
+   Notification composer — notificationQueue/{id}, admin-only, NOT wired
+   to a live sender yet (see js/admin/notification-composer.js header).
+--------------------------------------------------------------------- */
+function renderNotifications(){
+  if(!$("notificationQueueList"))return;
+  $("notificationQueueList").innerHTML=RWNotificationComposer.renderQueueHtml(NOTIFICATION_QUEUE,{esc,when});
+}
+async function queueNotification(){
+  const norm=RWNotificationComposer.normalizeNotification({
+    title:$("notifTitle").value,body:$("notifBody").value,url:$("notifUrl").value,
+    targetType:$("notifTargetType").value,targetUid:$("notifTargetUid").value
+  });
+  if(!norm.ok)return toast(norm.error,true);
+  try{
+    await db.collection("notificationQueue").add({...norm.notification,createdAt:FV.serverTimestamp(),createdBy:CURRENT_ADMIN.uid});
+    $("notifTitle").value="";$("notifBody").value="";$("notifUrl").value="";$("notifTargetUid").value="";
+    toast("Queued — not sent yet (no live sender wired up).")
+  }catch(e){toast(friendlyError(e),true)}
+}
+async function markNotificationSent(id){try{await db.collection("notificationQueue").doc(id).set({status:"sent",sentAt:FV.serverTimestamp(),sentBy:CURRENT_ADMIN.uid},{merge:true})}catch(e){toast(friendlyError(e),true)}}
+async function deleteNotificationQueueItem(id){if(!confirm("Delete this queued notification?"))return;try{await db.collection("notificationQueue").doc(id).delete()}catch(e){toast(friendlyError(e),true)}}
+/* ---------------------------------------------------------------------
+   Dashboard home — Overview tab's "command center" card. Thin aggregator
+   of numbers already computed elsewhere (js/admin/dashboard-home.js).
+--------------------------------------------------------------------- */
+function renderDashboardHome(){
+  if(!$("dashboardHome"))return;
+  const activityStats=RWUserActivity.computeActivityStats(USERS.map(u=>({lastActive:u.lastActive})));
+  const activePromoCount=PROMO_CODES.filter(p=>p.active!==false&&!RWPromoManager.isExpired(p)).length;
+  const queuedNotificationCount=NOTIFICATION_QUEUE.filter(n=>n.status==="queued").length;
+  const summary=RWDashboardHome.buildHomeSummary({
+    totalUsers:USERS.length,proUsers:USERS.filter(u=>u.pro).length,unresolvedCount:unresolved().length,
+    activityStats,businessSummary:LAST_BUSINESS_SUMMARY,activePromoCount,queuedNotificationCount
+  });
+  $("dashboardHome").innerHTML=RWDashboardHome.renderDashboardHomeHtml(summary,{money});
+}
 function paymentSucceeded(p){const s=String(p.status||"").toLowerCase();return Number(p.amount||0)>0&&!["failed","cancelled","refunded"].includes(s)} function paidFor(uid){const u=USERS.find(x=>x.id===uid)||{};return CLAIMS.filter(c=>c.uid===uid&&c.status==="approved"&&Number(c.amount)>0).concat(PAYMENTS.filter(p=>paymentSucceeded(p)&&(p.uid===uid||(u.email&&p.email===u.email))))} function explained(u){return !u.pro||paidFor(u.id).length||["comp","test","trial","partner"].includes(String(u.proMethod||u.compReason||"").toLowerCase())} function unresolved(){return USERS.filter(u=>u.pro&&!explained(u))}
 /* FOUNDER SEAT COUNTING BUG FIX: whether a Founder seat has already been
    counted toward the shared 1,000-seat pool is a property of the PAYMENT
@@ -268,7 +377,7 @@ function paymentSucceeded(p){const s=String(p.status||"").toLowerCase();return N
    flow anyone would actually use for a pre-existing real payment never
    incremented the shared counter. */
 function seatAlreadyCounted(uid){return CLAIMS.some(c=>c.uid===uid&&c.status==="approved"&&c.seatCounted===true)}
-function renderAll(){const claimRev=CLAIMS.filter(c=>c.status==="approved").reduce((n,c)=>n+Number(c.amount||0),0),gatewayRev=Math.round(PAYMENTS.filter(paymentSucceeded).reduce((n,p)=>n+Number(p.amount||0),0)/100),rev=claimRev+gatewayRev;REV_TOTAL=rev;$("kUsers").textContent=USERS.length;$("kPro").textContent=USERS.filter(u=>u.pro).length;$("kRevenue").textContent=money(rev);$("kIssues").textContent=unresolved().length;renderQueue();renderReconcile();renderRevenue();renderUsers();PITCH.users=USERS.length||PITCH.users;PITCH.revenue=rev||PITCH.revenue;fillPitch();renderPitchSummary();renderBusiness();renderReferrals()}
+function renderAll(){const claimRev=CLAIMS.filter(c=>c.status==="approved").reduce((n,c)=>n+Number(c.amount||0),0),gatewayRev=Math.round(PAYMENTS.filter(paymentSucceeded).reduce((n,p)=>n+Number(p.amount||0),0)/100),rev=claimRev+gatewayRev;REV_TOTAL=rev;$("kUsers").textContent=USERS.length;$("kPro").textContent=USERS.filter(u=>u.pro).length;$("kRevenue").textContent=money(rev);$("kIssues").textContent=unresolved().length;renderQueue();renderReconcile();renderRevenue();renderUsers();PITCH.users=USERS.length||PITCH.users;PITCH.revenue=rev||PITCH.revenue;fillPitch();renderPitchSummary();renderBusiness();renderReferrals();renderActivity();renderDashboardHome()}
 function renderQueue(){const rows=unresolved();$("actionQueue").innerHTML=rows.length?rows.map(u=>`<div class="row"><div class="grow"><strong>${esc(u.email||u.id)}</strong><div class="meta">Pro access exists, but no approved payment or comp reason exists.</div></div><button class="btn primary small" onclick="openPayment('${u.id}')">Repair</button></div>`).join(""):`<div class="empty">No revenue mismatches. Your records are reconciled.</div>`}
 function renderReconcile(){const rows=unresolved();$("reconcileList").innerHTML=rows.length?rows.map(u=>`<div class="row"><div class="grow"><strong>${esc(u.email||u.id)}</strong><div class="meta">${esc(u.id)} · granted ${when(u.proAt)}</div></div><button class="btn primary small" onclick="openPayment('${u.id}')">Record payment</button><button class="btn small" onclick="setComp('${u.id}')">Mark comp</button></div>`).join(""):`<div class="empty">Nothing to repair.</div>`}
 function refKey(v){return String(v||"").trim().toLowerCase().replace(/[^a-z0-9]/g,"").slice(0,64)}

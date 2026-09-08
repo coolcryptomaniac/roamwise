@@ -3,7 +3,16 @@
 // monthly expenses backing the Business tab's EBITDA-style view) and
 // devRequests/{id} (the Dev/AI Requests task queue). Both admin-only, both
 // narrowly scoped to the one collection/doc each feature actually needs. No
-// existing rule was loosened. NOTE: the "STABLE BUILD v17.0 / Platform V5"
+// existing rule was loosened.
+// Admin dashboard expansion (2026-09-07): added notificationQueue/{id}
+// (admin-only, same shape as devRequests — see that match block for why).
+// The DAU dashboard's users/{uid}.lastActive field and the promo-code
+// manager's config/promoCodes doc needed NO new rule: lastActive rides the
+// existing generic users/{uid} self-write rule (not in the pro/proAt/
+// proMethod/proPayId blocklist, same as pushTokens), and promoCodes rides
+// the existing `match /config/{doc}` admin-write/public-read rule, the same
+// one config/referrers already uses. No existing rule was loosened.
+// NOTE: the "STABLE BUILD v17.0 / Platform V5"
 // string below is a literal CI invariant checked by
 // .github/workflows/platform-v5-guardrails.yml (via
 // scripts/apply-platform-rules-v17.py) — do not bump it for an unrelated
@@ -854,6 +863,21 @@ service cloud.firestore {
     // is a plain admin-only Firestore queue, same access shape as adminAuditLog,
     // except mutable (status moves from open -> done, or a bad entry gets deleted).
     match /devRequests/{id} {
+      allow read, create, update, delete: if isAdmin();
+    }
+
+    // ---------- NOTIFICATION QUEUE (admin console composer) ----------
+    // Backs the admin "Notifications" tab (js/admin/notification-composer.js).
+    // Same access shape as devRequests directly above: a plain admin-only
+    // Firestore queue, not a send path. Nothing in this codebase currently
+    // reads this collection to actually deliver a push notification — see
+    // that file's header for exact wiring status (the parallel
+    // claude/push-notifications branch's admin-only POST /push/send is the
+    // real send path, and is unmerged/not consuming this queue as of this
+    // rule). Admin-only in both directions since a queued title/body could
+    // otherwise be read or spoofed by any signed-in user before a real
+    // sender exists to validate it.
+    match /notificationQueue/{id} {
       allow read, create, update, delete: if isAdmin();
     }
 
