@@ -1,6 +1,6 @@
 # RoamWise Business: integration and pilot guide
 
-Status: implementation prepared on 8 September 2026. This document does not
+Status: implementation prepared on 8 September 2026, subsequently modularized before publication. This document does not
 assert that the branch, Worker, or any customer integration is deployed.
 
 ## What works in this change
@@ -128,7 +128,7 @@ scope to revoke access. For rotation, provision a second hash briefly and then
 remove the old hash. Never reuse a key across companies.
 
 Use `Authorization: Bearer <token>` and `Content-Type: application/json`.
-`openapi.json` is OpenAPI/Swagger **2.0**, with a placeholder host; provide the
+`../contracts/openapi.json` is OpenAPI/Swagger **2.0**, with a placeholder host; provide the
 entire `Bearer …` value when the connector asks for the Authorization API key.
 Requests are limited to 128 KiB and body reading times out after five seconds.
 Responses are `no-store`. No browser Origin or CORS access is allowed.
@@ -139,7 +139,7 @@ Request shape:
 { "report": { "schemaVersion": 1, "trip": {}, "policy": {}, "expenses": [] } }
 ```
 
-Use the included `example-report.json` for a complete synthetic example. The
+Use the included `../contracts/example-report.json` for a complete synthetic example. The
 workspace's report JSON contains the normalized input under `.report`, so the
 download itself can also serve as the reconciliation request body. To export,
 add `"reviewed": true` at the top level and use an export-scoped credential.
@@ -240,10 +240,8 @@ Use official exports/APIs for finance integration, not scraping employee systems
 ## Verification and release
 
 ```sh
-node --check business/core.js
-node --check business/workspace.js
-node --check worker/handlers/business.js
-node --test tests/business-travel.test.js
+npm run business:check
+npm run business:test
 npm test
 npm run check
 npm run mod-status

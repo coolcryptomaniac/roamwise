@@ -70,10 +70,10 @@ no longer match the repo — flagged explicitly below and in the PR summary.
 
 ## Business / growth / operations docs
 
-`business/INTEGRATION.md` — current, September 2026: local business-travel
+`features/business-travel/docs/INTEGRATION.md` — current, September 2026: local business-travel
 workspace, deterministic reconciliation, opt-in Worker API, signed webhooks,
 pilot rollout and the exact vendor/SSO capabilities still requiring setup.
-Read before modifying `business/` or `worker/handlers/business.js`.
+Read `features/business-travel/AGENTS.md` first for the module map and targeted checks.
 
 | File | Purpose | Status | Read this when... |
 |---|---|---|---|

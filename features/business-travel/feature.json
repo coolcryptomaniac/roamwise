@@ -1,0 +1,53 @@
+{
+  "id": "business-travel",
+  "version": 1,
+  "publicPage": "business/index.html",
+  "apiPrefix": "/v1/business",
+  "browserScripts": [
+    "core/validation.js",
+    "core/money.js",
+    "core/reports.js",
+    "core/exports.js",
+    "ui/context.js",
+    "ui/forms.js",
+    "ui/storage.js",
+    "ui/view.js",
+    "ui/transfers.js",
+    "ui/controller.js"
+  ],
+  "stylesheets": [
+    "ui/business.css"
+  ],
+  "gzipBudgetBytes": 25600,
+  "runtimeModuleLineLimit": 350,
+  "modules": {
+    "core/validation.js": "Bounded text, shape and date validation",
+    "core/money.js": "Currency decimals, minor units and integer FX conversion",
+    "core/reports.js": "Normalize reports and evaluate company spending policy",
+    "core/exports.js": "Finance CSV formatting and formula neutralization",
+    "core/node.cjs": "Node test bridge for the same classic core modules",
+    "ui/context.js": "One page-local state and DOM context",
+    "ui/forms.js": "Read/fill trip and expense forms; exchange-rate fields",
+    "ui/storage.js": "Explicit device saving and backup validation",
+    "ui/view.js": "Ledger and budget presentation with text nodes",
+    "ui/transfers.js": "User-triggered CSV, JSON and backup downloads/restore",
+    "ui/controller.js": "Compose feature modules and install page events",
+    "api/http.js": "Private response headers and bounded JSON body reader",
+    "api/crypto.js": "SHA-256 and fixed-length hash comparisons",
+    "api/tenants.js": "Validate server-owned tenant credentials and policy",
+    "api/webhooks.js": "Destination validation and signed one-attempt delivery",
+    "api/handler.js": "Authenticate, limit, validate, reconcile and dispatch exports"
+  },
+  "externalSeams": {
+    "business/index.html": "Public HTML entry with explicit script order",
+    "worker/handlers/business.js": "Thin named re-export to api/handler.js",
+    "worker/worker.js": "Single existing Worker deployment entry point",
+    "tests/business-travel.test.js": "Feature test bridge used by npm test"
+  },
+  "commands": {
+    "context": "npm run business:context -- core|ui|api",
+    "check": "npm run business:check",
+    "test": "npm run business:test",
+    "fullRegression": "npm test && npm run check && npm run mod-status"
+  }
+}

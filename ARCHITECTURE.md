@@ -30,16 +30,19 @@ works fully without it.
 
 ### Business travel (optional, September 2026)
 
-`business/index.html` is an independent classic-script workspace. It loads only
-`business/core.js`, `business/workspace.js` and `business/business.css`; the main
-app links to it without adding scripts to its startup chain. Drafts are local,
-with explicit device-saving consent. `business/core.js` supplies the same expense
-validation/conversion to `worker/handlers/business.js` through a side-effect
-import. The existing Worker routes `/v1/business/reconcile` and `/export` there
-before public CORS handling; both stay disabled until configured. No changes to
-Firebase sign-in, Pro, payments, Firestore rules or live deployment configuration.
-See `business/INTEGRATION.md` for limits, tenant provisioning and delivery semantics.
-
+`features/business-travel/` owns the feature's `core/`, `ui/`, `api/`,
+`contracts/`, `tests/`, `tools/` and `docs/`. Read its `AGENTS.md` or run
+`npm run business:context -- ui|api|core` before opening its implementation.
+`/business/index.html` is the public HTML entry. It loads only this feature's
+classic scripts in the order recorded in `feature.json`; the main app adds links
+without changing its startup scripts. Drafts remain local with opt-in saving.
+`worker/handlers/business.js` is a thin re-export to the feature's API handler;
+the existing Worker is still the single deployment entry point. Company API
+routes are disabled until configured and run before public CORS handling.
+`tests/business-travel.test.js` includes the feature-owned tests in normal CI.
+The shared core is used by both the page and the Worker, with no duplicated
+accounting rules. No Firebase/Pro/payment changes or deployment binding changes.
+See `features/business-travel/docs/INTEGRATION.md` for provisioning and limits.
 
 As of this commit (post PRs #138-143, plus the subscription-vs-one-off
 Cashfree gating pass), `app.js` is **575 lines** (down from ~19,300 at the

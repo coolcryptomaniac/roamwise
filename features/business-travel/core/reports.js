@@ -1,42 +1,11 @@
-/* Shared, dependency-free expense rules. Classic browser script + Worker import.
- * Amounts cross the boundary as decimal strings; integer arithmetic rounds once
- * per expense (half up). An evaluation is never an approval or payment record. */
+/* Report normalization and policy evaluation; returns drafts, never approval. */
 (function (root) {
   'use strict';
-  var currencies = Object.freeze({ INR: 2, USD: 2, EUR: 2, GBP: 2, AED: 2, SGD: 2, JPY: 0, CAD: 2, AUD: 2, CHF: 2 });
+  var api = root.RWBusinessCore = root.RWBusinessCore || {};
+  var fail = api.fail, object = api.object, text = api.text, date = api.date;
+  var currency = api.currency, decimal = api.decimal, money = api.money, amount = api.amount, convert = api.convert;
   var categories = Object.freeze(['transport', 'lodging', 'meals', 'other']);
-  function fail(message) { throw new Error(message); }
-  function object(value, name) {
-    if (!value || typeof value !== 'object' || Array.isArray(value)) fail(name + ' must be an object.');
-    return value;
-  }
-  function text(value, name, max, optional) {
-    if (optional && (value === undefined || value === '')) return '';
-    if (typeof value !== 'string' || !value.trim() || value.length > max || /[\u0000-\u001f\u007f]/.test(value)) fail(name + ' is missing or invalid.');
-    return value.trim();
-  }
-  function currency(value) {
-    if (!Object.hasOwn(currencies, value)) fail('Choose a supported currency.');
-    return value;
-  }
-  function decimal(value, places, name, allowZero) {
-    if (typeof value !== 'string' || value.length > 20 || !/^\d+(?:\.\d+)?$/.test(value)) fail(name + ' must be a plain decimal string.');
-    var parts = value.split('.');
-    if ((parts[1] || '').length > places) fail(name + ' has too many decimal places.');
-    var result = BigInt(parts[0]) * 10n ** BigInt(places) + BigInt((parts[1] || '').padEnd(places, '0') || '0');
-    if (result > 1000000000000n || (!allowZero && result === 0n)) fail(name + ' is outside the allowed range.');
-    return Number(result);
-  }
-  function money(value, code, name, allowZero) { return decimal(value, currencies[currency(code)], name || 'Amount', allowZero); }
-  function amount(value, code) {
-    var p = currencies[currency(code)];
-    if (!Number.isSafeInteger(value)) fail('Amount exceeds safe limits.');
-    return (value / Math.pow(10, p)).toFixed(p);
-  }
-  function date(value, name) {
-    if (typeof value !== 'string' || !/^20\d\d-\d\d-\d\d$/.test(value) || !Number.isFinite(Date.parse(value)) || new Date(value).toISOString().slice(0, 10) !== value) fail(name + ' must be a valid date from 2000–2099.');
-    return value;
-  }
+  api.categories = categories;
   function policy(input) {
     object(input, 'Policy');
     var baseCurrency = currency(input.baseCurrency);
@@ -84,15 +53,6 @@
     });
     return { schemaVersion: 1, trip: trip, policy: p, expenses: expenses };
   }
-  function convert(e, base) {
-    var original = BigInt(money(e.amount, e.currency, 'Expense amount', false));
-    var rate = BigInt(decimal(e.fxRate, 6, 'Exchange rate', false));
-    var numerator = original * rate * 10n ** BigInt(currencies[base]);
-    var denominator = 1000000n * 10n ** BigInt(currencies[e.currency]);
-    var result = (numerator + denominator / 2n) / denominator;
-    if (result > 1000000000000n) fail('Converted amount exceeds the supported range.');
-    return Number(result);
-  }
   function evaluate(input, policyOverride) {
     var report = normalize(input, policyOverride), p = report.policy, base = p.baseCurrency;
     var total = 0, days = {}, flags = [], seen = new Map();
@@ -118,20 +78,5 @@
       notice: 'Draft reconciliation only. Receipt references and exchange rates are user supplied; no approval, booking, reimbursement or ERP posting has occurred.'
     };
   }
-  function csvCell(value) {
-    var s = String(value);
-    if (/^[\s]*[=+\-@]/.test(s)) s = "'" + s;
-    return '"' + s.replace(/"/g, '""') + '"';
-  }
-  function csv(input) {
-    var result = evaluate(input), r = result.report;
-    var header = ['schema_version', 'trip_id', 'trip_name', 'cost_center', 'route', 'start_date', 'end_date', 'expense_id', 'expense_date', 'category', 'description', 'original_amount', 'original_currency', 'fx_rate_to_base', 'fx_date', 'fx_source', 'base_amount', 'base_currency', 'receipt_reference', 'review_status'];
-    var rows = result.rows.map(function (e) {
-      return [1, r.trip.id, r.trip.title, r.trip.costCenter, r.trip.route, r.trip.startDate, r.trip.endDate, e.id, e.date, e.category, e.description, e.amount, e.currency, e.fxRate, e.fxDate, e.fxSource, e.baseAmount, result.currency, e.receiptRef, result.status];
-    });
-    return [header].concat(rows).map(function (row) { return row.map(csvCell).join(','); }).join('\r\n') + '\r\n';
-  }
-  var api = { currencies: currencies, categories: categories, normalize: normalize, policy: policy, evaluate: evaluate, csv: csv, money: money, amount: amount };
-  root.RWBusinessCore = api;
-  if (typeof module !== 'undefined' && module.exports) module.exports = api;
+  Object.assign(api, { policy: policy, normalize: normalize, evaluate: evaluate });
 })(globalThis);

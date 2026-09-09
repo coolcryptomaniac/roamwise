@@ -9,9 +9,17 @@
   <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; connect-src 'none'; font-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
   <title>Business Travel · RoamWise</title>
   <link rel="icon" href="../icons/icon-192.png">
-  <link rel="stylesheet" href="business.css">
-  <script src="core.js" defer></script>
-  <script src="workspace.js" defer></script>
+  <link rel="stylesheet" href="../features/business-travel/ui/business.css">
+  <script src="../features/business-travel/core/validation.js" defer></script>
+  <script src="../features/business-travel/core/money.js" defer></script>
+  <script src="../features/business-travel/core/reports.js" defer></script>
+  <script src="../features/business-travel/core/exports.js" defer></script>
+  <script src="../features/business-travel/ui/context.js" defer></script>
+  <script src="../features/business-travel/ui/forms.js" defer></script>
+  <script src="../features/business-travel/ui/storage.js" defer></script>
+  <script src="../features/business-travel/ui/view.js" defer></script>
+  <script src="../features/business-travel/ui/transfers.js" defer></script>
+  <script src="../features/business-travel/ui/controller.js" defer></script>
 </head>
 <body>
   <a class="skip" href="#workspace">Skip to trip workspace</a>
@@ -85,7 +93,7 @@
           <h2 id="integration-heading">Connect when you're ready</h2>
           <p class="muted">Start with a finance export. Add company systems when a pilot needs them.</p>
           <dl><div><dt>CSV &amp; JSON exports</dt><dd class="available">Available here</dd></div><div><dt>ERP / agent API</dt><dd>Requires server setup</dd></div><div><dt>Company SSO</dt><dd>Not connected</dd></div><div><dt>Employee location</dt><dd>Not collected</dd></div></dl>
-          <a href="INTEGRATION.md">Integration &amp; pilot guide ↗</a>
+          <a href="../features/business-travel/docs/INTEGRATION.md">Integration &amp; pilot guide ↗</a>
         </section>
       </aside>
     </div>
