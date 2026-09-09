@@ -53,6 +53,13 @@ function renderForYou(){
       .map(function(d){ d._tag='\ud83c\udf1e'; used[d.name]=1; return d; });
     var visaEasy=pool.filter(function(d){ return isEasyVisaFor(d) && !used[d.name]; }).slice(0,10)
       .map(function(d){ d._tag='\ud83d\udec2'; used[d.name]=1; return d; });
+    /* Yoga & Wellness Partner program content seeding: a handful of DB entries
+       now carry a 'wellness' tag (js/data/destinations.js). Reuses the exact
+       same claim-from-pool-then-miniRow mechanism as inSeason/visaEasy above \u2014
+       no new tag-filter UI, just one more filtered list through the generic
+       miniRow() renderer already defined below. */
+    var wellness=pool.filter(function(d){ return (d.tags||[]).indexOf('wellness')>-1 && !used[d.name]; }).slice(0,10)
+      .map(function(d){ d._tag='\ud83e\uddd8'; used[d.name]=1; return d; });
     var picks=pool.filter(function(d){ return !used[d.name]; }).slice(0,10);
     picks.forEach(function(d){ used[d.name]=1; });
     var EMO={beach:'\ud83c\udfd6\ufe0f',metro:'\ud83c\udf06',sacred:'\ud83d\uded5',tech:'\ud83c\udf03',peak:'\ud83c\udfd4\ufe0f',classic:'\ud83e\udded'};
@@ -90,6 +97,7 @@ function renderForYou(){
         .map(function(d){ d._tag=d.crowd[curM]+'%'; used[d.name]=1; return d; });
       var hero=el('copilotHero'), after=hero;
       [miniRow('\ud83c\udf1e In season \u2014 '+MOx[curM], inSeason),
+       miniRow('\ud83e\uddd8 Yoga & wellness escapes', wellness),
        miniRow('\ud83e\udd2b Low-crowd escapes this month', lowCrowd),
        miniRow('\ud83d\udec2 Easy visa for Indians', visaEasy)].forEach(function(r){
         if(r && after && after.parentNode){ after.parentNode.insertBefore(r, after.nextSibling); after=r; }
