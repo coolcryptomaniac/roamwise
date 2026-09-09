@@ -52,10 +52,14 @@ import { handleGeo } from './handlers/geo.js';
 import { handleLeads } from './handlers/leads.js';
 import { handleCashfreeOrder, handleCashfreeOrderStatus } from './handlers/cashfree.js';
 import { handlePushSend } from './handlers/push.js';
+import { handleBusiness } from './handlers/business.js';
 
 /* ------------------------------------------------------------------ router */
 export default {
   async fetch(request, env, ctx){
+    // Isolated server-to-server routes: do not inherit the public API's CORS.
+    const businessPath = new URL(request.url).pathname.match(/^\/v1\/business\/([^/]+)$/);
+    if(businessPath) return handleBusiness(request, env, businessPath[1]);
     if(request.method === 'OPTIONS') return new Response(null, { headers: CORS });
     const url = new URL(request.url);
     const path = url.pathname.replace(/^\/+|\/+$/g, '');

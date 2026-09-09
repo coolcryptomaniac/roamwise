@@ -28,6 +28,19 @@ works fully without it.
 
 ## Module map
 
+### Business travel (optional, September 2026)
+
+`business/index.html` is an independent classic-script workspace. It loads only
+`business/core.js`, `business/workspace.js` and `business/business.css`; the main
+app links to it without adding scripts to its startup chain. Drafts are local,
+with explicit device-saving consent. `business/core.js` supplies the same expense
+validation/conversion to `worker/handlers/business.js` through a side-effect
+import. The existing Worker routes `/v1/business/reconcile` and `/export` there
+before public CORS handling; both stay disabled until configured. No changes to
+Firebase sign-in, Pro, payments, Firestore rules or live deployment configuration.
+See `business/INTEGRATION.md` for limits, tenant provisioning and delivery semantics.
+
+
 As of this commit (post PRs #138-143, plus the subscription-vs-one-off
 Cashfree gating pass), `app.js` is **575 lines** (down from ~19,300 at the
 start of the modularization effort, down from 3,099 after the prior

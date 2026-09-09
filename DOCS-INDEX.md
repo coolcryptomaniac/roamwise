@@ -70,6 +70,11 @@ no longer match the repo — flagged explicitly below and in the PR summary.
 
 ## Business / growth / operations docs
 
+`business/INTEGRATION.md` — current, September 2026: local business-travel
+workspace, deterministic reconciliation, opt-in Worker API, signed webhooks,
+pilot rollout and the exact vendor/SSO capabilities still requiring setup.
+Read before modifying `business/` or `worker/handlers/business.js`.
+
 | File | Purpose | Status | Read this when... |
 |---|---|---|---|
 | `PROJECT-STATE.md` | Rolling dev diary (v52→v76+ feature-by-feature history) plus Android build/signing/Gradle notes. Written so a reset sandbox can recover context. | reference/rolling changelog — genuinely current as a log, but Android build paths (`/home/claude/rw2/...`) refer to an external build environment, not this repo's tree | Need feature history ("why does X work this way"), or doing an Android/Gradle build in that external environment. |
