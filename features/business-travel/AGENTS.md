@@ -26,6 +26,7 @@ or webhook operations. Avoid rereading the entire repository for a local edit.
 | Hashes / tenant policies | `api/crypto.js`, `api/tenants.js` |
 | Signed delivery | `api/webhooks.js` |
 | API orchestration | `api/handler.js` |
+| Compact agent responses | `api/summary.js` |
 
 ## Runtime boundaries
 
@@ -44,6 +45,9 @@ or webhook operations. Avoid rereading the entire repository for a local edit.
   and later durable-outbox work require an explicit design, not a retry loop.
 - Keep runtime modules under the manifest's 350-line cap. Update the manifest
   when files move. Avoid public API/schema behavior changes in relocation commits.
+
+For AI-tool usage, read `docs/AI-AGENTS.md` and the compact
+`contracts/agent-profile.json`; use summary mode for routine reconciliation.
 
 ## Verification and handoff
 

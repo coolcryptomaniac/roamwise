@@ -2,7 +2,13 @@
 (function (ui) {
   'use strict';
   ui.installView = function (ctx) {
+    var lastExpenses = null, lastCurrency = null;
     function renderLedger(result) {
+      // Trip/policy typing need not rebuild 200 expense rows and their buttons.
+      // Expense mutations replace the array; validation-state changes still redraw.
+      var currency = result ? result.currency : null;
+      if (lastExpenses === ctx.state.expenses && lastCurrency === currency) return;
+      lastExpenses = ctx.state.expenses; lastCurrency = currency;
       var ledger = ctx.$('ledger'); ledger.replaceChildren();
       ctx.$('expense-count').textContent = ctx.state.expenses.length + ' / 200';
       if (!ctx.state.expenses.length) { ledger.appendChild(ctx.el('p', 'No expenses yet. Your first entry will appear here.', 'empty')); return; }
@@ -18,15 +24,8 @@
         ['Edit', 'Remove'].forEach(function (action) {
           var b = ctx.el('button', action); b.type = 'button'; b.setAttribute('aria-label', action + ' ' + e.description);
           b.addEventListener('click', function () {
-            if (action === 'Remove') {
-              if (!window.confirm('Remove this expense?')) return;
-              ctx.state.expenses.splice(i, 1); if (ctx.state.editing === e.id) ctx.resetExpense(); ctx.persist(); ctx.render(); ctx.tell('Expense removed.');
-            } else {
-              ctx.state.editing = e.id;
-              Object.keys(e).forEach(function (name) { var f = ctx.fields(ctx.expenseForm, name); if (f) f.value = e[name]; });
-              ctx.updateFX(); ctx.$('add-expense').textContent = 'Save expense'; ctx.$('cancel-edit').hidden = false;
-              ctx.fields(ctx.expenseForm, 'description').focus();
-            }
+            if (action === 'Remove') ctx.removeExpense(e.id);
+            else ctx.editExpense(e);
           }); actions.appendChild(b);
         }); row.appendChild(actions); ledger.appendChild(row);
       });

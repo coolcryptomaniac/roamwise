@@ -38,8 +38,15 @@ test('business workspace: real form handlers, data protection, exports, restore 
   assert.equal(d.querySelectorAll('.expense').length,1);assert.equal(d.querySelectorAll('.expense img').length,0);
   assert.equal(d.getElementById('total').textContent,'INR 1,200.00');assert.equal(d.getElementById('export-csv').disabled,false);
   assert.equal(d.getElementById('base-currency').disabled,true);
+  const ledgerRow=d.querySelector('.expense');
+  put(w,'trip-form','title','Pilot visit updated');
+  assert.equal(d.querySelector('.expense'),ledgerRow,'Trip typing must preserve existing ledger nodes');
   d.querySelector('.row-actions button').click();put(w,'expense-form','amount','0.10');click(w,'add-expense');assert.equal(d.getElementById('total').textContent,'INR 0.10');
   click(w,'remember');assert.ok(w.localStorage.getItem('rw_business_draft_v1'));const saved=w.localStorage.getItem('rw_business_draft_v1');
+  put(w,'trip-form','title','Final title');
+  assert.equal(JSON.parse(w.localStorage.getItem('rw_business_draft_v1')).draft.trip.title,'Pilot visit updated','Save should be batched while typing');
+  w.dispatchEvent(new w.Event('beforeunload',{cancelable:true}));
+  assert.equal(JSON.parse(w.localStorage.getItem('rw_business_draft_v1')).draft.trip.title,'Final title','Navigation must flush a pending opted-in save');
   click(w,'backup');const backup=await downloads.at(-1).text();assert.equal(JSON.parse(backup).draft.expenses.length,1);
   click(w,'export-csv');assert.ok((await downloads.at(-1).text()).includes('"0.10"'));
   click(w,'export-json');assert.equal(JSON.parse(await downloads.at(-1).text()).total,'0.10');

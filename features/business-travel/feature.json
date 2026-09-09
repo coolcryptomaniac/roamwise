@@ -36,7 +36,8 @@
     "api/crypto.js": "SHA-256 and fixed-length hash comparisons",
     "api/tenants.js": "Validate server-owned tenant credentials and policy",
     "api/webhooks.js": "Destination validation and signed one-attempt delivery",
-    "api/handler.js": "Authenticate, limit, validate, reconcile and dispatch exports"
+    "api/handler.js": "Authenticate, limit, validate, reconcile and dispatch exports",
+    "api/summary.js": "Compact agent response view with bounded structured flags"
   },
   "externalSeams": {
     "business/index.html": "Public HTML entry with explicit script order",

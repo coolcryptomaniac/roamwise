@@ -2,7 +2,9 @@
 (function (ui) {
   'use strict';
   ui.installStorage = function (ctx) {
+    var pendingSave = null;
     function persist() {
+      clearTimeout(pendingSave); pendingSave = null;
       ctx.state.dirty = true;
       if (!ctx.$('remember').checked) { ctx.$('save-status').textContent = 'Not saved · download a backup before closing'; return; }
       try {
@@ -31,6 +33,13 @@
       return { schemaVersion: 1, trip: Object.assign({}, d.trip, { id: d.trip.id || crypto.randomUUID() }), policy: d.policy, expenses: rows };
     }
     ctx.persist = persist;
+    ctx.schedulePersist = function () {
+      ctx.state.dirty = true;
+      clearTimeout(pendingSave);
+      ctx.$('save-status').textContent = ctx.$('remember').checked ? 'Saving draft…' : 'Not saved · download a backup before closing';
+      pendingSave = setTimeout(persist, 250);
+    };
+    ctx.flushPersist = function () { if (pendingSave !== null) persist(); };
     ctx.validateBackup = validateBackup;
   ctx.$('remember').addEventListener('change', function () {
     if (!ctx.$('remember').checked) {

@@ -146,6 +146,10 @@ add `"reviewed": true` at the top level and use an export-scoped credential.
 This flag records the caller's assertion of review; it is not proof of human
 approval. The customer must enforce its own approval permissions before calling.
 
+For economical agent calls, add `"responseMode": "summary"` to reconciliation
+requests. Full responses remain the default. See `AI-AGENTS.md` for bounded
+responses, tool-call budgets and explicit export review requirements.
+
 ## Webhook delivery contract
 
 Enable `export` scope only after validating the receiver. Use an endpoint

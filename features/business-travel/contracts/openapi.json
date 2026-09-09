@@ -34,7 +34,7 @@
       "post": {
         "operationId": "reconcileBusinessExpenses",
         "summary": "Check business expenses",
-        "description": "Evaluate expense amounts against the authenticated company policy. Does not book, pay, approve or generate routes. Never infer live crowd forecasts or verified rates.",
+        "description": "Evaluate expense amounts against the authenticated company policy. Does not book, pay, approve or generate routes. Never infer live crowd forecasts or verified rates. Prefer responseMode=summary for agent calls to avoid copying the full report into model context. flagsTruncated means not all individual flags are included.",
         "x-ms-summary": "Check business expenses",
         "parameters": [
           {
@@ -423,6 +423,15 @@
         "reviewed": {
           "type": "boolean",
           "description": "Required true for export. Customer must separately enforce real review permissions."
+        },
+        "responseMode": {
+          "type": "string",
+          "enum": [
+            "full",
+            "summary"
+          ],
+          "default": "full",
+          "description": "For reconciliation, summary omits raw text and rows, returning totals and at most 20 structured flag references. Does not change export delivery."
         }
       },
       "required": [
@@ -540,14 +549,25 @@
         },
         "reconciliation": {
           "$ref": "#/definitions/Reconciliation"
+        },
+        "responseMode": {
+          "type": "string",
+          "enum": [
+            "full",
+            "summary"
+          ]
+        },
+        "summary": {
+          "$ref": "#/definitions/AgentSummary"
         }
       },
       "required": [
         "tenantId",
         "policyVersion",
         "requestId",
-        "reconciliation"
-      ]
+        "responseMode"
+      ],
+      "description": "full includes reconciliation; summary includes summary instead. Exactly one is returned."
     },
     "ExportResponse": {
       "type": "object",
@@ -601,6 +621,96 @@
         "error",
         "requestId"
       ]
+    },
+    "AgentSummary": {
+      "type": "object",
+      "required": [
+        "status",
+        "currency",
+        "total",
+        "remaining",
+        "expenseCount",
+        "flagCount",
+        "flagCounts",
+        "flags",
+        "flagsTruncated",
+        "notice"
+      ],
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": [
+            "empty",
+            "needs_review",
+            "ready_for_review"
+          ]
+        },
+        "currency": {
+          "type": "string",
+          "enum": [
+            "INR",
+            "USD",
+            "EUR",
+            "GBP",
+            "AED",
+            "SGD",
+            "JPY",
+            "CAD",
+            "AUD",
+            "CHF"
+          ]
+        },
+        "total": {
+          "type": "string"
+        },
+        "remaining": {
+          "type": "string"
+        },
+        "expenseCount": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 200
+        },
+        "flagCount": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "flagCounts": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "flags": {
+          "type": "array",
+          "maxItems": 20,
+          "items": {
+            "type": "object",
+            "required": [
+              "code"
+            ],
+            "properties": {
+              "code": {
+                "type": "string"
+              },
+              "expenseId": {
+                "type": "string"
+              },
+              "date": {
+                "type": "string",
+                "format": "date"
+              }
+            }
+          }
+        },
+        "flagsTruncated": {
+          "type": "boolean"
+        },
+        "notice": {
+          "type": "string"
+        }
+      }
     }
   }
 }

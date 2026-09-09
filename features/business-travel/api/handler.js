@@ -6,6 +6,7 @@ import { reply, body } from './http.js';
 import { hash, equal } from './crypto.js';
 import { tenantConfig } from './tenants.js';
 import { deliver } from './webhooks.js';
+import { summarize } from './summary.js';
 const core = globalThis.RWBusinessCore;
 export async function handleBusiness(request, env, operation) {
   const requestId = crypto.randomUUID();
@@ -30,12 +31,15 @@ export async function handleBusiness(request, env, operation) {
   let input;
   try { input = await body(request); }
   catch (e) { return reply({ error: e.code || 'invalid_request', requestId }, e.status || 400); }
+  const responseMode = input?.responseMode === undefined ? 'full' : input.responseMode;
+  if (!['full', 'summary'].includes(responseMode)) return reply({ error: 'invalid_response_mode', requestId }, 400);
   let result;
   try {
     if (!input || !input.report || !input.report.policy || input.report.policy.baseCurrency !== tenant.policy.baseCurrency) throw new Error('Report currency must match the company policy.');
     result = core.evaluate(input.report, tenant.policy);
   } catch (e) { return reply({ error: 'invalid_report', message: e.message, requestId }, 400); }
-  if (operation === 'reconcile') return reply({ tenantId: tenant.id, policyVersion: tenant.policyVersion, requestId, reconciliation: result });
+  if (operation === 'reconcile') return reply({ tenantId: tenant.id, policyVersion: tenant.policyVersion, requestId, responseMode,
+    ...(responseMode === 'summary' ? { summary: summarize(result) } : { reconciliation: result }) });
   if (input.reviewed !== true) return reply({ error: 'review_confirmation_required', requestId }, 400);
   if (result.status !== 'ready_for_review') return reply({ error: 'report_needs_attention', requestId, reconciliation: result }, 422);
   return deliver(tenant, result, requestId);
