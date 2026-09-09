@@ -24,7 +24,7 @@ var DB = [
   bestM:[11,12,1,2], interests:['beach','nightlife','food','heritage','photography'],
   food:['Fish curry rice','Xacuti','Bebinca','Poi','Feni'],
   gems:['Divar Island','Netravali bubble lake','Butterfly Beach','Chorao bird sanctuary'],
-  tags:['beach','nightlife','heritage'], cur:'INR', sym:'\u20b9', rate:1,
+  tags:['beach','nightlife','heritage','wellness'], cur:'INR', sym:'\u20b9', rate:1,
   local:'North Goa is loud and social, South Goa is quiet \u2014 pick before you book. Scooter is the only sane transport; taxi rates are cartel-fixed and high.' },
 
 { id:'manali', name:'Manali', country:'India', region:'South Asia', lat:32.24, lon:77.19,
@@ -46,7 +46,7 @@ var DB = [
   bestM:[2,3,10,11], interests:['yoga','rafting','spiritual','trekking','wellness'],
   food:['Aloo puri','Chotiwala thali','German Bakery cakes'],
   gems:['Neer Garh waterfall','Kunjapuri sunrise','Patna waterfall','Beatles Ashram at dawn'],
-  tags:['spiritual','adventure','budget'], cur:'INR', sym:'\u20b9', rate:1,
+  tags:['spiritual','adventure','budget','wellness'], cur:'INR', sym:'\u20b9', rate:1,
   local:'Dry city and vegetarian by law \u2014 no alcohol, no meat. Rafting shuts late June to mid September. Auto from the station should be \u20b9150, not \u20b9400.' },
 
 { id:'spiti', name:'Spiti Valley', country:'India', region:'South Asia', lat:32.24, lon:78.02,
@@ -68,7 +68,7 @@ var DB = [
   bestM:[10,11,12,1,2], interests:['backwaters','food','nature','slow','photography'],
   food:['Karimeen pollichathu','Appam with stew','Sadya','Puttu kadala'],
   gems:['Canoe through the narrow canals','Kumarakom bird sanctuary','Marari beach','Toddy shops inland'],
-  tags:['nature','slow','food'], cur:'INR', sym:'\u20b9', rate:1,
+  tags:['nature','slow','food','wellness'], cur:'INR', sym:'\u20b9', rate:1,
   local:'Houseboats are cheapest booked in Alleppey itself, not online. A canoe reaches the narrow canals a houseboat physically cannot. Kochi to Munnar is 4-5 hours, not 3.' },
 
 { id:'jaipur', name:'Jaipur', country:'India', region:'South Asia', lat:26.91, lon:75.79,
@@ -153,7 +153,7 @@ var DB = [
   bestM:[10,11,12,1,2], interests:['heritage','beach','cafes','yoga','architecture'],
   food:['French-Tamil fusion','Fresh croissants','Filter coffee','Seafood on the promenade'],
   gems:['Auroville Matrimandir at sunrise','Paradise Beach boat crossing','White Town lanes before 8am','Serenity Beach for surfing'],
-  tags:['heritage','beach','cafes'], cur:'INR', sym:'\u20b9', rate:1,
+  tags:['heritage','beach','cafes','wellness'], cur:'INR', sym:'\u20b9', rate:1,
   local:'White Town parking is a nightmare after 10am \u2014 walk or cycle in instead. Auroville needs an online slot booking; the meditation hall itself is silent viewing only.' },
 
 { id:'rann_kutch', name:'Rann of Kutch', country:'India', region:'South Asia', lat:23.89, lon:69.85,
@@ -208,7 +208,7 @@ var DB = [
   bestM:[3,4,5,9,10], interests:['spiritual','trekking','cafes','culture','yoga'],
   food:['Tibetan momos','Thukpa','Israeli-Tibetan fusion cafes','Butter tea'],
   gems:['Triund trek at sunrise','Dalai Lama Temple morning prayers','Bhagsu waterfall before the crowds','Naddi viewpoint for the Dhauladhar range'],
-  tags:['spiritual','trekking','offbeat'], cur:'INR', sym:'\u20b9', rate:1,
+  tags:['spiritual','trekking','offbeat','wellness'], cur:'INR', sym:'\u20b9', rate:1,
   local:'Triund works as a day trek but staying overnight at the top for sunrise is worth the extra weight. July-August brings leeches and landslide-prone roads \u2014 not the best trekking window despite decent weather.' },
 
 { id:'jaisalmer', name:'Jaisalmer', country:'India', region:'South Asia', lat:26.92, lon:70.91,

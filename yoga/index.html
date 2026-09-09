@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#07090F">
+<title>RoamWise Yoga &amp; Wellness Partners — commission, referrals &amp; a bookable listing</title>
+<meta name="description" content="Self-serve program for yoga instructors, studio owners and retreat hosts: 25–30% referral commission on Pro subscriptions plus a bookable Certified Experience listing for your classes and retreats.">
+<link rel="canonical" href="https://roamwise.co.in/yoga/">
+<link rel="icon" href="../icons/favicon-32.png">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --night:#07090F;--card:#111827;--card2:#131A2E;
+  --gold:#E8BA6C;--gold2:#C8913E;--pine:#4ADE80;
+  --snow:#F2EFE6;--mist:#8B93A7;--line:#26304C;--vio:#818CF8;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;font-family:'Outfit',system-ui,sans-serif;background:var(--night);color:var(--snow);min-height:100vh;-webkit-font-smoothing:antialiased;line-height:1.65}
+a{color:inherit}
+.nav{background:rgba(7,9,15,.9);backdrop-filter:blur(12px);border-bottom:1px solid var(--line);padding:0 20px;height:56px;
+  display:flex;align-items:center;gap:14px;position:sticky;top:0;z-index:100}
+.nav-brand{display:flex;align-items:center;gap:9px;font-weight:800;font-size:16px;text-decoration:none;color:#fff}
+.nav-brand img{width:26px;height:26px;border-radius:7px}
+.nav-brand span{color:var(--gold)}
+.nav-space{flex:1}
+.nav a.ghost{font-size:12.5px;color:var(--mist);font-weight:600;text-decoration:none}
+.nav a.ghost:hover{color:var(--gold)}
+.nav a.cta{border:0;border-radius:999px;padding:10px 16px;font:inherit;font-weight:800;font-size:12.5px;cursor:pointer;text-decoration:none;
+  background:linear-gradient(90deg,var(--gold2),var(--gold));color:var(--night)}
+
+.hero{position:relative;overflow:hidden;padding:60px 20px 40px;text-align:center;
+  background:radial-gradient(ellipse 80% 60% at 50% 0%,rgba(232,186,108,.14),transparent)}
+.hero-eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:11px;font-weight:800;letter-spacing:.2em;
+  text-transform:uppercase;color:var(--gold);background:rgba(232,186,108,.08);border:1px solid rgba(232,186,108,.3);
+  border-radius:999px;padding:7px 16px;margin-bottom:20px}
+.hero-eyebrow .dot{width:7px;height:7px;border-radius:50%;background:var(--pine);animation:pulse 1.4s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1;box-shadow:0 0 6px var(--pine)}50%{opacity:.35;box-shadow:none}}
+.hero h1{font-size:clamp(32px,6.4vw,54px);font-weight:900;line-height:1.08;margin:0 0 16px;letter-spacing:-.02em;max-width:820px;margin-left:auto;margin-right:auto}
+.hero h1 em{font-style:normal;background:linear-gradient(130deg,var(--gold),#F5D9A8,var(--gold2));
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.hero p{font-size:16px;color:var(--mist);max-width:600px;margin:0 auto 10px}
+.hero-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:24px}
+.btn-primary,.btn-ghost{border:0;border-radius:999px;padding:13px 22px;font:inherit;font-weight:800;font-size:14px;cursor:pointer;text-decoration:none;display:inline-block}
+.btn-primary{background:linear-gradient(90deg,var(--gold2),var(--gold));color:var(--night)}
+.btn-ghost{background:rgba(255,255,255,.05);border:1px solid var(--line);color:#fff}
+
+.section{max-width:1040px;margin:0 auto;padding:56px 20px 10px}
+.sh{font-size:11px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--mist);
+  margin-bottom:8px;display:flex;align-items:center;gap:10px}
+.sh::after{content:'';flex:1;height:1px;background:var(--line)}
+.sh-title{font-size:28px;font-weight:800;margin-bottom:10px;max-width:680px}
+.sh-sub{color:var(--mist);font-size:14.5px;max-width:640px;margin-bottom:30px}
+
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.grid2{display:grid;grid-template-columns:1.05fr .95fr;gap:16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:22px}
+.card h3{font-size:18px;margin:0 0 8px}
+.card p{color:var(--mist);font-size:13.5px;margin:0}
+.stepno{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:rgba(232,186,108,.14);color:var(--gold);font-weight:900;margin-bottom:12px}
+
+.rung{position:relative}
+.rung .pct{font-size:32px;font-weight:900;color:var(--gold);line-height:1}
+.rung small{display:block;color:var(--mist);font-size:11.5px;margin-top:4px}
+.rung ul{list-style:none;margin:12px 0 0;padding:0}
+.rung li{font-size:12.5px;color:#B9B9C6;line-height:1.85;padding-left:16px;position:relative}
+.rung li::before{content:'\2713';position:absolute;left:0;color:var(--pine);font-weight:800}
+
+.xp-card{border:1px solid rgba(232,186,108,.35);background:linear-gradient(160deg,rgba(232,186,108,.08),transparent)}
+.xp-card h3{color:var(--gold)}
+
+@media(max-width:820px){.grid3,.grid2{grid-template-columns:1fr}}
+
+.apply{background:var(--card2);border:1px solid var(--line);border-radius:22px;padding:28px;margin:34px 0 70px}
+.fields{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.fields label{font-size:12px;color:var(--mist);display:block}
+.fields label.full{grid-column:1/-1}
+.fields input,.fields select,.fields textarea{width:100%;margin-top:6px;background:#0A0D16;border:1px solid var(--line);border-radius:12px;color:#fff;padding:12px;font:inherit;outline:none}
+.fields textarea{min-height:96px;resize:vertical}
+.fields input:focus,.fields textarea:focus,.fields select:focus{border-color:rgba(232,186,108,.65)}
+.consent,.optin{display:flex;gap:9px;margin:14px 0;color:var(--mist);font-size:12px;align-items:flex-start}
+.consent input,.optin input{width:auto;margin-top:2px}
+.apply-btn{width:100%;padding:14px;border:0;border-radius:12px;font:inherit;font-weight:800;font-size:14.5px;cursor:pointer;
+  background:linear-gradient(90deg,var(--gold2),var(--gold));color:var(--night)}
+.msg{margin-top:12px;padding:12px;border-radius:12px;background:rgba(74,222,128,.08);border:1px solid rgba(74,222,128,.25);color:#c8ffdc;font-size:13px}
+.msg.bad{background:rgba(255,90,90,.08);border-color:rgba(255,90,90,.28);color:#ffc8c8}
+.fine{font-size:11px;color:#6d7387;margin-top:14px}
+
+footer{background:#03040A;border-top:1px solid var(--line);padding:26px 20px;text-align:center;font-size:12px;color:var(--mist)}
+footer a{color:var(--gold)}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <a class="nav-brand" href="../"><img src="../icon-512.png" alt="">Roam<span>Wise</span></a>
+  <div class="nav-space"></div>
+  <a class="ghost" href="../partnership/index.html">&larr; All partner tracks</a>
+  <a class="cta" href="#apply">Apply free</a>
+</nav>
+
+<div class="hero">
+  <div class="hero-eyebrow"><span class="dot"></span> Self-serve &middot; no sales calls, no waiting on a BD rep</div>
+  <h1>Your practice can <em>travel further.</em></h1>
+  <p>For yoga instructors, studio owners and retreat hosts. Apply yourself, get reviewed, start earning &mdash; the same referral ladder RoamWise's travel creators already run on, plus a real second channel: a bookable listing for your own classes and retreats.</p>
+  <div class="hero-actions">
+    <a class="btn-primary" href="#apply">Apply free &rarr;</a>
+    <a class="btn-ghost" href="#ladder">See the terms</a>
+  </div>
+</div>
+
+<div class="section" id="ladder">
+  <div class="sh">The commission ladder</div>
+  <div class="sh-title">Same rates as every RoamWise creator &mdash; nothing invented for this vertical.</div>
+  <div class="sh-sub">This is the exact 25% &rarr; 30% &rarr; lifetime-Pro ladder from RoamWise's creator program, applied to referring students and followers into a Pro subscription. See <code>YOGA-WELLNESS-PARTNER-PROGRAM.md</code> for the full reasoning.</div>
+  <div class="grid3">
+    <div class="card rung"><div class="pct">25%</div><small>APPLIED &middot; on acceptance</small>
+      <ul><li>30-day full Pro trial, free</li><li>Referral code live immediately</li><li>Students get the standard checkout benefit</li></ul>
+    </div>
+    <div class="card rung"><div class="pct">30%</div><small>PARTNER &middot; 1st Certified Experience listing or 5 referred sales</small>
+      <ul><li>1 year Pro free</li><li>Commission rises to 30%</li><li>Roadmap input</li></ul>
+    </div>
+    <div class="card rung"><div class="pct">30%+</div><small>FEATURED &middot; 25 referred sales or a dedicated feature</small>
+      <ul><li>Pro for life &mdash; earned</li><li>Listing featured in-app, with credit</li><li>Co-marketing</li></ul>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="sh">Wellness-specific addition</div>
+  <div class="sh-title">A bookable Certified Experience listing &mdash; real distribution, not just a referral link.</div>
+  <div class="sh-sub">Your retreat, class series or studio can appear in RoamWise's existing Certified Experience catalog, the same one every other trip in the app has to earn its way into. Students planning a trip with Ailon Tusk (RoamWise's AI copilot) can discover and book with you directly.</div>
+  <div class="grid2">
+    <div class="card xp-card">
+      <h3>How a listing actually gets certified</h3>
+      <p>RoamWise never lists a trip it hasn't verified &mdash; that rule doesn't bend for this program. Your listing starts as <b>Scouting</b> (shortlisted, visible internally, not yet public-certified) the moment your application is accepted, and moves to <b>&#10003; Certified</b> once someone from RoamWise has actually attended a class or verified the retreat in person. Same bar as every other experience in the catalog.</p>
+    </div>
+    <div class="card xp-card">
+      <h3>Commission on a direct booking</h3>
+      <p><b style="color:var(--gold);font-size:22px">12%</b> of the booking value &mdash; the same rate RoamWise already publishes for activity-style experiences (treks, rafting) and states plainly in its own experience catalog: "we take 12%, not 25%." This is separate from, and additional to, the 25&ndash;30% referral commission above &mdash; a student can book your retreat directly without ever buying Pro.</p>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="sh">Starter perk</div>
+  <div class="sh-title">The 30-day Pro trial &mdash; not a new grant invented for this page.</div>
+  <div class="sh-sub">Every accepted applicant gets the same zero-marginal-cost 30-day full Pro trial every RoamWise creator gets at the Applied tier. We deliberately did <b>not</b> add a standing free/discounted-Pro perk just for "being a verified instructor" &mdash; unlike the capped Founder offer, a self-serve instructor perk has no natural seat cap, and an open-ended free grant against an ongoing service cost is exactly the kind of liability RoamWise's own pricing docs warn against. Free and lifetime Pro beyond the trial is earned the same way it already is for every creator: through real, attributed referral sales or a certified listing &mdash; never for status alone.</div>
+</div>
+
+<div class="section">
+  <div class="sh">How it works</div>
+  <div class="sh-title">From application to your first payout.</div>
+  <div class="grid3">
+    <div class="card"><div class="stepno">01</div><h3>Apply</h3><p>Tell us about your practice, studio or retreat. Takes under two minutes, no call required.</p></div>
+    <div class="card"><div class="stepno">02</div><h3>Get reviewed</h3><p>RoamWise activates your referral code and, if you opted in, schedules your listing verification.</p></div>
+    <div class="card"><div class="stepno">03</div><h3>Earn</h3><p>Commission and listing status move automatically through the ladder as real, verified sales come in &mdash; never self-awarded.</p></div>
+  </div>
+</div>
+
+<div class="section" id="apply">
+  <div class="apply">
+    <div class="sh">Apply free</div>
+    <div class="sh-title" style="margin-bottom:6px">Start with the practice you already teach.</div>
+    <p style="color:var(--mist);font-size:13.5px;margin:0 0 20px">You don't need a huge following &mdash; a real studio, a regular class or a retreat you actually run matters more than follower count.</p>
+    <div class="fields">
+      <label>Name<input id="yName" maxlength="120" placeholder="Your name"></label>
+      <label>Email<input id="yEmail" type="email" maxlength="160" placeholder="you@example.com"></label>
+      <label>Studio / instructor handle<input id="yHandle" maxlength="200" placeholder="Instagram @… / studio website"></label>
+      <label>Student reach<select id="yReach">
+        <option>Prefer not to say</option>
+        <option>Under 500</option>
+        <option>500 &ndash; 2,000</option>
+        <option>2,000 &ndash; 10,000</option>
+        <option>10,000 &ndash; 50,000</option>
+        <option>50,000+</option>
+      </select></label>
+      <label class="full">Style / tradition<input id="yNiche" maxlength="160" placeholder="Hatha, Vinyasa, Ashtanga, Kundalini, Ayurveda retreat, meditation…"></label>
+      <label class="full">Anything useful to know<textarea id="yNote" maxlength="1200" placeholder="What do you teach, where, and what would a Certified Experience listing for your retreat/class look like?"></textarea></label>
+    </div>
+    <label class="optin"><input type="checkbox" id="yListing"><span>I'd also like my class, studio or retreat considered for a bookable Certified Experience listing (12% commission on direct bookings, listed only after RoamWise verifies it in person).</span></label>
+    <label class="consent"><input type="checkbox" id="yConsent"><span>I agree that RoamWise can use these details to review and contact me about the Yoga &amp; Wellness Partner program. I can ask for deletion at any time.</span></label>
+    <button class="apply-btn" id="applyBtn">Send application &rarr;</button>
+    <div id="applyMsg"></div>
+    <div class="fine">Commission is based on completed, non-refunded sales/bookings attributed to an activated code or a certified listing. Current checkout terms control the student benefit. Tier, sales and listing status are verified by RoamWise, never self-set.</div>
+  </div>
+</div>
+
+<footer>Built in Almora, Uttarakhand &middot; RoamWise Yoga &amp; Wellness Partners &middot; <a href="mailto:founder@roamwise.co.in">founder@roamwise.co.in</a> &middot; <a href="../partnership/index.html">All partner tracks</a></footer>
+
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<script>
+(function(){
+var CFG={apiKey:'AIzaSyBTfmJvHTmp0mNQqsIhWEwnLLwFKz0ExYQ',authDomain:'roamwisepro.firebaseapp.com',projectId:'roamwisepro',storageBucket:'roamwisepro.firebasestorage.app',messagingSenderId:'1039880917656',appId:'1:1039880917656:web:8b3e18e8a4b1c9f8e2c0d1'};var db=null;try{if(!firebase.apps.length)firebase.initializeApp(CFG);db=firebase.firestore()}catch(e){}
+var $=function(id){return document.getElementById(id)},esc=function(s){return String(s||'').replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})};
+function show(t,bad){$('applyMsg').innerHTML='<div class="msg'+(bad?' bad':'')+'">'+esc(t)+'</div>'}
+$('applyBtn').onclick=async function(){
+  var name=$('yName').value.trim(),email=$('yEmail').value.trim(),consent=$('yConsent').checked;
+  if(!name||!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email))return show('Add your name and a valid email.',true);
+  if(!consent)return show('Please accept the contact consent before applying.',true);
+  var rec={
+    seg:'yogapreneur',
+    name:name,
+    email:email,
+    handle:$('yHandle').value.trim().slice(0,200),
+    reach:$('yReach').value,
+    niche:$('yNiche').value.trim().slice(0,160),
+    note:$('yNote').value.trim().slice(0,1200),
+    wantsListing:!!$('yListing').checked,
+    consent:true,
+    source:'yoga page (inbound)',
+    stage:'new',
+    tier:'applied',
+    refSales:0,
+    refRevenue:0,
+    code:'',
+    createdAt:new Date().toISOString()
+  };
+  $('applyBtn').disabled=true;$('applyBtn').textContent='Sending…';
+  try{
+    if(!db)throw new Error('offline');
+    await db.collection('crm').add(rec);
+    show('Application received. RoamWise will review and activate your referral code shortly'+(rec.wantsListing?' — we\'ll also be in touch about verifying your listing.':'.'));
+    $('yName').value='';$('yEmail').value='';$('yHandle').value='';$('yNiche').value='';$('yNote').value='';$('yListing').checked=false;$('yConsent').checked=false;
+  }catch(e){
+    show('The form could not reach RoamWise. Opening email as a fallback…',true);
+    setTimeout(function(){location.href='mailto:founder@roamwise.co.in?subject='+encodeURIComponent('Yoga & Wellness Partner application — '+name)+'&body='+encodeURIComponent(JSON.stringify(rec,null,2))},800);
+  }finally{$('applyBtn').disabled=false;$('applyBtn').textContent='Send application →'}
+};
+})();
+</script>
+</body>
+</html>

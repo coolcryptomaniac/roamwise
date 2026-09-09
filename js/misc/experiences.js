@@ -22,7 +22,7 @@ function openExperiences(tier){
       +'<div class="pt-chips" style="margin:18px 0 4px">'
       +'<button class="ev-chip'+(!window._xTier?' on':'')+'" onclick="openExperiences(\'\')">All</button>'
       + Object.keys(tiers).map(function(t){
-          var lbl = t==='green'? '\u26a1 Green' : t==='culture'? '\ud83c\udfad Culture' : t;
+          var lbl = t==='green'? '\u26a1 Green' : t==='culture'? '\ud83c\udfad Culture' : t==='wellness'? '\ud83e\uddd8 Wellness' : t;
           return '<button class="ev-chip'+(window._xTier===t?' on':'')+'" onclick="openExperiences(\''+t+'\')">'+lbl+'</button>';
         }).join('')
       +'</div><div id="xpOut"></div>';
