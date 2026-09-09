@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0b1015">
+  <meta name="description" content="Plan a business trip budget, reconcile expenses and prepare a finance-ready export with RoamWise.">
+  <meta name="referrer" content="no-referrer">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; connect-src 'none'; font-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <title>Business Travel · RoamWise</title>
+  <link rel="icon" href="../icons/icon-192.png">
+  <link rel="stylesheet" href="../features/business-travel/ui/business.css">
+  <script src="../features/business-travel/core/validation.js" defer></script>
+  <script src="../features/business-travel/core/money.js" defer></script>
+  <script src="../features/business-travel/core/reports.js" defer></script>
+  <script src="../features/business-travel/core/exports.js" defer></script>
+  <script src="../features/business-travel/ui/context.js" defer></script>
+  <script src="../features/business-travel/ui/forms.js" defer></script>
+  <script src="../features/business-travel/ui/storage.js" defer></script>
+  <script src="../features/business-travel/ui/view.js" defer></script>
+  <script src="../features/business-travel/ui/transfers.js" defer></script>
+  <script src="../features/business-travel/ui/controller.js" defer></script>
+</head>
+<body>
+  <a class="skip" href="#workspace">Skip to trip workspace</a>
+  <header class="topbar">
+    <a class="brand" href="../"><span class="brand-mark">RW</span> RoamWise <span class="muted">/ Business</span></a>
+    <a href="../#app" class="back">Travel planner ↗</a>
+  </header>
+  <main id="workspace">
+    <div class="heading"><div><p class="eyebrow">LESS ADMIN. MORE JOURNEY.</p><h1>Your trip, accounted for.</h1><p class="muted">Set a budget. Record spending. Give finance a clear report.</p></div><span class="pill">Local workspace · Pilot</span></div>
+    <div class="privacy-note"><span aria-hidden="true">◈</span><div>Private by default: this tab makes no data requests. Your draft stays in memory unless you choose to save it on this device. Use an approved device for company expenses.</div></div>
+    <div class="toolbar">
+      <label class="check"><input type="checkbox" id="remember"> Save draft on this device</label>
+      <span id="save-status" class="muted" role="status">Not saved · download a backup before closing</span>
+      <button type="button" id="backup">Download backup</button>
+      <label class="file-button" for="restore">Restore backup<input id="restore" type="file" accept=".json,application/json"></label>
+      <button type="button" id="new-trip" class="quiet">New trip</button>
+    </div>
+    <p id="message" class="message" role="status" aria-live="polite"></p>
+    <div class="layout">
+      <div class="main-column">
+        <section class="panel" aria-labelledby="trip-heading">
+          <div class="section-heading"><span class="step">01</span><h2 id="trip-heading">Trip &amp; spending policy</h2></div>
+          <form id="trip-form" class="fields">
+            <label class="wide">Trip name<input name="title" required maxlength="120" placeholder="Delhi sales meetings"></label>
+            <label>Cost center<input name="costCenter" required maxlength="80" placeholder="SALES-INDIA"></label>
+            <label>Report currency<select name="baseCurrency" id="base-currency"></select></label>
+            <label class="wide">Route / destinations<input name="route" required maxlength="240" placeholder="Delhi → Jaipur → Delhi"></label>
+            <label>Start date<input name="startDate" type="date" required min="2000-01-01" max="2099-12-31"></label>
+            <label>End date<input name="endDate" type="date" required min="2000-01-01" max="2099-12-31"></label>
+            <label>Total trip budget<input name="budget" required inputmode="decimal" placeholder="25000"></label>
+            <label>Daily spending limit<input name="dailyLimit" required inputmode="decimal" placeholder="8000"></label>
+            <label>Receipt required from<input name="receiptThreshold" required inputmode="decimal" placeholder="500"></label>
+            <label class="check"><input name="requireReceipt" type="checkbox" checked> Flag missing receipt references</label>
+            <p class="hint wide">Limits use the report currency. The daily check groups all spending by expense date, including transport. These are draft checks; your company must review the report.</p>
+          </form>
+        </section>
+        <section class="panel" aria-labelledby="expense-heading">
+          <div class="section-heading"><span class="step">02</span><h2 id="expense-heading">Record an expense</h2></div>
+          <form id="expense-form" class="fields">
+            <label class="wide">What was it for?<input name="description" maxlength="160" required placeholder="Train to Jaipur"></label>
+            <label>Expense date<input name="date" type="date" required min="2000-01-01" max="2099-12-31"></label>
+            <label>Category<select name="category"><option value="transport">Transport</option><option value="lodging">Lodging</option><option value="meals">Meals</option><option value="other">Other</option></select></label>
+            <label>Amount paid<input name="amount" inputmode="decimal" required placeholder="1200.00"></label>
+            <label>Currency<select name="currency" id="expense-currency"></select></label>
+            <label>Exchange rate to report currency<input name="fxRate" inputmode="decimal" value="1" required></label>
+            <label>Exchange-rate date<input name="fxDate" type="date" required min="2000-01-01" max="2099-12-31"></label>
+            <label class="wide">Rate source<input name="fxSource" maxlength="120" required placeholder="Card statement / finance-approved rate"></label>
+            <p class="hint wide" id="fx-hint">1 unit of the expense currency equals this many units of the report currency. Enter the rate from your statement; no live rate is assumed.</p>
+            <label class="wide">Receipt reference <span class="muted">(optional)</span><input name="receiptRef" maxlength="120" placeholder="Receipt file name or finance reference — no card numbers"></label>
+            <div class="wide actions"><button class="primary" type="submit" id="add-expense">Add expense</button><button type="button" id="cancel-edit" hidden>Cancel edit</button></div>
+          </form>
+        </section>
+        <section class="panel" aria-labelledby="ledger-heading">
+          <div class="section-heading"><span class="step">03</span><h2 id="ledger-heading">Expense ledger</h2><span class="muted" id="expense-count">0 / 200</span></div>
+          <div id="ledger" class="ledger"><p class="empty">No expenses yet. Your first entry will appear here.</p></div>
+        </section>
+      </div>
+      <aside>
+        <section class="panel summary" aria-labelledby="summary-heading">
+          <p class="eyebrow">THE BIG PICTURE</p><h2 id="summary-heading">Budget check</h2>
+          <p class="total" id="total">—</p><p class="muted">recorded spending</p>
+          <div class="summary-row"><span>Trip budget</span><strong id="budget-total">—</strong></div>
+          <div class="summary-row"><span>Remaining</span><strong id="remaining">—</strong></div>
+          <p id="review-status" class="pill">Complete the trip details</p>
+          <ul id="flags" class="flags"></ul>
+          <button type="button" id="export-csv" class="primary full" disabled>Download finance CSV ↓</button>
+          <button type="button" id="export-json" class="full" disabled>Download report JSON ↓</button>
+          <p class="hint">Downloads stay with you. Finance must verify receipts, rates and approvals before posting or paying. RoamWise has not sent anything to your employer.</p>
+        </section>
+        <section class="panel integration" aria-labelledby="integration-heading">
+          <h2 id="integration-heading">Connect when you're ready</h2>
+          <p class="muted">Start with a finance export. Add company systems when a pilot needs them.</p>
+          <dl><div><dt>CSV &amp; JSON exports</dt><dd class="available">Available here</dd></div><div><dt>ERP / agent API</dt><dd>Requires server setup</dd></div><div><dt>Company SSO</dt><dd>Not connected</dd></div><div><dt>Employee location</dt><dd>Not collected</dd></div></dl>
+          <a href="../features/business-travel/docs/INTEGRATION.md">Integration &amp; pilot guide ↗</a>
+        </section>
+      </aside>
+    </div>
+    <footer>RoamWise Business · Designed for small teams, built to stay light.<br><a href="../privacy.html">Privacy</a> <span aria-hidden="true">·</span> <a href="../">Back to RoamWise</a></footer>
+    <noscript><p class="message">Enable JavaScript to use the local budget and expense workspace.</p></noscript>
+  </main>
+</body>
+</html>

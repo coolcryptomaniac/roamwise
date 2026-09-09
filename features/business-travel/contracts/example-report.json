@@ -1,0 +1,34 @@
+{
+  "report": {
+    "schemaVersion": 1,
+    "trip": {
+      "id": "example-trip-001",
+      "title": "Example client visit",
+      "costCenter": "SALES-INDIA",
+      "route": "Delhi to Jaipur",
+      "startDate": "2026-09-10",
+      "endDate": "2026-09-12"
+    },
+    "policy": {
+      "baseCurrency": "INR",
+      "budget": "25000.00",
+      "dailyLimit": "8000.00",
+      "receiptThreshold": "500.00",
+      "requireReceipt": true
+    },
+    "expenses": [
+      {
+        "id": "example-expense-001",
+        "date": "2026-09-10",
+        "category": "transport",
+        "description": "Example train ticket",
+        "amount": "1200.00",
+        "currency": "INR",
+        "fxRate": "1.000000",
+        "fxDate": "2026-09-10",
+        "fxSource": "Same currency",
+        "receiptRef": "example-ticket.pdf"
+      }
+    ]
+  }
+}

@@ -1,0 +1,716 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "RoamWise Business Expense API",
+    "version": "1.0.0",
+    "description": "Optional server-to-server pilot API. Replace placeholder host after deployment. Corporate SSO and vendor-specific connectors are not included."
+  },
+  "host": "configure-api-host.invalid",
+  "basePath": "/v1/business",
+  "schemes": [
+    "https"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "securityDefinitions": {
+    "CompanyKey": {
+      "type": "apiKey",
+      "in": "header",
+      "name": "Authorization",
+      "description": "Entire Bearer rw_biz_... credential, held only in a server-side secret store."
+    }
+  },
+  "security": [
+    {
+      "CompanyKey": []
+    }
+  ],
+  "paths": {
+    "/reconcile": {
+      "post": {
+        "operationId": "reconcileBusinessExpenses",
+        "summary": "Check business expenses",
+        "description": "Evaluate expense amounts against the authenticated company policy. Does not book, pay, approve or generate routes. Never infer live crowd forecasts or verified rates. Prefer responseMode=summary for agent calls to avoid copying the full report into model context. flagsTruncated means not all individual flags are included.",
+        "x-ms-summary": "Check business expenses",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Request"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Draft reconciliation calculated.",
+            "schema": {
+              "$ref": "#/definitions/ReconcileResponse"
+            }
+          },
+          "400": {
+            "description": "Invalid input or missing review confirmation",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "Missing, invalid, disabled or expired key",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "Wrong scope or browser Origin",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "405": {
+            "description": "POST required",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "408": {
+            "description": "Request body timeout",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "413": {
+            "description": "Request exceeds 128 KiB",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "415": {
+            "description": "JSON required",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "Export has unresolved policy flags or no expenses",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "429": {
+            "description": "Per-location tenant rate limit",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "502": {
+            "description": "Delivery rejected or outcome unknown; inspect event ID before retry",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "503": {
+            "description": "Disabled or not configured; rate limiter unavailable",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/export": {
+      "post": {
+        "operationId": "exportReviewedBusinessExpenses",
+        "summary": "Export a reviewed expense report",
+        "description": "Send one signed expense report to the company-configured receiver. Requires reviewed=true and export scope. Externally consequential: call only after explicit authorized review. No durable queue or automatic retry. Receiver must deduplicate event IDs; acceptance does not confirm ERP posting or payment.",
+        "x-ms-summary": "Send reviewed report to finance",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Request"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Receiver accepted export; posting not confirmed.",
+            "schema": {
+              "$ref": "#/definitions/ExportResponse"
+            }
+          },
+          "400": {
+            "description": "Invalid input or missing review confirmation",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "Missing, invalid, disabled or expired key",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "Wrong scope or browser Origin",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "405": {
+            "description": "POST required",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "408": {
+            "description": "Request body timeout",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "413": {
+            "description": "Request exceeds 128 KiB",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "415": {
+            "description": "JSON required",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "Export has unresolved policy flags or no expenses",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "429": {
+            "description": "Per-location tenant rate limit",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "502": {
+            "description": "Delivery rejected or outcome unknown; inspect event ID before retry",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "503": {
+            "description": "Disabled or not configured; rate limiter unavailable",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "Trip": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "maxLength": 80
+        },
+        "title": {
+          "type": "string",
+          "maxLength": 120
+        },
+        "costCenter": {
+          "type": "string",
+          "maxLength": 80
+        },
+        "route": {
+          "type": "string",
+          "description": "Human-entered route description; this API does not generate routes.",
+          "maxLength": 240
+        },
+        "startDate": {
+          "type": "string",
+          "format": "date",
+          "description": "Date from 2000 through 2099."
+        },
+        "endDate": {
+          "type": "string",
+          "format": "date",
+          "description": "Date from 2000 through 2099."
+        }
+      },
+      "required": [
+        "id",
+        "title",
+        "costCenter",
+        "route",
+        "startDate",
+        "endDate"
+      ]
+    },
+    "Policy": {
+      "type": "object",
+      "properties": {
+        "baseCurrency": {
+          "type": "string",
+          "enum": [
+            "INR",
+            "USD",
+            "EUR",
+            "GBP",
+            "AED",
+            "SGD",
+            "JPY",
+            "CAD",
+            "AUD",
+            "CHF"
+          ]
+        },
+        "budget": {
+          "type": "string",
+          "pattern": "^\\d+(\\.\\d+)?$",
+          "description": "Positive decimal string, no separators or exponent; use the currency minor units.",
+          "maxLength": 20
+        },
+        "dailyLimit": {
+          "type": "string",
+          "pattern": "^\\d+(\\.\\d+)?$",
+          "description": "Positive decimal string, no separators or exponent; use the currency minor units.",
+          "maxLength": 20
+        },
+        "receiptThreshold": {
+          "type": "string",
+          "pattern": "^\\d+(\\.\\d+)?$",
+          "description": "Nonnegative decimal string in report currency.",
+          "maxLength": 20
+        },
+        "requireReceipt": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "baseCurrency",
+        "budget",
+        "dailyLimit",
+        "receiptThreshold",
+        "requireReceipt"
+      ]
+    },
+    "Expense": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "maxLength": 80
+        },
+        "date": {
+          "type": "string",
+          "format": "date",
+          "description": "Date from 2000 through 2099."
+        },
+        "category": {
+          "type": "string",
+          "enum": [
+            "transport",
+            "lodging",
+            "meals",
+            "other"
+          ]
+        },
+        "description": {
+          "type": "string",
+          "maxLength": 160
+        },
+        "amount": {
+          "type": "string",
+          "pattern": "^\\d+(\\.\\d+)?$",
+          "description": "Positive decimal string, no separators or exponent; use the currency minor units.",
+          "maxLength": 20
+        },
+        "currency": {
+          "type": "string",
+          "enum": [
+            "INR",
+            "USD",
+            "EUR",
+            "GBP",
+            "AED",
+            "SGD",
+            "JPY",
+            "CAD",
+            "AUD",
+            "CHF"
+          ]
+        },
+        "fxRate": {
+          "type": "string",
+          "pattern": "^\\d+(\\.\\d{1,6})?$",
+          "description": "Report currency per one unit of original currency. Up to six decimals; same-currency must be 1.",
+          "maxLength": 20
+        },
+        "fxDate": {
+          "type": "string",
+          "format": "date",
+          "description": "Date from 2000 through 2099."
+        },
+        "fxSource": {
+          "type": "string",
+          "description": "User-supplied statement or finance-approved rate source.",
+          "maxLength": 120
+        },
+        "receiptRef": {
+          "type": "string",
+          "description": "Reference only; no receipt verification.",
+          "maxLength": 120
+        }
+      },
+      "required": [
+        "id",
+        "date",
+        "category",
+        "description",
+        "amount",
+        "currency",
+        "fxRate",
+        "fxDate",
+        "fxSource"
+      ]
+    },
+    "Report": {
+      "type": "object",
+      "properties": {
+        "schemaVersion": {
+          "type": "integer",
+          "enum": [
+            1
+          ]
+        },
+        "trip": {
+          "$ref": "#/definitions/Trip"
+        },
+        "policy": {
+          "$ref": "#/definitions/Policy"
+        },
+        "expenses": {
+          "type": "array",
+          "maxItems": 200,
+          "items": {
+            "$ref": "#/definitions/Expense"
+          }
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "trip",
+        "policy",
+        "expenses"
+      ]
+    },
+    "Request": {
+      "type": "object",
+      "properties": {
+        "report": {
+          "$ref": "#/definitions/Report"
+        },
+        "reviewed": {
+          "type": "boolean",
+          "description": "Required true for export. Customer must separately enforce real review permissions."
+        },
+        "responseMode": {
+          "type": "string",
+          "enum": [
+            "full",
+            "summary"
+          ],
+          "default": "full",
+          "description": "For reconciliation, summary omits raw text and rows, returning totals and at most 20 structured flag references. Does not change export delivery."
+        }
+      },
+      "required": [
+        "report"
+      ]
+    },
+    "Reconciliation": {
+      "type": "object",
+      "properties": {
+        "report": {
+          "$ref": "#/definitions/Report"
+        },
+        "rows": {
+          "type": "array",
+          "items": {
+            "allOf": [
+              {
+                "$ref": "#/definitions/Expense"
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "baseAmount": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "baseAmount"
+                ]
+              }
+            ]
+          }
+        },
+        "total": {
+          "type": "string"
+        },
+        "remaining": {
+          "type": "string"
+        },
+        "currency": {
+          "type": "string",
+          "enum": [
+            "INR",
+            "USD",
+            "EUR",
+            "GBP",
+            "AED",
+            "SGD",
+            "JPY",
+            "CAD",
+            "AUD",
+            "CHF"
+          ]
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "empty",
+            "needs_review",
+            "ready_for_review"
+          ]
+        },
+        "flags": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "code": {
+                "type": "string"
+              },
+              "message": {
+                "type": "string"
+              },
+              "expenseId": {
+                "type": "string"
+              },
+              "date": {
+                "type": "string",
+                "format": "date",
+                "description": "Date from 2000 through 2099."
+              }
+            },
+            "required": [
+              "code",
+              "message"
+            ]
+          }
+        },
+        "notice": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "report",
+        "rows",
+        "total",
+        "remaining",
+        "currency",
+        "status",
+        "flags",
+        "notice"
+      ]
+    },
+    "ReconcileResponse": {
+      "type": "object",
+      "properties": {
+        "tenantId": {
+          "type": "string"
+        },
+        "policyVersion": {
+          "type": "string"
+        },
+        "requestId": {
+          "type": "string"
+        },
+        "reconciliation": {
+          "$ref": "#/definitions/Reconciliation"
+        },
+        "responseMode": {
+          "type": "string",
+          "enum": [
+            "full",
+            "summary"
+          ]
+        },
+        "summary": {
+          "$ref": "#/definitions/AgentSummary"
+        }
+      },
+      "required": [
+        "tenantId",
+        "policyVersion",
+        "requestId",
+        "responseMode"
+      ],
+      "description": "full includes reconciliation; summary includes summary instead. Exactly one is returned."
+    },
+    "ExportResponse": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": [
+            "receiver_accepted"
+          ]
+        },
+        "eventId": {
+          "type": "string"
+        },
+        "requestId": {
+          "type": "string"
+        },
+        "notice": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "status",
+        "eventId",
+        "requestId",
+        "notice"
+      ]
+    },
+    "Error": {
+      "type": "object",
+      "properties": {
+        "error": {
+          "type": "string"
+        },
+        "message": {
+          "type": "string"
+        },
+        "requestId": {
+          "type": "string"
+        },
+        "eventId": {
+          "type": "string"
+        },
+        "retry": {
+          "type": "string"
+        },
+        "reconciliation": {
+          "$ref": "#/definitions/Reconciliation"
+        }
+      },
+      "required": [
+        "error",
+        "requestId"
+      ]
+    },
+    "AgentSummary": {
+      "type": "object",
+      "required": [
+        "status",
+        "currency",
+        "total",
+        "remaining",
+        "expenseCount",
+        "flagCount",
+        "flagCounts",
+        "flags",
+        "flagsTruncated",
+        "notice"
+      ],
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": [
+            "empty",
+            "needs_review",
+            "ready_for_review"
+          ]
+        },
+        "currency": {
+          "type": "string",
+          "enum": [
+            "INR",
+            "USD",
+            "EUR",
+            "GBP",
+            "AED",
+            "SGD",
+            "JPY",
+            "CAD",
+            "AUD",
+            "CHF"
+          ]
+        },
+        "total": {
+          "type": "string"
+        },
+        "remaining": {
+          "type": "string"
+        },
+        "expenseCount": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 200
+        },
+        "flagCount": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "flagCounts": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "flags": {
+          "type": "array",
+          "maxItems": 20,
+          "items": {
+            "type": "object",
+            "required": [
+              "code"
+            ],
+            "properties": {
+              "code": {
+                "type": "string"
+              },
+              "expenseId": {
+                "type": "string"
+              },
+              "date": {
+                "type": "string",
+                "format": "date"
+              }
+            }
+          }
+        },
+        "flagsTruncated": {
+          "type": "boolean"
+        },
+        "notice": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

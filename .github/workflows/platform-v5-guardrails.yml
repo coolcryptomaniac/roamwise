@@ -24,6 +24,9 @@ jobs:
         with:
           node-version: '22'
 
+      - name: Install test dependencies
+        run: npm ci
+
       - name: Validate Platform V5 JavaScript
         run: |
           node --check platform-v5/atlas-shinobi.js
