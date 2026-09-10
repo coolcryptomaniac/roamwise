@@ -1,0 +1,43 @@
+name = "roamwise-global-ops"
+main = "worker.mjs"
+compatibility_date = "2026-09-01"
+
+[vars]
+FIREBASE_PROJECT_ID = "roamwisepro"
+ALLOWED_ORIGINS = "https://roamwise.co.in,https://www.roamwise.co.in"
+SUPPORT_PUBLIC_ENABLED = "false"
+OPS_AI_MODEL = ""
+
+[[d1_databases]]
+binding = "GLOBAL_OPS_DB"
+database_name = "roamwise-global-ops"
+database_id = "REPLACE_WITH_D1_DATABASE_ID"
+
+[[queues.producers]]
+binding = "GLOBAL_OPS_QUEUE"
+queue = "roamwise-global-ops"
+
+[[queues.consumers]]
+queue = "roamwise-global-ops"
+max_batch_size = 20
+max_retries = 5
+dead_letter_queue = "roamwise-global-ops-dlq"
+
+[[unsafe.bindings]]
+name = "SUPPORT_RATE_LIMITER"
+type = "ratelimit"
+namespace_id = "2002"
+simple = { limit = 5, period = 60 }
+
+[triggers]
+crons = ["*/15 * * * *"]
+
+# Optional only after a model is approved:
+# [ai]
+# binding = "AI"
+#
+# Secrets:
+# GLOBAL_OPS_ADMIN_UIDS
+# TURNSTILE_SECRET_KEY
+# OPS_ALERT_WEBHOOK_URL (optional)
+# OPS_ALERT_WEBHOOK_TOKEN (optional)
