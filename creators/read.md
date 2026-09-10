@@ -4,7 +4,21 @@
 
 - Public creator programme: `https://roamwise.co.in/creators/`
 - Creator Studio: `https://roamwise.co.in/creators/dashboard.html`
+- Brand Campaign Desk: `https://roamwise.co.in/creators/brands.html`
 - Founder/admin console: `https://roamwise.co.in/creators/admin.html`
+
+The programme now has two connected tracks: paid travel creator contracts use the Creator Protection service, while the existing referral/content programme remains available as a separate acquisition channel.
+
+## Protected campaign workflow
+
+1. Creator verifies email, saves a rate card, sets a Creator Minimum and chooses whether barter is acceptable.
+2. Brand completes its business profile and creates one contract per creator, with fee, travel reimbursement, stay/meals, deliverables, rights and exclusivity stated separately.
+3. After RoamWise/provider KYC approval, the brand publishes the brief, reviews applications and accepts one creator.
+4. The brand funds the contract through hosted provider checkout. The campaign receives a `FUNDED` badge only after a signed, idempotent server webhook confirms payment.
+5. Creator starts work and submits; brand approves or either side opens a dispute. A dispute freezes release.
+6. Brand requests release; RoamWise sends the provider payout instruction and marks the campaign `PAID` only after provider confirmation.
+
+The deployable worker, D1 schema, provider gates and activation runbook are in [`protection/`](protection/README.md). `creatorProtectionUrl` stays blank and all real fund movement stays disabled until the selected provider approves RoamWise's exact delayed-settlement or escrow contract.
 
 The admin page is `noindex,nofollow` and requires a Firebase account with an `admins/{uid}` document. Firestore rules remain the authority.
 

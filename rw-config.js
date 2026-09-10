@@ -8,6 +8,9 @@ window.RW_CONFIG = {
      when configured, otherwise the existing Firebase/device path. */
   backend: 'firebase',
   workerUrl: '',
+  /* Separate regulated-money control plane for creator campaigns. Leave blank
+     until provider underwriting, KYC and protected-hold terms are approved. */
+  creatorProtectionUrl: '',
   features: {
     beacon: true,
     realms: true,

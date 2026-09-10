@@ -10,6 +10,7 @@
 <link rel="icon" href="../icons/favicon-32.png">
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="studio.css">
+<link rel="stylesheet" href="marketplace.css">
 </head>
 <body>
 <nav class="cs-nav"><a class="cs-brand" href="../"><img src="../icon-512.png" alt=""><b>Roam<span>Wise</span></b></a><div></div><a href="./">Creator program</a><button id="csSignOut" hidden>Sign out</button></nav>
@@ -21,6 +22,25 @@
 <section id="csDash" class="cs-dash" hidden>
   <header class="cs-hero"><div class="cs-hero-grid"></div><div class="cs-hero-moon"></div><div class="cs-hero-copy"><small>CREATOR COMMAND CENTRE</small><h1 id="csHello">Your RoamWise studio</h1><p id="csTierLine">Build useful travel work. Verified referrals move your creator tier.</p><div class="cs-hero-actions"><button id="csCopyLink">Copy referral link</button><a href="../" target="_blank" rel="noopener">Open RoamWise ↗</a></div></div><div class="cs-code-card"><small>YOUR VERIFIED REFERRAL CODE</small><strong id="csCode">PENDING</strong><span id="csRate">Review in progress</span></div></header>
   <section class="cs-stats" id="csStats"></section>
+  <section class="cs-panel" id="cpRateCardPanel">
+    <div class="cs-panel-head"><div><small>BOOKABLE SERVICES</small><h2>Your rate card + Creator Minimum</h2><p>Brands buy clear travel-content products—not follower counts. Your minimum filters low-value paid offers before they reach you.</p></div><span class="cs-status">Creator controlled</span></div>
+    <div class="cs-fields">
+      <label>Instagram Reel (₹)<input id="cpRateReel" type="number" min="0" step="500"></label>
+      <label>3-story package (₹)<input id="cpRateStories" type="number" min="0" step="500"></label>
+      <label>Hotel content package (₹)<input id="cpRateHotel" type="number" min="0" step="500"></label>
+      <label>UGC package (₹)<input id="cpRateUgc" type="number" min="0" step="500"></label>
+      <label>Travel day (₹/day)<input id="cpRateDay" type="number" min="0" step="500"></label>
+      <label>Creator Minimum (₹)<input id="cpMinimum" type="number" min="0" step="500" value="15000"></label>
+      <label>Mobile for payout KYC<input id="cpPhone" inputmode="numeric" maxlength="10" placeholder="10-digit mobile"></label>
+    </div>
+    <label class="cp-check"><input id="cpAcceptBarter" type="checkbox"><span>Show me clearly labelled barter-only campaigns too.</span></label>
+    <div class="cs-actions"><button id="cpSaveRates">Save rate card</button><span id="cpRateMsg"></span></div>
+  </section>
+  <section class="cs-panel cs-content-panel" id="cpCampaignPanel">
+    <div class="cs-panel-head"><div><small>PAID CAMPAIGNS</small><h2>Campaign desk</h2><p>Browse open briefs, or switch to your funded contracts after a brand accepts and secures your offer. A green badge is shown only after a payment-provider webhook is verified.</p></div><label class="cp-check"><input id="cpFundedOnly" type="checkbox"><span>My funded contracts only</span></label></div>
+    <div id="cpProtectionStatus" class="cp-notice">Protected payments are being connected to your verified creator identity.</div>
+    <div id="cpCampaigns" class="cp-campaign-grid"><div class="cp-empty">Sign in to load eligible campaigns.</div></div>
+  </section>
   <div class="cs-grid2">
     <section class="cs-panel"><div class="cs-panel-head"><div><small>PROFILE</small><h2>Your creator identity</h2></div><span id="csProfileStatus" class="cs-status">Under review</span></div><div class="cs-fields"><label>Display name<input id="csName" maxlength="120"></label><label>Creator niche<input id="csNiche" maxlength="120" placeholder="Himalayan treks, food trails…"></label><label>Instagram<input id="csInstagram" placeholder="https://instagram.com/…"></label><label>YouTube<input id="csYoutube" placeholder="https://youtube.com/@…"></label><label>TikTok / Shorts profile<input id="csTiktok" placeholder="https://…"></label><label>Website / blog<input id="csWebsite" placeholder="https://…"></label><label>Payout preference<select id="csPayoutPref"><option value="UPI">UPI</option><option value="Bank transfer">Bank transfer</option><option value="Discuss with RoamWise">Discuss with RoamWise</option></select></label><label class="full">Short bio<textarea id="csBio" maxlength="800" placeholder="What should travellers know about you?"></textarea></label></div><div class="cs-actions"><button id="csSaveProfile">Save profile</button><span id="csProfileMsg"></span></div></section>
     <aside class="cs-panel cs-ref-panel"><div class="cs-panel-head"><div><small>GROWTH</small><h2>Your referral link</h2></div></div><div class="cs-ref-link"><input id="csRefLink" readonly placeholder="Activates after review"><button id="csCopyLink2">Copy</button></div><div class="cs-tier-track"><div class="cs-tier-step on"><b>Applied</b><span>25%</span><small>after code activation</small></div><i></i><div class="cs-tier-step" id="csPartnerTier"><b>Partner</b><span>30%</span><small>1 approved piece or 5 verified sales</small></div><i></i><div class="cs-tier-step" id="csFeaturedTier"><b>Featured</b><span>30%</span><small>25 verified sales or dedicated feature</small></div></div><div class="cs-ref-note" id="csRefNote">Your code is activated by RoamWise after verified application/account matching. The creator cannot edit the verified rate, sales or payout totals.</div></aside>
@@ -33,6 +53,8 @@
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<script src="../rw-config.js"></script>
 <script src="studio.js"></script>
+<script src="campaigns.js"></script>
 </body>
 </html>
