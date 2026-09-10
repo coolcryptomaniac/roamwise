@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "RoamWise Pro — AI travel planner (Capacitor Android wrapper)",
   "scripts": {
-    "test": "node --test tests/*.test.js",
+    "test": "node --test tests/*.test.js tests/*.test.mjs",
     "typecheck": "tsc --noEmit",
     "lint": "eslint js app.js",
     "check": "node --check app.js && node --check rw-config.js && node --check platform-v5/audio-only.js && node --check platform-v5/atlas-shinobi.js && node --check js/audio/focus.js && node --check js/audio/cues.js && node --check js/runtime/freshness.js && node --check js/voice/tusk-speak.js && node --check roamwise-premium-itinerary.js && node tools/check-line-limits.js && npm run typecheck && npm run business:check",

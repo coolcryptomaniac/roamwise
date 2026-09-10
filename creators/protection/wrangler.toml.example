@@ -1,0 +1,24 @@
+name = "roamwise-creator-protection"
+main = "worker.mjs"
+compatibility_date = "2026-09-01"
+
+[vars]
+FIREBASE_PROJECT_ID = "roamwisepro"
+ALLOWED_ORIGINS = "https://roamwise.co.in,https://www.roamwise.co.in"
+CREATOR_PROTECTION_PROVIDER = "cashfree_easy_split"
+CREATOR_PROTECTED_HOLD_APPROVED = "false"
+CASHFREE_DELAYED_SPLIT_APPROVED = "false"
+CASHFREE_ENV = "sandbox"
+CASHFREE_API_VERSION = "2026-01-01"
+CREATOR_PLATFORM_FEE_BPS = "1500"
+CREATOR_SERVICE_TAX_BPS = "1800"
+CREATOR_PAYMENT_RETURN_URL = "https://roamwise.co.in/creators/brands.html?payment=return"
+
+[[d1_databases]]
+binding = "CREATOR_DB"
+database_name = "roamwise-creator-protection"
+database_id = "REPLACE_WITH_D1_DATABASE_ID"
+
+# Secrets: CASHFREE_APP_ID, CASHFREE_SECRET_KEY, CASHFREE_WEBHOOK_SECRET,
+# CREATOR_PROTECTION_ADMIN_UIDS. Bank-escrow mode additionally requires
+# ESCROW_PROVIDER_API_BASE and ESCROW_PROVIDER_API_KEY from the signed provider contract.
