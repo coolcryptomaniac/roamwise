@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="robots" content="noindex,nofollow"><meta name="theme-color" content="#08090d">
+  <title>Global Operations — RoamWise Admin</title>
+  <link rel="icon" href="../../icons/favicon-32.png"><link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet"><link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <nav class="go-nav"><a href="../../admin/" class="go-brand"><img src="../../icons/icon-192.png" alt=""><b>Roam<span>Wise</span> Global Ops</b></a><div></div><span id="goIdentity">ADMIN REQUIRED</span><button id="goSignOut" hidden>Sign out</button></nav>
+  <main class="go-shell">
+    <section id="goAuth" class="go-auth">
+      <div><span class="eyebrow">PRIVATE CONTROL PLANE</span><h1>Operate globally.<br><em>Stay deliberately small.</em></h1><p>This is the control surface for a 5–20 person core team, outsourced infrastructure, API inventory and exception-led operations.</p></div>
+      <form id="goLogin" class="panel"><h2>Founder sign in</h2><label>Email<input id="goEmail" type="email" autocomplete="email" required></label><label>Password<input id="goPassword" type="password" autocomplete="current-password" required></label><button class="primary" type="submit">Sign in securely</button><div id="goAuthMsg"></div></form>
+    </section>
+
+    <div id="goApp" hidden>
+      <header class="go-hero"><div><span class="eyebrow">ASSET-LIGHT OPERATING SYSTEM</span><h1>Exceptions, not busywork.</h1><p>Automate routine movement. Keep money, safety, legal, privacy and account-access decisions behind a named human.</p></div><div class="health" id="goHealth">CONNECTING</div></header>
+      <div id="goMode" class="notice"></div>
+      <section class="kpis" id="goKpis"></section>
+
+      <section class="layout">
+        <form id="goSettings" class="panel">
+          <span class="eyebrow">LEAN CORE GUARDRAILS</span><h2>Capacity and spend</h2>
+          <div class="fields"><label>Core employees<input id="gsHeadcount" type="number" min="0"></label><label>Core-team cap<input id="gsCap" type="number" min="5" max="20" value="20"></label><label>Contract specialists<input id="gsContractors" type="number" min="0"></label><label>Owned physical assets<input id="gsAssets" type="number" min="0"></label><label>Recurring workflows<input id="gsWorkflows" type="number" min="0"></label><label>Monthly tools budget (₹)<input id="gsBudget" type="number" min="0"></label></div>
+          <button class="primary" type="submit">Save operating limits</button><div id="gsMsg"></div>
+        </form>
+        <section class="panel">
+          <span class="eyebrow">ACCOUNTABLE CORE</span><h2>Five functions, not five departments</h2>
+          <div class="role"><b>Product + Engineering</b><span>Architecture, reliability, AI evaluation</span></div><div class="role"><b>Global Partnerships</b><span>Inventory, creator, enterprise and destination supply</span></div><div class="role"><b>Growth</b><span>SEO, lifecycle, distribution and revenue experiments</span></div><div class="role"><b>Finance + Compliance</b><span>Payments, tax evidence, contracts and risk</span></div><div class="role"><b>Customer Operations</b><span>Support quality, escalations and incident ownership</span></div>
+          <p class="fine">“Zero liability” is not a valid operating promise. RoamWise can stay asset-light while retaining legal, consumer, privacy and safety responsibilities.</p>
+        </section>
+      </section>
+
+      <section class="panel">
+        <div class="head"><div><span class="eyebrow">OPERATIONS REGISTRY</span><h2>Add one accountable record</h2></div><button id="goSweep" type="button">Run risk sweep</button></div>
+        <form id="goItem" class="fields wide">
+          <label>Type<select id="giType"><option value="partner">Partner / API</option><option value="automation">Automation</option><option value="support">Support</option><option value="compliance">Compliance</option></select></label>
+          <label>Name<input id="giName" maxlength="180" required></label>
+          <label>Provider<input id="giProvider" maxlength="160"></label><label>Owner<input id="giOwner" maxlength="120"></label>
+          <label>Region<select id="giRegion"><option>GLOBAL</option><option>APAC</option><option>EMEA</option><option>AMER</option><option>INDIA</option></select></label>
+          <label>Status<select id="giStatus"><option value="research">Research</option><option value="pending">Pending</option><option value="active">Active</option><option value="blocked">Blocked</option><option value="resolved">Resolved</option><option value="retired">Retired</option></select></label>
+          <label>Priority<select id="giPriority"><option value="normal">Normal</option><option value="high">High</option><option value="critical">Critical</option><option value="low">Low</option></select></label>
+          <label>Due date<input id="giDue" type="datetime-local"></label>
+          <label>Monthly cost (₹)<input id="giCost" type="number" min="0"></label><label>Evidence URL<input id="giEvidence" type="url"></label>
+          <label class="full">Details<textarea id="giDetail" maxlength="5000"></textarea></label>
+          <label class="check full"><input id="giHuman" type="checkbox"><span>Require human approval before any consequential action.</span></label>
+          <button class="primary full" type="submit">Add record</button>
+        </form><div id="giMsg"></div>
+      </section>
+
+      <section class="panel">
+        <span class="eyebrow">SUPPORT TRIAGE TEST</span><h2>Route by risk and time zone</h2><p>Public intake stays disabled until Turnstile and rate limiting are deployed. Use this to test the exact server decision.</p>
+        <form id="goSupport" class="fields wide"><label>Subject<input id="gtSubject" maxlength="180" required></label><label>Customer email<input id="gtEmail" type="email"></label><label class="full">Message<textarea id="gtMessage" maxlength="5000" required></textarea></label><label class="check full"><input id="gtConsent" type="checkbox"><span>Customer explicitly consented to sending this message to the configured AI provider for a draft.</span></label><button class="primary full" type="submit">Triage request</button></form><div id="gtResult"></div>
+      </section>
+
+      <section class="registry"><div class="head"><div><span class="eyebrow">LIVE REGISTRY</span><h2>Partners, automations, support and compliance</h2></div><div class="head-actions"><button id="goSeed">Load researched starting pack</button><button id="goRefresh">Refresh</button></div></div><div class="tabs" id="goTabs"><button class="on" data-filter="all">All</button><button data-filter="partner">Partners</button><button data-filter="automation">Automation</button><button data-filter="support">Support</button><button data-filter="compliance">Compliance</button></div><div id="goItems" class="cards"><div class="empty">Sign in to load operations.</div></div></section>
+
+      <section class="research panel">
+        <span class="eyebrow">VERIFIED STARTING STACK · 10 SEP 2026</span><h2>Buy leverage, not assets.</h2>
+        <div class="source-grid">
+          <article><b>Cloud control plane</b><p>Workers + D1 + Queues. Add Workflows only for long-running jobs.</p><a href="https://developers.cloudflare.com/queues/reference/how-queues-works/" target="_blank" rel="noopener">Cloudflare delivery model ↗</a></article>
+          <article><b>Travel inventory</b><p>Evaluate Expedia Rapid, Duffel and Airalo. Amadeus self-service is no longer the old default path.</p><a href="https://partner.expediagroup.com/en-us/solutions/build-your-travel-experience/rapid-api" target="_blank" rel="noopener">Expedia Rapid ↗</a></article>
+          <article><b>India export compliance</b><p>Track LUT/IGST treatment, remittance evidence, DPDP duties and contract records with advisers.</p><a href="https://www.rbi.org.in/Scripts/BS_ViewMasDirections.aspx?id=10395" target="_blank" rel="noopener">RBI direction ↗</a></article>
+          <article><b>AI support</b><p>Measure real resolution and escalation. Do not assume an 85% containment rate.</p><a href="https://www.freshworks.com/freshdesk/pricing/" target="_blank" rel="noopener">Freshdesk pricing ↗</a></article>
+        </div>
+      </section>
+    </div>
+  </main>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script><script src="../../rw-config.js"></script><script src="app.js"></script>
+</body>
+</html>

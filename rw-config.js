@@ -11,6 +11,9 @@ window.RW_CONFIG = {
   /* Separate regulated-money control plane for creator campaigns. Leave blank
      until provider underwriting, KYC and protected-hold terms are approved. */
   creatorProtectionUrl: '',
+  /* Serverless founder control plane for partners, automation, support and
+     global compliance. Leave blank until its Worker and D1 database exist. */
+  globalOpsUrl: '',
   features: {
     beacon: true,
     realms: true,
