@@ -1,0 +1,27 @@
+{
+  "slug": "hub-and-spoke-india-travel-strategy",
+  "section": "blog",
+  "title": "One base or a moving route? Compare the whole journey",
+  "description": "Use a door-to-door time calculation and complete-cost example to choose between a regional base, a linear itinerary and a short direct trip.",
+  "updated": "2026-09-10",
+  "body": "<p>A regional base can make a trip easier: unpack once, take nearby outings and return to the same room. It can also make the trip worse if you spend every day retracing a long road. Choose a hub because it fits the places you actually want to visit, not because flying into a city and hiring a car sounds automatically efficient.</p>\n<h2 id=\"shape\">Draw the trip in three possible shapes</h2>\n<table><caption>Which structure fits the journey?</caption><thead><tr><th>Structure</th><th>Useful when</th><th>Cost people miss</th></tr></thead><tbody><tr><td>One base, several outings</td><td>Your interests are genuinely close enough for comfortable returns.</td><td>Repeated outward and return travel, waiting time and late returns.</td></tr><tr><td>A linear route</td><td>Stops follow your direction of travel and onward transport is workable.</td><td>Check-ins, luggage handling and one-way vehicle fees.</td></tr><tr><td>One place, deeper visit</td><td>Your leave is short or rest is the main purpose.</td><td>Usually fewer transfers, but check whether the room location forces daily transport.</td></tr></tbody></table>\n<p>For Jaipur, a city base and a separate Amber outing can be coherent; the <a href=\"/guides/jaipur-india.html\">Jaipur guide</a> explains the grouping. It would not follow that all Rajasthan attractions are sensible day trips from Jaipur. Use a route map and dated transport options for every proposed spoke.</p>\n<h2 id=\"time\">Count the hours around the flight or train</h2>\n<p>Door-to-door time equals travel to the departure point, the check-in or boarding buffer, the main journey, arrival formalities, the final transfer and any waiting before the room is available. A short flight can be slower overall than a convenient direct train. A sleeper journey may save a hotel night but cost a poor night's rest. Neither result is universal.</p>\n<p><strong>Illustrative comparison:</strong> a two-hour flight plus one hour getting to the airport, two hours of pre-departure margin and two hours after arrival totals seven hours. A six-hour train plus half an hour at each end and half an hour before departure totals seven and a half hours. These are assumed inputs, not advised airline reporting times or a particular route. Replace every figure with your booking's requirements.</p>\n<h2 id=\"money\">Compare the cost for your actual group</h2>\n<p>Suppose two people compare flights costing ₹6,000 each plus ₹2,000 shared transfers against rail costing ₹2,500 each plus ₹1,000 shared transfers. The first option totals ₹14,000; the second ₹6,000. A ₹1,500 early check-in on the rail option narrows the difference to ₹6,500. The example shows what to count, not which mode is available or preferable.</p>\n<p>For a car, include rental or hire price, fuel or charging, tolls, parking, deposits that tie up cash, any permitted one-way drop fee and the driver's rest. For public transport, include the last kilometre at both ends. Use our <a href=\"/guides/what-things-cost-india.html\">editable budget worksheet</a> so a room shared by two people is not accidentally counted twice.</p>\n<h2 id=\"comfort\">Give discomfort a place in the decision</h2>\n<p>Make a short list of non-negotiables before sorting by price: arrival while transport is available, an accessible boarding arrangement, luggage you can handle, and enough rest before an important meeting or mountain drive. A fare that fails a non-negotiable is not a cheaper version of the same journey.</p>\n<p>If a family member needs assistance, confirm it with the actual operator and property. If you plan to drive after an overnight journey, change that plan when you are tired. A spare day or an extra night near arrival can be a more effective comfort purchase than an upgrade on only one segment.</p>\n<h2 id=\"booking\">Book the dependency first</h2>\n<p>Find the part that has few alternatives: a particular train, a permit-dependent outing, or a stay needed for an event. Check its terms, then fit the flexible pieces around it. Do not buy several non-refundable components while assuming that a later <a href=\"/blog/tatkal-10am-hack-irctc.html\">Tatkal attempt</a> will connect them.</p>\n<p>For separate tickets, investigate what happens if the first service is delayed. Leave a practical margin and retain enough cash for a missed connection. The goal is to spend more of the trip doing what brought you there, with a route that remains manageable when one element changes.</p>",
+  "sources": [
+    {
+      "url": "https://www.tourism.rajasthan.gov.in/jaipur.html",
+      "title": "Rajasthan Tourism: Jaipur",
+      "supports": "Geographic example of city attractions and the separate Amber outing.",
+      "checked": "2026-09-10"
+    },
+    {
+      "url": "https://contents.irctc.co.in/en/TatkalBooking.html",
+      "title": "IRCTC: Tatkal booking guide",
+      "supports": "Opening window relative to the train origin date, quota selection and booking confirmation.",
+      "checked": "2026-09-10"
+    }
+  ],
+  "tags": [
+    "India",
+    "transport",
+    "budget"
+  ]
+}

@@ -1,0 +1,1129 @@
+{
+  "date": "2026-09-11",
+  "replacement_articles": [
+    "/blog/ev-road-trips-india.html",
+    "/blog/folding-cycle-travel-guide.html",
+    "/blog/hub-and-spoke-india-travel-strategy.html",
+    "/blog/least-crowded-months-world.html",
+    "/blog/premium-volvo-buses-india.html",
+    "/blog/tatkal-10am-hack-irctc.html",
+    "/guides/binsar-india.html",
+    "/guides/jaipur-india.html",
+    "/guides/jaisalmer-india.html",
+    "/guides/jodhpur-india.html",
+    "/guides/rishikesh-uttarakhand.html",
+    "/guides/what-things-cost-india.html"
+  ],
+  "retired_urls": [
+    {
+      "path": "/guides/udaipur-in-june.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/los-angeles-usa.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/prague-czech-republic.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/mussoorie-india.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/kochi-india.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/hoi-an-vietnam.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/varkala-india.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/jaipur-in-october.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/udaipur-india.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/interlaken-switzerland.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/doha-qatar.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/gulmarg-india.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/goa-india.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/gokarna-karnataka.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/khajuraho-india.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/gangtok-sikkim.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/jaipur-in-april.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/san-francisco-usa.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/agra-india.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/kasol-india.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/jodhpur-in-september.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/gangtok-india.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/edinburgh-uk.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/ranikhet-india.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/jaipur-in-may.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/palawan-philippines.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/shillong-india.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/madrid-spain.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/da-nang-vietnam.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/what-things-should-cost-india.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/low-carbon-travel-india.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/vienna-austria.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/srinagar-india.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/petra-jordan.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/jodhpur-in-july.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/london-uk.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/amsterdam-netherlands.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/chiang-mai-thailand.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/tbilisi-georgia.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/alleppey-kerala.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/queenstown-new-zealand.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/florence-italy.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/udaipur-in-october.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/abu-dhabi-uae.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/cappadocia-turkey.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/jodhpur-in-december.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/mexico-city-mexico.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/colombo-sri-lanka.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/helsinki-finland.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/best-time-to-visit-india.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/nice-france.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/jaisalmer-in-february.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/bogota-colombia.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/cairns-australia.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/krakow-poland.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/sydney-australia.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/udaipur-in-august.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/mauritius-mauritius.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/bangkok-thailand.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/ella-sri-lanka.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/dharamshala-india.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/seychelles-seychelles.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/hong-kong-hong-kong.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/mysore-india.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/darjeeling-india.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/seoul-south-korea.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/langkawi-malaysia.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/udaipur-in-may.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/jaipur-in-march.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/ooty-india.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/ubud-indonesia.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/manila-philippines.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/rome-italy.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/jaipur-in-january.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/tawang-india.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/venice-italy.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/kathmandu-nepal.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/fiji-fiji.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/kandy-sri-lanka.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/jaipur-in-september.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/marrakech-morocco.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/jakarta-indonesia.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/jaipur-in-august.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/stockholm-sweden.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/mount-abu-india.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/hampi-karnataka.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/udaipur-in-december.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/bir-billing-himachal.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/jodhpur-in-june.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/jodhpur-in-october.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/jodhpur-in-august.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/cairo-egypt.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/auckland-new-zealand.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/havana-cuba.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/amritsar-india.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/copenhagen-denmark.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/pokhara-nepal.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/munich-germany.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/nairobi-kenya.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/dublin-ireland.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/lima-peru.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/munnar-india.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/tawang-arunachal.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/tashkent-uzbekistan.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/munnar-kerala.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/taipei-taiwan.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/udaipur-in-march.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/muscat-oman.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/jaisalmer-in-april.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/las-vegas-usa.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/patagonia-argentina.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/ho-chi-minh-city-vietnam.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/reykjavik-iceland.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/toronto-canada.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/osaka-japan.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/shimla-india.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/jodhpur-in-january.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/jaipur-in-june.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/udaipur-in-july.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/jodhpur-in-november.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/phuket-thailand.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/cartagena-colombia.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/seville-spain.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/varkala-kerala.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/jaipur-in-november.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/santorini-greece.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/mcleodganj-himachal.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/honolulu-usa.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/haridwar-india.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/mahabalipuram-india.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/zanzibar-tanzania.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/udaipur-in-april.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/berlin-germany.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/kasol-himachal.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/oslo-norway.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/rio-de-janeiro-brazil.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/budapest-hungary.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/cancun-mexico.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/pondicherry-tamil-nadu.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/varanasi-india.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/banff-canada.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/dubrovnik-croatia.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/cusco-peru.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/udaipur-in-january.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/melbourne-australia.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/tokyo-japan.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/dubai-uae.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/medell-n-colombia.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/barcelona-spain.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/kausani-india.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/spiti-valley-himachal.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/santiago-chile.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/rishikesh-india.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/porto-portugal.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/udaipur-in-february.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/hampi-india.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/miami-usa.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/chikmagalur-karnataka.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/new-york-usa.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/mahabalipuram-tamil-nadu.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/khajjiar-himachal.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/kutch-india.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/almaty-kazakhstan.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/cape-town-south-africa.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/jaipur-in-july.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/singapore-singapore.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/nainital-india.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/manali-india.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/jodhpur-in-february.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/jaisalmer-in-january.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/kyoto-japan.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/buenos-aires-argentina.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/paro-bhutan.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/jodhpur-in-march.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/jaipur-in-december.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/male-maldives.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/samarkand-uzbekistan.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/lisbon-portugal.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/athens-greece.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/kaziranga-india.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/vancouver-canada.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/pondicherry-india.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/gokarna-india.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/antalya-turkey.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/istanbul-turkey.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/udaipur-in-september.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/orchha-india.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/zurich-switzerland.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/jaipur-in-february.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/andaman-islands-india.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/paris-france.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/munsiyari-india.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/baku-azerbaijan.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/oaxaca-mexico.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/jodhpur-in-april.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/krabi-thailand.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/siem-reap-cambodia.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/udaipur-in-november.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/jaisalmer-in-march.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/kuala-lumpur-malaysia.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/jodhpur-in-may.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/leh-india.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guides/hanoi-vietnam.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/trips/leh-ladakh-solo-1-week.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/trips/spiti-valley-self-drive.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/trips/manali-4-days-15000.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/trips/goa-solo-backpacker-7-days.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guide/prague-czech-republic.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guide/hoi-an-vietnam.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guide/petra-jordan.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guide/chiang-mai-thailand.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guide/tbilisi-georgia.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guide/queenstown-new-zealand.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guide/cappadocia-turkey.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guide/ubud-indonesia.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guide/kandy-sri-lanka.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guide/marrakech-morocco.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guide/cusco-peru.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guide/medell-n-colombia.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guide/porto-portugal.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guide/kyoto-japan.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    },
+    {
+      "path": "/guide/oaxaca-mexico.html",
+      "disposition": "retired",
+      "reason": "Repetitive, unsupported or too thin for the reviewed collection; no equivalent claim-preserving redirect."
+    }
+  ]
+}
