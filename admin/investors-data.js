@@ -3,9 +3,9 @@
    commit so the admin keeps its local fallback while VC Hunter remains the
    primary current source. */
 window.RW_INVESTORS = window.RW_INVESTORS || [
-  {category:"Travel / Pre-seed",name:"Antler",website:"https://www.antler.co/pitch",stage:"Pre-Seed to Seed",cheque:"Varies by geography",sectors:"AI, consumer, travel, software"},
-  {category:"Consumer",name:"India Quotient",website:"https://www.indiaquotient.in/",stage:"Paper stage to Seed",cheque:"$150K-$2M stated range",sectors:"Consumer, internet, technology"},
-  {category:"Pre-seed",name:"First Cheque",website:"https://www.firstcheque.vc/",stage:"Idea to Seed",cheque:"Up to $500K",sectors:"Consumer internet, technology"},
+  {category:"Travel / Pre-seed",name:"Antler",website:"https://www.antler.co/location/india",contactRoute:"https://www.antler.co/apply",stage:"Pre-Seed to Seed",cheque:"Varies by geography",sectors:"AI, consumer, travel, software"},
+  {category:"Consumer",name:"India Quotient",email:"anand@indiaquotient.in",emailSource:"https://www.indiaquotient.in/team/anand-lunia",website:"https://www.indiaquotient.in/",contactRoute:"https://www.indiaquotient.in/team/anand-lunia",stage:"Paper stage to Seed",cheque:"$150K-$2M stated range",sectors:"Consumer, internet, technology"},
+  {category:"Pre-seed",name:"First Cheque",website:"https://www.firstcheque.vc/",contactRoute:"https://forms.gle/wpqgz2fkYJ6LRSUu7",stage:"Idea to Seed",cheque:"Up to $500K",sectors:"Consumer internet, technology"},
   {category:"Travel",name:"Travel Capitalist Ventures",website:"https://travelcapitalist.com/funding/",stage:"Travel specialist",cheque:"Varies",sectors:"Travel, B2C, B2B, B2B2C"}
 ];
 window.RW_INVESTOR_SUMMARY = window.RW_INVESTOR_SUMMARY || {total:window.RW_INVESTORS.length};
@@ -135,4 +135,26 @@ window.addEventListener("load",()=>{
     const lead=outreach.querySelector(".lead");if(lead)lead.insertAdjacentElement("afterend",box);
   }
   try{window.renderVCs()}catch(e){console.warn("VC outreach enhancement render failed",e);try{originalRender()}catch{}}
+});
+
+/* Route-aware investor contact repair. Imported profiles frequently contain a
+   thesis but no verified inbox; expose the official route and never guess. */
+window.addEventListener("load",()=>{
+  if(typeof window.openDraft!=="function"||typeof window.investorRows!=="function")return;
+  const official={
+    antler:{url:"https://www.antler.co/apply",label:"Official Antler application"},
+    indiaquotient:{url:"https://www.indiaquotient.in/team/anand-lunia",label:"Official India Quotient contact"},
+    firstcheque:{url:"https://forms.gle/wpqgz2fkYJ6LRSUu7",label:"Official First Cheque application"}
+  };
+  const routeFor=v=>v&&v.contactRoute?{url:v.contactRoute,label:"Official contact route"}:official[String(v&&v.name||v&&v.firm||"").toLowerCase().replace(/[^a-z0-9]/g,"")]||((v&&v.website)?{url:v.website,label:"Official website / route"}:null);
+  const prior=window.openDraft;
+  window.openDraft=async function(id){
+    const source=investorRows().find(x=>x.id===id),route=routeFor(source);
+    await prior(id);
+    const input=document.getElementById("draftRecipient");if(!input)return;
+    const field=input.closest(".field"),ready=/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.value.trim()),box=document.createElement("div");
+    box.className="alert "+(ready?"good":"");
+    box.innerHTML=ready?`<b>Public recipient available</b><div class="meta">${esc(input.value.trim())} · confirm the role is still appropriate before sending.</div>`:`<b>No verified public email in this source</b><div class="meta">Use the source-linked application/contact page and paste the confirmed recipient. RoamWise will not guess email patterns.</div>${route?`<a class="btn small" style="margin-top:8px" href="${esc(route.url)}" target="_blank" rel="noopener">${esc(route.label)}</a>`:""}`;
+    field.parentNode.insertBefore(box,field);
+  };
 });
