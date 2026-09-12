@@ -201,16 +201,25 @@ service cloud.firestore {
     }
 
     // ---------- USERS ----------
-    // A user may create/read their own profile but can NEVER touch the pro fields.
-    // Pro is set only by you (admin) - users cannot grant themselves Pro.
+    // A user may create/read their own profile but can NEVER touch paid Pro or
+    // Trail Mesh operator/trial entitlement fields. Those access fields are set
+    // only by an admin; the Android app treats them as server-backed grants.
     match /users/{uid} {
       allow read: if isSelf(uid) || isAdmin();
       allow create: if isSelf(uid)
-        && !request.resource.data.keys().hasAny(['pro','proAt','proMethod','proPayId']);
+        && !request.resource.data.keys().hasAny([
+          'pro','proAt','proMethod','proPayId',
+          'trailMeshPlan','trailMeshTrialSelected','trailMeshTrialUntil',
+          'trailMeshLicenseUntil','trailMeshOrganizationName'
+        ]);
       allow update: if isAdmin();
       allow update: if isSelf(uid)
         && !request.resource.data.diff(resource.data).affectedKeys()
-             .hasAny(['pro','proAt','proMethod','proPayId']);
+             .hasAny([
+               'pro','proAt','proMethod','proPayId',
+               'trailMeshPlan','trailMeshTrialSelected','trailMeshTrialUntil',
+               'trailMeshLicenseUntil','trailMeshOrganizationName'
+             ]);
       // ---- PARTNER CODE REDEMPTION (rw-v116 hardening) ----
       // The ONLY way a user may touch pro/proAt/proMethod/proCode themselves:
       // redeeming a partner code that THEY THEMSELVES have already redeemed
