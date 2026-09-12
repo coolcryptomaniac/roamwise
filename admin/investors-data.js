@@ -154,7 +154,7 @@ window.addEventListener("load",()=>{
     const input=document.getElementById("draftRecipient");if(!input)return;
     const field=input.closest(".field"),ready=/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.value.trim()),box=document.createElement("div");
     box.className="alert "+(ready?"good":"");
-    box.innerHTML=ready?`<b>Public recipient available</b><div class="meta">${esc(input.value.trim())} · confirm the role is still appropriate before sending.</div>`:`<b>No verified public email in this source</b><div class="meta">Use the source-linked application/contact page and paste the confirmed recipient. RoamWise will not guess email patterns.</div>${route?`<a class="btn small" style="margin-top:8px" href="${esc(route.url)}" target="_blank" rel="noopener">${esc(route.label)}</a>`:""}`;
+    box.innerHTML=ready?`<b>Recipient ready</b><div class="meta">${esc(input.value.trim())} · confirm the source and role are still appropriate before sending.</div>`:`<b>No verified public email in this source</b><div class="meta">Use the source-linked application/contact page and paste the confirmed recipient. RoamWise will not guess email patterns.</div>${route?`<a class="btn small" style="margin-top:8px" href="${esc(route.url)}" target="_blank" rel="noopener">${esc(route.label)}</a>`:""}`;
     field.parentNode.insertBefore(box,field);
   };
 });
