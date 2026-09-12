@@ -7,31 +7,31 @@ const investor = fs.readFileSync('admin/investors-data.js','utf8');
 const trek = fs.readFileSync('admin/trek-outreach.js','utf8');
 
 test('admin exposes a dedicated trekking-operator workspace',()=>{
-  assert.match(admin,/data-page="trek-sales"/);
-  assert.match(admin,/id="trek-sales"/);
-  assert.match(admin,/src="trek-outreach\\.js"/);
+  assert.ok(admin.includes('data-page="trek-sales"'));
+  assert.ok(admin.includes('id="trek-sales"'));
+  assert.ok(admin.includes('src="trek-outreach.js"'));
   assert.match(admin,/never satellite coverage, guaranteed rescue delivery or uninterrupted calls/i);
 });
 
 test('trek operator contacts are source-linked and composer remains human reviewed',()=>{
   for(const company of ['Indiahikes','Trek The Himalayas','Bikat Adventures','Himalayan Dream Treks','Trekmunk']) assert.ok(trek.includes(company));
-  assert.match(trek,/Nothing is auto-sent/);
-  assert.match(trek,/will not guess an address/);
-  assert.match(trek,/emailVerified/);
-  assert.match(trek,/sourceCheckedAt/);
-  assert.match(trek,/opened-gmail/);
+  assert.ok(trek.includes('Nothing is auto-sent'));
+  assert.ok(trek.includes('will not guess an address'));
+  assert.ok(trek.includes('emailVerified'));
+  assert.ok(trek.includes('sourceCheckedAt'));
+  assert.ok(trek.includes('opened-gmail'));
 });
 
 test('investor outreach offers official routes without inventing addresses',()=>{
-  assert.match(investor,/No verified public email in this source/);
-  assert.match(investor,/RoamWise will not guess email patterns/);
-  assert.match(investor,/anand@indiaquotient\\.in/);
-  assert.match(investor,/antler\\.co\\/apply/);
-  assert.match(investor,/forms\\.gle\\/wpqgz2fkYJ6LRSUu7/);
+  assert.ok(investor.includes('No verified public email in this source'));
+  assert.ok(investor.includes('RoamWise will not guess email patterns'));
+  assert.ok(investor.includes('anand@indiaquotient.in'));
+  assert.ok(investor.includes('https://www.antler.co/apply'));
+  assert.ok(investor.includes('https://forms.gle/wpqgz2fkYJ6LRSUu7'));
 });
 
 test('trek sales reuses the admin-only CRM boundary',()=>{
-  assert.match(trek,/collection\\('crm'\\)/);
-  assert.match(trek,/seg:'trek-company'/);
-  assert.doesNotMatch(trek,/allow\\s+(read|write)/);
+  assert.ok(trek.includes("collection('crm')"));
+  assert.ok(trek.includes("seg:'trek-company'"));
+  assert.doesNotMatch(trek,/allow\s+(read|write)/);
 });
