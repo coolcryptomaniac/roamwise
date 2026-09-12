@@ -235,7 +235,7 @@ var HS=[
  ['Vande Bharat (CC/EC)','India\u2019s fastest day trains \u2014 aircraft comfort, big windows, rarely crowded. Book 1\u20132 weeks out.','Best for 2\u20136 hr day hops'],
  ['Shatabdi Executive / Anubhuti','2\u00d72 seating, huge legroom, quiet crowd','Day journeys in style'],
  ['1st AC (1A) Rajdhani/Duronto','Lockable private 2/4-berth coupe \u2014 the quietest overnight on rails','Overnight long hauls'],
- ['\u26a1 Tatkal hack','IRCTC app at exactly 10:00 AM the day before travel (AC quota) for guaranteed last-minute seats','Emergency bookings']]],
+ ['\u26a1 Tatkal preparation','Check the train-origin date, current IRCTC identity rules and quota timing before booking','Emergency bookings']]],
 ['\ud83d\ude8c Buses \u2014 skip state transport entirely',[
  ['What to book','Multi-axle Volvo B11R / Scania / Mercedes AC sleepers only','4\u20138 hr intercity hops'],
  ['Operators','NueGo (electric), National Travels, SRS \u2014 filter \u201cPrime / Max Safety / Volvo\u201d on redBus or AbhiBus','Premium private fleets'],
@@ -303,7 +303,7 @@ var BC = [
   ['Drew Binsky','Every country on Earth \u2014 culture snapshots','@drewbinsky'],
   ['Lost LeBlanc','Travel filmmaking + SE Asia mastery','@lostleblanc']]],
  ['\ud83c\udd98 Emergency contacts', [
-  ['India \u2014 all emergencies','112 (works without signal on any network)','also: Ambulance 108 \u00b7 Tourist helpline 1363'],
+  ['India \u2014 emergency response','112; call availability depends on your device and network conditions','also: Ambulance 108 · Tourist helpline 1363 — verify local availability'],
   ['Europe','112','universal across the EU'],
   ['USA / Canada','911','mountain rescue via 911'],
   ['UK','999','mountain rescue: ask for Police \u2192 Mountain Rescue'],

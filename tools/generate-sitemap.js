@@ -3,7 +3,7 @@
    generate-sitemap.js
    ----------------------------------------------------------------------------
    Regenerates sitemap.xml from the actual files on disk in the
-   content-heavy directories this task covers (guides/, blog/, trips/),
+   reviewed content directories this task covers (guides/ and blog/),
    plus a small fixed list of top-level pages the sitemap already carried.
 
    Scope note: this intentionally does NOT try to enumerate every .html
@@ -37,13 +37,20 @@ const OUT = path.join(ROOT, 'sitemap.xml');
 // should be publicly indexable is outside this task's scope.
 const TOP_LEVEL_URLS = [
   `${SITE}/`,
+  `${SITE}/home.html`,
+  `${SITE}/about.html`,
+  `${SITE}/contact.html`,
+  `${SITE}/editorial-policy.html`,
+  `${SITE}/pricing.html`,
+  `${SITE}/terms.html`,
+  `${SITE}/refund-policy.html`,
   `${SITE}/privacy.html`,
   `${SITE}/delete-account.html`,
 ];
 
 // Each of these gets its own hub/index URL plus one URL per individual
 // content page found in the directory.
-const SECTION_DIRS = ['guides', 'blog', 'trips'];
+const SECTION_DIRS = ['guides', 'blog'];
 const SKIP_FILES = new Set(['index.html', 'read.md', 'readme.md']);
 
 function listContentSlugs(dir) {
