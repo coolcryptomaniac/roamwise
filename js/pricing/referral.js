@@ -34,9 +34,9 @@
      - One commission per (code, payer uid). Re-buying doesn't pay twice.
      - Duplicate UTRs already blocked upstream by the existing claim gate.
      - 7-day hold before payout so reversals settle first.
-     - Codes are stamped server-side into the claim doc, and Firestore rules
-       stop anyone editing a claim after creation — so a referrer cannot
-       attach themselves to someone else's purchase later.
+     - The signed-in browser stamps a bounded code into the claim. Firestore
+       binds the claim to that UID, allowlists fields and blocks edits; admin
+       payout logic re-validates the directory rate and payer identity.
    ========================================================================= */
 var RW_REF_KEY='rw_ref_code', RW_REF_AT='rw_ref_at';
 

@@ -40,7 +40,13 @@ window.RW_CONFIG = {
     maplibreCss: 'https://unpkg.com/maplibre-gl@5/dist/maplibre-gl.css',
     pmtilesUrl: ''
   },
-  vapidKey: ''
+  vapidKey: '',
+  appCheck: {
+    /* Firebase Console -> App Check -> Web -> reCAPTCHA Enterprise site key.
+       Keep blank until configured, then monitor valid-token metrics before
+       enforcing App Check for Authentication and Firestore. */
+    webRecaptchaEnterpriseSiteKey: ''
+  }
 };
 
 window.rwApi = function(path){

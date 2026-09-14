@@ -273,7 +273,11 @@ service cloud.firestore {
         || (request.auth != null
         && request.resource.data.uid == request.auth.uid
         && request.resource.data.status == 'pending'
+        && request.resource.data.keys().hasAll(['uid', 'email', 'utr', 'amount', 'tier', 'plan', 'planLabel', 'status', 'created'])
+        && request.resource.data.keys().hasOnly(['uid', 'email', 'utr', 'amount', 'tier', 'plan', 'planLabel', 'status', 'created', 'refCode', 'refName', 'refType', 'refRate', 'refAt', 'refSelf', 'buyerBonusDays'])
         && !('seatCounted' in request.resource.data)
+        && request.resource.data.email is string
+        && request.resource.data.email.size() <= 320
         && request.resource.data.amount is number
         && request.resource.data.amount > 0
         && request.resource.data.amount <= 100000
@@ -281,9 +285,16 @@ service cloud.firestore {
         && request.resource.data.utr.size() == 12
         && request.resource.data.utr.matches('^[0-9]{12}$')
         && id == request.auth.uid + '_' + request.resource.data.utr
+        && request.resource.data.created == request.time
         && (!('refCode' in request.resource.data)
             || (request.resource.data.refCode is string
-                && request.resource.data.refCode.size() <= 32)));
+                && request.resource.data.refCode.matches('^[A-Z0-9_-]{1,32}$')))
+        && (!('refName' in request.resource.data) || (request.resource.data.refName is string && request.resource.data.refName.size() <= 80))
+        && (!('refType' in request.resource.data) || (request.resource.data.refType is string && request.resource.data.refType.size() <= 24))
+        && (!('refRate' in request.resource.data) || (request.resource.data.refRate is number && request.resource.data.refRate >= 0 && request.resource.data.refRate <= 0.30))
+        && (!('refAt' in request.resource.data) || request.resource.data.refAt == null || request.resource.data.refAt is number)
+        && (!('refSelf' in request.resource.data) || request.resource.data.refSelf is bool)
+        && (!('buyerBonusDays' in request.resource.data) || (request.resource.data.buyerBonusDays is int && request.resource.data.buyerBonusDays >= 0 && request.resource.data.buyerBonusDays <= 90)));
       allow read: if isAdmin() || (request.auth != null && resource.data.uid == request.auth.uid);
       allow update, delete: if isAdmin();
     }
@@ -1181,8 +1192,16 @@ service cloud.firestore {
     // restoring self-serve stats needs either a per-uid mapping doc or a
     // Cloud Function to serve the aggregate.
     match /refSignups/{id} {
-      allow create: if request.resource.data.code is string
-                    && request.resource.data.userUID is string;
+      allow create: if request.auth != null
+                    && request.resource.data.keys().hasAll(['code', 'userUID', 'at'])
+                    && request.resource.data.keys().hasOnly(['code', 'refName', 'refType', 'userUID', 'at'])
+                    && request.resource.data.code is string
+                    && request.resource.data.code.matches('^[A-Z0-9_-]{1,32}$')
+                    && request.resource.data.userUID == request.auth.uid
+                    && id == request.resource.data.code + '__' + request.auth.uid
+                    && request.resource.data.at == request.time
+                    && (!('refName' in request.resource.data) || (request.resource.data.refName is string && request.resource.data.refName.size() <= 80))
+                    && (!('refType' in request.resource.data) || (request.resource.data.refType is string && request.resource.data.refType.size() <= 24));
       allow read: if isAdmin();
       allow update, delete: if isAdmin();
     }

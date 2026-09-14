@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="robots" content="noindex,nofollow">
+  <title>Secure account action · RoamWise</title>
+  <meta name="theme-color" content="#090711">
+  <style>
+    :root{color-scheme:dark;--bg:#090711;--card:#121225;--line:#30284a;--text:#f7f3ff;--muted:#aaa4ba;--violet:#b36cff;--gold:#e8ba6c;--red:#ff8d98;--green:#79dfb1}
+    *{box-sizing:border-box}body{margin:0;min-height:100dvh;display:grid;place-items:center;padding:24px;background:radial-gradient(circle at 50% 0,#2c1645 0,transparent 42%),var(--bg);font:15px/1.55 Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--text)}
+    main{width:min(460px,100%);background:linear-gradient(155deg,#18152c,var(--card));border:1px solid var(--line);border-radius:24px;padding:28px;box-shadow:0 30px 90px rgba(0,0,0,.55)}
+    .brand{font-weight:900;letter-spacing:.02em;color:var(--gold)}h1{font-size:28px;line-height:1.15;margin:18px 0 9px}p{color:var(--muted);margin:0 0 18px}.icon{width:54px;height:54px;border-radius:17px;display:grid;place-items:center;background:rgba(179,108,255,.13);font-size:27px}
+    label{display:block;color:var(--muted);font-size:12px;font-weight:750;margin:0 0 6px}input{width:100%;border:1px solid var(--line);border-radius:12px;background:#0d0d1b;color:var(--text);padding:13px 14px;font:inherit;outline:none}input:focus{border-color:var(--violet)}
+    button,.button{width:100%;border:0;border-radius:13px;padding:13px 16px;background:linear-gradient(135deg,#9347ed,#c17aff);color:#fff;font-family:inherit;font-size:15px;font-weight:800;cursor:pointer;text-decoration:none;text-align:center;display:block;margin-top:14px}button:disabled{opacity:.55}.secondary{background:transparent;border:1px solid var(--line);color:var(--text)}
+    .message{border-radius:11px;padding:11px 12px;margin:14px 0 0;background:rgba(121,223,177,.08);border:1px solid rgba(121,223,177,.24);color:var(--green)}.message.bad{background:rgba(255,141,152,.08);border-color:rgba(255,141,152,.24);color:var(--red)}.hidden{display:none!important}.fine{font-size:11px;margin-top:20px;color:#817b90;text-align:center}
+  </style>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+</head>
+<body>
+  <main>
+    <div class="brand">ROAMWISE</div>
+    <div class="icon" aria-hidden="true">✓</div>
+    <h1 id="title">Checking your secure link…</h1>
+    <p id="description">Please keep this page open for a moment.</p>
+    <div id="resetFields" class="hidden">
+      <label for="newPassword">New password</label>
+      <input id="newPassword" type="password" minlength="10" maxlength="128" autocomplete="new-password" placeholder="At least 10 characters">
+      <button id="resetButton" type="button">Set new password</button>
+    </div>
+    <div id="message" class="message hidden" role="alert"></div>
+    <a id="returnButton" class="button secondary hidden" href="https://www.roamwise.co.in/">Return to RoamWise</a>
+    <div class="fine">RoamWise will never ask you to send your password or verification code by email or WhatsApp.</div>
+  </main>
+  <script>
+    (function(){
+      var config={apiKey:'AIzaSyDlrtpzpOb1VEmVSd9tHmu7OpmvwWosYsU',authDomain:'roamwisepro.firebaseapp.com',projectId:'roamwisepro',appId:'1:299014744987:web:d5c316743e6d7a10904f3e'};
+      firebase.initializeApp(config);var auth=firebase.auth(),q=new URLSearchParams(location.search),mode=q.get('mode'),code=q.get('oobCode');
+      var title=document.getElementById('title'),desc=document.getElementById('description'),msg=document.getElementById('message'),fields=document.getElementById('resetFields'),back=document.getElementById('returnButton');
+      function safeReturn(value){try{var u=new URL(value||'https://www.roamwise.co.in/');if(u.protocol==='https:'&&(u.hostname==='www.roamwise.co.in'||u.hostname==='roamwise.co.in'))return u.href;}catch(e){}return 'https://www.roamwise.co.in/';}
+      back.href=safeReturn(q.get('continueUrl'));
+      function show(text,bad){msg.textContent=text;msg.classList.remove('hidden');msg.classList.toggle('bad',!!bad);back.classList.remove('hidden');}
+      function fail(){title.textContent='This link is invalid or expired';desc.textContent='For your security, account links work only once. Request a fresh link from the RoamWise sign-in screen.';show('No account change was made.',true);}
+      if(!code){fail();return;}
+      if(mode==='verifyEmail'){
+        title.textContent='Verifying your email…';desc.textContent='We are securely confirming your address.';
+        auth.applyActionCode(code).then(function(){title.textContent='Email verified';desc.textContent='Your RoamWise account is ready. You can now sign in.';show('Verification completed successfully.');}).catch(fail);
+      }else if(mode==='resetPassword'){
+        auth.verifyPasswordResetCode(code).then(function(){title.textContent='Choose a new password';desc.textContent='Use at least 10 characters with a letter and a number.';fields.classList.remove('hidden');document.getElementById('resetButton').onclick=function(){var p=document.getElementById('newPassword').value;if(p.length<10||!/[A-Za-z]/.test(p)||!/[0-9]/.test(p)){show('Use at least 10 characters with a letter and a number.',true);return;}this.disabled=true;auth.confirmPasswordReset(code,p).then(function(){fields.classList.add('hidden');title.textContent='Password updated';desc.textContent='You can now return to RoamWise and sign in.';show('Your password was changed successfully.');}).catch(fail);};}).catch(fail);
+      }else if(mode==='recoverEmail'){
+        title.textContent='Restoring your email…';desc.textContent='We are undoing the email-address change.';
+        auth.checkActionCode(code).then(function(){return auth.applyActionCode(code);}).then(function(){title.textContent='Email restored';desc.textContent='The previous email address is active again.';show('For safety, reset your password if you did not request the original change.');}).catch(fail);
+      }else{fail();}
+    })();
+  </script>
+</body>
+</html>

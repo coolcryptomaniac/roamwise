@@ -29,7 +29,7 @@ var RWStaffManager = (function(){
     if(!code) return { ok:false, error:'Code is required (letters, numbers, - and _ only).' };
     if(!name) return { ok:false, error:'Name is required.' };
     var rate = Number(input && input.rate);
-    if(!isFinite(rate) || rate < 0 || rate > 1) rate = 0.30;
+    if(!isFinite(rate) || rate < 0 || rate > 0.30) rate = 0.30;
     var type = TYPES.indexOf(input && input.type) > -1 ? input.type : 'staff';
     return { ok:true, referrer: {
       code: code, name: name, type: type, rate: rate,
@@ -82,7 +82,7 @@ var RWStaffManager = (function(){
       '<div class="field"><label>Type</label><select id="refType" class="input">' +
         TYPES.map(function(t){ return '<option value="'+t+'"'+(r.type===t?' selected':'')+'>'+t+'</option>'; }).join('') +
       '</select></div>' +
-      '<div class="field"><label>Commission rate (0–1, e.g. 0.30 = 30%)</label><input id="refRate" class="input" type="number" step="0.01" min="0" max="1" value="' + (typeof r.rate==='number'?r.rate:0.30) + '"></div>' +
+      '<div class="field"><label>Commission rate (0–0.30, e.g. 0.30 = 30%)</label><input id="refRate" class="input" type="number" step="0.01" min="0" max="0.30" value="' + (typeof r.rate==='number'?r.rate:0.30) + '"></div>' +
       '<div class="field"><label>Active</label><select id="refActive" class="input"><option value="true"' + (r.active!==false?' selected':'') + '>Active</option><option value="false"' + (r.active===false?' selected':'') + '>Retired</option></select></div>' +
       '<div class="field full"><label>Note</label><input id="refNote" class="input" value="' + escAttr(r.note) + '"></div>';
   }

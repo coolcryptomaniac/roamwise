@@ -440,10 +440,13 @@ section header in app.js, a real pairing, not an artificial one).
 ### `js/boot/` (2 files)
 - `init.js` (379 lines) — boot sequence: push notification setup, PWA
   install prompt, status bar, back-button handling, DOMContentLoaded wiring
-- `auth-init.js` (383 lines) — Firebase Auth init + `onAuthStateChanged`
+- `auth-security.js` — testable provider guidance, password policy, local
+  last-provider hint, safe action-code settings and continuation URL checks.
+- `auth-init.js` — Firebase Auth/App Check init + `onAuthStateChanged`
   UI wiring (sign-in button state, account drawer trigger, device cap,
   trial grant, account-bound Pro listener) and auth helper functions
-  (`openAuth`/`closeAuth`/`loginGoogle`/`loginEmail`/etc.)
+  (`openAuth`/`closeAuth`/`loginGoogle`/`loginEmail`/etc.). Public phone-only
+  signup is intentionally excluded; phone belongs in a linked MFA/recovery flow.
 
 ### `css/` (9 files)
 `base/` (shared base styles, pulled into 194 of 198 `guides/*.html`
