@@ -46,7 +46,7 @@ if(PLAY_MODE){ document.addEventListener('DOMContentLoaded', function(){
 });}
 /* Called by the native Play Billing bridge after a verified purchase */
 function playProGranted(){ activatePro('google-play','Google Play'); showToast('Pro unlocked via Google Play \u2713'); }
-var user = null, db = null, authMode = 'in', otpConf = null;
+var user = null, db = null, authMode = 'in';
 
 /* Firebase loads from a CDN. If that CDN is slow, blocked, or the device is
    simply offline, `firebase` is undefined and this whole block used to throw at
@@ -58,6 +58,15 @@ var user = null, db = null, authMode = 'in', otpConf = null;
 // RWData backend portability layer (rwInitDataLayer) moved to js/data-sync/rwdata.js
 if (AUTH_READY && typeof firebase !== 'undefined') try {
   firebase.initializeApp(FIREBASE_CONFIG);
+  /* App Check stays a no-op until an Enterprise site key is configured.
+     Enable enforcement only after the Firebase metrics show legitimate web,
+     PWA and Android traffic receiving tokens. */
+  try{
+    var appCheckKey=window.RW_CONFIG&&RW_CONFIG.appCheck&&RW_CONFIG.appCheck.webRecaptchaEnterpriseSiteKey;
+    if(appCheckKey&&firebase.appCheck){
+      firebase.appCheck().activate(new firebase.appCheck.ReCaptchaEnterpriseProvider(appCheckKey),true);
+    }
+  }catch(e){ try{console.warn('App Check did not initialise:',e&&e.message);}catch(_){ /* diagnostic only */ } }
   db = firebase.firestore();
   /* FREE cost win: cache Firestore data on the device. Reads hit local memory
      first (zero server reads, works offline), and only sync deltas when online.
@@ -75,6 +84,7 @@ if (AUTH_READY && typeof firebase !== 'undefined') try {
       u=null;
     }
     user = u;
+    try{ if(u&&window.RWAuthSecurity) RWAuthSecurity.rememberUserProvider(u); }catch(e){ /* local hint only */ }
     try{ if(u) rwCheckBan(); }catch(e){ /* best-effort, ignore */ }
     var btn = el('authBtn'), av = el('authAvatar');
     if(u){
@@ -154,15 +164,16 @@ if (AUTH_READY && typeof firebase !== 'undefined') try {
       /* ref_signup tracking: log once when a referred new user creates account */
       (function(){
         try{
-          if(u.metadata && u.metadata.creationTime===u.metadata.lastSignInTime){
+          var pendingUid=lsGet('rw_ref_pending_signup_uid');
+          var isNew=!!(u.metadata && u.metadata.creationTime===u.metadata.lastSignInTime);
+          if(isNew || pendingUid===u.uid){
             var _rc=rwRefActive();
             if(_rc && !lsGet('rw_ref_su_'+u.uid)){
-              lsSet('rw_ref_su_'+u.uid,'1');
               var _rw=rwRefLookup(_rc)||{};
               db.collection('refSignups').doc(_rc+'__'+u.uid).set({
                 code:_rc, refName:_rw.name||'', refType:_rw.type||'',
                 userUID:u.uid, at:firebase.firestore.FieldValue.serverTimestamp()
-              }).catch(function(){});
+              }).then(function(){lsSet('rw_ref_su_'+u.uid,'1');lsSet('rw_ref_pending_signup_uid','');}).catch(function(){});
             }
           }
         }catch(e){ /* best-effort Firestore write, ignore */ }
@@ -229,10 +240,25 @@ function rwIsNativePlatform(){
   catch(e){return /RoamWiseApp/i.test(navigator.userAgent);}
 }
 function authError(m){var e=el('authErr');if(!m){e.style.display='none';return;}e.textContent=m;e.style.display='block';}
+function rwRenderLastAuthProvider(){
+  var box=el('authLastMethod'),label='';
+  try{if(window.RWAuthSecurity)label=RWAuthSecurity.lastProvider();}catch(e){ /* storage unavailable */ }
+  if(box){box.textContent=label?'Last used on this device: '+label:'';box.style.display=label?'':'none';}
+}
+function rwApplyAuthModeUI(){
+  var creating=authMode==='up',a=el('authAction'),r=el('authToggleRow'),ref=el('authRefField'),rules=el('authPasswordRules'),pass=el('authPass'),forgot=el('authForgotRow');
+  if(a)a.textContent=creating?'Create account':'Sign in';
+  if(r)r.innerHTML=creating?'Already have an account? <a onclick="toggleAuthMode()">Sign in</a>':'New here? <a onclick="toggleAuthMode()">Create an account</a>';
+  if(ref)ref.style.display=creating?'':'none';
+  if(rules)rules.style.display=creating?'':'none';
+  if(forgot)forgot.style.display=creating?'none':'';
+  if(pass)pass.autocomplete=creating?'new-password':'current-password';
+  rwRenderLastAuthProvider();
+}
 function rwShowEmailPane(){
   var ep=el('emailPane'),vp=el('emailVerifyPane');if(ep)ep.style.display='';if(vp)vp.style.display='none';
-  authMode='in';var a=el('authAction');if(a)a.textContent='Sign in';
-  var r=el('authToggleRow');if(r)r.innerHTML='New here? <a onclick="toggleAuthMode()">Create an account</a>';
+  var pass=el('authPass'),toggle=el('authPassToggle');if(pass)pass.type='password';if(toggle){toggle.textContent='Show';toggle.setAttribute('aria-label','Show password');}
+  authMode='in';rwApplyAuthModeUI();
   authError('');
 }
 function rwShowVerificationPane(email,message){
@@ -245,6 +271,7 @@ function rwShowVerificationPane(email,message){
 function openAuth(){rwShowEmailPane();el('authOverlay').classList.add('open');}
 function closeAuth(){el('authOverlay').classList.remove('open');authError('');rwShowEmailPane();}
 function friendly(e){
+  if(window.RWAuthSecurity)return RWAuthSecurity.friendlyMessage(e,authMode==='up'?'signup':'signin');
   var c=(e&&e.code)||'';
   if(c.indexOf('wrong-password')>-1||c.indexOf('invalid-credential')>-1)return 'Wrong email or password.';
   if(c.indexOf('email-already-in-use')>-1)return 'Account exists — sign in instead.';
@@ -268,27 +295,33 @@ function loginGoogle(){
     p.signInWithGoogle({skipNativeAuth:true}).then(function(r){
       var token=r&&r.credential&&r.credential.idToken;if(!token)throw new Error('Google did not return an ID token.');
       return firebase.auth().signInWithCredential(firebase.auth.GoogleAuthProvider.credential(token));
-    }).then(function(){closeAuth();showToast('Signed in with Google ✓');})
+    }).then(function(){if(window.RWAuthSecurity)RWAuthSecurity.rememberProvider('google.com');closeAuth();showToast('Signed in with Google ✓');})
       .catch(function(e){authError(rwGoogleError(e));})
       .then(function(){if(b){b.disabled=false;b.removeAttribute('aria-busy');}});
     return;
   }
   if(rwIsNativePlatform())return authError('Google sign-in needs the latest RoamWise app build. Email sign-in works now.');
   firebase.auth().signInWithPopup(new firebase.auth.GoogleAuthProvider())
-    .then(function(){closeAuth();showToast('Signed in with Google ✓');})
+    .then(function(){if(window.RWAuthSecurity)RWAuthSecurity.rememberProvider('google.com');closeAuth();showToast('Signed in with Google ✓');})
     .catch(function(e){authError(rwGoogleError(e));});
 }
 function toggleAuthMode(){
-  authMode=authMode==='in'?'up':'in';el('authAction').textContent=authMode==='in'?'Sign in':'Create account';
-  el('authToggleRow').innerHTML=authMode==='in'?'New here? <a onclick="toggleAuthMode()">Create an account</a>':'Already have an account? <a onclick="toggleAuthMode()">Sign in</a>';
+  authMode=authMode==='in'?'up':'in';rwApplyAuthModeUI();
   authError('');
+}
+function toggleAuthPassword(){
+  var pass=el('authPass'),btn=el('authPassToggle');if(!pass||!btn)return;
+  var revealing=pass.type==='password';pass.type=revealing?'text':'password';
+  btn.textContent=revealing?'Hide':'Show';btn.setAttribute('aria-label',revealing?'Hide password':'Show password');
+  pass.focus({preventScroll:true});
 }
 function rwSetAuthBusy(busy,label){
   var b=el('authEmailBtn'),s=el('authAction');if(b)b.disabled=!!busy;if(s)s.textContent=label||(authMode==='in'?'Sign in':'Create account');
 }
 function rwSendVerificationAndSignOut(u,email,message){
   var failed='';
-  return u.sendEmailVerification().catch(function(e){failed=friendly(e);}).then(function(){return firebase.auth().signOut().catch(function(){});})
+  var settings=window.RWAuthSecurity?RWAuthSecurity.actionCodeSettings():undefined;
+  return u.sendEmailVerification(settings).catch(function(e){failed=friendly(e);}).then(function(){return firebase.auth().signOut().catch(function(){});})
     .then(function(){
       rwShowVerificationPane(email,failed?'We could not send another link: '+failed+' You can try Resend in a minute.':message);
       return {verificationPending:true};
@@ -296,17 +329,20 @@ function rwSendVerificationAndSignOut(u,email,message){
 }
 function loginEmail(){
   if(!AUTH_READY)return showToast('Accounts not configured yet');
-  var em=el('authEmail').value.trim(),pw=el('authPass').value,creating=authMode==='up';
-  if(!em||!pw)return authError('Enter email and password.');if(pw.length<6)return authError('Password needs at least 6 characters.');
+  var em=window.RWAuthSecurity?RWAuthSecurity.normaliseEmail(el('authEmail').value):el('authEmail').value.trim(),pw=el('authPass').value,creating=authMode==='up';
+  if(!em||!pw)return authError('Enter email and password.');
+  if(creating&&window.RWAuthSecurity){var strength=RWAuthSecurity.passwordStatus(pw);if(!strength.ok)return authError(strength.message);}
+  if(!creating&&pw.length<6)return authError('Enter your complete password.');
   rwEmailAuthBusy=true;rwSetAuthBusy(true,creating?'Creating account…':'Signing in…');authError('');
   var p=creating?firebase.auth().createUserWithEmailAndPassword(em,pw).then(function(c){
       try{track('signups');}catch(e){ /* analytics best-effort, ignore */ }
+      try{if(rwRefActive())lsSet('rw_ref_pending_signup_uid',c.user.uid);}catch(e){ /* retry after verification */ }
       return rwSendVerificationAndSignOut(c.user,em,'Verification email sent. Open the link, then return and sign in.');
     }):firebase.auth().signInWithEmailAndPassword(em,pw).then(function(c){
       return c.user.reload().catch(function(){}).then(function(){return c;});
     }).then(function(c){
       if(rwIsUnverifiedPasswordUser(c.user))return rwSendVerificationAndSignOut(c.user,em,'Your email is not verified yet. We sent a fresh verification link.');
-      return c;
+      if(window.RWAuthSecurity)RWAuthSecurity.rememberProvider('password');return c;
     });
   p.then(function(r){if(!(r&&r.verificationPending)){closeAuth();showToast('Email verified — signed in ✓');}})
     .catch(function(e){authError(friendly(e));})
@@ -320,28 +356,20 @@ function resendVerification(){
 function resetPassword(){
   if(!AUTH_READY)return showToast('Accounts not configured yet');
   var em=el('authEmail').value.trim();if(!em)return authError('Enter your email address first.');
-  firebase.auth().sendPasswordResetEmail(em).then(function(){authError('');showToast('Password reset email sent ✓');})
+  var settings=window.RWAuthSecurity?RWAuthSecurity.actionCodeSettings():undefined;
+  firebase.auth().sendPasswordResetEmail(em,settings).then(function(){authError('');showToast('If that email has a password account, a reset link is on its way.');})
     .catch(function(e){authError(friendly(e));});
 }
-
-function showPhone(){ el('emailPane').style.display='none'; el('phonePane').style.display=''; }
-function showEmail(){ el('phonePane').style.display='none'; el('emailPane').style.display=''; }
-var recaptcha = null;
-function sendOtp(){
-  if(!AUTH_READY) return showToast('Accounts not configured yet');
-  var ph = el('authPhone').value.trim();
-  if(!/^\+\d{10,14}$/.test(ph)) return authError('Use full format with country code, e.g. +9198xxxxxxxx');
-  if(!recaptcha) recaptcha = new firebase.auth.RecaptchaVerifier('otpSendBtn', {size:'invisible'});
-  firebase.auth().signInWithPhoneNumber(ph, recaptcha)
-    .then(function(c){ otpConf=c; el('otpPane').style.display=''; showToast('OTP sent to '+ph); })
-    .catch(function(e){ authError(friendly(e)); });
-}
-function confirmOtp(){
-  if(!otpConf) return;
-  otpConf.confirm(el('authOtp').value.trim())
-    .then(function(){ closeAuth(); showToast('Signed in \u2713'); })
-    .catch(function(){ authError('Wrong OTP \u2014 try again.'); });
-}
+document.addEventListener('DOMContentLoaded',function(){
+  ['authEmail','authPass','authRefCode'].forEach(function(id){var input=el(id);if(input)input.addEventListener('keydown',function(event){if(event.key==='Enter'){event.preventDefault();loginEmail();}});});
+  try{
+    var url=new URL(location.href);
+    if(url.searchParams.get('auth')==='verified'){
+      url.searchParams.delete('auth');history.replaceState({},'',url.pathname+url.search+url.hash);
+      setTimeout(function(){openAuth();showToast('Email verified — sign in to continue.');},250);
+    }
+  }catch(e){ /* optional verification return route */ }
+});
 function wipeSession(){
   /* clear everything tied to the logged-in identity */
   ['rwPro','rw_pro_uid','rw_pro_temp','rw_pro_temp_uid'].forEach(function(k){ localStorage.removeItem(k); });

@@ -18,6 +18,7 @@ const RWBusinessMetrics = loadModule('js/admin/business-metrics.js', 'RWBusiness
 const RWReferralLiability = loadModule('js/admin/referral-liability.js', 'RWReferralLiability');
 const RWComplianceChecklist = loadModule('js/admin/compliance-checklist.js', 'RWComplianceChecklist');
 const RWStaffManager = loadModule('js/admin/staff-manager.js', 'RWStaffManager');
+const RWFounderSeatReconcile = loadModule('js/admin/founder-seat-reconcile.js', 'RWFounderSeatReconcile');
 const RWDevRequests = loadModule('js/admin/dev-requests.js', 'RWDevRequests');
 const RWInvestorSummary = loadModule('js/admin/investor-summary.js', 'RWInvestorSummary');
 
@@ -171,6 +172,28 @@ test('referral-liability: falls back to the referrer directory rate, then the fl
   assert.equal(liability.byCode['RW-S01-FEBIN'].commissionOwedINR, 300);
 });
 
+test('referral-liability: ignores a forged claim rate for a known referrer and caps historical rates', () => {
+  const known = RWReferralLiability.computeReferralLiability(
+    [{ amountINR: 1000, refCode: 'RW-S01-FEBIN', refRate: 0.99 }], REFERRERS, TERMS
+  );
+  assert.equal(known.byCode['RW-S01-FEBIN'].commissionOwedINR, 300);
+  const historical = RWReferralLiability.computeReferralLiability(
+    [{ amountINR: 1000, refCode: 'RW-X99-OLD', refRate: 0.99 }], REFERRERS, TERMS
+  );
+  assert.equal(historical.byCode['RW-X99-OLD'].commissionOwedINR, 300);
+});
+
+test('referral-liability: blocks directory-detectable self referrals and repeat payer commission', () => {
+  const refs = [{ code:'RW-S01-FEBIN', name:'Febin', rate:0.30, uid:'owner-1', email:'owner@example.com' }];
+  const liability = RWReferralLiability.computeReferralLiability([
+    {amountINR:1000, uid:'owner-1', email:'owner@example.com', refCode:'RW-S01-FEBIN'},
+    {amountINR:1000, uid:'buyer-1', email:'buyer@example.com', refCode:'RW-S01-FEBIN'},
+    {amountINR:2000, uid:'buyer-1', email:'buyer@example.com', refCode:'RW-S01-FEBIN'}
+  ], refs, TERMS);
+  assert.equal(liability.byCode['RW-S01-FEBIN'].salesCount, 1);
+  assert.equal(liability.totalCommissionOwedINR, 300);
+});
+
 test('referral-liability: tdsFlagsForReferrers flags only referrers over the Section 194H threshold', () => {
   const records = [
     { amountINR: 14999, refCode: 'RW-S01-FEBIN', refRate: 0.30 }, // commission ~4499.70, over 20k? no
@@ -241,6 +264,15 @@ test('staff-manager: removeReferrer removes only the matching code', () => {
   const updated = RWStaffManager.removeReferrer(list, 'rw-s01-febin');
   assert.equal(updated.length, 1);
   assert.equal(updated[0].code, 'RW-S02-DEEPA');
+});
+
+test('founder-seat reconciliation derives public seats from permanent Pro users', () => {
+  const users = [{pro:true}, {pro:true}, {pro:false}, {}, {pro:true}];
+  assert.equal(RWFounderSeatReconcile.permanentProCount(users), 3);
+  assert.deepEqual(
+    JSON.parse(JSON.stringify(RWFounderSeatReconcile.status(users, 1, 1000))),
+    {actual:3, stored:1, seatsLeft:997, delta:2, inSync:false}
+  );
 });
 
 // ---------------------------------------------------------------------------

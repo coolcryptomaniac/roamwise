@@ -2,10 +2,10 @@
 /* ============================================================================
    js/admin/referral-liability.js
    ----------------------------------------------------------------------------
-   REAL total commission owed to referrers/creators, computed from the same
-   attribution data the live app already stamps onto every approved claim
-   (js/pricing/referral.js's rwRefStamp(): refCode/refRate/refSelf) — never
-   an estimate. A sale only ever counts here if it is an APPROVED claim (the
+   Commission owed to referrers/creators, computed from APPROVED claim
+   attribution plus the admin-owned referrer directory. Browser-stamped rates
+   are never trusted for a known code and historical rates are capped. A sale
+   only ever counts here if it is an APPROVED claim (the
    same "counts as real revenue" bar the Money tab already uses) and was not
    self-referred (refSelf === true is always excluded, matching the client's
    own self-referral guard and referral-data.js's selfReferralAllowed:false).
@@ -17,7 +17,7 @@
    ========================================================================= */
 var RWReferralLiability = (function(){
   /**
-   * approvedRecords: [{amountINR, refCode, refRate, refSelf}] — one entry
+   * approvedRecords: [{amountINR, uid, email, refCode, refRate, refSelf}] — one entry
    * per approved claim that carries referral attribution (rwRefStamp()'s
    * output, as stored on claims/{id}).
    * referrers: window.RW_REFERRERS (or the live config/referrers.list).
@@ -25,11 +25,11 @@ var RWReferralLiability = (function(){
    */
   function computeReferralLiability(approvedRecords, referrers, terms){
     var out = { byCode:{}, totalGrossRevenueINR:0, totalCommissionOwedINR:0, unmatchedCodes:{} };
-    var byCode = {};
+    var byCode = {}, seenPayers = {};
     (referrers || []).forEach(function(r){
       if(r && r.code) byCode[String(r.code).toUpperCase()] = r;
     });
-    var defaultRate = ((terms && typeof terms.ratePct === 'number') ? terms.ratePct : 30) / 100;
+    var defaultRate = Math.min(0.30, Math.max(0, ((terms && typeof terms.ratePct === 'number') ? terms.ratePct : 30) / 100));
 
     (approvedRecords || []).forEach(function(rec){
       if(!rec || !rec.refCode || rec.refSelf === true) return;
@@ -37,8 +37,21 @@ var RWReferralLiability = (function(){
       if(amt <= 0) return;
       var code = String(rec.refCode).toUpperCase();
       var who = byCode[code];
-      var rate = (typeof rec.refRate === 'number') ? rec.refRate
-        : (who && typeof who.rate === 'number') ? who.rate : defaultRate;
+      var selfByUid = !!(who && who.uid && rec.uid && who.uid === rec.uid);
+      var selfByEmail = !!(who && who.email && rec.email && String(who.email).toLowerCase() === String(rec.email).toLowerCase());
+      if(selfByUid || selfByEmail) return;
+      /* The programme promises one commission per referrer + payer. Claims
+         with no UID are retained for historical imports, but live claims all
+         carry UID and are deduplicated here before money is totalled. */
+      var payerKey = rec.uid ? code + '|' + rec.uid : '';
+      if(payerKey && seenPayers[payerKey]) return;
+      if(payerKey) seenPayers[payerKey] = true;
+      /* The browser-submitted claim is untrusted financial input. Prefer the
+         admin-owned directory rate for a known code. Historical/removed codes
+         may use their stamped rate, but never above the public 30% ceiling. */
+      var rawRate = (who && typeof who.rate === 'number') ? who.rate
+        : (typeof rec.refRate === 'number') ? rec.refRate : defaultRate;
+      var rate = Math.min(0.30, Math.max(0, rawRate));
       var commission = amt * rate;
 
       var bucket = out.byCode[code] || (out.byCode[code] = {
@@ -91,7 +104,7 @@ var RWReferralLiability = (function(){
     }).join('') || '<tr><td colspan="4" class="meta">No approved, referral-attributed sales yet.</td></tr>';
     var unmatched = Object.keys(liability.unmatchedCodes);
     var unmatchedHtml = unmatched.length
-      ? '<div class="alert bad"><b>' + unmatched.length + ' code(s) on approved claims aren’t in the current referrer directory</b> (' + esc(unmatched.join(', ')) + ') — a referrer may have been removed from referral-data.js/config/referrers after selling. Commission is still counted above at the claim’s stamped rate.</div>'
+      ? '<div class="alert bad"><b>' + unmatched.length + ' code(s) on approved claims aren’t in the current referrer directory</b> (' + esc(unmatched.join(', ')) + ') — a referrer may have been removed after selling. Commission is counted at the validated historical rate, capped at 30%.</div>'
       : '';
     return '' +
       '<div class="grid kpis">' +
