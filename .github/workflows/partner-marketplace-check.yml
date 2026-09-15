@@ -4,12 +4,22 @@ on:
   pull_request:
     paths:
       - 'partner/**'
+      - 'admin/property-*.js'
+      - 'admin/payment-operations.js'
+      - 'admin/partner-lifecycle.js'
+      - 'worker/handlers/partner-cashfree.js'
+      - 'worker/lib/firestore-rest.js'
       - 'firestore.rules'
       - '.github/workflows/partner-marketplace-check.yml'
   push:
     branches: [main]
     paths:
       - 'partner/**'
+      - 'admin/property-*.js'
+      - 'admin/payment-operations.js'
+      - 'admin/partner-lifecycle.js'
+      - 'worker/handlers/partner-cashfree.js'
+      - 'worker/lib/firestore-rest.js'
       - 'firestore.rules'
       - '.github/workflows/partner-marketplace-check.yml'
   workflow_dispatch:
@@ -30,6 +40,12 @@ jobs:
           node --check partner/core.js
           node --check partner/app.js
           node --check partner/marketplace.js
+          node --check admin/property-prospects-data.js
+          node --check admin/property-outreach.js
+          node --check admin/payment-operations.js
+          node --check admin/partner-lifecycle.js
+          node --check worker/handlers/partner-cashfree.js
+          node --check worker/lib/firestore-rest.js
       - name: Canonical runtime and trust invariants
         run: |
           python - <<'PY'
@@ -38,10 +54,12 @@ jobs:
 
           idx = Path('partner/index.html').read_text()
           js = Path('partner/marketplace.js').read_text()
-          css = Path('partner/marketplace.css').read_text()
+          css = Path('partner/partner.css').read_text()
           rules = Path('firestore.rules').read_text()
 
-          assert 'marketplace.css' in idx
+          assert 'partner.css' in idx
+          assert 'app.css' not in idx
+          assert 'marketplace.css' not in idx
           assert 'marketplace.js' in idx
           assert not re.search(r'marketplace-v\d+', idx, re.I), 'versioned marketplace runtime must not be loaded'
 
@@ -52,6 +70,8 @@ jobs:
           ]
           for path in stale:
               assert not Path(path).exists(), f'stale runtime remains: {path}'
+          for path in ['partner/app.css', 'partner/marketplace.css']:
+              assert not Path(path).exists(), f'conflicting CSS layer remains: {path}'
 
           required = [
             'marketplaceApproved===true',
@@ -68,6 +88,8 @@ jobs:
             'ownerAttestation',
             'walkthroughConsent',
             'HOST TODAY'
+            ,'PARTNER LIFECYCLE'
+            ,'roamwise_cashfree_after_confirmation'
           ]
           for token in required:
               assert token in js, f'missing canonical marketplace invariant: {token}'
@@ -76,6 +98,7 @@ jobs:
           assert '.data.verified == true' in rules
           assert 'match /roomBookings/{ref}' in rules
           assert 'request.resource.data.guestUid == request.auth.uid' in rules
+          assert 'match /paymentDestinations/{id}' in rules
 
           assert css.count('{') == css.count('}'), 'unbalanced marketplace CSS braces'
           assert ':focus-visible' in css

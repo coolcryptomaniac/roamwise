@@ -8,10 +8,11 @@
 
 ## Runtime architecture
 
-The page has one base renderer and one marketplace enhancement layer:
+The page has one base renderer, one marketplace enhancement and one visual source of truth:
 
-- `app.js` + `app.css` — base roles, search, rooms, bookings, admin and demo rendering.
-- `marketplace.js` + `marketplace.css` — production trust checks, richer marketplace UX, Host Studio, booking guardrails and host operating summary.
+- `app.js` — base roles, search, rooms, bookings, admin and demo rendering.
+- `marketplace.js` — production trust checks, Host Studio, booking guardrails and host operating summary.
+- `partner.css` — the single Akatsuki–Kumaoni design system. The former two-layer CSS cascade was removed.
 
 Do not add back or load `marketplace-v2`, `marketplace-v3` or `marketplace-v4` assets. Those generations were consolidated because stacking them created duplicate click capture, DOM observers, auth subscriptions and competing CSS at runtime.
 
@@ -30,6 +31,7 @@ Direct rooms are not trusted merely because a public room document exists. The c
 5. Approval writes `status:'active'` and boolean `verified:true`.
 6. Existing/new rooms receive the public `marketplaceApproved:true` projection.
 7. Host manages rooms, rates, booking requests, marketplace imagery/amenities and optional post-confirmation payment preferences.
+8. Host can request a pause or responsible deboarding; admin review protects open bookings, refunds, chargebacks and final settlement before delisting.
 
 The founder view detects old active partner records that still carry a legacy non-boolean verification value and offers an explicit repair/migration.
 
@@ -42,9 +44,9 @@ The founder view detects old active partner records that still carry a legacy no
 5. Request is created in `roomBookings` with status `requested`.
 6. Payment preference is snapshotted into the booking, but no payment action is shown while the request is pending.
 7. Host confirms or declines using the existing Partner dashboard.
-8. After confirmation, the traveller gets exactly the snapshotted instruction: pay at property, UPI, or an HTTPS hosted payment page.
+8. After confirmation, the traveller gets exactly the snapshotted instruction: pay at property, manual UPI, an HTTPS hosted payment page, or authenticated Cashfree checkout.
 
-RoamWise does not collect card numbers in this static frontend and does not pretend to provide escrow, automated refunds, bank settlement or real-time inventory locking.
+RoamWise does not collect card numbers in this static frontend. Cashfree orders are created by the Worker only after it re-reads the confirmed booking, amount and active host; provider status must be `PAID` before Firestore is updated. Manual UPI remains a separately reconciled fallback. Easy Split payouts and automated refunds must remain disabled until Cashfree approves those products.
 
 ## Data model
 
@@ -56,6 +58,8 @@ Existing collections remain the source of truth:
 - `admins/{uid}`
 - `staff/{uid}`
 - `config/partnerMarketplace`
+- `config/partnerPayments` (public/non-secret payment switches only)
+- `paymentDestinations/{id}` (admin-only masked routing metadata)
 
 No second database is introduced.
 
