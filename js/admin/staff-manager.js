@@ -3,8 +3,7 @@
    js/admin/staff-manager.js
    ----------------------------------------------------------------------------
    View/edit UI logic for the real referrer registry that already exists —
-   referral-data.js's window.RW_REFERRERS (3 staff referrers as of this
-   writing: Febin, Deepanshi, Adarsh) and its live Firestore mirror at
+   referral-data.js's window.RW_REFERRERS and its live Firestore mirror at
    config/referrers (per js/pricing/referral.js's rwRefSync(): "the live
    list is in Firestore at config/referrers, editable from the admin panel"
    — this file is what actually makes that true; no admin UI existed for it

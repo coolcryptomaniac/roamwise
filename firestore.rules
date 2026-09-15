@@ -728,7 +728,14 @@ service cloud.firestore {
     }
     function isMarketing() { return staffRole() == 'marketing'; }
     function isFinance()   { return staffRole() == 'finance'; }
-    function isStaff()     { return isMarketing() || isFinance(); }
+    // General staff roles may read and progress only their assigned task
+    // records below. Sensitive CRM/ledger access remains separately gated by
+    // isMarketing()/isFinance(); adding someone to the team never broadens
+    // those data permissions by accident.
+    function isStaff() {
+      return staffRole() in ['admin','finance','marketing','support','ops',
+        'partnerships','content','engineering','qa'];
+    }
     // A SEPARATE, narrower admin concept from isAdmin(): someone whose staff/
     // record itself carries role=='admin' (e.g. an ops lead promoted in the
     // staff system) rather than a true Console-managed admins/{uid} doc. This

@@ -162,6 +162,7 @@ function renderKeyBoxes(){
 }
 function openSettings(){
   renderKeyBoxes();
+  try{ rwRenderLinkedSignInMethods(); }catch(e){ /* auth may still be loading */ }
   try{ rwVoiceMountSetting(); }catch(e){ /* best-effort, ignore */ }
   try{ var tp=el('tabPickWrap'); if(tp) tp.innerHTML=rwTabPickerHTML(); }catch(e){ /* best-effort, ignore */ }
   /* ---- UI simplification ----
@@ -235,4 +236,3 @@ function clearKey(prov){
   showToast(prov+' key cleared');
   if(activeProv===prov) setProv('smart');
 }
-

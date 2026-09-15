@@ -10,6 +10,7 @@
   function nights(a,b){var x=new Date(a+'T00:00:00'),y=new Date(b+'T00:00:00'),d=Math.round((y-x)/86400000);return isFinite(d)&&d>0?d:1;}
   function norm(s){return String(s||'').trim().toLowerCase().normalize('NFKD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,' ');}
   function commission(amount,pct){amount=Math.max(0,Number(amount||0));pct=clamp(pct,0,100);var rw=Math.round(amount*pct)/100;return {gross:amount,pct:pct,roamwise:rw,partner:amount-rw};}
+  function commissionPctForPlan(plan,plans){var p=plans&&plans[String(plan||'free')];return clamp(p&&p.commissionPct!=null?p.commissionPct:7,0,30);}
   function isCompleted(status,completedStatuses){return (completedStatuses||['completed','checked_out']).indexOf(String(status||''))>=0;}
   function partnerTotals(bookings,pct,completedStatuses){var done=(bookings||[]).filter(function(b){return isCompleted(b.status,completedStatuses);});var gross=done.reduce(function(a,b){return a+Number(b.amount||b.gross||0);},0);var e=commission(gross,pct);return {count:done.length,gross:gross,commission:e.roamwise,partner:e.partner};}
   function fillTemplate(tpl,ctx){ctx=ctx||{};return String(tpl||'').replace(/\{(destination|checkin|checkout|guests)\}/g,function(_,k){return encodeURIComponent(ctx[k]||'');});}
@@ -21,5 +22,5 @@
     return Number(a.price||Infinity)-Number(b.price||Infinity);
   });}
   function bookingRef(){return 'RW-'+Date.now().toString(36).toUpperCase()+'-'+Math.random().toString(36).slice(2,6).toUpperCase();}
-  return {esc:esc,money:money,nights:nights,norm:norm,commission:commission,isCompleted:isCompleted,partnerTotals:partnerTotals,fillTemplate:fillTemplate,roomMatches:roomMatches,sortDirectFirst:sortDirectFirst,bookingRef:bookingRef};
+  return {esc:esc,money:money,nights:nights,norm:norm,commission:commission,commissionPctForPlan:commissionPctForPlan,isCompleted:isCompleted,partnerTotals:partnerTotals,fillTemplate:fillTemplate,roomMatches:roomMatches,sortDirectFirst:sortDirectFirst,bookingRef:bookingRef};
 });

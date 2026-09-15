@@ -34,8 +34,8 @@ window.RW_REFERRERS = [
     note:'Growth & Community intern' },
   { code:'RW-S02-DEEPA',  name:'Deepanshi',  type:'staff',   rate:0.30, active:true,
     note:'Product & QA intern' },
-  { code:'RW-S03-ADARS',  name:'Adarsh',     type:'staff',   rate:0.30, active:true,
-    note:'Engineering intern' },
+  { code:'RW-S03-ADARS',  name:'Adarsh',     type:'staff',   rate:0.30, active:false,
+    note:'Offboarded 13 Sep 2026 — referral attribution retired' },
 
   /* ---- CREATOR PARTNERS (Instagram / YouTube) ---- */
   /* add as you sign them, e.g.:
