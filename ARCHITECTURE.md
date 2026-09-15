@@ -50,11 +50,10 @@ start of the modularization effort, down from 3,099 after the prior
 "modularization-final" pass, down from 1,207 after "round 4", and down from
 629 after "round 5" — the further changes since round 5 are incidental to
 unrelated feature PRs #138-143 and this pass's `submitUtr()` one-line
-rewire, not a new extraction round) and there are **143 files** under `js/`
-(137 as of PRs #138-143, plus 4 new `js/admin/` files added by the
-admin-dashboard-expansion pass, plus `js/core/push-notifications.js` added
-by the push-notifications infrastructure pass — see the `js/core/` and
-`js/admin/` entries below),
+rewire, not a new extraction round) and there are **147 files** under `js/`
+(including the later `js/admin/` dashboard modules and
+`js/core/push-notifications.js` — see the `js/core/` and `js/admin/`
+entries below),
 organized into **17 top-level subdirectories** (16 from round 5 plus the
 new `js/admin/`) plus one nested subdirectory (`js/payments/providers/`),
 plus **9 files** under `css/`. Two new top-level feature areas landed
