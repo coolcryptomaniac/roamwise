@@ -84,6 +84,7 @@ if (AUTH_READY && typeof firebase !== 'undefined') try {
       u=null;
     }
     user = u;
+    setTimeout(function(){try{rwRenderLinkedSignInMethods();}catch(e){}},0);
     try{ if(u&&window.RWAuthSecurity) RWAuthSecurity.rememberUserProvider(u); }catch(e){ /* local hint only */ }
     try{ if(u) rwCheckBan(); }catch(e){ /* best-effort, ignore */ }
     var btn = el('authBtn'), av = el('authAvatar');
@@ -304,6 +305,39 @@ function loginGoogle(){
   firebase.auth().signInWithPopup(new firebase.auth.GoogleAuthProvider())
     .then(function(){if(window.RWAuthSecurity)RWAuthSecurity.rememberProvider('google.com');closeAuth();showToast('Signed in with Google ✓');})
     .catch(function(e){authError(rwGoogleError(e));});
+}
+function rwProviderIds(u){return (u&&u.providerData||[]).map(function(p){return p&&p.providerId;}).filter(Boolean);}
+function rwLinkMessage(message,bad){var n=el('rwLinkedSignInMsg');if(n){n.textContent=message||'';n.style.color=bad?'#fb7185':'var(--t3)';}if(message)showToast(message);}
+function rwRenderLinkedSignInMethods(){
+  var status=el('rwLinkedSignInStatus'),passBox=el('rwLinkPasswordBox'),googleBtn=el('rwLinkGoogleBtn');if(!status)return;
+  var u=(typeof firebase!=='undefined'&&firebase.auth&&firebase.auth().currentUser)||user;
+  if(!u){status.textContent='Sign in to manage account methods.';if(passBox)passBox.style.display='none';if(googleBtn)googleBtn.style.display='none';return;}
+  var ids=rwProviderIds(u),labels=[];if(ids.indexOf('google.com')>-1)labels.push('Google');if(ids.indexOf('password')>-1)labels.push('Email + password');
+  status.innerHTML='<b>'+String(u.email||'Your account').replace(/[&<>]/g,'')+'</b><br>Linked now: '+(labels.join(' + ')||'verified Firebase identity')+' · UID '+String(u.uid||'').replace(/[&<>]/g,'');
+  if(passBox)passBox.style.display=ids.indexOf('password')>-1?'none':'';
+  if(googleBtn)googleBtn.style.display=ids.indexOf('google.com')>-1?'none':'';
+}
+function rwLinkFriendly(e){
+  var c=String(e&&e.code||'');
+  if(c.indexOf('requires-recent-login')>-1)return 'For security, sign out and sign in again, then link the method immediately.';
+  if(c.indexOf('credential-already-in-use')>-1||c.indexOf('email-already-in-use')>-1)return 'That sign-in method belongs to a different legacy Firebase UID. RoamWise will not merge data silently; contact support for a reviewed account migration.';
+  if(c.indexOf('provider-already-linked')>-1)return 'That sign-in method is already linked to this account.';
+  if(c.indexOf('popup-closed')>-1||c.indexOf('cancelled-popup')>-1)return 'Google linking was cancelled.';
+  return friendly(e);
+}
+function rwLinkEmailPassword(){
+  var u=firebase.auth().currentUser,p=el('rwLinkPassword'),c=el('rwLinkPasswordConfirm');if(!u||!u.email)return rwLinkMessage('Sign in first.',true);
+  var password=p&&p.value||'',confirmPassword=c&&c.value||'',strength=window.RWAuthSecurity&&RWAuthSecurity.passwordStatus(password);
+  if(strength&&!strength.ok)return rwLinkMessage(strength.message,true);if(password!==confirmPassword)return rwLinkMessage('The two passwords do not match.',true);
+  var credential=firebase.auth.EmailAuthProvider.credential(u.email,password);
+  u.linkWithCredential(credential).then(function(){if(p)p.value='';if(c)c.value='';if(window.RWAuthSecurity)RWAuthSecurity.rememberProvider('password');rwRenderLinkedSignInMethods();rwLinkMessage('Email + password linked to the same RoamWise account ✓');}).catch(function(e){rwLinkMessage(rwLinkFriendly(e),true);});
+}
+function rwLinkGoogleProvider(){
+  var u=firebase.auth().currentUser;if(!u)return rwLinkMessage('Sign in first.',true);var native=rwNativeAuthPlugin(),job;
+  if(native){job=native.signInWithGoogle({skipNativeAuth:true}).then(function(r){var token=r&&r.credential&&r.credential.idToken;if(!token)throw new Error('Google did not return an ID token.');return u.linkWithCredential(firebase.auth.GoogleAuthProvider.credential(token));});}
+  else if(rwIsNativePlatform())return rwLinkMessage('Update the RoamWise app before linking Google. Your current sign-in still works.',true);
+  else job=u.linkWithPopup(new firebase.auth.GoogleAuthProvider());
+  job.then(function(){if(window.RWAuthSecurity)RWAuthSecurity.rememberProvider('google.com');rwRenderLinkedSignInMethods();rwLinkMessage('Google linked to the same RoamWise account ✓');}).catch(function(e){rwLinkMessage(rwLinkFriendly(e),true);});
 }
 function toggleAuthMode(){
   authMode=authMode==='in'?'up':'in';rwApplyAuthModeUI();

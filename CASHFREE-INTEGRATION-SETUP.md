@@ -1,5 +1,11 @@
 # Cashfree integration — setup guide
 
+> Security: do not send an API secret, merchant password, webhook secret, bank
+> credential or KYC document in chat. Put API credentials only into the
+> deployed Worker's secret store with `wrangler secret put`. If a credential
+> has ever been pasted into chat, Git, a ticket or a browser-readable database,
+> rotate it in Cashfree before use.
+
 This is the literal, step-by-step guide for turning on the new Cashfree
 payment-gateway adapter. It changes **nothing** for live users until you do
 step 4 — until then the app keeps working exactly as it does today (the
@@ -15,6 +21,25 @@ request/response shape is ported from, but it's its own separate Cloudflare
 Worker with no real (non-`.example`) `wrangler.toml`, no deploy step, and no
 client code pointed at it — standing it up would mean the owner deploying
 and maintaining a second Worker/project/DNS route for one gateway.
+
+## Marketplace property settlements are a separate activation
+
+The routes described below sell RoamWise's own fixed-price products. They do
+**not** yet collect a stay payment and route a property payout. That second use
+case requires Cashfree **Easy Split** to be activated for this merchant account
+and each property to complete the provider-required vendor/KYC onboarding.
+
+The intended stay-payment flow is: host confirms availability → server creates
+the order from the snapshotted booking → signed webhook confirms payment →
+server sends one idempotent split instruction → refund/dispute events create
+compensating ledger entries → settlement releases when eligible. A browser
+callback is never proof of payment, and a requested paid partner plan never
+earns the lower 5% rate until its payment is verified.
+
+Until Easy Split, webhook verification, vendor onboarding and tax treatment are
+tested, keep the safer pilot: the confirmed property collects the stay payment,
+RoamWise records completion and invoices its 5–7% commission. Do not market the
+pilot as escrow or as automated marketplace settlement.
 
 ## What shipped
 

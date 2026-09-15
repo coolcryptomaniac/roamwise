@@ -1,7 +1,7 @@
 /* RoamWise Partner drop-in configuration.
    This file contains only public browser configuration. Never put secret API tokens here. */
 window.RW_PARTNER_CONFIG = {
-  version: '2026.08.25-dropin-1',
+  version: '2026.09.15-resilient-commission-1',
   firebase: {
     apiKey: 'AIzaSyDlrtpzpOb1VEmVSd9tHmu7OpmvwWosYsU',
     authDomain: 'roamwisepro.firebaseapp.com',
@@ -11,7 +11,13 @@ window.RW_PARTNER_CONFIG = {
     appId: '1:299014744987:web:d5c316743e6d7a10904f3e'
   },
   commercial: {
-    stayCommissionPct: 8,
+    stayCommissionPct: 7,
+    plans: {
+      free: {subscriptionINR: 0, commissionPct: 7},
+      desk: {subscriptionINR: 249, commissionPct: 5},
+      annual: {subscriptionINR: 2499, commissionPct: 5},
+      three_year: {subscriptionINR: 5999, commissionPct: 5}
+    },
     completedStatuses: ['completed','checked_out'],
     directFirst: true,
     externalGapThreshold: 4

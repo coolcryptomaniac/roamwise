@@ -545,6 +545,17 @@ firebase.auth().onAuthStateChanged(function(u){
   }).then(function(d){
     var data = d.data()||{};
     var role = data.role||'none';
+    if(data.status==='offboarded' || data.accessActive===false){
+      ROLE=''; window.ROLES=[];
+      el('signedOut').classList.remove('hide'); el('app').classList.add('hide');
+      el('signedOut').innerHTML='<div class="card" style="text-align:center">'
+        +'<div style="font-size:44px;margin-bottom:6px">🔒</div>'
+        +'<h2 style="margin-bottom:6px">RoamWise team access has ended</h2>'
+        +'<p class="note">This account is still a valid Firebase login, but it no longer has any staff role or access to RoamWise internal data.</p>'
+        +'<button class="btn" style="width:100%;padding:11px;margin-top:16px" onclick="firebase.auth().signOut()">Sign out</button>'
+        +'<div class="note" style="margin-top:10px">Signed in as '+esc(u.email||'')+'</div></div>';
+      return;
+    }
     if(role==='none' || !role){
       /* Signed in fine, but not activated yet. NOTHING for them to do — the
          founder already sees them in the admin app's approval list. A warm

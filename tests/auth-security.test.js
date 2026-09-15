@@ -47,3 +47,18 @@ test('Firestore claim and referral rules bind identity, document id and commissi
   assert.match(rules, /id == request\.resource\.data\.code \+ '__' \+ request\.auth\.uid/);
   assert.match(rules, /hasOnly\(\['uid', 'email', 'utr', 'amount'/);
 });
+
+test('settings links Google and password credentials onto the current Firebase user', () => {
+  const authInit = fs.readFileSync(path.join(root, 'js/boot/auth-init.js'), 'utf8');
+  const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
+  assert.match(authInit, /u\.linkWithCredential\(credential\)/);
+  assert.match(authInit, /u\.linkWithPopup\(new firebase\.auth\.GoogleAuthProvider\(\)\)/);
+  assert.match(authInit, /same RoamWise account/);
+  assert.match(html, /one Firebase UID/);
+});
+
+test('legacy duplicate Firebase UIDs are never silently merged in the browser', () => {
+  const authInit = fs.readFileSync(path.join(root, 'js/boot/auth-init.js'), 'utf8');
+  assert.match(authInit, /will not merge data silently/);
+  assert.doesNotMatch(authInit, /deleteUser\(|delete\(\).*legacy Firebase UID/);
+});

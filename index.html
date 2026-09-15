@@ -1170,6 +1170,17 @@ function rwDismissCreatorBanner(){
         <button class="rzp-main-btn" style="width:100%" onclick="openPartnerRedeem()">&#127891; Redeem a partner code</button>
       </div>
 
+      <div class="key-section" id="rwLinkedSignIn">
+        <div class="key-sec-title">Account sign-in methods <small style="font-size:10px;font-weight:400;color:var(--t3);text-transform:none;letter-spacing:0">&mdash; one Firebase UID, more than one safe way to sign in</small></div>
+        <div id="rwLinkedSignInStatus" style="font-size:12px;line-height:1.6;color:var(--t2);margin-bottom:10px">Sign in to manage account methods.</div>
+        <div id="rwLinkPasswordBox" style="display:none">
+          <div style="font-size:11px;color:var(--t3);margin-bottom:8px">Already signed in with Google? Set a password here. RoamWise links it to this same account and keeps the same trips, Pro status and Firestore UID.</div>
+          <div class="key-row"><input class="k-inp" type="password" id="rwLinkPassword" minlength="10" maxlength="128" autocomplete="new-password" placeholder="New password (10+ characters)"><input class="k-inp" type="password" id="rwLinkPasswordConfirm" minlength="10" maxlength="128" autocomplete="new-password" placeholder="Confirm password"><button class="k-save" onclick="rwLinkEmailPassword()">Link password</button></div>
+        </div>
+        <button id="rwLinkGoogleBtn" class="rzp-main-btn" style="display:none;width:100%;margin-top:9px" onclick="rwLinkGoogleProvider()">Link Google to this same account</button>
+        <div id="rwLinkedSignInMsg" style="font-size:11px;color:var(--t3);margin-top:8px" role="status"></div>
+      </div>
+
       <!-- Owner setup moved to the Admin console (Config tab) — nothing here for users to fill. -->
     </div>
   </div>
