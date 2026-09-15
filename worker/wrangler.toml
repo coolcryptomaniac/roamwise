@@ -27,7 +27,7 @@ id = "PASTE_THE_ID_HERE"   # <-- the ONLY line you edit in this file
 #   npx wrangler secret put REFRESH_TOKEN     # recommended: protects /events/refresh
 #   npx wrangler secret put CASHFREE_APP_ID       # optional: enables /cashfree/order
 #   npx wrangler secret put CASHFREE_SECRET_KEY   # optional: enables /cashfree/order
-#   npx wrangler secret put FIREBASE_SERVICE_ACCOUNT_JSON  # optional: enables POST /push/send
+#   npx wrangler secret put FIREBASE_SERVICE_ACCOUNT_JSON  # enables /push/send and authenticated partner checkout
 #
 # All are OPTIONAL. /health tells you which are actually configured. See
 # CASHFREE-INTEGRATION-SETUP.md for the exact Cashfree setup walkthrough
@@ -48,7 +48,7 @@ id = "PASTE_THE_ID_HERE"   # <-- the ONLY line you edit in this file
 [vars]
 CASHFREE_ENV = "sandbox"
 # CASHFREE_API_VERSION = "2023-08-01"   # optional override; handler defaults to this
-# PAYMENT_RETURN_URL = "https://roamwise.co.in/"   # optional: Cashfree order_meta.return_url
+# PAYMENT_RETURN_URL = "https://roamwise.co.in/partner/"   # optional fallback return URL
 
 # ---------------------------------------------------------------------------
 # R2 — OPTIONAL object storage. No route in worker.js uses this yet; this is

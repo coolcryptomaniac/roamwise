@@ -40,6 +40,22 @@ function fromFirestoreFields(fields) {
   return out;
 }
 
+function toFirestoreValue(v) {
+  if (v == null) return { nullValue: null };
+  if (typeof v === 'string') return { stringValue: v };
+  if (typeof v === 'boolean') return { booleanValue: v };
+  if (typeof v === 'number') return Number.isInteger(v) ? { integerValue: String(v) } : { doubleValue: v };
+  if (Array.isArray(v)) return { arrayValue: { values: v.map(toFirestoreValue) } };
+  if (typeof v === 'object') return { mapValue: { fields: toFirestoreFields(v) } };
+  throw new Error('Unsupported Firestore value');
+}
+
+function toFirestoreFields(obj) {
+  const out = {};
+  for (const k of Object.keys(obj || {})) out[k] = toFirestoreValue(obj[k]);
+  return out;
+}
+
 /** GET a document. Returns null if it doesn't exist (never throws for 404). */
 export async function getDoc(env, accessToken, projectId, path) {
   const res = await fetch(docPath(projectId, path), {
@@ -74,5 +90,24 @@ export async function deleteFields(env, accessToken, projectId, path, fieldPaths
   if (!res.ok) {
     const text = await res.text().catch(() => '');
     throw new Error(`Firestore PATCH ${path} failed (${res.status}): ${text.slice(0, 300)}`);
+  }
+}
+
+/** Patch a small, explicit field set on a trusted server-owned document. */
+export async function updateDoc(env, accessToken, projectId, path, values) {
+  const keys = Object.keys(values || {});
+  if (!keys.length) return;
+  const mask = keys.map((p) => `updateMask.fieldPaths=${encodeURIComponent(p)}`).join('&');
+  const res = await fetch(`${docPath(projectId, path)}?${mask}`, {
+    method: 'PATCH',
+    headers: {
+      authorization: `Bearer ${accessToken}`,
+      'content-type': 'application/json',
+    },
+    body: JSON.stringify({ fields: toFirestoreFields(values) }),
+  });
+  if (!res.ok) {
+    const body = await res.text().catch(() => '');
+    throw new Error(`Firestore PATCH ${path} failed (${res.status}): ${body.slice(0, 300)}`);
   }
 }

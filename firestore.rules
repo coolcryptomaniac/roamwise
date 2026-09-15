@@ -1518,7 +1518,8 @@ service cloud.firestore {
                     || (isPartner(uid)
                         && !request.resource.data.diff(resource.data).affectedKeys()
                              .hasAny(['status','verified','badges','commissionPct',
-                                      'payoutHold','adminNote','uid']));
+                                      'payoutHold','adminNote','uid','operationsLocked',
+                                      'lifecycleStage']));
       allow delete: if isAdmin();
     }
 
@@ -1536,7 +1537,19 @@ service cloud.firestore {
       allow create, update, delete: if (isPartner(uid)
                                          && exists(/databases/$(database)/documents/partners/$(uid))
                                          && get(/databases/$(database)/documents/partners/$(uid)).data.verified == true)
+                                        && get(/databases/$(database)/documents/partners/$(uid)).data.status == 'active'
+                                        && (!('operationsLocked' in get(/databases/$(database)/documents/partners/$(uid)).data)
+                                            || get(/databases/$(database)/documents/partners/$(uid)).data.operationsLocked != true)
                                         || isAdmin();
+    }
+
+    // Masked settlement-routing metadata only. The browser never stores full
+    // bank details, gateway secrets, OTPs or UPI PINs. Cashfree credentials
+    // remain encrypted Worker secrets; actual account verification happens at
+    // the regulated provider. Admin-only access also keeps provider vendor IDs
+    // and internal routing notes out of public config.
+    match /paymentDestinations/{id} {
+      allow read, create, update, delete: if isAdmin();
     }
 
     // ---- ROOM BOOKINGS --------------------------------------------------

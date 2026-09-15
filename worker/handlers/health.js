@@ -15,6 +15,9 @@ export function handleHealth(env){
       events: !!env.TICKETMASTER_KEY,
       refreshProtected: !!env.REFRESH_TOKEN,
       push: !!env.FIREBASE_SERVICE_ACCOUNT_JSON,
+      cashfree: !!env.CASHFREE_APP_ID && !!env.CASHFREE_SECRET_KEY,
+      partnerPayments: !!env.FIREBASE_SERVICE_ACCOUNT_JSON,
     },
+    paymentEnvironment: String(env.CASHFREE_ENV || 'sandbox').toLowerCase() === 'live' ? 'live' : 'sandbox',
   });
 }

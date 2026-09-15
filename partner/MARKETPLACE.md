@@ -1,6 +1,6 @@
 # RoamWise Partner Marketplace — Canonical Runtime
 
-`/partner/` now has one production enhancement runtime: `marketplace.js` + `marketplace.css`, layered only over the base `app.js` + `app.css` renderer.
+`/partner/` has one production enhancement runtime (`marketplace.js`) over the base `app.js` renderer, and one visual source of truth (`partner.css`).
 
 Do not restore or load `marketplace-v2`, `marketplace-v3` or `marketplace-v4` assets. Their useful behavior has been consolidated into the canonical files and the old runtime assets were removed specifically to prevent duplicate capture listeners, MutationObservers, auth subscriptions and CSS overrides.
 
@@ -44,7 +44,11 @@ The host workspace includes a single Host Today summary for:
 
 ### Property onboarding
 
-The owner flow keeps the verification attestations for listing authority, rate accuracy and walkthrough readiness, plus a public location/listing URL. Email must be verified before a real property application write. The public form explicitly warns against uploading Aadhaar, PAN, passport, card data or bank passwords.
+The owner flow keeps the verification attestations for listing authority, rate accuracy and walkthrough readiness, plus a public location/listing URL, signature experiences, cleanliness practice, public review route and best owner contact window. Email must be verified before a real property application write. The public form explicitly warns against uploading Aadhaar, PAN, passport, card data, bank passwords or gateway secrets.
+
+Confirmed guests can use Cashfree only when the admin enables it and Worker health confirms gateway credentials plus server-side Firebase access. The Worker accepts a booking id rather than an amount, verifies the signed-in guest, re-reads the confirmed booking and active host, then checks Cashfree's server status before recording payment. Platform UPI is a manual fallback and never self-verifies.
+
+Pause and deboarding are review requests, not destructive client actions. Booking and settlement history remains intact throughout the transition.
 
 ### Traveller UX
 
@@ -61,8 +65,7 @@ The owner flow keeps the verification attestations for listing authority, rate a
 `partner/index.html` should load only:
 
 ```text
-app.css
-marketplace.css
+partner.css
 config.js
 core.js
 app.js

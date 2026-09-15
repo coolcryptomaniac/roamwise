@@ -3,23 +3,36 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#080a0f">
+<meta name="theme-color" content="#090707">
 <meta name="robots" content="index,follow">
-<title>RoamWise Stays — Verified Direct Stays & Host Dashboard</title>
-<meta name="description" content="Find verified direct RoamWise stays or list your hotel or homestay. Clear request-to-book status, host confirmation before payment, and a simple host dashboard.">
+<title>RoamWise Partner — Kumaoni Hospitality Network</title>
+<meta name="description" content="Discover verified experiential stays or run your property with RoamWise. Request-to-book, host operations, payments and responsible partner lifecycle in one place.">
 <link rel="canonical" href="https://roamwise.co.in/partner/">
 <meta property="og:title" content="RoamWise Stays — Verified Direct Stays">
 <meta property="og:description" content="Verified local stays first. Request a room, wait for host confirmation, then pay using the method you chose.">
 <meta property="og:image" content="https://roamwise.co.in/icon-512.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="app.css">
-<link rel="stylesheet" href="marketplace.css">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Marcellus&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="partner.css">
 </head>
 <body>
+<svg class="rw-symbols" aria-hidden="true" focusable="false">
+  <symbol id="i-compass" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m15.5 8.5-2.1 4.9-4.9 2.1 2.1-4.9 4.9-2.1Z"/></symbol>
+  <symbol id="i-home" viewBox="0 0 24 24"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10.5V20h13v-9.5M9.5 20v-6h5v6"/></symbol>
+  <symbol id="i-host" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><path d="M3.5 20v-2.2A4.8 4.8 0 0 1 8.3 13h1.4a4.8 4.8 0 0 1 4.8 4.8V20M17 8v6M14 11h6"/></symbol>
+  <symbol id="i-ops" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/><circle cx="8" cy="7" r="2"/><circle cx="16" cy="12" r="2"/><circle cx="10" cy="17" r="2"/></symbol>
+  <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3 20 6v5c0 5.2-3.3 8.5-8 10-4.7-1.5-8-4.8-8-10V6l8-3Z"/><path d="m8.5 12 2.2 2.2 4.8-5"/></symbol>
+  <symbol id="i-mountain" viewBox="0 0 24 24"><path d="m2 20 7-12 3 5 2-3 8 10H2Z"/><path d="m7 11 2 1.5 1.5-1"/></symbol>
+  <symbol id="i-yoga" viewBox="0 0 24 24"><circle cx="12" cy="5" r="2"/><path d="M12 8v6m0-3L7 9m5 2 5-2M5 19l7-5 7 5M8 19l4-2 4 2"/></symbol>
+  <symbol id="i-music" viewBox="0 0 24 24"><path d="M9 18V6l10-2v12"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="16.5" cy="16" r="2.5"/></symbol>
+  <symbol id="i-food" viewBox="0 0 24 24"><path d="M7 3v8m-3-8v5c0 2 1 3 3 3s3-1 3-3V3M7 11v10M16 3c-3 3-3 8 0 10v8M16 3v10"/></symbol>
+  <symbol id="i-spark" viewBox="0 0 24 24"><path d="m12 2 1.6 6.4L20 10l-6.4 1.6L12 18l-1.6-6.4L4 10l6.4-1.6L12 2Z"/><path d="m19 16 .7 2.3L22 19l-2.3.7L19 22l-.7-2.3L16 19l2.3-.7L19 16Z"/></symbol>
+  <symbol id="i-flight" viewBox="0 0 24 24"><path d="m3 13 8-2 4-8 2 1-2 7 5 2v2l-6-1-3 6-2-1 1-6-7 2v-2Z"/></symbol>
+  <symbol id="i-car" viewBox="0 0 24 24"><path d="m5 10 2-5h10l2 5 2 2v6H3v-6l2-2Z"/><path d="M5 18v2m14-2v2M7 14h.01M17 14h.01"/></symbol>
+</svg>
 <nav class="nav"><div class="navin">
-  <a class="brand" href="../" aria-label="RoamWise home"><i class="logo">RW</i>Roam<span>Wise</span></a>
+  <a class="brand" href="../" aria-label="RoamWise home"><i class="logo"><svg><use href="#i-mountain"/></svg></i><span>Roam<em>Wise</em></span></a>
   <div class="navspace"></div>
   <button class="navbtn desktop" id="homeBtn" type="button">Find stays</button>
   <button class="navbtn desktop" id="joinBtn" type="button">List your place</button>
@@ -28,14 +41,18 @@
 </div></nav>
 <main class="page">
   <section class="hero">
-    <span class="eyebrow" id="eyebrow">RoamWise Stays</span>
-    <h1 id="heroTitle">Stay local. <em>Book with confidence.</em></h1>
-    <p id="heroText">Verified direct hosts, request-to-book confirmation, and no prepayment before availability is confirmed.</p>
+    <div class="hero-mark" aria-hidden="true"><svg><use href="#i-mountain"/></svg></div>
+    <span class="eyebrow" id="eyebrow">RoamWise Kumaon Collective</span>
+    <h1 id="heroTitle">Stay rooted. <em>Roam remarkable.</em></h1>
+    <p id="heroText">Verified experiential hosts, request-to-book confidence and thoughtful Himalayan hospitality.</p>
+    <div class="experience-ribbon" aria-label="Experiences we value">
+      <span><svg><use href="#i-yoga"/></svg>Yoga</span><span><svg><use href="#i-music"/></svg>Live culture</span><span><svg><use href="#i-food"/></svg>Great food</span><span><svg><use href="#i-spark"/></svg>Rare moments</span>
+    </div>
   </section>
   <div class="modebar" id="modebar"></div>
   <section class="rolegrid" id="rolegrid" aria-label="Marketplace sections"></section>
   <section id="view" aria-live="polite"></section>
-  <div class="footer">RoamWise · verified direct stays · host-controlled rates</div>
+  <div class="footer"><span>रूटेड इन कुमाऊँ · BUILT FOR THE WORLD</span>RoamWise · verified direct stays · host-controlled rates</div>
 </main>
 <div class="modal" id="modal"><div class="modalbox" id="modalbox"></div></div>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>

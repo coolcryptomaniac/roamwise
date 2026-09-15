@@ -1,24 +1,28 @@
 # RoamWise Partner Hub
 
-## What this PR changes
-- Replaces the current `/partner/` portal with the role-based RoamWise partner and booking workspace.
-- Keeps the existing Firebase-first production model and current partner/room/booking collections.
-- Adds Customer, Property Owner, RoamWise Partner, and Admin/Staff test flows.
-- Gives verified RoamWise supply preference and widens travel choices when direct supply is limited.
-- Adds configurable Travelpayouts, Expedia, Trawex, and BookingXML connection placeholders without exposing secret API keys in public code.
-- Fixes partner accounting so commission is treated as earned only on completed stays.
-- Adds a safe demo lab via `/partner/?lab=1&mode=demo`; the normal production route defaults to live mode.
+## What this branch changes
+- Consolidates the two old CSS layers into one Akatsuki–Kumaoni `partner.css` design system.
+- Preserves the canonical Firebase trust and request-to-book guardrails.
+- Extends onboarding with experience, cleanliness and public-review evidence.
+- Adds daily host operations plus pause and responsible-deboarding requests.
+- Adds authenticated Cashfree stay checkout with server-authoritative amount validation.
+- Adds manual RoamWise UPI after host confirmation and masked settlement-destination switching.
+- Adds an admin-only experiential property CRM with 41 sourced leads, 1,000-row capacity and an explainable top-500 queue.
 
 ## Files
 - partner/index.html
-- partner/app.css
+- partner/partner.css
 - partner/app.js
+- partner/marketplace.js
 - partner/config.js
 - partner/core.js
 - partner/README.md
 - partner/TEST-CHECKLIST.md
 - partner/OPTIONAL-FIRESTORE-RULES.txt
-- partner/FILE-HASHES.txt
+- admin/property-prospects-data.js
+- admin/property-outreach.js
+- admin/payment-operations.js
+- worker/handlers/partner-cashfree.js
 
 ## Suggested testing
 1. Open `/partner/?lab=1&mode=demo`.
@@ -29,6 +33,9 @@
 6. Confirm it as Partner.
 7. Verify status in Customer → My Trips.
 8. Mark completed as Admin and verify partner earnings update.
+9. Request pause/deboarding and confirm the host cannot directly change trusted status.
+10. In Admin, verify Cashfree health and switch only to a provider-verified masked destination.
+11. Open Property leads, inspect evidence, save a seed and create a human-reviewed draft.
 
 ## Safety
-This PR changes only files inside `/partner/`. It does not modify the homepage or root booking engine.
+No release, deployment, merge or bulk outreach is performed by this branch. Gateway secrets stay in Cloudflare Worker secrets and full bank details never enter the browser UI.

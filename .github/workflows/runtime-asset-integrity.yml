@@ -67,7 +67,8 @@ jobs:
           # Critical pages must be explicitly canonical.
           partner=Path('partner/index.html').read_text()
           creator=Path('creators/admin.html').read_text()
-          assert 'marketplace.js' in partner and 'marketplace.css' in partner
+          assert 'marketplace.js' in partner and 'partner.css' in partner
+          assert 'app.css' not in partner and 'marketplace.css' not in partner
           assert not re.search(r'marketplace-v\d+',partner,re.I)
           assert 'admin.js' in creator and not re.search(r'admin-v\d+\.js',creator,re.I)
 

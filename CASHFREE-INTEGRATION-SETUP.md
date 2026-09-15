@@ -321,6 +321,27 @@ code + a rules change), not a small addition — flagging it here rather than
 building it speculatively without the owner's service-account credential in
 hand.
 
+## Direct-stay checkout at `/partner/`
+
+The direct-stay path is separate from Pro entitlement checkout:
+
+1. Admin saves non-secret settings in Admin → Partner payments.
+2. A guest requests a verified room; no payment action is available yet.
+3. The host confirms availability.
+4. The guest chooses the previously snapshotted Cashfree preference.
+5. `POST /partner/cashfree/order` verifies the guest's Firebase ID token and
+   re-reads the booking amount, status, payment method, active partner and
+   payment configuration from Firestore.
+6. `GET /partner/cashfree/order/{bookingId}/status` accepts the same token,
+   checks the exact INR amount with Cashfree and writes `paymentStatus:'paid'`
+   only after Cashfree returns `order_status:'PAID'`.
+
+This path requires `CASHFREE_APP_ID`, `CASHFREE_SECRET_KEY` and
+`FIREBASE_SERVICE_ACCOUNT_JSON` as Worker secrets. The admin health screen
+shows only configured/missing and environment match; it cannot read a value.
+Keep Easy Split disabled until Cashfree has approved the product and every
+vendor payout destination is verified.
+
 ## Known limitations to review before relying on this for real revenue
 
 - **Checkout confirmation is granted client-side, gated on one status
