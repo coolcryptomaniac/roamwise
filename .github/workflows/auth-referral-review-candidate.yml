@@ -17,7 +17,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Unit test source drift guards
-        run: python3 -m unittest discover -s tests -p 'prepare-auth-referral-rules.test.py' -v
+        run: python3 tests/prepare-auth-referral-rules.test.py -v
       - name: Generate full consolidated candidate (DO NOT DEPLOY)
         run: python3 tools/prepare-auth-referral-rules.py --input firestore.rules --output firestore-review.rules
       - name: Upload review-only rules file
