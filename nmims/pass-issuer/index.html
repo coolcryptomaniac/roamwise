@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>NMIMS | RoamWise private pass desk</title>
+<style>
+:root{font-family:Inter,system-ui,-apple-system,sans-serif;color:#f9eee6;background:#090b12;color-scheme:dark}*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 90% 10%,#4b152a 0,transparent 37%),radial-gradient(ellipse at 0 60%,#1d2638 0,transparent 40%),#090b12;min-height:100vh}main{max-width:1040px;margin:auto;padding:32px 20px 70px}nav{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}a{color:#f4bb81}nav a{font-size:13px}h1{font-size:clamp(32px,6vw,64px);line-height:1.04;letter-spacing:-.055em;margin:40px 0 15px}h1 span{color:#ffa57a}.lead{max-width:720px;color:#c1b8c2;line-height:1.7}.pill{display:inline-block;border:1px solid #9a4a53;border-radius:30px;color:#ffc39d;background:#6d283044;padding:7px 12px;font-size:12px;letter-spacing:.1em;font-weight:800}.layout{display:grid;grid-template-columns:1.15fr .85fr;gap:20px;margin-top:28px}.panel{border:1px solid #423a47;background:#11151fcc;border-radius:22px;padding:27px;box-shadow:0 20px 65px #0005}h2{margin:0 0 10px;font-size:22px}.sub{color:#b3a9b4;font-size:13px;line-height:1.6}label{display:block;font-size:12px;font-weight:700;margin-top:19px;margin-bottom:6px;letter-spacing:.04em}input,select{font:inherit;width:100%;padding:14px;border:1px solid #494653;background:#0c1019;color:#fff;border-radius:12px;outline:none}input:focus,select:focus{border-color:#f9aa75;box-shadow:0 0 0 3px #eb7d3633}button{font:inherit;cursor:pointer;border:0;border-radius:12px;padding:14px 20px;font-weight:800}button:disabled{opacity:.42;cursor:not-allowed}.primary{margin-top:21px;width:100%;background:linear-gradient(110deg,#ffad74,#e9be82);color:#1c1012}.secondary{background:#2b2937;color:#fce7d6;border:1px solid #5e4955}.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}.actions button{flex:1}output{display:block;white-space:pre-wrap;overflow-wrap:anywhere;margin-top:14px;padding:15px;background:#0b101b;border:1px solid #48404b;border-radius:12px;color:#ffcfaa;font:600 14px/1.5 ui-monospace,monospace}output[hidden],.hidden{display:none!important}.notice{margin-top:20px;background:#3b242b;border:1px solid #854e56;color:#ffccb6;padding:14px;border-radius:12px;font-size:13px;line-height:1.6}.ok{color:#a4f5c0}.mono{font-family:ui-monospace,monospace;color:#fcd19c}small{color:#a9a3ac}footer{margin-top:42px;font-size:12px;color:#918d9b}@media(max-width:760px){.layout{grid-template-columns:1fr}.panel{padding:20px}h1{margin-top:30px}}
+</style></head><body><main><nav><strong>ROAMWISE <span style="color:#ffae78">/ NMIMS DESK</span></strong><div><a href="/nmims/">Proposal</a> · <a href="/nmims/creators/">College creators</a> · <a href="/">Sign in on RoamWise</a></div></nav>
+<h1>One pass.<br><span>One verified person.</span></h1><p class="lead">Founder-only issuance. This is not an NMIMS public registration page. A code is created only after a RoamWise administrator approves an individual offer; the recipient must redeem using the same verified email.</p><span class="pill">PRIVATE · NO AUTOMATIC EMAILS · NMIMS PROPOSED</span>
+<div class="layout"><section class="panel"><h2>Issue a named pass</h2><p class="sub">Uses the existing Firestore partner-claim model. The full email is saved privately on the claim, never printed in its code. No code is issued while the programme is disabled.</p>
+<p id="access" role="status">Checking your RoamWise session…</p>
+<form id="issueForm" class="hidden"><label for="recipient">Recipient name</label><input id="recipient" autocomplete="name" required minlength="2" maxlength="80" placeholder="Anaya Sharma"><label for="email">Exact recipient email</label><input id="email" type="email" autocomplete="off" required maxlength="254" placeholder="anaya@example.com"><label for="role">Allocation</label><select id="role"><option value="student">Student</option><option value="organiser">Organiser / core team</option></select><button class="primary" id="issueBtn" type="submit">Generate one secure pass</button><p class="sub">The serial is allocated atomically with the code and seat counter. If this email already has a pass, no second seat is taken.</p></form>
+<div id="result" class="hidden" aria-live="polite"><output id="issuedCode"></output><p class="sub" id="issuedNote"></p><div class="actions"><button class="secondary" id="copyBtn" type="button">Copy code</button><button class="secondary" id="emailBtn" type="button">Open email draft</button></div><p class="sub">Opening a draft does not send email. Check the address and press Send in your email app.</p></div><p id="message" class="notice hidden" role="alert"></p></section>
+<aside class="panel"><h2>Campaign control</h2><p id="poolStatus" class="sub">Checking allocation…</p><div class="notice">A partnership proposal is not approval. Keep issuance disabled until your offer and programme terms are confirmed. No student can create a code from the public NMIMS page.</div><div class="actions"><button class="secondary" id="enableBtn" disabled type="button">Enable approved issuance</button><button class="secondary" id="pauseBtn" disabled type="button">Pause issuance</button></div><p class="sub">To enable, a founder must type the explicit approval phrase. The maximum programme ceiling is 500 passes, split by default into 450 student and 50 organiser slots. These are configuration ceilings, not a public promise.</p><p class="sub">Recipients redeem through <a href="/">RoamWise → Settings → Redeem a partner code</a> after signing in with a verified email. Redemption is one-time; an issued code expires for redemption after 30 days, but an activated lifetime pass does not expire.</p><p class="sub">No passwords, Firebase private keys or payment credentials belong on this page.</p></aside></div><footer>Private operational tool · RoamWise · Contact <a href="mailto:founder@roamwise.co.in">founder@roamwise.co.in</a></footer></main>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script><script src="./pass-utils.js"></script>
+<script>
+'use strict';
+const config={apiKey:'AIzaSyDlrtpzpOb1VEmVSd9tHmu7OpmvwWosYsU',authDomain:'roamwisepro.firebaseapp.com',projectId:'roamwisepro',appId:'1:299014744987:web:d5c316743e6d7a10904f3e'}; // Public Firebase client identifiers; no secrets.
+const $=id=>document.getElementById(id);const U=window.RWNMIMSPass;
+let db,auth,adminUid='',lastIssued=null,busy=false;
+function message(s){$('message').textContent=s;$('message').classList.toggle('hidden',!s);}
+function setBusy(v){busy=v;$('issueBtn').disabled=v;$('enableBtn').disabled=v;$('pauseBtn').disabled=v;}
+function poolRef(){return db.collection('partnerships').doc(U.CAMPAIGN);}
+async function renderPool(){
+  const p=await poolRef().get();const d=p.exists?p.data():{};
+  $('poolStatus').textContent=p.exists?((d.issuanceEnabled===true?'Enabled':'Paused')+' · '+(d.claimed||0)+' of '+(d.cap||'unconfigured')+' passes allocated · student '+(d.studentClaimed||0)+'/'+(d.studentCap||'—')+' · organiser '+(d.organiserClaimed||0)+'/'+(d.organiserCap||'—')):'Not configured · issuance disabled';
+}
+function emailDraft(){
+  if(!lastIssued)return;
+  const body='Hello '+lastIssued.name+',\n\nRoamWise has issued your individual NMIMS offer code:\n'+lastIssued.code+'\n\nSign in to https://www.roamwise.co.in/ with '+lastIssued.email+' and verify that email. Then open Settings → Redeem a partner code. Please redeem within 30 days of issuance. The code is for this email only and works once.\n\nThis message is an individual RoamWise offer, not an announcement that the NMIMS campus programme is live.\n\nRoamWise Team';
+  location.href='mailto:'+encodeURIComponent(lastIssued.email)+'?subject='+encodeURIComponent('Your individual RoamWise NMIMS pass')+'&body='+encodeURIComponent(body);
+  message('Email draft opened. Review it and press Send in your mail app; RoamWise has not sent it automatically.');
+}
+async function issue(event){
+  event.preventDefault();if(busy||!adminUid)return;
+  let studentName,address,role;
+  try{studentName=U.name($('recipient').value);address=U.email($('email').value);role=$('role').value;}catch(e){message(e.message);return;}
+  if(!crypto || !crypto.getRandomValues || !crypto.subtle){message('A secure HTTPS browser with Web Crypto is required.');return;}
+  setBusy(true);message('');$('result').classList.add('hidden');lastIssued=null;
+  try{
+    const key=await U.emailIndex(address,crypto.subtle);
+    const entropy=crypto.getRandomValues(new Uint8Array(8));
+    const out=await db.runTransaction(async tx=>{
+      const pool=poolRef();const index=db.collection('partnerClaimEmails').doc(key);
+      const [poolSnap,indexSnap]=await Promise.all([tx.get(pool),tx.get(index)]);
+      if(indexSnap.exists){
+        const prior=indexSnap.data();if(!prior.code)throw new Error('Existing email index has no code; review it in the console.');
+        return {code:prior.code,existing:true};
+      }
+      if(!poolSnap.exists)throw new Error('Campaign is not active. First approve and enable the offer pool.');
+      const allocation=U.allocation(poolSnap.data(),role);
+      const code=U.code(studentName,allocation.serial,entropy);
+      const claim=db.collection('partnerClaims').doc(code);
+      if((await tx.get(claim)).exists)throw new Error('Random code collision. Retry to generate a fresh code.');
+      const now=new Date();const expiry=firebase.firestore.Timestamp.fromDate(new Date(now.getTime()+30*86400000));
+      tx.set(claim,{name:studentName,email:address,role,partnership:U.CAMPAIGN,code,proRedeemed:false,status:'issued',issuedBy:adminUid,issuedAt:firebase.firestore.FieldValue.serverTimestamp(),expiresAt:expiry});
+      tx.set(index,{code,partnership:U.CAMPAIGN,issuedAt:firebase.firestore.FieldValue.serverTimestamp()});
+      tx.update(pool,{claimed:allocation.claimed,nextSerial:allocation.serial+1,[allocation.field]:allocation.roleUsed,lastIssuedAt:firebase.firestore.FieldValue.serverTimestamp()});
+      return {code,existing:false};
+    });
+    lastIssued={code:out.code,name:studentName,email:address};$('issuedCode').textContent=out.code;
+    $('issuedNote').textContent=out.existing?'This email already has a pass. No additional seat was issued.':'Pass issued and reserved for '+address+'. Share it privately; no email was sent automatically.';
+    $('result').classList.remove('hidden');await renderPool();
+  }catch(e){message((e&&e.message)||'Could not issue a pass. No confirmation was recorded.');}
+  finally{setBusy(false);}
+}
+async function enable(){
+  if(busy||!adminUid)return;
+  if(prompt('Enable issuance ONLY after the NMIMS offer is formally approved. Type APPROVED NMIMS to confirm:')!=='APPROVED NMIMS')return;
+  setBusy(true);message('');
+  try{await db.runTransaction(async tx=>{
+    const ref=poolRef(),s=await tx.get(ref);if(!s.exists){tx.set(ref,{issuanceEnabled:true,cap:500,claimed:0,studentCap:450,studentClaimed:0,organiserCap:50,organiserClaimed:0,nextSerial:1});return;}
+    const d=s.data();if(!Number.isSafeInteger(d.claimed)||d.claimed!==0||!Number.isSafeInteger(d.studentClaimed)||d.studentClaimed!==0||!Number.isSafeInteger(d.organiserClaimed)||d.organiserClaimed!==0)throw new Error('Existing claim counts require founder review; nothing was reset.');
+    tx.update(ref,{issuanceEnabled:true,cap:500,studentCap:450,organiserCap:50,nextSerial:Number.isSafeInteger(d.nextSerial)?d.nextSerial:1});
+  });await renderPool();message('Admin-only issuance enabled. Public NMIMS registration is still disabled.');}
+  catch(e){message(e.message||'Could not enable issuance.');}finally{setBusy(false);}
+}
+async function pause(){if(busy||!adminUid)return;setBusy(true);try{await poolRef().update({issuanceEnabled:false});await renderPool();message('Issuance paused. Already-issued codes remain valid until their redemption deadlines.');}catch(e){message(e.message||'Could not pause.');}finally{setBusy(false);}}
+$('issueForm').addEventListener('submit',issue);$('enableBtn').addEventListener('click',enable);$('pauseBtn').addEventListener('click',pause);$('emailBtn').addEventListener('click',emailDraft);
+$('copyBtn').addEventListener('click',async()=>{if(!lastIssued)return;try{await navigator.clipboard.writeText(lastIssued.code);message('Code copied; share it only with the verified recipient.');}catch(e){message('Copy was blocked. Select the code above and copy it manually.');}});
+try{firebase.initializeApp(config);db=firebase.firestore();auth=firebase.auth();auth.onAuthStateChanged(async person=>{
+  adminUid='';$('issueForm').classList.add('hidden');$('enableBtn').disabled=true;$('pauseBtn').disabled=true;$('result').classList.add('hidden');lastIssued=null;
+  if(!person){$('access').textContent='Sign in to RoamWise first, then return to this private page.';return;}
+  try{const d=await db.collection('admins').doc(person.uid).get();if(!d.exists)throw new Error('This account is not a RoamWise administrator.');adminUid=person.uid;$('access').textContent='Founder access verified · '+(person.email||person.uid);$('issueForm').classList.remove('hidden');setBusy(false);await renderPool();}catch(e){$('access').textContent=e.message||'Unable to verify admin access.';}
+});}catch(e){$('access').textContent='Firebase is unavailable. No pass can be issued offline.';}
+</script></body></html>
