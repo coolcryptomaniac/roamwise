@@ -1,3 +1,5 @@
+// 2026-09-16: NMIMS proposed, not live. Partner claims require trusted/admin
+// issuance and verified claimant email. Full replace only after emulator tests.
 // Cashfree entitlement-persistence fix (2026-09-07): added cashfreeOrders/
 // {orderId} - a signed-in buyer may self-report a PENDING receipt of a
 // confirmed-PAID Cashfree purchase (mirrors claims/{id}'s proven manual-UPI
@@ -197,7 +199,9 @@ service cloud.firestore {
       return code is string && code.size() > 0 && code.size() <= 64
         && exists(/databases/$(database)/documents/partnerClaims/$(code))
         && get(/databases/$(database)/documents/partnerClaims/$(code)).data.proRedeemed == true
-        && get(/databases/$(database)/documents/partnerClaims/$(code)).data.redeemedUid == request.auth.uid;
+        && get(/databases/$(database)/documents/partnerClaims/$(code)).data.redeemedUid == request.auth.uid
+        && request.auth.token.email_verified == true
+        && get(/databases/$(database)/documents/partnerClaims/$(code)).data.email == request.auth.token.email;
     }
 
     // ---------- USERS ----------
@@ -1070,21 +1074,14 @@ service cloud.firestore {
     // (never literally unlimited, since the cap check still runs), but not
     // fully closed without a Cloud Function. Out of scope for this pass.
     match /partnerClaims/{id} {
-      allow get: if true;
+      // Code possession alone must not expose the claimant's personal data.
+      allow get: if isAdmin() || (request.auth != null
+        && request.auth.token.email_verified == true
+        && resource.data.email == request.auth.token.email);
       allow list: if isAdmin();
-      allow create: if request.resource.data.name is string
-                    && request.resource.data.name.size() <= 120
-                    && request.resource.data.email is string
-                    && request.resource.data.email.size() <= 160
-                    && request.resource.data.consent == true
-                    && request.resource.data.partnership is string
-                    && id == request.resource.data.code
-                    && (!('proRedeemed' in request.resource.data) || request.resource.data.proRedeemed == false)
-                    && exists(/databases/$(database)/documents/partnerships/$(request.resource.data.partnership))
-                    && get(/databases/$(database)/documents/partnerships/$(request.resource.data.partnership)).data.claimed
-                         < (get(/databases/$(database)/documents/partnerships/$(request.resource.data.partnership)).data.cap is int
-                            ? get(/databases/$(database)/documents/partnerships/$(request.resource.data.partnership)).data.cap
-                            : 500);
+      // SECURITY HOLD: only a trusted founder/server issues real codes.
+      // The anonymous NMIMS form must be migrated BEFORE publishing.
+      allow create: if isAdmin();
       // Redemption flip (rw-v116 hardening): a signed-in user may mark the
       // claim they are personally redeeming as used - ONLY false/absent -> true,
       // ONLY these three fields, and only recording their OWN uid, never
@@ -1112,6 +1109,8 @@ service cloud.firestore {
         && request.resource.data.diff(resource.data).affectedKeys()
              .hasOnly(['proRedeemed','redeemedAt','redeemedUid'])
         && request.resource.data.redeemedUid == request.auth.uid
+        && request.auth.token.email_verified == true
+        && resource.data.email == request.auth.token.email
         && (!('expiresAt' in resource.data) || resource.data.expiresAt > request.time)
       );
       allow delete: if isAdmin();
@@ -1129,11 +1128,9 @@ service cloud.firestore {
     // update this collection, so a second claim under the same email is
     // rejected rather than overwriting the first person's code.
     match /partnerClaimEmails/{emailKey} {
-      allow get: if true;
+      allow get: if isAdmin();
       allow list: if isAdmin();
-      allow create: if request.resource.data.code is string
-                    && request.resource.data.code.size() <= 64
-                    && request.resource.data.partnership is string;
+      allow create: if isAdmin();
       allow update, delete: if isAdmin();
     }
 
@@ -1158,21 +1155,8 @@ service cloud.firestore {
     match /partnerships/{id} {
       allow read: if true;
       allow create: if isAdmin();
-      allow update: if isAdmin() || (
-           resource.data.claimed is int
-        && request.resource.data.claimed == resource.data.claimed + 1
-        && request.resource.data.claimed <= (resource.data.cap is int ? resource.data.cap : 500)
-        && (
-             (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['claimed','studentClaimed','lastClaimedAt'])
-               && resource.data.studentClaimed is int
-               && request.resource.data.studentClaimed == resource.data.studentClaimed + 1
-               && request.resource.data.studentClaimed <= (resource.data.studentCap is int ? resource.data.studentCap : 450))
-          || (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['claimed','organiserClaimed','lastClaimedAt'])
-               && resource.data.organiserClaimed is int
-               && request.resource.data.organiserClaimed == resource.data.organiserClaimed + 1
-               && request.resource.data.organiserClaimed <= (resource.data.organiserCap is int ? resource.data.organiserCap : 50))
-           )
-      );
+      // Updates must be written by the trusted claim-issuance service.
+      allow update: if isAdmin();
       allow delete: if isAdmin();
     }
 
