@@ -47,16 +47,15 @@ window.RW_REFERRERS = [
   /* { code:'RW-A01-RAHUL', name:'Rahul', type:'affiliate', rate:0.30, active:true }, */
 
   /* ---- CAMPUS / INSTITUTIONAL PARTNERSHIPS ----
-     JUDGMENT CALL: none of staff/creator/affiliate really fits an institution
-     (E-Cell NMIMS), so this introduces a 4th type: 'campus'. The code is also
-     deliberately NOT in the RW-<TYPE><NN>-<NAME> shape above — it needs to be
-     short and guessable-on-sight for print/QR/stage-callout use across an
-     entire campus, not a person's payout-sheet lookup. rwSanitizeRefCode()
-     (app.js) only requires [A-Z0-9_-] and <=32 chars, so 'NMIMS2026' is a
-     valid code as-is. Commission still flows to RoamWise <-> E-Cell NMIMS
-     per the partnership terms, at the same flat 30% everyone else is on. */
-  { code:'NMIMS2026', name:'E-Cell NMIMS Mumbai', type:'campus', rate:0.30, active:true,
-    note:'Campus partnership — nmims/index.html claim page + on-campus referral push' },
+     NMIMS is not signed as of this proposal release. Keep this public seed
+     inactive until the authorised parties approve the 500-seat barter and
+     separate paid-referral terms. The live Firestore config/referrers list can
+     override this fallback; an admin MUST review and disable any active
+     NMIMS2026 entry there too before publicly sharing a referral link.
+     Re-enable only after written agreement, with the agreed institutional
+     payee and payout rules. Historical valid claims are not deleted here. */
+  { code:'NMIMS2026', name:'E-Cell NMIMS Mumbai', type:'campus', rate:0.30, active:false,
+    note:'Proposed NMIMS collaboration; do not enable until signed and verified' },
 ];
 
 /* Payout rules, shown to referrers so nothing is ambiguous later. */
