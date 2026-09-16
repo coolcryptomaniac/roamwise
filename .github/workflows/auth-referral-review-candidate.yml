@@ -1,0 +1,28 @@
+name: Auth/referral rules review candidate
+on:
+  pull_request:
+    paths:
+      - 'firestore.rules'
+      - 'tools/prepare-auth-referral-rules.py'
+      - 'tests/prepare-auth-referral-rules.test.py'
+      - 'tests/auth-referral-review.test.js'
+      - 'AUTH-REFERRAL-RELEASE-GATE.md'
+      - '.github/workflows/auth-referral-review-candidate.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  review-candidate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Unit test source drift guards
+        run: python3 -m unittest discover -s tests -p 'prepare-auth-referral-rules.test.py' -v
+      - name: Generate full consolidated candidate (DO NOT DEPLOY)
+        run: python3 tools/prepare-auth-referral-rules.py --input firestore.rules --output firestore-review.rules
+      - name: Upload review-only rules file
+        uses: actions/upload-artifact@v4
+        with:
+          name: firestore-review-DO-NOT-DEPLOY
+          path: firestore-review.rules
+          retention-days: 7
