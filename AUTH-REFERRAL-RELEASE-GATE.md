@@ -1,30 +1,36 @@
-# Authentication + referral: September 16 release gate
+# RoamWise authentication and proposed NMIMS security — 16 September 2026
 
-**Status: REVIEW ONLY — do not deploy the generated candidate or merge this PR yet.** The current live Firebase Console rules were pasted in chat and are older than `main/firestore.rules`. Never paste the old file over the canonical one, or append duplicate `match` blocks.
+## Release status
 
-## Current confirmed findings
+The NMIMS program is **only proposed; there are no NMIMS participants**. The `/nmims/` page now explicitly states that it is not live and has no registration/claim/payment form. Canonical `firestore.rules` now permits partner-code issuance **only by an administrator**, verified-email owner redemption, and a corresponding verified-email owner Pro grant. Public access to the claim-email index and public partner seat-counter writes are disabled. The existing referral UID/document-ID/timestamp rules, Cashfree handling, and September 15 partner marketplace changes are retained. The new rules do not launch NMIMS or issue any passes.
 
-1. `partnerClaims` permits unauthenticated creation of self-issued codes, followed by self-redemption and a client-side Pro entitlement grant. A counter checked at create time is not an issuance authority, especially when the claim create need not increment the counter. The candidate generator stops this path by requiring admin/trusted-server issuance and matching a verified Firebase Auth email to the existing claim at redemption and at the grant.
-2. `partnerClaimEmails` publicly exposes an email-derived lookup for claim codes. The candidate makes that index admin-only.
-3. The current `main` rules already include the September 14 `refSignups` UID/document-ID/timestamp validation and September 15 `paymentDestinations` + partner operations-lock logic. Preserve those changes; the pasted older rules do not.
-4. Email/password signup creates a Firebase account **before** calling `sendEmailVerification()`. A failed email send can leave an existing but unverified user, explaining the sequence "no email, then account already exists." Firestore rules cannot send email or resolve sender reputation. Never delete a real user's account merely to make signup repeatable.
+Email/password registration now recovers an existing account **only when the submitted password authenticates that original Firebase account**. A previously created unverified account is offered another verification request without deletion, a new UID, or additional referral signup credit. If the password does not authenticate, the UI switches to sign-in and recommends Google or password reset; it never guesses a provider or silently merges separate UIDs. A rejected email-send request is clearly distinguished from Firebase accepting a request; an invalid authorized continue URL is retried once using the Firebase default action URL. Acceptance does not guarantee inbox delivery.
 
-## Candidate generation (non-deploying)
+## Tests completed in the feature-branch workflow
 
-Run `python3 tools/prepare-auth-referral-rules.py --input firestore.rules --output firestore-review.rules`. The script fails closed if expected modern guards are missing and refuses to overwrite `firestore.rules`. The generated file intentionally **blocks the existing anonymous NMIMS claim form**. It must not become the canonical file until a trusted claim-issuance endpoint exists and the NMIMS client is migrated to it. The endpoint must authenticate/verify the claim owner, allocate a pre-approved unique code, and atomically record the email index/claim/counters, or use a server-authoritative ledger. Do not expose service account credentials to the web client.
+- `npm test` includes auth recovery cases (new account, failed email send, duplicate account with correct password, wrong-password/Google case, invalid verification URL fallback) and the whole repository test suite.
+- `npm run check` and JavaScript syntax checks.
+- Python drift-guard tests and generation of the complete consolidated rules from the September 15 canonical version.
+- Isolated Firestore Emulator: unauthorized claim issuance, wrong-user redemption, unverified redemption, public index reads and forged referral signups are denied; admin issuance and verified-owner redemption/Pro grant succeed. This checks security rules, **not** live provider delivery or physical devices.
 
-`getAfter()` can validate atomic multi-document changes in Firestore Security Rules, subject to rule-access-call limits; it does not by itself make an anonymously invented claim authentic. Use the Firebase Emulator to check atomicity and any counter invariants before release.
+## Publishing rules — only after PR merge
 
-## Required pre-merge checks
+1. In GitHub, verify that PR #181 is merged and `main/firestore.rules` has the secure 2026-09-16 header.
+2. Download the complete `firestore.rules` from `main`, or use the `firestore-rules-manual-publish` CI artifact. Do **not** use the older rules pasted in chat or a previous review-only candidate.
+3. Firebase Console → Firestore Database → Rules: select **all** existing text, replace it with the entire new file, and click **Publish**. Do not append new `match` blocks to old rules, because allow rules are OR-combined.
+4. Check whether your `meta/rulesVersion` staleness probe requires a manual update. Keep its existing Platform V5 `v17.0` marker; that marker is a CI epoch, **not** an authorization or cryptographic proof of published rules.
+5. Check signup and referral registration on fresh email+password and an existing unverified account. Test Google sign-in and paid checkout without changing payment credentials.
 
-- Run `python3 -m unittest discover -s tests -p 'prepare-auth-referral-rules.test.py' -v` and generate the candidate against **current** `main` (no drift errors).
-- Compile and exercise the **generated full rules file** with the Firebase Emulator, including a malicious self-issued claim, an existing admin-issued claim owned by a verified email, another user's attempt to redeem it, anonymous and authenticated referral-signup writes, original booking/partner flows, revoked staff, and admin approval.
-- Make the NMIMS claim flow use verified ownership and trusted code issuance; test its duplicate-email handling and capped allocations on the same batch. Do not ship the lockdown alone.
-- In Firebase Authentication Console check the actual affected UID and sign-in provider. Check verification template sender, support address, allowed domains, authorized action URL, quotas and Firebase Auth errors; send a test from a fresh address and from an existing unverified account.
-- Verify the signup error UI distinguishes an **existing account** from a **verification-email send failure**. Show a non-destructive resend option and never claim delivery when Firebase rejected the request.
-- End-to-end smoke: iPhone 16 Pro/Pro Max Chrome, Vivo T3x Chrome, and the RoamWise Android app; new email+valid referral, existing Google account, verified-email return, resend, Google->payment, and attribution to exactly one Firebase UID.
-- Check `staff/{uid}` and `admins/{uid}` for revoked team members, including any independent admin document; role changes in the UI alone do not revoke Firestore permissions.
+The repository merge **does not** publish the Firestore rules. No Firebase project/console access, payment gateway secrets, live account mutation, or delivery template change is performed by the GitHub workflow.
 
-## Explicitly not changed
+## Firebase Authentication follow-up (cannot be guaranteed from code)
 
-No production rules, Auth templates, deployed Workers, Firebase data, live user account, payment provider setting, or repository `main` was changed. The existing PWA/Android authentication flows have not been exercised against the live Firebase backend in this review. Beacon location privacy and self-asserted passport verification require separate product/backend migration rather than an untested rule change that may break safety features.
+In Firebase Console → Authentication, inspect the affected UID's sign-in providers and emailVerified status; review the verification template sender/support email, authorized domains (`www.roamwise.co.in` and/or `roamwise.co.in` as actually used), authorized action URL, quotas and Firebase error logs. Test first signup, resend, and the delivered verification-link return on iPhone Chrome, Vivo Chrome, and the installed Android build. Check spam, sender domain authentication (SPF/DKIM/DMARC if custom sending is supported), and provider limits. Do not publish email/OTP/Cashfree secrets in the repository or chat. **No code change can guarantee email inbox placement.**
+
+## Before any NMIMS activation
+
+Keep `/nmims/` proposal-only until a real agreement and approved launch date exist. A trusted admin/server must verify eligibility and email ownership, issue unique cryptographically random, non-guessable codes, enforce one claim per eligible user and the agreed seat cap atomically, and monitor/finalize redemptions. Public browsers must never generate claim documents, edit allocation counters, or award Pro without the issued claim and verified-email rule. Add end-to-end tests for duplicate-email claims, expiry, cap concurrency and replays before restoring a form or promotional claims.
+
+## Other remaining checks
+
+Review `staff/{uid}` **and** `admins/{uid}` in the actual Firebase project for departed team members, including any independent admin UID. Remove their privileged documents and revoke any outstanding auth sessions as needed. Beacon location privacy and self-asserted passport badges need separate product changes rather than a speculative rule change during this release.
