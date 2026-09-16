@@ -352,13 +352,24 @@ function toggleAuthPassword(){
 function rwSetAuthBusy(busy,label){
   var b=el('authEmailBtn'),s=el('authAction');if(b)b.disabled=!!busy;if(s)s.textContent=label||(authMode==='in'?'Sign in':'Create account');
 }
+// A failed verification send does NOT undo account creation. Preserve the UID.
 function rwSendVerificationAndSignOut(u,email,message){
-  var failed='';
   var settings=window.RWAuthSecurity?RWAuthSecurity.actionCodeSettings():undefined;
-  return u.sendEmailVerification(settings).catch(function(e){failed=friendly(e);}).then(function(){return firebase.auth().signOut().catch(function(){});})
-    .then(function(){
-      rwShowVerificationPane(email,failed?'We could not send another link: '+failed+' You can try Resend in a minute.':message);
-      return {verificationPending:true};
+  var send=u.sendEmailVerification(settings).catch(function(e){
+    var code=String(e&&e.code||'');
+    // Retry once with Firebase's default action URL only for an invalid continue URL.
+    if(/unauthorized-continue-uri|invalid-continue-uri|missing-continue-uri/.test(code))return u.sendEmailVerification();
+    throw e;
+  });
+  return send.then(function(){return {sent:true};},function(e){return {sent:false,error:e};})
+    .then(function(result){return firebase.auth().signOut().catch(function(){}).then(function(){return result;});})
+    .then(function(result){
+      var display=result.sent
+        ? message+' Firebase accepted the request; check inbox and spam. Delivery is not guaranteed.'
+        : 'Your account exists, but Firebase could not send the verification link: '+friendly(result.error)
+          +' Sign in with the SAME email and password to retry. Do not create another account.';
+      rwShowVerificationPane(email,display);
+      return {verificationPending:true,verificationSent:result.sent};
     });
 }
 function loginEmail(){
@@ -368,18 +379,28 @@ function loginEmail(){
   if(creating&&window.RWAuthSecurity){var strength=RWAuthSecurity.passwordStatus(pw);if(!strength.ok)return authError(strength.message);}
   if(!creating&&pw.length<6)return authError('Enter your complete password.');
   rwEmailAuthBusy=true;rwSetAuthBusy(true,creating?'Creating account…':'Signing in…');authError('');
+  function afterPasswordSignIn(c){
+    return c.user.reload().catch(function(){}).then(function(){
+      if(rwIsUnverifiedPasswordUser(c.user))return rwSendVerificationAndSignOut(c.user,em,'Verification request accepted. Open the link and return to sign in.');
+      if(window.RWAuthSecurity)RWAuthSecurity.rememberProvider('password');return c;
+    });
+  }
   var p=creating?firebase.auth().createUserWithEmailAndPassword(em,pw).then(function(c){
       try{track('signups');}catch(e){ /* analytics best-effort, ignore */ }
       try{if(rwRefActive())lsSet('rw_ref_pending_signup_uid',c.user.uid);}catch(e){ /* retry after verification */ }
-      return rwSendVerificationAndSignOut(c.user,em,'Verification email sent. Open the link, then return and sign in.');
-    }):firebase.auth().signInWithEmailAndPassword(em,pw).then(function(c){
-      return c.user.reload().catch(function(){}).then(function(){return c;});
-    }).then(function(c){
-      if(rwIsUnverifiedPasswordUser(c.user))return rwSendVerificationAndSignOut(c.user,em,'Your email is not verified yet. We sent a fresh verification link.');
-      if(window.RWAuthSecurity)RWAuthSecurity.rememberProvider('password');return c;
-    });
+      return rwSendVerificationAndSignOut(c.user,em,'Verification request accepted. Open the link and return to sign in.');
+    }).catch(function(e){
+      if(String(e&&e.code||'').indexOf('email-already-in-use')===-1)throw e;
+      // Only the correct existing password recovers the original UID. Never merge
+      // Google accounts, delete users, or award new referral credit on retries.
+      return firebase.auth().signInWithEmailAndPassword(em,pw).then(afterPasswordSignIn).catch(function(loginError){
+        var code=String(loginError&&loginError.code||'');
+        if(/invalid-credential|wrong-password|user-not-found/.test(code))throw e;
+        throw loginError;
+      });
+    }):firebase.auth().signInWithEmailAndPassword(em,pw).then(afterPasswordSignIn);
   p.then(function(r){if(!(r&&r.verificationPending)){closeAuth();showToast('Email verified — signed in ✓');}})
-    .catch(function(e){authError(friendly(e));})
+    .catch(function(e){if(String(e&&e.code||'').indexOf('email-already-in-use')>-1){authMode='in';rwApplyAuthModeUI();}authError(friendly(e));})
     .then(function(){rwEmailAuthBusy=false;rwSetAuthBusy(false);});
 }
 function resendVerification(){
