@@ -4,6 +4,7 @@ on:
     paths:
       - 'nmims/**'
       - 'tests/nmims-pass-issuer*'
+      - 'tests/nmims-brand-theme.test.js'
       - '.github/workflows/nmims-campus-creator-check.yml'
   workflow_dispatch:
 permissions:
@@ -34,7 +35,9 @@ jobs:
             fs.writeFileSync(script,code);cp.execFileSync('node',['--check',script],{stdio:'inherit'});
           }
           const proposal=fs.readFileSync('nmims/index.html','utf8');
+          const theme=fs.readFileSync('nmims/campus-theme.css','utf8');
           if(!proposal.includes('/nmims/creators/')||proposal.includes('submitClaim('))throw Error('Proposal must link creators but never expose public claiming');
+          if(!theme.includes('prefers-reduced-motion:reduce'))throw Error('Campus animations require reduced-motion handling');
           NODE
       - uses: actions/setup-java@v4
         with:
@@ -50,6 +53,7 @@ jobs:
           name: nmims-pages-review-only
           path: |
             nmims/index.html
+            nmims/campus-theme.css
             nmims/creators/index.html
             nmims/pass-issuer/index.html
             nmims/pass-issuer/pass-utils.js
