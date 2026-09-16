@@ -1,0 +1,56 @@
+name: NMIMS pass issuer and campus creators
+on:
+  pull_request:
+    paths:
+      - 'nmims/**'
+      - 'tests/nmims-pass-issuer*'
+      - '.github/workflows/nmims-campus-creator-check.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  nmims:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate code formatting and full website tests
+        run: |
+          node --test tests/nmims-pass-issuer.test.js
+          npm ci
+          npm test
+          npm run check
+      - name: Check inline browser JavaScript syntax and link integrity
+        run: |
+          node - <<'NODE'
+          const fs=require('fs'),os=require('os'),path=require('path'),cp=require('child_process');
+          for(const file of ['nmims/creators/index.html','nmims/pass-issuer/index.html']){
+            const html=fs.readFileSync(file,'utf8');
+            const code=[...html.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/g)].map(m=>m[1]).join('\n');
+            if(!code.trim())throw Error('Missing app script: '+file);
+            const script=path.join(os.tmpdir(),'nmims-inline-'+path.basename(path.dirname(file))+'.js');
+            fs.writeFileSync(script,code);cp.execFileSync('node',['--check',script],{stdio:'inherit'});
+          }
+          const proposal=fs.readFileSync('nmims/index.html','utf8');
+          if(!proposal.includes('/nmims/creators/')||proposal.includes('submitClaim('))throw Error('Proposal must link creators but never expose public claiming');
+          NODE
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Install Firestore Emulator and test SDK in CI
+        run: npm install --no-save firebase-tools firebase @firebase/rules-unit-testing
+      - name: Exercise founder-only issuance with canonical Firestore rules
+        run: npx firebase emulators:exec --project demo-nmims-pass-issuer --only firestore "node tests/nmims-pass-issuer-emulator.cjs"
+      - name: Upload static pages for visual review (not deployed)
+        uses: actions/upload-artifact@v4
+        with:
+          name: nmims-pages-review-only
+          path: |
+            nmims/index.html
+            nmims/creators/index.html
+            nmims/pass-issuer/index.html
+            nmims/pass-issuer/pass-utils.js
+          retention-days: 2

@@ -1,0 +1,18 @@
+# NMIMS pass desk — manual issuance, not a public campaign
+
+- `/nmims/` stays **proposed / not live**. `/nmims/creators/` is a separate, open expression-of-interest page (email draft only; no submission until the creator sends). No creator contract or NMIMS pass is promised.
+- `/nmims/pass-issuer/` is a private operational UI. Sign in at the main RoamWise site using your Firebase account, then open this URL. Its reads and all writes require an existing `admins/{uid}` document under the **published September 16 hardened Firestore rules**. No service-account JSON, Firebase Admin key or Cashfree secret is used by the browser.
+- Founder explicitly enables `partnerships/nmims2026.issuanceEnabled` after institutional approval, with a typed confirmation. A fresh pool starts at `cap:500`, `studentCap:450`, `organiserCap:50`, all counters zero. Existing nonzero counts cannot be reset by the enable action. Pause issuance with the private tool. The public NMIMS page does not open when issuance is enabled.
+- For an approved recipient enter their **exact Firebase login email**, name and student/organiser allocation. Code format: `NMIMS-NAMESLG-0042-XXXXXXXXXXXXX` (maximum 32 characters, because `rwSanitizeRefCode()` caps at 32). The last 13 Crockford Base32 characters come from `crypto.getRandomValues()` (64 bits), not a timestamp or email. Neither the code nor its serial authenticates a user: Firestore also checks an existing admin-issued record, verified Firebase Auth email, and one-time redemption UID.
+- `runTransaction` reads the pool, SHA-256 email index and candidate claim before creating `partnerClaims/{code}`, `partnerClaimEmails/nmims2026_{sha256}`, and incrementing pool/role counters together. Retries use one random suffix per action and recalculate serial against the latest pool. Duplicate email returns its existing code without consuming another seat. Firestore rules independently refuse non-admin code creation and counter updates.
+- A code is **not emailed automatically**. Copy it or open the prefilled email draft, review and press Send yourself. There is a 30-day redemption deadline; lifetime access begins on successful redemption. The recipient signs in with the *same verified email* at RoamWise, then uses Settings → Redeem a partner code. Do not treat an issued-but-unredeemed record as an active Pro user.
+- The hashed email index avoids printing raw email in the document ID. The protected claim document still stores normalized email for strict ownership checks; do not publish it in UI logs or public analytics. This is an admin tool, **not an anonymous claim form**.
+
+## Release and validation
+
+1. Publish the **entire latest** `main/firestore.rules` in Firebase Console if not already done; the repository cannot deploy rules merely by merging.
+2. Confirm Firebase Auth sign-in and verify `admins/{uid}`. Review who has admin access and revoke fired staff in both `admins` and `staff` collections.
+3. Test a fresh approved email on Firebase Emulator: one pass only, capped allocations, no anonymous/user issuance, another email cannot read or redeem, retry of a valid redemption remains possible. Run `node --test tests/nmims-pass-issuer.test.js` and the NMIMS workflow.
+4. Before using real offers, run a small live founder-issued test with an owned verified email and confirm actual delivery, redemption and Pro persistence. Live sending depends on your own email client and Firebase Auth verification configuration. Do not publish promotional availability until approval.
+
+**No payment or marketing automation is attached to these passes.** College creator interest uses an explicit `mailto:` draft, so an applicant must send it and no data is silently written to Firestore.
