@@ -1,6 +1,6 @@
 name: Auth source snapshot
 on:
-  push:
+  pull_request:
     paths:
       - '.github/workflows/auth-source-snapshot.yml'
   workflow_dispatch:
