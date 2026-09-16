@@ -1,0 +1,49 @@
+name: Apply reviewed auth and proposed NMIMS hardening
+on:
+  pull_request:
+    paths:
+      - 'tools/apply-auth-launch.py'
+      - 'tests/auth-existing-account.test.js'
+      - '.github/workflows/auth-release-branch.yml'
+permissions:
+  contents: write
+jobs:
+  apply-and-test:
+    if: github.event.pull_request.head.repo.full_name == github.repository && github.event.pull_request.head.ref == 'fix/auth-referral-firestore-audit-20260916'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Apply coordinated patch against verified feature-branch source
+        run: python3 tools/apply-auth-launch.py
+      - name: Check JavaScript syntax, all tests and repository guardrails
+        run: |
+          node --check js/boot/auth-init.js
+          npm ci
+          npm test
+          npm run check
+          python3 tests/prepare-auth-referral-rules.test.py -v
+          git diff --check
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Install isolated emulator and rule-test libraries
+        run: npm install --no-save firebase-tools firebase @firebase/rules-unit-testing
+      - name: Verify real Firestore permissions before committing
+        run: |
+          cp firestore.rules firestore-review.rules
+          npx firebase emulators:exec --project demo-roamwise-rules-review --only firestore "node tests/auth-referral-emulator.cjs"
+      - name: Commit tested files to the feature branch (not main, never deploys Firebase)
+        run: |
+          git config user.name 'roamwise-auth-review[bot]'
+          git config user.email '33383333+coolcryptomaniac@users.noreply.github.com'
+          git add -- firestore.rules js/boot/auth-init.js nmims/index.html
+          git diff --cached --check
+          git commit -m 'Secure proposed NMIMS program and recover existing email accounts'
+          git push origin HEAD:refs/heads/fix/auth-referral-firestore-audit-20260916
