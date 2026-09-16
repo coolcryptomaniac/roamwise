@@ -7,14 +7,15 @@ const read = (p) => fs.readFileSync(path.join(__dirname, '..', p), 'utf8');
 const proposal = read('nmims/index.html');
 const mou = read('nmims/mou/index.html');
 
-test('one canonical proposal preserves the complete approved-in-principle 50/450 offer', () => {
+test('one canonical proposal preserves the complete proposed 50/450 offer', () => {
   assert.match(proposal, /<link rel="canonical" href="https:\/\/roamwise\.co\.in\/nmims\/">/);
   for (const expected of ['50 passes for the organising team', '450 for eligible NMIMS students and participating audience', '2 collaborative Reels', '4 Stories', '1 LinkedIn post', '2 campus/community pushes', '30%', '/nmims/mou/', '/nmims/creators/']) {
     assert.ok(proposal.includes(expected), `Missing offer element: ${expected}`);
   }
   assert.match(proposal, /PROPOSAL ONLY · NOT LIVE/);
   assert.doesNotMatch(proposal, /\b(?:Tannu|Deepanshi|Abhay)\b|<form\b|firebase\.initializeApp|submitClaim\(/i);
-  assert.doesNotMatch(proposal, /Kind Partner|Title Sponsor|Category Partner|electronically signed/i);
+  // Match actual sponsor-tier labels, not the legitimate phrase "in-kind partnership".
+  assert.doesNotMatch(proposal, /\b(?:Title Sponsor|Category Partner|Kind Partner)\s*[:<]|electronically signed/i);
 });
 
 test('old proposal and MOU URLs redirect to canonical paths and preserve referrals', () => {
