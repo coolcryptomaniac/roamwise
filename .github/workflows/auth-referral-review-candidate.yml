@@ -1,4 +1,4 @@
-name: Auth/referral rules review candidate
+name: Auth/referral Firestore permission verification
 on:
   pull_request:
     paths:
@@ -13,27 +13,32 @@ on:
 permissions:
   contents: read
 jobs:
-  review-candidate:
+  rules-verification:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - name: Unit test source drift guards
         run: python3 tests/prepare-auth-referral-rules.test.py -v
-      - name: Generate full consolidated candidate (DO NOT DEPLOY)
-        run: python3 tools/prepare-auth-referral-rules.py --input firestore.rules --output firestore-review.rules
+      - name: Select full rules (canonical after review; otherwise generated candidate)
+        run: |
+          if grep -q '^// 2026-09-16: NMIMS proposed, not live\.' firestore.rules; then
+            cp firestore.rules firestore-review.rules
+          else
+            python3 tools/prepare-auth-referral-rules.py --input firestore.rules --output firestore-review.rules
+          fi
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '21'
-      - name: Install emulator and test libraries (CI only)
+      - name: Install isolated emulator and rule-test libraries
         run: npm install --no-save firebase-tools firebase @firebase/rules-unit-testing
-      - name: Validate actual Firestore allow/deny behavior in isolated demo emulator
+      - name: Verify real Firestore allow/deny behavior in isolated demo emulator
         run: npx firebase emulators:exec --project demo-roamwise-rules-review --only firestore "node tests/auth-referral-emulator.cjs"
-      - name: Upload review-only rules file
-        if: always()
+      - name: Upload consolidated rules artifact (manual Firebase Console publish only)
+        if: success()
         uses: actions/upload-artifact@v4
         with:
-          name: firestore-review-DO-NOT-DEPLOY
+          name: firestore-rules-manual-publish
           path: firestore-review.rules
           if-no-files-found: error
           retention-days: 7
