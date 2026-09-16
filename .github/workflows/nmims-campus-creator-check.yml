@@ -44,3 +44,13 @@ jobs:
         run: npm install --no-save firebase-tools firebase @firebase/rules-unit-testing
       - name: Exercise founder-only issuance with canonical Firestore rules
         run: npx firebase emulators:exec --project demo-nmims-pass-issuer --only firestore "node tests/nmims-pass-issuer-emulator.cjs"
+      - name: Upload static pages for visual review (not deployed)
+        uses: actions/upload-artifact@v4
+        with:
+          name: nmims-pages-review-only
+          path: |
+            nmims/index.html
+            nmims/creators/index.html
+            nmims/pass-issuer/index.html
+            nmims/pass-issuer/pass-utils.js
+          retention-days: 2
