@@ -1,93 +1,72 @@
-/* RoamWise NMIMS pages: one lightweight visual layer shared by proposal and creator pages.
-   Brand reference: css/base/01-tokens.css; no app-shell CSS or JS is imported here. */
-:root {
+/* NMIMS public pages: lightweight RoamWise visual system. Keep isolated from the app shell. */
+:root{
   color-scheme:dark;
-  --rw-night:#07090f;
-  --rw-navy:#0c1020;
-  --rw-card:#121828;
-  --rw-crimson:#c4302b;
-  --rw-crimson-light:#ea5a50;
-  --rw-gold:#e8ba6c;
-  --rw-cream:#ede8df;
-  --rw-teal:#16bf96;
-  --rw-violet:#bf8cff;
-  --rw-accent-sunset:#f46f64;
-  --rw-accent-amber:#f6b26e;
-  --bg:var(--rw-night);
-  --text:var(--rw-cream);
-  --ink:var(--rw-cream);
-  --muted:#b9b7bb;
-  --red:var(--rw-crimson-light);
-  --gold:var(--rw-gold);
-  --line:rgba(255,255,255,.13);
-  --glass:rgba(18,24,40,.92);
-  --surface:var(--rw-card);
-  --surface2:var(--rw-navy);
-  font-family:'Outfit',system-ui,-apple-system,sans-serif;
+  --rw-night:#07090F;--rw-navy:#0C1020;--rw-card:#121828;
+  --rw-crimson:#C4302B;--rw-crimson-light:#EA5A50;
+  --rw-gold:#E8BA6C;--rw-cream:#EDE8DF;
+  --rw-teal:#16BF96;--rw-violet:#BF8CFF;
+  --rw-accent-sunset:#F46F64;--rw-accent-amber:#F6B26E;
+  --bg:var(--rw-night);--ink:var(--rw-cream);--text:var(--rw-cream);
+  --muted:#BFC2CC;--red:var(--rw-crimson-light);--gold:var(--rw-gold);
+  --line:rgba(255,255,255,.13);--glass:rgba(18,24,40,.94);
+  --surface:var(--rw-card);--surface2:var(--rw-navy);
+  font-family:'Outfit',system-ui,-apple-system,sans-serif
 }
-html {scroll-padding-top:76px}
-body {background:var(--rw-night);color:var(--rw-cream);font-family:'Outfit',system-ui,-apple-system,sans-serif}
-body:before {background:radial-gradient(ellipse at 80% 9%,rgba(196,48,43,.19),transparent 48%),radial-gradient(ellipse at 12% 36%,rgba(191,140,255,.10),transparent 45%),radial-gradient(ellipse at 65% 82%,rgba(22,191,150,.055),transparent 50%)}
-.nav {position:relative;z-index:5;border-bottom:1px solid var(--line);min-height:75px}
-.brand {display:inline-flex;align-items:center;gap:3px;font-weight:850;letter-spacing:-.045em;text-decoration:none}
-.brand span {color:var(--rw-crimson-light)}
-.navlinks a {color:#d9d3d3;transition:color .17s ease}
-.navlinks a:hover,.navlinks a:focus-visible {color:var(--rw-gold)}
-.navlinks .nav-cta {border:1px solid rgba(232,186,108,.6);background:rgba(232,186,108,.065)}
-.tag,.eyebrow,.section-kicker {color:var(--rw-gold)}
-.eyebrow:before {color:var(--rw-crimson-light)}
-.status,.disclaimer {border-color:rgba(232,186,108,.52);background:rgba(232,186,108,.09);color:#f5d9a8}
-.hero h1 em,.brand span,h1 em {color:var(--rw-accent-sunset)}
-.lead,.section-lead,.hero p {color:var(--muted)}
-.btn {transition:transform .16s ease,box-shadow .22s ease,border-color .22s ease,background-color .22s ease}
-.btn:active {transform:scale(.97)}
-.primary,.btn-red {background:linear-gradient(120deg,var(--rw-crimson),var(--rw-crimson-light));color:#fff;box-shadow:0 11px 29px rgba(196,48,43,.27)}
-.primary:hover,.btn-red:hover {background:linear-gradient(120deg,#aa2828,var(--rw-crimson-light));box-shadow:0 12px 34px rgba(196,48,43,.4)}
-.btn-dark,.btn:not(.primary):not(.btn-red) {background:rgba(255,255,255,.055);border-color:var(--line)}
-.btn-dark:hover,.btn:not(.primary):not(.btn-red):hover {border-color:rgba(232,186,108,.5)}
-.band {background:linear-gradient(108deg,rgba(18,24,40,.94),rgba(12,16,32,.97) 54%,rgba(29,20,38,.94));border-color:var(--line)}
-.metric,.card,.offer,.step,.note,.quote,.form,.details,.doc {background:linear-gradient(145deg,#151b2c,#0c1020);border-color:var(--line);box-shadow:0 1px 0 rgba(255,255,255,.035) inset,0 8px 24px rgba(0,0,0,.16)}
-.metric,.card,.offer,.doc {transition:transform .19s ease,border-color .19s ease,box-shadow .19s ease}
-.metric:hover,.card:hover,.offer:hover,.doc:hover {transform:translateY(-3px);border-color:rgba(232,186,108,.47);box-shadow:0 14px 30px rgba(0,0,0,.3)}
-.card:after {background:rgba(191,140,255,.08)}
-.offer.highlight {background:linear-gradient(140deg,rgba(196,48,43,.17),#14192a 65%);border-color:rgba(232,186,108,.5)}
-.offer b.big,.metric b,.step b,.step strong,.floating b {color:var(--rw-gold)}
-.metric:last-child {border-color:rgba(22,191,150,.48)}
-.step {border-color:var(--line);border-top-color:var(--rw-crimson-light)}
-.warning {border-color:rgba(232,186,108,.5);background:rgba(232,186,108,.075);color:#f2d8b4}
-.creator {background:radial-gradient(circle at right,rgba(234,90,80,.17),transparent 58%),linear-gradient(145deg,#291a2d,#111828);border-color:rgba(244,111,100,.48)}
-/* Deliberately distinct from the app's base palette: the passes and creator art are the accents. */
-.pass,.floating {background:rgba(18,19,31,.95);border-color:rgba(246,178,110,.62);box-shadow:0 21px 55px rgba(0,0,0,.52)}
-.sun {background:linear-gradient(145deg,var(--rw-accent-amber),var(--rw-accent-sunset) 62%,#6f2a53);box-shadow:0 0 90px rgba(234,90,80,.26)}
-.orbit,.ring {border-color:rgba(232,186,108,.52)}
-.ribbon {background:#292034;border-color:rgba(246,178,110,.67);color:var(--rw-gold)}
-.ring:before,.ring:after {border-color:rgba(191,140,255,.46)}
-.form {background:rgba(18,24,40,.94)}
-.field input,.field select,.field textarea {background:#0b1020;border-color:rgba(255,255,255,.2);color:var(--rw-cream)}
-.field input:focus,.field select:focus,.field textarea:focus {border-color:var(--rw-gold);box-shadow:0 0 0 3px rgba(232,186,108,.15)}
-.checks input {accent-color:var(--rw-teal)}
-footer {border-color:var(--line)}
-@media (prefers-reduced-motion:no-preference) {
-  .hero>div:first-child {animation:rwCampusEnter .65s both cubic-bezier(.22,1,.36,1)}
-  .hero .art {animation:rwCampusEnter .8s .14s both cubic-bezier(.22,1,.36,1)}
-  .hero .pass {animation:rwPassFloat 7s ease-in-out infinite}
-  .hero .floating {animation:rwCreatorFloat 7s ease-in-out infinite}
-  .hero .sun {animation:rwSunBreath 7.5s ease-in-out infinite}
-  .hero .orbit {animation:rwOrbit 48s linear infinite}
-  .hero .ring {animation:rwRingBreath 8s ease-in-out infinite}
-  .primary,.btn-red {animation:rwCampusGlow 4.5s ease-in-out infinite}
+html{scroll-padding-top:24px}body{background:var(--rw-night);color:var(--rw-cream);font-family:'Outfit',system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased}
+body:before{background:radial-gradient(ellipse at 78% 8%,rgba(196,48,43,.2),transparent 48%),radial-gradient(ellipse at 8% 37%,rgba(191,140,255,.075),transparent 45%),radial-gradient(ellipse at 68% 84%,rgba(22,191,150,.055),transparent 50%)}
+a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid var(--rw-gold);outline-offset:3px}
+.nav{position:relative;z-index:5;border-bottom:1px solid var(--line);min-height:73px}
+.brand{display:inline-flex;align-items:center;gap:5px;font-weight:850;letter-spacing:-.045em;text-decoration:none;color:var(--rw-cream)}
+.brand:before{content:"";display:inline-block;width:28px;height:28px;flex:none;margin-right:6px;border-radius:8px;background:#101723 url('/icons/favicon-32.png') center / cover no-repeat;box-shadow:0 0 0 1px rgba(232,186,108,.25)}
+.brand span{color:var(--rw-crimson-light)}
+.navlinks a{color:#DAD6D4;transition:color .17s ease,border-color .17s ease}
+.navlinks a:hover,.navlinks a:focus-visible{color:var(--rw-gold)}
+.navlinks .nav-cta{border:1px solid rgba(232,186,108,.5);background:rgba(232,186,108,.065)}
+.tag,.eyebrow,.section-kicker{color:var(--rw-gold)}.eyebrow:before{color:var(--rw-crimson-light)}
+.status,.disclaimer{border-color:rgba(232,186,108,.5);background:rgba(232,186,108,.09);color:#F5D9A8}
+h1 em,.hero h1 em{color:var(--rw-accent-sunset)}.lead,.section-lead,.hero p{color:var(--muted)}
+.hero{isolation:isolate}.hero h1{text-wrap:balance}.buttons{align-items:center}
+.btn{transition:transform .16s ease,box-shadow .22s ease,border-color .22s ease,background-color .22s ease}
+.btn:active{transform:scale(.965)}
+.primary,.btn-red{background:linear-gradient(120deg,var(--rw-crimson),var(--rw-crimson-light));color:#FFF;box-shadow:0 10px 26px rgba(196,48,43,.3)}
+.primary:hover,.btn-red:hover{background:linear-gradient(120deg,#A9282B,var(--rw-crimson-light));box-shadow:0 12px 32px rgba(196,48,43,.4);color:#FFF}
+.btn-dark,.btn:not(.primary):not(.btn-red){background:rgba(255,255,255,.055);border-color:var(--line)}
+.btn-dark:hover,.btn:not(.primary):not(.btn-red):hover{border-color:rgba(232,186,108,.5)}
+.band{background:linear-gradient(105deg,rgba(18,24,40,.94),rgba(12,16,32,.98) 56%,rgba(26,19,36,.94));border-color:var(--line)}
+.metric,.card,.offer,.step,.note,.quote,.form,.details,.doc{background:linear-gradient(145deg,#151B2C,#0C1020);border-color:var(--line);box-shadow:0 1px 0 rgba(255,255,255,.035) inset,0 8px 24px rgba(0,0,0,.16)}
+.metric,.card,.offer,.doc{transition:transform .19s ease,border-color .19s ease,box-shadow .19s ease}
+.metric:hover,.card:hover,.offer:hover,.doc:hover{transform:translateY(-3px);border-color:rgba(232,186,108,.47);box-shadow:0 14px 30px rgba(0,0,0,.3)}
+.card:after{background:rgba(191,140,255,.08)}
+.offer.highlight{background:linear-gradient(140deg,rgba(196,48,43,.17),#14192A 65%);border-color:rgba(232,186,108,.5)}
+.offer b.big,.metric b,.step b,.step strong,.floating b{color:var(--rw-gold)}
+.metric:last-child{border-color:rgba(22,191,150,.48)}
+.step{border-color:var(--line);border-top-color:var(--rw-crimson-light)}
+.warning{border-color:rgba(232,186,108,.5);background:rgba(232,186,108,.075);color:#F2D8B4}
+.creator{background:radial-gradient(circle at right,rgba(234,90,80,.17),transparent 58%),linear-gradient(145deg,#281A2D,#111828);border-color:rgba(244,111,100,.48)}
+/* Red/amber mountain artwork is the deliberately distinctive campus highlight. */
+.pass,.floating{background:rgba(18,19,31,.95);border-color:rgba(246,178,110,.62);box-shadow:0 21px 55px rgba(0,0,0,.52)}
+.sun{background:linear-gradient(145deg,var(--rw-accent-amber),var(--rw-accent-sunset) 62%,#6F2A53);box-shadow:0 0 90px rgba(234,90,80,.26)}
+.orbit,.ring{border-color:rgba(232,186,108,.52)}.ring:before,.ring:after{border-color:rgba(191,140,255,.46)}
+.ribbon{background:#292034;border-color:rgba(246,178,110,.67);color:var(--rw-gold)}
+.form{background:rgba(18,24,40,.94)}.field input,.field select,.field textarea{background:#0B1020;border-color:rgba(255,255,255,.2);color:var(--rw-cream)}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--rw-gold);box-shadow:0 0 0 3px rgba(232,186,108,.15)}
+.checks input{accent-color:var(--rw-teal)}footer{border-color:var(--line)}
+@media(prefers-reduced-motion:no-preference){
+  .hero>div:first-child{animation:rwCampusEnter .58s both cubic-bezier(.22,1,.36,1)}
+  .hero .art{animation:rwCampusEnter .75s .1s both cubic-bezier(.22,1,.36,1)}
+  .hero .pass{animation:rwPassFloat 8s ease-in-out infinite}
+  .hero .floating{animation:rwCreatorFloat 8s ease-in-out infinite}
+  .hero .sun{animation:rwSunBreath 8s ease-in-out infinite}
+  .hero .orbit{animation:rwOrbit 55s linear infinite}
+  .hero .ring{animation:rwRingBreath 9s ease-in-out infinite}
+  .primary,.btn-red{animation:rwCampusGlow 4.7s ease-in-out infinite}
 }
-@keyframes rwCampusEnter {from {opacity:0;transform:translateY(16px)}to {opacity:1;transform:none}}
-@keyframes rwPassFloat {0%,100%{transform:rotate(-8deg) translateY(0)}50%{transform:rotate(-7deg) translateY(-8px)}}
-@keyframes rwCreatorFloat {0%,100%{transform:rotate(4deg) translateY(0)}50%{transform:rotate(3deg) translateY(-7px)}}
-@keyframes rwSunBreath {0%,100%{opacity:.92}50%{opacity:1}}
-@keyframes rwOrbit {from {transform:rotate(-22deg)}to {transform:rotate(338deg)}}
-@keyframes rwRingBreath {0%,100%{transform:scale(1);opacity:.7}50%{transform:scale(1.035);opacity:1}}
-@keyframes rwCampusGlow {0%,100%{box-shadow:0 11px 29px rgba(196,48,43,.25)}50%{box-shadow:0 11px 33px rgba(196,48,43,.42)}}
-@media (max-width:580px) { .nav {min-height:65px} .hero .art {overflow:visible} .pass,.floating {backdrop-filter:none} }
-@media (prefers-reduced-motion:reduce) {
-  *,*::before,*::after {animation:none!important;transition:none!important;scroll-behavior:auto!important}
-  .hero>div:first-child,.hero .art {opacity:1;transform:none}
-  .hero .pass {transform:rotate(-8deg)}
-  .hero .floating {transform:rotate(4deg)}
-}
+@keyframes rwCampusEnter{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes rwPassFloat{0%,100%{transform:rotate(-8deg) translateY(0)}50%{transform:rotate(-7deg) translateY(-7px)}}
+@keyframes rwCreatorFloat{0%,100%{transform:rotate(4deg) translateY(0)}50%{transform:rotate(3deg) translateY(-6px)}}
+@keyframes rwSunBreath{0%,100%{opacity:.92}50%{opacity:1}}
+@keyframes rwOrbit{from{transform:rotate(-22deg)}to{transform:rotate(338deg)}}
+@keyframes rwRingBreath{0%,100%{transform:scale(1);opacity:.7}50%{transform:scale(1.03);opacity:1}}
+@keyframes rwCampusGlow{0%,100%{box-shadow:0 10px 26px rgba(196,48,43,.27)}50%{box-shadow:0 10px 34px rgba(196,48,43,.44)}}
+@media(max-width:580px){.nav{min-height:65px}.brand:before{width:25px;height:25px}.hero .art{overflow:visible}.pass,.floating{backdrop-filter:none}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}.hero>div:first-child,.hero .art{opacity:1;transform:none}.hero .pass{transform:rotate(-8deg)}.hero .floating{transform:rotate(4deg)}}
