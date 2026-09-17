@@ -307,10 +307,38 @@ function friendly(e){
   if(c.indexOf('network')>-1)return 'No connection — check your internet and try again.';
   return (e&&e.message)||'Something went wrong.';
 }
+function rwGoogleErrorText(e){
+  var primary=e&&e.rwPrimaryGoogleError;
+  return [e&&e.code,e&&e.message,primary&&primary.code,primary&&primary.message].filter(Boolean).join(' ');
+}
+function rwGoogleWasCancelled(e){return /cancel|canceled|cancelled|12501/i.test(rwGoogleErrorText(e));}
+function rwGoogleLooksMisconfigured(e){
+  return /developer[_ -]?error|12500|api.?exception.?10|status.?code.?10|10:|configuration|default_web_client_id|oauth.?client|unknown calling package/i.test(rwGoogleErrorText(e));
+}
+function rwNativeGoogleIdToken(p){
+  function idToken(r){
+    var token=r&&r.credential&&r.credential.idToken;
+    if(!token){var missing=new Error('Google did not return an ID token.');missing.code='auth/native-google-missing-token';throw missing;}
+    return token;
+  }
+  /* Credential Manager is the current Android path. A few Android/Play
+     Services combinations return only a generic GetCredentialException, so
+     retry once with the plugin's supported legacy Google chooser. A user
+     cancellation is final and must never open a second chooser. */
+  return p.signInWithGoogle({skipNativeAuth:true,useCredentialManager:true}).catch(function(primary){
+    if(rwGoogleWasCancelled(primary))throw primary;
+    return p.signInWithGoogle({skipNativeAuth:true,useCredentialManager:false}).catch(function(secondary){
+      var combined=new Error(String((secondary&&secondary.message)||secondary||'Native Google sign-in failed.'));
+      combined.code=secondary&&secondary.code;
+      combined.rwPrimaryGoogleError=primary;
+      throw combined;
+    });
+  }).then(idToken);
+}
 function rwGoogleError(e){
-  var s=String((e&&e.code)||'')+' '+String((e&&e.message)||'');
-  if(/cancel|canceled|cancelled/i.test(s))return 'Google sign-in was cancelled.';
-  if(/developer|12500|10:|configuration/i.test(s))return 'Google sign-in is not configured for this app build yet. Update the app after Firebase Android setup is completed.';
+  if(rwGoogleWasCancelled(e))return 'Google sign-in was cancelled.';
+  if(rwGoogleLooksMisconfigured(e))return 'This Android build is not authorized for Google sign-in. Email sign-in still works; update the app after its Firebase and Play signing setup is refreshed.';
+  if(rwIsNativePlatform())return 'Google sign-in could not finish on this Android device. Update Google Play services or use email sign-in, then try again.';
   return friendly(e);
 }
 function loginGoogle(){
@@ -318,10 +346,8 @@ function loginGoogle(){
   var p=rwNativeAuthPlugin(),b=el('googleAuthBtn');
   if(p){
     if(b){b.disabled=true;b.setAttribute('aria-busy','true');}
-    p.signInWithGoogle({skipNativeAuth:true}).then(function(r){
-      var token=r&&r.credential&&r.credential.idToken;if(!token)throw new Error('Google did not return an ID token.');
-      return firebase.auth().signInWithCredential(firebase.auth.GoogleAuthProvider.credential(token));
-    }).then(function(){if(window.RWAuthSecurity)RWAuthSecurity.rememberProvider('google.com');closeAuth();showToast('Signed in with Google ✓');})
+    rwNativeGoogleIdToken(p).then(function(token){return firebase.auth().signInWithCredential(firebase.auth.GoogleAuthProvider.credential(token));})
+      .then(function(){if(window.RWAuthSecurity)RWAuthSecurity.rememberProvider('google.com');closeAuth();showToast('Signed in with Google ✓');})
       .catch(function(e){authError(rwGoogleError(e));})
       .then(function(){if(b){b.disabled=false;b.removeAttribute('aria-busy');}});
     return;
@@ -360,7 +386,7 @@ function rwLinkEmailPassword(){
 }
 function rwLinkGoogleProvider(){
   var u=firebase.auth().currentUser;if(!u)return rwLinkMessage('Sign in first.',true);var native=rwNativeAuthPlugin(),job;
-  if(native){job=native.signInWithGoogle({skipNativeAuth:true}).then(function(r){var token=r&&r.credential&&r.credential.idToken;if(!token)throw new Error('Google did not return an ID token.');return u.linkWithCredential(firebase.auth.GoogleAuthProvider.credential(token));});}
+  if(native){job=rwNativeGoogleIdToken(native).then(function(token){return u.linkWithCredential(firebase.auth.GoogleAuthProvider.credential(token));});}
   else if(rwIsNativePlatform())return rwLinkMessage('Update the RoamWise app before linking Google. Your current sign-in still works.',true);
   else job=u.linkWithPopup(new firebase.auth.GoogleAuthProvider());
   job.then(function(){if(window.RWAuthSecurity)RWAuthSecurity.rememberProvider('google.com');rwRenderLinkedSignInMethods();rwLinkMessage('Google linked to the same RoamWise account ✓');}).catch(function(e){rwLinkMessage(rwLinkFriendly(e),true);});
