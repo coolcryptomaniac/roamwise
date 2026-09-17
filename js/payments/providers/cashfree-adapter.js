@@ -30,6 +30,7 @@
 var CF_SDK_URL = 'https://sdk.cashfree.com/js/v3/cashfree.js';
 var _cfOrderPromise = null;
 var _cfSdkPromise = null;
+var _cfPhoneOverride = '';
 
 function _cfLoadSdk(){
   if(typeof Cashfree !== 'undefined') return Promise.resolve();
@@ -52,11 +53,33 @@ function _cfLoadSdk(){
    than accepting a fake one). */
 function _cfCustomer(){
   var u = (typeof user !== 'undefined') ? user : null;
+  var saved='';try{saved=localStorage.getItem('rw_checkout_phone')||'';}catch(e){ /* storage may be blocked */ }
   return {
     id: (u && u.uid) || ('guest_' + Date.now()),
     email: (u && u.email) || '',
-    phone: (u && u.phoneNumber) || ''
+    phone: _cfPhoneOverride || (u && u.phoneNumber) || saved
   };
+}
+function _cfValidPhone(value){return /^\+?\d{7,15}$/.test(String(value||'').replace(/[\s()-]/g,''));}
+function _cfBeginOrder(shell){
+  var endpoint = (typeof rwApi === 'function') ? rwApi('cashfree/order') : null;
+  if(!endpoint){
+    _cfOrderPromise = Promise.reject(new Error('Cashfree checkout is not configured on this deployment yet.'));
+    _cfOrderPromise.catch(function(){});return shell;
+  }
+  var customer=_cfCustomer();
+  if(!_cfValidPhone(customer.phone)){shell.needsPhone=true;_cfOrderPromise=null;return shell;}
+  shell.needsPhone=false;
+  _cfOrderPromise = fetch(endpoint, {
+    method: 'POST',headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({amount: shell.amountINR, customer: customer, meta: {planId: shell.planId, tierId: shell.tierId, label: shell.label}})
+  }).then(function(r){
+    return r.json().catch(function(){ return {}; }).then(function(d){if(!r.ok) throw new Error((d&&d.message)||'Cashfree order creation failed.');return d;});
+  }).then(function(d){
+    if(!d||!d.payment_session_id)throw new Error('Cashfree did not return a payment session.');
+    shell.paymentSessionId=d.payment_session_id;shell.orderId=d.order_id;shell.environment=d.environment||'sandbox';shell.ready=true;return shell;
+  });
+  _cfOrderPromise.catch(function(){});return shell;
 }
 
 /* Polls GET /cashfree/order/:id/status a few times (Cashfree's own status
@@ -109,31 +132,15 @@ var CashfreeAdapter = {
   createOrder: function(amount, meta){
     meta = meta || {};
     var shell = {amountINR: amount, planId: meta.planId, tierId: meta.tierId, label: meta.label, category: meta.category, provider: 'cashfree', ready: false};
-    var endpoint = (typeof rwApi === 'function') ? rwApi('cashfree/order') : null;
-    if(!endpoint){
-      _cfOrderPromise = Promise.reject(new Error('Cashfree checkout is not configured on this deployment yet.'));
-      _cfOrderPromise.catch(function(){}); /* prevent an unhandled-rejection warning until openCheckout() reads it */
-      return shell;
-    }
-    _cfOrderPromise = fetch(endpoint, {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({amount: amount, customer: _cfCustomer(), meta: {planId: meta.planId, tierId: meta.tierId, label: meta.label}})
-    }).then(function(r){
-      return r.json().catch(function(){ return {}; }).then(function(d){
-        if(!r.ok) throw new Error((d && d.message) || 'Cashfree order creation failed.');
-        return d;
-      });
-    }).then(function(d){
-      if(!d || !d.payment_session_id) throw new Error('Cashfree did not return a payment session.');
-      shell.paymentSessionId = d.payment_session_id;
-      shell.orderId = d.order_id;
-      shell.environment = d.environment || 'sandbox';
-      shell.ready = true;
-      return shell;
-    });
-    _cfOrderPromise.catch(function(){});
-    return shell;
+    return _cfBeginOrder(shell);
+  },
+
+  setCustomerPhone: function(order, phone){
+    var cleaned=String(phone||'').replace(/[\s()-]/g,'');
+    if(!_cfValidPhone(cleaned))return false;
+    _cfPhoneOverride=cleaned;try{localStorage.setItem('rw_checkout_phone',cleaned);}catch(e){ /* storage may be blocked */ }
+    if(order&&order.needsPhone)_cfBeginOrder(order);
+    return true;
   },
 
   /* Hosted-checkout gateway: success/failure/cancel all resolve inside
@@ -141,7 +148,7 @@ var CashfreeAdapter = {
      PAYMENT-GATEWAY-ARCHITECTURE.md's "Adding gateway #2" guide both note —
      there is no separate verifyPayment() step. */
   openCheckout: function(order, method){
-    if(!_cfOrderPromise){ showToast('Pick a plan again — the Cashfree session expired.'); return; }
+    if(!_cfOrderPromise){ showToast(order&&order.needsPhone?'Add a valid mobile number for the Cashfree receipt.':'Pick a plan again — the Cashfree session expired.'); return; }
     showToast('Opening secure Cashfree checkout…');
     _cfOrderPromise.then(function(ready){
       return _cfLoadSdk().then(function(){ return ready; });

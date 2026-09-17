@@ -74,22 +74,20 @@ if (AUTH_READY && typeof firebase !== 'undefined') try {
   try{ db.enablePersistence({synchronizeTabs:true}).catch(function(){}); }catch(e){ /* best-effort Firestore op, ignore */ }
   try{ rwInitDataLayer(); }catch(e){ /* best-effort, ignore */ }
   firebase.auth().onAuthStateChanged(function(u){
-    /* Password accounts must verify ownership before any profile, trial or cloud feature is created. */
-    if(rwIsUnverifiedPasswordUser(u)){
-      pendingVerificationEmail=(u&&u.email)||pendingVerificationEmail;
-      if(!rwEmailAuthBusy){
-        firebase.auth().signOut().catch(function(){});
-        setTimeout(function(){rwShowVerificationPane(pendingVerificationEmail,'Verify your email before using your RoamWise account.');},0);
-      }
-      u=null;
-    }
+    /* Verification is deliberately NON-BLOCKING. Password users retain their
+       Firebase session and can use normal account features and checkout. The
+       high-risk creator/partner/booking paths remain protected by
+       request.auth.token.email_verified in firestore.rules. */
+    var trustedIdentity=!rwIsUnverifiedPasswordUser(u);
+    if(u&&!trustedIdentity)pendingVerificationEmail=u.email||pendingVerificationEmail;
     user = u;
-    setTimeout(function(){try{rwRenderLinkedSignInMethods();}catch(e){}},0);
+    setTimeout(function(){try{rwRenderLinkedSignInMethods();rwRenderVerificationStatus(u);}catch(e){ /* optional account UI */ }},0);
     try{ if(u&&window.RWAuthSecurity) RWAuthSecurity.rememberUserProvider(u); }catch(e){ /* local hint only */ }
     try{ if(u) rwCheckBan(); }catch(e){ /* best-effort, ignore */ }
-    var btn = el('authBtn'), av = el('authAvatar');
+    var btn = el('authBtn'), av = el('authAvatar'), avWrap=el('authAvatarWrap');
     if(u){
       btn.style.display='none';
+      if(avWrap)avWrap.style.display='inline-flex';
       av.style.display=''; av.src = u.photoURL || ('https://api.dicebear.com/9.x/initials/svg?seed='+encodeURIComponent(u.email||u.phoneNumber||'RW'));
       /* Keys are wiped locally on sign-out; if the user opted into the
          encrypted backup, bring them straight back on sign-in. */
@@ -138,7 +136,7 @@ if (AUTH_READY && typeof firebase !== 'undefined') try {
          not server-signed — fine for a goodwill promo, not something to rely on for a
          security-critical deadline (consistent with the UTR-claim honor system already
          used for Pro activation elsewhere in this app). */
-      if(u.metadata && u.metadata.creationTime===u.metadata.lastSignInTime && !lsGet('rw_trial_checked_'+u.uid)){
+      if(trustedIdentity && u.metadata && u.metadata.creationTime===u.metadata.lastSignInTime && !lsGet('rw_trial_checked_'+u.uid)){
         lsSet('rw_trial_checked_'+u.uid,'1');
         db.runTransaction(function(t){
           var counterRef=db.collection('meta').doc('signupCounter');
@@ -167,7 +165,7 @@ if (AUTH_READY && typeof firebase !== 'undefined') try {
         try{
           var pendingUid=lsGet('rw_ref_pending_signup_uid');
           var isNew=!!(u.metadata && u.metadata.creationTime===u.metadata.lastSignInTime);
-          if(isNew || pendingUid===u.uid){
+          if(trustedIdentity && (isNew || pendingUid===u.uid)){
             var _rc=rwRefActive();
             if(_rc && !lsGet('rw_ref_su_'+u.uid)){
               var _rw=rwRefLookup(_rc)||{};
@@ -208,7 +206,8 @@ if (AUTH_READY && typeof firebase !== 'undefined') try {
         }
       });
     } else {
-      btn.style.display=''; av.style.display='none';
+      btn.style.display=''; av.style.display='none';if(avWrap)avWrap.style.display='none';
+      var vb=el('rwVerificationBanner'),verifiedBadge=el('authVerifiedBadge');if(vb)vb.style.display='none';if(verifiedBadge)verifiedBadge.style.display='none';
       /* AUTHORITATIVE: no signed-in user means no Pro, full stop — this runs on
          every sign-out regardless of how it happened (button, expiry, error). */
       if(window._proUnsub){ try{ window._proUnsub(); }catch(e){ /* best-effort, ignore */ } window._proUnsub=null; }
@@ -226,8 +225,34 @@ if (AUTH_READY && typeof firebase !== 'undefined') try {
 }
 
 var pendingVerificationEmail='', rwEmailAuthBusy=false;
+var rwVerifyCooldownTimer=null;
 function rwIsUnverifiedPasswordUser(u){
   return !!(u && !u.emailVerified && u.providerData && u.providerData.some(function(p){return p.providerId==='password';}));
+}
+function rwVerificationKey(u){return 'rw_verify_sent_'+String((u&&u.uid)||(u&&u.email)||'account');}
+function rwVerificationCooldownRemaining(u){
+  var last=parseInt(lsGet(rwVerificationKey(u))||'0',10)||0;
+  return Math.max(0,Math.ceil((60000-(Date.now()-last))/1000));
+}
+function rwStartVerificationCountdown(seconds){
+  if(rwVerifyCooldownTimer){clearInterval(rwVerifyCooldownTimer);rwVerifyCooldownTimer=null;}
+  var b=el('authResendBtn'),left=Math.max(0,Number(seconds)||0);
+  function paint(){if(!b)return;if(left>0){b.disabled=true;b.textContent='Resend available in '+left+'s';left--;}else{b.disabled=false;b.textContent='Resend verification email';if(rwVerifyCooldownTimer){clearInterval(rwVerifyCooldownTimer);rwVerifyCooldownTimer=null;}}}
+  paint();if(left>=0&&b)rwVerifyCooldownTimer=setInterval(paint,1000);
+}
+function rwRenderVerificationStatus(u){
+  var badge=el('authVerifiedBadge'),wrap=el('authAvatarWrap'),banner=el('rwVerificationBanner');
+  var verified=!!(u&&u.emailVerified);
+  if(badge)badge.style.display=verified?'inline-flex':'none';
+  if(wrap&&wrap.classList)wrap.classList.toggle('is-unverified',!!u&&!verified);
+  var dismissed=false;try{dismissed=!!(u&&sessionStorage.getItem('rw_verify_banner_dismissed_'+u.uid));}catch(e){ /* storage may be blocked */ }
+  if(banner)banner.style.display=u&&!verified&&!dismissed?'flex':'none';
+  try{if(typeof drawerAccount==='function')drawerAccount(u);}catch(e){ /* optional drawer UI */ }
+}
+function rwDismissVerificationBanner(){
+  var u=(typeof firebase!=='undefined'&&firebase.auth&&firebase.auth().currentUser)||user;
+  try{if(u)sessionStorage.setItem('rw_verify_banner_dismissed_'+u.uid,'1');}catch(e){ /* storage may be blocked */ }
+  var banner=el('rwVerificationBanner');if(banner)banner.style.display='none';
 }
 function rwNativeAuthPlugin(){
   try{
@@ -313,7 +338,8 @@ function rwRenderLinkedSignInMethods(){
   var u=(typeof firebase!=='undefined'&&firebase.auth&&firebase.auth().currentUser)||user;
   if(!u){status.textContent='Sign in to manage account methods.';if(passBox)passBox.style.display='none';if(googleBtn)googleBtn.style.display='none';return;}
   var ids=rwProviderIds(u),labels=[];if(ids.indexOf('google.com')>-1)labels.push('Google');if(ids.indexOf('password')>-1)labels.push('Email + password');
-  status.innerHTML='<b>'+String(u.email||'Your account').replace(/[&<>]/g,'')+'</b><br>Linked now: '+(labels.join(' + ')||'verified Firebase identity')+' · UID '+String(u.uid||'').replace(/[&<>]/g,'');
+  var verification=u.emailVerified?' <span style="color:#16bf96;font-weight:800">✓ Verified</span>':' <span style="color:#e8ba6c;font-weight:800">Verification optional for basic use</span>';
+  status.innerHTML='<b>'+String(u.email||'Your account').replace(/[&<>]/g,'')+'</b>'+verification+'<br>Linked now: '+(labels.join(' + ')||'Firebase identity')+' · UID '+String(u.uid||'').replace(/[&<>]/g,'');
   if(passBox)passBox.style.display=ids.indexOf('password')>-1?'none':'';
   if(googleBtn)googleBtn.style.display=ids.indexOf('google.com')>-1?'none':'';
 }
@@ -352,8 +378,9 @@ function toggleAuthPassword(){
 function rwSetAuthBusy(busy,label){
   var b=el('authEmailBtn'),s=el('authAction');if(b)b.disabled=!!busy;if(s)s.textContent=label||(authMode==='in'?'Sign in':'Create account');
 }
-// A failed verification send does NOT undo account creation. Preserve the UID.
-function rwSendVerificationAndSignOut(u,email,message){
+// A failed verification send does NOT undo account creation or its session.
+// Preserve the UID and let the user continue with normal features/checkout.
+function rwSendVerificationNonBlocking(u,email){
   var settings=window.RWAuthSecurity?RWAuthSecurity.actionCodeSettings():undefined;
   var send=u.sendEmailVerification(settings).catch(function(e){
     var code=String(e&&e.code||'');
@@ -361,34 +388,32 @@ function rwSendVerificationAndSignOut(u,email,message){
     if(/unauthorized-continue-uri|invalid-continue-uri|missing-continue-uri/.test(code))return u.sendEmailVerification();
     throw e;
   });
-  return send.then(function(){return {sent:true};},function(e){return {sent:false,error:e};})
-    .then(function(result){return firebase.auth().signOut().catch(function(){}).then(function(){return result;});})
-    .then(function(result){
-      var display=result.sent
-        ? message+' Firebase accepted the request; check inbox and spam. Delivery is not guaranteed.'
-        : 'Your account exists, but Firebase could not send the verification link: '+friendly(result.error)
-          +' Sign in with the SAME email and password to retry. Do not create another account.';
-      rwShowVerificationPane(email,display);
-      return {verificationPending:true,verificationSent:result.sent};
-    });
+  return send.then(function(){
+    lsSet(rwVerificationKey(u),String(Date.now()));
+    return {verificationPending:true,verificationSent:true,user:u,email:email};
+  },function(e){return {verificationPending:true,verificationSent:false,error:e,user:u,email:email};});
 }
 function loginEmail(){
   if(!AUTH_READY)return showToast('Accounts not configured yet');
   var em=window.RWAuthSecurity?RWAuthSecurity.normaliseEmail(el('authEmail').value):el('authEmail').value.trim(),pw=el('authPass').value,creating=authMode==='up';
   if(!em||!pw)return authError('Enter email and password.');
+  var trap=el('authCompanyWebsite');if(creating&&trap&&trap.value)return authError('Could not create the account. Please try again.');
   if(creating&&window.RWAuthSecurity){var strength=RWAuthSecurity.passwordStatus(pw);if(!strength.ok)return authError(strength.message);}
   if(!creating&&pw.length<6)return authError('Enter your complete password.');
   rwEmailAuthBusy=true;rwSetAuthBusy(true,creating?'Creating account…':'Signing in…');authError('');
   function afterPasswordSignIn(c){
     return c.user.reload().catch(function(){}).then(function(){
-      if(rwIsUnverifiedPasswordUser(c.user))return rwSendVerificationAndSignOut(c.user,em,'Verification request accepted. Open the link and return to sign in.');
-      if(window.RWAuthSecurity)RWAuthSecurity.rememberProvider('password');return c;
+      if(window.RWAuthSecurity)RWAuthSecurity.rememberProvider('password');
+      if(rwIsUnverifiedPasswordUser(c.user)){pendingVerificationEmail=em;return {user:c.user,verificationPending:true,existing:true};}
+      return c;
     });
   }
   var p=creating?firebase.auth().createUserWithEmailAndPassword(em,pw).then(function(c){
       try{track('signups');}catch(e){ /* analytics best-effort, ignore */ }
       try{if(rwRefActive())lsSet('rw_ref_pending_signup_uid',c.user.uid);}catch(e){ /* retry after verification */ }
-      return rwSendVerificationAndSignOut(c.user,em,'Verification request accepted. Open the link and return to sign in.');
+      if(window.RWAuthSecurity)RWAuthSecurity.rememberProvider('password');
+      pendingVerificationEmail=em;
+      return rwSendVerificationNonBlocking(c.user,em);
     }).catch(function(e){
       if(String(e&&e.code||'').indexOf('email-already-in-use')===-1)throw e;
       // Only the correct existing password recovers the original UID. Never merge
@@ -399,14 +424,38 @@ function loginEmail(){
         throw loginError;
       });
     }):firebase.auth().signInWithEmailAndPassword(em,pw).then(afterPasswordSignIn);
-  p.then(function(r){if(!(r&&r.verificationPending)){closeAuth();showToast('Email verified — signed in ✓');}})
+  p.then(function(r){
+      closeAuth();
+      var active=(r&&r.user)||firebase.auth().currentUser;
+      rwRenderVerificationStatus(active);
+      if(r&&r.verificationPending){
+        showToast(r.verificationSent===false
+          ? 'Account ready and signed in. Verification email is unavailable right now; you can continue and pay for Pro.'
+          : (r.existing?'Signed in. Verify later for referrals and identity-sensitive features.':'Account ready ✓ Verification was requested, but you can continue now.'));
+      }else showToast('Email verified — signed in ✓');
+    })
     .catch(function(e){if(String(e&&e.code||'').indexOf('email-already-in-use')>-1){authMode='in';rwApplyAuthModeUI();}authError(friendly(e));})
     .then(function(){rwEmailAuthBusy=false;rwSetAuthBusy(false);});
 }
 function resendVerification(){
-  var em=el('authEmail').value.trim()||pendingVerificationEmail,pw=el('authPass').value;
-  if(!em||!pw){rwShowEmailPane();return authError('Enter your email and password, then tap Sign in to resend the link.');}
-  authMode='in';loginEmail();
+  if(!AUTH_READY)return showToast('Accounts not configured yet');
+  var u=firebase.auth().currentUser;
+  if(!u){openAuth();return authError('Sign in first. Your account remains usable even before verification.');}
+  if(u.emailVerified){rwRenderVerificationStatus(u);return showToast('Email already verified ✓');}
+  var wait=rwVerificationCooldownRemaining(u);if(wait>0){rwShowVerificationPane(u.email,'A link was already requested. You remain signed in and can continue using RoamWise.');rwStartVerificationCountdown(wait);return;}
+  rwShowVerificationPane(u.email,'Requesting a verification link… You remain signed in and can continue using RoamWise.');
+  rwSendVerificationNonBlocking(u,u.email||pendingVerificationEmail).then(function(result){
+    if(result.verificationSent){var m=el('authVerifyMsg');if(m)m.textContent='Verification link requested. Check inbox and spam. You remain signed in; normal features and Pro payment already work.';rwStartVerificationCountdown(60);}
+    else{var msg=el('authVerifyMsg');if(msg)msg.textContent='Firebase could not send another link right now. Your account is still signed in and usable. Try again later.';}
+  });
+}
+function refreshEmailVerification(){
+  var u=AUTH_READY&&firebase.auth().currentUser;if(!u){rwShowEmailPane();return authError('Sign in first.');}
+  u.reload().then(function(){u=firebase.auth().currentUser;return u.getIdToken(true);}).then(function(){
+    rwRenderVerificationStatus(u);rwRenderLinkedSignInMethods();
+    if(u.emailVerified){closeAuth();showToast('Email verified ✓');}
+    else{var m=el('authVerifyMsg');if(m)m.textContent='Not verified yet. Open the newest link, or continue using normal features and Pro payment now.';}
+  }).catch(function(e){var m=el('authVerifyMsg');if(m)m.textContent='Could not refresh verification status: '+friendly(e);});
 }
 function resetPassword(){
   if(!AUTH_READY)return showToast('Accounts not configured yet');
@@ -421,7 +470,10 @@ document.addEventListener('DOMContentLoaded',function(){
     var url=new URL(location.href);
     if(url.searchParams.get('auth')==='verified'){
       url.searchParams.delete('auth');history.replaceState({},'',url.pathname+url.search+url.hash);
-      setTimeout(function(){openAuth();showToast('Email verified — sign in to continue.');},250);
+      setTimeout(function(){
+        if(firebase.auth().currentUser){refreshEmailVerification();}
+        else{openAuth();showToast('Verification completed. Sign in to refresh your account.');}
+      },250);
     }
   }catch(e){ /* optional verification return route */ }
 });

@@ -274,6 +274,23 @@ test('createOrder(): posts amount/customer/meta to rwApi("cashfree/order") and r
   assert.equal(ctx._cfOrderPromise, ctx._cfOrderPromise); // sanity: still the same promise object
 });
 
+test('email-only account can add a receipt phone at checkout instead of hitting Cashfree missing-phone failure',async()=>{
+  let calls=0,seenBody;
+  const ctx=loadCashfreeAdapter({
+    user:{uid:'email-user',email:'email@example.com',phoneNumber:''},
+    rwApi:p=>'https://worker.example/'+p,
+    fetch:async(url,init)=>{calls++;seenBody=JSON.parse(init.body);return{ok:true,json:async()=>({payment_session_id:'session_phone',order_id:'rw_phone',environment:'sandbox'})};}
+  });
+  const order=ctx.CashfreeAdapter.createOrder(100,{planId:'founder',label:'Founder Pro',tierId:'elite'});
+  assert.equal(order.needsPhone,true);
+  assert.equal(calls,0,'must not send an invalid empty phone to the payment worker');
+  assert.equal(ctx.CashfreeAdapter.setCustomerPhone(order,'+91 98765 43210'),true);
+  await ctx._cfOrderPromise;
+  assert.equal(calls,1);
+  assert.equal(seenBody.customer.phone,'+919876543210');
+  assert.equal(order.ready,true);
+});
+
 test('createOrder() -> openCheckout(): full success path confirms order_status PAID before calling grantPurchase() (never a blanket activatePro())', async () => {
   const statusCalls = [];
   const ctx = loadCashfreeAdapter({

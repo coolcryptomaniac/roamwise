@@ -14,6 +14,6 @@
 @import url("./css/base/01-tokens.css");
 @import url("./css/base/02-shell.css");
 @import url("./css/base/03-features-legacy.css");
-@import url("./css/base/04-accounts-and-extras.css");
+@import url("./css/base/04-accounts-and-extras.css?v=rw-auth-nonblocking-2");
 @import url("./css/base/05-desktop-and-discovery.css");
 @import url("./css/base/06-commerce-and-social.css");

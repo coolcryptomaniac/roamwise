@@ -25,6 +25,25 @@ The “Last used on this device” hint contains only `google.com` or `password`
 local storage. It never sends an email address and is not proof that an account
 exists.
 
+### Non-blocking email-verification policy
+
+Password users are allowed into the app immediately, including accounts that
+were created before this release. Email verification is an account-trust signal,
+not a prerequisite for signing in, browsing, saving ordinary profile data, or
+submitting a Pro payment for human review.
+
+The client sends one best-effort verification email after a new password signup,
+never signs the user out if delivery fails, and applies a 60-second resend
+cooldown. Returning unverified users are not sent another email automatically.
+This protects the Firebase email quota while keeping existing accounts usable.
+
+The higher-risk boundaries remain verified in Firestore rules: creator accounts,
+creator publishing, partner referral claims/redemptions, and room bookings. The
+free Pro trial and referral signup reward are also withheld until the identity is
+trusted (verified password account or OAuth provider), preventing disposable
+email addresses from farming benefits. Payment approval still depends on a
+unique 12-digit UTR and admin review; an email checkmark is not payment proof.
+
 ## 2. Professional verification and reset email
 
 In **Authentication → Templates**, update all relevant templates:
@@ -59,6 +78,10 @@ users to whitelist blindly; monitor real test deliveries to Gmail and Outlook.
 
 App Check is invisible and risk-scored. It complements—not replaces—Firestore
 rules, verified email, Firebase rate limits, and human payment approval.
+
+The signup form also contains a hidden honeypot, but that is only a lightweight
+first filter. Do not claim CAPTCHA protection is live until the Enterprise site
+key is configured and App Check enforcement has been validated in metrics.
 
 ## 4. Firestore rules and referral integrity
 
@@ -98,10 +121,25 @@ policy, reCAPTCHA, resend cooldowns, test numbers, budget alerts, and account
 recovery support. The admin console already uses linked phone MFA; the public
 consumer flow intentionally does not create standalone phone identities.
 
+## 7. Selfie or identity verification
+
+Do not implement selfie/KYC verdicts entirely in this static client. A trustworthy
+flow needs a contracted provider, explicit consent and retention/deletion terms,
+a backend-created signed session, and a verified provider webhook. Otherwise a
+user can forge the browser result. If introduced, require it only for genuinely
+high-risk roles such as creator/partner onboarding or payouts—never for ordinary
+travel planning or purchasing Pro. Store only the provider reference and status,
+not raw selfie or identity-document images in Firestore.
+
 ## Release checks
 
 - Google new sign-in and returning sign-in
-- Password signup, branded verification, return to app, then sign-in
+- Password signup enters the app immediately; failed email delivery does not
+  sign the user out
+- Existing unverified password account signs in without triggering another email
+- Verification resend is disabled for 60 seconds and refresh detects completion
+- Unverified account can submit a correctly formatted Pro UTR for admin review
+- Free trial/referral reward is withheld until the identity is trusted
 - Existing Google email entered in password signup (safe guidance; no duplicate)
 - Wrong email/password response does not prove whether an account exists
 - Password show/hide, keyboard Enter, autofill and 320–480 px mobile widths
