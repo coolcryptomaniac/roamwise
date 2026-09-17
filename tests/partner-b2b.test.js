@@ -61,6 +61,20 @@ test('stay Cashfree order is server-authoritative and requires a confirmed booki
   assert.match(js, /Number\(data\.order_amount\) !== found\.amount/);
 });
 
+test('partner automation add-ons are prepaid and usage-bounded', () => {
+  const js = fs.readFileSync(`${root}/partner/config.js`, 'utf8');
+  const app = fs.readFileSync(`${root}/partner/app.js`, 'utf8');
+  const sandbox = { window: {} };
+  vm.runInNewContext(js, sandbox);
+  const addOns = sandbox.window.RW_PARTNER_CONFIG.commercial.addOns;
+  assert.equal(addOns.widget_annual.priceINR, 14999);
+  assert.equal(addOns.widget_annual.includedPlans, 6000);
+  assert.equal(addOns.white_label_annual.priceINR, 49999);
+  assert.equal(addOns.white_label_annual.includedPlans, 30000);
+  assert.match(app, /requestedAddOn/);
+  assert.match(app, /service starts only after RoamWise verifies payment and provisions the allowance/);
+});
+
 test('partner pause and deboarding preserve history and block unsafe exit', () => {
   const admin = fs.readFileSync(`${root}/admin/partner-lifecycle.js`, 'utf8');
   const rules = fs.readFileSync(`${root}/firestore.rules`, 'utf8');

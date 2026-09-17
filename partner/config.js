@@ -18,6 +18,13 @@ window.RW_PARTNER_CONFIG = {
       annual: {subscriptionINR: 2499, commissionPct: 5},
       three_year: {subscriptionINR: 5999, commissionPct: 5}
     },
+    /* Prepaid, bounded B2B add-ons. These are requests until checkout and
+       automatic tenant provisioning are enabled; no one receives service
+       merely by selecting an option in the application form. */
+    addOns: {
+      widget_annual: {priceINR: 14999, months: 12, includedPlans: 6000},
+      white_label_annual: {priceINR: 49999, months: 12, includedPlans: 30000}
+    },
     completedStatuses: ['completed','checked_out'],
     directFirst: true,
     externalGapThreshold: 4

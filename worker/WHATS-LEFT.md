@@ -18,7 +18,7 @@ handler. `events-refresh.js` has been deleted so it can't cause confusion later.
 
 | Piece | Status |
 |---|---|
-| `worker.js` | ✅ merged, 5 routes, one cron handler, syntax-checked |
+| `worker.js` | ✅ merged router with authenticated, metered `/ai` support |
 | `wrangler.toml` | ✅ single `main`, single `[triggers]`, KV commented out |
 | `rw-config.js` | ⚠️ `backend:'firebase'`, `workerUrl:''` — app is NOT using the Worker yet |
 | KV namespace | ❌ not created — `/news` and `/events` will return empty without it |
@@ -68,12 +68,16 @@ Without this, `/events` and `/news` return empty every time — they have nowher
 |---|---|---|---|
 | `TICKETMASTER_KEY` | `/events` live refresh | developer.ticketmaster.com — free, instant | for live events |
 | `REFRESH_TOKEN` | protects manual refresh | invent any long random string | **yes, if TICKETMASTER_KEY is set** |
-| `GROQ_API_KEY` | `/ai` proxy (hides your key from browsers) | console.groq.com | optional |
+| `GROQ_API_KEY` + `GROQ_MODEL` | authenticated `/ai` provider | console.groq.com | optional |
+| `FIREBASE_SERVICE_ACCOUNT_JSON` | verifies users and reads server-side entitlement | Firebase console | required for `/ai` |
+| `AI_USAGE` KV binding | monthly paid-plan allowance meter | Wrangler | required for `/ai` |
 
 ```bash
 npx wrangler secret put TICKETMASTER_KEY
 npx wrangler secret put REFRESH_TOKEN
 npx wrangler secret put GROQ_API_KEY     # only if you want the AI proxy
+npx wrangler secret put GROQ_MODEL       # fixed founder-selected model
+npx wrangler secret put FIREBASE_SERVICE_ACCOUNT_JSON
 ```
 
 Re-check `/health` — the flags should flip to `true`.
@@ -105,9 +109,10 @@ router, not a database — nothing lives only there, so nothing is lost.
 
 ## Honest cautions
 
-- **`/ai` is unauthenticated as written.** Fine while nobody knows the URL, but
-  add a Cloudflare rate-limiting rule before you promote it, or someone could
-  drain your Groq quota.
+- **`/ai` is off by default.** Enable it only after the Firebase service
+  account, fixed model and `AI_USAGE` meter are configured. It authenticates
+  each user, derives entitlement server-side and ignores browser-selected
+  model/token limits.
 - **Ticketmaster's free tier has daily call limits.** The cron makes 4 calls a
   week, which is nothing — but don't hammer `/events/refresh` manually in a loop.
 - **`REFRESH_TOKEN` is genuinely worth setting.** Without it, anyone who finds
