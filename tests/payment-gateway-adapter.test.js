@@ -256,6 +256,25 @@ test('_renderCashfreeOption: a one-off-category plan shows Cashfree ONLY once an
   assert.equal(cashfree.calls.createOrder[0].meta.planId, 'pro_life');
 });
 
+test('_renderCashfreeOption: sandbox checkout stays hidden for every UID except the configured admin', () => {
+  const ctx = loadPlanPicker();
+  const cashfree = ctx.RWMockPaymentAdapter();
+  ctx.RWPaymentGateway.register('cashfree', cashfree);
+  ctx.RW_PAYMENT_PROVIDER = 'cashfree';
+  ctx.RW_CASHFREE_ENV = 'sandbox';
+  ctx.RW_CASHFREE_SANDBOX_UID = 'admin-uid';
+  ctx.user = { uid: 'ordinary-user' };
+
+  ctx.pickPlan('founder', 100, 'Founder Pro — Lifetime', 'elite', 'oneoff');
+  assert.equal(ctx._cashfreeOptionEl.style.display, 'none');
+  assert.equal(cashfree.calls.createOrder.length, 0);
+
+  ctx.user = { uid: 'admin-uid' };
+  ctx.pickPlan('founder', 100, 'Founder Pro — Lifetime', 'elite', 'oneoff');
+  assert.equal(ctx._cashfreeOptionEl.style.display, 'block');
+  assert.equal(cashfree.calls.createOrder.length, 1);
+});
+
 test('_renderCashfreeOption: manual UPI stays available (never hidden) alongside a shown Cashfree option', () => {
   const ctx = loadPlanPicker();
   const manual = ctx.RWMockPaymentAdapter();

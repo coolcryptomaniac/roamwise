@@ -93,7 +93,7 @@ export default {
     if(partnerCfStatus && request.method === 'GET') return handlePartnerCashfreeStatus(request, env, partnerCfStatus[1]);
 
     const cfStatus = path.match(/^cashfree\/order\/([^/]+)\/status$/);
-    if(cfStatus && request.method === 'GET') return handleCashfreeOrderStatus(env, cfStatus[1]);
+    if(cfStatus && request.method === 'GET') return handleCashfreeOrderStatus(request, env, cfStatus[1]);
 
     if(path === 'push/send' && request.method === 'POST') return handlePushSend(request, env);
 

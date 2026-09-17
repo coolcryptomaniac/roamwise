@@ -61,6 +61,11 @@ function _cfCustomer(){
   };
 }
 function _cfValidPhone(value){return /^\+?\d{7,15}$/.test(String(value||'').replace(/[\s()-]/g,''));}
+function _cfToken(){
+  var u=(typeof user!=='undefined')?user:null;
+  if(!u||!u.uid||typeof u.getIdToken!=='function')return Promise.reject(new Error('Sign in again before payment.'));
+  return u.getIdToken();
+}
 function _cfBeginOrder(shell){
   var endpoint = (typeof rwApi === 'function') ? rwApi('cashfree/order') : null;
   if(!endpoint){
@@ -68,12 +73,13 @@ function _cfBeginOrder(shell){
     _cfOrderPromise.catch(function(){});return shell;
   }
   var customer=_cfCustomer();
+  if(!customer.id||customer.id.indexOf('guest_')===0){shell.needsAuth=true;_cfOrderPromise=null;return shell;}
   if(!_cfValidPhone(customer.phone)){shell.needsPhone=true;_cfOrderPromise=null;return shell;}
-  shell.needsPhone=false;
-  _cfOrderPromise = fetch(endpoint, {
-    method: 'POST',headers: {'Content-Type': 'application/json'},
+  shell.needsPhone=false;shell.needsAuth=false;
+  _cfOrderPromise = _cfToken().then(function(token){return fetch(endpoint, {
+    method: 'POST',headers: {'Content-Type': 'application/json','Authorization':'Bearer '+token},
     body: JSON.stringify({amount: shell.amountINR, customer: customer, meta: {planId: shell.planId, tierId: shell.tierId, label: shell.label}})
-  }).then(function(r){
+  });}).then(function(r){
     return r.json().catch(function(){ return {}; }).then(function(d){if(!r.ok) throw new Error((d&&d.message)||'Cashfree order creation failed.');return d;});
   }).then(function(d){
     if(!d||!d.payment_session_id)throw new Error('Cashfree did not return a payment session.');
@@ -90,40 +96,11 @@ function _cfBeginOrder(shell){
 function _cfConfirmPaid(orderId, attemptsLeft){
   var endpoint = (typeof rwApi === 'function') ? rwApi('cashfree/order/' + encodeURIComponent(orderId) + '/status') : null;
   if(!endpoint) return Promise.resolve(false);
-  return fetch(endpoint).then(function(r){ return r.json().catch(function(){ return {}; }); }).then(function(d){
-    if(d && d.order_status === 'PAID') return true;
+  return _cfToken().then(function(token){return fetch(endpoint,{headers:{'Authorization':'Bearer '+token}});}).then(function(r){ return r.json().catch(function(){ return {}; }); }).then(function(d){
+    if(d && d.order_status === 'PAID' && d.entitlement && d.entitlement.persisted===true) return d;
     if(attemptsLeft > 0) return new Promise(function(resolve){ setTimeout(resolve, 1500); }).then(function(){ return _cfConfirmPaid(orderId, attemptsLeft - 1); });
     return false;
   }).catch(function(){ return false; });
-}
-
-/* ENTITLEMENT-PERSISTENCE FIX: grantPurchase() (js/payments/plan-picker.js)
-   only ever sets LOCAL (localStorage/device-only) entitlement — before this,
-   NOTHING wrote any server-side record of a Cashfree purchase anywhere, so a
-   customer who cleared storage, switched devices, or reinstalled lost Pro
-   despite having genuinely paid (see firestore.rules' cashfreeOrders/
-   {orderId} block for the full trust-model writeup on why this creates a
-   PENDING, admin-approved receipt rather than self-granting pro:true
-   directly — a fully automatic, still-secure self-service grant needs the
-   Worker to hold a Firebase Admin/service-account credential, which does not
-   exist in this repo today; see CASHFREE-INTEGRATION-SETUP.md's "Follow-up"
-   section). Best-effort and non-blocking, same discipline as
-   openPartnerRedeem()'s founder.count increment — a write failure here must
-   never undo or block the Pro access grantPurchase() already granted. */
-function _cfRecordOrder(orderId, planId, amountINR){
-  try{
-    var u = (typeof user !== 'undefined') ? user : null;
-    if(!u || !u.uid) return;
-    if(typeof db === 'undefined' || !db) return;
-    db.collection('cashfreeOrders').doc(String(orderId)).set({
-      uid: u.uid,
-      cfOrderId: String(orderId),
-      planId: planId || '',
-      amountINR: Number(amountINR) || 0,
-      status: 'pending',
-      createdAt: new Date().toISOString()
-    }).catch(function(){});
-  }catch(e){ /* best-effort, ignore */ }
 }
 
 var CashfreeAdapter = {
@@ -148,7 +125,8 @@ var CashfreeAdapter = {
      PAYMENT-GATEWAY-ARCHITECTURE.md's "Adding gateway #2" guide both note —
      there is no separate verifyPayment() step. */
   openCheckout: function(order, method){
-    if(!_cfOrderPromise){ showToast(order&&order.needsPhone?'Add a valid mobile number for the Cashfree receipt.':'Pick a plan again — the Cashfree session expired.'); return; }
+    if(!_cfOrderPromise&&order&&!order.needsPhone)_cfBeginOrder(order);
+    if(!_cfOrderPromise){ showToast(order&&order.needsPhone?'Add a valid mobile number for the Cashfree receipt.':'Sign in again, then reopen checkout.'); return; }
     showToast('Opening secure Cashfree checkout…');
     _cfOrderPromise.then(function(ready){
       return _cfLoadSdk().then(function(){ return ready; });
@@ -168,8 +146,8 @@ var CashfreeAdapter = {
          completion callback fires "irrespective of transaction status") —
          confirm order_status server-side before granting anything. */
       showToast('Confirming your payment…');
-      _cfConfirmPaid(res.orderId, 3).then(function(paid){
-        if(paid){
+      _cfConfirmPaid(res.orderId, 3).then(function(confirmation){
+        if(confirmation){
           try{ track('cashfree_paid'); }catch(e){ /* analytics best-effort, ignore */ }
           /* FULFILLMENT FIX: Cashfree's confirmation is real-time/automatic —
              unlike the manual-UPI/UTR flow's honor-system admin approval,
@@ -183,12 +161,9 @@ var CashfreeAdapter = {
              short-term buyer still gets full access, never the other way
              around. */
           grantPurchase(res.orderId || 'cashfree', 'cashfree', res.planId);
-          /* ENTITLEMENT-PERSISTENCE FIX: write the admin-approved
-             cashfreeOrders/{orderId} receipt this file's header comment and
-             _cfRecordOrder() above describe — grantPurchase() only ever
-             wrote LOCAL entitlement, so this is what actually survives a
-             cleared device. */
-          _cfRecordOrder(res.orderId || 'cashfree', res.planId, res.amountINR);
+          /* The Worker has already persisted the account-bound entitlement
+             before returning PAID. This local grant only refreshes the
+             current screen immediately; Firestore remains authoritative. */
           /* FOUNDER SEAT COUNTING BUG FIX (2026-09-07): a Founder-offer seat
              bought through Cashfree is still one of the shared 1,000
              lifetime-Pro seats — it must count against that pool, same as

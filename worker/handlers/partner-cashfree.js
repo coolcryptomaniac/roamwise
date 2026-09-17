@@ -11,7 +11,7 @@ const safeId = (v) => String(v || '').replace(/[^A-Za-z0-9_-]/g, '').slice(0, 45
 const base = (env) => String(env.CASHFREE_ENV || 'sandbox').toLowerCase() === 'live' ? LIVE_BASE : SANDBOX_BASE;
 const headers = (env, extra = {}) => ({
   'content-type': 'application/json',
-  'x-api-version': env.CASHFREE_API_VERSION || '2023-08-01',
+  'x-api-version': env.CASHFREE_API_VERSION || '2026-01-01',
   'x-client-id': env.CASHFREE_APP_ID,
   'x-client-secret': env.CASHFREE_SECRET_KEY,
   ...extra,
@@ -24,14 +24,22 @@ async function context(request, env) {
   const auth = request.headers.get('authorization') || '';
   const match = /^Bearer\s+(.+)$/i.exec(auth);
   if (!match) return { error: json({ error: 'unauthorized', message: 'Sign in again before payment.' }, 401) };
-  let sa, claims;
+  let sa, claims, accessToken;
   try {
     sa = parseServiceAccount(env);
     claims = await verifyFirebaseIdToken(match[1], sa.project_id);
+    accessToken = await getServiceAccountAccessToken(env);
   } catch (_) {
     return { error: json({ error: 'unauthorized', message: 'Your sign-in expired. Sign in again.' }, 401) };
   }
-  const accessToken = await getServiceAccountAccessToken(env);
+  if (base(env) !== LIVE_BASE) {
+    try {
+      const admin = await getDoc(env, accessToken, sa.project_id, `admins/${claims.uid}`);
+      if (!admin) return { error: json({ error: 'sandbox_admin_only', message: 'Cashfree sandbox is restricted to an administrator.' }, 403) };
+    } catch (_) {
+      return { error: json({ error: 'sandbox_access_unavailable', message: 'Could not verify sandbox access.' }, 502) };
+    }
+  }
   return { claims, accessToken, projectId: sa.project_id };
 }
 
@@ -140,7 +148,7 @@ export async function handlePartnerCashfreeStatus(request, env, bookingId) {
   if (!orderId) return json({ error: 'order_not_started' }, 409);
   const { res, data } = await getCashfreeOrder(env, orderId);
   if (!res.ok) return json({ error: 'cashfree_status_failed', message: data.message || 'Could not confirm payment.' }, res.status >= 400 ? res.status : 502);
-  if (Number(data.order_amount) !== found.amount || data.order_currency !== 'INR') return json({ error: 'payment_integrity_failed' }, 409);
+  if (String(data.order_id || '') !== orderId || Number(data.order_amount) !== found.amount || data.order_currency !== 'INR') return json({ error: 'payment_integrity_failed' }, 409);
   if (data.order_status === 'PAID') {
     await updateDoc(env, ctx.accessToken, ctx.projectId, `roomBookings/${found.id}`, {
       paymentStatus: 'paid',

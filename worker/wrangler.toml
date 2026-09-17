@@ -54,7 +54,7 @@ CASHFREE_ENV = "sandbox"
 MANAGED_AI_ENABLED = "false"
 AI_MAX_PROMPT_CHARS = "4000"
 AI_MAX_OUTPUT_TOKENS = "700"
-# CASHFREE_API_VERSION = "2023-08-01"   # optional override; handler defaults to this
+# CASHFREE_API_VERSION = "2026-01-01"   # optional override; handler defaults to this
 # PAYMENT_RETURN_URL = "https://roamwise.co.in/partner/"   # optional fallback return URL
 
 # Separate monthly allowance meter for /ai. Create it with:

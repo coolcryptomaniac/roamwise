@@ -1,385 +1,155 @@
-# Cashfree integration — setup guide
+# Cashfree + Cloudflare setup
 
-> Security: do not send an API secret, merchant password, webhook secret, bank
-> credential or KYC document in chat. Put API credentials only into the
-> deployed Worker's secret store with `wrangler secret put`. If a credential
-> has ever been pasted into chat, Git, a ticket or a browser-readable database,
-> rotate it in Cashfree before use.
+RoamWise uses the existing `roamwise-api` Cloudflare Worker as the trusted
+payment backend. Cashfree App IDs, secret keys and Firebase service-account
+JSON must never be entered in the RoamWise admin page, Firestore, source code,
+GitHub Actions output, chat, or browser storage.
 
-This is the literal, step-by-step guide for turning on the new Cashfree
-payment-gateway adapter. It changes **nothing** for live users until you do
-step 4 — until then the app keeps working exactly as it does today (the
-plain UPI/UTR flow, `js/payments/providers/manual-upi-adapter.js`).
+The admin page stores only public/non-secret controls: Worker URL, sandbox/live
+mode, provider enabled state, return URL, and masked settlement metadata.
 
-See `PAYMENT-GATEWAY-ARCHITECTURE.md` for the adapter interface this plugs
-into, and this PR's description for why the server-side piece landed in
-`worker/` (the app's one actively-deployable Worker, `roamwise-api`) rather
-than in the separate, currently-undeployed `payments/` multi-provider router
-— short version: `payments/` already has correct Cashfree order-creation
-logic (its `worker.mjs`'s `cashfree()` function), which this integration's
-request/response shape is ported from, but it's its own separate Cloudflare
-Worker with no real (non-`.example`) `wrangler.toml`, no deploy step, and no
-client code pointed at it — standing it up would mean the owner deploying
-and maintaining a second Worker/project/DNS route for one gateway.
+## Implemented trust flow
 
-## Marketplace property settlements are a separate activation
+1. A signed-in user selects a supported one-time plan.
+2. The browser sends its Firebase ID token, plan ID and phone to
+   `POST /cashfree/order`.
+3. The Worker verifies the ID token, looks up the plan price server-side,
+   rejects recurring plans and accounts that already have active paid access,
+   and creates the Cashfree order with Worker secrets. Blocking a second active
+   plan prevents a short pass from accidentally overwriting a longer entitlement.
+4. The Worker saves an `ACTIVE` `cashfreeOrders/{orderId}` receipt bound to the
+   authenticated Firebase UID before returning `payment_session_id`.
+5. The browser opens Cashfree Hosted Checkout.
+6. `GET /cashfree/order/{orderId}/status` re-verifies the Firebase ID token and
+   receipt ownership, then reads the order directly from Cashfree.
+7. Only when order ID, INR amount, currency and `order_status: PAID` all match,
+   the Worker writes `payments/{orderId}`, the durable `users/{uid}` entitlement,
+   and marks the order fulfilled.
+8. The browser shows success only after the Worker returns
+   `entitlement.persisted: true`.
 
-The routes described below sell RoamWise's own fixed-price products. They do
-**not** yet collect a stay payment and route a property payout. That second use
-case requires Cashfree **Easy Split** to be activated for this merchant account
-and each property to complete the provider-required vendor/KYC onboarding.
+The browser cannot set its own Cashfree receipt or permanent Pro fields.
 
-The intended stay-payment flow is: host confirms availability → server creates
-the order from the snapshotted booking → signed webhook confirms payment →
-server sends one idempotent split instruction → refund/dispute events create
-compensating ledger entries → settlement releases when eligible. A browser
-callback is never proof of payment, and a requested paid partner plan never
-earns the lower 5% rate until its payment is verified.
+## Supported products
 
-Until Easy Split, webhook verification, vendor onboarding and tax treatment are
-tested, keep the safer pilot: the confirmed property collects the stay payment,
-RoamWise records completion and invoices its 5–7% commission. Do not market the
-pilot as escrow or as automated marketplace settlement.
+Cashfree is restricted in both UI and Worker to one-time products: Founder,
+long-term passes, and day/week/quarter passes. Monthly/yearly recurring plans
+remain on manual UPI until Cashfree Subscriptions is separately implemented and
+approved. Hiding a button is not the security boundary; the Worker allow-list is.
 
-## What shipped
+## 1. Add Cloudflare secrets
 
-- `worker/handlers/cashfree.js` — two new routes on the existing
-  `roamwise-api` Worker:
-  - `POST /cashfree/order` — creates a real Cashfree order server-side and
-    returns a `payment_session_id` to the browser. The App ID/Secret Key
-    never leave this handler.
-  - `GET /cashfree/order/:id/status` — lets the browser confirm
-    `order_status === 'PAID'` with Cashfree before granting anything (see
-    the code comment there for why: Cashfree's own docs note the client
-    SDK's completion callback fires once checkout finishes, "irrespective
-    of transaction status" — it isn't proof of a successful charge by
-    itself).
-- `js/payments/providers/cashfree-adapter.js` — implements the
-  `RWPaymentGateway` interface (`js/payments/gateway-adapter.js`):
-  `createOrder()` calls the endpoint above via the existing `rwApi()`
-  helper (`rw-config.js`); `openCheckout()` loads Cashfree's official
-  Checkout JS SDK (`https://sdk.cashfree.com/js/v3/cashfree.js`) and drives
-  it, then polls the status endpoint and, once the order is confirmed
-  `PAID`, calls `grantPurchase(orderId, 'cashfree', planId)`
-  (`js/payments/plan-picker.js`) — the exact per-product tier-derivation
-  logic the manual-UPI/UTR flow's instant provisional unlock already uses,
-  reused here so a Plus/Pro monthly buyer gets exactly that tier and a
-  Founder/long-term/short-term buyer gets full access, not a blanket grant
-  for every product. **(Fixed in the subscription-vs-one-off gating pass —
-  an earlier version of this integration called the generic `activatePro()`
-  for every Cashfree purchase regardless of what was actually bought; see
-  `PAYMENT-GATEWAY-ARCHITECTURE.md`'s "Per-product fulfillment" section.)**
-- `index.html` — one new `<script>` tag registering the adapter, right
-  after `manual-upi-adapter.js`. `partner-redeem.js`/`checkout.js` are
-  untouched; `plan-picker.js` gained explicit, category-gated wiring for
-  Cashfree in the subscription-vs-one-off pass — see below.
-- `tests/cashfree-payment.test.js` — unit tests (mocked network, no real
-  credentials) for both the Worker handler and the client adapter: success,
-  Cashfree-side order failure, invalid/missing amount, missing customer
-  phone, network errors, checkout-cancelled, the not-yet-`PAID` status
-  path, and (added in the gating pass) that a confirmed `PAID` status calls
-  `grantPurchase()` with the correct plan id rather than the blanket
-  `activatePro()`.
+Use Cloudflare Dashboard → Workers & Pages → `roamwise-api` → Settings →
+Variables and Secrets. Add each value as type **Secret**:
 
-## Subscription-vs-one-off gating (added in a later pass)
+- `CASHFREE_APP_ID` — sandbox App ID first
+- `CASHFREE_SECRET_KEY` — matching sandbox secret first
+- `FIREBASE_SERVICE_ACCOUNT_JSON` — complete JSON for the Firebase project
 
-Cashfree is approved on this merchant account for one-off/one-time payments
-only — recurring subscriptions are **not yet** approved (may need more
-business documentation/presence first). So Cashfree is now offered ONLY
-when the purchase being made is one-off (Founder offer, long-term/short-
-term passes) — never for a Plus/Pro/Elite monthly-or-yearly subscription
-purchase, regardless of `config/app.PAYMENT_PROVIDER`. Manual UPI remains
-available for every purchase, subscription or one-off, as a genuine choice.
+Or, from `worker/`:
 
-This didn't require a new config field: `config/app.PAYMENT_PROVIDER`
-still works exactly as step 4 below describes ("the one field that turns
-Cashfree on"), it's just no longer the ONLY gate — `js/payments/
-plan-picker.js`'s `_renderCashfreeOption()` additionally checks the
-selected plan's category before showing the Cashfree button at all. See
-`PAYMENT-GATEWAY-ARCHITECTURE.md`'s "Subscription vs. one-off gating"
-section for the full mapping and exactly which one line to change once
-Cashfree's subscription approval comes through.
+```bash
+npx wrangler secret put CASHFREE_APP_ID
+npx wrangler secret put CASHFREE_SECRET_KEY
+npx wrangler secret put FIREBASE_SERVICE_ACCOUNT_JSON
+```
 
-Nothing here changes `config/app.PAYMENT_PROVIDER`'s default — it's still
-`manual_upi` (see step 4 for the one Firestore field that switches it).
+Do not add their values to `worker/wrangler.toml`. Cloudflare secrets are
+write-only from the application and cannot be displayed in Admin.
 
-## 1. Get your Cashfree credentials
+`FIREBASE_SERVICE_ACCOUNT_JSON` should come from Firebase Console → Project
+Settings → Service accounts. Give the service account only the project access
+needed by this Worker and rotate it if the JSON has ever been exposed.
 
-From the Cashfree merchant dashboard (the one that was just approved):
+## 2. Deploy the Worker
 
-1. Make sure you have credentials for **both** Sandbox and Live/Production
-   — they're separate App ID/Secret Key pairs in Cashfree's dashboard
-   (Developers → API Keys), one per environment tab.
-2. Copy the **Sandbox** App ID and Secret Key first — test end-to-end in
-   sandbox before touching anything live (step 3).
-
-## 2. Deploy the Worker (if you haven't already)
-
-This reuses the existing `roamwise-api` Worker (`worker/`), the same one
-`CLOUDFLARE-MIGRATION-SETUP.md` walks through deploying and fixing the
-"Workers Builds: roamwise" Cloudflare dashboard misconfiguration for. If
-that Worker isn't deployed yet, do that first (see that doc's §0 and §B) —
-the Cashfree routes ship as part of the same file (`worker/worker.js`) and
-need nothing extra to deploy alongside it.
-
-## 3. Set the Worker secrets (sandbox first)
-
-From the `worker/` directory, with `wrangler` authenticated against your
-Cloudflare account:
+`worker/wrangler.toml` defaults to `CASHFREE_ENV = "sandbox"`.
 
 ```bash
 cd worker
-npx wrangler secret put CASHFREE_APP_ID
-# paste your SANDBOX App ID when prompted
-
-npx wrangler secret put CASHFREE_SECRET_KEY
-# paste your SANDBOX Secret Key when prompted
-```
-
-`worker/wrangler.toml` already ships `CASHFREE_ENV = "sandbox"` as the
-default `[vars]` value — a plain, non-secret config choice, not a secret,
-so it's fine to keep it checked into the repo. **Do not** put the App
-ID/Secret Key in `wrangler.toml` — `wrangler secret put` is the only place
-they should ever live, and they're never readable back out once set (only
-overwritable with another `wrangler secret put`).
-
-Optional: `npx wrangler secret put ...` doesn't apply to
-`CASHFREE_API_VERSION` or `PAYMENT_RETURN_URL` — those are plain vars too;
-uncomment/edit them directly in `worker/wrangler.toml`'s `[vars]` block if
-you need to override the defaults.
-
-Deploy:
-
-```bash
 npx wrangler deploy
 ```
 
-## 4. Point the client at the Worker and test in Cashfree's sandbox
+Record the deployed HTTPS URL, for example:
+`https://roamwise-api.<account>.workers.dev`.
 
-1. In `rw-config.js`, set `window.RW_CONFIG.backend` to `'worker'` (or
-   `'auto'`) and `workerUrl` to your deployed Worker's URL (e.g.
-   `https://roamwise-api.<your-subdomain>.workers.dev`, or your custom
-   route if you've mapped one) — this is the same switch every other
-   Worker-backed feature in this app already uses (`/geo`, `/ai`, etc.), it
-   is not Cashfree-specific.
-2. In the Firestore admin console, set `config/app.PAYMENT_PROVIDER` to
-   `"cashfree"`. **This is the one field that turns Cashfree on** — see
-   `js/boot/init.js`'s `applyRemoteConfig` and
-   `PAYMENT-GATEWAY-ARCHITECTURE.md`. Leaving it unset (or setting it back
-   to `"manual_upi"`) reverts every user to today's UPI/UTR flow instantly,
-   no deploy needed.
-3. Open the app and tap a **one-off/one-time plan** (Founder offer, a
-   long-term pass, or a short-term pass) — a new "Pay via Cashfree —
-   instant, automatic unlock" button/section appears alongside the
-   existing GPay/PhonePe/WhatsApp/"Any other UPI app" buttons (which keep
-   working exactly as before; they still drive the manual-UPI flow, never
-   Cashfree). Tapping the Cashfree button opens Cashfree's own hosted
-   checkout, which presents its own full method picker (cards, UPI,
-   netbanking). Tapping a **subscription** plan (Plus/Pro/Elite monthly or
-   yearly) does NOT show the Cashfree button at all, even with
-   `PAYMENT_PROVIDER` set to `cashfree` — see
-   `PAYMENT-GATEWAY-ARCHITECTURE.md`'s "Subscription vs. one-off gating"
-   section for why (Cashfree isn't approved for recurring payments yet).
-4. Use [Cashfree's documented sandbox test card/UPI/netbanking
-   credentials](https://www.cashfree.com/docs) (their dashboard's own
-   sandbox testing guide — these change over time, so don't hardcode them
-   here) to complete a full test payment.
-5. Confirm: the checkout modal opens, completing the test payment resolves
-   without a Cashfree SDK error, the app shows the success overlay
-   (`activatePro()` fires only after `GET /cashfree/order/:id/status`
-   confirms `order_status: "PAID"`), and the Cashfree sandbox dashboard
-   shows the order as `PAID`.
-6. Test the failure/cancel paths too: close the checkout modal without
-   paying, and use a documented sandbox failure card — confirm the app
-   shows a clear "not completed" message and does **not** grant Pro.
+## 3. Enable sandbox from Admin
+
+Open Admin → Partner payments:
+
+1. Enter the public Worker base URL.
+2. Select **Sandbox test**.
+3. Set **Cashfree checkout** to enabled.
+4. Click **Verify and save**.
+
+The health check must report both Cashfree credentials and Firebase server
+verification as configured, and the Worker environment must match Admin. Saving
+updates both the Pro checkout config (`config/app`) and partner-payment config.
+In sandbox, the Cashfree button is shown only to the admin UID that enabled it.
+
+## 4. Sandbox acceptance test
+
+Use only Cashfree's current documented sandbox payment details.
+
+- Sign in as the sandbox admin account.
+- Select a one-time plan and provide a valid receipt phone if requested.
+- Complete one successful sandbox payment.
+- Confirm Cashfree shows the order as `PAID`.
+- Confirm Firestore has the same order ID in `cashfreeOrders` and `payments`.
+- Confirm `users/{uid}` has `pro: true`, the expected `proTier`, `proPlanId`,
+  `proPayId`, and `proUntil` (`0` for lifetime).
+- Sign out and sign in again; access must still be present.
+- Test cancellation and failed payment; neither may create an entitlement.
+- Try a recurring plan; the Cashfree option must not be offered, and a direct
+  API request must return `unsupported_plan`.
+- Try another user's order ID; status must return forbidden.
+- Try from an account that already has active Pro; order creation must return
+  `already_entitled` rather than charging and replacing its current access.
+
+The repository unit tests mock Cashfree and Firebase boundaries. They prove the
+request authorization, price/plan checks, exact paid-order validation and
+server-side persistence logic without charging money. A real sandbox payment
+still requires deployed secrets and must be performed by the account owner.
 
 ## 5. Go live
 
-Only after step 4 is fully green:
+Do not switch live based only on a green unit test. First complete the sandbox
+acceptance test above.
 
-1. `npx wrangler secret put CASHFREE_APP_ID` and
-   `npx wrangler secret put CASHFREE_SECRET_KEY` again, this time pasting
-   your **Live/Production** credentials (overwrites the sandbox secrets).
-2. Edit `worker/wrangler.toml`'s `[vars]` block: `CASHFREE_ENV = "live"`.
-   Commit that change (it's a non-secret config choice, safe to check in —
-   same as `CASHFREE_ENV = "sandbox"` was).
-3. `npx wrangler deploy` again.
-4. Do one small real end-to-end payment yourself before announcing it.
-5. `config/app.PAYMENT_PROVIDER` in Firestore is already `"cashfree"` from
-   step 4 above, so live users start using it as soon as the Worker
-   redeploys with live credentials — there's no separate "go live" flag
-   beyond swapping the Worker secrets/env and redeploying. If you'd rather
-   stage this (e.g. sandbox-test with the Worker deployed but keep real
-   users on manual UPI a while longer), just leave
-   `config/app.PAYMENT_PROVIDER` as `"manual_upi"` until you're ready — the
-   Worker being live/configured doesn't by itself route any real user
-   traffic to it.
+1. Replace the two Cashfree Worker secrets with the live App ID and live Secret
+   Key.
+2. Set `CASHFREE_ENV = "live"` in `worker/wrangler.toml` and deploy.
+3. In Admin choose **Live payments**, run **Check Worker**, then save.
+4. Make one low-value real purchase with your own account.
+5. Verify the Cashfree dashboard, Firestore payment, durable entitlement and a
+   second-device login before opening the gateway to customers.
 
-## Entitlement persistence (fixed — see trust model below)
+Use Admin to switch `PAYMENT_PROVIDER` back to `manual_upi` immediately if the
+Worker health check or real payment test fails.
 
-**The gap (found investigating PR #153's Founder-counter bug, fixed in the
-entitlement-persistence PR):** `grantPurchase()` (`js/payments/plan-picker.js`)
-only ever set **local** entitlement — `isPro`/localStorage — for a confirmed
-Cashfree purchase. It never wrote anything to Firestore. That meant:
+## Operational limitations before high-volume launch
 
-1. A customer who paid via Cashfree lost Pro the moment they cleared
-   browser storage, switched devices, or reinstalled the Android app — no
-   account-bound record of the purchase existed anywhere.
-2. Worse: `js/boot/auth-init.js`'s account-bound `users/{uid}` `onSnapshot`
-   listener runs on **every** sign-in/page load and force-sets `isPro=false`
-   the instant it sees Firestore has no `pro:true` and no live
-   `rw_pro_temp`/`rw_pro_temp_uid` grace window — so the local grant could
-   vanish on the **very next reload**, not just after a storage clear.
-   `manual-upi-adapter.js`'s `verifyPayment()` already avoids this for the
-   UTR-claim flow via a 24h `rw_pro_temp` grace window; Cashfree's
-   `grantPurchase()` call site never set one.
-3. The Founder-offer seat counter (`pricing/founder.count`) was also never
-   incremented for Cashfree-bought Founder seats — see PR #153, fixed
-   separately in `js/payments/providers/cashfree-adapter.js`.
+- The current automatic fulfillment is initiated by the authenticated status
+  poll after Hosted Checkout. It is secure because the Worker independently
+  verifies Cashfree, but a user who closes the app before polling may require
+  recovery from Admin's “Cashfree orders needing attention” queue.
+- Add and validate a signed Cashfree webhook before treating this as a
+  high-volume, fully unattended payment system. The webhook must verify the raw
+  request signature, be idempotent by order/payment ID, re-check the recorded
+  amount and owner, and reuse the same server-side fulfillment function.
+- Cloudflare CORS is currently shared with the public Worker routes. Firebase
+  authorization and receipt ownership protect payment operations, but an
+  explicit production-origin allow-list remains worthwhile defense in depth.
+- Cashfree requires a phone for order creation. RoamWise asks for a receipt phone
+  at checkout when the Firebase account does not contain one; it never invents a
+  fake number.
+- Easy Split/direct-stay settlements are a different product. Keep them disabled
+  until Cashfree approves Easy Split, vendors pass KYC, payout destinations are
+  verified, and refund/dispute/webhook paths have been tested.
 
-**The fix, and the trust model behind it:**
+## Recovery
 
-- `js/payments/plan-picker.js`'s `grantPurchase()` now sets the same
-  `rw_pro_temp`/`rw_pro_temp_uid` 24h grace window `manual-upi-adapter.js`
-  already uses, so the local grant survives reloads while the durable record
-  below awaits admin approval (same mechanism, zero new logic).
-- `js/payments/providers/cashfree-adapter.js`'s `openCheckout()` now also
-  calls `_cfRecordOrder()` — a best-effort, non-blocking write of a
-  `cashfreeOrders/{orderId}` doc (`uid`, `cfOrderId`, `planId`, `amountINR`,
-  `status:'pending'`, `createdAt`) the instant the Worker's status-check
-  endpoint confirms `PAID`. This closes the "zero server-side record this
-  payment ever happened" gap immediately, even before anyone approves it.
-- **This does NOT let the buyer self-grant `users/{uid}.pro`.** The obvious
-  next move — a Firestore rule letting the buyer flip their own `pro:true`
-  once a `cashfreeOrders` doc exists — was deliberately **not** implemented,
-  because the one already-proven pattern in this repo that shape would
-  naturally mirror (`partnerClaims/{id}`'s self-service create, used by
-  `openPartnerRedeem()`) has a *documented, accepted, open* forgery risk:
-  `firestore.rules` explicitly notes that `create` on `partnerClaims/{id}`
-  has no auth requirement beyond field-shape validation, so **any** signed-in
-  caller can already invent a claim doc for an arbitrary code and self-redeem
-  it (v15.10 tried to close this, v15.11 reverted the fix because it broke
-  real NMIMS claim submissions — see `firestore.rules`' own changelog).
-  Cloning that shape onto a real-money purchase path would let anyone grant
-  themselves permanent Pro for ₹0 — strictly worse than the bug this PR
-  fixes. A **non-forgeable** self-service grant needs a `cashfreeOrders`
-  write that only a trusted server could have made — i.e.
-  `worker/handlers/cashfree.js`'s status-check endpoint writing that doc
-  itself via a Firestore REST call, authenticated with a **Firebase
-  Admin/service-account credential**. No such credential exists anywhere in
-  this repo today (checked: no `firebase-admin` dependency, no
-  service-account JSON, no OAuth2/JWT-signing code in `worker/` or
-  `payments/`).
-- Instead, `firestore.rules`' new `cashfreeOrders/{orderId}` block mirrors
-  **`claims/{id}`'s** proven shape (the manual-UPI/UTR flow): the buyer can
-  self-create a `status:'pending'` receipt bound to their own uid (bounded
-  amount/plan-id/order-id fields, doc ID pinned to the real Cashfree order
-  id so a second account can't hijack it), but **only an admin can update,
-  delete, or ever move it to `approved`** — and nothing in this collection
-  can touch `users/{uid}.pro` directly; that still only ever happens via the
-  pre-existing `isAdmin()` branch on `users/{uid}`, exercised through
-  `admin/index.html`'s existing, unmodified `saveManualPayment()` flow (the
-  same atomic user+claim+ledger+audit-log write manual UPI already uses).
-  `admin/index.html` gained a small "Pending Cashfree payments" panel
-  (`renderCashfreeQueue()`) so these receipts are actually visible to the
-  admin instead of sitting silently in Firestore.
-- **Net effect:** paying customers are no longer at risk of silently losing
-  Pro (closed immediately via the grace window + durable receipt), and the
-  security model stays exactly as strict as it was before this PR — zero new
-  client-writable path to `pro:true` was added. The remaining gap is
-  **speed**: entitlement persistence is now admin-approved (like manual UPI),
-  not instant/automatic (like the rest of the Cashfree flow). Closing that
-  last gap for real needs the follow-up below.
-
-### Follow-up: fully automatic, still-secure entitlement persistence
-
-To make Cashfree entitlement persistence fully automatic (no admin step),
-`worker/handlers/cashfree.js`'s `handleCashfreeOrderStatus()` needs to write
-the `cashfreeOrders/{orderId}` doc itself, server-side, the moment it
-confirms `PAID` with Cashfree — at which point `firestore.rules` could safely
-let the buyer read that Worker-authored doc and flip their own `pro:true` in
-response (a real, non-forgeable version of the pattern this PR intentionally
-did NOT build client-side-only). That requires:
-
-1. A **Firebase service-account JSON** provisioned as a new Worker secret
-   (`npx wrangler secret put FIREBASE_SERVICE_ACCOUNT`, e.g.) — generate one
-   from Firebase Console → Project Settings → Service Accounts.
-2. Worker-side code to mint a short-lived Google OAuth2 access token from
-   that service account (RS256-signed JWT bearer flow — Cloudflare Workers'
-   `crypto.subtle.sign` supports this; no `firebase-admin` npm package is
-   needed, just a fetch to `oauth2.googleapis.com/token`) and use it to call
-   the Firestore REST API (`PATCH .../documents/cashfreeOrders/{orderId}`).
-3. A `firestore.rules` update letting the buyer transition their own
-   `users/{uid}.pro` when a `cashfreeOrders/{orderId}` doc they own shows
-   `status:'PAID'` (Worker-authored) and `claimed:false`, flipping `claimed`
-   to `true` in the same write — mirroring `openPartnerRedeem()`'s
-   two-sequential-writes shape, but gated on a doc only the Worker could
-   have written, not a self-asserted one.
-
-This is real infrastructure work (a new secret + Worker-side crypto/HTTP
-code + a rules change), not a small addition — flagging it here rather than
-building it speculatively without the owner's service-account credential in
-hand.
-
-## Direct-stay checkout at `/partner/`
-
-The direct-stay path is separate from Pro entitlement checkout:
-
-1. Admin saves non-secret settings in Admin → Partner payments.
-2. A guest requests a verified room; no payment action is available yet.
-3. The host confirms availability.
-4. The guest chooses the previously snapshotted Cashfree preference.
-5. `POST /partner/cashfree/order` verifies the guest's Firebase ID token and
-   re-reads the booking amount, status, payment method, active partner and
-   payment configuration from Firestore.
-6. `GET /partner/cashfree/order/{bookingId}/status` accepts the same token,
-   checks the exact INR amount with Cashfree and writes `paymentStatus:'paid'`
-   only after Cashfree returns `order_status:'PAID'`.
-
-This path requires `CASHFREE_APP_ID`, `CASHFREE_SECRET_KEY` and
-`FIREBASE_SERVICE_ACCOUNT_JSON` as Worker secrets. The admin health screen
-shows only configured/missing and environment match; it cannot read a value.
-Keep Easy Split disabled until Cashfree has approved the product and every
-vendor payout destination is verified.
-
-## Known limitations to review before relying on this for real revenue
-
-- **Checkout confirmation is granted client-side, gated on one status
-  check.** The adapter polls `GET /cashfree/order/:id/status` up to 3 times
-  (1.5s apart) right after checkout and calls `grantPurchase()` (the correct
-  per-product tier grant, not a blanket one — see "Subscription-vs-one-off
-  gating" above) the moment it sees `PAID`.
-  There is no Cashfree **webhook** wired up in this PR — `payments/`'s
-  already-built `verifyCashfree()` webhook-signature verifier
-  (`payments/webhook-verify.mjs`) is a natural next step if you want
-  server-confirmed, replay-proof entitlement instead of trusting a
-  browser-driven status poll (a user closing the tab mid-poll, or a slow
-  Cashfree status update, just means they see "still processing" and don't
-  get Pro yet — it fails closed, not open — but it's still weaker than a
-  webhook). This mirrors the existing Gumroad path's trust model
-  (`verifyGumroad()` in `js/payments/checkout.js`), not a new risk category
-  for this app, but it's worth your own review before this carries
-  meaningful volume (per `AI-ROLES-AND-HANDOFF.md` rule 7).
-- **Customer phone is mandatory.** Cashfree's Create Order API requires a
-  customer phone number; users who signed in without one (e.g. Google/email
-  login, no phone on file) get a clear `422` from `/cashfree/order` instead
-  of a fabricated phone number. There's no in-app "add your phone number"
-  prompt yet — that's a follow-up UI piece, not built here.
-- **CORS on `worker/worker.js` is wildcard (`*`)**, matching every other
-  route on this Worker today (`/ai`, `/geo`, etc.) — this PR didn't
-  introduce a new CORS model, but a payment-order-creation endpoint is a
-  reasonable place to reconsider that (e.g. reuse `payments/`'s
-  origin-allowlist pattern in `payments/worker.mjs`'s `cors()`/
-  `allowedOrigin()`) if you want to tighten it later.
-- **Cashfree takes a ~2% commission per transaction** through their
-  Payment Gateway — unlike manual UPI (`roamwise@ybl`), which has none.
-  This is a real cost difference the owner should factor into pricing/
-  margin decisions; it isn't surfaced to the buyer in the app UI today.
-- **Only one-off/one-time payments are approved on this merchant account
-  today** — Cashfree has NOT yet approved recurring subscription payments
-  (may need more business documentation/presence first). The app enforces
-  this at the UI level (see "Subscription-vs-one-off gating" above); it is
-  not just a documentation note — attempting to route a subscription
-  purchase through Cashfree would likely also be rejected by Cashfree
-  itself, since the merchant account isn't provisioned for it, but the app
-  should never even attempt that call in the first place.
+Admin → Money shows active or paid-but-unfulfilled Cashfree orders. Cross-check
+the order in Cashfree before using the existing manual “Record payment” recovery
+path. Never grant from a screenshot, browser callback, or user-provided order ID
+alone.
