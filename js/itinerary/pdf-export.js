@@ -216,7 +216,7 @@ function genPdf(sample){
     }
     var intelP=new Promise(function(res){
       var hasKey=['groq','cerebras','github','gemini','openrouter','mistral','anthropic'].some(function(p2){return lsGet('rwKey_'+p2);});
-      if(!hasKey) return res(intelFallback());
+      if(activeProv!=='roamwise' && !hasKey) return res(intelFallback());
       var done=false; setTimeout(function(){ if(!done){done=true; res(intelFallback());} }, 18000);
       try{
         aiCall('Return ONLY JSON for travelers to '+d.name+', '+(d.country||'')+': {"hacks":["3 insider hacks"],"save":["3 cost-saving moves"],"context":{"nature":"..","culture":"..","politics":"neutral, safety-focused, no opinions","economy":"..","social":"..","education":"..","caution":".."}}. Each value under 140 chars, practical, specific to the place.',900,function(err,txt){

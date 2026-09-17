@@ -128,7 +128,7 @@ function buildItin(T, name, costMid, days){
 
   function runLive(){
     var prov=activeProv, key=lsGet('rwKey_'+prov);
-    if(prov!=='smart' && key){
+    if(prov==='roamwise' || (prov!=='smart' && key)){
       var p = 'You are an expert local guide. Build a '+days+'-day itinerary for '+name+' in '+((el('month')||{}).value||'any month')+'. Budget ~$'+Math.round(costMid/83.5)+' USD/person. Return ONLY JSON (no prose, no markdown): {"days":[{"day":1,"title":"short theme","morning":"SPECIFIC named place + what to do (with timing like 8:30 AM)","afternoon":"SPECIFIC named place + insider tip","evening":"named restaurant/street + exact dish to order","food":"one local speciality with 4-word description","tip":"practical money/crowd/culture tip"}]}. Exactly '+days+' days, every place REAL and specific to '+name+', each field under 110 chars.';
       aiCall(p, 2200, function(err, txt){
         if(txt){

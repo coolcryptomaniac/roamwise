@@ -50,7 +50,7 @@ start of the modularization effort, down from 3,099 after the prior
 "modularization-final" pass, down from 1,207 after "round 4", and down from
 629 after "round 5" — the further changes since round 5 are incidental to
 unrelated feature PRs #138-143 and this pass's `submitUtr()` one-line
-rewire, not a new extraction round) and there are **147 files** under `js/`
+rewire, not a new extraction round) and there are **149 files** under `js/`
 (including the later `js/admin/` dashboard modules and
 `js/core/push-notifications.js` — see the `js/core/` and `js/admin/`
 entries below),
@@ -59,8 +59,8 @@ new `js/admin/`) plus one nested subdirectory (`js/payments/providers/`),
 plus **9 files** under `css/`. Two new top-level feature areas landed
 since round 5:
 
-- **`js/admin/` (10 files — 6 added in PR #140, plus 4 more from the
-  admin-dashboard-expansion pass)** — a real, data-grounded internal admin
+- **`js/admin/` (15 files, including later operations, KPI and founder-economics
+  additions)** — a real, data-grounded internal admin
   dashboard (business metrics, compliance, staff, referral liability, dev
   requests, investor summary, user activity, promos, notifications, and an
   Overview command center). Loaded only by `admin/index.html` (a separate
@@ -112,7 +112,7 @@ prints PASS/DRIFT per number in under a second.
 - `key-sync.js` — AI-key cross-device sync
 - `config-sync.js` — remote-config sync
 
-### `js/pricing/` — monetization mechanics (4 files)
+### `js/pricing/` — monetization mechanics (5 files)
 - `subscription-plans.js` (149 lines) — the RECURRING subscription half of
   the former `tiers.js` (split in the subscription-vs-one-off Cashfree
   gating pass): defines the `RWPricing` global, `CONFIG.TIERS`
@@ -133,6 +133,10 @@ prints PASS/DRIFT per number in under a second.
   mapping (this is the same mapping `js/payments/plan-picker.js`'s
   `pickPlan()` category argument uses to gate the Cashfree checkout
   option).
+- `usage-policy.js` — the managed-compute contract for each tier. It keeps
+  Smart Planner and bring-your-own AI unlimited while bounding the optional
+  RoamWise-funded model allowance; the Worker mirrors and enforces the same
+  allowance table when that optional backend is enabled.
 - `founder-seats.js` — PUBLIC Founder-offer seat-counter math (isolated,
   well-commented, unit-tested — see `tests/founder-seats.test.js`). Computes
   "seats left" from `pricing/founder.count` (the one counter every seat-grant
@@ -151,7 +155,7 @@ prints PASS/DRIFT per number in under a second.
   payment-claim writer that calls this file's `rwRefStamp()` — is
   payments/entitlement code and deliberately stays in `app.js`.
 
-### `js/admin/` (10 files — 6 from PR #140, 4 from the admin-dashboard-expansion PR)
+### `js/admin/` (15 files)
 Internal admin dashboard logic, loaded only by `admin/index.html` (a
 separate page from the main app — not part of `index.html`'s script
 chain). Each file is a self-contained tab's worth of read-mostly
@@ -162,6 +166,11 @@ support one):
 - `business-metrics.js` (189 lines) — real, data-grounded MRR/ARR/EBITDA
   for the "Business" tab, computed from approved payment claims matched
   against `RWPricing.CONFIG` (`js/pricing/tiers.js`) — nothing invented.
+- `founder-economics.js` — a ten-year projection driven by measured MRR,
+  owner-entered costs and explicitly editable assumptions; also documents
+  the automated, usage-bounded revenue-engine catalog.
+- `revenue-resilience.js` — completed-booking commission and country,
+  property and month concentration reporting.
 - `referral-liability.js` (110 lines) — real total commission owed to
   referrers/creators, computed from the same claims data.
 - `compliance-checklist.js` (124 lines) — a plain, honest compliance

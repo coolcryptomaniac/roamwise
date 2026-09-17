@@ -23,6 +23,7 @@ id = "PASTE_THE_ID_HERE"   # <-- the ONLY line you edit in this file
 # SECRETS — never written here. Set each with wrangler:
 #
 #   npx wrangler secret put GROQ_API_KEY      # optional: enables /ai proxy
+#   npx wrangler secret put GROQ_MODEL        # required with GROQ_API_KEY; founder-selected model
 #   npx wrangler secret put TICKETMASTER_KEY  # optional: enables /events
 #   npx wrangler secret put REFRESH_TOKEN     # recommended: protects /events/refresh
 #   npx wrangler secret put CASHFREE_APP_ID       # optional: enables /cashfree/order
@@ -47,8 +48,21 @@ id = "PASTE_THE_ID_HERE"   # <-- the ONLY line you edit in this file
 # ---------------------------------------------------------------------------
 [vars]
 CASHFREE_ENV = "sandbox"
+# Managed AI is fail-closed. Leave false until AI_USAGE KV, GROQ_MODEL and
+# FIREBASE_SERVICE_ACCOUNT_JSON are configured and the authenticated flow has
+# been tested. Client-submitted model/token-limit values are ignored.
+MANAGED_AI_ENABLED = "false"
+AI_MAX_PROMPT_CHARS = "4000"
+AI_MAX_OUTPUT_TOKENS = "700"
 # CASHFREE_API_VERSION = "2023-08-01"   # optional override; handler defaults to this
 # PAYMENT_RETURN_URL = "https://roamwise.co.in/partner/"   # optional fallback return URL
+
+# Separate monthly allowance meter for /ai. Create it with:
+#   npx wrangler kv namespace create AI_USAGE
+# then uncomment and paste the real id. Managed AI stays unavailable without it.
+# [[kv_namespaces]]
+# binding = "AI_USAGE"
+# id = "PASTE_AI_USAGE_ID_HERE"
 
 # ---------------------------------------------------------------------------
 # R2 — OPTIONAL object storage. No route in worker.js uses this yet; this is

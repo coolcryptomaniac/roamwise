@@ -10,7 +10,12 @@ export function handleHealth(env){
   return json({
     ok: true, service: 'roamwise-worker',
     configured: {
-      ai:     !!env.GROQ_API_KEY,
+      ai:     String(env.MANAGED_AI_ENABLED || '').toLowerCase() === 'true'
+        && !!env.GROQ_API_KEY && !!env.GROQ_MODEL
+        && !!env.FIREBASE_SERVICE_ACCOUNT_JSON && !!env.AI_USAGE,
+      aiKey:  !!env.GROQ_API_KEY,
+      aiModel: !!env.GROQ_MODEL,
+      aiMeter: !!env.AI_USAGE,
       kv:     !!env.RW_KV,
       events: !!env.TICKETMASTER_KEY,
       refreshProtected: !!env.REFRESH_TOKEN,

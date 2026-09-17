@@ -83,7 +83,7 @@ function runSearch(){
   }
 
   var hasKey = lsGet('rwKey_'+activeProv);
-  if(activeProv!=='smart' && hasKey){
+  if(activeProv==='roamwise' || (activeProv!=='smart' && hasKey)){
     var destList = topR.map(function(r){ return r.d.name+'/'+r.d.country; }).join(' | ');
     var shapeItems = topR.map(function(r, i){
       var tipCopy = i===0 ? '1 practical tip for '+month : '1 tip';
@@ -106,7 +106,7 @@ function runSearch(){
 function renderCards(results, month, budUSD, origin, days, aiData, travelStyle, isGenericResult){
   itinBuilt = {};
   var mi = MONTHS.indexOf(month);
-  var provLabel = activeProv==='smart' ? 'Smart Search' : (lsGet('rwKey_'+activeProv) ? activeProv.charAt(0).toUpperCase()+activeProv.slice(1)+' AI' : 'Smart Search');
+  var provLabel = activeProv==='smart' ? 'Smart Search' : activeProv==='roamwise' ? 'RoamWise Hosted AI' : (lsGet('rwKey_'+activeProv) ? activeProv.charAt(0).toUpperCase()+activeProv.slice(1)+' AI' : 'Smart Search');
 
   var H = `<div class="live-bar"><div class="live-dot"></div><span>Results for <strong style="color:#16BF96">${month}</strong> &bull; ${provLabel}${aiData ? ' &bull; <strong style="color:#BF8CFF">AI enhanced</strong>' : ''}${isPro ? ' &bull; <strong style="color:#E8BA6C">Pro Active</strong>' : ''}</span>${(activeProv==='smart' && !lsGet('rwKey_gemini') && !lsGet('rwKey_groq')) ? '<span style="font-size:10px;color:#4A4946;margin-left:auto;cursor:pointer" onclick="openSettings()">+ Add free AI key</span>' : ''}</div>`;
 

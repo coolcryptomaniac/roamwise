@@ -70,9 +70,42 @@ function aiRequest(prov, key, model, prompt, maxTok, jsonMode){
     });
 }
 
+/* RoamWise-funded AI is an explicit provider choice, never a silent fallback.
+   The Worker authenticates the Firebase user and owns the model, token cap and
+   monthly allowance. Any failure falls back through the caller's existing
+   Smart-engine path; the browser never receives the RoamWise provider key. */
+function rwManagedAIRequest(prompt, maxTok){
+  var endpoint = (typeof rwApi==='function') ? rwApi('ai') : null;
+  var current = (typeof firebase!=='undefined' && firebase.auth) ? firebase.auth().currentUser : null;
+  if(!isPro) return Promise.reject(new Error('RoamWise Hosted AI is included with a paid plan.'));
+  if(!endpoint) return Promise.reject(new Error('RoamWise Hosted AI is not enabled on this deployment.'));
+  if(!current || typeof current.getIdToken!=='function') return Promise.reject(new Error('Sign in to use RoamWise Hosted AI.'));
+  return current.getIdToken().then(function(token){
+    return fetch(endpoint,{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},
+      body:JSON.stringify({prompt:prompt,max_tokens:maxTok})
+    });
+  }).then(function(r){
+    return r.json().catch(function(){return {};}).then(function(d){return {status:r.status,data:d};});
+  }).then(function(res){
+    if(res.status>=400) throw new Error(res.data.message||res.data.error||('HTTP '+res.status));
+    var txt=String(res.data.text||'').trim();
+    if(!txt) throw new Error('RoamWise Hosted AI returned an empty response.');
+    return {text:txt,remaining:res.data.remaining,limit:res.data.limit};
+  });
+}
+
 /* Tries each model for the active provider; cb(errorString|null, text|null) */
 function aiCall(prompt, maxTok, cb, jsonMode){
   var prov=activeProv, key=lsGet('rwKey_'+prov);
+  if(prov==='roamwise'){
+    rwManagedAIRequest(prompt,maxTok).then(function(out){
+      lastAiSource={prov:'roamwise',model:'Hosted AI',remaining:out.remaining,limit:out.limit};
+      cb(null,out.text);
+    }).catch(function(e){lastAiSource=null;cb(String(e.message||e),null);});
+    return;
+  }
   if(prov==='smart' || !key){ lastAiSource=null; cb(null,null); return; }
   var models = AI_MODELS[prov]||[];
   /* Groq: put whatever testKey() last discovered as a REAL working model for
@@ -103,6 +136,10 @@ function aiCall(prompt, maxTok, cb, jsonMode){
    EVERY other armed provider in turn; only if all fail does the caller fall
    back to Ailon Tusk's own engine. Auth/quota errors skip to the NEXT PROVIDER. */
 function aiCallAny(prompt, maxTok, cb, jsonMode){
+  if(activeProv==='roamwise'){
+    aiCall(prompt,maxTok,cb,jsonMode);
+    return;
+  }
   var all=['groq','cerebras','github','gemini','openrouter','mistral','anthropic'];
   var order=[activeProv].concat(all.filter(function(p){ return p!==activeProv; }))
     .filter(function(p){ return p && p!=='smart' && lsGet('rwKey_'+p); });

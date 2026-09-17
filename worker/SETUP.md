@@ -43,11 +43,22 @@ https://roamwise-api.<your-subdomain>.workers.dev
 ```
 **Copy that URL.**
 
-## Step 4 — Add your AI key as a secret
+## Step 4 — Add managed AI safely (optional)
+
+The app works without RoamWise-funded AI: Smart Planner and users' own AI
+keys remain available. Do not enable `/ai` until authentication and the
+monthly allowance meter are both configured.
+
 ```
 wrangler secret put GROQ_API_KEY
+wrangler secret put GROQ_MODEL
+wrangler secret put FIREBASE_SERVICE_ACCOUNT_JSON
+npx wrangler kv namespace create AI_USAGE
 ```
-Paste the key when prompted. It is encrypted and never appears in your repo.
+Paste the printed AI_USAGE id into the commented `AI_USAGE` binding in
+`wrangler.toml`, set `MANAGED_AI_ENABLED = "true"`, then deploy. These values
+stay encrypted or server-side; the browser cannot choose the model, token cap
+or monthly allowance.
 
 ## Step 5 — (Optional) Add the KV cache for the news job
 ```
@@ -130,8 +141,9 @@ If you get anything else, leave `rw-config.js` on `'firebase'` — the app is un
 ## Honest notes
 
 - The Worker is a **router and a scheduler**, not a database. Firestore remains your data store.
-- The **AI proxy endpoint is unauthenticated** as written. That is fine for a soft launch, but
-  before you promote it widely, add a rate limit or a shared token — otherwise someone could
-  burn through your AI quota. Cloudflare's dashboard has built-in rate limiting rules.
+- The AI proxy is authenticated, per-account metered and fail-closed. It
+  returns unavailable unless the Firebase service account, founder-selected
+  Groq model and `AI_USAGE` KV binding are all configured. It also retains the
+  per-IP minute limiter as a second layer.
 - Moving passport verification server-side is the single highest-value follow-up, because it
   is what makes cash prizes genuinely cheat-proof.

@@ -43,13 +43,19 @@ var _cfOrder = null;      /* set by pickPlan(), one-off plans only, when Cashfre
    RWPricing.CONFIG.TIERS id whose benefits this purchase actually grants —
    every purchasable option (monthly/yearly tier, long-term pass, short-term
    pass, or the legacy founder offer) maps to one, so this never renders blank. */
-function _renderPlanFeatures(tierId){
+function _renderPlanFeatures(tierId, planId){
   var box = el('planFeatures'); if(!box) return;
   var tier = RWPricing.tierById(tierId);
   var labels = RWPricing.FEATURE_LABELS;
-  box.innerHTML = (tier.features||[]).map(function(f){
+  var standard = (tier.features||[]).map(function(f){
     return '<div class="feat-item"><span class="feat-ck">✓</span>'+(labels[f]||f)+'</div>';
   }).join('');
+  var usage = typeof RWPricing.usageFeatureLabels === 'function'
+    ? RWPricing.usageFeatureLabels(planId, tierId).map(function(label){
+        return '<div class="feat-item"><span class="feat-ck">✓</span>'+label+'</div>';
+      }).join('')
+    : '';
+  box.innerHTML = standard + usage;
 }
 function pickPlan(planId, priceINR, label, tierId, category){
   /* category: 'subscription' (Free/Plus/Pro/Elite monthly+yearly) or
@@ -69,7 +75,7 @@ function pickPlan(planId, priceINR, label, tierId, category){
   var ph = el('planHeader'); if(ph) ph.textContent = label+' \u2014 \u20b9'+priceINR;
   /* Founder offer (and any legacy call site that doesn't pass a tierId) grants
      the same lifetime benefits legacy \u20b9100 buyers get \u2014 see currentTier(). */
-  _renderPlanFeatures(tierId || 'elite');
+  _renderPlanFeatures(tierId || 'elite', planId);
   var teaser = el('staticFeaturesTeaser'); if(teaser) teaser.style.display='none';
   var picker = el('planPicker'); if(picker) picker.style.display='none';
   var methods = el('payMethods'); if(methods){
@@ -506,4 +512,3 @@ function confetti(){
     setTimeout((function(e3){ return function(){ e3.remove(); }; })(e2), 3500);
   }
 }
-

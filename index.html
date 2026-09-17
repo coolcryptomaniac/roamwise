@@ -490,7 +490,7 @@ function rwDismissCreatorBanner(){
 
 <div class="promo v v-home" id="promoBar" onclick="openPay()">
   <div class="promo-left">&#128081;</div>
-  <div class="promo-text"><strong>Unlock Pro &mdash; Lifetime Access</strong><span>Full itineraries &bull; Budget tracker &bull; WhatsApp share &bull; Packing list &bull; Unlimited searches</span></div>
+  <div class="promo-text"><strong>Unlock Pro &mdash; Lifetime Access</strong><span>Full itineraries &bull; Budget tracker &bull; WhatsApp share &bull; Packing list &bull; Unlimited Smart Planner searches</span></div>
   <div class="promo-price"><span class="promo-amt" id="promoAmt">&#8377;100</span><span class="promo-sub" id="promoSub">one-time forever</span></div>
 </div>
 
@@ -697,11 +697,11 @@ function rwDismissCreatorBanner(){
   <div class="xsec-head"><h2 class="xsec-title">&#128717; The <em>Store</em></h2><button class="share-fab" onclick="shareApp('app')">&#128228; Share</button></div>
   <p class="xsec-sub">Everything made in the Himalayas &mdash; tools, books and upgrades that fund the next feature.</p>
   <div class="exp-grid">
-    <div class="exp" style="border-color:rgba(232,186,108,.45)"><div class="exp-ic">&#128081;</div><div class="exp-name">Lifetime Pro &mdash; &#8377;100</div><div class="exp-desc">Unlimited searches, AI itineraries, every hack. One payment, forever. Founding price.</div><button class="tact red" style="width:100%;margin-top:9px" onclick="useBump('store');openPay()">Unlock now</button></div>
+    <div class="exp" style="border-color:rgba(232,186,108,.45)"><div class="exp-ic">&#128081;</div><div class="exp-name">Lifetime Pro &mdash; &#8377;100</div><div class="exp-desc">Unlimited Smart Planner searches, full itineraries and every Pro tool. Hosted AI follows a monthly fair-use pool; your own AI key stays unlimited.</div><button class="tact red" style="width:100%;margin-top:9px" onclick="useBump('store');openPay()">Unlock now</button></div>
     <div class="exp"><div class="exp-ic">&#128213;</div><div class="exp-name">Premium PDF itinerary &mdash; &#8377;10</div><div class="exp-desc">Multi-page designed plan with photos, themes and timings. Free for Pro.</div><button class="tact" style="width:100%;margin-top:9px" onclick="tabGo('plan');showToast('Search a place \u2192 open itinerary \u2192 Premium PDF')">Make mine</button></div>
     <div class="exp"><div class="exp-ic">&#127916;</div><div class="exp-name">Journey Movie &mdash; &#8377;50</div><div class="exp-desc">Your travels as a cinematic reel with music and chapters. Free for Pro.</div><button class="tact" style="width:100%;margin-top:9px" onclick="tabGo('explore');scrollToId('jlog')">Roll camera</button></div>
     <div class="exp"><div class="exp-ic">&#128218;</div><div class="exp-name">Books by Mohit Pandey</div><div class="exp-desc">AI Ki Pathshala &bull; GYANVERSE &bull; Yuga &bull; Volts &amp; Vengeance &mdash; on Amazon, Pothi &amp; Flipkart.</div><button class="tact" style="width:100%;margin-top:9px" onclick="scrollToId('creator')">Browse books</button></div>
-    <div class="exp"><div class="exp-ic">&#129333;</div><div class="exp-name">1-on-1 Trip Consultation &mdash; &#8377;999</div><div class="exp-desc">60 minutes with the creator: your route, budget and crowd-dodge plan, built live.</div><button class="tact" style="width:100%;margin-top:9px" onclick="location.href='upi://pay?pa=roamwise@ybl&pn=RoamWise&am=999&cu=INR&tn=Consultation';showToast('After paying, email proof \u2014 booking link comes back within 24h')">Book &#8377;999</button></div>
+    <div class="exp"><div class="exp-ic">&#9889;</div><div class="exp-name">Instant Trip Review &mdash; self-serve</div><div class="exp-desc">Check route timing, budget, crowd exposure and backup options inside the planner&mdash;without booking the founder&rsquo;s time.</div><button class="tact" style="width:100%;margin-top:9px" onclick="tabGo('plan');showToast('Build a trip, then use Tusk to audit timing, budget and backup options')">Review my trip</button></div>
     <div class="exp" style="opacity:.75"><div class="exp-ic">&#128085;</div><div class="exp-name">Shinobi tees &amp; merch</div><div class="exp-desc">Journey Card posters and RoamWise tees &mdash; print-on-demand store coming soon.</div><button class="tact" style="width:100%;margin-top:9px" onclick="showToast('Dropping soon \u2014 Supporters get first dibs \ud83d\udc4a')">Notify me</button></div>
   </div>
 </section>
@@ -1036,7 +1036,7 @@ function rwDismissCreatorBanner(){
         <div class="feat-item"><span class="feat-ck">&#10003;</span>Compare table</div>
         <div class="feat-item"><span class="feat-ck">&#10003;</span>Visa details</div>
         <div class="feat-item"><span class="feat-ck">&#10003;</span>AI enhancement</div>
-        <div class="feat-item"><span class="feat-ck">&#10003;</span>Unlimited searches</div>
+        <div class="feat-item"><span class="feat-ck">&#10003;</span>Unlimited Smart Planner searches</div>
       </div>
       <!-- ===== TESTIMONIALS: replace the quote/who text below with REAL user quotes when you have them ===== -->
       <div class="pay-testi" id="payTesti">
@@ -1151,6 +1151,7 @@ function rwDismissCreatorBanner(){
         <div class="key-sec-title">AI Mode <small style="font-size:10px;font-weight:400;color:var(--t3);text-transform:none;letter-spacing:0">&mdash; Smart Search works without any key</small></div>
         <div class="prov-select">
           <button class="prov-btn on" data-p="smart" onclick="setProv('smart')"><span class="pn">&#127760; Smart Search</span><span class="ps ps-free">No key &bull; Always works</span></button>
+          <button class="prov-btn" data-p="roamwise" onclick="setProv('roamwise')"><span class="pn">&#9889; RoamWise Hosted AI</span><span class="ps ps-paid">Paid plans &bull; Monthly allowance</span></button>
           <button class="prov-btn" data-p="gemini" onclick="setProv('gemini')"><span class="pn">&#10024; Gemini Flash</span><span class="ps ps-free">Google &bull; Free tier</span></button>
           <button class="prov-btn" data-p="groq" onclick="setProv('groq')"><span class="pn">&#10024; Llama 3 (Groq)</span><span class="ps ps-free">Groq &bull; Free tier</span></button>
           <button class="prov-btn" data-p="openrouter" onclick="setProv('openrouter')"><span class="pn">&#128640; OpenRouter</span><span class="ps ps-free">1 key &bull; many FREE models</span></button>
@@ -1210,6 +1211,7 @@ function rwDismissCreatorBanner(){
 <script src="js/data/iata.js"></script>
 <script src="js/pricing/subscription-plans.js"></script>
 <script src="js/pricing/one-off-plans.js"></script>
+<script src="js/pricing/usage-policy.js"></script>
 <script src="js/pricing/founder-seats.js"></script>
 <script src="js/pricing/referral.js"></script>
 <script src="js/payments/gateway-adapter.js"></script>

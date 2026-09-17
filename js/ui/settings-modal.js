@@ -181,7 +181,7 @@ function openSettings(){
         if(/AI Mode|API Keys/i.test(t)) adv.push(sec);
       });
       if(adv.length){
-        var hasKey = ['groq','cerebras','github','gemini','openrouter','mistral','anthropic'].some(function(x){ return lsGet('rwKey_'+x); });
+        var hasKey = activeProv==='roamwise' || ['groq','cerebras','github','gemini','openrouter','mistral','anthropic'].some(function(x){ return lsGet('rwKey_'+x); });
         var btn = document.createElement('button');
         btn.id='advToggle'; btn.className='tact';
         btn.style.cssText='width:100%;margin:4px 0 10px;font-size:12.5px';
@@ -207,15 +207,16 @@ function openSettings(){
 function closeSettings(){ el('settingsOverlay').classList.remove('open'); document.body.style.overflow=''; }
 
 function setProv(p){
+  if(p==='roamwise' && !isPro){ showToast('RoamWise Hosted AI is included with paid plans.'); openPay(); return; }
   activeProv = p; lsSet('rwProv', p);
   document.querySelectorAll('.prov-btn').forEach(function(b){ b.classList.toggle('on', b.dataset.p===p); });
   var chip = el('modeChip');
   if(chip){
-    var labels = {smart:'Smart Mode (free)', gemini:'Gemini AI (free)', groq:'Groq AI (free)', anthropic:'Claude AI'};
+    var labels = {smart:'Smart Mode (free)', roamwise:'RoamWise Hosted AI', gemini:'Gemini AI (free)', groq:'Groq AI (free)', anthropic:'Claude AI'};
     chip.textContent = labels[p]||p;
-    chip.className = 'mode-chip '+(p==='anthropic'?'mode-ai':'mode-free');
+    chip.className = 'mode-chip '+(p==='anthropic'||p==='roamwise'?'mode-ai':'mode-free');
   }
-  showToast(p==='smart' ? 'Smart Search active (no key needed)' : 'AI mode: '+(p.charAt(0).toUpperCase()+p.slice(1)));
+  showToast(p==='smart' ? 'Smart Search active (no key needed)' : p==='roamwise' ? 'RoamWise Hosted AI active — monthly allowance applies' : 'AI mode: '+(p.charAt(0).toUpperCase()+p.slice(1)));
 }
 
 function saveKey(prov){
