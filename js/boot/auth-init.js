@@ -183,7 +183,8 @@ if (AUTH_READY && typeof firebase !== 'undefined') try {
          so a late/cached callback could revive Pro moments after logout. */
       if(window._proUnsub){ try{ window._proUnsub(); }catch(e){ /* best-effort, ignore */ } window._proUnsub=null; }
       window._proUnsub = ref.onSnapshot(function(d){
-        var cloudPro = d.exists && d.data().pro === true;
+        var proUntil = d.exists ? Number(d.data().proUntil||0) : 0;
+        var cloudPro = d.exists && d.data().pro === true && (!proUntil || proUntil>Date.now());
         var provOK = (parseInt(lsGet('rw_pro_temp')||'0',10) > Date.now()) && (lsGet('rw_pro_temp_uid')===u.uid);
         var trialUntil = d.exists ? d.data().trialUntil : null;
         var trialActive = !cloudPro && trialUntil && trialUntil > Date.now();
@@ -193,6 +194,7 @@ if (AUTH_READY && typeof firebase !== 'undefined') try {
            free partner/campaign-code grant (proMethod:'partner') apart from a
            real cash purchase or legacy founder grant. */
         lsSet('rw_pro_method', (cloudPro && d.data().proMethod) || '');
+        lsSet('rw_tier', (cloudPro && d.data().proTier) || '');
         if(cloudPro){ lsSet('rw_pro_temp',''); lsSet('rw_pro_temp_uid',''); }
         if(shouldBePro){
           if(!isPro){ isPro=true; lsSet('rwPro','1'); lsSet('rw_pro_uid',u.uid); refreshProUI();

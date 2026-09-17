@@ -9,15 +9,11 @@
    directly (bypassing the UI entirely) with e.g.
    `{ amount: 1, meta: { planId: 'elite_y10' } }`, get a real Cashfree
    payment_session_id for that ₹1 order, pay the ₹1, and once
-   handleCashfreeOrderStatus() reports it PAID, the client-side adapter
-   (js/payments/providers/cashfree-adapter.js) calls
-   grantPurchase(orderId, 'cashfree', 'elite_y10') — which derives the
-   granted tier from the plan id, not the amount actually charged — handing
-   out a ₹24,999 Elite 10-year pass for ₹1. Validating server-side, against
-   a price table the client never controls, is the only place this can
-   actually be enforced (Cashfree is a real gateway confirming a real
-   payment_session_id/order_status, so the failure mode isn't "fake it never
-   happened", it's "really pay ₹1 and really get the ₹24,999 product").
+   handleCashfreeOrderStatus() reports it PAID, the Worker derives and stores
+   the entitlement from the plan id — which would hand out a ₹24,999 Elite
+   10-year pass for ₹1 without this check. Validating server-side, against a
+   price table the client never controls, is the only place this can actually
+   be enforced.
 
    MUST STAY IN SYNC with the client-side canonical source of truth:
      - js/pricing/subscription-plans.js  (CONFIG.TIERS)
@@ -57,6 +53,25 @@ export const PLAN_PRICES = {
   day: 19, week: 99, quarter: 749
 };
 
+/* Cashfree is currently approved for one-time purchases only. Keeping the
+   allow-list server-side is important: hiding subscription buttons in the
+   browser is UX, not an authorization boundary. */
+export const CASHFREE_ONE_OFF_PLANS = Object.freeze({
+  founder:   { tier:'elite', lifetime:true },
+  plus_y3:   { tier:'plus',  years:3 },
+  plus_y5:   { tier:'plus',  years:5 },
+  plus_y10:  { tier:'plus',  years:10 },
+  pro_y3:    { tier:'pro',   years:3 },
+  pro_y5:    { tier:'pro',   years:5 },
+  pro_life:  { tier:'pro',   lifetime:true },
+  elite_y3:  { tier:'elite', years:3 },
+  elite_y5:  { tier:'elite', years:5 },
+  elite_y10: { tier:'elite', years:10 },
+  day:       { tier:'pro',   days:1 },
+  week:      { tier:'pro',   days:7 },
+  quarter:   { tier:'pro',   days:90 }
+});
+
 /**
  * @param {string} planId
  * @returns {number|null} the real price in rupees, or null if planId is
@@ -65,4 +80,19 @@ export const PLAN_PRICES = {
 export function priceForPlan(planId){
   const id = String(planId || '');
   return Object.prototype.hasOwnProperty.call(PLAN_PRICES, id) ? PLAN_PRICES[id] : null;
+}
+
+export function cashfreeEntitlementForPlan(planId, nowMs){
+  const id = String(planId || '');
+  const plan = CASHFREE_ONE_OFF_PLANS[id];
+  if(!plan) return null;
+  const startedAt = Number.isFinite(Number(nowMs)) ? Number(nowMs) : Date.now();
+  let until = 0;
+  if(plan.days) until = startedAt + plan.days * 86400000;
+  if(plan.years){
+    const d = new Date(startedAt);
+    d.setUTCFullYear(d.getUTCFullYear() + plan.years);
+    until = d.getTime();
+  }
+  return { planId:id, tier:plan.tier, lifetime:plan.lifetime === true, until };
 }

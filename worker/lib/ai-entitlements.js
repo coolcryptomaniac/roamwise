@@ -17,6 +17,8 @@ function cleanTier(v){
 export function managedAITier(userDoc){
   const user = userDoc || {};
   if(user.pro !== true) return 'free';
+  const proUntil = Number(user.proUntil || 0);
+  if(proUntil && proUntil <= Date.now()) return 'free';
   const method = String(user.proMethod || user.proSource || user.planId || '').toLowerCase();
   const amount = Number(user.proAmount);
   // Legacy Founder purchases were stored as manual-paid + ₹100, while NMIMS

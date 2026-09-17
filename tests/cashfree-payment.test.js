@@ -27,21 +27,60 @@ const read = file => fs.readFileSync(path.join(root, file), 'utf8');
 // ---------------------------------------------------------------------------
 // 1. worker/handlers/cashfree.js
 // ---------------------------------------------------------------------------
-function jsonRequest(body){ return { json: async () => body }; }
+function jsonRequest(body, token){
+  return {
+    json: async () => body,
+    headers: { get: (name) => String(name).toLowerCase() === 'authorization' ? `Bearer ${token || 'test-token'}` : '' }
+  };
+}
 
 const REAL_ORDER_RESPONSE = {
   cf_order_id: 2149460581,
   created_at: '2026-08-11T18:02:46+05:30',
   customer_details: { customer_id: 'u1', customer_phone: '9999999999' },
   entity: 'order',
-  order_amount: 299,
+  order_amount: 100,
   order_currency: 'INR',
   order_id: 'rw_test123',
   order_status: 'ACTIVE',
   payment_session_id: 'session_a1VXIPJo8kh7IBigVXX8LgTMupQW_cu25FS8KwLwQLOmiHqbBxq5UhEilrhbDSKKHA6UAuOj9506aaHNlFAHEqYrHSEl9AVtYQN9LIIc4vkH'
 };
 
-async function loadHandler(){ return import(path.join(root, 'worker/handlers/cashfree.js')); }
+async function loadHandler(options){
+  const mod = await import(path.join(root, 'worker/handlers/cashfree.js'));
+  const writes = [];
+  const receipt = (options && options.receipt) || {
+    uid: 'u1',
+    email: 'a@b.com',
+    cfOrderId: 'rw_test123',
+    planId: 'founder',
+    amountINR: 100,
+    currency: 'INR',
+    status: 'ACTIVE',
+    fulfilled: false,
+    createdAt: '2026-09-17T00:00:00.000Z'
+  };
+  const handlers = mod.createCashfreeHandlers({
+    context: async (request, env) => {
+      if(!env.CASHFREE_APP_ID || !env.CASHFREE_SECRET_KEY){
+        return { error: new Response(JSON.stringify({ error: 'not_configured' }), { status: 501, headers: { 'content-type': 'application/json' } }) };
+      }
+      return { claims: { uid: 'u1', email: 'a@b.com' }, accessToken: 'access-token', projectId: 'roamwisepro' };
+    },
+    getDoc: async (env, accessToken, projectId, docPath) => {
+      if(docPath.startsWith('admins/')) return (options && options.sandboxAdmin === false) ? null : { active: true };
+      if(docPath === 'config/app') return (options && options.appConfig) || {
+        PAYMENT_PROVIDER: 'cashfree',
+        CASHFREE_ENVIRONMENT: String(env.CASHFREE_ENV || 'sandbox').toLowerCase() === 'live' ? 'live' : 'sandbox'
+      };
+      if(docPath.startsWith('users/')) return (options && options.userDoc) || null;
+      return receipt;
+    },
+    updateDoc: async (env, accessToken, projectId, docPath, values) => { writes.push({ path: docPath, values }); },
+    request: (...args) => global.fetch(...args)
+  });
+  return Object.assign(handlers, { _writes: writes });
+}
 
 test('handleCashfreeOrder: 501s cleanly when CASHFREE_APP_ID/SECRET_KEY are not set (never a hard crash)', async () => {
   const { handleCashfreeOrder } = await loadHandler();
@@ -73,6 +112,36 @@ test('handleCashfreeOrder: rejects a missing/invalid customer phone (Cashfree re
   assert.equal((await res.json()).error, 'missing_customer_phone');
 });
 
+test('handleCashfreeOrder: sandbox is enforced server-side as admin-only', async () => {
+  const { handleCashfreeOrder } = await loadHandler({ sandboxAdmin: false });
+  const env = { CASHFREE_APP_ID: 'id', CASHFREE_SECRET_KEY: 'secret', CASHFREE_ENV: 'sandbox' };
+  let fetchCalled = false;
+  const realFetch = global.fetch;
+  global.fetch = async () => { fetchCalled = true; };
+  try{
+    const res = await handleCashfreeOrder(jsonRequest({ amount: 100, customer: { phone: '9999999999' }, meta: { planId: 'founder' } }), env);
+    assert.equal(res.status, 403);
+    assert.equal((await res.json()).error, 'sandbox_admin_only');
+    assert.equal(fetchCalled, false);
+  } finally { global.fetch = realFetch; }
+});
+
+test('handleCashfreeOrder: the admin provider switch is a server-side kill switch', async () => {
+  const { handleCashfreeOrder } = await loadHandler({ appConfig: { PAYMENT_PROVIDER: 'manual_upi', CASHFREE_ENVIRONMENT: 'live' } });
+  const env = { CASHFREE_APP_ID: 'id', CASHFREE_SECRET_KEY: 'secret', CASHFREE_ENV: 'live' };
+  const res = await handleCashfreeOrder(jsonRequest({ amount: 100, customer: { phone: '9999999999' }, meta: { planId: 'founder' } }), env);
+  assert.equal(res.status, 503);
+  assert.equal((await res.json()).error, 'checkout_disabled');
+});
+
+test('handleCashfreeOrder: refuses a second purchase that could shorten or overwrite an active entitlement', async () => {
+  const { handleCashfreeOrder } = await loadHandler({ userDoc: { pro: true, proTier: 'elite', proUntil: 0 } });
+  const env = { CASHFREE_APP_ID: 'id', CASHFREE_SECRET_KEY: 'secret', CASHFREE_ENV: 'live' };
+  const res = await handleCashfreeOrder(jsonRequest({ amount: 19, customer: { phone: '9999999999' }, meta: { planId: 'day' } }), env);
+  assert.equal(res.status, 409);
+  assert.equal((await res.json()).error, 'already_entitled');
+});
+
 test('handleCashfreeOrder: success — posts to the sandbox Order Create endpoint with client-id/client-secret headers, returns payment_session_id', async () => {
   const { handleCashfreeOrder } = await loadHandler();
   const env = { CASHFREE_APP_ID: 'test_app_id', CASHFREE_SECRET_KEY: 'test_secret_key', CASHFREE_ENV: 'sandbox' };
@@ -80,24 +149,25 @@ test('handleCashfreeOrder: success — posts to the sandbox Order Create endpoin
   const realFetch = global.fetch;
   global.fetch = async (url, init) => {
     seenUrl = url; seenHeaders = init.headers; seenBody = JSON.parse(init.body);
-    return { ok: true, status: 200, json: async () => REAL_ORDER_RESPONSE };
+    return { ok: true, status: 200, json: async () => ({ ...REAL_ORDER_RESPONSE, order_id: seenBody.order_id }) };
   };
   try{
     const res = await handleCashfreeOrder(jsonRequest({
-      amount: 299, customer: { id: 'u1', phone: '9999999999', email: 'a@b.com' }, meta: { planId: 'pro_m', label: 'Pro Monthly' }
+      amount: 100, customer: { id: 'untrusted-id', phone: '9999999999', email: 'spoofed@b.com' }, meta: { planId: 'founder', label: 'Founder' }
     }), env);
     assert.equal(res.status, 200);
     const body = await res.json();
     assert.equal(body.payment_session_id, REAL_ORDER_RESPONSE.payment_session_id);
-    assert.equal(body.order_id, 'rw_test123');
+    assert.match(body.order_id, /^rw_/);
     assert.equal(body.environment, 'sandbox');
     assert.equal(seenUrl, 'https://sandbox.cashfree.com/pg/orders');
     assert.equal(seenHeaders['x-client-id'], 'test_app_id');
     assert.equal(seenHeaders['x-client-secret'], 'test_secret_key');
-    assert.equal(seenBody.order_amount, 299);
+    assert.equal(seenBody.order_amount, 100);
     assert.equal(seenBody.order_currency, 'INR');
     assert.equal(seenBody.customer_details.customer_phone, '9999999999');
-    assert.equal(seenBody.customer_details.customer_email, 'a@b.com');
+    assert.equal(seenBody.customer_details.customer_id, 'u1', 'authenticated Firebase uid must override client input');
+    assert.equal(seenBody.customer_details.customer_email, 'a@b.com', 'verified token email must override client input');
     // the response the browser gets must never carry the secret key back
     assert.equal(JSON.stringify(body).indexOf('test_secret_key'), -1);
   } finally { global.fetch = realFetch; }
@@ -108,7 +178,7 @@ test('handleCashfreeOrder: CASHFREE_ENV=live routes to api.cashfree.com and repo
   const env = { CASHFREE_APP_ID: 'id', CASHFREE_SECRET_KEY: 'secret', CASHFREE_ENV: 'live' };
   let seenUrl;
   const realFetch = global.fetch;
-  global.fetch = async (url) => { seenUrl = url; return { ok: true, status: 200, json: async () => REAL_ORDER_RESPONSE }; };
+  global.fetch = async (url, init) => { seenUrl = url; const sent = JSON.parse(init.body); return { ok: true, status: 200, json: async () => ({ ...REAL_ORDER_RESPONSE, order_id: sent.order_id }) }; };
   try{
     const res = await handleCashfreeOrder(jsonRequest({ amount: 100, customer: { phone: '9999999999' }, meta: { planId: 'founder' } }), env);
     const body = await res.json();
@@ -123,7 +193,7 @@ test('handleCashfreeOrder: propagates a Cashfree-side order failure without a ha
   const realFetch = global.fetch;
   global.fetch = async () => ({ ok: false, status: 422, json: async () => ({ message: 'customer_details.customer_phone is required' }) });
   try{
-    const res = await handleCashfreeOrder(jsonRequest({ amount: 299, customer: { phone: '9999999999' }, meta: { planId: 'pro_m' } }), env);
+    const res = await handleCashfreeOrder(jsonRequest({ amount: 100, customer: { phone: '9999999999' }, meta: { planId: 'founder' } }), env);
     assert.equal(res.status, 422);
     const body = await res.json();
     assert.equal(body.error, 'cashfree_order_failed');
@@ -137,7 +207,7 @@ test('handleCashfreeOrder: a network error talking to Cashfree returns 502, neve
   const realFetch = global.fetch;
   global.fetch = async () => { throw new Error('getaddrinfo ENOTFOUND'); };
   try{
-    const res = await handleCashfreeOrder(jsonRequest({ amount: 299, customer: { phone: '9999999999' }, meta: { planId: 'pro_m' } }), env);
+    const res = await handleCashfreeOrder(jsonRequest({ amount: 100, customer: { phone: '9999999999' }, meta: { planId: 'founder' } }), env);
     assert.equal(res.status, 502);
     assert.equal((await res.json()).error, 'network_error');
   } finally { global.fetch = realFetch; }
@@ -180,14 +250,15 @@ test('handleCashfreeOrder: rejects an unrecognized/missing planId even if the am
   } finally { global.fetch = realFetch; }
 });
 
-test('handleCashfreeOrder: accepts every real plan id at its exact configured price', async () => {
+test('handleCashfreeOrder: accepts every Cashfree-supported one-time plan id at its exact configured price', async () => {
   const { handleCashfreeOrder } = await loadHandler();
-  const { PLAN_PRICES } = await import(path.join(root, 'worker/lib/pricing.js'));
+  const { PLAN_PRICES, CASHFREE_ONE_OFF_PLANS } = await import(path.join(root, 'worker/lib/pricing.js'));
   const env = { CASHFREE_APP_ID: 'id', CASHFREE_SECRET_KEY: 'secret' };
   const realFetch = global.fetch;
-  global.fetch = async () => ({ ok: true, status: 200, json: async () => REAL_ORDER_RESPONSE });
+  global.fetch = async (url, init) => { const sent = JSON.parse(init.body); return { ok: true, status: 200, json: async () => ({ ...REAL_ORDER_RESPONSE, order_id: sent.order_id, order_amount: sent.order_amount }) }; };
   try{
-    for(const [planId, price] of Object.entries(PLAN_PRICES)){
+    for(const planId of Object.keys(CASHFREE_ONE_OFF_PLANS)){
+      const price = PLAN_PRICES[planId];
       const res = await handleCashfreeOrder(jsonRequest({
         amount: price, customer: { phone: '9999999999' }, meta: { planId }
       }), env);
@@ -196,17 +267,38 @@ test('handleCashfreeOrder: accepts every real plan id at its exact configured pr
   } finally { global.fetch = realFetch; }
 });
 
-test('handleCashfreeOrderStatus: returns the real order_status field from Cashfree\'s Get Order API', async () => {
-  const { handleCashfreeOrderStatus } = await loadHandler();
+test('handleCashfreeOrder: rejects recurring plans until Cashfree Subscriptions is implemented', async () => {
+  const { handleCashfreeOrder } = await loadHandler();
+  const env = { CASHFREE_APP_ID: 'id', CASHFREE_SECRET_KEY: 'secret' };
+  let fetchCalled = false;
+  const realFetch = global.fetch;
+  global.fetch = async () => { fetchCalled = true; };
+  try{
+    const res = await handleCashfreeOrder(jsonRequest({ amount: 299, customer: { phone: '9999999999' }, meta: { planId: 'pro_m' } }), env);
+    assert.equal(res.status, 409);
+    assert.equal((await res.json()).error, 'unsupported_plan');
+    assert.equal(fetchCalled, false);
+  } finally { global.fetch = realFetch; }
+});
+
+test('handleCashfreeOrderStatus: persists a verified PAID order before returning success', async () => {
+  const handler = await loadHandler();
+  const { handleCashfreeOrderStatus } = handler;
   const env = { CASHFREE_APP_ID: 'id', CASHFREE_SECRET_KEY: 'secret' };
   let seenUrl;
   const realFetch = global.fetch;
-  global.fetch = async (url) => { seenUrl = url; return { ok: true, status: 200, json: async () => ({ order_id: 'rw_test123', order_status: 'PAID' }) }; };
+  global.fetch = async (url) => { seenUrl = url; return { ok: true, status: 200, json: async () => ({ order_id: 'rw_test123', order_status: 'PAID', order_amount: 100, order_currency: 'INR' }) }; };
   try{
-    const res = await handleCashfreeOrderStatus(env, 'rw_test123');
+    const res = await handleCashfreeOrderStatus(jsonRequest({}), env, 'rw_test123');
     assert.equal(res.status, 200);
-    assert.equal((await res.json()).order_status, 'PAID');
+    const body = await res.json();
+    assert.equal(body.order_status, 'PAID');
+    assert.equal(body.entitlement.persisted, true);
+    assert.equal(body.entitlement.tier, 'elite');
     assert.match(seenUrl, /\/pg\/orders\/rw_test123$/);
+    assert.deepEqual(handler._writes.map(w => w.path), ['payments/rw_test123', 'users/u1', 'cashfreeOrders/rw_test123']);
+    assert.equal(handler._writes[1].values.pro, true);
+    assert.equal(handler._writes[1].values.proPayId, 'rw_test123');
   } finally { global.fetch = realFetch; }
 });
 
@@ -216,8 +308,29 @@ test('handleCashfreeOrderStatus: a network error returns 502, never throws', asy
   const realFetch = global.fetch;
   global.fetch = async () => { throw new Error('timeout'); };
   try{
-    const res = await handleCashfreeOrderStatus(env, 'rw_test123');
+    const res = await handleCashfreeOrderStatus(jsonRequest({}), env, 'rw_test123');
     assert.equal(res.status, 502);
+  } finally { global.fetch = realFetch; }
+});
+
+test('handleCashfreeOrderStatus: one account cannot inspect or fulfill another account\'s order', async () => {
+  const { handleCashfreeOrderStatus } = await loadHandler({ receipt: { uid: 'different-user', cfOrderId: 'rw_test123', planId: 'founder', amountINR: 100, fulfilled: false } });
+  const env = { CASHFREE_APP_ID: 'id', CASHFREE_SECRET_KEY: 'secret' };
+  const res = await handleCashfreeOrderStatus(jsonRequest({}), env, 'rw_test123');
+  assert.equal(res.status, 403);
+  assert.equal((await res.json()).error, 'forbidden');
+});
+
+test('handleCashfreeOrderStatus: amount or currency mismatch fails closed without entitlement writes', async () => {
+  const handler = await loadHandler();
+  const env = { CASHFREE_APP_ID: 'id', CASHFREE_SECRET_KEY: 'secret' };
+  const realFetch = global.fetch;
+  global.fetch = async () => ({ ok: true, status: 200, json: async () => ({ order_id: 'rw_test123', order_status: 'PAID', order_amount: 1, order_currency: 'INR' }) });
+  try{
+    const res = await handler.handleCashfreeOrderStatus(jsonRequest({}), env, 'rw_test123');
+    assert.equal(res.status, 409);
+    assert.equal((await res.json()).error, 'payment_integrity_failed');
+    assert.equal(handler._writes.length, 0);
   } finally { global.fetch = realFetch; }
 });
 
@@ -231,7 +344,7 @@ function loadCashfreeAdapter(overrides){
     document: { createElement: () => ({}), head: { appendChild(){} } },
     showToast: () => {},
     track: () => {},
-    user: { uid: 'u1', email: 'a@b.com', phoneNumber: '+919999999999' },
+    user: { uid: 'u1', email: 'a@b.com', phoneNumber: '+919999999999', getIdToken: async () => 'firebase-token' },
     activateProCalls: [],
     grantPurchaseCalls: [],
   }, overrides || {});
@@ -253,12 +366,12 @@ function loadCashfreeAdapter(overrides){
 // Firestore would.
 function selectCashfree(ctx){ ctx.RW_PAYMENT_PROVIDER = 'cashfree'; return ctx; }
 
-test('createOrder(): posts amount/customer/meta to rwApi("cashfree/order") and returns a synchronous order shell', async () => {
-  let seenUrl, seenBody;
+test('createOrder(): posts amount/customer/meta with Firebase authorization and returns a synchronous order shell', async () => {
+  let seenUrl, seenBody, seenHeaders;
   const ctx = loadCashfreeAdapter({
     rwApi: (p) => 'https://worker.example/' + p,
     fetch: async (url, init) => {
-      seenUrl = url; seenBody = JSON.parse(init.body);
+      seenUrl = url; seenHeaders = init.headers; seenBody = JSON.parse(init.body);
       return { ok: true, json: async () => ({ payment_session_id: 'session_abc', order_id: 'rw_1', environment: 'sandbox' }) };
     }
   });
@@ -266,18 +379,19 @@ test('createOrder(): posts amount/customer/meta to rwApi("cashfree/order") and r
   const order = ctx.RWPaymentGateway.createOrder(299, { planId: 'pro_m', label: 'Pro Monthly', tierId: 'pro' });
   assert.equal(order.amountINR, 299);
   assert.equal(order.provider, 'cashfree');
+  await ctx._cfOrderPromise; // let the authenticated in-flight request resolve
   assert.equal(seenUrl, 'https://worker.example/cashfree/order');
+  assert.equal(seenHeaders.Authorization, 'Bearer firebase-token');
   assert.equal(seenBody.amount, 299);
   assert.equal(seenBody.customer.phone, '+919999999999');
   assert.equal(seenBody.meta.planId, 'pro_m');
-  await ctx._cfOrderPromise; // let the in-flight request resolve
   assert.equal(ctx._cfOrderPromise, ctx._cfOrderPromise); // sanity: still the same promise object
 });
 
 test('email-only account can add a receipt phone at checkout instead of hitting Cashfree missing-phone failure',async()=>{
   let calls=0,seenBody;
   const ctx=loadCashfreeAdapter({
-    user:{uid:'email-user',email:'email@example.com',phoneNumber:''},
+    user:{uid:'email-user',email:'email@example.com',phoneNumber:'',getIdToken:async()=> 'firebase-token'},
     rwApi:p=>'https://worker.example/'+p,
     fetch:async(url,init)=>{calls++;seenBody=JSON.parse(init.body);return{ok:true,json:async()=>({payment_session_id:'session_phone',order_id:'rw_phone',environment:'sandbox'})};}
   });
@@ -296,7 +410,7 @@ test('createOrder() -> openCheckout(): full success path confirms order_status P
   const ctx = loadCashfreeAdapter({
     rwApi: (p) => 'https://worker.example/' + p,
     fetch: async (url) => {
-      if(String(url).indexOf('/status') !== -1){ statusCalls.push(url); return { json: async () => ({ order_status: 'PAID' }) }; }
+      if(String(url).indexOf('/status') !== -1){ statusCalls.push(url); return { json: async () => ({ order_status: 'PAID', entitlement: { persisted: true, tier: 'pro', until: 0 } }) }; }
       return { ok: true, json: async () => ({ payment_session_id: 'session_abc', order_id: 'rw_1', environment: 'sandbox' }) };
     },
     Cashfree: (opts) => {
@@ -352,7 +466,7 @@ test('openCheckout(): a confirmed-PAID Founder-offer purchase increments pricing
   const ctx = loadCashfreeAdapter({
     rwApi: (p) => 'https://worker.example/' + p,
     fetch: async (url) => {
-      if(String(url).indexOf('/status') !== -1) return { json: async () => ({ order_status: 'PAID' }) };
+      if(String(url).indexOf('/status') !== -1) return { json: async () => ({ order_status: 'PAID', entitlement: { persisted: true, tier: 'elite', until: 0 } }) };
       return { ok: true, json: async () => ({ payment_session_id: 'session_abc', order_id: 'rw_1', environment: 'sandbox' }) };
     },
     Cashfree: () => ({ checkout: () => Promise.resolve({}) }),
@@ -381,7 +495,7 @@ test('openCheckout(): a confirmed-PAID purchase of a NON-Founder plan never touc
   const ctx = loadCashfreeAdapter({
     rwApi: (p) => 'https://worker.example/' + p,
     fetch: async (url) => {
-      if(String(url).indexOf('/status') !== -1) return { json: async () => ({ order_status: 'PAID' }) };
+      if(String(url).indexOf('/status') !== -1) return { json: async () => ({ order_status: 'PAID', entitlement: { persisted: true, tier: 'pro', until: 0 } }) };
       return { ok: true, json: async () => ({ payment_session_id: 'session_abc', order_id: 'rw_1', environment: 'sandbox' }) };
     },
     Cashfree: () => ({ checkout: () => Promise.resolve({}) }),
@@ -401,7 +515,7 @@ test('openCheckout(): a Founder purchase still grants Pro even if the founder.co
   const ctx = loadCashfreeAdapter({
     rwApi: (p) => 'https://worker.example/' + p,
     fetch: async (url) => {
-      if(String(url).indexOf('/status') !== -1) return { json: async () => ({ order_status: 'PAID' }) };
+      if(String(url).indexOf('/status') !== -1) return { json: async () => ({ order_status: 'PAID', entitlement: { persisted: true, tier: 'elite', until: 0 } }) };
       return { ok: true, json: async () => ({ payment_session_id: 'session_abc', order_id: 'rw_1', environment: 'sandbox' }) };
     },
     Cashfree: () => ({ checkout: () => Promise.resolve({}) }),
@@ -419,7 +533,7 @@ test('openCheckout(): a Founder purchase with no Firestore available (offline) g
   const ctx = loadCashfreeAdapter({
     rwApi: (p) => 'https://worker.example/' + p,
     fetch: async (url) => {
-      if(String(url).indexOf('/status') !== -1) return { json: async () => ({ order_status: 'PAID' }) };
+      if(String(url).indexOf('/status') !== -1) return { json: async () => ({ order_status: 'PAID', entitlement: { persisted: true, tier: 'elite', until: 0 } }) };
       return { ok: true, json: async () => ({ payment_session_id: 'session_abc', order_id: 'rw_1', environment: 'sandbox' }) };
     },
     Cashfree: () => ({ checkout: () => Promise.resolve({}) })
@@ -494,112 +608,34 @@ test('cashfree-adapter.js registers itself as "cashfree" without disturbing the 
 });
 
 // ---------------------------------------------------------------------------
-// 3. ENTITLEMENT-PERSISTENCE FIX — confirmed-PAID Cashfree purchases used to
-//    write NOTHING server-side (grantPurchase() only ever set localStorage),
-//    so a paying customer lost Pro on a storage clear/reinstall/device swap.
-//    Two pieces now close that gap:
-//      a) cashfree-adapter.js's _cfRecordOrder() — best-effort, non-blocking
-//         write of a PENDING cashfreeOrders/{orderId} receipt (see
-//         firestore.rules for why this can never self-grant pro:true).
-//      b) plan-picker.js's grantPurchase() — a 24h rw_pro_temp/
-//         rw_pro_temp_uid grace window (the exact mechanism manual-upi-
-//         adapter.js's verifyPayment() already uses) so the local grant
-//         survives js/boot/auth-init.js's account-bound onSnapshot re-check
-//         on the very next reload, while the receipt awaits admin approval.
+// 3. SERVER-AUTHORITATIVE ENTITLEMENT — the browser may refresh its local UI
+//    only after the Worker has verified Cashfree and persisted the account-
+//    bound Firestore entitlement. It must never create its own payment receipt.
 // ---------------------------------------------------------------------------
-function fakeDb(){
-  const writes = [];
-  return {
-    writes,
-    collection(name){
-      return {
-        doc(id){
-          return {
-            set(data){ writes.push({ collection: name, id, data }); return Promise.resolve(); },
-            // A confirmed-PAID Founder purchase also runs the (separately
-            // tested — see fakeFounderDb()/FAKE_FIREBASE below)
-            // pricing/founder.count increment through this same success
-            // handler now (merged fix, PR #153). No-op it here so `writes`
-            // stays scoped to the cashfreeOrders receipt this helper exists
-            // to verify.
-            update(){ return Promise.resolve(); }
-          };
-        }
-      };
-    }
-  };
-}
-
-test('_cfRecordOrder (via openCheckout, confirmed PAID): writes a PENDING cashfreeOrders/{orderId} receipt with the exact expected shape', async () => {
-  const db = fakeDb();
+test('confirmed PAID checkout grants locally only after Worker persistence and performs no client receipt write', async () => {
+  const clientWrites = [];
   const ctx = loadCashfreeAdapter({
     rwApi: (p) => 'https://worker.example/' + p,
-    db,
+    db: { collection: (name) => { clientWrites.push(name); return { doc: () => ({ set: () => Promise.resolve(), update: () => Promise.resolve() }) }; } },
     firebase: FAKE_FIREBASE,
     fetch: async (url) => {
-      if(String(url).indexOf('/status') !== -1) return { json: async () => ({ order_status: 'PAID' }) };
+      if(String(url).indexOf('/status') !== -1) return { json: async () => ({ order_status: 'PAID', entitlement: { persisted: true, tier: 'pro', until: 0 } }) };
       return { ok: true, json: async () => ({ payment_session_id: 'session_abc', order_id: 'rw_order_9', environment: 'sandbox' }) };
     },
     Cashfree: () => ({ checkout: () => Promise.resolve({}) })
   });
   selectCashfree(ctx);
-  ctx.RWPaymentGateway.createOrder(499, { planId: 'founder', label: 'Founder Pro — Lifetime', tierId: 'elite' });
+  ctx.RWPaymentGateway.createOrder(7499, { planId: 'pro_y3', label: 'Pro 3 years', tierId: 'pro' });
   ctx.RWPaymentGateway.openCheckout({}, 'any');
   for(let i = 0; i < 8; i++) await new Promise((resolve) => setTimeout(resolve, 0));
 
-  assert.equal(ctx.grantPurchaseCalls.length, 1, 'the local grant must still happen — this receipt is additive, not a replacement');
-  assert.equal(db.writes.length, 1, 'exactly one cashfreeOrders receipt must be written per confirmed-PAID purchase');
-  const w = db.writes[0];
-  assert.equal(w.collection, 'cashfreeOrders');
-  assert.equal(w.id, 'rw_order_9', 'the doc id must be the real Cashfree order id (firestore.rules keys the collection by it)');
-  assert.equal(w.data.uid, 'u1');
-  assert.equal(w.data.cfOrderId, 'rw_order_9');
-  assert.equal(w.data.planId, 'founder');
-  assert.equal(w.data.amountINR, 499);
-  assert.equal(w.data.status, 'pending', 'must never write status other than pending — only an admin can move it to approved');
-  assert.ok(!('pro' in w.data), 'must never itself write a pro field — nothing here can grant Pro directly, see firestore.rules');
-});
-
-test('_cfRecordOrder: a receipt-write failure is best-effort and never blocks/undoes the Pro grant already given', async () => {
-  const ctx = loadCashfreeAdapter({
-    rwApi: (p) => 'https://worker.example/' + p,
-    // set() (the cashfreeOrders receipt) rejects; update() (the separately
-    // tested pricing/founder.count increment, now sharing this same success
-    // handler per the PR #153 merge) still needs to resolve so this test
-    // stays focused on the receipt-write failure it's named for.
-    db: { collection: () => ({ doc: () => ({ set: () => Promise.reject(new Error('offline')), update: () => Promise.resolve() }) }) },
-    firebase: FAKE_FIREBASE,
-    fetch: async (url) => {
-      if(String(url).indexOf('/status') !== -1) return { json: async () => ({ order_status: 'PAID' }) };
-      return { ok: true, json: async () => ({ payment_session_id: 'session_abc', order_id: 'rw_order_9', environment: 'sandbox' }) };
-    },
-    Cashfree: () => ({ checkout: () => Promise.resolve({}) })
-  });
-  selectCashfree(ctx);
-  ctx.RWPaymentGateway.createOrder(499, { planId: 'founder' });
-  assert.doesNotThrow(() => ctx.RWPaymentGateway.openCheckout({}, 'any'));
-  for(let i = 0; i < 8; i++) await new Promise((resolve) => setTimeout(resolve, 0));
-  assert.equal(ctx.grantPurchaseCalls.length, 1, 'grantPurchase() must still fire even though the receipt write rejected');
-});
-
-test('_cfRecordOrder: no db / no signed-in user — no-ops silently, never throws', async () => {
-  const ctx = loadCashfreeAdapter({
-    rwApi: (p) => 'https://worker.example/' + p,
-    user: null,
-    fetch: async (url) => {
-      if(String(url).indexOf('/status') !== -1) return { json: async () => ({ order_status: 'PAID' }) };
-      return { ok: true, json: async () => ({ payment_session_id: 'session_abc', order_id: 'rw_order_9', environment: 'sandbox' }) };
-    },
-    Cashfree: () => ({ checkout: () => Promise.resolve({}) })
-  });
-  selectCashfree(ctx);
-  ctx.RWPaymentGateway.createOrder(499, { planId: 'founder' });
-  assert.doesNotThrow(() => ctx.RWPaymentGateway.openCheckout({}, 'any'));
-  for(let i = 0; i < 8; i++) await new Promise((resolve) => setTimeout(resolve, 0));
+  assert.equal(ctx.grantPurchaseCalls.length, 1);
+  assert.equal(clientWrites.length, 0, 'non-Founder Cashfree checkout must not write Firestore from the browser');
+  assert.doesNotMatch(read('js/payments/providers/cashfree-adapter.js'), /_cfRecordOrder/);
 });
 
 // ---------------------------------------------------------------------------
-// 4. plan-picker.js's grantPurchase() — the rw_pro_temp grace window
+// 4. plan-picker.js's grantPurchase() — immediate local UI refresh window
 // ---------------------------------------------------------------------------
 function loadGrantPurchase(overrides){
   const ls = {};
@@ -628,7 +664,7 @@ function loadGrantPurchase(overrides){
   return context;
 }
 
-test('grantPurchase(): sets a 24h rw_pro_temp/rw_pro_temp_uid grace window bound to the signed-in account — the exact protection manual-upi-adapter.js\'s verifyPayment() already gives the UTR-claim flow, so the local grant survives auth-init.js\'s account-bound onSnapshot re-check on the very next reload while the cashfreeOrders receipt awaits admin approval', () => {
+test('grantPurchase(): sets a 24h rw_pro_temp/rw_pro_temp_uid window bound to the signed-in account while the server-persisted entitlement snapshot refreshes', () => {
   const ctx = loadGrantPurchase();
   const before = Date.now();
   ctx.grantPurchase('rw_order_9', 'cashfree', 'pro_m');

@@ -287,6 +287,14 @@ function applyRemoteConfig(cfg){
      behavior, so this key changes nothing until an admin deliberately sets
      it to a provider id that has actually registered an adapter. */
   set('PAYMENT_PROVIDER', function(v){ if(typeof v==='string' && v) RW_PAYMENT_PROVIDER=v; });
+  set('WORKER_URL', function(v){
+    try{
+      var u=new URL(String(v||''));
+      if(u.protocol==='https:'&&window.RW_CONFIG){window.RW_CONFIG.workerUrl=u.href.replace(/\/+$/,'');window.RW_CONFIG.backend='auto';}
+    }catch(e){ /* invalid remote URL stays disabled */ }
+  });
+  set('CASHFREE_ENVIRONMENT', function(v){ window.RW_CASHFREE_ENV=String(v||'').toLowerCase(); });
+  set('CASHFREE_SANDBOX_UID', function(v){ window.RW_CASHFREE_SANDBOX_UID=String(v||''); });
 
   /* ---- Admin-controlled custom head-script slot (rw-v95) ----
      Lets an admin drop in a verified third-party script (e.g. a Travelpayouts
