@@ -116,7 +116,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-check-compat.js"></script>
-<link rel="stylesheet" href="app.css?v=rw-v121-hollywood-smooth-read">
+<link rel="stylesheet" href="app.css?v=rw-v122-nonblocking-auth">
 <link rel="stylesheet" href="mobile-stability.css?v=rw-v121-hollywood-smooth-read">
 <script src="js/runtime/freshness.js?v=rw-v121-hollywood-smooth-read" defer></script>
 <style id="rwPolish">
@@ -390,11 +390,20 @@ html{-webkit-text-size-adjust:100%}
       <button class="xp-chip" id="xpChip" onclick="openBadges()" title="Your traveler rank">&#129399; <span id="xpChipTxt">Genin</span></button>
       <button class="btn btn-pro" id="proBtn" onclick="openPay()">Pro &#8377;100</button>
       <button class="btn" id="authBtn" onclick="openAuth()" style="display:none;background:linear-gradient(135deg,var(--gold,#E8BA6C),var(--gold2,#C8913E));color:#0A0A0C;font-weight:800;border:none;padding:8px 16px;white-space:nowrap">Sign in</button>
-      <img class="avatar" id="authAvatar" src="" alt="" style="display:none" onclick="authMenu()">
+      <span class="auth-avatar-wrap" id="authAvatarWrap" style="display:none">
+        <img class="avatar" id="authAvatar" src="" alt="Account" onclick="authMenu()">
+        <span class="auth-verified-badge" id="authVerifiedBadge" title="Verified email" aria-label="Verified email">&#10003;</span>
+      </span>
       <button class="hamb" onclick="openDrawer()" aria-label="Menu">&#9776;</button>
     </div>
   </div>
 </nav>
+
+<div class="rw-verification-banner" id="rwVerificationBanner" style="display:none" role="status">
+  <div><b>Email verification is optional for normal use.</b> You can use RoamWise and pay for Pro now. Verify later to unlock referrals, creator tools, partner redemptions and other identity-sensitive actions.</div>
+  <button type="button" onclick="resendVerification()">Send verification link</button>
+  <button type="button" class="rw-vb-close" onclick="rwDismissVerificationBanner()" aria-label="Dismiss verification reminder">&#215;</button>
+</div>
 
 <div id="rwCreatorBanner" style="display:none">
   <div class="rwcb-row">
@@ -948,14 +957,14 @@ function rwDismissCreatorBanner(){
 <div class="overlay" id="authOverlay">
   <div class="modal" style="max-width:380px">
     <button class="modal-close" onclick="closeAuth()">&#215;</button>
-    <div class="modal-head"><div class="modal-title">Welcome to RoamWise</div><div class="modal-sub">Verified account &bull; Pro on all your devices</div></div>
+    <div class="modal-head"><div class="modal-title">Welcome to RoamWise</div><div class="modal-sub">Sign in now &bull; verify sensitive actions later</div></div>
     <div class="modal-body">
       <div class="auth-err" id="authErr" role="alert"></div>
       <div class="auth-last-method" id="authLastMethod" aria-live="polite"></div>
       <div class="auth-providers">
         <button class="auth-btn google" type="button" id="googleAuthBtn" onclick="loginGoogle()"><svg width="17" height="17" viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.1H42V20H24v8h11.3C33.7 32.7 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.9 1.2 8 3l5.7-5.7C34.3 6.1 29.4 4 24 4 13 4 4 13 4 24s9 20 20 20 20-9 20-20c0-1.3-.1-2.6-.4-3.9z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.9 1.2 8 3l5.7-5.7C34.3 6.1 29.4 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.3 0-9.7-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.1H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C41 35.4 44 30.2 44 24c0-1.3-.1-2.6-.4-3.9z"/></svg>Continue with Google</button>
       </div>
-      <div class="auth-div">or use a verified email</div>
+      <div class="auth-div">or use email and password</div>
       <div id="emailPane">
         <div class="auth-explain">Use the method you chose first. The same email cannot create two RoamWise identities.</div>
         <label class="auth-label" for="authEmail">Email address</label>
@@ -971,15 +980,17 @@ function rwDismissCreatorBanner(){
         <button class="rzp-main-btn" type="button" id="authEmailBtn" style="margin-top:2px" onclick="loginEmail()"><span id="authAction">Sign in</span></button>
         <div class="auth-sub" id="authForgotRow"><a onclick="resetPassword()">Forgot password?</a></div>
         <div class="auth-sub" id="authToggleRow">New here? <a onclick="toggleAuthMode()">Create an account</a></div>
-        <div class="auth-privacy">For your privacy, we do not reveal whether an email is registered or which provider it uses before sign-in.</div>
+        <input id="authCompanyWebsite" class="rw-auth-honeypot" type="text" tabindex="-1" autocomplete="off" aria-hidden="true">
+        <div class="auth-privacy">Basic access and Pro payment do not wait for an email. Verification is required only for referrals, creator/partner access and other sensitive actions. For privacy, we do not reveal whether an email is registered or which provider it uses before sign-in.</div>
       </div>
       <div id="emailVerifyPane" style="display:none;text-align:center">
         <div style="font-size:38px;margin:4px 0 10px" aria-hidden="true">&#9993;&#65039;</div>
-        <div style="font-size:17px;font-weight:800;color:var(--t1)">Check your inbox</div>
+        <div style="font-size:17px;font-weight:800;color:var(--t1)">Verification link requested</div>
         <div id="authVerifyEmail" style="font-size:13px;color:var(--gold2);margin:5px 0 9px;overflow-wrap:anywhere"></div>
-        <div id="authVerifyMsg" style="font-size:12px;line-height:1.55;color:var(--t3);margin-bottom:14px">Open the verification link, then return here and sign in.</div>
-        <button class="rzp-main-btn" onclick="rwShowEmailPane()">I verified my email</button>
-        <button class="auth-btn" style="margin-top:9px" onclick="resendVerification()">Resend verification email</button>
+        <div id="authVerifyMsg" style="font-size:12px;line-height:1.55;color:var(--t3);margin-bottom:14px">You remain signed in. Open the link when convenient; normal features and Pro payment already work.</div>
+        <button class="rzp-main-btn" onclick="refreshEmailVerification()">I opened the link &mdash; refresh</button>
+        <button class="auth-btn" id="authResendBtn" style="margin-top:9px" onclick="resendVerification()">Resend verification email</button>
+        <button class="auth-btn" style="margin-top:9px" onclick="closeAuth()">Continue to RoamWise</button>
       </div>
     </div>
   </div>
@@ -1069,6 +1080,7 @@ function rwDismissCreatorBanner(){
            a genuine choice for every purchase, subscription or one-off. -->
       <div id="cashfreeOption" style="display:none;margin-bottom:12px">
         <div class="section-label">&#9889; Instant checkout &mdash; cards / UPI / netbanking via Cashfree</div>
+        <input class="txn-inp" id="cashfreePhone" type="tel" inputmode="tel" autocomplete="tel" maxlength="18" placeholder="Mobile number for Cashfree receipt" style="width:100%;margin-bottom:8px">
         <button class="upi-any" onclick="payViaCashfree()">&#128179; Pay via Cashfree &mdash; instant, automatic unlock</button>
         <div class="upi-note">Secured by Cashfree, a licensed payment aggregator. Available for one-time purchases only, for now.</div>
         <div class="divider-or">or pay directly below &mdash; zero middlemen, zero extra fees</div>
@@ -1080,7 +1092,8 @@ function rwDismissCreatorBanner(){
         <button class="upi-app wapay" onclick="payVia('whatsapp')"><span class="ua-ic" style="background:#fff"><svg width="18" height="18" viewBox="0 0 24 24"><path fill="#25D366" d="M12 0C5.4 0 0 5.4 0 12c0 2.1.6 4.2 1.6 6L0 24l6.2-1.6c1.8 1 3.8 1.5 5.8 1.5 6.6 0 12-5.4 12-12S18.6 0 12 0z"/><path fill="#fff" d="M17.5 14.4c-.3-.1-1.8-.9-2-1-.3-.1-.5-.1-.7.1-.2.3-.8 1-.9 1.2-.2.2-.3.2-.6.1-.3-.2-1.3-.5-2.4-1.5-.9-.8-1.5-1.8-1.7-2.1-.2-.3 0-.5.1-.6l.5-.5c.1-.2.2-.3.3-.5.1-.2 0-.4 0-.5 0-.1-.7-1.7-1-2.3-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.8.4-.3.3-1 1-1 2.5s1.1 2.9 1.2 3.1c.1.2 2.1 3.2 5.1 4.5.7.3 1.3.5 1.7.6.7.2 1.4.2 1.9.1.6-.1 1.8-.7 2-1.4.2-.7.2-1.3.2-1.4-.1-.2-.3-.2-.6-.3z"/></svg></span>WhatsApp</button>
       </div>
       <button class="upi-any" onclick="payVia('any')">&#128241; Any other UPI app &mdash; Paytm / BHIM / bank apps</button>
-      <div class="upi-note">Opens your app with <strong>&#8377;100 to roamwise@ybl</strong> pre-filled. Straight UPI &mdash; the same rails, no gateway in between.</div>
+      <div class="upi-note" id="upiPrefillNote">Opens your app with <strong>&#8377;100 to roamwise@ybl</strong> pre-filled. Confirm that your bank shows a valid payee before approving. If one UPI app declines, copy the UPI ID or use another bank/UPI app.</div>
+      <button class="tact" style="width:100%;font-size:11px;margin-top:7px" onclick="copyUpiPaymentDetails()">Copy UPI ID and amount</button>
       <div class="divider-or">on a computer? scan with your phone</div>
       <div class="qr-wrap">
         <div class="qr-lbl" id="qrAmtLbl">&#128247; Scan &bull; &#8377;100 &bull; UPI: roamwise@ybl</div>
@@ -1089,7 +1102,7 @@ function rwDismissCreatorBanner(){
       </div>
       <div class="utr-box">
         <div class="utr-title">Step 2 &mdash; paste your UTR to unlock</div>
-        <div class="utr-sub">After paying, open the transaction in your app and copy the 12-digit <strong>UTR / UPI Ref No</strong>. Pro activates on your account the moment it&rsquo;s approved &mdash; usually within minutes.</div>
+        <div class="utr-sub" id="utrHelp">After paying, open the transaction in your app and copy the 12-digit <strong>UTR / UPI Ref No</strong>. Email verification is not required to submit a genuine payment.</div>
         <div class="inp-row">
           <input class="txn-inp" id="utrInput" placeholder="12-digit UTR number" autocomplete="off" inputmode="numeric">
           <button class="txn-btn" id="utrBtn" onclick="submitUtr()">Submit &#10148;</button>
@@ -1215,11 +1228,11 @@ function rwDismissCreatorBanner(){
 <script src="js/pricing/founder-seats.js"></script>
 <script src="js/pricing/referral.js"></script>
 <script src="js/payments/gateway-adapter.js"></script>
-<script src="js/payments/providers/manual-upi-adapter.js"></script>
-<script src="js/payments/providers/cashfree-adapter.js"></script>
+<script src="js/payments/providers/manual-upi-adapter.js?v=rw-pay-nonblocking-2"></script>
+<script src="js/payments/providers/cashfree-adapter.js?v=rw-pay-nonblocking-2"></script>
 <script src="js/payments/checkout.js"></script>
 <script src="js/payments/partner-redeem.js"></script>
-<script src="js/payments/plan-picker.js"></script>
+<script src="js/payments/plan-picker.js?v=rw-pay-nonblocking-2"></script>
 <script src="js/data/regions.js"></script>
 <script src="js/data/country-info.js"></script>
 <script src="js/data/place-overrides.js"></script>
@@ -1328,8 +1341,8 @@ function rwDismissCreatorBanner(){
 <script src="tusk-learned.js" onerror="void 0"></script>
 <script src="destination-photos.js" defer></script>
 <script src="tusk-data.js" defer></script>
-<script src="js/boot/auth-security.js?v=rw-auth-hardening-1" defer></script>
-<script src="js/boot/auth-init.js?v=rw-auth-hardening-1" defer></script>
+<script src="js/boot/auth-security.js?v=rw-auth-nonblocking-2" defer></script>
+<script src="js/boot/auth-init.js?v=rw-auth-nonblocking-2" defer></script>
 <script src="js/core/push-notifications.js?v=rw-v121-hollywood-smooth-read" defer></script>
 <script src="app.js?v=rw-v121-hollywood-smooth-read" defer></script>
 <script src="js/boot/init.js?v=rw-v121-hollywood-smooth-read" defer></script>

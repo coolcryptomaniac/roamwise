@@ -42,11 +42,17 @@
    cross-file pattern this codebase already relies on throughout the
    modularization (see plan-picker.js's own header comment). */
 
-var UPI_VPA = 'roamwise@ybl', UPI_NAME = 'RoamWise Pro', UPI_AMT = '100';
+var UPI_VPA = 'roamwise@ybl', UPI_NAME = 'RoamWise Pro', UPI_AMT = '100', UPI_NOTE='RoamWise Pro';
 var qrBuilt = false;
 var _qrBuiltAmt = null;
 
-function _upiParams(){ return 'pa='+UPI_VPA+'&pn='+encodeURIComponent(UPI_NAME)+'&am='+UPI_AMT+'&cu=INR&tn='+encodeURIComponent('RoamWise Pro Lifetime'); }
+function _upiParams(){ return 'pa='+UPI_VPA+'&pn='+encodeURIComponent(UPI_NAME)+'&am='+UPI_AMT+'&cu=INR&tn='+encodeURIComponent(UPI_NOTE); }
+function copyUpiPaymentDetails(){
+  var text=UPI_VPA+' | INR '+UPI_AMT+' | '+UPI_NOTE;
+  function done(){showToast('UPI ID and ₹'+UPI_AMT+' amount copied ✓');}
+  try{if(navigator.clipboard&&navigator.clipboard.writeText)return navigator.clipboard.writeText(text).then(done).catch(function(){window.prompt('Copy UPI payment details:',text);});}catch(e){ /* clipboard may be unavailable */ }
+  window.prompt('Copy UPI payment details:',text);
+}
 
 var ManualUpiAdapter = {
   id: 'manual_upi',
@@ -58,9 +64,11 @@ var ManualUpiAdapter = {
   createOrder: function(amount, meta){
     meta = meta || {};
     UPI_AMT = String(amount);
-    UPI_NAME = 'RoamWise ' + (meta.label || '');
+    UPI_NOTE = ('RoamWise '+(meta.label||'Pro')).replace(/[^A-Za-z0-9 ._-]/g,' ').replace(/\s+/g,' ').trim().slice(0,70);
     qrBuilt = false; /* force QR rebuild for the new amount */
     var qc = el('qrcode'); if(qc) qc.innerHTML='';
+    var note=el('upiPrefillNote');if(note)note.innerHTML='Opens your app with <strong>₹'+UPI_AMT+' to '+UPI_VPA+'</strong> pre-filled. Confirm that your bank shows a valid payee before approving. If one UPI app declines, copy the UPI ID or use another bank/UPI app.';
+    var help=el('utrHelp');if(help)help.innerHTML='After paying ₹'+UPI_AMT+', open the transaction and copy the 12-digit <strong>UTR / UPI Ref No</strong>. Email verification is not required to submit a genuine payment.';
     return {amountINR: amount, vpa: UPI_VPA, name: UPI_NAME, planId: meta.planId, tierId: meta.tierId, label: meta.label, category: meta.category};
   },
 
@@ -94,7 +102,7 @@ var ManualUpiAdapter = {
     if(method==='phonepe') deep = 'phonepe://pay?' + _upiParams();
     if(method==='whatsapp') {
       deep = generic;
-      showToast('If WhatsApp is not in the picker: WhatsApp → any chat → 📎 → Payment → pay ₹100 to roamwise@ybl');
+      showToast('If WhatsApp is not in the picker: WhatsApp → any chat → 📎 → Payment → pay ₹'+UPI_AMT+' to '+UPI_VPA);
     }
     var t0 = Date.now();
     /* try the app-specific scheme; if nothing handles it in ~1.2s, fall back to the generic UPI chooser */
@@ -114,15 +122,12 @@ var ManualUpiAdapter = {
     var utr = (el('utrInput').value||'').trim().replace(/\s/g,'');
     var msg = el('utrMsg');
     function say(t, ok){ msg.textContent=t; msg.style.display='block'; msg.style.color=ok?'#16BF96':'#D84F4F'; msg.style.background=ok?'rgba(22,191,150,.08)':'rgba(216,79,79,.08)'; }
-    if(!/^\d{12}$/.test(utr)) return say('A real UPI UTR is exactly 12 digits — find it in your payment app under the ₹100 transaction’s details.', false);
+    if(!/^\d{12}$/.test(utr)) return say('A real UPI UTR is exactly 12 digits — find it in your payment app under the ₹'+UPI_AMT+' transaction’s details.', false);
     if(!AUTH_READY) return say('Owner hasn’t enabled account unlocks yet — hold on to your UTR and try again soon.', false);
     var b = el('utrBtn'); b.disabled=true; b.textContent='Sending…';
-    /* anti-bot: email accounts must be verified before claiming */
-    if(user.providerData && user.providerData.some(function(p){return p.providerId==='password';}) && !user.emailVerified){
-      b.disabled=false; b.textContent='Submit ➤';
-      user.sendEmailVerification().catch(function(){});
-      return say('Verify your email first — we just sent (or re-sent) the link. Tap it, reopen the app, then submit your UTR.', false);
-    }
+    /* Email verification is not a proof of payment. A signed-in buyer may
+       submit a UTR while unverified; duplicate/rejected-claim controls below
+       and founder review remain the actual payment fraud gates. */
     /* fraud gate: rejected-before accounts and duplicate UTRs are blocked */
     db.collection('claims').where('uid','==',user.uid).get().then(function(snap){
       var mine = snap.docs.map(function(d){return d.data();});
@@ -145,13 +150,19 @@ var ManualUpiAdapter = {
       uid:user.uid, email:user.email||user.phoneNumber||'', utr:utr, amount:parseInt(UPI_AMT,10)||100,
       tier:(UPI_AMT==='299'?'supporter':'pro'), plan:(_selectedPlan&&_selectedPlan.id)||'legacy100', planLabel:(_selectedPlan&&_selectedPlan.label)||'Legacy ₹100',
       status:'pending', created:firebase.firestore.FieldValue.serverTimestamp()
-    }, _ref)).then(function(res){
-      if(res===undefined) return; /* gated above */
+    }, _ref)).then(function(){
+      /* Firestore Web's DocumentReference.set() resolves successfully with
+         undefined. Do not treat that normal result as a blocked write: doing
+         so silently skipped the provisional Pro grant after a genuine claim. */
       b.disabled=false; b.textContent='Submit ➤'; el('utrInput').value='';
       try{ track('utr_submits'); }catch(e){ /* analytics best-effort, ignore */ }
       try{ if(_bonusDays>0&&_ref.refCode){ var _who=rwRefLookup(_ref.refCode); setTimeout(function(){ showToast('Referred by '+(_who?_who.name:'your friend')+' - you get '+_bonusDays+' bonus days of Pro when verified!'); },2200); } }catch(e){ /* toast is a nice-to-have, ignore */ }
-      /* INSTANT provisional unlock — bound to THIS ACCOUNT (not the device) */
-      if(user){
+      /* A verified/OAuth identity may receive the existing 24-hour provisional
+         unlock while founder review runs. Unverified password accounts can
+         still pay and submit the claim, but do not receive client-trusted Pro
+         from an arbitrary 12-digit value; that closes disposable-account
+         farming without putting email verification back in front of checkout. */
+      if(user&&user.emailVerified){
         lsSet('rw_pro_temp', String(Date.now()+864e5));
         lsSet('rw_pro_temp_uid', user.uid);
         /* Store which plan was actually bought so RWPricing.currentTier() reflects
@@ -164,6 +175,8 @@ var ManualUpiAdapter = {
         lsSet('rw_tier', rwTierForPlan(_selectedPlan && _selectedPlan.id));
         isPro=true; lsSet('rwPro','1'); lsSet('rw_pro_uid',user.uid); refreshProUI();
         say('🎉 Pro unlocked INSTANTLY for your account! Verification completes in the background — nothing more to do.', true);
+      } else if(user){
+        say('Payment claim submitted ✓ Your UTR is queued for review and Pro will activate after payment confirmation. You can keep using all free features now.', true);
       } else {
         say('Submitted ✓ Verification completes shortly — Pro activates on your account automatically.', true);
       }
@@ -171,7 +184,7 @@ var ManualUpiAdapter = {
       if(OWNER_NOTIFY_EMAIL){
         fetch('https://formsubmit.co/ajax/'+OWNER_NOTIFY_EMAIL, {method:'POST',
           headers:{'Content-Type':'application/json','Accept':'application/json'},
-          body: JSON.stringify({_subject:'RoamWise: new ₹100 UPI claim', user:(user&&user.email)||'', utr:utr})
+          body: JSON.stringify({_subject:'RoamWise: new ₹'+UPI_AMT+' UPI claim', user:(user&&user.email)||'', utr:utr})
         }).catch(function(){});
       }
     }); }).catch(function(){

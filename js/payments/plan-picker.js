@@ -109,6 +109,7 @@ function _renderCashfreeOption(category, priceINR, planId, label, tierId){
   var cashfreeOn = (category === 'oneoff') && RW_PAYMENT_PROVIDER === 'cashfree' && !!cf;
   if(!cashfreeOn){ box.style.display = 'none'; return; }
   _cfOrder = cf.createOrder(priceINR, {planId:planId, label:label, tierId:tierId, category:category});
+  var phone=el('cashfreePhone');if(phone&&!phone.value&&typeof user!=='undefined'&&user&&user.phoneNumber)phone.value=user.phoneNumber;
   box.style.display = 'block';
 }
 
@@ -120,6 +121,10 @@ function payViaCashfree(){
   if(!requireLogin()) return;
   var cf = RWPaymentGateway.provider('cashfree');
   if(!cf || !_cfOrder){ showToast('Cashfree checkout isn\u2019t available for this purchase \u2014 pick a plan again, or pay via UPI below.'); return; }
+  if(_cfOrder.needsPhone){
+    var phone=el('cashfreePhone'),value=phone&&phone.value||'';
+    if(!cf.setCustomerPhone||!cf.setCustomerPhone(_cfOrder,value)){showToast('Enter a valid mobile number with country code for Cashfree, for example +919876543210.');if(phone)phone.focus();return;}
+  }
   cf.openCheckout(_cfOrder, 'cashfree');
 }
 function backToPlanPicker(){

@@ -403,7 +403,9 @@ function drawerAccount(u){
   var box = el('drAcct'); if(!box) return;
   if(u){
     var pic = u.photoURL || ('https://api.dicebear.com/9.x/initials/svg?seed='+encodeURIComponent(u.email||'RW'));
-    box.innerHTML = '<div class="dr-acct"><img src="'+pic+'" alt=""><div><div class="n">'+((u.displayName||'Traveler').replace(/[<>]/g,''))+'</div><div class="e">'+((u.email||'').replace(/[<>]/g,''))+'</div></div></div>'+
+    var identity=u.emailVerified?'<span style="color:#16bf96;font-size:10px;font-weight:800">✓ Verified email</span>':'<span style="color:#e8ba6c;font-size:10px;font-weight:800">Email verification pending · normal access active</span>';
+    box.innerHTML = '<div class="dr-acct"><img src="'+pic+'" alt=""><div><div class="n">'+((u.displayName||'Traveler').replace(/[<>]/g,''))+'</div><div class="e">'+((u.email||'').replace(/[<>]/g,''))+'</div>'+identity+'</div></div>'+
+      (!u.emailVerified?'<a class="dr-link" onclick="closeDrawer();resendVerification()"><span class="ic">&#9993;&#65039;</span>Verify later for sensitive features</a>':'')+
       '<a class="dr-link dr-signout" onclick="closeDrawer();authMenu()"><span class="ic">&#8618;</span>Sign out</a>'+
       '<a class="dr-link" style="color:var(--t3);font-size:11px" onclick="deleteAccount()"><span class="ic">&#128465;&#65039;</span>Delete my account</a>';
     rwAdminControlLink(u);
