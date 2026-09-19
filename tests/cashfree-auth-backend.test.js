@@ -19,17 +19,18 @@ test('both JSON and base64 service-account secret formats parse without logging 
   assert.equal(parseServiceAccount({ FIREBASE_SERVICE_ACCOUNT_JSON:Buffer.from(raw).toString('base64') }).client_email, sample.client_email);
 });
 
-test('invalid, unrelated-project and missing service accounts fail closed', async () => {
+test('shared parser rejects malformed and missing credentials without breaking other Firebase consumers', async () => {
   const { parseServiceAccount } = await import(path.join(project,'worker/lib/service-account.js'));
   assert.throws(() => parseServiceAccount({}), /service_account_missing/);
   assert.throws(() => parseServiceAccount({ FIREBASE_SERVICE_ACCOUNT_JSON:'broken' }), /service_account_invalid/);
-  assert.throws(() => parseServiceAccount({ FIREBASE_SERVICE_ACCOUNT_JSON:JSON.stringify({...sample,project_id:'other-project'}) }), /service_account_project_mismatch/);
+  assert.equal(parseServiceAccount({ FIREBASE_SERVICE_ACCOUNT_JSON:JSON.stringify({...sample,project_id:'other-project'}) }).project_id, 'other-project');
 });
 
-test('server separates invalid identity from payment-backend failure before order creation', () => {
+test('Cashfree handler enforces RoamWise project and separates backend from customer identity failures', () => {
   assert.match(source, /function backendUnavailable\(\)/);
   assert.match(source, /error:'payment_backend_unavailable'/);
   assert.match(source, /try \{ sa = parseServiceAccount\(env\); \}\s*catch \(_\) \{ return \{error:backendUnavailable\(\)\}; \}/);
+  assert.match(source, /if\(sa\.project_id !== 'roamwisepro'\) return \{error:backendUnavailable\(\)\};/);
   assert.match(source, /try \{ accessToken = await getServiceAccountAccessToken\(env\); \}\s*catch \(_\) \{ return \{error:backendUnavailable\(\)\}; \}/);
   assert.match(source, /try \{ claims = await verifyFirebaseIdToken\(match\[1\], sa.project_id\); \}/);
 });
