@@ -1,5 +1,5 @@
 /* Lightweight skin for the existing checkout only; no payment logic or SDK overrides. */
-#payOverlay .modal{border:1px solid rgba(239,76,101,.33);box-shadow:0 26px 90px rgba(0,0,0,.46),0 0 0 1px rgba(240,199,121,.06);overflow:hidden}
+#payOverlay .modal{border:1px solid rgba(239,76,101,.33);box-shadow:0 26px 90px rgba(0,0,0,.46),0 0 0 1px rgba(240,199,121,.06)}
 #payOverlay .modal-head{position:relative;isolation:isolate;overflow:hidden;background:linear-gradient(114deg,#101827 0%,#2b172a 74%,#361727 100%);border-bottom:1px solid rgba(240,199,121,.19)}
 #payOverlay .modal-head:after{content:"";position:absolute;z-index:-1;pointer-events:none;right:-35px;top:-30px;width:188px;height:138px;opacity:.28;transform:rotate(-12deg);background:radial-gradient(ellipse 32px 24px at 27% 45%,#ef4c65 95%,transparent),radial-gradient(ellipse 38px 26px at 53% 36%,#ef4c65 95%,transparent),radial-gradient(ellipse 36px 24px at 74% 52%,#ef4c65 95%,transparent),radial-gradient(ellipse 59px 18px at 54% 67%,#ef4c65 95%,transparent);filter:drop-shadow(0 0 15px #ef4c65)}
 #payOverlay .modal-title{letter-spacing:.02em}#payOverlay .modal-crown{filter:drop-shadow(0 0 12px rgba(240,199,121,.45))}
