@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="robots" content="noindex,nofollow"><title>RoamWise · Tax workbench</title>
+<style>
+:root{color-scheme:dark;--bg:#090a0c;--panel:#14171e;--border:#31343e;--muted:#afb4c1;--gold:#e8ba6c;--green:#70dcab}*{box-sizing:border-box}
+body{background:var(--bg);color:#f5f2ea;font:14px/1.55 system-ui,-apple-system,sans-serif;margin:0}main{max-width:1110px;margin:auto;padding:25px 17px 65px}a{color:var(--gold)}h1{font-size:clamp(27px,5vw,39px);margin:7px 0 3px;letter-spacing:-.04em}h2{font-size:17px}p{color:var(--muted)}.over{color:var(--gold);text-transform:uppercase;font-size:11px;letter-spacing:.13em;font-weight:800}.flex{display:flex;gap:11px;align-items:center;flex-wrap:wrap}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px;margin:16px 0}.card{border:1px solid var(--border);border-radius:15px;background:var(--panel);padding:15px}.card strong{display:block;font-size:25px;overflow-wrap:anywhere}.card small{display:block;color:var(--muted)}input,button,select{border:1px solid var(--border);border-radius:9px;padding:10px;background:#20242e;color:white;font:inherit}button{cursor:pointer}button:disabled{opacity:.5;cursor:default}button.primary{background:var(--gold);color:#20180a;font-weight:800}.warning{border-left:3px solid var(--gold);padding:12px;background:#29241b;border-radius:8px;margin:9px 0}li{margin:7px 0;overflow-wrap:anywhere}#app[hidden],#gate[hidden],#problem[hidden]{display:none}code{color:var(--gold)}.top{justify-content:space-between}@media(max-width:480px){main{padding-top:16px}}
+</style></head><body><main>
+<div class="flex top"><div class="over">RoamWise · Owner finance</div><a href="./">← Main admin</a></div>
+<h1>Tax &amp; reconciliation workbench</h1>
+<p>Read-only analysis of the existing Firestore ledger. No payment changes, automatic tax filing, or crypto transfers. Figures remain provisional until bank, gateway, invoices and your accountant agree.</p>
+<div id="gate" class="card">Checking your existing administrator sign-in… If you are not signed in, <a href="./">sign in through the main admin console</a> first.</div>
+<div id="problem" class="warning" role="alert" hidden></div>
+<div id="app" hidden>
+<div class="card flex">
+<label>Financial year <select id="fy"></select></label>
+<button id="refresh" class="primary">Refresh all records</button>
+<button id="download" disabled>Export summary CSV</button>
+<span id="status" aria-live="polite">No records loaded yet.</span>
+</div>
+<div class="warning"><b>Not a tax assessment.</b> A Cashfree processing cap is not a GST threshold. Partner collections may not be RoamWise revenue. Output GST/ITC/TDS require transaction-specific classification; income tax depends on legal entity and current rules. Do not file from this screen alone.</div>
+<div id="metrics" class="grid"></div>
+<section class="card"><h2>Exceptions requiring attention <span id="exceptionCount"></span></h2><p>A missing invoice, unverified payment, or duplicate reference is surfaced rather than silently treated as correct.</p><ol id="exceptions"><li>Refresh to inspect records.</li></ol></section>
+<section class="card" style="margin-top:12px"><h2>How this works</h2><p>The entire ledger is read in pages rather than the staff console's 300-row preview. Confirmed live Cashfree order receipts are compared to matching ledger references. This is a diagnostic comparison, not gateway/bank settlement reconciliation. Revenue without references, unmatched paid orders, unsupported currencies and partner funds require review. No customer payment identifiers are included in the exported summary.</p><p>Direct payment capture, partner splitting and self-custody are deliberately outside this read-only workbench. Keep gateway credentials and wallet signing keys on separately controlled server infrastructure.</p></section>
+</div></main>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<script src="../features/finance-tax/tax-engine.js"></script>
+<script>
+(function(){'use strict';
+var $=function(id){return document.getElementById(id);};
+var cfg={apiKey:'AIzaSyDlrtpzpOb1VEmVSd9tHmu7OpmvwWosYsU',authDomain:'roamwisepro.firebaseapp.com',projectId:'roamwisepro',appId:'1:299014744987:web:d5c316743e6d7a10904f3e'};
+try{if(!firebase.apps.length)firebase.initializeApp(cfg);}catch(e){$('gate').textContent='Firebase initialization failed. Open the main admin console.';return;}
+var auth=firebase.auth(),db=firebase.firestore(),report=null,missing=[];
+var fy=new Date().getUTCFullYear()-(new Date().getUTCMonth()<3?1:0);
+for(var y=fy;y>=fy-4;y--){var op=document.createElement('option');op.value=String(y);op.textContent=y+'–'+String(y+1).slice(-2);$('fy').appendChild(op);}
+function showError(message){$('problem').textContent=message;$('problem').hidden=false;$('status').textContent='Refresh failed. No figures available.';$('metrics').replaceChildren();$('exceptions').replaceChildren();$('download').disabled=true;report=null;}
+function rupees(p){return '₹'+(Number(p||0)/100).toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2});}
+function box(label,number,detail){var c=document.createElement('div');c.className='card';var l=document.createElement('small');l.textContent=label;var v=document.createElement('strong');v.textContent=number;var d=document.createElement('small');d.textContent=detail;c.append(l,v,d);$('metrics').append(c);}
+async function readAll(name){var result=[],last=null;while(true){var q=db.collection(name).orderBy(firebase.firestore.FieldPath.documentId()).limit(250);if(last)q=q.startAfter(last);var page=await q.get({source:'server'});page.docs.forEach(function(doc){result.push(Object.assign({id:doc.id},doc.data()));});if(result.length>10000)throw new Error(name+' exceeded the 10,000-row safety limit. Use a server-side export.');if(page.size<250)break;last=page.docs[page.docs.length-1];}return result;}
+function isLivePaid(x){return x.status==='PAID' && x.environment==='live';}
+function reference(x){return String(x.providerRef||x.sourceRef||'');}
+async function refresh(){
+ $('refresh').disabled=true;$('download').disabled=true;$('problem').hidden=true;$('status').textContent='Reading complete ledger and Cashfree receipts…';
+ try{
+   var both=await Promise.all([readAll('ledger'),readAll('cashfreeOrders')]);var led=both[0],orders=both[1],selected=Number($('fy').value);
+   report=RWTaxEngine.analyze(led,{fyStart:selected});
+   var refs=new Set(led.filter(function(x){return x.kind==='revenue';}).map(reference).filter(Boolean));
+   missing=orders.filter(function(x){var when=RWTaxEngine.dateOf(x.paidAt||x.updatedAt);return isLivePaid(x)&&when&&RWTaxEngine.fiscalYear(when)===selected&&!refs.has(x.id);});
+   $('metrics').replaceChildren();box('Ledger revenue (provisional)',rupees(report.revenuePaise),'Not necessarily taxable turnover');
+   box('Ledger expenses',rupees(report.expensePaise),'Not a verified tax deduction');
+   box('Unpaid bills',rupees(report.billsUnpaidPaise),'Not assumed paid');
+   box('Partner gross collections',rupees(report.partnerFundsPaise),'Held separately from own revenue');
+   box('Explicitly tagged output GST',rupees(report.gstOutputPaise),'Unclassified sales excluded');
+   box('Candidate input GST',rupees(report.gstInputCandidatePaise),'Invoice and eligibility review needed');
+   box('Recorded TDS withheld',rupees(report.tdsWithheldPaise),'Only amounts explicitly entered');
+   box('Paid Cashfree orders missing from ledger',String(missing.length),'Live order receipts only; not independently bank-reconciled');
+   var issues=report.exceptions.map(function(e){return e.code+' · '+e.id+' · '+e.detail;});
+   missing.forEach(function(o){issues.push('missing_cashfree_revenue · '+o.id+' · Paid live order absent from ledger (not automatically counted).');});
+   report.warnings.forEach(function(w){issues.push('WARNING · '+w);});
+   $('exceptionCount').textContent='('+issues.length+')';$('exceptions').replaceChildren();issues.forEach(function(m){var li=document.createElement('li');li.textContent=m;$('exceptions').appendChild(li);});
+   $('status').textContent=led.length+' ledger entries; '+orders.length+' Cashfree receipts checked. Provisional only.';
+   $('download').disabled=false;
+ }catch(e){showError('Could not securely read the complete records: '+(e&&e.message||e));}
+ finally{$('refresh').disabled=false;}
+}
+$('refresh').addEventListener('click',refresh);$('fy').addEventListener('change',refresh);
+$('download').addEventListener('click',function(){if(!report)return;var r=report;var rows=[['Field','Value'],['FY',r.period.label],['Ledger entries',r.entriesRead],['Ledger revenue INR',(r.revenuePaise/100).toFixed(2)],['Ledger expenses INR',(r.expensePaise/100).toFixed(2)],['Unpaid bills INR',(r.billsUnpaidPaise/100).toFixed(2)],['Partner collections INR',(r.partnerFundsPaise/100).toFixed(2)],['Output GST tagged INR',(r.gstOutputPaise/100).toFixed(2)],['Candidate input GST INR',(r.gstInputCandidatePaise/100).toFixed(2)],['Recorded TDS INR',(r.tdsWithheldPaise/100).toFixed(2)],['Unmatched paid Cashfree orders',missing.length],['Status','PROVISIONAL - NOT A TAX RETURN']];var csv=rows.map(function(x){return x.map(function(v){return '"'+String(v).replace(/"/g,'""')+'"';}).join(',');}).join('\r\n');var url=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));var a=document.createElement('a');a.href=url;a.download='roamwise-tax-workbench-'+r.period.label+'.csv';a.click();URL.revokeObjectURL(url);});
+auth.onAuthStateChanged(async function(user){if(!user){$('gate').textContent='Sign in via the main admin console, then return to this page.';return;}try{var admin=await db.collection('admins').doc(user.uid).get({source:'server'});if(!admin.exists)throw new Error('Account is not an administrator.');$('gate').hidden=true;$('app').hidden=false;await refresh();}catch(e){$('gate').textContent='Access denied or admin validation unavailable. Sign in through the main admin console.';$('app').hidden=true;}});
+})();
+</script></body></html>
