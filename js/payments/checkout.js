@@ -17,7 +17,7 @@
 /* saveGumroad removed — Gumroad link/ID now arrive via remote config (admin Config tab). */
 function openGumroad(){
   var u = lsGet('rw_gum_url');
-  if(!u){ showToast('International checkout isn\u2019t configured yet \u2014 UPI works right now'); return false; }
+  if(!u){ showToast('International checkout isn’t configured yet — UPI works right now'); return false; }
   window.open(u, '_blank', 'noopener');
   showToast('After paying, check your email for the license key');
   return false;
@@ -26,16 +26,16 @@ function verifyGumroad(){
   var key = (el('gumLicKey').value||'').trim();
   var err = el('gumVerifyErr'), btn = el('gumVerifyBtn');
   err.style.display = 'none';
-  if(key.length < 8){ err.textContent = 'That does not look like a license key \u2014 paste the full key from your email.'; err.style.display = 'block'; return; }
+  if(key.length < 8){ err.textContent = 'That does not look like a license key — paste the full key from your email.'; err.style.display = 'block'; return; }
   var pid = lsGet('rw_gum_pid');
-  if(!pid){ err.textContent = 'License verification isn\u2019t configured yet \u2014 email founder@roamwise.co.in and we\u2019ll unlock you manually.'; err.style.display = 'block'; return; }
-  btn.disabled = true; btn.textContent = 'Verifying\u2026';
+  if(!pid){ err.textContent = 'License verification isn’t configured yet — email founder@roamwise.co.in and we’ll unlock you manually.'; err.style.display = 'block'; return; }
+  btn.disabled = true; btn.textContent = 'Verifying…';
   fetch('https://api.gumroad.com/v2/licenses/verify', {
     method:'POST',
     headers:{'Content-Type':'application/x-www-form-urlencoded'},
     body:'product_id='+encodeURIComponent(pid)+'&license_key='+encodeURIComponent(key)+'&increment_uses_count=false'
   }).then(function(r){ return r.json(); }).then(function(d){
-    btn.disabled = false; btn.textContent = 'Verify & Unlock \uD83D\uDD13';
+    btn.disabled = false; btn.textContent = 'Verify & Unlock 🔓';
     if(d && d.success && d.purchase && !d.purchase.refunded && !d.purchase.chargebacked){
       activatePro(key, 'gumroad');
     }else{
@@ -43,7 +43,7 @@ function verifyGumroad(){
       err.style.display = 'block';
     }
   }).catch(function(){
-    btn.disabled = false; btn.textContent = 'Verify & Unlock \uD83D\uDD13';
+    btn.disabled = false; btn.textContent = 'Verify & Unlock 🔓';
     err.textContent = 'Could not reach Gumroad to verify. Check your connection and try again.';
     err.style.display = 'block';
   });
@@ -70,16 +70,33 @@ function cryptoPanelHTML(){
       +'</div>';
   }).join('');
   return '<div style="margin-top:14px;border-top:1px solid var(--b2,#2A2A36);padding-top:12px">'
-    +'<div style="font-size:12px;font-weight:700;margin-bottom:8px">\u20bf Pay with crypto (USDT)</div>'
+    +'<div style="font-size:12px;font-weight:700;margin-bottom:8px">₿ Pay with crypto (USDT)</div>'
     + rows
     +'<div style="background:rgba(232,186,108,.08);border:1px solid rgba(232,186,108,.3);border-radius:9px;padding:9px 11px;font-size:11px;line-height:1.55;color:var(--t2);margin-top:4px">'
-    +'<b>Before you send:</b> crypto payments are verified by hand, so unlocking takes up to 48 hours \u2014 not instantly like UPI. '
+    +'<b>Before you send:</b> crypto payments are verified by hand, so unlocking takes up to 48 hours — not instantly like UPI. '
     +'Send the exact amount to the correct network, then paste the transaction hash where the UPI reference goes. '
     +'A wrong network or a wrong amount cannot be recovered. '
-    +'<b>UPI is instant and free</b> \u2014 use that unless you specifically need to pay in crypto.'
+    +'<b>UPI is instant and free</b> — use that unless you specifically need to pay in crypto.'
     +'</div>';
 }
 function copyText(t){
   try{ navigator.clipboard.writeText(t); showToast('Copied'); }
   catch(e){ showToast(t); }
 }
+
+/* Single discovery link for the account-owned payment history and existing
+   order recovery. Outside the plan-grid innerHTML so rerendering plans does
+   not delete it. Never starts a charge or grants an entitlement. */
+(function(){
+  function install(){
+    var methods=document.getElementById('payMethods');
+    if(!methods||document.getElementById('rwMyPaymentsLink'))return;
+    var link=document.createElement('a');
+    link.id='rwMyPaymentsLink';link.href='/my-payments/';
+    link.textContent='My payments & plan →';
+    link.style.cssText='display:block;margin:16px 0 5px;padding:12px 15px;text-align:center;border:1px solid rgba(240,199,121,.5);border-radius:12px;background:rgba(240,199,121,.08);color:#f0c779;font-weight:700;text-decoration:none;font-size:13px';
+    methods.appendChild(link);
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install);
+  else install();
+})();
