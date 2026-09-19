@@ -17,7 +17,7 @@ crons = ["30 5 * * *"]
 # ---------------------------------------------------------------------------
 [[kv_namespaces]]
 binding = "RW_KV"
-id = "Pbe31e0935be843219cea1edf2203877b"   # <-- the ONLY line you edit in this file
+id = "be31e0935be843219cea1edf2203877b"   # <-- the ONLY line you edit in this file
 
 # ---------------------------------------------------------------------------
 # SECRETS — never written here. Set each with wrangler:
