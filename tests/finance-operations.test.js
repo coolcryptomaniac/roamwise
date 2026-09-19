@@ -25,7 +25,7 @@ test('operations screen cannot collect payment secrets or change bank details', 
   assert.doesNotMatch(html, /\/payouts\/|\/bank\/update|\/transfers\//i);
   assert.match(html, /merchant\.cashfree\.com/);
   assert.match(html, /do not send salaries/i);
-  assert.match(html, /does not.*mean delivered/i);
+  assert.match(html, /queued does <strong>not<\/strong> mean delivered/i);
 });
 
 test('admin link is external to audited section buttons and control-plane pure audit still works', () => {
