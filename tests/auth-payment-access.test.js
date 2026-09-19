@@ -11,7 +11,7 @@ function paymentHarness(verified=false){
   const writes=[],toasts=[],store={};
   const elements={
     utrInput:{value:'123456789012'},utrMsg:{style:{}},utrBtn:{disabled:false,textContent:'Submit'},
-    qrcode:{innerHTML:''},upiPrefillNote:{},utrHelp:{},qrAmtLbl:{}
+    qrcode:{innerHTML:'',replaceChildren(){this.innerHTML='';this.textContent='';}},upiPrefillNote:{},utrHelp:{},qrAmtLbl:{}
   };
   const user={uid:'unverified-uid',email:'traveler@example.com',emailVerified:verified,providerData:[{providerId:'password'}],sendEmailVerification(){throw new Error('payment must not send verification email');}};
   const claims={
@@ -36,7 +36,7 @@ function paymentHarness(verified=false){
   return {ctx,writes,toasts,store,elements};
 }
 
-test('unverified signed-in users can submit a genuine UPI claim without a disposable-account Pro grant',async()=>{
+test('unverified signed-in users can submit a UPI claim but never receive Pro from a UTR alone',async()=>{
   const h=paymentHarness();
   const adapter=h.ctx.RWPaymentGateway.provider('manual_upi');
   adapter.createOrder(100,{planId:'founder',label:'Founder Pro — Lifetime',tierId:'elite',category:'oneoff'});
@@ -48,17 +48,20 @@ test('unverified signed-in users can submit a genuine UPI claim without a dispos
   assert.equal(h.writes[0].data.status,'pending');
   assert.equal(h.store.rw_pro_temp_uid,undefined);
   assert.equal(h.store.rwPro,undefined);
-  assert.match(h.elements.utrMsg.textContent,/queued for review/);
+  assert.match(h.elements.utrMsg.textContent,/only after RoamWise verifies/);
 });
 
-test('verified users retain the existing provisional UPI unlock while the UTR is reviewed',async()=>{
+test('even verified users receive no provisional UPI unlock until independently reconciled',async()=>{
   const h=paymentHarness(true);
   h.ctx.RWPaymentGateway.provider('manual_upi').createOrder(100,{planId:'founder',label:'Founder Pro',tierId:'elite',category:'oneoff'});
   h.ctx.RWPaymentGateway.provider('manual_upi').verifyPayment();
   for(let i=0;i<4;i++)await new Promise(resolve=>setImmediate(resolve));
-  assert.equal(h.store.rw_pro_temp_uid,'unverified-uid');
-  assert.equal(h.store.rwPro,'1');
-  assert.match(h.elements.utrMsg.textContent,/Pro unlocked/);
+  assert.equal(h.writes.length,1);
+  assert.equal(h.writes[0].data.status,'pending');
+  assert.equal(h.store.rw_pro_temp_uid,undefined);
+  assert.equal(h.store.rwPro,undefined);
+  assert.equal(h.ctx.isPro,false);
+  assert.match(h.elements.utrMsg.textContent,/only after RoamWise verifies/);
 });
 
 test('checkout copy and help text always follow the selected amount',()=>{
