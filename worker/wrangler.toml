@@ -42,12 +42,13 @@ id = "be31e0935be843219cea1edf2203877b"   # <-- the ONLY line you edit in this f
 # ---------------------------------------------------------------------------
 # CASHFREE — non-secret config only. CASHFREE_ENV picks the Order Create API
 # base URL (sandbox.cashfree.com vs api.cashfree.com); it is a config choice,
-# not a secret, so it lives here, not in `wrangler secret put`. Defaults to
-# sandbox — flip to "live" only after end-to-end sandbox testing (see
-# CASHFREE-INTEGRATION-SETUP.md).
+# not a secret, so it lives here, not in `wrangler secret put`.
+# The founder confirmed the Worker already holds production credentials.
+# Admin config/app is a separate gate: live checkout remains unavailable
+# unless PAYMENT_PROVIDER=cashfree and CASHFREE_ENVIRONMENT=live there too.
 # ---------------------------------------------------------------------------
 [vars]
-CASHFREE_ENV = "sandbox"
+CASHFREE_ENV = "live"
 # Managed AI is fail-closed. Leave false until AI_USAGE KV, GROQ_MODEL and
 # FIREBASE_SERVICE_ACCOUNT_JSON are configured and the authenticated flow has
 # been tested. Client-submitted model/token-limit values are ignored.
@@ -69,8 +70,8 @@ AI_MAX_OUTPUT_TOKENS = "700"
 # scaffolding for future use (e.g. server-side PDF caching — see
 # CLOUDFLARE-MIGRATION-SETUP.md section D). Uncomment once a real bucket
 # exists:
-#   1. Cloudflare dashboard -> R2 -> Create bucket -> name it (e.g. "roamwise-data")
-#   2. Uncomment the block below (bucket_name must match exactly what you created)
+#   1. Cloudflare dashboard -> R2 -> Create bucket named e.g. "roamwise-data"
+#   2. Uncomment the block below and ensure the bucket exists.
 #
 # [[r2_buckets]]
 # binding = "RW_BUCKET"
@@ -79,8 +80,7 @@ AI_MAX_OUTPUT_TOKENS = "700"
 
 # ---------------------------------------------------------------------------
 # WORKERS AI — OPTIONAL. No route in worker.js calls this yet; this is
-# example syntax only, for future use (see CLOUDFLARE-MIGRATION-SETUP.md
-# section E for the free-tier strategy before actually enabling this).
+# example syntax only, for future use (e.g. free-tier strategy).
 # Uncomment to bind Workers AI to this Worker as `env.AI`:
 #
 # [ai]
