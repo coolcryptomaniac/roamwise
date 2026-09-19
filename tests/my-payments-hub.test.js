@@ -18,7 +18,8 @@ test('account page uses auth state and account-scoped Firestore queries', () => 
 test('history never initiates a charge, grants access, or accepts a UTR as payment proof', () => {
   assert.doesNotMatch(js, /\/cashfree\/order['"`]/); // no POST order creation
   assert.doesNotMatch(js, /grantPurchase\s*\(|activatePro\s*\(|increment\s*\(/);
-  assert.doesNotMatch(js, /\.set\s*\(|\.update\s*\(|\.add\s*\(/);
+  // A DOM classList.add() is not a Firestore add(); guard actual data writes.
+  assert.doesNotMatch(js, /\.set\s*\(|\.update\s*\(|\.doc\([^)]*\)\.delete\s*\(|\.collection\([^)]*\)\.add\s*\(/);
   assert.doesNotMatch(html, /upi:\/\/pay|payment_session_id|onclick=/i);
   assert.match(html, /Submitting a UTR is a request for review/);
 });
