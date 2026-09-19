@@ -30,9 +30,30 @@
       + result.capabilityCount + ' canonical capabilities. ' + details + '</div></div>';
   }
 
+  /* An external link is deliberately NOT a .nav button: those buttons are
+     audited against matching in-page sections. The finance room inherits
+     the existing Firebase admin session and performs its own admin check. */
+  function installFinanceLink() {
+    if (typeof document === 'undefined' || document.getElementById('rwFinanceOpsLink')) return;
+    var aside = document.querySelector('.layout > .side');
+    if (!aside) return;
+    var link = document.createElement('a');
+    link.id = 'rwFinanceOpsLink';
+    link.href = './finance-ops.html';
+    link.textContent = 'Finance operations ↗';
+    link.className = 'btn';
+    link.style.cssText = 'display:block;margin:14px 3px 0;text-align:center;font-size:12px;';
+    aside.appendChild(link);
+  }
+
   root.RWAdminControlPlane = {
     CANONICAL_URL: CANONICAL_URL,
     audit: audit,
-    render: render
+    render: render,
+    installFinanceLink: installFinanceLink
   };
+  if (typeof document !== 'undefined') {
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', installFinanceLink);
+    else installFinanceLink();
+  }
 })(typeof window !== 'undefined' ? window : globalThis);

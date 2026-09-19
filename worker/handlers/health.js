@@ -20,7 +20,10 @@ export function handleHealth(env){
       events: !!env.TICKETMASTER_KEY,
       refreshProtected: !!env.REFRESH_TOKEN,
       push: !!env.FIREBASE_SERVICE_ACCOUNT_JSON,
-      cashfree: !!env.CASHFREE_APP_ID && !!env.CASHFREE_SECRET_KEY,
+      // Checkout authenticates and persists orders via Firebase, so Cashfree
+      // credentials alone are NOT sufficient to call the endpoint ready.
+      // Presence is NOT proof that any credential, KYC or settlement is valid.
+      cashfree: !!env.CASHFREE_APP_ID && !!env.CASHFREE_SECRET_KEY && !!env.FIREBASE_SERVICE_ACCOUNT_JSON,
       partnerPayments: !!env.FIREBASE_SERVICE_ACCOUNT_JSON,
     },
     paymentEnvironment: String(env.CASHFREE_ENV || 'sandbox').toLowerCase() === 'live' ? 'live' : 'sandbox',
