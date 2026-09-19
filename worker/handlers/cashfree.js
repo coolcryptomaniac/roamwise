@@ -21,7 +21,7 @@ function cfHeaders(env, extra){
 }
 function backendUnavailable(){
   return json({ error:'payment_backend_unavailable',
-    message:'Secure payment verification is temporarily unavailable. No payment was started. Please contact RoamWise support.' }, 503);
+    message:'Secure payment verification is temporarily unavailable. If you already paid, check My Payments before trying again.' }, 503);
 }
 async function authenticatedContext(request, env){
   if(!env.CASHFREE_APP_ID || !env.CASHFREE_SECRET_KEY || !env.FIREBASE_SERVICE_ACCOUNT_JSON){
