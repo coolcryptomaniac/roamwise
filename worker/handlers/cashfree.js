@@ -35,6 +35,9 @@ async function authenticatedContext(request, env){
   let sa;
   try { sa = parseServiceAccount(env); }
   catch (_) { return {error:backendUnavailable()}; }
+  // This payment service accepts only credentials for RoamWise. The generic
+  // parser is also used by push notifications and must stay project-neutral.
+  if(sa.project_id !== 'roamwisepro') return {error:backendUnavailable()};
   let claims;
   try { claims = await verifyFirebaseIdToken(match[1], sa.project_id); }
   catch (_) { return {error:json({error:'unauthorized',message:'Your sign-in could not be verified. Please sign in again.'},401)}; }
