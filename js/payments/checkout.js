@@ -84,17 +84,32 @@ function copyText(t){
   catch(e){ showToast(t); }
 }
 
-/* Single discovery link for the account-owned payment history and existing
-   order recovery. Outside the plan-grid innerHTML so rerendering plans does
-   not delete it. Never starts a charge or grants an entitlement. */
+/* Presentation only: install a subtle RoamWise payment skin and a durable link
+   to owner-scoped order recovery. No order creation, secrets, or entitlement
+   writes happen here; the Cashfree SDK itself remains hosted by Cashfree. */
 (function(){
   function install(){
     var methods=document.getElementById('payMethods');
-    if(!methods||document.getElementById('rwMyPaymentsLink'))return;
-    var link=document.createElement('a');
-    link.id='rwMyPaymentsLink';link.href='/my-payments/';
-    link.textContent='My payments & plan →';
-    link.style.cssText='display:block;margin:16px 0 5px;padding:12px 15px;text-align:center;border:1px solid rgba(240,199,121,.5);border-radius:12px;background:rgba(240,199,121,.08);color:#f0c779;font-weight:700;text-decoration:none;font-size:13px';
+    if(!methods)return;
+    if(!document.getElementById('rwCashfreeSkin')){
+      var skin=document.createElement('link');skin.id='rwCashfreeSkin';skin.rel='stylesheet';skin.href='/my-payments/checkout-theme.css?v=1';
+      document.head.appendChild(skin);
+    }
+    var cf=document.getElementById('cashfreeOption');
+    if(cf){
+      var heading=cf.querySelector('.section-label');
+      if(heading)heading.textContent='RoamWise secure checkout · UPI / cards / netbanking';
+      var button=cf.querySelector('button.upi-any');
+      if(button)button.textContent='Continue to secure Cashfree checkout →';
+      var note=cf.querySelector('.upi-note');
+      if(note)note.textContent='One-time purchases only. Access follows verified payment. If debited but not unlocked, check My payments & plan instead of paying again.';
+    }
+    var title=methods.querySelector('.utr-title');
+    if(title)title.textContent='Step 2 — submit your UTR for verification';
+    var help=document.getElementById('utrHelp');
+    if(help)help.textContent='After paying, copy the UPI reference from your bank app. Your submission starts manual review; Pro access follows independent payment verification.';
+    if(document.getElementById('rwMyPaymentsLink'))return;
+    var link=document.createElement('a');link.id='rwMyPaymentsLink';link.href='/my-payments/';link.textContent='My payments & plan →';
     methods.appendChild(link);
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install);
