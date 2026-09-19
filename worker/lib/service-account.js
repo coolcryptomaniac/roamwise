@@ -46,9 +46,8 @@ export function parseServiceAccount(env) {
       || !sa.private_key.includes('-----BEGIN PRIVATE KEY-----')) {
     throw new Error('service_account_invalid');
   }
-  // This Worker is deployed for the RoamWise Firebase project only. An
-  // unrelated service-account project must not masquerade as an expired user.
-  if (sa.project_id !== 'roamwisepro') throw new Error('service_account_project_mismatch');
+  // The parser is shared with push notifications and has no project policy.
+  // Individual payment/admin handlers must enforce their expected project.
   return sa;
 }
 
