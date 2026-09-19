@@ -1,0 +1,18 @@
+# RoamWise tax workbench — phase 1 (read-only)
+
+Open `/admin/tax.html` after signing into the existing `/admin/` console. The page verifies the existing Firebase user against `admins/{uid}` and reads all `ledger` and `cashfreeOrders` documents in 250-document pages, capped at 10,000 documents per source. It has no Firestore write path and cannot initiate payments, transfers or tax filings.
+
+`tax-engine.js` is a browser/CommonJS-compatible, pure deterministic summary over the **existing** Firestore ledger schema (`kind`, `amount` in INR, `at`). It does **not** construct a competing accounting book. Manual entries without a verified order reference are flagged; live paid Cashfree orders missing a ledger revenue entry are highlighted but never silently added to revenue. Partner gross funds are not treated as RoamWise revenue. Refund/reversal records must reference a complete corresponding existing record in the same financial year. Expenses without receipts are flagged. Invalid dates, non-INR entries and duplicated payment refs fail closed. Multiple sources (Cashfree, bank, UPI, property settlement) are **not** yet independently reconciled.
+
+Tax metadata is **optional and absent by default**. An accountant must validate and set `taxMeta.gstRateBps` (integer, e.g. 1800), `taxMeta.gstIncluded` (boolean), and `taxMeta.itcEligible` (boolean for an expense, with `invoiceRef` or `receiptRef`) before provisional GST values can be displayed. `taxMeta.tdsWithheldINR` is a recorded amount, **not a calculated TDS liability**. The engine's optional `incomeTaxReserveBps` is an owner-supplied reserve percentage, **not a legal tax rate**; it is not exposed as a default in the UI. This intentionally avoids assuming RoamWise's registration, legal form, principal/agent booking role, GST classification, tax treatment of crypto, or merchant collection limit.
+
+## Go-live gates for a production tax estimate
+
+1. Validate the legal entity, GST registration and place-of-supply treatment with an India-qualified CA, including special e-commerce operator rules for travel bookings, section 194-O, section 52 TCS and accommodation rules where applicable.
+2. Add an append-only, server-originated journal entry for every verified payment, refund, gateway fee and settlement, with stable source IDs and supporting invoices. Deduplicate provider callbacks and never edit an old entry to reverse it.
+3. Validate the live `firestore.rules` against staff/admin code. The staff console currently allows `finMarkPaid` to update a bill and previews only 300 rows; the tax page does not assume that a truncated preview is a complete ledger.
+4. Reconcile Cashfree gross orders, fees, refunds and bank deposits; flag discrepancies. Do not release partner funds without contracts, authorized payout rails and the proper merchant arrangement.
+5. Put tax rules in a versioned jurisdiction/FY configuration verified by the CA. Generate GST/TDS schedules and return-ready data only after full reconciliations and signed-off rules. Actual filing and tax remittance require explicit owner authorization.
+6. Keep stablecoin or self-custody transactions in separate records for valuation, source, wallet and transfer tracking, and obtain legal/regulatory review before routing customer or partner money through crypto.
+
+Run `node --test tests/finance-tax.test.js`. This workbench is provisional software, not certification of statutory compliance.
