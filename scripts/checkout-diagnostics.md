@@ -1,0 +1,5 @@
+# Checkout diagnosis (20 September 2026)
+
+The production Worker currently returns the same 401 `Your sign-in expired` for Firebase ID-token errors **and** Google service-account token exchange errors. An HTTP 200 `/health` with `configured.cashfree=true` verifies only secret presence, not Firebase service-account validity or Cashfree order creation. Distinguish 401 authentication failures from 503 Google service-account/JWKS failures before encouraging users to sign in repeatedly. Preserve server-verified PAID and receipt-based entitlement; never grant paid access from checkout UI callbacks.
+
+Amritsar Classic itinerary currently falls back to generic DAY_TEMPLATES when managed AI is unavailable; add named-place grounded fast fallback and an explicit unverified-live-data notice instead of a false live crowd heatmap.
