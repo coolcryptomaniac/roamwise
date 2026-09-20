@@ -52,10 +52,17 @@ import { refreshNews, handleNews } from './handlers/news.js';
 import { refreshEvents, handleEvents, handleEventsRefresh } from './handlers/events.js';
 import { handleGeo } from './handlers/geo.js';
 import { handleLeads } from './handlers/leads.js';
-import { handleCashfreeOrder, handleCashfreeOrderStatus } from './handlers/cashfree.js';
+import { createCashfreeHandlers } from './handlers/cashfree.js';
+import { cashfreeTransportFetch } from './lib/cashfree-transport.js';
 import { handlePartnerCashfreeOrder, handlePartnerCashfreeStatus } from './handlers/partner-cashfree.js';
 import { handlePushSend } from './handlers/push.js';
 import { handleBusiness } from './handlers/business.js';
+
+// Only Cashfree PG calls use this diagnostic transport. The actual order,
+// identity and entitlement rules stay inside handlers/cashfree.js unchanged.
+const { handleCashfreeOrder, handleCashfreeOrderStatus } = createCashfreeHandlers({
+  request:cashfreeTransportFetch
+});
 
 /* ------------------------------------------------------------------ router */
 export default {
