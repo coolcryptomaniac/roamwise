@@ -1,4 +1,4 @@
-name: Apply scoped checkout and Amritsar fix (temporary)
+name: Validate scoped checkout and Amritsar fix (temporary)
 on:
   push:
     branches:
@@ -6,42 +6,22 @@ on:
     paths:
       - .github/workflows/temporary-checkout-patch-20260920.yml
 permissions:
-  contents: write
+  contents: read
 jobs:
-  patch:
-    if: github.ref == 'refs/heads/fix/cashfree-auth-amritsar-20260920'
+  validate:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          persist-credentials: true
-      - name: Apply exact-match edits
+      - name: Run checks and print diagnostic checkout toast on failure
         run: |
-          python3 scripts/patch-checkout-amritsar-20260920.py
+          node --check worker/handlers/cashfree.js
+          node --check js/payments/providers/cashfree-adapter.js
+          node --check js/itinerary/build.js
           python3 - <<'PY'
           from pathlib import Path
-          p=Path('js/payments/providers/cashfree-adapter.js')
-          s=p.read_text()
-          old="if(ready!==order)throw new Error('Your plan changed. Reopen checkout for the selected plan.');"
-          new="if(order&&order.planId&&ready.planId!==order.planId)throw new Error('Your plan changed. Reopen checkout for the selected plan.');"
-          assert s.count(old)==1
-          p.write_text(s.replace(old,new))
           t=Path('tests/cashfree-payment.test.js')
           s=t.read_text()
           assert s.count('showToast: () => {},')==1
           t.write_text(s.replace('showToast: () => {},',"showToast: (...args) => console.log('DIAGNOSTIC TOAST:', ...args),"))
           PY
-      - name: Syntax and targeted checks
-        run: |
-          node --check worker/handlers/cashfree.js
-          node --check js/payments/providers/cashfree-adapter.js
-          node --check js/itinerary/build.js
           node --test tests/cashfree-payment.test.js
-      - name: Commit only reviewed source changes
-        run: |
-          git config user.name 'roamwise-patch-bot'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add worker/handlers/cashfree.js js/payments/providers/cashfree-adapter.js js/itinerary/build.js
-          git diff --cached --check
-          git commit -m 'Fix misleading payment auth errors and named Amritsar fallback'
-          git push origin HEAD:fix/cashfree-auth-amritsar-20260920
