@@ -1,6 +1,18 @@
 // @ts-nocheck
-/* Extracted from app.js — international Gumroad checkout and direct-wallet
-   crypto payment panel. The plan picker / manual UPI logic lives elsewhere. */
+/* Extracted verbatim from app.js (final modularization pass) — international
+   Gumroad checkout (openGumroad/verifyGumroad) and the direct-wallet crypto
+   payment panel (CRYPTO_WALLETS/cryptoConfigured/cryptoPanelHTML/copyText).
+   activatePro() (called by verifyGumroad) remains a global defined elsewhere
+   in app.js; CRYPTO_WALLETS is also written by js/boot/init.js's remote-config
+   applier, which runs at DOMContentLoaded (after this file has loaded).
+   The core UPI/QR/plan-picker checkout flow (openPay/pickPlan/renderPlanGrid/
+   payVia/buildQR/submitUtr, "GLOBAL COMMERCE" region pricing) is NOT included
+   here: it is tightly interleaved with pricing-tier and referral state across
+   roughly 2000 non-contiguous app.js lines, and a safe verbatim split needs
+   its own dedicated, more surgical pass rather than being forced into this
+   one — the same reasoning js/boot/init.js already documents for why the
+   Firebase/auth init block was deferred until this pass. Zero logic changes
+   from the original app.js code. */
 
 /* saveGumroad removed — Gumroad link/ID now arrive via remote config (admin Config tab). */
 function openGumroad(){
@@ -31,13 +43,18 @@ function verifyGumroad(){
       err.style.display = 'block';
     }
   }).catch(function(){
-    btn.disabled = false; btn.textContent = 'Verifying…';
+    btn.disabled = false; btn.textContent = 'Verify & Unlock 🔓';
     err.textContent = 'Could not reach Gumroad to verify. Check your connection and try again.';
     err.style.display = 'block';
   });
 }
 
-/* Direct wallet payment is visible only when its addresses are configured. */
+/* ==================== CRYPTO PAYMENT (direct wallet, zero fees) =============
+   No gateway, no partnership, no monthly cost: the user sends stablecoin
+   straight to your own wallet and submits the transaction hash, verified the
+   same honour-system way UPI UTRs already are in this app. Fill the addresses
+   below to switch it on — until then the option stays hidden rather than
+   showing a broken payment path. */
 var CRYPTO_WALLETS = {
   /* e.g. usdt_polygon:'0xYourWallet...', usdt_tron:'TYourWallet...' */
 };
@@ -67,8 +84,9 @@ function copyText(t){
   catch(e){ showToast(t); }
 }
 
-/* Presentation only: load payment styling and account-linked order recovery.
-   Order creation and Cashfree credentials remain exclusively on the Worker. */
+/* Presentation only: install a subtle RoamWise payment skin and a durable link
+   to owner-scoped order recovery. No order creation, secrets, or entitlement
+   writes happen here; the Cashfree SDK itself remains hosted by Cashfree. */
 (function(){
   function install(){
     var methods=document.getElementById('payMethods');
