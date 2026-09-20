@@ -26,6 +26,10 @@ jobs:
           new="if(order&&order.planId&&ready.planId!==order.planId)throw new Error('Your plan changed. Reopen checkout for the selected plan.');"
           assert s.count(old)==1
           p.write_text(s.replace(old,new))
+          t=Path('tests/cashfree-payment.test.js')
+          s=t.read_text()
+          assert s.count('showToast: () => {},')==1
+          t.write_text(s.replace('showToast: () => {},',"showToast: (...args) => console.log('DIAGNOSTIC TOAST:', ...args),"))
           PY
       - name: Syntax and targeted checks
         run: |
