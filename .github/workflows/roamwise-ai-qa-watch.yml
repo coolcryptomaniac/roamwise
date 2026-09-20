@@ -1,0 +1,65 @@
+name: RoamWise AI QA — Payment Health Watch
+
+# This is a deterministic monitor, not a real payment test or an AI model call.
+# It cannot access secrets, create orders, charge customers, or grant Pro.
+on:
+  schedule:
+    - cron: '15 4 * * *' # 09:45 IST daily
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: roamwise-payment-health-watch
+  cancel-in-progress: false
+
+jobs:
+  monitor:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Read-only Worker smoke check
+        id: check
+        continue-on-error: true
+        env:
+          ROAMWISE_WORKER_URL: ${{ vars.ROAMWISE_WORKER_URL }}
+        run: node tools/ai-ops/payment-watch.cjs
+      - name: Open one incident issue if health regresses
+        if: steps.check.outcome == 'failure'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const title = '[AI QA] RoamWise payment health check failed';
+            const raw = fs.existsSync('payment-watch-result.json')
+              ? fs.readFileSync('payment-watch-result.json', 'utf8') : '{}';
+            const result = JSON.parse(raw);
+            const findings = Array.isArray(result.findings) && result.findings.length
+              ? result.findings : ['Monitor produced no readable result'];
+            const issues = await github.paginate(github.rest.issues.listForRepo, {
+              owner: context.repo.owner, repo: context.repo.repo, state: 'open', per_page: 100
+            });
+            if (issues.some(issue => issue.title === title && !issue.pull_request)) return;
+            const body = [
+              'The read-only Cloudflare Worker smoke check detected a problem:',
+              ...findings.map(finding => '- ' + finding),
+              '',
+              'This check only reads public health and verifies unauthenticated requests are rejected. '
+                + 'It does **not** prove Cashfree can create orders, collect money, settle funds or activate Pro.',
+              'Review the Worker deployment and logs privately; never paste secrets or bearer tokens into this issue.',
+              'Check Cashfree orders and Firestore receipts before asking a customer to retry a possibly charged payment.',
+              `Workflow: ${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`,
+              'Close this issue manually after the actual fault is verified resolved.'
+            ].join('\n');
+            await github.rest.issues.create({
+              owner: context.repo.owner, repo: context.repo.repo, title, body,
+              labels: ['agent-report']
+            });
+      - name: Preserve failed check status
+        if: steps.check.outcome == 'failure'
+        run: exit 1
