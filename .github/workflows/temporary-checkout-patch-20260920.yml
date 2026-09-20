@@ -16,7 +16,17 @@ jobs:
         with:
           persist-credentials: true
       - name: Apply exact-match edits
-        run: python3 scripts/patch-checkout-amritsar-20260920.py
+        run: |
+          python3 scripts/patch-checkout-amritsar-20260920.py
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('js/payments/providers/cashfree-adapter.js')
+          s=p.read_text()
+          old="if(ready!==order)throw new Error('Your plan changed. Reopen checkout for the selected plan.');"
+          new="if(order&&order.planId&&ready.planId!==order.planId)throw new Error('Your plan changed. Reopen checkout for the selected plan.');"
+          assert s.count(old)==1
+          p.write_text(s.replace(old,new))
+          PY
       - name: Syntax and targeted checks
         run: |
           node --check worker/handlers/cashfree.js
