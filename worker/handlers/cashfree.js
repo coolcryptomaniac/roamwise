@@ -74,13 +74,28 @@ async function authenticatedContext(request, env){
   const auth = request.headers && request.headers.get ? request.headers.get('authorization') || '' : '';
   const match = /^Bearer\s+(.+)$/i.exec(auth);
   if(!match) return { error:json({ error:'unauthorized', message:'Sign in again before payment.' }, 401) };
+  // A failed server-side Google OAuth exchange is NOT an expired user session.
+  // Keep diagnostics categorical: never send private keys, access tokens or
+  // raw Google responses to clients. Missing/malformed service credentials
+  // and transient identity infrastructure failures must not prompt relogin.
+  let sa;
+  try{ sa = parseServiceAccount(env); }
+  catch(_){
+    return { error:json({ error:'server_auth_config_invalid', message:'Payment verification is temporarily unavailable. Please contact support; do not pay again.' }, 503) };
+  }
+  let claims;
+  try{ claims = await verifyFirebaseIdToken(match[1], sa.project_id); }
+  catch(e){
+    if(/failed to fetch Firebase JWKS|unknown signing key/i.test(String(e && e.message || ''))){
+      return { error:json({ error:'identity_service_unavailable', message:'Secure sign-in verification is temporarily unavailable. Please retry later.' }, 503) };
+    }
+    return { error:json({ error:'unauthorized', message:'Your session could not be verified. Please sign in again.' }, 401) };
+  }
   try{
-    const sa = parseServiceAccount(env);
-    const claims = await verifyFirebaseIdToken(match[1], sa.project_id);
     const accessToken = await getServiceAccountAccessToken(env);
     return { claims, accessToken, projectId:sa.project_id };
-  }catch(e){
-    return { error:json({ error:'unauthorized', message:'Your sign-in expired. Sign in again.' }, 401) };
+  }catch(_){
+    return { error:json({ error:'server_auth_unavailable', message:'Our payment verification service is unavailable. No payment was started; please contact support.' }, 503) };
   }
 }
 
