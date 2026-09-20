@@ -1,16 +1,25 @@
-/* Lightweight skin for the existing checkout only; no payment logic or SDK overrides. */
-#payOverlay .modal{border:1px solid rgba(239,76,101,.33);box-shadow:0 26px 90px rgba(0,0,0,.46),0 0 0 1px rgba(240,199,121,.06)}
+/* RoamWise checkout skin. Scope all layout changes to the purchase overlay;
+   never style or interfere with Cashfree's separately hosted payment page. */
+#payOverlay.overlay.open{align-items:flex-start;justify-content:center;overflow-x:hidden;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;padding:max(12px,env(safe-area-inset-top)) 12px max(16px,env(safe-area-inset-bottom));box-sizing:border-box}
+#payOverlay .modal{box-sizing:border-box;flex:0 0 auto;width:100%;max-width:min(560px,calc(100vw - 24px));max-height:calc(100dvh - 28px);overflow-x:hidden;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;scrollbar-gutter:stable;border:1px solid rgba(239,76,101,.33);box-shadow:0 26px 90px rgba(0,0,0,.46),0 0 0 1px rgba(240,199,121,.06)}
+@supports not (height:100dvh){#payOverlay .modal{max-height:calc(100vh - 28px)}}
 #payOverlay .modal-head{position:relative;isolation:isolate;overflow:hidden;background:linear-gradient(114deg,#101827 0%,#2b172a 74%,#361727 100%);border-bottom:1px solid rgba(240,199,121,.19)}
 #payOverlay .modal-head:after{content:"";position:absolute;z-index:-1;pointer-events:none;right:-35px;top:-30px;width:188px;height:138px;opacity:.28;transform:rotate(-12deg);background:radial-gradient(ellipse 32px 24px at 27% 45%,#ef4c65 95%,transparent),radial-gradient(ellipse 38px 26px at 53% 36%,#ef4c65 95%,transparent),radial-gradient(ellipse 36px 24px at 74% 52%,#ef4c65 95%,transparent),radial-gradient(ellipse 59px 18px at 54% 67%,#ef4c65 95%,transparent);filter:drop-shadow(0 0 15px #ef4c65)}
 #payOverlay .modal-title{letter-spacing:.02em}#payOverlay .modal-crown{filter:drop-shadow(0 0 12px rgba(240,199,121,.45))}
+#payOverlay .modal-body,#payOverlay .modal-body *{box-sizing:border-box;min-width:0}
+#payOverlay .modal-body{overflow-wrap:break-word;padding:16px clamp(12px,4vw,20px)}
+#payOverlay .modal-close{position:sticky;top:2px;float:right;margin:8px 8px -40px 0;width:36px;height:36px;border-radius:50%;background:#1b2030;color:#fff;display:flex;align-items:center;justify-content:center;z-index:12}
 #payOverlay #cashfreeOption{position:relative;padding:17px 15px 14px!important;border:1px solid rgba(240,199,121,.55);border-radius:16px;background:linear-gradient(150deg,rgba(54,30,49,.74),rgba(18,31,50,.9));box-shadow:inset 0 3px 0 #d94760,0 10px 25px rgba(0,0,0,.14)}
 #payOverlay #cashfreeOption .section-label{font-size:12px;letter-spacing:.03em;line-height:1.5;color:#f8db9e;font-weight:800}
-#payOverlay #cashfreePhone{min-height:43px;background:#101829;border:1px solid #64718b;color:#fff;border-radius:11px;padding:10px 12px}
+#payOverlay #cashfreePhone{width:100%;max-width:100%;min-height:48px;background:#101829;border:1px solid #64718b;color:#fff;border-radius:11px;padding:10px 12px;font-size:16px}
 #payOverlay #cashfreePhone::placeholder{color:#a7b5c7}
-#payOverlay #cashfreeOption>.upi-any{min-height:47px;border:1px solid rgba(255,255,255,.31);border-radius:11px;background:linear-gradient(110deg,#b52a45,#922942);color:white;font-weight:800;letter-spacing:.02em;box-shadow:0 7px 16px rgba(181,42,69,.18)}
+#payOverlay #cashfreeOption>.upi-any{width:100%;white-space:normal;overflow-wrap:anywhere;min-height:48px;border:1px solid rgba(255,255,255,.31);border-radius:11px;background:linear-gradient(110deg,#b52a45,#922942);color:white;font-weight:800;letter-spacing:.02em;box-shadow:0 7px 16px rgba(181,42,69,.18)}
 #payOverlay #cashfreeOption>.upi-any:hover{filter:brightness(1.13)}#payOverlay #cashfreeOption .upi-note{line-height:1.55;color:#d6dde9}
 #payOverlay #rwMyPaymentsLink{display:block;min-height:43px;border:1px solid rgba(240,199,121,.52);border-radius:11px;background:rgba(240,199,121,.085);color:#f0c779;text-align:center;text-decoration:none;font-weight:800;padding:11px 13px;font-size:13px}
 #payOverlay #rwMyPaymentsLink:hover{background:rgba(240,199,121,.16)}
 #payOverlay :is(button,a,input):focus-visible{outline:3px solid #f0c779;outline-offset:3px}
-@media(max-width:540px){#payOverlay #cashfreeOption{padding:14px 12px!important}#payOverlay .modal-head:after{right:-65px}}
+@media(max-width:540px){#payOverlay.overlay.open{padding:8px 8px max(12px,env(safe-area-inset-bottom))}#payOverlay .modal{max-width:calc(100vw - 16px);max-height:calc(100dvh - 16px)}#payOverlay .modal-body{padding:14px 12px}#payOverlay .modal-head:after{right:-65px}#payOverlay .upi-apps{flex-wrap:wrap}#payOverlay .upi-apps>*{min-width:0;flex:1 1 85px}#payOverlay .features-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+/* Chrome's desktop-site mode reports a desktop CSS viewport even on a phone;
+   allow a wider sheet instead of the old 380px panel shrunk by page scaling. */
+@media(min-width:700px){#payOverlay .modal{max-width:min(740px,calc(100vw - 32px))}#payOverlay .modal-body{padding:22px clamp(22px,4vw,34px)}}
 @media(prefers-reduced-motion:reduce){#payOverlay #cashfreeOption *{animation:none!important;transition:none!important}}

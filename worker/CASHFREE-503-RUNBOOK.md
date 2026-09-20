@@ -1,0 +1,20 @@
+# Cashfree checkout 501 / 503 recovery (RoamWise)
+
+The website's alert **"Secure payment verification is temporarily unavailable"** comes from `worker/handlers/cashfree.js` **before any Cashfree order is created**. It is not evidence that Cashfree rejected a payment or that the customer must sign out.
+
+## Locate the failing stage without exposing credentials
+
+1. In the **deployed production Cloudflare Worker** (not only local `.dev.vars`, GitHub Actions, or a Pages project), open Settings → Variables and Secrets. Confirm these exact names exist in its active environment: `CASHFREE_APP_ID`, `CASHFREE_SECRET_KEY`, `FIREBASE_SERVICE_ACCOUNT_JSON`; use Cloudflare **Secret** for private credentials. The preceding `not_configured`/501 response means one of those bindings was absent/empty.
+2. The current 503 response is returned when `parseServiceAccount(env)` fails, its `project_id` is not exactly `roamwisepro`, or `getServiceAccountAccessToken(env)` fails. The value of `FIREBASE_SERVICE_ACCOUNT_JSON` must be the **complete Google service-account JSON** for project `roamwisepro` (plain JSON or the base64 encoding of the complete JSON, not a Firebase web config, JSON *filename*, truncated private key, or a doubly encoded string). Ensure `client_email` ends with `.gserviceaccount.com` and the `private_key` is intact. If the key was revoked, generate a new service-account key through trusted Google Cloud/Firebase administration and replace the Cloudflare secret; deploy the Worker. Do not publish or paste the key in GitHub, frontend, logs, screenshots, or chats.
+3. If credential formatting and project match are confirmed, inspect **redacted, server-side** Cloudflare logs for Google OAuth connectivity/signing failures (never log JWTs, tokens, key contents, OAuth response bodies, or incoming Authorization headers). Check that the service account is enabled and authorized for required Firestore operations. Cloudflare deployment and its environment bindings need to be checked independently of the static website deployment.
+4. After authentication works, verify the *next* possible safeguards: Worker `CASHFREE_ENV=live` must match Firestore `config/app.CASHFREE_ENVIRONMENT=live`; `config/app.PAYMENT_PROVIDER=cashfree`; production Cashfree App ID and Secret Key must belong to the **same** Cashfree environment and merchant account. `config/app.WORKER_URL` must point to the deployed Worker. The merchant's checkout domain needs Cashfree approval/whitelisting. None of these later checks explains the current 503 error by itself.
+5. Test a **single** authorized purchase only after the order-create endpoint succeeds. Confirm Cashfree `order_status=PAID`, an owner-scoped `cashfreeOrders/{orderId}` receipt, and persisted entitlement through `GET /cashfree/order/{orderId}/status`. Never grant Pro from a browser callback alone. If any debit already occurred, use `/my-payments/` to check the existing order **before** a new payment. Manual UPI requires separate independent verification and must not be represented as automatically confirmed.
+
+The app currently uses Cashfree SDK `redirectTarget: '_modal'`. Do not change this to `_self` until an explicit per-order return URL and server-verified post-return recovery are implemented and tested; navigating away currently loses the in-page completion/entitlement refresh path. The mobile CSS fix makes the RoamWise sheet accessible without changing this sensitive payment flow.
+
+## Acceptance tests
+
+- Production Worker returns a valid order ID and payment session for a signed-in user with a valid phone; no auth/503 errors.
+- Wrong/missing credentials fail closed without exposing secrets; no customer is charged or provisioned on failure.
+- On Moto G64 Chrome in mobile and desktop-site modes: the entire RoamWise payment sheet scrolls, the checkout button is reachable, and full errors wrap within the viewport.
+- A successful Cashfree payment is reconciled exactly once against the matching user, amount, currency and plan; refreshing, reopening the modal or checking the same order does not duplicate the paid entitlement or charge.

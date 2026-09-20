@@ -92,7 +92,7 @@ function copyText(t){
     var methods=document.getElementById('payMethods');
     if(!methods)return;
     if(!document.getElementById('rwCashfreeSkin')){
-      var skin=document.createElement('link');skin.id='rwCashfreeSkin';skin.rel='stylesheet';skin.href='/my-payments/checkout-theme.css?v=1';
+      var skin=document.createElement('link');skin.id='rwCashfreeSkin';skin.rel='stylesheet';skin.href='/my-payments/checkout-theme.css?v=2';
       document.head.appendChild(skin);
     }
     var cf=document.getElementById('cashfreeOption');
