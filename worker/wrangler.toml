@@ -49,13 +49,15 @@ id = "be31e0935be843219cea1edf2203877b"   # <-- the ONLY line you edit in this f
 # ---------------------------------------------------------------------------
 [vars]
 CASHFREE_ENV = "live"
+# Cashfree PG documents x-api-version 2025-01-01. Do not use a guessed future
+# date: an unsupported API version can prevent order creation.
+CASHFREE_API_VERSION = "2025-01-01"
 # Managed AI is fail-closed. Leave false until AI_USAGE KV, GROQ_MODEL and
 # FIREBASE_SERVICE_ACCOUNT_JSON are configured and the authenticated flow has
 # been tested. Client-submitted model/token-limit values are ignored.
 MANAGED_AI_ENABLED = "false"
 AI_MAX_PROMPT_CHARS = "4000"
 AI_MAX_OUTPUT_TOKENS = "700"
-# CASHFREE_API_VERSION = "2026-01-01"   # optional override; handler defaults to this
 # PAYMENT_RETURN_URL = "https://roamwise.co.in/partner/"   # optional fallback return URL
 
 # Separate monthly allowance meter for /ai. Create it with:
@@ -70,8 +72,6 @@ AI_MAX_OUTPUT_TOKENS = "700"
 # scaffolding for future use (e.g. server-side PDF caching — see
 # CLOUDFLARE-MIGRATION-SETUP.md section D). Uncomment once a real bucket
 # exists:
-#   1. Cloudflare dashboard -> R2 -> Create bucket named e.g. "roamwise-data"
-#   2. Uncomment the block below and ensure the bucket exists.
 #
 # [[r2_buckets]]
 # binding = "RW_BUCKET"
@@ -80,8 +80,8 @@ AI_MAX_OUTPUT_TOKENS = "700"
 
 # ---------------------------------------------------------------------------
 # WORKERS AI — OPTIONAL. No route in worker.js calls this yet; this is
-# example syntax only, for future use (e.g. free-tier strategy).
-# Uncomment to bind Workers AI to this Worker as `env.AI`:
+# example syntax only for future use (e.g. free-tier strategy).
+# Uncomment to bind Workers AI to `env.AI`:
 #
 # [ai]
 # binding = "AI"
