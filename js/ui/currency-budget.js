@@ -1,81 +1,60 @@
 // @ts-nocheck
-/* ==================== UI: CURRENCY GRID + BUDGET SLIDER ====================
-   Extracted from app.js (modularization round 5) using a deferred-init
-   pattern: this used to be two anonymous top-level IIFEs (plus a plain
-   top-level `function updateBudget(){...}` declaration between them)
-   that ran/were defined immediately at the exact point they appeared in
-   app.js's parse order. That's the one genuine load-order hazard this
-   kind of boot code has — moving the CODE to a file that loads earlier
-   or later than that exact point would change WHEN it runs relative to
-   `index.html`'s DOM and to app.js's other top-level statements around
-   it.
-
-   The fix: keep the code itself — completely unchanged, just re-indented
-   — inside a named function here (this file can load at any point
-   before app.js; nothing in it executes until called), and leave a
-   single `rwInitCurrencyBudget();` call in app.js at the *exact* line
-   the old code used to occupy. Execution order is therefore identical to
-   before; only the code's home file changed. `updateBudget` is now a
-   function nested inside `rwInitCurrencyBudget()` rather than a global
-   — grepped repo-wide first and confirmed nothing outside this cluster
-   ever called it, so nesting it (instead of publishing it on `window`)
-   is a zero-risk simplification, not a behavior change.
-
-   See js/core/dom-utils.js's header comment for the general version of
-   this hazard, and ARCHITECTURE.md's "Load order: why it's load-bearing"
-   section for why only top-level/parse-time code (not function bodies)
-   is order-sensitive at all.
-
-   Depends on (by name, resolved when rwInitCurrencyBudget() is actually
-   called from app.js — i.e. after every script on the page has loaded,
-   same as before): `CURR`/`AC` (currency table + active currency,
-   app.js) and `fmtMoney` (js/pricing/subscription-plans.js). */
+/* Country-aware planning UI: no new API calls, no live-price assertions. This
+   remains deferred to app.js's original rwInitCurrencyBudget() call. */
+var RW_BROWSE_COUNTRY='India';
+var RW_BUDGET_PROFILES={INR:{min:500,max:500000,step:100,start:5000,locale:'en-IN'},USD:{min:10,max:10000,step:5,start:150,locale:'en-US'},EUR:{min:10,max:10000,step:5,start:150,locale:'de-DE'},GBP:{min:10,max:10000,step:5,start:150,locale:'en-GB'},JPY:{min:1000,max:1500000,step:500,start:30000,locale:'ja-JP'},AUD:{min:15,max:15000,step:5,start:250,locale:'en-AU'},CAD:{min:15,max:15000,step:5,start:250,locale:'en-CA'},SGD:{min:15,max:15000,step:5,start:200,locale:'en-SG'},AED:{min:40,max:40000,step:10,start:500,locale:'en-AE'},THB:{min:350,max:350000,step:50,start:5000,locale:'th-TH'}};
+function rwBudgetProfile(code){return RW_BUDGET_PROFILES[code]||RW_BUDGET_PROFILES.USD;}
+function rwBudgetRate(code){var c=(typeof CURR!=='undefined'?CURR:[]).find(function(x){return x.c===code;});return c&&Number(c.r)>0?Number(c.r):1;}
+function rwCountryCurrency(country){var info=(typeof COUNTRY_INFO!=='undefined'&&COUNTRY_INFO[String(country||'').toLowerCase()])||{};var iso=info.iso||'';if(/^(AT|BE|HR|CY|EE|FI|FR|DE|GR|IE|IT|LV|LT|LU|MT|NL|PT|SK|SI|ES)$/.test(iso))return 'EUR';return {IN:'INR',US:'USD',GB:'GBP',AU:'AUD',CA:'CAD',JP:'JPY',SG:'SGD',AE:'AED',TH:'THB'}[iso]||'USD';}
+function rwBrowseCountry(){return RW_BROWSE_COUNTRY;}
 function rwInitCurrencyBudget(){
-  (function(){
-    var cg = el('currGrid');
-    CURR.forEach(function(cu){
-      var b = document.createElement('button');
-      b.className = 'cbtn'+(cu.c==='INR'?' on':'');
-      b.dataset.c = cu.c;
-      b.innerHTML = `<span class="sym">${cu.s}</span><span class="code">${cu.c}</span>`;
-      b.onclick = function(){
-        AC = cu.c;
-        document.querySelectorAll('.cbtn').forEach(function(x){ x.classList.toggle('on', x.dataset.c===cu.c); });
-        updateBudget();
-      };
-      cg.appendChild(b);
-    });
-  })();
-
-  var slider = el('budgetSlider');
-  slider.addEventListener('input', function(){ updateBudget(true); });
-  /* BUG FIX (reported by team, Ladakh 40k case): the slider moves in fixed USD
-     steps, so at typical currency rates a single step could jump the DISPLAYED
-     INR value by 4000+, making round numbers like exactly 40,000 nearly
-     impossible to land on by dragging. Fix: a real "type an exact amount" field
-     that's always the source of truth for precision, alongside a finer slider
-     step for anyone who prefers to drag. */
-  function updateBudget(fromSlider){
-    var v = parseInt(slider.value);
-    el('budgetDisplay').innerHTML = v>=10000 ? fmtMoney(10000)+'+' : fmtMoney(v);
-    slider.style.setProperty('--pct', ((v-200)/9800*100).toFixed(1)+'%');
-    var cu = CURR.find(function(x){return x.c===AC;}) || {s:'\u20b9', r:1};
-    var ex = el('budgetExact'), sym = el('budgetExactSym');
-    if(sym) sym.textContent = cu.s;
-    if(ex && document.activeElement!==ex){ ex.value = Math.round(v*cu.r); }
+  var slider=el('budgetSlider'),grid=el('currGrid');if(!slider||!grid)return;
+  var exact=el('budgetExact'),symbol=el('budgetExactSym'),display=el('budgetDisplay'),row=slider.parentNode;
+  var css=document.createElement('style');
+  css.textContent='#budgetSlider{appearance:none;-webkit-appearance:none;width:100%;height:9px;border:0;border-radius:99px;cursor:pointer;background:linear-gradient(90deg,var(--gold,#E8BA6C) 0%,#f8a84b var(--pct,30%),rgba(161,164,184,.24) var(--pct,30%));box-shadow:inset 0 1px 4px #0007,0 0 15px #e8ba6c23;transition:box-shadow .2s ease}#budgetSlider:hover,#budgetSlider:focus-visible{box-shadow:0 0 0 4px #e8ba6c20,0 0 23px #e8ba6c4a;outline:none}#budgetSlider::-webkit-slider-thumb{-webkit-appearance:none;width:25px;height:25px;border:3px solid #fff3d1;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff8cf,#e8ba6c 63%,#bc772c);box-shadow:0 2px 12px #0008,0 0 13px #e8ba6c70;transition:transform .17s ease}#budgetSlider::-webkit-slider-thumb:active{transform:scale(1.17)}#budgetSlider::-moz-range-thumb{width:20px;height:20px;border:3px solid #fff3d1;border-radius:50%;background:#e8ba6c;box-shadow:0 0 13px #e8ba6c70}#budgetDisplay{display:inline-block;transition:transform .18s ease,color .18s ease}#budgetDisplay.rw-budget-pop{transform:scale(1.045);color:var(--gold,#e8ba6c)}#rwBudgetPresets{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 4px}#rwBudgetPresets button{border:1px solid #e8ba6c47;border-radius:999px;background:#e8ba6c0e;color:var(--t1,#f2eee7);padding:6px 10px;font-size:11px;cursor:pointer}#rwBudgetPresets button[aria-pressed=true]{background:#e8ba6c30;border-color:#e8ba6c}#rwCountryPanel{margin:10px 12px 14px;border:1px solid #e8ba6c52;border-radius:14px;padding:12px;background:linear-gradient(145deg,#251d25,#151e2a)}#rwCountryPanel label{font-size:12px;font-weight:750;color:#f3e5cb;display:block;margin-bottom:7px}#rwCountryPick{width:100%;padding:10px;border-radius:9px;background:#171b27;color:white;border:1px solid #9d8a6f;font-size:14px}#rwCountryNote,#rwBudgetNote{font-size:11px;line-height:1.5;color:var(--t2,#c8c3bc)}#rwBudgetNote{margin:7px 0 0}#rwCountryNote{margin:9px 0 0}.rw-country-feed .rowhead{padding-top:13px}.rw-country-feed .pcard{cursor:pointer}.rw-country-empty{font-size:12px;padding:11px;color:var(--t2,#c8c3bc)}@media(prefers-reduced-motion:reduce){#budgetSlider,#budgetSlider::-webkit-slider-thumb,#budgetDisplay{transition:none!important}}';document.head.appendChild(css);
+  var note=document.createElement('p');note.id='rwBudgetNote';note.setAttribute('aria-live','polite');note.textContent='Indicative planning budget, not a live fare or guaranteed booking price.';if(exact&&exact.parentNode)exact.parentNode.insertAdjacentElement('afterend',note);
+  var presets=document.createElement('div');presets.id='rwBudgetPresets';if(row&&row.parentNode)row.parentNode.insertBefore(presets,row.nextSibling);var labels=row?row.querySelectorAll('.slider-lbl'):[];
+  var menu=el('drawer'),countrySelect=null,countryNote=null;
+  if(menu){
+    var panel=document.createElement('section');panel.id='rwCountryPanel';var label=document.createElement('label');label.htmlFor='rwCountryPick';label.textContent='🌍 Explore a country';panel.appendChild(label);
+    countrySelect=document.createElement('select');countrySelect.id='rwCountryPick';countrySelect.setAttribute('aria-label','Choose country for local travel recommendations');countrySelect.add(new Option('🌐 Worldwide — all destinations','Worldwide'));
+    var covered={},names=[];(typeof DB!=='undefined'?DB:[]).forEach(function(d){if(d.country&&!covered[d.country.toLowerCase()]){covered[d.country.toLowerCase()]=1;names.push(d.country);}});
+    var group=document.createElement('optgroup');group.label='Countries with curated destinations';names.sort(function(a,b){return a==='India'?-1:b==='India'?1:a.localeCompare(b);}).forEach(function(n){group.appendChild(new Option(n,n));});countrySelect.appendChild(group);
+    var more=document.createElement('optgroup');more.label='More countries — limited local guides';if(typeof COUNTRY_INFO!=='undefined')Object.keys(COUNTRY_INFO).sort().forEach(function(k){if(!covered[k])more.appendChild(new Option(k.replace(/\b\w/g,function(c){return c.toUpperCase();}),k));});countrySelect.appendChild(more);panel.appendChild(countrySelect);
+    countryNote=document.createElement('p');countryNote.id='rwCountryNote';countryNote.setAttribute('aria-live','polite');panel.appendChild(countryNote);var anchor=el('drAcct');if(anchor&&anchor.parentNode===menu)menu.insertBefore(panel,anchor.nextSibling);else menu.insertBefore(panel,menu.firstChild);
   }
-  (function(){
-    var ex = el('budgetExact');
-    if(ex){
-      ex.addEventListener('input', function(){
-        var cu = CURR.find(function(x){return x.c===AC;}) || {r:1};
-        var shown = parseFloat(ex.value); if(isNaN(shown) || shown<0) return;
-        var usd = Math.round(shown/cu.r);
-        usd = Math.max(200, Math.min(10000, usd));
-        slider.value = usd;
-        updateBudget(false);
-      });
-    }
-  })();
-  updateBudget();
+  var savedCountry=lsGet('rw_browse_country_v1');if(savedCountry&&countrySelect){for(var i=0;i<countrySelect.options.length;i++)if(countrySelect.options[i].value.toLowerCase()===savedCountry.toLowerCase()){RW_BROWSE_COUNTRY=countrySelect.options[i].value;break;}}
+  function money(n){var cu=CURR.find(function(c){return c.c===AC;})||{s:'$'};return cu.s+Math.round(n).toLocaleString(rwBudgetProfile(AC).locale);}
+  function redraw(fromSlider){
+    var cfg=rwBudgetProfile(AC),rate=rwBudgetRate(AC),amount=Number(slider.value)*rate;amount=fromSlider?Math.round(amount/cfg.step)*cfg.step:Math.round(amount);amount=Math.max(cfg.min,Math.min(cfg.max,amount));slider.value=String(amount/rate);
+    if(display){display.textContent=money(amount);display.classList.add('rw-budget-pop');}slider.style.setProperty('--pct',(100*(amount-cfg.min)/(cfg.max-cfg.min)).toFixed(2)+'%');if(symbol)symbol.textContent=(CURR.find(function(c){return c.c===AC;})||{s:'$'}).s;
+    if(exact&&document.activeElement!==exact)exact.value=String(amount);if(labels.length>1){labels[0].textContent=money(cfg.min);labels[1].textContent=money(cfg.max)+'+';}note.textContent='Total planning target · '+AC+' · indicative currency conversion, not live supplier prices or a guaranteed cap.';
+    Array.prototype.forEach.call(presets.children,function(b){b.setAttribute('aria-pressed',String(Number(b.dataset.amount)===amount));});
+  }
+  function remember(){try{lsSet('rw_budget_country_'+String(RW_BROWSE_COUNTRY).toLowerCase(),String(Math.round(Number(slider.value)*rwBudgetRate(AC))));}catch(e){/* optional storage */}}
+  function applyCurrency(code,reset){
+    if(!RW_BUDGET_PROFILES[code])code='USD';var old=Number(slider.value)||0;AC=code;var cfg=rwBudgetProfile(code),rate=rwBudgetRate(code),saved=Number(lsGet('rw_budget_country_'+String(RW_BROWSE_COUNTRY).toLowerCase()));var amount=reset?(saved>0?saved:cfg.start):(old*rate||cfg.start);
+    amount=Math.max(cfg.min,Math.min(cfg.max,Math.round(amount)));slider.min=String(cfg.min/rate);slider.max=String(cfg.max/rate);slider.step='any';slider.value=String(amount/rate);
+    document.querySelectorAll('.cbtn').forEach(function(b){b.classList.toggle('on',b.dataset.c===code);});presets.replaceChildren();[cfg.min,cfg.start,Math.min(cfg.max,cfg.start*4)].filter(function(v,i,a){return a.indexOf(v)===i;}).forEach(function(v){var b=document.createElement('button');b.type='button';b.dataset.amount=String(v);b.textContent=money(v);b.setAttribute('aria-pressed','false');b.addEventListener('click',function(){slider.value=String(v/rate);redraw(false);remember();});presets.appendChild(b);});redraw(false);
+  }
+  CURR.forEach(function(cu){var b=document.createElement('button');b.className='cbtn'+(cu.c===AC?' on':'');b.dataset.c=cu.c;b.type='button';var s=document.createElement('span');s.className='sym';s.textContent=cu.s;var c=document.createElement('span');c.className='code';c.textContent=cu.c;b.appendChild(s);b.appendChild(c);b.addEventListener('click',function(){applyCurrency(cu.c,false);remember();});grid.appendChild(b);});
+  slider.addEventListener('input',function(){redraw(true);remember();});slider.addEventListener('change',function(){if(display)display.classList.remove('rw-budget-pop');});
+  if(exact){exact.min='0';exact.inputMode='numeric';exact.setAttribute('aria-label','Exact planning budget in selected currency');exact.addEventListener('input',function(){var n=Number(exact.value),cfg=rwBudgetProfile(AC);if(!Number.isFinite(n)||n<cfg.min)return;slider.value=String(Math.min(cfg.max,n)/rwBudgetRate(AC));redraw(false);remember();});exact.addEventListener('blur',function(){redraw(false);});}
+  function cardRow(title,list,after){
+    var section=document.createElement('div');section.className='v v-home rw-country-feed';var h=document.createElement('div');h.className='rowhead';var strong=document.createElement('b');strong.textContent=title;h.appendChild(strong);section.appendChild(h);
+    if(list.length){var p=document.createElement('div');p.className='prow';section.appendChild(p);list.slice(0,10).forEach(function(d){var card=document.createElement('div');card.className='pcard';card.tabIndex=0;card.setAttribute('role','button');card.setAttribute('aria-label','Plan a trip to '+d.name+', '+d.country);try{var theme=themeFor(d),a=theme.acc,z=theme.deep;card.style.background='linear-gradient(160deg,rgb('+a.join(',')+'),rgb('+z.join(',')+'))';}catch(e){card.style.background='#26374a';}var name=document.createElement('span');name.className='pn';name.textContent=d.name;card.appendChild(name);
+      function open(){var input=el('destInput');if(input){input.value=d.name+', '+d.country;input.dispatchEvent(new Event('input',{bubbles:true}));}if(typeof tabGo==='function')tabGo('plan');if(typeof runSearch==='function')runSearch();}card.addEventListener('click',open);card.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();open();}});p.appendChild(card);});if(typeof rwPaintPhotos==='function')rwPaintPhotos(section,list.slice(0,10));
+    }else{var empty=document.createElement('p');empty.className='rw-country-empty';empty.textContent='No curated local destinations yet. You can still search this country directly or explore worldwide.';section.appendChild(empty);}if(after&&after.parentNode)after.parentNode.insertBefore(section,after.nextSibling);return section;
+  }
+  function localizedHome(){
+    var originals=[];document.querySelectorAll('.v-home').forEach(function(e){if(e.classList.contains('rw-country-feed'))return;var h=e.querySelector('.rowhead b');if(h&&/^(Popular now|In season|Yoga & wellness|Low-crowd|Easy visa)/i.test(h.textContent))originals.push(e);});document.querySelectorAll('.rw-country-feed').forEach(function(e){e.remove();});originals.forEach(function(e){e.style.display=RW_BROWSE_COUNTRY==='Worldwide'?'':'none';});if(RW_BROWSE_COUNTRY==='Worldwide'||!originals.length)return;
+    var month=new Date().getMonth()+1,all=(typeof DB!=='undefined'?DB:[]).filter(function(d){return !(d.closedM||[]).includes(month);}),local=all.filter(function(d){return String(d.country||'').toLowerCase()===RW_BROWSE_COUNTRY.toLowerCase();});local.sort(function(a,b){return ((a.bestM||[]).includes(month)?0:100)-((b.bestM||[]).includes(month)?0:100)||a.name.localeCompare(b.name);});var global=all.filter(function(d){return String(d.country||'').toLowerCase()!==RW_BROWSE_COUNTRY.toLowerCase();}).slice(0,10);
+    cardRow('📍 Discover '+RW_BROWSE_COUNTRY,local,originals[0]);var after=el('copilotHero')||document.querySelector('.rw-country-feed'),season=local.filter(function(d){return (d.bestM||[]).includes(month);});if(season.length)after=cardRow('☀ In season locally',season,after);var quieter=local.filter(function(d){return Array.isArray(d.crowd);}).sort(function(a,b){return a.crowd[month-1]-b.crowd[month-1];}).slice(0,10);if(quieter.length)after=cardRow('🍃 Lower modeled crowds · not live',quieter,after);if(global.length)cardRow('🌍 Worldwide inspiration',global,after);
+  }
+  function context(){if(!countryNote)return;var country=RW_BROWSE_COUNTRY,entries=(typeof DB!=='undefined'?DB:[]).filter(function(d){return String(d.country||'').toLowerCase()===country.toLowerCase();}),example=entries.find(function(d){return Array.isArray(d.food)&&d.food.length;}),code=rwCountryCurrency(country);countryNote.textContent=country==='Worldwide'?'Global inspiration · choose any country or destination.':(entries.length?entries.length+' curated destinations · '+(example?'Try '+example.food[0]+' around '+example.name+'. ':''):'Local guides are limited; global discovery stays available. ')+(code==='USD'&&country!=='United States'?'USD planning display where a supported local conversion is unavailable.':'Local planning currency: '+code+'.')+' Verify cultural and entry details before travel.';}
+  function pickCountry(name){RW_BROWSE_COUNTRY=name;try{lsSet('rw_browse_country_v1',name);}catch(e){/* optional storage */}if(countrySelect)countrySelect.value=name;applyCurrency(name==='Worldwide'?'USD':rwCountryCurrency(name),true);context();localizedHome();var result=el('results');if(result&&result.children.length)result.replaceChildren();}
+  if(countrySelect)countrySelect.addEventListener('change',function(){pickCountry(countrySelect.value);});window.rwSetBrowseCountry=pickCountry;
+  var previousRender=typeof renderForYou==='function'?renderForYou:null;if(previousRender&&!previousRender._rwCountryWrapped){renderForYou=function(){var result=previousRender.apply(this,arguments);localizedHome();return result;};renderForYou._rwCountryWrapped=true;}
+  var previousSearch=typeof smartSearch==='function'?smartSearch:null;if(previousSearch&&!previousSearch._rwCountryWrapped){smartSearch=function(month,budget,query,crowd,interests){var q=String(query||'').trim(),browse=!q||/^anywhere/i.test(q),dest=browse&&RW_BROWSE_COUNTRY!=='Worldwide'?RW_BROWSE_COUNTRY:query,days=Math.max(1,Number((el('dur')||{}).value)||7),isIndia=RW_BROWSE_COUNTRY==='India'||/\bindia\b/i.test(String(dest||'')),scaled=isIndia?budget*rwBudgetRate('INR')/days:budget*7/days;return previousSearch.call(this,month,scaled,dest,crowd,interests);};smartSearch._rwCountryWrapped=true;}
+  applyCurrency(RW_BROWSE_COUNTRY==='Worldwide'?'USD':rwCountryCurrency(RW_BROWSE_COUNTRY),true);context();
 }
