@@ -64,7 +64,7 @@ function _cfValidPhone(value){return /^\+?\d{7,15}$/.test(String(value||'').repl
 function _cfToken(){
   var u=(typeof user!=='undefined')?user:null;
   if(!u||!u.uid||typeof u.getIdToken!=='function')return Promise.reject(new Error('Sign in again before payment.'));
-  return u.getIdToken(true);
+  return u.getIdToken();
 }
 function _cfBeginOrder(shell){
   var endpoint = (typeof rwApi === 'function') ? rwApi('cashfree/order') : null;
@@ -76,17 +76,11 @@ function _cfBeginOrder(shell){
   if(!customer.id||customer.id.indexOf('guest_')===0){shell.needsAuth=true;_cfOrderPromise=null;return shell;}
   if(!_cfValidPhone(customer.phone)){shell.needsPhone=true;_cfOrderPromise=null;return shell;}
   shell.needsPhone=false;shell.needsAuth=false;
-  function postOrder(token){return fetch(endpoint, {
-    method: 'POST',headers: {'Content-Type':'application/json','Authorization':'Bearer '+token},
-    body: JSON.stringify({amount:shell.amountINR,customer:customer,meta:{planId:shell.planId,tierId:shell.tierId,label:shell.label}})
-  }).then(function(r){return r.json().catch(function(){return {};}).then(function(d){
-    if(!r.ok){var e=new Error((d&&d.message)||'Cashfree order creation failed.');e.code=d&&d.error||'';e.status=r.status;throw e;}
-    return d;
-  });});}
-  _cfOrderPromise = _cfToken().then(function(token){return postOrder(token);}).catch(function(e){
-    // Only definitive 401s are safe to retry: no order was created.
-    if(e.status===401){return _cfToken().then(postOrder);}
-    throw e;
+  _cfOrderPromise = _cfToken().then(function(token){return fetch(endpoint, {
+    method: 'POST',headers: {'Content-Type': 'application/json','Authorization':'Bearer '+token},
+    body: JSON.stringify({amount: shell.amountINR, customer: customer, meta: {planId: shell.planId, tierId: shell.tierId, label: shell.label}})
+  });}).then(function(r){
+    return r.json().catch(function(){ return {}; }).then(function(d){if(!r.ok) throw new Error((d&&d.message)||'Cashfree order creation failed.');return d;});
   }).then(function(d){
     if(!d||!d.payment_session_id)throw new Error('Cashfree did not return a payment session.');
     shell.paymentSessionId=d.payment_session_id;shell.orderId=d.order_id;shell.environment=d.environment||'sandbox';shell.ready=true;return shell;
@@ -134,11 +128,7 @@ var CashfreeAdapter = {
     if(!_cfOrderPromise&&order&&!order.needsPhone)_cfBeginOrder(order);
     if(!_cfOrderPromise){ showToast(order&&order.needsPhone?'Add a valid mobile number for the Cashfree receipt.':'Sign in again, then reopen checkout.'); return; }
     showToast('Opening secure Cashfree checkout…');
-    // An earlier failed attempt must not become a permanent rejected promise.
-    // Reuse an already-issued session only for this exact order shell.
-    if(_cfOrderPromise && !order.ready && order.needsAuth){_cfOrderPromise=null;}
     _cfOrderPromise.then(function(ready){
-      if(order&&order.planId&&ready.planId!==order.planId)throw new Error('Your plan changed. Reopen checkout for the selected plan.');
       return _cfLoadSdk().then(function(){ return ready; });
     }).then(function(ready){
       var cashfree = Cashfree({mode: ready.environment === 'production' ? 'production' : 'sandbox'});
@@ -207,9 +197,7 @@ var CashfreeAdapter = {
         }
       });
     }).catch(function(e){
-      if(e && (e.status===401 || e.status===503 || e.code==='server_auth_unavailable' || e.code==='server_auth_config_invalid'))_cfOrderPromise=null;
-      var text=(e&&e.message)||'Payment cannot start right now.';
-      showToast('Could not open Cashfree checkout: '+text+(e&&e.status===401?'':' Check My payments before trying again.'));
+      showToast('Could not open Cashfree checkout' + ((e && e.message) ? ': ' + e.message : ' — try again.'));
     });
   }
 };

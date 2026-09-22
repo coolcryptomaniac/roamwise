@@ -27,5 +27,9 @@ export function handleHealth(env){
       partnerPayments: !!env.FIREBASE_SERVICE_ACCOUNT_JSON,
     },
     paymentEnvironment: String(env.CASHFREE_ENV || 'sandbox').toLowerCase() === 'live' ? 'live' : 'sandbox',
+    // Public, non-secret deploy indicators only. Neither validates API keys,
+    // proves Cashfree connectivity, nor confirms paid orders or fulfillment.
+    cashfreeApiVersion: String(env.CASHFREE_API_VERSION || '2025-01-01'),
+    cashfreeDiagnosticsRevision: '2026-09-21-network-v1',
   });
 }
