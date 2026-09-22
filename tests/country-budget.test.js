@@ -29,7 +29,7 @@ test('Country menu updates currency and home recommendations without hiding glob
 });
 test('Anywhere search respects selected country and scales trip amount into comparable daily/weekly units',()=>{
   const {state,getSearch}=app();state.smartSearch('September',60,'Anywhere','any',[]);assert.equal(getSearch().q,'India');assert.ok(getSearch().b>600&&getSearch().b<800);
-  state.rwSetBrowseCountry('Japan');state.smartSearch('September',100,'Anywhere','any',[]);assert.equal(getSearch().q,'Japan');assert.equal(getSearch().b,100);
+  state.window.rwSetBrowseCountry('Japan');state.smartSearch('September',100,'Anywhere','any',[]);assert.equal(getSearch().q,'Japan');assert.equal(getSearch().b,100);
   state.smartSearch('September',100,'Goa, India','any',[]);assert.equal(getSearch().q,'Goa, India');
 });
-test('Unsupported local currency is not assigned a made-up exchange rate',()=>{const {state,dom}=app();assert.equal(state.rwCountryCurrency('Indonesia'),'USD');state.rwSetBrowseCountry('indonesia');assert.match(dom.window.document.getElementById('rwCountryNote').textContent,/USD planning display/);});
+test('Unsupported local currency is not assigned a made-up exchange rate',()=>{const {state,dom}=app();assert.equal(state.rwCountryCurrency('Indonesia'),'USD');state.window.rwSetBrowseCountry('indonesia');assert.match(dom.window.document.getElementById('rwCountryNote').textContent,/USD planning display/);});
