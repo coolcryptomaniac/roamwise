@@ -27,8 +27,6 @@ jobs:
       - name: Check official SDK releases (no API keys or paid inference)
         run: node tools/outreach-radar/weekly.cjs
       - name: Update public source-signal feed
-        env:
-          GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
           if git diff --quiet -- admin/opportunity-radar-weekly.json; then
@@ -45,11 +43,8 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          node - <<'NODE'
-          const fs=require('node:fs');const d=JSON.parse(fs.readFileSync('admin/opportunity-radar-weekly.json','utf8'));
-          fs.appendFileSync(process.env.GITHUB_ENV,'RW_RADAR_SIGNALS='+d.signals.length+'\n');
-          NODE
-          if [ "${RW_RADAR_SIGNALS:-0}" = 0 ]; then
+          count="$(node -p 'JSON.parse(require("node:fs").readFileSync("admin/opportunity-radar-weekly.json","utf8")).signals.length')"
+          if [ "$count" = 0 ]; then
             echo 'No new official SDK release; no issue.'
             exit 0
           fi
