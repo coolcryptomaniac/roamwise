@@ -7,7 +7,6 @@ on:
 
 permissions:
   contents: read
-  issues: write
 
 jobs:
   tracker-review:
@@ -15,6 +14,9 @@ jobs:
     env:
       SHEETS_SA: ${{ secrets.ROAMWISE_SHEETS_SERVICE_ACCOUNT_JSON }}
       RANGES: ${{ vars.ROAMWISE_AI_SHEET_RANGES }}
+      MAIL_USER: ${{ secrets.MAIL_USERNAME }}
+      MAIL_PASS: ${{ secrets.MAIL_APP_PASSWORD }}
+      MAIL_TO: ${{ secrets.TO_EMAIL }}
     steps:
       - uses: actions/checkout@v4
 
@@ -24,15 +26,15 @@ jobs:
 
       - name: Configuration status
         run: |
-          if [ -z "$SHEETS_SA" ] || [ -z "$RANGES" ]; then
+          if [ -z "$SHEETS_SA" ] || [ -z "$RANGES" ] || [ -z "$MAIL_USER" ] || [ -z "$MAIL_PASS" ] || [ -z "$MAIL_TO" ]; then
             echo "AI tracker review is not activated yet."
-            echo "Configure ROAMWISE_SHEETS_SERVICE_ACCOUNT_JSON and ROAMWISE_AI_SHEET_RANGES after the tracker is shared with the dedicated service account."
+            echo "Configure the read-only Sheet identity/ranges and private founder-email delivery secrets first."
           else
-            echo "AI tracker read-only configuration is present."
+            echo "AI tracker read-only configuration and private delivery path are present."
           fi
 
       - name: Run dual-model tracker review
-        if: env.SHEETS_SA != '' && env.RANGES != ''
+        if: env.SHEETS_SA != '' && env.RANGES != '' && env.MAIL_USER != '' && env.MAIL_PASS != '' && env.MAIL_TO != ''
         env:
           ROAMWISE_SHEETS_SERVICE_ACCOUNT_JSON: ${{ env.SHEETS_SA }}
           ROAMWISE_AI_SHEET_RANGES: ${{ env.RANGES }}
@@ -42,33 +44,35 @@ jobs:
           ANTHROPIC_DECISION_MODEL: ${{ vars.ANTHROPIC_DECISION_MODEL }}
         run: node ops/ai-tracker/run.js
 
-      - name: Upload sanitized analysis report
-        if: env.SHEETS_SA != '' && env.RANGES != ''
-        uses: actions/upload-artifact@v4
-        with:
-          name: ai-tracker-report
-          path: ai-tracker-report.md
-          retention-days: 14
+      - name: Email private founder review
+        if: env.SHEETS_SA != '' && env.RANGES != '' && env.MAIL_USER != '' && env.MAIL_PASS != '' && env.MAIL_TO != ''
+        env:
+          MAIL_USERNAME: ${{ env.MAIL_USER }}
+          MAIL_APP_PASSWORD: ${{ env.MAIL_PASS }}
+          TO_EMAIL: ${{ env.MAIL_TO }}
+        run: |
+          python3 - <<'PY'
+          import os, ssl, smtplib
+          from email.message import EmailMessage
+          from datetime import datetime
+          try:
+              from zoneinfo import ZoneInfo
+              day = datetime.now(ZoneInfo("Asia/Kolkata")).strftime("%d %b %Y")
+          except Exception:
+              day = datetime.utcnow().strftime("%d %b %Y")
+          with open("ai-tracker-report.md", "r", encoding="utf-8") as fh:
+              body = fh.read()
+          msg = EmailMessage()
+          msg["Subject"] = f"RoamWise AI Tracker Review — {day}"
+          msg["From"] = os.environ["MAIL_USERNAME"]
+          msg["To"] = os.environ["TO_EMAIL"]
+          msg.set_content(body)
+          with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=ssl.create_default_context()) as smtp:
+              smtp.login(os.environ["MAIL_USERNAME"], os.environ["MAIL_APP_PASSWORD"])
+              smtp.send_message(msg)
+          print("Private AI tracker review emailed successfully; report is not persisted to this public repository.")
+          PY
 
-      - name: Create or update today's founder review issue
-        if: env.SHEETS_SA != '' && env.RANGES != ''
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const fs = require('fs');
-            let body = fs.readFileSync('ai-tracker-report.md', 'utf8');
-            if (body.length > 62000) body = body.slice(0, 62000) + '\n\n_Report truncated; use the workflow artifact for the full output._';
-            const date = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Kolkata' });
-            const title = '[AI Tracker] Founder review — ' + date;
-            const existing = await github.rest.issues.listForRepo({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              state: 'open',
-              per_page: 100
-            });
-            const found = existing.data.find(i => i.title === title);
-            if (found) {
-              await github.rest.issues.update({ owner: context.repo.owner, repo: context.repo.repo, issue_number: found.number, body });
-            } else {
-              await github.rest.issues.create({ owner: context.repo.owner, repo: context.repo.repo, title, body });
-            }
+      - name: Remove ephemeral report
+        if: always()
+        run: rm -f ai-tracker-report.md
