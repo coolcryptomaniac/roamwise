@@ -10,6 +10,7 @@ when.
 - `YYYY-MM-DD-vX.Y.rules` — a dated snapshot of the root `firestore.rules` at
   the point it was published, named after the version marker in its own
   header comment (e.g. `2026-08-28-v15.7.rules`).
+  Platform V5 currently keeps `v17.0` as a generator epoch for unrelated rule edits, so multiple dated snapshots may legitimately share `v17.0`; the date identifies the exact published content.
 - `live-snapshot-YYYY-MM-DD-preclean.rules` — an as-found copy of what was
   actually pasted into the Firebase Console before a cleanup pass, kept for
   audit purposes even though it is never meant to be deployed again. The
