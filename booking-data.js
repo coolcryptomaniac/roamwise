@@ -29,6 +29,7 @@ window.RW_STAY_PRICING_POLICY = {
   parityRule: 'Same room, occupancy, meals, cancellation terms, taxes and stay dates must be compared. If the audited public rate leaves less than 3% gross margin, request a better net rate or switch that date to request-to-book; never inflate the guest price just to preserve margin.',
   foundingPartnerFee: 299,
   minimumListingFee: 299,
+  propertyTypeRule: 'Listing contribution scales with property type/operational complexity. A small homestay can stay near the floor; a hotel pays more even if it has relatively few rooms.',
   feeReviewCadence: 'Annual review each April using India CPI / operating-cost changes; round changes to simple customer-friendly amounts.',
   rankingRule: 'Commercial terms never buy ranking. Quality, guest outcomes, reliability and verified value decide ordering.'
 };
@@ -105,34 +106,38 @@ window.RW_GREEN_PILLARS = [
 ];
 
 /* ============================================================================
-   LISTING FEES (rw-v91)
+   LISTING FEES — permanent one-time contribution
    ============================================================================
-   A one-time fee that pays for the VERIFICATION WORK — the visit, the price
-   audit, the photos. It buys a listing and a badge. It never buys a ranking
-   position, and the partner page says so.
+   Every live supplier contributes at least the permanent floor. The fee scales
+   with property type and operational complexity, not only room count. This
+   keeps tiny owner-run stays affordable while hotels/resorts contribute more
+   toward verification, support and long-term platform operations.
 
-   WAIVED for places we actively want: genuinely solar-powered stays,
-   family-run homes, and anything we would put in an Experience. Waiving the
-   fee for the best properties is not charity — it is how the directory stays
-   worth reading. The ones who most deserve to be here are usually the least
-   able to pay ₹10,000 up front.
+   Listing fee != ranking. Paying more never buys a better position.
+   Separate on-ground verification/photo work can be quoted when actually done.
    ========================================================================= */
 window.RW_LISTING_FEES = [
-  { id:'homestay', label:'Family homestay / small guesthouse', fee:500,
-    rooms:'up to 4 rooms',
-    gets:['Verification call + price check','Listed with a Verified Real badge','Partner portal access'] },
-  { id:'boutique', label:'Boutique stay / villa', fee:2500,
-    rooms:'5-12 rooms',
-    gets:['On-ground or video verification','Photo set','Verified Real badge','Partner portal access'] },
-  { id:'hotel', label:'Hotel / resort', fee:5000,
-    rooms:'13+ rooms',
-    gets:['Full on-ground verification','Photo set','Priority in booking requests','Partner portal access'] },
-  { id:'operator', label:'Adventure operator / agency', fee:5000,
-    rooms:'licence checked',
-    gets:['Licence and safety-equipment check','Verified Real badge','Listed under experiences'] },
-  { id:'chain', label:'Chain / multi-property group', fee:10000,
-    rooms:'per property, 3+ properties',
-    gets:['Verification per property','Account manager','Quarterly re-verification','Priority placement in booking requests'] }
+  { id:'micro-homestay', label:'Small homestay / treehouse / cottage stay', fee:299,
+    rooms:'1-4 sellable units',
+    gets:['Verification call','Basic price audit','Partner portal access','Eligible for Verified badge after checks'] },
+  { id:'boutique-homestay', label:'Boutique homestay / villa / guesthouse', fee:499,
+    rooms:'5-12 rooms or units',
+    gets:['Verification call','Price audit','Partner portal access','Eligible for Verified badge after checks'] },
+  { id:'small-hotel', label:'Small hotel', fee:999,
+    rooms:'hotel classification, typically up to 12 rooms',
+    gets:['Business verification','Rate/policy audit','Partner portal access','Hotel listing setup'] },
+  { id:'hotel', label:'Hotel / resort', fee:2499,
+    rooms:'typically 13-30 rooms',
+    gets:['Business verification','Deeper rate/policy audit','Partner portal access','Hotel/resort listing setup'] },
+  { id:'large-hotel', label:'Large hotel / resort', fee:4999,
+    rooms:'typically 31+ rooms',
+    gets:['Full commercial onboarding','Rate/policy audit','Partner portal access','Operational setup review'] },
+  { id:'operator', label:'Adventure operator / agency', fee:999,
+    rooms:'licence / operator checks',
+    gets:['Licence and safety-document review','Partner portal access','Experience listing setup'] },
+  { id:'chain', label:'Chain / multi-property group', fee:9999,
+    rooms:'portfolio onboarding',
+    gets:['Portfolio setup','Account coordination','Verification plan per property','Partner portal access'] }
 ];
 
 /* Nobody pays zero. Strategic partners receive a discount to the permanent
