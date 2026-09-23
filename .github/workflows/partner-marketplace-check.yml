@@ -94,7 +94,7 @@ jobs:
             'HOST TODAY'
             ,'PARTNER LIFECYCLE'
             ,'roamwise_cashfree_after_confirmation'
-            ,'RW-PMOU-2026-09-23-V2'
+            ,'RW-PMOU-2026-09-23-V3'
             ,'pricingAudit'
             ,'qualityReview'
           ]
@@ -108,7 +108,7 @@ jobs:
           assert 'match /paymentDestinations/{id}' in rules
           assert "'pricingAudit'" in rules
           assert "'qualityReview'" in rules
-          assert 'RW-PMOU-2026-09-23-V2' in mou
+          assert 'RW-PMOU-2026-09-23-V3' in mou
           assert 'Guest-value pass-through' in mou
           assert 'Pricing-integrity audit' in mou
           assert 'Minimum two like-for-like public comparator checks' in mou
