@@ -13,6 +13,24 @@
    (once signed) -> instant booking + payments (post-incorporation).
    ========================================================================= */
 
+/* Stay pricing guardrail: the platform supports TWO supplier models, never both
+   on the same booking. Private wholesale/net rates stay server/admin-side. */
+window.RW_STAY_PRICING_POLICY = {
+  commissionPct: 8,
+  netMarkupTargetPct: 8,
+  netMarkupMaxPct: 10,
+  minimumViableMarginPct: 3,
+  customerSavingTargetPct: 3,
+  models: {
+    commission: 'Property supplies its public/direct sell rate; RoamWise earns 8% only after a completed stay.',
+    protectedNet: 'Property supplies a confidential B2B net rate; RoamWise targets an 8% gross markup, capped at 10%, while aiming to keep the like-for-like guest rate at least 3% below the best audited public rate.'
+  },
+  noDoubleCharge: true,
+  parityRule: 'Same room, occupancy, meals, cancellation terms, taxes and stay dates must be compared. If the audited public rate leaves less than 3% gross margin, request a better net rate or switch that date to request-to-book; never inflate the guest price just to preserve margin.',
+  foundingPartnerFee: 0,
+  rankingRule: 'Commercial terms never buy ranking. Quality, guest outcomes, reliability and verified value decide ordering.'
+};
+
 window.RW_BOOK_CATS = [
   { id:'stay',      icon:'\ud83c\udfe1', label:'Stay',        pct:8,  blurb:'Homestays, boutique and eco stays' },
   { id:'guide',     icon:'\ud83e\uddd1\u200d\ud83c\udfeb', label:'Guide',       pct:15, blurb:'Local guides who actually know the place' },
@@ -25,9 +43,10 @@ window.RW_BOOK_CATS = [
 /* ---------------------------------------------------------------------------
    THE COMMERCIAL MODEL — and the one line that protects it.
 
-   The founder's instinct is right: curate hard, only high-trust venues, charge
-   to be on the platform AND take commission. But there is a trap in it, so the
-   model below separates the two payments deliberately:
+   Curate hard and charge only for work or value we actually deliver. A property
+   may pay a verification/onboarding fee and use a commission model, OR give us
+   a protected B2B net rate that we mark up modestly. Never take commission on
+   top of a protected net rate for the same booking.
 
      ONBOARDING FEE  = paid once, for VERIFICATION WORK we actually do
                        (site visit, document checks, photos, price audit).
