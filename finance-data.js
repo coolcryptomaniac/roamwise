@@ -50,7 +50,7 @@ window.RW_ACCOUNTS = {
 window.RW_TAX_FLAGS = [
   { id:'gst_reg', label:'GST registration threshold',
     limit:2000000,
-    note:'Services turnover above Rs 20 lakh in a financial year generally requires GST registration (Rs 10 lakh in some special-category states).' },
+    note:'Ordinary taxable-service turnover above the applicable threshold can require GST registration. This is NOT a safe-harbour for every marketplace model: separately review compulsory e-commerce registration, section 9(5) accommodation and section 52 TCS before enabling hotel booking/collection.' },
   { id:'tds_194h', label:'TDS on commission (194H)',
     limit:20000,
     note:'Commission or brokerage above roughly Rs 20,000 to one person in a year attracts TDS (Finance Act 2025 threshold). This applies to your referral payouts — confirm applicability to staff/creator payouts with your CA.' },
