@@ -46,7 +46,8 @@ function shadowBudget(entry,days,style){
   var fx=Number(typeof window!=='undefined'&&window._rwFxINR)||88;
   if(!isFinite(fx)||fx<=0)fx=88;
   var india=String(entry.country||'').toLowerCase()==='india';
-  var inrDaily=String(entry.cur||entry._priceCurrency||'').toUpperCase()==='INR';
+  var priceCurrency=String(entry._priceCurrency||entry.cur||'').toUpperCase();
+  var inrDaily=priceCurrency==='INR';
   var scale=inrDaily?1/fx:1/7;
   var bands=entry.cost||{};
   var mid=Number(bands.mid)||0;
@@ -81,7 +82,7 @@ function shadowBudget(entry,days,style){
   return {days:days,style:style,domestic:india,tipRate:tipRate,perDay:perDay,
     tips:tips,dailyTotal:dailyTotal,oneOff:oneOff,
     total:tripSub+oneOff.fxSpread+oneOff.buffer,
-    cashShare:india?.10:.25,sourceCurrency:inrDaily?'INR':'USD',
+    cashShare:india?.10:.25,sourceCurrency:inrDaily?'INR':(priceCurrency||'USD'),
     sourcePeriod:inrDaily?'day':'week',hasTransferQuote:oneOff.airport>0,
     estimated:true,flightsIncluded:false};
 }
