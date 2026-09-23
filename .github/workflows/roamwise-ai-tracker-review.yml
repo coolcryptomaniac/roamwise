@@ -1,0 +1,74 @@
+name: RoamWise AI Tracker Review
+
+on:
+  schedule:
+    - cron: '45 3 * * *' # 09:15 IST; GitHub schedules are best effort
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  tracker-review:
+    runs-on: ubuntu-latest
+    env:
+      SHEETS_SA: ${{ secrets.ROAMWISE_SHEETS_SERVICE_ACCOUNT_JSON }}
+      RANGES: ${{ vars.ROAMWISE_AI_SHEET_RANGES }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Configuration status
+        run: |
+          if [ -z "$SHEETS_SA" ] || [ -z "$RANGES" ]; then
+            echo "AI tracker review is not activated yet."
+            echo "Configure ROAMWISE_SHEETS_SERVICE_ACCOUNT_JSON and ROAMWISE_AI_SHEET_RANGES after the tracker is shared with the dedicated service account."
+          else
+            echo "AI tracker read-only configuration is present."
+          fi
+
+      - name: Run dual-model tracker review
+        if: env.SHEETS_SA != '' && env.RANGES != ''
+        env:
+          ROAMWISE_SHEETS_SERVICE_ACCOUNT_JSON: ${{ env.SHEETS_SA }}
+          ROAMWISE_AI_SHEET_RANGES: ${{ env.RANGES }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          OPENAI_DECISION_MODEL: ${{ vars.OPENAI_DECISION_MODEL }}
+          ANTHROPIC_DECISION_MODEL: ${{ vars.ANTHROPIC_DECISION_MODEL }}
+        run: node ops/ai-tracker/run.js
+
+      - name: Upload sanitized analysis report
+        if: env.SHEETS_SA != '' && env.RANGES != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: ai-tracker-report
+          path: ai-tracker-report.md
+          retention-days: 14
+
+      - name: Create or update today's founder review issue
+        if: env.SHEETS_SA != '' && env.RANGES != ''
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            let body = fs.readFileSync('ai-tracker-report.md', 'utf8');
+            if (body.length > 62000) body = body.slice(0, 62000) + '\n\n_Report truncated; use the workflow artifact for the full output._';
+            const date = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Kolkata' });
+            const title = '[AI Tracker] Founder review — ' + date;
+            const existing = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              per_page: 100
+            });
+            const found = existing.data.find(i => i.title === title);
+            if (found) {
+              await github.rest.issues.update({ owner: context.repo.owner, repo: context.repo.repo, issue_number: found.number, body });
+            } else {
+              await github.rest.issues.create({ owner: context.repo.owner, repo: context.repo.repo, title, body });
+            }
