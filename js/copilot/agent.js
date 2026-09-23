@@ -213,8 +213,8 @@ function rwAgentRun(objective, onTrace, onDone){
 /* ---- platform tools (rw-v94): Tusk can now run the whole product ---- */
 RW_AGENT_IMPL.search_stays = function(a){
   var list=(window.RW_ROOMS||[]).filter(function(r){
-    return (!a.zone || String(r.zone).toLowerCase()===String(a.zone).toLowerCase())
-        && (!a.maxPrice || r.price<=a.maxPrice); });
+    var priceOk=!a.maxPrice || (isFinite(+r.price)&&+r.price>0&&+r.price<=a.maxPrice);
+    return (!a.zone || String(r.zone).toLowerCase()===String(a.zone).toLowerCase()) && priceOk; });
   if(!list.length) return { ok:true, found:0, note:'No listed rooms there yet. Offer to plan the trip anyway.' };
   return { ok:true, found:list.length, rooms:list.slice(0,6).map(function(r){
     return { id:r.id, property:r.property, room:r.room, price:r.price,
