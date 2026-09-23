@@ -45,9 +45,21 @@ var RWComplianceChecklist = (function(){
     },
     {
       id: 'gst_registration',
-      label: 'GST registration',
-      defaultStatus: 'not_yet_required',
-      evidence: 'finance-data.js RW_TAX_FLAGS.gst_reg: mandatory only above ₹20L services turnover/year; PRICING-REFERRAL-MATH.md confirms current revenue is well under that. Optional voluntary registration only if claiming input credit or a business customer demands a GST invoice.'
+      label: 'GST registration — ordinary turnover test',
+      defaultStatus: 'open',
+      evidence: 'The ordinary services threshold is only one test. Admin → AI CA now tracks founder/CA-confirmed own taxable turnover against the configured threshold, while compulsory-registration and e-commerce rules are reviewed separately. Do not mark this done/not-required from bank credits or booking GMV alone.'
+    },
+    {
+      id: 'gst_eco_accommodation',
+      label: 'GST e-commerce / accommodation model reviewed before live booking',
+      defaultStatus: 'open',
+      evidence: 'CBIC guidance distinguishes ordinary threshold registration from electronic-commerce obligations, including section 9(5) accommodation supplied by below-threshold providers and section 52 TCS where the operator collects consideration. AI CA blocks the risky pre-GST combinations; a qualified CA must sign off the live model.'
+    },
+    {
+      id: 'tds_194o_marketplace',
+      label: 'Section 194-O workflow reviewed for property bookings',
+      defaultStatus: 'open',
+      evidence: 'Income-tax section 194-O applies to e-commerce-facilitated sales/services and expressly addresses direct customer payment to the participant. Before marketplace scale, confirm TAN, participant exceptions, deduction/deposit, Form 26Q and Form 16A workflow with the CA.'
     },
     {
       id: 'tds_194h_referrals',

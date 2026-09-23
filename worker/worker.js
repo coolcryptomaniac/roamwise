@@ -38,6 +38,7 @@
      POST /partner/cashfree/order      confirmed direct-stay checkout          -> handlers/partner-cashfree.js
      GET  /partner/cashfree/order/:bookingId/status  verify and persist paid stay -> handlers/partner-cashfree.js
      POST /push/send                   admin-only: send an FCM push to one user -> handlers/push.js
+     POST /admin/ai-ca/review          admin-only redacted finance/compliance review -> handlers/ai-ca.js
 
    Cron: runs daily; refreshes news every run, events once a week (Mondays).
 
@@ -57,6 +58,7 @@ import { cashfreeTransportFetch } from './lib/cashfree-transport.js';
 import { handlePartnerCashfreeOrder, handlePartnerCashfreeStatus } from './handlers/partner-cashfree.js';
 import { handlePushSend } from './handlers/push.js';
 import { handleBusiness } from './handlers/business.js';
+import { handleAICAReview } from './handlers/ai-ca.js';
 
 // Only Cashfree PG calls use this diagnostic transport. The actual order,
 // identity and entitlement rules stay inside handlers/cashfree.js unchanged.
@@ -104,7 +106,9 @@ export default {
 
     if(path === 'push/send' && request.method === 'POST') return handlePushSend(request, env);
 
-    return json({ error: 'not found', try: ['/health', '/ai', '/news', '/events', '/geo', '/leads', '/cashfree/order', '/partner/cashfree/order', '/push/send'] }, 404);
+    if(path === 'admin/ai-ca/review' && request.method === 'POST') return handleAICAReview(request, env);
+
+    return json({ error: 'not found', try: ['/health', '/ai', '/news', '/events', '/geo', '/leads', '/cashfree/order', '/partner/cashfree/order', '/push/send', '/admin/ai-ca/review'] }, 404);
   },
 
   /* ONE scheduled handler. News daily; events on Mondays only, to stay well

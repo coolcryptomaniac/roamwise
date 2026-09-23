@@ -794,6 +794,81 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
 
+    // ---------- COMPLIANCE SENTINEL (founder-owned control plane) ----------
+    // Current operating facts are mutable because reality changes; historical
+    // assessments and evidence fingerprints are append-only so the audit trail
+    // cannot be quietly rewritten after the fact.
+    match /complianceState/{doc} {
+      allow read: if isAdmin() || isFinance();
+      allow create, update: if isAdmin()
+        && doc == 'current'
+        && request.resource.data.updatedBy == request.auth.uid
+        && request.resource.data.country is string
+        && request.resource.data.country.size() <= 8
+        && request.resource.data.state is string
+        && request.resource.data.state.size() <= 80
+        && request.resource.data.legalForm is string
+        && request.resource.data.legalForm.size() <= 40
+        && request.resource.data.registrationThresholdINR is number
+        && request.resource.data.registrationThresholdINR > 0
+        && request.resource.data.registrationThresholdINR <= 100000000
+        && request.resource.data.ownTaxableTurnoverINR is number
+        && request.resource.data.ownTaxableTurnoverINR >= 0
+        && request.resource.data.bookingGMVINR is number
+        && request.resource.data.bookingGMVINR >= 0
+        && request.resource.data.updatedAt is string
+        && request.resource.data.updatedAt.size() <= 40;
+      allow delete: if false;
+    }
+
+    match /complianceAssessments/{id} {
+      allow read: if isAdmin() || isFinance();
+      allow create: if isAdmin()
+        && request.resource.data.id == id
+        && request.resource.data.createdBy == request.auth.uid
+        && request.resource.data.mode is string
+        && request.resource.data.mode.size() <= 60
+        && request.resource.data.status in ['green','amber','red']
+        && request.resource.data.hardBlocks is list
+        && request.resource.data.hardBlocks.size() <= 30
+        && request.resource.data.findingCodes is list
+        && request.resource.data.findingCodes.size() <= 60
+        && request.resource.data.createdAt is string
+        && request.resource.data.createdAt.size() <= 40
+        && request.resource.data.engine == 'rw-compliance-sentinel-v1';
+      allow update, delete: if false;
+    }
+
+    match /complianceEvidence/{id} {
+      allow read: if isAdmin() || isFinance();
+      allow create: if isAdmin()
+        && request.resource.data.keys().hasOnly([
+          'id','sha256','fileName','size','mime','category','period','note',
+          'createdAt','createdBy','originalStoredExternally'
+        ])
+        && request.resource.data.id == id
+        && request.resource.data.createdBy == request.auth.uid
+        && request.resource.data.sha256 is string
+        && request.resource.data.sha256.size() == 64
+        && request.resource.data.fileName is string
+        && request.resource.data.fileName.size() <= 160
+        && request.resource.data.size is number
+        && request.resource.data.size >= 0
+        && request.resource.data.size <= 15000000
+        && request.resource.data.mime is string
+        && request.resource.data.mime.size() <= 100
+        && request.resource.data.category is string
+        && request.resource.data.category.size() <= 80
+        && request.resource.data.period is string
+        && request.resource.data.period.size() <= 80
+        && request.resource.data.note is string
+        && request.resource.data.note.size() <= 180
+        && request.resource.data.createdAt is string
+        && request.resource.data.createdAt.size() <= 40
+        && request.resource.data.originalStoredExternally == true;
+      allow update, delete: if false;
+    }
+
     // ---------- BANS (enforced server-side, not just in the UI) ----------
     // A ban has to bite at the DATA layer. If it only hides buttons, anyone who
     // opens devtools is back in. isBanned() is called by every social write
