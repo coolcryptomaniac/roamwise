@@ -28,22 +28,37 @@
    ========================================================================= */
 
 window.RW_ROOMS = [
-  { id:'r_hygge_deluxe', partnerId:'p_hygge',
-    property:'Hygge Home Manali', zone:'Manali', area:'Khaknal',
-    room:'Deluxe Mountain View', price:3200, maxGuests:2,
-    inc:['Breakfast','Wi-Fi','Room heater','Free parking'],
-    /* Owner WhatsApp in international format WITHOUT + or spaces.
-       Blank = the booking falls back to the RoamWise desk number. */
-    ownerWa:'', ownerName:'',
-    upi:'',            /* property's own UPI id — guest pays them directly */
-    cancel:'Free cancellation up to 48h before check-in' },
 
-  { id:'r_hygge_family', partnerId:'p_hygge',
-    property:'Hygge Home Manali', zone:'Manali', area:'Khaknal',
-    room:'Family Room (4 beds)', price:5400, maxGuests:4,
-    inc:['Breakfast','Wi-Fi','Room heater','Free parking'],
-    ownerWa:'', ownerName:'', upi:'',
-    cancel:'Free cancellation up to 48h before check-in' },
+  /* Hygge Home: room taxonomy from the owner's 2026 travel-partner brochure.
+     IMPORTANT: the brochure contains private B2B NET rates. Do not publish
+     those wholesale rates in this public client bundle. The live sell rate is
+     calculated server/admin-side after a same-date, like-for-like public-rate
+     audit and only after a signed RoamWise partnership enables bookings. */
+  { id:'r_hygge_duplex', partnerId:'p_hygge', property:'Hygge Home Manali', zone:'Manali', area:'Khaknal',
+    room:'Mountain View Duplex', price:null, maxGuests:4, bookable:false, pricingMode:'protected-net-rate',
+    inc:['Breakfast included','King bedroom + attic with 2 single beds','Private balcony'], ownerWa:'', ownerName:'', upi:'',
+    cancel:'Partner terms received · live RoamWise rate and availability confirmed for your dates' },
+  { id:'r_hygge_stargaze_valley', partnerId:'p_hygge', property:'Hygge Home Manali', zone:'Manali', area:'Khaknal',
+    room:'Stargazing Valley View', price:null, maxGuests:2, bookable:false, pricingMode:'protected-net-rate',
+    inc:['Breakfast included','Glass roof','Valley view'], ownerWa:'', ownerName:'', upi:'',
+    cancel:'Partner terms received · live RoamWise rate and availability confirmed for your dates' },
+  { id:'r_hygge_stargaze_orchard', partnerId:'p_hygge', property:'Hygge Home Manali', zone:'Manali', area:'Khaknal',
+    room:'Stargazing Orchard View', price:null, maxGuests:2, bookable:false, pricingMode:'protected-net-rate',
+    inc:['Breakfast included','Glass roof','Orchard view'], ownerWa:'', ownerName:'', upi:'',
+    cancel:'Partner terms received · live RoamWise rate and availability confirmed for your dates' },
+  { id:'r_hygge_mountain', partnerId:'p_hygge', property:'Hygge Home Manali', zone:'Manali', area:'Khaknal',
+    room:'Mountain View Room', price:null, maxGuests:2, bookable:false, pricingMode:'protected-net-rate',
+    inc:['Breakfast included','Mountain view','Home-style stay'], ownerWa:'', ownerName:'', upi:'',
+    cancel:'Partner terms received · live RoamWise rate and availability confirmed for your dates' },
+  { id:'r_hygge_valley', partnerId:'p_hygge', property:'Hygge Home Manali', zone:'Manali', area:'Khaknal',
+    room:'Valley View Room', price:null, maxGuests:2, bookable:false, pricingMode:'protected-net-rate',
+    inc:['Breakfast included','Valley view','Home-style stay'], ownerWa:'', ownerName:'', upi:'',
+    cancel:'Partner terms received · live RoamWise rate and availability confirmed for your dates' },
+  { id:'r_hygge_orchard', partnerId:'p_hygge', property:'Hygge Home Manali', zone:'Manali', area:'Khaknal',
+    room:'Orchard View Room', price:null, maxGuests:2, bookable:false, pricingMode:'protected-net-rate',
+    inc:['Breakfast included','Orchard view','Home-style stay'], ownerWa:'', ownerName:'', upi:'',
+    cancel:'Partner terms received · live RoamWise rate and availability confirmed for your dates' },
+
 
   { id:'r_nush_double', partnerId:'p_nush',
     property:'The Nush Stays', zone:'Manali', area:'Aleo',
@@ -84,12 +99,12 @@ window.RW_ROOMS = [
 /* Our commission and the promise that goes with it. */
 window.RW_BOOK_TERMS = {
   commissionPct: 8,
-  otaRange: '15-25%',
+  otaRange: 'varies by platform, property and contract',
   desk: '',                 /* RoamWise fallback WhatsApp, digits only */
   deskUpi: 'roamwise@ybl', /* used only if a property has no UPI of its own */
   promise: [
     'The guest pays the property directly. We never hold your money.',
-    'We invoice 8% after the guest has checked out. Nothing is deducted upfront.',
+    'For commission-rate partners we invoice 8% after checkout. Protected-net-rate partners use an agreed net rate instead — never both on the same booking.',
     'No commission on a cancellation or a no-show.',
     'Your rates stay yours. We never discount your room without asking.'
   ]
