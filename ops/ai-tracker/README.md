@@ -19,6 +19,7 @@ The exact tab/range allowlist is **not committed** because the connected ChatGPT
 - `ROAMWISE_SHEETS_SERVICE_ACCOUNT_JSON`: JSON for a dedicated Google service account. Share only this tracker with that service account as **Viewer** for the report-only pilot.
 - `OPENAI_API_KEY`: optional; enables the OpenAI reviewer.
 - `ANTHROPIC_API_KEY`: optional; enables the Claude reviewer.
+- `MAIL_USERNAME`, `MAIL_APP_PASSWORD`, `TO_EMAIL`: required private delivery path for this public repository. The workflow will not run tracker analysis unless these are present.
 
 Never put any of those values in the Sheet, source code, Issues, or browser JavaScript.
 
@@ -45,7 +46,8 @@ Optional model variables:
 4. Open the tracker in Google Sheets and share it with that email as **Viewer**.
 5. Add the service-account JSON to the repository secret above.
 6. After the live tab names are verified, add only the needed bounded ranges to `ROAMWISE_AI_SHEET_RANGES`.
-7. Run **RoamWise AI Tracker Review** manually once before enabling reliance on its daily report.
+7. Confirm the existing private founder-email secrets (`MAIL_USERNAME`, `MAIL_APP_PASSWORD`, `TO_EMAIL`) are configured.
+8. Run **RoamWise AI Tracker Review** manually once before enabling reliance on its daily report.
 
 Do not share an entire Drive folder when one Sheet is sufficient.
 
@@ -83,7 +85,9 @@ The service-account workflow exists so scheduled analysis does not depend on eit
 
 ## Outputs
 
-The workflow writes a temporary `ai-tracker-report.md` in the runner and creates one dated GitHub Issue containing:
+This repository is public, so tracker analysis must never be posted to an Issue, Actions artifact, commit, PR comment or workflow summary.
+
+The workflow writes `ai-tracker-report.md` only on the ephemeral Actions runner, emails the founder review through the existing private Gmail/SMTP secret path, and then deletes the file. The email contains:
 
 - data ranges reviewed (names only, never raw rows),
 - OpenAI analysis,
@@ -92,4 +96,4 @@ The workflow writes a temporary `ai-tracker-report.md` in the runner and creates
 - founder-review recommendations,
 - limitations/errors.
 
-If a model is not configured, the report says so rather than inventing a second opinion.
+If the private email delivery secrets are absent, the tracker analysis does not run. If a model key is absent, the private report says that reviewer was not configured rather than inventing a second opinion.
