@@ -16,3 +16,46 @@ Tax metadata is **optional and absent by default**. An accountant must validate 
 6. Keep stablecoin or self-custody transactions in separate records for valuation, source, wallet and transfer tracking, and obtain legal/regulatory review before routing customer or partner money through crypto.
 
 Run `node --test tests/finance-tax.test.js`. This workbench is provisional software, not certification of statutory compliance.
+
+## AI CA / compliance sentinel
+
+Open `/admin/finance-desk/` after signing into the founder/admin account.
+
+This is deliberately **deterministic first, AI second**:
+
+1. `compliance-engine.js` evaluates founder/CA-confirmed facts such as GST registration, own taxable turnover, booking GMV, whether RoamWise collects guest money, whether unregistered accommodation suppliers are bookable, current-account status, reconciliation status and signed partner terms.
+2. It produces conservative operating modes and hard stops. The default India threshold field is ₹20 lakh only as a starting value for the ordinary registration test; compulsory e-commerce rules are evaluated separately. A CA can change the configured threshold if the actual facts require it.
+3. Saving an evaluation writes the mutable current state to `complianceState/current` and an immutable historical summary to `complianceAssessments/{id}`.
+4. The evidence tool computes SHA-256 **in the browser** and saves only file metadata + fingerprint to `complianceEvidence/{id}`. The original document is not uploaded by this tool. Keep originals in a controlled accounting/Drive archive.
+5. The optional AI CA sends only the redacted deterministic summary and founder question to the admin-only Worker. It never sends the selected evidence file, bank CSV rows, PAN/Aadhaar, account numbers, API keys or signatures.
+
+### Optional AI providers
+
+The Worker endpoint is `POST /admin/ai-ca/review`. It verifies a Firebase ID token and `admins/{uid}` before any provider call. Configure provider credentials only as encrypted Worker secrets; never paste them into the admin page or repository.
+
+Supported provider order is OpenAI → Anthropic → existing Groq, unless `AI_CA_PROVIDER` selects another preference.
+
+Examples:
+
+```bash
+npx wrangler secret put OPENAI_API_KEY
+npx wrangler secret put OPENAI_MODEL
+npx wrangler secret put ANTHROPIC_API_KEY
+npx wrangler secret put ANTHROPIC_MODEL
+# Existing fallback:
+npx wrangler secret put GROQ_API_KEY
+npx wrangler secret put GROQ_MODEL
+```
+
+Set non-secret `AI_CA_PROVIDER="auto"` (or `openai`, `anthropic`, `groq`) in Worker vars if you want to choose the first provider.
+
+AI output is advisory. Registration, returns, tax payments, audit/certification, legal opinions and any filing that requires an authorised person remain explicitly human-approved.
+
+### Recommended human operating cadence
+
+- **Weekly / automated:** reconcile payment exceptions, keep invoice/evidence fingerprints, track turnover and booking GMV separately.
+- **Monthly:** founder/finance review of bank, gateway, direct UPI, refunds and partner statements.
+- **Quarterly or before a mode change:** part-time India-qualified CA reviews GST/ECO/194-O/TCS/TDS treatment and signs off the configuration used by the sentinel.
+- **Immediately:** human CA/legal review before switching from listing/lead-generation into accommodation booking-money collection or enabling an unregistered accommodation supplier for live marketplace booking.
+
+The sentinel is designed to preserve evidence and stop risky mode changes early; it does not claim that software can make RoamWise immune from tax, bank, consumer or regulatory obligations.
