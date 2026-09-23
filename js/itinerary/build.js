@@ -55,6 +55,7 @@ function buildItin(T, name, costMid, days){
     cnt.innerHTML = (srcBadge||'') + whyBanner + H
       + rwGreenNudge(name, days)
       + '<button class="tact" style="display:block;width:100%;margin-top:12px;font-weight:800;background:linear-gradient(135deg,var(--gold,#E8BA6C),var(--gold2,#C8913E));color:#0A0A0C;border:none" onclick="openTripMap(window._lastItin?_lastItin.name:\'\',null)">\ud83d\uddfa\ufe0f See this trip on a map</button>'
+      + '<button class="tact" style="display:block;width:100%;margin-top:8px;font-weight:900;background:linear-gradient(135deg,#F04455,#8B1E2D);color:#fff;border:none;box-shadow:0 10px 28px rgba(240,68,85,.18)" onclick="rwJourneyStart(window._lastItin?_lastItin.name:\'\')">\ud83d\udd25 Start Journey — live footprint</button>'
       + '<button class="tact" style="display:block;width:100%;margin-top:8px;font-weight:800" onclick="openJourneyCert()">\ud83c\udfc5 Mint journey certificate</button>'
       + '<button class="tact" style="display:block;width:100%;margin-top:8px;font-weight:800" onclick="rwShareTrip()">\ud83d\udce4 Share this trip</button>'
       + '<button class="tact" style="display:block;width:100%;margin-top:8px;font-weight:800" onclick="openMemories()">\u270d\ufe0f Turn trip into a blog &amp; collage</button>'

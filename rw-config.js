@@ -38,7 +38,11 @@ window.RW_CONFIG = {
     styleUrl: 'https://tiles.openfreemap.org/styles/liberty',
     maplibreJs: 'https://unpkg.com/maplibre-gl@5/dist/maplibre-gl.js',
     maplibreCss: 'https://unpkg.com/maplibre-gl@5/dist/maplibre-gl.css',
-    pmtilesUrl: ''
+    pmtilesUrl: '',
+    /* Optional Mapbox Outdoors basemap for itinerary + Journey Trace. Use a PUBLIC
+       token restricted to roamwise.co.in / your app origins; never put a secret token here. */
+    mapboxPublicToken: '',
+    mapboxStyle: 'mapbox/outdoors-v12'
   },
   vapidKey: '',
   appCheck: {
