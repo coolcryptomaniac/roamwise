@@ -1,4 +1,5 @@
-/* @ts-nocheck
+// @ts-nocheck
+/*
    All-in stay price guard.
    This module does not scrape OTAs. It evaluates normalized live offers supplied
    by a server/admin connector so RoamWise can stay competitive without price wars. */
