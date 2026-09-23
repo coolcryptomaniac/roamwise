@@ -34,7 +34,19 @@
 <div class="field full"><label>Audit notes</label><textarea id="auditNotes" placeholder="Record any rate mismatch, photo refresh request, walkthrough finding or approved exception."></textarea></div>
 </div></section>
 
-<section class="card"><h2>3. Activate only after all gates pass</h2><p class="notice">Approval activates Partner Free at 7% until any paid plan is independently verified. Existing room documents are marked marketplace-approved only after this audit succeeds.</p><div class="actions"><button class="btn good" id="approve">Save audit &amp; activate property</button></div><div id="saveStatus" class="status"></div></section>
+<section class="card"><h2>3. RoamWise curation labels</h2><p class="muted">These public labels are assigned only by a RoamWise admin after review. Hosts cannot self-award them. Use them to explain the character of a stay, not to rank every property on one scale.</p><div class="grid">
+<label class="check"><input id="cExperience" type="checkbox"><span><b>Experience Partner</b><br><span class="small">At least one genuinely bookable or host-arranged local experience.</span></span></label>
+<label class="check"><input id="cHosted" type="checkbox"><span><b>Hosted</b><br><span class="small">Owner/host presence is a meaningful part of the guest experience.</span></span></label>
+<label class="check"><input id="cLocal" type="checkbox"><span><b>Local</b><br><span class="small">Strong local ownership, employment, food, culture or community connection.</span></span></label>
+<label class="check"><input id="cPremium" type="checkbox"><span><b>Premium</b><br><span class="small">High service, design and operating standards verified in this audit.</span></span></label>
+<label class="check"><input id="cSignature" type="checkbox"><span><b>Signature</b><br><span class="small">Invitation-only RoamWise co-designed trip/stay experience. Requires Premium + Experience.</span></span></label>
+<label class="check"><input id="cLive" type="checkbox"><span><b>Live</b><br><span class="small">Suitable for responsible music, workshops, performances or small events.</span></span></label>
+<label class="check"><input id="cQuiet" type="checkbox"><span><b>Quiet</b><br><span class="small">Silence, nature, wellness or digital-detox positioning is a core strength.</span></span></label>
+<div class="field full"><label>Public experience summary</label><textarea id="curationExperience" maxlength="280" placeholder="Example: Orchard walk, Kumaoni cooking and astronomy evening arranged with the host."></textarea></div>
+<div class="field full"><label>Public host / character note</label><textarea id="curationHost" maxlength="220" placeholder="Example: Family-run orchard retreat with the owner actively hosting guests."></textarea></div>
+</div></section>
+
+<section class="card"><h2>4. Activate only after all gates pass</h2><p class="notice">Approval activates Partner Free at 7% until any paid plan is independently verified. Existing room documents are marked marketplace-approved only after this audit succeeds. Curation labels are published through an admin-owned public profile, never from host-editable room data.</p><div class="actions"><button class="btn good" id="approve">Save audit &amp; activate property</button></div><div id="saveStatus" class="status"></div></section>
 </main>
 </div>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script><script src="../config.js"></script><script src="../pricing-integrity.js"></script>
@@ -61,10 +73,17 @@ function render(){
 }
 function comparators(){return [1,2].map(function(i){return {source:$('c'+i+'source').value,url:safeUrl($('c'+i+'url').value),rate:Number($('c'+i+'rate').value||0),commissionPct:$('c'+i+'commission').value===''?null:Number($('c'+i+'commission').value),likeForLike:$('c'+i+'like').checked}})}
 function checks(){return {locationVerified:$('qLocation').checked,photoVerified:$('qPhotos').checked,chargesTransparent:$('qCharges').checked,cleanlinessReviewed:$('qClean').checked,reviewsReviewed:$('qReviews').checked,qualityApproved:$('qFit').checked}}
+function curation(){
+ var ids=[['cExperience','experience'],['cHosted','hosted'],['cLocal','local'],['cPremium','premium'],['cSignature','signature'],['cLive','live'],['cQuiet','quiet']],badges=[];
+ ids.forEach(function(x){if($(x[0]).checked)badges.push(x[1])});
+ return {badges:badges,experienceSummary:$('curationExperience').value.trim().slice(0,280),hostNote:$('curationHost').value.trim().slice(0,220)}
+}
 $('approve').onclick=async function(){
  $('saveStatus').textContent='';var accepted=partner&&partner.onboarding&&partner.onboarding.mouAcceptedAt,ver=partner&&partner.onboarding&&partner.onboarding.mouVersion;if(!accepted||ver!==VERSION){$('saveStatus').textContent='Cannot activate: current MOU has not been accepted.';return}
  var comps=comparators();if(comps.some(function(x){return !x.url||!x.rate||!x.likeForLike})){ $('saveStatus').textContent='Complete two like-for-like public comparator checks with URL and rate.';return}
  var q=checks();if(Object.keys(q).some(function(k){return !q[k]})){ $('saveStatus').textContent='Complete every premium supply check.';return}
+ var cur=curation();if(cur.badges.includes('signature')&&(!cur.badges.includes('premium')||!cur.badges.includes('experience'))){$('saveStatus').textContent='Signature requires both Premium and Experience Partner.';return}
+ if(cur.badges.includes('experience')&&cur.experienceSummary.length<12){$('saveStatus').textContent='Add a short public experience summary for an Experience Partner.';return}
  var benefit=$('guestBenefit').value.trim();if(benefit.length<12){$('saveStatus').textContent='Record the customer price/value benefit or correction agreed.';return}
  var rwRate=Number($('rwRate').value||0),rwPct=7,audit=window.RWPricingIntegrity.audit({roamwiseRate:rwRate,roamwiseCommissionPct:rwPct,comparators:comps});
  var hard=audit.flags.filter(function(f){return f.indexOf('NO_VISIBLE_PASS_THROUGH:')===0});if(hard.length){$('priceResult').textContent='Blocked: a comparator with evidenced higher commission is not more expensive than the proposed RoamWise rate. Correct the rate/benefit first.';return}
@@ -73,7 +92,11 @@ $('approve').onclick=async function(){
  try{
    var now=new Date().toISOString(),ref=db.collection('partners').doc(uid),rq=await ref.collection('rooms').limit(100).get(),batch=db.batch();
    batch.set(ref,{status:'active',verified:true,verifiedState:'verified',lifecycleStage:'live',commercialPlan:'free',commissionPct:7,approvedAt:now,pricingAudit:{status:'passed',version:'RW-PRICE-AUDIT-2026-09-23-V1',checkedAt:now,checkedBy:auth.currentUser.uid,roamwiseRate:rwRate,roamwiseCommissionPct:7,comparators:comps,flags:audit.flags,lowestComparable:audit.lowestComparable,guestBenefit:benefit,notes:$('auditNotes').value.trim()},qualityReview:{status:'passed',version:'RW-PREMIUM-SUPPLY-2026-09-23-V1',checkedAt:now,checkedBy:auth.currentUser.uid,locationVerified:true,photoVerified:true,chargesTransparent:true,cleanlinessReviewed:true,reviewsReviewed:true,qualityApproved:true},verification:Object.assign({},partner.verification||{},{identity:'verified',property:'verified',experience:'verified',overall:'verified',reviewedAt:now})},{merge:true});
-   rq.forEach(function(d){batch.set(d.ref,{marketplaceApproved:true,partnerUid:uid,partnerVerifiedAt:now,updatedAt:now},{merge:true})});await batch.commit();$('saveStatus').innerHTML='<span class="goodtxt">Property activated. Pricing and premium-quality evidence saved.</span>';setTimeout(function(){location.href='../?role=admin'},700)
+   rq.forEach(function(d){batch.set(d.ref,{marketplaceApproved:true,partnerUid:uid,partnerVerifiedAt:now,updatedAt:now},{merge:true})});await batch.commit();
+   var profile={partnerUid:uid,name:String(partner.name||'').slice(0,160),zone:String(partner.zone||'').slice(0,120),area:String(partner.area||'').slice(0,160),badges:cur.badges,experienceSummary:cur.experienceSummary,hostNote:cur.hostNote,curationVersion:'RW-PROPERTY-CURATION-2026-09-23-V1',verifiedAt:now,updatedAt:now},profileSaved=true;
+   try{await db.collection('partnerPublicProfiles').doc(uid).set(profile)}catch(profileError){profileSaved=false}
+   $('saveStatus').innerHTML=profileSaved?'<span class="goodtxt">Property activated. Pricing, quality and public curation profile saved.</span>':'<span class="goodtxt">Property activated.</span> Curation profile is pending the admin-only Firestore rule publish; booking inventory was not blocked.';
+   setTimeout(function(){location.href='../?role=admin'},profileSaved?700:1800)
  }catch(e){$('approve').disabled=false;$('saveStatus').textContent=e.message||e}
 };
 boot();

@@ -6,6 +6,24 @@ Do not restore or load `marketplace-v2`, `marketplace-v3` or `marketplace-v4` as
 
 ## Preserved production behavior
 
+### Curated property identity
+
+RoamWise verification and property character are deliberately separate. A room can be a verified direct listing without being a Signature, Premium, Live or Quiet property.
+
+Admin review publishes public-safe property character through `partnerPublicProfiles/{uid}`. The public projection may contain only curated labels and short experience/host notes. Hosts cannot write this collection, so they cannot self-award trust or premium labels through their otherwise self-service room editor.
+
+Current labels:
+
+- **Experience** — at least one real host-arranged/bookable local experience.
+- **Hosted** — owner/host presence is meaningfully part of the stay.
+- **Local** — strong local ownership/community/food/culture connection.
+- **Premium** — high service/design/operating standards verified in audit.
+- **Signature** — invitation-only, RoamWise co-designed; requires Premium + Experience.
+- **Live** — suitable for responsible music, workshops or small events.
+- **Quiet** — nature, wellness, silence or digital-detox is a core strength.
+
+These labels are descriptive rather than a universal ranking: a Quiet retreat should not be penalized for not being a Live venue.
+
 ### Trust and booking integrity
 
 - A direct room must have `marketplaceApproved === true`, remain open, and have the expected `partnerUid`.

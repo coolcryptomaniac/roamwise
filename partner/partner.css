@@ -173,6 +173,10 @@ input:focus, select:focus, textarea:focus { border-color: var(--scarlet); box-sh
 .rw-market-search-support b, .rw-market-trust b { color: var(--ivory); }
 .rw-market-listing-meta { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 9px; }
 .rw-market-listing-meta span { padding: 3px 6px; border-radius: 5px; color: var(--muted); background: rgba(255,255,255,.05); font-size: 9px; text-transform: uppercase; }
+.rw-market-listing-meta .rw-curation { color: var(--brass); border: 1px solid rgba(239,199,132,.24); background: rgba(239,199,132,.08); }
+.rw-market-listing-meta .rw-curation-signature { color: #fff2c8; background: linear-gradient(120deg,rgba(156,45,55,.46),rgba(239,199,132,.16)); border-color: rgba(239,199,132,.48); }
+.rw-market-experience,.rw-market-hostnote { margin: 8px 0 0; max-width: 62ch; color: var(--muted); font-size: 11px; line-height: 1.5; }
+.rw-market-experience { color: var(--ivory); }
 .rw-market-total { margin-bottom: 8px; }
 .rw-market-total b, .rw-market-total span { display: block; }
 .rw-market-total b { color: var(--brass); }
