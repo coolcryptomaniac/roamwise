@@ -1427,13 +1427,19 @@ service cloud.firestore {
                     && !('badges' in request.resource.data)
                     && !('payoutHold' in request.resource.data)
                     && !('adminNote' in request.resource.data)
+                    && !('pricingAudit' in request.resource.data)
+                    && !('qualityReview' in request.resource.data)
+                    && !('commercialPlan' in request.resource.data)
+                    && !('approvedAt' in request.resource.data)
+                    && !('verifiedState' in request.resource.data)
                     && !('uid' in request.resource.data);
       allow update: if isAdmin()
                     || (isPartner(uid)
                         && !request.resource.data.diff(resource.data).affectedKeys()
                              .hasAny(['status','verified','badges','commissionPct',
                                       'payoutHold','adminNote','uid','operationsLocked',
-                                      'lifecycleStage']));
+                                      'lifecycleStage','pricingAudit','qualityReview',
+                                      'commercialPlan','approvedAt','verifiedState']));
       allow delete: if isAdmin();
     }
 
