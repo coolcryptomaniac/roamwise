@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow,noarchive"><meta name="theme-color" content="#0c090d">
+<title>RoamWise Property Trust Audit</title>
+<style>
+:root{color-scheme:dark;--bg:#0c090d;--card:#1c151b;--ink:#fff7ed;--muted:#cdbcb7;--gold:#efc784;--red:#ef777d;--green:#88d3a3;--line:#5c4149}*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 0 0,#482431 0,transparent 30%),var(--bg);color:var(--ink);font:14px/1.55 system-ui,-apple-system,Segoe UI,sans-serif}.wrap{max-width:1080px;margin:auto;padding:22px}.top{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:18px}.brand{font-size:23px;font-weight:900}.brand em{font-style:normal;color:#fb848b}.card{background:linear-gradient(145deg,#241820,#171218);border:1px solid var(--line);border-radius:20px;padding:22px;margin:14px 0}.eyebrow{font-size:11px;letter-spacing:.16em;color:var(--gold);text-transform:uppercase;font-weight:800}h1,h2{font-family:Georgia,serif;font-weight:400}h1{font-size:clamp(31px,5vw,48px);margin:6px 0 9px}h2{font-size:27px;margin:0 0 12px}.muted{color:var(--muted)}.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.field{display:flex;flex-direction:column;gap:6px}.field.full{grid-column:1/-1}.field input,.field textarea,.field select{width:100%;border:1px solid #674b54;background:#100c10;color:var(--ink);border-radius:10px;padding:11px;font:inherit}.field textarea{min-height:90px}.check{display:flex;gap:10px;align-items:flex-start;background:#171116;border:1px solid #503941;border-radius:11px;padding:11px}.check input{margin-top:4px}.comp{border:1px solid #5b4149;border-radius:15px;padding:15px;margin:12px 0}.actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:14px}.btn{border:1px solid #dc666a;background:linear-gradient(115deg,#c74c52,#9b303d);color:#fff;border-radius:11px;padding:11px 15px;font-weight:800;text-decoration:none;cursor:pointer}.btn.alt{background:#2e2229;border-color:#7d5e64;color:#f4d8aa}.btn.good{background:#245339;border-color:#3e8b5b}.notice{border-left:3px solid var(--gold);padding:11px 14px;background:#2b2024;border-radius:0 10px 10px 0}.bad{border-color:var(--red);color:#ffd5d7}.goodtxt{color:var(--green)}.status{min-height:24px;margin-top:12px;font-weight:700}.small{font-size:12px;color:#baa9a4}@media(max-width:760px){.wrap{padding:13px}.grid{grid-template-columns:1fr}.field.full{grid-column:auto}.top{align-items:flex-start;flex-direction:column}}
+</style>
+</head>
+<body><div class="wrap">
+<header class="top"><div class="brand">Roam<em>Wise</em> Trust Desk</div><a class="btn alt" href="../">Back to Partner hub</a></header>
+<section class="card" id="authCard"><div class="eyebrow">Founder / admin only</div><h1>Property pricing &amp; authenticity audit</h1><p class="muted">Every new direct property must pass this review before becoming a RoamWise Pick.</p><div class="actions"><button class="btn" id="googleLogin">Continue with Google</button></div><div id="authStatus" class="status"></div></section>
+<main id="workspace" hidden>
+<section class="card"><div class="eyebrow">Application under review</div><h1 id="propertyTitle">Property</h1><p id="propertyMeta" class="muted"></p><div id="mouState" class="notice"></div>
+<div class="actions" id="searchLinks"></div></section>
+
+<section class="card"><h2>1. Like-for-like price check</h2><p class="muted">Use the same dates, occupancy, room class, meal plan, cancellation terms and mandatory fees. Record at least two public comparators. Do not enter an OTA commission percentage unless the property has provided reliable evidence of its actual contract.</p>
+<div id="comparators"></div>
+<div class="grid">
+<div class="field"><label>Proposed RoamWise starting rate / night</label><input id="rwRate" type="number" min="1"></div>
+<div class="field"><label>Effective RoamWise commission at activation</label><input id="rwCommission" value="7" readonly></div>
+<div class="field full"><label>Guest benefit / price correction agreed</label><textarea id="guestBenefit" placeholder="Example: RoamWise ₹4,250 vs comparable ₹4,700, or documented breakfast + flexible cancellation if a public rate restriction applies."></textarea></div>
+</div>
+<div id="priceResult" class="status"></div></section>
+
+<section class="card"><h2>2. Premium supply checks</h2><div class="grid">
+<label class="check"><input id="qLocation" type="checkbox"><span><b>Location/property verified</b><br><span class="small">Public map/official evidence and applicant control/access checked.</span></span></label>
+<label class="check"><input id="qPhotos" type="checkbox"><span><b>Current representative photos</b><br><span class="small">Photos match the property/room and usage rights are confirmed.</span></span></label>
+<label class="check"><input id="qCharges" type="checkbox"><span><b>Mandatory charges transparent</b><br><span class="small">No hidden resort, cleaning, management or compulsory property fee.</span></span></label>
+<label class="check"><input id="qClean" type="checkbox"><span><b>Cleanliness/service readiness</b><br><span class="small">Cleaning practice and reachable owner/manager checked.</span></span></label>
+<label class="check"><input id="qReviews" type="checkbox"><span><b>Public review evidence checked</b><br><span class="small">Recurring complaints and material inconsistencies reviewed.</span></span></label>
+<label class="check"><input id="qFit" type="checkbox"><span><b>RoamWise quality fit</b><br><span class="small">Distinctive, well-run and suitable for a curated marketplace.</span></span></label>
+<div class="field full"><label>Audit notes</label><textarea id="auditNotes" placeholder="Record any rate mismatch, photo refresh request, walkthrough finding or approved exception."></textarea></div>
+</div></section>
+
+<section class="card"><h2>3. Activate only after all gates pass</h2><p class="notice">Approval activates Partner Free at 7% until any paid plan is independently verified. Existing room documents are marked marketplace-approved only after this audit succeeds.</p><div class="actions"><button class="btn good" id="approve">Save audit &amp; activate property</button></div><div id="saveStatus" class="status"></div></section>
+</main>
+</div>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script><script src="../config.js"></script><script src="../pricing-integrity.js"></script>
+<script>
+(function(){'use strict';
+var $=function(id){return document.getElementById(id)},cfg=window.RW_PARTNER_CONFIG||{},auth=null,db=null,partner=null,uid=(new URLSearchParams(location.search).get('uid')||'').trim(),VERSION='RW-PMOU-2026-09-23-V1';
+function esc(s){return String(s||'').replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+function safeUrl(v){try{var u=new URL(String(v||''));return ['http:','https:'].includes(u.protocol)?u.href:''}catch(e){return''}}
+function searchUrl(site,p){return 'https://www.google.com/search?q='+encodeURIComponent('site:'+site+' "'+(p.name||'')+'" '+(p.zone||''))}
+function compRow(i,label){return '<div class="comp"><b>Comparator '+i+'</b><div class="grid"><div class="field"><label>Source</label><select id="c'+i+'source"><option>'+label+'</option><option>Airbnb</option><option>Booking.com</option><option>MakeMyTrip</option><option>Expedia</option><option>Other public source</option></select></div><div class="field"><label>Public URL</label><input id="c'+i+'url" placeholder="https://…"></div><div class="field"><label>Comparable nightly guest rate (₹)</label><input id="c'+i+'rate" type="number" min="1"></div><div class="field"><label>Actual supplier commission % (only if evidenced)</label><input id="c'+i+'commission" type="number" min="0" max="50" step="0.1" placeholder="Leave blank if unknown"></div></div><label class="check" style="margin-top:10px"><input id="c'+i+'like" type="checkbox"><span>Same/sufficiently equivalent room, dates, occupancy, inclusions, cancellation and mandatory-fee basis checked.</span></label></div>'}
+async function boot(){
+ if(!cfg.firebase){$('authStatus').textContent='Partner Firebase config is unavailable.';return}
+ if(!firebase.apps.length)firebase.initializeApp(cfg.firebase);auth=firebase.auth();db=firebase.firestore();
+ $('googleLogin').onclick=function(){auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()).catch(function(e){$('authStatus').textContent=e.message||e})};
+ auth.onAuthStateChanged(async function(u){if(!u)return;try{var a=await db.collection('admins').doc(u.uid).get();if(!a.exists)throw Error('This account is not a RoamWise admin.');if(!uid)throw Error('Missing property uid in the audit link.');var d=await db.collection('partners').doc(uid).get();if(!d.exists)throw Error('Partner application not found.');partner=d.data()||{};$('authCard').hidden=true;$('workspace').hidden=false;render()}catch(e){$('authStatus').textContent=e.message||e}});
+}
+function render(){
+ $('propertyTitle').textContent=partner.name||'Property application';$('propertyMeta').textContent=[partner.ownerName,partner.zone,partner.area,partner.email].filter(Boolean).join(' · ');
+ $('rwRate').value=Number(partner.startPrice||0)||'';$('comparators').innerHTML=compRow(1,'Booking.com')+compRow(2,'Airbnb');
+ var accepted=partner.onboarding&&partner.onboarding.mouAcceptedAt,ver=partner.onboarding&&partner.onboarding.mouVersion;
+ $('mouState').innerHTML=accepted&&ver===VERSION?'<b class="goodtxt">MOU accepted.</b> '+esc(VERSION)+' · '+esc(String(accepted)):'<b class="bad">MOU acceptance missing.</b> Property must accept '+esc(VERSION)+' before activation.';
+ var name=partner.name||'',city=partner.zone||'';
+ $('searchLinks').innerHTML='<a class="btn alt" target="_blank" rel="noopener" href="'+searchUrl('booking.com',partner)+'">Check Booking.com ↗</a><a class="btn alt" target="_blank" rel="noopener" href="'+searchUrl('airbnb.co.in',partner)+'">Check Airbnb ↗</a><a class="btn alt" target="_blank" rel="noopener" href="'+searchUrl('makemytrip.com',partner)+'">Check MakeMyTrip ↗</a><a class="btn alt" target="_blank" rel="noopener" href="'+searchUrl('expedia.com',partner)+'">Check Expedia ↗</a>';
+}
+function comparators(){return [1,2].map(function(i){return {source:$('c'+i+'source').value,url:safeUrl($('c'+i+'url').value),rate:Number($('c'+i+'rate').value||0),commissionPct:$('c'+i+'commission').value===''?null:Number($('c'+i+'commission').value),likeForLike:$('c'+i+'like').checked}})}
+function checks(){return {locationVerified:$('qLocation').checked,photoVerified:$('qPhotos').checked,chargesTransparent:$('qCharges').checked,cleanlinessReviewed:$('qClean').checked,reviewsReviewed:$('qReviews').checked,qualityApproved:$('qFit').checked}}
+$('approve').onclick=async function(){
+ $('saveStatus').textContent='';var accepted=partner&&partner.onboarding&&partner.onboarding.mouAcceptedAt,ver=partner&&partner.onboarding&&partner.onboarding.mouVersion;if(!accepted||ver!==VERSION){$('saveStatus').textContent='Cannot activate: current MOU has not been accepted.';return}
+ var comps=comparators();if(comps.some(function(x){return !x.url||!x.rate||!x.likeForLike})){ $('saveStatus').textContent='Complete two like-for-like public comparator checks with URL and rate.';return}
+ var q=checks();if(Object.keys(q).some(function(k){return !q[k]})){ $('saveStatus').textContent='Complete every premium supply check.';return}
+ var benefit=$('guestBenefit').value.trim();if(benefit.length<12){$('saveStatus').textContent='Record the customer price/value benefit or correction agreed.';return}
+ var rwRate=Number($('rwRate').value||0),rwPct=7,audit=window.RWPricingIntegrity.audit({roamwiseRate:rwRate,roamwiseCommissionPct:rwPct,comparators:comps});
+ var hard=audit.flags.filter(function(f){return f.indexOf('NO_VISIBLE_PASS_THROUGH:')===0});if(hard.length){$('priceResult').textContent='Blocked: a comparator with evidenced higher commission is not more expensive than the proposed RoamWise rate. Correct the rate/benefit first.';return}
+ $('priceResult').textContent=audit.flags.length?'Review flags recorded: '+audit.flags.join(', '):'Price check passed.';
+ $('approve').disabled=true;$('saveStatus').textContent='Saving audit and activating…';
+ try{
+   var now=new Date().toISOString(),ref=db.collection('partners').doc(uid),rq=await ref.collection('rooms').limit(100).get(),batch=db.batch();
+   batch.set(ref,{status:'active',verified:true,verifiedState:'verified',lifecycleStage:'live',commercialPlan:'free',commissionPct:7,approvedAt:now,pricingAudit:{status:'passed',version:'RW-PRICE-AUDIT-2026-09-23-V1',checkedAt:now,checkedBy:auth.currentUser.uid,roamwiseRate:rwRate,roamwiseCommissionPct:7,comparators:comps,flags:audit.flags,lowestComparable:audit.lowestComparable,guestBenefit:benefit,notes:$('auditNotes').value.trim()},qualityReview:{status:'passed',version:'RW-PREMIUM-SUPPLY-2026-09-23-V1',checkedAt:now,checkedBy:auth.currentUser.uid,locationVerified:true,photoVerified:true,chargesTransparent:true,cleanlinessReviewed:true,reviewsReviewed:true,qualityApproved:true},verification:Object.assign({},partner.verification||{},{identity:'verified',property:'verified',experience:'verified',overall:'verified',reviewedAt:now})},{merge:true});
+   rq.forEach(function(d){batch.set(d.ref,{marketplaceApproved:true,partnerUid:uid,partnerVerifiedAt:now,updatedAt:now},{merge:true})});await batch.commit();$('saveStatus').innerHTML='<span class="goodtxt">Property activated. Pricing and premium-quality evidence saved.</span>';setTimeout(function(){location.href='../?role=admin'},700)
+ }catch(e){$('approve').disabled=false;$('saveStatus').textContent=e.message||e}
+};
+boot();
+})();
+</script></body></html>
