@@ -29,6 +29,8 @@ window.RW_STAY_PRICING_POLICY = {
   parityRule: 'Same room, occupancy, meals, cancellation terms, taxes and stay dates must be compared. If the audited public rate leaves less than 3% gross margin, request a better net rate or switch that date to request-to-book; never inflate the guest price just to preserve margin.',
   foundingPartnerFee: 299,
   minimumListingFee: 299,
+  negotiatedListingFee: 'Suggested tiers are anchors, not rigid tariffs. RoamWise may agree a lower, higher or waived one-time contribution case by case; any waiver must be explicitly recorded and never buys ranking or changes booking economics.',
+  supporterContribution: 'A property may voluntarily contribute above its suggested listing fee to support RoamWise operations. Extra support does not buy ranking, reviews, preferential guest treatment or a lower commission.',
   propertyTypeRule: 'Listing contribution scales with property type/operational complexity. A small homestay can stay near the floor; a hotel pays more even if it has relatively few rooms.',
   feeReviewCadence: 'Annual review each April using India CPI / operating-cost changes; round changes to simple customer-friendly amounts.',
   rankingRule: 'Commercial terms never buy ranking. Quality, guest outcomes, reliability and verified value decide ordering.'
@@ -155,3 +157,29 @@ window.RW_FEE_WAIVERS = [
   { id:'first50', label:'Founding partner', test:'One of our first 50 partners',
     why:'Founding partners receive the permanent minimum fee rather than a full waiver.' }
 ];
+
+
+/* Tax/payment policy is deliberately rule-based rather than hard-coded to one
+   country forever. Server/admin tax profiles must be versioned by jurisdiction. */
+window.RW_TAX_AND_PRICE_POLICY = {
+  reviewedAt:'2026-09-23',
+  commissionBase:'Accommodation/package consideration accepted by the guest before statutory taxes. Excludes government taxes, refundable deposits, RoamWise platform/payment fees and post-stay incidentals; includes mandatory package components and extra-person charges accepted before check-in.',
+  guestFeeDefaultPct:0,
+  guestFeeCapPct:1.5,
+  allInSavingTargetPct:2,
+  preferredSavingBandPct:[2,5],
+  minimumContributionMarginPct:3,
+  minimumContributionMarginInr:150,
+  noPriceWar:true,
+  comparisonRule:'Compare final payable totals for the same dates, occupancy, room/rate plan, meals, cancellation policy, mandatory fees and taxes. Coupons funded by banks/OTAs are shown separately rather than treated as supplier parity.',
+  marginRule:'If RoamWise cannot remain competitive without dropping below its margin floor, request a better supplier rate, pause instant booking, offer a genuine value-add, or use request-to-book. Do not sell at a structural loss simply to be the cheapest.',
+  india:{
+    accommodationNote:'Tax rate and liable party must be resolved from current GST rules, room value, supplier registration status and marketplace role at booking time.',
+    platformFeeNote:'RoamWise invoices/taxes its own commission, listing, subscription or service fees as required by law.',
+    withholdingNote:'Apply statutory GST TCS / income-tax TDS or other withholding only when legally applicable; show it separately in partner reconciliation rather than disguising it as commission.'
+  },
+  global:{
+    rule:'Use destination-jurisdiction VAT/GST/sales, occupancy, tourism and city-tax profiles; determine marketplace deemed-supplier/remittance obligations separately from property obligations.',
+    display:'Guest checkout should show one final payable amount plus a transparent tax/fee breakdown before payment.'
+  }
+};
