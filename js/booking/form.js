@@ -54,12 +54,52 @@ function rwStaysRender(){
       +(isFinite(+r.price)&&+r.price>0?'<span class="st-price">\u20b9'+(+r.price).toLocaleString('en-IN')+'<span>/night</span></span>':'<span class="st-price" style="font-size:12px">Live rate<span>date-checked</span></span>')+'</div>'
       +'<div class="st-inc">'+(r.inc||[]).map(function(i){ return '<span>'+esc2(i)+'</span>'; }).join('')+'</div>'
       +'<div class="st-cancel">\u2713 '+esc2(r.cancel||'')+'</div>'
-      +'<button class="st-book" onclick="openRoomBook(\''+r.id+'\')">'+((r.bookable===false||!isFinite(+r.price)||+r.price<=0)?'Request availability →':'Book this room →')+'</button>'
+      +'<button class="st-book" onclick="openRoomBook(\''+r.id+'\')">'+((r.bookable!==true||r.paymentEnabled!==true||!isFinite(+r.price)||+r.price<=0)?'Request availability →':'Book this room →')+'</button>'
       +'</div>';
   }).join('')
   +'<div class="gr-foot">Rates are set by the property, not by us. We never discount someone\u2019s room without asking them first.</div>';
 }
 function rwRoomById(id){ return (window.RW_ROOMS||[]).filter(function(r){ return r.id===id; })[0]; }
+
+/* Conversational stay matcher used by Ailon Tusk. Voice and typed messages use
+   the same parser, so "Manali room under 3000 for 2 with breakfast" produces
+   the same shortlist either way. This is inventory discovery, not a promise
+   of availability: only an explicitly payment-enabled supplier can charge. */
+function rwTuskStayMatches(raw,dest){
+  var q=String(raw||''), list=(window.RW_ROOMS||[]).slice(), zone=String(dest||'').trim().toLowerCase();
+  var bm=q.match(/(?:under|below|max(?:imum)?|budget(?: of)?|upto|up to)\s*(?:₹|rs\.?|inr)?\s*([\d,]+)/i);
+  var max=bm?Number(String(bm[1]).replace(/,/g,'')):0;
+  var gm=q.match(/(\d+)\s*(?:guest|guests|people|persons|pax)/i), guests=gm?Number(gm[1]):0;
+  var wants=[];
+  ['breakfast','wifi','wi-fi','pool','balcony','cottage','dorm','view','garden'].forEach(function(k){if(q.toLowerCase().indexOf(k)>-1)wants.push(k);});
+  if(zone) list=list.filter(function(r){var z=String(r.zone||'').toLowerCase();return z&&((z.indexOf(zone)>-1)||(zone.indexOf(z)>-1));});
+  if(guests>0) list=list.filter(function(r){return Number(r.maxGuests||0)>=guests;});
+  if(max>0) list=list.filter(function(r){return !isFinite(+r.price)||+r.price<=0||+r.price<=max;});
+  function score(r){
+    var s=0,txt=((r.room||'')+' '+(r.inc||[]).join(' ')).toLowerCase();
+    wants.forEach(function(k){if(txt.indexOf(k)>-1)s+=12;});
+    if(isFinite(+r.price)&&+r.price>0){s+=8;if(max>0)s+=Math.max(0,8-Math.abs(max-r.price)/500);}
+    if(r.bookable===true&&r.paymentEnabled===true)s+=5;
+    return s;
+  }
+  return list.sort(function(a,b){return score(b)-score(a)||(Number(a.price)||999999)-(Number(b.price)||999999);}).slice(0,4);
+}
+function rwTuskStayHTML(raw,dest){
+  var list=rwTuskStayMatches(raw,dest); if(!list.length)return '';
+  var title=dest?'🏡 Best matching stays · '+esc2(dest):'🏡 Matching RoamWise stays';
+  return '<div class="tk-card tk-mini"><div class="tk-sec"><div style="font-weight:850;font-size:13.5px;margin-bottom:7px">'+title+'</div>'
+    +list.map(function(r){
+      var live=r.bookable===true&&r.paymentEnabled===true;
+      var price=isFinite(+r.price)&&+r.price>0?'₹'+Number(r.price).toLocaleString('en-IN')+'/night':'Live rate on request';
+      return '<div style="padding:9px 0;border-bottom:1px solid var(--b2,#2A2A36)">'
+        +'<div style="display:flex;gap:8px;align-items:flex-start"><span style="flex:1"><b>'+esc2(r.property)+'</b><br><span style="font-size:11px;color:var(--t3)">'+esc2(r.room)+' · '+esc2(r.area||r.zone||'')+'</span></span><b style="font-size:11.5px;color:var(--gold,#E8BA6C)">'+price+'</b></div>'
+        +'<div style="font-size:10.5px;color:var(--t3);margin:5px 0">'+esc2((r.inc||[]).slice(0,3).join(' · '))+'</div>'
+        +'<button class="tk-chip gold" onclick="openRoomBook(\''+String(r.id).replace(/'/g,'')+'\')">'+(live?'Continue booking →':'Request exact rate & availability →')+'</button>'
+        +'</div>';
+    }).join('')
+    +'<div style="font-size:10.5px;color:var(--t3);margin-top:8px">Voice and typing use the same matcher. A stay becomes instantly payable only after supplier availability and payment routing are enabled; otherwise this sends an availability/rate request with no charge.</div>'
+    +'</div></div>';
+}
 
 /* ---------------- brochure / not-yet-live partner enquiry ---------------- */
 function rwRoomEnquiry(r){
@@ -87,7 +127,7 @@ function rwRoomEnquiry(r){
 
 function openRoomBook(id){
   var r=rwRoomById(id); if(!r) return;
-  if(r.bookable===false || !isFinite(+r.price) || +r.price<=0) return rwRoomEnquiry(r);
+  if(r.bookable!==true || r.paymentEnabled!==true || !isFinite(+r.price) || +r.price<=0) return rwRoomEnquiry(r);
   var t=new Date(), inD=new Date(t.getTime()+86400000), outD=new Date(t.getTime()+2*86400000);
   var f=function(d){ return d.toISOString().slice(0,10); };
   /* rwForm reads out[field.key] and renders field.placeholder (see rwFormSubmit),
