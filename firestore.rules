@@ -1443,6 +1443,15 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
 
+    // ---------- PUBLIC PARTNER CURATION -------------------------------
+    // Public-safe, admin-owned projection for marketplace trust/character labels.
+    // Hosts can edit their room inventory, but cannot self-award Premium,
+    // Signature, Hosted, Local, Live, Quiet or Experience labels.
+    match /partnerPublicProfiles/{uid} {
+      allow read: if true;
+      allow create, update, delete: if isAdmin();
+    }
+
     // Room listings under a partner's own account. Public read (travelers
     // browse rooms without an account); only that partner or an admin may
     // manage the listings.
