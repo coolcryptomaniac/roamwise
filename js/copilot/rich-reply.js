@@ -289,6 +289,19 @@ async function cpActionsHTML(it){
     var _km = 300;
     H.push(rwGreenSwapHTML(_km));
   }
+  /* RoamWise stay inventory first: typed and voice turns share the same
+     parser, so Ailon can shortlist by destination, budget, guests and amenities
+     before falling back to external booking sites. */
+  var _stayRaw=String(it._raw||'');
+  if(/\b(hotel|stay|room|hostel|resort|homestay|cottage|book a room|where to stay)\b/i.test(_stayRaw)
+      && typeof rwTuskStayHTML==='function'){
+    var _stayDest=it.dest || (_cpCtx&&_cpCtx.dest) || '';
+    var _stayCard=rwTuskStayHTML(_stayRaw,_stayDest);
+    if(_stayCard){
+      var _fallback=rwActionHubHTML('stay',rwActionQuery(_stayRaw,'stay',_stayDest),_stayDest,null,null,'');
+      return [_stayCard,_fallback];
+    }
+  }
   /* on-trip action ("order food", "need shorts", "book a cab") */
   var _act = rwActionIntent(it._raw||'');
   if(_act){
