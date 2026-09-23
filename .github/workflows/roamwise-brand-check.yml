@@ -1,0 +1,23 @@
+name: RoamWise brand check
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  roamwise-brand:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Enforce RoamWise-only public branding
+        run: |
+          if git grep -n -i 'gyanverse' -- '*.html' '*.js' '*.css'; then
+            echo "Legacy GYANVERSE wording must not appear in public website/runtime files."
+            exit 1
+          fi
+          echo "RoamWise-only public branding check passed."
