@@ -28,7 +28,7 @@ window.RW_PARTNER_MODEL = {
   transport: { pct:5,  label:'Drivers & transport',        note:'5% \u2014 thin margins, high volume' },
   agency:    { pct:10, label:'Travel agencies',            note:'10% on packages routed through RoamWise' },
   creator:   { pct:15, label:'Creator-led trips',          note:'15% \u2014 we bring the audience and the tooling' },
-  listing:   { pct:0,  label:'Free listing',               note:'No commission. Get discovered, pay nothing.' }
+  listing:   { pct:0,  label:'Listing-only',               note:'One-time listing contribution applies; no booking commission when a property is informational-only.' }
 };
 
 window.RW_PARTNERS = [
@@ -61,10 +61,10 @@ window.RW_PARTNERS = [
   /* ---------- MANALI · STAYS ---------- */
   { id:'p_hygge', cat:'stay', zone:'Manali', area:'Khaknal',
     name:'Hygge Home Manali', rating:5.0, reviews:72, verified:'listed', priority:'high',
-    propertyType:'Private six-room mountain home', roomCount:6, brochureReceived:true,
-    pricingMode:'protected-net-rate', rateAuditRequired:true, breakfastIncluded:true, bookable:false,
-    badges:['family-run','slow-travel','stargazing','orchard'],
-    hook:'Family-run six-room mountain home with orchard views, glass-roof stargazing rooms and a slow-travel feel' },
+    propertyType:'Hotel', roomCount:6, listingTier:'small-hotel', suggestedListingFee:999,
+    brochureReceived:true, pricingMode:'protected-net-rate', rateAuditRequired:true, breakfastIncluded:true, bookable:false,
+    badges:['hotel','slow-travel','stargazing','orchard'],
+    hook:'Six-room Manali hotel with orchard views, glass-roof stargazing rooms and a slow-travel positioning' },
   { id:'p_nush', cat:'stay', zone:'Manali', area:'Aleo, Naggar Road',
     name:'The Nush Stays', rating:4.9, reviews:224, verified:'listed', priority:'high',
     hook:'Contemporary comfort; high-rated' },
