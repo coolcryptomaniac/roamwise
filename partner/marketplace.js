@@ -8,7 +8,8 @@
 var Q=new URLSearchParams(location.search);
 var DEMO=Q.get('mode')==='demo'||Q.get('lab')==='1';
 var PROD=/^(www\.)?roamwise\.co\.in$/i.test(location.hostname);
-var roomCache={},admin=false,syncing=false,hostBusy=false,repaintTimer=null,lastHostKey='',platformPay={};
+var roomCache={},profileCache={},admin=false,syncing=false,hostBusy=false,repaintTimer=null,lastHostKey='',platformPay={};
+var CURATION_LABELS={experience:'✦ Experience',hosted:'☕ Hosted',local:'⌂ Local',premium:'◇ Premium',signature:'★ Signature',live:'♪ Live',quiet:'◌ Quiet'};
 var $=function(s,r){return(r||document).querySelector(s)};
 var $$=function(s,r){return Array.from((r||document).querySelectorAll(s))};
 var esc=function(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})};
@@ -38,14 +39,20 @@ async function getRoom(listing,fresh){
   if(!F.db||!listing.partnerUid||!listing.roomId)return null;
   try{var d=await F.db.collection('partners').doc(listing.partnerUid).collection('rooms').doc(listing.roomId).get();if(!d.exists)return null;var r=d.data()||{};r._id=d.id;roomCache[k]=r;return r}catch(e){return null}
 }
+async function getPublicProfile(uid,fresh){
+  var F=fb(),id=String(uid||'');if(!id||!F.db)return null;if(!fresh&&Object.prototype.hasOwnProperty.call(profileCache,id))return profileCache[id];
+  try{var d=await F.db.collection('partnerPublicProfiles').doc(id).get(),p=d.exists?d.data()||{}:null;profileCache[id]=p;return p}catch(e){profileCache[id]=null;return null}
+}
 function approved(room,listing){return!!(room&&room.marketplaceApproved===true&&room.open!==false&&String(room.partnerUid||'')===String(listing.partnerUid||''))}
-function publicListing(listing,room){
-  var p=room.paymentPublic||{};return Object.assign({},listing,{
+function publicListing(listing,room,profile){
+  var p=room.paymentPublic||{},raw=profile&&Array.isArray(profile.badges)?profile.badges:[],badges=raw.filter(function(x){return Object.prototype.hasOwnProperty.call(CURATION_LABELS,x)}).slice(0,7);
+  return Object.assign({},listing,{
     partnerUid:room.partnerUid,roomId:room._id,propertyId:listing.propertyId||room.partnerUid,
     name:room.property||listing.name,room:room.room||listing.room,zone:room.zone||listing.zone,area:room.area||listing.area,
     price:Number(room.price||0),maxGuests:Number(room.maxGuests||2),heroImage:safeHttps(room.heroImage),
     amenities:Array.isArray(room.amenities)?room.amenities.slice(0,20):[],cancel:String(room.cancel||listing.cancel||'').slice(0,400),
     houseRules:String(room.houseRules||'').slice(0,1000),welcomeNote:String(room.welcomeNote||'').slice(0,1000),
+    curationBadges:badges,experienceSummary:String(profile&&profile.experienceSummary||'').slice(0,280),hostNote:String(profile&&profile.hostNote||'').slice(0,220),
     paymentPublic:{upiId:validUpi(p.upiId)?p.upiId:'',paymentLink:safeHttps(p.paymentLink)}
   })
 }
@@ -62,13 +69,16 @@ async function validateCards(){
   await Promise.all($$('.result.direct').map(async function(card){
     var b=$('[data-book]',card),x=b&&parseBookingButton(b);if(!x)return;card.classList.add('rw-market-checking');
     var r=await getRoom(x,false);if(!approved(r,x)){card.remove();return}
-    var fresh=publicListing(x,r);b.dataset.book=JSON.stringify(fresh);b.textContent='Check availability';
+    var profile=await getPublicProfile(x.partnerUid,false),fresh=publicListing(x,r,profile);b.dataset.book=JSON.stringify(fresh);b.textContent='Check availability';
     card.classList.remove('rw-market-checking');card.classList.add('rw-market-verified');
     var pic=$('.pic',card);if(pic&&fresh.heroImage){pic.style.backgroundImage='url("'+fresh.heroImage.replace(/"/g,'%22')+'")';pic.textContent=''}
-    var badge=$('.pill.green',card);if(badge)badge.textContent='✓ Verified host';
+    var badge=$('.pill.green',card);if(badge)badge.textContent=fresh.curationBadges.indexOf('signature')>=0?'★ RoamWise Signature':'✓ Verified host';
     var body=card.children[1];if(body&&!$('.rw-market-listing-meta',body)){
       var m=document.createElement('div');m.className='rw-market-listing-meta';
-      m.innerHTML='<span>Direct</span><span>Request to book</span><span>₹0 guest fee</span>'+fresh.amenities.slice(0,2).map(function(a){return'<span>'+esc(a)+'</span>'}).join('');body.appendChild(m)
+      var curated=fresh.curationBadges.map(function(a){return'<span class="rw-curation rw-curation-'+esc(a)+'">'+esc(CURATION_LABELS[a])+'</span>'}).join('');
+      m.innerHTML='<span>Direct</span><span>Request to book</span><span>₹0 guest fee</span>'+curated+fresh.amenities.slice(0,2).map(function(a){return'<span>'+esc(a)+'</span>'}).join('');body.appendChild(m);
+      if(fresh.experienceSummary){var ex=document.createElement('p');ex.className='rw-market-experience';ex.textContent=fresh.experienceSummary;body.appendChild(ex)}
+      if(fresh.hostNote){var hn=document.createElement('p');hn.className='rw-market-hostnote';hn.textContent=fresh.hostNote;body.appendChild(hn)}
     }
     updateCardTotal(card,fresh.price)
   }));
