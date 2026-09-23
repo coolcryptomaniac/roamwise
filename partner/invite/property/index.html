@@ -17,7 +17,7 @@
 <h1><span id="greeting">Dear Hotel Partner</span>,<br><em>let’s build a memorable stay together.</em></h1>
 <p class="intro">We would love to explore a thoughtful RoamWise partnership with <strong id="propertyName">your property</strong><span id="cityWrap"> in <strong id="cityName">your destination</strong></span>—helping curious travellers discover a stay with clearer context, local experiences and a smoother booking journey.</p>
 <p class="sub">There is no obligation to join or list an entire portfolio. We can begin with one property, verify the details together, agree the commercial terms, and grow only if the pilot works well for both sides.</p>
-<div class="actions"><a class="btn" href="/partner/join/">Open the 3-minute property application →</a><a class="btn alt" id="websiteBtn" href="#" target="_blank" rel="noopener noreferrer" hidden>Visit property website ↗</a><a class="btn alt" href="mailto:founder@roamwise.co.in?subject=RoamWise%20property%20partnership">Discuss the partnership ↗</a></div>
+<div class="actions"><a class="btn" href="/partner/join/">Open the 3-minute property application →</a><a class="btn alt" id="mouBtn" href="/partner/mou/" target="_blank" rel="noopener">Review commercial MOU ↗</a><a class="btn alt" id="websiteBtn" href="#" target="_blank" rel="noopener noreferrer" hidden>Visit property website ↗</a><a class="btn alt" href="mailto:founder@roamwise.co.in?subject=RoamWise%20property%20partnership">Discuss the partnership ↗</a></div>
 </div>
 <div class="hero-art" aria-hidden="true"><svg viewBox="0 0 430 355" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="214" cy="100" r="66" fill="#efbc76" opacity=".55"/><circle cx="214" cy="100" r="87" stroke="#f7c984" opacity=".34"/><path d="M0 233 85 131l62 67 69-108 89 113 44-48 81 79v121H0Z" fill="#4d2834" stroke="#df9c83" stroke-width="2"/><path d="M0 283 75 214l69 48 66-64 80 73 73-53 67 59v78H0Z" fill="#251b29" stroke="#d16b70" stroke-width="2"/><path d="M49 328v-83h61v83m122 0V211h78v117m-245-69h27m-27 18h27m-27 18h27m166-65h26m-26 22h26m-26 22h26" stroke="#f1c78b" stroke-width="5" stroke-linecap="round"/><path d="M0 328h430" stroke="#e7b179" stroke-width="3"/></svg><span class="seal">LOCAL · VERIFIED · EXPERIENCE-LED</span></div>
 </section>
@@ -36,6 +36,7 @@
   if(property){ document.getElementById('propertyName').textContent=property; document.title='A personal invitation for '+property+' | RoamWise'; }
   if(city) document.getElementById('cityName').textContent=city; else document.getElementById('cityWrap').hidden=true;
   if(from) document.getElementById('sourceLine').textContent='A personal invitation · shared by '+from+' · RoamWise Partnerships';
+  var mq=new URLSearchParams();if(owner)mq.set('owner',owner);if(property)mq.set('property',property);if(city)mq.set('city',city);document.getElementById('mouBtn').href='/partner/mou/'+(mq.toString()?'?'+mq.toString():'');
   if(/^https?:\/\//i.test(website)){var b=document.getElementById('websiteBtn');b.href=website;b.hidden=false;}
 })();
 </script>
