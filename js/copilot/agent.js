@@ -19,7 +19,7 @@
 
 var RW_AGENT_TOOLS = [
   { type:'function', function:{ name:'search_stays',
-    description:'Find bookable rooms with real prices in a city. Use whenever the traveller asks where to stay, what it costs, or wants to book.',
+    description:'Find RoamWise stay listings in a city, including shown price where available and whether instant payment is actually enabled. Never imply live availability unless the returned room says paymentReady:true.',
     parameters:{ type:'object', properties:{ zone:{type:'string', description:'City, e.g. "Manali"'}, maxPrice:{type:'number'} }, required:['zone'] } } },
   { type:'function', function:{ name:'find_partners',
     description:'Find verified RoamWise partner stays and adventure operators in a place, ranked by how much we can vouch for them.',
@@ -218,7 +218,9 @@ RW_AGENT_IMPL.search_stays = function(a){
   if(!list.length) return { ok:true, found:0, note:'No listed rooms there yet. Offer to plan the trip anyway.' };
   return { ok:true, found:list.length, rooms:list.slice(0,6).map(function(r){
     return { id:r.id, property:r.property, room:r.room, price:r.price,
-             sleeps:r.maxGuests, includes:(r.inc||[]).join(', '), cancel:r.cancel }; }) };
+             sleeps:r.maxGuests, includes:(r.inc||[]).join(', '), cancel:r.cancel,
+             paymentReady:r.bookable===true&&r.paymentEnabled===true,
+             nextStep:(r.bookable===true&&r.paymentEnabled===true?'continue_booking':'request_rate_and_availability') }; }) };
 };
 RW_AGENT_IMPL.find_partners = function(a){
   var list=(typeof rwPartnersFor==='function') ? rwPartnersFor(a.zone, a.cat) : [];
