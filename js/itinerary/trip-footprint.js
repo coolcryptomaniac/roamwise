@@ -1,5 +1,5 @@
 // @ts-nocheck
-/* trip-footprint.js — Journey Trace V1.
+/* trip-footprint.js — Journey Trace V2.
    Opt-in, device-local planned-vs-actual journey recording for a RoamWise itinerary:
    - Start / pause / resume / finish lifecycle
    - foreground GPS trace with accuracy filtering
@@ -7,7 +7,10 @@
    - manual restaurant / stay / discovery check-ins
    - planned-vs-actual map overlay
    - optional Mapbox Outdoors raster basemap when a restricted public token is configured
-   - route poster, actual-trip certificate and photo collage
+   - altitude / ascent / descent summary when the device reports usable altitude
+   - Android native foreground-service bridge for continuity after the WebView backgrounds
+   - explicit Journey Passport handoff, Trail Mesh group-summary sharing and GeoJSON export
+   - animated vertical route Reel, route poster, actual-trip certificate and photo collage
    No tracking starts automatically. Raw location is not uploaded by this module. */
 (function(){
 'use strict';
@@ -53,6 +56,56 @@ function tripDistance(t){
   var km=0; for(var i=1;i<pts.length;i++) km+=dist(pts[i-1],pts[i]);
   return km;
 }
+function elevationStats(t){
+  var pts=(t.track||[]).filter(function(p){
+    return isFinite(Number(p.altitude)) && (p.altitudeAccuracy==null || Number(p.altitudeAccuracy)<=60);
+  });
+  if(!pts.length) return {available:false,min:null,max:null,ascent:0,descent:0};
+  var min=Number(pts[0].altitude), max=min, ascent=0, descent=0;
+  for(var i=1;i<pts.length;i++){
+    var a=Number(pts[i-1].altitude), b=Number(pts[i].altitude), d=b-a;
+    min=Math.min(min,b); max=Math.max(max,b);
+    /* Ignore implausible GPS-altitude spikes rather than turning noise into "climbing". */
+    if(Math.abs(d)<=80){ if(d>1.5) ascent+=d; else if(d<-1.5) descent+=Math.abs(d); }
+  }
+  return {available:true,min:min,max:max,ascent:ascent,descent:descent};
+}
+function nativeJourneyPlugin(){
+  try{return window.Capacitor&&window.Capacitor.Plugins&&window.Capacitor.Plugins.JourneyTrace;}catch(e){return null;}
+}
+function nativeJourneyStart(dest){
+  var p=nativeJourneyPlugin(); if(!p||typeof p.start!=='function') return Promise.resolve({native:false});
+  return p.start({destination:safeDest(dest),intervalMs:15000,minDistanceMeters:20}).catch(function(){return {native:false};});
+}
+function nativeJourneyStop(){
+  var p=nativeJourneyPlugin(); if(!p||typeof p.stop!=='function') return Promise.resolve({native:false});
+  return p.stop().catch(function(){return {native:false};});
+}
+function rwMergeNativePoints(dest, points){
+  if(!Array.isArray(points)||!points.length)return 0;
+  var t=getTrip(dest), seen={};
+  t.track.forEach(function(p){seen[String(p.at||'')+'|'+Number(p.lat).toFixed(5)+'|'+Number(p.lon).toFixed(5)]=1;});
+  var added=0;
+  points.forEach(function(p){
+    var q={lat:Number(p.lat),lon:Number(p.lon),accuracy:Number(p.accuracy),altitude:p.altitude==null?null:Number(p.altitude),altitudeAccuracy:p.altitudeAccuracy==null?null:Number(p.altitudeAccuracy),speed:p.speed==null?null:Number(p.speed),at:Number(p.at)||Date.now()};
+    if(!isFinite(q.lat)||!isFinite(q.lon)||(isFinite(q.accuracy)&&q.accuracy>120))return;
+    var k=String(q.at)+'|'+q.lat.toFixed(5)+'|'+q.lon.toFixed(5); if(seen[k])return;
+    seen[k]=1;t.track.push(q);added++;
+  });
+  t.track.sort(function(a,b){return (a.at||0)-(b.at||0);});
+  if(t.track.length>2400)t.track=t.track.slice(-2400);
+  saveTrip(t);return added;
+}
+window.rwJourneyPullNative=function(){
+  var p=nativeJourneyPlugin(), dest=activeDest||(window._lastItin&&_lastItin.name)||'Trip';
+  if(!p||typeof p.getBufferedPoints!=='function')return Promise.resolve(0);
+  return p.getBufferedPoints().then(function(r){
+    var n=rwMergeNativePoints(dest,(r&&r.points)||[]);
+    if(n&&typeof p.clearBufferedPoints==='function')p.clearBufferedPoints().catch(function(){});
+    if(n)renderPanel(dest,window._tripPins||getTrip(dest).planned||[]);
+    return n;
+  }).catch(function(){return 0;});
+};
 function visitForPlanned(t,i){ for(var n=t.visits.length-1;n>=0;n--) if(t.visits[n].plannedIndex===i) return t.visits[n]; return null; }
 function dateText(ms){ try{return new Date(ms).toLocaleString('en-IN',{day:'numeric',month:'short',hour:'numeric',minute:'2-digit'});}catch(e){return'';} }
 function guessType(name){
@@ -89,7 +142,7 @@ function ensurePanel(dest,pins){
 
 function renderPanel(dest,pins){
   var panel=document.getElementById('rwFootprintPanel'); if(!panel)return;
-  var t=getTrip(dest), plan=plannedFor(t,pins), km=tripDistance(t), tracking=activeWatch!=null&&activeDest===dest, pct=completion(t,plan);
+  var t=getTrip(dest), plan=plannedFor(t,pins), km=tripDistance(t), tracking=activeWatch!=null&&activeDest===dest, pct=completion(t,plan), elev=elevationStats(t);
   var visited=t.visits.length, pending=t.pendingVisit&&plan[t.pendingVisit.plannedIndex], state=t.status||'idle';
   var primary='';
   if(state==='idle'||state==='finished') primary='<button class="tact" style="font-weight:900;background:linear-gradient(135deg,#F04455,#8B1E2D);color:#fff;border:none" onclick="rwJourneyStart(\''+esc(dest).replace(/&#39;/g,"\\'")+'\')">🔥 '+(state==='finished'?'Start another segment':'Start Journey')+'</button>';
@@ -103,20 +156,21 @@ function renderPanel(dest,pins){
   var recent=t.visits.slice(-6).reverse().map(function(v){return '<div style="font-size:11px;color:var(--t2);padding:4px 0">'+esc(TYPES[v.type]||TYPES.other)+' · <b style="color:var(--t1)">'+esc(v.name)+'</b> · '+esc(dateText(v.at))+'</div>';}).join('');
   var pendingHtml=pending?'<div style="margin:10px 0;padding:12px;border-radius:14px;border:1px solid rgba(240,68,85,.55);background:rgba(240,68,85,.09)"><div style="font-size:10px;font-weight:900;color:#FF697A;letter-spacing:.06em">NEARBY STOP</div><div style="font-size:14px;font-weight:800;margin:3px 0">Looks like you are at '+esc(pending.name)+'</div><div style="font-size:11px;color:var(--t3)">RoamWise never checks you in automatically. Confirm only if you actually visited.</div><div style="display:flex;gap:7px;margin-top:8px"><button class="tact" style="background:#F04455;color:white;border:none;font-weight:800" onclick="rwFootprintConfirmNearby()">✓ Add visit</button><button class="tact" onclick="rwFootprintDismissNearby()">Not here</button></div></div>':'';
 
-  panel.innerHTML='<div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap"><div><div style="font-size:10px;color:#FF697A;font-weight:900;letter-spacing:.09em">ROAMWISE · JOURNEY TRACE</div><h3 style="margin:3px 0;font-size:20px">Your plan fades. Your real trail lights up.</h3><div style="font-size:11px;color:var(--t3)">Opt-in foreground GPS only · raw trail stays on this device by default.</div><div style="display:flex;gap:12px;margin-top:7px;font-size:10.5px;color:var(--t2)"><span><b style="color:#E8BA6C">┈┈</b> planned</span><span><b style="color:#F04455">━━</b> actual</span><span>● confirmed visit</span></div></div><div style="display:flex;gap:7px;flex-wrap:wrap">'+primary+'</div></div>'
+  panel.innerHTML='<div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap"><div><div style="font-size:10px;color:#FF697A;font-weight:900;letter-spacing:.09em">ROAMWISE · JOURNEY TRACE V2</div><h3 style="margin:3px 0;font-size:20px">Your plan fades. Your real trail lights up.</h3><div style="font-size:11px;color:var(--t3)">Opt-in only · web tracking runs while open; supported Android builds can continue through a visible foreground-service notification · raw trail stays on this device by default.</div><div style="display:flex;gap:12px;margin-top:7px;font-size:10.5px;color:var(--t2)"><span><b style="color:#E8BA6C">┈┈</b> planned</span><span><b style="color:#F04455">━━</b> actual</span><span>● confirmed visit</span></div></div><div style="display:flex;gap:7px;flex-wrap:wrap">'+primary+'</div></div>'
     +'<div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;margin:12px 0"><div class="note" style="padding:9px;text-align:center"><b>'+visited+'</b><br><span style="font-size:10px">check-ins</span></div><div class="note" style="padding:9px;text-align:center"><b>'+km.toFixed(km<10?1:0)+' km</b><br><span style="font-size:10px">actual trail</span></div><div class="note" style="padding:9px;text-align:center"><b>'+pct+'%</b><br><span style="font-size:10px">plan done</span></div><div class="note" style="padding:9px;text-align:center"><b>'+t.track.length+'</b><br><span style="font-size:10px">GPS points</span></div></div>'
-    +'<div style="height:6px;background:var(--bg3,#171A24);border-radius:999px;overflow:hidden;margin-bottom:10px"><span style="display:block;width:'+pct+'%;height:100%;background:linear-gradient(90deg,#E8BA6C,#F04455,#A78BFA)"></span></div>'
+    +'<div style="height:6px;background:var(--bg3,#171A24);border-radius:999px;overflow:hidden;margin-bottom:8px"><span style="display:block;width:'+pct+'%;height:100%;background:linear-gradient(90deg,#E8BA6C,#F04455,#A78BFA)"></span></div>'
+    +(elev.available?'<div style="font-size:10.5px;color:var(--t3);margin-bottom:10px">⛰️ Altitude '+Math.round(elev.min)+'–'+Math.round(elev.max)+' m · ascent ~'+Math.round(elev.ascent)+' m · descent ~'+Math.round(elev.descent)+' m <span style="opacity:.7">(device GPS estimate)</span></div>':'')
     +pendingHtml
     +(plannedHtml?'<details open><summary style="cursor:pointer;font-size:12px;font-weight:800">Planned stops</summary><div>'+plannedHtml+'</div></details>':'')
     +'<details style="margin-top:10px"><summary style="cursor:pointer;font-size:12px;font-weight:800">Add a restaurant, stay or unexpected discovery</summary><div style="display:grid;grid-template-columns:1.2fr .8fr;gap:8px;margin-top:9px"><input id="rwFpName" placeholder="Place name" style="min-width:0;background:var(--bg3,#171A24);border:1px solid var(--b2,#2A2A36);border-radius:9px;padding:9px;color:var(--t1)"><select id="rwFpType" style="background:var(--bg3,#171A24);border:1px solid var(--b2,#2A2A36);border-radius:9px;padding:9px;color:var(--t1)">'+Object.keys(TYPES).map(function(k){return '<option value="'+k+'">'+TYPES[k]+'</option>';}).join('')+'</select></div><input id="rwFpNote" placeholder="Optional memory — food, host, music, event, feeling…" style="width:100%;margin-top:8px;background:var(--bg3,#171A24);border:1px solid var(--b2,#2A2A36);border-radius:9px;padding:9px;color:var(--t1)"><div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:8px"><button class="tact" onclick="rwFootprintManual(false)">Add without GPS</button><button class="tact" onclick="rwFootprintManual(true)">📍 Add with current GPS</button></div></details>'
     +(recent?'<div style="margin-top:10px"><div style="font-size:10px;color:var(--t3);font-weight:800">RECENT CONFIRMED VISITS</div>'+recent+'</div>':'')
-    +'<div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:12px"><button class="tact" onclick="rwFootprintPoster()">🖼️ Journey picture</button><button class="tact" onclick="rwFootprintCertificate()">🏅 Completion certificate</button><label class="tact" style="cursor:pointer">📸 Photo + route collage<input type="file" accept="image/*" multiple style="display:none" onchange="rwFootprintCollage(this.files)"></label><button class="tact" onclick="rwFootprintClear()">Reset footprint</button></div>';
+    +'<div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:12px"><button class="tact" onclick="rwFootprintPoster()">🖼️ Journey picture</button><button class="tact" onclick="rwFootprintCertificate()">🏅 Completion certificate</button><button class="tact" onclick="rwJourneyPassport()">🛡️ Passport stamp</button><button class="tact" onclick="rwJourneyReel()">🎞️ Route Reel</button><button class="tact" onclick="rwJourneyExportGeoJSON()">📴 Export offline route</button><button class="tact" onclick="rwJourneyShareToMesh()">🧭 Share to Trail Mesh</button><label class="tact" style="cursor:pointer">📸 Photo + route collage<input type="file" accept="image/*" multiple style="display:none" onchange="rwFootprintCollage(this.files)"></label><button class="tact" onclick="rwFootprintClear()">Reset footprint</button></div>';
   paintRoute(t);
 }
 
 function currentPosition(cb){
   if(!navigator.geolocation){toast('Location is not available on this device');return;}
-  navigator.geolocation.getCurrentPosition(function(p){cb({lat:p.coords.latitude,lon:p.coords.longitude,accuracy:p.coords.accuracy,at:Date.now()});},function(e){toast(e&&e.code===1?'Location permission was not granted':'Could not get current location');},{enableHighAccuracy:true,timeout:15000,maximumAge:7000});
+  navigator.geolocation.getCurrentPosition(function(p){cb({lat:p.coords.latitude,lon:p.coords.longitude,accuracy:p.coords.accuracy,altitude:p.coords.altitude,altitudeAccuracy:p.coords.altitudeAccuracy,speed:p.coords.speed,at:Date.now()});},function(e){toast(e&&e.code===1?'Location permission was not granted':'Could not get current location');},{enableHighAccuracy:true,timeout:15000,maximumAge:7000});
 }
 function addVisit(v){
   var t=getTrip(activeDest);
@@ -165,7 +219,7 @@ window.rwFootprintDismissNearby=function(){
 
 function recordPosition(p){
   if(!activeDest)return;
-  var t=getTrip(activeDest), pt={lat:p.coords.latitude,lon:p.coords.longitude,accuracy:p.coords.accuracy,altitude:p.coords.altitude,speed:p.coords.speed,at:Date.now()};
+  var t=getTrip(activeDest), pt={lat:p.coords.latitude,lon:p.coords.longitude,accuracy:p.coords.accuracy,altitude:p.coords.altitude,altitudeAccuracy:p.coords.altitudeAccuracy,speed:p.coords.speed,at:Date.now()};
   if(!isFinite(pt.lat)||!isFinite(pt.lon)||(pt.accuracy!=null&&pt.accuracy>120))return;
   var last=t.track[t.track.length-1];
   if(last){
@@ -185,10 +239,11 @@ function startWatch(dest){
   activeWatch=navigator.geolocation.watchPosition(recordPosition,function(e){
     if(e&&e.code===1){try{navigator.geolocation.clearWatch(activeWatch);}catch(_){}activeWatch=null;var tt=getTrip(activeDest);tt.status='paused';saveTrip(tt);toast('Location permission was not granted — manual check-ins still work');renderPanel(activeDest,window._tripPins||tt.planned||[]);}
   },{enableHighAccuracy:true,maximumAge:8000,timeout:20000});
-  renderPanel(activeDest,window._tripPins||t.planned||[]); toast('Journey Trace started — your real route will light up');
+  nativeJourneyStart(activeDest); renderPanel(activeDest,window._tripPins||t.planned||[]); toast('Journey Trace started — your real route will light up');
 }
 function stopWatch(finish){
   if(activeWatch!=null){try{navigator.geolocation.clearWatch(activeWatch);}catch(e){}activeWatch=null;}
+  nativeJourneyStop().then(function(){return window.rwJourneyPullNative?window.rwJourneyPullNative():0;});
   var t=getTrip(activeDest);t.status=finish?'finished':'paused';if(finish)t.endedAt=Date.now();saveTrip(t);renderPanel(activeDest,window._tripPins||t.planned||[]);
 }
 window.rwJourneyStart=function(dest){
@@ -232,6 +287,45 @@ function maybeInstallMapboxBase(){
     _tripMapLayers.streets=mb;_tripMapLayers.__rwMapbox=true;
   }catch(e){}
 }
+
+window.rwJourneyPassport=function(){
+  if(typeof openPassport==='function'){openPassport();return;}
+  toast('Journey Passport is unavailable in this build');
+};
+window.rwJourneyExportGeoJSON=function(){
+  var t=getTrip(activeDest), pts=routePoints(t);
+  if(!pts.length&&!t.visits.length){toast('Record part of a journey first');return;}
+  var features=[];
+  if(pts.length)features.push({type:'Feature',properties:{kind:'actual-route',destination:t.destination,distanceKm:+tripDistance(t).toFixed(2)},geometry:{type:'LineString',coordinates:pts.map(function(p){return[p.lon,p.lat,p.altitude==null?0:Number(p.altitude)];})}});
+  t.visits.forEach(function(v){if(!isFinite(v.lat)||!isFinite(v.lon))return;features.push({type:'Feature',properties:{kind:'confirmed-visit',name:v.name,type:v.type||'other',note:v.note||'',at:v.at||null},geometry:{type:'Point',coordinates:[v.lon,v.lat,v.altitude==null?0:Number(v.altitude)]}});});
+  var blob=new Blob([JSON.stringify({type:'FeatureCollection',properties:{source:'RoamWise Journey Trace',destination:t.destination,exportedAt:new Date().toISOString()},features:features},null,2)],{type:'application/geo+json'});
+  var u=URL.createObjectURL(blob),a=document.createElement('a');a.href=u;a.download='roamwise-'+idFor(t.destination)+'-route.geojson';a.click();setTimeout(function(){URL.revokeObjectURL(u);},30000);toast('Offline route exported as GeoJSON');
+};
+function rwJourneySimplify(points,max){
+  points=points||[];if(points.length<=max)return points.slice();
+  var out=[],step=(points.length-1)/(max-1);for(var i=0;i<max;i++)out.push(points[Math.min(points.length-1,Math.round(i*step))]);return out;
+}
+window.rwJourneyShareToMesh=function(){
+  var t=getTrip(activeDest), plugin=null;
+  try{plugin=window.Capacitor&&window.Capacitor.Plugins&&window.Capacitor.Plugins.NearbyMesh;}catch(e){}
+  if(!plugin||typeof plugin.sendMessage!=='function'){toast('Trail Mesh sharing is available in the Android app when a verified mesh session is running');return;}
+  var e=elevationStats(t), pts=rwJourneySimplify(routePoints(t),24);
+  var packet={rw:1,type:'journey-trace-summary',id:'jt-'+Date.now().toString(36),at:Date.now(),data:{destination:t.destination,distanceKm:+tripDistance(t).toFixed(2),completion:completion(t,t.planned),visits:t.visits.slice(-12).map(function(v){return{name:v.name,type:v.type||'other',at:v.at||0};}),route:pts.map(function(p){return{lat:+Number(p.lat).toFixed(5),lon:+Number(p.lon).toFixed(5),alt:p.altitude==null?null:Math.round(Number(p.altitude)),at:p.at||0};}),elevation:e.available?{min:Math.round(e.min),max:Math.round(e.max),ascent:Math.round(e.ascent)}:null}};
+  plugin.sendMessage({message:JSON.stringify(packet),endpointId:null}).then(function(){toast('Journey summary shared with verified nearby Trail Mesh peers');}).catch(function(){toast('Start Trail Mesh and connect a verified teammate first');});
+};
+window.rwJourneyReel=function(){
+  var t=getTrip(activeDest), pts=routePoints(t);if(pts.length<2){toast('Record more of your route before making a Reel');return;}
+  if(!window.MediaRecorder){toast('Route Reel needs a browser/app build with MediaRecorder support');return;}
+  var c=document.createElement('canvas');c.width=1080;c.height=1920;var x=c.getContext('2d'),stream=c.captureStream(30),mime=['video/webm;codecs=vp8','video/webm'].find(function(m){return MediaRecorder.isTypeSupported(m);});
+  if(!mime){toast('This device cannot encode the Route Reel yet');return;}
+  var rec=new MediaRecorder(stream,{mimeType:mime,videoBitsPerSecond:5000000}),chunks=[],start=performance.now(),dur=6500,e=elevationStats(t);
+  rec.ondataavailable=function(ev){if(ev.data&&ev.data.size)chunks.push(ev.data);};
+  rec.onstop=function(){var blob=new Blob(chunks,{type:mime}),u=URL.createObjectURL(blob),a=document.createElement('a');a.href=u;a.download='roamwise-'+idFor(t.destination)+'-route-reel.webm';a.click();setTimeout(function(){URL.revokeObjectURL(u);},30000);toast('Route Reel saved — ready to share');};
+  var minLat=Math.min.apply(null,pts.map(function(p){return p.lat;})),maxLat=Math.max.apply(null,pts.map(function(p){return p.lat;})),minLon=Math.min.apply(null,pts.map(function(p){return p.lon;})),maxLon=Math.max.apply(null,pts.map(function(p){return p.lon;}));if(maxLat-minLat<.001){maxLat+=.001;minLat-=.001;}if(maxLon-minLon<.001){maxLon+=.001;minLon-=.001;}
+  function xy(p){return[110+(p.lon-minLon)/(maxLon-minLon)*860,420+(maxLat-p.lat)/(maxLat-minLat)*930];}
+  function frame(now){var q=Math.min(1,(now-start)/dur),n=Math.max(2,Math.floor(pts.length*q));var g=x.createLinearGradient(0,0,0,1920);g.addColorStop(0,'#080912');g.addColorStop(.55,'#17101f');g.addColorStop(1,'#260b16');x.fillStyle=g;x.fillRect(0,0,1080,1920);x.fillStyle='#FF697A';x.font='700 28px Arial';x.fillText('ROAMWISE · JOURNEY TRACE',70,95);x.fillStyle='#fff';x.font='700 64px Georgia';x.fillText(String(t.destination).slice(0,25),70,180);x.fillStyle='#A9A59C';x.font='25px Arial';x.fillText(tripDistance(t).toFixed(1)+' km · '+t.visits.length+' confirmed places · '+completion(t,t.planned)+'% of plan',70,230);x.strokeStyle='rgba(255,255,255,.06)';x.lineWidth=2;for(var gy=360;gy<1420;gy+=120){x.beginPath();x.moveTo(70,gy);x.lineTo(1010,gy);x.stroke();}x.strokeStyle='rgba(255,77,103,.2)';x.lineWidth=18;x.lineCap='round';x.beginPath();pts.slice(0,n).forEach(function(p,i){var z=xy(p);if(i)x.lineTo(z[0],z[1]);else x.moveTo(z[0],z[1]);});x.stroke();x.strokeStyle='#FF4D67';x.lineWidth=7;x.beginPath();pts.slice(0,n).forEach(function(p,i){var z=xy(p);if(i)x.lineTo(z[0],z[1]);else x.moveTo(z[0],z[1]);});x.stroke();var cur=xy(pts[n-1]);x.fillStyle='#fff';x.beginPath();x.arc(cur[0],cur[1],13,0,Math.PI*2);x.fill();x.fillStyle='#F04455';x.beginPath();x.arc(cur[0],cur[1],8,0,Math.PI*2);x.fill();x.fillStyle='#E8BA6C';x.font='700 28px Arial';x.fillText('THE REAL ROUTE',70,1510);x.fillStyle='#fff';x.font='700 43px Georgia';x.fillText(q<1?'Still becoming a story…':'Journey complete.',70,1580);x.fillStyle='#A9A59C';x.font='24px Arial';if(e.available)x.fillText('Altitude '+Math.round(e.min)+'–'+Math.round(e.max)+' m · ascent ~'+Math.round(e.ascent)+' m',70,1630);x.fillText('roamwise.co.in',70,1810);if(q<1)requestAnimationFrame(frame);else rec.stop();}
+  rec.start(200);requestAnimationFrame(frame);toast('Rendering your vertical Route Reel…');
+};
 
 window.rwFootprintClear=function(){
   if(!activeDest)return;if(!confirm('Reset this journey footprint on this device?'))return;
