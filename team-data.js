@@ -13,7 +13,8 @@ window.RW_TEAM = [
     name: "Mohit Pandey",
     role: "Founder",
     funRole: "Operating behind the scenes",
-    photo: "",
+    photo: "/team/mohit-pandey.webp",
+    photoPosition: "50% 50%",
     bio: "Leads RoamWise across product, technology, partnerships and day-to-day operations — building quietly from the Himalayas.",
     links: { linkedin: "", email: "founder@roamwise.co.in" }
   },
