@@ -168,6 +168,7 @@ test('handleCashfreeOrder: success — posts to the sandbox Order Create endpoin
     assert.equal(seenBody.customer_details.customer_phone, '9999999999');
     assert.equal(seenBody.customer_details.customer_id, 'u1', 'authenticated Firebase uid must override client input');
     assert.equal(seenBody.customer_details.customer_email, 'a@b.com', 'verified token email must override client input');
+    assert.match(seenBody.order_meta.return_url, /^https:\/\/www\.roamwise\.co\.in\/\?rw_payment=return&order_id=rw_/);
     // the response the browser gets must never carry the secret key back
     assert.equal(JSON.stringify(body).indexOf('test_secret_key'), -1);
   } finally { global.fetch = realFetch; }
@@ -605,6 +606,14 @@ test('cashfree-adapter.js registers itself as "cashfree" without disturbing the 
   const ctx = loadCashfreeAdapter({ rwApi: () => null });
   assert.equal(ctx.RW_PAYMENT_PROVIDER, 'manual_upi', 'registering a new adapter must not change the default provider');
   assert.ok(ctx.RWPaymentGateway.current() === null || ctx.RWPaymentGateway.current().id !== 'cashfree');
+});
+
+test('Cashfree uses full-page hosted checkout and keeps a resumable pending order instead of nesting a second modal', () => {
+  const source = read('js/payments/providers/cashfree-adapter.js');
+  assert.match(source, /redirectTarget:'_self'/);
+  assert.doesNotMatch(source, /redirectTarget:\s*'_modal'/);
+  assert.match(source, /rw_cashfree_pending_v2/);
+  assert.match(source, /rwResumeCashfreePayment/);
 });
 
 // ---------------------------------------------------------------------------

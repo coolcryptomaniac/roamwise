@@ -11,6 +11,18 @@ const LIVE_BASE = 'https://api.cashfree.com';
 function isLive(env){ return String(env.CASHFREE_ENV || 'sandbox').toLowerCase() === 'live'; }
 function cashfreeBase(env){ return isLive(env) ? LIVE_BASE : SANDBOX_BASE; }
 function safeId(v){ return String(v || '').replace(/[^A-Za-z0-9_-]/g, '').slice(0, 45); }
+function paymentReturnUrl(env,orderId){
+  const configured=String(env.PAYMENT_RETURN_URL||'https://www.roamwise.co.in/');
+  try{
+    const url=new URL(configured);
+    if(url.protocol!=='https:')throw new Error('https required');
+    url.searchParams.set('rw_payment','return');
+    url.searchParams.set('order_id',orderId);
+    return url.toString();
+  }catch(_){
+    return `https://www.roamwise.co.in/?rw_payment=return&order_id=${encodeURIComponent(orderId)}`;
+  }
+}
 function cfHeaders(env, extra){
   return Object.assign({
     'content-type':'application/json',
@@ -112,10 +124,10 @@ export function createCashfreeHandlers(overrides){
     const orderId='rw_'+safeId(Date.now()+'_'+Math.random().toString(36).slice(2,8));
     const orderBody={
       order_id:orderId,order_amount:amount,order_currency:'INR',
-      customer_details:{customer_id:safeId(ctx.claims.uid),customer_phone:phone.slice(0,20)}
+      customer_details:{customer_id:safeId(ctx.claims.uid),customer_phone:phone.slice(0,20)},
+      order_meta:{return_url:paymentReturnUrl(env,orderId)}
     };
     if(ctx.claims.email||customer.email)orderBody.customer_details.customer_email=String(ctx.claims.email||customer.email).slice(0,160);
-    if(env.PAYMENT_RETURN_URL)orderBody.order_meta={return_url:env.PAYMENT_RETURN_URL};
     if(meta.planId||meta.label)orderBody.order_note=String(meta.label||meta.planId||'').slice(0,200);
     let r,data;
     try{

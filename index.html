@@ -116,7 +116,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-check-compat.js"></script>
-<link rel="stylesheet" href="app.css?v=rw-v122-nonblocking-auth">
+<link rel="stylesheet" href="app.css?v=rw-v123-checkout-focus">
 <link rel="stylesheet" href="mobile-stability.css?v=rw-v121-hollywood-smooth-read">
 <script src="js/runtime/freshness.js?v=rw-v121-hollywood-smooth-read" defer></script>
 <style id="rwPolish">
@@ -1006,11 +1006,11 @@ function rwDismissCreatorBanner(){
 
 <!-- PAY MODAL -->
 <div class="overlay" id="payOverlay">
-  <div class="modal">
+  <div class="modal pay-modal" id="payModal" role="dialog" aria-modal="true" aria-labelledby="payModalTitle">
     <button class="modal-close" onclick="closePay()">&#215;</button>
     <div class="modal-head">
       <span class="modal-crown">&#128081;</span>
-      <div class="modal-title" data-i18n="pay.title">RoamWise Pro</div>
+      <div class="modal-title" id="payModalTitle" data-i18n="pay.title">RoamWise Pro</div>
       <div class="modal-sub" data-i18n="pay.sub">Pay once &bull; Unlock forever</div>
     </div>
     <div class="modal-body">
@@ -1058,11 +1058,32 @@ function rwDismissCreatorBanner(){
         The &#8377;100 lifetime founder price is capped at the first 1,000 Pro members (500 free for NMIMS students + 500 paid) and will not return once filled. After that, standard pricing applies: Daily &#8377;19, Weekly &#8377;99, Monthly &#8377;299, 3-month &#8377;749, Yearly &#8377;2,499 (30% off), Lifetime &#8377;14,999. All prices in INR, inclusive of applicable taxes.
       </div>
       <div id="payMethods" style="display:none">
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
-        <button class="tact" style="font-size:11px;padding:6px 10px" onclick="backToPlanPicker()">&#8592; Change plan</button>
-        <div id="planHeader" style="font-size:13px;font-weight:700;color:var(--gold2)"></div>
+      <div class="selected-plan-bar">
+        <button class="tact selected-plan-back" type="button" onclick="backToPlanPicker()">&#8592; Change</button>
+        <div>
+          <div class="selected-plan-kicker">You selected</div>
+          <div id="planHeader" class="selected-plan-title"></div>
+        </div>
       </div>
-      <div class="features-grid" id="planFeatures"></div>
+      <details class="selected-plan-details">
+        <summary>See what is included</summary>
+        <div class="features-grid" id="planFeatures"></div>
+      </details>
+      <div class="payment-method-heading">
+        <div class="section-label">Choose how you want to pay</div>
+        <div class="payment-method-sub">Pick one option. You will never be charged twice or automatically.</div>
+      </div>
+      <div class="payment-method-chooser" id="paymentMethodChooser" role="tablist" aria-label="Payment method">
+        <button class="payment-choice" id="paymentChoiceCashfree" type="button" role="tab" aria-controls="cashfreeOption" aria-selected="false" onclick="selectPaymentMethod('cashfree')" style="display:none">
+          <span class="payment-choice-icon" aria-hidden="true">&#9889;</span>
+          <span><b>Secure checkout</b><small>UPI, cards, netbanking &amp; wallets</small></span>
+          <span class="payment-choice-tag">Recommended</span>
+        </button>
+        <button class="payment-choice" id="paymentChoiceUpi" type="button" role="tab" aria-controls="manualUpiOption" aria-selected="false" onclick="selectPaymentMethod('upi')">
+          <span class="payment-choice-icon" aria-hidden="true">&#128241;</span>
+          <span><b>Pay directly by UPI</b><small>UPI app or QR, then submit UTR</small></span>
+        </button>
+      </div>
       <!-- Cashfree: an ADDITIONAL, one-off-purchase-only checkout option —
            hidden by default and only shown/populated by pickPlan() ->
            _renderCashfreeOption() (js/payments/plan-picker.js) when both
@@ -1071,13 +1092,21 @@ function rwDismissCreatorBanner(){
            see PAYMENT-GATEWAY-ARCHITECTURE.md), and (b) an admin has turned
            Cashfree on. Manual UPI below is never hidden by this — it stays
            a genuine choice for every purchase, subscription or one-off. -->
-      <div id="cashfreeOption" style="display:none;margin-bottom:12px">
-        <div class="section-label">&#9889; Instant checkout &mdash; cards / UPI / netbanking via Cashfree</div>
-        <input class="txn-inp" id="cashfreePhone" type="tel" inputmode="tel" autocomplete="tel" maxlength="18" placeholder="Mobile number for Cashfree receipt" style="width:100%;margin-bottom:8px">
-        <button class="upi-any" onclick="payViaCashfree()">&#128179; Pay via Cashfree &mdash; instant, automatic unlock</button>
-        <div class="upi-note">Secured by Cashfree, a licensed payment aggregator. Available for one-time purchases only, for now.</div>
-        <div class="divider-or">or pay directly below &mdash; zero middlemen, zero extra fees</div>
+      <div id="cashfreeOption" class="payment-panel cashfree-panel" role="tabpanel" aria-labelledby="paymentChoiceCashfree" style="display:none">
+        <div class="cashfree-focus">
+          <div class="cashfree-focus-title">Finish on Cashfree&rsquo;s secure payment page</div>
+          <div class="cashfree-focus-sub">It opens full-screen so every payment option remains visible on iPhone, Android, Mac and Windows.</div>
+          <label class="cashfree-phone-label" for="cashfreePhone">Mobile number for payment receipt</label>
+          <input class="txn-inp cashfree-phone" id="cashfreePhone" type="tel" inputmode="tel" autocomplete="tel" maxlength="18" placeholder="+91 98765 43210" aria-describedby="cashfreePhoneHelp cashfreeStatus">
+          <div class="cashfree-phone-help" id="cashfreePhoneHelp">Required by Cashfree. Add your country code; we remember it only on this device.</div>
+          <button class="cashfree-pay-button" id="cashfreePayBtn" type="button" onclick="payViaCashfree()">
+            <span id="cashfreePayLabel">Continue to secure payment</span><span aria-hidden="true">&#8594;</span>
+          </button>
+          <div class="cashfree-status" id="cashfreeStatus" role="status" aria-live="polite">Cashfree supports UPI, cards, netbanking and available wallets.</div>
+          <button class="payment-fallback-link" type="button" onclick="selectPaymentMethod('upi')">Having trouble? Pay directly by UPI instead</button>
+        </div>
       </div>
+      <div id="manualUpiOption" class="payment-panel manual-upi-panel" role="tabpanel" aria-labelledby="paymentChoiceUpi">
       <div class="section-label">&#129399; Pay directly &mdash; zero middlemen, zero extra fees</div>
       <div class="upi-apps">
         <button class="upi-app phonepe" onclick="payVia('phonepe')"><span class="ua-ic" style="background:#fff"><svg width="18" height="18" viewBox="0 0 24 24"><circle cx="12" cy="12" r="12" fill="#5F259F"/><text x="12" y="16.5" text-anchor="middle" font-family="Arial" font-weight="bold" font-size="11" fill="#fff">&#2346;&#2375;</text></svg></span>PhonePe</button>
@@ -1102,6 +1131,7 @@ function rwDismissCreatorBanner(){
         </div>
         <div id="utrMsg" style="display:none;font-size:11px;margin-top:7px;padding:6px 8px;border-radius:6px;line-height:1.5"></div>
       </div>
+      </div><!-- /manualUpiOption -->
       </div><!-- /payMethods -->
       </div><!-- /payIndiaSec -->
 
@@ -1222,10 +1252,10 @@ function rwDismissCreatorBanner(){
 <script src="js/pricing/referral.js"></script>
 <script src="js/payments/gateway-adapter.js"></script>
 <script src="js/payments/providers/manual-upi-adapter.js?v=rw-pay-nonblocking-2"></script>
-<script src="js/payments/providers/cashfree-adapter.js?v=rw-pay-nonblocking-2"></script>
+<script src="js/payments/providers/cashfree-adapter.js?v=rw-checkout-focus-1"></script>
 <script src="js/payments/checkout.js"></script>
 <script src="js/payments/partner-redeem.js"></script>
-<script src="js/payments/plan-picker.js?v=rw-pay-nonblocking-2"></script>
+<script src="js/payments/plan-picker.js?v=rw-checkout-focus-1"></script>
 <script src="js/data/regions.js"></script>
 <script src="js/data/country-info.js"></script>
 <script src="js/data/place-overrides.js"></script>
@@ -1339,7 +1369,7 @@ function rwDismissCreatorBanner(){
 <script src="js/boot/auth-init.js?v=rw-android-google-3" defer></script>
 <script src="js/core/push-notifications.js?v=rw-v121-hollywood-smooth-read" defer></script>
 <script src="app.js?v=rw-v121-hollywood-smooth-read" defer></script>
-<script src="js/boot/init.js?v=rw-v121-hollywood-smooth-read" defer></script>
+<script src="js/boot/init.js?v=rw-v123-checkout-focus" defer></script>
 <script src="roamwise-premium-itinerary.js?v=rw-v118-mobile-audio-fresh" defer></script>
 <script src="itinerary-library/preset-loader.js" defer></script>
 </body>

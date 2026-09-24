@@ -37,6 +37,39 @@
 var _selectedPlan = null; /* set by pickPlan() — drives the amount/label for whatever the user is actually buying */
 var _currentOrder = null; /* set by pickPlan() via the manual-UPI adapter's createOrder() — the order object payVia()/buildQR() hand to it */
 var _cfOrder = null;      /* set by pickPlan(), one-off plans only, when Cashfree is turned on — the order object payViaCashfree() hands to the Cashfree adapter */
+var _selectedPaymentMethod = 'upi';
+
+/* Keep the hosted gateway and the manual UPI/UTR form in separate panels.
+   Only one panel is visible at a time, avoiding nested scroll and clipped
+   gateway controls on small Safari viewports. */
+function selectPaymentMethod(method){
+  var cashfreeChoice=el('paymentChoiceCashfree');
+  var cashfreeAvailable=!!_cfOrder && (!cashfreeChoice || cashfreeChoice.style.display!=='none');
+  _selectedPaymentMethod=(method==='cashfree'&&cashfreeAvailable)?'cashfree':'upi';
+  var cashfreePanel=el('cashfreeOption'),upiPanel=el('manualUpiOption'),upiChoice=el('paymentChoiceUpi');
+  if(cashfreePanel)cashfreePanel.style.display=_selectedPaymentMethod==='cashfree'?'block':'none';
+  if(upiPanel)upiPanel.style.display=_selectedPaymentMethod==='upi'?'block':'none';
+  if(cashfreeChoice){
+    cashfreeChoice.classList.toggle('selected',_selectedPaymentMethod==='cashfree');
+    cashfreeChoice.setAttribute('aria-selected',_selectedPaymentMethod==='cashfree'?'true':'false');
+  }
+  if(upiChoice){
+    upiChoice.classList.toggle('selected',_selectedPaymentMethod==='upi');
+    upiChoice.setAttribute('aria-selected',_selectedPaymentMethod==='upi'?'true':'false');
+  }
+}
+
+/* Shared state hook for the adapter. A failed SDK/session never disables the
+   manual UPI fallback. */
+function rwSetCashfreeState(state,message){
+  var button=el('cashfreePayBtn'),label=el('cashfreePayLabel'),status=el('cashfreeStatus');
+  if(button){button.disabled=state==='busy';if(button.setAttribute)button.setAttribute('aria-busy',state==='busy'?'true':'false');}
+  if(label)label.textContent=state==='busy'?'Preparing secure checkout\u2026':'Continue to secure payment';
+  if(status){
+    if(status.classList&&status.classList.toggle){status.classList.toggle('is-error',state==='error');status.classList.toggle('is-success',state==='success');}
+    status.textContent=message||(state==='busy'?'Creating a secure payment session\u2026':'Cashfree supports UPI, cards, netbanking and available wallets.');
+  }
+}
 /* Renders the real feature checklist for whatever the user just picked, into
    #planFeatures, reusing the same .features-grid/.feat-item/.feat-ck markup
    the static pre-selection teaser uses so it looks native. tierId is the
@@ -80,6 +113,7 @@ function pickPlan(planId, priceINR, label, tierId, category){
   var picker = el('planPicker'); if(picker) picker.style.display='none';
   var methods = el('payMethods'); if(methods){
     methods.style.display='block';
+    var payModal=el('payModal');if(payModal)payModal.classList.add('payment-step');
     var cp = el('cryptoPanel');
     if(!cp && cryptoConfigured()){ cp=document.createElement('div'); cp.id='cryptoPanel'; methods.appendChild(cp); }
     if(cp) cp.innerHTML = cryptoPanelHTML();
@@ -109,10 +143,18 @@ function _renderCashfreeOption(category, priceINR, planId, label, tierId){
   var sandboxAllowed = window.RW_CASHFREE_ENV!=='sandbox'
     || (typeof user!=='undefined' && !!user && user.uid===window.RW_CASHFREE_SANDBOX_UID);
   var cashfreeOn = (category === 'oneoff') && RW_PAYMENT_PROVIDER === 'cashfree' && !!cf && sandboxAllowed;
-  if(!cashfreeOn){ box.style.display = 'none'; return; }
+  var choice=el('paymentChoiceCashfree');
+  if(!cashfreeOn){
+    box.style.display = 'none';
+    if(choice)choice.style.display='none';
+    selectPaymentMethod('upi');
+    return;
+  }
   _cfOrder = cf.createOrder(priceINR, {planId:planId, label:label, tierId:tierId, category:category});
   var phone=el('cashfreePhone');if(phone&&!phone.value&&typeof user!=='undefined'&&user&&user.phoneNumber)phone.value=user.phoneNumber;
-  box.style.display = 'block';
+  if(choice)choice.style.display='flex';
+  rwSetCashfreeState('ready');
+  selectPaymentMethod('cashfree');
 }
 
 /* Explicit, additional Cashfree checkout \u2014 see _renderCashfreeOption() for
@@ -127,12 +169,15 @@ function payViaCashfree(){
     var phone=el('cashfreePhone'),value=phone&&phone.value||'';
     if(!cf.setCustomerPhone||!cf.setCustomerPhone(_cfOrder,value)){showToast('Enter a valid mobile number with country code for Cashfree, for example +919876543210.');if(phone)phone.focus();return;}
   }
-  cf.openCheckout(_cfOrder, 'cashfree');
+  rwSetCashfreeState('busy');
+  var opened=cf.openCheckout(_cfOrder, 'cashfree');
+  if(opened&&typeof opened.catch==='function')opened.catch(function(){});
 }
 function backToPlanPicker(){
   var picker = el('planPicker'); if(picker) picker.style.display='block';
   var methods = el('payMethods'); if(methods) methods.style.display='none';
   var teaser = el('staticFeaturesTeaser'); if(teaser) teaser.style.display='';
+  var payModal=el('payModal');if(payModal)payModal.classList.remove('payment-step');
 }
 /* setTier() removed — replaced by pickPlan(), which drives the full tier grid */
 /* upiParams()/UPI_VPA/UPI_NAME/UPI_AMT moved to js/payments/providers/manual-upi-adapter.js (pluggable payment gateway pass) */
@@ -280,6 +325,7 @@ function openPay(){
   try{ rwRotateTesti(); }catch(e){ /* best-effort, ignore */ }
   el('payOverlay').classList.add('open');
   document.body.style.overflow = 'hidden';
+  var payModal=el('payModal');if(payModal)payModal.classList.remove('payment-step');
   var picker=el('planPicker'); if(picker) picker.innerHTML='<div style="text-align:center;font-size:12px;color:var(--t3);padding:10px">Loading plans\u2026</div>';
   el('payMethods').style.display='none';
   /* Founder-offer eligibility needs the live signup count — read it, but never
@@ -402,7 +448,12 @@ function renderPlanGrid(founderOpen){
 
   el('planPicker').innerHTML = html;
 }
-function closePay(){ el('payOverlay').classList.remove('open'); document.body.style.overflow=''; }
+function closePay(){
+  el('payOverlay').classList.remove('open');
+  document.body.style.overflow='';
+  var payModal=el('payModal');if(payModal)payModal.classList.remove('payment-step');
+  rwSetCashfreeState('ready');
+}
 
 
 
