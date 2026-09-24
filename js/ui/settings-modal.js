@@ -162,6 +162,7 @@ function renderKeyBoxes(){
 }
 function openSettings(){
   renderKeyBoxes();
+  try{ rwMountPersonalisationSetting(); }catch(e){ /* optional on-device preferences */ }
   try{ rwRenderLinkedSignInMethods(); }catch(e){ /* auth may still be loading */ }
   try{ rwVoiceMountSetting(); }catch(e){ /* best-effort, ignore */ }
   try{ var tp=el('tabPickWrap'); if(tp) tp.innerHTML=rwTabPickerHTML(); }catch(e){ /* best-effort, ignore */ }

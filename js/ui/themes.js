@@ -5,10 +5,11 @@
 
 /* ---- from app.js lines 2366-2441: theme engine (RW_UI_THEMES, rwSetTheme/rwToggleThemeMenu/rwInitTheme) + drawer theme/lang pickers (drThemePick, drLangPick, drThemeSync) ---- */
 /* ==================== THEMES ====================
-   6 themes via a data-theme attribute on <html>. All colors are CSS vars in
+   Theme choices use a data-theme attribute on <html>. All colors are CSS vars in
    app.css, so switching just swaps the attribute. Remembered per device. */
 var RW_UI_THEMES = [
   {id:'midnight', name:'Midnight', sub:'Default dark', dot:'#07090F'},
+  {id:'aurora',   name:'RoamWise Aurora', sub:'Gold · violet · Himalayan blue', dot:'#7A5CFA'},
   {id:'obsidian', name:'Obsidian', sub:'Pure black (OLED)', dot:'#000000'},
   {id:'forest',   name:'Forest',   sub:'Deep green dark', dot:'#0A1410'},
   {id:'daylight', name:'Daylight', sub:'Warm light', dot:'#F7F6F3'},
@@ -53,7 +54,7 @@ function rwInitTheme(){
       return '<a class="dr-link" style="padding:9px 10px" onclick="rwSetTheme(\''+T.id+'\');drThemeSync()"><span class="theme-dot" style="width:15px;height:15px;background:'+T.dot+'"></span> '+T.name+'</a>';
     }).join('');
   }
-  rwSetTheme(saved || 'midnight');
+  rwSetTheme(saved || 'aurora');
   try{ drThemeSync(); }catch(e){ /* best-effort, ignore */ }
 }
 function drThemePick(){
@@ -76,7 +77,7 @@ function drLangPick(){
 }
 function drThemeSync(){
   try{
-    var tv=el('drThemeVal'); if(tv){ var T=RW_UI_THEMES.filter(function(x){return x.id===(lsGet('rw_theme')||'midnight');})[0]; tv.textContent=T?T.name:''; }
+    var tv=el('drThemeVal'); if(tv){ var T=RW_UI_THEMES.filter(function(x){return x.id===(lsGet('rw_theme')||'aurora');})[0]; tv.textContent=T?T.name:''; }
     var lv=el('drLangVal'); if(lv){ var L=RW_LANGS.filter(function(x){return x.code===RW_LANG;})[0]; lv.textContent=L?L.native:''; }
   }catch(e){ /* storage best-effort, ignore */ }
 }
@@ -204,4 +205,3 @@ function rwStartFx(kind, tint){
   }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', boot); else boot();
 })();
-

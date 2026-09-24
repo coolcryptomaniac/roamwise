@@ -18,7 +18,7 @@
  *    caching it would blow the origin's storage quota for no benefit.
  * ------------------------------------------------------------------------- */
 
-var VERSION = 'rw-v122-nonblocking-auth';
+var VERSION = 'rw-v124-personal-group-planner';
 var HTML_CACHE = VERSION + '-html';
 var ASSET_CACHE = VERSION + '-assets';
 
@@ -35,6 +35,8 @@ var PRECACHE = [
   '/js/runtime/freshness.js',
   '/js/audio/focus.js',
   '/js/audio/cues.js',
+  '/js/core/user-preferences.js',
+  '/js/itinerary/party-costs.js',
   '/platform-v5/audio-only.js',
   '/platform-v5/atlas-shinobi.js',
   '/assets/roamwise-opening-first.webp',
