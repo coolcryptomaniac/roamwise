@@ -7,7 +7,7 @@
 (function(){
   'use strict';
 
-  var started=false, feed=null, research=[], interest=[];
+  var started=false, feed=null, research=[], interest=[], moatStats={days:0,trip_saved:0,tusk_stay_handoff:0,tusk_helpful:0,tusk_unhelpful:0,visits:0,searches:0};
   var ACTUAL_INTEREST=['replied','response','meeting','interested','diligence','term','committed'];
   var PLAN_DEFAULTS={
     primaryMarket:'Kumaon / Uttarakhand',
@@ -32,6 +32,60 @@
   function liveOrders(){return typeof CASHFREE_ORDERS!=='undefined'&&Array.isArray(CASHFREE_ORDERS)?CASHFREE_ORDERS:[]}
   function liveBookings(){return typeof DIRECT_BOOKINGS!=='undefined'&&Array.isArray(DIRECT_BOOKINGS)?DIRECT_BOOKINGS:[]}
 
+  function activeMeshCount(){
+    return liveUsers().filter(function(u){
+      var lic=ms(u.trailMeshLicenseUntil),trial=ms(u.trailMeshTrialUntil);
+      var operator=(u.trailMeshPlan==='operator'||u.trailMeshPlan==='enterprise')&&(!lic||lic>Date.now());
+      var selectedTrial=u.trailMeshTrialSelected===true&&trial>Date.now();
+      return operator||selectedTrial;
+    }).length;
+  }
+
+  function auditedPartnerCount(){
+    return livePartners().filter(function(p){
+      return p&&p.verified===true&&
+        p.pricingAudit&&p.pricingAudit.status==='passed'&&
+        p.qualityReview&&p.qualityReview.status==='passed'&&
+        p.verification&&p.verification.overall==='verified';
+    }).length;
+  }
+
+  async function loadMoatStats(){
+    var refs=[],now=new Date();
+    for(var i=0;i<7;i++){
+      var d=new Date(now.getTime()-i*864e5),id=d.toISOString().slice(0,10);
+      refs.push(db.collection('stats').doc(id).get());
+    }
+    try{
+      var docs=await Promise.all(refs),sum={days:docs.length,trip_saved:0,tusk_stay_handoff:0,tusk_helpful:0,tusk_unhelpful:0,visits:0,searches:0};
+      docs.forEach(function(d){
+        var x=d.exists?d.data():{};
+        Object.keys(sum).forEach(function(k){if(k!=='days')sum[k]+=Number(x[k]||0)});
+      });
+      moatStats=sum;
+    }catch(e){
+      moatStats={days:0,trip_saved:0,tusk_stay_handoff:0,tusk_helpful:0,tusk_unhelpful:0,visits:0,searches:0};
+    }
+    renderMoatLedger();
+  }
+
+  function renderMoatLedger(){
+    var partners=livePartners(),verified=partners.filter(function(p){return p&&p.verified===true}).length,audited=auditedPartnerCount();
+    var mesh=activeMeshCount(),refs=liveReferrers().filter(function(r){return r&&r.active!==false&&r.status!=='inactive'&&r.status!=='retired'}).length;
+    var fb=moatStats.tusk_helpful+moatStats.tusk_unhelpful;
+    var helpful=fb?Math.round(moatStats.tusk_helpful/fb*100):null;
+    var completed=liveBookings().filter(function(b){return /completed|complete|fulfilled|stayed/i.test(String(b&&b.status||''))}).length;
+    var set=function(id,value,note){if(el(id))el(id).textContent=value;if(note&&el(id+'Note'))el(id+'Note').textContent=note};
+    set('giMoatSupply',verified+' verified',partners.length+' direct partner records');
+    set('giMoatData',audited+' audited','pricing + quality + identity/property verification passed');
+    set('giMoatTrips',String(moatStats.trip_saved),'7-day anonymous trip-save events; personal vault stays on device');
+    set('giMoatTusk',String(moatStats.tusk_stay_handoff),'7-day Ailon Tusk → stay handoffs; not claimed as bookings');
+    set('giMoatMesh',String(mesh),'active selected trials / operator entitlements');
+    set('giMoatTrust',helpful==null?'—':helpful+'%',fb?fb+' Tusk feedback votes in 7 days':'no feedback votes in the last 7 days');
+    set('giMoatDistribution',String(refs),'active referral / creator distribution routes');
+    if(el('giMoatCompleted'))el('giMoatCompleted').textContent=String(completed);
+  }
+
   function renderSnapshot(){
     var users=liveUsers(),partners=livePartners(),refs=liveReferrers(),orders=liveOrders(),bookings=liveBookings();
     var tracked=users.filter(function(u){return ms(u.lastActive)>0}),cutoff=Date.now()-7*864e5;
@@ -49,6 +103,7 @@
     if(el('giRetentionNote'))el('giRetentionNote').textContent=tracked.length?'7-day active / users with activity timestamps':'activity tracking has no timestamped users yet';
     if(el('giDistributionNote'))el('giDistributionNote').textContent='active referrer / creator routes';
     if(el('giCompletedObserved'))el('giCompletedObserved').textContent=completed.toLocaleString('en-IN');
+    renderMoatLedger();
   }
 
   function fillPlan(p){
@@ -160,7 +215,7 @@
       interest=snap.docs.map(function(d){return Object.assign({id:d.id},d.data())});
       interest.sort(function(a,b){return ms(b.interestUpdatedAt||b.draftUpdatedAt||b.updatedAt||b.createdAt)-ms(a.interestUpdatedAt||a.draftUpdatedAt||a.updatedAt||a.createdAt)});
     }catch(e){interest=[];errors.push(e.message||String(e))}
-    renderSignals();renderResearch();renderInterest();renderSnapshot();
+    renderSignals();renderResearch();renderInterest();renderSnapshot();await loadMoatStats();
     if(el('growthIntelLoadState'))el('growthIntelLoadState').textContent=errors.length?'Some sources need review: '+errors.join(' · '):'Source-backed feeds and private CRM signals loaded.';
   }
 
@@ -192,6 +247,7 @@
 
   window.rwGrowthIntelStart=async function(){
     renderSnapshot();
+    renderMoatLedger();
     if(started){await loadIntel();return}
     started=true;
     await Promise.all([loadPlan(),loadIntel()]);
