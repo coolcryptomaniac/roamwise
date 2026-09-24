@@ -38,7 +38,21 @@ function rwCostUSD(d,amount,days){
   var rr=Number(d&&d.rate);
   return rr>0?total/rr:total;
 }
-function rwTripMoney(d,amount,days){return fmtMoney(rwCostUSD(d,amount,days));}
+function rwTripGroupUSD(d,amount,days){
+  var perPerson=rwCostUSD(d,amount,days);
+  return typeof rwPartyEstimate==='function'?rwPartyEstimate(perPerson).groupTotal:perPerson;
+}
+function rwTripMoney(d,amount,days){return fmtMoney(rwTripGroupUSD(d,amount,days));}
+function rwTripPerPersonMoney(d,amount,days){
+  var base=rwCostUSD(d,amount,days),p=typeof rwPartyEstimate==='function'?rwPartyEstimate(base):{perPerson:base};
+  return fmtMoney(p.perPerson);
+}
+function rwPartyCostContext(d,amount,days){
+  if(typeof rwPartyEstimate!=='function')return '';
+  var p=rwPartyEstimate(rwCostUSD(d,amount,days));
+  if(p.size===1)return '<b>Solo estimate</b> · origin travel excluded unless listed';
+  return '<b>'+p.label+'</b> · '+p.vehicle+' · '+rwTripPerPersonMoney(d,amount,days)+' per person after estimated sharing';
+}
 function rwCostBasis(d,amount){
   var m=rwCostMeta(d),n=Math.round(Number(amount)||0);
   var sym=m.currency==='INR'?'₹':m.currency==='USD'?'$':((d&&d.sym)||m.currency+' ');
@@ -79,6 +93,7 @@ function runSearch(){
   var budUSD = parseInt(el('budgetSlider').value)||1200;
   var interests = [];
   document.querySelectorAll('.tag.on').forEach(function(t){ interests.push(t.dataset.v); });
+  try{ if(typeof rwRememberPlanningPreferences==='function') rwRememberPlanningPreferences(); }catch(e){ /* optional personalisation */ }
 
   var btn = el('searchBtn');
   btn.disabled = true;
@@ -152,11 +167,12 @@ function runSearch(){
 function renderCards(results, month, budUSD, origin, days, aiData, travelStyle, isGenericResult){
   itinBuilt = {};
   var mi = MONTHS.indexOf(month);
+  var party = typeof rwPartyMeta==='function'?rwPartyMeta(typeof rwGetPartySize==='function'?rwGetPartySize():1):{size:1,label:'Solo',vehicle:'Solo'};
   var provLabel = activeProv==='smart' ? 'Smart Search' : activeProv==='roamwise' ? 'RoamWise Hosted AI' : (lsGet('rwKey_'+activeProv) ? activeProv.charAt(0).toUpperCase()+activeProv.slice(1)+' AI' : 'Smart Search');
 
-  var H = `<div class="live-bar"><div class="live-dot"></div><span>Results for <strong style="color:#16BF96">${month}</strong> &bull; ${provLabel}${aiData ? ' &bull; <strong style="color:#BF8CFF">AI enhanced</strong>' : ''}${isPro ? ' &bull; <strong style="color:#E8BA6C">Pro Active</strong>' : ''}</span>${(activeProv==='smart' && !lsGet('rwKey_gemini') && !lsGet('rwKey_groq')) ? '<span style="font-size:10px;color:#4A4946;margin-left:auto;cursor:pointer" onclick="openSettings()">+ Add free AI key</span>' : ''}</div>`;
+  var H = `<div class="live-bar"><div class="live-dot"></div><span>Results for <strong style="color:#16BF96">${month}</strong> &bull; ${provLabel} &bull; <strong style="color:var(--gold2)">${party.label}</strong>${aiData ? ' &bull; <strong style="color:#BF8CFF">AI enhanced</strong>' : ''}${isPro ? ' &bull; <strong style="color:#E8BA6C">Pro Active</strong>' : ''}</span>${(activeProv==='smart' && !lsGet('rwKey_gemini') && !lsGet('rwKey_groq')) ? '<span style="font-size:10px;color:#4A4946;margin-left:auto;cursor:pointer" onclick="openSettings()">+ Add free AI key</span>' : ''}</div>`;
 
-  H += `<div class="cmp-wrap"><table class="cmp-table"><thead><tr><th>Destination</th><th>Crowd in ${month}</th><th>Mid budget</th><th>Visa (India)</th><th>Best months</th></tr></thead><tbody>`;
+  H += `<div class="cmp-wrap"><table class="cmp-table"><thead><tr><th>Destination</th><th>Crowd in ${month}</th><th>${party.size>1?'Group mid · '+party.size:'Solo mid'}</th><th>Visa (India)</th><th>Best months</th></tr></thead><tbody>`;
   results.forEach(function(r){
     var d=r.d, cs=r.cs, bl = cs<35?'badge-low':cs<60?'badge-mid':'badge-hi', ct = cs<35?'Low':cs<60?'Moderate':'Busy';
     var bm = d.bestM.length ? d.bestM.slice(0,3).map(function(m){return MO[m-1]||m;}).join(', ') : 'Year-round';
@@ -268,18 +284,19 @@ function renderCards(results, month, budUSD, origin, days, aiData, travelStyle, 
     var brkItems = [['✈ Origin travel',d.brk.flights],['🏨 Stay',d.brk.stay],['🍜 Food',d.brk.food],['🎫 Activities',d.brk.act],['🚐 Local transport / misc',d.brk.misc]];
     var brkTotal = brkItems.reduce(function(s,x){return s+x[1];},0);
     H += `<div class="tab-pane" id="${T}-bu">
+      <div style="font-size:11px;line-height:1.55;color:var(--t2);padding:9px 11px;margin-bottom:10px;border-radius:11px;background:rgba(232,186,108,.07);border:1px solid rgba(232,186,108,.2)">${rwPartyCostContext(d,d.cost.mid,days)}</div>
       <div class="tier-row">
-        <div class="tier"><div class="tier-lbl">Budget · ${days} days</div><div class="tier-val">${rwTripMoney(d,d.cost.budget,days)}</div><div class="tier-note">${rwCostBasis(d,d.cost.budget)} · modelled</div></div>
-        <div class="tier on"><div class="tier-lbl">Mid-range · ${days} days</div><div class="tier-val">${rwTripMoney(d,d.cost.mid,days)}</div><div class="tier-note">${rwCostBasis(d,d.cost.mid)} · modelled</div></div>
-        <div class="tier"><div class="tier-lbl">Luxury · ${days} days</div><div class="tier-val">${rwTripMoney(d,d.cost.luxury,days)}</div><div class="tier-note">${rwCostBasis(d,d.cost.luxury)} · modelled</div></div>
+        <div class="tier"><div class="tier-lbl">Budget · ${days} days · ${party.size>1?'group':'solo'}</div><div class="tier-val">${rwTripMoney(d,d.cost.budget,days)}</div><div class="tier-note">${rwTripPerPersonMoney(d,d.cost.budget,days)} / person · modelled</div></div>
+        <div class="tier on"><div class="tier-lbl">Mid-range · ${days} days · ${party.size>1?'group':'solo'}</div><div class="tier-val">${rwTripMoney(d,d.cost.mid,days)}</div><div class="tier-note">${rwTripPerPersonMoney(d,d.cost.mid,days)} / person · modelled</div></div>
+        <div class="tier"><div class="tier-lbl">Luxury · ${days} days · ${party.size>1?'group':'solo'}</div><div class="tier-val">${rwTripMoney(d,d.cost.luxury,days)}</div><div class="tier-note">${rwTripPerPersonMoney(d,d.cost.luxury,days)} / person · modelled</div></div>
       </div>
-      <div class="sec-label">Cost breakdown</div>
+      <div class="sec-label">Cost breakdown · per person baseline</div>
       <div class="brk-list">
         ${brkItems.map(function(item){
           var pct = Math.round(item[1]/brkTotal*100);
-          return `<div class="brk-row"><div class="brk-lbl">${item[0]}</div><div class="brk-track"><div class="brk-fill" style="width:${pct}%"></div></div><div class="brk-val">${rwTripMoney(d,item[1],days)}<span class="brk-pct">${pct}%</span></div></div>`;
+          return `<div class="brk-row"><div class="brk-lbl">${item[0]}</div><div class="brk-track"><div class="brk-fill" style="width:${pct}%"></div></div><div class="brk-val">${fmtMoney(rwCostUSD(d,item[1],days))}<span class="brk-pct">${pct}%</span></div></div>`;
         }).join('')}
-        <div class="brk-row" style="border-top:1px solid rgba(255,255,255,.07);padding-top:6px;margin-top:2px"><div class="brk-lbl" style="font-weight:600;color:#EDE8DF">Total</div><div class="brk-track"><div class="brk-fill brk-fill-gold" style="width:100%"></div></div><div class="brk-val" style="color:#E8BA6C;font-weight:600">${rwTripMoney(d,brkTotal,days)}</div></div>
+        <div class="brk-row" style="border-top:1px solid rgba(255,255,255,.07);padding-top:6px;margin-top:2px"><div class="brk-lbl" style="font-weight:600;color:#EDE8DF">Per-person baseline</div><div class="brk-track"><div class="brk-fill brk-fill-gold" style="width:100%"></div></div><div class="brk-val" style="color:#E8BA6C;font-weight:600">${fmtMoney(rwCostUSD(d,brkTotal,days))}</div></div>
       </div>
       ${rwMarketBenchmarkHTML(d)}
       <div class="sec-label">Local prices (${d.sym} ${d.cur})</div>
@@ -320,7 +337,7 @@ function renderCards(results, month, budUSD, origin, days, aiData, travelStyle, 
         <div class="add-row">
           <select class="tfield" id="${T}-tc"><option>Food</option><option>Transport</option><option>Stay</option><option>Activities</option><option>Shopping</option><option>Other</option></select>
           <input class="tfield" type="number" id="${T}-ta" placeholder="Amount" min="0">
-          <button class="add-btn" onclick="addSpend('${T}',${rwCostUSD(d,d.cost.mid,days)})">+ Add</button>
+          <button class="add-btn" onclick="addSpend('${T}',${rwTripGroupUSD(d,d.cost.mid,days)})">+ Add</button>
         </div>
         <div class="log-list" id="${T}-tl"></div>
       </div>`;

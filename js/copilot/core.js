@@ -437,8 +437,17 @@ function cpParseRegex(t){
     var out0={dest:null,to:null,days:null,budget:null,wants:[],smalltalk: !BARE ? 'greet' : (/thank|thx|ty/i.test(BARE)?'thanks':(/bye|gn|goodnight/i.test(BARE)?'bye':(/none/i.test(BARE)?'none':'nice')))};
     return out0;
   }
-  var out={dest:null,to:null,days:null,budget:null,wants:[]};
+  var out={dest:null,to:null,origin:null,days:null,budget:null,wants:[]};
   var lower=' '+t.toLowerCase()+' ';
+  /* Route direction is stronger than generic place scanning. Without this,
+     "from Chennai to Vietnam" found Chennai first and planned locally. Keep
+     both endpoints explicit and let the destination/country scope win. */
+  var route=t.match(/\bfrom\s+([A-Za-z][A-Za-z\s.'-]{1,55}?)\s+to\s+([A-Za-z][A-Za-z\s.'-]{1,55}?)(?=\s+(?:for|in|on|with|under|below|within|budget|next|this|during|by)\b|[,;.!?]|$)/i);
+  if(route){
+    out.origin=route[1].trim();
+    out.dest=route[2].trim();
+    out._route=true;
+  }
   /* budget: 12000 | 12,000 | Rs12000 | ₹12,000 | 8k | under 15k */
   var m=t.match(/(?:\u20b9|rs\.?\s?|inr\s?)?\s?([\d,]{2,})\s?(k\b|thousand)?/i);
   var mk=t.match(/(?:under|below|within|budget(?: of)?|max)?\s*(?:\u20b9|rs\.?|inr)?\s*(\d{1,3})\s*k\b/i);
@@ -447,7 +456,7 @@ function cpParseRegex(t){
          if(mb) out.budget=parseInt((mb[1]||mb[2]).replace(/,/g,''),10); }
   var dm=t.match(/(\d+)\s*[- ]?\s*(?:day|night|din)/i); if(dm) out.days=parseInt(dm[1],10);
   /* destination: DB first (incl. fuzzy), then preposition, then leftover-token */
-  var hit=cpDbFind(t); if(hit) out.dest=hit.name;
+  var hit=out.dest?null:cpDbFind(t); if(hit) out.dest=hit.name;
   if(!out.dest){
     /* Take EVERY preposition match, not just the first: "what to eat in Manali"
        used to capture "eat" from "to eat" and then look up a guide for a verb.
@@ -550,31 +559,33 @@ function cpParseRegex(t){
   }
   /* ---- MULTI-CITY: "delhi covering delhi, jaipur, mumbai, goa" ---- */
   out.stops = (function(){
+    if(out._route) return null;
     var names = rwScanKnown(t);
     return names.length>=2 ? names : null;
   })();
   /* country/region scope beats any single-city guess */
   /* STATE scope beats country scope: "Kerala, India" is a Kerala request, not
      an India request. */
-  var _st = rwDetectState(t);
+  var _st = rwDetectState(out._route?out.dest:t);
   if(_st) out._state = _st;
-  var _ctry = rwDetectCountry(t);
+  var _ctry = rwDetectCountry(out._route?out.dest:t);
   if(_ctry){
     /* A country name QUALIFYING a place ("Kerala, India", "Goa India") is not a
        country-scope request. Only treat it as country scope when no specific
        state or known city is named alongside it. This is why "kerala, india"
        was answering with an all-India itinerary. */
-    var namedPlace = _st || (rwScanKnown(t).length > 0);
+    var namedPlace = !out._route && (_st || (rwScanKnown(t).length > 0));
     if(!namedPlace){
       out._country = _ctry;
-      if(out.dest && RW_COMMON_WORDS.test(String(out.dest))) out.dest = null;
+      if(out._route) out.dest=null;
+      else if(out.dest && RW_COMMON_WORDS.test(String(out.dest))) out.dest = null;
     }
   }
   if(out.stops){ out.dest = out.stops[out.stops.length-1]; out.multi=true; }
   /* RESCUE: if the text contains exactly one KNOWN place, and our extracted
      dest is not itself known, trust the known one. This is what stops
      "i mean to say share budget ... for almora ..." resolving to Say, Niger. */
-  if(!out.multi){
+  if(!out.multi && !out._route){
     var knowns = rwScanKnown(t);
     var destKnown = out.dest && rwKnownMap()[String(out.dest).toLowerCase()];
     if(knowns.length===1 && !destKnown) out.dest = knowns[0];
@@ -608,6 +619,7 @@ function cpParseRegex(t){
    suggestions. Stored on-device; nothing leaves the phone unless the user opts
    into aggregate sharing. This is the honest "learns from user data". */
 function rwLearnIntent(parsed){
+  if(typeof rwPersonalisationEnabled==='function' && !rwPersonalisationEnabled()) return;
   var m={}; try{ m=JSON.parse(lsGet('rw_intent_profile')||'{}'); }catch(e){ /* parse best-effort, ignore malformed/missing data */ }
   m.vibes=m.vibes||{}; m.budgets=m.budgets||[]; m.days=m.days||[]; m.topics=m.topics||{}; m.count=(m.count||0)+1;
   if(parsed.topic) m.topics[parsed.topic]=(m.topics[parsed.topic]||0)+1;
@@ -617,6 +629,7 @@ function rwLearnIntent(parsed){
   lsSet('rw_intent_profile', JSON.stringify(m));
 }
 function rwUserProfile(){
+  if(typeof rwPersonalisationEnabled==='function' && !rwPersonalisationEnabled()) return {topVibe:null,avgBudget:null,typicalDays:null,count:0};
   try{
     var m=JSON.parse(lsGet('rw_intent_profile')||'{}');
     var topVibe=null, max=0;
@@ -691,8 +704,9 @@ async function rwResolvePlace(name){
 function copilotSend(fromHero){
   var inp = el(fromHero? 'heroInput' : 'cpInput');
   var t=(inp && inp.value||'').trim(); if(!t) return;
-  /* Primary CTA of the app — asking Tusk to plan/answer something. */
-  try{ rwPlayCue('hero_cta_or_big_action'); }catch(e){ /* best-effort, ignore */ }
+  /* Search must stay quiet. The previous 10-second CTA music cue restarted on
+     every prompt and broke concentration; retain tactile feedback only. */
+  try{ if(typeof rwStopCue==='function')rwStopCue(false);if(typeof rwHaptic==='function')rwHaptic('light'); }catch(e){ /* best-effort, ignore */ }
   inp.value='';
   if(fromHero){
     /* Conversation flows vertically right on the page — no popup. */
@@ -764,6 +778,11 @@ function copilotSend(fromHero){
           + (_cpCtx.budget? ', budget: \u20b9'+_cpCtx.budget : '')
           + '. If the user does not name a new place, they mean this one.\n';
       }
+      if(intents._route){
+        facts += 'Explicit route intent — origin: '+(intents.origin||'not stated')
+          +'; destination: '+(intents._country||intents.dest||'not stated')
+          +'. Never replace the destination with the origin.\n';
+      }
       var prompt='You are Ailon Tusk \u2014 a witty, warm, razor-sharp travel companion with playful Bollywood-masala energy and light Hinglish sprinkles (arre, chalo, mast, boss, scene, ekdum). You are the friend who has actually BEEN everywhere and gives it to people straight, with a grin. '
         +'MATCH YOUR LENGTH TO THE QUESTION: a quick factual question (a price, a distance, is-X-open) gets ONE punchy sentence \u2014 do not pad it. Only a genuinely open request (plan my trip, what should I do in X) earns a fuller answer, still under 90 words. '
         +'Personality is seasoning, not the meal: one small filmi flourish max, then the real facts \u2014 numbers, routes, prices, names \u2014 100% accurate and clear. '
@@ -815,7 +834,8 @@ function copilotSend(fromHero){
        guide for anywhere on Earth, and only then admit it needs a key. This is
        what turned "generic answers" into real ones. */
     if(intents.smalltalk){ cpFinish(thinking, tkSmalltalk(intents.smalltalk), intents, t); return; }
-    var kb = cpSmartAnswer(t);
+    if(intents._country || intents._state){ cpFinish(thinking, '', intents, t); return; }
+    var kb = intents._country ? null : cpSmartAnswer(t);
     var place = intents.dest;
     /* Tusk recognised a place-shaped query but the curated engine has nothing
        for it — log it anonymously so the (previously unfed) daily learning

@@ -47,6 +47,37 @@ body {
 .copilot-actions,
 #heroModels { min-width: 0; }
 
+/* Keep model/voice controls in their own footer row on every viewport. The old
+   absolute layout let the Ailon Tusk signal chip drift over the send button on
+   some font/zoom combinations. */
+.copilot-compose {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas: "input input" "models actions";
+  gap: 10px 8px;
+}
+#heroInput {
+  grid-area: input;
+  padding: 8px !important;
+}
+.copilot-actions {
+  grid-area: actions;
+  position: static !important;
+  align-self: center;
+  isolation: isolate;
+}
+.copilot-actions button { position: relative; z-index: 2; flex: 0 0 36px; }
+#heroModels {
+  grid-area: models;
+  position: static !important;
+  max-width: none !important;
+  overflow-x: auto;
+  flex-wrap: nowrap !important;
+  scrollbar-width: none;
+  align-self: center;
+}
+#heroModels::-webkit-scrollbar { display: none; }
+
 @media (max-width: 600px) {
   #copilotHero {
     width: auto !important;
@@ -54,18 +85,9 @@ body {
     margin-right: 10px !important;
   }
 
-  .copilot-compose {
-    display: grid !important;
-    grid-template-columns: minmax(0, 1fr) auto;
-    grid-template-areas:
-      "input input"
-      "models actions";
-    gap: 10px 8px;
-    padding: 12px !important;
-  }
+  .copilot-compose { padding: 12px !important; }
 
   #heroInput {
-    grid-area: input;
     width: 100% !important;
     max-width: 100%;
     padding: 8px !important;
@@ -73,24 +95,13 @@ body {
   }
 
   .copilot-actions {
-    grid-area: actions;
-    position: static !important;
     gap: 6px !important;
-    align-self: center;
   }
 
   #heroModels {
-    grid-area: models;
-    position: static !important;
-    max-width: none !important;
-    flex-wrap: nowrap !important;
-    overflow-x: auto;
     overscroll-behavior-x: contain;
-    scrollbar-width: none;
-    align-self: center;
   }
 
-  #heroModels::-webkit-scrollbar { display: none; }
   .free-bar { flex-wrap: wrap; row-gap: 3px; }
 }
 

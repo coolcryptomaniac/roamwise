@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="google-adsense-account" content="ca-pub-4943859484482348">
-<meta name="theme-color" content="#07090F">
+<meta name="theme-color" content="#080B18">
 <title>RoamWise Pro — AI Travel Planner | Itineraries, Budgets & Crowd-Free Destinations</title>
 <meta name="description" content="Build practical itineraries and budgets with RoamWise. Use planning tools and source-backed travel guides, then verify live prices and conditions before booking.">
 <meta name="keywords" content="AI travel planner, trip itinerary generator, travel budget calculator, avoid crowds travel, offbeat destinations">
@@ -116,9 +116,9 @@
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-check-compat.js"></script>
-<link rel="stylesheet" href="app.css?v=rw-v123-checkout-focus">
-<link rel="stylesheet" href="mobile-stability.css?v=rw-v121-hollywood-smooth-read">
-<script src="js/runtime/freshness.js?v=rw-v121-hollywood-smooth-read" defer></script>
+<link rel="stylesheet" href="app.css?v=rw-v124-personal-group-planner">
+<link rel="stylesheet" href="mobile-stability.css?v=rw-v124-personal-group-planner">
+<script src="js/runtime/freshness.js?v=rw-v124-personal-group-planner" defer></script>
 <style id="rwPolish">
 /* ===== rwPolish — press feel, elevation, motion, pill tab bar ===== */
 *{-webkit-tap-highlight-color:transparent}
@@ -446,7 +446,7 @@ function rwDismissCreatorBanner(){
         style="width:36px;height:36px;border-radius:50%;border:1px solid var(--b2,#2A2A36);background:var(--bg3,#1A1A20);color:var(--t2);font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center">&#128247;</button>
       <button onclick="copilotVoiceHero()" aria-label="Voice"
         style="width:36px;height:36px;border-radius:50%;border:1px solid var(--b2,#2A2A36);background:var(--bg3,#1A1A20);color:var(--t2);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center">&#127908;</button>
-      <button onclick="copilotSend(true)" aria-label="Send"
+      <button id="heroSend" type="button" onclick="copilotSend(true)" aria-label="Send travel request"
         style="width:36px;height:36px;border-radius:50%;border:none;background:linear-gradient(135deg,var(--gold,#E8BA6C),var(--gold2,#C8913E));color:#0A0A0C;font-size:16px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center">&#10148;</button>
     </div>
     <div id="heroModels" style="position:absolute;left:14px;bottom:16px;display:flex;gap:6px;flex-wrap:wrap;max-width:58%"></div>
@@ -551,6 +551,17 @@ function rwDismissCreatorBanner(){
         <option value="lux">&#10024; Luxury</option>
         <option value="eco">&#127807; Eco / sustainable</option>
       </select>
+    </div>
+    <div class="field"><label class="field-label">Travellers</label>
+      <select class="inp sel" id="partySize" aria-describedby="partyCostNote">
+        <option value="1">1 · Solo</option><option value="2">2 · Duo / couple / besties</option>
+        <option value="3">3 · Trio / friends / family</option><option value="4">4 · Friends / family</option>
+        <option value="5">5 · Travellers</option><option value="6">6 · Travellers</option>
+        <option value="8">8 · 7–8 seater group</option><option value="10">10 · Tempo Traveller group</option>
+        <option value="15">15 · Large group</option><option value="20">20 · Mini-coach group</option>
+        <option value="30">30 · Coach group</option><option value="50">50 · Large coach group</option>
+      </select>
+      <span id="partyCostNote" style="display:block;margin-top:5px;font-size:10.5px;line-height:1.45;color:var(--t3)">Costs shown for one traveller.</span>
     </div>
   </div>
   <div class="divider"></div>
@@ -1180,7 +1191,7 @@ function rwDismissCreatorBanner(){
     <button class="modal-close" onclick="closeSettings()">&#215;</button>
     <div class="modal-head" style="text-align:left;padding:16px 20px 12px">
       <div class="modal-title" style="font-size:17px">&#9881; Settings</div>
-      <div class="modal-sub">Sound &bull; AI provider (optional) &bull; API keys &bull; Payments</div>
+      <div class="modal-sub">Sound &bull; Personalisation &bull; AI provider (optional) &bull; Payments</div>
     </div>
     <div class="modal-body">
       <div class="key-section">
@@ -1230,6 +1241,7 @@ function rwDismissCreatorBanner(){
 <script src="js/core/text-utils.js"></script>
 <script src="js/core/overlay-stack.js"></script>
 <script src="js/core/app-utils.js"></script>
+<script src="js/core/user-preferences.js?v=rw-personal-1"></script>
 <script src="js/ui/form-modal.js"></script>
 <script src="rw-config.js?v=rw-v121-hollywood-smooth-read"></script>
 <script src="events-data.js" defer></script>
@@ -1289,7 +1301,7 @@ function rwDismissCreatorBanner(){
 <script src="js/copilot/region-routes.js"></script>
 <script src="js/copilot/clarify.js"></script>
 <script src="js/copilot/ai-providers.js"></script>
-<script src="js/copilot/core.js"></script>
+<script src="js/copilot/core.js?v=rw-route-quiet-1"></script>
 <script src="js/copilot/rich-reply.js"></script>
 <script src="js/copilot/tusk-persona.js"></script>
 <script src="js/copilot/tusk-knowledge.js"></script>
@@ -1310,12 +1322,13 @@ function rwDismissCreatorBanner(){
 <script src="js/itinerary/trip-vault.js"></script>
 <script src="js/itinerary/meters.js"></script>
 <script src="js/itinerary/place-disambiguation.js"></script>
-<script src="js/itinerary/shadow-budget.js"></script>
+<script src="js/itinerary/party-costs.js?v=rw-party-1"></script>
+<script src="js/itinerary/shadow-budget.js?v=rw-party-1"></script>
 <script src="js/itinerary/pdf-assets.js"></script>
 <script src="js/itinerary/pdf-export.js"></script>
 <script src="js/itinerary/build.js"></script>
 <script src="js/itinerary/search-engine.js"></script>
-<script src="js/itinerary/result-cards.js"></script>
+<script src="js/itinerary/result-cards.js?v=rw-party-1"></script>
 <script src="js/itinerary/ground-costs.js"></script>
 <script src="js/itinerary/real-attractions.js"></script>
 <script src="js/itinerary/rain-contingency.js"></script>
@@ -1323,9 +1336,9 @@ function rwDismissCreatorBanner(){
 <script src="js/itinerary/memories-studio.js"></script>
 <script src="js/ui/page-router.js"></script>
 <script src="js/ui/layout-modes.js"></script>
-<script src="js/ui/settings-modal.js"></script>
+<script src="js/ui/settings-modal.js?v=rw-personal-1"></script>
 <script src="js/ui/key-wizard.js"></script>
-<script src="js/ui/themes.js"></script>
+<script src="js/ui/themes.js?v=rw-aurora-1"></script>
 <script src="js/ui/adaptive-shell.js"></script>
 <script src="js/ui/site-search.js"></script>
 <script src="js/ui/onboarding.js"></script>

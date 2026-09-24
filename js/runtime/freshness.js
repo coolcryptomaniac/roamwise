@@ -3,7 +3,7 @@
 (function () {
   'use strict';
 
-  var BUILD = 'rw-v118-mobile-audio-fresh';
+  var BUILD = 'rw-v124-personal-group-planner';
   var inApp = !!window.RW || (typeof window.PLAY_MODE !== 'undefined' && window.PLAY_MODE);
   if (inApp || !window.isSecureContext || !('serviceWorker' in navigator)) return;
 

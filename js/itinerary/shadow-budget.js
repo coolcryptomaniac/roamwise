@@ -80,9 +80,15 @@ function shadowBudget(entry,days,style){
   var tripSub=dailyTotal*days+oneOff.airport+oneOff.sim;
   oneOff.fxSpread=india?0:Math.round(tripSub*.025);
   oneOff.buffer=Math.round((tripSub+oneOff.fxSpread)*.10);
+  var total=tripSub+oneOff.fxSpread+oneOff.buffer;
+  var party=typeof rwPartyEstimate==='function'?rwPartyEstimate(total):{
+    size:1,label:'Solo',vehicle:'Public transport / solo cab',savingRate:0,
+    groupTotal:total,perPerson:total,saving:0
+  };
   return {days:days,style:style,domestic:india,tipRate:tipRate,perDay:perDay,
     tips:tips,dailyTotal:dailyTotal,oneOff:oneOff,
-    total:tripSub+oneOff.fxSpread+oneOff.buffer,
+    total:total,partySize:party.size,partyLabel:party.label,vehicle:party.vehicle,
+    groupTotal:party.groupTotal,groupPerPerson:party.perPerson,groupSaving:party.saving,
     cashShare:india?.10:.25,sourceCurrency:priceCurrency,
     sourcePeriod:inrDaily?'day':'week',hasTransferQuote:oneOff.airport>0,
     estimated:true,flightsIncluded:false};
@@ -104,10 +110,12 @@ function shadowBudgetHTML(entry,days,style){
   var name=String(entry&&entry.name||'destination').replace(/[<>&"']/g,'');
   return '<div style="background:var(--bg2,#12121C);border:1px solid var(--b2,#2A2A36);border-radius:14px;padding:13px 15px;margin-top:10px">'
     +'<div style="font-weight:800;font-size:13px;margin-bottom:2px">\ud83d\udc7b Shadow budget \u2014 '+b.days+' days in '+name+'</div>'
-    +'<div style="font-size:11px;color:var(--t3);margin:5px 0 10px;line-height:1.5">Illustrative '+b.style+' budget from '+b.sourceCurrency+'-per-'+b.sourcePeriod+' destination bands; NOT live rates or a booking quote. Per person unless stated otherwise. Dates, origin and room sharing can change the cost.</div>'
-    +'<div style="font-size:10px;color:var(--gold2,#C8913E);margin-bottom:4px">EVERY DAY</div>'+rows
+    +'<div style="font-size:11px;color:var(--t3);margin:5px 0 10px;line-height:1.5">Illustrative '+b.style+' budget from '+b.sourceCurrency+'-per-'+b.sourcePeriod+' destination bands; NOT live rates or a booking quote. Daily rows are per person. Dates, origin and room sharing can change the cost.</div>'
+    +(b.partySize>1?'<div style="font-size:11px;line-height:1.55;color:var(--t2);padding:8px 10px;margin-bottom:10px;border-radius:10px;background:rgba(232,186,108,.07);border:1px solid rgba(232,186,108,.2)"><b>'+b.partyLabel+'</b> · '+b.vehicle+'<br>Shared-room/local-ride allowance saves about '+money(b.groupSaving)+' versus '+b.partySize+' separate solo budgets.</div>':'')
+    +'<div style="font-size:10px;color:var(--gold2,#C8913E);margin-bottom:4px">EVERY DAY · PER PERSON</div>'+rows
     +'<div style="display:flex;justify-content:space-between;padding:7px 0;border-top:1px solid var(--b2,#2A2A36)"><b>Daily estimate</b><b>'+money(b.dailyTotal)+'</b></div>'
     +'<div style="font-size:10px;color:var(--gold2,#C8913E);margin:9px 0 4px">ONCE PER TRIP</div>'+extras
-    +'<div style="display:flex;justify-content:space-between;padding:8px 0;border-top:1px solid var(--b2,#2A2A36)"><b>Illustrative total</b><b style="color:var(--gold,#E8BA6C)">'+money(b.total)+'</b></div>'
+    +'<div style="display:flex;justify-content:space-between;padding:8px 0;border-top:1px solid var(--b2,#2A2A36)"><b>'+(b.partySize>1?'Group total · '+b.partySize:'Illustrative total')+'</b><b style="color:var(--gold,#E8BA6C)">'+money(b.groupTotal)+'</b></div>'
+    +(b.partySize>1?'<div style="display:flex;justify-content:space-between;padding:3px 0;font-size:11.5px;color:var(--t2)"><span>Per person after sharing</span><b>'+money(b.groupPerPerson)+'</b></div>':'')
     +'<div style="font-size:11px;color:var(--t3);margin-top:8px;line-height:1.5">Flight/train to destination and unquoted airport transfers are EXCLUDED. Compare actual fares and partner availability before booking; contingency is an allowance, not a charge.</div></div>';
 }
