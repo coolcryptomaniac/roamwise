@@ -20,7 +20,7 @@ const ACTIONS = Object.freeze({
   accept_offer: { from: ['published'], to: 'offer_accepted', roles: ['brand', 'admin'] },
   start_funding: { from: ['offer_accepted'], to: 'funding_pending', roles: ['brand', 'admin'] },
   confirm_funding: { from: ['funding_pending'], to: 'funded', roles: ['system', 'admin'] },
-  start_work: { from: ['funded'], to: 'in_progress', roles: ['creator', 'admin'] },
+  start_work: { from: ['funded', 'offer_accepted'], to: 'in_progress', roles: ['creator', 'admin'] },
   submit_work: { from: ['in_progress'], to: 'submitted', roles: ['creator', 'admin'] },
   approve_work: { from: ['submitted'], to: 'approved', roles: ['brand', 'admin'] },
   open_dispute: { from: ['funded', 'in_progress', 'submitted', 'approved'], to: 'disputed', roles: ['brand', 'creator', 'admin'] },
@@ -98,11 +98,14 @@ export function normalizeCampaign(input = {}, config = {}) {
   };
 }
 
-export function transitionCampaign(current, action, actorRole) {
+export function transitionCampaign(current, action, actorRole, campaign = {}) {
   const rule = ACTIONS[action];
   if (!rule) throw new Error('Unknown campaign action');
   if (!rule.roles.includes(actorRole)) throw new Error(`${actorRole} cannot ${action}`);
   if (!rule.from.includes(current)) throw new Error(`Cannot ${action} while campaign is ${current}`);
+  if (action === 'start_work' && current === 'offer_accepted' && campaign.kind !== 'barter') {
+    throw new Error('Paid and hybrid campaigns must be funded before work starts');
+  }
   return rule.to;
 }
 

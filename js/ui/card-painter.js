@@ -9,9 +9,10 @@ function useBump(k){ try{ var u=JSON.parse(lsGet('rw_use')||'{}'); u[k]=(u[k]||0
 var FORYOU_DEFS={copilot:['\ud83e\udded Copilot',function(){cpFocusHero();}],map:['\ud83d\uddfa\ufe0f Map',function(){openMapExplorer();}],group:['\ud83e\udd1d Group',function(){openGroupPlanner();}],trips:['\u2708\ufe0f Trips',function(){openVault();}],plan:['\ud83e\udded Plan',function(){tabGo('plan');}],treks:['\u26f0 Treks',function(){tabGo('explore');scrollToId('treks');}],card:['\ud83d\uddfa Card',function(){tabGo('explore');scrollToId('jlog');}],events:['\ud83c\udfdf Events',function(){tabGo('explore');scrollToId('events');}],store:['\ud83d\udecd Store',function(){tabGo('home');scrollToId('store');}],pdf:['\ud83d\udcd5 PDF',function(){tabGo('plan');}],search:['\ud83d\udd0d Search',function(){ssOpen();}],profile:['\ud83d\udc64 Profile',function(){openProfile();}]};
 function renderForYou(){
   var host=el('brief'); if(!host) return;
+  document.querySelectorAll('.rw-for-you-quick,.rw-discovery-feed:not(.rw-country-feed)').forEach(function(node){node.remove();});
   var u={}; try{u=JSON.parse(lsGet('rw_use')||'{}');}catch(e){ /* parse best-effort, ignore malformed/missing data */ }
   var keys=Object.keys(FORYOU_DEFS).sort(function(a,b){return (u[b]||0)-(u[a]||0);});
-  var wrap=document.createElement('div');
+  var wrap=document.createElement('div');wrap.className='rw-for-you-quick';
   var tiles=keys.map(function(k){
     var d2=FORYOU_DEFS[k], parts=d2[0].split(' ');
     return '<div class="ftile" onclick="useBump(\''+k+'\');FORYOU_DEFS[\''+k+'\'][1]()"><span class="fi">'+parts[0]+'</span><span class="fl">'+parts.slice(1).join(' ')+'</span></div>';
@@ -71,7 +72,7 @@ function renderForYou(){
           return '<div class="pcard" style="background:linear-gradient(160deg, rgb('+a2[0]+','+a2[1]+','+a2[2]+') 0%, rgb('+dp2[0]+','+dp2[1]+','+dp2[2]+') 85%)" onclick="el(\'destInput\').value=\''+d2.name.replace(/'/g,'')+'\';tabGo(\'plan\');runSearch()">'
             + badge + '<span class="pe">'+(EMO[k2]||EMO.classic)+'</span><span class="pn">'+d2.name+'</span></div>';
         }).join('') + '</div>';
-    row.className='v v-home';
+    row.className='v v-home rw-discovery-feed';
     var bb=el('promoTop');
     if(bb && bb.parentNode) bb.parentNode.insertBefore(row, bb.nextSibling);
     /* --- three more dynamic rows, below the copilot hero --- */
@@ -79,7 +80,7 @@ function renderForYou(){
       var MOx=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
       function miniRow(title, list){
         if(!list.length) return null;
-        var r=document.createElement('div'); r.className='v v-home';
+        var r=document.createElement('div'); r.className='v v-home rw-discovery-feed';
         r.innerHTML='<div class="rowhead"><b>'+title+'</b></div><div class="prow">'
           + list.map(function(d3){
               var t3=themeFor(d3), a3=t3.acc, dp3=t3.deep;
@@ -95,11 +96,9 @@ function renderForYou(){
       var lowCrowd=pool.filter(function(d){ return d.crowd && !used[d.name] && !isClosedNow(d); })
         .sort(function(a,b){ return a.crowd[curM]-b.crowd[curM]; }).slice(0,10)
         .map(function(d){ d._tag=d.crowd[curM]+'%'; used[d.name]=1; return d; });
+      var monthly=[],seenMonthly={};[inSeason,wellness,lowCrowd,visaEasy].forEach(function(list){list.forEach(function(d){if(!seenMonthly[d.name]&&monthly.length<10){seenMonthly[d.name]=1;monthly.push(d);}});});
       var hero=el('copilotHero'), after=hero;
-      [miniRow('\ud83c\udf1e In season \u2014 '+MOx[curM], inSeason),
-       miniRow('\ud83e\uddd8 Yoga & wellness escapes', wellness),
-       miniRow('\ud83e\udd2b Low-crowd escapes this month', lowCrowd),
-       miniRow('\ud83d\udec2 Easy visa for Indians', visaEasy)].forEach(function(r){
+      [miniRow('\u2728 One smart mix for '+MOx[curM], monthly)].forEach(function(r){
         if(r && after && after.parentNode){ after.parentNode.insertBefore(r, after.nextSibling); after=r; }
       });
     }catch(e){ /* best-effort, ignore */ }

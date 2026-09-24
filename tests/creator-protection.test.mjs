@@ -28,6 +28,8 @@ test('state machine prevents creators from inventing funded status', () => {
   assert.throws(() => transitionCampaign('funding_pending', 'confirm_funding', 'creator'), /cannot/);
   assert.throws(() => transitionCampaign('approved', 'request_release', 'creator'), /cannot/);
   assert.throws(() => transitionCampaign('published', 'start_work', 'creator'), /Cannot/);
+  assert.equal(transitionCampaign('offer_accepted', 'start_work', 'creator', { kind: 'barter' }), 'in_progress');
+  assert.throws(() => transitionCampaign('offer_accepted', 'start_work', 'creator', { kind: 'hybrid' }), /must be funded/);
 });
 
 test('funding badge is granted only to provider-confirmed lifecycle states', () => {

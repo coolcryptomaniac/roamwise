@@ -3,6 +3,7 @@ import { buildMilestones, canSeeCampaign, fundingBadge, normalizeCampaign, trans
 import { createFundingOrder, providerCatalog, releaseToCreator, resolveProvider } from './providers.mjs';
 import { campaignById, event, listCampaigns, updateStatus } from './store.mjs';
 import { verifyCashfree } from '../../payments/webhook-verify.mjs';
+import { assessTrust, autopilotDecision, normalizeMatchProfile } from '../match-core.mjs';
 
 const JSON_HEADERS = { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' };
 
@@ -77,6 +78,86 @@ async function listActors(request, env, actor, url) {
   return reply(request, env, { actors: result.results || [], status });
 }
 
+async function ensureMatchSchema(env) {
+  await env.CREATOR_DB.prepare(`CREATE TABLE IF NOT EXISTS cp_match_profiles (
+    uid TEXT PRIMARY KEY, role TEXT NOT NULL CHECK(role IN ('creator','property')), profile_json TEXT NOT NULL,
+    risk_score INTEGER NOT NULL DEFAULT 0, verified_state TEXT NOT NULL DEFAULT 'pending', autopilot INTEGER NOT NULL DEFAULT 1,
+    created_at TEXT NOT NULL, updated_at TEXT NOT NULL, FOREIGN KEY(uid) REFERENCES cp_actors(uid))`).run();
+  await env.CREATOR_DB.prepare(`CREATE TABLE IF NOT EXISTS cp_match_reviews (
+    id TEXT PRIMARY KEY, profile_uid TEXT NOT NULL, reviewer_uid TEXT NOT NULL,
+    decision TEXT NOT NULL CHECK(decision IN ('verified','manual_review','rejected')),
+    note TEXT NOT NULL DEFAULT '', created_at TEXT NOT NULL,
+    FOREIGN KEY(profile_uid) REFERENCES cp_actors(uid))`).run();
+}
+
+async function matchProfile(request, env, actor) {
+  requireActor(actor, ['creator', 'brand'], false);
+  await ensureMatchSchema(env);
+  const expectedRole = actor.role === 'brand' ? 'property' : 'creator';
+  if (request.method === 'GET') {
+    const row = await env.CREATOR_DB.prepare('SELECT profile_json,risk_score,verified_state,autopilot,updated_at FROM cp_match_profiles WHERE uid=?').bind(actor.uid).first();
+    return reply(request, env, { profile: row ? JSON.parse(row.profile_json) : null, riskScore: Number(row?.risk_score || 0), verifiedState: row?.verified_state || 'not_started', autopilot: Boolean(row?.autopilot), updatedAt: row?.updated_at || '' });
+  }
+  const profile = normalizeMatchProfile(await body(request), expectedRole);
+  const trust = assessTrust(profile);
+  const stamp = new Date().toISOString();
+  const verifiedState = actor.status === 'active' && !trust.requiresManualReview ? 'verified' : trust.requiresManualReview ? 'manual_review' : 'pending';
+  await env.CREATOR_DB.prepare(`INSERT INTO cp_match_profiles(uid,role,profile_json,risk_score,verified_state,autopilot,created_at,updated_at)
+    VALUES(?,?,?,?,?,?,?,?) ON CONFLICT(uid) DO UPDATE SET role=excluded.role,profile_json=excluded.profile_json,risk_score=excluded.risk_score,
+    verified_state=excluded.verified_state,autopilot=excluded.autopilot,updated_at=excluded.updated_at`)
+    .bind(actor.uid, expectedRole, JSON.stringify(profile), trust.riskScore, verifiedState, profile.autopilot ? 1 : 0, stamp, stamp).run();
+  return reply(request, env, { profile, riskScore: trust.riskScore, flags: trust.flags, verifiedState, manualReview: trust.requiresManualReview }, 202);
+}
+
+async function listMatches(request, env, actor) {
+  requireActor(actor, ['creator', 'brand']);
+  await ensureMatchSchema(env);
+  const own = await env.CREATOR_DB.prepare('SELECT profile_json,role,verified_state FROM cp_match_profiles WHERE uid=?').bind(actor.uid).first();
+  if (!own) throw Object.assign(new Error('Save matching preferences first'), { status: 422 });
+  if (own.verified_state !== 'verified') throw Object.assign(new Error('Trust review must finish before introductions'), { status: 403 });
+  const targetRole = own.role === 'creator' ? 'property' : 'creator';
+  const candidates = await env.CREATOR_DB.prepare(`SELECT p.uid,p.profile_json,p.risk_score,a.display_name
+    FROM cp_match_profiles p JOIN cp_actors a ON a.uid=p.uid
+    WHERE p.role=? AND p.verified_state='verified' AND a.status='active' ORDER BY p.updated_at DESC LIMIT 250`).bind(targetRole).all();
+  const ownProfile = JSON.parse(own.profile_json);
+  const matches = (candidates.results || []).map(row => {
+    const candidate = JSON.parse(row.profile_json);
+    const creator = own.role === 'creator' ? ownProfile : candidate;
+    const property = own.role === 'property' ? ownProfile : candidate;
+    const decision = autopilotDecision(creator, property);
+    return { uid: row.uid, displayName: row.display_name, profile: candidate, ...decision };
+  }).filter(item => item.match.score >= 55).sort((a, b) => b.match.score - a.match.score).slice(0, 20);
+  return reply(request, env, { matches, autopilotInvites: matches.filter(item => item.action === 'invite_both').length, manualReview: matches.filter(item => item.action === 'manual_review').length });
+}
+
+async function listMatchReviewQueue(request, env, actor, url) {
+  requireActor(actor, ['admin']);
+  await ensureMatchSchema(env);
+  const requested = String(url.searchParams.get('state') || 'manual_review');
+  const state = ['pending', 'manual_review', 'verified', 'rejected'].includes(requested) ? requested : 'manual_review';
+  const result = await env.CREATOR_DB.prepare(`SELECT p.uid,p.role,p.profile_json,p.risk_score,p.verified_state,p.updated_at,a.display_name,a.email
+    FROM cp_match_profiles p JOIN cp_actors a ON a.uid=p.uid WHERE p.verified_state=? ORDER BY p.risk_score DESC,p.updated_at ASC LIMIT 250`).bind(state).all();
+  const profiles = (result.results || []).map(row => ({
+    uid: row.uid, role: row.role, profile: JSON.parse(row.profile_json), riskScore: row.risk_score,
+    verifiedState: row.verified_state, updatedAt: row.updated_at, displayName: row.display_name, email: row.email
+  }));
+  return reply(request, env, { state, profiles });
+}
+
+async function reviewMatchProfile(request, env, actor, uid) {
+  requireActor(actor, ['admin']);
+  await ensureMatchSchema(env);
+  const input = await body(request);
+  const decision = String(input.decision || '');
+  if (!['verified', 'manual_review', 'rejected'].includes(decision)) throw Object.assign(new Error('decision must be verified, manual_review or rejected'), { status: 400 });
+  const stamp = new Date().toISOString();
+  const result = await env.CREATOR_DB.prepare('UPDATE cp_match_profiles SET verified_state=?,updated_at=? WHERE uid=?').bind(decision, stamp, uid).run();
+  if (!Number(result.meta?.changes || 0)) throw Object.assign(new Error('Match profile not found'), { status: 404 });
+  await env.CREATOR_DB.prepare('INSERT INTO cp_match_reviews(id,profile_uid,reviewer_uid,decision,note,created_at) VALUES(?,?,?,?,?,?)')
+    .bind(`review_${crypto.randomUUID().replace(/-/g, '')}`, uid, actor.uid, decision, String(input.note || '').trim().slice(0, 1000), stamp).run();
+  return reply(request, env, { uid, decision, reviewedAt: stamp });
+}
+
 async function createCampaign(request, env, actor) {
   requireActor(actor, ['brand']);
   const input = normalizeCampaign(await body(request), {
@@ -97,7 +178,7 @@ async function campaignAction(request, env, actor, id, action) {
   const campaign = await campaignById(env, id);
   if (!campaign) throw Object.assign(new Error('Campaign not found'), { status: 404 });
   ownCampaign(actor, campaign);
-  const next = transitionCampaign(campaign.status, action, actor.role);
+  const next = transitionCampaign(campaign.status, action, actor.role, campaign);
   return reply(request, env, await updateStatus(env, campaign, next, actor.uid, `campaign.${action}`));
 }
 
@@ -222,6 +303,11 @@ async function route(request, env) {
   const actor = await authenticate(request, env);
   if (request.method === 'GET' && url.pathname === '/v1/creator-protection/me') return reply(request, env, actor);
   if (request.method === 'POST' && url.pathname === '/v1/creator-protection/onboard') return onboard(request, env, actor);
+  if ((request.method === 'GET' || request.method === 'POST') && url.pathname === '/v1/creator-protection/match-profile') return matchProfile(request, env, actor);
+  if (request.method === 'GET' && url.pathname === '/v1/creator-protection/matches') return listMatches(request, env, actor);
+  if (request.method === 'GET' && url.pathname === '/v1/creator-protection/match-reviews') return listMatchReviewQueue(request, env, actor, url);
+  const matchReview = url.pathname.match(/^\/v1\/creator-protection\/match-profiles\/([^/]+)\/review$/);
+  if (request.method === 'POST' && matchReview) return reviewMatchProfile(request, env, actor, matchReview[1]);
   if (request.method === 'GET' && url.pathname === '/v1/creator-protection/actors') return listActors(request, env, actor, url);
   const actorApproval = url.pathname.match(/^\/v1\/creator-protection\/actors\/([^/]+)\/approve$/);
   if (request.method === 'POST' && actorApproval) return approveActor(request, env, actor, actorApproval[1]);

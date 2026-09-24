@@ -88,7 +88,32 @@ CREATE TABLE IF NOT EXISTS cp_webhook_events (
   PRIMARY KEY(provider, event_id)
 );
 
+CREATE TABLE IF NOT EXISTS cp_match_profiles (
+  uid TEXT PRIMARY KEY,
+  role TEXT NOT NULL CHECK(role IN ('creator','property')),
+  profile_json TEXT NOT NULL,
+  risk_score INTEGER NOT NULL DEFAULT 0,
+  verified_state TEXT NOT NULL DEFAULT 'pending' CHECK(verified_state IN ('pending','verified','manual_review','rejected','suspended')),
+  autopilot INTEGER NOT NULL DEFAULT 1,
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL,
+  FOREIGN KEY(uid) REFERENCES cp_actors(uid)
+);
+
 CREATE INDEX IF NOT EXISTS idx_cp_campaign_status ON cp_campaigns(status, updated_at);
 CREATE INDEX IF NOT EXISTS idx_cp_campaign_brand ON cp_campaigns(brand_uid, updated_at);
 CREATE INDEX IF NOT EXISTS idx_cp_application_creator ON cp_applications(creator_uid, updated_at);
 CREATE INDEX IF NOT EXISTS idx_cp_event_campaign ON cp_events(campaign_id, created_at);
+CREATE INDEX IF NOT EXISTS idx_cp_match_role_state ON cp_match_profiles(role, verified_state, updated_at);
+
+CREATE TABLE IF NOT EXISTS cp_match_reviews (
+  id TEXT PRIMARY KEY,
+  profile_uid TEXT NOT NULL,
+  reviewer_uid TEXT NOT NULL,
+  decision TEXT NOT NULL CHECK(decision IN ('verified','manual_review','rejected')),
+  note TEXT NOT NULL DEFAULT '',
+  created_at TEXT NOT NULL,
+  FOREIGN KEY(profile_uid) REFERENCES cp_actors(uid)
+);
+
+CREATE INDEX IF NOT EXISTS idx_cp_match_reviews_profile ON cp_match_reviews(profile_uid, created_at);
