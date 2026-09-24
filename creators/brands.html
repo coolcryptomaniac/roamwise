@@ -8,7 +8,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet"><link rel="stylesheet" href="marketplace.css">
 </head>
 <body>
-  <nav class="cp-nav"><a class="cp-brand" href="../"><img src="../icons/icon-192.png" alt=""><b>Roam<span>Wise</span></b></a><div class="cp-spacer"></div><a class="cp-navlink" href="./">For creators</a><button class="cp-tab" id="brandSignOut" hidden>Sign out</button></nav>
+  <nav class="cp-nav"><a class="cp-brand" href="../"><img src="../icons/icon-192.png" alt=""><b>Roam<span>Wise</span></b></a><div class="cp-spacer"></div><a class="cp-navlink" href="match.html?role=property">AI creator matches</a><a class="cp-navlink" href="./">For creators</a><button class="cp-tab" id="brandSignOut" hidden>Sign out</button></nav>
   <main class="cp-workspace">
     <header class="cp-workspace-head"><div><span class="cp-eyebrow">TRAVEL BRAND CAMPAIGN DESK</span><h1>Buy a predictable creator campaign.</h1><p>One contract for output, travel economics, rights, verified funding and release.</p></div><span class="cp-badge" id="brandStatus">SIGN IN REQUIRED</span></header>
 
@@ -30,17 +30,23 @@
         <form id="brandCampaignForm">
           <div class="cp-fields">
             <label>Campaign title<input id="bcTitle" maxlength="140" required placeholder="Jaipur heritage hotel launch"></label><label>Destination<input id="bcDestination" maxlength="120" required></label>
-            <label>Campaign type<select id="bcKind"><option value="paid">Paid + optional stay</option><option value="hybrid">Hybrid · fee + benefits</option><option value="barter">Barter · creator opt-in only</option></select></label><label>Creator fee (₹)<input id="bcFee" type="number" min="0" step="500" value="25000"></label>
-            <label>Travel reimbursement (₹)<input id="bcTravel" type="number" min="0" step="500" value="8000"></label><label>Accommodation nights<input id="bcNights" type="number" min="0" max="90" value="2"></label>
+            <label>Campaign type<select id="bcKind"><option value="barter" selected>Barter · hosted value first</option><option value="hybrid">Hybrid · fee + benefits</option><option value="paid">Paid launch + optional stay</option></select></label><label>Creator fee (₹)<input id="bcFee" type="number" min="0" step="500" value="0"></label>
+            <label>Travel reimbursement (₹)<input id="bcTravel" type="number" min="0" step="500" value="0"></label><label>Accommodation nights<input id="bcNights" type="number" min="0" max="90" value="2"></label>
             <label>Usage rights<select id="bcRights"><option value="organic_only">Organic channels only</option><option value="paid_ads_30d">Paid ads · 30 days</option><option value="paid_ads_90d">Paid ads · 90 days</option><option value="perpetual">Perpetual licence</option></select></label><label>Exclusivity days<input id="bcExclusive" type="number" min="0" max="365" value="0"></label>
             <label>Application deadline<input id="bcDeadline" type="date"></label><label>Travel start<input id="bcStart" type="date"></label>
-            <label class="wide">Deliverables · one per line<input id="bcDeliverables" value="2 Instagram Reels,5 Stories" placeholder="2 Instagram Reels, 5 Stories"></label>
+            <label class="wide">Deliverables · one per line<input id="bcDeliverables" value="1 Instagram Reel,3 Stories" placeholder="1 Instagram Reel, 3 Stories"></label>
             <label class="wide">Campaign brief<textarea id="bcDescription" maxlength="2000"></textarea></label>
           </div>
           <label class="cp-check"><input id="bcMeals" type="checkbox" checked><span>Meals included as a separate campaign benefit.</span></label>
           <div class="cp-mini-card" id="brandQuote"></div>
           <button class="cp-button full" type="submit">Create protected campaign draft</button><div id="brandCampaignMsg"></div>
         </form>
+      </section>
+
+      <section class="cp-panel" style="margin-top:16px">
+        <span class="cp-eyebrow">HOW MONEY MOVES</span><h2>Barter stays cashless. Paid work uses a protected provider flow.</h2>
+        <div class="cp-columns three"><article class="cp-panel"><b>1 · Agree first</b><p>Creator, property, benefits, deliverables, dates and rights are locked to one version. Barter stops here—no fake ₹25,000 invoice.</p></article><article class="cp-panel"><b>2 · Fund safely</b><p>For hybrid or paid work, the verified property opens a shareable funding link. The server—not the browser—calculates the amount and creates the Cashfree order.</p></article><article class="cp-panel"><b>3 · Release with evidence</b><p>After approved provider activation, creator KYC, signed webhooks and milestones control payout. RoamWise records its service fee separately from creator money.</p></article></div>
+        <p class="cp-fine">Until Cashfree Easy Split/delayed-split approval is active, the page remains in onboarding mode and cannot honestly label money as protected or funded.</p>
       </section>
 
       <section class="cp-section" style="padding-inline:0;padding-bottom:0"><div class="cp-workspace-head"><div><span class="cp-eyebrow">YOUR CAMPAIGNS</span><h2>Funding and delivery pipeline</h2></div><button class="cp-tab" id="brandRefresh">Refresh</button></div><div class="cp-campaign-grid" id="brandCampaigns"><div class="cp-empty">No campaigns yet.</div></div></section>

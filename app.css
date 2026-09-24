@@ -5,3 +5,22 @@
    but it is never allowed to paint. The approved cinematic opener is the sole
    visible startup experience. Keep this rule in the render-blocking root sheet. */
 #intro,.intro{display:none!important;visibility:hidden!important;opacity:0!important;pointer-events:none!important}
+
+/* Ailon Tusk is the primary action, so it should feel like a living workspace
+   instead of another small carousel card. Motion stays transform/opacity-only. */
+.v-copilot{max-width:1060px!important;margin:24px auto 14px!important;padding:0 14px}
+.tusk-title{display:flex;align-items:center;gap:9px;margin:0 4px 11px}
+.tusk-title>span{font-size:23px;filter:drop-shadow(0 0 9px #f2b84b)}
+.tusk-title>b{font-size:21px;letter-spacing:-.025em}
+.tusk-title>em{font-style:normal;font-size:12px;color:var(--t3)}
+.tusk-title>i{margin-left:auto;font-style:normal;font-size:9px;font-weight:800;letter-spacing:.12em;color:#f0c86f;border:1px solid rgba(240,200,111,.28);border-radius:999px;padding:5px 8px;background:rgba(240,200,111,.06)}
+.v-copilot .copilot-compose{min-height:278px!important;border-color:rgba(232,186,108,.55)!important;background:radial-gradient(circle at 90% 0%,rgba(120,73,255,.13),transparent 36%),linear-gradient(150deg,#121427,#0d0e19)!important;box-shadow:0 16px 54px rgba(0,0,0,.5),0 0 0 1px rgba(232,186,108,.08),0 0 28px rgba(184,50,65,.12)!important;animation:tuskBorderBreath 4.8s ease-in-out infinite}
+.v-copilot .copilot-compose textarea{min-height:240px!important;font-size:18px!important}
+.v-copilot .copilot-actions button{width:44px!important;height:44px!important;transition:transform .16s ease,box-shadow .2s ease,filter .2s ease!important}
+.v-copilot .copilot-actions button:hover,.v-copilot .copilot-actions button:focus-visible{transform:translateY(-2px) scale(1.06);box-shadow:0 0 0 4px rgba(232,186,108,.11),0 0 22px rgba(232,186,108,.28);outline:none}
+.v-copilot .copilot-actions button:active{transform:scale(.91) rotate(-3deg)}
+.v-copilot #heroSend{animation:tuskSendPulse 2.6s ease-in-out infinite}
+@keyframes tuskBorderBreath{0%,100%{border-color:rgba(232,186,108,.42);box-shadow:0 16px 54px rgba(0,0,0,.5),0 0 22px rgba(232,186,108,.08)}50%{border-color:rgba(216,65,78,.7);box-shadow:0 18px 62px rgba(0,0,0,.55),0 0 34px rgba(216,65,78,.2)}}
+@keyframes tuskSendPulse{50%{filter:brightness(1.12);box-shadow:0 0 22px rgba(232,186,108,.42)}}
+@media(max-width:700px){.v-copilot{margin:20px 0 12px!important;padding:0 10px}.tusk-title>b{font-size:19px}.tusk-title>i{display:none}.v-copilot .copilot-compose{min-height:300px!important;border-radius:25px!important}.v-copilot .copilot-compose textarea{min-height:260px!important;padding-bottom:58px!important}.v-copilot .copilot-actions button{width:42px!important;height:42px!important}}
+@media(prefers-reduced-motion:reduce){.v-copilot .copilot-compose,.v-copilot #heroSend{animation:none!important}.v-copilot .copilot-actions button{transition:none!important}}

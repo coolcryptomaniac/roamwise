@@ -28,8 +28,8 @@
     $('#cpRateHotel').value = rates.hotel || '';
     $('#cpRateUgc').value = rates.ugc || '';
     $('#cpRateDay').value = rates.travelDay || '';
-    $('#cpMinimum').value = rates.minimum || 15000;
-    $('#cpAcceptBarter').checked = rates.acceptsBarter === true;
+    $('#cpMinimum').value = rates.minimum == null ? 0 : rates.minimum;
+    $('#cpAcceptBarter').checked = rates.acceptsBarter !== false;
     $('#cpPhone').value = rates.phone || '';
   }
 
@@ -57,7 +57,7 @@
   function actions(campaign) {
     if (campaign.status === 'published') return '<button class="cp-tab on" data-apply="' + esc(campaign.id) + '">Apply</button>';
     var controls = '';
-    if (campaign.status === 'funded') controls += '<button class="cp-tab on" data-action="start" data-id="' + esc(campaign.id) + '">Start work</button>';
+    if (campaign.status === 'funded' || (campaign.kind === 'barter' && campaign.status === 'offer_accepted')) controls += '<button class="cp-tab on" data-action="start" data-id="' + esc(campaign.id) + '">Start work</button>';
     if (campaign.status === 'in_progress') controls += '<button class="cp-tab on" data-action="submit" data-id="' + esc(campaign.id) + '">Submit work</button>';
     if (['funded','in_progress','submitted','approved'].includes(campaign.status)) controls += '<button class="cp-tab" data-dispute="' + esc(campaign.id) + '">Raise issue</button>';
     if (controls) return controls;

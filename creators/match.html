@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#08070d">
+  <title>RoamWise Match — Creators × verified stays</title>
+  <meta name="description" content="Join the RoamWise creator and property collaboration network, choose barter, hybrid or paid terms, and receive trust-checked matches.">
+  <link rel="canonical" href="https://roamwise.co.in/creators/match.html"><link rel="icon" href="../icons/favicon-32.png">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet"><link rel="stylesheet" href="matchmaking.css">
+</head>
+<body>
+  <nav class="mm-nav"><a href="../" class="mm-brand"><img src="../icons/icon-192.png" alt=""><b>Roam<span>Wise</span></b></a><div></div><a href="./">Creator network</a><a href="../partner/">Property partners</a></nav>
+  <main>
+    <header class="mm-hero">
+      <div><span class="mm-kicker" id="inviteLabel">VERIFIED CREATOR × STAY MATCHING</span><h1>The right creator.<br><em>The right stay.</em></h1><p>Choose what you can offer and what you need. RoamWise scores fit, checks trust signals, proposes clear terms and only sends both sides a match when it makes sense.</p></div>
+      <aside><b>Autopilot with a human brake</b><span>AI shortlists strong fits</span><span>Both sides approve the same terms</span><span>High-value or suspicious cases pause for manual review</span></aside>
+    </header>
+
+    <section class="mm-flow" aria-label="How matching works"><div><b>1</b><span>Join with one public link</span></div><i></i><div><b>2</b><span>RoamWise verifies both sides</span></div><i></i><div><b>3</b><span>Accept, deliver, settle</span></div></section>
+
+    <section class="mm-shell" id="join">
+      <div class="mm-role" role="tablist" aria-label="Choose your role"><button class="on" data-role="creator" type="button">🎥 I’m a creator</button><button data-role="property" type="button">🏡 I run a property</button></div>
+      <form id="matchForm" novalidate>
+        <div class="mm-grid">
+          <label>Your name <input id="mmName" maxlength="120" autocomplete="name" required placeholder="Name"></label>
+          <label>Email <input id="mmEmail" type="email" maxlength="160" autocomplete="email" required placeholder="you@example.com"></label>
+          <label>WhatsApp / phone <input id="mmPhone" type="tel" maxlength="24" autocomplete="tel" placeholder="+91 …"></label>
+          <label><span id="profileLabel">Instagram, YouTube or portfolio link</span><input id="mmProfile" type="url" maxlength="700" inputmode="url" required placeholder="https://…"></label>
+          <label>Where do you want to work? <input id="mmDestinations" maxlength="220" placeholder="Uttarakhand, Himachal, Goa"></label>
+          <label>Best fit <input id="mmNiches" maxlength="220" placeholder="mountains, wellness, food, boutique stays"></label>
+        </div>
+
+        <fieldset><legend>Deals you are open to</legend><div class="mm-checks"><label><input type="checkbox" name="deal" value="barter" checked><span><b>Barter first</b>Hosted stay + agreed content</span></label><label><input type="checkbox" name="deal" value="hybrid" checked><span><b>Hybrid</b>Stay + smaller cash/travel support</span></label><label><input type="checkbox" name="deal" value="paid"><span><b>Paid launch</b>Production-heavy or new opening</span></label></div></fieldset>
+
+        <div id="creatorFields">
+          <div class="mm-grid"><label>What can you create? <input id="mmServices" maxlength="240" value="Reel, Stories" placeholder="Reel, Stories, YouTube, UGC photos"></label><label>Minimum cash, if required (₹) <input id="mmMinimum" type="number" min="0" max="500000" step="500" value="0"><small>Keep ₹0 if you are happy to consider a strong hosted barter.</small></label><label>Approx. account age <select id="mmAge"><option value="365">1+ year</option><option value="90">3–12 months</option><option value="30">1–3 months</option><option value="14">Under 1 month</option></select></label><label>Approx. followers <input id="mmFollowers" type="number" min="0" max="1000000000" inputmode="numeric" placeholder="Optional"></label></div>
+        </div>
+
+        <div id="propertyFields" hidden>
+          <div class="mm-grid"><label>Property name <input id="mmPropertyName" maxlength="120" placeholder="Your stay / hotel / homestay"></label><label>Hosted nights offered <input id="mmNights" type="number" min="0" max="30" value="2"></label><label>Maximum optional cash budget (₹) <input id="mmMaximum" type="number" min="0" max="500000" step="500" value="0"><small>₹0 is normal for a hosted barter. Add cash only when it creates extra value.</small></label></div>
+          <div class="mm-inline"><label><input id="mmMeals" type="checkbox" checked> Meals included</label><label><input id="mmTravel" type="checkbox"> Travel allowance</label><label><input id="mmOpening" type="checkbox"> New opening / major launch</label></div>
+        </div>
+
+        <label class="mm-auto"><input id="mmAutopilot" type="checkbox" checked><span><b>Use AI Match Autopilot</b>Shortlist verified fits and draft fair terms. Nothing is booked, posted or paid until both sides accept.</span></label>
+        <label class="mm-consent"><input id="mmConsent" type="checkbox" required> I agree that RoamWise may use these details to review and contact me about creator–property collaborations.</label>
+        <button class="mm-primary" id="mmSubmit" type="submit">See my match setup →</button><div id="mmMessage" role="status"></div>
+      </form>
+    </section>
+
+    <section class="mm-result" id="matchResult" hidden aria-live="polite"></section>
+
+    <section class="mm-tiers"><div class="mm-section-head"><span class="mm-kicker">REALISTIC STARTING POINTS</span><h2>Most stays begin with value exchange, not ₹25,000 cash.</h2><p>These are conversation bands, not fixed prices. The creator and property can propose different terms before accepting.</p></div><div id="tierCards"></div></section>
+
+    <section class="mm-trust"><div><span class="mm-kicker">TRUST BEFORE INTRODUCTION</span><h2>Verified enough to collaborate, not “verified” by a blue tick.</h2></div><ul><li>Creator profile ownership, recent activity and audience-quality review</li><li>Property ownership/management authority and public listing check</li><li>Duplicate contact, device and payout signals where legally available</li><li>Exact deliverables, dates, usage rights, cancellation and disclosure terms</li><li>Cash over ₹15,000, odd growth patterns or conflicting details go to manual review</li></ul></section>
+
+    <section class="mm-share"><div><span class="mm-kicker">TWO CREATORS READY?</span><h2>Send one link anywhere.</h2><p>WhatsApp, Instagram bio/DM, YouTube description or email all open the same short mobile form.</p></div><div class="mm-share-actions"><button id="shareNative">Share invite</button><a id="shareWhatsApp" target="_blank" rel="noopener">WhatsApp</a><a id="shareEmail">Email</a><button id="copyInvite">Copy link</button></div></section>
+  </main>
+  <footer>RoamWise Match · <a href="mailto:founder@roamwise.co.in">founder@roamwise.co.in</a> · Both sides stay in control</footer>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script><script src="../rw-config.js"></script>
+  <script type="module" src="matchmaking.js"></script>
+</body>
+</html>

@@ -15,6 +15,7 @@
   <nav class="cp-nav">
     <a class="cp-brand" href="../"><img src="../icons/icon-192.png" alt=""><b>Roam<span>Wise</span></b></a>
     <div class="cp-spacer"></div>
+    <a href="match.html?role=creator" class="cp-navlink">Find stay matches</a>
     <a href="brands.html" class="cp-navlink">For travel brands</a>
     <a href="dashboard.html" class="cp-navlink">Creator Studio</a>
     <a href="#apply" class="cp-button small">Apply free</a>
@@ -25,18 +26,18 @@
       <div class="cp-orb"></div><div class="cp-grid"></div>
       <div class="cp-hero-copy">
         <span class="cp-eyebrow">THE TRAVEL CREATOR PROTECTION LAYER</span>
-        <h1>Travel more.<br><em>Barter less.</em></h1>
-        <p>Turn Reels, stories, hotel shoots and destination films into clearly priced services. See what is included, what travel costs are covered, and whether brand funds are actually secured before you leave.</p>
-        <div class="cp-actions"><a class="cp-button" href="#apply">Set up my creator profile</a><a class="cp-button ghost" href="#how">See how protection works</a></div>
+        <h1>Travel more.<br><em>Barter smart.</em></h1>
+        <p>Match with verified stays, choose barter, hybrid or paid terms, and agree every deliverable before you travel. Cash is optional; clarity is not.</p>
+        <div class="cp-actions"><a class="cp-button" href="match.html?role=creator&invite=founding">Join in under 2 minutes</a><a class="cp-button ghost" href="#how">See how protection works</a></div>
         <div class="cp-trust"><span>✓ Creator sets the price</span><span>✓ Stay is separate from payment</span><span>✓ Funded badge requires a verified webhook</span></div>
       </div>
       <aside class="cp-campaign-card">
-        <div class="cp-card-top"><span class="cp-badge funded"><i></i> FUNDED</span><span class="cp-kind">PAID + STAY</span></div>
-        <h2>Jaipur heritage hotel launch</h2><p class="cp-location">Jaipur · 2 travel days · October</p>
-        <div class="cp-money"><b>₹25,000</b><span>creator fee protected</span></div>
-        <div class="cp-breakdown"><div><span>Travel reimbursement</span><b>₹8,000</b></div><div><span>Accommodation</span><b>2 nights</b></div><div><span>Meals</span><b>Included</b></div></div>
-        <div class="cp-deliverables"><span>2 Reels</span><span>5 Stories</span><span>Organic use</span></div>
-        <p class="cp-card-note">Sample format · a real campaign receives the FUNDED badge only after RoamWise verifies the provider payment.</p>
+        <div class="cp-card-top"><span class="cp-badge">HOSTED BARTER</span><span class="cp-kind">MUTUAL FIT</span></div>
+        <h2>Kumaon slow-stay story swap</h2><p class="cp-location">Almora · flexible dates · direct agreement</p>
+        <div class="cp-money"><b>₹0 cash</b><span>2 hosted nights + meals</span></div>
+        <div class="cp-breakdown"><div><span>Creator delivers</span><b>1 Reel</b></div><div><span>Stories</span><b>3 frames</b></div><div><span>Usage</span><b>Organic only</b></div></div>
+        <div class="cp-deliverables"><span>Creator opt-in</span><span>Property verified</span><span>Terms editable</span></div>
+        <p class="cp-card-note">A ₹15k–₹50k paid launch appears only when cash, production and usage rights genuinely justify it.</p>
       </aside>
     </section>
 
@@ -52,9 +53,9 @@
     <section class="cp-section compact">
       <div class="cp-heading"><span class="cp-eyebrow">YOU CHOOSE THE ECONOMICS</span><h2>Paid, hybrid and barter are visibly different.</h2></div>
       <div class="cp-columns three">
-        <article class="cp-tier paid"><span>PAID</span><h3>₹30,000 cash + stay</h3><p>For established creators and production-heavy work. Cash fee remains distinct from hospitality.</p></article>
-        <article class="cp-tier hybrid"><span>HYBRID</span><h3>₹15,000 + stay + meals</h3><p>A smaller cash fee with valuable trip benefits, accepted deliberately rather than hidden as “exposure”.</p></article>
-        <article class="cp-tier barter"><span>BARTER</span><h3>Stay only · opt-in</h3><p>Never sent to creators who disable barter or set a paid Creator Minimum above the offer.</p></article>
+        <article class="cp-tier barter"><span>BARTER · DEFAULT</span><h3>1–2 nights + meals</h3><p>One Reel or short video plus three Stories, or an agreed photo pack. Both sides may counter.</p></article>
+        <article class="cp-tier hybrid"><span>HYBRID</span><h3>₹3k–₹15k + stay</h3><p>For extra production, travel support, more deliverables or licensed UGC.</p></article>
+        <article class="cp-tier paid"><span>PAID LAUNCH</span><h3>₹15k–₹50k+ + stay</h3><p>Reserved for launches, ad usage, exclusivity or production-heavy briefs; manual review applies.</p></article>
       </div>
     </section>
 
@@ -72,7 +73,7 @@
           <label>Main channel / handle<input id="cHandle" maxlength="200" placeholder="Instagram @… / YouTube @…"></label>
           <label>Audience<select id="cReach"><option>Prefer not to say</option><option>Under 10k</option><option>10k – 50k</option><option>50k – 100k</option><option>100k – 500k</option><option>500k – 1M</option><option>1M+</option></select></label>
           <label>Travel niche<input id="cNiche" maxlength="160" placeholder="Himalayan treks, food trails…"></label>
-          <label>Creator Minimum (₹)<input id="cMinimum" type="number" min="0" step="500" value="15000"></label>
+          <label>Creator Minimum (₹)<input id="cMinimum" type="number" min="0" step="500" value="0"><small>Use ₹0 if you are open to a strong hosted barter.</small></label>
           <label>Typical Reel price (₹)<input id="cReel" type="number" min="0" step="500" placeholder="20000"></label>
           <label>Typical story package (₹)<input id="cStories" type="number" min="0" step="500" placeholder="8000"></label>
           <label class="wide">Services offered<select id="cServices" multiple size="5"><option value="instagram_reel">Instagram Reel</option><option value="story_package">Story package</option><option value="hotel_content">Hotel content package</option><option value="destination_campaign">Destination campaign</option><option value="ugc_package">UGC package</option></select></label>
