@@ -50,6 +50,7 @@ var RWDashboardHome = (function(){
         '<button class="btn" onclick="goPage(\'activity\')">Open Activity &rarr;</button>' +
         '<button class="btn" onclick="goPage(\'promos\')">Open Promos &rarr;</button>' +
         '<button class="btn" onclick="goPage(\'notifications\')">Open Notifications &rarr;</button>' +
+        '<button class="btn" onclick="goPage(\'autopilot\')">Open Autopilot &rarr;</button>' +
         '<button class="btn" onclick="goPage(\'business\')">Open Business &rarr;</button>' +
         '<button class="btn" onclick="goPage(\'users\')">Open Users &rarr;</button>' +
       '</div>' +
