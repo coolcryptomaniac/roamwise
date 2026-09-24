@@ -31,18 +31,60 @@ var CF_SDK_URL = 'https://sdk.cashfree.com/js/v3/cashfree.js';
 var _cfOrderPromise = null;
 var _cfSdkPromise = null;
 var _cfPhoneOverride = '';
+var CF_PENDING_KEY = 'rw_cashfree_pending_v2';
 
 function _cfLoadSdk(){
-  if(typeof Cashfree !== 'undefined') return Promise.resolve();
+  if(typeof Cashfree === 'function') return Promise.resolve();
   if(_cfSdkPromise) return _cfSdkPromise;
   _cfSdkPromise = new Promise(function(resolve, reject){
     var s = document.createElement('script');
     s.src = CF_SDK_URL;
-    s.onload = function(){ resolve(); };
-    s.onerror = function(){ _cfSdkPromise = null; reject(new Error('Could not load the Cashfree checkout script.')); };
+    s.async = true;
+    s.setAttribute('data-rw-cashfree-sdk','1');
+    var finished=false;
+    var timer=setTimeout(function(){
+      if(finished)return;finished=true;_cfSdkPromise=null;
+      reject(new Error('Cashfree took too long to load. Check your connection or use direct UPI.'));
+    },12000);
+    s.onload = function(){
+      if(finished)return;finished=true;if(typeof clearTimeout==='function')clearTimeout(timer);
+      if(typeof Cashfree==='function')resolve();
+      else{_cfSdkPromise=null;reject(new Error('Cashfree loaded incompletely. Refresh or use direct UPI.'));}
+    };
+    s.onerror = function(){
+      if(finished)return;finished=true;if(typeof clearTimeout==='function')clearTimeout(timer);
+      _cfSdkPromise = null;reject(new Error('Could not load the Cashfree checkout script.'));
+    };
     document.head.appendChild(s);
   });
   return _cfSdkPromise;
+}
+
+function _cfUi(state,message){
+  try{if(typeof rwSetCashfreeState==='function')rwSetCashfreeState(state,message);}catch(e){/* optional UI */}
+}
+function _cfStorePending(order){
+  try{localStorage.setItem(CF_PENDING_KEY,JSON.stringify({
+    orderId:order.orderId,planId:order.planId,amountINR:order.amountINR,
+    createdAt:Date.now(),environment:order.environment
+  }));}catch(e){/* private browsing/storage denial must not block payment */}
+}
+function _cfReadPending(){
+  try{
+    var pending=JSON.parse(localStorage.getItem(CF_PENDING_KEY)||'null');
+    if(!pending||!pending.orderId||Date.now()-Number(pending.createdAt||0)>864e5){localStorage.removeItem(CF_PENDING_KEY);return null;}
+    return pending;
+  }catch(e){return null;}
+}
+function _cfClearPending(){try{localStorage.removeItem(CF_PENDING_KEY);}catch(e){/* optional */}}
+function _cfReturnUrl(orderId){
+  try{
+    var u=new URL(window.location.href);
+    u.hash='';u.search='';
+    u.searchParams.set('rw_payment','return');
+    u.searchParams.set('order_id',orderId);
+    return u.href;
+  }catch(e){return undefined;}
 }
 
 /* Best-effort current-user details for Cashfree's customer_details block.
@@ -103,6 +145,49 @@ function _cfConfirmPaid(orderId, attemptsLeft){
   }).catch(function(){ return false; });
 }
 
+function _cfGrantConfirmed(order){
+  try{ track('cashfree_paid'); }catch(e){ /* analytics best-effort */ }
+  grantPurchase(order.orderId || 'cashfree', 'cashfree', order.planId);
+  _cfClearPending();
+  _cfUi('success','Payment confirmed. Your plan is active.');
+  /* Keep the existing shared Founder seat counter behaviour. This write is
+     best-effort and never controls entitlement. */
+  if(order.planId === 'founder' && typeof db !== 'undefined' && db){
+    db.collection('pricing').doc('founder').update({
+      count: firebase.firestore.FieldValue.increment(1)
+    }).catch(function(){});
+  }
+}
+
+function _cfCleanReturnQuery(){
+  try{
+    var u=new URL(window.location.href);
+    if(!u.searchParams.has('rw_payment'))return;
+    u.searchParams.delete('rw_payment');u.searchParams.delete('order_id');
+    window.history.replaceState({},document.title,u.pathname+(u.search||'')+(u.hash||''));
+  }catch(e){/* cosmetic only */}
+}
+
+/* Full-page hosted checkout is the most consistent presentation across
+   Safari, Firefox, Chrome and WebViews. After Cashfree returns, restore the
+   saved order and ask the Worker for the authoritative status. */
+function rwResumeCashfreePayment(attempt){
+  var pending=_cfReadPending();
+  if(!pending)return Promise.resolve(false);
+  attempt=Number(attempt||0);
+  if((typeof user==='undefined'||!user||typeof user.getIdToken!=='function')&&attempt<30){
+    return new Promise(function(resolve){setTimeout(resolve,400);}).then(function(){return rwResumeCashfreePayment(attempt+1);});
+  }
+  if(typeof user==='undefined'||!user)return Promise.resolve(false);
+  _cfUi('busy','Confirming your Cashfree payment\u2026');
+  return _cfConfirmPaid(pending.orderId,4).then(function(confirmation){
+    _cfCleanReturnQuery();
+    if(confirmation){_cfGrantConfirmed(pending);return true;}
+    _cfUi('ready','Payment is not confirmed yet. You can retry safely or check My Payments.');
+    return false;
+  });
+}
+
 var CashfreeAdapter = {
   id: 'cashfree',
 
@@ -120,86 +205,52 @@ var CashfreeAdapter = {
     return true;
   },
 
-  /* Hosted-checkout gateway: success/failure/cancel all resolve inside
-     Cashfree's own SDK promise, so — same as this file's header and
-     PAYMENT-GATEWAY-ARCHITECTURE.md's "Adding gateway #2" guide both note —
-     there is no separate verifyPayment() step. */
+  /* Use Cashfree's full-page hosted checkout. A nested provider modal inside
+     RoamWise's already-scrollable modal was the source of clipped/sandwiched
+     controls on iPhone and cramped desktop windows. `_self` is Cashfree's
+     documented default and works consistently across modern browsers. */
   openCheckout: function(order, method){
     if(!_cfOrderPromise&&order&&!order.needsPhone)_cfBeginOrder(order);
-    if(!_cfOrderPromise){ showToast(order&&order.needsPhone?'Add a valid mobile number for the Cashfree receipt.':'Sign in again, then reopen checkout.'); return; }
-    showToast('Opening secure Cashfree checkout…');
-    _cfOrderPromise.then(function(ready){
+    if(!_cfOrderPromise){
+      var missing=order&&order.needsPhone?'Add a valid mobile number for the Cashfree receipt.':'Sign in again, then reopen checkout.';
+      showToast(missing);_cfUi('error',missing);return Promise.resolve(false);
+    }
+    _cfUi('busy','Preparing Cashfree’s secure payment page\u2026');
+    var flow=_cfOrderPromise.then(function(ready){
       return _cfLoadSdk().then(function(){ return ready; });
     }).then(function(ready){
+      _cfStorePending(ready);
       var cashfree = Cashfree({mode: ready.environment === 'production' ? 'production' : 'sandbox'});
-      return cashfree.checkout({paymentSessionId: ready.paymentSessionId, redirectTarget: '_modal'}).then(function(result){
-        return {result: result, orderId: ready.orderId, planId: ready.planId, amountINR: ready.amountINR};
-      });
+      var options={paymentSessionId:ready.paymentSessionId,redirectTarget:'_self'};
+      var returnUrl=_cfReturnUrl(ready.orderId);if(returnUrl)options.returnUrl=returnUrl;
+      return Promise.resolve(cashfree.checkout(options)).then(function(result){return {result:result||{},order:ready};});
     }).then(function(res){
       var result = res.result || {};
       if(result.error){
-        showToast('Payment was not completed' + (result.error.message ? ': ' + result.error.message : ' — you can try again.'));
-        return;
+        var msg='Payment was not completed' + (result.error.message ? ': ' + result.error.message : ' — you can try again.');
+        showToast(msg);_cfUi('error',msg);return false;
       }
-      /* The SDK resolving without `error` means the checkout flow finished,
-         not necessarily a successful charge (Cashfree's own docs: the
-         completion callback fires "irrespective of transaction status") —
-         confirm order_status server-side before granting anything. */
-      showToast('Confirming your payment…');
-      _cfConfirmPaid(res.orderId, 3).then(function(confirmation){
-        if(confirmation){
-          try{ track('cashfree_paid'); }catch(e){ /* analytics best-effort, ignore */ }
-          /* FULFILLMENT FIX: Cashfree's confirmation is real-time/automatic —
-             unlike the manual-UPI/UTR flow's honor-system admin approval,
-             there is no human review step before granting anything here, so
-             this MUST branch per what was actually purchased rather than a
-             single blanket Pro grant. grantPurchase() (js/payments/
-             plan-picker.js) is the exact same per-product fulfillment logic
-             the manual-UPI flow's instant provisional unlock already uses
-             (rwTierForPlan()) — reused here, not reinvented, so a Plus/Pro
-             monthly buyer gets exactly that tier and a Founder/long-term/
-             short-term buyer still gets full access, never the other way
-             around. */
-          grantPurchase(res.orderId || 'cashfree', 'cashfree', res.planId);
-          /* The Worker has already persisted the account-bound entitlement
-             before returning PAID. This local grant only refreshes the
-             current screen immediately; Firestore remains authoritative. */
-          /* FOUNDER SEAT COUNTING BUG FIX (2026-09-07): a Founder-offer seat
-             bought through Cashfree is still one of the shared 1,000
-             lifetime-Pro seats — it must count against that pool, same as
-             the admin-manual-payment and NMIMS-partner-redemption paths
-             already do (js/pricing/founder-seats.js). Before this, NOTHING
-             in the Cashfree flow ever touched pricing/founder.count: this is
-             a real-time, server-confirmed (_cfConfirmPaid()) purchase with
-             no human review step, so it was never routed through the admin
-             console's saveManualPayment() — the only other place this
-             counter moves. Once Cashfree was gated on for one-off purchases
-             (which includes the Founder offer — see plan-picker.js's
-             renderPlanGrid()), every Founder seat sold this way was
-             invisible to the PUBLIC seats-left counter, making the offer
-             look far more open than reality (e.g. showing "999 left" when
-             real paid seats — some via Cashfree, uncounted — already put it
-             at 995 or lower). Same firestore.rules carve-out
-             openPartnerRedeem() already uses (pricing/{doc} allows a
-             signed-in user to move ONLY 'founder'.count, ONLY by exactly
-             +1) — no rules change needed. Best-effort and non-blocking: Pro
-             is already granted by grantPurchase() above, so a failure here
-             must never undo or block that — it would only leave the PUBLIC
-             counter briefly stale, which self-corrects on the next
-             successful sale or admin repair. */
-          if(res.planId === 'founder' && typeof db !== 'undefined' && db){
-            db.collection('pricing').doc('founder').update({
-              count: firebase.firestore.FieldValue.increment(1)
-            }).catch(function(){});
-          }
-        } else {
-          showToast('Payment is still processing with Cashfree — if it completed, Pro will unlock automatically shortly. Contact support if it does not.');
-        }
+      /* Popup mocks/tests and unusual browsers can resolve without navigating.
+         Still verify server-side; the normal `_self` flow resumes after the
+         return URL reload. */
+      _cfUi('busy','Confirming your payment\u2026');
+      return _cfConfirmPaid(res.order.orderId,3).then(function(confirmation){
+        if(confirmation){_cfGrantConfirmed(res.order);return true;}
+        _cfUi('ready','Payment is still processing. If you paid, check My Payments before trying again.');
+        return false;
       });
     }).catch(function(e){
-      showToast('Could not open Cashfree checkout' + ((e && e.message) ? ': ' + e.message : ' — try again.'));
+      var msg='Could not open Cashfree checkout' + ((e && e.message) ? ': ' + e.message : ' — use direct UPI or retry.');
+      showToast(msg);_cfUi('error',msg);return false;
     });
+    return flow;
   }
 };
 
 RWPaymentGateway.register('cashfree', CashfreeAdapter);
+
+if(typeof window!=='undefined'&&window.addEventListener){
+  window.addEventListener('load',function(){
+    if(_cfReadPending())setTimeout(function(){rwResumeCashfreePayment(0);},300);
+  });
+}

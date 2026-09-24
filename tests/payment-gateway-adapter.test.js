@@ -133,6 +133,12 @@ test('current() falls back to manual_upi if RW_PAYMENT_PROVIDER names a provider
   assert.equal(ctx.RWPaymentGateway.current(), fallback);
 });
 
+test('fresh remote config re-evaluates an already-selected plan so Cashfree appears on new browsers without a cached config', () => {
+  const init = read('js/boot/init.js');
+  assert.match(init, /_selectedPlan&&typeof _renderCashfreeOption==='function'/);
+  assert.match(init, /_renderCashfreeOption\(_selectedPlan\.category,_selectedPlan\.priceINR,_selectedPlan\.id/);
+});
+
 // ---------------------------------------------------------------------------
 // 2. plan-picker.js's real pickPlan()/payVia() calling through the adapter
 // ---------------------------------------------------------------------------

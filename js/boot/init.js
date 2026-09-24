@@ -318,6 +318,18 @@ function applyRemoteConfig(cfg){
       }
     }
   }catch(e){ /* best-effort, ignore */ }
+
+  /* A first-time browser has no cached config. If the user opens checkout
+     before the Firestore read finishes, the picker initially sees the safe
+     manual-UPI default. Re-evaluate the already-selected plan as soon as the
+     fresh provider/environment config arrives so Cashfree does not remain
+     missing on new iPhones, Macs, private windows or cleared storage. The
+     Worker still enforces the same server-side provider kill switch. */
+  try{
+    if(typeof _selectedPlan!=='undefined'&&_selectedPlan&&typeof _renderCashfreeOption==='function'){
+      _renderCashfreeOption(_selectedPlan.category,_selectedPlan.priceINR,_selectedPlan.id,_selectedPlan.label,_selectedPlan.tierId);
+    }
+  }catch(e){ /* checkout may not be open; nothing to refresh */ }
 }
 (function(){
   function boot(){
