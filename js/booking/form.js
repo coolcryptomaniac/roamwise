@@ -92,6 +92,10 @@ function rwTuskStayMatches(raw,dest){
   }
   return list.sort(function(a,b){return score(b)-score(a)||(Number(a.price)||999999)-(Number(b.price)||999999);}).slice(0,4);
 }
+function rwTuskOpenRoomBook(id){
+  try{ track('tusk_stay_handoff'); }catch(e){ /* analytics best-effort, ignore */ }
+  openRoomBook(id);
+}
 function rwTuskStayHTML(raw,dest){
   var list=rwTuskStayMatches(raw,dest); if(!list.length)return '';
   var title=dest?'🏡 Best matching stays · '+esc2(dest):'🏡 Matching RoamWise stays';
@@ -102,7 +106,7 @@ function rwTuskStayHTML(raw,dest){
       return '<div style="padding:9px 0;border-bottom:1px solid var(--b2,#2A2A36)">'
         +'<div style="display:flex;gap:8px;align-items:flex-start"><span style="flex:1"><b>'+esc2(r.property)+'</b><br><span style="font-size:11px;color:var(--t3)">'+esc2(r.room)+' · '+esc2(r.area||r.zone||'')+'</span></span><b style="font-size:11.5px;color:var(--gold,#E8BA6C)">'+price+'</b></div>'
         +'<div style="font-size:10.5px;color:var(--t3);margin:5px 0">'+esc2((r.inc||[]).slice(0,3).join(' · '))+'</div>'
-        +'<button class="tk-chip gold" onclick="openRoomBook(\''+String(r.id).replace(/'/g,'')+'\')">'+(live?'Continue booking →':'Request exact rate & availability →')+'</button>'
+        +'<button class="tk-chip gold" onclick="rwTuskOpenRoomBook(\''+String(r.id).replace(/'/g,'')+'\')">'+(live?'Continue booking →':'Request exact rate & availability →')+'</button>'
         +'</div>';
     }).join('')
     +'<div style="font-size:10.5px;color:var(--t3);margin-top:8px">Voice and typing use the same matcher. A stay becomes instantly payable only after supplier availability and payment routing are enabled; otherwise this sends an availability/rate request with no charge.</div>'
