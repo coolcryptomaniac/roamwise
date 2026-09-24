@@ -54,28 +54,78 @@ function rwStaysRender(){
       +(isFinite(+r.price)&&+r.price>0?'<span class="st-price">\u20b9'+(+r.price).toLocaleString('en-IN')+'<span>/night</span></span>':'<span class="st-price" style="font-size:12px">Live rate<span>date-checked</span></span>')+'</div>'
       +'<div class="st-inc">'+(r.inc||[]).map(function(i){ return '<span>'+esc2(i)+'</span>'; }).join('')+'</div>'
       +'<div class="st-cancel">\u2713 '+esc2(r.cancel||'')+'</div>'
-      +'<button class="st-book" onclick="openRoomBook(\''+r.id+'\')">'+((r.bookable===false||!isFinite(+r.price)||+r.price<=0)?'Request availability →':'Book this room →')+'</button>'
+      +'<button class="st-book" onclick="openRoomBook(\''+r.id+'\')">'+((r.bookable!==true||r.paymentEnabled!==true||!isFinite(+r.price)||+r.price<=0)?'Request availability →':'Book this room →')+'</button>'
       +'</div>';
   }).join('')
   +'<div class="gr-foot">Rates are set by the property, not by us. We never discount someone\u2019s room without asking them first.</div>';
 }
 function rwRoomById(id){ return (window.RW_ROOMS||[]).filter(function(r){ return r.id===id; })[0]; }
+function rwBookingIdentity(){
+  var u=(typeof user!=='undefined'&&user)||((window.auth&&window.auth.currentUser)||{});
+  var phone=String((u&&u.phoneNumber)||lsGet('rw_booking_phone')||lsGet('rw_checkout_phone')||'').replace(/\D/g,'').slice(-10);
+  return {name:String((u&&u.displayName)||''),email:String((u&&u.email)||''),phone:/^\d{10}$/.test(phone)?phone:''};
+}
+function rwRememberBookingIdentity(name,phone){
+  try{var p=String(phone||'').replace(/\D/g,'').slice(-10);if(/^\d{10}$/.test(p))lsSet('rw_booking_phone',p);}catch(e){}
+}
+
+/* Conversational stay matcher used by Ailon Tusk. Voice and typed messages use
+   the same parser, so "Manali room under 3000 for 2 with breakfast" produces
+   the same shortlist either way. This is inventory discovery, not a promise
+   of availability: only an explicitly payment-enabled supplier can charge. */
+function rwTuskStayMatches(raw,dest){
+  var q=String(raw||''), list=(window.RW_ROOMS||[]).slice(), zone=String(dest||'').trim().toLowerCase();
+  var bm=q.match(/(?:under|below|max(?:imum)?|budget(?: of)?|upto|up to)\s*(?:₹|rs\.?|inr)?\s*([\d,]+)/i);
+  var max=bm?Number(String(bm[1]).replace(/,/g,'')):0;
+  var gm=q.match(/(\d+)\s*(?:guest|guests|people|persons|pax)/i), guests=gm?Number(gm[1]):0;
+  var wants=[];
+  ['breakfast','wifi','wi-fi','pool','balcony','cottage','dorm','view','garden'].forEach(function(k){if(q.toLowerCase().indexOf(k)>-1)wants.push(k);});
+  if(zone) list=list.filter(function(r){var z=String(r.zone||'').toLowerCase();return z&&((z.indexOf(zone)>-1)||(zone.indexOf(z)>-1));});
+  if(guests>0) list=list.filter(function(r){return Number(r.maxGuests||0)>=guests;});
+  if(max>0) list=list.filter(function(r){return !isFinite(+r.price)||+r.price<=0||+r.price<=max;});
+  function score(r){
+    var s=0,txt=((r.room||'')+' '+(r.inc||[]).join(' ')).toLowerCase();
+    wants.forEach(function(k){if(txt.indexOf(k)>-1)s+=12;});
+    if(isFinite(+r.price)&&+r.price>0){s+=8;if(max>0)s+=Math.max(0,8-Math.abs(max-r.price)/500);}
+    if(r.bookable===true&&r.paymentEnabled===true)s+=5;
+    return s;
+  }
+  return list.sort(function(a,b){return score(b)-score(a)||(Number(a.price)||999999)-(Number(b.price)||999999);}).slice(0,4);
+}
+function rwTuskStayHTML(raw,dest){
+  var list=rwTuskStayMatches(raw,dest); if(!list.length)return '';
+  var title=dest?'🏡 Best matching stays · '+esc2(dest):'🏡 Matching RoamWise stays';
+  return '<div class="tk-card tk-mini"><div class="tk-sec"><div style="font-weight:850;font-size:13.5px;margin-bottom:7px">'+title+'</div>'
+    +list.map(function(r){
+      var live=r.bookable===true&&r.paymentEnabled===true;
+      var price=isFinite(+r.price)&&+r.price>0?'₹'+Number(r.price).toLocaleString('en-IN')+'/night':'Live rate on request';
+      return '<div style="padding:9px 0;border-bottom:1px solid var(--b2,#2A2A36)">'
+        +'<div style="display:flex;gap:8px;align-items:flex-start"><span style="flex:1"><b>'+esc2(r.property)+'</b><br><span style="font-size:11px;color:var(--t3)">'+esc2(r.room)+' · '+esc2(r.area||r.zone||'')+'</span></span><b style="font-size:11.5px;color:var(--gold,#E8BA6C)">'+price+'</b></div>'
+        +'<div style="font-size:10.5px;color:var(--t3);margin:5px 0">'+esc2((r.inc||[]).slice(0,3).join(' · '))+'</div>'
+        +'<button class="tk-chip gold" onclick="openRoomBook(\''+String(r.id).replace(/'/g,'')+'\')">'+(live?'Continue booking →':'Request exact rate & availability →')+'</button>'
+        +'</div>';
+    }).join('')
+    +'<div style="font-size:10.5px;color:var(--t3);margin-top:8px">Voice and typing use the same matcher. A stay becomes instantly payable only after supplier availability and payment routing are enabled; otherwise this sends an availability/rate request with no charge.</div>'
+    +'</div></div>';
+}
 
 /* ---------------- brochure / not-yet-live partner enquiry ---------------- */
 function rwRoomEnquiry(r){
+  var ident=rwBookingIdentity();
   var t=new Date(),inD=new Date(t.getTime()+86400000),outD=new Date(t.getTime()+2*86400000);
   var f=function(d){return d.toISOString().slice(0,10);};
   var fields=[
     {key:'inD',label:'Check in',type:'date',value:f(inD)},
     {key:'outD',label:'Check out',type:'date',value:f(outD)},
     {key:'guests',label:'Guests',type:'number',value:'2'},
-    {key:'name',label:'Your name'},
-    {key:'phone',label:'Your phone',placeholder:'10-digit mobile'},
+    {key:'name',label:'Your name',value:ident.name},
+    {key:'phone',label:'Your phone',placeholder:'10-digit mobile',value:ident.phone},
     {key:'note',label:'Anything they should know',placeholder:'arrival time, food needs, celebration'}
   ];
   fields._notice='Rate and availability are being checked for your exact dates. This is an enquiry, not a confirmed booking or payment.';
   rwForm('🏡 '+r.property+' · '+r.room,fields,function(v){
     if(!v.name||!/^\d{10}$/.test(String(v.phone||'').replace(/\D/g,'').slice(-10))){showToast('Add your name and a valid 10-digit mobile');return;}
+    rwRememberBookingIdentity(v.name,v.phone);
     var rec={id:'RQ'+Date.now().toString(36).toUpperCase(),partnerId:r.partnerId,roomId:r.id,property:r.property,room:r.room,zone:r.zone,checkIn:v.inD,checkOut:v.outD,guests:+v.guests||2,name:v.name,phone:String(v.phone).replace(/\D/g,'').slice(-10),note:v.note||'',status:'rate-audit-pending',at:new Date().toISOString()};
     try{lsSet('rw_last_stay_enquiry',JSON.stringify(rec));}catch(e){}
     try{if(window.db)db.collection('stayEnquiries').doc(rec.id).set(rec).catch(function(){});}catch(e){}
@@ -87,7 +137,8 @@ function rwRoomEnquiry(r){
 
 function openRoomBook(id){
   var r=rwRoomById(id); if(!r) return;
-  if(r.bookable===false || !isFinite(+r.price) || +r.price<=0) return rwRoomEnquiry(r);
+  if(r.bookable!==true || r.paymentEnabled!==true || !isFinite(+r.price) || +r.price<=0) return rwRoomEnquiry(r);
+  var ident=rwBookingIdentity();
   var t=new Date(), inD=new Date(t.getTime()+86400000), outD=new Date(t.getTime()+2*86400000);
   var f=function(d){ return d.toISOString().slice(0,10); };
   /* rwForm reads out[field.key] and renders field.placeholder (see rwFormSubmit),
@@ -98,8 +149,8 @@ function openRoomBook(id){
     { key:'bk_in',    label:'Check in',  type:'date', value:f(inD) },
     { key:'bk_out',   label:'Check out', type:'date', value:f(outD) },
     { key:'bk_g',     label:'Guests',    type:'number', value:'2' },
-    { key:'bk_nm',    label:'Your name' },
-    { key:'bk_ph',    label:'Your phone', placeholder:'10-digit mobile' },
+    { key:'bk_nm',    label:'Your name', value:ident.name },
+    { key:'bk_ph',    label:'Your phone', placeholder:'10-digit mobile', value:ident.phone },
     { key:'bk_note',  label:'Anything they should know', placeholder:'arrival time, food needs' }
   ];
   /* VIEWING-ONLY: no live booking partnerships are connected yet. */
@@ -107,9 +158,10 @@ function openRoomBook(id){
   rwForm('\ud83c\udfe1 '+r.property, bkFields, function(v){
     if(!v.bk_nm || !v.bk_ph){ showToast('Name and phone are needed to save your interest'); return; }
     if(!/^\d{10}$/.test(String(v.bk_ph).replace(/\D/g,'').slice(-10))){ showToast('Enter a valid 10-digit mobile'); return; }
+    rwRememberBookingIdentity(v.bk_nm,v.bk_ph);
     var n=rwNights(v.bk_in, v.bk_out);
     rwBookPay(r, { inD:v.bk_in, outD:v.bk_out, nights:n, guests:+v.bk_g||2,
-                   name:v.bk_nm, phone:v.bk_ph, note:v.bk_note||'' });
+                   name:v.bk_nm, phone:v.bk_ph, email:ident.email, note:v.bk_note||'' });
   });
 }
 
@@ -151,7 +203,7 @@ function rwBookConfirm(mode){
     property:r.property,
     room:r.room, zone:r.zone, area:r.area,
     checkIn:b.inD, checkOut:b.outD, nights:b.nights, guests:b.guests,
-    guestName:b.name, guestPhone:b.phone, note:b.note,
+    guestName:b.name, guestPhone:b.phone, guestEmail:b.email||'', note:b.note,
     amount:total, payMode:(mode==='paid'?'upi':'at-property'),
     /* commissionPct/commission are CLIENT DISPLAY ONLY. They are written for
        the owner's WhatsApp receipt and the local record; the actual payable

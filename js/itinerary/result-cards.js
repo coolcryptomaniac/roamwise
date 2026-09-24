@@ -13,6 +13,52 @@
 // (smartSearch, flagEmoji, buildGenericDestination, loadPhotosForCard,
 // picsumUrl) and js/copilot/ai-providers.js (aiCall) — all resolved at
 // call time, so load order relative to those files doesn't matter.
+/* Destination cost rows have two legacy source units:
+   - curated INR rows are per-person PER DAY;
+   - older international rows are per-person USD PER WEEK.
+   Explicit _priceCurrency/_pricePeriod always win. */
+function rwCostMeta(d){
+  var explicit=String((d&&d._priceCurrency)||'').toUpperCase();
+  var local=String((d&&d.cur)||'').toUpperCase();
+  var cur=explicit || (local==='INR'?'INR':'USD');
+  var period=String((d&&d._pricePeriod)||(cur==='INR'?'day':'week')).toLowerCase();
+  return {currency:cur,period:period};
+}
+function rwCostFactor(d,days){
+  var m=rwCostMeta(d),n=Math.max(1,Number(days)||1);
+  return m.period==='day'?n:m.period==='trip'?1:n/7;
+}
+function rwCostUSD(d,amount,days){
+  var m=rwCostMeta(d),total=(Number(amount)||0)*rwCostFactor(d,days);
+  if(m.currency==='INR'){
+    var ir=(typeof CURR!=='undefined'&&CURR.find(function(x){return x.c==='INR';}))||{r:83.5};
+    return total/(Number(ir.r)||83.5);
+  }
+  if(m.currency==='USD') return total;
+  var rr=Number(d&&d.rate);
+  return rr>0?total/rr:total;
+}
+function rwTripMoney(d,amount,days){return fmtMoney(rwCostUSD(d,amount,days));}
+function rwCostBasis(d,amount){
+  var m=rwCostMeta(d),n=Math.round(Number(amount)||0);
+  var sym=m.currency==='INR'?'₹':m.currency==='USD'?'$':((d&&d.sym)||m.currency+' ');
+  return sym+n.toLocaleString(m.currency==='INR'?'en-IN':'en-US')+'/'+(m.period==='day'?'day':m.period==='week'?'week':'trip');
+}
+function rwLocalPricesHTML(d){
+  var x=d&&d.local;
+  if(x==null||x==='')return '<div class="rw-local-note">No curated local-price table yet.</div>';
+  if(typeof x==='string')return '<div class="rw-local-note" style="font-size:12px;line-height:1.65;color:var(--t2);padding:10px 0">'+esc2(x)+'</div>';
+  if(Array.isArray(x))return '<table class="price-table"><tbody>'+x.map(function(v,i){return '<tr><td>Item '+(i+1)+'</td><td>'+esc2(String(v))+'</td></tr>';}).join('')+'</tbody></table>';
+  if(typeof x==='object')return '<table class="price-table"><tbody>'+Object.keys(x).map(function(k){return '<tr><td>'+esc2(k.replace(/_/g,' '))+'</td><td>'+esc2(String(x[k]))+'</td></tr>';}).join('')+'</tbody></table>';
+  return '';
+}
+function rwMarketBenchmarkHTML(d){
+  if(!d||!d.market)return '';
+  return '<div style="margin:10px 0 2px;padding:10px 12px;border-radius:12px;background:rgba(22,191,150,.06);border:1px solid rgba(22,191,150,.22);font-size:11px;line-height:1.55;color:var(--t2)">'
+    +'<b style="color:var(--t1)">🧾 '+esc2(d.market.label||'Market benchmark')+':</b> '+esc2(d.market.range||'')
+    +(d.market.note?'<br><span style="color:var(--t3)">'+esc2(d.market.note)+'</span>':'')+'</div>';
+}
+
 /* MAIN SEARCH */
 function runSearch(){
   try{ xpAdd(10, "Mission planned"); }catch(e){ /* best-effort, ignore */ }
@@ -114,7 +160,7 @@ function renderCards(results, month, budUSD, origin, days, aiData, travelStyle, 
   results.forEach(function(r){
     var d=r.d, cs=r.cs, bl = cs<35?'badge-low':cs<60?'badge-mid':'badge-hi', ct = cs<35?'Low':cs<60?'Moderate':'Busy';
     var bm = d.bestM.length ? d.bestM.slice(0,3).map(function(m){return MO[m-1]||m;}).join(', ') : 'Year-round';
-    H += `<tr><td><strong>${flagEmoji(d.flag)} ${d.name}</strong>${d.country?`<br><span style="font-size:10px;color:#4A4946">${d.country}</span>`:''}</td><td><span class="badge ${bl}" style="font-size:11px">${cs}% ${ct}</span></td><td>${fmtMoney(d.cost.mid)}</td><td style="font-size:11px">${d.visa.type}<br><span style="color:#16BF96">${d.visa.cost}</span></td><td style="font-size:11px">${bm}</td></tr>`;
+    H += `<tr><td><strong>${flagEmoji(d.flag)} ${d.name}</strong>${d.country?`<br><span style="font-size:10px;color:#4A4946">${d.country}</span>`:''}</td><td><span class="badge ${bl}" style="font-size:11px">${cs}% ${ct}</span></td><td>${rwTripMoney(d,d.cost.mid,days)}</td><td style="font-size:11px">${d.visa.type}<br><span style="color:#16BF96">${d.visa.cost}</span></td><td style="font-size:11px">${bm}</td></tr>`;
   });
   H += `</tbody></table></div>`;
   H += adCard(0);
@@ -132,7 +178,7 @@ function renderCards(results, month, budUSD, origin, days, aiData, travelStyle, 
     var idays = isPro ? Math.min(days,14) : 3;
     var others = results.filter(function(_,i){ return i!==ci; });
     var enc = encodeURIComponent(d.name+' '+(d.country||''));
-    var waMsg = encodeURIComponent('RoamWise Trip: '+d.name+', '+(d.country||'')+' | '+month+' | Budget: '+fmtMoney(d.cost.mid)+' | Crowd: '+ct+' | Visa: '+d.visa.type+' | Food: '+d.food.slice(0,2).join(', ')+' | Gem: '+d.gems[0]+' | RoamWise Pro');
+    var waMsg = encodeURIComponent('RoamWise Trip: '+d.name+', '+(d.country||'')+' | '+month+' | Budget: '+rwTripMoney(d,d.cost.mid,days)+' | Crowd: '+ct+' | Visa: '+d.visa.type+' | Food: '+d.food.slice(0,2).join(', ')+' | Gem: '+d.gems[0]+' | RoamWise Pro');
     var T = 'c'+ci;
     var P2 = 'p'+ci;
     var placeholder900 = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="900" height="500"%3E%3Crect width="900" height="500" fill="%23121828"/%3E%3C/svg%3E';
@@ -163,7 +209,7 @@ function renderCards(results, month, budUSD, origin, days, aiData, travelStyle, 
       </div>
       <div class="badges">
         <span class="badge ${bl}">${ct}</span>
-        <span class="badge badge-cost">${fmtMoney(d.cost.mid)}</span>
+        <span class="badge badge-cost">${rwTripMoney(d,d.cost.mid,days)}</span>
         <span class="badge badge-sea">${bestMonthsLabel}</span>
       </div>
     </div>`;
@@ -219,24 +265,25 @@ function renderCards(results, month, budUSD, origin, days, aiData, travelStyle, 
     </div>`;
 
     /* BUDGET TAB */
-    var brkItems = [['✈ Flights',d.brk.flights],['🏨 Stay',d.brk.stay],['🍜 Food',d.brk.food],['🎫 Activities',d.brk.act],['💬 Misc',d.brk.misc]];
+    var brkItems = [['✈ Origin travel',d.brk.flights],['🏨 Stay',d.brk.stay],['🍜 Food',d.brk.food],['🎫 Activities',d.brk.act],['🚐 Local transport / misc',d.brk.misc]];
     var brkTotal = brkItems.reduce(function(s,x){return s+x[1];},0);
     H += `<div class="tab-pane" id="${T}-bu">
       <div class="tier-row">
-        <div class="tier"><div class="tier-lbl">Budget</div><div class="tier-val">${fmtMoney(d.cost.budget)}</div><div class="tier-note">Hostel &bull; street food</div></div>
-        <div class="tier on"><div class="tier-lbl">Mid-range</div><div class="tier-val">${fmtMoney(d.cost.mid)}</div><div class="tier-note">3★ hotel &bull; restaurants</div></div>
-        <div class="tier"><div class="tier-lbl">Luxury</div><div class="tier-val">${fmtMoney(d.cost.luxury)}</div><div class="tier-note">5★ &bull; private tours</div></div>
+        <div class="tier"><div class="tier-lbl">Budget · ${days} days</div><div class="tier-val">${rwTripMoney(d,d.cost.budget,days)}</div><div class="tier-note">${rwCostBasis(d,d.cost.budget)} · modelled</div></div>
+        <div class="tier on"><div class="tier-lbl">Mid-range · ${days} days</div><div class="tier-val">${rwTripMoney(d,d.cost.mid,days)}</div><div class="tier-note">${rwCostBasis(d,d.cost.mid)} · modelled</div></div>
+        <div class="tier"><div class="tier-lbl">Luxury · ${days} days</div><div class="tier-val">${rwTripMoney(d,d.cost.luxury,days)}</div><div class="tier-note">${rwCostBasis(d,d.cost.luxury)} · modelled</div></div>
       </div>
       <div class="sec-label">Cost breakdown</div>
       <div class="brk-list">
         ${brkItems.map(function(item){
           var pct = Math.round(item[1]/brkTotal*100);
-          return `<div class="brk-row"><div class="brk-lbl">${item[0]}</div><div class="brk-track"><div class="brk-fill" style="width:${pct}%"></div></div><div class="brk-val">${fmtMoney(item[1])}<span class="brk-pct">${pct}%</span></div></div>`;
+          return `<div class="brk-row"><div class="brk-lbl">${item[0]}</div><div class="brk-track"><div class="brk-fill" style="width:${pct}%"></div></div><div class="brk-val">${rwTripMoney(d,item[1],days)}<span class="brk-pct">${pct}%</span></div></div>`;
         }).join('')}
-        <div class="brk-row" style="border-top:1px solid rgba(255,255,255,.07);padding-top:6px;margin-top:2px"><div class="brk-lbl" style="font-weight:600;color:#EDE8DF">Total</div><div class="brk-track"><div class="brk-fill brk-fill-gold" style="width:100%"></div></div><div class="brk-val" style="color:#E8BA6C;font-weight:600">${fmtMoney(brkTotal)}</div></div>
+        <div class="brk-row" style="border-top:1px solid rgba(255,255,255,.07);padding-top:6px;margin-top:2px"><div class="brk-lbl" style="font-weight:600;color:#EDE8DF">Total</div><div class="brk-track"><div class="brk-fill brk-fill-gold" style="width:100%"></div></div><div class="brk-val" style="color:#E8BA6C;font-weight:600">${rwTripMoney(d,brkTotal,days)}</div></div>
       </div>
+      ${rwMarketBenchmarkHTML(d)}
       <div class="sec-label">Local prices (${d.sym} ${d.cur})</div>
-      <table class="price-table"><tbody>${Object.keys(d.local).map(function(k){return `<tr><td>${k.replace(/_/g,' ')}</td><td>${d.local[k]}</td></tr>`;}).join('')}</tbody></table>
+      ${rwLocalPricesHTML(d)}
     </div>`;
 
     /* ITINERARY TAB */
@@ -263,9 +310,9 @@ function renderCards(results, month, budUSD, origin, days, aiData, travelStyle, 
       H += `<div class="stab-pane on" id="${P2}-bt">
         <div class="sec-label">Live budget tracker (${AC})</div>
         <div class="trk-cells">
-          <div class="trk-cell"><div class="trk-lbl">Planned</div><div class="trk-val" id="${T}-tp">${fmtMoney(d.cost.mid)}</div></div>
+          <div class="trk-cell"><div class="trk-lbl">Planned</div><div class="trk-val" id="${T}-tp">${rwTripMoney(d,d.cost.mid,days)}</div></div>
           <div class="trk-cell"><div class="trk-lbl">Spent</div><div class="trk-val" style="color:#E09030" id="${T}-ts">0</div></div>
-          <div class="trk-cell"><div class="trk-lbl">Remaining</div><div class="trk-val" style="color:#16BF96" id="${T}-tr">${fmtMoney(d.cost.mid)}</div></div>
+          <div class="trk-cell"><div class="trk-lbl">Remaining</div><div class="trk-val" style="color:#16BF96" id="${T}-tr">${rwTripMoney(d,d.cost.mid,days)}</div></div>
           <div class="trk-cell"><div class="trk-lbl">Entries</div><div class="trk-val" id="${T}-te">0</div></div>
         </div>
         <div class="trk-bg"><div class="trk-fill" id="${T}-tb" style="width:0%"></div></div>
@@ -273,7 +320,7 @@ function renderCards(results, month, budUSD, origin, days, aiData, travelStyle, 
         <div class="add-row">
           <select class="tfield" id="${T}-tc"><option>Food</option><option>Transport</option><option>Stay</option><option>Activities</option><option>Shopping</option><option>Other</option></select>
           <input class="tfield" type="number" id="${T}-ta" placeholder="Amount" min="0">
-          <button class="add-btn" onclick="addSpend('${T}',${d.cost.mid})">+ Add</button>
+          <button class="add-btn" onclick="addSpend('${T}',${rwCostUSD(d,d.cost.mid,days)})">+ Add</button>
         </div>
         <div class="log-list" id="${T}-tl"></div>
       </div>`;
@@ -286,8 +333,8 @@ function renderCards(results, month, budUSD, origin, days, aiData, travelStyle, 
       </div>`;
 
       var cmpRows = [
-        ['Budget', fmtMoney(d.cost.budget), others[0]?fmtMoney(others[0].d.cost.budget):'—', others[1]?fmtMoney(others[1].d.cost.budget):'—'],
-        ['Mid', fmtMoney(d.cost.mid), others[0]?fmtMoney(others[0].d.cost.mid):'—', others[1]?fmtMoney(others[1].d.cost.mid):'—'],
+        ['Budget', rwTripMoney(d,d.cost.budget,days), others[0]?rwTripMoney(others[0].d,others[0].d.cost.budget,days):'—', others[1]?rwTripMoney(others[1].d,others[1].d.cost.budget,days):'—'],
+        ['Mid', rwTripMoney(d,d.cost.mid,days), others[0]?rwTripMoney(others[0].d,others[0].d.cost.mid,days):'—', others[1]?rwTripMoney(others[1].d,others[1].d.cost.mid,days):'—'],
         ['Crowd '+month, cs+'%', others[0]?others[0].cs+'%':'—', others[1]?others[1].cs+'%':'—'],
         ['Visa', d.visa.type, others[0]?others[0].d.visa.type:'—', others[1]?others[1].d.visa.type:'—'],
         ['Currency', d.cur, others[0]?others[0].d.cur:'—', others[1]?others[1].d.cur:'—']

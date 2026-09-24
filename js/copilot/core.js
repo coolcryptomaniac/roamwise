@@ -164,25 +164,59 @@ function cpDbFind(text){
 }
 function cpSmartAnswer(t){
   var MO=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  function meta(d){
+    var cur=String((d&&d._priceCurrency)||(d&&d.cur==='INR'?'INR':'USD')).toUpperCase();
+    var period=String((d&&d._pricePeriod)||(cur==='INR'?'day':'week')).toLowerCase();
+    return {cur:cur,period:period};
+  }
+  function fmt(cur,n){
+    n=Math.round(Number(n)||0);
+    if(cur==='INR') return '₹'+n.toLocaleString('en-IN');
+    if(cur==='USD') return '$'+n.toLocaleString('en-US');
+    return cur+' '+n.toLocaleString('en-US');
+  }
+  function total(d,n,days){
+    var m=meta(d),factor=m.period==='day'?days:m.period==='trip'?1:days/7;
+    return (Number(n)||0)*factor;
+  }
+  function costLine(d,days){
+    if(!d||!d.cost)return '';
+    var m=meta(d),basis=m.period==='day'?'Daily':'Weekly';
+    var out='<br>💰 '+basis+' planning baseline: '+fmt(m.cur,d.cost.budget)+' budget · '+fmt(m.cur,d.cost.mid)+' mid · '+fmt(m.cur,d.cost.luxury)+' luxury';
+    if(days){
+      var lo=total(d,d.cost.budget,days),hi=total(d,d.cost.mid,days);
+      out+='<br>📆 '+days+' days ≈ '+fmt(m.cur,lo)+'–'+fmt(m.cur,hi)+' ground estimate';
+      if(m.cur==='USD'){
+        var fx=Number((typeof window!=='undefined'&&window._rwFxINR)||88);if(!isFinite(fx)||fx<=0)fx=88;
+        out+=' (≈₹'+Math.round(lo*fx).toLocaleString('en-IN')+'–₹'+Math.round(hi*fx).toLocaleString('en-IN')+')';
+      }
+      out+=' · origin travel excluded unless specifically quoted';
+    }
+    if(d.market&&d.market.range) out+='<br>🧾 '+(d.market.label||'Market check')+': '+d.market.range;
+    return out;
+  }
   var vs=t.match(/(.+?)\s+(?:vs\.?|versus)\s+(.+)/i);
   if(vs){
     var a=cpDbFind(vs[1]), b=cpDbFind(vs[2]);
     if(a&&b&&a!==b){
-      function one(d){ return '<b>'+d.name+'</b> ('+d.country+') \u2014 $'+d.cost.budget+'\u2013'+d.cost.mid+'/wk \u00b7 best: '+(d.bestM||[]).map(function(m){return MO[m-1];}).join(',')+' \u00b7 '+d.visa.type; }
-      return one(a)+'<br><br>'+one(b)+'<br><br>\ud83e\udd77 Lower cost: <b>'+(a.cost.mid<=b.cost.mid?a.name:b.name)+'</b>';
+      function one(d){
+        var m=meta(d),bm=(d.bestM||[]).map(function(x){return MO[x-1];}).join(',');
+        return '<b>'+d.name+'</b> ('+d.country+') — '+fmt(m.cur,d.cost.budget)+'–'+fmt(m.cur,d.cost.mid)+'/'+m.period+' · best: '+bm+' · '+d.visa.type;
+      }
+      return one(a)+'<br><br>'+one(b);
     }
   }
   var hit=cpDbFind(t);
   if(hit){
     var best=(hit.bestM||[]).map(function(m){return MO[m-1]||m;}).join(', ');
     var low=hit.crowd? MO[hit.crowd.indexOf(Math.min.apply(null,hit.crowd))] : null;
-    var out='<b>'+hit.name+'</b> \u00b7 '+hit.country+' ('+hit.region+')';
-    if(hit.cost) out+='<br>\ud83d\udcb0 Weekly: $'+hit.cost.budget+' budget \u00b7 $'+hit.cost.mid+' mid \u00b7 $'+hit.cost.luxury+' luxury';
-    var dm=t.match(/(\d+)\s*[- ]?\s*day/i);
-    if(dm && hit.cost){ var nd=parseInt(dm[1],10); out+='<br>\ud83d\udcc6 '+nd+' days \u2248 $'+Math.round(hit.cost.budget/7*nd)+'\u2013'+Math.round(hit.cost.mid/7*nd)+' (\u2248\u20b9'+Math.round(hit.cost.budget/7*nd*88).toLocaleString('en-IN')+'\u2013'+Math.round(hit.cost.mid/7*nd*88).toLocaleString('en-IN')+')'; }
-    if(hit.visa) out+='<br>\ud83d\udec2 '+hit.visa.type+' \u00b7 '+hit.visa.cost+' \u00b7 '+hit.visa.days+' days'+(hit.visa.note? ' \u2014 '+hit.visa.note:'');
-    if(best) out+='<br>\ud83d\udcc5 Best months: '+best;
-    if(low) out+=' \u00b7 quietest: <b>'+low+'</b>';
+    var out='<b>'+hit.name+'</b> · '+hit.country+' ('+hit.region+')';
+    var dm=t.match(/(\d+)\s*[- ]?\s*day/i),nd=dm?parseInt(dm[1],10):0;
+    out+=costLine(hit,nd);
+    if(hit.visa) out+='<br>🛂 '+hit.visa.type+' · '+hit.visa.cost+' · '+hit.visa.days+' days'+(hit.visa.note? ' — '+hit.visa.note:'');
+    if(best) out+='<br>📅 Best months: '+best;
+    if(low) out+=' · quietest: <b>'+low+'</b>';
+    out+='<br><span style="font-size:10.5px;color:var(--t3)">Planning estimates, not live bookable prices. Compare exact dates and inclusions before paying.</span>';
     return out;
   }
   return null;

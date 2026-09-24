@@ -51,14 +51,18 @@ var DB = [
 
 { id:'spiti', name:'Spiti Valley', country:'India', region:'South Asia', lat:32.24, lon:78.02,
   crowd:[5,5,8,14,42,66,72,68,52,34,10,5],
-  cost:{budget:1500,mid:3500,luxury:8000},
-  brk:{flights:0,stay:900,food:600,act:700,misc:1300},
+  /* INR per person per day, ground costs. Current group packages can land lower
+     because transport/rooms are shared; origin travel is intentionally separate. */
+  cost:{budget:2200,mid:3800,luxury:8000},
+  brk:{flights:0,stay:1200,food:700,act:500,misc:1400},
+  _priceCurrency:'INR', _pricePeriod:'day',
+  market:{label:'2026 operator benchmark',range:'₹18k–₹54k for common 7–10 day group/private circuits',note:'Package inclusions vary; compare dates, pickup city, room sharing, meals and vehicle before treating a package as cheaper.'},
   visa:{type:'None',cost:'Domestic',days:0,note:'Foreign nationals need an Inner Line Permit'},
   bestM:[6,7,8,9], interests:['mountains','monasteries','photography','stargazing','offbeat'],
   food:['Thukpa','Momos','Butter tea','Chhang'],
   gems:['Dhankar lake','Hikkim post office','Langza fossils','Pin valley'],
   tags:['mountain','offbeat','adventure'], cur:'INR', sym:'\u20b9', rate:1,
-  local:'Roads run at ~22 km/h \u2014 Manali to Kaza is 9-11 hours, not the 5 maps claim. Enter via Kinnaur to acclimatise. Kunzum La is shut November to May.' },
+  local:{stay:'₹800–2,500/night depending on season and room sharing',meal:'₹120–400',shared_transport:'₹800–1,800/day equivalent on group circuits',note:'Roads run at slow mountain speeds; Manali–Kaza commonly takes most of a day. Kunzum access is seasonal.'} },
 
 { id:'kerala_backwaters', name:'Alleppey', country:'India', region:'South Asia', lat:9.49, lon:76.33,
   crowd:[72,66,52,44,32,26,28,32,44,58,68,88],
@@ -513,13 +517,17 @@ var DB = [
 
   {id:"paro_bhutan",name:"Paro",country:"Bhutan",region:"South Asia",lat:27.43,lon:89.42,
    crowd:[25,30,55,70,50,20,15,15,45,75,60,30],
-   cost:{budget:2200,mid:3800,luxury:7000},brk:{flights:300,stay:900,food:300,act:500,misc:200},
-   visa:{type:"Permit on Arrival",cost:"No visa fee — Sustainable Development Fee ~₹1,200/day for Indians",days:0,note:"Indian nationals need no visa, just an online entry permit issued within a day, plus a daily Sustainable Development Fee that is far lower than the fee other nationalities pay."},
+   /* For an Indian traveller: INR per person per day, ground costs. Bhutan's
+      ngultrum is at par with INR. Origin flight/train is not hidden inside this. */
+   cost:{budget:4500,mid:7500,luxury:15000},brk:{flights:0,stay:2500,food:1000,act:800,misc:3200},
+   _priceCurrency:'INR', _pricePeriod:'day',
+   market:{label:'2026 land-package benchmark',range:'~₹20k–₹30k for many 5–7 day entry packages before optional upgrades/origin travel',note:'SDF, hotels, guide/vehicle, meals and flights differ by package; compare the final inclusion list.'},
+   visa:{type:"Entry permit",cost:"No visa fee for Indian nationals · SDF ₹1,200/night per adult",days:0,note:"Indian nationals require a permit, not a visa. Apply online before travel or at the point of entry; the Sustainable Development Fee is payable with the permit."},
    bestM:[3,4,5,9,10],interests:["monasteries","mountains","trekking","culture","festivals"],
    food:["Ema datshi","Red rice","Momos","Suja butter tea","Kewa datshi"],
    gems:["Tiger's Nest (Paro Taktsang) at dawn","Chele La Pass viewpoint","Punakha Dzong at the river confluence","Paro Tshechu masked-dance festival"],
    tags:["mountain","culture","offbeat"],
-   cur:"BTN",sym:"Nu.",rate:83,local:{meal:"150-300 Nu.",restaurant:"400-800 Nu.",hotel:"1500-4000 Nu.",taxi:"300-600 Nu.",sdf:"~1200 Nu./day for Indians"},
+   cur:"BTN",sym:"Nu.",rate:1,local:{meal:"Nu./₹150–300",restaurant:"Nu./₹400–800",hotel:"Nu./₹1,500–4,000/night",taxi:"Nu./₹300–600 short local ride (route-dependent)",sdf:"Nu./₹1,200 per night for Indian adults"},
    photos:["tigers nest monastery bhutan paro","bhutan punakha dzong river","paro valley bhutan mountains","bhutan monk festival tshechu","bhutan prayer flags himalaya"],
    yt:"Bhutan Paro Thimphu travel guide",wiki:"Paro,_Bhutan",flag:"BT"},
 
