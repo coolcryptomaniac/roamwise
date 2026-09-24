@@ -1,4 +1,4 @@
-name: RoamWise opportunity radar — weekly source check
+name: RoamWise growth intelligence — weekly source check
 
 on:
   schedule:
@@ -24,7 +24,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Check official SDK releases (no API keys or paid inference)
+      - name: Check official AI-agent, SDK and distribution signals
         run: node tools/outreach-radar/weekly.cjs
       - name: Update public source-signal feed
         run: |
@@ -36,7 +36,7 @@ jobs:
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add admin/opportunity-radar-weekly.json
-          git commit -m 'chore: refresh official AI SDK release signals'
+          git commit -m 'chore: refresh growth intelligence signals'
           git push origin HEAD:main
       - name: Open review-only research digest when there are new signals
         env:
@@ -48,5 +48,5 @@ jobs:
             echo 'No new official SDK release; no issue.'
             exit 0
           fi
-          TITLE="[Opportunity Radar] Official AI SDK changes $(date -u +%Y-%m-%d)"
+          TITLE="[Opportunity Radar] Growth intelligence signals $(date -u +%Y-%m-%d)"
           gh issue create --title "$TITLE" --body-file opportunity-radar-report.md

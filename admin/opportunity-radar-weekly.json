@@ -1,1 +1,84 @@
-{"schemaVersion":1,"checkedAt":null,"signals":[],"sourceErrors":[],"note":"Weekly checks of official OpenAI and Anthropic developer release feeds; these are product signals only, not verified new decision-makers or contact emails. People are added separately after source and contact verification."}
+{
+  "schemaVersion": 2,
+  "checkedAt": "2026-09-24T02:46:00.000Z",
+  "signals": [
+    {
+      "company": "Anthropic",
+      "category": "ai-agent",
+      "title": "Claude Agent SDK Python v0.2.159",
+      "url": "https://github.com/anthropics/claude-agent-sdk-python/releases/tag/v0.2.159",
+      "publishedAt": "2026-09-23T20:27:36Z",
+      "source": "Official anthropics/claude-agent-sdk-python GitHub release"
+    },
+    {
+      "company": "Anthropic",
+      "category": "ai-agent",
+      "title": "Claude Agent SDK TypeScript v0.3.281",
+      "url": "https://github.com/anthropics/claude-agent-sdk-typescript/releases/tag/v0.3.281",
+      "publishedAt": "2026-09-23T19:19:40Z",
+      "source": "Official anthropics/claude-agent-sdk-typescript GitHub release"
+    },
+    {
+      "company": "OpenAI",
+      "category": "technology",
+      "title": "OpenAI Node SDK v7.23.0",
+      "url": "https://github.com/openai/openai-node/releases/tag/v7.23.0",
+      "publishedAt": "2026-09-23T07:07:18Z",
+      "source": "Official openai/openai-node GitHub release"
+    },
+    {
+      "company": "Google Play / Android",
+      "category": "distribution",
+      "title": "Land your apps on Googlebook with adaptive development",
+      "url": "https://android-developers.googleblog.com/2026/09/adaptive-development-scale-app-googlebook.html",
+      "publishedAt": "2026-09-22T00:00:00Z",
+      "source": "Official Android Developers Blog — optimized apps can receive Google Play badging, enhanced search and featured placements"
+    },
+    {
+      "company": "Anthropic",
+      "category": "technology",
+      "title": "Anthropic TypeScript SDK v0.128.0",
+      "url": "https://github.com/anthropics/anthropic-sdk-typescript/releases/tag/sdk-v0.128.0",
+      "publishedAt": "2026-09-22T16:27:55Z",
+      "source": "Official anthropics/anthropic-sdk-typescript GitHub release"
+    },
+    {
+      "company": "OpenAI",
+      "category": "ai-agent",
+      "title": "OpenAI Agents Python v0.22.3",
+      "url": "https://github.com/openai/openai-agents-python/releases/tag/v0.22.3",
+      "publishedAt": "2026-09-17T22:19:05Z",
+      "source": "Official openai/openai-agents-python GitHub release"
+    },
+    {
+      "company": "OpenAI",
+      "category": "ai-agent",
+      "title": "OpenAI Agents JS v0.18.0",
+      "url": "https://github.com/openai/openai-agents-js/releases/tag/v0.18.0",
+      "publishedAt": "2026-09-10T21:23:58Z",
+      "source": "Official openai/openai-agents-js GitHub release"
+    }
+  ],
+  "collaborationRoutes": [
+    {
+      "company": "OpenAI",
+      "title": "OpenAI for Startups",
+      "category": "collaboration",
+      "url": "https://openai.com/startups"
+    },
+    {
+      "company": "OpenAI",
+      "title": "OpenAI Partner Network",
+      "category": "collaboration",
+      "url": "https://openai.com/business/partners/"
+    },
+    {
+      "company": "Anthropic",
+      "title": "Claude Partner Network",
+      "category": "collaboration",
+      "url": "https://claude.com/partners"
+    }
+  ],
+  "sourceErrors": [],
+  "note": "Official public technology, agent and distribution signals plus official programme routes. A programme route is not acceptance, partnership, funding or interest. People interested in RoamWise are shown only from actual private CRM response/meeting/interest states."
+}

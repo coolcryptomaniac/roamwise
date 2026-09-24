@@ -45,6 +45,7 @@
       <button data-page="users" onclick="goPage('users',this)">Users</button>
       <button data-page="business" onclick="goPage('business',this)">Business</button>
       <button data-page="operations" onclick="goPage('operations',this);rwPartnerLifecycleStart()">Operations</button>
+      <button data-page="growth-intel" onclick="goPage('growth-intel',this);rwGrowthIntelStart()">Growth &amp; Intel</button>
       <button data-page="kpis" onclick="goPage('kpis',this)">KPIs</button>
       <button data-page="activity" onclick="goPage('activity',this)">Activity</button>
       <button data-page="promos" onclick="goPage('promos',this)">Promos</button>
@@ -162,6 +163,42 @@
         </div>
         <div class="card" style="margin-top:14px"><div class="toolbar"><div style="flex:1"><h2>Partner lifecycle queue</h2><p>Review onboarding checkpoints, pause requests, open-booking blockers and responsible deboarding.</p></div><button class="btn" onclick="rwPartnerLifecycleRender()">Refresh view</button></div><div id="partnerLifecycleList" class="list"><div class="empty">Open Operations to load partner lifecycle.</div></div></div>
       </section>
+      <section id="growth-intel" class="section"><div class="eyebrow">Growth &amp; defensibility</div><h1 class="title">Build the moat outside the code.</h1><p class="lead">Operate one loop: distribution → useful trip → trust → repeat/referral → denser verified supply and better travel data. Targets stay private; public intelligence stays source-linked.</p>
+        <div class="grid kpis"><div class="card kpi"><b id="giReliability">—</b><span id="giReliabilityNote">payment reliability</span></div><div class="card kpi"><b id="giSupply">—</b><span id="giSupplyNote">verified supply</span></div><div class="card kpi"><b id="giRetention">—</b><span id="giRetentionNote">7-day retention signal</span></div><div class="card kpi"><b id="giDistribution">—</b><span id="giDistributionNote">distribution routes</span></div></div>
+        <div class="card" style="margin-top:14px"><h2>Moat ledger — observed assets, no vanity score</h2><p>This is the defensibility stack you called out. Every number is tied to an existing record or anonymous event; missing instrumentation stays blank instead of being guessed.</p>
+          <div class="sync-grid">
+            <div class="sync-tile"><b>Local supply relationships</b><span id="giMoatSupply" class="score">—</span><div id="giMoatSupplyNote" class="meta"></div><button class="btn small" style="margin-top:10px" onclick="goPage('operations');rwPartnerLifecycleStart()">Manage supply</button></div>
+            <div class="sync-tile"><b>Verified real-world travel data</b><span id="giMoatData" class="score">—</span><div id="giMoatDataNote" class="meta"></div><a class="btn small" style="margin-top:10px" href="../partner/audit/">Open audits</a></div>
+            <div class="sync-tile"><b>User trip memory</b><span id="giMoatTrips" class="score">—</span><div id="giMoatTripsNote" class="meta"></div></div>
+            <div class="sync-tile"><b>Ailon Tusk transaction handoffs</b><span id="giMoatTusk" class="score">—</span><div id="giMoatTuskNote" class="meta"></div></div>
+            <div class="sync-tile"><b>Trail Mesh network</b><span id="giMoatMesh" class="score">—</span><div id="giMoatMeshNote" class="meta"></div><button class="btn small" style="margin-top:10px" onclick="goPage('users')">Manage access</button></div>
+            <div class="sync-tile"><b>Trust signal</b><span id="giMoatTrust" class="score">—</span><div id="giMoatTrustNote" class="meta"></div></div>
+            <div class="sync-tile"><b>Distribution network</b><span id="giMoatDistribution" class="score">—</span><div id="giMoatDistributionNote" class="meta"></div><button class="btn small" style="margin-top:10px" onclick="goPage('referrals')">Manage routes</button></div>
+            <div class="sync-tile"><b>Completed direct-booking outcomes</b><span id="giMoatCompleted" class="score">—</span><div class="meta">Only explicit completed / fulfilled / stayed booking states; never inferred from a click.</div></div>
+          </div>
+        </div>
+        <div class="grid two" style="margin-top:14px">
+          <div class="card"><h2>90-day operating plan</h2><p>Founder-only targets saved in the admin CRM. Zero means “not set”; the dashboard never invents a target.</p>
+            <div class="fields"><div class="field"><label>Primary market / wedge</label><input id="giPrimaryMarket" class="input" placeholder="e.g. Kumaon / Uttarakhand"></div><div class="field"><label>North-star outcome</label><input id="giNorthStar" class="input" placeholder="Outcome, not a feature count"></div><div class="field"><label>7-day active target</label><input id="giWeeklyActiveTarget" class="input" type="number" min="0"></div><div class="field"><label>Verified partner target</label><input id="giVerifiedPartnerTarget" class="input" type="number" min="0"></div><div class="field"><label>Completed booking target</label><input id="giCompletedBookingTarget" class="input" type="number" min="0"></div><div class="field"><label>Experiments / week</label><input id="giWeeklyExperimentTarget" class="input" type="number" min="0"></div><div class="field full"><label>Notes / current thesis</label><textarea id="giPlanNotes" class="input" placeholder="What are we learning, stopping or doubling down on?"></textarea></div></div>
+            <div class="actions" style="margin-top:12px"><button class="btn primary" onclick="rwGrowthIntelSavePlan()">Save private plan</button><span id="giPlanState" class="meta">Loading…</span></div>
+          </div>
+          <div class="card"><h2>Operating lanes</h2><p>Move effort toward the bottleneck instead of shipping features by default.</p>
+            <div class="list">
+              <div class="row"><div class="grow"><strong>1 · Reliability before acquisition</strong><div class="meta">Fix sign-in, itinerary, checkout and entitlement failures before buying more traffic.</div></div><button class="btn small" onclick="goPage('money')">Payments</button></div>
+              <div class="row"><div class="grow"><strong>2 · Supply density</strong><div class="meta">Verified, differentiated properties and experiences create a moat a UI clone cannot copy.</div></div><button class="btn small" onclick="goPage('operations');rwPartnerLifecycleStart()">Partners</button></div>
+              <div class="row"><div class="grow"><strong>3 · Distribution loops</strong><div class="meta">Creators, referrals, partnerships, SEO and useful sharing should feed measurable activation.</div></div><button class="btn small" onclick="goPage('referrals')">Referrals</button></div>
+              <div class="row"><div class="grow"><strong>4 · Habit &amp; trust</strong><div class="meta">Track real return usage and completed-trip outcomes, not just installs or feature count.</div></div><button class="btn small" onclick="goPage('activity')">Activity</button></div>
+              <div class="row"><div class="grow"><strong>Observed completed bookings</strong><div class="meta">Counted only when the existing booking status explicitly says completed / fulfilled / stayed.</div></div><span id="giCompletedObserved" class="tag">—</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="card" style="margin-top:14px"><div class="toolbar"><div style="flex:1"><h2>Latest AI agents, distribution &amp; collaboration signals</h2><p id="growthIntelChecked">Loading the scheduled source scan…</p></div><select id="growthIntelFilter" class="input" onchange="rwGrowthIntelRefresh()"><option value="all">All signals</option><option value="ai-agent">AI agents</option><option value="distribution">Distribution</option><option value="technology">AI / SDK</option><option value="collaboration">Collaboration routes</option></select><button class="btn" onclick="rwGrowthIntelRefresh()">Refresh view</button></div><div id="growthIntelSignals" class="list"><div class="empty">Open this tab to load intelligence.</div></div><p id="growthIntelLoadState" class="meta"></p></div>
+        <div class="grid two" style="margin-top:14px">
+          <div class="card"><div class="toolbar"><div style="flex:1"><h2>People with recorded interest</h2><p>Only actual CRM reply, meeting, explicit interest, diligence, term or commitment states appear here. Fit scores never qualify.</p></div><span class="tag good"><span id="giInterestCount">0</span> signals</span></div><div id="growthIntelInterest" class="list"><div class="empty">Loading private CRM signals…</div></div><button class="btn" style="margin-top:12px" onclick="goPage('outreach')">Open VC outreach CRM</button></div>
+          <div class="card"><h2>Source-verified people &amp; programmes to consider</h2><p>Public research targets, not people who have expressed interest in RoamWise. Re-verify role and contact route before outreach.</p><div id="growthIntelResearch" class="list"><div class="empty">Loading source-backed research…</div></div><a class="btn" style="margin-top:12px" href="./opportunity-radar.html">Open full Opportunity Radar</a></div>
+        </div>
+        <div class="card" style="margin-top:14px"><h2>Growth experiment → existing work queue</h2><p>Turn a distribution or retention idea into an accountable task instead of another dashboard note.</p><div class="fields"><div class="field"><label>Experiment</label><input id="giExperimentTitle" class="input" placeholder="e.g. 20-property Kasar Devi referral pilot"></div><div class="field"><label>Priority</label><select id="giExperimentPriority" class="input"><option value="normal">Normal</option><option value="high">High</option><option value="low">Low</option></select></div><div class="field full"><label>Hypothesis, owner, metric and stop condition</label><textarea id="giExperimentDetail" class="input" placeholder="If we do X for Y audience, we expect Z. Measure… Stop if…"></textarea></div></div><div class="actions" style="margin-top:12px"><button class="btn primary" onclick="rwGrowthIntelCreateTask()">Add to Dev / AI queue</button><button class="btn" onclick="goPage('devrequests')">Open queue</button></div></div>
+      </section>
       <section id="compliance" class="section"><div class="eyebrow">Compliance</div><h1 class="title">A plain checklist, not a fake score.</h1><p class="lead">Each item cites where it comes from. You flip the status by hand — nothing here auto-grades compliance.</p>
         <div id="complianceList"><div class="empty">Loading…</div></div>
       </section>
@@ -217,6 +254,7 @@
 <script src="../js/admin/user-activity.js"></script>
 <script src="../js/admin/promo-manager.js"></script>
 <script src="../js/admin/notification-composer.js"></script>
+<script src="../js/admin/growth-intelligence.js"></script>
 <script src="../js/admin/dashboard-home.js"></script>
 <script src="../js/admin/kpi-dashboard.js"></script>
 <script src="../js/admin/rules-center.js"></script>
