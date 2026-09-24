@@ -194,10 +194,9 @@ async function cpActionsHTML(it){
   if(/\b(satellite|sos|off.?grid|no signal|no network|emergency|rescue|inreach|garmin)\b/i.test(String(it._raw||''))){
     return [rwOffgridHTML(it.dest || (_cpCtx && _cpCtx.dest) || '')];
   }
-  /* rules health check */
-  if(/\b(rules|permission|permissions|insufficient|blocked|firestore)\b/i.test(String(it._raw||''))){
-    setTimeout(function(){ try{ rwRulesCheck(); }catch(e){ /* best-effort, ignore */ } }, 60);
-    return ['<div class="tk-card tk-mini"><div class="tk-sec"><div style="font-size:12.5px">Checking which Firestore rules are live\u2026</div></div></div>'];
+  /* Keep internal service details out of the traveller-facing assistant. */
+  if(/\b(permission|permissions|insufficient|blocked)\b/i.test(String(it._raw||''))){
+    return ['<div class="tk-card tk-mini"><div class="tk-sec"><div style="font-size:12.5px"><b>That feature may be temporarily unavailable.</b><br>Please refresh and try again. If it continues, contact RoamWise support and mention what you tapped.</div></div></div>'];
   }
   /* certificate verification */
   if(/\b(verify|verification|authentic|is this real|check certificate|tamper)\b/i.test(String(it._raw||''))){

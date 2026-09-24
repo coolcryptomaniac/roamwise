@@ -23,8 +23,8 @@ button,input,select,textarea{font:inherit}button{cursor:pointer}.shell{max-width
 </header>
 
 <section class="hero">
-  <div><div class="eyebrow">Interactive Seed planning room</div><h1>One round.<br>Every consequence.</h1><p>Model funding, dilution, cofounder entry, ESOPs, runway and burn without changing the facts. Live database numbers are marked separately from assumptions.</p></div>
-  <div class="livebox"><div class="sync"><span class="dot" id="syncDot"></span><b id="syncTitle">Connecting to public metrics…</b></div><div class="small" id="syncDetail">Verified fallback is ready if Firestore blocks anonymous access.</div></div>
+  <div><div class="eyebrow">Interactive Seed planning room</div><h1>One round.<br>Every consequence.</h1><p>Model funding, dilution, cofounder entry, ESOPs, runway and burn without changing the facts. Current figures are marked separately from assumptions.</p></div>
+  <div class="livebox"><div class="sync"><span class="dot" id="syncDot"></span><b id="syncTitle">Loading current metrics…</b></div><div class="small" id="syncDetail">Verified figures remain available if live updates are temporarily unavailable.</div></div>
 </section>
 
 <div class="metric-grid">
@@ -107,7 +107,7 @@ button,input,select,textarea{font:inherit}button{cursor:pointer}.shell{max-width
     </section>
 
     <section class="view" id="pitchView">
-      <div class="pitchbar"><div><h2 style="margin:0">Prefilled investor pitch</h2><p class="sub" style="margin:3px 0 0">Facts update when permitted database documents change; assumptions update from this model.</p></div><span class="statuspill" id="pitchStatus">Current model</span></div>
+      <div class="pitchbar"><div><h2 style="margin:0">Prefilled investor pitch</h2><p class="sub" style="margin:3px 0 0">Facts update from verified company figures; assumptions update from this model.</p></div><span class="statuspill" id="pitchStatus">Current model</span></div>
       <textarea class="pitch" id="pitchText"></textarea>
       <div class="actions" style="margin-top:10px"><button class="primary" onclick="copyPitch()">Copy pitch</button><button class="ghost" onclick="downloadCSV()">Download cap table CSV</button></div>
     </section>
@@ -165,7 +165,7 @@ function render(){
 function updatePitch(m){
   var coLine=m.cos.length?m.cos.map(function(x){return x.name+" "+pct(x.pre)}).join(", "):"no cofounder allocation currently assumed";
   var investorPost=pct(m.d*100),founderPost=pct(Math.max(0,m.founderPre*(1-m.d))),esopPost=pct(m.esop*(1-m.d));
-  var source=state.statsLive?"live Firestore metrics":"verified fallback metrics";
+  var source=state.statsLive?"live company metrics":"verified saved metrics";
   var pitch="ROAMWISE — FLEXIBLE SEED FINANCING\n\n"+
   "RoamWise is building the AI-native operating layer between wanting to travel and completing the trip: discovery, grounded planning, group coordination, splitting, local intelligence and booking execution in one persistent travel copilot.\n\n"+
   "CURRENT BASELINE ("+source.toUpperCase()+")\n"+

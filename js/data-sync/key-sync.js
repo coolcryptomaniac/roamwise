@@ -69,7 +69,7 @@ async function rwSyncKeysUp(){
     if(el('secRemember') && el('secRemember').checked) lsSet('rw_sec_pass', pass);
     st.innerHTML='\u2713 Saved to your account, encrypted \u00b7 '+Object.keys(bundle).length+' key(s). They restore on any device with this passphrase.';
     st.style.color='#4ADE80';
-  }catch(e){ st.textContent='Sync failed: '+(e.message||e); st.style.color='#E05B5B'; }
+  }catch(e){ st.textContent='Could not save right now. Please try again.'; st.style.color='#E05B5B'; }
 }
 async function rwSyncKeysDown(silent){
   var st=el('secStatus');
@@ -98,7 +98,7 @@ async function rwForgetSynced(){
   if(!confirm('Delete the encrypted key backup from your account? Keys on this device stay until you sign out.')) return;
   try{ await db.collection('secrets').doc(user.uid).delete(); lsRemove('rw_sec_pass');
     el('secStatus').textContent='Backup deleted.'; el('secStatus').style.color='var(--t3)';
-  }catch(e){ el('secStatus').textContent='Delete failed: '+(e.message||e); }
+  }catch(e){ el('secStatus').textContent='Could not delete the backup right now. Please try again.'; }
 }
 function lsRemove(k){ try{ localStorage.removeItem(k); }catch(e){ /* storage best-effort, ignore */ } }
 function rwOfferBackup(){
