@@ -1,83 +1,253 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Team &amp; Investors | RoamWise</title>
-<meta name="description" content="The people building RoamWise — an AI travel planner made in Almora, Uttarakhand for Indian travellers.">
-<link rel="canonical" href="https://www.roamwise.co.in/team/">
-<meta property="og:title" content="Team & Investors | RoamWise">
-<meta property="og:description" content="The people building RoamWise, from the Himalayas.">
-<meta property="og:type" content="website"><meta name="theme-color" content="#0A0C14">
-<style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{font-family:system-ui,-apple-system,'Segoe UI',sans-serif;background:#0A0C14;color:#C9C5BB;line-height:1.7}
-a{color:#E8BA6C;text-decoration:none}
-.wrap{max-width:940px;margin:0 auto;padding:26px 20px 70px}
-header{border-bottom:1px solid #1E1E28;padding:14px 0;margin-bottom:34px}
-.brand{font-weight:800;font-size:18px;color:#EDEAE2}.brand span{color:#E8BA6C}
-h1{font-size:32px;color:#fff;margin:6px 0 8px;letter-spacing:-.02em}
-.intro{font-size:16px;color:#9A968E;margin-bottom:34px;max-width:560px}
-h2{font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:#E8BA6C;margin:40px 0 18px;font-weight:800}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px}
-.card{background:#11131C;border:1px solid #1E1E28;border-radius:18px;padding:22px;transition:border-color .2s,transform .2s}
-.card:hover{border-color:#E8BA6C;transform:translateY(-2px)}
-.pic{width:74px;height:74px;border-radius:50%;object-fit:cover;margin-bottom:13px;display:block;border:2px solid #2A2A34}
-.mono{width:74px;height:74px;border-radius:50%;margin-bottom:13px;display:flex;align-items:center;justify-content:center;
-      font-size:26px;font-weight:800;color:#0A0C14;background:linear-gradient(135deg,#E8BA6C,#C8913E)}
-.nm{font-size:18px;font-weight:800;color:#EDEAE2}
-.rl{font-size:12.5px;color:#E8BA6C;font-weight:700;margin-bottom:9px}
-.bio{font-size:14px;color:#9A968E;line-height:1.65}
-.lk{margin-top:13px;display:flex;gap:9px;flex-wrap:wrap}
-.lk a{font-size:12px;border:1px solid #2A2A34;border-radius:20px;padding:4px 11px;color:#9A968E}
-.lk a:hover{border-color:#E8BA6C;color:#E8BA6C;text-decoration:none}
-.join{margin-top:44px;background:#11131C;border:1px solid #1E1E28;border-radius:18px;padding:26px;text-align:center}
-.join h3{color:#EDEAE2;font-size:20px;margin-bottom:7px}
-.cta{display:inline-block;background:linear-gradient(135deg,#E8BA6C,#C8913E);color:#0A0C14;font-weight:800;
-     padding:12px 22px;border-radius:12px;margin-top:13px}
-footer{border-top:1px solid #1E1E28;margin-top:44px;padding-top:18px;font-size:13px;color:#7C7A74}
-footer a{margin-right:14px}
-</style></head><body><div class="wrap">
-<header><div class="brand">Roam<span>Wise</span></div></header>
-<h1>The people behind RoamWise</h1>
-<p class="intro" id="intro"></p>
-<div id="teamOut"></div>
-<div class="join">
-  <h3>Want to build this with us?</h3>
-  <p style="font-size:14.5px;color:#9A968E">We're a small team in the Himalayas making travel software for India. If that sounds like your kind of thing, say hello.</p>
-  <a class="cta" href="mailto:founder@roamwise.co.in">founder@roamwise.co.in</a>
-</div>
-<footer>
-  RoamWise · Almora, Uttarakhand, India<br>
-  <a href="/">Home</a><a href="/about.html">About</a><a href="/contact.html">Contact</a><a href="/pricing.html">Pricing</a><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a><a href="/refund-policy.html">Cancellation &amp; Refunds</a>
-</footer>
-</div>
-<script src="/team-data.js"></script>
-<script>
-function esc(t){return String(t==null?'':t).replace(/[<>&"]/g,function(c){
-  return {'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c];});}
-function initials(n){return String(n||'?').split(/\s+/).slice(0,2).map(function(w){return w.charAt(0);}).join('').toUpperCase();}
-function card(p){
-  var links=p.links||{}, out='';
-  var map={linkedin:'LinkedIn',twitter:'Twitter',instagram:'Instagram',website:'Website',email:'Email'};
-  Object.keys(map).forEach(function(k){
-    var v=links[k]; if(!v) return;
-    var href = k==='email' ? 'mailto:'+v : v;
-    out+='<a href="'+esc(href)+'" target="_blank" rel="noopener">'+map[k]+'</a>';
-  });
-  return '<div class="card">'
-    +(p.photo? '<img class="pic" src="'+esc(p.photo)+'" alt="'+esc(p.name)+'" loading="lazy">'
-             : '<div class="mono">'+esc(initials(p.name))+'</div>')
-    +'<div class="nm">'+esc(p.name)+'</div>'
-    +'<div class="rl">'+esc(p.role||'')+'</div>'
-    +(p.bio?'<div class="bio">'+esc(p.bio)+'</div>':'')
-    +(out?'<div class="lk">'+out+'</div>':'')
-    +'</div>';
-}
-(function(){
-  document.getElementById('intro').textContent = window.RW_TEAM_INTRO || '';
-  var host=document.getElementById('teamOut'), html='';
-  var team=window.RW_TEAM||[], inv=window.RW_INVESTORS||[];
-  if(team.length) html+='<h2>Team</h2><div class="grid">'+team.map(card).join('')+'</div>';
-  if(inv.length)  html+='<h2>Investors &amp; advisors</h2><div class="grid">'+inv.map(card).join('')+'</div>';
-  host.innerHTML = html || '<p style="color:#7C7A74">Team details coming soon.</p>';
-})();
-</script>
-</body></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <title>Team | RoamWise</title>
+  <meta name="description" content="Meet the small team building RoamWise — an India-first travel platform with Himalayan roots.">
+  <link rel="canonical" href="https://www.roamwise.co.in/team/">
+  <meta property="og:title" content="Meet the RoamWise team">
+  <meta property="og:description" content="Product, content and partnerships — built with Himalayan roots and global ambition.">
+  <meta property="og:type" content="website">
+  <meta name="theme-color" content="#090814">
+  <style>
+    :root{
+      --ink:#090814;
+      --ink-2:#101122;
+      --panel:rgba(19,20,39,.82);
+      --panel-strong:#151629;
+      --line:rgba(255,255,255,.105);
+      --line-gold:rgba(236,188,100,.42);
+      --text:#f7f5ef;
+      --muted:#aaa9bb;
+      --gold:#ecbc64;
+      --gold-2:#c98b30;
+      --violet:#8b5cf6;
+      --blue:#3b82f6;
+      --max:1160px;
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth;background:var(--ink)}
+    body{
+      margin:0;
+      min-height:100vh;
+      overflow-x:hidden;
+      color:var(--text);
+      background:
+        radial-gradient(circle at 12% 6%,rgba(139,92,246,.22),transparent 33rem),
+        radial-gradient(circle at 90% 22%,rgba(59,130,246,.16),transparent 28rem),
+        linear-gradient(160deg,#080710 0%,#0c0d19 46%,#090814 100%);
+      font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+      line-height:1.6;
+    }
+    body::before{
+      content:"";
+      position:fixed;
+      inset:0;
+      z-index:-1;
+      pointer-events:none;
+      opacity:.32;
+      background-image:
+        linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),
+        linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);
+      background-size:54px 54px;
+      -webkit-mask-image:linear-gradient(to bottom,black,transparent 82%);
+      mask-image:linear-gradient(to bottom,black,transparent 82%);
+    }
+    a{color:inherit;text-decoration:none}
+    a:focus-visible{outline:3px solid var(--gold);outline-offset:4px;border-radius:10px}
+    .shell{width:min(var(--max),calc(100% - 40px));margin:0 auto}
+    .topbar{
+      min-height:76px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:22px;
+      border-bottom:1px solid var(--line);
+    }
+    .brand{display:inline-flex;align-items:center;gap:11px;font-size:1.05rem;font-weight:850;letter-spacing:-.02em}
+    .brand-mark{
+      width:34px;height:34px;border-radius:11px;display:grid;place-items:center;
+      color:#0b0911;font-size:.92rem;font-weight:950;
+      background:linear-gradient(145deg,#ffe3a4,var(--gold) 50%,#b87520);
+      box-shadow:0 8px 28px rgba(236,188,100,.22);
+    }
+    .brand em{font-style:normal;color:var(--gold)}
+    nav{display:flex;align-items:center;gap:7px;color:var(--muted);font-size:.9rem;font-weight:650}
+    nav a{padding:8px 11px;border-radius:10px;transition:background .2s,color .2s}
+    nav a:hover{color:var(--text);background:rgba(255,255,255,.06)}
+    .hero{padding:82px 0 58px;display:grid;grid-template-columns:minmax(0,1.3fr) minmax(280px,.7fr);gap:66px;align-items:end}
+    .eyebrow{display:flex;align-items:center;gap:10px;color:var(--gold);font-size:.78rem;font-weight:850;letter-spacing:.15em;text-transform:uppercase}
+    .eyebrow::before{content:"";width:28px;height:1px;background:linear-gradient(90deg,var(--gold),transparent)}
+    h1{margin:18px 0 20px;max-width:820px;font-size:clamp(2.85rem,7.4vw,6.6rem);line-height:.92;letter-spacing:-.066em;font-weight:880}
+    h1 span{display:block;color:transparent;background:linear-gradient(100deg,#ffe0a0 6%,var(--gold) 40%,#a98bff 74%,#76aaff);-webkit-background-clip:text;background-clip:text}
+    .intro{margin:0;max-width:670px;color:#bebdcb;font-size:clamp(1.03rem,1.65vw,1.25rem);line-height:1.72}
+    .hero-note{
+      position:relative;
+      border:1px solid var(--line);
+      border-radius:24px;
+      padding:25px;
+      background:linear-gradient(145deg,rgba(27,27,49,.86),rgba(14,15,29,.9));
+      box-shadow:0 26px 80px rgba(0,0,0,.28);
+      overflow:hidden;
+    }
+    .hero-note::after{content:"";position:absolute;width:150px;height:150px;right:-60px;top:-65px;border-radius:50%;background:radial-gradient(circle,rgba(139,92,246,.36),transparent 68%)}
+    .hero-note b{display:block;margin-bottom:6px;font-size:1rem;color:var(--text)}
+    .hero-note p{margin:0;color:var(--muted);font-size:.92rem}
+    .support-link{position:relative;z-index:1;display:inline-flex;align-items:center;gap:8px;margin-top:18px;color:var(--gold);font-size:.94rem;font-weight:780}
+    .support-link span{transition:transform .2s}
+    .support-link:hover span{transform:translateX(3px)}
+    .signals{display:flex;gap:10px;flex-wrap:wrap;margin-top:27px}
+    .signal{padding:7px 11px;border:1px solid rgba(255,255,255,.09);border-radius:999px;background:rgba(255,255,255,.035);color:#cac8d4;font-size:.76rem;font-weight:720}
+    .section-head{display:flex;align-items:end;justify-content:space-between;gap:20px;padding:34px 0 22px;border-top:1px solid var(--line)}
+    .section-head h2{margin:0;font-size:clamp(1.8rem,3vw,2.65rem);letter-spacing:-.045em}
+    .section-head p{margin:0;color:var(--muted);font-size:.92rem}
+    .grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
+    .card{
+      position:relative;
+      min-width:0;
+      overflow:hidden;
+      border:1px solid var(--line);
+      border-radius:28px;
+      background:linear-gradient(160deg,rgba(28,28,51,.94),rgba(14,15,28,.96));
+      box-shadow:0 25px 70px rgba(0,0,0,.27);
+      transition:transform .28s ease,border-color .28s ease,box-shadow .28s ease;
+    }
+    .card:hover{transform:translateY(-6px);border-color:var(--line-gold);box-shadow:0 30px 85px rgba(4,3,15,.48)}
+    .portrait{
+      position:relative;
+      aspect-ratio:4/4.55;
+      margin:10px 10px 0;
+      overflow:hidden;
+      border-radius:20px;
+      background:#191a2d;
+    }
+    .portrait::after{content:"";position:absolute;inset:auto 0 0;height:46%;background:linear-gradient(to top,rgba(8,8,18,.75),transparent)}
+    .portrait img{display:block;width:100%;height:100%;object-fit:cover;filter:saturate(.93) contrast(1.02);transition:transform .5s ease,filter .5s ease}
+    .card:hover .portrait img{transform:scale(1.025);filter:saturate(1) contrast(1.02)}
+    .monogram{height:100%;display:grid;place-items:center;position:relative;isolation:isolate;background:radial-gradient(circle at 55% 32%,rgba(255,219,146,.28),transparent 22%),linear-gradient(145deg,#271a3d 5%,#5e3aa5 48%,#1d4f99 100%)}
+    .monogram::before{content:"";position:absolute;width:68%;aspect-ratio:1;border:1px solid rgba(255,220,154,.34);border-radius:50%;box-shadow:0 0 0 26px rgba(255,255,255,.025),0 0 0 52px rgba(255,255,255,.018)}
+    .monogram span{font-size:clamp(3rem,7vw,5.3rem);font-weight:920;letter-spacing:-.08em;color:#fff3d8;text-shadow:0 13px 38px rgba(0,0,0,.28)}
+    .card-body{padding:22px 23px 24px}
+    .role-row{display:flex;align-items:flex-start;justify-content:space-between;gap:14px}
+    .name{margin:0;font-size:1.46rem;line-height:1.12;letter-spacing:-.035em}
+    .role{margin-top:7px;color:var(--gold);font-size:.82rem;font-weight:800;letter-spacing:.055em;text-transform:uppercase}
+    .fun-role{flex:0 0 auto;max-width:48%;padding:5px 9px;border:1px solid rgba(139,92,246,.35);border-radius:999px;background:rgba(139,92,246,.1);color:#cbb9ff;font-size:.71rem;font-weight:760;text-align:center}
+    .bio{min-height:104px;margin:17px 0 20px;color:var(--muted);font-size:.94rem;line-height:1.68}
+    .links{display:flex;flex-wrap:wrap;gap:8px;padding-top:16px;border-top:1px solid var(--line)}
+    .link{display:inline-flex;align-items:center;gap:7px;min-height:40px;padding:8px 12px;border:1px solid rgba(255,255,255,.105);border-radius:12px;background:rgba(255,255,255,.035);color:#d6d4de;font-size:.8rem;font-weight:720;transition:border-color .2s,background .2s,color .2s}
+    .link:hover{border-color:var(--line-gold);background:rgba(236,188,100,.08);color:#ffe3aa}
+    .link svg{width:15px;height:15px;fill:currentColor}
+    .contact-band{margin-top:62px;padding:2px;border-radius:28px;background:linear-gradient(115deg,rgba(236,188,100,.75),rgba(139,92,246,.72),rgba(59,130,246,.72))}
+    .contact-inner{display:grid;grid-template-columns:1fr auto;align-items:center;gap:25px;padding:30px;border-radius:26px;background:linear-gradient(145deg,#181827,#10111f)}
+    .contact-inner h2{margin:0 0 6px;font-size:clamp(1.45rem,3vw,2.15rem);letter-spacing:-.035em}
+    .contact-inner p{margin:0;color:var(--muted);font-size:.94rem}
+    .primary{display:inline-flex;align-items:center;gap:9px;padding:13px 17px;border-radius:14px;background:linear-gradient(135deg,#f3cb7f,var(--gold-2));color:#120d07;font-size:.9rem;font-weight:850;box-shadow:0 12px 30px rgba(201,139,48,.2);transition:transform .2s,box-shadow .2s}
+    .primary:hover{transform:translateY(-2px);box-shadow:0 17px 36px rgba(201,139,48,.29)}
+    footer{display:flex;justify-content:space-between;gap:22px;align-items:flex-start;margin-top:58px;padding:25px 0 38px;border-top:1px solid var(--line);color:#858493;font-size:.78rem}
+    footer a{color:#aaa9b6;margin-left:15px}footer a:hover{color:var(--gold)}
+    @media (max-width:900px){
+      .hero{grid-template-columns:1fr;gap:30px;padding-top:58px}
+      .hero-note{max-width:580px}
+      .grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+      .card:first-child{grid-column:1/-1;display:grid;grid-template-columns:minmax(270px,.78fr) 1fr}
+      .card:first-child .portrait{aspect-ratio:auto;min-height:390px}
+      .card:first-child .card-body{align-self:center;padding:30px}
+    }
+    @media (max-width:650px){
+      .shell{width:min(100% - 26px,var(--max))}
+      .topbar{min-height:68px}.brand{font-size:1rem}nav a:not(:last-child){display:none}
+      nav a{padding:8px 6px}
+      .hero{padding:48px 0 40px}
+      h1{font-size:clamp(3.2rem,16vw,5rem)}
+      .grid{grid-template-columns:1fr;gap:16px}
+      .card:first-child{grid-column:auto;display:block}
+      .card:first-child .portrait{aspect-ratio:4/4.55;min-height:0}
+      .card:first-child .card-body{padding:22px 23px 24px}
+      .section-head{display:block}.section-head p{margin-top:6px}
+      .bio{min-height:0}
+      .contact-inner{grid-template-columns:1fr;padding:24px}
+      .primary{width:100%;justify-content:center}
+      footer{display:block}footer div:last-child{margin-top:9px}footer a{margin:0 14px 0 0}
+    }
+    @media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header class="topbar">
+      <a class="brand" href="/" aria-label="RoamWise home"><span class="brand-mark" aria-hidden="true">RW</span><span>Roam<em>Wise</em></span></a>
+      <nav aria-label="Primary navigation"><a href="/">Home</a><a href="/about.html">About</a><a href="/contact.html">Contact</a></nav>
+    </header>
+
+    <main>
+      <section class="hero" aria-labelledby="page-title">
+        <div>
+          <div class="eyebrow">The RoamWise team</div>
+          <h1 id="page-title">Small team.<span>Wide horizon.</span></h1>
+          <p class="intro" id="intro"></p>
+          <div class="signals" aria-label="How we work"><span class="signal">Founder-led</span><span class="signal">India-first</span><span class="signal">Himalayan roots</span></div>
+        </div>
+        <aside class="hero-note" aria-label="General support">
+          <b id="supportLabel">General support</b>
+          <p id="supportNote">Accounts, bookings, payments and product help</p>
+          <a class="support-link" id="supportLink" href="mailto:support@roamwise.co.in">support@roamwise.co.in <span aria-hidden="true">→</span></a>
+        </aside>
+      </section>
+
+      <section aria-labelledby="team-heading">
+        <div class="section-head"><h2 id="team-heading">People behind the journey</h2><p>One accountable team, three focused disciplines.</p></div>
+        <div id="teamOut"></div>
+      </section>
+
+      <section class="contact-band" aria-labelledby="contact-heading">
+        <div class="contact-inner">
+          <div><h2 id="contact-heading">Talk to the right person.</h2><p>Use general support for product help. For company, partnership or founder matters, contact Mohit directly.</p></div>
+          <a class="primary" href="mailto:founder@roamwise.co.in">Contact the founder <span aria-hidden="true">↗</span></a>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <div>© 2026 RoamWise · Almora, Uttarakhand, India</div>
+      <div><a href="/contact.html">Contact</a><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a></div>
+    </footer>
+  </div>
+
+  <script src="/team-data.js"></script>
+  <script>
+    function esc(t){return String(t==null?'':t).replace(/[<>&"]/g,function(c){return {'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c];});}
+    function initials(n){return String(n||'?').split(/\s+/).slice(0,2).map(function(w){return w.charAt(0);}).join('').toUpperCase();}
+    function icon(kind){
+      if(kind==='linkedin')return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5.2 7.5A2.3 2.3 0 1 0 5.2 3a2.3 2.3 0 0 0 0 4.5ZM3.3 21h3.8V9H3.3v12Zm6.2-12H13v1.6h.1c.5-.9 1.7-2 3.5-2 3.8 0 4.5 2.5 4.5 5.7V21h-3.8v-5.9c0-1.4 0-3.2-2-3.2s-2.2 1.5-2.2 3.1v6H9.5V9Z"/></svg>';
+      return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 4H4a2 2 0 0 0-2 2v12c0 1.1.9 2 2 2h16a2 2 0 0 0 2-2V6c0-1.1-.9-2-2-2Zm0 4-8 5-8-5V6l8 5 8-5v2Z"/></svg>';
+    }
+    function card(p){
+      var links=p.links||{}, linkOut='';
+      if(links.email)linkOut+='<a class="link" href="mailto:'+esc(links.email)+'">'+icon('email')+'<span>'+esc(links.email)+'</span></a>';
+      if(links.linkedin)linkOut+='<a class="link" href="'+esc(links.linkedin)+'" target="_blank" rel="noopener noreferrer">'+icon('linkedin')+'<span>LinkedIn</span></a>';
+      var visual=p.photo
+        ?'<img src="'+esc(p.photo)+'" alt="Portrait of '+esc(p.name)+'" loading="lazy" decoding="async" style="object-position:'+esc(p.photoPosition||'50% 35%')+'">'
+        :'<div class="monogram" aria-label="'+esc(p.name)+' monogram"><span>'+esc(initials(p.name))+'</span></div>';
+      return '<article class="card">'
+        +'<div class="portrait">'+visual+'</div>'
+        +'<div class="card-body"><div class="role-row"><div><h3 class="name">'+esc(p.name)+'</h3><div class="role">'+esc(p.role||'')+'</div></div>'
+        +(p.funRole?'<span class="fun-role">'+esc(p.funRole)+'</span>':'')+'</div>'
+        +(p.bio?'<p class="bio">'+esc(p.bio)+'</p>':'')
+        +(linkOut?'<div class="links">'+linkOut+'</div>':'')
+        +'</div></article>';
+    }
+    (function(){
+      document.getElementById('intro').textContent=window.RW_TEAM_INTRO||'';
+      var contact=window.RW_TEAM_CONTACT||{};
+      if(contact.label)document.getElementById('supportLabel').textContent=contact.label;
+      if(contact.note)document.getElementById('supportNote').textContent=contact.note;
+      if(contact.email){var support=document.getElementById('supportLink');support.href='mailto:'+contact.email;support.firstChild.nodeValue=contact.email+' ';}
+      var host=document.getElementById('teamOut'), team=window.RW_TEAM||[], inv=window.RW_INVESTORS||[];
+      var html=team.length?'<div class="grid">'+team.map(card).join('')+'</div>':'<p>Team details coming soon.</p>';
+      if(inv.length)html+='<div class="section-head"><h2>Investors &amp; advisors</h2></div><div class="grid">'+inv.map(card).join('')+'</div>';
+      host.innerHTML=html;
+    })();
+  </script>
+</body>
+</html>
