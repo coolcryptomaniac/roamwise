@@ -21,7 +21,7 @@ const collaborationRoutes = Object.freeze([
 
 const ANDROID_FEED='https://android-developers.googleblog.com/feeds/posts/default?alt=json&max-results=20';
 const WINDOW_MS=15*86400000;
-const DISTRIBUTION_RE=/google play|play store|discover|distribution|billing|quality|store listing|reach|growth|monetiz|install|app quality|developer/i;
+const DISTRIBUTION_RE=/google play|play store|discover|distribution|billing|store listing|reach|growth|monetiz|install|app quality/i;
 
 function bounded(text, limit=180){
   return String(text||'').replace(/[\r\n\t]+/g,' ').replace(/\s+/g,' ').trim().slice(0,limit);
