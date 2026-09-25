@@ -189,10 +189,10 @@ function openSettings(){
         btn.onclick=function(){
           var open = adv[0].style.display!=='none';
           adv.forEach(function(x){ x.style.display = open?'none':''; });
-          btn.textContent = (open?'\u2699 Advanced \u2014 AI provider & API keys':'\u2699 Hide advanced');
+          btn.textContent = (open?'\u2699 Optional AI tools':'\u2699 Hide optional AI tools');
         };
         adv.forEach(function(x){ x.style.display = hasKey?'':'none'; });
-        btn.textContent = hasKey ? '\u2699 Hide advanced' : '\u2699 Advanced \u2014 AI provider & API keys';
+        btn.textContent = hasKey ? '\u2699 Hide optional AI tools' : '\u2699 Optional AI tools';
         body.insertBefore(btn, body.firstChild);
       }
     }

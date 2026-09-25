@@ -25,7 +25,7 @@ function renderRatings(){
         +'<div class="exp-desc" style="margin-top:6px">\u201c'+String(r.text).slice(0,180).replace(/[<>]/g,'')+'\u201d</div>'
         +'<div style="font-size:11px;color:var(--t3);margin-top:8px">\u2014 '+String(r.name||'A traveler').replace(/[<>]/g,'')+'</div></div>';
     }).join('');
-  }).catch(function(){ sum.innerHTML='<div class="mode-box">Ratings need the Firestore rules published \u2014 see admin console.</div>'; });
+  }).catch(function(){ sum.innerHTML='<div class="mode-box">Ratings are temporarily unavailable. Please try again shortly.</div>'; });
 }
 function openRateForm(){
   if(!AUTH_READY || !user){ showToast('Sign in first \u2014 one honest rating per traveler'); return; }
@@ -58,5 +58,5 @@ function submitRating(){
     el('rateOv').classList.remove('open');
     showToast('\u2b50 Thank you for rating RoamWise!'); xpAdd(10,'Rated the app');
     renderRatings();
-  }).catch(function(){ showToast('Could not submit \u2014 check Firestore rules'); });
+  }).catch(function(){ showToast('Could not submit your rating right now. Please try again.'); });
 }

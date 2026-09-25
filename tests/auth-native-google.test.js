@@ -65,7 +65,7 @@ test('OAuth certificate failures produce an actionable Android message',async()=
   let failure;
   try{await h.rwNativeGoogleIdToken(plugin);}catch(e){failure=e;}
   assert.equal(calls,2);
-  assert.match(h.rwGoogleError(failure),/not authorized/);
+  assert.match(h.rwGoogleError(failure),/unavailable in this version/);
   assert.match(h.rwGoogleError(failure),/Email sign-in still works/);
 });
 

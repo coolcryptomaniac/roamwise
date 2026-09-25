@@ -307,7 +307,7 @@ function friendly(e){
   if(c.indexOf('invalid-email')>-1)return 'That email doesn’t look right.';
   if(c.indexOf('too-many-requests')>-1)return 'Too many tries — wait a minute.';
   if(c.indexOf('network')>-1)return 'No connection — check your internet and try again.';
-  return (e&&e.message)||'Something went wrong.';
+  return 'Something went wrong. Please try again, or contact support if it continues.';
 }
 function rwGoogleErrorText(e){
   var primary=e&&e.rwPrimaryGoogleError;
@@ -339,7 +339,7 @@ function rwNativeGoogleIdToken(p){
 }
 function rwGoogleError(e){
   if(rwGoogleWasCancelled(e))return 'Google sign-in was cancelled.';
-  if(rwGoogleLooksMisconfigured(e))return 'This Android build is not authorized for Google sign-in. Email sign-in still works; update the app after its Firebase and Play signing setup is refreshed.';
+  if(rwGoogleLooksMisconfigured(e))return 'Google sign-in is unavailable in this version of the Android app. Email sign-in still works; update the app and try again.';
   if(rwIsNativePlatform())return 'Google sign-in could not finish on this Android device. Update Google Play services or use email sign-in, then try again.';
   return friendly(e);
 }
@@ -364,17 +364,17 @@ function rwLinkMessage(message,bad){var n=el('rwLinkedSignInMsg');if(n){n.textCo
 function rwRenderLinkedSignInMethods(){
   var status=el('rwLinkedSignInStatus'),passBox=el('rwLinkPasswordBox'),googleBtn=el('rwLinkGoogleBtn');if(!status)return;
   var u=(typeof firebase!=='undefined'&&firebase.auth&&firebase.auth().currentUser)||user;
-  if(!u){status.textContent='Sign in to manage account methods.';if(passBox)passBox.style.display='none';if(googleBtn)googleBtn.style.display='none';return;}
+  if(!u){status.textContent='Sign in to manage how you access your account.';if(passBox)passBox.style.display='none';if(googleBtn)googleBtn.style.display='none';return;}
   var ids=rwProviderIds(u),labels=[];if(ids.indexOf('google.com')>-1)labels.push('Google');if(ids.indexOf('password')>-1)labels.push('Email + password');
   var verification=u.emailVerified?' <span style="color:#16bf96;font-weight:800">✓ Verified</span>':' <span style="color:#e8ba6c;font-weight:800">Verification optional for basic use</span>';
-  status.innerHTML='<b>'+String(u.email||'Your account').replace(/[&<>]/g,'')+'</b>'+verification+'<br>Linked now: '+(labels.join(' + ')||'Firebase identity')+' · UID '+String(u.uid||'').replace(/[&<>]/g,'');
+  status.innerHTML='<b>'+String(u.email||'Your account').replace(/[&<>]/g,'')+'</b>'+verification+'<br>Sign in with: '+(labels.join(' + ')||'Secure account');
   if(passBox)passBox.style.display=ids.indexOf('password')>-1?'none':'';
   if(googleBtn)googleBtn.style.display=ids.indexOf('google.com')>-1?'none':'';
 }
 function rwLinkFriendly(e){
   var c=String(e&&e.code||'');
   if(c.indexOf('requires-recent-login')>-1)return 'For security, sign out and sign in again, then link the method immediately.';
-  if(c.indexOf('credential-already-in-use')>-1||c.indexOf('email-already-in-use')>-1)return 'That sign-in method belongs to a different legacy Firebase UID. RoamWise will not merge data silently; contact support for a reviewed account migration.';
+  if(c.indexOf('credential-already-in-use')>-1||c.indexOf('email-already-in-use')>-1)return 'That sign-in option is already connected to another account. Contact support so we can review it safely.';
   if(c.indexOf('provider-already-linked')>-1)return 'That sign-in method is already linked to this account.';
   if(c.indexOf('popup-closed')>-1||c.indexOf('cancelled-popup')>-1)return 'Google linking was cancelled.';
   return friendly(e);
@@ -543,7 +543,7 @@ function deleteAccount(){
     if((e&&e.code)==='auth/requires-recent-login'){
       showToast('For security, sign in again first, then delete within a few minutes.');
       firebase.auth().signOut();
-    } else showToast('Could not delete: '+((e&&e.message)||'try again'));
+    } else showToast('Could not delete your account. Please try again or contact support.');
   });
 }
 function requireLogin(){

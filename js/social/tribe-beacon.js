@@ -56,7 +56,7 @@ function loadSquads(name,month){
               : '<button class="tact" style="font-size:10.5px;padding:5px 10px;color:var(--t3)" onclick="reportSquad(\''+r.id+'\')">\u26a0 Report</button>')
         +'</div></div>';
     }).join('');
-  }).catch(function(){ list.innerHTML='<div class="mode-box">Squad board needs the Firestore rules published \u2014 see admin console.</div>'; });
+  }).catch(function(){ list.innerHTML='<div class="mode-box">The Squad board is temporarily unavailable. Please try again shortly.</div>'; });
 }
 function postSquad(){
   var C=window._squadCtx||{}; if(!C.name) return;
@@ -74,7 +74,7 @@ function postSquad(){
     el('squadNote').value=''; el('squadContact').value='';
     showToast('\ud83c\udf92 Posted to the Squad board'); xpAdd(8,'Posted a Trip Squad'); lsSet('rw_squad_count', String((parseInt(lsGet('rw_squad_count')||'0',10)||0)+1));
     loadSquads(C.name,C.month);
-  }).catch(function(){ showToast('Could not post \u2014 check Firestore rules'); });
+  }).catch(function(){ showToast('Could not post right now. Please try again.'); });
 }
 function delSquad(id){ if(!confirm('Remove this squad post?')) return;
   db.collection('squads').doc(id).delete().then(function(){ var C=window._squadCtx||{}; if(C.name) loadSquads(C.name,C.month); }); }

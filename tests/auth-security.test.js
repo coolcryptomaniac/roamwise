@@ -54,11 +54,25 @@ test('settings links Google and password credentials onto the current Firebase u
   assert.match(authInit, /u\.linkWithCredential\(credential\)/);
   assert.match(authInit, /u\.linkWithPopup\(new firebase\.auth\.GoogleAuthProvider\(\)\)/);
   assert.match(authInit, /same RoamWise account/);
-  assert.match(html, /one Firebase UID/);
+  assert.match(html, /Sign-in &amp; security/);
+  assert.doesNotMatch(html, /Firebase UID|Firestore UID/);
+  assert.doesNotMatch(authInit, /Linked now:.*UID/);
 });
 
 test('legacy duplicate Firebase UIDs are never silently merged in the browser', () => {
   const authInit = fs.readFileSync(path.join(root, 'js/boot/auth-init.js'), 'utf8');
-  assert.match(authInit, /will not merge data silently/);
+  assert.match(authInit, /already connected to another account/);
   assert.doesNotMatch(authInit, /deleteUser\(|delete\(\).*legacy Firebase UID/);
+});
+
+test('traveller-facing failures do not expose backend names or raw provider errors', () => {
+  const publicFiles = [
+    'js/social/group-chat.js',
+    'js/social/tribe-beacon.js',
+    'js/misc/ratings.js',
+    'js/copilot/rich-reply.js',
+    'js/data-sync/key-sync.js'
+  ].map(file => fs.readFileSync(path.join(root, file), 'utf8')).join('\n');
+  assert.doesNotMatch(publicFiles, /Firebase Console|Firestore rules|firestore\.rules|Checking which Firestore/);
+  assert.doesNotMatch(publicFiles, /(?:Chat unavailable|Send failed|Sync failed|Delete failed):\s*['"]?\s*\+\s*\(?e(?:rr)?\.message/);
 });

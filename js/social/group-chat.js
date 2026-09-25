@@ -189,31 +189,14 @@ function tripChatOpen(roomId, roomName){
       }catch(e){ /* best-effort, ignore */ }
       if(wasNearBottom) log.scrollTop = log.scrollHeight;
     }, function(err){
-      /* This is the path the user actually hits when rules are stale, so it
-         must say what to DO, not just what failed. */
-      var denied = (err && (err.code==='permission-denied' || /permission/i.test(err.message||'')));
-      el('chatLog').innerHTML = denied
-        ? '<div class="mode-box" style="text-align:left;line-height:1.65">'
-          +'<b>Chat is blocked by the server rules.</b><br>'
-          +'<span style="font-size:12px;color:var(--t2)">Almost always means the latest <code>firestore.rules</code> has not been published yet. '
-          +'In Firebase Console \u2192 Firestore \u2192 Rules, paste the current file and press Publish. '
-          +'Group chat needs the <code>tripchats</code> block.</span>'
-          +'<button class="tact" style="font-size:11px;padding:6px 11px;margin-top:9px" onclick="rwRulesCheck()">Check which rules are live</button>'
-          +'</div>'
-        : '<div class="mode-box">Chat unavailable: '+esc2(err.message||err)+'</div>';
+      el('chatLog').innerHTML = '<div class="mode-box" style="text-align:left;line-height:1.65">'
+        +'<b>Chat is temporarily unavailable.</b><br>'
+        +'<span style="font-size:12px;color:var(--t2)">Please refresh and try again. If it continues, contact RoamWise support.</span>'
+        +'</div>';
     });
   }).catch(function(e){
     var log=el('chatLog');
-    if(e && e.code==='permission-denied'){
-      if(log) log.innerHTML='<div class="mode-box" style="text-align:left;line-height:1.6">'
-        +'<b>Group chat is blocked by the server rules.</b><br>'
-        +'<span style="font-size:12px;color:var(--t2)">The latest <code>firestore.rules</code> needs to be published (Firebase Console \u2192 Firestore \u2192 Rules \u2192 paste \u2192 Publish). '
-        +'Tap below to see exactly which collections are blocked right now.</span>'
-        +'<button class="tact" style="font-size:11px;padding:6px 11px;margin-top:9px" onclick="rwRulesCheck()">Check which rules are live</button>'
-        +'</div>';
-    } else {
-      if(log) log.innerHTML='<div class="mode-box">Could not open chat: '+esc2((e&&e.message)||e)+'</div>';
-    }
+    if(log) log.innerHTML='<div class="mode-box"><b>Could not open chat.</b><br><span style="font-size:12px;color:var(--t2)">Please refresh and try again. If it continues, contact RoamWise support.</span></div>';
   });
 }
 function tripChatSend(){
@@ -227,7 +210,7 @@ function tripChatSend(){
     kind:'text', text:t.slice(0,1000), uid:user.uid,
     name:(user.displayName||user.email||'Traveller').split('@')[0],
     at:firebase.firestore.FieldValue.serverTimestamp()
-  }).catch(function(e){ showToast('Send failed: '+(e.message||e)); inp.value=t; });
+  }).catch(function(){ showToast('Message could not be sent. Please try again.'); inp.value=t; });
 }
 function tripChatClose(){ if(_chatUnsub){ _chatUnsub(); _chatUnsub=null; } rwOverlayClose('chatOverlay'); rwChatFabHide(); }
 /* MINIMIZE: hide the sheet but KEEP the live listener running, and show a
@@ -540,6 +523,5 @@ function rwChatAskTusk(q){
   }catch(e){ /* best-effort, ignore */ }
   try{ if(typeof cpAsk==='function') cpAsk(question); }catch(e){ /* best-effort, ignore */ }
 }
-
 
 
