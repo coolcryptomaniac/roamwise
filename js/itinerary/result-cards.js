@@ -150,7 +150,8 @@ function runSearch(){
       var tipCopy = i===0 ? '1 practical tip for '+month : '1 tip';
       return '{"id":"'+r.d.id+'","desc":"2 vivid sentences","tip":"'+tipCopy+'"}';
     }).join(',');
-    var aiPrompt = 'Briefly enhance these travel destinations for a traveler from '+origin+' in '+month+' ($'+budUSD+' budget, interests: '+interests.join(',')+'). Destinations: '+destList+'. Return ONLY valid JSON with this exact shape: {"e":['+shapeItems+']}';
+    var focusPrompt=typeof rwFocusPrompt==='function'?rwFocusPrompt():'';
+    var aiPrompt = 'Briefly enhance these travel destinations for a traveler from '+origin+' in '+month+' ($'+budUSD+' budget, interests: '+interests.join(',')+'). '+focusPrompt+' Destinations: '+destList+'. Return ONLY valid JSON with this exact shape: {"e":['+shapeItems+']}';
     aiCall(aiPrompt, 600, function(err, txt){
       clearInterval(tick); btn.disabled=false; btn.innerHTML='<span class="shim-line"></span>🔍 Find My Destinations — Works Without Any API Key';
       var aiData = null;
@@ -171,6 +172,7 @@ function renderCards(results, month, budUSD, origin, days, aiData, travelStyle, 
   var provLabel = activeProv==='smart' ? 'Smart Search' : activeProv==='roamwise' ? 'RoamWise Hosted AI' : (lsGet('rwKey_'+activeProv) ? activeProv.charAt(0).toUpperCase()+activeProv.slice(1)+' AI' : 'Smart Search');
 
   var H = `<div class="live-bar"><div class="live-dot"></div><span>Results for <strong style="color:#16BF96">${month}</strong> &bull; ${provLabel} &bull; <strong style="color:var(--gold2)">${party.label}</strong>${aiData ? ' &bull; <strong style="color:#BF8CFF">AI enhanced</strong>' : ''}${isPro ? ' &bull; <strong style="color:#E8BA6C">Pro Active</strong>' : ''}</span>${(activeProv==='smart' && !lsGet('rwKey_gemini') && !lsGet('rwKey_groq')) ? '<span style="font-size:10px;color:#4A4946;margin-left:auto;cursor:pointer" onclick="openSettings()">+ Add free AI key</span>' : ''}</div>`;
+  if(typeof rwFocusSummaryHTML==='function')H+=rwFocusSummaryHTML();
 
   H += `<div class="cmp-wrap"><table class="cmp-table"><thead><tr><th>Destination</th><th>Crowd in ${month}</th><th>${party.size>1?'Group mid · '+party.size:'Solo mid'}</th><th>Visa (India)</th><th>Best months</th></tr></thead><tbody>`;
   results.forEach(function(r){

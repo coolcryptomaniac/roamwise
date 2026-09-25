@@ -45,6 +45,7 @@ function smartSearch(month, budUSD, ctryQuery, crowd, interests){
     if(crowd==='avoid') sc += (100-cs)*0.6;
     else if(crowd==='some') sc += cs<50 ? (100-cs)*0.5 : cs*0.35;
     else sc += 50;
+    if(typeof rwFocusScore==='function')sc+=rwFocusScore(d,cs);
     interests.forEach(function(iv){
       var kw = iv.toLowerCase().split(' ')[0];
       if(d.interests.some(function(di){ return di.toLowerCase().indexOf(kw)>=0; })) sc+=18;

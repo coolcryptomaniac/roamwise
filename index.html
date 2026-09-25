@@ -6,8 +6,8 @@
 <meta name="google-adsense-account" content="ca-pub-4943859484482348">
 <meta name="theme-color" content="#080B18">
 <title>RoamWise Pro — AI Travel Planner | Itineraries, Budgets & Crowd-Free Destinations</title>
-<meta name="description" content="Build practical itineraries and budgets with RoamWise. Use planning tools and source-backed travel guides, then verify live prices and conditions before booking.">
-<meta name="keywords" content="AI travel planner, trip itinerary generator, travel budget calculator, avoid crowds travel, offbeat destinations">
+<meta name="description" content="Build peaceful, yoga-first journeys and practical itineraries with RoamWise. Find quieter timings, realistic budgets and source-backed travel guidance.">
+<meta name="keywords" content="AI travel planner, Rishikesh yoga trip, peaceful travel India, yoga retreat planner, avoid crowds travel, trip budget calculator">
 <meta property="og:type" content="website">
 <meta property="og:title" content="RoamWise Pro — AI Travel Planner">
 <meta property="og:description" content="Escape the crowds. AI itineraries, budgets & crowd heatmaps for 195+ destinations. Pay once, yours forever.">
@@ -88,6 +88,8 @@
         "Local fair-price bands for transport, stays and food",
         "Anti-overcharging and scam guidance",
         "Month-by-month crowd calendar",
+        "Peace Mode for quieter timings and routes",
+        "Yoga Mode for practice-first journeys",
         "Offline itineraries",
         "Low-carbon travel ledger"
       ],
@@ -454,7 +456,7 @@ function rwDismissCreatorBanner(){
 </section>
 <div class="hero-sky v v-home v-web-only"><div class="kumo" style="top:12%;left:4%"></div><div class="kumo k2" style="top:58%;right:6%"></div><div class="kumo k3" style="top:30%;right:22%"></div><div class="hero">
   <h1><span data-i18n="hero.title1">Escape the crowds.</span><br><em data-i18n="hero.title2">Discover your world.</em></h1>
-  <p data-i18n="hero.sub">Plan a less crowded trip you can actually take — together. Honest travel times, real local prices, and a budget that survives contact with reality. Built AI-native in the Himalayas. Start without an account.</p>
+  <p data-i18n="hero.sub">Plan a peaceful or yoga-first trip you can actually take. Find quieter timings, honest travel times, real local prices and a budget that survives contact with reality. Built AI-native in the Himalayas. Start without an account.</p>
   <div class="hero-btns">
     <button class="hero-btn hb-gold" data-i18n="hero.startFree" onclick="scrollTo(0,document.getElementById('app').offsetTop-10)">Start Planning &mdash; Free &rarr;</button>
     <button class="hero-btn hb-pm" onclick="openPay()" id="heroProBtn">Unlock Pro &mdash; &#8377;100</button>
@@ -464,6 +466,8 @@ function rwDismissCreatorBanner(){
     <span class="trust-chip"><b>No account</b> needed to start</span>
     <span class="trust-chip"><b>&#8377;100 one-time</b> Founder offer &mdash; other plans are subscriptions</span>
     <span class="trust-chip shinobi-chip"><b>&#129399; Shinobi mode</b> crowd-dodging routes</span>
+    <button type="button" class="trust-chip focus-entry" onclick="rwOpenFocusMode('peace')"><b>&#127807; Peace Mode</b> quieter journeys</button>
+    <button type="button" class="trust-chip focus-entry" onclick="rwOpenFocusMode('yoga')"><b>&#129496; Yoga Mode</b> practice-first India</button>
   </div>
   <div class="stats-row">
     <div class="stat-cell"><div class="stat-num">195+</div><div class="stat-lbl">Destinations</div></div>
@@ -564,6 +568,19 @@ function rwDismissCreatorBanner(){
       <span id="partyCostNote" style="display:block;margin-top:5px;font-size:10.5px;line-height:1.45;color:var(--t3)">Costs shown for one traveller.</span>
     </div>
   </div>
+  <div class="divider"></div>
+  <div class="sl-label">Travel focus</div>
+  <div class="focus-modes" id="focusModes" aria-label="Travel focus modes">
+    <button type="button" class="focus-mode" data-focus="peace" aria-pressed="false">
+      <span class="focus-mode-icon">&#127807;</span>
+      <span><b>Peace Mode</b><small>Quieter times, calm routes, no shopping stops unless you ask</small></span>
+    </button>
+    <button type="button" class="focus-mode" data-focus="yoga" aria-pressed="false">
+      <span class="focus-mode-icon">&#129496;</span>
+      <span><b>Yoga Mode</b><small>Practice-first days, suitable schools, simple food and recovery time</small></span>
+    </button>
+  </div>
+  <div class="focus-mode-note" id="focusModeNote" role="status">Choose either mode, or combine both for a quiet yoga-first journey.</div>
   <div class="divider"></div>
   <div class="sl-label">Currency</div>
   <div class="curr-grid" id="currGrid"></div>
@@ -1326,6 +1343,7 @@ function rwDismissCreatorBanner(){
 <script src="js/itinerary/place-disambiguation.js"></script>
 <script src="js/itinerary/party-costs.js?v=rw-party-1"></script>
 <script src="js/itinerary/shadow-budget.js?v=rw-party-1"></script>
+<script src="js/itinerary/focus-modes.js?v=rw-focus-1"></script>
 <script src="js/itinerary/pdf-assets.js"></script>
 <script src="js/itinerary/pdf-export.js"></script>
 <script src="js/itinerary/build.js"></script>
