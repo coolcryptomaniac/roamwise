@@ -68,7 +68,7 @@ Without this, `/events` and `/news` return empty every time — they have nowher
 |---|---|---|---|
 | `TICKETMASTER_KEY` | `/events` live refresh | developer.ticketmaster.com — free, instant | for live events |
 | `REFRESH_TOKEN` | protects manual refresh | invent any long random string | **yes, if TICKETMASTER_KEY is set** |
-| `GROQ_API_KEY` + `GROQ_MODEL` | authenticated `/ai` provider | console.groq.com | optional |
+| `GROQ_API_KEY` | authenticated `/ai` provider | console.groq.com | optional |
 | `FIREBASE_SERVICE_ACCOUNT_JSON` | verifies users and reads server-side entitlement | Firebase console | required for `/ai` |
 | `AI_USAGE` KV binding | monthly paid-plan allowance meter | Wrangler | required for `/ai` |
 
@@ -76,7 +76,6 @@ Without this, `/events` and `/news` return empty every time — they have nowher
 npx wrangler secret put TICKETMASTER_KEY
 npx wrangler secret put REFRESH_TOKEN
 npx wrangler secret put GROQ_API_KEY     # only if you want the AI proxy
-npx wrangler secret put GROQ_MODEL       # fixed founder-selected model
 npx wrangler secret put FIREBASE_SERVICE_ACCOUNT_JSON
 ```
 

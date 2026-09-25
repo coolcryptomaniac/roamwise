@@ -23,7 +23,6 @@ id = "be31e0935be843219cea1edf2203877b"   # <-- the ONLY line you edit in this f
 # SECRETS — never written here. Set each with wrangler:
 #
 #   npx wrangler secret put GROQ_API_KEY      # optional: enables /ai proxy
-#   npx wrangler secret put GROQ_MODEL        # required with GROQ_API_KEY; founder-selected model
 #   npx wrangler secret put OPENAI_API_KEY    # optional: AI CA provider
 #   npx wrangler secret put OPENAI_MODEL      # model selected by founder; no browser exposure
 #   npx wrangler secret put ANTHROPIC_API_KEY # optional: AI CA provider
@@ -56,10 +55,12 @@ CASHFREE_ENV = "live"
 # Cashfree PG documents x-api-version 2025-01-01. Do not use a guessed future
 # date: an unsupported API version can prevent order creation.
 CASHFREE_API_VERSION = "2025-01-01"
-# Managed AI is fail-closed. Leave false until AI_USAGE KV, GROQ_MODEL and
-# FIREBASE_SERVICE_ACCOUNT_JSON are configured and the authenticated flow has
-# been tested. Client-submitted model/token-limit values are ignored.
-MANAGED_AI_ENABLED = "false"
+# Managed AI remains fail-closed unless GROQ_API_KEY,
+# FIREBASE_SERVICE_ACCOUNT_JSON and AI_USAGE are all present. The model is
+# intentionally a server-owned, non-secret setting; browser-submitted model
+# and token-limit values are ignored.
+MANAGED_AI_ENABLED = "true"
+GROQ_MODEL = "openai/gpt-oss-20b"
 AI_MAX_PROMPT_CHARS = "4000"
 AI_MAX_OUTPUT_TOKENS = "700"
 # Admin-only AI CA provider preference. API keys/models remain Worker secrets.
@@ -67,12 +68,12 @@ AI_MAX_OUTPUT_TOKENS = "700"
 AI_CA_PROVIDER = "auto"
 # PAYMENT_RETURN_URL = "https://roamwise.co.in/partner/"   # optional fallback return URL
 
-# Separate monthly allowance meter for /ai. Create it with:
-#   npx wrangler kv namespace create AI_USAGE
-# then uncomment and paste the real id. Managed AI stays unavailable without it.
-# [[kv_namespaces]]
-# binding = "AI_USAGE"
-# id = "PASTE_AI_USAGE_ID_HERE"
+# The managed-AI counter uses a distinct binding and key prefix, but can safely
+# share the existing RW_KV namespace. This avoids another Cloudflare resource
+# while preserving fail-closed metering in the application code.
+[[kv_namespaces]]
+binding = "AI_USAGE"
+id = "be31e0935be843219cea1edf2203877b"
 
 # ---------------------------------------------------------------------------
 # R2 — OPTIONAL object storage. No route in worker.js uses this yet; this is

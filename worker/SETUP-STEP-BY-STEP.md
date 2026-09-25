@@ -137,6 +137,11 @@ Optional, only if you want the AI proxy (hides your Groq key from browsers):
 npx wrangler secret put GROQ_API_KEY
 ```
 
+The production configuration already fixes the model to
+`openai/gpt-oss-20b`, enables managed AI, and gives `AI_USAGE` a separate
+binding backed by the existing KV namespace. Do not put the model or any key
+in browser code.
+
 Check `/health` — the flags you set should now be `true`.
 
 ---

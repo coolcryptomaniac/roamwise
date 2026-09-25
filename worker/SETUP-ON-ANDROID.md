@@ -121,6 +121,16 @@ Reload `/health` — `"kv"` should now be `true`.
 **Optional** (only if you want the AI proxy): same steps with name
 `GROQ_API_KEY`, value from console.groq.com.
 
+For Hosted AI, add these non-secret settings in the same screen as **Text**:
+
+- `GROQ_MODEL` = `openai/gpt-oss-20b`
+- `MANAGED_AI_ENABLED` = `true`
+
+Then go to **Bindings** → **Add** → **KV namespace**. Use variable name
+`AI_USAGE` and select the existing `RW_KV` namespace. Hosted AI stays off
+unless the Groq secret, model, Firebase verification and usage binding are all
+present.
+
 Reload `/health` — your flags should be `true`.
 
 ---

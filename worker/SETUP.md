@@ -51,14 +51,12 @@ monthly allowance meter are both configured.
 
 ```
 wrangler secret put GROQ_API_KEY
-wrangler secret put GROQ_MODEL
 wrangler secret put FIREBASE_SERVICE_ACCOUNT_JSON
-npx wrangler kv namespace create AI_USAGE
 ```
-Paste the printed AI_USAGE id into the commented `AI_USAGE` binding in
-`wrangler.toml`, set `MANAGED_AI_ENABLED = "true"`, then deploy. These values
-stay encrypted or server-side; the browser cannot choose the model, token cap
-or monthly allowance.
+`wrangler.toml` already selects `openai/gpt-oss-20b`, enables the route and
+binds `AI_USAGE` to the existing KV namespace using a separate key prefix.
+Deploy after adding the secrets. Secret values stay encrypted; the browser
+cannot choose the model, token cap or monthly allowance.
 
 ## Step 5 — (Optional) Add the KV cache for the news job
 ```
