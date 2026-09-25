@@ -569,18 +569,23 @@ function rwDismissCreatorBanner(){
     </div>
   </div>
   <div class="divider"></div>
-  <div class="sl-label">Travel focus</div>
-  <div class="focus-modes" id="focusModes" aria-label="Travel focus modes">
-    <button type="button" class="focus-mode" data-focus="peace" aria-pressed="false">
-      <span class="focus-mode-icon">&#127807;</span>
-      <span><b>Peace Mode</b><small>Quieter times, calm routes, no shopping stops unless you ask</small></span>
-    </button>
-    <button type="button" class="focus-mode" data-focus="yoga" aria-pressed="false">
-      <span class="focus-mode-icon">&#129496;</span>
-      <span><b>Yoga Mode</b><small>Practice-first days, suitable schools, simple food and recovery time</small></span>
-    </button>
-  </div>
-  <div class="focus-mode-note" id="focusModeNote" role="status">Choose either mode, or combine both for a quiet yoga-first journey.</div>
+  <div class="sl-label">Trip pace <span style="font-weight:500;color:var(--t3);text-transform:none;letter-spacing:0">· optional</span></div>
+  <details class="focus-picker" id="focusPicker">
+    <summary aria-controls="focusModes">
+      <span class="focus-summary-icon" aria-hidden="true">&#127807;</span>
+      <span><b id="focusSummaryTitle">Regular trip</b><small id="focusSummaryHint">Add calm or yoga only if it helps</small></span>
+      <i>Change</i>
+    </summary>
+    <div class="focus-modes" id="focusModes" aria-label="Optional travel focus modes">
+      <button type="button" class="focus-mode" data-focus="peace" aria-pressed="false">
+        <span class="focus-mode-icon">&#127807;</span><span><b>Peace</b><small>Quieter rhythm</small></span>
+      </button>
+      <button type="button" class="focus-mode" data-focus="yoga" aria-pressed="false">
+        <span class="focus-mode-icon">&#129496;</span><span><b>Yoga</b><small>Practice first</small></span>
+      </button>
+    </div>
+    <div class="focus-mode-note" id="focusModeNote" role="status">No extra focus selected. Your other choices stay unchanged.</div>
+  </details>
   <div class="divider"></div>
   <div class="sl-label">Currency</div>
   <div class="curr-grid" id="currGrid"></div>
@@ -588,7 +593,7 @@ function rwDismissCreatorBanner(){
     <span class="budget-label">Budget per person</span>
     <span class="budget-val" id="budgetDisplay">&#8377;1.2L</span>
   </div>
-  <div class="budget-mood" id="budgetMood" aria-live="polite"><b>Jugaad Ninja</b><span>Ultra budget · every rupee has a mission</span></div>
+  <div class="budget-mood" id="budgetMood" aria-live="polite"><b>Jugaad Ninja</b><span>Ultra budget — every rupee has a mission</span></div>
   <div class="slider-row">
     <span class="slider-lbl">$200</span>
     <input type="range" id="budgetSlider" min="200" max="10000" value="1200" step="10">
@@ -1343,7 +1348,7 @@ function rwDismissCreatorBanner(){
 <script src="js/itinerary/place-disambiguation.js"></script>
 <script src="js/itinerary/party-costs.js?v=rw-party-1"></script>
 <script src="js/itinerary/shadow-budget.js?v=rw-party-1"></script>
-<script src="js/itinerary/focus-modes.js?v=rw-focus-1"></script>
+<script src="js/itinerary/focus-modes.js?v=rw-focus-ux-2"></script>
 <script src="js/itinerary/pdf-assets.js"></script>
 <script src="js/itinerary/pdf-export.js"></script>
 <script src="js/itinerary/build.js"></script>
@@ -1366,7 +1371,7 @@ function rwDismissCreatorBanner(){
 <script src="js/ui/status-tier.js"></script>
 <script src="js/ui/opening.js"></script>
 <script src="js/ui/how-to-guide.js"></script>
-<script src="js/ui/currency-budget.js"></script>
+<script src="js/ui/currency-budget.js?v=rw-budget-stages-2"></script>
 <script src="js/ui/dest-autocomplete.js"></script>
 <script src="js/game/badges.js"></script>
 <script src="js/game/realms.js"></script>
