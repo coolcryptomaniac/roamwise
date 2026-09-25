@@ -67,6 +67,14 @@ test('Worker usage reservation fails closed without durable metering', async () 
   assert.equal(out.reason, 'meter_not_configured');
 });
 
+test('production Worker fixes a low-cost Groq model and durable usage binding', () => {
+  const config = read('worker/wrangler.toml');
+  assert.match(config, /MANAGED_AI_ENABLED\s*=\s*"true"/);
+  assert.match(config, /GROQ_MODEL\s*=\s*"openai\/gpt-oss-20b"/);
+  assert.match(config, /binding\s*=\s*"AI_USAGE"/);
+  assert.doesNotMatch(config, /GROQ_API_KEY\s*=/);
+});
+
 test('explicit Hosted AI mode sends a Firebase bearer token to the metered Worker', async () => {
   const calls = [];
   const context = {
