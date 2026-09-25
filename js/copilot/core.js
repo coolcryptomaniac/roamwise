@@ -70,6 +70,7 @@ function openCopilot(){
     document.body.appendChild(ov);
     el('cpInput').addEventListener('keydown',function(e){ if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); copilotSend(); } });
     var chips=[['\u26c5 Weather in Goa this week','Weather in Goa this week'],
+               ['\ud83e\uddd8 Quiet yoga in Rishikesh','Plan a quiet yoga trip in Rishikesh with Peace Mode and Yoga Mode'],
                ['\ud83d\ude8c Bus Manali \u2192 Delhi Sunday','I need a bus from Manali to Delhi on Sunday'],
                ['\ud83d\udcb0 5 days in Jaipur under \u20b915,000','Plan 5 days in Jaipur under \u20b915,000']];
     el('cpChips').innerHTML = chips.map(function(c){
@@ -752,6 +753,9 @@ function copilotSend(fromHero){
     cpFinish(thinking, 'Arre boss, thoda confuse ho gaya \u2014 ek baar phir se, seedhe shabdon mein bolo? \ud83d\ude05', intents, t);
     return;
   }
+  if(typeof rwActivateFocusFromText==='function'&&/\b(plan|trip|itinerar|travel|visit|stay)\b/i.test(t)){
+    intents.focusModes=rwActivateFocusFromText(t,true);
+  }
   var hasKey = (typeof activeProv!=='undefined') && activeProv!=='smart' && lsGet('rwKey_'+activeProv);
   if(hasKey){
     /* Real conversation: persona + history + the new message. Any topic is
@@ -783,6 +787,7 @@ function copilotSend(fromHero){
           +'; destination: '+(intents._country||intents.dest||'not stated')
           +'. Never replace the destination with the origin.\n';
       }
+      if(typeof rwFocusPrompt==='function'&&rwFocusPrompt())facts+='Active traveller preferences: '+rwFocusPrompt()+'\n';
       var prompt='You are Ailon Tusk \u2014 a witty, warm, razor-sharp travel companion with playful Bollywood-masala energy and light Hinglish sprinkles (arre, chalo, mast, boss, scene, ekdum). You are the friend who has actually BEEN everywhere and gives it to people straight, with a grin. '
         +'MATCH YOUR LENGTH TO THE QUESTION: a quick factual question (a price, a distance, is-X-open) gets ONE punchy sentence \u2014 do not pad it. Only a genuinely open request (plan my trip, what should I do in X) earns a fuller answer, still under 90 words. '
         +'Personality is seasoning, not the meal: one small filmi flourish max, then the real facts \u2014 numbers, routes, prices, names \u2014 100% accurate and clear. '

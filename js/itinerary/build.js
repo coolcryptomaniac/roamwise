@@ -152,7 +152,8 @@ function buildItin(T, name, costMid, days){
     if(prov==='roamwise' || (prov!=='smart' && key)){
       var _entry=(typeof DB!=='undefined'?DB:[]).find(function(x){return x.name===name;});
       var _budgetUsd=(typeof rwCostUSD==='function'&&_entry)?Math.round(rwCostUSD(_entry,costMid,days)):Math.round(costMid/83.5);
-      var p = 'You are an expert local guide. Build a '+days+'-day itinerary for '+name+' in '+((el('month')||{}).value||'any month')+'. Ground-planning budget ~US$'+_budgetUsd+' per person for the whole '+days+'-day trip; origin travel is separate unless explicitly supplied. Return ONLY JSON (no prose, no markdown): {"days":[{"day":1,"title":"short theme","morning":"SPECIFIC named place + what to do (with timing like 8:30 AM)","afternoon":"SPECIFIC named place + insider tip","evening":"named restaurant/street + exact dish to order","food":"one local speciality with 4-word description","tip":"practical money/crowd/culture tip"}]}. Exactly '+days+' days, every place REAL and specific to '+name+', each field under 110 chars.';
+      var _focus=typeof rwFocusPrompt==='function'?rwFocusPrompt():'';
+      var p = 'You are an expert local guide. Build a '+days+'-day itinerary for '+name+' in '+((el('month')||{}).value||'any month')+'. Ground-planning budget ~US$'+_budgetUsd+' per person for the whole '+days+'-day trip; origin travel is separate unless explicitly supplied. '+_focus+' Return ONLY JSON (no prose, no markdown): {"days":[{"day":1,"title":"short theme","morning":"SPECIFIC named place + what to do (with timing like 8:30 AM)","afternoon":"SPECIFIC named place + insider tip","evening":"named restaurant/street + exact dish to order","food":"one local speciality with 4-word description","tip":"practical money/crowd/culture tip"}]}. Exactly '+days+' days, every place REAL and specific to '+name+', each field under 110 chars.';
       aiCall(p, 2200, function(err, txt){
         if(txt){
           var d=extractJSON(txt);
