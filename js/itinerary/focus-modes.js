@@ -36,6 +36,23 @@ function rwSaveFocusModes(modes){
   }catch(e){/* optional on-device preference */}
   return modes;
 }
+function rwFocusSuggestion(){
+  if(typeof document==='undefined')return '';
+  var destination=String((document.getElementById('destInput')||{}).value||'');
+  var wellness=document.querySelector('#tagsContainer .tag[data-v="Wellness"].on');
+  var crowd=String((document.getElementById('crowd')||{}).value||'');
+  if(wellness||/\b(rishikesh|yoga|ashram|wellness|meditat)/i.test(destination))return 'yoga';
+  if(crowd==='avoid')return 'peace';
+  return '';
+}
+function rwRefreshFocusSummary(modes){
+  if(typeof document==='undefined')return;
+  modes=rwNormaliseFocusModes(modes==null?rwActiveFocusModes():modes);
+  var title=document.getElementById('focusSummaryTitle'),hint=document.getElementById('focusSummaryHint'),icon=document.querySelector('#focusPicker .focus-summary-icon'),suggestion=rwFocusSuggestion();
+  if(title)title.textContent=rwFocusLabel(modes)||'Regular trip';
+  if(icon)icon.textContent=modes.indexOf('yoga')>=0?'🧘':modes.indexOf('peace')>=0?'🌿':suggestion==='yoga'?'🧘':'🌿';
+  if(hint)hint.textContent=modes.length===2?'Quiet rhythm + yoga-first days':modes[0]==='peace'?'Quiet times, calm routes, no shopping detours':modes[0]==='yoga'?'Practice, simple food and recovery first':suggestion==='yoga'?'Yoga focus may fit this plan':suggestion==='peace'?'Peace focus may fit your crowd choice':'Add calm or yoga only if it helps';
+}
 function rwSyncFocusModes(modes){
   modes=rwNormaliseFocusModes(modes==null?rwStoredFocusModes():modes);
   if(typeof document==='undefined')return modes;
@@ -51,8 +68,9 @@ function rwSyncFocusModes(modes){
         ?'Peace Mode: quieter timings and routes, with shopping stops left out unless requested.'
         :modes[0]==='yoga'
           ?'Yoga Mode: practice, rest and suitable schools come before checklist sightseeing.'
-          :'Choose either mode, or combine both for a quiet yoga-first journey.';
+          :'No extra focus selected. Your other choices stay unchanged.';
   }
+  rwRefreshFocusSummary(modes);
   return modes;
 }
 function rwSetFocusMode(id,on,quiet){
@@ -80,6 +98,7 @@ function rwToggleFocusMode(id){
 function rwOpenFocusMode(id){
   rwSetFocusMode(id,true,true);
   try{if(typeof tabGo==='function')tabGo('plan');}catch(e){/* optional adaptive shell */}
+  var picker=typeof document!=='undefined'&&document.getElementById('focusPicker');if(picker)picker.open=true;
   var host=typeof document!=='undefined'&&document.getElementById('focusModes');
   if(host)setTimeout(function(){host.scrollIntoView({behavior:'smooth',block:'center'});},80);
 }
@@ -130,7 +149,21 @@ function rwFocusSummaryHTML(){
 function rwInitFocusModes(){
   if(typeof document==='undefined')return;
   var host=document.getElementById('focusModes');if(!host)return;
+  if(!document.getElementById('rwFocusModeStyles')){
+    var style=document.createElement('style');style.id='rwFocusModeStyles';style.textContent=`
+      .focus-picker{border:1px solid rgba(129,145,191,.22);border-radius:13px;background:linear-gradient(145deg,rgba(21,29,51,.74),rgba(13,19,35,.58));overflow:hidden;transition:border-color .2s ease,background .2s ease}
+      .focus-picker[open]{border-color:rgba(82,211,171,.34);background:linear-gradient(145deg,rgba(22,42,49,.72),rgba(20,25,44,.72))}
+      .focus-picker>summary{list-style:none;display:grid;grid-template-columns:32px 1fr auto;gap:9px;align-items:center;min-height:48px;padding:8px 11px;cursor:pointer;user-select:none}.focus-picker>summary::-webkit-details-marker{display:none}.focus-picker>summary:focus-visible{outline:2px solid #5fd7b3;outline-offset:-2px}.focus-picker>summary b{display:block;font-size:12.5px;color:var(--t1)}.focus-picker>summary small{display:block;margin-top:2px;font-size:10.5px;line-height:1.3;color:var(--t3)}.focus-picker>summary i{font-size:10px;font-style:normal;color:#77dfc0;border:1px solid rgba(95,215,179,.28);border-radius:999px;padding:5px 8px}.focus-summary-icon{display:grid;place-items:center;width:30px;height:30px;border-radius:10px;background:rgba(78,199,159,.12);font-size:16px}
+      .focus-modes{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;padding:0 10px 8px}.focus-mode{display:flex;align-items:center;gap:8px;min-height:48px;padding:8px 10px;border:1px solid rgba(129,145,191,.22);border-radius:11px;background:rgba(18,25,45,.72);color:var(--t1);text-align:left;cursor:pointer;transition:transform .14s ease,border-color .2s ease,background .2s ease,box-shadow .2s ease}.focus-mode:active{transform:scale(.97)}.focus-mode:focus-visible{outline:2px solid #5fd7b3;outline-offset:2px}.focus-mode[aria-pressed="true"]{border-color:#52d3ab;background:linear-gradient(135deg,rgba(54,189,148,.19),rgba(93,80,205,.12));box-shadow:0 0 0 1px rgba(82,211,171,.08),0 8px 22px rgba(11,34,37,.22)}.focus-mode-icon{font-size:17px}.focus-mode b{display:block;font-size:12px}.focus-mode small{display:block;margin-top:1px;font-size:10px;color:var(--t3)}.focus-mode[aria-pressed="true"] small{color:#bfeadd}.focus-mode-note{padding:0 11px 10px;font-size:10.5px;line-height:1.42;color:var(--t3)}
+      @media(max-width:420px){.focus-picker>summary{grid-template-columns:30px 1fr auto}.focus-modes{grid-template-columns:1fr 1fr}}
+      @media(prefers-reduced-motion:reduce){.focus-picker,.focus-mode{transition:none!important}}
+    `;document.head.appendChild(style);
+  }
+  if(host.dataset.bound==='true'){rwSyncFocusModes();return;}host.dataset.bound='true';
   host.addEventListener('click',function(e){var b=e.target.closest('.focus-mode');if(b&&host.contains(b))rwToggleFocusMode(b.dataset.focus);});
+  var crowd=document.getElementById('crowd');if(crowd)crowd.addEventListener('change',function(){rwRefreshFocusSummary();});
+  var tags=document.getElementById('tagsContainer');if(tags)tags.addEventListener('click',function(){setTimeout(function(){rwRefreshFocusSummary();},0);});
+  var destination=document.getElementById('destInput');if(destination)destination.addEventListener('input',function(){rwRefreshFocusSummary();});
   rwSyncFocusModes();
 }
 if(typeof document!=='undefined'){
