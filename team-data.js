@@ -16,7 +16,7 @@ window.RW_TEAM = [
     photo: "/team/mohit-pandey.webp",
     photoPosition: "50% 50%",
     bio: "Leads RoamWise across product, technology, partnerships and day-to-day operations — building quietly from the Himalayas.",
-    links: { linkedin: "", email: "founder@roamwise.co.in" }
+    links: { linkedin: "https://www.linkedin.com/in/rockermohit/", website: "/about.html#founder", email: "founder@roamwise.co.in" }
   },
   {
     name: "Febin",
