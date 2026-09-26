@@ -7,7 +7,7 @@ const path=require('node:path');
 const {JSDOM}=require('jsdom');
 const code=fs.readFileSync(path.join(__dirname,'../js/ui/currency-budget.js'),'utf8');
 function app(){
-  const dom=new JSDOM(`<!doctype html><html><head></head><body><div id="currGrid"></div><div class="slider-row"><span class="slider-lbl">$200</span><input type="range" id="budgetSlider" min="200" max="10000" value="1200" step="10"><span class="slider-lbl">$10k+</span></div><span id="budgetDisplay"></span><span id="budgetExactSym"></span><input type="number" id="budgetExact"><aside id="drawer"><div id="drAcct"></div></aside><div class="v v-home" id="original"><div class="rowhead"><b>Popular now</b></div><div class="prow"></div></div><div id="copilotHero"></div><div id="results"></div><input id="destInput"><input id="dur" value="7"></body></html>`);
+  const dom=new JSDOM(`<!doctype html><html><head></head><body><div id="currGrid"></div><div id="budgetMood" class="budget-mood"><b></b><span></span></div><div class="slider-row"><span class="slider-lbl">$200</span><input type="range" id="budgetSlider" min="200" max="10000" value="1200" step="10"><span class="slider-lbl">$10k+</span></div><span id="budgetDisplay"></span><span id="budgetExactSym"></span><input type="number" id="budgetExact"><aside id="drawer"><div id="drAcct"></div></aside><div class="v v-home" id="original"><div class="rowhead"><b>Popular now</b></div><div class="prow"></div></div><div id="copilotHero"></div><div id="results"></div><input id="destInput"><input id="dur" value="7"></body></html>`);
   const storage=new Map();
   const country={india:{iso:'IN'},japan:{iso:'JP'},france:{iso:'FR'},'united states':{iso:'US'},indonesia:{iso:'ID'}};
   const DB=[{name:'Goa',country:'India',cost:{budget:1400,mid:3200},bestM:[9],crowd:Array(12).fill(30),food:['Fish curry rice']},{name:'Kyoto',country:'Japan',cost:{budget:1100,mid:2400},bestM:[9],crowd:Array(12).fill(40),food:['Yudofu']},{name:'Paris',country:'France',cost:{budget:800,mid:1600},bestM:[9],crowd:Array(12).fill(40),food:['Baguette']}];
@@ -18,8 +18,13 @@ function app(){
 }
 test('Indian slider begins at ₹500 and exact input accepts ₹500',()=>{
   const {dom,state}=app();const doc=dom.window.document;assert.equal(Number(doc.getElementById('budgetSlider').min)*83.5,500);assert.equal(doc.querySelector('.slider-lbl').textContent,'₹500');
-  const exact=doc.getElementById('budgetExact');exact.value='500';exact.dispatchEvent(new dom.window.Event('input',{bubbles:true}));assert.equal(doc.getElementById('budgetDisplay').textContent,'₹500');assert.ok(Math.abs(Number(doc.getElementById('budgetSlider').value)*83.5-500)<.001);
+  const exact=doc.getElementById('budgetExact');exact.value='500';exact.dispatchEvent(new dom.window.Event('input',{bubbles:true}));const slider=doc.getElementById('budgetSlider');assert.equal(doc.getElementById('budgetDisplay').textContent,'₹500');assert.ok(Math.abs(Number(slider.value)*83.5-500)<.001);assert.equal(slider.style.getPropertyValue('--pct'),'0.00%');assert.match(slider.getAttribute('aria-valuetext'),/₹500, Jugaad Ninja, Ultra budget/);
   assert.equal(state.rwBrowseCountry(),'India');
+});
+test('budget fill, cloud and crackle share full-range progress without replacing tier text',()=>{
+  const {dom}=app();const doc=dom.window.document,slider=doc.getElementById('budgetSlider'),exact=doc.getElementById('budgetExact'),cloud=doc.querySelector('.rw-akatsuki-cloud'),crackle=doc.querySelector('.rw-budget-crackle');
+  assert.ok(crackle);assert.equal(crackle.children.length,9);exact.value='250250';exact.dispatchEvent(new dom.window.Event('input',{bubbles:true}));assert.equal(slider.style.getPropertyValue('--pct'),'50.00%');assert.equal(cloud.style.getPropertyValue('--p'),'50.00%');assert.equal(crackle.style.getPropertyValue('--p'),'50.00%');
+  exact.value='500000';exact.dispatchEvent(new dom.window.Event('input',{bubbles:true}));assert.equal(slider.style.getPropertyValue('--pct'),'100.00%');assert.equal(cloud.style.getPropertyValue('--p'),'100.00%');assert.match(doc.getElementById('budgetMood').textContent,/Main Character Energy/);assert.ok(crackle.classList.contains('rw-tier-burst'));
 });
 test('Country menu updates currency and home recommendations without hiding global discovery',()=>{
   const {dom,state,storage}=app();const doc=dom.window.document;const pick=doc.getElementById('rwCountryPick');assert.ok(pick);pick.value='Japan';pick.dispatchEvent(new dom.window.Event('change',{bubbles:true}));
