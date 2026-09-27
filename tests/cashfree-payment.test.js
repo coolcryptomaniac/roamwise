@@ -436,6 +436,69 @@ test('createOrder() -> openCheckout(): full success path confirms order_status P
   assert.equal(statusCalls.length, 1);
 });
 
+test('Android checkout uses the native Cashfree bridge and never loads Checkout JS from the localhost WebView', async () => {
+  const listeners = {};
+  let nativeArgs, scriptLoads = 0, webSdkCalls = 0;
+  const nativePlugin = {
+    addListener: async (name, callback) => {
+      listeners[name] = callback;
+      return { remove(){} };
+    },
+    checkout: async (args) => {
+      nativeArgs = args;
+      listeners.paymentVerify({ orderId: args.orderId });
+      return { started: true };
+    }
+  };
+  const ctx = loadCashfreeAdapter({
+    window: { Capacitor: { Plugins: { CashfreePayment: nativePlugin } }, addEventListener(){} },
+    setTimeout,
+    clearTimeout,
+    document: { createElement: () => ({}), head: { appendChild(){ scriptLoads += 1; } } },
+    rwApi: (p) => 'https://worker.example/' + p,
+    fetch: async (url) => {
+      if(String(url).includes('/status')) return { json: async () => ({ order_status: 'PAID', entitlement: { persisted: true, tier: 'elite', until: 0 } }) };
+      return { ok: true, json: async () => ({ payment_session_id: 'session_native', order_id: 'rw_native_1', environment: 'production' }) };
+    },
+    Cashfree: () => { webSdkCalls += 1; return { checkout: () => Promise.resolve({}) }; }
+  });
+  selectCashfree(ctx);
+  ctx.RWPaymentGateway.createOrder(100, { planId: 'founder', label: 'Founder Pro', tierId: 'elite' });
+  ctx.RWPaymentGateway.openCheckout({}, 'any');
+  for(let i = 0; i < 8; i++) await new Promise((resolve) => setTimeout(resolve, 0));
+  assert.equal(nativeArgs.paymentSessionId, 'session_native');
+  assert.equal(nativeArgs.orderId, 'rw_native_1');
+  assert.equal(nativeArgs.environment, 'production');
+  assert.equal(scriptLoads, 0, 'native Android must not inject the web Checkout SDK');
+  assert.equal(webSdkCalls, 0, 'native Android must not call Cashfree() against https://localhost');
+  assert.equal(ctx.grantPurchaseCalls.length, 1);
+  assert.equal(ctx.grantPurchaseCalls[0].planId, 'founder');
+});
+
+test('native Cashfree callback is only a signal: an unconfirmed order never grants Pro', async () => {
+  const listeners = {};
+  const nativePlugin = {
+    addListener: async (name, callback) => { listeners[name] = callback; return { remove(){} }; },
+    checkout: async (args) => { listeners.paymentVerify({ orderId: args.orderId }); return { started: true }; }
+  };
+  const ctx = loadCashfreeAdapter({
+    window: { Capacitor: { Plugins: { CashfreePayment: nativePlugin } }, addEventListener(){} },
+    setTimeout,
+    clearTimeout,
+    rwApi: (p) => 'https://worker.example/' + p,
+    fetch: async (url) => {
+      if(String(url).includes('/status')) return { json: async () => ({ order_status: 'ACTIVE' }) };
+      return { ok: true, json: async () => ({ payment_session_id: 'session_native', order_id: 'rw_native_2', environment: 'production' }) };
+    }
+  });
+  selectCashfree(ctx);
+  ctx.RWPaymentGateway.createOrder(100, { planId: 'founder' });
+  ctx.RWPaymentGateway.openCheckout({}, 'any');
+  for(let i = 0; i < 10; i++) await new Promise((resolve) => setTimeout(resolve, 0));
+  assert.equal(ctx.grantPurchaseCalls.length, 0);
+  assert.equal(ctx.activateProCalls.length, 0);
+});
+
 // FOUNDER SEAT COUNTING BUG FIX (2026-09-07): a Founder-offer purchase
 // confirmed PAID through Cashfree must move pricing/founder.count by +1 —
 // same shared-pool counter the admin-manual-payment and NMIMS-partner-
