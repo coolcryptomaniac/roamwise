@@ -162,6 +162,11 @@ input:focus, select:focus, textarea:focus { border-color: var(--scarlet); box-sh
 .stat span { color: var(--muted); font-size: 11px; }
 .grid2 { display: grid; grid-template-columns: 1.45fr .8fr; gap: 14px; }
 .card { padding: 18px; }
+.rw-owner-start { max-width: 760px; margin: 0 auto; padding: clamp(20px,4vw,34px); }
+.rw-owner-start h2 { margin: 8px 0; font-size: clamp(26px,4vw,40px); }
+.rw-owner-start-steps { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 8px; margin: 20px 0; }
+.rw-owner-start-steps span { display: flex; align-items: center; gap: 8px; min-height: 48px; padding: 9px; border: 1px solid var(--line); border-radius: 11px; color: var(--muted); }
+.rw-owner-start-steps b { display: grid; flex: 0 0 25px; width: 25px; height: 25px; place-items: center; border-radius: 50%; color: var(--ivory); background: var(--geru); }
 .fields, .rw-market-host-fields { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 11px; }
 .field.full { grid-column: 1 / -1; }
 .authshell { width: min(560px,100%); margin: auto; }
@@ -306,6 +311,7 @@ input:focus, select:focus, textarea:focus { border-color: var(--scarlet); box-sh
   .rw-market-bookings article { grid-template-columns: 1fr auto; }
   .rw-market-bookings article > :nth-child(n+3) { grid-column: 1/-1; }
   .rw-market-dates { grid-template-columns: 1fr; }
+  .rw-owner-start-steps { grid-template-columns: 1fr; }
   .modal { padding: 8px; }
   .rw-market-bookhero { min-height: 145px; padding: 18px; }
   .rw-market-bookgrid { padding: 14px; }
