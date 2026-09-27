@@ -49,6 +49,13 @@ test('self-onboarding exposes share paths and role-specific first tasks', async 
   assert.match(client, /Property launch checklist/);
 });
 
+test('match page opts out of the global opening overlay that caused a blank purple screen', async () => {
+  const page = await readFile(new URL('../creators/match.html', import.meta.url), 'utf8');
+  assert.match(page, /<html[^>]+class="rw-opening-skip"/);
+  assert.match(page, /src="\.\.\/rw-config\.js"/);
+  assert.match(page, /<noscript>/);
+});
+
 test('the worker only introduces trust-reviewed verified profiles', async () => {
   const worker = await readFile(new URL('../creators/protection/worker.mjs', import.meta.url), 'utf8');
   assert.match(worker, /\/v1\/creator-protection\/match-profile/);

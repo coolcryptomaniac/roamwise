@@ -61,9 +61,9 @@ test('stay Cashfree order is server-authoritative and requires a confirmed booki
   assert.match(js, /Number\(data\.order_amount\) !== found\.amount/);
 });
 
-test('partner automation add-ons are prepaid and usage-bounded', () => {
+test('partner automation add-ons remain priced and usage-bounded outside quick onboarding', () => {
   const js = fs.readFileSync(`${root}/partner/config.js`, 'utf8');
-  const app = fs.readFileSync(`${root}/partner/app.js`, 'utf8');
+  const join = fs.readFileSync(`${root}/partner/join/index.html`, 'utf8');
   const sandbox = { window: {} };
   vm.runInNewContext(js, sandbox);
   const addOns = sandbox.window.RW_PARTNER_CONFIG.commercial.addOns;
@@ -71,8 +71,19 @@ test('partner automation add-ons are prepaid and usage-bounded', () => {
   assert.equal(addOns.widget_annual.includedPlans, 6000);
   assert.equal(addOns.white_label_annual.priceINR, 49999);
   assert.equal(addOns.white_label_annual.includedPlans, 30000);
-  assert.match(app, /requestedAddOn/);
-  assert.match(app, /service starts only after RoamWise verifies payment and provisions the allowance/);
+  assert.match(join, /requestedAddOn:'none'/);
+  assert.match(join, /does not make the property live or enable bookings, payouts or charges/i);
+});
+
+test('partner desk sends owners to one canonical registration and has no duplicate MOU form', () => {
+  const page = fs.readFileSync(`${root}/partner/index.html`, 'utf8');
+  const app = fs.readFileSync(`${root}/partner/app.js`, 'utf8');
+  const overlay = fs.readFileSync(`${root}/partner/marketplace.js`, 'utf8');
+  const join = fs.readFileSync(`${root}/partner/join/index.html`, 'utf8');
+  assert.match(page, /href="\/partner\/join\/"/);
+  assert.match(app, /ONE PROPERTY · ONE APPLICATION · ONE MOU/);
+  assert.doesNotMatch(app + overlay, /(?:id=['"](?:omou|rwMouAuth|submitOwner)['"]|function ownerForm)/);
+  assert.equal((join.match(/id="mou"/g) || []).length, 1);
 });
 
 test('partner pause and deboarding preserve history and block unsafe exit', () => {

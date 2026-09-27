@@ -54,7 +54,12 @@ jobs:
           import re
 
           idx = Path('partner/index.html').read_text()
-          js = Path('partner/marketplace.js').read_text()
+          # The canonical partner runtime is split between the marketplace
+          # booking surface and the app shell. Check both; the old single-file
+          # assumption caused harmless refactors to fail CI.
+          js = (Path('partner/marketplace.js').read_text() + '\n' +
+                Path('partner/app.js').read_text() + '\n' +
+                Path('partner/join/index.html').read_text())
           css = Path('partner/partner.css').read_text()
           rules = Path('firestore.rules').read_text()
           mou = Path('partner/mou/index.html').read_text()
@@ -89,8 +94,8 @@ jobs:
             'HOST STUDIO',
             'rwMarketAck',
             'validPhone',
-            'ownerAttestation',
-            'walkthroughConsent',
+            'ownerAuthorityAttested',
+            'photoPermissionPending',
             'HOST TODAY'
             ,'PARTNER LIFECYCLE'
             ,'roamwise_cashfree_after_confirmation'
