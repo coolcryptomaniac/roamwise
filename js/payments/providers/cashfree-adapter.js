@@ -33,6 +33,57 @@ var _cfSdkPromise = null;
 var _cfPhoneOverride = '';
 var CF_PENDING_KEY = 'rw_cashfree_pending_v2';
 
+/* Capacitor serves bundled files from https://localhost. Cashfree correctly
+   rejects that origin in production web checkout, even when the real RoamWise
+   website is approved. Android builds therefore expose a tiny native bridge
+   backed by Cashfree's official Android SDK. Browsers keep using Checkout JS.
+   Both routes still finish through _cfConfirmPaid(), so a native callback can
+   never grant an entitlement without the Worker confirming and persisting it. */
+function _cfNativePlugin(){
+  try{
+    var cap=(typeof window!=='undefined'&&window.Capacitor)?window.Capacitor:
+      ((typeof Capacitor!=='undefined')?Capacitor:null);
+    var plugin=cap&&cap.Plugins&&cap.Plugins.CashfreePayment;
+    return plugin&&typeof plugin.checkout==='function'&&typeof plugin.addListener==='function'?plugin:null;
+  }catch(e){return null;}
+}
+
+function _cfOpenNativeCheckout(ready){
+  var plugin=_cfNativePlugin();
+  if(!plugin)return null;
+  return new Promise(function(resolve,reject){
+    var settled=false,handles=[],timer;
+    function cleanup(){
+      if(timer&&typeof clearTimeout==='function')clearTimeout(timer);
+      handles.forEach(function(handle){try{if(handle&&typeof handle.remove==='function')handle.remove();}catch(e){/* best-effort */}});
+    }
+    function finish(value,isError){
+      if(settled)return;settled=true;cleanup();
+      if(isError)reject(value);else resolve({result:value||{},order:ready});
+    }
+    function sameOrder(event){return !event||!event.orderId||event.orderId===ready.orderId;}
+    Promise.all([
+      Promise.resolve(plugin.addListener('paymentVerify',function(event){
+        if(sameOrder(event))finish({},false);
+      })),
+      Promise.resolve(plugin.addListener('paymentFailure',function(event){
+        if(!sameOrder(event))return;
+        finish({error:{message:(event&&event.message)||'Payment was cancelled or failed.'}},false);
+      }))
+    ]).then(function(registered){
+      handles=registered||[];
+      timer=setTimeout(function(){finish(new Error('Cashfree checkout timed out. Check My Payments before retrying.'),true);},15*60*1000);
+      return plugin.checkout({
+        paymentSessionId:ready.paymentSessionId,
+        orderId:ready.orderId,
+        environment:ready.environment==='production'?'production':'sandbox'
+      });
+    }).then(function(started){
+      if(started&&started.started===false)finish(new Error(started.message||'Cashfree checkout could not start.'),true);
+    }).catch(function(error){finish(error instanceof Error?error:new Error(String(error&&error.message||error||'Cashfree checkout could not start.')),true);});
+  });
+}
+
 function _cfLoadSdk(){
   if(typeof Cashfree === 'function') return Promise.resolve();
   if(_cfSdkPromise) return _cfSdkPromise;
@@ -206,10 +257,10 @@ var CashfreeAdapter = {
     return true;
   },
 
-  /* Use Cashfree's full-page hosted checkout. A nested provider modal inside
-     RoamWise's already-scrollable modal was the source of clipped/sandwiched
-     controls on iPhone and cramped desktop windows. `_self` is Cashfree's
-     documented default and works consistently across modern browsers. */
+  /* Android uses Cashfree's official native SDK so the payment page is bound
+     to the Play app instead of Capacitor's unapproved https://localhost origin.
+     Web/iOS keep the full-page hosted checkout. A nested provider modal inside
+     RoamWise's already-scrollable modal was the source of clipped controls. */
   openCheckout: function(order, method){
     if(!_cfOrderPromise&&order&&!order.needsPhone)_cfBeginOrder(order);
     if(!_cfOrderPromise){
@@ -218,13 +269,15 @@ var CashfreeAdapter = {
     }
     _cfUi('busy','Preparing Cashfree’s secure payment page\u2026');
     var flow=_cfOrderPromise.then(function(ready){
-      return _cfLoadSdk().then(function(){ return ready; });
-    }).then(function(ready){
       _cfStorePending(ready);
-      var cashfree = Cashfree({mode: ready.environment === 'production' ? 'production' : 'sandbox'});
-      var options={paymentSessionId:ready.paymentSessionId,redirectTarget:'_self'};
-      var returnUrl=_cfReturnUrl(ready.orderId);if(returnUrl)options.returnUrl=returnUrl;
-      return Promise.resolve(cashfree.checkout(options)).then(function(result){return {result:result||{},order:ready};});
+      var nativeFlow=_cfOpenNativeCheckout(ready);
+      if(nativeFlow)return nativeFlow;
+      return _cfLoadSdk().then(function(){
+        var cashfree = Cashfree({mode: ready.environment === 'production' ? 'production' : 'sandbox'});
+        var options={paymentSessionId:ready.paymentSessionId,redirectTarget:'_self'};
+        var returnUrl=_cfReturnUrl(ready.orderId);if(returnUrl)options.returnUrl=returnUrl;
+        return Promise.resolve(cashfree.checkout(options)).then(function(result){return {result:result||{},order:ready};});
+      });
     }).then(function(res){
       var result = res.result || {};
       if(result.error){
