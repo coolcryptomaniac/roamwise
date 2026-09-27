@@ -294,6 +294,12 @@ button,select,input,textarea{font:inherit}
     <div id="crmList" style="margin-top:10px"><p class="note">Loading…</p></div>
   </div>
 
+  <div class="card" id="partnerReviewBox" style="display:none">
+    <div class="lab">🏡 Property review desk</div>
+    <p class="note">Review applications and send a recommendation to Mohit. You cannot activate, suspend, change payments or remove staff access.</p>
+    <div id="partnerReviewList"><p class="note">Loading…</p></div>
+  </div>
+
   <div class="card" id="ordBox" style="display:none">
     <div class="lab">🛍️ T-shirt orders</div>
     <p class="note">Every custom-tee order customers place. Mark each one as you print and ship it. New orders show at the top.</p>
@@ -586,6 +592,7 @@ firebase.auth().onAuthStateChanged(function(u){
     el('signedOut').classList.add('hide'); el('app').classList.remove('hide');
     el('finBox').style.display = hasRole('finance')?'block':'none';
     el('mktBox').style.display = (hasRole('marketing')||hasRole('growth'))?'block':'none';
+    el('partnerReviewBox').style.display = hasRole('partnerships')?'block':'none';
     el('ordBox').style.display = ROLE==='admin'?'block':'none';
     el('leadBox').style.display = ROLE==='admin'?'block':'none';
     el('hrBox').style.display = ROLE==='admin'?'block':'none';
@@ -604,6 +611,7 @@ firebase.auth().onAuthStateChanged(function(u){
     loadToday(); loadTasks(); loadStats();
     if(ROLE==='finance') loadLedger();
     if(ROLE==='marketing') loadCrm();
+    if(hasRole('partnerships')) loadPartnerReview();
     if(ROLE==='admin') loadOrders();
     if(ROLE==='admin') loadLeads();
     if(ROLE==='admin') hrLoad();
@@ -636,6 +644,10 @@ function loadToday(){
   el('todayList').innerHTML = list.map(function(t){
     return '<div class="task"><div class="tk"><b>'+esc(t[0])+'</b><p>'+esc(t[1])+'</p></div></div>';
   }).join('') || '<p class="note">No standing routine for this role.</p>';
+}
+function loadPartnerReview(){
+  var root=el('partnerReviewList'); if(!root||!db)return;
+  db.collection('partners').limit(200).get().then(function(s){var rows=[];s.forEach(function(d){var p=d.data()||{},o=p.onboarding||{};rows.push('<div class="task"><div class="tk"><b>'+esc(p.name||p.email||'Property')+'</b><p>'+esc([p.area,p.zone,p.ownerName,p.email].filter(Boolean).join(' · '))+'<br>Status: '+esc(p.status||'pending')+' · MOU: '+esc(o.mouVersion||'not recorded')+'</p><select class="inp" data-review-property="'+esc(d.id)+'"><option value="">Choose recommendation</option><option value="ready">Recommend founder review</option><option value="correction">Needs correction</option><option value="hold">Hold for evidence</option></select></div></div>')});root.innerHTML=rows.length?rows.join(''):'<p class="note">No property applications yet.</p>';root.querySelectorAll('[data-review-property]').forEach(function(s){s.onchange=function(){var choice=s.value;if(!choice)return;db.collection('partners').doc(s.dataset.reviewProperty).set({partnershipRecommendation:choice,partnershipRecommendationNote:choice==='ready'?'Reviewed by partnerships staff':'Follow-up required',partnershipReviewedAt:new Date().toISOString(),partnershipReviewer:user.uid,updatedAt:new Date().toISOString()},{merge:true}).then(function(){s.insertAdjacentHTML('afterend','<small class="note">Saved for founder review.</small>')}).catch(function(e){s.value='';alert('Could not save recommendation: '+e.message)})}})}).catch(function(e){root.innerHTML='<p class="note">Could not load property applications: '+esc(e.message)+'</p>'});
 }
 /* LIVE (rw-v72): onSnapshot instead of get(), so a task assigned in the admin
    console appears here within a second — no refresh, no re-login.
