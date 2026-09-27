@@ -43,6 +43,58 @@ test('Chennai to Vietnam is parsed as an outbound route, never as a Chennai dest
   assert.equal(intent.stops,null);
 });
 
+test('spoken Ranikhet duration and qualified town context never collapse to India or Uttarakhand scope',()=>{
+  const storage=new Map();
+  const state={
+    console,window:null,localStorage:{removeItem:k=>storage.delete(k)},
+    lsGet:k=>storage.get(k)||'',lsSet:(k,v)=>storage.set(k,String(v)),
+    DB:[],RW_COMMON_WORDS:/^(plan|trip|from|to|day|days)$/i,
+    navigator:{onLine:false},esc2:s=>String(s)
+  };
+  state.window=state;
+  vm.runInNewContext(read('js/data/regions.js'),state);
+  vm.runInNewContext(read('js/data/place-overrides.js'),state);
+  vm.runInNewContext(read('js/copilot/region-routes.js'),state);
+  vm.runInNewContext(read('js/copilot/core.js'),state);
+  const spoken=state.cpParseRegex('three day plan to Ranikhet');
+  assert.equal(spoken.dest,'Ranikhet');
+  assert.equal(spoken.days,3);
+  assert.equal(spoken._country,undefined);
+  assert.equal(spoken._state,undefined);
+  const qualified=state.cpParseRegex('three day plan to Ranikhet, Uttarakhand, India');
+  assert.equal(qualified.dest,'Ranikhet');
+  assert.equal(qualified.days,3);
+  assert.equal(qualified.multi,undefined);
+  assert.equal(qualified._state,undefined);
+  assert.equal(qualified._country,undefined);
+});
+
+test('place disambiguation preserves the original duration and canonical state',()=>{
+  const state={navigator:{onLine:false},esc2:s=>String(s),Number,String};
+  vm.runInNewContext(read('js/itinerary/place-disambiguation.js'),state);
+  const q=state.rwDisambigFollowQuery('Ranikhet',{
+    name:'Ranikhet',admin:'Uttarakhand',country:'India'
+  },{_raw:'three day plan to Ranikhet',days:3});
+  assert.equal(q,'three day plan to Ranikhet, Uttarakhand, India');
+});
+
+test('Sarvam India-first provider uses the official OpenAI-compatible chat endpoint',async()=>{
+  let request=null;
+  const state={
+    window:{},setTimeout,clearTimeout,
+    fetch:async(url,options)=>{
+      request={url,options};
+      return {status:200,json:async()=>({choices:[{message:{content:'namaste'}}]})};
+    }
+  };
+  vm.runInNewContext(read('js/copilot/ai-providers.js'),state);
+  const answer=await state.aiRequest('sarvam','sk_test','sarvam-105b-conversations','hello',50,false);
+  assert.equal(answer,'namaste');
+  assert.equal(request.url,'https://api.sarvam.ai/v1/chat/completions');
+  assert.equal(request.options.headers.Authorization,'Bearer sk_test');
+  assert.equal(JSON.parse(request.options.body).model,'sarvam-105b-conversations');
+});
+
 test('sending a Copilot prompt stops any cue and never starts search music',()=>{
   const source=read('js/copilot/core.js');
   const send=source.slice(source.indexOf('function copilotSend('),source.indexOf('\n}',source.indexOf('function copilotSend('))+2);
@@ -72,3 +124,9 @@ test('composer reserves a separate footer row so model chips cannot cover Send',
   assert.match(html,/id="heroSend"[^>]+aria-label="Send travel request"/);
 });
 
+test('continuous navigation is delegated without adding hidden background-location behavior',()=>{
+  const source=read('js/copilot/rich-reply.js');
+  assert.match(source,/function rwTuskNavigate/);
+  assert.match(source,/google\.com\/maps\/dir\/\?api=1&destination=/);
+  assert.match(source,/without RoamWise[\s\S]*background-location foreground service/);
+});

@@ -307,6 +307,7 @@ var AI_MODELS = {
   github: ['gpt-4o','Meta-Llama-3.1-70B-Instruct'],
   gemini: ['gemini-2.5-flash','gemini-flash-latest'],
   openrouter: ['meta-llama/llama-3.3-70b-instruct:free','mistralai/mistral-small-3.1-24b-instruct:free','google/gemma-3-27b-it:free'],
+  sarvam: ['sarvam-105b-conversations','sarvam-105b'],
   mistral: ['mistral-small-latest','open-mistral-nemo'],
   anthropic: ['claude-sonnet-5']
 };
@@ -415,7 +416,7 @@ applyRegionUI();
 (function(){
   var chip = el('modeChip');
   if(chip && activeProv!=='smart'){
-    var labels = {gemini:'Gemini AI (free)', groq:'Groq AI (free)', anthropic:'Claude AI'};
+    var labels = {gemini:'Gemini AI (free)', groq:'Groq AI (free)', sarvam:'Sarvam India AI', anthropic:'Claude AI'};
     chip.textContent = labels[activeProv]||activeProv;
     chip.className = 'mode-chip '+(activeProv==='anthropic'?'mode-ai':'mode-free');
   }
@@ -572,4 +573,3 @@ applyRegionUI();
 // Moved to js/ui/themes.js (Phase 5b) — Living Themes (RW_THEMES, rwPickTheme, rwApplyTheme, rwStartFx/rwStopFx)
 
 // REMOTE CONFIG (applyRemoteConfig + boot fetch) + Cinematic Itinerary bridges moved to js/boot/init.js
-

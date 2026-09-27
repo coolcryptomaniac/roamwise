@@ -137,7 +137,7 @@ else { _cpTurns=[]; try{ localStorage.removeItem('rw_turns'); }catch(e){ /* stor
 var _cpHist = []; /* [{q,a}] capped — gives the AI real conversational memory */
 function cpModelChips(targetId){
   var host = el(targetId); if(!host) return;
-  var provs = ['groq','cerebras','github','gemini','openrouter','mistral','anthropic'].filter(function(p){ return lsGet('rwKey_'+p); });
+  var provs = ['sarvam','groq','cerebras','github','gemini','openrouter','mistral','anthropic'].filter(function(p){ return lsGet('rwKey_'+p); });
   var cur = (typeof activeProv!=='undefined')? activeProv : 'smart';
   var chips = [['smart','\u26a1 Ailon Tusk']].concat(provs.map(function(p){ return [p, p.charAt(0).toUpperCase()+p.slice(1)]; }));
   host.innerHTML = chips.map(function(c){
@@ -456,6 +456,17 @@ function cpParseRegex(t){
   else { var mb=t.match(/(?:\u20b9|rs\.?\s?|inr\s?)\s?([\d,]{3,})|(?:under|below|within|budget(?: of)?|max)\s*(?:\u20b9|rs\.?|inr)?\s*([\d,]{3,})/i);
          if(mb) out.budget=parseInt((mb[1]||mb[2]).replace(/,/g,''),10); }
   var dm=t.match(/(\d+)\s*[- ]?\s*(?:day|night|din)/i); if(dm) out.days=parseInt(dm[1],10);
+  /* Voice transcription commonly returns "three days" rather than "3 days".
+     Treat the spoken form exactly like the typed numeric form so duration
+     survives destination clarification and never falls back to a 7/10-day
+     regional default. Keep the range deliberately bounded to trip-sized
+     numbers; larger spoken quantities are more likely budgets or group size. */
+  if(out.days==null){
+    var WORD_DAYS={one:1,two:2,three:3,four:4,five:5,six:6,seven:7,eight:8,nine:9,ten:10,
+                   eleven:11,twelve:12,thirteen:13,fourteen:14};
+    var wdm=t.match(/\b(one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen)\s*[- ]?\s*(?:day|night|din)s?\b/i);
+    if(wdm) out.days=WORD_DAYS[wdm[1].toLowerCase()];
+  }
   /* destination: DB first (incl. fuzzy), then preposition, then leftover-token */
   var hit=out.dest?null:cpDbFind(t); if(hit) out.dest=hit.name;
   if(!out.dest){
@@ -562,13 +573,31 @@ function cpParseRegex(t){
   out.stops = (function(){
     if(out._route) return null;
     var names = rwScanKnown(t);
+    /* A city followed by its state is qualification, not a two-stop route.
+       Without this, "Ranikhet, Uttarakhand, India" became a multi-city trip
+       whose final destination was the whole state. */
+    var stateKey=rwDetectState(t);
+    if(stateKey && names.length>1 && typeof RW_STATES!=='undefined' && RW_STATES[stateKey]){
+      var stateNorm=String(RW_STATES[stateKey].label||'').toLowerCase().replace(/[^a-z]/g,'');
+      names=names.filter(function(n){ return String(n||'').toLowerCase().replace(/[^a-z]/g,'')!==stateNorm; });
+    }
     return names.length>=2 ? names : null;
   })();
   /* country/region scope beats any single-city guess */
   /* STATE scope beats country scope: "Kerala, India" is a Kerala request, not
      an India request. */
   var _st = rwDetectState(out._route?out.dest:t);
-  if(_st) out._state = _st;
+  /* "Ranikhet, Uttarakhand" is a town qualified by its state, not a request
+     for a state-wide circuit. A known non-state place in the same message
+     therefore wins over the scope label. */
+  var _scopeKnown = out._route ? rwScanKnown(out.dest||'') : rwScanKnown(t);
+  var _stateLabel = (_st && typeof RW_STATES!=='undefined' && RW_STATES[_st]) ? RW_STATES[_st].label : '';
+  var _specificPlace = _scopeKnown.some(function(n){
+    var nn=String(n||'').toLowerCase().replace(/[^a-z]/g,'');
+    var sn=String(_stateLabel||'').toLowerCase().replace(/[^a-z]/g,'');
+    return nn && nn!==sn;
+  });
+  if(_st && !_specificPlace) out._state = _st;
   var _ctry = rwDetectCountry(out._route?out.dest:t);
   if(_ctry){
     /* A country name QUALIFYING a place ("Kerala, India", "Goa India") is not a
