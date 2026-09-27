@@ -67,3 +67,18 @@ test('Ailon stay matcher ranks typed or voice constraints and current rooms cann
   assert.equal(rows[0].id,'cheap');
   assert.match(bookingCode,/r\.bookable!==true \|\| r\.paymentEnabled!==true/);
 });
+
+test('typed or voice plan booking resumes the exact trip with guarded supplier handoffs',()=>{
+  const state={
+    window:{RW_ROOMS:[]},esc2:s=>String(s),showToast:()=>{},isFinite,Number,String,Date,
+    encodeURIComponent
+  };
+  state.window.window=state.window;
+  vm.runInNewContext(bookingCode,state);
+  const html=state.rwTuskPlanBookingHTML('book this plan','Ranikhet',3);
+  assert.match(html,/Booking assistant/);
+  assert.match(html,/Ranikhet · 3 days/);
+  assert.match(html,/confirmed inventory and enabled payment/);
+  assert.match(html,/nothing has been reserved or charged/i);
+  assert.match(bookingCode,/bookable===true&&r\.paymentEnabled===true/);
+});

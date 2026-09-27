@@ -104,7 +104,19 @@ function rwIsAmbiguous(cands, homeCC){
   }
   return true;
 }
-function rwDisambigHTML(query, cands){
+function rwDisambigFollowQuery(query, candidate, trip){
+  var canonical=[candidate.name,candidate.admin,candidate.country].filter(Boolean)
+    .filter(function(v,i,a){ return a.indexOf(v)===i; }).join(', ');
+  var raw=String(trip&&trip._raw||'').trim();
+  if(raw){
+    var escaped=String(query||'').replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+    if(escaped && new RegExp(escaped,'i').test(raw)) return raw.replace(new RegExp(escaped,'i'),canonical);
+  }
+  var lead=trip&&trip.days ? 'Plan '+trip.days+' days in ' : 'Plan a trip to ';
+  var tail=trip&&trip.budget ? ' under ₹'+trip.budget : '';
+  return lead+canonical+tail;
+}
+function rwDisambigHTML(query, cands, trip){
   return '<div class="tk-card"><div class="tk-head" style="background:linear-gradient(150deg,#1E3A8A,#0A0A0C)">'
     +'<div class="tk-place">Which '+esc2(query)+'?</div>'
     +'<div class="tk-meta">'+cands.length+' places share that name \u2014 pick one and I\u2019ll get it right</div></div>'
@@ -112,7 +124,8 @@ function rwDisambigHTML(query, cands){
     + cands.map(function(c){
         var where=[c.admin, c.country].filter(Boolean).join(', ');
         var pop = c.pop ? Number(c.pop).toLocaleString('en-IN')+' people' : 'small settlement';
-        return '<button onclick="cpFollow(\''+String(c.name+', '+(c.admin||c.country)).replace(/'/g,"\\'")+'\')" '
+        var follow=rwDisambigFollowQuery(query,c,trip);
+        return '<button onclick="cpFollow(\''+String(follow).replace(/'/g,"\\'")+'\')" '
           +'style="display:flex;width:100%;text-align:left;gap:11px;align-items:center;background:transparent;border:none;'
           +'border-bottom:1px solid rgba(255,255,255,.06);padding:11px 2px;cursor:pointer;color:inherit;font:inherit">'
           +'<span style="font-size:20px">'+c.icon+'</span>'

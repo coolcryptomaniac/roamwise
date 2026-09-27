@@ -43,12 +43,21 @@ function rwTuskRail(dest, raw){
   var h='<div style="margin-top:10px;padding-top:9px;border-top:1px solid var(--b2,#2A2A36)">'
     +'<div style="font-size:9.5px;color:var(--t3,#7A7870);letter-spacing:.08em;font-weight:700;margin-bottom:5px">DO SOMETHING WITH THIS</div>';
   if(d) h+=btn('\ud83d\uddfa\ufe0f','Map',"openTripMap('"+d+"',null)");
+  if(d) h+=btn('\ud83e\udded','Navigate',"rwTuskNavigate('"+d+"')");
   if(d) h+=btn('\ud83d\uddd3\ufe0f','Plan it',"cpGoPlan('"+d+"',0)");
+  if(d) h+=btn('\ud83d\udecd\ufe0f','Book',"cpFollow('Book this trip to "+d+"')");
   h+=btn('\ud83d\udcb0','Budget',"openMoneyLayer()");
   h+=btn('\u23f0','Remind me',"rwRemindAsk('"+q+"')");
   h+=btn('\ud83d\udd0a','Read aloud',"rwTuskReadLast()");
   h+=btn('\ud83d\udcd6','Log feeling',"openJourneyLog()");
   return h+'</div>';
+}
+function rwTuskNavigate(dest){
+  /* Let the installed navigation app own continuous turn-by-turn GPS. That
+     gives the traveller reliable background navigation without RoamWise
+     declaring or running a background-location foreground service. */
+  var url='https://www.google.com/maps/dir/?api=1&destination='+encodeURIComponent(String(dest||''));
+  window.open(url,'_blank','noopener');
 }
 function rwTuskReadLast(){
   try{
@@ -292,6 +301,16 @@ async function cpActionsHTML(it){
      parser, so Ailon can shortlist by destination, budget, guests and amenities
      before falling back to external booking sites. */
   var _stayRaw=String(it._raw||'');
+  /* A plan-level booking request is broader than "find a hotel". Both typed
+     and dictated requests reach this same branch. It resumes the exact active
+     trip, then exposes only inventory that is genuinely payment-enabled;
+     everything else is clearly an availability request. */
+  if(/\b(?:book|reserve|pay for)\b[^.!?]{0,35}\b(?:this|my|the)?\s*(?:trip|plan|itinerary|holiday)\b|\bbook this\b/i.test(_stayRaw)
+      && typeof rwTuskPlanBookingHTML==='function'){
+    var _bookDest=it.dest || (_cpCtx&&_cpCtx.dest) || '';
+    var _bookDays=it.days || (_cpCtx&&_cpCtx.days) || null;
+    return [rwTuskPlanBookingHTML(_stayRaw,_bookDest,_bookDays)];
+  }
   if(/\b(hotel|stay|room|hostel|resort|homestay|cottage|book a room|where to stay)\b/i.test(_stayRaw)
       && typeof rwTuskStayHTML==='function'){
     var _stayDest=it.dest || (_cpCtx&&_cpCtx.dest) || '';
@@ -334,7 +353,7 @@ async function cpActionsHTML(it){
       try{
         var _cands = await rwCandidates(it.dest);
         if(rwIsAmbiguous(_cands, (typeof RW_HOME_CC!=='undefined'? RW_HOME_CC : 'IN'))){
-          return [rwDisambigHTML(it.dest, _cands)];
+          return [rwDisambigHTML(it.dest, _cands, it)];
         }
       }catch(e){ /* best-effort, ignore */ }
     }
@@ -343,7 +362,7 @@ async function cpActionsHTML(it){
     if(geo && geo.lowConf){
       try{
         var _c2 = await rwCandidates(it.dest);
-        if(_c2.length>1) return [rwDisambigHTML(it.dest, _c2)];
+        if(_c2.length>1) return [rwDisambigHTML(it.dest, _c2, it)];
       }catch(e){ /* best-effort, ignore */ }
       return [tkClarifyHTML(it.dest, geo)];
     }

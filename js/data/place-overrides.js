@@ -84,6 +84,7 @@ var RW_PLACE_OVERRIDES = {
   nainital:{name:'Nainital',admin:'Uttarakhand',lat:29.3803,lon:79.4636},
   mussoorie:{name:'Mussoorie',admin:'Uttarakhand',lat:30.4598,lon:78.0644},
   almora:{name:'Almora',admin:'Uttarakhand',lat:29.5971,lon:79.6591},
+  ranikhet:{name:'Ranikhet',admin:'Uttarakhand',lat:29.6434,lon:79.4322},
   munsiyari:{name:'Munsiyari',admin:'Uttarakhand',lat:30.0672,lon:80.2386},
   auli:{name:'Auli',admin:'Uttarakhand',lat:30.5290,lon:79.5660},
   jaisalmer:{name:'Jaisalmer',admin:'Rajasthan',lat:26.9157,lon:70.9083},

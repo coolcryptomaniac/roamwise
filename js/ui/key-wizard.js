@@ -57,7 +57,7 @@ function openProvider(url){
 function openWizard(){ wizI=0; wizPaint(); el('wizOverlay').classList.add('open'); try{track('wiz_opens');}catch(e){ /* analytics best-effort, ignore */ } }
 function wizPaint(){
   var w=WIZ[wizI], has=!!lsGet('rwKey_'+w.p);
-  var armed=['groq','cerebras','github','gemini','openrouter','mistral','anthropic'].filter(function(p){return lsGet('rwKey_'+p);});
+  var armed=['sarvam','groq','cerebras','github','gemini','openrouter','mistral','anthropic'].filter(function(p){return lsGet('rwKey_'+p);});
   el('wizBody').innerHTML=
    '<div class="mode-box" style="margin-bottom:12px">\u26a1 <b>Smart paste:</b> already have ANY key? Paste it \u2014 I\u2019ll detect the provider, save & test it automatically.'
   +'<div class="key-row" style="margin-top:8px"><input class="k-inp" id="wizAny" placeholder="AIza\u2026 / gsk_\u2026 / sk-or-\u2026 / sk-ant-\u2026"><button class="k-save" onclick="wizSmartPaste()">Detect & Save</button></div>'
@@ -101,7 +101,7 @@ function wizSmartPaste(){
 }
 /* ===== MODEL COMPARISON ARENA ===== */
 function compareModels(name, days){
-  var provs = ['groq','cerebras','github','gemini','openrouter','mistral','anthropic'].filter(function(p){return lsGet('rwKey_'+p);});
+  var provs = ['sarvam','groq','cerebras','github','gemini','openrouter','mistral','anthropic'].filter(function(p){return lsGet('rwKey_'+p);});
   var ov = el('cmpOverlay');
   if(!ov){
     ov=document.createElement('div'); ov.id='cmpOverlay'; ov.className='overlay';
@@ -138,4 +138,3 @@ function compareModels(name, days){
   }
   try{ track('arena_runs'); }catch(e){ /* analytics best-effort, ignore */ }
 }
-

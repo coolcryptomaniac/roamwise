@@ -215,7 +215,7 @@ function genPdf(sample){
         caution:A0.caution}};
     }
     var intelP=new Promise(function(res){
-      var hasKey=['groq','cerebras','github','gemini','openrouter','mistral','anthropic'].some(function(p2){return lsGet('rwKey_'+p2);});
+      var hasKey=['sarvam','groq','cerebras','github','gemini','openrouter','mistral','anthropic'].some(function(p2){return lsGet('rwKey_'+p2);});
       if(activeProv!=='roamwise' && !hasKey) return res(intelFallback());
       var done=false; setTimeout(function(){ if(!done){done=true; res(intelFallback());} }, 18000);
       try{

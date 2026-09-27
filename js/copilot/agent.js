@@ -309,10 +309,11 @@ function rwBookingText(b){
    the "one provider failing must never take the answer down" rule
    aiCallAny's own header comment already states for the rest of the app. */
 function rwAgentCall(messages, cb){
-  var provs=['groq','cerebras','openrouter','mistral'].filter(function(p){ return lsGet('rwKey_'+p); });
+  var provs=['sarvam','groq','cerebras','openrouter','mistral'].filter(function(p){ return lsGet('rwKey_'+p); });
   if(!provs.length){ cb('no tool-calling provider configured'); return; }
   var bases={groq:'https://api.groq.com/openai/v1', cerebras:'https://api.cerebras.ai/v1',
-             openrouter:'https://openrouter.ai/api/v1', mistral:'https://api.mistral.ai/v1'};
+             openrouter:'https://openrouter.ai/api/v1', mistral:'https://api.mistral.ai/v1',
+             sarvam:'https://api.sarvam.ai/v1'};
   var i=0;
   (function attempt(lastErr){
     if(i>=provs.length){ cb(lastErr||'All tool-calling providers failed'); return; }
@@ -393,4 +394,3 @@ function rwAgentRenderTrace(trace, host){
       +'<span style="flex:0 0 auto;font-size:10px;color:var(--t3)">'+t.step+'</span></div>';
   }).join('');
 }
-

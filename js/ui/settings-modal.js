@@ -139,6 +139,7 @@ var PROV_META = {
   github:   {label:'GitHub Models \u00b7 GPT-4o', hint:'github.com/settings/tokens \u2014 free with a GitHub account', url:'https://github.com/settings/tokens', ph:'ghp_...'},
   gemini:   {label:'Google Gemini 2.5 Flash', hint:'aistudio.google.com \u2014 free tier covers 2.5 Flash (Pro/Flash-Lite are paid)', url:'https://aistudio.google.com/apikey', ph:'AIzaSy...'},
   openrouter:{label:'OpenRouter \u00b7 many models', hint:'openrouter.ai/keys \u2014 free slots ~50/day', url:'https://openrouter.ai/keys', ph:'sk-or-...'},
+  sarvam:   {label:'Sarvam AI \u00b7 India-first chat', hint:'dashboard.sarvam.ai \u2014 Sarvam-105B Conversations for Indian-language and code-mixed chat', url:'https://dashboard.sarvam.ai', ph:'sk_...'},
   mistral:  {label:'Mistral', hint:'console.mistral.ai \u2014 free prototyping tier', url:'https://console.mistral.ai/api-keys', ph:'...'},
   anthropic:{label:'Claude (Anthropic)', hint:'console.anthropic.com \u2014 paid only, no free tier', url:'https://console.anthropic.com/settings/keys', ph:'sk-ant-...'}
 };
@@ -182,7 +183,7 @@ function openSettings(){
         if(/AI Mode|API Keys/i.test(t)) adv.push(sec);
       });
       if(adv.length){
-        var hasKey = activeProv==='roamwise' || ['groq','cerebras','github','gemini','openrouter','mistral','anthropic'].some(function(x){ return lsGet('rwKey_'+x); });
+        var hasKey = activeProv==='roamwise' || ['sarvam','groq','cerebras','github','gemini','openrouter','mistral','anthropic'].some(function(x){ return lsGet('rwKey_'+x); });
         var btn = document.createElement('button');
         btn.id='advToggle'; btn.className='tact';
         btn.style.cssText='width:100%;margin:4px 0 10px;font-size:12.5px';
@@ -197,7 +198,7 @@ function openSettings(){
       }
     }
   }, 0);
-  ['groq','cerebras','github','gemini','openrouter','mistral','anthropic'].forEach(function(p){
+  ['sarvam','groq','cerebras','github','gemini','openrouter','mistral','anthropic'].forEach(function(p){
     var inp=el(p+'Key'), stat=el(p+'Status'), val=lsGet('rwKey_'+p);
     if(inp) inp.value=val;
     if(stat){ stat.textContent = val?'set':'not set'; stat.className = 'key-status '+(val?'ks-set':'ks-empty'); }
@@ -213,7 +214,7 @@ function setProv(p){
   document.querySelectorAll('.prov-btn').forEach(function(b){ b.classList.toggle('on', b.dataset.p===p); });
   var chip = el('modeChip');
   if(chip){
-    var labels = {smart:'Smart Mode (free)', roamwise:'RoamWise Hosted AI', gemini:'Gemini AI (free)', groq:'Groq AI (free)', anthropic:'Claude AI'};
+    var labels = {smart:'Smart Mode (free)', roamwise:'RoamWise Hosted AI', gemini:'Gemini AI (free)', groq:'Groq AI (free)', sarvam:'Sarvam India AI', anthropic:'Claude AI'};
     chip.textContent = labels[p]||p;
     chip.className = 'mode-chip '+(p==='anthropic'||p==='roamwise'?'mode-ai':'mode-free');
   }

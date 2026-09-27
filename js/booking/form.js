@@ -113,6 +113,31 @@ function rwTuskStayHTML(raw,dest){
     +'</div></div>';
 }
 
+/* Resume an itinerary as a booking conversation. This is intentionally a
+   guarded handoff, not a pretend package checkout: direct payment is exposed
+   only for supplier inventory whose bookable and paymentEnabled flags are
+   both true. Until transport/experience suppliers provide live availability,
+   those legs stay user-confirmed external handoffs. */
+function rwTuskPlanBookingHTML(raw,dest,days){
+  dest=String(dest||'').trim();
+  if(!dest){
+    return '<div class="tk-card tk-mini"><div class="tk-sec"><b>Which trip should I book?</b>'
+      +'<div style="font-size:11.5px;color:var(--t2);margin-top:5px">Tell me the destination, dates and number of travellers. I will never charge before showing the exact supplier and total.</div></div></div>';
+  }
+  var stay=rwTuskStayHTML(raw+' stay hotel room',dest);
+  var q=encodeURIComponent(dest),label=esc2(dest)+(days?' · '+days+' days':'');
+  return '<div class="tk-card tk-mini"><div class="tk-sec">'
+    +'<div style="font-weight:850;font-size:13.5px">🧾 Booking assistant · '+label+'</div>'
+    +'<div style="font-size:11.5px;color:var(--t2);line-height:1.55;margin-top:5px">Choose a stay first. Direct payment appears only when that supplier has confirmed inventory and enabled payment; otherwise I send a no-charge rate and availability request.</div>'
+    +'<div class="tk-chips" style="margin-top:9px">'
+    +'<a class="tk-chip" target="_blank" rel="noopener" href="https://www.google.com/travel/flights?q='+q+'">Flights ↗</a>'
+    +'<a class="tk-chip" target="_blank" rel="noopener" href="https://www.redbus.in/">Bus ↗</a>'
+    +'<a class="tk-chip" target="_blank" rel="noopener" href="https://www.irctc.co.in/nget/train-search">Train ↗</a>'
+    +'<a class="tk-chip" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&destination='+q+'">Navigate ↗</a>'
+    +'</div><div style="font-size:10.5px;color:var(--t3);margin-top:8px">One-tap whole-trip payment will unlock only after every selected stay, transport and activity returns live availability and a supplier-backed final price.</div>'
+    +'</div></div>'+(stay||'<div class="tk-card tk-mini"><div class="tk-sec">No RoamWise stay inventory is listed for '+esc2(dest)+' yet. Use the travel links above; nothing has been reserved or charged.</div></div>');
+}
+
 /* ---------------- brochure / not-yet-live partner enquiry ---------------- */
 function rwRoomEnquiry(r){
   var ident=rwBookingIdentity();
