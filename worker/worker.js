@@ -59,6 +59,7 @@ import { handlePartnerCashfreeOrder, handlePartnerCashfreeStatus } from './handl
 import { handlePushSend } from './handlers/push.js';
 import { handleBusiness } from './handlers/business.js';
 import { handleAICAReview } from './handlers/ai-ca.js';
+import { handlePaymentEvent } from './handlers/payment-events.js';
 
 // Only Cashfree PG calls use this diagnostic transport. The actual order,
 // identity and entitlement rules stay inside handlers/cashfree.js unchanged.
@@ -95,6 +96,7 @@ export default {
     if(path === 'events/refresh') return handleEventsRefresh(request, env);
 
     if(path === 'cashfree/order' && request.method === 'POST') return handleCashfreeOrder(request, env);
+    if(path === 'payment-events' && request.method === 'POST') return handlePaymentEvent(request, env);
 
     if(path === 'partner/cashfree/order' && request.method === 'POST') return handlePartnerCashfreeOrder(request, env);
 

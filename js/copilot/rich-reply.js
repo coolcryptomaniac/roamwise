@@ -70,6 +70,19 @@ function rwTuskReadLast(){
     showToast('Nothing to read yet');
   }catch(e){ showToast('Read-aloud unavailable here'); }
 }
+function rwMonthRecommendationsHTML(it){
+  var month=Math.max(1,Math.min(12,Number(it&&it._recommendMonth)||new Date().getMonth()+1));
+  var count=Math.max(1,Math.min(10,Number(it&&it._recommendCount)||5));
+  var names=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  var rows=(typeof DB!=='undefined'?DB:[]).map(function(d){
+    var best=(d.bestM||[]).indexOf(month)>=0, crowd=Array.isArray(d.crowd)?Number(d.crowd[month-1]):50;
+    return {d:d,score:(best?100:0)+(100-(isFinite(crowd)?crowd:50))};
+  }).sort(function(a,b){return b.score-a.score;}).slice(0,count);
+  if(!rows.length)return rwTuskAsk('Which region should I search for '+names[month-1]+'?', ['India','South East Asia','Europe','Anywhere warm']);
+  return '<div class="tk-card"><div class="tk-head" style="background:linear-gradient(145deg,#673b20,#182746)"><div class="tk-place">'+count+' strong picks for '+names[month-1]+'</div><div class="tk-meta">Ranked from RoamWise season and crowd data — tap one to plan it</div></div><div class="tk-sec">'
+    +rows.map(function(x,i){var d=x.d;return '<button class="tk-chip'+(i===0?' gold':'')+'" onclick="cpFollow(\'plan '+(d.name||'').replace(/'/g,'')+' in '+names[month-1]+'\')">'+(i+1)+'. '+esc2(d.name)+'</button>';}).join('')
+    +'<div style="font-size:10.5px;color:var(--t3);margin-top:10px">Tell me your starting city, budget and preferred weather to narrow these further. “Next month” is treated as timing, never as a destination.</div></div></div>';
+}
 
 /* --- 2. CLARIFY, DON'T GUESS (anti-hallucination) --- */
 // escHtml() moved to js/core/text-utils.js (already reused by js/copilot/core.js).
@@ -180,6 +193,7 @@ async function cpActionsHTML(it){
   var H=[];
   /* smalltalk never reaches the heavy path */
   if(it.smalltalk) return [];
+  if(it._recommendCount) return [rwMonthRecommendationsHTML(it)];
   /* state-scope request: routes through the state, not a random village */
   if(it._state){
     try{ return [rwStateHTML(it._state, it.days)]; }catch(e){ /* best-effort, ignore */ }

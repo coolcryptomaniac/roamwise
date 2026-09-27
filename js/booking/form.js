@@ -13,7 +13,7 @@
    ============================================================================
    Researched against MakeMyTrip, Booking.com, Agoda, Expedia and OYO. Two
    things they all do that we deliberately do NOT:
-     · they charge the property 15-25%  -> we charge 8%
+     · Partner Free uses 7%; active paid partner plans use 5%
      · they hold the money 7-14 days    -> the guest pays the property DIRECT
    Those two facts are the entire reason a property lists with a platform that
    has 20 users. Everything below is built to preserve them.
@@ -30,7 +30,7 @@ function openStays(zone){
   window._stZone = (zone!==undefined? zone : window._stZone) || '';
   rwPageOpen('stays', function(body){
     var zones={}; (window.RW_ROOMS||[]).forEach(function(r){ zones[r.zone]=1; });
-    body.innerHTML='<div class="st-save">\ud83d\udcb8 <b>You pay the property directly.</b> We take 8% from them afterwards \u2014 other platforms take 15\u201325%, which is why their rooms cost more.</div>'
+    body.innerHTML='<div class="st-save">\ud83d\udcb8 <b>Payment opens only after confirmation.</b> Partner Free uses 7% after a completed stay; active paid partner plans use 5%.</div>'
       +'<div class="pt-chips" style="margin:12px 0">'
       +'<button class="ev-chip'+(!window._stZone?' on':'')+'" onclick="openStays(\'\')">Everywhere</button>'
       + Object.keys(zones).map(function(z){
@@ -93,8 +93,9 @@ function rwTuskStayMatches(raw,dest){
   return list.sort(function(a,b){return score(b)-score(a)||(Number(a.price)||999999)-(Number(b.price)||999999);}).slice(0,4);
 }
 function rwTuskOpenRoomBook(id){
-  try{ track('tusk_stay_handoff'); }catch(e){ /* analytics best-effort, ignore */ }
-  openRoomBook(id);
+  try{ track('tusk_verified_stay_handoff'); }catch(e){ /* analytics best-effort, ignore */ }
+  var r=rwRoomById(id),dest=r&&(r.zone||r.area)||'';
+  location.href='/partner/?role=customer&destination='+encodeURIComponent(dest);
 }
 function rwTuskStayHTML(raw,dest){
   var list=rwTuskStayMatches(raw,dest); if(!list.length)return '';
@@ -106,10 +107,10 @@ function rwTuskStayHTML(raw,dest){
       return '<div style="padding:9px 0;border-bottom:1px solid var(--b2,#2A2A36)">'
         +'<div style="display:flex;gap:8px;align-items:flex-start"><span style="flex:1"><b>'+esc2(r.property)+'</b><br><span style="font-size:11px;color:var(--t3)">'+esc2(r.room)+' · '+esc2(r.area||r.zone||'')+'</span></span><b style="font-size:11.5px;color:var(--gold,#E8BA6C)">'+price+'</b></div>'
         +'<div style="font-size:10.5px;color:var(--t3);margin:5px 0">'+esc2((r.inc||[]).slice(0,3).join(' · '))+'</div>'
-        +'<button class="tk-chip gold" onclick="rwTuskOpenRoomBook(\''+String(r.id).replace(/'/g,'')+'\')">'+(live?'Continue booking →':'Request exact rate & availability →')+'</button>'
+        +'<button class="tk-chip gold" onclick="rwTuskOpenRoomBook(\''+String(r.id).replace(/'/g,'')+'\')">Check verified live inventory →</button>'
         +'</div>';
     }).join('')
-    +'<div style="font-size:10.5px;color:var(--t3);margin-top:8px">Voice and typing use the same matcher. A stay becomes instantly payable only after supplier availability and payment routing are enabled; otherwise this sends an availability/rate request with no charge.</div>'
+    +'<div style="font-size:10.5px;color:var(--t3);margin-top:8px">These are discovery matches. The next screen shows only verified live inventory; payment stays locked until the property confirms the exact room, total and policy.</div>'
     +'</div></div>';
 }
 
@@ -128,8 +129,9 @@ function rwTuskPlanBookingHTML(raw,dest,days){
   var q=encodeURIComponent(dest),label=esc2(dest)+(days?' · '+days+' days':'');
   return '<div class="tk-card tk-mini"><div class="tk-sec">'
     +'<div style="font-weight:850;font-size:13.5px">🧾 Booking assistant · '+label+'</div>'
-    +'<div style="font-size:11.5px;color:var(--t2);line-height:1.55;margin-top:5px">Choose a stay first. Direct payment appears only when that supplier has confirmed inventory and enabled payment; otherwise I send a no-charge rate and availability request.</div>'
+    +'<div style="font-size:11.5px;color:var(--t2);line-height:1.55;margin-top:5px">Open verified stays, send one request, and return to the same booking desk for the property response and pay button. Only listings with confirmed inventory and enabled payment are eligible; payment remains locked until the property confirms.</div>'
     +'<div class="tk-chips" style="margin-top:9px">'
+    +'<a class="tk-chip gold" href="/partner/?role=customer&amp;destination='+q+'">Verified stays and payment →</a>'
     +'<a class="tk-chip" target="_blank" rel="noopener" href="https://www.google.com/travel/flights?q='+q+'">Flights ↗</a>'
     +'<a class="tk-chip" target="_blank" rel="noopener" href="https://www.redbus.in/">Bus ↗</a>'
     +'<a class="tk-chip" target="_blank" rel="noopener" href="https://www.irctc.co.in/nget/train-search">Train ↗</a>'
@@ -214,7 +216,7 @@ function rwBookPay(r, b){
     +'<div class="bk-sr"><span>'+b.nights+' night'+(b.nights>1?'s':'')+' \u00d7 \u20b9'+r.price.toLocaleString('en-IN')+'</span><b>\u20b9'+total.toLocaleString('en-IN')+'</b></div>'
     +'<div class="bk-sr tot"><span>Total</span><b>\u20b9'+total.toLocaleString('en-IN')+'</b></div>'
     +'</div>'
-    +'<div class="bk-pay-note">You are paying <b>'+esc2(r.property)+'</b> directly \u2014 the money goes to them, not to us. RoamWise invoices them 8% after your stay.</div>'
+    +'<div class="bk-pay-note">Payment opens only after the property confirms the exact room, total and cancellation terms. Use only the authorised method shown for this request.</div>'
     +(upi? '<a class="bk-go" style="display:block;text-align:center;text-decoration:none;margin-top:12px" href="'+payUrl+'">\ud83d\udcf1 Pay \u20b9'+total.toLocaleString('en-IN')+' now (PhonePe / GPay / any UPI)</a>'
          : '<div class="bk-pay-note" style="margin-top:12px">This property has not shared a UPI id yet \u2014 choose pay-at-property below.</div>')
     +'<button class="tact" style="width:100%;margin-top:9px;padding:12px" onclick="rwBookConfirm(\'paid\')">\u2705 I\u2019ve paid \u2014 confirm my booking</button>'
@@ -238,7 +240,7 @@ function rwBookConfirm(mode){
        the owner's WhatsApp receipt and the local record; the actual payable
        commission MUST be recomputed and validated server-side at settlement.
        Never trust these client-sent amounts for money movement. */
-    commissionPct:8, commission:Math.round(total*0.08),
+    commissionPct:7, commission:Math.round(total*0.07),
     status:(mode==='paid'?'paid-unverified':'confirmed-pay-later'),
     at:new Date().toISOString() };
   /* Attribution hint only, and stored via the canonical stored code. Sanitised
@@ -263,7 +265,7 @@ function rwBookOwnerMsg(rec, r){
     +(rec.note? '\ud83d\udcdd '+rec.note+'\n':'')
     +'\n\ud83d\udcb0 \u20b9'+rec.amount.toLocaleString('en-IN')+' \u2014 '
     +(rec.payMode==='upi' ? 'guest says PAID by UPI (please confirm receipt)' : 'PAYING AT PROPERTY')+'\n'
-    +'RoamWise commission: \u20b9'+rec.commission.toLocaleString('en-IN')+' (8%), invoiced after checkout.\n\n'
+    +'RoamWise Partner Free commission: \u20b9'+rec.commission.toLocaleString('en-IN')+' (7%), reconciled after a completed stay.\n\n'
     +'Reply CONFIRM to accept, or tell us if the room is unavailable.';
   window._lastOwnerMsg=msg;
   if(to){ window.open('https://wa.me/'+to+'?text='+encodeURIComponent(msg),'_blank','noopener'); }

@@ -378,19 +378,25 @@ function tabGo(t){
 })();
 
 function openDrawer(){
-  try{ var q=el('drSearch'); if(q){ q.value=''; drFilter(''); } }catch(e){ /* best-effort, ignore */ } el('drawer').classList.add('open'); el('drawerBk').classList.add('open'); }
+  var drawer=el('drawer'),backdrop=el('drawerBk');if(!drawer||!backdrop)return;
+  window._rwDrawerFocus=document.activeElement;
+  try{ var q=el('drSearch'); if(q){ q.value=''; drFilter(''); } }catch(e){ /* best-effort, ignore */ }
+  drawer.classList.add('open');backdrop.classList.add('open');drawer.setAttribute('aria-hidden','false');
+  document.body.classList.add('rw-drawer-open');setTimeout(function(){var x=drawer.querySelector('.dr-x');if(x)x.focus();},180);
+}
 function drToggle(btn){
   var grp=btn.parentElement;
   document.querySelectorAll('.dr-grp.open').forEach(function(g){ if(g!==grp) g.classList.remove('open'); });
   grp.classList.toggle('open');
 }
-function closeDrawer(){ el('drawer').classList.remove('open'); el('drawerBk').classList.remove('open'); var m=el('tb-more'); if(m)m.classList.remove('on'); }
+function closeDrawer(){ var drawer=el('drawer'),backdrop=el('drawerBk');if(drawer){drawer.classList.remove('open');drawer.setAttribute('aria-hidden','true');}if(backdrop)backdrop.classList.remove('open');document.body.classList.remove('rw-drawer-open');var m=el('tb-more'); if(m)m.classList.remove('on');try{if(window._rwDrawerFocus&&window._rwDrawerFocus.focus)window._rwDrawerFocus.focus();}catch(e){} }
 var RW_CANONICAL_ADMIN_URL='https://www.roamwise.co.in/admin/';
 function rwAdminControlLink(u){
   if(!u||!u.uid||typeof db==='undefined'||!db||!db.collection)return;
   db.collection('admins').doc(u.uid).get().then(function(snapshot){
     var active=(typeof firebase!=='undefined'&&firebase.auth&&firebase.auth().currentUser)||(typeof user!=='undefined'?user:null);
     if(!snapshot.exists||!active||active.uid!==u.uid)return;
+    window.RW_IS_ADMIN=true;
     var box=el('drAcct');if(!box||el('rwAdminControlLink'))return;
     var link=document.createElement('a');
     link.id='rwAdminControlLink';link.className='dr-link';link.href=RW_CANONICAL_ADMIN_URL;

@@ -84,7 +84,12 @@ function rwManagedAIRequest(prompt, maxTok){
     return fetch(endpoint,{
       method:'POST',
       headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},
-      body:JSON.stringify({prompt:prompt,max_tokens:maxTok})
+      body:JSON.stringify({
+        prompt:prompt,
+        max_tokens:maxTok,
+        locale:(((typeof document!=='undefined'&&document.documentElement&&document.documentElement.lang)||
+          (typeof navigator!=='undefined'&&navigator.language)||'en')).slice(0,24)
+      })
     });
   }).then(function(r){
     return r.json().catch(function(){return {};}).then(function(d){return {status:r.status,data:d};});
@@ -92,7 +97,7 @@ function rwManagedAIRequest(prompt, maxTok){
     if(res.status>=400) throw new Error(res.data.message||res.data.error||('HTTP '+res.status));
     var txt=String(res.data.text||'').trim();
     if(!txt) throw new Error('RoamWise Hosted AI returned an empty response.');
-    return {text:txt,remaining:res.data.remaining,limit:res.data.limit};
+    return {text:txt,remaining:res.data.remaining,limit:res.data.limit,provider:res.data.route||res.data.provider,model:res.data.model};
   });
 }
 
@@ -101,7 +106,7 @@ function aiCall(prompt, maxTok, cb, jsonMode){
   var prov=activeProv, key=lsGet('rwKey_'+prov);
   if(prov==='roamwise'){
     rwManagedAIRequest(prompt,maxTok).then(function(out){
-      lastAiSource={prov:'roamwise',model:'Hosted AI',remaining:out.remaining,limit:out.limit};
+      lastAiSource={prov:'roamwise',model:out.model||'Ailon Tusk Automatic',route:out.provider||'',remaining:out.remaining,limit:out.limit};
       cb(null,out.text);
     }).catch(function(e){lastAiSource=null;cb(String(e.message||e),null);});
     return;
