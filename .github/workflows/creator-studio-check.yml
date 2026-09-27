@@ -26,15 +26,18 @@ jobs:
           import re
 
           landing=Path('creators/index.html').read_text()
+          landing_js=Path('creators/index.js').read_text()
           dash=Path('creators/dashboard.html').read_text()
           admin_html=Path('creators/admin.html').read_text()
           studio=Path('creators/studio.js').read_text()
           admin=Path('creators/admin.js').read_text()
           patch=Path('creators/CREATOR-STUDIO-RULES-PATCH.txt').read_text()
 
+          # Application payloads live in creators/index.js; keep the page
+          # assertion focused on the form shell and validate the payload here.
           required_landing=["tier:'applied'","refSales:0","refRevenue:0","code:''","creators page (inbound)"]
           for token in required_landing:
-              assert token in landing, f'missing CRM application field: {token}'
+              assert token in landing_js, f'missing CRM application field: {token}'
 
           assert 'studio.js' in dash and not re.search(r'studio-v\d+\.js', dash)
           assert 'admin.js' in admin_html and not re.search(r'admin-v\d+\.js', admin_html)
