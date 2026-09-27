@@ -94,8 +94,8 @@ jobs:
             'HOST STUDIO',
             'rwMarketAck',
             'validPhone',
-            'ownerAttestation',
-            'walkthroughConsent',
+            'ownerAuthorityAttested',
+            'photoPermissionPending',
             'HOST TODAY'
             ,'PARTNER LIFECYCLE'
             ,'roamwise_cashfree_after_confirmation'
