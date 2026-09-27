@@ -42,7 +42,7 @@
   .sheet{max-width:560px}
 
   /* Drawer: wider, easier to scan with a mouse */
-  .drawer{width:360px}
+  .drawer{width:390px}
 
   /* Hover affordances only make sense with a pointer */
   .qg-tile:hover{transform:translateY(-2px);border-color:var(--gold,#E8BA6C)}
@@ -311,9 +311,10 @@
 .dr-grp.open .dr-gb{max-height:1400px;transition:max-height .34s cubic-bezier(.22,1,.36,1)}
 
 @media (max-width:1024px){
-  .dr-link{padding:14px 14px 14px 13px;font-size:15px}
-  .dr-link .ic{font-size:19px;width:26px}
-  .dr-gh{font-size:12px;padding:12px 4px}
+  .dr-link{padding:12px 13px;font-size:14px;min-height:48px}
+  .dr-link .ic{font-size:18px;width:26px}
+  .dr-gh{font-size:11.5px;padding:13px 4px}
+  .dr-link:hover{padding-left:13px}
 }
 @media (prefers-reduced-motion:reduce){
   .dr-link,.dr-link::before,.dr-link .ic,.dr-gb{transition:none!important}
@@ -435,4 +436,3 @@ body.rw-mode-story .seg-desc{font-size:15.5px;line-height:1.78}
 /* a hairline rule above each day, like a magazine section break */
 body.rw-mode-story .day-card::before{content:'';display:block;width:38px;height:2px;
   background:var(--gold);margin-bottom:16px;opacity:.85}
-

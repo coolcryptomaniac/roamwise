@@ -390,7 +390,7 @@ html{-webkit-text-size-adjust:100%}
       <button class="nav-ic" id="rwSettingsShortcut" onclick="openSettings()" title="Settings" aria-label="Settings">&#9881;&#65039;</button>
       <button class="mode-chip mode-free" id="modeChip" onclick="openSettings()">Smart Mode (free)</button>
       <button class="xp-chip" id="xpChip" onclick="openBadges()" title="Your traveler rank">&#129399; <span id="xpChipTxt">Genin</span></button>
-      <button class="btn btn-pro" id="proBtn" onclick="openPay()">Pro &#8377;100</button>
+      <button class="btn btn-pro" id="proBtn" onclick="return rwOpenPaySafely(event)">Pro &#8377;100</button>
       <button class="btn" id="authBtn" onclick="openAuth()" style="display:none;background:linear-gradient(135deg,var(--gold,#E8BA6C),var(--gold2,#C8913E));color:#0A0A0C;font-weight:800;border:none;padding:8px 16px;white-space:nowrap">Sign in</button>
       <span class="auth-avatar-wrap" id="authAvatarWrap" style="display:none">
         <img class="avatar" id="authAvatar" src="" alt="Account" onclick="authMenu()">
@@ -431,7 +431,7 @@ function rwDismissCreatorBanner(){
 
 <div class="free-bar" id="freeBar">
   <span>Free searches today: <strong id="freeCount">5</strong> left</span>
-  <span class="free-link" onclick="openPay()">Upgrade unlimited &rarr;</span>
+  <span class="free-link" onclick="rwOpenPaySafely(event)">Upgrade unlimited &rarr;</span>
 </div>
 
 <div id="promoTop"></div>
@@ -459,7 +459,7 @@ function rwDismissCreatorBanner(){
   <p data-i18n="hero.sub">Plan a peaceful or yoga-first trip you can actually take. Find quieter timings, honest travel times, real local prices and a budget that survives contact with reality. Built AI-native in the Himalayas. Start without an account.</p>
   <div class="hero-btns">
     <button class="hero-btn hb-gold" data-i18n="hero.startFree" onclick="scrollTo(0,document.getElementById('app').offsetTop-10)">Start Planning &mdash; Free &rarr;</button>
-    <button class="hero-btn hb-pm" onclick="openPay()" id="heroProBtn">Unlock Pro &mdash; &#8377;100</button>
+    <button class="hero-btn hb-pm" onclick="return rwOpenPaySafely(event)" id="heroProBtn">Unlock Pro &mdash; &#8377;100</button>
   </div>
   <div class="trust-strip">
     <span class="trust-chip"><b>195+</b> destinations covered</span>
@@ -501,7 +501,7 @@ function rwDismissCreatorBanner(){
   </div>
 </section>
 
-<div class="promo v v-home" id="promoBar" onclick="openPay()">
+<div class="promo v v-home" id="promoBar" onclick="rwOpenPaySafely(event)">
   <div class="promo-left">&#128081;</div>
   <div class="promo-text"><strong>Unlock Pro &mdash; Lifetime Access</strong><span>Full itineraries &bull; Budget tracker &bull; WhatsApp share &bull; Packing list &bull; Unlimited Smart Planner searches</span></div>
   <div class="promo-price"><span class="promo-amt" id="promoAmt">&#8377;100</span><span class="promo-sub" id="promoSub">one-time forever</span></div>
@@ -740,7 +740,7 @@ function rwDismissCreatorBanner(){
   <div class="xsec-head"><h2 class="xsec-title">&#128717; The <em>Store</em></h2><button class="share-fab" onclick="shareApp('app')">&#128228; Share</button></div>
   <p class="xsec-sub">Everything made in the Himalayas &mdash; tools, books and upgrades that fund the next feature.</p>
   <div class="exp-grid">
-    <div class="exp" style="border-color:rgba(232,186,108,.45)"><div class="exp-ic">&#128081;</div><div class="exp-name">Lifetime Pro &mdash; &#8377;100</div><div class="exp-desc">Unlimited Smart Planner searches, full itineraries and every Pro tool. Hosted AI follows a monthly fair-use pool; your own AI key stays unlimited.</div><button class="tact red" style="width:100%;margin-top:9px" onclick="useBump('store');openPay()">Unlock now</button></div>
+    <div class="exp" style="border-color:rgba(232,186,108,.45)"><div class="exp-ic">&#128081;</div><div class="exp-name">Lifetime Pro &mdash; &#8377;100</div><div class="exp-desc">Unlimited Smart Planner searches, full itineraries and every Pro tool. Ailon Tusk Automatic uses a monthly fair-use pool; no API key is needed.</div><button class="tact red" style="width:100%;margin-top:9px" onclick="useBump('store');rwOpenPaySafely(event)">Unlock now</button></div>
     <div class="exp"><div class="exp-ic">&#128213;</div><div class="exp-name">Premium PDF itinerary &mdash; &#8377;10</div><div class="exp-desc">Multi-page designed plan with photos, themes and timings. Free for Pro.</div><button class="tact" style="width:100%;margin-top:9px" onclick="tabGo('plan');showToast('Search a place \u2192 open itinerary \u2192 Premium PDF')">Make mine</button></div>
     <div class="exp"><div class="exp-ic">&#127916;</div><div class="exp-name">Journey Movie &mdash; &#8377;50</div><div class="exp-desc">Your travels as a cinematic reel with music and chapters. Free for Pro.</div><button class="tact" style="width:100%;margin-top:9px" onclick="tabGo('explore');scrollToId('jlog')">Roll camera</button></div>
     <div class="exp"><div class="exp-ic">&#128218;</div><div class="exp-name">Books by Mohit Pandey</div><div class="exp-desc">AI Ki Pathshala &bull; Yuga &bull; Volts &amp; Vengeance &mdash; on Amazon, Pothi &amp; Flipkart.</div><button class="tact" style="width:100%;margin-top:9px" onclick="scrollToId('creator')">Browse books</button></div>
@@ -809,7 +809,7 @@ function rwDismissCreatorBanner(){
       <div class="exp-name">Support the mission</div>
       <div class="exp-where">Keep the Himalayan build alive</div>
       <div class="exp-desc">Love RoamWise? The <b>&#8377;299 Supporter tier</b> puts your name in the credits and funds the next feature. Businesses: a sponsor slot reaches every trip search.</div>
-      <button class="tact red" style="width:100%;margin-top:9px" onclick="openPay()">&#128081; Become a Supporter</button>
+      <button class="tact red" style="width:100%;margin-top:9px" onclick="rwOpenPaySafely(event)">&#128081; Become a Supporter</button>
     </div>
   </div>
 </section>
@@ -824,7 +824,7 @@ function rwDismissCreatorBanner(){
       <div class="foot-h">Product</div>
       <a class="foot-link" href="business/">Business travel &amp; expenses</a>
       <a class="foot-link" href="#app" onclick="event.preventDefault();tabGo('plan');scrollTo(0,document.getElementById('app').offsetTop-10)">Plan a trip</a>
-      <a class="foot-link" onclick="openPay()">Unlock Pro</a>
+      <a class="foot-link" onclick="rwOpenPaySafely(event)">Unlock Pro</a>
       <a class="foot-link" onclick="openSettings()">Settings &amp; AI keys</a>
       <a class="foot-link" href="https://www.roamwise.co.in/blog/" target="_blank">Blog</a>
     </div>
@@ -852,25 +852,19 @@ function rwDismissCreatorBanner(){
 <nav class="tabbar" id="tabbar"></nav>
 
 <div class="drawer-bk" id="drawerBk" onclick="closeDrawer()"></div>
-<aside class="drawer" id="drawer">
+<aside class="drawer" id="drawer" role="dialog" aria-modal="true" aria-label="RoamWise menu" aria-hidden="true">
   <div class="dr-head"><div class="dr-title">Roam<span>Wise</span> Pro</div><button class="dr-x" onclick="closeDrawer()">&#215;</button></div>
   <div id="drAcct">
     <button class="dr-signin" onclick="closeDrawer();openAuth()">Sign in / Create account</button>
   </div>
   <div class="dr-xp" id="drXp"></div>
   <div class="dr-search"><input id="drSearch" placeholder="Search the menu…" oninput="drFilter(this.value)" autocomplete="off"><span class="dr-search-ic">🔍</span></div>
-  <div class="dr-grp open"><button class="dr-gh" onclick="drToggle(this)">🧭 Travel<span class="chev">›</span></button><div class="dr-gb">
+  <div class="dr-grp open"><button class="dr-gh" onclick="drToggle(this)">🧭 Travel<span class="dr-count">9</span><span class="chev">›</span></button><div class="dr-gb">
   <a class="dr-link" onclick="closeDrawer();tabGo('plan')"><span class="ic">✈️</span>Plan a trip</a>
   <a class="dr-link" onclick="closeDrawer();cpFocusHero()"><span class="ic">🧭</span>Copilot chat</a>
   <a class="dr-link" onclick="closeDrawer();openMapExplorer()"><span class="ic">🗺️</span>Live world map</a>
   <a class="dr-link" onclick="closeDrawer();openGroupPlanner()"><span class="ic">🤝</span>Group planner</a>
   <a class="dr-link" onclick="closeDrawer();openGroupChat()"><span class="ic">💬</span>Group chat</a>
-  <a class="dr-link" onclick="closeDrawer();tabGo('film')"><span class="ic">🎬</span>The Film</a>
-  <a class="dr-link" href="https://roamwise.co.in/creators/" onclick="event.preventDefault();rwOpenSite('creators/')" rel="noopener"><span class="ic">🤝</span>Creator collabs</a>
-  <a class="dr-link" href="https://roamwise.co.in/partnership/" onclick="event.preventDefault();rwOpenSite('partnership/')" rel="noopener"><span class="ic">🚀</span>Partnerships</a>
-  <a class="dr-link" href="business/"><span class="ic">💼</span>Business travel &amp; expenses</a>
-  <a class="dr-link" onclick="closeDrawer();tabGo('store')"><span class="ic">🛍️</span>Store</a>
-  <a class="dr-link" onclick="closeDrawer();tabGo('extras')"><span class="ic">⭐</span>Ratings &amp; traveler wall</a>
   <a class="dr-link" onclick="closeDrawer();openVault()"><span class="ic">✈️</span>My Trips (offline)</a>
   <a class="dr-link" onclick="closeDrawer();tabGo('explore');scrollToId('treks')"><span class="ic">⛰️</span>Trek Vault</a>
   <a class="dr-link" onclick="closeDrawer();showSaved()"><span class="ic">♥</span>Saved for later</a>
@@ -888,11 +882,11 @@ function rwDismissCreatorBanner(){
 </div></div>
 <div class="dr-grp"><button class="dr-gh" onclick="drToggle(this)">👤 Account<span class="chev">›</span></button><div class="dr-gb">
   <a class="dr-link" onclick="closeDrawer();openProfile()"><span class="ic">👤</span>My Profile</a>
-  <a class="dr-link" onclick="closeDrawer();openPay()"><span class="ic">👑</span><span id="drProLbl">Unlock Pro</span></a>
+  <a class="dr-link" onclick="closeDrawer();rwOpenPaySafely(event)"><span class="ic">👑</span><span id="drProLbl">Unlock Pro</span></a>
   <a class="dr-link" onclick="closeDrawer();openMusic()"><span class="ic">🎵</span>My Music</a>
   
 </div></div>
-<div class="dr-grp open"><button class="dr-gh" onclick="drToggle(this)">🧳 Travel tools<span class="dr-count">11</span><span class="chev">›</span></button><div class="dr-gb">
+<div class="dr-grp"><button class="dr-gh" onclick="drToggle(this)">🧳 Travel tools<span class="dr-count">15</span><span class="chev">›</span></button><div class="dr-gb">
   <a class="dr-link" href="https://roamwise.co.in/tools/" onclick="event.preventDefault();rwOpenSite('tools/')" rel="noopener"><span class="ic">🧰</span>Free tools</a>
   <a class="dr-link" onclick="closeDrawer();openBeacon()"><span class="ic">📡</span>Beacon — who's nearby <span style="margin-left:auto;font-size:9px;background:#4ADE80;color:#0A0A0C;padding:1px 6px;border-radius:20px;font-weight:800">NEW</span></a>
   <a class="dr-link" onclick="closeDrawer();openTatkal()"><span class="ic">⚡</span>Tatkal prep</a>
@@ -940,7 +934,7 @@ function rwDismissCreatorBanner(){
 <div class="dr-grp"><button class="dr-gh" onclick="drToggle(this)">🛠 More<span class="dr-count">14</span><span class="chev">›</span></button><div class="dr-gb">
   <a class="dr-link" onclick="drLangPick()"><span class="ic">🌐</span>Language<span id="drLangVal" style="margin-left:auto;color:var(--t3);font-size:11px"></span></a>
   <div id="drLangList" style="display:none;padding:2px 0 6px 28px"></div>
-  <a class="dr-link" onclick="closeDrawer();openSettings()"><span class="ic">⚙️</span>Settings &amp; AI keys</a>
+  <a class="dr-link" onclick="closeDrawer();openSettings()"><span class="ic">⚙️</span>Settings</a>
   <a class="dr-link" href="/team/" target="_blank"><span class="ic">👥</span>Team &amp; investors</a>
   <a class="dr-link" href="/pricing.html" target="_blank"><span class="ic">💳</span>Pricing</a>
   <a class="dr-link" href="/privacy.html" target="_blank"><span class="ic">🔒</span>Privacy policy</a>
@@ -1219,9 +1213,9 @@ function rwDismissCreatorBanner(){
     </div>
     <div class="modal-body">
       <div class="key-section">
-        <div class="key-sec-title">Choose your AI experience <small style="font-size:10px;font-weight:400;color:var(--t3);text-transform:none;letter-spacing:0">&mdash; Smart Search works without extra setup</small></div>
+        <div class="key-sec-title">Ailon Tusk Automatic <small style="font-size:10px;font-weight:400;color:var(--t3);text-transform:none;letter-spacing:0">&mdash; no keys or technical setup</small></div>
         <div class="prov-select">
-          <button class="prov-btn on" data-p="smart" onclick="setProv('smart')"><span class="pn">&#127760; Smart Search</span><span class="ps ps-free">No key &bull; Always works</span></button>
+          <button class="prov-btn on" data-p="smart" onclick="setProv('smart')"><span class="pn">&#9889; Ailon Tusk Automatic</span><span class="ps ps-free">No setup &bull; Always works</span></button>
           <button class="prov-btn" data-p="roamwise" onclick="setProv('roamwise')"><span class="pn">&#9889; RoamWise Hosted AI</span><span class="ps ps-paid">Paid plans &bull; Monthly allowance</span></button>
           <button class="prov-btn" data-p="gemini" onclick="setProv('gemini')"><span class="pn">&#10024; Gemini Flash</span><span class="ps ps-free">Google &bull; Free tier</span></button>
           <button class="prov-btn" data-p="groq" onclick="setProv('groq')"><span class="pn">&#10024; Llama 3 (Groq)</span><span class="ps ps-free">Groq &bull; Free tier</span></button>
@@ -1266,6 +1260,7 @@ function rwDismissCreatorBanner(){
 <script src="js/core/text-utils.js"></script>
 <script src="js/core/overlay-stack.js"></script>
 <script src="js/core/app-utils.js"></script>
+<script src="js/payments/payment-resilience.js?v=rw-pay-safe-1"></script>
 <script src="js/core/user-preferences.js?v=rw-personal-1"></script>
 <script src="js/ui/form-modal.js"></script>
 <script src="rw-config.js?v=rw-v121-hollywood-smooth-read"></script>

@@ -8,12 +8,12 @@
 
    1. THEY CHARGE 15-25%. MMT 18-22%, Booking.com 15-20%, OYO 20-25%.
       An Indian homestay owner loses Rs 3-8 LAKH a year to commissions.
-      RoamWise charges 8%. That is less than half. It is the whole pitch.
+      RoamWise Partner Free charges 7%; active paid partner plans charge 5%.
 
    2. THEY HOLD THE MONEY. MMT settles 7-14 days AFTER checkout.
       Booking.com invoices monthly. Owners wait weeks for their own money.
       RoamWise: THE GUEST PAYS THE PROPERTY DIRECTLY BY UPI. The owner has the
-      money before the guest arrives. We invoice our 8% afterwards.
+      money before the guest arrives. Commission is reconciled after a completed stay.
       No settlement cycle, no float, no chasing.
 
    That combination — half the commission, instant money — is why a property
@@ -98,13 +98,13 @@ window.RW_ROOMS = [
 
 /* Our commission and the promise that goes with it. */
 window.RW_BOOK_TERMS = {
-  commissionPct: 8,
+  commissionPct: 7,
   otaRange: 'varies by platform, property and contract',
   desk: '',                 /* RoamWise fallback WhatsApp, digits only */
   deskUpi: 'roamwise@ybl', /* used only if a property has no UPI of its own */
   promise: [
     'The guest pays the property directly. We never hold your money.',
-    'For commission-rate partners we invoice 8% after checkout. Protected-net-rate partners use an agreed net rate instead — never both on the same booking.',
+    'Partner Free is 7% after a completed stay; active paid partner plans are 5%. Protected-net-rate partners use an agreed net instead — never both on the same booking.',
     'No commission on a cancellation or a no-show.',
     'Your rates stay yours. We never discount your room without asking.'
   ]

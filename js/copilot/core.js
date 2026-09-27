@@ -137,20 +137,22 @@ else { _cpTurns=[]; try{ localStorage.removeItem('rw_turns'); }catch(e){ /* stor
 var _cpHist = []; /* [{q,a}] capped — gives the AI real conversational memory */
 function cpModelChips(targetId){
   var host = el(targetId); if(!host) return;
-  var provs = ['sarvam','groq','cerebras','github','gemini','openrouter','mistral','anthropic'].filter(function(p){ return lsGet('rwKey_'+p); });
+  var admin = window.RW_IS_ADMIN===true;
+  var provs = admin ? ['sarvam','groq','cerebras','github','gemini','openrouter','mistral','anthropic'].filter(function(p){ return lsGet('rwKey_'+p); }) : [];
   var cur = (typeof activeProv!=='undefined')? activeProv : 'smart';
-  var chips = [['smart','\u26a1 Ailon Tusk']].concat(provs.map(function(p){ return [p, p.charAt(0).toUpperCase()+p.slice(1)]; }));
+  var chips = [['smart','\u26a1 Ailon Tusk Automatic']].concat(provs.map(function(p){ return [p, p.charAt(0).toUpperCase()+p.slice(1)]; }));
   host.innerHTML = chips.map(function(c){
     var on = cur===c[0];
     return '<button onclick="cpSetModel(\'' + c[0] + '\')" style="font-size:10px;padding:4px 10px;border-radius:999px;border:1px solid '
       +(on?'var(--gold,#E8BA6C)':'var(--b2,#2A2A36)')+';background:'+(on?'rgba(232,186,108,.14)':'transparent')
       +';color:'+(on?'var(--gold,#E8BA6C)':'var(--t3)')+';cursor:pointer">'+c[1]+'</button>';
-  }).join('') + (provs.length? '' : '<button onclick="openWizard()" style="font-size:10px;padding:4px 10px;border-radius:999px;border:1px dashed var(--b2,#2A2A36);background:none;color:var(--t3);cursor:pointer">+ free AI key</button>');
+  }).join('');
 }
 function cpSetModel(p){
+  if(p!=='smart' && window.RW_IS_ADMIN!==true) p='smart';
   activeProv=p; lsSet('rwProv',p);
   cpModelChips('cpModels'); cpModelChips('heroModels');
-  showToast(p==='smart' ? '\u26a1 Ailon Tusk \u2014 RoamWise\u2019s own engine: live travel guides, weather and prices (not a language model)' : 'Using '+p);
+  showToast(p==='smart' ? '\u26a1 Ailon Tusk Automatic is active' : 'Using '+p);
 }
 function cpDbFind(text){
   var lower=' '+String(text).toLowerCase()+' ';
@@ -440,6 +442,14 @@ function cpParseRegex(t){
   }
   var out={dest:null,to:null,origin:null,days:null,budget:null,wants:[]};
   var lower=' '+t.toLowerCase()+' ';
+  /* Recommendation queries such as voice-transcribed "five besties for next
+     month" are timing requests, not obscure place names. Record the requested
+     month/count up front and keep the destination deliberately empty. */
+  var _rec=t.match(/\b(?:top|best|suggest|recommend|show|tell(?: me)?|give(?: me)?)?\s*(one|two|three|four|five|six|seven|eight|nine|ten|\d{1,2})?\s*(?:besties|best\s+(?:places?|destinations?)|places?|destinations?)\b/i);
+  if(_rec){
+    var _nums={one:1,two:2,three:3,four:4,five:5,six:6,seven:7,eight:8,nine:9,ten:10};
+    out._recommendCount=Math.max(1,Math.min(10,parseInt(_rec[1],10)||_nums[String(_rec[1]||'').toLowerCase()]||5));
+  }
   /* Route direction is stronger than generic place scanning. Without this,
      "from Chennai to Vietnam" found Chennai first and planned locally. Keep
      both endpoints explicit and let the destination/country scope win. */
@@ -468,25 +478,32 @@ function cpParseRegex(t){
     if(wdm) out.days=WORD_DAYS[wdm[1].toLowerCase()];
   }
   /* destination: DB first (incl. fuzzy), then preposition, then leftover-token */
-  var hit=out.dest?null:cpDbFind(t); if(hit) out.dest=hit.name;
-  if(!out.dest){
+  var hit=(out.dest||out._recommendCount)?null:cpDbFind(t); if(hit) out.dest=hit.name;
+  if(!out.dest && !out._recommendCount){
     /* Take EVERY preposition match, not just the first: "what to eat in Manali"
        used to capture "eat" from "to eat" and then look up a guide for a verb.
        Skip common verbs/fillers, and prefer a capitalised candidate. */
-    var VERBS=/^(you|your|yours|me|my|us|our|them|their|him|her|tusk|ailon|roamwise|it|its|eat|go|do|see|visit|stay|sleep|travel|reach|get|buy|shop|find|book|know|start|plan|the|a|an|my|it|be|drink|walk|chill|relax|relaxing|peaceful|adventure|romantic|honeymoon|solo|family|spiritual|nature|scenic|foodie|luxury|cheap|party|nightlife|somewhere|anywhere|food|eat|hotel|stay|room|transport|taxi|cab|bus|train|flight|safety|scam|cost|price|money|there|here|that|this|tips|guide|advice|option|thing|under|below|within|over|about|around|say|says|said|mean|means|meant|share|send|give|tell|show|make|curated|budget|rs|inr|not|shadow|all|whole|entire|full|complete|across|multi|north|south|east|west)$/i;
+    var VERBS=/^(you|your|yours|me|my|us|our|them|their|him|her|tusk|ailon|roamwise|it|its|eat|go|do|see|visit|stay|sleep|travel|reach|get|buy|shop|find|book|know|start|plan|the|a|an|my|it|be|drink|walk|chill|relax|relaxing|peaceful|adventure|romantic|honeymoon|solo|family|spiritual|nature|scenic|foodie|luxury|cheap|party|nightlife|somewhere|anywhere|food|eat|hotel|stay|room|transport|taxi|cab|bus|train|flight|safety|scam|cost|price|money|there|here|that|this|tips|guide|advice|option|thing|under|below|within|over|about|around|say|says|said|mean|means|meant|share|send|give|tell|show|make|curated|budget|rs|inr|not|shadow|all|whole|entire|full|complete|across|multi|north|south|east|west|next|month|january|february|march|april|may|june|july|august|september|october|november|december)$/i;
     var re=/(?:\bin|\bto|reaching|\bat|visit(?:ing)?|\bfor|around|near)\s+([A-Za-z][a-zA-Z\u00C0-\u024F]{2,}(?:\s[A-Z][a-zA-Z]{2,})?)/g, mm, cands=[];
     while((mm=re.exec(t))!==null){ var w=mm[1].trim(); if(!VERBS.test(w.split(' ')[0])) cands.push(w); }
     var capped = cands.filter(function(w){ return /^[A-Z]/.test(w); });
     if(capped.length) out.dest=capped[0];
     else if(cands.length) out.dest=cands[0];
   }
-  if(!out.dest){
+  if(!out.dest && !out._recommendCount){
     /* strip filler + numbers + MOOD words; whatever real word remains is the
        place. Mood words (romantic, solo, chill...) were being mistaken for
        destinations, so they're excluded here. */
     var STOP=/^(you|your|yours|yourself|youre|u|ur|me|my|mine|myself|we|us|our|ours|ourselves|they|them|their|theirs|he|him|his|she|her|hers|who|whos|whom|tusk|ailon|roamwise|bot|ai|assistant|app|chat|hello|hey|hii|namaste|sir|maam|madam|bhai|bro|dude|yes|yeah|yep|nope|sure|thanks|thank|okay|alright|maybe|really|actually|plan|planning|trip|tour|days?|nights?|budget|under|below|within|max|itinerary|itineraries|for|the|a|an|and|with|my|me|please|need|want|going|go|visit|visiting|show|find|make|create|give|about|cost|costs|price|rs|inr|rupees|k|thousand|weather|rain|cafe|cafes|bus|train|flight|volvo|hotel|stay|stays|from|to|in|at|on|next|week|weekend|tomorrow|today|is|are|it|what|how|much|good|best|place|places|chill|relax|relaxing|peaceful|adventure|adventurous|romantic|honeymoon|solo|family|spiritual|nature|scenic|foodie|luxury|cheap|party|nightlife|workation|somewhere|anywhere|nice|cool|amazing|beautiful|food|foods|eat|eating|meal|meals|drink|drinks|hotel|hotels|stay|stays|room|rooms|transport|taxi|cab|auto|rickshaw|bike|scooter|metro|ferry|ticket|tickets|safety|safe|scam|scams|cost|costs|price|prices|money|cash|card|atm|sim|wifi|there|here|that|this|those|these|them|its|option|options|thing|things|idea|ideas|day|days|time|times|international|abroad|foreign|domestic|overseas|all|whole|entire|complete|full||across|throughout|everywhere|anywhere|nationwide|countrywide|multi|multiple|several|various|many||north|south|east|west|northern|southern|eastern|western|central|say|says|said|mean|means|meant|share|send|give|tell|show|curated|shadow|not|should|would|could|will|shall|might|must|reach|reaching|arrive|arriving|leave|leaving|any|some|anyone|anything|something|every|each|does|did|has|have|had|was|were|been|being|got|lets|let|when|where|which|who|whom|whose|why|whats|hows|季|plan|plans|list|tips|tip|guide|guides|advice)$/i;
     var toks=(t.match(/[A-Za-z\u00C0-\u024F]{3,}/g)||[]).filter(function(w){ return !STOP.test(w); });
     if(toks.length){ out.dest=toks[0]; out._weakDest=true; }
+  }
+  if(out.dest && typeof RW_PLACE_OVERRIDES!=='undefined'){
+    var _ovKey=String(out.dest).toLowerCase().replace(/[^a-z]/g,'');
+    if(RW_PLACE_OVERRIDES[_ovKey]){
+      out.dest=RW_PLACE_OVERRIDES[_ovKey].name;
+      out._weakDest=false;
+    }
   }
   var mto=t.match(/(?:back to|return to|bus|volvo|train|flight|cab)[^.]*?\bto\s+([A-Za-z][a-zA-Z]{2,})/i);
   if(mto && mto[1] && mto[1].toLowerCase()!==String(out.dest||'').toLowerCase()) out.to=mto[1];
@@ -526,8 +543,16 @@ function cpParseRegex(t){
     else if(/fortnight|two weeks/i.test(t)) out.days=14;
   }
   /* season/timing hint */
-  var MON=/(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)/i.exec(t);
+  var MON=/\b(jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|jun(?:e)?|jul(?:y)?|aug(?:ust)?|sep(?:tember)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)\b/i.exec(t);
   if(MON) out.month=MON[1];
+  var _monthNames=['jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec'];
+  if(out._recommendCount){
+    var _mi=MON?_monthNames.indexOf(MON[1].slice(0,3).toLowerCase()):-1;
+    if(_mi<0 && /\bnext\s+month\b/i.test(t)) _mi=(new Date().getMonth()+1)%12;
+    if(_mi<0) _mi=new Date().getMonth();
+    out._recommendMonth=_mi+1;out.dest=null;out._weakDest=false;
+    if(out.wants.indexOf('plan')===-1)out.wants.push('plan');
+  }
   if(/summer|garmi/i.test(t)) out.season='summer';
   else if(/winter|sardi|snow/i.test(t)) out.season='winter';
   else if(/monsoon|rain|barish/i.test(t)) out.season='monsoon';
@@ -556,7 +581,7 @@ function cpParseRegex(t){
   /* travel STYLE words: "shoestring" is a style, not a rupee figure */
   if(/shoe\s*string|shoestring|bare\s*bones|barebones|backpack(er|ing)?|cheapest|sasta|low\s*budget|tight\s*budget/i.test(t)) out.style='budget';
   else if(/luxur(y|ious)|lavish|5\s*star|premium|shaandaar/i.test(t)) out.style='luxury';
-  if(_cpCtx){
+  if(_cpCtx && !out._recommendCount){
     var refersBack = /\b(there|here|that place|it|same|also|and|what about|how about)\b/i.test(t) || !out.dest;
     if(!out.dest && refersBack && _cpCtx.dest){ out.dest = _cpCtx.dest; out._inherited = true; }
     /* days/budget belong to a TRIP, not to the user forever. Carrying \u20b98,500
@@ -785,7 +810,7 @@ function copilotSend(fromHero){
   if(typeof rwActivateFocusFromText==='function'&&/\b(plan|trip|itinerar|travel|visit|stay)\b/i.test(t)){
     intents.focusModes=rwActivateFocusFromText(t,true);
   }
-  var hasKey = (typeof activeProv!=='undefined') && activeProv!=='smart' && lsGet('rwKey_'+activeProv);
+  var hasKey = (typeof activeProv!=='undefined') && (activeProv==='roamwise' || (activeProv!=='smart' && lsGet('rwKey_'+activeProv)));
   if(hasKey){
     /* Real conversation: persona + history + the new message. Any topic is
        fine — the model answers naturally; travel intents ADDITIONALLY get

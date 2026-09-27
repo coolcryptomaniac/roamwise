@@ -61,6 +61,9 @@ CASHFREE_API_VERSION = "2025-01-01"
 # and token-limit values are ignored.
 MANAGED_AI_ENABLED = "true"
 GROQ_MODEL = "openai/gpt-oss-20b"
+WORKERS_AI_MODEL = "@cf/qwen/qwen3-30b-a3b-fp8"
+SARVAM_MODEL = "sarvam-30b"
+GROQ_MONTHLY_REQUEST_CAP = "12000"
 AI_MAX_PROMPT_CHARS = "4000"
 AI_MAX_OUTPUT_TOKENS = "700"
 # Admin-only AI CA provider preference. API keys/models remain Worker secrets.
@@ -91,6 +94,6 @@ id = "be31e0935be843219cea1edf2203877b"
 # example syntax only for future use (e.g. free-tier strategy).
 # Uncomment to bind Workers AI to `env.AI`:
 #
-# [ai]
-# binding = "AI"
+[ai]
+binding = "AI"
 # ---------------------------------------------------------------------------

@@ -147,6 +147,7 @@ function _cfConfirmPaid(orderId, attemptsLeft){
 
 function _cfGrantConfirmed(order){
   try{ track('cashfree_paid'); }catch(e){ /* analytics best-effort */ }
+  try{rwPaymentTrace('paid',{planId:order&&order.planId});}catch(e){}
   grantPurchase(order.orderId || 'cashfree', 'cashfree', order.planId);
   _cfClearPending();
   _cfUi('success','Payment confirmed. Your plan is active.');
@@ -241,6 +242,7 @@ var CashfreeAdapter = {
       });
     }).catch(function(e){
       var msg='Could not open Cashfree checkout' + ((e && e.message) ? ': ' + e.message : ' — use direct UPI or retry.');
+      try{rwPaymentTrace('gateway_error',{planId:order&&order.planId,code:e&&e.message||'cashfree_failed'});}catch(_e){}
       showToast(msg);_cfUi('error',msg);return false;
     });
     return flow;

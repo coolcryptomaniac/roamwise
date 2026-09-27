@@ -65,5 +65,20 @@ export function managedAIRequest(body, env){
     model,
     prompt:String(body && body.prompt || '').slice(0, maxPrompt),
     maxTokens,
+    locale:String(body && body.locale || '').slice(0, 24),
   };
+}
+
+export function globalProviderKey(provider, date){
+  const month=(date||new Date()).toISOString().slice(0,7);
+  return `managed-ai-provider:${provider}:${month}`;
+}
+
+export async function reserveProviderRequest(env, provider, cap, date){
+  if(!env.AI_USAGE||typeof env.AI_USAGE.get!=='function'||typeof env.AI_USAGE.put!=='function')return {ok:false,reason:'meter_not_configured'};
+  const limit=Math.max(0,Number(cap)||0);if(!limit)return {ok:false,reason:'provider_cap_reached'};
+  const key=globalProviderKey(provider,date),used=Math.max(0,parseInt(await env.AI_USAGE.get(key)||'0',10)||0);
+  if(used>=limit)return {ok:false,reason:'provider_cap_reached',used,limit};
+  await env.AI_USAGE.put(key,String(used+1),{expirationTtl:2678400});
+  return {ok:true,used:used+1,limit,remaining:Math.max(0,limit-used-1)};
 }

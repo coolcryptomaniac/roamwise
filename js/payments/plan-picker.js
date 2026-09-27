@@ -91,6 +91,7 @@ function _renderPlanFeatures(tierId, planId){
   box.innerHTML = standard + usage;
 }
 function pickPlan(planId, priceINR, label, tierId, category){
+  try{rwPaymentTrace('plan_selected',{planId:planId});}catch(e){}
   /* category: 'subscription' (Free/Plus/Pro/Elite monthly+yearly) or
      'oneoff' (Founder offer, long-term passes, short-term passes) \u2014 see
      renderPlanGrid()'s call sites below for which is which. Defaults to
@@ -170,6 +171,7 @@ function payViaCashfree(){
     if(!cf.setCustomerPhone||!cf.setCustomerPhone(_cfOrder,value)){showToast('Enter a valid mobile number with country code for Cashfree, for example +919876543210.');if(phone)phone.focus();return;}
   }
   rwSetCashfreeState('busy');
+  try{rwPaymentTrace('gateway_start',{planId:_selectedPlan&&_selectedPlan.id});}catch(e){}
   var opened=cf.openCheckout(_cfOrder, 'cashfree');
   if(opened&&typeof opened.catch==='function')opened.catch(function(){});
 }
@@ -323,11 +325,12 @@ function openPay(){
   }
   if(isPro){ showToast(rwStatusLabel().sentence); return; }
   try{ rwRotateTesti(); }catch(e){ /* best-effort, ignore */ }
-  el('payOverlay').classList.add('open');
+  var overlay=el('payOverlay');if(!overlay){try{rwPaymentTrace('ui_error',{code:'pay_overlay_missing'});}catch(e){}return;}
+  overlay.classList.add('open');
   document.body.style.overflow = 'hidden';
   var payModal=el('payModal');if(payModal)payModal.classList.remove('payment-step');
   var picker=el('planPicker'); if(picker) picker.innerHTML='<div style="text-align:center;font-size:12px;color:var(--t3);padding:10px">Loading plans\u2026</div>';
-  el('payMethods').style.display='none';
+  var methods=el('payMethods');if(methods)methods.style.display='none';
   /* Founder-offer eligibility needs the live signup count — read it, but never
      block the picker for more than a moment: fail toward showing tiers if the
      read is slow, since the tiers are always valid regardless. */
@@ -449,7 +452,8 @@ function renderPlanGrid(founderOpen){
   el('planPicker').innerHTML = html;
 }
 function closePay(){
-  el('payOverlay').classList.remove('open');
+  var overlay=el('payOverlay');if(overlay)overlay.classList.remove('open');
+  try{rwPaymentTrace('closed',{planId:_selectedPlan&&_selectedPlan.id});}catch(e){}
   document.body.style.overflow='';
   var payModal=el('payModal');if(payModal)payModal.classList.remove('payment-step');
   rwSetCashfreeState('ready');

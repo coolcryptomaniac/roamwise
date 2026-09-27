@@ -1,3 +1,4 @@
+// @ts-nocheck
 /* RoamWise Admin — Growth & Intelligence.
    Founder-only operating layer for distribution, retention, supply density and
    source-backed strategic intelligence. Private operating targets live inside

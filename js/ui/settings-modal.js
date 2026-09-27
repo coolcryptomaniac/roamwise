@@ -183,6 +183,10 @@ function openSettings(){
         if(/AI Mode|API Keys/i.test(t)) adv.push(sec);
       });
       if(adv.length){
+        /* Customers get one automatic Ailon mode. Provider/key controls are
+           restricted to verified admins so Settings never becomes a setup
+           wizard or asks a traveller to create third-party credentials. */
+        if(window.RW_IS_ADMIN!==true){adv.forEach(function(x){x.style.display='none';});return;}
         var hasKey = activeProv==='roamwise' || ['sarvam','groq','cerebras','github','gemini','openrouter','mistral','anthropic'].some(function(x){ return lsGet('rwKey_'+x); });
         var btn = document.createElement('button');
         btn.id='advToggle'; btn.className='tact';
@@ -209,6 +213,7 @@ function openSettings(){
 function closeSettings(){ el('settingsOverlay').classList.remove('open'); document.body.style.overflow=''; }
 
 function setProv(p){
+  if(p!=='smart'&&p!=='roamwise'&&window.RW_IS_ADMIN!==true){showToast('Ailon Tusk Automatic chooses the best available route for you.');return;}
   if(p==='roamwise' && !isPro){ showToast('RoamWise Hosted AI is included with paid plans.'); openPay(); return; }
   activeProv = p; lsSet('rwProv', p);
   document.querySelectorAll('.prov-btn').forEach(function(b){ b.classList.toggle('on', b.dataset.p===p); });

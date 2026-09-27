@@ -69,6 +69,25 @@ test('spoken Ranikhet duration and qualified town context never collapse to Indi
   assert.equal(qualified._country,undefined);
 });
 
+test('timing words are never parsed as destinations and Kasar Devi resolves locally',()=>{
+  const storage=new Map();
+  const state={console,window:null,localStorage:{removeItem:k=>storage.delete(k)},lsGet:k=>storage.get(k)||'',lsSet:(k,v)=>storage.set(k,String(v)),DB:[],RW_COMMON_WORDS:/^(next|month|plan|trip|from|to|day|days)$/i,navigator:{onLine:false},esc2:s=>String(s)};
+  state.window=state;
+  vm.runInNewContext(read('js/data/regions.js'),state);
+  vm.runInNewContext(read('js/data/place-overrides.js'),state);
+  vm.runInNewContext(read('js/copilot/region-routes.js'),state);
+  vm.runInNewContext(read('js/copilot/core.js'),state);
+  const timing=state.cpParseRegex('just tell me five besties for next month that is October');
+  assert.equal(timing.dest,null);
+  assert.equal(timing._recommendCount,5);
+  assert.equal(timing._recommendMonth,10);
+  const kasar=state.cpParseRegex('6 days plan to kasar Devi');
+  assert.equal(kasar.dest,'Kasar Devi');
+  assert.equal(kasar.days,6);
+  assert.equal(kasar._state,undefined);
+  assert.equal(kasar._country,undefined);
+});
+
 test('place disambiguation preserves the original duration and canonical state',()=>{
   const state={navigator:{onLine:false},esc2:s=>String(s),Number,String};
   vm.runInNewContext(read('js/itinerary/place-disambiguation.js'),state);

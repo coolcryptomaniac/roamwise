@@ -43,7 +43,7 @@ function officialAndroidEntries(payload,now){
     const title=bounded(entry&&entry.title&&entry.title.$t);
     const summary=bounded(entry&&entry.summary&&entry.summary.$t,400);
     const published=entry&&entry.published&&entry.published.$t;
-    if(!title||!recentDate(published,now)||!DISTRIBUTION_RE.test(title+' '+summary))return [];
+    if(!title||!recentDate(published,now)||!DISTRIBUTION_RE.test(title))return [];
     const links=Array.isArray(entry.link)?entry.link:[];
     const alt=links.find(x=>x&&x.rel==='alternate'&&/^https:/.test(String(x.href||'')));
     if(!alt)return [];

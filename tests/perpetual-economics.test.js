@@ -113,6 +113,7 @@ test('public store no longer sells founder time or claims unbounded hosted AI', 
   assert.doesNotMatch(html, /am=999/);
   assert.match(html, /Instant Trip Review/);
   assert.match(html, /monthly fair-use pool/);
+  assert.match(html, /no API key is needed/i);
   assert.match(html, /data-p="roamwise"/);
 });
 

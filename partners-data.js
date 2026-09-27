@@ -23,7 +23,7 @@ window.RW_PARTNER_TIERS = [
 
 /* Commission model — what we actually earn, stated plainly for both sides. */
 window.RW_PARTNER_MODEL = {
-  stay:      { pct:8,  label:'Homestays & boutique stays', note:'8% after checkout when the property uses a commission model; protected B2B net-rate partners use the agreed net instead — never both' },
+  stay:      { pct:7,  label:'Homestays & boutique stays', note:'Partner Free is 7% after a completed stay; active paid partner plans are 5%. Protected B2B net-rate partners use the agreed net instead — never both.' },
   adventure: { pct:12, label:'Adventure & experiences',    note:'12% \u2014 higher because activity margins are higher' },
   transport: { pct:5,  label:'Drivers & transport',        note:'5% \u2014 thin margins, high volume' },
   agency:    { pct:10, label:'Travel agencies',            note:'10% on packages routed through RoamWise' },
