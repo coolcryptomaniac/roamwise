@@ -8,7 +8,7 @@
    - planned-vs-actual map overlay
    - optional Mapbox Outdoors raster basemap when a restricted public token is configured
    - altitude / ascent / descent summary when the device reports usable altitude
-   - Android native foreground-service bridge for continuity after the WebView backgrounds
+   - foreground-only GPS recording while the RoamWise app remains open
    - explicit Journey Passport handoff, Trail Mesh group-summary sharing and GeoJSON export
    - animated vertical route Reel, route poster, actual-trip certificate and photo collage
    No tracking starts automatically. Raw location is not uploaded by this module. */
@@ -70,42 +70,6 @@ function elevationStats(t){
   }
   return {available:true,min:min,max:max,ascent:ascent,descent:descent};
 }
-function nativeJourneyPlugin(){
-  try{return window.Capacitor&&window.Capacitor.Plugins&&window.Capacitor.Plugins.JourneyTrace;}catch(e){return null;}
-}
-function nativeJourneyStart(dest){
-  var p=nativeJourneyPlugin(); if(!p||typeof p.start!=='function') return Promise.resolve({native:false});
-  return p.start({destination:safeDest(dest),intervalMs:15000,minDistanceMeters:20}).catch(function(){return {native:false};});
-}
-function nativeJourneyStop(){
-  var p=nativeJourneyPlugin(); if(!p||typeof p.stop!=='function') return Promise.resolve({native:false});
-  return p.stop().catch(function(){return {native:false};});
-}
-function rwMergeNativePoints(dest, points){
-  if(!Array.isArray(points)||!points.length)return 0;
-  var t=getTrip(dest), seen={};
-  t.track.forEach(function(p){seen[String(p.at||'')+'|'+Number(p.lat).toFixed(5)+'|'+Number(p.lon).toFixed(5)]=1;});
-  var added=0;
-  points.forEach(function(p){
-    var q={lat:Number(p.lat),lon:Number(p.lon),accuracy:Number(p.accuracy),altitude:p.altitude==null?null:Number(p.altitude),altitudeAccuracy:p.altitudeAccuracy==null?null:Number(p.altitudeAccuracy),speed:p.speed==null?null:Number(p.speed),at:Number(p.at)||Date.now()};
-    if(!isFinite(q.lat)||!isFinite(q.lon)||(isFinite(q.accuracy)&&q.accuracy>120))return;
-    var k=String(q.at)+'|'+q.lat.toFixed(5)+'|'+q.lon.toFixed(5); if(seen[k])return;
-    seen[k]=1;t.track.push(q);added++;
-  });
-  t.track.sort(function(a,b){return (a.at||0)-(b.at||0);});
-  if(t.track.length>2400)t.track=t.track.slice(-2400);
-  saveTrip(t);return added;
-}
-window.rwJourneyPullNative=function(){
-  var p=nativeJourneyPlugin(), dest=activeDest||(window._lastItin&&_lastItin.name)||'Trip';
-  if(!p||typeof p.getBufferedPoints!=='function')return Promise.resolve(0);
-  return p.getBufferedPoints().then(function(r){
-    var n=rwMergeNativePoints(dest,(r&&r.points)||[]);
-    if(n&&typeof p.clearBufferedPoints==='function')p.clearBufferedPoints().catch(function(){});
-    if(n)renderPanel(dest,window._tripPins||getTrip(dest).planned||[]);
-    return n;
-  }).catch(function(){return 0;});
-};
 function visitForPlanned(t,i){ for(var n=t.visits.length-1;n>=0;n--) if(t.visits[n].plannedIndex===i) return t.visits[n]; return null; }
 function dateText(ms){ try{return new Date(ms).toLocaleString('en-IN',{day:'numeric',month:'short',hour:'numeric',minute:'2-digit'});}catch(e){return'';} }
 function guessType(name){
@@ -156,7 +120,7 @@ function renderPanel(dest,pins){
   var recent=t.visits.slice(-6).reverse().map(function(v){return '<div style="font-size:11px;color:var(--t2);padding:4px 0">'+esc(TYPES[v.type]||TYPES.other)+' · <b style="color:var(--t1)">'+esc(v.name)+'</b> · '+esc(dateText(v.at))+'</div>';}).join('');
   var pendingHtml=pending?'<div style="margin:10px 0;padding:12px;border-radius:14px;border:1px solid rgba(240,68,85,.55);background:rgba(240,68,85,.09)"><div style="font-size:10px;font-weight:900;color:#FF697A;letter-spacing:.06em">NEARBY STOP</div><div style="font-size:14px;font-weight:800;margin:3px 0">Looks like you are at '+esc(pending.name)+'</div><div style="font-size:11px;color:var(--t3)">RoamWise never checks you in automatically. Confirm only if you actually visited.</div><div style="display:flex;gap:7px;margin-top:8px"><button class="tact" style="background:#F04455;color:white;border:none;font-weight:800" onclick="rwFootprintConfirmNearby()">✓ Add visit</button><button class="tact" onclick="rwFootprintDismissNearby()">Not here</button></div></div>':'';
 
-  panel.innerHTML='<div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap"><div><div style="font-size:10px;color:#FF697A;font-weight:900;letter-spacing:.09em">ROAMWISE · JOURNEY TRACE V2</div><h3 style="margin:3px 0;font-size:20px">Your plan fades. Your real trail lights up.</h3><div style="font-size:11px;color:var(--t3)">Opt-in only · web tracking runs while open; supported Android builds can continue through a visible foreground-service notification · raw trail stays on this device by default.</div><div style="display:flex;gap:12px;margin-top:7px;font-size:10.5px;color:var(--t2)"><span><b style="color:#E8BA6C">┈┈</b> planned</span><span><b style="color:#F04455">━━</b> actual</span><span>● confirmed visit</span></div></div><div style="display:flex;gap:7px;flex-wrap:wrap">'+primary+'</div></div>'
+  panel.innerHTML='<div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap"><div><div style="font-size:10px;color:#FF697A;font-weight:900;letter-spacing:.09em">ROAMWISE · JOURNEY TRACE V2</div><h3 style="margin:3px 0;font-size:20px">Your plan fades. Your real trail lights up.</h3><div style="font-size:11px;color:var(--t3)">Opt-in only · tracking runs while RoamWise remains open · raw trail stays on this device by default.</div><div style="display:flex;gap:12px;margin-top:7px;font-size:10.5px;color:var(--t2)"><span><b style="color:#E8BA6C">┈┈</b> planned</span><span><b style="color:#F04455">━━</b> actual</span><span>● confirmed visit</span></div></div><div style="display:flex;gap:7px;flex-wrap:wrap">'+primary+'</div></div>'
     +'<div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;margin:12px 0"><div class="note" style="padding:9px;text-align:center"><b>'+visited+'</b><br><span style="font-size:10px">check-ins</span></div><div class="note" style="padding:9px;text-align:center"><b>'+km.toFixed(km<10?1:0)+' km</b><br><span style="font-size:10px">actual trail</span></div><div class="note" style="padding:9px;text-align:center"><b>'+pct+'%</b><br><span style="font-size:10px">plan done</span></div><div class="note" style="padding:9px;text-align:center"><b>'+t.track.length+'</b><br><span style="font-size:10px">GPS points</span></div></div>'
     +'<div style="height:6px;background:var(--bg3,#171A24);border-radius:999px;overflow:hidden;margin-bottom:8px"><span style="display:block;width:'+pct+'%;height:100%;background:linear-gradient(90deg,#E8BA6C,#F04455,#A78BFA)"></span></div>'
     +(elev.available?'<div style="font-size:10.5px;color:var(--t3);margin-bottom:10px">⛰️ Altitude '+Math.round(elev.min)+'–'+Math.round(elev.max)+' m · ascent ~'+Math.round(elev.ascent)+' m · descent ~'+Math.round(elev.descent)+' m <span style="opacity:.7">(device GPS estimate)</span></div>':'')
@@ -239,11 +203,10 @@ function startWatch(dest){
   activeWatch=navigator.geolocation.watchPosition(recordPosition,function(e){
     if(e&&e.code===1){try{navigator.geolocation.clearWatch(activeWatch);}catch(_){}activeWatch=null;var tt=getTrip(activeDest);tt.status='paused';saveTrip(tt);toast('Location permission was not granted — manual check-ins still work');renderPanel(activeDest,window._tripPins||tt.planned||[]);}
   },{enableHighAccuracy:true,maximumAge:8000,timeout:20000});
-  nativeJourneyStart(activeDest); renderPanel(activeDest,window._tripPins||t.planned||[]); toast('Journey Trace started — your real route will light up');
+  renderPanel(activeDest,window._tripPins||t.planned||[]); toast('Journey Trace started — keep RoamWise open while recording');
 }
 function stopWatch(finish){
   if(activeWatch!=null){try{navigator.geolocation.clearWatch(activeWatch);}catch(e){}activeWatch=null;}
-  nativeJourneyStop().then(function(){return window.rwJourneyPullNative?window.rwJourneyPullNative():0;});
   var t=getTrip(activeDest);t.status=finish?'finished':'paused';if(finish)t.endedAt=Date.now();saveTrip(t);renderPanel(activeDest,window._tripPins||t.planned||[]);
 }
 window.rwJourneyStart=function(dest){
