@@ -176,6 +176,13 @@ input:focus, select:focus, textarea:focus { border-color: var(--scarlet); box-sh
 .rw-market-search-support > span, .rw-market-trust > span { padding: 10px; border-left: 2px solid var(--scarlet); color: var(--muted); background: rgba(167,19,25,.08); font-size: 11px; }
 .rw-market-search-support b, .rw-market-search-support small { display: block; }
 .rw-market-search-support b, .rw-market-trust b { color: var(--ivory); }
+.rw-market-share { display: grid; gap: 9px; margin-top: 12px; padding: 13px; border: 1px solid var(--line); border-radius: 12px; background: rgba(239,199,132,.055); }
+.rw-market-share b, .rw-market-share small { display: block; }
+.rw-market-share b { color: var(--ivory); font-size: 13px; }
+.rw-market-share small { color: var(--muted); font-size: 11px; line-height: 1.45; }
+.rw-market-share > div { display: flex; flex-wrap: wrap; gap: 7px; }
+.rw-market-share a, .rw-market-share button { display: inline-flex; align-items: center; justify-content: center; min-height: 42px; padding: 8px 12px; border: 1px solid var(--line-hot); border-radius: 9px; color: var(--ivory); background: rgba(255,255,255,.045); font: inherit; font-size: 12px; font-weight: 700; text-decoration: none; cursor: pointer; }
+.rw-market-share a:hover, .rw-market-share button:hover, .rw-market-share a:focus-visible, .rw-market-share button:focus-visible { border-color: var(--brass); background: rgba(239,199,132,.12); }
 .rw-market-listing-meta { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 9px; }
 .rw-market-listing-meta span { padding: 3px 6px; border-radius: 5px; color: var(--muted); background: rgba(255,255,255,.05); font-size: 9px; text-transform: uppercase; }
 .rw-market-listing-meta .rw-curation { color: var(--brass); border: 1px solid rgba(239,199,132,.24); background: rgba(239,199,132,.08); }
