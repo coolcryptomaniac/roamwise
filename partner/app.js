@@ -3,11 +3,13 @@
 var CFG=window.RW_PARTNER_CONFIG||{}, Core=window.RWPartnerCore;
 var $=function(id){return document.getElementById(id)}, esc=Core.esc, money=Core.money;
 var db=null,auth=null,unsubs=[];
-var PROD_HOST=/^(www\.)?roamwise\.co\.in$/i.test(location.hostname);var LAB=(qs('lab')==='1'||qs('mode')==='demo'||!PROD_HOST);var defaultMode=qs('mode')||(!PROD_HOST?(localStorage.getItem('rw_partner_mode')||'demo'):'live');var S={mode:defaultMode,role:'customer',cat:'stay',ctx:{destination:(qs('destination')||'Almora').slice(0,100),checkin:datePlus(7),checkout:datePlus(9),guests:2},user:null,partner:null,isAdmin:false,staffRole:'',liveRooms:[],liveBookings:[],travel:null};
+var PROD_HOST=/^(www\.)?roamwise\.co\.in$/i.test(location.hostname);var LAB=(qs('lab')==='1'||qs('mode')==='demo'||!PROD_HOST);var defaultMode=qs('mode')||(!PROD_HOST?(localStorage.getItem('rw_partner_mode')||'demo'):'live');var S={mode:defaultMode,role:'customer',cat:'stay',ctx:initialTrip(),user:null,partner:null,isAdmin:false,staffRole:'',liveRooms:[],liveBookings:[],travel:null};
 function icon(name){return '<svg aria-hidden="true"><use href="#i-'+name+'"></use></svg>'}
 var ROLES={customer:{icon:icon('compass'),name:'Explore stays',desc:'Search and request a stay'},owner:{icon:icon('home'),name:'List a property',desc:'Apply to join the collective'},partner:{icon:icon('ops'),name:'Host operations',desc:'Run rooms, guests and earnings'},admin:{icon:icon('shield'),name:'Trust desk',desc:'Review partners and controls'}};
 var DKEY='rw_partner_dropin_demo_v1';
 function datePlus(n){var d=new Date();d.setDate(d.getDate()+n);return d.toISOString().slice(0,10)}
+function initialTrip(){var checkin=qs('checkin')||'',checkout=qs('checkout')||'',guests=Number(qs('guests'));var validDate=function(v){return /^\d{4}-\d{2}-\d{2}$/.test(v)&&!isNaN(Date.parse(v+'T12:00:00'))&&datePlusFor(v,0)===v};var validRange=validDate(checkin)&&validDate(checkout)&&checkin>=datePlus(0)&&checkout>checkin&&Core.nights(checkin,checkout)<=90;return{destination:(qs('destination')||'Almora').slice(0,100),checkin:validRange?checkin:datePlus(7),checkout:validRange?checkout:datePlus(9),guests:Number.isInteger(guests)&&guests>=1&&guests<=12?guests:2}}
+function datePlusFor(v,n){var d=new Date(v+'T12:00:00');d.setDate(d.getDate()+n);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
 function now(){return new Date().toISOString()}
 function uid(p){return p+'_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,6)}
 function qs(k){return new URLSearchParams(location.search).get(k)}
