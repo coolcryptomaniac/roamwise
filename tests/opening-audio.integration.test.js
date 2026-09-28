@@ -38,6 +38,8 @@ test('audio and cues load before the cinematic opener, which starts automaticall
   assert.match(opening, /rw-loader-mask/);
   assert.match(opening, /rwFireBolt/);
   assert.match(opening, /rwStatBorder/);
+  assert.match(opening, /rw-opening-sound/);
+  assert.match(opening, /rwToggleAudioQuick/);
   assert.match(opening, /width:min\(430px/);
   assert.match(opening, /}, 3400\);/);
   assert.doesNotMatch(opening, /Travel fact|Route intelligence|rw-motion-trail/);
@@ -55,12 +57,19 @@ test('audio and cues load before the cinematic opener, which starts automaticall
 
 test('settings and offline shell include the new audio engine', () => {
   const audio = read('platform-v5/audio-only.js');
+  const html = read('index.html');
+  const appUtils = read('js/core/app-utils.js');
+  const shell = read('js/ui/adaptive-shell.js');
   assert.match(audio, /#settingsOverlay \.modal-body/);
   assert.match(audio, /id=\"rwAudioToggle\"/);
   assert.match(audio, /id=\"rwAudioVolume\"/);
+  assert.match(audio, /window\.rwToggleAudioQuick = toggleQuick/);
+  assert.match(html, /id=\"rwAudioQuickToggle\"/);
+  assert.doesNotMatch(appUtils, /rwPlayCue\(/);
+  assert.doesNotMatch(shell.slice(shell.indexOf('function tabGo'), shell.indexOf('function rwTabGo')), /rwPlayCue\(/);
 
   const worker = read('sw.js');
-  assert.match(worker, /rw-v124-personal-group-planner/);
+  assert.match(worker, /rw-v125-selective-audio/);
   assert.match(worker, /js\/audio\/focus\.js/);
   assert.match(worker, /platform-v5\/audio-only\.js/);
   assert.match(worker, /platform-v5\/atlas-shinobi\.js/);

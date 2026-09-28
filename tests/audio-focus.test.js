@@ -22,7 +22,7 @@ test('audio focus stops the previous owner before granting a new owner', () => {
   assert.equal(focus.current(), 'second');
 });
 
-test('all one-shot cue names reuse one audio element and replace prior playback', () => {
+test('only selected event cues play and reuse one audio element', () => {
   let now = 1000;
   const instances = [];
   class MockAudio {
@@ -49,7 +49,9 @@ test('all one-shot cue names reuse one audio element and replace prior playback'
     Promise,
   };
   vm.runInNewContext(read('js/audio/cues.js'), context);
-  assert.equal(context.rwPlayCue('tap_feedback'), true);
+  assert.equal(context.rwPlayCue('tap_feedback'), false);
+  assert.equal(context.rwPlayCue('card_transition_or_modal_open'), false);
+  assert.equal(context.rwPlayCue('site_opening'), true);
   now += 500;
   assert.equal(context.rwPlayCue('success_feedback'), true);
   assert.equal(instances.length, 1);

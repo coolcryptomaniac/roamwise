@@ -2,9 +2,6 @@
 /* Manifest-driven one-shot cues, serialized through the site audio focus. */
 var RW_CUE_FILES = {
   site_opening: 'opening-theme-30s',
-  hero_cta_or_big_action: 'cta-action-10s',
-  card_transition_or_modal_open: 'transition-10s',
-  tap_feedback: 'tap-sting-5s',
   success_feedback: 'success-sting-5s'
 };
 var _rwCueNode = null;
@@ -16,8 +13,8 @@ var _rwCueLastStart = 0;
 var RW_CUE_DEBOUNCE_MS = 260;
 
 /**
- * Whether the user has audio cues/theme enabled (defaults to true when the
- * preference has never been set, or storage throws e.g. in private mode).
+ * Whether the user has selected-event audio enabled (defaults to true when
+ * the preference has never been set, or storage throws e.g. in private mode).
  * @returns {boolean}
  */
 function rwAudioThemeEnabled(){
@@ -116,9 +113,9 @@ function rwEnsureCueNode(){
  * @property {boolean} [resumeAmbient] Resume the ambient loop after this cue finishes, even if it wasn't already playing.
  */
 /**
- * Play a named one-shot cue from RW_CUE_FILES, debounced and serialized
- * through window.RWAudioFocus so cues never layer on top of each other or
- * the ambient loop.
+ * Play an allowlisted one-shot cue from RW_CUE_FILES, debounced and serialized
+ * through window.RWAudioFocus. Routine taps, navigation and modal transitions
+ * are deliberately absent from the allowlist.
  * @param {string} name Key into RW_CUE_FILES.
  * @param {RWPlayCueOptions} [options]
  * @returns {boolean} Whether playback was (at least optimistically) started.

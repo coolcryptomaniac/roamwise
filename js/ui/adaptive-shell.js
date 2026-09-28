@@ -325,8 +325,8 @@ function rwTabToggle(k){
   var host=el('tabPickWrap'); if(host) host.innerHTML=rwTabPickerHTML();
 }
 function tabGo(t){
-  /* Major screen/view transition — the manifest's card_transition_or_modal_open cue. */
-  try{ rwPlayCue('card_transition_or_modal_open'); }catch(e){ /* best-effort, ignore */ }
+  /* Navigation stays quiet. Ten-second music on every tab change was
+     distracting and made the theme feel as if it played everywhere. */
   try{useBump('tab_'+t);}catch(e){ /* best-effort, ignore */ }
   try{ if(window._rvAll) _rvAll(); }catch(e){ /* best-effort, ignore */ }
   try{ rwTabMark(t); }catch(e){ /* best-effort, ignore */ }

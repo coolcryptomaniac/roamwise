@@ -16,8 +16,8 @@
  * periodic chime) has been removed entirely and replaced with real,
  * licensed/uploaded audio playback of assets/audio/ambient-theme-30s
  * (.mp3/.ogg) from the same RoamWise "Rave to Hell / Kumaon Shadow Rite"
- * theme already used for the other manifest-driven cues in app.js's
- * rwPlayCue(). This is a deliberate reversal of the previous no-file-
+ * theme already used for the selected manifest-driven event cues in
+ * js/audio/cues.js. This is a deliberate reversal of the previous no-file-
  * dependency guarantee, not an accidental regression of it — do not revert
  * this back to a synthesized generator. The existing rw_audio_enabled /
  * rw_audio_volume Settings toggle and slider still gate this real-file
@@ -36,7 +36,7 @@
  * manifest says loop:true — that manifest flag now only describes what
  * happens if/when the user turns looping on, not the default behavior.
  * When the loop toggle is off (the default), the ambient bed does NOT
- * auto-play at all — the one-shot event cues in app.js's rwPlayCue() still
+ * auto-play at all — the allowlisted opening/success/reminder cues still
  * fire normally and are unaffected by this flag. This "don't auto-play at
  * all" behavior (rather than "play once through, unlooped") was chosen
  * because it is the simplest option (no need to track/react to the
@@ -224,7 +224,7 @@
     /* Turning the master Sound toggle on does NOT by itself start the
        looping ambient bed anymore — that only happens if the user has also
        opted into "Loop background music" (state.loopEnabled). The one-shot
-       cues in app.js's rwPlayCue() read rw_audio_enabled independently and
+       selected cues in js/audio/cues.js read rw_audio_enabled independently and
        are unaffected either way. */
     if (state.enabled && state.loopEnabled) return play();
     if (!state.enabled) pause(false);
@@ -263,6 +263,7 @@
     var slider = document.getElementById('rwAudioVolume');
     var value = document.getElementById('rwAudioVolumeValue');
     var status = document.getElementById('rwAudioStatus');
+    var quick = document.getElementById('rwAudioQuickToggle');
     if (toggle) {
       toggle.checked = state.enabled;
       toggle.setAttribute('aria-checked', state.enabled ? 'true' : 'false');
@@ -278,9 +279,24 @@
       else if (!state.enabled) status.textContent = 'Muted';
       else if (state.blocked) status.textContent = 'Tap the opening once to start audio';
       else if (state.playing) status.textContent = 'Playing across RoamWise';
-      else if (!state.loopEnabled) status.textContent = 'Ready — sound effects only';
+      else if (!state.loopEnabled) status.textContent = 'Ready — selected moments only';
       else status.textContent = 'Ready';
     }
+    if (quick) {
+      quick.textContent = state.enabled ? '\uD83D\uDD0A' : '\uD83D\uDD07';
+      quick.setAttribute('aria-pressed', state.enabled ? 'false' : 'true');
+      quick.setAttribute('aria-label', state.enabled ? 'Mute RoamWise sound' : 'Turn RoamWise sound on');
+      quick.title = state.enabled ? 'Sound on — tap to mute' : 'Sound muted — tap to turn on';
+      quick.classList.toggle('is-muted', !state.enabled);
+    }
+  }
+
+  function toggleQuick(){
+    var next = !state.enabled;
+    if (!next) {
+      try { if (typeof window.rwStopCue === 'function') window.rwStopCue(false); } catch (_) {}
+    }
+    return setEnabled(next);
   }
 
   function mountSetting(){
@@ -293,7 +309,7 @@
     section.innerHTML = ''+
       '<div class="key-sec-title">Sound</div>'+
       '<div class="rw-sound-row">'+
-        '<div><strong>Cinematic audio</strong><span id="rwAudioStatus" aria-live="polite">Ready</span></div>'+
+        '<div><strong>Event audio</strong><span id="rwAudioStatus" aria-live="polite">Ready</span></div>'+
         '<label class="rw-sound-switch" aria-label="Mute or unmute RoamWise audio">'+
           '<input id="rwAudioToggle" type="checkbox" role="switch"><i aria-hidden="true"></i>'+
         '</label>'+
@@ -308,7 +324,7 @@
         '<span>Volume</span><input id="rwAudioVolume" type="range" min="0" max="100" step="1">'+
         '<output id="rwAudioVolumeValue" for="rwAudioVolume"></output>'+
       '</label>'+
-      '<p class="rw-sound-note">Sound effects play at key moments and are on by default. Background music only loops if you turn that on above. Your choices stay on this device.</p>';
+      '<p class="rw-sound-note">Audio is limited to the opening, confirmed successes and reminders you set. Tabs, searches, sliders and ordinary taps stay quiet. Background music only loops if you turn it on. Your choices stay on this device.</p>';
     body.insertBefore(section, body.firstChild);
 
     var toggle = document.getElementById('rwAudioToggle');
@@ -340,8 +356,10 @@
     setLoopEnabled: setLoopEnabled,
     isLoopEnabled: isLoopEnabled,
     getState: snapshot,
-    unlock: unlock
+    unlock: unlock,
+    toggleQuick: toggleQuick
   };
+  window.rwToggleAudioQuick = toggleQuick;
 
   document.addEventListener('pointerdown', unlock, { capture:true, passive:true });
   document.addEventListener('touchend', unlock, { capture:true, passive:true });
