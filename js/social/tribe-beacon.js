@@ -49,8 +49,8 @@ function loadSquads(name,month){
     list.innerHTML=rows.map(function(r){
       var d2=r.data, mine=(d2.uid===((user||{}).uid));
       return '<div class="ti-day" style="align-items:flex-start;flex-direction:column;gap:4px;padding:12px;border:1px solid var(--b2);border-radius:12px;margin-bottom:8px">'
-        +'<div style="font-size:13px;color:var(--t1)">'+String(d2.note||'').replace(/[<>]/g,'')+'</div>'
-        +(d2.contact? '<div style="font-size:11.5px;color:var(--gold2)">\ud83d\udcac '+String(d2.contact).replace(/[<>]/g,'')+'</div>' : '<div style="font-size:11px;color:var(--t3)">No contact shared \u2014 poster stays private</div>')
+        +'<div style="font-size:13px;color:var(--t1)">'+esc2(d2.note||'')+'</div>'
+        +(d2.contact? '<div style="font-size:11.5px;color:var(--gold2)">\ud83d\udcac '+esc2(d2.contact)+'</div>' : '<div style="font-size:11px;color:var(--t3)">No contact shared \u2014 poster stays private</div>')
         +'<div style="display:flex;gap:8px;margin-top:2px">'
         +(mine? '<button class="tact" style="font-size:10.5px;padding:5px 10px" onclick="delSquad(\''+r.id+'\')">Remove mine</button>'
               : '<button class="tact" style="font-size:10.5px;padding:5px 10px;color:var(--t3)" onclick="reportSquad(\''+r.id+'\')">\u26a0 Report</button>')
@@ -280,7 +280,7 @@ function rwBeaconFind(){
               var hot=r.shared.indexOf(t)>=0;
               return '<span style="display:inline-block;font-size:11px;border-radius:20px;padding:3px 9px;margin:2px 3px 0 0;'
                 +(hot?'background:rgba(74,222,128,.15);color:#4ADE80;border:1px solid rgba(74,222,128,.5);font-weight:700'
-                     :'background:var(--bg3,#1A1A20);color:var(--t3);border:1px solid var(--b2,#2A2A36)')+'">'+t+'</span>';
+                     :'background:var(--bg3,#1A1A20);color:var(--t3);border:1px solid var(--b2,#2A2A36)')+'">'+esc2(t)+'</span>';
             }).join('')+'</div>'
           +(r.shared.length?'<div style="font-size:11px;color:#4ADE80;margin-top:6px;font-weight:700">\u2713 '+r.shared.length+' shared interest'+(r.shared.length>1?'s':'')+'</div>':'')
           +(b.handle?'<div style="margin-top:9px"><a class="tact" style="padding:6px 12px;font-size:12px;text-decoration:none" href="'+rwHandleHref(b.handle)+'" target="_blank" rel="noopener">\ud83d\udc4b '+esc2(b.handle)+'</a></div>':'')
