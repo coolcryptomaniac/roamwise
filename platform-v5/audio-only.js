@@ -228,6 +228,7 @@
        are unaffected either way. */
     if (state.enabled && state.loopEnabled) return play();
     if (!state.enabled) pause(false);
+    else { syncUI(); emit(); }
     return Promise.resolve(false);
   }
 

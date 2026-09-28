@@ -114,3 +114,18 @@ test('the corrupt pseudo-MP3 is gone and the ambient bed plays a real uploaded a
   assert.match(audio, /state\.enabled/);
   assert.match(audio, /normalizedVolume|audioEl\.volume/);
 });
+
+
+test('Akatsuki-inspired Tusk skin is included in the mobile and offline shell', () => {
+  const html = read('index.html');
+  const css = read('mobile-stability.css');
+  const theme = read('design/roamwise-akatsuki-theme.css');
+  const worker = read('sw.js');
+  assert.match(html, /class="rw-akatsuki-theme"/);
+  assert.match(html, /design\/roamwise-akatsuki-theme\.css/);
+  assert.match(css, /min-height: 214px !important/);
+  assert.match(css, /max-height: 720px/);
+  assert.match(theme, /--rw-akatsuki-crimson/);
+  assert.match(theme, /copilot-compose::before/);
+  assert.match(worker, /design\/roamwise-akatsuki-theme\.css/);
+});
