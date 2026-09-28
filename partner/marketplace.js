@@ -100,7 +100,26 @@ async function validateCards(){
 }
 function updateCardTotal(card,price){var c=trip(),n=nightsBetween(c.checkIn,c.checkOut),side=$('.side',card);if(!side||!n||!price)return;var old=$('.rw-market-total',side);if(old)old.remove();var d=document.createElement('div');d.className='rw-market-total';d.innerHTML='<b>'+money(price*n)+'</b><span>'+n+' night'+(n===1?'':'s')+' room total before property/local taxes, if any</span>';side.insertBefore(d,side.firstChild.nextSibling||null)}
 
-function searchSupport(){var box=$('.search');if(!box||$('#rwMarketSearchSupport'))return;var n=document.createElement('div');n.id='rwMarketSearchSupport';n.className='rw-market-search-support';n.innerHTML='<span><b>Verified direct stays first</b><small>Host approval is checked again before a request.</small></span><span><b>No prepayment on requests</b><small>Payment unlocks only after host confirmation.</small></span><span><b>Host-confirmed availability</b><small>RoamWise does not fake real-time inventory.</small></span>';box.appendChild(n)}
+function shareTripLink(){
+  var dest=String(($('#dest')||{}).value||'').trim().slice(0,100),ci=String(($('#checkin')||{}).value||''),co=String(($('#checkout')||{}).value||''),g=Number(($('#guests')||{}).value||2);
+  var query=new URLSearchParams({role:'customer',destination:dest||'Almora'});
+  if(/^\d{4}-\d{2}-\d{2}$/.test(ci)&&/^\d{4}-\d{2}-\d{2}$/.test(co)&&ci>=today()&&nightsBetween(ci,co)>0&&nightsBetween(ci,co)<=90){query.set('checkin',ci);query.set('checkout',co)}
+  if(Number.isInteger(g)&&g>=1&&g<=12)query.set('guests',String(g));
+  return location.origin+'/partner/?'+query.toString()
+}
+function searchSupport(){
+  var box=$('.search');if(!box||$('#rwMarketSearchSupport'))return;
+  var n=document.createElement('div');n.id='rwMarketSearchSupport';n.className='rw-market-search-support';
+  n.innerHTML='<span><b>Verified direct stays first</b><small>Host approval is checked again before a request.</small></span><span><b>No prepayment on requests</b><small>Payment unlocks only after host confirmation.</small></span><span><b>Host-confirmed availability</b><small>RoamWise does not fake real-time inventory.</small></span>';
+  box.appendChild(n);
+  var share=document.createElement('div');share.className='rw-market-share';share.innerHTML='<span><b>Send this stay search</b><small>Dates and guests travel with the link. The traveller requests a stay here; nothing is booked or charged by sharing.</small></span><div><a id="rwMarketShareWa" href="#" target="_blank" rel="noopener noreferrer">WhatsApp</a><a id="rwMarketShareTg" href="#" target="_blank" rel="noopener noreferrer">Telegram</a><button type="button" id="rwMarketShareCopy">Copy link</button><button type="button" id="rwMarketShareMore">More apps</button></div><small id="rwMarketShareStatus" role="status"></small>';
+  box.appendChild(share);
+  var wa=$('#rwMarketShareWa',share),tg=$('#rwMarketShareTg',share),copy=$('#rwMarketShareCopy',share),more=$('#rwMarketShareMore',share),status=$('#rwMarketShareStatus',share);
+  wa.onclick=function(){wa.href='https://wa.me/?text='+encodeURIComponent('Explore verified RoamWise stays and request availability: '+shareTripLink())};
+  tg.onclick=function(){tg.href='https://t.me/share/url?url='+encodeURIComponent(shareTripLink())+'&text='+encodeURIComponent('Explore verified RoamWise stays and request availability')};
+  copy.onclick=async function(){try{await navigator.clipboard.writeText(shareTripLink());status.textContent='Link copied — paste it in Instagram DM, SMS or any chat.'}catch(e){status.textContent='Copy this link from your address bar to share it.'}};
+  more.onclick=async function(){var url=shareTripLink();if(navigator.share)try{await navigator.share({title:'RoamWise stays',text:'Explore verified stays and request availability',url:url});return}catch(e){if(e.name==='AbortError')return}try{await navigator.clipboard.writeText(url);status.textContent='Link copied — share it in your preferred app.'}catch(e){status.textContent='Copy this link from your address bar to share it.'}}
+}
 
 function productionShell(){
   document.body.classList.add('rw-partner-marketplace');if(!PROD||DEMO)return;
