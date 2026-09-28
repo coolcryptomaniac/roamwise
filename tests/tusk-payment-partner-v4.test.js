@@ -34,6 +34,11 @@ test('Tusk booking hands off to verified inventory and payment-after-confirmatio
   assert.match(market, /paymentMethod==='roamwise_cashfree_after_confirmation'/);
   assert.match(market, /Pay securely with Cashfree/);
   assert.match(market, /marketplaceApproved===true/);
+  assert.match(market, /data-rw-payment-connector/);
+  assert.match(market, /Pay after host confirmation/);
+  assert.match(market, /b\.textContent!=='Request this room'/);
+  assert.match(market, /var p=listing\.paymentPublic\|\|\{\},a=\[\];if\(platformPay\.cashfreeEnabled/);
+  assert.match(market, /a\.push\(\{id:'pay_at_property'/);
 });
 
 test('Pro checkout has an immediate safe launcher and privacy-safe diagnostics', () => {

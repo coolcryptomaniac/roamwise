@@ -193,6 +193,7 @@ input:focus, select:focus, textarea:focus { border-color: var(--scarlet); box-sh
 .rw-market-total b, .rw-market-total span { display: block; }
 .rw-market-total b { color: var(--brass); }
 .rw-market-total span { max-width: 210px; color: var(--muted); font-size: 9px; }
+.rw-market-payment-connector { display: block; max-width: 210px; margin: 7px 0 0 auto; color: var(--pine); font-size: 9px; font-weight: 750; line-height: 1.35; }
 
 .modal { position: fixed; inset: 0; z-index: 80; display: none; place-items: center; padding: 18px; background: rgba(0,0,0,.78); backdrop-filter: blur(10px); }
 .modal.open { display: grid; }
@@ -311,6 +312,7 @@ input:focus, select:focus, textarea:focus { border-color: var(--scarlet); box-sh
   .result { grid-template-columns: 90px minmax(0,1fr); gap: 11px; }
   .result .pic { min-height: 90px; }
   .result .side { grid-column: 1/-1; display: grid; grid-template-columns: 1fr auto; align-items: center; text-align: left; }
+  .rw-market-payment-connector { grid-column: 1/-1; max-width: none; margin: 6px 0 0; }
   .stats, .rw-market-host-stats { grid-template-columns: repeat(2,1fr); }
   .rw-market-search-support, .rw-market-trust { grid-template-columns: 1fr; }
   .rw-market-owner-steps ol { grid-template-columns: 1fr; }
