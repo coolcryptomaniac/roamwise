@@ -32,7 +32,7 @@
     "@capacitor/push-notifications": "^6.0.2"
   },
   "devDependencies": {
-    "@capacitor/cli": "^6.1.0",
+    "@capacitor/cli": "^8.5.2",
     "@eslint/js": "^10.0.1",
     "eslint": "^10.10.0",
     "jsdom": "30.0.1",
