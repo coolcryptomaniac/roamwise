@@ -382,11 +382,10 @@ html{-webkit-text-size-adjust:100%}
     </div>
     <div class="nav-right">
       <button class="nav-ic" onclick="ssOpen()" title="Search" aria-label="Search">&#128269;</button>
-      <!-- Persistent 1-tap Settings shortcut (Sound Effects/Voice Narration toggles
-           live at the top of this modal). Kept visible on mobile ("shell") too —
-           unlike .mode-chip, .nav-ic is not hidden by body.shell CSS — so users no
-           longer have to go More tab -> drawer -> scroll -> expand "More" group ->
-           Settings & AI keys to reach it. That deeper path still works unchanged. -->
+      <button class="nav-ic rw-audio-shortcut" id="rwAudioQuickToggle" type="button" onclick="if(window.rwToggleAudioQuick){rwToggleAudioQuick()}else{openSettings()}" title="Sound on — tap to mute" aria-label="Mute RoamWise sound" aria-pressed="false">&#128266;</button>
+      <!-- Settings remains beside the one-tap sound control on wider screens.
+           On narrow phones the sound button gets this slot to avoid header
+           crowding; full Settings remains available from More. -->
       <button class="nav-ic" id="rwSettingsShortcut" onclick="openSettings()" title="Settings" aria-label="Settings">&#9881;&#65039;</button>
       <button class="mode-chip mode-free" id="modeChip" onclick="openSettings()">Smart Mode (free)</button>
       <button class="xp-chip" id="xpChip" onclick="openBadges()" title="Your traveler rank">&#129399; <span id="xpChipTxt">Genin</span></button>

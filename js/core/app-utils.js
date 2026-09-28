@@ -6,15 +6,16 @@
    `onclick="..."` attributes and from function bodies throughout
    the entire codebase. Keep them available before the app modules load. */
 
-/* Subtle haptic feedback — makes taps feel responsive & premium. No-op where
-   unsupported. Called on key actions (send, pin, pay-success). */
+/* Subtle haptic feedback — makes taps feel responsive without making ordinary
+   controls noisy. Audio is intentionally NOT coupled to haptics: sliders,
+   tabs, saves and routine taps must stay quiet. Selected events call
+   the cue player explicitly at their own success/opening boundary. */
 function rwHaptic(kind){
   try{
     if(window.Capacitor && Capacitor.Plugins && Capacitor.Plugins.Haptics){
       Capacitor.Plugins.Haptics.impact({style: kind==='heavy'?'HEAVY':'LIGHT'});
     } else if(navigator.vibrate){ navigator.vibrate(kind==='heavy'?18:8); }
   }catch(e){ /* best-effort, ignore */ }
-  try{ rwPlayCue(kind==='heavy' ? 'success_feedback' : 'tap_feedback'); }catch(e){ /* best-effort, ignore */ }
 }
 
 /* TOAST — wrap complete error messages, including payment errors, instead of

@@ -135,6 +135,8 @@
 
   #${ROOT_ID} .rw-skip{position:absolute;right:max(16px,env(safe-area-inset-right));top:max(18px,env(safe-area-inset-top));z-index:18;min-width:116px;border:1px solid rgba(255,208,111,.72);background:linear-gradient(135deg,rgba(31,8,34,.90),rgba(89,18,76,.82));backdrop-filter:blur(14px);box-shadow:0 9px 28px rgba(0,0,0,.42),0 0 18px rgba(255,73,186,.22);color:#fff7df;border-radius:999px;padding:14px 18px;font:800 13px/1 'Outfit',system-ui,sans-serif;letter-spacing:.10em;text-transform:uppercase;cursor:pointer}
   #${ROOT_ID} .rw-skip:focus-visible{outline:2px solid #ff77d6;outline-offset:3px}
+  #${ROOT_ID} .rw-opening-sound{position:absolute;left:max(16px,env(safe-area-inset-left));top:max(18px,env(safe-area-inset-top));z-index:18;border:1px solid rgba(255,255,255,.34);background:rgba(10,4,18,.72);backdrop-filter:blur(14px);color:#fff7df;border-radius:999px;padding:12px 15px;font:800 11px/1 'Outfit',system-ui,sans-serif;letter-spacing:.06em;cursor:pointer}
+  #${ROOT_ID} .rw-opening-sound:focus-visible{outline:2px solid #ff77d6;outline-offset:3px}
   #${ROOT_ID} .rw-vignette{position:absolute;inset:0;z-index:10;pointer-events:none;box-shadow:inset 0 0 150px rgba(8,0,15,.55),inset 0 -90px 140px rgba(6,0,12,.48)}
   #${ROOT_ID} .rw-audio-gate{position:absolute;z-index:16;left:50%;bottom:18%;width:min(430px,calc(100% - 40px));transform:translateX(-50%);display:grid;justify-items:center;gap:9px;text-align:center;pointer-events:none}
   #${ROOT_ID} .rw-stat-card{width:100%;box-sizing:border-box;padding:11px 14px;border:1px solid transparent;border-radius:16px;background:linear-gradient(135deg,rgba(10,4,20,.48),rgba(55,9,48,.28)) padding-box,linear-gradient(110deg,rgba(255,208,111,.24),rgba(255,63,189,.82),rgba(123,56,255,.72),rgba(255,208,111,.24)) border-box;background-size:100% 100%,240% 100%;backdrop-filter:blur(9px);box-shadow:0 14px 38px rgba(0,0,0,.30),0 0 24px rgba(255,63,189,.10);animation:rwStatFloat 3.4s ease-in-out infinite alternate,rwStatBorder 5s linear infinite}
@@ -488,6 +490,7 @@
       '<div class="rw-fx rw-thunder" aria-hidden="true"></div>'+
       '<div class="rw-vignette" aria-hidden="true"></div>'+
       '<div class="rw-audio-gate rw-auto-info" aria-live="polite"><div class="rw-stat-card"><span class="rw-stat-kicker">Today&#39;s travel signal</span><strong class="rw-stat-value">Checking today&#39;s world update&hellip;</strong><small class="rw-stat-detail">Fresh insight for your local date.</small></div><div class="rw-skip-hint">Tap anywhere to skip</div></div>'+
+      '<button class="rw-opening-sound" type="button" aria-label="Mute opening sound">&#128266; Sound</button>'+
       '<button class="rw-skip" type="button" aria-label="Skip intro">Skip&nbsp; &#8594;</button>';
 
     document.body.appendChild(root);
@@ -504,6 +507,13 @@
     filmGif.setAttribute('aria-hidden', 'true');
     video.insertAdjacentElement('afterend', filmGif);
     var skip = root.querySelector('.rw-skip');
+    var openingSound = root.querySelector('.rw-opening-sound');
+    function syncOpeningSound(){
+      var on = !(window.RWAudio && RWAudio.isEnabled && !RWAudio.isEnabled());
+      openingSound.innerHTML = on ? '&#128266; Sound' : '&#128263; Muted';
+      openingSound.setAttribute('aria-label', on ? 'Mute opening sound' : 'Turn opening sound on');
+    }
+    syncOpeningSound();
     var statKicker = root.querySelector('.rw-stat-kicker');
     var statValue = root.querySelector('.rw-stat-value');
     var statDetail = root.querySelector('.rw-stat-detail');
@@ -657,6 +667,13 @@
       }, 620);
     }
 
+    openingSound.addEventListener('click', function(event){
+      event.stopPropagation();
+      try {
+        if (typeof window.rwToggleAudioQuick === 'function') window.rwToggleAudioQuick();
+        syncOpeningSound();
+      } catch (_) {}
+    });
     skip.addEventListener('click', close);
     root.addEventListener('click', close);
     window.addEventListener('keydown', function esc(e){

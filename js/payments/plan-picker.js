@@ -476,6 +476,7 @@ function activatePro(payId, method){
   isPro=true; lsSet('rwPro','1'); lsSet('rw_pro_uid',(user&&user.uid)||'device'); lsSet('rwPayId', payId||'manual');
   try{ badgeAwardFounder(); }catch(e){ /* badge/progression update is a nice-to-have, ignore */ }
   try{ rwHaptic('heavy'); }catch(e){ /* haptic feedback is a nice-to-have, ignore */ }
+  try{ rwPlayCue('success_feedback'); }catch(e){ /* confirmed purchase cue is best-effort */ }
   closePay(); el('successOverlay').classList.add('open');
   confetti(); refreshProUI();
 }
@@ -533,6 +534,7 @@ function grantPurchase(payId, method, planId){
   }
   try{ badgeAwardFounder(); }catch(e){ /* badge/progression update is a nice-to-have, ignore */ }
   try{ rwHaptic('heavy'); }catch(e){ /* haptic feedback is a nice-to-have, ignore */ }
+  try{ rwPlayCue('success_feedback'); }catch(e){ /* confirmed purchase cue is best-effort */ }
   closePay(); el('successOverlay').classList.add('open');
   confetti(); refreshProUI();
 }

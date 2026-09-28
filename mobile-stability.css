@@ -113,6 +113,7 @@ body {
   .sw-tab { padding-left: 8px !important; padding-right: 8px !important; }
   .nav-right { gap: 3px !important; }
   .nav-right .xp-chip { display: none !important; }
+  #rwSettingsShortcut { display: none !important; }
   .nav-right .nav-ic,
   .hamb { width: 34px; height: 34px; padding: 4px !important; }
   .nav-right .btn-pro { padding: 6px 7px !important; }

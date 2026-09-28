@@ -89,6 +89,18 @@ test('saved mute preference is honoured on the next visit', () => {
   assert.equal(api.getVolume(), 0.15);
 });
 
+test('one-tap sound shortcut mutes and persists without opening settings', async () => {
+  const { api, storage } = loadEngine();
+  assert.equal(typeof api.toggleQuick, 'function');
+  await api.toggleQuick();
+  assert.equal(api.isEnabled(), false);
+  assert.equal(storage.get('rw_audio_enabled'), '0');
+  await api.toggleQuick();
+  assert.equal(api.isEnabled(), true);
+  assert.equal(storage.get('rw_audio_enabled'), '1');
+  assert.equal(api.isPlaying(), false);
+});
+
 test('looping the ambient bed is opt-in only, off by default, and persists once turned on', async () => {
   const { api, storage } = loadEngine();
   assert.equal(api.isLoopEnabled(), false);
