@@ -34,7 +34,7 @@
   "devDependencies": {
     "@capacitor/cli": "^6.1.0",
     "@eslint/js": "^10.0.1",
-    "eslint": "^10.10.0",
+    "eslint": "^10.11.0",
     "jsdom": "30.0.1",
     "typescript": "^7.0.2"
   }
