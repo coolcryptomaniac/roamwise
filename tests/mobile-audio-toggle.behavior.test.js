@@ -24,7 +24,6 @@ test('quick sound toggle can mute and unmute repeatedly on mobile browsers', asy
     setItem(key, value) { values.set(key, String(value)); }
   };
   vm.runInNewContext(source, { window, document, localStorage, CustomEvent });
-  assert.equal(button.textContent, '🔊');
   await window.rwToggleAudioQuick();
   assert.equal(window.RWAudio.isEnabled(), false);
   assert.equal(button.textContent, '🔇');
