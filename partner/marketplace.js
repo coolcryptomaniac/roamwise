@@ -56,6 +56,20 @@ function publicListing(listing,room,profile){
     paymentPublic:{upiId:validUpi(p.upiId)?p.upiId:'',paymentLink:safeHttps(p.paymentLink)}
   })
 }
+function paymentConnector(listing){
+  var p=listing.paymentPublic||{},methods=[];
+  if(platformPay.cashfreeEnabled===true&&safeHttps(platformPay.workerBaseUrl))methods.push('Cashfree');
+  if((platformPay.manualUpiEnabled===true&&validUpi(platformPay.publicUpiId))||validUpi(p.upiId))methods.push('UPI');
+  if(safeHttps(p.paymentLink))methods.push('secure link');
+  if(!methods.length)methods.push('pay at property');
+  return methods.join(' / ')
+}
+function decoratePaymentConnector(card,listing){
+  var side=$('.side',card),b=$('[data-book]',card);if(!side||!b)return;
+  if(b.textContent!=='Request this room')b.textContent='Request this room';
+  var note=$('[data-rw-payment-connector]',side);if(!note){note=document.createElement('small');note.className='rw-market-payment-connector';note.setAttribute('data-rw-payment-connector','');side.appendChild(note)}
+  var text='Pay after host confirmation · '+paymentConnector(listing);if(note.textContent!==text)note.textContent=text
+}
 
 function dateGuard(){
   var ci=$('#checkin'),co=$('#checkout'),guests=$('#guests');if(!ci||!co)return;
@@ -69,7 +83,7 @@ async function validateCards(){
   await Promise.all($$('.result.direct').map(async function(card){
     var b=$('[data-book]',card),x=b&&parseBookingButton(b);if(!x)return;card.classList.add('rw-market-checking');
     var r=await getRoom(x,false);if(!approved(r,x)){card.remove();return}
-    var profile=await getPublicProfile(x.partnerUid,false),fresh=publicListing(x,r,profile);b.dataset.book=JSON.stringify(fresh);b.textContent='Check availability';
+    var profile=await getPublicProfile(x.partnerUid,false),fresh=publicListing(x,r,profile);b.dataset.book=JSON.stringify(fresh);decoratePaymentConnector(card,fresh);
     card.classList.remove('rw-market-checking');card.classList.add('rw-market-verified');
     var pic=$('.pic',card);if(pic&&fresh.heroImage){pic.style.backgroundImage='url("'+fresh.heroImage.replace(/"/g,'%22')+'")';pic.textContent=''}
     var badge=$('.pill.green',card);if(badge)badge.textContent=fresh.curationBadges.indexOf('signature')>=0?'★ RoamWise Signature':'✓ Verified host';
@@ -86,26 +100,7 @@ async function validateCards(){
 }
 function updateCardTotal(card,price){var c=trip(),n=nightsBetween(c.checkIn,c.checkOut),side=$('.side',card);if(!side||!n||!price)return;var old=$('.rw-market-total',side);if(old)old.remove();var d=document.createElement('div');d.className='rw-market-total';d.innerHTML='<b>'+money(price*n)+'</b><span>'+n+' night'+(n===1?'':'s')+' room total before property/local taxes, if any</span>';side.insertBefore(d,side.firstChild.nextSibling||null)}
 
-function shareTripLink(){
-  var dest=String(($('#dest')||{}).value||'').trim().slice(0,100),ci=String(($('#checkin')||{}).value||''),co=String(($('#checkout')||{}).value||''),g=Number(($('#guests')||{}).value||2);
-  var query=new URLSearchParams({role:'customer',destination:dest||'Almora'});
-  if(/^\d{4}-\d{2}-\d{2}$/.test(ci)&&/^\d{4}-\d{2}-\d{2}$/.test(co)&&ci>=today()&&nightsBetween(ci,co)>0&&nightsBetween(ci,co)<=90){query.set('checkin',ci);query.set('checkout',co)}
-  if(Number.isInteger(g)&&g>=1&&g<=12)query.set('guests',String(g));
-  return location.origin+'/partner/?'+query.toString()
-}
-function searchSupport(){
-  var box=$('.search');if(!box||$('#rwMarketSearchSupport'))return;
-  var n=document.createElement('div');n.id='rwMarketSearchSupport';n.className='rw-market-search-support';
-  n.innerHTML='<span><b>Verified direct stays first</b><small>Host approval is checked again before a request.</small></span><span><b>No prepayment on requests</b><small>Payment unlocks only after host confirmation.</small></span><span><b>Host-confirmed availability</b><small>RoamWise does not fake real-time inventory.</small></span>';
-  box.appendChild(n);
-  var share=document.createElement('div');share.className='rw-market-share';share.innerHTML='<span><b>Send this stay search</b><small>Dates and guests travel with the link. The traveller requests a stay here; nothing is booked or charged by sharing.</small></span><div><a id="rwMarketShareWa" href="#" target="_blank" rel="noopener noreferrer">WhatsApp</a><a id="rwMarketShareTg" href="#" target="_blank" rel="noopener noreferrer">Telegram</a><button type="button" id="rwMarketShareCopy">Copy link</button><button type="button" id="rwMarketShareMore">More apps</button></div><small id="rwMarketShareStatus" role="status"></small>';
-  box.appendChild(share);
-  var wa=$('#rwMarketShareWa',share),tg=$('#rwMarketShareTg',share),copy=$('#rwMarketShareCopy',share),more=$('#rwMarketShareMore',share),status=$('#rwMarketShareStatus',share);
-  wa.onclick=function(){wa.href='https://wa.me/?text='+encodeURIComponent('Explore verified RoamWise stays and request availability: '+shareTripLink())};
-  tg.onclick=function(){tg.href='https://t.me/share/url?url='+encodeURIComponent(shareTripLink())+'&text='+encodeURIComponent('Explore verified RoamWise stays and request availability')};
-  copy.onclick=async function(){try{await navigator.clipboard.writeText(shareTripLink());status.textContent='Link copied — paste it in Instagram DM, SMS or any chat.'}catch(e){status.textContent='Copy this link from your address bar to share it.'}};
-  more.onclick=async function(){var url=shareTripLink();if(navigator.share)try{await navigator.share({title:'RoamWise stays',text:'Explore verified stays and request availability',url:url});return}catch(e){if(e.name==='AbortError')return}try{await navigator.clipboard.writeText(url);status.textContent='Link copied — share it in your preferred app.'}catch(e){status.textContent='Copy this link from your address bar to share it.'}}
-}
+function searchSupport(){var box=$('.search');if(!box||$('#rwMarketSearchSupport'))return;var n=document.createElement('div');n.id='rwMarketSearchSupport';n.className='rw-market-search-support';n.innerHTML='<span><b>Verified direct stays first</b><small>Host approval is checked again before a request.</small></span><span><b>No prepayment on requests</b><small>Payment unlocks only after host confirmation.</small></span><span><b>Host-confirmed availability</b><small>RoamWise does not fake real-time inventory.</small></span>';box.appendChild(n)}
 
 function productionShell(){
   document.body.classList.add('rw-partner-marketplace');if(!PROD||DEMO)return;
@@ -150,7 +145,7 @@ async function saveHostStudio(){
   var msg=$('#rwHostMsg'),btn=$('#rwHostSave');btn.disabled=true;msg.textContent='Saving…';try{await F.db.collection('partners').doc(u.uid).set(doc,{merge:true});var q=await F.db.collection('partners').doc(u.uid).collection('rooms').limit(100).get(),jobs=[];q.forEach(function(r){jobs.push(r.ref.set({heroImage:doc.heroImage,amenities:doc.amenities,cancel:doc.cancellation,houseRules:doc.houseRules,welcomeNote:doc.welcomeNote,paymentPublic:{upiId:doc.payout.upiId,paymentLink:doc.payout.paymentLink},updatedAt:now()},{merge:true}))});await Promise.all(jobs);await syncApprovedRooms();roomCache={};msg.textContent='✓ Saved and synced to your rooms.'}catch(e){msg.textContent='Could not save: '+(e.message||e)}finally{btn.disabled=false}
 }
 
-function paymentMethods(listing){var p=listing.paymentPublic||{},a=[{id:'pay_at_property',name:'Pay at property',sub:'No prepayment through RoamWise.'}];if(platformPay.cashfreeEnabled===true&&safeHttps(platformPay.workerBaseUrl))a.push({id:'roamwise_cashfree_after_confirmation',name:'Cashfree secure checkout',sub:'RoamWise checkout unlocks only after host confirmation.'});if(platformPay.manualUpiEnabled===true&&validUpi(platformPay.publicUpiId))a.push({id:'roamwise_upi_after_confirmation',name:'RoamWise UPI',sub:'Manual UPI fallback after host confirmation; payment is reconciled separately.'});if(validUpi(p.upiId))a.push({id:'upi_after_confirmation',name:'Host UPI after confirmation',sub:'The verified host’s UPI unlocks only after confirmation.'});if(safeHttps(p.paymentLink))a.push({id:'secure_link_after_confirmation',name:'Host secure payment page',sub:'HTTPS hosted checkout after confirmation.'});return a}
+function paymentMethods(listing){var p=listing.paymentPublic||{},a=[];if(platformPay.cashfreeEnabled===true&&safeHttps(platformPay.workerBaseUrl))a.push({id:'roamwise_cashfree_after_confirmation',name:'Cashfree secure checkout',sub:'RoamWise checkout unlocks only after host confirmation.'});if(platformPay.manualUpiEnabled===true&&validUpi(platformPay.publicUpiId))a.push({id:'roamwise_upi_after_confirmation',name:'RoamWise UPI',sub:'Manual UPI fallback after host confirmation; payment is reconciled separately.'});if(validUpi(p.upiId))a.push({id:'upi_after_confirmation',name:'Host UPI after confirmation',sub:'The verified host’s UPI unlocks only after confirmation.'});if(safeHttps(p.paymentLink))a.push({id:'secure_link_after_confirmation',name:'Host secure payment page',sub:'HTTPS hosted checkout after confirmation.'});a.push({id:'pay_at_property',name:'Pay at property',sub:'No prepayment through RoamWise.'});return a}
 function openBooking(listing,room){
   var c=trip(),n=nightsBetween(c.checkIn,c.checkOut);if(!n)return alert('Choose valid check-in and check-out dates.');if(c.checkIn<today())return alert('Check-in cannot be in the past.');if(n>90)return alert('For stays longer than 90 nights, contact the property/RoamWise directly.');if(c.guests>Number(room.maxGuests||2))return alert('This room sleeps up to '+Number(room.maxGuests||2)+' guests.');
   var x=publicListing(listing,room),total=x.price*n,rules=x.houseRules?'<div class="rw-market-policy"><b>House rules</b><span>'+esc(x.houseRules)+'</span></div>':'';
@@ -201,8 +196,8 @@ function captureClick(event){if(interceptApproval(event))return;if(event.target.
 function init(){
   document.body.classList.add('rw-partner-marketplace');document.addEventListener('click',captureClick,true);document.addEventListener('change',function(e){if(e.target&&e.target.id==='checkin')dateGuard();if(e.target&&/^(checkin|checkout)$/.test(e.target.id))$$('.result.direct').forEach(function(c){var x=parseBookingButton($('[data-book]',c)||{});if(x)updateCardTotal(c,Number(x.price||0))})},true);
   var observer=new MutationObserver(scheduleRepaint),view=$('#view'),roles=$('#rolegrid');if(view)observer.observe(view,{childList:true,subtree:true});if(roles)observer.observe(roles,{childList:true,subtree:true,attributes:true,attributeFilter:['class']});
-  var F=fb();loadPlatformPay();if(F.auth)F.auth.onAuthStateChanged(function(){roomCache={};lastHostKey='';setTimeout(function(){loadIdentity();loadPlatformPay();syncApprovedRooms();repaint()},80)});repaint();setTimeout(repaint,350);setTimeout(repaint,1100)
+  var F=fb();loadPlatformPay().then(scheduleRepaint);if(F.auth)F.auth.onAuthStateChanged(function(){roomCache={};lastHostKey='';setTimeout(function(){loadIdentity();loadPlatformPay().then(scheduleRepaint);syncApprovedRooms();repaint()},80)});repaint();setTimeout(repaint,350);setTimeout(repaint,1100)
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
-window.RWPartnerMarketplace={version:'5.0.1-canonical',validateCards:validateCards,syncRooms:syncApprovedRooms,payments:paymentStatuses};
+window.RWPartnerMarketplace={version:'5.0.2-canonical',validateCards:validateCards,syncRooms:syncApprovedRooms,payments:paymentStatuses};
 })();
