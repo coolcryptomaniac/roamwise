@@ -54,6 +54,7 @@
       <button data-page="notifications" onclick="goPage('notifications',this)">Notifications</button>
       <button data-page="referrals" onclick="goPage('referrals',this)">Referrals</button>
       <button data-page="staff" onclick="goPage('staff',this)">Staff</button>
+      <button data-page="records" onclick="goPage('records',this)">Records &amp; SOPs</button>
       <button data-page="compliance" onclick="goPage('compliance',this)">Compliance</button>
       <button data-page="devrequests" onclick="goPage('devrequests',this)">Dev/AI Requests</button>
       <button data-page="investors" onclick="goPage('investors',this)">Investor view</button>
@@ -205,6 +206,18 @@
           <div class="card"><h2>Source-verified people &amp; programmes to consider</h2><p>Public research targets, not people who have expressed interest in RoamWise. Re-verify role and contact route before outreach.</p><div id="growthIntelResearch" class="list"><div class="empty">Loading source-backed research…</div></div><a class="btn" style="margin-top:12px" href="./opportunity-radar.html">Open full Opportunity Radar</a></div>
         </div>
         <div class="card" style="margin-top:14px"><h2>Growth experiment → existing work queue</h2><p>Turn a distribution or retention idea into an accountable task instead of another dashboard note.</p><div class="fields"><div class="field"><label>Experiment</label><input id="giExperimentTitle" class="input" placeholder="e.g. 20-property Kasar Devi referral pilot"></div><div class="field"><label>Priority</label><select id="giExperimentPriority" class="input"><option value="normal">Normal</option><option value="high">High</option><option value="low">Low</option></select></div><div class="field full"><label>Hypothesis, owner, metric and stop condition</label><textarea id="giExperimentDetail" class="input" placeholder="If we do X for Y audience, we expect Z. Measure… Stop if…"></textarea></div></div><div class="actions" style="margin-top:12px"><button class="btn primary" onclick="rwGrowthIntelCreateTask()">Add to Dev / AI queue</button><button class="btn" onclick="goPage('devrequests')">Open queue</button></div></div>
+      </section>
+      <section id="records" class="section"><div class="eyebrow">Private records index</div><h1 class="title">Business records, easy to find.</h1><p class="lead">Use this page as the filing map for Roamwise agreements, team documents, finance evidence, property files and operating procedures.</p>
+        <div class="alert"><b>Private files:</b> The documents are stored in ChatGPT Library under <b>Roamwise → Business Records</b>. Open Library in ChatGPT to view or download them. This Admin page only shows the filing map; it does not copy private files into the website.</div>
+        <div class="grid two">
+          <div class="card"><h2>Legal &amp; MOUs</h2><p>Signed partner agreements, MOU versions, amendments and legal correspondence.</p></div>
+          <div class="card"><h2>Team &amp; Internships</h2><p>Offers, completion certificates and work evidence. Issue certificates only after the final completion review.</p><a class="btn" href="../staff/">Open staff operations</a></div>
+          <div class="card"><h2>Finance</h2><p>Expense register, bills and receipts, bank/payment evidence, tax and compliance records.</p><a class="btn" href="./finance-desk/">Open finance desk</a></div>
+          <div class="card"><h2>Property &amp; Partners</h2><p>Onboarding evidence, partner details, verified listing information and signed terms.</p><a class="btn" href="../partner/?mode=live&amp;role=admin">Open property operations</a></div>
+          <div class="card"><h2>Investor &amp; Fundraising</h2><p>Investor materials, fundraising records and approved pitch information.</p></div>
+          <div class="card"><h2>Policies &amp; Operations</h2><p>Founder Operations SOP Handbook and future business procedures.</p><div class="meta">The handbook sets a weekly 30-minute founder review, owner-led routine work, and escalation only for decisions, money, safety, privacy or material risk.</div></div>
+        </div>
+        <div class="card" style="margin-top:14px"><h2>Founder review rule</h2><p>Team owners handle routine tasks and send one weekly summary. Bring the founder only decisions, spend or payout approvals, safety/privacy/legal issues, and high-impact brand or risk items.</p></div>
       </section>
       <section id="compliance" class="section"><div class="eyebrow">Compliance</div><h1 class="title">A plain checklist, not a fake score.</h1><p class="lead">Each item cites where it comes from. You flip the status by hand — nothing here auto-grades compliance.</p>
         <div id="complianceList"><div class="empty">Loading…</div></div>
