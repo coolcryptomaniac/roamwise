@@ -31,7 +31,7 @@ jobs:
         run: node tools/ai-ops/payment-watch.cjs
       - name: Open one incident issue if health regresses
         if: steps.check.outcome == 'failure'
-        uses: actions/github-script@v7
+        uses: actions/github-script@v9
         with:
           script: |
             const fs = require('fs');
