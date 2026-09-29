@@ -13,6 +13,11 @@
 - Fitness-first stays, tribe travel, greener-trip suggestions
 - Honest budget breakdowns in Indian rupees
 
+## Pricing
+- Free to start, no signup needed to plan a trip
+- Founder offer: Pro for a one-time Rs 100 (lifetime), limited to the first 1,000 members
+- After the founder seats are filled, standard plans apply (daily, weekly, monthly, 3-month, yearly, lifetime); current prices are listed in the app's payment screen
+
 ## About
 - Made in Almora, Uttarakhand by Mohit Pandey
 - Web: https://www.roamwise.co.in

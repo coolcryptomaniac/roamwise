@@ -20,9 +20,7 @@ AdSense lesson, v88).
 - [x] Paid-click attribution: `js/misc/ad-attribution.js` -> anonymous daily counters
       `ad_visits`, `ad_signups`, `ad_purchases` in Firestore `stats/{day}` (needs the rules in this
       branch to be deployed — they deploy automatically when merged to `main`)
-- [ ] Founder: reconcile the homepage `og:`/`twitter:` text ("Pay once, yours forever", "One-time
-      unlock") with the live plan ladder (Free / Plus ₹99 / Pro ₹299 / Elite ₹499 monthly). Ad reviewers
-      and AI answers quote this text, so it must match what the product actually charges.
+- [x] Homepage og/twitter/promo text now says the ₹100 lifetime is the founder offer (first 1,000 members), then standard plans
 
 ## Landing URL (use the apex host, avoids a redirect)
 ```
