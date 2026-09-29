@@ -425,6 +425,7 @@ service cloud.firestore {
         || statsBump('pay_opens') || statsBump('pdf_generated') || statsBump('pdf_opens')
         || statsBump('pdf_paid') || statsBump('pwa_dismissed') || statsBump('pwa_installed')
         || statsBump('ref_click') || statsBump('ref_code_entered') || statsBump('searches')
+        || statsBump('ad_visits') || statsBump('ad_signups') || statsBump('ad_purchases')
         || statsBump('signups') || statsBump('trip_saved') || statsBump('tusk_helpful')
         || statsBump('tusk_unhelpful') || statsBump('utr_submits') || statsBump('video_made')
         || statsBump('video_opens') || statsBump('visits') || statsBump('wiz_opens');

@@ -78,6 +78,7 @@ Read `features/business-travel/AGENTS.md` first for the module map and targeted 
 
 | File | Purpose | Status | Read this when... |
 |---|---|---|---|
+| `ADS-CHATGPT-LAUNCH.md` | ChatGPT Ads test plan, UTM rules (never `utm_content`), ad-copy drafts, crawler pre-flight | Current, Sep 2026 (draft, needs owner approval) | Running paid ads, or changing robots.txt / ad attribution |
 | `PROJECT-STATE.md` | Rolling dev diary (v52→v76+ feature-by-feature history) plus Android build/signing/Gradle notes. Written so a reset sandbox can recover context. | reference/rolling changelog — genuinely current as a log, but Android build paths (`/home/claude/rw2/...`) refer to an external build environment, not this repo's tree | Need feature history ("why does X work this way"), or doing an Android/Gradle build in that external environment. |
 | `PRICING-REFERRAL-MATH.md` | Worked arithmetic for the pricing ladder + referral/creator commission economics, sourced from live `app.js`/`referral-data.js`/`finance-data.js` config. | current, most rigorously cross-checked doc in the repo | Before proposing any pricing or referral-commission change. |
 | `PERPETUAL-INDEPENDENCE-PLAN.md` | Ten-year founder-independence contract: preserved lifetime promises, managed-AI cost boundary, automated revenue stack, concentration guardrails and crore milestone arithmetic. | current | Before changing lifetime copy, AI allowances, B2B add-ons, founder-time products or the 10-year admin model. |
