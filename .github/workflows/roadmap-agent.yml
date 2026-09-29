@@ -121,7 +121,7 @@ jobs:
       # is purely opportunistic reuse of an already-working mechanism.
       - name: Email reminder (only if mail secrets are already set)
         if: env.ROADMAP_KEY == '' && env.MAILU != ''
-        uses: dawidd6/action-send-mail@v3
+        uses: dawidd6/action-send-mail@v22
         with:
           server_address: smtp.gmail.com
           server_port: 465
