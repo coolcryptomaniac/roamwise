@@ -30,6 +30,7 @@ var PRECACHE = [
   '/index.html',
   '/app.css',
   '/mobile-stability.css',
+  '/design/roamwise-akatsuki-theme.css',
   '/app.js',
   '/rw-config.js',
   '/js/runtime/freshness.js',

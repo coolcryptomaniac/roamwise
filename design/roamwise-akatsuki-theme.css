@@ -1,0 +1,45 @@
+/* Original RoamWise night-sky layer: crimson cloud glints, Himalayan violet and gold. */
+:root {
+  --rw-akatsuki-ink: #080910;
+  --rw-akatsuki-crimson: #c4303c;
+  --rw-akatsuki-crimson-bright: #e54b5a;
+  --rw-akatsuki-violet: #875ce3;
+  --rw-akatsuki-gold: #e8ba6c;
+}
+.rw-akatsuki-theme .v-copilot .copilot-compose {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  border: 1px solid rgba(229, 75, 90, .58) !important;
+  background:
+    radial-gradient(ellipse 110px 64px at 96% 2%, rgba(196, 48, 60, .22), transparent 75%),
+    radial-gradient(circle at 4% 100%, rgba(135, 92, 227, .12), transparent 34%),
+    linear-gradient(145deg, #10111a 4%, #11101c 64%, #171123 100%) !important;
+  box-shadow: 0 18px 52px rgba(0,0,0,.48), 0 0 0 1px rgba(232,186,108,.16), 0 0 30px rgba(196,48,60,.13) !important;
+}
+.rw-akatsuki-theme .v-copilot .copilot-compose::before {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  top: 12px;
+  right: 14px;
+  width: 72px;
+  height: 34px;
+  opacity: .44;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 12px 12px at 13px 18px, transparent 7px, var(--rw-akatsuki-crimson-bright) 8px, transparent 10px),
+    radial-gradient(ellipse 12px 12px at 28px 12px, transparent 7px, var(--rw-akatsuki-crimson-bright) 8px, transparent 10px),
+    radial-gradient(ellipse 12px 12px at 43px 18px, transparent 7px, var(--rw-akatsuki-crimson-bright) 8px, transparent 10px),
+    radial-gradient(ellipse 12px 12px at 58px 12px, transparent 7px, var(--rw-akatsuki-crimson-bright) 8px, transparent 10px);
+}
+.rw-akatsuki-theme .v-copilot .copilot-compose #heroInput,
+.rw-akatsuki-theme .v-copilot .copilot-compose .copilot-actions,
+.rw-akatsuki-theme .v-copilot .copilot-compose #heroModels { position: relative; z-index: 1; }
+.rw-akatsuki-theme .v-copilot .copilot-actions button { border-color: rgba(135,92,227,.34); box-shadow: 0 5px 18px rgba(0,0,0,.25); }
+.rw-akatsuki-theme .v-copilot .copilot-actions button:focus-visible,
+.rw-akatsuki-theme #rwAudioQuickToggle:focus-visible { outline: 2px solid var(--rw-akatsuki-gold); outline-offset: 3px; }
+.rw-akatsuki-theme #rwAudioQuickToggle.is-muted { border-color: rgba(229,75,90,.48); color: #e4c4ca; }
+@media (prefers-reduced-motion: reduce) {
+  .rw-akatsuki-theme .v-copilot .copilot-compose { animation: none !important; }
+}
