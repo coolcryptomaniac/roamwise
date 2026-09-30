@@ -428,7 +428,10 @@ service cloud.firestore {
         || statsBump('ad_visits') || statsBump('ad_signups') || statsBump('ad_purchases')
         || statsBump('signups') || statsBump('trip_saved') || statsBump('tusk_helpful')
         || statsBump('tusk_unhelpful') || statsBump('utr_submits') || statsBump('video_made')
-        || statsBump('video_opens') || statsBump('visits') || statsBump('wiz_opens');
+        || statsBump('video_opens') || statsBump('visits') || statsBump('wiz_opens')
+        || statsBump('kasar_ailon_tailor') || statsBump('kasar_milan_call_click')
+        || statsBump('kasar_milan_dm_click') || statsBump('kasar_milan_referral_copy')
+        || statsBump('kasar_origin_added');
       allow delete: if isAdmin();
     }
 

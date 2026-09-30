@@ -156,7 +156,8 @@ function rwStartAnywhere(t){
 async function cpFinish(bubble, answerHTML, intents, raw){
   intents._raw = raw;
   try{ rwRemember('user', raw, {dest:intents.dest, topic:intents.topic, days:intents.days}); }catch(e){ /* best-effort, ignore */ }
-  var actions = await cpActionsHTML(intents);
+  var isKasarFestival=/kasar\s*(?:devi\s*)?(?:music\s*fest|festival)|(?:nupur\s*pant|rahgir).{0,50}(?:kasar|fest)|(?:kasar|fest).{0,50}(?:nupur\s*pant|rahgir)/i.test(String(raw||''));
+  var actions = isKasarFestival ? [] : await cpActionsHTML(intents);
   var parts=[]; if(answerHTML) parts.push(answerHTML);
   if(actions.length) parts.push(actions.join('<br><br>'));
   if(!parts.length) parts.push('I can handle destinations, dates, budgets, weather, cafes, buses/trains and sharing \u2014 try: \u201cPlan 4 days in Udaipur under \u20b912,000.\u201d');
@@ -164,7 +165,7 @@ async function cpFinish(bubble, answerHTML, intents, raw){
   var isCard = actions.length && String(actions[0]).indexOf('tk-card')>-1;
   var _html = parts.join(isCard? '<div style="height:10px"></div>' : '<hr style="border:none;border-top:1px dashed var(--b2,#2A2A36);margin:10px 0">');
   /* Every answer ends with tappable actions — an answer is never a dead end. */
-  try{ if(!intents.smalltalk) _html += rwTuskRail(intents.dest||'', raw||''); }catch(e){ /* best-effort, ignore */ }
+  try{ if(!intents.smalltalk&&!isKasarFestival) _html += rwTuskRail(intents.dest||'', raw||''); }catch(e){ /* best-effort, ignore */ }
   /* Lightweight per-response feedback — bot replies only (cpFinish only ever
      finishes a 'bot' bubble). Anonymous daily counter, same pattern as track()
      elsewhere; no per-message record, no user identity. */

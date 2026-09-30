@@ -62,6 +62,21 @@ function track(ev){
       .catch(function(e){ try{ lsSet('rw_track_err', (e.code||'')+' '+(e.message||e)); }catch(_){ /* storage best-effort, ignore */ } });
   }catch(e){ /* best-effort Firestore write, ignore */ }
 }
+/* Copy a ready-to-send referral note. Tracking records only aggregate daily
+   counts; the guest's name, email, origin city and message are never sent. */
+function rwCopyMilanReferral(){
+  var text='Hi Milan Heights, I found you on RoamWise. I’d like to ask about room availability and the total rate for 2–5 October 2026. Please share the room options and any transport suggestions for Kasar Devi.';
+  function done(){try{track('kasar_milan_referral_copy');}catch(e){}try{showToast('Message copied — mention RoamWise when you book');}catch(e){}}
+  try{
+    if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(text).then(done,function(){fallback();});return;}
+  }catch(e){}
+  fallback();
+  function fallback(){
+    var box=document.createElement('textarea');box.value=text;box.setAttribute('readonly','');box.style.position='fixed';box.style.left='-9999px';document.body.appendChild(box);box.select();
+    var ok=false;try{ok=document.execCommand('copy');}catch(e){}document.body.removeChild(box);
+    if(ok)done();else try{showToast('Please mention: “I found Milan Heights on RoamWise.”');}catch(e){}
+  }
+}
 /* Per-response thumbs up/down on Ailon Tusk bot bubbles (see cpFinish). No
    per-message record and no user identity — just bumps the same anonymous
    daily counter track() already writes, under two new event names. Also
