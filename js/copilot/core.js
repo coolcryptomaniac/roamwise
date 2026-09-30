@@ -165,7 +165,30 @@ function cpDbFind(text){
   }
   return hit;
 }
+function rwAskKasarFest(){
+  var input=el('heroInput');
+  if(!input) return;
+  input.value='Plan the Kasar Music Fest 2.0 weekend in Almora for Oct 2–5, 2026. Include Rahgir and Nupur Pant, the schedule uncertainty, and compare Milan Heights for town and market exploring with The Moksha Retreat near the festival.';
+  cpFocusHero();
+}
 function cpSmartAnswer(t){
+  /* Curated Kasar Music Fest weekend answer: keep this deterministic so Ailon
+     Tusk can answer the homepage feature without an external AI key. */
+  if(/kasar\s*(?:devi\s*)?(?:music\s*fest|festival)|(?:nupur\s*pant|rahgir).{0,50}(?:kasar|fest)|(?:kasar|fest).{0,50}(?:nupur\s*pant|rahgir)/i.test(String(t||''))){
+    return '<b>Kasar Music Fest 2.0 · Almora · 3–4 October 2026</b>'
+      +'<br>Rahgir and Nupur Pant are announced. The ₹2,000 pass covers both festival days, 3–4 Oct. BookMyShow lists 4:30 pm for Saturday; Doi Stays gives 5 pm–midnight on both days. Confirm exact entry time and artist slots.'
+      +'<br><br><b>A relaxed four-day plan</b>'
+      +'<br>Fri 2 Oct · Arrive in Almora, check in and keep the evening easy.'
+      +'<br>Sat 3 Oct · Take a slow morning, then head to Kasar Devi for festival day one. Keep return transport arranged in advance.'
+      +'<br>Sun 4 Oct · Festival day two, covered by the same pass. Explore Almora town and its market during the day, then return to Kasar Devi for the evening show.'
+      +'<br>Mon 5 Oct · Breakfast, check out and depart.'
+      +'<br><br><b>Which stay fits best?</b> Milan Heights is the town-base pick for a livelier Almora feel, market time and town exploring; arrange a ride to Kasar Devi and confirm rooms/rates directly. The Moksha Retreat is the venue-side pick if festival access and a quieter hillside setting come first.'
+      +'<br><br><a style="color:var(--gold2,#C8913E)" target="_blank" rel="noopener" href="https://in.bookmyshow.com/events/kasar-music-fest-2-0/ET00517675">Tickets on BookMyShow ↗</a>'
+      +' · <a style="color:var(--gold2,#C8913E)" target="_blank" rel="noopener" href="https://doistays.com/events.html">Doi Stays event details ↗</a>'
+      +' · <a style="color:var(--gold2,#C8913E)" target="_blank" rel="noopener" href="https://themokshakasar.com/rooms.html">Moksha stay enquiry ↗</a>'
+      +' · <a style="color:var(--gold2,#C8913E)" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Milan+Heights+Almora">Find Milan Heights ↗</a>'
+      +'<br><span style="font-size:10.5px;color:var(--t3)">Milan Heights does not have a verified direct booking link in this plan. Confirm availability, price and transport before booking.</span>';
+  }
   var MO=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   function meta(d){
     var cur=String((d&&d._priceCurrency)||(d&&d.cur==='INR'?'INR':'USD')).toUpperCase();
