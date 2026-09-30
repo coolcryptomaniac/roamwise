@@ -168,7 +168,7 @@ function cpDbFind(text){
 function rwAskKasarFest(){
   var input=el('heroInput');
   if(!input) return;
-  input.value='Plan the Kasar Music Fest 2.0 weekend in Almora for Oct 2–5, 2026. Include Rahgir and Nupur Pant, the schedule uncertainty, and compare Milan Heights for town and market exploring with The Moksha Retreat near the festival.';
+  input.value='Plan the Kasar Music Fest 2.0 weekend in Almora for Oct 2–5, 2026. Include Rahgir and Nupur Pant, schedule uncertainty, Delhi/Mumbai arrival routes, traffic and road checks, monkey safety, respectful local price tips, and compare Milan Heights with The Moksha Retreat.';
   cpFocusHero();
 }
 function cpSmartAnswer(t){
@@ -187,6 +187,12 @@ function cpSmartAnswer(t){
       +'<br>Sun 4 Oct · Festival day two, covered by the same pass. Explore Almora town and its market during the day, then return to Kasar Devi for the evening show.'
       +'<br>Mon 5 Oct · Breakfast, check out and depart.'
       +'<br><br><b>Which stay fits best?</b> Milan Heights is the town-base pick for a livelier Almora feel, market time and town exploring; arrange a ride to Kasar Devi and confirm rooms/rates directly. The Moksha Retreat is the venue-side pick if festival access and a quieter hillside setting come first.'
+      +'<br><br><b>Getting there from Delhi, Mumbai or elsewhere</b>'
+      +'<br>Delhi/NCR by road: the usual corridor runs Hapur → Moradabad → Rampur/Rudrapur → Haldwani → Kathgodam → Bhimtal/Bhowali → Almora → Kasar Devi. Start rested, budget slack for weekend queues and aim to do the final winding climb in daylight. <a style="color:var(--gold2,#C8913E)" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/Delhi,+India/Kasar+Devi,+Uttarakhand/">Open the route in Maps ↗</a>'
+      +'<br>Mumbai / long-distance: connect to Delhi by air or rail, or consider Pantnagar only if a flight operates on your dates. Kathgodam is the common railhead; the Almora district lists Pantnagar as its nearest airport, about 127 km from Almora. Reserve the last taxi ahead and avoid a tight same-day connection.'
+      +'<br><br><b>Traffic, road and local practicalities</b> Busy-weekend delays can build on the Haldwani–Kathgodam and Bhowali/Kainchi corridor. There is no guaranteed shortcut: check live Maps and Uttarakhand Traffic Police diversions shortly before travel. Roads may be affected by rain, repair or landslides; don’t climb tired or after dark. <a style="color:var(--gold2,#C8913E)" target="_blank" rel="noopener" href="https://uttarakhandtraffic.com/">Traffic Police ↗</a> · <a style="color:var(--gold2,#C8913E)" target="_blank" rel="noopener" href="https://almora.nic.in/how-to-reach/">Almora arrival info ↗</a> · <a style="color:var(--gold2,#C8913E)" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/Kathgodam,+Uttarakhand/Kasar+Devi,+Uttarakhand/">Kathgodam → Kasar Devi ↗</a> · National Highway issue: <a style="color:var(--gold2,#C8913E)" href="tel:1033">1033 helpline</a>.'
+      +'<br><br><b>If monkeys are around</b> Keep food zipped away; don’t feed, tease, touch or crowd them. Secure loose glasses and phones, stay calm and back away slowly; don’t try to retrieve an item from an animal. <a style="color:var(--gold2,#C8913E)" target="_blank" rel="noopener" href="https://avs.nparks.gov.sg/wildlife/encountering-wildlife/macaques/">Macaque encounter tips ↗</a>.'
+      +'<br><b>With local shopkeepers and drivers</b> Ask politely for the full price and inclusions before ordering or riding; clarify tolls, waiting and luggage fees, and keep a receipt or UPI record. Ask before taking photos, keep noise down and compare a quote calmly if it doesn’t fit—don’t assume one person’s price represents everyone.'
       +'<br><br><a style="color:var(--gold2,#C8913E)" target="_blank" rel="noopener" href="https://in.bookmyshow.com/events/kasar-music-fest-2-0/ET00517675">Tickets on BookMyShow ↗</a>'
       +' · <a style="color:var(--gold2,#C8913E)" target="_blank" rel="noopener" href="https://doistays.com/events.html">Doi Stays event details ↗</a>'
       +' · <a style="color:var(--gold2,#C8913E)" target="_blank" rel="noopener" href="https://themokshakasar.com/rooms.html">Moksha stay enquiry ↗</a>'
