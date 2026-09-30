@@ -176,11 +176,11 @@ function cpSmartAnswer(t){
      Tusk can answer the homepage feature without an external AI key. */
   if(/kasar\s*(?:devi\s*)?(?:music\s*fest|festival)|(?:nupur\s*pant|rahgir).{0,50}(?:kasar|fest)|(?:kasar|fest).{0,50}(?:nupur\s*pant|rahgir)/i.test(String(t||''))){
     return '<b>Kasar Music Fest 2.0 · Almora · 3–4 October 2026</b>'
-      +'<br>Rahgir and Nupur Pant are announced. Current listings differ: BookMyShow shows Saturday 3 Oct with a 4:30 pm start; Doi Stays describes 5 pm–midnight on both 3 and 4 Oct. Confirm Sunday entry and act times with the organizer before planning around them.'
+      +'<br>Rahgir and Nupur Pant are announced. The ₹2,000 pass covers both festival days, 3–4 Oct. BookMyShow lists 4:30 pm for Saturday; Doi Stays gives 5 pm–midnight on both days. Confirm exact entry time and artist slots.'
       +'<br><br><b>A relaxed four-day plan</b>'
       +'<br>Fri 2 Oct · Arrive in Almora, check in and keep the evening easy.'
-      +'<br>Sat 3 Oct · Take a slow morning, then head to Kasar Devi for the show. Keep return transport arranged in advance.'
-      +'<br>Sun 4 Oct · Explore Almora town and its market, unless the organizer confirms your Sunday festival entry.'
+      +'<br>Sat 3 Oct · Take a slow morning, then head to Kasar Devi for festival day one. Keep return transport arranged in advance.'
+      +'<br>Sun 4 Oct · Festival day two, covered by the same pass. Explore Almora town and its market during the day, then return to Kasar Devi for the evening show.'
       +'<br>Mon 5 Oct · Breakfast, check out and depart.'
       +'<br><br><b>Which stay fits best?</b> Milan Heights is the town-base pick for a livelier Almora feel, market time and town exploring; arrange a ride to Kasar Devi and confirm rooms/rates directly. The Moksha Retreat is the venue-side pick if festival access and a quieter hillside setting come first.'
       +'<br><br><a style="color:var(--gold2,#C8913E)" target="_blank" rel="noopener" href="https://in.bookmyshow.com/events/kasar-music-fest-2-0/ET00517675">Tickets on BookMyShow ↗</a>'
