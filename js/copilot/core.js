@@ -177,6 +177,10 @@ function cpSmartAnswer(t){
   if(/kasar\s*(?:devi\s*)?(?:music\s*fest|festival)|(?:nupur\s*pant|rahgir).{0,50}(?:kasar|fest)|(?:kasar|fest).{0,50}(?:nupur\s*pant|rahgir)/i.test(String(t||''))){
     return '<b>Kasar Music Fest 2.0 · Almora · 3–4 October 2026</b>'
       +'<br>Rahgir and Nupur Pant are announced. The ₹2,000 pass covers both festival days, 3–4 Oct. BookMyShow lists 4:30 pm for Saturday; Doi Stays gives 5 pm–midnight on both days. Confirm exact entry time and artist slots.'
+      +'<br><br><b>Meet the artists</b>'
+      +'<br><b>Rahgir</b> is a folk-rooted singer-songwriter whose narrative songs include “Mere Gaon Aaoge” and “Kachha Ghada.” <a style="color:var(--gold2,#C8913E)" target="_blank" rel="noopener" href="https://open.spotify.com/artist/1CGbcdGB3aFFUCjaJimwER">Listen on Spotify ↗</a> · <a style="color:var(--gold2,#C8913E)" target="_blank" rel="noopener" href="https://www.newindianexpress.com/cities/delhi/2023/Mar/30/perfecting-the-folk-formula-country-musician-rahgir-about-his-music-2560941.html">Read profile ↗</a>'
+      +'<br><b>Nupur Pant</b> is a singer and composer blending Uttarakhand Pahadi folk with contemporary music; hear “Le Kale Kauwa” with KedarNaad. <a style="color:var(--gold2,#C8913E)" target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=jfUdLhkWGFo">Watch the song ↗</a> · <a style="color:var(--gold2,#C8913E)" target="_blank" rel="noopener" href="https://www.instagram.com/nupurpant/">Instagram ↗</a>'
+      +'<br>BookMyShow also lists Fiddlecraft and The Aahvaan Project.'
       +'<br><br><b>A relaxed four-day plan</b>'
       +'<br>Fri 2 Oct · Arrive in Almora, check in and keep the evening easy.'
       +'<br>Sat 3 Oct · Take a slow morning, then head to Kasar Devi for festival day one. Keep return transport arranged in advance.'
@@ -187,7 +191,13 @@ function cpSmartAnswer(t){
       +' · <a style="color:var(--gold2,#C8913E)" target="_blank" rel="noopener" href="https://doistays.com/events.html">Doi Stays event details ↗</a>'
       +' · <a style="color:var(--gold2,#C8913E)" target="_blank" rel="noopener" href="https://themokshakasar.com/rooms.html">Moksha stay enquiry ↗</a>'
       +' · <a style="color:var(--gold2,#C8913E)" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Milan+Heights+Almora">Find Milan Heights ↗</a>'
-      +'<br><span style="font-size:10.5px;color:var(--t3)">Milan Heights does not have a verified direct booking link in this plan. Confirm availability, price and transport before booking.</span>';
+      +'<br><br><b>Unlock RoamWise Pro for this trip</b> — full itineraries, budget tracking, WhatsApp sharing, packing lists and unlimited Smart Planner searches. One-time Founder offer: ₹100.'
+      +'<br><button class="tact" style="margin-top:7px" onclick="return rwOpenPaySafely(event)">Unlock Pro · ₹100 ↗</button>'
+      +'<br><br><b>Books by Mohit Pandey on Amazon</b>'
+      +'<br><a style="color:var(--gold2,#C8913E)" target="_blank" rel="noopener" href="https://www.amazon.in/AI-Ki-Pathshala-Mohit-Pandey/dp/B0H5K7XF55">AI Ki Pathshala ↗</a>'
+      +' · <a style="color:var(--gold2,#C8913E)" target="_blank" rel="noopener" href="https://www.amazon.in/Yuga-Silicon-novel-code-memory-ebook/dp/B0GX32LF8R">Yuga: The Silicon Age ↗</a>'
+      +' · <a style="color:var(--gold2,#C8913E)" target="_blank" rel="noopener" href="https://www.amazon.in/Volts-Vengeance-Encyclopedia-Mohit-Pandey/dp/B0H61VZLCQ">Volts &amp; Vengeance ↗</a>'
+      +'<br><br><span style="font-size:10.5px;color:var(--t3)">Milan Heights does not have a verified direct booking link in this plan. Confirm availability, price and transport before booking.</span>';
   }
   var MO=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   function meta(d){
