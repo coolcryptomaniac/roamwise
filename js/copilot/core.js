@@ -186,7 +186,8 @@ function cpSmartAnswer(t){
       +'<br>Sat 3 Oct · Take a slow morning, then head to Kasar Devi for festival day one. Keep return transport arranged in advance.'
       +'<br>Sun 4 Oct · Festival day two, covered by the same pass. Explore Almora town and its market during the day, then return to Kasar Devi for the evening show.'
       +'<br>Mon 5 Oct · Breakfast, check out and depart.'
-      +'<br><br><b>Which stay fits best?</b> Milan Heights is the town-base pick for a livelier Almora feel, market time and town exploring; arrange a ride to Kasar Devi and confirm rooms/rates directly. The Moksha Retreat is the venue-side pick if festival access and a quieter hillside setting come first.'
+      +'<br><br><b>Which stay fits best?</b> Milan Heights is the town-base pick for a livelier Almora feel, market time and town exploring; arrange a ride to Kasar Devi. The Moksha Retreat is the venue-side pick if festival access and a quieter hillside setting come first.'
+      +'<br>Milan Heights direct room enquiry: call <a style="color:var(--gold2,#C8913E)" href="tel:+917302315845">+91 73023 15845</a> or <a style="color:var(--gold2,#C8913E)" target="_blank" rel="noopener" href="https://www.instagram.com/milan_height/">DM its Instagram ↗</a>. Confirm room availability and total rates directly; this is an enquiry link, not live inventory or an instant reservation.'
       +'<br><br><b>Getting there from Delhi, Mumbai or elsewhere</b>'
       +'<br>Delhi/NCR by road: the usual corridor runs Hapur → Moradabad → Rampur/Rudrapur → Haldwani → Kathgodam → Bhimtal/Bhowali → Almora → Kasar Devi. Start rested, budget slack for weekend queues and aim to do the final winding climb in daylight. <a style="color:var(--gold2,#C8913E)" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/Delhi,+India/Kasar+Devi,+Uttarakhand/">Open the route in Maps ↗</a>'
       +'<br>Mumbai / long-distance: connect to Delhi by air or rail, or consider Pantnagar only if a flight operates on your dates. Kathgodam is the common railhead; the Almora district lists Pantnagar as its nearest airport, about 127 km from Almora. Reserve the last taxi ahead and avoid a tight same-day connection.'
@@ -203,7 +204,7 @@ function cpSmartAnswer(t){
       +'<br><a style="color:var(--gold2,#C8913E)" target="_blank" rel="noopener" href="https://www.amazon.in/AI-Ki-Pathshala-Mohit-Pandey/dp/B0H5K7XF55">AI Ki Pathshala ↗</a>'
       +' · <a style="color:var(--gold2,#C8913E)" target="_blank" rel="noopener" href="https://www.amazon.in/Yuga-Silicon-novel-code-memory-ebook/dp/B0GX32LF8R">Yuga: The Silicon Age ↗</a>'
       +' · <a style="color:var(--gold2,#C8913E)" target="_blank" rel="noopener" href="https://www.amazon.in/Volts-Vengeance-Encyclopedia-Mohit-Pandey/dp/B0H61VZLCQ">Volts &amp; Vengeance ↗</a>'
-      +'<br><br><span style="font-size:10.5px;color:var(--t3)">Milan Heights does not have a verified direct booking link in this plan. Confirm availability, price and transport before booking.</span>';
+      +'<br><br><span style="font-size:10.5px;color:var(--t3)">Milan Heights direct room enquiry: call +91 73023 15845 or DM Instagram. Confirm room availability, total rates and transport directly; there is no live reservation connection yet.</span>';
   }
   var MO=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   function meta(d){
