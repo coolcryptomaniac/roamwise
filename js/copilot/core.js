@@ -168,13 +168,21 @@ function cpDbFind(text){
 function rwAskKasarFest(){
   var input=el('heroInput');
   if(!input) return;
-  input.value='Plan the Kasar Music Fest 2.0 weekend in Almora for Oct 2–5, 2026. Include Rahgir and Nupur Pant, schedule uncertainty, Delhi/Mumbai arrival routes, traffic and road checks, monkey safety, respectful local price tips, and compare Milan Heights with The Moksha Retreat.';
+  var origin=String((el('kasarFestOrigin')||{}).value||'').trim().replace(/[<>\r\n]/g,' ').slice(0,60);
+  input.value='Plan the Kasar Music Fest 2.0 weekend in Almora for Oct 2–5, 2026. '+(origin?'My starting city is '+origin+'. Tailor the arrival and onward route to this city. ':'')+'Include Rahgir and Nupur Pant, schedule uncertainty, Delhi/Mumbai arrival routes, traffic and road checks, monkey safety, respectful local price tips, and compare Milan Heights with The Moksha Retreat.';
+  if(origin){try{track('kasar_origin_added');}catch(e){/* anonymous aggregate only */}}
   cpFocusHero();
+  /* The festival has a verified, curated answer. Send it directly so a
+     configured AI provider cannot replace the festival plan with generic
+     destination picks or a pasted-text response. */
+  setTimeout(function(){try{copilotSend(true);}catch(e){/* user can still tap Send */}},650);
 }
 function cpSmartAnswer(t){
   /* Curated Kasar Music Fest weekend answer: keep this deterministic so Ailon
      Tusk can answer the homepage feature without an external AI key. */
   if(/kasar\s*(?:devi\s*)?(?:music\s*fest|festival)|(?:nupur\s*pant|rahgir).{0,50}(?:kasar|fest)|(?:kasar|fest).{0,50}(?:nupur\s*pant|rahgir)/i.test(String(t||''))){
+    var originMatch=String(t||'').match(/My starting city is ([^.\n]+)/i);
+    var originNote=originMatch?'<br><b>Starting in '+esc2(originMatch[1].trim())+'</b> · Check exact-date rail/flight connections and the final road transfer; keep a time buffer for the hill approach.':'';
     return '<b>Kasar Music Fest 2.0 · Almora · 3–4 October 2026</b>'
       +'<br>Rahgir and Nupur Pant are announced. The ₹2,000 pass covers both festival days, 3–4 Oct. BookMyShow lists 4:30 pm for Saturday; Doi Stays gives 5 pm–midnight on both days. Confirm exact entry time and artist slots.'
       +'<br><br><b>Meet the artists</b>'
@@ -187,8 +195,8 @@ function cpSmartAnswer(t){
       +'<br>Sun 4 Oct · Festival day two, covered by the same pass. Explore Almora town and its market during the day, then return to Kasar Devi for the evening show.'
       +'<br>Mon 5 Oct · Breakfast, check out and depart.'
       +'<br><br><b>Which stay fits best?</b> Milan Heights is the town-base pick for a livelier Almora feel, market time and town exploring; arrange a ride to Kasar Devi. The Moksha Retreat is the venue-side pick if festival access and a quieter hillside setting come first.'
-      +'<br>Milan Heights direct room enquiry: call <a style="color:var(--gold2,#C8913E)" href="tel:+917302315845">+91 73023 15845</a> or <a style="color:var(--gold2,#C8913E)" target="_blank" rel="noopener" href="https://www.instagram.com/milan_height/">DM its Instagram ↗</a>. Confirm room availability and total rates directly; this is an enquiry link, not live inventory or an instant reservation.'
-      +'<br><br><b>Getting there from Delhi, Mumbai or elsewhere</b>'
+      +'<br>Milan Heights direct room enquiry: call <a style="color:var(--gold2,#C8913E)" href="tel:+917302315845" onclick="track(\'kasar_milan_call_click\')">+91 73023 15845</a> or <a style="color:var(--gold2,#C8913E)" target="_blank" rel="noopener" href="https://www.instagram.com/milan_height/" onclick="track(\'kasar_milan_dm_click\')">DM its Instagram ↗</a>. When you reserve, mention “I found Milan Heights on RoamWise.” Confirm room availability and total rates directly; this is an enquiry link, not live inventory or an instant reservation.'
+      +'<br><br><b>Getting there from Delhi, Mumbai or elsewhere</b>'+originNote
       +'<br>Delhi/NCR by road: the usual corridor runs Hapur → Moradabad → Rampur/Rudrapur → Haldwani → Kathgodam → Bhimtal/Bhowali → Almora → Kasar Devi. Start rested, budget slack for weekend queues and aim to do the final winding climb in daylight. <a style="color:var(--gold2,#C8913E)" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/Delhi,+India/Kasar+Devi,+Uttarakhand/">Open the route in Maps ↗</a>'
       +'<br>Mumbai / long-distance: connect to Delhi by air or rail, or consider Pantnagar only if a flight operates on your dates. Kathgodam is the common railhead; the Almora district lists Pantnagar as its nearest airport, about 127 km from Almora. Reserve the last taxi ahead and avoid a tight same-day connection.'
       +'<br><br><b>Traffic, road and local practicalities</b> Busy-weekend delays can build on the Haldwani–Kathgodam and Bhowali/Kainchi corridor. There is no guaranteed shortcut: check live Maps and Uttarakhand Traffic Police diversions shortly before travel. Roads may be affected by rain, repair or landslides; don’t climb tired or after dark. <a style="color:var(--gold2,#C8913E)" target="_blank" rel="noopener" href="https://uttarakhandtraffic.com/">Traffic Police ↗</a> · <a style="color:var(--gold2,#C8913E)" target="_blank" rel="noopener" href="https://almora.nic.in/how-to-reach/">Almora arrival info ↗</a> · <a style="color:var(--gold2,#C8913E)" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/Kathgodam,+Uttarakhand/Kasar+Devi,+Uttarakhand/">Kathgodam → Kasar Devi ↗</a> · National Highway issue: <a style="color:var(--gold2,#C8913E)" href="tel:1033">1033 helpline</a>.'
@@ -811,10 +819,11 @@ function copilotSend(fromHero){
   cpBubble(t.replace(/[<>]/g,''),'me');
   /* Ask rather than guess: a too-thin query gets tappable options, not a
      confident wrong answer. This is the anti-hallucination guard. */
+  var isKasarFestival=/kasar\s*(?:devi\s*)?(?:music\s*fest|festival)|(?:nupur\s*pant|rahgir).{0,50}(?:kasar|fest)|(?:kasar|fest).{0,50}(?:nupur\s*pant|rahgir)/i.test(String(t||''));
   try{
-    var _clar = rwTuskNeedsClarity(t);
+    var _clar = isKasarFestival ? null : rwTuskNeedsClarity(t);
     if(_clar){ cpBubble(_clar,'bot'); return; }
-    var _sa = rwStartAnywhere(t);
+    var _sa = isKasarFestival ? null : rwStartAnywhere(t);
     if(_sa){ t = _sa; }   /* pasted link/text -> extract the trip from it */
   }catch(e){ /* best-effort, ignore */ }
   /* App navigation intents: "open settings", "go to store", "show my trips"… */
@@ -851,6 +860,10 @@ function copilotSend(fromHero){
     intents.focusModes=rwActivateFocusFromText(t,true);
   }
   var hasKey = (typeof activeProv!=='undefined') && (activeProv==='roamwise' || (activeProv!=='smart' && lsGet('rwKey_'+activeProv)));
+  if(isKasarFestival){
+    var festivalAnswer=cpSmartAnswer(t);
+    if(festivalAnswer){try{track('kasar_ailon_tailor');}catch(e){/* anonymous daily counter */}cpFinish(thinking,rwMasalaWrap(festivalAnswer),intents,t);return;}
+  }
   if(hasKey){
     /* Real conversation: persona + history + the new message. Any topic is
        fine — the model answers naturally; travel intents ADDITIONALLY get

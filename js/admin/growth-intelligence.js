@@ -8,7 +8,7 @@
 (function(){
   'use strict';
 
-  var started=false, feed=null, research=[], interest=[], moatStats={days:0,trip_saved:0,tusk_stay_handoff:0,tusk_helpful:0,tusk_unhelpful:0,visits:0,searches:0};
+  var started=false, feed=null, research=[], interest=[], moatStats={days:0,trip_saved:0,tusk_stay_handoff:0,tusk_helpful:0,tusk_unhelpful:0,visits:0,searches:0,kasar_ailon_tailor:0,kasar_milan_call_click:0,kasar_milan_dm_click:0,kasar_milan_referral_copy:0,kasar_origin_added:0};
   var ACTUAL_INTEREST=['replied','response','meeting','interested','diligence','term','committed'];
   var PLAN_DEFAULTS={
     primaryMarket:'Kumaon / Uttarakhand',
@@ -58,14 +58,14 @@
       refs.push(db.collection('stats').doc(id).get());
     }
     try{
-      var docs=await Promise.all(refs),sum={days:docs.length,trip_saved:0,tusk_stay_handoff:0,tusk_helpful:0,tusk_unhelpful:0,visits:0,searches:0};
+      var docs=await Promise.all(refs),sum={days:docs.length,trip_saved:0,tusk_stay_handoff:0,tusk_helpful:0,tusk_unhelpful:0,visits:0,searches:0,kasar_ailon_tailor:0,kasar_milan_call_click:0,kasar_milan_dm_click:0,kasar_milan_referral_copy:0,kasar_origin_added:0};
       docs.forEach(function(d){
         var x=d.exists?d.data():{};
         Object.keys(sum).forEach(function(k){if(k!=='days')sum[k]+=Number(x[k]||0)});
       });
       moatStats=sum;
     }catch(e){
-      moatStats={days:0,trip_saved:0,tusk_stay_handoff:0,tusk_helpful:0,tusk_unhelpful:0,visits:0,searches:0};
+      moatStats={days:0,trip_saved:0,tusk_stay_handoff:0,tusk_helpful:0,tusk_unhelpful:0,visits:0,searches:0,kasar_ailon_tailor:0,kasar_milan_call_click:0,kasar_milan_dm_click:0,kasar_milan_referral_copy:0,kasar_origin_added:0};
     }
     renderMoatLedger();
   }
@@ -81,6 +81,8 @@
     set('giMoatData',audited+' audited','pricing + quality + identity/property verification passed');
     set('giMoatTrips',String(moatStats.trip_saved),'7-day anonymous trip-save events; personal vault stays on device');
     set('giMoatTusk',String(moatStats.tusk_stay_handoff),'7-day Ailon Tusk → stay handoffs; not claimed as bookings');
+    var kasarEnquiries=moatStats.kasar_milan_call_click+moatStats.kasar_milan_dm_click;
+    set('giKasarEnquiries',String(kasarEnquiries),'7-day call/DM taps · '+moatStats.kasar_milan_referral_copy+' copied referral messages · '+moatStats.kasar_ailon_tailor+' tailored plans · '+moatStats.kasar_origin_added+' optional city entries; clicks are not bookings');
     set('giMoatMesh',String(mesh),'active selected trials / operator entitlements');
     set('giMoatTrust',helpful==null?'—':helpful+'%',fb?fb+' Tusk feedback votes in 7 days':'no feedback votes in the last 7 days');
     set('giMoatDistribution',String(refs),'active referral / creator distribution routes');

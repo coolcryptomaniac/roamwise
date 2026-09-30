@@ -512,6 +512,11 @@ function rwDismissCreatorBanner(){
     </div>
     <p style="font-size:10px;line-height:1.5;color:var(--t3);margin:9px 0 0">Road work, rain, landslides and diversions can change quickly; these links are starting points, not a live road-condition guarantee. For an issue on a National Highway, call <a href="tel:1033" style="color:var(--gold2,#C8913E)">1033 (highway helpline)</a>.</p>
   </details>
+  <div style="margin:0 0 12px;padding:12px 14px;border:1px solid rgba(158,111,255,.24);border-radius:15px;background:rgba(21,22,42,.42)">
+    <label for="kasarFestOrigin" style="display:block;font-size:12px;font-weight:700;color:var(--t1);margin-bottom:6px">Want a route tailored to your starting city? <span style="font-weight:400;color:var(--t3)">(optional)</span></label>
+    <input id="kasarFestOrigin" type="text" maxlength="60" autocomplete="off" placeholder="e.g. Delhi, Mumbai or your city" aria-describedby="kasarFestOriginNote" style="box-sizing:border-box;width:100%;padding:10px 12px;border:1px solid var(--b2,#2A2A36);border-radius:11px;background:var(--bg3,#1A1A20);color:var(--t1);font:inherit;font-size:13px">
+    <div id="kasarFestOriginNote" style="font-size:10px;line-height:1.5;color:var(--t3);margin-top:5px">City only. It is added to your Ailon request and is not included in RoamWise's anonymous counts. No email or GPS location is requested.</div>
+  </div>
   <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:10px">
     <div style="padding:13px;border:1px solid var(--b2,#2A2A36);border-radius:15px;background:rgba(10,10,14,.35)">
       <b>Festival weekend, day by day</b>
@@ -525,7 +530,7 @@ function rwDismissCreatorBanner(){
     <div style="padding:13px;border:1px solid var(--b2,#2A2A36);border-radius:15px;background:rgba(10,10,14,.35)">
       <b>Pick your base</b>
       <div style="font-size:12px;line-height:1.65;color:var(--t2);margin-top:7px">
-        <b>Milan Heights, Almora town</b> · The best fit if you want a livelier town base, market wandering and time among Almora’s crowds. Plan a separate ride to Kasar Devi. For a direct room enquiry, <a href="tel:+917302315845" style="color:var(--gold2,#C8913E)">call +91 73023 15845</a> or <a href="https://www.instagram.com/milan_height/" target="_blank" rel="noopener" style="color:var(--gold2,#C8913E)">DM Milan Heights on Instagram ↗</a>; confirm rates and availability with them.<br>
+        <b>Milan Heights, Almora town</b> · The best fit if you want a livelier town base, market wandering and time among Almora’s crowds. Plan a separate ride to Kasar Devi. For a direct room enquiry, <a href="tel:+917302315845" onclick="track('kasar_milan_call_click')" style="color:var(--gold2,#C8913E)">call +91 73023 15845</a> or <a href="https://www.instagram.com/milan_height/" onclick="track('kasar_milan_dm_click')" target="_blank" rel="noopener" style="color:var(--gold2,#C8913E)">DM Milan Heights on Instagram ↗</a>. When you reserve, please mention: <b>“I found Milan Heights on RoamWise.”</b> Confirm rates and availability with them.<br>
         <b>The Moksha Retreat, Kasar Devi</b> · Choose this if being close to the festival setting and a quieter hillside stay matter most.
       </div>
     </div>
@@ -534,8 +539,9 @@ function rwDismissCreatorBanner(){
     <a class="tact" href="https://in.bookmyshow.com/events/kasar-music-fest-2-0/ET00517675" target="_blank" rel="noopener" style="text-decoration:none">Tickets on BookMyShow ↗</a>
     <a class="tact" href="https://doistays.com/events.html" target="_blank" rel="noopener" style="text-decoration:none">Organizer details ↗</a>
     <a class="tact" href="https://themokshakasar.com/rooms.html" target="_blank" rel="noopener" style="text-decoration:none">Moksha stay enquiry ↗</a>
-    <a class="tact" href="tel:+917302315845" style="text-decoration:none">Call Milan Heights ↗</a>
-    <a class="tact" href="https://www.instagram.com/milan_height/" target="_blank" rel="noopener" style="text-decoration:none">DM Milan Heights ↗</a>
+    <a class="tact" href="tel:+917302315845" onclick="track('kasar_milan_call_click')" style="text-decoration:none">Call Milan Heights ↗</a>
+    <a class="tact" href="https://www.instagram.com/milan_height/" onclick="track('kasar_milan_dm_click')" target="_blank" rel="noopener" style="text-decoration:none">DM Milan Heights ↗</a>
+    <button class="tact" type="button" onclick="rwCopyMilanReferral()" style="font-weight:800">Copy RoamWise booking message</button>
     <a class="tact" href="https://www.google.com/maps/search/?api=1&query=Milan+Heights+Almora" target="_blank" rel="noopener" style="text-decoration:none">Milan Heights map ↗</a>
     <button class="tact" type="button" onclick="rwAskKasarFest()" style="font-weight:800">Ask Ailon Tusk to tailor this ↗</button>
   </div>
