@@ -73,10 +73,15 @@ test('festival funnel counters are covered by the narrow Firestore stats allowli
 test('Milan Heights event and Ailon Tusk send an attributed WhatsApp enquiry',()=>{
   const html=read('index.html'),tusk=read('js/copilot/core.js'),app=read('partner/app.js'),market=read('partner/marketplace.js');
   assert.match(html,/https:\/\/wa\.me\/917302315845\?text=/);
-  assert.match(html,/I%20found%20your%20stay%20through%20RoamWise/);
+  assert.match(html,/found your stay through RoamWise/);
+  assert.match(html,/day>='2026-10-05'/);
+  assert.match(html,/Ask Milan Heights for available dates on WhatsApp/);
+  assert.match(html,/data-festival-only/);
   assert.match(html,/₹1,613–₹3,226 per room, per night/);
   assert.doesNotMatch(html,/7% commission|₹1,500–₹3,000|base rate ÷ 93%/);
   assert.match(tusk,/WhatsApp Milan Heights · mention RoamWise/);
+  assert.match(tusk,/function rwKasarFestivalEnded\(now\)/);
+  assert.match(tusk,/next available dates on WhatsApp/);
   assert.doesNotMatch(tusk,/7% commission|Request Milan Heights on RoamWise/);
   assert.match(app,/function milanWhatsAppMessage\(\).*found your stay through RoamWise/);
   assert.match(app,/kasar_milan_whatsapp_open/);
@@ -85,4 +90,17 @@ test('Milan Heights event and Ailon Tusk send an attributed WhatsApp enquiry',()
   const start=app.indexOf('function liveCustomer(){'),end=app.indexOf('function liveOwner()',start),guestFlow=app.slice(start,end);
   assert.match(guestFlow,/renderMilanWhatsAppCard\(\)/);
   assert.doesNotMatch(guestFlow,/collectionGroup|roomBookings|temporarily unavailable/);
+});
+
+test('festival handoff switches to a general Almora enquiry after Oct 4 in India time',()=>{
+  class FestivalEndDate extends Date {constructor(...args){super(...(args.length?args:['2026-10-04T18:30:00Z']))}}
+  const state={console,Date:FestivalEndDate,window:null,document:{},localStorage:{removeItem(){}},navigator:{},el:()=>null,lsGet:()=>'',lsSet(){},activeProv:'roamwise',DB:[],RW_PLACE_OVERRIDES:{},cpBubble:()=>({}),cpFocusHero(){},track(){},esc2:s=>String(s)};
+  state.window=state;
+  vm.runInNewContext(read('js/copilot/core.js'),state);
+  assert.equal(state.rwKasarFestivalEnded(new Date('2026-10-04T18:29:59Z')),false);
+  assert.equal(state.rwKasarFestivalEnded(new Date('2026-10-04T18:30:00Z')),true);
+  const reply=state.cpSmartAnswer('Plan Kasar Music Fest 2.0 in Almora');
+  assert.match(reply,/weekend has passed/);
+  assert.match(reply,/next available dates/);
+  assert.doesNotMatch(reply,/Rahgir and Nupur Pant|₹2,000 pass/);
 });

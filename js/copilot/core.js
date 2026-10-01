@@ -169,13 +169,18 @@ function rwAskKasarFest(){
   var input=el('heroInput');
   if(!input) return;
   var origin=String((el('kasarFestOrigin')||{}).value||'').trim().replace(/[<>\r\n]/g,' ').slice(0,60);
-  input.value='Plan the Kasar Music Fest 2.0 weekend in Almora for Oct 2–5, 2026. '+(origin?'My starting city is '+origin+'. Tailor the arrival and onward route to this city. ':'')+'Include Rahgir and Nupur Pant, schedule uncertainty, Delhi/Mumbai arrival routes, traffic and road checks, monkey safety, respectful local price tips, Almora things to do, and Milan Heights as the first RoamWise booking pilot. Other properties are not bookable in RoamWise yet.';
+  input.value=rwKasarFestivalEnded()
+    ?'Plan a Kasar Music Fest 2.0 follow-up for a future visit to Almora. '+(origin?'My starting city is '+origin+'. Tailor the arrival and onward route to this city. ':'')+'The festival is over; include Kasar Devi and Almora things to do, current route checks, respectful local price tips, and ask Milan Heights for its next available dates through RoamWise.'
+    :'Plan the Kasar Music Fest 2.0 weekend in Almora for Oct 2–5, 2026. '+(origin?'My starting city is '+origin+'. Tailor the arrival and onward route to this city. ':'')+'Include Rahgir and Nupur Pant, schedule uncertainty, Delhi/Mumbai arrival routes, traffic and road checks, monkey safety, respectful local price tips, Almora things to do, and Milan Heights as the first RoamWise booking pilot. Other properties are not bookable in RoamWise yet.';
   if(origin){try{track('kasar_origin_added');}catch(e){/* anonymous aggregate only */}}
   cpFocusHero();
   /* The festival has a verified, curated answer. Send it directly so a
      configured AI provider cannot replace the festival plan with generic
      destination picks or a pasted-text response. */
   setTimeout(function(){try{copilotSend(true);}catch(e){/* user can still tap Send */}},650);
+}
+function rwKasarFestivalEnded(now){
+  return new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Kolkata',year:'numeric',month:'2-digit',day:'2-digit'}).format(now||new Date())>='2026-10-05';
 }
 window.rwTrackMilanWhatsApp=function(){try{if(typeof track==='function')track('kasar_milan_whatsapp_open')}catch(e){}};
 function cpSmartAnswer(t){
@@ -184,6 +189,14 @@ function cpSmartAnswer(t){
   if(/kasar\s*(?:devi\s*)?(?:music\s*fest|festival)|(?:nupur\s*pant|rahgir).{0,50}(?:kasar|fest)|(?:kasar|fest).{0,50}(?:nupur\s*pant|rahgir)/i.test(String(t||''))){
     var originMatch=String(t||'').match(/My starting city is ([^.\n]+)/i);
     var originNote=originMatch?'<br><b>Starting in '+esc2(originMatch[1].trim())+'</b> · Check exact-date rail/flight connections and the final road transfer; keep a time buffer for the hill approach.':'';
+    if(rwKasarFestivalEnded()){
+      var nextStay='Hello Milan Heights, I found your stay through RoamWise. I am planning a visit to Almora and would like to know your next available dates. Please share room options, availability, the final total including applicable taxes, payment method and booking terms. Please note this enquiry came through RoamWise.';
+      return '<b>Your Kasar Music Fest weekend has passed</b><br>Plan a fresh visit around Almora town, Lala Bazaar, local food and Kasar Devi. Check current road and weather conditions before travelling; the hill approach can take longer than expected.'
+        +'<br><br><b>Stay in Almora</b> Milan Heights is the RoamWise stay pilot. Approximate room price: ₹1,613–₹3,226 per room, per night. Room, date and availability affect the quote; confirm the final total including applicable taxes directly with the hotel.'
+        +'<br><a style="color:var(--gold2,#C8913E)" target="_blank" rel="noopener" href="https://wa.me/917302315845?text='+encodeURIComponent(nextStay)+'" onclick="window.rwTrackMilanWhatsApp&&window.rwTrackMilanWhatsApp()">Ask Milan Heights for its next available dates on WhatsApp ↗</a>'
+        +'<br><br><b>Getting there</b>'+originNote+' Check exact-date connections and live Maps before departure. Reserve your final taxi ahead and avoid a tight connection or a tired night drive.'
+        +'<br><br><a style="color:var(--gold2,#C8913E)" target="_blank" rel="noopener" href="/partner/?role=customer&amp;destination=Almora">Book &amp; Stay · Almora ↗</a>';
+    }
     return '<b>Kasar Music Fest 2.0 · Almora · 3–4 October 2026</b>'
       +'<br>Rahgir and Nupur Pant are announced. The ₹2,000 pass covers both festival days, 3–4 Oct. BookMyShow lists 4:30 pm for Saturday; Doi Stays gives 5 pm–midnight on both days. Confirm exact entry time and artist slots.'
       +'<br><br><b>Meet the artists</b>'

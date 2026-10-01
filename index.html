@@ -457,12 +457,12 @@ function rwDismissCreatorBanner(){
 </section>
 <section class="xsec v v-home" id="kasarFestWeekend" style="margin:12px 14px 18px;padding:18px;background:linear-gradient(145deg,rgba(76,53,37,.38),rgba(18,18,28,.95));border:1px solid rgba(232,186,108,.3);border-radius:22px">
   <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-    <span style="font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold2,#C8913E);font-weight:800">RoamWise weekend pick · Almora</span>
-    <span style="font-size:10px;padding:4px 8px;border:1px solid rgba(232,186,108,.32);border-radius:999px;color:var(--t2)">3–4 October 2026</span>
+    <span id="kasarFestEyebrow" style="font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold2,#C8913E);font-weight:800">RoamWise weekend pick · Almora</span>
+    <span id="kasarFestDate" style="font-size:10px;padding:4px 8px;border:1px solid rgba(232,186,108,.32);border-radius:999px;color:var(--t2)">3–4 October 2026</span>
   </div>
-  <h2 style="font-size:clamp(22px,5vw,32px);line-height:1.15;margin:10px 0 7px">Kasar Music Fest 2.0 <em style="color:var(--gold2,#C8913E)">meets Almora</em></h2>
-  <p style="margin:0 0 14px;color:var(--t2);line-height:1.6">A Kumaon weekend around Rahgir and Nupur Pant at Kasar Devi. Make the stay part of the trip: choose the venue-side retreat, or base yourself in Almora town for its market, people and everyday bustle.</p>
-  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,270px),1fr));gap:10px;margin:0 0 12px">
+  <h2 id="kasarFestTitle" style="font-size:clamp(22px,5vw,32px);line-height:1.15;margin:10px 0 7px">Kasar Music Fest 2.0 <em style="color:var(--gold2,#C8913E)">meets Almora</em></h2>
+  <p id="kasarFestSummary" style="margin:0 0 14px;color:var(--t2);line-height:1.6">A Kumaon weekend around Rahgir and Nupur Pant at Kasar Devi. Make the stay part of the trip: choose the venue-side retreat, or base yourself in Almora town for its market, people and everyday bustle.</p>
+  <div id="kasarFestArtists" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,270px),1fr));gap:10px;margin:0 0 12px">
     <article style="display:flex;gap:12px;padding:12px;border:1px solid var(--b2,#2A2A36);border-radius:15px;background:rgba(10,10,14,.42)">
       <a href="https://commons.wikimedia.org/wiki/File:Rahgir_(singer)_at_Poornima_University.jpg" target="_blank" rel="noopener" style="flex:0 0 82px;align-self:flex-start;text-decoration:none">
         <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/Rahgir_%28singer%29_at_Poornima_University.jpg/500px-Rahgir_%28singer%29_at_Poornima_University.jpg" alt="Rahgir performing at Poornima University" loading="lazy" style="display:block;width:82px;height:100px;object-fit:cover;border-radius:11px;background:#25232a">
@@ -484,7 +484,7 @@ function rwDismissCreatorBanner(){
       </div>
     </article>
   </div>
-  <p style="font-size:10.5px;color:var(--t3);line-height:1.45;margin:-2px 0 12px">BookMyShow also lists Fiddlecraft and The Aahvaan Project on the event artist roster.</p>
+  <p id="kasarFestRoster" style="font-size:10.5px;color:var(--t3);line-height:1.45;margin:-2px 0 12px">BookMyShow also lists Fiddlecraft and The Aahvaan Project on the event artist roster.</p>
   <details style="margin:0 0 12px;padding:12px 14px;border:1px solid rgba(232,186,108,.25);border-radius:15px;background:rgba(10,10,14,.38)">
     <summary style="cursor:pointer;font-weight:800;color:var(--t1)">Getting to Kasar Devi · Delhi, Mumbai &amp; other starting points</summary>
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,245px),1fr));gap:10px;margin-top:11px">
@@ -518,9 +518,9 @@ function rwDismissCreatorBanner(){
     <div id="kasarFestOriginNote" style="font-size:10px;line-height:1.5;color:var(--t3);margin-top:5px">City only. It is added to your Ailon request and is not included in RoamWise's anonymous counts. No email or GPS location is requested.</div>
   </div>
   <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:10px">
-    <div style="padding:13px;border:1px solid var(--b2,#2A2A36);border-radius:15px;background:rgba(10,10,14,.35)">
-      <b>Festival weekend, day by day</b>
-      <div style="font-size:12px;line-height:1.65;color:var(--t2);margin-top:7px">
+    <div data-festival-card style="padding:13px;border:1px solid var(--b2,#2A2A36);border-radius:15px;background:rgba(10,10,14,.35)">
+      <b data-festival-only>Festival weekend, day by day</b>
+      <div data-festival-only style="font-size:12px;line-height:1.65;color:var(--t2);margin-top:7px">
         <b>Fri 2 Oct</b> · Arrive in Almora, settle in and keep the evening easy.<br>
         <b>Sat 3 Oct</b> · Festival day one: the ₹2,000 pass covers both days. Head to Kasar Devi for the show; BookMyShow lists 4:30 pm, while the organizer gives 5 pm–midnight. Rahgir and Nupur Pant are announced; confirm exact entry and act times.<br>
         <b>Sun 4 Oct</b> · Festival day two, included in the same two-day pass. Explore Almora town and its market in the daytime, then head back for the evening show.<br>
@@ -536,12 +536,12 @@ function rwDismissCreatorBanner(){
     </div>
   </div>
   <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:13px">
-    <a class="tact" href="https://in.bookmyshow.com/events/kasar-music-fest-2-0/ET00517675" target="_blank" rel="noopener" style="text-decoration:none">Tickets on BookMyShow ↗</a>
-    <a class="tact" href="https://doistays.com/events.html" target="_blank" rel="noopener" style="text-decoration:none">Organizer details ↗</a>
-    <a class="tact" href="https://wa.me/917302315845?text=Hi%20Milan%20Heights%2C%20I%20found%20your%20stay%20through%20RoamWise.%20I%20am%20interested%20in%20the%20Kasar%20Music%20Fest%20weekend%20in%20Almora%2C%202%E2%80%935%20October%202026%2C%20for%202%20guests.%20Please%20share%20room%20options%2C%20availability%2C%20the%20final%20total%20including%20all%20applicable%20taxes%2C%20payment%20method%20and%20booking%20terms.%20Please%20note%20this%20enquiry%20came%20through%20RoamWise." target="_blank" rel="noopener" onclick="track('kasar_milan_whatsapp_open')" style="text-decoration:none;font-weight:800">WhatsApp Milan Heights · RoamWise enquiry ↗</a>
-    <a class="tact" href="https://www.airbnb.co.in/s/Almora--India/homes?checkin=2026-10-02&amp;checkout=2026-10-05&amp;adults=2" target="_blank" rel="noopener" style="text-decoration:none">Compare nearby stays · Airbnb ↗</a>
-    <a class="tact" href="https://www.booking.com/searchresults.html?ss=Almora%2C%20Uttarakhand&amp;checkin=2026-10-02&amp;checkout=2026-10-05&amp;group_adults=2" target="_blank" rel="noopener" style="text-decoration:none">Booking.com ↗</a>
-    <button class="tact" type="button" onclick="rwAskKasarFest()" style="font-weight:800">Ask Ailon Tusk to tailor this ↗</button>
+    <a class="tact" data-festival-only href="https://in.bookmyshow.com/events/kasar-music-fest-2-0/ET00517675" target="_blank" rel="noopener" style="text-decoration:none">Tickets on BookMyShow ↗</a>
+    <a class="tact" data-festival-only href="https://doistays.com/events.html" target="_blank" rel="noopener" style="text-decoration:none">Organizer details ↗</a>
+    <a id="kasarMilanWhatsapp" class="tact" href="https://wa.me/917302315845" target="_blank" rel="noopener" onclick="track('kasar_milan_whatsapp_open')" style="text-decoration:none;font-weight:800">WhatsApp Milan Heights · RoamWise enquiry ↗</a>
+    <a class="tact" data-festival-only href="https://www.airbnb.co.in/s/Almora--India/homes?checkin=2026-10-02&amp;checkout=2026-10-05&amp;adults=2" target="_blank" rel="noopener" style="text-decoration:none">Compare nearby stays · Airbnb ↗</a>
+    <a class="tact" data-festival-only href="https://www.booking.com/searchresults.html?ss=Almora%2C%20Uttarakhand&amp;checkin=2026-10-02&amp;checkout=2026-10-05&amp;group_adults=2" target="_blank" rel="noopener" style="text-decoration:none">Booking.com ↗</a>
+    <button id="kasarAilonTailor" class="tact" type="button" onclick="rwAskKasarFest()" style="font-weight:800">Ask Ailon Tusk to tailor this ↗</button>
   </div>
   <div style="margin-top:12px;padding:14px;border:1px solid rgba(158,111,255,.34);border-radius:16px;background:linear-gradient(120deg,rgba(101,62,175,.18),rgba(21,22,42,.62))">
     <b>Build the rest of your trip with RoamWise Pro</b>
@@ -556,8 +556,30 @@ function rwDismissCreatorBanner(){
       <a href="https://www.amazon.in/Volts-Vengeance-Encyclopedia-Mohit-Pandey/dp/B0H61VZLCQ" target="_blank" rel="noopener" style="color:var(--gold2,#C8913E)">Volts &amp; Vengeance ↗</a>
     </div>
   </div>
-  <p style="font-size:10.5px;color:var(--t3);line-height:1.5;margin:10px 0 0">The ₹2,000 pass is for both festival days, 3–4 October. Listings differ on the Saturday time (BookMyShow: 4:30 pm; Doi Stays: 5 pm–midnight each day), so confirm exact entry and artist slots. Check current ticket and stay availability before paying.</p>
+  <p data-festival-only style="font-size:10.5px;color:var(--t3);line-height:1.5;margin:10px 0 0">The ₹2,000 pass is for both festival days, 3–4 October. Listings differ on the Saturday time (BookMyShow: 4:30 pm; Doi Stays: 5 pm–midnight each day), so confirm exact entry and artist slots. Check current ticket and stay availability before paying.</p>
 </section>
+<script>
+(function(){
+  var day=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Kolkata',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
+  var ended=day>='2026-10-05',section=document.getElementById('kasarFestWeekend'),link=document.getElementById('kasarMilanWhatsapp');
+  if(!section||!link)return;
+  var message=ended
+    ?'Hello Milan Heights, I found your stay through RoamWise. I am planning a visit to Almora and would like to know your next available dates. Please share room options, availability, the final total including applicable taxes, payment method and booking terms. Please note this enquiry came through RoamWise.'
+    :'Hello Milan Heights, I found your stay through RoamWise. I am interested in staying in Almora for Kasar Music Fest, 2–5 October 2026, for 2 guests. Please share room options, availability, the final total including applicable taxes, payment method and booking terms. Please note this enquiry came through RoamWise.';
+  link.href='https://wa.me/917302315845?text='+encodeURIComponent(message);
+  if(!ended)return;
+  document.getElementById('kasarFestEyebrow').textContent='RoamWise stay pilot · Almora';
+  document.getElementById('kasarFestDate').hidden=true;
+  document.getElementById('kasarFestTitle').textContent='Explore Almora on your next trip';
+  document.getElementById('kasarFestSummary').textContent='The festival weekend has passed. Plan a visit to Kasar Devi and Almora town, then ask Milan Heights for its next available dates directly through RoamWise.';
+  document.getElementById('kasarFestArtists').hidden=true;
+  document.getElementById('kasarFestRoster').hidden=true;
+  section.querySelectorAll('[data-festival-only]').forEach(function(el){el.hidden=true});
+  section.querySelectorAll('[data-festival-card]').forEach(function(el){el.hidden=true});
+  document.getElementById('kasarAilonTailor').textContent='Ask Ailon Tusk to plan Almora ↗';
+  link.textContent='Ask Milan Heights for available dates on WhatsApp ↗';
+})();
+</script>
 
 <div class="hero-sky v v-home v-web-only"><div class="kumo" style="top:12%;left:4%"></div><div class="kumo k2" style="top:58%;right:6%"></div><div class="kumo k3" style="top:30%;right:22%"></div><div class="hero">
   <h1><span data-i18n="hero.title1">Escape the crowds.</span><br><em data-i18n="hero.title2">Discover your world.</em></h1>
