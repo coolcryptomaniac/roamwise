@@ -15,6 +15,7 @@ test('Milan guest rate grosses the confirmed base price up by 7% of guest total'
 
 test('pilot allowlist recognizes only Milan Heights', () => {
   assert.equal(pilot.isMilan('Milan Heights'), true);
+  assert.equal(pilot.isMilan('Hotel Milan Heights'), true);
   assert.equal(pilot.isMilan('Moksha Retreat'), false);
   assert.equal(pilot.isMilan('Another Almora stay'), false);
 });

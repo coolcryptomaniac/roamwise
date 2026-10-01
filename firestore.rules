@@ -1611,11 +1611,11 @@ service cloud.firestore {
                     && get(/databases/$(database)/documents/partners/$(request.resource.data.partnerUid)/rooms/$(request.resource.data.roomId)).data.marketplaceApproved == true
                     && get(/databases/$(database)/documents/partners/$(request.resource.data.partnerUid)/rooms/$(request.resource.data.roomId)).data.partnerUid == request.resource.data.partnerUid
                     && get(/databases/$(database)/documents/partners/$(request.resource.data.partnerUid)/rooms/$(request.resource.data.roomId)).data.open != false
-                    && ((get(/databases/$(database)/documents/partners/$(request.resource.data.partnerUid)/rooms/$(request.resource.data.roomId)).data.property == 'Milan Heights'
+                    && ((['Milan Heights','Hotel Milan Heights'].hasAny([get(/databases/$(database)/documents/partners/$(request.resource.data.partnerUid)/rooms/$(request.resource.data.roomId)).data.property])
                          && request.resource.data.commissionPctSnapshot == 7
                          && request.resource.data.roomPrice * 93 >= get(/databases/$(database)/documents/partners/$(request.resource.data.partnerUid)/rooms/$(request.resource.data.roomId)).data.price * 100 - 46.5
                          && request.resource.data.roomPrice * 93 <= get(/databases/$(database)/documents/partners/$(request.resource.data.partnerUid)/rooms/$(request.resource.data.roomId)).data.price * 100 + 46.5)
-                        || (get(/databases/$(database)/documents/partners/$(request.resource.data.partnerUid)/rooms/$(request.resource.data.roomId)).data.property != 'Milan Heights'
+                        || (!['Milan Heights','Hotel Milan Heights'].hasAny([get(/databases/$(database)/documents/partners/$(request.resource.data.partnerUid)/rooms/$(request.resource.data.roomId)).data.property])
                             && request.resource.data.roomPrice == get(/databases/$(database)/documents/partners/$(request.resource.data.partnerUid)/rooms/$(request.resource.data.roomId)).data.price))
                     && request.resource.data.amount == request.resource.data.roomPrice * request.resource.data.nights;
       allow update: if isAdmin()

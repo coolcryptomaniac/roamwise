@@ -5,7 +5,8 @@
   'use strict';
   var commissionPct = 7;
   function isMilan(name) {
-    return String(name || '').trim().toLowerCase().replace(/[^a-z0-9]+/g, ' ') === 'milan heights';
+    var normalized=String(name||'').trim().toLowerCase().replace(/[^a-z0-9]+/g,' ');
+    return normalized==='milan heights'||normalized==='hotel milan heights';
   }
   function grossFromBase(base) {
     var value = Number(base);
