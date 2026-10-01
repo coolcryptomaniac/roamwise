@@ -51,7 +51,7 @@ function rwStaysRender(){
       +'<div class="st-room">'+esc2(r.room)+'</div>'
       +'<div class="st-where">'+esc2(r.area)+' \u00b7 '+esc2(r.zone)+' \u00b7 sleeps '+r.maxGuests+'</div>'
       +'</span>'
-      +(isFinite(+r.price)&&+r.price>0?'<span class="st-price">\u20b9'+(+r.price).toLocaleString('en-IN')+'<span>/night</span></span>':'<span class="st-price" style="font-size:12px">Live rate<span>date-checked</span></span>')+'</div>'
+      +(isFinite(+r.price)&&+r.price>0?'<span class="st-price">\u20b9'+(+r.price).toLocaleString('en-IN')+'<span>/night</span></span>':'<span class="st-price" style="font-size:12px">Price on request<span>availability + final rate must be confirmed</span></span>')+'</div>'
       +'<div class="st-inc">'+(r.inc||[]).map(function(i){ return '<span>'+esc2(i)+'</span>'; }).join('')+'</div>'
       +'<div class="st-cancel">\u2713 '+esc2(r.cancel||'')+'</div>'
       +'<button class="st-book" onclick="openRoomBook(\''+r.id+'\')">'+((r.bookable!==true||r.paymentEnabled!==true||!isFinite(+r.price)||+r.price<=0)?'Request availability →':'Book this room →')+'</button>'
