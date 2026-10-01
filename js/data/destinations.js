@@ -603,3 +603,37 @@ var DB = [
    photos:["fiji nadi beach turquoise water","mamanuca islands fiji aerial","fiji kava ceremony tradition","fiji snorkeling coral reef","sigatoka sand dunes fiji"],
    yt:"Fiji Nadi travel guide",wiki:"Nadi,_Fiji",flag:"FJ"}
 ];
+
+
+/* Pricing provenance guardrail (issue #219).
+   Legacy destination bands remain indicative planning estimates.  Explicit
+   metadata prevents INR/day rows from being guessed as USD/week and gives the
+   UI/export layers enough provenance to avoid calling estimates "live".
+   Public benchmarks are reference observations, not inventory/bookable quotes. */
+(function annotateDestinationPriceBands(){
+  var refs={
+    goa:{source:'Goa Tourism Development Corporation public package tariff',sourceUrl:'https://goa-tourism.com/',observedAt:'2026-10-01',reference:'3N/4D public package benchmark; verify dates, occupancy, taxes and availability'},
+    leh:{source:'Administration of Union Territory of Ladakh public transport/tourism notices',sourceUrl:'https://ladakh.gov.in/',observedAt:'2026-10-01',reference:'Official public benchmarks only; origin travel and route-specific transport excluded'},
+    srinagar:{source:'Jammu & Kashmir Tourism Development Corporation public accommodation tariff',sourceUrl:'https://www.jktdc.co.in/',observedAt:'2026-10-01',reference:'Public accommodation benchmark; not a whole-trip or date-specific quote'},
+    ooty:{source:'Tamil Nadu Tourism Development Corporation public hotel tariff',sourceUrl:'https://www.ttdconline.com/',observedAt:'2026-10-01',reference:'Public accommodation starting-rate benchmark; taxes/date availability may differ'},
+    auli:{source:'Garhwal Mandal Vikas Nigam public accommodation/activity tariff',sourceUrl:'https://gmvnonline.com/',observedAt:'2026-10-01',reference:'Public starting-rate/activity benchmark; ski-season inventory must be revalidated'}
+  };
+  (DB||[]).forEach(function(d){
+    if(!d||String(d.country||'').toLowerCase()!=='india') return;
+    d._priceCurrency=d._priceCurrency||'INR';
+    d._pricePeriod=d._pricePeriod||'day';
+    d._pricePerPerson=(d._pricePerPerson!==false);
+    d._priceKind=d._priceKind||'indicative-estimate';
+    d._priceBookable=false;
+    var ref=refs[d.id];
+    if(ref){
+      d._priceSource=ref.source;
+      d._priceSourceUrl=ref.sourceUrl;
+      d._priceObservedAt=ref.observedAt;
+      d._priceReferenceNote=ref.reference;
+    }else{
+      d._priceSource=d._priceSource||'RoamWise curated planning band';
+      d._priceObservedAt=d._priceObservedAt||'2026-10-01';
+    }
+  });
+})();

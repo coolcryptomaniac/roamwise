@@ -82,3 +82,29 @@ test('typed or voice plan booking resumes the exact trip with guarded supplier h
   assert.match(html,/nothing has been reserved or charged/i);
   assert.match(bookingCode,/bookable===true&&r\.paymentEnabled===true/);
 });
+
+
+test('India destination bands carry explicit estimate semantics and dated provenance',()=>{
+  const s=costState();
+  ['goa','leh','auli'].forEach(id=>{
+    const d=s.DB.find(x=>x.id===id);
+    assert.ok(d,id+' must exist');
+    assert.equal(d._priceCurrency,'INR');
+    assert.equal(d._pricePeriod,'day');
+    assert.equal(d._priceKind,'indicative-estimate');
+    assert.equal(d._priceBookable,false);
+    assert.match(d._priceObservedAt,/^2026-10-01$/);
+    assert.match(d._priceSourceUrl,/^https:\/\//);
+  });
+});
+
+test('booking UI never calls a missing room price a live rate',()=>{
+  assert.doesNotMatch(bookingCode,/Live rate<span>date-checked/);
+  assert.match(bookingCode,/Price on request<span>availability \+ final rate must be confirmed/);
+});
+
+test('legacy search path normalizes destination units before USD budget comparison',()=>{
+  const search=fs.readFileSync(path.join(root,'js/itinerary/search-engine.js'),'utf8');
+  assert.match(search,/rwCostUSD\(d,d\.cost\.mid,7\)/);
+  assert.match(search,/rwCostUSD\(d,d\.cost\.budget,7\)/);
+});

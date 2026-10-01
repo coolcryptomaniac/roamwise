@@ -23,7 +23,8 @@ function smartSearch(month, budUSD, ctryQuery, crowd, interests){
   var ctryCity = ctry.indexOf(',')>=0 ? ctry.split(',')[0].trim() : '';
   var scores = [];
   DB.forEach(function(d){
-    var budgetGap = Math.max(0, d.cost.budget - budUSD);
+    var budgetBase = (typeof rwCostUSD==='function') ? rwCostUSD(d,d.cost.budget,7) : d.cost.budget;
+    var budgetGap = Math.max(0, budgetBase - budUSD);
     var budgetPenalty = budgetGap / 25; /* soft penalty, never excludes */
     var nameLc = d.name.toLowerCase();
     var exactCityMatch = false;
@@ -50,7 +51,8 @@ function smartSearch(month, budUSD, ctryQuery, crowd, interests){
       var kw = iv.toLowerCase().split(' ')[0];
       if(d.interests.some(function(di){ return di.toLowerCase().indexOf(kw)>=0; })) sc+=18;
     });
-    sc += Math.max(0, 60 - Math.abs(d.cost.mid-budUSD)/30);
+    var midBase = (typeof rwCostUSD==='function') ? rwCostUSD(d,d.cost.mid,7) : d.cost.mid;
+    sc += Math.max(0, 60 - Math.abs(midBase-budUSD)/30);
     sc -= budgetPenalty;
     if(d.bestM.indexOf(mi+1)>=0) sc += 28; /* mi is 0-based (MONTHS.indexOf), bestM is 1-based */
     /* Defense-in-depth: strongly favor an exact/near-exact city-name match against the parsed
