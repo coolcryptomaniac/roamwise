@@ -65,15 +65,17 @@ test('festival answers suppress unrelated recommendation cards and action rails'
 
 test('festival funnel counters are covered by the narrow Firestore stats allowlist',()=>{
   const rules=read('firestore.rules');
-  for(const event of ['kasar_ailon_tailor','kasar_milan_call_click','kasar_milan_dm_click','kasar_milan_referral_copy','kasar_origin_added']){
+  for(const event of ['kasar_ailon_tailor','kasar_milan_booking_open','kasar_origin_added']){
     assert.ok(rules.includes("statsBump('"+event+"')"),event+' must be explicitly permitted');
   }
 });
 
-test('Milan Heights referral asks for RoamWise attribution and copies a ready-to-send note',()=>{
-  const html=read('index.html'),engagement=read('js/misc/engagement.js');
-  assert.match(html,/When you reserve, please mention: <b>“I found Milan Heights on RoamWise\.”<\/b>/);
-  assert.match(html,/Copy RoamWise booking message/);
-  assert.match(engagement,/Hi Milan Heights, I found you on RoamWise/);
-  assert.match(engagement,/track\('kasar_milan_referral_copy'\)/);
+test('Milan Heights event CTA routes bookings through RoamWise and hides direct contacts',()=>{
+  const html=read('index.html'),tusk=read('js/copilot/core.js');
+  assert.match(html,/href="\/partner\/\?role=customer&amp;destination=Almora&amp;checkin=2026-10-02&amp;checkout=2026-10-05&amp;guests=2"/);
+  assert.match(html,/₹1,613–₹3,226/);
+  assert.match(html,/guest rate includes RoamWise’s 7% commission/);
+  assert.doesNotMatch(html,/tel:\+917302315845|instagram\.com\/milan_height/);
+  assert.doesNotMatch(tusk,/tel:\+917302315845|instagram\.com\/milan_height/);
+  assert.match(tusk,/Other properties will appear after partner onboarding is complete/);
 });

@@ -431,7 +431,7 @@ service cloud.firestore {
         || statsBump('video_opens') || statsBump('visits') || statsBump('wiz_opens')
         || statsBump('kasar_ailon_tailor') || statsBump('kasar_milan_call_click')
         || statsBump('kasar_milan_dm_click') || statsBump('kasar_milan_referral_copy')
-        || statsBump('kasar_origin_added');
+        || statsBump('kasar_origin_added') || statsBump('kasar_milan_booking_open');
       allow delete: if isAdmin();
     }
 
@@ -1611,7 +1611,12 @@ service cloud.firestore {
                     && get(/databases/$(database)/documents/partners/$(request.resource.data.partnerUid)/rooms/$(request.resource.data.roomId)).data.marketplaceApproved == true
                     && get(/databases/$(database)/documents/partners/$(request.resource.data.partnerUid)/rooms/$(request.resource.data.roomId)).data.partnerUid == request.resource.data.partnerUid
                     && get(/databases/$(database)/documents/partners/$(request.resource.data.partnerUid)/rooms/$(request.resource.data.roomId)).data.open != false
-                    && request.resource.data.roomPrice == get(/databases/$(database)/documents/partners/$(request.resource.data.partnerUid)/rooms/$(request.resource.data.roomId)).data.price
+                    && ((['Milan Heights','Hotel Milan Heights'].hasAny([get(/databases/$(database)/documents/partners/$(request.resource.data.partnerUid)/rooms/$(request.resource.data.roomId)).data.property])
+                         && request.resource.data.commissionPctSnapshot == 7
+                         && request.resource.data.roomPrice * 93 >= get(/databases/$(database)/documents/partners/$(request.resource.data.partnerUid)/rooms/$(request.resource.data.roomId)).data.price * 100 - 46.5
+                         && request.resource.data.roomPrice * 93 <= get(/databases/$(database)/documents/partners/$(request.resource.data.partnerUid)/rooms/$(request.resource.data.roomId)).data.price * 100 + 46.5)
+                        || (!['Milan Heights','Hotel Milan Heights'].hasAny([get(/databases/$(database)/documents/partners/$(request.resource.data.partnerUid)/rooms/$(request.resource.data.roomId)).data.property])
+                            && request.resource.data.roomPrice == get(/databases/$(database)/documents/partners/$(request.resource.data.partnerUid)/rooms/$(request.resource.data.roomId)).data.price))
                     && request.resource.data.amount == request.resource.data.roomPrice * request.resource.data.nights;
       allow update: if isAdmin()
                     || (request.auth != null
