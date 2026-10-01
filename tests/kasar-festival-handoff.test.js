@@ -72,7 +72,7 @@ test('festival funnel counters are covered by the narrow Firestore stats allowli
 
 test('Milan Heights event CTA routes bookings through RoamWise and hides direct contacts',()=>{
   const html=read('index.html'),tusk=read('js/copilot/core.js');
-  assert.match(html,/href="\/partner\/\?role=customer&amp;destination=Almora"/);
+  assert.match(html,/href="\/partner\/\?role=customer&amp;destination=Almora&amp;checkin=2026-10-02&amp;checkout=2026-10-05&amp;guests=2"/);
   assert.match(html,/₹1,613–₹3,226/);
   assert.match(html,/guest rate includes RoamWise’s 7% commission/);
   assert.doesNotMatch(html,/tel:\+917302315845|instagram\.com\/milan_height/);
