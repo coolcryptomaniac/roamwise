@@ -65,17 +65,24 @@ test('festival answers suppress unrelated recommendation cards and action rails'
 
 test('festival funnel counters are covered by the narrow Firestore stats allowlist',()=>{
   const rules=read('firestore.rules');
-  for(const event of ['kasar_ailon_tailor','kasar_milan_booking_open','kasar_origin_added']){
+  for(const event of ['kasar_ailon_tailor','kasar_milan_booking_open','kasar_milan_whatsapp_open','kasar_origin_added']){
     assert.ok(rules.includes("statsBump('"+event+"')"),event+' must be explicitly permitted');
   }
 });
 
-test('Milan Heights event CTA routes bookings through RoamWise and hides direct contacts',()=>{
-  const html=read('index.html'),tusk=read('js/copilot/core.js');
-  assert.match(html,/href="\/partner\/\?role=customer&amp;destination=Almora&amp;checkin=2026-10-02&amp;checkout=2026-10-05&amp;guests=2"/);
-  assert.match(html,/₹1,613–₹3,226/);
-  assert.match(html,/guest rate includes RoamWise’s 7% commission/);
-  assert.doesNotMatch(html,/tel:\+917302315845|instagram\.com\/milan_height/);
-  assert.doesNotMatch(tusk,/tel:\+917302315845|instagram\.com\/milan_height/);
-  assert.match(tusk,/Other properties will appear after partner onboarding is complete/);
+test('Milan Heights event and Ailon Tusk send an attributed WhatsApp enquiry',()=>{
+  const html=read('index.html'),tusk=read('js/copilot/core.js'),app=read('partner/app.js'),market=read('partner/marketplace.js');
+  assert.match(html,/https:\/\/wa\.me\/917302315845\?text=/);
+  assert.match(html,/I%20found%20your%20stay%20through%20RoamWise/);
+  assert.match(html,/₹1,613–₹3,226 per room, per night/);
+  assert.doesNotMatch(html,/7% commission|₹1,500–₹3,000|base rate ÷ 93%/);
+  assert.match(tusk,/WhatsApp Milan Heights · mention RoamWise/);
+  assert.doesNotMatch(tusk,/7% commission|Request Milan Heights on RoamWise/);
+  assert.match(app,/function milanWhatsAppMessage\(\).*found your stay through RoamWise/);
+  assert.match(app,/kasar_milan_whatsapp_open/);
+  assert.match(app,/Compare nearby Almora prices/);
+  assert.match(market,/if\(role==='customer'\)\{if\(DEMO\)\{searchSupport\(\);validateCards\(\)/);
+  const start=app.indexOf('function liveCustomer(){'),end=app.indexOf('function liveOwner()',start),guestFlow=app.slice(start,end);
+  assert.match(guestFlow,/renderMilanWhatsAppCard\(\)/);
+  assert.doesNotMatch(guestFlow,/collectionGroup|roomBookings|temporarily unavailable/);
 });

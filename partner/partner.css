@@ -326,3 +326,17 @@ input:focus, select:focus, textarea:focus { border-color: var(--scarlet); box-sh
   .rw-market-bookgrid { padding: 14px; }
   .footer { flex-direction: column; }
 }
+
+/* Focused Milan WhatsApp booking pilot: one clear price range and one next step. */
+.rw-milan-enquiry{margin-top:18px;padding:22px;border:1px solid rgba(218,169,96,.32);border-radius:22px;background:linear-gradient(145deg,rgba(59,28,24,.7),rgba(19,15,16,.96));box-shadow:0 18px 55px rgba(0,0,0,.25)}
+.rw-milan-enquiry .eyebrow{color:#dfb86f;font-size:11px;letter-spacing:.16em;font-weight:800}
+.rw-milan-enquiry h2{margin:8px 0;font-size:27px}
+.rw-milan-enquiry p{color:var(--muted,#b7b2b1);line-height:1.6}
+.rw-milan-enquiry .rw-milan-price{color:#f7f0e6;font-size:18px;margin:8px 0}
+.rw-milan-enquiry .rw-milan-wa{display:inline-flex;margin:10px 0 6px;background:#167a4a;color:#fff;text-decoration:none}
+.rw-milan-enquiry>small{display:block;color:var(--muted,#b7b2b1);line-height:1.5;margin-top:5px}
+.rw-milan-enquiry details{border-top:1px solid rgba(255,255,255,.1);margin-top:18px;padding-top:13px;color:#f7f0e6}
+.rw-milan-enquiry summary{cursor:pointer;font-weight:700}
+.rw-milan-enquiry details p,.rw-milan-enquiry details a{font-size:13px}
+.rw-milan-enquiry details a{color:#e8bc72}
+@media(max-width:640px){.rw-milan-enquiry{padding:18px}.rw-milan-enquiry .rw-milan-wa{width:100%;justify-content:center;box-sizing:border-box}}

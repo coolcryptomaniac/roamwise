@@ -124,14 +124,22 @@ function searchSupport(){
 
 function productionShell(){
   document.body.classList.add('rw-partner-marketplace');if(!PROD||DEMO)return;
-  $$('.role[data-role]').forEach(function(b){var r=b.dataset.role;if(r==='admin'){b.style.display=admin?'':'none';return}var map={customer:['compass','Explore stays'],owner:['home','List your place'],partner:['ops','Host operations']}[r];if(!map)return;var ic=$('.ic',b),name=$('b',b);if(ic)ic.innerHTML=svg(map[0]);if(name)name.textContent=map[1]});
   var role=currentRole(),e=$('#eyebrow'),t=$('#heroTitle'),p=$('#heroText'),a=$('#heroActions');if(!e||!t||!p)return;
-  if(role==='owner'){e.textContent='HOST WITH ROAMWISE · FROM 5–7%';t.innerHTML='Keep your rates. <em>Keep more.</em>';p.textContent='Verify your account, submit your property, pass review, then manage rooms and guest requests.'}
-  else if(role==='partner'){e.textContent='HOST DASHBOARD';t.innerHTML='Your rooms. <em>Your guest relationship.</em>';p.textContent='Manage rooms, requests, public payment preferences and completed-stay earnings.'}
-  else{e.textContent='ROAMWISE STAYS · FIRST PROPERTY PILOT';t.innerHTML='Stay local. <em>Book with confidence.</em>';p.textContent='Milan Heights is the first live stay. Send a room request through RoamWise; the hotel confirms availability and the final seasonal total before payment.'}
-  if(a)a.innerHTML=role==='owner'?'<a class="btn" href="/partner/join/">Start or continue application →</a><a class="btn secondary" href="/creators/match.html?role=property">Match with verified creators</a>':role==='partner'?'<a class="btn secondary" href="/creators/match.html?role=property">Find verified creators</a>':'<a class="btn" href="/partner/join/">List a property in 3 minutes →</a>';
-  if(!$('#rwMarketTrust'))$('.hero').insertAdjacentHTML('beforeend','<div id="rwMarketTrust" class="rw-market-trust"><span><b>7%</b> included in pilot rate</span><span><b>₹0</b> guest fee</span><span><b>Verified</b> before listing</span><span><b>Hotel</b> confirms before payment</span></div>');
-  var f=$('.footer');if(f)f.textContent='RoamWise Stays · verified direct hosts · request-to-book · no prepayment before confirmation'
+  if(role==='customer'){
+    e.textContent='ALMORA STAY · MILAN HEIGHTS';t.innerHTML='Stay in Almora. <em>Ask directly.</em>';
+    p.textContent='Approx. ₹1,613–₹3,226 per room, per night. Confirm the room, dates and final total including applicable taxes with the hotel on WhatsApp.';
+    if(a)a.innerHTML='<a class="btn" href="#view">Choose dates and enquire →</a>';
+    var grid=$('#rolegrid');if(grid)grid.style.display='none';
+    $$('.nav a[href="/partner/join/"],.nav a[href="/creators/match.html?role=property"],#modeBtn,#signOutBtn').forEach(function(n){n.style.display='none'});
+  }else if(role==='owner'){
+    e.textContent='HOST WITH ROAMWISE';t.innerHTML='Keep your rates. <em>Keep more.</em>';p.textContent='Verify your account, submit your property, pass review, then manage rooms and guest requests.';
+    if(a)a.innerHTML='<a class="btn" href="/partner/join/">Start or continue application →</a><a class="btn secondary" href="/creators/match.html?role=property">Match with verified creators</a>';
+  }else if(role==='partner'){
+    e.textContent='HOST DASHBOARD';t.innerHTML='Your rooms. <em>Your guest relationship.</em>';p.textContent='Manage rooms, requests, public payment preferences and completed-stay earnings.';
+    if(a)a.innerHTML='<a class="btn secondary" href="/creators/match.html?role=property">Find verified creators</a>';
+  }
+  var trust=$('#rwMarketTrust');if(trust)trust.remove();
+  var f=$('.footer');if(f)f.textContent=role==='customer'?'RoamWise enquiry · WhatsApp goes to Milan Heights · final price confirmed by the hotel':'RoamWise Stays · verified direct hosts · host-controlled rates';
 }
 
 async function loadIdentity(){var u=user(),F=fb();admin=false;if(u&&F.db)try{admin=(await F.db.collection('admins').doc(u.uid).get()).exists}catch(e){}productionShell();if(admin)legacyRepair()}
@@ -209,7 +217,7 @@ async function requestLifecycle(kind){
 }
 function adminTrust(){if($('#rwAdminTrust')||!$('#saveTravel'))return;var n=document.createElement('div');n.id='rwAdminTrust';n.className='rw-market-adminfix';n.innerHTML='<div><b>Verification standard</b><span>Before approval: confirm owner/contact, public location/rates and walkthrough readiness. Never request identity documents or gateway secrets in this static page.</span></div>';$('#view').insertBefore(n,$('#view').firstChild)}
 function accessibility(){var m=$('#modal');if(m){m.setAttribute('role','dialog');m.setAttribute('aria-modal','true')}$$('button').forEach(function(b){if(!b.getAttribute('type'))b.setAttribute('type','button')})}
-function repaint(){productionShell();dateGuard();accessibility();var role=currentRole();if(role==='customer'){searchSupport();validateCards();setTimeout(paymentStatuses,60)}else if(role==='partner'){hostOverview();hostStudio();lifecyclePanel()}else if(role==='admin'){adminTrust();if(admin)legacyRepair()}if($('#addRoom'))syncApprovedRooms()}
+function repaint(){productionShell();dateGuard();accessibility();var role=currentRole();if(role==='customer'){if(DEMO){searchSupport();validateCards();setTimeout(paymentStatuses,60)}}else if(role==='partner'){hostOverview();hostStudio();lifecyclePanel()}else if(role==='admin'){adminTrust();if(admin)legacyRepair()}if($('#addRoom'))syncApprovedRooms()}
 function scheduleRepaint(){clearTimeout(repaintTimer);repaintTimer=setTimeout(repaint,70)}
 function captureClick(event){if(interceptApproval(event))return;if(event.target.closest&&event.target.closest('#roomSave'))setTimeout(function(){roomCache={};syncApprovedRooms()},900);interceptBooking(event)}
 

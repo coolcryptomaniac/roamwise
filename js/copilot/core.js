@@ -177,6 +177,7 @@ function rwAskKasarFest(){
      destination picks or a pasted-text response. */
   setTimeout(function(){try{copilotSend(true);}catch(e){/* user can still tap Send */}},650);
 }
+window.rwTrackMilanWhatsApp=function(){try{if(typeof track==='function')track('kasar_milan_whatsapp_open')}catch(e){}};
 function cpSmartAnswer(t){
   /* Curated Kasar Music Fest weekend answer: keep this deterministic so Ailon
      Tusk can answer the homepage feature without an external AI key. */
@@ -194,8 +195,8 @@ function cpSmartAnswer(t){
       +'<br>Sat 3 Oct · Take a slow morning, then head to Kasar Devi for festival day one. Keep return transport arranged in advance.'
       +'<br>Sun 4 Oct · Festival day two, covered by the same pass. Explore Almora town and its market during the day, then return to Kasar Devi for the evening show.'
       +'<br>Mon 5 Oct · Breakfast, check out and depart.'
-      +'<br><br><b>Stay pilot and booking</b> Milan Heights is RoamWise’s first live property pilot: a town base for Almora market walks and local exploring; arrange a separate ride to Kasar Devi. Indicative room rate ₹1,613–₹3,226 per night before applicable GST, including RoamWise’s 7% commission (base ₹1,500–₹3,000 ÷ 93%). Room size, availability, seasonal rate and hotel tax are confirmed before payment. Request the room securely through RoamWise; this is not instant confirmation. Other properties will appear after partner onboarding is complete.'
-      +'<br><a style="color:var(--gold2,#C8913E)" href="/partner/?role=customer&amp;destination=Almora&amp;checkin=2026-10-02&amp;checkout=2026-10-05&amp;guests=2">Request Milan Heights on RoamWise ↗</a>'
+      +'<br><br><b>Stay in Almora</b> Milan Heights is the RoamWise stay pilot, close to Almora town and its market. Approximate room price: ₹1,613–₹3,226 per room, per night. Rates vary by room, date and availability; ask the hotel for the final total including applicable taxes.'
+      +'<br><a style="color:var(--gold2,#C8913E)" target="_blank" rel="noopener" href="https://wa.me/917302315845?text=Hi%20Milan%20Heights%2C%20I%20found%20your%20stay%20through%20RoamWise.%20I%20am%20interested%20in%20the%20Kasar%20Music%20Fest%20weekend%20in%20Almora%2C%202%E2%80%935%20October%202026%2C%20for%202%20guests.%20Please%20share%20room%20options%2C%20availability%2C%20the%20final%20total%20including%20all%20applicable%20taxes%2C%20payment%20method%20and%20booking%20terms.%20Please%20note%20this%20enquiry%20came%20through%20RoamWise." onclick="window.rwTrackMilanWhatsApp&&window.rwTrackMilanWhatsApp()">WhatsApp Milan Heights · mention RoamWise ↗</a>'
       +'<br><br><b>Getting there from Delhi, Mumbai or elsewhere</b>'+originNote
       +'<br>Delhi/NCR by road: the usual corridor runs Hapur → Moradabad → Rampur/Rudrapur → Haldwani → Kathgodam → Bhimtal/Bhowali → Almora → Kasar Devi. Start rested, budget slack for weekend queues and aim to do the final winding climb in daylight. <a style="color:var(--gold2,#C8913E)" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/Delhi,+India/Kasar+Devi,+Uttarakhand/">Open the route in Maps ↗</a>'
       +'<br>Mumbai / long-distance: connect to Delhi by air or rail, or consider Pantnagar only if a flight operates on your dates. Kathgodam is the common railhead; the Almora district lists Pantnagar as its nearest airport, about 127 km from Almora. Reserve the last taxi ahead and avoid a tight same-day connection.'
@@ -204,7 +205,7 @@ function cpSmartAnswer(t){
       +'<br><b>With local shopkeepers and drivers</b> Ask politely for the full price and inclusions before ordering or riding; clarify tolls, waiting and luggage fees, and keep a receipt or UPI record. Ask before taking photos, keep noise down and compare a quote calmly if it doesn’t fit—don’t assume one person’s price represents everyone.'
       +'<br><br><a style="color:var(--gold2,#C8913E)" target="_blank" rel="noopener" href="https://in.bookmyshow.com/events/kasar-music-fest-2-0/ET00517675">Tickets on BookMyShow ↗</a>'
       +' · <a style="color:var(--gold2,#C8913E)" target="_blank" rel="noopener" href="https://doistays.com/events.html">Doi Stays event details ↗</a>'
-      +' · <a style="color:var(--gold2,#C8913E)" href="/partner/?role=customer&amp;destination=Almora&amp;checkin=2026-10-02&amp;checkout=2026-10-05&amp;guests=2">Request Milan Heights on RoamWise ↗</a>'
+      +' · <a style="color:var(--gold2,#C8913E)" target="_blank" rel="noopener" href="https://www.booking.com/searchresults.html?ss=Almora%2C%20Uttarakhand&amp;checkin=2026-10-02&amp;checkout=2026-10-05&amp;group_adults=2">Compare nearby stays on Booking.com ↗</a>'
       +'<br><br><b>Unlock RoamWise Pro for this trip</b> — full itineraries, budget tracking, WhatsApp sharing, packing lists and unlimited Smart Planner searches. One-time Founder offer: ₹100.'
       +'<br><button class="tact" style="margin-top:7px" onclick="return rwOpenPaySafely(event)">Unlock Pro · ₹100 ↗</button>'
       +'<br><br><b>Books by Mohit Pandey on Amazon</b>'
