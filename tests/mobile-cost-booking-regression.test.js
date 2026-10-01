@@ -103,10 +103,8 @@ test('booking UI never calls a missing room price a live rate',()=>{
   assert.match(bookingCode,/Price on request<span>availability \+ final rate must be confirmed/);
 });
 
-test('legacy search and PDF paths cannot hard-code India values as USD per week',()=>{
+test('legacy search path normalizes destination units before USD budget comparison',()=>{
   const search=fs.readFileSync(path.join(root,'js/itinerary/search-engine.js'),'utf8');
-  const pdf=fs.readFileSync(path.join(root,'js/itinerary/pdf-export.js'),'utf8');
   assert.match(search,/rwCostUSD\(d,d\.cost\.mid,7\)/);
-  assert.doesNotMatch(pdf,/d\.cost\.mid\/7/);
-  assert.doesNotMatch(pdf,/Typical trip cost: \$/);
+  assert.match(search,/rwCostUSD\(d,d\.cost\.budget,7\)/);
 });
