@@ -10,6 +10,12 @@
    Ordered lowest to highest trust.
    ========================================================================= */
 window.RW_BADGES = {
+  partner: {
+    id:'partner', label:'Signed RoamWise Partner', short:'Signed Partner', icon:'\u2705',
+    color:'#5EEAD4',
+    means:'The property has signed with RoamWise. Ask the property to confirm current availability, rates, taxes and booking terms.',
+    earn:'Property agreement recorded; booking details are confirmed directly with the property.' },
+
   listed: {
     id:'listed', label:'On Our Radar', short:'Radar', icon:'\ud83d\udcdd',
     color:'#8B93A7',

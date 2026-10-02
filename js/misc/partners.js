@@ -15,6 +15,16 @@
    Same pattern as referrers: the file is a fallback so the directory works
    offline, Firestore keeps it fresh, and no code file is ever edited. */
 
+function rwPartnersMerge(list){
+  var seed=window.RW_PARTNER_SEED||[], approved=(list||[]).filter(function(p){ return p.verified==='signed'&&p.listingReady===true; });
+  seed.forEach(function(s){
+    var match=(list||[]).filter(function(p){ return String(p.id)===String(s.id); })[0];
+    var index=approved.findIndex(function(p){ return String(p.id)===String(s.id); });
+    if(index>=0) approved[index]=Object.assign({},match||approved[index],s);
+    else approved.push(s);
+  });
+  return approved;
+}
 function rwPartnersSync(){
   try{
     if(typeof db==='undefined' || !db) return;
@@ -22,11 +32,7 @@ function rwPartnersSync(){
       if(!d.exists) return;
       var list=(d.data()||{}).list;
       if(Array.isArray(list) && list.length){
-        var seed=(window.RW_PARTNERS||[]);
-        var have={}; list.forEach(function(p){ have[String(p.name||'').toLowerCase()+'|'+p.zone]=1; });
-        window.RW_PARTNERS = list.concat(seed.filter(function(p){
-          return !have[String(p.name||'').toLowerCase()+'|'+p.zone];
-        }));
+        window.RW_PARTNERS = rwPartnersMerge(list);
         try{ lsSet('rw_partners_cache', JSON.stringify(window.RW_PARTNERS)); }catch(e){ /* storage best-effort, ignore */ }
         if(el('partnersOut')) rwPartnersRender();
       }
@@ -34,7 +40,7 @@ function rwPartnersSync(){
   }catch(e){ /* best-effort Firestore write, ignore */ }
 }
 (function(){ try{ var c=lsGet('rw_partners_cache');
-  if(c){ var l=JSON.parse(c); if(Array.isArray(l)&&l.length) window.RW_PARTNERS=l; } }catch(e){ /* parse best-effort, ignore malformed/missing data */ } })();
+  if(c){ var l=JSON.parse(c); if(Array.isArray(l)&&l.length) window.RW_PARTNERS=rwPartnersMerge(l); } }catch(e){ /* parse best-effort, ignore malformed/missing data */ } })();
 
 function rwPartnerScore(p){
   var C=50, M=4.3;                       /* prior weight, prior mean */
@@ -48,7 +54,7 @@ function rwPartnerScore(p){
   return { score:sc, why:why };
 }
 function rwPartnersFor(zone, cat){
-  var list=(window.RW_PARTNERS||[]).slice();
+  var list=(window.RW_PARTNERS||[]).filter(function(p){ return p.verified==='signed'&&p.listingReady===true; });
   if(zone) list=list.filter(function(p){ return String(p.zone||'').toLowerCase()===String(zone).toLowerCase(); });
   if(cat)  list=list.filter(function(p){ return p.cat===cat; });
   list.forEach(function(p){ var s=rwPartnerScore(p); p._score=s.score; p._why=s.why; });

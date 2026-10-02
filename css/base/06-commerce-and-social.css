@@ -359,7 +359,17 @@ body.rw-paged{overflow:hidden}
 .lst-bl>span:first-child{font-size:17px;flex:0 0 auto}
 .lst-bl b{display:block;font-size:13px;color:var(--t1)}
 .lst-bl i{display:block;font-style:normal;font-size:11.5px;color:var(--t3);line-height:1.55;margin-top:2px}
+.lst-live-heading{margin:4px 0 16px}
+.lst-live{animation:lstArrive .48s cubic-bezier(.2,.75,.25,1) both;}
+.lst-live:hover{transform:translateY(-3px)}
+.lst-detail{animation:lstSheetArrive .28s cubic-bezier(.2,.75,.25,1) both}
+.lst-wa{background:linear-gradient(110deg,#16834a,#20b66b)!important;color:#fff!important;box-shadow:0 8px 24px rgba(32,182,107,.2)}
+.lst-confirm{font-size:11px;line-height:1.55;color:var(--t3);margin:9px 0 4px}
+.lst-support{display:block;text-align:center;margin-top:12px;color:var(--t2);font-size:12px}
+@keyframes lstArrive{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes lstSheetArrive{from{opacity:0;transform:translateY(8px) scale(.985)}to{opacity:1;transform:translateY(0) scale(1)}}
 @media(prefers-reduced-motion:reduce){.lst,.lst-shine{animation:none;transition:none}}
+@media(prefers-reduced-motion:reduce){.lst-live,.lst-detail{animation:none}.lst-live:hover{transform:none}}
 
 /* ===== TRAVEL COMPATIBILITY ENGINE (rw-v92) ===== */
 .cp-hero{text-align:center;padding:6px 0 22px}

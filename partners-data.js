@@ -21,6 +21,16 @@ window.RW_PARTNER_TIERS = [
   { id:'listed',  label:'Researched',        icon:'\ud83d\udcdd', note:'Found in our research, not yet a partner' }
 ];
 
+/* Homepage pilot. The user confirmed Milan Heights has signed; availability,
+   rates and the final reservation are still confirmed directly with the hotel. */
+window.RW_PARTNER_SEED = [{
+  id:'p_milan_heights', cat:'stay', zone:'Almora', area:'Dharanaula, opposite Milan Cafe',
+  name:'Milan Heights', verified:'signed', listingReady:true, bookingMode:'whatsapp',
+  bookingWhatsapp:'917302315845', supportEmail:'founder@roamwise.co.in',
+  badges:['partner'],
+  hook:'A signed RoamWise stay in Almora. Ask the hotel on WhatsApp to confirm rooms, dates and the final total.'
+}];
+
 /* Commission model — what we actually earn, stated plainly for both sides. */
 window.RW_PARTNER_MODEL = {
   stay:      { pct:7,  label:'Homestays & boutique stays', note:'Partner Free is 7% after a completed stay; active paid partner plans are 5%. Protected B2B net-rate partners use the agreed net instead — never both.' },
@@ -31,7 +41,7 @@ window.RW_PARTNER_MODEL = {
   listing:   { pct:0,  label:'Listing-only',               note:'One-time listing contribution applies; no booking commission when a property is informational-only.' }
 };
 
-window.RW_PARTNERS = [
+window.RW_PARTNERS = window.RW_PARTNER_SEED.concat([
   /* ---------- GOA · STAYS ---------- */
   { id:'p_quintaverde', cat:'stay', zone:'Goa', area:'Benaulim, South Goa',
     name:'Quinta Verde', rating:5.0, reviews:70, verified:'listed', priority:'high',
@@ -118,4 +128,4 @@ window.RW_PARTNERS = [
   { id:'p_sandygoa', cat:'adventure', zone:'Goa', area:'Calangute Market',
     name:'SandyGoa Tours', rating:4.7, reviews:11529, verified:'listed', priority:'medium',
     hook:'Very high review volume; broad Goa tours' }
-];
+]);

@@ -28,31 +28,16 @@ function rwCardArt(x){
 }
 function openListing(){
   rwPageOpen('listing', function(body){
-    var cols=(window.RW_COLLECTIONS||[]);
     body.innerHTML='<div id="lstOut"></div>';
     var out=el('lstOut');
-    /* collection rails */
-    out.innerHTML = cols.map(function(c){
-      var items=rwListingFor(c.badge);
-      if(!items.length) return '';
-      return '<div class="rail">'
-        +'<div class="rail-h"><b>'+esc2(c.title)+'</b><span>'+esc2(c.tagline)+'</span></div>'
-        +'<div class="rail-s">'+items.map(function(x){ return rwListCard(x,true); }).join('')+'</div>'
-        +'</div>';
-    }).join('')
-    + '<div class="rail-h" style="margin-top:26px"><b>Everything we know</b><span>All places, ranked by how much we can vouch for them.</span></div>'
-    + '<div class="lst-grid">'+rwListingAll().map(function(x){ return rwListCard(x,false); }).join('')+'</div>'
-    + '<div class="gr-foot">A badge is earned, never bought. Places pay us nothing to rank higher \u2014 that is why the ladder is worth reading.</div>';
+    var live=rwListingAll();
+    out.innerHTML='<div class="rail-h lst-live-heading"><b>Stay &amp; do</b><span>Signed RoamWise stays you can enquire about today.</span></div>'
+      +'<div class="lst-grid">'+live.map(function(x){ return rwListCard(x,false); }).join('')+'</div>'
+      +'<div class="gr-foot">The hotel confirms availability, final price including taxes, payment method and reservation directly. <a href="mailto:founder@roamwise.co.in?subject=RoamWise%20booking%20support">Need help? Contact RoamWise support</a>.</div>';
   });
 }
 function rwListingAll(){
-  var out=[];
-  (window.RW_PARTNERS||[]).forEach(function(p){ out.push(p); });
-  (window.RW_ROOMS||[]).forEach(function(r){
-    if(!out.some(function(o){ return o.name===r.property; }))
-      out.push({ id:r.id, name:r.property, zone:r.zone, area:r.area, cat:'stay',
-                 price:r.price, badges:['verified'] });
-  });
+  var out=(window.RW_PARTNERS||[]).filter(function(p){ return p.verified==='signed'&&p.listingReady===true; }).slice();
   out.forEach(function(x){
     if(!x.badges){
       x.badges = x.verified==='signed' ? ['verified'] : ['listed'];
@@ -70,7 +55,7 @@ function rwListingFor(badge){
 }
 function rwListCard(x, rail){
   var b=(x.badges||[])[ (x.badges||[]).length-1 ];
-  return '<div class="lst'+(rail?' rail-c':'')+'" onclick="rwListOpen(\''+esc2(x.id)+'\')">'
+  return '<div class="lst'+(rail?' rail-c':'')+' lst-live" onclick="rwListOpen(\''+esc2(x.id)+'\')">'
     + rwCardArt(x)
     +'<div class="lst-b">'
     +'<div class="lst-r"><b>'+esc2(x.name)+'</b>'
@@ -89,7 +74,9 @@ function rwListOpen(id){
   var ov=el('lstOv');
   if(!ov){ ov=document.createElement('div'); ov.id='lstOv'; ov.className='overlay'; ov.style.zIndex='4300';
     ov.onclick=function(e){ if(e.target===ov) rwOverlayClose('lstOv'); }; document.body.appendChild(ov); }
-  ov.innerHTML='<div class="sheet" style="max-width:440px">'
+  var waText='Hello '+x.name+', I found your stay through RoamWise. I am interested in staying in '+x.zone+'. Please share available room options for my dates, the final total including applicable taxes, payment method, and booking terms.';
+  var waHref='https://wa.me/'+encodeURIComponent(x.bookingWhatsapp||'')+'?text='+encodeURIComponent(waText);
+  ov.innerHTML='<div class="sheet lst-detail" style="max-width:440px">'
     +'<div class="sheet-h"><b>'+esc2(x.name)+'</b><button class="tact" onclick="rwOverlayClose(\'lstOv\')">\u2715</button></div>'
     + rwCardArt(x)
     +'<div class="lst-w" style="margin:10px 0 6px">'+esc2((x.area||'')+' \u00b7 '+(x.zone||''))+'</div>'
@@ -100,7 +87,8 @@ function rwListOpen(id){
           +'<span><b>'+esc2(b.label)+'</b><i>'+esc2(b.means)+'</i></span></div>';
       }).join('')+'</div>'
     + (x.price? '<div class="bk-total" style="margin-top:12px"><span>From</span><b>\u20b9'+Number(x.price).toLocaleString('en-IN')+'</b></div>':'')
-    +'<button class="bk-go" style="margin-top:12px" onclick="rwOverlayClose(\'lstOv\');openStays(\''+esc2(x.zone||'')+'\')">See rooms &amp; book \u2192</button>'
+    +(x.bookingMode==='whatsapp'?'<a class="bk-go lst-wa" style="display:block;text-align:center;text-decoration:none;margin-top:12px" href="'+esc2(waHref)+'" target="_blank" rel="noopener noreferrer">Ask the hotel on WhatsApp \u2197</a><p class="lst-confirm">Your reservation is confirmed directly by the hotel. Please verify current availability, final total including taxes and booking terms before paying.</p>':'<button class="bk-go" style="margin-top:12px" onclick="rwOverlayClose(\'lstOv\');openStays(\''+esc2(x.zone||'')+'\')">See rooms &amp; book \u2192</button>')
+    +'<a class="lst-support" href="mailto:'+esc2(x.supportEmail||'founder@roamwise.co.in')+'?subject=Help%20with%20'+encodeURIComponent(x.name)+'%20booking">RoamWise support: '+esc2(x.supportEmail||'founder@roamwise.co.in')+'</a>'
     +'</div>';
   ov.classList.add('open');
 }
