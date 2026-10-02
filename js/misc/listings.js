@@ -22,9 +22,28 @@ function rwHue(str){
 }
 function rwCardArt(x){
   var h=rwHue(x.id||x.name);
+  var photo=(x.photos||[])[0];
+  if(photo&&rwListingPhotoUrl(photo.src)) return '<div class="lst-art lst-photo" style="--h1:'+h+';--h2:'+((h+38)%360)+'">'
+    +'<img loading="lazy" src="'+rwListingPhotoUrl(photo.src)+'" alt="'+rwListingAttr(photo.alt||x.name)+'">'
+    +((x.photos||[]).length>1?'<span class="lst-photo-count">▧ '+(x.photos||[]).length+' photos</span>':'')
+    +'<span class="lst-shine"></span></div>';
   return '<div class="lst-art" style="--h1:'+h+';--h2:'+((h+38)%360)+'">'
     +'<span class="lst-emoji">'+(x.cat==='adventure'?'\ud83e\udde1':x.tier==='green'?'\ud83c\udf3f':'\ud83c\udfe1')+'</span>'
     +'<span class="lst-shine"></span></div>';
+}
+function rwListingPhotoUrl(src){
+  return typeof src==='string'&&/^assets\/property-photos\/[a-z0-9-]+\.(?:jpg|jpeg|png|webp)$/i.test(src)?src:'';
+}
+function rwListingAttr(value){
+  return esc2(value).replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+function rwListingPhotoGallery(x){
+  var photos=(x.photos||[]).filter(function(photo){ return rwListingPhotoUrl(photo.src); });
+  return (photos.length>1?'<div class="lst-gallery">'+photos.slice(1).map(function(photo){
+    return '<figure><img loading="lazy" src="'+rwListingPhotoUrl(photo.src)+'" alt="'+rwListingAttr(photo.alt||x.name)+'">'
+      +'<figcaption>'+esc2(photo.caption||'')+'</figcaption></figure>';
+  }).join('')+'</div>':'')
+    +(x.instagramUrl==='https://www.instagram.com/milan_height/'?'<a class="lst-instagram" href="'+x.instagramUrl+'" target="_blank" rel="noopener noreferrer">More photos &amp; videos on Milan Heights’ Instagram ↗</a>':'');
 }
 function openListing(){
   rwPageOpen('listing', function(body){
@@ -79,6 +98,7 @@ function rwListOpen(id){
   ov.innerHTML='<div class="sheet lst-detail" style="max-width:440px">'
     +'<div class="sheet-h"><b>'+esc2(x.name)+'</b><button class="tact" onclick="rwOverlayClose(\'lstOv\')">\u2715</button></div>'
     + rwCardArt(x)
+    + rwListingPhotoGallery(x)
     +'<div class="lst-w" style="margin:10px 0 6px">'+esc2((x.area||'')+' \u00b7 '+(x.zone||''))+'</div>'
     + (x.hook? '<div class="xp-hook" style="margin-bottom:10px">'+esc2(x.hook)+'</div>':'')
     +'<div class="lst-badges">'+(x.badges||[]).map(function(k){

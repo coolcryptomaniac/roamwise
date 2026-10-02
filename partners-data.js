@@ -28,6 +28,11 @@ window.RW_PARTNER_SEED = [{
   name:'Milan Heights', verified:'signed', listingReady:true, bookingMode:'whatsapp',
   bookingWhatsapp:'917302315845', supportEmail:'founder@roamwise.co.in',
   badges:['partner'],
+  photos:[
+    {src:'assets/property-photos/milan-heights-front.jpg',alt:'Milan Heights building and restaurant entrance in Dharanaula, Almora',caption:'Milan Heights frontage · photo shared for this listing'},
+    {src:'assets/property-photos/milan-heights-gaming.jpg',alt:'Milan Heights gaming zone with racing game screens and visitors',caption:'Gaming zone · photo from Milan Heights on Instagram'}
+  ],
+  instagramUrl:'https://www.instagram.com/milan_height/',
   hook:'A signed RoamWise stay in Almora. Ask the hotel on WhatsApp to confirm rooms, dates and the final total.'
 }];
 
