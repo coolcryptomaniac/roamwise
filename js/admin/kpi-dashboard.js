@@ -4,10 +4,10 @@
 var RWKpiDashboard = (function(){
   function pct(n,d){ return d > 0 ? Math.round((Number(n)||0) / d * 1000) / 10 : null; }
   function buildKpis(input){
-    var x=input||{}, users=Number(x.totalUsers)||0, pro=Number(x.proUsers)||0;
+    var x=input||{}, users=Number(x.totalUsers)||0, pro=Number(x.proUsers)||0, withoutEmail=Number(x.profilesWithoutEmail)||0;
     var a=x.activityStats||{}, b=x.businessSummary||{}, e=x.ebitda||{};
     return {
-      totalUsers:users, proUsers:pro, conversionPct:pct(pro,users),
+      totalUsers:users, profilesWithoutEmail:withoutEmail, proUsers:pro, conversionPct:pct(pro,users),
       dau:Number(a.dau)||0, wau:Number(a.wau)||0, mau:Number(a.mau)||0,
       stickinessPct:pct(a.dau,a.mau), totalRevenueINR:Number(x.totalRevenueINR)||0,
       mrrINR:Number(b.mrrINR)||0, arrINR:Number(b.arrINR)||0,
@@ -21,7 +21,8 @@ var RWKpiDashboard = (function(){
     var money=(helpers&&helpers.money)||function(n){return '₹'+Math.round(Number(n)||0).toLocaleString('en-IN');};
     var showPct=function(v){return v==null?'—':v+'%';};
     return '<div class="grid kpis">'+
-      '<div class="card kpi"><b>'+k.totalUsers+'</b><span>Total users</span></div>'+
+      '<div class="card kpi"><b>'+k.totalUsers+'</b><span>Email-addressed profiles</span></div>'+
+      '<div class="card kpi"><b>'+k.profilesWithoutEmail+'</b><span>Profiles without usable email · excluded</span></div>'+
       '<div class="card kpi"><b>'+k.proUsers+'</b><span>Pro users · '+showPct(k.conversionPct)+' conversion</span></div>'+
       '<div class="card kpi"><b>'+k.dau+' / '+k.mau+'</b><span>DAU / MAU · '+showPct(k.stickinessPct)+' stickiness</span></div>'+
       '<div class="card kpi"><b>'+money(k.totalRevenueINR)+'</b><span>Recorded all-time revenue</span></div>'+
