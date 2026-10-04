@@ -173,6 +173,12 @@ function renderCards(results, month, budUSD, origin, days, aiData, travelStyle, 
 
   var H = `<div class="live-bar"><div class="live-dot"></div><span>Results for <strong style="color:#16BF96">${month}</strong> &bull; ${provLabel} &bull; <strong style="color:var(--gold2)">${party.label}</strong>${aiData ? ' &bull; <strong style="color:#BF8CFF">AI enhanced</strong>' : ''}${isPro ? ' &bull; <strong style="color:#E8BA6C">Pro Active</strong>' : ''}</span>${(activeProv==='smart' && !lsGet('rwKey_gemini') && !lsGet('rwKey_groq')) ? '<span style="font-size:10px;color:#4A4946;margin-left:auto;cursor:pointer" onclick="openSettings()">+ Add free AI key</span>' : ''}</div>`;
   if(typeof rwFocusSummaryHTML==='function')H+=rwFocusSummaryHTML();
+  var pressureSeen={};
+  results.forEach(function(r){
+    if(typeof rwPressureFor!=='function'||typeof rwPressureCardHTML!=='function')return;
+    var hit=rwPressureFor(r.d&&r.d.name);
+    if(hit&&!pressureSeen[hit.id]){ H+=rwPressureCardHTML(r.d.name); pressureSeen[hit.id]=true; }
+  });
 
   H += `<div class="cmp-wrap"><table class="cmp-table"><thead><tr><th>Destination</th><th>Crowd in ${month}</th><th>${party.size>1?'Group mid · '+party.size:'Solo mid'}</th><th>Visa (India)</th><th>Best months</th></tr></thead><tbody>`;
   results.forEach(function(r){
