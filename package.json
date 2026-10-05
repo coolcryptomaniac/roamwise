@@ -23,7 +23,7 @@
     "business:test": "node --test tests/business-travel.test.js"
   },
   "dependencies": {
-    "@capacitor-community/speech-recognition": "^6.0.0",
+    "@capacitor-community/speech-recognition": "^7.0.1",
     "@capacitor/android": "^6.1.0",
     "@capacitor/app": "^6.0.0",
     "@capacitor/core": "^6.1.0",
