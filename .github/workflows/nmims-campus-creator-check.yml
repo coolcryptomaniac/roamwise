@@ -39,7 +39,7 @@ jobs:
           if(!proposal.includes('/nmims/creators/')||proposal.includes('submitClaim('))throw Error('Proposal must link creators but never expose public claiming');
           if(!theme.includes('prefers-reduced-motion:reduce'))throw Error('Campus animations require reduced-motion handling');
           NODE
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v6
         with:
           distribution: temurin
           java-version: '21'
