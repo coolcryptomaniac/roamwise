@@ -9,11 +9,16 @@ const root=path.join(__dirname,'..');
 const read=p=>fs.readFileSync(path.join(root,p),'utf8');
 
 test('Kasar festival CTA sends a deterministic tailored plan and keeps city input out of analytics',()=>{
+  // Fixed to a moment before the festival's Oct 5, 2026 India-time end so this
+  // test keeps covering the pre-festival CTA branch regardless of the real
+  // wall-clock date (see rwKasarFestivalEnded). Without this, the test went
+  // stale the instant real-world time crossed that threshold.
+  class PreFestivalDate extends Date {constructor(...args){super(...(args.length?args:['2026-10-03T12:00:00Z']))}}
   const timers=[],events=[],finished=[];
   const hero={value:''},origin={value:'Mumbai'},log={style:{}};
   let clarityCalls=0,pasteCalls=0,aiCalls=0;
   const state={
-    console,window:null,document:{},localStorage:{removeItem(){}},navigator:{},
+    console,Date:PreFestivalDate,window:null,document:{},localStorage:{removeItem(){}},navigator:{},
     setTimeout:fn=>{timers.push(fn);return timers.length;},clearTimeout(){},
     el:id=>id==='heroInput'?hero:id==='kasarFestOrigin'?origin:id==='heroLog'?log:null,
     lsGet:()=>'',lsSet(){},activeProv:'roamwise',DB:[],RW_PLACE_OVERRIDES:{},
