@@ -5,6 +5,16 @@ updates:
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 5
+    groups:
+      # @capacitor/* plugins all peer-depend on @capacitor/core at the
+      # same major version. Grouping them means a plugin bump and the
+      # matching core bump land in one PR (and one CI run) instead of
+      # merging independently and leaving `npm ci` broken in between —
+      # this is exactly how #281/#282 broke CI on 2026-10-02.
+      capacitor:
+        patterns:
+          - "@capacitor/*"
+          - "@capacitor-community/*"
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:

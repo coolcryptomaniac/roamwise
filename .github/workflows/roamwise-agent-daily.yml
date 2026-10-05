@@ -47,5 +47,5 @@ jobs:
           password: ${{ secrets.MAIL_APP_PASSWORD }}
           subject: "🥷 RoamWise daily report"
           to: ${{ secrets.TO_EMAIL }}
-          from: RoamWise Agent
+          from: RoamWise Agent <${{ secrets.MAIL_USERNAME }}>
           body: file://report.md
