@@ -27,9 +27,7 @@ function rwCardArt(x){
     +'<img loading="lazy" src="'+rwListingPhotoUrl(photo.src)+'" alt="'+rwListingAttr(photo.alt||x.name)+'">'
     +((x.photos||[]).length>1?'<span class="lst-photo-count">▧ '+(x.photos||[]).length+' photos</span>':'')
     +'<span class="lst-shine"></span></div>';
-  return '<div class="lst-art" style="--h1:'+h+';--h2:'+((h+38)%360)+'">'
-    +'<span class="lst-emoji">'+(x.cat==='adventure'?'\ud83e\udde1':x.tier==='green'?'\ud83c\udf3f':'\ud83c\udfe1')+'</span>'
-    +'<span class="lst-shine"></span></div>';
+  return ''; /* no photo yet: show a compact text card rather than an empty placeholder */
 }
 function rwListingPhotoUrl(src){
   return typeof src==='string'&&/^assets\/property-photos\/[a-z0-9-]+\.(?:jpg|jpeg|png|webp)$/i.test(src)?src:'';
@@ -56,7 +54,8 @@ function openListing(){
   });
 }
 function rwListingAll(){
-  var out=(window.RW_PARTNERS||[]).filter(function(p){ return p.verified==='signed'&&p.listingReady===true; }).slice();
+  /* Only signed, ready partners with a WORKING booking route are ever shown to guests. */
+  var out=(window.RW_PARTNERS||[]).filter(function(p){ return p.verified==='signed'&&p.listingReady===true&&(typeof rwIsOperational!=='function'||rwIsOperational(p)); }).slice();
   out.forEach(function(x){
     if(!x.badges){
       x.badges = x.verified==='signed' ? ['verified'] : ['listed'];
@@ -93,8 +92,6 @@ function rwListOpen(id){
   var ov=el('lstOv');
   if(!ov){ ov=document.createElement('div'); ov.id='lstOv'; ov.className='overlay'; ov.style.zIndex='4300';
     ov.onclick=function(e){ if(e.target===ov) rwOverlayClose('lstOv'); }; document.body.appendChild(ov); }
-  var waText='Hello '+x.name+', I found your stay through RoamWise. I am interested in staying in '+x.zone+'. Please share available room options for my dates, the final total including applicable taxes, payment method, and booking terms.';
-  var waHref='https://wa.me/'+encodeURIComponent(x.bookingWhatsapp||'')+'?text='+encodeURIComponent(waText);
   ov.innerHTML='<div class="sheet lst-detail" style="max-width:440px">'
     +'<div class="sheet-h"><b>'+esc2(x.name)+'</b><button class="tact" onclick="rwOverlayClose(\'lstOv\')">\u2715</button></div>'
     + rwCardArt(x)
@@ -107,7 +104,7 @@ function rwListOpen(id){
           +'<span><b>'+esc2(b.label)+'</b><i>'+esc2(b.means)+'</i></span></div>';
       }).join('')+'</div>'
     + (x.price? '<div class="bk-total" style="margin-top:12px"><span>From</span><b>\u20b9'+Number(x.price).toLocaleString('en-IN')+'</b></div>':'')
-    +(x.bookingMode==='whatsapp'?'<a class="bk-go lst-wa" style="display:block;text-align:center;text-decoration:none;margin-top:12px" href="'+esc2(waHref)+'" target="_blank" rel="noopener noreferrer">Ask the hotel on WhatsApp \u2197</a><p class="lst-confirm">Your reservation is confirmed directly by the hotel. Please verify current availability, final total including taxes and booking terms before paying.</p>':'<button class="bk-go" style="margin-top:12px" onclick="rwOverlayClose(\'lstOv\');openStays(\''+esc2(x.zone||'')+'\')">See rooms &amp; book \u2192</button>')
+    + rwBookingActionHTML(x)
     +(/^https:\/\/www\.google\.com\/maps\//.test(x.mapsUrl||'')?'<a class="lst-instagram" href="'+esc2(x.mapsUrl)+'" target="_blank" rel="noopener noreferrer">Find on Google Maps \u2197</a>':'')
     +'<a class="lst-support" href="mailto:'+esc2(x.supportEmail||'founder@roamwise.co.in')+'?subject=Help%20with%20'+encodeURIComponent(x.name)+'%20booking">RoamWise support: '+esc2(x.supportEmail||'founder@roamwise.co.in')+'</a>'
     +'</div>';

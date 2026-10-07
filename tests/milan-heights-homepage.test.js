@@ -10,7 +10,7 @@ function appContext() {
     window,
     console,
     encodeURIComponent,
-    Number,
+    Number, isFinite, URL,
     document: { createElement() { return overlay; }, body: { appendChild() {} } },
     el(id) { return id === 'lstOv' ? overlay : null; },
     esc2(value) { return String(value ?? '').replace(/[<>&"']/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;',"'":'&#39;'}[c])); },
@@ -19,41 +19,57 @@ function appContext() {
     openStays() {}
   };
   vm.createContext(context);
-  for (const file of ['partners-data.js', 'badges-data.js', 'js/misc/partners.js', 'js/misc/listings.js']) {
+  for (const file of ['partners-data.js', 'badges-data.js', 'js/misc/partners.js', 'js/booking/routes.js', 'js/misc/listings.js']) {
     vm.runInContext(fs.readFileSync(file, 'utf8'), context, { filename: file });
   }
   return { context, window, overlay };
 }
 
-test('Stay & do only shows signed, ready partner inventory', () => {
+test('Stay & do only shows signed, ready partners that have a working booking route', () => {
   const { context, window } = appContext();
   window.RW_PARTNERS.push(
-    { id: 'unsigned', name: 'Unsigned Lodge', zone: 'Manali', verified: 'listed', listingReady: true },
-    { id: 'not-ready', name: 'Signed but not ready', zone: 'Manali', verified: 'signed', listingReady: false }
+    { id: 'unsigned', name: 'Unsigned Lodge', zone: 'Manali', verified: 'listed', listingReady: true, bookingMode: 'whatsapp', bookingWhatsapp: '919800000000' },
+    { id: 'not-ready', name: 'Signed but not ready', zone: 'Manali', verified: 'signed', listingReady: false, bookingMode: 'whatsapp', bookingWhatsapp: '919800000000' }
   );
-  window.RW_ROOMS = [{ id: 'demo', property: 'Demo Room', zone: 'Almora', price: 1000 }];
-  const signed = ['p_milan_heights', 'p_new_himank', 'p_soulmate_homestay'];
-  assert.deepEqual(Array.from(context.rwListingAll(), p => p.id).sort(), signed);
-  assert.deepEqual(Array.from(context.rwPartnersFor('', 'stay'), p => p.id).sort(), signed);
+  assert.deepEqual(Array.from(context.rwListingAll(), p => p.id), ['p_milan_heights']);
 });
 
-test('Soulmate Homestay detail routes through RoamWise stays, not a missing WhatsApp number', () => {
-  const { context, overlay } = appContext();
-  context.rwListOpen('p_soulmate_homestay');
-  assert.match(overlay.innerHTML, /Soulmate Homestay/);
-  assert.match(overlay.innerHTML, /Kotyura/);
-  assert.doesNotMatch(overlay.innerHTML, /wa\.me/);
-  assert.match(overlay.innerHTML, /See rooms &amp; book/);
-  assert.match(overlay.innerHTML, /google\.com\/maps\/search/);
+test('signed partners with no booking route stay hidden until a route is saved', () => {
+  const { context, window } = appContext();
+  const ids = () => Array.from(context.rwListingAll(), p => p.id).sort();
+  assert.ok(!ids().includes('p_soulmate_homestay'));
+  assert.ok(!ids().includes('p_new_himank'));
+  const soulmate = window.RW_PARTNERS.find(p => p.id === 'p_soulmate_homestay');
+  soulmate.bookingMode = 'whatsapp'; soulmate.bookingWhatsapp = '9876543210';
+  assert.ok(ids().includes('p_soulmate_homestay'));
+  const himank = window.RW_PARTNERS.find(p => p.id === 'p_new_himank');
+  himank.bookingMode = 'ota'; himank.bookingUrl = 'https://www.booking.com/hotel/in/new-himank.html';
+  assert.ok(ids().includes('p_new_himank'));
 });
 
-test('New Himank detail uses public-source facts, no invented rating or price', () => {
-  const { context, overlay } = appContext();
+test('a route without a photo renders a compact card with no empty placeholder art', () => {
+  const { context, window } = appContext();
+  const s = window.RW_PARTNERS.find(p => p.id === 'p_soulmate_homestay');
+  s.bookingMode = 'whatsapp'; s.bookingWhatsapp = '9876543210';
+  assert.doesNotMatch(context.rwListCard(s, false), /lst-art|lst-emoji/);
+});
+
+test('detail page never links to unrelated zone rooms and uses the route that is configured', () => {
+  const { context, window, overlay } = appContext();
+  const himank = window.RW_PARTNERS.find(p => p.id === 'p_new_himank');
+  himank.bookingMode = 'ota'; himank.bookingUrl = 'https://www.booking.com/hotel/in/new-himank.html'; himank.bookingOtaName = '';
   context.rwListOpen('p_new_himank');
-  assert.match(overlay.innerHTML, /New Himank/);
-  assert.match(overlay.innerHTML, /Chachoga Road/);
+  assert.match(overlay.innerHTML, /Book on Booking\.com/);
+  assert.match(overlay.innerHTML, /book and pay on Booking\.com/);
+  assert.doesNotMatch(overlay.innerHTML, /openStays|See rooms/);
   assert.match(overlay.innerHTML, /google\.com\/maps\/search/);
-  assert.doesNotMatch(overlay.innerHTML, /wa\.me|\u2605|From<\/span>/);
+  assert.doesNotMatch(overlay.innerHTML, /\u2605|From<\/span>/);
+  const soulmate = window.RW_PARTNERS.find(p => p.id === 'p_soulmate_homestay');
+  soulmate.bookingMode = 'whatsapp'; soulmate.bookingWhatsapp = '9876543210';
+  context.rwListOpen('p_soulmate_homestay');
+  assert.match(overlay.innerHTML, /wa\.me\/919876543210/);
+  assert.match(overlay.innerHTML, /Kotyura/);
+  assert.match(overlay.innerHTML, /google\.com\/maps\/search/);
 });
 
 test('Milan detail opens a WhatsApp enquiry and shows RoamWise support', () => {
