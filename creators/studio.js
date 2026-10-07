@@ -5,7 +5,7 @@
  * Media is link-first: Instagram/YouTube/blog providers host bytes; RoamWise stores tiny metadata.
  */
 (function(){'use strict';
-var CFG={apiKey:'AIzaSyBTfmJvHTmp0mNQqsIhWEwnLLwFKz0ExYQ',authDomain:'roamwisepro.firebaseapp.com',projectId:'roamwisepro',storageBucket:'roamwisepro.firebasestorage.app',messagingSenderId:'1039880917656',appId:'1:1039880917656:web:8b3e18e8a4b1c9f8e2c0d1'};
+var CFG={apiKey:'AIzaSyDlrtpzpOb1VEmVSd9tHmu7OpmvwWosYsU',authDomain:'roamwisepro.firebaseapp.com',projectId:'roamwisepro',storageBucket:'roamwisepro.firebasestorage.app',messagingSenderId:'299014744987',appId:'1:299014744987:web:d5c316743e6d7a10904f3e'};
 if(!firebase.apps.length)firebase.initializeApp(CFG);
 var auth=firebase.auth(),db=firebase.firestore(),S={user:null,account:null,creator:{},content:[],ledger:null,ledgerReadable:true,registered:false};
 var $=function(s,r){return(r||document).querySelector(s)};

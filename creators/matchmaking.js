@@ -1,7 +1,7 @@
 import { COLLAB_TIERS, assessTrust, normalizeMatchProfile, recommendTier } from './match-core.mjs';
 import { SEED_POLICIES, mergePolicies, termsText } from './property-terms-core.mjs';
 
-const CFG={apiKey:'AIzaSyBTfmJvHTmp0mNQqsIhWEwnLLwFKz0ExYQ',authDomain:'roamwisepro.firebaseapp.com',projectId:'roamwisepro',storageBucket:'roamwisepro.firebasestorage.app',messagingSenderId:'1039880917656',appId:'1:1039880917656:web:8b3e18e8a4b1c9f8e2c0d1'};
+const CFG={apiKey:'AIzaSyDlrtpzpOb1VEmVSd9tHmu7OpmvwWosYsU',authDomain:'roamwisepro.firebaseapp.com',projectId:'roamwisepro',storageBucket:'roamwisepro.firebasestorage.app',messagingSenderId:'299014744987',appId:'1:299014744987:web:d5c316743e6d7a10904f3e'};
 try { if (!firebase.apps.length) firebase.initializeApp(CFG); } catch (_) {}
 const db = (() => { try { return firebase.firestore(); } catch (_) { return null; } })();
 const auth = (() => { try { return firebase.auth(); } catch (_) { return null; } })();
