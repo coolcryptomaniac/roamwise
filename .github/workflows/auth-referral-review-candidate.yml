@@ -16,7 +16,7 @@ jobs:
   rules-verification:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Unit test source drift guards
         run: python3 tests/prepare-auth-referral-rules.test.py -v
       - name: Select full rules (canonical after review; otherwise generated candidate)

@@ -13,7 +13,7 @@ jobs:
   roamwise-brand:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Enforce RoamWise-only public branding
         run: |
           if git grep -n -i 'gyanverse' -- '*.html' '*.js' '*.css'; then
