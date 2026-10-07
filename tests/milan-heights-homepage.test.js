@@ -32,8 +32,18 @@ test('Stay & do only shows signed, ready partner inventory', () => {
     { id: 'not-ready', name: 'Signed but not ready', zone: 'Manali', verified: 'signed', listingReady: false }
   );
   window.RW_ROOMS = [{ id: 'demo', property: 'Demo Room', zone: 'Almora', price: 1000 }];
-  assert.deepEqual(Array.from(context.rwListingAll(), p => p.id), ['p_milan_heights']);
-  assert.deepEqual(Array.from(context.rwPartnersFor('', 'stay'), p => p.id), ['p_milan_heights']);
+  const signed = ['p_milan_heights', 'p_soulmate_homestay'];
+  assert.deepEqual(Array.from(context.rwListingAll(), p => p.id).sort(), signed);
+  assert.deepEqual(Array.from(context.rwPartnersFor('', 'stay'), p => p.id).sort(), signed);
+});
+
+test('Soulmate Homestay detail routes through RoamWise stays, not a missing WhatsApp number', () => {
+  const { context, overlay } = appContext();
+  context.rwListOpen('p_soulmate_homestay');
+  assert.match(overlay.innerHTML, /Soulmate Homestay/);
+  assert.match(overlay.innerHTML, /Kotyura/);
+  assert.doesNotMatch(overlay.innerHTML, /wa\.me/);
+  assert.match(overlay.innerHTML, /See rooms &amp; book/);
 });
 
 test('Milan detail opens a WhatsApp enquiry and shows RoamWise support', () => {

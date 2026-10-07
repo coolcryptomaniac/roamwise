@@ -34,6 +34,15 @@ window.RW_PARTNER_SEED = [{
   ],
   instagramUrl:'https://www.instagram.com/milan_height/',
   hook:'A signed RoamWise stay in Almora. Ask the hotel on WhatsApp to confirm rooms, dates and the final total.'
+},{
+  /* Onboarded by the founder and approved in admin (partnerPublicProfiles, verifiedAt 2026-10-06).
+     No WhatsApp number or photos are on file yet, so the listing routes guests through the
+     RoamWise stays flow rather than a direct chat. Add bookingWhatsapp/photos when received. */
+  id:'p_soulmate_homestay', cat:'stay', zone:'Almora', area:'Kotyura',
+  name:'Soulmate Homestay', verified:'signed', listingReady:true,
+  supportEmail:'founder@roamwise.co.in',
+  badges:['local','quiet'],
+  hook:'Kumaoni cooking and Himalayan surroundings in Kotyura, Almora, with a local host. Ask RoamWise to confirm rooms, dates and the final total.'
 }];
 
 /* Commission model — what we actually earn, stated plainly for both sides. */
