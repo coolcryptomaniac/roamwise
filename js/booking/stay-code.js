@@ -77,6 +77,32 @@ function rwStayWaClick(a){
   return true;
 }
 
+/* Build a coded WhatsApp enquiry for a partner (used by Tusk / trip chat). Same code + secret
+   mechanism as the listing button, plus the trip details the guest already gave. Returns
+   { ok, url, code } or { ok:false, error }. Opening the link is left to the caller. */
+function rwStayEnquiryFor(partner, d){
+  try{
+    d = d || {};
+    if(!partner || typeof rwBookingRoutes !== 'function') return { ok: false, error: 'no property' };
+    var wa = rwBookingRoutes(partner).filter(function(r){ return r.type === 'whatsapp'; })[0];
+    if(!wa) return { ok: false, error: 'This property takes enquiries another way (website, phone or direct booking).' };
+    var pid = String(partner.id || '');
+    if(!/^[A-Za-z0-9_-]{2,60}$/.test(pid)) return { ok: false, error: 'bad property id' };
+    var lines = ['Hello ' + partner.name + ', I found your stay through RoamWise.'];
+    if(d.checkIn) lines.push('Dates: check-in ' + d.checkIn + (d.nights ? ' for ' + d.nights + ' night' + (d.nights > 1 ? 's' : '') : '') + '.');
+    if(d.guests) lines.push('Guests: ' + d.guests + (d.rooms ? ' in ' + d.rooms + ' room' + (d.rooms > 1 ? 's' : '') : '') + '.');
+    if(d.budget) lines.push('Budget: about \u20b9' + Number(d.budget).toLocaleString('en-IN') + ' per night.');
+    if(d.note) lines.push(String(d.note).slice(0, 200));
+    lines.push('Please share availability, the final total including applicable taxes, payment method and booking terms.');
+    var code = rwStayNewCode(), secret = rwStayNewSecret();
+    var list = rwStayLoad();
+    list.push({ code: code, secret: secret, partnerId: pid, name: partner.name || '', at: Date.now(), answered: false });
+    rwStaySave(list);
+    rwStayRegister(code, secret, pid);
+    return { ok: true, code: code, url: wa.href + '?text=' + encodeURIComponent(rwStayMessage(lines.join('\n'), code)) };
+  }catch(e){ return { ok: false, error: 'could not prepare the enquiry' }; }
+}
+
 /* Gentle once-a-day nudge for enquiries older than 3 days that were never answered. */
 function rwStayNudge(){
   try{
