@@ -52,6 +52,11 @@ window.RW_PARTNER_SEED = [{
      until the Trust Desk price audit is complete. Add bookingWhatsapp/photos when received. */
   id:'p_new_himank', cat:'stay', zone:'Manali', area:'Chachoga Road, near Hotel Vintage',
   name:'New Himank', verified:'signed', listingReady:true,
+  photos:[
+    {src:'assets/property-photos/new-himank-room.webp',alt:'New Himank guest room with wooden panelling, large windows and a TV in Manali',caption:'Guest room · photo shared for this listing'},
+    {src:'assets/property-photos/new-himank-dining.webp',alt:'New Himank attic dining hall with wooden ceiling and window views in Manali',caption:'Dining hall · photo shared for this listing'},
+    {src:'assets/property-photos/new-himank-signboard.webp',alt:'New Himank signboard on the building front in Manali',caption:'Entrance signboard · photo shared for this listing'}
+  ],
   supportEmail:'founder@roamwise.co.in',
   /* Signed partners book by WhatsApp only (never via an OTA). Hidden until bookingMode:'whatsapp' + bookingWhatsapp are saved from the partner admin. */
   mapsUrl:'https://www.google.com/maps/search/?api=1&query=New+Himank+Homestay+Chachoga+Road+Manali',
