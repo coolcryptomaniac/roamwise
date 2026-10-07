@@ -357,3 +357,4 @@ input:focus, select:focus, textarea:focus { border-color: var(--scarlet); box-sh
 .rw-stay-map{color:#dfb86f;font-size:12px;margin-left:6px}
 .rw-stay-wa{background:#167a46;color:#fff;text-decoration:none;display:inline-block}
 .rw-enq{margin-top:18px}
+.rw-stay-group{margin:16px 2px;color:var(--muted);font-size:13px}.rw-stay-group a{color:#dfb86f}

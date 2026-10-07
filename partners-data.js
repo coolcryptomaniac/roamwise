@@ -26,7 +26,7 @@ window.RW_PARTNER_TIERS = [
 window.RW_PARTNER_SEED = [{
   id:'p_milan_heights', cat:'stay', zone:'Almora', area:'Dharanaula, opposite Milan Cafe',
   name:'Milan Heights', verified:'signed', listingReady:true, bookingMode:'whatsapp',
-  bookingWhatsapp:'917302315845', supportEmail:'founder@roamwise.co.in',
+  bookingWhatsapp:'917302315845', supportEmail:'support@roamwise.co.in',
   badges:['partner'],
   photos:[
     {src:'assets/property-photos/milan-heights-front.jpg',alt:'Milan Heights building and restaurant entrance in Dharanaula, Almora',caption:'Milan Heights frontage · photo shared for this listing'},
@@ -46,7 +46,7 @@ window.RW_PARTNER_SEED = [{
     {src:'assets/property-photos/soulmate-garden.jpg',alt:'Soulmate garden terrace with a children\'s play area and mountain views',caption:'Garden and play area · photo shared for this listing'},
     {src:'assets/property-photos/soulmate-walkway.jpg',alt:'Soulmate covered walkway lit with lanterns and star lights at night',caption:'Walkway at night · photo shared for this listing'}
   ],
-  supportEmail:'founder@roamwise.co.in',
+  supportEmail:'support@roamwise.co.in',
   /* Signed partners book by WhatsApp only (never via an OTA). Hidden until bookingMode:'whatsapp' + bookingWhatsapp are saved from the partner admin. */
   mapsUrl:'https://www.google.com/maps/search/?api=1&query=Soulmate+Homestay+Kotyura+Almora',
   badges:['local','quiet'],
@@ -63,7 +63,7 @@ window.RW_PARTNER_SEED = [{
     {src:'assets/property-photos/new-himank-dining.webp',alt:'New Himank attic dining hall with wooden ceiling and window views in Manali',caption:'Dining hall · photo shared for this listing'},
     {src:'assets/property-photos/new-himank-signboard.webp',alt:'New Himank signboard on the building front in Manali',caption:'Entrance signboard · photo shared for this listing'}
   ],
-  supportEmail:'founder@roamwise.co.in',
+  supportEmail:'support@roamwise.co.in',
   /* Signed partners book by WhatsApp only (never via an OTA). Hidden until bookingMode:'whatsapp' + bookingWhatsapp are saved from the partner admin. */
   mapsUrl:'https://www.google.com/maps/search/?api=1&query=New+Himank+Homestay+Chachoga+Road+Manali',
   hook:'Homestay with an on-site restaurant on Chachoga Road, Manali, about a 7-minute walk to Mall Road. Public listings mention free breakfast, Wi-Fi and balconies in every room. Ask RoamWise to confirm rooms, dates and the final total.'

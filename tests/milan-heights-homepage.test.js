@@ -79,7 +79,7 @@ test('Milan detail opens a WhatsApp enquiry and shows RoamWise support', () => {
   assert.match(overlay.innerHTML, /milan-heights-front\.jpg/);
   assert.match(overlay.innerHTML, /milan-heights-gaming\.jpg/);
   assert.match(overlay.innerHTML, /More photos &amp; videos on Milan Heights’ Instagram/);
-  assert.match(overlay.innerHTML, /mailto:founder@roamwise\.co\.in/);
+  assert.match(overlay.innerHTML, /mailto:support@roamwise\.co\.in/);
   assert.match(overlay.innerHTML, /final total including taxes/);
 });
 

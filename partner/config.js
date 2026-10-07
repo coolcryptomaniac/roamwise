@@ -13,7 +13,8 @@ window.RW_PARTNER_CONFIG = {
   /* Optional chat shortcuts. Leave blank until the numbers/bots exist; the join page shows a link only when set.
      supportWhatsapp: RoamWise's own WhatsApp number in international form, digits only (e.g. 9198xxxxxxxx).
      telegramBot: the bot username from @BotFather without the @ (e.g. RoamWiseBot). */
-  chat: { supportWhatsapp: '', telegramBot: '' },
+  supportEmail: 'support@roamwise.co.in',
+  chat: { supportWhatsapp: '', telegramBot: '', supportGroupUrl: 'https://chat.whatsapp.com/EofM9cGCVkoCtdG6Ozhh1G' },
   commercial: {
     stayCommissionPct: 7,
     plans: {
