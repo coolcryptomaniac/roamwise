@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
-import { assessTrust, autopilotDecision, normalizeMatchProfile, recommendTier, scoreMatch } from '../creators/match-core.mjs';
+import { assessTrust, autopilotDecision, normalizeMatchProfile, quoteCollaboration, rankMatches, recommendTier, scoreMatch, PLATFORM_FEES } from '../creators/match-core.mjs';
 
 const creator = {
   role: 'creator', dealModes: ['barter', 'hybrid'], niches: ['wellness', 'mountains'],
@@ -83,4 +83,50 @@ test('home recommendations are consolidated instead of stacking specialty rails'
   assert.match(painter, /One smart mix for/);
   assert.match(painter, /rw-discovery-feed/);
   assert.doesNotMatch(painter, /addRail\('In season locally'/);
+});
+
+test('regional and synonym themes still match', () => {
+  const r = scoreMatch({ ...creator, niches: ['yoga'], destinations: ['uttarakhand'] }, { ...property, niches: ['wellness'], destinations: ['almora'] });
+  assert.ok(r.breakdown.theme > 0);
+  assert.ok(r.breakdown.geography > 0);
+});
+
+test('no shared deal style is never a match', () => {
+  const r = scoreMatch({ ...creator, dealModes: ['paid'], minimumCash: 8000 }, { ...property, dealModes: ['barter'], maximumCash: 0 });
+  assert.equal(r.compatible, false);
+  assert.equal(r.shortlist, false);
+  assert.ok(r.score <= 40);
+  assert.equal(autopilotDecision({ ...creator, dealModes: ['paid'], minimumCash: 8000 }, { ...property, dealModes: ['barter'], maximumCash: 0 }).action, 'hold');
+});
+
+test('thin profiles are asked for details instead of introduced', () => {
+  const thin = { role: 'creator', dealModes: ['barter'], profileUrl: 'https://instagram.com/thin', accountAgeDays: 800 };
+  const d = autopilotDecision(thin, { role: 'property', dealModes: ['barter'], profileUrl: 'https://example.com/thin', accountAgeDays: 900 });
+  assert.equal(d.action, 'ask_for_details');
+  assert.ok(d.match.confidence < 0.6);
+});
+
+test('rankMatches filters role, dedupes, and sorts best first', () => {
+  const weak = { ...property, id: 'weak', niches: ['nightlife'], destinations: ['goa'] };
+  const list = rankMatches({ ...creator, id: 'c1' }, [
+    { ...property, id: 'p1' }, { ...property, id: 'p1' }, weak,
+    { ...creator, id: 'c2' }, { ...creator, id: 'c1' }
+  ], { minScore: 0 });
+  assert.deepEqual(list.map(x => x.id), ['p1', 'weak']);
+  assert.ok(list[0].score >= list[1].score);
+  assert.ok(list[0].quote);
+  assert.throws(() => rankMatches({ role: 'x' }, []));
+});
+
+test('fee quote: creator keeps 100%, property pays the fee', () => {
+  const cash = quoteCollaboration({ ...property, maximumCash: 5000 }, creator);
+  assert.equal(cash.tier, 'hybrid');
+  assert.equal(cash.platformFee, Math.max(PLATFORM_FEES.minCashFee, Math.round(cash.creatorReceives * PLATFORM_FEES.cashBps / 10000)));
+  assert.equal(cash.propertyPays, cash.creatorReceives + cash.platformFee);
+  const barter = quoteCollaboration({ ...property, maximumCash: 0 }, creator);
+  assert.equal(barter.creatorReceives, 0);
+  assert.equal(barter.platformFee, PLATFORM_FEES.barterSuccessFee);
+  assert.match(barter.dueWhen, /after the hosted stay/);
+  const tiny = quoteCollaboration({ ...property, maximumCash: 3000 }, creator, { cashBps: 100, minCashFee: 99, barterSuccessFee: 0 });
+  assert.equal(tiny.platformFee, 99);
 });

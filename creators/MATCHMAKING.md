@@ -35,3 +35,13 @@ These are negotiation bands, not platform-fixed creator prices. Both sides see a
 - RoamWise's disclosed service fee and creator settlement are separate ledger amounts. Live collection and split settlement remain disabled until provider onboarding, KYC, contracts, tax treatment, refunds, and dispute operations are approved.
 
 The current worker supports a provider adapter for Cashfree Easy Split and a sandbox provider for testing. This is a technical flow, not a promise that live regulated payments are enabled.
+
+
+## Matching engine v2 and RoamWise fee
+
+- Scoring (100): deal style 30, theme 25, geography 20, platform 10, budget 10, hosted benefits 5. Themes and places use synonym/region closeness (e.g. yoga ≈ wellness, Almora ⊂ Uttarakhand).
+- Hard gates: no shared deal style or an unbridgeable cash gap is incompatible (score capped at 40, action `hold`).
+- Thin profiles (completeness < 60%) get `ask_for_details` rather than an introduction.
+- `rankMatches(subject, candidates)` returns the best opposite-role partners, de-duplicated, each with reasons, tier and fee quote.
+- Fee (`PLATFORM_FEES`, proposal): paid by the property, never deducted from the creator. Cash deals 8% of the cash fee (min ₹99); hosted barter flat ₹299 due only after the stay is completed. No fee unless both sides accept the brief.
+- `quoteCollaboration` is disclosure only. The worker's `CREATOR_PLATFORM_FEE_BPS` default is 1500; align it with these defaults in a separate payments review (AI-ROLES rule 7) before live collection.

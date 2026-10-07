@@ -77,13 +77,10 @@ test('festival funnel counters are covered by the narrow Firestore stats allowli
 
 test('Milan Heights event and Ailon Tusk send an attributed WhatsApp enquiry',()=>{
   const html=read('index.html'),tusk=read('js/copilot/core.js'),app=read('partner/app.js'),market=read('partner/marketplace.js');
-  assert.match(html,/https:\/\/wa\.me\/917302315845\?text=/);
-  assert.match(html,/found your stay through RoamWise/);
-  assert.match(html,/day>='2026-10-05'/);
-  assert.match(html,/Ask Milan Heights for available dates on WhatsApp/);
-  assert.match(html,/data-festival-only/);
-  assert.match(html,/₹1,613–₹3,226 per room, per night/);
-  assert.doesNotMatch(html,/7% commission|₹1,500–₹3,000|base rate ÷ 93%/);
+  assert.doesNotMatch(html,/id="kasarFestWeekend"/,'the finished Kasar fest block is gone from the homepage');
+  assert.match(html,/id="musicEventsIndia"/);
+  assert.match(html,/Jodhpur RIFF/);
+  assert.match(html,/e\.end>=today/,'event cards expire themselves after their last day');
   assert.match(tusk,/WhatsApp Milan Heights · mention RoamWise/);
   assert.match(tusk,/function rwKasarFestivalEnded\(now\)/);
   assert.match(tusk,/next available dates on WhatsApp/);

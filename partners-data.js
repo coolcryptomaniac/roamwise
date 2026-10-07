@@ -34,6 +34,26 @@ window.RW_PARTNER_SEED = [{
   ],
   instagramUrl:'https://www.instagram.com/milan_height/',
   hook:'A signed RoamWise stay in Almora. Ask the hotel on WhatsApp to confirm rooms, dates and the final total.'
+},{
+  /* Onboarded by the founder and approved in admin (partnerPublicProfiles, verifiedAt 2026-10-06).
+     No WhatsApp number or photos are on file yet, so the listing routes guests through the
+     RoamWise stays flow rather than a direct chat. Add bookingWhatsapp/photos when received. */
+  id:'p_soulmate_homestay', cat:'stay', zone:'Almora', area:'Kotyura',
+  name:'Soulmate Homestay', verified:'signed', listingReady:true,
+  supportEmail:'founder@roamwise.co.in',
+  mapsUrl:'https://www.google.com/maps/search/?api=1&query=Soulmate+Homestay+Kotyura+Almora',
+  badges:['local','quiet'],
+  hook:'Kumaoni cooking and Himalayan surroundings in Kotyura, Almora, with a local host. Ask RoamWise to confirm rooms, dates and the final total.'
+},{
+  /* Approved in the partner admin (MOU accepted 2026-09-30). Details below come from public
+     travel-site listings (hotels.com / Expedia): Chachoga Road near Hotel Vintage, free
+     breakfast, Wi-Fi and balconies, about 0.6 km from Mall Road. No rating or rate is shown
+     until the Trust Desk price audit is complete. Add bookingWhatsapp/photos when received. */
+  id:'p_new_himank', cat:'stay', zone:'Manali', area:'Chachoga Road, near Hotel Vintage',
+  name:'New Himank', verified:'signed', listingReady:true,
+  supportEmail:'founder@roamwise.co.in',
+  mapsUrl:'https://www.google.com/maps/search/?api=1&query=New+Himank+Homestay+Chachoga+Road+Manali',
+  hook:'Homestay with an on-site restaurant on Chachoga Road, Manali, about a 7-minute walk to Mall Road. Public listings mention free breakfast, Wi-Fi and balconies in every room. Ask RoamWise to confirm rooms, dates and the final total.'
 }];
 
 /* Commission model — what we actually earn, stated plainly for both sides. */
