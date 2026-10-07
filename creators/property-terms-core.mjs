@@ -61,15 +61,15 @@ export function normalizePolicy(raw = {}) {
   };
 }
 
-/* Founder-reported on 2026-10-07. Fields the owner has not stated are listed in `unconfirmed` so a human
-   confirms them before any creator is promised anything. */
+/* Founder-reported on 2026-10-07; the founder accepted the working numbers for Milan Heights the same evening
+   (2 nights, Jan/Feb/Jul-Sep off-season, no meals, 10% share, 2 a month). Any field still unsettled for a property
+   goes in `unconfirmed` so it is flagged to creators. */
 export const SEED_POLICIES = Object.freeze([
   {
     propertyId: 'p_milan_heights', name: 'Milan Heights', status: 'open',
     reason: 'Owner agreed: free stay on non-weekend nights in the off-season, optional cash up to Rs 5,000 if the creator brings customers who book.',
     freeStay: { nights: 2, weekdaysOnly: true, offSeasonOnly: true, offSeasonMonths: [1, 2, 7, 8, 9], meals: false, maxPerMonth: 2 },
     performanceCash: { max: 5000, ratePct: 10 },
-    unconfirmed: ['freeStay.nights', 'freeStay.offSeasonMonths', 'freeStay.meals', 'performanceCash.ratePct', 'freeStay.maxPerMonth'],
   },
   {
     propertyId: 'p_soulmate_homestay', name: 'Soulmate Homestay', status: 'closed',
