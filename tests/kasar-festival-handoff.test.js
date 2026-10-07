@@ -87,10 +87,10 @@ test('Milan Heights event and Ailon Tusk send an attributed WhatsApp enquiry',()
   assert.doesNotMatch(tusk,/7% commission|Request Milan Heights on RoamWise/);
   assert.match(app,/function milanWhatsAppMessage\(\).*found your stay through RoamWise/);
   assert.match(app,/kasar_milan_whatsapp_open/);
-  assert.match(app,/Compare nearby Almora prices/);
+  assert.doesNotMatch(read('partner/stays-hub.js')+app.slice(app.indexOf('function renderSearchResults'),app.indexOf('function milanWhatsAppMessage')),/booking\.com|airbnb|aviasales|viator|discovercars/i,'signed stays and trip tabs never hand off to third-party sites');
   assert.match(market,/if\(role==='customer'\)\{if\(DEMO\)\{searchSupport\(\);validateCards\(\)/);
   const start=app.indexOf('function liveCustomer(){'),end=app.indexOf('function liveOwner()',start),guestFlow=app.slice(start,end);
-  assert.match(guestFlow,/renderMilanWhatsAppCard\(\)/);
+  assert.match(guestFlow,/renderSearchResults\(\[\],false\)/);
   assert.doesNotMatch(guestFlow,/collectionGroup|roomBookings|temporarily unavailable/);
 });
 

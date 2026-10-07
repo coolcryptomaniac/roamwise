@@ -340,3 +340,20 @@ input:focus, select:focus, textarea:focus { border-color: var(--scarlet); box-sh
 .rw-milan-enquiry details p,.rw-milan-enquiry details a{font-size:13px}
 .rw-milan-enquiry details a{color:#e8bc72}
 @media(max-width:640px){.rw-milan-enquiry{padding:18px}.rw-milan-enquiry .rw-milan-wa{width:100%;justify-content:center;box-sizing:border-box}}
+
+/* Stays list (all signed properties) + in-app enquiries */
+.rw-stay-head{margin:18px 2px 10px;color:var(--muted)}
+.rw-stay-head b{color:var(--text,#fff)}
+.rw-stay-list{display:grid;gap:16px}
+@media(min-width:820px){.rw-stay-list{grid-template-columns:repeat(2,1fr)}}
+.rw-stay-card{overflow:hidden;border:1px solid rgba(218,169,96,.32);border-radius:22px;background:linear-gradient(145deg,rgba(59,28,24,.7),rgba(19,15,16,.96));box-shadow:0 18px 55px rgba(0,0,0,.25)}
+.rw-stay-img{display:block;width:100%;height:210px;object-fit:cover}
+.rw-stay-body{padding:20px}
+.rw-stay-body .eyebrow{color:#dfb86f;font-size:11px;letter-spacing:.16em;font-weight:800}
+.rw-stay-body h2{margin:8px 0 4px;font-size:25px}
+.rw-stay-badges{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+.rw-stay-pill{padding:3px 10px;border-radius:99px;border:1px solid rgba(218,169,96,.45);color:#dfb86f;font-size:11px;font-weight:700}
+.rw-stay-pill.alt{border-color:rgba(255,255,255,.25);color:var(--muted)}
+.rw-stay-map{color:#dfb86f;font-size:12px;margin-left:6px}
+.rw-stay-wa{background:#167a46;color:#fff;text-decoration:none;display:inline-block}
+.rw-enq{margin-top:18px}

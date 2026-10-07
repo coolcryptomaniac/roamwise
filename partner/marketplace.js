@@ -126,8 +126,8 @@ function productionShell(){
   document.body.classList.add('rw-partner-marketplace');if(!PROD||DEMO)return;
   var role=currentRole(),e=$('#eyebrow'),t=$('#heroTitle'),p=$('#heroText'),a=$('#heroActions');if(!e||!t||!p)return;
   if(role==='customer'){
-    e.textContent='ALMORA STAY · MILAN HEIGHTS';t.innerHTML='Stay in Almora. <em>Ask directly.</em>';
-    p.textContent='Approx. ₹1,613–₹3,226 per room, per night. Confirm the room, dates and final total including applicable taxes with the hotel on WhatsApp.';
+    e.textContent='ROAMWISE VERIFIED STAYS · ALMORA · MANALI';t.innerHTML='Stay local. <em>Ask directly.</em>';
+    p.textContent='Homestays and hotels signed with RoamWise. Pick your dates, then confirm the room and final total including applicable taxes directly with the host.';
     if(a)a.innerHTML='<a class="btn" href="#view">Choose dates and enquire →</a>';
     var grid=$('#rolegrid');if(grid)grid.style.display='none';
     $$('.nav a[href="/partner/join/"],.nav a[href="/creators/match.html?role=property"],#modeBtn,#signOutBtn').forEach(function(n){n.style.display='none'});
