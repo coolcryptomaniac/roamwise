@@ -20,7 +20,13 @@ function rwPartnersMerge(list){
   seed.forEach(function(s){
     var match=(list||[]).filter(function(p){ return String(p.id)===String(s.id); })[0];
     var index=approved.findIndex(function(p){ return String(p.id)===String(s.id); });
-    if(index>=0) approved[index]=Object.assign({},match||approved[index],s);
+    if(index>=0){
+      var was=match||approved[index], merged=Object.assign({},was,s);
+      /* Seed photos/facts win, but badges are the union so badges awarded in admin are not lost. */
+      var ub=[]; (s.badges||[]).concat(was.badges||[]).forEach(function(b){ if(ub.indexOf(b)<0) ub.push(b); });
+      if(ub.length) merged.badges=ub;
+      approved[index]=merged;
+    }
     else approved.push(s);
   });
   return approved;
@@ -35,6 +41,7 @@ function rwPartnersSync(){
         window.RW_PARTNERS = rwPartnersMerge(list);
         try{ lsSet('rw_partners_cache', JSON.stringify(window.RW_PARTNERS)); }catch(e){ /* storage best-effort, ignore */ }
         if(el('partnersOut')) rwPartnersRender();
+        if(typeof rwListingRepaint==='function') rwListingRepaint();
       }
     }).catch(function(){});
   }catch(e){ /* best-effort Firestore write, ignore */ }

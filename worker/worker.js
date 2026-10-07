@@ -61,7 +61,8 @@ import { handleBusiness } from './handlers/business.js';
 import { handleAICAReview } from './handlers/ai-ca.js';
 import { handlePaymentEvent } from './handlers/payment-events.js';
 import { handleStay } from './handlers/stay-ledger.js';
-import { handleBot } from './handlers/bot.js';
+import { handleBot, botDeps } from './handlers/bot.js';
+import { sendAdminDigest } from './handlers/bot-admin.js';
 
 // Only Cashfree PG calls use this diagnostic transport. The actual order,
 // identity and entitlement rules stay inside handlers/cashfree.js unchanged.
@@ -126,5 +127,7 @@ export default {
       await refreshNews(env);
       if(new Date().getUTCDay() === 1) await refreshEvents(env);
     }catch(e){ /* a cron failure must never take the Worker down */ }
+    /* Founder digest on Telegram/WhatsApp. Skipped unless the bot secrets and admin ids are set. */
+    try{ if(env.BOT_ADMIN_TELEGRAM || env.BOT_ADMIN_WHATSAPP) await sendAdminDigest(env, botDeps(env)); }catch(e){ /* digest is best-effort */ }
   },
 };

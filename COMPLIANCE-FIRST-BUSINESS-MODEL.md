@@ -165,6 +165,18 @@ Founder steps:
 2. WhatsApp: in Meta for Developers create a WhatsApp Business app, add a phone number, and set secrets `WHATSAPP_TOKEN`, `WHATSAPP_PHONE_NUMBER_ID`, `WHATSAPP_APP_SECRET`, `WHATSAPP_VERIFY_TOKEN` (any string you choose). In the app's webhook settings use callback `https://<worker-url>/bot/whatsapp` with that verify token and subscribe to `messages`. WhatsApp only lets a business message freely within 24 hours of the user's last message; the bot only replies, so that suits it.
 3. Optional: `BOT_HASH_SALT` (any random string).
 
+### Run RoamWise from chat (founder)
+
+- **Owners register by chat:** `/join <property>, <city>, <rooms>, <GSTIN or none>, <UPI or none>[, <phone>]`. The GSTIN is checked for format and check character; a lead is saved in `botLeads` (service-account only; no client rule). On WhatsApp the sender's number is the contact; on Telegram they add a phone. This is a lead, not an application: the owner still finishes the join form and accepts the MOU.
+- **You manage from chat:** `/admin statement [YYYY-MM]`, `/admin settle <code> <completed|cancelled|no_show> [amount]`, `/admin leads`, `/admin digest`. Works ONLY for the numbers/ids in secrets `BOT_ADMIN_WHATSAPP` (digits, comma separated) and `BOT_ADMIN_TELEGRAM` (chat ids, comma separated); anyone else gets the normal "did not understand" reply.
+- **Daily digest (autopilot):** the existing 11:00 IST cron sends open leads, this month's stays and flags, and GST-review status to those admin chats. Telegram is reliable. WhatsApp only lets a business message freely within 24 hours of your last message to it, so to keep WhatsApp digests flowing, send the bot any message each day or later set up an approved template.
+- **One-tap owner messages:** the partner admin has "Send join steps" and "Ask for stay outcomes" buttons that open WhatsApp with a ready message (`wa.me`); nothing is sent by RoamWise.
+- **Join page chat links** appear when `chat.supportWhatsapp` / `chat.telegramBot` are filled in `partner/config.js` (blank until you have them).
+
+### Automatic compliance check and badges
+
+`features/trust/property-compliance.js` scores each property out of 100 from evidence on file (signed MOU, working booking route, contact, photos, location, GSTIN verified, published cancellation terms, payout details on file) and awards **RoamWise Checked** (signed + route + a photo), **GST Verified** (admin confirmed GSTIN) and **RoamWise Trusted** (Checked + score 80+). It runs in the browser on every listing, so badges update by themselves when data changes; the partner admin shows each property's score and what is missing. It is a paperwork check, never an inspection or a safety or legal clearance, and the badge text says so. Today all three live properties are Checked (70/100); GST, published cancellation terms and payout details are what lift them to Trusted.
+
 Tusk (in-app AI) gained `quote_stay` (price a stay and split it per person; GST view only for GST-verified properties) and `enquire_stay` (coded WhatsApp enquiry with dates and group size). Partners with no booking route are no longer shown to Tusk or the partner list.
 
 ## Also built

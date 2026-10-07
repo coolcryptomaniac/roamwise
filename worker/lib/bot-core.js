@@ -12,6 +12,7 @@
    not published, or show a property's phone number without a booking code.
    ========================================================================= */
 import { validCode, CODE_ALPHABET, validPartnerId, validDate } from './stay-ledger-core.js';
+import gstin from '../../features/finance-tax/gstin.js';
 
 export const SITE = 'https://roamwise.co.in';
 
@@ -22,6 +23,7 @@ export const HELP = [
   '/enquire <ref> <check-in YYYY-MM-DD> <nights> <guests>  – message a stay with a booking code',
   '/stayed <code> yes|no  – after your trip, tell us if you stayed',
   '/split <total> <people>  – split a bill',
+  '/join <property>, <city>, <rooms>, <GSTIN or none>, <UPI or none>[, <phone>]  – list your property',
   '',
   'For a full AI trip plan, open ' + SITE,
 ].join('\n');
@@ -107,4 +109,32 @@ export function enquiryReply(p, d, code) {
   }
   if (r.type === 'ota' || r.type === 'website') return p.name + ' takes bookings on its own site (rates and terms are set there):\n' + r.url + '\nYour reference: ' + code;
   return p.name + ' books through the RoamWise app (' + (r.type === 'direct' ? 'see rooms and book' : 'call the property from its page') + '): ' + SITE + '\nYour reference: ' + code;
+}
+
+/** "/join Sunrise Homestay, Almora, 6, 05ABCDE1234F1Z5, owner@upi, 9876543210". Returns { value } or { error }. */
+export function parseJoin(raw) {
+  const body = String(raw || '').replace(/^\/?join(?:@\w+)?\s*/i, '');
+  const parts = body.split(',').map((x) => x.trim());
+  const usage = 'Use: /join <property name>, <city>, <rooms>, <GSTIN or none>, <UPI id or none>[, <phone>]';
+  if (parts.length < 5) return { error: usage };
+  const [name, city, rooms, g, upi, phone] = parts;
+  if (name.length < 3 || name.length > 110) return { error: 'Please give the full property name first. ' + usage };
+  if (city.length < 2 || city.length > 70) return { error: 'Please give the town or city second. ' + usage };
+  const nrooms = Math.round(Number(rooms));
+  if (!(nrooms >= 1 && nrooms <= 1000)) return { error: 'Rooms must be a number from 1 to 1000. ' + usage };
+  const none = (x) => !x || /^(none|no|na|n\/a|-)$/i.test(x);
+  let gst = '';
+  if (!none(g)) {
+    const r = gstin.validateGstin(g);
+    if (!r.ok) return { error: 'That GSTIN does not check out (' + r.error + ') Send "none" if you are not registered.' };
+    gst = r.gstin;
+  }
+  let vpa = '';
+  if (!none(upi)) {
+    if (!gstin.validUpi(upi)) return { error: 'That UPI id looks wrong. It should look like name@bank, or send "none".' };
+    vpa = upi;
+  }
+  const ph = String(phone || '').replace(/\D/g, '');
+  if (phone && (ph.length < 10 || ph.length > 13)) return { error: 'That phone number looks wrong. ' + usage };
+  return { value: { name, city, rooms: nrooms, gstin: gst, upi: vpa, phone: ph } };
 }

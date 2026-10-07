@@ -18,9 +18,10 @@
    ========================================================================= */
 import { json } from '../lib/http.js';
 import { getServiceAccountAccessToken, parseServiceAccount } from '../lib/service-account.js';
-import { getDoc, updateDoc, createDocIfAbsent } from '../lib/firestore-rest.js';
+import { getDoc, updateDoc, createDocIfAbsent, listDocs } from '../lib/firestore-rest.js';
 import { sha256Hex, validCode } from '../lib/stay-ledger-core.js';
-import { HELP, parseCommand, staysReply, splitReply, parseEnquiry, newCode, enquiryReply, usableStays, SITE } from '../lib/bot-core.js';
+import { HELP, parseCommand, staysReply, splitReply, parseEnquiry, newCode, enquiryReply, usableStays, parseJoin, SITE } from '../lib/bot-core.js';
+import { isAdminChat, adminCommand, sendAdminDigest } from './bot-admin.js';
 
 const LEDGER = 'stayLedger';
 const MAX_BODY = 64 * 1024;
@@ -49,6 +50,7 @@ export async function hmacSha256Hex(secret, text) {
   return Array.from(new Uint8Array(sig)).map((b) => b.toString(16).padStart(2, '0')).join('');
 }
 
+export function botDeps(env) { return realDeps(env); }
 function realDeps(env) {
   let sa = null, tokenP = null;
   const project = () => (sa = sa || parseServiceAccount(env)).project_id;
@@ -59,6 +61,8 @@ function realDeps(env) {
     async getCode(code) { return getDoc(env, await token(), project(), `${LEDGER}/${code}`); },
     async createCode(code, values) { return createDocIfAbsent(env, await token(), project(), LEDGER, code, values); },
     async updateCode(code, values) { return updateDoc(env, await token(), project(), `${LEDGER}/${code}`, values); },
+    async list(collection, max) { return listDocs(env, await token(), project(), collection, max || 1000); },
+    async createLead(id, values) { return createDocIfAbsent(env, await token(), project(), 'botLeads', id, values); },
     fetch: (url, init) => fetch(url, init),
   };
 }
@@ -71,6 +75,30 @@ export async function answer(env, deps, channel, chatId, text) {
   if (cmd === 'start' || cmd === 'help' || cmd === 'hi' || cmd === 'hello' || !cmd) return HELP;
   if (cmd === 'split') return splitReply(args);
   if (cmd === 'stays') return staysReply(await deps.partners(), args.join(' '));
+  if (cmd === 'admin') {
+    /* Same reply as any unknown command for non-admins: do not reveal that admin commands exist. */
+    if (!isAdminChat(env, channel, chatId)) return 'I did not understand that.\n\n' + HELP;
+    return adminCommand(env, deps, args);
+  }
+  if (cmd === 'join') {
+    const j = parseJoin(text);
+    if (j.error) return j.error;
+    const v = j.value;
+    /* On WhatsApp the sender's number is already known; on Telegram the owner must give a phone. */
+    const contact = channel === 'whatsapp' ? String(chatId) : v.phone;
+    if (!contact) return 'Please add your WhatsApp number at the end so we can reach you: /join <property>, <city>, <rooms>, <GSTIN or none>, <UPI or none>, <phone>';
+    let id = '';
+    for (let i = 0; i < 5 && !id; i++) {
+      const c = 'L-' + newCode().slice(3);
+      const made = await deps.createLead(c, { id: c, channel, name: v.name, city: v.city, rooms: v.rooms, gstin: v.gstin, gstinFormatOk: !!v.gstin, upi: v.upi, contact, status: 'new', createdAt: new Date().toISOString() });
+      if (made) id = c;
+    }
+    if (!id) return 'Could not save that right now. Please try again in a minute.';
+    return 'Thank you! We saved your property "' + v.name + '" (' + v.city + ') as ' + id + '.\n'
+      + 'We will contact you on WhatsApp to confirm details. To finish your application and agree the partnership terms, open ' + SITE + '/partner/join/\n'
+      + (v.gstin ? 'Your GSTIN is noted; we confirm it on the GST portal.' : 'No GSTIN noted. That is fine if you are below the registration threshold.')
+      + '\nNo money is taken here.';
+  }
   if (cmd === 'enquire') {
     const p = parseEnquiry(args);
     if (p.error) return p.error;

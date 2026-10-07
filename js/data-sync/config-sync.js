@@ -18,6 +18,14 @@ var RW_SYNCED = [
 ];
 function rwConfigApply(cfg, list){
   /* Firestore entries WIN; seed entries not present in Firestore are kept. */
+  /* Partners: the repo seed carries photos and static facts that the Firestore entry does not,
+     so they go through rwPartnersMerge (same rule as js/misc/partners.js). A plain
+     Firestore-wins replace here used to drop the photos of Soulmate and New Himank. */
+  if(cfg.key === 'partners' && typeof rwPartnersMerge === 'function'){
+    window[cfg.global] = rwPartnersMerge(list);
+    try{ lsSet('rw_cfg_'+cfg.key, JSON.stringify(window[cfg.global])); }catch(e){ /* storage best-effort, ignore */ }
+    return;
+  }
   var seed = window[cfg.global] || [];
   var k = cfg.matchBy;
   var have = {};
@@ -32,7 +40,7 @@ function rwConfigSyncAll(){
     /* cached copy first so the UI is right before the network answers */
     try{
       var c = lsGet('rw_cfg_'+cfg.key);
-      if(c){ var l = JSON.parse(c); if(Array.isArray(l) && l.length) window[cfg.global] = l; }
+      if(c){ var l = JSON.parse(c); if(Array.isArray(l) && l.length) window[cfg.global] = (cfg.key === 'partners' && typeof rwPartnersMerge === 'function') ? rwPartnersMerge(l) : l; }
     }catch(e){ /* parse best-effort, ignore malformed/missing data */ }
     try{
       if(typeof db === 'undefined' || !db) return;
@@ -44,6 +52,7 @@ function rwConfigSyncAll(){
           /* repaint whatever happens to be open */
           try{ if(el('staysOut'))    rwStaysRender(); }catch(e){ /* best-effort, ignore */ }
           try{ if(el('partnersOut')) rwPartnersRender(); }catch(e){ /* best-effort, ignore */ }
+          try{ if(typeof rwListingRepaint === 'function') rwListingRepaint(); }catch(e){ /* best-effort, ignore */ }
           try{ if(el('eventsOut'))   rwEventsRender(); }catch(e){ /* best-effort, ignore */ }
         }
       }).catch(function(){});
