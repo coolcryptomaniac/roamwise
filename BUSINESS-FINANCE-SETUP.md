@@ -1,3 +1,19 @@
+# Current operating account — 7 October 2026
+
+The founder supplied screenshots showing **HDFC current account ending 8061**, Almora, IFSC `HDFC0001919`, account holder **MOHIT PANDEY**, active in Cashfree. The linked collection UPI is **`roamwisepay@ybl`**. `business-account.js` is the masked default shared by checkout and finance screens. The full account number must not be committed.
+
+This is the operating default until an explicit bank/entity migration. Do not relabel old transactions or silently replace it with a new private limited company's account. Preserve separate opening/closing balances and period records at that migration.
+
+Easy Split has been **requested / under review**, not approved. Do not enable vendor splitting until Cashfree confirms activation and each vendor's configuration is verified. No payout is triggered by these metadata changes.
+
+Admin → Partner payments → **Save confirmed current-account profile** records the masked profile, UPI, requested split state and an audit entry using the existing admin session. It preserves gateway enablement/environment and existing payment history. The tax workbench and staff exports identify the default account; new selected-account entries remain unreconciled until supported by bank records. Bank feeds, filing and automatic tax/vendor payments are not connected.
+
+For a controlled first-credit check, the founder should verify the displayed recipient and match the actual bank credit/reference. No successful test transfer has been evidenced in this change. Import HDFC statement and Cashfree net-settlement CSVs into the finance desk to reconcile. A settlement is not another sale; vendor funds, tax liabilities, owner capital/drawings and transfers do not become operating profit simply by passing through this account.
+
+The guidance below is historical (July 2026), including the old personal VPA and gateway recommendations. The account status above supersedes those setup assumptions; it does not verify the older fee, tax or retention guidance.
+
+---
+
 # Business UPI and bookkeeping — the practical setup
 
 ## The short answer

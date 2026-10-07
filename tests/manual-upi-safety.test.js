@@ -58,7 +58,7 @@ test('guest cannot see a payable QR or start UPI checkout', () => {
   assert.equal(calls.login, 2);
   assert.equal(context.window.location.href, '');
   assert.match(node('qrcode').textContent, /Sign in/);
-  assert.doesNotMatch(node('upiPrefillNote').textContent, /roamwise@ybl/);
+  assert.doesNotMatch(node('upiPrefillNote').textContent, /roamwisepay@ybl/);
 });
 
 test('verified account UTR stays pending and never grants provisional Pro', async () => {

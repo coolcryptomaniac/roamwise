@@ -23,6 +23,15 @@
   }
   function fiscalYear(date) { var y = Number(date.slice(0, 4)), m = Number(date.slice(5, 7)); return m >= 4 ? y : y - 1; }
   function validBps(value) { return Number.isInteger(value) && value >= 0 && value <= 10000; }
+  function kindOf(entry) {
+    if (entry.kind) return String(entry.kind);
+    var account = String(entry.account || '');
+    if (/^rev_/.test(account)) return 'revenue';
+    if (/^exp_/.test(account)) return 'expense';
+    if (/^(liab_|cap_|asset_)/.test(account)) return 'balance_sheet';
+    return '';
+  }
+  function referenceOf(entry) { return entry.providerRef || entry.sourceRef || entry.ref || ''; }
   function gstSplit(basePaise, meta) {
     if (!meta || !validBps(meta.gstRateBps) || typeof meta.gstIncluded !== 'boolean') return null;
     var tax = meta.gstIncluded
@@ -58,12 +67,15 @@
       var value = paise(x.amountINR !== undefined ? x.amountINR : x.amount);
       if (value === null || value <= 0) { problem('invalid_amount', id, 'Positive INR amount required; do not mix rupees and paise.'); return; }
       if (x.currency && x.currency !== 'INR') { problem('currency', id, 'Non-INR entry requires a documented FX conversion.'); return; }
-      var kind = String(x.kind || '');
+      var kind = kindOf(x);
+      // Settlements move an existing receivable into the bank; they are not a
+      // second sale. Vendor/tax payments settle liabilities, not operating costs.
+      if (['balance_sheet','capital','owner_draw','transfer','settlement','vendor_payout','tax_payment'].indexOf(kind) !== -1) return;
       var meta = x.taxMeta || null;
       var reversal = kind === 'reversal';
       if (reversal) {
         var prior = original.get(String(x.reversalOf || ''));
-        if (!prior || prior.kind === 'reversal' || prior.kind === 'bill' || prior.kind === 'partner_collection') {
+        if (!prior || ['revenue','expense'].indexOf(kindOf(prior)) === -1) {
           problem('reversal_reference', id, 'Reversal must reference an existing revenue or expense entry; bills/partner funds need manual review.'); return;
         }
         if (dateOf(prior.at || prior.date || prior.postedAt) < start || dateOf(prior.at || prior.date || prior.postedAt) >= end) {
@@ -71,11 +83,11 @@
         }
         var priorAmount = paise(prior.amountINR !== undefined ? prior.amountINR : prior.amount);
         if (priorAmount !== value) { problem('reversal_amount', id, 'Reversal must match the original amount.'); return; }
-        kind = prior.kind;
+        kind = kindOf(prior);
         meta = prior.taxMeta || null;
       }
       var sign = reversal ? -1 : 1;
-      var providerRef = x.providerRef || x.sourceRef;
+      var providerRef = referenceOf(x);
       if (providerRef && !reversal) {
         var key = String(x.provider || 'unknown') + ':' + String(providerRef);
         if (seenRefs.has(key)) { problem('duplicate_payment_reference', id, 'Repeated provider reference; check double counting.'); return; }
@@ -117,5 +129,5 @@
     if (!entries.length) out.warnings.push('No ledger entries were supplied.');
     return out;
   }
-  return { analyze: analyze, fiscalYear: fiscalYear, dateOf: dateOf, gstSplit: gstSplit };
+  return { analyze: analyze, fiscalYear: fiscalYear, dateOf: dateOf, gstSplit: gstSplit, kindOf: kindOf, referenceOf: referenceOf };
 });
