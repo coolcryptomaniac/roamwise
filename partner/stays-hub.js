@@ -5,7 +5,9 @@
  * RoamWise (WhatsApp if configured, else email) — never to an OTA. */
 (function (root) {
   'use strict';
-  var FOUNDER_EMAIL = 'founder@roamwise.co.in';
+  var SUPPORT_EMAIL = (root.RW_PARTNER_CONFIG && root.RW_PARTNER_CONFIG.supportEmail) || 'support@roamwise.co.in';
+  function groupUrl() { var c = (root.RW_PARTNER_CONFIG && root.RW_PARTNER_CONFIG.chat) || {}; return /^https:\/\/chat\.whatsapp\.com\/[A-Za-z0-9]+$/.test(c.supportGroupUrl || '') ? c.supportGroupUrl : ''; }
+  function groupLink() { var g = groupUrl(); return g ? '<p class="rw-stay-group">Questions? <a href="' + esc(g) + '" target="_blank" rel="noopener noreferrer">Join the RoamWise Customer group on WhatsApp ↗</a> or email <a href="mailto:' + esc(SUPPORT_EMAIL) + '">' + esc(SUPPORT_EMAIL) + '</a></p>' : ''; }
   var live = {}; /* id -> {bookingWhatsapp, bookingMode, ...} from config/partners */
   var loaded = false;
 
@@ -40,7 +42,7 @@
   function openEnquiry(subject, body) {
     var wa = supportWa();
     if (wa) { root.open('https://wa.me/' + wa + '?text=' + encodeURIComponent(body), '_blank', 'noopener,noreferrer'); return; }
-    root.location.href = 'mailto:' + FOUNDER_EMAIL + '?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
+    root.location.href = 'mailto:' + SUPPORT_EMAIL + '?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
   }
 
   function track(name) {
@@ -85,7 +87,7 @@
     var head, list;
     if (hit.length) { head = '<p class="rw-stay-head"><b>' + hit.length + ' RoamWise stay' + (hit.length > 1 ? 's' : '') + (ctx.destination ? ' in ' + esc(ctx.destination) : '') + '</b> · ' + esc(tripLine(ctx)) + '</p>'; list = hit; }
     else { head = '<p class="rw-stay-head"><b>No RoamWise stay in “' + esc(ctx.destination) + '” yet.</b> Here are the places we do have:</p>'; list = all; }
-    h.innerHTML = head + '<div class="rw-stay-list">' + list.map(function (p) { return card(p, ctx); }).join('') + '</div>';
+    h.innerHTML = head + '<div class="rw-stay-list">' + list.map(function (p) { return card(p, ctx); }).join('') + '</div>' + groupLink();
     Array.prototype.forEach.call(h.querySelectorAll('[data-stay-wa]'), function (a) { a.addEventListener('click', function () { track('stay_whatsapp_open'); if (/milan/i.test(a.getAttribute('data-stay-wa'))) track('kasar_milan_whatsapp_open'); }); });
     Array.prototype.forEach.call(h.querySelectorAll('[data-stay-ask]'), function (b) {
       b.addEventListener('click', function () {
@@ -110,7 +112,7 @@
       '<div class="field"><label>People</label><input id="enqPax" type="number" min="1" max="12" value="' + esc(ctx.guests) + '"></div>' +
       '<div class="field full"><label>Anything else</label><input id="enqNote" placeholder="Preferences, budget, timing"></div></div>' +
       '<div class="actions"><button class="btn" id="enqSend" type="button">Send to RoamWise →</button></div>' +
-      '<small class="muted">RoamWise replies with options and a confirmed price. Nothing is booked or charged until you agree.</small></section>';
+      '<small class="muted">RoamWise replies with options and a confirmed price. Nothing is booked or charged until you agree.</small>' + groupLink() + '</section>';
     var btn = h.querySelector('#enqSend');
     btn.addEventListener('click', function () {
       function v(id) { var e = h.querySelector(id); return e ? String(e.value || '').trim() : ''; }
