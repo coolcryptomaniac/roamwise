@@ -40,11 +40,11 @@ function admin(before) {
     get:async()=>({exists:true,data:()=>before}),
     set:(ref,value,options)=>writes.push({path:ref.path,value,options})
   })};
-  const context={db,CURRENT_ADMIN:{uid:'admin-fixture'},RWBusinessAccount:account,
+  const context={dbFixture:db,RWBusinessAccount:account,
     FV:{serverTimestamp:()=> 'test-stamp'},confirm:()=>true,toast:m=>messages.push(m),
     document:{getElementById:()=>null},URL};
   context.window=context;context.addEventListener=()=>{};
-  vm.runInNewContext(fs.readFileSync(require.resolve('../admin/payment-operations.js'),'utf8'),context);
+  vm.runInNewContext("const db=dbFixture; let CURRENT_ADMIN={uid:'admin-fixture'};\n"+fs.readFileSync(require.resolve('../admin/payment-operations.js'),'utf8'),context);
   return {context,writes,messages};
 }
 test('persisting the masked profile preserves provider switches and records requested split state atomically', async () => {
