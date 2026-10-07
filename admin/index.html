@@ -120,7 +120,7 @@
       </section>
       <section id="kpis" class="section"><div class="eyebrow">Founder scorecard</div><h1 class="title">The numbers that move RoamWise.</h1><p class="lead">A single real-data view of growth, engagement, revenue health and investor outreach. Missing measurements are labelled instead of estimated.</p><div id="kpiDashboard"><div class="empty">Loading…</div></div></section>
       <section id="stay-ledger" class="section"><div class="eyebrow">Commission reconciliation</div><h1 class="title">Know every stay you sent.</h1><p class="lead">Each WhatsApp enquiry carries a RoamWise code. Guests confirm stays from their own device; properties report outcomes. Differences are flagged here for a human to review. This page never moves money.</p>
-        <div class="card"><div class="toolbar"><div class="field" style="margin:0"><label for="stayMonth">Month</label><input id="stayMonth" class="input" type="month"></div><button class="btn primary" onclick="rwStayLoad()">Load statement</button><button class="btn" onclick="rwStayAdd()">Add a reported stay</button></div><div id="stayMsg" class="alert">Pick a month and load.</div></div>
+        <div class="card"><div class="toolbar"><div class="field" style="margin:0"><label for="stayMonth">Month</label><input id="stayMonth" class="input" type="month"></div><button class="btn primary" onclick="rwStayLoad()">Load statement</button><button class="btn" onclick="rwStayAdd()">Add a reported stay</button></div><div id="stayMsg" class="alert">Pick a month and load.</div><div id="stayGstReview" class="alert" style="margin-top:10px"></div></div>
         <div id="stayKpis" class="grid kpis" style="margin-top:14px"></div>
         <div class="card" style="margin-top:14px"><h2>By property</h2><div id="stayPartners" class="list"><div class="empty">Load a month.</div></div></div>
         <div class="card" style="margin-top:14px"><h2>All codes this month</h2><div id="stayRows" class="list"><div class="empty">Load a month.</div></div></div>
@@ -251,6 +251,7 @@
 <script src="property-outreach.js"></script>
 <script src="../business-account.js?v=20261007"></script>
 <script src="payment-operations.js"></script>
+<script src="../features/finance-tax/gst-rules.js"></script>
 <script src="stay-ledger.js"></script>
 <script src="partner-lifecycle.js"></script>
 <script src="../referral-data.js"></script>

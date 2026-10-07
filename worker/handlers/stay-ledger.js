@@ -148,7 +148,12 @@ export async function handleStay(request, env, path, deps) {
       const month = new URL(request.url).searchParams.get('month') || '';
       if (!validMonth(month)) return bad('pass ?month=YYYY-MM');
       const rows = await deps.list();
-      const st = buildStatement(rows.map((x) => ({ ...x, code: x.code || x.id })), month, { gstPct: DEFAULT_GST_PCT });
+      /* GST on RoamWise's own fee is shown only once the business is GST-registered.
+         Set RW_GST_REGISTERED = "true" in wrangler [vars] after registration; until then
+         the statement bills the fee with no GST rather than charging tax RoamWise cannot legally collect. */
+      const registered = !!env && env.RW_GST_REGISTERED === 'true';
+      const st = buildStatement(rows.map((x) => ({ ...x, code: x.code || x.id })), month, { gstPct: registered ? DEFAULT_GST_PCT : 0 });
+      st.gstRegistered = registered;
       /* Rows for the review table; secretHash is never returned. */
       st.rows = rows
         .filter((x) => (x.checkIn || x.settledAt || x.createdAt || '').slice(0, 7) === month)

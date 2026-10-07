@@ -8,20 +8,21 @@ this pass and need one short review by a CA or lawyer, once, before launch.
 
 RoamWise does not try to avoid the law. It chooses a shape where the law asks
 for little, because **the guest pays the property and RoamWise invoices only
-its own fee**. Most heavy obligations in Indian travel marketplaces attach to
-the moment a platform collects other people's money. If RoamWise never holds
-guest money, those obligations mostly do not arise. That keeps compliance
+its own fee**. The heaviest obligations (GST TCS, payment-aggregator rules)
+attach when a platform collects other people's money. If RoamWise never holds
+guest money, those mostly do not arise. Two others, GST section 9(5) and
+income-tax section 194-O, are **not** switched off by that, see the table. That keeps compliance
 cheap *and* keeps demand, because guests keep paying the hotel the way they
 already do.
 
 | Obligation | Triggered by | Our shape |
 |---|---|---|
 | GST TCS under section 52 (0.5% since 10 Jul 2024) | The e-commerce operator **collects the consideration**. Listing or advertising only does not trigger it ([TaxAJ](https://www.taxaj.com/learn/gst-on-e-commerce-operators-tcs-under-section-52-step-by-step-guide/)) | Not triggered while the guest pays the property |
-| Income-tax TDS 194-O (0.1% of gross) | Operator **facilitates a sale and credits or pays the seller** ([ClearTax](https://cleartax.in/s/section-194o)) | Not triggered while RoamWise pays nobody |
+| Income-tax TDS 194-O (0.1% of gross) | Operator **facilitates a sale of goods or services through its platform**. The law treats a buyer's direct payment to the seller as credited to the seller, so paying the hotel directly does **not** switch it off ([ClearTax](https://cleartax.in/s/section-194o), [Income Tax Dept](https://www.incometaxindia.gov.in/w/section-194-o-5)) | **Not settled for a lead-only platform.** The repo's AI-CA already raises this as a review item. Correction: an earlier version of this table said "not triggered", which was too strong. Needs the one-time CA opinion |
 | RBI payment-aggregator rules | Holding or routing others' funds. Razorpay's own docs say Route users must meet the September 2025 PA rules ([Razorpay](https://razorpay.com/docs/payments/route/)) | Avoided in Phase 1. Phase 2 uses a licensed gateway's split product, never our own account |
 | GST on RoamWise's own fee (usually 18%) | Supplying an intermediary or marketing service | Always applies. Automated, see "GST made simple" |
 | Stay GST (5% under ₹7,500 a night with no ITC, 18% from ₹7,500, since 22 Sep 2025) | The property's supply ([TheTaxCorp](https://thetaxcorp.in/article/gst-on-hotel-and-guest-house-accommodation-complete-legal-evolution-and-current)) | The property's job. Never quote a tax to a guest |
-| GST section 9(5) accommodation (platform pays the stay GST in some cases) | **VERIFY** whether a platform that only passes WhatsApp enquiries counts as "supplying through" an operator | One written CA opinion before scaling |
+| GST section 9(5) accommodation | For hotel, guest-house and similar stays sold **through** an e-commerce operator by a supplier below the registration threshold, the operator pays the GST as if it were the supplier, and must register whatever its turnover ([TaxTMI](https://www.taxtmi.com/article/detailed?id=15913), [ClearTax](https://cleartax.in/s/gst-on-notified-services-ecommerce-operators-95)). Whether a page that only forwards a WhatsApp enquiry is "supplying through" it is **not settled** in the sources I could read | One written CA opinion before enabling instant booking or collecting guest money. Until then the AI-CA gate stays on |
 | Competition law on price parity | Forcing a hotel to be no cheaper elsewhere | We never ask for parity. CCI fined MakeMyTrip-Goibibo ₹223.48 crore and OYO ₹168.88 crore and ordered the clauses removed ([Business Today](https://www.businesstoday.in/amp/latest/corporate/story/cci-imposes-rs-39236-cr-fine-on-makemytrip-goibibo-oyo-for-anti-competitive-conduct-350347-2022-10-19)) |
 | DPDP Act consent duties | Substantive duties start **13 May 2027** ([AZB](https://www.azbpartners.com/bank/update-indias-digital-personal-data-protection-framework-comes-into-effect/)) | The ledger stores no guest name, phone or email |
 | Influencer disclosure | Paid or barter promotion: penalties start at ₹10 lakh and reach ₹50 lakh for repeats ([exchange4media](https://www.exchange4media.com/digital-news/influencers-can-be-fined-upto-rs-50-lakh-for-misleading-consumers-as-per-new-guidelines-124905.html)) | Creator brief requires a visible "#ad / #collab" line |
@@ -62,13 +63,52 @@ after the due date pauses the listing; and no price parity is required.
    WhatsApp with a Cashfree payment link or the RoamWise UPI. This is RoamWise
    collecting its own fee, which is a normal merchant receipt.
 
+## GST rates, one table, reviewed every year
+
+All GST numbers in RoamWise code come from `features/finance-tax/gst-rules.js`
+(rates, effective dates, sources, a confidence label per rule, calculators).
+Rates checked 7 October 2026:
+
+| Business | Rate | Input credit | Confidence |
+|---|---|---|---|
+| Room under ₹1,000 a night | exempt | n/a | secondary |
+| Hotel, homestay, boutique, ₹1,000 to ₹7,500 a night | 5% | none | **primary** ([PIB, 56th Council FAQ](https://www.pib.gov.in/PressReleseDetailm.aspx?PRID=2163560)) |
+| Hotel, boutique, five-star above ₹7,500 a night | 18% | full | secondary |
+| Tour operator package | 5% (no credit) or 18% (credit) | by option | secondary |
+| Travel agent commission or service fee | 18% on the fee only | full | secondary |
+| Taxi or cab with driver | 5% (no credit) or 18% (credit), provider's option | by option | **primary** |
+| Air travel | economy 5%, other classes 18% | full | **primary** |
+| RoamWise's own fees (commission, plans, ads, creator match fee) | 18%, once registered | full | secondary |
+
+Slabs are judged **per room per night**. A 3-night, 2-room stay at ₹6,000 is a
+₹6,000 room, so 5%. A property below the registration threshold charges no
+GST on its rooms unless section 9(5) puts the tax on a platform.
+
+Open questions the table flags rather than hides: whether the slab measures
+"declared tariff" or the "value of supply"; what a restaurant inside a hotel
+pays (sources conflict, so RoamWise never calculates food); and the exact
+treatment of exactly ₹7,500.
+
+**The yearly review is built in:**
+
+- `npm run gst:review` reports whether the table is in date (365 days), which
+  rules a CA still has to confirm, and exits non-zero only when overdue.
+- Admin → Stay ledger shows the same status as a banner, and the compliance
+  checklist has a "Yearly GST rules review and CA sign-off" item.
+- A scheduled task each September re-researches every rule and opens a PR for
+  you to merge. It never changes a rate without citing a source.
+- `META.caSignedOn` stays empty until a qualified CA has confirmed the
+  non-primary rules. Nothing pretends that has happened.
+
 ## GST made simple (own fee only)
 
-- The statement shows commission, GST at 18% and the invoice total, so one
+- The statement shows commission, GST at 18% **only once** `RW_GST_REGISTERED` is set to "true" in `worker/wrangler.toml` (default "false": no GST is billed before registration), and the invoice total, so one
   month-end export gives your CA the sales register. Rounding is per stay so
   invoice totals always equal the sum of lines.
-- Whether RoamWise must register depends on its aggregate turnover and state.
-  **VERIFY** the threshold and whether registration is voluntary now.
+- Whether RoamWise must register depends on its aggregate turnover and state
+  (₹20 lakh for services, ₹10 lakh in some special-category states), and
+  separately on the section 9(5) question above, since an e-commerce operator
+  covered by 9(5) must register whatever its turnover.
   Once registered, issue a proper tax invoice (the "Invoice text" is a
   statement, not a tax invoice).
 - Prefer prepaid plans (₹249/month Desk) over after-stay commission wherever a

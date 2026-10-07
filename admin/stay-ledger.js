@@ -23,7 +23,14 @@ async function call(path,opts){
   if(!res.ok)throw Error(data.message||data.error||('HTTP '+res.status));
   return data;
 }
+function gstReview(){
+  var b=el('stayGstReview');if(!b||typeof RWGst==='undefined')return;
+  var s=RWGst.reviewStatus(),word={ok:'In date',due_soon:'Review due soon',overdue:'REVIEW OVERDUE'}[s.state];
+  b.className='alert '+(s.state==='ok'?'good':'bad');
+  b.textContent='GST rules '+s.rulesVersion+': '+word+'. Reviewed '+s.reviewedOn+', next due '+s.dueOn+'. CA sign-off: '+(s.caSigned?'done':'pending')+'. '+s.unverified.length+' rules still need a CA to confirm (run npm run gst:review).';
+}
 window.rwStayStart=function(){
+  gstReview();
   var m=el('stayMonth');if(m&&!m.value)m.value=new Date().toISOString().slice(0,7);
   if(!last)rwStayLoad();
 };
@@ -31,7 +38,7 @@ window.rwStayLoad=async function(){
   var month=el('stayMonth').value;
   if(!/^20\d\d-(0[1-9]|1[0-2])$/.test(month))return say('Choose a month.',true);
   say('Loading…');
-  try{last=await call('/stay/statement?month='+encodeURIComponent(month));render();say('Loaded '+month+'.')}
+  try{last=await call('/stay/statement?month='+encodeURIComponent(month));render();say('Loaded '+month+'. '+(last.gstRegistered?'GST at '+last.gstPct+'% is added to the fee.':'GST is NOT added: RoamWise is not marked GST-registered (RW_GST_REGISTERED).'))}
   catch(e){say(e.message,true)}
 };
 function render(){
