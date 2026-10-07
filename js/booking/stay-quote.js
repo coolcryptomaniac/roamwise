@@ -64,6 +64,15 @@ function rwStayQuote(input){
     propertyReceives: total - rwRupees(total * feePct / 100),
     guestPaysRoamwise: 0
   };
+  /* GST on the room itself is the PROPERTY's to charge (or, via section 9(5), an e-commerce
+     operator's). `total` above stays pre-tax so advances and fees keep their meaning; this
+     adds the tax view only when the caller says who is liable. Rules: features/finance-tax/gst-rules.js */
+  out.gst = null; out.totalWithTax = total;
+  if(out.ok && (input.gstRegistered === true || input.viaEco === true) && typeof RWGst !== 'undefined'){
+    var g = RWGst.stay({ nightlyValue: rate, nights: nights, rooms: rooms, registered: input.gstRegistered === true, viaEco: input.viaEco === true });
+    out.gst = { ruleId: g.ruleId, rateBps: g.rateBps, tax: g.tax, payableBy: g.payableBy, itc: g.itc, confidence: g.confidence, reason: g.reason };
+    out.totalWithTax = g.total;
+  }
   out.cancellation = [
     { label: pol.freeCancelHours > 0 ? 'At least ' + pol.freeCancelHours + 'h before check-in' : 'Any time', hoursBefore: Math.max(pol.freeCancelHours, 0) },
     { label: pol.freeCancelHours > 0 ? 'Less than ' + pol.freeCancelHours + 'h before check-in' : 'No-show', hoursBefore: 0 }

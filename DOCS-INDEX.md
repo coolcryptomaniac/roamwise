@@ -60,6 +60,7 @@ no longer match the repo — flagged explicitly below and in the PR summary.
 | `partner/PR-DESCRIPTION.md` | Description of the specific past PR that replaced the `/partner/` portal with the current role-based workspace. | historical | Only if you need the history of *why* the current `/partner/` shape exists. |
 | `partner/readme.md` | Empty (1-byte placeholder; lowercase duplicate of `README.md` in the same folder). | historical/empty | Skip. |
 | `PARTNER-LIVE-OPS.md` | How a signed Stay & do property goes live (booking route, photos, policy), pre-book/refund numbers, and the weekly health check. | current | Onboarding or fixing a Stay & do listing, or touching `partner/app.js` / `js/booking/routes.js`. |
+| `COMPLIANCE-FIRST-BUSINESS-MODEL.md` | Why RoamWise never holds guest money in Phase 1, the dated GST rates table and yearly review (`features/finance-tax/gst-rules.js`, `npm run gst:review`), the stay ledger (codes, guest confirmation, monthly statement), GST/TDS/RBI/CCI/DPDP notes, and the plan for creators, artists, events, agencies and drivers. | current | Touching `js/booking/stay-code.js`, `worker/handlers/stay-ledger.js`, `admin/stay-ledger.js`, or planning marketplace fees or Phase 2 split settlement. |
 
 ## Itinerary / cinematic preset library
 

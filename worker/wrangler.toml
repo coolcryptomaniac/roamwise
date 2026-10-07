@@ -52,6 +52,9 @@ id = "be31e0935be843219cea1edf2203877b"   # <-- the ONLY line you edit in this f
 # ---------------------------------------------------------------------------
 [vars]
 CASHFREE_ENV = "live"
+# GST on RoamWise's own fee (stay ledger statement). Keep "false" until RoamWise holds a
+# GST registration, then set "true". Rules and review: features/finance-tax/gst-rules.js.
+RW_GST_REGISTERED = "false"
 # Cashfree PG documents x-api-version 2025-01-01. Do not use a guessed future
 # date: an unsupported API version can prevent order creation.
 CASHFREE_API_VERSION = "2025-01-01"

@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#090c16">
+<title>Your RoamWise enquiries</title>
+<style>
+:root{--bg:#090c16;--card:#141a2e;--ink:#f4f5fb;--mut:#a9aec6;--acc:#6d3df0;--ok:#2fbf71;--bad:#e5484d;--line:rgba(127,127,160,.3)}
+@media (prefers-color-scheme:light){:root:not([data-theme="dark"]){--bg:#f5f6fb;--card:#fff;--ink:#14172b;--mut:#565b78}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;padding:16px}
+main{max-width:680px;margin:0 auto}
+h1{font-size:1.3rem;margin:8px 0}
+p,.meta{color:var(--mut);margin:6px 0}
+.card{background:var(--card);border-radius:16px;padding:16px;margin:12px 0}
+input,select,button{font:inherit;min-height:44px;border-radius:10px;border:1px solid var(--line);background:transparent;color:var(--ink);padding:0 12px;width:100%}
+button{cursor:pointer;background:var(--acc);border:0;color:#fff;font-weight:600}
+button.alt{background:transparent;border:1px solid var(--line);color:var(--ink)}
+button:disabled{opacity:.5}
+.row{border-top:1px solid var(--line);padding:12px 0;display:grid;gap:8px}
+.tag{display:inline-block;border-radius:999px;padding:2px 10px;font-size:.8rem;border:1px solid var(--line)}
+.grid2{display:grid;gap:8px;grid-template-columns:1fr 1fr}
+#msg{font-weight:600;margin:8px 0}
+.hidden{display:none}
+code{background:rgba(127,127,160,.18);padding:1px 6px;border-radius:6px}
+</style>
+</head>
+<body>
+<main>
+  <h1>Enquiries sent to your property</h1>
+  <p>Each WhatsApp enquiry from RoamWise has a booking code. After the guest's stay, tell us what happened. RoamWise's fee is calculated only from the stays you report as completed.</p>
+  <div id="msg" role="status" aria-live="polite"></div>
+
+  <section id="login" class="card hidden">
+    <p>Sign in with the account you use for your RoamWise partner dashboard.</p>
+    <label for="em">Email</label><input id="em" type="email" autocomplete="username">
+    <label for="pw">Password</label><input id="pw" type="password" autocomplete="current-password">
+    <div class="grid2" style="margin-top:10px"><button id="signin" type="button">Sign in</button><button id="google" class="alt" type="button">Google</button></div>
+  </section>
+
+  <section id="app" class="hidden">
+    <div class="card"><div class="grid2"><div><label for="month">Month</label><input id="month" type="month"></div><div style="align-self:end"><button id="load" type="button">Show</button></div></div>
+    <p class="meta" id="who"></p></div>
+    <div id="list"></div>
+    <p><button id="signout" class="alt" type="button">Sign out</button></p>
+  </section>
+  <p class="meta"><a href="../" style="color:var(--acc)">Back to partner dashboard</a></p>
+</main>
+<script defer src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script defer src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script defer src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<script defer src="../config.js"></script>
+<script defer src="./stays.js"></script>
+</body>
+</html>

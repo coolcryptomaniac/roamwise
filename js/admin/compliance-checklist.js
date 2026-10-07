@@ -50,6 +50,12 @@ var RWComplianceChecklist = (function(){
       evidence: 'The ordinary services threshold is only one test. Admin → AI CA now tracks founder/CA-confirmed own taxable turnover against the configured threshold, while compulsory-registration and e-commerce rules are reviewed separately. Do not mark this done/not-required from bank credits or booking GMV alone.'
     },
     {
+      id: 'gst_annual_review',
+      label: 'Yearly GST rules review and CA sign-off',
+      defaultStatus: 'open',
+      evidence: 'All GST rates RoamWise uses live in features/finance-tax/gst-rules.js with sources and a confidence label. Run npm run gst:review: it reports whether the table is inside its yearly review window and lists rules a CA still has to confirm. A yearly scheduled task re-researches every rule and opens a PR; set META.caSignedOn only after a qualified CA has confirmed the non-primary rules.'
+    },
+    {
       id: 'gst_eco_accommodation',
       label: 'GST e-commerce / accommodation model reviewed before live booking',
       defaultStatus: 'open',

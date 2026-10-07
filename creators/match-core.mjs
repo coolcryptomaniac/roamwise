@@ -142,7 +142,7 @@ const NICHE_GROUPS = Object.freeze({
 const PLATFORM_ALIAS = Object.freeze({ ig: 'instagram', insta: 'instagram', reels: 'instagram', yt: 'youtube', shorts: 'youtube', fb: 'facebook' });
 const NICHE_LOOKUP = new Map(Object.entries(NICHE_GROUPS).flatMap(([group, words]) => words.map(word => [word, group])));
 
-const canonicalNiche = value => NICHE_LOOKUP.get(value) || value;
+export const canonicalNiche = value => NICHE_LOOKUP.get(value) || value;
 const canonicalPlatform = value => PLATFORM_ALIAS[value] || value;
 
 function placeChain(place) {
@@ -152,7 +152,7 @@ function placeChain(place) {
 }
 
 /* 1 = same place, .85 = one contains the other, .5 = same region, .25 = same mountain range / broad zone. */
-function placeCloseness(a, b) {
+export function placeCloseness(a, b) {
   if (a === b) return 1;
   const ca = placeChain(a), cb = placeChain(b);
   if (ca.includes(b) || cb.includes(a)) return 0.85;
@@ -278,6 +278,7 @@ export function rankMatches(subjectInput, candidates = [], { limit = 10, minScor
    collects (creators/protection, CREATOR_PLATFORM_FEE_BPS) must be aligned in a separate
    payments review before live collection is enabled. */
 export const PLATFORM_FEES = Object.freeze({ cashBps: 800, minCashFee: 99, barterSuccessFee: 299 });
+export const PLATFORM_FEE_GST_BPS = 1800;
 
 export function quoteCollaboration(propertyInput, creatorInput = {}, fees = PLATFORM_FEES) {
   const property = normalizeMatchProfile(propertyInput, 'property');
@@ -297,6 +298,10 @@ export function quoteCollaboration(propertyInput, creatorInput = {}, fees = PLAT
     creatorReceives: cash,
     propertyPays: cash + platformFee,
     platformFee,
+    /* GST on RoamWise's own fee, due only once RoamWise is GST-registered. Rate lives in
+       features/finance-tax/gst-rules.js (rule platform_fee); a test keeps the two equal. */
+    platformFeeGst: Math.round(platformFee * PLATFORM_FEE_GST_BPS / 10000),
+    platformFeeGstNote: 'Plus GST on the RoamWise fee once RoamWise is GST-registered.',
     feeBasis: cash > 0 ? `${(fees.cashBps / 100).toFixed(fees.cashBps % 100 ? 1 : 0)}% of the cash fee (minimum ₹${fees.minCashFee})` : 'flat success fee for a hosted-stay collaboration',
     dueWhen: cash > 0 ? 'when the campaign is funded by the property' : 'only after the hosted stay is completed',
     notes: [
