@@ -44,6 +44,7 @@ test('Soulmate Homestay detail routes through RoamWise stays, not a missing What
   assert.match(overlay.innerHTML, /Kotyura/);
   assert.doesNotMatch(overlay.innerHTML, /wa\.me/);
   assert.match(overlay.innerHTML, /See rooms &amp; book/);
+  assert.match(overlay.innerHTML, /google\.com\/maps\/search/);
 });
 
 test('Milan detail opens a WhatsApp enquiry and shows RoamWise support', () => {

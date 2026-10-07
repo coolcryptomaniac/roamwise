@@ -41,6 +41,7 @@ window.RW_PARTNER_SEED = [{
   id:'p_soulmate_homestay', cat:'stay', zone:'Almora', area:'Kotyura',
   name:'Soulmate Homestay', verified:'signed', listingReady:true,
   supportEmail:'founder@roamwise.co.in',
+  mapsUrl:'https://www.google.com/maps/search/?api=1&query=Soulmate+Homestay+Kotyura+Almora',
   badges:['local','quiet'],
   hook:'Kumaoni cooking and Himalayan surroundings in Kotyura, Almora, with a local host. Ask RoamWise to confirm rooms, dates and the final total.'
 }];
