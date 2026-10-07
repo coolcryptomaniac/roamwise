@@ -60,3 +60,25 @@ test('unknown, non-INR, malformed and unsupported inputs are flagged not guessed
   assert.equal(r.revenuePaise,0);
   assert.deepEqual(r.exceptions.map(x=>x.code),['currency','unknown_kind','invalid_amount']);
 });
+
+test('admin chart-of-accounts revenue and expenses reconcile with the staff ledger format', () => {
+  const r=analyze([
+    {id:'pro',date:'2026-10-07',account:'rev_pro',amount:100,method:'UPI',ref:'utr-pro'},
+    {id:'infra',date:'2026-10-07',account:'exp_infra',amount:25.50,invoiceRef:'inv-hosting'},
+    item('commission','revenue',50,{providerRef:'commission-1'})
+  ],{fyStart:fy});
+  assert.equal(r.revenuePaise,15000);
+  assert.equal(r.expensePaise,2550);
+  assert.equal(r.exceptions.length,0);
+});
+test('bank settlements, vendor payouts, capital and tax liabilities are not operating profit', () => {
+  const rows=['settlement','vendor_payout','capital','owner_draw','transfer','tax_payment'].map((kind,i)=>item('move-'+i,kind,1000));
+  rows.push({id:'gst',date:'2026-10-07',account:'liab_gst',amount:180});
+  rows.push({id:'funds',date:'2026-10-07',account:'cap_invest',amount:10000});
+  rows.push(item('pro','revenue',100,{providerRef:'sale'}));
+  const r=analyze(rows,{fyStart:fy});
+  assert.equal(r.revenuePaise,10000);
+  assert.equal(r.expensePaise,0);
+  assert.equal(r.grossCollectionsPaise,10000);
+  assert.equal(r.exceptions.length,0);
+});

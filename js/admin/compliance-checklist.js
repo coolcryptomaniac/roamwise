@@ -39,9 +39,9 @@ var RWComplianceChecklist = (function(){
     },
     {
       id: 'business_upi_separation',
-      label: 'Business payments run through a registered business UPI/current account, not personal UPI',
-      defaultStatus: 'open',
-      evidence: 'BUSINESS-FINANCE-SETUP.md §1 + PRICING-REFERRAL-MATH.md §2: app.js still routes to the personal handle roamwise@ybl as of this writing.'
+      label: 'Current-account payment cutover and first-credit reconciliation',
+      defaultStatus: 'in_progress',
+      evidence: 'Founder screenshots dated 2026-10-07 show HDFC current account ending 8061 active in Cashfree and roamwisepay@ybl linked to that account. The new VPA is the collection default. First-credit/bank reconciliation is not yet recorded; Easy Split activation remains under review.'
     },
     {
       id: 'gst_registration',

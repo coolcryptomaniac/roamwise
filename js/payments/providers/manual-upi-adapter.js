@@ -2,7 +2,7 @@
 /* Manual UPI is an explicitly reviewed fallback. A syntactically valid UTR is
    NOT payment proof. Never unlock an entitlement until an independently
    reconciled payment is approved through the existing admin flow. */
-var UPI_VPA = 'roamwise@ybl', UPI_NAME = 'RoamWise Pro', UPI_AMT = '100', UPI_NOTE = 'RoamWise Pro';
+var UPI_VPA = (window.RWBusinessAccount ? window.RWBusinessAccount.profile.upiId : 'roamwisepay@ybl'), UPI_NAME = (window.RWBusinessAccount ? window.RWBusinessAccount.profile.accountHolder : 'MOHIT PANDEY'), UPI_AMT = '100', UPI_NOTE = 'RoamWise Pro';
 var qrBuilt = false;
 var _qrBuiltAmt = null;
 

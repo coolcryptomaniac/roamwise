@@ -10,6 +10,7 @@ body{background:var(--bg);color:#f5f2ea;font:14px/1.55 system-ui,-apple-system,s
 <div id="gate" class="card">Checking your existing administrator sign-in… If you are not signed in, <a href="./">sign in through the main admin console</a> first.</div>
 <div id="problem" class="warning" role="alert" hidden></div>
 <div id="app" hidden>
+<p class="warning" data-rw-business-account></p>
 <div class="card flex">
 <label>Financial year <select id="fy"></select></label>
 <button id="refresh" class="primary">Refresh all records</button>
@@ -24,6 +25,7 @@ body{background:var(--bg);color:#f5f2ea;font:14px/1.55 system-ui,-apple-system,s
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<script src="../business-account.js?v=20261007"></script>
 <script src="../features/finance-tax/tax-engine.js"></script>
 <script>
 (function(){'use strict';
@@ -38,16 +40,17 @@ function rupees(p){return '₹'+(Number(p||0)/100).toLocaleString('en-IN',{minim
 function box(label,number,detail){var c=document.createElement('div');c.className='card';var l=document.createElement('small');l.textContent=label;var v=document.createElement('strong');v.textContent=number;var d=document.createElement('small');d.textContent=detail;c.append(l,v,d);$('metrics').append(c);}
 async function readAll(name){var result=[],last=null;while(true){var q=db.collection(name).orderBy(firebase.firestore.FieldPath.documentId()).limit(250);if(last)q=q.startAfter(last);var page=await q.get({source:'server'});page.docs.forEach(function(doc){result.push(Object.assign({id:doc.id},doc.data()));});if(result.length>10000)throw new Error(name+' exceeded the 10,000-row safety limit. Use a server-side export.');if(page.size<250)break;last=page.docs[page.docs.length-1];}return result;}
 function isLivePaid(x){return x.status==='PAID' && x.environment==='live';}
-function reference(x){return String(x.providerRef||x.sourceRef||'');}
+function reference(x){return String(RWTaxEngine.referenceOf(x));}
 async function refresh(){
  $('refresh').disabled=true;$('download').disabled=true;$('problem').hidden=true;$('status').textContent='Reading complete ledger and Cashfree receipts…';
  try{
    var both=await Promise.all([readAll('ledger'),readAll('cashfreeOrders')]);var led=both[0],orders=both[1],selected=Number($('fy').value);
    report=RWTaxEngine.analyze(led,{fyStart:selected});
-   var refs=new Set(led.filter(function(x){return x.kind==='revenue';}).map(reference).filter(Boolean));
+   var refs=new Set(led.filter(function(x){return RWTaxEngine.kindOf(x)==='revenue';}).map(reference).filter(Boolean));
    missing=orders.filter(function(x){var when=RWTaxEngine.dateOf(x.paidAt||x.updatedAt);return isLivePaid(x)&&when&&RWTaxEngine.fiscalYear(when)===selected&&!refs.has(x.id);});
    $('metrics').replaceChildren();box('Ledger revenue (provisional)',rupees(report.revenuePaise),'Not necessarily taxable turnover');
    box('Ledger expenses',rupees(report.expensePaise),'Not a verified tax deduction');
+   box('Revenue less expenses',rupees(report.revenuePaise-report.expensePaise),'Provisional; before tax adjustments and reconciliation');
    box('Unpaid bills',rupees(report.billsUnpaidPaise),'Not assumed paid');
    box('Partner gross collections',rupees(report.partnerFundsPaise),'Held separately from own revenue');
    box('Explicitly tagged output GST',rupees(report.gstOutputPaise),'Unclassified sales excluded');
@@ -64,7 +67,7 @@ async function refresh(){
  finally{$('refresh').disabled=false;}
 }
 $('refresh').addEventListener('click',refresh);$('fy').addEventListener('change',refresh);
-$('download').addEventListener('click',function(){if(!report)return;var r=report;var rows=[['Field','Value'],['FY',r.period.label],['Ledger entries',r.entriesRead],['Ledger revenue INR',(r.revenuePaise/100).toFixed(2)],['Ledger expenses INR',(r.expensePaise/100).toFixed(2)],['Unpaid bills INR',(r.billsUnpaidPaise/100).toFixed(2)],['Partner collections INR',(r.partnerFundsPaise/100).toFixed(2)],['Output GST tagged INR',(r.gstOutputPaise/100).toFixed(2)],['Candidate input GST INR',(r.gstInputCandidatePaise/100).toFixed(2)],['Recorded TDS INR',(r.tdsWithheldPaise/100).toFixed(2)],['Unmatched paid Cashfree orders',missing.length],['Status','PROVISIONAL - NOT A TAX RETURN']];var csv=rows.map(function(x){return x.map(function(v){return '"'+String(v).replace(/"/g,'""')+'"';}).join(',');}).join('\r\n');var url=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));var a=document.createElement('a');a.href=url;a.download='roamwise-tax-workbench-'+r.period.label+'.csv';a.click();URL.revokeObjectURL(url);});
+$('download').addEventListener('click',function(){if(!report)return;var r=report;var rows=[['Field','Value'],['FY',r.period.label],['Default operating account',RWBusinessAccount.profile.label],['Default UPI',RWBusinessAccount.profile.upiId],['Bank feed connected','No'],['Account attribution','Historical entries are not reassigned by this default'],['Revenue less expenses INR',((r.revenuePaise-r.expensePaise)/100).toFixed(2)],['Ledger entries',r.entriesRead],['Ledger revenue INR',(r.revenuePaise/100).toFixed(2)],['Ledger expenses INR',(r.expensePaise/100).toFixed(2)],['Unpaid bills INR',(r.billsUnpaidPaise/100).toFixed(2)],['Partner collections INR',(r.partnerFundsPaise/100).toFixed(2)],['Output GST tagged INR',(r.gstOutputPaise/100).toFixed(2)],['Candidate input GST INR',(r.gstInputCandidatePaise/100).toFixed(2)],['Recorded TDS INR',(r.tdsWithheldPaise/100).toFixed(2)],['Unmatched paid Cashfree orders',missing.length],['Status','PROVISIONAL - NOT A TAX RETURN']];var csv=rows.map(function(x){return x.map(function(v){return '"'+String(v).replace(/"/g,'""')+'"';}).join(',');}).join('\r\n');var url=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));var a=document.createElement('a');a.href=url;a.download='roamwise-tax-workbench-'+r.period.label+'.csv';a.click();URL.revokeObjectURL(url);});
 auth.onAuthStateChanged(async function(user){if(!user){$('gate').textContent='Sign in via the main admin console, then return to this page.';return;}try{var admin=await db.collection('admins').doc(user.uid).get({source:'server'});if(!admin.exists)throw new Error('Account is not an administrator.');$('gate').hidden=true;$('app').hidden=false;await refresh();}catch(e){$('gate').textContent='Access denied or admin validation unavailable. Sign in through the main admin console.';$('app').hidden=true;}});
 })();
 </script></body></html>

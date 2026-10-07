@@ -334,6 +334,7 @@ button,select,input,textarea{font:inherit}
   <div class="card" id="finConsoleBox" style="display:none">
     <div class="lab">🧾 Finance console</div>
     <p class="note">Business bills, expenses and revenue in one place — with a live accounts summary. Add each entry as it happens; the totals update automatically.</p>
+    <p class="note" data-rw-business-account></p>
     <div id="finSummary" style="margin:10px 0"></div>
     <div style="display:flex;gap:7px;flex-wrap:wrap;margin:10px 0">
       <button class="btn go" onclick="finAdd('bill')">🧾 Add bill</button>
@@ -439,6 +440,8 @@ button,select,input,textarea{font:inherit}
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<script src="../business-account.js?v=20261007"></script>
+<script src="../features/finance-tax/tax-engine.js"></script>
 <script src="../resource-data.js"></script>
 <script>
 function showModal(html){
@@ -733,7 +736,7 @@ function loadLedger(){
       +'<div><b>₹'+exp.toLocaleString('en-IN')+'</b><span>expenses</span></div>'
       +'<div><b style="color:'+(rev-exp>=0?'var(--grn)':'var(--red)')+'">₹'+(rev-exp).toLocaleString('en-IN')+'</b><span>net</span></div></div>'
       + rows.slice(0,12).map(function(x){
-          return '<div class="task"><div class="tk"><b>'+esc(x.what||x.kind)+'</b>'
+          return '<div class="task"><div class="tk"><b>'+esc(x.what||x.description||x.kind||x.account)+'</b>'
             +'<div class="meta">'+esc((x.at||'').slice(0,10))+' · '+esc(x.kind)+'</div></div>'
             +'<span class="pill">₹'+Number(x.amount||0).toLocaleString('en-IN')+'</span></div>';
         }).join('');
@@ -962,22 +965,25 @@ function finLoad(){
     _finRows.sort(function(a,b){ return (b.at||'').localeCompare(a.at||''); });
     var rev=0, exp=0, bills=0, due=0;
     _finRows.forEach(function(x){
-      if(x.kind==='revenue') rev+=(x.amount||0);
-      else if(x.kind==='bill'){ bills+=(x.amount||0); if(x.status!=='paid'){ due+=(x.amount||0); } if(x.status==='paid'){ exp+=(x.amount||0); } }
-      else exp+=(x.amount||0);
+      var kind=RWTaxEngine.kindOf(x),amount=Number(x.amount||0);
+      if(!Number.isFinite(amount))return;
+      if(kind==='revenue')rev+=amount;
+      else if(kind==='bill'){bills+=amount;if(x.status!=='paid')due+=amount;else exp+=amount;}
+      else if(kind==='expense')exp+=amount;
     });
     el('finSummary').innerHTML='<div class="stat">'
       +'<div><b>₹'+rev.toLocaleString('en-IN')+'</b><span>revenue</span></div>'
       +'<div><b>₹'+exp.toLocaleString('en-IN')+'</b><span>spent</span></div>'
       +'<div><b style="color:'+(due>0?'var(--gold)':'var(--grn)')+'">₹'+due.toLocaleString('en-IN')+'</b><span>bills due</span></div>'
-      +'<div><b style="color:'+(rev-exp>=0?'var(--grn)':'var(--red)')+'">₹'+(rev-exp).toLocaleString('en-IN')+'</b><span>net</span></div></div>';
+      +'<div><b style="color:'+(rev-exp>=0?'var(--grn)':'var(--red)')+'">₹'+(rev-exp).toLocaleString('en-IN')+'</b><span>provisional net</span></div></div><p class="note">Preview of up to 300 records, before reversals and tax adjustments. Bank balances, capital, transfers and vendor liabilities are excluded. Use the full tax workbench for period totals.</p>';
     el('finList').innerHTML = _finRows.slice(0,40).map(function(x){
-      var col = x.kind==='revenue'?'var(--grn)': x.kind==='bill'?'var(--gold)':'#F87171';
-      var sign = x.kind==='revenue'?'+':'−';
+      var kind=RWTaxEngine.kindOf(x);
+      var col=kind==='revenue'?'var(--grn)':kind==='bill'?'var(--gold)':kind==='expense'?'#F87171':'var(--t3)';
+      var sign=kind==='revenue'?'+':(kind==='expense'||kind==='bill')?'−':'';
       var statusChip = x.kind==='bill' ? ' <span class="pill" style="background:'+(x.status==='paid'?'rgba(74,222,128,.14)':'rgba(232,186,108,.15)')+'">'+(x.status||'unpaid')+'</span>' : '';
       var payBtn = (x.kind==='bill' && x.status!=='paid') ? '<button class="btn" style="font-size:10px;padding:3px 8px" onclick="finMarkPaid(\''+x._id+'\')">Mark paid</button>' : '';
-      return '<div class="task" style="align-items:flex-start"><div class="tk"><b>'+esc(x.what||x.kind)+'</b>'+statusChip
-        +'<div class="meta">'+esc((x.at||'').slice(0,10))+' · '+esc(x.cat||x.kind)+(x.vendor?' · '+esc(x.vendor):'')+'</div>'+payBtn+'</div>'
+      return '<div class="task" style="align-items:flex-start"><div class="tk"><b>'+esc(x.what||x.description||x.kind||x.account)+'</b>'+statusChip
+        +'<div class="meta">'+esc((x.at||x.date||'').slice(0,10))+' · '+esc(x.cat||x.kind||x.account)+(x.vendor?' · '+esc(x.vendor):'')+'</div>'+payBtn+'</div>'
         +'<span class="pill" style="color:'+col+'">'+sign+'₹'+Number(x.amount||0).toLocaleString('en-IN')+'</span></div>';
     }).join('') || '<p class="note">No entries yet.</p>';
   }).catch(function(e){ el('finList').innerHTML='<p class="note">Could not load: '+esc(e.message)+'</p>'; });
@@ -991,28 +997,38 @@ function finAdd(kind){
     +'<label class="lab">Description</label><input id="finWhat" class="inp" placeholder="What is it?">'
     +'<label class="lab">Amount (₹)</label><input id="finAmt" class="inp" type="number" placeholder="0">'
     +vendorField+catSel+dueField
+    +'<label class="lab">Account for this entry</label><select id="finAccount" class="inp"><option value="current">HDFC current •••• 8061</option><option value="other">Other / historical / cash</option></select>'
+    +'<label class="lab">Invoice / receipt reference</label><input id="finEvidence" class="inp" maxlength="120">'
     +'<label class="lab">Date</label><input id="finDate" class="inp" type="date" value="'+new Date().toISOString().slice(0,10)+'">'
     +'<div style="display:flex;gap:8px;margin-top:12px"><button class="btn go" style="flex:1;padding:11px" onclick="finSave(\''+kind+'\')">Save</button>'
     +'<button class="btn" style="padding:11px" onclick="closeModal()">Cancel</button></div></div>');
 }
 function finSave(kind){
   var what=el('finWhat').value.trim();
-  var amt=parseInt(el('finAmt').value||'0',10)||0;
+  var amt=Number(el('finAmt').value);
+  if(!Number.isFinite(amt)||Math.abs(amt*100-Math.round(amt*100))>0.000001){alert('Enter a valid amount with at most two decimal places.');return;}
   if(!what || amt<=0){ alert('Enter a description and amount.'); return; }
   var rec={ kind:kind, what:what, amount:amt, at:(el('finDate').value||new Date().toISOString().slice(0,10)), enteredBy:user.uid };
+  if(el('finAccount').value==='current'){
+    if(rec.at<RWBusinessAccount.profile.cutoverDate){alert('For an earlier entry, choose Other / historical / cash.');return;}
+    Object.assign(rec,RWBusinessAccount.entryDefaults(rec.at,'bank'));
+  }
+  rec.invoiceRef=el('finEvidence').value.trim().slice(0,120);
   if(el('finCat')) rec.cat=el('finCat').value;
   if(el('finVendor')) rec.vendor=el('finVendor').value.trim();
   if(el('finStatus')) rec.status=el('finStatus').value;
   db.collection('ledger').add(rec).then(function(){ closeModal(); finLoad(); }).catch(function(e){ alert('Could not save: '+e.message); });
 }
 function finMarkPaid(id){
-  db.collection('ledger').doc(id).update({status:'paid'}).then(finLoad).catch(function(e){ alert(e.message); });
+  var ref=window.prompt('Record an ALREADY completed payment: enter its bank/UPI reference. This does not send money.');
+  if(!ref||!ref.trim())return;
+  db.collection('ledger').doc(id).update({status:'paid',paymentRef:ref.trim().slice(0,120),bankReconciliationState:'pending'}).then(finLoad).catch(function(e){ alert(e.message); });
 }
 function finExport(){
   if(!_finRows.length){ alert('Nothing to export yet.'); return; }
-  var head='Date,Type,Category,Vendor,Description,Amount,Status\n';
+  var head='Date,Type,Category,Vendor,Description,Amount,Status,Account,Reconciliation,Invoice\n';
   var body=_finRows.map(function(x){
-    return [ (x.at||'').slice(0,10), x.kind, x.cat||'', x.vendor||'', '"'+String(x.what||'').replace(/"/g,'""')+'"', x.amount||0, x.status||'' ].join(',');
+    return [ (x.at||x.date||'').slice(0,10), x.kind||x.account||'', x.cat||'', x.vendor||'', x.what||x.description||'', x.amount||0, x.status||'', x.businessAccountId||'unassigned', x.bankReconciliationState||'unreviewed', x.invoiceRef||'' ].map(function(v){var s=String(v);if(/^[=+@-]/.test(s))s="'"+s;return '"'+s.replace(/"/g,'""')+'"';}).join(',');
   }).join('\n');
   var blob=new Blob([head+body],{type:'text/csv'});
   var a=document.createElement('a'); a.href=URL.createObjectURL(blob);

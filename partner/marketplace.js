@@ -32,7 +32,7 @@ function modal(html){var m=$('#modal'),b=$('#modalbox');if(!m||!b)return;b.inner
 function closeModal(){var m=$('#modal');if(m)m.classList.remove('open')}
 function parseBookingButton(b){try{return JSON.parse(b.dataset.book||'{}')}catch(e){return null}}
 function key(x){return String(x.partnerUid||'')+'/'+String(x.roomId||'')}
-async function loadPlatformPay(){var F=fb();if(!F.db)return;try{var d=await F.db.collection('config').doc('partnerPayments').get();platformPay=d.exists?d.data()||{}:{}}catch(e){platformPay={}}}
+async function loadPlatformPay(){var F=fb();if(!F.db)return;try{var d=await F.db.collection('config').doc('partnerPayments').get();platformPay=d.exists?d.data()||{}:{};if(window.RWBusinessAccount)platformPay=window.RWBusinessAccount.paymentConfig(platformPay)}catch(e){platformPay={}}}
 
 async function getRoom(listing,fresh){
   var F=fb(),k=key(listing);if(!fresh&&roomCache[k])return roomCache[k];

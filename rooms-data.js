@@ -101,7 +101,7 @@ window.RW_BOOK_TERMS = {
   commissionPct: 7,
   otaRange: 'varies by platform, property and contract',
   desk: '',                 /* RoamWise fallback WhatsApp, digits only */
-  deskUpi: 'roamwise@ybl', /* used only if a property has no UPI of its own */
+  deskUpi: 'roamwisepay@ybl', /* used only if a property has no UPI of its own */
   promise: [
     'The guest pays the property directly. We never hold your money.',
     'Partner Free is 7% after a completed stay; active paid partner plans are 5%. Protected-net-rate partners use an agreed net instead — never both on the same booking.',
