@@ -105,7 +105,7 @@ function rwListOpen(id){
       }).join('')+'</div>'
     + (x.price? '<div class="bk-total" style="margin-top:12px"><span>From</span><b>\u20b9'+Number(x.price).toLocaleString('en-IN')+'</b></div>':'')
     + rwBookingActionHTML(x)
-    +(/^https:\/\/www\.google\.com\/maps\//.test(x.mapsUrl||'')?'<a class="lst-instagram" href="'+esc2(x.mapsUrl)+'" target="_blank" rel="noopener noreferrer">Find on Google Maps \u2197</a>':'')
+    +(/^https:\/\/(?:www\.google\.com\/maps\/|maps\.app\.goo\.gl\/|goo\.gl\/maps\/)/.test(x.mapsUrl||'')?'<a class="lst-instagram" href="'+esc2(x.mapsUrl)+'" target="_blank" rel="noopener noreferrer">Find on Google Maps \u2197</a>':'')
     +'<a class="lst-support" href="mailto:'+esc2(x.supportEmail||'founder@roamwise.co.in')+'?subject=Help%20with%20'+encodeURIComponent(x.name)+'%20booking">RoamWise support: '+esc2(x.supportEmail||'founder@roamwise.co.in')+'</a>'
     +'</div>';
   ov.classList.add('open');

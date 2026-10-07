@@ -41,6 +41,8 @@ window.RW_PARTNER_SEED = [{
   id:'p_soulmate_homestay', cat:'stay', zone:'Almora', area:'Kotyura',
   name:'Soulmate Homestay', verified:'signed', listingReady:true,
   supportEmail:'founder@roamwise.co.in',
+  /* Booking route supplied by the founder (7 Oct 2026): the property's Google Hotels page. */
+  bookingMode:'ota', bookingOtaName:'Google Hotels', bookingUrl:'https://www.google.com/travel/hotels/s/kN8vRbCJY2LPqkP17',
   mapsUrl:'https://www.google.com/maps/search/?api=1&query=Soulmate+Homestay+Kotyura+Almora',
   badges:['local','quiet'],
   hook:'Kumaoni cooking and Himalayan surroundings in Kotyura, Almora, with a local host. Ask RoamWise to confirm rooms, dates and the final total.'
@@ -52,6 +54,8 @@ window.RW_PARTNER_SEED = [{
   id:'p_new_himank', cat:'stay', zone:'Manali', area:'Chachoga Road, near Hotel Vintage',
   name:'New Himank', verified:'signed', listingReady:true,
   supportEmail:'founder@roamwise.co.in',
+  /* Booking route supplied by the founder (7 Oct 2026): the property's MakeMyTrip page. */
+  bookingMode:'ota', bookingOtaName:'MakeMyTrip', bookingUrl:'https://www.makemytrip.com/hotels/homestay_new_himank-details-manali.html',
   mapsUrl:'https://www.google.com/maps/search/?api=1&query=New+Himank+Homestay+Chachoga+Road+Manali',
   hook:'Homestay with an on-site restaurant on Chachoga Road, Manali, about a 7-minute walk to Mall Road. Public listings mention free breakfast, Wi-Fi and balconies in every room. Ask RoamWise to confirm rooms, dates and the final total.'
 }];
