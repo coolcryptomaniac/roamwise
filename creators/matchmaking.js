@@ -1,4 +1,5 @@
 import { COLLAB_TIERS, assessTrust, normalizeMatchProfile, recommendTier } from './match-core.mjs';
+import { SEED_POLICIES, mergePolicies, termsText } from './property-terms-core.mjs';
 
 const CFG={apiKey:'AIzaSyBTfmJvHTmp0mNQqsIhWEwnLLwFKz0ExYQ',authDomain:'roamwisepro.firebaseapp.com',projectId:'roamwisepro',storageBucket:'roamwisepro.firebasestorage.app',messagingSenderId:'1039880917656',appId:'1:1039880917656:web:8b3e18e8a4b1c9f8e2c0d1'};
 try { if (!firebase.apps.length) firebase.initializeApp(CFG); } catch (_) {}
@@ -84,3 +85,14 @@ $('#shareNative').onclick=shareInvite;$('#copyInvite').onclick=shareInvite;$('#s
 document.querySelectorAll('[data-role]').forEach(button=>button.onclick=()=>setRole(button.dataset.role));
 if(new URLSearchParams(location.search).get('invite'))$('#inviteLabel').textContent='FOUNDING CREATOR INVITATION · LIMITED PILOT';
 tierCards();setRole(role);
+
+/* Which properties take creators right now. Seed terms ship with the page; an admin can override them in Firestore config/creatorPolicies. */
+async function renderOpenNow(){
+  const host=$('#openNowList');if(!host)return;
+  let override=[];
+  try{if(db){const d=await db.collection('config').doc('creatorPolicies').get();if(d.exists&&Array.isArray((d.data()||{}).list))override=d.data().list;}}catch(_){}
+  const rows=mergePolicies(SEED_POLICIES,override);
+  const label={open:'Open',pending:'Coming soon',closed:'Not right now'};
+  host.innerHTML=rows.map(p=>`<article class="mm-tier"><span class="mm-kicker">${esc(label[p.status]||'').toUpperCase()}</span><b>${esc(p.name||p.propertyId)}</b><p>${p.status==='open'?esc(termsText(p)):p.status==='pending'?'We are confirming creator terms with the owner. Apply and we will tell you when they open.':'This property is not taking creator collaborations right now.'}</p></article>`).join('')||'<p>No properties are open to creators yet.</p>';
+}
+renderOpenNow();
