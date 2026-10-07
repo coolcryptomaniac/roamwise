@@ -27,6 +27,12 @@ var RW_AGENT_TOOLS = [
   { type:'function', function:{ name:'open_booking',
     description:'Open the booking screen for a specific room so the traveller can book it. Use after search_stays when they choose one.',
     parameters:{ type:'object', properties:{ roomId:{type:'string'} }, required:['roomId'] } } },
+  { type:'function', function:{ name:'quote_stay',
+    description:'Price a stay for a solo traveller or a group: nights, rooms, total, advance, cancellation and each person\u2019s share. Only works for rooms with a listed price (search_stays). Never quote a price for a property that has none.',
+    parameters:{ type:'object', properties:{ roomId:{type:'string'}, nights:{type:'number'}, rooms:{type:'number'}, people:{type:'number', description:'How many people split the cost'} }, required:['roomId','nights'] } } },
+  { type:'function', function:{ name:'enquire_stay',
+    description:'For a verified partner that books by WhatsApp (from find_partners): open a WhatsApp enquiry with the dates, group size and budget filled in, carrying a RoamWise booking code. Ask the traveller for dates and group size first. This does not book or pay.',
+    parameters:{ type:'object', properties:{ partnerId:{type:'string'}, checkIn:{type:'string', description:'YYYY-MM-DD'}, nights:{type:'number'}, guests:{type:'number'}, rooms:{type:'number'}, budget:{type:'number'}, note:{type:'string'} }, required:['partnerId','checkIn','guests'] } } },
   { type:'function', function:{ name:'my_bookings',
     description:'Look up the travellers own bookings and their status.',
     parameters:{ type:'object', properties:{} } } },
@@ -161,6 +167,7 @@ function rwAgentRun(objective, onTrace, onDone){
       +'RoamWise has no curated entry for that place rather than inventing specifics. '
       +'If a tool returns ok:false, read the error and try a different approach rather than repeating it. '
       +'YOU CAN RUN THE WHOLE PRODUCT, not just answer questions. Where to stay \u2192 search_stays and quote real prices. '
+      +'Price a stay or split it between a group \u2192 quote_stay. A verified partner that books by WhatsApp \u2192 ask dates and group size, then enquire_stay (never invent its price). '
       +'They pick one \u2192 open_booking. Local operators \u2192 find_partners, and be honest about which are verified '
       +'versus merely researched. Anything they want to send to friends or a property \u2192 share_to_whatsapp. '
       +'Who they travel well with \u2192 travel_compatibility. Any screen they ask for \u2192 open_feature rather than '
@@ -228,6 +235,28 @@ RW_AGENT_IMPL.find_partners = function(a){
   return { ok:true, found:list.length, partners:list.slice(0,6).map(function(p){
     return { name:p.name, area:p.area, rating:p.rating, reviews:p.reviews,
              status:p.verified, why:p._why, hook:p.hook }; }) };
+};
+RW_AGENT_IMPL.quote_stay = function(a){
+  var room=(typeof rwRoomsLive==='function'?rwRoomsLive():[]).filter(function(r){ return r.id===a.roomId; })[0];
+  if(!room) return { ok:false, error:'That room is not listed with a price. Use search_stays first.' };
+  if(typeof rwStayQuote!=='function') return { ok:false, error:'quote engine unavailable' };
+  var partner=(window.RW_PARTNERS||[]).filter(function(p){ return p.id===room.partnerId; })[0]||{};
+  var q=rwStayQuote({ rate:room.price, nights:a.nights, rooms:a.rooms||1, policy:room.policy||null, gstRegistered:partner.gstVerified===true });
+  if(!q.ok) return { ok:false, error:'No valid price for that room.' };
+  var people=Math.max(1, Math.min(50, Math.round(+a.people||1)));
+  return { ok:true, property:room.property, room:room.room, nights:q.nights, rooms:q.rooms,
+    total:q.total, gst:q.gst, totalWithTax:q.totalWithTax, advance:q.advance, balanceAtProperty:q.balance,
+    people:people, perPerson:Math.ceil(q.totalWithTax/people),
+    note:'Final total and taxes are confirmed by the property before payment.' };
+};
+RW_AGENT_IMPL.enquire_stay = function(a){
+  var p=(typeof rwLivePartners==='function'?rwLivePartners():[]).filter(function(x){ return x.id===a.partnerId; })[0];
+  if(!p) return { ok:false, error:'That is not a verified, bookable partner. Use find_partners first.' };
+  if(!/^20\d\d-\d\d-\d\d$/.test(String(a.checkIn||''))) return { ok:false, error:'checkIn must be YYYY-MM-DD' };
+  var r=typeof rwStayEnquiryFor==='function'?rwStayEnquiryFor(p,{ checkIn:a.checkIn, nights:a.nights, guests:a.guests, rooms:a.rooms, budget:a.budget, note:a.note }):{ ok:false, error:'unavailable' };
+  if(!r.ok) return r;
+  try{ window.open(r.url,'_blank','noopener'); }catch(e){ /* popup blocked: link is still returned */ }
+  return { ok:true, code:r.code, opened:true, link:r.url, note:'WhatsApp is open with the enquiry. The hotel confirms availability and price; nothing is booked or paid yet.' };
 };
 RW_AGENT_IMPL.open_booking = function(a){
   try{ if(typeof openRoomBook==='function'){ openRoomBook(a.roomId); return { ok:true, opened:a.roomId }; } }catch(e){ /* best-effort, ignore */ }

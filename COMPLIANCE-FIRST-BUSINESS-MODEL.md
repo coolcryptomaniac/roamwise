@@ -140,6 +140,33 @@ entries must be designed. `payments/marketplace-settlement.mjs` already holds
 the integer-paise invariants. Per `AI-ROLES-AND-HANDOFF.md` rule 7 this is a
 separate reviewed change, not part of the ledger PR.
 
+## Why there is no home-made "split payment"
+
+A split system that takes a guest's money into a RoamWise account and pays the property out later means RoamWise **collects and routes other people's funds**. In India that is regulated payment-aggregator activity (RBI), it makes RoamWise the party that "collects consideration" (GST TCS under section 52 and TDS under 194-O become certain, not arguable), and it is the exact opposite of the "relinquish control of the payment flow" the GAAR note in the advice file warns about. So it is **not built**.
+
+What is built instead, all without RoamWise touching guest money:
+
+- **GSTIN and payout fields** on the property join form and in the partner admin (`gstin`, `payoutUpi`, `payoutHolder`, `payoutIfsc`, `payoutAcctLast4`). The full account number is never collected; the payout provider takes it at KYC time. Validators: `features/finance-tax/gstin.js` (GSTIN format + Mod-36 check character, UPI, IFSC).
+- **"GST verified"** is an admin-only tick (it lives on the public listing entry in `config/partners`, written by admin), set after checking the number on the GST portal. A guest quote shows the property's GST only when this is set. No Firestore rule changed.
+- **`upiPayLink()`** builds a `upi://pay` link so a guest's own UPI app pays the **property** directly. It is not wired into any screen yet.
+- **Real split settlement (Phase 2)** stays Cashfree Easy Split: Cashfree holds the money under its own licence and splits it. It needs Cashfree activation (which usually wants a GSTIN or equivalent business proof) and a payments review.
+
+About the advice file: its GST-verified-only marketplace, lead-generation and pay-at-property ideas are the model RoamWise already follows. Its framing of them as a way to "bypass" tax is not adopted: the existing AI-CA gates (`eco_9_5_accommodation`, `eco_section_52_collection`, `income_tax_194o`) stay, and the one CA opinion on 9(5) and 194-O for a lead-only platform is still needed. If the structure is not real (RoamWise in fact controls prices, cancellations or money), GAAR can apply.
+
+## Bots (Telegram and WhatsApp)
+
+`worker/handlers/bot.js` + `worker/lib/bot-core.js`. Commands: `/stays <city>`, `/enquire <ref> <check-in> <nights> <guests>`, `/stayed <code> yes|no`, `/split <total> <people>`, `/help`. Only verified stays with a working booking route are listed; a property's WhatsApp number is revealed only inside a coded enquiry. The code is registered in the same stay ledger (`source: "bot"`), and `/stayed` works only from the chat that made the code (a salted hash of channel + chat + code is stored; no raw chat id). Nothing here takes money.
+
+Each channel answers **501 until its secrets exist**, so deploying changes nothing in production.
+
+Founder steps:
+
+1. Telegram: message @BotFather, `/newbot`, copy the token. Then `wrangler secret put TELEGRAM_BOT_TOKEN` and `wrangler secret put TELEGRAM_WEBHOOK_SECRET` (any long random string). Register the webhook once: `https://api.telegram.org/bot<TOKEN>/setWebhook?url=https://<worker-url>/bot/telegram&secret_token=<WEBHOOK_SECRET>`.
+2. WhatsApp: in Meta for Developers create a WhatsApp Business app, add a phone number, and set secrets `WHATSAPP_TOKEN`, `WHATSAPP_PHONE_NUMBER_ID`, `WHATSAPP_APP_SECRET`, `WHATSAPP_VERIFY_TOKEN` (any string you choose). In the app's webhook settings use callback `https://<worker-url>/bot/whatsapp` with that verify token and subscribe to `messages`. WhatsApp only lets a business message freely within 24 hours of the user's last message; the bot only replies, so that suits it.
+3. Optional: `BOT_HASH_SALT` (any random string).
+
+Tusk (in-app AI) gained `quote_stay` (price a stay and split it per person; GST view only for GST-verified properties) and `enquire_stay` (coded WhatsApp enquiry with dates and group size). Partners with no booking route are no longer shown to Tusk or the partner list.
+
 ## Also built
 
 - **Property self-reporting.** A verified partner signs in at

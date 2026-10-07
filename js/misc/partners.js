@@ -54,7 +54,7 @@ function rwPartnerScore(p){
   return { score:sc, why:why };
 }
 function rwPartnersFor(zone, cat){
-  var list=(window.RW_PARTNERS||[]).filter(function(p){ return p.verified==='signed'&&p.listingReady===true; });
+  var list=(window.RW_PARTNERS||[]).filter(function(p){ return p.verified==='signed'&&p.listingReady===true&&(typeof rwIsOperational!=='function'||rwIsOperational(p)); });
   if(zone) list=list.filter(function(p){ return String(p.zone||'').toLowerCase()===String(zone).toLowerCase(); });
   if(cat)  list=list.filter(function(p){ return p.cat===cat; });
   list.forEach(function(p){ var s=rwPartnerScore(p); p._score=s.score; p._why=s.why; });

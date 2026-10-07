@@ -61,6 +61,7 @@ import { handleBusiness } from './handlers/business.js';
 import { handleAICAReview } from './handlers/ai-ca.js';
 import { handlePaymentEvent } from './handlers/payment-events.js';
 import { handleStay } from './handlers/stay-ledger.js';
+import { handleBot } from './handlers/bot.js';
 
 // Only Cashfree PG calls use this diagnostic transport. The actual order,
 // identity and entitlement rules stay inside handlers/cashfree.js unchanged.
@@ -109,11 +110,13 @@ export default {
 
     if(path.indexOf('stay/') === 0) return handleStay(request, env, path);
 
+    if(path.indexOf('bot/') === 0) return handleBot(request, env, path);
+
     if(path === 'push/send' && request.method === 'POST') return handlePushSend(request, env);
 
     if(path === 'admin/ai-ca/review' && request.method === 'POST') return handleAICAReview(request, env);
 
-    return json({ error: 'not found', try: ['/health', '/ai', '/news', '/events', '/geo', '/leads', '/cashfree/order', '/partner/cashfree/order', '/push/send', '/admin/ai-ca/review', '/stay/enquiry', '/stay/confirm'] }, 404);
+    return json({ error: 'not found', try: ['/health', '/ai', '/news', '/events', '/geo', '/leads', '/cashfree/order', '/partner/cashfree/order', '/push/send', '/admin/ai-ca/review', '/stay/enquiry', '/stay/confirm', '/bot/telegram', '/bot/whatsapp'] }, 404);
   },
 
   /* ONE scheduled handler. News daily; events on Mondays only, to stay well
