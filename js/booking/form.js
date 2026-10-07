@@ -18,18 +18,23 @@
    Those two facts are the entire reason a property lists with a platform that
    has 20 users. Everything below is built to preserve them.
    ========================================================================= */
-function rwRoomsFor(zone){
-  var list=(window.RW_ROOMS||[]).slice();
+function rwRoomsFor(zone,partnerId){
+  /* Only rooms of live partners with a valid price + payment flags are ever listed. */
+  var list=(typeof rwRoomsLive==='function'?rwRoomsLive():[]).slice();
+  if(partnerId) list=list.filter(function(r){ return r.partnerId===partnerId; });
   if(zone) list=list.filter(function(r){ return String(r.zone).toLowerCase()===String(zone).toLowerCase(); });
   return list;
 }
 function rwNights(a,b){
   try{ var d=(new Date(b)-new Date(a))/86400000; return d>0? Math.round(d):1; }catch(e){ return 1; }
 }
-function openStays(zone){
+function openStays(zone,partnerId){
+  /* Nothing directly bookable yet: send guests to Stay & do (WhatsApp / OTA / call routes) instead of an empty page. */
+  if(!rwRoomsFor('').length && typeof openListing==='function') return openListing();
   window._stZone = (zone!==undefined? zone : window._stZone) || '';
+  window._stPartner = partnerId||'';
   rwPageOpen('stays', function(body){
-    var zones={}; (window.RW_ROOMS||[]).forEach(function(r){ zones[r.zone]=1; });
+    var zones={}; rwRoomsFor('').forEach(function(r){ zones[r.zone]=1; });
     body.innerHTML='<div class="st-save">\ud83d\udcb8 <b>Payment opens only after confirmation.</b> Partner Free uses 7% after a completed stay; active paid partner plans use 5%.</div>'
       +'<div class="pt-chips" style="margin:12px 0">'
       +'<button class="ev-chip'+(!window._stZone?' on':'')+'" onclick="openStays(\'\')">Everywhere</button>'
@@ -42,8 +47,8 @@ function openStays(zone){
 }
 function rwStaysRender(){
   var host=el('staysOut'); if(!host) return;
-  var list=rwRoomsFor(window._stZone);
-  if(!list.length){ host.innerHTML='<div class="note" style="text-align:center;padding:22px;color:var(--t3)">No rooms listed here yet.</div>'; return; }
+  var list=rwRoomsFor(window._stZone,window._stPartner);
+  if(!list.length){ host.innerHTML='<div class="note" style="text-align:center;padding:22px;color:var(--t3)">No rooms available here right now. <a href="#" onclick="openListing();return false">See Stay &amp; do</a></div>'; return; }
   host.innerHTML=list.map(function(r){
     return '<div class="st-card">'
       +'<div class="st-top"><span style="flex:1;min-width:0">'
@@ -74,7 +79,7 @@ function rwRememberBookingIdentity(name,phone){
    the same shortlist either way. This is inventory discovery, not a promise
    of availability: only an explicitly payment-enabled supplier can charge. */
 function rwTuskStayMatches(raw,dest){
-  var q=String(raw||''), list=(window.RW_ROOMS||[]).slice(), zone=String(dest||'').trim().toLowerCase();
+  var q=String(raw||''), list=(typeof rwRoomsLive==='function'?rwRoomsLive():[]).slice(), zone=String(dest||'').trim().toLowerCase();
   var bm=q.match(/(?:under|below|max(?:imum)?|budget(?: of)?|upto|up to)\s*(?:₹|rs\.?|inr)?\s*([\d,]+)/i);
   var max=bm?Number(String(bm[1]).replace(/,/g,'')):0;
   var gm=q.match(/(\d+)\s*(?:guest|guests|people|persons|pax)/i), guests=gm?Number(gm[1]):0;
@@ -185,7 +190,7 @@ function openRoomBook(id){
     { key:'bk_note',  label:'Anything they should know', placeholder:'arrival time, food needs' }
   ];
   /* VIEWING-ONLY: no live booking partnerships are connected yet. */
-  bkFields._notice='\ud83d\udd0e Preview only \u2014 real booking isn\u2019t live yet (no partner hotels connected). This saves your interest; booking opens soon.';
+  bkFields._notice='Payment opens only after the property confirms the exact room, total and cancellation terms.';
   rwForm('\ud83c\udfe1 '+r.property, bkFields, function(v){
     if(!v.bk_nm || !v.bk_ph){ showToast('Name and phone are needed to save your interest'); return; }
     if(!/^\d{10}$/.test(String(v.bk_ph).replace(/\D/g,'').slice(-10))){ showToast('Enter a valid 10-digit mobile'); return; }
@@ -284,8 +289,8 @@ function rwBookDone(rec){
       +'<div class="bk-sr tot"><span>'+(rec.payMode==='upi'?'Paid':'Pay at property')+'</span><b>\u20b9'+rec.amount.toLocaleString('en-IN')+'</b></div>'
       +'</div>'
       +'<div class="bkd-next"><b>What happens now</b>'
-      +'<div>\ud83d\udd0e This is a preview \u2014 real booking isn\u2019t live yet (no partner hotels are connected). We\u2019ve saved your interest, not a confirmed booking.</div>'
-      +'<div>Booking opens soon. We\u2019ll reach out on the number you entered when this property goes live.</div>'
+      +'<div>Your request has been sent to the property. It is not a confirmed booking until the property replies and confirms.</div>'
+      +'<div>We\u2019ll use the number you entered if anything needs checking.</div>'
       +'<div>Save your reference: <b>'+esc2(rec.ref)+'</b></div></div>'
       +'<button class="bk-go" onclick="rwBookShare()">\ud83d\udcac Send to the property again</button>'
       +'<button class="tact" style="width:100%;margin-top:8px;padding:12px" onclick="rwShareMyBooking()">\ud83d\udce4 Share this booking with my group</button>'

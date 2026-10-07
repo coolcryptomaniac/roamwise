@@ -8,7 +8,7 @@ const path=require('node:path');
 const root=path.join(__dirname,'..');
 const destCode=fs.readFileSync(path.join(root,'js/data/destinations.js'),'utf8');
 const cardCode=fs.readFileSync(path.join(root,'js/itinerary/result-cards.js'),'utf8');
-const bookingCode=fs.readFileSync(path.join(root,'js/booking/form.js'),'utf8');
+const bookingCode=fs.readFileSync(path.join(root,'js/booking/routes.js'),'utf8')+'\n'+fs.readFileSync(path.join(root,'js/booking/form.js'),'utf8');
 
 function costState(){
   const state={
@@ -55,9 +55,10 @@ test('local-price renderer treats legacy prose as prose, never character rows',(
 
 test('Ailon stay matcher ranks typed or voice constraints and current rooms cannot charge by default',()=>{
   const state={
-    window:{RW_ROOMS:[
-      {id:'cheap',property:'Hill Hostel',zone:'Manali',area:'Old Manali',room:'Dorm',price:900,maxGuests:2,inc:['Breakfast','Wi-Fi']},
-      {id:'high',property:'Peak Hotel',zone:'Manali',area:'Aleo',room:'Suite',price:4500,maxGuests:4,inc:['Breakfast','Balcony']}
+    window:{RW_PARTNERS:[{id:'p_hill',verified:'signed',listingReady:true,bookingMode:'direct'}],RW_ROOMS:[
+      {id:'cheap',partnerId:'p_hill',bookable:true,paymentEnabled:true,property:'Hill Hostel',zone:'Manali',area:'Old Manali',room:'Dorm',price:900,maxGuests:2,inc:['Breakfast','Wi-Fi']},
+      {id:'high',partnerId:'p_hill',bookable:true,paymentEnabled:true,property:'Peak Hotel',zone:'Manali',area:'Aleo',room:'Suite',price:4500,maxGuests:4,inc:['Breakfast','Balcony']},
+      {id:'hidden',partnerId:'p_unsigned',bookable:true,paymentEnabled:true,property:'Not Live',zone:'Manali',room:'Room',price:800,maxGuests:2,inc:['Breakfast']}
     ]},
     esc2:s=>String(s),showToast:()=>{},isFinite,Number,String,Date
   };

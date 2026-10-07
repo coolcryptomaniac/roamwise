@@ -21,7 +21,7 @@ test('admin partner page exposes full details, editing and Stay & do publishing'
   assert.match(app,/async function liveListPublish\(id,on\)/);
   assert.match(app,/Approve this property first/,'only approved properties can be published');
   assert.match(app,/The MOU has not been accepted yet/);
-  assert.match(app,/Show this WhatsApp number to travellers \(owner agreed\)/,'owner number is public only by explicit opt-in');
+  assert.match(app,/Show this number to travellers \(owner agreed\)/,'owner number is public only by explicit opt-in');
   assert.match(app,/collection\('config'\)\.doc\('partners'\)/);
   assert.match(app,/Everything else saved for this property/);
 });

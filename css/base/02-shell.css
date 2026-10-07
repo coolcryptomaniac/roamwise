@@ -271,6 +271,12 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:17px;heigh
    the viewport with body scroll locked and the close button off-screen. */
 .sheet{background:var(--bg2);border:1px solid var(--b2);border-radius:20px;width:100%;max-width:430px;
   max-height:88dvh;display:flex;flex-direction:column;overflow:hidden;animation:pop .3s ease;padding:14px}
+/* Payment / booking sheets (.sheet-h) must scroll on small and landscape screens so the pay buttons are always reachable,
+   keep the close button at the right edge, and clear the phone's home-indicator area. */
+.sheet{max-height:88vh;max-height:88dvh;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;padding-bottom:calc(14px + env(safe-area-inset-bottom,0px))}
+.sheet-h{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:2px 2px 10px;position:sticky;top:-14px;margin-top:-14px;padding-top:14px;background:var(--bg2);z-index:2}
+.sheet-h b{font-size:14px;min-width:0}
+.sheet-h .tact{flex:0 0 auto;min-width:36px;min-height:36px}
 .sheet-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:2px 2px 10px;
   border-bottom:1px solid var(--b2);position:sticky;top:0;background:var(--bg2);z-index:2;flex:0 0 auto}
 .sheet-head b{font-size:14px}
