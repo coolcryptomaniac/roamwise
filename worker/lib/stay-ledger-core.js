@@ -85,6 +85,30 @@ export function parseSettle(body) {
   return { value: out };
 }
 
+/* Public listing id for a partner account. Must match detSlug()/detPid() in partner/app.js
+   and the `p_milan_heights` style ids in partners-data.js. */
+export const slug = (n) => String(n || '').toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '');
+export const publicIdFor = (name) => 'p_' + slug(name);
+
+/** Validate a property's own report. A property may say what happened and what the stay was
+    worth; it can never set the commission rate, change the property, or touch another code. */
+export function parseReport(body) {
+  if (!body || typeof body !== 'object') return { error: 'missing body' };
+  if (!validCode(body.code)) return { error: 'bad code' };
+  if (!['completed', 'cancelled', 'no_show'].includes(body.status)) return { error: 'bad status' };
+  const out = { code: body.code, status: body.status };
+  if (body.status === 'completed') {
+    const a = Number(body.amount);
+    if (!Number.isFinite(a) || a <= 0 || a > MAX_STAY_AMOUNT) return { error: 'completed needs the stay value in rupees' };
+    out.amount = rupees(a);
+  }
+  if (body.checkIn != null && body.checkIn !== '') {
+    if (!validDate(body.checkIn)) return { error: 'bad checkIn' };
+    out.checkIn = body.checkIn;
+  }
+  return { value: out };
+}
+
 /** A new, fully-validated manual code for stays a property reports with no code. */
 export function manualCode(seed) {
   const s = String(seed || '').toUpperCase().replace(/[^A-Z0-9]/g, '').padEnd(5, 'X').slice(0, 5);

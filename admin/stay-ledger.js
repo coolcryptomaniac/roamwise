@@ -61,7 +61,7 @@ document.addEventListener('click',function(ev){
 });
 function invoice(pid){
   var p=last&&last.partners.filter(function(x){return x.partnerId===pid})[0];if(!p)return;
-  var txt='RoamWise commission statement — '+last.month+'\nProperty: '+pid+'\nCompleted stays: '+p.completed+'\nStay value reported: '+inr(p.gross)+'\nRoamWise fee: '+inr(p.commission)+'\nGST @ '+last.gstPct+'% on fee: '+inr(p.gst)+'\nTotal due: '+inr(p.total)+'\n\nPay by UPI to the RoamWise business account within 7 days. Booking codes and guest confirmations are available on request.';
+  var txt='RoamWise commission statement — '+last.month+'\nProperty: '+pid+'\nCompleted stays: '+p.completed+'\nStay value reported: '+inr(p.gross)+'\nRoamWise fee: '+inr(p.commission)+'\nGST @ '+last.gstPct+'% on fee: '+inr(p.gst)+'\nTotal due: '+inr(p.total)+'\n\nPay by UPI to the RoamWise business account within 7 days. Please report each completed, cancelled or no-show stay at https://roamwise.co.in/partner/stays/ so the statement matches. Booking codes and guest confirmations are available on request.';
   openModal('<div class="modalhead"><div><div class="eyebrow">Copy and send on WhatsApp</div><h2>Statement '+h(pid)+'</h2></div><button class="btn" onclick="closeModal()">Close</button></div><textarea class="input" rows="11" readonly onclick="this.select()">'+h(txt)+'</textarea><p class="meta">GST applies only once RoamWise holds a GST registration. Ask your CA before sending a tax invoice.</p>');
 }
 function settleForm(code,pid){

@@ -140,12 +140,29 @@ entries must be designed. `payments/marketplace-settlement.mjs` already holds
 the integer-paise invariants. Per `AI-ROLES-AND-HANDOFF.md` rule 7 this is a
 separate reviewed change, not part of the ledger PR.
 
-## Not covered by this PR
+## Also built
 
-- Expanding the matching engine to artists, events, agencies and drivers. The
-  `match-core.mjs` scoring and fee quote can take new `kind` values; each kind
-  needs its own required fields and the legal gates above, so it is a
-  follow-up.
-- Property self-reporting of outcomes in the partner portal (needs Firestore
-  rules or a Worker route tied to partner identity).
-- Any change to checkout, pricing or Cashfree code.
+- **Property self-reporting.** A verified partner signs in at
+  `/partner/stays/`, sees only its own booking codes and reports completed,
+  cancelled or no-show with the stay value. It cannot set the commission rate
+  (taken from the admin-set partner record, default 7%), cannot see another
+  property's codes, never sees what the guest answered, and cannot change a
+  stay an admin has settled. Worker routes: `POST /stay/report`, `GET /stay/mine`.
+- **Matching for artists, events, agencies and drivers**
+  (`creators/marketplace-match-core.mjs`). Supply is never matchable until a
+  person has verified its documents (drivers: licence, registration, commercial
+  permit, insurance; agencies: business name, state registration number;
+  events: organiser identity, venue permission, dates; artists: portfolio and
+  rate card). Hard gates: shared place, overlapping dates, bridgeable budget.
+  Fees are charged to the supplier only: artist 5% of the confirmed fee
+  (minimum ₹99), event ₹499 for a 7-day featured slot, agency ₹149 per
+  qualified lead, driver ₹99 a month. A driver on a fare-share, dispatch or
+  surge-pricing model is blocked. These are proposed defaults, not collected.
+  The engine has no screen yet: it is pure functions with tests, ready for a
+  listing form.
+
+## Still not built
+
+- Checkout, pricing or Cashfree changes, and the Phase 2 advance with split
+  settlement (needs Cashfree activation and a separate payments review).
+- Listing forms and public pages for artists, events, agencies and drivers.

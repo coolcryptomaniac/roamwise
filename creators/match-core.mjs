@@ -142,7 +142,7 @@ const NICHE_GROUPS = Object.freeze({
 const PLATFORM_ALIAS = Object.freeze({ ig: 'instagram', insta: 'instagram', reels: 'instagram', yt: 'youtube', shorts: 'youtube', fb: 'facebook' });
 const NICHE_LOOKUP = new Map(Object.entries(NICHE_GROUPS).flatMap(([group, words]) => words.map(word => [word, group])));
 
-const canonicalNiche = value => NICHE_LOOKUP.get(value) || value;
+export const canonicalNiche = value => NICHE_LOOKUP.get(value) || value;
 const canonicalPlatform = value => PLATFORM_ALIAS[value] || value;
 
 function placeChain(place) {
@@ -152,7 +152,7 @@ function placeChain(place) {
 }
 
 /* 1 = same place, .85 = one contains the other, .5 = same region, .25 = same mountain range / broad zone. */
-function placeCloseness(a, b) {
+export function placeCloseness(a, b) {
   if (a === b) return 1;
   const ca = placeChain(a), cb = placeChain(b);
   if (ca.includes(b) || cb.includes(a)) return 0.85;

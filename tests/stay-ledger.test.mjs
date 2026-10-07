@@ -137,3 +137,28 @@ test('browser code generator and message', () => {
   assert.equal(t.rwStayLoad().length, 1);
   assert.equal(t.rwStayLoad()[0].partnerId, 'milan-heights');
 });
+
+/* ---- property self-report ---- */
+test('a verified property reports only its own codes and cannot touch the rate', async () => {
+  const d = store();
+  d.verifyUser = async (req) => { const a = req.headers.get('authorization') || ''; return a.startsWith('Bearer user:') ? { uid: a.slice(12) } : null; };
+  d.getPartner = async (uid) => ({ u1: { name: 'Milan Heights', verified: true, commissionPct: 5 }, u2: { name: 'Other Place', verified: true }, u3: { name: 'Milan Heights', verified: false } }[uid] || null);
+  d.m.set('RW-AAAAAA', { code: 'RW-AAAAAA', partnerId: 'p_milan_heights', status: 'enquired', createdAt: '2026-10-01T00:00:00Z', secretHash: 'x' });
+  d.m.set('RW-BBBBBB', { code: 'RW-BBBBBB', partnerId: 'p_other_place', status: 'enquired', createdAt: '2026-10-02T00:00:00Z', secretHash: 'y' });
+  const rep = (uid, body) => post('stay/report', body, uid ? { authorization: 'Bearer user:' + uid } : {});
+  assert.equal((await call(d, rep(null, { code: 'RW-AAAAAA', status: 'cancelled' }), 'stay/report'))[0], 401);
+  assert.equal((await call(d, rep('u3', { code: 'RW-AAAAAA', status: 'cancelled' }), 'stay/report'))[0], 403);   // not approved
+  assert.equal((await call(d, rep('u2', { code: 'RW-AAAAAA', status: 'completed', amount: 5000 }), 'stay/report'))[0], 404); // someone else's code
+  assert.equal((await call(d, rep('u1', { code: 'RW-AAAAAA', status: 'completed' }), 'stay/report'))[0], 400);              // needs a value
+  assert.equal((await call(d, rep('u1', { code: 'RW-AAAAAA', status: 'completed', amount: 9000, commissionPct: 0, partnerId: 'x', checkIn: '2026-10-04' }), 'stay/report'))[0], 200);
+  const row = d.m.get('RW-AAAAAA');
+  assert.equal(row.status, 'completed'); assert.equal(row.amount, 9000); assert.equal(row.partnerId, 'p_milan_heights');
+  assert.equal(row.commissionPct, 5);            // taken from the admin-set partner record, not from the request
+  assert.equal(row.settledBy, 'partner');
+  // the property's own list shows only its codes and never what guests answered
+  const mine = await call(d, new Request('https://w.test/stay/mine', { headers: { authorization: 'Bearer user:u1' } }), 'stay/mine');
+  assert.equal(mine[1].rows.length, 1); assert.ok(!JSON.stringify(mine[1]).includes('guestStayed'));
+  // once an admin settles, the property can no longer change it
+  await call(d, post('stay/settle', { code: 'RW-AAAAAA', status: 'disputed' }, { authorization: 'Bearer admin' }), 'stay/settle');
+  assert.equal((await call(d, rep('u1', { code: 'RW-AAAAAA', status: 'cancelled' }), 'stay/report'))[0], 409);
+});

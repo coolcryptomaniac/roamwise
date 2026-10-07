@@ -4,6 +4,9 @@
    ============================================================================
    Routes (all JSON, dispatched from worker/worker.js):
 
+     POST /stay/report      partner  a verified property reports what happened to its own code
+     GET  /stay/mine        partner  that property's own codes
+
      POST /stay/enquiry     public   guest's browser registers a new code
      POST /stay/confirm     public   guest says "I stayed" / "I did not"
      POST /stay/settle      admin    mark a stay completed/cancelled/no_show + amount
@@ -26,7 +29,7 @@ import { verifyFirebaseIdToken } from '../lib/firebase-verify.js';
 import { getServiceAccountAccessToken, parseServiceAccount } from '../lib/service-account.js';
 import { getDoc, updateDoc, createDocIfAbsent, listDocs } from '../lib/firestore-rest.js';
 import {
-  validCode, validPartnerId, validHash, validMonth, sha256Hex, parseSettle, buildStatement,
+  validCode, validPartnerId, validHash, validMonth, sha256Hex, parseSettle, parseReport, publicIdFor, monthOf, buildStatement,
   DEFAULT_COMMISSION_PCT, DEFAULT_GST_PCT,
 } from '../lib/stay-ledger-core.js';
 
@@ -67,6 +70,12 @@ function firestoreDeps(env) {
     async create(code, values) { return createDocIfAbsent(env, await token(), project(), COLLECTION, code, values); },
     async update(code, values) { return updateDoc(env, await token(), project(), `${COLLECTION}/${code}`, values); },
     async list() { return listDocs(env, await token(), project(), COLLECTION, 3000); },
+    async verifyUser(request) {
+      const m = /^Bearer\s+(.+)$/i.exec(request.headers.get('authorization') || '');
+      if (!m) return null;
+      try { const c = await verifyFirebaseIdToken(m[1], project()); return { uid: c.uid }; } catch (_) { return null; }
+    },
+    async getPartner(uid) { return getDoc(env, await token(), project(), `partners/${uid}`); },
     async isAdmin(request) {
       const m = /^Bearer\s+(.+)$/i.exec(request.headers.get('authorization') || '');
       if (!m) return false;
@@ -116,6 +125,47 @@ export async function handleStay(request, env, path, deps) {
       return json({ ok: true });
     }
 
+    /* ---------- property: report what happened to a code that was sent to it ---------- */
+    if (path === 'stay/report' && request.method === 'POST') {
+      const who = await deps.verifyUser(request);
+      if (!who) return json({ error: 'unauthorized', message: 'Sign in first.' }, 401);
+      if (limited(request, 'rep', 60)) return bad('Too many requests', 429);
+      const partner = await deps.getPartner(who.uid);
+      if (!partner || partner.verified !== true) return json({ error: 'forbidden', message: 'Only an approved partner can report stays.' }, 403);
+      const r = await readBody(request);
+      if (r.error) return bad(r.error);
+      const p = parseReport(r.body);
+      if (p.error) return bad(p.error);
+      const v = p.value;
+      const doc = await deps.get(v.code);
+      // Same answer for "no such code" and "someone else's code": do not reveal other properties' codes.
+      if (!doc || doc.partnerId !== publicIdFor(partner.name)) return json({ error: 'not_found' }, 404);
+      if (doc.settledBy === 'admin') return json({ error: 'locked', message: 'RoamWise has already settled this stay. Contact RoamWise to change it.' }, 409);
+      const adminRate = Number(partner.commissionPct);
+      const patch = {
+        status: v.status, settledAt: now, settledBy: 'partner', reportedAt: now,
+        commissionPct: doc.commissionPct != null ? doc.commissionPct : (Number.isFinite(adminRate) && adminRate >= 0 && adminRate <= 30 ? adminRate : DEFAULT_COMMISSION_PCT),
+      };
+      if (v.amount != null) patch.amount = v.amount;
+      if (v.checkIn) patch.checkIn = v.checkIn;
+      await deps.update(v.code, patch);
+      return json({ ok: true });
+    }
+
+    /* ---------- property: its own codes, newest first (never shows what guests answered) ---------- */
+    if (path === 'stay/mine' && request.method === 'GET') {
+      const who = await deps.verifyUser(request);
+      if (!who) return json({ error: 'unauthorized', message: 'Sign in first.' }, 401);
+      const partner = await deps.getPartner(who.uid);
+      if (!partner || partner.verified !== true) return json({ error: 'forbidden', message: 'Only an approved partner can list stays.' }, 403);
+      const pid = publicIdFor(partner.name);
+      const rows = (await deps.list()).filter((x) => x.partnerId === pid)
+        .sort((a, b) => String(b.createdAt || '').localeCompare(String(a.createdAt || '')))
+        .slice(0, 200)
+        .map((x) => ({ code: x.code || x.id, status: x.status, amount: x.amount || 0, checkIn: x.checkIn || '', createdAt: x.createdAt || '', locked: x.settledBy === 'admin' }));
+      return json({ partnerId: pid, rows });
+    }
+
     /* ---------- admin: settle a stay ---------- */
     if (path === 'stay/settle' && request.method === 'POST') {
       if (!(await deps.isAdmin(request))) return json({ error: 'forbidden', message: 'admin only' }, 403);
@@ -133,7 +183,7 @@ export async function handleStay(request, env, path, deps) {
         });
         doc = { partnerId: v.partnerId };
       }
-      const patch = { status: v.status, settledAt: now };
+      const patch = { status: v.status, settledAt: now, settledBy: 'admin' };
       if (v.amount != null) patch.amount = v.amount;
       patch.commissionPct = v.commissionPct != null ? v.commissionPct : (doc.commissionPct != null ? doc.commissionPct : DEFAULT_COMMISSION_PCT);
       if (v.checkIn) patch.checkIn = v.checkIn;
