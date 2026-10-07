@@ -282,7 +282,7 @@ in a later pass)
 - `form.js` (288 lines) — booking form + pay flow
 - `local-rides.js` — local rides + stranded-traveler flows
 - `pnr-parser.js` — train/flight PNR text parsing
-- `price-guard.js` — client-side price sanity guard for room bookings
+- `price-guard.js` — all-in stay price guard: evaluates normalized live offers supplied by a server/admin connector (no OTA scraping)
 - `routes.js` — which booking route(s) a partner has (direct, WhatsApp, OTA, website, phone); hides non-operational ones
 - `stay-code.js` — RoamWise booking code on WhatsApp enquiries and the "did you stay?" nudge
 - `stay-quote.js` — pre-book, refund and GST-view arithmetic for a stay (pure, no money moves)
