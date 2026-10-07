@@ -30,6 +30,7 @@ function rwCardArt(x){
   return ''; /* no photo yet: show a compact text card rather than an empty placeholder */
 }
 function rwListingPhotoUrl(src){
+  if(typeof rwUploadedPhotoOk==='function'&&rwUploadedPhotoOk(src)) return src;
   return typeof src==='string'&&/^assets\/property-photos\/[a-z0-9-]+\.(?:jpg|jpeg|png|webp)$/i.test(src)?src:'';
 }
 function rwListingAttr(value){
@@ -49,8 +50,13 @@ function openListing(){
     var out=el('lstOut');
     var live=rwListingAll();
     out.innerHTML='<div class="rail-h lst-live-heading"><b>Stay &amp; do</b><span>Signed RoamWise stays you can enquire about today.</span></div>'
-      +'<div class="lst-grid">'+live.map(function(x){ return rwListCard(x,false); }).join('')+'</div>'
+      +'<div class="lst-grid" id="lstGrid">'+live.map(function(x){ return rwListCard(x,false); }).join('')+'</div>'
       +'<div class="gr-foot">The hotel confirms availability, final price including taxes, payment method and reservation directly. <a href="mailto:founder@roamwise.co.in?subject=RoamWise%20booking%20support">Need help? Contact RoamWise support</a>.</div>';
+    /* Admin-uploaded photos load lazily, then the grid repaints once. */
+    if(typeof rwLoadUploadedPhotos==='function') live.forEach(function(x){
+      if(!x.photoCount || (x.photos||[]).length) return;
+      rwLoadUploadedPhotos(x, function(ok){ var g=el('lstGrid'); if(ok&&g) g.innerHTML=live.map(function(y){ return rwListCard(y,false); }).join(''); });
+    });
   });
 }
 function rwListingAll(){
@@ -88,6 +94,7 @@ function rwListOpen(id){
   var all=rwListingAll();
   var x=all.filter(function(p){ return String(p.id)===String(id); })[0];
   if(!x) return;
+  if(x.photoCount && !x._uplState && typeof rwLoadUploadedPhotos==='function') rwLoadUploadedPhotos(x, function(ok){ if(ok&&el('lstOv')&&el('lstOv').classList.contains('open')) rwListOpen(id); });
   var B=window.RW_BADGES||{};
   var ov=el('lstOv');
   if(!ov){ ov=document.createElement('div'); ov.id='lstOv'; ov.className='overlay'; ov.style.zIndex='4300';
@@ -105,6 +112,7 @@ function rwListOpen(id){
       }).join('')+'</div>'
     + (x.price? '<div class="bk-total" style="margin-top:12px"><span>From</span><b>\u20b9'+Number(x.price).toLocaleString('en-IN')+'</b></div>':'')
     + rwBookingActionHTML(x)
+    +(typeof rwStayPolicyText==='function'&&rwStayPolicyText(x)?'<p class="lst-confirm">'+esc2(rwStayPolicyText(x))+'</p>':'')
     +(/^https:\/\/(?:www\.google\.com\/maps\/|maps\.app\.goo\.gl\/|goo\.gl\/maps\/)/.test(x.mapsUrl||'')?'<a class="lst-instagram" href="'+esc2(x.mapsUrl)+'" target="_blank" rel="noopener noreferrer">Find on Google Maps \u2197</a>':'')
     +'<a class="lst-support" href="mailto:'+esc2(x.supportEmail||'founder@roamwise.co.in')+'?subject=Help%20with%20'+encodeURIComponent(x.name)+'%20booking">RoamWise support: '+esc2(x.supportEmail||'founder@roamwise.co.in')+'</a>'
     +'</div>';

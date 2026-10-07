@@ -59,6 +59,7 @@ no longer match the repo — flagged explicitly below and in the PR summary.
 | `partner/TEST-CHECKLIST.md` | Manual regression checklist (demo mode + live-account smoke test + provider setup) for the partner marketplace. | current | Before/after changing `/partner/` code, as a manual verification checklist. |
 | `partner/PR-DESCRIPTION.md` | Description of the specific past PR that replaced the `/partner/` portal with the current role-based workspace. | historical | Only if you need the history of *why* the current `/partner/` shape exists. |
 | `partner/readme.md` | Empty (1-byte placeholder; lowercase duplicate of `README.md` in the same folder). | historical/empty | Skip. |
+| `PARTNER-LIVE-OPS.md` | How a signed Stay & do property goes live (booking route, photos, policy), pre-book/refund numbers, and the weekly health check. | current | Onboarding or fixing a Stay & do listing, or touching `partner/app.js` / `js/booking/routes.js`. |
 
 ## Itinerary / cinematic preset library
 
