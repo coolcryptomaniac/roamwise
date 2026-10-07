@@ -98,6 +98,33 @@ var DET_FIELDS=[['name','Property name','text'],['ownerName','Owner / manager','
 function detSlug(n){return String(n||'').toLowerCase().replace(/[^a-z0-9]+/g,'_').replace(/^_+|_+$/g,'')}
 function detUrlOk(k,v){if(!v)return true;var u;try{u=new URL(v)}catch(e){return false}if(k==='website')return u.protocol==='https:'||u.protocol==='http:';if(u.protocol!=='https:')return false;if(k==='mapsUrl')return /^(www\.google\.com\/maps|maps\.app\.goo\.gl|goo\.gl\/maps)/.test(u.host+u.pathname);if(k==='whatsappUrl')return /^(wa\.me|api\.whatsapp\.com)$/.test(u.host);if(k==='instagramUrl')return /(^|\.)instagram\.com$/.test(u.host);return true}
 function detValue(v){if(v==null||v==='')return '—';if(typeof v==='object')return '<pre style="margin:0;white-space:pre-wrap;font-size:11px">'+esc(JSON.stringify(v,null,1))+'</pre>';return esc(String(v))}
+/* One-tap WhatsApp messages to the owner, pre-written. wa.me opens the admin's own WhatsApp: nothing is sent by RoamWise. */
+function detWaLinks(p,pub){
+  var d=String(p.phone||p.ownerWa||'').replace(/\D/g,'');if(d.length===10)d='91'+d;if(d.length<11||d.length>15)return '';
+  var nm=p.ownerName?String(p.ownerName).split(' ')[0]:'there',base='https://wa.me/'+d+'?text=',pn=p.name||'your property';
+  var msgs=[
+    ['Send join steps',pub?'':'Hello '+nm+', thank you for applying to list '+pn+' on RoamWise. To go live we need: 1) your GSTIN if registered (or tell us you are not), 2) a UPI ID for guest payments, 3) two real photos. You can add them here: https://roamwise.co.in/partner/ . Reply here if you need help.'],
+    ['Ask for stay outcomes','Hello '+nm+', quick monthly check for '+pn+': please open https://roamwise.co.in/partner/stays/ and mark each RoamWise booking code as completed, cancelled or no-show with the stay value. It takes a minute and keeps our records accurate.']
+  ];
+  return msgs.filter(function(m){return m[1]}).map(function(m){return '<a class="btn" target="_blank" rel="noopener" href="'+esc(base+encodeURIComponent(m[1]))+'">'+esc(m[0])+' ↗</a>'}).join('');
+}
+/* Automatic compliance check for the admin panel: public listing facts plus what only the admin can see. */
+function detTrustHTML(p,pub){
+  if(typeof RWTrust==='undefined')return '';
+  var pid='p_'+detSlug(p.name),seed=((window.RW_PARTNER_SEED||[]).filter(function(x){return x.id===pid})[0])||{},l=pub||{},m=l.bookingMode||seed.bookingMode||'',rt='none';
+  var wa=String(l.bookingWhatsapp||seed.bookingWhatsapp||'').replace(/\D/g,''),ph=String(l.bookingPhone||'').replace(/\D/g,''),url=l.bookingUrl||seed.bookingUrl||'';
+  if(m==='direct')rt='direct';else if(m==='whatsapp'&&wa.length>=11)rt='whatsapp';else if(m==='phone'&&ph.length>=10)rt='phone';else if((m==='ota'||m==='website')&&/^https:/.test(url))rt=m;
+  var g=typeof RWGstin!=='undefined'?RWGstin:null,gv=!!(l.gstVerified),
+      r=RWTrust.assess({verified:pub?'signed':'',listingReady:!!pub,routeType:rt,area:p.area||l.area||seed.area,mapsUrl:p.mapsUrl||l.mapsUrl||seed.mapsUrl,
+        photoCount:(seed.photos||[]).length||Number(l.photoCount)||Number(p.photoCount)||0,gstVerified:gv,advancePct:Number(p.advancePct)||Number(l.advancePct)||0,
+        freeCancelHours:Number(p.freeCancelHours)||Number(l.freeCancelHours)||0,payoutReady:!!(l.payoutReady||(g&&g.payoutSummary(p).ready)),supportEmail:l.supportEmail||seed.supportEmail});
+  var pill=r.tier==='trusted'?'green':r.tier==='checked'?'green':'gold';
+  return '<div style="border:1px solid var(--line);border-radius:10px;padding:10px;margin-bottom:10px"><div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><b>RoamWise compliance check</b><span class="pill '+pill+'">'+esc(r.tier.toUpperCase())+' · '+r.score+'/100</span>'
+    +r.badges.map(function(b){return '<span class="pill">'+esc(b)+'</span>'}).join('')+'</div>'
+    +'<div style="font-size:12px;margin-top:6px">'+r.checks.map(function(c){return (c.ok?'✓ ':c.partial?'~ ':'✗ ')+esc(c.label)+(c.note?' ('+esc(c.note)+')':'')}).join('<br>')+'</div>'
+    +(r.missing.length?'<div class="muted" style="font-size:12px;margin-top:6px"><b>To improve:</b><br>'+r.missing.map(function(x){return '• '+esc(x.fix)}).join('<br>')+'</div>':'')
+    +'<div class="muted" style="font-size:11px;margin-top:6px">Automatic paperwork check (rules '+esc(r.rulesVersion)+'). It does not inspect the property. Badges refresh on the public page by themselves.</div></div>';
+}
 async function liveDetail(id){var box=$('pd-'+id);if(!box)return;if(!box.hidden){box.hidden=true;return}
   var p=adminCache.filter(function(x){return x._id===id})[0];if(!p)return;box.hidden=false;box.innerHTML='<div class="empty">Loading…</div>';
   var pid='p_'+detSlug(p.name),pub=null;try{var c=await db.collection('config').doc('partners').get();var l=c.exists&&Array.isArray((c.data()||{}).list)?c.data().list:[];pub=l.filter(function(x){return x&&x.id===pid})[0]||null}catch(e){}
@@ -105,7 +132,8 @@ async function liveDetail(id){var box=$('pd-'+id);if(!box)return;if(!box.hidden)
   var form=DET_FIELDS.map(function(f){var v=p[f[0]]==null?'':p[f[0]];return '<label style="display:block;font-size:12px"><span class="muted">'+esc(f[1])+'</span>'+(f[2]==='textarea'?'<textarea data-k="'+f[0]+'" rows="3" maxlength="300" style="width:100%;box-sizing:border-box">'+esc(v)+'</textarea>':'<input data-k="'+f[0]+'" type="'+(f[2]==='number'?'number':'text')+'" value="'+esc(v)+'" maxlength="500" style="width:100%;box-sizing:border-box">')+'</label>'}).join('');
   var rest=Object.keys(p).filter(function(k){return k!=='_id'&&editKeys.indexOf(k)<0}).sort().map(function(k){return '<div style="display:grid;grid-template-columns:150px minmax(0,1fr);gap:8px;padding:5px 0;border-top:1px solid var(--line);font-size:12px"><span class="muted">'+esc(k)+'</span><div style="word-break:break-word">'+detValue(p[k])+'</div></div>'}).join('');
   var digits=String(p.phone||p.ownerWa||'').replace(/\D/g,'');
-  box.innerHTML='<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px"><b>'+esc(p.name||'Property')+'</b><span class="pill '+(pub?'green':'gold')+'">'+(pub?'Live on Stay &amp; do':'Not on Stay &amp; do')+'</span>'+(digits?'<a class="btn" target="_blank" rel="noopener" href="https://wa.me/'+(digits.length===10?'91':'')+digits+'">Open WhatsApp ↗</a>':'')+(p.mapsUrl&&detUrlOk('mapsUrl',p.mapsUrl)?'<a class="btn" target="_blank" rel="noopener" href="'+esc(p.mapsUrl)+'">Google Maps ↗</a>':'')+'<a class="btn" href="audit/?uid='+encodeURIComponent(id)+'">Trust audit</a></div>'
+  box.innerHTML='<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px"><b>'+esc(p.name||'Property')+'</b><span class="pill '+(pub?'green':'gold')+'">'+(pub?'Live on Stay &amp; do':'Not on Stay &amp; do')+'</span>'+(digits?'<a class="btn" target="_blank" rel="noopener" href="https://wa.me/'+(digits.length===10?'91':'')+digits+'">Open WhatsApp ↗</a>':'')+(p.mapsUrl&&detUrlOk('mapsUrl',p.mapsUrl)?'<a class="btn" target="_blank" rel="noopener" href="'+esc(p.mapsUrl)+'">Google Maps ↗</a>':'')+'<a class="btn" href="audit/?uid='+encodeURIComponent(id)+'">Trust audit</a>'+detWaLinks(p,pub)+'</div>'
+   +detTrustHTML(p,pub)
    +'<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));gap:10px">'+form+'</div>'
    +'<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:12px 0"><button class="btn green" data-pdsave="'+id+'">Save changes</button><button class="btn green" data-pdwapub="'+id+'">Owner agreed: go live on WhatsApp</button><button class="btn" data-pdpub="'+id+'">'+(pub?'Update Stay &amp; do listing':'Publish to Stay &amp; do')+'</button>'+(pub?'<button class="btn red" data-pdunpub="'+id+'">Remove from Stay &amp; do</button>':'')+'<label style="font-size:12px"><input type="checkbox" id="pdwa-'+id+'"'+(pub&&(pub.bookingMode==='whatsapp'||pub.bookingMode==='phone')?' checked':'')+'> Show this number to travellers (owner agreed)</label><label style="font-size:12px"><input type="checkbox" id="pdgst-'+id+'"'+(pub&&pub.gstVerified?' checked':'')+'> GST verified on the GST portal (matches this property)</label></div>'
    +'<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr));gap:10px;margin-bottom:8px"><label style="font-size:12px;display:block"><span class="muted">How travellers book</span><select id="pdmode-'+id+'" style="width:100%;box-sizing:border-box"><option value="">Not set (hidden from travellers)</option>'+[['whatsapp','WhatsApp chat (same message as Milan Heights)'],['phone','Phone call']].map(function(o){return '<option value="'+o[0]+'"'+(pub&&pub.bookingMode===o[0]?' selected':'')+'>'+o[1]+'</option>'}).join('')+'</select></label>'
@@ -130,6 +158,7 @@ async function liveListPublish(id,on){try{detMsg(id,on?'Publishing…':'Removing
       e.bookingMode=mode;if(mode==='whatsapp')e.bookingWhatsapp=digits;else e.bookingPhone=digits}
     else if(mode==='ota'||mode==='website'){var bu=us?String(us.value||'').trim():'';if(!detUrlOk('bookingUrl',bu)||!/^https:\/\//.test(bu))throw Error('Enter the booking link as a valid https link.');e.bookingMode=mode;e.bookingUrl=bu;var on=os?String(os.value||'').trim().slice(0,40):'';if(on&&mode==='ota')e.bookingOtaName=on}
     var gv=$('pdgst-'+id);if(gv&&gv.checked){var gr=typeof RWGstin!=='undefined'?RWGstin.validateGstin(p.gstin):{ok:false};if(!gr.ok)throw Error('Save a valid GSTIN before marking GST verified.');e.gstVerified=true;e.gstin=gr.gstin}
+    if(typeof RWGstin!=='undefined'&&RWGstin.payoutSummary(p).ready)e.payoutReady=true;
     try{var pp=await db.collection('partnerPublicProfiles').doc(id).get(),b=pp.exists?(pp.data()||{}).badges:null;if(Array.isArray(b)&&b.length)e.badges=b}catch(x){}
     list.push(e)}
   await ref.set({list:list,updatedAt:now()},{merge:true});detMsg(id,on?''+(e.bookingMode?'Published. It appears on Stay & do on the next page load.':'Saved, but hidden from travellers until a booking route is set.')+'':'Removed from Stay & do.');setTimeout(function(){var b=$('pd-'+id);if(b){b.hidden=true;liveDetail(id)}},600)}catch(e){detMsg(id,e&&e.message?e.message:friendly(e),true)}}

@@ -21,6 +21,7 @@
   <h1 class="headline">Your place has a story. <em>Let's share it.</em></h1>
   <p class="sub">Tell us a little about your stay. No commission payment, complicated paperwork or technical setup to apply. We personally review every property before accepting bookings.</p>
   <div class="badge" id="inviteBadge">Open invitation · about 3 minutes</div>
+  <p class="info" id="chatJoin" hidden>Prefer chat? <a id="chatJoinWa" href="#" target="_blank" rel="noopener" hidden>Message us on WhatsApp</a><span id="chatJoinSep" hidden> or </span><a id="chatJoinTg" href="#" target="_blank" rel="noopener" hidden>open our Telegram bot</a> and send: <b>/join property, city, rooms, GSTIN or none, UPI or none</b></p>
   <div class="steps" aria-label="Application progress"><span class="on"></span><span></span><span></span></div>
   <form id="joinForm" novalidate>
     <section data-step="0" aria-labelledby="title0"><h2 id="title0" class="step-title" tabindex="-1">1. Your beautiful place</h2><p class="hint">We may have filled this in already. Please check that everything is correct.</p>
@@ -79,6 +80,7 @@ var INVITES={
  'milan-heights':{name:'Hotel Milan Heights',city:'Almora',area:'Milan Chowk',type:'Hotel / resort',note:'Public sources mention a hotel and dining at Milan Chowk. Room count, room photos and actual tariffs still need your confirmation.'},
  'corbett-jungle-view':{name:'Corbett Jungle View Homestay',city:'Lansdowne',area:'Bansi / Ghildialgaon (Lansdowne area)',type:'Family homestay',rooms:'6',website:'https://www.goibibo.com/hotels/corbett-jungle-view-homestay-hotel-in-lansdowne-202605071339289687/',note:'An online listing mentions six bedrooms and an address in the Lansdowne area. Please confirm the room count, access and correct location. Online room rates can change.'}
 };
+try{var ch=(window.RW_PARTNER_CONFIG&&window.RW_PARTNER_CONFIG.chat)||{},wn=String(ch.supportWhatsapp||'').replace(/\D/g,''),tb=String(ch.telegramBot||'').replace(/[^A-Za-z0-9_]/g,'');if(wn.length>=11||tb){$('chatJoin').hidden=false;if(wn.length>=11){$('chatJoinWa').hidden=false;$('chatJoinWa').href='https://wa.me/'+wn+'?text='+encodeURIComponent('Hello RoamWise, I want to list my property.\nProperty name:\nCity:\nNumber of rooms:\nGSTIN (if any):\nUPI ID (if any):')}if(tb){$('chatJoinTg').hidden=false;$('chatJoinTg').href='https://t.me/'+tb+'?start=join';if(wn.length>=11)$('chatJoinSep').hidden=false}}}catch(e){}
 var params=new URLSearchParams(location.search),slug=params.get('property')||'',seed=Object.prototype.hasOwnProperty.call(INVITES,slug)?INVITES[slug]:null;
 var keys=['propertyName','city','area','propertyType','roomCount','startPrice','hook','website','photoUrl','videoUrl','instagramUrl','whatsappUrl','creatorDeal','creatorBudget','creatorNeeds','ownerName','phone','ownerRole','gstin','payoutUpi','payoutHolder','payoutIfsc','payoutAcctLast4'];
 function val(k){return $(k).value.trim()}

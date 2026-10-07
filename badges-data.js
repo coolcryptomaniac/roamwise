@@ -1,5 +1,5 @@
 /* ============================================================================
-   RW_BADGES — the RoamWise trust ladder
+   RW_TRUST_BADGES — the RoamWise trust ladder
    ============================================================================
    NAMING PRINCIPLE: every tier name says HOW it was earned, not how good we
    think it is. "Certified" tells you nothing; "We've Slept Here" tells you
@@ -9,7 +9,7 @@
 
    Ordered lowest to highest trust.
    ========================================================================= */
-window.RW_BADGES = {
+window.RW_TRUST_BADGES = {
   partner: {
     id:'partner', label:'Signed RoamWise Partner', short:'Signed Partner', icon:'\u2705',
     color:'#5EEAD4',
@@ -51,6 +51,24 @@ window.RW_BADGES = {
     color:'#4ADE80',
     means:'Solar powered, water reused, no single-use plastic \u2014 and we have seen the bills.',
     earn:'Evidence checked: solar setup photographed, electricity bill seen.' },
+
+  checked: {
+    id:'checked', label:'RoamWise Checked', short:'Checked', icon:'\u2705',
+    color:'#5EEAD4',
+    means:'Signed agreement on file, a booking route that works, and photos shared by the host. This is a paperwork check, not an inspection.',
+    earn:'Automatic: signed MOU, working booking route and at least one photo.' },
+
+  gst: {
+    id:'gst', label:'GST Verified', short:'GST', icon:'\ud83e\uddfe',
+    color:'#60A5FA',
+    means:'The property gave a GST number and RoamWise confirmed it on the GST portal, so the stay can show GST on its bill.',
+    earn:'GSTIN checked on the GST portal by a RoamWise admin.' },
+
+  trusted: {
+    id:'trusted', label:'RoamWise Trusted', short:'Trusted', icon:'\ud83d\udee1\ufe0f',
+    color:'#E8BA6C',
+    means:'Passed our full paperwork checklist: signed agreement, working booking route, photos, published cancellation terms, verified GST and payout details.',
+    earn:'Automatic: Checked plus a checklist score of 80 or more.' },
 
   local: {
     id:'local', label:'Family Run', short:'Family', icon:'\ud83c\udfe1',
