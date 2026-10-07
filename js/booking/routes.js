@@ -78,7 +78,7 @@ function rwBookingActionHTML(p){
       +'<p class="lst-confirm">Book directly through RoamWise. The property confirms your dates before payment opens.</p>';
   }else if(main.type==='whatsapp'){
     var text='Hello '+p.name+', I found your stay through RoamWise. I am interested in staying in '+(p.zone||'your area')+'. Please share available room options for my dates, the final total including applicable taxes, payment method, and booking terms.';
-    html='<a class="bk-go lst-wa" style="'+style+'" href="'+esc2(main.href+'?text='+encodeURIComponent(text))+'" target="_blank" rel="noopener noreferrer">'+main.label+'</a>'
+    html='<a class="bk-go lst-wa" style="'+style+'" href="'+esc2(main.href+'?text='+encodeURIComponent(text))+'" data-wa-base="'+esc2(main.href)+'" data-wa-text="'+esc2(text)+'" data-pid="'+esc2(p.id)+'" data-pname="'+esc2(p.name)+'" onclick="return typeof rwStayWaClick===\'function\'?rwStayWaClick(this):true" target="_blank" rel="noopener noreferrer">'+main.label+'</a>'
       +'<p class="lst-confirm">Your reservation is confirmed directly by the hotel. Please verify current availability, final total including taxes and booking terms before paying.</p>';
   }else if(main.type==='ota'||main.type==='website'){
     html='<a class="bk-go" style="'+style+'" href="'+esc2(main.href)+'" target="_blank" rel="noopener noreferrer sponsored">'+esc2(main.label)+'</a>'

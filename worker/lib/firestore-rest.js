@@ -111,3 +111,46 @@ export async function updateDoc(env, accessToken, projectId, path, values) {
     throw new Error(`Firestore PATCH ${path} failed (${res.status}): ${body.slice(0, 300)}`);
   }
 }
+
+/**
+ * Create a document ONLY if it does not exist yet (Firestore precondition
+ * currentDocument.exists=false). Returns true when created, false when the id
+ * was already taken. Used for stay-ledger codes so a repeated or hostile
+ * request can never overwrite an existing record.
+ */
+export async function createDocIfAbsent(env, accessToken, projectId, collectionPath, id, values) {
+  const url = `${docPath(projectId, collectionPath)}?documentId=${encodeURIComponent(id)}`;
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: { authorization: `Bearer ${accessToken}`, 'content-type': 'application/json' },
+    body: JSON.stringify({ fields: toFirestoreFields(values) }),
+  });
+  if (res.status === 409) return false;
+  if (!res.ok) {
+    const body = await res.text().catch(() => '');
+    throw new Error(`Firestore CREATE ${collectionPath}/${id} failed (${res.status}): ${body.slice(0, 300)}`);
+  }
+  return true;
+}
+
+/** List up to `max` documents of a collection as { id, ...fields } (admin reports only). */
+export async function listDocs(env, accessToken, projectId, collectionPath, max = 1000) {
+  const out = [];
+  let pageToken = '';
+  while (out.length < max) {
+    const url = `${docPath(projectId, collectionPath)}?pageSize=${Math.min(300, max - out.length)}${pageToken ? `&pageToken=${encodeURIComponent(pageToken)}` : ''}`;
+    const res = await fetch(url, { headers: { authorization: `Bearer ${accessToken}` } });
+    if (res.status === 404) break;
+    if (!res.ok) {
+      const body = await res.text().catch(() => '');
+      throw new Error(`Firestore LIST ${collectionPath} failed (${res.status}): ${body.slice(0, 300)}`);
+    }
+    const data = await res.json();
+    for (const d of data.documents || []) {
+      out.push({ id: String(d.name || '').split('/').pop(), ...fromFirestoreFields(d.fields || {}) });
+    }
+    pageToken = data.nextPageToken || '';
+    if (!pageToken) break;
+  }
+  return out;
+}
