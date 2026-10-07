@@ -60,8 +60,7 @@ test('once WhatsApp is published, Soulmate and New Himank use the same message a
   for (const [id, num] of [['p_soulmate_homestay', '9876543210'], ['p_new_himank', '9876543211']]) {
     const p = window.RW_PARTNERS.find(x => x.id === id);
     p.bookingMode = 'whatsapp'; p.bookingWhatsapp = num;
-    if (id === 'p_soulmate_homestay') assert.doesNotMatch(context.rwListCard(p, false), /lst-art|lst-emoji/, 'no empty photo placeholder');
-    else assert.match(context.rwListCard(p, false), /new-himank-room\.webp/);
+    assert.match(context.rwListCard(p, false), id === 'p_soulmate_homestay' ? /soulmate-front\.jpg/ : /new-himank-room\.webp/);
     context.rwListOpen(id);
     assert.match(overlay.innerHTML, new RegExp('wa\\.me/91' + num));
     assert.match(overlay.innerHTML, /Ask the hotel on WhatsApp/);
