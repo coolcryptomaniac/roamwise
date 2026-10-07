@@ -10,7 +10,7 @@ Updated 2026-10-07.
 | Soulmate Homestay | **Closed** | Owner declined. Nobody is introduced; the reason is kept. |
 | New Himank | **Pending** | Waiting for Deepanshi's answer. Nobody is introduced until it is set to open. |
 
-**Things I assumed for Milan Heights and you should confirm with the owner** (they are listed as `unconfirmed` in the code and the public page says "some details are still being confirmed"): 2 free nights, off-season months January, February, July, August, September, meals not included, 10% of each completed stay as the cash share, at most 2 creator stays a month. "Weekend" means Friday and Saturday nights.
+**Milan Heights working terms (accepted by the founder 2026-10-07):** 2 free nights, off-season months January, February, July, August, September, meals not included, 10% of each completed stay as the cash share (cap Rs 5,000), at most 2 creator stays a month. "Weekend" means Friday and Saturday nights. Change any of these through the Firestore override below.
 
 ## How to change terms (no code)
 

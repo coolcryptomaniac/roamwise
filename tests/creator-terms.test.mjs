@@ -16,7 +16,8 @@ test('seed statuses match what the owners said', () => {
   assert.equal(milan.upfrontCash, 0);
   assert.equal(byId.p_soulmate_homestay.status, 'closed');
   assert.equal(byId.p_new_himank.status, 'pending');
-  assert.ok(milan.unconfirmed.includes('performanceCash.ratePct'));
+  assert.deepEqual(milan.unconfirmed, []);
+  assert.doesNotMatch(termsText(milan), /still being confirmed/);
 });
 
 test('closed and pending properties never introduce anyone', () => {
