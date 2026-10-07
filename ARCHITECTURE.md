@@ -50,7 +50,7 @@ start of the modularization effort, down from 3,099 after the prior
 "modularization-final" pass, down from 1,207 after "round 4", and down from
 629 after "round 5" — the further changes since round 5 are incidental to
 unrelated feature PRs #138-143 and this pass's `submitUtr()` one-line
-rewire, not a new extraction round) and there are **160 files** under `js/`
+rewire, not a new extraction round) and there are **165 files** under `js/`
 (including the later `js/admin/` dashboard modules and
 `js/core/push-notifications.js` — see the `js/core/` and `js/admin/`
 entries below; the count was last re-verified via `npm run mod-status`,
@@ -273,7 +273,7 @@ in a later pass)
 - `tusk-speak.js` — TTS output (native bridge in-app, Web Speech on web)
 - `voice-input.js` — speech-to-text input handling
 
-### `js/booking/` (7 files)
+### `js/booking/` (11 files)
 - `actions.js` — on-trip action hub
 - `affiliate-links.js` (168 lines) — central affiliate/deep-link builder,
   plus `rwSkyscannerUrl`/`rwSkyscannerToUrl` (moved verbatim from app.js
@@ -282,6 +282,10 @@ in a later pass)
 - `form.js` (288 lines) — booking form + pay flow
 - `local-rides.js` — local rides + stranded-traveler flows
 - `pnr-parser.js` — train/flight PNR text parsing
+- `price-guard.js` — client-side price sanity guard for room bookings
+- `routes.js` — which booking route(s) a partner has (direct, WhatsApp, OTA, website, phone); hides non-operational ones
+- `stay-code.js` — RoamWise booking code on WhatsApp enquiries and the "did you stay?" nudge
+- `stay-quote.js` — pre-book, refund and GST-view arithmetic for a stay (pure, no money moves)
 - `tatkal-prep.js` — Indian Railways Tatkal booking prep flow
 
 ### `js/social/` (13 files)
