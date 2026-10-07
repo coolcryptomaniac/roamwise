@@ -23,13 +23,13 @@
     "business:test": "node --test tests/business-travel.test.js"
   },
   "dependencies": {
-    "@capacitor-community/speech-recognition": "^6.0.0",
-    "@capacitor/android": "^6.1.0",
-    "@capacitor/app": "^6.0.0",
-    "@capacitor/core": "^6.1.0",
-    "@capacitor/geolocation": "^6.0.1",
-    "@capacitor/haptics": "^6.0.3",
-    "@capacitor/push-notifications": "^6.0.5"
+    "@capacitor-community/speech-recognition": "^7.0.1",
+    "@capacitor/android": "^8.5.2",
+    "@capacitor/app": "^8.1.2",
+    "@capacitor/core": "^8.5.2",
+    "@capacitor/geolocation": "^8.2.3",
+    "@capacitor/haptics": "^8.0.2",
+    "@capacitor/push-notifications": "^8.1.3"
   },
   "devDependencies": {
     "@capacitor/cli": "^8.5.2",
