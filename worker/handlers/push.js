@@ -96,7 +96,7 @@ async function requireAdmin(request, env, projectId) {
   return { uid: claims.uid, accessToken };
 }
 
-async function sendOne(accessToken, projectId, token, notification, data, url) {
+export async function sendOne(accessToken, projectId, token, notification, data, url) {
   const message = {
     token,
     notification,
@@ -116,7 +116,7 @@ async function sendOne(accessToken, projectId, token, notification, data, url) {
 }
 
 /** FCM's documented "this token is dead, stop sending to it" error shapes. */
-function isDeadToken(result) {
+export function isDeadToken(result) {
   const status = result.body && result.body.error && result.body.error.status;
   return result.status === 404 || status === 'UNREGISTERED' || status === 'NOT_FOUND';
 }

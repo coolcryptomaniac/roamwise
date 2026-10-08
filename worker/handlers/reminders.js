@@ -1,23 +1,25 @@
 /* ============================================================================
-   worker/handlers/reminders.js — inactivity email reminders.
+   worker/handlers/reminders.js — inactivity reminders (push first, email second).
    ============================================================================
-   · runInactivityReminders(env, opts)  — called from the daily cron (worker.js)
-   · POST /admin/reminders/run          — founder-only manual run / dry-run
-                                          (Firebase admin ID token, ?dry=1)
+   · runInactivityReminders(env, opts)  — daily cron (worker.js) and manual runs
+   · POST /admin/reminders/run          — founder-only (Firebase admin ID token);
+                                          dry-run unless ?dry=0
    · GET|POST /email/unsubscribe        — signed one-click unsubscribe
 
-   Safe by default: it sends NOTHING unless RESEND_API_KEY and EMAIL_UNSUB_SECRET
-   are both set; without them a run only reports who WOULD be emailed.
-   Secrets (wrangler secret put): RESEND_API_KEY, EMAIL_UNSUB_SECRET.
+   Both channels are OFF until the founder switches them on in Admin -> Reminders
+   (Firestore config/reminderSettings). Push needs nothing extra (existing FCM
+   service account + users/{uid}.pushTokens). Email also needs the Worker secrets
+   RESEND_API_KEY and EMAIL_UNSUB_SECRET; without them email is skipped.
    Optional vars: REMINDER_FROM (default "RoamWise <hello@roamwise.co.in>"),
    PUBLIC_API_BASE, REMINDERS_ENABLED ("false" turns the cron off).
-   Policy and wording live in worker/lib/reminder-core.js. Offers/updates are
-   edited by the founder in Firestore doc config/reminderContent. */
+   Policy and wording: worker/lib/reminder-core.js. Message content is edited in
+   Admin -> Reminders (Firestore config/reminderContent). */
 import { json } from '../lib/http.js';
 import { getServiceAccountAccessToken, parseServiceAccount } from '../lib/service-account.js';
 import { verifyFirebaseIdToken } from '../lib/firebase-verify.js';
-import { getDoc, updateDoc, queryBeforeTimestamp } from '../lib/firestore-rest.js';
-import { DEFAULTS, selectRecipients, buildEmail, signUnsub, verifyUnsub } from '../lib/reminder-core.js';
+import { getDoc, updateDoc, deleteFields, queryBeforeTimestamp } from '../lib/firestore-rest.js';
+import { sendOne, isDeadToken } from './push.js';
+import { DEFAULTS, parseSettings, selectRecipients, checkUser, pushTokensOf, buildPush, buildEmail, signUnsub, verifyUnsub } from '../lib/reminder-core.js';
 
 const DEFAULT_API_BASE = 'https://roamwise-api.founder-f53.workers.dev';
 const DEFAULT_FROM = 'RoamWise <hello@roamwise.co.in>';
@@ -40,25 +42,49 @@ async function sendViaResend(env, to, mail, unsubUrl) {
 
 export async function runInactivityReminders(env, opts = {}) {
   const now = opts.now || Date.now();
-  const o = { ...DEFAULTS };
-  const dry = opts.dry === true || !canSend(env);
   const sa = parseServiceAccount(env);
   const projectId = sa.project_id;
   const token = await getServiceAccountAccessToken(env);
+  /* Founder switches live in Firestore (config/reminderSettings), edited from Admin -> Reminders. */
+  const settings = parseSettings(await getDoc(env, token, projectId, 'config/reminderSettings').catch(() => null));
+  const o = { ...DEFAULTS, ...settings };
+  const emailReady = canSend(env);
+  /* Cron and manual runs both honour the founder's switches. */
+  if (!settings.emailEnabled && !settings.pushEnabled) return { dry: true, off: true, settings, emailReady, scanned: 0, willSend: 0, pushSent: 0, emailSent: 0, failed: 0 };
+  const dry = opts.dry === true;
   const cutoff = new Date(now - o.inactiveDays * 86400000).toISOString();
   const users = await queryBeforeTimestamp(env, token, projectId, 'users', 'lastActive', cutoff, 400);
-  const { picked, skipped, eligible } = selectRecipients(users, now, o);
-  const report = { dry, scanned: users.length, eligible, willSend: picked.length, skipped, sent: 0, failed: 0, reasonDry: dry && !canSend(env) ? 'email_not_configured' : undefined };
+  /* An email-less run (no Resend key) must not count email-only users as sendable. */
+  const sel = selectRecipients(users, now, { ...o, emailEnabled: o.emailEnabled && emailReady, pushEnabled: o.pushEnabled });
+  const by = (c) => sel.picked.filter((p) => p.channel === c).length;
+  const report = { dry, settings, emailReady, scanned: users.length, eligible: sel.eligible, willSend: sel.picked.length, willPush: by('push'), willEmail: by('email'), skipped: sel.skipped, pushSent: 0, emailSent: 0, failed: 0 };
   if (dry) return report;
 
-  const contentDoc = await getDoc(env, token, projectId, 'config/reminderContent').catch(() => null);
-  const content = contentDoc;
-  for (const { user, count } of picked) {
+  const content = await getDoc(env, token, projectId, 'config/reminderContent').catch(() => null);
+  for (const { user, count, channel } of sel.picked) {
     try {
-      const unsubUrl = `${apiBase(env)}/email/unsubscribe?u=${encodeURIComponent(user.id)}&t=${await signUnsub(env.EMAIL_UNSUB_SECRET, user.id)}`;
-      await sendViaResend(env, String(user.email).trim(), buildEmail(user, content, unsubUrl), unsubUrl);
-      await updateDoc(env, token, projectId, `users/${user.id}`, { reminderLastSentAt: new Date(now).toISOString(), reminderCount: count + 1 });
-      report.sent++;
+      let ok = false;
+      if (channel === 'push') {
+        const m = buildPush(user, content);
+        const dead = [];
+        for (const t of pushTokensOf(user)) {
+          const r = await sendOne(token, projectId, t.token, { title: m.title, body: m.body }, null, m.url);
+          if (r.ok) ok = true; else if (isDeadToken(r)) dead.push(`pushTokens.${t.deviceId}`);
+        }
+        if (dead.length) await deleteFields(env, token, projectId, `users/${user.id}`, dead).catch(() => {});
+        /* Every device was dead: try email in the same run if it is available. */
+        if (!ok && o.emailEnabled && emailReady && checkUser({ ...user, pushTokens: {} }, now, { ...o, pushEnabled: false }).ok) {
+          const unsubUrl = `${apiBase(env)}/email/unsubscribe?u=${encodeURIComponent(user.id)}&t=${await signUnsub(env.EMAIL_UNSUB_SECRET, user.id)}`;
+          await sendViaResend(env, String(user.email).trim(), buildEmail(user, content, unsubUrl), unsubUrl);
+          report.emailSent++; ok = 'email';
+        } else if (ok) report.pushSent++;
+      } else {
+        const unsubUrl = `${apiBase(env)}/email/unsubscribe?u=${encodeURIComponent(user.id)}&t=${await signUnsub(env.EMAIL_UNSUB_SECRET, user.id)}`;
+        await sendViaResend(env, String(user.email).trim(), buildEmail(user, content, unsubUrl), unsubUrl);
+        report.emailSent++; ok = true;
+      }
+      if (ok) await updateDoc(env, token, projectId, `users/${user.id}`, { reminderLastSentAt: new Date(now).toISOString(), reminderCount: count + 1, reminderChannel: ok === 'email' ? 'email' : channel });
+      else report.failed++;
     } catch (_) { report.failed++; }
   }
   return report;
