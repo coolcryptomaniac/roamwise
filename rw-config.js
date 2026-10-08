@@ -19,7 +19,7 @@ window.RW_CONFIG = {
     realms: true,
     passport: true,
     contest: true,
-    webPush: false,
+    webPush: true,   /* inert until vapidKey below is set (Firebase console -> Cloud Messaging -> Web Push certificates) */
     atlasIntroV5: true,
     cinematicMapV51: true,
     privateLearningConsent: true,

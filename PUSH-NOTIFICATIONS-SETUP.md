@@ -37,7 +37,7 @@ the unified `pushTokens` schema, and the auth-gating/input-validation model).
 - **Per-user opt-in**: a Settings toggle ("Push notifications — Trip
   reminders & alerts"), mounted the same way
   `platform-v5/learning-consent.js` mounts its AI-learning-consent
-  checkbox. Off by default. If the browser itself reports permission as
+  checkbox. On by default for users who never chose (Oct 2026); a "no" or an off toggle is permanent. If the browser itself reports permission as
   `denied`, the toggle flips itself back off and the app never re-prompts.
   The deployment-wide `RW_CONFIG.features.webPush` + `RW_CONFIG.vapidKey`
   in `rw-config.js` remain a separate admin kill switch — both the
@@ -219,3 +219,8 @@ the full rationale, referencing the PR #152 price-tampering lesson).
    for your device is removed from Firestore (the toggle calls
    `rwPushClearToken()`), and that reloading the page does not silently
    re-prompt you.
+
+## Status check (Oct 2026): what is needed for push to actually work
+- **Android app:** needs `@capacitor/push-notifications` in the build repo's package.json (was missing; fixed in Roamwiseapkaabbuild, build now fails if it is absent) and a release built after that fix. `POST_NOTIFICATIONS` is already added by the build workflow; Android 13+ shows the system permission dialog.
+- **Web (Chrome etc.):** `features.webPush` is now true, but it stays inert until `vapidKey` in `rw-config.js` is set: Firebase console -> Project settings -> Cloud Messaging -> Web Push certificates -> Generate key pair, paste the public key. `firebase-messaging-sw.js` now uses the real web appId.
+- **Default:** users who never chose are opted in; the browser/OS prompt still appears (web: on the first tap after sign-in).

@@ -78,8 +78,9 @@ function makeDom() {
     },
     getElementById(id) { return idMap.get(id) || null; },
     createElement(tag) { return makeEl(tag); },
-    addEventListener() {},
-    removeEventListener() {},
+    _docListeners: {},
+    addEventListener(ev, fn) { (this._docListeners[ev] = this._docListeners[ev] || []).push(fn); },
+    removeEventListener(ev, fn) { this._docListeners[ev] = (this._docListeners[ev] || []).filter((f) => f !== fn); },
   };
   return { document, modalBody, idMap };
 }
@@ -238,27 +239,60 @@ test('rwPushRegisterWeb(): does not register when the user has not opted in, eve
   assert.equal(registerCalls, 0);
 });
 
-test('rwPushInit(): never triggers registration for a user who has not opted in (no surprise permission prompts)', () => {
+const tick = () => new Promise((r) => setTimeout(r, 20));
+function webCtx(extra = {}) {
   let registerCalls = 0;
-  const { context } = makeContext({
+  const made = makeContext(Object.assign({
     navigator: { serviceWorker: { register: () => { registerCalls++; return Promise.resolve({}); } } },
     messagingFactory: () => ({ getToken: () => Promise.resolve('tok') }),
-  });
-  context.window.RW_CONFIG = { features: { webPush: true }, vapidKey: 'vapid-key' };
+    Notification: { permission: 'default' },
+  }, extra));
+  made.context.window.RW_CONFIG = { features: { webPush: true }, vapidKey: 'vapid-key' };
+  return Object.assign(made, { calls: () => registerCalls });
+}
+
+test('rwPushInit(): DEFAULT ON for a never-asked user, but the browser prompt waits for a user gesture', async () => {
+  const { context, document, calls } = webCtx();
   context.rwPushInit();
-  assert.equal(registerCalls, 0);
+  assert.equal(context.lsGet('rw_push_optin'), '1', 'never-asked users are opted in by default');
+  await tick();
+  assert.equal(calls(), 0, 'no permission prompt before a tap/click/keypress');
+  (document._docListeners.pointerdown || []).forEach((fn) => fn());
+  await tick();
+  assert.equal(calls(), 1, 'first gesture triggers registration (and the browser prompt)');
 });
 
-test('rwPushInit(): DOES re-register for a returning user who previously opted in', () => {
-  let registerCalls = 0;
-  const { context } = makeContext({
-    navigator: { serviceWorker: { register: () => { registerCalls++; return Promise.resolve({}); } } },
-    messagingFactory: () => ({ getToken: () => Promise.resolve('tok') }),
-  });
-  context.window.RW_CONFIG = { features: { webPush: true }, vapidKey: 'vapid-key' };
+test('rwPushInit(): a user who switched push OFF (stored 0) is never opted back in or prompted', async () => {
+  const { context, document, calls } = webCtx();
+  context.lsSet('rw_push_optin', '0');
+  context.rwPushInit();
+  (document._docListeners.pointerdown || []).forEach((fn) => fn());
+  await tick();
+  assert.equal(context.lsGet('rw_push_optin'), '0');
+  assert.equal(calls(), 0);
+});
+
+test('rwPushInit(): nothing is switched on while push is unsupported (no VAPID key)', () => {
+  const { context } = webCtx();
+  context.window.RW_CONFIG = { features: { webPush: true }, vapidKey: '' };
+  context.rwPushInit();
+  assert.equal(context.lsGet('rw_push_optin'), '', 'stays undecided until push can actually work');
+});
+
+test('rwPushInit(): returning opted-in user with permission already granted re-registers without a gesture', async () => {
+  const { context, calls } = webCtx({ Notification: { permission: 'granted' } });
   context.lsSet('rw_push_optin', '1');
   context.rwPushInit();
-  assert.equal(registerCalls, 1);
+  await tick();
+  assert.equal(calls(), 1);
+});
+
+test('rwPushInit(): not signed in yet -> waits, does not register for nobody', async () => {
+  const { context, calls } = webCtx({ Notification: { permission: 'granted' }, user: null });
+  context.lsSet('rw_push_optin', '1');
+  context.rwPushInit();
+  await tick();
+  assert.equal(calls(), 0);
 });
 
 test('rwPushMountToggle(): mounts one .key-section into #settingsOverlay .modal-body, reflecting supported+opted-in state', () => {
