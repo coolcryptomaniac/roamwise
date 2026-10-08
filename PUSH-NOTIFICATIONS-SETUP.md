@@ -222,5 +222,5 @@ the full rationale, referencing the PR #152 price-tampering lesson).
 
 ## Status check (Oct 2026): what is needed for push to actually work
 - **Android app:** needs `@capacitor/push-notifications` in the build repo's package.json (was missing; fixed in Roamwiseapkaabbuild, build now fails if it is absent) and a release built after that fix. `POST_NOTIFICATIONS` is already added by the build workflow; Android 13+ shows the system permission dialog.
-- **Web (Chrome etc.):** `features.webPush` is now true, but it stays inert until `vapidKey` in `rw-config.js` is set: Firebase console -> Project settings -> Cloud Messaging -> Web Push certificates -> Generate key pair, paste the public key. `firebase-messaging-sw.js` now uses the real web appId.
+- **Web (Chrome etc.):** `features.webPush` is true and the VAPID key is now set in `rw-config.js` (Oct 2026). To rotate it: Firebase console -> Project settings -> Cloud Messaging -> Web Push certificates -> Generate key pair, paste the public key. `firebase-messaging-sw.js` now uses the real web appId.
 - **Default:** users who never chose are opted in; the browser/OS prompt still appears (web: on the first tap after sign-in).

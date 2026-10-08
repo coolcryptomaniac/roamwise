@@ -44,7 +44,7 @@ window.RW_CONFIG = {
     mapboxPublicToken: '',
     mapboxStyle: 'mapbox/outdoors-v12'
   },
-  vapidKey: '',
+  vapidKey: 'BM03l5593z_bDX5QdPDk3P8GGKhy38a3O6Qwc96mtGpzUpN4ViYzpXeNHfI7CieRkakqt5WieghuW8DiZ3EC2H0',   /* public Web Push (VAPID) key, safe to ship; private half stays in Firebase */
   appCheck: {
     /* Firebase Console -> App Check -> Web -> reCAPTCHA Enterprise site key.
        Keep blank until configured, then monitor valid-token metrics before
