@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 120" role="img" aria-label="">
+  <!-- Placeholder hero. ChatGPT: replace with final artwork (see docs/CHATGPT-BRIEF.md). Original art only. -->
+  <rect width="320" height="120" fill="#141b23"/>
+  <path d="M0 95 L60 55 L110 85 L170 35 L230 80 L280 50 L320 75 V120 H0Z" fill="#1f2a35"/>
+  <path d="M0 108 L80 78 L150 100 L220 70 L320 104 V120 H0Z" fill="#26313d"/>
+  <circle cx="262" cy="30" r="12" fill="#f2a93b"/>
+  <path d="M20 112 C90 96 150 108 300 90" stroke="#f2a93b" stroke-width="2" fill="none" stroke-dasharray="6 5"/>
+</svg>

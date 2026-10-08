@@ -44,6 +44,17 @@ The shared core is used by both the page and the Worker, with no duplicated
 accounting rules. No Firebase/Pro/payment changes or deployment binding changes.
 See `features/business-travel/docs/INTEGRATION.md` for provisioning and limits.
 
+### Kainchi Dham Yatra (optional, October 2026)
+
+`features/kainchi-yatra/` owns `data/`, `core/`, `ui/`, `tests/`, `tools/` and `docs/` for a
+local-only advisory visit planner at `/kainchi/index.html` (crowd pressure from calendar rules,
+advisory passes, fair-price reports, English/Hindi). Run `npm run kainchi:context -- data|core|ui`.
+Classic scripts in `feature.json` order under a strict CSP with no network access. Rate cards,
+slot capacities and the district contact are intentionally empty until an authority provides them.
+The main app only gains a footer link. `tests/kainchi-yatra.test.js` includes the feature tests in
+CI. No Firebase, Pro, payment or Worker changes; see `features/kainchi-yatra/docs/FIRESTORE-PROPOSAL.md`.
+ChatGPT hand-off: `features/kainchi-yatra/docs/CHATGPT-BRIEF.md`.
+
 As of this commit (post PRs #138-143, plus the subscription-vs-one-off
 Cashfree gating pass), `app.js` is **575 lines** (down from ~19,300 at the
 start of the modularization effort, down from 3,099 after the prior
