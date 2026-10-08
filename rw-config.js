@@ -95,7 +95,7 @@ window.rwApi = function(path){
    soon as its tiny JS arrives instead of waiting behind unrelated modules. */
 (function(){
   var f=(window.RW_CONFIG&&window.RW_CONFIG.features)||{};
-  var build='rw-v125-selective-audio';
+  var build='rw-v126-whatsapp-verify';
 
   function load(src, opening){
     if(document.querySelector('script[data-rw-v5="'+src+'"]')) return;
