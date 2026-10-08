@@ -63,6 +63,7 @@ no longer match the repo — flagged explicitly below and in the PR summary.
 | `CREATOR-SOURCING.md` | Per-property creator terms (Milan open, Soulmate closed, New Himank pending), the terms-aware matching engine, how AI adjustment is bounded, and how to find low-ask creators honestly. | current | Touching `creators/property-terms-core.mjs`, `creators/sourcing-core.mjs`, or onboarding creators to a property. |
 | `PRESENCE-STRATEGY.md` | Where RoamWise should be present (messaging, Indic languages, AI search, short video), with the few India internet figures that could be verified and what could not. | current | Planning marketing, bots, Hindi copy, or any claim about where Indian traffic is going. |
 | `COMPLIANCE-FIRST-BUSINESS-MODEL.md` | Why RoamWise never holds guest money in Phase 1, the dated GST rates table and yearly review (`features/finance-tax/gst-rules.js`, `npm run gst:review`), the stay ledger (codes, guest confirmation, monthly statement), GST/TDS/RBI/CCI/DPDP notes, and the plan for creators, artists, events, agencies and drivers. | current | Touching `js/booking/stay-code.js`, `worker/handlers/stay-ledger.js`, `admin/stay-ledger.js`, or planning marketplace fees or Phase 2 split settlement. |
+- `REMINDER-EMAILS.md` — current. Inactivity reminder emails (7+ days away): policy, Resend setup, dry run, unsubscribe. Read when touching reminders or email sending.
 
 ## Itinerary / cinematic preset library
 

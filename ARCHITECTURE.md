@@ -1222,3 +1222,8 @@ round 5"'s own advice) remains the source of truth.
   `js/payments/gateway-adapter.js` + `js/payments/providers/*`, and the
   step-by-step guide for adding a new payment gateway. Read before
   touching `js/payments/**`.
+
+
+## Inactivity reminders (Oct 2026)
+- `js/misc/interest-sync.js` — `rwRememberDestination()`; one-field write of the last searched destination for email personalisation (called from `runSearch()`).
+- Worker: `worker/lib/reminder-core.js` (pure policy/email), `worker/handlers/reminders.js` (cron run, `/email/unsubscribe`, `/admin/reminders/run`). See `REMINDER-EMAILS.md`.

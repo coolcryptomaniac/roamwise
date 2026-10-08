@@ -88,6 +88,7 @@ function runSearch(){
   var origin = (el('origin').value||'India').trim();
   var days = parseInt(el('dur').value)||14;
   var dest = window.getDestVal ? window.getDestVal() : 'Anywhere';
+  try{ rwRememberDestination(dest); }catch(e){ /* personalisation is best-effort */ }
   var style = el('style').value;
   var crowd = el('crowd').value;
   var budUSD = parseInt(el('budgetSlider').value)||1200;

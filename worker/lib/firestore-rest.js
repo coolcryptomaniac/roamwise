@@ -154,3 +154,31 @@ export async function listDocs(env, accessToken, projectId, collectionPath, max 
   }
   return out;
 }
+
+/**
+ * Structured query: docs of `collection` whose `field` (a timestamp) is before `beforeIso`,
+ * oldest first. Returns [{ id, ...fields }] (admin/cron use only).
+ */
+export async function queryBeforeTimestamp(env, accessToken, projectId, collection, field, beforeIso, limit = 300) {
+  const url = `${BASE}/projects/${projectId}/databases/(default)/documents:runQuery`;
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: { authorization: `Bearer ${accessToken}`, 'content-type': 'application/json' },
+    body: JSON.stringify({
+      structuredQuery: {
+        from: [{ collectionId: collection }],
+        where: { fieldFilter: { field: { fieldPath: field }, op: 'LESS_THAN', value: { timestampValue: beforeIso } } },
+        orderBy: [{ field: { fieldPath: field }, direction: 'ASCENDING' }],
+        limit: Math.min(1000, Math.max(1, limit)),
+      },
+    }),
+  });
+  if (!res.ok) {
+    const body = await res.text().catch(() => '');
+    throw new Error(`Firestore QUERY ${collection} failed (${res.status}): ${body.slice(0, 300)}`);
+  }
+  const rows = await res.json();
+  return (Array.isArray(rows) ? rows : []).filter((r) => r.document).map((r) => ({
+    id: String(r.document.name || '').split('/').pop(), ...fromFirestoreFields(r.document.fields || {}),
+  }));
+}
