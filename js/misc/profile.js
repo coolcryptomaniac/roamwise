@@ -51,11 +51,13 @@ function openProfile(){
    +'<div class="dna-q"><div class="qt">Favourite destinations so far</div><input class="txn-inp" id="pfFav" style="width:100%" value="'+(P2.fav||'')+'"></div>'
    +'<div class="dna-q"><div class="qt">Hobbies</div><input class="txn-inp" id="pfHob" style="width:100%" value="'+(P2.hob||'')+'"></div>'
    +'<div class="dna-q"><div class="qt">Bio</div><input class="txn-inp" id="pfBio" style="width:100%" maxlength="120" value="'+(P2.bio||'')+'"></div>'
+   +'<div id="rwWaCard" style="margin:6px 0 12px"></div>'
    +'<label style="display:flex;gap:8px;font-size:11.5px;color:var(--t2);margin:4px 0 12px"><input type="checkbox" id="pfNews" '+(P2.news?'checked':'')+'> Send me weekly travel drops (email)</label>'
    +'<button class="rzp-main-btn" onclick="profSave()">\u2728 Save & reveal my Lifetime List</button>'
    +'<div id="pfOut" style="margin-top:12px"></div>';
   window._prof=P2;
   ov.classList.add('open');
+  try{ if(typeof rwWaRender==='function') rwWaRender(); }catch(e){ /* WhatsApp card is optional */ }
 }
 function profAv(img){ window._prof.av=img.dataset.u; el('profPic').src=img.dataset.u;
   img.parentNode.querySelectorAll('img').forEach(function(x){x.style.borderColor='var(--b2)';}); img.style.borderColor='var(--gold)'; }

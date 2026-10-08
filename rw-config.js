@@ -14,6 +14,10 @@ window.RW_CONFIG = {
   /* Serverless founder control plane for partners, automation, support and
      global compliance. Leave blank until its Worker and D1 database exist. */
   globalOpsUrl: '',
+  /* WhatsApp bot (roamwise-whatsapp). botNumber = digits with country code of the
+     WhatsApp Business API number users message to verify. Replace if the bot uses a
+     different number than the Business app. */
+  whatsapp: { botNumber: '919987379730' },
   features: {
     beacon: true,
     realms: true,
