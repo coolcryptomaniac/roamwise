@@ -50,7 +50,7 @@ start of the modularization effort, down from 3,099 after the prior
 "modularization-final" pass, down from 1,207 after "round 4", and down from
 629 after "round 5" — the further changes since round 5 are incidental to
 unrelated feature PRs #138-143 and this pass's `submitUtr()` one-line
-rewire, not a new extraction round) and there are **165 files** under `js/`
+rewire, not a new extraction round) and there are **166 files** under `js/`
 (including the later `js/admin/` dashboard modules and
 `js/core/push-notifications.js` — see the `js/core/` and `js/admin/`
 entries below; the count was last re-verified via `npm run mod-status`,
@@ -1222,3 +1222,8 @@ round 5"'s own advice) remains the source of truth.
   `js/payments/gateway-adapter.js` + `js/payments/providers/*`, and the
   step-by-step guide for adding a new payment gateway. Read before
   touching `js/payments/**`.
+
+
+## Inactivity reminders (Oct 2026)
+- `js/misc/interest-sync.js` — `rwRememberDestination()`; one-field write of the last searched destination for email personalisation (called from `runSearch()`).
+- Worker: `worker/lib/reminder-core.js` (pure policy/email), `worker/handlers/reminders.js` (cron run, `/email/unsubscribe`, `/admin/reminders/run`). See `REMINDER-EMAILS.md`.
