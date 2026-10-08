@@ -13,8 +13,8 @@ test('active within 7 days is skipped', () => {
   assert.equal(checkUser(u({ lastActive: new Date(NOW - 6 * DAY).toISOString() }), NOW).reason, 'recently_active');
 });
 test('missing email, uid-as-email, opt-out, no activity record are skipped', () => {
-  assert.equal(checkUser(u({ email: '' }), NOW).reason, 'no_email');
-  assert.equal(checkUser(u({ email: 'u1' }), NOW).reason, 'no_email');
+  assert.equal(checkUser(u({ email: '' }), NOW).reason, 'no_channel');
+  assert.equal(checkUser(u({ email: 'u1' }), NOW).reason, 'no_channel');
   assert.equal(checkUser(u({ emailOptOut: true }), NOW).reason, 'opted_out');
   assert.equal(checkUser(u({ lastActive: null }), NOW).reason, 'no_activity_record');
 });
@@ -57,4 +57,22 @@ test('personalised by last searched destination, generic otherwise, rejects odd 
   assert.equal(buildEmail({ id: 'u' }, null, 'https://x/u').subject, 'Planning a trip anytime soon?');
   assert.equal(cleanDestination('<script>x</script>'), '');
   assert.match(buildEmail({ id: 'u', lastDestination: 'Bad<b>' }, null, 'https://x/u').subject, /anytime soon/);
+});
+
+test('push preferred when enabled and a device token exists; email fallback; both off -> no channel', async () => {
+  const { parseSettings } = await import('../worker/lib/reminder-core.js');
+  const withPush = u({ pushTokens: { d1: { token: 'tok' } } });
+  assert.equal(checkUser(withPush, NOW, { pushEnabled: true }).channel, 'push');
+  assert.equal(checkUser(withPush, NOW, { pushEnabled: false }).channel, 'email');
+  assert.equal(checkUser(u({ email: '', pushTokens: { d1: { token: 'tok' } } }), NOW, { pushEnabled: true }).channel, 'push');
+  assert.equal(checkUser(u(), NOW, { emailEnabled: false, pushEnabled: false }).reason, 'no_channel');
+  assert.equal(checkUser(u({ emailOptOut: true, pushTokens: { d1: { token: 'tok' } } }), NOW, { pushEnabled: true }).channel, 'push');
+  const s = parseSettings({ emailEnabled: true, inactiveDays: 1, cooldownDays: 'x' });
+  assert.deepEqual(s, { emailEnabled: true, pushEnabled: false, inactiveDays: 3, cooldownDays: 14 });
+  assert.deepEqual(parseSettings(null), { emailEnabled: false, pushEnabled: false, inactiveDays: 7, cooldownDays: 14 });
+});
+test('push text is personalised and short', async () => {
+  const { buildPush } = await import('../worker/lib/reminder-core.js');
+  assert.equal(buildPush({ id: 'u', lastDestination: 'Manali' }, null).title, 'Still waiting for your next trip to Manali?');
+  assert.equal(buildPush({ id: 'u' }, null).title, 'Planning a trip anytime soon?');
 });

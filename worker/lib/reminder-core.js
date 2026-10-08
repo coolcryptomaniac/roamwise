@@ -19,7 +19,26 @@ export const DEFAULTS = Object.freeze({
   cooldownDays: 14,
   maxInARow: 3,
   maxPerRun: 100,
+  emailEnabled: true,
+  pushEnabled: false,
 });
+
+/** Founder-editable switches (Firestore config/reminderSettings). Both channels default OFF there. */
+export function parseSettings(doc) {
+  const d = doc && typeof doc === 'object' ? doc : {};
+  const clamp = (v, lo, hi, dflt) => { const n = Math.round(Number(v)); return Number.isFinite(n) ? Math.min(hi, Math.max(lo, n)) : dflt; };
+  return {
+    emailEnabled: d.emailEnabled === true,
+    pushEnabled: d.pushEnabled === true,
+    inactiveDays: clamp(d.inactiveDays, 3, 60, DEFAULTS.inactiveDays),
+    cooldownDays: clamp(d.cooldownDays, 7, 90, DEFAULTS.cooldownDays),
+  };
+}
+
+export function pushTokensOf(user) {
+  const m = (user && user.pushTokens) || {};
+  return Object.keys(m).filter((k) => m[k] && m[k].token).map((k) => ({ deviceId: k, token: m[k].token }));
+}
 
 const DAY = 86400000;
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -40,8 +59,13 @@ export function validEmail(e) {
 export function checkUser(user, now, opts = {}) {
   const o = { ...DEFAULTS, ...opts };
   if (!user || !user.id) return { ok: false, reason: 'no_id' };
-  if (!validEmail(user.email) || String(user.email).trim() === user.id) return { ok: false, reason: 'no_email' };
-  if (user.emailOptOut === true) return { ok: false, reason: 'opted_out' };
+  /* Push is preferred (free, and the user already granted permission); email is the fallback. */
+  const hasPush = o.pushEnabled && pushTokensOf(user).length > 0;
+  const emailOk = o.emailEnabled && validEmail(user.email) && String(user.email).trim() !== user.id && user.emailOptOut !== true;
+  if (!hasPush && !emailOk) {
+    if (o.emailEnabled && user.emailOptOut === true) return { ok: false, reason: 'opted_out' };
+    return { ok: false, reason: 'no_channel' };
+  }
   const last = toMs(user.lastActive);
   if (!last) return { ok: false, reason: 'no_activity_record' };
   if (now - last < o.inactiveDays * DAY) return { ok: false, reason: 'recently_active' };
@@ -50,7 +74,7 @@ export function checkUser(user, now, opts = {}) {
   const count = sent && last > sent ? 0 : Number(user.reminderCount || 0);
   if (sent && now - sent < o.cooldownDays * DAY) return { ok: false, reason: 'cooldown' };
   if (count >= o.maxInARow) return { ok: false, reason: 'max_reached' };
-  return { ok: true, reason: 'eligible', count };
+  return { ok: true, reason: 'eligible', count, channel: hasPush ? 'push' : 'email' };
 }
 
 export function selectRecipients(users, now, opts = {}) {
@@ -59,7 +83,7 @@ export function selectRecipients(users, now, opts = {}) {
   const skipped = {};
   for (const u of users || []) {
     const r = checkUser(u, now, o);
-    if (r.ok) picked.push({ user: u, count: r.count });
+    if (r.ok) picked.push({ user: u, count: r.count, channel: r.channel });
     else skipped[r.reason] = (skipped[r.reason] || 0) + 1;
   }
   /* Longest-inactive first, then cap the run. */
@@ -117,6 +141,14 @@ export function firstName(user) {
 export function cleanDestination(v) {
   const d = String(v || '').trim().slice(0, 60);
   return /^[\p{L}\p{N} ,.'()-]{2,60}$/u.test(d) ? d : '';
+}
+
+export function buildPush(user, content) {
+  const dest = cleanDestination(user.lastDestination);
+  const c = mergeContent(content);
+  return dest
+    ? { title: `Still waiting for your next trip to ${dest}?`, body: 'Pick up where you left off on RoamWise.', url: `https://roamwise.co.in/?destination=${encodeURIComponent(dest)}` }
+    : { title: 'Planning a trip anytime soon?', body: c.intro.slice(0, 120), url: c.cta.url };
 }
 
 export function buildEmail(user, content, unsubUrl) {

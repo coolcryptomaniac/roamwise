@@ -53,6 +53,7 @@
       <button data-page="activity" onclick="goPage('activity',this)">Activity</button>
       <button data-page="promos" onclick="goPage('promos',this)">Promos</button>
       <button data-page="notifications" onclick="goPage('notifications',this)">Notifications</button>
+      <button data-page="reminders" onclick="goPage('reminders',this)">Reminders</button>
       <button data-page="referrals" onclick="goPage('referrals',this)">Referrals</button>
       <button data-page="staff" onclick="goPage('staff',this)">Staff</button>
       <button data-page="records" onclick="goPage('records',this)">Records &amp; SOPs</button>
@@ -143,6 +144,24 @@
       <section id="promos" class="section"><div class="eyebrow">Offers</div><h1 class="title">Promo codes — create, view, deactivate.</h1><p class="lead">Stored at <code>config/promoCodes</code>, the same admin-write/public-read Firestore shape the referrer registry already uses. Checkout does not read these yet — see the page for exact wiring status.</p>
         <div id="promoList"><div class="empty">Loading…</div></div>
         <button class="btn primary" style="margin-top:12px" onclick="openPromoForm()">Add promo code</button>
+      </section>
+      <section id="reminders" class="section"><div class="eyebrow">Come-back reminders</div><h1 class="title">Bring quiet users back, politely.</h1><p class="lead">Users who have not opened RoamWise for a while get a push notification (if they allowed it) or an email. Both start switched <b>off</b>. If they searched a place, the message says "Still waiting for your next trip to Manali?". Emails always have an unsubscribe link.</p>
+        <div class="card"><h2>1. Switches</h2><div class="fields">
+          <div class="field"><label><input type="checkbox" id="remPushOn"> Push notifications</label></div>
+          <div class="field"><label><input type="checkbox" id="remEmailOn"> Emails</label></div>
+          <div class="field"><label>Remind after (days away)</label><input id="remDays" class="input" type="number" min="3" max="60" value="7"></div>
+          <div class="field"><label>Wait between reminders (days)</label><input id="remCool" class="input" type="number" min="7" max="90" value="14"></div></div>
+          <p class="muted" style="font-size:12px;margin:8px 0 0">At most 3 reminders in a row per person; the count restarts when they come back. Push goes first; email is used when there is no push device. Email needs the email service key added once in Cloudflare (see REMINDER-EMAILS.md).</p></div>
+        <div class="card" style="margin-top:14px"><h2>2. What it says (when we do not know their last search)</h2><div class="fields">
+          <div class="field full"><label>Headline</label><input id="remHeadline" class="input" placeholder="Planning a trip anytime soon?"></div>
+          <div class="field full"><label>Short intro</label><textarea id="remIntro" class="input" placeholder="It has been a little while. Here is what is new on RoamWise."></textarea></div>
+          <div class="field full"><label>Update / deal 1 (title · text · https link)</label><input id="remT0" class="input" placeholder="Title"><input id="remX0" class="input" placeholder="One line"><input id="remU0" class="input" placeholder="https://roamwise.co.in/partner/"></div>
+          <div class="field full"><label>Update / deal 2</label><input id="remT1" class="input" placeholder="Title"><input id="remX1" class="input" placeholder="One line"><input id="remU1" class="input" placeholder="https://"></div>
+          <div class="field full"><label>Update / deal 3</label><input id="remT2" class="input" placeholder="Title"><input id="remX2" class="input" placeholder="One line"><input id="remU2" class="input" placeholder="https://"></div>
+          <div class="field"><label>Button text</label><input id="remCtaL" class="input" placeholder="Open RoamWise"></div>
+          <div class="field"><label>Button link</label><input id="remCtaU" class="input" placeholder="https://roamwise.co.in/"></div></div>
+          <p class="muted" style="font-size:12px;margin:8px 0 0">Only promise deals that really exist. Leave everything blank to use the built-in wording.</p></div>
+        <div class="card" style="margin-top:14px"><h2>3. Save, check, send</h2><div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn primary" id="remSave" type="button">Save</button><button class="btn" id="remPreview" type="button">Preview who would get it</button><button class="btn" id="remSend" type="button">Send now</button></div><div id="remNote" style="margin-top:12px"></div></div>
       </section>
       <section id="notifications" class="section"><div class="eyebrow">Push notifications</div><h1 class="title">Compose now, send once a sender exists.</h1><p class="lead">Queued at <code>notificationQueue/{id}</code>, admin-only. Not wired to a live send endpoint yet — see the page for exact status.</p>
         <div class="card"><h2>New notification</h2><div class="fields">
@@ -285,6 +304,7 @@
 <script src="../js/admin/user-activity.js"></script>
 <script src="../js/admin/promo-manager.js"></script>
 <script src="../js/admin/notification-composer.js"></script>
+<script src="../js/admin/reminders-panel.js"></script>
 <script src="../js/admin/growth-intelligence.js"></script>
 <script src="../js/admin/dashboard-home.js"></script>
 <script src="../js/admin/kpi-dashboard.js"></script>
