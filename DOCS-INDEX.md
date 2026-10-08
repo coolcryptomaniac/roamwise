@@ -76,6 +76,8 @@ no longer match the repo — flagged explicitly below and in the PR summary.
 
 ## Business / growth / operations docs
 
+`features/kainchi-yatra/docs/CHATGPT-BRIEF.md` — current, October 2026: brief for ChatGPT on the Kainchi Dham visit planner (graphics, Hindi/Kumaoni copy, sourced rate cards, constraints, handoff). Module map: `features/kainchi-yatra/AGENTS.md`. Server-side ideas: `features/kainchi-yatra/docs/FIRESTORE-PROPOSAL.md` (proposal only).
+
 `features/business-travel/docs/INTEGRATION.md` — current, September 2026: local business-travel
 workspace, deterministic reconciliation, opt-in Worker API, signed webhooks,
 pilot rollout and the exact vendor/SSO capabilities still requiring setup.

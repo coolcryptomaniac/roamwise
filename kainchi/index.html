@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0b1015">
+  <meta name="description" content="Plan a calmer visit to Kainchi Dham: crowd pressure by date, an advisory arrival pass, fair-price reporting and quieter nearby places.">
+  <meta name="referrer" content="no-referrer">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; connect-src 'none'; font-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <title>Kainchi Dham Yatra · RoamWise</title>
+  <link rel="icon" href="../icons/icon-192.png">
+  <link rel="stylesheet" href="../features/kainchi-yatra/ui/kainchi.css">
+  <script src="../features/kainchi-yatra/data/config.js" defer></script>
+  <script src="../features/kainchi-yatra/data/peak-dates.js" defer></script>
+  <script src="../features/kainchi-yatra/data/rate-cards.js" defer></script>
+  <script src="../features/kainchi-yatra/data/alternatives.js" defer></script>
+  <script src="../features/kainchi-yatra/data/strings-en.js" defer></script>
+  <script src="../features/kainchi-yatra/data/strings-hi.js" defer></script>
+  <script src="../features/kainchi-yatra/core/validation.js" defer></script>
+  <script src="../features/kainchi-yatra/core/i18n.js" defer></script>
+  <script src="../features/kainchi-yatra/core/calendar.js" defer></script>
+  <script src="../features/kainchi-yatra/core/slots.js" defer></script>
+  <script src="../features/kainchi-yatra/core/pass.js" defer></script>
+  <script src="../features/kainchi-yatra/core/rates.js" defer></script>
+  <script src="../features/kainchi-yatra/core/reports.js" defer></script>
+  <script src="../features/kainchi-yatra/ui/context.js" defer></script>
+  <script src="../features/kainchi-yatra/ui/planner.js" defer></script>
+  <script src="../features/kainchi-yatra/ui/passes.js" defer></script>
+  <script src="../features/kainchi-yatra/ui/fair.js" defer></script>
+  <script src="../features/kainchi-yatra/ui/controller.js" defer></script>
+</head>
+<body>
+  <a class="skip" href="#plan" data-i18n="skip"></a>
+  <header class="topbar">
+    <a class="brand" href="../"><span class="brand-mark">RW</span> RoamWise <span class="muted">/ Kainchi</span></a>
+    <div class="langs" role="group"><span class="muted" data-i18n="lang_label"></span>
+      <button type="button" data-lang="en" aria-pressed="true">English</button>
+      <button type="button" data-lang="hi" aria-pressed="false">हिन्दी</button></div>
+    <a href="../#app" class="back" data-i18n="back"></a>
+  </header>
+  <main>
+    <div class="hero">
+      <img class="hero-art" src="../features/kainchi-yatra/ui/art/hero.svg" alt="" width="320" height="120">
+      <div><p class="eyebrow" data-i18n="eyebrow"></p><h1 data-i18n="h1"></h1><p class="muted" data-i18n="lead"></p></div>
+      <span class="pill" data-i18n="pill"></span>
+    </div>
+    <p class="notice" data-i18n="disclaimer"></p>
+    <p class="notice quiet-note" data-i18n="privacy"></p>
+    <section class="panel" aria-labelledby="status-h">
+      <h2 id="status-h" data-i18n="status_h"></h2>
+      <div class="two">
+        <div><h3 data-i18n="status_live"></h3><ul class="ticks"><li data-i18n="status_live_1"></li><li data-i18n="status_live_2"></li><li data-i18n="status_live_3"></li><li data-i18n="status_live_4"></li></ul></div>
+        <div><h3 data-i18n="status_wait"></h3><ul class="waits"><li data-i18n="status_wait_1"></li><li data-i18n="status_wait_2"></li><li data-i18n="status_wait_3"></li><li data-i18n="status_wait_4"></li></ul></div>
+      </div>
+    </section>
+    <section class="panel" id="plan" aria-labelledby="plan-h">
+      <h2 id="plan-h" data-i18n="plan_h"></h2>
+      <label><span data-i18n="plan_date"></span><input type="date" id="plan-date" required></label>
+      <div class="gauge"><span id="plan-level" class="level"></span><div id="plan-meter" class="meter" data-score="0" aria-hidden="true"><i></i><i></i><i></i></div></div>
+      <p id="plan-advice"></p>
+      <h3 data-i18n="plan_why"></h3><ul id="plan-reasons"></ul>
+      <p class="muted" data-i18n="plan_nohour"></p>
+      <h3 data-i18n="plan_hist_h"></h3><div id="plan-history" class="muted"></div>
+    </section>
+    <section class="panel" aria-labelledby="pass-h">
+      <h2 id="pass-h" data-i18n="pass_h"></h2>
+      <p class="muted" data-i18n="pass_lead"></p>
+      <form id="pass-form" class="fields">
+        <label><span data-i18n="f_date"></span><input type="date" id="pass-date" required></label>
+        <label><span data-i18n="f_hour"></span><select id="pass-hour"></select></label>
+        <label><span data-i18n="f_leader"></span><input type="text" id="pass-leader" maxlength="60" required autocomplete="off"></label>
+        <label><span data-i18n="f_size"></span><input type="number" id="pass-size" min="1" max="60" value="1" required></label>
+        <label><span data-i18n="f_vehicle"></span><input type="text" id="pass-vehicle" maxlength="20" autocomplete="off"></label>
+        <label class="check wide"><input type="checkbox" id="pass-remember"><span data-i18n="pass_remember"></span></label>
+        <button type="submit" data-i18n="pass_make"></button>
+      </form>
+      <p id="pass-message" class="message" role="status" aria-live="polite"></p>
+      <ul id="pass-list" class="passes"></ul>
+    </section>
+    <section class="panel" aria-labelledby="fair-h">
+      <h2 id="fair-h" data-i18n="fair_h"></h2>
+      <p class="muted" data-i18n="fair_lead"></p>
+      <div id="rate-list"></div>
+      <h3 data-i18n="rep_h"></h3>
+      <p class="muted" data-i18n="rep_lead"></p>
+      <form id="report-form" class="fields">
+        <label><span data-i18n="rep_cat"></span><select id="rep-cat"></select></label>
+        <label><span data-i18n="rep_place"></span><input type="text" id="rep-place" maxlength="120" required autocomplete="off"></label>
+        <label><span data-i18n="rep_when"></span><input type="date" id="rep-when" required></label>
+        <label><span data-i18n="rep_amount"></span><input type="text" id="rep-amount" inputmode="numeric" maxlength="8" autocomplete="off"></label>
+        <label><span data-i18n="rep_official"></span><input type="text" id="rep-official" inputmode="numeric" maxlength="8" autocomplete="off"></label>
+        <label class="wide"><span data-i18n="rep_text"></span><textarea id="rep-text" maxlength="800" rows="4"></textarea></label>
+        <button type="submit" data-i18n="rep_h"></button>
+      </form>
+      <p id="report-message" class="message" role="status" aria-live="polite"></p>
+      <div id="report-out" hidden>
+        <pre id="report-text" class="report-text"></pre>
+        <p id="report-to" class="muted"></p>
+        <div class="row-actions"><a id="report-mail" class="btn" href="#" data-i18n="rep_send_mail"></a><a id="report-wa" class="btn" href="#" hidden data-i18n="rep_send_wa"></a></div>
+        <div id="report-emergency" class="alert" hidden><p data-i18n="rep_emergency"></p></div>
+      </div>
+    </section>
+    <section class="panel" aria-labelledby="res-h">
+      <h2 id="res-h" data-i18n="res_h"></h2>
+      <p class="muted" data-i18n="res_lead"></p>
+      <div class="row-actions"><a id="emerg-amb" class="btn danger" href="tel:108" data-i18n="rep_call_amb"></a><a id="emerg-gen" class="btn danger" href="tel:112" data-i18n="rep_call_gen"></a></div>
+      <ul><li data-i18n="res_1"></li><li data-i18n="res_2"></li><li data-i18n="res_3"></li><li data-i18n="res_4"></li></ul>
+    </section>
+    <section class="panel" aria-labelledby="alt-h">
+      <h2 id="alt-h" data-i18n="alt_h"></h2>
+      <p class="muted" data-i18n="alt_lead"></p>
+      <ul id="alt-list" class="alts"></ul>
+    </section>
+  </main>
+  <footer class="foot muted" data-i18n="foot"></footer>
+</body>
+</html>

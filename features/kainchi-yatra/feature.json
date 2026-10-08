@@ -1,0 +1,62 @@
+{
+  "id": "kainchi-yatra",
+  "version": 1,
+  "publicPage": "kainchi/index.html",
+  "browserScripts": [
+    "data/config.js",
+    "data/peak-dates.js",
+    "data/rate-cards.js",
+    "data/alternatives.js",
+    "data/strings-en.js",
+    "data/strings-hi.js",
+    "core/validation.js",
+    "core/i18n.js",
+    "core/calendar.js",
+    "core/slots.js",
+    "core/pass.js",
+    "core/rates.js",
+    "core/reports.js",
+    "ui/context.js",
+    "ui/planner.js",
+    "ui/passes.js",
+    "ui/fair.js",
+    "ui/controller.js"
+  ],
+  "stylesheets": [
+    "ui/kainchi.css"
+  ],
+  "gzipBudgetBytes": 30720,
+  "runtimeModuleLineLimit": 350,
+  "modules": {
+    "data/config.js": "Page configuration; empty means not yet provided by the district",
+    "data/peak-dates.js": "Public-calendar peak rules and the observed 2-4 Oct 2026 event",
+    "data/rate-cards.js": "Official rate cards (empty until an authority notifies them)",
+    "data/alternatives.js": "Quieter nearby places",
+    "data/strings-en.js": "English copy",
+    "data/strings-hi.js": "Hindi copy (Kumaoni slot not yet added)",
+    "core/validation.js": "Bounded input checks and localisable errors",
+    "core/i18n.js": "Translation look-up with English fallback",
+    "core/calendar.js": "Crowd-pressure classification from calendar rules only",
+    "core/slots.js": "Arrival hours and district capacities",
+    "core/pass.js": "Advisory pass codes and stored-pass validation",
+    "core/rates.js": "Normalize rate cards; compute excess over an official rate",
+    "core/reports.js": "Compose visitor reports for email or WhatsApp",
+    "core/node.cjs": "Node test bridge for the same classic core modules",
+    "ui/context.js": "Page-local state, language and DOM helpers",
+    "ui/planner.js": "Crowd-pressure planner view",
+    "ui/passes.js": "Advisory pass creation, print and opt-in saving",
+    "ui/fair.js": "Rate cards and the report form",
+    "ui/controller.js": "Compose modules, language toggle, emergency links, nearby places"
+  },
+  "externalSeams": {
+    "kainchi/index.html": "Public HTML entry with explicit script order",
+    "index.html": "One footer link only",
+    "tests/kainchi-yatra.test.js": "Feature test bridge used by npm test"
+  },
+  "commands": {
+    "context": "npm run kainchi:context -- data|core|ui",
+    "check": "npm run kainchi:check",
+    "test": "npm run kainchi:test",
+    "fullRegression": "npm test && npm run check && npm run mod-status"
+  }
+}
