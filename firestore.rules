@@ -1627,5 +1627,47 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
 
+
+    // ---- WHATSAPP VERIFICATION + BOT (roamwise-whatsapp) ----
+    // The webhook uses a service account, which BYPASSES these rules by design.
+    // Clients can only (a) ask for a one-time code for themselves, (b) read their own
+    // verified link, (c) hand over ONE itinerary they chose to send to the bot.
+    match /wa_verifications/{code} {
+      allow create: if request.auth != null
+                    && code.matches('^[A-HJ-NP-Z2-9]{8}$')
+                    && request.resource.data.keys().hasOnly(['uid', 'status', 'createdAt'])
+                    && request.resource.data.uid == request.auth.uid
+                    && request.resource.data.status == 'pending'
+                    && request.resource.data.createdAt == request.time;
+      allow read, update, delete: if false;
+    }
+
+    // Authoritative "this uid owns this verified number". Never client-writable.
+    match /wa_links/{uid} {
+      allow read: if isSelf(uid) || isAdmin();
+      allow write: if false;
+    }
+
+    // One itinerary snapshot the user explicitly sends to the WhatsApp bot.
+    match /wa_trips/{uid} {
+      allow read: if isSelf(uid) || isAdmin();
+      allow create, update: if isSelf(uid)
+                            && request.resource.data.keys().hasOnly(['name', 'start', 'days', 'updatedAt'])
+                            && request.resource.data.name is string && request.resource.data.name.size() <= 120
+                            && request.resource.data.start is string && request.resource.data.start.size() <= 20
+                            && request.resource.data.days is list && request.resource.data.days.size() >= 1
+                            && request.resource.data.days.size() <= 30
+                            && request.resource.data.updatedAt == request.time;
+      allow delete: if isSelf(uid) || isAdmin();
+    }
+
+    // Support inbox written by the bot, read and closed by admins.
+    match /wa_handoffs/{id} {
+      allow read, update: if isAdmin();
+      allow create, delete: if false;
+    }
+
+    // Everything else the bot keeps is server-only (wa_phones, wa_claims, wa_users, wa_chats,
+    // wa_dedupe, wa_rate, wa_budget, wa_outbox). Unlisted collections are denied by default.
   }
 }
