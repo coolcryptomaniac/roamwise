@@ -7,7 +7,7 @@ firebase.initializeApp({
   authDomain:"roamwisepro.firebaseapp.com",
   projectId:"roamwisepro",
   messagingSenderId:"299014744987",
-  appId:"1:299014744987:web:0a9c9e6b5b5c8f4e0d1a2b"
+  appId:"1:299014744987:web:d5c316743e6d7a10904f3e"
 });
 try{
   var messaging = firebase.messaging();
