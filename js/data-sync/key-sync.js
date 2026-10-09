@@ -38,7 +38,7 @@ async function rwDecryptSecrets(rec, pass){
 }
 function rwKeyBundle(){
   var out={};
-  ['sarvam','groq','gemini','openrouter','mistral','anthropic'].forEach(function(p){
+  ['sarvam','groq','gemini','deepseek','openrouter','mistral','anthropic','custom'].forEach(function(p){
     var v=lsGet('rwKey_'+p); if(v) out[p]=v;
   });
   return out;

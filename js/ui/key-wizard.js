@@ -13,9 +13,9 @@ var WIZ=[
  {p:'groq',n:'Groq (gpt-oss, fast)',url:'https://console.groq.com/keys',why:'\u2705 No card ever \u00b7 fastest replies \u00b7 ~1,000 calls/day',ph:'gsk_\u2026',
   steps:['Sign up free (Google login works \u2014 no card asked)','Tap \u201cCreate API Key\u201d, give it any name','Copy it NOW \u2014 Groq shows it only once'],
   trouble:'Lost it? Just create another key \u2014 unlimited keys, still no card.'},
- {p:'gemini',n:'Google Gemini Flash (latest)',url:'https://aistudio.google.com/apikey',why:'Strong quality \u00b7 free tier set by Google',ph:'AIza\u2026',
+ {p:'gemini',n:'Google Gemini Flash-Lite',url:'https://aistudio.google.com/apikey',why:'Strong quality \u00b7 free tier set by Google',ph:'AIza\u2026',
   steps:['Sign in with any Google account','Tap \u201cCreate API key\u201d \u2192 \u201cCreate in new project\u201d','Copy the AIza\u2026 key'],
-  trouble:'Billing prompt? That model is paid-only on your Google account. RoamWise calls the latest Flash model; limits and pricing are set by Google.'},
+  trouble:'Billing prompt? That model is paid-only on your Google account. RoamWise calls Gemini Flash-Lite; free-tier limits and pricing are set by Google and can change.'},
  {p:'openrouter',n:'OpenRouter',url:'https://openrouter.ai/keys',why:'One key \u2192 many free models (lower daily cap)',ph:'sk-or-\u2026',
   steps:['Sign in (Google/GitHub)','Tap \u201cCreate Key\u201d','Copy the sk-or-\u2026 key'],
   trouble:'Free slots are ~50 calls/day and queue at peak; a one-time $10 top-up raises it to ~1,000/day. Groq avoids that entirely.'}
@@ -49,7 +49,7 @@ function openProvider(url){
 function openWizard(){ wizI=0; wizPaint(); el('wizOverlay').classList.add('open'); try{track('wiz_opens');}catch(e){ /* analytics best-effort, ignore */ } }
 function wizPaint(){
   var w=WIZ[wizI], has=!!lsGet('rwKey_'+w.p);
-  var armed=['sarvam','groq','gemini','openrouter','mistral','anthropic'].filter(function(p){return lsGet('rwKey_'+p);});
+  var armed=['sarvam','groq','gemini','deepseek','openrouter','mistral','anthropic','custom'].filter(function(p){return lsGet('rwKey_'+p);});
   el('wizBody').innerHTML=
    '<div class="mode-box" style="margin-bottom:12px">\u26a1 <b>Smart paste:</b> already have ANY key? Paste it \u2014 I\u2019ll detect the provider, save & test it automatically.'
   +'<div class="key-row" style="margin-top:8px"><input class="k-inp" id="wizAny" placeholder="AIza\u2026 / gsk_\u2026 / sk-or-\u2026 / sk-ant-\u2026"><button class="k-save" onclick="wizSmartPaste()">Detect & Save</button></div>'
@@ -93,7 +93,7 @@ function wizSmartPaste(){
 }
 /* ===== MODEL COMPARISON ARENA ===== */
 function compareModels(name, days){
-  var provs = ['sarvam','groq','gemini','openrouter','mistral','anthropic'].filter(function(p){return lsGet('rwKey_'+p);});
+  var provs = ['sarvam','groq','gemini','deepseek','openrouter','mistral','anthropic','custom'].filter(function(p){return lsGet('rwKey_'+p);});
   var ov = el('cmpOverlay');
   if(!ov){
     ov=document.createElement('div'); ov.id='cmpOverlay'; ov.className='overlay';

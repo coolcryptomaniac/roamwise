@@ -307,7 +307,9 @@ logPaint();
    the user's key when possible, since that's always current. */
 var AI_MODELS = {
   groq: ['openai/gpt-oss-120b','openai/gpt-oss-20b','llama-3.3-70b-versatile'],
-  gemini: ['gemini-flash-latest','gemini-2.5-flash'],
+  gemini: ['gemini-3.5-flash-lite','gemini-3.1-flash-lite','gemini-flash-latest'],
+  deepseek: ['deepseek-flash'],
+  custom: [''],
   openrouter: ['meta-llama/llama-3.3-70b-instruct:free','mistralai/mistral-small-3.1-24b-instruct:free','google/gemma-3-27b-it:free'],
   sarvam: ['sarvam-105b-conversations','sarvam-105b'],
   mistral: ['mistral-small-latest','open-mistral-nemo'],
