@@ -215,7 +215,7 @@ function genPdf(sample){
         caution:A0.caution}};
     }
     var intelP=new Promise(function(res){
-      var hasKey=['sarvam','groq','gemini','deepseek','openrouter','mistral','anthropic','custom'].some(function(p2){return lsGet('rwKey_'+p2);});
+      var hasKey=['sarvam','groq','gemini','openrouter','mistral','anthropic','custom','ondevice'].some(function(p2){return lsGet('rwKey_'+p2);});
       if(activeProv!=='roamwise' && !hasKey) return res(intelFallback());
       var done=false; setTimeout(function(){ if(!done){done=true; res(intelFallback());} }, 18000);
       try{

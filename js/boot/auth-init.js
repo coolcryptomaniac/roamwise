@@ -517,7 +517,7 @@ function wipeSession(){
      re-pasting keys forever. They now survive sign-out by default; people on
      a shared device can opt into the old behaviour with rw_wipe_keys. */
   if(lsGet('rw_wipe_keys')==='1'){
-    ['sarvam','groq','gemini','deepseek','openrouter','mistral','anthropic','custom'].forEach(function(p){ localStorage.removeItem('rwKey_'+p); });
+    ['sarvam','groq','gemini','openrouter','mistral','anthropic','custom','ondevice'].forEach(function(p){ localStorage.removeItem('rwKey_'+p); });
     activeProv='smart'; lsSet('rwProv','smart');
   }
   isPro=false;

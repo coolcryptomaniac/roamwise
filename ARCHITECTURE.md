@@ -57,12 +57,12 @@ Daily hub implementation: `features/kainchi-yatra/docs/DAILY-UPDATES.md`.
 Original Phase 0 hand-off: `features/kainchi-yatra/docs/CHATGPT-BRIEF.md`.
 
 As of this commit (post PRs #138-143, plus the subscription-vs-one-off
-Cashfree gating pass), `app.js` is **575 lines** (down from ~19,300 at the
+Cashfree gating pass), `app.js` is **579 lines** (down from ~19,300 at the
 start of the modularization effort, down from 3,099 after the prior
 "modularization-final" pass, down from 1,207 after "round 4", and down from
 629 after "round 5" — the further changes since round 5 are incidental to
 unrelated feature PRs #138-143 and this pass's `submitUtr()` one-line
-rewire, not a new extraction round) and there are **171 files** under `js/`
+rewire, not a new extraction round) and there are **172 files** under `js/`
 (including the later `js/admin/` dashboard modules and
 `js/core/push-notifications.js` — see the `js/core/` and `js/admin/`
 entries below; the count was last re-verified via `npm run mod-status`,
@@ -334,6 +334,7 @@ in a later pass)
 - `clarify.js` — small clarify-flow helper
 - `region-routes.js` — multi-city/region route building
 - `ai-providers.js` — the provider-agnostic AI request layer
+- `on-device-ai.js` — optional on-device AI via the browser Prompt API (Chrome Gemini Nano); `rwOnDeviceAsk`, `rwEnableOnDevice`
   (`aiRequest`/`aiCall`/`aiCallAny`/`testKey`/`testKeyFallbackChain`/
   `extractJSON`); moved verbatim from app.js in modularization round 4.
   Depends on `activeProv`/`AI_MODELS`/`lastAiSource`, which deliberately

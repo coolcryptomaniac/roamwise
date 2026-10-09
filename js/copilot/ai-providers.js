@@ -20,6 +20,7 @@ function extractJSON(txt){
 }
 
 function aiRequest(prov, key, model, prompt, maxTok, jsonMode){
+  if(prov==='ondevice') return rwOnDeviceAsk(prompt);  /* runs in the browser: no URL, key or timeout */
   var url, headers, body;
   if(prov==='anthropic'){
     url='https://api.anthropic.com/v1/messages';
@@ -32,7 +33,7 @@ function aiRequest(prov, key, model, prompt, maxTok, jsonMode){
     body=JSON.stringify({contents:[{parts:[{text:prompt}]}], generationConfig:gc});
   } else {
     var bases={groq:'https://api.groq.com/openai/v1', openrouter:'https://openrouter.ai/api/v1',
-      mistral:'https://api.mistral.ai/v1', sarvam:'https://api.sarvam.ai/v1', deepseek:'https://api.deepseek.com',
+      mistral:'https://api.mistral.ai/v1', sarvam:'https://api.sarvam.ai/v1',
       custom:(lsGet('rwCustomBase')||'http://localhost:11434/v1').replace(/\/+$/,'')};
     url=(bases[prov]||bases.groq)+'/chat/completions';
     if(prov==='custom'){ model=lsGet('rwCustomModel')||model; }
@@ -146,7 +147,7 @@ function aiCallAny(prompt, maxTok, cb, jsonMode){
     aiCall(prompt,maxTok,cb,jsonMode);
     return;
   }
-  var all=['sarvam','groq','gemini','deepseek','openrouter','mistral','anthropic','custom'];
+  var all=['sarvam','groq','gemini','openrouter','mistral','anthropic','custom','ondevice'];
   var order=[activeProv].concat(all.filter(function(p){ return p!==activeProv; }))
     .filter(function(p){ return p && p!=='smart' && lsGet('rwKey_'+p); });
   if(!order.length){ lastAiSource=null; cb(null,null); return; }

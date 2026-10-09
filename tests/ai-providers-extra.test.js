@@ -18,13 +18,6 @@ function load(store){
   return { ctx, calls };
 }
 
-test('DeepSeek goes to api.deepseek.com with a bearer key', async () => {
-  const { ctx, calls } = load({});
-  assert.equal(await ctx.aiRequest('deepseek', 'sk-test', 'deepseek-flash', 'hi', 50, false), 'ok');
-  assert.equal(calls[0].url, 'https://api.deepseek.com/chat/completions');
-  assert.equal(calls[0].opts.headers.Authorization, 'Bearer sk-test');
-});
-
 test('custom endpoint uses the saved base URL and model, defaulting to local Ollama', async () => {
   const a = load({ rwCustomBase: 'http://localhost:1234/v1/', rwCustomModel: 'qwen2.5' });
   await a.ctx.aiRequest('custom', 'x', '', 'hi', 50, false);
@@ -40,4 +33,33 @@ test('retired providers are gone from Settings and Gemini no longer depends on 2
   assert.doesNotMatch(settings, /cerebras|GitHub Models/i);
   const app = fs.readFileSync(path.join(root, 'app.js'), 'utf8');
   assert.match(app, /gemini: \['gemini-3\.5-flash-lite'/);
+});
+
+function loadOnDevice(LanguageModel){
+  const toasts = [];
+  const ctx = { self: { LanguageModel }, showToast: (m) => toasts.push(m), lsSet: () => {}, el: () => null, setProv: () => {}, Promise };
+  vm.createContext(ctx);
+  vm.runInContext(fs.readFileSync(path.join(root, 'js/copilot/on-device-ai.js'), 'utf8'), ctx);
+  return { ctx, toasts };
+}
+
+test('on-device AI reports unsupported in browsers without the Prompt API', async () => {
+  const { ctx } = loadOnDevice(undefined);
+  assert.equal(await ctx.rwOnDeviceStatus(), 'unsupported');
+  await assert.rejects(() => ctx.rwOnDeviceAsk('hi'), /not ready/);
+});
+
+test('on-device AI answers with a fresh session that is destroyed afterwards', async () => {
+  let destroyed = 0, created = 0;
+  const LM = { availability: async () => 'available', create: async () => { created++; return { prompt: async (p) => ' echo:' + p + ' ', destroy: () => { destroyed++; } }; } };
+  const { ctx } = loadOnDevice(LM);
+  assert.equal(await ctx.rwOnDeviceAsk('plan'), 'echo:plan');
+  assert.equal(await ctx.rwOnDeviceAsk('plan2'), 'echo:plan2');
+  assert.equal(created, 2);
+  assert.equal(destroyed, 2);
+});
+
+test('aiRequest routes ondevice without any network call', () => {
+  const src = fs.readFileSync(path.join(root, 'js/copilot/ai-providers.js'), 'utf8');
+  assert.match(src, /if\(prov==='ondevice'\) return rwOnDeviceAsk\(prompt\)/);
 });
