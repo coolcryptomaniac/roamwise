@@ -21,6 +21,12 @@
     root.RWKainchiUI.passes(ctx);
     root.RWKainchiUI.fair(ctx);
     nearby(ctx);
+    root.RWKainchiUI.bhakti(ctx);
+    root.RWKainchiUI.visit(ctx);
+    root.RWKainchiUI.advisory(ctx);
+    root.RWKainchiUI.navigation(ctx);
+    root.RWKainchiUI.updates(ctx);
+    root.RWKainchiUI.week(ctx);
     Array.prototype.forEach.call(document.querySelectorAll('[data-lang]'), function (b) {
       b.addEventListener('click', function () { ctx.setLang(b.getAttribute('data-lang')); });
     });

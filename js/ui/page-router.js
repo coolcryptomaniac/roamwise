@@ -41,6 +41,7 @@ var RW_PAGES = {
   booked:   { title:'Confirmed',      sub:'', icon:'\u2705', build:function(){} },
   booking:  { title:'Your trip',      sub:'Everything you\u2019re booking, in one request', icon:'\ud83e\uddf3', build:function(){} },
   green:    { title:'RoamWise Green',  sub:'Electric, solar, vegan \u2014 verified, not claimed', icon:'\u26a1', build:function(){} },
+  localhelp:{ title:'Local help',    sub:'Verified local drivers, rentals, pharmacies and shops', icon:'\ud83e\udded', build:function(){ return _pageWrap('localHelpSection'); } },
   sos:      { title:'Stranded?',       sub:'Works offline \u2014 the advice a local friend would give', icon:'\ud83c\udd98', build:function(){} },
   modes:    { title:'Layout',         sub:'Three genuinely different ways to use RoamWise', icon:'\ud83e\udded', build:function(){ return _pageWrap('modeSection'); } }
 };
@@ -102,6 +103,7 @@ function rwRouteTo(key){
   if(key==='booking'  && typeof openBooking==='function')   return openBooking();
   if(key==='green'    && typeof openGreen==='function')     return openGreen();
   if(key==='sos'      && typeof openSOS==='function')       return openSOS();
+  if(key==='localhelp' && typeof openLocalHelp==='function')  return openLocalHelp();
   if(key==='modes'    && typeof openModePicker==='function') return openModePicker();
 }
 // Deep-link-on-first-load DOMContentLoaded handler moved to js/boot/init.js

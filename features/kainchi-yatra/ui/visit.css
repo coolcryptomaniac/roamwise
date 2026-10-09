@@ -1,0 +1,41 @@
+/* Same original RoamWise palette as design/roamwise-akatsuki-theme.css. */
+:root{--bg:#080910;--card:#12111c;--line:#3e344b;--text:#f4eff8;--muted:#c4bacf;--accent:#e8ba6c;--ok:#9cdbb4;--warn:#f3cb83;--bad:#ffa1ab;--crimson:#c4303c;--violet:#875ce3}
+body{background:radial-gradient(ellipse at 96% 0%,#c4303c20,transparent 42%),radial-gradient(ellipse at 0% 45%,#875ce319,transparent 44%),var(--bg)}
+.topbar{border-bottom:1px solid #e8ba6c18}.brand-mark{background:linear-gradient(135deg,#f6d69b,#e8ba6c);box-shadow:0 0 24px #c4303c28}
+.daily-hero{background:#15101b;border:1px solid #e8ba6c55;box-shadow:0 24px 72px #0006,0 0 40px #c4303c14}
+.daily-hero::after{background:linear-gradient(90deg,#080910f7 0%,#100c1bdc 37%,#180b0b26 78%),linear-gradient(0deg,#130910a8,transparent 45%)}
+.daily-hero::before{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at 0% 100%,#875ce32b,transparent 58%),radial-gradient(ellipse at 90% 0%,#c4303c25,transparent 50%)}
+.hero-copy{position:relative}.hero-copy h1{color:#fff3d9}.hero-copy>p:not(.eyebrow){color:#e8dfed}.hero-copy .eyebrow{color:#f3cd90}
+.hero-mist{background:radial-gradient(ellipse at 60% 80%,#dacbef 0%,transparent 42%)}
+.section-tabs{background:#080910f5;border-color:#e8ba6c35;scrollbar-width:thin;scrollbar-color:#e8ba6c66 transparent}
+.section-tabs a[aria-selected="true"]{color:#fff3dc;background:linear-gradient(120deg,#852531,#442746);box-shadow:inset 0 0 0 1px #e8ba6c88,0 4px 16px #c4303c18}
+.section-tabs a:hover{color:#fff3dc;background-color:#261727}
+.panel{background:radial-gradient(ellipse at 100% 0%,#c4303c0e,transparent 65%),linear-gradient(135deg,#16121e,#0e101b);border-color:#e8ba6c30;box-shadow:0 14px 40px #0003}
+.panel h2{color:#f8e2bc}.btn.quiet{background:linear-gradient(120deg,#20131e,#181526);color:#f8e8cf;border-color:#796052}
+.feed-stamp{border-color:#71607e;color:#ded0ee}.digest{border-color:#69553e;background:linear-gradient(115deg,#302119,#221a32)}
+.feed-filters button[aria-pressed="true"]{background:#e8ba6c;color:#171018;border-color:#e8ba6c}
+.update-card,.day-card,.pass,.date-event{background:#10101b}.day-card[aria-pressed="true"]{background:linear-gradient(145deg,#382027,#27203e)}
+input,select,textarea{background:#0c0c16;border-color:#716078}.devotion{background:radial-gradient(ellipse at 85% 40%,#c4303c1d,transparent 55%),linear-gradient(135deg,#16121e,#0e101b)}
+.report-text{background:#0c0c16;border-color:var(--line)}:focus-visible{outline-color:#e8ba6c}
+.baba-story{display:grid;grid-template-columns:minmax(180px,280px) minmax(0,1fr);gap:36px;align-items:center;position:relative;overflow:hidden}
+.baba-portrait{margin:0}.baba-portrait img{display:block;width:100%;height:auto;border-radius:110px 110px 14px 14px;border:1px solid #e8ba6c88;box-shadow:0 0 0 7px #e8ba6c08,0 15px 40px #0006}
+.baba-portrait figcaption{font-size:.7rem;line-height:1.65;margin-top:14px}.baba-portrait a{display:inline-flex;align-items:center;min-height:44px;color:var(--muted)}
+.baba-story h2{font:500 clamp(1.8rem,4vw,2.8rem)/1.15 Georgia,"Noto Serif Devanagari",serif;margin-top:10px}.baba-story p{line-height:1.8}
+.baba-reflection{font:italic 1.2rem/1.7 Georgia,serif;color:#e8ba6c;border-left:2px solid #c4303c;padding-left:18px}
+.baba-timeline{margin-top:22px;border-top:1px solid var(--line);padding-top:14px}.baba-timeline summary{color:var(--accent);cursor:pointer;min-height:44px;display:flex;align-items:center}.story-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:14px}.story-grid article{padding:14px;border:1px solid var(--line);border-radius:12px;background:#0b211d}.story-grid strong{color:#e8ba6c;font-size:.84rem}.story-grid p{font-size:.84rem;line-height:1.6;margin:8px 0 0}
+.route-picker{display:flex;align-items:end;gap:16px;margin-top:24px;flex-wrap:wrap}.route-picker label{flex:1;min-width:200px}.route-picker .btn{min-height:48px}
+.route-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-top:28px}.facility-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-top:24px}
+.visit-card{border:1px solid #e8ba6c30;border-radius:14px;padding:22px;background:linear-gradient(150deg,#23132166,#111320);min-width:0}
+.visit-card h3{margin:4px 0 12px;color:#f3dfbd}.visit-card p{font-size:.94rem;line-height:1.75;color:#d5ccdf}.visit-card .route-metric{font:500 1.55rem/1.3 Georgia,"Noto Serif Devanagari",serif;color:#f3dfbd;margin:10px 0}
+.route-symbol{display:block;font:500 .8rem/1 ui-monospace,monospace;color:#e6a5ad;letter-spacing:.2em;margin-bottom:22px}.row-actions .text-link{margin-right:12px}
+#reach>section:first-child{border-top:2px solid #c4303c}#reach details{border-bottom:1px solid var(--line);padding:6px 0}#reach h2{margin-top:8px}
+@media(max-width:700px){
+  .daily-hero::after{background:linear-gradient(0deg,#080910 0%,#130d1bec 43%,#190d1230 95%)}
+  .section-tabs{overflow-x:auto;overscroll-behavior-x:contain;gap:6px;padding:10px 3px}.section-tabs a{flex:0 0 auto;min-width:82px;font-size:.82rem;padding:12px 14px;white-space:nowrap}
+  .baba-story{grid-template-columns:1fr;gap:24px}.baba-portrait{width:min(230px,85%);margin:auto}.baba-story h2{font-size:2rem}.story-grid{grid-template-columns:1fr}
+  .route-grid,.facility-grid{grid-template-columns:1fr}.route-picker{align-items:stretch;flex-direction:column;gap:12px}.route-picker label{min-width:0}.visit-card{padding:20px}.route-symbol{margin-bottom:14px}
+}
+@media print{
+  #reach{display:none!important}html,body{background:#fff;color:#000}
+  #arrival{background:#fff;color:#000;box-shadow:none}.pass.printing{background:#fff!important;color:#000!important}
+}

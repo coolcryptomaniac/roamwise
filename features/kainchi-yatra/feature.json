@@ -9,6 +9,11 @@
     "data/alternatives.js",
     "data/strings-en.js",
     "data/strings-hi.js",
+    "data/daily.js",
+    "data/strings-daily.js",
+    "data/strings-bhakti.js",
+    "data/strings-visit.js",
+    "data/strings-advisory.js",
     "core/validation.js",
     "core/i18n.js",
     "core/calendar.js",
@@ -16,16 +21,28 @@
     "core/pass.js",
     "core/rates.js",
     "core/reports.js",
+    "core/updates.js",
+    "core/important-dates.js",
     "ui/context.js",
     "ui/planner.js",
     "ui/passes.js",
     "ui/fair.js",
+    "ui/navigation.js",
+    "ui/updates.js",
+    "ui/week.js",
+    "ui/bhakti.js",
+    "ui/visit.js",
+    "ui/advisory.js",
     "ui/controller.js"
   ],
   "stylesheets": [
-    "ui/kainchi.css"
+    "ui/kainchi.css",
+    "ui/daily.css",
+    "ui/bhakti.css",
+    "ui/visit.css",
+    "ui/advisory.css"
   ],
-  "gzipBudgetBytes": 30720,
+  "gzipBudgetBytes": 65536,
   "runtimeModuleLineLimit": 350,
   "modules": {
     "data/config.js": "Page configuration; empty means not yet provided by the district",
@@ -46,7 +63,20 @@
     "ui/planner.js": "Crowd-pressure planner view",
     "ui/passes.js": "Advisory pass creation, print and opt-in saving",
     "ui/fair.js": "Rate cards and the report form",
-    "ui/controller.js": "Compose modules, language toggle, emergency links, nearby places"
+    "ui/controller.js": "Compose modules, language toggle, emergency links, nearby places",
+    "data/daily.js": "Generated public snapshot fallback; no personal data",
+    "data/strings-daily.js": "English and Hindi daily-hub copy",
+    "core/updates.js": "Feed validation, URL filtering and expiry",
+    "ui/navigation.js": "Accessible hash-linked tab navigation",
+    "ui/updates.js": "Same-origin public snapshot refresh and source health",
+    "ui/week.js": "Seven-day calendar preview and visitor-initiated WhatsApp sharing",
+    "data/strings-bhakti.js": "Bilingual source-linked devotional guide and visit checklist",
+    "core/important-dates.js": "Annual temple observances and sourced year-specific festival dates",
+    "ui/bhakti.js": "Pauseable devotional motion, diya/agarbatti visuals, Pro aarti and private pooja gate, dates and source-linked media",
+    "data/strings-visit.js": "Bilingual sourced travel, parking, facilities and Baba introduction",
+    "ui/visit.js": "Visitor-initiated map directions, official service links and photo attribution",
+    "data/strings-advisory.js": "Bilingual copy for local-only visitor signals, resident planning notes and safety boundaries",
+    "ui/advisory.js": "Device-local parking, shuttle, road and resident notes; never an official feed"
   },
   "externalSeams": {
     "kainchi/index.html": "Public HTML entry with explicit script order",
@@ -58,5 +88,12 @@
     "check": "npm run kainchi:check",
     "test": "npm run kainchi:test",
     "fullRegression": "npm test && npm run check && npm run mod-status"
-  }
+  },
+  "browserAssets": [
+    "ui/art/hero.svg",
+    "ui/art/kainchi-dawn.webp",
+    "ui/art/neem-karoli-baba.jpg",
+    "ui/art/kainchi-immersive-strip.webp"
+  ],
+  "imageBudgetBytes": 650000
 }

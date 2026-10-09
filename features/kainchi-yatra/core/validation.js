@@ -11,6 +11,7 @@
     return { y: y, m: m, d: d, ts: ts, dow: t.getUTCDay() };
   }
   function addDays(value, n) { return new Date(parseDate(value).ts + n * DAY).toISOString().slice(0, 10); }
+  function istDate(value) { return new Date(new Date(value).getTime() + 19800000).toISOString().slice(0, 10); }
   function dateInWindow(value, today, maxDays, key) {
     var p = parseDate(value), t = parseDate(today);
     if (!p || !t || p.ts < t.ts || p.ts > t.ts + maxDays * DAY) fail(key || 'e_date', { n: maxDays });
@@ -22,5 +23,5 @@
     if (!/^\d{1,6}$/.test(s) || +s < min || +s > max) fail(key, vars);
     return +s;
   }
-  Object.assign(api, { fail: fail, parseDate: parseDate, addDays: addDays, dateInWindow: dateInWindow, clean: clean, intIn: intIn, DAY: DAY });
+  Object.assign(api, { fail: fail, parseDate: parseDate, addDays: addDays, istDate: istDate, dateInWindow: dateInWindow, clean: clean, intIn: intIn, DAY: DAY });
 })(globalThis);

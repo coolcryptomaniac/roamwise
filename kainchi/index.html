@@ -2,20 +2,29 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#0b1015">
-  <meta name="description" content="Plan a calmer visit to Kainchi Dham: crowd pressure by date, an advisory arrival pass, fair-price reporting and quieter nearby places.">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#080910">
+  <meta name="description" content="Visit Kainchi Dham with RoamWise: routes, parking guidance, public services, Neem Karoli Baba, devotional dates and sourced daily updates in English and Hindi.">
   <meta name="referrer" content="no-referrer">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; connect-src 'none'; font-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; connect-src 'self'; font-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
   <title>Kainchi Dham Yatra · RoamWise</title>
   <link rel="icon" href="../icons/icon-192.png">
   <link rel="stylesheet" href="../features/kainchi-yatra/ui/kainchi.css">
+  <link rel="stylesheet" href="../features/kainchi-yatra/ui/daily.css">
+  <link rel="stylesheet" href="../features/kainchi-yatra/ui/bhakti.css">
+  <link rel="stylesheet" href="../features/kainchi-yatra/ui/visit.css">
+  <link rel="stylesheet" href="../features/kainchi-yatra/ui/advisory.css">
   <script src="../features/kainchi-yatra/data/config.js" defer></script>
   <script src="../features/kainchi-yatra/data/peak-dates.js" defer></script>
   <script src="../features/kainchi-yatra/data/rate-cards.js" defer></script>
   <script src="../features/kainchi-yatra/data/alternatives.js" defer></script>
   <script src="../features/kainchi-yatra/data/strings-en.js" defer></script>
   <script src="../features/kainchi-yatra/data/strings-hi.js" defer></script>
+  <script src="../features/kainchi-yatra/data/daily.js" defer></script>
+  <script src="../features/kainchi-yatra/data/strings-daily.js" defer></script>
+  <script src="../features/kainchi-yatra/data/strings-bhakti.js" defer></script>
+  <script src="../features/kainchi-yatra/data/strings-visit.js" defer></script>
+  <script src="../features/kainchi-yatra/data/strings-advisory.js" defer></script>
   <script src="../features/kainchi-yatra/core/validation.js" defer></script>
   <script src="../features/kainchi-yatra/core/i18n.js" defer></script>
   <script src="../features/kainchi-yatra/core/calendar.js" defer></script>
@@ -23,46 +32,119 @@
   <script src="../features/kainchi-yatra/core/pass.js" defer></script>
   <script src="../features/kainchi-yatra/core/rates.js" defer></script>
   <script src="../features/kainchi-yatra/core/reports.js" defer></script>
+  <script src="../features/kainchi-yatra/core/updates.js" defer></script>
+  <script src="../features/kainchi-yatra/core/important-dates.js" defer></script>
   <script src="../features/kainchi-yatra/ui/context.js" defer></script>
   <script src="../features/kainchi-yatra/ui/planner.js" defer></script>
   <script src="../features/kainchi-yatra/ui/passes.js" defer></script>
   <script src="../features/kainchi-yatra/ui/fair.js" defer></script>
+  <script src="../features/kainchi-yatra/ui/navigation.js" defer></script>
+  <script src="../features/kainchi-yatra/ui/updates.js" defer></script>
+  <script src="../features/kainchi-yatra/ui/week.js" defer></script>
+  <script src="../features/kainchi-yatra/ui/bhakti.js" defer></script>
+  <script src="../features/kainchi-yatra/ui/visit.js" defer></script>
+  <script src="../features/kainchi-yatra/ui/advisory.js" defer></script>
   <script src="../features/kainchi-yatra/ui/controller.js" defer></script>
 </head>
 <body>
   <a class="skip" href="#plan" data-i18n="skip"></a>
   <header class="topbar">
     <a class="brand" href="../"><span class="brand-mark">RW</span> RoamWise <span class="muted">/ Kainchi</span></a>
+    <button type="button" id="motion-toggle" class="quiet"></button>
     <div class="langs" role="group"><span class="muted" data-i18n="lang_label"></span>
       <button type="button" data-lang="en" aria-pressed="true">English</button>
       <button type="button" data-lang="hi" aria-pressed="false">हिन्दी</button></div>
     <a href="../#app" class="back" data-i18n="back"></a>
   </header>
   <main>
-    <div class="hero">
-      <img class="hero-art" src="../features/kainchi-yatra/ui/art/hero.svg" alt="" width="320" height="120">
-      <div><p class="eyebrow" data-i18n="eyebrow"></p><h1 data-i18n="h1"></h1><p class="muted" data-i18n="lead"></p></div>
-      <span class="pill" data-i18n="pill"></span>
-    </div>
-    <p class="notice" data-i18n="disclaimer"></p>
-    <p class="notice quiet-note" data-i18n="privacy"></p>
-    <section class="panel" aria-labelledby="status-h">
-      <h2 id="status-h" data-i18n="status_h"></h2>
-      <div class="two">
-        <div><h3 data-i18n="status_live"></h3><ul class="ticks"><li data-i18n="status_live_1"></li><li data-i18n="status_live_2"></li><li data-i18n="status_live_3"></li><li data-i18n="status_live_4"></li></ul></div>
-        <div><h3 data-i18n="status_wait"></h3><ul class="waits"><li data-i18n="status_wait_1"></li><li data-i18n="status_wait_2"></li><li data-i18n="status_wait_3"></li><li data-i18n="status_wait_4"></li></ul></div>
+    <div class="hero daily-hero">
+      <img class="hero-art" src="../features/kainchi-yatra/ui/art/kainchi-dawn.webp" alt="" width="1536" height="1024" fetchpriority="high">
+      <div class="hero-mist" aria-hidden="true"></div>
+      <div class="hero-copy"><p class="eyebrow" data-i18n="eyebrow"></p><h1 data-i18n="h1"></h1><p data-i18n="lead"></p>
+        <div class="row-actions"><a class="btn" href="#plan" data-i18n="cta_plan"></a><a class="btn quiet" href="#reach" data-i18n="reach_cta"></a></div>
       </div>
-    </section>
-    <section class="panel" id="plan" aria-labelledby="plan-h">
+      <span class="art-credit" data-i18n="art_credit"></span>
+    </div>
+    <p class="independent" data-i18n="disclaimer"></p>
+    <nav id="section-tabs" class="section-tabs" aria-label="Kainchi Dham">
+      <a href="#today" data-i18n="tab_today"></a><a href="#plan" data-i18n="tab_plan"></a><a href="#bhakti" data-i18n="tab_bhakti"></a><a href="#reach" data-i18n="tab_reach"></a><a href="#advisory" data-i18n="tab_advisory"></a><a href="#arrival" data-i18n="tab_arrival"></a><a href="#help" data-i18n="tab_help"></a><a href="#nearby" data-i18n="tab_nearby"></a>
+    </nav>
+    <div id="today" data-tab-panel>
+      <section class="panel" aria-labelledby="today-h">
+        <div class="section-heading"><div><p class="eyebrow" data-i18n="today_kicker"></p><h2 id="today-h" data-i18n="today_h"></h2></div><button type="button" id="updates-refresh" class="quiet" data-i18n="feed_refresh"></button></div>
+        <p id="feed-freshness" role="status"></p><p class="muted" data-i18n="feed_limits"></p><p id="feed-network" role="status" class="message"></p>
+        <div class="digest"><span class="eyebrow" data-i18n="digest_h"></span><p id="digest-text"></p></div>
+        <div class="feed-filters" role="group" aria-label="Updates">
+          <button type="button" class="quiet" data-feed-filter="all" aria-pressed="true" data-i18n="filter_all"></button>
+          <button type="button" class="quiet" data-feed-filter="official" aria-pressed="false" data-i18n="feed_official"></button>
+          <button type="button" class="quiet" data-feed-filter="news" aria-pressed="false" data-i18n="feed_news"></button>
+          <button type="button" class="quiet" data-feed-filter="history" aria-pressed="false" data-i18n="filter_history"></button>
+        </div>
+        <ul id="updates-list" class="updates-list"></ul>
+      </section>
+      <section class="panel" aria-labelledby="official-h"><h2 id="official-h" data-i18n="official_h"></h2><p class="muted" data-i18n="official_lead"></p><ul id="source-health" class="source-health"></ul></section>
+      <details class="panel"><summary data-i18n="how_h"></summary><p data-i18n="how_body"></p><p class="muted" data-i18n="privacy"></p></details>
+    </div>
+    <section class="panel" id="plan" data-tab-panel aria-labelledby="plan-h">
       <h2 id="plan-h" data-i18n="plan_h"></h2>
+      <p class="muted" data-i18n="week_note"></p><div id="week-strip" class="week-strip"></div>
       <label><span data-i18n="plan_date"></span><input type="date" id="plan-date" required></label>
       <div class="gauge"><span id="plan-level" class="level"></span><div id="plan-meter" class="meter" data-score="0" aria-hidden="true"><i></i><i></i><i></i></div></div>
       <p id="plan-advice"></p>
       <h3 data-i18n="plan_why"></h3><ul id="plan-reasons"></ul>
       <p class="muted" data-i18n="plan_nohour"></p>
-      <h3 data-i18n="plan_hist_h"></h3><div id="plan-history" class="muted"></div>
+<h3 data-i18n="checklist_h"></h3><div class="visit-checklist"><label class="check"><input type="checkbox"><span data-i18n="checklist_1"></span></label><label class="check"><input type="checkbox"><span data-i18n="checklist_2"></span></label><label class="check"><input type="checkbox"><span data-i18n="checklist_3"></span></label><label class="check"><input type="checkbox"><span data-i18n="checklist_4"></span></label></div><p class="muted small" data-i18n="checklist_note"></p>
+      <div class="row-actions"><a id="share-trip" class="btn" href="#" data-i18n="share_trip"></a><a class="btn quiet" href="#arrival" data-i18n="cta_pass"></a></div>
+      <details><summary data-i18n="plan_hist_h"></summary><div id="plan-history" class="muted"></div></details>
     </section>
-    <section class="panel" aria-labelledby="pass-h">
+    <div id="bhakti" data-tab-panel>
+      <section class="panel baba-story" aria-labelledby="baba-h">
+        <figure class="baba-portrait"><img id="baba-photo" src="../features/kainchi-yatra/ui/art/neem-karoli-baba.jpg" width="453" height="640" alt="Neem Karoli Baba seated outdoors, wrapped in a checked blanket" loading="lazy" decoding="async"><figcaption><a href="#" data-visit-link="photo" data-i18n="baba_credit"></a></figcaption></figure>
+        <div><p class="eyebrow" data-i18n="baba_kicker"></p><h2 id="baba-h" data-i18n="baba_h"></h2><p data-i18n="baba_body"></p><p class="baba-reflection" data-i18n="baba_reflection"></p><div class="row-actions"><a class="btn" href="#" data-visit-link="baba" data-i18n="baba_read"></a><a class="btn quiet" href="#" data-visit-link="history" data-i18n="baba_history"></a><a class="text-link" href="#" data-visit-link="gallery" data-i18n="baba_gallery"></a></div><details class="baba-timeline"><summary data-i18n="baba_story_summary"></summary><div class="story-grid"><article><strong data-i18n="baba_story_1_h"></strong><p data-i18n="baba_story_1"></p></article><article><strong data-i18n="baba_story_2_h"></strong><p data-i18n="baba_story_2"></p></article><article><strong data-i18n="baba_story_3_h"></strong><p data-i18n="baba_story_3"></p></article></div></details></div>
+      </section>
+      <section class="panel devotion" aria-labelledby="bhakti-h"><p class="eyebrow" data-i18n="bhakti_kicker"></p><h2 id="bhakti-h" data-i18n="bhakti_h"></h2><p class="muted" data-i18n="bhakti_intro"></p>
+        <div class="devotion-grid"><div><h3 data-i18n="prayer_h"></h3><p class="prayer" lang="hi">बुद्धिहीन तनु जानिके, सुमिरौं पवन-कुमार।<br>बल बुद्धि विद्या देहु मोहिं, हरहु कलेश विकार॥</p><p data-i18n="prayer_meaning"></p><p class="muted small" data-i18n="prayer_credit"></p><a id="chalisa-link" class="text-link" href="#" data-i18n="prayer_full"></a></div>
+        <div class="diya-space"><div id="ritual-stage" class="ritual-stage"><div id="digital-diya" class="digital-diya" aria-hidden="true"><i class="flame"></i><i class="bowl"></i><i class="diya-glow"></i></div><div id="agarbatti" class="agarbatti" aria-hidden="true"><i class="agarbatti-stick"></i><i class="incense-glow"></i><i class="smoke smoke-a"></i><i class="smoke smoke-b"></i><i class="smoke smoke-c"></i></div></div><div class="ritual-controls"><button type="button" id="diya-toggle" aria-pressed="false"></button><button type="button" id="incense-toggle" class="quiet" aria-pressed="false"></button><button type="button" id="aarti-toggle" class="quiet pro-control" aria-pressed="false" data-pro-feature="aarti"></button></div><p id="pro-status" class="message" role="status" aria-live="polite"></p><p class="muted small" data-i18n="diya_note"></p></div></div>
+      </section>
+      <section class="panel media-rituals" aria-labelledby="media-h"><p class="eyebrow" data-i18n="media_kicker"></p><h2 id="media-h" data-i18n="media_h"></h2><p class="muted" data-i18n="media_intro"></p><div class="media-grid"><article class="media-card"><span class="media-icon" aria-hidden="true">▶</span><div><h3 data-i18n="media_trust_h"></h3><p data-i18n="media_trust_body"></p><a id="media-trust" class="text-link" href="#" data-i18n="media_open"></a></div></article><article class="media-card"><span class="media-icon" aria-hidden="true">ॐ</span><div><h3 data-i18n="media_story_h"></h3><p data-i18n="media_story_body"></p><a id="media-story" class="text-link" href="#" data-i18n="media_open"></a></div></article><article class="media-card"><span class="media-icon" aria-hidden="true">☼</span><div><h3 data-i18n="media_darshan_h"></h3><p data-i18n="media_darshan_body"></p><a id="media-darshan" class="text-link" href="#" data-i18n="media_open"></a></div></article></div><p class="muted small" data-i18n="media_rights"></p></section>
+      <section class="panel immersive" aria-labelledby="immersive-h"><div class="immersive-art"><img src="../features/kainchi-yatra/ui/art/kainchi-immersive-strip.webp" alt="AI illustration of a Himalayan temple valley, river, pilgrims, shops and mountain road" width="1200" height="400" loading="lazy" decoding="async"><span class="art-credit" data-i18n="immersive_credit"></span></div><div class="immersive-copy"><p class="eyebrow" data-i18n="immersive_kicker"></p><h2 id="immersive-h" data-i18n="immersive_h"></h2><p data-i18n="immersive_body"></p><div class="scene-chips"><span data-i18n="scene_mountain"></span><span data-i18n="scene_river"></span><span data-i18n="scene_mandir"></span><span data-i18n="scene_traffic"></span><span data-i18n="scene_crowd"></span><span data-i18n="scene_shops"></span></div></div></section>
+      <section class="panel pooja-studio" aria-labelledby="pooja-h"><p class="eyebrow" data-i18n="pooja_kicker"></p><h2 id="pooja-h" data-i18n="pooja_h"></h2><p class="muted" data-i18n="pooja_intro"></p><form id="pooja-form" class="pooja-form"><label><span data-i18n="pooja_name"></span><input id="pooja-name" maxlength="60" autocomplete="name" required></label><label><span data-i18n="pooja_wellwishers_input"></span><textarea id="pooja-wellwishers" maxlength="180" rows="3"></textarea></label><label><span data-i18n="pooja_intent"></span><select id="pooja-intent"><option value="peace" data-i18n="pooja_intent_peace"></option><option value="health" data-i18n="pooja_intent_health"></option><option value="gratitude" data-i18n="pooja_intent_gratitude"></option><option value="journey" data-i18n="pooja_intent_journey"></option></select></label><label><span data-i18n="pooja_mantra"></span><select id="pooja-mantra"><option value="hanuman" data-i18n="mantra_option_hanuman"></option><option value="shanti" data-i18n="mantra_option_shanti"></option><option value="sarve" data-i18n="mantra_option_sarve"></option><option value="gayatri" data-i18n="mantra_option_gayatri"></option></select></label><button id="pooja-start" type="submit" class="pro-control" data-i18n="pooja_start"></button></form><p id="pooja-lock" class="message" role="status" aria-live="polite"></p><div id="pooja-result" class="pooja-result" hidden></div><p class="muted small" data-i18n="pooja_disclaimer"></p></section>
+      <section class="panel" aria-labelledby="dates-h"><h2 id="dates-h" data-i18n="dates_h"></h2><p class="muted" data-i18n="dates_note"></p><ul id="important-dates" class="date-events"></ul></section>
+      <section class="panel" aria-labelledby="timings-h"><h2 id="timings-h" data-i18n="timings_h"></h2><p data-i18n="timings_body"></p><p data-i18n="aarti_body"></p><p id="timings-freshness" class="muted"></p><a id="trust-info" class="text-link" href="#" data-i18n="trust_info"></a></section>
+      <section class="panel" aria-labelledby="trust-h"><h2 id="trust-h" data-i18n="trust_h"></h2><p data-i18n="trust_note"></p><div class="row-actions"><a id="trust-updates" class="btn quiet" href="#" data-i18n="trust_updates"></a><a id="trust-video" class="btn quiet" href="#" data-i18n="trust_video"></a></div></section>
+    </div>
+    <div id="reach" data-tab-panel>
+      <section class="panel" aria-labelledby="reach-h">
+        <p class="eyebrow" data-i18n="reach_kicker"></p><h2 id="reach-h" data-i18n="reach_h"></h2><p class="muted" data-i18n="reach_intro"></p>
+        <div class="route-picker"><label for="route-origin"><span data-i18n="route_from"></span><select id="route-origin"><option value="current" data-i18n="route_current"></option><option value="kathgodam" data-i18n="route_kathgodam"></option><option value="haldwani" data-i18n="route_haldwani"></option><option value="nainital" data-i18n="route_nainital"></option><option value="almora" data-i18n="route_almora"></option><option value="delhi" data-i18n="route_delhi"></option><option value="pantnagar" data-i18n="route_pantnagar"></option></select></label><a id="route-open" class="btn" href="#" target="_blank" rel="noopener noreferrer" data-i18n="route_open"></a></div>
+        <p class="muted small" data-i18n="route_privacy"></p>
+        <div class="route-grid">
+          <article class="visit-card"><span class="route-symbol" aria-hidden="true">01</span><h3 data-i18n="rail_h"></h3><p class="route-metric" data-i18n="rail_metric"></p><p data-i18n="rail_body"></p></article>
+          <article class="visit-card"><span class="route-symbol" aria-hidden="true">02</span><h3 data-i18n="road_h"></h3><p class="route-metric" data-i18n="road_metric"></p><p data-i18n="road_body"></p></article>
+          <article class="visit-card"><span class="route-symbol" aria-hidden="true">03</span><h3 data-i18n="air_h"></h3><p class="route-metric" data-i18n="air_metric"></p><p data-i18n="air_body"></p></article>
+        </div>
+        <p class="muted small" data-i18n="route_source_note"></p><div class="row-actions"><a class="text-link" href="#" data-visit-link="trust" data-i18n="source_trust"></a><a class="text-link" href="#" data-visit-link="district" data-i18n="source_district"></a><a class="btn quiet" href="#" data-visit-link="bus" data-i18n="source_bus"></a></div><p class="muted small" id="guide-freshness"></p>
+      </section>
+      <section class="panel" aria-labelledby="parking-h"><p class="eyebrow" data-i18n="parking_tag"></p><h2 id="parking-h" data-i18n="parking_h"></h2><div class="two"><div><p data-i18n="parking_body"></p><a class="btn quiet" href="#" data-visit-link="parking" data-i18n="parking_maps"></a><p class="muted small" data-i18n="parking_maps_note"></p></div><div><h3 data-i18n="shuttle_h"></h3><p data-i18n="shuttle_body"></p><a class="text-link" href="#" data-visit-link="trust" data-i18n="source_trust"></a></div></div><div class="row-actions"><a class="btn quiet" href="#" data-visit-link="police" data-i18n="parking_police"></a><a class="btn quiet" href="#today" data-i18n="parking_notices"></a></div></section>
+      <section class="panel" aria-labelledby="facilities-h"><h2 id="facilities-h" data-i18n="facilities_h"></h2><p class="muted" data-i18n="facilities_note"></p>
+        <div class="facility-grid">
+          <article class="visit-card"><h3 data-i18n="facility_medical_h"></h3><p data-i18n="facility_medical"></p><div class="row-actions"><a class="btn danger" href="tel:108" data-i18n="rep_call_amb"></a><a class="btn danger" href="tel:112" data-i18n="rep_call_gen"></a></div><a class="text-link" href="#" data-visit-link="hospitals" data-i18n="facility_hospitals"></a></article>
+          <article class="visit-card"><h3 data-i18n="facility_disaster_h"></h3><p data-i18n="facility_disaster"></p><div class="row-actions"><a class="btn quiet" href="tel:1077" data-i18n="facility_disaster_call"></a><a class="text-link" href="tel:05942231178" data-i18n="facility_disaster_landline"></a></div><a class="text-link" href="#" data-visit-link="disaster" data-i18n="facility_disaster_source"></a></article>
+          <article class="visit-card"><h3 data-i18n="facility_amenities_h"></h3><p data-i18n="facility_amenities"></p><a class="text-link" href="#" data-visit-link="trust" data-i18n="source_trust"></a></article>
+          <article class="visit-card"><h3 data-i18n="facility_access_h"></h3><p data-i18n="facility_access"></p><a class="text-link" href="#" data-visit-link="trust" data-i18n="trust_info"></a></article>
+        </div>
+        <h3 data-i18n="facility_grievance_h"></h3><p data-i18n="facility_grievance"></p><div class="row-actions"><a class="btn quiet" href="#" data-visit-link="dm" data-i18n="facility_dm"></a><a class="btn quiet" href="#" data-visit-link="policeDirectory" data-i18n="facility_police"></a><a class="btn quiet" href="#" data-visit-link="grievance" data-i18n="facility_grievance_link"></a></div>
+      </section>
+      <section class="panel" aria-labelledby="faq-h"><h2 id="faq-h" data-i18n="visit_faq_h"></h2><details><summary data-i18n="faq_stay"></summary><p data-i18n="faq_stay_answer"></p></details><details><summary data-i18n="faq_offering"></summary><p data-i18n="faq_offering_answer"></p></details><details><summary data-i18n="faq_access"></summary><p data-i18n="faq_access_answer"></p></details><a class="text-link" href="#" data-visit-link="trust" data-i18n="trust_info"></a></section>
+    </div>
+    <div id="advisory" data-tab-panel>
+      <section class="panel advisory-hero" aria-labelledby="advisory-h"><p class="eyebrow" data-i18n="advisory_kicker"></p><h2 id="advisory-h" data-i18n="advisory_h"></h2><p class="muted" data-i18n="advisory_intro"></p><div class="notice advisory-disclaimer" role="note"><strong data-i18n="advisory_notice_h"></strong><p data-i18n="advisory_notice"></p></div></section>
+      <section class="panel" aria-labelledby="signals-h"><h2 id="signals-h" data-i18n="signals_h"></h2><p class="muted" data-i18n="signals_intro"></p><form id="signal-form" class="fields"><label><span data-i18n="signal_kind"></span><select id="signal-kind"><option value="parking" data-i18n="signal_parking"></option><option value="shuttle" data-i18n="signal_shuttle"></option><option value="road" data-i18n="signal_road"></option></select></label><label><span data-i18n="signal_state"></span><select id="signal-state"><option value="moving" data-i18n="signal_moving"></option><option value="slow" data-i18n="signal_slow"></option><option value="full" data-i18n="signal_full"></option><option value="unknown" data-i18n="signal_unknown"></option></select></label><label class="wide"><span data-i18n="signal_note"></span><textarea id="signal-note" maxlength="180" rows="2"></textarea></label><button type="submit" data-i18n="signal_save"></button></form><p id="signal-message" class="message" role="status" aria-live="polite"></p><div id="signal-list" class="signal-list"></div><p class="muted small" data-i18n="signals_privacy"></p></section>
+      <section class="panel" aria-labelledby="rules-h"><h2 id="rules-h" data-i18n="rules_h"></h2><div class="advisory-grid"><article class="visit-card"><h3 data-i18n="rules_peak_h"></h3><p data-i18n="rules_peak"></p></article><article class="visit-card"><h3 data-i18n="rules_rates_h"></h3><p data-i18n="rules_rates"></p></article><article class="visit-card"><h3 data-i18n="rules_gate_h"></h3><p data-i18n="rules_gate"></p></article></div></section>
+      <section class="panel" aria-labelledby="resident-h"><h2 id="resident-h" data-i18n="resident_note_h"></h2><p class="muted" data-i18n="resident_note_intro"></p><form id="resident-form" class="fields"><label><span data-i18n="resident_route"></span><input id="resident-route" maxlength="100" required></label><label><span data-i18n="resident-date"></span><input id="resident-date" type="date" required></label><label class="wide"><span data-i18n="resident-details"></span><textarea id="resident-details" maxlength="240" rows="2"></textarea></label><button type="submit" data-i18n="resident_save"></button></form><p id="resident-message" class="message" role="status" aria-live="polite"></p><div id="resident-out" class="resident-out"></div></section>
+      <section class="panel emergency-panel" aria-labelledby="corridor-h"><h2 id="corridor-h" data-i18n="corridor_h"></h2><p data-i18n="corridor_body"></p><div class="row-actions"><a class="btn danger" href="tel:108" data-i18n="rep_call_amb"></a><a class="btn danger" href="tel:112" data-i18n="rep_call_gen"></a></div></section>
+    </div>
+    <section class="panel" id="arrival" data-tab-panel aria-labelledby="pass-h">
       <h2 id="pass-h" data-i18n="pass_h"></h2>
       <p class="muted" data-i18n="pass_lead"></p>
       <form id="pass-form" class="fields">
@@ -77,12 +159,14 @@
       <p id="pass-message" class="message" role="status" aria-live="polite"></p>
       <ul id="pass-list" class="passes"></ul>
     </section>
+    <div id="help" data-tab-panel>
     <section class="panel" aria-labelledby="fair-h">
       <h2 id="fair-h" data-i18n="fair_h"></h2>
       <p class="muted" data-i18n="fair_lead"></p>
       <div id="rate-list"></div>
       <h3 data-i18n="rep_h"></h3>
       <p class="muted" data-i18n="rep_lead"></p>
+      <div id="report-emergency" class="alert" hidden role="alert"><p data-i18n="rep_emergency"></p><div class="row-actions"><a class="btn danger" href="tel:108" data-i18n="rep_call_amb"></a><a class="btn danger" href="tel:112" data-i18n="rep_call_gen"></a></div></div>
       <form id="report-form" class="fields">
         <label><span data-i18n="rep_cat"></span><select id="rep-cat"></select></label>
         <label><span data-i18n="rep_place"></span><input type="text" id="rep-place" maxlength="120" required autocomplete="off"></label>
@@ -97,7 +181,7 @@
         <pre id="report-text" class="report-text"></pre>
         <p id="report-to" class="muted"></p>
         <div class="row-actions"><a id="report-mail" class="btn" href="#" data-i18n="rep_send_mail"></a><a id="report-wa" class="btn" href="#" hidden data-i18n="rep_send_wa"></a></div>
-        <div id="report-emergency" class="alert" hidden><p data-i18n="rep_emergency"></p></div>
+
       </div>
     </section>
     <section class="panel" aria-labelledby="res-h">
@@ -106,11 +190,22 @@
       <div class="row-actions"><a id="emerg-amb" class="btn danger" href="tel:108" data-i18n="rep_call_amb"></a><a id="emerg-gen" class="btn danger" href="tel:112" data-i18n="rep_call_gen"></a></div>
       <ul><li data-i18n="res_1"></li><li data-i18n="res_2"></li><li data-i18n="res_3"></li><li data-i18n="res_4"></li></ul>
     </section>
+    </div>
+    <div id="nearby" data-tab-panel>
     <section class="panel" aria-labelledby="alt-h">
       <h2 id="alt-h" data-i18n="alt_h"></h2>
       <p class="muted" data-i18n="alt_lead"></p>
       <ul id="alt-list" class="alts"></ul>
     </section>
+    <section class="panel" aria-labelledby="status-h">
+      <h2 id="status-h" data-i18n="status_h"></h2>
+      <div class="two">
+        <div><h3 data-i18n="status_live"></h3><ul class="ticks"><li data-i18n="status_live_1"></li><li data-i18n="status_live_2"></li><li data-i18n="status_live_3"></li><li data-i18n="status_live_4"></li></ul></div>
+        <div><h3 data-i18n="status_wait"></h3><ul class="waits"><li data-i18n="status_wait_1"></li><li data-i18n="status_wait_2"></li><li data-i18n="status_wait_3"></li><li data-i18n="status_wait_4"></li></ul></div>
+      </div>
+    </section>
+    </div>
+    <noscript><p class="notice">Enable JavaScript for tabs, updates and the planner. Emergency: 112 / Ambulance: 108. Official notices: nainital.nic.in.</p></noscript>
   </main>
   <footer class="foot muted" data-i18n="foot"></footer>
 </body>
