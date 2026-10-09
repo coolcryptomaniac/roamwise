@@ -123,3 +123,9 @@ test('admin payment reconciliation persists the server-owned allowance tier', ()
   assert.match(html, /proTier:tier/);
   assert.match(html, /paymentPlanHint\(uid\)/);
 });
+
+test('Worker uses a Sarvam chat model that Sarvam still serves (sarvam-30b was retired)', () => {
+  const config = read('worker/wrangler.toml');
+  assert.match(config, /SARVAM_MODEL\s*=\s*"sarvam-105b-conversations"/);
+  assert.doesNotMatch(read('worker/handlers/ai.js'), /sarvam-30b/);
+});

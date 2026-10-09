@@ -24,8 +24,8 @@ async function cloudflareAI(policy,env){
 }
 async function sarvamAI(policy,env){
   if(!env.SARVAM_API_KEY)throw new Error('sarvam_unavailable');
-  const r=await fetch('https://api.sarvam.ai/v1/chat/completions',{method:'POST',headers:{Authorization:`Bearer ${env.SARVAM_API_KEY}`,'Content-Type':'application/json'},body:JSON.stringify({model:String(env.SARVAM_MODEL||'sarvam-30b'),messages:[{role:'system',content:SYSTEM},{role:'user',content:policy.prompt}],max_tokens:policy.maxTokens})});
-  const d=await r.json();if(!r.ok)throw new Error('sarvam_failed');return {text:String(d?.choices?.[0]?.message?.content||'').trim(),provider:'sarvam',model:String(env.SARVAM_MODEL||'sarvam-30b')};
+  const r=await fetch('https://api.sarvam.ai/v1/chat/completions',{method:'POST',headers:{Authorization:`Bearer ${env.SARVAM_API_KEY}`,'Content-Type':'application/json'},body:JSON.stringify({model:String(env.SARVAM_MODEL||'sarvam-105b-conversations'),messages:[{role:'system',content:SYSTEM},{role:'user',content:policy.prompt}],max_tokens:policy.maxTokens})});
+  const d=await r.json();if(!r.ok)throw new Error('sarvam_failed');return {text:String(d?.choices?.[0]?.message?.content||'').trim(),provider:'sarvam',model:String(env.SARVAM_MODEL||'sarvam-105b-conversations')};
 }
 async function groqAI(policy,env){
   if(!env.GROQ_API_KEY||!env.GROQ_MODEL)throw new Error('groq_unavailable');
