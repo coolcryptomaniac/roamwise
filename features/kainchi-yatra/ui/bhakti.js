@@ -4,6 +4,8 @@
     var lit = false, incense = false, aarti = false, poojaReady = false, motion = ctx.get('rw_kainchi_motion') !== 'off';
     var media = root.matchMedia ? root.matchMedia('(prefers-reduced-motion: reduce)') : { matches: false };
     var toggle = ctx.$('motion-toggle');
+    var ritual = root.RWKainchiUI.createRitual(ctx, isPro);
+    var standardPlayer = ritual.mount(ctx.$('digital-aarti-player'), 'standard');
     function external(id, url) {
       var a = ctx.$(id); a.href = url; a.target = '_blank'; a.rel = 'noopener noreferrer';
     }
@@ -33,6 +35,7 @@
       aartiButton.setAttribute('aria-label', ctx.t('aarti_on'));
       aartiButton.classList.toggle('locked', !pro);
       ctx.$('ritual-stage').classList.toggle('aarti-active', aarti && pro);
+      ctx.$('digital-aarti-player').hidden = !aarti || !pro;
       ctx.$('pro-status').textContent = !pro ? ctx.t('pro_locked') : aarti ? ctx.t('pro_unlocked') : '';
     }
     function isPro() {
@@ -61,6 +64,7 @@
       var wellwishers = String(ctx.$('pooja-wellwishers').value || '').trim().slice(0, 180);
       var intent = ctx.$('pooja-intent').value;
       if (!name) { ctx.$('pooja-lock').textContent = ctx.t('pooja_name_required'); return; }
+      ritual.stop(); aarti = false;
       var result = ctx.$('pooja-result'); ctx.clear(result);
       result.appendChild(ctx.el('h3', ctx.t('pooja_for') + ' ' + name, 'pooja-result-title'));
       result.appendChild(ctx.el('p', wellwishers ? ctx.t('pooja_wellwishers') + ': ' + wellwishers : ctx.t('pooja_personal'), 'muted'));
@@ -70,7 +74,9 @@
       result.appendChild(ctx.el('p', ctx.t('pooja_pandit'), 'pooja-pandit'));
       var steps = [ctx.t('pooja_step_1'), ctx.t('pooja_step_2'), ctx.t('pooja_step_3'), ctx.t('pooja_step_4')], list = ctx.el('ol', null, 'pooja-steps');
       steps.forEach(function (step) { list.appendChild(ctx.el('li', step)); }); result.appendChild(list);
-      result.hidden = false; poojaReady = true; renderPooja();
+      var host = ctx.el('div'); result.appendChild(host);
+      var customPlayer = ritual.mount(host, 'custom', { name: name, wellwishers: wellwishers, intent: intent, mantra: ctx.$('pooja-mantra').value });
+      result.hidden = false; poojaReady = true; customPlayer.start(); renderPooja(); renderMotion();
     }
     function renderDates() {
       var box = ctx.$('important-dates'); ctx.clear(box);
@@ -98,9 +104,14 @@
     if (media.addEventListener) media.addEventListener('change', renderMotion);
     ctx.$('diya-toggle').addEventListener('click', function () { lit = !lit; renderMotion(); });
     ctx.$('incense-toggle').addEventListener('click', function () { incense = !incense; renderMotion(); });
-    ctx.$('aarti-toggle').addEventListener('click', function () { if (!isPro()) { renderMotion(); return; } aarti = !aarti; renderMotion(); });
+    ctx.$('aarti-toggle').addEventListener('click', function () {
+      if (!isPro()) { renderMotion(); return; }
+      aarti = !aarti; lit = aarti || lit; incense = aarti || incense;
+      renderMotion();
+      if (aarti) standardPlayer.start(); else ritual.stop();
+    });
     if (ctx.$('pooja-form')) ctx.$('pooja-form').addEventListener('submit', buildPooja);
-    ctx.onLang(function () { renderMotion(); renderDates(); });
+    ctx.onLang(function () { renderMotion(); renderDates(); renderPooja(); });
     renderPooja();
   };
 })(window);

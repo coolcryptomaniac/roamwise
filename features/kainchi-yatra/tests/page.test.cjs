@@ -10,6 +10,7 @@ function boot(opts = {}) {
   const dom = new JSDOM(html, { url: 'https://roamwise.co.in/kainchi/', runScripts: 'outside-only' });
   const w = dom.window;
   Object.defineProperty(w.navigator, 'language', { value: opts.lang || 'en-IN' });
+  if (opts.reduced) w.matchMedia = () => ({ matches: true, addEventListener() {} });
   w.fetch = async (url, options) => {
     assert.equal(url, '../features/kainchi-yatra/data/daily.json');
     assert.equal(options.credentials, 'omit');
@@ -17,6 +18,11 @@ function boot(opts = {}) {
   };
   w.setInterval = () => 0;
   w.print = () => {};
+  if (opts.pro) w.localStorage.setItem('rwPro', '1');
+  if (opts.speech) {
+    w.SpeechSynthesisUtterance = function (text) { this.text = text; };
+    w.speechSynthesis = opts.speech;
+  }
   if (opts.saved) w.localStorage.setItem('rw_kainchi_passes_v1', opts.saved);
   if (opts.blocked) Object.defineProperty(w, 'localStorage', { get() { throw new Error('blocked'); } });
   for (const tag of w.document.querySelectorAll('script[src]')) w.eval(fs.readFileSync(path.resolve(base, tag.getAttribute('src')), 'utf8'));
@@ -185,4 +191,120 @@ test('advisory layer is local-only and never pretends to issue permits', () => {
   assert.equal($(d, 'advisory').querySelector('a[href="tel:108"]').getAttribute('href'), 'tel:108');
   assert.equal(doc.querySelectorAll('iframe').length, 0);
   d.window.close();
+});
+
+function speech(voices = [{ lang: 'en-IN', localService: true }, { lang: 'hi-IN', localService: true }]) {
+  return { spoken: [], cancelled: 0, getVoices() { return voices; }, speak(u) { this.spoken.push(u); }, cancel() { this.cancelled++; } };
+}
+const action = (d, kind, id) => d.window.document.querySelector('#' + kind + '-ritual [data-ritual-action="' + id + '"]');
+function toggleVoice(d, kind, value) {
+  const checkbox = action(d, kind, 'voice'); checkbox.checked = value; checkbox.dispatchEvent(new d.window.Event('change'));
+}
+test('panditji player is Pro gated, silent by default and contains the whole configured aarti', () => {
+  const guest = boot();
+  assert.equal(action(guest, 'standard', 'start').disabled, true);
+  assert.equal($(guest, 'digital-aarti-player').hidden, true);
+  guest.window.close();
+  const voice = speech(), d = boot({ pro: true, speech: voice });
+  $(d, 'aarti-toggle').click();
+  assert.equal($(d, 'digital-aarti-player').hidden, false);
+  assert.equal(voice.spoken.length, 0);
+  assert.equal(action(d, 'standard', 'voice').checked, false);
+  assert.equal(d.window.RWKainchiCore.hanumanAarti.length, 12);
+  const script = d.window.document.querySelector('#standard-ritual .ritual-script');
+  assert.equal(script.children.length, 23);
+  assert.match(script.textContent, /कंचन थार कपूर/);
+  assert.match(d.window.RWKainchiCore.t('hi', 'mantra_gayatri'), /धियो यो नः प्रचोदयात्/);
+  for (const phase of ['sankalp', 'flowers', 'dhoop', 'diya', 'aarti', 'prasad', 'blessing']) {
+    assert.ok(d.window.RWKainchiCore.ritualScript('en').some(s => s.id === phase));
+  }
+  d.window.close();
+});
+test('local recitation advances, pauses, resumes and ignores callbacks from stopped sessions', () => {
+  const voice = speech(), d = boot({ pro: true, speech: voice });
+  $(d, 'aarti-toggle').click(); toggleVoice(d, 'standard', true);
+  assert.equal(voice.spoken.length, 1);
+  const first = voice.spoken[0], late = first.onend;
+  action(d, 'standard', 'pause').click();
+  assert.equal(voice.cancelled, 1);
+  late(); assert.equal(voice.spoken.length, 1);
+  action(d, 'standard', 'pause').click();
+  assert.equal(voice.spoken.length, 2);
+  voice.spoken[1].onend();
+  assert.equal(voice.spoken.length, 3);
+  assert.match(voice.spoken[2].text, /intention/);
+  action(d, 'standard', 'next').click();
+  assert.equal(voice.spoken.at(-1).lang, 'hi-IN');
+  assert.equal(voice.spoken.at(-1).voice.localService, true);
+  const stopped = voice.spoken.at(-1).onend;
+  action(d, 'standard', 'stop').click(); stopped();
+  assert.equal(action(d, 'standard', 'pause').disabled, true);
+  assert.match(d.window.document.querySelector('#standard-ritual .ritual-progress').textContent, /stopped/);
+  d.window.close();
+});
+test('unavailable or remote-only voices never receive names and fail honestly to text mode', () => {
+  for (const voices of [[], [{ lang: 'hi-IN', localService: false }, { lang: 'en-IN', localService: false }]]) {
+    const voice = speech(voices), d = boot({ pro: true, speech: voice });
+    $(d, 'pooja-name').value = 'Private Name';
+    $(d, 'pooja-form').dispatchEvent(new d.window.Event('submit', { cancelable: true }));
+    toggleVoice(d, 'custom', true);
+    assert.equal(voice.spoken.length, 0);
+    assert.match(d.window.document.querySelector('#custom-ritual .ritual-progress').textContent, /No local voice/);
+    toggleVoice(d, 'custom', false);
+    action(d, 'custom', 'next').click();
+    assert.match(d.window.document.querySelector('#custom-ritual .ritual-caption').textContent, /Private Name/);
+    d.window.close();
+  }
+});
+test('custom aarti safely speaks the named sankalp, chosen mantra and completes symbolic prasad', () => {
+  const voice = speech(), d = boot({ pro: true, speech: voice });
+  $(d, 'pooja-name').value = '<img src=x onerror=alert(1)>';
+  $(d, 'pooja-wellwishers').value = 'Family'; $(d, 'pooja-mantra').value = 'gayatri';
+  $(d, 'pooja-form').dispatchEvent(new d.window.Event('submit', { cancelable: true }));
+  assert.equal(d.window.document.querySelector('#pooja-result img[src="x"]'), null);
+  toggleVoice(d, 'custom', true); voice.spoken.at(-1).onend();
+  assert.match(voice.spoken.at(-1).text, /Remembering <img/);
+  assert.match(voice.spoken.at(-1).text, /Family/);
+  let count = 0;
+  while (!action(d, 'custom', 'pause').disabled && count++ < 30) voice.spoken.at(-1).onend();
+  assert.equal(count, 22);
+  const caption = d.window.document.querySelector('#custom-ritual .ritual-caption');
+  assert.match(caption.textContent, /not a promise/);
+  assert.equal(d.window.document.querySelector('#custom-ritual .ritual-scene').dataset.phase, 'prasad');
+  assert.match(voice.spoken.map(u => u.text).join(' '), /धियो यो नः प्रचोदयात्/);
+  assert.doesNotMatch(JSON.stringify(d.window.localStorage), /Family|onerror/);
+  d.window.close();
+});
+test('player switches modes without overlap and stops on language, tab, speech error or Pro loss', () => {
+  const voice = speech(), d = boot({ pro: true, speech: voice });
+  $(d, 'aarti-toggle').click(); toggleVoice(d, 'standard', true);
+  $(d, 'pooja-name').value = 'Mohit'; $(d, 'pooja-form').dispatchEvent(new d.window.Event('submit', { cancelable: true }));
+  assert.equal(action(d, 'standard', 'pause').disabled, true);
+  toggleVoice(d, 'custom', true); voice.spoken.at(-1).onerror();
+  assert.match(d.window.document.querySelector('#custom-ritual .ritual-progress').textContent, /Speech unavailable/);
+  d.window.document.querySelector('[data-lang="hi"]').click();
+  assert.equal(action(d, 'custom', 'pause').disabled, true);
+  assert.match(d.window.document.querySelector('#custom-ritual .ritual-progress').textContent, /रोक दिया/);
+  action(d, 'custom', 'start').click();
+  d.window.dispatchEvent(new d.window.HashChangeEvent('hashchange'));
+  assert.equal(action(d, 'custom', 'pause').disabled, true);
+  action(d, 'custom', 'start').click();
+  d.window.localStorage.removeItem('rwPro'); d.window.dispatchEvent(new d.window.StorageEvent('storage'));
+  assert.equal(action(d, 'custom', 'start').disabled, true);
+  assert.equal(action(d, 'custom', 'pause').disabled, true);
+  d.window.close();
+});
+test('speech failures and missing API preserve manual progression and reduced-motion preferences', () => {
+  const voice = speech(); voice.speak = () => { throw new Error('device unavailable'); };
+  const d = boot({ pro: true, speech: voice, reduced: true });
+  $(d, 'aarti-toggle').click(); toggleVoice(d, 'standard', true);
+  assert.match(d.window.document.querySelector('#standard-ritual .ritual-progress').textContent, /Speech unavailable/);
+  assert.equal(d.window.document.body.classList.contains('motion-paused'), true);
+  assert.equal($(d, 'motion-toggle').disabled, true);
+  toggleVoice(d, 'standard', false); action(d, 'standard', 'next').click();
+  assert.match(d.window.document.querySelector('#standard-ritual .ritual-progress').textContent, /Step 2/);
+  d.window.close();
+  const noApi = boot({ pro: true }); $(noApi, 'aarti-toggle').click(); toggleVoice(noApi, 'standard', true);
+  assert.match(noApi.window.document.querySelector('#standard-ritual .ritual-progress').textContent, /No local voice/);
+  noApi.window.close();
 });
