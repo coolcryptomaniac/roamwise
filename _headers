@@ -1,0 +1,18 @@
+# Cloudflare Pages response headers (ignored by GitHub Pages).
+# Pages merges every matching rule and comma-joins duplicate headers, so
+# Cache-Control is only set on static media paths. Everything else keeps the
+# Pages default (browser revalidates, Cloudflare edge serves from cache), which
+# is what the service worker in sw.js expects for code and HTML.
+
+/*
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  # GitHub Pages sends this today; the Android app and partner pages rely on it.
+  Access-Control-Allow-Origin: *
+
+/assets/*
+  Cache-Control: public, max-age=86400
+/icons/*
+  Cache-Control: public, max-age=86400
+/vendor/*
+  Cache-Control: public, max-age=86400

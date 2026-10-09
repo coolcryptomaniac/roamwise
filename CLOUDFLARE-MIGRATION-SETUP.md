@@ -46,6 +46,30 @@ RoamWise is a 100%-static site today: `index.html` at the repo root,
 Pages serves a static directory the exact same way — this is a
 deploy-target swap, not an app change.
 
+### A.0 Staging deploy through GitHub Actions (use this instead of A.1)
+
+The site is not a plain copy of the repo: `static.yml` regenerates the Kainchi
+daily feed (`features/kainchi-yatra/data/daily.*`) at deploy time. A Pages
+"Connect to Git" build with no build command would serve a stale feed. So the
+staging copy is deployed by `.github/workflows/cloudflare-pages.yml`, which runs
+the same feed steps and then uploads to the Pages project `roamwise-pages`.
+
+1. Cloudflare dashboard > My Profile > API Tokens > Create token, template
+   "Edit Cloudflare Workers" is too broad; use a custom token with only
+   Account > Cloudflare Pages > Edit. Copy your Account ID from the dashboard.
+2. GitHub repo > Settings > Secrets and variables > Actions: add
+   `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID`.
+3. Actions > "Deploy to Cloudflare Pages (staging)" > Run workflow.
+   Test at https://roamwise-pages.pages.dev.
+4. Compare with the live site (only the Kainchi daily files may differ, since
+   they are regenerated per deploy):
+   `node scripts/compare-hosts.mjs https://roamwise.co.in https://roamwise-pages.pages.dev --all`
+5. Cutover is the existing A.4 steps; also move the `kainchi-source-snapshot`
+   upload step from `static.yml` into this workflow first.
+
+`_headers` only applies on Cloudflare Pages. Pages redirects `/page.html` to
+`/page` (308) and serves `404.html` for unknown paths.
+
 ### A.1 Create the Pages project
 
 1. Go to **dash.cloudflare.com** → **Workers & Pages** → **Create**.

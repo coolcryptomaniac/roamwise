@@ -1,0 +1,92 @@
+# Staging deploy of the static site to Cloudflare Pages (https://roamwise-pages.pages.dev).
+# GitHub Pages (static.yml) stays the live site. This workflow does NOT touch
+# roamwise.co.in. It is skipped until the two repository secrets below exist.
+#
+# Secrets (Settings > Secrets and variables > Actions), never paste them in chat:
+#   CLOUDFLARE_API_TOKEN   token with "Cloudflare Pages: Edit" only
+#   CLOUDFLARE_ACCOUNT_ID  from the Cloudflare dashboard sidebar
+name: Deploy to Cloudflare Pages (staging)
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: cloudflare-pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    timeout-minutes: 10
+    runs-on: ubuntu-latest
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      PAGES_PROJECT: roamwise-pages
+    steps:
+      - name: Check secrets
+        id: gate
+        shell: bash
+        run: |
+          if [ -n "$CLOUDFLARE_API_TOKEN" ] && [ -n "$CLOUDFLARE_ACCOUNT_ID" ]; then
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "Cloudflare secrets not set yet; skipping."
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Checkout
+        if: steps.gate.outputs.ready == 'true'
+        uses: actions/checkout@v7
+      - name: Prepare daily-source tools
+        if: steps.gate.outputs.ready == 'true'
+        uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+      # Same Kainchi daily-feed generation as static.yml, so both hosts serve the same data.
+      - name: Restore previous public Kainchi snapshot
+        if: steps.gate.outputs.ready == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          mkdir -p "$RUNNER_TEMP/kainchi-previous"
+          runs=$(gh run list --repo "$GITHUB_REPOSITORY" --workflow static.yml --branch main --status success --limit 5 --json databaseId --jq '.[].databaseId') || runs=""
+          for run in $runs; do
+            if gh run download "$run" --repo "$GITHUB_REPOSITORY" --name kainchi-source-snapshot --dir "$RUNNER_TEMP/kainchi-previous"; then
+              break
+            fi
+          done
+      - name: Collect and validate dated Kainchi updates
+        if: steps.gate.outputs.ready == 'true'
+        shell: bash
+        run: |
+          python3 features/kainchi-yatra/tests/daily-feed.test.py
+          previous="features/kainchi-yatra/data/daily.json"
+          if [ -f "$RUNNER_TEMP/kainchi-previous/daily.json" ]; then
+            previous="$RUNNER_TEMP/kainchi-previous/daily.json"
+          fi
+          python3 features/kainchi-yatra/tools/daily-feed.py --previous "$previous"
+          node features/kainchi-yatra/tools/check.cjs
+      - name: Stage site files
+        if: steps.gate.outputs.ready == 'true'
+        shell: bash
+        run: |
+          mkdir -p "$RUNNER_TEMP/site"
+          rsync -a --exclude='.git' --exclude='.github' --exclude='.claude' \
+            --exclude='.firecrawl' --exclude='node_modules' ./ "$RUNNER_TEMP/site/"
+          test -f "$RUNNER_TEMP/site/index.html"
+          test -f "$RUNNER_TEMP/site/_headers"
+          echo "Files staged: $(find "$RUNNER_TEMP/site" -type f | wc -l) (Pages limit 20000)"
+      - name: Create Pages project if missing
+        if: steps.gate.outputs.ready == 'true'
+        shell: bash
+        run: npx --yes wrangler@4 pages project create "$PAGES_PROJECT" --production-branch=main || true
+      - name: Deploy
+        if: steps.gate.outputs.ready == 'true'
+        shell: bash
+        run: npx --yes wrangler@4 pages deploy "$RUNNER_TEMP/site" --project-name="$PAGES_PROJECT" --branch=main --commit-dirty=true
