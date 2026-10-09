@@ -310,6 +310,7 @@ var AI_MODELS = {
   gemini: ['gemini-3.5-flash-lite','gemini-3.1-flash-lite','gemini-flash-latest'],
   custom: [''],
   ondevice: ['on-device'],
+  webgpu: ['webgpu'],
   openrouter: ['meta-llama/llama-3.3-70b-instruct:free','mistralai/mistral-small-3.1-24b-instruct:free','google/gemma-3-27b-it:free'],
   sarvam: ['sarvam-105b-conversations','sarvam-105b'],
   mistral: ['mistral-small-latest','open-mistral-nemo'],

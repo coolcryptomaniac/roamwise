@@ -20,6 +20,7 @@ function extractJSON(txt){
 }
 
 function aiRequest(prov, key, model, prompt, maxTok, jsonMode){
+  if(prov==='webgpu') return rwWebGPUAsk(prompt, maxTok);  /* GPU model in the browser */
   if(prov==='ondevice') return rwOnDeviceAsk(prompt);  /* runs in the browser: no URL, key or timeout */
   var url, headers, body;
   if(prov==='anthropic'){
@@ -149,7 +150,7 @@ function aiCallAny(prompt, maxTok, cb, jsonMode){
     aiCall(prompt,maxTok,cb,jsonMode);
     return;
   }
-  var all=['sarvam','groq','gemini','openrouter','mistral','anthropic','custom','ondevice'];
+  var all=['sarvam','groq','gemini','openrouter','mistral','anthropic','custom','ondevice','webgpu'];
   var order=[activeProv].concat(all.filter(function(p){ return p!==activeProv; }))
     .filter(function(p){ return p && p!=='smart' && lsGet('rwKey_'+p); });
   if(!order.length){ lastAiSource=null; cb(null,null); return; }
