@@ -13,6 +13,7 @@
   <link rel="stylesheet" href="../features/kainchi-yatra/ui/daily.css">
   <link rel="stylesheet" href="../features/kainchi-yatra/ui/bhakti.css">
   <link rel="stylesheet" href="../features/kainchi-yatra/ui/visit.css">
+  <link rel="stylesheet" href="../features/kainchi-yatra/ui/advisory.css">
   <script src="../features/kainchi-yatra/data/config.js" defer></script>
   <script src="../features/kainchi-yatra/data/peak-dates.js" defer></script>
   <script src="../features/kainchi-yatra/data/rate-cards.js" defer></script>
@@ -23,6 +24,7 @@
   <script src="../features/kainchi-yatra/data/strings-daily.js" defer></script>
   <script src="../features/kainchi-yatra/data/strings-bhakti.js" defer></script>
   <script src="../features/kainchi-yatra/data/strings-visit.js" defer></script>
+  <script src="../features/kainchi-yatra/data/strings-advisory.js" defer></script>
   <script src="../features/kainchi-yatra/core/validation.js" defer></script>
   <script src="../features/kainchi-yatra/core/i18n.js" defer></script>
   <script src="../features/kainchi-yatra/core/calendar.js" defer></script>
@@ -41,6 +43,7 @@
   <script src="../features/kainchi-yatra/ui/week.js" defer></script>
   <script src="../features/kainchi-yatra/ui/bhakti.js" defer></script>
   <script src="../features/kainchi-yatra/ui/visit.js" defer></script>
+  <script src="../features/kainchi-yatra/ui/advisory.js" defer></script>
   <script src="../features/kainchi-yatra/ui/controller.js" defer></script>
 </head>
 <body>
@@ -64,7 +67,7 @@
     </div>
     <p class="independent" data-i18n="disclaimer"></p>
     <nav id="section-tabs" class="section-tabs" aria-label="Kainchi Dham">
-      <a href="#today" data-i18n="tab_today"></a><a href="#plan" data-i18n="tab_plan"></a><a href="#bhakti" data-i18n="tab_bhakti"></a><a href="#reach" data-i18n="tab_reach"></a><a href="#arrival" data-i18n="tab_arrival"></a><a href="#help" data-i18n="tab_help"></a><a href="#nearby" data-i18n="tab_nearby"></a>
+      <a href="#today" data-i18n="tab_today"></a><a href="#plan" data-i18n="tab_plan"></a><a href="#bhakti" data-i18n="tab_bhakti"></a><a href="#reach" data-i18n="tab_reach"></a><a href="#advisory" data-i18n="tab_advisory"></a><a href="#arrival" data-i18n="tab_arrival"></a><a href="#help" data-i18n="tab_help"></a><a href="#nearby" data-i18n="tab_nearby"></a>
     </nav>
     <div id="today" data-tab-panel>
       <section class="panel" aria-labelledby="today-h">
@@ -133,6 +136,13 @@
         <h3 data-i18n="facility_grievance_h"></h3><p data-i18n="facility_grievance"></p><div class="row-actions"><a class="btn quiet" href="#" data-visit-link="dm" data-i18n="facility_dm"></a><a class="btn quiet" href="#" data-visit-link="policeDirectory" data-i18n="facility_police"></a><a class="btn quiet" href="#" data-visit-link="grievance" data-i18n="facility_grievance_link"></a></div>
       </section>
       <section class="panel" aria-labelledby="faq-h"><h2 id="faq-h" data-i18n="visit_faq_h"></h2><details><summary data-i18n="faq_stay"></summary><p data-i18n="faq_stay_answer"></p></details><details><summary data-i18n="faq_offering"></summary><p data-i18n="faq_offering_answer"></p></details><details><summary data-i18n="faq_access"></summary><p data-i18n="faq_access_answer"></p></details><a class="text-link" href="#" data-visit-link="trust" data-i18n="trust_info"></a></section>
+    </div>
+    <div id="advisory" data-tab-panel>
+      <section class="panel advisory-hero" aria-labelledby="advisory-h"><p class="eyebrow" data-i18n="advisory_kicker"></p><h2 id="advisory-h" data-i18n="advisory_h"></h2><p class="muted" data-i18n="advisory_intro"></p><div class="notice advisory-disclaimer" role="note"><strong data-i18n="advisory_notice_h"></strong><p data-i18n="advisory_notice"></p></div></section>
+      <section class="panel" aria-labelledby="signals-h"><h2 id="signals-h" data-i18n="signals_h"></h2><p class="muted" data-i18n="signals_intro"></p><form id="signal-form" class="fields"><label><span data-i18n="signal_kind"></span><select id="signal-kind"><option value="parking" data-i18n="signal_parking"></option><option value="shuttle" data-i18n="signal_shuttle"></option><option value="road" data-i18n="signal_road"></option></select></label><label><span data-i18n="signal_state"></span><select id="signal-state"><option value="moving" data-i18n="signal_moving"></option><option value="slow" data-i18n="signal_slow"></option><option value="full" data-i18n="signal_full"></option><option value="unknown" data-i18n="signal_unknown"></option></select></label><label class="wide"><span data-i18n="signal_note"></span><textarea id="signal-note" maxlength="180" rows="2"></textarea></label><button type="submit" data-i18n="signal_save"></button></form><p id="signal-message" class="message" role="status" aria-live="polite"></p><div id="signal-list" class="signal-list"></div><p class="muted small" data-i18n="signals_privacy"></p></section>
+      <section class="panel" aria-labelledby="rules-h"><h2 id="rules-h" data-i18n="rules_h"></h2><div class="advisory-grid"><article class="visit-card"><h3 data-i18n="rules_peak_h"></h3><p data-i18n="rules_peak"></p></article><article class="visit-card"><h3 data-i18n="rules_rates_h"></h3><p data-i18n="rules_rates"></p></article><article class="visit-card"><h3 data-i18n="rules_gate_h"></h3><p data-i18n="rules_gate"></p></article></div></section>
+      <section class="panel" aria-labelledby="resident-h"><h2 id="resident-h" data-i18n="resident_note_h"></h2><p class="muted" data-i18n="resident_note_intro"></p><form id="resident-form" class="fields"><label><span data-i18n="resident_route"></span><input id="resident-route" maxlength="100" required></label><label><span data-i18n="resident-date"></span><input id="resident-date" type="date" required></label><label class="wide"><span data-i18n="resident-details"></span><textarea id="resident-details" maxlength="240" rows="2"></textarea></label><button type="submit" data-i18n="resident_save"></button></form><p id="resident-message" class="message" role="status" aria-live="polite"></p><div id="resident-out" class="resident-out"></div></section>
+      <section class="panel emergency-panel" aria-labelledby="corridor-h"><h2 id="corridor-h" data-i18n="corridor_h"></h2><p data-i18n="corridor_body"></p><div class="row-actions"><a class="btn danger" href="tel:108" data-i18n="rep_call_amb"></a><a class="btn danger" href="tel:112" data-i18n="rep_call_gen"></a></div></section>
     </div>
     <section class="panel" id="arrival" data-tab-panel aria-labelledby="pass-h">
       <h2 id="pass-h" data-i18n="pass_h"></h2>

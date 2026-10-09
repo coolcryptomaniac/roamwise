@@ -13,6 +13,7 @@
     "data/strings-daily.js",
     "data/strings-bhakti.js",
     "data/strings-visit.js",
+    "data/strings-advisory.js",
     "core/validation.js",
     "core/i18n.js",
     "core/calendar.js",
@@ -31,13 +32,15 @@
     "ui/week.js",
     "ui/bhakti.js",
     "ui/visit.js",
+    "ui/advisory.js",
     "ui/controller.js"
   ],
   "stylesheets": [
     "ui/kainchi.css",
     "ui/daily.css",
     "ui/bhakti.css",
-    "ui/visit.css"
+    "ui/visit.css",
+    "ui/advisory.css"
   ],
   "gzipBudgetBytes": 65536,
   "runtimeModuleLineLimit": 350,
@@ -71,7 +74,9 @@
     "core/important-dates.js": "Annual temple observances and sourced year-specific festival dates",
     "ui/bhakti.js": "Pauseable devotional motion, diya/agarbatti visuals, Pro aarti and private pooja gate, dates and source-linked media",
     "data/strings-visit.js": "Bilingual sourced travel, parking, facilities and Baba introduction",
-    "ui/visit.js": "Visitor-initiated map directions, official service links and photo attribution"
+    "ui/visit.js": "Visitor-initiated map directions, official service links and photo attribution",
+    "data/strings-advisory.js": "Bilingual copy for local-only visitor signals, resident planning notes and safety boundaries",
+    "ui/advisory.js": "Device-local parking, shuttle, road and resident notes; never an official feed"
   },
   "externalSeams": {
     "kainchi/index.html": "Public HTML entry with explicit script order",

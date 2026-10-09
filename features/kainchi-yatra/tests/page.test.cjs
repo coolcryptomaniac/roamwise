@@ -170,3 +170,19 @@ test('visitor routes preserve the destination and translate without requesting l
   assert.equal($(d, 'reach').hidden, false);
   d.window.close();
 });
+test('advisory layer is local-only and never pretends to issue permits', () => {
+  const d = boot(), doc = d.window.document;
+  assert.match($(d, 'advisory').textContent, /not affiliated/i);
+  assert.match($(d, 'rules-h').textContent, /cannot switch on/i);
+  $(d, 'signal-note').value = 'Queue moving near the bend';
+  $(d, 'signal-form').dispatchEvent(new d.window.Event('submit', { cancelable: true }));
+  assert.equal($(d, 'signal-list').querySelectorAll('.signal-card').length, 1);
+  assert.match(d.window.localStorage.getItem('rw_kainchi_advisory_v1'), /Queue moving/);
+  $(d, 'resident-route').value = 'Bhowali to Kainchi'; $(d, 'resident-date').value = '2026-10-12';
+  $(d, 'resident-form').dispatchEvent(new d.window.Event('submit', { cancelable: true }));
+  assert.match($(d, 'resident-out').textContent, /Bhowali to Kainchi/);
+  assert.equal($(d, 'corridor-h').nextElementSibling.textContent.includes('self-direct'), true);
+  assert.equal($(d, 'advisory').querySelector('a[href="tel:108"]').getAttribute('href'), 'tel:108');
+  assert.equal(doc.querySelectorAll('iframe').length, 0);
+  d.window.close();
+});
