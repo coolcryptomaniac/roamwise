@@ -84,5 +84,12 @@ function rwLocalHelpRender(){
       +(catObj?' '+rwLhAttr(catObj.hint):'')+'</div>'
       +'<div>Local? <a href="'+rwLhAttr(rwLocalListMail(town))+'" style="color:var(--gold)">Get listed</a> — free.</div></div>';
   }
+  /* Link out for everything we don't list. Google results are not verified by RoamWise. */
+  var mapCats=(cat==='all')?(window.RW_LOCAL_CATEGORIES||[]):(catObj?[catObj]:[]);
+  out+='<div class="sos-block"><b>\ud83d\uddfa\ufe0f More in '+rwLhAttr(town)+'</b>'
+    +'<div>Not listed above? Search Google Maps \u2014 these results aren\u2019t checked by RoamWise, so call ahead.</div>'
+    +'<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px">'
+    +mapCats.map(function(c){ return '<a class="ev-chip" style="text-decoration:none" href="'+rwLhAttr(rwLocalMapsUrl(c.id,town))+'" target="_blank" rel="noopener">'+c.icon+' '+rwLhAttr(c.label)+'</a>'; }).join('')
+    +'</div></div>';
   host.innerHTML=out;
 }

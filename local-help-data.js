@@ -22,13 +22,13 @@ var RW_LOCAL_DISTRICTS = [
 var RW_LOCAL_GATEWAYS = ['Kathgodam', 'Haldwani'];
 
 var RW_LOCAL_CATEGORIES = [
-  { id: 'taxi',   icon: '🚕', label: 'Taxi & drivers',        hint: 'Agree the fare and pick-up point before you set off.' },
-  { id: 'rental', icon: '\ud83c\udfcd\ufe0f', label: 'Bike & car rental',     hint: 'Check the vehicle, helmet and papers before you pay.' },
-  { id: 'stay',   icon: '🏡', label: 'Homestays',             hint: 'Message first — hill homestays often have no instant booking.' },
-  { id: 'guide',  icon: '🥾', label: 'Guides & trek help',    hint: 'Ask what the fee covers: food, permits, porter.' },
-  { id: 'health', icon: '🏥', label: 'Health & pharmacy',     hint: 'Clinics and chemists. For emergencies use the SOS page.' },
-  { id: 'repair', icon: '🔧', label: 'Vehicle & bike repair', hint: 'Mechanics, tyre shops, towing.' },
-  { id: 'daily',  icon: '🛒', label: 'Daily needs',           hint: 'Groceries, SIM, ATM, laundry.' }
+  { id: 'taxi', maps: 'taxi service',   icon: '🚕', label: 'Taxi & drivers',        hint: 'Agree the fare and pick-up point before you set off.' },
+  { id: 'rental', maps: 'bike rental', icon: '\ud83c\udfcd\ufe0f', label: 'Bike & car rental',     hint: 'Check the vehicle, helmet and papers before you pay.' },
+  { id: 'stay', maps: 'homestay',   icon: '🏡', label: 'Homestays',             hint: 'Message first — hill homestays often have no instant booking.' },
+  { id: 'guide', maps: 'trekking guide',  icon: '🥾', label: 'Guides & trek help',    hint: 'Ask what the fee covers: food, permits, porter.' },
+  { id: 'health', maps: 'pharmacy', icon: '🏥', label: 'Health & pharmacy',     hint: 'Clinics and chemists. For emergencies use the SOS page.' },
+  { id: 'repair', maps: 'bike mechanic', icon: '🔧', label: 'Vehicle & bike repair', hint: 'Mechanics, tyre shops, towing.' },
+  { id: 'daily', maps: 'grocery store',  icon: '🛒', label: 'Daily needs',           hint: 'Groceries, SIM, ATM, laundry.' }
 ];
 
 var RW_LOCAL_VERIFY = {
@@ -48,6 +48,13 @@ var RW_LOCAL_LINKS = {
   blood: { label: 'Find a blood bank (e-RaktKosh, official)', url: 'https://eraktkosh.in' },
   listEmail: 'support@roamwise.co.in'
 };
+
+/* Official Google Maps search URL (free, no key, nothing scraped or stored). */
+function rwLocalMapsUrl(catId, town) {
+  var c = RW_LOCAL_CATEGORIES.filter(function (x) { return x.id === catId; })[0];
+  var q = (c && c.maps ? c.maps : 'services') + ' near ' + town + ', Uttarakhand';
+  return 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(q);
+}
 
 /* ---- pure helpers (no DOM) ---- */
 function rwLocalTowns() {
@@ -92,4 +99,4 @@ function rwLocalRemoveMail(p) {
   var body = 'Please remove this listing from RoamWise Local Help.\n\nName: ' + ((p && p.name) || '') + '\nListing id: ' + ((p && p.id) || '');
   return 'mailto:' + RW_LOCAL_LINKS.listEmail + '?subject=' + encodeURIComponent('Remove my RoamWise Local Help listing') + '&body=' + encodeURIComponent(body);
 }
-if (typeof module !== 'undefined') module.exports = { RW_LOCAL_DISTRICTS: RW_LOCAL_DISTRICTS, RW_LOCAL_GATEWAYS: RW_LOCAL_GATEWAYS, RW_LOCAL_CATEGORIES: RW_LOCAL_CATEGORIES, RW_LOCAL_PROVIDERS: RW_LOCAL_PROVIDERS, RW_LOCAL_VERIFY: RW_LOCAL_VERIFY, rwLocalTowns: rwLocalTowns, rwLocalFind: rwLocalFind, rwLocalFresh: rwLocalFresh, rwLocalMonth: rwLocalMonth, rwLocalRemoveMail: rwLocalRemoveMail, RW_LOCAL_MAX_AGE_DAYS: RW_LOCAL_MAX_AGE_DAYS, rwLocalCount: rwLocalCount, rwLocalWhatsApp: rwLocalWhatsApp, rwLocalTel: rwLocalTel, rwLocalListMail: rwLocalListMail };
+if (typeof module !== 'undefined') module.exports = { RW_LOCAL_DISTRICTS: RW_LOCAL_DISTRICTS, RW_LOCAL_GATEWAYS: RW_LOCAL_GATEWAYS, RW_LOCAL_CATEGORIES: RW_LOCAL_CATEGORIES, RW_LOCAL_PROVIDERS: RW_LOCAL_PROVIDERS, RW_LOCAL_VERIFY: RW_LOCAL_VERIFY, rwLocalTowns: rwLocalTowns, rwLocalFind: rwLocalFind, rwLocalMapsUrl: rwLocalMapsUrl, rwLocalFresh: rwLocalFresh, rwLocalMonth: rwLocalMonth, rwLocalRemoveMail: rwLocalRemoveMail, RW_LOCAL_MAX_AGE_DAYS: RW_LOCAL_MAX_AGE_DAYS, rwLocalCount: rwLocalCount, rwLocalWhatsApp: rwLocalWhatsApp, rwLocalTel: rwLocalTel, rwLocalListMail: rwLocalListMail };

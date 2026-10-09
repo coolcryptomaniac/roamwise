@@ -83,3 +83,11 @@ test('generated listings file is clean and was fresh when generated', () => {
     ['govt_id', 'agent_code', 'user_id', 'photo'].forEach(k => assert.ok(!(k in p)));
   });
 });
+
+test('google maps link-out is an official search URL, not scraped data', () => {
+  const u = new URL(m.rwLocalMapsUrl('taxi', 'Kausani'));
+  assert.strictEqual(u.origin + u.pathname, 'https://www.google.com/maps/search/');
+  assert.strictEqual(u.searchParams.get('api'), '1');
+  assert.strictEqual(u.searchParams.get('query'), 'taxi service near Kausani, Uttarakhand');
+  m.RW_LOCAL_CATEGORIES.forEach(c => assert.ok(c.maps, 'maps query for ' + c.id));
+});
