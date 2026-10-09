@@ -57,6 +57,16 @@ export async function reserveManagedAI(env, uid, limit, date){
   return { ok:true, used:next, limit, remaining:Math.max(0, limit-next) };
 }
 
+/* Read-only check used before serving a cached answer: does the user still
+   have allowance this month? Does not consume any. */
+export async function peekManagedAI(env, uid, limit, date){
+  if(!env.AI_USAGE || typeof env.AI_USAGE.get !== 'function') return { ok:false, reason:'meter_not_configured', used:0, limit };
+  if(limit <= 0) return { ok:false, reason:'allowance_exhausted', used:0, limit };
+  const used = Math.max(0, parseInt(await env.AI_USAGE.get(usageKey(uid, date)) || '0', 10) || 0);
+  if(used >= limit) return { ok:false, reason:'allowance_exhausted', used, limit };
+  return { ok:true, used, limit, remaining:Math.max(0, limit-used) };
+}
+
 export function managedAIRequest(body, env){
   const maxPrompt = Math.max(500, Math.min(6000, Number(env.AI_MAX_PROMPT_CHARS)||4000));
   const maxTokens = Math.max(100, Math.min(1500, Number(env.AI_MAX_OUTPUT_TOKENS)||700));
