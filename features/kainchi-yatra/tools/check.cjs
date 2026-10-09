@@ -17,7 +17,7 @@ assert.deepEqual(scripts.map(m => m[1]), manifest.browserScripts.map(f => prefix
 assert.ok(scripts.every(m => /\bdefer\b/.test(m[0])), 'Feature scripts must defer in order');
 const styles = [...html.matchAll(/<link\b[^>]*rel="stylesheet"[^>]*href="([^"]+)"/g)].map(m => m[1]);
 assert.deepEqual(styles, manifest.stylesheets.map(f => prefix + f));
-assert.match(html, /connect-src 'none'/);
+assert.match(html, /connect-src 'self'/);
 for (const m of html.matchAll(/(?:src|href)="([^"]+)"/g)) {
   if (m[1].startsWith('#') || /^(?:tel|mailto):/.test(m[1])) continue;
   assert.ok(fs.existsSync(path.resolve(repo, 'kainchi', m[1].split('#')[0])), 'Missing link/asset: ' + m[1]);
@@ -46,4 +46,8 @@ for (const file of [...manifest.browserScripts, ...manifest.stylesheets]) {
   const source = read(file); gzipBytes += gzipSync(source).length; rawBytes += Buffer.byteLength(source);
 }
 assert.ok(gzipBytes < manifest.gzipBudgetBytes, 'Kainchi frontend exceeded its gzip budget');
+for (const file of manifest.browserAssets || []) {
+  assert.ok(fs.existsSync(path.join(feature, file)), 'Missing image: ' + file);
+  if (/\.webp$/.test(file)) assert.ok(fs.statSync(path.join(feature, file)).size < manifest.imageBudgetBytes, 'Image budget exceeded');
+}
 console.log(`Kainchi check PASS: ${files.length} JS files; ${rawBytes} raw / ${gzipBytes} gzip frontend bytes; script order, module map, limits and links valid.`);

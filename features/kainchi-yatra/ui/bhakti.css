@@ -1,0 +1,21 @@
+.hero-mist{pointer-events:none;position:absolute;inset:15% -10% -20%;z-index:-1;opacity:.17;background:radial-gradient(ellipse at 60% 80%,#dae9cc 0%,transparent 42%);filter:blur(20px);animation:mist-drift 16s ease-in-out infinite alternate}
+@keyframes mist-drift{from{transform:translate3d(-3%,1%,0);opacity:.1}to{transform:translate3d(4%,-2%,0);opacity:.23}}
+#motion-toggle{font-size:.74rem;min-height:44px;margin-left:auto}#motion-toggle[disabled]{cursor:default}
+.devotion{background:radial-gradient(ellipse at 85% 40%,#49382166,transparent 50%),var(--card)}
+.devotion-grid{display:grid;grid-template-columns:3fr 2fr;gap:32px;align-items:center;margin-top:24px}
+.prayer{font-size:clamp(1.3rem,3vw,1.9rem);line-height:1.85;color:#f5d7a4;margin:24px 0;font-weight:500}
+.small{font-size:.78rem}.text-link{display:inline-flex;align-items:center;min-height:44px;line-height:1.4}
+.diya-space{text-align:center;max-width:350px;margin:auto}
+.digital-diya{position:relative;width:200px;height:150px;margin:12px auto 28px}
+.bowl{position:absolute;bottom:10px;left:30px;width:140px;height:44px;border-radius:10% 10% 80% 80%;background:linear-gradient(#bd772f,#5c351b);box-shadow:inset 0 5px 0 #e4ae62}
+.flame{display:none;position:absolute;bottom:54px;left:86px;width:28px;height:60px;transform-origin:bottom;border-radius:65% 35% 58% 42%;background:radial-gradient(ellipse at 50% 80%,#fff6c7 5%,#ffd06a 42%,#f27d31 90%);box-shadow:0 0 28px #f9ad48aa,0 0 75px #f9ad4855;animation:diya-glow 2.8s ease-in-out infinite alternate}
+.lit .flame{display:block}.lit .bowl{box-shadow:inset 0 5px 0 #ffd493,0 -12px 55px #f2ab3228}
+@keyframes diya-glow{from{transform:rotate(-2deg) scaleY(.97);filter:brightness(.95)}to{transform:rotate(2deg) scaleY(1.04);filter:brightness(1.08)}}
+.date-events{list-style:none;padding:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.date-event{display:flex;flex-direction:column;gap:10px;background:#0b211d;border:1px solid var(--line);border-radius:12px;padding:20px}
+.date-event time{color:var(--accent);font-weight:700;font-size:1.1rem}.event-name{font-weight:600}.date-event .row-actions{margin:4px 0 0;gap:20px}
+.visit-checklist{display:grid;gap:12px;margin-top:16px}.visit-checklist label{border-bottom:1px solid var(--line);padding:8px 0;min-height:44px}
+.motion-paused *, .motion-paused *::before, .motion-paused *::after{animation:none!important;transition:none!important}
+@media(max-width:700px){.devotion-grid,.date-events{grid-template-columns:1fr}.devotion-grid{gap:12px}.diya-space{margin-top:12px}.prayer{font-size:1.3rem}.topbar #motion-toggle{order:4;margin:0;width:100%;font-size:.74rem;min-height:44px}.section-tabs a{font-size:.7rem}.topbar{gap:8px}}
+@media(prefers-reduced-motion:reduce){.hero-mist,.flame{animation:none!important}}
+@media print{#bhakti,#motion-toggle{display:none!important}}

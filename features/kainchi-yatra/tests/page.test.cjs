@@ -10,7 +10,12 @@ function boot(opts = {}) {
   const dom = new JSDOM(html, { url: 'https://roamwise.co.in/kainchi/', runScripts: 'outside-only' });
   const w = dom.window;
   Object.defineProperty(w.navigator, 'language', { value: opts.lang || 'en-IN' });
-  w.fetch = () => { throw new Error('Unexpected network request'); };
+  w.fetch = async (url, options) => {
+    assert.equal(url, '../features/kainchi-yatra/data/daily.json');
+    assert.equal(options.credentials, 'omit');
+    return { ok: true, text: async () => fs.readFileSync(path.join(repo, 'features/kainchi-yatra/data/daily.json'), 'utf8') };
+  };
+  w.setInterval = () => 0;
   w.print = () => {};
   if (opts.saved) w.localStorage.setItem('rw_kainchi_passes_v1', opts.saved);
   if (opts.blocked) Object.defineProperty(w, 'localStorage', { get() { throw new Error('blocked'); } });
@@ -19,7 +24,7 @@ function boot(opts = {}) {
 }
 const $ = (d, id) => d.window.document.getElementById(id);
 test('page has strict CSP and no inline script/style', () => {
-  assert.match(html, /connect-src 'none'/);
+  assert.match(html, /connect-src 'self'/);
   assert.doesNotMatch(html, /<script(?![^>]*src=)/);
   assert.doesNotMatch(html, /\sstyle=|\sonclick=/);
 });
@@ -70,4 +75,63 @@ test('works with storage blocked and ignores corrupt stored passes', () => {
   assert.ok(boot({ blocked: true }).window.document.getElementById('plan-level').textContent);
   const d = boot({ saved: '{{bad' });
   assert.equal(d.window.document.querySelectorAll('#pass-list .pass').length, 0);
+});
+test('tabs support deep links, selection and arrow keys', async () => {
+  const d = boot(), w = d.window, doc = w.document;
+  assert.equal($(d, 'today').hidden, false);
+  assert.equal($(d, 'plan').hidden, true);
+  doc.querySelector('#tab-plan').click();
+  await new Promise(resolve => setTimeout(resolve, 20));
+  assert.equal($(d, 'plan').hidden, false);
+  assert.equal($(d, 'today').hidden, true);
+  doc.querySelector('#tab-plan').dispatchEvent(new w.KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }));
+  assert.equal($(d, 'bhakti').hidden, false);
+  assert.equal(doc.activeElement.id, 'tab-bhakti');
+  d.window.close();
+});
+test('date cards synchronise arrival date and WhatsApp draft without personal data', () => {
+  const d = boot();
+  const day = $(d, 'week-strip').children[2]; const value = day.dataset.date; day.click();
+  assert.equal($(d, 'plan-date').value, value);
+  assert.equal($(d, 'pass-date').value, value);
+  assert.match(decodeURIComponent($(d, 'share-trip').href), /estimate, not live traffic/);
+  assert.ok(decodeURIComponent($(d, 'share-trip').href).includes(value));
+  d.window.close();
+});
+test('official filter does not promote news, failed refresh leaves the planner usable', async () => {
+  const d = boot();
+  await new Promise(resolve => setTimeout(resolve, 20));
+  d.window.document.querySelector('[data-feed-filter="official"]').click();
+  assert.equal($(d, 'updates-list').querySelectorAll('.update-card').length, 0);
+  assert.match($(d, 'updates-list').textContent, /does not mean the roads are clear/);
+  d.window.fetch = async () => { throw new Error('offline'); };
+  $(d, 'updates-refresh').click();
+  await new Promise(resolve => setTimeout(resolve, 20));
+  assert.match($(d, 'feed-network').textContent, /Refresh unavailable/);
+  assert.ok($(d, 'plan-level').textContent);
+  assert.equal($(d, 'updates-refresh').disabled, false);
+  d.window.close();
+});
+test('emergency calls appear before the visitor submits a report', () => {
+  const d = boot();
+  $(d, 'rep-cat').value = 'ambulance'; $(d, 'rep-cat').dispatchEvent(new d.window.Event('change'));
+  assert.equal($(d, 'report-out').hidden, true);
+  assert.equal($(d, 'report-emergency').hidden, false);
+  assert.equal($(d, 'report-emergency').closest('#report-out'), null);
+  assert.equal($(d, 'report-emergency').querySelector('a').href, 'tel:108');
+  d.window.close();
+});
+
+test('devotional controls are opt-in, pauseable and source linked', () => {
+  const d = boot();
+  assert.equal($(d, 'digital-diya').classList.contains('lit'), false);
+  $(d, 'diya-toggle').click();
+  assert.equal($(d, 'digital-diya').classList.contains('lit'), true);
+  assert.equal($(d, 'diya-toggle').getAttribute('aria-pressed'), 'true');
+  $(d, 'motion-toggle').click();
+  assert.equal(d.window.document.body.classList.contains('motion-paused'), true);
+  assert.equal(d.window.localStorage.getItem('rw_kainchi_motion'), 'off');
+  assert.equal($(d, 'trust-info').href, 'https://shreekainchimandirtrust.org/contact');
+  assert.equal(d.window.document.querySelectorAll('audio,iframe').length, 0);
+  d.window.close();
 });
