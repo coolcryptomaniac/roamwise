@@ -11,6 +11,8 @@
   var code='';
   try { code=String(new URLSearchParams(location.search).get('redeem')||'').toUpperCase().replace(/[^A-Z0-9_-]/g,'').slice(0,32); } catch(e){ code=''; }
   if(!code) return;
+  /* ?redeem=open (or 1) is the generic poster QR: open the empty redeem form, no code pre-filled. */
+  if(code==='OPEN'||code==='1') code='';
   function clean(){
     try { var u=new URL(location.href); u.searchParams.delete('redeem'); history.replaceState(null,'',u.pathname+u.search+u.hash); } catch(e){}
   }
@@ -21,7 +23,7 @@
     if(ready&&typeof openPartnerRedeem==='function'){
       clean();
       var signedIn=false; try{ signedIn=!!(firebase.auth().currentUser&&firebase.auth().currentUser.uid); }catch(e){}
-      if(signedIn){ window.__rwPendingRedeem=code; try{ openPartnerRedeem(); }catch(e){} }
+      if(signedIn){ window.__rwPendingRedeem=code||''; try{ openPartnerRedeem(); }catch(e){} }
       else { try{ showToast('Sign in to RoamWise first, then open this link again to redeem your code.'); }catch(e){} }
       return;
     }

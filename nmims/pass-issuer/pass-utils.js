@@ -105,5 +105,23 @@
     return 'serial,type,code,redeem_link,valid_until\n' + list.map(c =>
       [c.serial, c.role, c.code, 'https://www.roamwise.co.in/?redeem=' + c.code, expiresIso].join(',')).join('\n') + '\n';
   }
-  return { CAMPAIGN, SPLIT, email, name, slug, token, code, allocation, emailIndex, coupon, couponBatch, commitment, toCsv };
+  /** Printable A4 sheet, 10 cards per page, one QR per coupon. qrSvg(url) must return an SVG string (see qrcode.js).
+      Everything is inline: no fonts, images or scripts are loaded, so the codes never leave the browser. */
+  function cardsHtml(list, qrSvg, expiresIso, title) {
+    const esc = x => String(x).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+    const cards = list.map(c => '<div class="card"><div class="top"><b>RoamWise</b><span>Founder Pro for life</span></div>' +
+      '<div class="qr">' + qrSvg('https://www.roamwise.co.in/?redeem=' + c.code) + '</div>' +
+      '<div class="code">' + esc(c.code) + '</div>' +
+      '<div class="how">Scan, sign in with Google, tap Redeem.<br>Or enter the code in Settings &rarr; Redeem a partner code.</div>' +
+      '<div class="meta">#' + esc(c.serial) + ' &middot; ' + (c.role === 'organiser' ? 'Organiser' : 'Student / audience') + ' &middot; one use &middot; valid until ' + esc(expiresIso) + '</div></div>').join('');
+    return '<!doctype html><html lang="en"><head><meta charset="utf-8"><title>' + esc(title || 'NMIMS pass cards') + '</title><style>' +
+      '@page{size:A4;margin:8mm}*{box-sizing:border-box}body{margin:0;font:11px/1.35 system-ui,Arial,sans-serif;color:#1a1530;-webkit-print-color-adjust:exact;print-color-adjust:exact}' +
+      '.sheet{display:grid;grid-template-columns:1fr 1fr;gap:5mm}.card{border:1.5px dashed #8a3fd1;border-radius:10px;padding:8px 10px;text-align:center;height:52mm;break-inside:avoid;page-break-inside:avoid;background:linear-gradient(135deg,#fff5e6,#efe6ff)}' +
+      '.top{display:flex;justify-content:space-between;align-items:center;font-size:11px}.top b{color:#C4302B;font-size:13px}.top span{color:#0f8f72;font-weight:700}' +
+      '.qr svg{width:27mm;height:27mm;margin:2px 0;background:#fff;border-radius:4px}.code{font:700 11px ui-monospace,Menlo,monospace;letter-spacing:.02em;word-break:break-all}' +
+      '.how{font-size:8.5px;color:#4a4560;margin-top:2px}.meta{font-size:8px;color:#6a5f80;margin-top:2px}' +
+      '.note{grid-column:1/-1;font-size:9px;color:#6a5f80}@media screen{body{padding:10px;background:#eee}.card{background:#fff}}' +
+      '</style></head><body><div class="sheet"><div class="note">' + esc(title || '') + ' &middot; treat these cards like cash: whoever redeems a code first gets the pass. Print, cut along the dashed lines, hand out one per person.</div>' + cards + '</div></body></html>';
+  }
+  return { CAMPAIGN, SPLIT, cardsHtml, email, name, slug, token, code, allocation, emailIndex, coupon, couponBatch, commitment, toCsv };
 });

@@ -138,3 +138,26 @@ test('admin referral report includes verified PAID Cashfree payments that carry 
   assert.match(html, /PAYMENTS\.filter\(p=>p\.refCode&&paymentSucceeded\(p\)&&String\(p\.status\|\|""\)\.toLowerCase\(\)==="paid"\)/);
   assert.match(read('js/payments/providers/cashfree-adapter.js'), /refCode: _cfRefCode\(\)/);
 });
+
+test('printable cards: one QR per coupon pointing at its own redeem link, nothing loaded externally', () => {
+  const qrcode = require('../nmims/pass-issuer/qrcode.js');
+  const list = U.couponBatch(rnd);
+  const urls = [];
+  const svg = url => { urls.push(url); const q = qrcode(0, 'M'); q.addData(url); q.make(); return q.createSvgTag({ cellSize: 4, margin: 2, scalable: true }); };
+  const html = U.cardsHtml(list.filter(c => c.role === 'student'), svg, '2026-11-08', 'NMIMS student <pass> cards');
+  assert.equal(urls.length, 450);
+  assert.equal(new Set(urls).size, 450);
+  for (const u of urls) assert.match(u, /^https:\/\/www\.roamwise\.co\.in\/\?redeem=NMIMS-STU-\d{4}-[0-9A-HJKMNP-TV-Z]{13}$/);
+  assert.equal((html.match(/class="card"/g) || []).length, 450);
+  assert.equal((html.match(/<svg /g) || []).length, 450);
+  assert.ok(html.includes('NMIMS student &lt;pass&gt; cards'), 'title is escaped');
+  assert.doesNotMatch(html, /<script|<link|<img|src=|url\(http/i);
+});
+
+test('generic poster QR (?redeem=open) opens the empty form; page wires card printing', () => {
+  assert.match(read('js/payments/redeem-link.js'), /code==='OPEN'\|\|code==='1'/);
+  const page = read('nmims/pass-issuer/index.html');
+  assert.match(page, /qrcode\.js/);
+  assert.match(page, /cardOrgBtn/);
+  assert.match(read('nmims/pass-issuer/qrcode.js'), /MIT license/);
+});

@@ -12,9 +12,9 @@
 <p class="sub">For handing out on event day without collecting emails. Each coupon is single-use, has 64 random bits, expires 30 days after generation and activates Founder Pro for the first verified RoamWise account that redeems it. The set is fixed at 500, so the cap cannot be exceeded. Treat the files like cash: anyone holding a code can use it once.</p>
 <p id="couponStatus" class="sub">Checking coupons…</p>
 <div class="actions"><button class="secondary" id="genCouponsBtn" disabled type="button">Generate the 500 coupons</button></div>
-<div id="couponResult" class="hidden"><output id="couponOut"></output><div class="actions"><button class="secondary" id="dlOrgBtn" type="button">Download 50 organiser coupons (CSV)</button><button class="secondary" id="dlStuBtn" type="button">Download 450 student coupons (CSV)</button></div><p class="sub">Download both now. For safety the codes are not shown again here after you leave this page; the database keeps them but they cannot be listed by anyone but an admin.</p></div>
+<div id="couponResult" class="hidden"><output id="couponOut"></output><div class="actions"><button class="secondary" id="dlOrgBtn" type="button">Download 50 organiser coupons (CSV)</button><button class="secondary" id="dlStuBtn" type="button">Download 450 student coupons (CSV)</button></div><div class="actions"><button class="secondary" id="cardOrgBtn" type="button">Print 50 organiser cards with QR</button><button class="secondary" id="cardStuBtn" type="button">Print 450 student cards with QR</button></div><p class="sub">Cards open in a new tab (10 per A4 page, one QR per code). Use Print, Save as PDF. The codes stay in your browser; nothing is uploaded.</p><p class="sub">Download both now. For safety the codes are not shown again here after you leave this page; the database keeps them but they cannot be listed by anyone but an admin.</p></div>
 <label for="revokeCode">Revoke one unredeemed coupon (lost or leaked)</label><input id="revokeCode" maxlength="32" placeholder="NMIMS-STU-0123-XXXXXXXXXXXXX" autocomplete="off"><div class="actions"><button class="secondary" id="revokeBtn" disabled type="button">Revoke this coupon</button></div></section><footer>Private operational tool · RoamWise · Contact <a href="mailto:founder@roamwise.co.in">founder@roamwise.co.in</a></footer></main>
-<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script><script src="./pass-utils.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script><script src="./pass-utils.js"></script><script src="./qrcode.js"></script>
 <script>
 'use strict';
 const config={apiKey:'AIzaSyDlrtpzpOb1VEmVSd9tHmu7OpmvwWosYsU',authDomain:'roamwisepro.firebaseapp.com',projectId:'roamwisepro',appId:'1:299014744987:web:d5c316743e6d7a10904f3e'}; // Public Firebase client identifiers; no secrets.
@@ -137,6 +137,15 @@ async function revoke(){
   try{const ref=db.collection('partnerClaims').doc(code);const s=await ref.get();if(!s.exists)throw new Error('Coupon not found.');if(s.data().proRedeemed===true)throw new Error('This coupon was already redeemed; it cannot be revoked.');await ref.update({expiresAt:firebase.firestore.Timestamp.fromMillis(Date.now()-1000),status:'revoked'});message('Coupon revoked.');await renderCoupons();}
   catch(e){message(e.message||'Could not revoke.');}finally{setBusy(false);}
 }
+function printCards(role){
+  if(!couponBatchData)return;
+  const list=couponBatchData.list.filter(c=>c.role===role);
+  const qr=url=>{const q=qrcode(0,'M');q.addData(url);q.make();return q.createSvgTag({cellSize:4,margin:2,scalable:true});};
+  const html=U.cardsHtml(list,qr,couponBatchData.expiresIso,'NMIMS '+(role==='organiser'?'organiser':'student / audience')+' pass cards');
+  const url=URL.createObjectURL(new Blob([html],{type:'text/html'}));
+  window.open(url,'_blank');setTimeout(()=>URL.revokeObjectURL(url),60000);
+}
+$('cardOrgBtn').addEventListener('click',()=>printCards('organiser'));$('cardStuBtn').addEventListener('click',()=>printCards('student'));
 $('genCouponsBtn').addEventListener('click',generateCoupons);$('revokeBtn').addEventListener('click',revoke);$('dlOrgBtn').addEventListener('click',()=>csvDownload('organiser'));$('dlStuBtn').addEventListener('click',()=>csvDownload('student'));
 try{firebase.initializeApp(config);db=firebase.firestore();auth=firebase.auth();auth.onAuthStateChanged(async person=>{
   adminUid='';$('couponPanel').classList.add('hidden');couponBatchData=null;$('couponResult').classList.add('hidden');$('issueForm').classList.add('hidden');$('enableBtn').disabled=true;$('pauseBtn').disabled=true;$('result').classList.add('hidden');lastIssued=null;
