@@ -63,6 +63,9 @@ function paymentRecord(orderId, receipt, paidAt){
     uid:receipt.uid,email:receipt.email || '',
     amount:Math.round(Number(receipt.amountINR)*100),amountINR:Number(receipt.amountINR),
     currency:'INR',provider:'cashfree',providerRef:orderId,planId:receipt.planId,
+    /* Referral attribution (e.g. NMIMS2026): copied from the verified order so commission can be
+       totalled from real PAID payments. Validated against the admin-owned directory at report time. */
+    ...(receipt.refCode?{refCode:String(receipt.refCode).slice(0,32)}:{}),
     status:'paid',created:receipt.createdAt || paidAt,
     receivedDate:String(paidAt).slice(0,10),paidAt
   };
@@ -116,6 +119,7 @@ export function createCashfreeHandlers(overrides){
     const phone=String(customer.phone||'').replace(/\s+/g,'');
     if(!/^\+?\d{7,15}$/.test(phone))return json({error:'missing_customer_phone',message:'Cashfree needs a valid phone number on your account to start checkout.'},422);
     const meta=(body&&body.meta)||{};
+    const refCode=String(meta.refCode==null?'':meta.refCode).toUpperCase().replace(/[^A-Z0-9_-]/g,'').slice(0,32);
     const knownPrice=priceForPlan(meta.planId);
     if(knownPrice==null)return json({error:'unknown_plan',message:'Could not verify the price for this plan.'},400);
     if(amount!==knownPrice)return json({error:'amount_mismatch',message:'The submitted amount does not match this plan’s real price.'},400);
@@ -146,6 +150,7 @@ export function createCashfreeHandlers(overrides){
       await deps.updateDoc(env,ctx.accessToken,ctx.projectId,`cashfreeOrders/${data.order_id||orderId}`,{
         uid:ctx.claims.uid,email:String(ctx.claims.email||customer.email||'').slice(0,160),cfOrderId:data.order_id,
         planId:String(meta.planId),amountINR:amount,currency:'INR',environment:isLive(env)?'live':'sandbox',
+        ...(refCode?{refCode}:{}),
         status:'ACTIVE',fulfilled:false,createdAt:new Date().toISOString()
       });
     }catch(_){return json({error:'payment_record_failed',message:'The payment session could not be recorded safely. Check My Payments before trying again.'},502);}

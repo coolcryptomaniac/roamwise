@@ -159,6 +159,11 @@ function _cfToken(){
   if(!u||!u.uid||typeof u.getIdToken!=='function')return Promise.reject(new Error('Sign in again before payment.'));
   return u.getIdToken();
 }
+/* Referral code (link, QR or typed) still inside its attribution window, or ''. The Worker only stores it;
+   whether it earns commission is decided later against the admin-owned referrer directory. */
+function _cfRefCode(){
+  try{ return (typeof rwRefActive==='function' && rwRefActive()) || ''; }catch(e){ return ''; }
+}
 function _cfBeginOrder(shell){
   var endpoint = (typeof rwApi === 'function') ? rwApi('cashfree/order') : null;
   if(!endpoint){
@@ -171,7 +176,7 @@ function _cfBeginOrder(shell){
   shell.needsPhone=false;shell.needsAuth=false;
   _cfOrderPromise = _cfToken().then(function(token){return fetch(endpoint, {
     method: 'POST',headers: {'Content-Type': 'application/json','Authorization':'Bearer '+token},
-    body: JSON.stringify({amount: shell.amountINR, customer: customer, meta: {planId: shell.planId, tierId: shell.tierId, label: shell.label}})
+    body: JSON.stringify({amount: shell.amountINR, customer: customer, meta: {planId: shell.planId, tierId: shell.tierId, label: shell.label, refCode: _cfRefCode()}})
   });}).then(function(r){
     return r.json().catch(function(){ return {}; }).then(function(d){if(!r.ok) throw new Error((d&&d.message)||'Cashfree order creation failed.');return d;});
   }).then(function(d){

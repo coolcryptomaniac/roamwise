@@ -57,6 +57,11 @@ var RWFounderSeats = (function(){
    * @param {boolean} [nmimsSigned] partnerships/nmims2026.officialConfirmed === true
    * @returns {number} Seats to show publicly as "left" — never negative.
    */
+  /* SEAT MODEL (fixed 2026-10-09): pricing/founder.count counts PAID / non-NMIMS founder seats only.
+     NMIMS passes are never added to it (js/payments/partner-redeem.js skips the increment for NMIMS-
+     codes, and the admin reconcile tool ignores them). Instead the whole NMIMS pool of 500 is reserved
+     up front once it is official or issuing. Before this fix every redeemed NMIMS pass was subtracted
+     twice (once via count, once via the 500 reservation) and the public number hit 0 with 493 seats left. */
   function computeSeatsLeft(claimedCount, nmimsSigned){
     var claimed = (typeof claimedCount === 'number' && isFinite(claimedCount) && claimedCount > 0)
       ? claimedCount : 0;
@@ -138,7 +143,9 @@ var RWFounderSeats = (function(){
       if(!founderSnap) return { ok:false, left:null };
       var claimed = founderSnap.exists ? (founderSnap.data().count || 0) : 0;
       var nmimsSigned = false;
-      try{ nmimsSigned = !!(nmimsSnap && nmimsSnap.exists && nmimsSnap.data().officialConfirmed === true); }catch(e){ nmimsSigned = false; }
+      /* The reservation applies as soon as NMIMS is marked official OR passes are being issued: from then on
+         the 500 seats are spoken for, whether or not each one has been redeemed yet. */
+      try{ var nd = nmimsSnap && nmimsSnap.exists ? nmimsSnap.data() : null; nmimsSigned = !!(nd && (nd.officialConfirmed === true || nd.issuanceEnabled === true)); }catch(e){ nmimsSigned = false; }
       return { ok:true, left: computeSeatsLeft(claimed, nmimsSigned) };
     }catch(e){
       return { ok:false, left:null };

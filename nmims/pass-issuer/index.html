@@ -8,15 +8,20 @@
 <p id="access" role="status">Checking your RoamWise session…</p>
 <form id="issueForm" class="hidden"><label for="recipient">Recipient name</label><input id="recipient" autocomplete="name" required minlength="2" maxlength="80" placeholder="Anaya Sharma"><label for="email">Exact recipient email</label><input id="email" type="email" autocomplete="off" required maxlength="254" placeholder="anaya@example.com"><label for="role">Allocation</label><select id="role"><option value="student">Student</option><option value="organiser">Organiser / core team</option></select><button class="primary" id="issueBtn" type="submit">Generate one secure pass</button><p class="sub">The serial is allocated atomically with the code and seat counter. If this email already has a pass, no second seat is taken.</p></form>
 <div id="result" class="hidden" aria-live="polite"><output id="issuedCode"></output><p class="sub" id="issuedNote"></p><div class="actions"><button class="secondary" id="copyBtn" type="button">Copy code</button><button class="secondary" id="emailBtn" type="button">Open email draft</button></div><p class="sub">Opening a draft does not send email. Check the address and press Send in your email app.</p></div><p id="message" class="notice hidden" role="alert"></p></section>
-<aside class="panel"><h2>Campaign control</h2><p id="poolStatus" class="sub">Checking allocation…</p><div class="notice">A partnership proposal is not approval. Keep issuance disabled until your offer and programme terms are confirmed. No student can create a code from the public NMIMS page.</div><div class="actions"><button class="secondary" id="enableBtn" disabled type="button">Enable approved issuance</button><button class="secondary" id="pauseBtn" disabled type="button">Pause issuance</button></div><p class="sub">To enable, a founder must type the explicit approval phrase. The maximum programme ceiling is 500 passes, split by default into 450 student and 50 organiser slots. These are configuration ceilings, not a public promise.</p><p class="sub">Recipients redeem through <a href="/">RoamWise → Settings → Redeem a partner code</a> after signing in with a verified email. Redemption is one-time; an issued code expires for redemption after 30 days, but an activated lifetime pass does not expire.</p><p class="sub">No passwords, Firebase private keys or payment credentials belong on this page.</p></aside></div><footer>Private operational tool · RoamWise · Contact <a href="mailto:founder@roamwise.co.in">founder@roamwise.co.in</a></footer></main>
-<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script><script src="./pass-utils.js"></script>
+<aside class="panel"><h2>Campaign control</h2><p id="poolStatus" class="sub">Checking allocation…</p><div class="notice">A partnership proposal is not approval. Keep issuance disabled until your offer and programme terms are confirmed. No student can create a code from the public NMIMS page.</div><div class="actions"><button class="secondary" id="enableBtn" disabled type="button">Enable approved issuance</button><button class="secondary" id="pauseBtn" disabled type="button">Pause issuance</button></div><p class="sub">To enable, a founder must type the explicit approval phrase. The maximum programme ceiling is 500 passes, split by default into 450 student and 50 organiser slots. These are configuration ceilings, not a public promise.</p><p class="sub">Recipients redeem through <a href="/">RoamWise → Settings → Redeem a partner code</a> after signing in with a verified email. Redemption is one-time; an issued code expires for redemption after 30 days, but an activated lifetime pass does not expire.</p><p class="sub">No passwords, Firebase private keys or payment credentials belong on this page.</p></aside></div><section class="panel hidden" id="couponPanel" style="margin-top:20px"><h2>Event coupons: 50 organiser + 450 student</h2>
+<p class="sub">For handing out on event day without collecting emails. Each coupon is single-use, has 64 random bits, expires 30 days after generation and activates Founder Pro for the first verified RoamWise account that redeems it. The set is fixed at 500, so the cap cannot be exceeded. Treat the files like cash: anyone holding a code can use it once.</p>
+<p id="couponStatus" class="sub">Checking coupons…</p>
+<div class="actions"><button class="secondary" id="genCouponsBtn" disabled type="button">Generate the 500 coupons</button></div>
+<div id="couponResult" class="hidden"><output id="couponOut"></output><div class="actions"><button class="secondary" id="dlOrgBtn" type="button">Download 50 organiser coupons (CSV)</button><button class="secondary" id="dlStuBtn" type="button">Download 450 student coupons (CSV)</button></div><div class="actions"><button class="secondary" id="cardOrgBtn" type="button">Print 50 organiser cards with QR</button><button class="secondary" id="cardStuBtn" type="button">Print 450 student cards with QR</button></div><p class="sub">Cards open in a new tab (10 per A4 page, one QR per code). Use Print, Save as PDF. The codes stay in your browser; nothing is uploaded.</p><p class="sub">Download both now. For safety the codes are not shown again here after you leave this page; the database keeps them but they cannot be listed by anyone but an admin.</p></div>
+<label for="revokeCode">Revoke one unredeemed coupon (lost or leaked)</label><input id="revokeCode" maxlength="32" placeholder="NMIMS-STU-0123-XXXXXXXXXXXXX" autocomplete="off"><div class="actions"><button class="secondary" id="revokeBtn" disabled type="button">Revoke this coupon</button></div></section><footer>Private operational tool · RoamWise · Contact <a href="mailto:founder@roamwise.co.in">founder@roamwise.co.in</a></footer></main>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script><script src="./pass-utils.js"></script><script src="./qrcode.js"></script>
 <script>
 'use strict';
 const config={apiKey:'AIzaSyDlrtpzpOb1VEmVSd9tHmu7OpmvwWosYsU',authDomain:'roamwisepro.firebaseapp.com',projectId:'roamwisepro',appId:'1:299014744987:web:d5c316743e6d7a10904f3e'}; // Public Firebase client identifiers; no secrets.
 const $=id=>document.getElementById(id);const U=window.RWNMIMSPass;
 let db,auth,adminUid='',lastIssued=null,busy=false;
 function message(s){$('message').textContent=s;$('message').classList.toggle('hidden',!s);}
-function setBusy(v){busy=v;$('issueBtn').disabled=v;$('enableBtn').disabled=v;$('pauseBtn').disabled=v;}
+function setBusy(v){busy=v;$('issueBtn').disabled=v;$('enableBtn').disabled=v;$('pauseBtn').disabled=v;$('revokeBtn').disabled=v||!adminUid;$('genCouponsBtn').disabled=v||!adminUid;}
 function poolRef(){return db.collection('partnerships').doc(U.CAMPAIGN);}
 async function renderPool(){
   const p=await poolRef().get();const d=p.exists?p.data():{};
@@ -75,9 +80,76 @@ async function enable(){
 async function pause(){if(busy||!adminUid)return;setBusy(true);try{await poolRef().update({issuanceEnabled:false});await renderPool();message('Issuance paused. Already-issued codes remain valid until their redemption deadlines.');}catch(e){message(e.message||'Could not pause.');}finally{setBusy(false);}}
 $('issueForm').addEventListener('submit',issue);$('enableBtn').addEventListener('click',enable);$('pauseBtn').addEventListener('click',pause);$('emailBtn').addEventListener('click',emailDraft);
 $('copyBtn').addEventListener('click',async()=>{if(!lastIssued)return;try{await navigator.clipboard.writeText(lastIssued.code);message('Code copied; share it only with the verified recipient.');}catch(e){message('Copy was blocked. Select the code above and copy it manually.');}});
+
+let couponBatchData=null;
+function csvDownload(role){
+  if(!couponBatchData)return;
+  const list=couponBatchData.list.filter(c=>c.role===role);
+  const blob=new Blob([U.toCsv(list,couponBatchData.expiresIso)],{type:'text/csv'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='nmims-'+role+'-coupons-'+couponBatchData.expiresIso+'.csv';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),4000);
+}
+async function renderCoupons(){
+  try{
+    const q=await db.collection('partnerClaims').where('bearer','==',true).get();
+    let total=0,redeemed=0,expired=0;const now=Date.now();
+    q.forEach(d=>{const x=d.data();total++;if(x.proRedeemed===true)redeemed++;else if(x.expiresAt&&x.expiresAt.toMillis&&x.expiresAt.toMillis()<now)expired++;});
+    $('couponStatus').textContent=total?('Coupons in database: '+total+' · redeemed '+redeemed+' · unredeemed '+(total-redeemed-expired)+' · expired/revoked '+expired):'No coupons generated yet.';
+    $('genCouponsBtn').disabled=busy||total>0;
+  }catch(e){$('couponStatus').textContent='Could not read coupons: '+(e.message||e);}
+}
+async function generateCoupons(){
+  if(busy||!adminUid)return;
+  if(prompt('This creates the 500 live coupons (50 organiser, 450 student) valid for 30 days. Only do this once the MOU is signed. Type GENERATE NMIMS COUPONS to confirm:')!=='GENERATE NMIMS COUPONS')return;
+  if(!crypto||!crypto.getRandomValues||!crypto.subtle){message('A secure HTTPS browser with Web Crypto is required.');return;}
+  setBusy(true);message('');
+  const written=[];
+  try{
+    const pool=await poolRef().get();const d=pool.exists?pool.data():null;
+    if(!d||d.issuanceEnabled!==true)throw new Error('Enable approved issuance first (Campaign control).');
+    if(d.claimed!==0||d.studentClaimed!==0||d.organiserClaimed!==0)throw new Error('Passes were already issued from this pool. Nothing was created.');
+    const existing=await db.collection('partnerClaims').where('bearer','==',true).limit(1).get();
+    if(!existing.empty)throw new Error('Coupons already exist. Nothing was created.');
+    const list=U.couponBatch(n=>crypto.getRandomValues(new Uint8Array(n)));
+    const hash=await U.commitment(list.map(c=>c.code),crypto.subtle);
+    const exp=new Date(Date.now()+30*86400000);const expTs=firebase.firestore.Timestamp.fromDate(exp);
+    for(let i=0;i<list.length;i+=250){
+      const b=db.batch();
+      for(const c of list.slice(i,i+250)){
+        b.set(db.collection('partnerClaims').doc(c.code),{bearer:true,role:c.role,serial:c.serial,partnership:U.CAMPAIGN,code:c.code,proRedeemed:false,status:'issued',issuedBy:adminUid,issuedAt:firebase.firestore.FieldValue.serverTimestamp(),expiresAt:expTs});
+      }
+      await b.commit();written.push(...list.slice(i,i+250).map(c=>c.code));
+    }
+    await poolRef().update({claimed:500,organiserClaimed:50,studentClaimed:450,nextSerial:501,couponBatchAt:firebase.firestore.FieldValue.serverTimestamp(),couponCommitment:hash,couponCount:500,couponExpiresAt:expTs});
+    couponBatchData={list,expiresIso:exp.toISOString().slice(0,10)};
+    $('couponOut').textContent='500 coupons created. Valid until '+couponBatchData.expiresIso+'.\nCommitment (SHA-256 of the sorted code list, also saved publicly):\n'+hash;
+    $('couponResult').classList.remove('hidden');await renderPool();await renderCoupons();
+  }catch(e){
+    // roll back anything written so no orphan live coupons remain
+    try{for(let i=0;i<written.length;i+=250){const b=db.batch();written.slice(i,i+250).forEach(c=>b.delete(db.collection('partnerClaims').doc(c)));await b.commit();}}catch(_){}
+    message(((e&&e.message)||'Could not generate coupons.')+(written.length?' Partial coupons were removed; try again.':''));
+  }finally{setBusy(false);}
+}
+async function revoke(){
+  if(busy||!adminUid)return;const code=String($('revokeCode').value||'').trim().toUpperCase().replace(/[^A-Z0-9_-]/g,'').slice(0,32);
+  if(!code){message('Enter the coupon code to revoke.');return;}
+  if(!confirm('Revoke '+code+'? It stops working immediately if it has not been redeemed.'))return;
+  setBusy(true);
+  try{const ref=db.collection('partnerClaims').doc(code);const s=await ref.get();if(!s.exists)throw new Error('Coupon not found.');if(s.data().proRedeemed===true)throw new Error('This coupon was already redeemed; it cannot be revoked.');await ref.update({expiresAt:firebase.firestore.Timestamp.fromMillis(Date.now()-1000),status:'revoked'});message('Coupon revoked.');await renderCoupons();}
+  catch(e){message(e.message||'Could not revoke.');}finally{setBusy(false);}
+}
+function printCards(role){
+  if(!couponBatchData)return;
+  const list=couponBatchData.list.filter(c=>c.role===role);
+  const qr=url=>{const q=qrcode(0,'M');q.addData(url);q.make();return q.createSvgTag({cellSize:4,margin:2,scalable:true});};
+  const html=U.cardsHtml(list,qr,couponBatchData.expiresIso,'NMIMS '+(role==='organiser'?'organiser':'student / audience')+' pass cards');
+  const url=URL.createObjectURL(new Blob([html],{type:'text/html'}));
+  window.open(url,'_blank');setTimeout(()=>URL.revokeObjectURL(url),60000);
+}
+$('cardOrgBtn').addEventListener('click',()=>printCards('organiser'));$('cardStuBtn').addEventListener('click',()=>printCards('student'));
+$('genCouponsBtn').addEventListener('click',generateCoupons);$('revokeBtn').addEventListener('click',revoke);$('dlOrgBtn').addEventListener('click',()=>csvDownload('organiser'));$('dlStuBtn').addEventListener('click',()=>csvDownload('student'));
 try{firebase.initializeApp(config);db=firebase.firestore();auth=firebase.auth();auth.onAuthStateChanged(async person=>{
-  adminUid='';$('issueForm').classList.add('hidden');$('enableBtn').disabled=true;$('pauseBtn').disabled=true;$('result').classList.add('hidden');lastIssued=null;
+  adminUid='';$('couponPanel').classList.add('hidden');couponBatchData=null;$('couponResult').classList.add('hidden');$('issueForm').classList.add('hidden');$('enableBtn').disabled=true;$('pauseBtn').disabled=true;$('result').classList.add('hidden');lastIssued=null;
   if(!person){$('access').textContent='Sign in to RoamWise first, then return to this private page.';return;}
-  try{const d=await db.collection('admins').doc(person.uid).get();if(!d.exists)throw new Error('This account is not a RoamWise administrator.');adminUid=person.uid;$('access').textContent='Founder access verified · '+(person.email||person.uid);$('issueForm').classList.remove('hidden');setBusy(false);await renderPool();}catch(e){$('access').textContent=e.message||'Unable to verify admin access.';}
+  try{const d=await db.collection('admins').doc(person.uid).get();if(!d.exists)throw new Error('This account is not a RoamWise administrator.');adminUid=person.uid;$('access').textContent='Founder access verified · '+(person.email||person.uid);$('issueForm').classList.remove('hidden');$('couponPanel').classList.remove('hidden');setBusy(false);await renderPool();await renderCoupons();}catch(e){$('access').textContent=e.message||'Unable to verify admin access.';}
 });}catch(e){$('access').textContent='Firebase is unavailable. No pass can be issued offline.';}
 </script></body></html>

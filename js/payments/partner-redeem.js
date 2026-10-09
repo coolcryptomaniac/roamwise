@@ -17,8 +17,9 @@ function openPartnerRedeem(){
   rwForm('&#127891; Redeem a partner code',[
     /* key:/placeholder: — rwFormSubmit reads out[field.key] and renders
        field.placeholder; id:/ph: silently read back undefined. */
-    {key:'code', label:'Enter your claim code (e.g. NMIMS-A1B2C3)', placeholder:'NMIMS-XXXXXX'}
+    {key:'code', label:'Enter your pass code (from your card or email)', placeholder:'NMIMS-STU-0123-XXXXXXXXXXXXX', value:(window.__rwPendingRedeem||'')}
   ], async function(v){
+    window.__rwPendingRedeem='';
     var code=rwSanitizeRefCode(v.code);
     if(!code){ showToast('Enter your code first'); return; }
     if(!user){ openLogin(); return; }
@@ -33,11 +34,18 @@ function openPartnerRedeem(){
     var snap=await claimRef.get().catch(function(){return null;});
     if(!snap||!snap.exists){ showToast('Code not found. Check it and try again, or email founder@roamwise.co.in'); return; }
     var data=snap.data()||{};
+    /* EVENT COUPONS (bearer:true, no email): one-time, any verified account, one coupon per account.
+       Never consume a coupon for an account that already has Pro. */
+    var isCoupon=(data.bearer===true);
+    if(isCoupon && !data.proRedeemed){
+      if(typeof isPro!=='undefined' && isPro){ showToast('Your account already has Pro, so this code was not used. Give it to a friend instead.'); return; }
+      if(user.emailVerified===false){ showToast('Verify your email address first, then enter the code again.'); return; }
+    }
     // Soft UX check only — only the person who was emailed the code SHOULD
     // redeem it, but the real security boundary against replay/reuse now
     // lives in firestore.rules (one-time redemption via two sequential,
     // awaited writes — see below), not in this client-side email comparison.
-    if(data.email && user.email && data.email.toLowerCase()!==user.email.toLowerCase()){
+    if(!isCoupon && data.email && user.email && data.email.toLowerCase()!==user.email.toLowerCase()){
       showToast('This code was claimed with a different email. Sign in with '+data.email.split('@')[0]+'@…');
       return;
     }
@@ -89,7 +97,9 @@ function openPartnerRedeem(){
        grant step below that actually needs resuming. */
     if(!alreadyRedeemedByMe){
       try{
-        await claimRef.update({proRedeemed:true, redeemedAt:new Date().toISOString(), redeemedUid:user.uid});
+        var flip={proRedeemed:true, redeemedAt:new Date().toISOString(), redeemedUid:user.uid};
+        if(isCoupon) flip.email=user.email||'';   /* rules require the caller's verified email on a coupon */
+        await claimRef.update(flip);
       }catch(e){
         showToast('Redemption error: '+(e.message||'try again'));
         return;
@@ -139,10 +149,16 @@ function openPartnerRedeem(){
          Pro access \u2014 it would only make the PUBLIC counter briefly stale,
          which self-corrects on the next successful redemption or admin
          payment. */
-      db.collection('pricing').doc('founder').update({
-        count: firebase.firestore.FieldValue.increment(1)
-      }).catch(function(){});
-      showToast('\ud83c\udf89 Partner Pass activated! Welcome, '+esc2(data.name?data.name.split(' ')[0]:'friend')+'.');
+      /* NMIMS seats live in their own reserved pool of 500 (see js/pricing/founder-seats.js),
+         so they must NOT also move the shared paid-seat counter, or the public number would
+         subtract them twice. Other partners still count against the 1,000. */
+      if(String(code).indexOf('NMIMS-')!==0){
+        db.collection('pricing').doc('founder').update({
+          count: firebase.firestore.FieldValue.increment(1)
+        }).catch(function(){});
+      }
+      showToast('\ud83c\udf89 Partner Pass activated! Welcome, '+esc2(data.name?data.name.split(' ')[0]:(user.displayName?user.displayName.split(' ')[0]:'friend'))+'.');
+      try{ rwPartnerShare(String(code).indexOf('NMIMS-')===0); }catch(e){}
       window._proUnlocked=true;
       /* Reuse the SAME UI-refresh path a real Firestore pro:true write
          triggers (the users/{uid} onSnapshot listener, ~line 9403, calls this
@@ -163,3 +179,25 @@ function openPartnerRedeem(){
   }, 'Enter the NMIMS-XXXXXX code you received after claiming on the partnership page.');
 }
 
+
+
+/* Congratulations card after a partner pass is activated, with a WhatsApp share. No data is sent anywhere
+   by the app; the button just opens WhatsApp with a pre-written message the person can edit or ignore. */
+function rwPartnerShare(isNmims){
+  var text=(isNmims
+    ? 'I just unlocked RoamWise Founder Pro (lifetime) through E-Cell NMIMS! \ud83c\udf89 It plans trips with AI, offline maps and more. Check it out: '
+    : 'I just unlocked RoamWise Pro! \ud83c\udf89 AI trip planning for India: ')+'https://www.roamwise.co.in/';
+  var ov=document.getElementById('rwShareOverlay');
+  if(ov) ov.remove();
+  ov=document.createElement('div'); ov.id='rwShareOverlay';
+  ov.style.cssText='position:fixed;inset:0;z-index:4000;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;padding:20px';
+  ov.innerHTML='<div style="max-width:360px;width:100%;background:var(--bg2,#14141a);border:1px solid var(--b2,#2a2a36);border-radius:18px;padding:22px;text-align:center;color:inherit">'
+    +'<div style="font-size:40px">\ud83c\udf89</div>'
+    +'<div style="font-size:18px;font-weight:800;margin:6px 0">Founder Pro is active!</div>'
+    +'<div style="font-size:13px;opacity:.8;margin-bottom:16px">Congratulations. Your pass is yours for life. Want to tell a friend?</div>'
+    +'<a id="rwShareWa" target="_blank" rel="noopener" style="display:block;background:#25D366;color:#06260f;font-weight:800;border-radius:12px;padding:12px;text-decoration:none;margin-bottom:8px">Share on WhatsApp</a>'
+    +'<button id="rwShareClose" style="width:100%;border:1px solid var(--b2,#2a2a36);background:transparent;color:inherit;border-radius:12px;padding:11px;font:inherit">Close</button></div>';
+  document.body.appendChild(ov);
+  document.getElementById('rwShareWa').href='https://wa.me/?text='+encodeURIComponent(text);
+  document.getElementById('rwShareClose').onclick=function(){ ov.remove(); };
+}

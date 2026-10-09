@@ -752,3 +752,38 @@ test('grantPurchase(): no signed-in user (guest/device-only) — grants locally 
   assert.equal(ctx.isPro, true);
   assert.equal(ctx._ls.rw_pro_temp_uid, undefined);
 });
+
+
+test('referral attribution: a sanitized refCode is stored on the order and copied to the PAID payment record', async () => {
+  const handler = await loadHandler({ receipt: { uid: 'u1', email: 'a@b.com', cfOrderId: 'rw_test123', planId: 'founder', amountINR: 100, currency: 'INR', status: 'ACTIVE', fulfilled: false, createdAt: '2026-09-17T00:00:00.000Z', refCode: 'NMIMS2026' } });
+  const env = { CASHFREE_APP_ID: 'id', CASHFREE_SECRET_KEY: 'secret', CASHFREE_ENV: 'sandbox' };
+  const realFetch = global.fetch;
+  let seenBody;
+  global.fetch = async (url, init) => { seenBody = JSON.parse(init.body); return { ok: true, status: 200, json: async () => ({ ...REAL_ORDER_RESPONSE, order_id: seenBody.order_id }) }; };
+  try{
+    const res = await handler.handleCashfreeOrder(jsonRequest({ amount: 100, customer: { phone: '9999999999' }, meta: { planId: 'founder', refCode: ' nmims2026<script> ' } }), env);
+    assert.equal(res.status, 200);
+    const orderWrite = handler._writes.find(w => w.path.startsWith('cashfreeOrders/'));
+    assert.equal(orderWrite.values.refCode, 'NMIMS2026SCRIPT'.slice(0, 32), 'input is uppercased and stripped to [A-Z0-9_-]');
+    assert.equal(seenBody.order_amount, 100, 'the price is never influenced by a referral code');
+    handler._writes.length = 0;
+    global.fetch = async () => ({ ok: true, status: 200, json: async () => ({ order_id: 'rw_test123', order_status: 'PAID', order_amount: 100, order_currency: 'INR' }) });
+    const paid = await handler.handleCashfreeOrderStatus(jsonRequest({}), env, 'rw_test123');
+    assert.equal(paid.status, 200);
+    assert.equal(handler._writes.find(w => w.path === 'payments/rw_test123').values.refCode, 'NMIMS2026');
+  } finally { global.fetch = realFetch; }
+});
+
+test('referral attribution: no refCode means no refCode field, and overlong codes are truncated', async () => {
+  const handler = await loadHandler();
+  const env = { CASHFREE_APP_ID: 'id', CASHFREE_SECRET_KEY: 'secret', CASHFREE_ENV: 'sandbox' };
+  const realFetch = global.fetch;
+  global.fetch = async (url, init) => { const b = JSON.parse(init.body); return { ok: true, status: 200, json: async () => ({ ...REAL_ORDER_RESPONSE, order_id: b.order_id }) }; };
+  try{
+    await handler.handleCashfreeOrder(jsonRequest({ amount: 100, customer: { phone: '9999999999' }, meta: { planId: 'founder' } }), env);
+    assert.equal('refCode' in handler._writes.find(w => w.path.startsWith('cashfreeOrders/')).values, false);
+    handler._writes.length = 0;
+    await handler.handleCashfreeOrder(jsonRequest({ amount: 100, customer: { phone: '9999999999' }, meta: { planId: 'founder', refCode: 'A'.repeat(80) } }), env);
+    assert.equal(handler._writes.find(w => w.path.startsWith('cashfreeOrders/')).values.refCode.length, 32);
+  } finally { global.fetch = realFetch; }
+});
