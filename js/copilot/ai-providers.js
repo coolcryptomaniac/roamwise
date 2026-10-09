@@ -31,8 +31,7 @@ function aiRequest(prov, key, model, prompt, maxTok, jsonMode){
     var gc={maxOutputTokens:maxTok, temperature:0.7}; if(jsonMode) gc.responseMimeType='application/json';
     body=JSON.stringify({contents:[{parts:[{text:prompt}]}], generationConfig:gc});
   } else {
-    var bases={groq:'https://api.groq.com/openai/v1', cerebras:'https://api.cerebras.ai/v1',
-      github:'https://models.inference.ai.azure.com', openrouter:'https://openrouter.ai/api/v1',
+    var bases={groq:'https://api.groq.com/openai/v1', openrouter:'https://openrouter.ai/api/v1',
       mistral:'https://api.mistral.ai/v1', sarvam:'https://api.sarvam.ai/v1'};
     url=(bases[prov]||bases.groq)+'/chat/completions';
     headers={'Content-Type':'application/json','Authorization':'Bearer '+key};
@@ -145,7 +144,7 @@ function aiCallAny(prompt, maxTok, cb, jsonMode){
     aiCall(prompt,maxTok,cb,jsonMode);
     return;
   }
-  var all=['sarvam','groq','cerebras','github','gemini','openrouter','mistral','anthropic'];
+  var all=['sarvam','groq','gemini','openrouter','mistral','anthropic'];
   var order=[activeProv].concat(all.filter(function(p){ return p!==activeProv; }))
     .filter(function(p){ return p && p!=='smart' && lsGet('rwKey_'+p); });
   if(!order.length){ lastAiSource=null; cb(null,null); return; }

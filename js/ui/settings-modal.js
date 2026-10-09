@@ -134,10 +134,8 @@ function rwInitLang(){
 
 /* ---- from app.js lines 7167-7268: settings modal (PROV_META, renderKeyBoxes, openSettings, closeSettings, setProv, saveKey, clearKey) ---- */
 var PROV_META = {
-  groq:     {label:'Groq \u00b7 auto-picks best model', hint:'console.groq.com/keys \u2014 free, no card. Starts with gsk_', url:'https://console.groq.com/keys', ph:'gsk_...'},
-  cerebras: {label:'Cerebras \u00b7 Llama 3.3 70B', hint:'cloud.cerebras.ai \u2014 free, no card, ~1M tokens/day', url:'https://cloud.cerebras.ai', ph:'csk-...'},
-  github:   {label:'GitHub Models \u00b7 GPT-4o', hint:'github.com/settings/tokens \u2014 free with a GitHub account', url:'https://github.com/settings/tokens', ph:'ghp_...'},
-  gemini:   {label:'Google Gemini 2.5 Flash', hint:'aistudio.google.com \u2014 free tier covers 2.5 Flash (Pro/Flash-Lite are paid)', url:'https://aistudio.google.com/apikey', ph:'AIzaSy...'},
+  groq:     {label:'Groq \u00b7 gpt-oss (fast)', hint:'console.groq.com/keys \u2014 free, no card. Starts with gsk_', url:'https://console.groq.com/keys', ph:'gsk_...'},
+  gemini:   {label:'Google Gemini Flash (latest)', hint:'aistudio.google.com \u2014 free tier set by Google; limits may change', url:'https://aistudio.google.com/apikey', ph:'AIzaSy...'},
   openrouter:{label:'OpenRouter \u00b7 many models', hint:'openrouter.ai/keys \u2014 free slots ~50/day', url:'https://openrouter.ai/keys', ph:'sk-or-...'},
   sarvam:   {label:'Sarvam AI \u00b7 India-first chat', hint:'dashboard.sarvam.ai \u2014 Sarvam-105B Conversations for Indian-language and code-mixed chat', url:'https://dashboard.sarvam.ai', ph:'sk_...'},
   mistral:  {label:'Mistral', hint:'console.mistral.ai \u2014 free prototyping tier', url:'https://console.mistral.ai/api-keys', ph:'...'},
@@ -149,7 +147,7 @@ var PROV_META = {
 function renderKeyBoxes(){
   var host=el('keyBoxes'); if(!host) return;
   host.innerHTML = secPanelHTML() + Object.keys(PROV_META).map(function(p){
-    var m=PROV_META[p], free = (p==='groq'||p==='cerebras'||p==='github'||p==='gemini');
+    var m=PROV_META[p], free = (p==='groq');
     return '<div class="key-box">'
       +'<div class="key-box-name">'+m.label+(free?' <span style="font-size:9px;color:#4ADE80;border:1px solid rgba(74,222,128,.4);border-radius:999px;padding:1px 6px;margin-left:4px">no card</span>':'')
       +' <span class="key-status ks-empty" id="'+p+'Status">not set</span></div>'
@@ -187,7 +185,7 @@ function openSettings(){
            restricted to verified admins so Settings never becomes a setup
            wizard or asks a traveller to create third-party credentials. */
         if(window.RW_IS_ADMIN!==true){adv.forEach(function(x){x.style.display='none';});return;}
-        var hasKey = activeProv==='roamwise' || ['sarvam','groq','cerebras','github','gemini','openrouter','mistral','anthropic'].some(function(x){ return lsGet('rwKey_'+x); });
+        var hasKey = activeProv==='roamwise' || ['sarvam','groq','gemini','openrouter','mistral','anthropic'].some(function(x){ return lsGet('rwKey_'+x); });
         var btn = document.createElement('button');
         btn.id='advToggle'; btn.className='tact';
         btn.style.cssText='width:100%;margin:4px 0 10px;font-size:12.5px';
@@ -202,7 +200,7 @@ function openSettings(){
       }
     }
   }, 0);
-  ['sarvam','groq','cerebras','github','gemini','openrouter','mistral','anthropic'].forEach(function(p){
+  ['sarvam','groq','gemini','openrouter','mistral','anthropic'].forEach(function(p){
     var inp=el(p+'Key'), stat=el(p+'Status'), val=lsGet('rwKey_'+p);
     if(inp) inp.value=val;
     if(stat){ stat.textContent = val?'set':'not set'; stat.className = 'key-status '+(val?'ks-set':'ks-empty'); }

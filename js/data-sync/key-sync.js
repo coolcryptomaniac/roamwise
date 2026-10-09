@@ -38,7 +38,7 @@ async function rwDecryptSecrets(rec, pass){
 }
 function rwKeyBundle(){
   var out={};
-  ['sarvam','groq','cerebras','github','gemini','openrouter','mistral','anthropic'].forEach(function(p){
+  ['sarvam','groq','gemini','openrouter','mistral','anthropic'].forEach(function(p){
     var v=lsGet('rwKey_'+p); if(v) out[p]=v;
   });
   return out;
@@ -81,7 +81,7 @@ async function rwSyncKeysDown(silent){
     if(!snap.exists){ if(st&&!silent){ st.textContent='Nothing stored yet \u2014 save your keys first.'; st.style.color='var(--t3)'; } return false; }
     var bundle=await rwDecryptSecrets(snap.data(), pass);
     var n=0;
-    Object.keys(bundle).forEach(function(p){ if(bundle[p]){ lsSet('rwKey_'+p, bundle[p]); n++; } });
+    Object.keys(bundle).forEach(function(p){ if(bundle[p] && p!=='cerebras' && p!=='github'){ lsSet('rwKey_'+p, bundle[p]); n++; } });
     if(el('secRemember') && el('secRemember').checked) lsSet('rw_sec_pass', pass);
     try{ renderKeyBoxes(); openSettings(); }catch(e){ /* non-critical render step, ignore */ }
     try{ cpModelChips('heroModels'); cpModelChips('cpModels'); }catch(e){ /* best-effort, ignore */ }

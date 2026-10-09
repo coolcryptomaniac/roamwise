@@ -24,13 +24,13 @@ test('rwAgentCall falls through to the next configured provider on an auth error
       // first provider (groq): key rejected
       return { status: 401, json: async () => ({ error: { message: 'invalid api key' } }) };
     }
-    // second provider (cerebras): succeeds
+    // second provider (openrouter): succeeds
     return {
       status: 200,
       json: async () => ({ choices: [{ message: { role: 'assistant', content: 'ok from fallback provider' } }] })
     };
   }, async () => {
-    const sandbox = runner.loadAgentSandbox({ GROQ_API_KEY: 'bad-key', CEREBRAS_API_KEY: 'good-key' });
+    const sandbox = runner.loadAgentSandbox({ GROQ_API_KEY: 'bad-key', OPENROUTER_API_KEY: 'good-key' });
     const reply = await new Promise((resolve, reject) => {
       sandbox.rwAgentCall([{ role: 'user', content: 'hi' }], (err, msg) => {
         if (err) reject(new Error(err)); else resolve(msg);
@@ -38,14 +38,14 @@ test('rwAgentCall falls through to the next configured provider on an auth error
     });
     assert.equal(calls.length, 2, 'should have tried a second provider after the first was rejected');
     assert.match(calls[0], /groq/);
-    assert.match(calls[1], /cerebras/);
+    assert.match(calls[1], /openrouter/);
     assert.equal(reply.content, 'ok from fallback provider');
   });
 });
 
 test('rwAgentCall reports a clear error once every configured provider is exhausted', async () => {
   await withMockFetch(async () => ({ status: 401, json: async () => ({ error: { message: 'invalid api key' } }) }), async () => {
-    const sandbox = runner.loadAgentSandbox({ GROQ_API_KEY: 'bad', CEREBRAS_API_KEY: 'also-bad' });
+    const sandbox = runner.loadAgentSandbox({ GROQ_API_KEY: 'bad', OPENROUTER_API_KEY: 'also-bad' });
     const err = await new Promise((resolve) => {
       sandbox.rwAgentCall([{ role: 'user', content: 'hi' }], (err) => resolve(err));
     });
@@ -64,7 +64,7 @@ test('rwAgentCall treats an AbortError as a timeout and tries the next provider'
     }
     return { status: 200, json: async () => ({ choices: [{ message: { role: 'assistant', content: 'recovered' } }] }) };
   }, async () => {
-    const sandbox = runner.loadAgentSandbox({ GROQ_API_KEY: 'x', CEREBRAS_API_KEY: 'y' });
+    const sandbox = runner.loadAgentSandbox({ GROQ_API_KEY: 'x', OPENROUTER_API_KEY: 'y' });
     const reply = await new Promise((resolve, reject) => {
       sandbox.rwAgentCall([{ role: 'user', content: 'hi' }], (err, msg) => {
         if (err) reject(new Error(err)); else resolve(msg);
