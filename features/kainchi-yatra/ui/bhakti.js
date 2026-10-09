@@ -65,6 +65,9 @@
       result.appendChild(ctx.el('h3', ctx.t('pooja_for') + ' ' + name, 'pooja-result-title'));
       result.appendChild(ctx.el('p', wellwishers ? ctx.t('pooja_wellwishers') + ': ' + wellwishers : ctx.t('pooja_personal'), 'muted'));
       result.appendChild(ctx.el('p', ctx.t('pooja_intention_' + intent), 'pooja-intention'));
+      result.appendChild(ctx.el('h4', ctx.t('pooja_mantra_label'), 'pooja-mantra-label'));
+      result.appendChild(ctx.el('p', ctx.t('mantra_' + ctx.$('pooja-mantra').value), 'pooja-mantra'));
+      result.appendChild(ctx.el('p', ctx.t('pooja_pandit'), 'pooja-pandit'));
       var steps = [ctx.t('pooja_step_1'), ctx.t('pooja_step_2'), ctx.t('pooja_step_3'), ctx.t('pooja_step_4')], list = ctx.el('ol', null, 'pooja-steps');
       steps.forEach(function (step) { list.appendChild(ctx.el('li', step)); }); result.appendChild(list);
       result.hidden = false; poojaReady = true; renderPooja();
