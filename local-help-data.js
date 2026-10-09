@@ -3,6 +3,7 @@
  *
  * HONESTY RULES (enforced in code, not just policy):
  *  - A provider is shown ONLY if it has a consentAt date (they agreed to be listed).
+ *  - A provider older than RW_LOCAL_MAX_AGE_DAYS (by updatedAt, else consentAt) is hidden automatically.
  *  - Every shown provider carries a visible verification level.
  *  - Nothing here is copied from another site; add only people you have spoken to.
  *
@@ -12,7 +13,7 @@ var RW_LOCAL_DISTRICTS = [
   { id: 'nainital',    name: 'Nainital',           towns: ['Kathgodam', 'Haldwani', 'Nainital', 'Bhimtal', 'Mukteshwar', 'Ramnagar', 'Lalkuan'] },
   { id: 'almora',      name: 'Almora',             towns: ['Almora', 'Ranikhet', 'Binsar', 'Jageshwar'] },
   { id: 'bageshwar',   name: 'Bageshwar',          towns: ['Bageshwar', 'Kausani', 'Kapkot'] },
-  { id: 'pithoragarh', name: 'Pithoragarh',        towns: ['Pithoragarh', 'Munsiyari', 'Dharchula'] },
+  { id: 'pithoragarh', name: 'Pithoragarh',        towns: ['Pithoragarh', 'Didihat', 'Munsiyari', 'Thal', 'Dharchula'] },
   { id: 'champawat',   name: 'Champawat',          towns: ['Champawat', 'Lohaghat', 'Tanakpur'] },
   { id: 'usnagar',     name: 'Udham Singh Nagar',  towns: ['Rudrapur', 'Kashipur', 'Khatima', 'Sitarganj', 'Pantnagar'] }
 ];
@@ -22,6 +23,7 @@ var RW_LOCAL_GATEWAYS = ['Kathgodam', 'Haldwani'];
 
 var RW_LOCAL_CATEGORIES = [
   { id: 'taxi',   icon: '🚕', label: 'Taxi & drivers',        hint: 'Agree the fare and pick-up point before you set off.' },
+  { id: 'rental', icon: '\ud83c\udfcd\ufe0f', label: 'Bike & car rental',     hint: 'Check the vehicle, helmet and papers before you pay.' },
   { id: 'stay',   icon: '🏡', label: 'Homestays',             hint: 'Message first — hill homestays often have no instant booking.' },
   { id: 'guide',  icon: '🥾', label: 'Guides & trek help',    hint: 'Ask what the fee covers: food, permits, porter.' },
   { id: 'health', icon: '🏥', label: 'Health & pharmacy',     hint: 'Clinics and chemists. For emergencies use the SOS page.' },
@@ -30,6 +32,7 @@ var RW_LOCAL_CATEGORIES = [
 ];
 
 var RW_LOCAL_VERIFY = {
+  kb:      'Verified on Kumaon Bazaar',
   visited: 'We visited in person',
   called:  'We spoke on the phone',
   self:    'Self-listed, not yet checked'
@@ -38,7 +41,8 @@ var RW_LOCAL_VERIFY = {
 /* One object per person/business. Leave empty until real, consenting entries exist.
  * { id, cat, town, name, phone, whatsapp, languages:['Hindi','Kumaoni'], note,
  *   verified:'visited'|'called'|'self', consentAt:'YYYY-MM-DD' } */
-var RW_LOCAL_PROVIDERS = [];
+var RW_LOCAL_PROVIDERS = [];   /* imported listings arrive from local-help-listings.js (lazy-loaded) */
+var RW_LOCAL_MAX_AGE_DAYS = 365;
 
 var RW_LOCAL_LINKS = {
   blood: { label: 'Find a blood bank (e-RaktKosh, official)', url: 'https://eraktkosh.in' },
@@ -53,12 +57,22 @@ function rwLocalTowns() {
   });
   return out;
 }
-function rwLocalFind(cat, town) {
+function rwLocalFresh(p, nowMs) {
+  var t = Date.parse((p && (p.updatedAt || p.consentAt)) || '');
+  if (!t) return false;
+  return ((nowMs || Date.now()) - t) <= RW_LOCAL_MAX_AGE_DAYS * 86400000;
+}
+function rwLocalFind(cat, town, nowMs) {
   return RW_LOCAL_PROVIDERS.filter(function (p) {
-    return !!p.consentAt && (!cat || cat === 'all' || p.cat === cat) && (!town || p.town === town);
+    return !!p.consentAt && rwLocalFresh(p, nowMs) && (!cat || cat === 'all' || p.cat === cat) && (!town || p.town === town);
   });
 }
-function rwLocalCount(town) { return rwLocalFind('all', town).length; }
+function rwLocalMonth(p) {
+  var d = new Date((p && (p.updatedAt || p.consentAt)) || '');
+  if (isNaN(d)) return '';
+  return ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][d.getUTCMonth()] + ' ' + d.getUTCFullYear();
+}
+function rwLocalCount(town, nowMs) { return rwLocalFind('all', town, nowMs).length; }
 function rwLocalWhatsApp(p, msg) {
   var n = String((p && (p.whatsapp || p.phone)) || '').replace(/\D/g, '');
   if (n.length === 10) n = '91' + n;
@@ -74,4 +88,8 @@ function rwLocalListMail(town) {
     '\nPhone / WhatsApp:\nLanguages:\n\nI agree to be listed on RoamWise Local Help.';
   return 'mailto:' + RW_LOCAL_LINKS.listEmail + '?subject=' + encodeURIComponent('List me on RoamWise Local Help') + '&body=' + encodeURIComponent(body);
 }
-if (typeof module !== 'undefined') module.exports = { RW_LOCAL_DISTRICTS: RW_LOCAL_DISTRICTS, RW_LOCAL_GATEWAYS: RW_LOCAL_GATEWAYS, RW_LOCAL_CATEGORIES: RW_LOCAL_CATEGORIES, RW_LOCAL_PROVIDERS: RW_LOCAL_PROVIDERS, RW_LOCAL_VERIFY: RW_LOCAL_VERIFY, rwLocalTowns: rwLocalTowns, rwLocalFind: rwLocalFind, rwLocalCount: rwLocalCount, rwLocalWhatsApp: rwLocalWhatsApp, rwLocalTel: rwLocalTel, rwLocalListMail: rwLocalListMail };
+function rwLocalRemoveMail(p) {
+  var body = 'Please remove this listing from RoamWise Local Help.\n\nName: ' + ((p && p.name) || '') + '\nListing id: ' + ((p && p.id) || '');
+  return 'mailto:' + RW_LOCAL_LINKS.listEmail + '?subject=' + encodeURIComponent('Remove my RoamWise Local Help listing') + '&body=' + encodeURIComponent(body);
+}
+if (typeof module !== 'undefined') module.exports = { RW_LOCAL_DISTRICTS: RW_LOCAL_DISTRICTS, RW_LOCAL_GATEWAYS: RW_LOCAL_GATEWAYS, RW_LOCAL_CATEGORIES: RW_LOCAL_CATEGORIES, RW_LOCAL_PROVIDERS: RW_LOCAL_PROVIDERS, RW_LOCAL_VERIFY: RW_LOCAL_VERIFY, rwLocalTowns: rwLocalTowns, rwLocalFind: rwLocalFind, rwLocalFresh: rwLocalFresh, rwLocalMonth: rwLocalMonth, rwLocalRemoveMail: rwLocalRemoveMail, RW_LOCAL_MAX_AGE_DAYS: RW_LOCAL_MAX_AGE_DAYS, rwLocalCount: rwLocalCount, rwLocalWhatsApp: rwLocalWhatsApp, rwLocalTel: rwLocalTel, rwLocalListMail: rwLocalListMail };
