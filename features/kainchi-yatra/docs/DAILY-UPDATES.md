@@ -108,7 +108,7 @@ Optional browser test: `node features/kainchi-yatra/tools/browser-smoke.cjs`. Se
 360/390/1280 px, both languages, all tabs, day/pass sync, opt-in persistence, printing, reports,
 emergency visibility, feed failure and reduced motion. Chromium is a QA dependency only.
 
-Frontend JS/CSS/HTML gzip budget is 64 KiB for the bilingual hub, visitor guide, immersive strip and a bounded
+Frontend JS/CSS/HTML gzip budget is 80 KiB for the bilingual hub, visitor guide, panditji player, immersive strip and a bounded
 30-headline snapshot (current authored snapshot about 51 KB). Hero is WebP, approximately 504 KB,
 with a separate 650 KB cap; no fonts, UI libraries, remote images or extra visitor analytics.
 
@@ -165,6 +165,48 @@ area also has a bilingual expandable story timeline anchored to the Trust's hist
 pages.
 
 ## Review handoff
+
+## Digital panditji player — 9 October 2026
+
+Both Pro digital aarti and private custom pooja now use the same scripted player. It includes
+23 steps: welcome, intention (names and well-wishers for the custom session), invocation,
+symbolic flowers, dhoop/agarbatti, lamp, chosen mantra, the 12 traditional Hanuman aarti couplets
+and repeated opening refrain, symbolic prasad, peace prayer and closing good wishes. Gayatri
+and Sarve Bhavantu Sukhinah choices now include their complete short texts rather than fragments.
+This is a RoamWise-authored devotional sequence, not the Trust's official liturgy or every
+possible mantra/puja. The whole configured script remains readable without voice.
+
+Text source checked: https://www.drikpanchang.com/lyrics/aarti/lord-hanuman/shree-hanuman-aarti.html
+(traditional public-domain hymn only; no modern translations, images, recordings or logos copied).
+Optional speech uses the Web Speech API with only voices reporting `localService === true`
+and a matching language. Sanskrit/Hindi text requests a local Hindi voice; English guidance
+requests an English voice. No silent fallback to cloud/default voices. Unsupported/no-local-voice
+devices show a text-mode message. Voice is off by default, has pause/resume/next/stop, and is
+cancelled when switching sessions, language, leaving Bhakti, hiding the page or losing Pro.
+Late completion callbacks are ignored. A hung utterance stops after 45 seconds with an error.
+Names are not saved, logged or sent by RoamWise; OS voice-provider privacy is explicitly qualified.
+Speech reference: https://developer.mozilla.org/en-US/docs/Web/API/SpeechSynthesisVoice/localService
+
+`ui/art/digital-panditji.webp` is a 768 × 802 transparent WebP (167,862 bytes), encoded from
+the built-in image generator's original fictional panditji artwork from this conversation.
+Prompt: original respectful seated panditji in saffron/cream and maroon, namaste, gentle expression,
+sandalwood tilak, soft golden halo, transparent background; not Neem Karoli Baba or a real priest,
+no temple branding, text or watermark. It has gentle CSS breathing/glow, not video lip-sync or
+physical priest gestures. CSS supplies flowers, smoke, five-flame brass thali and prasad bowl.
+Reduced motion and the existing pause-motion toggle are honoured. No interior photograph is used.
+
+The source budget moves from 64 to 80 KiB to explicitly accommodate this additive bilingual
+player and hymn without libraries or remote runtime dependencies; image limit stays unchanged.
+No auth/payment/entitlement, Firestore, Worker or deployment behaviour was changed.
+
+Release verification: run `npm run kainchi:check`, `npm run kainchi:test`, `npm test`,
+`npm run check`, `npm run mod-status`. Before merge, Claude Code should run the browser gate
+at 360/390/1280 px, check both modes in English/Hindi and reduced motion, and test local Hindi
+speech on Android Chrome and iOS Safari. Local WebView/voice availability is device-dependent.
+This environment has no supported control-browser skill or local Chromium, so visual browser
+QA and real-device pronunciation cannot be claimed here. Keep the PR pending that release gate.
+Automated verification: 36 Kainchi tests, 647 repository tests, syntax/type/module checks and
+architecture-drift check pass. Frontend source is about 71 KiB gzip under the new 80 KiB cap.
 
 ## Unofficial advisory layer — 9 October 2026
 

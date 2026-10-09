@@ -12,6 +12,7 @@
     "data/daily.js",
     "data/strings-daily.js",
     "data/strings-bhakti.js",
+    "data/ritual-script.js",
     "data/strings-visit.js",
     "data/strings-advisory.js",
     "core/validation.js",
@@ -30,6 +31,7 @@
     "ui/navigation.js",
     "ui/updates.js",
     "ui/week.js",
+    "ui/ritual.js",
     "ui/bhakti.js",
     "ui/visit.js",
     "ui/advisory.js",
@@ -40,9 +42,10 @@
     "ui/daily.css",
     "ui/bhakti.css",
     "ui/visit.css",
-    "ui/advisory.css"
+    "ui/advisory.css",
+    "ui/ritual.css"
   ],
-  "gzipBudgetBytes": 65536,
+  "gzipBudgetBytes": 81920,
   "runtimeModuleLineLimit": 350,
   "modules": {
     "data/config.js": "Page configuration; empty means not yet provided by the district",
@@ -76,7 +79,9 @@
     "data/strings-visit.js": "Bilingual sourced travel, parking, facilities and Baba introduction",
     "ui/visit.js": "Visitor-initiated map directions, official service links and photo attribution",
     "data/strings-advisory.js": "Bilingual copy for local-only visitor signals, resident planning notes and safety boundaries",
-    "ui/advisory.js": "Device-local parking, shuttle, road and resident notes; never an official feed"
+    "ui/advisory.js": "Device-local parking, shuttle, road and resident notes; never an official feed",
+    "data/ritual-script.js": "Traditional Hanuman aarti and bilingual symbolic session; not Trust ritual instructions",
+    "ui/ritual.js": "Shared Pro standard/custom player, local-voice opt-in, cancellation, text fallback and symbolic offerings"
   },
   "externalSeams": {
     "kainchi/index.html": "Public HTML entry with explicit script order",
@@ -93,7 +98,8 @@
     "ui/art/hero.svg",
     "ui/art/kainchi-dawn.webp",
     "ui/art/neem-karoli-baba.jpg",
-    "ui/art/kainchi-immersive-strip.webp"
+    "ui/art/kainchi-immersive-strip.webp",
+    "ui/art/digital-panditji.webp"
   ],
   "imageBudgetBytes": 650000
 }
