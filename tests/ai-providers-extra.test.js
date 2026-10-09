@@ -63,3 +63,46 @@ test('aiRequest routes ondevice without any network call', () => {
   const src = fs.readFileSync(path.join(root, 'js/copilot/ai-providers.js'), 'utf8');
   assert.match(src, /if\(prov==='ondevice'\) return rwOnDeviceAsk\(prompt\)/);
 });
+
+function loadWebGPU(navigatorObj, store){
+  const toasts = [];
+  const ctx = { navigator: navigatorObj, document: { baseURI: 'https://x/' }, lsGet: (k) => (store || {})[k] || '', lsSet: () => {}, showToast: (m) => toasts.push(m), el: () => null, setProv: () => {}, Promise, URL };
+  vm.createContext(ctx);
+  vm.runInContext(fs.readFileSync(path.join(root, 'js/copilot/webgpu-ai.js'), 'utf8'), ctx);
+  return { ctx, toasts };
+}
+
+test('WebGPU AI: unsupported browsers get a clear reason; f16 decides the model variant', async () => {
+  const none = loadWebGPU({});
+  const st = await none.ctx.rwWebGPUStatus();
+  assert.equal(st.ok, false);
+  assert.match(st.reason, /WebGPU/);
+  const f16 = loadWebGPU({ gpu: { requestAdapter: async () => ({ features: new Set(['shader-f16']) }) } });
+  assert.deepEqual(JSON.parse(JSON.stringify(await f16.ctx.rwWebGPUStatus())), { ok: true, f16: true });
+  const noF16 = loadWebGPU({ gpu: { requestAdapter: async () => ({ features: new Set() }) } });
+  assert.equal((await noF16.ctx.rwWebGPUStatus()).f16, false);
+  assert.match(f16.ctx.rwWebGPUModelId('light', true), /Llama-3\.2-1B.*q4f16_1/);
+  assert.match(f16.ctx.rwWebGPUModelId('light', false), /Llama-3\.2-1B.*q4f32_1/);
+  assert.match(f16.ctx.rwWebGPUModelId('nonsense', true), /Llama-3\.2-1B/, 'unknown size falls back to the smallest model');
+});
+
+test('WebGPU AI: asking before setup fails with guidance, and aiRequest routes to it', async () => {
+  const { ctx } = loadWebGPU({ gpu: {} });
+  await assert.rejects(() => ctx.rwWebGPUAsk('hi', 100), /not set up/);
+  const src = fs.readFileSync(path.join(root, 'js/copilot/ai-providers.js'), 'utf8');
+  assert.match(src, /if\(prov==='webgpu'\) return rwWebGPUAsk\(prompt, maxTok\)/);
+});
+
+test('WebGPU engine is vendored with its licence and bypasses the service worker cache', () => {
+  assert.ok(fs.existsSync(path.join(root, 'vendor/webllm/index.js')));
+  assert.ok(fs.existsSync(path.join(root, 'vendor/webllm/LICENSE')));
+  assert.match(fs.readFileSync(path.join(root, 'vendor/webllm/LICENSE'), 'utf8'), /Apache License/);
+  assert.match(fs.readFileSync(path.join(root, 'sw.js'), 'utf8'), /\/vendor\/webllm\//);
+});
+
+test('WebGPU AI: setup failures become plain-language messages', () => {
+  const { ctx } = loadWebGPU({});
+  assert.match(ctx.rwWebGPUFriendlyError('QuotaExceededError: Quota exceeded.'), /free storage/);
+  assert.match(ctx.rwWebGPUFriendlyError(new Error('Failed to fetch')), /interrupted/);
+  assert.match(ctx.rwWebGPUFriendlyError(new Error('Device lost: out of memory')), /Light size/);
+});

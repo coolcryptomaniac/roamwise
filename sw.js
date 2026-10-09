@@ -83,6 +83,7 @@ self.addEventListener('fetch', function (e) {
   if (url.origin !== self.location.origin) return;  /* let cross-origin pass through */
   if (isLive(req.url)) return;
   if (/\.mp4$|\.webm$/i.test(url.pathname)) return; /* promo film: too big to cache */
+  if (url.pathname.indexOf('/vendor/webllm/') === 0) return; /* 6 MB on-device AI engine: browser HTTP cache only */
 
   var isHTML = req.mode === 'navigate' ||
     (req.headers.get('accept') || '').indexOf('text/html') > -1;

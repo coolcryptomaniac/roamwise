@@ -137,6 +137,7 @@ var PROV_META = {
   groq:     {label:'Groq \u00b7 gpt-oss (fast)', hint:'console.groq.com/keys \u2014 free, no card. Starts with gsk_', url:'https://console.groq.com/keys', ph:'gsk_...'},
   gemini:   {label:'Google Gemini Flash-Lite', hint:'aistudio.google.com \u2014 Flash and Flash-Lite list a free tier; limits set by Google', url:'https://aistudio.google.com/apikey', ph:'AIzaSy...'},
   ondevice: {label:'On this device (Chrome built-in AI)', hint:'Free and private. Needs desktop Chrome 148+ with a GPU (over 4 GB VRAM) or 16 GB RAM, and 22 GB free disk. Not on phones yet', url:'https://developer.chrome.com/docs/ai/prompt-api', ph:''},
+  webgpu:   {label:'On this device (WebGPU) \u00b7 phone or PC graphics chip', hint:'Free and private. Downloads a small open model once (about 0.7 to 1.8 GB). Needs Chrome or Edge with WebGPU; best on 8 GB+ RAM. Uses battery; keep Wi-Fi on for the download', url:'https://webllm.mlc.ai', ph:''},
   custom:   {label:'Local server (Ollama, LM Studio)', hint:'Runs on your own PC. Set the base URL + model below; the key can be any text. Ollama needs OLLAMA_ORIGINS=https://www.roamwise.co.in', url:'https://ollama.com/download', ph:'any text (local) or API key'},
   openrouter:{label:'OpenRouter \u00b7 many models', hint:'openrouter.ai/keys \u2014 free slots ~50/day', url:'https://openrouter.ai/keys', ph:'sk-or-...'},
   sarvam:   {label:'Sarvam AI \u00b7 India-first chat', hint:'dashboard.sarvam.ai \u2014 Sarvam-105B Conversations for Indian-language and code-mixed chat', url:'https://dashboard.sarvam.ai', ph:'sk_...'},
@@ -154,13 +155,16 @@ function renderKeyBoxes(){
       +'<div class="key-box-name">'+m.label+(free?' <span style="font-size:9px;color:#4ADE80;border:1px solid rgba(74,222,128,.4);border-radius:999px;padding:1px 6px;margin-left:4px">no card</span>':'')
       +' <span class="key-status ks-empty" id="'+p+'Status">not set</span></div>'
       +'<div class="key-box-hint"><a href="'+m.url+'" target="_blank" rel="noopener">'+m.hint+'</a></div>'
-      +(p==='ondevice'
+      +(p==='webgpu'
+        ? '<div class="key-row"><select class="k-inp" id="webgpuSize">'+Object.keys(RW_WEBGPU_MODELS).map(function(k){ return '<option value="'+k+'">'+RW_WEBGPU_MODELS[k].label+'</option>'; }).join('')+'</select></div>'
+          +'<div class="key-row"><button class="k-save" onclick="rwEnableWebGPU()">Download &amp; enable</button><button class="k-clear" onclick="rwRemoveWebGPU()">Remove model</button></div>'
+        : p==='ondevice'
         ? '<div class="key-row"><button class="k-save" onclick="rwEnableOnDevice()">Check device &amp; enable</button><button class="k-clear" onclick="clearKey(\'ondevice\')">Turn off</button></div>'
         : (p==='custom'
           ? '<div class="key-row"><input class="k-inp" type="text" id="customBase" placeholder="Base URL, e.g. http://localhost:11434/v1" value="'+String(lsGet('rwCustomBase')||'').replace(/"/g,'&quot;')+'" oninput="lsSet(\'rwCustomBase\',this.value.trim())"></div>'
            +'<div class="key-row"><input class="k-inp" type="text" id="customModel" placeholder="Model name, e.g. llama3.2" value="'+String(lsGet('rwCustomModel')||'').replace(/"/g,'&quot;')+'" oninput="lsSet(\'rwCustomModel\',this.value.trim())"></div>'
           : '')
-         +(p==='ondevice' ? '' :
+         +((p==='ondevice'||p==='webgpu') ? '' :
           '<div class="key-row"><input class="k-inp" type="password" id="'+p+'Key" placeholder="'+m.ph+'">'
           +'<button class="k-save" onclick="saveKey(\''+p+'\')">Save</button>'
           +'<button class="k-clear" onclick="clearKey(\''+p+'\')">Clear</button>'
@@ -194,7 +198,7 @@ function openSettings(){
            restricted to verified admins so Settings never becomes a setup
            wizard or asks a traveller to create third-party credentials. */
         if(window.RW_IS_ADMIN!==true){adv.forEach(function(x){x.style.display='none';});return;}
-        var hasKey = activeProv==='roamwise' || ['sarvam','groq','gemini','openrouter','mistral','anthropic','custom','ondevice'].some(function(x){ return lsGet('rwKey_'+x); });
+        var hasKey = activeProv==='roamwise' || ['sarvam','groq','gemini','openrouter','mistral','anthropic','custom','ondevice','webgpu'].some(function(x){ return lsGet('rwKey_'+x); });
         var btn = document.createElement('button');
         btn.id='advToggle'; btn.className='tact';
         btn.style.cssText='width:100%;margin:4px 0 10px;font-size:12.5px';
@@ -209,7 +213,7 @@ function openSettings(){
       }
     }
   }, 0);
-  ['sarvam','groq','gemini','openrouter','mistral','anthropic','custom','ondevice'].forEach(function(p){
+  ['sarvam','groq','gemini','openrouter','mistral','anthropic','custom','ondevice','webgpu'].forEach(function(p){
     var inp=el(p+'Key'), stat=el(p+'Status'), val=lsGet('rwKey_'+p);
     if(inp) inp.value=val;
     if(stat){ stat.textContent = val?'set':'not set'; stat.className = 'key-status '+(val?'ks-set':'ks-empty'); }
@@ -221,7 +225,7 @@ function closeSettings(){ el('settingsOverlay').classList.remove('open'); docume
 
 function setProv(p){
   /* ondevice and custom (local server) run on the user's own machine at no cost to RoamWise, so they are open to everyone. */
-  if(p!=='smart'&&p!=='roamwise'&&p!=='ondevice'&&p!=='custom'&&window.RW_IS_ADMIN!==true){showToast('Ailon Tusk Automatic chooses the best available route for you.');return;}
+  if(p!=='smart'&&p!=='roamwise'&&p!=='ondevice'&&p!=='webgpu'&&p!=='custom'&&window.RW_IS_ADMIN!==true){showToast('Ailon Tusk Automatic chooses the best available route for you.');return;}
   if(p==='roamwise' && !isPro){ showToast('RoamWise Hosted AI is included with paid plans.'); openPay(); return; }
   activeProv = p; lsSet('rwProv', p);
   document.querySelectorAll('.prov-btn').forEach(function(b){ b.classList.toggle('on', b.dataset.p===p); });
