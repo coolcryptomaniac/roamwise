@@ -1,0 +1,62 @@
+[
+  {
+    "id": "temple-trust",
+    "name": "Shree Kainchi Mandir Trust · official updates",
+    "url": "https://shreekainchimandirtrust.org/events",
+    "format": "manual",
+    "kind": "official"
+  },
+  {
+    "id": "district",
+    "name": "Nainital district · DM & notices",
+    "url": "https://nainital.nic.in/",
+    "kind": "official",
+    "format": "html",
+    "fetchUrl": "https://nainital.nic.in/"
+  },
+  {
+    "id": "police",
+    "name": "Uttarakhand Police · public notices",
+    "url": "https://uttarakhandpolice.uk.gov.in/",
+    "kind": "official",
+    "format": "html",
+    "fetchUrl": "https://uttarakhandpolice.uk.gov.in/"
+  },
+  {
+    "id": "news-en",
+    "name": "Kainchi Dham · news in English",
+    "url": "https://news.google.com/search?q=Kainchi%20Dham&hl=en-IN&gl=IN&ceid=IN%3Aen",
+    "kind": "news",
+    "format": "rss",
+    "fetchUrl": "https://news.google.com/rss/search?q=%22Kainchi%20Dham%22%20when%3A14d&hl=en-IN&gl=IN&ceid=IN%3Aen"
+  },
+  {
+    "id": "news-hi",
+    "name": "कैंची धाम · हिन्दी समाचार",
+    "url": "https://news.google.com/search?q=%E0%A4%95%E0%A5%88%E0%A4%82%E0%A4%9A%E0%A5%80%20%E0%A4%A7%E0%A4%BE%E0%A4%AE&hl=hi&gl=IN&ceid=IN%3Ahi",
+    "kind": "news",
+    "format": "rss",
+    "fetchUrl": "https://news.google.com/rss/search?q=%22%E0%A4%95%E0%A5%88%E0%A4%82%E0%A4%9A%E0%A5%80%20%E0%A4%A7%E0%A4%BE%E0%A4%AE%22%20when%3A14d&hl=hi&gl=IN&ceid=IN%3Ahi"
+  },
+  {
+    "id": "police-social",
+    "name": "Nainital Police · official X updates",
+    "url": "https://x.com/nainitalpolice_",
+    "format": "manual",
+    "kind": "official"
+  },
+  {
+    "id": "district-police",
+    "name": "District police · official directory",
+    "url": "https://nainital.nic.in/divisions/police/",
+    "format": "manual",
+    "kind": "official"
+  },
+  {
+    "id": "grievance",
+    "name": "Uttarakhand · public grievance portal",
+    "url": "https://cmhelpline.uk.gov.in/",
+    "format": "manual",
+    "kind": "official"
+  }
+]

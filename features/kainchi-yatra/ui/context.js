@@ -1,17 +1,13 @@
 /* One page-local context: language, dates, DOM helpers. No globals beyond RWKainchiUI. */
 (function (root) {
   'use strict';
-  function localDate(d) {
-    var p = function (n) { return (n < 10 ? '0' : '') + n; };
-    return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate());
-  }
   function safeGet(key) { try { return root.localStorage.getItem(key); } catch (e) { return null; } }
   function safeSet(key, value) { try { root.localStorage.setItem(key, value); return true; } catch (e) { return false; } }
   function safeRemove(key) { try { root.localStorage.removeItem(key); } catch (e) { /* storage blocked */ } }
   root.RWKainchiUI = {
     createContext: function () {
       var core = root.RWKainchiCore, ctx = { core: core, cfg: core.config, lang: 'en', now: new Date() };
-      ctx.today = localDate(ctx.now);
+      ctx.today = core.istDate(ctx.now);
       ctx.iso = ctx.now.toISOString();
       ctx.$ = function (id) { return document.getElementById(id); };
       ctx.t = function (key, vars) { return core.t(ctx.lang, key, vars); };

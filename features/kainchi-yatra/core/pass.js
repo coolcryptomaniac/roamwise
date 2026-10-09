@@ -26,7 +26,7 @@
   }
   function make(input, now, cfg, rng) {
     cfg = cfg || api.config;
-    var today = now.slice(0, 10), date = api.dateInWindow(input.date, today, cfg.maxAdvanceDays);
+    var today = api.istDate(now), date = api.dateInWindow(input.date, today, cfg.maxAdvanceDays);
     var hour = api.validHour(input.hour, cfg);
     return {
       code: newCode(rng), date: date, hour: hour, leader: leader(input.leader),
