@@ -436,6 +436,7 @@ radar and travel-pulse news panels (`EVENTS`/`activeEvents`/
 app.js in round 4 — distinct from the unrelated `RW_EVENTS` partner
 directory in `events.js` below), `events.js`, `experiences.js`,
 `green-trip.js`, `listings.js`, `live-location.js`, `local-ecosystem.js`,
+`local-help.js` (rw-v126 Local Help page: town -> category -> consenting local providers; data in root `local-help-data.js`),
 `misc-features.js` (393 lines), `misc-features-2.js` (371 lines —
 sequentially-numbered grab-bag files from the same extraction phase),
 `partners.js`, `profile.js` (78 lines) — `STYLE_POOL`/`openProfile`/
@@ -481,7 +482,7 @@ phase so guide/legal/marketing pages share real stylesheets instead of
 each carrying its own copy-pasted CSS.
 
 ### Root-level scripts (not under `js/`, still classic globals)
-`rw-config.js`, `events-data.js`, `referral-data.js`, `partners-data.js`,
+`rw-config.js`, `events-data.js`, `local-help-data.js`, `referral-data.js`, `partners-data.js`,
 `booking-data.js`, `affiliate-config.js`, `rooms-data.js`,
 `experiences-data.js`, `badges-data.js`, `compat-data.js`,
 `finance-data.js`, `regions-data.js`, `resource-data.js`,
