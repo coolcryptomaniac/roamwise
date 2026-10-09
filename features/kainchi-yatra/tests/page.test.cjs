@@ -135,3 +135,24 @@ test('devotional controls are opt-in, pauseable and source linked', () => {
   assert.equal(d.window.document.querySelectorAll('audio,iframe').length, 0);
   d.window.close();
 });
+
+test('visitor routes preserve the destination and translate without requesting location', () => {
+  const d = boot(), w = d.window;
+  const route = () => new URL($(d, 'route-open').href);
+  assert.equal(route().searchParams.has('origin'), false);
+  $(d, 'route-origin').value = 'kathgodam';
+  $(d, 'route-origin').dispatchEvent(new w.Event('change'));
+  assert.equal(route().searchParams.get('origin'), 'Kathgodam Railway Station, Uttarakhand');
+  assert.equal(route().searchParams.get('destination'), 'Kainchi Dham, Uttarakhand, India');
+  w.document.querySelector('[data-lang="hi"]').click();
+  assert.equal($(d, 'route-origin').value, 'kathgodam');
+  assert.match($(d, 'reach-h').textContent, /कैंची/);
+  assert.match($(d, 'baba-photo').alt, /नीम करौली/);
+  for (const a of w.document.querySelectorAll('[data-visit-link]')) {
+    assert.equal(new URL(a.href).protocol, 'https:');
+    assert.match(a.rel, /noopener/);
+  }
+  $(d, 'tab-reach').click();
+  assert.equal($(d, 'reach').hidden, false);
+  d.window.close();
+});

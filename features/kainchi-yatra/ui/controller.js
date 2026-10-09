@@ -22,6 +22,7 @@
     root.RWKainchiUI.fair(ctx);
     nearby(ctx);
     root.RWKainchiUI.bhakti(ctx);
+    root.RWKainchiUI.visit(ctx);
     root.RWKainchiUI.navigation(ctx);
     root.RWKainchiUI.updates(ctx);
     root.RWKainchiUI.week(ctx);

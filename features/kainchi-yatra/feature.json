@@ -12,6 +12,7 @@
     "data/daily.js",
     "data/strings-daily.js",
     "data/strings-bhakti.js",
+    "data/strings-visit.js",
     "core/validation.js",
     "core/i18n.js",
     "core/calendar.js",
@@ -29,14 +30,16 @@
     "ui/updates.js",
     "ui/week.js",
     "ui/bhakti.js",
+    "ui/visit.js",
     "ui/controller.js"
   ],
   "stylesheets": [
     "ui/kainchi.css",
     "ui/daily.css",
-    "ui/bhakti.css"
+    "ui/bhakti.css",
+    "ui/visit.css"
   ],
-  "gzipBudgetBytes": 49152,
+  "gzipBudgetBytes": 57344,
   "runtimeModuleLineLimit": 350,
   "modules": {
     "data/config.js": "Page configuration; empty means not yet provided by the district",
@@ -66,7 +69,9 @@
     "ui/week.js": "Seven-day calendar preview and visitor-initiated WhatsApp sharing",
     "data/strings-bhakti.js": "Bilingual source-linked devotional guide and visit checklist",
     "core/important-dates.js": "Annual temple observances and sourced year-specific festival dates",
-    "ui/bhakti.js": "Pauseable devotional motion, digital diya, dates and official guide links"
+    "ui/bhakti.js": "Pauseable devotional motion, digital diya, dates and official guide links",
+    "data/strings-visit.js": "Bilingual sourced travel, parking, facilities and Baba introduction",
+    "ui/visit.js": "Visitor-initiated map directions, official service links and photo attribution"
   },
   "externalSeams": {
     "kainchi/index.html": "Public HTML entry with explicit script order",
@@ -81,7 +86,8 @@
   },
   "browserAssets": [
     "ui/art/hero.svg",
-    "ui/art/kainchi-dawn.webp"
+    "ui/art/kainchi-dawn.webp",
+    "ui/art/neem-karoli-baba.jpg"
   ],
   "imageBudgetBytes": 650000
 }

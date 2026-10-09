@@ -19,6 +19,10 @@
         var active = b.hash === '#' + id;
         b.setAttribute('aria-selected', String(active)); b.tabIndex = active ? 0 : -1;
         if (active && focus) b.focus();
+        if (active && nav.scrollWidth > nav.clientWidth) {
+          if (b.offsetLeft < nav.scrollLeft) nav.scrollLeft = b.offsetLeft;
+          else if (b.offsetLeft + b.offsetWidth > nav.scrollLeft + nav.clientWidth) nav.scrollLeft = b.offsetLeft + b.offsetWidth - nav.clientWidth;
+        }
       });
     }
     buttons.forEach(function (b, i) {

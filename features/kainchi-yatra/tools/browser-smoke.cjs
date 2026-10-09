@@ -8,7 +8,7 @@ const http = require('node:http'), fs = require('node:fs'), path = require('node
     let file = path.join(root, decodeURIComponent(req.url.split('?')[0]));
     if (file.endsWith('/')) file += 'index.html';
     if (!file.startsWith(root + '/') || !fs.existsSync(file)) { res.writeHead(404); return res.end(); }
-    res.setHeader('Content-Type', ({ '.html': 'text/html', '.js': 'text/javascript', '.json': 'application/json', '.css': 'text/css', '.webp': 'image/webp', '.png': 'image/png' })[path.extname(file)] || 'application/octet-stream');
+    res.setHeader('Content-Type', ({ '.html': 'text/html', '.js': 'text/javascript', '.json': 'application/json', '.css': 'text/css', '.webp': 'image/webp', '.png': 'image/png', '.jpg': 'image/jpeg' })[path.extname(file)] || 'application/octet-stream');
     res.end(fs.readFileSync(file));
   });
   await new Promise(resolve => server.listen(8775, '127.0.0.1', resolve));
@@ -26,13 +26,17 @@ const http = require('node:http'), fs = require('node:fs'), path = require('node
       for (const lang of ['en', 'hi']) {
         await page.locator('[data-lang="' + lang + '"]').click();
         await page.screenshot({ path: `${out}/hero-${width}-${lang}.png` });
-        for (const tab of ['today', 'plan', 'bhakti', 'arrival', 'help', 'nearby']) {
+        for (const tab of ['today', 'plan', 'bhakti', 'reach', 'arrival', 'help', 'nearby']) {
           await page.locator('#tab-' + tab).click();
           assert.equal(await page.locator('#' + tab).isVisible(), true);
           assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false, `Overflow ${width}/${lang}/${tab}`);
         }
       }
       await page.locator('[data-lang="en"]').click();
+      await page.locator('#tab-reach').click();
+      await page.selectOption('#route-origin', 'kathgodam');
+      assert.equal(new URL(await page.locator('#route-open').getAttribute('href')).searchParams.get('origin'), 'Kathgodam Railway Station, Uttarakhand');
+      await page.locator('#reach').screenshot({ path: `${out}/reach-${width}.png` });
       await page.locator('#tab-plan').click();
       await page.locator('#week-strip button').nth(2).click();
       assert.equal(await page.locator('#plan-date').inputValue(), await page.locator('#pass-date').inputValue());
@@ -72,6 +76,8 @@ const http = require('node:http'), fs = require('node:fs'), path = require('node
       await page.locator('#tab-plan').focus(); await page.keyboard.press('ArrowRight');
       assert.equal(await page.locator('#tab-bhakti').getAttribute('aria-selected'), 'true');
       await page.locator('#diya-toggle').click();
+      await page.locator('#baba-photo').scrollIntoViewIfNeeded();
+      await page.waitForFunction(() => document.getElementById('baba-photo').naturalWidth > 0);
       assert.equal(await page.locator('#digital-diya').evaluate(el => el.classList.contains('lit')), true);
       await page.locator('#bhakti').screenshot({ path: `${out}/bhakti-${width}.png` });
       await page.locator('#motion-toggle').click();
