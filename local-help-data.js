@@ -32,7 +32,7 @@ var RW_LOCAL_CATEGORIES = [
 ];
 
 var RW_LOCAL_VERIFY = {
-  kb:      'Verified on Kumaon Bazaar',
+  kb:      '',   /* imported listing: no verification claim of our own; the card shows only the updated month */
   visited: 'We visited in person',
   called:  'We spoke on the phone',
   self:    'Self-listed, not yet checked'

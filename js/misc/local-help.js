@@ -68,10 +68,11 @@ function rwLocalHelpRender(){
     var c=(RW_LOCAL_CATEGORIES.filter(function(x){ return x.id===p.cat; })[0])||{icon:'',label:''};
     var wa=rwLocalWhatsApp(p,'Hi, I found you on RoamWise. I\u2019m visiting '+town+'.'), tel=rwLocalTel(p);
     var seen=rwLocalMonth(p);
+    var vl=Object.prototype.hasOwnProperty.call(RW_LOCAL_VERIFY,p.verified)?RW_LOCAL_VERIFY[p.verified]:RW_LOCAL_VERIFY.self;
     return '<div class="sos-block"><b>'+c.icon+' '+rwLhAttr(p.name)+'</b>'
       +'<div>'+rwLhAttr(p.svc||c.label)+' \u00b7 '+rwLhAttr(p.town)+(p.languages&&p.languages.length?' \u00b7 '+rwLhAttr(p.languages.join(', ')):'')+'</div>'
       +(p.note?'<div>'+rwLhAttr(p.note)+'</div>':'')
-      +'<div style="font-size:11px;color:var(--t3)">\u2714 '+rwLhAttr(RW_LOCAL_VERIFY[p.verified]||RW_LOCAL_VERIFY.self)+(seen?' \u00b7 updated '+rwLhAttr(seen):'')+'</div>'
+      +(vl||seen?'<div style="font-size:11px;color:var(--t3)">'+(vl?'\u2714 '+rwLhAttr(vl)+(seen?' \u00b7 updated '+rwLhAttr(seen):''):'Updated '+rwLhAttr(seen))+'</div>':'')
       +'<div style="display:flex;gap:8px;margin-top:6px;align-items:center;flex-wrap:wrap">'
       +(wa?'<a class="ev-chip" style="text-decoration:none" href="'+rwLhAttr(wa)+'" target="_blank" rel="noopener">WhatsApp</a>':'')
       +(tel?'<a class="ev-chip" style="text-decoration:none" href="'+rwLhAttr(tel)+'">Call</a>':'')
