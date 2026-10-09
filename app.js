@@ -124,7 +124,11 @@ var AUTH_ENABLED = (typeof FIREBASE_CONFIG!=='undefined') && FIREBASE_CONFIG.api
 
 var isPro = AUTH_ENABLED ? false : (lsGet('rwPro')==='1');
 var freeLeft = 5;
+/* Retired providers: GitHub Models shut down 2026-07-30 and Cerebras has no
+   free tier. Forget any saved key and fall back to Smart Search. */
+['cerebras','github'].forEach(function(p){ try{ localStorage.removeItem('rwKey_'+p); }catch(e){} });
 var activeProv = lsGet('rwProv')||'smart';
+if(activeProv==='cerebras'||activeProv==='github'){ activeProv='smart'; lsSet('rwProv','smart'); }
 var spends = {};
 var itinBuilt = {};
 // qrBuilt (payment-QR-rebuilt flag) moved to js/payments/providers/manual-upi-adapter.js (pluggable payment gateway pass)
@@ -303,9 +307,9 @@ logPaint();
    the user's key when possible, since that's always current. */
 var AI_MODELS = {
   groq: ['openai/gpt-oss-120b','openai/gpt-oss-20b','llama-3.3-70b-versatile'],
-  cerebras: ['llama-3.3-70b','llama3.1-8b'],
-  github: ['gpt-4o','Meta-Llama-3.1-70B-Instruct'],
-  gemini: ['gemini-2.5-flash','gemini-flash-latest'],
+  gemini: ['gemini-3.5-flash-lite','gemini-3.1-flash-lite','gemini-flash-latest'],
+  custom: [''],
+  ondevice: ['on-device'],
   openrouter: ['meta-llama/llama-3.3-70b-instruct:free','mistralai/mistral-small-3.1-24b-instruct:free','google/gemma-3-27b-it:free'],
   sarvam: ['sarvam-105b-conversations','sarvam-105b'],
   mistral: ['mistral-small-latest','open-mistral-nemo'],

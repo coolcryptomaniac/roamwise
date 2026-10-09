@@ -338,10 +338,9 @@ function rwBookingText(b){
    the "one provider failing must never take the answer down" rule
    aiCallAny's own header comment already states for the rest of the app. */
 function rwAgentCall(messages, cb){
-  var provs=['sarvam','groq','cerebras','openrouter','mistral'].filter(function(p){ return lsGet('rwKey_'+p); });
+  var provs=['sarvam','groq','openrouter','mistral'].filter(function(p){ return lsGet('rwKey_'+p); });
   if(!provs.length){ cb('no tool-calling provider configured'); return; }
-  var bases={groq:'https://api.groq.com/openai/v1', cerebras:'https://api.cerebras.ai/v1',
-             openrouter:'https://openrouter.ai/api/v1', mistral:'https://api.mistral.ai/v1',
+  var bases={groq:'https://api.groq.com/openai/v1', openrouter:'https://openrouter.ai/api/v1', mistral:'https://api.mistral.ai/v1',
              sarvam:'https://api.sarvam.ai/v1'};
   var i=0;
   (function attempt(lastErr){
@@ -386,7 +385,7 @@ function openAgent(){
     +'<div style="background:var(--bg2,#12151F);border:1px solid var(--b1,rgba(255,255,255,.07));border-radius:16px;padding:15px;margin-bottom:12px">'
     +'<input id="agentObj" placeholder="e.g. Plan 3 days in Spiti under 20k and check if cycling works" style="width:100%;background:var(--bg3,#1A1A20);border:1px solid var(--b2,#2A2A36);border-radius:10px;padding:12px;color:var(--t1);font:inherit">'
     +'<button class="tact rw-cine-btn" style="width:100%;margin-top:10px;font-weight:800;padding:12px" onclick="rwAgentGo()">Run agent</button>'
-    +'<div style="font-size:10.5px;color:var(--t3);margin-top:8px">Needs an AI key with tool-calling (Groq, Cerebras, OpenRouter or Mistral). Max '+RW_AGENT_MAX_STEPS+' steps.</div></div>'
+    +'<div style="font-size:10.5px;color:var(--t3);margin-top:8px">Needs an AI key with tool-calling (Groq, OpenRouter or Mistral). Max '+RW_AGENT_MAX_STEPS+' steps.</div></div>'
     +'<div id="agentTrace"></div>';
 }
 function rwAgentGo(){

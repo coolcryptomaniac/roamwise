@@ -10,33 +10,25 @@
 // time, so load order relative to those files doesn't matter.
 /* ===== 60-SECOND AI KEY WIZARD ===== */
 var WIZ=[
- {p:'groq',n:'Groq (auto-picks best model)',url:'https://console.groq.com/keys',why:'\u2705 No card ever \u00b7 fastest replies \u00b7 ~1,000 calls/day',ph:'gsk_\u2026',
+ {p:'groq',n:'Groq (gpt-oss, fast)',url:'https://console.groq.com/keys',why:'\u2705 No card ever \u00b7 fastest replies \u00b7 ~1,000 calls/day',ph:'gsk_\u2026',
   steps:['Sign up free (Google login works \u2014 no card asked)','Tap \u201cCreate API Key\u201d, give it any name','Copy it NOW \u2014 Groq shows it only once'],
   trouble:'Lost it? Just create another key \u2014 unlimited keys, still no card.'},
- {p:'cerebras',n:'Cerebras',url:'https://cloud.cerebras.ai',why:'\u2705 No card \u00b7 biggest daily volume (~1M tokens/day)',ph:'csk-\u2026',
-  steps:['Sign up with Google or email \u2014 no payment step','Open API Keys in the sidebar','Create a key and copy it'],
-  trouble:'Runs Llama 3.3 70B very fast; if a call times out, the app falls back automatically.'},
- {p:'github',n:'GitHub Models',url:'https://github.com/settings/tokens',why:'\u2705 No card \u00b7 GPT-4o & Llama on a GitHub account',ph:'ghp_\u2026',
-  steps:['Sign in to GitHub \u2192 Settings \u2192 Developer settings','Personal access tokens \u2192 Generate new token (classic)','No scopes needed \u2014 generate, then copy the ghp_\u2026 token'],
-  trouble:'Limits are tied to your GitHub plan; the free plan is enough for planning trips.'},
- {p:'gemini',n:'Google Gemini 2.5 Flash',url:'https://aistudio.google.com/apikey',why:'Frontier quality free \u2014 but pick the right model',ph:'AIza\u2026',
+ {p:'gemini',n:'Google Gemini Flash-Lite',url:'https://aistudio.google.com/apikey',why:'Strong quality \u00b7 free tier set by Google',ph:'AIza\u2026',
   steps:['Sign in with any Google account','Tap \u201cCreate API key\u201d \u2192 \u201cCreate in new project\u201d','Copy the AIza\u2026 key'],
-  trouble:'Billing prompt? That means the chosen model is paid-only. RoamWise now calls gemini-2.5-flash, which is on the free tier \u2014 Pro and Flash-Lite are not.'},
+  trouble:'Billing prompt? That model is paid-only on your Google account. RoamWise calls Gemini Flash-Lite; free-tier limits and pricing are set by Google and can change.'},
  {p:'openrouter',n:'OpenRouter',url:'https://openrouter.ai/keys',why:'One key \u2192 many free models (lower daily cap)',ph:'sk-or-\u2026',
   steps:['Sign in (Google/GitHub)','Tap \u201cCreate Key\u201d','Copy the sk-or-\u2026 key'],
-  trouble:'Free slots are ~50 calls/day and queue at peak; a one-time $10 top-up raises it to ~1,000/day. Groq or Cerebras avoid that entirely.'}
+  trouble:'Free slots are ~50 calls/day and queue at peak; a one-time $10 top-up raises it to ~1,000/day. Groq avoids that entirely.'}
 ];
 var wizI=0;
 function keyProvider(k){
   k=(k||'').trim();
   if(/^AIza/.test(k)) return 'gemini';
   if(/^gsk_/.test(k)) return 'groq';
-  if(/^csk-/.test(k)) return 'cerebras';
-  if(/^ghp_|^github_pat_/.test(k)) return 'github';
   if(/^sk-or-/.test(k)) return 'openrouter';
   if(/^sk-ant-/.test(k)) return 'anthropic';
   /* Deliberately NOT guessing here: an unprefixed key used to be assumed
-     Mistral, which hijacked Cerebras keys and tested them against the wrong
+     Mistral, which hijacked other providers' keys and tested them against the wrong
      API — the reported "save & test fails". Unknown format => no guess, and
      the caller keeps whichever provider the user actually selected. */
   return null;
@@ -57,7 +49,7 @@ function openProvider(url){
 function openWizard(){ wizI=0; wizPaint(); el('wizOverlay').classList.add('open'); try{track('wiz_opens');}catch(e){ /* analytics best-effort, ignore */ } }
 function wizPaint(){
   var w=WIZ[wizI], has=!!lsGet('rwKey_'+w.p);
-  var armed=['sarvam','groq','cerebras','github','gemini','openrouter','mistral','anthropic'].filter(function(p){return lsGet('rwKey_'+p);});
+  var armed=['sarvam','groq','gemini','openrouter','mistral','anthropic','custom','ondevice'].filter(function(p){return lsGet('rwKey_'+p);});
   el('wizBody').innerHTML=
    '<div class="mode-box" style="margin-bottom:12px">\u26a1 <b>Smart paste:</b> already have ANY key? Paste it \u2014 I\u2019ll detect the provider, save & test it automatically.'
   +'<div class="key-row" style="margin-top:8px"><input class="k-inp" id="wizAny" placeholder="AIza\u2026 / gsk_\u2026 / sk-or-\u2026 / sk-ant-\u2026"><button class="k-save" onclick="wizSmartPaste()">Detect & Save</button></div>'
@@ -101,7 +93,7 @@ function wizSmartPaste(){
 }
 /* ===== MODEL COMPARISON ARENA ===== */
 function compareModels(name, days){
-  var provs = ['sarvam','groq','cerebras','github','gemini','openrouter','mistral','anthropic'].filter(function(p){return lsGet('rwKey_'+p);});
+  var provs = ['sarvam','groq','gemini','openrouter','mistral','anthropic','custom','ondevice'].filter(function(p){return lsGet('rwKey_'+p);});
   var ov = el('cmpOverlay');
   if(!ov){
     ov=document.createElement('div'); ov.id='cmpOverlay'; ov.className='overlay';
