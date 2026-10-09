@@ -108,7 +108,7 @@ Optional browser test: `node features/kainchi-yatra/tools/browser-smoke.cjs`. Se
 360/390/1280 px, both languages, all tabs, day/pass sync, opt-in persistence, printing, reports,
 emergency visibility, feed failure and reduced motion. Chromium is a QA dependency only.
 
-Frontend JS/CSS/HTML gzip budget is 56 KiB for the bilingual hub, visitor guide and a bounded
+Frontend JS/CSS/HTML gzip budget is 64 KiB for the bilingual hub, visitor guide, immersive strip and a bounded
 30-headline snapshot (current authored snapshot about 51 KB). Hero is WebP, approximately 504 KB,
 with a separate 650 KB cap; no fonts, UI libraries, remote images or extra visitor analytics.
 

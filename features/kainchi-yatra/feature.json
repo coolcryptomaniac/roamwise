@@ -39,7 +39,7 @@
     "ui/bhakti.css",
     "ui/visit.css"
   ],
-  "gzipBudgetBytes": 57344,
+  "gzipBudgetBytes": 65536,
   "runtimeModuleLineLimit": 350,
   "modules": {
     "data/config.js": "Page configuration; empty means not yet provided by the district",
@@ -69,7 +69,7 @@
     "ui/week.js": "Seven-day calendar preview and visitor-initiated WhatsApp sharing",
     "data/strings-bhakti.js": "Bilingual source-linked devotional guide and visit checklist",
     "core/important-dates.js": "Annual temple observances and sourced year-specific festival dates",
-    "ui/bhakti.js": "Pauseable devotional motion, diya/agarbatti visuals, Pro aarti gate, dates and source-linked media",
+    "ui/bhakti.js": "Pauseable devotional motion, diya/agarbatti visuals, Pro aarti and private pooja gate, dates and source-linked media",
     "data/strings-visit.js": "Bilingual sourced travel, parking, facilities and Baba introduction",
     "ui/visit.js": "Visitor-initiated map directions, official service links and photo attribution"
   },
@@ -87,7 +87,8 @@
   "browserAssets": [
     "ui/art/hero.svg",
     "ui/art/kainchi-dawn.webp",
-    "ui/art/neem-karoli-baba.jpg"
+    "ui/art/neem-karoli-baba.jpg",
+    "ui/art/kainchi-immersive-strip.webp"
   ],
   "imageBudgetBytes": 650000
 }

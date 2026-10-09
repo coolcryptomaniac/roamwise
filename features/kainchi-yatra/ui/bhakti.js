@@ -1,7 +1,7 @@
 (function (root) {
   'use strict';
   root.RWKainchiUI.bhakti = function (ctx) {
-    var lit = false, incense = false, aarti = false, motion = ctx.get('rw_kainchi_motion') !== 'off';
+    var lit = false, incense = false, aarti = false, poojaReady = false, motion = ctx.get('rw_kainchi_motion') !== 'off';
     var media = root.matchMedia ? root.matchMedia('(prefers-reduced-motion: reduce)') : { matches: false };
     var toggle = ctx.$('motion-toggle');
     function external(id, url) {
@@ -38,7 +38,36 @@
     function isPro() {
       var m = root.RoamWiseMembership || root.RWMembership || root.membership || {};
       var user = m.user || root.RoamWiseUser || root.currentUser || {};
-      return m.isPro === true || m.plan === 'pro' || m.plan === 'founder' || user.isPro === true || user.plan === 'pro' || user.plan === 'founder' || document.body.getAttribute('data-membership') === 'pro';
+      var localPro = false;
+      try {
+        localPro = root.localStorage && root.localStorage.getItem('rwPro') === '1';
+        var activeUid = user.uid || (root.firebase && root.firebase.auth && root.firebase.auth().currentUser && root.firebase.auth().currentUser.uid);
+        var entitlementUid = root.localStorage && root.localStorage.getItem('rw_pro_uid');
+        if (activeUid && entitlementUid && entitlementUid !== activeUid) localPro = false;
+      } catch (e) { localPro = false; }
+      return m.isPro === true || m.plan === 'pro' || m.plan === 'founder' || user.isPro === true || user.plan === 'pro' || user.plan === 'founder' || document.body.getAttribute('data-membership') === 'pro' || localPro;
+    }
+    function renderPooja() {
+      var form = ctx.$('pooja-form'), button = ctx.$('pooja-start'), pro = isPro();
+      if (!form || !button) return;
+      button.disabled = !pro;
+      button.textContent = ctx.t('pooja_start');
+      ctx.$('pooja-lock').textContent = pro ? (poojaReady ? ctx.t('pooja_ready') : '') : ctx.t('pooja_locked');
+    }
+    function buildPooja(event) {
+      event.preventDefault();
+      if (!isPro()) { renderMotion(); renderPooja(); return; }
+      var name = String(ctx.$('pooja-name').value || '').trim().slice(0, 60);
+      var wellwishers = String(ctx.$('pooja-wellwishers').value || '').trim().slice(0, 180);
+      var intent = ctx.$('pooja-intent').value;
+      if (!name) { ctx.$('pooja-lock').textContent = ctx.t('pooja_name_required'); return; }
+      var result = ctx.$('pooja-result'); ctx.clear(result);
+      result.appendChild(ctx.el('h3', ctx.t('pooja_for') + ' ' + name, 'pooja-result-title'));
+      result.appendChild(ctx.el('p', wellwishers ? ctx.t('pooja_wellwishers') + ': ' + wellwishers : ctx.t('pooja_personal'), 'muted'));
+      result.appendChild(ctx.el('p', ctx.t('pooja_intention_' + intent), 'pooja-intention'));
+      var steps = [ctx.t('pooja_step_1'), ctx.t('pooja_step_2'), ctx.t('pooja_step_3'), ctx.t('pooja_step_4')], list = ctx.el('ol', null, 'pooja-steps');
+      steps.forEach(function (step) { list.appendChild(ctx.el('li', step)); }); result.appendChild(list);
+      result.hidden = false; poojaReady = true; renderPooja();
     }
     function renderDates() {
       var box = ctx.$('important-dates'); ctx.clear(box);
@@ -67,6 +96,8 @@
     ctx.$('diya-toggle').addEventListener('click', function () { lit = !lit; renderMotion(); });
     ctx.$('incense-toggle').addEventListener('click', function () { incense = !incense; renderMotion(); });
     ctx.$('aarti-toggle').addEventListener('click', function () { if (!isPro()) { renderMotion(); return; } aarti = !aarti; renderMotion(); });
+    if (ctx.$('pooja-form')) ctx.$('pooja-form').addEventListener('submit', buildPooja);
     ctx.onLang(function () { renderMotion(); renderDates(); });
+    renderPooja();
   };
 })(window);

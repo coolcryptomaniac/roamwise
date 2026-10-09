@@ -137,11 +137,16 @@ test('devotional controls are opt-in, pauseable and source linked', () => {
   $(d, 'incense-toggle').click();
   assert.equal($(d, 'agarbatti').classList.contains('lit'), true);
   assert.match($(d, 'media-trust').href, /youtube\.com/);
-  d.window.document.body.setAttribute('data-membership', 'pro');
+  d.window.localStorage.setItem('rwPro', '1');
   $(d, 'diya-toggle').click();
   $(d, 'aarti-toggle').click();
   assert.equal($(d, 'aarti-toggle').disabled, false);
   assert.equal($(d, 'ritual-stage').classList.contains('aarti-active'), true);
+  $(d, 'pooja-name').value = 'Mohit';
+  $(d, 'pooja-wellwishers').value = 'Family';
+  $(d, 'pooja-form').dispatchEvent(new d.window.Event('submit', { cancelable: true }));
+  assert.equal($(d, 'pooja-result').hidden, false);
+  assert.match($(d, 'pooja-result').textContent, /Mohit/);
   d.window.close();
 });
 
