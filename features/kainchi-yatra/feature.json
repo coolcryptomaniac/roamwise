@@ -50,7 +50,8 @@
     "ui/ritual.css",
     "ui/panditji.css"
   ],
-  "gzipBudgetBytes": 81920,
+  "gzipBudgetBytes": 90112,
+  "publicSnapshotGzipBudgetBytes": 7300,
   "runtimeModuleLineLimit": 350,
   "modules": {
     "data/config.js": "Page configuration; empty means not yet provided by the district",

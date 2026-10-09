@@ -46,8 +46,12 @@ for (const file of [...manifest.browserScripts, ...manifest.stylesheets]) {
   const source = read(file); gzipBytes += gzipSync(source).length; rawBytes += Buffer.byteLength(source);
 }
 assert.ok(gzipBytes < manifest.gzipBudgetBytes, 'Kainchi frontend exceeded its gzip budget');
+// The checked-in seed is small. Reserve the collector's full 7 KB snapshot plus JS wrapper
+// so normal news refreshes cannot fail publication after a passing source-only PR check.
+const worstFeedBytes = gzipBytes - gzipSync(read('data/daily.js')).length + manifest.publicSnapshotGzipBudgetBytes;
+assert.ok(worstFeedBytes < manifest.gzipBudgetBytes, 'Kainchi frontend leaves no room for a bounded daily snapshot');
 for (const file of manifest.browserAssets || []) {
   assert.ok(fs.existsSync(path.join(feature, file)), 'Missing image: ' + file);
   if (/\.(?:webp|jpg|png)$/.test(file)) assert.ok(fs.statSync(path.join(feature, file)).size < manifest.imageBudgetBytes, 'Image budget exceeded');
 }
-console.log(`Kainchi check PASS: ${files.length} JS files; ${rawBytes} raw / ${gzipBytes} gzip frontend bytes; script order, module map, limits and links valid.`);
+console.log(`Kainchi check PASS: ${files.length} JS files; ${rawBytes} raw / ${gzipBytes} gzip frontend bytes; ${worstFeedBytes} bytes with maximum reserved snapshot; script order, module map, limits and links valid.`);
