@@ -123,5 +123,26 @@
       '.note{grid-column:1/-1;font-size:9px;color:#6a5f80}@media screen{body{padding:10px;background:#eee}.card{background:#fff}}' +
       '</style></head><body><div class="sheet"><div class="note">' + esc(title || '') + ' &middot; treat these cards like cash: whoever redeems a code first gets the pass. Print, cut along the dashed lines, hand out one per person.</div>' + cards + '</div></body></html>';
   }
-  return { CAMPAIGN, SPLIT, cardsHtml, email, name, slug, token, code, allocation, emailIndex, coupon, couponBatch, commitment, toCsv };
+
+  /** On-screen version of the cards for phones/tablets: one card per row, big QR, "Save image" and "Copy link" per card.
+      No paper needed. The only script is a fixed inline block (no codes are interpolated into it); nothing is loaded or sent anywhere. */
+  function digitalCardsHtml(list, qrSvg, expiresIso, title) {
+    const esc = x => String(x).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+    const cards = list.map(c => '<div class="card" data-code="' + esc(c.code) + '" data-serial="' + esc(c.serial) + '"><div class="top"><b>RoamWise</b><span>Founder Pro for life</span></div>' +
+      '<div class="qr">' + qrSvg('https://www.roamwise.co.in/?redeem=' + c.code) + '</div>' +
+      '<div class="code">' + esc(c.code) + '</div>' +
+      '<div class="how">Scan, sign in with Google, tap Redeem.<br>Or enter the code in Settings &rarr; Redeem a partner code.</div>' +
+      '<div class="meta">#' + esc(c.serial) + ' &middot; ' + (c.role === 'organiser' ? 'Organiser' : 'Student / audience') + ' &middot; one use &middot; valid until ' + esc(expiresIso) + '</div>' +
+      '<div class="acts"><button type="button" class="save">Save image</button><button type="button" class="copy">Copy link</button></div></div>').join('');
+    const script = "document.addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;var card=b.closest('.card');if(!card)return;var code=card.getAttribute('data-code');" +
+      "if(b.classList.contains('copy')){var link='https://www.roamwise.co.in/?redeem='+code;(navigator.clipboard&&navigator.clipboard.writeText?navigator.clipboard.writeText(link):Promise.reject()).then(function(){b.textContent='Copied'},function(){window.prompt('Copy this link',link)});return;}" +
+      "if(b.classList.contains('save')){var svg=card.querySelector('.qr svg');var xml=new XMLSerializer().serializeToString(svg);var img=new Image();img.onload=function(){var c=document.createElement('canvas');c.width=640;c.height=860;var x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,640,860);x.fillStyle='#C4302B';x.font='bold 40px Arial';x.textAlign='center';x.fillText('RoamWise',320,70);x.fillStyle='#0f8f72';x.font='bold 26px Arial';x.fillText('Founder Pro for life',320,110);x.imageSmoothingEnabled=false;x.drawImage(img,70,140,500,500);x.fillStyle='#1a1530';x.font='bold 24px monospace';x.fillText(code,320,690);x.fillStyle='#4a4560';x.font='22px Arial';x.fillText('Scan, sign in with Google, tap Redeem.',320,740);x.fillText('One use. '+card.querySelector('.meta').textContent.split('\\u00b7').pop().trim(),320,780);var a=document.createElement('a');a.download='RoamWise-'+code+'.png';a.href=c.toDataURL('image/png');a.click();};img.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(xml);}});";
+    return '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>' + esc(title || 'NMIMS digital pass cards') + '</title><style>' +
+      '*{box-sizing:border-box}body{margin:0;padding:12px;background:#eee;font:14px/1.4 system-ui,Arial,sans-serif;color:#1a1530}.note{max-width:420px;margin:0 auto 12px;font-size:12px;color:#6a5f80}' +
+      '.card{max-width:420px;margin:0 auto 16px;border:1.5px dashed #8a3fd1;border-radius:14px;padding:14px;text-align:center;background:#fff}.top{display:flex;justify-content:space-between;align-items:center}.top b{color:#C4302B;font-size:18px}.top span{color:#0f8f72;font-weight:700;font-size:13px}' +
+      '.qr svg{width:min(70vw,260px);height:min(70vw,260px);margin:8px 0;background:#fff}.code{font:700 14px ui-monospace,Menlo,monospace;word-break:break-all}.how{font-size:12px;color:#4a4560;margin-top:6px}.meta{font-size:11px;color:#6a5f80;margin-top:4px}' +
+      '.acts{display:flex;gap:8px;justify-content:center;margin-top:10px}.acts button{border:0;border-radius:9px;padding:10px 14px;font:700 13px system-ui;background:#E8BA6C;color:#0B1020}' +
+      '</style></head><body><div class="note">' + esc(title || '') + ' &middot; digital cards, no printing needed. Save an image or copy the link and send it to one person. Treat each like cash: whoever redeems a code first gets the pass.</div>' + cards + '<script>' + script + '</script></body></html>';
+  }
+  return { CAMPAIGN, SPLIT, cardsHtml, digitalCardsHtml, email, name, slug, token, code, allocation, emailIndex, coupon, couponBatch, commitment, toCsv };
 });
