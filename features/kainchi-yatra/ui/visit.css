@@ -22,6 +22,7 @@ input,select,textarea{background:#0c0c16;border-color:#716078}.devotion{backgrou
 .baba-portrait figcaption{font-size:.7rem;line-height:1.65;margin-top:14px}.baba-portrait a{display:inline-flex;align-items:center;min-height:44px;color:var(--muted)}
 .baba-story h2{font:500 clamp(1.8rem,4vw,2.8rem)/1.15 Georgia,"Noto Serif Devanagari",serif;margin-top:10px}.baba-story p{line-height:1.8}
 .baba-reflection{font:italic 1.2rem/1.7 Georgia,serif;color:#e8ba6c;border-left:2px solid #c4303c;padding-left:18px}
+.baba-timeline{margin-top:22px;border-top:1px solid var(--line);padding-top:14px}.baba-timeline summary{color:var(--accent);cursor:pointer;min-height:44px;display:flex;align-items:center}.story-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:14px}.story-grid article{padding:14px;border:1px solid var(--line);border-radius:12px;background:#0b211d}.story-grid strong{color:#e8ba6c;font-size:.84rem}.story-grid p{font-size:.84rem;line-height:1.6;margin:8px 0 0}
 .route-picker{display:flex;align-items:end;gap:16px;margin-top:24px;flex-wrap:wrap}.route-picker label{flex:1;min-width:200px}.route-picker .btn{min-height:48px}
 .route-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-top:28px}.facility-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-top:24px}
 .visit-card{border:1px solid #e8ba6c30;border-radius:14px;padding:22px;background:linear-gradient(150deg,#23132166,#111320);min-width:0}
@@ -31,7 +32,7 @@ input,select,textarea{background:#0c0c16;border-color:#716078}.devotion{backgrou
 @media(max-width:700px){
   .daily-hero::after{background:linear-gradient(0deg,#080910 0%,#130d1bec 43%,#190d1230 95%)}
   .section-tabs{overflow-x:auto;overscroll-behavior-x:contain;gap:6px;padding:10px 3px}.section-tabs a{flex:0 0 auto;min-width:82px;font-size:.82rem;padding:12px 14px;white-space:nowrap}
-  .baba-story{grid-template-columns:1fr;gap:24px}.baba-portrait{width:min(230px,85%);margin:auto}.baba-story h2{font-size:2rem}
+  .baba-story{grid-template-columns:1fr;gap:24px}.baba-portrait{width:min(230px,85%);margin:auto}.baba-story h2{font-size:2rem}.story-grid{grid-template-columns:1fr}
   .route-grid,.facility-grid{grid-template-columns:1fr}.route-picker{align-items:stretch;flex-direction:column;gap:12px}.route-picker label{min-width:0}.visit-card{padding:20px}.route-symbol{margin-bottom:14px}
 }
 @media print{
