@@ -162,6 +162,22 @@ test('generic poster QR (?redeem=open) opens the empty form; page wires card pri
   assert.match(read('nmims/pass-issuer/qrcode.js'), /MIT license/);
 });
 
+test('digital cards: one per coupon, fixed inline script (no codes inside it), nothing external', () => {
+  const qrcode = require('../nmims/pass-issuer/qrcode.js');
+  const list = U.couponBatch(rnd).filter(c => c.role === 'student');
+  const svg = url => { const q = qrcode(0, 'M'); q.addData(url); q.make(); return q.createSvgTag({ cellSize: 4, margin: 2, scalable: true }); };
+  const html = U.digitalCardsHtml(list, svg, '2026-11-08', 'NMIMS <digital>');
+  assert.equal((html.match(/class="card"/g) || []).length, 450);
+  assert.equal((html.match(/class="save"/g) || []).length, 450);
+  assert.equal((html.match(/<script>/g) || []).length, 1);
+  const script = html.slice(html.indexOf('<script>'), html.indexOf('</script>'));
+  assert.ok(!script.includes('NMIMS-STU-'), 'no coupon codes in the script');
+  assert.doesNotMatch(html, /<link|<img|src="http|url\(http/i);
+  assert.ok(html.includes('NMIMS &lt;digital&gt;'));
+  const page = read('nmims/pass-issuer/index.html');
+  assert.match(page, /digOrgBtn/); assert.match(page, /digStuBtn/);
+});
+
 test('public TEST code shows a success screen without touching Firebase or the redeem flow', () => {
   const src = read('js/payments/redeem-link.js');
   const t = src.slice(0, src.indexOf("var code=''")) + src.slice(src.indexOf("NMIMS-TEST-0000-DEMO"), src.indexOf('var tries=0'));
