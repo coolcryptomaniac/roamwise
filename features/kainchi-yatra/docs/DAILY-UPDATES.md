@@ -149,6 +149,21 @@ copyright holder: https://commons.wikimedia.org/wiki/File:Neemkaroli_14.jpg (rev
 The caption links to that record. This user-requested historical photo is the exception to the
 original Phase 0 artwork-only scope; no ashram interior photograph or generated Baba likeness is used.
 
+## Bhakti media update — 9 October 2026
+
+The Bhakti tab now has separate visitor-initiated controls for a flickering digital diya, animated
+agarbatti smoke and a Pro-only visual aarti. These are explicitly labelled as personal digital
+meditation visuals; they do not perform a puja, collect an offering or represent temple access.
+The Pro gate accepts the host app's `RoamWiseMembership` / `RWMembership` entitlement seam or the
+page's `data-membership="pro"` attribute; it fails closed for guests.
+
+Three outbound YouTube links were added without embedding or autoplay: the official Trust channel,
+a public Hindi Neem Karoli Baba story and a public Kainchi Dham darshan video. RoamWise does not
+download or re-upload these videos; uploader rights remain with YouTube creators, and the links
+are described as atmosphere/orientation rather than live access or official guidance. The Baba
+area also has a bilingual expandable story timeline anchored to the Trust's history and Maharaj Ji
+pages.
+
 ## Review handoff
 
 Review this PR before merging; run the browser gate with Chromium available. The deployment

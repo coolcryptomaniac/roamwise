@@ -133,6 +133,15 @@ test('devotional controls are opt-in, pauseable and source linked', () => {
   assert.equal(d.window.localStorage.getItem('rw_kainchi_motion'), 'off');
   assert.equal($(d, 'trust-info').href, 'https://shreekainchimandirtrust.org/contact');
   assert.equal(d.window.document.querySelectorAll('audio,iframe').length, 0);
+  assert.equal($(d, 'aarti-toggle').disabled, true);
+  $(d, 'incense-toggle').click();
+  assert.equal($(d, 'agarbatti').classList.contains('lit'), true);
+  assert.match($(d, 'media-trust').href, /youtube\.com/);
+  d.window.document.body.setAttribute('data-membership', 'pro');
+  $(d, 'diya-toggle').click();
+  $(d, 'aarti-toggle').click();
+  assert.equal($(d, 'aarti-toggle').disabled, false);
+  assert.equal($(d, 'ritual-stage').classList.contains('aarti-active'), true);
   d.window.close();
 });
 
