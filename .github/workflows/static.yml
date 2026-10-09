@@ -5,6 +5,8 @@ on:
   # Runs on pushes targeting the default branch
   push:
     branches: ["main"]
+  schedule:
+    - cron: '17 0 * * *' # 05:47 IST; GitHub schedules may be delayed.
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -12,6 +14,7 @@ on:
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
   contents: read
+  actions: read # Restore the preceding successful public source snapshot.
   pages: write
   id-token: write
 
@@ -24,6 +27,8 @@ concurrency:
 jobs:
   # Single deploy job since we're just deploying
   deploy:
+    if: github.ref == 'refs/heads/main'
+    timeout-minutes: 10
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
@@ -31,6 +36,41 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v7
+      - name: Prepare daily-source tools
+        uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+      - name: Restore previous public Kainchi snapshot
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          mkdir -p "$RUNNER_TEMP/kainchi-previous"
+          # No artifact exists on the first run. Failure leaves the checked-in seed as fallback.
+          runs=$(gh run list --repo "$GITHUB_REPOSITORY" --workflow static.yml --branch main --status success --limit 5 --json databaseId --jq '.[].databaseId') || runs=""
+          for run in $runs; do
+            if gh run download "$run" --repo "$GITHUB_REPOSITORY" --name kainchi-source-snapshot --dir "$RUNNER_TEMP/kainchi-previous"; then
+              break
+            fi
+          done
+      - name: Collect and validate dated Kainchi updates
+        shell: bash
+        run: |
+          python3 features/kainchi-yatra/tests/daily-feed.test.py
+          previous="features/kainchi-yatra/data/daily.json"
+          if [ -f "$RUNNER_TEMP/kainchi-previous/daily.json" ]; then
+            previous="$RUNNER_TEMP/kainchi-previous/daily.json"
+          fi
+          python3 features/kainchi-yatra/tools/daily-feed.py --previous "$previous"
+          node features/kainchi-yatra/tools/check.cjs
+          node --test features/kainchi-yatra/tests/updates.test.cjs
+      - name: Retain public source history
+        uses: actions/upload-artifact@v7
+        with:
+          name: kainchi-source-snapshot
+          path: features/kainchi-yatra/data/daily.json
+          retention-days: 90
+          if-no-files-found: error
       - name: Setup Pages
         uses: actions/configure-pages@v6
       - name: Upload artifact
