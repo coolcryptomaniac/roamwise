@@ -63,6 +63,7 @@ import { handlePaymentEvent } from './handlers/payment-events.js';
 import { handleStay } from './handlers/stay-ledger.js';
 import { handleBot, botDeps } from './handlers/bot.js';
 import { handleReminders, runInactivityReminders } from './handlers/reminders.js';
+import { handleTripNotify, runTripNotifications } from './handlers/trip-notify.js';
 import { sendAdminDigest } from './handlers/bot-admin.js';
 
 // Only Cashfree PG calls use this diagnostic transport. The actual order,
@@ -118,20 +119,29 @@ export default {
 
     if(path === 'email/unsubscribe' || path === 'admin/reminders/run') return handleReminders(request, env, path);
 
+    if(path === 'admin/trip-notify/run') return handleTripNotify(request, env);
+
     if(path === 'admin/ai-ca/review' && request.method === 'POST') return handleAICAReview(request, env);
 
-    return json({ error: 'not found', try: ['/health', '/ai', '/news', '/events', '/geo', '/leads', '/cashfree/order', '/partner/cashfree/order', '/push/send', '/admin/ai-ca/review', '/email/unsubscribe', '/admin/reminders/run', '/stay/enquiry', '/stay/confirm', '/bot/telegram', '/bot/whatsapp'] }, 404);
+    return json({ error: 'not found', try: ['/health', '/ai', '/news', '/events', '/geo', '/leads', '/cashfree/order', '/partner/cashfree/order', '/push/send', '/admin/ai-ca/review', '/email/unsubscribe', '/admin/reminders/run', '/admin/trip-notify/run', '/stay/enquiry', '/stay/confirm', '/bot/telegram', '/bot/whatsapp'] }, 404);
   },
 
   /* ONE scheduled handler. News daily; events on Mondays only, to stay well
      inside the Ticketmaster free quota. */
   async scheduled(event, env, ctx){
+    /* Hourly trigger: booking acknowledgement emails only (guests expect a prompt reply). */
+    if(event && event.cron === '0 * * * *'){
+      try{ if(env.FIREBASE_SERVICE_ACCOUNT_JSON) await runTripNotifications(env, { mode: 'ack' }); }catch(e){ /* best-effort */ }
+      return;
+    }
     try{
       await refreshNews(env);
       if(new Date().getUTCDay() === 1) await refreshEvents(env);
     }catch(e){ /* a cron failure must never take the Worker down */ }
     /* Inactivity reminder emails (7+ days away). No-ops until RESEND_API_KEY + EMAIL_UNSUB_SECRET are set. */
     try{ if(env.REMINDERS_ENABLED !== 'false' && env.FIREBASE_SERVICE_ACCOUNT_JSON) await runInactivityReminders(env); }catch(e){ /* reminders are best-effort */ }
+    /* Booking acknowledgements + 3-day / 1-day trip reminders. Both switches default OFF (config/tripNotifySettings). */
+    try{ if(env.FIREBASE_SERVICE_ACCOUNT_JSON) await runTripNotifications(env, { mode: 'all' }); }catch(e){ /* best-effort */ }
     /* Founder digest on Telegram/WhatsApp. Skipped unless the bot secrets and admin ids are set. */
     try{ if(env.BOT_ADMIN_TELEGRAM || env.BOT_ADMIN_WHATSAPP) await sendAdminDigest(env, botDeps(env)); }catch(e){ /* digest is best-effort */ }
   },

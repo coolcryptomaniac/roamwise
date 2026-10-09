@@ -47,6 +47,7 @@ no longer match the repo — flagged explicitly below and in the PR summary.
 | `worker/SETUP-ON-ANDROID.md` | Earlier, longer version of the same phone-only dashboard deploy walkthrough. | historical/superseded — near-duplicate of `worker/TUTORIAL.md`, same steps, more verbose | Skip; use `worker/TUTORIAL.md` instead. Not deleted per this task's scope (see PR notes). |
 | `worker/readme.md` | Empty (1-byte placeholder). | historical/empty | Skip. |
 | `PUSH-NOTIFICATIONS-SETUP.md` | Literal setup guide for push notifications (web PWA + Android via Firebase Cloud Messaging): enabling Cloud Messaging, generating a VAPID key + a service-account key, wiring `wrangler secret put FIREBASE_SERVICE_ACCOUNT_JSON`, and testing the admin-only `POST /push/send` Worker route end-to-end. | current | Before enabling push notifications, touching `js/core/push-notifications.js`, or `worker/handlers/push.js`. |
+| `EMAIL-PUSH-SETUP.md` | Setup for booking acknowledgement emails (free, via your own Gmail + Apps Script relay) and 3-day / 1-day trip reminders (web + Android push first, email fallback), with the on/off switches in Firestore `config/tripNotifySettings`. | current | Before enabling booking emails or trip reminders, or touching `worker/handlers/trip-notify.js`. |
 
 ## Payments & marketplace — read when touching `payments/` or `partner/`
 
