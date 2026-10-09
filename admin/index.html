@@ -415,7 +415,10 @@ async function saveCosts(){
   try{await db.collection("finance").doc("costs").set({...doc,updatedAt:FV.serverTimestamp(),updatedBy:CURRENT_ADMIN.uid},{merge:true});toast("Expenses saved.")}catch(e){toast(friendlyError(e),true)}
 }
 function approvedRefRecords(){
-  return CLAIMS.filter(c=>c.status==="approved"&&c.refCode).map(c=>({amountINR:Number(c.amount)||0,uid:c.uid||"",email:c.email||"",refCode:c.refCode,refRate:c.refRate,refSelf:c.refSelf===true}));
+  const fromClaims=CLAIMS.filter(c=>c.status==="approved"&&c.refCode).map(c=>({amountINR:Number(c.amount)||0,uid:c.uid||"",email:c.email||"",refCode:c.refCode,refRate:c.refRate,refSelf:c.refSelf===true}));
+  /* Cashfree purchases carry refCode on the verified PAID payment record (never refunded/failed). */
+  const fromGateway=PAYMENTS.filter(p=>p.refCode&&paymentSucceeded(p)&&String(p.status||"").toLowerCase()==="paid").map(p=>({amountINR:Number(p.amountINR)||Math.round(Number(p.amount||0))/100,uid:p.uid||"",email:p.email||"",refCode:p.refCode,refSelf:false}));
+  return fromClaims.concat(fromGateway);
 }
 function renderReferrals(){
   if(!$("referralLiability"))return;

@@ -17,7 +17,7 @@ function openPartnerRedeem(){
   rwForm('&#127891; Redeem a partner code',[
     /* key:/placeholder: — rwFormSubmit reads out[field.key] and renders
        field.placeholder; id:/ph: silently read back undefined. */
-    {key:'code', label:'Enter your claim code (e.g. NMIMS-A1B2C3)', placeholder:'NMIMS-XXXXXX', value:(window.__rwPendingRedeem||'')}
+    {key:'code', label:'Enter your pass code (from your card or email)', placeholder:'NMIMS-STU-0123-XXXXXXXXXXXXX', value:(window.__rwPendingRedeem||'')}
   ], async function(v){
     window.__rwPendingRedeem='';
     var code=rwSanitizeRefCode(v.code);

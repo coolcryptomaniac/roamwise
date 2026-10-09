@@ -104,3 +104,37 @@ test('rules: coupon branches present and admin-only creation unchanged', () => {
   assert.match(r, /hasOnly\(\['proRedeemed','redeemedAt','redeemedUid','email'\]\)/);
   assert.match(r, /allow create: if isAdmin\(\);\n      \/\/ Redemption flip/);
 });
+
+test('commission scenario: 600 NMIMS-referred buyers (493 x Rs100 founder, 107 x Rs299) = Rs 24,387.90 at 30%', () => {
+  const Liability = load('js/admin/referral-liability.js', 'RWReferralLiability');
+  const directory = [{ code: 'NMIMS2026', name: 'E-Cell NMIMS Mumbai', type: 'campus', rate: 0.30, active: true }];
+  const sales = [];
+  for (let i = 0; i < 493; i++) sales.push({ amountINR: 100, uid: 'f' + i, email: `f${i}@x.com`, refCode: 'NMIMS2026' });
+  for (let i = 0; i < 107; i++) sales.push({ amountINR: 299, uid: 'p' + i, email: `p${i}@x.com`, refCode: 'NMIMS2026' });
+  const out = Liability.computeReferralLiability(sales, directory, { ratePct: 30 });
+  const b = out.byCode.NMIMS2026;
+  assert.equal(b.salesCount, 600);
+  assert.equal(b.grossRevenueINR, 493 * 100 + 107 * 299);
+  assert.equal(b.grossRevenueINR, 81293);
+  assert.equal(Math.round(b.commissionOwedINR * 100) / 100, 24387.9);
+});
+
+test('commission safety: a buyer is counted once per code, a hand-edited rate is capped at 30%, unknown codes are flagged', () => {
+  const Liability = load('js/admin/referral-liability.js', 'RWReferralLiability');
+  const directory = [{ code: 'NMIMS2026', name: 'E-Cell NMIMS', type: 'campus', rate: 0.90, active: true }];
+  const out = Liability.computeReferralLiability([
+    { amountINR: 100, uid: 'u1', refCode: 'NMIMS2026' },
+    { amountINR: 299, uid: 'u1', refCode: 'NMIMS2026' },
+    { amountINR: 100, uid: 'u2', refCode: 'FAKECODE', refRate: 5 },
+  ], directory, { ratePct: 30 });
+  assert.equal(out.byCode.NMIMS2026.salesCount, 1);
+  assert.equal(out.byCode.NMIMS2026.commissionOwedINR, 30);
+  assert.equal(out.byCode.FAKECODE.commissionOwedINR, 30);
+  assert.ok(out.unmatchedCodes.FAKECODE);
+});
+
+test('admin referral report includes verified PAID Cashfree payments that carry a refCode', () => {
+  const html = read('admin/index.html');
+  assert.match(html, /PAYMENTS\.filter\(p=>p\.refCode&&paymentSucceeded\(p\)&&String\(p\.status\|\|""\)\.toLowerCase\(\)==="paid"\)/);
+  assert.match(read('js/payments/providers/cashfree-adapter.js'), /refCode: _cfRefCode\(\)/);
+});
