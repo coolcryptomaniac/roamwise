@@ -226,3 +226,18 @@ Review this PR before merging; run the browser gate with Chromium available. The
 workflow is a separate review under AI-ROLES-AND-HANDOFF rule 7. Keep source availability failures
 visible and verify the served `daily.json` after deployment. Do not mark parking, queues, shuttle
 seats or road-open status as live without a real independently verified data contract.
+
+## Speaking guide and sacred journeys — 10 October 2026
+
+The initial local-only voice catalogue now refreshes when device voices load. Explicit per-player
+provider consent, language choices, Hindi test/retry and reading speed address remote-only or
+late-loaded voices. Speech-start events drive approximate mouth animation and word-boundary
+highlighting. The guide is an original articulated SVG illustration with offering gestures,
+not a photorealistic/lip-synced video priest. Queued speech timeout is 10 seconds, started
+speech timeout is 90 seconds. Native WebViews without Web Speech still need a capable external
+browser; no native TTS or video-avatar service was connected.
+
+`/pilgrimage/` adds six sourced destination pages reusing the player and existing Pro seam.
+See `features/pilgrimage/README.md` for source and device-QA evidence. Those pages use short
+RoamWise devotional sequences, not Kainchi’s full Hanuman hymn for every shrine. They have
+no imported daily feed, government pass, live facility inventory or confirmed festival dates.

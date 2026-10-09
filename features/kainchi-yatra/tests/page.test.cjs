@@ -308,3 +308,40 @@ test('speech failures and missing API preserve manual progression and reduced-mo
   assert.match(noApi.window.document.querySelector('#standard-ritual .ritual-progress').textContent, /No local voice/);
   noApi.window.close();
 });
+test('device-provider voices require consent and consent revocation cancels private recitation', () => {
+  const voice = speech([{ lang: 'hi-IN', name: 'Hindi online', localService: false }, { lang: 'en-IN', name: 'English online', localService: false }]);
+  const d = boot({ pro: true, speech: voice }), w = d.window;
+  $(d, 'pooja-name').value = 'Private Name'; $(d, 'pooja-form').dispatchEvent(new w.Event('submit', { cancelable: true }));
+  toggleVoice(d, 'custom', true); assert.equal(voice.spoken.length, 0);
+  const consent = action(d, 'custom', 'provider'); consent.checked = true; consent.dispatchEvent(new w.Event('change'));
+  assert.equal(voice.spoken.length, 0); action(d, 'custom', 'retry').click();
+  assert.equal(voice.spoken.length, 1); voice.spoken.at(-1).onend();
+  assert.match(voice.spoken.at(-1).text, /Private Name/); const late = voice.spoken.at(-1).onend;
+  consent.checked = false; consent.dispatchEvent(new w.Event('change')); late();
+  assert.equal(voice.spoken.length, 2); action(d, 'custom', 'retry').click(); assert.equal(voice.spoken.length, 2);
+  assert.doesNotMatch(JSON.stringify(w.localStorage), /Private Name|provider/); w.close();
+});
+test('late voice discovery refreshes both languages without auto-speaking', () => {
+  const voice = speech([]); let changed; voice.addEventListener = (name, fn) => { assert.equal(name, 'voiceschanged'); changed = fn; };
+  const d = boot({ pro: true, speech: voice }), w = d.window;
+  $(d, 'aarti-toggle').click(); toggleVoice(d, 'standard', true); assert.equal(voice.spoken.length, 0);
+  voice.getVoices = () => [{ lang: 'hi-IN', name: 'Hindi local', localService: true }, { lang: 'en-IN', name: 'English local', localService: true }];
+  changed(); assert.equal(action(d, 'standard', 'hi-voice').options.length, 2); assert.equal(voice.spoken.length, 0);
+  action(d, 'standard', 'retry').click(); assert.equal(voice.spoken.length, 1); w.close();
+});
+test('mouth animation follows actual speech start, boundaries are safe, and stopped callbacks are inert', () => {
+  const voice = speech(), d = boot({ pro: true, speech: voice }), w = d.window;
+  $(d, 'aarti-toggle').click(); toggleVoice(d, 'standard', true);
+  const scene = w.document.querySelector('#standard-ritual .ritual-scene'), first = voice.spoken.at(-1), start = first.onstart;
+  assert.equal(scene.classList.contains('ritual-speaking'), false); start(); assert.equal(scene.classList.contains('ritual-speaking'), true);
+  first.onboundary({ name: 'word', charIndex: 0 }); assert.equal(w.document.querySelector('#standard-ritual mark').textContent, 'Welcome.');
+  action(d, 'standard', 'stop').click(); start(); assert.equal(scene.classList.contains('ritual-speaking'), false);
+  assert.ok(scene.querySelector('.pandit-arm-left')); assert.ok(scene.querySelector('.pandit-mouth-open')); w.close();
+});
+test('voice test uses Hindi without personal names and does not advance the ritual', () => {
+  const voice = speech(), d = boot({ pro: true, speech: voice });
+  $(d, 'pooja-name').value = 'Private Name'; $(d, 'pooja-form').dispatchEvent(new d.window.Event('submit', { cancelable: true }));
+  action(d, 'custom', 'test').click(); const utterance = voice.spoken.at(-1); assert.equal(utterance.lang, 'hi-IN'); assert.doesNotMatch(utterance.text, /Private Name/);
+  utterance.onstart(); utterance.onend(); assert.equal(action(d, 'custom', 'pause').disabled, true);
+  assert.match(d.window.document.querySelector('#custom-ritual .ritual-progress').textContent, /Voice test finished/); d.window.close();
+});

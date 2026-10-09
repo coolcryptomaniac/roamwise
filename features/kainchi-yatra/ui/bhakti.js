@@ -1,6 +1,7 @@
 (function (root) {
   'use strict';
   root.RWKainchiUI.bhakti = function (ctx) {
+    var isPro = root.RWKainchiUI.isBhaktiPro;
     var lit = false, incense = false, aarti = false, poojaReady = false, motion = ctx.get('rw_kainchi_motion') !== 'off';
     var media = root.matchMedia ? root.matchMedia('(prefers-reduced-motion: reduce)') : { matches: false };
     var toggle = ctx.$('motion-toggle');
@@ -37,18 +38,6 @@
       ctx.$('ritual-stage').classList.toggle('aarti-active', aarti && pro);
       ctx.$('digital-aarti-player').hidden = !aarti || !pro;
       ctx.$('pro-status').textContent = !pro ? ctx.t('pro_locked') : aarti ? ctx.t('pro_unlocked') : '';
-    }
-    function isPro() {
-      var m = root.RoamWiseMembership || root.RWMembership || root.membership || {};
-      var user = m.user || root.RoamWiseUser || root.currentUser || {};
-      var localPro = false;
-      try {
-        localPro = root.localStorage && root.localStorage.getItem('rwPro') === '1';
-        var activeUid = user.uid || (root.firebase && root.firebase.auth && root.firebase.auth().currentUser && root.firebase.auth().currentUser.uid);
-        var entitlementUid = root.localStorage && root.localStorage.getItem('rw_pro_uid');
-        if (activeUid && entitlementUid && entitlementUid !== activeUid) localPro = false;
-      } catch (e) { localPro = false; }
-      return m.isPro === true || m.plan === 'pro' || m.plan === 'founder' || user.isPro === true || user.plan === 'pro' || user.plan === 'founder' || document.body.getAttribute('data-membership') === 'pro' || localPro;
     }
     function renderPooja() {
       var form = ctx.$('pooja-form'), button = ctx.$('pooja-start'), pro = isPro();
