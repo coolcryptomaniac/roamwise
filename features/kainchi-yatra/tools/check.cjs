@@ -48,6 +48,6 @@ for (const file of [...manifest.browserScripts, ...manifest.stylesheets]) {
 assert.ok(gzipBytes < manifest.gzipBudgetBytes, 'Kainchi frontend exceeded its gzip budget');
 for (const file of manifest.browserAssets || []) {
   assert.ok(fs.existsSync(path.join(feature, file)), 'Missing image: ' + file);
-  if (/\.webp$/.test(file)) assert.ok(fs.statSync(path.join(feature, file)).size < manifest.imageBudgetBytes, 'Image budget exceeded');
+  if (/\.(?:webp|jpg|png)$/.test(file)) assert.ok(fs.statSync(path.join(feature, file)).size < manifest.imageBudgetBytes, 'Image budget exceeded');
 }
 console.log(`Kainchi check PASS: ${files.length} JS files; ${rawBytes} raw / ${gzipBytes} gzip frontend bytes; script order, module map, limits and links valid.`);

@@ -108,8 +108,8 @@ Optional browser test: `node features/kainchi-yatra/tools/browser-smoke.cjs`. Se
 360/390/1280 px, both languages, all tabs, day/pass sync, opt-in persistence, printing, reports,
 emergency visibility, feed failure and reduced motion. Chromium is a QA dependency only.
 
-Frontend JS/CSS/HTML gzip budget expands from 30 KB to 48 KB for the bilingual hub and a bounded
-30-headline snapshot (current authored snapshot about 35 KB). Hero is WebP, approximately 504 KB,
+Frontend JS/CSS/HTML gzip budget is 56 KiB for the bilingual hub, visitor guide and a bounded
+30-headline snapshot (current authored snapshot about 51 KB). Hero is WebP, approximately 504 KB,
 with a separate 650 KB cap; no fonts, UI libraries, remote images or extra visitor analytics.
 
 ## Artwork provenance
@@ -119,6 +119,35 @@ with a separate 650 KB cap; no fonts, UI libraries, remote images or extra visit
 red-roof temple structures, red bridge, mountain river, forested Kumaon hills and morning mist;
 forest-teal shadows and saffron sunlight; landscape, no interiors, idols, people, text or logos.
 It is not a factual map, current photograph, official trust artwork or an architectural record.
+
+## Visitor-guide update — 9 October 2026
+
+The founder explicitly requested the home-page Akatsuki palette, routes, parking, government
+facilities and a photograph of Neem Karoli Baba, and authorised PR merge. `ui/visit.css` uses the
+home-page night-ink / crimson / violet / gold palette. `ui/visit.js` opens map directions and
+official links only on visitor action; there are no map embeds or geolocation requests.
+
+Sources checked on 9 October 2026:
+- Trust travel / FAQ: https://shreekainchimandirtrust.org/contact
+- District travel: https://nainital.nic.in/tourist-place/kaichi-dham/
+- Bus search: https://utconline.uk.gov.in/
+- Government hospitals: https://nainital.nic.in/public-utility-category/hospitals/
+- Disaster control: https://nainital.nic.in/disaster-management/ (1077 and 05942-231178)
+- Temple history: https://shreekainchimandirtrust.org/about
+
+The two official guides differ on road distance from Kathgodam (37/43 km) and Pantnagar
+(71/79 km). The UI shows approximate ranges with both sources, not fixed journey times. The
+Trust's water, shoe-stand, assistance and shuttle details describe past 15 June festivals; the
+page keeps that qualification. No daily toilet/accessibility inventory, live parking space,
+official parking tariff or permanent shuttle schedule was verified. Maps results are explicitly
+discovery links, not evidence of government status or availability.
+
+`ui/art/neem-karoli-baba.jpg` is the unaltered 453 × 640 historical photograph downloaded from
+https://upload.wikimedia.org/wikipedia/commons/6/66/Neemkaroli_14.jpg (64,355 bytes).
+Attribution: Prabhard / Wikimedia Commons. The source file page lists it as public domain by the
+copyright holder: https://commons.wikimedia.org/wiki/File:Neemkaroli_14.jpg (revision 1238224165).
+The caption links to that record. This user-requested historical photo is the exception to the
+original Phase 0 artwork-only scope; no ashram interior photograph or generated Baba likeness is used.
 
 ## Review handoff
 
