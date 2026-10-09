@@ -108,7 +108,7 @@ Optional browser test: `node features/kainchi-yatra/tools/browser-smoke.cjs`. Se
 360/390/1280 px, both languages, all tabs, day/pass sync, opt-in persistence, printing, reports,
 emergency visibility, feed failure and reduced motion. Chromium is a QA dependency only.
 
-Frontend JS/CSS/HTML gzip budget is 80 KiB for the bilingual hub, visitor guide, panditji player, immersive strip and a bounded
+Frontend JS/CSS/HTML gzip budget is 88 KiB for the bilingual hub, visitor guide, panditji player, immersive strip and a bounded
 30-headline snapshot (current authored snapshot about 51 KB). Hero is WebP, approximately 504 KB,
 with a separate 650 KB cap; no fonts, UI libraries, remote images or extra visitor analytics.
 
@@ -241,3 +241,10 @@ browser; no native TTS or video-avatar service was connected.
 See `features/pilgrimage/README.md` for source and device-QA evidence. Those pages use short
 RoamWise devotional sequences, not Kainchi’s full Hanuman hymn for every shrine. They have
 no imported daily feed, government pass, live facility inventory or confirmed festival dates.
+
+The 10 October release exposed a publication gate missed by seed-only checks: refreshed
+headlines pushed the 80 KiB source budget over its limit. The budget is now 88 KiB and the
+gate reserves 7,300 gzip bytes for the collector's bounded 7 KB snapshot plus its JS wrapper.
+Current checked-in source is about 79.5 KB; the maximum reserved feed yields about 85.7 KB,
+below 90,112. The collector limit, daily-source validation and deployment configuration are
+unchanged. Future source additions must leave room for the full snapshot, not only the seed.
