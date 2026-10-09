@@ -177,3 +177,28 @@ test('digital cards: one per coupon, fixed inline script (no codes inside it), n
   const page = read('nmims/pass-issuer/index.html');
   assert.match(page, /digOrgBtn/); assert.match(page, /digStuBtn/);
 });
+
+test('public TEST code shows a success screen without touching Firebase or the redeem flow', () => {
+  const src = read('js/payments/redeem-link.js');
+  const t = src.slice(0, src.indexOf("var code=''")) + src.slice(src.indexOf("NMIMS-TEST-0000-DEMO"), src.indexOf('var tries=0'));
+  assert.match(t, /It worked!/);
+  assert.match(t, /no Founder Pro was added/);
+  assert.doesNotMatch(t, /firebase|db\.|openPartnerRedeem|__rwPendingRedeem|partnerClaims|users\//);
+  assert.doesNotMatch(U.coupon('student', 1, Buffer.alloc(8, 1)), /TEST/, 'a real coupon can never be the test code');
+});
+
+test('QR scan by camera photo or image upload: extracts only pass codes, decodes on device, nothing uploaded', () => {
+  const vm = require('node:vm');
+  const src = read('js/payments/qr-scan.js');
+  const w = { addEventListener() {} }; vm.runInNewContext(src, { window: w, document: {}, URL, URLSearchParams });
+  const X = u => JSON.parse(JSON.stringify(w.rwQrScan.extractCode(u)));
+  assert.deepEqual(X('https://www.roamwise.co.in/?redeem=nmims-stu-0007-abcdefghjkmnp'), { kind: 'code', code: 'NMIMS-STU-0007-ABCDEFGHJKMNP' });
+  assert.deepEqual(X('NMIMS-ORG-0001-ABCDEFGHJKMNP'), { kind: 'code', code: 'NMIMS-ORG-0001-ABCDEFGHJKMNP' });
+  assert.equal(X('https://www.roamwise.co.in/?ref=NMIMS2026').kind, 'ref');
+  assert.equal(X('https://www.roamwise.co.in/?redeem=open').kind, 'open');
+  assert.equal(X('https://example.com/').kind, 'none');
+  assert.equal(X('').kind, 'none');
+  assert.doesNotMatch(src, /fetch\(|XMLHttpRequest|sendBeacon|firebase|partnerClaims/);
+  assert.match(read('index.html'), /js\/payments\/qr-scan\.js/);
+  assert.ok(fs.existsSync(path.join(root, 'vendor/jsqr/jsQR.js')) && fs.existsSync(path.join(root, 'vendor/jsqr/LICENSE')));
+});
