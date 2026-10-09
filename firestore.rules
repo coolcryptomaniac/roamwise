@@ -1091,7 +1091,13 @@ service cloud.firestore {
       // Code possession alone must not expose the claimant's personal data.
       allow get: if isAdmin() || (request.auth != null
         && request.auth.token.email_verified == true
-        && resource.data.email == request.auth.token.email);
+        && resource.data.email == request.auth.token.email)
+        // EVENT COUPONS (bearer): an unredeemed coupon doc holds no personal data (role, serial, expiry),
+        // and its ID is a 64-bit random secret that cannot be listed. Once redeemed it is readable only
+        // by the email that redeemed it (the branch above).
+        || (request.auth != null
+        && resource.data.get('bearer', false) == true
+        && resource.data.get('proRedeemed', false) == false);
       allow list: if isAdmin();
       // SECURITY HOLD: only a trusted founder/server issues real codes.
       // The anonymous NMIMS form must be migrated BEFORE publishing.
@@ -1126,6 +1132,26 @@ service cloud.firestore {
         && request.auth.token.email_verified == true
         && resource.data.email == request.auth.token.email
         && (!('expiresAt' in resource.data) || resource.data.expiresAt > request.time)
+      ) || (
+        // EVENT COUPON redemption (bearer coupons created by an admin with bearer:true and no email).
+        // One-time: only an unredeemed coupon, only these four fields, only for the caller's own uid and
+        // verified email, only before expiry, and never for an account that is already Pro (so one person
+        // cannot burn several coupons). The caller's email is recorded here so that the existing
+        // users/{uid} grant check (isRedeemedByCaller) works unchanged.
+           request.auth != null
+        && request.auth.token.email_verified == true
+        && resource.data.get('bearer', false) == true
+        && !('email' in resource.data)
+        && resource.data.get('proRedeemed', false) == false
+        && request.resource.data.proRedeemed == true
+        && request.resource.data.diff(resource.data).affectedKeys()
+             .hasOnly(['proRedeemed','redeemedAt','redeemedUid','email'])
+        && request.resource.data.redeemedUid == request.auth.uid
+        && request.resource.data.email == request.auth.token.email
+        && resource.data.expiresAt is timestamp
+        && resource.data.expiresAt > request.time
+        && !(exists(/databases/$(database)/documents/users/$(request.auth.uid))
+             && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.get('pro', false) == true)
       );
       allow delete: if isAdmin();
     }

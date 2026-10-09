@@ -374,7 +374,10 @@ function openPay(){
     var count = (gate && typeof gate.count==='number') ? gate.count : 0;
     window._rwSeats = count;
     window._rwSeatsLeft = (result && result.ok) ? result.left : null;
-    renderPlanGrid(RWPricing.founderOfferOpen(count));
+    /* The public number already subtracts the 500 reserved NMIMS seats, so when it reaches 0 the
+       offer is sold out even though the paid-seat counter itself is still below 1,000. */
+    var soldOut=!!(result && result.ok && result.left===0);
+    renderPlanGrid(RWPricing.founderOfferOpen(count) && !soldOut);
   }).catch(function(){
     if(settled) return; settled=true; clearTimeout(to);
     window._rwSeats = null; window._rwSeatsLeft = null;

@@ -64,5 +64,46 @@
     const digest = await subtle.digest('SHA-256', input);
     return CAMPAIGN + '_' + Array.from(new Uint8Array(digest), b => b.toString(16).padStart(2, '0')).join('');
   }
-  return { CAMPAIGN, email, name, slug, token, code, allocation, emailIndex };
+  /* ---- Bulk coupons (event-day, not tied to an email) ----
+     NMIMS-STU-0123-XXXXXXXXXXXXX / NMIMS-ORG-0007-XXXXXXXXXXXXX (28 chars, <= the app's 32 cap).
+     The last 13 characters carry 64 random bits. The serial is for audit only and authenticates nothing. */
+  const TAGS = { student: 'STU', organiser: 'ORG' };
+  const SPLIT = { organiser: 50, student: 450 };
+  function coupon(role, serial, bytes) {
+    if (!TAGS[role]) throw new Error('Select student or organiser.');
+    if (!Number.isSafeInteger(serial) || serial < 1 || serial > 9999) throw new Error('Serial number is out of range.');
+    const out = 'NMIMS-' + TAGS[role] + '-' + String(serial).padStart(4, '0') + '-' + token(bytes);
+    if (out.length > 32) throw new Error('Code exceeds the app\u2019s 32-character limit.');
+    return out;
+  }
+  /** randomBytes(n) must be a CSPRNG (crypto.getRandomValues). Returns [{code, role, serial}] with unique codes. */
+  function couponBatch(randomBytes, split) {
+    const plan = split || SPLIT;
+    if (plan.organiser + plan.student > 500) throw new Error('A batch may not exceed the 500-pass ceiling.');
+    const seen = new Set(), list = [];
+    for (const role of ['organiser', 'student']) {
+      for (let serial = 1; serial <= plan[role]; serial++) {
+        let code;
+        for (let tries = 0; tries < 5; tries++) {
+          code = coupon(role, serial, randomBytes(8));
+          if (!seen.has(code)) break;
+          code = '';
+        }
+        if (!code) throw new Error('Random code collision; run the generator again.');
+        seen.add(code);
+        list.push({ code, role, serial });
+      }
+    }
+    return list;
+  }
+  /** SHA-256 over the sorted list of codes: publish it in advance and reveal the list later to prove the set never changed. */
+  async function commitment(codes, subtle) {
+    const digest = await subtle.digest('SHA-256', new TextEncoder().encode(codes.slice().sort().join('\n')));
+    return Array.from(new Uint8Array(digest), b => b.toString(16).padStart(2, '0')).join('');
+  }
+  function toCsv(list, expiresIso) {
+    return 'serial,type,code,redeem_link,valid_until\n' + list.map(c =>
+      [c.serial, c.role, c.code, 'https://www.roamwise.co.in/?redeem=' + c.code, expiresIso].join(',')).join('\n') + '\n';
+  }
+  return { CAMPAIGN, SPLIT, email, name, slug, token, code, allocation, emailIndex, coupon, couponBatch, commitment, toCsv };
 });
