@@ -113,6 +113,28 @@ export async function updateDoc(env, accessToken, projectId, path, values) {
 }
 
 /**
+ * Atomically add `by` to an integer field (Firestore server-side increment,
+ * safe under concurrent callers) and return the new value.
+ */
+export async function incrementField(env, accessToken, projectId, path, field, by = 1) {
+  const name = `projects/${projectId}/databases/(default)/documents/${path}`;
+  const res = await fetch(`${BASE}/projects/${projectId}/databases/(default)/documents:commit`, {
+    method: 'POST',
+    headers: { authorization: `Bearer ${accessToken}`, 'content-type': 'application/json' },
+    body: JSON.stringify({ writes: [{ transform: { document: name,
+      fieldTransforms: [{ fieldPath: field, increment: { integerValue: String(Math.trunc(by)) } }] } }] }),
+  });
+  if (!res.ok) {
+    const body = await res.text().catch(() => '');
+    throw new Error(`Firestore INCREMENT ${path} failed (${res.status}): ${body.slice(0, 300)}`);
+  }
+  const data = await res.json().catch(() => ({}));
+  const v = data && data.writeResults && data.writeResults[0] && data.writeResults[0].transformResults
+    && data.writeResults[0].transformResults[0];
+  return v && v.integerValue != null ? Number(v.integerValue) : null;
+}
+
+/**
  * Create a document ONLY if it does not exist yet (Firestore precondition
  * currentDocument.exists=false). Returns true when created, false when the id
  * was already taken. Used for stay-ledger codes so a repeated or hostile

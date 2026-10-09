@@ -49,6 +49,8 @@ const REAL_ORDER_RESPONSE = {
 async function loadHandler(options){
   const mod = await import(path.join(root, 'worker/handlers/cashfree.js'));
   const writes = [];
+  const seen = new Set();
+  const counter = { n: (options && options.founderCount) || 0 };
   const receipt = (options && options.receipt) || {
     uid: 'u1',
     email: 'a@b.com',
@@ -74,12 +76,16 @@ async function loadHandler(options){
         CASHFREE_ENVIRONMENT: String(env.CASHFREE_ENV || 'sandbox').toLowerCase() === 'live' ? 'live' : 'sandbox'
       };
       if(docPath.startsWith('users/')) return (options && options.userDoc) || null;
+      if(docPath === 'pricing/founder') return { count: counter.n };
+      if(docPath === 'partnerships/nmims2026') return { officialConfirmed: !!(options && options.nmimsOfficial) };
       return receipt;
     },
     updateDoc: async (env, accessToken, projectId, docPath, values) => { writes.push({ path: docPath, values }); },
+    createDocIfAbsent: async (env, accessToken, projectId, col, id) => { const k = col + '/' + id; if(seen.has(k)) return false; seen.add(k); return true; },
+    incrementField: async (env, accessToken, projectId, docPath, field, by) => { counter.n += by; return counter.n; },
     request: (...args) => global.fetch(...args)
   });
-  return Object.assign(handlers, { _writes: writes });
+  return Object.assign(handlers, { _writes: writes, _counter: counter });
 }
 
 test('handleCashfreeOrder: 501s cleanly when CASHFREE_APP_ID/SECRET_KEY are not set (never a hard crash)', async () => {
@@ -525,7 +531,7 @@ function fakeFounderDb(opts){
 }
 var FAKE_FIREBASE = { firestore: { FieldValue: { increment: function(n){ return { __increment: n }; } } } };
 
-test('openCheckout(): a confirmed-PAID Founder-offer purchase increments pricing/founder.count by exactly +1', async () => {
+test('openCheckout(): a confirmed-PAID Founder-offer purchase does NOT write pricing/founder.count from the browser (the Worker counts the seat)', async () => {
   var db = fakeFounderDb();
   const ctx = loadCashfreeAdapter({
     rwApi: (p) => 'https://worker.example/' + p,
@@ -543,15 +549,7 @@ test('openCheckout(): a confirmed-PAID Founder-offer purchase increments pricing
   for(let i = 0; i < 6; i++) await new Promise((resolve) => setTimeout(resolve, 0));
   assert.equal(ctx.grantPurchaseCalls.length, 1, 'Pro must still be granted');
   assert.equal(ctx.grantPurchaseCalls[0].planId, 'founder');
-  assert.equal(db._calls.length, 1, 'exactly one pricing/founder write, not zero and not a double-count');
-  assert.equal(db._calls[0].collection, 'pricing');
-  assert.equal(db._calls[0].doc, 'founder');
-  // Compare fields directly rather than assert.deepEqual(): the increment
-  // sentinel object is constructed inside the vm context's own Object
-  // realm, so it is structurally (but not reference-)equal to one built in
-  // this file's realm — deepStrictEqual's prototype check would false-fail.
-  assert.equal(Object.keys(db._calls[0].data).join(','), 'count');
-  assert.equal(db._calls[0].data.count.__increment, 1);
+  assert.equal(db._calls.length, 0, 'the Worker owns the Founder seat counter now; a browser write would double-count');
 });
 
 test('openCheckout(): a confirmed-PAID purchase of a NON-Founder plan never touches pricing/founder.count', async () => {
@@ -786,4 +784,68 @@ test('referral attribution: no refCode means no refCode field, and overlong code
     await handler.handleCashfreeOrder(jsonRequest({ amount: 100, customer: { phone: '9999999999' }, meta: { planId: 'founder', refCode: 'A'.repeat(80) } }), env);
     assert.equal(handler._writes.find(w => w.path.startsWith('cashfreeOrders/')).values.refCode.length, 32);
   } finally { global.fetch = realFetch; }
+});
+
+/* ---- Founder seat cap (server-enforced) ---- */
+function orderRequest(){ return jsonRequest({ amount: 100, customer: { phone: '9999999999' }, meta: { planId: 'founder' } }); }
+const CAP_ENV = { CASHFREE_APP_ID: 'id', CASHFREE_SECRET_KEY: 'secret', CASHFREE_ENV: 'sandbox' };
+
+test('Founder checkout is refused server-side once all 1,000 seats are taken', async () => {
+  const { handleCashfreeOrder } = await loadHandler({ founderCount: 1000 });
+  let fetchCalled = false;
+  const realFetch = global.fetch;
+  global.fetch = async () => { fetchCalled = true; return { ok: false, status: 500, json: async () => ({}) }; };
+  try{
+    const res = await handleCashfreeOrder(orderRequest(), CAP_ENV);
+    assert.equal(res.status, 409);
+    assert.equal((await res.json()).error, 'founder_sold_out');
+    assert.equal(fetchCalled, false, 'no Cashfree order may be created for a sold-out offer');
+  } finally { global.fetch = realFetch; }
+});
+
+test('Founder checkout respects the 500 seats reserved for an official NMIMS partnership', async () => {
+  const realFetch = global.fetch;
+  global.fetch = async () => ({ ok: false, status: 500, json: async () => ({}) });
+  try{
+    const full = await loadHandler({ founderCount: 500, nmimsOfficial: true });
+    const res = await full.handleCashfreeOrder(orderRequest(), CAP_ENV);
+    assert.equal(res.status, 409);
+    const open = await loadHandler({ founderCount: 499, nmimsOfficial: true });
+    const res2 = await open.handleCashfreeOrder(orderRequest(), CAP_ENV);
+    assert.notEqual(res2.status, 409, 'one public seat is still left');
+    const notYet = await loadHandler({ founderCount: 500, nmimsOfficial: false });
+    const res3 = await notYet.handleCashfreeOrder(orderRequest(), CAP_ENV);
+    assert.notEqual(res3.status, 409, 'nothing is reserved before the partnership is official');
+  } finally { global.fetch = realFetch; }
+});
+
+test('A paid Founder order is counted once on the server, even if status is polled repeatedly', async () => {
+  const h = await loadHandler({ founderCount: 10 });
+  const realFetch = global.fetch;
+  global.fetch = async () => ({ ok: true, status: 200, json: async () => ({ order_id: 'rw_test123', order_status: 'PAID', order_amount: 100, order_currency: 'INR' }) });
+  try{
+    const req = () => new Request('https://x/cashfree/order/rw_test123/status', { headers: { authorization: 'Bearer t' } });
+    await h.handleCashfreeOrderStatus(req(), CAP_ENV, 'rw_test123');
+    await h.handleCashfreeOrderStatus(req(), CAP_ENV, 'rw_test123');
+    assert.equal(h._counter.n, 11, 'seat counted exactly once');
+    const fulfil = h._writes.filter((w) => w.path === 'cashfreeOrders/rw_test123' && w.values.fulfilled === true);
+    assert.ok(fulfil.length >= 1);
+    assert.equal(fulfil[0].values.overCap, undefined);
+  } finally { global.fetch = realFetch; }
+});
+
+test('A paid Founder order that lands beyond the cap still activates but is flagged overCap', async () => {
+  const h = await loadHandler({ founderCount: 1000 });
+  const realFetch = global.fetch;
+  global.fetch = async () => ({ ok: true, status: 200, json: async () => ({ order_id: 'rw_test123', order_status: 'PAID', order_amount: 100, order_currency: 'INR' }) });
+  try{
+    const res = await h.handleCashfreeOrderStatus(new Request('https://x/s', { headers: { authorization: 'Bearer t' } }), CAP_ENV, 'rw_test123');
+    assert.equal((await res.json()).entitlement.persisted, true, 'a customer who paid is never left without their plan');
+    assert.ok(h._writes.some((w) => w.path === 'cashfreeOrders/rw_test123' && w.values.overCap === true));
+  } finally { global.fetch = realFetch; }
+});
+
+test('browser no longer increments the Founder counter itself (Worker owns it)', () => {
+  const src = fs.readFileSync(path.join(root, 'js/payments/providers/cashfree-adapter.js'), 'utf8');
+  assert.doesNotMatch(src, /doc\('founder'\)\.update/);
 });

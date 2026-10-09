@@ -4,7 +4,8 @@ import { json } from '../lib/http.js';
 import { cashfreeEntitlementForPlan, priceForPlan } from '../lib/pricing.js';
 import { verifyFirebaseIdToken } from '../lib/firebase-verify.js';
 import { getServiceAccountAccessToken, parseServiceAccount } from '../lib/service-account.js';
-import { getDoc, updateDoc } from '../lib/firestore-rest.js';
+import { createDocIfAbsent, getDoc, incrementField, updateDoc } from '../lib/firestore-rest.js';
+import { FOUNDER_NMIMS_RESERVED, FOUNDER_TOTAL_SEATS, founderSeatsLeft } from '../lib/founder-cap.js';
 
 const SANDBOX_BASE = 'https://sandbox.cashfree.com';
 const LIVE_BASE = 'https://api.cashfree.com';
@@ -78,7 +79,7 @@ function expiryMillis(value){
   return Number.isFinite(parsed)?parsed:0;
 }
 export function createCashfreeHandlers(overrides){
-  const deps=Object.assign({context:authenticatedContext,getDoc,updateDoc,request:fetch},overrides||{});
+  const deps=Object.assign({context:authenticatedContext,getDoc,updateDoc,createDocIfAbsent,incrementField,request:fetch},overrides||{});
   async function requireSandboxAdmin(env,ctx){
     if(isLive(env))return null;
     try{
@@ -123,6 +124,16 @@ export function createCashfreeHandlers(overrides){
     const knownPrice=priceForPlan(meta.planId);
     if(knownPrice==null)return json({error:'unknown_plan',message:'Could not verify the price for this plan.'},400);
     if(amount!==knownPrice)return json({error:'amount_mismatch',message:'The submitted amount does not match this plan’s real price.'},400);
+    if(String(meta.planId)==='founder'){
+      // Hard server-side cap: no new Founder checkout once the public pool is gone.
+      let left;
+      try{
+        const seats=await deps.getDoc(env,ctx.accessToken,ctx.projectId,'pricing/founder');
+        const nmims=await deps.getDoc(env,ctx.accessToken,ctx.projectId,'partnerships/nmims2026');
+        left=founderSeatsLeft(seats&&seats.count,nmims&&nmims.officialConfirmed===true);
+      }catch(_){return json({error:'founder_seats_unavailable',message:'Could not verify Founder seat availability. Please try again shortly.'},502);}
+      if(left<=0)return json({error:'founder_sold_out',message:'All Founder Pro seats are taken.'},409);
+    }
     const entitlement=cashfreeEntitlementForPlan(meta.planId);
     if(!entitlement)return json({error:'unsupported_plan',message:'Cashfree is currently available only for one-time plans.'},409);
     const orderId='rw_'+safeId(Date.now()+'_'+Math.random().toString(36).slice(2,8));
@@ -184,6 +195,20 @@ export function createCashfreeHandlers(overrides){
     if(data.order_status==='PAID'&&entitlement&&!persisted){
       const paidAt=new Date().toISOString();
       const method=receipt.planId==='founder'?'founder-cashfree':'cashfree';
+      let overCap=false;
+      if(receipt.planId==='founder'){
+        // Count the seat exactly once per order (marker doc is create-if-absent),
+        // atomically. A failure here never blocks a customer who has paid.
+        try{
+          const first=await deps.createDocIfAbsent(env,ctx.accessToken,ctx.projectId,'founderSeatOrders',id,{uid:ctx.claims.uid,at:paidAt});
+          if(first){
+            const total=await deps.incrementField(env,ctx.accessToken,ctx.projectId,'pricing/founder','count',1);
+            const nmims=await deps.getDoc(env,ctx.accessToken,ctx.projectId,'partnerships/nmims2026');
+            const reserved=nmims&&nmims.officialConfirmed===true?FOUNDER_NMIMS_RESERVED:0;
+            overCap=total!=null&&total>FOUNDER_TOTAL_SEATS-reserved;
+          }
+        }catch(_){/* seat counting is best-effort here; admin reconcile covers gaps */}
+      }
       try{
         await deps.updateDoc(env,ctx.accessToken,ctx.projectId,`payments/${id}`,paymentRecord(id,receipt,paidAt));
         await deps.updateDoc(env,ctx.accessToken,ctx.projectId,`users/${ctx.claims.uid}`,{
@@ -191,7 +216,7 @@ export function createCashfreeHandlers(overrides){
           proAmount:Number(receipt.amountINR),proVia:'cashfree',proAt:paidAt,proUntil:entitlement.until
         });
         await deps.updateDoc(env,ctx.accessToken,ctx.projectId,`cashfreeOrders/${id}`,{
-          status:'PAID',fulfilled:true,paidAt,updatedAt:paidAt
+          status:'PAID',fulfilled:true,paidAt,updatedAt:paidAt,...(overCap?{overCap:true}:{})
         });
         persisted=true;
       }catch(_){return json({error:'entitlement_persistence_failed',message:'Payment is confirmed, but account activation is still retrying. Check My Payments.'},503);}
