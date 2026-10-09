@@ -15,12 +15,17 @@ import { getDoc } from '../lib/firestore-rest.js';
 import { managedAILimit, managedAIRequest, reserveManagedAI, reserveProviderRequest } from '../lib/ai-entitlements.js';
 
 const SYSTEM='You are Ailon Tusk, RoamWise travel copilot. Treat the user\'s explicitly named city/locality as the destination; never replace it with the enclosing state or country. Treat next month, October and similar phrases as dates, never places. Use supplied RoamWise facts as authoritative. If inventory, price, weather or opening status is not verified, say so and ask one precise question. Never claim a booking or payment succeeded unless the server-confirmed record says so.';
-function indianLanguage(prompt,locale){return /^(hi|bn|ta|te|mr|gu|kn|ml|pa|od)(-|$)/i.test(locale)||/[\u0900-\u0D7F]/.test(prompt)||/\b(kya|kaise|kitna|chahiye|ghumna|sasta|batao|wala|hai|hain)\b/i.test(prompt)}
+/* Older Workers AI models answer {response}; newer ones (Gemma 4) answer in the
+   OpenAI shape {choices:[{message:{content}}]}. Accept both. */
+export function workersAIText(out){
+  const t=(out&&out.response)||(out&&out.choices&&out.choices[0]&&out.choices[0].message&&out.choices[0].message.content)||'';
+  return String(t).trim();
+}
 async function cloudflareAI(policy,env){
   if(!env.AI||typeof env.AI.run!=='function')throw new Error('workers_ai_unavailable');
-  const model=String(env.WORKERS_AI_MODEL||'@cf/qwen/qwen3-30b-a3b-fp8');
+  const model=String(env.WORKERS_AI_MODEL||'@cf/google/gemma-4-26b-a4b-it');
   const out=await env.AI.run(model,{messages:[{role:'system',content:SYSTEM},{role:'user',content:policy.prompt}],max_tokens:policy.maxTokens});
-  const text=String((out&&out.response)||'').trim();if(!text)throw new Error('workers_ai_empty');return {text,provider:'workers-ai',model};
+  const text=workersAIText(out);if(!text)throw new Error('workers_ai_empty');return {text,provider:'workers-ai',model};
 }
 async function sarvamAI(policy,env){
   if(!env.SARVAM_API_KEY)throw new Error('sarvam_unavailable');
@@ -78,7 +83,8 @@ export async function handleAI(request, env){
         : 'This month\u2019s included managed-AI allowance is used. The on-device planner still works.',
         used:reserved.used, limit:reserved.limit }, status);
     }
-    const routes=indianLanguage(policy.prompt,policy.locale)?[sarvamAI,cloudflareAI,groqAI]:[cloudflareAI,groqAI,sarvamAI];
+    // Order: Workers AI (Gemma 4 26B), then Sarvam, then Groq as the last resort.
+    const routes=[cloudflareAI,sarvamAI,groqAI];
     let answer=null,last='provider_error';
     for(const run of routes){try{answer=await run(policy,env);if(answer&&answer.text)break;}catch(e){last=String(e&&e.message||e)}}
     if(!answer||!answer.text)return json({error:'provider_error',message:'Ailon Tusk is temporarily using its on-device planner.',remaining:reserved.remaining,code:last},502);
