@@ -33,10 +33,12 @@ function aiRequest(prov, key, model, prompt, maxTok, jsonMode){
     body=JSON.stringify({contents:[{parts:[{text:prompt}]}], generationConfig:gc});
   } else {
     var bases={groq:'https://api.groq.com/openai/v1', openrouter:'https://openrouter.ai/api/v1',
-      mistral:'https://api.mistral.ai/v1', sarvam:'https://api.sarvam.ai/v1',
-      custom:(lsGet('rwCustomBase')||'http://localhost:11434/v1').replace(/\/+$/,'')};
+      mistral:'https://api.mistral.ai/v1', sarvam:'https://api.sarvam.ai/v1'};
+    if(prov==='custom'){
+      bases.custom=(lsGet('rwCustomBase')||'http://localhost:11434/v1').replace(/\/+$/,'');
+      model=lsGet('rwCustomModel')||model;
+    }
     url=(bases[prov]||bases.groq)+'/chat/completions';
-    if(prov==='custom'){ model=lsGet('rwCustomModel')||model; }
     headers={'Content-Type':'application/json','Authorization':'Bearer '+key};
     if(prov==='openrouter'){ headers['HTTP-Referer']='https://www.roamwise.co.in'; headers['X-Title']='RoamWise Pro'; }
     var ob={model:model, max_tokens:maxTok, messages:[{role:'user',content:prompt}]};
