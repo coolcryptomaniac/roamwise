@@ -28,16 +28,14 @@ var RW_LOCAL_CATEGORIES = [
   { id: 'guide', maps: 'trekking guide',  icon: '🥾', label: 'Guides & trek help',    hint: 'Ask what the fee covers: food, permits, porter.' },
   { id: 'health', maps: 'pharmacy', icon: '🏥', label: 'Health & pharmacy',     hint: 'Clinics and chemists. For emergencies use the SOS page.' },
   { id: 'repair', maps: 'bike mechanic', icon: '🔧', label: 'Vehicle & bike repair', hint: 'Mechanics, tyre shops, towing.' },
-  { id: 'daily', maps: 'grocery store',  icon: '🛒', label: 'Daily needs',           hint: 'Groceries, SIM, ATM, laundry.' },
-  { id: 'fuel', maps: 'petrol pump',    icon: '\u26fd', label: 'Fuel & ATM',            hint: 'Petrol pumps and ATMs are far apart in the hills \u2014 fill up when you can.' }
+  { id: 'daily', maps: 'grocery store',  icon: '🛒', label: 'Daily needs',           hint: 'Groceries, SIM, ATM, laundry.' }
 ];
 
 var RW_LOCAL_VERIFY = {
   kb:      '',   /* imported listing: no verification claim of our own; the card shows only the updated month */
   visited: 'We visited in person',
   called:  'We spoke on the phone',
-  self:    'Self-listed, not yet checked',
-  osm:     'Community-mapped (OpenStreetMap), not checked by RoamWise'
+  self:    'Self-listed, not yet checked'
 };
 
 /* One object per person/business. Leave empty until real, consenting entries exist.
@@ -69,12 +67,7 @@ function rwLocalTowns() {
 function rwLocalFresh(p, nowMs) {
   var t = Date.parse((p && (p.updatedAt || p.consentAt)) || '');
   if (!t) return false;
-  return ((nowMs || Date.now()) - t) <= (p.maxAgeDays || RW_LOCAL_MAX_AGE_DAYS) * 86400000;
-}
-/* Coordinates link for community-mapped places that have no phone. */
-function rwLocalPinUrl(p) {
-  if (!p || typeof p.lat !== 'number' || typeof p.lon !== 'number') return '';
-  return 'https://www.google.com/maps/search/?api=1&query=' + p.lat + ',' + p.lon;
+  return ((nowMs || Date.now()) - t) <= RW_LOCAL_MAX_AGE_DAYS * 86400000;
 }
 function rwLocalFind(cat, town, nowMs) {
   return RW_LOCAL_PROVIDERS.filter(function (p) {
@@ -106,4 +99,4 @@ function rwLocalRemoveMail(p) {
   var body = 'Please remove this listing from RoamWise Local Help.\n\nName: ' + ((p && p.name) || '') + '\nListing id: ' + ((p && p.id) || '');
   return 'mailto:' + RW_LOCAL_LINKS.listEmail + '?subject=' + encodeURIComponent('Remove my RoamWise Local Help listing') + '&body=' + encodeURIComponent(body);
 }
-if (typeof module !== 'undefined') module.exports = { RW_LOCAL_DISTRICTS: RW_LOCAL_DISTRICTS, RW_LOCAL_GATEWAYS: RW_LOCAL_GATEWAYS, RW_LOCAL_CATEGORIES: RW_LOCAL_CATEGORIES, RW_LOCAL_PROVIDERS: RW_LOCAL_PROVIDERS, RW_LOCAL_VERIFY: RW_LOCAL_VERIFY, rwLocalTowns: rwLocalTowns, rwLocalFind: rwLocalFind, rwLocalMapsUrl: rwLocalMapsUrl, rwLocalFresh: rwLocalFresh, rwLocalPinUrl: rwLocalPinUrl, rwLocalMonth: rwLocalMonth, rwLocalRemoveMail: rwLocalRemoveMail, RW_LOCAL_MAX_AGE_DAYS: RW_LOCAL_MAX_AGE_DAYS, rwLocalCount: rwLocalCount, rwLocalWhatsApp: rwLocalWhatsApp, rwLocalTel: rwLocalTel, rwLocalListMail: rwLocalListMail };
+if (typeof module !== 'undefined') module.exports = { RW_LOCAL_DISTRICTS: RW_LOCAL_DISTRICTS, RW_LOCAL_GATEWAYS: RW_LOCAL_GATEWAYS, RW_LOCAL_CATEGORIES: RW_LOCAL_CATEGORIES, RW_LOCAL_PROVIDERS: RW_LOCAL_PROVIDERS, RW_LOCAL_VERIFY: RW_LOCAL_VERIFY, rwLocalTowns: rwLocalTowns, rwLocalFind: rwLocalFind, rwLocalMapsUrl: rwLocalMapsUrl, rwLocalFresh: rwLocalFresh, rwLocalMonth: rwLocalMonth, rwLocalRemoveMail: rwLocalRemoveMail, RW_LOCAL_MAX_AGE_DAYS: RW_LOCAL_MAX_AGE_DAYS, rwLocalCount: rwLocalCount, rwLocalWhatsApp: rwLocalWhatsApp, rwLocalTel: rwLocalTel, rwLocalListMail: rwLocalListMail };

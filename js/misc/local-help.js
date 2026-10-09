@@ -43,21 +43,14 @@ function openLocalHelp(town, cat){
   rwLocalHelpRender();
 }
 
-/* The imported listings are fetched only when this page is first opened. */
+/* The imported listings are ~35KB, so they are fetched only when this page is first opened. */
 function rwLocalHelpLoad(){
-  if(window._lhLoading||window._lhFailed) return;
-  var files=[['RW_LOCAL_LISTINGS_LOADED','local-help-listings.js?v=rw-v127'],['RW_LOCAL_OSM_LOADED','local-help-osm.js?v=rw-v130']]
-    .filter(function(f){ return !window[f[0]]; });
-  if(!files.length) return;
+  if(window.RW_LOCAL_LISTINGS_LOADED||window._lhLoading||window._lhFailed) return;
   window._lhLoading=true;
-  var left=files.length;
-  function done(){ if(--left>0) return; window._lhLoading=false; if(el('localHelpSection')) openLocalHelp(window._lhTown,window._lhCat); }
-  files.forEach(function(f){
-    var s=document.createElement('script'); s.src=f[1];
-    s.onload=done;
-    s.onerror=function(){ window._lhFailed=true; done(); };
-    document.head.appendChild(s);
-  });
+  var s=document.createElement('script'); s.src='local-help-listings.js?v=rw-v127';
+  s.onload=function(){ window._lhLoading=false; if(el('localHelpSection')) openLocalHelp(window._lhTown,window._lhCat); };
+  s.onerror=function(){ window._lhLoading=false; window._lhFailed=true; rwLocalHelpRender(); };
+  document.head.appendChild(s);
 }
 
 function rwLocalHelpRender(){
@@ -71,22 +64,18 @@ function rwLocalHelpRender(){
   if(window._lhLoading){ host.innerHTML='<div class="gr-foot" style="margin:6px 0 16px">Loading local listings\u2026</div>'; return; }
   var list=rwLocalFind(cat,town);
   var catObj=(window.RW_LOCAL_CATEGORIES||[]).filter(function(c){ return c.id===cat; })[0];
-  var hasOsm=false;
   var out=list.map(function(p){
     var c=(RW_LOCAL_CATEGORIES.filter(function(x){ return x.id===p.cat; })[0])||{icon:'',label:''};
     var wa=rwLocalWhatsApp(p,'Hi, I found you on RoamWise. I\u2019m visiting '+town+'.'), tel=rwLocalTel(p);
-    var seen=rwLocalMonth(p), osm=p.source==='openstreetmap', pin=osm&&!tel?rwLocalPinUrl(p):'';
-    if(osm) hasOsm=true;
+    var seen=rwLocalMonth(p);
     var vl=Object.prototype.hasOwnProperty.call(RW_LOCAL_VERIFY,p.verified)?RW_LOCAL_VERIFY[p.verified]:RW_LOCAL_VERIFY.self;
     return '<div class="sos-block"><b>'+c.icon+' '+rwLhAttr(p.name)+'</b>'
       +'<div>'+rwLhAttr(p.svc||c.label)+' \u00b7 '+rwLhAttr(p.town)+(p.languages&&p.languages.length?' \u00b7 '+rwLhAttr(p.languages.join(', ')):'')+'</div>'
       +(p.note?'<div>'+rwLhAttr(p.note)+'</div>':'')
-      +(osm?'<div style="font-size:11px;color:var(--t3)">Community-mapped \u00b7 last edited '+rwLhAttr(seen)+' \u00b7 call ahead</div>'
-      :vl||seen?'<div style="font-size:11px;color:var(--t3)">'+(vl?'\u2714 '+rwLhAttr(vl)+(seen?' \u00b7 updated '+rwLhAttr(seen):''):'Updated '+rwLhAttr(seen))+'</div>':'')
+      +(vl||seen?'<div style="font-size:11px;color:var(--t3)">'+(vl?'\u2714 '+rwLhAttr(vl)+(seen?' \u00b7 updated '+rwLhAttr(seen):''):'Updated '+rwLhAttr(seen))+'</div>':'')
       +'<div style="display:flex;gap:8px;margin-top:6px;align-items:center;flex-wrap:wrap">'
       +(wa?'<a class="ev-chip" style="text-decoration:none" href="'+rwLhAttr(wa)+'" target="_blank" rel="noopener">WhatsApp</a>':'')
       +(tel?'<a class="ev-chip" style="text-decoration:none" href="'+rwLhAttr(tel)+'">Call</a>':'')
-      +(pin?'<a class="ev-chip" style="text-decoration:none" href="'+rwLhAttr(pin)+'" target="_blank" rel="noopener">Open in Maps</a>':'')
       +'<a href="'+rwLhAttr(rwLocalRemoveMail(p))+'" style="font-size:10.5px;color:var(--t3);margin-left:auto">Remove</a></div></div>';
   }).join('');
   if(!out){
@@ -102,6 +91,5 @@ function rwLocalHelpRender(){
     +'<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px">'
     +mapCats.map(function(c){ return '<a class="ev-chip" style="text-decoration:none" href="'+rwLhAttr(rwLocalMapsUrl(c.id,town))+'" target="_blank" rel="noopener">'+c.icon+' '+rwLhAttr(c.label)+'</a>'; }).join('')
     +'</div></div>';
-  if(hasOsm) out+='<div class="gr-foot" style="margin:0 0 14px">Some places: map data \u00a9 <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener" style="color:var(--gold)">OpenStreetMap contributors</a> (ODbL). Not checked by RoamWise.</div>';
   host.innerHTML=out;
 }
