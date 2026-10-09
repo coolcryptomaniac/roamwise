@@ -161,3 +161,12 @@ test('generic poster QR (?redeem=open) opens the empty form; page wires card pri
   assert.match(page, /cardOrgBtn/);
   assert.match(read('nmims/pass-issuer/qrcode.js'), /MIT license/);
 });
+
+test('public TEST code shows a success screen without touching Firebase or the redeem flow', () => {
+  const src = read('js/payments/redeem-link.js');
+  const t = src.slice(src.indexOf("NMIMS-TEST-0000-DEMO"), src.indexOf('var tries=0'));
+  assert.match(t, /It worked!/);
+  assert.match(t, /no Founder Pro was added/);
+  assert.doesNotMatch(t, /firebase|db\.|openPartnerRedeem|__rwPendingRedeem|partnerClaims|users\//);
+  assert.doesNotMatch(U.coupon('student', 1, Buffer.alloc(8, 1)), /TEST/, 'a real coupon can never be the test code');
+});
