@@ -166,6 +166,20 @@ pages.
 
 ## Review handoff
 
+## Unofficial advisory layer — 9 October 2026
+
+The page now includes a bilingual Visitor signals tab for device-local observations of parking,
+shuttle and road conditions. A visitor can save a short note while nearby, but it is not uploaded,
+shared, verified or presented as a live operational feed. A private resident journey note is also
+stored on-device only; it is explicitly not a pass, exemption, identity document or police permission.
+
+The tab explains the hard boundary: RoamWise cannot declare binding peak-day slot limits, operate
+gate scanning, publish official fares or room rates, create resident passes, or establish an ambulance
+corridor. It links to 108/112 and asks visitors not to self-direct traffic. The notice says RoamWise
+is independent and unaffiliated with the Government of India, district administration, police and
+Kainchi Trust; official notices and responders always take priority. No fabricated live readings,
+rates, capacity, permits or government branding were added.
+
 Review this PR before merging; run the browser gate with Chromium available. The deployment
 workflow is a separate review under AI-ROLES-AND-HANDOFF rule 7. Keep source availability failures
 visible and verify the served `daily.json` after deployment. Do not mark parking, queues, shuttle
