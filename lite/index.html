@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#07090F">
+<title>RoamWise Lite | India travel guide for slow connections</title>
+<meta name="description" content="Light RoamWise: India destination guide, best and quietest months, daily budgets and emergency numbers. Built for slow connections.">
+<meta name="robots" content="noindex"><link rel="canonical" href="https://roamwise.co.in/">
+<link rel="icon" href="/icons/favicon-32.png">
+<style>
+:root{color-scheme:dark;--bg:#07090f;--card:#12162a;--ink:#ede8df;--mut:#b8b5bd;--gold:#e8ba6c;--line:#ffffff22;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(120% 50% at 50% -10%,#3a1630 0,#07090f 60%);color:var(--ink);line-height:1.5}
+.w{max-width:640px;margin:0 auto;padding:14px 14px 44px}
+header{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.brand{font-weight:900;letter-spacing:.12em;font-size:15px;color:var(--gold)}.brand i{font-style:normal;font-size:10px;border:1px solid var(--gold);border-radius:6px;padding:1px 5px;margin-left:6px;letter-spacing:.08em}
+h2{font-size:16px;margin:22px 0 8px;color:var(--gold)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin:10px 0}
+.m{color:var(--mut);font-size:13.5px}
+.btn{display:inline-block;padding:11px 16px;border-radius:12px;font-weight:800;text-decoration:none;color:#0b1020;background:linear-gradient(95deg,#c8913e,#e8ba6c);border:0;font-size:14px}
+.btn.g{background:none;color:var(--ink);border:1px solid var(--line)}
+input{width:100%;padding:12px;border-radius:12px;border:1px solid var(--line);background:#0c1020;color:var(--ink);font-size:16px}
+.list{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
+.chip{border:1px solid var(--line);background:#ffffff0d;color:var(--ink);padding:8px 12px;border-radius:999px;font-size:14px;cursor:pointer}
+.chip[aria-pressed=true]{background:var(--gold);color:#0b1020;font-weight:800}
+.row{display:flex;justify-content:space-between;gap:10px;padding:6px 0;border-top:1px solid var(--line)}.row:first-child{border-top:0}
+.cnt{font:900 24px/1.1 ui-monospace,Menlo,monospace;color:#ffe0ae;font-variant-numeric:tabular-nums;margin:6px 0}
+.sos{display:grid;grid-template-columns:1fr 1fr;gap:8px}.sos a{display:block;padding:10px;border:1px solid var(--line);border-radius:12px;color:var(--ink);text-decoration:none;font-size:14px}.sos b{display:block;font-size:20px;color:var(--gold)}
+a{color:var(--gold)}footer{margin-top:26px;font-size:12.5px;color:var(--mut)}
+</style>
+</head>
+<body>
+<div class="w">
+<header><div class="brand">ROAMWISE<i>LITE</i></div><a class="btn g" id="full" href="/?full=1">Open full app</a></header>
+<p class="m" id="note">Light version, built for slow connections. Under 40 KB. AI trip planning, maps and your saved trips are in the full app.</p>
+
+<div class="card" id="nm" hidden>
+  <div class="m">RoamWise × E-Cell NMIMS</div>
+  <div id="nmName" style="font-weight:800;font-size:17px"></div>
+  <div class="cnt" id="nmCnt" role="timer"></div>
+  <a class="btn" href="/nmims/redeem/">How to claim your pass</a>
+</div>
+
+<h2>India destination guide</h2>
+<input id="q" type="search" placeholder="Search a place, e.g. Manali" aria-label="Search destinations" autocomplete="off">
+<div class="list" id="list" role="group" aria-label="Destinations"></div>
+<div class="card" id="det" hidden aria-live="polite"></div>
+
+<h2>Emergency numbers (India)</h2>
+<div class="sos">
+<a href="tel:112"><b>112</b>All emergencies</a><a href="tel:108"><b>108</b>Ambulance</a>
+<a href="tel:100"><b>100</b>Police</a><a href="tel:101"><b>101</b>Fire</a>
+<a href="tel:1363"><b>1363</b>Tourist helpline</a><a href="tel:1098"><b>1098</b>Childline</a>
+</div>
+
+<h2>More in the full app</h2>
+<div class="card"><p class="m" style="margin:0 0 10px">AI trip planner (Ailon Tusk), day-by-day itineraries and budgets, group planner, live maps and offline trips.</p><a class="btn" id="full2" href="/?full=1">Open full RoamWise (about 1 MB)</a></div>
+
+<footer>Prices are indicative per person per day and change by season. Check before you book. <a href="mailto:support@roamwise.co.in">support@roamwise.co.in</a> · <a href="/privacy.html">Privacy</a></footer>
+</div>
+<script>
+(function(){
+var D=/*LITE-DATA-START*/[{"n":"Goa","b":[11,12,1,2],"q":[6,7,8],"c":[1400,3200,8500],"f":["Fish curry rice","Xacuti","Bebinca"],"g":["Divar Island","Netravali bubble lake","Butterfly Beach"],"l":"North Goa is loud and social, South Goa is quiet — pick before you book. Scooter is the only sane transport; taxi rates are cartel-fixed and high."},{"n":"Manali","b":[3,4,9,10],"q":[1,2,11],"c":[1200,2800,7000],"f":["Siddu","Trout","Babru"],"g":["Sethan village","Hamta valley","Chhika"],"l":"May-June is packed and roads crawl. Old Manali is the traveller side; the town is for families. Rohtang needs a permit booked ahead."},{"n":"Rishikesh","b":[2,3,10,11],"q":[6,7,8],"c":[1000,2500,6500],"f":["Aloo puri","Chotiwala thali","German Bakery cakes"],"g":["Neer Garh waterfall","Kunjapuri sunrise","Patna waterfall"],"l":"Dry city and vegetarian by law — no alcohol, no meat. Rafting shuts late June to mid September. Auto from the station should be ₹150, not ₹400."},{"n":"Spiti Valley","b":[6,7,8,9],"q":[1,2,12],"c":[2200,3800,8000],"f":["Thukpa","Momos","Butter tea"],"g":["Dhankar lake","Hikkim post office","Langza fossils"],"l":{"stay":"₹800–2,500/night depending on season and room sharing","meal":"₹120–400","shared_transport":"₹800–1,800/day equivalent on group circuits","note":"Roads run at slow mountain speeds; Manali–Kaza commonly takes most of a day. Kunzum access is seasonal."}},{"n":"Alleppey","b":[10,11,12,1,2],"q":[5,6,7],"c":[1300,3000,9000],"f":["Karimeen pollichathu","Appam with stew","Sadya"],"g":["Canoe through the narrow canals","Kumarakom bird sanctuary","Marari beach"],"l":"Houseboats are cheapest booked in Alleppey itself, not online. A canoe reaches the narrow canals a houseboat physically cannot. Kochi to Munnar is 4-5 hours, not 3."},{"n":"Jaipur","b":[10,11,12,1,2],"q":[5,6,7],"c":[1100,2600,8000],"f":["Dal baati churma","Laal maas","Pyaaz kachori"],"g":["Panna Meena ka Kund","Chand Baori (Abhaneri)","Nahargarh at sunset"],"l":"April to June hits 45C — not sightseeing weather. Composite monument tickets save real money. Jaipur to Jaisalmer is 10+ hours; take the overnight train."},{"n":"Varanasi","b":[10,11,12,1,2],"q":[5,6,7],"c":[900,2200,6000],"f":["Kachori sabzi","Malaiyo (winter only)","Banarasi paan"],"g":["Sunrise boat from Assi ghat","Sarnath","Ramnagar Fort"],"l":"Go at dawn — the ghats are a different place before 7am. Malaiyo only exists in winter mornings. Fixed boat rates are posted; ignore the first quote."},{"n":"Ziro Valley","b":[3,4,9,10],"q":[1,2,12],"c":[1200,2800,6000],"f":["Bamboo shoot curry","Smoked pork","Apong rice beer"],"g":["Talley Valley trek","Hong village","Pine groves at Hapoli"],"l":"You need an Inner Line Permit and the drive from Naharlagun is long and rough. This is a place that does not perform for tourists — which is the point."},{"n":"Munnar","b":[10,11,12,1,4],"q":[7,8,9],"c":[103,239,597],"f":["Kerala sadya","Appam with stew","Malabar biryani"],"g":["Top Station viewpoint at sunrise","Eravikulam National Park (Nilgiri tahr)","Anamudi peak trail"],"l":"Tea garden views are free from the road — skip the paid \"estate entry\" gates near the highway. Eravikulam caps at 3,600 visitors a day; book ahead in season."},{"n":"Coorg","b":[10,11,12,1,3],"q":[6,7,8],"c":[1200,2800,7000],"f":["Pandi curry (pork)","Kadambuttu","Coorg-style chicken curry"],"g":["Abbey Falls before the tour buses","Nagarhole tiger reserve safari","Chelavara waterfalls trek"],"l":"Coffee-picking season is Nov-Jan — most homestays let you join for free if you ask. Roads flood fast in July-August; check conditions before driving in."},{"n":"Hampi","b":[10,11,12,1,2],"q":[6,7,8],"c":[900,2200,5500],"f":["Thali on a banana leaf","Jolada rotti","Filter coffee"],"g":["Matanga Hill sunrise","Sunset from Hemakuta Hill","Coracle ride across the Tungabhadra"],"l":"April to June hits 42C among bare boulders with zero shade — brutal. Rent a bicycle, not a scooter; many ruins sit across the river reachable only by coracle or footbridge."},{"n":"Pondicherry","b":[10,11,12,1,2],"q":[5,6,7],"c":[1200,2600,6500],"f":["French-Tamil fusion","Fresh croissants","Filter coffee"],"g":["Auroville Matrimandir at sunrise","Paradise Beach boat crossing","White Town lanes before 8am"],"l":"White Town parking is a nightmare after 10am — walk or cycle in instead. Auroville needs an online slot booking; the meditation hall itself is silent viewing only."},{"n":"Rann of Kutch","b":[11,12,1,2],"q":[6,7,8],"c":[1500,3500,8500],"f":["Kutchi thali","Bajra rotla","Dabeli"],"g":["Full moon night on the white salt","Kalo Dungar (Black Hill) sunset","Hodka village crafts walk"],"l":"The salt crust is only walkable Nov-Feb — monsoon floods the Rann completely and it stays underwater the rest of the year. Book Rann Utsav tents months ahead; Bhuj homestays are the budget alternative."},{"n":"Havelock Island","b":[11,12,1,2,3],"q":[6,7,8],"c":[1800,4000,9500],"f":["Fresh grilled fish","Andaman crab curry","Coconut prawn curry"],"g":["Elephant Beach snorkeling before the noon boats","Radhanagar Beach sunset","Kalapathar rocks at low tide"],"l":"Ferries from Port Blair sell out in season — book both legs the day you land. Cyclone season (Jun-Sep) can cancel ferries for days; build in buffer time if traveling then."},{"n":"Darjeeling","b":[3,4,5,10,11],"q":[7,8,9],"c":[1200,2800,6800],"f":["Momos","Thukpa","Darjeeling first-flush tea"],"g":["Tiger Hill sunrise over Kanchenjunga","Toy train up to Ghum","Tea estate walk at Happy Valley"],"l":"Kanchenjunga shows up clearly only about 1 morning in 3 — plan on two sunrise attempts at Tiger Hill. Toy train joy-ride slots sell out; book that specifically, not just the full route."},{"n":"Gangtok","b":[3,4,5,10,11],"q":[7,8,9],"c":[1300,3000,7200],"f":["Momos","Thukpa","Gundruk soup"],"g":["Tsomgo Lake at dawn before the tour convoy","Rumtek Monastery morning prayers","Zuluk’s zigzag Silk Route road"],"l":"Nathula and Tsomgo need permits arranged a day ahead through a registered agent — walk-ins get turned back. Roads shut without warning after landslides; keep a buffer day."},{"n":"McLeodganj","b":[3,4,5,9,10],"q":[1,2,8],"c":[1000,2400,5800],"f":["Tibetan momos","Thukpa","Israeli-Tibetan fusion cafes"],"g":["Triund trek at sunrise","Dalai Lama Temple morning prayers","Bhagsu waterfall before the crowds"],"l":"Triund works as a day trek but staying overnight at the top for sunrise is worth the extra weight. July-August brings leeches and landslide-prone roads — not the best trekking window despite decent weather."},{"n":"Jaisalmer","b":[11,12,1,2],"q":[5,6,7],"c":[1100,2600,7000],"f":["Dal baati churma","Ker sangri","Rajasthani thali"],"g":["Sam sand dunes at sunrise, before the sunset crowds","Kuldhara abandoned village","Desert National Park for the great Indian bustard"],"l":"April to June regularly crosses 45C in open desert — camel safaris go from uncomfortable to dangerous. Book overnight desert camps directly, not through street agents, to avoid bait-and-switch tents."},{"n":"Udaipur","b":[10,11,12,1,2],"q":[5,6,7],"c":[1300,3200,9000],"f":["Dal baati churma","Laal maas","Mirchi bada"],"g":["Sunset boat ride on Lake Pichola","Monsoon Palace at dawn before the crowds","Bagore ki Haveli evening dance show"],"l":"April to June is brutally hot for a city built around walking between palaces. Lake levels vary a lot by year — check current levels before booking a \"lake view\" room."},{"n":"Mysore","b":[10,11,12,1,2],"q":[5,6,7],"c":[900,2200,5500],"f":["Mysore pak","Mysore masala dosa","Bisi bele bath"],"g":["Mysore Palace lit up on Sunday evening","Chamundi Hill steps at dawn","Devaraja Market spice tour"],"l":"Palace illumination only runs Sunday evenings and during Dasara — time your visit or you will miss the famous lights. Dasara (Sep-Oct) triples hotel prices; book two months ahead if traveling then."},{"n":"Wayanad","b":[10,11,12,1,3],"q":[6,7,8],"c":[1200,2800,6800],"f":["Kerala sadya","Wayanad bamboo rice","Kappa with fish curry"],"g":["Edakkal Caves petroglyphs","Chembra Peak heart-shaped lake trek","Wayanad Wildlife Sanctuary night safari"],"l":"Chembra Peak needs a forest-department permit and guide — walk-ins get turned away in peak season. Wildlife safaris fill up online days ahead; do not rely on showing up at the gate."},{"n":"Auli","b":[12,1,2,4,5],"q":[6,7,8],"c":[1400,3200,7500],"f":["Garhwali thali","Aloo ke gutke","Bhang ki chutney"],"g":["Auli ropeway at sunrise before the ski crowds","Gorson Bugyal meadow trek","Nanda Devi viewpoint"],"l":"Skiing is only viable late December to early March with real snow — outside that window the slopes are just grass. The ropeway is the best cheap thrill even if you never ski."},{"n":"Kaziranga","b":[11,12,1,2,3],"q":[6,7,8],"c":[1500,3200,7500],"f":["Assamese thali","Khar","Duck curry"],"g":["Central Range jeep safari for one-horned rhinos","Elephant-back safari where available","Diphlu River birdwatching"],"l":"The park is fully closed mid-April through mid-October — monsoon floods the grasslands and animals move to higher ground outside the reserve. Jeep permits sell out at dawn; book the previous evening at the range office."},{"n":"Khajuraho","b":[10,11,12,1,2],"q":[6,7,8],"c":[900,2200,5800],"f":["Bundelkhandi thali","Poha","Kalakand sweets"],"g":["Western Group temples at opening time, before the buses","Sound and light show at the Western Group","Raneh Falls canyon"],"l":"Arrive at the Western Group gate at opening — by 10am tour buses from Jhansi flood the complex. The town itself is tiny; most travelers day-trip the Eastern and Southern temple groups by bicycle."},{"n":"Chopta","b":[4,5,9,10,11],"q":[1,7,8],"c":[900,2000,4500],"f":["Garhwali dal","Maggi at the trailhead dhabas","Bhatt ki churkani"],"g":["Tungnath — the world’s highest Shiva temple, at dawn","Chandrashila peak sunrise summit","Deoriatal lake reflecting Chaukhamba"],"l":"Tungnath-Chandrashila works as a day hike but the summit sunrise needs a pre-dawn start from Chopta itself. Snow can close the trail December to March — it is not a year-round trek."},{"n":"Leh","b":[6,7,8,9],"q":[1,2,12],"c":[1600,3500,8000],"f":["Thukpa","Momos","Skyu"],"g":["Pangong Lake at sunrise before the day-trippers","Magnetic Hill viewpoint","Nubra Valley dunes on a Bactrian camel"],"l":"Take a mandatory acclimatization day doing nothing on arrival — altitude sickness above 3,500m is not optional to skip. The Manali-Leh highway opens only around June and shuts by October; fly in outside that window."}]/*LITE-DATA-END*/;
+var MN=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+var $=function(i){return document.getElementById(i);},list=$('list'),det=$('det'),q=$('q'),sel=-1;
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+function months(a){return a.map(function(m){return MN[m-1];}).join(', ');}
+function inr(n){return '₹'+String(n).replace(/\B(?=(\d{3})+(?!\d))/g,',');}
+function paint(f){
+  var h='',i;f=(f||'').toLowerCase();
+  for(i=0;i<D.length;i++)if(!f||D[i].n.toLowerCase().indexOf(f)>-1)h+='<button type="button" class="chip" data-i="'+i+'" aria-pressed="'+(i===sel)+'">'+esc(D[i].n)+'</button>';
+  list.innerHTML=h||'<span class="m">No match. Try another name.</span>';
+}
+function show(i){
+  sel=i;var d=D[i];paint(q.value);
+  det.hidden=false;
+  det.innerHTML='<div style="font-weight:800;font-size:18px">'+esc(d.n)+'</div>'
+   +'<div class="row"><span>Best weather</span><b>'+months(d.b)+'</b></div>'
+   +'<div class="row"><span>Quietest months</span><b>'+months(d.q)+'</b></div>'
+   +'<div class="row"><span>Per day, budget</span><b>'+inr(d.c[0])+'</b></div>'
+   +'<div class="row"><span>Per day, comfortable</span><b>'+inr(d.c[1])+'</b></div>'
+   +'<div class="row"><span>Per day, luxury</span><b>'+inr(d.c[2])+'</b></div>'
+   +(d.l?'<p style="margin:10px 0 4px">'+esc(d.l)+'</p>':'')
+   +(d.f.length?'<p class="m" style="margin:4px 0"><b>Eat:</b> '+esc(d.f.join(', '))+'</p>':'')
+   +(d.g.length?'<p class="m" style="margin:4px 0"><b>Off the beaten path:</b> '+esc(d.g.join(', '))+'</p>':'');
+}
+list.addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('[data-i]');if(b)show(+b.getAttribute('data-i'));});
+q.addEventListener('input',function(){paint(q.value);});
+paint('');
+/* "Open full app" remembers the choice for this session so the main page does not send you back here */
+function full(){try{sessionStorage.setItem('rw_full','1');}catch(e){}}
+$('full').addEventListener('click',full);$('full2').addEventListener('click',full);
+/* E-Cell NMIMS card: same switch as the full app (partnerships/nmims2026.officialConfirmed). Nothing shown unless set. */
+(function(){
+  var IST=5.5*3600000,date='2026-10-15',t;
+  function start(d){var p=d.split('-');return Date.UTC(+p[0],+p[1]-1,+p[2])-IST;}
+  function two(n){return (n<10?'0':'')+n;}
+  function tick(){
+    var left=start(date)-Date.now(),c=$('nmCnt');
+    if(left<=-86400000){$('nm').hidden=true;clearInterval(t);return;}
+    if(left<=0){c.textContent='Today is the day';return;}
+    var s=Math.floor(left/1000);c.textContent=Math.floor(s/86400)+'d '+two(Math.floor(s%86400/3600))+'h '+two(Math.floor(s%3600/60))+'m '+two(s%60)+'s';
+  }
+  try{
+    fetch('https://firestore.googleapis.com/v1/projects/roamwisepro/databases/(default)/documents/partnerships/nmims2026?key=AIzaSyDlrtpzpOb1VEmVSd9tHmu7OpmvwWosYsU')
+    .then(function(r){return r.ok?r.json():null;}).then(function(j){
+      var f=j&&j.fields;if(!f||!f.officialConfirmed||f.officialConfirmed.booleanValue!==true)return;
+      if(f.bannerOn&&f.bannerOn.booleanValue===false)return;
+      var d=f.eventDate&&f.eventDate.stringValue;if(d&&/^\d{4}-\d{2}-\d{2}$/.test(d))date=d;
+      var n=f.eventName&&f.eventName.stringValue;$('nmName').textContent=(n||'E-Cell NMIMS event').replace(/[<>]/g,' ').slice(0,80);
+      $('nm').hidden=false;tick();t=setInterval(tick,1000);
+    }).catch(function(){});
+  }catch(e){}
+})();
+})();
+</script>
+</body>
+</html>

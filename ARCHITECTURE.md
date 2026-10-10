@@ -1262,6 +1262,13 @@ round 5"'s own advice) remains the source of truth.
   `rw_opening`), ads (`js/misc/adsense-whatsapp.js`: never on slow, after boot otherwise),
   home photos (`js/ui/card-painter.js`: after boot, capped, smaller), service-worker install
   (`js/runtime/freshness.js`: after boot). The tier only ever gets slower within a visit.
+- **Lite site** (`lite/index.html`, ~18 KB raw / ~8 KB gzip, no external requests, `noindex`):
+  India destination guide (best/quietest months, daily budgets, local tip), emergency numbers, and the
+  E-Cell NMIMS card (same Firestore flag as the full app). Its data block is generated from
+  `js/data/destinations.js` by `tools/build-lite.cjs` (`npm run lite:build`; `lite:check` runs in
+  `npm run check`). `#rw-net` sends only a first-visit 2G/GPRS user on the bare home URL to `/lite/`
+  (`__RW_NET.wantsLite`); other slow-tier users get a "Taking long? Open the light version" link on the
+  loading veil. "Open full app" sets `sessionStorage.rw_full` and uses `/?full=1`.
 - **Boot watchdog**: inline `#rw-watchdog` in `<head>` + `js/boot/boot-ok.js` (last
   script, sets `__RW_BOOTED`). Slow start → Reload banner at 15 s. Page loaded but app
   dead → one automatic repair per 10 min (drops service worker + caches, never user data).

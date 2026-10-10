@@ -87,10 +87,28 @@
   /* only ever move toward slower during a visit, so a flaky reading cannot re-enable heavy loads */
   if(c&&c.addEventListener)c.addEventListener('change',function(){var t=classify();if(order.indexOf(t)>order.indexOf(net.tier)){net.tier=t;paint();}});
   net.slow=function(){return net.tier!=='fast';};
+  /* Light version (/lite/, about 8 KB gzip). Automatic only for a first visit on a 2G/GPRS link to the
+     bare home URL: no cached app yet, no query or hash to lose (referral and pass links keep working),
+     not inside the native app, and not after "Open full app". Everyone else on a slow link is offered it
+     on the loading screen below. */
+  function wantsLite(et,search,hash,path,fullChosen,hasWorker,inApp){
+    return (et==='slow-2g'||et==='2g')&&!search&&!hash&&(path==='/'||path==='/index.html')&&!fullChosen&&!hasWorker&&!inApp;
+  }
+  net.wantsLite=wantsLite;
+  try{
+    var fullChosen=false;try{fullChosen=!!w.sessionStorage.getItem('rw_full');}catch(x){}
+    if(c&&wantsLite(c.effectiveType||'',w.location.search,w.location.hash,w.location.pathname,fullChosen,!!(n.serviceWorker&&n.serviceWorker.controller),!!w.RW))w.location.replace('/lite/');
+  }catch(x){}
   /* veil: honest message + real progress while scripts arrive on a slow link */
   if(net.tier!=='fast'){
+    var ticks=0;
     var iv=setInterval(function(){
       var v=d.getElementById('rwVeil');if(!v){if(w.__RW_BOOTED)clearInterval(iv);return;}
+      if(++ticks>=6&&!d.getElementById('rwLiteOffer')){
+        var a=d.createElement('a');a.id='rwLiteOffer';a.href='/lite/';a.textContent='Taking long? Open the light version';
+        a.style.cssText='margin-top:6px;padding:10px 16px;border:1px solid rgba(232,186,108,.6);border-radius:12px;color:#e8ba6c;text-decoration:none;font:700 14px system-ui,sans-serif';
+        v.appendChild(a);
+      }
       var total=d.querySelectorAll('script[src]').length||1,done=0,r=w.performance.getEntriesByType('resource'),i;
       for(i=0;i<r.length;i++)if(r[i].initiatorType==='script'&&r[i].responseEnd>0)done++;
       var pct=Math.min(99,Math.round(done*100/total)),sm=v.querySelector('small');
