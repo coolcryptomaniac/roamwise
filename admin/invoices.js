@@ -46,11 +46,16 @@ function render(){
   [['Revenue (ex-GST)',p.total.revenuePaise],['GST collected (liability)',p.total.gstCollectedPaise],['Recorded expenses',p.total.expensePaise],['Profit (provisional)',p.total.profitPaise]].forEach(function(x){var d=el('div','card');d.appendChild(el('small',null,x[0]));d.appendChild(el('div',null,inr(x[1])));c.appendChild(d);});
   $('pnlWarn').replaceChildren();p.warnings.forEach(function(w){$('pnlWarn').appendChild(el('li',null,w));});
 }
+function workerBase(){
+  var c=window.RW_CONFIG||{};if(c.workerUrl)return Promise.resolve(c.workerUrl);
+  return db.doc('config/app').get().then(function(d){var u=d.exists?String(d.data().WORKER_URL||''):'';return /^https:\/\//.test(u)?u:'';}).catch(function(){return '';});
+}
 function sweep(){
-  var u=auth.currentUser,url=typeof rwApi==='function'?rwApi('admin/invoices/sweep'):null;
-  if(!url){say('status','Worker URL is not configured, so the automatic issuer is unavailable. It runs daily once the Worker is deployed.');return;}
-  $('sweep').disabled=true;say('status','Issuing invoices…');
-  u.getIdToken().then(function(t){return fetch(url,{method:'POST',headers:{authorization:'Bearer '+t}});}).then(function(r){return r.json().then(function(j){if(!r.ok)throw new Error(j.message||j.error||r.status);return j;});})
+  var u=auth.currentUser;$('sweep').disabled=true;say('status','Issuing invoices…');
+  workerBase().then(function(base){
+    if(!base)throw new Error('Worker URL is not set (config/app WORKER_URL). Invoices are still issued by the daily Worker run.');
+    return u.getIdToken().then(function(t){return fetch(base.replace(/\/+$/,'')+'/admin/invoices/sweep',{method:'POST',headers:{authorization:'Bearer '+t}});});
+  }).then(function(r){return r.json().then(function(j){if(!r.ok)throw new Error(j.message||j.error||r.status);return j;});})
    .then(function(j){say('status','Issued '+j.issued.length+' invoice(s)'+(j.errors&&j.errors.length?'; '+j.errors.length+' error(s): '+j.errors[0]:'')+(j.remaining?'; '+j.remaining+' more waiting, run again.':'.'));return reload();})
    .catch(function(e){say('status','Could not issue invoices: '+(e&&e.message||e));}).then(function(){$('sweep').disabled=false;});
 }
