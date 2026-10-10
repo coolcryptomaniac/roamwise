@@ -56,6 +56,49 @@
 @media (prefers-reduced-motion:reduce){#rwVeil i::after{animation:none;width:100%}}
 </style>
 <noscript><style>#rwVeil{display:none}</style></noscript>
+<script id="rw-net">
+/* Network tier. Decides how much optional weight (opening film, sound, ads, photos,
+   service-worker install) the first visit may pull while the app is still starting.
+   Tiers: vslow (GPRS/2G, Data Saver), slow (3G / under ~0.6 Mbps), medium (under ~2.5 Mbps),
+   fast. Uses the Network Information API where it exists (Chrome/Android); elsewhere it
+   measures how fast the HTML itself arrived. Only ever reads, never blocks. */
+(function(){
+  var w=window,d=document,n=w.navigator,c=n.connection||n.mozConnection||n.webkitConnection||null;
+  var order=['fast','medium','slow','vslow'];
+  function classify(){
+    var et=c&&c.effectiveType||'',dl=c&&+c.downlink||0,rtt=c&&+c.rtt||0,sd=!!(c&&c.saveData);
+    if(sd||et==='slow-2g'||et==='2g'||(dl&&dl<0.15))return 'vslow';
+    if(et==='3g'||(dl&&dl<0.6)||rtt>=700)return 'slow';
+    if((dl&&dl<2.5)||rtt>=300)return 'medium';
+    return 'fast';
+  }
+  function measured(){
+    try{
+      var e=w.performance.getEntriesByType('navigation')[0];
+      if(!e||!e.encodedBodySize||e.encodedBodySize<30000||!e.transferSize)return 'fast';
+      var ms=e.responseEnd-e.responseStart;if(ms<50)return 'fast';
+      var kbps=e.encodedBodySize*8/ms;
+      return kbps<80?'vslow':kbps<500?'slow':kbps<2000?'medium':'fast';
+    }catch(x){return 'fast';}
+  }
+  var net=w.__RW_NET={tier:c?classify():measured(),saveData:!!(c&&c.saveData),known:!!c};
+  function paint(){var h=d.documentElement,i;for(i=0;i<order.length;i++)h.classList.remove('rw-net-'+order[i]);h.classList.add('rw-net-'+net.tier);}
+  paint();
+  /* only ever move toward slower during a visit, so a flaky reading cannot re-enable heavy loads */
+  if(c&&c.addEventListener)c.addEventListener('change',function(){var t=classify();if(order.indexOf(t)>order.indexOf(net.tier)){net.tier=t;paint();}});
+  net.slow=function(){return net.tier!=='fast';};
+  /* veil: honest message + real progress while scripts arrive on a slow link */
+  if(net.tier!=='fast'){
+    var iv=setInterval(function(){
+      var v=d.getElementById('rwVeil');if(!v){if(w.__RW_BOOTED)clearInterval(iv);return;}
+      var total=d.querySelectorAll('script[src]').length||1,done=0,r=w.performance.getEntriesByType('resource'),i;
+      for(i=0;i<r.length;i++)if(r[i].initiatorType==='script'&&r[i].responseEnd>0)done++;
+      var pct=Math.min(99,Math.round(done*100/total)),sm=v.querySelector('small');
+      if(sm)sm.textContent=(net.tier==='vslow'?'Very slow connection. ':'Slow connection. ')+'Loading the essentials, '+pct+'%';
+    },700);
+  }
+})();
+</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="google-adsense-account" content="ca-pub-4943859484482348">
 <meta name="theme-color" content="#080B18">

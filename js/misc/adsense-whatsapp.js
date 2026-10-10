@@ -46,7 +46,18 @@ var WA_NUMBER='', WA_CHANNEL='', WA_GROUP='';
       });
     }
   }
-  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', loadAds); else loadAds();
+  /* Ads are optional weight (about 250 KB of third-party script before the first ad).
+     Never load them on slow links or Data Saver, and elsewhere only once the app has started. */
+  var adsQueued=false;
+  function loadAdsLater(){
+    if(adsQueued) return; adsQueued=true;
+    var net=window.__RW_NET||{tier:'fast'};
+    if(net.tier==='slow'||net.tier==='vslow') return;
+    var fired=false, go=function(){ if(fired) return; fired=true; loadAds(); };
+    if(window.__RW_BOOTED) setTimeout(go,3000);
+    else { window.addEventListener('rw:booted',function(){ setTimeout(go,3000); }); setTimeout(go,45000); }
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', loadAdsLater); else loadAdsLater();
   ensureWaButton();
 })();
 /* Global + idempotent so remote config can create it after the fact. */

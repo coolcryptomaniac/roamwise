@@ -147,6 +147,19 @@ function rwLoadPhotoMap(){
 }
 function rwPaintPhotos(rowEl, list){
   if(!rowEl || !list || !list.length) return;
+  /* Slow links: photos come from Wikipedia + an image proxy, roughly 30 requests and 1 MB on
+     the home page alone. Hold them until the app has started, load fewer, and ask for
+     smaller files. The gradient + emoji cards already work without them. */
+  var net = window.__RW_NET || {tier:'fast'}, slowNet = net.tier !== 'fast';
+  if(slowNet){
+    if(!window.__RW_BOOTED){
+      window.addEventListener('rw:booted', function(){ setTimeout(function(){ rwPaintPhotos(rowEl, list); }, 1500); }, {once:true});
+      return;
+    }
+    var cap = net.tier === 'vslow' ? 0 : net.tier === 'slow' ? 4 : 8;
+    if(!cap) return;
+    list = list.slice(0, cap);
+  }
   var cards = rowEl.querySelectorAll('.pcard');
   /* The weserv proxy was 404-ing on Wikimedia thumbnail paths (their %-encoded
      filenames don't survive proxying). Wikimedia URLs load DIRECTLY in the
@@ -167,7 +180,7 @@ function rwPaintPhotos(rowEl, list){
        open CORS. The critical detail my first attempt got wrong: the ENTIRE
        source URL must be percent-encoded (encodeURIComponent), otherwise the
        %-sequences already in Wikimedia filenames corrupt the proxy request. */
-    return 'https://images.weserv.nl/?url='+encodeURIComponent(url)+'&w=340&h=460&fit=cover&output=jpg&q=80';
+    return 'https://images.weserv.nl/?url='+encodeURIComponent(url)+(slowNet?'&w=240&h=330&fit=cover&output=jpg&q=60':'&w=340&h=460&fit=cover&output=jpg&q=80');
   }
   function loadInto(url, ci){
     return new Promise(function(res){

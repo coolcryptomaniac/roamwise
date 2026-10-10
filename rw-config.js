@@ -75,6 +75,10 @@ window.rwApi = function(path){
   var seen = false;
   try { seen = localStorage.getItem('rw_opening') === '1'; } catch (_) {}
   if (!seen) { try { seen = sessionStorage.getItem('rw_intro') === '1'; } catch (_) {} }
+  /* The film and its sound are 3.3 MB. On anything slower than a fast link they would
+     compete with the scripts the app needs to start, so skip them this time. Nothing is
+     written to localStorage, so the film still plays on a later visit over a fast link. */
+  if (!seen && window.__RW_NET && window.__RW_NET.tier !== 'fast') seen = true;
   window.__RW_INTRO_SHOULD_SHOW = !seen;
 
   if (!seen) {

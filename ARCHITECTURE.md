@@ -1253,6 +1253,15 @@ round 5"'s own advice) remains the source of truth.
   swap. Before this, a stalled `gstatic.com`/`cdnjs` request meant a black screen.
 - **Opening film plays once per device**: `rw-config.js` reads `localStorage.rw_opening`
   (written when the film mounts). Cleared site data plays it again.
+- **Loading veil** (`#rwVeil`, first child of `<body>`): hides the unfinished page (no tabs,
+  every section stacked) until `__RW_BOOTED`; always lifts by 20 s.
+- **Network tiers** (inline `#rw-net` in `<head>` sets `window.__RW_NET.tier` =
+  `fast|medium|slow|vslow` and an `rw-net-*` class on `<html>`; Network Information API, else
+  measured HTML speed, else `fast`). Anything optional must key off it and stay off the
+  critical path unless `fast`: opening film + sound (`rw-config.js`, skipped without writing
+  `rw_opening`), ads (`js/misc/adsense-whatsapp.js`: never on slow, after boot otherwise),
+  home photos (`js/ui/card-painter.js`: after boot, capped, smaller), service-worker install
+  (`js/runtime/freshness.js`: after boot). The tier only ever gets slower within a visit.
 - **Boot watchdog**: inline `#rw-watchdog` in `<head>` + `js/boot/boot-ok.js` (last
   script, sets `__RW_BOOTED`). Slow start → Reload banner at 15 s. Page loaded but app
   dead → one automatic repair per 10 min (drops service worker + caches, never user data).
