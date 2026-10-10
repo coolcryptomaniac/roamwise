@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#07090F">
+<title>Claim your RoamWise pass | E-Cell NMIMS</title>
+<meta name="description" content="How E-Cell NMIMS pass-holders claim free lifetime Founder Pro on RoamWise: steps, rules and help. Light page, loads fast on slow connections.">
+<link rel="icon" href="/icons/favicon-32.png">
+<style>
+:root{color-scheme:dark;--bg:#07090f;--card:#12162a;--ink:#ede8df;--mut:#b8b5bd;--gold:#e8ba6c;--line:#ffffff22;--grn:#16bf96;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(120% 60% at 50% -10%,#3a1630 0,#07090f 60%);color:var(--ink);line-height:1.55}
+.w{max-width:680px;margin:0 auto;padding:18px 16px 40px}
+.brand{font-weight:900;letter-spacing:.12em;font-size:13px;color:var(--gold);text-decoration:none}
+h1{font-size:26px;line-height:1.2;margin:14px 0 6px}h2{font-size:17px;margin:26px 0 8px;color:var(--gold)}
+p{margin:6px 0;color:var(--ink)}small,.m{color:var(--mut)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin:12px 0}
+.count{font:900 28px/1.1 ui-monospace,Menlo,monospace;letter-spacing:.03em;color:#ffe0ae;font-variant-numeric:tabular-nums}
+ol{padding-left:0;list-style:none;counter-reset:s;margin:8px 0}
+ol li{counter-increment:s;position:relative;padding:8px 0 8px 40px;border-top:1px solid var(--line)}
+ol li:first-child{border-top:0}
+ol li::before{content:counter(s);position:absolute;left:0;top:8px;width:28px;height:28px;border-radius:50%;background:var(--gold);color:#0b1020;font-weight:800;display:grid;place-items:center}
+code{background:#ffffff14;border-radius:6px;padding:1px 6px;font-size:.92em;word-break:break-all}
+ul{margin:6px 0;padding-left:20px}li{margin:3px 0}
+.btn{display:inline-block;margin:8px 8px 0 0;padding:12px 18px;border-radius:12px;font-weight:800;text-decoration:none;color:#0b1020;background:linear-gradient(95deg,#c8913e,#e8ba6c)}
+.btn.g{background:none;color:var(--ink);border:1px solid var(--line)}
+a{color:var(--gold)}footer{margin-top:28px;font-size:12.5px;color:var(--mut)}
+</style>
+</head>
+<body>
+<div class="w">
+<a class="brand" href="/">ROAMWISE × E-CELL NMIMS</a>
+<h1>Claim your free lifetime Founder Pro pass</h1>
+<p class="m">For E-Cell NMIMS organisers and participating students. The first 500 passes: 50 for organisers and 450 for students and audience.</p>
+
+<div class="card" id="cd" aria-live="polite">
+  <div class="m" id="cdLabel">Event day</div>
+  <div class="count" id="cdTime" role="timer">15 October 2026</div>
+</div>
+
+<h2>How to claim, in 5 steps</h2>
+<div class="card">
+<ol>
+<li><b>Get your personal pass code from E-Cell.</b> It looks like <code>NMIMS-STU-0123-XXXXXXXXXXXXX</code>. Each code is single-use. A poster QR only opens the redeem form and never gives you a pass, so ask your E-Cell coordinator.</li>
+<li><b>Open RoamWise</b> at <a href="/">roamwise.co.in</a> in Chrome or Safari (or the app).</li>
+<li><b>Sign in</b> with Google or email, and <b>verify your email</b>. The code only works on a verified account.</li>
+<li><b>Tap "I have a pass → Redeem"</b> on the home page. You can also open the menu and choose <b>Redeem code</b>.</li>
+<li><b>Paste your code.</b> A congratulations card appears and Founder Pro turns on for life.</li>
+</ol>
+<a class="btn" href="/?redeem=1">Open RoamWise</a>
+</div>
+
+<h2>Good to know</h2>
+<div class="card"><ul>
+<li><b>One code per person.</b> If your account already has Pro, the code is not used. Give it to a friend instead.</li>
+<li><b>Redeem within 30 days</b> of the day E-Cell issued it. After that it expires. Pro you have already activated stays.</li>
+<li>Passes can't be bought, sold or swapped. A lost card can be cancelled by E-Cell and replaced.</li>
+<li>Travel-safety and survival tools stay <b>free for everyone</b>. You never need a pass for those.</li>
+<li>Got no pass? Founder Pro is ₹100 for life for the first 1,000 Pro members, then standard prices apply. If you buy, enter <code>NMIMS2026</code> as the referral code so E-Cell NMIMS is credited. It does not change your price.</li>
+</ul></div>
+
+<h2>Problems?</h2>
+<div class="card">
+<p><b>Code not found:</b> check for a missed character or a 0 vs O mix-up, then try again.</p>
+<p><b>Still stuck:</b> email <a href="mailto:support@roamwise.co.in">support@roamwise.co.in</a> or join the <a href="https://chat.whatsapp.com/EofM9cGCVkoCtdG6Ozhh1G" rel="noopener">RoamWise Customer group on WhatsApp</a>. Include your pass code and the email you signed in with.</p>
+</div>
+
+<footer>RoamWise uses your name, verified email and pass status only to issue and redeem your pass. Aggregate results are shared with E-Cell; marketing messages are always a separate opt-in. See the <a href="/privacy.html">privacy policy</a>. This page does not create or sell passes.</footer>
+</div>
+<script>
+(function(){
+  var DEF='2026-10-15',IST=5.5*3600000,el=document.getElementById('cdTime'),lb=document.getElementById('cdLabel'),date=DEF,t;
+  var M=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  function start(d){var p=d.split('-');return Date.UTC(+p[0],+p[1]-1,+p[2])-IST;}
+  function fmt(d){var p=d.split('-');return (+p[2])+' '+M[+p[1]-1]+' '+p[0];}
+  function two(n){return (n<10?'0':'')+n;}
+  function tick(){
+    var left=start(date)-Date.now();
+    if(left<=-86400000){lb.textContent='The event has finished';el.textContent='Thank you, NMIMS!';clearInterval(t);return;}
+    if(left<=0){lb.textContent=fmt(date);el.textContent='Today is the day';return;}
+    var s=Math.floor(left/1000);lb.textContent='Event day · '+fmt(date);
+    el.textContent=Math.floor(s/86400)+'d '+two(Math.floor(s%86400/3600))+'h '+two(Math.floor(s%3600/60))+'m '+two(s%60)+'s';
+  }
+  tick();t=setInterval(tick,1000);
+  /* optional: event date set by the founder in Firestore partnerships/nmims2026.eventDate (public read) */
+  try{
+    fetch('https://firestore.googleapis.com/v1/projects/roamwisepro/databases/(default)/documents/partnerships/nmims2026?key=AIzaSyDlrtpzpOb1VEmVSd9tHmu7OpmvwWosYsU')
+      .then(function(r){return r.ok?r.json():null;}).then(function(j){
+        var v=j&&j.fields&&j.fields.eventDate&&j.fields.eventDate.stringValue;
+        if(v&&/^\d{4}-\d{2}-\d{2}$/.test(v)){date=v;tick();}
+      }).catch(function(){});
+  }catch(e){}
+})();
+</script>
+</body>
+</html>

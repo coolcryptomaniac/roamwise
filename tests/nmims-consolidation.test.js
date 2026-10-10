@@ -12,7 +12,7 @@ test('one canonical proposal preserves the complete proposed 50/450 offer', () =
   for (const expected of ['50 passes for the organising team', '450 for eligible NMIMS students and participating audience', '2 collaborative Reels', '4 Stories', '1 LinkedIn post', '2 campus/community pushes', '30%', '/nmims/mou/', '/nmims/creators/']) {
     assert.ok(proposal.includes(expected), `Missing offer element: ${expected}`);
   }
-  assert.match(proposal, /PROPOSAL ONLY · NOT LIVE/);
+  assert.match(proposal, /MOU SIGNED · 10 OCT 2026/);
   assert.doesNotMatch(proposal, /\b(?:Tannu|Deepanshi|Abhay)\b|<form\b|firebase\.initializeApp|submitClaim\(/i);
   // Match actual sponsor-tier labels, not the legitimate phrase "in-kind partnership".
   assert.doesNotMatch(proposal, /\b(?:Title Sponsor|Category Partner|Kind Partner)\s*[:<]|electronically signed/i);
@@ -48,7 +48,7 @@ test('only current unsigned MOU is linked; no invented signature, self-claim, or
 });
 
 test('NMIMS referral remains a non-active seed until agreement, while operational code survives', () => {
-  assert.match(read('referral-data.js'), /code:'NMIMS2026'[^\n]*active:false/);
+  assert.match(read('referral-data.js'), /code:'NMIMS2026'[^\n]*active:true/);
   assert.ok(fs.existsSync(path.join(__dirname, '../nmims/pass-issuer/pass-utils.js')));
   assert.ok(fs.existsSync(path.join(__dirname, '../nmims/pass-issuer/index.html')));
   assert.ok(fs.existsSync(path.join(__dirname, '../nmims/creators/index.html')));

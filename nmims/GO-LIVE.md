@@ -1,6 +1,10 @@
 # NMIMS go-live checklist (founder steps)
 
-Do Part A now. Do Part B only after Tannu returns the countersigned MOU. Part C after the event.
+**Status (10 Oct 2026): the MOU is signed by both parties** (Mohit Pandey 9 Oct, E-Cell NMIMS 10 Oct). Part B is now unlocked. Still open in the signed text (MOU section 9): legal entity names and addresses, the event name/date/venue, final 50/450 eligibility, the privacy/consent wording, and the **commission settlement schedule** (payee, base, invoice and tax details, section 7). Settle that in writing with E-Cell before the first payout.
+
+Student instructions live at `https://roamwise.co.in/nmims/redeem/` (linked from the home-page event card as "How it works"). Share that link with the coordinator.
+
+Do Part A now. Do Part B now that the MOU is countersigned. Part C after the event.
 
 ## Part A. Ship the code (no public effect yet)
 

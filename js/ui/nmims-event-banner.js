@@ -60,6 +60,10 @@
     btn.style.cssText='margin-top:12px;border:0;border-radius:10px;padding:10px 16px;font:800 13px inherit;cursor:pointer;color:#0B1020;background:linear-gradient(95deg,#C8913E,#E8BA6C)';
     btn.onclick=function(){ try{ if(typeof openPartnerRedeem==='function') openPartnerRedeem(); }catch(e){} };
     box.appendChild(btn);
+    var how=document.createElement('a');
+    how.href='/nmims/redeem/'; how.textContent='How it works';
+    how.style.cssText='margin-left:14px;font:700 13px inherit;color:#E8BA6C;text-decoration:underline';
+    box.appendChild(how);
     return box;
   }
   function fmtDate(date){
