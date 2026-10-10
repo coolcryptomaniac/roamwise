@@ -59,3 +59,7 @@ AI output is advisory. Registration, returns, tax payments, audit/certification,
 - **Immediately:** human CA/legal review before switching from listing/lead-generation into accommodation booking-money collection or enabling an unregistered accommodation supplier for live marketplace booking.
 
 The sentinel is designed to preserve evidence and stop risky mode changes early; it does not claim that software can make RoamWise immune from tax, bank, consumer or regulatory obligations.
+
+## Invoices
+
+Per-payment invoices, the sales register, GST summary, monthly P&L and bank matching live in `features/invoicing/` (admin page `/admin/invoices.html`). They read the same `payments` and `ledger` records and add an append-only `invoices` collection; see `features/invoicing/README.md`.

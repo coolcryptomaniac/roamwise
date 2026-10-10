@@ -53,6 +53,7 @@ function renderOrders(){
     var card=element('article','record');var head=element('div','record-top');
     head.append(element('div','record-title',String(o.planId||'One-time RoamWise purchase').replace(/[_-]/g,' ')),statusBadge(paid?'PAID · VERIFIED':pending?'CHECK REQUIRED':status,paid?'good':pending?'warn':'bad'));card.append(head);
     var meta=element('div','record-meta');meta.append(line('Amount',money(o.amountINR)),line('Created',dateLabel(o.createdAt)),line('Order',o.id));card.append(meta);
+    if(paid){var inv=element('a','button secondary','View invoice');inv.href='./invoice.html?id=pay_'+encodeURIComponent(o.id);inv.style.display='inline-block';card.append(inv);}
     var note=element('div','record-note'+(pending?' important':''),paid?'Cashfree payment and account fulfillment are recorded.':pending?'Payment is not confirmed here. Check this existing order before any new payment.':'This order is not marked as paid. If your bank was debited, contact support with the order ID.');card.append(note);
     if(pending){var actions=element('div','record-actions');var button=element('button','button secondary','Check this order');button.type='button';button.addEventListener('click',function(){verify(o,button,note);});actions.append(button);card.append(actions);}
     target.append(card);

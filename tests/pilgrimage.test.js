@@ -2,7 +2,7 @@
 const test = require('node:test'), assert = require('node:assert/strict'), fs = require('node:fs'), path = require('node:path');
 const { JSDOM } = require('jsdom');
 const repo = path.resolve(__dirname, '..');
-const ids = ['pilgrimage', 'char-dham', 'panch-kedar', 'kumbh', 'vaishno-devi', 'kashi', 'tirupati', 'ayodhya', 'dwarka-somnath', 'puri-konark', 'amarnath', 'shirdi', 'bodh-gaya', 'rameswaram-madurai'];
+const ids = ['pilgrimage', 'char-dham', 'panch-kedar', 'kumbh', 'vaishno-devi', 'kashi', 'tirupati', 'ayodhya', 'dwarka-somnath', 'puri-konark', 'amarnath', 'shirdi', 'bodh-gaya', 'rameswaram-madurai', 'kasar-devi-almora', 'jageshwar', 'adi-kailash', 'kailash-mansarovar'];
 function boot(id, pro = false, speech) {
   const base = path.join(repo, id), html = fs.readFileSync(path.join(base, 'index.html'), 'utf8');
   const d = new JSDOM(html, { url: 'https://roamwise.co.in/' + id + '/', runScripts: 'outside-only' }), w = d.window;
@@ -17,7 +17,7 @@ test('all pilgrimage entries load with strict CSP, valid local assets and no inv
     const d = boot(id), doc = d.window.document, base = path.join(repo, id), html = fs.readFileSync(path.join(base, 'index.html'), 'utf8');
     assert.match(html, /connect-src 'none'/); assert.doesNotMatch(html, /<script(?![^>]*src=)|\sstyle=|\sonclick=/);
     for (const node of doc.querySelectorAll('script[src],link[rel="stylesheet"]')) assert.ok(fs.existsSync(path.resolve(base, node.getAttribute('src') || node.getAttribute('href'))));
-    assert.equal(doc.querySelectorAll('.journey-card').length, 14);
+    assert.equal(doc.querySelectorAll('.journey-card').length, 18);
     if (id !== 'pilgrimage') { assert.match(doc.getElementById('source-age').textContent, /not an imported live feed/); assert.equal(doc.getElementById('standard-begin').disabled, true); assert.ok(doc.querySelector('a[href="tel:112"]')); }
     d.window.close();
   }

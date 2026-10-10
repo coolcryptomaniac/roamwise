@@ -1,0 +1,10 @@
+.inv{background:#fff;color:#14161c;font:14px/1.5 system-ui,-apple-system,sans-serif;max-width:760px;margin:0 auto;padding:28px;border-radius:10px}
+.inv-head{display:flex;justify-content:space-between;gap:18px;flex-wrap:wrap;border-bottom:2px solid #14161c;padding-bottom:14px}
+.inv-seller{margin:0 0 4px;font-size:20px}.inv-title{margin:0 0 6px;font-size:22px;text-align:right}
+.inv-line{margin:2px 0;color:#444}.inv-kv{display:flex;justify-content:space-between;gap:16px}.inv-k{color:#666}.inv-v{font-weight:600}
+.inv-bill{margin:16px 0}.inv-bill h3{margin:0 0 4px;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:#666}
+.inv-table{width:100%;border-collapse:collapse;margin:8px 0}.inv-table th,.inv-table td{border-bottom:1px solid #ddd;padding:8px 6px;text-align:left}.inv-table .num,.inv-table th:nth-child(n+3){text-align:right}
+.inv-totals{max-width:320px;margin:12px 0 0 auto}.inv-grand{border-top:2px solid #14161c;margin-top:6px;padding-top:6px;font-size:16px}
+.inv-words{margin:12px 0;font-style:italic}.inv-note,.inv-foot{color:#666;font-size:12px}
+.inv-flags{background:#fff6e0;border:1px solid #e8ba6c;padding:8px 8px 8px 26px;font-size:12px;color:#5a4300}
+@media print{body{background:#fff!important}body *{visibility:hidden}.inv,.inv *{visibility:visible}.inv{position:absolute;left:0;top:0;width:100%;border-radius:0;padding:0}.inv-flags{display:none}}

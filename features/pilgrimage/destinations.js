@@ -108,6 +108,38 @@
         preparation: { en: "Check darshan timings and any dress guidance with each temple and the district administration. Plan the two towns as separate days and carry water in the heat.", hi: "दर्शन समय और वस्त्र संबंधी निर्देश हर मंदिर और जिला प्रशासन से जाँच लें। दोनों नगरों को अलग दिनों की योजना मानें और गर्मी में पानी साथ रखें।" },
         dates: { en: "Festival dates and special arrangements are announced by the temples and district authorities. No date is imported into this page.", hi: "पर्व तिथियाँ और विशेष व्यवस्था मंदिर और जिला प्रशासन घोषित करते हैं। इस पेज में कोई तिथि आयात नहीं की गई है।" },
         sources: [["Ramanathapuram district", 'https://ramanathapuram.nic.in/'], ["Madurai district", 'https://madurai.nic.in/']]
+      },
+      {
+        id: 'kasar-devi-almora', name: { en: "Kasar Devi · Almora hills", hi: "कसार देवी · अल्मोड़ा की पहाड़ियाँ" }, symbol: '✦', terrain: 'mountain',
+        intro: { en: "A quiet circuit of hill shrines around Almora in Kumaon: Kasar Devi, Chitai Golu Devta and the ancient Katarmal Sun Temple. Best taken slowly, early in the day.", hi: "कुमाऊँ में अल्मोड़ा के आसपास पहाड़ी मंदिरों की शांत यात्रा: कसार देवी, चितई गोलू देवता और प्राचीन कटारमल सूर्य मंदिर। सुबह जल्दी और धीरे-धीरे घूमना सबसे अच्छा है।" },
+        places: [place("Kasar Devi Temple, Almora, Uttarakhand", "कसार देवी मंदिर, अल्मोड़ा", 'devi'), place("Chitai Golu Devta Temple, Almora, Uttarakhand", "चितई गोलू देवता मंदिर, अल्मोड़ा", 'shanti'), place("Katarmal Sun Temple, Almora, Uttarakhand", "कटारमल सूर्य मंदिर, अल्मोड़ा", 'shanti')],
+        preparation: { en: "Treat each shrine as a short stop on narrow hill roads and allow daylight for the drive. Keep the temple premises quiet, follow local guidance on footwear and photography, and check weather and road conditions with the district administration before leaving.", hi: "हर मंदिर को संकरी पहाड़ी सड़कों पर एक छोटा पड़ाव मानें और गाड़ी चलाने के लिए दिन का उजाला रखें। परिसर में शांति रखें, जूते और फ़ोटोग्राफ़ी पर स्थानीय निर्देश मानें और निकलने से पहले मौसम व सड़क की स्थिति जिला प्रशासन से जाँच लें।" },
+        dates: { en: "Temple timings, festival days and any local arrangements are set by each temple committee and the district administration. No date or crowd level is imported into this page.", hi: "मंदिर के समय, पर्व दिवस और स्थानीय व्यवस्था हर मंदिर समिति और जिला प्रशासन तय करता है। इस पेज में कोई तिथि या भीड़ की स्थिति आयात नहीं की गई है।" },
+        sources: [["Almora district", 'https://almora.nic.in/'], ["Uttarakhand Tourism", 'https://uttarakhandtourism.gov.in/']]
+      },
+      {
+        id: 'jageshwar', name: { en: "Jageshwar Dham", hi: "जागेश्वर धाम" }, symbol: 'ॐ', terrain: 'mountain',
+        intro: { en: "A cluster of ancient Shiva temples set in a deodar forest valley near Almora. A place for an unhurried morning rather than a checklist.", hi: "अल्मोड़ा के पास देवदार वन की घाटी में प्राचीन शिव मंदिरों का समूह। जल्दबाज़ी के बजाय एक शांत सुबह के लिए उपयुक्त स्थान।" },
+        places: [place("Jageshwar Dham, Almora, Uttarakhand", "जागेश्वर धाम, अल्मोड़ा", 'shiva')],
+        preparation: { en: "Check the temple committee’s notices and the district administration for access and timings. Plan for a mountain road drive in daylight, dress for cool weather and keep to marked paths in the forest.", hi: "प्रवेश और समय के लिए मंदिर समिति की सूचनाएँ और जिला प्रशासन देखें। पहाड़ी सड़क की यात्रा दिन में रखें, ठंडे मौसम के कपड़े पहनें और वन में चिह्नित रास्तों पर ही चलें।" },
+        dates: { en: "Special observances and any seasonal arrangements are announced locally. This page does not confirm a date, schedule or crowd level.", hi: "विशेष आयोजन और मौसमी व्यवस्था स्थानीय स्तर पर घोषित होती है। यह पेज किसी तिथि, कार्यक्रम या भीड़ की स्थिति की पुष्टि नहीं करता।" },
+        sources: [["Almora district", 'https://almora.nic.in/'], ["Uttarakhand Tourism", 'https://uttarakhandtourism.gov.in/']]
+      },
+      {
+        id: 'adi-kailash', name: { en: "Adi Kailash · Om Parvat", hi: "आदि कैलाश · ओम पर्वत" }, symbol: 'ॐ', terrain: 'mountain',
+        intro: { en: "A remote high-Himalayan journey in Pithoragarh district towards Adi (Chhota) Kailash and Om Parvat, close to the Tibet border. Quiet, demanding and permit-based.", hi: "पिथौरागढ़ जिले में तिब्बत सीमा के पास आदि (छोटा) कैलाश और ओम पर्वत की दूरस्थ ऊँचे हिमालय की यात्रा। शांत, कठिन और अनुमति आधारित।" },
+        places: [place("Adi Kailash, Pithoragarh, Uttarakhand", "आदि कैलाश, पिथौरागढ़", 'shiva'), place("Om Parvat, Pithoragarh, Uttarakhand", "ओम पर्वत, पिथौरागढ़", 'shiva')],
+        preparation: { en: "This is a border-area route at high altitude. Confirm permit requirements, road status and health advice with the Pithoragarh administration and Uttarakhand Tourism before booking anything, and plan acclimatisation days.", hi: "यह ऊँचाई पर सीमा क्षेत्र का मार्ग है। कुछ भी बुक करने से पहले अनुमति, सड़क की स्थिति और स्वास्थ्य संबंधी सलाह पिथौरागढ़ प्रशासन और उत्तराखंड पर्यटन से पक्की करें और ऊँचाई के अनुकूल ढलने के दिन रखें।" },
+        dates: { en: "Route opening, permits and weather closures are decided by the authorities and change often. This planner confirms none of them.", hi: "मार्ग खुलना, अनुमतियाँ और मौसम के कारण बंदी प्रशासन तय करता है और अक्सर बदलती है। यह प्लानर इनमें से किसी की पुष्टि नहीं करता।" },
+        sources: [["Pithoragarh district", 'https://pithoragarh.nic.in/'], ["Uttarakhand Tourism", 'https://uttarakhandtourism.gov.in/'], ["Kumaon Mandal Vikas Nigam", 'https://kmvn.gov.in/']]
+      },
+      {
+        id: 'kailash-mansarovar', name: { en: "Kailash Mansarovar Yatra", hi: "कैलाश मानसरोवर यात्रा" }, symbol: 'ॐ', terrain: 'mountain',
+        intro: { en: "Mount Kailash and Lake Mansarovar in Tibet, sacred to Hindus, Buddhists, Jains and Bon followers. Indian pilgrims travel through the government-organised yatra, not by independent booking.", hi: "तिब्बत में कैलाश पर्वत और मानसरोवर झील, हिंदू, बौद्ध, जैन और बोन परंपरा के अनुयायियों के लिए पवित्र। भारतीय तीर्थयात्री सरकार द्वारा आयोजित यात्रा से जाते हैं, स्वतंत्र बुकिंग से नहीं।" },
+        places: [place("Mount Kailash, Tibet", "कैलाश पर्वत, तिब्बत", 'shiva'), place("Lake Mansarovar, Tibet", "मानसरोवर झील, तिब्बत", 'shiva')],
+        preparation: { en: "Start only from the Ministry of External Affairs yatra website for eligibility, application and medical requirements. The yatra uses official routes through Uttarakhand and Sikkim; do not pay anyone who promises a private seat.", hi: "पात्रता, आवेदन और चिकित्सा शर्तों के लिए केवल विदेश मंत्रालय की यात्रा वेबसाइट से शुरुआत करें। यात्रा उत्तराखंड और सिक्किम के आधिकारिक मार्गों से होती है; निजी सीट का वादा करने वाले किसी को भुगतान न करें।" },
+        dates: { en: "Whether the yatra runs in a given year, its batches and its application window are announced by the Ministry. This page confirms no season or date.", hi: "किसी वर्ष यात्रा होगी या नहीं, उसके दल और आवेदन अवधि विदेश मंत्रालय घोषित करता है। यह पेज किसी मौसम या तिथि की पुष्टि नहीं करता।" },
+        sources: [["Kailash Mansarovar Yatra (MEA)", 'https://kmy.gov.in/'], ["Ministry of External Affairs", 'https://www.mea.gov.in/'], ["Kumaon Mandal Vikas Nigam", 'https://kmvn.gov.in/']]
       }
     ]
   };

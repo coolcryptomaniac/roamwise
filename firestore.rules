@@ -803,6 +803,24 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
 
+    // ---------- INVOICES (server-issued, append-only) ----------
+    // The Worker (service account) issues invoices/{sourceKey} and claims invoiceNumbers/{FY_seq}; neither is
+    // writable from any client, so a number can never be edited, reused or deleted. A customer reads only their own
+    // invoice; admin/finance read all. The seller identity lives in invoiceConfig/seller, which is NOT public
+    // (config/{doc} is world-readable, so it must not hold GSTIN, PAN or address).
+    match /invoices/{id} {
+      allow read: if isAdmin() || isFinance() || (request.auth != null && resource.data.customer.uid == request.auth.uid);
+      allow write: if false;
+    }
+    match /invoiceNumbers/{id} {
+      allow read: if isAdmin() || isFinance();
+      allow write: if false;
+    }
+    match /invoiceConfig/{doc} {
+      allow read: if isAdmin() || isFinance();
+      allow write: if isAdmin();
+    }
+
     // ---------- COMPLIANCE SENTINEL (founder-owned control plane) ----------
     // Current operating facts are mutable because reality changes; historical
     // assessments and evidence fingerprints are append-only so the audit trail
