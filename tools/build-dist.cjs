@@ -5,6 +5,7 @@
      module wrapping), so top-level functions and variables keep their names: inline onclick handlers,
      window globals and script load order are unchanged.
    - No syntax lowering (target esnext): lowering injects one-letter helper vars into the global scope.
+   - Payments, pricing, auth, referral, admin, pass-desk and partner files are copied unchanged (KEEP_AS_IS).
    - A file that fails to minify or to re-parse is copied unchanged, so this can only make files smaller.
    Usage: node tools/build-dist.cjs [outDir]          (default _site)
           node tools/build-dist.cjs --report [outDir]  (also prints size table)
@@ -14,6 +15,8 @@ const fs = require('fs'), path = require('path'), zlib = require('zlib'), vm = r
 
 const SKIP_DIRS = new Set(['.git', 'node_modules', '_site']);
 /* never minified: service worker (kept readable for debugging), already-minified files, vendor/ (third-party bundles) */
+/* Money and identity code is published byte-for-byte as tested: payments, pricing, auth, referral, admin, pass desk. */
+const KEEP_AS_IS = /^(js\/payments\/|js\/pricing\/|js\/boot\/auth-|referral-data\.js$|admin\/|nmims\/|my-payments\/|partner\/|ops\/)/;
 const SKIP_FILES = /(\.min\.(js|css)$)|(^|\/)sw\.js$|(^|\/)vendor\//;
 
 function walk(dir, base, out) {
@@ -37,7 +40,7 @@ function buildDist(opts) {
     fs.mkdirSync(path.dirname(to), { recursive: true });
     stats.files++;
     const isJs = /\.js$/.test(rel), isCss = /\.css$/.test(rel);
-    if (!(isJs || isCss) || SKIP_FILES.test(rel)) { fs.copyFileSync(from, to); continue; }
+    if (!(isJs || isCss) || SKIP_FILES.test(rel) || KEEP_AS_IS.test(rel.split(path.sep).join('/'))) { fs.copyFileSync(from, to); continue; }
     const buf = fs.readFileSync(from), text = buf.toString('utf8');
     let code = null;
     try {

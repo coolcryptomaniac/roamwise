@@ -67,6 +67,8 @@ test('dist build: minifies scripts, keeps top-level names, skips vendor/ and sw.
   fs.writeFileSync(path.join(src, 'js/a.js'), '/* comment */\nfunction openThing(name){\n  var longLocalName = name + 1;\n  return longLocalName;\n}\nvar topLevelState = { a: 1 };\nwindow.x = openThing?.(1);\n');
   fs.writeFileSync(path.join(src, 'js/bad.js'), 'export const y = 1;\n');
   fs.writeFileSync(path.join(src, 'vendor/v.js'), '/* keep */ var   v = 1 ;\n');
+  fs.mkdirSync(path.join(src, 'js/payments'), { recursive: true });
+  fs.writeFileSync(path.join(src, 'js/payments/checkout.js'), '/* keep */ var   pay = 1 ;\n');
   fs.writeFileSync(path.join(src, 'sw.js'), '/* keep */ var   s = 1 ;\n');
   const s = buildDist({ src, out });
   const a = fs.readFileSync(path.join(out, 'js/a.js'), 'utf8');
@@ -78,6 +80,7 @@ test('dist build: minifies scripts, keeps top-level names, skips vendor/ and sw.
   assert.equal(fs.readFileSync(path.join(out, 'js/bad.js'), 'utf8'), 'export const y = 1;\n');
   assert.equal(fs.readFileSync(path.join(out, 'vendor/v.js'), 'utf8'), '/* keep */ var   v = 1 ;\n');
   assert.equal(fs.readFileSync(path.join(out, 'sw.js'), 'utf8'), '/* keep */ var   s = 1 ;\n');
+  assert.equal(fs.readFileSync(path.join(out, 'js/payments/checkout.js'), 'utf8'), '/* keep */ var   pay = 1 ;\n', 'payment code is published unchanged');
   assert.ok(fs.existsSync(path.join(out, 'index.html')));
   assert.equal(s.minified, 1);
   fs.rmSync(src, { recursive: true, force: true }); fs.rmSync(out, { recursive: true, force: true });

@@ -1282,7 +1282,7 @@ round 5"'s own advice) remains the source of truth.
 
 - **Pages publishes `_site`, not the repo.** `.github/workflows/static.yml` runs `node tools/build-dist.cjs _site`
   (esbuild, `npm i --no-save esbuild@0.25`) after the Kainchi steps. It copies the repo and minifies every `.js`/`.css`,
-  except `vendor/`, `sw.js` and `*.min.*`. Rules that keep it safe: scripts stay classic (no bundling, no module
+  except `vendor/`, `sw.js`, `*.min.*` and the money/identity files (`js/payments/`, `js/pricing/`, `js/boot/auth-*`, `referral-data.js`, `admin/`, `nmims/`, `my-payments/`, `partner/`, `ops/`), which are published byte-for-byte as tested. Rules that keep it safe: scripts stay classic (no bundling, no module
   wrapping), **no syntax lowering** (`target` unset = esnext; lowering leaks one-letter helper vars such as `N`, `j`
   into the global scope), and a file that fails to minify or re-parse is copied unchanged. Top-level names survive, so
   inline `onclick` handlers keep working. Home-page scripts: 897 KB -> 683 KB gzip (-23%); slow-3G first boot 22.9 s -> 18.4 s.
