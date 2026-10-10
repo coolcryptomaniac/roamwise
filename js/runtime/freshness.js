@@ -8,7 +8,13 @@
   if (inApp || !window.isSecureContext || !('serviceWorker' in navigator)) return;
 
   var refreshing = false;
+  /* First visit: the new worker claims the page, which fires controllerchange.
+     Reloading then would restart the page (and the opening film) a few seconds
+     in for no benefit, since the page just loaded the newest code. Only reload
+     when an EXISTING worker is replaced by an update. */
+  var hadController = !!navigator.serviceWorker.controller;
   navigator.serviceWorker.addEventListener('controllerchange', function () {
+    if (!hadController) { hadController = true; return; }
     if (refreshing) return;
     refreshing = true;
     try {

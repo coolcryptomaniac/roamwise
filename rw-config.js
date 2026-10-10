@@ -66,8 +66,15 @@ window.rwApi = function(path){
    the dead #intro node synchronously before app.js gets a chance to run its old
    timer, then places the cinematic violet/pink preboot veil until V6 mounts. */
 (function(){
+  /* The cinematic opening plays once per device, not once per browser session.
+     rw_opening is written by platform-v5/atlas-shinobi.js the moment the film
+     mounts (and by the older opener), so anyone who has seen it, including
+     people who saw it before this change, goes straight to the app. Only a first
+     visit or cleared site data plays it again. rw_intro (per session) is still
+     honoured so a reload inside one session never replays it. */
   var seen = false;
-  try { seen = sessionStorage.getItem('rw_intro') === '1'; } catch (_) {}
+  try { seen = localStorage.getItem('rw_opening') === '1'; } catch (_) {}
+  if (!seen) { try { seen = sessionStorage.getItem('rw_intro') === '1'; } catch (_) {} }
   window.__RW_INTRO_SHOULD_SHOW = !seen;
 
   if (!seen) {

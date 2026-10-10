@@ -69,20 +69,28 @@ test('settings and offline shell include the new audio engine', () => {
   assert.doesNotMatch(shell.slice(shell.indexOf('function tabGo'), shell.indexOf('function rwTabGo')), /rwPlayCue\(/);
 
   const worker = read('sw.js');
-  assert.match(worker, /rw-v130-sacred-panditji/);
+  assert.match(worker, /rw-v131-fast-repeat/);
   assert.match(worker, /js\/audio\/focus\.js/);
   assert.match(worker, /platform-v5\/audio-only\.js/);
   assert.match(worker, /platform-v5\/atlas-shinobi\.js/);
 });
 
-test('deploy freshness is network-first for code and reloads on a new controller', () => {
+test('repeat visits are served from cache and refreshed in the background; deploys still arrive', () => {
   const worker = read('sw.js');
   const freshness = read('js/runtime/freshness.js');
+  assert.match(worker, /STALE-WHILE-REVALIDATE/);
   assert.match(worker, /var isCode =/);
-  assert.match(worker, /fetch\(req, \{ cache: 'no-store' \}\)/);
+  /* background revalidation uses a conditional request, never a blind full download */
+  assert.match(worker, /fetch\(req, \{ cache: 'no-cache' \}\)/);
+  /* callers that ask for fresh data (news.json, live feeds) stay network-first */
+  assert.match(worker, /req\.cache === 'no-store'/);
+  /* the whole shell referenced by index.html is precached on install */
+  assert.match(worker, /function shellUrls\(\)/);
   assert.match(freshness, /updateViaCache: 'none'/);
   assert.match(freshness, /controllerchange/);
   assert.match(freshness, /window\.location\.reload\(\)/);
+  /* the first install must not reload the page mid-opening */
+  assert.match(freshness, /hadController/);
 });
 
 test('mobile composer and search controls cannot overlap or widen the page', () => {
