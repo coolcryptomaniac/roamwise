@@ -1,3 +1,4 @@
 .claude/worktrees/
 node_modules/
 .firecrawl/
+_site

@@ -56,6 +56,14 @@
 @media (prefers-reduced-motion:reduce){#rwVeil i::after{animation:none;width:100%}}
 </style>
 <noscript><style>#rwVeil{display:none}</style></noscript>
+<script id="rw-oldbrowser">
+/* Browsers that cannot run the app (Internet Explorer, very old Android/Opera Mini) get a plain message
+   and the light page instead of a blank screen. ES5 only on purpose. */
+(function(){var ok;try{ok=window.Promise&&window.fetch&&Object.assign&&Array.prototype.includes&&window.Map&&window.Set&&('classList' in document.documentElement);}catch(e){ok=false;}
+if(ok)return;window.__RW_OLD=true;
+document.write('<div style="font:16px/1.5 system-ui,Arial,sans-serif;background:#07090f;color:#ede8df;padding:28px;max-width:520px;margin:0 auto"><h1 style="font-size:22px">Please update your browser</h1><p>RoamWise needs a newer browser than this one. Open it in the latest Chrome, Edge, Firefox, Safari or Samsung Internet.</p><p><a style="color:#e8ba6c;font-weight:700" href="/lite/">Open the light version instead</a></p></div>');
+})();
+</script>
 <script id="rw-net">
 /* Network tier. Decides how much optional weight (opening film, sound, ads, photos,
    service-worker install) the first visit may pull while the app is still starting.
@@ -81,7 +89,11 @@
       return kbps<80?'vslow':kbps<500?'slow':kbps<2000?'medium':'fast';
     }catch(x){return 'fast';}
   }
-  var net=w.__RW_NET={tier:c?classify():measured(),saveData:!!(c&&c.saveData),known:!!c};
+  /* Weak phones: 2 GB of RAM or fewer, or 2 cores or fewer. They parse scripts slowly even on a fast link, so
+     a 'fast' reading is lowered to 'medium' (no opening film or sound, fewer photos, ads after boot). */
+  var lowEnd=(n.deviceMemory&&n.deviceMemory<=2)||(n.hardwareConcurrency&&n.hardwareConcurrency<=2)||false;
+  var net=w.__RW_NET={tier:c?classify():measured(),saveData:!!(c&&c.saveData),known:!!c,lowEnd:!!lowEnd,mem:n.deviceMemory||0,cores:n.hardwareConcurrency||0};
+  if(lowEnd&&net.tier==='fast')net.tier='medium';
   function paint(){var h=d.documentElement,i;for(i=0;i<order.length;i++)h.classList.remove('rw-net-'+order[i]);h.classList.add('rw-net-'+net.tier);}
   paint();
   /* only ever move toward slower during a visit, so a flaky reading cannot re-enable heavy loads */

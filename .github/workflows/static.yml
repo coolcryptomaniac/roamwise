@@ -71,13 +71,21 @@ jobs:
           path: features/kainchi-yatra/data/daily.json
           retention-days: 90
           if-no-files-found: error
+      - name: Build optimised site (minified JS and CSS)
+        # Same files as the repository, with scripts and styles minified. Top-level names are kept, so inline
+        # onclick handlers and script order are unchanged. A file that cannot be minified is copied as it is.
+        run: |
+          npm install --no-save --no-audit --no-fund esbuild@0.25
+          node tools/build-dist.cjs _site
+          test -f _site/index.html && test -f _site/lite/index.html && test -f _site/sw.js
+          for f in _site/app.js _site/rw-config.js _site/js/runtime/freshness.js; do node --check "$f"; done
       - name: Setup Pages
         uses: actions/configure-pages@v6
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v5
         with:
-          # Upload entire repository
-          path: '.'
+          # The optimised copy built above (same content as the repository, smaller scripts)
+          path: '_site'
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v5

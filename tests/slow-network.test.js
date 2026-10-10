@@ -15,6 +15,8 @@ const netScript = html.match(/<script id="rw-net">([\s\S]*?)<\/script>/)[1];
 function tierFor(conn) {
   const dom = new JSDOM('<html><head></head><body></body></html>', { url: 'https://roamwise.co.in/', runScripts: 'outside-only' });
   if (conn) Object.defineProperty(dom.window.navigator, 'connection', { value: Object.assign({ addEventListener() {} }, conn) });
+  /* a capable device, so the result depends on the connection alone (jsdom reports this machine's cores) */
+  Object.defineProperty(dom.window.navigator, 'hardwareConcurrency', { value: 8 });
   dom.window.eval(netScript);
   const out = { tier: dom.window.__RW_NET.tier, cls: dom.window.document.documentElement.className };
   dom.window.close(); /* stops the veil-progress interval */
@@ -41,6 +43,7 @@ test('a connection that gets worse mid-visit downgrades the tier, one that impro
   const dom = new JSDOM('<html><head></head><body></body></html>', { url: 'https://roamwise.co.in/', runScripts: 'outside-only' });
   let onChange; const conn = { effectiveType: '4g', downlink: 10, rtt: 50, addEventListener: (e, fn) => { onChange = fn; } };
   Object.defineProperty(dom.window.navigator, 'connection', { value: conn });
+  Object.defineProperty(dom.window.navigator, 'hardwareConcurrency', { value: 8 });
   dom.window.eval(netScript);
   assert.equal(dom.window.__RW_NET.tier, 'fast');
   Object.assign(conn, { effectiveType: '3g', downlink: 0.2, rtt: 400 }); onChange();
