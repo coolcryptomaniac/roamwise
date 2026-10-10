@@ -1292,3 +1292,10 @@ round 5"'s own advice) remains the source of truth.
   Tests that expect `fast` must set `hardwareConcurrency` explicitly (jsdom reports the host's cores).
 - **Old browsers.** `#rw-oldbrowser` (ES5 only, runs before `#rw-net`) replaces the page with a plain "update your
   browser" notice plus a link to `/lite/` when Promise, fetch, Map, Set, Array.includes or classList are missing.
+
+## Startup Garage card v2, Ailon Tusk NMIMS answers, Rave to Hell card (Oct 2026)
+
+- `js/ui/nmims-event-banner.js`: the Startup Garage card now mounts at the top of home (right after `#rwCreatorBanner`), with a flip-clock countdown. Gated by `partnerships/nmims2026` (`officialConfirmed`, `bannerOn`, `eventDate`). It shows "LIVE TODAY" on the event day, "THANKS FOR COMING" on day two, and removes itself 2 days after the start (`SHOW_DAYS`).
+- `js/copilot/nmims-answers.js`: `rwNmimsAnswer(text)` returns fixed HTML answers (no AI call) for NMIMS/Startup Garage/E-Cell questions and for short creator/property sign-up questions; returns null for everything else. Called from an early branch in `copilotSend` (`js/copilot/core.js`, which is at the 1000-line cap, so put any further Tusk branches in a separate file).
+- `js/ui/rave-card.js`: "Rave to Hell" player card before `#musicEventsIndia`. Audio is `assets/audio/rave-to-hell-full.mp3`, `preload='none'` (downloads only on tap). Streaming buttons are in its `LINKS` array; add a platform only with a real URL.
+- Tests: `tests/nmims-event-banner.test.js`, `tests/nmims-answers.test.js`.
