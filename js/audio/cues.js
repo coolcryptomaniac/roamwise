@@ -94,7 +94,8 @@ function rwEnsureCueNode(){
   var AudioCtor = window.Audio;
   if(typeof AudioCtor !== 'function') return null;
   var node = new AudioCtor();
-  node.preload = 'auto';
+  var rwNet = /** @type {any} */ (window).__RW_NET;
+  node.preload = (rwNet && rwNet.tier !== 'fast') ? 'none' : 'auto';
   node._rwAudioOwner = 'cue';
   if(_rwCueFormat===null){
     try{ _rwCueFormat = (node.canPlayType && node.canPlayType('audio/ogg; codecs="vorbis"')) ? '.ogg' : '.mp3'; }

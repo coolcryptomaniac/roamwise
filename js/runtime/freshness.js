@@ -29,6 +29,16 @@
     registration.update().catch(function () {});
   }
 
+  /* Installing the worker re-reads the whole shell. Do it after the app has started (and a
+     little later on slow links) so the first visit's bandwidth goes to getting the app up. */
+  function afterBoot(fn) {
+    var done = false, run = function () { if (done) return; done = true; fn(); };
+    var slow = window.__RW_NET && window.__RW_NET.tier !== 'fast';
+    var delay = slow ? 8000 : 1500;
+    if (window.__RW_BOOTED) setTimeout(run, delay);
+    else { window.addEventListener('rw:booted', function () { setTimeout(run, delay); }); setTimeout(run, 45000); }
+  }
+  afterBoot(function () {
   navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' })
     .then(function (registration) {
       update(registration);
@@ -38,4 +48,5 @@
       });
     })
     .catch(function () { /* Offline support is optional. */ });
+  });
 })();

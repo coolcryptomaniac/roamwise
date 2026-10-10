@@ -153,7 +153,7 @@
     try {
       var el = new AudioCtor();
       el.loop = state.loopEnabled;
-      el.preload = 'auto';
+      el.preload = (window.__RW_NET && window.__RW_NET.tier !== 'fast') ? 'none' : 'auto';
       el.src = AMBIENT_BASE + pickFormat(el);
       el.volume = normalizedVolume();
       el._rwAudioOwner = 'ambient';
