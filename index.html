@@ -2,6 +2,43 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<script id="rw-watchdog">
+/* Boot watchdog. Never blocks: all work is on timers/events. If the app has not
+   started (js/boot/boot-ok.js sets __RW_BOOTED) it first offers a Reload, and if
+   the page finished loading but the app still did not start it repairs itself once
+   per 10 minutes by dropping the service worker and caches (never user data). */
+(function(){
+  var w=window,d=document,healed=false;
+  function get(k){try{return w.localStorage.getItem(k);}catch(e){return null;}}
+  function put(k,v){try{w.localStorage.setItem(k,v);}catch(e){}}
+  function booted(){return w.__RW_BOOTED===true;}
+  function heal(){
+    if(healed)return;healed=true;put('rw_heal_at',String(Date.now()));
+    var jobs=[];
+    try{if(w.navigator.serviceWorker)jobs.push(w.navigator.serviceWorker.getRegistrations().then(function(r){return Promise.all(r.map(function(x){return x.unregister();}));}));}catch(e){}
+    try{if(w.caches)jobs.push(w.caches.keys().then(function(k){return Promise.all(k.map(function(n){return w.caches.delete(n);}));}));}catch(e){}
+    var go=function(){w.location.reload();};
+    Promise.all(jobs).then(go,go);setTimeout(go,4000);
+  }
+  function banner(){
+    if(booted()||d.getElementById('rwStall'))return;
+    var b=d.createElement('div');b.id='rwStall';b.setAttribute('role','status');
+    b.style.cssText='position:fixed;left:12px;right:12px;bottom:16px;z-index:2147483647;background:#141018;color:#fff;border:1px solid #e8ba6c;border-radius:14px;padding:12px 14px;font:14px/1.4 system-ui,sans-serif;display:flex;gap:10px;align-items:center;flex-wrap:wrap';
+    var t=d.createElement('span');t.style.flex='1 1 180px';t.textContent='Still starting. Your connection may be slow.';b.appendChild(t);
+    [['Reload',function(){w.location.reload();}],['Repair',heal]].forEach(function(x){
+      var u=d.createElement('button');u.type='button';u.textContent=x[0];u.onclick=x[1];
+      u.style.cssText='background:#e8ba6c;color:#111;border:0;border-radius:10px;padding:8px 14px;font:600 14px system-ui,sans-serif';b.appendChild(u);});
+    (d.body||d.documentElement).appendChild(b);
+  }
+  function drop(){var b=d.getElementById('rwStall');if(b&&b.parentNode)b.parentNode.removeChild(b);}
+  w.addEventListener('rw:booted',drop);
+  w.addEventListener('load',function(){setTimeout(function(){
+    if(booted())return;
+    if(Date.now()-(+get('rw_heal_at')||0)>600000)heal();else banner();
+  },4000);});
+  setTimeout(function(){if(!booted())banner();},15000);
+})();
+</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="google-adsense-account" content="ca-pub-4943859484482348">
 <meta name="theme-color" content="#080B18">
@@ -113,12 +150,15 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="RoamWise">
-<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-check-compat.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<noscript><link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet"></noscript>
+<script src="vendor/qrcodejs/1.0.0/qrcode.min.js" defer></script>
+<script src="vendor/firebase/10.14.1/firebase-app-compat.js" defer></script>
+<script src="vendor/firebase/10.14.1/firebase-auth-compat.js" defer></script>
+<script src="vendor/firebase/10.14.1/firebase-firestore-compat.js" defer></script>
+<script src="vendor/firebase/10.14.1/firebase-app-check-compat.js" defer></script>
 <link rel="stylesheet" href="app.css?v=rw-v124-personal-group-planner">
 <link rel="stylesheet" href="mobile-stability.css?v=rw-v125-compact-tusk">
 <link rel="stylesheet" href="design/roamwise-akatsuki-theme.css?v=rw-v125-akatsuki-tusk">
@@ -1364,167 +1404,167 @@ function rwDismissCreatorBanner(){
 </div>
 
 
-<script src="js/core/error-guard.js"></script>
-<script src="js/core/dom-utils.js"></script>
-<script src="js/core/storage-utils.js"></script>
-<script src="js/core/text-utils.js"></script>
-<script src="js/core/overlay-stack.js"></script>
-<script src="js/core/app-utils.js"></script>
-<script src="js/payments/payment-resilience.js?v=rw-pay-safe-1"></script>
-<script src="js/core/user-preferences.js?v=rw-personal-1"></script>
-<script src="js/ui/form-modal.js"></script>
-<script src="rw-config.js?v=rw-v121-hollywood-smooth-read"></script>
+<script src="js/core/error-guard.js" defer></script>
+<script src="js/core/dom-utils.js" defer></script>
+<script src="js/core/storage-utils.js" defer></script>
+<script src="js/core/text-utils.js" defer></script>
+<script src="js/core/overlay-stack.js" defer></script>
+<script src="js/core/app-utils.js" defer></script>
+<script src="js/payments/payment-resilience.js?v=rw-pay-safe-1" defer></script>
+<script src="js/core/user-preferences.js?v=rw-personal-1" defer></script>
+<script src="js/ui/form-modal.js" defer></script>
+<script src="rw-config.js?v=rw-v121-hollywood-smooth-read" defer></script>
 <script src="events-data.js" defer></script>
 <script src="local-help-data.js" defer></script>
-<script src="referral-data.js"></script>
-<script src="partners-data.js"></script>
-<script src="booking-data.js"></script>
-<script src="affiliate-config.js"></script>
-<script src="business-account.js?v=20261007"></script>
-<script src="rooms-data.js"></script>
-<script src="experiences-data.js"></script>
-<script src="badges-data.js"></script>
-<script src="compat-data.js"></script>
-<script src="finance-data.js"></script>
-<script src="regions-data.js"></script>
-<script src="js/data/destinations.js"></script>
-<script src="js/data/iata.js"></script>
-<script src="js/pricing/subscription-plans.js"></script>
-<script src="js/pricing/one-off-plans.js"></script>
-<script src="js/pricing/usage-policy.js"></script>
-<script src="js/pricing/founder-seats.js"></script>
-<script src="js/pricing/referral.js"></script>
-<script src="js/payments/gateway-adapter.js"></script>
-<script src="js/payments/providers/manual-upi-adapter.js?v=rw-current-8061"></script>
-<script src="js/payments/providers/cashfree-adapter.js?v=rw-checkout-focus-1"></script>
-<script src="js/payments/checkout.js"></script>
-<script src="js/payments/partner-redeem.js"></script>
-<script src="js/payments/redeem-link.js"></script>
-<script src="js/payments/qr-scan.js"></script>
-<script src="js/ui/nmims-event-banner.js"></script>
-<script src="js/payments/plan-picker.js?v=rw-checkout-focus-1"></script>
-<script src="js/data/regions.js"></script>
-<script src="js/data/country-info.js"></script>
-<script src="js/data/place-overrides.js"></script>
-<script src="js/data-sync/rwdata.js"></script>
-<script src="js/data-sync/key-sync.js"></script>
-<script src="js/data-sync/config-sync.js"></script>
-<script src="js/runtime/rules-check.js"></script>
-<script src="js/audio/reminders.js"></script>
-<script src="js/voice/tusk-speak.js?v=rw-v118-mobile-audio-fresh"></script>
-<script src="js/voice/voice-input.js"></script>
-<script src="js/booking/affiliate-links.js"></script>
-<script src="js/booking/actions.js"></script>
-<script src="js/booking/price-guard.js"></script>
-<script src="js/booking/routes.js"></script>
-<script src="js/booking/stay-code.js"></script>
-<script src="features/finance-tax/gst-rules.js"></script>
-<script src="features/trust/property-compliance.js"></script>
-<script src="js/booking/stay-quote.js"></script>
-<script src="js/booking/form.js"></script>
-<script src="js/booking/local-rides.js"></script>
-<script src="js/booking/pnr-parser.js"></script>
-<script src="js/booking/arrival-mode.js"></script>
-<script src="js/booking/tatkal-prep.js"></script>
-<script src="js/social/coordkit.js"></script>
-<script src="js/social/upi-settle.js"></script>
-<script src="js/social/tribe-beacon.js"></script>
-<script src="js/social/group-state.js"></script>
-<script src="js/social/group-compromise.js"></script>
-<script src="js/social/group-chat.js"></script>
-<script src="js/social/group-chat-social.js"></script>
-<script src="js/social/expense-split.js"></script>
-<script src="js/social/train-picker.js"></script>
-<script src="js/social/trip-scheduling-poll.js"></script>
-<script src="js/social/trip-board.js"></script>
-<script src="js/social/compat.js"></script>
-<script src="js/social/travel-matching.js"></script>
-<script src="js/copilot/region-routes.js"></script>
-<script src="js/copilot/clarify.js"></script>
-<script src="js/copilot/ai-providers.js"></script>
-<script src="js/copilot/on-device-ai.js"></script>
-<script src="js/copilot/webgpu-ai.js"></script>
-<script src="js/copilot/core.js?v=rw-route-quiet-1"></script>
-<script src="js/copilot/rich-reply.js"></script>
-<script src="js/copilot/tusk-persona.js"></script>
-<script src="js/copilot/tusk-knowledge.js"></script>
-<script src="js/copilot/answer-cards.js"></script>
-<script src="js/copilot/agent.js"></script>
-<script src="js/copilot/agent-evals.js"></script>
-<script src="js/itinerary/ground-truth.js"></script>
-<script src="js/itinerary/ninja-hacks.js"></script>
-<script src="js/itinerary/share.js"></script>
-<script src="js/itinerary/journey-certificate.js"></script>
-<script src="js/itinerary/atlas-certificate.js"></script>
-<script src="js/itinerary/journey-movie.js"></script>
-<script src="js/itinerary/certificate-verify.js"></script>
-<script src="js/itinerary/eco-certificate.js"></script>
-<script src="js/itinerary/journey-log.js"></script>
-<script src="js/itinerary/map-view.js"></script>
-<script src="js/itinerary/trip-footprint.js"></script>
-<script src="js/itinerary/trip-vault.js"></script>
-<script src="js/itinerary/meters.js"></script>
-<script src="js/itinerary/place-disambiguation.js"></script>
-<script src="js/itinerary/party-costs.js?v=rw-party-1"></script>
-<script src="js/itinerary/shadow-budget.js?v=rw-party-1"></script>
-<script src="js/itinerary/focus-modes.js?v=rw-focus-ux-2"></script>
-<script src="js/itinerary/travel-pressure.js?v=rw-pressure-1"></script>
-<script src="js/itinerary/pdf-assets.js"></script>
-<script src="js/itinerary/pdf-export.js"></script>
-<script src="js/itinerary/build.js"></script>
-<script src="js/itinerary/search-engine.js"></script>
-<script src="js/itinerary/result-cards.js?v=rw-party-1"></script>
-<script src="js/itinerary/ground-costs.js"></script>
-<script src="js/itinerary/real-attractions.js"></script>
-<script src="js/itinerary/rain-contingency.js"></script>
-<script src="js/itinerary/camera-itinerary.js"></script>
-<script src="js/itinerary/memories-studio.js"></script>
-<script src="js/ui/page-router.js"></script>
-<script src="js/ui/layout-modes.js"></script>
-<script src="js/ui/settings-modal.js?v=rw-personal-1"></script>
-<script src="js/ui/key-wizard.js"></script>
-<script src="js/ui/themes.js?v=rw-aurora-1"></script>
-<script src="js/ui/adaptive-shell.js"></script>
-<script src="js/ui/site-search.js"></script>
-<script src="js/ui/onboarding.js"></script>
-<script src="js/ui/card-painter.js"></script>
-<script src="js/ui/status-tier.js"></script>
-<script src="js/ui/opening.js"></script>
-<script src="js/ui/how-to-guide.js"></script>
-<script src="js/ui/currency-budget.js?v=rw-budget-stages-2"></script>
-<script src="js/ui/dest-autocomplete.js"></script>
-<script src="js/game/badges.js"></script>
-<script src="js/game/realms.js"></script>
-<script src="js/misc/partners.js"></script>
-<script src="js/misc/events.js"></script>
-<script src="js/misc/local-help.js"></script>
-<script src="js/misc/event-radar-news.js"></script>
-<script src="js/misc/promo-music.js"></script>
-<script src="js/misc/listing-photos.js"></script>
-<script src="js/misc/listings.js"></script>
-<script src="js/misc/experiences.js"></script>
-<script src="js/misc/green-trip.js"></script>
-<script src="js/misc/eco-safety.js"></script>
-<script src="js/misc/misc-features.js"></script>
-<script src="js/misc/misc-features-2.js"></script>
-<script src="js/misc/sound-of-place.js"></script>
-<script src="js/misc/signature-food.js"></script>
-<script src="js/misc/destination-vibe.js"></script>
-<script src="js/misc/trek-vault.js"></script>
-<script src="js/misc/athlete-mode.js"></script>
-<script src="js/misc/live-location.js"></script>
-<script src="js/misc/booking-platform-compare.js"></script>
-<script src="js/misc/local-ecosystem.js"></script>
-<script src="js/misc/trust-conversion.js"></script>
-<script src="js/misc/traveler-dna.js"></script>
-<script src="js/misc/ratings.js"></script>
-<script src="js/misc/profile.js"></script>
-<script src="js/misc/engagement.js"></script>
-<script src="js/misc/interest-sync.js"></script>
-<script src="js/misc/ad-attribution.js"></script>
-<script src="js/misc/crowd-spotter.js"></script>
-<script src="js/misc/adsense-whatsapp.js"></script>
-<script src="tusk-learned.js" onerror="void 0"></script>
+<script src="referral-data.js" defer></script>
+<script src="partners-data.js" defer></script>
+<script src="booking-data.js" defer></script>
+<script src="affiliate-config.js" defer></script>
+<script src="business-account.js?v=20261007" defer></script>
+<script src="rooms-data.js" defer></script>
+<script src="experiences-data.js" defer></script>
+<script src="badges-data.js" defer></script>
+<script src="compat-data.js" defer></script>
+<script src="finance-data.js" defer></script>
+<script src="regions-data.js" defer></script>
+<script src="js/data/destinations.js" defer></script>
+<script src="js/data/iata.js" defer></script>
+<script src="js/pricing/subscription-plans.js" defer></script>
+<script src="js/pricing/one-off-plans.js" defer></script>
+<script src="js/pricing/usage-policy.js" defer></script>
+<script src="js/pricing/founder-seats.js" defer></script>
+<script src="js/pricing/referral.js" defer></script>
+<script src="js/payments/gateway-adapter.js" defer></script>
+<script src="js/payments/providers/manual-upi-adapter.js?v=rw-current-8061" defer></script>
+<script src="js/payments/providers/cashfree-adapter.js?v=rw-checkout-focus-1" defer></script>
+<script src="js/payments/checkout.js" defer></script>
+<script src="js/payments/partner-redeem.js" defer></script>
+<script src="js/payments/redeem-link.js" defer></script>
+<script src="js/payments/qr-scan.js" defer></script>
+<script src="js/ui/nmims-event-banner.js" defer></script>
+<script src="js/payments/plan-picker.js?v=rw-checkout-focus-1" defer></script>
+<script src="js/data/regions.js" defer></script>
+<script src="js/data/country-info.js" defer></script>
+<script src="js/data/place-overrides.js" defer></script>
+<script src="js/data-sync/rwdata.js" defer></script>
+<script src="js/data-sync/key-sync.js" defer></script>
+<script src="js/data-sync/config-sync.js" defer></script>
+<script src="js/runtime/rules-check.js" defer></script>
+<script src="js/audio/reminders.js" defer></script>
+<script src="js/voice/tusk-speak.js?v=rw-v118-mobile-audio-fresh" defer></script>
+<script src="js/voice/voice-input.js" defer></script>
+<script src="js/booking/affiliate-links.js" defer></script>
+<script src="js/booking/actions.js" defer></script>
+<script src="js/booking/price-guard.js" defer></script>
+<script src="js/booking/routes.js" defer></script>
+<script src="js/booking/stay-code.js" defer></script>
+<script src="features/finance-tax/gst-rules.js" defer></script>
+<script src="features/trust/property-compliance.js" defer></script>
+<script src="js/booking/stay-quote.js" defer></script>
+<script src="js/booking/form.js" defer></script>
+<script src="js/booking/local-rides.js" defer></script>
+<script src="js/booking/pnr-parser.js" defer></script>
+<script src="js/booking/arrival-mode.js" defer></script>
+<script src="js/booking/tatkal-prep.js" defer></script>
+<script src="js/social/coordkit.js" defer></script>
+<script src="js/social/upi-settle.js" defer></script>
+<script src="js/social/tribe-beacon.js" defer></script>
+<script src="js/social/group-state.js" defer></script>
+<script src="js/social/group-compromise.js" defer></script>
+<script src="js/social/group-chat.js" defer></script>
+<script src="js/social/group-chat-social.js" defer></script>
+<script src="js/social/expense-split.js" defer></script>
+<script src="js/social/train-picker.js" defer></script>
+<script src="js/social/trip-scheduling-poll.js" defer></script>
+<script src="js/social/trip-board.js" defer></script>
+<script src="js/social/compat.js" defer></script>
+<script src="js/social/travel-matching.js" defer></script>
+<script src="js/copilot/region-routes.js" defer></script>
+<script src="js/copilot/clarify.js" defer></script>
+<script src="js/copilot/ai-providers.js" defer></script>
+<script src="js/copilot/on-device-ai.js" defer></script>
+<script src="js/copilot/webgpu-ai.js" defer></script>
+<script src="js/copilot/core.js?v=rw-route-quiet-1" defer></script>
+<script src="js/copilot/rich-reply.js" defer></script>
+<script src="js/copilot/tusk-persona.js" defer></script>
+<script src="js/copilot/tusk-knowledge.js" defer></script>
+<script src="js/copilot/answer-cards.js" defer></script>
+<script src="js/copilot/agent.js" defer></script>
+<script src="js/copilot/agent-evals.js" defer></script>
+<script src="js/itinerary/ground-truth.js" defer></script>
+<script src="js/itinerary/ninja-hacks.js" defer></script>
+<script src="js/itinerary/share.js" defer></script>
+<script src="js/itinerary/journey-certificate.js" defer></script>
+<script src="js/itinerary/atlas-certificate.js" defer></script>
+<script src="js/itinerary/journey-movie.js" defer></script>
+<script src="js/itinerary/certificate-verify.js" defer></script>
+<script src="js/itinerary/eco-certificate.js" defer></script>
+<script src="js/itinerary/journey-log.js" defer></script>
+<script src="js/itinerary/map-view.js" defer></script>
+<script src="js/itinerary/trip-footprint.js" defer></script>
+<script src="js/itinerary/trip-vault.js" defer></script>
+<script src="js/itinerary/meters.js" defer></script>
+<script src="js/itinerary/place-disambiguation.js" defer></script>
+<script src="js/itinerary/party-costs.js?v=rw-party-1" defer></script>
+<script src="js/itinerary/shadow-budget.js?v=rw-party-1" defer></script>
+<script src="js/itinerary/focus-modes.js?v=rw-focus-ux-2" defer></script>
+<script src="js/itinerary/travel-pressure.js?v=rw-pressure-1" defer></script>
+<script src="js/itinerary/pdf-assets.js" defer></script>
+<script src="js/itinerary/pdf-export.js" defer></script>
+<script src="js/itinerary/build.js" defer></script>
+<script src="js/itinerary/search-engine.js" defer></script>
+<script src="js/itinerary/result-cards.js?v=rw-party-1" defer></script>
+<script src="js/itinerary/ground-costs.js" defer></script>
+<script src="js/itinerary/real-attractions.js" defer></script>
+<script src="js/itinerary/rain-contingency.js" defer></script>
+<script src="js/itinerary/camera-itinerary.js" defer></script>
+<script src="js/itinerary/memories-studio.js" defer></script>
+<script src="js/ui/page-router.js" defer></script>
+<script src="js/ui/layout-modes.js" defer></script>
+<script src="js/ui/settings-modal.js?v=rw-personal-1" defer></script>
+<script src="js/ui/key-wizard.js" defer></script>
+<script src="js/ui/themes.js?v=rw-aurora-1" defer></script>
+<script src="js/ui/adaptive-shell.js" defer></script>
+<script src="js/ui/site-search.js" defer></script>
+<script src="js/ui/onboarding.js" defer></script>
+<script src="js/ui/card-painter.js" defer></script>
+<script src="js/ui/status-tier.js" defer></script>
+<script src="js/ui/opening.js" defer></script>
+<script src="js/ui/how-to-guide.js" defer></script>
+<script src="js/ui/currency-budget.js?v=rw-budget-stages-2" defer></script>
+<script src="js/ui/dest-autocomplete.js" defer></script>
+<script src="js/game/badges.js" defer></script>
+<script src="js/game/realms.js" defer></script>
+<script src="js/misc/partners.js" defer></script>
+<script src="js/misc/events.js" defer></script>
+<script src="js/misc/local-help.js" defer></script>
+<script src="js/misc/event-radar-news.js" defer></script>
+<script src="js/misc/promo-music.js" defer></script>
+<script src="js/misc/listing-photos.js" defer></script>
+<script src="js/misc/listings.js" defer></script>
+<script src="js/misc/experiences.js" defer></script>
+<script src="js/misc/green-trip.js" defer></script>
+<script src="js/misc/eco-safety.js" defer></script>
+<script src="js/misc/misc-features.js" defer></script>
+<script src="js/misc/misc-features-2.js" defer></script>
+<script src="js/misc/sound-of-place.js" defer></script>
+<script src="js/misc/signature-food.js" defer></script>
+<script src="js/misc/destination-vibe.js" defer></script>
+<script src="js/misc/trek-vault.js" defer></script>
+<script src="js/misc/athlete-mode.js" defer></script>
+<script src="js/misc/live-location.js" defer></script>
+<script src="js/misc/booking-platform-compare.js" defer></script>
+<script src="js/misc/local-ecosystem.js" defer></script>
+<script src="js/misc/trust-conversion.js" defer></script>
+<script src="js/misc/traveler-dna.js" defer></script>
+<script src="js/misc/ratings.js" defer></script>
+<script src="js/misc/profile.js" defer></script>
+<script src="js/misc/engagement.js" defer></script>
+<script src="js/misc/interest-sync.js" defer></script>
+<script src="js/misc/ad-attribution.js" defer></script>
+<script src="js/misc/crowd-spotter.js" defer></script>
+<script src="js/misc/adsense-whatsapp.js" defer></script>
+<script src="tusk-learned.js" defer onerror="void 0"></script>
 <script src="destination-photos.js" defer></script>
 <script src="tusk-data.js" defer></script>
 <script src="js/boot/auth-security.js?v=rw-auth-nonblocking-2" defer></script>
@@ -1534,5 +1574,6 @@ function rwDismissCreatorBanner(){
 <script src="js/boot/init.js?v=rw-v123-checkout-focus" defer></script>
 <script src="roamwise-premium-itinerary.js?v=rw-v118-mobile-audio-fresh" defer></script>
 <script src="itinerary-library/preset-loader.js" defer></script>
+<script src="js/boot/boot-ok.js" defer></script>
 </body>
 </html>

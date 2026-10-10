@@ -62,7 +62,7 @@ start of the modularization effort, down from 3,099 after the prior
 "modularization-final" pass, down from 1,207 after "round 4", and down from
 629 after "round 5" — the further changes since round 5 are incidental to
 unrelated feature PRs #138-143 and this pass's `submitUtr()` one-line
-rewire, not a new extraction round) and there are **173 files** under `js/`
+rewire, not a new extraction round) and there are **174 files** under `js/`
 (including the later `js/admin/` dashboard modules and
 `js/core/push-notifications.js` — see the `js/core/` and `js/admin/`
 entries below; the count was last re-verified via `npm run mod-status`,
@@ -1243,3 +1243,21 @@ round 5"'s own advice) remains the source of truth.
 - `js/misc/interest-sync.js` — `rwRememberDestination()`; one-field write of the last searched destination for email personalisation (called from `runSearch()`).
 - Worker: `worker/lib/reminder-core.js` (pure policy/email), `worker/handlers/reminders.js` (cron run, `/email/unsubscribe`, `/admin/reminders/run`). See `REMINDER-EMAILS.md`.
 - `js/admin/reminders-panel.js` — Admin -> Reminders: switches, message editor, preview/send (writes `config/reminderSettings`, `config/reminderContent`; calls `/admin/reminders/run`).
+
+### Boot, caching and first-paint rules (October 2026)
+
+- **No script may block the parser.** Every `<script src>` in `index.html` is `defer`
+  (document order is execution order). Firebase compat 10.14.1 and qrcodejs are
+  self-hosted under `vendor/` (see `vendor/firebase/README.md`); nothing third-party
+  sits in `<head>` on the critical path, and Google Fonts loads with `media="print"`
+  swap. Before this, a stalled `gstatic.com`/`cdnjs` request meant a black screen.
+- **Opening film plays once per device**: `rw-config.js` reads `localStorage.rw_opening`
+  (written when the film mounts). Cleared site data plays it again.
+- **Boot watchdog**: inline `#rw-watchdog` in `<head>` + `js/boot/boot-ok.js` (last
+  script, sets `__RW_BOOTED`). Slow start → Reload banner at 15 s. Page loaded but app
+  dead → one automatic repair per 10 min (drops service worker + caches, never user data).
+- **Service worker** (`sw.js`) is stale-while-revalidate for HTML/JS/CSS/JSON: instant
+  repeat visits, deploys arrive on the next open, code revalidated at most every 5 min.
+  `fetch(..., {cache:'no-store'})` callers still go network-first. Install precaches every
+  script/stylesheet that `index.html` references. Add a new script → nothing else to do.
+- Guarded by `tests/boot-resilience.test.js`.
