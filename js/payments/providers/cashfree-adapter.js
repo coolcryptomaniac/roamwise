@@ -207,13 +207,9 @@ function _cfGrantConfirmed(order){
   grantPurchase(order.orderId || 'cashfree', 'cashfree', order.planId);
   _cfClearPending();
   _cfUi('success','Payment confirmed. Your plan is active.');
-  /* Keep the existing shared Founder seat counter behaviour. This write is
-     best-effort and never controls entitlement. */
-  if(order.planId === 'founder' && typeof db !== 'undefined' && db){
-    db.collection('pricing').doc('founder').update({
-      count: firebase.firestore.FieldValue.increment(1)
-    }).catch(function(){});
-  }
+  /* The Founder seat counter is now incremented by the Worker, once per paid
+     order (worker/handlers/cashfree.js). Incrementing here too would count
+     every seat twice. */
 }
 
 function _cfCleanReturnQuery(){
