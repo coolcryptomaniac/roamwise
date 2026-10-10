@@ -1,0 +1,67 @@
+name: NMIMS home card (manual)
+
+# Sets the public flags on Firestore partnerships/nmims2026 that show the
+# NMIMS card on the home screen. Uses the same FIREBASE_SERVICE_ACCOUNT secret
+# as the rules deploy. Only the fields below are written (counters untouched).
+
+on:
+  workflow_dispatch:
+    inputs:
+      official_confirmed:
+        description: "officialConfirmed (true shows the card)"
+        type: boolean
+        default: true
+      event_name:
+        description: "Event name (optional)"
+        required: false
+      event_date:
+        description: "Event date YYYY-MM-DD (optional)"
+        required: false
+        default: "2026-10-15"
+      venue:
+        description: "Venue (optional)"
+        required: false
+      time_text:
+        description: "Time text, e.g. 10:00 AM onwards (optional)"
+        required: false
+
+permissions:
+  contents: read
+
+jobs:
+  set:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 20
+      - name: Write flags
+        env:
+          SA: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          OC: ${{ inputs.official_confirmed }}
+          EN: ${{ inputs.event_name }}
+          ED: ${{ inputs.event_date }}
+          VN: ${{ inputs.venue }}
+          TT: ${{ inputs.time_text }}
+        run: |
+          mkdir w && cd w && npm init -y >/dev/null && npm i google-auth-library@9 >/dev/null
+          cat > run.cjs <<'JS'
+          const {GoogleAuth}=require('google-auth-library');
+          (async()=>{
+            const e=process.env;
+            if(!e.SA){throw new Error('FIREBASE_SERVICE_ACCOUNT secret missing');}
+            if(e.ED && !/^\d{4}-\d{2}-\d{2}$/.test(e.ED)) throw new Error('event_date must be YYYY-MM-DD');
+            const f={officialConfirmed:{booleanValue:e.OC==='true'},bannerOn:{booleanValue:true}};
+            if(e.EN)f.eventName={stringValue:e.EN};
+            if(e.ED)f.eventDate={stringValue:e.ED};
+            if(e.VN)f.venue={stringValue:e.VN};
+            if(e.TT)f.timeText={stringValue:e.TT};
+            const auth=new GoogleAuth({credentials:JSON.parse(e.SA),scopes:['https://www.googleapis.com/auth/datastore']});
+            const c=await auth.getClient();
+            const mask=Object.keys(f).map(k=>'updateMask.fieldPaths='+k).join('&');
+            const url='https://firestore.googleapis.com/v1/projects/roamwisepro/databases/(default)/documents/partnerships/nmims2026?'+mask;
+            const r=await c.request({url,method:'PATCH',data:{fields:f}});
+            console.log('OK',Object.keys(r.data.fields).join(','));
+          })().catch(x=>{console.error(x.response?.data||x.message);process.exit(1)});
+          JS
+          node run.cjs
