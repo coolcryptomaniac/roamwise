@@ -14,6 +14,7 @@
     "data/strings-bhakti.js",
     "data/ritual-script.js",
     "data/strings-ritual-voice.js",
+    "data/strings-panditji.js",
     "data/strings-visit.js",
     "data/strings-advisory.js",
     "core/validation.js",
@@ -34,7 +35,9 @@
     "ui/week.js",
     "ui/bhakti-access.js",
     "ui/ritual-voice.js",
+    "ui/panditji-physics.js",
     "ui/panditji.js",
+    "ui/panditji-brain.js",
     "ui/ritual.js",
     "ui/bhakti.js",
     "ui/visit.js",
@@ -50,7 +53,7 @@
     "ui/ritual.css",
     "ui/panditji.css"
   ],
-  "gzipBudgetBytes": 90112,
+  "gzipBudgetBytes": 102400,
   "publicSnapshotGzipBudgetBytes": 7300,
   "runtimeModuleLineLimit": 350,
   "modules": {
@@ -90,7 +93,10 @@
     "ui/ritual.js": "Shared Pro sessions, language voice selection, provider opt-in, real speech-start events, watchdogs and safe text fallback",
     "data/strings-ritual-voice.js": "Bilingual voice consent, troubleshooting and speech controls",
     "ui/ritual-voice.js": "Language-matched local/provider catalogue, explicit consent required",
-    "ui/panditji.js": "Original articulated SVG guide with speech activity mouth animation",
+    "ui/panditji-physics.js": "Spring and pendulum body rig plus marigold petal pool; pure maths, no DOM",
+    "ui/panditji.js": "Living portrait: AI-created photo mesh-warped in WebGL by the rig, static photo fallback, pokes and gaze",
+    "ui/panditji-brain.js": "On-device rule-based brain: clock mood, ritual-phase lines, offline keyword Q&A that defers live facts to official notices",
+    "data/strings-panditji.js": "Bilingual brain lines, jokes and neutral intent keywords",
     "ui/bhakti-access.js": "Existing Bhakti Pro seam moved verbatim for reusable devotional player"
   },
   "externalSeams": {

@@ -46,7 +46,7 @@ const TOP_LEVEL_URLS = [
   `${SITE}/refund-policy.html`,
   `${SITE}/privacy.html`,
   `${SITE}/delete-account.html`,
-  ...['kainchi', 'pilgrimage', 'char-dham', 'panch-kedar', 'kumbh', 'vaishno-devi', 'kashi', 'tirupati'].map(slug => `${SITE}/${slug}/`),
+  ...['kainchi', 'pilgrimage', 'char-dham', 'panch-kedar', 'kumbh', 'vaishno-devi', 'kashi', 'tirupati', 'ayodhya', 'dwarka-somnath', 'puri-konark', 'amarnath', 'shirdi', 'bodh-gaya', 'rameswaram-madurai'].map(slug => `${SITE}/${slug}/`),
 ];
 
 // Each of these gets its own hub/index URL plus one URL per individual

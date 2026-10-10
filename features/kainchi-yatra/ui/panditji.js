@@ -1,57 +1,118 @@
-/* Original articulated SVG puppet; mouth motion follows speech events, not phoneme lip-sync. */
+/* Panditji's living portrait. The AI-created photo is a deformable mesh moved by panditji-physics.js: breathing, blinking, head turns,
+   swaying beard and mala, speech-driven jaw. WebGL when the device has it; the plain photo otherwise. No video, no network, no lip-sync claim. */
 (function (root) {
   'use strict';
-  var serial = 0;
+  var W = 768, H = 802, SRC = '../features/kainchi-yatra/ui/art/digital-panditji.webp';
+  var XS = [0, 100, 200, 262, 300, 330, 350, 362, 375, 388, 402, 416, 430, 445, 470, 500, 560, 650, 768];
+  var YS = [0, 40, 80, 120, 140, 148, 155, 162, 170, 185, 205, 213, 220, 232, 250, 270, 290, 310, 350, 400, 450, 500, 560, 620, 700, 802];
+  var VS = 'attribute vec2 p;attribute vec2 u;varying vec2 v;void main(){v=u;gl_Position=vec4(p.x/768.0*2.0-1.0,1.0-p.y/802.0*2.0,0.0,1.0);}';
+  var FS = 'precision mediump float;varying vec2 v;uniform sampler2D t;void main(){gl_FragColor=texture2D(t,v);}';
+  function clamp(x, a, b) { return Math.max(a, Math.min(b, x)); }
+  function shader(gl, type, src) { var s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s); return gl.getShaderParameter(s, gl.COMPILE_STATUS) ? s : null; }
+  function region(x, y) {
+    if (y < 215 && Math.abs(x - 390) < 135) return 'face';
+    if (y <= 300 && Math.abs(x - 388) < 80) return 'beard';
+    if (y > 270 && y < 445 && (Math.abs(x - 335) < 20 || Math.abs(x - 430) < 18)) return 'mala';
+    if (y > 305 && y < 495 && x > 330 && x < 450) return 'hands';
+    if (y >= 495 && y < 605 && x > 325 && x < 465) return 'mala';
+    return 'body';
+  }
+  function mesh(gl, prog) {
+    var nx = XS.length, ny = YS.length, rest = new Float32Array(nx * ny * 2), uv = new Float32Array(nx * ny * 2), idx = [], i, j, k = 0;
+    for (j = 0; j < ny; j += 1) for (i = 0; i < nx; i += 1) { rest[k] = XS[i]; rest[k + 1] = YS[j]; uv[k] = XS[i] / W; uv[k + 1] = YS[j] / H; k += 2; }
+    for (j = 0; j < ny - 1; j += 1) for (i = 0; i < nx - 1; i += 1) { k = j * nx + i; idx.push(k, k + 1, k + nx, k + 1, k + nx + 1, k + nx); }
+    var pos = new Float32Array(rest), pb = gl.createBuffer(), ub = gl.createBuffer(), ib = gl.createBuffer(), loc;
+    gl.bindBuffer(gl.ARRAY_BUFFER, ub); gl.bufferData(gl.ARRAY_BUFFER, uv, gl.STATIC_DRAW); loc = gl.getAttribLocation(prog, 'u'); gl.enableVertexAttribArray(loc); gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
+    gl.bindBuffer(gl.ARRAY_BUFFER, pb); gl.bufferData(gl.ARRAY_BUFFER, pos, gl.DYNAMIC_DRAW); loc = gl.getAttribLocation(prog, 'p'); gl.enableVertexAttribArray(loc); gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ib); gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(idx), gl.STATIC_DRAW);
+    return { rest: rest, pos: pos, buffer: pb, count: idx.length };
+  }
+  function initGL(canvas, img) {
+    var gl = canvas.getContext && canvas.getContext('webgl', { alpha: true, premultipliedAlpha: true, antialias: false });
+    if (!gl) return null;
+    var vs = shader(gl, gl.VERTEX_SHADER, VS), fs = shader(gl, gl.FRAGMENT_SHADER, FS), prog = gl.createProgram(), tex = gl.createTexture();
+    if (!vs || !fs) return null;
+    gl.attachShader(prog, vs); gl.attachShader(prog, fs); gl.linkProgram(prog);
+    if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) return null;
+    gl.useProgram(prog); gl.bindTexture(gl.TEXTURE_2D, tex); gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    var m = mesh(gl, prog); gl.clearColor(0, 0, 0, 0);
+    return { gl: gl, m: m };
+  }
   root.RWKainchiUI.panditji = function () {
-    var prefix = 'pandit-' + (++serial) + '-';
-    var ns = 'http://www.w3.org/2000/svg';
-    function node(tag, attrs, parent) {
-      var n = document.createElementNS(ns, tag);
-      Object.keys(attrs || {}).forEach(function (k) { n.setAttribute(k, typeof attrs[k] === 'string' && k === 'fill' ? attrs[k].replace(/url\(#pandit-/g, 'url(#' + prefix) : attrs[k]); });
-      if (parent) parent.appendChild(n); return n;
+    var fig = document.createElement('div'), img = document.createElement('img'), rig = root.RWKainchiUI.panditRig(), api, tmp = [0, 0];
+    var view = null, fx = null, fxc = null, canvas = null, running = false, raf = 0, last = 0, seen = false, ptr = { x: 0, y: 0, at: -1e9, down: false };
+    fig.className = 'pandit-figure'; fig.setAttribute('data-mode', 'static'); img.className = 'pandit-photo'; img.src = SRC; img.alt = ''; img.width = W; img.height = H;
+    img.loading = 'lazy'; img.decoding = 'async'; fig.appendChild(img);
+    function reduced() { return !!(root.matchMedia && root.matchMedia('(prefers-reduced-motion: reduce)').matches) || document.body.classList.contains('motion-paused'); }
+    function fit() {
+      var d = Math.min(2, root.devicePixelRatio || 1), w = Math.max(2, Math.round(fig.clientWidth * d)), h = Math.round(w * H / W);
+      if (canvas.width !== w) { canvas.width = w; canvas.height = h; fxc.width = w; fxc.height = h; view.gl.viewport(0, 0, w, h); }
+      return w / W;
     }
-    var svg = node('svg', { viewBox: '0 0 260 340', class: 'pandit-puppet', 'aria-hidden': 'true' });
-    var defs = node('defs', {}, svg);
-    [['skin', '#f3c695', '#bc744b'], ['robe', '#c55135', '#541d34'], ['shawl', '#ffce7a', '#b67526'], ['hair', '#fff1d5', '#b8a898']].forEach(function (colors) {
-      var grad = node('linearGradient', { id: prefix + colors[0], x2: '0', y2: '1' }, defs);
-      node('stop', { offset: '0%', 'stop-color': colors[1] }, grad); node('stop', { offset: '100%', 'stop-color': colors[2] }, grad);
+    function drawFx(k) {
+      var m = rig.mouth(), i, p;
+      fx.clearRect(0, 0, fxc.width, fxc.height);
+      if (m.open > 0.06) {
+        rig.displace(m.x, 218, tmp); fx.fillStyle = 'rgba(58,18,24,.92)'; fx.beginPath();
+        fx.ellipse(m.x * k, (214.5 + tmp[1] * 0.5 + m.open * 2) * k, (12 + 6 * m.open) * k, (0.6 + 4.8 * m.open) * k, 0, 0, 6.2832); fx.fill();
+      }
+      for (i = 0; i < rig.petals.length; i += 1) {
+        p = rig.petals[i]; fx.save(); fx.translate(p.x * k, p.y * k); fx.rotate(p.r); fx.globalAlpha = Math.min(1, p.age * 2.5, (p.life - p.age) * 1.2);
+        fx.fillStyle = p.c; fx.beginPath(); fx.ellipse(0, 0, p.sz * k, p.sz * 0.55 * k, 0, 0, 6.2832); fx.fill(); fx.restore();
+      }
+    }
+    function render() {
+      var gl = view.gl, m = view.m, k = fit(), i;
+      for (i = 0; i < m.rest.length; i += 2) { rig.displace(m.rest[i], m.rest[i + 1], tmp); m.pos[i] = m.rest[i] + tmp[0]; m.pos[i + 1] = m.rest[i + 1] + tmp[1]; }
+      gl.clear(gl.COLOR_BUFFER_BIT); gl.bindBuffer(gl.ARRAY_BUFFER, m.buffer); gl.bufferSubData(gl.ARRAY_BUFFER, 0, m.pos);
+      gl.drawElements(gl.TRIANGLES, m.count, gl.UNSIGNED_SHORT, 0); drawFx(k);
+    }
+    function frame(ts) {
+      if (!running) return;
+      raf = root.requestAnimationFrame(frame);
+      if (reduced() || document.hidden) { last = ts; return; }
+      var dt = Math.min(0.05, (ts - last) / 1000), r = fig.getBoundingClientRect(), scene = fig.parentNode, now = root.performance.now();
+      last = ts;
+      rig.update(dt, {
+        gx: clamp((ptr.x - (r.left + r.width / 2)) / (root.innerWidth / 2), -1, 1), gy: clamp((ptr.y - (r.top + r.height / 4)) / (root.innerHeight / 2), -1, 1),
+        attn: ptr.down ? 1 : clamp(1 - (now - ptr.at) / 4000, 0, 1), speaking: (!!scene && scene.classList.contains('ritual-speaking')) || now < api.talkUntil,
+        running: !!scene && scene.classList.contains('ritual-running'), phase: scene ? scene.getAttribute('data-phase') : '', style: api.style, bow: api.bow
+      });
+      render();
+    }
+    function onMove(e) { ptr.x = e.clientX; ptr.y = e.clientY; ptr.at = root.performance.now(); }
+    function run(on) {
+      if (on === running || !view) return;
+      running = on;
+      if (on) { last = root.performance.now(); raf = root.requestAnimationFrame(frame); document.addEventListener('pointermove', onMove, { passive: true }); }
+      else { root.cancelAnimationFrame(raf); document.removeEventListener('pointermove', onMove); }
+    }
+    function setup() {
+      if (view || !img.naturalWidth || root.RWKainchiUI.panditjiNoGL) return;
+      canvas = document.createElement('canvas'); canvas.className = 'pandit-gl'; view = initGL(canvas, img);
+      if (!view) { view = null; return; }
+      fxc = document.createElement('canvas'); fxc.className = 'pandit-fx'; fx = fxc.getContext('2d');
+      canvas.addEventListener('webglcontextlost', function (e) { e.preventDefault(); run(false); fig.setAttribute('data-mode', 'static'); }, false);
+      fig.appendChild(canvas); fig.appendChild(fxc); fig.setAttribute('data-mode', 'live'); render(); run(seen);
+    }
+    function poke(kind) {
+      rig.impulse(kind); fig.classList.add('pandit-poked'); root.setTimeout(function () { fig.classList.remove('pandit-poked'); }, 650);
+      fig.dispatchEvent(new root.CustomEvent('panditpoke', { detail: { region: kind } }));
+    }
+    fig.addEventListener('pointerdown', function (e) {
+      var r = fig.getBoundingClientRect(); ptr.down = true; ptr.x = e.clientX; ptr.y = e.clientY; ptr.at = root.performance.now();
+      root.setTimeout(function () { ptr.down = false; }, 900); poke(region((e.clientX - r.left) / r.width * W, (e.clientY - r.top) / r.height * H));
     });
-    function path(d, fill, parent, cls) { return node('path', { d: d, fill: fill, class: cls || '' }, parent || svg); }
-    node('circle', { cx: 130, cy: 96, r: 78, fill: 'none', stroke: '#e8ba6c', 'stroke-width': 1, opacity: '.5' }, svg);
-    node('circle', { cx: 130, cy: 96, r: 72, fill: 'none', stroke: '#e8ba6c', 'stroke-width': 3, opacity: '.2' }, svg);
-    path('M30 280Q35 164 86 145L174 145Q225 163 230 280Q195 334 130 329Q65 334 30 280', 'url(#pandit-robe)');
-    path('M89 147L115 137L127 320L70 308Z M171 147L146 137L132 320L189 308Z', 'url(#pandit-shawl)');
-    path('M105 153L115 148L121 303L108 292Z M155 153L146 148L140 303L154 292Z', '#fbe0a4');
-    path('M35 289Q85 263 131 294Q175 263 226 289L213 323Q168 340 132 318Q84 340 45 323Z', '#e8bf8c');
-    for (var i = 0; i < 18; i += 1) node('circle', { cx: 96 + i * 4, cy: 174 + Math.sin(i / 17 * Math.PI) * 64, r: 3, fill: '#4c251f', stroke: '#df9d59', 'stroke-width': '.5' }, svg);
-    var head = node('g', { class: 'pandit-head' }, svg);
-    node('ellipse', { cx: 130, cy: 46, rx: 22, ry: 20, fill: 'url(#pandit-hair)' }, head);
-    node('ellipse', { cx: 130, cy: 57, rx: 20, ry: 4, fill: '#8d4929' }, head);
-    node('ellipse', { cx: 130, cy: 102, rx: 43, ry: 56, fill: 'url(#pandit-hair)' }, head);
-    node('ellipse', { cx: 90, cy: 103, rx: 8, ry: 13, fill: 'url(#pandit-skin)' }, head);
-    node('ellipse', { cx: 170, cy: 103, rx: 8, ry: 13, fill: 'url(#pandit-skin)' }, head);
-    path('M96 91Q95 60 128 63Q164 61 165 91L163 118Q158 147 130 153Q101 146 97 119Z', 'url(#pandit-skin)', head);
-    path('M96 88Q95 51 131 51Q166 53 166 88Q157 65 130 66Q106 67 96 88', 'url(#pandit-hair)', head);
-    path('M101 117Q107 136 130 133Q152 136 160 117L157 146Q146 166 130 171Q111 165 102 147Z', 'url(#pandit-hair)', head);
-    path('M108 116Q119 108 130 115Q143 109 152 116L147 126Q135 117 130 122Q120 117 111 125Z', '#eee1cd', head);
-    path('M104 90Q113 85 121 91 M138 91Q148 86 156 92', 'none', head).setAttribute('stroke', '#806253');
-    var eyes = node('g', { class: 'pandit-eyes' }, head);
-    [[113, 98], [147, 98]].forEach(function (p) { node('ellipse', { cx: p[0], cy: p[1], rx: 6, ry: 3, fill: '#f9ecd5' }, eyes); node('circle', { cx: p[0], cy: p[1], r: 2.5, fill: '#2f201e' }, eyes); });
-    path('M130 96L126 112Q130 115 135 112', 'none', head).setAttribute('stroke', '#a36746');
-    node('path', { d: 'M124 74L127 88 M137 74L134 88', stroke: '#ffe0a1', 'stroke-width': 3, fill: 'none' }, head);
-    node('circle', { cx: 130, cy: 89, r: 2.5, fill: '#c55733' }, head);
-    var mouth = node('g', { class: 'pandit-mouth' }, head);
-    node('ellipse', { cx: 130, cy: 128, rx: 9, ry: 3.2, fill: '#68302c', class: 'pandit-mouth-open' }, mouth);
-    node('path', { d: 'M121 128Q130 132 139 128', fill: 'none', stroke: '#b77467', 'stroke-width': 2 }, mouth);
-    function arm(cls, d, palm) {
-      var g = node('g', { class: cls }, svg); path(d, 'url(#pandit-robe)', g);
-      path(palm, 'url(#pandit-skin)', g); return g;
-    }
-    arm('pandit-arm pandit-arm-left', 'M77 163Q42 169 48 207L85 239L104 220L75 191Z', 'M84 221Q91 209 103 216L119 225Q127 231 118 237L102 238L91 233Z');
-    arm('pandit-arm pandit-arm-right', 'M183 163Q218 169 212 207L175 239L156 220L185 191Z', 'M176 221Q169 209 157 216L141 225Q133 231 142 237L158 238L169 233Z');
-    var greeting = node('g', { class: 'pandit-namaste' }, svg);
-    path('M101 230Q102 215 117 192L124 172Q128 166 130 177L130 211L120 232Z M159 230Q158 215 143 192L136 172Q132 166 130 177L130 211L140 232Z', 'url(#pandit-skin)', greeting);
-    path('M109 229L122 208 M151 229L138 208', 'none', greeting).setAttribute('stroke', '#b37653');
-    return svg;
+    img.addEventListener('load', setup);
+    if (root.IntersectionObserver) {
+      new root.IntersectionObserver(function (entries) { seen = entries[entries.length - 1].isIntersecting; if (seen && img.complete) setup(); run(seen && !!view); }, { rootMargin: '120px' }).observe(fig);
+    } else { seen = true; if (img.complete) setup(); }
+    document.addEventListener('visibilitychange', function () { if (!document.hidden) last = root.performance.now(); });
+    api = { rig: rig, poke: poke, style: { sway: 1, breath: 1, blink: 1, sleepy: 0 }, bow: 0, talkUntil: 0, region: region };
+    fig.panditji = api;
+    return fig;
   };
 })(window);

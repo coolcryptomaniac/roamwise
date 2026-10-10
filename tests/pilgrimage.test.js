@@ -2,7 +2,7 @@
 const test = require('node:test'), assert = require('node:assert/strict'), fs = require('node:fs'), path = require('node:path');
 const { JSDOM } = require('jsdom');
 const repo = path.resolve(__dirname, '..');
-const ids = ['pilgrimage', 'char-dham', 'panch-kedar', 'kumbh', 'vaishno-devi', 'kashi', 'tirupati'];
+const ids = ['pilgrimage', 'char-dham', 'panch-kedar', 'kumbh', 'vaishno-devi', 'kashi', 'tirupati', 'ayodhya', 'dwarka-somnath', 'puri-konark', 'amarnath', 'shirdi', 'bodh-gaya', 'rameswaram-madurai'];
 function boot(id, pro = false, speech) {
   const base = path.join(repo, id), html = fs.readFileSync(path.join(base, 'index.html'), 'utf8');
   const d = new JSDOM(html, { url: 'https://roamwise.co.in/' + id + '/', runScripts: 'outside-only' }), w = d.window;
@@ -17,7 +17,7 @@ test('all pilgrimage entries load with strict CSP, valid local assets and no inv
     const d = boot(id), doc = d.window.document, base = path.join(repo, id), html = fs.readFileSync(path.join(base, 'index.html'), 'utf8');
     assert.match(html, /connect-src 'none'/); assert.doesNotMatch(html, /<script(?![^>]*src=)|\sstyle=|\sonclick=/);
     for (const node of doc.querySelectorAll('script[src],link[rel="stylesheet"]')) assert.ok(fs.existsSync(path.resolve(base, node.getAttribute('src') || node.getAttribute('href'))));
-    assert.equal(doc.querySelectorAll('.journey-card').length, 7);
+    assert.equal(doc.querySelectorAll('.journey-card').length, 14);
     if (id !== 'pilgrimage') { assert.match(doc.getElementById('source-age').textContent, /not an imported live feed/); assert.equal(doc.getElementById('standard-begin').disabled, true); assert.ok(doc.querySelector('a[href="tel:112"]')); }
     d.window.close();
   }
@@ -48,7 +48,7 @@ test('Pro standard and custom sessions share the gesture player with appropriate
   assert.match(doc.querySelector('#standard-ritual .ritual-script').textContent, /ॐ नमो नारायणाय/); assert.doesNotMatch(doc.querySelector('#standard-ritual .ritual-script').textContent, /हनुमान लला/);
   doc.getElementById('custom-name').value = '<img src=x onerror=alert(1)>'; doc.getElementById('custom-people').value = 'My family';
   doc.getElementById('custom-form').dispatchEvent(new w.Event('submit', { cancelable: true }));
-  assert.equal(doc.querySelector('#standard-ritual [data-ritual-action="pause"]').disabled, true); assert.ok(doc.querySelector('#custom-ritual .pandit-mouth-open'));
+  assert.equal(doc.querySelector('#standard-ritual [data-ritual-action="pause"]').disabled, true); assert.ok(doc.querySelector('#custom-ritual .pandit-figure'));
   assert.equal(doc.querySelector('img[src=x]'), null); assert.match(doc.querySelector('#custom-ritual .ritual-script').textContent, /My family/); assert.equal(voice.spoken.length, 0);
   assert.doesNotMatch(JSON.stringify(w.localStorage), /My family|onerror/); w.close();
 });

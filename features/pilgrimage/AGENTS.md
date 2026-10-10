@@ -1,7 +1,7 @@
 # Sacred journeys
 
 Shared independent advisory pages: `/pilgrimage/`, `/char-dham/`, `/panch-kedar/`,
-`/kumbh/`, `/vaishno-devi/`, `/kashi/`, `/tirupati/`. Kainchi remains its own daily hub.
+`/kumbh/`, `/vaishno-devi/`, `/kashi/`, `/tirupati/`, `/ayodhya/`, `/dwarka-somnath/`, `/puri-konark/`, `/amarnath/`, `/shirdi/`, `/bodh-gaya/`, `/rameswaram-madurai/`. Kainchi remains its own daily hub.
 Preserve root `CLAUDE.md` and `AI-ROLES-AND-HANDOFF.md`.
 
 - `destinations.js`: bilingual destination facts and official references. Never invent dates,
