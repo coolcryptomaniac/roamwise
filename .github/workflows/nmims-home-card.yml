@@ -12,15 +12,17 @@ on:
         type: boolean
         default: true
       event_name:
-        description: "Event name (optional)"
+        description: "Event name"
         required: false
+        default: "Startup Garage"
       event_date:
         description: "Event date YYYY-MM-DD (optional)"
         required: false
         default: "2026-10-15"
       venue:
-        description: "Venue (optional)"
+        description: "Venue"
         required: false
+        default: "SBM NMIMS Mumbai, by E-Cell SBM NMIMS Mumbai"
       time_text:
         description: "Time text, e.g. 10:00 AM onwards (optional)"
         required: false
