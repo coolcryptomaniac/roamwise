@@ -33,6 +33,7 @@ var ASSET_CACHE = VERSION + '-assets';
 var PRECACHE = [
   '/',
   '/index.html',
+  '/lite/',
   '/app.css',
   '/mobile-stability.css',
   '/design/roamwise-akatsuki-theme.css',
