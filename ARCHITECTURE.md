@@ -1277,3 +1277,18 @@ round 5"'s own advice) remains the source of truth.
   `fetch(..., {cache:'no-store'})` callers still go network-first. Install precaches every
   script/stylesheet that `index.html` references. Add a new script → nothing else to do.
 - Guarded by `tests/boot-resilience.test.js`.
+
+### Optimised publish, device tier, old browsers (October 2026)
+
+- **Pages publishes `_site`, not the repo.** `.github/workflows/static.yml` runs `node tools/build-dist.cjs _site`
+  (esbuild, `npm i --no-save esbuild@0.25`) after the Kainchi steps. It copies the repo and minifies every `.js`/`.css`,
+  except `vendor/`, `sw.js` and `*.min.*`. Rules that keep it safe: scripts stay classic (no bundling, no module
+  wrapping), **no syntax lowering** (`target` unset = esnext; lowering leaks one-letter helper vars such as `N`, `j`
+  into the global scope), and a file that fails to minify or re-parse is copied unchanged. Top-level names survive, so
+  inline `onclick` handlers keep working. Home-page scripts: 897 KB -> 683 KB gzip (-23%); slow-3G first boot 22.9 s -> 18.4 s.
+  If a deploy ever misbehaves, revert the `static.yml` hunk to `path: '.'` and the site publishes unminified again.
+- **Device tier.** `#rw-net` also reads `navigator.deviceMemory` / `hardwareConcurrency`. 2 GB RAM or fewer, or 2 cores
+  or fewer, lowers a `fast` reading to `medium` (`__RW_NET.lowEnd`). Unknown hardware (Safari, Firefox) is never guessed.
+  Tests that expect `fast` must set `hardwareConcurrency` explicitly (jsdom reports the host's cores).
+- **Old browsers.** `#rw-oldbrowser` (ES5 only, runs before `#rw-net`) replaces the page with a plain "update your
+  browser" notice plus a link to `/lite/` when Promise, fetch, Map, Set, Array.includes or classList are missing.
