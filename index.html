@@ -31,7 +31,13 @@
     (d.body||d.documentElement).appendChild(b);
   }
   function drop(){var b=d.getElementById('rwStall');if(b&&b.parentNode)b.parentNode.removeChild(b);}
-  w.addEventListener('rw:booted',drop);
+  /* Loading veil: until the app has started (tabs and menu are built by script), a slow
+     link would show the raw page with no tabs and every section stacked. The veil hides
+     that. It always lifts: on boot, on a bfcache restore, or after 20 s at the latest. */
+  function lift(){var v=d.getElementById('rwVeil');if(!v)return;v.className='rw-veil-off';setTimeout(function(){if(v.parentNode)v.parentNode.removeChild(v);},300);}
+  w.addEventListener('rw:booted',function(){drop();lift();});
+  w.addEventListener('pageshow',function(){if(booted())lift();});
+  setTimeout(lift,20000);
   w.addEventListener('load',function(){setTimeout(function(){
     if(booted())return;
     if(Date.now()-(+get('rw_heal_at')||0)>600000)heal();else banner();
@@ -39,6 +45,17 @@
   setTimeout(function(){if(!booted())banner();},15000);
 })();
 </script>
+<style id="rw-veil-css">
+#rwVeil{position:fixed;inset:0;z-index:2147482000;background:#05060d;color:#f3e6c4;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;font:600 22px/1.2 system-ui,-apple-system,sans-serif;letter-spacing:.2px;transition:opacity .25s ease}
+#rwVeil b{color:#e8ba6c}
+#rwVeil i{display:block;width:140px;height:3px;border-radius:3px;background:rgba(232,186,108,.18);overflow:hidden}
+#rwVeil i::after{content:"";display:block;width:45%;height:100%;background:#e8ba6c;border-radius:3px;animation:rwVeilBar 1.1s ease-in-out infinite}
+#rwVeil small{font:400 13px/1.4 system-ui,sans-serif;color:rgba(243,230,196,.6)}
+#rwVeil.rw-veil-off{opacity:0;pointer-events:none}
+@keyframes rwVeilBar{0%{transform:translateX(-110%)}100%{transform:translateX(260%)}}
+@media (prefers-reduced-motion:reduce){#rwVeil i::after{animation:none;width:100%}}
+</style>
+<noscript><style>#rwVeil{display:none}</style></noscript>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="google-adsense-account" content="ca-pub-4943859484482348">
 <meta name="theme-color" content="#080B18">
@@ -396,6 +413,7 @@ html{-webkit-text-size-adjust:100%}
 </style>
 </head>
 <body class="rw-akatsuki-theme">
+<div id="rwVeil" role="status" aria-live="polite"><span>Roam<b>Wise</b></span><i></i><small>Getting things ready…</small></div>
 <div class="intro" id="intro" onclick="killIntro()">
   <div class="kumo" style="top:16%;left:10%"></div><div class="kumo k2" style="bottom:20%;right:12%"></div>
   <div class="introMap"></div>

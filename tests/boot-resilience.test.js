@@ -123,3 +123,26 @@ test('service worker: first install does not reload the page; repeat visits are 
   assert.match(sw, /!res\.redirected/);
   assert.match(sw, /vendor\/webllm\//);
 });
+
+test('loading veil: first child of <body>, covers the unfinished page, always lifts', () => {
+  const body = html.slice(html.indexOf('<body'));
+  assert.match(body.slice(0, 200), /<body[^>]*>\s*<div id="rwVeil"/);
+  assert.match(html, /<noscript><style>#rwVeil\{display:none\}<\/style><\/noscript>/);
+  /* sits under the opening film (2147483000) and the stall banner (2147483647) */
+  const z = +html.match(/#rwVeil\{[^}]*z-index:(\d+)/)[1];
+  assert.ok(z < 2147483000);
+
+  const { w, timers } = bootWatchdog({ booted: false });
+  w.document.body.innerHTML = '<div id="rwVeil"></div>';
+  /* 1) lifts when the app boots */
+  w.__RW_BOOTED = true; w.dispatchEvent(new w.Event('rw:booted'));
+  assert.equal(w.document.getElementById('rwVeil').className, 'rw-veil-off');
+  timers.filter((t) => t.ms === 300).forEach((t) => t.fn());
+  assert.equal(w.document.getElementById('rwVeil'), null);
+
+  /* 2) lifts after 20 s even if the app never booted, so a broken page is never trapped */
+  const stuck = bootWatchdog({ booted: false });
+  stuck.w.document.body.innerHTML = '<div id="rwVeil"></div>';
+  stuck.timers.find((t) => t.ms === 20000).fn();
+  assert.equal(stuck.w.document.getElementById('rwVeil').className, 'rw-veil-off');
+});
