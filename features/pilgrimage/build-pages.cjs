@@ -5,13 +5,13 @@ const repo = path.resolve(__dirname, '../..'), sandbox = { window: {} };
 vm.runInNewContext(fs.readFileSync(path.join(__dirname, 'destinations.js'), 'utf8'), sandbox);
 const sites = sandbox.window.RWPilgrimage.sites;
 const coreScripts = ['data/config.js', 'core/validation.js', 'core/i18n.js', 'ui/context.js'].map(s => '../features/kainchi-yatra/' + s);
-const devotionScripts = ['../features/pilgrimage/ritual-context.js', ...['data/ritual-script.js', 'data/strings-ritual-voice.js', 'ui/bhakti-access.js', 'ui/ritual-voice.js', 'ui/panditji.js', 'ui/ritual.js'].map(s => '../features/kainchi-yatra/' + s)];
+const devotionScripts = ['../features/pilgrimage/ritual-context.js', ...['data/ritual-script.js', 'data/strings-ritual-voice.js', 'data/strings-panditji.js', 'ui/bhakti-access.js', 'ui/ritual-voice.js', 'ui/panditji-physics.js', 'ui/panditji.js', 'ui/panditji-brain.js', 'ui/ritual.js'].map(s => '../features/kainchi-yatra/' + s)];
 const pageScripts = ['../features/pilgrimage/destinations.js', '../features/pilgrimage/strings.js', '../features/pilgrimage/page.js'];
 const scriptsFor = slug => [...coreScripts, ...(slug === 'pilgrimage' ? [] : devotionScripts), ...pageScripts];
 const styles = ['../features/kainchi-yatra/ui/kainchi.css', '../features/kainchi-yatra/ui/ritual.css', '../features/kainchi-yatra/ui/panditji.css', '../features/pilgrimage/pilgrimage.css'];
 function esc(s) { return s.replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
 function html(site) {
-  const id = site ? site.id : 'pilgrimage', title = site ? site.name.en : 'Sacred journeys', intro = site ? site.intro.en : 'Plan Char Dham, Panch Kedar, Kumbh, Kainchi Dham, Vaishno Devi, Kashi and Tirumala journeys with sourced guidance and digital devotion.';
+  const id = site ? site.id : 'pilgrimage', title = site ? site.name.en : 'Sacred journeys', intro = site ? site.intro.en : 'Plan Char Dham, Kedarnath, Kumbh, Kainchi Dham, Vaishno Devi, Kashi, Tirumala, Ayodhya, Puri, Amarnath, Shirdi and other journeys with sourced guidance and digital devotion.';
   return `<!doctype html>
 <html lang="en"><head>
   <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">

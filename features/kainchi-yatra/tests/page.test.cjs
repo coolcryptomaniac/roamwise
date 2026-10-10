@@ -336,7 +336,7 @@ test('mouth animation follows actual speech start, boundaries are safe, and stop
   assert.equal(scene.classList.contains('ritual-speaking'), false); start(); assert.equal(scene.classList.contains('ritual-speaking'), true);
   first.onboundary({ name: 'word', charIndex: 0 }); assert.equal(w.document.querySelector('#standard-ritual mark').textContent, 'Welcome.');
   action(d, 'standard', 'stop').click(); start(); assert.equal(scene.classList.contains('ritual-speaking'), false);
-  assert.ok(scene.querySelector('.pandit-arm-left')); assert.ok(scene.querySelector('.pandit-mouth-open')); w.close();
+  assert.ok(scene.querySelector('.pandit-figure img.pandit-photo')); assert.equal(scene.querySelector('.pandit-figure').getAttribute('data-mode'), 'static'); w.close();
 });
 test('voice test uses Hindi without personal names and does not advance the ritual', () => {
   const voice = speech(), d = boot({ pro: true, speech: voice });

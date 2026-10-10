@@ -38,6 +38,7 @@
       p.caption.textContent = s.text; p.caption.lang = s.lang;
       if (p.testing) { p.caption.textContent = 'ॐ शान्तिः शान्तिः शान्तिः। आपका स्वागत है।'; p.caption.lang = 'hi-IN'; }
       p.scene.setAttribute('data-phase', p.completed ? 'prasad' : s.id);
+      if (p.guide) p.guide.sync(s.id, p.running && !p.paused, p.completed);
       p.plate.hidden = !p.completed && s.id !== 'prasad' && s.id !== 'blessing';
       p.scene.classList.toggle('ritual-running', p.running && !p.paused);
       p.scene.classList.toggle('ritual-speaking', speaking && active === p && !p.paused);
@@ -111,7 +112,7 @@
       p.badge = ctx.el('p', null, 'eyebrow'); p.heading = ctx.el('h3'); p.note = ctx.el('p', null, 'muted small');
       p.heading.id = kind + '-ritual-heading'; p.heading.tabIndex = -1; box.setAttribute('aria-labelledby', p.heading.id);
       box.appendChild(p.badge); box.appendChild(p.heading); box.appendChild(p.note);
-      var layout = ctx.el('div', null, 'ritual-layout'); p.scene = scene(); layout.appendChild(p.scene);
+      var layout = ctx.el('div', null, 'ritual-layout'), left = ctx.el('div', null, 'ritual-left'); p.scene = scene(); p.guide = root.RWKainchiUI.panditjiBrain(ctx, p.scene); left.appendChild(p.scene); left.appendChild(p.guide.panel); layout.appendChild(left);
       var reading = ctx.el('div', null, 'ritual-reading'); p.progress = ctx.el('p', null, 'ritual-progress'); p.progress.setAttribute('role', 'status'); p.progress.setAttribute('aria-live', 'polite');
       p.caption = ctx.el('p', null, 'ritual-caption'); reading.appendChild(p.progress); reading.appendChild(p.caption);
       p.plate = ctx.el('p', null, 'muted small'); reading.appendChild(p.plate);

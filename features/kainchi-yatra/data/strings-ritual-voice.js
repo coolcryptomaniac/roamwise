@@ -3,7 +3,7 @@
   Object.assign(root.RWKainchiCore.strings.en, {
     ritual_journeys: 'Explore Char Dham, Panch Kedar, Kumbh & more →',
     ritual_badge: 'Animated devotional guide · scripted session',
-    ritual_note: 'An original illustrated guide with offering gestures and approximate speech-driven mouth movement. A symbolic RoamWise session, not a live priest or the Trust’s puja. No physical offering, food or promised outcome.',
+    ritual_note: 'A fictional AI-created portrait brought to life on your device: breathing, blinking, head turns, a swaying beard and mala, and approximate speech-driven jaw movement. Panditji’s small on-device brain chats from fixed lines and knows nothing live. A symbolic RoamWise session, not a live priest or the Trust’s puja. No physical offering, food or promised outcome.',
     ritual_voice_note: 'Start with local device voices. If none appear, allow device-provider voices below and tap Test voice. Provider voices may send the spoken text, including personalised names, to your browser/OS voice provider. Consent stays in this player only; RoamWise does not save or upload your names.',
     ritual_provider: 'Allow device-provider voices, including online voices',
     ritual_hi_voice: 'Hindi voice · mantras', ritual_en_voice: 'English voice · guidance',
@@ -19,7 +19,7 @@
   Object.assign(root.RWKainchiCore.strings.hi, {
     ritual_journeys: 'चार धाम, पंच केदार, कुंभ और अन्य यात्राएँ देखें →',
     ritual_badge: 'चलता भक्ति मार्गदर्शक · तैयार पाठ',
-    ritual_note: 'मौलिक चित्रित मार्गदर्शक, चढ़ावे के संकेत और आवाज़ के साथ अनुमानित मुख गति। रोमवाइज़ का प्रतीकात्मक अनुभव; जीवित पुजारी या ट्रस्ट की पूजा नहीं। भौतिक चढ़ावा, भोजन या परिणाम का वादा नहीं।',
+    ritual_note: 'AI से बना एक काल्पनिक चित्र, जो आपके डिवाइस पर जीवंत होता है: साँस, पलकें, सिर का घूमना, हिलती दाढ़ी और माला, और आवाज़ के साथ अनुमानित जबड़े की गति। पंडित जी का छोटा ऑन-डिवाइस दिमाग़ तय पंक्तियों से बात करता है और कुछ भी लाइव नहीं जानता। रोमवाइज़ का प्रतीकात्मक अनुभव; जीवित पुजारी या ट्रस्ट की पूजा नहीं। भौतिक चढ़ावा, भोजन या परिणाम का वादा नहीं।',
     ritual_voice_note: 'पहले स्थानीय आवाज़ आज़माएँ। आवाज़ न मिले तो नीचे डिवाइस-प्रदाता की आवाज़ की अनुमति दें और परीक्षण करें। प्रदाता की आवाज़ बोले गए पाठ और निजी नाम ब्राउज़र/OS के आवाज़ प्रदाता को भेज सकती है। अनुमति इसी प्लेयर में रहती है; रोमवाइज़ नाम सहेजता या अपलोड नहीं करता।',
     ritual_provider: 'डिवाइस-प्रदाता की आवाज़ की अनुमति दें, ऑनलाइन आवाज़ भी',
     ritual_hi_voice: 'हिंदी आवाज़ · मंत्र', ritual_en_voice: 'अंग्रेज़ी आवाज़ · मार्गदर्शन',
