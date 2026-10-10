@@ -12,7 +12,8 @@ import { json } from '../lib/http.js';
 import { verifyFirebaseIdToken } from '../lib/firebase-verify.js';
 import { getServiceAccountAccessToken, parseServiceAccount } from '../lib/service-account.js';
 import { getDoc } from '../lib/firestore-rest.js';
-import { managedAILimit, managedAIRequest, reserveManagedAI, reserveProviderRequest } from '../lib/ai-entitlements.js';
+import { managedAILimit, managedAIRequest, peekManagedAI, reserveManagedAI, reserveProviderRequest } from '../lib/ai-entitlements.js';
+import { answerCacheKey, getCachedAnswer, getCachedLimit, putCachedAnswer, putCachedLimit } from '../lib/ai-cache.js';
 
 const SYSTEM='You are Ailon Tusk, RoamWise travel copilot. Treat the user\'s explicitly named city/locality as the destination; never replace it with the enclosing state or country. Treat next month, October and similar phrases as dates, never places. Use supplied RoamWise facts as authoritative. If inventory, price, weather or opening status is not verified, say so and ask one precise question. Never claim a booking or payment succeeded unless the server-confirmed record says so.';
 /* Older Workers AI models answer {response}; newer ones (Gemma 4) answer in the
@@ -72,9 +73,22 @@ export async function handleAI(request, env){
     const body = await request.json();
     const policy = managedAIRequest(body, env);
     if(!policy.prompt) return json({ error: 'no prompt' }, 400);
-    const accessToken = await getServiceAccountAccessToken(env);
-    const userDoc = await getDoc(env, accessToken, sa.project_id, `users/${claims.uid}`);
-    const limit = managedAILimit(userDoc);
+    // Allowance comes from a short KV cache; Firestore is read only on a miss.
+    let limit = await getCachedLimit(env, claims.uid);
+    if(limit === null){
+      const accessToken = await getServiceAccountAccessToken(env);
+      const userDoc = await getDoc(env, accessToken, sa.project_id, `users/${claims.uid}`);
+      limit = managedAILimit(userDoc);
+      await putCachedLimit(env, claims.uid, limit, userDoc);
+    }
+    // A repeated question is answered from cache and does not use up allowance.
+    // The user must still have allowance left, so the free tier gets nothing.
+    const cacheKey = await answerCacheKey(policy, env);
+    const peek = await peekManagedAI(env, claims.uid, limit);
+    if(peek.ok){
+      const hit = await getCachedAnswer(env, cacheKey);
+      if(hit) return json({text:hit.text,remaining:peek.remaining,limit:peek.limit,route:hit.provider,model:hit.model,usage:null,cached:true});
+    }
     const reserved = await reserveManagedAI(env, claims.uid, limit);
     if(!reserved.ok){
       const status = reserved.reason === 'meter_not_configured' ? 501 : 429;
@@ -88,6 +102,7 @@ export async function handleAI(request, env){
     let answer=null,last='provider_error';
     for(const run of routes){try{answer=await run(policy,env);if(answer&&answer.text)break;}catch(e){last=String(e&&e.message||e)}}
     if(!answer||!answer.text)return json({error:'provider_error',message:'Ailon Tusk is temporarily using its on-device planner.',remaining:reserved.remaining,code:last},502);
+    await putCachedAnswer(env, cacheKey, answer);
     return json({text:answer.text,remaining:reserved.remaining,limit:reserved.limit,route:answer.provider,model:answer.model,usage:answer.usage||null});
   }catch(e){
     return json({ error: 'ai failed' }, 500);
