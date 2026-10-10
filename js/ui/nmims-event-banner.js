@@ -5,7 +5,7 @@
    Public, read-only. Shown ONLY when the existing go-live switch is on:
      partnerships/nmims2026.officialConfirmed === true      (public read, admin write)
    Optional fields on that same doc, edited from the Firebase Console, no redeploy:
-     eventName   text   default "E-Cell NMIMS event"
+     eventName   text   default "Startup Garage"
      eventDate   text   YYYY-MM-DD, India date, default 2026-10-15
      venue       text   optional line, shown only if set
      timeText    text   optional line (e.g. "10:00 AM onwards"), shown only if set
@@ -21,7 +21,7 @@
     var date=/^\d{4}-\d{2}-\d{2}$/.test(String(d.eventDate||''))?String(d.eventDate):DEFAULT_DATE;
     return {
       show: d.officialConfirmed===true && d.bannerOn!==false,
-      name: clean(d.eventName,80)||'E-Cell NMIMS event',
+      name: clean(d.eventName,80)||'Startup Garage',
       date: date, venue: clean(d.venue,100), timeText: clean(d.timeText,60)
     };
   }
@@ -42,7 +42,7 @@
     box.style.cssText='margin:12px auto;max-width:760px;padding:16px 18px;border:1px solid rgba(232,186,108,.55);border-radius:16px;background:linear-gradient(135deg,rgba(11,16,32,.96),rgba(60,24,40,.94));color:#F2EFE6;font-family:inherit;text-align:center;box-shadow:0 8px 28px rgba(0,0,0,.35)';
     var head=document.createElement('div');
     head.style.cssText='font-size:11px;font-weight:900;letter-spacing:.18em;text-transform:uppercase;color:#E8BA6C';
-    head.textContent='RoamWise × E-Cell NMIMS';
+    head.textContent='RoamWise × E-Cell, SBM NMIMS Mumbai';
     var title=document.createElement('div');
     title.style.cssText='font-size:19px;font-weight:800;margin:6px 0 4px';
     title.textContent=cfg.name;
