@@ -47,15 +47,13 @@ window.RW_REFERRERS = [
   /* { code:'RW-A01-RAHUL', name:'Rahul', type:'affiliate', rate:0.30, active:true }, */
 
   /* ---- CAMPUS / INSTITUTIONAL PARTNERSHIPS ----
-     NMIMS is not signed as of this proposal release. Keep this public seed
-     inactive until the authorised parties approve the 500-seat barter and
-     separate paid-referral terms. The live Firestore config/referrers list can
-     override this fallback; an admin MUST review and disable any active
-     NMIMS2026 entry there too before publicly sharing a referral link.
-     Re-enable only after written agreement, with the agreed institutional
-     payee and payout rules. Historical valid claims are not deleted here. */
-  { code:'NMIMS2026', name:'E-Cell NMIMS Mumbai', type:'campus', rate:0.30, active:false,
-    note:'Proposed NMIMS collaboration; do not enable until signed and verified' },
+     E-Cell NMIMS MOU signed by both parties (RoamWise 9 Oct 2026, E-Cell NMIMS
+     10 Oct 2026). The live Firestore config/referrers list overrides this
+     fallback, so keep both in step. This code only ATTRIBUTES a sale; it never
+     changes the buyer's price. MOU section 7 still needs a written settlement
+     schedule (payee, commission base, invoice and tax details) before any payout. */
+  { code:'NMIMS2026', name:'E-Cell NMIMS Mumbai', type:'campus', rate:0.30, active:true,
+    note:'MOU signed 10 Oct 2026. Attribution only; payout needs the written settlement schedule' },
 ];
 
 /* Payout rules, shown to referrers so nothing is ambiguous later. */

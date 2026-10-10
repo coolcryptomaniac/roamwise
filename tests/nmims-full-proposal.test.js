@@ -7,7 +7,7 @@ const html = fs.readFileSync(path.join(__dirname, '..', 'nmims', 'index.html'), 
 test('NMIMS proposal retains the complete 50/450 offer and stays inactive', () => {
   assert.match(html, /50\s*passes\s*for\s*the\s*organising\s*team/i);
   assert.match(html, /450\s*for\s*eligible\s*NMIMS\s*students\s*and\s*participating\s*audience/i);
-  assert.match(html, /PROPOSAL ONLY\s*·\s*NOT LIVE/);
+  assert.match(html, /MOU SIGNED\s*·\s*10 OCT 2026/);
   assert.match(html, /No public registration, pass claiming, payment or referral campaign is active/i);
   assert.doesNotMatch(html, /<form\b|<script\b|\bsubmitClaim\s*\(/i);
 });

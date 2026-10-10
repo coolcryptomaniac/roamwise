@@ -27,7 +27,7 @@ test('motion respects accessibility and leaves recipient and creator flows uncha
   assert.match(css, /@keyframes rwCampusEnter/);
   assert.match(css, /@keyframes rwPassFloat/);
   assert.doesNotMatch(css, /@import|url\(https?:|javascript:/i);
-  assert.match(proposal, /PROPOSAL ONLY · NOT LIVE/);
+  assert.match(proposal, /MOU SIGNED · 10 OCT 2026/);
   assert.doesNotMatch(proposal, /<form\b|submitClaim\s*\(/i);
   assert.match(creators, /id="creatorForm"/);
   assert.match(creators, /location\.href='mailto:'/);
