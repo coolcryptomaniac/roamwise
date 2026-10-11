@@ -27,7 +27,7 @@ test('index.html loads new scripts before they are needed', () => {
   assert.ok(i('js/copilot/nmims-answers.js') > 0);
   assert.ok(i('js/copilot/nmims-answers.js') < i('js/copilot/core.js?v=rw-route-quiet-1'));
   assert.ok(i('js/ui/rave-card.js') > 0);
-  assert.ok(fs.existsSync(path.join(root, 'assets/audio/rave-to-hell-full.mp3')));
+  assert.ok(fs.existsSync(path.join(root, 'assets/audio/rave-to-hell-lite.mp3')));
 });
 test('nmims answer renders into the bubble without cpFinish (regression: bubble stuck on the loading dots)', () => {
   const core = fs.readFileSync(path.join(root, 'js/copilot/core.js'), 'utf8');
