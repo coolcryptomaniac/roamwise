@@ -105,6 +105,38 @@
     return 'serial,type,code,redeem_link,valid_until\n' + list.map(c =>
       [c.serial, c.role, c.code, 'https://www.roamwise.co.in/?redeem=' + c.code, expiresIso].join(',')).join('\n') + '\n';
   }
+  /** Rebuilds the coupon list from a CSV this tool produced (serial,type,code,redeem_link,valid_until). Every row is validated; anything odd throws. */
+  const CODE_RE = /^NMIMS-(STU|ORG)-(\d{4})-[0-9A-HJKMNP-TV-Z]{13}$/;
+  function fromCsv(text) {
+    const lines = String(text || '').replace(/^\uFEFF/, '').split(/\r?\n/).filter(l => l.trim());
+    if (!lines.length || lines[0].trim().toLowerCase().split(',').slice(0, 3).join(',') !== 'serial,type,code') throw new Error('This is not a coupon CSV from this desk.');
+    const seen = new Set(), list = [];
+    let expiresIso = '';
+    for (const line of lines.slice(1)) {
+      const f = line.split(',').map(x => x.trim().replace(/^"|"$/g, ''));
+      const m = CODE_RE.exec(f[2] || '');
+      if (!m) throw new Error('Row with an invalid code: ' + line.slice(0, 40));
+      const role = m[1] === 'STU' ? 'student' : 'organiser';
+      const serial = Number(m[2]);
+      if (f[1] !== role || Number(f[0]) !== serial) throw new Error('Row does not match its own code: ' + f[2]);
+      if (seen.has(f[2])) throw new Error('Duplicate code in CSV: ' + f[2]);
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(f[4] || '')) throw new Error('Row without a valid_until date: ' + f[2]);
+      seen.add(f[2]); expiresIso = expiresIso || f[4];
+      list.push({ code: f[2], role, serial });
+    }
+    if (!list.length) throw new Error('The CSV has no coupons.');
+    if (list.length > 500) throw new Error('More than 500 coupons in the CSV.');
+    return { list, expiresIso };
+  }
+  /** Keeps cards whose serial is within [from, to] (blank = open end). */
+  function serialRange(list, from, to) {
+    const lo = Number(from) || 1, hi = Number(to) || 9999;
+    return list.filter(c => c.serial >= lo && c.serial <= hi);
+  }
+  /** rows: [{code, serial, role, redeemedAt (ISO or ''), redeemedUid}] */
+  function redemptionsCsv(rows) {
+    return 'serial,type,code,redeemed_at,redeemed_by_uid\n' + rows.map(r => [r.serial, r.role, r.code, r.redeemedAt || '', r.redeemedUid || ''].join(',')).join('\n') + '\n';
+  }
   /** Printable A4 sheet, 10 cards per page, one QR per coupon. qrSvg(url) must return an SVG string (see qrcode.js).
       Everything is inline: no fonts, images or scripts are loaded, so the codes never leave the browser. */
   function cardsHtml(list, qrSvg, expiresIso, title) {
@@ -132,7 +164,8 @@
     const cards = list.map(c => '<div class="card" data-code="' + esc(c.code) + '" data-serial="' + esc(c.serial) + '"><div class="top"><b>RoamWise</b><span>Founder Pro for life</span></div>' +
       '<div class="qr">' + qrSvg('https://www.roamwise.co.in/?redeem=' + c.code) + '</div>' +
       '<div class="code">' + esc(c.code) + '</div>' +
-      '<div class="how">Scan, sign in with Google, tap Redeem.<br>Or enter the code in Settings &rarr; Redeem a partner code.</div>' +
+      '<a class="open" href="https://www.roamwise.co.in/?redeem=' + esc(c.code) + '">Tap to redeem</a>' +
+      '<div class="how">Scan, or tap the button, sign in with Google and redeem.<br>Or enter the code in Settings &rarr; Redeem a partner code.</div>' +
       '<div class="wish"><b>A gift for the builders of Startup Garage 2026</b><br>With thanks to E-Cell and SBM NMIMS. Wishing you big ideas and bigger journeys.<br>&mdash; Mohit and team RoamWise</div>' +
       '<div class="meta">#' + esc(c.serial) + ' &middot; ' + (c.role === 'organiser' ? 'Organiser' : 'Student / audience') + ' &middot; one use &middot; valid until ' + esc(expiresIso) + '</div>' +
       '<div class="acts"><button type="button" class="save">Save image</button><button type="button" class="copy">Copy link</button></div></div>').join('');
@@ -144,7 +177,10 @@
       '.card{max-width:420px;margin:0 auto 16px;border:1.5px dashed #8a3fd1;border-radius:14px;padding:14px;text-align:center;background:#fff}.top{display:flex;justify-content:space-between;align-items:center}.top b{color:#C4302B;font-size:18px}.top span{color:#0f8f72;font-weight:700;font-size:13px}' +
       '.qr svg{width:min(70vw,260px);height:min(70vw,260px);margin:8px 0;background:#fff}.code{font:700 14px ui-monospace,Menlo,monospace;word-break:break-all}.how{font-size:12px;color:#4a4560;margin-top:6px}.wish{font-size:12.5px;line-height:1.4;color:#8a3fd1;margin-top:8px}.wish b{font-size:13.5px}.meta{font-size:11px;color:#6a5f80;margin-top:4px}' +
       '.acts{display:flex;gap:8px;justify-content:center;margin-top:10px}.acts button{border:0;border-radius:9px;padding:10px 14px;font:700 13px system-ui;background:#E8BA6C;color:#0B1020}' +
+      '.open{display:inline-block;margin-top:8px;padding:10px 18px;border-radius:9px;background:#6d2fd1;color:#fff;font-weight:700;text-decoration:none}.code{color:inherit}' +
+      '@page{size:A4;margin:8mm}@media print{body{padding:0;background:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact}.acts{display:none}.note{display:none}' +
+      'body{display:grid;grid-template-columns:1fr 1fr;gap:5mm}.card{max-width:none;margin:0;height:88mm;padding:8px 10px;break-inside:avoid;page-break-inside:avoid}.qr svg{width:32mm;height:32mm;margin:3px 0}.how{font-size:9px}.wish{font-size:9px;margin-top:4px}.wish b{font-size:9.6px}.meta{font-size:8.5px}.open{margin-top:4px;padding:6px 12px;font-size:11px}}' +
       '</style></head><body><div class="note">' + esc(title || '') + ' &middot; digital cards, no printing needed. Save an image or copy the link and send it to one person. Treat each like cash: whoever redeems a code first gets the pass.</div>' + cards + '<script>' + script + '</script></body></html>';
   }
-  return { CAMPAIGN, SPLIT, cardsHtml, digitalCardsHtml, email, name, slug, token, code, allocation, emailIndex, coupon, couponBatch, commitment, toCsv };
+  return { CAMPAIGN, SPLIT, cardsHtml, digitalCardsHtml, email, name, slug, token, code, allocation, emailIndex, coupon, couponBatch, commitment, toCsv, fromCsv, serialRange, redemptionsCsv };
 });

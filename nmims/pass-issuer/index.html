@@ -12,7 +12,10 @@
 <p class="sub">For handing out on event day without collecting emails. Each coupon is single-use, has 64 random bits, expires 30 days after generation and activates Founder Pro for the first verified RoamWise account that redeems it. The set is fixed at 500, so the cap cannot be exceeded. Treat the files like cash: anyone holding a code can use it once.</p>
 <p id="couponStatus" class="sub">Checking coupons…</p>
 <div class="actions"><button class="secondary" id="genCouponsBtn" disabled type="button">Generate the 500 coupons</button></div>
-<div id="couponResult" class="hidden"><output id="couponOut"></output><div class="actions"><button class="secondary" id="dlOrgBtn" type="button">Download 50 organiser coupons (CSV)</button><button class="secondary" id="dlStuBtn" type="button">Download 450 student coupons (CSV)</button></div><div class="actions"><button class="secondary" id="cardOrgBtn" type="button">Print 50 organiser cards with QR</button><button class="secondary" id="cardStuBtn" type="button">Print 450 student cards with QR</button></div><div class="actions"><button class="secondary" id="digOrgBtn" type="button">Digital 50 organiser cards (no paper)</button><button class="secondary" id="digStuBtn" type="button">Digital 450 student cards (no paper)</button></div><p class="sub">Cards open in a new tab. Printed: 10 per A4 page (Print, Save as PDF). Digital: one card per screen with Save image / Copy link, so no paper is needed; the CSV also has a ready redeem link per code for WhatsApp or email mail-merge. The codes stay in your browser; nothing is uploaded.</p><p class="sub">Download both now. For safety the codes are not shown again here after you leave this page; the database keeps them but they cannot be listed by anyone but an admin.</p></div>
+<div id="couponResult" class="hidden"><output id="couponOut"></output><div class="actions"><button class="secondary" id="dlOrgBtn" type="button">Download 50 organiser coupons (CSV)</button><button class="secondary" id="dlStuBtn" type="button">Download 450 student coupons (CSV)</button></div><div class="actions"><button class="secondary" id="cardOrgBtn" type="button">Print 50 organiser cards with QR</button><button class="secondary" id="cardStuBtn" type="button">Print 450 student cards with QR</button></div><div class="actions"><button class="secondary" id="digOrgBtn" type="button">Digital 50 organiser cards (no paper)</button><button class="secondary" id="digStuBtn" type="button">Digital 450 student cards (no paper)</button></div><p class="sub">Cards open in a new tab. Printed: 10 per A4 page (Print, Save as PDF). Digital: one card per screen with Save image / Copy link and a tappable &ldquo;Tap to redeem&rdquo; link that also survives Print &rarr; Save as PDF (6 cards per page); the CSV also has a ready redeem link per code for WhatsApp or email mail-merge. The codes stay in your browser; nothing is uploaded.</p><p class="sub">Download both now. For safety the codes are not shown again here after you leave this page; the database keeps them but they cannot be listed by anyone but an admin.</p></div>
+<h2 style="margin-top:26px;font-size:18px">Rebuild cards from a CSV</h2><p class="sub">Lost the open tab, or only want a few cards (for example the 10 test cards)? Pick the CSV you downloaded; cards are rebuilt on this device and nothing is uploaded. Set a serial range to make only those cards.</p>
+<input id="csvFile" type="file" accept=".csv,text/csv"><div class="actions"><input id="serFrom" type="number" min="1" max="9999" placeholder="From serial (e.g. 1)" aria-label="From serial"><input id="serTo" type="number" min="1" max="9999" placeholder="To serial (e.g. 10)" aria-label="To serial"></div>
+<h2 style="margin-top:26px;font-size:18px">Who has redeemed</h2><p class="sub">Shows serial, type and time for each redeemed coupon, plus the redeeming account&rsquo;s UID (search that UID in Firebase Console &rarr; Authentication to see the email). No email is stored on the coupon.</p><div class="actions"><button class="secondary" id="redListBtn" type="button">Refresh redemptions</button><button class="secondary" id="redCsvBtn" type="button" disabled>Download redemptions (CSV)</button></div><output id="redOut" hidden></output>
 <label for="revokeCode">Revoke one unredeemed coupon (lost or leaked)</label><input id="revokeCode" maxlength="32" placeholder="NMIMS-STU-0123-XXXXXXXXXXXXX" autocomplete="off"><div class="actions"><button class="secondary" id="revokeBtn" disabled type="button">Revoke this coupon</button></div></section><footer>Private operational tool · RoamWise · Contact <a href="mailto:founder@roamwise.co.in">founder@roamwise.co.in</a></footer></main>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script><script src="./pass-utils.js"></script><script src="./qrcode.js"></script>
 <script>
@@ -129,6 +132,33 @@ async function generateCoupons(){
     message(((e&&e.message)||'Could not generate coupons.')+(written.length?' Partial coupons were removed; try again.':''));
   }finally{setBusy(false);}
 }
+let redRows=[];
+async function redemptions(){
+  if(busy||!adminUid)return;
+  try{
+    const q=await db.collection('partnerClaims').where('bearer','==',true).get();
+    redRows=[];q.forEach(d=>{const x=d.data();if(x.proRedeemed===true)redRows.push({code:x.code||d.id,role:x.role,serial:x.serial,redeemedAt:x.redeemedAt||'',redeemedUid:x.redeemedUid||''});});
+    redRows.sort((a,b)=>String(a.redeemedAt).localeCompare(String(b.redeemedAt)));
+    const out=$('redOut');out.hidden=false;
+    out.textContent=redRows.length?redRows.map(r=>(r.role==='organiser'?'ORG':'STU')+' #'+r.serial+' · '+(r.redeemedAt?new Date(r.redeemedAt).toLocaleString('en-IN'):'time n/a')+' · uid '+String(r.redeemedUid).slice(0,8)+'…').join('\n'):'No coupon redeemed yet.';
+    $('redCsvBtn').disabled=!redRows.length;await renderCoupons();
+  }catch(e){message(e.message||'Could not read redemptions.');}
+}
+function redCsv(){
+  if(!redRows.length)return;
+  const blob=new Blob([U.redemptionsCsv(redRows)],{type:'text/csv'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='nmims-redemptions-'+new Date().toISOString().slice(0,10)+'.csv';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),4000);
+}
+async function loadCsv(ev){
+  const f=ev.target.files&&ev.target.files[0];if(!f)return;
+  try{
+    if(f.size>200000)throw new Error('That file is too large to be a coupon CSV.');
+    couponBatchData=U.fromCsv(await f.text());
+    $('couponOut').textContent='Loaded '+couponBatchData.list.length+' coupons from the CSV. Valid until '+couponBatchData.expiresIso+'. Cards use the serial range below if set.';
+    $('couponResult').classList.remove('hidden');message('');
+  }catch(e){couponBatchData=null;$('couponResult').classList.add('hidden');message(e.message||'Could not read that CSV.');}
+  ev.target.value='';
+}
 async function revoke(){
   if(busy||!adminUid)return;const code=String($('revokeCode').value||'').trim().toUpperCase().replace(/[^A-Z0-9_-]/g,'').slice(0,32);
   if(!code){message('Enter the coupon code to revoke.');return;}
@@ -139,14 +169,15 @@ async function revoke(){
 }
 function printCards(role,digital){
   if(!couponBatchData)return;
-  const list=couponBatchData.list.filter(c=>c.role===role);
+  const list=U.serialRange(couponBatchData.list.filter(c=>c.role===role),$('serFrom').value,$('serTo').value);
+  if(!list.length){message('No cards in that serial range.');return;}
   const qr=url=>{const q=qrcode(0,'M');q.addData(url);q.make();return q.createSvgTag({cellSize:4,margin:2,scalable:true});};
   const html=(digital?U.digitalCardsHtml:U.cardsHtml)(list,qr,couponBatchData.expiresIso,'NMIMS '+(role==='organiser'?'organiser':'student / audience')+' pass cards');
   const url=URL.createObjectURL(new Blob([html],{type:'text/html'}));
   window.open(url,'_blank');setTimeout(()=>URL.revokeObjectURL(url),60000);
 }
 $('digOrgBtn').addEventListener('click',()=>printCards('organiser',true));$('digStuBtn').addEventListener('click',()=>printCards('student',true));$('cardOrgBtn').addEventListener('click',()=>printCards('organiser'));$('cardStuBtn').addEventListener('click',()=>printCards('student'));
-$('genCouponsBtn').addEventListener('click',generateCoupons);$('revokeBtn').addEventListener('click',revoke);$('dlOrgBtn').addEventListener('click',()=>csvDownload('organiser'));$('dlStuBtn').addEventListener('click',()=>csvDownload('student'));
+$('csvFile').addEventListener('change',loadCsv);$('redListBtn').addEventListener('click',redemptions);$('redCsvBtn').addEventListener('click',redCsv);$('genCouponsBtn').addEventListener('click',generateCoupons);$('revokeBtn').addEventListener('click',revoke);$('dlOrgBtn').addEventListener('click',()=>csvDownload('organiser'));$('dlStuBtn').addEventListener('click',()=>csvDownload('student'));
 try{firebase.initializeApp(config);db=firebase.firestore();auth=firebase.auth();auth.onAuthStateChanged(async person=>{
   adminUid='';$('couponPanel').classList.add('hidden');couponBatchData=null;$('couponResult').classList.add('hidden');$('issueForm').classList.add('hidden');$('enableBtn').disabled=true;$('pauseBtn').disabled=true;$('result').classList.add('hidden');lastIssued=null;
   if(!person){$('access').textContent='Sign in to RoamWise first, then return to this private page.';return;}
