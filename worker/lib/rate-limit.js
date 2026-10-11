@@ -16,19 +16,18 @@ export async function sha256Hex(text){
   return Array.from(new Uint8Array(buf)).slice(0, 12).map(b => b.toString(16).padStart(2, '0')).join('');
 }
 
-/* Returns true when this hit is OVER the limit. */
+/* Returns true when this hit is OVER the limit. One counter per key per
+   window: one cache read (+ one write) per request, however high the limit. */
 export async function overLimit(name, key, limit, windowSec, cacheImpl){
   try{
     const cache = cacheImpl || caches.default;
     const win = Math.floor(Date.now() / (windowSec * 1000));
-    for(let i = 0; i < limit; i++){
-      const k = new Request(`https://rl.invalid/${name}/${key}/${win}/${i}`);
-      if(!(await cache.match(k))){
-        await cache.put(k, new Response('1', { headers: { 'Cache-Control': `max-age=${windowSec}` } }));
-        return false;
-      }
-    }
-    return true;
+    const k = new Request(`https://rl.invalid/${name}/${key}/${win}`);
+    const hit = await cache.match(k);
+    const n = hit ? (parseInt(await hit.text(), 10) || 0) : 0;
+    if(n >= limit) return true;
+    await cache.put(k, new Response(String(n + 1), { headers: { 'Cache-Control': `max-age=${windowSec}` } }));
+    return false;
   }catch(e){ return false; }
 }
 
@@ -36,20 +35,23 @@ export function clientIp(request){
   return request.headers.get('CF-Connecting-IP') || 'anon';
 }
 
-/* Public routes → [name, limit, windowSec]. Limits are per IP and sized for
-   a college Wi-Fi where many students share one address. */
+/* Public routes → [name, per-IP backstop, windowSec, per-user limit].
+   Phones on Jio/Airtel and college Wi-Fi share IPs, so the IP number is only a
+   loose backstop; the tight limit is per signed-in user (hash of the bearer
+   token). Forged tokens just land in their own bucket and are rejected 401 by
+   the handler, and still count against the IP backstop. */
 export const ROUTE_LIMITS = {
-  'cashfree/order':          ['cf-order', 60, 600],
-  'partner/cashfree/order':  ['pcf-order', 60, 600],
-  'payment-events':          ['pay-ev', 300, 600],
-  'leads':                   ['leads', 12, 600],
-  'status':                  ['cf-status', 200, 600],
-  'ai-anon':                 ['ai-anon', 20, 60],
-  'flood':                   ['flood', 600, 60]
+  'cashfree/order':          ['cf-order', 600, 600, 10],
+  'partner/cashfree/order':  ['pcf-order', 600, 600, 10],
+  'payment-events':          ['pay-ev', 2000, 600, 120],
+  'leads':                   ['leads', 12, 600, 0],
+  'status':                  ['cf-status', 2000, 600, 120],
+  'ai-anon':                 ['ai-anon', 200, 60, 0],
+  'flood':                   ['flood', 1500, 60, 0]
 };
 
 export function routeKey(path, method){
-  if(method === 'POST' && ROUTE_LIMITS[path]) return path;
+  if(method === 'POST' && (path === 'cashfree/order' || path === 'partner/cashfree/order' || path === 'payment-events')) return path;
   if(path === 'leads') return 'leads';
   if(method === 'GET' && /^(partner\/)?cashfree\/order\/[^/]+\/status$/.test(path)) return 'status';
   return null;
@@ -69,8 +71,11 @@ export async function abuseGuard(request, path, cacheImpl){
   if(await overLimit(ROUTE_LIMITS.flood[0], ip, ROUTE_LIMITS.flood[1], ROUTE_LIMITS.flood[2], cacheImpl))
     return { status: 429, error: 'Too many requests — slow down and try again shortly.' };
   if(rk){
-    const [name, limit, win] = ROUTE_LIMITS[rk];
+    const [name, limit, win, perUser] = ROUTE_LIMITS[rk];
     if(await overLimit(name, ip, limit, win, cacheImpl))
+      return { status: 429, error: 'Too many requests — try again in a few minutes.' };
+    const m = /^Bearer\s+(.+)$/i.exec(request.headers.get('authorization') || '');
+    if(perUser && m && await overLimit(name + '-u', await sha256Hex(m[1]), perUser, win, cacheImpl))
       return { status: 429, error: 'Too many requests — try again in a few minutes.' };
   }
   return null;

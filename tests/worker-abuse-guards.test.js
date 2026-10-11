@@ -17,18 +17,30 @@ test('limiter fails open when the cache throws',async()=>{
   const bad={match(){throw new Error('x')},put(){throw new Error('x')}};
   assert.equal(await RL.overLimit('t','a',1,60,bad),false);
 });
-test('payment order route is limited per IP, other IPs unaffected',async()=>{
-  const c=fakeCache(), h={ 'CF-Connecting-IP':'1.1.1.1' };
+test('payment orders are limited per signed-in user; a shared IP does not block other users',async()=>{
+  const c=fakeCache(), ip='1.1.1.1';
+  const as=tok=>req('cashfree/order',{method:'POST',headers:{'CF-Connecting-IP':ip,authorization:'Bearer '+tok}});
   let refused=null;
-  for(let i=0;i<61;i++) refused=await RL.abuseGuard(req('cashfree/order',{method:'POST',headers:h}),'cashfree/order',c);
+  for(let i=0;i<11;i++) refused=await RL.abuseGuard(as('userA'),'cashfree/order',c);
   assert.equal(refused.status,429);
-  assert.equal(await RL.abuseGuard(req('cashfree/order',{method:'POST',headers:{'CF-Connecting-IP':'2.2.2.2'}}),'cashfree/order',c),null);
+  assert.equal(await RL.abuseGuard(as('userB'),'cashfree/order',c),null);
+});
+test('IP backstop still catches token-less floods on payment routes',async()=>{
+  const c=fakeCache(); let r=null;
+  for(let i=0;i<601;i++) r=await RL.abuseGuard(req('cashfree/order',{method:'POST',headers:{'CF-Connecting-IP':'3.3.3.3'}}),'cashfree/order',c);
+  assert.equal(r.status,429);
+});
+test('limiter does one cache read per request regardless of the limit',async()=>{
+  let reads=0; const m=new Map();
+  const c={async match(r){reads++;return m.get(r.url)},async put(r,v){m.set(r.url,v)}};
+  for(let i=0;i<500;i++) await RL.overLimit('t','k',1000,60,c);
+  assert.equal(reads,500);
 });
 test('oversized body on a guarded POST is refused with 413; health and cached reads are never throttled',async()=>{
   const c=fakeCache();
   const big=req('cashfree/order',{method:'POST',headers:{'content-length':'999999'}});
   assert.equal((await RL.abuseGuard(big,'cashfree/order',c)).status,413);
-  for(let i=0;i<900;i++) assert.equal(await RL.abuseGuard(req('news'),'news',c),null);
+  for(let i=0;i<2000;i++) assert.equal(await RL.abuseGuard(req('news'),'news',c),null);
   assert.equal(await RL.abuseGuard(req('health'),'health',c),null);
 });
 test('/ai is limited per signed-in user, not per shared IP',async()=>{
