@@ -137,3 +137,14 @@ test('Akatsuki-inspired Tusk skin is included in the mobile and offline shell', 
   assert.match(theme, /copilot-compose::before/);
   assert.match(worker, /design\/roamwise-akatsuki-theme\.css/);
 });
+
+test('compressed opening media is staged: v2 files exist and are small, switch is date-gated, GIF only on video error', () => {
+  const opening = read('platform-v5/atlas-shinobi.js');
+  const size = f => fs.statSync(path.join(root, 'assets', f)).size;
+  assert.ok(size('roamwise-opening-v2.mp4') < 700000);
+  assert.ok(size('roamwise-opening-v2.gif') < 2500000);
+  assert.match(opening, /OPENING_V2 = Date\.now\(\) >= Date\.UTC\(2026, 9, 26\)/);
+  assert.match(opening, /\+OPENING_FILM\+/);
+  assert.match(opening, /video\.addEventListener\('error'[\s\S]{0,400}filmGif\.src = OPENING_GIF/);
+  assert.doesNotMatch(opening, /filmGif\.src = 'assets/);
+});
