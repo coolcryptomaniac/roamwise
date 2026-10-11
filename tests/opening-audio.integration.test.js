@@ -129,7 +129,7 @@ test('Akatsuki-inspired Tusk skin is included in the mobile and offline shell', 
   const css = read('mobile-stability.css');
   const theme = read('design/roamwise-akatsuki-theme.css');
   const worker = read('sw.js');
-  assert.match(html, /class="rw-akatsuki-theme"/);
+  assert.match(html, /class="rw-akatsuki-theme( shell)?"/);
   assert.match(html, /design\/roamwise-akatsuki-theme\.css/);
   assert.match(css, /min-height: 214px !important/);
   assert.match(css, /max-height: 720px/);
