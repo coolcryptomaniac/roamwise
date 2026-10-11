@@ -110,11 +110,16 @@ if (AUTH_READY && typeof firebase !== 'undefined') try {
          like pushTokens does. Honest limitation: this can only measure
          activity from the moment this shipped forward — there is no way to
          retroactively know how active any account was before today. */
-      try{ ref.set({lastActive: firebase.firestore.FieldValue.serverTimestamp()}, {merge:true}); }catch(e){ /* best-effort, ignore */ }
+      /* Event-scale safety: lastActive and the device registration/cap check run at most once per
+         6h per account per browser (was every app open). A NEW device or cleared storage has no
+         stamp, so it still registers and is cap-checked immediately. */
+      var rwRegDue=true;
+      try{ var rwRegAt=+(lsGet('rw_reg_'+u.uid)||0); if(rwRegAt && Date.now()-rwRegAt<6*3600*1000) rwRegDue=false; else lsSet('rw_reg_'+u.uid,String(Date.now())); }catch(e){ /* storage unavailable: just run */ }
+      if(rwRegDue) try{ ref.set({lastActive: firebase.firestore.FieldValue.serverTimestamp()}, {merge:true}); }catch(e){ /* best-effort, ignore */ }
       /* ---- device fingerprint (stable per browser/app install) ---- */
       var devId=lsGet('rw_devid'); if(!devId){ devId='d_'+Math.random().toString(36).slice(2)+Date.now().toString(36); lsSet('rw_devid',devId); }
       /* ---- register this account+device pair; enforce a 3-device cap ---- */
-      try{
+      if(rwRegDue) try{
         ref.collection('devices').doc(devId).set({
           ua:navigator.userAgent.slice(0,180), last:firebase.firestore.FieldValue.serverTimestamp()
         },{merge:true});
