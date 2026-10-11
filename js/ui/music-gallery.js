@@ -21,7 +21,10 @@
     {src:'/assets/img/music/kasar-fest-2026-crowd.jpg',cap:'The crowd, 4 October 2026'}
   ];
   /* {type:'youtube',id:'XXXXXXXXXXX',credit:'Channel name'} or {type:'instagram',code:'Cxxxxxxxxxx',credit:'@handle'} */
-  var CLIPS=[];
+  var CLIPS=[
+    {type:'instagram',code:'DeHWhRFBQSR'},{type:'instagram',code:'DaNuRbnzEJE'},{type:'instagram',code:'DeTxaeEMNYj'},
+    {type:'instagram',code:'DePDZ5kqnN_'},{type:'instagram',code:'DeGK88PsYLV'},{type:'instagram',code:'DeHgm31KW_b'}
+  ]; /* reels supplied by the founder; tracking parameters removed */
   var VIDEO_ID='L-U-A-o1G6Q', WA='https://wa.me/919987379730';
   var net=window.__RW_NET||{}, calm=/slow|vslow/.test(net.tier||'')||net.lowEnd||(window.matchMedia&&matchMedia('(prefers-reduced-motion:reduce)').matches);
   var CSS='#rwMusicGallery{position:relative;margin:0 0 14px;padding:16px 14px 14px;border-radius:20px;overflow:hidden;border:1px solid rgba(214,99,127,.5);background:#09060d;color:#F2EFE6}'
@@ -52,6 +55,9 @@
    +'#rwMusicGallery .mg-n{font-size:11.5px;line-height:1.5;color:#b9b3c2;margin:4px 0 0}'
    +'#rwMusicGallery a,#rwMusicSoon a{color:#E8BA6C}'
    +'#rwMusicSoon{margin-top:10px;padding:12px;border:1px dashed var(--b2,#2A2A36);border-radius:14px;font-size:12px;line-height:1.55;color:var(--t2,#d8d5ce)}'
+   +'#rwMusicGallery .mg-reel{position:relative;flex:0 0 66%;max-width:250px;scroll-snap-align:center;height:470px;border:1px solid rgba(214,99,127,.5);border-radius:14px;overflow:hidden;background:linear-gradient(160deg,#3a0f2a,#07090f);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px}'
+   +'#rwMusicGallery .mg-reel iframe{position:absolute;inset:0;width:100%;height:100%;border:0;background:#000}'
+   +'#rwMusicGallery .mg-reel a{font-size:11.5px}'
    +'#rwMgBox{position:fixed;inset:0;z-index:100000;background:rgba(6,2,10,.94);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:14px}'
    +'#rwMgBox img{max-width:100%;max-height:78vh;border-radius:10px;border:1px solid rgba(232,186,108,.5)}'
    +'#rwMgBox p{color:#e8e5ee;font-size:12.5px;margin:8px 0 0;text-align:center}'
@@ -97,15 +103,22 @@
     in_.appendChild(strip);
     in_.appendChild(node('div','mg-h','Clips from the weekend'));
     if(CLIPS.length){
-      CLIPS.forEach(function(c){
-        var label=c.type==='instagram'?'▶ Open Instagram post':'▶ Play clip';
-        var box=facade(label,function(){
-          return c.type==='instagram'
-            ?frame('https://www.instagram.com/p/'+encodeURIComponent(c.code)+'/embed','Kasar Music Fest 2.0 on Instagram','encrypted-media; picture-in-picture')
-            :frame('https://www.youtube-nocookie.com/embed/'+encodeURIComponent(c.id)+'?autoplay=1&rel=0','Kasar Music Fest 2.0 clip on YouTube');
-        });
-        in_.appendChild(box); in_.appendChild(node('p','mg-n','Credit: '+c.credit+'. Plays from the platform only when you tap.'));
+      var reels=node('div','mg-strip mg-reels');
+      CLIPS.forEach(function(c,i){
+        var tile=node('div','mg-reel');
+        var url=c.type==='instagram'?'https://www.instagram.com/reel/'+c.code+'/':'https://www.youtube.com/watch?v='+c.id;
+        var go=node('button','mg-go','▶ Play reel '+(i+1)); go.type='button';
+        go.onclick=function(){
+          tile.textContent='';
+          tile.appendChild(c.type==='instagram'
+            ?frame('https://www.instagram.com/reel/'+encodeURIComponent(c.code)+'/embed','Kasar Music Fest 2.0 reel '+(i+1)+' on Instagram','encrypted-media; picture-in-picture')
+            :frame('https://www.youtube-nocookie.com/embed/'+encodeURIComponent(c.id)+'?autoplay=1&rel=0','Kasar Music Fest 2.0 clip on YouTube'));
+        };
+        tile.appendChild(go); tile.appendChild(link(url,'Original on '+(c.type==='instagram'?'Instagram':'YouTube')+' ↗'));
+        reels.appendChild(tile);
       });
+      in_.appendChild(reels);
+      in_.appendChild(node('p','mg-n','Reels by their original creators, shown with Instagram\'s own player. Nothing loads from Instagram until you tap, and each reel links back to its poster. If a reel will not play, use the link under it.'));
     } else {
       var n=node('p','mg-n','No public clip of the festival is embedded yet. Shot something at Kasar Music Fest 2.0? '); n.appendChild(link(WA+'?text='+encodeURIComponent('Hi RoamWise, here is my Kasar Music Fest 2.0 clip/photo link, and you may feature it with credit: '),'Send it on WhatsApp ↗')); in_.appendChild(n);
     }
