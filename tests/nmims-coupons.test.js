@@ -236,3 +236,26 @@ test('digital cards: tappable redeem link, print layout hides buttons; CSV round
   for (const id of ['csvFile', 'serFrom', 'serTo', 'redListBtn', 'redCsvBtn']) assert.match(page, new RegExp('id="' + id + '"'));
   assert.doesNotMatch(page, /redeemedEmail|\.email\b.*redOut/);
 });
+
+test('share pack: valid ZIP (store), one-page PDF with link annotations, tracker CSV with message + empty tracking columns', () => {
+  const B = require('../nmims/pass-issuer/pass-bulk.js');
+  const cp = require('node:child_process'), os = require('node:os');
+  const list = [{ code: 'NMIMS-STU-0001-ABCDEFGHJKMNP', role: 'student', serial: 1 }, { code: 'NMIMS-ORG-0002-ABCDEFGHJKMNQ', role: 'organiser', serial: 2 }];
+  assert.equal(B.crc32(new TextEncoder().encode('123456789')), 0xCBF43926);
+  const z = B.zip([{ name: 'a.txt', data: new TextEncoder().encode('hello') }, { name: 'b.bin', data: Uint8Array.from([1, 2, 3]) }]);
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'rwzip-'));
+  fs.writeFileSync(path.join(dir, 't.zip'), z);
+  try { const r = cp.spawnSync('unzip', ['-t', path.join(dir, 't.zip')], { encoding: 'utf8' }); if (!r.error) assert.equal(r.status, 0, r.stdout + r.stderr); } catch (_) { /* unzip not installed */ }
+  const pdf = Buffer.from(B.pdfFromJpeg(Uint8Array.from([0xff, 0xd8, 0xff, 0xd9]), 720, 1000, [{ x: 200, y: 668, w: 320, h: 64, url: B.LINK(list[0].code) }])).toString('latin1');
+  assert.match(pdf, /^%PDF-1\.4/); assert.match(pdf, /\/Subtype \/Link/); assert.match(pdf, /\/URI \(https:\/\/www\.roamwise\.co\.in\/\?redeem=NMIMS-STU-0001-/);
+  assert.match(pdf, /startxref\n\d+\n%%EOF/);
+  assert.throws(() => B.pdfFromJpeg(Uint8Array.from([0]), 1, 1, [{ x: 0, y: 0, w: 1, h: 1, url: 'javascript:alert(1)' }]), /Unsafe/);
+  assert.equal(B.fileStem(list[1]), 'RoamWise-Organiser-0002');
+  const csv = B.trackerCsv(list, '2026-11-09'); const rows = csv.trim().split('\n');
+  assert.equal(rows[0], 'serial,type,code,redeem_link,valid_until,message_to_copy,sent_to,channel,date_sent,notes');
+  assert.match(rows[1], /"Hi! A gift from the builders of Startup Garage 2026[^"]*redeem=NMIMS-STU-0001-ABCDEFGHJKMNP[^"]*",,,,$/);
+  const page = read('nmims/pass-issuer/index.html');
+  for (const id of ['packRole', 'packPngBtn', 'packPdfBtn', 'packCsvBtn']) assert.match(page, new RegExp('id="' + id + '"'));
+  assert.match(page, /pass-bulk\.js/);
+  assert.doesNotMatch(read('nmims/pass-issuer/pass-bulk.js'), /fetch\(|XMLHttpRequest|sendBeacon|firebase|localStorage/);
+});
