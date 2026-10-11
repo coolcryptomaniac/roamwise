@@ -49,19 +49,28 @@ function syncGo(name){
 
 
 /* ===== FUNNEL TRACKER — anonymous daily counters for the owner dashboard ===== */
-function track(ev){
-  if(!AUTH_READY) return;
+var _trkBuf={}, _trkTimer=null;
+function _trkFlush(){
+  _trkTimer=null;
+  var buf=_trkBuf; _trkBuf={};
+  if(!Object.keys(buf).length || !AUTH_READY) return;
   try{
     var day = new Date().toISOString().slice(0,10);
-    var inc = {}; inc[ev] = firebase.firestore.FieldValue.increment(1);
-    /* .set() rejects ASYNCHRONOUSLY — the surrounding try/catch never sees it,
-       so a blocked write used to fail completely silently and the admin funnel
-       just stayed empty with no clue why. Record the last failure so it can be
-       surfaced instead of guessed at. */
+    var inc = {}; Object.keys(buf).forEach(function(k){ inc[k] = firebase.firestore.FieldValue.increment(buf[k]); });
+    /* .set() rejects ASYNCHRONOUSLY — record the last failure so it can be surfaced instead of guessed at. */
     db.collection('stats').doc(day).set(inc, {merge:true})
       .catch(function(e){ try{ lsSet('rw_track_err', (e.code||'')+' '+(e.message||e)); }catch(_){ /* storage best-effort, ignore */ } });
   }catch(e){ /* best-effort Firestore write, ignore */ }
 }
+/* Event-scale safety: counts are buffered in memory and written as ONE merged write at most every
+   30s (and when the tab is hidden), instead of one write per event to a single shared document
+   (Firestore sustains only ~1 write/sec per document). Same doc, same field names, same totals. */
+function track(ev){
+  if(!AUTH_READY) return;
+  _trkBuf[ev]=(_trkBuf[ev]||0)+1;
+  if(!_trkTimer) _trkTimer=setTimeout(_trkFlush,30000);
+}
+try{ document.addEventListener('visibilitychange',function(){ if(document.visibilityState==='hidden') _trkFlush(); }); }catch(e){ /* non-browser */ }
 /* Per-response thumbs up/down on Ailon Tusk bot bubbles (see cpFinish). No
    per-message record and no user identity — just bumps the same anonymous
    daily counter track() already writes, under two new event names. Also

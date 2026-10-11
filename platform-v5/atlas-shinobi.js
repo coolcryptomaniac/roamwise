@@ -7,12 +7,12 @@
   'use strict';
 
   var ROOT_ID = 'rwOpening';
-  /* Staged media switch: the original film (2.7MB MP4 / 5.2MB GIF) stays in
-     use through Startup Garage week; from 26 Oct 2026 the compressed v2 files
+  /* Staged media switch: the original film (2.7MB MP4 / 5.2MB GIF) was used
+     before the switch date; from 11 Oct 2026 (brought forward for event-day bandwidth) the compressed v2 files
      (0.47MB MP4 / 2MB GIF) are used. Date-based, so no second deploy is needed
      and old cached pages roll over on their own. The GIF is only ever fetched
      if the MP4 cannot play. */
-  var OPENING_V2 = Date.now() >= Date.UTC(2026, 9, 26);
+  var OPENING_V2 = Date.now() >= Date.UTC(2026, 9, 11);
   var OPENING_FILM = OPENING_V2 ? 'assets/roamwise-opening-v2.mp4' : 'assets/roamwise-opening.mp4';
   var OPENING_GIF = OPENING_V2 ? 'assets/roamwise-opening-v2.gif' : 'assets/roamwise-opening.gif';
   var DURATION = Number((((window.RW_CONFIG||{}).intro||{}).cinematicDurationMs) || 6800);
