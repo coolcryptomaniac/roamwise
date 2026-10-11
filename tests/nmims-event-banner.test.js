@@ -15,7 +15,7 @@ test('defaults to 15 Oct 2026; venue/time only if founder set them; text sanitis
   const d=B.parse({officialConfirmed:true,eventDate:'bad',eventName:'<img src=x> Fest',venue:'Hall\nA'});
   assert.equal(d.date,'2026-10-15'); assert.ok(!/[<>]/.test(d.name)); assert.ok(!/\n/.test(d.venue));
 });
-test('countdown uses India midnight; today on the day; still there the day after; gone two days after',()=>{
+test('countdown uses India midnight; today on the day; thanks the day after; then redeem-your-pass until the coupons expire',()=>{
   const start=Date.parse('2026-10-14T18:30:00Z'); /* 00:00 IST 15 Oct */
   assert.equal(B.startMs('2026-10-15'),start);
   const c=B.countdown(start-(2*86400000+3*3600000+4*60000+5000),'2026-10-15');
@@ -23,7 +23,27 @@ test('countdown uses India midnight; today on the day; still there the day after
   assert.equal(B.countdown(start+1000,'2026-10-15').state,'today');
   assert.equal(B.countdown(start+86400000,'2026-10-15').state,'after');
   assert.equal(B.countdown(start+2*86400000-1000,'2026-10-15').state,'after');
-  assert.equal(B.countdown(start+2*86400000,'2026-10-15').state,'over');
+  const end=Date.parse('2026-11-10T09:00:00Z');
+  const r=B.countdown(start+2*86400000,'2026-10-15',end);
+  assert.equal(r.state,'redeem'); assert.ok(r.daysLeft>=24);
+  assert.equal(B.countdown(end-1000,'2026-10-15',end).state,'redeem');
+  assert.equal(B.countdown(end-1000,'2026-10-15',end).daysLeft,1);
+  assert.equal(B.countdown(end,'2026-10-15',end).state,'over');
+  /* no stored deadline: fallback is 26 days after the event starts, never "gone after two days" */
+  assert.equal(B.countdown(start+10*86400000,'2026-10-15').state,'redeem');
+  assert.equal(B.countdown(start+26*86400000,'2026-10-15').state,'over');
+});
+test('redeem deadline comes from couponExpiresAt (Timestamp, seconds object or number); highlights link must be https',()=>{
+  const ms=Date.parse('2026-11-10T09:00:00Z');
+  assert.equal(B.parse({officialConfirmed:true,couponExpiresAt:{toMillis:()=>ms}}).endMs,ms);
+  assert.equal(B.parse({officialConfirmed:true,couponExpiresAt:{seconds:ms/1000}}).endMs,ms);
+  assert.equal(B.parse({officialConfirmed:true,couponExpiresAt:ms}).endMs,ms);
+  assert.equal(B.parse({officialConfirmed:true,couponExpiresAt:'junk'}).endMs,B.startMs('2026-10-15')+26*86400000);
+  assert.equal(B.parse({officialConfirmed:true}).highlightsUrl,'');
+  assert.equal(B.parse({officialConfirmed:true,highlightsUrl:'javascript:alert(1)'}).highlightsUrl,'');
+  assert.equal(B.parse({officialConfirmed:true,highlightsUrl:'http://x.example/a'}).highlightsUrl,'');
+  assert.equal(B.parse({officialConfirmed:true,highlightsUrl:'https://www.instagram.com/p/abc/'}).highlightsUrl,'https://www.instagram.com/p/abc/');
+  assert.equal(B.parse({officialConfirmed:true}).highlightsText,'See event highlights');
 });
 test('index.html loads the banner script',()=>{
   assert.match(fs.readFileSync(path.join(__dirname,'..','index.html'),'utf8'),/js\/ui\/nmims-event-banner\.js/);
