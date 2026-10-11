@@ -64,7 +64,17 @@
    +'#rwNmimsBanner .sg-btns{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin-top:14px}'
    +'#rwNmimsBanner .sg-b{border:0;border-radius:12px;padding:13px 18px;font:800 14px/1 inherit;cursor:pointer;text-decoration:none;display:inline-block;color:#0B1020;background:linear-gradient(95deg,#C8913E,#E8BA6C)}'
    +'#rwNmimsBanner .sg-b.g{color:#F2EFE6;background:rgba(255,255,255,.07);border:1px solid rgba(232,186,108,.5)}'
-   +'@media (prefers-reduced-motion:reduce){#rwNmimsBanner .sg-mist,#rwNmimsBanner .sg-t.sec .sg-n,#rwNmimsBanner .sg-live{animation:none}}';
+   +'#rwNmimsBanner .sg-crest{display:block;margin:0 auto 10px;width:68px;height:68px;border-radius:18px;object-fit:cover;border:1.5px solid rgba(232,186,108,.85);box-shadow:0 0 0 4px rgba(214,99,127,.18),0 8px 26px rgba(0,0,0,.55);animation:sgHalo 3.2s ease-in-out infinite alternate}'
+   +'@keyframes sgHalo{from{box-shadow:0 0 0 4px rgba(214,99,127,.16),0 0 14px rgba(232,186,108,.25),0 8px 26px rgba(0,0,0,.55)}to{box-shadow:0 0 0 7px rgba(214,99,127,.26),0 0 34px rgba(232,186,108,.6),0 8px 26px rgba(0,0,0,.55)}}'
+   +'#rwNmimsBanner .sg-title{background:linear-gradient(100deg,#FFE0AE 0,#FFE0AE 38%,#fff6dd 50%,#FFE0AE 62%,#FFE0AE 100%);background-size:250% 100%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;text-shadow:none;filter:drop-shadow(0 0 16px rgba(232,186,108,.45)) drop-shadow(0 2px 0 rgba(120,20,50,.8));animation:sgShine 6s ease-in-out infinite}'
+   +'@keyframes sgShine{0%,55%{background-position:120% 0}100%{background-position:-120% 0}}'
+   +'#rwNmimsBanner .sg-em{position:absolute;bottom:-8px;width:4px;height:4px;border-radius:50%;background:#ffb36b;box-shadow:0 0 8px 2px rgba(255,150,90,.7);opacity:0;pointer-events:none;animation:sgRise 7s linear infinite}'
+   +'@keyframes sgRise{0%{transform:translate3d(0,0,0);opacity:0}12%{opacity:.9}100%{transform:translate3d(var(--dx,12px),-300px,0);opacity:0}}'
+   +'#rwNmimsBanner .sg-b:not(.g){position:relative;overflow:hidden}'
+   +'#rwNmimsBanner .sg-b:not(.g)::after{content:"";position:absolute;top:0;bottom:0;left:-60%;width:40%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.55),transparent);transform:skewX(-20deg);animation:sgSweep 4.5s ease-in-out infinite}'
+   +'@keyframes sgSweep{0%,60%{left:-60%}100%{left:130%}}'
+   +'#rwNmimsBanner .sg-pill{display:inline-block;margin:8px 0 0;padding:6px 12px;border-radius:999px;font-size:11px;font-weight:800;letter-spacing:.08em;color:#FFE0AE;border:1px solid rgba(232,186,108,.45);background:rgba(232,186,108,.08)}'
+   +'@media (prefers-reduced-motion:reduce){#rwNmimsBanner .sg-mist,#rwNmimsBanner .sg-t.sec .sg-n,#rwNmimsBanner .sg-live,#rwNmimsBanner .sg-crest,#rwNmimsBanner .sg-title,#rwNmimsBanner .sg-b::after{animation:none}#rwNmimsBanner .sg-em{display:none}}';
   function node(tag,cls,txt){ var e=document.createElement(tag); if(cls) e.className=cls; if(txt!=null) e.textContent=txt; return e; }
   function tile(label,cls){ var t=node('div','sg-t'+(cls?' '+cls:'')), n=node('span','sg-n','00'); t.appendChild(n); t.appendChild(node('span','sg-l',label)); return {el:t,n:n}; }
   function build(cfg){
@@ -74,6 +84,8 @@
     box.setAttribute('aria-label','RoamWise and E-Cell, SBM NMIMS Mumbai: '+cfg.name);
     box.appendChild(node('div','sg-mist'));
     var in_=node('div','sg-in');
+    for(var e=0;e<9;e++){ var em=node('i','sg-em'); em.style.left=(6+e*11)+'%'; em.style.animationDelay=(e*0.8)+'s'; em.style.animationDuration=(5.5+(e%4)*1.2)+'s'; em.style.setProperty('--dx',((e%2?1:-1)*(8+e*3))+'px'); box.appendChild(em); }
+    var crest=document.createElement('img'); crest.className='sg-crest'; crest.src='/assets/img/roamwise-logo-176.webp'; crest.alt='RoamWise'; crest.width=68; crest.height=68; crest.decoding='async'; in_.appendChild(crest);
     in_.appendChild(node('div','sg-kick','RoamWise × E-Cell, SBM NMIMS Mumbai'));
     in_.appendChild(node('div','sg-title',cfg.name));
     in_.appendChild(node('div','sg-by',fmtDate(cfg.date)));

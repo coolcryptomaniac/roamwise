@@ -28,3 +28,10 @@ test('countdown uses India midnight; today on the day; still there the day after
 test('index.html loads the banner script',()=>{
   assert.match(fs.readFileSync(path.join(__dirname,'..','index.html'),'utf8'),/js\/ui\/nmims-event-banner\.js/);
 });
+test('banner shows the RoamWise logo crest from a real, small asset and respects reduced motion',()=>{
+  assert.match(src,/roamwise-logo-176\.webp/);
+  assert.match(src,/crest\.alt='RoamWise'/);
+  const f=path.join(__dirname,'..','assets/img/roamwise-logo-176.webp');
+  assert.ok(fs.existsSync(f)&&fs.statSync(f).size<20000);
+  assert.match(src,/prefers-reduced-motion:reduce[^']*sg-crest/);
+});
