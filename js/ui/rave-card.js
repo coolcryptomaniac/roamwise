@@ -2,7 +2,7 @@
 /* ============================================================================
    js/ui/rave-card.js - "Rave to Hell" anthem card on the home page
    ============================================================================
-   The founder's own track, hosted in assets/audio/rave-to-hell-lite.mp3 (about 1.9 MB, 80 kbps; the 192 kbps original is kept as rave-to-hell-full.mp3). Nothing downloads
+   The founder's own track, hosted in assets/audio/rave-to-hell-lite.mp3 (about 1.9 MB, 80 kbps). Nothing downloads
    until the visitor taps Play (preload none), so it costs slow connections nothing. The audio element lives
    in the page, so js/audio/focus.js pauses other audio when it starts. Streaming buttons are the song's own links
    (YouTube Music, Spotify, Apple Music, Amazon Music) plus the artist/profile pages. Add more platforms to
