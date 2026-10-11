@@ -591,7 +591,7 @@ function rwDismissCreatorBanner(){
     <span style="font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold2,#C8913E);font-weight:800">RoamWise music weekends · India</span>
   </div>
   <h2 style="font-size:clamp(22px,5vw,32px);line-height:1.15;margin:10px 0 7px">Plan a trip around <em style="color:var(--gold2,#C8913E)">live music</em></h2>
-  <p style="margin:0 0 14px;color:var(--t2);line-height:1.6">Upcoming festivals worth travelling for. Dates and venues are from the organizers and tourism pages linked on each card; confirm ticket details there before paying.</p>
+  <p style="margin:0 0 14px;color:var(--t2);line-height:1.6">Concerts and festivals worth travelling for, from now to March 2027. Dates and venues come from the organiser, ticketing or news page linked on each card; confirm dates and tickets there before you pay. Past events drop off by themselves.</p>
   <div style="margin:0 0 12px;padding:12px 14px;border:1px solid rgba(158,111,255,.24);border-radius:15px;background:rgba(21,22,42,.42)">
     <label for="musicEventOrigin" style="display:block;font-size:12px;font-weight:700;color:var(--t1);margin-bottom:6px">Want a route tailored to your starting city? <span style="font-weight:400;color:var(--t3)">(optional)</span></label>
     <input id="musicEventOrigin" type="text" maxlength="60" autocomplete="off" placeholder="e.g. Delhi, Mumbai or your city" aria-describedby="musicEventOriginNote" style="box-sizing:border-box;width:100%;padding:10px 12px;border:1px solid var(--b2,#2A2A36);border-radius:11px;background:var(--bg3,#1A1A20);color:var(--t1);font:inherit;font-size:13px">
@@ -625,8 +625,36 @@ function rwDismissCreatorBanner(){
      link:'https://www.meghalayatourism.in/experiences/festivals-&-events/cherry-blossom-2026/',linkLabel:'Meghalaya Tourism',tickets:'https://rockskitickets.com/'},
     {name:'Sunburn Festival 2026',when:'18–19 December 2026',end:'2026-12-19',place:'Mahalaxmi Race Course, Mumbai',
      blurb:'Electronic music festival returning to Mumbai; DJ Snake is among the announced headliners. Runs 4 pm on day one to 10 pm on day two.',
-     link:'https://sunburn.in/event/sunburn-festival-2026/',linkLabel:'Official page',tickets:'https://in.bookmyshow.com/events/sunburn-festival-2026/ET00498558'}
+     link:'https://sunburn.in/event/sunburn-festival-2026/',linkLabel:'Official page',tickets:'https://in.bookmyshow.com/events/sunburn-festival-2026/ET00498558'},
+    {name:'DGTL India',when:'13–14 November 2026',end:'2026-11-14',place:'Lalit Ashok, Bengaluru and Ballard Pier, Mumbai',
+     blurb:'Sixth edition of the electronic festival. Nina Kraviz, Stephan Bodzin (live) and Phil Berg are among the listed acts. The source does not say which day is in which city, so check the organiser before you book.',
+     link:'https://rollingstoneindia.com/upcoming-music-festivals-2026-sunburn-dgtl-cherry-blossom/',linkLabel:'Details · Rolling Stone India'},
+    {name:'Royal Enfield Motoverse',when:'27–29 November 2026',end:'2026-11-29',place:'Hilltop, Vagator, Goa',
+     blurb:'Riding and music weekend in Goa. Listed acts include Farhan Akhtar, Sanjith Hegde, Lifafa and OG Shez.',
+     link:'https://rollingstoneindia.com/upcoming-music-festivals-2026-sunburn-dgtl-cherry-blossom/',linkLabel:'Details · Rolling Stone India'},
+    {name:'Hornbill Festival',when:'1–10 December 2026',end:'2026-12-10',place:'Naga Heritage Village, Kisama, near Kohima, Nagaland',
+     blurb:'Ten days of Naga culture with the Hornbill Music Festival and concerts alongside. Time Out reports entry tickets of about ₹50 to ₹100, sold on site; prices can vary.',
+     link:'https://www.timeout.com/india/news/everything-you-need-to-know-about-hornbill-festival-2026-at-kisama-in-nagaland-091626',linkLabel:'Guide · Time Out'},
+    {name:'Mahindra Kabira Festival',when:'4–6 December 2026',end:'2026-12-06',place:'Two ghats on the Ganga, Varanasi',
+     blurb:'Tenth edition of the festival of Kabir’s verse and folk music. Aruna Sairam, Kabir Café, Shabnam Virmani and The Aahvaan Project are among the listed acts.',
+     link:'https://mahindrakabira.com/',linkLabel:'Official site'},
+    {name:'Jaigarh Heritage Festival',when:'18–20 December 2026',end:'2026-12-20',place:'Jaigarh Fort, Jaipur, Rajasthan',
+     blurb:'Music, craft bazaars and conversations inside the fort. Listed acts include Sona Mohapatra, Bombino and Mame Khan’s Folk Orchestra of Rajasthan. Tickets from ₹250.',
+     link:'https://www.district.in/events/vedanta-presents-jaigarh-heritage-festival-2026-buy-tickets',linkLabel:'Official ticket page'},
+    {name:'Lollapalooza India',when:'23–24 January 2027',end:'2027-01-24',place:'Mahalaxmi Racecourse, Mumbai',
+     blurb:'Fifth edition in Mumbai, ticketed through BookMyShow in five categories from General Access to VIP. Check the official page for the lineup.',
+     link:'https://www.timeout.com/mumbai/news/lollapalooza-india-2027-dates-announced-tickets-dates-and-venue-here-082626',linkLabel:'Details · Time Out'},
+    {name:'Gorillaz · The Mountain Tour',when:'23 Jan (Bengaluru) and 27 Jan (Mumbai) 2027',end:'2027-01-27',place:'District Arena @ Terraform, Bengaluru · Jio World Garden, BKC, Mumbai',
+     blurb:'The band’s first India shows. Tickets are sold only on the District app.',
+     link:'https://www.timeout.com/india/news/its-official-gorillaz-india-tour-2027-heres-how-to-get-tickets-040926',linkLabel:'Details · Time Out'},
+    {name:'Foo Fighters · India debut',when:'29 Jan (Bengaluru) and 31 Jan (Mumbai) 2027',end:'2027-01-31',place:'Bengaluru (venue not named in the source) · Mahalaxmi Racecourse, Mumbai',
+     blurb:'First-ever India shows, ticketed through BookMyShow.',
+     link:'https://www.hollywoodreporterindia.com/features/insight/foo-fighters-announce-india-debut-for-january-2027-tickets-on-sale-tomorrow',linkLabel:'Details · Hollywood Reporter India'},
+    {name:'Weverse Con Festival India',when:'March 2027 (27 March on BookMyShow)',end:'2027-03-27',place:'Delhi NCR (venue to be announced)',
+     blurb:'HYBE’s Weverse Con festival makes its India debut. Venue is not announced yet.',
+     link:'https://www.wionews.com/entertainment/hybe-s-weverse-con-india-sets-ticket-sale-date-for-march-2027-festival-1791526659449',linkLabel:'Details · WION',tickets:'https://in.bookmyshow.com/events/weverse-con-festival-india-2027/et5f8oj312'}
   ];
+  EVENTS.sort(function(a,b){return a.end<b.end?-1:a.end>b.end?1:0});
   var section=document.getElementById('musicEventsIndia'),list=document.getElementById('musicEventList');
   if(!section||!list)return;
   var today=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Kolkata',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
@@ -634,7 +662,11 @@ function rwDismissCreatorBanner(){
   if(!live.length){section.hidden=true;return;}
   function esc(s){return String(s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
   var gold='color:var(--gold2,#C8913E)';
-  list.innerHTML=live.map(function(e){
+  var SHOW=6,more=live.length>SHOW,open=false;
+  function render(){ list.innerHTML=(open||!more?live:live.slice(0,SHOW)).map(card).join('')
+    +(more?'<button class="tact" type="button" id="musicEventMore" style="grid-column:1/-1;font-weight:800">'+(open?'Show fewer':'Show all '+live.length+' events')+'</button>':'');
+    var b=document.getElementById('musicEventMore'); if(b)b.onclick=function(){open=!open;render();}; }
+  function card(e){
     var i=EVENTS.indexOf(e);
     return '<div style="padding:13px;border:1px solid var(--b2,#2A2A36);border-radius:15px;background:rgba(10,10,14,.35)">'
       +'<b style="font-size:15px">'+esc(e.name)+'</b>'
@@ -646,7 +678,8 @@ function rwDismissCreatorBanner(){
       +(e.tickets?'<a class="tact" href="'+esc(e.tickets)+'" target="_blank" rel="noopener" style="text-decoration:none">Tickets ↗</a>':'')
       +'<button class="tact" type="button" onclick="rwAskMusicEvent('+i+')" style="font-weight:800">Ask Ailon Tusk to plan this ↗</button>'
       +'</div></div>';
-  }).join('');
+  }
+  render();
   window.rwAskMusicEvent=function(i){
     var e=EVENTS[i],input=document.getElementById('heroInput');
     if(!e||!input)return;
@@ -1533,6 +1566,8 @@ function rwDismissCreatorBanner(){
 <script src="js/payments/redeem-link.js" defer></script>
 <script src="js/payments/qr-scan.js" defer></script>
 <script src="js/ui/nmims-event-banner.js" defer></script>
+<script src="js/ui/rave-card.js" defer></script>
+<script src="js/ui/music-gallery.js" defer></script>
 <script src="js/payments/plan-picker.js?v=rw-checkout-focus-1" defer></script>
 <script src="js/data/regions.js" defer></script>
 <script src="js/data/country-info.js" defer></script>
@@ -1575,6 +1610,7 @@ function rwDismissCreatorBanner(){
 <script src="js/copilot/ai-providers.js" defer></script>
 <script src="js/copilot/on-device-ai.js" defer></script>
 <script src="js/copilot/webgpu-ai.js" defer></script>
+<script src="js/copilot/nmims-answers.js" defer></script>
 <script src="js/copilot/core.js?v=rw-route-quiet-1" defer></script>
 <script src="js/copilot/rich-reply.js" defer></script>
 <script src="js/copilot/tusk-persona.js" defer></script>

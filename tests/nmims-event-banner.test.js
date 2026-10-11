@@ -15,13 +15,15 @@ test('defaults to 15 Oct 2026; venue/time only if founder set them; text sanitis
   const d=B.parse({officialConfirmed:true,eventDate:'bad',eventName:'<img src=x> Fest',venue:'Hall\nA'});
   assert.equal(d.date,'2026-10-15'); assert.ok(!/[<>]/.test(d.name)); assert.ok(!/\n/.test(d.venue));
 });
-test('countdown uses India midnight; today on the day; gone the day after',()=>{
+test('countdown uses India midnight; today on the day; still there the day after; gone two days after',()=>{
   const start=Date.parse('2026-10-14T18:30:00Z'); /* 00:00 IST 15 Oct */
   assert.equal(B.startMs('2026-10-15'),start);
   const c=B.countdown(start-(2*86400000+3*3600000+4*60000+5000),'2026-10-15');
   assert.deepEqual([c.state,c.d,c.h,c.m,c.s],['before',2,3,4,5]);
   assert.equal(B.countdown(start+1000,'2026-10-15').state,'today');
-  assert.equal(B.countdown(start+86400000,'2026-10-15').state,'over');
+  assert.equal(B.countdown(start+86400000,'2026-10-15').state,'after');
+  assert.equal(B.countdown(start+2*86400000-1000,'2026-10-15').state,'after');
+  assert.equal(B.countdown(start+2*86400000,'2026-10-15').state,'over');
 });
 test('index.html loads the banner script',()=>{
   assert.match(fs.readFileSync(path.join(__dirname,'..','index.html'),'utf8'),/js\/ui\/nmims-event-banner\.js/);
