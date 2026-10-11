@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#07090F">
+<title>Which founder-traveller are you? | RoamWise × E-Cell, SBM NMIMS Mumbai</title>
+<meta name="description" content="Six quick questions for Startup Garage. Find your founder-traveller type and get a ready-made prompt for Ailon Tusk, RoamWise's AI trip planner. No sign-up, nothing is saved.">
+<meta property="og:title" content="Which founder-traveller are you?"><meta property="og:description" content="Six questions, 40 seconds. A RoamWise × E-Cell, SBM NMIMS Mumbai quiz for Startup Garage."><meta property="og:image" content="https://roamwise.co.in/nmims/assets/roamwise-ecell-startup-garage.png"><meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="/icons/favicon-32.png">
+<style>
+:root{color-scheme:dark;--bg:#07090f;--card:#12162a;--ink:#ede8df;--mut:#b8b5bd;--gold:#e8ba6c;--rose:#d6637f;--line:#ffffff22;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(120% 60% at 50% -10%,#4a1236 0,#07090f 62%);color:var(--ink);line-height:1.5}
+.w{max-width:620px;margin:0 auto;padding:18px 16px 44px}
+.brand{font-weight:900;letter-spacing:.12em;font-size:12.5px;color:var(--gold);text-decoration:none}
+h1{font:900 clamp(26px,7vw,36px)/1.1 Georgia,serif;color:#ffe0ae;margin:14px 0 6px;text-shadow:0 0 22px rgba(232,186,108,.3)}
+.m{color:var(--mut);font-size:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;margin:14px 0}
+.bar{height:5px;border-radius:3px;background:#ffffff1f;overflow:hidden;margin:10px 0 4px}.bar b{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--rose),var(--gold));transition:width .3s}
+.q{font-size:18px;font-weight:800;margin:8px 0 12px}
+.o{display:block;width:100%;text-align:left;margin:8px 0;padding:13px 14px;border-radius:12px;border:1px solid var(--line);background:#ffffff0d;color:var(--ink);font:inherit;font-size:15px;cursor:pointer}
+.o:hover,.o:focus-visible{border-color:var(--gold);background:#e8ba6c1a}
+.btn{display:inline-block;margin:8px 8px 0 0;padding:12px 18px;border-radius:12px;font:800 14px/1 inherit;text-decoration:none;color:#0b1020;background:linear-gradient(95deg,#c8913e,#e8ba6c);border:0;cursor:pointer}
+.btn.g{background:none;color:var(--ink);border:1px solid var(--line)}
+.type{font:900 28px/1.1 Georgia,serif;color:#ffe0ae;margin:6px 0}
+.tag{font-size:11px;font-weight:900;letter-spacing:.2em;text-transform:uppercase;color:var(--rose)}
+pre{white-space:pre-wrap;word-break:break-word;background:#0b0e1a;border:1px solid var(--line);border-radius:10px;padding:12px;font:13px/1.5 ui-monospace,Menlo,monospace;color:#f2efe6;margin:8px 0}
+a{color:var(--gold)}[hidden]{display:none!important}footer{margin-top:26px;font-size:12.5px;color:var(--mut)}
+</style>
+</head>
+<body>
+<div class="w">
+<a class="brand" href="/nmims/redeem/">ROAMWISE × E-CELL, SBM NMIMS MUMBAI</a>
+<h1>Which founder-traveller are you?</h1>
+<p class="m">Six questions for Startup Garage. Takes about 40 seconds. No sign-up, and your answers are not saved or sent anywhere.</p>
+
+<div class="card" id="qa">
+  <div class="bar"><b id="pb"></b></div>
+  <div class="m" id="pn"></div>
+  <div class="q" id="qt"></div>
+  <div id="qo"></div>
+</div>
+
+<div class="card" id="res" hidden>
+  <div class="tag">You are</div>
+  <div class="type" id="rt"></div>
+  <p id="rd"></p>
+  <p class="m" id="rtr"></p>
+  <b>Ask Ailon Tusk to plan it</b>
+  <pre id="rp"></pre>
+  <button class="btn" id="cp" type="button">Copy the prompt</button>
+  <a class="btn g" href="/">Open RoamWise ↗</a>
+  <button class="btn g" id="sh" type="button">Share my type</button>
+  <button class="btn g" id="rs" type="button">Take it again</button>
+</div>
+
+<div class="card"><b>At Startup Garage with a pass?</b>
+<p class="m" style="margin:4px 0 0">Pass-holders get free lifetime Founder Pro. Your personal pass code comes from E-Cell. <a href="/nmims/redeem/">How to redeem it ↗</a></p></div>
+
+<footer>The quiz is for fun. Trip ideas are starting points: check prices, timings and conditions with the provider before you travel. Nothing you tap here is stored or sent. RoamWise · Almora, Uttarakhand.</footer>
+</div>
+<script>
+(function(){
+  var Q=[
+   ['Your ideal Saturday?',[['Chasing a deadline on one coffee','boot'],['A colour-coded plan for the day','plan'],['Meeting three new people at a cafe','net'],['A ridge, a book and no signal','hill']]],
+   ['Your travel budget style?',[['Every rupee counts','boot'],['Spend where it matters, track it','plan'],['Spend on places where people gather','net'],['Pay for a view, save elsewhere','hill']]],
+   ['Pick your transport.',[['Night train, upper berth','boot'],['Booked early, seat chosen','plan'],['Shared cab, endless chat','net'],['Slow road, windows down','hill']]],
+   ['Pick a stay.',[['Hostel dorm, great common room','boot'],['A well-reviewed room near everything','plan'],['Co-living with a rooftop','net'],['A homestay with a mountain view','hill']]],
+   ['You land in a new city. First move?',[['Find the cheapest great meal','boot'],['Open my itinerary','plan'],['Ask a local where everyone goes','net'],['Walk until it gets quiet','hill']]],
+   ['Your travel superpower?',[['Make a little go a long way','boot'],['Nothing goes wrong on my watch','plan'],['I know someone everywhere','net'],['I find the quiet spots','hill']]]
+  ];
+  var T={
+   boot:{n:'The Bootstrapper',d:'You stretch every rupee and still have the best story. Night trains, street food and a hostel full of future friends.',t:'Trip style: budget-first, short and sweet. Think a weekend in Rishikesh or Gokarna.',p:'Plan a budget-first 3-day weekend trip from Mumbai for a student who loves night trains, street food and hostels. Keep the total small, show a day-wise plan, and tell me what to confirm before booking.'},
+   plan:{n:'The Pitch-Deck Planner',d:'You love a clean plan with every slot filled. Your group chat survives because of you.',t:'Trip style: structured and well-timed. Think a Rajasthan or Kerala circuit.',p:'Plan a well-structured 5-day trip with a clear hour-by-hour itinerary, a budget tracker and backup options for bad weather. I like to book early, so tell me what to confirm and when.'},
+   net:{n:'The Network Nomad',d:'Every cafe is a meeting room. You come home with new contacts and three collaboration ideas.',t:'Trip style: social and city-led. Think Goa, Bengaluru or Pushkar.',p:'Plan a 4-day trip for a social traveller who wants co-working-friendly cafes, hostels with a good common room and places to meet other founders and creators. Include a rough budget.'},
+   hill:{n:'The Slow Mountain Founder',d:'You think best at altitude. Quiet ridges, chai and one big idea per trip.',t:'Trip style: slow, scenic, low-noise. Think Almora, Kasar Devi or Binsar.',p:'Plan a slow 4-day trip to the Kumaon hills for someone who wants quiet views, a homestay, short walks and time to think. Include how to get there from Mumbai, a rough budget and what to confirm before booking.'}
+  };
+  var i=0,s={boot:0,plan:0,net:0,hill:0},E=function(x){return document.getElementById(x)};
+  function show(){
+    E('pn').textContent='Question '+(i+1)+' of '+Q.length; E('pb').style.width=(100*i/Q.length)+'%'; E('qt').textContent=Q[i][0];
+    var box=E('qo'); box.textContent='';
+    Q[i][1].forEach(function(o){ var b=document.createElement('button'); b.type='button'; b.className='o'; b.textContent=o[0]; b.onclick=function(){ s[o[1]]++; i++; if(i<Q.length) show(); else done(); }; box.appendChild(b); });
+  }
+  function done(){
+    var k='boot'; ['boot','plan','net','hill'].forEach(function(x){ if(s[x]>s[k]) k=x; });
+    var t=T[k]; E('qa').hidden=true; E('res').hidden=false;
+    E('rt').textContent=t.n; E('rd').textContent=t.d; E('rtr').textContent=t.t; E('rp').textContent=t.p;
+    E('cp').onclick=function(){ var b=E('cp'); function ok(){ b.textContent='Copied. Paste it into Ailon Tusk'; } try{ navigator.clipboard.writeText(t.p).then(ok,function(){ sel(); }); }catch(e){ sel(); } function sel(){ var r=document.createRange(); r.selectNodeContents(E('rp')); var g=getSelection(); g.removeAllRanges(); g.addRange(r); b.textContent='Selected. Copy it now'; } };
+    E('sh').onclick=function(){ var txt='I am '+t.n+'. Which founder-traveller are you? RoamWise × E-Cell, SBM NMIMS Mumbai: https://roamwise.co.in/nmims/quiz/'; try{ if(navigator.share){ navigator.share({title:'Which founder-traveller are you?',text:txt}); return; } }catch(e){} window.open('https://wa.me/?text='+encodeURIComponent(txt),'_blank','noopener'); };
+    E('rs').onclick=function(){ i=0; s={boot:0,plan:0,net:0,hill:0}; E('res').hidden=true; E('qa').hidden=false; show(); };
+    E('pb').style.width='100%';
+  }
+  show();
+})();
+</script>
+</body>
+</html>

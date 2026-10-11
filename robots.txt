@@ -1,5 +1,6 @@
 User-agent: *
 Allow: /
+Disallow: /nmims/pr-kit/
 
 # AI assistants — explicitly welcomed so RoamWise can be cited in ChatGPT,
 # Claude, Perplexity, Gemini answers.
