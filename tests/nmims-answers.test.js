@@ -42,3 +42,11 @@ test('nmims answer renders into the bubble without cpFinish (regression: bubble 
   assert.strictEqual(bubble.parentNode.scrollTop, 0);
   assert.ok(hook);
 });
+test('pass answer and redeem page say no registration is needed and never ask for a pre-registered email', () => {
+  const a = load()('how do I redeem my nmims pass');
+  assert.ok(/No registration with E-Cell first/i.test(a));
+  assert.ok(!/same email/i.test(a));
+  const page = fs.readFileSync(path.join(root, 'nmims/redeem/index.html'), 'utf8');
+  assert.ok(/No registration first/.test(page));
+  assert.ok(!/same email|E-Cell registered/i.test(page));
+});

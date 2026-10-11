@@ -25,9 +25,9 @@
     return '<b>'+pick(openers)+'</b>'
       +'<br><br><b>How it works, in 4 lines</b>'
       +'<br>1. Your personal pass code comes from E-Cell, SBM NMIMS Mumbai. It looks like <code>NMIMS-STU-0123-XXXXXXXXXXXXX</code>. A poster QR never gives a pass.'
-      +'<br>2. Sign in to RoamWise with the <b>same email E-Cell registered</b>.'
+      +'<br>2. Sign in to RoamWise with Google or email and verify it. <b>No registration with E-Cell first</b>: the code is all you need.'
       +'<br>3. Tap <b>I have a pass → Redeem</b> on the home card and paste the code.'
-      +'<br>4. Do it within 30 days of getting it. One code, one person, one time.'
+      +'<br>4. Redeem before the "valid until" date on your code (30 days from when the codes were created). One code, one person, one time. Keep it private: the first account to redeem it gets the pass.'
       +'<br><br>No pass? Founder Pro is ₹100 for life for the first 1,000 members. If you buy, type <code>NMIMS2026</code> as the referral code so E-Cell gets the credit. It does not change your price.'
       +'<br><br>'+link('/nmims/redeem/','Full steps ↗')+' · <a style="'+GOLD+';font-weight:700" href="#" onclick="try{openPartnerRedeem()}catch(e){}return false">Redeem a pass ↗</a>';
   }
