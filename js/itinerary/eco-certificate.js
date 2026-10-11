@@ -93,7 +93,7 @@ function rwEcoCert(){
       document.body.appendChild(ov);
     }
     el('certBody').innerHTML =
-      '<img src="'+url+'" style="width:100%;border-radius:14px;border:1px solid var(--b2,#2A2A36)">'
+      '<img loading="lazy" decoding="async" src="'+url+'" style="width:100%;border-radius:14px;border:1px solid var(--b2,#2A2A36)">'
       +'<div style="display:flex;gap:8px;margin-top:12px">'
       +'<a class="g-btn" style="flex:1;text-align:center;text-decoration:none;padding:12px" download="roamwise-eco-certificate.png" href="'+url+'">\u2b07\ufe0f Save</a>'
       + (canShare? '<button class="tact" style="flex:1;padding:12px;font-weight:800" onclick="rwCertShare()">\ud83d\udce4 Share</button>' : '')

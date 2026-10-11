@@ -82,7 +82,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:17px;heigh
 .tag.on{background:rgba(200,145,62,.14);border-color:var(--gold);color:var(--gold2)}
 .search-btn{width:100%;padding:13px;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#07090F;font-family:'Outfit',sans-serif;font-size:14px;font-weight:700;border:none;border-radius:12px;cursor:pointer;position:relative;overflow:hidden;box-shadow:0 5px 20px rgba(200,145,62,.2);transition:opacity .2s}
 .search-btn:disabled{opacity:.4;cursor:not-allowed;box-shadow:none}
-.search-btn .shim-line{position:absolute;top:0;left:-100%;width:60%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.25),transparent);animation:shimmer 2.5s infinite}
+.search-btn .shim-line{position:absolute;top:0;left:0;width:60%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.25),transparent);transform:translateX(-170%);will-change:transform;animation:shimmerX 2.5s infinite}
 @media(max-width:620px){.focus-modes{grid-template-columns:1fr}.focus-mode{min-height:64px}}
 /* LOADING */
 .loader{padding:44px;text-align:center}
@@ -365,3 +365,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:17px;heigh
 footer{background:var(--bg2);border-top:1px solid var(--b1);padding:18px;text-align:center;margin-top:32px}
 footer p{font-size:11px;color:var(--t3)}footer em{color:var(--gold);font-style:normal}
 @media(max-width:600px){.grid3{grid-template-columns:1fr}.form-card{padding:14px}.curr-grid{grid-template-columns:repeat(3,1fr)}.card-head{flex-direction:column;gap:9px}.badges{flex-direction:row}.photos{height:130px}.photo-big img{height:130px}.photo-sm img{height:64px}.card-body{padding:12px 14px}.tier-row{grid-template-columns:1fr}.book-grid{grid-template-columns:1fr 1fr}.act-bar{padding:10px 14px}.hero h1{font-size:26px}.heatmap{grid-template-columns:repeat(4,1fr)}.prov-select{grid-template-columns:1fr 1fr}.cmp-table th:nth-child(4),.cmp-table td:nth-child(4){display:none}}
+
+/* Off-screen explore sections are not rendered until the user scrolls near them (remembers the real height after first render). */
+.xsec{content-visibility:auto;contain-intrinsic-size:auto 520px}
+@media print{.xsec{content-visibility:visible}}
