@@ -49,7 +49,8 @@
 
 import { CORS, json } from './lib/http.js';
 import { handleHealth } from './handlers/health.js';
-import { aiRateLimited, handleAI } from './handlers/ai.js';
+import { handleAI } from './handlers/ai.js';
+import { abuseGuard, aiGuard } from './lib/rate-limit.js';
 import { refreshNews, handleNews } from './handlers/news.js';
 import { refreshEvents, handleEvents, handleEventsRefresh } from './handlers/events.js';
 import { handleGeo } from './handlers/geo.js';
@@ -85,8 +86,12 @@ export default {
 
     if(path === 'health') return handleHealth(env);
 
+    /* Flood / per-route limits and body-size cap (additive; see lib/rate-limit.js). */
+    const refused = await abuseGuard(request, path);
+    if(refused) return json({ error: refused.error }, refused.status);
+
     if(path === 'ai' && request.method === 'POST'){
-      if(await aiRateLimited(request))
+      if(await aiGuard(request))
         return json({ error: 'Too many requests — try again in a minute.' }, 429);
       return handleAI(request, env);
     }
