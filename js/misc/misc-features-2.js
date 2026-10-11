@@ -287,7 +287,7 @@ function rwMerchHTML(place){
     + RW_ART_STYLES.map(function(a,i){ return '<button class="tk-chip'+(i===0?' gold':'')+'" onclick="rwMerchArt('+i+',\''+P.replace(/'/g,'')+'\',this)">'+a[0]+'</button>'; }).join('')
     +'</div>'
     +'<div style="margin-top:10px;border-radius:14px;overflow:hidden;border:1px solid var(--b2,#2A2A36);background:#000;aspect-ratio:1;position:relative">'
-    +'<img id="merchArt" src="'+art+'" style="width:100%;height:100%;object-fit:cover;display:block" alt="">' 
+    +'<img id="merchArt" loading="lazy" decoding="async" src="'+art+'" style="width:100%;height:100%;object-fit:cover;display:block" alt="">' 
     +'<div id="merchOverlay" style="position:absolute;left:0;right:0;bottom:0;padding:14px;background:linear-gradient(0deg,rgba(0,0,0,.82),transparent);'
     +'font-weight:900;font-size:17px;text-align:center;text-shadow:0 2px 12px rgba(0,0,0,.9)">'+esc2(sl[0])+'</div></div>'
     +'<div style="font-size:10px;color:var(--t3);margin-top:6px">Artwork generated free via Pollinations \u00b7 regenerate as often as you like</div>'
@@ -324,7 +324,7 @@ function rwMerchOrder(place){
     document.body.appendChild(ov);
   }
   el('merchOrderBody').innerHTML =
-     '<img src="'+art+'" style="width:100%;border-radius:12px;border:1px solid var(--b2,#2A2A36)">'
+     '<img loading="lazy" decoding="async" src="'+art+'" style="width:100%;border-radius:12px;border:1px solid var(--b2,#2A2A36)">'
     +'<div style="font-weight:900;font-size:15px;text-align:center;margin:9px 0">'+esc2(slogan)+'</div>'
     +'<div class="key-box"><div class="key-box-name">Size</div>'
     +'<div class="tk-chips" style="margin-top:6px">'

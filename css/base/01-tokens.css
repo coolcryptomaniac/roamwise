@@ -1,3 +1,4 @@
+@font-face{font-family:'Outfit';font-style:normal;font-weight:300 700;font-display:swap;src:url(/assets/fonts/outfit-latin-wght.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
 /* app-base partial 1/6: design tokens — root CSS vars, theme variants (data-theme=...), global keyframes, base body rules. */
 
 *{box-sizing:border-box;margin:0;padding:0}
@@ -23,6 +24,7 @@ body{background:var(--bg);color:var(--t1);font-family:'Outfit',sans-serif;font-s
 @keyframes spin{to{transform:rotate(360deg)}}
 @keyframes fadeup{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
 @keyframes shimmer{0%{left:-100%}100%{left:200%}}
+@keyframes shimmerX{0%{transform:translateX(-170%)}100%{transform:translateX(330%)}}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
 @keyframes pop{0%{transform:scale(.8);opacity:0}100%{transform:scale(1);opacity:1}}
 @keyframes fall{to{transform:translateY(110vh) rotate(720deg);opacity:0}}

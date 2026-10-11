@@ -21,7 +21,7 @@ function openProfile(){
   var P2={}; try{P2=JSON.parse(lsGet('rw_profile')||'{}');}catch(e){ /* parse best-effort, ignore malformed/missing data */ }
   var avs=['adventurer','ninja','fox','owl','bear','robot'].map(function(s,i){
     var u2='https://api.dicebear.com/9.x/'+(i<2?'adventurer':'bottts')+'/svg?seed='+s;
-    return '<img src="'+u2+'" data-u="'+u2+'" onclick="profAv(this)" style="width:52px;height:52px;border-radius:50%;cursor:pointer;border:2px solid '+((P2.av===u2)?'var(--gold)':'var(--b2)')+'">';
+    return '<img loading="lazy" decoding="async" src="'+u2+'" data-u="'+u2+'" onclick="profAv(this)" style="width:52px;height:52px;border-radius:50%;cursor:pointer;border:2px solid '+((P2.av===u2)?'var(--gold)':'var(--b2)')+'">';
   }).join('');
   var xpNow=xpGet(), rNow=rankOf(xpNow), nxR=nextRank(xpNow);
   var pctR=nxR? Math.min(100,Math.round((xpNow-rNow[0])/(nxR[0]-rNow[0])*100)) : 100;

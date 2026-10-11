@@ -32,9 +32,9 @@ test('Firebase SDK and QR library are self-hosted, not fetched from third-party 
   assert.ok(html.indexOf('firebase-firestore-compat.js') < html.indexOf('app.js?v='));
 });
 
-test('Google Fonts stylesheet cannot block rendering', () => {
-  assert.match(html, /fonts\.googleapis\.com\/css2[^>]*media="print" onload="this\.media='all'"/);
-  assert.match(html, /<noscript><link[^>]*fonts\.googleapis\.com/);
+test('web font cannot block rendering (self-hosted, font-display:swap, no blocking font stylesheet)', () => {
+  assert.doesNotMatch(html, /<link[^>]*rel="stylesheet"[^>]*fonts\.googleapis\.com/);
+  assert.match(read('css/base/01-tokens.css'), /@font-face\{font-family:'Outfit'[^}]*font-display:swap/);
 });
 
 test('opening film is once per device (localStorage), still skipped inside a session', () => {
