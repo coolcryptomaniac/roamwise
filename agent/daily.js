@@ -9,7 +9,8 @@ async function check(url, mustContain) {
     const r = await fetch(url, { redirect: 'follow' });
     const txt = await r.text();
     const ok = r.status === 200 && (!mustContain || txt.toLowerCase().includes(mustContain.toLowerCase()));
-    return { url, ok, status: r.status, ms: Date.now() - t0, kb: Math.round(txt.length / 1024) };
+    const reason = r.status !== 200 ? `HTTP ${r.status}` : ok ? '' : `Missing expected content: ${mustContain}`;
+    return { url, ok, status: r.status, ms: Date.now() - t0, kb: Math.round(txt.length / 1024), reason };
   } catch (e) {
     return { url, ok: false, status: 'ERR', ms: Date.now() - t0, kb: 0, err: String(e.message || e).slice(0, 80) };
   }
@@ -31,15 +32,18 @@ function bar(v, max) {
     check(BASE + '/', 'RoamWise'),
     check(BASE + '/privacy.html', 'privacy'),
     check(BASE + '/sitemap.xml', '<urlset'),
-    check(BASE + '/guides/', 'Crowd-Smart'),
-    check(BASE + '/blog/', 'RoamWise Blog'),
+    check(BASE + '/guides/', '<h1>Travel guides you can audit</h1>'),
+    check(BASE + '/blog/', '<h1>Travel planning notes</h1>'),
   ]);
   const down = !checks[0].ok;
+  const failed = checks.filter(c => !c.ok);
+  const health = down ? 'SITE DOWN' : failed.length ? `checks failing: ${failed.map(c => c.url.replace(BASE, '')).join(', ')}` : 'all green';
   if (down) fs.writeFileSync('DOWN', '1');
   L.push('## 🩺 Site health');
   L.push('| Page | Status | Speed | Size |');
   L.push('|---|---|---|---|');
   checks.forEach(c => L.push(`| ${c.url.replace(BASE, '') || '/'} | ${c.ok ? '✅ 200' : '🔴 ' + c.status} | ${c.ms}ms | ${c.kb}KB |`));
+  failed.forEach(c => L.push(`\n> ${c.url.replace(BASE, '') || '/'}: ${c.reason || 'Request failed'}${c.status === 200 ? ' (HTTP 200; content check failed)' : ''}`));
   if (down) L.push(`\n> 🔴 **THE SITE IS DOWN.** Check GitHub Pages: repo → Settings → Pages. If GitHub shows an outage, wait; otherwise re-save the Pages setting.`);
   L.push('');
 
@@ -98,12 +102,12 @@ function bar(v, max) {
   /* ---------- 3. HANDOFF TO CLAUDE ---------- */
   L.push('## 🤝 Monday move — paste this to Claude');
   L.push('```');
-  L.push(`RoamWise weekly loop. Health: ${down ? 'SITE DOWN' : 'all green'}.`);
+  L.push(`RoamWise weekly loop. Health: ${health}.`);
   L.push(hadStats ? 'Funnel + ideas above — pick the highest-impact improvement, implement it in index.html, and build the new APK + AAB.' : 'No stats yet — focus: traffic. Draft this week\'s 3 Reels scripts + 1 Reddit post from the Marketing playbook.');
   L.push('```');
   L.push('');
   L.push(`*Agent v1 · runs daily 09:00 IST + weekly SEO refresh Sundays · revoke anytime: repo → Settings → Secrets*`);
 
   fs.writeFileSync('report.md', L.join('\n'));
-  console.log((down ? '🔴 DOWN' : '✅ healthy') + ' · report.md written' + (hadStats ? ' · stats included' : ' · health-only'));
+  console.log((down ? '🔴 DOWN' : failed.length ? '⚠️ ' + health : '✅ healthy') + ' · report.md written' + (hadStats ? ' · stats included' : ' · health-only'));
 })();
