@@ -24,6 +24,7 @@ function rwOpeningShow(force){
   ov.innerHTML=
      '<div class="rw-open-sky"></div>'
     +'<div class="rw-open-inner">'
+    +  '<img class="rw-open-logo" src="/assets/img/roamwise-logo-176.webp" alt="RoamWise" width="88" height="88" decoding="async">'
     +  '<div class="rw-open-mark">RoamWise</div>'
     +  '<h1 class="rw-open-q">Where do you<br><em>dream</em> of going?</h1>'
     +  '<div class="rw-open-field">'

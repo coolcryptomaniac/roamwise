@@ -55,3 +55,25 @@ test('banner shows the RoamWise logo crest from a real, small asset and respects
   assert.ok(fs.existsSync(f)&&fs.statSync(f).size<20000);
   assert.match(src,/prefers-reduced-motion:reduce[^']*sg-crest/);
 });
+test('real RoamWise logo replaces the placeholder R/RW boxes, favicon and install prompt use it',()=>{
+  const root=path.join(__dirname,'..'), rd=f=>fs.readFileSync(path.join(root,f),'utf8');
+  const html=rd('index.html');
+  assert.doesNotMatch(html,/<div class="logo-icon">RW?<\/div>/);
+  assert.equal((html.match(/class="logo-icon logo-img" src="\/assets\/img\/roamwise-logo-176\.webp"/g)||[]).length,2);
+  assert.doesNotMatch(html,/rel="icon" href="data:image\/svg/);
+  assert.match(html,/rel="icon" type="image\/png" sizes="32x32" href="\/icons\/favicon-32\.png"/);
+  assert.match(rd('css/base/02-shell.css'),/\.logo-img\{/);
+  assert.match(rd('js/boot/init.js'),/roamwise-logo-176\.webp[^]*Install RoamWise/);
+  assert.match(rd('sw.js'),/'\/assets\/img\/roamwise-logo-176\.webp'/);
+  assert.match(rd('nmims/redeem/index.html'),/class="brand"[^>]*><img src="\/assets\/img\/roamwise-logo-176\.webp"/);
+  for(const f of ['icons/favicon-32.png','icons/icon-192.png']) assert.ok(fs.existsSync(path.join(root,f)),f);
+});
+test('logo also appears on the first-visit opening, the loading veil and the intro, with reduced-motion respected',()=>{
+  const root=path.join(__dirname,'..'), rd=f=>fs.readFileSync(path.join(root,f),'utf8');
+  assert.match(rd('js/ui/opening.js'),/rw-open-logo[^]*roamwise-logo-176\.webp/);
+  assert.match(rd('css/base/05-desktop-and-discovery.css'),/\.rw-open-logo\{/);
+  const html=rd('index.html');
+  assert.match(html,/<div id="rwVeil"[^>]*><img src="\/assets\/img\/roamwise-logo-176\.webp"/);
+  assert.match(html,/class="introLogo" src="\/assets\/img\/roamwise-logo-176\.webp"/);
+  assert.match(rd('css/base/03-features-legacy.css'),/prefers-reduced-motion:reduce\)\{\.intro \.introLogo\{animation:none\}/);
+});
