@@ -2,15 +2,16 @@
 
 ## On as soon as this deploys (no setup)
 `worker/lib/rate-limit.js`, called once at the top of the router:
-| Route | Limit (per IP) |
-|---|---|
-| everything except health and cached GET news/events/geo | 600 / min |
-| POST /cashfree/order, /partner/cashfree/order | 60 / 10 min |
-| POST /payment-events | 300 / 10 min |
-| order status GETs | 200 / 10 min |
-| /leads | 12 / 10 min |
-| /ai with sign-in token | 1 / min **per user** (was 1/min per IP) |
-| /ai without a token | 20 / min per IP (then 401 anyway) |
+| Route | Per signed-in user | Per IP (loose backstop) |
+|---|---|---|
+| POST /cashfree/order, /partner/cashfree/order | 10 / 10 min | 600 / 10 min |
+| POST /payment-events | 120 / 10 min | 2000 / 10 min |
+| order status GETs | 120 / 10 min | 2000 / 10 min |
+| /ai | 1 / min | 200 / min if no token |
+| /leads (staff tool) | — | 12 / 10 min |
+| everything except health and cached GET news/events/geo | — | 1500 / min |
+One cache read per request (single counter per key per window), so cost doesn't grow with the limit.
+Per-user keys are a hash of the bearer token, so carrier/college shared IPs don't throttle each other.
 POST bodies over 64 KB on the guarded routes get 413. The limiter fails open if the cache breaks.
 Limits are sized for a college Wi-Fi where many students share one IP.
 
