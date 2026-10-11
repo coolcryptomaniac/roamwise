@@ -65,6 +65,15 @@
       +'<br><br>Prefer to chat? '+link(WA_CHAT+'?text='+encodeURIComponent(wantsStay?'Hi RoamWise, I own a stay and want to meet travel creators.':'Hi RoamWise, I am a travel creator and want to be matched with stays.'),'Message RoamWise on WhatsApp ↗')+' · '+link('https://chat.whatsapp.com/EofM9cGCVkoCtdG6Ozhh1G','Community group ↗');
   }
 
+  /* Writes the fixed answer straight into its bubble. cpFinish() needs a full trip-intent object and throws on this one,
+     which left the bubble stuck on the loading dots. Nothing here calls the AI or any network. */
+  window.rwNmimsShow=function(bubble,html){
+    if(!bubble) return;
+    bubble.style.whiteSpace='normal';
+    bubble.innerHTML=html;
+    try{ var log=bubble.parentNode; if(log){ var top=bubble.offsetTop-8; log.scrollTop=top>0?top:0; } }catch(e){ /* scroll is cosmetic */ }
+  };
+
   window.rwNmimsAnswer=function(text){
     var t=String(text||'');
     if(t.length>600) return null;

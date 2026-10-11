@@ -832,7 +832,7 @@ function copilotSend(fromHero){
   /* Startup Garage / NMIMS pass questions and "I am a creator / I own a stay": fixed answers, no AI call. */
   try{
     var _nm=(typeof rwNmimsAnswer==='function')?rwNmimsAnswer(t):null;
-    if(_nm){ var _nmb=cpBubble('\u2026','bot'); try{track('nmims_ailon');}catch(e){/* anonymous counter, best-effort */} cpFinish(_nmb,_nm,{_raw:t},t); return; }
+    if(_nm){ var _nmb=cpBubble('\u2026','bot'); try{track('nmims_ailon');}catch(e){/* anonymous counter, best-effort */} rwNmimsShow(_nmb,_nm); return; }
   }catch(e){ /* fall through to the normal flow */ }
   /* Ask rather than guess: a too-thin query gets tappable options, not a
      confident wrong answer. This is the anti-hallucination guard. */

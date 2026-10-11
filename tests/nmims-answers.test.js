@@ -29,3 +29,16 @@ test('index.html loads new scripts before they are needed', () => {
   assert.ok(i('js/ui/rave-card.js') > 0);
   assert.ok(fs.existsSync(path.join(root, 'assets/audio/rave-to-hell-full.mp3')));
 });
+test('nmims answer renders into the bubble without cpFinish (regression: bubble stuck on the loading dots)', () => {
+  const core = fs.readFileSync(path.join(root, 'js/copilot/core.js'), 'utf8');
+  const hook = core.split('\n').find(l => l.includes('rwNmimsAnswer(t)') || l.includes('rwNmimsShow('));
+  assert.ok(/rwNmimsShow\(_nmb,_nm\)/.test(core), 'hook uses rwNmimsShow');
+  assert.ok(!/cpFinish\(_nmb,_nm/.test(core), 'hook must not use cpFinish with partial intents');
+  const ctx = { window: {} }; ctx.window = ctx; vm.createContext(ctx);
+  vm.runInContext(fs.readFileSync(path.join(root, 'js/copilot/nmims-answers.js'), 'utf8'), ctx);
+  const bubble = { style: {}, innerHTML: '…', offsetTop: 0, parentNode: { scrollTop: 5 } };
+  ctx.rwNmimsShow(bubble, ctx.rwNmimsAnswer('how do I redeem my nmims pass'));
+  assert.ok(/NMIMS2026|pass code/i.test(bubble.innerHTML));
+  assert.strictEqual(bubble.parentNode.scrollTop, 0);
+  assert.ok(hook);
+});
