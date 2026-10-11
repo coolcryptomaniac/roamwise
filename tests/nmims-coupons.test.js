@@ -202,3 +202,12 @@ test('QR scan by camera photo or image upload: extracts only pass codes, decodes
   assert.match(read('index.html'), /js\/payments\/qr-scan\.js/);
   assert.ok(fs.existsSync(path.join(root, 'vendor/jsqr/jsQR.js')) && fs.existsSync(path.join(root, 'vendor/jsqr/LICENSE')));
 });
+test('printed and digital cards carry the best-wishes line and no E-Cell branding claim', () => {
+  const U = require('../nmims/pass-issuer/pass-utils.js');
+  const list = [{ code: 'NMIMS-STU-0001-ABCDEFGHJKMNP', role: 'student', serial: 1 }];
+  const svg = () => '<svg></svg>';
+  for (const html of [U.cardsHtml(list, svg, '2026-11-08', 't'), U.digitalCardsHtml(list, svg, '2026-11-08', 't')]) {
+    assert.match(html, /A gift for Startup Garage 2026\. Best wishes from RoamWise!/);
+    assert.match(html, /class="wish"/);
+  }
+});

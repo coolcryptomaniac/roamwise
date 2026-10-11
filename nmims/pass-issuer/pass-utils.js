@@ -113,13 +113,14 @@
       '<div class="qr">' + qrSvg('https://www.roamwise.co.in/?redeem=' + c.code) + '</div>' +
       '<div class="code">' + esc(c.code) + '</div>' +
       '<div class="how">Scan, sign in with Google, tap Redeem.<br>Or enter the code in Settings &rarr; Redeem a partner code.</div>' +
+      '<div class="wish">A gift for Startup Garage 2026. Best wishes from RoamWise!</div>' +
       '<div class="meta">#' + esc(c.serial) + ' &middot; ' + (c.role === 'organiser' ? 'Organiser' : 'Student / audience') + ' &middot; one use &middot; valid until ' + esc(expiresIso) + '</div></div>').join('');
     return '<!doctype html><html lang="en"><head><meta charset="utf-8"><title>' + esc(title || 'NMIMS pass cards') + '</title><style>' +
       '@page{size:A4;margin:8mm}*{box-sizing:border-box}body{margin:0;font:11px/1.35 system-ui,Arial,sans-serif;color:#1a1530;-webkit-print-color-adjust:exact;print-color-adjust:exact}' +
       '.sheet{display:grid;grid-template-columns:1fr 1fr;gap:5mm}.card{border:1.5px dashed #8a3fd1;border-radius:10px;padding:8px 10px;text-align:center;height:52mm;break-inside:avoid;page-break-inside:avoid;background:linear-gradient(135deg,#fff5e6,#efe6ff)}' +
       '.top{display:flex;justify-content:space-between;align-items:center;font-size:11px}.top b{color:#C4302B;font-size:13px}.top span{color:#0f8f72;font-weight:700}' +
-      '.qr svg{width:27mm;height:27mm;margin:2px 0;background:#fff;border-radius:4px}.code{font:700 11px ui-monospace,Menlo,monospace;letter-spacing:.02em;word-break:break-all}' +
-      '.how{font-size:8.5px;color:#4a4560;margin-top:2px}.meta{font-size:8px;color:#6a5f80;margin-top:2px}' +
+      '.qr svg{width:23mm;height:23mm;margin:2px 0;background:#fff;border-radius:4px}.code{font:700 11px ui-monospace,Menlo,monospace;letter-spacing:.02em;word-break:break-all}' +
+      '.how{font-size:8.5px;color:#4a4560;margin-top:2px}.wish{font-size:8.5px;font-weight:700;color:#8a3fd1;margin-top:3px}.meta{font-size:8px;color:#6a5f80;margin-top:2px}' +
       '.note{grid-column:1/-1;font-size:9px;color:#6a5f80}@media screen{body{padding:10px;background:#eee}.card{background:#fff}}' +
       '</style></head><body><div class="sheet"><div class="note">' + esc(title || '') + ' &middot; treat these cards like cash: whoever redeems a code first gets the pass. Print, cut along the dashed lines, hand out one per person.</div>' + cards + '</div></body></html>';
   }
@@ -132,6 +133,7 @@
       '<div class="qr">' + qrSvg('https://www.roamwise.co.in/?redeem=' + c.code) + '</div>' +
       '<div class="code">' + esc(c.code) + '</div>' +
       '<div class="how">Scan, sign in with Google, tap Redeem.<br>Or enter the code in Settings &rarr; Redeem a partner code.</div>' +
+      '<div class="wish">A gift for Startup Garage 2026. Best wishes from RoamWise!</div>' +
       '<div class="meta">#' + esc(c.serial) + ' &middot; ' + (c.role === 'organiser' ? 'Organiser' : 'Student / audience') + ' &middot; one use &middot; valid until ' + esc(expiresIso) + '</div>' +
       '<div class="acts"><button type="button" class="save">Save image</button><button type="button" class="copy">Copy link</button></div></div>').join('');
     const script = "document.addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;var card=b.closest('.card');if(!card)return;var code=card.getAttribute('data-code');" +
@@ -140,7 +142,7 @@
     return '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>' + esc(title || 'NMIMS digital pass cards') + '</title><style>' +
       '*{box-sizing:border-box}body{margin:0;padding:12px;background:#eee;font:14px/1.4 system-ui,Arial,sans-serif;color:#1a1530}.note{max-width:420px;margin:0 auto 12px;font-size:12px;color:#6a5f80}' +
       '.card{max-width:420px;margin:0 auto 16px;border:1.5px dashed #8a3fd1;border-radius:14px;padding:14px;text-align:center;background:#fff}.top{display:flex;justify-content:space-between;align-items:center}.top b{color:#C4302B;font-size:18px}.top span{color:#0f8f72;font-weight:700;font-size:13px}' +
-      '.qr svg{width:min(70vw,260px);height:min(70vw,260px);margin:8px 0;background:#fff}.code{font:700 14px ui-monospace,Menlo,monospace;word-break:break-all}.how{font-size:12px;color:#4a4560;margin-top:6px}.meta{font-size:11px;color:#6a5f80;margin-top:4px}' +
+      '.qr svg{width:min(70vw,260px);height:min(70vw,260px);margin:8px 0;background:#fff}.code{font:700 14px ui-monospace,Menlo,monospace;word-break:break-all}.how{font-size:12px;color:#4a4560;margin-top:6px}.wish{font-size:12.5px;font-weight:700;color:#8a3fd1;margin-top:6px}.meta{font-size:11px;color:#6a5f80;margin-top:4px}' +
       '.acts{display:flex;gap:8px;justify-content:center;margin-top:10px}.acts button{border:0;border-radius:9px;padding:10px 14px;font:700 13px system-ui;background:#E8BA6C;color:#0B1020}' +
       '</style></head><body><div class="note">' + esc(title || '') + ' &middot; digital cards, no printing needed. Save an image or copy the link and send it to one person. Treat each like cash: whoever redeems a code first gets the pass.</div>' + cards + '<script>' + script + '</script></body></html>';
   }
