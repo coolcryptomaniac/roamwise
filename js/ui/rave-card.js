@@ -4,14 +4,18 @@
    ============================================================================
    The founder's own track, hosted in assets/audio/rave-to-hell-full.mp3 (about 4.3 MB). Nothing downloads
    until the visitor taps Play (preload none), so it costs slow connections nothing. The audio element lives
-   in the page, so js/audio/focus.js pauses other audio when it starts. Streaming buttons are the founder's own
-   profile links (Spotify artist + all-songs playlist, JioSaavn, YouTube channel). Add more platforms to
+   in the page, so js/audio/focus.js pauses other audio when it starts. Streaming buttons are the song's own links
+   (YouTube Music, Spotify, Apple Music, Amazon Music) plus the artist/profile pages. Add more platforms to
    LINKS below only with the real URL. No tracking, no third-party embeds, no data collected.
    ============================================================================ */
 (function(){
   var SRC='/assets/audio/rave-to-hell-full.mp3';
   var LINKS=[
-    ['Spotify','https://open.spotify.com/artist/2qbS0OT9WF0Wpf2WnggrKS'],
+    ['YouTube Music','https://music.youtube.com/watch?v=L-U-A-o1G6Q'],
+    ['Spotify','https://open.spotify.com/track/1yS4k1NPpxxKsX6DxFOCsm'],
+    ['Apple Music','https://music.apple.com/in/song/rave-to-hell/6772573897'],
+    ['Amazon Music','https://amazon.com/music/player/albums/B0H2QZ1FNL?marketplaceId=ATVPDKIKX0DER&musicTerritory=US'],
+    ['More songs','https://open.spotify.com/artist/2qbS0OT9WF0Wpf2WnggrKS'],
     ['All songs playlist','https://open.spotify.com/playlist/4tO1PY5vyjXhwLFepr8VIF'],
     ['JioSaavn','https://www.saavn.com/s/artist/mohit-pandey-albums/s0TzZzm4XaE_'],
     ['YouTube','https://www.youtube.com/@mohucool']
@@ -74,7 +78,7 @@
       window.open('https://wa.me/?text='+encodeURIComponent(text),'_blank','noopener');
     };
     links.appendChild(share); c.appendChild(links);
-    c.appendChild(node('div','rv-note','Streams from RoamWise only when you tap play (about 4 MB). Spotify, JioSaavn and YouTube links open the artist pages.'));
+    c.appendChild(node('div','rv-note','Streams from RoamWise only when you tap play (about 4 MB). The platform buttons open Rave to Hell itself; More songs, playlist, JioSaavn and YouTube open the artist pages.'));
     return c;
   }
   function mount(){

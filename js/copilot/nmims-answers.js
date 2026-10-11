@@ -49,6 +49,8 @@
       +'<br><br>Seriously useful bits: pass-holders get <b>free lifetime Founder Pro</b>. Ask me <i>"how do I redeem my pass?"</i> or <i>"what is Startup Garage?"</i> and I will walk you through.'
       +'<br><br><a style="'+GOLD+';font-weight:700" href="#" onclick="try{openPartnerRedeem()}catch(e){}return false">I have a pass → Redeem ↗</a> · '+link('/nmims/redeem/','How it works ↗');
   }
+  /* RoamWise business WhatsApp (India, +91). wa.me needs the country code, so the number is 91 + 9987379730. */
+  var WA_CHAT='https://wa.me/919987379730';
   function creatorAnswer(t){
     var wantsStay=/\b(stay|homestay|property|villa|resort|hotel|cottage|host)\b/i.test(t)&&!/\b(i am|i'm|im)\s+a\s+(travel\s+)?(creator|influencer)/i.test(t);
     var origin='https://roamwise.co.in';
@@ -60,7 +62,7 @@
       +'<br><b>I own a stay or experience</b> → '+link('/creators/match.html?role=property','Tell us what content you want ↗')+' · '+link(shareP,'Send on WhatsApp ↗')
       +'<br><br>Creators say what they make and what they want (hosted barter, hybrid or paid). Hosts say what content they want and what they can offer. The host decides. RoamWise matches, and does not hold anyone\'s payment.'
       +(wantsStay?'<br><br>Full partner listing (photos, rooms, booking route) takes about 3 minutes: '+link('/partner/join/','Join as a partner ↗'):'')
-      +'<br><br>Stuck? '+link('https://chat.whatsapp.com/EofM9cGCVkoCtdG6Ozhh1G','Ask in the RoamWise WhatsApp group ↗');
+      +'<br><br>Prefer to chat? '+link(WA_CHAT+'?text='+encodeURIComponent(wantsStay?'Hi RoamWise, I own a stay and want to meet travel creators.':'Hi RoamWise, I am a travel creator and want to be matched with stays.'),'Message RoamWise on WhatsApp ↗')+' · '+link('https://chat.whatsapp.com/EofM9cGCVkoCtdG6Ozhh1G','Community group ↗');
   }
 
   window.rwNmimsAnswer=function(text){
