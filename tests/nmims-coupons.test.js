@@ -212,3 +212,27 @@ test('printed and digital cards carry the best-wishes line and a thank-you, with
     assert.match(html, /Wishing you big ideas and bigger journeys/);
   }
 });
+
+test('digital cards: tappable redeem link, print layout hides buttons; CSV round-trip rebuilds cards; serial range; redemptions CSV', () => {
+  const list = U.couponBatch(rnd);
+  const csv = U.toCsv(list.filter(c => c.role === 'student'), '2026-11-08');
+  const back = U.fromCsv(csv);
+  assert.equal(back.list.length, 450);
+  assert.equal(back.expiresIso, '2026-11-08');
+  assert.deepEqual(back.list.map(c => c.code), list.filter(c => c.role === 'student').map(c => c.code));
+  assert.deepEqual(U.serialRange(back.list, 1, 10).map(c => c.serial), [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
+  assert.equal(U.serialRange(back.list, '', '').length, 450);
+  assert.throws(() => U.fromCsv('a,b\n1,2'), /not a coupon CSV/);
+  assert.throws(() => U.fromCsv(csv.replace(/NMIMS-STU-0003-./, 'NMIMS-STU-0003-I')), /invalid code/);
+  assert.throws(() => U.fromCsv(csv + csv.split('\n')[1] + '\n'), /Duplicate/);
+  assert.throws(() => U.fromCsv(csv.replace('student,NMIMS-STU-0002', 'organiser,NMIMS-STU-0002')), /does not match/);
+  const svg = () => '<svg></svg>';
+  const html = U.digitalCardsHtml(back.list.slice(0, 2), svg, '2026-11-08', 't');
+  assert.equal((html.match(/<a class="open" href="https:\/\/www\.roamwise\.co\.in\/\?redeem=NMIMS-STU-000[12]-/g) || []).length, 2);
+  assert.match(html, /@media print\{[^}]*\}[^]*\.acts\{display:none\}/);
+  const out = U.redemptionsCsv([{ serial: 11, role: 'student', code: 'NMIMS-STU-0011-X', redeemedAt: '2026-10-11T09:00:00.000Z', redeemedUid: 'u1' }]);
+  assert.equal(out, 'serial,type,code,redeemed_at,redeemed_by_uid\n11,student,NMIMS-STU-0011-X,2026-10-11T09:00:00.000Z,u1\n');
+  const page = read('nmims/pass-issuer/index.html');
+  for (const id of ['csvFile', 'serFrom', 'serTo', 'redListBtn', 'redCsvBtn']) assert.match(page, new RegExp('id="' + id + '"'));
+  assert.doesNotMatch(page, /redeemedEmail|\.email\b.*redOut/);
+});
