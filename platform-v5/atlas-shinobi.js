@@ -516,8 +516,16 @@
     video.insertAdjacentElement('afterend', filmGif);
     var skip = root.querySelector('.rw-skip');
     var openingSound = root.querySelector('.rw-opening-sound');
+    /* Browsers block audible autoplay in a fresh tab until the first tap. When that happens the
+       button says so and the next tap on it starts the cue (a tap elsewhere still skips). */
+    var soundBlocked = false;
     function syncOpeningSound(){
       var on = !(window.RWAudio && RWAudio.isEnabled && !RWAudio.isEnabled());
+      if (on && soundBlocked) {
+        openingSound.innerHTML = '&#128263; Tap for sound';
+        openingSound.setAttribute('aria-label', 'Tap to play the opening sound');
+        return;
+      }
       openingSound.innerHTML = on ? '&#128266; Sound' : '&#128263; Muted';
       openingSound.setAttribute('aria-label', on ? 'Mute opening sound' : 'Turn opening sound on');
     }
@@ -648,6 +656,14 @@
         if (withSound && typeof window.rwPlayCue === 'function') {
           var resumeAmbient = !!(window.RWAudio && RWAudio.isLoopEnabled && RWAudio.isLoopEnabled());
           window.rwPlayCue('site_opening', { resumeAmbient: resumeAmbient });
+          setTimeout(function(){
+            try {
+              var enabled = !(window.RWAudio && RWAudio.isEnabled && !RWAudio.isEnabled());
+              if (!closed && enabled && typeof window.rwCueIsPlaying === 'function' && !window.rwCueIsPlaying()) {
+                soundBlocked = true; syncOpeningSound();
+              }
+            } catch (_) {}
+          }, 700);
         }
       } catch (_) {}
       /* Calling play before canplay intentionally kicks browsers that ignore
@@ -677,6 +693,12 @@
 
     openingSound.addEventListener('click', function(event){
       event.stopPropagation();
+      if (soundBlocked) {
+        soundBlocked = false;
+        try { window.rwPlayCue('site_opening', { resumeAmbient: false }); } catch (_) {}
+        syncOpeningSound();
+        return;
+      }
       try {
         if (typeof window.rwToggleAudioQuick === 'function') window.rwToggleAudioQuick();
         syncOpeningSound();

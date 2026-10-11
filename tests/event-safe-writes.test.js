@@ -24,3 +24,23 @@ test('lastActive + device registration run at most once per 6h per account per b
 test('compressed opening film is already in use',()=>{
   assert.match(rd('platform-v5/atlas-shinobi.js'),/Date\.UTC\(2026, 9, 11\)/);
 });
+
+test('first paint: header, menu button and bottom tabs are plain HTML (no wait for scripts)', () => {
+  const html = rd('index.html');
+  assert.match(html, /<body class="rw-akatsuki-theme shell" data-view="home">/);
+  const nav = html.match(/<nav class="tabbar" id="tabbar"[^>]*>([\s\S]*?)<\/nav>/)[1];
+  ['home', 'plan', 'copilot', 'store', 'more'].forEach(k => assert.match(nav, new RegExp('id="tb-' + k + '"')));
+  assert.match(nav, /window\.rwTabGo&amp;&amp;rwTabGo/);   /* taps before scripts load must not throw */
+  assert.match(html, /<button class="hamb" onclick="openDrawer\(\)"/);
+  assert.match(html, /Instant shell:[\s\S]{0,400}tier!=="fast"&&n\.tier!=="medium"/);
+});
+test('stylesheet @import chain is preloaded from the HTML so it is not a 3-step waterfall', () => {
+  const html = rd('index.html'), base = rd('app-base.css');
+  [...base.matchAll(/@import url\("\.\/([^"]+)"\)/g)].forEach(m => assert.ok(html.includes('rel="preload" href="' + m[1] + '" as="style"'), m[1]));
+});
+test('opening sound: a blocked autoplay is shown on the button and the next tap starts it', () => {
+  const s = rd('platform-v5/atlas-shinobi.js');
+  assert.match(s, /Tap for sound/);
+  assert.match(s, /rwCueIsPlaying/);
+  assert.match(s, /if \(soundBlocked\) \{[\s\S]{0,200}rwPlayCue\('site_opening'/);
+});
