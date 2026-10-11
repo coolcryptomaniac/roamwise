@@ -2,14 +2,14 @@
 /* ============================================================================
    js/ui/rave-card.js - "Rave to Hell" anthem card on the home page
    ============================================================================
-   The founder's own track, hosted in assets/audio/rave-to-hell-full.mp3 (about 4.3 MB). Nothing downloads
+   The founder's own track, hosted in assets/audio/rave-to-hell-lite.mp3 (about 1.9 MB, 80 kbps; the 192 kbps original is kept as rave-to-hell-full.mp3). Nothing downloads
    until the visitor taps Play (preload none), so it costs slow connections nothing. The audio element lives
    in the page, so js/audio/focus.js pauses other audio when it starts. Streaming buttons are the song's own links
    (YouTube Music, Spotify, Apple Music, Amazon Music) plus the artist/profile pages. Add more platforms to
    LINKS below only with the real URL. No tracking, no third-party embeds, no data collected.
    ============================================================================ */
 (function(){
-  var SRC='/assets/audio/rave-to-hell-full.mp3';
+  var SRC='/assets/audio/rave-to-hell-lite.mp3';
   var LINKS=[
     ['YouTube Music','https://music.youtube.com/watch?v=L-U-A-o1G6Q'],
     ['Spotify','https://open.spotify.com/track/1yS4k1NPpxxKsX6DxFOCsm'],
@@ -78,7 +78,7 @@
       window.open('https://wa.me/?text='+encodeURIComponent(text),'_blank','noopener');
     };
     links.appendChild(share); c.appendChild(links);
-    c.appendChild(node('div','rv-note','Streams from RoamWise only when you tap play (about 4 MB). The platform buttons open Rave to Hell itself; More songs, playlist, JioSaavn and YouTube open the artist pages.'));
+    c.appendChild(node('div','rv-note','Streams from RoamWise only when you tap play (about 2 MB). The platform buttons open Rave to Hell itself; More songs, playlist, JioSaavn and YouTube open the artist pages.'));
     return c;
   }
   function mount(){
