@@ -31,3 +31,10 @@ test('rave card has all four song links and the WhatsApp number has a country co
   ['music.youtube.com/watch?v=L-U-A-o1G6Q', 'open.spotify.com/track/1yS4k1NPpxxKsX6DxFOCsm', 'music.apple.com/in/song/rave-to-hell/6772573897', 'B0H2QZ1FNL'].forEach(s => assert.ok(r.includes(s), s));
   assert.ok(fs.readFileSync(path.join(root, 'js/copilot/nmims-answers.js'), 'utf8').includes('wa.me/919987379730'));
 });
+
+test('Rave to Hell streams the light 80 kbps file (under 2.5 MB) so it starts fast on mobile', () => {
+  const fs2 = require('node:fs'), p2 = require('node:path');
+  const card = fs2.readFileSync(p2.join(__dirname, '..', 'js/ui/rave-card.js'), 'utf8');
+  assert.match(card, /var SRC='\/assets\/audio\/rave-to-hell-lite\.mp3'/);
+  assert.ok(fs2.statSync(p2.join(__dirname, '..', 'assets/audio/rave-to-hell-lite.mp3')).size < 2500000);
+});
