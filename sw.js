@@ -57,7 +57,9 @@ var PRECACHE = [
   '/manifest.webmanifest',
   '/icons/icon-192.png',
   '/icons/icon-512.png',
-  '/icons/apple-touch-icon.png'
+  '/icons/apple-touch-icon.png',
+  '/icons/favicon-32.png',
+  '/assets/img/roamwise-logo-176.webp'
 ];
 
 /* Every same-origin script/stylesheet the home page references, read from the

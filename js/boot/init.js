@@ -193,7 +193,7 @@ document.addEventListener('DOMContentLoaded', function(){ try{ rwApplyMode(); }c
   var deferred=null;
   window.addEventListener('beforeinstallprompt', function(e){
     e.preventDefault(); deferred=e;
-    showBar('<span style="font-size:20px">\uD83D\uDCF2</span>'
+    showBar('<img src="/assets/img/roamwise-logo-176.webp" alt="" width="30" height="30" style="border-radius:8px;flex:none">'
       +'<span style="flex:1;line-height:1.4">Install RoamWise \u2014 works offline, opens like an app</span>'
       +'<button onclick="rwPwaInstall()" style="background:linear-gradient(135deg,#E8BA6C,#C8913E);color:#12121C;border:none;'
       +'border-radius:9px;padding:8px 12px;font-weight:800;font-size:12px;cursor:pointer">Install</button>'
