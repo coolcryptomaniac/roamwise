@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#06080f">
+  <title>List your space for remote workers - RoamWise Nomad Match</title>
+  <meta name="description" content="Own a stay with good Wi-Fi? Join RoamWise Nomad Match in about 2 minutes. Guests pay you directly; you set your own rates.">
+  <link rel="canonical" href="https://roamwise.co.in/nomads/join/"><link rel="icon" href="../../icons/favicon-32.png">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet"><link rel="stylesheet" href="../nomads.css">
+</head>
+<body>
+  <div class="nm-aurora" aria-hidden="true"><i></i><i></i><i></i></div>
+  <nav class="nm-nav"><a href="../../" class="nm-brand"><img src="../../icons/icon-192.png" alt=""><b>Roam<span>Wise</span></b></a><span></span><a href="../">Nomad Match</a><a href="../../partner/join/">Full partner form</a></nav>
+  <main class="nm-join">
+    <header>
+      <span class="nm-kicker">FOR OWNERS · TAKES ABOUT 2 MINUTES</span>
+      <h1>Fill your rooms for <em>weeks, not nights.</em></h1>
+      <p>Founders and remote professionals book 15-day to 3-month stays. You set the rates and refund terms. Guests pay you directly. RoamWise adds nothing to their total.</p>
+    </header>
+    <section class="nm-shell">
+      <form id="joinForm" class="nm-form" autocomplete="on">
+        <div class="nm-fields">
+          <div class="nm-two"><label>Your name<input id="jOwner" required maxlength="60" autocomplete="name"></label><label>WhatsApp number<input id="jPhone" required inputmode="tel" maxlength="16" placeholder="98xxxxxxxx" autocomplete="tel"></label></div>
+          <div class="nm-two"><label>Name of your stay<input id="jName" required maxlength="80"></label><label>Town and state<input id="jPlace" required maxlength="80" placeholder="Kasar Devi, Uttarakhand"></label></div>
+          <div class="nm-two"><label>Wi-Fi speed (Mbps, from a speed test)<input id="jMbps" type="number" min="0" max="2000" required placeholder="e.g. 50"></label><label>Rooms you can offer for long stays<input id="jRooms" type="number" min="1" max="500" value="1"></label></div>
+          <div class="nm-two"><label>Monthly rate you would offer (₹)<input id="jRate" type="number" min="0" step="500" required placeholder="e.g. 25000"></label><label>Email (optional)<input id="jEmail" type="email" maxlength="80" autocomplete="email"></label></div>
+          <div class="nm-checks">
+            <label class="nm-check"><input type="checkbox" id="jBackup" checked><span>Power backup for Wi-Fi and laptop</span></label>
+            <label class="nm-check"><input type="checkbox" id="jDesk" checked><span>Desk and chair in the room</span></label>
+            <label class="nm-check"><input type="checkbox" id="jKitchen"><span>Kitchen or meals</span></label>
+          </div>
+          <label class="nm-check"><input type="checkbox" id="jOk" required><span>I agree that RoamWise may contact me about listing my space. Guests will pay me directly.</span></label>
+        </div>
+        <button class="nm-btn big" type="submit">Send to RoamWise on WhatsApp <span aria-hidden="true">→</span></button>
+        <p class="nm-fine" id="joinNote">This opens WhatsApp with your details filled in. Nothing is stored on this page.</p>
+        <p class="nm-fine"><a id="mailAlt" href="#">Prefer email? Send by email instead</a></p>
+      </form>
+    </section>
+    <section class="nm-trust"><div><b>You keep control</b><span>Your rates, your refund terms, your guests.</span></div><div><b>Paid directly</b><span>Guests pay you. RoamWise earns after a completed stay.</span></div><div><b>Earn a tier</b><span>Send a speed-test screenshot to become Nomad-Ready.</span></div></section>
+    <section class="nm-share"><div><b>Know an owner with good Wi-Fi?</b><span>Send them this page.</span></div><a class="nm-btn ghost" id="shareWa" target="_blank" rel="noopener noreferrer">Share on WhatsApp</a><button class="nm-btn ghost" id="copyLink" type="button">Copy link</button></section>
+  </main>
+  <script src="../../partner/config.js"></script>
+  <script type="module" src="join.js"></script>
+  <noscript><p class="nm-noscript">JavaScript is needed. Email <a href="mailto:support@roamwise.co.in?subject=List%20my%20space">support@roamwise.co.in</a> with your stay name, town, Wi-Fi speed and monthly rate.</p></noscript>
+</body>
+</html>

@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#06080f">
+  <title>RoamWise Nomad Match - work stays for founders and professionals</title>
+  <meta name="description" content="Tell RoamWise how you work. Get matched with 15-day, 1-month or 3-month work stays that have proven Wi-Fi, power backup and a real desk. Direct with the host, no hidden fees.">
+  <link rel="canonical" href="https://roamwise.co.in/nomads/"><link rel="icon" href="../icons/favicon-32.png">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet"><link rel="stylesheet" href="nomads.css">
+</head>
+<body>
+  <div class="nm-aurora" aria-hidden="true"><i></i><i></i><i></i></div>
+  <nav class="nm-nav"><a href="../" class="nm-brand"><img src="../icons/icon-192.png" alt=""><b>Roam<span>Wise</span></b></a><span></span><a href="#tiers">Nomad-Ready tiers</a><a href="join/">List your space</a></nav>
+
+  <main>
+    <header class="nm-hero">
+      <div class="nm-hero-copy">
+        <span class="nm-kicker">NOMAD MATCH · FOUNDERS · PROFESSIONALS · TEAMS</span>
+        <h1>Work from where the Wi-Fi is fast<br>and <em>the view is unfair.</em></h1>
+        <p>Answer a few questions. RoamWise scores real work stays and destinations against how you actually work, then opens a chat with the host. 15 days, 1 month or 3 months.</p>
+        <div class="nm-cta"><a class="nm-btn" href="#match" id="goMatch">Find my work stay</a><a class="nm-btn ghost" href="join/">I host a space</a></div>
+        <ul class="nm-stats"><li><b data-count="3">0</b><span>stay lengths</span></li><li><b data-count="15">0</b><span>destinations scored</span></li><li><b data-count="0" data-suffix="%">0%</b><span>added to your total</span></li></ul>
+      </div>
+      <div class="nm-hero-orb" aria-hidden="true">
+        <div class="nm-ring r1"></div><div class="nm-ring r2"></div><div class="nm-ring r3"></div>
+        <div class="nm-core"><span>Wi-Fi</span><b id="orbMbps">214</b><small>Mbps</small></div>
+        <span class="nm-chip c1">🔋 backup</span><span class="nm-chip c2">🪑 real desk</span><span class="nm-chip c3">🏔️ mountains</span><span class="nm-chip c4">🎧 call spot</span>
+      </div>
+    </header>
+
+    <section class="nm-flow" aria-label="How Nomad Match works"><div><b>1</b><span>Tell us how you work</span></div><i></i><div><b>2</b><span>We score stays and places</span></div><i></i><div><b>3</b><span>Chat the host directly</span></div></section>
+
+    <section class="nm-shell" id="match">
+      <div class="nm-mode" role="tablist"><button role="tab" class="on" data-mode="seeker" aria-selected="true">I need a work stay</button><button role="tab" data-mode="host" aria-selected="false">I host a space</button></div>
+
+      <form id="seekerForm" class="nm-form" autocomplete="off">
+        <fieldset><legend><b>1</b> Who is working?</legend><div class="nm-personas" id="personas"></div></fieldset>
+        <div class="nm-two">
+          <fieldset><legend><b>2</b> How long?</legend><div class="nm-seg" id="stayLen"></div></fieldset>
+          <fieldset><legend><b>3</b> Wi-Fi you need</legend><div class="nm-seg" id="wifiNeed"></div></fieldset>
+        </div>
+        <fieldset><legend><b>4</b> Must-haves <small>pick any</small></legend><div class="nm-pills" id="musts"></div></fieldset>
+        <fieldset><legend><b>5</b> Mood <small>up to 3</small></legend><div class="nm-pills" id="vibes"></div></fieldset>
+        <div class="nm-two">
+          <fieldset><legend><b>6</b> Monthly budget</legend><div class="nm-range"><output id="budgetOut">₹40,000</output><input id="budget" type="range" min="8000" max="250000" step="1000" value="40000" aria-label="Monthly budget in rupees"></div></fieldset>
+          <fieldset><legend><b>7</b> People and start</legend><div class="nm-inline"><label>People<select id="people"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option></select></label><label>Start date<input id="start" type="date"></label></div></fieldset>
+        </div>
+        <button class="nm-btn big" id="goBtn" type="submit">Match me <span aria-hidden="true">→</span></button>
+      </form>
+
+      <section id="scan" class="nm-scan" hidden aria-live="polite"><div class="nm-radar" aria-hidden="true"><i></i></div><ul id="scanSteps"></ul></section>
+      <section id="results" class="nm-results" hidden aria-live="polite"></section>
+
+      <form id="hostForm" class="nm-form" hidden autocomplete="off">
+        <div class="nm-host-intro"><h2>Show us what your space can really do.</h2><p>Tick what is true today. Your Nomad-Ready tier updates live. A speed-test screenshot turns "self-declared" into "verified".</p></div>
+        <div class="nm-host-grid">
+          <div class="nm-fields">
+            <div class="nm-two"><label>Space name<input id="hName" maxlength="80" placeholder="Mountain Desk House"></label><label>Town and state<input id="hPlace" maxlength="80" placeholder="Kasar Devi, Uttarakhand"></label></div>
+            <div class="nm-two"><label>Your name<input id="hOwner" maxlength="60"></label><label>WhatsApp number<input id="hPhone" inputmode="numeric" maxlength="16" placeholder="98xxxxxxxx"></label></div>
+            <div class="nm-two"><label>Wi-Fi speed (Mbps, from a speed test)<input id="hMbps" type="number" min="0" max="2000" value="30"></label><label>Rooms open to long stays<input id="hRooms" type="number" min="0" max="500" value="2"></label></div>
+            <div class="nm-two"><label>15-day rate (₹ per month)<input id="hR15" type="number" min="0" step="500"></label><label>1-month rate (₹)<input id="hR30" type="number" min="0" step="500" value="25000"></label></div>
+            <div class="nm-two"><label>Power backup<select id="hBackup"><option value="none">None</option><option value="router">Router only</option><option value="full" selected>Router and laptop area, all day</option></select></label><label>Work desk<select id="hDesk"><option value="none">None</option><option value="basic">Table and chair</option><option value="ergonomic" selected>Desk and ergonomic chair</option></select></label></div>
+            <div class="nm-checks" id="hChecks"></div>
+          </div>
+          <aside class="nm-meter" aria-live="polite"><svg viewBox="0 0 120 120" class="nm-gauge"><circle cx="60" cy="60" r="52" class="bg"/><circle cx="60" cy="60" r="52" class="fg" id="hGauge"/></svg><div class="nm-meter-in"><b id="hScore">0</b><small>/100</small></div><h3 id="hTier">Not nomad-ready yet</h3><p id="hLine"></p><ul id="hMissing"></ul></aside>
+        </div>
+        <button class="nm-btn big" type="submit">Send my space to RoamWise <span aria-hidden="true">→</span></button>
+        <p class="nm-fine">This opens WhatsApp or email with your details. Nothing is stored on this page, and RoamWise never holds guest money.</p>
+      </form>
+    </section>
+
+    <section class="nm-tiers" id="tiers">
+      <header><span class="nm-kicker">NOMAD-READY TIERS</span><h2>Proof, not promises.</h2><p>Every space is scored out of 100 on what it can show. Speed counts the most, then power backup and a real desk. Verified means a speed-test screenshot was checked.</p></header>
+      <div class="nm-tier-cards" id="tierCards"></div>
+    </section>
+
+    <section class="nm-trust"><div><b>Direct with the host</b><span>You pay the property, not RoamWise. The host sets any refund terms.</span></div><div><b>No fee on your total</b><span>RoamWise earns from the host after a completed stay.</span></div><div><b>Honest numbers</b><span>Costs and speeds come from cited sources or from the host's own proof.</span></div></section>
+  </main>
+
+  <script src="../partners-data.js"></script><script src="../partner/config.js"></script>
+  <script type="module" src="nomads.js"></script>
+  <noscript><p class="nm-noscript">JavaScript is needed for matching. You can still email <a href="mailto:founder@roamwise.co.in?subject=Nomad%20stay">founder@roamwise.co.in</a>.</p></noscript>
+</body>
+</html>
