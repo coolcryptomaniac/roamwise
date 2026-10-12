@@ -22,3 +22,6 @@ Set `verified: true` only after seeing a speed-test screenshot. `vibes: ['mounta
 ## Honesty rules
 - Destination costs (USD per month, about Rs 88 to the dollar) and Wi-Fi notes come from the cited sources on each card; vibe and connectivity ratings are editorial and labelled so.
 - Do not list unsigned third-party properties publicly. Invite them first (see the Google Sheet pipeline).
+
+## Owner join page
+`/nomads/join/` is a one-screen form (name, WhatsApp, stay, town, Wi-Fi, rooms, monthly rate, backup/desk/kitchen, consent). It opens WhatsApp to RoamWise when `chat.supportWhatsapp` is set in `partner/config.js`, otherwise an email to `supportEmail`. **Set `supportWhatsapp` (digits, 91XXXXXXXXXX) to switch it to WhatsApp.** It has a share-on-WhatsApp button for sending the link to owners. Homepage: a card in the sacred/kainchi/partner band, a footer link and a drawer link.

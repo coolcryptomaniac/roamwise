@@ -64,3 +64,13 @@ test('messages are bounded plain text with no markup and WhatsApp links need an 
   assert.equal(waLink('9876543210', 'x'), '');
   assert.match(waLink('919876543210', 'hi there'), /^https:\/\/wa\.me\/919876543210\?text=hi%20there$/);
 });
+
+import fs from 'node:fs';
+test('homepage links to Nomad Match and the owner join page, and both pages ship their files', () => {
+  const home = fs.readFileSync(new URL('../index.html', import.meta.url), 'utf8');
+  assert.ok(home.includes('href="nomads/"') && home.includes('href="nomads/join/"'));
+  for (const f of ['nomads/index.html', 'nomads/join/index.html', 'nomads/join/join.js', 'nomads/nomads.css'])
+    assert.ok(fs.existsSync(new URL('../' + f, import.meta.url)), f);
+  const join = fs.readFileSync(new URL('../nomads/join/index.html', import.meta.url), 'utf8');
+  assert.ok(/id="jOk"[^>]*required/.test(join), 'consent checkbox required');
+});
