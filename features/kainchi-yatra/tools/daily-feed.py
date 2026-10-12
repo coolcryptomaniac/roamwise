@@ -182,9 +182,29 @@ def collect(previous, now, read=fetch):
 
 def write(snapshot, directory):
     directory.mkdir(parents=True, exist_ok=True)
-    # Keep generated snapshots inside both the browser response and feature gzip budgets.
-    while len(gzip.compress(json.dumps(snapshot, ensure_ascii=True).encode())) > 7000 and snapshot.get('items'):
-        snapshot['items'].pop()
+    # Include omission metadata in the budget; reserializing must retain the original count.
+    items = snapshot.get('items', [])
+    previous = snapshot.get('coverage', {})
+    selected = previous.get('selectedHeadlines') if isinstance(previous, dict) else None
+    if (type(selected) is not int or selected < len(items) or selected > 30 or
+            previous.get('retainedHeadlines') != len(items) or
+            previous.get('omittedHeadlines') != selected - len(items)):
+        selected = len(items)
+    try:
+        day = datetime.fromisoformat(snapshot['checkedAt'].replace('Z', '+00:00')).astimezone(
+            timezone(timedelta(hours=5, minutes=30))).date().isoformat()
+    except (KeyError, ValueError, TypeError):
+        day = None
+    while True:
+        retained = len(items)
+        snapshot['coverage'] = dict(selectedHeadlines=selected, retainedHeadlines=retained,
+                                    omittedHeadlines=selected - retained)
+        history = snapshot.get('history', [])
+        if day and history and history[-1].get('date') == day:
+            history[-1].update(retainedHeadlines=retained, omittedHeadlines=selected - retained)
+        if len(gzip.compress(json.dumps(snapshot, ensure_ascii=True).encode())) <= 7000 or not items:
+            break
+        items.pop()
     (directory / 'daily.json').write_text(json.dumps(snapshot, ensure_ascii=False, indent=2) + '\n')
     encoded = json.dumps(snapshot, ensure_ascii=True, separators=(',', ':')).replace('<', '\\u003c').replace('>', '\\u003e')
     (directory / 'daily.js').write_text('/* Generated public-source snapshot. Never edit by hand. */\n(function(root){root.RWKainchiCore.daily=' + encoded + ';})(globalThis);\n')

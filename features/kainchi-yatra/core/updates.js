@@ -29,8 +29,15 @@
         recent: now - published <= 48 * 3600000 });
     });
     items.sort(function (a, b) { return b.publishedAt.localeCompare(a.publishedAt); });
+    var counts = data.coverage, coverage = null;
+    if (counts && ['selectedHeadlines', 'retainedHeadlines', 'omittedHeadlines'].every(function (key) {
+      return Number.isInteger(counts[key]) && counts[key] >= 0 && counts[key] <= 30;
+    }) && counts.retainedHeadlines === items.length && counts.selectedHeadlines >= counts.retainedHeadlines &&
+        counts.omittedHeadlines === counts.selectedHeadlines - counts.retainedHeadlines) {
+      coverage = { selected: counts.selectedHeadlines, retained: counts.retainedHeadlines, omitted: counts.omittedHeadlines };
+    }
     return { version: 1, checkedAt: stamp(data.checkedAt, now) ? data.checkedAt : null,
-      items: items.slice(0, 30), sources: data.sources.slice(0, 12).filter(function (s) { return s && safeURL(s.url); }).map(function (s) {
+      items: items.slice(0, 30), coverage: coverage, sources: data.sources.slice(0, 12).filter(function (s) { return s && safeURL(s.url); }).map(function (s) {
         return { id: String(s.id || ''), name: String(s.name || '').slice(0, 100), url: safeURL(s.url),
           status: ['ok', 'error', 'manual'].indexOf(s.status) !== -1 ? s.status : 'pending',
           lastSuccessAt: stamp(s.lastSuccessAt, now) ? s.lastSuccessAt : null,

@@ -24,6 +24,16 @@ test('old headlines remain historical and missing or future checks are stale', (
 test('duplicate URLs cannot inflate the headline count', () => {
   assert.equal(normalize([item, item]).items.length, 1);
 });
+test('coverage is optional and only accepted when counts match validated retained items', () => {
+  const counts = { selectedHeadlines: 30, retainedHeadlines: 1, omittedHeadlines: 29 };
+  assert.deepEqual(normalize([item], { coverage: counts }).coverage, { selected: 30, retained: 1, omitted: 29 });
+  assert.equal(normalize([item]).coverage, null);
+  for (const coverage of [{ ...counts, selectedHeadlines: 31 }, { ...counts, omittedHeadlines: 28 },
+    { ...counts, retainedHeadlines: '1' }, { ...counts, retainedHeadlines: -1 }]) {
+    assert.equal(normalize([item], { coverage }).coverage, null);
+  }
+  assert.equal(normalize([item, item], { coverage: { selectedHeadlines: 30, retainedHeadlines: 2, omittedHeadlines: 28 } }).coverage, null);
+});
 test('arrival date bounds follow India midnight rather than UTC midnight', () => {
   const instant = '2026-10-09T20:00:00Z';
   assert.equal(core.istDate(instant), '2026-10-10');

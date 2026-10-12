@@ -4,6 +4,9 @@ from datetime import datetime, timezone
 import unittest
 import tempfile
 import json
+import gzip
+import random
+import string
 spec = importlib.util.spec_from_file_location('daily_feed', Path(__file__).parents[1] / 'tools/daily-feed.py')
 m = importlib.util.module_from_spec(spec); spec.loader.exec_module(m)
 NOW = datetime(2026, 10, 9, 8, tzinfo=timezone.utc)
@@ -49,5 +52,39 @@ class FeedTests(unittest.TestCase):
         a=m.collect({},NOW,read); b=m.collect(a,NOW,read)
         self.assertEqual(len(b['history']),1)
         self.assertEqual(len(b['items']),1)
+
+    def test_size_omissions_are_explicit_and_preserve_dates_failures_and_old_history(self):
+        randomizer = random.Random(12)
+        def token(size): return ''.join(randomizer.choices(string.ascii_letters + string.digits, k=size))
+        items = [dict(title=token(240), url='https://news.google.com/articles/'+token(900),
+                      publishedAt='2026-10-09T06:00:00Z', sourceId='news-en', kind='news') for _ in range(30)]
+        older = dict(date='2026-10-08', headlines=25, sourcesOK=1, sourcesFailed=3)
+        result = dict(version=1, checkedAt='2026-10-09T08:00:00Z', items=items,
+                      sources=[dict(id='police', status='error', lastSuccessAt=None)],
+                      history=[dict(older), dict(date='2026-10-09', headlines=30, sourcesOK=3, sourcesFailed=1)])
+        with tempfile.TemporaryDirectory() as tmp:
+            m.write(result,Path(tmp))
+            saved=json.loads((Path(tmp)/'daily.json').read_text()); count=len(saved['items'])
+            self.assertLess(count,30)
+            self.assertEqual(saved['coverage'],dict(selectedHeadlines=30,retainedHeadlines=count,omittedHeadlines=30-count))
+            self.assertEqual(saved['history'][0],older)
+            self.assertEqual(saved['history'][-1]['headlines'],30)
+            self.assertEqual(saved['history'][-1]['retainedHeadlines'],count)
+            self.assertEqual(saved['history'][-1]['omittedHeadlines'],30-count)
+            self.assertEqual(saved['sources'],result['sources'])
+            self.assertEqual(saved['checkedAt'],'2026-10-09T08:00:00Z')
+            self.assertTrue(all(i['publishedAt']=='2026-10-09T06:00:00Z' for i in saved['items']))
+            self.assertLessEqual(len(gzip.compress(json.dumps(saved,ensure_ascii=True).encode())),7000)
+            self.assertLess(len(gzip.compress((Path(tmp)/'daily.js').read_bytes())),7300)
+            before=json.loads(json.dumps(saved))
+            m.write(saved,Path(tmp)); self.assertEqual(json.loads((Path(tmp)/'daily.json').read_text()),before)
+
+    def test_small_snapshot_reports_no_omission_and_does_not_rewrite_old_day(self):
+        result=dict(version=1,checkedAt='2026-10-09T08:00:00Z',items=m.parse_rss(RSS,SOURCE,NOW),sources=[],
+                    history=[dict(date='2026-10-08',headlines=20)])
+        with tempfile.TemporaryDirectory() as tmp:
+            m.write(result,Path(tmp))
+            self.assertEqual(result['coverage'],dict(selectedHeadlines=1,retainedHeadlines=1,omittedHeadlines=0))
+            self.assertEqual(result['history'],[dict(date='2026-10-08',headlines=20)])
 
 if __name__ == '__main__': unittest.main()
