@@ -1,0 +1,54 @@
+(function (root) {
+  'use strict';
+  var en = {
+    ritual_source: 'Programme reading source ↗',
+    studio_kicker: 'A LITTLE TIME · A LOT OF HEART', studio_h: 'Your own sacred moment.',
+    studio_intro: 'A lifelike digital guide, a personalised sankalp and a devotional programme you can follow at your own pace. Begin with a quiet preview, then choose how deep you want to go.',
+    studio_boundary: 'RoamWise digital content · original AI guide. No temple affiliation, physical ritual, physical prasad or guaranteed spiritual result. Prices pay for digital programme access.',
+    studio_catalog: 'Choose your devotional journey', studio_price_note: 'One-time programme access. Each higher tier includes all lower programmes. Replay and change your dedication. No automatic renewal.',
+    studio_choose: 'Choose this programme', studio_selected: 'Selected programme', studio_included: 'Included with your Pro access', studio_prepare: 'Make it personal',
+    studio_name: 'Your name (optional)', studio_people: 'Family / people you remember (optional)', studio_intent: 'Intention', studio_mantra: 'Mantra', studio_count: 'Japa count',
+    studio_create: 'Prepare my session', studio_preview: 'Play a free welcome', studio_pro: 'Your Pro access includes mantra, Hanuman aarti and custom aarti.',
+    studio_lock: 'Read the programme below. Paid playback will unlock after verified checkout; existing Pro includes mantra and aarti.',
+    studio_checkout: 'Check access / secure checkout', studio_checkout_pending: 'Secure programme checkout is being prepared. No payment is collected here.',
+    studio_privacy: 'Dedication names stay in page memory. They are not saved in your receipt or sent to RoamWise. Optional device-provider speech requires your consent.',
+    studio_sound: 'Ring a gentle bell', studio_motion: 'Pause motion', studio_motion_on: 'Enable motion', studio_print: 'Print my programme',
+    studio_source_h: 'Read with understanding', studio_source_note: 'Traditional prayer text is public domain. The katha and guided commentary are original RoamWise narration; the sequence is not an authoritative temple vidhi. Full programme texts are available before purchase.',
+    ritual_chalisa: 'Hanuman Chalisa', ritual_katha: 'Katha · devotion and seva', ritual_yajna: 'Symbolic digital ahuti', ritual_purnahuti: 'Digital purnahuti',
+    ritual_parthiv: 'Parthiv Shiva remembrance', ritual_water: 'Digital jal arpan', ritual_bilva: 'Digital bilva offering', ritual_farewell: 'Closing remembrance',
+    studio_japa: 'Japa {n} of {total}', studio_katha_title: 'Chapter {n} · {title}',
+    studio_purnahuti: 'This is the closing symbolic offering of attention. Carry the intention into a helpful action. The screen does not perform a physical yajna.',
+    studio_parthiv: 'Remember Shiva with humility. This clay-coloured digital symbol is an aid to reflection. For a physical Parthiv puja, follow a qualified priest and your tradition.',
+    studio_water: 'Imagine offering clean water with gratitude. May attention become gentleness in thought, word and action.',
+    studio_bilva: 'Offer a digital bilva leaf with reverence. Recall simplicity, patience and care for all living beings.',
+    studio_farewell: 'Conclude this digital remembrance gently. Thank those you remembered, take a breath and carry kindness into the day.',
+    studio_mantra_shiva: 'Shiva · Om Namah Shivaya', studio_mantra_rama: 'Rama · Shri Ram Jai Ram', studio_mantra_hanuman: 'Hanuman · Om Hanumate Namah',
+    studio_prepared: 'Your programme is prepared. Review every step, test the voice, then begin.', studio_preview_note: 'Free welcome preview · no purchase or Pro required.'
+  };
+  var hi = {
+    ritual_source: 'भक्ति-क्रम का पाठ स्रोत ↗',
+    studio_kicker: 'कुछ पल · पूरे मन से', studio_h: 'आपका अपना भक्ति-क्षण।',
+    studio_intro: 'सजीव दिखने वाला डिजिटल मार्गदर्शक, आपका व्यक्तिगत संकल्प और अपनी गति से चलने वाला भक्ति-क्रम। पहले शांत झलक देखें, फिर अपना क्रम चुनें।',
+    studio_boundary: 'RoamWise का डिजिटल पाठ · मौलिक AI मार्गदर्शक। मंदिर-संबद्धता, भौतिक पूजा, वास्तविक प्रसाद या परिणाम का वादा नहीं। शुल्क डिजिटल क्रम की पहुँच के लिए है।',
+    studio_catalog: 'अपनी भक्ति यात्रा चुनें', studio_price_note: 'एक बार का डिजिटल शुल्क। हर बड़े स्तर में नीचे के सभी क्रम शामिल। फिर से चलाएँ और समर्पण बदलें। स्वतः नवीनीकरण नहीं।',
+    studio_choose: 'यह क्रम चुनें', studio_selected: 'चुना हुआ क्रम', studio_included: 'आपकी Pro पहुँच में शामिल', studio_prepare: 'इसे अपना बनाएँ',
+    studio_name: 'आपका नाम (वैकल्पिक)', studio_people: 'परिवार / जिनका स्मरण करें (वैकल्पिक)', studio_intent: 'संकल्प', studio_mantra: 'मंत्र', studio_count: 'जप की संख्या',
+    studio_create: 'मेरा क्रम तैयार करें', studio_preview: 'निःशुल्क स्वागत सुनें', studio_pro: 'आपकी Pro पहुँच में मंत्र, हनुमान आरती और निजी आरती शामिल हैं।',
+    studio_lock: 'नीचे पूरा क्रम पढ़ें। पुष्टि किए हुए भुगतान पर डिजिटल क्रम खुलेगा; Pro में मंत्र और आरती शामिल हैं।',
+    studio_checkout: 'पहुँच जाँचें / सुरक्षित भुगतान', studio_checkout_pending: 'सुरक्षित डिजिटल भुगतान तैयार किया जा रहा है। यहाँ भुगतान नहीं लिया जाता।',
+    studio_privacy: 'समर्पण के नाम केवल इस पेज की मेमोरी में रहते हैं। रसीद में नहीं सहेजे जाते और RoamWise को नहीं भेजे जाते। वैकल्पिक डिवाइस-प्रदाता आवाज़ के लिए आपकी सहमति ज़रूरी है।',
+    studio_sound: 'हल्की घंटी बजाएँ', studio_motion: 'गति रोकें', studio_motion_on: 'गति चालू करें', studio_print: 'मेरा क्रम प्रिंट करें',
+    studio_source_h: 'समझ के साथ पढ़ें', studio_source_note: 'पारंपरिक प्रार्थना सार्वजनिक डोमेन में है। कथा और मार्गदर्शन RoamWise की मौलिक प्रस्तुति हैं; क्रम मंदिर की आधिकारिक विधि नहीं है। खरीदने से पहले पूरा पाठ पढ़ सकते हैं।',
+    ritual_chalisa: 'हनुमान चालीसा', ritual_katha: 'कथा · भक्ति और सेवा', ritual_yajna: 'प्रतीकात्मक डिजिटल आहुति', ritual_purnahuti: 'डिजिटल पूर्णाहुति',
+    ritual_parthiv: 'पार्थिव शिव स्मरण', ritual_water: 'डिजिटल जल अर्पण', ritual_bilva: 'डिजिटल बिल्व अर्पण', ritual_farewell: 'समापन स्मरण',
+    studio_japa: '{total} में से जप {n}', studio_katha_title: 'खंड {n} · {title}',
+    studio_purnahuti: 'यह ध्यान की समापन प्रतीकात्मक आहुति है। संकल्प को सहायता के किसी कार्य में बदलें। स्क्रीन पर वास्तविक यज्ञ नहीं होता।',
+    studio_parthiv: 'विनम्रता से शिव का स्मरण करें। मिट्टी के रंग का यह डिजिटल प्रतीक चिंतन का सहायक है। भौतिक पार्थिव पूजा के लिए योग्य पुरोहित और अपनी परंपरा का मार्गदर्शन लें।',
+    studio_water: 'कृतज्ञता से स्वच्छ जल अर्पित करने की कल्पना करें। विचार, वाणी और कर्म में कोमलता का भाव रखें।',
+    studio_bilva: 'श्रद्धा से डिजिटल बिल्व-पत्र अर्पित करें। सरलता, धैर्य और सभी जीवों की देखभाल का स्मरण करें।',
+    studio_farewell: 'इस डिजिटल स्मरण को धीरे पूर्ण करें। जिनका स्मरण किया, उनके प्रति आभार रखें, सहज साँस लें और करुणा के साथ दिन में लौटें।',
+    studio_mantra_shiva: 'शिव · ॐ नमः शिवाय', studio_mantra_rama: 'राम · श्री राम जय राम', studio_mantra_hanuman: 'हनुमान · ॐ हनुमते नमः',
+    studio_prepared: 'आपका क्रम तैयार है। हर चरण पढ़ें, आवाज़ जाँचें, फिर शुरू करें।', studio_preview_note: 'निःशुल्क स्वागत की झलक · भुगतान या Pro आवश्यक नहीं।'
+  };
+  Object.assign(root.RWKainchiCore.strings.en, en); Object.assign(root.RWKainchiCore.strings.hi, hi);
+})(globalThis);

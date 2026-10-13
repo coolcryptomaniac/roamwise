@@ -18,7 +18,7 @@
     var s = {
       roll: new Spring(8, 0.34), yaw: new Spring(6, 0.7), pitch: new Spring(9, 0.45), jaw: new Spring(40, 0.8), lid: new Spring(60, 0.9),
       sway: new Spring(2.4, 0.4), bow: new Spring(4.5, 0.55), beard: new Spring(12, 0.16), malaL: new Spring(7, 0.12), malaR: new Spring(8, 0.12),
-      loop: new Spring(6, 0.14), tassel: new Spring(9, 0.1), flutter: new Spring(3, 0.3), breath: 0
+      loop: new Spring(6, 0.14), tassel: new Spring(9, 0.1), flutter: new Spring(3, 0.3), gesture: new Spring(4.8, 0.8), breath: 0
     };
     var petals = [];
     function spawn(n, x, y, spread, lift) {
@@ -46,9 +46,10 @@
       s.pitch.t = gy * at * 0.6 + 0.1 * talk + (phase === 'blessing' ? 0.25 * Math.max(0, Math.sin(clock * 1.7)) : 0);
       s.bow.t = (BOW[phase] || 0) * (0.6 + 0.4 * Math.sin(clock * 0.8)) + (inp.speaking ? 0.08 : 0) + (inp.bow || 0);
       s.jaw.t = talk * 0.85 + (st.sleepy ? 0 : 0.02); s.flutter.t = 0.5 * Math.sin(clock * 1.1) + 0.3 * Math.sin(clock * 2.3 + 0.7);
+      s.gesture.t = phase === 'aarti' ? Math.sin(clock * 1.5) : phase === 'flowers' || phase === 'yajna' || phase === 'water' || phase === 'bilva' ? .65 * Math.sin(clock * 1.9) : phase === 'blessing' ? .45 : 0;
       if (clock >= blinkAt) { s.lid.t = 1; blinkEnd = clock + (st.sleepy ? 0.28 : 0.11); blinkAt = clock + (2 + rnd() * 4.5) / (st.blink || 1); }
       if (s.lid.t === 1 && clock >= blinkEnd) s.lid.t = st.sleepy ? 0.35 : 0;
-      s.roll.step(dt); s.yaw.step(dt); s.pitch.step(dt); s.jaw.step(dt); s.lid.step(dt); s.sway.step(dt); s.bow.step(dt); s.flutter.step(dt);
+      s.roll.step(dt); s.yaw.step(dt); s.pitch.step(dt); s.jaw.step(dt); s.lid.step(dt); s.sway.step(dt); s.bow.step(dt); s.flutter.step(dt); s.gesture.step(dt);
       s.beard.t = 0.05 * Math.sin(clock * 1.3) * k; s.beard.v -= (s.roll.v - prev.roll) * 6 + (s.sway.v - prev.sway) * 5; s.beard.v += (s.jaw.v - prev.jaw) * 0.12 * (rnd() - 0.5);
       s.malaL.v -= (s.sway.v - prev.sway) * 12; s.malaR.v -= (s.sway.v - prev.sway) * 12; s.loop.v -= (s.sway.v - prev.sway) * 9; s.tassel.v -= (s.sway.v - prev.sway) * 14;
       s.malaL.t = s.malaR.t = s.loop.t = s.tassel.t = 0;
@@ -75,6 +76,8 @@
         dx += hw * (rx * (c - 1) - ry * sn + s.yaw.x * 10 * face); dy += hw * (rx * sn + ry * (c - 1) + s.pitch.x * 6 + s.pitch.x * (y - PY) * 0.03);
       }
       var cx = 1 - sm(40, 85, Math.abs(x - 388));
+      var hands = gs(x, 388, 60) * sm(310, 345, y) * (1 - sm(470, 515, y));
+      dx += s.gesture.x * 10 * hands; dy -= Math.abs(s.gesture.x) * 5 * hands;
       dy += s.jaw.x * 9 * sm(212, 226, y) * (1 - sm(240, 300, y)) * cx;
       dy += (155 - y) * s.lid.x * 0.92 * Math.max(gs(x, 362, 32), gs(x, 425, 32)) * gs(y, 155, 10);
       dx += s.beard.x * 9 * sm(222, 296, y) * (1 - sm(296, 312, y)) * cx;

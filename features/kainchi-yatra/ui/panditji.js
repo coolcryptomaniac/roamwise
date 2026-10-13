@@ -2,9 +2,11 @@
    swaying beard and mala, speech-driven jaw. WebGL when the device has it; the plain photo otherwise. No video, no network, no lip-sync claim. */
 (function (root) {
   'use strict';
-  var W = 768, H = 802, SRC = '../features/kainchi-yatra/ui/art/digital-panditji.webp';
+  var W = 768, H = 802, SRC = '../features/kainchi-yatra/ui/art/digital-panditji-v2.webp';
   var XS = [0, 100, 200, 262, 300, 330, 350, 362, 375, 388, 402, 416, 430, 445, 470, 500, 560, 650, 768];
-  var YS = [0, 40, 80, 120, 140, 148, 155, 162, 170, 185, 205, 213, 220, 232, 250, 270, 290, 310, 350, 400, 450, 500, 560, 620, 700, 802];
+  var YS = [0, 40, 65, 85, 98, 105, 112, 120, 135, 150, 163, 170, 182, 200, 220, 240, 260, 290, 330, 380, 430, 480, 540, 620, 700, 802];
+  // The v2 portrait's eyes/mouth are 50 px higher than the original rig landmarks.
+  function rigPoint(x, y) { var k = clamp((400 - y) / 150, 0, 1); return [x + 8 * k, y + 50 * k]; }
   var VS = 'attribute vec2 p;attribute vec2 u;varying vec2 v;void main(){v=u;gl_Position=vec4(p.x/768.0*2.0-1.0,1.0-p.y/802.0*2.0,0.0,1.0);}';
   var FS = 'precision mediump float;varying vec2 v;uniform sampler2D t;void main(){gl_FragColor=texture2D(t,v);}';
   function clamp(x, a, b) { return Math.max(a, Math.min(b, x)); }
@@ -56,8 +58,8 @@
       var m = rig.mouth(), i, p;
       fx.clearRect(0, 0, fxc.width, fxc.height);
       if (m.open > 0.06) {
-        rig.displace(m.x, 218, tmp); fx.fillStyle = 'rgba(58,18,24,.92)'; fx.beginPath();
-        fx.ellipse(m.x * k, (214.5 + tmp[1] * 0.5 + m.open * 2) * k, (12 + 6 * m.open) * k, (0.6 + 4.8 * m.open) * k, 0, 0, 6.2832); fx.fill();
+        rig.displace(m.x, 218, tmp); fx.fillStyle = 'rgba(58,18,24,.86)'; fx.beginPath();
+        fx.ellipse((m.x - 8 + tmp[0]) * k, (164.5 + tmp[1] * 0.5 + m.open * 2) * k, (10 + 4 * m.open) * k, (0.6 + 3.8 * m.open) * k, 0, 0, 6.2832); fx.fill();
       }
       for (i = 0; i < rig.petals.length; i += 1) {
         p = rig.petals[i]; fx.save(); fx.translate(p.x * k, p.y * k); fx.rotate(p.r); fx.globalAlpha = Math.min(1, p.age * 2.5, (p.life - p.age) * 1.2);
@@ -66,7 +68,7 @@
     }
     function render() {
       var gl = view.gl, m = view.m, k = fit(), i;
-      for (i = 0; i < m.rest.length; i += 2) { rig.displace(m.rest[i], m.rest[i + 1], tmp); m.pos[i] = m.rest[i] + tmp[0]; m.pos[i + 1] = m.rest[i + 1] + tmp[1]; }
+      for (i = 0; i < m.rest.length; i += 2) { var point = rigPoint(m.rest[i], m.rest[i + 1]); rig.displace(point[0], point[1], tmp); m.pos[i] = m.rest[i] + tmp[0]; m.pos[i + 1] = m.rest[i + 1] + tmp[1]; }
       gl.clear(gl.COLOR_BUFFER_BIT); gl.bindBuffer(gl.ARRAY_BUFFER, m.buffer); gl.bufferSubData(gl.ARRAY_BUFFER, 0, m.pos);
       gl.drawElements(gl.TRIANGLES, m.count, gl.UNSIGNED_SHORT, 0); drawFx(k);
     }
