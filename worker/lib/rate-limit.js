@@ -42,6 +42,7 @@ export function clientIp(request){
    the handler, and still count against the IP backstop. */
 export const ROUTE_LIMITS = {
   'cashfree/order':          ['cf-order', 600, 600, 10],
+  'bhakti/order':            ['bhakti-order', 600, 600, 10],
   'partner/cashfree/order':  ['pcf-order', 600, 600, 10],
   'payment-events':          ['pay-ev', 2000, 600, 120],
   'leads':                   ['leads', 12, 600, 0],
@@ -51,7 +52,8 @@ export const ROUTE_LIMITS = {
 };
 
 export function routeKey(path, method){
-  if(method === 'POST' && (path === 'cashfree/order' || path === 'partner/cashfree/order' || path === 'payment-events')) return path;
+  if(method === 'POST' && (path === 'cashfree/order' || path === 'bhakti/order' || path === 'partner/cashfree/order' || path === 'payment-events')) return path;
+  if(method === 'GET' && (path === 'bhakti/access' || /^bhakti\/order\/[^/]+\/status$/.test(path)))return 'status';
   if(path === 'leads') return 'leads';
   if(method === 'GET' && /^(partner\/)?cashfree\/order\/[^/]+\/status$/.test(path)) return 'status';
   return null;

@@ -23,7 +23,8 @@
     studio_bilva: 'Offer a digital bilva leaf with reverence. Recall simplicity, patience and care for all living beings.',
     studio_farewell: 'Conclude this digital remembrance gently. Thank those you remembered, take a breath and carry kindness into the day.',
     studio_mantra_shiva: 'Shiva · Om Namah Shivaya', studio_mantra_rama: 'Rama · Shri Ram Jai Ram', studio_mantra_hanuman: 'Hanuman · Om Hanumate Namah',
-    studio_prepared: 'Your programme is prepared. Review every step, test the voice, then begin.', studio_preview_note: 'Free welcome preview · no purchase or Pro required.'
+    studio_prepared: 'Your programme is prepared. Review every step, test the voice, then begin.', studio_preview_note: 'Free welcome preview · no purchase or Pro required.',
+    studio_unlocked: 'Unlocked for your account', studio_secure_note: 'Secure digital checkout is available. Already purchased? Check access with the same account.'
   };
   var hi = {
     ritual_source: 'भक्ति-क्रम का पाठ स्रोत ↗',
@@ -48,7 +49,8 @@
     studio_bilva: 'श्रद्धा से डिजिटल बिल्व-पत्र अर्पित करें। सरलता, धैर्य और सभी जीवों की देखभाल का स्मरण करें।',
     studio_farewell: 'इस डिजिटल स्मरण को धीरे पूर्ण करें। जिनका स्मरण किया, उनके प्रति आभार रखें, सहज साँस लें और करुणा के साथ दिन में लौटें।',
     studio_mantra_shiva: 'शिव · ॐ नमः शिवाय', studio_mantra_rama: 'राम · श्री राम जय राम', studio_mantra_hanuman: 'हनुमान · ॐ हनुमते नमः',
-    studio_prepared: 'आपका क्रम तैयार है। हर चरण पढ़ें, आवाज़ जाँचें, फिर शुरू करें।', studio_preview_note: 'निःशुल्क स्वागत की झलक · भुगतान या Pro आवश्यक नहीं।'
+    studio_prepared: 'आपका क्रम तैयार है। हर चरण पढ़ें, आवाज़ जाँचें, फिर शुरू करें।', studio_preview_note: 'निःशुल्क स्वागत की झलक · भुगतान या Pro आवश्यक नहीं।',
+    studio_unlocked: 'आपके खाते के लिए खुला', studio_secure_note: 'सुरक्षित डिजिटल भुगतान उपलब्ध है। पहले खरीद चुके हैं? उसी खाते से पहुँच जाँचें।'
   };
   Object.assign(root.RWKainchiCore.strings.en, en); Object.assign(root.RWKainchiCore.strings.hi, hi);
 })(globalThis);

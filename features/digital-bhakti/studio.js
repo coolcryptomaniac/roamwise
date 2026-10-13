@@ -2,7 +2,7 @@
   'use strict';
   var api = root.RWBhakti, ctx = root.RWKainchiUI.createContext(), original = ctx.core.ritualScript;
   var selected = api.product(new URLSearchParams(root.location.search).get('product')) || api.products[1], preview = false, player = null, pausedMotion = false;
-  function access() { return root.RWKainchiUI.isBhaktiPro() && selected.level <= 2; }
+  function access() { return (root.RWBhaktiAccess && root.RWBhaktiAccess.allowed(selected.level)) || (root.RWKainchiUI.isBhaktiPro() && selected.level <= 2); }
   ctx.core.ritualScript = function (lang, options) { return options && options.preview ? original(lang).slice(0, 1) : api.script(lang, options); };
   ctx.ritualSource = 'https://nkbashram.org/hanuman-chalisa';
   var ritual = root.RWKainchiUI.createRitual(ctx, function () { return preview || access(); });
@@ -35,7 +35,9 @@
       button.addEventListener('click', function () { selected = p; preview = false; render(); prepare(); root.location.hash = '#bhakti'; ctx.$('studio-selected').scrollIntoView && ctx.$('studio-selected').scrollIntoView({ block: 'nearest' }); });
       card.appendChild(button); ctx.$('studio-products').appendChild(card);
     });
-    ctx.$('studio-selected').textContent = (ctx.lang === 'hi' ? selected.hi : selected.en) + ' · ₹' + selected.price + (access() ? ' · ' + ctx.t('studio_included') : '');
+    ctx.$('studio-selected').textContent = (ctx.lang === 'hi' ? selected.hi : selected.en) + ' · ₹' + selected.price + (access() ? ' · ' + ctx.t('studio_unlocked') : '');
+    ctx.$('studio-checkout').href = './checkout.html?product=' + selected.id;
+    ctx.$('studio-payment-note').textContent = root.RWBhaktiAccess && root.RWBhaktiAccess.checkoutEnabled ? ctx.t('studio_secure_note') : ctx.t('studio_checkout_pending');
     ctx.$('studio-count').disabled = selected.programme !== 'mantra'; ctx.$('studio-mantra').disabled = selected.programme === 'parthiv' || selected.programme === 'yajna';
     ctx.$('studio-motion').textContent = ctx.t(pausedMotion ? 'studio_motion_on' : 'studio_motion');
   }
@@ -55,5 +57,6 @@
   document.querySelectorAll('[data-lang]').forEach(function (b) { b.addEventListener('click', function () { ctx.setLang(b.dataset.lang); }); });
   ctx.onLang(function () { preview = false; render(); prepare(); });
   root.addEventListener('storage', function () { ritual.stop(); preview = false; render(); prepare(); });
+  root.addEventListener('rw-bhakti-access', function () { ritual.stop(); preview = false; render(); prepare(); });
   ctx.setLang(ctx.get(ctx.cfg.langKey) || (root.navigator.language.indexOf('hi') === 0 ? 'hi' : 'en'));
 })(window);
