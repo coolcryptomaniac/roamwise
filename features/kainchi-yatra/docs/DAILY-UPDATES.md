@@ -290,3 +290,28 @@ deployment or workflow dispatch was performed by this maintenance run. Verificat
 Python collector tests, 47 Kainchi tests, repository tests (773 passed, one existing skip),
 `npm run check`, `npm run mod-status` and `git diff --check` pass. Actual browser/device QA was
 not run; this change adds text only and stays pending review.
+
+## Deployment freshness recovery — pending review, 13 October 2026
+
+The public JSON regressed from the 11 October snapshot to the checked-in 9 October seed after two
+`pages build and deployment` runs for GitHub Actions bot commits. Static workflow run 38210411591
+had successfully collected a 12 October 06:00:05Z snapshot with 12 retained items; generated Pages
+run 38243229622 later deployed commit 353a67f without running the collector. At 13 October
+02:43Z the served JSON consequently still reported 9 October 05:57:42Z, three items and the seed's
+three automated-source failures. This is a deployment ordering defect, not a road-status signal.
+
+Pending review, `static.yml` listens for successful main-branch completion of GitHub's generated
+`pages build and deployment` workflow and then runs the existing validated collector/deployment.
+The normal push, daily schedule and manual triggers stay in place. Failed or non-main generated
+runs do not deploy. A repository test pins the recovery trigger and both guards. This can cause a
+second validated static deployment after an ordinary main push; it cannot recursively trigger
+itself because the workflows have different names.
+
+A read-only 13 October collection from the regressed public seed found 30 selected records and 12
+retained records; district and both news feeds responded while the Uttarakhand Police website
+still failed. The district announcements page showed no Kainchi/Bhowali traffic order, and the
+latest readable Nainital Police X posts through 12 October 17:24 IST concerned cyber safety,
+arrests, general road safety and Navratri greetings. News published on 12 October concerned plans,
+business impact or Sunday arrangements. None establishes a 13 October access rule, permit,
+parking capacity, queue count, room/fare card or registration start date, so no visitor-facing
+operational claim was changed. The local snapshot was not committed or deployed.

@@ -5,6 +5,12 @@ on:
   # Runs on pushes targeting the default branch
   push:
     branches: ["main"]
+  # Bot commits made with GITHUB_TOKEN still start GitHub's generated branch-source Pages build,
+  # but do not start the push workflow above. Re-publish after that build so it cannot leave the
+  # checked-in Kainchi seed as the newest deployment.
+  workflow_run:
+    workflows: ["pages build and deployment"]
+    types: [completed]
   schedule:
     - cron: '17 0 * * *' # 05:47 IST; GitHub schedules may be delayed.
 
@@ -27,7 +33,11 @@ concurrency:
 jobs:
   # Single deploy job since we're just deploying
   deploy:
-    if: github.ref == 'refs/heads/main'
+    if: >-
+      github.ref == 'refs/heads/main' &&
+      (github.event_name != 'workflow_run' ||
+       (github.event.workflow_run.conclusion == 'success' &&
+        github.event.workflow_run.head_branch == 'main'))
     timeout-minutes: 10
     environment:
       name: github-pages

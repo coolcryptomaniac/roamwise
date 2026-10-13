@@ -92,3 +92,10 @@ test('the Pages workflow publishes the optimised copy and checks it before uploa
   assert.match(wf, /path: '_site'/);
   assert.ok(wf.indexOf('build-dist.cjs') < wf.indexOf('upload-pages-artifact'));
 });
+
+test('the Pages workflow restores the collected Kainchi snapshot after branch-source builds', () => {
+  const wf = fs.readFileSync(path.join(root, '.github/workflows/static.yml'), 'utf8');
+  assert.match(wf, /workflow_run:\s*\n\s*workflows: \["pages build and deployment"\]\s*\n\s*types: \[completed\]/);
+  assert.match(wf, /github\.event\.workflow_run\.conclusion == 'success'/);
+  assert.match(wf, /github\.event\.workflow_run\.head_branch == 'main'/);
+});
