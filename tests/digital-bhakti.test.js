@@ -48,7 +48,7 @@ test('programmes include exactly 40 Chalisa chaupais and dohas; bounded 108-ahut
     if (p.programme === 'paath') assert.equal(script.filter(s => s.id === 'chalisa').length, 43);
     if (p.programme === 'katha') assert.equal(script.filter(s => s.id === 'katha').length, 8);
     if (p.programme === 'yajna') { assert.equal(script.filter(s => s.id === 'yajna').length, 108); assert.ok(script.some(s => s.id === 'purnahuti')); }
-    if (p.programme === 'parthiv') { for (const id of ['parthiv', 'water', 'bilva', 'farewell']) assert.ok(script.some(s => s.id === id)); assert.equal(script.filter(s => s.id === 'mantra').length, 108); }
+    if (p.programme === 'parthiv') { for (const id of ['parthiv', 'water', 'bilva', 'farewell']) assert.ok(script.some(s => s.id === id)); assert.equal(script.filter(s => s.id === 'mantra').length, 108); assert.equal(script.filter(s => s.id === 'aarti' && s.text.includes('ॐ जय शिव ओंकारा')).length, 12); }
   }
   d.window.close();
 });

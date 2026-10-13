@@ -3,6 +3,21 @@
   'use strict';
   var api = root.RWBhakti, core = root.RWKainchiCore, base = core.ritualScript;
   var mantras = { hanuman: 'ॐ हनुमते नमः।', rama: 'श्री राम जय राम जय जय राम।', shiva: 'ॐ नमः शिवाय।' };
+  // Traditional public-domain Om Jai Shiv Omkara; no modern recording/translation used.
+  var shivaAarti = [
+    'ॐ जय शिव ओंकारा, स्वामी जय शिव ओंकारा। ब्रह्मा, विष्णु, सदाशिव, अर्द्धांगी धारा॥',
+    'एकानन चतुरानन पञ्चानन राजे। हंसासन गरुड़ासन वृषवाहन साजे॥',
+    'दो भुज चार चतुर्भुज दस भुज अति सोहे। त्रिगुण रूप निरखते त्रिभुवन जन मोहे॥',
+    'अक्षमाला वनमाला मुण्डमाला धारी। त्रिपुरारी कंसारी कर माला धारी॥',
+    'श्वेताम्बर पीताम्बर बाघम्बर अंगे। सनकादिक गरुणादिक भूतादिक संगे॥',
+    'कर के मध्य कमण्डलु चक्र त्रिशूलधारी। सुखकारी दुखहारी जगपालन कारी॥',
+    'ब्रह्मा विष्णु सदाशिव जानत अविवेका। प्रणवाक्षर मध्ये ये तीनों एका॥',
+    'लक्ष्मी व सावित्री पार्वती संगा। पार्वती अर्द्धांगी, शिवलहरी गंगा॥',
+    'पर्वत सोहैं पार्वती, शंकर कैलासा। भांग धतूर का भोजन, भस्मी में वासा॥',
+    'जटा में गंगा बहत है, गल मुण्डन माला। शेष नाग लिपटावत, ओढ़त मृगछाला॥',
+    'काशी में विराजे विश्वनाथ, नन्दी ब्रह्मचारी। नित उठ दर्शन पावत, महिमा अति भारी॥',
+    'त्रिगुणस्वामी जी की आरती जो कोई नर गावे। कहत शिवानन्द स्वामी, मनवान्छित फल पावे॥'
+  ];
   var chapters = [
     ['Strength in service', 'सेवा में शक्ति', 'Hanuman is remembered for strength placed in the service of Rama. The Chalisa begins with knowledge and virtue. For us, strength can mean listening patiently, helping without praise and keeping a promise.', 'हनुमान जी का स्मरण राम की सेवा में लगी शक्ति के लिए होता है। चालीसा ज्ञान और गुणों से आरंभ होती है। हमारे लिए शक्ति का अर्थ धैर्य से सुनना, प्रशंसा की चाह बिना सहायता करना और वचन निभाना भी हो सकता है।'],
     ['Courage with humility', 'विनम्रता के साथ साहस', 'The traditional story of the journey to Lanka joins courage with devotion. This reflection invites us to act carefully when another person needs help, rather than treating bravery as a display.', 'लंका की यात्रा की पारंपरिक कथा साहस को भक्ति से जोड़ती है। यह चिंतन किसी को सहायता चाहिए तब सावधानी से आगे बढ़ने की प्रेरणा है, साहस का प्रदर्शन करने की नहीं।'],
@@ -22,6 +37,7 @@
     if (product.programme === 'parthiv') {
       add('parthiv', t('studio_parthiv')); add('water', t('studio_water')); add('bilva', t('studio_bilva'));
       japa('mantra', 108, mantras.shiva);
+      shivaAarti.forEach(function (verse) { add('aarti', verse + ' ॐ जय शिव ओंकारा॥', 'Shiva aarti · शिव आरती', 'hi-IN'); });
       add('aarti', 'कर्पूरगौरं करुणावतारं संसारसारं भुजगेन्द्रहारम्। सदा वसन्तं हृदयारविन्दे भवं भवानीसहितं नमामि॥', null, 'hi-IN');
       add('farewell', t('studio_farewell'));
     } else if (product.programme === 'yajna') {

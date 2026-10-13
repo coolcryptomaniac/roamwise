@@ -14,6 +14,8 @@
   }
   function prepare(asPreview) {
     ritual.stop(); preview = asPreview === true; ctx.clear(ctx.$('studio-player'));
+    ctx.ritualSource = selected.programme === 'parthiv' ? 'https://www.drikpanchang.com/lyrics/aarti/lord-shiva/shiva-aarti.html' :
+      selected.programme === 'katha' ? 'https://shreekainchimandirtrust.org/about' : 'https://nkbashram.org/hanuman-chalisa';
     var options = preview ? { preview: true } : { productId: selected.id,
       name: ctx.core.clean(ctx.$('studio-name').value).slice(0, 60), wellwishers: ctx.core.clean(ctx.$('studio-people').value).slice(0, 180),
       intent: ctx.$('studio-intent').value, mantra: ctx.$('studio-mantra').value, count: Number(ctx.$('studio-count').value) };

@@ -16,6 +16,8 @@ food delivery, temple interior footage or guaranteed spiritual effects are offer
 Content reviewed 13 October: traditional Tulsidas prayer, all 40 chaupais plus dohas, against
 https://nkbashram.org/hanuman-chalisa (traditional text only; no modern translation/commentary
 copied). Existing traditional aarti: https://www.drikpanchang.com/lyrics/aarti/lord-hanuman/shree-hanuman-aarti.html.
+Shiva aarti (all 12 verses and refrain): https://www.drikpanchang.com/lyrics/aarti/lord-shiva/shiva-aarti.html,
+checked 13 October. Traditional public-domain hymn only; no modern audio, imagery or translations.
 Original katha history references https://shreekainchimandirtrust.org/about. Katha is clearly
 RoamWise commentary rather than scripture; digital yajna/Parthiv are complete configured symbolic
 sequences, not claims of complete Vedic ritual authority. No physical-fire instructions.

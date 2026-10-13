@@ -1,6 +1,7 @@
 (function (root) {
   'use strict';
   var en = {
+    ritual_source: 'Programme reading source ↗',
     studio_kicker: 'A LITTLE TIME · A LOT OF HEART', studio_h: 'Your own sacred moment.',
     studio_intro: 'A lifelike digital guide, a personalised sankalp and a devotional programme you can follow at your own pace. Begin with a quiet preview, then choose how deep you want to go.',
     studio_boundary: 'RoamWise digital content · original AI guide. No temple affiliation, physical ritual, physical prasad or guaranteed spiritual result. Prices pay for digital programme access.',
@@ -25,6 +26,7 @@
     studio_prepared: 'Your programme is prepared. Review every step, test the voice, then begin.', studio_preview_note: 'Free welcome preview · no purchase or Pro required.'
   };
   var hi = {
+    ritual_source: 'भक्ति-क्रम का पाठ स्रोत ↗',
     studio_kicker: 'कुछ पल · पूरे मन से', studio_h: 'आपका अपना भक्ति-क्षण।',
     studio_intro: 'सजीव दिखने वाला डिजिटल मार्गदर्शक, आपका व्यक्तिगत संकल्प और अपनी गति से चलने वाला भक्ति-क्रम। पहले शांत झलक देखें, फिर अपना क्रम चुनें।',
     studio_boundary: 'RoamWise का डिजिटल पाठ · मौलिक AI मार्गदर्शक। मंदिर-संबद्धता, भौतिक पूजा, वास्तविक प्रसाद या परिणाम का वादा नहीं। शुल्क डिजिटल क्रम की पहुँच के लिए है।',
