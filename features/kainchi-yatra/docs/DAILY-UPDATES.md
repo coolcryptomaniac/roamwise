@@ -248,3 +248,70 @@ gate reserves 7,300 gzip bytes for the collector's bounded 7 KB snapshot plus it
 Current checked-in source is about 79.5 KB; the maximum reserved feed yields about 85.7 KB,
 below 90,112. The collector limit, daily-source validation and deployment configuration are
 unchanged. Future source additions must leave room for the full snapshot, not only the seed.
+
+## Daily Care review — 12 October 2026 (pending repository review)
+
+Reviewed main `e8d0e56057ed156c3df70caf46f8327cbf656087`, open PRs (no open Kainchi PR
+before this change), the public snapshot and recent main/scheduled workflows. The latest public
+snapshot was checked at 2026-10-11T17:17:13Z (11 October, 22:47 IST); its Pages run 38158982211
+passed. Its history recorded 30 selected headlines for 11 October while the published array
+retained only 12 after the 7 KB gzip bound. Those omissions were not recorded separately.
+
+The proposed fix adds optional `coverage` counts (`selectedHeadlines`, `retainedHeadlines`,
+`omittedHeadlines`), includes their bytes when enforcing the same 7 KB snapshot limit, and
+records retained/omitted counts only on the matching current India-day history row. Existing
+`headlines` stays the bounded selection count after date/relevance/deduplication and the 30-item
+cap; it is not an exhaustive count of all publications. Previous history is not backfilled.
+The browser validates count bounds and arithmetic against retained valid records, then shows
+a bilingual size-omission disclosure. Legacy snapshots work without new fields. Source failures,
+publication timestamps, expiry, source links, passes and report behavior remain unchanged.
+
+A local read-only comparison against the saved public snapshot on 12 October produced 30
+selected / 12 retained / 18 omitted headlines, 6,855 gzip bytes including metadata. District
+and English/Hindi RSS sources responded; the police website failed (`HTTPError`). Police social
+updates remain manual. This local snapshot was not committed or deployed. The latest public
+snapshot remains the reference until the separate website collector publishes another version.
+
+Fresh source checks:
+- https://nainital.nic.in/ and https://nainital.nic.in/notice_category/announcements/ — no
+  effective 12 October Kainchi traffic/registration order verified in the pages reviewed.
+- https://x.com/nainitalpolice_ — search found June/April notices and a September post;
+  those were not treated as current instructions. Direct access could not be verified.
+- https://theprint.in/india/uttarakhand-govt-to-implement-5-point-plan-to-decongest-roads-leading-to-kainchi-dham/3068408/
+  — PTI report, 11 October 2026, 15:50 IST, describes planning and directions discussed at
+  a 10 October meeting. It does not establish a verified effective date for earlier temple hours.
+- https://www.amarujala.com/uttarakhand/nainital/devotees-sent-to-kainchi-dham-via-shuttle-service-nainital-news-c-418-1-shld1006-11025-2026-10-12
+  — page updated 12 October 2026, 01:26 IST, describes Sunday shuttle arrangements. Publication
+  on Monday is not evidence that those arrangements apply on Monday.
+
+No automatic source was silently replaced with a third-party social/news account. No entry
+requirement, price, capacity, parking inventory or road-open claim was changed. No production
+deployment or workflow dispatch was performed by this maintenance run. Verification: eight
+Python collector tests, 47 Kainchi tests, repository tests (773 passed, one existing skip),
+`npm run check`, `npm run mod-status` and `git diff --check` pass. Actual browser/device QA was
+not run; this change adds text only and stays pending review.
+
+## Deployment freshness recovery — pending review, 13 October 2026
+
+The public JSON regressed from the 11 October snapshot to the checked-in 9 October seed after two
+`pages build and deployment` runs for GitHub Actions bot commits. Static workflow run 38210411591
+had successfully collected a 12 October 06:00:05Z snapshot with 12 retained items; generated Pages
+run 38243229622 later deployed commit 353a67f without running the collector. At 13 October
+02:43Z the served JSON consequently still reported 9 October 05:57:42Z, three items and the seed's
+three automated-source failures. This is a deployment ordering defect, not a road-status signal.
+
+Pending review, `static.yml` listens for successful main-branch completion of GitHub's generated
+`pages build and deployment` workflow and then runs the existing validated collector/deployment.
+The normal push, daily schedule and manual triggers stay in place. Failed or non-main generated
+runs do not deploy. A repository test pins the recovery trigger and both guards. This can cause a
+second validated static deployment after an ordinary main push; it cannot recursively trigger
+itself because the workflows have different names.
+
+A read-only 13 October collection from the regressed public seed found 30 selected records and 12
+retained records; district and both news feeds responded while the Uttarakhand Police website
+still failed. The district announcements page showed no Kainchi/Bhowali traffic order, and the
+latest readable Nainital Police X posts through 12 October 17:24 IST concerned cyber safety,
+arrests, general road safety and Navratri greetings. News published on 12 October concerned plans,
+business impact or Sunday arrangements. None establishes a 13 October access rule, permit,
+parking capacity, queue count, room/fare card or registration start date, so no visitor-facing
+operational claim was changed. The local snapshot was not committed or deployed.

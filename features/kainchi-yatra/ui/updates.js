@@ -40,6 +40,9 @@
         recent: snapshot.items.filter(function (i) { return i.recent; }).length,
         ok: snapshot.sources.filter(function (s) { return s.status === 'ok' && !api.stale(s.lastSuccessAt); }).length
       });
+      var coverage = snapshot.coverage;
+      ctx.$('feed-coverage').hidden = !coverage || !coverage.omitted;
+      ctx.$('feed-coverage').textContent = coverage && coverage.omitted ? ctx.t('feed_coverage', coverage) : '';
       document.querySelectorAll('[data-feed-filter]').forEach(function (b) {
         b.setAttribute('aria-pressed', String(b.dataset.feedFilter === filter));
       });

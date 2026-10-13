@@ -118,6 +118,22 @@ test('official filter does not promote news, failed refresh leaves the planner u
   assert.equal($(d, 'updates-refresh').disabled, false);
   d.window.close();
 });
+test('size-limited snapshot disclosure translates, survives refresh failure and is hidden for legacy data', async () => {
+  const d = boot(), w = d.window;
+  await new Promise(resolve => setTimeout(resolve, 20));
+  assert.equal($(d, 'feed-coverage').hidden, true);
+  const seed = JSON.parse(fs.readFileSync(path.join(repo, 'features/kainchi-yatra/data/daily.json'), 'utf8'));
+  const count = seed.items.length;
+  seed.checkedAt = new Date().toISOString();
+  seed.coverage = { selectedHeadlines: count + 2, retainedHeadlines: count, omittedHeadlines: 2 };
+  w.fetch = async () => ({ ok: true, text: async () => JSON.stringify(seed) });
+  $(d, 'updates-refresh').click(); await new Promise(resolve => setTimeout(resolve, 20));
+  assert.equal($(d, 'feed-coverage').hidden, false); assert.match($(d, 'feed-coverage').textContent, /2 older headlines/);
+  w.document.querySelector('[data-lang="hi"]').click(); assert.match($(d, 'feed-coverage').textContent, /2 पुरानी खबरें/);
+  w.fetch = async () => { throw Error('offline'); }; $(d, 'updates-refresh').click(); await new Promise(resolve => setTimeout(resolve, 20));
+  assert.equal($(d, 'feed-coverage').hidden, false); assert.match($(d, 'feed-coverage').textContent, /2 पुरानी खबरें/);
+  w.close();
+});
 test('emergency calls appear before the visitor submits a report', () => {
   const d = boot();
   $(d, 'rep-cat').value = 'ambulance'; $(d, 'rep-cat').dispatchEvent(new d.window.Event('change'));
