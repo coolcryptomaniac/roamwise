@@ -39,7 +39,10 @@ export function normalizePolicy(raw = {}) {
       offSeasonOnly: fs.offSeasonOnly !== false,
       offSeasonMonths: months(fs.offSeasonMonths),
       blackoutDates: (Array.isArray(fs.blackoutDates) ? fs.blackoutDates : []).filter(dateOk).slice(0, 60),
-      meals: !!fs.meals,
+      meals: !!fs.meals || fs.food === 'all' || fs.food === 'breakfast',
+      food: ['none', 'breakfast', 'all'].includes(fs.food) ? fs.food : (fs.meals ? 'all' : 'none'),
+      guests: clampInt(fs.guests, 1, 4, 2),
+      travel: ['none', 'pickup', 'full'].includes(fs.travel) ? fs.travel : 'none',
       maxPerMonth: clampInt(fs.maxPerMonth, 0, 30, 2),
     },
     performanceCash: {
@@ -56,6 +59,14 @@ export function normalizePolicy(raw = {}) {
         maxPerMonth: clampInt(aa.ceilings && aa.ceilings.maxPerMonth, 0, 30, clampInt(fs.maxPerMonth, 0, 30, 2)),
       },
     },
+    /* Where the stay is (for distance-first matching and Google Maps) and the number deals go to. */
+    location: {
+      town: String((raw.location && raw.location.town) || '').slice(0, 60),
+      lat: Number.isFinite(Number(raw.location && raw.location.lat)) ? Number(raw.location.lat) : null,
+      lng: Number.isFinite(Number(raw.location && raw.location.lng)) ? Number(raw.location.lng) : null,
+    },
+    whatsapp: String(raw.whatsapp || '').replace(/\D/g, '').slice(0, 15),
+    niches: (Array.isArray(raw.niches) ? raw.niches : []).map(String).slice(0, 8),
     unconfirmed: (Array.isArray(raw.unconfirmed) ? raw.unconfirmed : []).map(String).slice(0, 12),
     updatedAt: String(raw.updatedAt || '').slice(0, 30),
   };
@@ -70,14 +81,19 @@ export const SEED_POLICIES = Object.freeze([
     reason: 'Owner agreed: free stay on non-weekend nights in the off-season, optional cash up to Rs 5,000 if the creator brings customers who book.',
     freeStay: { nights: 2, weekdaysOnly: true, offSeasonOnly: true, offSeasonMonths: [1, 2, 7, 8, 9], meals: false, maxPerMonth: 2 },
     performanceCash: { max: 5000, ratePct: 10 },
+    location: { town: 'Almora', lat: 29.5966, lng: 79.6593 },   // Dharanaula, opposite Milan Cafe
+    whatsapp: '917302315845',                                       // the public booking number in partners-data.js
+    niches: ['mountains', 'food', 'culture', 'budget'],
   },
   {
     propertyId: 'p_soulmate_homestay', name: 'Soulmate Homestay', status: 'closed',
     reason: 'Owner declined creator collaborations (2026-10-07).',
+    location: { town: 'Almora' },
   },
   {
     propertyId: 'p_new_himank', name: 'New Himank', status: 'pending',
     reason: 'Waiting for the owner (Deepanshi) to confirm whether to take creators and on what terms.',
+    location: { town: 'Manali', lat: 32.2600, lng: 77.1800 },
   },
 ].map(normalizePolicy));
 
@@ -126,8 +142,8 @@ export function termsText(policyIn) {
   if (p.status === 'closed') return p.name + ' is not taking creator collaborations right now.';
   if (p.status === 'pending') return p.name + ' has not confirmed creator terms yet.';
   const f = p.freeStay, parts = [];
-  parts.push('Free stay: ' + f.nights + ' night' + (f.nights > 1 ? 's' : '') + (f.weekdaysOnly ? ', Sunday to Thursday nights only' : '')
-    + (f.offSeasonOnly && f.offSeasonMonths.length ? ', off-season (' + f.offSeasonMonths.map((m) => MONTH[m]).join(', ') + ')' : '') + (f.meals ? ', meals included' : ', meals not included'));
+  parts.push('Free stay for ' + f.guests + ': ' + f.nights + ' night' + (f.nights > 1 ? 's' : '') + (f.weekdaysOnly ? ', Sunday to Thursday nights only' : '')
+    + (f.offSeasonOnly && f.offSeasonMonths.length ? ', off-season (' + f.offSeasonMonths.map((m) => MONTH[m]).join(', ') + ')' : '') + (f.food === 'all' ? ', meals included' : f.food === 'breakfast' ? ', breakfast included' : ', meals not included') + (f.travel === 'full' ? ', travel covered' : f.travel === 'pickup' ? ', local pickup' : ''));
   if (p.performanceCash.max > 0) parts.push('Optional cash: nothing upfront; up to Rs ' + p.performanceCash.max.toLocaleString('en-IN') + ' total, ' + p.performanceCash.ratePct + '% of each completed stay booked through you, paid by the property after the guest stays.');
   else parts.push('No cash component.');
   parts.push('Up to ' + f.maxPerMonth + ' creator stays a month.');
@@ -150,6 +166,17 @@ export function performanceBonus(policyIn, referred) {
     lines.push({ code: r.code || '', bookingValue: value, pay, capped: pay < want });
   });
   return { earned, remaining: left, cap: max, ratePct, lines, paidBy: 'property', note: 'Paid by the property after each referred stay is completed. RoamWise does not hold this money.' };
+}
+
+/** The stay-for-content offer in the shape local-barter-core.mjs ranks creators against. Cash here is upfront cash: always 0. */
+export function barterOfferFromPolicy(policyIn) {
+  const p = normalizePolicy(policyIn);
+  return {
+    propertyId: p.propertyId, name: p.name, whatsapp: p.whatsapp, niches: p.niches,
+    location: p.location.lat != null ? p.location : { town: p.location.town },
+    offer: { guests: p.freeStay.guests, nights: p.freeStay.nights || 1, food: p.freeStay.food, travel: p.freeStay.travel, cashMax: 0 },
+    contingentCashUpTo: p.performanceCash.max,
+  };
 }
 
 /* ---- The decision ---- */
