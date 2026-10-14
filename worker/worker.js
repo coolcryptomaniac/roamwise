@@ -72,7 +72,7 @@ import { sendAdminDigest } from './handlers/bot-admin.js';
 
 // Only Cashfree PG calls use this diagnostic transport. The actual order,
 // identity and entitlement rules stay inside handlers/cashfree.js unchanged.
-const { handleCashfreeOrder, handleCashfreeOrderStatus } = createCashfreeHandlers({
+const { handleCashfreeOrder, handleCashfreeOrderStatus, handleBhaktiAccess } = createCashfreeHandlers({
   request:cashfreeTransportFetch
 });
 
@@ -109,6 +109,10 @@ export default {
     if(path === 'events/refresh') return handleEventsRefresh(request, env);
 
     if(path === 'cashfree/order' && request.method === 'POST') return handleCashfreeOrder(request, env);
+    if(path === 'bhakti/access' && request.method === 'GET') return handleBhaktiAccess(request, env);
+    if(path === 'bhakti/order' && request.method === 'POST') return handleCashfreeOrder(request, env, true);
+    const bhaktiStatus=path.match(/^bhakti\/order\/([^/]+)\/status$/);
+    if(bhaktiStatus && request.method === 'GET')return handleCashfreeOrderStatus(request,env,bhaktiStatus[1],true);
     if(path === 'payment-events' && request.method === 'POST') return handlePaymentEvent(request, env);
 
     if(path === 'partner/cashfree/order' && request.method === 'POST') return handlePartnerCashfreeOrder(request, env);

@@ -6,7 +6,10 @@ function boot(pro = false) {
   const html = fs.readFileSync(path.join(root, 'bhakti/index.html'), 'utf8');
   const dom = new JSDOM(html, { url: 'https://roamwise.co.in/bhakti/#bhakti', runScripts: 'outside-only' });
   if (pro) dom.window.localStorage.setItem('rwPro', '1'); dom.window.print = () => {};
-  for (const script of dom.window.document.querySelectorAll('script[src]')) dom.window.eval(fs.readFileSync(path.resolve(root, 'bhakti', script.getAttribute('src')), 'utf8'));
+  for (const script of dom.window.document.querySelectorAll('script[src]')) {
+    if (script.getAttribute('src').includes('/vendor/')) continue;
+    dom.window.eval(fs.readFileSync(path.resolve(root, 'bhakti', script.getAttribute('src')), 'utf8'));
+  }
   return dom;
 }
 test('studio has all six INR tiers, full text preview, one-time disclosure and no payment collection', () => {

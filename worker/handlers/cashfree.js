@@ -6,13 +6,19 @@ import { verifyFirebaseIdToken } from '../lib/firebase-verify.js';
 import { getServiceAccountAccessToken, parseServiceAccount } from '../lib/service-account.js';
 import { createDocIfAbsent, getDoc, incrementField, updateDoc } from '../lib/firestore-rest.js';
 import { FOUNDER_NMIMS_RESERVED, FOUNDER_TOTAL_SEATS, founderSeatsLeft } from '../lib/founder-cap.js';
+import { BHAKTI_PRODUCTS, bhaktiProduct, bhaktiGrantPath } from '../lib/bhakti-products.js';
 
 const SANDBOX_BASE = 'https://sandbox.cashfree.com';
 const LIVE_BASE = 'https://api.cashfree.com';
 function isLive(env){ return String(env.CASHFREE_ENV || 'sandbox').toLowerCase() === 'live'; }
 function cashfreeBase(env){ return isLive(env) ? LIVE_BASE : SANDBOX_BASE; }
 function safeId(v){ return String(v || '').replace(/[^A-Za-z0-9_-]/g, '').slice(0, 45); }
-function paymentReturnUrl(env,orderId){
+function paymentReturnUrl(env,orderId,request,bhakti){
+  if(bhakti){
+    const origin=request.headers.get('origin');
+    const host=origin==='https://roamwise.co.in' ? origin : 'https://www.roamwise.co.in';
+    return `${host}/bhakti/checkout.html?order_id=${encodeURIComponent(orderId)}`;
+  }
   const configured=String(env.PAYMENT_RETURN_URL||'https://www.roamwise.co.in/');
   try{
     const url=new URL(configured);
@@ -67,6 +73,7 @@ function paymentRecord(orderId, receipt, paidAt){
     /* Referral attribution (e.g. NMIMS2026): copied from the verified order so commission can be
        totalled from real PAID payments. Validated against the admin-owned directory at report time. */
     ...(receipt.refCode?{refCode:String(receipt.refCode).slice(0,32)}:{}),
+    ...(bhaktiProduct(receipt.planId)?{kind:'digital_bhakti'}:{}),
     status:'paid',created:receipt.createdAt || paidAt,
     receivedDate:String(paidAt).slice(0,10),paidAt
   };
@@ -98,30 +105,40 @@ export function createCashfreeHandlers(overrides){
     }
     return null;
   }
-  async function handleCashfreeOrder(request,env){
+  async function handleCashfreeOrder(request,env,bhaktiOnly=false){
     const ctx=await deps.context(request,env);
     if(ctx.error)return ctx.error;
     const sandboxError=await requireSandboxAdmin(env,ctx);
     if(sandboxError)return sandboxError;
     const configError=await requireCheckoutEnabled(env,ctx);
     if(configError)return configError;
+    let body;
+    try{body=await request.json();}catch(_){return json({error:'invalid_json'},400);}
+    const meta=(body&&body.meta)||{};
+    const product=bhaktiProduct(meta.planId);
+    if(Boolean(product)!==bhaktiOnly)return json({error:'unknown_plan',message:'This product is not available in this checkout.'},400);
+    if(product){
+      if(ctx.claims.firebase&&ctx.claims.firebase.sign_in_provider==='anonymous')return json({error:'account_required',message:'Sign in with your RoamWise account before buying a digital programme.'},403);
+      const config=await deps.getDoc(env,ctx.accessToken,ctx.projectId,'config/app').catch(()=>null);
+      if(!config||config.BHAKTI_CHECKOUT_ENABLED!==true)return json({error:'bhakti_checkout_disabled',message:'Digital programme checkout is not open yet. No payment was taken.'},503);
+      const access=await readBhaktiAccess(env,ctx);
+      if(access.error)return access.error;
+      if(access.level>=product.level)return json({error:'already_entitled',message:'This digital programme is already included with your access.'},409);
+    }
     try{
       const currentUser=await deps.getDoc(env,ctx.accessToken,ctx.projectId,`users/${ctx.claims.uid}`);
       const currentUntil=expiryMillis(currentUser&&currentUser.proUntil);
-      if(currentUser&&currentUser.pro===true&&(!currentUntil||currentUntil>Date.now())){
+      if(!product&&currentUser&&currentUser.pro===true&&(!currentUntil||currentUntil>Date.now())){
         return json({error:'already_entitled',message:'This account already has an active paid plan. Contact support for an upgrade or extension.'},409);
       }
     }catch(_){return json({error:'entitlement_check_failed',message:'Could not verify the current account plan.'},502);}
-    let body;
-    try{body=await request.json();}catch(_){return json({error:'invalid_json'},400);}
     const amount=Math.round(Number(body&&body.amount)*100)/100;
     if(!Number.isFinite(amount)||amount<=0)return json({error:'invalid_amount'},400);
     const customer=(body&&body.customer)||{};
     const phone=String(customer.phone||'').replace(/\s+/g,'');
     if(!/^\+?\d{7,15}$/.test(phone))return json({error:'missing_customer_phone',message:'Cashfree needs a valid phone number on your account to start checkout.'},422);
-    const meta=(body&&body.meta)||{};
     const refCode=String(meta.refCode==null?'':meta.refCode).toUpperCase().replace(/[^A-Z0-9_-]/g,'').slice(0,32);
-    const knownPrice=priceForPlan(meta.planId);
+    const knownPrice=product ? product.price : priceForPlan(meta.planId);
     if(knownPrice==null)return json({error:'unknown_plan',message:'Could not verify the price for this plan.'},400);
     if(amount!==knownPrice)return json({error:'amount_mismatch',message:'The submitted amount does not match this plan’s real price.'},400);
     if(String(meta.planId)==='founder'){
@@ -134,16 +151,17 @@ export function createCashfreeHandlers(overrides){
       }catch(_){return json({error:'founder_seats_unavailable',message:'Could not verify Founder seat availability. Please try again shortly.'},502);}
       if(left<=0)return json({error:'founder_sold_out',message:'All Founder Pro seats are taken.'},409);
     }
-    const entitlement=cashfreeEntitlementForPlan(meta.planId);
+    const entitlement=product || cashfreeEntitlementForPlan(meta.planId);
     if(!entitlement)return json({error:'unsupported_plan',message:'Cashfree is currently available only for one-time plans.'},409);
     const orderId='rw_'+safeId(Date.now()+'_'+Math.random().toString(36).slice(2,8));
     const orderBody={
       order_id:orderId,order_amount:amount,order_currency:'INR',
       customer_details:{customer_id:safeId(ctx.claims.uid),customer_phone:phone.slice(0,20)},
-      order_meta:{return_url:paymentReturnUrl(env,orderId)}
+      order_meta:{return_url:paymentReturnUrl(env,orderId,request,Boolean(product))}
     };
     if(ctx.claims.email||customer.email)orderBody.customer_details.customer_email=String(ctx.claims.email||customer.email).slice(0,160);
-    if(meta.planId||meta.label)orderBody.order_note=String(meta.label||meta.planId||'').slice(0,200);
+    if(product)orderBody.order_note='RoamWise digital programme '+String(meta.planId);
+    else if(meta.planId||meta.label)orderBody.order_note=String(meta.label||meta.planId||'').slice(0,200);
     let r,data;
     try{
       r=await deps.request(cashfreeBase(env)+'/pg/orders',{
@@ -169,7 +187,7 @@ export function createCashfreeHandlers(overrides){
       order_amount:data.order_amount!=null?data.order_amount:amount,order_currency:data.order_currency||'INR',
       environment:isLive(env)?'production':'sandbox'});
   }
-  async function handleCashfreeOrderStatus(request,env,orderId){
+  async function handleCashfreeOrderStatus(request,env,orderId,bhaktiOnly=false){
     const ctx=await deps.context(request,env);
     if(ctx.error)return ctx.error;
     const sandboxError=await requireSandboxAdmin(env,ctx);
@@ -181,6 +199,9 @@ export function createCashfreeHandlers(overrides){
     catch(_){return json({error:'payment_record_unavailable'},502);}
     if(!receipt)return json({error:'payment_record_not_found'},404);
     if(receipt.uid!==ctx.claims.uid)return json({error:'forbidden'},403);
+    const product=bhaktiProduct(receipt.planId);
+    if(Boolean(product)!==bhaktiOnly)return json({error:'wrong_product_checkout'},409);
+    if(receipt.currency!=='INR'||(product&&(Number(receipt.amountINR)!==product.price||receipt.environment!==(isLive(env)?'live':'sandbox'))))return json({error:'payment_integrity_failed'},409);
     let r,data;
     try{
       r=await deps.request(cashfreeBase(env)+'/pg/orders/'+encodeURIComponent(id),{method:'GET',headers:cfHeaders(env)});
@@ -191,7 +212,7 @@ export function createCashfreeHandlers(overrides){
       return json({error:'payment_integrity_failed',message:'Cashfree returned an order that does not match the recorded purchase.'},409);
     }
     let persisted=receipt.fulfilled===true;
-    const entitlement=cashfreeEntitlementForPlan(receipt.planId);
+    const entitlement=product || cashfreeEntitlementForPlan(receipt.planId);
     if(data.order_status==='PAID'&&entitlement&&!persisted){
       const paidAt=new Date().toISOString();
       const method=receipt.planId==='founder'?'founder-cashfree':'cashfree';
@@ -211,20 +232,55 @@ export function createCashfreeHandlers(overrides){
       }
       try{
         await deps.updateDoc(env,ctx.accessToken,ctx.projectId,`payments/${id}`,paymentRecord(id,receipt,paidAt));
-        await deps.updateDoc(env,ctx.accessToken,ctx.projectId,`users/${ctx.claims.uid}`,{
-          pro:true,proTier:entitlement.tier,proMethod:method,proPayId:id,proPlanId:receipt.planId,
-          proAmount:Number(receipt.amountINR),proVia:'cashfree',proAt:paidAt,proUntil:entitlement.until
-        });
+        if(product){
+          await deps.updateDoc(env,ctx.accessToken,ctx.projectId,bhaktiGrantPath(ctx.claims.uid,receipt.planId),{
+            uid:ctx.claims.uid,productId:receipt.planId,level:product.level,orderId:id,status:'active',
+            paidAt,environment:isLive(env)?'live':'sandbox'
+          });
+        }else{
+          await deps.updateDoc(env,ctx.accessToken,ctx.projectId,`users/${ctx.claims.uid}`,{
+            pro:true,proTier:entitlement.tier,proMethod:method,proPayId:id,proPlanId:receipt.planId,
+            proAmount:Number(receipt.amountINR),proVia:'cashfree',proAt:paidAt,proUntil:entitlement.until
+          });
+        }
         await deps.updateDoc(env,ctx.accessToken,ctx.projectId,`cashfreeOrders/${id}`,{
           status:'PAID',fulfilled:true,paidAt,updatedAt:paidAt,...(overCap?{overCap:true}:{})
         });
         persisted=true;
       }catch(_){return json({error:'entitlement_persistence_failed',message:'Payment is confirmed, but account activation is still retrying. Check My Payments.'},503);}
     }
+    if(product)return json({order_id:id,order_status:data.order_status||'UNKNOWN',productId:receipt.planId,level:product.level,fulfilled:persisted});
     return json({order_id:data.order_id||id,order_status:data.order_status||'UNKNOWN',
       entitlement:entitlement?{planId:entitlement.planId,tier:entitlement.tier,until:entitlement.until,persisted}:null});
   }
-  return {handleCashfreeOrder,handleCashfreeOrderStatus};
+  async function readBhaktiAccess(env,ctx){
+    try{
+      const user=await deps.getDoc(env,ctx.accessToken,ctx.projectId,`users/${ctx.claims.uid}`);
+      const proUntil=expiryMillis(user&&user.proUntil);
+      const pro=user&&user.pro===true&&(!proUntil||proUntil>Date.now());
+      let level=pro?2:0;
+      for(const id of Object.keys(BHAKTI_PRODUCTS)){
+        const grant=await deps.getDoc(env,ctx.accessToken,ctx.projectId,bhaktiGrantPath(ctx.claims.uid,id));
+        if(!grant||grant.uid!==ctx.claims.uid||grant.status!=='active'||grant.environment!==(isLive(env)?'live':'sandbox'))continue;
+        const receipt=await deps.getDoc(env,ctx.accessToken,ctx.projectId,`cashfreeOrders/${safeId(grant.orderId)}`);
+        const p=BHAKTI_PRODUCTS[id];
+        if(receipt&&receipt.uid===ctx.claims.uid&&receipt.planId===id&&receipt.fulfilled===true&&receipt.status==='PAID'&&
+          receipt.environment===(isLive(env)?'live':'sandbox')&&receipt.currency==='INR'&&Number(receipt.amountINR)===p.price)level=Math.max(level,p.level);
+      }
+      return {level,pro:Boolean(pro)};
+    }catch(_){return {error:json({error:'access_unavailable',message:'Could not verify digital programme access. No payment was taken.'},503)};}
+  }
+  async function handleBhaktiAccess(request,env){
+    const ctx=await deps.context(request,env); if(ctx.error)return ctx.error;
+    const sandboxError=await requireSandboxAdmin(env,ctx); if(sandboxError)return sandboxError;
+    const access=await readBhaktiAccess(env,ctx); if(access.error)return access.error;
+    let config;
+    try{config=await deps.getDoc(env,ctx.accessToken,ctx.projectId,'config/app');}catch(_){config=null;}
+    const checkoutEnabled=Boolean(config&&config.BHAKTI_CHECKOUT_ENABLED===true&&config.PAYMENT_PROVIDER==='cashfree'&&String(config.CASHFREE_ENVIRONMENT||'sandbox').toLowerCase()===(isLive(env)?'live':'sandbox'));
+    const response=json({version:1,uid:ctx.claims.uid,...access,checkoutEnabled,environment:isLive(env)?'live':'sandbox',products:BHAKTI_PRODUCTS});
+    response.headers.set('Cache-Control','no-store'); return response;
+  }
+  return {handleCashfreeOrder,handleCashfreeOrderStatus,handleBhaktiAccess};
 }
 const handlers=createCashfreeHandlers();
 export const handleCashfreeOrder=handlers.handleCashfreeOrder;
