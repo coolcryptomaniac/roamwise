@@ -20,7 +20,7 @@
       ctx.$('feed-network').textContent = failed ? ctx.t('feed_failed') : '';
       var box = ctx.$('updates-list'); ctx.clear(box);
       var items = snapshot.items.filter(function (i) { return filter === 'all' || i.kind === filter || (filter === 'history' && !i.recent); });
-      items.slice(0, 12).forEach(function (item) {
+      items.forEach(function (item) {
         var card = ctx.el('li', null, 'update-card');
         card.appendChild(ctx.el('span', ctx.t(item.kind === 'official' ? 'feed_official' : 'feed_news'), 'source-kind'));
         var h = ctx.el('h3'); h.appendChild(link(item.title, item.url)); card.appendChild(h);

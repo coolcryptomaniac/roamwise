@@ -144,6 +144,37 @@ test('emergency calls appear before the visitor submits a report', () => {
   d.window.close();
 });
 
+test('every retained headline remains accessible across filters, language and failed refresh', async () => {
+  const d = boot(), w = d.window;
+  try {
+    await new Promise(resolve => setTimeout(resolve, 20));
+    const now = Date.now(), items = Array.from({ length: 15 }, (_, i) => ({
+      title: 'Kainchi reading lead ' + i,
+      url: i === 14 ? 'https://nainital.nic.in/notice/retained-test/' : 'https://example.com/reading/' + i,
+      publishedAt: new Date(now - (i >= 13 ? 72 : i) * 3600000).toISOString(),
+      kind: i === 14 ? 'official' : 'news', publisher: 'Test source'
+    }));
+    const data = { version: 1, checkedAt: new Date(now).toISOString(), items, sources: [],
+      coverage: { selectedHeadlines: 30, retainedHeadlines: 15, omittedHeadlines: 15 } };
+    w.fetch = async () => ({ ok: true, text: async () => JSON.stringify(data) });
+    $(d, 'updates-refresh').click(); await new Promise(resolve => setTimeout(resolve, 20));
+    const cards = () => $(d, 'updates-list').querySelectorAll('.update-card');
+    assert.equal(cards().length, 15);
+    assert.deepEqual(Array.from($(d, 'updates-list').querySelectorAll('h3 a'), a => a.href), items.map(i => i.url));
+    assert.match($(d, 'feed-coverage').textContent, /15 older headlines/);
+    w.document.querySelector('[data-feed-filter="news"]').click(); assert.equal(cards().length, 14);
+    w.document.querySelector('[data-feed-filter="official"]').click(); assert.equal(cards().length, 1);
+    w.document.querySelector('[data-feed-filter="history"]').click(); assert.equal(cards().length, 2);
+    w.document.querySelector('[data-feed-filter="all"]').click();
+    w.document.querySelector('[data-lang="hi"]').click(); assert.equal(cards().length, 15);
+    w.fetch = async () => { throw Error('offline'); };
+    $(d, 'updates-refresh').click(); await new Promise(resolve => setTimeout(resolve, 20));
+    assert.equal(cards().length, 15);
+    assert.equal(cards()[14].querySelector('a').href, items[14].url);
+    assert.match($(d, 'feed-coverage').textContent, /15 पुरानी खबरें/);
+  } finally { w.close(); }
+});
+
 test('devotional controls are opt-in, pauseable and source linked', () => {
   const d = boot();
   assert.equal($(d, 'digital-diya').classList.contains('lit'), false);
