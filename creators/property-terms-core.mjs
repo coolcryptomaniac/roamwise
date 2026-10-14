@@ -74,6 +74,7 @@ export function normalizePolicy(raw = {}) {
     reach: ['nearby', 'local', 'state'].includes(raw.reach) ? raw.reach : 'nearby',
     cashBudget: clampInt(raw.cashBudget, 0, 500000, 0),
     roomRate: clampInt(raw.roomRate, 0, 1000000, 0),
+    roomRateMax: clampInt(raw.roomRateMax, 0, 1000000, 0),
     instantAccept: raw.instantAccept === true,
     unconfirmed: (Array.isArray(raw.unconfirmed) ? raw.unconfirmed : []).map(String).slice(0, 12),
     updatedAt: String(raw.updatedAt || '').slice(0, 30),
@@ -92,6 +93,9 @@ export const SEED_POLICIES = Object.freeze([
     location: { town: 'Almora', lat: 29.5966, lng: 79.6593 },   // Dharanaula, opposite Milan Cafe
     whatsapp: '917302315845',                                       // the public booking number in partners-data.js
     niches: ['mountains', 'food', 'culture', 'budget'],
+    /* Founder, 2026-10-14: rooms are not fixed, ₹1,500 to ₹3,000 a night. Creator stays are off-season
+       weeknights, so the stay is priced at the low end; the range is shown alongside. */
+    roomRate: 1500, roomRateMax: 3000,
   },
   {
     propertyId: 'p_soulmate_homestay', name: 'Soulmate Homestay', status: 'closed',
@@ -181,7 +185,7 @@ export function barterOfferFromPolicy(policyIn) {
   const p = normalizePolicy(policyIn);
   return {
     propertyId: p.propertyId, name: p.name, whatsapp: p.whatsapp, niches: p.niches,
-    package: p.package, reach: p.reach, cashBudget: p.cashBudget, roomRate: p.roomRate, instantAccept: p.instantAccept,
+    package: p.package, reach: p.reach, cashBudget: p.cashBudget, roomRate: p.roomRate, roomRateMax: p.roomRateMax, instantAccept: p.instantAccept,
     location: p.location.lat != null ? p.location : { town: p.location.town },
     offer: { guests: p.freeStay.guests, nights: p.freeStay.nights || 1, food: p.freeStay.food, travel: p.freeStay.travel, cashMax: 0, deliverables: PACKAGES[p.package].deliverables },
     contingentCashUpTo: p.performanceCash.max,

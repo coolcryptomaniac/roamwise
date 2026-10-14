@@ -160,3 +160,10 @@ test('the join form asks for full creator terms and blocks an opt-in without the
   assert.match(html, /terms:d\.creatorDeal!=='none'\?creatorTerms\(d\):null/);
   assert.match(html, /reviews are never part of a barter/);
 });
+
+test('Milan Heights stay is priced at the off-season low end of its ₹1,500–3,000 room range', async () => {
+  const { SEED_POLICIES } = await import('../creators/property-terms-core.mjs');
+  const offer = barterOfferFromPolicy(SEED_POLICIES.find((p) => p.propertyId === 'p_milan_heights'));
+  assert.deepEqual([offer.roomRate, offer.roomRateMax], [1500, 3000]);
+  assert.equal(barterValue(offer.offer, offer.roomRate).stay, 3000);    // 2 nights × ₹1,500
+});
