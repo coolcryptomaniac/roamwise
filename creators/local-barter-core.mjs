@@ -232,7 +232,7 @@ export function rankForOffer(offerIn, creators = [], opts = {}) {
     if (!id || seen.has(id)) continue;
     seen.add(id);
     const prox = proximity(c.location || c.town, propLoc);
-    const quality = creatorQuality(c.metrics || c);
+    const quality = c.rating && Number.isFinite(c.rating.score) ? c.rating : creatorQuality(c.metrics || c);
     const terms = termsFit(c.ask || {}, offer, prox.tier);
     const niche = nicheHit(c.niches, offerIn.niches || opts.niches);
     const rank = Math.round(quality.score * 0.55 + prox.score * 0.30 + niche * 15);
@@ -246,7 +246,10 @@ export function rankForOffer(offerIn, creators = [], opts = {}) {
     if (terms.fit === 'no_fit') { skipped.push({ ...row, why: 'terms do not fit' }); continue; }
     if (Number.isFinite(last) && cooldownDays && today - last < cooldownDays * 864e5) { skipped.push({ ...row, why: 'offered recently' }); continue; }
     /* A stay-and-food barter is offered automatically only where travel costs the creator little. */
-    const autoTier = prox.tier === 'local' || prox.tier === 'nearby' || (prox.tier === 'regional' && (!barterOnly || (quality.score >= 70 && !normalizeCreatorAsk(c.ask).travel)));
+    const reach = offerIn.reach || opts.reach || 'nearby';
+    const autoTier = prox.tier === 'local'
+      || (prox.tier === 'nearby' && reach !== 'local')
+      || (prox.tier === 'regional' && reach !== 'local' && (reach === 'state' || !barterOnly || (quality.score >= 70 && !normalizeCreatorAsk(c.ask).travel)));
     (autoTier && terms.fit !== 'negotiate' ? notify : negotiate).push(row);
   }
   const by = (a, b) => b.rank - a.rank || (a.proximity.km ?? 1e9) - (b.proximity.km ?? 1e9);
@@ -298,8 +301,11 @@ export function creatorDealMessage(deal) {
     p.mapsUrl ? `Location: ${p.mapsUrl}` : '',
     negotiate && d.terms ? 'To agree: ' + d.terms.lines.filter((l) => l.status !== 'ok').map((l) => youVoice(l.text)).join('; ') + '.' : '',
     '',
+    d.fairNote ? d.fairNote : '',
     negotiate ? 'Reply with what works for you (dates, travel, anything else) and we will settle it with the property.'
-      : 'Reply YES with 2-3 dates that suit you, or NO if it is not for you. Nothing is binding until both sides confirm the same terms.',
+      : d.instantAccept ? 'The property has already agreed these exact terms: reply YES with 2-3 dates and it is confirmed. Reply NO if it is not for you.'
+        : 'Reply YES with 2-3 dates that suit you, or NO if it is not for you. Nothing is binding until both sides confirm the same terms.',
+    `This offer is held for you for ${d.holdHours || 48} hours, then it goes to the next creator.`,
     `Deal ref: ${d.id || ''}`,
   ].filter((x, i, a) => x !== '' || a[i - 1] !== '').join('\n').trim();
 }
@@ -316,6 +322,7 @@ export function propertyDealMessage(deal) {
     stats,
     '',
     `Terms: ${offerText(d.offer)}`,
+    d.recommendation && d.recommendation.fair ? `Fair price for this creator: ₹${d.recommendation.fair.low.toLocaleString('en-IN')}–₹${d.recommendation.fair.high.toLocaleString('en-IN')}. ${d.recommendation.why}` : '',
     d.terms && d.terms.fit !== 'ready' ? 'Still to agree: ' + d.terms.lines.filter((l) => l.status !== 'ok').map((l) => l.text).join('; ') + '.' : '',
     '',
     'Reply YES to host, or suggest other dates. We confirm the same terms to both of you in writing before the stay.',
@@ -343,7 +350,13 @@ export function buildDeal(offerIn, row, opts = {}) {
   const property = { id: str(prop.propertyId || prop.id, 60), name: str(prop.name, 110), town: resolveLocation(loc).town, whatsapp: waNumber(prop.whatsapp), mapsUrl: mapsLink(loc) };
   const m = (c.source && (c.source.metrics || c.source)) || {};
   const creator = { id: c.id, name: c.name, handle: c.handle, town: c.town, phone: waNumber(c.phone), followers: num(m.followers), verifiedBookings: num(m.verifiedBookings) };
-  const deal = { id: dealId(property.id, creator.id, opts.today), property, creator, offer: normalizePropertyOffer(prop.offer || prop), proximity: c.proximity, quality: c.quality, terms: c.terms };
+  const rec = opts.recommendation || null;
+  const baseOffer = { ...(prop.offer || prop) };
+  if (rec && rec.package && rec.package.deliverables) baseOffer.deliverables = rec.package.deliverables;
+  if (rec && rec.verdict === 'hybrid' && rec.topUp) baseOffer.cashMax = rec.topUp;
+  const deal = { id: dealId(property.id, creator.id, opts.today), property, creator, offer: normalizePropertyOffer(baseOffer), proximity: c.proximity, quality: c.quality, terms: c.terms,
+    instantAccept: !!prop.instantAccept, holdHours: opts.holdHours || 48, recommendation: rec,
+    fairNote: rec && rec.fair ? `Fair-price check: about ₹${rec.fair.low.toLocaleString('en-IN')}–₹${rec.fair.high.toLocaleString('en-IN')} for this brief at your level; ${rec.verdict === 'hybrid' ? `the stay plus ₹${rec.topUp.toLocaleString('en-IN')} covers it` : rec.verdict === 'negotiate' ? 'the stay alone is below that, so tell us what would work' : 'the stay covers it'}.` : '' };
   deal.toCreator = creatorDealMessage(deal);
   deal.toProperty = propertyDealMessage(deal);
   deal.creatorWa = creator.phone ? waLink(creator.phone, deal.toCreator) : '';

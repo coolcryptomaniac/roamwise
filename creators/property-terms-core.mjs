@@ -16,6 +16,7 @@
    changes on its own unless the owner switched auto-adjust on and set ceilings.
    ========================================================================= */
 import { autopilotDecision, normalizeMatchProfile, quoteCollaboration, scoreMatch } from './match-core.mjs';
+import { PACKAGES } from './rate-guide-core.mjs';
 
 export const POLICY_STATUS = Object.freeze(['open', 'pending', 'closed']);
 const clampInt = (v, lo, hi, d) => { const n = Math.round(Number(v)); return Number.isFinite(n) ? Math.min(hi, Math.max(lo, n)) : d; };
@@ -67,6 +68,13 @@ export function normalizePolicy(raw = {}) {
     },
     whatsapp: String(raw.whatsapp || '').replace(/\D/g, '').slice(0, 15),
     niches: (Array.isArray(raw.niches) ? raw.niches : []).map(String).slice(0, 8),
+    /* From the property's own join form: what content they want, who gets offers automatically, the
+       upfront top-up budget a strong creator can be offered, and the room rate that prices the stay. */
+    package: ['standard', 'stories', 'feature'].includes(raw.package) ? raw.package : 'standard',
+    reach: ['nearby', 'local', 'state'].includes(raw.reach) ? raw.reach : 'nearby',
+    cashBudget: clampInt(raw.cashBudget, 0, 500000, 0),
+    roomRate: clampInt(raw.roomRate, 0, 1000000, 0),
+    instantAccept: raw.instantAccept === true,
     unconfirmed: (Array.isArray(raw.unconfirmed) ? raw.unconfirmed : []).map(String).slice(0, 12),
     updatedAt: String(raw.updatedAt || '').slice(0, 30),
   };
@@ -173,10 +181,29 @@ export function barterOfferFromPolicy(policyIn) {
   const p = normalizePolicy(policyIn);
   return {
     propertyId: p.propertyId, name: p.name, whatsapp: p.whatsapp, niches: p.niches,
+    package: p.package, reach: p.reach, cashBudget: p.cashBudget, roomRate: p.roomRate, instantAccept: p.instantAccept,
     location: p.location.lat != null ? p.location : { town: p.location.town },
-    offer: { guests: p.freeStay.guests, nights: p.freeStay.nights || 1, food: p.freeStay.food, travel: p.freeStay.travel, cashMax: 0 },
+    offer: { guests: p.freeStay.guests, nights: p.freeStay.nights || 1, food: p.freeStay.food, travel: p.freeStay.travel, cashMax: 0, deliverables: PACKAGES[p.package].deliverables },
     contingentCashUpTo: p.performanceCash.max,
   };
+}
+
+/** A partners/{uid} application (partner/join form) as a creator policy. Open only when the owner gave full terms. */
+export function policyFromPartner(uid, doc = {}) {
+  const cm = doc.creatorMatching || {}, t = cm.terms || null;
+  const months = t && Array.isArray(t.months) ? t.months : [];
+  return normalizePolicy({
+    propertyId: 'p_' + String(uid || '').replace(/[^A-Za-z0-9_-]/g, '').slice(0, 40), name: doc.name || '',
+    status: cm.enabled && t ? 'open' : cm.enabled ? 'pending' : 'closed',
+    reason: cm.enabled && !t ? 'Owner opted in but has not set creator terms yet.' : '',
+    freeStay: t ? { nights: t.nights, guests: t.guests, food: t.food, travel: t.travel, weekdaysOnly: t.weekdaysOnly !== false, offSeasonOnly: months.length > 0 && months.length < 12, offSeasonMonths: months, maxPerMonth: t.maxPerMonth } : {},
+    performanceCash: t ? { max: t.performancePct ? t.performanceMax : 0, ratePct: t.performancePct } : {},
+    location: { town: doc.zone || doc.city || '', lat: doc.lat, lng: doc.lng },
+    whatsapp: doc.ownerWa || doc.phone || '',
+    niches: cm.niches || [], package: t && t.package, reach: t && t.reach,
+    cashBudget: cm.maximumCash || 0, roomRate: doc.startPrice || 0, instantAccept: !!(t && t.instantAccept),
+    updatedAt: cm.updatedAt || '',
+  });
 }
 
 /* ---- The decision ---- */

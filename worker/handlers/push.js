@@ -77,7 +77,7 @@ function validatePayload(body) {
   return null;
 }
 
-async function requireAdmin(request, env, projectId) {
+export async function requireAdmin(request, env, projectId) {
   const auth = request.headers.get('authorization') || request.headers.get('Authorization') || '';
   const m = /^Bearer\s+(.+)$/i.exec(auth);
   if (!m) return { error: json({ error: 'unauthorized', message: 'missing Bearer token' }, 401) };
