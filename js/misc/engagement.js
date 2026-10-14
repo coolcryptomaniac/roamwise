@@ -58,8 +58,21 @@ function _trkFlush(){
     var day = new Date().toISOString().slice(0,10);
     var inc = {}; Object.keys(buf).forEach(function(k){ inc[k] = firebase.firestore.FieldValue.increment(buf[k]); });
     /* .set() rejects ASYNCHRONOUSLY — record the last failure so it can be surfaced instead of guessed at. */
-    db.collection('stats').doc(day).set(inc, {merge:true})
-      .catch(function(e){ try{ lsSet('rw_track_err', (e.code||'')+' '+(e.message||e)); }catch(_){ /* storage best-effort, ignore */ } });
+    var ref = db.collection('stats').doc(day);
+    ref.set(inc, {merge:true})
+      .catch(function(e){
+        try{ lsSet('rw_track_err', (e.code||'')+' '+(e.message||e)); }catch(_){ /* storage best-effort, ignore */ }
+        /* Rules that only accept one counter +1 per write (anything deployed before the batched-stats
+           rule) reject a merged write, and one unknown event name rejects the whole batch. Fall back to
+           the old shape: one key, +1, one write at a time, at most 20 per key, so counts still land. */
+        if(!e || e.code!=='permission-denied') return;
+        var jobs=[]; Object.keys(buf).forEach(function(k){ for(var i=0;i<Math.min(buf[k],20);i++) jobs.push(k); });
+        (function next(){
+          var k=jobs.shift(); if(!k) return;
+          var one={}; one[k]=firebase.firestore.FieldValue.increment(1);
+          ref.set(one,{merge:true}).then(next, next);
+        })();
+      });
   }catch(e){ /* best-effort Firestore write, ignore */ }
 }
 /* Event-scale safety: counts are buffered in memory and written as ONE merged write at most every
