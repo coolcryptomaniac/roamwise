@@ -409,30 +409,69 @@ service cloud.firestore {
     // whatever it already was (0 if new), same anti-tampering pattern as
     // meta/signupCounter below. No caller, signed in or not, can inject an
     // unknown field or jam an arbitrary value into any day's doc anymore.
+    // Since #406 the client buffers counters for up to 30 s and writes them in ONE merged
+    // write (Firestore sustains ~1 write/sec per document, and every visitor hits the same
+    // day doc). So a write may now touch several known keys and raise each by more than 1.
+    // Still locked down: only the known keys below, each an int that only goes UP, by at
+    // most 500 per write; nothing else can be set, lowered or deleted by a client.
+    function statsKeys() {
+      return ['arena_runs', 'atlas_cert_made', 'aff_click', 'copilot_uses', 'event_plans', 'img_scans', 'nudge_shown', 'nudge_yes', 'pay_opens', 'pdf_generated', 'pdf_opens', 'pdf_paid', 'pwa_dismissed', 'pwa_installed', 'ref_click', 'ref_code_entered', 'searches', 'ad_visits', 'ad_signups', 'ad_purchases', 'signups', 'trip_saved', 'tusk_helpful', 'tusk_unhelpful', 'utr_submits', 'video_made', 'video_opens', 'visits', 'wiz_opens', 'kasar_ailon_tailor', 'kasar_milan_call_click', 'kasar_milan_dm_click', 'kasar_milan_referral_copy', 'kasar_origin_added', 'kasar_milan_booking_open', 'kasar_milan_whatsapp_open',
+              'cashfree_paid', 'nmims_ailon', 'stay_roamwise_enquiry', 'stay_whatsapp_open', 'tusk_verified_stay_handoff'];
+    }
+    function statsDiff() {
+      return request.resource.data.diff(resource == null ? {} : resource.data).affectedKeys();
+    }
     function statsBump(key) {
-      return request.resource.data.diff(resource == null ? {} : resource.data)
-               .affectedKeys().hasOnly([key])
-        && request.resource.data[key] is int
-        && request.resource.data[key] ==
-             ((resource != null && key in resource.data && resource.data[key] is int)
-               ? resource.data[key] + 1 : 1);
+      let before = (resource != null && key in resource.data && resource.data[key] is int) ? resource.data[key] : 0;
+      return !(key in statsDiff())
+        || (request.resource.data[key] is int
+            && request.resource.data[key] >= before + 1
+            && request.resource.data[key] <= before + 500);
     }
     match /stats/{day} {
       allow read: if isAdmin();
-      allow create, update: if statsBump('arena_runs') || statsBump('atlas_cert_made')
-        || statsBump('aff_click') || statsBump('copilot_uses') || statsBump('event_plans')
-        || statsBump('img_scans') || statsBump('nudge_shown') || statsBump('nudge_yes')
-        || statsBump('pay_opens') || statsBump('pdf_generated') || statsBump('pdf_opens')
-        || statsBump('pdf_paid') || statsBump('pwa_dismissed') || statsBump('pwa_installed')
-        || statsBump('ref_click') || statsBump('ref_code_entered') || statsBump('searches')
-        || statsBump('ad_visits') || statsBump('ad_signups') || statsBump('ad_purchases')
-        || statsBump('signups') || statsBump('trip_saved') || statsBump('tusk_helpful')
-        || statsBump('tusk_unhelpful') || statsBump('utr_submits') || statsBump('video_made')
-        || statsBump('video_opens') || statsBump('visits') || statsBump('wiz_opens')
-        || statsBump('kasar_ailon_tailor') || statsBump('kasar_milan_call_click')
-        || statsBump('kasar_milan_dm_click') || statsBump('kasar_milan_referral_copy')
-        || statsBump('kasar_origin_added') || statsBump('kasar_milan_booking_open')
-        || statsBump('kasar_milan_whatsapp_open');
+      allow create, update: if statsDiff().size() > 0 && statsDiff().hasOnly(statsKeys())
+        && statsBump('arena_runs')
+        && statsBump('atlas_cert_made')
+        && statsBump('aff_click')
+        && statsBump('copilot_uses')
+        && statsBump('event_plans')
+        && statsBump('img_scans')
+        && statsBump('nudge_shown')
+        && statsBump('nudge_yes')
+        && statsBump('pay_opens')
+        && statsBump('pdf_generated')
+        && statsBump('pdf_opens')
+        && statsBump('pdf_paid')
+        && statsBump('pwa_dismissed')
+        && statsBump('pwa_installed')
+        && statsBump('ref_click')
+        && statsBump('ref_code_entered')
+        && statsBump('searches')
+        && statsBump('ad_visits')
+        && statsBump('ad_signups')
+        && statsBump('ad_purchases')
+        && statsBump('signups')
+        && statsBump('trip_saved')
+        && statsBump('tusk_helpful')
+        && statsBump('tusk_unhelpful')
+        && statsBump('utr_submits')
+        && statsBump('video_made')
+        && statsBump('video_opens')
+        && statsBump('visits')
+        && statsBump('wiz_opens')
+        && statsBump('kasar_ailon_tailor')
+        && statsBump('kasar_milan_call_click')
+        && statsBump('kasar_milan_dm_click')
+        && statsBump('kasar_milan_referral_copy')
+        && statsBump('kasar_origin_added')
+        && statsBump('kasar_milan_booking_open')
+        && statsBump('kasar_milan_whatsapp_open')
+        && statsBump('cashfree_paid')
+        && statsBump('nmims_ailon')
+        && statsBump('stay_roamwise_enquiry')
+        && statsBump('stay_whatsapp_open')
+        && statsBump('tusk_verified_stay_handoff');
       allow delete: if isAdmin();
     }
 

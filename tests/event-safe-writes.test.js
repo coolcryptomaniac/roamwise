@@ -44,3 +44,32 @@ test('opening sound: a blocked autoplay is shown on the button and the next tap 
   assert.match(s, /rwCueIsPlaying/);
   assert.match(s, /if \(soundBlocked\) \{[\s\S]{0,200}rwPlayCue\('site_opening'/);
 });
+
+test('a rejected merged write falls back to single +1 writes so counts still land under older rules', async () => {
+  const src=rd('js/misc/engagement.js'); const a=src.indexOf('var _trkBuf'); const b=src.indexOf('/* Per-response thumbs');
+  const writes=[]; const timers=[]; let first=true;
+  const ctx={AUTH_READY:true,lsSet(){}, setTimeout:(f)=>{timers.push(f);return 1;}, document:{addEventListener(){}},
+    firebase:{firestore:{FieldValue:{increment:n=>({inc:n})}}},
+    db:{collection:()=>({doc:()=>({set:(o)=>{writes.push(JSON.parse(JSON.stringify(o)));if(first){first=false;return Promise.reject({code:'permission-denied'});}return Promise.resolve();}})})}};
+  vm.runInNewContext(src.slice(a,b),ctx);
+  ctx.track('visits');ctx.track('visits');ctx.track('signups');
+  timers[0]();
+  await new Promise(r=>setTimeout(r,20));
+  assert.deepEqual(writes,[{visits:{inc:2},signups:{inc:1}},{visits:{inc:1}},{visits:{inc:1}},{signups:{inc:1}}]);
+});
+
+test('stats rules accept the batched shape: known keys only, each raised by 1..500, and every tracked event is allowed', () => {
+  const rules=rd('firestore.rules');
+  const keysBlock=rules.slice(rules.indexOf('function statsKeys'), rules.indexOf('function statsDiff'));
+  const keys=new Set([...keysBlock.matchAll(/'([a-z_0-9]+)'/g)].map(m=>m[1]));
+  assert.match(rules, /statsDiff\(\)\.size\(\) > 0 && statsDiff\(\)\.hasOnly\(statsKeys\(\)\)/);
+  assert.match(rules, /request\.resource\.data\[key\] >= before \+ 1/);
+  assert.match(rules, /request\.resource\.data\[key\] <= before \+ 500/);
+  for (const k of keys) assert.ok(rules.includes("statsBump('"+k+"')"), k+' is listed but not checked');
+  /* every literal track('event') in the app must be an allowed key, or a batch containing it is rejected */
+  const files=require('node:child_process').execSync("git ls-files '*.js' '*.html' | grep -v '^tests/' | grep -v '^vendor/'",{cwd:path.join(__dirname,'..')}).toString().trim().split('\n');
+  const used=new Set();
+  for (const f of files) for (const m of rd(f).matchAll(/\btrack\(['"]([a-z_0-9]+)['"]\)/g)) used.add(m[1]);
+  const missing=[...used].filter(k=>!keys.has(k));
+  assert.deepEqual(missing, []);
+});
