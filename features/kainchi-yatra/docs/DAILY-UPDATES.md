@@ -315,3 +315,52 @@ arrests, general road safety and Navratri greetings. News published on 12 Octobe
 business impact or Sunday arrangements. None establishes a 13 October access rule, permit,
 parking capacity, queue count, room/fare card or registration start date, so no visitor-facing
 operational claim was changed. The local snapshot was not committed or deployed.
+
+## Retained-headline display — pending review, 14 October 2026
+
+Reviewed main `a1710c76d6c0c427bf4ecfabf232536545d85d8e`, current implementation, open PRs
+(none changing the Kainchi feed), this log, the public snapshot and workflow status. Static Pages
+run 38374242063 succeeded on 13 October. The served snapshot has advanced from the 9 October
+seed to 13 October 09:09:10Z (14:39 IST), preserving source history and the new coverage counts:
+30 selected, 12 retained and 18 omitted. District and both RSS sources succeeded; the police
+website request failed. At this check the snapshot is within its existing 30-hour freshness window.
+
+A read-only 14 October collection at 02:36:54Z (08:06 IST), using that public snapshot as its
+previous value, selected 30 records and retained 15 under the unchanged 7 KB gzip limit. Both RSS
+sources responded. Direct district and police fetches returned HTTPError; the district site remained
+readable via Firecrawl, so this does not establish a district-wide website outage. The previous
+district success timestamp was preserved. Firecrawl's police attempt failed with an internal proxy
+tunnel error. Social remains a manual reference, not an automatically connected police feed.
+
+The UI previously rendered only the first 12 filtered records even when the validated snapshot
+retained more. With this comparison it would silently hide three retained records. The proposed
+one-line fix renders every filtered record from the normalizer's existing maximum of 30. It adds
+no source, network request, limit increase or new claim. Size omission disclosure still describes
+collector omissions; all retained records are now accessible in All/news/official/history views.
+The regression test reproduces the old 12-versus-15 failure, then checks all retained source links,
+filters, Hindi switching and last-good retention after an offline refresh.
+
+Fresh reading checks:
+- https://nainital.nic.in/ and https://nainital.nic.in/notice_category/announcements/ — no effective
+  14 October Kainchi/Bhowali travel order verified in the reviewed pages; undated content/PDF
+  listings were not assigned today's date.
+- https://x.com/nainitalpolice_ — the listed police reference's readable latest posts through
+  13 October 19:54 IST concern cyber awareness and arrests, not a new Kainchi traffic order.
+  The retrieval provider reports the platform verification badge as unknown.
+- https://indianexpress.com/article/india/kainchi-dham-number-of-visitors-each-day-cap-10919177/
+  — article published 13 October 12:36 IST, modified 14:14 IST. It describes a proposed
+  registration cap, a portal dependent on approval, unfinished bypass work and possible earlier
+  opening subject to temple discussion. These publication/update times are not implementation
+  dates. No effective order or registration start date was verified, and none of its projected
+  counts or timelines was put into planner rules, prices, slots or road-access claims.
+
+This comparison snapshot was written only to temporary QA output. Production JSON, source registry,
+collector, timestamps/expiry, advisory passes, visitor-sent reports, payment and deployment settings
+remain unchanged. The display change is pending a focused repository PR; no merge, workflow
+dispatch, deployment or contact with anyone was performed by this maintenance run.
+
+Verification: eight Python collector tests, 48 Kainchi tests, repository tests (788 passed,
+one existing esbuild skip), `npm run check`, `npm run mod-status` and `git diff --check` pass.
+The new regression failed with 12 displayed versus 15 expected before the one-line fix, then
+passed. Real browser/device layout QA was not run. Review the longer (still at most 30-card)
+list at phone width before merge; the runtime/source budget and trust boundaries are unchanged.
