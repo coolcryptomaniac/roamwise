@@ -364,3 +364,31 @@ one existing esbuild skip), `npm run check`, `npm run mod-status` and `git diff 
 The new regression failed with 12 displayed versus 15 expected before the one-line fix, then
 passed. Real browser/device layout QA was not run. Review the longer (still at most 30-card)
 list at phone width before merge; the runtime/source budget and trust boundaries are unchanged.
+
+## Feed freshness display — 14 October 2026
+
+The user authorised merging #420 and enhancing the feed. #420 merged as
+`9358d8e9f90c21461153bf18717583cc490667ba`. Health, Jekyll, brand, asset integrity and
+GitGuardian passed; the inherited Platform V5 literal opening-film assertion and external
+Workers Builds failure remained. No required-check bypass was used.
+
+The follow-up updates only the display/refresh handling. Each render re-evaluates the 48-hour
+publication labels and digest using the current clock, including after an offline refresh or
+language/filter change; original publication/check dates and coverage are preserved. Automated
+source rows now distinguish collector attempt from last success, and explicitly show when no
+success is recorded. Manual social/reference links never acquire automatic-check timestamps.
+Dates include the year and remain in IST. Older, missing-date or future-date refresh responses
+retain the newest valid snapshot and display the existing refresh warning instead of claiming
+success. Equal/newer valid snapshots still recover normally; comparison uses actual instants.
+
+Regression tests cover a publication crossing 48 hours while offline, a source success crossing
+30 hours, distinct attempt/success dates, failed/manual sources in English/Hindi, and rejected
+older/undated/future responses followed by recovery. The tests reproduced failures before the
+fix. No source registry, collector, JSON/schema, network frequency, capacity/price/permit rule,
+pass, report, payment or deployment configuration changed. Real browser/device QA is unclaimed.
+
+Verification: 50 Kainchi tests and 790 repository tests passed, with one existing esbuild skip.
+`npm run check`, `npm run mod-status` and `git diff --check` passed. Worst reserved snapshot
+source budget is 101,344 bytes under the unchanged 102,400-byte cap. #420's main static Pages
+deployment 38522128759 succeeded. The follow-up must pass normal PR review/CI before merge;
+no required-check override or unrelated Worker/payment rollout is part of this change.

@@ -175,6 +175,71 @@ test('every retained headline remains accessible across filters, language and fa
   } finally { w.close(); }
 });
 
+test('long-open offline tabs age publications and source checks without rewriting dates', async () => {
+  const d = boot(), w = d.window;
+  try {
+    await new Promise(resolve => setTimeout(resolve, 20));
+    const now = Date.now(); w.Date.now = () => now;
+    const publishedAt = new Date(now - 47 * 3600000).toISOString();
+    const success = new Date(now - 29 * 3600000).toISOString(), attempt = new Date(now - 3600000).toISOString();
+    const data = { version: 1, checkedAt: new Date(now).toISOString(),
+      items: [{ title: 'A dated reading lead', url: 'https://example.com/lead', publishedAt, kind: 'news' }],
+      sources: [{ id: 'district', name: 'District source', url: 'https://nainital.nic.in/',
+        status: 'ok', checkedAt: attempt, lastSuccessAt: success },
+      { id: 'police', name: 'Police source', url: 'https://uttarakhandpolice.uk.gov.in/',
+        status: 'error', checkedAt: attempt, lastSuccessAt: null },
+      { id: 'social', name: 'Manual social reference', url: 'https://x.com/nainitalpolice_', status: 'manual' }],
+      coverage: { selectedHeadlines: 2, retainedHeadlines: 1, omittedHeadlines: 1 } };
+    w.fetch = async () => ({ ok: true, text: async () => JSON.stringify(data) });
+    $(d, 'updates-refresh').click(); await new Promise(resolve => setTimeout(resolve, 20));
+    assert.match($(d, 'updates-list').textContent, /Recent publication/);
+    assert.match($(d, 'source-health').textContent, /Collector attempt:/);
+    assert.match($(d, 'source-health').textContent, /Last success:/);
+    const sourceRows = $(d, 'source-health').children;
+    assert.match(sourceRows[1].textContent, /Source check failed.*Collector attempt:.*None recorded/);
+    assert.doesNotMatch(sourceRows[2].textContent, /Collector attempt:|Last success:/);
+    const publicationLabel = $(d, 'updates-list').querySelector('p').textContent;
+    const sourceTimes = $(d, 'source-health').querySelector('small:last-child').textContent;
+    w.Date.now = () => now + 2 * 3600000;
+    w.fetch = async () => { throw Error('offline'); };
+    $(d, 'updates-refresh').click(); await new Promise(resolve => setTimeout(resolve, 20));
+    assert.match($(d, 'updates-list').textContent, /Historical context/);
+    assert.match($(d, 'digest-text').textContent, /0 publications.*0 source checks fresh/);
+    assert.match($(d, 'source-health').textContent, /Last successful check is old/);
+    assert.equal($(d, 'updates-list').querySelector('p').textContent, publicationLabel);
+    assert.equal($(d, 'source-health').querySelector('small:last-child').textContent, sourceTimes);
+    w.document.querySelector('[data-feed-filter="history"]').click();
+    assert.equal($(d, 'updates-list').querySelectorAll('.update-card').length, 1);
+    assert.equal($(d, 'feed-coverage').hidden, false);
+    w.document.querySelector('[data-lang="hi"]').click();
+    assert.match($(d, 'source-health').textContent, /कलेक्टर का प्रयास:/);
+    assert.match(sourceRows[1].textContent, /सफल जाँच दर्ज नहीं/);
+  } finally { w.close(); }
+});
+
+test('older and undated refreshes warn while retaining the newest snapshot and its coverage', async () => {
+  const d = boot(), w = d.window;
+  try {
+    await new Promise(resolve => setTimeout(resolve, 20));
+    const now = Date.now(), data = { version: 1, checkedAt: new Date(now).toISOString(), sources: [],
+      items: [{ title: 'Newest saved lead', url: 'https://example.com/newest', publishedAt: new Date(now - 1000).toISOString() }],
+      coverage: { selectedHeadlines: 3, retainedHeadlines: 1, omittedHeadlines: 2 } };
+    w.fetch = async () => ({ ok: true, text: async () => JSON.stringify(data) });
+    $(d, 'updates-refresh').click(); await new Promise(resolve => setTimeout(resolve, 20));
+    for (const checkedAt of [new Date(now - 3600000).toISOString(), null, new Date(now + 3600000).toISOString()]) {
+      w.fetch = async () => ({ ok: true, text: async () => JSON.stringify({ ...data, checkedAt, items: [] }) });
+      $(d, 'updates-refresh').click(); await new Promise(resolve => setTimeout(resolve, 20));
+      assert.match($(d, 'feed-network').textContent, /Refresh unavailable/);
+      assert.match($(d, 'updates-list').textContent, /Newest saved lead/);
+      assert.match($(d, 'feed-coverage').textContent, /2 older headlines/);
+      assert.equal($(d, 'updates-refresh').disabled, false);
+    }
+    w.fetch = async () => ({ ok: true, text: async () => JSON.stringify(data) });
+    $(d, 'updates-refresh').click(); await new Promise(resolve => setTimeout(resolve, 20));
+    assert.equal($(d, 'feed-network').textContent, '');
+  } finally { w.close(); }
+});
+
 test('devotional controls are opt-in, pauseable and source linked', () => {
   const d = boot();
   assert.equal($(d, 'digital-diya').classList.contains('lit'), false);
