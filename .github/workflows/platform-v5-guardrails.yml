@@ -55,8 +55,13 @@ jobs:
           assert '#intro,.intro{display:none!important' in app_css, 'legacy splash must be hidden at first paint'
 
           assert "ROOT_ID = 'rwOpening'" in atlas, 'canonical opening root missing'
-          assert 'src="assets/roamwise-opening.mp4"' in atlas, 'approved MP4 must be the canonical film'
-          assert 'src="/assets/roamwise-opening.mp4"' not in atlas, 'canonical film must use a relative path (absolute path 404s outside domain-root contexts)'
+          # The canonical opening is date-staged: original relative media before
+          # the switch, compressed v2 media afterwards. Guard both approved
+          # relative assets instead of requiring a now-retired literal video tag.
+          assert "'assets/roamwise-opening.mp4'" in atlas, 'original canonical MP4 fallback missing'
+          assert "'assets/roamwise-opening-v2.mp4'" in atlas, 'compressed canonical MP4 missing'
+          assert 'OPENING_FILM' in atlas and 'OPENING_V2' in atlas, 'canonical staged opening selector missing'
+          assert '/assets/roamwise-opening.mp4' not in atlas and '/assets/roamwise-opening-v2.mp4' not in atlas, 'canonical films must use relative paths (absolute paths 404 outside domain-root contexts)'
           assert '/assets/roamwise-opening-poster.png' not in atlas, 'removed loading photo returned'
           assert '<img' not in atlas, 'opening must not render a loading photo'
           assert not Path('assets/roamwise-opening-poster.png').exists(), 'removed loading photo still shipped'
