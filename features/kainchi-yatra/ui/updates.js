@@ -7,14 +7,17 @@
     function date(value) {
       if (!value) return ctx.t('feed_unknown');
       return new Intl.DateTimeFormat(ctx.lang === 'hi' ? 'hi-IN' : 'en-IN', {
-        timeZone: 'Asia/Kolkata', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit'
+        timeZone: 'Asia/Kolkata', day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'
       }).format(new Date(value)) + ' IST';
     }
     function link(text, url, className) {
       var a = ctx.el('a', text, className); a.href = url; a.target = '_blank'; a.rel = 'noopener noreferrer'; return a;
     }
     function render() {
-      var stale = api.stale(snapshot.checkedAt);
+      var now = Date.now(), stale = api.stale(snapshot.checkedAt, now);
+      snapshot.items.forEach(function (item) {
+        var age = now - Date.parse(item.publishedAt); item.recent = age >= 0 && age <= 48 * 3600000;
+      });
       ctx.$('feed-freshness').textContent = ctx.t(stale ? 'feed_stale' : 'feed_checked', { date: date(snapshot.checkedAt) });
       ctx.$('feed-freshness').className = 'feed-stamp' + (stale ? ' stale' : '');
       ctx.$('feed-network').textContent = failed ? ctx.t('feed_failed') : '';
@@ -32,13 +35,16 @@
       var sources = ctx.$('source-health'); ctx.clear(sources);
       snapshot.sources.forEach(function (s) {
         var row = ctx.el('li', null, 'source-row'); row.appendChild(link(s.name, s.url));
-        var old = s.status === 'ok' && api.stale(s.lastSuccessAt);
-        row.appendChild(ctx.el('small', ctx.t(old ? 'source_stale' : 'source_' + s.status) + ' · ' + date(s.lastSuccessAt), 'muted'));
+        var old = s.status === 'ok' && api.stale(s.lastSuccessAt, now);
+        row.appendChild(ctx.el('small', ctx.t(old ? 'source_stale' : 'source_' + s.status), 'muted'));
+        if (s.status !== 'manual') row.appendChild(ctx.el('small', ctx.t('source_check_times', {
+          attempt: date(s.checkedAt), success: s.lastSuccessAt ? date(s.lastSuccessAt) : ctx.t('source_no_success')
+        }), 'muted'));
         sources.appendChild(row);
       });
       ctx.$('digest-text').textContent = ctx.t('digest_body', {
         recent: snapshot.items.filter(function (i) { return i.recent; }).length,
-        ok: snapshot.sources.filter(function (s) { return s.status === 'ok' && !api.stale(s.lastSuccessAt); }).length
+        ok: snapshot.sources.filter(function (s) { return s.status === 'ok' && !api.stale(s.lastSuccessAt, now); }).length
       });
       var coverage = snapshot.coverage;
       ctx.$('feed-coverage').hidden = !coverage || !coverage.omitted;
@@ -56,7 +62,8 @@
         if (!response.ok) throw new Error('Snapshot unavailable');
         var text = await response.text(); if (text.length > 200000) throw new Error('Oversized snapshot');
         var next = api.normalize(JSON.parse(text));
-        if (next.checkedAt && (!snapshot.checkedAt || next.checkedAt >= snapshot.checkedAt)) snapshot = next;
+        if (!next.checkedAt || (snapshot.checkedAt && Date.parse(next.checkedAt) < Date.parse(snapshot.checkedAt))) throw new Error('Older or undated snapshot');
+        snapshot = next;
         failed = false;
       } catch (e) { failed = true; }
       finally { root.clearTimeout(timeout); loading = false; button.disabled = false; render(); }
