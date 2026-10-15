@@ -1,0 +1,13 @@
+:root{color-scheme:dark;--bg:#100b0d;--ink:#fff7f0;--muted:#c6b9b6;--gold:#efc784;--line:#72555a}*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(ellipse at 12% 0%,#582026 0,transparent 37%),var(--bg);color:var(--ink);font:16px/1.5 system-ui,-apple-system,Segoe UI,sans-serif}
+.wrap{max-width:640px;margin:auto;padding:18px 16px 60px}.brand{font-weight:800;font-size:21px;color:#fff;text-decoration:none}.brand b{color:#ed7778}
+h1{font:400 clamp(28px,6vw,38px)/1.15 Georgia,serif;margin:18px 0 6px}.sub{color:var(--muted);margin:0 0 18px}
+.card{background:linear-gradient(160deg,#291b1e,#181316);border:1px solid #58393c;border-radius:20px;padding:18px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.full{grid-column:1/-1}label{display:grid;gap:5px;font-size:13px;font-weight:700}
+input,select,textarea{font:inherit;color:#fff;width:100%;min-height:46px;border:1px solid var(--line);border-radius:12px;background:#170f12;padding:10px 12px}
+textarea{min-height:70px}.chips{display:flex;flex-wrap:wrap;gap:6px}.chips label{display:inline-flex;gap:6px;align-items:center;font-weight:600;font-size:13px;border:1px solid var(--line);border-radius:99px;padding:6px 11px}
+.chips input,.tick input{width:18px;min-height:0;height:18px;padding:0;accent-color:#da666b}.tick{display:flex;gap:9px;align-items:flex-start;font-weight:400;font-size:14px}
+.help{font-size:12px;color:#bca9a7;font-weight:400}.tier{border:1px solid #755c41;background:#3a2d23;border-radius:12px;padding:10px 12px;font-size:14px}
+.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}.btn{border:0;border-radius:13px;min-height:48px;padding:11px 18px;background:linear-gradient(120deg,#c53e4b,#a92f36);color:#fff;font-weight:800;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center}
+.btn.alt{background:#36272c;border:1px solid #71555b}.status{min-height:22px;margin-top:10px;font-size:14px;color:#ffadae}.fine{font-size:12px;color:var(--muted)}
+:focus-visible{outline:3px solid var(--gold);outline-offset:3px}@media(max-width:560px){.grid{grid-template-columns:1fr}}
