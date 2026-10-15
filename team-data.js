@@ -39,8 +39,33 @@ window.RW_TEAM = [
 ];
 
 /* Investors & advisors. Same shape. Leave the array empty [] to hide the whole
-   section automatically. */
+   section automatically. They also appear on The Rope Team page (/rope/),
+   which reads these optional extra fields:
+     kind   : "Investor" or "Advisor"
+     holds  : what they help RoamWise with, in a few words
+     joined : "2026-11" (year-month they signed)
+     note   : why they joined, in THEIR OWN words, only with their permission
+   Only add someone after they have signed. Example (copy, fill, uncomment):
+   {
+     name: "Full Name", kind: "Advisor", role: "Advisor, travel distribution",
+     holds: "OTA and hotel-chain partnerships", photo: "/team/full-name.webp",
+     photoPosition: "50% 35%", joined: "2026-11",
+     bio: "Two short sentences about their work.",
+     note: "",
+     links: { linkedin: "https://www.linkedin.com/in/...", website: "" }
+   }
+*/
 window.RW_INVESTORS = [];
+
+/* Open seats on The Rope Team page. Remove a seat once it is filled. */
+window.RW_ROPE_SEATS = [
+  { kind: "Advisor", title: "Travel distribution", need: "Someone who has grown bookings with OTAs, hotel chains or a tourism board in India." },
+  { kind: "Advisor", title: "Payments and compliance", need: "GST, payment gateways, split settlements to property owners, and staying on the right side of RBI rules." },
+  { kind: "Advisor", title: "Himalayan hospitality", need: "Knows homestays and small hotels in the hills, and how to bring hundreds of them on board fairly." },
+  { kind: "Advisor", title: "AI and infrastructure", need: "Has run AI products at scale and can keep a lean stack fast, cheap and reliable." },
+  { kind: "Advisor", title: "Brand and creators", need: "Has built an Indian consumer brand with creators and communities rather than paid ads." },
+  { kind: "Investor", title: "Angel investor", need: "Backs India-first consumer products early. The current round terms are public on the invest page." }
+];
 
 /* Page-level content kept here so future team updates stay in one place. */
 window.RW_TEAM_INTRO =
