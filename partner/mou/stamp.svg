@@ -1,0 +1,18 @@
+<svg width="600" height="600" viewBox="0 0 600 600" xmlns="http://www.w3.org/2000/svg">
+ <g fill="none" stroke="#1d3a8f" opacity="0.92">
+  <circle cx="300" cy="300" r="284" stroke-width="12"/>
+  <circle cx="300" cy="300" r="262" stroke-width="4"/>
+  <circle cx="300" cy="300" r="168" stroke-width="4"/>
+ </g>
+ <defs>
+  <path id="top" d="M 78 300 A 222 222 0 0 1 522 300"/>
+  <path id="bot" d="M 72 300 A 228 228 0 0 0 528 300"/>
+ </defs>
+ <g fill="#1d3a8f" opacity="0.92" font-family="Inter, Arial, Helvetica, sans-serif">
+  <text font-weight="700" font-size="40" letter-spacing="3"><textPath href="#top" startOffset="50%" text-anchor="middle">ROAMWISE TECHNOLOGIES</textPath></text>
+  <text font-weight="700" font-size="34" letter-spacing="6"><textPath href="#bot" startOffset="50%" text-anchor="middle" dominant-baseline="hanging">ALMORA · UTTARAKHAND</textPath></text>
+  <text x="68" y="312" font-size="34" font-weight="700">★</text><text x="502" y="312" font-size="34" font-weight="700">★</text>
+  <text x="300" y="282" text-anchor="middle" font-weight="700" font-size="44" letter-spacing="2">AUTHORISED</text>
+  <text x="300" y="336" text-anchor="middle" font-weight="700" font-size="44" letter-spacing="2">SIGNATORY</text>
+ </g>
+</svg>
