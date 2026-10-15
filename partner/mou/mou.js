@@ -19,8 +19,8 @@
 
   /* ---- who and what ---- */
   var property = clip(offer ? offer.n : q.get('property'), 110);
-  var city = clip(offer ? (offer.hub && offer.c.indexOf(offer.hub) < 0 ? offer.c + ', ' + offer.hub : offer.c) : q.get('city'), 90);
-  var owner = clip(q.get('owner') || q.get('s'), 80);
+  var city = clip(offer && offer.city ? offer.city : offer ? (offer.hub && offer.c.indexOf(offer.hub) < 0 ? offer.c + ', ' + offer.hub : offer.c) : q.get('city'), 90);
+  var owner = clip(q.get('owner') || q.get('s') || (offer && offer.o ? offer.o + (offer.od ? ', ' + offer.od : '') : ''), 80);
   if (property) { set('propertyName', property); set('scheduleProperty', property); document.title = 'RoamWise MOU · ' + property; }
   if (owner) { set('ownerName', owner); set('scheduleOwner', owner); }
   if (city) { set('cityName', city); set('scheduleCity', city); } else if ($('cityWrap')) $('cityWrap').hidden = true;
@@ -32,18 +32,18 @@
 
   /* ---- long stays (Annexure A1) ---- */
   var ls = q.get('ls') === '1' || !!offer;
-  var rate = function (k, ok) { return Number(q.get(k) || (offer && offer[ok]) || 0); };
+  var rate = function (k) { return Number(q.get(k) || (offer && offer[k]) || 0); };
   set('lsEnabled', ls ? 'Enabled: stays of 15 nights or more, Annexure A1 applies' : 'Not enabled');
   document.querySelectorAll('tr.ls').forEach(function (tr) { tr.hidden = !ls; });
   if (ls) {
-    set('lsRates', '15 nights: ' + money(rate('r15')) + ' · 1 month: ' + money(rate('r30', 'r30')) + ' · 3 months (per month): ' + money(rate('r90')));
-    var incl = clip(q.get('incl'), 200);
+    set('lsRates', '15 nights: ' + money(rate('r15')) + ' · 1 month: ' + money(rate('r30')) + ' · 3 months (per month): ' + money(rate('r90')) + (offer && offer.rates ? '. Full rate card: ' + clip(offer.rates, 600) : q.get('card') ? '. Other rates: ' + clip(q.get('card'), 400) : ''));
+    var incl = clip(q.get('incl') || (offer && Array.isArray(offer.incl) ? offer.incl.join(', ') : ''), 200);
     if (incl) set('lsIncl', incl);
     var rooms = clip(q.get('rooms'), 6), min = clip(q.get('min'), 6);
     if (rooms || min) set('lsRooms', (rooms ? rooms + ' room(s)' : 'Rooms to be completed') + ' · minimum ' + (min ? min + ' nights' : '15 nights'));
     var mb = Number(q.get('mb') || (offer && offer.mb) || 0), bk = clip(q.get('bk') || (offer && offer.bk), 10);
     if (mb || bk) set('lsWork', (mb ? mb + ' Mbps listed' : 'Speed to be confirmed') + ' · power backup: ' + (bk === 'full' ? 'whole work area' : bk === 'router' ? 'router only' : 'to be confirmed') + ' · verified after a speed-test screenshot');
-    var notice = clip(q.get('notice'), 200); if (notice) set('lsNotice', notice);
+    var notice = clip(q.get('notice') || (offer && offer.notice), 300); if (notice) set('lsNotice', notice);
   }
 
   /* ---- RoamWise side: pre-signed only for a genuine personal offer ---- */

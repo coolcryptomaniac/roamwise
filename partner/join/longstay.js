@@ -11,9 +11,9 @@
   var offerId = (q.get('offer') || '').toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 16);
   var offer = Object.prototype.hasOwnProperty.call(offers, offerId) ? offers[offerId] : null;
   var tierFn = null;
-  var FIELDS = ['nmRooms', 'nmMin', 'nmR15', 'nmR30', 'nmR90', 'nmMbps', 'nmSpeedUrl', 'nmBackup', 'nmDesk', 'nmTeam', 'nmNotice', 'mouSign'];
+  var FIELDS = ['nmRooms', 'nmMin', 'nmR15', 'nmR30', 'nmR90', 'nmMbps', 'nmSpeedUrl', 'nmBackup', 'nmDesk', 'nmTeam', 'nmNotice', 'nmRateCard', 'mouSign'];
   var TICKS = ['nmOn', 'nmCallRoom', 'nmKitchen', 'nmCoworking', 'nmCommunity'];
-  var INCL = ['Electricity', 'Wi-Fi', 'Two meals a day', 'Weekly housekeeping', 'Laundry'];
+  var INCL = ['Electricity', 'Wi-Fi', 'Two meals a day', 'Weekly housekeeping', 'Laundry', 'Coworking desk', 'Community kitchen'];
 
   function clip(v, n) { return String(v == null ? '' : v).replace(/[\u0000-\u001f<>]/g, ' ').trim().slice(0, n || 120); }
   function num(id) { var n = Number($(id).value); return Number.isFinite(n) && n > 0 ? Math.round(n) : 0; }
@@ -36,9 +36,9 @@
       enabled: $('nmOn').checked, rooms: num('nmRooms'), minNights: Number($('nmMin').value) || 15,
       rate15: num('nmR15'), rate30: num('nmR30'), rate90: num('nmR90'), includes: inc,
       mbps: num('nmMbps'), speedTestUrl: '', backup: $('nmBackup').value, desk: $('nmDesk').value,
-      callRoom: $('nmCallRoom').checked, kitchen: $('nmKitchen').checked, meals: inc.indexOf('Two meals a day') >= 0,
-      laundry: inc.indexOf('Laundry') >= 0, coworking: $('nmCoworking').checked, community: $('nmCommunity').checked,
-      teamMax: num('nmTeam'), earlyDeparturePolicy: clip($('nmNotice').value, 300), verified: false
+      callRoom: $('nmCallRoom').checked, kitchen: $('nmKitchen').checked || inc.indexOf('Community kitchen') >= 0, meals: inc.indexOf('Two meals a day') >= 0,
+      laundry: inc.indexOf('Laundry') >= 0, coworking: $('nmCoworking').checked || inc.indexOf('Coworking desk') >= 0, community: $('nmCommunity').checked,
+      teamMax: num('nmTeam'), earlyDeparturePolicy: clip($('nmNotice').value, 300), rateCard: clip($('nmRateCard').value, 800), verified: false
     };
   }
   function paintTier() {
@@ -56,11 +56,19 @@
   if (offer) {
     setIfEmpty('propertyName', offer.n);
     var hub = offer.hub || '';
+    if (offer.city) { setIfEmpty('city', offer.city); setIfEmpty('area', offer.area || offer.c); }
+    if (offer.o) setIfEmpty('ownerName', offer.o);
+    if (offer.w) setIfEmpty('website', offer.w);
     setIfEmpty('city', hub && offer.c.indexOf(hub) >= 0 ? hub : (hub || offer.c));
     if (hub && offer.c !== hub) setIfEmpty('area', offer.c.replace(new RegExp(',?\\s*' + hub.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '$'), ''));
     $('propertyType').value = mapType(offer.reg || offer.t);
     if (offer.mb) $('nmMbps').value = offer.mb;
     if (offer.r30) $('nmR30').value = offer.r30;
+    if (offer.r15) $('nmR15').value = offer.r15;
+    if (offer.r90) $('nmR90').value = offer.r90;
+    if (offer.rates) $('nmRateCard').value = String(offer.rates).slice(0, 800);
+    if (offer.notice) $('nmNotice').value = String(offer.notice).slice(0, 300);
+    if (Array.isArray(offer.incl)) document.querySelectorAll('#nmIncl input').forEach(function (x) { x.checked = offer.incl.indexOf(x.value) >= 0; });
     if (offer.bk) $('nmBackup').value = offer.bk;
     if (offer.dk) $('nmDesk').value = offer.dk;
     ['cr:nmCallRoom', 'kt:nmKitchen', 'cw:nmCoworking', 'cm:nmCommunity'].forEach(function (p) { var k = p.split(':'); if (offer[k[0]]) $(k[1]).checked = true; });
@@ -104,6 +112,7 @@
       if (p.rooms) m.set('rooms', p.rooms); m.set('min', p.minNights);
       if (p.mbps) m.set('mb', p.mbps); if (p.backup !== 'none') m.set('bk', p.backup);
       if (p.earlyDeparturePolicy) m.set('notice', p.earlyDeparturePolicy);
+      if (p.rateCard && !offer) m.set('card', p.rateCard.slice(0, 400));
     }
     return m;
   }
