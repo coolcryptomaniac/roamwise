@@ -71,11 +71,22 @@ window.RW_PARTNER_SEED = [{
   /* MOU V4 signed by the property and countersigned by RoamWise on 15 Oct 2026 (RW-MOU-WOODBOOK-20261015,
      check at /partner/mou/verify/). Details from the property's written confirmation and its own site
      (thedevinehomestay.com). Partner Free, 7% on completed stays; availability confirmed on WhatsApp and calls.
-     No photos on file yet: add owner-shared photos here or upload them from the partner admin. */
+     Photos: uploaded by the business owner to its Justdial listing (16 Oct 2026); the MOU authorises their use. */
   id:'p_woodbook_devine', cat:'stay', zone:'Tirthan Valley', area:'Galoon, P.O. Deotha, Banjar (near Laida Secret Waterfall)',
   name:'Woodbook The Devine Homestay', verified:'signed', listingReady:true, bookingMode:'whatsapp',
   bookingWhatsapp:'917807491275', supportEmail:'support@roamwise.co.in',
   propertyType:'Homestay', roomCount:5, maxGuests:14,
+  photos:[
+    {src:'assets/property-photos/woodbook-treehouse.webp',alt:'A-frame wooden treehouse with a balcony and the cottage beside it, Woodbook, Banjar',caption:'Treehouse \u00b7 photo from the property\u2019s own listing'},
+    {src:'assets/property-photos/woodbook-cottages.webp',alt:'Twin wooden cottages under a clear blue sky at Woodbook, Galoon',caption:'Cottages \u00b7 photo from the property\u2019s own listing'},
+    {src:'assets/property-photos/woodbook-room-window.webp',alt:'Wooden room with a large window, colourful bedding and a tree trunk inside',caption:'Room with a valley window \u00b7 photo from the property\u2019s own listing'},
+    {src:'assets/property-photos/woodbook-room-loft.webp',alt:'Wooden loft room with a double bed and stairs',caption:'Loft room \u00b7 photo from the property\u2019s own listing'},
+    {src:'assets/property-photos/woodbook-balcony-view.webp',alt:'Balcony with prayer flags looking down the green valley',caption:'Balcony view \u00b7 photo from the property\u2019s own listing'},
+    {src:'assets/property-photos/woodbook-garden.webp',alt:'Garden seating with a red table and umbrella facing the mountains',caption:'Garden \u00b7 photo from the property\u2019s own listing'},
+    {src:'assets/property-photos/woodbook-snow.webp',alt:'Wooden cottages covered in winter snow',caption:'In winter snow \u00b7 photo from the property\u2019s own listing'},
+    {src:'assets/property-photos/woodbook-attic-sitout.webp',alt:'Attic sit-out with floor cushions and a carpet under the A-frame roof',caption:'Attic sit-out \u00b7 photo from the property\u2019s own listing'}
+  ],
+
   website:'https://thedevinehomestay.com/',
   mapsUrl:'https://www.google.com/maps/search/?api=1&query=Woodbook+The+Devine+Homestay+Galoon+Banjar+Kullu',
   badges:['partner','quiet'],
