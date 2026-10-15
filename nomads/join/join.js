@@ -30,3 +30,14 @@ $('shareWa').href = 'https://wa.me/?text=' + encodeURIComponent(invite);
 $('copyLink').addEventListener('click', async () => {
   try { await navigator.clipboard.writeText(PAGE); $('copyLink').textContent = 'Copied'; } catch { $('copyLink').textContent = PAGE; }
 });
+
+/* Carry the quick-form details into the full partner form (long-stay section and MOU). */
+function fullFormHref() {
+  const s = space(), p = new URLSearchParams({ source: 'nomad' });
+  [['n', s.name], ['place', s.place], ['owner', s.owner], ['tel', s.phone], ['mbps', s.mbps], ['rooms', s.rooms], ['rate30', s.rate30]].forEach(([k, v]) => { v = String(v || '').trim(); if (v) p.set(k, v.slice(0, 100)); });
+  if (s.backup === 'full') p.set('backup', 'full');
+  if (s.desk === 'ergonomic') p.set('desk', 'ergonomic');
+  if (s.kitchen) p.set('kitchen', '1');
+  return '/partner/join/?' + p.toString();
+}
+$('fullForm').addEventListener('click', e => { e.currentTarget.href = fullFormHref(); });

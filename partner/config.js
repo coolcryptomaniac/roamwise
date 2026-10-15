@@ -14,7 +14,7 @@ window.RW_PARTNER_CONFIG = {
      supportWhatsapp: RoamWise's own WhatsApp number in international form, digits only (e.g. 9198xxxxxxxx).
      telegramBot: the bot username from @BotFather without the @ (e.g. RoamWiseBot). */
   supportEmail: 'support@roamwise.co.in',
-  chat: { supportWhatsapp: '', telegramBot: '', supportGroupUrl: 'https://chat.whatsapp.com/EofM9cGCVkoCtdG6Ozhh1G' },
+  chat: { supportWhatsapp: '919987379730', telegramBot: '', supportGroupUrl: 'https://chat.whatsapp.com/EofM9cGCVkoCtdG6Ozhh1G' },
   commercial: {
     stayCommissionPct: 7,
     plans: {
