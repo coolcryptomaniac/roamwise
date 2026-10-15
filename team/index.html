@@ -203,6 +203,7 @@
     .contact-inner p{margin:0;color:var(--muted);font-size:.94rem}
     .primary{display:inline-flex;align-items:center;gap:9px;padding:13px 17px;border-radius:14px;background:linear-gradient(135deg,#f3cb7f,var(--gold-2));color:#120d07;font-size:.9rem;font-weight:850;box-shadow:0 12px 30px rgba(201,139,48,.2);transition:transform .2s,box-shadow .2s}
     .primary:hover{transform:translateY(-2px);box-shadow:0 17px 36px rgba(201,139,48,.29)}
+    .rope-link{margin:28px 0 0;font-weight:700}.rope-link a{color:var(--gold);text-underline-offset:4px}
     footer{display:flex;justify-content:space-between;gap:22px;align-items:flex-start;margin-top:58px;padding:25px 0 38px;border-top:1px solid var(--line);color:#858493;font-size:.78rem}
     footer a{color:#aaa9b6;margin-left:15px}footer a:hover{color:var(--gold)}
     @keyframes auroraShift{0%{transform:translate3d(-2%,-1%,0) rotate(-2deg) scale(1)}50%{transform:translate3d(3%,1%,0) rotate(2deg) scale(1.06)}100%{transform:translate3d(-1%,3%,0) rotate(-1deg) scale(1.02)}}
@@ -314,6 +315,7 @@
       var host=document.getElementById('teamOut'), team=window.RW_TEAM||[], inv=window.RW_INVESTORS||[];
       var html=team.length?'<div class="grid">'+team.map(card).join('')+'</div>':'<p>Team details coming soon.</p>';
       if(inv.length)html+='<div class="section-head"><h2>Investors &amp; advisors</h2></div><div class="grid">'+inv.map(card).join('')+'</div>';
+      html+='<p class="rope-link"><a href="/rope/">Meet our investors and advisors on The Rope Team</a></p>';
       host.innerHTML=html;
     })();
   </script>
