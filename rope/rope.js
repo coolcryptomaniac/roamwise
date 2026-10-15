@@ -33,6 +33,7 @@
     email: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 4H4a2 2 0 0 0-2 2v12c0 1.1.9 2 2 2h16a2 2 0 0 0 2-2V6c0-1.1-.9-2-2-2Zm0 4-8 5-8-5V6l8 5 8-5v2Z"/></svg>'
   };
 
+  var CHOWKI = '<svg class="chowki-art" viewBox="0 0 120 120" aria-hidden="true"><rect width="120" height="120" rx="6" fill="#8f2a22"/><rect x="7" y="7" width="106" height="106" fill="none" stroke="#f6efe2" stroke-width="1.6"/><rect x="12" y="12" width="96" height="96" fill="none" stroke="#f6efe2" stroke-width="0.9"/><circle cx="17.0" cy="17.0" r="1.3" fill="#f6efe2"/><circle cx="17.0" cy="103.0" r="1.3" fill="#f6efe2"/><circle cx="17.0" cy="17.0" r="1.3" fill="#f6efe2"/><circle cx="103.0" cy="17.0" r="1.3" fill="#f6efe2"/><circle cx="26.6" cy="17.0" r="1.3" fill="#f6efe2"/><circle cx="26.6" cy="103.0" r="1.3" fill="#f6efe2"/><circle cx="17.0" cy="26.6" r="1.3" fill="#f6efe2"/><circle cx="103.0" cy="26.6" r="1.3" fill="#f6efe2"/><circle cx="36.2" cy="17.0" r="1.3" fill="#f6efe2"/><circle cx="36.2" cy="103.0" r="1.3" fill="#f6efe2"/><circle cx="17.0" cy="36.2" r="1.3" fill="#f6efe2"/><circle cx="103.0" cy="36.2" r="1.3" fill="#f6efe2"/><circle cx="45.8" cy="17.0" r="1.3" fill="#f6efe2"/><circle cx="45.8" cy="103.0" r="1.3" fill="#f6efe2"/><circle cx="17.0" cy="45.8" r="1.3" fill="#f6efe2"/><circle cx="103.0" cy="45.8" r="1.3" fill="#f6efe2"/><circle cx="55.4" cy="17.0" r="1.3" fill="#f6efe2"/><circle cx="55.4" cy="103.0" r="1.3" fill="#f6efe2"/><circle cx="17.0" cy="55.4" r="1.3" fill="#f6efe2"/><circle cx="103.0" cy="55.4" r="1.3" fill="#f6efe2"/><circle cx="65.0" cy="17.0" r="1.3" fill="#f6efe2"/><circle cx="65.0" cy="103.0" r="1.3" fill="#f6efe2"/><circle cx="17.0" cy="65.0" r="1.3" fill="#f6efe2"/><circle cx="103.0" cy="65.0" r="1.3" fill="#f6efe2"/><circle cx="74.6" cy="17.0" r="1.3" fill="#f6efe2"/><circle cx="74.6" cy="103.0" r="1.3" fill="#f6efe2"/><circle cx="17.0" cy="74.6" r="1.3" fill="#f6efe2"/><circle cx="103.0" cy="74.6" r="1.3" fill="#f6efe2"/><circle cx="84.2" cy="17.0" r="1.3" fill="#f6efe2"/><circle cx="84.2" cy="103.0" r="1.3" fill="#f6efe2"/><circle cx="17.0" cy="84.2" r="1.3" fill="#f6efe2"/><circle cx="103.0" cy="84.2" r="1.3" fill="#f6efe2"/><circle cx="93.8" cy="17.0" r="1.3" fill="#f6efe2"/><circle cx="93.8" cy="103.0" r="1.3" fill="#f6efe2"/><circle cx="17.0" cy="93.8" r="1.3" fill="#f6efe2"/><circle cx="103.0" cy="93.8" r="1.3" fill="#f6efe2"/><circle cx="103.4" cy="17.0" r="1.3" fill="#f6efe2"/><circle cx="103.4" cy="103.0" r="1.3" fill="#f6efe2"/><circle cx="17.0" cy="103.4" r="1.3" fill="#f6efe2"/><circle cx="103.0" cy="103.4" r="1.3" fill="#f6efe2"/><path d="M60 24 96 60 60 96 24 60Z" fill="none" stroke="#f6efe2" stroke-width="1.2"/><ellipse cx="60" cy="44" rx="5.2" ry="13" fill="none" stroke="#f6efe2" stroke-width="1.3" transform="rotate(0 60 60)"/><circle cx="60" cy="27.5" r="1.4" fill="#f6efe2" transform="rotate(22.5 60 60)"/><ellipse cx="60" cy="44" rx="5.2" ry="13" fill="none" stroke="#f6efe2" stroke-width="1.3" transform="rotate(45 60 60)"/><circle cx="60" cy="27.5" r="1.4" fill="#f6efe2" transform="rotate(67.5 60 60)"/><ellipse cx="60" cy="44" rx="5.2" ry="13" fill="none" stroke="#f6efe2" stroke-width="1.3" transform="rotate(90 60 60)"/><circle cx="60" cy="27.5" r="1.4" fill="#f6efe2" transform="rotate(112.5 60 60)"/><ellipse cx="60" cy="44" rx="5.2" ry="13" fill="none" stroke="#f6efe2" stroke-width="1.3" transform="rotate(135 60 60)"/><circle cx="60" cy="27.5" r="1.4" fill="#f6efe2" transform="rotate(157.5 60 60)"/><ellipse cx="60" cy="44" rx="5.2" ry="13" fill="none" stroke="#f6efe2" stroke-width="1.3" transform="rotate(180 60 60)"/><circle cx="60" cy="27.5" r="1.4" fill="#f6efe2" transform="rotate(202.5 60 60)"/><ellipse cx="60" cy="44" rx="5.2" ry="13" fill="none" stroke="#f6efe2" stroke-width="1.3" transform="rotate(225 60 60)"/><circle cx="60" cy="27.5" r="1.4" fill="#f6efe2" transform="rotate(247.5 60 60)"/><ellipse cx="60" cy="44" rx="5.2" ry="13" fill="none" stroke="#f6efe2" stroke-width="1.3" transform="rotate(270 60 60)"/><circle cx="60" cy="27.5" r="1.4" fill="#f6efe2" transform="rotate(292.5 60 60)"/><ellipse cx="60" cy="44" rx="5.2" ry="13" fill="none" stroke="#f6efe2" stroke-width="1.3" transform="rotate(315 60 60)"/><circle cx="60" cy="27.5" r="1.4" fill="#f6efe2" transform="rotate(337.5 60 60)"/><circle cx="60" cy="60" r="7" fill="#f6efe2"/><circle cx="60" cy="60" r="2.4" fill="#8f2a22"/><path d="M24 19L29 24L24 29L19 24Z" fill="#f6efe2"/><path d="M96 19L101 24L96 29L91 24Z" fill="#f6efe2"/><path d="M24 91L29 96L24 101L19 96Z" fill="#f6efe2"/><path d="M96 91L101 96L96 101L91 96Z" fill="#f6efe2"/></svg>';
   function tieMail(seat) {
     var subject = 'Tying in: ' + seat.title + ' (' + seat.kind.toLowerCase() + ')';
     var body = 'Hi Mohit,\n\nI saw the open ' + seat.title + ' seat on the RoamWise rope.\n\nAbout me:\nWhere I can help:\nLinkedIn:\n';
@@ -45,7 +46,7 @@
       links = '<a class="tie" href="' + tieMail(p) + '">Apply for this seat</a>';
       if (/investor/i.test(p.kind)) links += '<a href="/invest/">Read the round terms</a>';
       return '<li class="climber open" id="c-' + i + '">'
-        + '<div class="portrait empty"><span class="mono" aria-hidden="true">+</span></div>'
+        + '<div class="portrait chowki">' + CHOWKI + '</div>'
         + '<div class="who"><div class="altitude">Open seat for an ' + esc(p.kind.toLowerCase()) + '</div><h3>' + esc(p.title) + '</h3>'
         + '<p class="holds">' + esc(p.need) + '</p><div class="links">' + links + '</div></div></li>';
     }
@@ -70,7 +71,7 @@
 
   document.getElementById('ropeOut').innerHTML = climbers.map(climberHTML).join('');
   var lede = document.getElementById('ropeLede');
-  if (!members.length) lede.textContent = 'Mohit leads the rope. The seats behind him are open, and each one is a real gap we want the right person to fill.';
+  if (!members.length) lede.textContent = 'Mohit leads the rope. In Kumaon, an Aipan chowki is drawn on the floor to welcome a guest to their seat. Each chowki below is a seat on the rope still waiting for the right person.';
   else lede.textContent = members.length + (members.length === 1 ? ' person has' : ' people have') + ' tied in behind the founder. Open seats are shown as they are: open.';
   var ledger = document.getElementById('ledger');
   ledger.innerHTML = members.length
@@ -94,149 +95,130 @@
   function mixRGB(a, b, t) { var A = hex(a), B = hex(b); return A.map(function (v, i) { return Math.round(v + (B[i] - v) * Math.max(0, Math.min(1, t))); }); }
   function rgbStr(c, a) { return 'rgba(' + c[0] + ',' + c[1] + ',' + c[2] + ',' + (a == null ? 1 : a) + ')'; }
   function toHex(c) { return '#' + c.map(function (v) { return ('0' + v.toString(16)).slice(-2); }).join(''); }
-  // sky stops by solar elevation: [elevation, top, horizon, snow, hills]
-  var STOPS = [
-    [-18, '#060a13', '#111b2c', '#46526d', '#0f1826'],
-    [-8, '#0d1629', '#2b3150', '#6a7596', '#131e2e'],
-    [-2, '#1d2a4c', '#c0727a', '#c29aa8', '#1c2738'],
-    [3, '#2f4778', '#eba46a', '#f6c0a4', '#25344a'],
-    [10, '#3f6aa6', '#f0cf9f', '#f4e2d6', '#2d4560'],
-    [25, '#3a74bd', '#b7d2ea', '#eef1f4', '#33516f'],
-    [90, '#2f6cb8', '#a9c9e6', '#f3f6f9', '#34536f']
+  // sky by solar elevation: [elevation, top, horizon]; dusk tones follow the Almora alpenglow reference
+  var SKY = [
+    [-18, '#04071a', '#0d1330'],
+    [-8, '#0f1748', '#262c6a'],
+    [-2, '#212c7a', '#6f56a6'],
+    [3, '#283a8c', '#e08d6c'],
+    [10, '#3762b0', '#f1c7a0'],
+    [25, '#3d78c4', '#b8d3ec'],
+    [90, '#3270bd', '#a8c8e6']
   ];
-  function palette(el) {
-    for (var i = 0; i < STOPS.length - 1; i++) {
-      var a = STOPS[i], b = STOPS[i + 1];
-      if (el <= b[0]) {
-        var t = (el - a[0]) / (b[0] - a[0]);
-        return { top: mixRGB(a[1], b[1], t), hor: mixRGB(a[2], b[2], t), snow: mixRGB(a[3], b[3], t), hills: mixRGB(a[4], b[4], t) };
+  // layer tints (multiply) and alpenglow strength: [elevation, snow, glow, hills, ridge]
+  var TINT = [
+    [-18, '#3b4777', 0, '#262f52', '#1a2033'],
+    [-8, '#56609c', 0, '#343d6c', '#22283e'],
+    [-2, '#b39ccc', 0.2, '#66689e', '#383a56'],
+    [3, '#ffd3bd', 0.42, '#9894c0', '#5a5c6c'],
+    [10, '#fff2e6', 0.14, '#dcdeea', '#a3a49a'],
+    [25, '#ffffff', 0, '#ffffff', '#ffffff'],
+    [90, '#ffffff', 0, '#ffffff', '#ffffff']
+  ];
+  function lerpStops(T, el) {
+    for (var i = 0; i < T.length - 1; i++) {
+      var a = T[i], b = T[i + 1];
+      if (el <= b[0] || i === T.length - 2) {
+        var t = Math.max(0, Math.min(1, (el - a[0]) / (b[0] - a[0])));
+        return a.slice(1).map(function (v, k) { return typeof v === 'number' ? v + (b[k + 1] - v) * t : mixRGB(v, b[k + 1], t); });
       }
     }
-    var z = STOPS[STOPS.length - 1]; return { top: hex(z[1]), hor: hex(z[2]), snow: hex(z[3]), hills: hex(z[4]) };
   }
 
-  /* ---------------- terrain ---------------- */
+  /* ---------------- scene: live sky + painted layers ---------------- */
   var canvas = document.getElementById('sky'), ctx = canvas.getContext('2d');
-  var bg = document.createElement('canvas'), bgx = bg.getContext('2d');
+  var skyC = document.createElement('canvas'), skyX = skyC.getContext('2d');
   var W = 0, H = 0, DPR = 1, S = null, anchors = [], rope = [], imgs = {};
-  // Kumaon range as seen from Almora, west to east. x = position across the view, h = relative height.
+  var L = { snow: {}, hills: {}, ridge: {} }, G = null, par = { x: 0, tx: 0 };
+  // where the peaks sit in the snow painting (fraction of its width), west to east as seen from Almora
   var PEAKS = [
-    { name: 'Chaukhamba', m: '7,138 m', x: 0.07, h: 0.52, w: 0.07 },
-    { name: 'Trishul', m: '7,120 m', x: 0.29, h: 0.66, w: 0.09, triple: true },
-    { name: 'Nanda Devi', m: '7,816 m', x: 0.5, h: 0.92, w: 0.075, twin: true },
-    { name: 'Nanda Kot', m: '6,861 m', x: 0.65, h: 0.55, w: 0.06 },
-    { name: 'Panchachuli', m: '6,904 m', x: 0.86, h: 0.62, w: 0.1, five: true }
+    { name: 'Chaukhamba', m: '7,138 m', x: 0.125 }, { name: 'Trishul', m: '7,120 m', x: 0.3 },
+    { name: 'Nanda Devi', m: '7,816 m', x: 0.452 }, { name: 'Nanda Kot', m: '6,861 m', x: 0.66 },
+    { name: 'Panchachuli', m: '6,904 m', x: 0.86 }
   ];
-  function rnd(seed) { return function () { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; }; }
-  function noise1(x, seed) { return Math.sin(x * 12.9 + seed) * 0.5 + Math.sin(x * 33.1 + seed * 2.1) * 0.3 + Math.sin(x * 71.7 + seed * 3.7) * 0.2; }
-  function rangeY(x) { // far snow range crest
-    var base = H * 0.5, amp = H * (W < 640 ? 0.2 : 0.27), u = W < 640 ? 0.2 + 0.58 * x / W : x / W, best = 0;
-    PEAKS.forEach(function (p) {
-      var d = Math.abs(u - p.x) / p.w, v = Math.max(0, 1 - Math.pow(d, 1.25));
-      if (p.twin) v = Math.max(v, Math.max(0, 0.83 - Math.abs(u - p.x - p.w * 0.55) / (p.w * 0.6)));
-      if (p.triple) [-0.45, 0.45].forEach(function (o) { v = Math.max(v, Math.max(0, 0.86 - Math.abs(u - p.x - p.w * o) / (p.w * 0.55))); });
-      if (p.five) [-0.6, -0.3, 0.3, 0.6].forEach(function (o, k) { v = Math.max(v, Math.max(0, (0.8 - k * 0.04) - Math.abs(u - p.x - p.w * o) / (p.w * 0.35))); });
-      best = Math.max(best, v * p.h);
+  function loadLayer(name) {
+    return new Promise(function (res) {
+      var im = new Image(); im.decoding = 'async';
+      im.onload = function () { res(im); }; im.onerror = function () { res(null); };
+      im.src = '/rope/img/' + name + (window.innerWidth * Math.min(window.devicePixelRatio || 1, 2) > 1400 ? '' : '-sm') + '.webp';
     });
-    return base - amp * (0.12 + best + 0.035 * noise1(u * 3, 1.3));
   }
-  function midY(x) { var u = x / W; return H * 0.67 - H * 0.06 * (0.5 + 0.5 * noise1(u * 1.7, 4.2)) - H * 0.02 * noise1(u * 6, 7.1); }
-  function nearY(x) { var u = x / W, rise = W < 640 ? 0.2 : 0.26; return H * 0.9 - H * rise * Math.pow(u, 1.35) - H * 0.012 * noise1(u * 9, 2.4); }
-
-  function paintBackground() {
-    var s = sun(new Date()), pal = palette(s.el);
-    S = { s: s, pal: pal };
-    bg.width = W * DPR; bg.height = H * DPR; bgx.setTransform(DPR, 0, 0, DPR, 0, 0);
-    var g = bgx.createLinearGradient(0, 0, 0, H * 0.62);
-    g.addColorStop(0, rgbStr(pal.top)); g.addColorStop(1, rgbStr(pal.hor));
-    bgx.fillStyle = g; bgx.fillRect(0, 0, W, H);
-    // sun glow on the side the sun is on (east = right in a north-facing view)
-    if (s.el > -10) {
-      var gx = s.morning ? W * 1.05 : -W * 0.05, gy = H * 0.5 - Math.max(0, s.el) * H * 0.012;
-      var glow = bgx.createRadialGradient(gx, gy, 0, gx, gy, W * 0.7);
-      var warm = s.el < 12 ? 0.42 : 0.16;
-      glow.addColorStop(0, 'rgba(255,196,130,' + warm + ')'); glow.addColorStop(1, 'rgba(255,196,130,0)');
-      bgx.fillStyle = glow; bgx.fillRect(0, 0, W, H);
+  function crestOf(im) { // first opaque row per column, as a fraction of image height
+    var c = document.createElement('canvas'), w = 400, h = Math.round(400 * im.height / im.width);
+    c.width = w; c.height = h; var x = c.getContext('2d'); x.drawImage(im, 0, 0, w, h);
+    var d = x.getImageData(0, 0, w, h).data, out = new Float32Array(w);
+    for (var i = 0; i < w; i++) { var y = 0; while (y < h && d[(y * w + i) * 4 + 3] < 140) y++; out[i] = y / h; }
+    return out;
+  }
+  function geometry() {
+    var lw = Math.max(W, H * 1.3), mob = W < 640;
+    var g = { lw: lw, x: (W - lw) / 2 };
+    function place(key, bottom) {
+      var im = L[key].img; if (!im) return;
+      var h = lw * im.height / im.width; g[key] = { y: H * bottom - h, h: h };
     }
-    // stars
+    place('snow', mob ? 0.72 : 0.68); place('hills', mob ? 0.88 : 0.87); place('ridge', 1.02);
+    return g;
+  }
+  function crestY(key, sx) { // screen y of a layer's crest at screen x
+    var l = L[key], g = G[key]; if (!l.crest || !g) return H * 0.8;
+    var u = (sx - G.x) / G.lw, i = Math.max(0, Math.min(l.crest.length - 1, Math.round(u * (l.crest.length - 1))));
+    return g.y + l.crest[i] * g.h;
+  }
+  function tintLayer(key, mul, glow) {
+    var l = L[key], g = G[key]; if (!l.img || !g) return;
+    var c = l.c || (l.c = document.createElement('canvas')), x = c.getContext('2d');
+    c.width = Math.round(G.lw * DPR); c.height = Math.round(g.h * DPR);
+    x.setTransform(1, 0, 0, 1, 0, 0); x.globalCompositeOperation = 'source-over';
+    x.drawImage(l.img, 0, 0, c.width, c.height);
+    if (mul.join() !== '255,255,255') { x.globalCompositeOperation = 'multiply'; x.fillStyle = rgbStr(mul); x.fillRect(0, 0, c.width, c.height); }
+    if (glow > 0.01) { // alpenglow: warm light on the upper snow, the side the sun is on stronger
+      var gr = x.createLinearGradient(S.s.morning ? c.width : 0, 0, S.s.morning ? 0 : c.width, c.height * 0.55);
+      gr.addColorStop(0, 'rgba(255,150,96,' + glow + ')'); gr.addColorStop(0.6, 'rgba(255,170,140,' + glow * 0.55 + ')'); gr.addColorStop(1, 'rgba(255,170,140,0)');
+      x.globalCompositeOperation = 'screen'; x.fillStyle = gr; x.fillRect(0, 0, c.width, c.height);
+    }
+    x.globalCompositeOperation = 'destination-in'; x.drawImage(l.img, 0, 0, c.width, c.height);
+    x.globalCompositeOperation = 'source-over';
+  }
+  function paintBackground() {
+    if (!W) return;
+    var s = sun(new Date()), sky = lerpStops(SKY, s.el), tint = lerpStops(TINT, s.el);
+    S = { s: s }; G = geometry();
+    skyC.width = W * DPR; skyC.height = H * DPR; skyX.setTransform(DPR, 0, 0, DPR, 0, 0);
+    var g = skyX.createLinearGradient(0, 0, 0, H * 0.62);
+    g.addColorStop(0, rgbStr(sky[0])); g.addColorStop(1, rgbStr(sky[1]));
+    skyX.fillStyle = g; skyX.fillRect(0, 0, W, H);
+    if (s.el > -10) {
+      var gx = s.morning ? W * 1.05 : -W * 0.05, gy = H * 0.45 - Math.max(0, s.el) * H * 0.01;
+      var glow = skyX.createRadialGradient(gx, gy, 0, gx, gy, W * 0.75), warm = s.el < 12 ? 0.4 : 0.14;
+      glow.addColorStop(0, 'rgba(255,190,130,' + warm + ')'); glow.addColorStop(1, 'rgba(255,190,130,0)');
+      skyX.fillStyle = glow; skyX.fillRect(0, 0, W, H);
+    }
     var starA = Math.max(0, Math.min(1, (-4 - s.el) / 10));
     if (starA > 0) {
       var r = rnd(42);
-      for (var i = 0; i < 260; i++) {
-        var sx = r() * W, sy = r() * H * 0.55, sz = r() * 1.3 + 0.2;
-        bgx.fillStyle = 'rgba(238,241,244,' + (starA * (0.35 + r() * 0.65)) + ')';
-        bgx.fillRect(sx, sy, sz, sz);
+      for (var i = 0; i < 320; i++) {
+        var sx = r() * W, sy = r() * H * 0.5, sz = r() * 1.4 + 0.3;
+        skyX.fillStyle = 'rgba(238,241,244,' + (starA * (0.3 + r() * 0.7)) + ')'; skyX.fillRect(sx, sy, sz, sz);
       }
     }
-    // snow range with sun-side shading
-    var step = 2, xs = [];
-    for (var x = 0; x <= W + step; x += step) xs.push([x, rangeY(x)]);
-    bgx.beginPath(); bgx.moveTo(0, H);
-    xs.forEach(function (p) { bgx.lineTo(p[0], p[1]); }); bgx.lineTo(W, H); bgx.closePath();
-    var sg = bgx.createLinearGradient(0, H * 0.18, 0, H * 0.62);
-    sg.addColorStop(0, rgbStr(pal.snow)); sg.addColorStop(1, rgbStr(mixRGB(toHex(pal.snow), toHex(pal.hills), 0.55)));
-    bgx.fillStyle = sg; bgx.fill();
-    // faceted shade: on each summit, the face turned away from the sun is darker
-    bgx.save(); bgx.clip();
-    var dir = s.morning ? -1 : 1, win = 12, reach = W * (W < 640 ? 0.12 : 0.07);
-    bgx.fillStyle = 'rgba(20,32,52,' + (s.el > 0 ? 0.24 : 0.13) + ')';
-    for (var k = win; k < xs.length - win; k++) {
-      var y0 = xs[k][1], top = true;
-      for (var q2 = k - win; q2 <= k + win; q2++) if (xs[q2][1] < y0) { top = false; break; }
-      if (!top || y0 > H * 0.47) continue;
-      bgx.beginPath(); bgx.moveTo(xs[k][0], y0);
-      for (var q3 = k; q3 >= 0 && q3 < xs.length && Math.abs(xs[q3][0] - xs[k][0]) <= reach; q3 += dir) bgx.lineTo(xs[q3][0], xs[q3][1]);
-      bgx.lineTo(xs[k][0] + dir * reach * 0.25, H * 0.62); bgx.lineTo(xs[k][0] - dir * reach * 0.06, H * 0.62);
-      bgx.closePath(); bgx.fill();
-      k += win;
-    }
-    bgx.restore();
-    // peak names
-    if (W >= 480) {
-      bgx.font = '500 12px "Familjen Grotesk", system-ui, sans-serif'; bgx.textAlign = 'center';
-      PEAKS.forEach(function (p) {
-        var px = W < 640 ? (p.x - 0.2) / 0.58 * W : p.x * W, py = rangeY(px) - 12; if (px < 40 || px > W - 40) return;
-        bgx.fillStyle = s.el > 4 ? 'rgba(22,32,44,.55)' : 'rgba(238,241,244,.55)';
-        bgx.fillText(p.name + ', ' + p.m, px, py);
-      });
-    }
-    // haze then mid hills
-    var hz = bgx.createLinearGradient(0, H * 0.48, 0, H * 0.7);
-    hz.addColorStop(0, rgbStr(pal.hor, 0)); hz.addColorStop(1, rgbStr(pal.hor, 0.35));
-    bgx.fillStyle = hz; bgx.fillRect(0, H * 0.45, W, H * 0.3);
-    bgx.beginPath(); bgx.moveTo(0, H);
-    for (x = 0; x <= W + 4; x += 4) bgx.lineTo(x, midY(x));
-    bgx.lineTo(W, H); bgx.closePath();
-    bgx.fillStyle = rgbStr(mixRGB(toHex(pal.hills), toHex(pal.hor), 0.18)); bgx.fill();
-    // near ridge with deodar silhouettes
-    var near = rgbStr(mixRGB('#0e1714', toHex(pal.hills), 0.22));
-    bgx.beginPath(); bgx.moveTo(0, H);
-    for (x = 0; x <= W + 3; x += 3) bgx.lineTo(x, nearY(x));
-    bgx.lineTo(W, H); bgx.closePath(); bgx.fillStyle = near; bgx.fill();
-    var tr = rnd(7);
-    for (x = 4; x < W; x += 7 + tr() * 16) {
-      var t = (x / W > 0.38 && x / W < 0.98) && tr() < 0.6 ? 0 : 1; // keep the climbers' crest clearer
-      if (!t) continue;
-      var th = 10 + tr() * 26, ty = nearY(x) + 2, tw = th * 0.32;
-      bgx.beginPath(); bgx.moveTo(x, ty - th); bgx.lineTo(x + tw, ty); bgx.lineTo(x - tw, ty); bgx.closePath(); bgx.fill();
-    }
-    var fade = bgx.createLinearGradient(0, H * 0.84, 0, H);
-    fade.addColorStop(0, 'rgba(22,32,44,0)'); fade.addColorStop(1, 'rgba(22,32,44,1)');
-    bgx.fillStyle = fade; bgx.fillRect(0, H * 0.84, W, H * 0.16);
-    // caption
+    tintLayer('snow', tint[0], tint[1]); tintLayer('hills', tint[2], 0); tintLayer('ridge', tint[3], 0);
     var t2 = new Date().toLocaleTimeString('en-IN', { hour: 'numeric', minute: '2-digit', timeZone: 'Asia/Kolkata' });
     var where = s.el >= 0 ? 'sun ' + Math.round(s.el) + '° above the horizon' : 'sun ' + Math.round(-s.el) + '° below the horizon';
     document.getElementById('skyCaption').innerHTML = 'The sky over Almora right now: <b>' + esc(t2) + '</b>, ' + esc(where) + '. Peaks as seen from Kasar Devi.';
   }
+  function rnd(seed) { return function () { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; }; }
 
   /* ---------------- rope (verlet) ---------------- */
   function layout() {
-    var n = climbers.length; if (!n) return;
-    var x0 = W < 640 ? 0.1 : 0.4, x1 = W < 640 ? 0.86 : 0.94;
+    var n = climbers.length; if (!n || !G) return;
+    // climbers stand on the open crest of the foreground ridge; the lead is highest, on the right
+    var vis0 = Math.max(0, -G.x) / G.lw, vis1 = Math.min(1, (W - G.x) / G.lw);
+    var u0 = Math.max(0.42, vis0 + 0.05), u1 = Math.min(0.95, vis1 - 0.07);
+    if (W < 640) u0 = vis0 + (vis1 - vis0) * 0.08;
     anchors = climbers.map(function (c, i) {
-      // lead climber is highest and furthest right; followers trail down the ridge
-      var u = n === 1 ? x1 : x1 - (x1 - x0) * (i / (n - 1));
-      var x = u * W; return { x: x, y: nearY(x) - 18, c: c, i: i };
+      var u = n === 1 ? u1 : u1 - (u1 - u0) * (i / (n - 1)), x = G.x + u * G.lw;
+      return { x: x, y: crestY('ridge', x) - 16, c: c, i: i };
     });
     rope = [];
     for (var k = 0; k < anchors.length - 1; k++) {
@@ -262,15 +244,14 @@
       r.pts.forEach(function (p) {
         if (p.pin) return;
         var vx = (p.x - p.px) * 0.985, vy = (p.y - p.py) * 0.985;
-        p.px = p.x; p.py = p.y;
-        p.x += vx + wind; p.y += vy + 0.32;
-        var dx = p.x - pointer.x, dy = p.y - pointer.y, d2 = dx * dx + dy * dy;
-        if (d2 < 3600 && time - pointer.t < 120) { p.x += pointer.vx * 0.35; p.y += pointer.vy * 0.35; }
+        p.px = p.x; p.py = p.y; p.x += vx + wind; p.y += vy + 0.32;
+        var dx = p.x - pointer.x, dy = p.y - pointer.y;
+        if (dx * dx + dy * dy < 3600 && time - pointer.t < 120) { p.x += pointer.vx * 0.35; p.y += pointer.vy * 0.35; }
       });
       for (var it = 0; it < 6; it++) {
         for (var j = 0; j < r.pts.length - 1; j++) {
           var a = r.pts[j], b = r.pts[j + 1], dx = b.x - a.x, dy = b.y - a.y, d = Math.hypot(dx, dy) || 0.001;
-          if (d <= r.rest) continue; // a rope only resists stretching
+          if (d <= r.rest) continue;
           var diff = (d - r.rest) / d * 0.5;
           if (!a.pin) { a.x += dx * diff; a.y += dy * diff; }
           if (!b.pin) { b.x -= dx * diff; b.y -= dy * diff; }
@@ -283,25 +264,49 @@
     if (!imgs[u]) { var im = new Image(); im.decoding = 'async'; im.onload = function () { if (reduce) draw(); }; im.src = u; imgs[u] = im; }
     return imgs[u].complete && imgs[u].naturalWidth ? imgs[u] : null;
   }
+  function drawLayer(key, shift) {
+    var l = L[key], g = G && G[key]; if (!l.c || !g) return;
+    ctx.drawImage(l.c, G.x + shift, g.y, G.lw, g.h);
+  }
   function draw() {
+    if (!G) return;
+    par.x += (par.tx - par.x) * 0.06;
     ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.drawImage(bg, 0, 0); ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
-    // rope: shadow, core, braid
+    ctx.drawImage(skyC, 0, 0); ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+    drawLayer('snow', par.x * -7);
+    if (W >= 640 && L.snow.crest && G.snow) { // peak names, quiet
+      ctx.font = '500 12px "Familjen Grotesk", system-ui, sans-serif'; ctx.textAlign = 'center';
+      ctx.fillStyle = S.s.el > 6 ? 'rgba(22,32,44,.62)' : 'rgba(238,241,244,.6)';
+      PEAKS.forEach(function (p) {
+        var px = G.x + p.x * G.lw + par.x * -7; if (px < 60 || px > W - 60) return;
+        ctx.fillText(p.name + ', ' + p.m, px, crestY('snow', px - par.x * -7) - 14);
+      });
+    }
+    if (G.hills) { // close the seam under the hills so no sky shows through at the edges
+      ctx.fillStyle = rgbStr(lerpStops(TINT, S.s.el)[2].map(function (v, k) { return Math.round(v * [44, 61, 58][k] / 255); }));
+      ctx.fillRect(0, G.hills.y + G.hills.h - 3, W, H);
+    }
+    drawLayer('hills', par.x * -15);
+    drawLayer('ridge', 0);
+    var fade = ctx.createLinearGradient(0, H * 0.86, 0, H);
+    fade.addColorStop(0, 'rgba(22,32,44,0)'); fade.addColorStop(1, 'rgba(22,32,44,1)');
+    ctx.fillStyle = fade; ctx.fillRect(0, H * 0.86, W, H * 0.14);
     rope.forEach(function (r) {
       ctx.beginPath(); r.pts.forEach(function (p, j) { j ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y); });
       ctx.lineCap = 'round'; ctx.lineJoin = 'round';
-      ctx.strokeStyle = 'rgba(0,0,0,.35)'; ctx.lineWidth = 6; ctx.stroke();
-      ctx.strokeStyle = '#d23a44'; ctx.lineWidth = 3.6; ctx.stroke();
-      ctx.setLineDash([3, 5]); ctx.strokeStyle = 'rgba(255,214,214,.55)'; ctx.lineWidth = 1.2; ctx.stroke(); ctx.setLineDash([]);
+      ctx.strokeStyle = 'rgba(0,0,0,.4)'; ctx.lineWidth = 6; ctx.stroke();
+      ctx.strokeStyle = '#c8322b'; ctx.lineWidth = 3.6; ctx.stroke();
+      ctx.setLineDash([3, 5]); ctx.strokeStyle = 'rgba(246,239,226,.6)'; ctx.lineWidth = 1.2; ctx.stroke(); ctx.setLineDash([]);
     });
     anchors.forEach(function (a) {
       var c = a.c, R = c.type === 'lead' ? 19 : 15;
-      if (c.type === 'seat') {
-        ctx.beginPath(); ctx.arc(a.x, a.y, R, 0, Math.PI * 2);
-        ctx.fillStyle = 'rgba(14,23,20,.55)'; ctx.fill();
-        ctx.setLineDash([4, 4]); ctx.strokeStyle = 'rgba(238,241,244,.8)'; ctx.lineWidth = 2; ctx.stroke(); ctx.setLineDash([]);
-        ctx.strokeStyle = 'rgba(238,241,244,.9)'; ctx.lineWidth = 2; ctx.beginPath();
-        ctx.moveTo(a.x - 6, a.y); ctx.lineTo(a.x + 6, a.y); ctx.moveTo(a.x, a.y - 6); ctx.lineTo(a.x, a.y + 6); ctx.stroke();
+      if (c.type === 'seat') { // a tiny Aipan chowki: an empty seat waiting for its guest
+        ctx.save(); ctx.translate(a.x, a.y); ctx.rotate(Math.PI / 4);
+        ctx.fillStyle = '#8f2a22'; ctx.fillRect(-11, -11, 22, 22);
+        ctx.strokeStyle = '#f6efe2'; ctx.lineWidth = 1.4; ctx.strokeRect(-8, -8, 16, 16);
+        ctx.restore();
+        ctx.fillStyle = '#f6efe2'; ctx.beginPath(); ctx.arc(a.x, a.y, 2.4, 0, Math.PI * 2); ctx.fill();
+        [[0, -6], [6, 0], [0, 6], [-6, 0]].forEach(function (d) { ctx.beginPath(); ctx.arc(a.x + d[0], a.y + d[1], 1.2, 0, Math.PI * 2); ctx.fill(); });
         return;
       }
       ctx.save(); ctx.beginPath(); ctx.arc(a.x, a.y, R, 0, Math.PI * 2); ctx.closePath();
@@ -314,10 +319,12 @@
         ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(initials(c.p.name), a.x, a.y + 1);
       }
       ctx.restore();
-      ctx.beginPath(); ctx.arc(a.x, a.y, R, 0, Math.PI * 2); ctx.strokeStyle = '#d23a44'; ctx.lineWidth = 3; ctx.stroke();
-      if (c.type === 'lead') { // a small summit flag above the lead climber
-        ctx.strokeStyle = 'rgba(238,241,244,.85)'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(a.x + R - 2, a.y - R + 2); ctx.lineTo(a.x + R + 6, a.y - R - 20); ctx.stroke();
-        ctx.fillStyle = '#e3a63c'; ctx.beginPath(); ctx.moveTo(a.x + R + 6, a.y - R - 20); ctx.lineTo(a.x + R + 20, a.y - R - 15); ctx.lineTo(a.x + R + 4, a.y - R - 11); ctx.closePath(); ctx.fill();
+      ctx.beginPath(); ctx.arc(a.x, a.y, R, 0, Math.PI * 2); ctx.strokeStyle = '#c8322b'; ctx.lineWidth = 3; ctx.stroke();
+      if (c.type === 'lead') { // summit flag in Pichhoda colours: saffron with red dots
+        var fx = a.x + R + 6, fy = a.y - R - 22;
+        ctx.strokeStyle = 'rgba(246,239,226,.9)'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(a.x + R - 3, a.y - R + 3); ctx.lineTo(fx, fy); ctx.stroke();
+        ctx.fillStyle = '#f2a900'; ctx.beginPath(); ctx.moveTo(fx, fy); ctx.lineTo(fx + 17, fy + 5); ctx.lineTo(fx - 1, fy + 11); ctx.closePath(); ctx.fill();
+        ctx.fillStyle = '#c8322b'; [[4, 4], [9, 5.5], [4, 8]].forEach(function (d) { ctx.beginPath(); ctx.arc(fx + d[0], fy + d[1], 1.1, 0, Math.PI * 2); ctx.fill(); });
       }
     });
   }
@@ -330,6 +337,9 @@
     canvas.width = W * DPR; canvas.height = H * DPR;
     paintBackground(); layout(); draw();
   }
+  var layersReady = Promise.all(['snow', 'hills', 'ridge'].map(function (k) {
+    return loadLayer(k).then(function (im) { L[k].img = im; if (im) L[k].crest = crestOf(im); });
+  }));
   function loop(t) {
     if (!visible || document.hidden) { running = false; return; }
     step(t); draw(); requestAnimationFrame(loop);
@@ -340,6 +350,7 @@
   document.addEventListener('visibilitychange', function () { if (!document.hidden) start(); });
   if ('IntersectionObserver' in window) new IntersectionObserver(function (e) { visible = e[0].isIntersecting; if (visible) start(); }).observe(canvas);
   setInterval(function () { paintBackground(); if (reduce) draw(); }, 60000);
+  climbParallax();
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { paintBackground(); draw(); });
 
   var climb = canvas.parentNode;
@@ -350,6 +361,10 @@
   }
   climb.addEventListener('pointermove', move, { passive: true });
   climb.addEventListener('pointerdown', move, { passive: true });
+  function climbParallax() {
+    if (reduce) return;
+    canvas.parentNode.addEventListener('pointermove', function (e) { if (e.pointerType === 'mouse') par.tx = (e.clientX / window.innerWidth - 0.5) * 2; }, { passive: true });
+  }
 
   var tip = document.getElementById('tip');
   function showTip(btn) {
@@ -373,5 +388,5 @@
     if (el) { history.replaceState(null, '', '#c-' + i); el.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' }); el.setAttribute('tabindex', '-1'); el.focus({ preventScroll: true }); }
   });
 
-  resize(); start();
+  layersReady.then(function () { resize(); start(); });
 })();
