@@ -2,6 +2,7 @@ import {
   PERSONAS, STAY_LENGTHS, WIFI_NEEDS, MUST_HAVES, VIBES, NOMAD_TIERS, DESTINATIONS,
   cleanBrief, nomadTier, scoreSpace, scoreDestination, rank, seekerMessage, hostMessage, waLink, mailLink, liveSpaces
 } from './nomad-core.mjs';
+import { improveSuggestions, hostNextTier, compactPicks, fallbackAdvice } from './nomad-ai-core.mjs';
 
 const $ = id => document.getElementById(id);
 const esc = v => String(v == null ? '' : v).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -10,6 +11,7 @@ const cfg = window.RW_PARTNER_CONFIG || {};
 const SUPPORT_EMAIL = cfg.supportEmail || 'support@roamwise.co.in';
 const SUPPORT_WA = (cfg.chat && cfg.chat.supportWhatsapp) || '';
 const params = new URLSearchParams(location.search);
+const AI_API = (window.RW_CONFIG && window.RW_CONFIG.nomadAiUrl) || 'https://roamwise-api.founder-f53.workers.dev/nomad/advise';
 
 /* Sample spaces appear only with ?preview=1 and are labelled. They are not real properties. */
 const SAMPLE = [
@@ -93,10 +95,39 @@ function showResults() {
   $('results').innerHTML = '<header class="nm-res-head"><span class="nm-kicker">YOUR MATCHES</span><h2>' + (top >= 75 ? 'Strong matches found.' : 'Here is where you fit best.') + '</h2><p>Scored on budget, Wi-Fi, must-haves, mood and stay length. Destination costs are about, from cited sources; Wi-Fi and vibe ratings are editorial until a host proves their numbers.</p><button type="button" class="nm-link" id="again">Change answers</button></header>' +
     (sp.length ? '<h3 class="nm-sub">Verified work stays</h3><div class="nm-grid">' + sp.map(spaceCard).join('') + '</div>' : '<div class="nm-empty"><b>No verified nomad stays are live yet.</b><span>RoamWise is onboarding the first spaces. Tell us your brief on WhatsApp and we will hand-match you.</span></div>') +
     '<h3 class="nm-sub">Best places for how you work</h3><div class="nm-grid">' + ds.map(destCard).join('') + '</div>';
+  $('results').insertAdjacentHTML('beforeend', '<section class="nm-better" id="better"></section><section class="nm-ai" id="aiTake" aria-live="polite"></section>');
+  improvePanel(b); aiTake(b, sp.length ? sp : ds);
   $('results').hidden = false;
   $('results').querySelectorAll('.nm-card').forEach((c, i) => { c.style.animationDelay = (reduced ? 0 : i * 90) + 'ms'; });
   $('again').onclick = () => { $('results').hidden = true; $('seekerForm').hidden = false; $('seekerForm').scrollIntoView({ behavior: reduced ? 'auto' : 'smooth' }); };
   $('results').scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'start' });
+}
+/* ---------- make it better: matcher what-ifs (deterministic) + Workers AI explanation ---------- */
+function improvePanel(b) {
+  const pool = spaces.length ? spaces : DESTINATIONS, scorer = spaces.length ? scoreSpace : scoreDestination;
+  const w = improveSuggestions(pool, scorer, b);
+  $('better').innerHTML = w.length ? '<h3 class="nm-sub">Make your match better</h3><ul class="nm-whatif">' + w.map(x => '<li><b>' + esc(x.text) + '</b><span>' + x.from + ' → ' + x.to + (x.top ? ' · ' + esc(x.top) : '') + '</span></li>').join('') + '</ul>' : '';
+  return w;
+}
+function renderAdvice(a, picks) {
+  const name = id => (picks.find(p => p.id === id) || {}).name || id;
+  $('aiTake').innerHTML = '<h3 class="nm-sub">' + (a.source === 'ai' ? '✨ AI take on your matches' : 'Our take on your matches') + '</h3><p class="nm-ai-head">' + esc(a.headline) + '</p>' +
+    '<ul class="nm-ai-picks">' + a.picks.map(p => '<li><b>' + esc(name(p.id)) + '</b> ' + esc(p.why) + (p.tip ? '<small>' + esc(p.tip) + '</small>' : '') + '</li>').join('') + '</ul>' +
+    (a.ask && a.ask.length ? '<p class="nm-ai-ask">Ask the host: ' + a.ask.map(esc).join(' · ') + '</p>' : '') + (a.tradeoff ? '<p class="nm-ai-ask">' + esc(a.tradeoff) + '</p>' : '') +
+    '<p class="nm-ai-note">' + (a.source === 'ai' ? 'Written by AI from the scores above; it cannot see live prices or availability. Confirm with the host.' : 'From the matcher. ') + '</p>';
+}
+async function aiTake(b, results) {
+  const picks = compactPicks(results), whatIfs = improveSuggestions(spaces.length ? spaces : DESTINATIONS, spaces.length ? scoreSpace : scoreDestination, b);
+  renderAdvice({ ...fallbackAdvice(b, picks, whatIfs), source: 'matcher' }, picks);
+  if (!picks.length) return;
+  try {
+    const ctl = new AbortController(); const t = setTimeout(() => ctl.abort(), 12000);
+    const r = await fetch(AI_API, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ brief: b, picks, whatIfs }), signal: ctl.signal });
+    clearTimeout(t);
+    if (!r.ok) return;
+    const a = await r.json();
+    if (a && a.headline && Array.isArray(a.picks) && a.picks.length) renderAdvice(a, picks);
+  } catch (_) { /* keep the matcher's own wording */ }
 }
 $('seekerForm').onsubmit = e => {
   e.preventDefault();
@@ -123,6 +154,8 @@ function drawMeter() {
   g.style.strokeDasharray = C.toFixed(1); g.style.strokeDashoffset = (C * (1 - t.score / 100)).toFixed(1); g.style.stroke = t.tier.color;
   $('hScore').textContent = t.score; $('hTier').textContent = t.tier.label + (t.verified ? '' : ' (self-declared)'); $('hTier').style.color = t.tier.color; $('hLine').textContent = t.tier.line;
   $('hMissing').innerHTML = t.missing.slice(0, 5).map(m => '<li>' + esc(m) + '</li>').join('') || '<li class="ok">Nothing missing. Send us your proof.</li>';
+  const nx = hostNextTier(hostSpace());
+  $('hPlan').innerHTML = nx.next && nx.plan.length ? '<b>Fastest way to ' + esc(nx.next) + ' (+' + nx.pointsToNext + ' points)</b><ol>' + nx.plan.map(p => '<li>' + esc(p.step) + ' <small>+' + p.gain + ' · ' + esc(p.effort) + '</small></li>').join('') + '</ol>' : '';
 }
 $('hostForm').addEventListener('input', drawMeter); $('hostForm').addEventListener('change', drawMeter); drawMeter();
 $('hostForm').onsubmit = e => {
