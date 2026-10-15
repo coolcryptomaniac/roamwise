@@ -14,6 +14,43 @@ SOURCE = dict(id='news-en', name='News', kind='news', url='https://news.google.c
 RSS = '<rss><channel><item><title>Kainchi Dham traffic report</title><link>https://news.google.com/articles/1</link><pubDate>Fri, 09 Oct 2026 06:00:00 GMT</pubDate><source>Newsroom</source></item></channel></rss>'
 
 class FeedTests(unittest.TestCase):
+    def test_offsite_replica_pandals_do_not_fill_the_route_feed(self):
+        for title in ['Patna Durga Puja: Kainchi Dham replica pandals',
+                      'पटना में कैंची धाम की झांकी',
+                      'Bhopal pandals showcase Kainchi Dham',
+                      'कैंची धाम जैसा पंडाल भोपाल में']:
+            with self.subTest(title=title):
+                self.assertEqual(m.parse_rss(RSS.replace('Kainchi Dham traffic report', title), SOURCE, NOW), [])
+
+    def test_real_travel_and_local_festivals_are_not_city_or_pandal_blocked(self):
+        for title in ['Patna pilgrims visit Kainchi Dham via Bhowali',
+                      'भोपाल से कैंची धाम यात्रा: भवाली यातायात सूचना',
+                      'Kainchi Dham local festival pandal in Bhowali',
+                      'कैंची धाम में पंडाल और स्थानीय सेवाएं',
+                      'Patna pilgrims: Kainchi Dham route diversion near a festival pandal',
+                      'भोपाल से कैंची धाम: पंडाल के पास यातायात सूचना',
+                      'Bhopal pilgrims: Kainchi Dham road and shuttle report']:
+            with self.subTest(title=title):
+                rows = m.parse_rss(RSS.replace('Kainchi Dham traffic report', title), SOURCE, NOW)
+                self.assertEqual(len(rows), 1)
+                self.assertEqual(rows[0]['publishedAt'], '2026-10-09T06:00:00Z')
+                self.assertEqual(rows[0]['publisher'], 'Newsroom')
+
+    def test_failed_feed_preserves_saved_records_until_a_successful_read(self):
+        saved = dict(sourceId='news-en', title='Patna Kainchi Dham replica pandal',
+                     url='https://news.google.com/articles/saved', kind='news',
+                     publishedAt='2026-10-09T06:00:00Z', publisher='Newsroom')
+        previous = dict(items=[saved], sources=[dict(id='news-en', lastSuccessAt=saved['publishedAt'])])
+        def broken(_): raise TimeoutError('offline')
+        failed = m.collect(previous, NOW, broken)
+        self.assertEqual(failed['items'], [saved])
+        source = next(s for s in failed['sources'] if s['id'] == 'news-en')
+        self.assertEqual(source['status'], 'error')
+        self.assertEqual(source['lastSuccessAt'], saved['publishedAt'])
+        def recovered(url): return RSS if 'news.google' in url else '<title>District</title>'
+        fresh = m.collect(previous, NOW, recovered)
+        self.assertEqual([i['title'] for i in fresh['items']], ['Kainchi Dham traffic report'])
+
     def test_dates_and_links(self):
         self.assertEqual(len(m.parse_rss(RSS, SOURCE, NOW)), 1)
         self.assertEqual(m.parse_rss(RSS.replace('2026 06', '2027 06'), SOURCE, NOW), [])

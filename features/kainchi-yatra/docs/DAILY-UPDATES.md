@@ -392,3 +392,52 @@ Verification: 50 Kainchi tests and 790 repository tests passed, with one existin
 source budget is 101,344 bytes under the unchanged 102,400-byte cap. #420's main static Pages
 deployment 38522128759 succeeded. The follow-up must pass normal PR review/CI before merge;
 no required-check override or unrelated Worker/payment rollout is part of this change.
+
+## News relevance review — pending review, 15 October 2026
+
+Reviewed main `ea6e5ec4d93a998e8637613a06d57a194af012f2`, current core/UI/collector/registry,
+open PRs (no open Kainchi PR), this log and deployment history. Static Pages run 38616983046
+and main health checks passed. The generated branch-source Pages build failed, but the successful
+static deployment serves a validated collector snapshot; it did not leave the seed in production.
+
+Retrieved the saved 14 October 06:33:34Z snapshot from artifact 11874786432 (run 38522894022,
+SHA-256 verified) and compared it with the served 14 October 18:40:13Z snapshot (15 October
+00:10 IST). Both have 30 selected / 15 retained / 15 size-omitted records. Source history is
+preserved, district and both news checks succeeded, police failed, and manual references remain
+manual. The public snapshot is within its unchanged 30-hour freshness window.
+
+An evidenced relevance defect: its newest displayed story describes a Kainchi-themed festival
+exhibit in Patna. Jagran's article, published 14 October 11:44 IST, confirms this is a local
+Durga Puja installation rather than a visit to the Uttarakhand shrine:
+https://www.jagran.com/bihar/patna-city-patna-durga-puja-punaura-dham-kainchi-dham-pandals-police-didi-security-40404497.html
+The previous saved snapshot also contained this item. An earlier feed similarly included a
+Bhopal pandal story. These consume the same bounded reading slots as route-relevant reports.
+
+The proposed collector-only filter skips RSS news titles containing both an observed off-site
+city (Patna/Bhopal, English/Hindi) and an exhibit/pandal/replica term, unless a travel/safety
+signal is also present. It is deliberately narrow and heuristic: it is not a city/publisher ban,
+exhaustive classification, operational rule or change to official notices. Local Kainchi festival
+stories and travel reports about pilgrims from those cities remain eligible. On source failure,
+all valid last-good records remain unchanged, including an older exhibit record; a later successful
+RSS response replaces that source's selection normally. Previous history is not backfilled.
+
+Fresh checks of district announcements and What's New did not verify an effective 15 October
+Kainchi/Bhowali access order. The listed police X reference's readable posts through 15 October
+06:40 IST concern cyber awareness/enforcement; platform verification status is reported unknown
+by the retrieval provider. Police website retrieval hit an internal proxy tunnel error. News
+registration/opening/bypass proposals were not converted into effective rules or dates.
+
+A local read-only collection at 15 October 03:13:20Z (08:43 IST) read the district site but police
+and both RSS requests failed with HTTPError. It preserved the saved news records and last-success
+timestamps. This does not establish that the deployed news feeds or district site are down.
+Replaying the 15 saved news records through the updated RSS parser kept 14 and excluded only the
+confirmed Patna exhibit item, preserving remaining attribution/publication dates. This replay is
+a fixture check, not a new upstream news collection. Both outputs were temporary QA files only.
+
+Verification: 11 Python collector tests (the replica examples failed before the fix), 50 Kainchi
+tests and 834 repository tests passed, with one existing esbuild skip. `npm run check`,
+`npm run mod-status` and `git diff --check` passed. No browser/runtime code changed; device QA was
+not run. Collector limits, sources, schema, expiry, failures/history, public JSON/JS, advisory passes,
+visitor-sent reports, prices/capacities/permits, auth/payments and deployment settings are unchanged.
+Pending focused repository review; no merge, production deployment, workflow dispatch or contact
+with officials/others was performed by this maintenance run.

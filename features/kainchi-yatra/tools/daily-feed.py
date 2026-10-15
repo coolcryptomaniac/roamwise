@@ -17,6 +17,9 @@ import xml.etree.ElementTree as ET
 FEATURE = Path(__file__).resolve().parents[1]
 SOURCES = json.loads((FEATURE / 'tools/sources.json').read_text())
 RELEVANT = re.compile(r'kainchi|kaichi|कैंची|कैची|bhowali|भवाली|bhimtal|भीमताल|nainital.{0,40}traffic|नैनीताल.{0,40}यातायात', re.I)
+OFFSITE_CITY = re.compile(r'\b(?:patna|bhopal)\b|पटना|भोपाल', re.I)
+EXHIBIT = re.compile(r'\b(?:pandals?|replicas?)\b|पंडाल|पण्डाल|झांकी|प्रतिकृति', re.I)
+TRAVEL_SIGNAL = re.compile(r'\b(?:traffic|road|route|shuttle|registration|closure|diversion|queue|parking|landslide|ambulance|permit|fare|hospital|emergency)\b|यातायात|सड़क|मार्ग|शटल|पंजीकरण|भूस्खलन|एंबुलेंस|एम्बुलेंस|जाम|पार्किंग|अस्पताल|आपातकाल', re.I)
 LIMIT = 1500000
 
 
@@ -83,6 +86,10 @@ def parse_rss(text, source, now):
         url = url_safe(item.findtext('link'))
         date = parsed_date(item.findtext('pubDate'), now)
         if not title or not url or not date or not RELEVANT.search(title):
+            continue
+        # Known off-route festival lookalikes use the shrine name. Keep ambiguous travel/safety
+        # leads; this narrow headline filter is not a city ban or an operational classification.
+        if source['kind'] == 'news' and OFFSITE_CITY.search(title) and EXHIBIT.search(title) and not TRAVEL_SIGNAL.search(title):
             continue
         if source['kind'] == 'official' and urlparse(url).hostname != urlparse(source['url']).hostname:
             continue
