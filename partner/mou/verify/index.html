@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Verify a RoamWise MOU</title><meta name="description" content="Check that a RoamWise property MOU file is the genuine executed copy. Your file never leaves your device.">
+<meta name="theme-color" content="#120d12"><link rel="icon" href="/icons/favicon-32.png">
+<style>
+:root{color-scheme:dark;--bg:#100b10;--ink:#fff8ef;--muted:#d6c6bf;--gold:#efc784;--line:#64454d;--ok:#8fe0a8;--bad:#ffadae}*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(circle at 8% 0,#4b2430 0,transparent 30%),var(--bg);color:var(--ink);font:16px/1.6 system-ui,-apple-system,Segoe UI,sans-serif}
+.wrap{max-width:720px;margin:auto;padding:24px 18px 60px}.brand{font-size:23px;font-weight:900;text-decoration:none;color:inherit}.brand b{color:#fa858a}
+h1{font:400 clamp(30px,6vw,44px)/1.1 Georgia,serif;margin:26px 0 10px}p{color:var(--muted)}
+.drop{display:block;border:2px dashed #86636a;border-radius:20px;padding:34px 18px;text-align:center;cursor:pointer;background:#1d151b;margin:22px 0}
+.drop.on{border-color:var(--gold);background:#2a1f25}.drop b{display:block;font-size:18px;color:var(--ink)}.drop input{display:none}
+.alt{display:flex;gap:8px}.alt input{flex:1;min-width:0;background:#120d12;color:#fff;border:1px solid #7a5a5e;border-radius:12px;padding:12px;font:13px ui-monospace,monospace}
+.alt button{border:0;border-radius:12px;padding:12px 16px;background:linear-gradient(115deg,#c64c52,#9c303d);color:#fff;font-weight:800;cursor:pointer}
+.res{margin-top:22px;border-radius:16px;padding:18px;border:1px solid var(--line);background:#1d151b}.res.ok{border-color:#3f8a5c;background:#13291d}.res.bad{border-color:#8a3f45;background:#2b1418}
+.res h2{margin:0 0 6px;font-size:21px}.ok h2{color:var(--ok)}.bad h2{color:var(--bad)}.res dl{display:grid;grid-template-columns:150px 1fr;gap:6px 12px;margin:12px 0 0;font-size:14px}.res dt{color:var(--gold)}.res dd{margin:0;word-break:break-word}
+code{font:12.5px ui-monospace,monospace;word-break:break-all;color:#f7ddb0}.fine{font-size:13px}:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
+@media(max-width:560px){.res dl{grid-template-columns:1fr}.alt{flex-direction:column}}
+</style></head><body><div class="wrap">
+<a class="brand" href="/">Roam<b>Wise</b></a>
+<h1>Verify a RoamWise MOU</h1>
+<p>Drop the PDF you received. Your browser works out its SHA-256 fingerprint and checks it against RoamWise's register of executed MOUs. The file never leaves your device.</p>
+<label class="drop" id="drop"><b>Choose or drop the MOU PDF</b><span class="fine">Executed copy or the signed original</span><input type="file" id="file" accept="application/pdf,.pdf"></label>
+<p class="fine">Or paste a SHA-256 fingerprint:</p>
+<form class="alt" id="hashForm"><input id="hash" placeholder="64 hexadecimal characters" maxlength="64" spellcheck="false" autocomplete="off" aria-label="SHA-256 fingerprint"><button type="submit">Check</button></form>
+<div id="out" role="status" aria-live="polite"></div>
+<p class="fine" style="margin-top:28px">Any change to a file, even one character, changes its fingerprint completely, so a match means the file is exactly the one RoamWise recorded. Questions: <a href="mailto:support@roamwise.co.in" style="color:var(--gold)">support@roamwise.co.in</a></p>
+</div>
+<script src="../registry.js"></script>
+<script>
+(function(){
+  var reg=window.RW_MOU_REGISTRY||[],$=function(i){return document.getElementById(i)};
+  function esc(t){return String(t).replace(/[<>&"]/g,function(c){return{'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c]})}
+  function find(h){for(var i=0;i<reg.length;i++)for(var j=0;j<reg[i].files.length;j++)if(reg[i].files[j].sha256===h)return{doc:reg[i],file:reg[i].files[j]};return null}
+  function show(h,name){
+    var m=find(h),o=$('out');
+    if(m){var d=m.doc;o.innerHTML='<div class="res ok"><h2>Genuine: '+esc(m.file.label)+'</h2><dl><dt>Document</dt><dd>'+esc(d.id)+'</dd><dt>Property</dt><dd>'+esc(d.property)+', '+esc(d.place)+'</dd><dt>MOU version</dt><dd>'+esc(d.version)+'</dd><dt>Property signed</dt><dd>'+esc(d.propertySigned)+'</dd><dt>RoamWise countersigned</dt><dd>'+esc(d.countersigned)+'</dd><dt>In effect from</dt><dd>'+esc(d.effective)+'</dd><dt>SHA-256</dt><dd><code>'+esc(h)+'</code></dd></dl></div>'}
+    else o.innerHTML='<div class="res bad"><h2>Not in the register</h2><p>'+(name?esc(name)+' does not match':'This fingerprint does not match')+' any executed RoamWise MOU. The file may have been changed, or it may be a draft. Ask RoamWise for the executed copy.</p><p class="fine">SHA-256: <code>'+esc(h)+'</code></p></div>'
+  }
+  async function hashFile(f){
+    if(!window.crypto||!crypto.subtle){$('out').innerHTML='<div class="res bad"><h2>Your browser cannot check files here</h2><p>Use sha256sum or certutil, then paste the result above.</p></div>';return}
+    $('out').innerHTML='<div class="res"><p>Checking '+esc(f.name)+'…</p></div>';
+    var buf=await f.arrayBuffer(),d=await crypto.subtle.digest('SHA-256',buf);
+    show(Array.from(new Uint8Array(d)).map(function(b){return b.toString(16).padStart(2,'0')}).join(''),f.name)
+  }
+  $('file').addEventListener('change',function(){if(this.files[0])hashFile(this.files[0])});
+  var dz=$('drop');['dragenter','dragover'].forEach(function(e){dz.addEventListener(e,function(ev){ev.preventDefault();dz.classList.add('on')})});
+  ['dragleave','drop'].forEach(function(e){dz.addEventListener(e,function(ev){ev.preventDefault();dz.classList.remove('on')})});
+  dz.addEventListener('drop',function(ev){var f=ev.dataTransfer.files[0];if(f)hashFile(f)});
+  $('hashForm').addEventListener('submit',function(e){e.preventDefault();var h=$('hash').value.trim().toLowerCase();if(!/^[0-9a-f]{64}$/.test(h)){$('out').innerHTML='<div class="res bad"><h2>That is not a SHA-256 fingerprint</h2><p>It should be 64 characters using 0-9 and a-f.</p></div>';return}show(h,'')});
+})();
+</script></body></html>

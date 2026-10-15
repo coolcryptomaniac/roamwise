@@ -67,6 +67,19 @@ window.RW_PARTNER_SEED = [{
   /* Signed partners book by WhatsApp only (never via an OTA). Hidden until bookingMode:'whatsapp' + bookingWhatsapp are saved from the partner admin. */
   mapsUrl:'https://www.google.com/maps/search/?api=1&query=New+Himank+Homestay+Chachoga+Road+Manali',
   hook:'Homestay with an on-site restaurant on Chachoga Road, Manali, about a 7-minute walk to Mall Road. Public listings mention free breakfast, Wi-Fi and balconies in every room. Ask RoamWise to confirm rooms, dates and the final total.'
+},{
+  /* MOU V4 signed by the property and countersigned by RoamWise on 15 Oct 2026 (RW-MOU-WOODBOOK-20261015,
+     check at /partner/mou/verify/). Details from the property's written confirmation and its own site
+     (thedevinehomestay.com). Partner Free, 7% on completed stays; availability confirmed on WhatsApp and calls.
+     No photos on file yet: add owner-shared photos here or upload them from the partner admin. */
+  id:'p_woodbook_devine', cat:'stay', zone:'Tirthan Valley', area:'Galoon, P.O. Deotha, Banjar (near Laida Secret Waterfall)',
+  name:'Woodbook The Devine Homestay', verified:'signed', listingReady:true, bookingMode:'whatsapp',
+  bookingWhatsapp:'917807491275', supportEmail:'support@roamwise.co.in',
+  propertyType:'Homestay', roomCount:5, maxGuests:14,
+  website:'https://thedevinehomestay.com/',
+  mapsUrl:'https://www.google.com/maps/search/?api=1&query=Woodbook+The+Devine+Homestay+Galoon+Banjar+Kullu',
+  badges:['partner','quiet'],
+  hook:'A treehouse and a cottage in an apple orchard at Galoon in the Banjar side of Tirthan Valley, near the Laida Secret Waterfall, with an outdoor fireplace and forest views. Five rooms for up to 12 to 14 guests. Ask the hosts on WhatsApp to confirm rooms, dates and the final total.'
 }];
 
 /* Commission model — what we actually earn, stated plainly for both sides. */
