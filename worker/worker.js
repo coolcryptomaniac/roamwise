@@ -39,6 +39,7 @@
      GET  /partner/cashfree/order/:bookingId/status  verify and persist paid stay -> handlers/partner-cashfree.js
      POST /push/send                   admin-only: send an FCM push to one user -> handlers/push.js
      POST /admin/creator/ig-rating     admin-only: rate a creator from Instagram Business Discovery -> handlers/creator-rating.js
+     POST /nomad/advise                public: Workers AI explains Nomad Match picks (cached, capped) -> handlers/nomad-ai.js
      POST /admin/ai-ca/review          admin-only redacted finance/compliance review -> handlers/ai-ca.js
      POST /admin/invoices/sweep        admin-only: issue invoices for paid orders with none yet -> handlers/invoices.js
 
@@ -61,6 +62,7 @@ import { cashfreeTransportFetch } from './lib/cashfree-transport.js';
 import { handlePartnerCashfreeOrder, handlePartnerCashfreeStatus } from './handlers/partner-cashfree.js';
 import { handlePushSend } from './handlers/push.js';
 import { handleCreatorRating } from './handlers/creator-rating.js';
+import { handleNomadAdvise } from './handlers/nomad-ai.js';
 import { handleBusiness } from './handlers/business.js';
 import { handleAICAReview } from './handlers/ai-ca.js';
 import { handlePaymentEvent } from './handlers/payment-events.js';
@@ -137,7 +139,9 @@ export default {
 
     if(path === 'admin/creator/ig-rating' && request.method === 'POST') return handleCreatorRating(request, env);
 
-    return json({ error: 'not found', try: ['/health', '/ai', '/news', '/events', '/geo', '/leads', '/cashfree/order', '/partner/cashfree/order', '/push/send', '/admin/ai-ca/review', '/admin/invoices/sweep', '/admin/creator/ig-rating', '/email/unsubscribe', '/admin/reminders/run', '/stay/enquiry', '/stay/confirm', '/bot/telegram', '/bot/whatsapp'] }, 404);
+    if(path === 'nomad/advise' && request.method === 'POST') return handleNomadAdvise(request, env);
+
+    return json({ error: 'not found', try: ['/health', '/ai', '/news', '/events', '/geo', '/leads', '/cashfree/order', '/partner/cashfree/order', '/push/send', '/admin/ai-ca/review', '/admin/invoices/sweep', '/admin/creator/ig-rating', '/nomad/advise', '/email/unsubscribe', '/admin/reminders/run', '/stay/enquiry', '/stay/confirm', '/bot/telegram', '/bot/whatsapp'] }, 404);
   },
 
   /* ONE scheduled handler. News daily; events on Mondays only, to stay well

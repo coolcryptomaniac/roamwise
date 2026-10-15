@@ -79,3 +79,8 @@ input:focus,select:focus,button:focus-visible,a:focus-visible{outline:2px solid 
 @media(prefers-reduced-motion:reduce){*,*:before{animation:none!important;transition:none!important}.nm-card,.nm-tier,.nm-flow div,.nm-trust div{opacity:1;transform:none}.nm-score .fg{stroke-dashoffset:var(--to)}}
 .nm-join header{max-width:760px;margin:10px 0 28px}.nm-join h1{font-size:clamp(36px,6vw,66px);letter-spacing:-.05em;line-height:1;margin:12px 0}.nm-join h1 em{font-style:normal;color:var(--mint)}.nm-join header p{color:#c3cadf;font-size:18px}
 .nm-share{display:flex;flex-wrap:wrap;align-items:center;gap:14px;margin-top:34px;padding:20px;border:1px dashed #3a4468;border-radius:var(--r)}.nm-share div{flex:1;min-width:200px;display:grid}.nm-share span{color:var(--muted);font-size:14px}.nm-share .nm-btn{padding:11px 18px}
+
+/* make it better + AI take */
+.nm-better,.nm-ai{margin-top:22px}.nm-whatif{list-style:none;padding:0;margin:8px 0 0;display:grid;gap:8px}.nm-whatif li{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:12px 14px;border:1px solid rgba(255,255,255,.12);border-radius:14px}.nm-whatif span{opacity:.8;font-size:13px}
+.nm-ai{padding:16px;border-radius:16px;border:1px solid rgba(239,197,111,.35);background:rgba(239,197,111,.06)}.nm-ai-head{font-weight:700;margin:6px 0 10px}.nm-ai-picks{margin:0;padding-left:18px;display:grid;gap:8px}.nm-ai-picks small{display:block;opacity:.75}.nm-ai-ask{font-size:13px;opacity:.85;margin:10px 0 0}.nm-ai-note{font-size:11px;opacity:.6;margin:10px 0 0}
+.nm-plan{margin-top:12px;font-size:13px;text-align:left}.nm-plan ol{margin:6px 0 0;padding-left:18px;display:grid;gap:6px}.nm-plan small{opacity:.7}

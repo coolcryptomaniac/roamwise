@@ -25,3 +25,9 @@ Set `verified: true` only after seeing a speed-test screenshot. `vibes: ['mounta
 
 ## Owner join page
 `/nomads/join/` is a one-screen form (name, WhatsApp, stay, town, Wi-Fi, rooms, monthly rate, backup/desk/kitchen, consent). It opens WhatsApp to RoamWise when `chat.supportWhatsapp` is set in `partner/config.js`, otherwise an email to `supportEmail`. **Set `supportWhatsapp` (digits, 91XXXXXXXXXX) to switch it to WhatsApp.** It has a share-on-WhatsApp button for sending the link to owners. Homepage: a card in the sacred/kainchi/partner band, a footer link and a drawer link.
+
+## Make it better + AI take (added 2026-10-15)
+- **What-ifs** (`nomads/nomad-ai-core.mjs`, deterministic): after results, the matcher re-scores with one answer relaxed (budget +20%, one step less Wi-Fi, one must-have optional, another stay length, open mood) and shows only changes that lift the best match by 3+ points.
+- **Host plan**: the meter shows the cheapest steps to the next Nomad-Ready tier, with the points each adds and a rough cost.
+- **AI take**: `POST /nomad/advise` on the Worker asks Cloudflare Workers AI (`env.AI`, model `NOMAD_AI_MODEL` or `WORKERS_AI_MODEL`) to explain the top picks and suggest host questions. It only receives the matcher's own picks and scores (no personal data), may only mention those ids, and its JSON is validated; anything else falls back to the matcher's wording. Cached 24 h per brief, 12 calls per IP per 10 min, soft daily cap `NOMAD_AI_DAILY_CAP` (default 3000), off switch `NOMAD_AI_ENABLED = "false"`.
+- Live after a manual **Deploy Worker** run. Until then the page shows the matcher's own take.
