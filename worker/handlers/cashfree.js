@@ -7,6 +7,7 @@ import { getServiceAccountAccessToken, parseServiceAccount } from '../lib/servic
 import { createDocIfAbsent, getDoc, incrementField, updateDoc } from '../lib/firestore-rest.js';
 import { FOUNDER_NMIMS_RESERVED, FOUNDER_TOTAL_SEATS, founderSeatsLeft } from '../lib/founder-cap.js';
 import { BHAKTI_PRODUCTS, bhaktiProduct, bhaktiGrantPath } from '../lib/bhakti-products.js';
+import { recordRevenue } from '../lib/spend-governor.js';
 
 const SANDBOX_BASE = 'https://sandbox.cashfree.com';
 const LIVE_BASE = 'https://api.cashfree.com';
@@ -247,6 +248,8 @@ export function createCashfreeHandlers(overrides){
           status:'PAID',fulfilled:true,paidAt,updatedAt:paidAt,...(overCap?{overCap:true}:{})
         });
         persisted=true;
+        // Feeds the AI spend budget (lib/spend-governor.js). Live money only; never blocks fulfilment.
+        if(isLive(env)){ try{ await recordRevenue(env,id,Math.round(Number(receipt.amountINR)*100)); }catch(_){/* metric only */} }
       }catch(_){return json({error:'entitlement_persistence_failed',message:'Payment is confirmed, but account activation is still retrying. Check My Payments.'},503);}
     }
     if(product)return json({order_id:id,order_status:data.order_status||'UNKNOWN',productId:receipt.planId,level:product.level,fulfilled:persisted});
