@@ -52,6 +52,7 @@
 import { CORS, json } from './lib/http.js';
 import { handleHealth } from './handlers/health.js';
 import { handleAI } from './handlers/ai.js';
+import { handleTuskReport, handleTuskReports } from './handlers/tusk-report.js';
 import { abuseGuard, aiGuard } from './lib/rate-limit.js';
 import { refreshNews, handleNews } from './handlers/news.js';
 import { refreshEvents, handleEvents, handleEventsRefresh } from './handlers/events.js';
@@ -99,6 +100,9 @@ export default {
         return json({ error: 'Too many requests — try again in a minute.' }, 429);
       return handleAI(request, env);
     }
+
+    if(path === 'tusk/report' && request.method === 'POST') return handleTuskReport(request, env);
+    if(path === 'tusk/reports' && request.method === 'GET') return handleTuskReports(request, env);
 
     if(path === 'geo') return handleGeo(request, env, ctx);
 

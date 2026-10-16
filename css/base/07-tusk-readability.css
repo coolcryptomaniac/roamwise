@@ -1,0 +1,27 @@
+/* Ailon Tusk readability: one fluid type scale for every answer.
+   rem-based, so the phone's own font-size setting still scales it.
+   Phone (360px) body ~14.4px, tablet ~16px, desktop ~17px. Notes and labels
+   never drop below 11px, and body text never below 14px.
+   Bubble rules use !important only because the chat bubbles are created in
+   script with inline font sizes (js/copilot/core.js cpBubble). */
+:root{
+  --rw-fs-body:clamp(.9rem,.5vw + .78rem,1.08rem);
+  --rw-fs-small:clamp(.78rem,.3vw + .66rem,.9rem);
+  --rw-fs-label:clamp(.7rem,.2vw + .6rem,.78rem);
+  --rw-lh:1.6;
+}
+#heroLog>div,#cpLog>div{font-size:var(--rw-fs-body)!important;line-height:var(--rw-lh)!important;overflow-wrap:anywhere;text-wrap:pretty}
+#heroLog>div,#cpLog>div{max-width:min(100%,72ch)}
+.tk-bul{font-size:var(--rw-fs-body);line-height:var(--rw-lh)}
+.tk-bul>span{min-width:0;max-width:68ch;overflow-wrap:anywhere}
+.tk-place{font-size:clamp(1.05rem,.8vw + .9rem,1.4rem);line-height:1.25;text-wrap:balance}
+.tk-meta{font-size:var(--rw-fs-small);line-height:1.5}
+.tk-chip{font-size:var(--rw-fs-small);min-height:36px}
+.rw-note{display:inline-block;margin-top:4px;font-size:var(--rw-fs-small);line-height:1.5;color:var(--t2,#B8B4A8)}
+.rw-rail{margin-top:10px;padding-top:9px;border-top:1px solid var(--b2,#2A2A36)}
+.rw-rail-h{font-size:var(--rw-fs-label);color:var(--t3,#9A978C);letter-spacing:.08em;font-weight:700;margin-bottom:5px}
+.rw-rail-btn{display:inline-flex;align-items:center;gap:6px;min-height:40px;background:var(--bg3,#171A24);border:1px solid var(--b2,#2A2A36);border-radius:20px;padding:7px 13px;color:var(--t1,#EDEAE2);font-size:var(--rw-fs-small);font-weight:600;cursor:pointer;margin:4px 5px 0 0}
+.rw-fb{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin-top:8px;font-size:var(--rw-fs-small);color:var(--t2,#B8B4A8)}
+.rw-fb button{background:none;border:none;cursor:pointer;font-size:1.2rem;line-height:1;padding:6px 8px;min-width:40px;min-height:40px;opacity:.75}
+.rw-fb button:disabled{cursor:default}
+@media (min-width:900px){#heroLog>div,#cpLog>div{max-width:min(100%,78ch)}}

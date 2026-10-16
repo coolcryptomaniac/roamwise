@@ -255,6 +255,7 @@ document.write('<div style="font:16px/1.5 system-ui,Arial,sans-serif;background:
 <link rel="preload" href="css/base/04-accounts-and-extras.css?v=rw-auth-nonblocking-2" as="style">
 <link rel="preload" href="css/base/05-desktop-and-discovery.css" as="style">
 <link rel="preload" href="css/base/06-commerce-and-social.css" as="style">
+<link rel="preload" href="css/base/07-tusk-readability.css" as="style">
 <link rel="stylesheet" href="app.css?v=rw-v124-personal-group-planner">
 <link rel="stylesheet" href="mobile-stability.css?v=rw-v125-compact-tusk">
 <link rel="stylesheet" href="design/roamwise-akatsuki-theme.css?v=rw-v125-akatsuki-tusk">
@@ -662,6 +663,7 @@ function rwDismissCreatorBanner(){
      link:'https://www.wionews.com/entertainment/hybe-s-weverse-con-india-sets-ticket-sale-date-for-march-2027-festival-1791526659449',linkLabel:'Details · WION',tickets:'https://in.bookmyshow.com/events/weverse-con-festival-india-2027/et5f8oj312'}
   ];
   EVENTS.sort(function(a,b){return a.end<b.end?-1:a.end>b.end?1:0});
+  window.RW_MUSIC_EVENTS=EVENTS; /* read by js/copilot/event-trips.js to answer festival trip requests */
   var section=document.getElementById('musicEventsIndia'),list=document.getElementById('musicEventList');
   if(!section||!list)return;
   var today=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Kolkata',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
@@ -1640,6 +1642,8 @@ function rwDismissCreatorBanner(){
 <script src="js/copilot/on-device-ai.js" defer></script>
 <script src="js/copilot/webgpu-ai.js" defer></script>
 <script src="js/copilot/nmims-answers.js" defer></script>
+<script src="js/copilot/event-trips.js" defer></script>
+<script src="js/copilot/answer-cache.js" defer></script>
 <script src="js/copilot/core.js?v=rw-route-quiet-1" defer></script>
 <script src="js/copilot/rich-reply.js" defer></script>
 <script src="js/copilot/tusk-persona.js" defer></script>
