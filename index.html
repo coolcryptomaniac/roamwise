@@ -607,11 +607,6 @@ function rwDismissCreatorBanner(){
     <div id="musicEventOriginNote" style="font-size:10px;line-height:1.5;color:var(--t3);margin-top:5px">City only. It is added to your Ailon request and is not stored or counted. No email or GPS location is requested.</div>
   </div>
   <div id="musicEventList" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:10px"></div>
-  <div style="margin-top:12px;padding:14px;border:1px solid rgba(158,111,255,.34);border-radius:16px;background:linear-gradient(120deg,rgba(101,62,175,.18),rgba(21,22,42,.62))">
-    <b>Build the rest of your trip with RoamWise Pro</b>
-    <div style="font-size:12px;line-height:1.55;color:var(--t2);margin-top:4px">Get full itineraries, a trip budget tracker, WhatsApp sharing, packing lists and unlimited Smart Planner searches. Unlock the one-time Founder offer for ₹100.</div>
-    <button class="tact" type="button" onclick="return rwOpenPaySafely(event)" style="margin-top:9px;font-weight:800">Unlock RoamWise Pro · ₹100 ↗</button>
-  </div>
   <div style="margin-top:10px;padding:12px;border:1px solid var(--b2,#2A2A36);border-radius:15px;background:rgba(10,10,14,.32)">
     <b>Books by Mohit Pandey · on Amazon</b>
     <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;font-size:11px;line-height:1.4">
@@ -705,12 +700,10 @@ function rwDismissCreatorBanner(){
   <p data-i18n="hero.sub">Draft an itinerary, compare route options and build a trip budget. Check live prices, schedules and local conditions with the responsible provider before travelling.</p>
   <div class="hero-btns">
     <button class="hero-btn hb-gold" data-i18n="hero.startFree" onclick="scrollTo(0,document.getElementById('app').offsetTop-10)">Start Planning &mdash; Free &rarr;</button>
-    <button class="hero-btn hb-pm" onclick="return rwOpenPaySafely(event)" id="heroProBtn">Unlock Pro &mdash; &#8377;100</button>
   </div>
   <div class="trust-strip">
     <span class="trust-chip"><b>12</b> reviewed articles</span>
     <span class="trust-chip"><b>No account</b> needed to start</span>
-    <span class="trust-chip"><b>&#8377;100 one-time</b> Founder offer &mdash; other plans are subscriptions</span>
     <span class="trust-chip shinobi-chip"><b>&#129399; Shinobi mode</b> crowd-dodging routes</span>
     <button type="button" class="trust-chip focus-entry" onclick="rwOpenFocusMode('peace')"><b>&#127807; Peace Mode</b> quieter journeys</button>
     <button type="button" class="trust-chip focus-entry" onclick="rwOpenFocusMode('yoga')"><b>&#129496; Yoga Mode</b> practice-first India</button>
@@ -790,11 +783,6 @@ function rwDismissCreatorBanner(){
   </div>
 </section>
 
-<div class="promo v v-home" id="promoBar" onclick="rwOpenPaySafely(event)">
-  <div class="promo-left">&#128081;</div>
-  <div class="promo-text"><strong>Founder Pro &mdash; Lifetime, first 1,000 members</strong><span>Full itineraries &bull; Budget tracker &bull; WhatsApp share &bull; Packing list &bull; Unlimited Smart Planner searches</span></div>
-  <div class="promo-price"><span class="promo-amt" id="promoAmt">&#8377;100</span><span class="promo-sub" id="promoSub">one-time forever</span></div>
-</div>
 
 <div class="page">
 <section id="app" class="v v-plan v-home">
@@ -1386,12 +1374,13 @@ function rwDismissCreatorBanner(){
       <div id="payIndiaSec">
       <div id="founderBanner" style="display:none;margin-bottom:12px;padding:13px 14px;border-radius:16px;color:#fff;background:linear-gradient(135deg,#C8913E,#8E5B1F);box-shadow:0 8px 26px rgba(200,145,62,.28)"></div>
       <div id="planPicker"></div>
-      <div id="priceTerms" style="margin:10px 2px 4px;font-size:10.5px;line-height:1.65;color:var(--t3)">
-        <b style="color:var(--t2)">About these prices</b><br>
+      <details id="priceTerms" style="margin:10px 2px 4px;font-size:10.5px;line-height:1.65;color:var(--t3)">
+        <summary style="cursor:pointer;color:var(--t2);font-weight:700">About these prices</summary>
         Every price shown is held for <b>one year</b> from your purchase date. After that they are reviewed annually and may go up or down depending on running costs and what the product does by then.<br>
         <b style="color:var(--t2)">What you buy is safe:</b> a change never affects something you already paid for. A lifetime pass stays lifetime; a 3/5/10-year pass runs its full term at the price you paid; an active subscription keeps its rate until its next renewal, and you will be told before any renewal changes.<br>
         The &#8377;100 lifetime founder price is capped at the first 1,000 Pro members (500 free for NMIMS students + 500 paid) and will not return once filled. After that, standard pricing applies: Daily &#8377;19, Weekly &#8377;99, Monthly &#8377;299, 3-month &#8377;749, Yearly &#8377;2,499 (30% off), Lifetime &#8377;14,999. All prices in INR, inclusive of applicable taxes.
-      </div>
+      </details>
+      <a href="/pricing.html" target="_blank" rel="noopener" style="display:block;margin:6px 2px 10px;font-size:12px;color:var(--t2)">See every plan on the pricing page &rarr;</a>
       <div id="payMethods" style="display:none">
       <div class="selected-plan-bar">
         <button class="tact selected-plan-back" type="button" onclick="backToPlanPicker()">&#8592; Change</button>
