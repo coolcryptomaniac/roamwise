@@ -248,7 +248,8 @@ var RW_TABS = {
   explore:  {icon:'\u26e9\ufe0f',      label:'Explore',  run:function(){ tabGo('explore'); }},
   map:      {icon:'\ud83d\uddfa\ufe0f',label:'Map',      run:function(){ if(window._lastItin && _lastItin.name){ openTripMap(_lastItin.name,null); } else { openMapExplorer(); } }},
   store:    {icon:'\ud83d\udecd\ufe0f',label:'Store',    run:function(){ tabGo('store'); }},
-  film:     {icon:'\ud83c\udfac',      label:'Film',     run:function(){ tabGo('film'); }},
+  film:     {icon:'\ud83c\udfb6',      label:'Memories', run:function(){ tabGo('film'); }},
+  sacred:   {icon:'\ud83d\udd49\ufe0f', label:'Sacred',   run:function(){ tabGo('sacred'); }},
   ratings:  {icon:'\u2b50',            label:'Reviews',  run:function(){ tabGo('extras'); }},
   trips:    {icon:'\ud83e\uddf3',      label:'Trips',    run:function(){ openVault(); }},
   group:    {icon:'\ud83e\udd1d',      label:'Group',   run:function(){ openGroupPlanner(); }},
@@ -336,7 +337,7 @@ function tabGo(t){
     /* Only real views may be set. 'treks' was being passed here (it is a
        SECTION inside Explore, not a view), which set data-view to something no
        section matches — every section hid and the screen went blank. */
-    var VALID = ['home','plan','copilot','explore','store','film','extras'];
+    var VALID = ['home','plan','copilot','explore','store','film','extras','sacred'];
     if(VALID.indexOf(t)===-1){
       var host = VIEW_OF && VIEW_OF[t];
       if(host){ document.body.dataset.view = host; setTimeout(function(){ scrollToId(t); }, 120); return; }

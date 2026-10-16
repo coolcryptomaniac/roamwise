@@ -46,7 +46,7 @@
   function fmt(s){ s=Math.max(0,Math.floor(s||0)); return Math.floor(s/60)+':'+(s%60<10?'0':'')+(s%60); }
   function build(){
     var st=document.createElement('style'); st.textContent=CSS; (document.head||document.documentElement).appendChild(st);
-    var c=document.createElement('section'); c.id='rwRaveCard'; c.setAttribute('aria-label','Rave to Hell, the RoamWise anthem');
+    var c=document.createElement('section'); c.id='rwRaveCard'; c.className='v v-film'; c.setAttribute('aria-label','Rave to Hell, the RoamWise anthem');
     c.appendChild(node('div','rv-k','The RoamWise anthem'));
     c.appendChild(node('div','rv-t','Rave to Hell'));
     c.appendChild(node('div','rv-s','Original track by Mohit Pandey, the founder. Press play, then go plan something reckless (within budget).'));
