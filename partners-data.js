@@ -91,6 +91,20 @@ window.RW_PARTNER_SEED = [{
   mapsUrl:'https://www.google.com/maps/search/?api=1&query=Woodbook+The+Devine+Homestay+Galoon+Banjar+Kullu',
   badges:['partner','quiet'],
   hook:'A treehouse and a cottage in an apple orchard at Galoon in the Banjar side of Tirthan Valley, near the Laida Secret Waterfall, with an outdoor fireplace and forest views. Five rooms for up to 12 to 14 guests. Ask the hosts on WhatsApp to confirm rooms, dates and the final total.'
+},{
+  /* Big Bro Hotel, Ghurson, Almora. MOU V4 + Schedule B (Partner Free, 7%, no listing fee) prepared 16 Oct 2026;
+     the founder met the owner (Akshit Pandey) in person and confirmed the partnership. Kept minimal on purpose:
+     seed fields win over the live Firestore entry on merge, so contact, route and policy stay in the partner admin.
+     Photos: supplied by the founder on 16 Oct 2026 for this listing under the MOU content permission (clause 12).
+     Replace with the owner's own photos when received. "RoamWise Checked" is computed by RWTrust, not set here. */
+  id:'p_big_bro_hotel', name:'Big Bro Hotel', verified:'signed', listingReady:true,
+  photos:[
+    {src:'assets/property-photos/big-bro-room.webp',alt:'Double room with a grey tufted headboard, white bedding, a floral blanket and a window with cream curtains at Big Bro Hotel, Almora',caption:'Guest room \u00b7 Big Bro Hotel'},
+    {src:'assets/property-photos/big-bro-sunset-lounge.webp',alt:'Sunset over hazy hills seen through the large lounge windows at Big Bro Hotel, Almora',caption:'Sunset from the lounge \u00b7 Big Bro Hotel'},
+    {src:'assets/property-photos/big-bro-lounge.webp',alt:'Glass-walled lounge with wooden benches, red cushions and a view of the pine-covered hills at Big Bro Hotel, Almora',caption:'Lounge with a hill view \u00b7 Big Bro Hotel'},
+    {src:'assets/property-photos/big-bro-room-2.webp',alt:'Double room with a tufted headboard, a window facing garden steps, two chairs and a table at Big Bro Hotel, Almora',caption:'Guest room with a window \u00b7 Big Bro Hotel'},
+    {src:'assets/property-photos/big-bro-meal.webp',alt:'Paratha, curd and a lemon drink on a table beside a large window with a hill view at Big Bro Hotel, Almora',caption:'Table by the window \u00b7 Big Bro Hotel'}
+  ]
 }];
 
 /* Commission model — what we actually earn, stated plainly for both sides. */
