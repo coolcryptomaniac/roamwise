@@ -102,7 +102,6 @@ function rwAnsRelevant(query, answerText){
 function rwAnsServe(bubble, key, intents, raw){
   var hit = key ? rwAnsGet(key) : null;
   if(!hit) return false;
-  try{ track('tusk_cache_hit'); }catch(e){ /* anonymous counter */ }
   cpFinish(bubble, hit.html + '<br><span class="rw-note">⚡ Saved answer — instant, no AI used. Tap 👎 if it is wrong and I will relearn it.</span>', intents, raw);
   return true;
 }
@@ -113,8 +112,7 @@ function rwAnsStale(key){
 function rwAnsRemember(key, query, answerHtml){
   if(!key) return;
   try{
-    if(rwAnsRelevant(query, answerHtml)) rwAnsPut(key, answerHtml, query);
-    else track('tusk_offtopic');   /* off-topic reply: counted, never re-served */
+    if(rwAnsRelevant(query, answerHtml)) rwAnsPut(key, answerHtml, query);   /* off-topic reply: never saved or re-served */
   }catch(e){ /* cache is best-effort */ }
 }
 function rwAiDownNote(err, usedSaved){

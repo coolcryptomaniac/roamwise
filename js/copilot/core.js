@@ -506,7 +506,7 @@ function cpParseRegex(t){
      month" are timing requests, not obscure place names. Record the requested
      month/count up front and keep the destination deliberately empty. */
   var _rec=t.match(/\b(?:top|best|suggest|recommend|show|tell(?: me)?|give(?: me)?)?\s*(one|two|three|four|five|six|seven|eight|nine|ten|\d{1,2})?\s*(?:besties|best\s+(?:places?|destinations?)|places?|destinations?)\b/i);
-  if(_rec && rwIsRecommendAsk(t)){
+  if(_rec && t.length<=200 && !/\bplan a trip around\b|destinations?\(s\)/i.test(t)){   /* long text / event prompts are never a best-places ask */
     var _nums={one:1,two:2,three:3,four:4,five:5,six:6,seven:7,eight:8,nine:9,ten:10};
     out._recommendCount=Math.max(1,Math.min(10,parseInt(_rec[1],10)||_nums[String(_rec[1]||'').toLowerCase()]||5));
   }

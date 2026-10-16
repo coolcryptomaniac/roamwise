@@ -101,14 +101,6 @@ function rwEventTripAnswer(t, now){
   return { html: html, event: ev, city: target.city, origin: origin, venues: venues };
 }
 
-/* Long text and event prompts are never a "best places" request. A pasted
-   instruction containing "destination(s)" was read as one and answered with a
-   generic month-picks card (Oct 2026 DGTL India report). */
-function rwIsRecommendAsk(t){
-  t = String(t||'');
-  return t.length <= 200 && !/\bplan a trip around\b/i.test(t) && !/destinations?\(s\)/i.test(t);
-}
-
 /* copilotSend hook: answer a festival/concert trip request from the verified
    event list. Returns true when it answered. */
 function rwEventTripReply(bubble, intents, t){
@@ -117,7 +109,7 @@ function rwEventTripReply(bubble, intents, t){
     if(!ev) return false;
     intents.dest = ev.city || intents.dest; intents._eventTrip = true;
     intents._recommendCount = undefined; intents._recommendMonth = undefined;
-    try{ track('event_trip_answered'); }catch(e){ /* anonymous counter */ }
+    try{ track('event_plans'); }catch(e){ /* anonymous counter */ }
     cpFinish(bubble, ev.html, intents, t);
     return true;
   }catch(e){ return false; }
