@@ -19,6 +19,13 @@ function extractJSON(txt){
   return null;
 }
 
+/* Bring-your-own-key is for advanced users only. Everyone else gets Ailon Tusk
+   Automatic (answer cache + RoamWise Workers AI). Admins always qualify; anyone
+   else opts in from Settings. BYOK providers: Groq, Cerebras, Gemini, Claude,
+   OpenRouter (on-device / local-server options stay open to all). */
+var RW_BYOK_PROVS=['groq','cerebras','gemini','anthropic','openrouter'];
+function rwAdvancedAI(){ return window.RW_IS_ADMIN===true || lsGet('rwAdvAI')==='1'; }
+
 function aiRequest(prov, key, model, prompt, maxTok, jsonMode){
   if(prov==='webgpu') return rwWebGPUAsk(prompt, maxTok);  /* GPU model in the browser */
   if(prov==='ondevice') return rwOnDeviceAsk(prompt);  /* runs in the browser: no URL, key or timeout */
@@ -34,7 +41,7 @@ function aiRequest(prov, key, model, prompt, maxTok, jsonMode){
     body=JSON.stringify({contents:[{parts:[{text:prompt}]}], generationConfig:gc});
   } else {
     var bases={groq:'https://api.groq.com/openai/v1', openrouter:'https://openrouter.ai/api/v1',
-      mistral:'https://api.mistral.ai/v1', sarvam:'https://api.sarvam.ai/v1'};
+      mistral:'https://api.mistral.ai/v1', sarvam:'https://api.sarvam.ai/v1', cerebras:'https://api.cerebras.ai/v1'};
     if(prov==='custom'){
       bases.custom=(lsGet('rwCustomBase')||'http://localhost:11434/v1').replace(/\/+$/,'');
       model=lsGet('rwCustomModel')||model;
@@ -150,7 +157,7 @@ function aiCallAny(prompt, maxTok, cb, jsonMode){
     aiCall(prompt,maxTok,cb,jsonMode);
     return;
   }
-  var all=['sarvam','groq','gemini','openrouter','mistral','anthropic','custom','ondevice','webgpu'];
+  var all=['sarvam','groq','cerebras','gemini','openrouter','mistral','anthropic','custom','ondevice','webgpu'];
   var order=[activeProv].concat(all.filter(function(p){ return p!==activeProv; }))
     .filter(function(p){ return p && p!=='smart' && lsGet('rwKey_'+p); });
   if(!order.length){ lastAiSource=null; cb(null,null); return; }

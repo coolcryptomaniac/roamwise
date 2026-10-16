@@ -135,6 +135,7 @@ function rwInitLang(){
 /* ---- from app.js lines 7167-7268: settings modal (PROV_META, renderKeyBoxes, openSettings, closeSettings, setProv, saveKey, clearKey) ---- */
 var PROV_META = {
   groq:     {label:'Groq \u00b7 gpt-oss (fast)', hint:'console.groq.com/keys \u2014 free, no card. Starts with gsk_', url:'https://console.groq.com/keys', ph:'gsk_...'},
+  cerebras: {label:'Cerebras \u00b7 gpt-oss (very fast)', hint:'cloud.cerebras.ai \u2014 your own key; usage billed to you by Cerebras', url:'https://cloud.cerebras.ai', ph:'csk-...'},
   gemini:   {label:'Google Gemini Flash-Lite', hint:'aistudio.google.com \u2014 Flash and Flash-Lite list a free tier; limits set by Google', url:'https://aistudio.google.com/apikey', ph:'AIzaSy...'},
   ondevice: {label:'On this device (Chrome built-in AI)', hint:'Free and private. Needs desktop Chrome 148+ with a GPU (over 4 GB VRAM) or 16 GB RAM, and 22 GB free disk. Not on phones yet', url:'https://developer.chrome.com/docs/ai/prompt-api', ph:''},
   webgpu:   {label:'On this device (WebGPU) \u00b7 phone or PC graphics chip', hint:'Free and private. Downloads a small open model once (about 0.7 to 1.8 GB). Needs Chrome or Edge with WebGPU; best on 8 GB+ RAM. Uses battery; keep Wi-Fi on for the download', url:'https://webllm.mlc.ai', ph:''},
@@ -149,7 +150,7 @@ var PROV_META = {
    input at all and openSettings() looked them up with el(p+'Key') => null. */
 function renderKeyBoxes(){
   var host=el('keyBoxes'); if(!host) return;
-  host.innerHTML = secPanelHTML() + Object.keys(PROV_META).map(function(p){
+  host.innerHTML = secPanelHTML() + Object.keys(PROV_META).filter(function(p){ return window.RW_IS_ADMIN===true || RW_BYOK_PROVS.indexOf(p)>-1 || p==='ondevice' || p==='webgpu' || p==='custom'; }).map(function(p){
     var m=PROV_META[p], free = (p==='groq');
     return '<div class="key-box">'
       +'<div class="key-box-name">'+m.label+(free?' <span style="font-size:9px;color:#4ADE80;border:1px solid rgba(74,222,128,.4);border-radius:999px;padding:1px 6px;margin-left:4px">no card</span>':'')
@@ -197,8 +198,22 @@ function openSettings(){
         /* Customers get one automatic Ailon mode. Provider/key controls are
            restricted to verified admins so Settings never becomes a setup
            wizard or asks a traveller to create third-party credentials. */
-        if(window.RW_IS_ADMIN!==true){adv.forEach(function(x){x.style.display='none';});return;}
-        var hasKey = activeProv==='roamwise' || ['sarvam','groq','gemini','openrouter','mistral','anthropic','custom','ondevice','webgpu'].some(function(x){ return lsGet('rwKey_'+x); });
+        if(!rwAdvancedAI()){
+          adv.forEach(function(x){x.style.display='none';});
+          if(!el('advOptIn')){
+            var ob=document.createElement('button');
+            ob.id='advOptIn'; ob.className='tact'; ob.style.cssText='width:100%;margin:4px 0 10px;font-size:12.5px';
+            ob.textContent='\u2699 Advanced: bring your own AI key';
+            ob.onclick=function(){
+              if(ob.dataset.armed!=='1'){ ob.dataset.armed='1'; ob.textContent='Keys are billed to you by the provider. Tap again to enable advanced AI'; return; }
+              lsSet('rwAdvAI','1'); showToast('Advanced AI enabled'); openSettings();
+            };
+            body.insertBefore(ob, body.firstChild);
+          }
+          return;
+        }
+        if(window.RW_IS_ADMIN!==true&&!el('advOff')){ var off=document.createElement('button'); off.id='advOff'; off.className='tact'; off.style.cssText='width:100%;margin:0 0 10px;font-size:12px;opacity:.7'; off.textContent='Turn off advanced AI (use Ailon Tusk Automatic)'; off.onclick=function(){ lsSet('rwAdvAI',''); if(activeProv!=='roamwise'&&activeProv!=='smart'&&activeProv!=='ondevice'&&activeProv!=='webgpu'&&activeProv!=='custom') setProv(isPro?'roamwise':'smart'); showToast('Back to Ailon Tusk Automatic'); closeSettings(); }; body.insertBefore(off, body.firstChild); }
+        var hasKey = activeProv==='roamwise' || ['sarvam','groq','cerebras','gemini','openrouter','mistral','anthropic','custom','ondevice','webgpu'].some(function(x){ return lsGet('rwKey_'+x); });
         var btn = document.createElement('button');
         btn.id='advToggle'; btn.className='tact';
         btn.style.cssText='width:100%;margin:4px 0 10px;font-size:12.5px';
@@ -213,7 +228,7 @@ function openSettings(){
       }
     }
   }, 0);
-  ['sarvam','groq','gemini','openrouter','mistral','anthropic','custom','ondevice','webgpu'].forEach(function(p){
+  ['sarvam','groq','cerebras','gemini','openrouter','mistral','anthropic','custom','ondevice','webgpu'].forEach(function(p){
     var inp=el(p+'Key'), stat=el(p+'Status'), val=lsGet('rwKey_'+p);
     if(inp) inp.value=val;
     if(stat){ stat.textContent = val?'set':'not set'; stat.className = 'key-status '+(val?'ks-set':'ks-empty'); }
@@ -225,13 +240,13 @@ function closeSettings(){ el('settingsOverlay').classList.remove('open'); docume
 
 function setProv(p){
   /* ondevice and custom (local server) run on the user's own machine at no cost to RoamWise, so they are open to everyone. */
-  if(p!=='smart'&&p!=='roamwise'&&p!=='ondevice'&&p!=='webgpu'&&p!=='custom'&&window.RW_IS_ADMIN!==true){showToast('Ailon Tusk Automatic chooses the best available route for you.');return;}
+  if(p!=='smart'&&p!=='roamwise'&&p!=='ondevice'&&p!=='webgpu'&&p!=='custom'&&!rwAdvancedAI()){showToast('Ailon Tusk Automatic chooses the best available route for you.');return;}
   if(p==='roamwise' && !isPro){ showToast('RoamWise Hosted AI is included with paid plans.'); openPay(); return; }
   activeProv = p; lsSet('rwProv', p);
   document.querySelectorAll('.prov-btn').forEach(function(b){ b.classList.toggle('on', b.dataset.p===p); });
   var chip = el('modeChip');
   if(chip){
-    var labels = {smart:'Smart Mode (free)', roamwise:'RoamWise Hosted AI', gemini:'Gemini AI (free)', groq:'Groq AI (free)', sarvam:'Sarvam India AI', anthropic:'Claude AI'};
+    var labels = {smart:'Smart Mode (free)', roamwise:'RoamWise Hosted AI', gemini:'Gemini AI (free)', groq:'Groq AI (free)', cerebras:'Cerebras AI', sarvam:'Sarvam India AI', anthropic:'Claude AI'};
     chip.textContent = labels[p]||p;
     chip.className = 'mode-chip '+(p==='anthropic'||p==='roamwise'?'mode-ai':'mode-free');
   }

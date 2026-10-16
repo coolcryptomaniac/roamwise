@@ -204,13 +204,13 @@ if (AUTH_READY && typeof firebase !== 'undefined') try {
         if(shouldBePro){
           /* Zero-setup default: paid users automatically receive the hosted
              Ailon route. Provider names and keys remain an admin concern. */
-          if(window.RW_IS_ADMIN!==true){activeProv='roamwise';lsSet('rwProv','roamwise');}
+          if(!rwAdvancedAI()){activeProv='roamwise';lsSet('rwProv','roamwise');}
           if(!isPro){ isPro=true; lsSet('rwPro','1'); lsSet('rw_pro_uid',u.uid); refreshProUI();
             if(cloudPro){ showToast(rwStatusLabel().sentence+' \u2713'); closePay(); }
             else if(trialActive){ showToast('\u23f3 '+rwStatusLabel().sentence); } }
           isPro=true; lsSet('rw_pro_uid',u.uid); refreshProUI();
         } else {
-          if(window.RW_IS_ADMIN!==true){activeProv='smart';lsSet('rwProv','smart');}
+          if(!rwAdvancedAI()){activeProv='smart';lsSet('rwProv','smart');}
           /* this account has NO pro \u2192 force-off regardless of any stale local flag */
           if(isPro){ isPro=false; lsSet('rwPro','0'); lsSet('rw_pro_uid',''); refreshProUI();
             if(trialUntil && trialUntil<=Date.now() && !cloudPro){ showToast('Your 7-day free trial has ended \u2014 upgrade anytime for \u20b9100'); } }
@@ -522,7 +522,7 @@ function wipeSession(){
      re-pasting keys forever. They now survive sign-out by default; people on
      a shared device can opt into the old behaviour with rw_wipe_keys. */
   if(lsGet('rw_wipe_keys')==='1'){
-    ['sarvam','groq','gemini','openrouter','mistral','anthropic','custom','ondevice','webgpu'].forEach(function(p){ localStorage.removeItem('rwKey_'+p); });
+    ['sarvam','groq','cerebras','gemini','openrouter','mistral','anthropic','custom','ondevice','webgpu'].forEach(function(p){ localStorage.removeItem('rwKey_'+p); });
     activeProv='smart'; lsSet('rwProv','smart');
   }
   isPro=false;
