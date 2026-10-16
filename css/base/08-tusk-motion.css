@@ -1,0 +1,16 @@
+/* Ailon Tusk reply motion. Everything here is switched off by Fast mode,
+   prefers-reduced-motion, and the data-saver / low-end-device checks in
+   js/copilot/typing-fx.js (they never add the .rw-fx class). */
+.rw-fx > *{ animation: rwFxIn .38s cubic-bezier(.2,.7,.2,1) both; animation-delay: calc(var(--i, 0) * 70ms); }
+.rw-fx .tk-bul{ animation: rwFxIn .3s ease both; animation-delay: calc(var(--i, 0) * 60ms); }
+.rw-fx-caret::after{ content:""; display:inline-block; width:.5em; height:1em; margin-left:2px; vertical-align:-.12em;
+  background: currentColor; opacity:.55; border-radius:1px; animation: rwFxBlink .9s steps(2) infinite; }
+.rw-fx-mode{ margin-left:auto; border:1px solid var(--b2,#2A2A36); background:transparent; color:inherit; border-radius:999px;
+  font-size:11px; padding:2px 9px; cursor:pointer; opacity:.8; min-height:24px; }
+.rw-fx-mode:hover,.rw-fx-mode:focus-visible{ opacity:1; }
+@keyframes rwFxIn{ from{ opacity:0; transform: translateY(6px); } to{ opacity:1; transform:none; } }
+@keyframes rwFxBlink{ 50%{ opacity:0; } }
+@media (prefers-reduced-motion: reduce){
+  .rw-fx > *, .rw-fx .tk-bul{ animation:none; }
+  .rw-fx-caret::after{ animation:none; }
+}

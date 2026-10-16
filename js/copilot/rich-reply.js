@@ -176,7 +176,7 @@ async function cpFinish(bubble, answerHTML, intents, raw){
   _html += '<div class="tk-fb rw-fb" data-kind="'+_kind+'" data-ck="'+_fe(_fbCk)+'" data-q="'+_fe(_fbQ)+'" data-dest="'+_fe(String(intents.dest||'').slice(0,60))+'">Helpful?'
     +'<button type="button" onclick="rwTuskFeedback(this,true)" aria-label="Helpful">👍</button>'
     +'<button type="button" onclick="rwTuskFeedback(this,false)" aria-label="Not helpful">👎</button></div>';
-  bubble.innerHTML = _html;
+  if(!(typeof rwFxReveal==='function' && rwFxReveal(bubble,_html,intents,raw))) bubble.innerHTML = _html;   /* typing effect or instant text */
   var log=el(_cpTargetLog)||el('cpLog');
   if(log){
     /* land the reader at the TOP of the new answer — bottom-scrolling a tall

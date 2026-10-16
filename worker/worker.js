@@ -53,6 +53,7 @@ import { CORS, json } from './lib/http.js';
 import { handleHealth } from './handlers/health.js';
 import { handleAI } from './handlers/ai.js';
 import { handleTuskReport, handleTuskReports } from './handlers/tusk-report.js';
+import { handleTuskLearnedGet, handleTuskLearnedPost, handleTuskLearnedDrop } from './handlers/tusk-learned.js';
 import { abuseGuard, aiGuard } from './lib/rate-limit.js';
 import { refreshNews, handleNews } from './handlers/news.js';
 import { refreshEvents, handleEvents, handleEventsRefresh } from './handlers/events.js';
@@ -103,6 +104,9 @@ export default {
 
     if(path === 'tusk/report' && request.method === 'POST') return handleTuskReport(request, env);
     if(path === 'tusk/reports' && request.method === 'GET') return handleTuskReports(request, env);
+    if(path === 'tusk/learned' && request.method === 'GET') return handleTuskLearnedGet(request, env);
+    if(path === 'tusk/learned' && request.method === 'POST') return handleTuskLearnedPost(request, env);
+    if(path === 'tusk/learned/drop' && request.method === 'POST') return handleTuskLearnedDrop(request, env);
 
     if(path === 'geo') return handleGeo(request, env, ctx);
 
