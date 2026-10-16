@@ -117,10 +117,14 @@ function rwManagedAIRequest(prompt, maxTok){
 function aiCall(prompt, maxTok, cb, jsonMode){
   var prov=activeProv, key=lsGet('rwKey_'+prov);
   if(prov==='roamwise'){
+    /* A hung request must not keep the user waiting: after 14s hand over to the
+       built-in engine. `done` makes sure the callback fires exactly once. */
+    var done=false, to=setTimeout(function(){ if(done)return; done=true; lastAiSource=null; cb('Timed out after 14s',null); },14000);
     rwManagedAIRequest(prompt,maxTok).then(function(out){
+      if(done)return; done=true; clearTimeout(to);
       lastAiSource={prov:'roamwise',model:out.model||'Ailon Tusk Automatic',route:out.provider||'',remaining:out.remaining,limit:out.limit};
       cb(null,out.text);
-    }).catch(function(e){lastAiSource=null;cb(String(e.message||e),null);});
+    }).catch(function(e){ if(done)return; done=true; clearTimeout(to); lastAiSource=null;cb(String(e.message||e),null);});
     return;
   }
   if(prov==='smart' || !key){ lastAiSource=null; cb(null,null); return; }

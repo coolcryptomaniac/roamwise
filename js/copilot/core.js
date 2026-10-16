@@ -876,7 +876,8 @@ function copilotSend(fromHero){
   if(typeof rwActivateFocusFromText==='function'&&/\b(plan|trip|itinerar|travel|visit|stay)\b/i.test(t)){
     intents.focusModes=rwActivateFocusFromText(t,true);
   }
-  if(typeof rwEventTripReply==='function' && rwEventTripReply(thinking,intents,t)) return;   /* festival trips: verified data, no AI call */
+  if(typeof rwUmLearn==='function') rwUmLearn(intents,t);   /* per-user memory: facts only, on this device */
+  if(typeof rwTuskPreAnswer==='function' && rwTuskPreAnswer(thinking,intents,t)) return;   /* memory commands, festival trips: no AI call */
   var hasKey = (typeof activeProv!=='undefined') && (activeProv==='roamwise' || (activeProv!=='smart' && lsGet('rwKey_'+activeProv)));
   if(isKasarFestival){
     var festivalAnswer=cpSmartAnswer(t);
@@ -914,6 +915,7 @@ function copilotSend(fromHero){
           +'. Never replace the destination with the origin.\n';
       }
       if(typeof rwFocusPrompt==='function'&&rwFocusPrompt())facts+='Active traveller preferences: '+rwFocusPrompt()+'\n';
+      if(typeof rwUmPrompt==='function') facts+=rwUmPrompt();
       var prompt='You are Ailon Tusk \u2014 a witty, warm, razor-sharp travel companion with playful Bollywood-masala energy and light Hinglish sprinkles (arre, chalo, mast, boss, scene, ekdum). You are the friend who has actually BEEN everywhere and gives it to people straight, with a grin. '
         +'MATCH YOUR LENGTH TO THE QUESTION: a quick factual question (a price, a distance, is-X-open) gets ONE punchy sentence \u2014 do not pad it. Only a genuinely open request (plan my trip, what should I do in X) earns a fuller answer, still under 90 words. '
         +'Personality is seasoning, not the meal: one small filmi flourish max, then the real facts \u2014 numbers, routes, prices, names \u2014 100% accurate and clear. '

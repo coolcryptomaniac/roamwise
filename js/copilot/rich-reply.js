@@ -162,6 +162,8 @@ async function cpFinish(bubble, answerHTML, intents, raw){
   try{ rwRemember('tusk', (answerHTML||'').replace(/<[^>]*>/g,' ').slice(0,200), {}); }catch(e){ /* best-effort, ignore */ }
   var isCard = actions.length && String(actions[0]).indexOf('tk-card')>-1;
   var _html = parts.join(isCard? '<div style="height:10px"></div>' : '<hr style="border:none;border-top:1px dashed var(--b2,#2A2A36);margin:10px 0">');
+  try{ if(intents.smalltalk==='greet' && typeof rwUmChipsHTML==='function') _html += rwUmChipsHTML(); }catch(e){ /* optional */ }
+  try{ if(!intents.smalltalk && typeof rwUmNotice==='function') _html += rwUmNotice(); }catch(e){ /* optional */ }
   /* Every answer ends with tappable actions — an answer is never a dead end. */
   try{ if(!intents.smalltalk&&!isKasarFestival) _html += rwTuskRail(intents.dest||'', raw||''); }catch(e){ /* best-effort, ignore */ }
   /* Lightweight per-response feedback — bot replies only (cpFinish only ever
