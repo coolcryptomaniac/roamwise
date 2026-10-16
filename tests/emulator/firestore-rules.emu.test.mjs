@@ -13,6 +13,8 @@ await env.withSecurityRulesDisabled(async ctx => {
   const db = ctx.firestore();
   await setDoc(doc(db, 'admins/adminUid'), { ok: true });
   await setDoc(doc(db, 'users/u1'), { name: 'U One' });
+  await setDoc(doc(db, 'staff/staff1'), { role: 'marketing' });
+  await setDoc(doc(db, 'stayLeads/L1'), { name: 'Asha', phone: '9876543210', status: 'new', waConsent: true });
   await setDoc(doc(db, 'tuskMisses/kasar'), { place: 'Kasar', count: 3, lastAsked: new Date() });
 });
 const u1 = () => env.authenticatedContext('u1').firestore();
@@ -55,5 +57,25 @@ test('roomBookings stay private to the guest, partner and admin', async () => {
   await assertSucceeds(getDoc(doc(u1(), 'roomBookings/r1')));
   await assertFails(getDoc(doc(u2(), 'roomBookings/r1')));
   await assertFails(updateDoc(doc(u1(), 'roomBookings/r1'), { ackEmailAt: 'x' }));
+});
+test('stayLeads: nobody but an admin can read, clients can never write, admin can only move the status', async () => {
+  await assertFails(getDoc(doc(u1(), 'stayLeads/L1')));
+  await assertFails(getDoc(doc(anon(), 'stayLeads/L1')));
+  await assertFails(setDoc(doc(anon(), 'stayLeads/L2'), { name: 'x', phone: '9876543210' }));
+  await assertFails(setDoc(doc(u1(), 'stayLeads/L2'), { name: 'x', phone: '9876543210' }));
+  await assertSucceeds(getDoc(doc(admin(), 'stayLeads/L1')));
+  await assertSucceeds(updateDoc(doc(admin(), 'stayLeads/L1'), { status: 'contacted', contactedAt: '2026-10-16T10:00:00Z' }));
+  await assertFails(updateDoc(doc(admin(), 'stayLeads/L1'), { phone: '9000000000' }));
+  await assertFails(updateDoc(doc(u1(), 'stayLeads/L1'), { status: 'contacted' }));
+});
+test('leads call log: staff can log a call as themselves, nobody else, exact shape', async () => {
+  const s = () => env.authenticatedContext('staff1').firestore();
+  const rec = { name: 'Hotel X', town: 'Almora', status: 'contacted', by: 'staff1', byName: 'S', at: '2026-10-16' };
+  await assertSucceeds(setDoc(doc(s(), 'leads/c1'), rec));
+  await assertFails(setDoc(doc(s(), 'leads/c2'), { ...rec, by: 'someoneElse' }));
+  await assertFails(setDoc(doc(s(), 'leads/c3'), { ...rec, phone: '9876543210' }));
+  await assertFails(setDoc(doc(u1(), 'leads/c4'), { ...rec, by: 'u1' }));
+  await assertFails(getDoc(doc(s(), 'leads/c1')));
+  await assertSucceeds(getDoc(doc(admin(), 'leads/c1')));
 });
 test.after(async () => { await env.cleanup(); });
