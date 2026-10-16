@@ -103,6 +103,19 @@ export const SEED_POLICIES = Object.freeze([
     location: { town: 'Almora' },
   },
   {
+    /* Big Bro Hotel, Almora. Terms the founder reported on 2026-10-15 after meeting the owner (MOU Schedule B creator terms):
+       1 night, 2 people at most, breakfast included; Rs 2,000-3,000 for exceptional work or if the owner likes the content;
+       10% of the paid booking value for guests the creator brings, paid by the property. Stays per month, months and
+       blackout dates were left blank, so they are flagged as unconfirmed and the performance-cash cap is not set. */
+    propertyId: 'p_big_bro_hotel', name: 'Big Bro Hotel', status: 'open',
+    reason: 'Owner agreed creator terms (MOU Schedule B): 1 night for 2 guests with breakfast; Rs 2,000-3,000 for exceptional work or if the owner likes the content; 10% of paid bookings the creator brings.',
+    freeStay: { nights: 1, guests: 2, food: 'breakfast', weekdaysOnly: false, offSeasonOnly: false, maxPerMonth: 2 },
+    cashBudget: 3000,
+    location: { town: 'Almora' },
+    niches: ['mountains', 'food', 'culture'],
+    unconfirmed: ['creator stays per month and for how many months', 'blackout dates', 'cap on the 10% performance share'],
+  },
+  {
     propertyId: 'p_new_himank', name: 'New Himank', status: 'pending',
     reason: 'Waiting for the owner (Deepanshi) to confirm whether to take creators and on what terms.',
     location: { town: 'Manali', lat: 32.2600, lng: 77.1800 },
