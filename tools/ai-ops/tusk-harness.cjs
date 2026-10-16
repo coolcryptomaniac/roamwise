@@ -33,7 +33,7 @@ function makeTusk(opts){
   };
   state.window = state;
   state.RW_MUSIC_EVENTS = loadEvents();
-  for(const f of ['js/core/text-utils.js', 'js/copilot/core.js', 'js/copilot/event-trips.js', 'js/copilot/answer-cache.js']){
+  for(const f of ['js/core/text-utils.js', 'js/copilot/core.js', 'js/copilot/event-trips.js', 'js/copilot/answer-cache.js', 'js/copilot/user-memory.js']){
     vm.runInNewContext(read(f), state, { filename: f });
   }
   return {
@@ -41,6 +41,7 @@ function makeTusk(opts){
     events: state.RW_MUSIC_EVENTS,
     parse: q => state.cpParseRegex(q),
     event: (q, now) => state.rwEventTripAnswer(q, now),
+    um: state,
     key: (q, intents) => state.rwAnsKey(q, intents),
     relevant: (q, a) => state.rwAnsRelevant(q, a)
   };

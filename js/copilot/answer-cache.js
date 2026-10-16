@@ -37,6 +37,8 @@ function rwAnsKey(q, intents){
   if(n.split(' ').length < 4) return null;                 /* too thin to key safely */
   if(RW_ANS_FOLLOWUP.test(String(q||'').toLowerCase())) return null;
   if(intents && (intents._inherited || intents._recommendCount)) return null;
+  /* No direction words: word order is irrelevant ("4 days Udaipur 12000" = "Udaipur 12000 4 days"). */
+  if(!/\b(from|to|via|towards|se|tak|vs|versus)\b/.test(n)) n = n.split(' ').sort().join(' ');
   var h = 0x811c9dc5;
   for(var i=0;i<n.length;i++){ h ^= n.charCodeAt(i); h = (h + ((h<<1)+(h<<4)+(h<<7)+(h<<8)+(h<<24))) >>> 0; }
   return 'a' + h.toString(36) + n.length.toString(36);

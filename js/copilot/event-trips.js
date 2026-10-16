@@ -48,10 +48,12 @@ function rwFindEvent(t){
   return null;
 }
 
-function rwEventTripAnswer(t, now){
+function rwEventTripAnswer(t, now, fallbackOrigin){
   var ev = rwFindEvent(t);
   if(!ev) return null;
   var origin = rwEventOrigin(t);
+  var fromMemory = !origin && !!fallbackOrigin;
+  if(fromMemory) origin = String(fallbackOrigin);
   var dt = rwEventDates(ev.when);
   var venues = rwEventVenues(ev.place);
   var oLow = origin.toLowerCase();
@@ -78,6 +80,7 @@ function rwEventTripAnswer(t, now){
     }
     /* Where to stay */
     rows.push('<b>Where to stay:</b> choose a place within a short ride of ' + e(target.venue) + ', ideally near a metro or rail stop, so late-night exits are easy. Check the cancellation terms because dates can move.');
+    if(fromMemory) rows.push('<span class="rw-note">Using your usual starting city, ' + e(origin) + '. Tell me if you are leaving from somewhere else.</span>');
     /* How many days */
     if(dt){
       var festival = dt.days;
@@ -105,7 +108,7 @@ function rwEventTripAnswer(t, now){
    event list. Returns true when it answered. */
 function rwEventTripReply(bubble, intents, t){
   try{
-    var ev = rwEventTripAnswer(t);
+    var ev = rwEventTripAnswer(t, null, (typeof rwUmOrigin==='function') ? rwUmOrigin() : '');
     if(!ev) return false;
     intents.dest = ev.city || intents.dest; intents._eventTrip = true;
     intents._recommendCount = undefined; intents._recommendMonth = undefined;
