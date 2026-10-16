@@ -1321,3 +1321,12 @@ round 5"'s own advice) remains the source of truth.
 - Speed: answer-cache keys ignore word order when the question has no direction words; the managed-AI call times out after 14 s and falls back to the built-in engine; personal one-tap chips (`rwUmChipsHTML`) appear after a greeting and hit the cache or the local engine.
 - Tests: `tests/user-memory.test.js`. Privacy wording lives in `privacy.html` ("Ailon Tusk memory and feedback").
 - Phase 2 (own PR, payment code needs separate review): end-to-end booking for RoamWise partner stays through the existing stay quote, Cashfree and stay-code flow; hand-off links for flights, trains and other hotels. No booking automation on IRCTC or other sites that forbid it.
+
+## Tusk stay desk (`js/booking/tusk-stay-desk.js`)
+Chat booking asks ("book a room in Almora 12 to 15 Nov for 2") are answered by
+`rwStayDeskAnswer` through `rwTuskPreAnswer` (in user-memory.js). It parses dates and
+guests on-device, builds an itemised receipt from `rwTuskStayMatches` + `rwStayQuote`
+(property rate, Rs 0 from RoamWise, property-set cancellation, no invented taxes or
+comparisons) and links to `/partner/?role=customer&destination&checkin&checkout&guests`.
+No payment, auth or Firestore code is involved; the request, host confirmation and pay
+button stay in `partner/marketplace.js`. Loaded after `js/booking/form.js`.
