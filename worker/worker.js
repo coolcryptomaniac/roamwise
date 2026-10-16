@@ -73,6 +73,7 @@ import { handleInvoiceSweep, runInvoiceSweepCron } from './handlers/invoices.js'
 import { handleBot, botDeps } from './handlers/bot.js';
 import { handleReminders, runInactivityReminders } from './handlers/reminders.js';
 import { handleTripNotify, runTripNotifications } from './handlers/trip-notify.js';
+import { handleStayLead, purgeOldStayLeads } from './handlers/stay-lead.js';
 import { sendAdminDigest } from './handlers/bot-admin.js';
 
 // Only Cashfree PG calls use this diagnostic transport. The actual order,
@@ -144,6 +145,8 @@ export default {
 
     if(path === 'admin/trip-notify/run') return handleTripNotify(request, env);
 
+    if(path === 'stay/lead') return handleStayLead(request, env);
+
     if(path === 'admin/ai-ca/review' && request.method === 'POST') return handleAICAReview(request, env);
 
     if(path === 'admin/invoices/sweep' && request.method === 'POST') return handleInvoiceSweep(request, env);
@@ -152,7 +155,7 @@ export default {
 
     if(path === 'nomad/advise' && request.method === 'POST') return handleNomadAdvise(request, env);
 
-    return json({ error: 'not found', try: ['/health', '/ai', '/news', '/events', '/geo', '/leads', '/cashfree/order', '/partner/cashfree/order', '/push/send', '/admin/ai-ca/review', '/admin/invoices/sweep', '/admin/creator/ig-rating', '/nomad/advise', '/email/unsubscribe', '/admin/reminders/run', '/admin/trip-notify/run', '/stay/enquiry', '/stay/confirm', '/bot/telegram', '/bot/whatsapp'] }, 404);
+    return json({ error: 'not found', try: ['/health', '/ai', '/news', '/events', '/geo', '/leads', '/cashfree/order', '/partner/cashfree/order', '/push/send', '/admin/ai-ca/review', '/admin/invoices/sweep', '/admin/creator/ig-rating', '/nomad/advise', '/email/unsubscribe', '/admin/reminders/run', '/admin/trip-notify/run', '/stay/enquiry', '/stay/lead', '/stay/confirm', '/bot/telegram', '/bot/whatsapp'] }, 404);
   },
 
   /* ONE scheduled handler. News daily; events on Mondays only, to stay well
@@ -173,6 +176,8 @@ export default {
     try{ if(env.REMINDERS_ENABLED !== 'false' && env.FIREBASE_SERVICE_ACCOUNT_JSON) await runInactivityReminders(env); }catch(e){ /* reminders are best-effort */ }
     /* Booking acknowledgements + 3-day / 1-day trip reminders. Both switches default OFF (config/tripNotifySettings). */
     try{ if(env.FIREBASE_SERVICE_ACCOUNT_JSON) await runTripNotifications(env, { mode: 'all' }); }catch(e){ /* best-effort */ }
+    /* Guest stay requests are kept 12 months, then deleted (see privacy.html). */
+    try{ if(env.FIREBASE_SERVICE_ACCOUNT_JSON) await purgeOldStayLeads(env); }catch(e){ /* retried tomorrow */ }
     /* Founder digest on Telegram/WhatsApp. Skipped unless the bot secrets and admin ids are set. */
     try{ if(env.BOT_ADMIN_TELEGRAM || env.BOT_ADMIN_WHATSAPP) await sendAdminDigest(env, botDeps(env)); }catch(e){ /* digest is best-effort */ }
   },

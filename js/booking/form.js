@@ -156,7 +156,8 @@ function rwRoomEnquiry(r){
     {key:'guests',label:'Guests',type:'number',value:'2'},
     {key:'name',label:'Your name',value:ident.name},
     {key:'phone',label:'Your phone',placeholder:'10-digit mobile',value:ident.phone},
-    {key:'note',label:'Anything they should know',placeholder:'arrival time, food needs, celebration'}
+    {key:'note',label:'Anything they should know',placeholder:'arrival time, food needs, celebration'},
+    (typeof RW_LEAD_CONSENT_FIELD!=='undefined'?RW_LEAD_CONSENT_FIELD:{key:'consent',label:'',type:'hidden'})
   ];
   fields._notice='Rate and availability are being checked for your exact dates. This is an enquiry, not a confirmed booking or payment.';
   rwForm('🏡 '+r.property+' · '+r.room,fields,function(v){
@@ -164,8 +165,11 @@ function rwRoomEnquiry(r){
     rwRememberBookingIdentity(v.name,v.phone);
     var rec={id:'RQ'+Date.now().toString(36).toUpperCase(),partnerId:r.partnerId,roomId:r.id,property:r.property,room:r.room,zone:r.zone,checkIn:v.inD,checkOut:v.outD,guests:+v.guests||2,name:v.name,phone:String(v.phone).replace(/\D/g,'').slice(-10),note:v.note||'',status:'rate-audit-pending',at:new Date().toISOString()};
     try{lsSet('rw_last_stay_enquiry',JSON.stringify(rec));}catch(e){}
-    try{if(window.db)db.collection('stayEnquiries').doc(rec.id).set(rec).catch(function(){});}catch(e){}
-    showToast('Enquiry saved — RoamWise will verify the live rate before booking');
+    if(v.consent!=='yes'){showToast('Please choose Yes so the property can reply on WhatsApp');return;}
+    rwStayLeadSend({source:'room',name:rec.name,phone:rec.phone,checkIn:rec.checkIn,checkOut:rec.checkOut,guests:rec.guests,note:rec.note,
+      items:[{partnerId:rec.partnerId,itemId:rec.roomId,name:rec.property,room:rec.room,where:rec.zone}]},function(ok){
+      showToast(ok?'\u2705 Request received \u2014 '+rec.property+' will reply on WhatsApp ('+rec.phone+')':'Could not send just now \u2014 please try again in a moment');
+    });
     try{rwOverlayClose('rwFormOverlay');}catch(e){}
   });
 }
@@ -366,7 +370,7 @@ function openBooking(){
       +'<div class="bk-note">Estimates from partner rate cards. Final prices are confirmed by each partner before you pay anything \u2014 and you pay <b>them</b>, directly, unless a partner offers prepayment.</div>'
       +'<button class="bk-go" onclick="rwBookRequest()">\ud83d\udce8 Send one request for everything</button>'
       +'<div class="bk-how"><b>What happens next</b>'
-      +'<div>1 \u00b7 Every partner in your list gets your dates and group size within seconds.</div>'
+      +'<div>1 \u00b7 RoamWise passes your dates and group size to every partner in your list.</div>'
       +'<div>2 \u00b7 They confirm availability and a final price \u2014 usually the same day.</div>'
       +'<div>3 \u00b7 You approve what you want. Nothing is booked until you say yes.</div></div>';
     }
@@ -380,21 +384,26 @@ function rwBookRequest(){
     { key:'bk_phone', label:'Phone (partners reply here)' },
     { key:'bk_dates', label:'Dates', placeholder:'e.g. 14-17 Sept' },
     { key:'bk_people',label:'How many people', placeholder:'e.g. 4' },
-    { key:'bk_notes', label:'Anything they should know', placeholder:'dietary needs, arrival time, budget ceiling' }
+    { key:'bk_notes', label:'Anything they should know', placeholder:'dietary needs, arrival time, budget ceiling' },
+    (typeof RW_LEAD_CONSENT_FIELD!=='undefined'?RW_LEAD_CONSENT_FIELD:{key:'consent',label:'',type:'hidden'})
   ], function(v){
     if(!v.bk_name || !v.bk_phone){ showToast('Name and phone are needed so partners can reply'); return; }
+    if(v.consent!=='yes'){ showToast('Please choose Yes so partners can reply on WhatsApp'); return; }
     var rec={ items:b, name:v.bk_name, phone:v.bk_phone, dates:v.bk_dates||'',
       people:v.bk_people||'', notes:v.bk_notes||'',
       estTotal:rwBookTotal(b), estCommission:Math.round(rwCommissionOn(b)),
       status:'requested', at:new Date().toISOString() };
     try{ rec.ref=rwRefActive()||''; }catch(e){ /* best-effort, ignore */ }
-    var done=function(){
-      showToast('\u2705 Request sent \u2014 partners will reply to '+v.bk_phone);
-      rwBasketSet([]); rwPageClose();
-    };
-    try{
-      if(window.db) db.collection('bookings').add(rec).then(done).catch(done);
-      else done();
-    }catch(e){ done(); }
+    var payload={ source:'basket', name:v.bk_name, phone:v.bk_phone, dates:v.bk_dates||'', people:v.bk_people||'', note:v.bk_notes||'',
+      ref:rec.ref||'', estTotal:rec.estTotal,
+      items:b.map(function(x){ return { partnerId:x.partnerId||x.pid||'', itemId:x.id, name:x.name, where:x.where, cat:x.cat, price:x.price }; }) };
+    rwStayLeadSend(payload,function(ok){
+      if(ok){
+        showToast('\u2705 Request received \u2014 partners will reply on WhatsApp ('+v.bk_phone+')');
+        rwBasketSet([]); rwPageClose();
+      }else{
+        showToast('Could not send just now \u2014 your list is saved, please try again in a moment');
+      }
+    });
   }, 'One message goes to every partner in your trip. Nothing is charged now \u2014 this is a request, not a payment.');
 }

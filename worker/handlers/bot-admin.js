@@ -15,6 +15,7 @@
    No payment code: settling a stay only records what happened and the fee.
    ========================================================================= */
 import { buildStatement, parseSettle, validMonth, DEFAULT_COMMISSION_PCT, DEFAULT_GST_PCT } from '../lib/stay-ledger-core.js';
+import { leadLine } from '../lib/stay-lead-core.js';
 import gstRules from '../../features/finance-tax/gst-rules.js';
 
 const csv = (v) => String(v || '').split(',').map((x) => x.trim()).filter(Boolean);
@@ -50,6 +51,13 @@ export async function leadsText(deps) {
     + (l.contact ? ', wa.me/' + l.contact : '')).join('\n');
 }
 
+export async function requestsText(deps) {
+  const rows = (await deps.list('stayLeads', 500)).filter((l) => l.status === 'new')
+    .sort((a, b) => String(b.createdAt || '').localeCompare(String(a.createdAt || ''))).slice(0, 10);
+  if (!rows.length) return 'No new guest stay requests.';
+  return 'New guest stay requests (tap the wa.me link to reply, then mark contacted in Admin > Stay requests):\n' + rows.map(leadLine).join('\n');
+}
+
 export async function buildDigest(env, deps, now) {
   now = now || new Date();
   const month = now.toISOString().slice(0, 7);
@@ -57,6 +65,10 @@ export async function buildDigest(env, deps, now) {
   try {
     const leads = (await deps.list('botLeads', 200)).filter((l) => l.status !== 'closed');
     parts.push('Open property leads: ' + leads.length + (leads.length ? ' (send /admin leads)' : ''));
+  } catch (_) { /* optional */ }
+  try {
+    const req = (await deps.list('stayLeads', 500)).filter((l) => l.status === 'new');
+    if (req.length) parts.push('New guest stay requests: ' + req.length + ' (send /admin requests)');
   } catch (_) { /* optional */ }
   try {
     const rows = (await deps.list('stayLedger', 3000)).map((x) => ({ ...x, code: x.code || x.id }));
@@ -76,6 +88,7 @@ export async function adminCommand(env, deps, args) {
     return statementText(env, deps, month);
   }
   if (sub === 'leads') return leadsText(deps);
+  if (sub === 'requests') return requestsText(deps);
   if (sub === 'digest') return buildDigest(env, deps);
   if (sub === 'settle') {
     const p = parseSettle({ code: String(args[1] || '').toUpperCase(), status: args[2], amount: args[3] });
@@ -89,7 +102,7 @@ export async function adminCommand(env, deps, args) {
     await deps.updateCode(v.code, patch);
     return 'Recorded ' + v.code + ' as ' + v.status + (v.amount != null ? ' at ' + money(v.amount) : '') + '.';
   }
-  return 'Admin commands: /admin statement [YYYY-MM], /admin settle <code> <completed|cancelled|no_show> [amount], /admin leads, /admin digest';
+  return 'Admin commands: /admin statement [YYYY-MM], /admin settle <code> <completed|cancelled|no_show> [amount], /admin leads, /admin requests, /admin digest';
 }
 
 /* Daily digest to every configured admin chat. Called from the scheduled handler. */

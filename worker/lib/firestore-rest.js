@@ -228,3 +228,11 @@ export async function queryEqualsString(env, accessToken, projectId, collection,
     id: String(r.document.name || '').split('/').pop(), ...fromFirestoreFields(r.document.fields || {}),
   }));
 }
+
+/** DELETE one document (retention clean-up only). Resolves true when it is gone, including when it never existed. */
+export async function deleteDocument(env, accessToken, projectId, path) {
+  const res = await fetch(docPath(projectId, path), { method: 'DELETE', headers: { authorization: `Bearer ${accessToken}` } });
+  if (res.ok || res.status === 404) return true;
+  const body = await res.text().catch(() => '');
+  throw new Error(`Firestore DELETE ${path} failed (${res.status}): ${body.slice(0, 300)}`);
+}

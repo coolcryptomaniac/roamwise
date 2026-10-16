@@ -1340,3 +1340,6 @@ button stay in `partner/marketplace.js`. Loaded after `js/booking/form.js`.
 - `tests/emulator/firestore-rules.emu.test.mjs`: real emulator tests (`npm run rules:test`, needs Java).
 - `.github/workflows/rules-autopilot.yml`: runs both on rules/client PRs and daily 06:30 IST; opens/updates/closes one "Firestore rules drift" issue. `deploy-firestore-rules.yml` runs both as gates before publishing.
 - Admin: Admin -> Reminders -> card 4 (`js/admin/trip-notify-panel.js`) edits `config/tripNotifySettings`.
+
+## Guest stay requests (WhatsApp leads)
+`js/booking/stay-lead.js` -> `POST /stay/lead` (`worker/handlers/stay-lead.js`, validation in `worker/lib/stay-lead-core.js`) -> Firestore `stayLeads/{id}` (service account only). Needs an explicit WhatsApp-contact consent choice in both forms (trip basket, room enquiry). Admin reads/acts via Admin -> Stay requests (`js/admin/stay-requests-panel.js`); the founder is told in the daily chat digest and `/admin requests`. Deleted after 12 months by the daily cron. Replaces the old client writes to the rule-less `bookings` and `stayEnquiries` collections. No payment code.

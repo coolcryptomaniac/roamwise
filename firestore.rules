@@ -486,6 +486,29 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
 
+    // ---------- STAY LEADS (guest requests that need a human reply) ----------
+    // Written ONLY by the Worker (POST /stay/lead, service account), which checks
+    // the shape and the guest's WhatsApp-contact consent. Holds a name and mobile
+    // number, so: admin read only, and an admin may only move the status along.
+    // Deleted automatically after 12 months by the Worker cron.
+    match /stayLeads/{id} {
+      allow read: if isAdmin();
+      allow update: if isAdmin()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'contactedAt']);
+    }
+
+    // ---------- STAFF CALL LOG (leads the sales desk has phoned) ----------
+    // staff/index.html "Called" button: business name + town only, no guest data.
+    match /leads/{id} {
+      allow read: if isAdmin();
+      allow create: if isStaff()
+        && request.resource.data.keys().hasOnly(['name', 'town', 'status', 'by', 'byName', 'at'])
+        && request.resource.data.by == request.auth.uid
+        && request.resource.data.status == 'contacted'
+        && request.resource.data.name is string && request.resource.data.name.size() <= 120
+        && request.resource.data.town is string && request.resource.data.town.size() <= 80;
+    }
+
     // ---------- TUSK MISSES (places Ailon Tusk could not answer) ----------
     // One doc per place slug with a counter, written by rwTuskMiss() so the
     // daily bot can learn missing places. Signed-in clients only, exact shape,
