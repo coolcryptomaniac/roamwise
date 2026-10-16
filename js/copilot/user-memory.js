@@ -290,6 +290,8 @@ function rwUmSetSync(on){
 function rwTuskPreAnswer(bubble, intents, t){
   var um = null;
   try{ um = rwUmAnswer(t); }catch(e){ um = null; }
+  if(!um && typeof rwShCommand === 'function') um = rwShCommand(t);
+  if(!um && typeof rwFxCommand === 'function') um = rwFxCommand(t);
   if(um){ intents.smalltalk = 'memory'; cpFinish(bubble, um, intents, t); return true; }
   if(typeof rwEventTripReply === 'function' && rwEventTripReply(bubble, intents, t)) return true;
   return (typeof rwStayDeskReply === 'function') ? rwStayDeskReply(bubble, intents, t) : false;

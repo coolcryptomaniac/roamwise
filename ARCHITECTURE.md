@@ -1330,3 +1330,7 @@ guests on-device, builds an itemised receipt from `rwTuskStayMatches` + `rwStayQ
 comparisons) and links to `/partner/?role=customer&destination&checkin&checkout&guests`.
 No payment, auth or Firestore code is involved; the request, host confirmation and pay
 button stay in `partner/marketplace.js`. Loaded after `js/booking/form.js`.
+
+## Tusk reply motion and shared learning
+- `js/copilot/typing-fx.js` + `css/base/08-tusk-motion.css`: typing/stagger reveal called from `cpFinish`. Instant (Fast mode) for reduced-motion, data-saver, low-end phones, booking/payment, saved/shared answers, long answers. `rwFxDecide` is the pure rule set.
+- `js/copilot/shared-learning.js`: contributes generic answers (hash + plain text) and serves them via `rwSharedFirst` (hooked in core.js before the AI call). Worker side: `worker/handlers/tusk-learned.js` (`/tusk/learned`, `/tusk/learned/drop`), KV `AI_USAGE`, 45-day TTL, 300 writes/day cap. Off switch: "stop sharing learnings". See FUTURE-PROOF.md.

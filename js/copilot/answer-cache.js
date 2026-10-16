@@ -77,6 +77,7 @@ function rwAnsPut(key, html, query, now){
 function rwAnsDrop(key){
   if(!key) return;
   var o = rwAnsLoad(); if(o[key]){ delete o[key]; rwAnsSave(o); }
+  if(typeof rwSharedDrop==='function') rwSharedDrop(key);   /* wrong answer: forget it for everyone */
 }
 
 /* Proper nouns in the question: capitalised words that are not ordinary
@@ -114,7 +115,7 @@ function rwAnsStale(key){
 function rwAnsRemember(key, query, answerHtml){
   if(!key) return;
   try{
-    if(rwAnsRelevant(query, answerHtml)) rwAnsPut(key, answerHtml, query);   /* off-topic reply: never saved or re-served */
+    if(rwAnsRelevant(query, answerHtml)){ rwAnsPut(key, answerHtml, query); if(typeof rwSharedContribute==='function') rwSharedContribute(key, query, answerHtml); }   /* off-topic reply: never saved, shared or re-served */
   }catch(e){ /* cache is best-effort */ }
 }
 function rwAiDownNote(err, usedSaved){
