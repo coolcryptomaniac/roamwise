@@ -30,7 +30,7 @@ test('custom endpoint uses the saved base URL and model, defaulting to local Oll
 
 test('retired providers are gone from Settings and Gemini no longer depends on 2.5 Flash first', () => {
   const settings = fs.readFileSync(path.join(root, 'js/ui/settings-modal.js'), 'utf8');
-  assert.doesNotMatch(settings, /cerebras|GitHub Models/i);
+  assert.doesNotMatch(settings, /GitHub Models/i);
   const app = fs.readFileSync(path.join(root, 'app.js'), 'utf8');
   assert.match(app, /gemini: \['gemini-3\.5-flash-lite'/);
 });
@@ -105,4 +105,15 @@ test('WebGPU AI: setup failures become plain-language messages', () => {
   assert.match(ctx.rwWebGPUFriendlyError('QuotaExceededError: Quota exceeded.'), /free storage/);
   assert.match(ctx.rwWebGPUFriendlyError(new Error('Failed to fetch')), /interrupted/);
   assert.match(ctx.rwWebGPUFriendlyError(new Error('Device lost: out of memory')), /Light size/);
+});
+
+test('BYOK is advanced-only: Groq, Cerebras, Gemini, Claude, OpenRouter; Tusk Automatic stays default', () => {
+  const prov = fs.readFileSync(path.join(root, 'js/copilot/ai-providers.js'), 'utf8');
+  assert.match(prov, /RW_BYOK_PROVS=\['groq','cerebras','gemini','anthropic','openrouter'\]/);
+  assert.match(prov, /function rwAdvancedAI\(\)\{ return window\.RW_IS_ADMIN===true \|\| lsGet\('rwAdvAI'\)==='1'; \}/);
+  assert.match(prov, /cerebras:'https:\/\/api\.cerebras\.ai\/v1'/);
+  const settings = fs.readFileSync(path.join(root, 'js/ui/settings-modal.js'), 'utf8');
+  assert.match(settings, /!rwAdvancedAI\(\)\)\{showToast\('Ailon Tusk Automatic chooses/);
+  const app = fs.readFileSync(path.join(root, 'app.js'), 'utf8');
+  assert.match(app, /cerebras: \['gpt-oss-120b'/);
 });

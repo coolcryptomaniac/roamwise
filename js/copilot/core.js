@@ -137,8 +137,8 @@ else { _cpTurns=[]; try{ localStorage.removeItem('rw_turns'); }catch(e){ /* stor
 var _cpHist = []; /* [{q,a}] capped — gives the AI real conversational memory */
 function cpModelChips(targetId){
   var host = el(targetId); if(!host) return;
-  var admin = window.RW_IS_ADMIN===true;
-  var provs = admin ? ['sarvam','groq','gemini','openrouter','mistral','anthropic','custom','ondevice','webgpu'].filter(function(p){ return lsGet('rwKey_'+p); }) : [];
+  var admin = rwAdvancedAI();
+  var provs = admin ? ['sarvam','groq','cerebras','gemini','openrouter','mistral','anthropic','custom','ondevice','webgpu'].filter(function(p){ return lsGet('rwKey_'+p); }) : [];
   var cur = (typeof activeProv!=='undefined')? activeProv : 'smart';
   var chips = [['smart','\u26a1 Ailon Tusk Automatic']].concat(provs.map(function(p){ return [p, p.charAt(0).toUpperCase()+p.slice(1)]; }));
   host.innerHTML = chips.map(function(c){
@@ -149,7 +149,7 @@ function cpModelChips(targetId){
   }).join('');
 }
 function cpSetModel(p){
-  if(p!=='smart' && window.RW_IS_ADMIN!==true) p='smart';
+  if(p!=='smart' && !rwAdvancedAI()) p='smart';
   activeProv=p; lsSet('rwProv',p);
   cpModelChips('cpModels'); cpModelChips('heroModels');
   showToast(p==='smart' ? '\u26a1 Ailon Tusk Automatic is active' : 'Using '+p);

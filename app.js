@@ -124,11 +124,11 @@ var AUTH_ENABLED = (typeof FIREBASE_CONFIG!=='undefined') && FIREBASE_CONFIG.api
 
 var isPro = AUTH_ENABLED ? false : (lsGet('rwPro')==='1');
 var freeLeft = 5;
-/* Retired providers: GitHub Models shut down 2026-07-30 and Cerebras has no
-   free tier. Forget any saved key and fall back to Smart Search. */
-['cerebras','github'].forEach(function(p){ try{ localStorage.removeItem('rwKey_'+p); }catch(e){} });
+/* Retired provider: GitHub Models shut down 2026-07-30. Forget any saved key
+   and fall back to Smart Search. (Cerebras is back as bring-your-own-key only.) */
+['github'].forEach(function(p){ try{ localStorage.removeItem('rwKey_'+p); }catch(e){} });
 var activeProv = lsGet('rwProv')||'smart';
-if(activeProv==='cerebras'||activeProv==='github'){ activeProv='smart'; lsSet('rwProv','smart'); }
+if(activeProv==='github'){ activeProv='smart'; lsSet('rwProv','smart'); }
 var spends = {};
 var itinBuilt = {};
 // qrBuilt (payment-QR-rebuilt flag) moved to js/payments/providers/manual-upi-adapter.js (pluggable payment gateway pass)
@@ -307,6 +307,7 @@ logPaint();
    the user's key when possible, since that's always current. */
 var AI_MODELS = {
   groq: ['openai/gpt-oss-120b','openai/gpt-oss-20b','llama-3.3-70b-versatile'],
+  cerebras: ['gpt-oss-120b','llama3.1-8b','llama-3.3-70b'],
   gemini: ['gemini-3.5-flash-lite','gemini-3.8-flash','gemini-flash-latest'],
   custom: [''],
   ondevice: ['on-device'],
