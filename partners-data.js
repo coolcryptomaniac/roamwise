@@ -97,7 +97,11 @@ window.RW_PARTNER_SEED = [{
      seed fields win over the live Firestore entry on merge, so contact, route and policy stay in the partner admin.
      Photos: supplied by the founder on 16 Oct 2026 for this listing under the MOU content permission (clause 12).
      Replace with the owner's own photos when received. "RoamWise Checked" is computed by RWTrust, not set here. */
-  id:'p_big_bro_hotel', name:'Big Bro Hotel', verified:'signed', listingReady:true,
+  id:'p_big_bro_hotel', cat:'stay', zone:'Almora', area:'Ghurson, Almora', name:'Big Bro Hotel', verified:'signed', listingReady:true,
+  /* Long stays (MOU Annexure A1 / Schedule B B3): 15 nights Rs 30,000; 1 month Rs 50,000; 3 months Rs 1,50,000 in total
+     (Rs 50,000 a month); 4 rooms; minimum 15 nights. Self-declared by the owner: Wi-Fi speed, backup power and desk are
+     NOT stated, so they are left out and the tier stays low until RoamWise or the owner adds them. verified:false on purpose. */
+  nomad:{enabled:true, rooms:4, minNights:15, rate15:30000, rate30:50000, rate90:50000, includes:[], verified:false},
   photos:[
     {src:'assets/property-photos/big-bro-room.webp',alt:'Double room with a grey tufted headboard, white bedding, a floral blanket and a window with cream curtains at Big Bro Hotel, Almora',caption:'Guest room \u00b7 Big Bro Hotel'},
     {src:'assets/property-photos/big-bro-sunset-lounge.webp',alt:'Sunset over hazy hills seen through the large lounge windows at Big Bro Hotel, Almora',caption:'Sunset from the lounge \u00b7 Big Bro Hotel'},
