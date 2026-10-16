@@ -1,0 +1,88 @@
+name: Tusk self-check bot
+
+# Daily and on every change to Ailon Tusk's client code:
+#  1. runs the Tusk regression tests (event trips, answer cache, report route)
+#  2. runs tools/ai-ops/tusk-selfcheck.cjs, the same guard over every listed event
+#  3. pulls anonymous thumbs-down reports from the Worker (only when both the
+#     ROAMWISE_WORKER_URL variable and the TUSK_REPORT_TOKEN secret are set) and
+#     shows what Tusk's own parser does with each one
+#  4. opens ONE issue (or updates it) when the guard fails or reports need a look
+# No AI model is called and nothing is changed automatically; a person reads the
+# issue and decides. Reports hold question text only, never an account or device id.
+on:
+  schedule:
+    - cron: '45 2 * * *' # 08:15 IST daily
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'js/copilot/**'
+      - 'index.html'
+      - 'tools/ai-ops/tusk-*'
+      - 'worker/handlers/tusk-report.js'
+      - 'tests/tusk-*.test.js'
+  pull_request:
+    paths:
+      - 'js/copilot/**'
+      - 'index.html'
+      - 'tools/ai-ops/tusk-*'
+      - 'worker/handlers/tusk-report.js'
+      - 'tests/tusk-*.test.js'
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: tusk-selfcheck
+  cancel-in-progress: false
+
+jobs:
+  selfcheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+      - name: Tusk regression tests
+        run: node --test tests/tusk-regression.test.js tests/tusk-report.test.js
+      - name: Fetch anonymous thumbs-down reports
+        if: github.event_name != 'pull_request'
+        continue-on-error: true
+        env:
+          WORKER_URL: ${{ vars.ROAMWISE_WORKER_URL }}
+          TUSK_REPORT_TOKEN: ${{ secrets.TUSK_REPORT_TOKEN }}
+        run: |
+          if [ -z "$WORKER_URL" ] || [ -z "$TUSK_REPORT_TOKEN" ]; then echo "reports not configured; skipping"; exit 0; fi
+          curl -fsS --max-time 30 -H "Authorization: Bearer $TUSK_REPORT_TOKEN" "${WORKER_URL%/}/tusk/reports" -o tusk-reports.json
+      - name: Self-check
+        id: check
+        continue-on-error: true
+        run: |
+          if [ -f tusk-reports.json ]; then node tools/ai-ops/tusk-selfcheck.cjs --reports tusk-reports.json --out .; else node tools/ai-ops/tusk-selfcheck.cjs --out .; fi
+      - name: Open or update the Tusk QA issue
+        if: github.event_name != 'pull_request' && always()
+        uses: actions/github-script@v9
+        with:
+          script: |
+            const fs = require('fs');
+            if (!fs.existsSync('tusk-selfcheck-result.json')) return;
+            const result = JSON.parse(fs.readFileSync('tusk-selfcheck-result.json', 'utf8'));
+            if (!result.goldenFailures.length && !result.flagged) return;
+            const title = '[Tusk QA] Ailon Tusk self-check needs attention';
+            const body = fs.readFileSync('tusk-selfcheck-report.md', 'utf8')
+              + '\n\nWorkflow run: ' + context.serverUrl + '/' + context.repo.owner + '/' + context.repo.repo + '/actions/runs/' + context.runId
+              + '\n\nClose this issue once the listed answers are fixed; the bot opens a fresh one if new problems appear.';
+            const issues = await github.paginate(github.rest.issues.listForRepo, {
+              owner: context.repo.owner, repo: context.repo.repo, state: 'open', per_page: 100
+            });
+            const existing = issues.find(i => i.title === title && !i.pull_request);
+            if (existing) {
+              await github.rest.issues.update({ owner: context.repo.owner, repo: context.repo.repo, issue_number: existing.number, body });
+            } else {
+              await github.rest.issues.create({ owner: context.repo.owner, repo: context.repo.repo, title, body, labels: ['agent-report'] });
+            }
+      - name: Fail if the regression guard failed
+        if: steps.check.outcome == 'failure'
+        run: exit 1

@@ -100,7 +100,29 @@ function rwTuskFeedback(btn, helpful){
       if(btn && btn.style) btn.style.transform='scale(1.3)';
     }
     track(helpful? 'tusk_helpful' : 'tusk_unhelpful');
+    if(!helpful && row && row.dataset){
+      /* Self-correction: forget the saved answer so it is never served again,
+         and send the question (only) for review. See worker/handlers/tusk-report.js. */
+      try{ if(row.dataset.ck && typeof rwAnsDrop==='function') rwAnsDrop(row.dataset.ck); }catch(e){ /* best-effort */ }
+      rwTuskReport(row.dataset);
+      var note = document.createElement('span');
+      note.className = 'rw-note';
+      note.textContent = 'Thanks. Your question was sent without your name or email so Ailon can be corrected.';
+      row.appendChild(note);
+    }
   }catch(e){ /* analytics best-effort, ignore */ }
+}
+/* Anonymous report of an answer the user marked wrong: question text (emails
+   and long digit runs removed), answer kind and place. No account, no device id. */
+function rwTuskReport(d){
+  try{
+    var url = (typeof rwApi==='function') ? rwApi('tusk/report') : null;
+    if(!url || !d) return;
+    var q = String(d.q||'').replace(/[\w.+-]+@[\w-]+\.[\w.-]+/g,'[email]').replace(/\d[\d\s-]{8,}\d/g,'[number]').slice(0,300);
+    if(q.length < 3) return;
+    fetch(url, { method:'POST', headers:{'Content-Type':'application/json'}, keepalive:true,
+      body: JSON.stringify({ q:q, kind:String(d.kind||'').slice(0,20), dest:String(d.dest||'').slice(0,60) }) }).catch(function(){});
+  }catch(e){ /* reporting is best-effort */ }
 }
 /* Closes the loop the daily tusk-daily.yml Action was built for but never
    received data for: log the place name whenever Ailon Tusk's curated engine

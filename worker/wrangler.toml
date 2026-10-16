@@ -117,3 +117,8 @@ id = "be31e0935be843219cea1edf2203877b"
 [ai]
 binding = "AI"
 # ---------------------------------------------------------------------------
+
+# Anonymous "this answer was wrong" reports (worker/handlers/tusk-report.js).
+# Reading them needs a secret: npx wrangler secret put TUSK_REPORT_TOKEN
+# and the same value as the TUSK_REPORT_TOKEN GitHub Actions secret, plus the
+# ROAMWISE_WORKER_URL repository variable, for .github/workflows/tusk-selfcheck.yml.

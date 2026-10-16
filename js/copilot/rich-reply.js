@@ -37,11 +37,9 @@ function rwTuskRail(dest, raw){
   var d = (dest||'').replace(/'/g, "\\'");
   var q = (raw||'').replace(/'/g, "\\'").slice(0,120);
   function btn(icon,label,fn){
-    return '<button onclick="'+fn+'" style="display:inline-flex;align-items:center;gap:5px;background:var(--bg3,#171A24);border:1px solid var(--b2,#2A2A36);border-radius:20px;padding:7px 12px;color:var(--t1,#EDEAE2);font-size:11.5px;font-weight:600;cursor:pointer;margin:3px 4px 0 0">'
-      +'<span>'+icon+'</span>'+label+'</button>';
+    return '<button class="rw-rail-btn" onclick="'+fn+'"><span>'+icon+'</span>'+label+'</button>';
   }
-  var h='<div style="margin-top:10px;padding-top:9px;border-top:1px solid var(--b2,#2A2A36)">'
-    +'<div style="font-size:9.5px;color:var(--t3,#7A7870);letter-spacing:.08em;font-weight:700;margin-bottom:5px">DO SOMETHING WITH THIS</div>';
+  var h='<div class="rw-rail"><div class="rw-rail-h">DO SOMETHING WITH THIS</div>';
   if(d) h+=btn('\ud83d\uddfa\ufe0f','Map',"openTripMap('"+d+"',null)");
   if(d) h+=btn('\ud83e\udded','Navigate',"rwTuskNavigate('"+d+"')");
   if(d) h+=btn('\ud83d\uddd3\ufe0f','Plan it',"cpGoPlan('"+d+"',0)");
@@ -169,9 +167,13 @@ async function cpFinish(bubble, answerHTML, intents, raw){
   /* Lightweight per-response feedback — bot replies only (cpFinish only ever
      finishes a 'bot' bubble). Anonymous daily counter, same pattern as track()
      elsewhere; no per-message record, no user identity. */
-  _html += '<div class="tk-fb" style="margin-top:8px;display:flex;align-items:center;gap:8px;font-size:10.5px;color:var(--t3)">Helpful?'
-    +'<button type="button" onclick="rwTuskFeedback(this,true)" style="background:none;border:none;cursor:pointer;font-size:14px;line-height:1;padding:2px;opacity:.65" aria-label="Helpful">👍</button>'
-    +'<button type="button" onclick="rwTuskFeedback(this,false)" style="background:none;border:none;cursor:pointer;font-size:14px;line-height:1;padding:2px;opacity:.65" aria-label="Not helpful">👎</button></div>';
+  var _kind = intents._eventTrip?'event':(intents._recommendCount?'picks':(intents._state?'state':(intents._country?'country':(actions.length?'card':'text'))));
+  var _fbCk = ''; try{ _fbCk = (typeof rwAnsKey==='function') ? (rwAnsKey(raw,intents)||'') : ''; }catch(e){ /* optional */ }
+  var _fbQ = String(raw||'').replace(/\s+/g,' ').slice(0,300);
+  var _fe = function(v){ return String(v==null?'':v).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); };
+  _html += '<div class="tk-fb rw-fb" data-kind="'+_kind+'" data-ck="'+_fe(_fbCk)+'" data-q="'+_fe(_fbQ)+'" data-dest="'+_fe(String(intents.dest||'').slice(0,60))+'">Helpful?'
+    +'<button type="button" onclick="rwTuskFeedback(this,true)" aria-label="Helpful">👍</button>'
+    +'<button type="button" onclick="rwTuskFeedback(this,false)" aria-label="Not helpful">👎</button></div>';
   bubble.innerHTML = _html;
   var log=el(_cpTargetLog)||el('cpLog');
   if(log){
@@ -194,6 +196,7 @@ async function cpActionsHTML(it){
   var H=[];
   /* smalltalk never reaches the heavy path */
   if(it.smalltalk) return [];
+  if(it._eventTrip) return [];
   if(it._recommendCount) return [rwMonthRecommendationsHTML(it)];
   /* state-scope request: routes through the state, not a random village */
   if(it._state){

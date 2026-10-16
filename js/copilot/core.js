@@ -506,7 +506,7 @@ function cpParseRegex(t){
      month" are timing requests, not obscure place names. Record the requested
      month/count up front and keep the destination deliberately empty. */
   var _rec=t.match(/\b(?:top|best|suggest|recommend|show|tell(?: me)?|give(?: me)?)?\s*(one|two|three|four|five|six|seven|eight|nine|ten|\d{1,2})?\s*(?:besties|best\s+(?:places?|destinations?)|places?|destinations?)\b/i);
-  if(_rec){
+  if(_rec && t.length<=200 && !/\bplan a trip around\b|destinations?\(s\)/i.test(t)){   /* long text / event prompts are never a best-places ask */
     var _nums={one:1,two:2,three:3,four:4,five:5,six:6,seven:7,eight:8,nine:9,ten:10};
     out._recommendCount=Math.max(1,Math.min(10,parseInt(_rec[1],10)||_nums[String(_rec[1]||'').toLowerCase()]||5));
   }
@@ -828,7 +828,7 @@ function copilotSend(fromHero){
     _cpTargetLog='heroLog';
     var hl=el('heroLog'); if(hl) hl.style.display='block';
   } else { _cpTargetLog='cpLog'; }
-  cpBubble(t.replace(/[<>]/g,''),'me');
+  var aiText=null; cpBubble(t.replace(/[<>]/g,''),'me');
   /* Startup Garage / NMIMS pass questions and "I am a creator / I own a stay": fixed answers, no AI call. */
   try{
     var _nm=(typeof rwNmimsAnswer==='function')?rwNmimsAnswer(t):null;
@@ -841,7 +841,7 @@ function copilotSend(fromHero){
     var _clar = isKasarFestival ? null : rwTuskNeedsClarity(t);
     if(_clar){ cpBubble(_clar,'bot'); return; }
     var _sa = isKasarFestival ? null : rwStartAnywhere(t);
-    if(_sa){ t = _sa; }   /* pasted link/text -> extract the trip from it */
+    if(_sa){ aiText = _sa; }   /* pasted link/text: AI gets the instruction; parser, cache and feedback keep the user's own words */
   }catch(e){ /* best-effort, ignore */ }
   /* App navigation intents: "open settings", "go to store", "show my trips"… */
   var NAV=[[/settings|api key/i,'Settings',function(){openSettings();}],
@@ -876,6 +876,7 @@ function copilotSend(fromHero){
   if(typeof rwActivateFocusFromText==='function'&&/\b(plan|trip|itinerar|travel|visit|stay)\b/i.test(t)){
     intents.focusModes=rwActivateFocusFromText(t,true);
   }
+  if(typeof rwEventTripReply==='function' && rwEventTripReply(thinking,intents,t)) return;   /* festival trips: verified data, no AI call */
   var hasKey = (typeof activeProv!=='undefined') && (activeProv==='roamwise' || (activeProv!=='smart' && lsGet('rwKey_'+activeProv)));
   if(isKasarFestival){
     var festivalAnswer=cpSmartAnswer(t);
@@ -885,6 +886,7 @@ function copilotSend(fromHero){
     /* Real conversation: persona + history + the new message. Any topic is
        fine — the model answers naturally; travel intents ADDITIONALLY get
        action links appended below the answer. */
+    var _ck=(typeof rwAnsKey==='function')?rwAnsKey(t,intents):null; if(_ck && rwAnsServe(thinking,_ck,intents,t)) return;   /* saved answer: instant, no AI */
     var hist=_cpHist.slice(-6).map(function(h){ return 'User: '+h.q+'\nCopilot: '+h.a; }).join('\n');
     /* Ground the model in the real guide before it answers — this is what stops
        confident-but-wrong replies about small towns. */
@@ -923,14 +925,12 @@ function copilotSend(fromHero){
         +'INDIAN GROUND TRUTH \u2014 THIS MATTERS MORE THAN SOUNDING CONFIDENT: never estimate travel time from straight-line distance. In the Himalayas assume ~22km/h (100km can be 5 hours), hill/ghat roads ~32km/h, plains highways ~48km/h, and city traffic ~18km/h. Dehradun to Rishikesh is about an hour, not 30 minutes. Never suggest a day trip that needs more than ~6 hours of road time. Flag monsoon (Jun-Sep) road risk in hills, winter closures on high passes, and altitude acclimatisation for anywhere above 3000m. '
         +'MONEY: the user\u2019s selected currency is '+((CURR.find(function(x){return x.c===AC;})||{s:'\u20b9',c:'INR'}).s)+' ('+AC+'). Always give prices in that symbol, never $ unless AC is literally USD. '
         +'Prefer the verified guide text below over your own recollection; if it contradicts you, trust it. No markdown headers, no bullet spam.\n'
-        +facts+(hist? 'Conversation so far:\n'+hist+'\n':'')+'User: '+t+'\nCopilot:';
+        +facts+(hist? 'Conversation so far:\n'+hist+'\n':'')+'User: '+(aiText||t)+'\nCopilot:';
       aiCallAny(prompt, 260, function(err, txt){
         var answer = (txt||'').trim();
         if(!answer){
-          var kb2 = cpSmartAnswer(t) || '';
-          var note = '<span style="font-size:11px;color:var(--t3)">\u26a1 AI engines unreachable right now'
-            +(err? ' ('+esc2(String(err).slice(0,60))+')':'')
-            +' \u2014 answered by Ailon Tusk\u2019s own engine.</span>';
+          var kb2 = cpSmartAnswer(t) || '', _old = (kb2||!_ck) ? null : rwAnsStale(_ck); if(_old) kb2 = _old;
+          var note = (typeof rwAiDownNote==='function') ? rwAiDownNote(err, !!_old) : '<span class="rw-note">\u26a1 AI engines unreachable right now \u2014 answered by Ailon Tusk\u2019s own engine.</span>';
           if(intents.dest) rwLearn(intents.dest);
           cpFinish(thinking, (kb2? kb2+'<br>':'')+note, intents, t);
           return;
@@ -950,9 +950,9 @@ function copilotSend(fromHero){
             return;
           }
         }
-        answer = escHtml(answer);
+        answer = escHtml(answer); if(_ck) rwAnsRemember(_ck,t,answer);   /* kept only if relevant */
         if(lastAiSource && lastAiSource.prov!==activeProv){
-          answer += '<br><span style="font-size:10.5px;color:var(--t3)">\u21aa answered by <b>'+esc2(lastAiSource.prov)+'</b> \u2014 '+esc2(activeProv)+' was unavailable</span>';
+          answer += '<br><span class="rw-note">\u21aa answered by <b>'+esc2(lastAiSource.prov)+'</b> \u2014 '+esc2(activeProv)+' was unavailable</span>';
         }
         if(intents.dest) rwLearn(intents.dest);
         cpFinish(thinking, answer, intents, t);
