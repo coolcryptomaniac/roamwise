@@ -441,3 +441,46 @@ not run. Collector limits, sources, schema, expiry, failures/history, public JSO
 visitor-sent reports, prices/capacities/permits, auth/payments and deployment settings are unchanged.
 Pending focused repository review; no merge, production deployment, workflow dispatch or contact
 with officials/others was performed by this maintenance run.
+
+## Jaunpur exhibit follow-up — pending review, 16 October 2026
+
+Reviewed main `e76a7f81240d9af96b7d74eeb1c00c5242590f4c`, current implementation and log,
+open PRs (none changing Kainchi), public JSON and recent workflows before editing. #429 merged
+as `73ab189cffea685983819ce211c6f4b9865545bf`; its Patna/Bhopal filter is in main. Static
+Pages run 38838021985 succeeded. The served snapshot checked 16 October 01:59:14Z (07:29 IST)
+retains 13 of 30 selected headlines, with 17 size omissions, successful district/news checks and
+the police URLError preserved. It is within the existing 30-hour freshness window.
+
+Compared that snapshot with saved artifact 11919572685 from run 38616983046 (14 October
+18:40:13Z; archive SHA-256 verified). Prior history is retained and the Patna exhibit is gone.
+A new Jaunpur pandal story now leads the feed. The publisher's page confirms this is a local
+Durga Puja replica/tableau, not a visit-planning update from the Uttarakhand shrine:
+https://www.amarujala.com/photo-gallery/uttar-pradesh/varanasi/from-lotus-sun-motif-kainchi-dham-glimpses-indian-culture-and-tableaus-ramayana-display-jaunpur-pandals-2026-10-15
+RSS publishedAt is 16 October 00:23:02Z; the page labels its update 16 October 05:53 IST.
+The URL contains 15 October, which is not evidence of an original publication or effective
+travel-rule date. No source date was rewritten.
+
+The proposed one-line change adds Jaunpur/जौनपुर to the evidenced off-site city pattern. It
+retains the exhibit-term requirement, travel/safety exception and all last-good failure behavior
+from #429. English/Hindi regression examples failed before the change; genuine Jaunpur pilgrims
+and travel reports mentioning a pandal remain eligible. This remains a narrow heuristic, not
+an exhaustive geographic classifier. Replaying the 13 saved news records keeps 12 and removes
+only the confirmed Jaunpur exhibit, preserving remaining attribution and publication timestamps.
+
+The reviewed district announcements/What's New and listed police X posts through 15 October
+15:17 IST did not verify a new effective 16 October Kainchi access order. The social retrieval
+provider reports platform verification unknown; social stays manual. Police website scraping
+again hit an internal proxy tunnel error. A local read-only collection at 16 October 03:08:53Z
+(08:38 IST) read district and both RSS sources successfully, selected 30 and retained 14 under
+the same size bound; police failed with HTTPError. All comparison outputs remain temporary QA
+data, not a production publication. Headlines were not converted into permit, rate or road rules.
+
+Verification: 11 Python collector tests, 50 Kainchi tests and 852 repository tests passed, with
+one existing esbuild skip; `npm run check` and `git diff --check` pass. Existing main health run
+38838022022 fails only its architecture-drift gate: ARCHITECTURE.md says app.js has 580 lines,
+but it has 581. Unit tests and check passed in that run too. The same mismatch is reproduced
+locally by `npm run mod-status`; the unrelated architecture file is deliberately not changed.
+No runtime/browser code, limits, sources, schema, expiry/history/failures, public JSON/JS,
+advisory passes, visitor-sent reports, auth/payments or deployment settings changed. Device QA
+was not run. Pending repository review; no merge, deployment/workflow dispatch or contact with
+officials/others was performed by this maintenance run.

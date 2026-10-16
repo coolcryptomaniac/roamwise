@@ -18,6 +18,8 @@ class FeedTests(unittest.TestCase):
         for title in ['Patna Durga Puja: Kainchi Dham replica pandals',
                       'पटना में कैंची धाम की झांकी',
                       'Bhopal pandals showcase Kainchi Dham',
+                      'Jaunpur pandals show a Kainchi Dham replica',
+                      'जौनपुर के पंडालों में कैंची धाम की प्रतिकृति',
                       'कैंची धाम जैसा पंडाल भोपाल में']:
             with self.subTest(title=title):
                 self.assertEqual(m.parse_rss(RSS.replace('Kainchi Dham traffic report', title), SOURCE, NOW), [])
@@ -29,6 +31,8 @@ class FeedTests(unittest.TestCase):
                       'कैंची धाम में पंडाल और स्थानीय सेवाएं',
                       'Patna pilgrims: Kainchi Dham route diversion near a festival pandal',
                       'भोपाल से कैंची धाम: पंडाल के पास यातायात सूचना',
+                      'Jaunpur pilgrims visit Kainchi Dham via Bhowali',
+                      'जौनपुर से कैंची धाम यात्रा: पंडाल के पास यातायात सूचना',
                       'Bhopal pilgrims: Kainchi Dham road and shuttle report']:
             with self.subTest(title=title):
                 rows = m.parse_rss(RSS.replace('Kainchi Dham traffic report', title), SOURCE, NOW)
