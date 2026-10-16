@@ -67,6 +67,23 @@ GROQ_MODEL = "openai/gpt-oss-20b"
 WORKERS_AI_MODEL = "@cf/google/gemma-4-26b-a4b-it"
 SARVAM_MODEL = "sarvam-105b-conversations"
 GROQ_MONTHLY_REQUEST_CAP = "12000"
+# --- Revenue-gated AI spend (worker/lib/spend-governor.js) -------------------
+# Paid AI budget this month = max(AI_MIN_PAID_BUDGET_PAISE,
+#   revenue * (1 - AI_TARGET_MARGIN) - FIXED_MONTHLY_COSTS_PAISE).
+# Amounts are paise (100 paise = Rs 1). Set FIXED_MONTHLY_COSTS_PAISE to your
+# real non-AI monthly subscriptions (Firebase, Cloudflare plan, domain, ...).
+# Revenue is recorded automatically from live Cashfree payments; to seed history
+# run: npx wrangler kv key put --binding AI_USAGE "rw-revenue:2026-10" "<paise>"
+AI_TARGET_MARGIN = "0.2"
+FIXED_MONTHLY_COSTS_PAISE = "0"
+AI_MIN_PAID_BUDGET_PAISE = "150000"
+AI_FREE_DAILY_PAISE = "900"
+GROQ_FREE_TIER = "true"
+# Optional premium route (Claude) for Pro/Elite users. Needs the existing
+# ANTHROPIC_API_KEY secret and only runs while spend < ratio of the budget.
+AI_PREMIUM_ENABLED = "false"
+CLAUDE_MODEL = "claude-haiku-5-5"
+AI_PREMIUM_MAX_SPEND_RATIO = "0.6"
 AI_MAX_PROMPT_CHARS = "4000"
 AI_MAX_OUTPUT_TOKENS = "700"
 # Admin-only AI CA provider preference. API keys/models remain Worker secrets.

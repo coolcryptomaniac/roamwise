@@ -13,6 +13,7 @@ import { verifyFirebaseIdToken } from '../lib/firebase-verify.js';
 import { getServiceAccountAccessToken, parseServiceAccount } from '../lib/service-account.js';
 import { getDoc } from '../lib/firestore-rest.js';
 import { managedAILimit, managedAIRequest, peekManagedAI, reserveManagedAI, reserveProviderRequest } from '../lib/ai-entitlements.js';
+import { chargeSpend, estimateCostPaise, planRoutes, readBudget } from '../lib/spend-governor.js';
 import { answerCacheKey, getCachedAnswer, getCachedLimit, putCachedAnswer, putCachedLimit } from '../lib/ai-cache.js';
 
 const SYSTEM='You are Ailon Tusk, RoamWise travel copilot. Treat the user\'s explicitly named city/locality as the destination; never replace it with the enclosing state or country. Treat next month, October and similar phrases as dates, never places. Use supplied RoamWise facts as authoritative. If inventory, price, weather or opening status is not verified, say so and ask one precise question. Never claim a booking or payment succeeded unless the server-confirmed record says so.';
@@ -32,6 +33,15 @@ async function sarvamAI(policy,env){
   if(!env.SARVAM_API_KEY)throw new Error('sarvam_unavailable');
   const r=await fetch('https://api.sarvam.ai/v1/chat/completions',{method:'POST',headers:{Authorization:`Bearer ${env.SARVAM_API_KEY}`,'Content-Type':'application/json'},body:JSON.stringify({model:String(env.SARVAM_MODEL||'sarvam-105b-conversations'),messages:[{role:'system',content:SYSTEM},{role:'user',content:policy.prompt}],max_tokens:policy.maxTokens})});
   const d=await r.json();if(!r.ok)throw new Error('sarvam_failed');return {text:String(d?.choices?.[0]?.message?.content||'').trim(),provider:'sarvam',model:String(env.SARVAM_MODEL||'sarvam-105b-conversations')};
+}
+async function claudeAI(policy,env){
+  if(!env.ANTHROPIC_API_KEY)throw new Error('claude_unavailable');
+  const model=String(env.CLAUDE_MODEL||'claude-haiku-5-5');
+  const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'x-api-key':env.ANTHROPIC_API_KEY,'anthropic-version':'2023-06-01','content-type':'application/json'},body:JSON.stringify({model,max_tokens:policy.maxTokens,system:SYSTEM,messages:[{role:'user',content:policy.prompt}]})});
+  const d=await r.json();if(!r.ok)throw new Error('claude_failed');
+  const text=(Array.isArray(d?.content)?d.content:[]).map(function(b){return b&&b.type==='text'?b.text:'';}).join('').trim();
+  if(!text)throw new Error('claude_empty');
+  return {text,provider:'claude',model,usage:d?.usage||null};
 }
 async function groqAI(policy,env){
   if(!env.GROQ_API_KEY||!env.GROQ_MODEL)throw new Error('groq_unavailable');
@@ -63,6 +73,24 @@ export function prefersSarvam(prompt,lang){
   const indic=(t.match(INDIC_RE)||[]).length;
   if(indic>=3&&indic/Math.max(t.length,1)>0.1)return true;
   return (t.match(HINGLISH_RE)||[]).length>=2;
+}
+
+/* Route order + metadata. Default: Workers AI (free allowance, then cheap),
+   Sarvam, Groq (free tier). Hindi/Indic prompts put Sarvam first. Paying
+   Pro/Elite users may get Claude first when AI_PREMIUM_ENABLED is "true"
+   and the budget has plenty of headroom (planRoutes enforces that). */
+function buildRoutes(policy, env, limit, body){
+  const chars = policy.prompt.length, mt = policy.maxTokens;
+  const mk = (name, run, extra) => Object.assign({ name, run, est:estimateCostPaise(name, chars, mt, env) }, extra || {});
+  const cf = mk('workers-ai', cloudflareAI);
+  const sv = mk('sarvam', sarvamAI);
+  const gq = mk('groq', groqAI, { freeTier:String(env.GROQ_FREE_TIER||'true').toLowerCase() !== 'false' });
+  cf.ok = !!(env.AI && typeof env.AI.run === 'function'); sv.ok = !!env.SARVAM_API_KEY; gq.ok = !!(env.GROQ_API_KEY && env.GROQ_MODEL);
+  const list = (prefersSarvam(policy.prompt, body && body.lang) ? [sv, cf, gq] : [cf, sv, gq]).filter(r => r.ok);
+  if(String(env.AI_PREMIUM_ENABLED||'').toLowerCase()==='true' && env.ANTHROPIC_API_KEY && limit >= 40){
+    list.unshift(mk('claude', claudeAI, { premium:true }));
+  }
+  return list;
 }
 
 export async function handleAI(request, env){
@@ -101,6 +129,15 @@ export async function handleAI(request, env){
       const hit = await getCachedAnswer(env, cacheKey);
       if(hit) return json({text:hit.text,remaining:peek.remaining,limit:peek.limit,route:hit.provider,model:hit.model,usage:null,cached:true});
     }
+    // Revenue-gated routing (see lib/spend-governor.js): cache first, then the
+    // free allowances, then paid routes only while spend stays under the
+    // revenue-derived budget. Checked BEFORE the user's allowance is used up.
+    const routes = buildRoutes(policy, env, limit, body);
+    const budget = await readBudget(env);
+    const plan = planRoutes(routes, budget, { premiumMaxSpendRatio:env.AI_PREMIUM_MAX_SPEND_RATIO });
+    if(!plan.length){
+      return json({ error:'budget_guard', message:'Ailon Tusk is temporarily using its on-device planner.' }, 503);
+    }
     const reserved = await reserveManagedAI(env, claims.uid, limit);
     if(!reserved.ok){
       const status = reserved.reason === 'meter_not_configured' ? 501 : 429;
@@ -109,12 +146,10 @@ export async function handleAI(request, env){
         : 'This month\u2019s included managed-AI allowance is used. The on-device planner still works.',
         used:reserved.used, limit:reserved.limit }, status);
     }
-    // Order: Workers AI (Gemma 4 26B), then Sarvam, then Groq as the last resort.
-    // Hindi/Indic/Hinglish prompts flip it: Sarvam first (see prefersSarvam).
-    const routes=prefersSarvam(policy.prompt,body&&body.lang)?[sarvamAI,cloudflareAI,groqAI]:[cloudflareAI,sarvamAI,groqAI];
-    let answer=null,last='provider_error';
-    for(const run of routes){try{answer=await run(policy,env);if(answer&&answer.text)break;}catch(e){last=String(e&&e.message||e)}}
+    let answer=null,last='provider_error',used=null;
+    for(const r of plan){try{answer=await r.run(policy,env);if(answer&&answer.text){used=r;break;}}catch(e){last=String(e&&e.message||e)}}
     if(!answer||!answer.text)return json({error:'provider_error',message:'Ailon Tusk is temporarily using its on-device planner.',remaining:reserved.remaining,code:last},502);
+    try{await chargeSpend(env,used.name,used.est,used.freeTier);}catch(e){/* accounting is best-effort */}
     await putCachedAnswer(env, cacheKey, answer);
     return json({text:answer.text,remaining:reserved.remaining,limit:reserved.limit,route:answer.provider,model:answer.model,usage:answer.usage||null});
   }catch(e){

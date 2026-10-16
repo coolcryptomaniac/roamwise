@@ -134,8 +134,8 @@ test('Managed AI order is Workers AI (Gemma 4 26B), then Sarvam, then Groq; both
   const config = read('worker/wrangler.toml');
   assert.match(config, /WORKERS_AI_MODEL\s*=\s*"@cf\/google\/gemma-4-26b-a4b-it"/);
   const src = read('worker/handlers/ai.js');
-  assert.match(src, /\[cloudflareAI,sarvamAI,groqAI\]/);
-  assert.match(src, /\[sarvamAI,cloudflareAI,groqAI\]/);
+  assert.match(src, /\[cf, sv, gq\]/);
+  assert.match(src, /\[sv, cf, gq\]/);
   const { workersAIText } = await import(path.join(root, 'worker/handlers/ai.js'));
   assert.equal(workersAIText({ response: ' hi ' }), 'hi');
   assert.equal(workersAIText({ choices: [{ message: { content: ' hello ' } }] }), 'hello');
