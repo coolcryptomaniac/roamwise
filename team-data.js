@@ -64,6 +64,7 @@ window.RW_ROPE_SEATS = [
   { kind: "Advisor", title: "Himalayan hospitality", need: "Knows homestays and small hotels in the hills, and how to bring hundreds of them on board fairly." },
   { kind: "Advisor", title: "AI and infrastructure", need: "Has run AI products at scale and can keep a lean stack fast, cheap and reliable." },
   { kind: "Advisor", title: "Brand and creators", need: "Has built an Indian consumer brand with creators and communities rather than paid ads." },
+  { kind: "Advisor", title: "Visual storytelling and short-form content", need: "A photographer and short-form producer who sets how stays, treks and creator reels look and feel on RoamWise. A quarterly role: a few reviews a year, not day-to-day work." },
   { kind: "Investor", title: "Angel investor", need: "Backs India-first consumer products early. The current round terms are public on the invest page." }
 ];
 
