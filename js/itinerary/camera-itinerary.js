@@ -39,7 +39,7 @@ function scanImageRun(file, key){
   var fr=new FileReader();
   fr.onload=function(){
     var b64=String(fr.result).split(',')[1];
-    fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key='+key,{
+    fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key='+key,{
       method:'POST', headers:{'Content-Type':'application/json'},
       body: JSON.stringify({contents:[{parts:[
         {text:'List every real-world travel place in this image (cities, neighbourhoods, restaurants, viewpoints, hotels, trails). Reply ONLY with JSON: {"places":[{"name":"...","kind":"city|food|sight|stay","note":"one short clause"}]}. No prose, no markdown fences. If none, return {"places":[]}.'},

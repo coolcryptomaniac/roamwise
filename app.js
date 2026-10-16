@@ -307,7 +307,7 @@ logPaint();
    the user's key when possible, since that's always current. */
 var AI_MODELS = {
   groq: ['openai/gpt-oss-120b','openai/gpt-oss-20b','llama-3.3-70b-versatile'],
-  gemini: ['gemini-3.5-flash-lite','gemini-3.1-flash-lite','gemini-flash-latest'],
+  gemini: ['gemini-3.5-flash-lite','gemini-3.8-flash','gemini-flash-latest'],
   custom: [''],
   ondevice: ['on-device'],
   webgpu: ['webgpu'],
