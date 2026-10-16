@@ -134,10 +134,20 @@ test('Managed AI order is Workers AI (Gemma 4 26B), then Sarvam, then Groq; both
   const config = read('worker/wrangler.toml');
   assert.match(config, /WORKERS_AI_MODEL\s*=\s*"@cf\/google\/gemma-4-26b-a4b-it"/);
   const src = read('worker/handlers/ai.js');
-  assert.match(src, /const routes=\[cloudflareAI,sarvamAI,groqAI\]/);
+  assert.match(src, /\[cloudflareAI,sarvamAI,groqAI\]/);
+  assert.match(src, /\[sarvamAI,cloudflareAI,groqAI\]/);
   const { workersAIText } = await import(path.join(root, 'worker/handlers/ai.js'));
   assert.equal(workersAIText({ response: ' hi ' }), 'hi');
   assert.equal(workersAIText({ choices: [{ message: { content: ' hello ' } }] }), 'hello');
   assert.equal(workersAIText({}), '');
   assert.equal(workersAIText(null), '');
+});
+
+test('Hindi, Indic-script, Hinglish and lang-hinted prompts route to Sarvam first', async () => {
+  const { prefersSarvam } = await import(path.join(root, 'worker/handlers/ai.js'));
+  assert.equal(prefersSarvam('अल्मोड़ा से जागेश्वर कैसे जाएं?'), true);
+  assert.equal(prefersSarvam('mujhe Almora ghumne ka plan chahiye'), true);
+  assert.equal(prefersSarvam('Plan a trip', 'hi-IN'), true);
+  assert.equal(prefersSarvam('Plan a 3 day trip to Almora'), false);
+  assert.equal(prefersSarvam('', ''), false);
 });

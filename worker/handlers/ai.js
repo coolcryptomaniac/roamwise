@@ -53,6 +53,18 @@ export async function aiRateLimited(request){
   }catch(e){ return false; }              /* never block on limiter failure */
 }
 
+/* Indian-language routing: Sarvam is built for Indic and code-mixed chat, so
+   Hindi/Indic scripts, Hinglish, or an explicit lang hint go to Sarvam first. */
+const INDIC_RE=/[\u0900-\u0D7F]/g;
+const HINGLISH_RE=/\b(kya|hai|hain|mujhe|mujhko|chahiye|kahan|kaise|kitna|kitne|batao|bataiye|karo|karna|ghumne|jana|jaana|accha|achha|nahi|nahin|aur|mera|meri|humare|dikhao|sasta|saste|yatra|kaun|konsa|kab)\b/gi;
+export function prefersSarvam(prompt,lang){
+  if(/^(hi|hin|bn|mr|gu|pa|ta|te|kn|ml|or|ur|as|ne)(-|_|$)/i.test(String(lang||'').trim()))return true;
+  const t=String(prompt||'');
+  const indic=(t.match(INDIC_RE)||[]).length;
+  if(indic>=3&&indic/Math.max(t.length,1)>0.1)return true;
+  return (t.match(HINGLISH_RE)||[]).length>=2;
+}
+
 export async function handleAI(request, env){
   try{
     if(String(env.MANAGED_AI_ENABLED || '').toLowerCase() !== 'true'){
@@ -98,7 +110,8 @@ export async function handleAI(request, env){
         used:reserved.used, limit:reserved.limit }, status);
     }
     // Order: Workers AI (Gemma 4 26B), then Sarvam, then Groq as the last resort.
-    const routes=[cloudflareAI,sarvamAI,groqAI];
+    // Hindi/Indic/Hinglish prompts flip it: Sarvam first (see prefersSarvam).
+    const routes=prefersSarvam(policy.prompt,body&&body.lang)?[sarvamAI,cloudflareAI,groqAI]:[cloudflareAI,sarvamAI,groqAI];
     let answer=null,last='provider_error';
     for(const run of routes){try{answer=await run(policy,env);if(answer&&answer.text)break;}catch(e){last=String(e&&e.message||e)}}
     if(!answer||!answer.text)return json({error:'provider_error',message:'Ailon Tusk is temporarily using its on-device planner.',remaining:reserved.remaining,code:last},502);
