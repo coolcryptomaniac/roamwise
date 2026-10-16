@@ -1334,3 +1334,9 @@ button stay in `partner/marketplace.js`. Loaded after `js/booking/form.js`.
 ## Tusk reply motion and shared learning
 - `js/copilot/typing-fx.js` + `css/base/08-tusk-motion.css`: typing/stagger reveal called from `cpFinish`. Instant (Fast mode) for reduced-motion, data-saver, low-end phones, booking/payment, saved/shared answers, long answers. `rwFxDecide` is the pure rule set.
 - `js/copilot/shared-learning.js`: contributes generic answers (hash + plain text) and serves them via `rwSharedFirst` (hooked in core.js before the AI call). Worker side: `worker/handlers/tusk-learned.js` (`/tusk/learned`, `/tusk/learned/drop`), KV `AI_USAGE`, 45-day TTL, 300 writes/day cap. Off switch: "stop sharing learnings". See FUTURE-PROOF.md.
+
+## Firestore rules autopilot
+- `tools/ai-ops/rules-audit.cjs` (+ `rules-audit.baseline.json`): offline drift audit. Flags client collections with no rule, `track()` names missing from `statsKeys()`, counters without a `statsBump()`, `if true` writes. Only NEW findings fail; accepted ones live in the baseline (currently `bookings`, `leads`, `stayEnquiries`: need a product decision before any rule is written).
+- `tests/emulator/firestore-rules.emu.test.mjs`: real emulator tests (`npm run rules:test`, needs Java).
+- `.github/workflows/rules-autopilot.yml`: runs both on rules/client PRs and daily 06:30 IST; opens/updates/closes one "Firestore rules drift" issue. `deploy-firestore-rules.yml` runs both as gates before publishing.
+- Admin: Admin -> Reminders -> card 4 (`js/admin/trip-notify-panel.js`) edits `config/tripNotifySettings`.

@@ -1,0 +1,83 @@
+name: Firestore Rules Autopilot
+
+# Keeps firestore.rules honest without a human remembering to look:
+#  * every PR that touches rules or client code runs the drift audit and the
+#    real-emulator rules tests;
+#  * every morning (06:30 IST) the audit runs again; if NEW drift appears it
+#    opens (or updates) one GitHub issue, and closes it when the drift is gone;
+#  * "Run workflow" does the same on demand.
+# Nothing here deploys rules. Deploys stay in "Deploy Firestore Rules", which
+# runs the same two gates before it publishes anything.
+
+on:
+  pull_request:
+    paths:
+      - 'firestore.rules'
+      - 'tools/ai-ops/rules-audit.*'
+      - 'tests/emulator/**'
+      - 'js/**'
+      - 'app.js'
+      - 'staff/**'
+      - 'partner/**'
+      - 'creators/**'
+      - 'admin/**'
+  schedule:
+    - cron: '0 1 * * *'   # 06:30 IST; GitHub schedules are best-effort
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: rules-autopilot-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 20
+      - name: Drift audit
+        id: audit
+        run: |
+          set +e
+          node tools/ai-ops/rules-audit.cjs --md > audit.md
+          echo "code=$?" >> "$GITHUB_OUTPUT"
+          cat audit.md >> "$GITHUB_STEP_SUMMARY"
+      - name: Open, update or close the tracking issue (scheduled / manual runs)
+        if: github.event_name != 'pull_request'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          CODE: ${{ steps.audit.outputs.code }}
+        run: |
+          title="Firestore rules drift"
+          num=$(gh issue list --state open --search "\"$title\" in:title" --json number,title --jq ".[] | select(.title==\"$title\") | .number" | head -1)
+          if [ "$CODE" != "0" ]; then
+            if [ -n "$num" ]; then gh issue comment "$num" --body-file audit.md
+            else gh issue create --title "$title" --body-file audit.md; fi
+          elif [ -n "$num" ]; then
+            gh issue close "$num" --comment "The audit is clean again."
+          fi
+      - name: Fail the run when there is new drift
+        if: steps.audit.outputs.code != '0'
+        run: exit 1
+
+  emulator:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 20
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Rules tests against the Firestore emulator
+        run: npm run rules:test
