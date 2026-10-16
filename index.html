@@ -595,6 +595,27 @@ function rwDismissCreatorBanner(){
     <div id="heroModels" style="position:absolute;left:14px;bottom:16px;display:flex;gap:6px;flex-wrap:wrap;max-width:58%"></div>
   </div>
 </section>
+<section class="v v-home" id="quickGrid" style="margin:4px 14px 8px">
+  <a class="rw-card rw-card-sacred" id="dussehraCard" href="#" onclick="openListing();return false" style="margin:0 0 10px">
+    <span class="rw-card-ic" aria-hidden="true">&#127917;</span>
+    <span class="rw-card-tx"><b>Dussehra in Almora &middot; 20 Oct</b><small>Stay with RoamWise partners in town for the Ravan-family effigies. Ask for your dates on WhatsApp.</small></span>
+    <span class="rw-card-go" aria-hidden="true">&rarr;</span>
+  </a>
+  <script>(function(){var c=document.getElementById('dussehraCard');if(c&&new Date()>new Date('2026-10-21T00:00:00+05:30'))c.style.display='none';})();</script>
+  <div class="qg-wrap">
+    <!-- rw-v82: the FOUR things most people actually came to do. Everything
+         else moved behind "More" so home stays a decision, not a menu. -->
+    <button class="qg-tile qg-primary" onclick="openListing()"><span class="qg-ic">🏡</span><span class="qg-lbl">Stay &amp; do</span></button>
+    <button class="qg-tile qg-primary" onclick="openMoneyLayer()"><span class="qg-ic">💰</span><span class="qg-lbl">Split money</span></button>
+    <button class="qg-tile qg-primary" onclick="openNearMe()"><span class="qg-ic">📍</span><span class="qg-lbl">Near me</span></button>
+    <button class="qg-tile qg-primary" style="position:relative" onclick="openBooking()"><span class="qg-ic">🧳</span><span class="qg-lbl">Your trip</span><span id="rwBasketBadge">0</span></button>
+    <button class="qg-tile qg-primary" onclick="openExperiences()"><span class="qg-ic">✨</span><span class="qg-lbl">Experiences</span></button>
+    <button class="qg-tile qg-primary" onclick="location.href='nomads/'"><span class="qg-ic">💻</span><span class="qg-lbl">Work stays</span></button>
+  </div>
+  <div class="qg-more"><button onclick="openDrawer()">Events, Beacon, Realms, Arrival mode, Treks &amp; more →</button></div>
+</section>
+
+<details class="v v-home" id="musicEventsWrap" style="margin:6px 14px 14px"><summary style="cursor:pointer;font-weight:700;padding:10px 4px;color:var(--t2)">&#127926; Music &amp; festival trips</summary>
 <section class="xsec v v-home" id="musicEventsIndia" style="margin:12px 14px 18px;padding:18px;background:linear-gradient(145deg,rgba(76,53,37,.38),rgba(18,18,28,.95));border:1px solid rgba(232,186,108,.3);border-radius:22px">
   <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
     <span style="font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold2,#C8913E);font-weight:800">RoamWise music weekends · India</span>
@@ -616,6 +637,7 @@ function rwDismissCreatorBanner(){
     </div>
   </div>
 </section>
+</details>
 <script>
 (function(){
   /* Add or edit events here. `end` is the last festival day (India time); the card
@@ -716,21 +738,13 @@ function rwDismissCreatorBanner(){
   </div>
 </div></div>
 
-<section class="v v-home" id="quickGrid" style="margin:4px 14px 8px">
-  <div class="qg-wrap">
-    <!-- rw-v82: the FOUR things most people actually came to do. Everything
-         else moved behind "More" so home stays a decision, not a menu. -->
-    <button class="qg-tile qg-primary" onclick="openListing()"><span class="qg-ic">🏡</span><span class="qg-lbl">Stay &amp; do</span></button>
-    <button class="qg-tile qg-primary" onclick="openMoneyLayer()"><span class="qg-ic">💰</span><span class="qg-lbl">Split money</span></button>
-    <button class="qg-tile qg-primary" onclick="openNearMe()"><span class="qg-ic">📍</span><span class="qg-lbl">Near me</span></button>
-    <button class="qg-tile qg-primary" style="position:relative" onclick="openBooking()"><span class="qg-ic">🧳</span><span class="qg-lbl">Your trip</span><span id="rwBasketBadge">0</span></button>
-    <button class="qg-tile qg-primary" onclick="openExperiences()"><span class="qg-ic">✨</span><span class="qg-lbl">Experiences</span></button>
-    <button class="qg-tile qg-primary" onclick="openEvents()"><span class="qg-ic">📅</span><span class="qg-lbl">Events</span></button>
-  </div>
-  <div class="qg-more"><button onclick="openDrawer()">Everything else · Beacon, Realms, Arrival mode, Treks &amp; more →</button></div>
-</section>
-
 <section class="v v-home rw-band" id="sacredBand" aria-label="Sacred journeys and partners">
+  <a class="rw-card rw-card-nomad" href="nomads/">
+    <span class="rw-card-ic" aria-hidden="true">&#128187;</span>
+    <span class="rw-card-tx"><b>Nomad Match &middot; work stays</b><small>Founders and professionals: 15-day to 3-month stays with proven Wi-Fi, power backup and a real desk. Get matched in a minute.</small></span>
+    <span class="rw-card-go" aria-hidden="true">&rarr;</span>
+  </a>
+  <details class="rw-more-cards" style="margin-top:6px"><summary style="cursor:pointer;font-weight:700;padding:10px 4px;color:var(--t2)">For hosts, creators &amp; partners</summary>
   <a class="rw-card rw-card-sacred" href="bhakti/">
     <span class="rw-card-ic" aria-hidden="true">ॐ</span>
     <span class="rw-card-tx"><b>Digital Bhakti Studio</b><small>Your own sankalp with lifelike Panditji · mantra, aarti, complete Chalisa, katha and symbolic yajna / Shiva programmes. Explore ₹10–₹300 digital tiers.</small></span>
@@ -756,11 +770,6 @@ function rwDismissCreatorBanner(){
     <span class="rw-card-tx"><b>Property &times; creator matching</b><small>Hosts: tell us what content you want and meet creators who fit your stay.</small></span>
     <span class="rw-card-go" aria-hidden="true">&rarr;</span>
   </a>
-  <a class="rw-card rw-card-nomad" href="nomads/">
-    <span class="rw-card-ic" aria-hidden="true">&#128187;</span>
-    <span class="rw-card-tx"><b>Nomad Match &middot; work stays</b><small>Founders and professionals: 15-day to 3-month stays with proven Wi-Fi, power backup and a real desk. Get matched in a minute.</small></span>
-    <span class="rw-card-go" aria-hidden="true">&rarr;</span>
-  </a>
   <a class="rw-card rw-card-nomadjoin" href="nomads/join/">
     <span class="rw-card-ic" aria-hidden="true">&#128188;</span>
     <span class="rw-card-tx"><b>Own a work-friendly stay? List for nomads</b><small>Good Wi-Fi and a desk? Fill rooms for 15 days to 3 months. Join in about 2 minutes.</small></span>
@@ -771,6 +780,7 @@ function rwDismissCreatorBanner(){
     <span class="rw-card-tx"><b>Own a stay or experience? Join as a partner</b><small>Apply in about 3 minutes to list with the RoamWise local stays collective.</small></span>
     <span class="rw-card-go" aria-hidden="true">&rarr;</span>
   </a>
+  </details>
 </section>
 
 <section class="brief v v-home" id="brief" style="display:none">
