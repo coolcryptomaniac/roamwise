@@ -548,6 +548,36 @@ html{-webkit-text-size-adjust:100%}
   <button type="button" class="rw-vb-close" onclick="rwDismissVerificationBanner()" aria-label="Dismiss verification reminder">&#215;</button>
 </div>
 
+<!-- ============ COPILOT HERO — the front door, Claude-style ============ -->
+<section class="v v-home v-copilot" id="copilotHero" style="margin:16px 14px 8px">
+  <div class="tusk-title"><span>⚡</span><b>Ailon Tusk</b><em>· your travel copilot</em><i>ALWAYS CURIOUS</i></div>
+  <div id="heroLog" style="display:none;margin-bottom:10px;max-height:52vh;overflow-y:auto"></div>
+  <div class="copilot-compose" style="position:relative;background:linear-gradient(180deg,var(--bg2,#12121C),rgba(18,18,28,.55));border:1.5px solid rgba(232,186,108,.35);border-radius:22px;padding:14px;box-shadow:0 8px 30px rgba(0,0,0,.35)">
+    <textarea id="heroInput" rows="5" placeholder="Ask me anything &mdash; &ldquo;chill 4 days near Rishikesh under 12k&rdquo;"
+      style="display:block;width:100%;box-sizing:border-box;background:transparent;border:none;padding:8px 8px 44px;color:inherit;font:inherit;font-size:16.5px;resize:none;outline:none;min-height:168px;line-height:1.6"></textarea>
+    <div class="copilot-actions" style="position:absolute;right:12px;bottom:12px;display:flex;gap:8px;align-items:center">
+      <button onclick="scanImageOpen()" aria-label="Scan a screenshot" title="Scan a screenshot or reel"
+        style="width:36px;height:36px;border-radius:50%;border:1px solid var(--b2,#2A2A36);background:var(--bg3,#1A1A20);color:var(--t2);font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center">&#128247;</button>
+      <button onclick="copilotVoiceHero()" aria-label="Voice"
+        style="width:36px;height:36px;border-radius:50%;border:1px solid var(--b2,#2A2A36);background:var(--bg3,#1A1A20);color:var(--t2);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center">&#127908;</button>
+      <button id="heroSend" type="button" onclick="copilotSend(true)" aria-label="Send travel request"
+        style="width:36px;height:36px;border-radius:50%;border:none;background:linear-gradient(135deg,var(--gold,#E8BA6C),var(--gold2,#C8913E));color:#0A0A0C;font-size:16px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center">&#10148;</button>
+    </div>
+    <div id="heroModels" style="position:absolute;left:14px;bottom:16px;display:flex;gap:6px;flex-wrap:wrap;max-width:58%"></div>
+  </div>
+<section class="v v-home" id="bigSix" aria-label="Main ways to use RoamWise" style="margin:14px 0 4px">
+  <div class="bs-grid">
+    <button type="button" class="bs-tile bs-stay" onclick="openListing()"><span class="bs-ic" aria-hidden="true">&#127969;</span><b>Book &amp; Stay</b><small>Signed local stays. Book on WhatsApp.</small></button>
+    <a class="bs-tile bs-nomad" href="nomads/"><span class="bs-ic" aria-hidden="true">&#128187;</span><b>Nomad Match</b><small>Work stays, 15 days to 3 months.</small></a>
+    <a class="bs-tile bs-creator" href="creators/match.html?role=creator&amp;invite=founding"><span class="bs-ic" aria-hidden="true">&#127909;</span><b>Creator Match</b><small>Free stays for your content.</small></a>
+    <a class="bs-tile bs-prop" href="creators/match.html?role=property"><span class="bs-ic" aria-hidden="true">&#129309;</span><b>Creators &times; Stays</b><small>Hosts: find creators who fit.</small></a>
+    <button type="button" class="bs-tile bs-fit" onclick="openFitnessStays()"><span class="bs-ic" aria-hidden="true">&#127947;&#65039;</span><b>Fitness-first stays</b><small>Gyms and yoga near your stay.</small></button>
+    <button type="button" class="bs-tile bs-sacred" onclick="tabGo('sacred')"><span class="bs-ic" aria-hidden="true">&#2384;</span><b>Sacred journeys</b><small>Digital Bhakti and pilgrimages.</small></button>
+  </div>
+</section>
+</section>
+
+
 <div id="rwCreatorBanner" style="display:none">
   <div class="rwcb-row">
     <div class="rwcb-dot"></div>
@@ -577,31 +607,8 @@ function rwDismissCreatorBanner(){
 
 <div id="promoTop"></div>
 
-<!-- ============ COPILOT HERO — the front door, Claude-style ============ -->
-<section class="v v-home v-copilot" id="copilotHero" style="margin:16px 14px 8px">
-  <div class="tusk-title"><span>⚡</span><b>Ailon Tusk</b><em>· your travel copilot</em><i>ALWAYS CURIOUS</i></div>
-  <div id="heroLog" style="display:none;margin-bottom:10px;max-height:52vh;overflow-y:auto"></div>
-  <div class="copilot-compose" style="position:relative;background:linear-gradient(180deg,var(--bg2,#12121C),rgba(18,18,28,.55));border:1.5px solid rgba(232,186,108,.35);border-radius:22px;padding:14px;box-shadow:0 8px 30px rgba(0,0,0,.35)">
-    <textarea id="heroInput" rows="5" placeholder="Ask me anything &mdash; &ldquo;chill 4 days near Rishikesh under 12k&rdquo;"
-      style="display:block;width:100%;box-sizing:border-box;background:transparent;border:none;padding:8px 8px 44px;color:inherit;font:inherit;font-size:16.5px;resize:none;outline:none;min-height:168px;line-height:1.6"></textarea>
-    <div class="copilot-actions" style="position:absolute;right:12px;bottom:12px;display:flex;gap:8px;align-items:center">
-      <button onclick="scanImageOpen()" aria-label="Scan a screenshot" title="Scan a screenshot or reel"
-        style="width:36px;height:36px;border-radius:50%;border:1px solid var(--b2,#2A2A36);background:var(--bg3,#1A1A20);color:var(--t2);font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center">&#128247;</button>
-      <button onclick="copilotVoiceHero()" aria-label="Voice"
-        style="width:36px;height:36px;border-radius:50%;border:1px solid var(--b2,#2A2A36);background:var(--bg3,#1A1A20);color:var(--t2);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center">&#127908;</button>
-      <button id="heroSend" type="button" onclick="copilotSend(true)" aria-label="Send travel request"
-        style="width:36px;height:36px;border-radius:50%;border:none;background:linear-gradient(135deg,var(--gold,#E8BA6C),var(--gold2,#C8913E));color:#0A0A0C;font-size:16px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center">&#10148;</button>
-    </div>
-    <div id="heroModels" style="position:absolute;left:14px;bottom:16px;display:flex;gap:6px;flex-wrap:wrap;max-width:58%"></div>
-  </div>
-</section>
+
 <section class="v v-home" id="quickGrid" style="margin:4px 14px 8px">
-  <a class="rw-card rw-card-sacred" id="dussehraCard" href="#" onclick="openListing();return false" style="margin:0 0 10px">
-    <span class="rw-card-ic" aria-hidden="true">&#127917;</span>
-    <span class="rw-card-tx"><b>Dussehra in Almora &middot; 20 Oct</b><small>Stay with RoamWise partners in town for the Ravan-family effigies. Ask for your dates on WhatsApp.</small></span>
-    <span class="rw-card-go" aria-hidden="true">&rarr;</span>
-  </a>
-  <script>(function(){var c=document.getElementById('dussehraCard');if(c&&new Date()>new Date('2026-10-21T00:00:00+05:30'))c.style.display='none';})();</script>
   <div class="qg-wrap">
     <!-- rw-v82: the FOUR things most people actually came to do. Everything
          else moved behind "More" so home stays a decision, not a menu. -->
@@ -610,12 +617,12 @@ function rwDismissCreatorBanner(){
     <button class="qg-tile qg-primary" onclick="openNearMe()"><span class="qg-ic">📍</span><span class="qg-lbl">Near me</span></button>
     <button class="qg-tile qg-primary" style="position:relative" onclick="openBooking()"><span class="qg-ic">🧳</span><span class="qg-lbl">Your trip</span><span id="rwBasketBadge">0</span></button>
     <button class="qg-tile qg-primary" onclick="openExperiences()"><span class="qg-ic">✨</span><span class="qg-lbl">Experiences</span></button>
-    <button class="qg-tile qg-primary" onclick="location.href='nomads/'"><span class="qg-ic">💻</span><span class="qg-lbl">Work stays</span></button>
+    <button class="qg-tile qg-primary" onclick="openEvents()"><span class="qg-ic">📅</span><span class="qg-lbl">Events</span></button>
   </div>
-  <div class="qg-more"><button onclick="openDrawer()">Events, Beacon, Realms, Arrival mode, Treks &amp; more →</button></div>
+  <div class="qg-more"><button onclick="openDrawer()">Beacon, Realms, Arrival mode, Treks &amp; more →</button></div>
 </section>
 
-<section class="xsec v v-home" id="musicEventsIndia" style="margin:12px 14px 18px;padding:18px;background:linear-gradient(145deg,rgba(76,53,37,.38),rgba(18,18,28,.95));border:1px solid rgba(232,186,108,.3);border-radius:22px">
+<section class="xsec v v-film" id="musicEventsIndia" style="margin:12px 14px 18px;padding:18px;background:linear-gradient(145deg,rgba(76,53,37,.38),rgba(18,18,28,.95));border:1px solid rgba(232,186,108,.3);border-radius:22px">
   <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
     <span style="font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold2,#C8913E);font-weight:800">RoamWise music weekends · India</span>
   </div>
@@ -715,7 +722,7 @@ function rwDismissCreatorBanner(){
 })();
 </script>
 
-<div class="hero-sky v v-home v-web-only"><div class="kumo" style="top:12%;left:4%"></div><div class="kumo k2" style="top:58%;right:6%"></div><div class="kumo k3" style="top:30%;right:22%"></div><div class="hero">
+<div class="hero-sky v v-explore v-web-only"><div class="kumo" style="top:12%;left:4%"></div><div class="kumo k2" style="top:58%;right:6%"></div><div class="kumo k3" style="top:30%;right:22%"></div><div class="hero">
   <h1><span data-i18n="hero.title1">Escape the crowds.</span><br><em data-i18n="hero.title2">Discover your world.</em></h1>
   <p data-i18n="hero.sub">Draft an itinerary, compare route options and build a trip budget. Check live prices, schedules and local conditions with the responsible provider before travelling.</p>
   <div class="hero-btns">
@@ -736,13 +743,15 @@ function rwDismissCreatorBanner(){
   </div>
 </div></div>
 
-<section class="v v-home rw-band" id="sacredBand" aria-label="Sacred journeys and partners">
+<section class="v v-sacred rw-band" id="sacredBand" aria-label="Sacred journeys"><h2 class="xsec-title" style="margin:6px 4px 10px">&#2384; Devotion &amp; <em>pilgrimage</em></h2>
   <a class="rw-card rw-card-nomad" href="nomads/">
     <span class="rw-card-ic" aria-hidden="true">&#128187;</span>
     <span class="rw-card-tx"><b>Nomad Match &middot; work stays</b><small>Founders and professionals: 15-day to 3-month stays with proven Wi-Fi, power backup and a real desk. Get matched in a minute.</small></span>
     <span class="rw-card-go" aria-hidden="true">&rarr;</span>
   </a>
-  <details class="rw-more-cards" style="margin-top:6px"><summary style="cursor:pointer;font-weight:700;padding:10px 4px;color:var(--t2)">For hosts, creators &amp; partners</summary>
+</section>
+
+<section class="v v-explore rw-band" id="joinBand" aria-label="For hosts, creators and partners"><h2 class="xsec-title" style="margin:6px 4px 10px">For hosts, creators &amp; <em>partners</em></h2>
   <a class="rw-card rw-card-sacred" href="bhakti/">
     <span class="rw-card-ic" aria-hidden="true">ॐ</span>
     <span class="rw-card-tx"><b>Digital Bhakti Studio</b><small>Your own sankalp with lifelike Panditji · mantra, aarti, complete Chalisa, katha and symbolic yajna / Shiva programmes. Explore ₹10–₹300 digital tiers.</small></span>
@@ -778,7 +787,6 @@ function rwDismissCreatorBanner(){
     <span class="rw-card-tx"><b>Own a stay or experience? Join as a partner</b><small>Apply in about 3 minutes to list with the RoamWise local stays collective.</small></span>
     <span class="rw-card-go" aria-hidden="true">&rarr;</span>
   </a>
-  </details>
 </section>
 
 <section class="brief v v-home" id="brief" style="display:none">
@@ -1149,6 +1157,8 @@ function rwDismissCreatorBanner(){
 <div class="drawer-bk" id="drawerBk" onclick="closeDrawer()"></div>
 <aside class="drawer" id="drawer" role="dialog" aria-modal="true" aria-label="RoamWise menu" aria-hidden="true">
   <div class="dr-head"><div class="dr-title">Roam<span>Wise</span> Pro</div><button class="dr-x" onclick="closeDrawer()">&#215;</button></div>
+  <a class="dr-link" onclick="closeDrawer();tabGo('sacred')"><span class="ic">&#2384;</span>Sacred journeys &amp; Digital Bhakti</a>
+  <a class="dr-link" onclick="closeDrawer();tabGo('film')"><span class="ic">&#127902;&#65039;</span>Music &amp; memories</a>
   <div id="drAcct">
     <button class="dr-signin" onclick="closeDrawer();openAuth()">Sign in / Create account</button>
   </div>
@@ -1596,6 +1606,7 @@ function rwDismissCreatorBanner(){
 <script src="js/payments/qr-scan.js" defer></script>
 <script src="js/ui/nmims-event-banner.js" defer></script>
 <script src="js/ui/rave-card.js" defer></script>
+<script src="js/ui/dussehra-card.js" defer></script>
 <script src="js/ui/music-gallery.js" defer></script>
 <script src="js/payments/plan-picker.js?v=rw-checkout-focus-1" defer></script>
 <script src="js/data/regions.js" defer></script>

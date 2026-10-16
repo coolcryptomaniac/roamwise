@@ -61,6 +61,7 @@ body.shell[data-view="explore"] .v-explore{display:revert!important}
 body.shell[data-view="extras"] .v-extras{display:revert!important}
 body.shell[data-view="store"] .v-store{display:revert!important}
 body.shell[data-view="film"] .v-film{display:revert!important}
+body.shell[data-view="sacred"] .v-sacred{display:revert!important}
 body.shell[data-view="copilot"] .v-copilot{display:revert!important}
 /* The marketing hero is a landing-page pitch — pure clutter inside the app,
    where the person has already installed and doesn't need convincing. */

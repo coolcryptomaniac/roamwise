@@ -97,7 +97,7 @@ window.RW_PARTNER_SEED = [{
      seed fields win over the live Firestore entry on merge, so contact, route and policy stay in the partner admin.
      Photos: supplied by the founder on 16 Oct 2026 for this listing under the MOU content permission (clause 12).
      Replace with the owner's own photos when received. "RoamWise Checked" is computed by RWTrust, not set here. */
-  id:'p_big_bro_hotel', cat:'stay', zone:'Almora', area:'Ghurson, Almora', name:'Big Bro Hotel', verified:'signed', listingReady:true,
+  id:'p_big_bro_hotel', cat:'stay', zone:'Almora', area:'Ghurson', name:'Big Bro Hotel', verified:'signed', listingReady:true,
   /* Long stays (MOU Annexure A1 / Schedule B B3): 15 nights Rs 30,000; 1 month Rs 50,000; 3 months Rs 1,50,000 in total
      (Rs 50,000 a month); 4 rooms; minimum 15 nights. Owner told the founder on 17 Oct 2026: Wi-Fi 100 Mbps, inverter backup. Owner confirmed the inverter covers the rooms (backup 'full'), a desk and chair
      and a quiet spot for calls exist. No guest kitchen and no shared work area; meals means the paid hotel restaurant, not included in the rate. verified:false until a speed test is on file. */
