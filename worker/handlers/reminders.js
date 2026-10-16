@@ -9,7 +9,7 @@
    Both channels are OFF until the founder switches them on in Admin -> Reminders
    (Firestore config/reminderSettings). Push needs nothing extra (existing FCM
    service account + users/{uid}.pushTokens). Email also needs the Worker secrets
-   RESEND_API_KEY and EMAIL_UNSUB_SECRET; without them email is skipped.
+   a mail sender (GMAIL_RELAY_URL + GMAIL_RELAY_SECRET, or RESEND_API_KEY) and EMAIL_UNSUB_SECRET; without them email is skipped.
    Optional vars: REMINDER_FROM (default "RoamWise <hello@roamwise.co.in>"),
    PUBLIC_API_BASE, REMINDERS_ENABLED ("false" turns the cron off).
    Policy and wording: worker/lib/reminder-core.js. Message content is edited in
@@ -19,25 +19,18 @@ import { getServiceAccountAccessToken, parseServiceAccount } from '../lib/servic
 import { verifyFirebaseIdToken } from '../lib/firebase-verify.js';
 import { getDoc, updateDoc, deleteFields, queryBeforeTimestamp } from '../lib/firestore-rest.js';
 import { sendOne, isDeadToken } from './push.js';
+import { sendMail, mailerKind } from '../lib/mailer.js';
 import { DEFAULTS, parseSettings, selectRecipients, checkUser, pushTokensOf, buildPush, buildEmail, signUnsub, verifyUnsub } from '../lib/reminder-core.js';
 
 const DEFAULT_API_BASE = 'https://roamwise-api.founder-f53.workers.dev';
 const DEFAULT_FROM = 'RoamWise <hello@roamwise.co.in>';
 
 function apiBase(env) { return String(env.PUBLIC_API_BASE || DEFAULT_API_BASE).replace(/\/+$/, ''); }
-function canSend(env) { return !!(env.RESEND_API_KEY && env.EMAIL_UNSUB_SECRET); }
+function canSend(env) { return !!(mailerKind(env) && env.EMAIL_UNSUB_SECRET); }
 
 async function sendViaResend(env, to, mail, unsubUrl) {
-  const res = await fetch('https://api.resend.com/emails', {
-    method: 'POST',
-    headers: { authorization: `Bearer ${env.RESEND_API_KEY}`, 'content-type': 'application/json' },
-    body: JSON.stringify({
-      from: env.REMINDER_FROM || DEFAULT_FROM, to: [to], reply_to: 'support@roamwise.co.in',
-      subject: mail.subject, html: mail.html, text: mail.text,
-      headers: { 'List-Unsubscribe': `<${unsubUrl}>`, 'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click' },
-    }),
-  });
-  if (!res.ok) throw new Error(`resend_${res.status}`);
+  const r = await sendMail(env, { to, subject: mail.subject, html: mail.html, text: mail.text, unsubUrl });
+  if (!r.ok) throw new Error(`mail_${r.reason}`);
 }
 
 export async function runInactivityReminders(env, opts = {}) {
