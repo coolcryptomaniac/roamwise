@@ -28,8 +28,8 @@ async function loadAll(){
   try{
     var apps=[],profiles=[],identities=[],claims=[],refs=[],subs=[];
     var results=await Promise.all([
-      db.collection('crm').where('seg','==','creator').limit(250).get(),
-      db.collection('users').where('creator.program','==','creator').limit(250).get(),
+      db.collection('crm').where('seg','==','creator').limit(250).get().catch(function(e){S.loadErr=(S.loadErr||'')+' Applications: '+(e.code||e.message)+'.';return{forEach:function(){}}}),
+      db.collection('users').where('creator.program','==','creator').limit(250).get().catch(function(e){S.loadErr=(S.loadErr||'')+' Creator profiles: '+(e.code||e.message)+'.';return{forEach:function(){}}}),
       db.collection('creatorAccounts').limit(250).get().catch(function(){return null}),
       db.collection('config').doc('referrers').get().catch(function(){return null}),
       db.collection('creatorEarnings').limit(250).get().catch(function(){return null}),
@@ -41,7 +41,7 @@ async function loadAll(){
     if(results[3]&&results[3].exists)refs=Array.isArray((results[3].data()||{}).list)?results[3].data().list:[];
     S.ledger={};S.ledgerReadable=!!results[4];if(results[4])results[4].forEach(function(d){S.ledger[d.id]=d.data()||{}});
     if(results[5])results[5].forEach(function(d){var x=d.data()||{};x.id=d.id;x.ownerUid=x.ownerUid||((d.ref.parent&&d.ref.parent.parent&&d.ref.parent.parent.id)||'');subs.push(x)});
-    S.apps=apps;S.profiles=profiles;S.identities=identities;S.claims=claims;S.refs=refs;S.submissions=subs;paint();
+    if(S.loadErr&&!$('#caLoadErr'))$('#caStats').insertAdjacentHTML('beforebegin','<div class="ca-error" id="caLoadErr" style="margin-bottom:16px"><b>Some data could not be read.</b>'+esc(S.loadErr)+' Sign in with the founder account that has an admins document.</div>');S.apps=apps;S.profiles=profiles;S.identities=identities;S.claims=claims;S.refs=refs;S.submissions=subs;paint();
   }finally{busy=false}
 }
 function ensureExtendedShell(){if($('#caUnified'))return;var dash=$('#caDash');if(!dash||dash.hidden)return;var s=document.createElement('section');s.id='caUnified';s.innerHTML='<section class="ca-panel"><div class="ca-head"><div><small>REGISTRATION GATE</small><h2>Verified identity claims</h2><p>Only an admin can convert a verified Firebase identity claim into a registered Creator Studio account.</p></div></div><div id="caClaims"></div></section><section class="ca-panel"><div class="ca-head"><div><small>LINK-FIRST CONTENT</small><h2>Creator submission queue</h2><p>RoamWise stores URLs and metadata; source platforms remain the media host.</p></div></div><div id="caSubmissions"></div></section>';dash.appendChild(s)}
