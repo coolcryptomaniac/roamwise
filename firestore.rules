@@ -201,9 +201,19 @@ service cloud.firestore {
     // A user may create/read their own profile but can NEVER touch paid Pro or
     // Trail Mesh operator/trial entitlement fields. Those access fields are set
     // only by an admin; the Android app treats them as server-backed grants.
+    // Ailon Tusk memory sync (opt-in, owner-only through the users/{uid} rules).
+    // The synced summary is a short JSON string; bound it so one account can
+    // never be used to store bulk data. A missing field (e.g. the user turned
+    // sync off and the field was deleted) is always fine.
+    function tuskMemoryOk() {
+      return !('tuskMemory' in request.resource.data)
+        || (request.resource.data.tuskMemory is string
+            && request.resource.data.tuskMemory.size() <= 20000);
+    }
     match /users/{uid} {
       allow read: if isSelf(uid) || isAdmin();
       allow create: if isSelf(uid)
+        && tuskMemoryOk()
         && !request.resource.data.keys().hasAny([
           'pro','proAt','proMethod','proPayId','proTier','proPlanId',
           'proUntil','proAmount','proVia','proRef',
@@ -212,6 +222,7 @@ service cloud.firestore {
         ]);
       allow update: if isAdmin();
       allow update: if isSelf(uid)
+        && tuskMemoryOk()
         && !request.resource.data.diff(resource.data).affectedKeys()
              .hasAny([
                'pro','proAt','proMethod','proPayId','proTier','proPlanId',
@@ -473,6 +484,27 @@ service cloud.firestore {
         && statsBump('stay_whatsapp_open')
         && statsBump('tusk_verified_stay_handoff');
       allow delete: if isAdmin();
+    }
+
+    // ---------- TUSK MISSES (places Ailon Tusk could not answer) ----------
+    // One doc per place slug with a counter, written by rwTuskMiss() so the
+    // daily bot can learn missing places. Signed-in clients only, exact shape,
+    // counter moves +1 at a time, no place text beyond 80 chars, no deletes.
+    // Admin-only read: nothing here is shown to other users.
+    match /tuskMisses/{slug} {
+      allow read: if isAdmin();
+      allow create: if request.auth != null
+        && request.resource.data.keys().hasOnly(['place', 'count', 'lastAsked'])
+        && request.resource.data.place is string
+        && request.resource.data.place.size() <= 80
+        && request.resource.data.count == 1
+        && request.resource.data.lastAsked == request.time;
+      allow update: if request.auth != null
+        && request.resource.data.keys().hasOnly(['place', 'count', 'lastAsked'])
+        && request.resource.data.place is string
+        && request.resource.data.place.size() <= 80
+        && request.resource.data.count == resource.data.count + 1
+        && request.resource.data.lastAsked == request.time;
     }
 
     // ---------- RATINGS & TESTIMONIALS ----------

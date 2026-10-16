@@ -1,0 +1,7 @@
+{
+  "accepted": [
+    "no-rule:bookings",
+    "no-rule:leads",
+    "no-rule:stayEnquiries"
+  ]
+}

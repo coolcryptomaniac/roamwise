@@ -163,6 +163,14 @@
           <div class="field"><label>Button link</label><input id="remCtaU" class="input" placeholder="https://roamwise.co.in/"></div></div>
           <p class="muted" style="font-size:12px;margin:8px 0 0">Only promise deals that really exist. Leave everything blank to use the built-in wording.</p></div>
         <div class="card" style="margin-top:14px"><h2>3. Save, check, send</h2><div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn primary" id="remSave" type="button">Save</button><button class="btn" id="remPreview" type="button">Preview who would get it</button><button class="btn" id="remSend" type="button">Send now</button></div><div id="remNote" style="margin-top:12px"></div></div>
+        <div class="card" style="margin-top:14px"><h2>4. Booking emails &amp; trip reminders</h2>
+          <p class="muted" style="font-size:12px;margin:0 0 10px">Service messages about a guest's own booking: an acknowledgement after a stay request, and a reminder 3 days and 1 day before a confirmed stay (push first, email only if no device got it). Each is sent once. Setup is in <code>EMAIL-PUSH-SETUP.md</code>.</p>
+          <div class="fields">
+            <div class="field"><label><input type="checkbox" id="tnAck"> Acknowledgement email after a stay request</label></div>
+            <div class="field"><label><input type="checkbox" id="tnRem"> Trip reminders (3 days and 1 day before)</label></div>
+            <div class="field"><label>Max emails per run (free Gmail ≈ 100 a day)</label><input id="tnMax" class="input" type="number" min="1" max="90" value="40"></div></div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px"><button class="btn primary" id="tnSave" type="button">Save</button><button class="btn" id="tnPreview" type="button">Preview</button><button class="btn" id="tnSend" type="button">Send now</button></div>
+          <div id="tnNote" style="margin-top:12px"></div></div>
       </section>
       <section id="notifications" class="section"><div class="eyebrow">Push notifications</div><h1 class="title">Compose now, send once a sender exists.</h1><p class="lead">Queued at <code>notificationQueue/{id}</code>, admin-only. Not wired to a live send endpoint yet — see the page for exact status.</p>
         <div class="card"><h2>New notification</h2><div class="fields">
@@ -307,6 +315,7 @@
 <script src="../js/admin/promo-manager.js"></script>
 <script src="../js/admin/notification-composer.js"></script>
 <script src="../js/admin/reminders-panel.js"></script>
+<script src="../js/admin/trip-notify-panel.js"></script>
 <script src="../js/admin/growth-intelligence.js"></script>
 <script src="../js/admin/dashboard-home.js"></script>
 <script src="../js/admin/kpi-dashboard.js"></script>
