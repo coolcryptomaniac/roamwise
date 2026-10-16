@@ -7,8 +7,20 @@ name: Deploy Worker (manual)
 #   CLOUDFLARE_API_TOKEN   token from the "Edit Cloudflare Workers" template
 #   CLOUDFLARE_ACCOUNT_ID  Cloudflare dashboard sidebar
 
+# Also runs by itself when worker/ code changes on main. Safety net:
+#   1. a --dry-run bundle (parses and links every file) BEFORE deploying;
+#      if it fails nothing is deployed and the live Worker is untouched.
+#   2. after deploying, /health is checked 3 times; if it still fails the
+#      previous Worker version is restored automatically (wrangler rollback).
+# Cost: ~1 minute of Actions time, only when worker/ files change.
+
 on:
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'worker/**'
+      - '.github/workflows/deploy-worker.yml'
 
 permissions:
   contents: read
@@ -35,11 +47,31 @@ jobs:
             echo "::error::Add CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID in repository Actions secrets."
             exit 1
           fi
+      - name: Pre-flight (syntax + dry-run bundle)
+        working-directory: worker
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: npx --yes wrangler@4 deploy --dry-run --outdir /tmp/worker-dry
       - name: Deploy
         working-directory: worker
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: npx --yes wrangler@4 deploy
-      - name: Health
-        run: curl -fsS https://roamwise-api.founder-f53.workers.dev/health
+      - name: Health (3 tries)
+        id: health
+        run: |
+          for i in 1 2 3; do
+            if curl -fsS https://roamwise-api.founder-f53.workers.dev/health; then exit 0; fi
+            sleep 10
+          done
+          exit 1
+      - name: Roll back to the previous version
+        if: failure() && steps.health.outcome == 'failure'
+        working-directory: worker
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          npx --yes wrangler@4 rollback --message "auto-rollback after failed health check" --yes
