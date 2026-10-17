@@ -93,7 +93,7 @@
   function build(cfg){
     if(!document.getElementById('rwNmimsCss')){ var st=document.createElement('style'); st.id='rwNmimsCss'; st.textContent=CSS; (document.head||document.documentElement).appendChild(st); }
     var box=document.createElement('section');
-    box.id='rwNmimsBanner';
+    box.id='rwNmimsBanner'; box.className='v v-home';
     box.setAttribute('aria-label','RoamWise and E-Cell, SBM NMIMS Mumbai: '+cfg.name);
     box.appendChild(node('div','sg-mist'));
     var in_=node('div','sg-in');
@@ -140,10 +140,11 @@
   }
   function mount(cfg){
     if(!cfg.show||document.getElementById('rwNmimsBanner')) return;
-    /* top of the home page: straight after the creator strip, before Popular now and Ailon Tusk */
-    var anchor=document.getElementById('rwCreatorBanner'), before=null, parent=null;
-    if(anchor&&anchor.parentNode){ parent=anchor.parentNode; before=anchor.nextSibling; }
-    else{ var sky=document.querySelector('.hero-sky'); if(sky&&sky.parentNode){ parent=sky.parentNode; before=sky; } }
+    /* very top of the home page: above the Ailon Tusk box. Fallbacks keep the old spots. */
+    var anchor=document.getElementById('copilotHero'), before=null, parent=null;
+    if(anchor&&anchor.parentNode){ parent=anchor.parentNode; before=anchor; }
+    else{ var cb=document.getElementById('rwCreatorBanner'); if(cb&&cb.parentNode){ parent=cb.parentNode; before=cb.nextSibling; }
+      else{ var sky=document.querySelector('.hero-sky'); if(sky&&sky.parentNode){ parent=sky.parentNode; before=sky; } } }
     if(!parent) return;
     var el=build(cfg);
     if(!tick(cfg,el)) return;
