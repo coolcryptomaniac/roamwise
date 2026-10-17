@@ -10,6 +10,14 @@ How a signed property goes live, and how it is kept healthy. Read this before to
 
 A listing with no working booking route is hidden everywhere. Signed partners book by WhatsApp or phone only; no OTA links.
 
+## Founder-introduced enquiries
+The founder may explicitly approve an informational introduction without recording an owner signature.
+The static seed records `verified: 'founder-approved'`, `enquiryOnly: true` and the founder approval/date.
+These cards say **Founder introduced / Enquiry only** and that the property agreement is pending.
+They expose only host WhatsApp/phone enquiries, never direct rooms, payments, signed-partner badges,
+GST/payout claims or guessed rates. This does not activate or overwrite an owner's private partner record.
+Signed inventory and paid booking approval continue to require their existing MOU and audit checks.
+
 ## Photos
 * Repo photos (`assets/property-photos/*`, listed in `partners-data.js`) always win. Add them with a normal commit.
 * Admin uploads are stored as strict base64 webp/jpeg in `config/photo_<partnerId>_<n>` (public read, admin write via the existing `config/{doc}` rule), counted by `photoCount` on the live entry, and fetched lazily. At about 500 properties move them to object storage with a CDN (needs its own rules review).

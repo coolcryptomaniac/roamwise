@@ -18,8 +18,16 @@
    ========================================================================= */
 window.RW_PARTNER_TIERS = [
   { id:'signed',  label:'RoamWise Partner',  icon:'\u2705', note:'MoU signed \u2014 verified by us' },
+  { id:'founder-approved', label:'Founder introduced', icon:'', note:'Enquiries only; property agreement pending' },
   { id:'listed',  label:'Researched',        icon:'\ud83d\udcdd', note:'Found in our research, not yet a partner' }
 ];
+
+/* Founder introductions are public enquiries, never signed inventory or payment approval.
+   Unapproved research stays remain hidden. The explicit review marker is required. */
+window.rwStayPublicEligible = function(p){
+  return !!p && p.listingReady===true && (p.verified==='signed' ||
+    (p.verified==='founder-approved' && p.enquiryOnly===true && p.founderApproval==='Mohit Pandey · 2026-10-18'));
+};
 
 /* Homepage pilot. The user confirmed Milan Heights has signed; availability,
    rates and the final reservation are still confirmed directly with the hotel. */
@@ -109,6 +117,25 @@ window.RW_PARTNER_SEED = [{
     {src:'assets/property-photos/big-bro-room-2.webp',alt:'Double room with a tufted headboard, a window facing garden steps, two chairs and a table at Big Bro Hotel, Almora',caption:'Guest room with a window \u00b7 Big Bro Hotel'},
     {src:'assets/property-photos/big-bro-meal.webp',alt:'Paratha, curd and a lemon drink on a table beside a large window with a hill view at Big Bro Hotel, Almora',caption:'Table by the window \u00b7 Big Bro Hotel'}
   ]
+},{
+  /* Founder explicitly approved public enquiries for his relatives' property on 18 Oct 2026.
+     Owner MOU signatures, tariffs and paid inventory remain pending. This is NOT signed supply.
+     Facts/photos: supplied property card and Airbnb room 1662787644512775118; contacts supplied by founder. */
+  id:'p_corbett_jungle_view', cat:'stay', zone:'Lansdowne', area:'Ghildiyal Gaon, P.O. Bansi, Pauri Garhwal 246155',
+  name:'Corbett Jungle View Homestay', verified:'founder-approved', listingReady:true,
+  founderApproval:'Mohit Pandey · 2026-10-18', enquiryOnly:true, ownerMouAccepted:false,
+  bookingMode:'whatsapp', bookingWhatsapp:'917037365263', bookingPhone:'919867012129',
+  supportEmail:'support@roamwise.co.in', propertyType:'Family homestay', roomCount:6, maxGuests:12,
+  badges:['founder'],
+  mapsUrl:'https://www.google.com/maps/search/?api=1&query=Corbett+Jungle+View+Homestay+Ghildiyal+Gaon+Bansi+Lansdowne',
+  photos:[
+    {src:'assets/property-photos/corbett-jungle-view-front.jpg',alt:'View from Corbett Jungle View Homestay balcony over nearby hills',caption:'Balcony view from the property’s Airbnb listing'},
+    {src:'assets/property-photos/corbett-jungle-view-room.jpg',alt:'Double bedroom at Corbett Jungle View Homestay',caption:'Bedroom photo from its Airbnb listing'}
+  ],
+  videoUrl:'https://www.youtube.com/shorts/g_Nl3QI5HOo',
+  instagramUrl:'https://www.instagram.com/reel/DZXJj9ATtyB/',
+  hook:'A peaceful six-bedroom homestay in Ghildiyal Gaon near Bansi, in the Lansdowne region. Public listings mention attached bathrooms, Wi-Fi, kitchen access and parking. Ask owner Rekha Shastri on WhatsApp to confirm rooms, meals, rates and timings. Founder-introduced; enquiries only, property agreement pending.'
+
 }];
 
 /* Commission model — what we actually earn, stated plainly for both sides. */

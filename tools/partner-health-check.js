@@ -43,8 +43,8 @@ const mask = n => (n ? String(n).slice(0, 4) + 'xxxx' + String(n).slice(-2) : ''
   const report = { checkedAt: new Date().toISOString(), site, listings: [], problems: [] };
   const seen = new Set();
   for (const p of merged.values()) {
-    if (p.verified !== 'signed' || p.listingReady !== true) continue;
-    const row = { id: p.id, name: p.name, zone: p.zone, status: 'live', route: ctx.rwBookingRoute(p).type, issues: [] };
+    if (!ctx.window.rwStayPublicEligible(p)) continue;
+    const row = { id: p.id, name: p.name, zone: p.zone, status: 'live', enquiryOnly: p.enquiryOnly === true, route: ctx.rwBookingRoute(p).type, issues: [] };
     if (seen.has(p.id)) row.issues.push('duplicate id'); seen.add(p.id);
     if (row.route === 'none') { row.status = 'hidden'; row.issues.push('no working booking route: add WhatsApp in the partner admin'); }
     if (p.bookingWhatsapp && !/^91\d{10}$/.test(String(p.bookingWhatsapp))) row.issues.push('WhatsApp number is not a 12-digit Indian number (' + mask(p.bookingWhatsapp) + ')');

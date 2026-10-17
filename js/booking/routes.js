@@ -59,7 +59,7 @@ function rwBookingRoutes(p){
   if(routes.whatsapp&&mode&&mode!=='whatsapp') routes.whatsapp=null;
   var order=[mode].concat(['direct','whatsapp','ota','website','phone']);
   order.forEach(function(k){ if(routes[k]&&!out.some(function(r){ return r.type===k; })) out.push(routes[k]); });
-  return out;
+  return p.enquiryOnly===true?out.filter(function(r){return r.type==='whatsapp'||r.type==='phone';}):out;
 }
 function rwBookingRoute(p){
   var all=rwBookingRoutes(p);
