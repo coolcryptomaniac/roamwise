@@ -1,10 +1,34 @@
 'use strict';
 const test = require('node:test'), assert = require('node:assert');
 const fs = require('fs'), path = require('path');
+const vm = require('node:vm');
 const root = path.join(__dirname, '..');
 const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
 const block = html.match(/var EVENTS=\[([\s\S]*?)\n  \];/)[1];
 const events = new Function('return [' + block + ']')();
+
+test('Almora festival card plans the cross-month weekend and expires at India midnight', () => {
+  function load(now) {
+    class FixedDate extends Date { constructor(...args) { super(...(args.length ? args : [now])); } }
+    const list = { innerHTML: '' }, section = {}, hero = { value: '' };
+    const elements = { musicEventsIndia: section, musicEventList: list, heroInput: hero };
+    const state = { Date: FixedDate, Intl, document: { getElementById: id => elements[id] || null } };
+    state.window = state;
+    vm.runInNewContext(html.match(/<script>\s*(\(function\(\)\{\s*\/\* Add or edit events here[\s\S]*?)<\/script>/)[1], state);
+    vm.runInNewContext(fs.readFileSync(path.join(root, 'js/copilot/event-trips.js'), 'utf8'), state);
+    return { state, list, hero };
+  }
+  const before = load('2026-10-18T00:00:00+05:30');
+  assert.match(before.list.innerHTML, /Almora Literature Festival 2026/);
+  before.state.rwAskMusicEvent(before.state.RW_MUSIC_EVENTS.findIndex(e => e.name === 'Almora Literature Festival 2026'));
+  const answer = before.state.rwEventTripAnswer(before.hero.value);
+  assert.equal(answer.city, 'Almora');
+  assert.equal(before.state.rwEventDates(answer.event.when).days, 3);
+  assert.match(answer.html, /almoraliteraturefestival\.org/);
+  assert.match(load('2026-11-01T18:29:59Z').list.innerHTML, /Almora Literature Festival 2026/);
+  assert.doesNotMatch(load('2026-11-01T18:30:00Z').list.innerHTML, /Almora Literature Festival 2026/);
+  assert.equal(before.state.rwEventDates('22–26 October 2026').days, 5);
+});
 test('every music event has dates, https links and an end date', () => {
   assert.ok(events.length >= 10);
   events.forEach(e => {
