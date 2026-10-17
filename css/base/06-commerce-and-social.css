@@ -527,3 +527,40 @@ body.rw-paged{overflow:hidden}
 #copilotHero .copilot-compose{animation:tuskGlow 3.8s ease-in-out infinite}
 @keyframes tuskGlow{0%,100%{box-shadow:0 8px 30px rgba(232,186,108,.12)}50%{box-shadow:0 8px 40px rgba(232,186,108,.34)}}
 @media (prefers-reduced-motion:reduce){.bs-ic,.bs-tile::before,#copilotHero .copilot-compose{animation:none}}
+
+/* ===== Pay modal: two highlighted plans, everything else under "More plans" (layout only) ===== */
+#payModal:has(.pp-heroes) #payTesti,#payModal:has(.pp-heroes) #staticFeaturesTeaser{display:none}
+.pp-heroes{display:grid;gap:12px;margin:4px 0 14px}
+.pp-card{position:relative;overflow:hidden;display:block;width:100%;text-align:left;cursor:pointer;border-radius:20px;padding:20px 18px 16px;color:#F2EFE6;font-family:'Outfit',system-ui,sans-serif;border:1px solid rgba(232,186,108,.35);background:linear-gradient(160deg,#1b1226 0,#0d0b14 100%);animation:ppRise .55s cubic-bezier(.2,.8,.2,1) both;transition:transform .2s,box-shadow .2s}
+.pp-card:nth-child(2){animation-delay:.12s}
+.pp-card:hover,.pp-card:focus-visible{transform:translateY(-2px)}
+.pp-card:active{transform:scale(.985)}
+.pp-founder{border:1.5px solid #E8BA6C;background:radial-gradient(120% 90% at 50% -20%,#5a2a14 0,#241020 52%,#0d0b14 100%);box-shadow:0 12px 34px rgba(200,145,62,.28);animation:ppRise .55s cubic-bezier(.2,.8,.2,1) both,ppGlow 3s ease-in-out .6s infinite alternate}
+.pp-founder::before{content:"";position:absolute;top:0;bottom:0;left:-60%;width:40%;background:linear-gradient(100deg,transparent,rgba(255,236,190,.22),transparent);transform:skewX(-20deg);animation:ppSweep 5s ease-in-out infinite;pointer-events:none}
+.pp-ribbon{display:inline-block;margin-bottom:10px;padding:5px 11px;border-radius:999px;font-size:10.5px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#1a0f05;background:linear-gradient(95deg,#E8BA6C,#ffd98e)}
+.pp-ribbon.g{background:linear-gradient(95deg,#16bf96,#6ee7c4)}
+.pp-name{display:block;font:700 15px/1.2 'Outfit',sans-serif;letter-spacing:.06em;text-transform:uppercase;color:#E8BA6C}
+.pp-price{display:block;margin:2px 0 4px;font:800 clamp(44px,13vw,60px)/1 'Playfair Display',Georgia,serif;color:#FFE0AE;text-shadow:0 0 24px rgba(232,186,108,.4)}
+.pp-price sup{font-size:.42em;vertical-align:.9em;margin-right:2px}
+.pp-price small{font:500 13px 'Outfit',sans-serif;color:#cfc8bb;margin-left:8px;letter-spacing:.02em;text-shadow:none}
+.pp-tag{display:block;font-size:13.5px;line-height:1.45;color:#e7e0d2;margin-bottom:10px}
+.pp-list{list-style:none;margin:0 0 14px;padding:0;display:grid;gap:6px}
+.pp-list li{position:relative;padding-left:22px;font-size:13.5px;line-height:1.35;color:#f2efe6}
+.pp-list li::before{content:"\2713";position:absolute;left:0;top:0;width:16px;height:16px;border-radius:50%;font-size:10px;line-height:16px;text-align:center;font-weight:900;color:#0b0a12;background:#16bf96}
+.pp-cta{display:block;text-align:center;padding:14px;border-radius:14px;font:800 15px/1 'Outfit',sans-serif;letter-spacing:.04em;color:#1a0f05;background:linear-gradient(95deg,#C8913E,#E8BA6C)}
+.pp-cta.g{color:#F2EFE6;background:rgba(255,255,255,.08);border:1px solid rgba(232,186,108,.5)}
+.pp-more{margin:0 0 10px;border:1px solid var(--b1,rgba(255,255,255,.12));border-radius:14px;padding:0 12px;background:rgba(255,255,255,.03)}
+.pp-more>summary{cursor:pointer;list-style:none;padding:13px 2px;font:700 14px 'Outfit',sans-serif;color:#E8BA6C}
+.pp-more>summary::-webkit-details-marker{display:none}
+.pp-more>summary::after{content:"+";float:right;font-size:18px;line-height:1}
+.pp-more[open]>summary::after{content:"\2212"}
+.pp-more>summary small{display:block;margin-top:2px;font-weight:400;font-size:11.5px;color:var(--t3,#9a958a)}
+.pp-more-in{padding:4px 0 12px;animation:ppRise .3s ease both}
+@keyframes ppRise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes ppGlow{from{box-shadow:0 12px 30px rgba(200,145,62,.2)}to{box-shadow:0 12px 44px rgba(232,186,108,.5)}}
+@keyframes ppSweep{0%,60%{left:-60%}100%{left:130%}}
+@media (min-width:640px){.pp-heroes{grid-template-columns:1fr 1fr}}
+@media (prefers-reduced-motion:reduce){.pp-card,.pp-founder,.pp-founder::before,.pp-more-in{animation:none}}
+#payModal:has(.pp-heroes) #priceOld,#payModal:has(.pp-heroes) #priceDisclaimer{display:none}
+#payModal:has(.pp-heroes) .big-price{font-family:'Playfair Display',Georgia,serif;font-size:40px}
+#payModal:has(.pp-heroes) .price-sub{font-family:'Outfit',sans-serif;font-size:12.5px}

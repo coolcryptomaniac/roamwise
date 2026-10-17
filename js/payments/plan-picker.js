@@ -393,11 +393,46 @@ function renderPlanGrid(founderOpen){
     rwStartCountdown();
   } else { fb.style.display='none'; rwStopCountdown(); }
 
-  var html='';
-  if(founderOpen){
-    html += '<button class="pay-tab on" style="width:100%;margin-bottom:14px" onclick="pickPlan(\'founder\','+C.FOUNDER_OFFER.priceINR+',\'Founder Pro \u2014 Lifetime\',\'elite\',\'oneoff\')">'
-      +'\ud83c\udf1f Founder Pro \u2014 \u20b9'+C.FOUNDER_OFFER.priceINR+' <small>One payment, forever \u2014 this exact price never comes back</small></button>';
+  /* Two highlighted plans first (layout only: every button calls pickPlan with the same arguments as before);
+     everything else is folded under "More plans". */
+  function bullets(tierId, keys){
+    var L=RWPricing.FEATURE_LABELS||{};
+    return '<ul class="pp-list">'+keys.map(function(k){ return '<li>'+(L[k]||k)+'</li>'; }).join('')+'</ul>';
   }
+  var proT = RWPricing.tierById('pro'), proSave = RWPricing.yearlySavingsPct(proT);
+  var html = '<div class="pp-heroes">';
+  if(founderOpen){
+    html += '<button type="button" class="pp-card pp-founder" onclick="pickPlan(\'founder\','+C.FOUNDER_OFFER.priceINR+',\'Founder Pro \u2014 Lifetime\',\'elite\',\'oneoff\')">'
+      +'<span class="pp-ribbon">Founder offer \u00b7 never returns</span>'
+      +'<span class="pp-name">Founder Pro</span>'
+      +'<span class="pp-price"><sup>\u20b9</sup>'+C.FOUNDER_OFFER.priceINR+'<small>once, for life</small></span>'
+      +'<span class="pp-tag">Elite features. One payment, no renewals, ever.</span>'
+      + bullets('elite',['proAI','unlimitedPdf','cardStylesAll','adFree','movieFree','earlyAccess','prioritySupport'])
+      +'<span class="pp-cta">Get lifetime access</span></button>';
+    html += '<button type="button" class="pp-card pp-second" onclick="pickPlan(\'pro_y\','+proT.priceYearly+',\'Pro Yearly\',\'pro\',\'subscription\')">'
+      +(proSave>0?'<span class="pp-ribbon g">Save '+proSave+'%</span>':'')
+      +'<span class="pp-name">Pro Yearly</span>'
+      +'<span class="pp-price"><sup>\u20b9</sup>'+proT.priceYearly+'<small>per year</small></span>'
+      +'<span class="pp-tag">Prefer a yearly plan? Everything in Pro.</span>'
+      + bullets('pro',['proAI','unlimitedPdf','cardStylesAll','adFree','squadsPost'])
+      +'<span class="pp-cta g">Choose yearly</span></button>';
+  } else {
+    html += '<button type="button" class="pp-card pp-founder" onclick="pickPlan(\'pro_y\','+proT.priceYearly+',\'Pro Yearly\',\'pro\',\'subscription\')">'
+      +(proSave>0?'<span class="pp-ribbon">Best value \u00b7 save '+proSave+'%</span>':'')
+      +'<span class="pp-name">Pro Yearly</span>'
+      +'<span class="pp-price"><sup>\u20b9</sup>'+proT.priceYearly+'<small>per year</small></span>'
+      +'<span class="pp-tag">Everything in Pro for the whole year.</span>'
+      + bullets('pro',['proAI','unlimitedPdf','cardStylesAll','adFree','squadsPost'])
+      +'<span class="pp-cta">Choose yearly</span></button>';
+    html += '<button type="button" class="pp-card pp-second" onclick="pickPlan(\'pro_m\','+proT.priceMonthly+',\'Pro Monthly\',\'pro\',\'subscription\')">'
+      +'<span class="pp-name">Pro Monthly</span>'
+      +'<span class="pp-price"><sup>\u20b9</sup>'+proT.priceMonthly+'<small>per month</small></span>'
+      +'<span class="pp-tag">Flexible. Cancel any time.</span>'
+      + bullets('pro',['proAI','unlimitedPdf','cardStylesAll','adFree'])
+      +'<span class="pp-cta g">Choose monthly</span></button>';
+  }
+  html += '</div>';
+  html += '<details class="pp-more"'+(window._rwMoreOpen?' open':'')+' ontoggle="window._rwMoreOpen=this.open"><summary>More plans <small>Plus, Elite, long-term and day passes</small></summary><div class="pp-more-in">';
 
   /* Monthly / yearly tiers */
   var yearly = lsGet('rw_pay_yearly')==='1';
@@ -427,8 +462,7 @@ function renderPlanGrid(founderOpen){
   html += '</div>';
 
   /* Long-term one-time passes */
-  html += '<div class="section-label">\ud83d\udcc5 Long-term one-time passes \u2014 no renewals</div>'
-    +'</div>';
+  html += '<div class="section-label">\ud83d\udcc5 Long-term one-time passes \u2014 no renewals</div>';
   C.LONG_TERM.forEach(function(group){
     html += '<div style="font-size:11.5px;font-weight:700;color:var(--gold2);margin-bottom:6px">'+group.tierLabel+'-tier long-term</div>'
       +'<div style="display:flex;gap:8px;margin-bottom:12px">';
@@ -451,6 +485,7 @@ function renderPlanGrid(founderOpen){
       +'<div style="font-size:12px;font-weight:700">'+p.label+'</div><div style="font-size:14px;font-weight:800;color:var(--gold2)">\u20b9'+p.priceINR+'</div></button>';
   });
   html += '</div>';
+  html += '</div></details>';
 
   el('planPicker').innerHTML = html;
 }
