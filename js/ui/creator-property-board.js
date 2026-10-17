@@ -25,6 +25,7 @@
    +'#rwBoard .bd-ig{color:#ff9aa8;font-weight:700}'
    +'#rwBoard .bd-cta{display:block;text-align:center;margin-top:4px;padding:9px;border-radius:12px;font:800 12.5px system-ui,sans-serif;text-decoration:none;color:#0B1020;background:linear-gradient(95deg,#C8913E,#E8BA6C)}'
    +'#rwBoard .bd-e{font-size:12px;line-height:1.45;color:#d8d5ce;margin:2px 2px 8px}'
+   +'#rwBoard .bd-note{margin:9px 4px 0;font-size:11.5px;line-height:1.5;color:#cfc8bb}'
    +'@keyframes bdRise{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}'
    +'@media (prefers-reduced-motion:reduce){#rwBoard .bd-c{animation:none}}';
   var IG=/^https:\/\/(www\.)?instagram\.com\/[A-Za-z0-9._\/-]{1,80}\/?(\?[^\s<>"']{0,60})?$/i;
@@ -37,9 +38,12 @@
       +(m.name?'<span class="bd-m'+(m.verdict==='send'?'':' n')+'">Best for '+esc(m.name)+' · '+score+'/100</span>':'');
     return ok?'<a class="bd-r" href="'+esc(c.handle)+'" target="_blank" rel="noopener noreferrer">'+inner+'</a>':'<div class="bd-r" style="cursor:default">'+inner+'</div>';
   }
+  /* Only stays that have agreed to host creators. Defaults mirror the founder's current list (creators/property-terms-core.mjs
+     SEED_POLICIES); config/creatorPolicies, when present, overrides by propertyId (public read, admin write). */
+  var OPEN={p_milan_heights:true,p_big_bro_hotel:true};
   function stays(){
     var list=[]; try{ list=rwListingAll(); }catch(e){}
-    list=list.slice().sort(function(a,b){ return (((b.nomad&&b.nomad.enabled)?2:0)+((b.photos||[]).length?1:0))-(((a.nomad&&a.nomad.enabled)?2:0)+((a.photos||[]).length?1:0)); }).slice(0,4);
+    list=list.filter(function(x){ return OPEN[x.id]===true; }).slice().sort(function(a,b){ return (((b.nomad&&b.nomad.enabled)?2:0)+((b.photos||[]).length?1:0))-(((a.nomad&&a.nomad.enabled)?2:0)+((a.photos||[]).length?1:0)); }).slice(0,4);
     return list.map(function(x){
       return '<button type="button" class="bd-r" onclick="try{rwListOpen(\''+esc(String(x.id).replace(/'/g,''))+'\')}catch(e){}"><span class="bd-n">'+esc(x.name)+'</span>'
         +'<span class="bd-s">'+esc((x.area||'')+(x.area&&x.zone?' · ':'')+(x.zone||''))+'</span>'
@@ -50,7 +54,7 @@
     var left=creators.map(creatorRow).join('');
     if(!left) left='<div class="bd-e">No creator is featured yet. Register free and get matched with a stay.</div>';
     left+='<a class="bd-cta" href="creators/match.html?role=creator&invite=founding">Register as creator</a>';
-    var right=stays()+'<a class="bd-cta" href="creators/match.html?role=property">Hosts: find creators</a>';
+    var right=(stays()||'<div class="bd-e">Stays that welcome creators will appear here.</div>')+'<a class="bd-cta" href="creators/match.html?role=property">Hosts: find creators</a>';
     host.innerHTML='<div class="bd-h"><b>Creators &times; Stays</b><span>Matched by RoamWise</span></div><div class="bd-g">'
       +'<div class="bd-c"><div class="bd-k">Top creators</div>'+left+'</div><div class="bd-c"><div class="bd-k">Top stays</div>'+right+'</div></div>';
   }
@@ -60,7 +64,8 @@
     var st=document.createElement('style'); st.textContent=CSS; document.head.appendChild(st);
     var host=document.createElement('section'); host.id='rwBoard'; host.className='v v-home'; host.setAttribute('aria-label','Top creators and stays');
     anchor.parentNode.insertBefore(host,anchor); render(host,[]);
-    try{ if(typeof db!=='undefined'&&db) db.collection('config').doc('creatorSpotlight').get().then(function(s){ var l=s.exists&&s.data()&&Array.isArray(s.data().list)?s.data().list.slice(0,12):[]; render(host,l); }).catch(function(){}); }catch(e){}
+    try{ if(typeof db!=='undefined'&&db) db.collection('config').doc('creatorPolicies').get().then(function(s){ var l=s.exists&&s.data()&&Array.isArray(s.data().list)?s.data().list:[]; l.forEach(function(p){ if(p&&p.propertyId) OPEN[p.propertyId]=(p.status==='open'); }); render(host,host.__c||[]); }).catch(function(){}); }catch(e){}
+    try{ if(typeof db!=='undefined'&&db) db.collection('config').doc('creatorSpotlight').get().then(function(s){ var l=s.exists&&s.data()&&Array.isArray(s.data().list)?s.data().list.slice(0,12):[]; host.__c=l; render(host,l); }).catch(function(){}); }catch(e){}
     return true;
   }
   window.rwCreatorBoard={creatorRow:creatorRow};
