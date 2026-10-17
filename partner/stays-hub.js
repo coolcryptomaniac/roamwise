@@ -19,8 +19,8 @@
 
   function allStays() {
     var seed = Array.isArray(root.RW_PARTNER_SEED) ? root.RW_PARTNER_SEED : [];
-    return seed.filter(function (p) { return p && p.cat === 'stay' && p.verified === 'signed' && p.listingReady !== false; })
-      .map(function (p) { return Object.assign({}, p, live[p.id] || {}); });
+    return seed.filter(function (p) { return p && p.cat === 'stay' && (root.rwStayPublicEligible ? root.rwStayPublicEligible(p) : p.verified === 'signed' && p.listingReady !== false); })
+      .map(function (p) { return Object.assign({}, p, p.enquiryOnly ? {} : live[p.id] || {}); });
   }
   function whatsappOf(p) { var n = digits(p.bookingWhatsapp); return n && (!p.bookingMode || p.bookingMode === 'whatsapp') ? n : ''; }
 
@@ -56,6 +56,7 @@
   }
 
   function badgeHtml(p) {
+    if (p.enquiryOnly) return '<span class="rw-stay-pill">Founder introduced</span><span class="rw-stay-pill alt">Enquiry only</span>';
     var out = ['<span class="rw-stay-pill">RoamWise Partner</span>'];
     try {
       var T = root.RWTrust, B = root.RW_TRUST_BADGES;

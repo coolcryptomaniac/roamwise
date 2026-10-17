@@ -57,12 +57,12 @@ Daily hub implementation: `features/kainchi-yatra/docs/DAILY-UPDATES.md`.
 Original Phase 0 hand-off: `features/kainchi-yatra/docs/CHATGPT-BRIEF.md`.
 
 As of this commit (post PRs #138-143, plus the subscription-vs-one-off
-Cashfree gating pass), `app.js` is **580 lines** (down from ~19,300 at the
+Cashfree gating pass), `app.js` is **581 lines** (down from ~19,300 at the
 start of the modularization effort, down from 3,099 after the prior
 "modularization-final" pass, down from 1,207 after "round 4", and down from
 629 after "round 5" — the further changes since round 5 are incidental to
 unrelated feature PRs #138-143 and this pass's `submitUtr()` one-line
-rewire, not a new extraction round) and there are **177 files** under `js/`
+rewire, not a new extraction round) and there are **188 files** under `js/`
 (including the later `js/admin/` dashboard modules and
 `js/core/push-notifications.js` — see the `js/core/` and `js/admin/`
 entries below; the count was last re-verified via `npm run mod-status`,
@@ -70,7 +70,7 @@ which is the source of truth going forward — update this line whenever
 it reports drift rather than re-deriving the number by hand),
 organized into **17 top-level subdirectories** (16 from round 5 plus the
 new `js/admin/`) plus one nested subdirectory (`js/payments/providers/`),
-plus **9 files** under `css/`. Two new top-level feature areas landed
+plus **11 files** under `css/`. Two new top-level feature areas landed
 since round 5:
 
 - **`js/admin/` (15 files, including later operations, KPI and founder-economics

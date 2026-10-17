@@ -49,7 +49,7 @@ function openListing(){
     body.innerHTML='<div id="lstOut"></div>';
     var out=el('lstOut');
     var live=rwListingAll();
-    out.innerHTML='<div class="rail-h lst-live-heading"><b>Stay &amp; do</b><span>Signed RoamWise stays you can enquire about today.</span></div>'
+    out.innerHTML='<div class="rail-h lst-live-heading"><b>Stay &amp; do</b><span>Local stays you can enquire about today. Each listing explains its status.</span></div>'
       +'<div class="lst-grid" id="lstGrid">'+live.map(function(x){ return rwListCard(x,false); }).join('')+'</div>'
       +'<div class="gr-foot">The hotel confirms availability, final price including taxes, payment method and reservation directly. <a href="mailto:founder@roamwise.co.in?subject=RoamWise%20booking%20support">Need help? Contact RoamWise support</a>.</div>';
     /* Admin-uploaded photos load lazily, then the grid repaints once. */
@@ -65,11 +65,12 @@ function rwListingRepaint(){
   g.innerHTML=rwListingAll().map(function(y){ return rwListCard(y,false); }).join('');
 }
 function rwListingAll(){
-  /* Only signed, ready partners with a WORKING booking route are ever shown to guests. */
-  var out=(window.RW_PARTNERS||[]).filter(function(p){ return p.verified==='signed'&&p.listingReady===true&&(typeof rwIsOperational!=='function'||rwIsOperational(p)); }).slice();
+  /* Only approved, ready stays with a working booking route are shown to guests. */
+  var out=(window.RW_PARTNERS||[]).filter(function(p){ return (window.rwStayPublicEligible?window.rwStayPublicEligible(p):p.verified==='signed'&&p.listingReady===true)&&(typeof rwIsOperational!=='function'||rwIsOperational(p)); }).slice();
   out.forEach(function(x){
     if(!x._ownBadges) x._ownBadges = (x.badges||[]).slice();
     var base = x._ownBadges.length ? x._ownBadges.slice() : [];
+    if(x.enquiryOnly===true) base=['founder'];
     if(!base.length){ base = x.verified==='signed' ? ['verified'] : ['listed']; if((x.rating||0)>=4.8 && (x.reviews||0)>=200) base.push('loved'); }
     /* Automatic compliance check: same rules every time, from evidence already on file. */
     if(typeof RWTrust!=='undefined'){
@@ -84,7 +85,7 @@ function rwListingAll(){
   return out.sort(function(a,b){ return rwBadgeRank(b)-rwBadgeRank(a); });
 }
 function rwBadgeRank(x){
-  var order=['listed','verified','checked','gst','trusted','slept','loved','green','local','signature'];
+  var order=['listed','founder','verified','checked','gst','trusted','slept','loved','green','local','signature'];
   return (x.badges||[]).reduce(function(m,b){ return Math.max(m, order.indexOf(b)); }, -1);
 }
 function rwListingFor(badge){
@@ -100,7 +101,7 @@ function rwListCard(x, rail){
     +'</div>'
     +'<div class="lst-w">'+esc2((x.area||'')+(x.area?' \u00b7 ':'')+(x.zone||''))+'</div>'
     +'<div class="lst-bd">'+bl.map(rwBadge).join(' ')+'</div>'
-    + (x.price? '<div class="lst-p"><b>\u20b9'+Number(x.price).toLocaleString('en-IN')+'</b> night</div>':'')
+    + (x.price&&!x.enquiryOnly? '<div class="lst-p"><b>\u20b9'+Number(x.price).toLocaleString('en-IN')+'</b> night</div>':'')
     +'</div></div>';
 }
 /* What the automatic check looked at, in plain words. Guests see passes only. */
@@ -133,7 +134,7 @@ function rwListOpen(id){
           +'<span><b>'+esc2(b.label)+'</b><i>'+esc2(b.means)+'</i></span></div>';
       }).join('')+'</div>'
     + rwTrustBlock(x)
-    + (x.price? '<div class="bk-total" style="margin-top:12px"><span>From</span><b>\u20b9'+Number(x.price).toLocaleString('en-IN')+'</b></div>':'')
+    + (x.price&&!x.enquiryOnly? '<div class="bk-total" style="margin-top:12px"><span>From</span><b>\u20b9'+Number(x.price).toLocaleString('en-IN')+'</b></div>':'')
     + rwBookingActionHTML(x)
     +(typeof rwStayPolicyText==='function'&&rwStayPolicyText(x)?'<p class="lst-confirm">'+esc2(rwStayPolicyText(x))+'</p>':'')
     +(/^https:\/\/(?:www\.google\.com\/maps\/|maps\.app\.goo\.gl\/|goo\.gl\/maps\/)/.test(x.mapsUrl||'')?'<a class="lst-instagram" href="'+esc2(x.mapsUrl)+'" target="_blank" rel="noopener noreferrer">Find on Google Maps \u2197</a>':'')

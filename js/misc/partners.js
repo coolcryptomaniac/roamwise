@@ -21,6 +21,8 @@ function rwPartnersMerge(list){
     var match=(list||[]).filter(function(p){ return String(p.id)===String(s.id); })[0];
     var index=approved.findIndex(function(p){ return String(p.id)===String(s.id); });
     if(index>=0){
+      /* An enquiry introduction inherits no stale signed badges, rates or payment facts. */
+      if(s.enquiryOnly===true){approved[index]=Object.assign({},s);return;}
       var was=match||approved[index], merged=Object.assign({},was,s);
       /* Seed photos/facts win, but badges are the union so badges awarded in admin are not lost. */
       var ub=[]; (s.badges||[]).concat(was.badges||[]).forEach(function(b){ if(ub.indexOf(b)<0) ub.push(b); });
@@ -61,7 +63,7 @@ function rwPartnerScore(p){
   return { score:sc, why:why };
 }
 function rwPartnersFor(zone, cat){
-  var list=(window.RW_PARTNERS||[]).filter(function(p){ return p.verified==='signed'&&p.listingReady===true&&(typeof rwIsOperational!=='function'||rwIsOperational(p)); });
+  var list=(window.RW_PARTNERS||[]).filter(function(p){ return (window.rwStayPublicEligible?window.rwStayPublicEligible(p):p.verified==='signed'&&p.listingReady===true)&&(typeof rwIsOperational!=='function'||rwIsOperational(p)); });
   if(zone) list=list.filter(function(p){ return String(p.zone||'').toLowerCase()===String(zone).toLowerCase(); });
   if(cat)  list=list.filter(function(p){ return p.cat===cat; });
   list.forEach(function(p){ var s=rwPartnerScore(p); p._score=s.score; p._why=s.why; });

@@ -126,8 +126,8 @@ function productionShell(){
   document.body.classList.add('rw-partner-marketplace');if(!PROD||DEMO)return;
   var role=currentRole(),e=$('#eyebrow'),t=$('#heroTitle'),p=$('#heroText'),a=$('#heroActions');if(!e||!t||!p)return;
   if(role==='customer'){
-    e.textContent='ROAMWISE VERIFIED STAYS · ALMORA · MANALI';t.innerHTML='Stay local. <em>Ask directly.</em>';
-    p.textContent='Homestays and hotels signed with RoamWise. Pick your dates, then confirm the room and final total including applicable taxes directly with the host.';
+    e.textContent='ROAMWISE LOCAL STAYS';t.innerHTML='Stay local. <em>Ask directly.</em>';
+    p.textContent='Explore local stays introduced through RoamWise. Each listing explains its status. Confirm the room and final total including applicable taxes directly with the host.';
     if(a)a.innerHTML='<a class="btn" href="#view">Choose dates and enquire →</a>';
     var grid=$('#rolegrid');if(grid)grid.style.display='none';
     $$('.nav a[href="/partner/join/"],.nav a[href="/creators/match.html?role=property"],#modeBtn,#signOutBtn').forEach(function(n){n.style.display='none'});
@@ -139,7 +139,7 @@ function productionShell(){
     if(a)a.innerHTML='<a class="btn secondary" href="/creators/match.html?role=property">Find verified creators</a>';
   }
   var trust=$('#rwMarketTrust');if(trust)trust.remove();
-  var f=$('.footer');if(f)f.textContent=role==='customer'?'RoamWise enquiry · WhatsApp goes to Milan Heights · final price confirmed by the hotel':'RoamWise Stays · verified direct hosts · host-controlled rates';
+  var f=$('.footer');if(f)f.textContent=role==='customer'?'RoamWise enquiry · contact your selected host · final price confirmed by the host':'RoamWise Stays · verified direct hosts · host-controlled rates';
 }
 
 async function loadIdentity(){var u=user(),F=fb();admin=false;if(u&&F.db)try{admin=(await F.db.collection('admins').doc(u.uid).get()).exists}catch(e){}productionShell();if(admin)legacyRepair()}
