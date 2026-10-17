@@ -39,6 +39,7 @@ export function flagsOf(c, all = []) {
   const same = (k) => c[k] && all.filter((o) => o.id !== c.id && String(o[k]).toLowerCase() === String(c[k]).toLowerCase()).length;
   if (same('email')) f.push('same email as another application');
   if (same('handle')) f.push('same profile as another application');
+  if (shareBlocked(c)) f.push('asked not to be shared publicly');
   return f;
 }
 
@@ -96,3 +97,29 @@ export function toCsv(rows = []) {
   const lines = rows.map((r) => [r.name, r.handle, r.email, r.phone, (r.location && r.location.town) || '', r.stage, r.best ? r.best.name : '', r.best ? r.best.verdict : '', r.best ? r.best.score : '', r.flags.join('; ')].map(q).join(','));
   return [head.join(','), ...lines].join('\n');
 }
+
+/* ---- Home-page spotlight (public). Only public Instagram profile + match result; never phone or email. ---- */
+export const SPOTLIGHT_MAX = 12;
+const IG = /^https:\/\/(www\.)?instagram\.com\/[A-Za-z0-9._\/-]{1,80}\/?(\?[^\s<>"']{0,60})?$/i;
+export const isInstagramUrl = (u) => IG.test(String(u || '').trim());
+/** True when the applicant's own words ask not to be shown, photographed or promoted. Errs on the side of not sharing. */
+export function shareBlocked(c = {}) {
+  return /\b(no|not|don'?t|do not|never|without)\b[^.]{0,30}\b(photo|picture|pic|share|public|publish|feature|promot|display)/i.test(String(c.note || ''));
+}
+export function canSpotlight(row) {
+  if (!row || shareBlocked(row)) return { ok: false, why: 'asked not to be shared' };
+  if (!isInstagramUrl(row.handle)) return { ok: false, why: 'needs a public Instagram link' };
+  if (!row.best || row.best.verdict === 'no_fit') return { ok: false, why: 'no property fit yet' };
+  return { ok: true, why: '' };
+}
+/** The exact public record: nothing private can be added here by accident. */
+export function spotlightEntry(row) {
+  const b = row.best || {};
+  return { id: str(row.id, 60), name: str(row.name, 60), handle: str(row.handle, 160), niche: row.niches.slice(0, 3).join(', ').slice(0, 60),
+    town: str((row.location && row.location.town) || '', 40), match: { name: str(b.name, 80), score: Math.max(0, Math.min(100, Number(b.score) || 0)), verdict: b.verdict === 'send' ? 'send' : 'negotiate' } };
+}
+/** Add or replace one entry (by id), newest first, capped. */
+export function withSpotlight(list = [], entry) {
+  return [entry, ...(Array.isArray(list) ? list : []).filter((x) => x && x.id !== entry.id)].slice(0, SPOTLIGHT_MAX);
+}
+export const withoutSpotlight = (list = [], id) => (Array.isArray(list) ? list : []).filter((x) => x && x.id !== id);

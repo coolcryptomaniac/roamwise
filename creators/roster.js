@@ -4,11 +4,11 @@
    real Firestore error if something is blocked, so an empty list is never a silent failure.
    Writes only crm/{id}.stage, which the Firestore rules already allow for the admin and the marketing role. */
 import { SEED_POLICIES, mergePolicies, policyFromPartner } from './property-terms-core.mjs';
-import { buildRoster, rosterCounts, creatorIntro, toCsv, STAGES } from './roster-core.mjs';
+import { buildRoster, rosterCounts, creatorIntro, toCsv, STAGES, canSpotlight, spotlightEntry, withSpotlight, withoutSpotlight } from './roster-core.mjs';
 
 const $ = (s) => document.querySelector(s);
 const esc = (v) => String(v == null ? '' : v).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-const R = { rows: [], policies: [], filter: 'all', q: '', errors: [] };
+const R = { rows: [], policies: [], filter: 'all', q: '', errors: [], spot: [] };
 const db = () => { try { return firebase.firestore(); } catch (_) { return null; } };
 const VERDICT = { send: ['Send the offer', 'good'], negotiate: ['Needs a chat', 'warn'], no_fit: ['No fit right now', 'bad'] };
 
@@ -19,8 +19,15 @@ async function load() {
   try { const c = await d.collection('config').doc('creatorPolicies').get(); if (c.exists && Array.isArray((c.data() || {}).list)) override = c.data().list; } catch (e) { R.errors.push('Property terms (config/creatorPolicies): ' + (e.code || e.message)); }
   try { const ps = await d.collection('partners').where('creatorMatching.enabled', '==', true).limit(200).get(); partners = ps.docs.map((x) => policyFromPartner(x.id, x.data() || {})); } catch (e) { R.errors.push('Partner terms: ' + (e.code || e.message)); }
   try { const a = await d.collection('crm').where('seg', '==', 'creator').limit(500).get(); apps = a.docs.map((x) => ({ id: x.id, ...x.data() })); } catch (e) { R.errors.push('Creator applications (crm): ' + (e.code || e.message) + '. Sign in with the founder account that has an admins/{uid} document.'); }
+  try { const sp = await d.collection('config').doc('creatorSpotlight').get(); R.spot = sp.exists && Array.isArray((sp.data() || {}).list) ? sp.data().list : []; } catch (e) { R.spot = []; }
   R.policies = mergePolicies(mergePolicies(SEED_POLICIES, override), partners);
   R.rows = buildRoster(apps, R.policies);
+}
+
+function spotBtn(r) {
+  const on = R.spot.some((x) => x && x.id === r.id), c = canSpotlight(r);
+  if (on) return `<button class="ca-action secondary" type="button" data-rs-spot="off" data-id="${esc(r.id)}">Remove from home page</button>`;
+  return c.ok ? `<button class="ca-action" type="button" data-rs-spot="on" data-id="${esc(r.id)}">Feature on home page</button>` : `<span class="ca-tag warn">not for home page: ${esc(c.why)}</span>`;
 }
 
 function card(r) {
@@ -34,7 +41,7 @@ function card(r) {
     <div class="ca-tags">${r.flags.map((f) => `<span class="ca-tag warn">${esc(f)}</span>`).join('')}</div>
     ${b ? `<p><b>Best match: ${esc(b.name)}</b> · <span class="ca-tag ${v[1]}">${esc(v[0])}</span> · ${esc(b.proximity.label)}${b.proximity.km != null ? ` · ~${b.proximity.roadKm} km by road` : ''} · score ${b.score}${b.why.length ? ` · ${esc(b.why.join(', '))}` : ''}</p>${lines ? `<p class="bd-hint">To agree: ${lines}</p>` : ''}<div class="ca-tags">${others}</div>` : '<p class="bd-hint">No property is open to creators yet.</p>'}
     <div class="ca-actions">${wa ? `<a class="ca-action green" target="_blank" rel="noopener" href="${esc(wa)}">WhatsApp creator</a>` : '<span class="ca-tag warn">no phone: use email</span>'}
-    <select data-rs-stage="${esc(r.id)}" aria-label="Stage for ${esc(r.name)}">${STAGES.map((s) => `<option value="${s}"${s === r.stage ? ' selected' : ''}>${s}</option>`).join('')}</select></div></div></div>`;
+    ${spotBtn(r)}<select data-rs-stage="${esc(r.id)}" aria-label="Stage for ${esc(r.name)}">${STAGES.map((s) => `<option value="${s}"${s === r.stage ? ' selected' : ''}>${s}</option>`).join('')}</select></div></div></div>`;
 }
 
 function visible() {
@@ -49,6 +56,13 @@ function paint() {
   $('#rsCounts').innerHTML = `<b>${c.total}</b> applications · <b>${c.send}</b> ready to offer · <b>${c.negotiate}</b> need a chat · <b>${c.no_match}</b> no match yet · <b>${c.needs_review}</b> need a check`;
   $('#rsErr').innerHTML = R.errors.map((e) => `<div class="ca-error">${esc(e)}</div>`).join('');
   host.innerHTML = rows.map(card).join('') || `<div class="ca-empty">${R.rows.length ? 'Nothing matches this filter.' : 'No creator applications were returned. If you expect some, read the message above; otherwise none have been saved.'}</div>`;
+  host.querySelectorAll('[data-rs-spot]').forEach((b) => b.addEventListener('click', async () => {
+    const d = db(), r = R.rows.find((x) => x.id === b.dataset.id); if (!d || !r) return;
+    const next = b.dataset.rsSpot === 'on' ? withSpotlight(R.spot, spotlightEntry(r)) : withoutSpotlight(R.spot, r.id);
+    if (b.dataset.rsSpot === 'on' && !confirm('Show ' + r.name + ' (public Instagram link and best-match property only, no phone or email) on the RoamWise home page?')) return;
+    try { await d.collection('config').doc('creatorSpotlight').set({ list: next, updatedAt: new Date().toISOString() }); R.spot = next; paint(); }
+    catch (e) { alert('Could not save: ' + (e.code || e.message) + '. Only the founder/admin account can do this.'); }
+  }));
   host.querySelectorAll('[data-rs-stage]').forEach((s) => s.addEventListener('change', async () => {
     const id = s.dataset.rsStage, d = db(); if (!d) return;
     try { await d.collection('crm').doc(id).update({ stage: s.value }); const r = R.rows.find((x) => x.id === id); if (r) r.stage = s.value; paint(); }
