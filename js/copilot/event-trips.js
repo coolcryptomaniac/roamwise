@@ -14,6 +14,16 @@ var RW_MONTHS = ['january','february','march','april','may','june','july','augus
 
 /* "13–14 November 2026" -> {d1,d2,m,y}; "22–26 October 2026"; null if unparseable. */
 function rwEventDates(when){
+  /* Cross-month festival weekends, e.g. 30 October – 1 November 2026. */
+  var range = String(when||'').match(/^(\d{1,2})\s+([A-Za-z]+)\s*[\u2013\-]\s*(\d{1,2})\s+([A-Za-z]+)\s+(\d{4})$/);
+  if(range){
+    var first = RW_MONTHS.indexOf(range[2].toLowerCase()), last = RW_MONTHS.indexOf(range[4].toLowerCase());
+    if(first < 0 || last < 0) return null;
+    var year = Number(range[5]), day1 = Number(range[1]), day2 = Number(range[3]);
+    var days = (Date.UTC(year,last,day2)-Date.UTC(year,first,day1))/86400000+1;
+    if(days < 1) return null;
+    return { d1:day1, d2:day2, m:first, y:year, days:days };
+  }
   var m = String(when||'').match(/(\d{1,2})\s*(?:[\u2013\-]\s*(\d{1,2}))?\s*([A-Za-z]+)\s+(\d{4})/);
   if(!m) return null;
   var mi = RW_MONTHS.indexOf(m[3].toLowerCase());

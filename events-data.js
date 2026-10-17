@@ -11,6 +11,12 @@
 window.RW_EVENTS = [
 
   /* ---------------- MUSIC ---------------- */
+  { id:'almora-litfest-2026', cat:'music', name:'Almora Literature Festival 2026', place:'Malla Mahal, Almora, Uttarakhand',
+    country:'India', start:'2026-10-30', end:'2026-11-01', verified:'confirmed',
+    vibe:'Literature, music and arts by Greenhills Trust, with books, Kumaoni craft and local food at the ALF Bazaar. A cultural weekend base for Almora and Kasar Devi.',
+    tips:['Official source: https://www.almoraliteraturefestival.org/ — dates and venue checked 18 October 2026.',
+          'Entry is free; registration is listed as opening soon. Confirm session timings and any workshop sign-ups with the organiser.',
+          'Weekend idea: combine a festival day with time in Almora or Kasar Devi; check local transport before planning a late return.'] },
   { id:'ziro', roi:{prof:2,money:-1,mind:5,cult:5,fun:5,cost:3,drain:3}, cat:'music', name:'Ziro Festival of Music', place:'Ziro Valley, Arunachal Pradesh',
     country:'India', start:'2026-09-24', end:'2026-09-27', verified:'confirmed',
     vibe:'Indie & folk in a Himalayan rice-paddy valley. Camping, bamboo stages, no cars.',
