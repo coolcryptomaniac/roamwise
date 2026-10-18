@@ -20,6 +20,11 @@ class FeedTests(unittest.TestCase):
                       'Bhopal pandals showcase Kainchi Dham',
                       'Jaunpur pandals show a Kainchi Dham replica',
                       'जौनपुर के पंडालों में कैंची धाम की प्रतिकृति',
+                      'Kainchi Dham theme adds spiritual touch to Mithapur Durga Puja pandal',
+                      'मिठापुर में कैंची धाम की प्रतिकृति वाला पंडाल',
+                      'मीठापुर का कैंची धाम थीम वाला पंडाल',
+                      'Gorakhpur Kainchi Dham replica pandal',
+                      'गोरखपुर में कैंची धाम की थीम पर दुर्गा पंडाल',
                       'कैंची धाम जैसा पंडाल भोपाल में']:
             with self.subTest(title=title):
                 self.assertEqual(m.parse_rss(RSS.replace('Kainchi Dham traffic report', title), SOURCE, NOW), [])
@@ -33,6 +38,10 @@ class FeedTests(unittest.TestCase):
                       'भोपाल से कैंची धाम: पंडाल के पास यातायात सूचना',
                       'Jaunpur pilgrims visit Kainchi Dham via Bhowali',
                       'जौनपुर से कैंची धाम यात्रा: पंडाल के पास यातायात सूचना',
+                      'Mithapur pilgrims visit Kainchi Dham via Bhowali',
+                      'Gorakhpur pilgrims: Kainchi Dham route diversion near a pandal',
+                      'गोरखपुर से कैंची धाम: पंडाल के पास यातायात सूचना',
+                      'मिठापुर से कैंची धाम: पंडाल के पास शटल सेवा की सूचना',
                       'Bhopal pilgrims: Kainchi Dham road and shuttle report']:
             with self.subTest(title=title):
                 rows = m.parse_rss(RSS.replace('Kainchi Dham traffic report', title), SOURCE, NOW)
@@ -40,8 +49,14 @@ class FeedTests(unittest.TestCase):
                 self.assertEqual(rows[0]['publishedAt'], '2026-10-09T06:00:00Z')
                 self.assertEqual(rows[0]['publisher'], 'Newsroom')
 
+    def test_offsite_headline_heuristic_does_not_filter_official_records(self):
+        official = dict(SOURCE, id='district', kind='official', url='https://nainital.nic.in/')
+        rss = RSS.replace('Kainchi Dham traffic report', 'Gorakhpur Kainchi Dham replica pandal').replace(
+            'https://news.google.com/articles/1', 'https://nainital.nic.in/notice/1')
+        self.assertEqual(len(m.parse_rss(rss, official, NOW)), 1)
+
     def test_failed_feed_preserves_saved_records_until_a_successful_read(self):
-        saved = dict(sourceId='news-en', title='Patna Kainchi Dham replica pandal',
+        saved = dict(sourceId='news-en', title='Gorakhpur Kainchi Dham replica pandal',
                      url='https://news.google.com/articles/saved', kind='news',
                      publishedAt='2026-10-09T06:00:00Z', publisher='Newsroom')
         previous = dict(items=[saved], sources=[dict(id='news-en', lastSuccessAt=saved['publishedAt'])])

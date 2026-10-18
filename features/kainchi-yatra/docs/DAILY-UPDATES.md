@@ -484,3 +484,64 @@ No runtime/browser code, limits, sources, schema, expiry/history/failures, publi
 advisory passes, visitor-sent reports, auth/payments or deployment settings changed. Device QA
 was not run. Pending repository review; no merge, deployment/workflow dispatch or contact with
 officials/others was performed by this maintenance run.
+
+## Mithapur / Gorakhpur relevance follow-up — pending review, 18 October 2026
+
+Reviewed main `81b80b6006ae48ab289fc3988b3a0e74171e5ff5`, current collector/registry,
+updates core/UI, this log, open PRs (none) and workflow status before editing. Static Pages
+run 39090468799 and main repository health passed. The served snapshot checked 18 October
+02:32:55Z (08:02:55 IST) has 30 selected / 14 retained / 16 size-omitted headlines. District
+and both news reads succeeded; the police source retains `URLError` and no recorded success.
+Manual social/reference rows remain manual. The snapshot is inside the 30-hour freshness window.
+
+Compared it with saved artifact 12117983979 from run 39080810444, checked 17 October
+23:55:05Z (18 October 05:25:05 IST). Verified the ZIP SHA-256 against GitHub's artifact digest.
+Both have the same coverage counts, all shared items are identical and older history is retained.
+One previous headline is absent and one older headline is present in the new bounded snapshot;
+this comparison does not establish completeness or why the upstream selection changed.
+
+Two retained stories describe festival replicas outside the visit-planning area:
+- Times of India, published 16 October 16:54 IST, confirms the Mithapur pandal is in Patna:
+  https://timesofindia.indiatimes.com/city/patna/kainchi-dham-theme-adds-spiritual-touch-to-mithapur-durga-puja-pandal/articleshow/134993221.cms
+- Dainik Bhaskar's publisher metadata gives publication 15 October 05:27 IST and modification
+  15:26:14 IST; its body locates the replica at Sahabganj Gudmandi, Gorakhpur:
+  https://www.bhaskar.com/local/uttar-pradesh/gorakhpur/news/gorakhpur-durga-puja-pandal-kaichi-dham-theme-hindu-muslim-unity-139359920.html
+  Its RSS publication is 14 October 23:57Z, consistent with the publisher's publication time.
+
+The collector-only change adds those evidenced place names (English/Hindi, including both
+Mithapur spellings) to the existing off-site pattern. The exhibit-term requirement, travel/safety
+exception, official-record exemption and last-good failure retention stay intact. This remains
+a narrow heuristic, not an exhaustive geographic classifier. Replay of the served 14 records
+keeps 12 and removes only these two replicas; remaining links, publishers and dates are identical.
+No previous history or public snapshot was rewritten. The location-free pandal headline is left
+alone because its title does not establish where the event took place.
+
+Fresh district announcements/What's New and police directory reads did not establish a new
+effective Kainchi registration order. The police website scrape failed with an internal proxy
+tunnel error; this is distinct from the deployed collector's recorded URLError. The listed
+Nainital Police X reference supplied posts published 16 October 19:07:16 and 21:27:57 IST
+describing a 17-18 October traffic plan, and a 17 October 09:34:10 IST deployment reminder:
+https://x.com/nainitalpolice_/status/2111089091148484991
+https://x.com/nainitalpolice_/status/2111124495042011484
+https://x.com/nainitalpolice_/status/2111307256981811371
+The retrieval provider reports platform verification unknown, and the account lookup did not
+resolve it. These are attributed reading leads; no verified badge, complete timeline, precise
+route rule, parking capacity, live queue, fare or registration start is claimed or encoded.
+
+Jagran's report published 16 October 23:22 IST explicitly describes arrangements for
+17-18 October; Amar Ujala's report published/updated 17 October 18:00 IST describes Saturday's
+implementation. Publication dates and applicability dates are separate; neither is a live
+measurement or evidence for later dates:
+https://www.jagran.com/uttarakhand/nainital-kainchi-dham-weekend-traffic-diversion-plan-oct-1718-40407502.html
+https://www.amarujala.com/uttarakhand/nainital/police-made-a-traffic-plan-for-kainchi-dham-2026-10-17
+
+Verification: new English/Hindi examples reproduced four failures before the fix; all 12 Python
+collector tests pass after it, including an added official-record exemption test and a saved
+Gorakhpur record retained through failure. All 50 Kainchi tests and 930 repository tests pass,
+with one existing skip. `npm run check`, `npm run mod-status` and `git diff --check` pass.
+The first UI test attempt preceded dependency installation and failed for missing jsdom;
+after `npm ci --ignore-scripts`, the module and full suites passed. No browser/device QA ran.
+Source budgets and all runtime, schema, expiry, history, source health, advisory pass,
+visitor-sent report, price/capacity/permit, auth/payment and deployment behavior are unchanged.
+Pending normal repository review; ask Claude Code to verify the collector regressions before
+merge. No merge, production deployment, workflow dispatch or contact with anyone was performed.
