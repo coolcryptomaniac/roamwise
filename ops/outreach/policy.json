@@ -1,0 +1,41 @@
+{
+  "version": 1,
+  "sender": "founder@roamwise.co.in",
+  "replyTo": "founder@roamwise.co.in",
+  "dailyTotalLimit": 12,
+  "dailySegmentLimits": {
+    "customer": 3,
+    "property": 3,
+    "creator": 3,
+    "investor": 3
+  },
+  "newIntroductionOnly": true,
+  "repeatRecipients": false,
+  "maximumSourceAgeDays": 30,
+  "customerMarketingOptInRequired": true,
+  "publicBusinessRouteRequiredForNewB2B": true,
+  "stopOnReplyBounceOrOptOut": true,
+  "doNotSendOnUncertainState": true,
+  "exclude": [
+    "staff reports",
+    "existing ambassadors",
+    "existing partners unless an applicable update was requested",
+    "personal or guessed addresses",
+    "historical unverified investor datasets"
+  ],
+  "firstPropertySeedIds": [
+    "art-rakkh",
+    "art-hyatt-dharamshala",
+    "art-wildflower-hall"
+  ],
+  "scheduleTimezone": "Asia/Kolkata",
+  "execution": "ChatGPT recurring task through connected Gmail; not a browser or Worker mail loop",
+  "automationId": "6ad53b4da02c81919dcbe3cff7d66e78",
+  "status": "active",
+  "scheduleBlocker": null,
+  "requestedDailyWindow": "Morning, Asia/Kolkata; 09:00 flexible start",
+  "scheduleVerifiedAt": "2026-10-19",
+  "leadSourceMode": "Connected Google Drive and relevant spreadsheets, read-only; exact references retained privately in the recurring task",
+  "localDeviceAccess": false,
+  "preserveSourceFiles": true
+}

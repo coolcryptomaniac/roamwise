@@ -40,6 +40,7 @@ const TOP_LEVEL_URLS = [
   `${SITE}/home.html`,
   `${SITE}/about.html`,
   `${SITE}/contact.html`,
+  `${SITE}/rope/`,
   `${SITE}/editorial-policy.html`,
   `${SITE}/pricing.html`,
   `${SITE}/terms.html`,
@@ -47,6 +48,7 @@ const TOP_LEVEL_URLS = [
   `${SITE}/privacy.html`,
   `${SITE}/delete-account.html`,
   `${SITE}/bhakti/`,
+  `${SITE}/creators/artists.html`,
   ...['kainchi', 'pilgrimage', 'char-dham', 'panch-kedar', 'kumbh', 'vaishno-devi', 'kashi', 'tirupati', 'ayodhya', 'dwarka-somnath', 'puri-konark', 'amarnath', 'shirdi', 'bodh-gaya', 'rameswaram-madurai', 'kasar-devi-almora', 'jageshwar', 'adi-kailash', 'kailash-mansarovar'].map(slug => `${SITE}/${slug}/`),
 ];
 

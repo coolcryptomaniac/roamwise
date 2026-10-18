@@ -1,0 +1,52 @@
+{
+  "version": 1,
+  "checkedAt": "2026-10-18T21:29:19Z",
+  "note": "Public business research only. Customer records and private contacts must never be committed here. No messages have been sent merely by creating this file.",
+  "leads": [
+    {
+      "id": "art-rakkh",
+      "segment": "property",
+      "name": "Rakkh Resort",
+      "email": "info@rakkh.com",
+      "emailSource": "https://rakkh.com/corporate-retreat/",
+      "sourceCheckedAt": "2026-10-18T21:29:19Z",
+      "publicBusinessInbox": true,
+      "publishedRouteVerified": true,
+      "purpose": "art-hospitality-introduction",
+      "artistId": "natasha-guleria",
+      "propertyId": "rakkh",
+      "status": "new",
+      "approvalBasis": "Founder requested daily lead marketing and artist/resort introductions on 19 October 2026; limited to these source-verified role/business inboxes."
+    },
+    {
+      "id": "art-hyatt-dharamshala",
+      "segment": "property",
+      "name": "Hyatt Regency Dharamshala Resort",
+      "email": "events.dharamshala@hyatt.com",
+      "emailSource": "https://www.hyatt.com/hyatt-regency/en-US/dhmrm-hyatt-regency-dharamshala-resort/meetings",
+      "sourceCheckedAt": "2026-10-18T21:29:19Z",
+      "publicBusinessInbox": true,
+      "publishedRouteVerified": true,
+      "purpose": "art-hospitality-introduction",
+      "artistId": "natasha-guleria",
+      "propertyId": "hyatt-dharamshala",
+      "status": "new",
+      "approvalBasis": "Founder requested daily lead marketing and artist/resort introductions on 19 October 2026; limited to these source-verified role/business inboxes."
+    },
+    {
+      "id": "art-wildflower-hall",
+      "segment": "property",
+      "name": "Wildflower Hall, An Oberoi Resort",
+      "email": "generalmanager.wildflowerhall@oberoihotels.com",
+      "emailSource": "https://www.oberoihotels.com/hotels-in-shimla-wfh/contact-us/",
+      "sourceCheckedAt": "2026-10-18T21:29:19Z",
+      "publicBusinessInbox": true,
+      "publishedRouteVerified": true,
+      "purpose": "art-hospitality-introduction",
+      "artistId": "natasha-guleria",
+      "propertyId": "wildflower-hall",
+      "status": "new",
+      "approvalBasis": "Founder requested daily lead marketing and artist/resort introductions on 19 October 2026; limited to these source-verified role/business inboxes."
+    }
+  ]
+}
