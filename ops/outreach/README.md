@@ -26,3 +26,9 @@ The founder requested daily segmented lead marketing and artist/hotel matching o
 The connected Gmail account was verified. The RoamWise private admin page required sign-in during setup, so no private customer or CRM list was read, exported or assumed. There are three public hotel business inbox seeds, plus two hotel prospects needing contact routing. A daily task may discover other eligible B2B prospects; it must report blocked private segments honestly. Creating source files or saving a prospect in the admin UI does not itself send any email.
 
 The hotel shortlist is an editorial potential-fit ranking, not an acceptance probability, confirmed procurement programme or booked event. Natasha's ambassador title follows the founder's instruction; no term, fee, exclusivity, signed contract or guaranteed deliverable is represented.
+
+## Private spreadsheet sources
+
+The founder authorised connected Google Drive and relevant spreadsheets as read-only sources on 19 October 2026. The task stores verified source references privately and rereads current contents each run. Native Google Sheets uses metadata plus bounded named-tab ranges; Excel/CSV/TSV uses Drive fetch. Investor directory rows are candidates for current official-source verification, not preapproved email recipients. Outreach tracker rows help suppress previous contacts; community activity is not customer marketing consent. Existing files, permissions and private records are preserved.
+
+A phone or computer file is usable only after upload or sync into an accessible source. The separate Smartsheet service is not automatically connected by Google Drive. Missing customer opt-in evidence still means zero customer sends. Never store private spreadsheet IDs, rows or contacts in this public repository.

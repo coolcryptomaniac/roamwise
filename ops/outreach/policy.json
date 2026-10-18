@@ -34,5 +34,8 @@
   "status": "active",
   "scheduleBlocker": null,
   "requestedDailyWindow": "Morning, Asia/Kolkata; 09:00 flexible start",
-  "scheduleVerifiedAt": "2026-10-19"
+  "scheduleVerifiedAt": "2026-10-19",
+  "leadSourceMode": "Connected Google Drive and relevant spreadsheets, read-only; exact references retained privately in the recurring task",
+  "localDeviceAccess": false,
+  "preserveSourceFiles": true
 }

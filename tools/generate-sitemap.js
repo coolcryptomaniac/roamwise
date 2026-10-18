@@ -40,6 +40,7 @@ const TOP_LEVEL_URLS = [
   `${SITE}/home.html`,
   `${SITE}/about.html`,
   `${SITE}/contact.html`,
+  `${SITE}/rope/`,
   `${SITE}/editorial-policy.html`,
   `${SITE}/pricing.html`,
   `${SITE}/terms.html`,
