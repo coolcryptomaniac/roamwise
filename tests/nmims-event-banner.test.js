@@ -61,7 +61,7 @@ test('real RoamWise logo replaces the placeholder R/RW boxes, favicon and instal
   assert.doesNotMatch(html,/<div class="logo-icon">RW?<\/div>/);
   assert.equal((html.match(/class="logo-icon logo-img" src="\/assets\/img\/roamwise-logo-176\.webp"/g)||[]).length,2);
   assert.doesNotMatch(html,/rel="icon" href="data:image\/svg/);
-  assert.match(html,/rel="icon" type="image\/png" sizes="32x32" href="\/icons\/favicon-32\.png"/);
+  assert.match(html,/rel="icon" type="image\/png" sizes="32x32" href="\/icons\/favicon-32\.png\?v=20261018"/);
   assert.match(rd('css/base/02-shell.css'),/\.logo-img\{/);
   assert.match(rd('js/boot/init.js'),/roamwise-logo-176\.webp[^]*Install RoamWise/);
   assert.match(rd('sw.js'),/'\/assets\/img\/roamwise-logo-176\.webp'/);
