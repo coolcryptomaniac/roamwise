@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#0b0a12">
+  <meta name="robots" content="noindex,follow">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src 'self'; style-src 'self'; font-src 'self'; script-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <title>Pay &amp; join Roamwise</title>
+  <meta name="description" content="Roamwise's UPI payment address, payment QR and official property and creator joining links.">
+  <link rel="canonical" href="https://www.roamwise.co.in/pay/">
+  <link rel="icon" href="../icons/favicon-32.png">
+  <link rel="stylesheet" href="pay.css">
+  <script src="pay.js" defer></script>
+</head>
+<body>
+  <header class="nav"><a class="brand" href="../"><img src="../assets/img/roamwise-logo-176.webp" width="44" height="44" alt=""><span>Roamwise</span></a><a href="../">Explore Roamwise ↗</a></header>
+  <main>
+    <div class="intro"><p class="eyebrow">ALMORA TO GLOBAL</p><h1>Pay Roamwise.<br><em>Join the journey.</em></h1><p>UPI payments and official partner links, in one place.</p></div>
+    <section class="payment panel" aria-labelledby="paymentHeading">
+      <div class="payment-copy">
+        <p class="eyebrow">OFFICIAL ROAMWISE PAYMENT</p><h2 id="paymentHeading">A simple way to pay.</h2>
+        <p class="vpa" id="upiId">roamwisepay@ybl</p>
+        <p class="recipient">Account holder: <strong>MOHIT PANDEY</strong></p>
+        <p>For an agreed Roamwise invoice or service. Enter the agreed amount in your UPI app and confirm the recipient before approving.</p>
+        <div class="actions"><a class="button primary" id="payUpi" href="upi://pay?pa=roamwisepay%40ybl&amp;pn=MOHIT%20PANDEY&amp;cu=INR">Open any UPI app ↗</a><button class="button" id="copyUpi" type="button">Copy UPI ID</button></div>
+        <div class="actions"><a class="button" id="sharePayment" href="https://wa.me/?text=Pay%20Roamwise%3A%20https%3A%2F%2Fwww.roamwise.co.in%2Fpay%2F%0AUPI%3A%20roamwisepay%40ybl%0AEnter%20the%20agreed%20amount%20and%20confirm%20the%20recipient%20in%20your%20UPI%20app." target="_blank" rel="noopener">Share payment link on WhatsApp ↗</a><button class="button" id="copyPayment" type="button">Copy payment link</button></div>
+        <p id="copyStatus" class="status" role="status" aria-live="polite"></p>
+        <p class="note">Opening an app or scanning a QR does not confirm payment. For help or payment confirmation, contact <a href="mailto:support@roamwise.co.in">support@roamwise.co.in</a>.</p>
+      </div>
+      <figure class="qr-block"><div class="qr-paper"><img src="payment-qr.png" width="456" height="456" alt="UPI payment QR for Roamwise at roamwisepay@ybl"></div><figcaption>Scan with your UPI app<br><small>No amount is preset.</small></figcaption><a class="button" href="payment-qr.png" download="Roamwise-UPI-QR.png">Download payment QR ↓</a></figure>
+      <div class="payment-context"><p><strong>Paying for a stay?</strong> Follow your property's payment instructions and pay the host directly.</p><p><strong>Buying Pro?</strong> Use the <a href="../">Roamwise plan checkout</a> so the purchase is linked to your account.</p></div>
+    </section>
+    <section class="join-section" aria-labelledby="joinHeading"><div class="section-heading"><p class="eyebrow">BUILD WITH US</p><h2 id="joinHeading">Your next chapter starts here.</h2></div>
+      <div class="join-grid">
+        <article class="panel join-card"><div><span class="number">01 / PROPERTIES</span><h3>Bring your property<br>to Roamwise.</h3><p>Start the official property onboarding form.</p><a class="button primary" href="https://www.roamwise.co.in/partner/join/">Join as a property ↗</a><p class="short-url">roamwise.co.in/partner/join</p></div><figure><div class="qr-paper"><img src="properties-qr.png" width="360" height="360" alt="QR to Roamwise's property joining form" loading="lazy"></div><figcaption>Scan to join as a property</figcaption></figure></article>
+        <article class="panel join-card"><div><span class="number">02 / CREATORS</span><h3>Make stories.<br>Find your next collaboration.</h3><p>Explore Roamwise's creator programme and joining options.</p><a class="button primary" href="https://www.roamwise.co.in/creators/">Join as a creator ↗</a><p class="short-url">roamwise.co.in/creators</p></div><figure><div class="qr-paper"><img src="creators-qr.png" width="360" height="360" alt="QR to Roamwise's creator programme" loading="lazy"></div><figcaption>Scan to explore creator opportunities</figcaption></figure></article>
+      </div>
+    </section>
+    <section class="help panel"><div><p class="eyebrow">A REAL CONVERSATION</p><h2>Need a hand?</h2><p>Ask us about a payment, property listing or creator collaboration.</p></div><a class="button" href="https://wa.me/919987379730?text=Hi%20Roamwise%2C%20I%20need%20help%20with%20a%20payment%20or%20joining." target="_blank" rel="noopener">Chat with Roamwise on WhatsApp ↗</a></section>
+  </main>
+  <footer><p>A global startup from India.</p><p><a href="mailto:support@roamwise.co.in">support@roamwise.co.in</a><span>Founder: Mohit Pandey · <a href="mailto:founder@roamwise.co.in">founder@roamwise.co.in</a></span></p></footer>
+</body>
+</html>
