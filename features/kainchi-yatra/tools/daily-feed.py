@@ -17,7 +17,7 @@ import xml.etree.ElementTree as ET
 FEATURE = Path(__file__).resolve().parents[1]
 SOURCES = json.loads((FEATURE / 'tools/sources.json').read_text())
 RELEVANT = re.compile(r'kainchi|kaichi|कैंची|कैची|bhowali|भवाली|bhimtal|भीमताल|nainital.{0,40}traffic|नैनीताल.{0,40}यातायात', re.I)
-OFFSITE_CITY = re.compile(r'\b(?:patna|bhopal|jaunpur)\b|पटना|भोपाल|जौनपुर', re.I)
+OFFSITE_CITY = re.compile(r'\b(?:patna|bhopal|jaunpur|mithapur|gorakhpur)\b|पटना|भोपाल|जौनपुर|मिठापुर|मीठापुर|गोरखपुर', re.I)
 EXHIBIT = re.compile(r'\b(?:pandals?|replicas?)\b|पंडाल|पण्डाल|झांकी|प्रतिकृति', re.I)
 TRAVEL_SIGNAL = re.compile(r'\b(?:traffic|road|route|shuttle|registration|closure|diversion|queue|parking|landslide|ambulance|permit|fare|hospital|emergency)\b|यातायात|सड़क|मार्ग|शटल|पंजीकरण|भूस्खलन|एंबुलेंस|एम्बुलेंस|जाम|पार्किंग|अस्पताल|आपातकाल', re.I)
 LIMIT = 1500000
