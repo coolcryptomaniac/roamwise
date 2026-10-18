@@ -1,0 +1,219 @@
+{
+  "version": 1,
+  "checkedAt": "2026-10-18T21:29:19Z",
+  "artists": [
+    {
+      "id": "natasha-guleria",
+      "name": "Natasha Guleria",
+      "studio": "Bhavitavya Kala",
+      "role": "RoamWise Brand Ambassador",
+      "state": "Himachal Pradesh",
+      "website": "https://bhavitavyakala.com/",
+      "instagram": "https://www.instagram.com/bhavitavya_kala/",
+      "themes": [
+        "spiritual",
+        "wellness",
+        "himalayan",
+        "culture"
+      ],
+      "confirmedServices": [
+        "Original paintings",
+        "Prints",
+        "Custom commissions",
+        "Personalised portraits"
+      ],
+      "proposedServices": [
+        "Exhibition",
+        "Guest painting workshop",
+        "Art-led content collaboration"
+      ],
+      "biographySource": "https://bhavitavyakala.com/about",
+      "contactSource": "https://bhavitavyakala.com/contact",
+      "checkedAt": "2026-10-18T21:29:19Z",
+      "appointmentSource": "Founder instruction, 19 October 2026; no contract terms represented"
+    }
+  ],
+  "properties": [
+    {
+      "id": "rakkh",
+      "name": "Rakkh Resort",
+      "city": "Palampur / Dharamshala",
+      "state": "Himachal Pradesh",
+      "themes": [
+        "himalayan",
+        "culture",
+        "wellness"
+      ],
+      "models": [
+        "commission",
+        "exhibition",
+        "workshop",
+        "storytelling"
+      ],
+      "evidence": "The resort describes pottery, Himachali weaving and corporate retreats. A painting collaboration is a new proposal.",
+      "goalNotes": {
+        "commission": "A custom piece could connect the property’s Himalayan and craft setting.",
+        "exhibition": "Propose a small display alongside the existing craft experiences.",
+        "workshop": "Existing pottery and weaving activities provide a relevant guest-experience setting.",
+        "storytelling": "Craft and Himalayan hospitality offer a specific story to explore."
+      },
+      "sourceUrl": "https://rakkh.com/",
+      "contact": {
+        "email": "info@rakkh.com",
+        "type": "general business inbox",
+        "sourceUrl": "https://rakkh.com/corporate-retreat/",
+        "verified": true,
+        "ambiguous": false
+      },
+      "checkedAt": "2026-10-18T21:29:19Z",
+      "status": "research-prospect",
+      "partnerConfirmed": false,
+      "budget": null,
+      "availability": "unconfirmed"
+    },
+    {
+      "id": "hyatt-dharamshala",
+      "name": "Hyatt Regency Dharamshala Resort",
+      "city": "Dharamkot, Dharamshala",
+      "state": "Himachal Pradesh",
+      "themes": [
+        "himalayan",
+        "culture"
+      ],
+      "models": [
+        "commission",
+        "exhibition",
+        "workshop",
+        "storytelling"
+      ],
+      "evidence": "The official meetings page describes event facilities and publishes an events-team inbox. No artist programme is confirmed.",
+      "goalNotes": {
+        "commission": "Explore an original piece for a guest or event space.",
+        "exhibition": "The events setting makes a small curated display a relevant proposal.",
+        "workshop": "Ask the events team about a separately agreed painting session.",
+        "storytelling": "A Himalayan art-and-stay story could be pitched to the resort team."
+      },
+      "sourceUrl": "https://www.hyatt.com/hyatt-regency/en-US/dhmrm-hyatt-regency-dharamshala-resort/meetings",
+      "contact": {
+        "email": "events.dharamshala@hyatt.com",
+        "type": "events team inbox",
+        "sourceUrl": "https://www.hyatt.com/hyatt-regency/en-US/dhmrm-hyatt-regency-dharamshala-resort/meetings",
+        "verified": true,
+        "ambiguous": false
+      },
+      "checkedAt": "2026-10-18T21:29:19Z",
+      "status": "research-prospect",
+      "partnerConfirmed": false,
+      "budget": null,
+      "availability": "unconfirmed"
+    },
+    {
+      "id": "wildflower-hall",
+      "name": "Wildflower Hall, An Oberoi Resort",
+      "city": "Chharabra, Shimla",
+      "state": "Himachal Pradesh",
+      "themes": [
+        "himalayan",
+        "wellness",
+        "culture"
+      ],
+      "models": [
+        "commission",
+        "exhibition",
+        "storytelling"
+      ],
+      "evidence": "The official resort page describes a Himalayan heritage retreat, spa, yoga and meditation. Art procurement interest is unconfirmed.",
+      "goalNotes": {
+        "commission": "Propose a site-specific artwork for a heritage or wellness setting.",
+        "exhibition": "Ask whether an intimate guest display would suit the property.",
+        "storytelling": "Explore a story about place, landscape and the creative process.",
+        "workshop": "Guest workshop interest has not been established."
+      },
+      "sourceUrl": "https://www.oberoihotels.com/hotels-in-shimla-wfh/",
+      "contact": {
+        "email": "generalmanager.wildflowerhall@oberoihotels.com",
+        "type": "published hotel management role inbox",
+        "sourceUrl": "https://www.oberoihotels.com/hotels-in-shimla-wfh/contact-us/",
+        "verified": true,
+        "ambiguous": false
+      },
+      "checkedAt": "2026-10-18T21:29:19Z",
+      "status": "research-prospect",
+      "partnerConfirmed": false,
+      "budget": null,
+      "availability": "unconfirmed"
+    },
+    {
+      "id": "ananda",
+      "name": "Ananda in the Himalayas",
+      "city": "Narendranagar",
+      "state": "Uttarakhand",
+      "themes": [
+        "spiritual",
+        "wellness",
+        "himalayan"
+      ],
+      "models": [
+        "commission",
+        "exhibition",
+        "storytelling"
+      ],
+      "evidence": "The official site describes wellness, yoga and meditation. Its contact page has a marketing label/mailto mismatch; use the official contact route to clarify.",
+      "goalNotes": {
+        "commission": "Spiritual paintings could suit a wellness-space brief.",
+        "exhibition": "A small contemplative display could be proposed to the team.",
+        "storytelling": "Explore art and mindful travel without claiming medical benefits.",
+        "workshop": "A painting session would require a new guest-programme agreement."
+      },
+      "sourceUrl": "https://www.anandaspa.com/en/contact",
+      "contact": {
+        "email": "",
+        "type": "official contact page; email label/link conflict",
+        "sourceUrl": "https://www.anandaspa.com/en/contact",
+        "verified": false,
+        "ambiguous": true
+      },
+      "checkedAt": "2026-10-18T21:29:19Z",
+      "status": "research-prospect",
+      "partnerConfirmed": false,
+      "budget": null,
+      "availability": "unconfirmed"
+    },
+    {
+      "id": "taj-rishikesh",
+      "name": "Taj Rishikesh Resort & Spa",
+      "city": "Rishikesh",
+      "state": "Uttarakhand",
+      "themes": [
+        "spiritual",
+        "wellness",
+        "himalayan"
+      ],
+      "models": [
+        "commission",
+        "exhibition",
+        "storytelling"
+      ],
+      "evidence": "The official hotel page describes a riverside Himalayan setting, yoga and wellness. Its published reservations inbox is not an art-procurement contact.",
+      "goalNotes": {
+        "commission": "A spiritual or landscape-led piece could complement the riverside setting.",
+        "exhibition": "Propose a curated display; the hotel has not confirmed interest.",
+        "storytelling": "Explore a Ganga-and-Himalayan art story with separately agreed usage.",
+        "workshop": "Guest workshop interest and artist availability remain unconfirmed."
+      },
+      "sourceUrl": "https://www.tajhotels.com/en-in/hotels/taj-rishikesh",
+      "contact": {
+        "email": "",
+        "type": "official hotel page; request marketing or procurement route",
+        "sourceUrl": "https://www.tajhotels.com/en-in/hotels/taj-rishikesh",
+        "verified": false,
+        "ambiguous": false
+      },
+      "checkedAt": "2026-10-18T21:29:19Z",
+      "status": "research-prospect",
+      "partnerConfirmed": false,
+      "budget": null,
+      "availability": "unconfirmed"
+    }
+  ]
+}

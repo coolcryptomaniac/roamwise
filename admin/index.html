@@ -61,6 +61,7 @@
       <button data-page="compliance" onclick="goPage('compliance',this)">Compliance</button>
       <button data-page="devrequests" onclick="goPage('devrequests',this)">Dev/AI Requests</button>
       <button data-page="investors" onclick="goPage('investors',this)">Investor view</button>
+      <button data-page="artist-outreach" onclick="goPage('artist-outreach',this);rwArtistOutreachStart()">Artist &amp; daily outreach</button>
       <button data-page="outreach" onclick="goPage('outreach',this)">VC outreach</button>
       <button data-page="trek-sales" onclick="goPage('trek-sales',this);rwTrekStart()">Trek sales</button>
       <button data-page="property-leads" onclick="goPage('property-leads',this);rwPropertyStart()">Property leads</button>
@@ -85,6 +86,7 @@
       <section id="users" class="section"><div class="eyebrow">Accounts</div><h1 class="title">Users without the spreadsheet feeling.</h1><p class="lead">Search email, phone or UID. Profiles without a usable email are flagged separately; check the Firebase Authentication provider before granting access. Firestore alone cannot identify an anonymous sign-in.</p>
         <div class="toolbar"><input id="userSearch" class="input" placeholder="Search email or UID" oninput="renderUsers()"><select id="userFilter" class="input" onchange="renderUsers()"><option value="all">All profiles</option><option value="pro">Pro only</option><option value="free">Free only</option><option value="unexplained">Needs revenue record</option><option value="missing-email">No usable email</option></select></div><div id="userList" class="list"></div>
       </section>
+      <section id="artist-outreach" class="section"><div class="eyebrow">Art × hospitality · segmented marketing</div><h1 class="title">Artist matches &amp; daily lead outreach.</h1><p class="lead">Natasha Guleria · Bhavitavya Kala · RoamWise Brand Ambassador. Explore researched hotel prospects and keep private CRM records here.</p><div class="grid two"><div class="card"><h2>Daily marketing · scheduled</h2><p><b>Setup verified 19 October 2026:</b> the ChatGPT outreach task is enabled for mornings around 09:00 IST. Its live state and run reports are available in ChatGPT Tasks; this page is a setup snapshot, not a send log.</p><p>The prepared Gmail workflow has a maximum of 12 new introductions per day: up to 3 each for customers, properties, creators and investors. It skips duplicates, replies, opt-outs and unresolved contacts. Customer marketing requires evidenced opt-in and access to the private lead list.</p><a class="btn" href="../ops/outreach/README.md" target="_blank" rel="noopener">Operating rules &amp; setup limits</a></div><div class="card"><h2>Artist collaboration desk</h2><p>Artwork commissions, exhibition proposals, guest workshops and art-led content have separate deliverables and usage terms. These hotels are prospects; no partnership, dates or budget are confirmed.</p><a class="btn primary" href="../creators/artists.html">Open Natasha &amp; hotel matches</a><p class="meta">This page does not expose private leads publicly. Saving a prospect does not send a message.</p></div></div><div class="card" style="margin-top:14px"><h2>Source-backed hotel shortlist</h2><div id="artistProspects" class="list">Open this tab to load the researched prospects.</div></div></section>
       <section id="outreach" class="section"><div class="eyebrow">Fundraising CRM</div><h1 class="title">Match, personalize, review, send.</h1><p class="lead">Targets live in admin-only Firestore. Fit scoring prioritizes early-stage consumer, travel and AI investors. AI keys stay only on this device.</p>
         <div class="grid two"><div class="card"><h2>Current pitch facts</h2><p>Saved in Firestore so every draft uses the latest numbers.</p><div class="fields">
           <div class="field"><label>Users</label><input id="pUsers" class="input" type="number"></div><div class="field"><label>Revenue (INR)</label><input id="pRevenue" class="input" type="number"></div>
@@ -282,6 +284,7 @@
 <script src="trek-outreach.js"></script>
 <script src="property-prospects-data.js"></script>
 <script src="property-outreach.js"></script>
+<script src="artist-outreach.js"></script>
 <script src="../business-account.js?v=20261007"></script>
 <script src="payment-operations.js"></script>
 <script src="bhakti-operations.js"></script>
