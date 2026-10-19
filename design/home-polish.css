@@ -20,3 +20,14 @@ a:focus-visible,button:focus-visible{outline:2px solid #e8ba6c;outline-offset:3p
 /* scroll progress */
 #rwpBar{position:fixed;top:0;left:0;height:2px;width:100%;transform:scaleX(0);transform-origin:0 50%;background:linear-gradient(90deg,#ff7a59,#e8ba6c);z-index:9999;pointer-events:none;will-change:transform}
 @media(prefers-reduced-motion:reduce){.rwp-js .rwp-r{opacity:1;transform:none;transition:none}.bs-tile,.qg-tile,.rw-card,.exp{transition:none}#rwpBar{display:none}}
+
+/* Other views (Plan, Copilot, Store, Explore, Film, Extras, Sacred): same rhythm and separators */
+body > .xsec:not(#brand-ambassador){margin-top:36px}
+body > .xsec:not(#brand-ambassador)::before{content:"";display:block;height:1px;width:min(78%,480px);margin:0 auto 24px;background:linear-gradient(90deg,transparent,rgba(232,186,108,.38),transparent)}
+body > .xsec .exp{border-radius:18px}
+@media(hover:hover){body > .xsec .exp:hover{transform:translateY(-3px);box-shadow:0 14px 28px -16px rgba(232,186,108,.3)}}
+.xsec-title{letter-spacing:-.01em}
+/* view change: sections glide in */
+@keyframes rwpEnter{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+.rwp-enter{animation:rwpEnter .6s cubic-bezier(.2,.8,.2,1) both}
+@media(prefers-reduced-motion:reduce){.rwp-enter{animation:none}}
