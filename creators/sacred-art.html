@@ -8,13 +8,15 @@
   <meta property="og:title" content="Sacred art for your home or temple | RoamWise"><meta property="og:description" content="Original spiritual paintings from independent artists Natasha Guleria and Jagriti Mishra: Shiva, Ram, yantras, Maa Kali and Saraswati. Enquire directly.">
   <meta property="og:image" content="https://www.roamwise.co.in/assets/img/roamwise-share-20261018.jpg">
   <meta property="og:url" content="https://www.roamwise.co.in/creators/sacred-art.html"><meta property="og:type" content="website">
-  <link rel="icon" href="/icons/favicon-32.png?v=20261018"><link rel="stylesheet" href="artists.css"><link rel="stylesheet" href="sacred-art.css"><link rel="stylesheet" href="art-studio.css"><link rel="stylesheet" href="art-guide.css">
+  <link rel="icon" href="/icons/favicon-32.png?v=20261018"><link rel="stylesheet" href="artists.css"><link rel="stylesheet" href="sacred-art.css"><link rel="stylesheet" href="art-studio.css"><link rel="stylesheet" href="art-guide.css"><link rel="stylesheet" href="art-cinema.css">
 </head>
 <body>
   <nav class="art-nav"><a href="/" class="art-brand"><img src="/icons/icon-192.png" width="32" height="32" alt="">RoamWise</a><div><a href="artists.html">Natasha Guleria</a><a href="jagriti.html">Jagriti Mishra</a><a href="sacred-art.html">Sacred art</a></div></nav>
   <main class="art-main">
-    <header class="art-hero"><div><span class="art-eyebrow">SACRED ART</span><h1>Sacred art<span>For a shrine, a pooja room or a temple hall.</span></h1><p class="art-lead">Spiritual paintings by two independent artists, sold directly by them. RoamWise introduces; it does not take payment.</p></div></header>
-    <section class="art-section"><div class="sa-grid" data-sacred-art><p class="sa-note">Loading paintings…</p></div><noscript><p><a href="artists.html#paintings">Natasha Guleria’s paintings</a> · <a href="jagriti.html#paintings">Jagriti Mishra’s paintings</a></p></noscript><p class="art-small">Natasha’s prices are as listed by her studio. Jagriti’s are indicative ranges to be confirmed by her.</p></section>
+    <header class="ac-hero"><canvas id="acEmbers" aria-hidden="true"></canvas><span class="ac-om" aria-hidden="true">ॐ</span><div><span class="art-eyebrow">SACRED ART · ROAMWISE</span><h1>Paint the divine.<span>Bring it home.</span></h1><p class="art-lead">Original spiritual paintings by independent artists, sold directly by them. For a shrine, a pooja room, a retreat or a temple hall.</p><div class="art-actions"><a class="art-button" href="#reel">Walk the gallery</a><a class="art-button secondary" href="#guide">Meet Kala</a></div><div class="ac-stats"><div><b id="acArtists">0</b><span>Artists</span></div><div><b id="acWorks">0</b><span>Paintings</span></div><div><b id="acFrom">₹0</b><span>Starting from</span></div></div></div></header>
+    <nav class="ac-nav" aria-label="On this page"><a href="#reel">Gallery</a><a href="#shelf">For sale</a><a href="#guide">Kala</a><a href="#preview">Your wall</a><a href="#finder">Finder</a><a href="#compare">Compare</a><a href="#collectors">Collectors</a></nav>
+    <section class="art-section" id="reel"><span class="art-eyebrow">THE GALLERY</span><h2>Tap a painting to meet Kala.</h2><div class="ac-reel" id="acReel"><p class="sa-note">Loading the gallery…</p></div></section>
+    <section class="art-section" id="shelf"><div class="sa-grid" data-sacred-art><p class="sa-note">Loading paintings…</p></div><noscript><p><a href="artists.html#paintings">Natasha Guleria’s paintings</a> · <a href="jagriti.html#paintings">Jagriti Mishra’s paintings</a></p></noscript><p class="art-small">Natasha’s prices are as listed by her studio. Jagriti’s are indicative ranges to be confirmed by her.</p></section>
     <section class="art-section as-rv" id="guide"><span class="art-eyebrow">MEET KALA · ART GUIDE</span><h2>Let Kala show you a painting.</h2><p>Kala is an illustrated RoamWise guide, not a likeness of either artist. Pick a painting and Kala presents it, says the listed price, and connects you to the artist.</p>
       <div class="ag"><div class="ag-stage" id="agStage"><svg id="agFig" class="ag-fig" viewBox="0 0 320 360" role="img" aria-label="Kala, an illustrated RoamWise art guide, holding a framed painting">
   <ellipse cx="160" cy="345" rx="90" ry="9" fill="#0006"/>
@@ -49,4 +51,5 @@
   <script src="art-studio.js" defer></script>
   <script src="art-extras.js" defer></script>
   <script src="art-guide.js" defer></script>
+  <script src="art-cinema.js" defer></script>
 </body></html>
