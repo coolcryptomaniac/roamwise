@@ -1,0 +1,4 @@
+{
+  "workerUrl": "",
+  "note": "Set workerUrl to your deployed RoamWise Worker (for example https://roamwise-api.<account>.workers.dev) once SARVAM_API_KEY is set as a Worker secret. Leave blank to keep the built-in rule-based Kala."
+}

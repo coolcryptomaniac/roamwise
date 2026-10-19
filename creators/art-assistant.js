@@ -32,7 +32,7 @@
   };
   var JOKES = ['Why did the painter get invited everywhere? Because she always brought the right colour to the party.', 'My favourite wall is an empty one. It has so much potential and so little commitment.', 'Relationship status: committed to your wall, available for your budget.', 'I asked a canvas how it was feeling. It said, a bit blank today.'];
   function think(q) {
-    var it = K().current(), items = K().items(), s = q.toLowerCase(), steps = [], out = '', acts = '', flair = '';
+    var it = K().current(), items = K().items(), s = q.toLowerCase(), steps = [], out = '', acts = '', flair = '', ai = false;
     if (!it) return { steps: ['No painting is selected'], html: 'Please pick a painting first.' };
     var budget = parseBudget(s);
     // Name and personality
@@ -41,8 +41,8 @@
       var nm = '\u0915\u0932\u093E';
       return { steps: steps, html: 'I am <b>Kala</b>, written <span lang="hi">' + nm + '</span>, said \u201Cka-LAA\u201D with a long last sound. In Hindi it means <i>art</i>, so my name is also my job description. Tap <b>Hear Kala explain</b> and I will say it properly. ' + 'I am an illustrated virtual guide, not a real person.' };
     }
-    if (/joke|funny|laugh|hasa|mazak|humou?r/.test(s)) { return { steps: ['Warming up my comic timing'], html: esc(pick(JOKES)) }; }
-    if (/beautiful|sexy|hot|cute|gorgeous|love you|date|marry|single|pretty|flirt/.test(s)) { return { steps: ['Blushing in 24-bit colour'], html: pick(['Aww, the paint is getting to your head. I am an illustration, so my heart is mostly watercolour. Shall we find you a painting to fall for instead?', 'You are sweet, and I am an artwork-obsessed algorithm with excellent hair. The paintings here are the real heartbreakers.', 'Flattery noted and filed under compliments. Now, which painting has caught your eye?']) }; }
+    if (/joke|funny|laugh|hasa|mazak|humou?r/.test(s)) { return { steps: ['Warming up my comic timing'], html: esc(pick(JOKES)), ai: true }; }
+    if (/beautiful|sexy|hot|cute|gorgeous|love you|date|marry|single|pretty|flirt/.test(s)) { return { steps: ['Blushing in 24-bit colour'], ai: true, html: pick(['Aww, the paint is getting to your head. I am an illustration, so my heart is mostly watercolour. Shall we find you a painting to fall for instead?', 'You are sweet, and I am an artwork-obsessed algorithm with excellent hair. The paintings here are the real heartbreakers.', 'Flattery noted and filed under compliments. Now, which painting has caught your eye?']) }; }
     // Researcher
     if (/artist|about|who|research|source|verify|real|trust|genuine|authentic/.test(s) && !/caption|share/.test(s)) {
       var a = it.a; flair = pick(FLAIR.research); steps = ['Opening ' + a.name + '’s record', 'Reading its sources and check date'];
@@ -83,15 +83,26 @@
       if (!rows.length) out = 'Nothing listed fits that budget yet. You can ask an artist for a custom commission.';
       else { out = 'Top picks for you:<ul>' + rows.map(function (r) { return '<li><a href="#" data-pick="' + items.indexOf(r.x) + '">' + esc(r.x.title) + '</a> by ' + esc(r.x.artist) + ', ' + esc(r.x.price) + '</li>'; }).join('') + '</ul>Tap one and I will change into something to match.'; }
     }
-    else { steps = ['I could not match that to what I know']; flair = pick(FLAIR.unsure); out = 'I can help with <b>price</b>, <b>buying</b>, <b>the artist and sources</b>, <b>a caption to share</b>, <b>what to ask before buying</b>, or <b>suggestions for a budget or room</b>. I do not want to guess beyond the listings.'; }
-    return { steps: steps, html: (flair ? '<i>' + esc(flair) + '</i><br>' : '') + out + (acts ? '<div class="ak-act">' + acts + '</div>' : '') };
+    else { ai = true; steps = ['I could not match that to what I know']; flair = pick(FLAIR.unsure); out = 'I can help with <b>price</b>, <b>buying</b>, <b>the artist and sources</b>, <b>a caption to share</b>, <b>what to ask before buying</b>, or <b>suggestions for a budget or room</b>. I do not want to guess beyond the listings.'; }
+    return { ai: ai, steps: steps, html: (flair ? '<i>' + esc(flair) + '</i><br>' : '') + out + (acts ? '<div class="ak-act">' + acts + '</div>' : '') };
   }
 
+  var hist = [];
+  function ctxOf(it) { return { title: it.title, artist: it.artist, studio: it.studio, price: it.price, type: it.type || '', detail: it.detail || '', sacred: it.sacred !== false, indicative: !!it.range }; }
+  function cloudAnswer(q, t, r) {
+    t.textContent = '\u2726 Thinking with Sarvam AI\u2026';
+    var ctrl = new AbortController(), to = setTimeout(function () { ctrl.abort(); }, 9000);
+    fetch(K().cloud() + '/kala/chat', { method: 'POST', headers: { 'Content-Type': 'application/json' }, signal: ctrl.signal, body: JSON.stringify({ q: q, ctx: ctxOf(K().current()), history: hist }) })
+      .then(function (x) { if (!x.ok) throw new Error('no'); return x.json(); })
+      .then(function (d) { clearTimeout(to); t.remove(); var m = msg('ak-k', esc(d.text)); hist.push({ r: 'u', t: q }, { r: 'k', t: d.text }); var b = document.querySelector('.ag-badge'); if (b) b.textContent = 'VIRTUAL GUIDE \u00B7 AI REPLIES BY SARVAM'; K().say(d.text); })
+      .catch(function () { clearTimeout(to); t.remove(); var m = msg('ak-k', r.html); K().say(m.textContent.slice(0, 400)); });
+  }
   function ask(q) {
     q = String(q || '').trim(); if (!q) return; msg('ak-u', esc(q));
     var r = think(q), t = document.createElement('div'); t.className = 'ak-think'; log.appendChild(t);
     var i = 0; (function step() {
       if (i < r.steps.length) { t.textContent = '✦ ' + r.steps[i++] + '…'; setTimeout(step, still ? 0 : 420); }
+      else if (r.ai && K().cloud()) { cloudAnswer(q, t, r); }
       else { t.remove(); var m = msg('ak-k', r.html); K().say(m.textContent.slice(0, 400)); }
     })();
   }

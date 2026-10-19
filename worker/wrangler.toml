@@ -23,6 +23,7 @@ id = "be31e0935be843219cea1edf2203877b"   # <-- the ONLY line you edit in this f
 # SECRETS — never written here. Set each with wrangler:
 #
 #   npx wrangler secret put GROQ_API_KEY      # optional: enables /ai proxy
+#   npx wrangler secret put SARVAM_API_KEY   # optional: enables /ai Indic routing AND Kala (/kala/chat, /kala/speak)
 #   npx wrangler secret put OPENAI_API_KEY    # optional: AI CA provider
 #   npx wrangler secret put OPENAI_MODEL      # model selected by founder; no browser exposure
 #   npx wrangler secret put ANTHROPIC_API_KEY # optional: AI CA provider
@@ -66,6 +67,10 @@ MANAGED_AI_ENABLED = "true"
 GROQ_MODEL = "openai/gpt-oss-20b"
 WORKERS_AI_MODEL = "@cf/google/gemma-4-26b-a4b-it"
 SARVAM_MODEL = "sarvam-105b-conversations"
+# Kala (sacred-art guide). Speech = Sarvam Bulbul; KALA_MONTHLY_CAP (requests/month per route, needs AI_USAGE KV) is optional and 0 = uncapped.
+KALA_TTS_MODEL = "bulbul:v3"
+KALA_SPEAKER = "ritu"
+KALA_MONTHLY_CAP = "3000"
 GROQ_MONTHLY_REQUEST_CAP = "12000"
 # --- Revenue-gated AI spend (worker/lib/spend-governor.js) -------------------
 # Paid AI budget this month = max(AI_MIN_PAID_BUDGET_PAISE,

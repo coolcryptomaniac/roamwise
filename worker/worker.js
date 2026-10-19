@@ -52,6 +52,7 @@
 import { CORS, json } from './lib/http.js';
 import { handleHealth } from './handlers/health.js';
 import { handleAI } from './handlers/ai.js';
+import { handleKala } from './handlers/kala.js';
 import { handleTuskReport, handleTuskReports } from './handlers/tusk-report.js';
 import { handleTuskLearnedGet, handleTuskLearnedPost, handleTuskLearnedDrop } from './handlers/tusk-learned.js';
 import { abuseGuard, aiGuard } from './lib/rate-limit.js';
@@ -103,6 +104,8 @@ export default {
         return json({ error: 'Too many requests — try again in a minute.' }, 429);
       return handleAI(request, env);
     }
+
+    if(path === 'kala/chat' || path === 'kala/speak') return handleKala(request, env, path);
 
     if(path === 'tusk/report' && request.method === 'POST') return handleTuskReport(request, env);
     if(path === 'tusk/reports' && request.method === 'GET') return handleTuskReports(request, env);
