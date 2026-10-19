@@ -33,7 +33,7 @@ function buyerBrief(b) {
 }
 function renderBuyers() {
   const box = $('artBuyers'); if (!box || !data || !data.buyers) return;
-  const rows = data.buyers.filter(b => !buyerCity || b.city === buyerCity);
+  const rows = data.buyers.filter(b => (b.forArtists || ['natasha-guleria']).includes('natasha-guleria') && (!buyerCity || b.city === buyerCity));
   box.innerHTML = rows.map(b => `<article class="art-match"><span class="art-status">Research prospect</span><h3>${esc(b.name)}</h3><span class="art-small">${esc(b.city)} · ${esc(b.kind)}</span><ul>${b.reasons.map(r => `<li>${esc(r)}</li>`).join('')}</ul><p class="art-small">${esc(b.evidence)}</p><a href="${esc(safeHttps(b.sourceUrl))}" target="_blank" rel="noopener">Source ↗</a> <a href="${esc(safeHttps(b.contactUrl))}" target="_blank" rel="noopener">${esc(b.contactType)} ↗</a><a class="art-button secondary" href="mailto:founder@roamwise.co.in?subject=${encodeURIComponent('Introduce Natasha Guleria to ' + b.name)}&body=${encodeURIComponent(buyerBrief(b))}">Request an introduction</a></article>`).join('');
   const note = $('artBuyersNote'); if (note) note.textContent = `${rows.length} organisations. ${data.buyersNote || ''}`;
 }
