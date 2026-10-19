@@ -10,10 +10,21 @@ function updateBrief() {
   $('artEmail').href = 'mailto:founder@roamwise.co.in?subject=' + encodeURIComponent('RoamWise art × hospitality: ' + selected.name) + '&body=' + encodeURIComponent(text);
   $('artWhatsApp').href = 'https://wa.me/919987379730?text=' + encodeURIComponent(text);
 }
+const WA = '919015954049';
+const waLink = text => 'https://wa.me/' + WA + '?text=' + encodeURIComponent(text);
+function workMessage(w) {
+  if (w.status === 'Sold') return `Namaste Bhavitavya Kala Studio \u{1F64F}\n\nI found you through RoamWise. I saw "${w.title}" and would like to discuss a similar customised painting. Please share how this works, price and timeline.`;
+  const what = w.type === 'Print' ? 'order the print' : 'enquire about the original painting';
+  return `Namaste Bhavitavya Kala Studio \u{1F64F}\n\nI found you through RoamWise and would like to ${what} "${w.title}". Please share price, availability and delivery details.`;
+}
 function renderWorks() {
   const box = $('artWorks'); const works = (data && data.artists[0].artworks) || [];
   if (!box) return;
-  box.innerHTML = works.map(w => `<article class="art-work"><img src="${esc(w.image)}" alt="${esc(w.title)}, original painting by Natasha Guleria" loading="lazy" width="400" height="400"><div><span class="art-status">${esc(w.status)} · ${esc(w.type)}</span><h3>${esc(w.title)}</h3><p class="art-price">${esc(w.price)}</p><a href="${esc(safeHttps(w.url))}" target="_blank" rel="noopener">${w.status === 'Available' ? 'Enquire on studio site' : 'View on studio site'} ↗</a></div></article>`).join('');
+  box.innerHTML = works.map(w => {
+    const cta = w.status === 'Sold' ? 'Ask for something similar' : (w.type === 'Print' ? 'Order on WhatsApp' : 'Enquire on WhatsApp');
+    const meta = [w.medium, w.size].filter(Boolean).map(esc).join(' · ');
+    return `<article class="art-work${w.status === 'Sold' ? ' is-sold' : ''}"><img src="${esc(w.image)}" alt="${esc(w.title)}, ${esc(w.type.toLowerCase())} by Natasha Guleria" loading="lazy"><div><span class="art-status">${esc(w.status)} · ${esc(w.type)}</span><h3>${esc(w.title)}</h3>${meta ? `<p class="art-small">${meta}</p>` : ''}<p class="art-price">${esc(w.price)}</p><a class="art-wa" href="${esc(waLink(workMessage(w)))}" target="_blank" rel="noopener">${cta} ↗</a><a class="art-small" href="${esc(safeHttps(w.url))}" target="_blank" rel="noopener">Studio page ↗</a></div></article>`;
+  }).join('');
 }
 function render() {
   if (!data) return;

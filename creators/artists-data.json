@@ -45,7 +45,9 @@
           "type": "Original",
           "price": "₹30,000",
           "image": "/assets/img/natasha/shiva-dhyan.jpg",
-          "url": "https://bhavitavyakala.com/purchase/bVl7J1RKHn7yYifPfiuw"
+          "url": "https://bhavitavyakala.com/purchase/bVl7J1RKHn7yYifPfiuw",
+          "medium": null,
+          "size": null
         },
         {
           "id": "shree-yantra",
@@ -54,7 +56,9 @@
           "type": "Original",
           "price": "₹90,000",
           "image": "/assets/img/natasha/shree-yantra.jpg",
-          "url": "https://bhavitavyakala.com/purchase/CNbpDQfx95XgJP46RWjo"
+          "url": "https://bhavitavyakala.com/purchase/CNbpDQfx95XgJP46RWjo",
+          "medium": null,
+          "size": null
         },
         {
           "id": "manimanash",
@@ -63,7 +67,75 @@
           "type": "Original",
           "price": "₹2,99,999",
           "image": "/assets/img/natasha/manimanash.jpg",
-          "url": "https://bhavitavyakala.com/purchase/dxmXlaIAZcnpYWhDJh2l"
+          "url": "https://bhavitavyakala.com/purchase/dxmXlaIAZcnpYWhDJh2l",
+          "medium": null,
+          "size": null
+        },
+        {
+          "id": "kaal-chakra",
+          "title": "Kaal Chakra — Sri Yantra",
+          "status": "Available",
+          "type": "Original",
+          "price": "Price on request",
+          "image": "/assets/img/natasha/kaal-chakra.jpg",
+          "url": "https://bhavitavyakala.com/purchase/kaal-chakra",
+          "medium": "Acrylic & 24K gold on canvas",
+          "size": "36 × 36 in"
+        },
+        {
+          "id": "moksha",
+          "title": "Moksha — Shiva in Meditation",
+          "status": "Available",
+          "type": "Original",
+          "price": "Price on request",
+          "image": "/assets/img/natasha/moksha.jpg",
+          "url": "https://bhavitavyakala.com/purchase/moksha",
+          "medium": "Oil & linseed glaze on canvas",
+          "size": "40 × 30 in"
+        },
+        {
+          "id": "shiva-nandi",
+          "title": "Shiva & Nandi — Kailash",
+          "status": "Available",
+          "type": "Original",
+          "price": "Price on request",
+          "image": "/assets/img/natasha/shiva-nandi.jpg",
+          "url": "https://bhavitavyakala.com/purchase/shiva-nandi",
+          "medium": "Acrylic on canvas",
+          "size": "30 × 36 in"
+        },
+        {
+          "id": "maryada-ram",
+          "title": "Maryada Purushottam Ram",
+          "status": "Available",
+          "type": "Print",
+          "price": "₹24,000",
+          "image": "/assets/img/natasha/maryada-ram.jpg",
+          "url": "https://bhavitavyakala.com/purchase/maryada-ram",
+          "medium": "Archival giclée print",
+          "size": null
+        },
+        {
+          "id": "shiva-cosmic",
+          "title": "Shiva — The Cosmic",
+          "status": "Available",
+          "type": "Print",
+          "price": "₹28,500",
+          "image": "/assets/img/natasha/shiva-cosmic.jpg",
+          "url": "https://bhavitavyakala.com/purchase/shiva-cosmic",
+          "medium": "Archival giclée print",
+          "size": null
+        },
+        {
+          "id": "ram-eternal",
+          "title": "Ram — The Eternal",
+          "status": "Available",
+          "type": "Print",
+          "price": "₹32,000",
+          "image": "/assets/img/natasha/ram-eternal.jpg",
+          "url": "https://bhavitavyakala.com/purchase/ram-eternal",
+          "medium": "Archival giclée print",
+          "size": null
         },
         {
           "id": "shiv-dhyan",
@@ -72,10 +144,36 @@
           "type": "Original",
           "price": "₹69,999",
           "image": "/assets/img/natasha/shiv-dhyan.jpg",
-          "url": "https://bhavitavyakala.com/purchase/FPoeCQEtaSEXltyqo65z"
+          "url": "https://bhavitavyakala.com/purchase/FPoeCQEtaSEXltyqo65z",
+          "medium": null,
+          "size": null
+        },
+        {
+          "id": "sri-yantra",
+          "title": "Sri Yantra — Shakti",
+          "status": "Sold",
+          "type": "Original",
+          "price": "Price on request",
+          "image": "/assets/img/natasha/sri-yantra.jpg",
+          "url": "https://bhavitavyakala.com/purchase/sri-yantra",
+          "medium": "Acrylic & gold foil on canvas",
+          "size": "30 × 30 in"
+        },
+        {
+          "id": "shiv-parivar",
+          "title": "Shiv Parivar",
+          "status": "Sold",
+          "type": "Original",
+          "price": "Price on request",
+          "image": "/assets/img/natasha/shiv-parivar.jpg",
+          "url": "https://bhavitavyakala.com/purchase/shiv-parivar",
+          "medium": "Oil on linen canvas",
+          "size": "36 × 48 in"
         }
       ],
-      "artworksSource": "https://bhavitavyakala.com/ (checked 19 October 2026). Prices and availability are as listed by the studio and may change."
+      "artworksSource": "https://bhavitavyakala.com/ and /archive (checked 19 October 2026). Prices, sizes and availability are as listed by the studio and may change.",
+      "whatsapp": "919015954049",
+      "whatsappSource": "https://bhavitavyakala.com/commissions (studio's published WhatsApp concierge line)"
     }
   ],
   "properties": [
