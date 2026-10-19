@@ -105,7 +105,7 @@ export default {
       return handleAI(request, env);
     }
 
-    if(path === 'kala/chat' || path === 'kala/speak') return handleKala(request, env, path);
+    if(path === 'kala/chat') return handleKala(request, env, path);
 
     if(path === 'tusk/report' && request.method === 'POST') return handleTuskReport(request, env);
     if(path === 'tusk/reports' && request.method === 'GET') return handleTuskReports(request, env);

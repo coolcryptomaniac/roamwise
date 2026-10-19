@@ -1,15 +1,15 @@
 /* ============================================================================
    worker/handlers/kala.js — Kala, the illustrated art guide on /creators/sacred-art.html
-   POST /kala/chat   {q, ctx, history}  -> Sarvam chat, grounded on the painting facts sent
-   POST /kala/speak  {text, lang}       -> Sarvam Bulbul TTS, returns audio/mpeg
-   The Sarvam key stays here. Both routes fail closed (501) without SARVAM_API_KEY, so the page
-   falls back to its built-in rule-based Kala. Cost controls: tight per-IP limits (cache API, no KV
-   writes), text length caps, speech cached at the edge by content hash, optional monthly cap.
+   POST /kala/chat {q, ctx, history} -> short grounded reply from FREE-tier models only:
+   Cloudflare Workers AI first, then Groq (capped). No paid provider is called. Fails closed (501) when neither
+   is configured, and the page then keeps its built-in rule-based answers. Voice is entirely in the browser.
+   Cost controls: per-IP limits (cache API, no KV writes), length caps, optional monthly cap for Groq.
    Named exports only (see lib/http.js).
    ========================================================================= */
-import { CORS, json } from '../lib/http.js';
-import { clientIp, overLimit, sha256Hex } from '../lib/rate-limit.js';
+import { json } from '../lib/http.js';
+import { clientIp, overLimit } from '../lib/rate-limit.js';
 import { reserveProviderRequest } from '../lib/ai-entitlements.js';
+import { workersAIText } from './ai.js';
 
 const clip = (v, n) => String(v == null ? '' : v).replace(/[\u0000-\u001f<>]/g, ' ').replace(/\s+/g, ' ').trim().slice(0, n);
 
@@ -32,13 +32,18 @@ export function buildSystem(ctx) {
 export function cleanReply(t) {
   return String(t || '').replace(/<think>[\s\S]*?<\/think>/gi, '').replace(/<[^>]+>/g, '').replace(/https?:\/\/\S+/g, '').replace(/[ \t]{2,}/g, ' ').replace(/\s+\n/g, '\n').trim().slice(0, 600);
 }
-export function b64ToBytes(b64) { const bin = atob(String(b64)), out = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i); return out; }
 
-async function capOk(env, name) {
-  const cap = Number(env.KALA_MONTHLY_CAP) || 0;
-  if (!cap) return true; // no cap configured
-  const r = await reserveProviderRequest(env, name, cap);
-  return r.ok || r.reason === 'meter_not_configured';
+async function viaWorkersAI(messages, env) {
+  if (!env.AI || typeof env.AI.run !== 'function') throw new Error('unavailable');
+  const out = await env.AI.run(String(env.WORKERS_AI_MODEL || '@cf/google/gemma-4-26b-a4b-it'), { messages, max_tokens: 220 });
+  const text = cleanReply(workersAIText(out)); if (!text) throw new Error('empty'); return { text, provider: 'workers-ai' };
+}
+async function viaGroq(messages, env) {
+  if (!env.GROQ_API_KEY || !env.GROQ_MODEL) throw new Error('unavailable');
+  const cap = await reserveProviderRequest(env, 'groq', Number(env.GROQ_MONTHLY_REQUEST_CAP) || 12000); if (!cap.ok) throw new Error(cap.reason);
+  const r = await fetch('https://api.groq.com/openai/v1/chat/completions', { method: 'POST', headers: { Authorization: 'Bearer ' + env.GROQ_API_KEY, 'Content-Type': 'application/json' }, body: JSON.stringify({ model: env.GROQ_MODEL, messages, max_tokens: 220, temperature: 0.7 }) });
+  const d = await r.json(); if (!r.ok) throw new Error('failed');
+  const text = cleanReply(d && d.choices && d.choices[0] && d.choices[0].message && d.choices[0].message.content); if (!text) throw new Error('empty'); return { text, provider: 'groq' };
 }
 
 export async function kalaChat(request, env) {
@@ -47,43 +52,14 @@ export async function kalaChat(request, env) {
   if (Number(request.headers.get('content-length') || 0) > 8192) return json({ error: 'too_large' }, 413);
   let b; try { b = await request.json(); } catch (e) { return json({ error: 'bad_json' }, 400); }
   const q = clip(b && b.q, 300); if (!q) return json({ error: 'empty' }, 400);
-  if (!(await capOk(env, 'kala-chat'))) return json({ error: 'capacity' }, 503);
-  const model = String(env.KALA_MODEL || env.SARVAM_MODEL || 'sarvam-105b-conversations');
-  try {
-    const r = await fetch('https://api.sarvam.ai/v1/chat/completions', { method: 'POST', headers: { Authorization: 'Bearer ' + env.SARVAM_API_KEY, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ model, messages: [{ role: 'system', content: buildSystem(b.ctx) }].concat(sanitiseHistory(b.history), [{ role: 'user', content: q }]), max_tokens: 220, temperature: 0.7 }) });
-    const d = await r.json(); if (!r.ok) return json({ error: 'provider' }, 502);
-    const text = cleanReply(d && d.choices && d.choices[0] && d.choices[0].message && d.choices[0].message.content);
-    return text ? json({ text, provider: 'sarvam' }) : json({ error: 'empty_reply' }, 502);
-  } catch (e) { return json({ error: 'provider' }, 502); }
-}
-
-export async function kalaSpeak(request, env) {
-  const ip = clientIp(request);
-  if (await overLimit('kala-speak', ip, 8, 60) || await overLimit('kala-speak-day', ip, 80, 86400)) return json({ error: 'slow_down' }, 429);
-  if (Number(request.headers.get('content-length') || 0) > 8192) return json({ error: 'too_large' }, 413);
-  let b; try { b = await request.json(); } catch (e) { return json({ error: 'bad_json' }, 400); }
-  const text = clip(b && b.text, 500); if (!text) return json({ error: 'empty' }, 400);
-  const lang = /^(hi|en)-IN$/.test(b.lang) ? b.lang : 'hi-IN';
-  const speaker = String(env.KALA_SPEAKER || 'ritu');
-  const key = new Request('https://kala.invalid/speak/' + await sha256Hex([lang, speaker, text].join('|')));
-  const cache = caches.default, hit = await cache.match(key);
-  if (hit) return new Response(hit.body, { headers: { 'Content-Type': 'audio/mpeg', 'Cache-Control': 'public, max-age=86400', ...CORS } });
-  if (!(await capOk(env, 'kala-speak'))) return json({ error: 'capacity' }, 503);
-  try {
-    const r = await fetch('https://api.sarvam.ai/text-to-speech', { method: 'POST', headers: { 'api-subscription-key': env.SARVAM_API_KEY, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ text, language_code: lang, speaker, model: String(env.KALA_TTS_MODEL || 'bulbul:v3'), pace: 1.0, output_audio_codec: 'mp3', speech_sample_rate: 24000 }) });
-    const d = await r.json(); const a = d && d.audios && d.audios[0]; if (!r.ok || !a) return json({ error: 'provider' }, 502);
-    const bytes = b64ToBytes(a);
-    await cache.put(key, new Response(bytes, { headers: { 'Content-Type': 'audio/mpeg', 'Cache-Control': 'public, max-age=86400' } }));
-    return new Response(bytes, { headers: { 'Content-Type': 'audio/mpeg', 'Cache-Control': 'public, max-age=86400', ...CORS } });
-  } catch (e) { return json({ error: 'provider' }, 502); }
+  const messages = [{ role: 'system', content: buildSystem(b.ctx) }].concat(sanitiseHistory(b.history), [{ role: 'user', content: q }]);
+  for (const run of [viaWorkersAI, viaGroq]) { try { return json(await run(messages, env)); } catch (e) { /* try the next free provider */ } }
+  return json({ error: 'unavailable' }, 502);
 }
 
 export async function handleKala(request, env, path) {
-  if (!env.SARVAM_API_KEY) return json({ error: 'kala_not_configured' }, 501);
+  if (!(env.AI || env.GROQ_API_KEY)) return json({ error: 'kala_not_configured' }, 501);
   if (request.method !== 'POST') return json({ error: 'method' }, 405);
   if (path === 'kala/chat') return kalaChat(request, env);
-  if (path === 'kala/speak') return kalaSpeak(request, env);
   return json({ error: 'not found' }, 404);
 }

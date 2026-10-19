@@ -6,7 +6,7 @@
   var $ = function (id) { return document.getElementById(id); };
   var esc = function (v) { return String(v == null ? '' : v).replace(/[&<>"']/g, function (c) { return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); };
   var stage = $('agStage'); if (!stage) return;
-  var cloud = '', audio = null, items = [], cur = null, speaking = false, listeners = [], fig = $('agFig');
+  var cloud = '', items = [], cur = null, speaking = false, listeners = [], fig = $('agFig');
   var still = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   function hsl2hex(h, s, l) { s /= 100; l /= 100; var k = function (n) { return (n + h / 30) % 12; }, a = s * Math.min(l, 1 - l), f = function (n) { var v = l - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1))); return Math.round(255 * v).toString(16).padStart(2, '0'); }; return '#' + f(0) + f(8) + f(4); }
@@ -46,23 +46,41 @@
     $('agText').textContent = pitch(it); var c = $('agConnect'); c.href = it.link; c.textContent = it.cta;
     outfitFor(it); stopVoice(); listeners.forEach(function (f) { f(it); });
   }
-  function stopVoice() { if (audio) { try { audio.pause(); } catch (e) {} audio = null; } if ('speechSynthesis' in window) speechSynthesis.cancel(); speaking = false; stage.classList.remove('ag-speaking'); var b = $('agSpeak'); if (b) b.textContent = 'Hear Kala explain'; }
-  // Hindi कला is "ka-LAA" (long final vowel). English voices say "Kay-la", so we use a Hindi voice when the device has one, else the spelling "Kalaa".
-  function hiVoice() { try { var v = speechSynthesis.getVoices().filter(function (x) { return /^hi/i.test(x.lang); }); return v[0] || null; } catch (e) { return null; } }
-  function spoken(text, hv) { return text.replace(/Kala, \u0915\u0932\u093E/g, hv ? '\u0915\u0932\u093E' : 'Kalaa').replace(/\u0915\u0932\u093E/g, hv ? '\u0915\u0932\u093E' : 'Kalaa').replace(/\bKala\b/g, hv ? '\u0915\u0932\u093E' : 'Kalaa'); }
-  function cloudSpeak(text) {
-    return fetch(cloud + '/kala/speak', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text: spoken(text, true), lang: 'hi-IN' }) })
-      .then(function (r) { if (!r.ok) throw new Error('no'); return r.blob(); })
-      .then(function (b) { stopVoice(); audio = new Audio(URL.createObjectURL(b)); audio.onended = audio.onerror = stopVoice; speaking = true; stage.classList.add('ag-speaking'); $('agSpeak').textContent = 'Stop'; return audio.play(); });
+  // ---- Voice: the browser's own speech engine, tuned. Sentence by sentence, with natural pauses, a warm pitch and a per-sentence
+  // choice of Hindi or Indian-English voice so कला is said "ka-LAA". Nothing is uploaded. Voices differ by device.
+  var pref = { voice: '', rate: .94 }; try { pref = Object.assign(pref, JSON.parse(localStorage.getItem('rw-kala-voice') || '{}')); } catch (e) {}
+  var queueTimer = null, token = 0;
+  var FEMALE = /lekha|swara|kalpana|neerja|veena|heera|priya|aditi|raveena|zira|female|\u0939\u093F\u0928\u094D\u0926\u0940|hindi/i;
+  function voices() { try { return speechSynthesis.getVoices(); } catch (e) { return []; } }
+  function best(lang) {
+    var all = voices().filter(function (v) { return v.lang && v.lang.toLowerCase().replace('_', '-').indexOf(lang) === 0; });
+    if (pref.voice) { var m = all.filter(function (v) { return v.name === pref.voice; })[0]; if (m) return m; }
+    return all.sort(function (a, b) { return (FEMALE.test(b.name) - FEMALE.test(a.name)) || ((/google|natural|neural|online/i.test(b.name)) - (/google|natural|neural|online/i.test(a.name))); })[0] || null;
   }
+  function spoken(text, hindi) { return text.replace(/Kala, \u0915\u0932\u093E/g, hindi ? '\u0915\u0932\u093E' : 'Kalaa').replace(/\u0915\u0932\u093E/g, hindi ? '\u0915\u0932\u093E' : 'Kalaa').replace(/\bKala\b/g, hindi ? '\u0915\u0932\u093E' : 'Kalaa'); }
+  function stopVoice() { token++; clearTimeout(queueTimer); if ('speechSynthesis' in window) speechSynthesis.cancel(); speaking = false; stage.classList.remove('ag-speaking'); var b = $('agSpeak'); if (b) b.textContent = 'Hear Kala explain'; }
   function say(text) {
-    if (cloud) { cloudSpeak(text).catch(function () { cloud = ''; browserSay(text); }); return; }
-    browserSay(text);
-  }
-  function browserSay(text) {
     if (!('speechSynthesis' in window)) { $('agNote').textContent = 'Voice is not available in this browser. The text says the same thing.'; return; }
-    stopVoice(); var hv = hiVoice(), u = new SpeechSynthesisUtterance(spoken(text, hv)); if (hv) { u.voice = hv; u.lang = hv.lang; } else u.lang = 'en-IN'; u.rate = .95; u.onend = u.onerror = stopVoice; speaking = true; stage.classList.add('ag-speaking'); $('agSpeak').textContent = 'Stop'; speechSynthesis.speak(u);
+    stopVoice(); var my = token, hi = best('hi'), en = best('en-in') || best('en'), parts = (String(text).replace(/\s+/g, ' ').match(/[^.!?\u0964]+[.!?\u0964]*/g) || []).map(function (x) { return x.trim(); }).filter(Boolean), i = 0;
+    speaking = true; stage.classList.add('ag-speaking'); $('agSpeak').textContent = 'Stop';
+    (function next() {
+      if (my !== token) return; if (i >= parts.length) { stopVoice(); return; }
+      var raw = parts[i++], devan = /[\u0900-\u097F]/.test(raw), useHi = devan && hi, u = new SpeechSynthesisUtterance(spoken(raw, !!useHi));
+      var v = useHi ? hi : en; if (v) { u.voice = v; u.lang = v.lang; } else u.lang = 'en-IN';
+      var q = /\?$/.test(raw); u.rate = Math.max(.6, Math.min(1.3, pref.rate + (raw.length < 24 ? -.04 : 0))); u.pitch = q ? 1.2 : 1.08;
+      u.onend = function () { queueTimer = setTimeout(next, q ? 260 : 170); }; u.onerror = function () { if (my === token) stopVoice(); };
+      speechSynthesis.speak(u);
+    })();
   }
+  function voiceUi() {
+    var sel = $('agVoice'), rate = $('agRate'); if (!sel) return;
+    var list = voices().filter(function (v) { return /^(hi|en-in)/i.test((v.lang || '').replace('_', '-')); });
+    sel.innerHTML = '<option value="">Best available</option>' + list.map(function (v) { return '<option value="' + esc(v.name) + '"' + (v.name === pref.voice ? ' selected' : '') + '>' + esc(v.name) + ' (' + esc(v.lang) + ')</option>'; }).join('');
+    rate.value = pref.rate;
+    sel.onchange = function () { pref.voice = sel.value; try { localStorage.setItem('rw-kala-voice', JSON.stringify(pref)); } catch (e) {} };
+    rate.oninput = function () { pref.rate = +rate.value; try { localStorage.setItem('rw-kala-voice', JSON.stringify(pref)); } catch (e) {} };
+  }
+  if ('speechSynthesis' in window) { voiceUi(); speechSynthesis.onvoiceschanged = voiceUi; }
   $('agSpeak').addEventListener('click', function () { if (speaking) stopVoice(); else say($('agText').textContent); });
   stage.addEventListener('pointermove', function (e) { var r = stage.getBoundingClientRect(), fx = (e.clientX - r.left) / r.width; fig.style.setProperty('--ry', (fx - .5) * 22 + 'deg'); fig.style.setProperty('--rx', (.5 - (e.clientY - r.top) / r.height) * 10 + 'deg'); stage.style.setProperty('--lx', fx * 100 + '%'); });
   stage.addEventListener('pointerleave', function () { fig.style.setProperty('--ry', '0deg'); fig.style.setProperty('--rx', '0deg'); });
@@ -77,5 +95,5 @@
   }).catch(function () { $('agText').textContent = 'The guide could not load right now.'; });
   window.addEventListener('pagehide', stopVoice);
   fetch('/creators/kala-config.json').then(function (r) { return r.json(); }).then(function (c) { cloud = /^https:\/\//.test(c.workerUrl || '') ? c.workerUrl.replace(/\/+$/, '') : ''; }).catch(function () {});
-  window.RWKala = { cloud: function () { return cloud; }, disableCloud: function () { cloud = ''; }, items: function () { return items; }, current: function () { return cur; }, say: say, onChange: function (f) { listeners.push(f); }, select: function (i) { $('agPick').value = i; show(); } };
+  window.RWKala = { cloud: function () { return cloud; }, items: function () { return items; }, current: function () { return cur; }, say: say, onChange: function (f) { listeners.push(f); }, select: function (i) { $('agPick').value = i; show(); } };
 })();

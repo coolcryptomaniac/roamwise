@@ -1,4 +1,4 @@
 {
   "workerUrl": "",
-  "note": "Set workerUrl to your deployed RoamWise Worker (for example https://roamwise-api.<account>.workers.dev) once SARVAM_API_KEY is set as a Worker secret. Leave blank to keep the built-in rule-based Kala."
+  "note": "Optional. Set workerUrl to your deployed RoamWise Worker (it uses Cloudflare Workers AI, then Groq, both free-tier) to give Kala AI replies for open-ended questions. Leave blank to keep the built-in rule-based Kala. Voice always uses the visitor's own browser."
 }
