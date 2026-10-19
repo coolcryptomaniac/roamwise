@@ -622,45 +622,85 @@ function rwDismissCreatorBanner(){
 
 <section class="xsec v v-home v-explore" id="brand-ambassador" aria-labelledby="ambassadorTitle">
   <style>
-  #brand-ambassador{margin:14px 14px 6px}
-  .rwa{display:grid;gap:12px;grid-template-columns:repeat(2,minmax(0,1fr))}
-  .rwa-c{position:relative;display:flex;flex-direction:column;border-radius:18px;overflow:hidden;border:1px solid rgba(255,255,255,.14);background:#120d22;color:inherit;text-decoration:none;transition:transform .25s,box-shadow .25s}
-  .rwa-c:hover,.rwa-c:focus-visible{transform:translateY(-3px);box-shadow:0 14px 30px rgba(232,186,108,.22)}
-  .rwa-c img{width:100%;height:auto;display:block;object-fit:cover}
-  .rwa-b{padding:12px 14px 14px;display:flex;flex-direction:column;flex:1}
-  .rwa-k{font-size:10.5px;letter-spacing:.1em;color:#e8ba6c;font-weight:700}
-  .rwa-b h3{margin:5px 0;font-size:18px;line-height:1.2}
-  .rwa-b p{margin:0 0 8px;font-size:12.5px;line-height:1.45;opacity:.85}
-  .rwa-go{margin-top:auto;font-size:12.5px;color:#e8ba6c;font-weight:700}
-  .rwa-pr{font-size:14px!important;opacity:1!important;color:#f2efe6}
-  .rwa-spot,.rwa-nat{grid-column:1/-1}
+  #brand-ambassador{margin:28px 12px 10px;padding:22px 14px 20px;border-radius:28px;position:relative;overflow:hidden;background:radial-gradient(120% 80% at 0% 0%,rgba(232,186,108,.14),transparent 55%),radial-gradient(90% 70% at 100% 100%,rgba(120,80,200,.18),transparent 60%),#150f26;border:1px solid rgba(232,186,108,.22);box-shadow:0 24px 60px -24px rgba(0,0,0,.7),inset 0 1px 0 rgba(255,255,255,.06)}
+  #brand-ambassador .xsec-title em{background:linear-gradient(90deg,#ff7a59,#e8ba6c,#ff7a59);background-size:200% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:rwaShine 5s linear infinite}
+  .rwa-eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:11px;letter-spacing:.14em;font-weight:700;color:#e8ba6c;margin:0 0 6px}
+  .rwa-eyebrow:before{content:"";width:8px;height:8px;border-radius:50%;background:#ff7a59;box-shadow:0 0 0 0 rgba(255,122,89,.6);animation:rwaPulse 2s infinite}
+  .rwa{display:grid;gap:14px;grid-template-columns:minmax(0,1fr)}
+  .rwa-c{position:relative;display:flex;flex-direction:column;border-radius:22px;overflow:hidden;border:1px solid rgba(255,255,255,.1);background:linear-gradient(180deg,rgba(255,255,255,.055),rgba(255,255,255,.02)),#120d22;color:inherit;text-decoration:none;box-shadow:0 10px 30px -14px rgba(0,0,0,.65);transition:transform .35s cubic-bezier(.2,.8,.2,1),box-shadow .35s,border-color .35s}
+  .rwa-c:hover,.rwa-c:focus-visible{transform:translateY(-5px);border-color:rgba(232,186,108,.55);box-shadow:0 22px 44px -16px rgba(232,186,108,.35)}
+  .rwa-c:active{transform:scale(.985)}
+  .rwa-c img{width:100%;height:auto;display:block;object-fit:cover;transition:transform 1.2s cubic-bezier(.2,.8,.2,1)}
+  .rwa-c:hover img{transform:scale(1.06)}
+  .rwa-imgw{overflow:hidden;position:relative}
+  .rwa-imgw:after{content:"";position:absolute;inset:0;background:linear-gradient(115deg,transparent 40%,rgba(255,255,255,.22) 50%,transparent 60%);transform:translateX(-120%);animation:rwaSweep 6s ease-in-out infinite}
+  .rwa-b{padding:14px 16px 16px;display:flex;flex-direction:column;flex:1}
+  .rwa-k{font-size:10.5px;letter-spacing:.12em;color:#e8ba6c;font-weight:700}
+  .rwa-b h3{margin:5px 0;font-size:19px;line-height:1.2}
+  .rwa-b p{margin:0 0 8px;font-size:12.5px;line-height:1.5;opacity:.85}
+  .rwa-go{margin-top:auto;font-size:12.5px;color:#e8ba6c;font-weight:700;transition:letter-spacing .25s,transform .25s}
+  .rwa-c:hover .rwa-go{transform:translateX(4px)}
+  .rwa-pr{font-size:15px!important;opacity:1!important;color:#f2efe6;font-weight:700}
   .rwa-spot{flex-direction:row;border-color:rgba(232,186,108,.5)}
-  .rwa-spot img{width:42%;flex:0 0 42%;aspect-ratio:1/1;height:auto}
-  .rwa-spot .rwa-b{justify-content:center;padding:14px 16px}
+  .rwa-spot .rwa-imgw{width:42%;flex:0 0 42%}
+  .rwa-spot img{aspect-ratio:auto;height:100%;min-height:190px}
+  .rwa-spot .rwa-b{justify-content:center}
   .rwa-spot .rwa-b p:not(.rwa-pr){display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
   .rwa-spot .rwa-go{margin-top:6px}
-  .rwa-nat{border-color:rgba(232,186,108,.4)}
   .rwa-nat img{aspect-ratio:16/10;object-position:82% 22%}
-  .rwa-nat h3{font-size:22px}
+  .rwa-nat h3{font-size:23px}
   .rwa-nat .rwa-b p{font-size:13px}
-  .rwa-s{min-height:150px}
-  .rwa-ic{font-size:30px;line-height:1;color:#e8ba6c;margin-bottom:8px}
-  .rwa-s .rwa-b{padding:14px}
-  @media(min-width:700px){.rwa{grid-template-columns:repeat(4,minmax(0,1fr))}.rwa-spot,.rwa-nat{grid-column:span 2}.rwa-spot{flex-direction:column}.rwa-spot img{width:100%;flex:none;aspect-ratio:16/10}.rwa-nat img{aspect-ratio:16/10}}
-  @media(prefers-reduced-motion:reduce){.rwa-c{transition:none}}
+  .rwa-badge{position:absolute;top:12px;left:12px;z-index:2;background:rgba(10,8,20,.72);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);border:1px solid rgba(232,186,108,.5);color:#e8ba6c;font-size:10.5px;letter-spacing:.12em;font-weight:700;padding:6px 10px;border-radius:999px}
+  .rwa-row{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;margin:0 -14px;padding:2px 14px 12px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+  .rwa-row::-webkit-scrollbar{display:none}
+  .rwa-s{flex:0 0 68%;min-height:210px;scroll-snap-align:start}
+  .rwa-ic{width:46px;height:46px;border-radius:14px;display:grid;place-items:center;font-size:24px;color:#e8ba6c;background:rgba(232,186,108,.12);margin-bottom:10px;animation:rwaFloat 4s ease-in-out infinite}
+  .rwa-s:nth-child(2) .rwa-ic{animation-delay:-1s}.rwa-s:nth-child(3) .rwa-ic{animation-delay:-2s}.rwa-s:nth-child(4) .rwa-ic{animation-delay:-3s}
+  .rwa-hint{display:flex;justify-content:flex-end;font-size:11px;color:rgba(255,255,255,.5);margin:-2px 2px 0}
+  .rwa-js .rwa-r{opacity:0;transform:translateY(26px) scale(.98);transition:opacity .7s cubic-bezier(.2,.8,.2,1),transform .7s cubic-bezier(.2,.8,.2,1),box-shadow .35s,border-color .35s}
+  .rwa-js .rwa-r.in{opacity:1;transform:none}
+  .rwa-js .rwa-r.in:hover{transform:translateY(-5px)}
+  .rwa-div{display:flex;align-items:center;gap:12px;margin:26px 18px 6px;color:#e8ba6c;opacity:.85}
+  .rwa-div:before,.rwa-div:after{content:"";height:1px;flex:1;background:linear-gradient(90deg,transparent,rgba(232,186,108,.55))}
+  .rwa-div:after{transform:scaleX(-1)}
+  .rwa-div span{font-size:14px;animation:rwaSpin 12s linear infinite;display:inline-block}
+  #joinBand{margin:6px 12px 24px;padding:6px 0 0}
+  #joinBand .xsec-title{margin:10px 4px 12px!important}
+  #joinBand .rw-card{border-radius:20px;padding:16px;gap:14px;box-shadow:0 10px 26px -14px rgba(0,0,0,.7);transition:transform .3s cubic-bezier(.2,.8,.2,1),box-shadow .3s,border-color .3s;margin-bottom:10px}
+  #joinBand .rw-card:hover{transform:translateY(-3px);box-shadow:0 18px 34px -14px rgba(232,186,108,.3)}
+  #joinBand .rw-card-ic{width:48px;height:48px;border-radius:14px;display:grid;place-items:center;background:rgba(255,255,255,.07);font-size:24px;flex:0 0 auto;animation:rwaFloat 5s ease-in-out infinite}
+  #joinBand .rw-card-go{transition:transform .25s}
+  #joinBand .rw-card:hover .rw-card-go{transform:translateX(6px)}
+  .rw-j{opacity:1}
+  .rwa-js #joinBand .rw-card{opacity:0;transform:translateY(20px)}
+  .rwa-js #joinBand .rw-card.in{opacity:1;transform:none;transition:opacity .6s,transform .6s cubic-bezier(.2,.8,.2,1),box-shadow .3s,border-color .3s}
+  .rwa-js #joinBand .rw-card.in:hover{transform:translateY(-3px)}
+  @media(min-width:700px){#brand-ambassador{margin:34px auto 12px;max-width:1100px;padding:28px 26px 24px}.rwa{grid-template-columns:repeat(2,minmax(0,1fr))}.rwa-spot{grid-column:1/-1}.rwa-spot .rwa-imgw{width:34%;flex-basis:34%}.rwa-row{grid-column:1/-1;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));overflow:visible;margin:0;padding:0}.rwa-s{flex:none}.rwa-hint{display:none}#joinBand{max-width:1100px;margin-left:auto;margin-right:auto}}
+  @keyframes rwaShine{to{background-position:200% 0}}
+  @keyframes rwaPulse{70%{box-shadow:0 0 0 9px rgba(255,122,89,0)}100%{box-shadow:0 0 0 0 rgba(255,122,89,0)}}
+  @keyframes rwaSweep{0%,55%{transform:translateX(-120%)}85%,100%{transform:translateX(120%)}}
+  @keyframes rwaFloat{50%{transform:translateY(-5px)}}
+  @keyframes rwaSpin{to{transform:rotate(360deg)}}
+  @media(prefers-reduced-motion:reduce){.rwa-c,.rwa-c img,.rwa-go{transition:none}.rwa-imgw:after,.rwa-ic,.rwa-div span,#brand-ambassador .xsec-title em,.rwa-eyebrow:before,#joinBand .rw-card-ic{animation:none}.rwa-js .rwa-r,.rwa-js #joinBand .rw-card{opacity:1;transform:none}}
   </style>
+  <div class="rwa-eyebrow">ART &times; TRAVEL</div>
   <div class="xsec-head"><h2 class="xsec-title" id="ambassadorTitle">Art meets <em>Travel</em></h2></div>
   <p class="xsec-sub">Original paintings from independent artists, sold directly by them.</p>
   <div class="rwa">
-    <a class="rwa-c rwa-spot" id="rwaSpot" href="/creators/artists.html"><img src="/assets/img/natasha/manimanash.jpg" width="900" height="900" alt="Manimanash, an original painting of Shiva in meditation above snow peaks by Natasha Guleria" loading="lazy"><div class="rwa-b"><span class="rwa-k">PAINTING OF THE WEEK</span><h3>Manimanash</h3><p>Shiva in meditation above snow peaks, painted by Natasha Guleria. A fitting companion for anyone planning a Himalayan yatra.</p><p class="rwa-pr">Original &middot; &#8377;2,99,999</p><span class="rwa-go">See the painting &rarr;</span></div></a>
-    <a class="rwa-c rwa-nat" href="/creators/artists.html"><img src="/assets/img/natasha/natasha-with-painting.jpg" width="1200" height="675" alt="Natasha Guleria beside one of her original paintings" loading="lazy"><div class="rwa-b"><span class="rwa-k">BRAND AMBASSADOR</span><h3>Natasha Guleria</h3><p>Artist behind Bhavitavya Kala, Himachal Pradesh. Original Shiva, Ram and yantra paintings, custom commissions, and matches for collectors and hotels. RoamWise&rsquo;s brand ambassador for art.</p><span class="rwa-go">Meet Natasha &rarr;</span></div></a>
-    <a class="rwa-c rwa-s" href="/creators/jagriti.html"><div class="rwa-b"><div class="rwa-ic" aria-hidden="true">&#2384;</div><span class="rwa-k">FEATURED ARTIST</span><h3>Jagriti Mishra</h3><p>Jagriti Creates, Delhi NCR. Maa Kali, Saraswati and Shiva in textured acrylic, from about &#8377;3,000.</p><span class="rwa-go">Meet Jagriti &rarr;</span></div></a>
-    <a class="rwa-c rwa-s" href="/creators/sacred-art.html"><div class="rwa-b"><div class="rwa-ic" aria-hidden="true">&#127912;</div><span class="rwa-k">EXPERIENCE</span><h3>Sacred art gallery</h3><p>Meet Kala the art guide, preview a painting on your wall and compare artists.</p><span class="rwa-go">Enter the gallery &rarr;</span></div></a>
-    <a class="rwa-c rwa-s" href="/creators/gallery.html"><div class="rwa-b"><div class="rwa-ic" aria-hidden="true">&#128444;&#65039;</div><span class="rwa-k">ALL ARTISTS</span><h3>Artists gallery</h3><p>Browse every artist, filter by theme and enquire directly.</p><span class="rwa-go">Browse artists &rarr;</span></div></a>
-    <a class="rwa-c rwa-s" href="/creators/join-artist.html"><div class="rwa-b"><div class="rwa-ic" aria-hidden="true">&#10024;</div><span class="rwa-k">FOR ARTISTS</span><h3>Your page, free</h3><p>List your paintings and sell directly. Founding artists get Kala presenting their work free.</p><span class="rwa-go">Join as an artist &rarr;</span></div></a>
+    <a class="rwa-c rwa-spot rwa-r" id="rwaSpot" href="/creators/artists.html"><div class="rwa-imgw"><img src="/assets/img/natasha/manimanash.jpg" width="900" height="900" alt="Manimanash, an original painting of Shiva in meditation above snow peaks by Natasha Guleria" loading="lazy"></div><div class="rwa-b"><span class="rwa-k">PAINTING OF THE WEEK</span><h3>Manimanash</h3><p>Shiva in meditation above snow peaks, painted by Natasha Guleria. A fitting companion for anyone planning a Himalayan yatra.</p><p class="rwa-pr">Original &middot; &#8377;2,99,999</p><span class="rwa-go">See the painting &rarr;</span></div></a>
+    <a class="rwa-c rwa-nat rwa-r" href="/creators/artists.html"><div class="rwa-imgw"><span class="rwa-badge">BRAND AMBASSADOR</span><img src="/assets/img/natasha/natasha-with-painting.jpg" width="1200" height="675" alt="Natasha Guleria beside one of her original paintings" loading="lazy"></div><div class="rwa-b"><span class="rwa-k">RoamWise art ambassador</span><h3>Natasha Guleria</h3><p>Artist behind Bhavitavya Kala, Himachal Pradesh. Original Shiva, Ram and yantra paintings, custom commissions, and matches for collectors and hotels. RoamWise&rsquo;s brand ambassador for art.</p><span class="rwa-go">Meet Natasha &rarr;</span></div></a>
+    <div class="rwa-row">
+    <a class="rwa-c rwa-s rwa-r" href="/creators/jagriti.html"><div class="rwa-b"><div class="rwa-ic" aria-hidden="true">&#2384;</div><span class="rwa-k">FEATURED ARTIST</span><h3>Jagriti Mishra</h3><p>Jagriti Creates, Delhi NCR. Maa Kali, Saraswati and Shiva in textured acrylic, from about &#8377;3,000.</p><span class="rwa-go">Meet Jagriti &rarr;</span></div></a>
+    <a class="rwa-c rwa-s rwa-r" href="/creators/sacred-art.html"><div class="rwa-b"><div class="rwa-ic" aria-hidden="true">&#127912;</div><span class="rwa-k">EXPERIENCE</span><h3>Sacred art gallery</h3><p>Meet Kala the art guide, preview a painting on your wall and compare artists.</p><span class="rwa-go">Enter the gallery &rarr;</span></div></a>
+    <a class="rwa-c rwa-s rwa-r" href="/creators/gallery.html"><div class="rwa-b"><div class="rwa-ic" aria-hidden="true">&#128444;&#65039;</div><span class="rwa-k">ALL ARTISTS</span><h3>Artists gallery</h3><p>Browse every artist, filter by theme and enquire directly.</p><span class="rwa-go">Browse artists &rarr;</span></div></a>
+    <a class="rwa-c rwa-s rwa-r" href="/creators/join-artist.html"><div class="rwa-b"><div class="rwa-ic" aria-hidden="true">&#10024;</div><span class="rwa-k">FOR ARTISTS</span><h3>Your page, free</h3><p>List your paintings and sell directly. Founding artists get Kala presenting their work free.</p><span class="rwa-go">Join as an artist &rarr;</span></div></a>
+  </div>
+  <div class="rwa-hint" aria-hidden="true">Swipe &rarr;</div>
   </div>
   <script src="/creators/home-art.js" defer></script>
 </section>
+
+<div class="rwa-div v v-home v-explore" aria-hidden="true"><span>&#10043;</span></div>
 
 <section class="v v-home v-explore rw-band" id="joinBand" aria-label="For hosts, creators and partners"><h2 class="xsec-title" style="margin:6px 4px 10px">For hosts, creators &amp; <em>partners</em></h2>
   <a class="rw-card rw-card-sacred" href="creators/join-artist.html">
