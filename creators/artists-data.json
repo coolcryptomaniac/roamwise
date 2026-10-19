@@ -801,70 +801,41 @@
     "note": "Shiva in meditation above snow peaks, painted by Natasha Guleria. A fitting companion for anyone planning a Himalayan yatra."
   },
   "plans": {
-    "note": "Introductory model. One-time contributions, never auto-renewed. No fixed commission or fee on sales: artists sell directly, and may share an optional thank-you if a buyer came through RoamWise (a kind gesture, never required). Payment is arranged on WhatsApp after approval. Confirm GST applicability with the CA before collecting.",
+    "note": "For now every artist is a founding artist: full features, free. A thank-you contribution is optional and has no fixed amount. RoamWise may introduce a small commission on sales that come through RoamWise in future; artists will be told in writing before it applies and it will not apply to earlier sales.",
     "free": {
-      "name": "Free listing",
+      "name": "Restricted listing (not used for new artists)",
       "price": 0,
       "maxPaintings": 6,
+      "features": []
+    },
+    "founding": {
+      "name": "Founding artist",
+      "price": 0,
       "features": [
         "Your own RoamWise artist page",
-        "Up to 6 paintings with prices",
-        "Appear in the artists gallery",
-        "Buyers enquire on your WhatsApp or Instagram",
-        "Remove or edit any time"
-      ]
-    },
-    "studio": {
-      "name": "Studio",
-      "price": 199,
-      "maxPaintings": 24,
-      "features": [
-        "Everything in Free",
-        "Up to 24 paintings",
-        "Price tiers and custom-commission block",
+        "Up to 24 paintings with prices",
+        "Listed in the artists gallery",
         "Presented by Kala in the Sacred art gallery, wall preview, finder and comparison",
-        "Institutional buyer matches (galleries, hotels, studios)",
-        "Enquiry log with CSV export"
+        "Price tiers and a custom-commission block",
+        "Institutional buyer matches where we find them",
+        "Enquiry log with CSV export",
+        "Chance to be Painting of the week on the homepage, chosen by us"
       ]
     },
-    "spotlight": {
-      "name": "Spotlight",
-      "price": 499,
-      "days": 30,
+    "thankyou": {
+      "name": "Thank-you contribution",
+      "price": 0,
       "features": [
-        "Needs a Studio page",
-        "Your painting as Painting of the week on the RoamWise homepage for 30 days",
-        "Promo caption for Instagram and WhatsApp",
-        "Spotlight badge in the gallery"
-      ]
-    },
-    "concierge": {
-      "name": "Concierge setup",
-      "price": 999,
-      "features": [
-        "Everything in Studio",
-        "We write your bio and tidy your painting photos",
-        "We set up to 24 paintings with titles, sizes and prices",
-        "Instagram and WhatsApp promo caption for your page"
-      ]
-    },
-    "premier": {
-      "name": "Premier",
-      "price": 1999,
-      "days": 90,
-      "features": [
-        "Everything in Concierge",
-        "90-day rotation on the homepage Painting of the week",
-        "A Kala-led tour of your collection",
-        "Institutional buyer research list for your style",
-        "Three promo captions for your launch"
+        "Entirely optional, any amount, any time",
+        "Never required to stay listed",
+        "A kind gesture if a buyer came to you through RoamWise",
+        "No fixed fee or percentage: we will adjust the approach with time"
       ]
     }
   },
   "launchOffer": {
     "active": true,
-    "limit": 100,
-    "text": "Founding artists: the first 100 artists get the Studio plan free. After that Studio is a one-time contribution.",
+    "text": "Every artist who joins now is a founding artist: all features free, and a thank-you contribution only if you wish.",
     "invited": [
       "natasha-guleria",
       "jagriti-creates"
