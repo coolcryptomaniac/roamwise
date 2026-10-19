@@ -37,7 +37,7 @@ ${site ? `<nav class="journey-nav" aria-label="Page sections"><a href="#plan" da
 <section class="panel" id="sources"><h2 data-p="sources_h">Check the authority directly</h2><p id="source-age" class="muted small"></p><div id="source-links" class="source-links">${site.sources.map(s => `<a class="source-card" href="${s[1]}" target="_blank" rel="noopener noreferrer">${esc(s[0])} ↗</a>`).join('')}</div><h3 data-p="services_h">Parking, facilities & help</h3><p data-p="facilities"></p><p data-p="safety"></p><a class="button-link emergency" href="tel:112" data-p="emergency">Emergency · 112</a><p class="muted small" data-p="emergency_note"></p></section>` : ''}
 <section id="journeys"><h2 data-p="${site ? 'explore' : 'home'}">${site ? 'Explore another journey' : 'All journeys'}</h2><div id="journey-list" class="journey-list">${sites.map(s => `<a class="journey-card" href="../${s.id}/"><h3>${esc(s.name.en)}</h3><p>${esc(s.intro.en)}</p></a>`).join('')}</div></section>
 <noscript><p>JavaScript is needed for the local planner and devotional animation. Official links and other journey pages remain available.</p></noscript>
-</main><footer><a href="../pilgrimage/" data-p="home">All journeys</a> · <a href="../kainchi/">Kainchi Dham</a> · <a href="../privacy.html">Privacy</a><p class="small muted" data-p="boundary"></p></footer>
+</main><footer><a href="../pilgrimage/" data-p="home">All journeys</a> · <a href="../kainchi/">Kainchi Dham</a> · <a href="../creators/sacred-art.html">Sacred art</a> · <a href="../privacy.html">Privacy</a><p class="small muted" data-p="boundary"></p></footer>
 </body></html>\n`;
 }
 if (require.main === module) {
