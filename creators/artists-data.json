@@ -479,7 +479,10 @@
       "status": "research-prospect",
       "partnerConfirmed": false,
       "budget": null,
-      "availability": "unconfirmed"
+      "availability": "unconfirmed",
+      "forArtists": [
+        "natasha-guleria"
+      ]
     },
     {
       "id": "image-art",
@@ -502,7 +505,10 @@
       "status": "research-prospect",
       "partnerConfirmed": false,
       "budget": null,
-      "availability": "unconfirmed"
+      "availability": "unconfirmed",
+      "forArtists": [
+        "natasha-guleria"
+      ]
     },
     {
       "id": "art-hub",
@@ -527,7 +533,11 @@
       "status": "research-prospect",
       "partnerConfirmed": false,
       "budget": null,
-      "availability": "unconfirmed"
+      "availability": "unconfirmed",
+      "forArtists": [
+        "natasha-guleria",
+        "jagriti-creates"
+      ]
     },
     {
       "id": "knowledge-center",
@@ -551,7 +561,10 @@
       "status": "research-prospect",
       "partnerConfirmed": false,
       "budget": null,
-      "availability": "unconfirmed"
+      "availability": "unconfirmed",
+      "forArtists": [
+        "natasha-guleria"
+      ]
     },
     {
       "id": "gallery-g",
@@ -576,7 +589,10 @@
       "status": "research-prospect",
       "partnerConfirmed": false,
       "budget": null,
-      "availability": "unconfirmed"
+      "availability": "unconfirmed",
+      "forArtists": [
+        "natasha-guleria"
+      ]
     },
     {
       "id": "artisera",
@@ -600,7 +616,10 @@
       "status": "research-prospect",
       "partnerConfirmed": false,
       "budget": null,
-      "availability": "unconfirmed"
+      "availability": "unconfirmed",
+      "forArtists": [
+        "natasha-guleria"
+      ]
     },
     {
       "id": "shades",
@@ -624,7 +643,10 @@
       "status": "research-prospect",
       "partnerConfirmed": false,
       "budget": null,
-      "availability": "unconfirmed"
+      "availability": "unconfirmed",
+      "forArtists": [
+        "natasha-guleria"
+      ]
     },
     {
       "id": "hyd-art",
@@ -649,7 +671,10 @@
       "status": "research-prospect",
       "partnerConfirmed": false,
       "budget": null,
-      "availability": "unconfirmed"
+      "availability": "unconfirmed",
+      "forArtists": [
+        "natasha-guleria"
+      ]
     },
     {
       "id": "kadari",
@@ -673,7 +698,94 @@
       "status": "research-prospect",
       "partnerConfirmed": false,
       "budget": null,
-      "availability": "unconfirmed"
+      "availability": "unconfirmed",
+      "forArtists": [
+        "natasha-guleria"
+      ]
+    },
+    {
+      "id": "splash",
+      "name": "Gallery Splash",
+      "city": "Delhi NCR",
+      "state": "Delhi / Haryana",
+      "kind": "Online gallery, exhibitions",
+      "themes": [
+        "contemporary",
+        "abstract",
+        "originals"
+      ],
+      "evidence": "Describes itself as an art gallery in Delhi NCR and Gurgaon selling contemporary, abstract and original paintings online with worldwide shipping; lists exhibitions in New Delhi and Gurugram. A street address, pricing and artist-submission route were not found on its home page.",
+      "reasons": [
+        "Sells original paintings online and runs exhibitions in Delhi and Gurugram",
+        "Fits her contemporary texture canvases more than her deity work"
+      ],
+      "sourceUrl": "https://www.galleriesplash.com/",
+      "contactUrl": "https://www.galleriesplash.com/",
+      "contactType": "official website",
+      "checkedAt": "2026-10-19T08:30:00Z",
+      "status": "research-prospect",
+      "partnerConfirmed": false,
+      "budget": null,
+      "availability": "unconfirmed",
+      "forArtists": [
+        "jagriti-creates"
+      ]
+    },
+    {
+      "id": "artlife",
+      "name": "Art Life Gallery",
+      "city": "Delhi NCR",
+      "state": "Delhi / Haryana",
+      "kind": "Online gallery",
+      "themes": [
+        "folk",
+        "acrylic",
+        "originals"
+      ],
+      "evidence": "Describes itself as an art gallery in Delhi, Gurgaon and Delhi NCR selling original contemporary, folk and acrylic art online. Prices seen on its home page run from about €26 to €7,200. Full address and artist-submission route were not found.",
+      "reasons": [
+        "Lists acrylic and folk originals across a wide price range, close to her ₹3,000–₹30,000 band",
+        "Has editorial content on devotional art traditions"
+      ],
+      "sourceUrl": "https://www.theartlifegallery.com/",
+      "contactUrl": "https://www.theartlifegallery.com/",
+      "contactType": "official website",
+      "checkedAt": "2026-10-19T08:30:00Z",
+      "status": "research-prospect",
+      "partnerConfirmed": false,
+      "budget": null,
+      "availability": "unconfirmed",
+      "forArtists": [
+        "jagriti-creates"
+      ]
+    },
+    {
+      "id": "exotic",
+      "name": "Exotic India Art",
+      "city": "Online",
+      "state": "India",
+      "kind": "Devotional art marketplace",
+      "themes": [
+        "deity",
+        "spiritual",
+        "originals"
+      ],
+      "evidence": "Online marketplace listing original Hindu deity paintings by many artists in acrylic, oil and watercolour, at about $109 to $6,469 on the page checked. Headquarters and any artist-onboarding page were not found, so treat this as a price and demand reference first.",
+      "reasons": [
+        "Shows buyer demand and price points for Kali, Shiva, Krishna and Ganesha paintings",
+        "Possible resale channel if it accepts new artists (unconfirmed)"
+      ],
+      "sourceUrl": "https://www.exoticindia.com/paintings/collections/hindu-god/7/",
+      "contactUrl": "https://www.exoticindia.com/paintings/collections/hindu-god/7/",
+      "contactType": "official website",
+      "checkedAt": "2026-10-19T08:30:00Z",
+      "status": "research-prospect",
+      "partnerConfirmed": false,
+      "budget": null,
+      "availability": "unconfirmed",
+      "forArtists": [
+        "jagriti-creates"
+      ]
     }
   ],
   "buyersNote": "Organisations that serve corporate and private collectors. RoamWise does not list or contact private individuals; introductions go through galleries, advisors and design studios. Inclusion is not a partnership, an order or confirmed interest."
