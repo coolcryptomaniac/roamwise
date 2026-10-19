@@ -4,19 +4,19 @@
   var esc = function (v) { return String(v == null ? '' : v).replace(/[&<>"']/g, function (c) { return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); };
   var WA = '919987379730', MAIL = 'founder@roamwise.co.in', planBox = document.getElementById('planBox'), planNote = document.getElementById('planNote');
   function plans(d) {
-    var P = d.plans || {}, order = ['free', 'studio', 'spotlight'];
+    var P = d.plans || {}, order = ['free', 'studio', 'spotlight', 'concierge', 'premier'], o = d.launchOffer, ob = document.getElementById('offerBox'); if (ob && o && o.active) ob.textContent = o.text;
     planBox.innerHTML = order.filter(function (k) { return P[k]; }).map(function (k) {
-      var p = P[k]; return '<article class="plan' + (k === 'studio' ? ' hot' : '') + '"><h3>' + esc(p.name) + '</h3><div class="pr">' + (p.price ? '&#8377;' + esc(p.price) + ' <small>one-time' + (p.days ? ' · ' + esc(p.days) + ' days' : '') + '</small>' : 'Free') + '</div><ul>' + (p.features || []).map(function (f) { return '<li>' + esc(f) + '</li>'; }).join('') + '</ul></article>';
+      var p = P[k]; return '<article class="plan' + (k === 'studio' ? ' hot' : '') + '"><h3>' + esc(p.name) + '</h3><div class="pr">' + (p.price ? '&#8377;' + esc(p.price) + ' <small>one-time' + (p.days ? ' · ' + esc(p.days) + ' days' : '') + (k === 'studio' && o && o.active ? ' · free for founding artists' : '') + '</small>' : 'Free') + '</div><ul>' + (p.features || []).map(function (f) { return '<li>' + esc(f) + '</li>'; }).join('') + '</ul></article>';
     }).join('');
-    planNote.textContent = 'Introductory prices. Never auto-renewed. We confirm the final amount and any tax on WhatsApp before you pay.';
+    planNote.textContent = 'Introductory prices. Never auto-renewed. We confirm the final amount and any tax on WhatsApp before you pay. Natasha and Jagriti are invited artists with full features.';
   }
   fetch('/creators/artists-data.json').then(function (r) { if (!r.ok) throw 0; return r.json(); }).then(plans).catch(function () { planBox.innerHTML = '<p class="sa-note">Plans could not load. Free listing is always available: apply below.</p>'; });
 
   var form = document.getElementById('joinForm'), msg = document.getElementById('formMsg'), out = document.getElementById('outBox'), txt = document.getElementById('outText');
   function build(f) {
     var themes = f.themes.split(',').map(function (s) { return s.trim(); }).filter(Boolean).slice(0, 6);
-    var app = { name: f.name.trim(), studio: f.studio.trim(), state: f.state.trim(), themes: themes, instagram: f.instagram.trim() || undefined, whatsapp: f.whatsapp.replace(/\D/g, '') || undefined, bio: f.bio.trim() || undefined, requestedPlan: f.plan, spotlight: !!f.spot && f.plan === 'studio', consent: true };
-    var lines = ['Hello RoamWise, I would like to join the artists gallery.', '', 'Name: ' + app.name, 'Studio: ' + app.studio, 'Location: ' + app.state, 'Themes: ' + themes.join(', '), 'Plan: ' + (app.requestedPlan === 'studio' ? 'Studio (one-time)' : 'Free listing') + (app.spotlight ? ' + 30-day Spotlight' : '')];
+    var app = { name: f.name.trim(), studio: f.studio.trim(), state: f.state.trim(), themes: themes, instagram: f.instagram.trim() || undefined, whatsapp: f.whatsapp.replace(/\D/g, '') || undefined, bio: f.bio.trim() || undefined, requestedPlan: f.plan, spotlight: !!f.spot && f.plan !== 'free', consent: true };
+    var lines = ['Hello RoamWise, I would like to join the artists gallery.', '', 'Name: ' + app.name, 'Studio: ' + app.studio, 'Location: ' + app.state, 'Themes: ' + themes.join(', '), 'Plan: ' + ({ studio: 'Studio', concierge: 'Concierge setup', premier: 'Premier' }[app.requestedPlan] || 'Free listing') + (app.spotlight ? ' + 30-day Spotlight' : '')];
     if (app.instagram) lines.push('Instagram: ' + app.instagram); if (app.whatsapp) lines.push('WhatsApp for buyers: ' + app.whatsapp); if (app.bio) lines.push('Bio: ' + app.bio);
     lines.push('', 'I confirm I made these paintings (or have the right to show them) and agree to display.', '', 'DATA: ' + JSON.stringify(app));
     return { text: lines.join('\n'), app: app };

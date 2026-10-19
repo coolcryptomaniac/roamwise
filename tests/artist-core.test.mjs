@@ -12,6 +12,8 @@ test('slugify handles accents and symbols', () => assert.equal(slugify('  Jägri
 test('data has plans, spotlight points at a real painting, every artist has a plan', () => {
   const d = JSON.parse(fs.readFileSync('creators/artists-data.json', 'utf8'));
   assert.ok(d.plans.free.maxPaintings > 0 && d.plans.studio.price >= 100 && d.plans.spotlight.price <= 500);
+  assert.ok(d.plans.concierge.price <= 2000 && d.plans.premier.price <= 2000 && d.plans.premier.price >= 1000);
+  assert.ok(d.launchOffer.limit >= 10 && d.launchOffer.invited.every(id => d.artists.some(a => a.id === id)));
   const a = d.artists.find(x => x.id === d.spotlight.artistId); assert.ok(a.artworks.some(w => w.id === d.spotlight.artworkId));
   d.artists.forEach(x => assert.ok(x.plan && x.page, x.id));
 });
