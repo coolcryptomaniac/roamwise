@@ -87,7 +87,7 @@
   stage.addEventListener('pointermove', function (e) { var r = stage.getBoundingClientRect(), fx = (e.clientX - r.left) / r.width; fig.style.setProperty('--ry', (fx - .5) * 22 + 'deg'); fig.style.setProperty('--rx', (.5 - (e.clientY - r.top) / r.height) * 10 + 'deg'); stage.style.setProperty('--lx', fx * 100 + '%'); });
   stage.addEventListener('pointerleave', function () { fig.style.setProperty('--ry', '0deg'); fig.style.setProperty('--rx', '0deg'); });
   fetch('/creators/artists-data.json').then(function (r) { return r.json(); }).then(function (d) {
-    var all = d.artists;
+    var all = d.artists.filter(function (a) { return a.plan !== 'free'; }); /* free listings have their own page; Kala presents Studio and above */
     all.forEach(function (a) {
       (a.artworks || []).filter(function (w) { return w.status === 'Available'; }).forEach(function (w) { items.push({ kind: 'work', a: a, title: w.title, type: w.type, price: /\d/.test(w.price) ? w.price : 'Price on request', artist: a.name, studio: a.studio, img: w.image, sacred: true, cta: 'Connect on WhatsApp', link: 'https://wa.me/' + a.whatsapp + '?text=' + encodeURIComponent('Namaste ' + a.studio + ', Kala (RoamWise art guide) showed me "' + w.title + '". I would like to know more and buy.') }); });
       (a.tiers || []).forEach(function (t) { items.push({ kind: 'tier', a: a, title: t.title, detail: t.detail, price: t.price, range: t.range, artist: a.name, studio: a.studio, img: null, sacred: !!t.sacred, cta: 'Connect on Instagram', link: a.instagram }); });

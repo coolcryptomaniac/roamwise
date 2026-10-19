@@ -13,7 +13,7 @@
   function preview(d) {
     var sel = $('asPick'); if (!sel) return;
     var items = [];
-    d.artists.forEach(function (a) {
+    d.artists.filter(function (a) { return a.plan !== 'free'; }).forEach(function (a) {
       (a.artworks || []).filter(function (w) { return w.image; }).forEach(function (w) { items.push({ t: w.title + ' · ' + a.name, img: w.image }); });
       if (a.tiers && a.tiers.length) items.push({ t: 'Sample size guide · ' + a.name + ' (no image yet)', img: null });
     });
@@ -33,7 +33,7 @@
   }
   function compare(d) {
     var box = $('asCompare'); if (!box) return;
-    var rows = d.artists.map(function (a) {
+    var rows = d.artists.filter(function (a) { return a.plan !== 'free'; }).map(function (a) {
       var prices = (a.artworks || []).map(function (w) { return num(w.price); }).filter(Boolean);
       (a.tiers || []).forEach(function (t) { if (t.range) { prices.push(t.range[0], t.range[1]); } });
       var lo = prices.length ? Math.min.apply(null, prices) : 0, hi = prices.length ? Math.max.apply(null, prices) : 0;

@@ -177,7 +177,9 @@
       "social": {
         "instagram": "https://www.instagram.com/bhavitavya_kala/",
         "youtube": "https://www.youtube.com/@natashaguleria2065"
-      }
+      },
+      "plan": "ambassador",
+      "page": "/creators/artists.html"
     },
     {
       "id": "jagriti-creates",
@@ -270,7 +272,9 @@
           ],
           "detail": "Large textured canvas or mural for a living room, lobby or homestay."
         }
-      ]
+      ],
+      "plan": "featured",
+      "page": "/creators/jagriti.html"
     }
   ],
   "properties": [
@@ -788,5 +792,51 @@
       ]
     }
   ],
-  "buyersNote": "Organisations that serve corporate and private collectors. RoamWise does not list or contact private individuals; introductions go through galleries, advisors and design studios. Inclusion is not a partnership, an order or confirmed interest."
+  "buyersNote": "Organisations that serve corporate and private collectors. RoamWise does not list or contact private individuals; introductions go through galleries, advisors and design studios. Inclusion is not a partnership, an order or confirmed interest.",
+  "contactWhatsApp": "919987379730",
+  "spotlight": {
+    "artistId": "natasha-guleria",
+    "artworkId": "manimanash",
+    "label": "Painting of the week",
+    "note": "Shiva in meditation above snow peaks, painted by Natasha Guleria. A fitting companion for anyone planning a Himalayan yatra."
+  },
+  "plans": {
+    "note": "Introductory model. One-time contributions, no commission on sales; artists sell directly and keep 100%. Payment is arranged on WhatsApp after approval. Confirm GST applicability with the CA before collecting.",
+    "free": {
+      "name": "Free listing",
+      "price": 0,
+      "maxPaintings": 6,
+      "features": [
+        "Your own RoamWise artist page",
+        "Up to 6 paintings with prices",
+        "Appear in the artists gallery",
+        "Buyers enquire on your WhatsApp or Instagram",
+        "Remove or edit any time"
+      ]
+    },
+    "studio": {
+      "name": "Studio",
+      "price": 199,
+      "maxPaintings": 24,
+      "features": [
+        "Everything in Free",
+        "Up to 24 paintings",
+        "Price tiers and custom-commission block",
+        "Presented by Kala in the Sacred art gallery, wall preview, finder and comparison",
+        "Institutional buyer matches (galleries, hotels, studios)",
+        "Enquiry log with CSV export"
+      ]
+    },
+    "spotlight": {
+      "name": "Spotlight",
+      "price": 499,
+      "days": 30,
+      "features": [
+        "Needs a Studio page",
+        "Your painting as Painting of the week on the RoamWise homepage for 30 days",
+        "Promo caption for Instagram and WhatsApp",
+        "Spotlight badge in the gallery"
+      ]
+    }
+  }
 }
