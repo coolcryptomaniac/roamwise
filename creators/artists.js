@@ -10,6 +10,11 @@ function updateBrief() {
   $('artEmail').href = 'mailto:founder@roamwise.co.in?subject=' + encodeURIComponent('RoamWise art × hospitality: ' + selected.name) + '&body=' + encodeURIComponent(text);
   $('artWhatsApp').href = 'https://wa.me/919987379730?text=' + encodeURIComponent(text);
 }
+function renderWorks() {
+  const box = $('artWorks'); const works = (data && data.artists[0].artworks) || [];
+  if (!box) return;
+  box.innerHTML = works.map(w => `<article class="art-work"><img src="${esc(w.image)}" alt="${esc(w.title)}, original painting by Natasha Guleria" loading="lazy" width="400" height="400"><div><span class="art-status">${esc(w.status)} · ${esc(w.type)}</span><h3>${esc(w.title)}</h3><p class="art-price">${esc(w.price)}</p><a href="${esc(safeHttps(w.url))}" target="_blank" rel="noopener">${w.status === 'Available' ? 'Enquire on studio site' : 'View on studio site'} ↗</a></div></article>`).join('');
+}
 function render() {
   if (!data) return;
   const rows = rankArtistProperties(data.artists[0], data.properties, {goal:$('artGoal').value, region:$('artRegion').value});
@@ -31,5 +36,5 @@ $('artCopy').addEventListener('click', async()=>{
   catch { $('artDraft').focus(); $('artDraft').select(); $('artStatus').textContent='Select and copy the enquiry manually.'; }
 });
 try {
-  const r=await fetch('artists-data.json'); if(!r.ok) throw new Error('unavailable'); data=await r.json(); render();
+  const r=await fetch('artists-data.json'); if(!r.ok) throw new Error('unavailable'); data=await r.json(); renderWorks(); render();
 } catch { $('artStatus').textContent='The shortlist could not load. The portfolio and email introduction links still work.'; }

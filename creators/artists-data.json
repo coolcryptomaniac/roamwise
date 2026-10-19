@@ -30,7 +30,52 @@
       "biographySource": "https://bhavitavyakala.com/about",
       "contactSource": "https://bhavitavyakala.com/contact",
       "checkedAt": "2026-10-18T21:29:19Z",
-      "appointmentSource": "Founder instruction, 19 October 2026; no contract terms represented"
+      "appointmentSource": "Founder instruction, 19 October 2026; no contract terms represented",
+      "photo": {
+        "src": "/assets/img/natasha/natasha-with-painting.jpg",
+        "alt": "Natasha Guleria beside one of her original paintings",
+        "credit": "Bhavitavya Kala studio",
+        "sourceUrl": "https://bhavitavyakala.com/about"
+      },
+      "artworks": [
+        {
+          "id": "shiva-dhyan",
+          "title": "Shiva dhyan",
+          "status": "Available",
+          "type": "Original",
+          "price": "₹30,000",
+          "image": "/assets/img/natasha/shiva-dhyan.jpg",
+          "url": "https://bhavitavyakala.com/purchase/bVl7J1RKHn7yYifPfiuw"
+        },
+        {
+          "id": "shree-yantra",
+          "title": "Shree yantra",
+          "status": "Available",
+          "type": "Original",
+          "price": "₹90,000",
+          "image": "/assets/img/natasha/shree-yantra.jpg",
+          "url": "https://bhavitavyakala.com/purchase/CNbpDQfx95XgJP46RWjo"
+        },
+        {
+          "id": "manimanash",
+          "title": "Manimanash",
+          "status": "Available",
+          "type": "Original",
+          "price": "₹2,99,999",
+          "image": "/assets/img/natasha/manimanash.jpg",
+          "url": "https://bhavitavyakala.com/purchase/dxmXlaIAZcnpYWhDJh2l"
+        },
+        {
+          "id": "shiv-dhyan",
+          "title": "Shiv dhyan",
+          "status": "Reserved",
+          "type": "Original",
+          "price": "₹69,999",
+          "image": "/assets/img/natasha/shiv-dhyan.jpg",
+          "url": "https://bhavitavyakala.com/purchase/FPoeCQEtaSEXltyqo65z"
+        }
+      ],
+      "artworksSource": "https://bhavitavyakala.com/ (checked 19 October 2026). Prices and availability are as listed by the studio and may change."
     }
   ],
   "properties": [
