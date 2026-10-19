@@ -1,0 +1,23 @@
+/* Shared styles for the gallery, generic artist page and join page. Builds on artists.css + sacred-art.css. */
+.hub-grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fill,minmax(250px,1fr))}
+.hub-card{display:flex;flex-direction:column;border-radius:18px;overflow:hidden;border:1px solid var(--line);background:#120d22;color:inherit;text-decoration:none;transition:transform .25s,box-shadow .25s}
+.hub-card:hover,.hub-card:focus-visible{transform:translateY(-4px);box-shadow:0 16px 36px rgba(232,186,108,.22)}
+.hub-card img,.hub-ph{width:100%;aspect-ratio:4/3;object-fit:cover;display:block}
+.hub-ph{display:grid;place-items:center;font-size:54px;color:var(--gold);background:linear-gradient(135deg,#4a2a6a,#0b1020)}
+.hub-b{padding:14px 16px 16px}.hub-b h3{margin:6px 0 4px;font-size:19px}.hub-b p{margin:0 0 8px;font-size:13px;opacity:.85}
+.hub-badge{display:inline-block;font-size:10.5px;letter-spacing:.1em;padding:3px 9px;border-radius:99px;border:1px solid var(--gold);color:var(--gold)}
+.hub-badge.free{border-color:var(--line);color:var(--muted)}
+.hub-chips{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}.hub-chips span{font-size:11.5px;padding:3px 9px;border-radius:99px;background:#ffffff14}
+.hub-filters{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 16px}.hub-filters button{font:inherit;font-size:13px;padding:7px 13px;border-radius:99px;border:1px solid var(--line);background:transparent;color:inherit;cursor:pointer}
+.hub-filters button[aria-pressed=true]{background:var(--gold);color:#1a1205;border-color:var(--gold)}
+.plans{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(250px,1fr))}
+.plan{border:1px solid var(--line);border-radius:18px;padding:18px;background:#120d22;display:flex;flex-direction:column;gap:8px}
+.plan.hot{border-color:var(--gold);box-shadow:0 0 0 1px var(--gold) inset}
+.plan h3{margin:0;font-size:20px}.plan .pr{font-size:30px;font-weight:700;color:var(--gold)}.plan .pr small{font-size:13px;color:var(--muted);font-weight:400}
+.plan ul{margin:6px 0 0;padding-left:18px;font-size:13.5px;line-height:1.55}
+.hub-form{display:grid;gap:12px;max-width:680px}.hub-form label{display:grid;gap:5px;font-size:13px;color:var(--muted)}
+.hub-form input,.hub-form select,.hub-form textarea{font:inherit;font-size:15px;padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:#0e0a1b;color:var(--cream)}
+.hub-form .chk{display:flex;gap:9px;align-items:flex-start;color:var(--cream)}.hub-form .chk input{margin-top:3px}
+.hub-out{white-space:pre-wrap;word-break:break-word;font-size:12.5px;background:#0e0a1b;border:1px solid var(--line);border-radius:12px;padding:12px;max-height:240px;overflow:auto}
+.hub-fair{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));margin-top:14px}.hub-fair div{border-left:3px solid var(--gold);padding:4px 12px;font-size:14px}
+@media(prefers-reduced-motion:reduce){.hub-card{transition:none}}

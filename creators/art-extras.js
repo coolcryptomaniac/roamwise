@@ -9,7 +9,7 @@
   function finder(d) {
     var f = $('fdForm'); if (!f) return;
     var pool = [];
-    d.artists.forEach(function (a) {
+    d.artists.filter(function (a) { return a.plan !== 'free'; }).forEach(function (a) {
       var page = a.id === 'natasha-guleria' ? '/creators/artists.html' : '/creators/jagriti.html';
       (a.artworks || []).filter(function (w) { return w.status === 'Available' && num(w.price) > 0; }).forEach(function (w) {
         pool.push({ a: a, t: w.title, lo: num(w.price), hi: num(w.price), sacred: true, img: w.image, page: page, price: w.price, link: 'https://wa.me/' + a.whatsapp + '?text=' + encodeURIComponent('Namaste ' + a.studio + ', I found "' + w.title + '" through the RoamWise painting finder. Please share availability and delivery details.'), cta: 'Enquire on WhatsApp' });

@@ -19,8 +19,8 @@
   }
   function build(data, limit) {
     var out = [];
-    data.artists.forEach(function (a) {
-      var page = a.id === 'natasha-guleria' ? '/creators/artists.html' : '/creators/jagriti.html';
+    data.artists.filter(function (a) { return a.plan !== 'free'; }).forEach(function (a) {
+      var page = a.page || '/creators/artist.html?a=' + encodeURIComponent(a.id);
       (a.artworks || []).filter(function (w) { return w.status === 'Available' && w.type === 'Original' && num(w.price) > 0; })
         .forEach(function (w) { out.push({ k: num(w.price), h: card(a, w, wa(a, w), 'Enquire on WhatsApp', page) }); });
       (a.tiers || []).filter(function (t) { return t.sacred; }).forEach(function (t) {

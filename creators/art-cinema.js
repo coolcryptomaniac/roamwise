@@ -26,8 +26,8 @@
   }
   fetch('/creators/artists-data.json').then(function (r) { return r.json(); }).then(function (d) {
     var works = [], lows = [];
-    d.artists.forEach(function (a) { (a.artworks || []).forEach(function (w) { if (w.image) works.push({ w: w, a: a }); }); (a.tiers || []).forEach(function (t) { if (t.range) lows.push(t.range[0]); }); });
-    count($('acArtists'), d.artists.length, '', ''); count($('acWorks'), works.length, '', '+'); count($('acFrom'), Math.min.apply(null, lows), '₹', '');
+    d.artists.filter(function (a) { return a.plan !== 'free'; }).forEach(function (a) { (a.artworks || []).forEach(function (w) { if (w.image) works.push({ w: w, a: a }); }); (a.tiers || []).forEach(function (t) { if (t.range) lows.push(t.range[0]); }); });
+    count($('acArtists'), d.artists.filter(function (a) { return a.plan !== 'free'; }).length, '', ''); count($('acWorks'), works.length, '', '+'); count($('acFrom'), Math.min.apply(null, lows), '₹', '');
     var reel = $('acReel'); if (!reel) return;
     reel.innerHTML = works.map(function (x, i) { return '<button type="button" class="ac-tile" data-t="' + esc(x.w.title) + '" aria-label="Meet ' + esc(x.w.title) + ' with Kala"><img src="' + esc(x.w.image) + '" alt="' + esc(x.w.title) + ' by ' + esc(x.a.name) + '" loading="lazy" width="400" height="500"><b>' + esc(x.w.title) + '</b><small>' + esc(x.a.name) + ' · ' + esc(x.w.price) + '</small></button>'; }).join('');
     reel.addEventListener('pointermove', function (e) { var t = e.target.closest('.ac-tile'); if (!t || still) return; var r = t.getBoundingClientRect(); t.style.setProperty('--ry', ((e.clientX - r.left) / r.width - .5) * 14 + 'deg'); t.style.setProperty('--rx', (.5 - (e.clientY - r.top) / r.height) * 10 + 'deg'); });

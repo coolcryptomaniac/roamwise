@@ -51,6 +51,8 @@ const TOP_LEVEL_URLS = [
   `${SITE}/creators/artists.html`,
   `${SITE}/creators/jagriti.html`,
   `${SITE}/creators/sacred-art.html`,
+  `${SITE}/creators/gallery.html`,
+  `${SITE}/creators/join-artist.html`,
   ...['kainchi', 'pilgrimage', 'char-dham', 'panch-kedar', 'kumbh', 'vaishno-devi', 'kashi', 'tirupati', 'ayodhya', 'dwarka-somnath', 'puri-konark', 'amarnath', 'shirdi', 'bodh-gaya', 'rameswaram-madurai', 'kasar-devi-almora', 'jageshwar', 'adi-kailash', 'kailash-mansarovar'].map(slug => `${SITE}/${slug}/`),
 ];
 
