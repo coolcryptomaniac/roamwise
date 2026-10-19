@@ -1,0 +1,13 @@
+.ag{display:grid;grid-template-columns:minmax(0,1fr);gap:16px;margin:14px 0;perspective:900px}
+.ag-stage{position:relative;border-radius:16px;border:1px solid #ffffff21;background:radial-gradient(circle at 50% 30%,#3a2750,#0b1020 70%);padding:18px 10px 8px;display:flex;justify-content:center;overflow:hidden}
+.ag-fig{width:min(320px,86%);height:auto;transform-style:preserve-3d;transform:rotateY(var(--ry,0deg)) rotateX(var(--rx,0deg));transition:transform .15s;touch-action:none;animation:ag-breathe 4s ease-in-out infinite}
+.ag-fig .ag-frame{fill:#1b1710}.ag-fig .ag-skin{fill:#c98f6a}.ag-fig .ag-robe{fill:#e8ba6c}.ag-fig .ag-hair{fill:#1c1320}
+.ag-fig .ag-mouth{transform-origin:160px 118px;transform:scaleY(.4)}.ag-speaking .ag-mouth{animation:ag-talk .28s ease-in-out infinite}
+.ag-fig .ag-arm{transform-origin:70px 210px;animation:ag-arm 4s ease-in-out infinite}
+@keyframes ag-breathe{0%,100%{translate:0 0}50%{translate:0 -4px}}
+@keyframes ag-talk{0%,100%{transform:scaleY(.3)}50%{transform:scaleY(1.2)}}
+@keyframes ag-arm{0%,100%{transform:rotate(0)}50%{transform:rotate(-2deg)}}
+.ag-say{border:1px solid #ffffff21;border-radius:14px;padding:14px;background:#ffffff0a}
+.ag-say p{margin:0 0 10px;font-size:15px;line-height:1.5}.ag-ctl{display:grid;gap:10px}.ag-ctl select{width:100%}
+@media(min-width:860px){.ag{grid-template-columns:1fr 1fr;align-items:center}}
+@media(prefers-reduced-motion:reduce){.ag-fig,.ag-fig .ag-arm,.ag-speaking .ag-mouth{animation:none}.ag-fig{transition:none}}
