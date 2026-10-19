@@ -15,31 +15,26 @@ test('history is capped, role-mapped and clipped',()=>{
 test('reply cleaner strips reasoning tags, markup and links',()=>{
   assert.equal(K.cleanReply('<think>secret</think>Hello <b>you</b> see https://evil.example now'),'Hello you see now');
 });
-test('fails closed without a Sarvam key',async()=>{
-  const r=await K.handleKala(post('kala/chat',{q:'hi'}),{}, 'kala/chat'); assert.equal(r.status,501);
+test('fails closed when no free provider is configured',async()=>{
+  assert.equal((await K.handleKala(post('kala/chat',{q:'hi'}),{}, 'kala/chat')).status,501);
 });
-test('chat calls Sarvam with the server-held key and returns clean text',async()=>{
+test('uses Workers AI first and never calls a paid provider',async()=>{
+  stubCaches(); let paid=0; global.fetch=async()=>{paid++;return new Response('{}')};
+  const env={AI:{async run(model,o){assert.equal(o.messages.at(-1).content,'price?');return {response:'<think>x</think>Namaste! It is ₹30,000.'}}}};
+  const r=await K.handleKala(post('kala/chat',{q:'price?',ctx:{title:'T',price:'₹30,000'}}),env,'kala/chat'); const d=await r.json();
+  assert.equal(d.provider,'workers-ai'); assert.equal(d.text,'Namaste! It is ₹30,000.'); assert.equal(paid,0);
+});
+test('falls back to Groq when Workers AI fails, then fails soft',async()=>{
   stubCaches(); let seen;
-  global.fetch=async(u,o)=>{seen={u,o}; return new Response(JSON.stringify({choices:[{message:{content:'<think>x</think>Namaste! Price is ₹30,000.'}}]}),{status:200});};
-  const r=await K.handleKala(post('kala/chat',{q:'price?',ctx:{title:'T',price:'₹30,000'}}),{SARVAM_API_KEY:'k'}, 'kala/chat');
-  const d=await r.json(); assert.equal(r.status,200); assert.equal(d.text,'Namaste! Price is ₹30,000.');
-  assert.equal(seen.u,'https://api.sarvam.ai/v1/chat/completions'); assert.equal(seen.o.headers.Authorization,'Bearer k');
-  assert.equal(JSON.parse(seen.o.body).messages.at(-1).content,'price?');
+  global.fetch=async(u,o)=>{seen={u,o};return new Response(JSON.stringify({choices:[{message:{content:'Hi from Groq'}}]}),{status:200})};
+  const env={AI:{async run(){throw new Error('quota')}},GROQ_API_KEY:'g',GROQ_MODEL:'m',AI_USAGE:{async get(){return '0'},async put(){}}};
+  const d=await (await K.handleKala(post('kala/chat',{q:'hi'}),env,'kala/chat')).json();
+  assert.equal(d.provider,'groq'); assert.equal(seen.u,'https://api.groq.com/openai/v1/chat/completions');
+  global.fetch=async()=>new Response('{"error":"secret"}',{status:500});
+  const r=await K.handleKala(post('kala/chat',{q:'hi'}),env,'kala/chat'); assert.equal(r.status,502); assert.ok(!(await r.text()).includes('secret'));
 });
-test('speech: Sarvam TTS bytes returned, then served from cache without a second call',async()=>{
-  stubCaches(); let calls=0; const wav=Buffer.from('ID3fake').toString('base64');
-  global.fetch=async(u,o)=>{calls++; assert.equal(u,'https://api.sarvam.ai/text-to-speech'); assert.equal(o.headers['api-subscription-key'],'k'); return new Response(JSON.stringify({audios:[wav]}),{status:200});};
-  const ip={'CF-Connecting-IP':'7.7.7.7'};
-  const a=await K.handleKala(post('kala/speak',{text:'Namaste कला',lang:'hi-IN'},ip),{SARVAM_API_KEY:'k'}, 'kala/speak');
-  assert.equal(a.headers.get('content-type'),'audio/mpeg'); assert.equal(Buffer.from(await a.arrayBuffer()).toString(),'ID3fake');
-  const b=await K.handleKala(post('kala/speak',{text:'Namaste कला',lang:'hi-IN'},ip),{SARVAM_API_KEY:'k'}, 'kala/speak');
-  assert.equal(b.status,200); assert.equal(calls,1);
-});
-test('oversized and empty requests are refused; provider errors do not leak details',async()=>{
-  stubCaches();
-  assert.equal((await K.handleKala(post('kala/chat',{q:''}),{SARVAM_API_KEY:'k'},'kala/chat')).status,400);
-  assert.equal((await K.handleKala(post('kala/chat',{q:'x'},{'content-length':'999999'}),{SARVAM_API_KEY:'k'},'kala/chat')).status,413);
-  global.fetch=async()=>new Response('{"error":"secret detail"}',{status:500});
-  const r=await K.handleKala(post('kala/chat',{q:'hi'}),{SARVAM_API_KEY:'k'},'kala/chat'); const d=await r.json();
-  assert.equal(r.status,502); assert.ok(!JSON.stringify(d).includes('secret'));
+test('empty and oversized requests are refused',async()=>{
+  stubCaches(); const env={AI:{async run(){return {response:'x'}}}};
+  assert.equal((await K.handleKala(post('kala/chat',{q:''}),env,'kala/chat')).status,400);
+  assert.equal((await K.handleKala(post('kala/chat',{q:'x'},{'content-length':'999999'}),env,'kala/chat')).status,413);
 });

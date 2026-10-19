@@ -90,11 +90,11 @@
   var hist = [];
   function ctxOf(it) { return { title: it.title, artist: it.artist, studio: it.studio, price: it.price, type: it.type || '', detail: it.detail || '', sacred: it.sacred !== false, indicative: !!it.range }; }
   function cloudAnswer(q, t, r) {
-    t.textContent = '\u2726 Thinking with Sarvam AI\u2026';
+    t.textContent = '\u2726 Thinking with RoamWise AI\u2026';
     var ctrl = new AbortController(), to = setTimeout(function () { ctrl.abort(); }, 9000);
     fetch(K().cloud() + '/kala/chat', { method: 'POST', headers: { 'Content-Type': 'application/json' }, signal: ctrl.signal, body: JSON.stringify({ q: q, ctx: ctxOf(K().current()), history: hist }) })
       .then(function (x) { if (!x.ok) throw new Error('no'); return x.json(); })
-      .then(function (d) { clearTimeout(to); t.remove(); var m = msg('ak-k', esc(d.text)); hist.push({ r: 'u', t: q }, { r: 'k', t: d.text }); var b = document.querySelector('.ag-badge'); if (b) b.textContent = 'VIRTUAL GUIDE \u00B7 AI REPLIES BY SARVAM'; K().say(d.text); })
+      .then(function (d) { clearTimeout(to); t.remove(); var m = msg('ak-k', esc(d.text)); hist.push({ r: 'u', t: q }, { r: 'k', t: d.text }); var b = document.querySelector('.ag-badge'); if (b) b.textContent = 'VIRTUAL GUIDE \u00B7 AI-POWERED REPLIES'; K().say(d.text); })
       .catch(function () { clearTimeout(to); t.remove(); var m = msg('ak-k', r.html); K().say(m.textContent.slice(0, 400)); });
   }
   function ask(q) {
