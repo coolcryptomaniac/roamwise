@@ -1,0 +1,12 @@
+.sa-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px;margin:14px 0}
+.sa-card{display:flex;flex-direction:column;border:1px solid #ffffff21;border-radius:14px;overflow:hidden;background:#ffffff0a;min-width:0}
+.sa-card img,.sa-ph{width:100%;aspect-ratio:1/1;object-fit:cover;display:block}
+.sa-ph{display:grid;place-items:center;font-size:56px;color:#e8ba6c;background:linear-gradient(135deg,#2a1a3a,#0b1020)}
+.sa-card>div:last-child{padding:12px 14px 14px}
+.sa-card h3{margin:4px 0 6px;font-size:17px}.sa-card p{margin:0 0 8px;font-size:13px;opacity:.85}
+.sa-by{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#e8ba6c;overflow-wrap:anywhere}
+.sa-card .sa-price{font-size:18px;font-weight:600;opacity:1;color:#f2efe6}
+.sa-btn{display:inline-block;padding:9px 13px;border-radius:999px;background:#e8ba6c;color:#0b1020;font-weight:600;font-size:13px;text-decoration:none;margin:2px 4px 2px 0}
+.sa-btn.sa-alt{background:transparent;color:#e8ba6c;border:1px solid #e8ba6c}
+.sa-link{font-size:12px;color:#e8ba6c;display:inline-block;margin-top:6px}
+.sa-note{font-size:12px;opacity:.75}
