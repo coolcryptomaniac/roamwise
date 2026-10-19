@@ -1,0 +1,22 @@
+/* Home polish: consistent rhythm, soft separators, tactile taps. Presentation only. */
+body[data-view="home"] > .v-home.rw-discovery-feed,
+body[data-view="home"] > .v-home.rw-country-feed{margin-top:30px;position:relative}
+body[data-view="home"] > .v-home.rw-discovery-feed::before,
+body[data-view="home"] > .v-home.rw-country-feed::before{content:"";display:block;height:1px;width:min(78%,480px);margin:0 auto 24px;background:linear-gradient(90deg,transparent,rgba(232,186,108,.38),transparent)}
+body[data-view="home"] > #rwRaveCard,
+body[data-view="home"] > #rwBoard,
+body[data-view="home"] > #rwNmimsBanner{margin-top:28px;margin-bottom:6px}
+body[data-view="home"] > #brief{margin-top:30px}
+body[data-view="home"] #quickGrid{margin-top:26px!important}
+body[data-view="home"] .site-footer{margin-top:40px}
+/* tactile cards */
+.bs-tile,.qg-tile,.rw-card,.exp{transition:transform .25s cubic-bezier(.2,.8,.2,1),box-shadow .25s,border-color .25s}
+.bs-tile:active,.qg-tile:active,.rw-card:active{transform:scale(.97)}
+@media(hover:hover){.bs-tile:hover,.qg-tile:hover{transform:translateY(-3px);box-shadow:0 14px 28px -14px rgba(232,186,108,.35)}}
+a:focus-visible,button:focus-visible{outline:2px solid #e8ba6c;outline-offset:3px;border-radius:10px}
+/* scroll reveal (class added by home-polish.js only when motion is allowed) */
+.rwp-js .rwp-r{opacity:0;transform:translateY(22px);transition:opacity .7s cubic-bezier(.2,.8,.2,1),transform .7s cubic-bezier(.2,.8,.2,1)}
+.rwp-js .rwp-r.in{opacity:1;transform:none}
+/* scroll progress */
+#rwpBar{position:fixed;top:0;left:0;height:2px;width:100%;transform:scaleX(0);transform-origin:0 50%;background:linear-gradient(90deg,#ff7a59,#e8ba6c);z-index:9999;pointer-events:none;will-change:transform}
+@media(prefers-reduced-motion:reduce){.rwp-js .rwp-r{opacity:1;transform:none;transition:none}.bs-tile,.qg-tile,.rw-card,.exp{transition:none}#rwpBar{display:none}}
