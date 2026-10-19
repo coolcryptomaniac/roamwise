@@ -1,0 +1,13 @@
+.as-room{position:relative;border-radius:16px;overflow:hidden;border:1px solid #ffffff21;aspect-ratio:16/9;background:var(--wall,#d9cfc0);transition:background .4s}
+.as-room::after{content:"";position:absolute;left:0;right:0;bottom:0;height:22%;background:linear-gradient(#00000022,#0000004d)}
+.as-sofa{position:absolute;left:50%;bottom:20%;transform:translateX(-50%);width:var(--sofa,58%);height:22%;background:#3b3a4a;border-radius:14px 14px 6px 6px;box-shadow:inset 0 -10px 0 #2c2b39}
+.as-sofa::before,.as-sofa::after{content:"";position:absolute;bottom:0;width:7%;height:120%;background:#34334a;border-radius:10px}.as-sofa::before{left:-3%}.as-sofa::after{right:-3%}
+.as-art{position:absolute;left:50%;top:14%;transform:translateX(-50%);width:var(--w,20%);aspect-ratio:var(--r,1);object-fit:cover;border:5px solid #1b1710;box-shadow:0 10px 24px #0006;transition:width .25s,aspect-ratio .25s;background:linear-gradient(135deg,#2a1a3a,#0b1020);display:grid;place-items:center;color:#e8ba6c;font-size:clamp(20px,6vw,44px)}
+.as-ctl{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin:12px 0}
+.as-ctl label{display:block;font-size:13px}.as-ctl select,.as-ctl input[type=range]{width:100%;margin-top:6px}
+.as-sw{display:flex;gap:8px;margin-top:8px}.as-sw button{width:34px;height:34px;border-radius:50%;border:2px solid #ffffff55;cursor:pointer}.as-sw button[aria-pressed=true]{outline:2px solid #e8ba6c}
+.as-tbl{width:100%;border-collapse:collapse;font-size:13px;display:block;overflow-x:auto}.as-tbl th,.as-tbl td{padding:9px 10px;border-bottom:1px solid #ffffff21;text-align:left;vertical-align:top;min-width:130px}.as-tbl th{color:#e8ba6c;font-weight:600}
+.as-rv{opacity:0;transform:translateY(16px);transition:opacity .6s,transform .6s}.as-rv.in{opacity:1;transform:none}
+@keyframes as-glow{0%,100%{text-shadow:0 0 8px #e8ba6c88}50%{text-shadow:0 0 22px #e8ba6c}}
+.sa-ph{animation:as-glow 3.2s ease-in-out infinite}
+@media(prefers-reduced-motion:reduce){.as-rv{opacity:1;transform:none;transition:none}.sa-ph{animation:none}.as-art,.as-room{transition:none}}
