@@ -30,26 +30,36 @@ function buildEasel() {
   const frame = new THREE.Mesh(new THREE.BoxGeometry(0.62, 0.78, 0.04), new THREE.MeshStandardMaterial({ color: 0x8a6a2a, roughness: .35, metalness: .6 }));
   const mat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: .85, emissive: 0x111111 });
   const pic = new THREE.Mesh(new THREE.PlaneGeometry(0.54, 0.7), mat); pic.position.z = 0.0215; pic.name = 'kalaPic';
-  g.add(frame, pic); g.scale.setScalar(.5);
+  g.add(frame, pic);
   return g;
 }
-// Right arm raised, forearm up: the hand sits at chest height beside her. Applied to every idle pose so the canvas never swings away.
-const HOLD_ARM = { 'RightArm.rotation': { x: 1.273, y: -0.352, z: -0.6 }, 'RightForeArm.rotation': { x: -0.011, y: -0.031, z: -1.6 } };
+// Both hands grip the canvas edges in front of her chest (arm angles solved offline with a small IK search against the avatar's skeleton).
+const R = (x, y, z) => ({ x, y, z });
+const HOLD_ARM = {
+  'RightArm.rotation': R(1.314, 0.24, -1.009), 'RightForeArm.rotation': R(0.197, 1.245, -0.14), 'RightHand.rotation': R(0.815, -1.002, -0.973),
+  'LeftArm.rotation': R(-0.16, 0.509, 2.055), 'LeftForeArm.rotation': R(0.084, -0.341, 0.086), 'LeftHand.rotation': R(-1.423, -1.105, 0.508)
+};
+for (const S of ['Left', 'Right']) { // fingers curled around the frame edge
+  HOLD_ARM[S + 'HandIndex1.rotation'] = R(0.7, 0, 0); HOLD_ARM[S + 'HandIndex2.rotation'] = R(0.9, 0, 0); HOLD_ARM[S + 'HandIndex3.rotation'] = R(0.6, 0, 0);
+  HOLD_ARM[S + 'HandMiddle1.rotation'] = R(0.8, 0, 0); HOLD_ARM[S + 'HandMiddle2.rotation'] = R(1.0, 0, 0); HOLD_ARM[S + 'HandMiddle3.rotation'] = R(0.6, 0, 0);
+  HOLD_ARM[S + 'HandRing1.rotation'] = R(0.9, 0, 0); HOLD_ARM[S + 'HandRing2.rotation'] = R(1.0, 0, 0); HOLD_ARM[S + 'HandRing3.rotation'] = R(0.6, 0, 0);
+  HOLD_ARM[S + 'HandPinky1.rotation'] = R(1.0, 0, 0); HOLD_ARM[S + 'HandPinky2.rotation'] = R(1.0, 0, 0); HOLD_ARM[S + 'HandPinky3.rotation'] = R(0.6, 0, 0);
+}
 function holdPoses() {
-  // Every standing pose gets the same arms/hands as 'side' (plus the raised right arm), so the canvas stays steady whichever idle pose is chosen.
-  const side = head.poseTemplates.side.props, armKeys = Object.keys(side).filter(k => /^(Left|Right)(Shoulder|Arm|ForeArm|Hand)/.test(k));
+  const side = head.poseTemplates.side.props, shoulderKeys = ['LeftShoulder.rotation', 'RightShoulder.rotation'];
   for (const t of Object.values(head.poseTemplates)) {
-    if (!t || !t.props || !t.standing || t === head.poseTemplates.side) continue;
-    for (const k of armKeys) t.props[k] = JSON.parse(JSON.stringify(side[k]));
+    if (!t || !t.props || !t.standing) continue;
+    for (const k of shoulderKeys) t.props[k] = JSON.parse(JSON.stringify(side[k]));
+    Object.assign(t.props, JSON.parse(JSON.stringify(HOLD_ARM)));
   }
-  for (const t of Object.values(head.poseTemplates)) if (t && t.props && t.standing) Object.assign(t.props, JSON.parse(JSON.stringify(HOLD_ARM)));
   try { head.setPoseFromTemplate(head.poseTemplates.side, 400); } catch (e) {}
 }
-function attachToHand() {
-  const hand = head.armature.getObjectByName('RightHand'); if (!hand || !easel) return;
-  const w = new THREE.Vector3(); hand.getWorldPosition(w);
-  easel.position.set(w.x - 0.2, w.y + 0.17, w.z + 0.03); easel.rotation.set(0, 0.25, 0.06);
-  scene.add(easel); easel.updateMatrixWorld(true); hand.attach(easel);
+// The canvas rides on her chest (spine bone) so it stays put while her hands grip its edges.
+function attachToChest() {
+  const spine = head.armature.getObjectByName('Spine2'); if (!spine || !easel) return;
+  const hips = head.armature.getObjectByName('Hips'), w = new THREE.Vector3(); hips.getWorldPosition(w);
+  easel.scale.setScalar(.72); easel.position.set(-0.19, 1.15, 0.33); easel.rotation.set(-0.05, 0.12, 0.02);
+  scene.add(easel); easel.updateMatrixWorld(true); spine.attach(easel);
 }
 function placeholder() { const c = document.createElement('canvas'); c.width = c.height = 256; const x = c.getContext('2d'); const gr = x.createLinearGradient(0, 0, 256, 256); gr.addColorStop(0, '#3a2358'); gr.addColorStop(1, '#0b1020'); x.fillStyle = gr; x.fillRect(0, 0, 256, 256); x.fillStyle = '#e8ba6c'; x.font = '150px serif'; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText('ॐ', 128, 140); const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t; }
 
@@ -63,7 +73,7 @@ API.start = async function (node, onprogress) {
     url: AVATAR, body: 'F', avatarMood: 'happy', lipsyncLang: 'en',
     baseline: { headRotateX: -0.01, eyeBlinkLeft: 0.05, eyeBlinkRight: 0.05 }
   }, onprogress);
-  scene = head.scene; easel = buildEasel(); head.speakWithHands = function () {}; head.mirrorPose = function (p) { return p; }; try { Object.defineProperty(head, 'poseWeightOnLeft', { get: () => true, set: () => {} }); } catch (e) {} /* poses mirror left/right on every change; keep the holding arm on the right */ setTimeout(holdPoses, 1200); let tries = 0; const wait = setInterval(() => { const v = new THREE.Vector3(); try { head.armature.getObjectByName('RightHand').getWorldPosition(v); } catch (e) {} if (v.y > 1.2 || ++tries > 50) { clearInterval(wait); attachToHand(); } }, 300);
+  scene = head.scene; easel = buildEasel(); head.speakWithHands = function () {}; head.mirrorPose = function (p) { return p; }; try { Object.defineProperty(head, 'poseWeightOnLeft', { get: () => true, set: () => {} }); } catch (e) {} /* poses mirror left/right on every change; keep the holding arm on the right */ setTimeout(holdPoses, 1200); let tries = 0; const wait = setInterval(() => { const v = new THREE.Vector3(); try { head.armature.getObjectByName('RightHand').getWorldPosition(v); } catch (e) {} if ((v.y > 1.1 && v.x < -0.2) || ++tries > 50) { clearInterval(wait); attachToChest(); } }, 300);
   head.armature.traverse(o => { if (o.isMesh && /casualsuit|^outfit$/i.test(o.name)) suit = o; });
   head.setView('mid', { cameraX: 0.12, cameraY: 0.02, cameraDistance: 0.45 });
   const vis = new IntersectionObserver(es => { if (!head) return; es[0].isIntersecting ? head.start() : head.stop(); }); vis.observe(node);
