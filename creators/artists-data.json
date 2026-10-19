@@ -173,7 +173,11 @@
       ],
       "artworksSource": "https://bhavitavyakala.com/ and /archive (checked 19 October 2026). Prices, sizes and availability are as listed by the studio and may change.",
       "whatsapp": "919015954049",
-      "whatsappSource": "https://bhavitavyakala.com/commissions (studio's published WhatsApp concierge line)"
+      "whatsappSource": "https://bhavitavyakala.com/commissions (studio's published WhatsApp concierge line)",
+      "social": {
+        "instagram": "https://www.instagram.com/bhavitavya_kala/",
+        "youtube": "https://www.youtube.com/@natashaguleria2065"
+      }
     }
   ],
   "properties": [
@@ -358,5 +362,226 @@
       "budget": null,
       "availability": "unconfirmed"
     }
-  ]
+  ],
+  "buyers": [
+    {
+      "id": "rhythm-art",
+      "name": "Rhythm Art Gallery",
+      "city": "Mumbai",
+      "state": "Maharashtra",
+      "kind": "Gallery with interior & corporate art advisory",
+      "themes": [
+        "interior",
+        "corporate"
+      ],
+      "evidence": "Mumbai gallery selling original Indian paintings, with a published Interior & Corporate Art Advisory service and a stated aim of backing young Indian artists.",
+      "reasons": [
+        "Has a dedicated corporate and interior art advisory",
+        "Sells original Indian paintings online and from its Mumbai space"
+      ],
+      "sourceUrl": "https://rhythmartgallery.com/",
+      "contactUrl": "https://rhythmartgallery.com/contact-us/",
+      "contactType": "official contact page",
+      "checkedAt": "2026-10-19T08:00:00Z",
+      "status": "research-prospect",
+      "partnerConfirmed": false,
+      "budget": null,
+      "availability": "unconfirmed"
+    },
+    {
+      "id": "image-art",
+      "name": "Image Art Gallery",
+      "city": "Mumbai",
+      "state": "Maharashtra",
+      "kind": "Contemporary art gallery",
+      "themes": [
+        "collectors"
+      ],
+      "evidence": "Mumbai gallery founded in 1999, presenting original contemporary and traditional Indian paintings by emerging and established artists. Corporate services are not stated on its site.",
+      "reasons": [
+        "Shows traditional as well as contemporary Indian paintings",
+        "Long-established Mumbai collector audience"
+      ],
+      "sourceUrl": "https://imageartgalleries.com/",
+      "contactUrl": "https://imageartgalleries.com/contact-us/",
+      "contactType": "official contact page",
+      "checkedAt": "2026-10-19T08:00:00Z",
+      "status": "research-prospect",
+      "partnerConfirmed": false,
+      "budget": null,
+      "availability": "unconfirmed"
+    },
+    {
+      "id": "art-hub",
+      "name": "The Art Hub Gallery",
+      "city": "Gurugram",
+      "state": "Haryana",
+      "kind": "Gallery, art advisory & commissions",
+      "themes": [
+        "interior",
+        "corporate",
+        "hospitality"
+      ],
+      "evidence": "DLF Phase-1 gallery (with a second space in South Extension, New Delhi) offering art advisory and custom commissions for homes, hotels and commercial spaces.",
+      "reasons": [
+        "Takes custom commissions for residences, hotels and offices",
+        "Runs art advisory for clients unsure what suits a room"
+      ],
+      "sourceUrl": "https://thearthubgallery.com/best-art-gallery-in-gurgaon/",
+      "contactUrl": "https://thearthubgallery.com/contact/",
+      "contactType": "official contact page",
+      "checkedAt": "2026-10-19T08:00:00Z",
+      "status": "research-prospect",
+      "partnerConfirmed": false,
+      "budget": null,
+      "availability": "unconfirmed"
+    },
+    {
+      "id": "knowledge-center",
+      "name": "Knowledge Center, M3M Broadway",
+      "city": "Gurugram",
+      "state": "Haryana",
+      "kind": "Design hub for architects & interior designers",
+      "themes": [
+        "interior",
+        "design"
+      ],
+      "evidence": "A 100,000 sq ft permanent exhibition hub on Golf Course Extension Road for architects and designers, which has hosted art-and-design events in 2026. It is a design destination, not a gallery.",
+      "reasons": [
+        "Architects and interior designers here specify art for high-end homes and offices",
+        "Hosts art-led events that could suit an introduction"
+      ],
+      "sourceUrl": "https://www.mgsarchitecture.in/updates/news/knowledge-center-a-one-stop-destination-for-architects-designers-and-design-studios.html",
+      "contactUrl": "https://www.instagram.com/knowledgecenter.ho/",
+      "contactType": "public Instagram page",
+      "checkedAt": "2026-10-19T08:00:00Z",
+      "status": "research-prospect",
+      "partnerConfirmed": false,
+      "budget": null,
+      "availability": "unconfirmed"
+    },
+    {
+      "id": "gallery-g",
+      "name": "Gallery G",
+      "city": "Bengaluru",
+      "state": "Karnataka",
+      "kind": "Art resource & consultancy",
+      "themes": [
+        "collectors",
+        "interior",
+        "corporate"
+      ],
+      "evidence": "Bengaluru art resource offering consultancy to collectors, investors, architects and interior designers, including curating for public spaces.",
+      "reasons": [
+        "Advises architects and interior designers who place art",
+        "Curates art for public spaces"
+      ],
+      "sourceUrl": "https://galleryg.com/",
+      "contactUrl": "https://galleryg.com/",
+      "contactType": "official website",
+      "checkedAt": "2026-10-19T08:00:00Z",
+      "status": "research-prospect",
+      "partnerConfirmed": false,
+      "budget": null,
+      "availability": "unconfirmed"
+    },
+    {
+      "id": "artisera",
+      "name": "Artisera",
+      "city": "Bengaluru",
+      "state": "Karnataka",
+      "kind": "Online-first gallery with a Bengaluru space",
+      "themes": [
+        "traditional",
+        "collectors"
+      ],
+      "evidence": "Online-first gallery with a physical space in Bengaluru, selling contemporary Indian art and traditional Indian art to collectors.",
+      "reasons": [
+        "Sells traditional Indian art alongside contemporary work",
+        "Serves an online collector base"
+      ],
+      "sourceUrl": "https://www.artisera.com/",
+      "contactUrl": "https://www.artisera.com/",
+      "contactType": "official website",
+      "checkedAt": "2026-10-19T08:00:00Z",
+      "status": "research-prospect",
+      "partnerConfirmed": false,
+      "budget": null,
+      "availability": "unconfirmed"
+    },
+    {
+      "id": "shades",
+      "name": "Shades Creative Gallery",
+      "city": "Bengaluru",
+      "state": "Karnataka",
+      "kind": "Neighbourhood gallery & art consultants",
+      "themes": [
+        "local",
+        "collectors"
+      ],
+      "evidence": "Koramangala gallery that describes itself as an art gallery and art consultants, with local-artist support noted in visitor reviews. Services are not detailed on its site.",
+      "reasons": [
+        "Koramangala gallery that backs local artists",
+        "Publishes a WhatsApp enquiry line"
+      ],
+      "sourceUrl": "https://shadescreativegallery.com/",
+      "contactUrl": "https://shadescreativegallery.com/",
+      "contactType": "official website",
+      "checkedAt": "2026-10-19T08:00:00Z",
+      "status": "research-prospect",
+      "partnerConfirmed": false,
+      "budget": null,
+      "availability": "unconfirmed"
+    },
+    {
+      "id": "hyd-art",
+      "name": "Hyd.Art",
+      "city": "Hyderabad",
+      "state": "Telangana",
+      "kind": "Gallery with corporate sales & commissions",
+      "themes": [
+        "corporate",
+        "hospitality",
+        "interior"
+      ],
+      "evidence": "Madhapur gallery that lists institutional and corporate sales, art acquisitions and custom commissions for homes, offices and hotels, and invites portfolios for curator review.",
+      "reasons": [
+        "Invites artist portfolios for curator review",
+        "Offers corporate sales and commissions for offices and hotels"
+      ],
+      "sourceUrl": "https://www.hyd.art/",
+      "contactUrl": "https://www.hyd.art/enquiry-form",
+      "contactType": "official enquiry form",
+      "checkedAt": "2026-10-19T08:00:00Z",
+      "status": "research-prospect",
+      "partnerConfirmed": false,
+      "budget": null,
+      "availability": "unconfirmed"
+    },
+    {
+      "id": "kadari",
+      "name": "Kadari Art Gallery",
+      "city": "Hyderabad",
+      "state": "Telangana",
+      "kind": "Design-led gallery",
+      "themes": [
+        "interior",
+        "collectors"
+      ],
+      "evidence": "Jubilee Hills gallery relaunched in 2019 by an interior designer to connect art with design, and part of Hyderabad Art Week 2026.",
+      "reasons": [
+        "Design-led, so a natural route to interior clients",
+        "Active in the Hyderabad art-week circuit"
+      ],
+      "sourceUrl": "https://kadariartgallery.com/",
+      "contactUrl": "https://kadariartgallery.com/",
+      "contactType": "official website",
+      "checkedAt": "2026-10-19T08:00:00Z",
+      "status": "research-prospect",
+      "partnerConfirmed": false,
+      "budget": null,
+      "availability": "unconfirmed"
+    }
+  ],
+  "buyersNote": "Organisations that serve corporate and private collectors. RoamWise does not list or contact private individuals; introductions go through galleries, advisors and design studios. Inclusion is not a partnership, an order or confirmed interest."
 }
