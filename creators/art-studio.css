@@ -11,3 +11,5 @@
 @keyframes as-glow{0%,100%{text-shadow:0 0 8px #e8ba6c88}50%{text-shadow:0 0 22px #e8ba6c}}
 .sa-ph{animation:as-glow 3.2s ease-in-out infinite}
 @media(prefers-reduced-motion:reduce){.as-rv{opacity:1;transform:none;transition:none}.sa-ph{animation:none}.as-art,.as-room{transition:none}}
+.as-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}.as-live::after,.as-live .as-sofa{display:none}.as-art{touch-action:none;cursor:grab;z-index:1}
+.fd-form{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin:12px 0}.fd-form label{font-size:13px}.fd-form select{width:100%;margin-top:6px}
