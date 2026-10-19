@@ -6,7 +6,7 @@ const httpsOnly = (u) => { try { const x = new URL(u); return x.protocol === 'ht
 export function validateArtist(a, existingIds = []) {
   const errs = [];
   const str = (k, max, req) => { const v = a[k]; if (v == null || v === '') { if (req) errs.push(k + ' is required'); return; } if (typeof v !== 'string' || v.length > max) errs.push(k + ' must be text up to ' + max + ' characters'); };
-  str('name', 80, true); str('studio', 80, true); str('state', 60, true); str('bio', 600, false);
+  str('shipping', 200, false); str('returns', 200, false); str('name', 80, true); str('studio', 80, true); str('state', 60, true); str('bio', 600, false);
   const id = a.id || slugify(a.name); if (!id) errs.push('id could not be made'); if (existingIds.includes(id)) errs.push('id already exists: ' + id);
   if (a.instagram && !httpsOnly(a.instagram)) errs.push('instagram must be an https link');
   if (a.website && !httpsOnly(a.website)) errs.push('website must be an https link');
@@ -23,7 +23,7 @@ export function validateArtist(a, existingIds = []) {
 export function toRecord(a, plan = 'free') {
   const id = a.id || slugify(a.name);
   return { id, name: a.name, studio: a.studio, role: plan === 'studio' ? 'RoamWise Studio Artist' : 'RoamWise Artist', state: a.state, website: a.website || null, instagram: a.instagram || null,
-    themes: a.themes, bio: a.bio || null, plan, page: '/creators/artist.html?a=' + id, photo: null, whatsapp: a.whatsapp || null, social: {}, artworks: (a.artworks || []).map((w, i) => ({
+    themes: a.themes, bio: a.bio || null, shipping: a.shipping || null, returns: a.returns || null, plan, page: '/creators/artist.html?a=' + id, photo: null, whatsapp: a.whatsapp || null, social: {}, artworks: (a.artworks || []).map((w, i) => ({
       id: w.id || slugify(w.title) || 'work-' + (i + 1), title: w.title, status: w.status || 'Available', type: w.type || 'Original', price: w.price || 'Price on request', image: w.image || null, url: w.url || null, medium: w.medium || null, size: w.size || null })),
     consentGivenAt: new Date().toISOString().slice(0, 10) };
 }
