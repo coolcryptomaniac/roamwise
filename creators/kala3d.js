@@ -24,16 +24,32 @@ const API = {};
 
 function silent(sec) { const ctx = head.audioCtx, sr = ctx.sampleRate; return ctx.createBuffer(1, Math.max(1, Math.floor(sr * sec)), sr); }
 
+// A small gold-edged canvas that Kala holds in her right hand (parented to the hand bone after the pose settles).
 function buildEasel() {
   const g = new THREE.Group();
-  const frame = new THREE.Mesh(new THREE.BoxGeometry(0.62, 0.78, 0.03), new THREE.MeshStandardMaterial({ color: 0x1b1710, roughness: .6 }));
+  const frame = new THREE.Mesh(new THREE.BoxGeometry(0.62, 0.78, 0.04), new THREE.MeshStandardMaterial({ color: 0x8a6a2a, roughness: .35, metalness: .6 }));
   const mat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: .85, emissive: 0x111111 });
-  const pic = new THREE.Mesh(new THREE.PlaneGeometry(0.54, 0.7), mat); pic.position.z = 0.0165; pic.name = 'kalaPic';
-  const leg1 = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.012, 1.2, 8), new THREE.MeshStandardMaterial({ color: 0x4a3426 })), leg2 = leg1.clone();
-  leg1.position.set(-0.22, -0.78, -0.04); leg1.rotation.z = 0.06; leg2.position.set(0.22, -0.78, -0.04); leg2.rotation.z = -0.06;
-  g.add(frame, pic, leg1, leg2);
-  g.scale.setScalar(.85); g.position.set(-0.44, 1.15, 0.05); g.rotation.y = 0.35;
+  const pic = new THREE.Mesh(new THREE.PlaneGeometry(0.54, 0.7), mat); pic.position.z = 0.0215; pic.name = 'kalaPic';
+  g.add(frame, pic); g.scale.setScalar(.5);
   return g;
+}
+// Right arm raised, forearm up: the hand sits at chest height beside her. Applied to every idle pose so the canvas never swings away.
+const HOLD_ARM = { 'RightArm.rotation': { x: 1.273, y: -0.352, z: -0.6 }, 'RightForeArm.rotation': { x: -0.011, y: -0.031, z: -1.6 } };
+function holdPoses() {
+  // Every standing pose gets the same arms/hands as 'side' (plus the raised right arm), so the canvas stays steady whichever idle pose is chosen.
+  const side = head.poseTemplates.side.props, armKeys = Object.keys(side).filter(k => /^(Left|Right)(Shoulder|Arm|ForeArm|Hand)/.test(k));
+  for (const t of Object.values(head.poseTemplates)) {
+    if (!t || !t.props || !t.standing || t === head.poseTemplates.side) continue;
+    for (const k of armKeys) t.props[k] = JSON.parse(JSON.stringify(side[k]));
+  }
+  for (const t of Object.values(head.poseTemplates)) if (t && t.props && t.standing) Object.assign(t.props, JSON.parse(JSON.stringify(HOLD_ARM)));
+  try { head.setPoseFromTemplate(head.poseTemplates.side, 400); } catch (e) {}
+}
+function attachToHand() {
+  const hand = head.armature.getObjectByName('RightHand'); if (!hand || !easel) return;
+  const w = new THREE.Vector3(); hand.getWorldPosition(w);
+  easel.position.set(w.x - 0.2, w.y + 0.17, w.z + 0.03); easel.rotation.set(0, 0.25, 0.06);
+  scene.add(easel); easel.updateMatrixWorld(true); hand.attach(easel);
 }
 function placeholder() { const c = document.createElement('canvas'); c.width = c.height = 256; const x = c.getContext('2d'); const gr = x.createLinearGradient(0, 0, 256, 256); gr.addColorStop(0, '#3a2358'); gr.addColorStop(1, '#0b1020'); x.fillStyle = gr; x.fillRect(0, 0, 256, 256); x.fillStyle = '#e8ba6c'; x.font = '150px serif'; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText('ॐ', 128, 140); const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t; }
 
@@ -45,15 +61,10 @@ API.start = async function (node, onprogress) {
   });
   await head.showAvatar({
     url: AVATAR, body: 'F', avatarMood: 'happy', lipsyncLang: 'en',
-    baseline: { headRotateX: -0.01, eyeBlinkLeft: 0.05, eyeBlinkRight: 0.05 },
-    modelDynamicBones: [
-      { bone: 'Ponytail1', type: 'mix2', stiffness: 100, damping: 4, limits: [null, null, [null, 0.02], null], pivot: true },
-      { bone: 'Ponytail2', type: 'mix2', stiffness: 150, damping: 4, limits: [null, null, [null, 0.01], null] },
-      { bone: 'Ponytail3', type: 'mix2', stiffness: 200, damping: 4, limits: [null, null, [null, 0.01], null] }
-    ]
+    baseline: { headRotateX: -0.01, eyeBlinkLeft: 0.05, eyeBlinkRight: 0.05 }
   }, onprogress);
-  scene = head.scene; easel = buildEasel(); scene.add(easel);
-  head.armature.traverse(o => { if (o.isMesh && /casualsuit/i.test(o.name)) suit = o; });
+  scene = head.scene; easel = buildEasel(); head.speakWithHands = function () {}; head.mirrorPose = function (p) { return p; }; try { Object.defineProperty(head, 'poseWeightOnLeft', { get: () => true, set: () => {} }); } catch (e) {} /* poses mirror left/right on every change; keep the holding arm on the right */ setTimeout(holdPoses, 1200); let tries = 0; const wait = setInterval(() => { const v = new THREE.Vector3(); try { head.armature.getObjectByName('RightHand').getWorldPosition(v); } catch (e) {} if (v.y > 1.2 || ++tries > 50) { clearInterval(wait); attachToHand(); } }, 300);
+  head.armature.traverse(o => { if (o.isMesh && /casualsuit|^outfit$/i.test(o.name)) suit = o; });
   head.setView('mid', { cameraX: 0.12, cameraY: 0.02, cameraDistance: 0.45 });
   const vis = new IntersectionObserver(es => { if (!head) return; es[0].isIntersecting ? head.start() : head.stop(); }); vis.observe(node);
   node.addEventListener('pointermove', (e) => { if (ready && !API._t) { API._t = setTimeout(() => { API._t = 0; }, 120); try { head.lookAt(e.clientX, e.clientY, 600); } catch (x) {} } });
@@ -86,8 +97,7 @@ API.setPainting = function (imgUrl, hex, greet) {
   if (hex) API.dress(hex);
   clearTimeout(API._g);
   API._g = setTimeout(() => { // let the pose system settle first; firing a gesture and an emoji in the same frame at load corrupts the hips
-    try { head.playGesture(greet ? 'namaste' : 'side', greet ? 2.5 : 3, !greet); } catch (e) {}
-    if (greet) setTimeout(() => { try { head.speakEmoji('🙏'); } catch (e) {} }, 400);
+        if (greet) setTimeout(() => { try { head.speakEmoji('🙏'); } catch (e) {} }, 400);
   }, greet ? 1500 : 250);
 };
 function speakTimed(words, totalMs) {
@@ -100,7 +110,6 @@ API.sentence = function (text, rate) {
   if (!ready) return; boundary = false; try { head.stopSpeaking(); } catch (e) {}
   const w = clean(text).split(' '), ms = Math.max(500, clean(text).length / (13.5 * (rate || .94)) * 1000);
   speakTimed(w, ms);
-  if (Math.random() < .55) { try { head.playGesture(['handup', 'index', 'side'][Math.floor(Math.random() * 3)], 2, Math.random() < .5); } catch (e) {} }
 };
 // If the browser reports real word boundaries, re-sync lips word by word.
 API.word = function (raw) {
