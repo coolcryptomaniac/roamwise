@@ -22,7 +22,7 @@
     var a = d.artists.filter(function (x) { return x.id === id; })[0];
     if (!a) { root.innerHTML = '<section class="art-section"><h1>Artist not found</h1><p>We could not find that artist. <a href="/creators/gallery.html">See all artists</a>.</p></section>'; return; }
     if (a.page && a.page.indexOf('artist.html') < 0) { location.replace(a.page); return; }
-    var plan = a.plan || 'free', free = plan === 'free', cap = free ? ((d.plans && d.plans.free && d.plans.free.maxPaintings) || 6) : 999;
+    var plan = a.plan || 'free', free = plan === 'free', cap = free ? ((d.plans && d.plans.free && d.plans.free.maxPaintings) || 6) : 24;
     document.title = a.name + ' · ' + a.studio + ' | RoamWise'; var m = document.querySelector('meta[name=description]'); if (m) m.setAttribute('content', a.name + ' (' + a.studio + ', ' + a.state + '): paintings, prices and how to enquire directly.');
     var works = (a.artworks || []).filter(function (w) { return w.status !== 'Sold'; }), shown = works.slice(0, cap);
     var tiers = !free && a.tiers && a.tiers.length ? '<section class="art-section"><span class="art-eyebrow">CUSTOM &amp; PRICE RANGES</span><h2>Commission or choose a size.</h2><div class="sa-grid">' + a.tiers.map(function (t) { return '<article class="sa-card"><div class="sa-ph" aria-hidden="true">&#127912;</div><div><h3>' + esc(t.title) + '</h3>' + (t.detail ? '<p>' + esc(t.detail) + '</p>' : '') + '<p class="sa-price">' + esc(t.price || '') + '</p><a class="sa-btn" href="' + esc(enquire(a, t)) + '" target="_blank" rel="noopener">Ask about this</a></div></article>'; }).join('') + '</div></section>' : '';

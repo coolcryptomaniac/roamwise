@@ -20,7 +20,7 @@ export function validateArtist(a, existingIds = []) {
   });
   return errs;
 }
-export function toRecord(a, plan = 'free') {
+export function toRecord(a, plan = 'studio') {
   const id = a.id || slugify(a.name);
   return { id, name: a.name, studio: a.studio, role: plan === 'studio' ? 'RoamWise Studio Artist' : 'RoamWise Artist', state: a.state, website: a.website || null, instagram: a.instagram || null,
     themes: a.themes, bio: a.bio || null, shipping: a.shipping || null, returns: a.returns || null, plan, page: '/creators/artist.html?a=' + id, photo: null, whatsapp: a.whatsapp || null, social: {}, artworks: (a.artworks || []).map((w, i) => ({
