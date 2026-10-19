@@ -11,11 +11,12 @@ const repo = path.resolve(__dirname, '../../..');
 const manifest = require('../feature.json');
 const read = file => fs.readFileSync(path.join(feature, file), 'utf8');
 const html = fs.readFileSync(path.join(repo, manifest.publicPage), 'utf8');
-const scripts = [...html.matchAll(/<script\b[^>]*src="([^"]+)"[^>]*>/g)];
+// creators/sacred-art.* is a separate shared widget, not part of this feature.
+const scripts = [...html.matchAll(/<script\b[^>]*src="([^"]+)"[^>]*>/g)].filter(m => !m[1].includes('creators/'));
 const prefix = '../features/kainchi-yatra/';
 assert.deepEqual(scripts.map(m => m[1]), manifest.browserScripts.map(f => prefix + f), 'Browser script order drift');
 assert.ok(scripts.every(m => /\bdefer\b/.test(m[0])), 'Feature scripts must defer in order');
-const styles = [...html.matchAll(/<link\b[^>]*rel="stylesheet"[^>]*href="([^"]+)"/g)].map(m => m[1]);
+const styles = [...html.matchAll(/<link\b[^>]*rel="stylesheet"[^>]*href="([^"]+)"/g)].map(m => m[1]).filter(h => !h.includes('creators/'));
 assert.deepEqual(styles, manifest.stylesheets.map(f => prefix + f));
 assert.match(html, /connect-src 'self'/);
 for (const m of html.matchAll(/(?:src|href)="([^"]+)"/g)) {

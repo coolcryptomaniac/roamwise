@@ -1,0 +1,31 @@
+RoamWise — Proprietary Licence
+Copyright (c) 2026 Mohit Pandey / RoamWise (roamwise.co.in). All rights reserved.
+
+1. Ownership. The RoamWise source code, Worker code, prompts and persona rules
+   (including "Kala"), data files (including creator, buyer and pricing data),
+   designs, copy, illustrations and branding are the property of their owner
+   and are published only so the site and apps can run in your browser.
+   Viewing the site does not grant a licence to copy it.
+
+2. Permitted. You may use the live site and apps under the Terms at
+   https://www.roamwise.co.in/terms.html, view source for personal learning,
+   and quote short excerpts with attribution and a link.
+
+3. Not permitted without written permission: copying, redistributing,
+   re-hosting or re-selling the code, data, prompts, designs or brand;
+   building a competing or look-alike service from them; bulk scraping or
+   extracting data; removing copyright notices; using the RoamWise name,
+   logo or Kala character in a way that suggests affiliation.
+
+4. Third-party material keeps its own licence and is NOT covered by this
+   licence. See vendor/*/ (three.js and TalkingHead: MIT; the Kala avatar
+   base mesh: CC0; Firebase, QR and other libraries under their own terms),
+   vendor/kala3d/NOTICE.md, and the licence file shipped with each library.
+
+5. Artwork and artist content (images, titles, descriptions, prices) belongs
+   to the respective artists and is shown with their permission. It may not
+   be reused without the artist's consent.
+
+6. No warranty. Provided "as is". Enforcement and governing law: India.
+
+Contact for licensing or takedown: support@roamwise.co.in
