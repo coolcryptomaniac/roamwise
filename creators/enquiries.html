@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <title>Artist enquiry log | RoamWise</title><meta name="robots" content="noindex">
+  <meta name="theme-color" content="#0b1020"><link rel="icon" href="/icons/favicon-32.png?v=20261018">
+  <link rel="stylesheet" href="artists.css"><link rel="stylesheet" href="sacred-art.css"><link rel="stylesheet" href="art-studio.css">
+</head>
+<body>
+  <nav class="art-nav"><a href="/" class="art-brand"><img src="/icons/icon-192.png" width="32" height="32" alt="">RoamWise</a><div><a href="sacred-art.html">Sacred art</a></div></nav>
+  <main class="art-main"><section class="art-section"><span class="art-eyebrow">FOR ARTISTS</span><h1>Enquiry log</h1>
+    <p>Keep track of people who ask to buy or commission your work. Entries are saved only in this browser on this device. Nothing is sent to RoamWise. Export a CSV to keep a copy, since clearing your browser data removes the log.</p>
+    <form id="eqForm" class="fd-form"><label>Name or handle<input name="who" required maxlength="80"></label><label>Painting or request<input name="what" required maxlength="120"></label><label>Budget (₹)<input name="budget" inputmode="numeric" maxlength="9"></label><label>Status<select name="status"><option>New</option><option>Replied</option><option>Quoted</option><option>Won</option><option>Lost</option></select></label><label>Note<input name="note" maxlength="200"></label><div><button class="art-button" type="submit">Add enquiry</button></div></form>
+    <p class="art-small" id="eqSum" role="status"></p><div style="overflow-x:auto"><table class="as-tbl"><thead><tr><th>Date</th><th>Who</th><th>Request</th><th>Budget</th><th>Status</th><th>Note</th><th></th></tr></thead><tbody id="eqRows"></tbody></table></div>
+    <p><button class="sa-btn sa-alt" id="eqCsv" type="button">Download CSV</button></p>
+    <p class="art-small">Only log people who have contacted you about your work, and reply only to them.</p>
+  </section></main>
+  <script src="enquiries.js" defer></script>
+</body></html>
