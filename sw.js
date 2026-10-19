@@ -23,7 +23,7 @@
  *    and promo.mp4. Live data must stay live, and the video is tens of MB.
  * ------------------------------------------------------------------------- */
 
-var VERSION = 'rw-v136-home-polish';
+var VERSION = 'rw-v137-celebrate';
 var HTML_CACHE = VERSION + '-html';
 var ASSET_CACHE = VERSION + '-assets';
 
@@ -38,6 +38,7 @@ var PRECACHE = [
   '/mobile-stability.css',
   '/design/roamwise-akatsuki-theme.css',
   '/design/home-polish.css',
+  '/design/celebrate.js',
   '/app.js',
   '/rw-config.js',
   '/js/runtime/freshness.js',
