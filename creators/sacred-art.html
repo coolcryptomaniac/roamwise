@@ -17,23 +17,65 @@
     <nav class="ac-nav" aria-label="On this page"><a href="#reel">Gallery</a><a href="#shelf">For sale</a><a href="#guide">Kala</a><a href="#preview">Your wall</a><a href="#finder">Finder</a><a href="#compare">Compare</a><a href="#collectors">Collectors</a></nav>
     <section class="art-section" id="reel"><span class="art-eyebrow">THE GALLERY</span><h2>Tap a painting to meet Kala.</h2><div class="ac-reel" id="acReel"><p class="sa-note">Loading the gallery…</p></div></section>
     <section class="art-section" id="shelf"><div class="sa-grid" data-sacred-art><p class="sa-note">Loading paintings…</p></div><noscript><p><a href="artists.html#paintings">Natasha Guleria’s paintings</a> · <a href="jagriti.html#paintings">Jagriti Mishra’s paintings</a></p></noscript><p class="art-small">Natasha’s prices are as listed by her studio. Jagriti’s are indicative ranges to be confirmed by her.</p></section>
-    <section class="art-section as-rv" id="guide"><span class="art-eyebrow">MEET KALA · ART GUIDE</span><h2>Let Kala show you a painting.</h2><p>Kala is an illustrated RoamWise guide, not a likeness of either artist. Pick a painting and Kala presents it, says the listed price, and connects you to the artist.</p>
-      <div class="ag"><div class="ag-stage" id="agStage"><svg id="agFig" class="ag-fig" viewBox="0 0 320 360" role="img" aria-label="Kala, an illustrated RoamWise art guide, holding a framed painting">
-  <ellipse cx="160" cy="345" rx="90" ry="9" fill="#0006"/>
-  <path class="ag-robe" d="M95 345 C95 250 110 205 160 195 C210 205 225 250 225 345 Z"/>
-  <path d="M130 197 L160 232 L190 197 Z" fill="#c9962f"/>
-  <rect x="146" y="165" width="28" height="32" rx="10" class="ag-skin"/>
-  <ellipse cx="160" cy="118" rx="44" ry="52" class="ag-skin"/>
-  <path class="ag-hair" d="M114 112 C112 62 140 52 160 52 C186 52 208 66 206 112 C198 90 186 82 160 82 C136 82 122 92 114 112 Z"/>
-  <circle cx="145" cy="116" r="4" fill="#1c1320"/><circle cx="175" cy="116" r="4" fill="#1c1320"/>
-  <circle cx="160" cy="100" r="3.2" fill="#c0392b"/>
-  <ellipse class="ag-mouth" cx="160" cy="142" rx="10" ry="6" fill="#7a2c2c"/>
-  <g class="ag-arm"><rect x="52" y="205" width="216" height="140" rx="6" class="ag-frame"/>
-    <rect x="60" y="213" width="200" height="124" fill="#2a1a3a"/>
-    <text id="agOm" x="160" y="292" text-anchor="middle" font-size="56" fill="#e8ba6c">ॐ</text>
-    <image id="agPic" x="60" y="213" width="200" height="124" preserveAspectRatio="xMidYMid slice" style="display:none"/>
-    <ellipse cx="70" cy="318" rx="14" ry="11" class="ag-skin"/><ellipse cx="250" cy="318" rx="14" ry="11" class="ag-skin"/></g>
-</svg></div><div class="ag-say"><div class="ag-ctl"><label>Painting<select id="agPick"></select></label></div><p id="agText" aria-live="polite">Loading…</p><p class="art-small" id="agNote"></p><button type="button" class="sa-btn sa-alt" id="agSpeak">Hear Kala explain</button> <a class="sa-btn" id="agConnect" href="#" target="_blank" rel="noopener">Connect</a></div></div></section>
+    <section class="art-section as-rv" id="guide"><span class="art-eyebrow">MEET KALA · YOUR ART GUIDE</span><h2>Ask Kala anything about a painting.</h2><p>Kala is an illustrated virtual guide made by RoamWise, not a real person and not a likeness of either artist. She changes her outfit to match each painting, answers from the artists' listings, and can help you buy, share or research.</p>
+      <div class="ag"><div class="ag-stage" id="agStage"><svg id="agFig" class="ag-fig" data-style="0" viewBox="0 0 360 440" role="img" aria-label="Kala, an illustrated virtual RoamWise art guide, holding a framed painting and wearing an outfit matched to it">
+<defs>
+ <radialGradient id="kSkin" cx="45%" cy="35%" r="70%"><stop offset="0" stop-color="#f0c3a0"/><stop offset=".7" stop-color="#d79a74"/><stop offset="1" stop-color="#b9764f"/></radialGradient>
+ <linearGradient id="kHair" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4a3040"/><stop offset=".35" stop-color="#1c1018"/><stop offset="1" stop-color="#0d070c"/></linearGradient>
+ <linearGradient id="kLip" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#c2455a"/><stop offset="1" stop-color="#8f2a3d"/></linearGradient>
+ <linearGradient id="kFloor" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff00"/><stop offset="1" stop-color="#e8ba6c33"/></linearGradient>
+ <clipPath id="kFrameClip"><rect x="204" y="226" width="134" height="164"/></clipPath>
+</defs>
+<ellipse cx="190" cy="432" rx="150" ry="10" fill="url(#kFloor)"/>
+<path d="M82 112 C70 190 78 230 92 250 L150 250 C166 226 170 180 158 112 Z" fill="url(#kHair)"/>
+<rect x="108" y="136" width="24" height="34" rx="11" fill="url(#kSkin)"/>
+<g class="k-arm"><path d="M74 192 C62 232 58 270 66 316" fill="none" stroke="url(#kSkin)" stroke-width="19" stroke-linecap="round"/></g>
+<path d="M166 192 C184 226 186 268 206 300" fill="none" stroke="url(#kSkin)" stroke-width="19" stroke-linecap="round"/>
+<!-- outfit 0: saree -->
+<g class="k-o k-o0"><path class="k-f1" d="M70 212 C74 176 94 166 120 166 C146 166 166 176 170 212 C168 262 160 282 164 304 L196 432 L44 432 L76 304 C80 282 72 262 70 212Z"/>
+ <path class="k-f2" d="M72 206 C74 178 94 166 120 166 C146 166 166 178 168 206 C150 214 90 214 72 206Z"/>
+ <path class="k-f3" d="M96 168 C100 200 130 214 172 222 L174 238 C126 232 90 214 84 178Z" opacity=".9"/>
+ <path class="k-f2" d="M82 176 C84 230 100 290 98 432 L128 432 C124 300 112 240 108 172Z" opacity=".55"/>
+ <path d="M130 300 L120 432 M146 300 L152 432 M110 300 L92 432" stroke="#00000030" stroke-width="2" fill="none"/>
+ <path d="M74 192 C70 204 68 214 68 224" class="k-s2" stroke-width="22" stroke-linecap="round" fill="none"/><path d="M166 192 C172 204 174 212 176 222" class="k-s2" stroke-width="22" stroke-linecap="round" fill="none"/></g>
+<!-- outfit 1: anarkali -->
+<g class="k-o k-o1"><path class="k-f1" d="M70 212 C74 176 94 166 120 166 C146 166 166 176 170 212 C168 240 160 262 164 282 C200 340 220 400 226 432 L14 432 C20 400 40 340 76 282 C80 262 72 240 70 212Z"/>
+ <path class="k-f2" d="M76 206 C80 180 96 168 120 168 L120 196 Z M164 206 C160 180 144 168 120 168 L120 196Z"/>
+ <path class="k-f3" d="M70 270 C100 284 140 284 170 270 L172 282 C140 298 100 298 68 282Z" opacity=".9"/>
+ <path class="k-f2" d="M60 350 C110 370 140 370 190 350 L196 366 C140 392 100 392 54 366Z" opacity=".6"/>
+ <path d="M74 192 C62 230 60 262 66 296" class="k-s1" stroke-width="22" stroke-linecap="round" fill="none"/><path d="M166 192 C184 224 186 258 200 284" class="k-s1" stroke-width="22" stroke-linecap="round" fill="none"/>
+ <path class="k-f3" d="M84 170 C110 230 140 250 176 304 L184 296 C150 240 126 200 104 166Z" opacity=".55"/></g>
+<!-- outfit 2: modern gown -->
+<g class="k-o k-o2"><path class="k-f1" d="M84 178 C92 172 104 168 120 168 C136 168 148 172 156 178 C162 196 158 214 154 234 C156 270 168 300 176 340 L210 432 L30 432 L64 340 C72 300 84 270 86 234 C82 214 78 196 84 178Z"/>
+ <path class="k-f2" d="M118 330 L58 432 L130 432 Z" opacity=".75"/>
+ <path class="k-f3" d="M96 232 C112 240 130 240 146 232 L146 240 C130 250 112 250 96 240Z"/>
+ <path d="M96 170 L100 150 M144 170 L140 150" class="k-s3" stroke-width="3" fill="none"/></g>
+<!-- painting held at her side -->
+<g transform="rotate(-3 270 308)"><rect x="196" y="218" width="150" height="180" rx="5" fill="#1b1710"/><rect x="204" y="226" width="134" height="164" fill="#2a1a3a"/>
+ <text id="agOm" x="271" y="326" text-anchor="middle" font-size="64" fill="#e8ba6c">&#2384;</text>
+ <image id="agPic" x="204" y="226" width="134" height="164" preserveAspectRatio="xMidYMid slice" style="display:none"/>
+ <rect x="204" y="226" width="134" height="164" fill="none" stroke="#ffffff22"/></g>
+<ellipse cx="206" cy="302" rx="9" ry="12" fill="url(#kSkin)"/><ellipse cx="206" cy="288" rx="6" ry="9" fill="url(#kSkin)" transform="rotate(-10 206 288)"/>
+<ellipse cx="66" cy="322" rx="9" ry="12" fill="url(#kSkin)"/>
+<!-- head -->
+<ellipse cx="120" cy="100" rx="35" ry="43" fill="url(#kSkin)"/>
+<ellipse cx="102" cy="116" rx="9" ry="5" fill="#e0707a" opacity=".22"/><ellipse cx="138" cy="116" rx="9" ry="5" fill="#e0707a" opacity=".22"/>
+<path d="M84 96 C80 52 108 40 122 40 C146 40 162 58 156 98 C152 76 142 66 122 64 C104 64 90 74 84 96Z" fill="url(#kHair)"/>
+<path d="M96 56 C110 46 134 46 148 58" stroke="#7a5468" stroke-width="2" fill="none" opacity=".6"/>
+<g><path d="M100 90 C106 86 114 86 118 90" stroke="#1c1018" stroke-width="2.6" fill="none" stroke-linecap="round"/><path d="M124 90 C130 86 138 86 142 90" stroke="#1c1018" stroke-width="2.6" fill="none" stroke-linecap="round"/></g>
+<g class="k-blink"><path d="M101 99 C106 94 114 94 118 99 C113 104 106 104 101 99Z" fill="#fff"/><path d="M124 99 C128 94 136 94 141 99 C136 104 129 104 124 99Z" fill="#fff"/>
+ <circle cx="110" cy="99" r="3.6" fill="#3a2418"/><circle cx="132" cy="99" r="3.6" fill="#3a2418"/><circle cx="111" cy="98" r="1.1" fill="#fff"/><circle cx="133" cy="98" r="1.1" fill="#fff"/>
+ <path d="M100 98 C106 92 114 92 119 98M123 98 C128 92 137 92 142 98" stroke="#1c1018" stroke-width="1.6" fill="none"/></g>
+<path d="M120 102 C118 112 117 116 121 118" stroke="#b9764f" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+<circle cx="120" cy="78" r="2.8" fill="#c0392b"/>
+<g class="k-mouth"><path d="M108 126 C114 122 118 123 120 125 C122 123 126 122 132 126 C128 134 112 134 108 126Z" fill="url(#kLip)"/></g>
+<circle cx="85" cy="112" r="3.4" fill="#e8ba6c"/><circle cx="155" cy="112" r="3.4" fill="#e8ba6c"/>
+<path d="M104 166 C112 184 128 184 136 166" stroke="#e8ba6c" stroke-width="2" fill="none"/><circle cx="120" cy="182" r="3" fill="#e8ba6c"/>
+</svg></div><div class="ag-say"><span class="ag-badge">VIRTUAL GUIDE · RULE-BASED, NOT A PERSON</span><div class="ag-ctl"><label>Painting<select id="agPick"></select></label></div><p id="agText" aria-live="polite">Loading…</p><p class="art-small" id="agNote"></p><button type="button" class="sa-btn sa-alt" id="agSpeak">Hear Kala explain</button> <a class="sa-btn" id="agConnect" href="#" target="_blank" rel="noopener">Connect</a>
+        <div class="ak-chips" id="akChips" role="group" aria-label="Ask Kala"><button type="button" data-q="What is the price?">Price</button><button type="button" data-q="Help me buy this">Buy</button><button type="button" data-q="Tell me about the artist and sources">Research</button><button type="button" data-q="Write a caption to share this">Share it</button><button type="button" data-q="What should I ask before I buy?">Before buying</button><button type="button" data-q="Suggest something for my pooja room under 20000">Pooja room</button></div>
+        <div class="ak-log" id="akLog" aria-live="polite"></div>
+        <form class="ak-form" id="akForm"><input id="akIn" maxlength="200" placeholder="Ask about price, budget, the artist, sharing…" aria-label="Ask Kala"><button class="sa-btn" type="submit">Ask</button></form>
+        <p class="art-small">Kala answers from the listings on this site using built-in rules. She is not a language model, she does not invent facts, and she tells you when she does not know.</p></div></div></section>
 
     <section class="art-section as-rv" id="preview"><span class="art-eyebrow">TRY BEFORE YOU BUY</span><h2>See it on your wall.</h2><p>Pick a painting, drag the size and choose a wall colour. The sofa is a scale guide, so you can judge how large a piece will feel before you enquire. It is a visual estimate, not a measured fit.</p>
       <div class="as-room" id="asRoom"><div class="as-sofa"></div><div class="as-art" id="asArt" role="img" aria-label="Painting preview"></div></div>
@@ -51,5 +93,6 @@
   <script src="art-studio.js" defer></script>
   <script src="art-extras.js" defer></script>
   <script src="art-guide.js" defer></script>
+  <script src="art-assistant.js" defer></script>
   <script src="art-cinema.js" defer></script>
 </body></html>
