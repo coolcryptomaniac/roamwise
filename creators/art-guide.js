@@ -36,9 +36,9 @@
   function pitch(it) {
     if (it.kind === 'work') {
       var how = it.type === 'Print' ? 'a print' : 'an original painting';
-      return 'Namaste, I am Kala, the RoamWise art guide. This is ' + it.title + ', ' + how + ' by ' + it.artist + ', ' + it.studio + '. ' + (it.price === 'Price on request' ? 'Its price is on request from the studio. ' : 'The studio lists it at ' + it.price + '. ') + 'Prices and availability are confirmed by the artist, so please check before you pay. Tap Connect to message the artist directly.';
+      return 'Namaste, main hoon Kala, कला, which means art. This is ' + it.title + ', ' + how + ' by ' + it.artist + ', ' + it.studio + '. ' + (it.price === 'Price on request' ? 'Its price is on request from the studio. ' : 'The studio lists it at ' + it.price + '. ') + 'Prices and availability are confirmed by the artist, so please check before you pay. Tap Connect to message the artist directly.';
     }
-    return 'Namaste, I am Kala, the RoamWise art guide. ' + it.artist + ' paints in this range: ' + it.title + '. ' + it.detail + ' It starts at ' + it.price + ', as an indicative range. The artist confirms the final price, size and timeline. Tap Connect to ask about it.';
+    return 'Namaste, main hoon Kala, कला, which means art. ' + it.artist + ' paints in this range: ' + it.title + '. ' + it.detail + ' It starts at ' + it.price + ', as an indicative range. The artist confirms the final price, size and timeline. Tap Connect to ask about it.';
   }
   function show() {
     var it = items[+$('agPick').value]; cur = it;
@@ -47,9 +47,12 @@
     outfitFor(it); stopVoice(); listeners.forEach(function (f) { f(it); });
   }
   function stopVoice() { if ('speechSynthesis' in window) speechSynthesis.cancel(); speaking = false; stage.classList.remove('ag-speaking'); var b = $('agSpeak'); if (b) b.textContent = 'Hear Kala explain'; }
+  // Hindi कला is "ka-LAA" (long final vowel). English voices say "Kay-la", so we use a Hindi voice when the device has one, else the spelling "Kalaa".
+  function hiVoice() { try { var v = speechSynthesis.getVoices().filter(function (x) { return /^hi/i.test(x.lang); }); return v[0] || null; } catch (e) { return null; } }
+  function spoken(text, hv) { return text.replace(/Kala, \u0915\u0932\u093E/g, hv ? '\u0915\u0932\u093E' : 'Kalaa').replace(/\u0915\u0932\u093E/g, hv ? '\u0915\u0932\u093E' : 'Kalaa').replace(/\bKala\b/g, hv ? '\u0915\u0932\u093E' : 'Kalaa'); }
   function say(text) {
     if (!('speechSynthesis' in window)) { $('agNote').textContent = 'Voice is not available in this browser. The text says the same thing.'; return; }
-    stopVoice(); var u = new SpeechSynthesisUtterance(text); u.lang = 'en-IN'; u.rate = .95; u.onend = u.onerror = stopVoice; speaking = true; stage.classList.add('ag-speaking'); $('agSpeak').textContent = 'Stop'; speechSynthesis.speak(u);
+    stopVoice(); var hv = hiVoice(), u = new SpeechSynthesisUtterance(spoken(text, hv)); if (hv) { u.voice = hv; u.lang = hv.lang; } else u.lang = 'en-IN'; u.rate = .95; u.onend = u.onerror = stopVoice; speaking = true; stage.classList.add('ag-speaking'); $('agSpeak').textContent = 'Stop'; speechSynthesis.speak(u);
   }
   $('agSpeak').addEventListener('click', function () { if (speaking) stopVoice(); else say($('agText').textContent); });
   stage.addEventListener('pointermove', function (e) { var r = stage.getBoundingClientRect(), fx = (e.clientX - r.left) / r.width; fig.style.setProperty('--ry', (fx - .5) * 22 + 'deg'); fig.style.setProperty('--rx', (.5 - (e.clientY - r.top) / r.height) * 10 + 'deg'); stage.style.setProperty('--lx', fx * 100 + '%'); });
