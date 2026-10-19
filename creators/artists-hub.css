@@ -21,3 +21,4 @@
 .hub-out{white-space:pre-wrap;word-break:break-word;font-size:12.5px;background:#0e0a1b;border:1px solid var(--line);border-radius:12px;padding:12px;max-height:240px;overflow:auto}
 .hub-fair{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));margin-top:14px}.hub-fair div{border-left:3px solid var(--gold);padding:4px 12px;font-size:14px}
 @media(prefers-reduced-motion:reduce){.hub-card{transition:none}}
+.hub-offer{display:inline-block;margin:6px 0 0;padding:8px 14px;border-radius:12px;background:#e8ba6c1f;border:1px solid var(--gold);color:var(--cream);font-size:14px}.hub-offer:empty{display:none}

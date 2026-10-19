@@ -801,7 +801,7 @@
     "note": "Shiva in meditation above snow peaks, painted by Natasha Guleria. A fitting companion for anyone planning a Himalayan yatra."
   },
   "plans": {
-    "note": "Introductory model. One-time contributions, no commission on sales; artists sell directly and keep 100%. Payment is arranged on WhatsApp after approval. Confirm GST applicability with the CA before collecting.",
+    "note": "Introductory model. One-time contributions, never auto-renewed. No fixed commission or fee on sales: artists sell directly, and may share an optional thank-you if a buyer came through RoamWise (a kind gesture, never required). Payment is arranged on WhatsApp after approval. Confirm GST applicability with the CA before collecting.",
     "free": {
       "name": "Free listing",
       "price": 0,
@@ -837,6 +837,37 @@
         "Promo caption for Instagram and WhatsApp",
         "Spotlight badge in the gallery"
       ]
+    },
+    "concierge": {
+      "name": "Concierge setup",
+      "price": 999,
+      "features": [
+        "Everything in Studio",
+        "We write your bio and tidy your painting photos",
+        "We set up to 24 paintings with titles, sizes and prices",
+        "Instagram and WhatsApp promo caption for your page"
+      ]
+    },
+    "premier": {
+      "name": "Premier",
+      "price": 1999,
+      "days": 90,
+      "features": [
+        "Everything in Concierge",
+        "90-day rotation on the homepage Painting of the week",
+        "A Kala-led tour of your collection",
+        "Institutional buyer research list for your style",
+        "Three promo captions for your launch"
+      ]
     }
+  },
+  "launchOffer": {
+    "active": true,
+    "limit": 100,
+    "text": "Founding artists: the first 100 artists get the Studio plan free. After that Studio is a one-time contribution.",
+    "invited": [
+      "natasha-guleria",
+      "jagriti-creates"
+    ]
   }
 }
