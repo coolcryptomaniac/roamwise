@@ -178,6 +178,99 @@
         "instagram": "https://www.instagram.com/bhavitavya_kala/",
         "youtube": "https://www.youtube.com/@natashaguleria2065"
       }
+    },
+    {
+      "id": "jagriti-creates",
+      "name": "Jagriti Mishra",
+      "studio": "Jagriti Creates",
+      "role": "RoamWise Featured Artist",
+      "state": "Delhi NCR",
+      "website": null,
+      "instagram": "https://www.instagram.com/jagriti.creates/",
+      "themes": [
+        "spiritual",
+        "culture",
+        "contemporary"
+      ],
+      "confirmedServices": [
+        "Acrylic and texture paintings",
+        "Canvas art",
+        "Murals",
+        "Digital illustrations"
+      ],
+      "proposedServices": [
+        "Custom deity paintings",
+        "Commissions"
+      ],
+      "biographySource": "Public profiles: Instagram @jagriti.creates, Threads @jagriti.creates, YouTube @jagriticreates4536 (checked 19 October 2026)",
+      "checkedAt": "2026-10-19T00:00:00Z",
+      "appointmentSource": "Founder instruction, 19 October 2026; no contract terms represented",
+      "photo": null,
+      "artworks": [],
+      "whatsapp": null,
+      "social": {
+        "instagram": "https://www.instagram.com/jagriti.creates/",
+        "threads": "https://www.threads.net/@jagriti.creates",
+        "youtube": "https://www.youtube.com/@jagriticreates4536"
+      },
+      "pricingNote": "Indicative starting ranges set by RoamWise for enquiries (about ₹3,000 to ₹30,000 and above). The artist confirms the final price, size, timeline and delivery. Public listings seen: an acrylic Maa Saraswati at about ₹3,000 and an oil painting at about ₹15,999.",
+      "tiers": [
+        {
+          "id": "j-devotional-small",
+          "title": "Small devotional canvas",
+          "sacred": true,
+          "price": "₹3,000 – ₹5,000",
+          "range": [
+            3000,
+            5000
+          ],
+          "detail": "Acrylic study of Maa Saraswati, Ganesha, Shiva or another deity. Suited to a home shrine or a gift."
+        },
+        {
+          "id": "j-devotional-mid",
+          "title": "Textured deity painting",
+          "sacred": true,
+          "price": "₹8,000 – ₹15,000",
+          "range": [
+            8000,
+            15000
+          ],
+          "detail": "Maa Kali, Shakti, Lord Shiva or Maa Durga in textured acrylic on canvas."
+        },
+        {
+          "id": "j-devotional-large",
+          "title": "Large sacred canvas or mural",
+          "sacred": true,
+          "price": "₹20,000 – ₹30,000+",
+          "range": [
+            20000,
+            30000
+          ],
+          "detail": "Statement canvas or wall mural for a pooja room, ashram, temple hall or retreat. Final price depends on size."
+        },
+        {
+          "id": "j-regular-small",
+          "title": "Contemporary canvas",
+          "sacred": false,
+          "price": "₹3,000 – ₹8,000",
+          "range": [
+            3000,
+            8000
+          ],
+          "detail": "Acrylic and texture art for a desk, bedroom or café wall."
+        },
+        {
+          "id": "j-regular-large",
+          "title": "Statement décor canvas",
+          "sacred": false,
+          "price": "₹15,000 – ₹30,000+",
+          "range": [
+            15000,
+            30000
+          ],
+          "detail": "Large textured canvas or mural for a living room, lobby or homestay."
+        }
+      ]
     }
   ],
   "properties": [
