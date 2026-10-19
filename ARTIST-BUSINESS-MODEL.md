@@ -36,3 +36,17 @@ Free artists are intentionally left out of Kala's shelves, finder and comparison
 - GST and invoicing for a 199 or 499 contribution: confirm with the CA.
 - Get each artist's written consent for page, photos and prices (Natasha and Jagriti are still pending).
 - Update `terms.html` / `refund-policy.html` if the contribution terms change.
+
+## How other marketplaces do it (checked Oct 2026, from public comparison articles; confirm current rates before quoting)
+| Platform | Artist pays |
+|---|---|
+| Saatchi Art | about 40% commission |
+| Artfinder | 40 to 45% commission plus a monthly subscription |
+| Singulart | about 50% commission |
+| Etsy | about 6.5% transaction fee plus payment fees and a $0.20 listing fee |
+| Artmajeur | 10% on the free tier, 0% with a paid premium subscription |
+| ArtPal | 0% on originals, optional paid promotions |
+| Fine Art America | artist sets a markup over base price, about $30/year premium |
+| Traditional galleries | 40 to 50%, often exclusive |
+
+RoamWise sits at the artist-friendly end (free listing, flat one-time contributions, no fixed commission, no exclusivity), like ArtPal and Artmajeur's premium. What we borrowed from marketplace practice: written listing terms (`creators/artist-terms.html`), honest-listing and authenticity rules, price and status kept current, each artist stating shipping and returns (`shipping` and `returns` fields on the record, with a default notice), a "Report this page" link, takedown on infringement, and a contribution refund window. Because we do not process sales, we do not hold buyer money, so no payout or escrow rules are needed.
