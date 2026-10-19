@@ -25,3 +25,15 @@ Own page (`creators/artist.html?a=<id>`), up to 24 paintings, gallery listing, K
 - Before introducing any commission: update `creators/artist-terms.html` and give artists written notice, then decide how to collect it (needs a separate payment and legal review, see AI-ROLES-AND-HANDOFF rule 7).
 - Get each artist's written consent for page, photos and prices (Natasha and Jagriti are still pending).
 - Have a CA or lawyer read `artist-terms.html` and the refund-policy artist section.
+
+## Plan for artist 101 onwards (decided 19 Oct 2026)
+
+- First 100 artists: **founding**, every feature free (`launchOffer.limit` = 100). Natasha and Jagriti are invited and free for good. Founding artists keep what they were promised.
+- Most artists run on **autopilot**: self-serve and automated, no hands-on support.
+  - Free listing: 6 paintings, gallery listing, enquiries to their own WhatsApp.
+  - Autopilot ₹199 one-time: 24 paintings, Kala presenting, wall preview, finder, comparison, price tiers, enquiry log.
+  - Spotlight add-on ₹499 for 30 days (homepage Painting of the week).
+- **Premium ₹1,999 (90 days)** is the only tier with a person helping: setup, bio and photos, collection tour with Kala, buyer research list, priority WhatsApp.
+- Thank-you contribution stays optional at every stage. A private 5-20% commission is still only an idea; it needs written notice and updated terms first.
+- Before charging: confirm GST with the CA, and have the terms and refund wording reviewed.
+- Onboarding: `node tools/add-artist.js file.json [--write]` defaults to founding while spots remain, then requires `--plan`.

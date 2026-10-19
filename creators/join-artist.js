@@ -3,12 +3,17 @@
   'use strict';
   var esc = function (v) { return String(v == null ? '' : v).replace(/[&<>"']/g, function (c) { return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); };
   var WA = '919987379730', MAIL = 'founder@roamwise.co.in', planBox = document.getElementById('planBox'), planNote = document.getElementById('planNote');
+  function card(p, k, hot) {
+    return '<article class="plan' + (hot ? ' hot' : '') + '"><h3>' + esc(p.name) + '</h3><div class="pr">' + (p.price ? '&#8377;' + esc(p.price) + ' <small>one-time' + (p.days ? ' · ' + esc(p.days) + ' days' : '') + '</small>' : (k === 'thankyou' ? 'Optional <small>any amount, any time</small>' : 'Free')) + '</div><ul>' + (p.features || []).map(function (f) { return '<li>' + esc(f) + '</li>'; }).join('') + '</ul></article>';
+  }
   function plans(d) {
-    var P = d.plans || {}, order = ['founding', 'thankyou'], o = d.launchOffer, ob = document.getElementById('offerBox'); if (ob && o && o.active) ob.textContent = o.text;
-    planBox.innerHTML = order.filter(function (k) { return P[k]; }).map(function (k) {
-      var p = P[k]; return '<article class="plan' + (k === 'founding' ? ' hot' : '') + '"><h3>' + esc(p.name) + '</h3><div class="pr">' + (k === 'founding' ? 'Free' : 'Optional') + ' <small>' + (k === 'founding' ? 'for now' : 'any amount, any time') + '</small></div><ul>' + (p.features || []).map(function (f) { return '<li>' + esc(f) + '</li>'; }).join('') + '</ul></article>';
-    }).join('');
-    planNote.textContent = 'Natasha and Jagriti are invited artists with the same features.';
+    var P = d.plans || {}, o = d.launchOffer || {}, ob = document.getElementById('offerBox'), sl = document.getElementById('spotsLeft');
+    if (ob && o.active) ob.textContent = o.text;
+    var used = d.artists.filter(function (a) { return a.plan === 'founding'; }).length;
+    if (sl && o.limit) sl.textContent = used + ' of ' + o.limit + ' founding spots taken. Natasha and Jagriti are invited artists with the same features.';
+    planBox.innerHTML = ['founding', 'thankyou'].filter(function (k) { return P[k]; }).map(function (k) { return card(P[k], k, k === 'founding'); }).join('');
+    var later = document.getElementById('planLater'); if (later) later.innerHTML = ['free', 'autopilot', 'spotlight', 'premium'].filter(function (k) { return P[k]; }).map(function (k) { return card(P[k], k, k === 'premium'); }).join('');
+    planNote.textContent = 'Later prices are planned and may change. They are one-time, never auto-renewed, and we confirm the amount and any tax on WhatsApp before you pay.';
   }
   fetch('/creators/artists-data.json').then(function (r) { if (!r.ok) throw 0; return r.json(); }).then(plans).catch(function () { planBox.innerHTML = '<p class="sa-note">Plans could not load. Free listing is always available: apply below.</p>'; });
 
