@@ -801,30 +801,75 @@
     "note": "Shiva in meditation above snow peaks, painted by Natasha Guleria. A fitting companion for anyone planning a Himalayan yatra."
   },
   "plans": {
-    "note": "For now every artist is a founding artist: full features, free. A thank-you contribution is optional and has no fixed amount. RoamWise may introduce a small commission on sales that come through RoamWise in future; artists will be told in writing before it applies and it will not apply to earlier sales.",
-    "free": {
-      "name": "Restricted listing (not used for new artists)",
-      "price": 0,
-      "maxPaintings": 6,
-      "features": []
-    },
+    "note": "Founding phase: the first 100 artists get every feature free. From artist 101 the planned tiers below apply; most artists run on autopilot (self-serve, automated) and full hands-on support is Premium only. A thank-you contribution is always optional. RoamWise may also introduce a small commission on sales through RoamWise in future, with written notice. Confirm GST with the CA before charging.",
     "founding": {
       "name": "Founding artist",
       "price": 0,
+      "phase": "now",
       "features": [
-        "Your own RoamWise artist page",
-        "Up to 24 paintings with prices",
+        "Own RoamWise artist page, up to 24 paintings with prices",
         "Listed in the artists gallery",
         "Presented by Kala in the Sacred art gallery, wall preview, finder and comparison",
-        "Price tiers and a custom-commission block",
-        "Institutional buyer matches where we find them",
+        "Price tiers and custom-commission block",
         "Enquiry log with CSV export",
-        "Chance to be Painting of the week on the homepage, chosen by us"
+        "Chance to be Painting of the week, chosen by us"
+      ]
+    },
+    "free": {
+      "name": "Free listing",
+      "price": 0,
+      "phase": "later",
+      "maxPaintings": 6,
+      "features": [
+        "Own page with up to 6 paintings",
+        "Listed in the artists gallery",
+        "Buyers enquire on your WhatsApp or Instagram",
+        "Self-serve, no support"
+      ]
+    },
+    "autopilot": {
+      "name": "Autopilot",
+      "price": 199,
+      "phase": "later",
+      "maxPaintings": 24,
+      "features": [
+        "Everything in Free, up to 24 paintings",
+        "Presented by Kala in the Sacred art gallery, wall preview, finder and comparison",
+        "Price tiers and custom-commission block",
+        "Enquiry log with CSV export",
+        "Automated and self-serve: help by email, no hands-on support"
+      ]
+    },
+    "spotlight": {
+      "name": "Spotlight add-on",
+      "price": 499,
+      "days": 30,
+      "phase": "later",
+      "features": [
+        "Needs Autopilot or Premium",
+        "Painting of the week on the homepage for 30 days",
+        "Promo caption for Instagram and WhatsApp",
+        "Spotlight badge in the gallery"
+      ]
+    },
+    "premium": {
+      "name": "Premium, full support",
+      "price": 1999,
+      "days": 90,
+      "phase": "later",
+      "features": [
+        "Everything in Autopilot",
+        "A person sets you up: bio, photo tidy-up and up to 24 paintings listed for you",
+        "90-day homepage Painting of the week rotation",
+        "A Kala-led tour of your collection",
+        "Institutional buyer research list for your style",
+        "Priority replies on WhatsApp"
       ]
     },
     "thankyou": {
       "name": "Thank-you contribution",
       "price": 0,
+      "phase": "always",
       "features": [
         "Entirely optional, any amount, any time",
         "Never required to stay listed",
@@ -835,7 +880,8 @@
   },
   "launchOffer": {
     "active": true,
-    "text": "Every artist who joins now is a founding artist: all features free, and a thank-you contribution only if you wish.",
+    "limit": 100,
+    "text": "Founding artists: the first 100 artists get every feature free. A thank-you contribution is optional.",
     "invited": [
       "natasha-guleria",
       "jagriti-creates"

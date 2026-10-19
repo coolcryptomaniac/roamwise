@@ -1,6 +1,6 @@
 // Shared rules for artist pages: slug, validation of a submitted profile, plan limits.
 // Used by tools/add-artist.js and tests. The browser pages read the same limits from artists-data.json `plans`.
-export const PLAN_IDS = ['free', 'studio', 'featured', 'ambassador'];
+export const PLAN_IDS = ['free', 'founding', 'autopilot', 'premium', 'featured', 'ambassador'];
 export function slugify(s) { return String(s || '').toLowerCase().normalize('NFKD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 48); }
 const httpsOnly = (u) => { try { const x = new URL(u); return x.protocol === 'https:'; } catch (e) { return false; } };
 export function validateArtist(a, existingIds = []) {
@@ -20,9 +20,9 @@ export function validateArtist(a, existingIds = []) {
   });
   return errs;
 }
-export function toRecord(a, plan = 'studio') {
+export function toRecord(a, plan = 'founding') {
   const id = a.id || slugify(a.name);
-  return { id, name: a.name, studio: a.studio, role: plan === 'studio' ? 'RoamWise Studio Artist' : 'RoamWise Artist', state: a.state, website: a.website || null, instagram: a.instagram || null,
+  return { id, name: a.name, studio: a.studio, role: { founding: 'RoamWise Founding Artist', premium: 'RoamWise Premium Artist' }[plan] || 'RoamWise Artist', state: a.state, website: a.website || null, instagram: a.instagram || null,
     themes: a.themes, bio: a.bio || null, shipping: a.shipping || null, returns: a.returns || null, plan, page: '/creators/artist.html?a=' + id, photo: null, whatsapp: a.whatsapp || null, social: {}, artworks: (a.artworks || []).map((w, i) => ({
       id: w.id || slugify(w.title) || 'work-' + (i + 1), title: w.title, status: w.status || 'Available', type: w.type || 'Original', price: w.price || 'Price on request', image: w.image || null, url: w.url || null, medium: w.medium || null, size: w.size || null })),
     consentGivenAt: new Date().toISOString().slice(0, 10) };
