@@ -24,3 +24,5 @@
 .ak-act{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
 @media(min-width:860px){.ag{grid-template-columns:1fr 1fr;align-items:start}}
 @media(prefers-reduced-motion:reduce){.ag-fig,.ag-fig .k-arm,.ag-speaking .k-mouth,.ag-fig .k-blink,.ag-change{animation:none}.ag-fig,.k-o{transition:none}}
+
+#ag3d{position:absolute;inset:0;z-index:1}#ag3d canvas{width:100%;height:100%;display:block}.ag-stage.ag-3d{min-height:460px}.ag-stage.ag-3d .ag-fig{visibility:hidden}

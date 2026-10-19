@@ -16,6 +16,7 @@
     var main = hsl2hex(h, 52, 30), acc = hsl2hex((h + 28) % 360, 55, 46), trim = '#e8ba6c';
     fig.style.setProperty('--o1', main); fig.style.setProperty('--o2', acc); fig.style.setProperty('--o3', trim);
     fig.setAttribute('data-style', sacred ? (seed % 2 ? '1' : '0') : '2');
+    if (window.RWKala3D && window.RWKala3D.ready()) window.RWKala3D.dress(hsl2hex(h, 52, 50));
     if (!still) { fig.classList.remove('ag-change'); void fig.getBoundingClientRect(); fig.classList.add('ag-change'); }
   }
   function outfitFor(it) {
@@ -44,7 +45,7 @@
     var it = items[+$('agPick').value]; cur = it;
     var pic = $('agPic'); if (it.img) { pic.setAttribute('href', it.img); pic.style.display = ''; $('agOm').style.display = 'none'; } else { pic.style.display = 'none'; $('agOm').style.display = ''; }
     $('agText').textContent = pitch(it); var c = $('agConnect'); c.href = it.link; c.textContent = it.cta;
-    outfitFor(it); stopVoice(); listeners.forEach(function (f) { f(it); });
+    outfitFor(it); stopVoice(); if (window.RWKala3D && window.RWKala3D.ready()) window.RWKala3D.setPainting(it.img, null, false); listeners.forEach(function (f) { f(it); });
   }
   // ---- Voice: the browser's own speech engine, tuned. Sentence by sentence, with natural pauses, a warm pitch and a per-sentence
   // choice of Hindi or Indian-English voice so कला is said "ka-LAA". Nothing is uploaded. Voices differ by device.
@@ -58,7 +59,7 @@
     return all.sort(function (a, b) { return (FEMALE.test(b.name) - FEMALE.test(a.name)) || ((/google|natural|neural|online/i.test(b.name)) - (/google|natural|neural|online/i.test(a.name))); })[0] || null;
   }
   function spoken(text, hindi) { return text.replace(/Kala, \u0915\u0932\u093E/g, hindi ? '\u0915\u0932\u093E' : 'Kalaa').replace(/\u0915\u0932\u093E/g, hindi ? '\u0915\u0932\u093E' : 'Kalaa').replace(/\bKala\b/g, hindi ? '\u0915\u0932\u093E' : 'Kalaa'); }
-  function stopVoice() { token++; clearTimeout(queueTimer); if ('speechSynthesis' in window) speechSynthesis.cancel(); speaking = false; stage.classList.remove('ag-speaking'); var b = $('agSpeak'); if (b) b.textContent = 'Hear Kala explain'; }
+  function stopVoice() { if (window.RWKala3D) window.RWKala3D.stopTalk(); token++; clearTimeout(queueTimer); if ('speechSynthesis' in window) speechSynthesis.cancel(); speaking = false; stage.classList.remove('ag-speaking'); var b = $('agSpeak'); if (b) b.textContent = 'Hear Kala explain'; }
   function say(text) {
     if (!('speechSynthesis' in window)) { $('agNote').textContent = 'Voice is not available in this browser. The text says the same thing.'; return; }
     stopVoice(); var my = token, hi = best('hi'), en = best('en-in') || best('en'), parts = (String(text).replace(/\s+/g, ' ').match(/[^.!?\u0964]+[.!?\u0964]*/g) || []).map(function (x) { return x.trim(); }).filter(Boolean), i = 0;
@@ -69,6 +70,7 @@
       var v = useHi ? hi : en; if (v) { u.voice = v; u.lang = v.lang; } else u.lang = 'en-IN';
       var q = /\?$/.test(raw); u.rate = Math.max(.6, Math.min(1.3, pref.rate + (raw.length < 24 ? -.04 : 0))); u.pitch = q ? 1.2 : 1.08;
       u.onend = function () { queueTimer = setTimeout(next, q ? 260 : 170); }; u.onerror = function () { if (my === token) stopVoice(); };
+      if (window.RWKala3D && window.RWKala3D.ready()) { window.RWKala3D.sentence(raw, u.rate); u.onboundary = function (ev) { if (ev.name && ev.name !== 'word') return; var w = u.text.slice(ev.charIndex, ev.charIndex + (ev.charLength || 7)); window.RWKala3D.word(w); }; }
       speechSynthesis.speak(u);
     })();
   }
@@ -93,6 +95,23 @@
     $('agPick').innerHTML = items.map(function (x, i) { return '<option value="' + i + '">' + esc(x.title) + ' · ' + esc(x.artist) + '</option>'; }).join('');
     $('agPick').addEventListener('change', show); show();
   }).catch(function () { $('agText').textContent = 'The guide could not load right now.'; });
+  var btn3 = $('ag3dBtn'), box3 = $('ag3d');
+  function webgl() { try { var c = document.createElement('canvas'); return !!(window.WebGLRenderingContext && (c.getContext('webgl2') || c.getContext('webgl'))); } catch (e) { return false; } }
+  if (btn3) {
+    if (!webgl()) btn3.hidden = true;
+    btn3.addEventListener('click', function () {
+      if (stage.classList.contains('ag-3d')) { stage.classList.remove('ag-3d'); box3.hidden = true; btn3.textContent = 'See Kala in 3D'; if (window.RWKala3D) window.RWKala3D.stop(); return; }
+      btn3.disabled = true; btn3.textContent = 'Loading 3D Kala\u2026';
+      var go = function (m) {
+        if (window.RWKala3D && window.RWKala3D.ready()) { return Promise.resolve(); }
+        return m.default.start(box3, function (e) { if (e && e.lengthComputable) btn3.textContent = 'Loading 3D Kala ' + Math.round(e.loaded / e.total * 100) + '%'; });
+      };
+      import('/creators/kala3d.js').then(go).then(function () {
+        stage.classList.add('ag-3d'); box3.hidden = false; btn3.disabled = false; btn3.textContent = 'Back to illustration'; window.RWKala3D.start_();
+        var it = cur; if (it) { window.RWKala3D.setPainting(it.img, null, true); outfitFor(it); }
+      }).catch(function (e) { console.warn('3D Kala unavailable', e); btn3.disabled = false; btn3.textContent = 'See Kala in 3D'; $('agNote').textContent = '3D could not start on this device, so the illustrated Kala stays.'; });
+    });
+  }
   window.addEventListener('pagehide', stopVoice);
   fetch('/creators/kala-config.json').then(function (r) { return r.json(); }).then(function (c) { cloud = /^https:\/\//.test(c.workerUrl || '') ? c.workerUrl.replace(/\/+$/, '') : ''; }).catch(function () {});
   window.RWKala = { cloud: function () { return cloud; }, items: function () { return items; }, current: function () { return cur; }, say: say, onChange: function (f) { listeners.push(f); }, select: function (i) { $('agPick').value = i; show(); } };
