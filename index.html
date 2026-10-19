@@ -621,18 +621,78 @@ function rwDismissCreatorBanner(){
 </section>
 
 <section class="xsec v v-home v-explore" id="brand-ambassador" aria-labelledby="ambassadorTitle">
-  <style>.rwa{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(250px,1fr))}.rwa-c{position:relative;display:block;border-radius:18px;overflow:hidden;border:1px solid rgba(255,255,255,.14);background:#120d22;color:inherit;text-decoration:none;transition:transform .25s,box-shadow .25s}.rwa-c:hover,.rwa-c:focus-visible{transform:translateY(-4px);box-shadow:0 16px 36px rgba(232,186,108,.25)}.rwa-c img,.rwa-m{width:100%;aspect-ratio:16/10;object-fit:cover;display:block}.rwa-m{display:grid;place-items:center;font-size:64px;color:#e8ba6c;background:linear-gradient(135deg,#4a2a6a,#0b1020)}.rwa-b{padding:14px 16px 16px}.rwa-k{font-size:11px;letter-spacing:.1em;color:#e8ba6c}.rwa-b h3{margin:6px 0;font-size:20px}.rwa-b p{margin:0 0 10px;font-size:13px;opacity:.85}.rwa-go{font-size:13px;color:#e8ba6c;font-weight:600}.rwa-spot{grid-column:1/-1;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);border-color:rgba(232,186,108,.5)}.rwa-spot img{aspect-ratio:auto;height:100%;min-height:240px;max-height:420px}.rwa-spot .rwa-b{align-self:center;padding:20px 22px}.rwa-spot h3{font-size:24px}.rwa-pr{font-size:15px;color:#f2efe6;margin:0 0 10px}.rwa-more{margin:12px 0 0;font-size:13px}.rwa-more a{color:#e8ba6c;margin-right:14px}@media(max-width:640px){.rwa-spot{grid-template-columns:1fr}.rwa-spot img{max-height:300px}}@media(prefers-reduced-motion:reduce){.rwa-c{transition:none}}</style>
+  <style>
+  #brand-ambassador{margin:14px 14px 6px}
+  .rwa{display:grid;gap:12px;grid-template-columns:repeat(2,minmax(0,1fr))}
+  .rwa-c{position:relative;display:flex;flex-direction:column;border-radius:18px;overflow:hidden;border:1px solid rgba(255,255,255,.14);background:#120d22;color:inherit;text-decoration:none;transition:transform .25s,box-shadow .25s}
+  .rwa-c:hover,.rwa-c:focus-visible{transform:translateY(-3px);box-shadow:0 14px 30px rgba(232,186,108,.22)}
+  .rwa-c img{width:100%;height:auto;display:block;object-fit:cover}
+  .rwa-b{padding:12px 14px 14px;display:flex;flex-direction:column;flex:1}
+  .rwa-k{font-size:10.5px;letter-spacing:.1em;color:#e8ba6c;font-weight:700}
+  .rwa-b h3{margin:5px 0;font-size:18px;line-height:1.2}
+  .rwa-b p{margin:0 0 8px;font-size:12.5px;line-height:1.45;opacity:.85}
+  .rwa-go{margin-top:auto;font-size:12.5px;color:#e8ba6c;font-weight:700}
+  .rwa-pr{font-size:14px!important;opacity:1!important;color:#f2efe6}
+  .rwa-spot,.rwa-nat{grid-column:1/-1}
+  .rwa-spot{flex-direction:row;border-color:rgba(232,186,108,.5)}
+  .rwa-spot img{width:42%;flex:0 0 42%;aspect-ratio:1/1;height:auto}
+  .rwa-spot .rwa-b{justify-content:center;padding:14px 16px}
+  .rwa-spot .rwa-b p:not(.rwa-pr){display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+  .rwa-spot .rwa-go{margin-top:6px}
+  .rwa-nat{border-color:rgba(232,186,108,.4)}
+  .rwa-nat img{aspect-ratio:16/10;object-position:82% 22%}
+  .rwa-nat h3{font-size:22px}
+  .rwa-nat .rwa-b p{font-size:13px}
+  .rwa-s{min-height:150px}
+  .rwa-ic{font-size:30px;line-height:1;color:#e8ba6c;margin-bottom:8px}
+  .rwa-s .rwa-b{padding:14px}
+  @media(min-width:700px){.rwa{grid-template-columns:repeat(4,minmax(0,1fr))}.rwa-spot,.rwa-nat{grid-column:span 2}.rwa-spot{flex-direction:column}.rwa-spot img{width:100%;flex:none;aspect-ratio:16/10}.rwa-nat img{aspect-ratio:16/10}}
+  @media(prefers-reduced-motion:reduce){.rwa-c{transition:none}}
+  </style>
   <div class="xsec-head"><h2 class="xsec-title" id="ambassadorTitle">Art meets <em>Travel</em></h2></div>
-  <p class="xsec-sub">Original paintings from independent artists, sold directly by them. Open an artist's page for paintings, prices and how to order.</p>
+  <p class="xsec-sub">Original paintings from independent artists, sold directly by them.</p>
   <div class="rwa">
     <a class="rwa-c rwa-spot" id="rwaSpot" href="/creators/artists.html"><img src="/assets/img/natasha/manimanash.jpg" width="900" height="900" alt="Manimanash, an original painting of Shiva in meditation above snow peaks by Natasha Guleria" loading="lazy"><div class="rwa-b"><span class="rwa-k">PAINTING OF THE WEEK</span><h3>Manimanash</h3><p>Shiva in meditation above snow peaks, painted by Natasha Guleria. A fitting companion for anyone planning a Himalayan yatra.</p><p class="rwa-pr">Original &middot; &#8377;2,99,999</p><span class="rwa-go">See the painting &rarr;</span></div></a>
-    <a class="rwa-c" href="/creators/artists.html"><img src="/assets/img/natasha/natasha-with-painting.jpg" width="1200" height="675" alt="Natasha Guleria beside one of her original paintings" loading="lazy"><div class="rwa-b"><span class="rwa-k">BRAND AMBASSADOR</span><h3>Natasha Guleria</h3><p>Bhavitavya Kala, Himachal Pradesh. Shiva, Ram and yantra originals, commissions, collector and hotel matches.</p><span class="rwa-go">Meet Natasha &rarr;</span></div></a>
-    <a class="rwa-c" href="/creators/jagriti.html"><div class="rwa-m" aria-hidden="true">&#2384;</div><div class="rwa-b"><span class="rwa-k">FEATURED ARTIST</span><h3>Jagriti Mishra</h3><p>Jagriti Creates, Delhi NCR. Maa Kali, Saraswati and Shiva in textured acrylic, from about &#8377;3,000.</p><span class="rwa-go">Meet Jagriti &rarr;</span></div></a>
-    <a class="rwa-c" href="/creators/sacred-art.html"><div class="rwa-m" aria-hidden="true">&#127912;</div><div class="rwa-b"><span class="rwa-k">EXPERIENCE</span><h3>Sacred art gallery</h3><p>Walk the gallery, meet Kala the art guide, preview a painting on your wall and compare artists.</p><span class="rwa-go">Enter the gallery &rarr;</span></div></a>
-    <a class="rwa-c" href="/creators/join-artist.html"><div class="rwa-m" aria-hidden="true">&#10024;</div><div class="rwa-b"><span class="rwa-k">FOR ARTISTS</span><h3>Your page, free</h3><p>List your paintings for free and sell directly. Founding artists get Kala presenting their work at no cost.</p><span class="rwa-go">Join as an artist &rarr;</span></div></a>
+    <a class="rwa-c rwa-nat" href="/creators/artists.html"><img src="/assets/img/natasha/natasha-with-painting.jpg" width="1200" height="675" alt="Natasha Guleria beside one of her original paintings" loading="lazy"><div class="rwa-b"><span class="rwa-k">BRAND AMBASSADOR</span><h3>Natasha Guleria</h3><p>Artist behind Bhavitavya Kala, Himachal Pradesh. Original Shiva, Ram and yantra paintings, custom commissions, and matches for collectors and hotels. RoamWise&rsquo;s brand ambassador for art.</p><span class="rwa-go">Meet Natasha &rarr;</span></div></a>
+    <a class="rwa-c rwa-s" href="/creators/jagriti.html"><div class="rwa-b"><div class="rwa-ic" aria-hidden="true">&#2384;</div><span class="rwa-k">FEATURED ARTIST</span><h3>Jagriti Mishra</h3><p>Jagriti Creates, Delhi NCR. Maa Kali, Saraswati and Shiva in textured acrylic, from about &#8377;3,000.</p><span class="rwa-go">Meet Jagriti &rarr;</span></div></a>
+    <a class="rwa-c rwa-s" href="/creators/sacred-art.html"><div class="rwa-b"><div class="rwa-ic" aria-hidden="true">&#127912;</div><span class="rwa-k">EXPERIENCE</span><h3>Sacred art gallery</h3><p>Meet Kala the art guide, preview a painting on your wall and compare artists.</p><span class="rwa-go">Enter the gallery &rarr;</span></div></a>
+    <a class="rwa-c rwa-s" href="/creators/gallery.html"><div class="rwa-b"><div class="rwa-ic" aria-hidden="true">&#128444;&#65039;</div><span class="rwa-k">ALL ARTISTS</span><h3>Artists gallery</h3><p>Browse every artist, filter by theme and enquire directly.</p><span class="rwa-go">Browse artists &rarr;</span></div></a>
+    <a class="rwa-c rwa-s" href="/creators/join-artist.html"><div class="rwa-b"><div class="rwa-ic" aria-hidden="true">&#10024;</div><span class="rwa-k">FOR ARTISTS</span><h3>Your page, free</h3><p>List your paintings and sell directly. Founding artists get Kala presenting their work free.</p><span class="rwa-go">Join as an artist &rarr;</span></div></a>
   </div>
-  <p class="rwa-more"><a href="/creators/gallery.html">All artists &rarr;</a><a href="/creators/join-artist.html">List your art free &rarr;</a></p>
   <script src="/creators/home-art.js" defer></script>
+</section>
+
+<section class="v v-home v-explore rw-band" id="joinBand" aria-label="For hosts, creators and partners"><h2 class="xsec-title" style="margin:6px 4px 10px">For hosts, creators &amp; <em>partners</em></h2>
+  <a class="rw-card rw-card-sacred" href="creators/join-artist.html">
+    <span class="rw-card-ic" aria-hidden="true">&#127912;</span>
+    <span class="rw-card-tx"><b>Artist? List your paintings free</b><small>Your own page, Kala presenting your work, buyers enquire directly. Founding artists get every feature free.</small></span>
+    <span class="rw-card-go" aria-hidden="true">&rarr;</span>
+  </a>
+  <a class="rw-card rw-card-sacred" href="creators/gallery.html">
+    <span class="rw-card-ic" aria-hidden="true">&#128444;&#65039;</span>
+    <span class="rw-card-tx"><b>Browse all artists</b><small>Sacred art, Shiva, Ram, yantra and Devi paintings. Meet the artists and enquire directly.</small></span>
+    <span class="rw-card-go" aria-hidden="true">&rarr;</span>
+  </a>
+  <a class="rw-card rw-card-creator" href="creators/match.html?role=creator&amp;invite=founding">
+    <span class="rw-card-ic" aria-hidden="true">&#127909;</span>
+    <span class="rw-card-tx"><b>Travel creator? Register free</b><small>Get matched with verified stays for hosted barter, hybrid or paid collaborations. Takes about 2 minutes.</small></span>
+    <span class="rw-card-go" aria-hidden="true">&rarr;</span>
+  </a>
+  <a class="rw-card rw-card-match" href="creators/match.html?role=property">
+    <span class="rw-card-ic" aria-hidden="true">&#129309;</span>
+    <span class="rw-card-tx"><b>Property &times; creator matching</b><small>Hosts: tell us what content you want and meet creators who fit your stay.</small></span>
+    <span class="rw-card-go" aria-hidden="true">&rarr;</span>
+  </a>
+  <a class="rw-card rw-card-nomadjoin" href="nomads/join/">
+    <span class="rw-card-ic" aria-hidden="true">&#128188;</span>
+    <span class="rw-card-tx"><b>Own a work-friendly stay? List for nomads</b><small>Good Wi-Fi and a desk? Fill rooms for 15 days to 3 months. Join in about 2 minutes.</small></span>
+    <span class="rw-card-go" aria-hidden="true">&rarr;</span>
+  </a>
+  <a class="rw-card rw-card-partner" href="partner/join/">
+    <span class="rw-card-ic" aria-hidden="true">&#127969;</span>
+    <span class="rw-card-tx"><b>Own a stay or experience? Join as a partner</b><small>Apply in about 3 minutes to list with the RoamWise local stays collective.</small></span>
+    <span class="rw-card-go" aria-hidden="true">&rarr;</span>
+  </a>
 </section>
 
 <section class="xsec v v-film" id="musicEventsIndia" style="margin:12px 14px 18px;padding:18px;background:linear-gradient(145deg,rgba(76,53,37,.38),rgba(18,18,28,.95));border:1px solid rgba(232,186,108,.3);border-radius:22px">
@@ -782,28 +842,7 @@ function rwDismissCreatorBanner(){
   </a>
 </section>
 
-<section class="v v-explore rw-band" id="joinBand" aria-label="For hosts, creators and partners"><h2 class="xsec-title" style="margin:6px 4px 10px">For hosts, creators &amp; <em>partners</em></h2>
-  <a class="rw-card rw-card-creator" href="creators/match.html?role=creator&amp;invite=founding">
-    <span class="rw-card-ic" aria-hidden="true">&#127909;</span>
-    <span class="rw-card-tx"><b>Travel creator? Register free</b><small>Get matched with verified stays for hosted barter, hybrid or paid collaborations. Takes about 2 minutes.</small></span>
-    <span class="rw-card-go" aria-hidden="true">&rarr;</span>
-  </a>
-  <a class="rw-card rw-card-match" href="creators/match.html?role=property">
-    <span class="rw-card-ic" aria-hidden="true">&#129309;</span>
-    <span class="rw-card-tx"><b>Property &times; creator matching</b><small>Hosts: tell us what content you want and meet creators who fit your stay.</small></span>
-    <span class="rw-card-go" aria-hidden="true">&rarr;</span>
-  </a>
-  <a class="rw-card rw-card-nomadjoin" href="nomads/join/">
-    <span class="rw-card-ic" aria-hidden="true">&#128188;</span>
-    <span class="rw-card-tx"><b>Own a work-friendly stay? List for nomads</b><small>Good Wi-Fi and a desk? Fill rooms for 15 days to 3 months. Join in about 2 minutes.</small></span>
-    <span class="rw-card-go" aria-hidden="true">&rarr;</span>
-  </a>
-  <a class="rw-card rw-card-partner" href="partner/join/">
-    <span class="rw-card-ic" aria-hidden="true">&#127969;</span>
-    <span class="rw-card-tx"><b>Own a stay or experience? Join as a partner</b><small>Apply in about 3 minutes to list with the RoamWise local stays collective.</small></span>
-    <span class="rw-card-go" aria-hidden="true">&rarr;</span>
-  </a>
-</section>
+
 
 <section class="brief v v-home" id="brief" style="display:none">
   <div class="brief-card">
