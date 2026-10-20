@@ -4,7 +4,7 @@
    real Firestore error if something is blocked, so an empty list is never a silent failure.
    Writes only crm/{id}.stage, which the Firestore rules already allow for the admin and the marketing role. */
 import { SEED_POLICIES, mergePolicies, policyFromPartner } from './property-terms-core.mjs';
-import { buildRoster, rosterCounts, creatorIntro, toCsv, STAGES, canSpotlight, spotlightEntry, withSpotlight, withoutSpotlight, travelAlerts, alertMessage, NICHE_NAMES, normalizeNeeds } from './roster-core.mjs';
+import { buildRoster, rosterCounts, creatorIntro, toCsv, STAGES, canSpotlight, spotlightEntry, withSpotlight, withoutSpotlight, travelAlerts, alertMessage, NICHE_NAMES, normalizeNeeds, TIER_INFO, TIERS } from './roster-core.mjs';
 import { tripOf, photoOf } from './strict-match-core.mjs';
 
 const $ = (s) => document.querySelector(s);
@@ -38,23 +38,25 @@ function card(r) {
   const others = r.matches.slice(1).map((m) => `<span class="ca-tag ${VERDICT[m.verdict][1]}">${esc(m.name)}: ${esc(VERDICT[m.verdict][0].toLowerCase())}</span>`).join('');
   const lines = b ? b.terms.lines.filter((l) => l.status !== 'ok').map((l) => esc(l.text)).join(' · ') : '';
   const av = r.photoUrl ? `<img class="rs-av" src="${esc(r.photoUrl)}" alt="" loading="lazy" referrerpolicy="no-referrer">` : `<span class="rs-av rs-av0">${esc((r.name || '?').slice(0, 1).toUpperCase())}</span>`;
+  const rt = r.rating, tierTag = `<span class="ca-tag ${rt.tier === 'summit' || rt.tier === 'ridge' ? 'good' : rt.tier === 'mirage' ? 'bad' : 'warn'}" title="${esc(rt.blurb)}">${rt.icon} ${esc(rt.name)}${rt.overridden ? ' · set by founder' : ''}</span>`;
+  const ratingLine = `<p class="bd-hint">${esc(rt.evidence === 'checked' ? 'Numbers checked' : 'Numbers self-reported')}${rt.reasons.length ? ' · ' + esc(rt.reasons.join('; ')) : ''}. To move up: ${esc(rt.next)}</p>`;
   const tags = r.nicheTags.length ? r.nicheTags.map((n) => `<span class="ca-tag good">${esc(n)}</span>`).join('') : '<span class="ca-tag warn">content type not stated</span>';
   const bandLine = b ? `<p><span class="ca-tag ${b.band === 'local' ? 'good' : b.band === 'far' ? 'warn' : 'bad'}">${esc(b.bandLabel)}${b.proximity.km != null ? ' · ~' + Math.round(b.proximity.km) + ' km' : ''}</span> <span class="bd-hint">${esc(b.bandNote)}</span></p>` : '';
   const needLine = b && b.needs && b.needs.niches.length ? `<p class="bd-hint">${esc(b.name)} needs: ${esc(b.needs.niches.join(', '))}${b.needs.strict ? ' (strict)' : ''}${b.nicheMatched.length ? ' · this creator matches: ' + esc(b.nicheMatched.join(', ')) : ''}</p>` : '';
   const trip = r.trip ? `<p class="bd-hint">Trip: ${esc(r.trip.town)} ${esc(r.trip.from)} to ${esc(r.trip.to)}</p>` : '';
   return `<div class="ca-row rs-row">${av}<div><h3>${esc(r.name)} <small>${r.handle ? `<a href="${esc(r.handle)}" target="_blank" rel="noopener">profile ↗</a>` : 'no link'}</small></h3>
     <p>${esc(((r.location && r.location.town) || 'location not set').replace(/\b[a-z]/g, (m) => m.toUpperCase()))} · ${esc(r.email || 'no email')} · ${esc(r.phone || 'no phone')} · ${esc((r.createdAt || '').slice(0, 10) || 'date unknown')}</p>
-    <div class="ca-tags">${tags}</div>${bandLine}${needLine}${trip}
+    <div class="ca-tags">${tierTag}${tags}</div>${ratingLine}${bandLine}${needLine}${trip}
     <div class="ca-tags">${r.flags.map((f) => `<span class="ca-tag warn">${esc(f)}</span>`).join('')}</div>
     ${b ? `<p><b>Best match: ${esc(b.name)}</b> · <span class="ca-tag ${v[1]}">${esc(v[0])}</span> · ${esc(b.proximity.label)}${b.proximity.km != null ? ` · ~${b.proximity.roadKm} km by road` : ''} · score ${b.score}${b.why.length ? ` · ${esc(b.why.join(', '))}` : ''}</p>${lines ? `<p class="bd-hint">To agree: ${lines}</p>` : ''}<div class="ca-tags">${others}</div>` : '<p class="bd-hint">No property is open to creators yet.</p>'}
     <div class="ca-actions">${wa ? `<a class="ca-action green" target="_blank" rel="noopener" href="${esc(wa)}">WhatsApp creator</a>` : '<span class="ca-tag warn">no phone: use email</span>'}
-    <button class="ca-action secondary" type="button" data-rs-edit="trip" data-id="${esc(r.id)}">${r.trip ? 'Change trip' : 'Add trip'}</button><button class="ca-action secondary" type="button" data-rs-edit="photo" data-id="${esc(r.id)}">${r.photoUrl ? 'Change photo link' : 'Add photo link'}</button>
+    <button class="ca-action secondary" type="button" data-rs-edit="verify" data-id="${esc(r.id)}">${r.metrics.metricsVerified ? 'Numbers checked ✓' : 'Mark numbers checked'}</button><button class="ca-action secondary" type="button" data-rs-edit="tier" data-id="${esc(r.id)}">Set rating</button><button class="ca-action secondary" type="button" data-rs-edit="trip" data-id="${esc(r.id)}">${r.trip ? 'Change trip' : 'Add trip'}</button><button class="ca-action secondary" type="button" data-rs-edit="photo" data-id="${esc(r.id)}">${r.photoUrl ? 'Change photo link' : 'Add photo link'}</button>
     ${spotBtn(r)}<select data-rs-stage="${esc(r.id)}" aria-label="Stage for ${esc(r.name)}">${STAGES.map((s) => `<option value="${s}"${s === r.stage ? ' selected' : ''}>${s}</option>`).join('')}</select></div></div></div>`;
 }
 
 function visible() {
   const q = R.q.toLowerCase();
-  return R.rows.filter((r) => (R.filter === 'all' || (R.filter === 'review' ? r.flags.length : R.filter.startsWith('band:') ? r.best && r.best.band === R.filter.slice(5) : R.filter === 'fits' ? r.matches.some((m) => m.verdict !== 'no_fit') : R.filter === 'send' ? r.best && r.best.verdict === 'send' : r.stage === R.filter))
+  return R.rows.filter((r) => (R.filter === 'all' || (R.filter === 'review' ? r.flags.length : R.filter.startsWith('tier:') ? r.rating.tier === R.filter.slice(5) : R.filter.startsWith('band:') ? r.best && r.best.band === R.filter.slice(5) : R.filter === 'fits' ? r.matches.some((m) => m.verdict !== 'no_fit') : R.filter === 'send' ? r.best && r.best.verdict === 'send' : r.stage === R.filter))
     && (!q || [r.name, r.handle, r.email, r.phone, ((r.location && r.location.town) || '')].join(' ').toLowerCase().includes(q)));
 }
 
@@ -84,7 +86,9 @@ function paint() {
   host.querySelectorAll('[data-rs-edit]').forEach((b) => b.addEventListener('click', async () => {
     const d = db(), r = R.rows.find((x) => x.id === b.dataset.id); if (!d || !r) return;
     let patch;
-    if (b.dataset.rsEdit === 'photo') { const u = prompt('Public photo link (https image link the creator gave you):', r.photoUrl || ''); if (u == null) return; if (u && !photoOf({ photoUrl: u })) { alert('That is not a valid https link.'); return; } patch = { 'barter.photoUrl': u.trim() }; }
+    if (b.dataset.rsEdit === 'verify') { if (!confirm('Mark ' + r.name + "'s Insights numbers as checked by you? Only do this after seeing their real Insights screenshots.")) return; patch = { 'barter.metrics.metricsVerified': !r.metrics.metricsVerified }; }
+    else if (b.dataset.rsEdit === 'tier') { const v = prompt('Set rating: ' + TIERS.join(', ') + ' (blank to use the automatic rating):', r.tierOverride || ''); if (v == null) return; const t = v.trim().toLowerCase(); if (t && !TIERS.includes(t)) { alert('Pick one of: ' + TIERS.join(', ')); return; } patch = { tierOverride: t }; }
+    else if (b.dataset.rsEdit === 'photo') { const u = prompt('Public photo link (https image link the creator gave you):', r.photoUrl || ''); if (u == null) return; if (u && !photoOf({ photoUrl: u })) { alert('That is not a valid https link.'); return; } patch = { 'barter.photoUrl': u.trim() }; }
     else { const t = prompt('Trip town (blank to clear):', r.trip ? r.trip.town : ''); if (t == null) return; if (!t.trim()) patch = { 'barter.trip': null }; else { const f = prompt('From date YYYY-MM-DD:', r.trip ? r.trip.from : ''), to = prompt('To date YYYY-MM-DD:', r.trip ? r.trip.to : ''); const trip = tripOf({ trip: { town: t, from: f || to, to } }); if (!trip) { alert('Trip needs a town and an end date like 2026-11-05.'); return; } patch = { 'barter.trip': trip }; } }
     try { await d.collection('crm').doc(r.id).update(patch); await load(); paint(); }
     catch (e) { alert('Could not save: ' + (e.code || e.message) + '. Only the founder/admin account can do this.'); }
@@ -110,7 +114,7 @@ function mount() {
     <div class="ca-actions"><button class="ca-action secondary" id="rsReload" type="button">↻ Reload</button><button class="ca-action secondary" id="rsCsv" type="button">Download CSV</button></div></div>
     <div id="rsErr"></div><div id="rsAlerts"></div><div id="rsNeeds"></div>
     <div class="ca-actions" style="margin:10px 0"><input id="rsSearch" type="search" placeholder="Search name, email, phone, town" aria-label="Search creators" style="min-width:220px;padding:9px 11px">
-    <select id="rsFilter" aria-label="Filter"><option value="all">All</option><option value="send">Ready to offer</option><option value="review">Need a check</option><option value="band:local">Local (up to 150 km)</option><option value="band:far">Far (150 to 500 km)</option><option value="band:very_far">Very far (over 500 km)</option><option value="fits">Fits a property's needs</option>${STAGES.map((x) => `<option value="${x}">Stage: ${x}</option>`).join('')}</select></div>
+    <select id="rsFilter" aria-label="Filter"><option value="all">All</option><option value="send">Ready to offer</option><option value="review">Need a check</option><option value="band:local">Local (up to 150 km)</option><option value="band:far">Far (150 to 500 km)</option><option value="band:very_far">Very far (over 500 km)</option><option value="fits">Fits a property's needs</option>${TIERS.slice().reverse().map((t) => `<option value="tier:${t}">Rating: ${TIER_INFO[t].name}</option>`).join('')}${STAGES.map((x) => `<option value="${x}">Stage: ${x}</option>`).join('')}</select></div>
     <div id="rsList"><div class="ca-empty">Loading creators…</div></div>`;
   const first = dash.querySelector('.ca-panel, section'); dash.insertBefore(s, first && first.nextSibling ? first.nextSibling : null);
   const go = () => load().then(paint).catch((e) => { R.errors.push(String(e && (e.code || e.message) || e)); paint(); });

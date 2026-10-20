@@ -22,19 +22,21 @@
    +'#rwBoard .bd-s{display:block;margin-top:2px;font-size:11px;line-height:1.35;color:#cfc8bb;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}'
    +'#rwBoard .bd-m{display:inline-block;margin-top:5px;padding:3px 8px;border-radius:999px;font-size:10.5px;font-weight:800;color:#07090f;background:linear-gradient(95deg,#16bf96,#6ee7c4)}'
    +'#rwBoard .bd-m.n{background:linear-gradient(95deg,#E8BA6C,#ffd98e)}'
+   +'#rwBoard .bd-t{font:800 10px system-ui;letter-spacing:.04em;color:#E8BA6C;white-space:nowrap}'
    +'#rwBoard .bd-ig{color:#ff9aa8;font-weight:700}'
    +'#rwBoard .bd-cta{display:block;text-align:center;margin-top:4px;padding:9px;border-radius:12px;font:800 12.5px system-ui,sans-serif;text-decoration:none;color:#0B1020;background:linear-gradient(95deg,#C8913E,#E8BA6C)}'
    +'#rwBoard .bd-e{font-size:12px;line-height:1.45;color:#d8d5ce;margin:2px 2px 8px}'
    +'#rwBoard .bd-note{margin:9px 4px 0;font-size:11.5px;line-height:1.5;color:#cfc8bb}'
    +'@keyframes bdRise{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}'
    +'@media (prefers-reduced-motion:reduce){#rwBoard .bd-c{animation:none}}';
+  var TIER={summit:'🚩 Summit',ridge:'🏔️ Ridge',trail:'🥾 Trail',basecamp:'⛺ Base Camp'};
   var IG=/^https:\/\/(www\.)?instagram\.com\/[A-Za-z0-9._\/-]{1,80}\/?(\?[^\s<>"']{0,60})?$/i;
   function esc(v){ return String(v==null?'':v).replace(/[&<>"']/g,function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
   function handleOf(u){ var m=/instagram\.com\/([A-Za-z0-9._-]+)/i.exec(u||''); return m?'@'+m[1]:'Instagram'; }
   function creatorRow(c){
     if(!c||!c.name) return '';
     var m=c.match||{}, ok=IG.test(String(c.handle||'')), score=Math.max(0,Math.min(100,Number(m.score)||0));
-    var inner='<span class="bd-n">'+esc(c.name)+'</span><span class="bd-s">'+(ok?'<span class="bd-ig">'+esc(handleOf(c.handle))+'</span>':'')+(c.niche?' · '+esc(c.niche):'')+(c.town?' · '+esc(c.town):'')+'</span>'
+    var inner='<span class="bd-n">'+esc(c.name)+(TIER[c.tier]?' <span class="bd-t">'+TIER[c.tier]+'</span>':'')+'</span><span class="bd-s">'+(ok?'<span class="bd-ig">'+esc(handleOf(c.handle))+'</span>':'')+(c.niche?' · '+esc(c.niche):'')+(c.town?' · '+esc(c.town):'')+'</span>'
       +(m.name?'<span class="bd-m'+(m.verdict==='send'?'':' n')+'">Best for '+esc(m.name)+' · '+score+'/100</span>':'');
     return ok?'<a class="bd-r" href="'+esc(c.handle)+'" target="_blank" rel="noopener noreferrer">'+inner+'</a>':'<div class="bd-r" style="cursor:default">'+inner+'</div>';
   }

@@ -34,7 +34,7 @@ export function nichesOf(...texts) {
 /** What a property needs. strict=true means a creator who does not make that content is not introduced at all. */
 export function normalizeNeeds(raw = {}) {
   const wanted = [...new Set((Array.isArray(raw.niches) ? raw.niches : []).map((x) => String(x).toLowerCase().trim()).filter((x) => NICHE_NAMES.includes(x)))].slice(0, 6);
-  return { niches: wanted, strict: raw.strict === true && wanted.length > 0, note: str(raw.note, 200) };
+  return { niches: wanted, strict: raw.strict === true && wanted.length > 0, starsPass: raw.starsPass !== false, note: str(raw.note, 200) };
 }
 
 /** { ok, matched, why } for a creator's content types against a property's needs. No stated need means everyone passes. */
