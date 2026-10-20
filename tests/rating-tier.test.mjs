@@ -52,3 +52,17 @@ test('a Mirage creator is never matched or featured; a Summit travel creator can
   assert.equal(milan('o').verdict, 'no_fit');
   assert.equal(rows.find((r) => r.id === 's').rating.tier, 'summit');
 });
+
+test('Instagram API numbers replace typed ones, count as checked, and signals can cap a tier', () => {
+  const now = new Date().toISOString();
+  const app = { id: 'i', name: 'IG Creator', handle: 'https://www.instagram.com/x/', phone: '919900000001', niche: 'food',
+    barter: { location: { town: 'almora' }, ask: {}, metrics: { followers: 99999999, engagementPct: 50 },
+      instagram: { ratedAt: now, metrics: { followers: 130000, engagementPct: 4, avgViews: 60000, postsLast30d: 10, metricsVerified: true }, signals: {} } }, refSales: 3 };
+  const r = buildRoster([app], SEED_POLICIES)[0];
+  assert.equal(r.metrics.followers, 130000, 'Instagram wins over typed numbers');
+  assert.equal(r.rating.tier, 'summit'); assert.equal(r.rating.evidence, 'instagram');
+  const gamed = buildRoster([{ ...app, id: 'g', barter: { ...app.barter, instagram: { ...app.barter.instagram, signals: { giveaways: 6, viralDependence: 12 } } } }], SEED_POLICIES)[0];
+  assert.equal(gamed.rating.tier, 'trail'); assert.ok(gamed.rating.reasons.some((x) => /giveaway/.test(x)));
+  const stale = buildRoster([{ ...app, id: 's', barter: { ...app.barter, instagram: { ...app.barter.instagram, ratedAt: '2025-01-01T00:00:00Z' } } }], SEED_POLICIES)[0];
+  assert.equal(stale.igRatedAt.slice(0, 4), '2025'); assert.notEqual(stale.metrics.followers, 130000, 'stale Instagram data (over 90 days) is not trusted');
+});
