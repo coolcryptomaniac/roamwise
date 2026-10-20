@@ -18,6 +18,7 @@
    ========================================================================== */
 
 var RW_AGENT_TOOLS = [
+  {type:'function',function:{name:'trip_desk',description:'Read the traveller device trip summary, free dates, budget, pending inquiries and shortlist, or open the editable trip desk. This does not confirm reservations or buy anything.',parameters:{type:'object',properties:{open:{type:'boolean'}}}}},
   { type:'function', function:{ name:'search_stays',
     description:'Find RoamWise stay listings in a city, including shown price where available and whether instant payment is actually enabled. Never imply live availability unless the returned room says paymentReady:true.',
     parameters:{ type:'object', properties:{ zone:{type:'string', description:'City, e.g. "Manali"'}, maxPrice:{type:'number'} }, required:['zone'] } } },
@@ -422,3 +423,5 @@ function rwAgentRenderTrace(trace, host){
       +'<span style="flex:0 0 auto;font-size:10px;color:var(--t3)">'+t.step+'</span></div>';
   }).join('');
 }
+
+RW_AGENT_IMPL.trip_desk=function(a){if(typeof RWTripDesk==='undefined')return {ok:false,error:'Trip desk unavailable'};if(a.open&&typeof rwOpenTripDesk==='function')rwOpenTripDesk();return {ok:true,trip:RWTripDesk.summary()};};

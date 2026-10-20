@@ -18,6 +18,7 @@ var RW_LEAD_CONSENT_FIELD = {
 
 /* payload: {source,name,phone,items,checkIn,checkOut,dates,guests,people,note,ref,estTotal}. cb(ok, message). */
 function rwStayLeadSend(payload, cb){
+  var tripOwner=typeof RWTripDesk!=='undefined'?RWTripDesk.owner():null;
   var url = (typeof window.rwApi === 'function') ? window.rwApi('stay/lead') : null;
   if(!url){ cb(false, 'offline'); return; }
   var body = {}; for(var k in payload) body[k] = payload[k];
@@ -25,6 +26,6 @@ function rwStayLeadSend(payload, cb){
   var done = false, t = setTimeout(function(){ if(!done){ done = true; cb(false, 'timeout'); } }, 12000);
   fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
     .then(function(r){ return r.json().then(function(j){ return { ok: r.ok && j && j.ok, j: j }; }, function(){ return { ok: false, j: null }; }); })
-    .then(function(x){ if(done) return; done = true; clearTimeout(t); cb(!!x.ok, x.ok ? (x.j && x.j.id) : (x.j && (x.j.message || x.j.error)) || 'failed'); })
+    .then(function(x){ if(done) return; done = true; clearTimeout(t); if(x.ok&&typeof RWTripDesk!=='undefined'&&tripOwner===RWTripDesk.owner())RWTripDesk.add({id:'inquiry:'+((x.j&&x.j.id)||Date.now()),title:'Stay inquiry '+(payload.checkIn||payload.dates||''),kind:'stay',status:'inquiry'}); cb(!!x.ok, x.ok ? (x.j && x.j.id) : (x.j && (x.j.message || x.j.error)) || 'failed'); })
     .catch(function(){ if(done) return; done = true; clearTimeout(t); cb(false, 'network'); });
 }
