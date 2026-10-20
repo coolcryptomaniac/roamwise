@@ -55,7 +55,7 @@ test('home spotlight: only public Instagram + match result, never phone or email
   const rows = buildRoster([{ ...apps[0], note: 'WhatsApp: +91 99000 00001' }], SEED_POLICIES);
   assert.ok(canSpotlight(rows[0]).ok);
   const e = spotlightEntry(rows[0]);
-  assert.deepEqual(Object.keys(e).sort(), ['handle', 'id', 'match', 'name', 'niche', 'town']);
+  assert.deepEqual(Object.keys(e).sort(), ['handle', 'id', 'match', 'name', 'niche', 'tier', 'town']);
   assert.ok(!JSON.stringify(e).includes('99000') && !JSON.stringify(e).includes('example.com'));
   assert.ok(e.match.name && e.match.score >= 0 && e.match.score <= 100);
 });

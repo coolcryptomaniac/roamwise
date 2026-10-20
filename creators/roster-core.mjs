@@ -4,6 +4,10 @@
    Nothing here sends or pays anything. */
 import { proximity, termsFit, creatorQuality, normalizeCreatorAsk, resolveLocation, waLink, offerText } from './local-barter-core.mjs';
 import { barterOfferFromPolicy } from './property-terms-core.mjs';
+import { rateTier } from './rating-tier-core.mjs';
+import { nichesOf, nicheFit, travelBand, bandLabel, bandNote, photoOf, tripOf, travelAlerts, alertMessage } from './strict-match-core.mjs';
+export { TIER_INFO, TIERS } from './rating-tier-core.mjs';
+export { travelAlerts, alertMessage, nichesOf, bandLabel, NICHE_NAMES, normalizeNeeds } from './strict-match-core.mjs';
 
 export const STAGES = Object.freeze(['new', 'contacted', 'shortlisted', 'offered', 'active', 'declined']);
 const str = (v, n = 120) => String(v == null ? '' : v).replace(/[\u0000-\u001f<>]/g, ' ').trim().slice(0, n);
@@ -19,6 +23,8 @@ export function creatorOf(app = {}) {
   const b = app.barter || {}, mp = app.matchProfile || {};
   const metrics = { ...(b.metrics || {}) };
   metrics.followers = Number(metrics.followers || mp.claimedFollowers || 0);
+  /* conversion proof: stay bookings RoamWise verified plus paid upgrades made through the creator's own code */
+  metrics.verifiedBookings = Math.max(Number(metrics.verifiedBookings || 0), Number(app.verifiedBookings || 0)) + Number(app.refSales || 0);
   const town = (b.location && b.location.town) || (Array.isArray(mp.destinations) ? mp.destinations[0] : '') || '';
   return {
     id: str(app.id, 60), name: str(app.name || app.email || 'Creator', 80), handle: str(app.handle, 160), email: str(app.email, 120),
@@ -27,6 +33,11 @@ export function creatorOf(app = {}) {
     ask: normalizeCreatorAsk(b.ask || { cashMin: Number(app.creatorMinimum || 0) }),
     metrics, niches: String(app.niche || (mp.niches || []).join(',')).split(',').map((x) => x.trim().toLowerCase()).filter(Boolean),
     note: str(app.note, 300),
+    /* strict matching inputs: canonical content types, one optional public photo, an optional trip */
+    primaryNiche: str((app.barter && app.barter.primaryNiche) || '', 30),
+    nicheTags: nichesOf((app.barter && app.barter.primaryNiche) || '', app.niche || (mp.niches || []).join(' '), app.note || ''),
+    photoUrl: photoOf(app), trip: tripOf(app),
+    tierOverride: ['mirage', 'basecamp', 'trail', 'ridge', 'summit'].includes(app.tierOverride) ? app.tierOverride : '',
   };
 }
 
@@ -54,13 +65,25 @@ export function matchOne(creator, policy) {
   const prox = proximity(creator.location, offer.location);
   const terms = termsFit(creator.ask, offer.offer, prox.tier);
   const quality = creatorQuality(creator.metrics);
-  const niche = nicheOverlap(creator.niches, offer.niches);
-  const score = Math.round(quality.score * 0.55 + prox.score * 0.30 + niche * 15);
+  const fit = nicheFit(creator.nicheTags || [], policy.needs);
+  const niche = nicheOverlap(creator.niches, offer.niches) || (fit.matched.length ? 1 : 0);
+  const band = travelBand(prox.km);
+  const rating = rateTier(creator.metrics, { override: creator.tierOverride, quality });
+  const score = Math.round(quality.score * 0.55 + prox.score * 0.30 + niche * 15 + (fit.matched.length ? 10 : 0) + ({ summit: 10, ridge: 5, mirage: -30 }[rating.tier] || 0));
   let verdict = terms.fit === 'no_fit' ? 'no_fit' : (terms.fit === 'ready' && ['local', 'nearby'].includes(prox.tier)) ? 'send' : 'negotiate';
   const why = [];
   if (terms.fit === 'no_fit') why.push('the ask is outside the offer');
   if (quality.flags.includes('likely_inflated') || quality.flags.includes('audience_growth_anomaly')) { verdict = 'no_fit'; why.push('audience numbers look unreliable'); }
-  return { propertyId: policy.propertyId, name: policy.name, verdict, score, proximity: prox, terms, quality, niche: !!niche, why, offer: offerText(offer.offer) };
+  /* Strict niche: a property that needs food vloggers is never introduced to a creator who does not make food content. */
+  if (!fit.ok && fit.needs.strict) {
+    /* A Summit creator (large reach, real engagement, proven bookings) may still be introduced: negotiated, never sent automatically. */
+    if (fit.needs.starsPass && rating.tier === 'summit' && verdict !== 'no_fit') { verdict = 'negotiate'; why.push('Summit creator: different content, but proven reach and bookings'); }
+    else { verdict = 'no_fit'; why.push(fit.why); }
+  }
+  else if (!fit.ok && fit.needs.niches.length && verdict === 'send') { verdict = 'negotiate'; why.push(fit.why); }
+  if (band === 'very_far' && verdict === 'send') verdict = 'negotiate';
+  if (rating.tier === 'mirage') { verdict = 'no_fit'; why.push('RoamWise rating Mirage: ' + (rating.reasons[0] || 'numbers do not hold up')); }
+  return { propertyId: policy.propertyId, name: policy.name, verdict, score, proximity: prox, terms, quality, niche: !!niche, nicheMatched: fit.matched, needs: fit.needs, band, tier: rating.tier, bandLabel: bandLabel(band), bandNote: bandNote(band), why, offer: offerText(offer.offer) };
 }
 
 const ORDER = { send: 0, negotiate: 1, no_fit: 2 };
@@ -70,7 +93,7 @@ export function buildRoster(apps = [], policies = []) {
   const creators = (apps || []).map(creatorOf);
   return creators.map((c) => {
     const matches = open.map((p) => matchOne(c, p)).sort((a, b) => ORDER[a.verdict] - ORDER[b.verdict] || b.score - a.score);
-    return { ...c, flags: flagsOf(c, creators), matches, best: matches[0] || null };
+    return { ...c, rating: rateTier(c.metrics, { override: c.tierOverride }), flags: flagsOf(c, creators), matches, best: matches[0] || null };
   });
 }
 
@@ -109,6 +132,7 @@ export function shareBlocked(c = {}) {
 export function canSpotlight(row) {
   if (!row || shareBlocked(row)) return { ok: false, why: 'asked not to be shared' };
   if (!isInstagramUrl(row.handle)) return { ok: false, why: 'needs a public Instagram link' };
+  if (row.rating && row.rating.tier === 'mirage') return { ok: false, why: 'RoamWise rating is Mirage' };
   if (!row.best || row.best.verdict === 'no_fit') return { ok: false, why: 'no property fit yet' };
   return { ok: true, why: '' };
 }
@@ -116,7 +140,7 @@ export function canSpotlight(row) {
 export function spotlightEntry(row) {
   const b = row.best || {};
   return { id: str(row.id, 60), name: str(row.name, 60), handle: str(row.handle, 160), niche: row.niches.slice(0, 3).join(', ').slice(0, 60),
-    town: str((row.location && row.location.town) || '', 40), match: { name: str(b.name, 80), score: Math.max(0, Math.min(100, Number(b.score) || 0)), verdict: b.verdict === 'send' ? 'send' : 'negotiate' } };
+    town: str((row.location && row.location.town) || '', 40), tier: row.rating ? row.rating.tier : 'basecamp', match: { name: str(b.name, 80), score: Math.max(0, Math.min(100, Number(b.score) || 0)), verdict: b.verdict === 'send' ? 'send' : 'negotiate' } };
 }
 /** Add or replace one entry (by id), newest first, capped. */
 export function withSpotlight(list = [], entry) {
