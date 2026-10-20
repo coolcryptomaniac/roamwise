@@ -17,6 +17,7 @@
    ========================================================================= */
 import { autopilotDecision, normalizeMatchProfile, quoteCollaboration, scoreMatch } from './match-core.mjs';
 import { PACKAGES } from './rate-guide-core.mjs';
+import { normalizeNeeds } from './strict-match-core.mjs';
 
 export const POLICY_STATUS = Object.freeze(['open', 'pending', 'closed']);
 const clampInt = (v, lo, hi, d) => { const n = Math.round(Number(v)); return Number.isFinite(n) ? Math.min(hi, Math.max(lo, n)) : d; };
@@ -68,6 +69,8 @@ export function normalizePolicy(raw = {}) {
     },
     whatsapp: String(raw.whatsapp || '').replace(/\D/g, '').slice(0, 15),
     niches: (Array.isArray(raw.niches) ? raw.niches : []).map(String).slice(0, 8),
+    /* What content this property needs. strict: creators who do not make it are not introduced (Milan Heights: food). */
+    needs: normalizeNeeds(raw.needs),
     /* From the property's own join form: what content they want, who gets offers automatically, the
        upfront top-up budget a strong creator can be offered, and the room rate that prices the stay. */
     package: ['standard', 'stories', 'feature'].includes(raw.package) ? raw.package : 'standard',
@@ -93,6 +96,8 @@ export const SEED_POLICIES = Object.freeze([
     location: { town: 'Almora', lat: 29.5966, lng: 79.6593 },   // Dharanaula, opposite Milan Cafe
     whatsapp: '917302315845',                                       // the public booking number in partners-data.js
     niches: ['mountains', 'food', 'culture', 'budget'],
+    /* Founder, 2026-10-20: the owner (Vaibhav) expects rooms to fill on their own and wants food vloggers, not room-for-content swaps. */
+    needs: { niches: ['food'], strict: true, note: 'Rooms mostly fill; wants food vloggers.' },
     /* Founder, 2026-10-14: rooms are not fixed, ₹1,500 to ₹3,000 a night. Creator stays are off-season
        weeknights, so the stay is priced at the low end; the range is shown alongside. */
     roomRate: 1500, roomRateMax: 3000,

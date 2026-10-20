@@ -4,6 +4,8 @@
    Nothing here sends or pays anything. */
 import { proximity, termsFit, creatorQuality, normalizeCreatorAsk, resolveLocation, waLink, offerText } from './local-barter-core.mjs';
 import { barterOfferFromPolicy } from './property-terms-core.mjs';
+import { nichesOf, nicheFit, travelBand, bandLabel, bandNote, photoOf, tripOf, travelAlerts, alertMessage } from './strict-match-core.mjs';
+export { travelAlerts, alertMessage, nichesOf, bandLabel, NICHE_NAMES, normalizeNeeds } from './strict-match-core.mjs';
 
 export const STAGES = Object.freeze(['new', 'contacted', 'shortlisted', 'offered', 'active', 'declined']);
 const str = (v, n = 120) => String(v == null ? '' : v).replace(/[\u0000-\u001f<>]/g, ' ').trim().slice(0, n);
@@ -27,6 +29,10 @@ export function creatorOf(app = {}) {
     ask: normalizeCreatorAsk(b.ask || { cashMin: Number(app.creatorMinimum || 0) }),
     metrics, niches: String(app.niche || (mp.niches || []).join(',')).split(',').map((x) => x.trim().toLowerCase()).filter(Boolean),
     note: str(app.note, 300),
+    /* strict matching inputs: canonical content types, one optional public photo, an optional trip */
+    primaryNiche: str((app.barter && app.barter.primaryNiche) || '', 30),
+    nicheTags: nichesOf((app.barter && app.barter.primaryNiche) || '', app.niche || (mp.niches || []).join(' '), app.note || ''),
+    photoUrl: photoOf(app), trip: tripOf(app),
   };
 }
 
@@ -54,13 +60,19 @@ export function matchOne(creator, policy) {
   const prox = proximity(creator.location, offer.location);
   const terms = termsFit(creator.ask, offer.offer, prox.tier);
   const quality = creatorQuality(creator.metrics);
-  const niche = nicheOverlap(creator.niches, offer.niches);
-  const score = Math.round(quality.score * 0.55 + prox.score * 0.30 + niche * 15);
+  const fit = nicheFit(creator.nicheTags || [], policy.needs);
+  const niche = nicheOverlap(creator.niches, offer.niches) || (fit.matched.length ? 1 : 0);
+  const band = travelBand(prox.km);
+  const score = Math.round(quality.score * 0.55 + prox.score * 0.30 + niche * 15 + (fit.matched.length ? 10 : 0));
   let verdict = terms.fit === 'no_fit' ? 'no_fit' : (terms.fit === 'ready' && ['local', 'nearby'].includes(prox.tier)) ? 'send' : 'negotiate';
   const why = [];
   if (terms.fit === 'no_fit') why.push('the ask is outside the offer');
   if (quality.flags.includes('likely_inflated') || quality.flags.includes('audience_growth_anomaly')) { verdict = 'no_fit'; why.push('audience numbers look unreliable'); }
-  return { propertyId: policy.propertyId, name: policy.name, verdict, score, proximity: prox, terms, quality, niche: !!niche, why, offer: offerText(offer.offer) };
+  /* Strict niche: a property that needs food vloggers is never introduced to a creator who does not make food content. */
+  if (!fit.ok && fit.needs.strict) { verdict = 'no_fit'; why.push(fit.why); }
+  else if (!fit.ok && fit.needs.niches.length && verdict === 'send') { verdict = 'negotiate'; why.push(fit.why); }
+  if (band === 'very_far' && verdict === 'send') verdict = 'negotiate';
+  return { propertyId: policy.propertyId, name: policy.name, verdict, score, proximity: prox, terms, quality, niche: !!niche, nicheMatched: fit.matched, needs: fit.needs, band, bandLabel: bandLabel(band), bandNote: bandNote(band), why, offer: offerText(offer.offer) };
 }
 
 const ORDER = { send: 0, negotiate: 1, no_fit: 2 };
