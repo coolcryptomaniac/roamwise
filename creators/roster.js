@@ -4,7 +4,7 @@
    real Firestore error if something is blocked, so an empty list is never a silent failure.
    Writes only crm/{id}.stage, which the Firestore rules already allow for the admin and the marketing role. */
 import { SEED_POLICIES, mergePolicies, policyFromPartner } from './property-terms-core.mjs';
-import { buildRoster, rosterCounts, creatorIntro, toCsv, STAGES, canSpotlight, spotlightEntry, withSpotlight, withoutSpotlight, travelAlerts, alertMessage, NICHE_NAMES, normalizeNeeds, TIER_INFO, TIERS } from './roster-core.mjs';
+import { buildRoster, rosterCounts, creatorIntro, toCsv, STAGES, canSpotlight, spotlightEntry, withSpotlight, withoutSpotlight, travelAlerts, alertMessage, NICHE_NAMES, normalizeNeeds, TIER_INFO, TIERS, quickLinks } from './roster-core.mjs';
 import { tripOf, photoOf } from './strict-match-core.mjs';
 
 const API = 'https://roamwise-api.founder-f53.workers.dev';
@@ -54,6 +54,23 @@ async function autoVerify() {
   } finally { R.igBusy = false; paint(); }
 }
 
+/* Public check: YouTube's official Data API plus a web-search footprint, via the Worker. Needs YT_API_KEY and/or FIRECRAWL_API_KEY there. */
+async function publicCheck(id) {
+  const d = db(), r = R.rows.find((x) => x.id === id), user = (() => { try { return firebase.auth().currentUser; } catch (_) { return null; } })();
+  if (!d || !r || !user) return 'skip';
+  try {
+    const res = await fetch(API + '/admin/creator/public-check', { method: 'POST', headers: { authorization: 'Bearer ' + await user.getIdToken(), 'content-type': 'application/json' }, body: JSON.stringify({ name: r.name, handle: r.handle, youtube: r.youtube }) });
+    const out = await res.json().catch(() => ({}));
+    if (res.status === 503) return 'off';
+    if (!res.ok) return 'error';
+    const save = { checkedAt: out.checkedAt };
+    if (out.youtube && !out.youtube.error) save.youtube = out.youtube;
+    if (out.footprint && !out.footprint.error) save.footprint = out.footprint;
+    await d.collection('crm').doc(id).update({ 'barter.publicCheck': save });
+    return out.youtube && out.youtube.error ? 'ok-no-yt:' + out.youtube.error : 'ok';
+  } catch (e) { return 'error'; }
+}
+
 function spotBtn(r) {
   const on = R.spot.some((x) => x && x.id === r.id), c = canSpotlight(r);
   if (on) return `<button class="ca-action secondary" type="button" data-rs-spot="off" data-id="${esc(r.id)}">Remove from home page</button>`;
@@ -67,19 +84,22 @@ function card(r) {
   const lines = b ? b.terms.lines.filter((l) => l.status !== 'ok').map((l) => esc(l.text)).join(' · ') : '';
   const av = r.photoUrl ? `<img class="rs-av" src="${esc(r.photoUrl)}" alt="" loading="lazy" referrerpolicy="no-referrer">` : `<span class="rs-av rs-av0">${esc((r.name || '?').slice(0, 1).toUpperCase())}</span>`;
   const rt = r.rating, tierTag = `<span class="ca-tag ${rt.tier === 'summit' || rt.tier === 'ridge' ? 'good' : rt.tier === 'mirage' ? 'bad' : 'warn'}" title="${esc(rt.blurb)}">${rt.icon} ${esc(rt.name)}${rt.overridden ? ' · set by founder' : ''}</span>`;
-  const ratingLine = `<p class="bd-hint">${esc(rt.evidence === 'instagram' ? 'Numbers from Instagram' : rt.evidence === 'checked' ? 'Numbers checked' : 'Numbers self-reported')}${rt.reasons.length ? ' · ' + esc(rt.reasons.join('; ')) : ''}. To move up: ${esc(rt.next)}</p>`;
+  const ratingLine = `<p class="bd-hint">${esc(rt.evidence === 'instagram' ? 'Numbers from Instagram' : rt.evidence === 'youtube' ? 'Numbers from YouTube' : rt.evidence === 'checked' ? 'Numbers checked' : 'Numbers self-reported')}${rt.reasons.length ? ' · ' + esc(rt.reasons.join('; ')) : ''}. To move up: ${esc(rt.next)}</p>`;
   const tags = r.nicheTags.length ? r.nicheTags.map((n) => `<span class="ca-tag good">${esc(n)}</span>`).join('') : '<span class="ca-tag warn">content type not stated</span>';
   const bandLine = b ? `<p><span class="ca-tag ${b.band === 'local' ? 'good' : b.band === 'far' ? 'warn' : 'bad'}">${esc(b.bandLabel)}${b.proximity.km != null ? ' · ~' + Math.round(b.proximity.km) + ' km' : ''}</span> <span class="bd-hint">${esc(b.bandNote)}</span></p>` : '';
   const needLine = b && b.needs && b.needs.niches.length ? `<p class="bd-hint">${esc(b.name)} needs: ${esc(b.needs.niches.join(', '))}${b.needs.strict ? ' (strict)' : ''}${b.nicheMatched.length ? ' · this creator matches: ' + esc(b.nicheMatched.join(', ')) : ''}</p>` : '';
   const igLine = r.igRatedAt ? `<p class="bd-hint">Checked with Instagram on ${esc(r.igRatedAt.slice(0, 10))}</p>` : r.igFailedAt ? `<p class="bd-hint">Instagram check not possible: ${esc(r.igFailure)}. Ask for an Insights screenshot.</p>` : '';
+  const links = quickLinks({ name: r.name, handle: r.handle, youtube: r.youtube }).map((l) => `<a href="${esc(l.url)}" target="_blank" rel="noopener noreferrer">${esc(l.label)} ↗</a>`).join(' · ');
+  const fp = r.footprint ? `<p class="bd-hint">Web footprint: ${esc(r.footprint.note)} ${(r.footprint.items || []).filter((i) => !i.own).slice(0, 3).map((i) => `<a href="${esc(i.url)}" target="_blank" rel="noopener noreferrer">${esc(i.domain)}</a>`).join(', ')}</p>` : '';
+  const pubLine = `<p class="bd-hint">Public check: ${links}</p>${fp}`;
   const trip = r.trip ? `<p class="bd-hint">Trip: ${esc(r.trip.town)} ${esc(r.trip.from)} to ${esc(r.trip.to)}</p>` : '';
   return `<div class="ca-row rs-row">${av}<div><h3>${esc(r.name)} <small>${r.handle ? `<a href="${esc(r.handle)}" target="_blank" rel="noopener">profile ↗</a>` : 'no link'}</small></h3>
     <p>${esc(((r.location && r.location.town) || 'location not set').replace(/\b[a-z]/g, (m) => m.toUpperCase()))} · ${esc(r.email || 'no email')} · ${esc(r.phone || 'no phone')} · ${esc((r.createdAt || '').slice(0, 10) || 'date unknown')}</p>
-    <div class="ca-tags">${tierTag}${tags}</div>${ratingLine}${igLine}${bandLine}${needLine}${trip}
+    <div class="ca-tags">${tierTag}${tags}</div>${ratingLine}${igLine}${pubLine}${bandLine}${needLine}${trip}
     <div class="ca-tags">${r.flags.map((f) => `<span class="ca-tag warn">${esc(f)}</span>`).join('')}</div>
     ${b ? `<p><b>Best match: ${esc(b.name)}</b> · <span class="ca-tag ${v[1]}">${esc(v[0])}</span> · ${esc(b.proximity.label)}${b.proximity.km != null ? ` · ~${b.proximity.roadKm} km by road` : ''} · score ${b.score}${b.why.length ? ` · ${esc(b.why.join(', '))}` : ''}</p>${lines ? `<p class="bd-hint">To agree: ${lines}</p>` : ''}<div class="ca-tags">${others}</div>` : '<p class="bd-hint">No property is open to creators yet.</p>'}
     <div class="ca-actions">${wa ? `<a class="ca-action green" target="_blank" rel="noopener" href="${esc(wa)}">WhatsApp creator</a>` : '<span class="ca-tag warn">no phone: use email</span>'}
-    <button class="ca-action secondary" type="button" data-rs-edit="ig" data-id="${esc(r.id)}">${r.igRatedAt ? 'Re-check Instagram' : 'Verify from Instagram'}</button><button class="ca-action secondary" type="button" data-rs-edit="verify" data-id="${esc(r.id)}">${r.metrics.metricsVerified ? 'Numbers checked ✓' : 'Mark numbers checked'}</button><button class="ca-action secondary" type="button" data-rs-edit="tier" data-id="${esc(r.id)}">Set rating</button><button class="ca-action secondary" type="button" data-rs-edit="trip" data-id="${esc(r.id)}">${r.trip ? 'Change trip' : 'Add trip'}</button><button class="ca-action secondary" type="button" data-rs-edit="photo" data-id="${esc(r.id)}">${r.photoUrl ? 'Change photo link' : 'Add photo link'}</button>
+    <button class="ca-action secondary" type="button" data-rs-edit="pub" data-id="${esc(r.id)}">${r.publicCheckedAt ? 'Re-run public check' : 'Run public check'}</button><button class="ca-action secondary" type="button" data-rs-edit="yt" data-id="${esc(r.id)}">${r.youtube ? 'Change YouTube link' : 'Add YouTube link'}</button><button class="ca-action secondary" type="button" data-rs-edit="ig" data-id="${esc(r.id)}">${r.igRatedAt ? 'Re-check Instagram' : 'Verify from Instagram'}</button><button class="ca-action secondary" type="button" data-rs-edit="verify" data-id="${esc(r.id)}">${r.metrics.metricsVerified ? 'Numbers checked ✓' : 'Mark numbers checked'}</button><button class="ca-action secondary" type="button" data-rs-edit="tier" data-id="${esc(r.id)}">Set rating</button><button class="ca-action secondary" type="button" data-rs-edit="trip" data-id="${esc(r.id)}">${r.trip ? 'Change trip' : 'Add trip'}</button><button class="ca-action secondary" type="button" data-rs-edit="photo" data-id="${esc(r.id)}">${r.photoUrl ? 'Change photo link' : 'Add photo link'}</button>
     ${spotBtn(r)}<select data-rs-stage="${esc(r.id)}" aria-label="Stage for ${esc(r.name)}">${STAGES.map((s) => `<option value="${s}"${s === r.stage ? ' selected' : ''}>${s}</option>`).join('')}</select></div></div></div>`;
 }
 
@@ -116,6 +136,8 @@ function paint() {
   host.querySelectorAll('[data-rs-edit]').forEach((b) => b.addEventListener('click', async () => {
     const d = db(), r = R.rows.find((x) => x.id === b.dataset.id); if (!d || !r) return;
     let patch;
+    if (b.dataset.rsEdit === 'yt') { const u = prompt('YouTube channel link (https://www.youtube.com/@name or /channel/UC...):', r.youtube || ''); if (u == null) return; if (u && !/^https:\/\/(www\.)?youtube\.com\/(@|channel\/UC|c\/|user\/)/i.test(u.trim())) { alert('That does not look like a YouTube channel link.'); return; } try { await d.collection('crm').doc(r.id).update({ 'barter.youtube': u.trim() }); await load(); } catch (e) { alert('Could not save: ' + (e.code || e.message)); } paint(); return; }
+    if (b.dataset.rsEdit === 'pub') { b.disabled = true; b.textContent = 'Checking…'; const out = await publicCheck(r.id); if (out === 'off') alert('Public checks are not switched on yet. Add YT_API_KEY (YouTube Data API) and/or FIRECRAWL_API_KEY as Worker secrets. The Google and YouTube search links on each card work now.'); else if (out === 'error') alert('Public check failed. Try again in a minute.'); else if (out.startsWith('ok-no-yt')) alert('Web footprint saved. YouTube: ' + out.slice(9)); await load(); paint(); return; }
     if (b.dataset.rsEdit === 'ig') { b.disabled = true; b.textContent = 'Checking…'; const out = await verifyIg(r.id, false); if (out === 'ok') { await load(); } else if (out === 'failed') { alert('Instagram would not share this account. It must be a public Business or Creator account. Ask for an Insights screenshot instead.'); } else if (out === 'error') { alert('Instagram check failed. Try again in a minute.'); } paint(); return; }
     if (b.dataset.rsEdit === 'verify') { if (!confirm('Mark ' + r.name + "'s Insights numbers as checked by you? Only do this after seeing their real Insights screenshots.")) return; patch = { 'barter.metrics.metricsVerified': !r.metrics.metricsVerified }; }
     else if (b.dataset.rsEdit === 'tier') { const v = prompt('Set rating: ' + TIERS.join(', ') + ' (blank to use the automatic rating):', r.tierOverride || ''); if (v == null) return; const t = v.trim().toLowerCase(); if (t && !TIERS.includes(t)) { alert('Pick one of: ' + TIERS.join(', ')); return; } patch = { tierOverride: t }; }

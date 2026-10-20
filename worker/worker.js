@@ -39,6 +39,7 @@
      GET  /partner/cashfree/order/:bookingId/status  verify and persist paid stay -> handlers/partner-cashfree.js
      POST /push/send                   admin-only: send an FCM push to one user -> handlers/push.js
      POST /admin/creator/ig-rating     admin-only: rate a creator from Instagram Business Discovery -> handlers/creator-rating.js
+     POST /admin/creator/public-check  admin-only: YouTube Data API numbers + web footprint links -> handlers/creator-public-check.js
      POST /nomad/advise                public: Workers AI explains Nomad Match picks (cached, capped) -> handlers/nomad-ai.js
      POST /admin/ai-ca/review          admin-only redacted finance/compliance review -> handlers/ai-ca.js
      POST /admin/invoices/sweep        admin-only: issue invoices for paid orders with none yet -> handlers/invoices.js
@@ -65,6 +66,7 @@ import { cashfreeTransportFetch } from './lib/cashfree-transport.js';
 import { handlePartnerCashfreeOrder, handlePartnerCashfreeStatus } from './handlers/partner-cashfree.js';
 import { handlePushSend } from './handlers/push.js';
 import { handleCreatorRating } from './handlers/creator-rating.js';
+import { handleCreatorPublicCheck } from './handlers/creator-public-check.js';
 import { handleNomadAdvise } from './handlers/nomad-ai.js';
 import { handleBusiness } from './handlers/business.js';
 import { handleAICAReview } from './handlers/ai-ca.js';
@@ -155,6 +157,7 @@ export default {
     if(path === 'admin/invoices/sweep' && request.method === 'POST') return handleInvoiceSweep(request, env);
 
     if(path === 'admin/creator/ig-rating' && request.method === 'POST') return handleCreatorRating(request, env);
+    if(path === 'admin/creator/public-check' && request.method === 'POST') return handleCreatorPublicCheck(request, env);
 
     if(path === 'nomad/advise' && request.method === 'POST') return handleNomadAdvise(request, env);
 

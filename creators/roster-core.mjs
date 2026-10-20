@@ -4,8 +4,10 @@
    Nothing here sends or pays anything. */
 import { proximity, termsFit, creatorQuality, normalizeCreatorAsk, resolveLocation, waLink, offerText } from './local-barter-core.mjs';
 import { barterOfferFromPolicy } from './property-terms-core.mjs';
+import { quickLinks } from './public-check-core.mjs';
 import { rateTier } from './rating-tier-core.mjs';
 import { nichesOf, nicheFit, travelBand, bandLabel, bandNote, photoOf, tripOf, travelAlerts, alertMessage } from './strict-match-core.mjs';
+export { quickLinks } from './public-check-core.mjs';
 export { TIER_INFO, TIERS } from './rating-tier-core.mjs';
 export { travelAlerts, alertMessage, nichesOf, bandLabel, NICHE_NAMES, normalizeNeeds } from './strict-match-core.mjs';
 
@@ -24,8 +26,11 @@ export function creatorOf(app = {}) {
   /* Numbers from Instagram's own Business Discovery API (admin "Verify from Instagram") beat typed-in ones, and count as checked for 90 days. */
   const ig = b.instagram && b.instagram.metrics ? b.instagram : null;
   const igFresh = !!ig && Date.now() - Date.parse(ig.ratedAt || '') < 90 * 864e5;
-  const metrics = { ...(b.metrics || {}), ...(igFresh ? ig.metrics : {}) };
-  if (igFresh) metrics.metricsVerified = true;
+  /* No Instagram numbers? A fresh YouTube Data API check of their channel (official public numbers) stands in. */
+  const pc = b.publicCheck && b.publicCheck.youtube && b.publicCheck.youtube.metrics ? b.publicCheck : null;
+  const ytFresh = !igFresh && !!pc && Date.now() - Date.parse(pc.checkedAt || '') < 90 * 864e5;
+  const metrics = { ...(b.metrics || {}), ...(igFresh ? ig.metrics : {}), ...(ytFresh ? pc.youtube.metrics : {}) };
+  if (igFresh || ytFresh) metrics.metricsVerified = true;
   metrics.followers = Number(metrics.followers || mp.claimedFollowers || 0);
   /* conversion proof: stay bookings RoamWise verified plus paid upgrades made through the creator's own code */
   metrics.verifiedBookings = Math.max(Number(metrics.verifiedBookings || 0), Number(app.verifiedBookings || 0)) + Number(app.refSales || 0);
@@ -41,7 +46,10 @@ export function creatorOf(app = {}) {
     primaryNiche: str((app.barter && app.barter.primaryNiche) || '', 30),
     nicheTags: nichesOf((app.barter && app.barter.primaryNiche) || '', app.niche || (mp.niches || []).join(' '), app.note || ''),
     photoUrl: photoOf(app), trip: tripOf(app),
-    igFresh, igSignals: igFresh ? (ig.signals || {}) : {}, igRatedAt: ig ? str(ig.ratedAt, 30) : '', igFailedAt: str((b.instagram && b.instagram.failedAt) || '', 30), igFailure: str((b.instagram && b.instagram.failure) || '', 160),
+    igFresh, via: igFresh ? 'instagram' : ytFresh ? 'youtube' : '',
+    youtube: /^https:\/\//i.test(String(b.youtube || '')) ? str(b.youtube, 200) : '',
+    footprint: b.publicCheck && b.publicCheck.footprint && !b.publicCheck.footprint.error ? b.publicCheck.footprint : null, publicCheckedAt: str((b.publicCheck && b.publicCheck.checkedAt) || '', 30),
+    igSignals: igFresh ? (ig.signals || {}) : ytFresh ? { lastPostDays: pc.youtube.signals && pc.youtube.signals.lastPostDays } : {}, igRatedAt: ig ? str(ig.ratedAt, 30) : '', igFailedAt: str((b.instagram && b.instagram.failedAt) || '', 30), igFailure: str((b.instagram && b.instagram.failure) || '', 160),
     tierOverride: ['mirage', 'basecamp', 'trail', 'ridge', 'summit'].includes(app.tierOverride) ? app.tierOverride : '',
   };
 }
@@ -73,7 +81,7 @@ export function matchOne(creator, policy) {
   const fit = nicheFit(creator.nicheTags || [], policy.needs);
   const niche = nicheOverlap(creator.niches, offer.niches) || (fit.matched.length ? 1 : 0);
   const band = travelBand(prox.km);
-  const rating = rateTier(creator.metrics, { override: creator.tierOverride, quality, signals: creator.igSignals, viaInstagram: creator.igFresh });
+  const rating = rateTier(creator.metrics, { override: creator.tierOverride, quality, signals: creator.igSignals, via: creator.via });
   const score = Math.round(quality.score * 0.55 + prox.score * 0.30 + niche * 15 + (fit.matched.length ? 10 : 0) + ({ summit: 10, ridge: 5, mirage: -30 }[rating.tier] || 0));
   let verdict = terms.fit === 'no_fit' ? 'no_fit' : (terms.fit === 'ready' && ['local', 'nearby'].includes(prox.tier)) ? 'send' : 'negotiate';
   const why = [];
@@ -98,7 +106,7 @@ export function buildRoster(apps = [], policies = []) {
   const creators = (apps || []).map(creatorOf);
   return creators.map((c) => {
     const matches = open.map((p) => matchOne(c, p)).sort((a, b) => ORDER[a.verdict] - ORDER[b.verdict] || b.score - a.score);
-    return { ...c, rating: rateTier(c.metrics, { override: c.tierOverride, signals: c.igSignals, viaInstagram: c.igFresh }), flags: flagsOf(c, creators), matches, best: matches[0] || null };
+    return { ...c, rating: rateTier(c.metrics, { override: c.tierOverride, signals: c.igSignals, via: c.via }), flags: flagsOf(c, creators), matches, best: matches[0] || null };
   });
 }
 

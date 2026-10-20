@@ -71,7 +71,7 @@ export function rateTier(m = {}, opts = {}) {
     ridge: verified ? `Bring ${Math.max(0, SUMMIT.minBookings - bookings)} more verified bookings${followers < SUMMIT.minFollowers ? ' and grow past 50,000 followers' : ''} for Summit.` : 'Get your Insights numbers checked, then bring bookings for Summit.',
     summit: 'Top tier.',
   }[tier];
-  return { tier, ...TIER_INFO[tier], reasons: [...new Set(reasons)].slice(0, 4), next, evidence: verified ? (opts.viaInstagram ? 'instagram' : 'checked') : 'self-reported', score: q.score, overridden };
+  return { tier, ...TIER_INFO[tier], reasons: [...new Set(reasons)].slice(0, 4), next, evidence: verified ? (opts.via || (opts.viaInstagram ? 'instagram' : 'checked')) : 'self-reported', score: q.score, overridden };
 }
 
 /** Rank value used to prefer better tiers when scores tie. */
