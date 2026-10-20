@@ -53,3 +53,9 @@ A public ChatGPT app would expose a remote MCP server through the Apps SDK. Firs
 ## Validation
 
 Run `node --test tests/trip-desk.test.js tests/tusk-learning-review.test.js`, then existing booking/Tusk regressions. Manually check narrow screens, keyboard focus, save/remove/clear, account switching, blocked storage, offline history errors, and provider link handoffs. Do not claim live provider end-to-end validation without configured credentials.
+
+## Follow-up: shared reservation evidence and weekly review
+
+The trip desk now lets travellers attach authenticated direct stay records to the current trip. Tusk reads the same account-scoped, memory-only snapshot. Only server status `confirmed` counts; a requested record remains pending. A stay clears the missing-stay checklist only when one attached confirmed reservation covers the entire selected window. Snapshots expire after five minutes; opening the desk refreshes them. Multiple adjacent reservations are not yet combined into continuous coverage.
+
+`tusk-learning-review.yml` runs every Monday at 09:00 IST after merge, and supports manual dispatch. It evaluates the approved aggregate JSON snapshot in repository variable `TUSK_AGGREGATE_METRICS_JSON` and uploads a 14-day report artifact. Without a snapshot it reports not-configured. This is an evaluator, not a live Firestore exporter, web crawler or retraining pipeline. Refreshing the aggregate source still requires an approved export integration.

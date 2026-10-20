@@ -1,0 +1,36 @@
+name: Tusk aggregate learning review
+on:
+  schedule:
+    - cron: '30 3 * * 1'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+      - name: Validate evaluator
+        run: node --test tests/tusk-learning-review.test.js
+      - name: Evaluate approved aggregate snapshot
+        env:
+          METRICS_JSON: ${{ vars.TUSK_AGGREGATE_METRICS_JSON }}
+        run: |
+          node <<'JS'
+          const fs = require('node:fs');
+          const { review } = require('./tools/ai-ops/tusk-learning-review.cjs');
+          if (!process.env.METRICS_JSON) {
+            fs.writeFileSync('tusk-learning-review.json', JSON.stringify({status:'not-configured',note:'No approved aggregate snapshot configured. No training or production changes performed.'},null,2));
+          } else {
+            const result = review(JSON.parse(process.env.METRICS_JSON));
+            fs.writeFileSync('tusk-learning-review.json', JSON.stringify({status:'review-only',evaluatedAt:new Date().toISOString(),recommendations:result},null,2));
+          }
+          JS
+      - uses: actions/upload-artifact@v6
+        with:
+          name: tusk-learning-review
+          path: tusk-learning-review.json
+          retention-days: 14
