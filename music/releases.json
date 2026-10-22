@@ -1,210 +1,288 @@
 {
- "channel": {
-  "handle": "mohucool",
-  "id": "UC1ciaSee_BYW8AVFqEe6mcQ"
- },
- "importedAt": "2026-10-23",
- "source": "Album playlist links supplied by the owner; titles and cover videos read from YouTube. Release dates and track counts not read: seq follows the order the links were given (oldest first).",
- "releases": [
-  {
-   "id": "g3--_QBX8wQ",
-   "playlist": "OLAK5uy_ky7BomTiPx0WUlURIyBN741lK5cywIwuY",
-   "title": "Akele Hain",
-   "seq": 1,
-   "published": "",
-   "durationSec": 0
+  "channel": {
+    "handle": "mohucool",
+    "id": "UC1ciaSee_BYW8AVFqEe6mcQ"
   },
-  {
-   "id": "gwi_qN111zo",
-   "playlist": "OLAK5uy_lHZw3tb7t-unA4uYdypgyisX-2nkmC1ZA",
-   "title": "Jaad Haigo",
-   "seq": 2,
-   "published": "",
-   "durationSec": 0
-  },
-  {
-   "id": "iSsnlA-2IV0",
-   "playlist": "OLAK5uy_lw_UsCtv_-c4Y0CseCxxXz11PoX3v7-ms",
-   "title": "Pahadon Ki Oor",
-   "seq": 3,
-   "published": "",
-   "durationSec": 0
-  },
-  {
-   "id": "4qzO5qfz1EU",
-   "playlist": "OLAK5uy_kY0FaZ-n_S1j3l8oDfunGHufg_rH6lQWE",
-   "title": "Almar Ko Mall Ma",
-   "seq": 4,
-   "published": "",
-   "durationSec": 0
-  },
-  {
-   "id": "y0JPHqJCoHU",
-   "playlist": "OLAK5uy_nUmv3n8tWai32JIbDDgvWsQLL7wfCbsVA",
-   "title": "Hanste Rehna",
-   "seq": 5,
-   "published": "",
-   "durationSec": 0
-  },
-  {
-   "id": "4zswsza1QyE",
-   "playlist": "OLAK5uy_nuIDijzavePwzMrBZM6uyRt1okAOkHtrw",
-   "title": "Bheege Badan",
-   "seq": 6,
-   "published": "",
-   "durationSec": 0
-  },
-  {
-   "id": "NauVRXmEhbg",
-   "playlist": "OLAK5uy_m__fqwGWQo46O-PVbNFZQ_peND60BLVJA",
-   "title": "Myar Birau",
-   "seq": 7,
-   "published": "",
-   "durationSec": 0
-  },
-  {
-   "id": "0JDsofi8mJc",
-   "playlist": "OLAK5uy_ld8jEM7D1Wb37i_CwtanJ1brbin6rlcPA",
-   "title": "Swa Baga Re",
-   "seq": 8,
-   "published": "",
-   "durationSec": 0
-  },
-  {
-   "id": "_ZSEEgGlFp4",
-   "playlist": "OLAK5uy_kEINe2VUW67xJJVZzq9MBMYq0Ds3jQcP4",
-   "title": "My Love",
-   "seq": 9,
-   "published": "",
-   "durationSec": 0
-  },
-  {
-   "id": "j_4GnMbbpCQ",
-   "playlist": "OLAK5uy_nC161MrdYlbYYSVTO_3iqMhAB3iwzZ9Ug",
-   "title": "Trip to Ladakh",
-   "seq": 10,
-   "published": "",
-   "durationSec": 0
-  },
-  {
-   "id": "UhATfgbGtUU",
-   "playlist": "OLAK5uy_n-yczTbi0ooYaH1TnTUX6mhCGpVKn-Cvw",
-   "title": "Lift You Up",
-   "seq": 11,
-   "published": "",
-   "durationSec": 0
-  },
-  {
-   "id": "_OnrHUucfdE",
-   "playlist": "OLAK5uy_njUStj5mLLSTn7svnaEeyr3OPCnFfoAoE",
-   "title": "Falling in to love again",
-   "seq": 12,
-   "published": "",
-   "durationSec": 0
-  },
-  {
-   "id": "6mE_d-0zrLE",
-   "playlist": "OLAK5uy_nHxUauheD9Ce1dg6f68Jge_IcmTYS7Zfo",
-   "title": "Cosmic Pulse",
-   "seq": 13,
-   "published": "",
-   "durationSec": 0
-  },
-  {
-   "id": "n4RtApM-Sj0",
-   "playlist": "OLAK5uy_kmaAE9QnFPNcD0iamOZjPyQRZUq96pk1M",
-   "title": "Bas Tu Hai",
-   "seq": 14,
-   "published": "",
-   "durationSec": 0
-  },
-  {
-   "id": "IZZ39hZ0t_A",
-   "playlist": "OLAK5uy_n5pIxzBqsxCKFSFgTE0PlUAw5YjEv_w-g",
-   "title": "Periodic Table",
-   "seq": 15,
-   "published": "",
-   "durationSec": 0
-  },
-  {
-   "id": "548lqAvO1NY",
-   "playlist": "OLAK5uy_lGVuhQqolrogD1ArujDDl7oKuMZqr8IQI",
-   "title": "Theory of Relativity",
-   "seq": 16,
-   "published": "",
-   "durationSec": 0
-  },
-  {
-   "id": "JmWJT15RQ1Q",
-   "playlist": "OLAK5uy_kJnpdcwfBp_gJbUFNxnWd8RqdRB50157Q",
-   "title": "AI",
-   "seq": 17,
-   "published": "",
-   "durationSec": 0
-  },
-  {
-   "id": "D1oqEmLqNcc",
-   "playlist": "OLAK5uy_nFaBnH-hd9gKZkwL_WyKCTDgeMgwyE-eg",
-   "title": "Shiva Tandava Strotam",
-   "seq": 18,
-   "published": "",
-   "durationSec": 0
-  },
-  {
-   "id": "pCkLRDQouNs",
-   "playlist": "OLAK5uy_kn76vesY0CknUKiRNzSg_ArakLj65xTWE",
-   "title": "Vogue",
-   "seq": 19,
-   "published": "",
-   "durationSec": 0
-  },
-  {
-   "id": "ZtCFDf64QsY",
-   "playlist": "OLAK5uy_nehcpLsumcyU-Z1t9hqYmLKxBG_faY9us",
-   "title": "Vogue v1",
-   "seq": 20,
-   "published": "",
-   "durationSec": 0
-  },
-  {
-   "id": "L-U-A-o1G6Q",
-   "playlist": "OLAK5uy_nfvn-sZ4Mwale1qiPHt_1gDuIFKz1gs7c",
-   "title": "Rave To Hell",
-   "seq": 21,
-   "published": "",
-   "durationSec": 0
-  },
-  {
-   "id": "4NP49mnH768",
-   "playlist": "OLAK5uy_ldfA7yt2RHrpEiuPAz99IWUuITTZh7_YI",
-   "title": "Almora Ki Raatein",
-   "seq": 22,
-   "published": "",
-   "durationSec": 0
-  },
-  {
-   "id": "MhB6tofEoGI",
-   "playlist": "OLAK5uy_ldaOxTGS1BjFxiFt4gnQjgX-XQIe8AXXc",
-   "title": "Myar Pahad - Himalyan AI Dreamcode",
-   "seq": 23,
-   "published": "",
-   "durationSec": 0
-  },
-  {
-   "id": "Ueh_jAROV5I",
-   "playlist": "OLAK5uy_lyVl4PrTgG_Fy2tvi53KGDuUgrpA1wr4Q",
-   "title": "GHAAM (घाम) ONE LIGHT, 100 VOICES",
-   "seq": 24,
-   "published": "",
-   "durationSec": 0
-  },
-  {
-   "id": "48xD4AnsVac",
-   "playlist": "OLAK5uy_lzCllqijmGAeeMtrVum5xUKRYlPATVYJk",
-   "title": "Kainchi Dham - Bheed Nhin Bhakti",
-   "seq": 25,
-   "published": "",
-   "durationSec": 0
-  }
- ]
+  "importedAt": "2026-10-23",
+  "source": "Album playlist links supplied by the owner; titles and cover videos read from YouTube. Release dates and track counts not read: seq follows the order the links were given (oldest first).",
+  "releases": [
+    {
+      "id": "g3--_QBX8wQ",
+      "playlist": "OLAK5uy_ky7BomTiPx0WUlURIyBN741lK5cywIwuY",
+      "title": "Akele Hain",
+      "seq": 1,
+      "published": "",
+      "durationSec": 0,
+      "moods": []
+    },
+    {
+      "id": "gwi_qN111zo",
+      "playlist": "OLAK5uy_lHZw3tb7t-unA4uYdypgyisX-2nkmC1ZA",
+      "title": "Jaad Haigo",
+      "seq": 2,
+      "published": "",
+      "durationSec": 0,
+      "moods": []
+    },
+    {
+      "id": "iSsnlA-2IV0",
+      "playlist": "OLAK5uy_lw_UsCtv_-c4Y0CseCxxXz11PoX3v7-ms",
+      "title": "Pahadon Ki Oor",
+      "seq": 3,
+      "published": "",
+      "durationSec": 0,
+      "moods": [
+        "pahadi"
+      ]
+    },
+    {
+      "id": "4qzO5qfz1EU",
+      "playlist": "OLAK5uy_kY0FaZ-n_S1j3l8oDfunGHufg_rH6lQWE",
+      "title": "Almar Ko Mall Ma",
+      "seq": 4,
+      "published": "",
+      "durationSec": 0,
+      "moods": [
+        "pahadi"
+      ]
+    },
+    {
+      "id": "y0JPHqJCoHU",
+      "playlist": "OLAK5uy_nUmv3n8tWai32JIbDDgvWsQLL7wfCbsVA",
+      "title": "Hanste Rehna",
+      "seq": 5,
+      "published": "",
+      "durationSec": 0,
+      "moods": [
+        "uplift"
+      ]
+    },
+    {
+      "id": "4zswsza1QyE",
+      "playlist": "OLAK5uy_nuIDijzavePwzMrBZM6uyRt1okAOkHtrw",
+      "title": "Bheege Badan",
+      "seq": 6,
+      "published": "",
+      "durationSec": 0,
+      "moods": [
+        "love"
+      ]
+    },
+    {
+      "id": "NauVRXmEhbg",
+      "playlist": "OLAK5uy_m__fqwGWQo46O-PVbNFZQ_peND60BLVJA",
+      "title": "Myar Birau",
+      "seq": 7,
+      "published": "",
+      "durationSec": 0,
+      "moods": [
+        "pahadi"
+      ]
+    },
+    {
+      "id": "0JDsofi8mJc",
+      "playlist": "OLAK5uy_ld8jEM7D1Wb37i_CwtanJ1brbin6rlcPA",
+      "title": "Swa Baga Re",
+      "seq": 8,
+      "published": "",
+      "durationSec": 0,
+      "moods": []
+    },
+    {
+      "id": "_ZSEEgGlFp4",
+      "playlist": "OLAK5uy_kEINe2VUW67xJJVZzq9MBMYq0Ds3jQcP4",
+      "title": "My Love",
+      "seq": 9,
+      "published": "",
+      "durationSec": 0,
+      "moods": [
+        "love"
+      ]
+    },
+    {
+      "id": "j_4GnMbbpCQ",
+      "playlist": "OLAK5uy_nC161MrdYlbYYSVTO_3iqMhAB3iwzZ9Ug",
+      "title": "Trip to Ladakh",
+      "seq": 10,
+      "published": "",
+      "durationSec": 0,
+      "moods": [
+        "pahadi",
+        "uplift"
+      ]
+    },
+    {
+      "id": "UhATfgbGtUU",
+      "playlist": "OLAK5uy_n-yczTbi0ooYaH1TnTUX6mhCGpVKn-Cvw",
+      "title": "Lift You Up",
+      "seq": 11,
+      "published": "",
+      "durationSec": 0,
+      "moods": [
+        "uplift"
+      ]
+    },
+    {
+      "id": "_OnrHUucfdE",
+      "playlist": "OLAK5uy_njUStj5mLLSTn7svnaEeyr3OPCnFfoAoE",
+      "title": "Falling in to love again",
+      "seq": 12,
+      "published": "",
+      "durationSec": 0,
+      "moods": [
+        "love"
+      ]
+    },
+    {
+      "id": "6mE_d-0zrLE",
+      "playlist": "OLAK5uy_nHxUauheD9Ce1dg6f68Jge_IcmTYS7Zfo",
+      "title": "Cosmic Pulse",
+      "seq": 13,
+      "published": "",
+      "durationSec": 0,
+      "moods": [
+        "cosmic"
+      ]
+    },
+    {
+      "id": "n4RtApM-Sj0",
+      "playlist": "OLAK5uy_kmaAE9QnFPNcD0iamOZjPyQRZUq96pk1M",
+      "title": "Bas Tu Hai",
+      "seq": 14,
+      "published": "",
+      "durationSec": 0,
+      "moods": [
+        "love"
+      ]
+    },
+    {
+      "id": "IZZ39hZ0t_A",
+      "playlist": "OLAK5uy_n5pIxzBqsxCKFSFgTE0PlUAw5YjEv_w-g",
+      "title": "Periodic Table",
+      "seq": 15,
+      "published": "",
+      "durationSec": 0,
+      "moods": [
+        "cosmic"
+      ]
+    },
+    {
+      "id": "548lqAvO1NY",
+      "playlist": "OLAK5uy_lGVuhQqolrogD1ArujDDl7oKuMZqr8IQI",
+      "title": "Theory of Relativity",
+      "seq": 16,
+      "published": "",
+      "durationSec": 0,
+      "moods": [
+        "cosmic"
+      ]
+    },
+    {
+      "id": "JmWJT15RQ1Q",
+      "playlist": "OLAK5uy_kJnpdcwfBp_gJbUFNxnWd8RqdRB50157Q",
+      "title": "AI",
+      "seq": 17,
+      "published": "",
+      "durationSec": 0,
+      "moods": [
+        "cosmic"
+      ]
+    },
+    {
+      "id": "D1oqEmLqNcc",
+      "playlist": "OLAK5uy_nFaBnH-hd9gKZkwL_WyKCTDgeMgwyE-eg",
+      "title": "Shiva Tandava Strotam",
+      "seq": 18,
+      "published": "",
+      "durationSec": 0,
+      "moods": [
+        "devotion"
+      ]
+    },
+    {
+      "id": "pCkLRDQouNs",
+      "playlist": "OLAK5uy_kn76vesY0CknUKiRNzSg_ArakLj65xTWE",
+      "title": "Vogue",
+      "seq": 19,
+      "published": "",
+      "durationSec": 0,
+      "moods": [
+        "party"
+      ]
+    },
+    {
+      "id": "ZtCFDf64QsY",
+      "playlist": "OLAK5uy_nehcpLsumcyU-Z1t9hqYmLKxBG_faY9us",
+      "title": "Vogue v1",
+      "seq": 20,
+      "published": "",
+      "durationSec": 0,
+      "moods": [
+        "party"
+      ]
+    },
+    {
+      "id": "L-U-A-o1G6Q",
+      "playlist": "OLAK5uy_nfvn-sZ4Mwale1qiPHt_1gDuIFKz1gs7c",
+      "title": "Rave To Hell",
+      "seq": 21,
+      "published": "",
+      "durationSec": 0,
+      "moods": [
+        "party"
+      ]
+    },
+    {
+      "id": "4NP49mnH768",
+      "playlist": "OLAK5uy_ldfA7yt2RHrpEiuPAz99IWUuITTZh7_YI",
+      "title": "Almora Ki Raatein",
+      "seq": 22,
+      "published": "",
+      "durationSec": 0,
+      "moods": [
+        "pahadi"
+      ],
+      "spotify": "https://open.spotify.com/album/2j0DvEZbvR135ol0ULktKH"
+    },
+    {
+      "id": "MhB6tofEoGI",
+      "playlist": "OLAK5uy_ldaOxTGS1BjFxiFt4gnQjgX-XQIe8AXXc",
+      "title": "Myar Pahad - Himalyan AI Dreamcode",
+      "seq": 23,
+      "published": "",
+      "durationSec": 0,
+      "moods": [
+        "pahadi",
+        "cosmic"
+      ],
+      "spotify": "https://open.spotify.com/album/4gEFxcjl7EHEUQT2scSxHm"
+    },
+    {
+      "id": "Ueh_jAROV5I",
+      "playlist": "OLAK5uy_lyVl4PrTgG_Fy2tvi53KGDuUgrpA1wr4Q",
+      "title": "GHAAM (घाम) ONE LIGHT, 100 VOICES",
+      "seq": 24,
+      "published": "",
+      "durationSec": 0,
+      "moods": [
+        "pahadi",
+        "uplift"
+      ],
+      "spotify": "https://open.spotify.com/album/4YknLE61y3yFoZ1KARu8dj"
+    },
+    {
+      "id": "48xD4AnsVac",
+      "playlist": "OLAK5uy_lzCllqijmGAeeMtrVum5xUKRYlPATVYJk",
+      "title": "Kainchi Dham - Bheed Nhin Bhakti",
+      "seq": 25,
+      "published": "",
+      "durationSec": 0,
+      "moods": [
+        "pahadi",
+        "devotion"
+      ],
+      "spotify": "https://open.spotify.com/album/33uvY1MZca16H0lN020Mfs"
+    }
+  ],
+  "moodsNote": "Moods are a first guess from the titles only. Edit the moods list on any release (pahadi, love, party, devotion, cosmic, uplift) to change the mixes."
 }

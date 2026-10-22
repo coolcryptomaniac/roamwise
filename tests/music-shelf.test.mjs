@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { cleanReleases, groupByYear, shelves, spineStyle, filterReleases, neighbour, fmtDuration, musicUrl, albumUrl } from '../music/shelf-core.mjs';
+import { cleanReleases, groupByYear, shelves, spineStyle, filterReleases, neighbour, fmtDuration, musicUrl, albumUrl, MOODS, byMood, smartMood, shuffled, makeQueue, advance, lighten } from '../music/shelf-core.mjs';
 import { isoDurationToSec, parseFeed, mapApiVideos, uploadsPlaylistId } from '../tools/youtube-import-core.mjs';
 
 const rel = (id, title, published, durationSec = 200) => ({ id, title, published, durationSec });
@@ -61,4 +61,27 @@ test('release file: 25 albums from the owner\'s links, each with a playlist and 
   const list = cleanReleases(j.releases);
   assert.equal(list.length, 25); assert.ok(list.every((r) => r.playlist.startsWith('OLAK5uy_')));
   assert.ok(list.some((r) => /GHAAM/.test(r.title)));
+});
+
+test('moods: tagged albums only, smart mood follows the hour', () => {
+  const list = cleanReleases([{ id: 'aaaaaaaaaaa', title: 'A', moods: ['love', 'nope'] }, { id: 'bbbbbbbbbbb', title: 'B', moods: ['party'] }]);
+  assert.deepEqual(list.find((r) => r.id === 'aaaaaaaaaaa').moods, ['love']);
+  assert.deepEqual(byMood(list, 'party').map((r) => r.id), ['bbbbbbbbbbb']);
+  assert.equal(MOODS.length, 6);
+  assert.deepEqual([8, 13, 19, 23, 2].map((h) => smartMood(h).mood), ['uplift', 'pahadi', 'love', 'cosmic', 'cosmic']);
+});
+
+test('queue: shuffle keeps every album once and starts on the chosen one; advance wraps, repeats and finishes', () => {
+  const list = cleanReleases(['a', 'b', 'c', 'd'].map((c, i) => ({ id: c.repeat(11), title: c, seq: i })));
+  const q = makeQueue(list, 'c'.repeat(11), true, () => 0.3);
+  assert.equal(q.items[0].id, 'c'.repeat(11)); assert.equal(new Set(q.items.map((r) => r.id)).size, 4); assert.equal(q.index, 0);
+  assert.deepEqual(shuffled([1, 2, 3, 4], () => 0).sort(), [1, 2, 3, 4]);
+  const plain = makeQueue(list, list[3].id, false);
+  assert.equal(plain.index, 3);
+  assert.equal(advance({ items: list, index: 3 }, 1, 'all', false), 0);   // next button wraps
+  assert.equal(advance({ items: list, index: 3 }, 1, 'off', true), -1);   // album ended at the end of the queue
+  assert.equal(advance({ items: list, index: 3 }, 1, 'all', true), 0);
+  assert.equal(advance({ items: list, index: 2 }, 1, 'one', true), 2);
+  assert.equal(advance({ items: list, index: 0 }, -1, 'all', false), 3);
+  assert.equal(lighten('#000000', 0.5), '#808080'); assert.equal(lighten('bad'), '#fff0c2');
 });

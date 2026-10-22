@@ -2,6 +2,12 @@
 // No network, no DOM. The page (music.js) draws what these return.
 
 const ID = /^[A-Za-z0-9_-]{11}$/;
+export const MOODS = Object.freeze([
+  { id: 'pahadi', label: 'Pahadi', emoji: '\u26f0\ufe0f' }, { id: 'love', label: 'Love', emoji: '\ud83d\udc9e' },
+  { id: 'party', label: 'Party', emoji: '\ud83e\udea9' }, { id: 'devotion', label: 'Devotion', emoji: '\ud83d\udd49\ufe0f' },
+  { id: 'cosmic', label: 'Cosmic', emoji: '\ud83e\ude90' }, { id: 'uplift', label: 'Uplift', emoji: '\u2600\ufe0f' },
+]);
+const MOOD_IDS = new Set(MOODS.map((m) => m.id));
 const clean = (s, max) => String(s == null ? '' : s).replace(/[<>\u0000-\u001f]+/g, ' ').replace(/\s+/g, ' ').trim().slice(0, max);
 
 /* Keep only well-formed releases. A release needs a real 11-character YouTube id and a title. */
@@ -17,7 +23,9 @@ export function cleanReleases(list) {
     const sec = Number.isFinite(Number(r.durationSec)) && Number(r.durationSec) > 0 ? Math.round(Number(r.durationSec)) : 0;
     const pl = /^[A-Za-z0-9_-]{10,64}$/.test(String(r.playlist || '')) ? String(r.playlist) : '';
     const seq = Number.isFinite(Number(r.seq)) ? Number(r.seq) : 0;
-    out.push({ id, title, published, durationSec: sec, playlist: pl, seq });
+    const moods = (Array.isArray(r.moods) ? r.moods : []).filter((m) => MOOD_IDS.has(m));
+    const spotify = /^https:\/\/open\.spotify\.com\/album\/[A-Za-z0-9]{10,40}$/.test(String(r.spotify || '')) ? String(r.spotify) : '';
+    out.push({ id, title, published, durationSec: sec, playlist: pl, seq, moods, spotify });
   }
   return out.sort((a, b) => (a.published < b.published ? 1 : a.published > b.published ? -1 : b.seq - a.seq || a.title.localeCompare(b.title)));
 }
@@ -76,3 +84,47 @@ export const albumUrl = (playlist) => 'https://music.youtube.com/playlist?list='
 export const watchUrl = (id) => 'https://www.youtube.com/watch?v=' + id;
 export const musicUrl = (id) => 'https://music.youtube.com/watch?v=' + id;
 export const coverUrl = (id) => 'https://i.ytimg.com/vi/' + id + '/hqdefault.jpg';
+
+/* Albums tagged with a mood. */
+export const byMood = (list, mood) => list.filter((r) => (r.moods || []).includes(mood));
+
+/* A mood to suggest for the hour of the day (0-23). Plain rules, no network. */
+export function smartMood(hour) {
+  const h = ((Number(hour) % 24) + 24) % 24;
+  if (h >= 5 && h < 11) return { mood: 'uplift', why: 'a bright start to the morning' };
+  if (h >= 11 && h < 17) return { mood: 'pahadi', why: 'hills for the afternoon' };
+  if (h >= 17 && h < 22) return { mood: 'love', why: 'an easy evening' };
+  return { mood: 'cosmic', why: 'a late-night drift' };
+}
+
+export function shuffled(list, rand = Math.random) {
+  const a = list.slice();
+  for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(rand() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
+  return a;
+}
+
+/* A play queue. start = id to begin on; shuffle puts a random order after it. Returns {items, index}. */
+export function makeQueue(list, startId, shuffle = false, rand = Math.random) {
+  const start = list.find((r) => r.id === startId) || list[0];
+  if (!start) return { items: [], index: 0 };
+  if (!shuffle) return { items: list.slice(), index: list.indexOf(start) };
+  return { items: [start, ...shuffled(list.filter((r) => r !== start), rand)], index: 0 };
+}
+
+/* Move through a queue. repeat: 'off' | 'all' | 'one'. Returns the new index, or -1 when the queue is finished. */
+export function advance(queue, dir, repeat = 'off', ended = false) {
+  const n = queue.items.length;
+  if (!n) return -1;
+  if (ended && repeat === 'one') return queue.index;
+  const next = queue.index + dir;
+  if (next >= 0 && next < n) return next;
+  return repeat === 'all' || !ended ? (next + n) % n : -1;
+}
+
+/* A lighter version of a hex colour, for glows. */
+export function lighten(hex, amount = 0.5) {
+  const m = /^#([0-9a-f]{6})$/i.exec(hex || '');
+  if (!m) return '#fff0c2';
+  const n = parseInt(m[1], 16), mix = (c) => Math.round(c + (255 - c) * amount);
+  return '#' + [(n >> 16) & 255, (n >> 8) & 255, n & 255].map((c) => mix(c).toString(16).padStart(2, '0')).join('');
+}
