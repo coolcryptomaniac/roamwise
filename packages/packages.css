@@ -47,3 +47,12 @@ table{width:100%;border-collapse:collapse;font-size:14px}th,td{text-align:left;p
 .pk-watch{margin:0 0 10px;padding:10px 12px;border-radius:12px;background:rgba(255,184,107,.12);border:1px solid rgba(255,184,107,.35);font-size:14px;color:#ffe3c2}
 .pk-actions{display:grid;gap:10px;margin-top:14px}@media(min-width:640px){.pk-actions{grid-template-columns:1fr 1fr}}
 .pk-alt{margin:0;color:var(--gold2);background:transparent;border:1px solid var(--line);cursor:pointer;font-family:inherit}
+.pk-form{display:grid;gap:12px;margin:12px 0}@media(min-width:640px){.pk-form{grid-template-columns:1fr 1fr}}
+#pkBook label{display:block;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--gold)}
+#pkBook label em{text-transform:none;letter-spacing:0;font-weight:500;color:var(--mut)}
+#pkBook input:not([type=checkbox]),#pkBook textarea{display:block;width:100%;margin-top:6px;font:inherit;font-size:16px;color:var(--ink);background:#0d0b14;border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+#pkBook .pk-wide{margin:0 0 12px}
+#pkBook label.pk-consent{text-transform:none;letter-spacing:0;font-weight:500;font-size:14px;color:var(--ink);margin:0 0 10px}.pk-consent input{accent-color:var(--gold);margin-right:8px}
+.pk-errors{margin:0 0 12px;padding:10px 12px 10px 28px;border-radius:12px;background:rgba(255,122,138,.12);border:1px solid rgba(255,122,138,.4);color:#ffd0d6;font-size:14px}
+.pk-next{margin:0 0 14px;padding-left:20px;color:#d8d5ce;font-size:14px}.pk-next li{margin:0 0 6px}
+#pkBook .pk-cta{width:100%}

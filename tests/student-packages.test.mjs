@@ -125,3 +125,29 @@ test('premium van: dedicated vehicle for every day, priced above the standard pl
     assert.equal(priceFor(id, 11, { vehicle: 'premium', kit: true }), null);
   }
 });
+
+import { makeBooking, validateBooking, normalisePhone, bookingRef } from '../packages/booking-core.mjs';
+
+const BOOK = { pkgId: 'almora', startISO: '2027-03-09', n: 6, vehicle: 'single', kit: true, leadName: 'Asha Rao', leadPhone: '+91 98765 43210',
+  guestsText: ['Asha Rao, 9876543210', 'Ben Roy, 9876543211', 'Chitra N, 9876543212', 'Dev P, 9876543213', 'Esha K, 9876543214', 'Farid M, 9876543215'].join('\n'),
+  consents: ['adult', 'rules', 'medical'], medical: 'Peanut allergy (Ben)' };
+
+test('booking: a complete request gets a stable reference, schedule and WhatsApp message', () => {
+  const b = makeBooking(BOOK, '2026-10-23');
+  assert.equal(b.ok, true);
+  assert.match(b.ref, /^RW-ALM-270309-[0-9A-Z]{4}$/);
+  assert.equal(b.ref, bookingRef('almora', '2027-03-09', '9876543210'));
+  assert.match(b.text, /6 travellers/); assert.match(b.text, /Peanut allergy/);
+  assert.ok(b.whatsapp.startsWith('https://wa.me/') && b.next.length === 5 && b.plan.perPerson.length >= 1);
+});
+
+test('booking: rejects bad phones, wrong guest counts, missing emergency contacts and unticked consent', () => {
+  assert.equal(normalisePhone('12345'), ''); assert.equal(normalisePhone('+919876543210'), '9876543210');
+  assert.equal(validateBooking({ ...BOOK, leadPhone: '123' }).ok, false);
+  const few = validateBooking({ ...BOOK, guestsText: 'Asha Rao, 9876543210' });
+  assert.ok(few.problems.some((p) => /List 6 travellers/.test(p)));
+  const noPhone = validateBooking({ ...BOOK, guestsText: BOOK.guestsText.replace('Ben Roy, 9876543211', 'Ben Roy') });
+  assert.ok(noPhone.problems.some((p) => /Ben Roy needs an emergency contact/.test(p)));
+  assert.ok(validateBooking({ ...BOOK, consents: ['adult'] }).problems.length >= 2);
+  assert.equal(validateBooking({ ...BOOK, n: 11, vehicle: 'premium' }).ok, false);
+});

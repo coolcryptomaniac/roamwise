@@ -3,6 +3,7 @@ import { PACKAGES, GROUP, priceFor, transportPlan, whatsappLink, OPERATING_MODEL
 import { bestWindows, windowRisk, addDays, NMIMS_SAMPLE } from './dates-core.mjs';
 import { instalmentPlan } from './instalment-core.mjs';
 import { safetyPlan } from './safety-core.mjs';
+import { makeBooking, CONSENTS } from './booking-core.mjs';
 
 const $ = (id) => document.getElementById(id);
 const esc = (v) => String(v == null ? '' : v).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -59,7 +60,8 @@ function renderSummary() {
   $('pkPrice').innerHTML = '<h2>' + esc(pkg.name) + '</h2><div class="big">' + esc(inr(price.totalPP)) + ' <small>per person, GST included</small></div>'
     + '<p>' + esc(state.n) + ' friends: ' + esc(inr(price.groupTotal)) + ' in total. ' + esc(fmt(state.start, true)) + ' for ' + esc(pkg.days) + ' days and ' + esc(pkg.nights) + ' nights.</p>'
     + '<p>' + esc(price.rooms) + ' twin-sharing rooms. ' + esc(pkg.statusNote) + '</p>'
-    + '<a class="pk-cta" target="_blank" rel="noopener noreferrer" href="' + esc(link) + '">' + (open ? 'Ask for these dates on WhatsApp' : 'Register interest on WhatsApp') + '</a>';
+    + (open ? '<button type="button" class="pk-cta" id="pkReserve">Reserve these dates</button>' : '')
+    + '<a class="pk-cta pk-alt" target="_blank" rel="noopener noreferrer" href="' + esc(link) + '">' + (open ? 'Ask a question on WhatsApp' : 'Register interest on WhatsApp') + '</a>';
   const plan = instalmentPlan({ totalPerPerson: price.totalPP, departISO: state.start, todayISO: today, groupSize: state.n });
   $('pkParts').innerHTML = '<h2>' + (plan.mode === 'parts' ? 'Pay in parts, no interest' : 'Pay in full') + '</h2>'
     + '<table><thead><tr><th>When</th><th>What</th><th>Each person</th></tr></thead><tbody>'
@@ -103,9 +105,36 @@ function fixPremium() { // a premium van seats 10 guests plus the guide: step th
   $('pkPlus').disabled = prem && state.n >= 10;
 }
 
-function renderAll() { fixPremium(); renderTabs(); renderDates(); renderSummary(); renderPlan(); renderSafety(); $('pkSize').textContent = state.n; }
+function renderBookForm(errors) {
+  const pkg = PACKAGES[state.pkg], price = priceFor(state.pkg, state.n, opts());
+  $('pkBook').hidden = false;
+  $('pkBook').innerHTML = '<h2>Reserve ' + esc(pkg.name) + '</h2><p class="pk-fine">' + esc(state.n) + ' travellers from ' + esc(fmt(state.start, true)) + ', ' + esc(inr(price.totalPP)) + ' per person. Nothing is charged here: we check dates first, then send payment details.</p>'
+    + (errors && errors.length ? '<ul class="pk-errors" role="alert">' + errors.map((e) => '<li>' + esc(e) + '</li>').join('') + '</ul>' : '')
+    + '<form id="pkBookForm" novalidate><div class="pk-form">'
+    + '<label>Lead traveller name<input name="leadName" autocomplete="name" required></label>'
+    + '<label>Mobile number<input name="leadPhone" type="tel" inputmode="tel" autocomplete="tel" required></label>'
+    + '<label>Email (optional)<input name="leadEmail" type="email" autocomplete="email"></label>'
+    + '<label>College or group (optional)<input name="group"></label></div>'
+    + '<label class="pk-wide">All ' + esc(state.n) + ' travellers, one per line, with an emergency contact phone: <em>Asha Rao, 9876543210</em><textarea name="guestsText" rows="' + (state.n + 1) + '" required></textarea></label>'
+    + '<label class="pk-wide">Medical or allergy notes (optional)<textarea name="medical" rows="2" maxlength="400"></textarea></label>'
+    + CONSENTS.map((c) => '<label class="pk-consent"><input type="checkbox" name="consent" value="' + esc(c.id) + '"> ' + esc(c.text) + '</label>').join('')
+    + '<button type="submit" class="pk-cta">Review my request</button></form>';
+  $('pkBook').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function renderBookDone(b) {
+  $('pkBook').innerHTML = '<h2>Request ready: ' + esc(b.ref) + '</h2><p class="pk-fine">Save this reference. Nothing is booked until we confirm.</p>'
+    + '<ol class="pk-next">' + b.next.map((x) => '<li>' + esc(x) + '</li>').join('') + '</ol>'
+    + '<table><thead><tr><th>When</th><th>What</th><th>Each person</th></tr></thead><tbody>' + b.plan.perPerson.map((r) => '<tr><td>' + esc(fmt(r.due)) + '</td><td>' + esc(r.label) + '</td><td>' + esc(inr(r.amount)) + '</td></tr>').join('') + '</tbody></table>'
+    + '<a class="pk-cta" target="_blank" rel="noopener noreferrer" href="' + esc(b.whatsapp) + '">Send request on WhatsApp</a>'
+    + '<button type="button" class="pk-cta pk-alt" id="pkBookEdit">Change details</button>';
+}
+
+function renderAll() { fixPremium(); $('pkBook').hidden = true; renderTabs(); renderDates(); renderSummary(); renderPlan(); renderSafety(); $('pkSize').textContent = state.n; }
 
 document.addEventListener('click', (e) => {
+  if (e.target.id === 'pkReserve') { renderBookForm(); return; }
+  if (e.target.id === 'pkBookEdit') { renderBookForm(); return; }
   if (e.target.id === 'pkCopyChat') {
     const note = $('pkCopyNote');
     (navigator.clipboard ? navigator.clipboard.writeText(state.chatMsg) : Promise.reject()).then(
@@ -122,5 +151,15 @@ $('pkCohort').addEventListener('change', (e) => { state.cohort = e.target.value;
 document.querySelectorAll('input[name=veh]').forEach((r) => r.addEventListener('change', () => { state.vehicle = r.value; renderAll(); }));
 $('pkKit').addEventListener('change', (e) => { state.kit = e.target.checked; renderAll(); });
 $('pkOwn').addEventListener('change', () => { renderOwn(); renderTabs(); renderDates(); renderSummary(); renderPlan(); renderSafety(); });
+document.addEventListener('submit', (e) => {
+  if (e.target.id !== 'pkBookForm') return;
+  e.preventDefault();
+  const f = new FormData(e.target);
+  const b = makeBooking({ pkgId: state.pkg, startISO: state.start, n: state.n, vehicle: state.vehicle, kit: state.kit,
+    leadName: f.get('leadName'), leadPhone: f.get('leadPhone'), leadEmail: f.get('leadEmail'), group: f.get('group'),
+    guestsText: f.get('guestsText'), medical: f.get('medical'), consents: f.getAll('consent') }, today);
+  if (!b.ok) { renderBookForm(b.problems); return; }
+  renderBookDone(b); $('pkBook').scrollIntoView({ behavior: 'smooth', block: 'start' });
+});
 $('pkOwn').min = addDays(today, 21);
 renderAll();
