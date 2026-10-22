@@ -1,0 +1,54 @@
+{
+  "note": "Hand-curated memories. New ones are added automatically by tools/build-memories.js from folders in assets/memories/YYYY-MM-DD-name/ (photos plus an optional event.json) and, in CI, from new @mohucool YouTube videos about events.",
+  "events": [
+    {
+      "id": "almora-dussehra-2026",
+      "date": "2026-10-20",
+      "title": "Almora Dussehra 2026",
+      "place": "Almora, Uttarakhand",
+      "caption": "23 giant Ravan-family effigies, the procession through Milan Chowk, a midnight Ravan Dahan and fireworks over the hills. Shot on a phone and cut to Rave to Hell as a mini movie.",
+      "theme": "fire",
+      "emoji": "🔥",
+      "cover": "",
+      "photos": [],
+      "videos": [
+        { "title": "Rave to Hell × Almora Dussehra: the mini movie", "youtube": "", "url": "https://www.youtube.com/@mohucool/videos", "note": "Watch the full mini movie on YouTube @mohucool" }
+      ]
+    },
+    {
+      "id": "kasar-music-fest-2026",
+      "date": "2026-10-04",
+      "title": "Kasar Music Fest 2.0",
+      "place": "Kasar Devi, Almora",
+      "caption": "A mountain night of live music above Kasar Devi: the main stage, the band, the crowd and a few friends.",
+      "theme": "stage",
+      "emoji": "🎶",
+      "cover": "/assets/img/music/kasar-fest-2026-stage-1.jpg",
+      "photos": [
+        { "src": "/assets/img/music/kasar-fest-2026-stage-1.jpg", "cap": "Main stage under the Kasar Music Fest 2.0 banner" },
+        { "src": "/assets/img/music/kasar-fest-2026-nupur-pant.jpg", "cap": "With Nupur Pant at Kasar Music Fest 2.0" },
+        { "src": "/assets/img/music/kasar-fest-2026-rahgir.jpg", "cap": "With Rahgir at Kasar Music Fest 2.0" },
+        { "src": "/assets/img/music/kasar-fest-2026-stage-3.jpg", "cap": "Singer and band, Kasar Music Fest 2.0" },
+        { "src": "/assets/img/music/kasar-fest-2026-stage-2.jpg", "cap": "Stage lights, evening set" },
+        { "src": "/assets/img/music/kasar-fest-2026-crowd.jpg", "cap": "The crowd, 4 October 2026" }
+      ],
+      "videos": []
+    },
+    {
+      "id": "startup-garage-2026",
+      "date": "2026-10-15",
+      "title": "Startup Garage × E-Cell, SBM NMIMS Mumbai",
+      "place": "SBM NMIMS, Mumbai",
+      "caption": "RoamWise took the stage with E-Cell at Startup Garage. Students and founders could redeem a free lifetime Founder Pro pass.",
+      "theme": "launch",
+      "emoji": "🚀",
+      "cover": "/nmims/assets/roamwise-ecell-startup-garage.png",
+      "photos": [
+        { "src": "/nmims/assets/roamwise-ecell-startup-garage.png", "cap": "RoamWise × E-Cell, Startup Garage" }
+      ],
+      "videos": [
+        { "title": "Startup Garage pass: how to redeem", "src": "/nmims/pr-kit/video/Reel1-Startup-Garage-pass.mp4", "poster": "/nmims/pr-kit/video/cover-A.jpg", "note": "Reel from the event" }
+      ]
+    }
+  ]
+}

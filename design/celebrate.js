@@ -51,7 +51,7 @@
   } catch (e) {} }
   if (document.readyState === 'complete') hook(); else window.addEventListener('load', hook);
   document.addEventListener('click', function (e) {
-    var a = e.target.closest && e.target.closest('a.sa-btn, a.art-button[target="_blank"], #sendWa');
+    var a = e.target.closest && e.target.closest('a.sa-btn, a.art-button[target="_blank"], #sendWa, a.rwx-cta');
     if (a) burst({ x: e.clientX || undefined, y: e.clientY || undefined });
   }, true);
   document.addEventListener('submit', function (e) { if (e.target && e.target.id === 'joinForm') burst({ big: true }); }, true);

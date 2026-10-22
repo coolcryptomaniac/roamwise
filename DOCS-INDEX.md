@@ -169,3 +169,5 @@ follow-up content fix:
 5. **`CREATOR-OUTREACH.md`** — its margin worked-example uses a ₹2,999
    Pro-yearly price; live config prices Pro yearly at ₹2,499
    (`PRICING-REFERRAL-MATH.md` §3 already carries the corrected figures).
+
+- `data/home-promo.json` and `memories/seed.json` (not docs): homepage promo config (stay cards and Natasha paintings; set `from` for an indicative nightly rate) and hand-curated Memories events. `tools/build-memories.js` builds `memories/data.json`; the `memories-sync` workflow keeps it current from `assets/memories/YYYY-MM-DD-name/` folders and new @mohucool event videos.
