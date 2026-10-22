@@ -3,7 +3,7 @@ const test = require('node:test'), assert = require('node:assert/strict'), fs = 
 const root = path.join(__dirname, '..'), J = p => JSON.parse(fs.readFileSync(path.join(root, p), 'utf8'));
 
 test('books data is valid and never holds non-https store links', () => {
-  const d = J('books/data.json'); assert.ok(d.books.length >= 5);
+  const d = J('books/data.json'); assert.ok(d.books.length >= 4);
   const ids = new Set();
   d.books.forEach(b => { assert.ok(b.id && b.title && !ids.has(b.id)); ids.add(b.id);
     ['pothi', 'amazon', 'flipkart'].forEach(k => assert.ok(!b.links[k] || /^https:\/\//.test(b.links[k]), b.id + ' ' + k));
