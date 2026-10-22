@@ -16,7 +16,7 @@ export function safetyPlan({ pkgId, n, startISO }) {
       'Create the group trip chat and add all ' + n + ' friends before the first payment is due.',
       'Check that each person has a valid photo ID for hotels and train travel.'] },
     { when: '14 days before', items: [
-      'Final payment done. Save the driver card and the guide card (photo, name, ID, phone) in the trip chat.',
+      'Final payment done. Save the driver card (name, photo, licence badge, vehicle number, permit and insurance copy) and the guide card (photo, name, ID, phone) in the trip chat.',
       'Confirm train tickets arrive before ' + (pkgId === 'almora' ? '09:30 at Kathgodam' : 'the planned pickup at Kotdwar') + '.'] },
     { when: '3 days before', items: [
       'Ask Ailon Tusk to re-check the road, weather and timings. Confirm the driver, the backup driver and the guide.',

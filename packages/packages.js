@@ -97,7 +97,13 @@ function renderSafety() {
     + '<p class="pk-fine" id="pkCopyNote" aria-live="polite">Ailon Tusk opens with the question typed in; you press send. For the group chat, open RoamWise, start a trip chat, add your friends and paste the message. Tusk gives advice, not a guarantee that a road is open.</p>';
 }
 
-function renderAll() { renderTabs(); renderDates(); renderSummary(); renderPlan(); renderSafety(); $('pkSize').textContent = state.n; }
+function fixPremium() { // a premium van seats 10 guests plus the guide: step the group down and say so
+  const prem = state.vehicle === 'premium';
+  if (prem && state.n > 10) state.n = 10;
+  $('pkPlus').disabled = prem && state.n >= 10;
+}
+
+function renderAll() { fixPremium(); renderTabs(); renderDates(); renderSummary(); renderPlan(); renderSafety(); $('pkSize').textContent = state.n; }
 
 document.addEventListener('click', (e) => {
   if (e.target.id === 'pkCopyChat') {

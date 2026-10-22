@@ -114,3 +114,14 @@ test('safety plan: dated checklist, honest warnings and a safe Tusk question', (
   assert.ok(monsoon.watch.some((w) => /landslide/i.test(w)));
   assert.equal(safetyPlan({ pkgId: 'nope', n: 8, startISO: '2027-03-09' }), null);
 });
+
+test('premium van: dedicated vehicle for every day, priced above the standard plan, capped at 10 guests', () => {
+  for (const id of Object.keys(PACKAGES)) {
+    for (let n = GROUP.min; n <= 10; n++) {
+      const prem = priceFor(id, n, { vehicle: 'premium', kit: true }), std = priceFor(id, n, { vehicle: 'single', kit: true });
+      assert.ok(prem && prem.totalPP > std.totalPP, id + ' ' + n);
+      assert.match(prem.longLeg, /Premium 12-seat van/);
+    }
+    assert.equal(priceFor(id, 11, { vehicle: 'premium', kit: true }), null);
+  }
+});
