@@ -1,57 +1,116 @@
 {
-  "note": "Edit this file to manage the bookshelf. links.pothi / links.amazon / links.flipkart are direct product URLs; leave empty until you have them (Amazon and Flipkart then fall back to a store search for the title, Pothi shows 'link soon'). Put a cover image path in cover.image (optional). To add sample chapters, create books/samples/<id>.json as {\"chapters\":[{\"title\":\"Chapter 1\",\"text\":[\"Paragraph one.\",\"Paragraph two.\"]}]} and the Read sample button appears by itself.",
+  "note": "Edit this file to manage the bookshelf. Links are direct product URLs taken from about.html. links.extra adds more buttons (e.g. another edition). Leave a link empty until you have it: Amazon and Flipkart then fall back to a store search for the title, Pothi shows 'link soon'. cover.image (optional) is a cover picture path. To add sample chapters, create books/samples/<id>.json as {\"chapters\":[{\"title\":\"Chapter 1\",\"text\":[\"Paragraph one.\"]}]} and the Read sample button appears by itself.",
   "author": "Mohit Pandey",
   "imprint": "GYANVERSE",
   "books": [
     {
-      "id": "yuga-the-silicon-age",
-      "title": "Yuga: The Silicon Age",
-      "subtitle": "A sci-fi mystery set in 2047",
-      "blurb": "In 2047, Aria Voss follows a trail to Kasardevi in Almora, where an ancient AI called ORACLE has been waiting.",
-      "formats": ["Print", "eBook"],
-      "note": "Written with AI assistance (Claude).",
-      "cover": { "from": "#0b1d3a", "to": "#7a3cff", "accent": "#5ee6c0", "emoji": "🔮", "image": "" },
-      "links": { "pothi": "", "amazon": "", "flipkart": "" }
+      "id": "ai-ki-pathshala",
+      "title": "AI Ki Pathshala",
+      "subtitle": "AI in simple Hinglish",
+      "blurb": "A 300-plus-page introduction to artificial intelligence, machine learning, prompts and emerging technology, written for readers who prefer conversational explanations.",
+      "meta": "300+ pages · ISBN 9798903303670",
+      "formats": [
+        "Print",
+        "eBook"
+      ],
+      "note": "",
+      "room": "Study desk",
+      "cover": {
+        "from": "#0f2a4a",
+        "to": "#2a6fb0",
+        "accent": "#ffd27a",
+        "emoji": "🤖",
+        "image": ""
+      },
+      "links": {
+        "pothi": "https://store.pothi.com/book/mohit-pandey-ai-ki-pathshala/",
+        "amazon": "https://amzn.in/d/0b8CZwlG",
+        "flipkart": "https://www.flipkart.com/ai-ki-pathshala/p/itmaccd7f8e1e8d2",
+        "extra": []
+      }
     },
     {
       "id": "gyanverse",
       "title": "GYANVERSE",
       "subtitle": "The Class 9–12 exam companion",
       "blurb": "A 186-page companion for Class 9 to 12 exams, made for quick, clear revision.",
-      "formats": ["Print"],
+      "meta": "186 pages",
+      "formats": [
+        "Print"
+      ],
       "note": "",
-      "cover": { "from": "#3a0b1d", "to": "#e8ba6c", "accent": "#ffe9b8", "emoji": "📘", "image": "" },
-      "links": { "pothi": "", "amazon": "", "flipkart": "" }
+      "room": "Exam shelf",
+      "cover": {
+        "from": "#3a0b1d",
+        "to": "#b3532f",
+        "accent": "#ffe9b8",
+        "emoji": "📘",
+        "image": ""
+      },
+      "links": {
+        "pothi": "",
+        "amazon": "",
+        "flipkart": "",
+        "extra": []
+      }
     },
     {
-      "id": "padh-le-yaar",
-      "title": "Padh Le Yaar",
-      "subtitle": "A friendly study companion",
-      "blurb": "A quick-revision edition from the GYANVERSE series, written the way a friend explains it.",
-      "formats": ["Print"],
-      "note": "",
-      "cover": { "from": "#0b3a2a", "to": "#e8ba6c", "accent": "#fff3c4", "emoji": "✏️", "image": "" },
-      "links": { "pothi": "", "amazon": "", "flipkart": "" }
+      "id": "yuga-the-silicon-age",
+      "title": "Yuga: The Silicon Age",
+      "subtitle": "A sci-fi novel set in 2047",
+      "blurb": "A science-fiction novel about code, myth, memory and an ancient artificial intelligence, with Kasar Devi and Almora central to the story.",
+      "meta": "Standard and compact print editions · eBook on Kindle",
+      "formats": [
+        "Print",
+        "eBook"
+      ],
+      "note": "Co-written with Claude.",
+      "room": "Fiction corner",
+      "cover": {
+        "from": "#0b1d3a",
+        "to": "#7a3cff",
+        "accent": "#5ee6c0",
+        "emoji": "🔮",
+        "image": ""
+      },
+      "links": {
+        "pothi": "https://store.pothi.com/book/mohit-pandey-yuga-silicon-age/",
+        "pothiName": "Pothi · Standard edition",
+        "amazon": "https://www.amazon.in/Yuga-Silicon-novel-code-memory-ebook/dp/B0GX32LF8R",
+        "amazonSub": "Kindle eBook",
+        "flipkart": "",
+        "extra": [
+          {
+            "label": "Pothi · Compact edition",
+            "url": "https://store.pothi.com/book/mohit-pandey-yuga-silicon-age-0/"
+          }
+        ]
+      }
     },
     {
-      "id": "cheat-code",
-      "title": "Cheat Code",
-      "subtitle": "Fast revision, no fluff",
-      "blurb": "The short, sharp edition of the GYANVERSE exam companion.",
-      "formats": ["Print"],
+      "id": "volts-and-vengeance",
+      "title": "Volts & Vengeance",
+      "subtitle": "The EV encyclopedia",
+      "blurb": "A 519-page EV reference covering the history, engineering and changing economics of electric vehicles in an accessible style.",
+      "meta": "519 pages · ISBN 9798903304257",
+      "formats": [
+        "Print"
+      ],
       "note": "",
-      "cover": { "from": "#1a1a1a", "to": "#ff7a59", "accent": "#ffd1c2", "emoji": "🎮", "image": "" },
-      "links": { "pothi": "", "amazon": "", "flipkart": "" }
-    },
-    {
-      "id": "denki-no-akatsuki",
-      "title": "Denki no Akatsuki",
-      "subtitle": "A book on electric vehicles",
-      "blurb": "The dawn of the electric age, explained for curious readers.",
-      "formats": ["Print"],
-      "note": "",
-      "cover": { "from": "#06202e", "to": "#c4302b", "accent": "#7fd8ff", "emoji": "⚡", "image": "" },
-      "links": { "pothi": "", "amazon": "", "flipkart": "" }
+      "room": "Science wing",
+      "cover": {
+        "from": "#06202e",
+        "to": "#c4302b",
+        "accent": "#7fd8ff",
+        "emoji": "⚡",
+        "image": ""
+      },
+      "links": {
+        "pothi": "https://store.pothi.com/book/mohit-pandey-volts-vengeance-ev-encyclopedia/",
+        "amazon": "https://amzn.in/d/00yltqaL",
+        "flipkart": "",
+        "extra": []
+      }
     }
   ]
 }

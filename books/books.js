@@ -21,18 +21,19 @@
   }
   function btn(cls, name, href, sub) {
     if (!href) return '<span class="rwb-btn rwb-off" aria-disabled="true"><span>' + esc(name) + '<br><small>Link coming soon</small></span></span>';
-    return '<a class="rwb-btn ' + cls + '" href="' + esc(href) + '" target="_blank" rel="noopener sponsored"><span>Buy on ' + esc(name) + '<br><small>' + esc(sub) + '</small></span><span class="rwb-ar" aria-hidden="true">&rarr;</span></a>';
+    return '<a class="rwb-btn ' + cls + '" href="' + esc(href) + '" target="_blank" rel="noopener sponsored"><span>' + (/·/.test(name) ? '' : 'Buy on ') + esc(name) + '<br><small>' + esc(sub) + '</small></span><span class="rwb-ar" aria-hidden="true">&rarr;</span></a>';
   }
   function slide(b) {
     var L = b.links || {}, q = encodeURIComponent(b.title + ' ' + (DATA.author || ''));
     var amz = safeUrl(L.amazon), fk = safeUrl(L.flipkart), pt = safeUrl(L.pothi);
-    return '<article class="rwb-slide" data-id="' + esc(b.id) + '">' + cover(b) +
+    var extra = (L.extra || []).map(function (x) { return safeUrl(x.url) ? btn('rwb-pothi', x.label || 'Pothi', safeUrl(x.url), 'Official listing') : ''; }).join('');
+    return '<article class="rwb-slide" data-id="' + esc(b.id) + '"><div class="rwb-room">' + esc(b.room || 'Library') + '</div>' + cover(b) +
       '<div class="rwb-tags">' + (b.formats || []).map(function (f) { return '<span class="rwb-tag">' + esc(String(f).toUpperCase()) + '</span>'; }).join('') + '</div>' +
       '<h3>' + esc(b.title) + '</h3><p class="rwb-st">' + esc(b.subtitle || '') + '</p><p class="rwb-bl">' + esc(b.blurb || '') + '</p>' +
-      (b.note ? '<p class="rwb-note">' + esc(b.note) + '</p>' : '') +
+      (b.meta ? '<p class="rwb-meta">' + esc(b.meta) + '</p>' : '') + (b.note ? '<p class="rwb-note">' + esc(b.note) + '</p>' : '') +
       '<div class="rwb-btns"><button class="rwb-btn rwb-read" data-read="' + esc(b.id) + '" hidden><span>Read a free sample<br><small>Opens the e-reader</small></span><span class="rwb-ar" aria-hidden="true">&#128214;</span></button>' +
-      btn('rwb-pothi', 'Pothi', pt, 'Print and eBook') +
-      btn('rwb-amz', 'Amazon', amz || ('https://www.amazon.in/s?k=' + q), amz ? 'Official listing' : 'Search for this title') +
+      btn('rwb-pothi', L.pothiName || 'Pothi', pt, 'Official listing') + extra +
+      btn('rwb-amz', 'Amazon', amz || ('https://www.amazon.in/s?k=' + q), amz ? (L.amazonSub || 'Official listing') : 'Search for this title') +
       btn('rwb-flip', 'Flipkart', fk || ('https://www.flipkart.com/search?q=' + q), fk ? 'Official listing' : 'Search for this title') + '</div></article>';
   }
   function wire(root) {
@@ -118,7 +119,7 @@
 
   /* ---------- mounts ---------- */
   function home(m, d) {
-    m.innerHTML = '<div class="rwb-track" tabindex="0" aria-label="Books by ' + esc(d.author) + '">' + d.books.map(slide).join('') + '</div><div class="rwb-dots"></div><a class="rwb-more" href="/books/">See the whole bookshelf &rarr;</a>';
+    m.innerHTML = '<div class="rwb-track" tabindex="0" aria-label="Books by ' + esc(d.author) + '">' + d.books.map(slide).join('') + '</div><div class="rwb-dots"></div><a class="rwb-more" href="/books/">Enter the full library &rarr;</a>';
     var t = m.querySelector('.rwb-track'); if (window.rwCarousel) window.rwCarousel(t, { dots: m.querySelector('.rwb-dots'), auto: false });
     wire(m);
   }
