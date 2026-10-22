@@ -6,7 +6,9 @@
   var MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
   function dparts(d) { var p = String(d).split('-'); return { y: p[0], m: MONTHS[(+p[1] || 1) - 1], d: +p[2] || '' }; }
   function safeSrc(s) { s = String(s || ''); return /^(\/[^\/]|https:\/\/)/.test(s) ? s : ''; }
-  function load() { return fetch('/memories/data.json', { cache: 'no-cache' }).then(function (r) { if (!r.ok) throw 0; return r.json(); }).then(function (d) { return (d && d.events) || []; }); }
+  function load() { return fetch('/memories/data.json', { cache: 'no-cache' }).then(function (r) { if (!r.ok) throw 0; return r.json(); }).then(function (d) { var ev = (d && d.events) || []; /* YouTube thumbnails are tiny lazy images; the player iframe loads only on tap */
+    ev.forEach(function (e) { (e.videos || []).forEach(function (v) { if (v.youtube && !v.poster) v.poster = 'https://i.ytimg.com/vi/' + encodeURIComponent(v.youtube) + '/hqdefault.jpg'; }); if (!e.cover && !(e.photos || []).length) { var y = (e.videos || []).filter(function (v) { return v.poster; })[0]; if (y) e.cover = y.poster; } });
+    return ev; }); }
   function bg(ev) { var c = safeSrc(ev.cover); return c ? 'style="background-image:url(\'' + esc(c) + '\')"' : 'class="rwm-bg rwm-theme-' + esc(ev.theme || 'stage') + '"'; }
   function bgDiv(ev) { var c = safeSrc(ev.cover); return c ? '<div class="rwm-bg" style="background-image:url(\'' + esc(c) + '\')"></div>' : '<div class="rwm-bg rwm-theme-' + esc(ev.theme || 'stage') + '"></div>'; }
 
