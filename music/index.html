@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <title>Songs by Mohit Pandey | RoamWise Music Library</title>
+  <meta name="description" content="Every song from the YouTube channel @mohucool on one wooden bookshelf. Pick a spine and listen.">
+  <link rel="canonical" href="https://www.roamwise.co.in/music/">
+  <meta name="theme-color" content="#150b06">
+  <link rel="icon" href="../favicon.ico">
+  <link rel="stylesheet" href="music.css">
+</head>
+<body>
+  <nav class="mu-top"><a href="../" class="mu-brand"><img src="../icons/icon-192.png" width="30" height="30" alt="">RoamWise</a><a href="../books/" class="mu-link">The book library</a></nav>
+  <header class="mu-hero">
+    <span class="mu-eyebrow">THE MUSIC LIBRARY</span>
+    <h1>Every song, <em>on one shelf</em></h1>
+    <p>Songs from the YouTube channel <a href="https://www.youtube.com/@mohucool" rel="noopener">@mohucool</a>. Tap a spine to pull it out and listen. It plays on to the next book by itself.</p>
+    <label class="mu-search"><span class="mu-sr">Search songs</span><input id="muSearch" type="search" placeholder="Search by title or year" autocomplete="off"></label>
+  </header>
+  <main id="muShelves" class="mu-room" aria-live="polite"><p class="mu-note">Opening the library&hellip;</p></main>
+
+  <section id="muPlayer" class="mu-player" aria-label="Now playing" hidden>
+    <div class="mu-pl-cover" id="muCover" aria-hidden="true"></div>
+    <div class="mu-pl-main">
+      <div class="mu-pl-title" id="muTitle"></div>
+      <div class="mu-pl-sub" id="muSub"></div>
+      <div class="mu-pl-ctl">
+        <button type="button" id="muPrev" aria-label="Previous song">&#9198;</button>
+        <button type="button" id="muPlay" aria-label="Play or pause">&#9654;</button>
+        <button type="button" id="muNext" aria-label="Next song">&#9197;</button>
+        <button type="button" id="muShuffle" aria-pressed="false" aria-label="Shuffle">&#128256;</button>
+        <a id="muYTM" class="mu-pl-ytm" target="_blank" rel="noopener noreferrer">YouTube Music</a>
+        <button type="button" id="muClose" aria-label="Close player">&times;</button>
+      </div>
+    </div>
+    <div class="mu-pl-video"><div id="muFrame"></div></div>
+  </section>
+  <footer class="mu-foot">RoamWise &middot; Almora to Global &middot; <a href="https://www.youtube.com/@mohucool" rel="noopener">YouTube @mohucool</a></footer>
+  <script type="module" src="music.js"></script>
+</body>
+</html>
