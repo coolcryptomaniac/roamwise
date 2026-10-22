@@ -53,6 +53,8 @@ function tick() {
   try {
     const d = yt.getDuration(), c = yt.getCurrentTime();
     if (d > 0) { $('muSeek').value = Math.round(c / d * 1000); $('muCur').textContent = fmtDuration(Math.round(c)); $('muDurT').textContent = fmtDuration(Math.round(d)); }
+    const vd = yt.getVideoData && yt.getVideoData(); const idx = yt.getPlaylistIndex ? yt.getPlaylistIndex() : -1; const n = yt.getPlaylist ? (yt.getPlaylist() || []).length : 0;
+    if (vd && vd.title) $('muTrack').textContent = (n > 1 && idx >= 0 ? 'Track ' + (idx + 1) + ' of ' + n + ' \u00b7 ' : '') + vd.title;
   } catch (e) { /* the player is not ready yet */ }
 }
 /* 100/101/150: the video or album cannot be embedded here. Say so and offer the YouTube Music page instead of a black box. */
@@ -85,7 +87,7 @@ async function startPlayback(r) {
 function show(r) {
   state.current = r;
   const s = spineStyle(r); viz.setPalette(lighten(s.from, 0.55), lighten(s.to, 0.85), s.height + s.width);
-  $('muTitle').textContent = r.title;
+  $('muTitle').textContent = r.title; $('muTrack').textContent = '';
   $('muSub').textContent = state.mood ? (MOODS.find((m) => m.id === state.mood) || {}).label + ' mix · ' + (state.queue.index + 1) + ' of ' + state.queue.items.length : (r.published ? r.published.slice(0, 4) : 'Mohit Pandey') + ' · ' + (state.queue.index + 1) + ' of ' + state.queue.items.length;
   $('muYTM').href = r.playlist ? albumUrl(r.playlist) : musicUrl(r.id);
   $('muMiniCover').style.backgroundImage = 'url("' + coverUrl(r.id) + '")'; $('muMiniTitle').textContent = r.title;

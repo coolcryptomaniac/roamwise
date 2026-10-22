@@ -6,14 +6,14 @@ const esc = (v) => String(v == null ? '' : v).replace(/[&<>"']/g, (c) => ({ '&':
 
 export function mountCarousel(root, { onChange, onActivate }) {
   let items = [], idx = 0, playing = false, cards = [];
-  root.innerHTML = '<div class="mc-track"></div>';
+  root.innerHTML = '<div class="mc-track"></div><div class="mu-arm" aria-hidden="true"></div>';
   const track = root.firstChild;
 
   function build() {
     track.innerHTML = items.map((r, i) => {
       const s = spineStyle(r);
       return '<button type="button" class="mc-card" data-i="' + i + '" aria-label="' + esc(r.title) + '" style="--a:' + s.from + ';--b:' + s.to + '">'
-        + '<span class="mc-disc" style="--cover:url(\'' + coverUrl(r.id) + '\')"></span><span class="mc-art" style="background-image:url(\'' + coverUrl(r.id) + '\')"></span><span class="mc-gloss"></span></button>';
+        + '<span class="mc-disc" style="--cover:url(\'' + coverUrl(r.id) + '\')"></span><span class="mc-art" style="--img:url(\'' + coverUrl(r.id) + '\')"></span><span class="mc-gloss"></span></button>';
     }).join('');
     cards = [...track.children]; layout();
   }
