@@ -7,7 +7,7 @@
   var esc = function (v) { return String(v == null ? '' : v).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
   var wa = function (num, text) { return 'https://wa.me/' + num + '?text=' + encodeURIComponent(text); };
   function fetchJson(u) { return fetch(u).then(function (r) { if (!r.ok) throw 0; return r.json(); }); }
-  function partners() { var a = [].concat(window.RW_PARTNER_SEED || [], window.RW_PARTNERS || []), m = {}; a.forEach(function (p) { if (p && p.id) m[p.id] = p; }); return m; }
+  function partners() { var a = [].concat(/** @type {any} */ (window).RW_PARTNER_SEED || [], /** @type {any} */ (window).RW_PARTNERS || []), m = {}; a.forEach(function (p) { if (p && p.id) m[p.id] = p; }); return m; }
   function stay(c, p) {
     var photo = p.photos && p.photos[0], num = p.bookingWhatsapp; if (!photo || !num) return '';
     var price = c.from ? 'From &#8377;' + esc(Number(c.from).toLocaleString('en-IN')) + ' <small>/ night, indicative</small>' : 'Rates on WhatsApp';
@@ -28,7 +28,7 @@
     host.querySelector('.rwx-mount').innerHTML =
       (stays ? '<div class="rwx-row-h"><span>&#127968; STAY IN THE HILLS</span></div><div class="rwx-track" id="rwxStays">' + stays + '</div><div class="rwm-dots" id="rwxStaysDots"></div>' : '') +
       (arts ? '<div class="rwx-row-h"><span>&#127912; OWN A PAINTING &middot; NATASHA GULERIA</span></div><div class="rwx-track" id="rwxArt">' + arts + '</div><div class="rwm-dots" id="rwxArtDots"></div><p class="rwx-fine">Original and print art sold directly by the artist. <a href="/creators/artists.html">See the full collection &rarr;</a></p>' : '');
-    function boot() { if (!window.rwCarousel) return setTimeout(boot, 200); ['Stays', 'Art'].forEach(function (k) { var t = document.getElementById('rwx' + k); if (t) window.rwCarousel(t, { dots: document.getElementById('rwx' + k + 'Dots'), auto: k === 'Stays' ? 5200 : 4200 }); }); }
+    function boot() { if (!/** @type {any} */ (window).rwCarousel) return setTimeout(boot, 200); ['Stays', 'Art'].forEach(function (k) { var t = document.getElementById('rwx' + k); if (t) /** @type {any} */ (window).rwCarousel(t, { dots: document.getElementById('rwx' + k + 'Dots'), auto: k === 'Stays' ? 5200 : 4200 }); }); }
     boot();
   }).catch(function () { host.style.display = 'none'; }); }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run); else run();
