@@ -2,6 +2,7 @@
 import { PACKAGES, GROUP, priceFor, transportPlan, whatsappLink, OPERATING_MODEL } from './catalog.mjs';
 import { bestWindows, windowRisk, addDays, NMIMS_SAMPLE } from './dates-core.mjs';
 import { instalmentPlan } from './instalment-core.mjs';
+import { safetyPlan } from './safety-core.mjs';
 
 const $ = (id) => document.getElementById(id);
 const esc = (v) => String(v == null ? '' : v).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -84,9 +85,28 @@ function renderPlan() {
     + '<h3>The timeline</h3><ul>' + OPERATING_MODEL.timeline.map((s) => '<li><b>' + esc(s.t) + ':</b> ' + esc(s.do) + '</li>').join('') + '</ul>';
 }
 
-function renderAll() { renderTabs(); renderDates(); renderSummary(); renderPlan(); $('pkSize').textContent = state.n; }
+function renderSafety() {
+  const sp = state.start ? safetyPlan({ pkgId: state.pkg, n: state.n, startISO: state.start }) : null;
+  if (!sp) { $('pkSafety').innerHTML = ''; return; }
+  state.chatMsg = sp.chatMessage;
+  $('pkSafety').innerHTML = '<h2>Plan it safely</h2>'
+    + sp.watch.map((w) => '<p class="pk-watch">' + esc(w) + '</p>').join('')
+    + sp.checks.map((c) => '<h3>' + esc(c.when) + '</h3><ul>' + c.items.map((i) => '<li>' + esc(i) + '</li>').join('') + '</ul>').join('')
+    + '<div class="pk-actions"><a class="pk-cta pk-alt" href="../?ask=' + encodeURIComponent(sp.tuskPrompt) + '">Ask Ailon Tusk about the safety side</a>'
+    + '<button type="button" class="pk-cta pk-alt" id="pkCopyChat">Copy first message for your trip chat</button></div>'
+    + '<p class="pk-fine" id="pkCopyNote" aria-live="polite">Ailon Tusk opens with the question typed in; you press send. For the group chat, open RoamWise, start a trip chat, add your friends and paste the message. Tusk gives advice, not a guarantee that a road is open.</p>';
+}
+
+function renderAll() { renderTabs(); renderDates(); renderSummary(); renderPlan(); renderSafety(); $('pkSize').textContent = state.n; }
 
 document.addEventListener('click', (e) => {
+  if (e.target.id === 'pkCopyChat') {
+    const note = $('pkCopyNote');
+    (navigator.clipboard ? navigator.clipboard.writeText(state.chatMsg) : Promise.reject()).then(
+      () => { note.textContent = 'Copied. Paste it into your trip chat.'; },
+      () => { note.textContent = 'Could not copy automatically. Select this message and copy it: ' + state.chatMsg; });
+    return;
+  }
   const tab = e.target.closest('.pk-tab'); if (tab) { state.pkg = tab.dataset.id; state.start = null; state.custom = false; $('pkOwn').value = ''; $('pkOwnRisk').textContent = ''; renderAll(); return; }
   const d = e.target.closest('.pk-date'); if (d) { state.start = d.dataset.start; state.custom = false; $('pkOwn').value = ''; $('pkOwnRisk').textContent = ''; renderAll(); return; }
   if (e.target.id === 'pkMinus' && state.n > GROUP.min) { state.n--; renderAll(); }
@@ -95,6 +115,6 @@ document.addEventListener('click', (e) => {
 $('pkCohort').addEventListener('change', (e) => { state.cohort = e.target.value; state.start = null; state.custom = false; renderAll(); });
 document.querySelectorAll('input[name=veh]').forEach((r) => r.addEventListener('change', () => { state.vehicle = r.value; renderAll(); }));
 $('pkKit').addEventListener('change', (e) => { state.kit = e.target.checked; renderAll(); });
-$('pkOwn').addEventListener('change', () => { renderOwn(); renderTabs(); renderDates(); renderSummary(); renderPlan(); });
+$('pkOwn').addEventListener('change', () => { renderOwn(); renderTabs(); renderDates(); renderSummary(); renderPlan(); renderSafety(); });
 $('pkOwn').min = addDays(today, 21);
 renderAll();

@@ -44,3 +44,6 @@ table{width:100%;border-collapse:collapse;font-size:14px}th,td{text-align:left;p
 @keyframes pkRise{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 .pk-risk:empty{display:none}
+.pk-watch{margin:0 0 10px;padding:10px 12px;border-radius:12px;background:rgba(255,184,107,.12);border:1px solid rgba(255,184,107,.35);font-size:14px;color:#ffe3c2}
+.pk-actions{display:grid;gap:10px;margin-top:14px}@media(min-width:640px){.pk-actions{grid-template-columns:1fr 1fr}}
+.pk-alt{margin:0;color:var(--gold2);background:transparent;border:1px solid var(--line);cursor:pointer;font-family:inherit}

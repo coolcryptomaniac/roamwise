@@ -100,3 +100,17 @@ test('asset light: partners own vehicles, rooms and guides; WhatsApp link is wel
   assert.match(link, /^https:\/\/wa\.me\/919987379730\?text=/);
   assert.match(decodeURIComponent(link), /Almora Food Trail for 8 people starting 2026-11-16/);
 });
+
+import { safetyPlan, EMERGENCY } from '../packages/safety-core.mjs';
+
+test('safety plan: dated checklist, honest warnings and a safe Tusk question', () => {
+  const calm = safetyPlan({ pkgId: 'almora', n: 8, startISO: '2027-03-09' });
+  assert.equal(calm.checks.length, 4);
+  assert.match(calm.chatMessage, /112/); assert.equal(EMERGENCY.ambulance, '108');
+  assert.match(calm.tuskPrompt, /8 friends/); assert.ok(calm.tuskPrompt.length <= 600); assert.doesNotMatch(calm.tuskPrompt, /[<>]/);
+  const winter = safetyPlan({ pkgId: 'almora', n: 8, startISO: '2026-12-26' });
+  assert.ok(winter.watch.some((w) => /fog/i.test(w)) && winter.watch.some((w) => /busy/i.test(w)));
+  const monsoon = safetyPlan({ pkgId: 'lansdowne', n: 6, startISO: '2027-07-20' });
+  assert.ok(monsoon.watch.some((w) => /landslide/i.test(w)));
+  assert.equal(safetyPlan({ pkgId: 'nope', n: 8, startISO: '2027-03-09' }), null);
+});
