@@ -8,11 +8,17 @@
   var wa = function (num, text) { return 'https://wa.me/' + num + '?text=' + encodeURIComponent(text); };
   function fetchJson(u) { return fetch(u).then(function (r) { if (!r.ok) throw 0; return r.json(); }); }
   function partners() { var a = [].concat(/** @type {any} */ (window).RW_PARTNER_SEED || [], /** @type {any} */ (window).RW_PARTNERS || []), m = {}; a.forEach(function (p) { if (p && p.id) m[p.id] = p; }); return m; }
+  /* Direct-rate badge: shown only when data/home-promo.json carries a dated, per-room comparison; the saving is computed, never typed. */
+  function save(c) {
+    var v = c.save; if (!v || !c.from || !(v.ota > c.from)) return '';
+    var d = v.ota - c.from, pct = Math.round(100 * d / v.ota);
+    return '<div class="rwx-save"><b>&#10003; Direct rate: &#8377;' + esc(d.toLocaleString('en-IN')) + ' (' + pct + '%) less than ' + esc(v.vs) + '</b><small>Same room, per night. ' + esc(v.vs) + ' &#8377;' + esc(Number(v.ota).toLocaleString('en-IN')) + ' incl. fees, checked ' + esc(v.checked) + '.</small></div>';
+  }
   function stay(c, p) {
     var photo = p.photos && p.photos[0], num = p.bookingWhatsapp; if (!photo || !num) return '';
     var inr = function (n) { return '&#8377;' + esc(Number(n).toLocaleString('en-IN')); }, price = c.from ? (c.to ? inr(c.from) + ' &ndash; ' + inr(c.to) : 'From ' + inr(c.from)) + ' <small>/ night' + (c.gst ? ' + GST' : '') + ', by room</small>' : 'Rates on WhatsApp';
     var msg = 'Namaste ' + p.name + ', I found you on RoamWise. ' + (c.ask || 'I would like to book') + '. Dates: ____  Guests: ____. Please share availability and the total.';
-    return '<article class="rwx-card" data-tilt><div class="rwx-img"><img loading="lazy" src="/' + esc(String(photo.src).replace(/^\//, '')) + '" alt="' + esc(photo.alt || p.name) + '"><span class="rwx-tag">' + esc(c.tag) + '</span><span class="rwx-price">' + price + '</span></div><div class="rwx-b"><h3>' + esc(p.name) + '</h3><div class="rwx-area">&#128205; ' + esc(c.area) + '</div><p>' + esc(c.line) + '</p><a class="rwx-cta" target="_blank" rel="noopener" href="' + esc(wa(num, msg)) + '">' + esc(c.cta) + ' <span>&rarr;</span></a></div></article>';
+    return '<article class="rwx-card" data-tilt><div class="rwx-img"><img loading="lazy" src="/' + esc(String(photo.src).replace(/^\//, '')) + '" alt="' + esc(photo.alt || p.name) + '"><span class="rwx-tag">' + esc(c.tag) + '</span><span class="rwx-price">' + price + '</span></div><div class="rwx-b"><h3>' + esc(p.name) + '</h3><div class="rwx-area">&#128205; ' + esc(c.area) + '</div><p>' + esc(c.line) + '</p>' + save(c) + '<a class="rwx-cta" target="_blank" rel="noopener" href="' + esc(wa(num, msg)) + '">' + esc(c.cta) + ' <span>&rarr;</span></a></div></article>';
   }
   function art(a, w) {
     if (!a.whatsapp || !w.image) return ''; var price = w.price || 'Price on request';
