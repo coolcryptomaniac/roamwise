@@ -3,7 +3,8 @@ Usage: python3 build_frames.py <outdir> [start end]   needs the captured homepag
 import sys, os, math, numpy as np
 from functools import lru_cache
 from multiprocessing import Pool
-from PIL import Image, ImageDraw, ImageFont, ImageFilter, ImageChops
+from PIL import Image, ImageDraw, ImageFont, ImageFilter, ImageChops, ImageFile
+ImageFile.LOAD_TRUNCATED_IMAGES = True  # the Milan Heights photo in the repo is a slightly truncated JPEG
 
 W, H, FPS, DUR = 1080, 1920, 30, 40.0
 ROOT = os.environ.get('RW_ROOT', '/home/claude/roamwise')
@@ -14,7 +15,7 @@ EMO = '/usr/share/fonts/truetype/noto/NotoColorEmoji.ttf'
 GOLD = (232, 186, 108); CREAM = (255, 240, 194); INK = (21, 15, 38)
 
 @lru_cache(None)
-def F(size, bold=True): return ImageFont.truetype(PB if bold else PM, size)
+def F(size, bold=True): return ImageFont.truetype(PB if bold else PM, max(2, int(size)))
 @lru_cache(None)
 def emoji_img(ch, size):
     f = ImageFont.truetype(EMO, 109); im = Image.new('RGBA', (136, 128), (0, 0, 0, 0))
@@ -45,6 +46,7 @@ def _segs(s):
     return out
 def tw(s, size, bold=True): return sum((size * 1.1 if e else F(size, bold).getlength(p)) for p, e in _segs(s))
 def text(img, xy, s, size, fill=(255, 255, 255), stroke=0, sfill=(0, 0, 0), anchor='mm', bold=True, alpha=1.0):
+    if size < 3: return
     total = tw(s, size, bold); x, y = xy
     x = x - total / 2 if anchor[0] == 'm' else (x - total if anchor[0] == 'r' else x)
     lay = img if alpha >= 1 else Image.new('RGBA', img.size, (0, 0, 0, 0)); d = ImageDraw.Draw(lay); a = int(255 * alpha)
