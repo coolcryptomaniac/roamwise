@@ -6,7 +6,7 @@ test('books data is valid and never holds non-https store links', () => {
   const d = J('books/data.json'); assert.ok(d.books.length >= 4);
   const ids = new Set();
   d.books.forEach(b => { assert.ok(b.id && b.title && !ids.has(b.id)); ids.add(b.id);
-    ['pothi', 'amazon', 'flipkart'].forEach(k => assert.ok(!b.links[k] || /^https:\/\//.test(b.links[k]), b.id + ' ' + k));
+    ['pothi', 'amazon', 'flipkart'].forEach(k => assert.ok(!b.links[k] || b.links[k] === 'none' || /^https:\/\//.test(b.links[k]), b.id + ' ' + k));
     const s = path.join(root, 'books/samples', b.id + '.json');
     if (fs.existsSync(s)) assert.ok(J('books/samples/' + b.id + '.json').chapters.length); });
 });

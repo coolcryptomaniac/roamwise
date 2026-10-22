@@ -1,5 +1,5 @@
 {
-  "note": "Edit this file to manage the bookshelf. Links are direct product URLs taken from about.html. links.extra adds more buttons (e.g. another edition). Leave a link empty until you have it: Amazon and Flipkart then fall back to a store search for the title, Pothi shows 'link soon'. cover.image (optional) is a cover picture path. To add sample chapters, create books/samples/<id>.json as {\"chapters\":[{\"title\":\"Chapter 1\",\"text\":[\"Paragraph one.\"]}]} and the Read sample button appears by itself.",
+  "note": "Edit this file to manage the bookshelf. Links are direct product URLs taken from about.html. links.extra adds more buttons (e.g. another edition). Set flipkart to \"none\" when a book is not sold there (the button is hidden). Leave a link empty until you have it: Amazon and Flipkart then fall back to a store search for the title, Pothi shows 'link soon'. cover.image (optional) is a cover picture path. To add sample chapters, create books/samples/<id>.json as {\"chapters\":[{\"title\":\"Chapter 1\",\"text\":[\"Paragraph one.\"]}]} and the Read sample button appears by itself.",
   "author": "Mohit Pandey",
   "imprint": "GYANVERSE",
   "books": [
@@ -49,8 +49,8 @@
       },
       "links": {
         "pothi": "",
-        "amazon": "",
-        "flipkart": "",
+        "amazon": "https://amzn.in/d/09QRrTDC",
+        "flipkart": "https://dl.flipkart.com/s/eQhoBTNNNN",
         "extra": []
       }
     },
@@ -78,7 +78,7 @@
         "pothiName": "Pothi · Standard edition",
         "amazon": "https://www.amazon.in/Yuga-Silicon-novel-code-memory-ebook/dp/B0GX32LF8R",
         "amazonSub": "Kindle eBook",
-        "flipkart": "",
+        "flipkart": "none",
         "extra": [
           {
             "label": "Pothi · Compact edition",
@@ -108,7 +108,7 @@
       "links": {
         "pothi": "https://store.pothi.com/book/mohit-pandey-volts-vengeance-ev-encyclopedia/",
         "amazon": "https://amzn.in/d/00yltqaL",
-        "flipkart": "",
+        "flipkart": "none",
         "extra": []
       }
     }
