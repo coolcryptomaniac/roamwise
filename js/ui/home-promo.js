@@ -10,7 +10,7 @@
   function partners() { var a = [].concat(/** @type {any} */ (window).RW_PARTNER_SEED || [], /** @type {any} */ (window).RW_PARTNERS || []), m = {}; a.forEach(function (p) { if (p && p.id) m[p.id] = p; }); return m; }
   function stay(c, p) {
     var photo = p.photos && p.photos[0], num = p.bookingWhatsapp; if (!photo || !num) return '';
-    var price = c.from ? 'From &#8377;' + esc(Number(c.from).toLocaleString('en-IN')) + ' <small>/ night, indicative</small>' : 'Rates on WhatsApp';
+    var inr = function (n) { return '&#8377;' + esc(Number(n).toLocaleString('en-IN')); }, price = c.from ? (c.to ? inr(c.from) + ' &ndash; ' + inr(c.to) : 'From ' + inr(c.from)) + ' <small>/ night' + (c.gst ? ' + GST' : '') + ', by room</small>' : 'Rates on WhatsApp';
     var msg = 'Namaste ' + p.name + ', I found you on RoamWise. ' + (c.ask || 'I would like to book') + '. Dates: ____  Guests: ____. Please share availability and the total.';
     return '<article class="rwx-card" data-tilt><div class="rwx-img"><img loading="lazy" src="/' + esc(String(photo.src).replace(/^\//, '')) + '" alt="' + esc(photo.alt || p.name) + '"><span class="rwx-tag">' + esc(c.tag) + '</span><span class="rwx-price">' + price + '</span></div><div class="rwx-b"><h3>' + esc(p.name) + '</h3><div class="rwx-area">&#128205; ' + esc(c.area) + '</div><p>' + esc(c.line) + '</p><a class="rwx-cta" target="_blank" rel="noopener" href="' + esc(wa(num, msg)) + '">' + esc(c.cta) + ' <span>&rarr;</span></a></div></article>';
   }

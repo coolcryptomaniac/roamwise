@@ -1,7 +1,7 @@
 {
   "note": "Homepage promo. Prices are optional: set 'from' (number, in rupees per night) only when the owner has confirmed an indicative rate. Until then the card says rates are confirmed on WhatsApp.",
   "stays": [
-    { "partnerId": "p_milan_heights", "tag": "SIGNED PARTNER", "area": "Dharanaula, Almora", "line": "Stay above the bazaar, with a restaurant and a gaming zone downstairs.", "from": null, "cta": "Book now on WhatsApp", "ask": "I would like to book a room" },
+    { "partnerId": "p_milan_heights", "tag": "SIGNED PARTNER", "area": "Dharanaula, Almora", "line": "Stay above the bazaar, with a restaurant and a gaming zone downstairs.", "from": 1500, "to": 3000, "gst": true, "cta": "Book now on WhatsApp", "ask": "I would like to book a room" },
     { "partnerId": "p_corbett_jungle_view", "tag": "FOUNDER-INTRODUCED", "area": "Ghildiyal Gaon, near Lansdowne", "line": "Six-bedroom family homestay with hill and jungle views.", "from": null, "cta": "Enquire to book", "ask": "I would like to book a stay" }
   ],
   "art": { "artistId": "natasha-guleria", "artworkIds": ["shiva-dhyan", "shree-yantra", "maryada-ram"] }
