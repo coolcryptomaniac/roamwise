@@ -1,0 +1,57 @@
+{
+  "note": "Edit this file to manage the bookshelf. links.pothi / links.amazon / links.flipkart are direct product URLs; leave empty until you have them (Amazon and Flipkart then fall back to a store search for the title, Pothi shows 'link soon'). Put a cover image path in cover.image (optional). To add sample chapters, create books/samples/<id>.json as {\"chapters\":[{\"title\":\"Chapter 1\",\"text\":[\"Paragraph one.\",\"Paragraph two.\"]}]} and the Read sample button appears by itself.",
+  "author": "Mohit Pandey",
+  "imprint": "GYANVERSE",
+  "books": [
+    {
+      "id": "yuga-the-silicon-age",
+      "title": "Yuga: The Silicon Age",
+      "subtitle": "A sci-fi mystery set in 2047",
+      "blurb": "In 2047, Aria Voss follows a trail to Kasardevi in Almora, where an ancient AI called ORACLE has been waiting.",
+      "formats": ["Print", "eBook"],
+      "note": "Written with AI assistance (Claude).",
+      "cover": { "from": "#0b1d3a", "to": "#7a3cff", "accent": "#5ee6c0", "emoji": "🔮", "image": "" },
+      "links": { "pothi": "", "amazon": "", "flipkart": "" }
+    },
+    {
+      "id": "gyanverse",
+      "title": "GYANVERSE",
+      "subtitle": "The Class 9–12 exam companion",
+      "blurb": "A 186-page companion for Class 9 to 12 exams, made for quick, clear revision.",
+      "formats": ["Print"],
+      "note": "",
+      "cover": { "from": "#3a0b1d", "to": "#e8ba6c", "accent": "#ffe9b8", "emoji": "📘", "image": "" },
+      "links": { "pothi": "", "amazon": "", "flipkart": "" }
+    },
+    {
+      "id": "padh-le-yaar",
+      "title": "Padh Le Yaar",
+      "subtitle": "A friendly study companion",
+      "blurb": "A quick-revision edition from the GYANVERSE series, written the way a friend explains it.",
+      "formats": ["Print"],
+      "note": "",
+      "cover": { "from": "#0b3a2a", "to": "#e8ba6c", "accent": "#fff3c4", "emoji": "✏️", "image": "" },
+      "links": { "pothi": "", "amazon": "", "flipkart": "" }
+    },
+    {
+      "id": "cheat-code",
+      "title": "Cheat Code",
+      "subtitle": "Fast revision, no fluff",
+      "blurb": "The short, sharp edition of the GYANVERSE exam companion.",
+      "formats": ["Print"],
+      "note": "",
+      "cover": { "from": "#1a1a1a", "to": "#ff7a59", "accent": "#ffd1c2", "emoji": "🎮", "image": "" },
+      "links": { "pothi": "", "amazon": "", "flipkart": "" }
+    },
+    {
+      "id": "denki-no-akatsuki",
+      "title": "Denki no Akatsuki",
+      "subtitle": "A book on electric vehicles",
+      "blurb": "The dawn of the electric age, explained for curious readers.",
+      "formats": ["Print"],
+      "note": "",
+      "cover": { "from": "#06202e", "to": "#c4302b", "accent": "#7fd8ff", "emoji": "⚡", "image": "" },
+      "links": { "pothi": "", "amazon": "", "flipkart": "" }
+    }
+  ]
+}
