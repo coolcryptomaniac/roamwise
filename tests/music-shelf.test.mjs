@@ -1,0 +1,87 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import { cleanReleases, groupByYear, shelves, spineStyle, filterReleases, neighbour, fmtDuration, musicUrl, albumUrl, MOODS, byMood, smartMood, shuffled, makeQueue, advance, lighten } from '../music/shelf-core.mjs';
+import { isoDurationToSec, parseFeed, mapApiVideos, uploadsPlaylistId } from '../tools/youtube-import-core.mjs';
+
+const rel = (id, title, published, durationSec = 200) => ({ id, title, published, durationSec });
+
+test('shelf: keeps real ids, drops duplicates and junk, newest first', () => {
+  const out = cleanReleases([rel('abcdefghijk', 'A <b>song</b>', '2026-03-01'), rel('abcdefghijk', 'dup', '2026-01-01'), rel('short', 'x', '2026-01-01'), rel('zzzzzzzzzzz', '', '2026-01-01'), rel('lmnopqrstuv', 'Older', '2025-02-02')]);
+  assert.deepEqual(out.map((r) => r.id), ['abcdefghijk', 'lmnopqrstuv']);
+  assert.doesNotMatch(out[0].title, /[<>]/);
+  assert.deepEqual(cleanReleases(null), []);
+});
+
+test('shelf: groups by year (newest first), splits into rows, spines are stable', () => {
+  const list = cleanReleases([rel('aaaaaaaaaaa', 'a', '2026-05-01'), rel('bbbbbbbbbbb', 'b', '2025-05-01'), rel('ccccccccccc', 'c', '2026-01-01')]);
+  assert.deepEqual(groupByYear(list).map((g) => [g.year, g.books.length]), [['2026', 2], ['2025', 1]]);
+  assert.deepEqual(shelves([1, 2, 3, 4, 5], 2), [[1, 2], [3, 4], [5]]);
+  const s1 = spineStyle(list[0]), s2 = spineStyle(list[0]);
+  assert.deepEqual(s1, s2); assert.ok(s1.height >= 150 && s1.height < 200 && s1.width >= 40 && s1.width <= 74);
+});
+
+test('shelf: search, next/previous with wrap, shuffle never repeats the song', () => {
+  const list = cleanReleases([rel('aaaaaaaaaaa', 'Ghaam', '2026-05-01'), rel('bbbbbbbbbbb', 'Dyo The Rain', '2025-05-01'), rel('ccccccccccc', 'Akele Hain', '2024-01-01')]);
+  assert.deepEqual(filterReleases(list, 'rain').map((r) => r.id), ['bbbbbbbbbbb']);
+  assert.equal(filterReleases(list, '2024').length, 1);
+  assert.equal(neighbour(list, 'ccccccccccc', 1).id, 'aaaaaaaaaaa');
+  assert.equal(neighbour(list, 'aaaaaaaaaaa', -1).id, 'ccccccccccc');
+  for (let i = 0; i < 20; i++) assert.notEqual(neighbour(list, 'aaaaaaaaaaa', 1, true, Math.random).id, 'aaaaaaaaaaa');
+  assert.equal(fmtDuration(222), '3:42'); assert.match(musicUrl('abcdefghijk'), /music\.youtube\.com/);
+});
+
+test('importer: durations, feed, API rows (Shorts and live streams skipped)', () => {
+  assert.equal(isoDurationToSec('PT3M42S'), 222); assert.equal(isoDurationToSec('PT1H2M3S'), 3723); assert.equal(isoDurationToSec('junk'), 0);
+  const xml = '<feed><entry><yt:videoId>abcdefghijk</yt:videoId><title>Tum &amp; Main</title><published>2026-10-01T10:00:00+00:00</published></entry></feed>';
+  assert.deepEqual(parseFeed(xml), [{ id: 'abcdefghijk', title: 'Tum & Main', published: '2026-10-01', durationSec: 0 }]);
+  const api = mapApiVideos([
+    { id: 'aaaaaaaaaaa', snippet: { title: 'Song', publishedAt: '2026-01-01T00:00:00Z', liveBroadcastContent: 'none' }, contentDetails: { duration: 'PT3M10S' } },
+    { id: 'bbbbbbbbbbb', snippet: { title: 'Short', publishedAt: '2026-01-02T00:00:00Z' }, contentDetails: { duration: 'PT45S' } },
+    { id: 'ccccccccccc', snippet: { title: 'Live', publishedAt: '2026-01-03T00:00:00Z', liveBroadcastContent: 'live' }, contentDetails: { duration: 'PT1H' } }]);
+  assert.deepEqual(api.map((r) => r.id), ['aaaaaaaaaaa']);
+  assert.equal(uploadsPlaylistId('UC1ciaSee_BYW8AVFqEe6mcQ'), 'UU1ciaSee_BYW8AVFqEe6mcQ'); assert.equal(uploadsPlaylistId('x'), '');
+});
+
+test('release file: the shipped file is valid and never holds invented songs', () => {
+  const j = JSON.parse(readFileSync(new URL('../music/releases.json', import.meta.url), 'utf8'));
+  assert.equal(j.channel.handle, 'mohucool'); assert.equal(cleanReleases(j.releases).length, j.releases.length);
+});
+
+test('shelf: albums keep their playlist, undated releases sort by seq (newest last given) under one plaque', () => {
+  const list = cleanReleases([{ id: 'aaaaaaaaaaa', title: 'First', playlist: 'OLAK5uy_abcdefghij', seq: 1 }, { id: 'bbbbbbbbbbb', title: 'Second', playlist: 'bad id', seq: 2 }]);
+  assert.deepEqual(list.map((r) => r.title), ['Second', 'First']);
+  assert.equal(list[1].playlist, 'OLAK5uy_abcdefghij'); assert.equal(list[0].playlist, '');
+  assert.deepEqual(groupByYear(list).map((g) => g.year), ['The collection']);
+  assert.match(albumUrl('OLAK5uy_abcdefghij'), /playlist\?list=OLAK5uy_/);
+});
+
+test('release file: 25 albums from the owner\'s links, each with a playlist and a cover video', () => {
+  const j = JSON.parse(readFileSync(new URL('../music/releases.json', import.meta.url), 'utf8'));
+  const list = cleanReleases(j.releases);
+  assert.equal(list.length, 25); assert.ok(list.every((r) => r.playlist.startsWith('OLAK5uy_')));
+  assert.ok(list.some((r) => /GHAAM/.test(r.title)));
+});
+
+test('moods: tagged albums only, smart mood follows the hour', () => {
+  const list = cleanReleases([{ id: 'aaaaaaaaaaa', title: 'A', moods: ['love', 'nope'] }, { id: 'bbbbbbbbbbb', title: 'B', moods: ['party'] }]);
+  assert.deepEqual(list.find((r) => r.id === 'aaaaaaaaaaa').moods, ['love']);
+  assert.deepEqual(byMood(list, 'party').map((r) => r.id), ['bbbbbbbbbbb']);
+  assert.equal(MOODS.length, 6);
+  assert.deepEqual([8, 13, 19, 23, 2].map((h) => smartMood(h).mood), ['uplift', 'pahadi', 'love', 'cosmic', 'cosmic']);
+});
+
+test('queue: shuffle keeps every album once and starts on the chosen one; advance wraps, repeats and finishes', () => {
+  const list = cleanReleases(['a', 'b', 'c', 'd'].map((c, i) => ({ id: c.repeat(11), title: c, seq: i })));
+  const q = makeQueue(list, 'c'.repeat(11), true, () => 0.3);
+  assert.equal(q.items[0].id, 'c'.repeat(11)); assert.equal(new Set(q.items.map((r) => r.id)).size, 4); assert.equal(q.index, 0);
+  assert.deepEqual(shuffled([1, 2, 3, 4], () => 0).sort(), [1, 2, 3, 4]);
+  const plain = makeQueue(list, list[3].id, false);
+  assert.equal(plain.index, 3);
+  assert.equal(advance({ items: list, index: 3 }, 1, 'all', false), 0);   // next button wraps
+  assert.equal(advance({ items: list, index: 3 }, 1, 'off', true), -1);   // album ended at the end of the queue
+  assert.equal(advance({ items: list, index: 3 }, 1, 'all', true), 0);
+  assert.equal(advance({ items: list, index: 2 }, 1, 'one', true), 2);
+  assert.equal(advance({ items: list, index: 0 }, -1, 'all', false), 3);
+  assert.equal(lighten('#000000', 0.5), '#808080'); assert.equal(lighten('bad'), '#fff0c2');
+});

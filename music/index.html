@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <title>Songs by Mohit Pandey | RoamWise Music Library</title>
+  <meta name="description" content="Every album from the YouTube channel @mohucool in a 3D carousel and on a wooden bookshelf. Pick an album, a mood or a smart mix and listen.">
+  <link rel="canonical" href="https://www.roamwise.co.in/music/">
+  <meta name="theme-color" content="#150b06">
+  <link rel="icon" href="../favicon.ico">
+  <link rel="stylesheet" href="music.css">
+</head>
+<body>
+  <nav class="mu-top"><a href="../" class="mu-brand"><img src="../icons/icon-192.png" width="30" height="30" alt="">RoamWise</a><a href="../books/" class="mu-link">The book library</a></nav>
+  <header class="mu-hero">
+    <span class="mu-eyebrow">THE MUSIC LIBRARY</span>
+    <h1>Every album, <em>on one shelf</em></h1>
+    <p>Music from the YouTube channel <a href="https://www.youtube.com/@mohucool" rel="noopener">@mohucool</a>. Swipe the albums, press play, or let a mood pick for you.</p>
+  </header>
+
+  <section id="muStage" class="mu-stage" aria-label="Player">
+    <canvas id="muDust" class="mu-dust" aria-hidden="true"></canvas>
+    <div id="muCarousel" class="mu-carousel" tabindex="0" role="group" aria-label="Albums. Use the left and right arrow keys, or swipe."></div>
+    <div class="mu-now"><h2 id="muTitle">Pick an album</h2><p id="muSub"></p></div>
+    <div class="mu-deck">
+      <div class="mu-viz"><canvas id="muViz" aria-hidden="true"></canvas>
+        <div class="mu-viz-modes" role="group" aria-label="Visualiser style">
+          <button type="button" data-viz="bars" aria-pressed="true">Bars</button><button type="button" data-viz="wave" aria-pressed="false">Wave</button><button type="button" data-viz="ridge" aria-pressed="false">Ridge</button>
+        </div></div>
+      <div class="mu-video-slot"><div class="mu-video" id="muVideoBox"><div id="muFrame"></div></div>
+        <div class="mu-fallback" id="muFallback" hidden><p>This album can't be played inside the page.</p><a id="muFallbackLink" class="mu-btn" target="_blank" rel="noopener noreferrer">Listen on YouTube Music</a> <a id="muFallbackSp" class="mu-btn" target="_blank" rel="noopener noreferrer" hidden>Listen on Spotify</a></div></div>
+    </div>
+    <div class="mu-progress"><span id="muCur">0:00</span><input type="range" id="muSeek" min="0" max="1000" value="0" aria-label="Seek"><span id="muDurT">0:00</span></div>
+    <div class="mu-ctl">
+      <button type="button" id="muShuffle" aria-pressed="false" aria-label="Shuffle">&#128256;</button>
+      <button type="button" id="muPrev" aria-label="Previous album">&#9198;</button>
+      <button type="button" id="muPlay" class="big" aria-label="Play">&#9654;</button>
+      <button type="button" id="muNext" aria-label="Next album">&#9197;</button>
+      <button type="button" id="muRepeat" aria-pressed="false" aria-label="Repeat: off" data-mode="off">&#128257;</button>
+      <label class="mu-vol"><span class="mu-sr">Volume</span>&#128266;<input type="range" id="muVol" min="0" max="100" value="80"></label>
+      <a id="muYTM" class="mu-ytm" target="_blank" rel="noopener noreferrer">YouTube Music</a>
+    </div>
+    <div id="muMoods" class="mu-moods" role="group" aria-label="Moods"></div>
+    <p class="mu-fine">The light show moves to a synthesised beat while music plays; it does not read the audio. Moods are a first guess from the titles. Keys: K play, N next, P previous.</p>
+  </section>
+
+  <div class="mu-shelf-head"><h2>The bookshelf</h2><label class="mu-search"><span class="mu-sr">Search albums</span><input id="muSearch" type="search" placeholder="Search by title" autocomplete="off"></label></div>
+  <main id="muShelves" class="mu-room" aria-live="polite"><p class="mu-note">Opening the library&hellip;</p></main>
+
+  <div id="muMini" class="mu-mini" aria-label="Mini player">
+    <div class="mu-mini-cover" id="muMiniCover" aria-hidden="true"></div><div class="mu-mini-title" id="muMiniTitle"></div>
+    <button type="button" id="muMiniPrev" aria-label="Previous">&#9198;</button><button type="button" id="muMiniPlay" aria-label="Play">&#9654;</button><button type="button" id="muMiniNext" aria-label="Next">&#9197;</button>
+  </div>
+  <footer class="mu-foot">RoamWise &middot; Almora to Global &middot; <a href="https://www.youtube.com/@mohucool" rel="noopener">YouTube @mohucool</a></footer>
+  <script type="module" src="music.js"></script>
+</body>
+</html>
