@@ -16,18 +16,22 @@ export function km(a, b) {
   const h = Math.sin(dLat / 2) ** 2 + Math.cos(r(a[0])) * Math.cos(r(b[0])) * Math.sin(dLon / 2) ** 2;
   return 2 * R * Math.asin(Math.sqrt(h));
 }
-export function ringFor(city) {
+export function ringFor(city, from = ALMORA) {
   const c = CITIES[String(city || '').trim().toLowerCase()];
   if (!c) return { ring: 'unknown', km: null };
-  const d = Math.round(km([ALMORA.lat, ALMORA.lon], c));
+  const d = Math.round(km([from.lat, from.lon], c));
   return { ring: d <= RINGS.near ? 'near' : d <= RINGS.regional ? 'regional' : 'far', km: d };
 }
+export function fromCity(city) { const c = CITIES[String(city || '').trim().toLowerCase()]; return c ? { lat: c[0], lon: c[1] } : ALMORA; }
 const ORDER = { near: 0, regional: 1, far: 2 };
-/* Next creators to email: confirmed base city, a public business email, not yet contacted; nearest ring first. */
-export function pickNext(creators, n = 3) {
+/* Next creators to email for one campaign: matching niche, confirmed base city, a public business email, not yet
+   contacted for this campaign; nearest ring (measured from the campaign city) first. */
+export function pickNext(creators, n = 3, campaign = { id: 'milan-heights', city: 'almora', niches: [] }) {
+  const from = fromCity(campaign.city), want = (campaign.niches || []).map((x) => x.toLowerCase());
   return creators
-    .filter((c) => c.status === 'pending' && c.baseConfirmed === true && /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(c.email || '') && ringFor(c.baseCity).ring !== 'unknown')
-    .map((c) => ({ c, r: ringFor(c.baseCity) }))
+    .filter((c) => c.status === 'pending' && c.baseConfirmed === true && /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(c.email || '') && ringFor(c.baseCity, from).ring !== 'unknown'
+      && !(c.sentFor || []).includes(campaign.id) && (!want.length || (c.niches || []).some((x) => want.includes(String(x).toLowerCase()))))
+    .map((c) => ({ c, r: ringFor(c.baseCity, from) }))
     .sort((a, b) => ORDER[a.r.ring] - ORDER[b.r.ring] || a.r.km - b.r.km)
     .slice(0, n).map((x) => ({ ...x.c, ring: x.r.ring, km: x.r.km }));
 }

@@ -1,0 +1,79 @@
+{
+  "note": "Shared creator pool for every campaign in outreach/campaigns.json. A creator is emailed only when status is 'pending', baseConfirmed is true, and email is a business address the creator publishes themselves (source in emailSource). 'niches' lists what they post about (food, cafe, fashion, tech, lifestyle, travel, beauty, fitness, local). Rings come from baseCity via tools/outreach/rings.mjs: near <= 90 km, regional <= 500 km, else far, measured from the CAMPAIGN city. Status values: needs-email | pending | sent | replied | declined | do-not-contact. 'sent' is tracked per campaign in sentFor.",
+  "creators": [
+    {
+      "id": "mister-tikku",
+      "name": "Gurpreet Singh Tikku (Mister Tikku)",
+      "platform": "blog",
+      "url": "https://mistertikku.com/",
+      "baseCity": "dehradun",
+      "baseConfirmed": false,
+      "email": "",
+      "emailSource": "",
+      "contactRoute": "https://mistertikku.com/contact/",
+      "status": "needs-email",
+      "found": "Food blog reviewing Dehradun restaurants; base city not confirmed on the page.",
+      "niches": [
+        "food",
+        "cafe",
+        "local"
+      ],
+      "sentFor": []
+    },
+    {
+      "id": "deliciously-directionless",
+      "name": "Prachi (Deliciously Directionless)",
+      "platform": "blog",
+      "url": "https://deliciouslydirectionless.com/",
+      "baseCity": "",
+      "baseConfirmed": false,
+      "email": "",
+      "emailSource": "",
+      "contactRoute": "https://deliciouslydirectionless.com/hire-me/",
+      "status": "needs-email",
+      "found": "Food and travel blog with a Kumaon food post; base city not confirmed.",
+      "niches": [
+        "food",
+        "travel"
+      ],
+      "sentFor": []
+    },
+    {
+      "id": "ananyaaa-negi",
+      "name": "Ananya Negi",
+      "platform": "instagram",
+      "url": "https://www.instagram.com/ananyaaa.negi/",
+      "baseCity": "dehradun",
+      "baseConfirmed": false,
+      "email": "",
+      "emailSource": "",
+      "contactRoute": "Instagram DM",
+      "status": "needs-email",
+      "found": "Listed among Dehradun influencers (about 45k followers) with food among her interests.",
+      "niches": [
+        "lifestyle",
+        "food",
+        "fashion"
+      ],
+      "sentFor": []
+    },
+    {
+      "id": "dehradunfoodies",
+      "name": "Ajay Rawat (Dehradun Foodies)",
+      "platform": "instagram",
+      "url": "https://www.instagram.com/dehradunfoodies/",
+      "baseCity": "dehradun",
+      "baseConfirmed": false,
+      "email": "",
+      "emailSource": "",
+      "contactRoute": "Instagram DM",
+      "status": "needs-email",
+      "found": "Dehradun food page found in search; business email not checked.",
+      "niches": [
+        "food",
+        "local"
+      ],
+      "sentFor": []
+    }
+  ]
+}

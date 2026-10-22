@@ -1,0 +1,21 @@
+{
+  "note": "One entry per business. category decides which creator niches are matched. whatsapp is the number creators are told to message (the business's own). Only active campaigns are emailed. offer is shown to creators only as agreed directly with the business.",
+  "campaigns": [
+    {
+      "id": "milan-heights",
+      "active": true,
+      "business": "Milan Heights",
+      "category": "hotel with restaurant",
+      "city": "almora",
+      "area": "Dharanaula, Almora",
+      "niches": [
+        "food",
+        "travel",
+        "local"
+      ],
+      "whatsapp": "+91 73023 15845",
+      "phrase": "food vlogger collab through RoamWise",
+      "pitch": "a food-vlog collaboration there: the restaurant, Kumaoni dishes and the stay"
+    }
+  ]
+}

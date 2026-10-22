@@ -13,6 +13,18 @@ test('pickNext only returns confirmed, emailed, pending creators, nearest first,
   assert.deepEqual(r.map((x) => x.id), ['near', 'mid']);
 });
 test('seed creators are never marked pending without a confirmed base and a sourced email', () => {
-  const { creators } = JSON.parse(fs.readFileSync(path.join(root, 'outreach/milan-heights/creators.json'), 'utf8'));
+  const { creators } = JSON.parse(fs.readFileSync(path.join(root, 'outreach/creators.json'), 'utf8'));
   creators.filter((c) => c.status === 'pending').forEach((c) => { assert.ok(c.baseConfirmed && c.email && c.emailSource, c.id); });
+});
+
+test('campaign niche filter and per-campaign dedupe', async () => {
+  const { pickNext } = await import(path.join(root, 'tools/outreach/rings.mjs'));
+  const mk = (id, city, niches, extra = {}) => ({ id, baseCity: city, baseConfirmed: true, email: id + '@x.com', status: 'pending', niches, sentFor: [], ...extra });
+  const camp = { id: 'shop1', city: 'delhi', niches: ['fashion'] };
+  const r = pickNext([mk('a', 'noida', ['fashion']), mk('b', 'delhi', ['food']), mk('c', 'mumbai', ['fashion']), mk('d', 'gurugram', ['fashion'], { sentFor: ['shop1'] })], 3, camp);
+  assert.deepEqual(r.map((x) => x.id), ['a', 'c']);
+});
+test('campaigns file is valid', () => {
+  const { campaigns } = JSON.parse(fs.readFileSync(path.join(root, 'outreach/campaigns.json'), 'utf8'));
+  campaigns.forEach((c) => { assert.ok(c.id && c.business && c.city && c.whatsapp && c.niches.length && c.phrase && c.pitch); });
 });
