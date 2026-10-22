@@ -259,6 +259,7 @@ document.write('<div style="font:16px/1.5 system-ui,Arial,sans-serif;background:
 <link rel="stylesheet" href="mobile-stability.css?v=rw-v125-compact-tusk">
 <link rel="stylesheet" href="design/roamwise-akatsuki-theme.css?v=rw-v125-akatsuki-tusk">
 <link rel="stylesheet" href="design/home-polish.css?v=rw-v1">
+<link rel="stylesheet" href="memories/memories.css?v=1">
 <script src="js/runtime/freshness.js?v=rw-v124-personal-group-planner" defer></script>
 <style id="rwPolish">
 /* ===== rwPolish — press feel, elevation, motion, pill tab bar ===== */
@@ -621,6 +622,52 @@ function rwDismissCreatorBanner(){
   <div class="qg-more"><button onclick="openDrawer()">Beacon, Realms, Arrival mode, Treks &amp; more →</button></div>
 </section>
 
+<section class="xsec v v-home v-explore" id="rwPromo" aria-labelledby="rwxTitle">
+  <style>
+  #rwPromo{margin:26px 14px 10px}
+  .rwx-eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:11px;letter-spacing:.16em;font-weight:800;color:#e8ba6c}
+  .rwx-eyebrow:before{content:"";width:8px;height:8px;border-radius:50%;background:#ff7a59;animation:rwxPulse 2s infinite}
+  #rwPromo .xsec-title em{background:linear-gradient(90deg,#ff7a59,#e8ba6c,#ff7a59);background-size:200% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:rwxShine 6s linear infinite}
+  .rwx-row-h{margin:18px 0 8px;font-size:11.5px;letter-spacing:.14em;font-weight:800;color:#e8ba6c}
+  .rwx-track{display:flex;gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;padding:6px 14px 16px;margin:0 -14px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+  .rwx-track::-webkit-scrollbar{display:none}
+  @property --rwxa{syntax:"<angle>";inherits:false;initial-value:0deg}
+  .rwx-card{position:relative;flex:0 0 78%;max-width:340px;scroll-snap-align:center;border-radius:24px;padding:2px;background:conic-gradient(from var(--rwxa),#e8ba6c,#ff7a59,#9b7bff,#5ee6c0,#e8ba6c);animation:rwxSpin 6s linear infinite;box-shadow:0 20px 44px -20px rgba(0,0,0,.85);transition:transform .35s cubic-bezier(.2,.8,.2,1),box-shadow .35s}
+  .rwx-card:hover{box-shadow:0 26px 50px -18px rgba(232,186,108,.45)}
+  .rwx-card>*{background:#140d24}
+  .rwx-img{position:relative;border-radius:22px 22px 0 0;overflow:hidden;aspect-ratio:4/3}
+  .rwx-art .rwx-img{aspect-ratio:1/1}
+  .rwx-img img{width:100%;height:100%;object-fit:cover;display:block;animation:rwxKen 14s ease-in-out infinite alternate}
+  .rwx-img:after{content:"";position:absolute;inset:0;background:linear-gradient(115deg,transparent 40%,rgba(255,255,255,.22) 50%,transparent 60%);transform:translateX(-120%);animation:rwxSweep 7s ease-in-out infinite}
+  .rwx-tag{position:absolute;top:12px;left:12px;z-index:2;background:rgba(10,8,20,.72);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);border:1px solid rgba(232,186,108,.5);color:#e8ba6c;font-size:10px;letter-spacing:.12em;font-weight:800;padding:6px 10px;border-radius:999px}
+  .rwx-price{position:absolute;right:12px;bottom:12px;z-index:2;background:linear-gradient(95deg,#e8ba6c,#ffd9a0);color:#150f26;font-weight:800;font-size:14px;padding:8px 12px;border-radius:14px;box-shadow:0 8px 20px -8px rgba(0,0,0,.7);animation:rwxPop .8s cubic-bezier(.2,1.4,.4,1) both .3s}
+  .rwx-price small{font-weight:600;font-size:10.5px;opacity:.75}
+  .rwx-b{padding:14px 16px 16px;border-radius:0 0 22px 22px}
+  .rwx-b h3{margin:0;font-size:20px;line-height:1.2}
+  .rwx-area{font-size:12.5px;opacity:.75;margin:4px 0 6px}
+  .rwx-b p{margin:0 0 12px;font-size:13px;line-height:1.5;opacity:.85}
+  .rwx-art .rwx-area{margin-bottom:12px}
+  .rwx-cta{position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;gap:8px;text-decoration:none;font-weight:800;font-size:15px;color:#150f26;background:linear-gradient(95deg,#e8ba6c,#ffd9a0);padding:13px 16px;border-radius:14px;transition:transform .25s,box-shadow .25s}
+  .rwx-cta:after{content:"";position:absolute;top:0;bottom:0;width:40%;left:-60%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.65),transparent);transform:skewX(-20deg);animation:rwxBtn 3.2s ease-in-out infinite}
+  .rwx-cta span{transition:transform .25s}
+  .rwx-cta:hover span{transform:translateX(5px)}
+  .rwx-cta:active{transform:scale(.97)}
+  .rwx-fine{font-size:12px;opacity:.7;margin:2px 0 0}.rwx-fine a{color:#e8ba6c}
+  @media(min-width:700px){.rwx-card{flex-basis:320px}#rwPromo{max-width:1100px;margin-left:auto;margin-right:auto}.rwx-track{margin:0}}
+  @keyframes rwxSpin{to{--rwxa:360deg}}
+  @keyframes rwxShine{to{background-position:200% 0}}
+  @keyframes rwxPulse{70%{box-shadow:0 0 0 9px rgba(255,122,89,0)}100%{box-shadow:0 0 0 0 rgba(255,122,89,0)}}
+  @keyframes rwxKen{to{transform:scale(1.1) translate(-1.5%,-1%)}}
+  @keyframes rwxSweep{0%,55%{transform:translateX(-120%)}85%,100%{transform:translateX(120%)}}
+  @keyframes rwxBtn{0%,60%{left:-60%}100%{left:130%}}
+  @keyframes rwxPop{from{opacity:0;transform:scale(.6) rotate(-6deg)}to{opacity:1;transform:none}}
+  @media(prefers-reduced-motion:reduce){.rwx-card,.rwx-img img,.rwx-img:after,.rwx-cta:after,.rwx-price,#rwPromo .xsec-title em,.rwx-eyebrow:before{animation:none}.rwx-card{background:#e8ba6c}}
+  </style>
+  <span class="rwx-eyebrow">FEATURED THIS WEEK</span>
+  <div class="xsec-head"><h2 class="xsec-title" id="rwxTitle">Stay in the hills. <em>Own the art.</em></h2></div>
+  <div class="rwx-mount"></div>
+</section>
+
 <section class="xsec v v-home v-explore" id="brand-ambassador" aria-labelledby="ambassadorTitle">
   <style>
   #brand-ambassador{margin:28px 12px 10px;padding:22px 14px 20px;border-radius:28px;position:relative;overflow:hidden;background:radial-gradient(120% 80% at 0% 0%,rgba(232,186,108,.14),transparent 55%),radial-gradient(90% 70% at 100% 100%,rgba(120,80,200,.18),transparent 60%),#150f26;border:1px solid rgba(232,186,108,.22);box-shadow:0 24px 60px -24px rgba(0,0,0,.7),inset 0 1px 0 rgba(255,255,255,.06)}
@@ -701,6 +748,9 @@ function rwDismissCreatorBanner(){
   <script src="/creators/home-art.js" defer></script>
   <script src="/design/home-polish.js" defer></script>
   <script src="/design/celebrate.js" defer></script>
+  <script src="/design/carousel.js" defer></script>
+  <script src="/js/ui/home-promo.js" defer></script>
+  <script src="/memories/memories.js" defer></script>
 </section>
 
 <div class="rwa-div v v-home v-explore" aria-hidden="true"><span>&#10043;</span></div>
@@ -737,6 +787,15 @@ function rwDismissCreatorBanner(){
     <span class="rw-card-go" aria-hidden="true">&rarr;</span>
   </a>
 </section>
+
+<section class="xsec v v-home v-explore" id="rwMemories" aria-labelledby="rwmTitle" style="margin:30px 14px 14px">
+  <span class="rwm-eyebrow">MEMORIES</span>
+  <h2 class="rwm-h" id="rwmTitle">Moments we <em>lived</em></h2>
+  <p class="rwm-sub">Festivals, stages and launches from the RoamWise journey. New events, photos and videos appear here on their own.</p>
+  <div class="rwm-mount"></div>
+</section>
+
+
 
 <section class="xsec v v-film" id="musicEventsIndia" style="margin:12px 14px 18px;padding:18px;background:linear-gradient(145deg,rgba(76,53,37,.38),rgba(18,18,28,.95));border:1px solid rgba(232,186,108,.3);border-radius:22px">
   <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
@@ -1222,6 +1281,7 @@ function rwDismissCreatorBanner(){
       <a class="foot-link" href="nomads/">Nomad Match · work stays for founders &amp; professionals</a>
       <a class="foot-link" href="nomads/join/">Own a work-friendly stay · list for nomads</a>
       <a class="foot-link" href="creators/match.html?role=creator&amp;invite=founding">Creators · register &amp; get matched with stays</a>
+      <a class="foot-link" href="memories/">Memories · Dussehra, Kasar Fest, Startup Garage &amp; more</a>
       <a class="foot-link" href="creators/artists.html">Natasha Guleria · Brand Ambassador &amp; artist matches</a>
       <a class="foot-link" href="creators/match.html?role=property">Hosts · find a creator for your property</a>
       <a class="foot-link" href="#app" onclick="event.preventDefault();tabGo('plan');scrollTo(0,document.getElementById('app').offsetTop-10)">Plan a trip</a>
@@ -1259,6 +1319,7 @@ function rwDismissCreatorBanner(){
 <aside class="drawer" id="drawer" role="dialog" aria-modal="true" aria-label="RoamWise menu" aria-hidden="true">
   <div class="dr-head"><div class="dr-title">Roam<span>Wise</span> Pro</div><button class="dr-x" onclick="closeDrawer()">&#215;</button></div>
   <a class="dr-link" onclick="closeDrawer();tabGo('sacred')"><span class="ic">&#2384;</span>Sacred journeys &amp; Digital Bhakti</a>
+  <a class="dr-link" href="/memories/"><span class="ic">&#127902;&#65039;</span>Memories &middot; events, photos &amp; videos</a>
   <a class="dr-link" onclick="closeDrawer();tabGo('film')"><span class="ic">&#127902;&#65039;</span>Music &amp; memories</a>
   <div id="drAcct">
     <button class="dr-signin" onclick="closeDrawer();openAuth()">Sign in / Create account</button>

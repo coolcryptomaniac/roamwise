@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <title>Memories | RoamWise</title>
+  <meta name="description" content="Photos, videos and moments from RoamWise events: Almora Dussehra, Kasar Music Fest, Startup Garage and more. New memories appear here as they happen.">
+  <link rel="canonical" href="https://www.roamwise.co.in/memories/">
+  <meta property="og:title" content="RoamWise Memories"><meta property="og:description" content="Festivals, stages and launches, relived."><meta property="og:image" content="https://www.roamwise.co.in/assets/img/music/kasar-fest-2026-stage-1.jpg">
+  <meta name="theme-color" content="#150f26">
+  <link rel="icon" href="/favicon.ico">
+  <link rel="stylesheet" href="/memories/memories.css?v=1">
+  <style>
+    :root{color-scheme:dark}
+    html{scroll-behavior:smooth}
+    body{margin:0;background:radial-gradient(120% 60% at 0% 0%,rgba(232,186,108,.12),transparent 55%),radial-gradient(90% 60% at 100% 20%,rgba(120,80,200,.18),transparent 60%),#0d0818;color:#f2efe6;font-family:Outfit,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+    .top{display:flex;justify-content:space-between;align-items:center;padding:14px;max-width:1100px;margin:0 auto}
+    .top a{color:#f2efe6;text-decoration:none;font-weight:700;display:inline-flex;gap:8px;align-items:center}
+    .top img{border-radius:8px}
+    .hero{padding:30px 14px 10px;max-width:1100px;margin:0 auto}
+    footer{text-align:center;opacity:.6;font-size:12px;padding:30px 14px 50px}
+    footer a{color:#e8ba6c}
+    #rwpBar{display:none}
+  </style>
+</head>
+<body>
+  <div class="top"><a href="/"><img src="/icons/icon-192.png" width="30" height="30" alt="">RoamWise</a><a href="/#home" style="font-size:13px;opacity:.85">&larr; Back to the app</a></div>
+  <header class="hero"><span class="rwm-eyebrow">MEMORIES</span><h1 class="rwm-h">Moments we <em>lived</em></h1><p class="rwm-sub">Festivals, stages and launches from the RoamWise journey. New events, photos and videos appear here on their own.</p></header>
+  <main class="rwm-wrap rwm-page" id="rwmPage">
+    <div class="rwm-chips" role="group" aria-label="Filter memories"><button class="on" data-f="all">All</button><button data-f="photos">Photos</button><button data-f="videos">Videos</button></div>
+    <div id="rwmEvents"><p class="rwm-empty">Loading memories&hellip;</p></div>
+  </main>
+  <footer>RoamWise &middot; Almora to Global &middot; <a href="/">Plan a trip</a> &middot; <a href="https://youtube.com/@mohucool" rel="noopener">YouTube @mohucool</a></footer>
+  <script src="/design/carousel.js" defer></script>
+  <script src="/memories/memories.js" defer></script>
+</body>
+</html>

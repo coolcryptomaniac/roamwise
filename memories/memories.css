@@ -1,0 +1,74 @@
+/* RoamWise Memories: shared by /memories/ and the homepage carousel. Prefix rwm-. */
+.rwm-wrap{max-width:1100px;margin:0 auto}
+.rwm-eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:11px;letter-spacing:.16em;font-weight:800;color:#e8ba6c}
+.rwm-eyebrow:before{content:"";width:8px;height:8px;border-radius:50%;background:#ff7a59;animation:rwmPulse 2s infinite}
+.rwm-h{font-size:clamp(26px,6vw,40px);line-height:1.1;margin:6px 0 8px;font-weight:800;letter-spacing:-.02em}
+.rwm-h em{font-style:normal;background:linear-gradient(90deg,#ff7a59,#e8ba6c,#ff7a59);background-size:200% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:rwmShine 6s linear infinite}
+.rwm-sub{opacity:.8;font-size:14px;line-height:1.5;margin:0 0 16px;max-width:560px}
+/* feature card */
+.rwm-feature{position:relative;display:block;border-radius:26px;overflow:hidden;min-height:260px;color:#fff;text-decoration:none;border:1px solid rgba(232,186,108,.45);box-shadow:0 24px 50px -22px rgba(0,0,0,.8);isolation:isolate}
+.rwm-feature .rwm-bg{position:absolute;inset:0;background-size:cover;background-position:center;z-index:-2;animation:rwmKen 18s ease-in-out infinite alternate}
+.rwm-feature:after{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(180deg,rgba(8,5,16,.1) 15%,rgba(8,5,16,.88))}
+.rwm-feature .rwm-in{padding:130px 18px 18px;display:flex;flex-direction:column;gap:6px}
+.rwm-badge{align-self:flex-start;background:rgba(10,8,20,.7);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);border:1px solid rgba(232,186,108,.5);color:#e8ba6c;font-size:10.5px;letter-spacing:.12em;font-weight:800;padding:6px 10px;border-radius:999px}
+.rwm-feature h3{margin:4px 0 0;font-size:clamp(22px,6vw,32px);line-height:1.1}
+.rwm-feature p{margin:0;font-size:13px;line-height:1.5;opacity:.9;max-width:540px}
+.rwm-go{margin-top:6px;font-weight:800;color:#e8ba6c;font-size:13px}
+.rwm-theme-fire{background:radial-gradient(90% 70% at 20% 20%,#ff7a2f,transparent 60%),radial-gradient(80% 60% at 90% 90%,#8a1c3a,transparent 60%),#1a0a14}
+.rwm-theme-stage{background:radial-gradient(90% 70% at 20% 20%,#9b7bff,transparent 60%),radial-gradient(80% 60% at 90% 90%,#2a6bd8,transparent 60%),#0c0a1f}
+.rwm-theme-launch{background:radial-gradient(90% 70% at 20% 20%,#5ee6c0,transparent 60%),radial-gradient(80% 60% at 90% 90%,#e8ba6c,transparent 60%),#07151a}
+.rwm-emoji{position:absolute;top:18px;right:20px;font-size:64px;opacity:.9;animation:rwmFloat 5s ease-in-out infinite;filter:drop-shadow(0 8px 18px rgba(0,0,0,.45))}
+/* carousel */
+.rwm-track{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;padding:4px 2px 14px;margin:14px -14px 0;padding-left:14px;padding-right:14px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.rwm-track::-webkit-scrollbar{display:none}
+.rwm-slide{position:relative;flex:0 0 62%;max-width:300px;aspect-ratio:4/5;border-radius:20px;overflow:hidden;scroll-snap-align:center;border:1px solid rgba(255,255,255,.12);background:#120d22;color:#fff;text-decoration:none;display:block;cursor:pointer;transition:transform .35s cubic-bezier(.2,.8,.2,1),box-shadow .35s;box-shadow:0 14px 30px -16px rgba(0,0,0,.8)}
+.rwm-slide:hover{box-shadow:0 22px 40px -16px rgba(232,186,108,.35)}
+.rwm-slide img,.rwm-slide .rwm-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform 1.2s cubic-bezier(.2,.8,.2,1)}
+.rwm-slide:hover img{transform:scale(1.07)}
+.rwm-slide:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 55%,rgba(8,5,16,.85))}
+.rwm-cap{position:absolute;left:12px;right:12px;bottom:12px;z-index:2;font-size:12.5px;line-height:1.35;font-weight:600}
+.rwm-cap small{display:block;font-size:10.5px;letter-spacing:.1em;color:#e8ba6c;font-weight:800;margin-bottom:3px}
+.rwm-play{position:absolute;top:50%;left:50%;width:54px;height:54px;margin:-27px 0 0 -27px;border-radius:50%;z-index:2;background:rgba(255,255,255,.92);color:#150f26;display:grid;place-items:center;font-size:20px;padding-left:4px;box-shadow:0 0 0 0 rgba(255,255,255,.5);animation:rwmPulseW 2.4s infinite}
+.rwm-dots{display:flex;justify-content:center;gap:6px;margin-top:-2px}
+.rwm-dots button{width:7px;height:7px;border-radius:99px;border:0;padding:0;background:rgba(255,255,255,.25);transition:width .3s,background .3s}
+.rwm-dots button.on{width:22px;background:#e8ba6c}
+.rwm-more{display:inline-block;margin-top:10px;color:#e8ba6c;font-weight:800;font-size:13.5px;text-decoration:none}
+/* page */
+.rwm-page{padding:20px 14px 90px}
+.rwm-chips{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0 22px}
+.rwm-chips button{border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.05);color:inherit;border-radius:999px;padding:9px 14px;font-size:13px;font-weight:700;cursor:pointer;transition:.25s}
+.rwm-chips button.on{background:#e8ba6c;color:#150f26;border-color:#e8ba6c}
+.rwm-event{margin:0 0 44px;position:relative}
+.rwm-event:before{content:"";display:block;height:1px;margin:0 auto 26px;width:min(78%,480px);background:linear-gradient(90deg,transparent,rgba(232,186,108,.4),transparent)}
+.rwm-event header{display:flex;gap:14px;align-items:flex-start;margin-bottom:14px}
+.rwm-date{flex:0 0 auto;text-align:center;border-radius:16px;padding:8px 12px;background:rgba(232,186,108,.12);border:1px solid rgba(232,186,108,.4);color:#e8ba6c;font-weight:800;line-height:1.1}
+.rwm-date b{display:block;font-size:24px;color:#fff}
+.rwm-event h2{margin:0;font-size:clamp(21px,5vw,28px)}
+.rwm-event .rwm-place{font-size:12.5px;opacity:.7;margin:3px 0}
+.rwm-event p{margin:6px 0 0;font-size:14px;line-height:1.55;opacity:.88;max-width:640px}
+.rwm-grid{columns:2;column-gap:10px}
+.rwm-grid>*{break-inside:avoid;margin:0 0 10px;border-radius:16px;overflow:hidden;position:relative;display:block;cursor:pointer;background:#120d22;border:1px solid rgba(255,255,255,.1)}
+.rwm-grid img,.rwm-grid video{width:100%;display:block;transition:transform .8s cubic-bezier(.2,.8,.2,1)}
+.rwm-grid>*:hover img{transform:scale(1.05)}
+.rwm-grid figcaption{position:absolute;left:0;right:0;bottom:0;padding:22px 10px 8px;font-size:11.5px;background:linear-gradient(transparent,rgba(8,5,16,.85));opacity:0;transform:translateY(8px);transition:.3s}
+.rwm-grid>*:hover figcaption,.rwm-grid>*:focus-visible figcaption{opacity:1;transform:none}
+.rwm-vid{aspect-ratio:16/9;display:grid;place-items:center;text-decoration:none;color:#fff;text-align:center;padding:14px;font-weight:700;font-size:14px}
+.rwm-vid small{display:block;font-weight:500;opacity:.8;margin-top:6px}
+.rwm-empty{opacity:.7;padding:30px 0;text-align:center}
+.rwm-lb{position:fixed;inset:0;z-index:100001;background:rgba(6,4,12,.94);display:none;align-items:center;justify-content:center;flex-direction:column;padding:16px;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+.rwm-lb.open{display:flex;animation:rwmFade .25s}
+.rwm-lb img,.rwm-lb video,.rwm-lb iframe{max-width:min(96vw,1000px);max-height:76vh;border-radius:14px;border:0;background:#000}
+.rwm-lb iframe{width:min(96vw,900px);aspect-ratio:16/9;height:auto}
+.rwm-lb p{margin:12px 0 0;font-size:14px;text-align:center;max-width:620px}
+.rwm-lb button{position:absolute;border:0;background:rgba(255,255,255,.12);color:#fff;width:46px;height:46px;border-radius:50%;font-size:22px;cursor:pointer}
+.rwm-lb .x{top:14px;right:14px}.rwm-lb .pv{left:12px;top:50%}.rwm-lb .nx{right:12px;top:50%}
+.rwm-rv{opacity:0;transform:translateY(24px);transition:opacity .7s cubic-bezier(.2,.8,.2,1),transform .7s cubic-bezier(.2,.8,.2,1)}
+.rwm-rv.in{opacity:1;transform:none}
+@media(min-width:700px){.rwm-slide{flex-basis:260px}.rwm-grid{columns:3}.rwm-feature .rwm-in{padding-top:170px}.rwm-track{margin-left:0;margin-right:0}}
+@keyframes rwmShine{to{background-position:200% 0}}
+@keyframes rwmPulse{70%{box-shadow:0 0 0 9px rgba(255,122,89,0)}100%{box-shadow:0 0 0 0 rgba(255,122,89,0)}}
+@keyframes rwmPulseW{70%{box-shadow:0 0 0 16px rgba(255,255,255,0)}100%{box-shadow:0 0 0 0 rgba(255,255,255,0)}}
+@keyframes rwmFloat{50%{transform:translateY(-8px) rotate(4deg)}}
+@keyframes rwmKen{to{transform:scale(1.12) translate(-1.5%,-1%)}}
+@keyframes rwmFade{from{opacity:0}to{opacity:1}}
+@media(prefers-reduced-motion:reduce){.rwm-eyebrow:before,.rwm-h em,.rwm-feature .rwm-bg,.rwm-emoji,.rwm-play{animation:none}.rwm-rv{opacity:1;transform:none;transition:none}.rwm-slide,.rwm-slide img,.rwm-grid img{transition:none}}

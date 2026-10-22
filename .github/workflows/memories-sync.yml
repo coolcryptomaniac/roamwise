@@ -1,0 +1,39 @@
+# Keeps the Memories page and homepage carousel current without anyone editing code.
+#  - New photos: drop them in assets/memories/YYYY-MM-DD-event-name/ (optional event.json for title, place, caption, videos).
+#  - New event videos on @mohucool (titles mentioning Dussehra, Kasar, Startup Garage, fest, meetup, summit, launch) are picked up daily.
+# It rebuilds memories/data.json and commits only if something changed.
+name: Memories sync
+
+on:
+  schedule:
+    - cron: '45 2 * * *'     # 08:15 IST
+  push:
+    branches: [main]
+    paths: ['assets/memories/**', 'memories/seed.json']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: memories-sync
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '20'
+      - name: Rebuild memories data (folders + new YouTube event videos)
+        run: node tools/build-memories.js --youtube
+      - name: Commit if changed
+        run: |
+          if git diff --quiet -- memories/data.json; then echo "no new memories"; exit 0; fi
+          git config user.name "roamwise-memories[bot]"
+          git config user.email "memories-bot@users.noreply.github.com"
+          git add memories/data.json
+          git commit -m "Memories: sync new events, photos and videos"
+          git push
