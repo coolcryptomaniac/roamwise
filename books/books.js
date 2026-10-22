@@ -34,7 +34,7 @@
       '<div class="rwb-btns"><button class="rwb-btn rwb-read" data-read="' + esc(b.id) + '" hidden><span>Read a free sample<br><small>Opens the e-reader</small></span><span class="rwb-ar" aria-hidden="true">&#128214;</span></button>' +
       btn('rwb-pothi', L.pothiName || 'Pothi', pt, 'Official listing') + extra +
       btn('rwb-amz', 'Amazon', amz || ('https://www.amazon.in/s?k=' + q), amz ? (L.amazonSub || 'Official listing') : 'Search for this title') +
-      btn('rwb-flip', 'Flipkart', fk || ('https://www.flipkart.com/search?q=' + q), fk ? 'Official listing' : 'Search for this title') + '</div></article>';
+      (L.flipkart === 'none' ? '' : btn('rwb-flip', 'Flipkart', fk || ('https://www.flipkart.com/search?q=' + q), fk ? 'Official listing' : 'Search for this title')) + '</div></article>';
   }
   function wire(root) {
     root.querySelectorAll('.rwb-slide').forEach(function (s) {
