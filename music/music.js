@@ -176,5 +176,7 @@ if (!state.all.length) {
   $('muShelves').innerHTML = '<div class="mu-empty"><h2>The shelf is waiting for its first albums</h2><p>' + (state.failed ? 'The album list could not be loaded.' : 'No albums have been imported yet.') + '</p>'
     + '<p>Fill it with <code>YT_API_KEY=&hellip; node tools/import-youtube-releases.mjs --handle mohucool</code> and publish <code>music/releases.json</code>.</p><p><a class="mu-btn" href="https://www.youtube.com/@mohucool" target="_blank" rel="noopener noreferrer">Open the channel on YouTube</a></p></div>';
 } else {
-  renderMoods(); renderShelf(); setQueue(state.all, state.all[0].id, '');
+  renderMoods(); renderShelf(); const want = decodeURIComponent((location.hash || '').slice(1));
+  if (want === 'shuffle') queueMicrotask(() => $('muSurprise') && $('muSurprise').click());
+  setQueue(state.all, (state.all.find((r) => r.id === want) || state.all[0]).id, '');
 }
