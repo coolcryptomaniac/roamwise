@@ -1,5 +1,5 @@
 // music/music.js - the music bookshelf page. Data: releases.json (written by tools/import-youtube-releases.mjs).
-import { cleanReleases, groupByYear, shelves, spineStyle, fmtDuration, filterReleases, neighbour, musicUrl, coverUrl } from './shelf-core.mjs';
+import { cleanReleases, groupByYear, shelves, spineStyle, fmtDuration, filterReleases, neighbour, musicUrl, albumUrl, coverUrl } from './shelf-core.mjs';
 
 const $ = (id) => document.getElementById(id);
 const esc = (v) => String(v == null ? '' : v).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -13,7 +13,7 @@ async function load() {
   catch (e) { state.all = []; state.failed = true; }
 }
 // The demo file has made-up ids that are not real videos: keep them for the picture only.
-const sampleOk = (j) => (j.releases || []).map((r) => ({ id: r.id, title: r.title, published: r.published, durationSec: r.durationSec }));
+const sampleOk = (j) => (j.releases || []).map((r) => ({ id: r.id, title: r.title, published: r.published, durationSec: r.durationSec, playlist: '', seq: 0 }));
 
 const perShelf = () => Math.max(4, Math.floor(($('muShelves').clientWidth - 40) / 62));
 
@@ -35,7 +35,7 @@ function render() {
   if (!state.shown.length) { root.innerHTML = '<p class="mu-note">No song matches that search.</p>'; return; }
   const n = perShelf();
   root.innerHTML = (demo ? '<p class="mu-demo">Demo shelf: sample titles only, nothing here can play.</p>' : '')
-    + groupByYear(state.shown).map((g) => '<section class="mu-year"><h2 class="mu-plaque">' + esc(g.year) + '<small>' + g.books.length + (g.books.length === 1 ? ' song' : ' songs') + '</small></h2>'
+    + groupByYear(state.shown).map((g) => '<section class="mu-year"><h2 class="mu-plaque">' + esc(g.year) + '<small>' + g.books.length + (g.books.length === 1 ? ' release' : ' releases') + '</small></h2>'
       + shelves(g.books, n).map((row) => '<div class="mu-shelf"><div class="mu-books">' + row.map(spine).join('') + '</div><div class="mu-plank"></div></div>').join('') + '</section>').join('');
 }
 
@@ -55,20 +55,21 @@ async function play(r) {
   state.current = r;
   const p = $('muPlayer'); p.hidden = false;
   $('muTitle').textContent = r.title; $('muSub').textContent = [r.published ? r.published.slice(0, 4) : '', fmtDuration(r.durationSec)].filter(Boolean).join(' · ');
-  $('muYTM').href = musicUrl(r.id);
+  $('muYTM').href = r.playlist ? albumUrl(r.playlist) : musicUrl(r.id);
   $('muCover').style.backgroundImage = demo ? '' : 'url("' + coverUrl(r.id) + '")';
   document.querySelectorAll('.mu-spine').forEach((b) => b.classList.toggle('on', b.dataset.id === r.id));
   if (demo) return;
   try {
     const YT = await loadApi();
-    if (yt && yt.loadVideoById) { yt.loadVideoById(r.id); return; }
-    yt = new YT.Player('muFrame', { videoId: r.id, width: '100%', height: '100%', host: 'https://www.youtube-nocookie.com',
-      playerVars: { autoplay: 1, playsinline: 1, rel: 0, modestbranding: 1 },
-      events: { onStateChange: (e) => { state.playing = e.data === 1; $('muPlay').innerHTML = state.playing ? '&#9208;' : '&#9654;'; if (e.data === 0) step(1); } } });
+    if (yt && yt.loadVideoById) { r.playlist ? yt.loadPlaylist({ list: r.playlist, listType: 'playlist' }) : yt.loadVideoById(r.id); return; }
+    yt = new YT.Player('muFrame', { ...(r.playlist ? {} : { videoId: r.id }), width: '100%', height: '100%', host: 'https://www.youtube-nocookie.com',
+      playerVars: { autoplay: 1, playsinline: 1, rel: 0, modestbranding: 1, ...(r.playlist ? { listType: 'playlist', list: r.playlist } : {}) },
+      events: { onStateChange: (e) => { state.playing = e.data === 1; $('muPlay').innerHTML = state.playing ? '&#9208;' : '&#9654;'; if (e.data === 0 && albumDone()) step(1); } } });
   } catch (e) {
-    $('muFrame').innerHTML = '<iframe title="' + esc(r.title) + '" src="https://www.youtube-nocookie.com/embed/' + esc(r.id) + '?autoplay=1&rel=0&playsinline=1" allow="autoplay; encrypted-media" allowfullscreen></iframe>';
+    $('muFrame').innerHTML = '<iframe title="' + esc(r.title) + '" src="https://www.youtube-nocookie.com/embed/' + (r.playlist ? 'videoseries?list=' + esc(r.playlist) + '&' : esc(r.id) + '?') + 'autoplay=1&rel=0&playsinline=1" allow="autoplay; encrypted-media" allowfullscreen></iframe>';
   }
 }
+function albumDone() { try { const l = yt.getPlaylist && yt.getPlaylist(); return !l || yt.getPlaylistIndex() >= l.length - 1; } catch (e) { return true; } }
 function step(dir) { const n = neighbour(state.shown.length ? state.shown : state.all, state.current && state.current.id, dir, state.shuffle); if (n) play(n); }
 
 document.addEventListener('click', (e) => {

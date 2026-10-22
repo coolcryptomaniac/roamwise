@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { cleanReleases, groupByYear, shelves, spineStyle, filterReleases, neighbour, fmtDuration, musicUrl } from '../music/shelf-core.mjs';
+import { cleanReleases, groupByYear, shelves, spineStyle, filterReleases, neighbour, fmtDuration, musicUrl, albumUrl } from '../music/shelf-core.mjs';
 import { isoDurationToSec, parseFeed, mapApiVideos, uploadsPlaylistId } from '../tools/youtube-import-core.mjs';
 
 const rel = (id, title, published, durationSec = 200) => ({ id, title, published, durationSec });
@@ -46,4 +46,19 @@ test('importer: durations, feed, API rows (Shorts and live streams skipped)', ()
 test('release file: the shipped file is valid and never holds invented songs', () => {
   const j = JSON.parse(readFileSync(new URL('../music/releases.json', import.meta.url), 'utf8'));
   assert.equal(j.channel.handle, 'mohucool'); assert.equal(cleanReleases(j.releases).length, j.releases.length);
+});
+
+test('shelf: albums keep their playlist, undated releases sort by seq (newest last given) under one plaque', () => {
+  const list = cleanReleases([{ id: 'aaaaaaaaaaa', title: 'First', playlist: 'OLAK5uy_abcdefghij', seq: 1 }, { id: 'bbbbbbbbbbb', title: 'Second', playlist: 'bad id', seq: 2 }]);
+  assert.deepEqual(list.map((r) => r.title), ['Second', 'First']);
+  assert.equal(list[1].playlist, 'OLAK5uy_abcdefghij'); assert.equal(list[0].playlist, '');
+  assert.deepEqual(groupByYear(list).map((g) => g.year), ['The collection']);
+  assert.match(albumUrl('OLAK5uy_abcdefghij'), /playlist\?list=OLAK5uy_/);
+});
+
+test('release file: 25 albums from the owner\'s links, each with a playlist and a cover video', () => {
+  const j = JSON.parse(readFileSync(new URL('../music/releases.json', import.meta.url), 'utf8'));
+  const list = cleanReleases(j.releases);
+  assert.equal(list.length, 25); assert.ok(list.every((r) => r.playlist.startsWith('OLAK5uy_')));
+  assert.ok(list.some((r) => /GHAAM/.test(r.title)));
 });

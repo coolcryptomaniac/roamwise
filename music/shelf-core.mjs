@@ -15,18 +15,20 @@ export function cleanReleases(list) {
     seen.add(id);
     const published = /^\d{4}-\d{2}-\d{2}/.test(r.published || '') ? String(r.published).slice(0, 10) : '';
     const sec = Number.isFinite(Number(r.durationSec)) && Number(r.durationSec) > 0 ? Math.round(Number(r.durationSec)) : 0;
-    out.push({ id, title, published, durationSec: sec });
+    const pl = /^[A-Za-z0-9_-]{10,64}$/.test(String(r.playlist || '')) ? String(r.playlist) : '';
+    const seq = Number.isFinite(Number(r.seq)) ? Number(r.seq) : 0;
+    out.push({ id, title, published, durationSec: sec, playlist: pl, seq });
   }
-  return out.sort((a, b) => (a.published < b.published ? 1 : a.published > b.published ? -1 : a.title.localeCompare(b.title)));
+  return out.sort((a, b) => (a.published < b.published ? 1 : a.published > b.published ? -1 : b.seq - a.seq || a.title.localeCompare(b.title)));
 }
 
-export const yearOf = (r) => (r.published ? r.published.slice(0, 4) : 'Undated');
+export const yearOf = (r) => (r.published ? r.published.slice(0, 4) : 'The collection');
 
 /* [{year, books:[...]}], newest year first. */
 export function groupByYear(releases) {
   const map = new Map();
   for (const r of releases) { const y = yearOf(r); if (!map.has(y)) map.set(y, []); map.get(y).push(r); }
-  return [...map.entries()].sort((a, b) => (a[0] === 'Undated' ? 1 : b[0] === 'Undated' ? -1 : b[0].localeCompare(a[0]))).map(([year, books]) => ({ year, books }));
+  return [...map.entries()].sort((a, b) => (a[0] === 'The collection' ? 1 : b[0] === 'The collection' ? -1 : b[0].localeCompare(a[0]))).map(([year, books]) => ({ year, books }));
 }
 
 /* Split a year's books into shelf rows of `perShelf`. */
@@ -70,6 +72,7 @@ export function neighbour(list, id, dir, shuffle = false, rand = Math.random) {
   return list[(i + dir + list.length) % list.length];
 }
 
+export const albumUrl = (playlist) => 'https://music.youtube.com/playlist?list=' + playlist;
 export const watchUrl = (id) => 'https://www.youtube.com/watch?v=' + id;
 export const musicUrl = (id) => 'https://music.youtube.com/watch?v=' + id;
 export const coverUrl = (id) => 'https://i.ytimg.com/vi/' + id + '/hqdefault.jpg';
