@@ -7,7 +7,8 @@ import { mountCarousel } from './carousel.js';
 const $ = (id) => document.getElementById(id);
 const esc = (v) => String(v == null ? '' : v).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const state = { all: [], shown: [], queue: { items: [], index: 0 }, current: null, shuffle: false, repeat: 'off', mood: '', query: '', playing: false, failed: false };
-let yt = null, ytReady = null, ticker = 0, carousel, viz, dust;
+let swipeT = 0;
+let yt = null, ytIsReady = false, ytPending = '', ytReady = null, ticker = 0, carousel, viz, dust;
 
 async function load() {
   try { const r = await fetch('releases.json', { cache: 'no-cache' }); if (!r.ok) throw 0; state.all = cleanReleases((await r.json()).releases); }
@@ -73,10 +74,17 @@ function onPlayerState(e) {
 async function startPlayback(r) {
   try {
     const YT = await loadApi();
-    if (yt && yt.loadPlaylist) { yt.loadPlaylist({ list: r.playlist, listType: 'playlist' }); return; }
+    if (yt && ytIsReady) { yt.loadPlaylist({ list: r.playlist, listType: 'playlist' }); return; }
+    ytPending = r.playlist;
+    if (yt) return; /* created but not ready: onReady plays the latest album asked for */
     yt = new YT.Player('muFrame', { width: '100%', height: '100%', host: 'https://www.youtube-nocookie.com',
       playerVars: { autoplay: 1, playsinline: 1, rel: 0, modestbranding: 1, listType: 'playlist', list: r.playlist },
-      events: { onStateChange: onPlayerState, onError: onPlayerError, onReady: () => { try { yt.setVolume(Number($('muVol').value)); } catch (e) { /* ignore */ } } } });
+      events: { onStateChange: onPlayerState, onError: onPlayerError, onReady: () => {
+        ytIsReady = true;
+        try { yt.setVolume(Number($('muVol').value)); } catch (e) { /* ignore */ }
+        const want = ytPending; ytPending = '';
+        if (want && state.current && want === state.current.playlist) { try { yt.loadPlaylist({ list: want, listType: 'playlist' }); } catch (e) { /* ignore */ } }
+      } } });
   } catch (e) {
     $('muFrame').innerHTML = '<iframe title="' + esc(r.title) + '" src="https://www.youtube-nocookie.com/embed/videoseries?list=' + esc(r.playlist) + '&autoplay=1&rel=0&playsinline=1" allow="autoplay; encrypted-media" allowfullscreen></iframe>';
     setPlaying(true);
@@ -168,7 +176,11 @@ new IntersectionObserver((en) => { document.body.classList.toggle('mu-stage-away
 
 /* ---------- start ---------- */
 carousel = mountCarousel($('muCarousel'), {
-  onChange: (r, i) => { state.queue.index = i; show(r); },
+  onChange: (r, i) => {
+    state.queue.index = i; show(r);
+    /* keep sound and cover together: if music is on, the swiped-to album starts (after a short pause so fast swiping does not thrash the player) */
+    if (state.playing || document.body.classList.contains('mu-started')) { clearTimeout(swipeT); swipeT = setTimeout(() => { if (state.current && state.current.id === r.id) play(r); }, 450); }
+  },
   onActivate: (r) => { if (state.current && state.current.id === r.id && yt && yt.getPlayerState) toggle(); else play(r); },
 });
 viz = mountViz($('muViz')); dust = mountDust($('muDust'));

@@ -3,7 +3,7 @@
   'use strict';
   var row = document.getElementById('rwmRow');
   if (!row) return;
-  var api = null, yt = null, bar = null, tmr = 0;
+  var api = null, yt = null, ytOk = false, pend = '', bar = null, tmr = 0, activeEl = null;
   function loadApi() {
     if (window.YT && window.YT.Player) return Promise.resolve(window.YT);
     if (api) return api;
@@ -43,10 +43,17 @@
     bar.querySelector('.rwm-bt').textContent = title; bar.querySelector('.rwm-bs').textContent = 'Loading\u2026';
     bar.querySelector('.rwm-ytm').href = 'https://music.youtube.com/playlist?list=' + encodeURIComponent(pl);
     loadApi().then(function (YT) {
-      if (yt && yt.loadPlaylist) { yt.loadPlaylist({ list: pl, listType: 'playlist' }); }
-      else yt = new YT.Player('rwmFrame', { width: '100%', height: '100%', host: 'https://www.youtube-nocookie.com',
-        playerVars: { autoplay: 1, playsinline: 1, rel: 0, modestbranding: 1, listType: 'playlist', list: pl },
-        events: { onError: function () { bar.querySelector('.rwm-bs').textContent = 'This album cannot play here \u2014 tap Open in YouTube Music.'; } } });
+      if (yt && ytOk) { yt.loadPlaylist({ list: pl, listType: 'playlist' }); }
+      else if (yt) { pend = pl; }
+      else {
+        pend = '';
+        yt = new YT.Player('rwmFrame', { width: '100%', height: '100%', host: 'https://www.youtube-nocookie.com',
+          playerVars: { autoplay: 1, playsinline: 1, rel: 0, modestbranding: 1, listType: 'playlist', list: pl },
+          events: {
+            onReady: function () { ytOk = true; if (pend) { var w = pend; pend = ''; try { yt.loadPlaylist({ list: w, listType: 'playlist' }); } catch (e) {} } },
+            onError: function () { bar.querySelector('.rwm-bs').textContent = 'This album cannot play here \u2014 tap Open in YouTube Music.'; }
+          } });
+      }
       clearInterval(tmr); tmr = setInterval(status, 1000);
     }).catch(function () { bar.querySelector('.rwm-bs').textContent = 'Player blocked \u2014 tap Open in YouTube Music.'; });
   }
@@ -65,8 +72,19 @@
       });
     row.addEventListener('click', function (e) {
       var a = e.target.closest && e.target.closest('.rwm-it'); if (!a || !a.dataset.pl) return;
-      e.preventDefault(); playAlbum(a.dataset.pl, a.querySelector('.rwm-t').textContent, a.dataset.id);
+      e.preventDefault(); if (activeEl) activeEl.classList.remove('on'); activeEl = a; a.classList.add('on'); a.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' }); playAlbum(a.dataset.pl, a.querySelector('.rwm-t').textContent, a.dataset.id);
     });
+    var wrap = row.parentNode;
+    ['prev', 'next'].forEach(function (d) {
+      var b = el('button', 'rwm-arr rwm-' + d, d === 'prev' ? '\u2039' : '\u203A'); b.type = 'button'; b.setAttribute('aria-label', d === 'prev' ? 'Scroll albums left' : 'Scroll albums right');
+      b.onclick = function () { row.scrollBy({ left: (d === 'prev' ? -1 : 1) * Math.max(240, row.clientWidth * 0.8), behavior: 'smooth' }); };
+      wrap.insertBefore(b, row);
+    });
+    var down = false, sx = 0, sl = 0, dragged = false;
+    row.addEventListener('pointerdown', function (e) { if (e.pointerType !== 'mouse') return; down = true; dragged = false; sx = e.clientX; sl = row.scrollLeft; });
+    window.addEventListener('pointermove', function (e) { if (!down) return; var dx = e.clientX - sx; if (Math.abs(dx) > 5) { dragged = true; row.classList.add('drag'); } row.scrollLeft = sl - dx; });
+    window.addEventListener('pointerup', function () { down = false; row.classList.remove('drag'); });
+    row.addEventListener('click', function (e) { if (dragged) { e.stopImmediatePropagation(); e.preventDefault(); dragged = false; } }, true);
     if (!row.children.length) document.getElementById('rwMusic').hidden = true;
   }).catch(function () { var s = document.getElementById('rwMusic'); if (s) s.hidden = true; });
 })();
