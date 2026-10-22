@@ -17,7 +17,7 @@
   }
   function el(t, c, x) { var n = document.createElement(t); if (c) n.className = c; if (x) n.textContent = x; return n; }
   function buildBar() {
-    bar = el('div', 'rwm-bar'); bar.setAttribute('role', 'region'); bar.setAttribute('aria-label', 'Music player');
+    bar = el('div', 'rwm-bar'); bar.setAttribute('role', 'region'); bar.setAttribute('aria-label', 'Music player'); bar.id = 'rwmNow';
     var vid = el('div', 'rwm-vid'); var host = el('div'); host.id = 'rwmFrame'; vid.appendChild(host);
     var info = el('div', 'rwm-info'); info.appendChild(el('b', 'rwm-bt')); info.appendChild(el('span', 'rwm-bs'));
     var ctl = el('div', 'rwm-ctl');
@@ -25,21 +25,22 @@
       var x = el('button', 'rwm-cb ' + b[0], b[1]); x.type = 'button'; x.setAttribute('aria-label', b[2]); ctl.appendChild(x);
     });
     var ytm = el('a', 'rwm-ytm', 'Open in YouTube Music'); ytm.target = '_blank'; ytm.rel = 'noopener noreferrer';
-    bar.appendChild(vid); bar.appendChild(info); bar.appendChild(ctl); bar.appendChild(ytm); document.body.appendChild(bar);
+    bar.appendChild(vid); bar.appendChild(info); bar.appendChild(ctl); bar.appendChild(ytm); var host0 = document.getElementById('rwMusic'); host0.insertBefore(bar, document.getElementById('rwmRow'));
     bar.querySelector('.rwm-prev').onclick = function () { try { yt.previousVideo(); } catch (e) {} };
     bar.querySelector('.rwm-next').onclick = function () { try { yt.nextVideo(); } catch (e) {} };
     bar.querySelector('.rwm-pp').onclick = function () { try { yt.getPlayerState() === 1 ? yt.pauseVideo() : yt.playVideo(); } catch (e) {} };
-    bar.querySelector('.rwm-x').onclick = function () { try { yt.stopVideo(); } catch (e) {} clearInterval(tmr); bar.classList.remove('on'); document.body.classList.remove('rwm-playing'); };
+    bar.querySelector('.rwm-x').onclick = function () { try { yt.stopVideo(); } catch (e) {} clearInterval(tmr); bar.classList.remove('on'); };
   }
   function status() {
     try {
       var vd = yt.getVideoData(), i = yt.getPlaylistIndex(), n = (yt.getPlaylist() || []).length;
-      if (vd && vd.title) bar.querySelector('.rwm-bs').textContent = (n > 1 && i >= 0 ? 'Track ' + (i + 1) + ' of ' + n + ' \u00b7 ' : '') + vd.title;
+      if (vd && vd.title) bar.querySelector('.rwm-bs').textContent = (n > 1 && i >= 0 ? 'Track ' + (i + 1) + ' of ' + n + ' \u00b7 ' : '') + String(vd.title).split(' | ')[0];
     } catch (e) {}
   }
   function playAlbum(pl, title) {
     if (!bar) buildBar();
-    bar.classList.add('on'); document.body.classList.add('rwm-playing');
+    var first = !bar.classList.contains('on'); bar.classList.add('on');
+    if (first) setTimeout(function () { try { bar.scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch (e) {} }, 60);
     bar.querySelector('.rwm-bt').textContent = title; bar.querySelector('.rwm-bs').textContent = 'Loading\u2026';
     bar.querySelector('.rwm-ytm').href = 'https://music.youtube.com/playlist?list=' + encodeURIComponent(pl);
     loadApi().then(function (YT) {
@@ -74,7 +75,7 @@
       var a = e.target.closest && e.target.closest('.rwm-it'); if (!a || !a.dataset.pl) return;
       e.preventDefault(); if (activeEl) activeEl.classList.remove('on'); activeEl = a; a.classList.add('on'); a.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' }); playAlbum(a.dataset.pl, a.querySelector('.rwm-t').textContent, a.dataset.id);
     });
-    var wrap = row.parentNode;
+    var wrap = el('div', 'rwm-rowwrap'); row.parentNode.insertBefore(wrap, row); wrap.appendChild(row);
     ['prev', 'next'].forEach(function (d) {
       var b = el('button', 'rwm-arr rwm-' + d, d === 'prev' ? '\u2039' : '\u203A'); b.type = 'button'; b.setAttribute('aria-label', d === 'prev' ? 'Scroll albums left' : 'Scroll albums right');
       b.onclick = function () { row.scrollBy({ left: (d === 'prev' ? -1 : 1) * Math.max(240, row.clientWidth * 0.8), behavior: 'smooth' }); };
