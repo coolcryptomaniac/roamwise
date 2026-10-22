@@ -4,7 +4,6 @@ import sys, os, math, numpy as np
 from functools import lru_cache
 from multiprocessing import Pool
 from PIL import Image, ImageDraw, ImageFont, ImageFilter, ImageChops, ImageFile
-ImageFile.LOAD_TRUNCATED_IMAGES = True  # the Milan Heights photo in the repo is a slightly truncated JPEG
 
 W, H, FPS, DUR = 1080, 1920, 30, 40.0
 ROOT = os.environ.get('RW_ROOT', '/home/claude/roamwise')
@@ -84,7 +83,8 @@ def vgrad(c1, c2):
     return Image.fromarray(np.repeat(a, W, 1).astype(np.uint8)).convert('RGBA')
 
 # ---------- assets ----------
-def load(p): return Image.open(os.path.join(ROOT, p))
+def load(p):
+    im = Image.open(os.path.join(ROOT, p)); im.load(); return im  # decode before the worker pool forks (a shared lazy file handle corrupts frames)
 LOGO = load('icons/icon-192.png').convert('RGBA')
 MILAN = load('assets/property-photos/milan-heights-front.jpg')
 CORB = load('assets/property-photos/corbett-jungle-view-front.jpg')
