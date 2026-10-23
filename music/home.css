@@ -42,3 +42,4 @@
 .rwm-eng{display:inline-flex;justify-self:center;border:1px solid rgba(232,186,108,.45);border-radius:999px;overflow:hidden}
 .rwm-eng button{font:700 12px Outfit,system-ui,sans-serif;padding:7px 13px;border:0;background:rgba(0,0,0,.35);color:#f3e8cf;cursor:pointer}
 .rwm-eng button[aria-pressed="true"]{background:linear-gradient(180deg,#fff0c2,#d9b469);color:#2b1a10}.rwm-eng button:disabled{opacity:.35}
+.rwm-ytm2{justify-self:center;font-size:12px;font-weight:700;color:#fff0c2;text-decoration:underline;text-underline-offset:3px;margin-top:-2px}
