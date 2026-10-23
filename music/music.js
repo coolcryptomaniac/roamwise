@@ -1,18 +1,30 @@
 // music/music.js - the music library page: stage (carousel, visualiser, controls, moods) and the bookshelf.
 // Data: releases.json (albums with a YouTube playlist). Playback: the YouTube iframe player, loaded only when you press play.
-import { cleanReleases, groupByYear, shelves, spineStyle, fmtDuration, filterReleases, musicUrl, albumUrl, ytmUrl, coverOf, MOODS, byMood, smartMood, makeQueue, advance, lighten } from './shelf-core.mjs';
+import { esc, cleanReleases, groupByYear, shelves, spineStyle, fmtDuration, filterReleases, musicUrl, albumUrl, ytmUrl, coverOf, MOODS, byMood, smartMood, makeQueue, advance, lighten } from './shelf-core.mjs';
 import { mountViz, mountDust } from './viz.js';
 import { mountCarousel } from './carousel.js';
 import { createSpotify } from './spotify.js';
 
 const $ = (id) => document.getElementById(id);
-const esc = (v) => String(v == null ? '' : v).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const state = { all: [], shown: [], queue: { items: [], index: 0 }, current: null, shuffle: false, repeat: 'off', mood: '', query: '', playing: false, failed: false };
 let swipeT = 0, spPos = 0, spDur = 0;
 function savedEngine() { try { return localStorage.getItem('mu-engine') === 'youtube' ? 'youtube' : 'spotify'; } catch (e) { return 'spotify'; } }
 state.engine = savedEngine();
 const useSp = (r) => state.engine === 'spotify' && !!(r && r.spotify);
-let yt = null, ytIsReady = false, ytPending = '', ytReady = null, ticker = 0, carousel, viz, dust;
+
+/* ---------- memory: what you played last (this device only) ---------- */
+const MEM = 'mu-last';
+let memAt = 0;
+function loadMem() { try { const m = JSON.parse(localStorage.getItem(MEM) || 'null'); return m && typeof m.id === 'string' ? m : null; } catch (e) { return null; } }
+function saveMem(force) {
+  if (!state.current) return;
+  const now = Date.now(); if (!force && now - memAt < 3000) return; memAt = now;
+  let idx = 0, t = 0;
+  try { if (!useSp(state.current) && yt && yt.getCurrentTime) { idx = yt.getPlaylistIndex() || 0; t = Math.floor(yt.getCurrentTime() || 0); } } catch (e) { /* player not ready */ }
+  try { localStorage.setItem(MEM, JSON.stringify({ id: state.current.id, mood: state.mood, shuffle: state.shuffle, repeat: state.repeat, idx, t, at: now })); } catch (e) { /* storage blocked */ }
+}
+const ytArgs = (r) => { const a = { list: r.playlist, listType: 'playlist' }; if (state.resume && state.resume.id === r.id) { a.index = state.resume.idx; a.startSeconds = state.resume.t; state.resume = null; } return a; };
+let yt = null, ytIsReady = false, ytPending = null, ytReady = null, ticker = 0, carousel, viz, dust;
 
 async function load() {
   try { const r = await fetch('releases.json', { cache: 'no-cache' }); if (!r.ok) throw 0; state.all = cleanReleases((await r.json()).releases); }
@@ -61,6 +73,7 @@ function tick() {
     const vd = yt.getVideoData && yt.getVideoData(); const idx = yt.getPlaylistIndex ? yt.getPlaylistIndex() : -1; const n = yt.getPlaylist ? (yt.getPlaylist() || []).length : 0;
     if (vd && vd.title) $('muTrack').textContent = (n > 1 && idx >= 0 ? 'Track ' + (idx + 1) + ' of ' + n + ' \u00b7 ' : '') + String(vd.title).split(' | ')[0];
   } catch (e) { /* the player is not ready yet */ }
+  saveMem(false);
 }
 /* 100/101/150: the video or album cannot be embedded here. Say so and offer the YouTube Music page instead of a black box. */
 function onPlayerError(e) {
@@ -78,6 +91,7 @@ function onSpState(d) {
   spPos = d.position || 0; spDur = d.duration || 0;
   const playing = !d.isPaused;
   if (playing !== state.playing && useSp(state.current)) setPlaying(playing);
+  saveMem(false);
   if (spDur > 0) { $('muSeek').value = Math.round(spPos / spDur * 1000); $('muCur').textContent = fmtDuration(Math.round(spPos / 1000)); $('muDurT').textContent = fmtDuration(Math.round(spDur / 1000)); }
 }
 function onSpError() { const r = state.current; if (!r) return; showFallback(r); setPlaying(false); }
@@ -97,17 +111,19 @@ async function startPlayback(r) {
   if (useSp(r)) { try { if (yt && ytIsReady) yt.pauseVideo(); } catch (e) { /* ignore */ } sp.load(r.spotify.split('/').pop(), true); return; }
   sp.pause();
   try {
-    const YT = await loadApi();
-    if (yt && ytIsReady) { yt.loadPlaylist({ list: r.playlist, listType: 'playlist' }); return; }
-    ytPending = r.playlist;
+    const YT = await loadApi(), args = ytArgs(r);
+    if (yt && ytIsReady) { yt.loadPlaylist(args); return; }
+    ytPending = args;
     if (yt) return; /* created but not ready: onReady plays the latest album asked for */
-    yt = new YT.Player('muFrame', { width: '100%', height: '100%', host: 'https://www.youtube-nocookie.com',
-      playerVars: { autoplay: 1, playsinline: 1, rel: 0, modestbranding: 1, listType: 'playlist', list: r.playlist },
+    const first = args; ytPending = null;
+    const vars = { autoplay: 1, playsinline: 1, rel: 0, modestbranding: 1, listType: 'playlist', list: first.list };
+    if (first.index != null) { vars.index = first.index; vars.start = first.startSeconds; }
+    yt = new YT.Player('muFrame', { width: '100%', height: '100%', host: 'https://www.youtube-nocookie.com', playerVars: vars,
       events: { onStateChange: onPlayerState, onError: onPlayerError, onReady: () => {
         ytIsReady = true;
         try { yt.setVolume(Number($('muVol').value)); } catch (e) { /* ignore */ }
-        const want = ytPending; ytPending = '';
-        if (want && state.current && want === state.current.playlist) { try { yt.loadPlaylist({ list: want, listType: 'playlist' }); } catch (e) { /* ignore */ } }
+        const want = ytPending; ytPending = null;
+        if (want && want.list !== first.list && state.current && want.list === state.current.playlist) { try { yt.loadPlaylist(want); } catch (e) { /* ignore */ } }
       } } });
   } catch (e) {
     $('muFrame').innerHTML = '<iframe title="' + esc(r.title) + '" src="https://www.youtube-nocookie.com/embed/videoseries?list=' + esc(r.playlist) + '&autoplay=1&rel=0&playsinline=1" allow="autoplay; encrypted-media" allowfullscreen></iframe>';
@@ -134,7 +150,9 @@ function play(r) {
   carousel.select(state.queue.index, true); show(r);
   $('muSeek').value = 0; $('muCur').textContent = '0:00'; $('muDurT').textContent = '0:00';
   $('muStage').classList.add('has-track'); document.body.classList.add('mu-started');
+  $('muResume').hidden = true;
   if (r.playlist || r.spotify) startPlayback(r);
+  saveMem(true);
 }
 function setQueue(list, startId, mood) {
   state.mood = mood; state.queue = makeQueue(list, startId, state.shuffle);
@@ -144,7 +162,7 @@ function setQueue(list, startId, mood) {
 }
 function go(dir, ended) {
   const i = advance(state.queue, dir, ended ? state.repeat : 'all', ended);
-  if (i < 0) return; if (ended && state.repeat === 'one') { state.queue.index = i; play(state.queue.items[i]); return; }
+  if (i < 0) return;
   state.queue.index = i; play(state.queue.items[i]);
 }
 function autoNext() { go(1, true); }
@@ -164,6 +182,11 @@ function startMood(mood, why) {
   play(first);
   if (why) $('muSub').textContent = why + ' · ' + (MOODS.find((m) => m.id === mood) || {}).label + ' mix · 1 of ' + list.length;
 }
+function setShuffle(on) {
+  state.shuffle = on; $('muShuffle').setAttribute('aria-pressed', String(on));
+  setQueue(state.mood ? byMood(state.all, state.mood) : state.all, state.current && state.current.id, state.mood);
+}
+function setRepeat(mode) { state.repeat = mode; const b = $('muRepeat'); b.dataset.mode = mode; b.setAttribute('aria-label', 'Repeat: ' + mode); b.textContent = mode === 'one' ? '\u{1F502}' : '\u{1F501}'; b.setAttribute('aria-pressed', String(mode !== 'off')); }
 function renderMoods() {
   $('muMoods').innerHTML = '<button type="button" class="mu-chip smart" id="muSmart" title="Chooses a mood for this hour of the day, on your device">&#10024; Smart pick</button>'
     + MOODS.filter((m) => byMood(state.all, m.id).length).map((m) => '<button type="button" class="mu-chip mu-mood" data-mood="' + m.id + '" aria-pressed="false">' + m.emoji + ' ' + esc(m.label) + '</button>').join('')
@@ -172,7 +195,7 @@ function renderMoods() {
 
 /* ---------- events ---------- */
 document.addEventListener('click', (e) => {
-  const sp = e.target.closest('.mu-spine'); if (sp) { const r = state.all.find((x) => x.id === sp.dataset.id); if (r) { play(r); $('muStage').scrollIntoView({ behavior: 'smooth', block: 'start' }); } return; }
+  const spine = e.target.closest('.mu-spine'); if (spine) { const r = state.all.find((x) => x.id === spine.dataset.id); if (r) { play(r); $('muStage').scrollIntoView({ behavior: 'smooth', block: 'start' }); } return; }
   const m = e.target.closest('.mu-mood'); if (m) { startMood(m.dataset.mood); return; }
   const id = e.target.closest('button') && e.target.closest('button').id;
   if (id === 'muSmart') { const s = smartMood(new Date().getHours()); startMood(s.mood, 'Smart pick: ' + s.why); }
@@ -181,11 +204,9 @@ document.addEventListener('click', (e) => {
   else if (id === 'muPlay' || id === 'muMiniPlay') toggle();
   else if (id === 'muNext' || id === 'muMiniNext') go(1);
   else if (id === 'muPrev' || id === 'muMiniPrev') go(-1);
-  else if (id === 'muShuffle') {
-    state.shuffle = !state.shuffle; e.target.setAttribute('aria-pressed', String(state.shuffle));
-    setQueue(state.mood ? byMood(state.all, state.mood) : state.all, state.current && state.current.id, state.mood);
-  }
-  else if (id === 'muRepeat') { state.repeat = { off: 'all', all: 'one', one: 'off' }[state.repeat]; e.target.dataset.mode = state.repeat; e.target.setAttribute('aria-label', 'Repeat: ' + state.repeat); e.target.textContent = state.repeat === 'one' ? '\u{1F502}' : '\u{1F501}'; e.target.setAttribute('aria-pressed', String(state.repeat !== 'off')); }
+  else if (id === 'muShuffle') { setShuffle(!state.shuffle); saveMem(true); }
+  else if (id === 'muRepeat') { setRepeat({ off: 'all', all: 'one', one: 'off' }[state.repeat]); saveMem(true); }
+  else if (id === 'muResume') { if (state.current) play(state.current); }
   else if (e.target.dataset.viz) { viz.setMode(e.target.dataset.viz); document.querySelectorAll('[data-viz]').forEach((b) => b.setAttribute('aria-pressed', String(b === e.target))); }
 });
 $('muEng').addEventListener('click', (e) => {
@@ -205,6 +226,15 @@ document.addEventListener('keydown', (e) => {
 let rt; window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(renderShelf, 150); });
 new IntersectionObserver((en) => { document.body.classList.toggle('mu-stage-away', !en[0].isIntersecting); }).observe(document.querySelector('.mu-ctl'));
 
+/* a sideways flick on the title area changes album; the hint line confirms a gesture */
+function flash(msg) { const el = $('muHint'); el.textContent = msg; el.classList.add('on'); clearTimeout(flash.t); flash.t = setTimeout(() => el.classList.remove('on'), 1400); }
+(function titleSwipe() {
+  const el = document.querySelector('.mu-now'); let x0 = null;
+  el.addEventListener('pointerdown', (e) => { x0 = e.clientX; });
+  el.addEventListener('pointerup', (e) => { if (x0 == null) return; const dx = e.clientX - x0; x0 = null; if (Math.abs(dx) > 50) { go(dx < 0 ? 1 : -1); } });
+  el.addEventListener('pointercancel', () => { x0 = null; });
+})();
+
 /* ---------- start ---------- */
 carousel = mountCarousel($('muCarousel'), {
   onChange: (r, i) => {
@@ -212,6 +242,7 @@ carousel = mountCarousel($('muCarousel'), {
     /* keep sound and cover together: if music is on, the swiped-to album starts (after a short pause so fast swiping does not thrash the player) */
     if (state.playing || document.body.classList.contains('mu-started')) { clearTimeout(swipeT); swipeT = setTimeout(() => { if (state.current && state.current.id === r.id) play(r); }, 450); }
   },
+  onHold: () => { setShuffle(!state.shuffle); saveMem(true); flash(state.shuffle ? 'Shuffle on' : 'Shuffle off'); },
   onActivate: (r) => { if (state.current && state.current.id === r.id && yt && yt.getPlayerState) toggle(); else play(r); },
 });
 viz = mountViz($('muViz')); dust = mountDust($('muDust'));
@@ -223,5 +254,12 @@ if (!state.all.length) {
 } else {
   renderMoods(); renderShelf(); const want = decodeURIComponent((location.hash || '').slice(1));
   if (want === 'shuffle') queueMicrotask(() => $('muSurprise') && $('muSurprise').click());
-  setQueue(state.all, (state.all.find((r) => r.id === want) || state.all[0]).id, '');
+  const mem = loadMem(), saved = mem && !want ? state.all.find((r) => r.id === mem.id) : null;
+  if (saved) {
+    setShuffle(!!mem.shuffle); setRepeat(['off', 'all', 'one'].includes(mem.repeat) ? mem.repeat : 'off');
+    const list = mem.mood ? byMood(state.all, mem.mood) : state.all;
+    setQueue(list.some((r) => r.id === saved.id) ? list : state.all, saved.id, list.some((r) => r.id === saved.id) ? mem.mood : '');
+    state.resume = !useSp(saved) && mem.t > 5 ? { id: saved.id, idx: mem.idx || 0, t: mem.t } : null;
+    $('muResume').hidden = false; $('muResumeT').textContent = saved.title + (state.resume ? ' \u00b7 ' + fmtDuration(mem.t) : '');
+  } else setQueue(state.all, (state.all.find((r) => r.id === want) || state.all[0]).id, '');
 }
