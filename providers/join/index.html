@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#08070d">
+  <title>Get listed on RoamWise as a verified provider</title>
+  <meta name="description" content="Travel agencies, tour operators, trekking providers, guides, drivers, food and goods sellers in Uttarakhand: apply to be checked and listed on RoamWise.">
+  <link rel="canonical" href="https://roamwise.co.in/providers/join/"><link rel="icon" href="../../icons/favicon-32.png">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="join.css">
+</head>
+<body>
+  <nav class="pj-nav"><a href="../../" class="pj-brand"><img src="../../icons/icon-192.png" alt=""><b>Roam<span>Wise</span></b></a><a href="../../map/">Uttarakhand map</a></nav>
+  <main>
+    <header>
+      <span class="pj-kicker">VERIFIED PROVIDERS</span>
+      <h1>Get listed. <em>Get checked once.</em></h1>
+      <p>Free to apply. We check your documents, talk to you, and run one paid trial before the Verified badge appears. Nothing is shown publicly before that.</p>
+    </header>
+    <form id="pjForm" class="pj-card" novalidate>
+      <label>What do you offer
+        <select id="pjCat" name="category" required></select>
+      </label>
+      <fieldset id="pjZones"><legend>Where you work</legend></fieldset>
+      <div class="pj-row">
+        <label>Your name <input name="name" autocomplete="name" required></label>
+        <label>Business name, if any <input name="business" autocomplete="organization"></label>
+      </div>
+      <div class="pj-row">
+        <label>Mobile <input name="phone" inputmode="tel" autocomplete="tel" placeholder="98xxxxxx10"></label>
+        <label>Email <input name="email" type="email" autocomplete="email"></label>
+      </div>
+      <div class="pj-row">
+        <label>Website (https://) <input name="website" inputmode="url"></label>
+        <label>Instagram link (https://) <input name="instagram" inputmode="url"></label>
+      </div>
+      <label>Typical price <input name="price" placeholder="e.g. Rs 1,500 per day, per person"></label>
+      <label>What you offer <textarea name="about" rows="3" maxlength="400" placeholder="Two or three lines: what, where, for how many people"></textarea></label>
+      <fieldset id="pjDocs"><legend>Documents you can show (tick what is ready)</legend><p class="pj-hint" id="pjDocHint"></p></fieldset>
+      <label class="pj-check"><input type="checkbox" name="consent"> I confirm these details are true and agree that RoamWise may check them and contact me.</label>
+      <p id="pjMsg" class="pj-err" role="alert"></p>
+      <button type="submit" class="pj-btn">Prepare my application</button>
+    </form>
+    <section id="pjOut" class="pj-card" hidden>
+      <h2>Send this to RoamWise</h2>
+      <pre id="pjText"></pre>
+      <a id="pjWa" class="pj-btn" target="_blank" rel="noopener noreferrer">Send on WhatsApp</a>
+      <button type="button" id="pjCopy" class="pj-btn alt">Copy text</button>
+    </section>
+    <section class="pj-card">
+      <h2>How verification works</h2>
+      <ol>
+        <li><b>Applied.</b> You send this message.</li>
+        <li><b>Documents checked.</b> A person reads the originals or photos.</li>
+        <li><b>Conversation.</b> A video call or a visit.</li>
+        <li><b>Trial.</b> One real, paid booking that goes well. Then the Verified badge shows on the map and listings.</li>
+      </ol>
+      <p class="pj-hint">Listing is free. Document rules vary by activity; where a rule is unconfirmed we say &ldquo;confirm&rdquo; and will help you check it with the right office.</p>
+    </section>
+  </main>
+  <script type="module" src="join.js"></script>
+</body>
+</html>
