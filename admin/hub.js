@@ -25,7 +25,7 @@ const LINKS = [
   ['Local business intake', 'Cafes, shops, restaurants', '/local-business/'],
   ['Public site', 'roamwise.co.in', '/'],
 ];
-const S = { apps: [], accounts: [], policies: SEED_POLICIES, partners: [], bookings: [], rows: [], errors: [], stage: 'all', q: '', tab: 'overview' };
+const S = { apps: [], accounts: [], policies: SEED_POLICIES, partners: [], bookings: [], outreach: null, rows: [], errors: [], stage: 'all', q: '', tab: 'overview' };
 
 function demoData() {
   const n = (i) => ['Sample Aanya', 'Sample Kabir', 'Sample Meera', 'Sample Rohan', 'Sample Ira', 'Sample Dev', 'Sample Tara', 'Sample Veer'][i];
@@ -34,6 +34,8 @@ function demoData() {
   const m = ['2026-07', '2026-08', '2026-09', '2026-10'];
   S.bookings = Array.from({ length: 14 }, (_, i) => ({ id: 'b' + i, ref: 'RW-' + (1000 + i), property: ['Big Bro Hotel', 'Milan Heights', 'Corbett Jungle View'][i % 3], amount: 1800 + (i % 5) * 1100, status: i % 6 === 5 ? 'pending' : 'completed', completedAt: m[i % 4] + '-15T10:00:00Z', commissionPctSnapshot: 7 }));
   S.partners = [];
+  S.apps.forEach((a, i) => { a.src = ['wa-group', 'direct', 'email', 'instagram'][i % 4]; });
+  S.outreach = { creators: [{ status: 'sent', sentOn: '2026-10-21', sentFor: ['milan-heights'] }, { status: 'sent', sentOn: '2026-10-23', sentFor: ['milan-heights'] }, { status: 'pending' }, { status: 'needs-email' }, { status: 'needs-email' }] };
 }
 
 async function loadLive() {
@@ -51,6 +53,7 @@ async function loadLive() {
   S.accounts = accts ? accts.docs.map((d) => ({ id: d.id })) : [];
   S.partners = parts ? parts.docs.map((d) => ({ id: d.id, ...d.data() })) : [];
   S.bookings = books ? books.docs.map((d) => ({ id: d.id, ...d.data() })) : [];
+  S.outreach = await safe('Outreach tracker file', async () => { const r = await fetch('../outreach/creators.json', { cache: 'no-store' }); if (!r.ok) throw Error('HTTP ' + r.status); return r.json(); });
   const override = pol && pol.exists && Array.isArray((pol.data() || {}).list) ? pol.data().list : [];
   const fromPartners = S.partners.filter((p) => p.creatorMatching && p.creatorMatching.enabled).map((p) => policyFromPartner(p.id, p));
   S.policies = mergePolicies(mergePolicies(SEED_POLICIES, override), fromPartners);
@@ -67,6 +70,10 @@ function derive() {
     byMonth[when] = (byMonth[when] || 0) + amt;
     const pn = String(b.property || b.propertyName || b.propertyId || 'Unknown'); byProp[pn] = byProp[pn] || { n: 0, gross: 0, fee: 0 }; byProp[pn].n++; byProp[pn].gross += amt; byProp[pn].fee += fee;
   });
+  const oc = (S.outreach && S.outreach.creators) || [], today = new Date().toISOString().slice(0, 10), weekAgo = new Date(Date.now() - 7 * 864e5).toISOString().slice(0, 10);
+  const byStatus = {}; oc.forEach((c) => { byStatus[c.status || 'unknown'] = (byStatus[c.status || 'unknown'] || 0) + 1; });
+  S.out = { total: oc.length, byStatus, sentToday: oc.filter((c) => c.sentOn === today).length, sentWeek: oc.filter((c) => c.sentOn && c.sentOn >= weekAgo).length, sentTotal: oc.filter((c) => c.status === 'sent').length };
+  const bySrc = {}; S.apps.forEach((a) => { const k = String(a.src || 'unknown'); bySrc[k] = (bySrc[k] || 0) + 1; }); S.bySrc = bySrc;
   S.sales = { done: done.length, gross, comm, byMonth, byProp, open: S.bookings.length - done.length };
 }
 
@@ -93,6 +100,8 @@ function overview() {
     <div class="hb-card"><h2>Creator pipeline</h2>${bars(stage)}</div>
     <div class="hb-card"><h2>Rating mix</h2>${bars(tiers)}</div>
     <div class="hb-card"><h2>Where creators are based</h2>${topTowns.length ? bars(topTowns) : '<p class="hb-empty">No locations yet.</p>'}</div>
+    <div class="hb-card"><h2>Where sign-ups come from</h2>${Object.keys(S.bySrc).length ? bars(Object.entries(S.bySrc).sort((a, b) => b[1] - a[1])) : '<p class="hb-empty">No sign-ups yet.</p>'}<p class="hb-sub">From the tag on the link, for example /join?src=wa-group. Older sign-ups show as unknown.</p></div>
+    <div class="hb-card"><h2>Automatic outreach</h2>${S.out.total ? bars([['Emails sent', S.out.sentTotal], ['Sent today', S.out.sentToday], ['Sent this week', S.out.sentWeek], ...Object.entries(S.out.byStatus).filter(([k]) => k !== 'sent').map(([k, v]) => [k, v])]) : '<p class="hb-empty">No outreach data.</p>'}<p class="hb-sub">One personal email at a time, at most 3 a day, each with an opt-out line.</p></div>
     <div class="hb-card"><h2>Newest applications</h2>${recent.length ? recent.map((r) => `<div><b>${esc(r.name)}</b> <span class="hb-sub">${esc((r.location && r.location.town) || '')} · ${esc(r.stage)}</span></div>`).join('') : '<p class="hb-empty">No applications yet.</p>'}</div>
   </div>`;
 }
