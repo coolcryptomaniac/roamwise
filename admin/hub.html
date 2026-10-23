@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#0b0f14">
+<title>Admin Hub — RoamWise</title>
+<link rel="icon" href="../icons/favicon-32.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&family=Inter+Tight:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="hub.css">
+</head>
+<body>
+<div id="hubAuth" class="hb-auth" hidden>
+  <form id="hubLogin" class="hb-login">
+    <span class="hb-kicker">FOUNDER ACCESS</span>
+    <h1>RoamWise Admin Hub</h1>
+    <p>Creators, properties and sales in one place. Sign in with the founder account.</p>
+    <label for="hubEmail">Email</label><input id="hubEmail" type="email" autocomplete="email" required>
+    <label for="hubPass">Password</label><input id="hubPass" type="password" autocomplete="current-password" required>
+    <button class="hb-btn hb-primary" type="submit">Sign in</button>
+    <p id="hubAuthMsg" class="hb-err" role="alert"></p>
+    <a class="hb-link" href="?demo=1">Preview with sample data</a>
+  </form>
+</div>
+
+<div id="hubApp" class="hb-app" hidden>
+  <aside class="hb-rail" aria-label="Sections">
+    <a class="hb-brand" href="../"><img src="../icons/icon-192.png" alt="" width="28" height="28"><b>RoamWise</b></a>
+    <nav id="hubNav">
+      <a href="#overview" data-tab="overview">Overview</a>
+      <a href="#creators" data-tab="creators">Creators</a>
+      <a href="#properties" data-tab="properties">Properties</a>
+      <a href="#sales" data-tab="sales">Sales</a>
+      <a href="#links" data-tab="links">Quick links</a>
+    </nav>
+    <button id="hubOut" class="hb-btn hb-ghost" type="button">Sign out</button>
+  </aside>
+  <main class="hb-main">
+    <div id="hubDemo" class="hb-demo" hidden>Sample data. None of these names or numbers are real. Sign in to see the live site.</div>
+    <header class="hb-head">
+      <div><span class="hb-kicker" id="hubKicker">OVERVIEW</span><h1 id="hubTitle">Admin Hub</h1></div>
+      <div class="hb-head-actions"><span id="hubStamp" class="hb-stamp"></span><button id="hubRefresh" class="hb-btn" type="button">Refresh</button></div>
+    </header>
+    <div id="hubErrors"></div>
+    <section id="tab-overview" class="hb-tab"></section>
+    <section id="tab-creators" class="hb-tab" hidden></section>
+    <section id="tab-properties" class="hb-tab" hidden></section>
+    <section id="tab-sales" class="hb-tab" hidden></section>
+    <section id="tab-links" class="hb-tab" hidden></section>
+  </main>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<script src="../partners-data.js"></script>
+<script type="module" src="hub.js"></script>
+</body>
+</html>
