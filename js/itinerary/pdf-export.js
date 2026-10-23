@@ -30,6 +30,16 @@ function openPdfFlow(T, name, days, month){
     +'<div class="modal-body" id="pdfBody"></div></div>';
     document.body.appendChild(ov);
   }
+  /* Partner branding (Pro): a travel brand's name/contact/colour on the cover, footer and watermark. */
+  var PB={}; try{ PB=JSON.parse(lsGet('rw_pdf_partner')||'{}')||{}; }catch(e){ PB={}; }
+  function pe(x){ return String(x||'').replace(/[&<>"']/g,''); }
+  var partnerBlock = isPro
+    ? '<div class="dna-q"><div class="qt">Partner branding (optional) \u2014 your brand on every page</div>'
+      +'<input class="txn-inp" id="pdfPartner" maxlength="28" style="width:100%;margin-bottom:6px" placeholder="Your travel brand name" value="'+pe(PB.name)+'">'
+      +'<input class="txn-inp" id="pdfPartnerContact" maxlength="46" style="width:100%;margin-bottom:6px" placeholder="Phone / email / website" value="'+pe(PB.contact)+'">'
+      +'<input class="txn-inp" id="pdfPartnerTag" maxlength="60" style="width:100%;margin-bottom:6px" placeholder="Tagline (optional)" value="'+pe(PB.tag)+'">'
+      +'<input class="txn-inp" id="pdfPartnerColor" maxlength="7" style="width:100%" placeholder="Brand colour, e.g. #2F78AD (optional)" value="'+pe(PB.color)+'"></div>'
+    : '<div style="font-size:10.5px;color:var(--t3);margin-bottom:10px">Travel brand? Partner branding (your name and contact on every page) is available with Pro.</div>';
   var payBlock = isPro ? '<button class="rzp-main-btn" onclick="genPdf()">\u2728 Generate my PDF (free with Pro)</button>'
     : '<div class="mode-box" style="margin-bottom:10px">\ud83d\udcb0 <b>\u20b910 one-off</b> \u2014 or free with Pro. Pay via any UPI app to <b>roamwisepay@ybl</b>, then tap generate.</div>'
       +'<div style="display:flex;gap:7px;margin-bottom:10px"><button class="tact" style="flex:1" onclick="payVia(\'generic10\')">\ud83d\udcb3 Pay \u20b910 via UPI</button></div>'
@@ -43,6 +53,7 @@ function openPdfFlow(T, name, days, month){
    +'<div class="dna-q"><div class="qt">Party</div><div class="dna-opts">'+['Solo','Couple','Family','Friends'].map(function(o,i){return '<button class="dna-opt'+(i===0?' on':'')+'" onclick="pdfPick(this,\'party\',\''+o+'\')">'+o+'</button>';}).join('')+'</div></div>'
    +'<div class="dna-q"><div class="qt">Pace</div><div class="dna-opts">'+['Relaxed','Balanced','Packed'].map(function(o,i){return '<button class="dna-opt'+(i===1?' on':'')+'" onclick="pdfPick(this,\'pace\',\''+o+'\')">'+o+'</button>';}).join('')+'</div></div>'
    +'<div class="dna-q"><div class="qt">Special notes (optional)</div><input class="txn-inp" id="pdfNotes" style="width:100%" placeholder="anniversary trip, vegetarian, photography focus\u2026"></div>'
+   + partnerBlock
    +'<button class="tact" style="width:100%;margin-bottom:10px" onclick="pdfPreviewHtml()">\ud83d\udc41 Live preview \u2014 see it before you pay</button>'
    +'<div id="pdfPrev" style="display:none;margin-bottom:12px"></div>'
    + payBlock;
@@ -91,6 +102,13 @@ function genPdf(sample){
     var name=(el('pdfName').value||'A Traveler').slice(0,26); lsSet('rw_name',name);
     var start = el('pdfDate').value ? new Date(el('pdfDate').value) : null;
     var o=window._pdfOpts, notes=(el('pdfNotes').value||'').slice(0,120);
+    /* Partner branding (Pro only). Name is required; colour must be a 6-digit hex. */
+    function pf(id,n){ var e=el(id); return e? String(e.value||'').replace(/[<>]/g,'').trim().slice(0,n) : ''; }
+    var PART=null;
+    if(isPro){ var pnm=pf('pdfPartner',28);
+      if(pnm){ var pcol=pf('pdfPartnerColor',7);
+        PART={name:pnm, contact:pf('pdfPartnerContact',46), tag:pf('pdfPartnerTag',60), color:/^#[0-9a-fA-F]{6}$/.test(pcol)?pcol:''};
+        lsSet('rw_pdf_partner',JSON.stringify(PART)); } }
     /* Real AI plan if the user just built one for this destination */
     var AIP=(window._lastItin && _lastItin.name===d.name && _lastItin.days)? _lastItin.days : null;
     var pdf=new window.jspdf.jsPDF({unit:'px',format:[600,800]});
@@ -122,9 +140,12 @@ function genPdf(sample){
        gold frame, footer band and per-theme accents rather than an all-dark
        fill that would be expensive/impractical to print. */
     var GOLD='#C8913E', GOLD2='#E8BA6C', CRIM='#C4302B', INK='#1A1A22', PAP='#F7F3EA', MUT='#6B675C', DARK='#0C1020';
+    if(PART&&PART.color){ GOLD=PART.color; GOLD2=(function(h){ var n=parseInt(h.slice(1),16); function m(c){ return Math.round(c+(255-c)*0.35); }
+      return '#'+[m(n>>16&255),m(n>>8&255),m(n&255)].map(function(x){ return ('0'+x.toString(16)).slice(-2); }).join(''); })(PART.color); }
     function wm(){
+      if(PART && !window._pdfSample) return; /* paid partner deliverable: keep pages clean; footer still credits RoamWise */
       pdf.setTextColor(229,212,178); pdf.setFont('helvetica','bold'); pdf.setFontSize(23);
-      for(var wy=100;wy<790;wy+=128) for(var wx=-50;wx<640;wx+=185) pdf.text('ROAMWISE',wx,wy,{angle:31});
+      for(var wy=100;wy<790;wy+=128) for(var wx=-50;wx<640;wx+=185) pdf.text(PART? PART.name.toUpperCase().slice(0,14) : 'ROAMWISE',wx,wy,{angle:31});
       if(window._pdfSample){ pdf.setTextColor(232,120,90); pdf.setFontSize(60);
         for(var sy=180;sy<760;sy+=200) pdf.text('SAMPLE',300,sy,{align:'center',angle:32}); }
     }
@@ -158,7 +179,9 @@ function genPdf(sample){
       pdf.text('\u201c'+q+'\u201d',300,748,{align:'center'});
       pdf.setFillColor(DARK); pdf.rect(18,760,564,22,'F');
       pdf.setFont('helvetica','normal'); pdf.setTextColor(GOLD2); pdf.setFontSize(8);
-      pdf.text('\u{1F977} ROAMWISE \u00b7 www.roamwise.co.in \u00b7 crafted for '+name,300,774,{align:'center'});
+      if(PART){ pdf.setFontSize(PART.name.length+PART.contact.length>52?7:8);
+        pdf.text(PART.name+(PART.contact?' - '+PART.contact:'')+' - crafted for '+name+' - Powered by RoamWise',300,774,{align:'center'}); }
+      else pdf.text('\u{1F977} ROAMWISE \u00b7 www.roamwise.co.in \u00b7 crafted for '+name,300,774,{align:'center'});
       pdf.setTextColor('#8A8880'); pdf.text(String(pn),566,774); }
     var pn=1;
     /* ---------- gather photos first (hero + up to 3 gems) ---------- */
@@ -239,7 +262,7 @@ function genPdf(sample){
           var cxp=txx(c.lon), cyp=tyy(c.lat);
           var x0=Math.floor(cxp)-1, y0=Math.floor(cyp)-1;
           var jobs=[]; for(var yy=0; yy<2; yy++) for(var xx=0; xx<3; xx++)(function(xx,yy){
-            jobs.push(fetchBmp('https://'+(['a','b','c'][(xx+yy)%3])+'.basemaps.cartocdn.com/rastertiles/voyager/'+Z+'/'+(x0+xx)+'/'+(y0+yy)+'.png').catch(function(){return null;}));
+            jobs.push(fetchBmp('https://tile.openstreetmap.org/'+Z+'/'+(x0+xx)+'/'+(y0+yy)+'.png').catch(function(){return null;}));
           })(xx,yy);
           return Promise.all(jobs).then(function(tls){
             if(!tls.some(function(t3){return t3;})) return null;
@@ -256,7 +279,7 @@ function genPdf(sample){
               g2.fillStyle='#fff'; g2.fillText(String(pi3+1),pp[0],pp[1]+4); });
             g2.fillStyle='rgba(255,255,255,.85)'; g2.fillRect(0,494,768,18);
             g2.fillStyle='#555'; g2.font='10px Arial'; g2.textAlign='left';
-            g2.fillText('\u00a9 OpenStreetMap contributors \u00a9 CARTO', 8, 507);
+            g2.fillText('\u00a9 OpenStreetMap contributors', 8, 507);
             return {img:cv2.toDataURL('image/jpeg',0.9), pins:pins, c:c};
           });
         });
@@ -272,7 +295,9 @@ function genPdf(sample){
       scenicPage(hero);   /* full-bleed destination photo, darkened top+bottom for text */
       frame();
       drawMotif(pdf,THK,TH.acc,300,150);
-      pdf.setTextColor('#B8B4A8'); pdf.setFontSize(10); pdf.text('A  R O A M W I S E   P R E M I U M   I T I N E R A R Y',300,60,{align:'center'});
+      pdf.setTextColor('#B8B4A8'); pdf.setFontSize(10); if(PART){ pdf.setTextColor(GOLD2); pdf.setFont('helvetica','bold'); pdf.setFontSize(13); pdf.text(PART.name.toUpperCase(),300,58,{align:'center'});
+        pdf.setFont('times','italic'); pdf.setFontSize(10); pdf.setTextColor('#B8B4A8'); pdf.text(PART.tag||'Your personalised itinerary',300,74,{align:'center'}); }
+      else pdf.text('A  R O A M W I S E   P R E M I U M   I T I N E R A R Y',300,60,{align:'center'});
       pdf.setTextColor(GOLD2); pdf.setFont('times','bold'); pdf.setFontSize(44);
       pdf.text(d.name.toUpperCase(),300,214,{align:'center'});
       pdf.setDrawColor(TH.acc[0],TH.acc[1],TH.acc[2]); pdf.setLineWidth(2.5); pdf.line(230,226,370,226);
@@ -300,8 +325,8 @@ function genPdf(sample){
       pdf.setDrawColor(TH.acc[0],TH.acc[1],TH.acc[2]); pdf.setLineWidth(1.2); pdf.line(260,72,340,72);
       var whyLines = [
         'Not rushed. Not a checklist. '+d.name+', paced the way a good trip should be.',
-        'Every day here has room to breathe \\u2014 real mornings, a slow lunch, an evening',
-        'that doesn\\u2019t feel timed. This is the plan we\\u2019d hand a close friend.'
+        'Every day here has room to breathe \u2014 real mornings, a slow lunch, an evening',
+        'that doesn\u2019t feel timed. This is the plan we\u2019d hand a close friend.'
       ];
       pdf.setFont('times','italic'); pdf.setFontSize(13.5); pdf.setTextColor('#F5F2E8');
       whyLines.forEach(function(ln,li){ pdf.text(ln,300,100+li*20,{align:'center'}); });
@@ -596,7 +621,7 @@ function genPdf(sample){
         foot(pn);
       }
       window._pdfDbg={pages:pn, hero:!!hero, dayPics:dayPics.filter(Boolean).length, gems:gemPics.length, map:!!mapDat, intel:!!intel, av:!!avatar, ev:evHit.length, sample:!!window._pdfSample};
-      var fname='roamwise-'+d.name.toLowerCase().replace(/[^a-z0-9]+/g,'-')+(window._pdfSample?'-SAMPLE':'')+'-itinerary.pdf';
+      var fname=(PART? PART.name.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')+'-' : 'roamwise-')+d.name.toLowerCase().replace(/[^a-z0-9]+/g,'-')+(window._pdfSample?'-SAMPLE':'')+'-itinerary.pdf';
       if(window.RW && RW.saveCard){ RW.saveCard(pdf.output('datauristring')); offerOpen('Your itinerary'); }
       else { try{ var u=URL.createObjectURL(pdf.output('blob')); var w2=window.open(u,'_blank');
           if(w2) showToast('\ud83d\udc41 Preview opened \u2014 hit the viewer\u2019s \u2b07 to save'); else pdf.save(fname);
