@@ -1,5 +1,5 @@
 {
- "note": "One entry per business. category decides which creator niches are matched. whatsapp is the number creators are told to message (the business's own). Only active campaigns are emailed. offer is shown to creators only as agreed directly with the business. maxKm is a hard distance limit from the campaign city (straight-line); no creator beyond it is ever emailed for that campaign.",
+ "note": "One entry per business. category decides which creator niches are matched. whatsapp is the number creators are told to message (the business's own). Only active campaigns are emailed. offer is shown to creators only as agreed directly with the business. maxKm is a hard distance limit from the campaign city (straight-line); no creator beyond it is emailed for that campaign unless they pass the star test in tools/outreach/rings.mjs (very wide reach, loved content and sourced evidence they convert), at most maxFarPerRun (default 1) per run.",
  "campaigns": [
   {
    "id": "milan-heights",

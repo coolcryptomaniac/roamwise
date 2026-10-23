@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { scan, checkOutreach, checkTeamUpdate } from '../tools/outreach/mail-guard.mjs';
-import { pickNext } from '../tools/outreach/rings.mjs';
+import { pickNext, isStar, quality } from '../tools/outreach/rings.mjs';
 
 const { campaigns } = JSON.parse(readFileSync(new URL('../outreach/campaigns.json', import.meta.url), 'utf8'));
 const milan = campaigns.find((c) => c.id === 'milan-heights');
@@ -63,4 +63,37 @@ test('guard CLI: exit 0 for a clean message, 1 when blocked, 2 on bad input (rel
   const run = (f) => spawnSync('node', ['tools/outreach/mail-guard.mjs', 'outreach', f, 'milan-heights'], { cwd: root });
   assert.equal(run(ok).status, 0); assert.equal(run(no).status, 1); assert.equal(run(join(d, 'missing.json')).status, 2);
   assert.equal(spawnSync('node', ['tools/outreach/mail-guard.mjs', 'wat', ok], { cwd: root }).status, 2);
+});
+
+const star = (extra = {}) => ({ reach: { platform: 'youtube', followers: 450000, avgViews: 120000, engagementPct: 5.2, source: 'https://example.com/stats', ...extra },
+  conversionEvidence: { text: 'Hotel stay vlog in Kasauli; comments ask how to book and the hotel confirmed new bookings.', source: 'https://example.com/video' } });
+const cr = (id, city, extra = {}) => ({ id, baseCity: city, baseConfirmed: true, email: id + '@x.com', status: 'pending', niches: ['food'], sentFor: [], ...extra });
+
+test('star exception: only very wide reach with loved content and sourced conversion evidence goes beyond 90 km', () => {
+  assert.equal(isStar(star()), true);
+  assert.equal(isStar(star({ followers: 60000 })), false);
+  assert.equal(isStar(star({ engagementPct: 1.2 })), false);
+  assert.equal(isStar(star({ source: '' })), false);
+  assert.equal(isStar({ reach: star().reach }), false);                       // no conversion evidence
+  assert.equal(isStar({ ...star(), conversionEvidence: { text: 'good', source: 'https://x.com' } }), false); // vague evidence
+  assert.equal(isStar({ followers: 900000, engagementPct: 9 }), false);       // numbers not under reach / unsourced
+});
+
+test('pickNext with maxKm: a documented star from far away is allowed (max 1 per run), an undocumented big one is not', () => {
+  const camp = { ...milan, niches: ['food'] };
+  const pool = [cr('local-a', 'haldwani'), cr('local-b', 'kausani'), cr('star-delhi', 'delhi', star()), cr('star-mumbai', 'mumbai', star()), cr('big-nodata', 'delhi', { reach: { followers: 2000000, engagementPct: 8 } })];
+  const out = pickNext(pool, 5, camp);
+  const ids = out.map((x) => x.id);
+  assert.ok(ids.includes('local-a') && ids.includes('local-b'));
+  assert.equal(ids.filter((i) => i.startsWith('star')).length, 1, 'only one far star per run');
+  assert.ok(!ids.includes('big-nodata'));
+  assert.equal(out.find((x) => x.id.startsWith('star')).star, true);
+  assert.equal(pickNext(pool, 5, { ...camp, maxFarPerRun: 2 }).filter((x) => x.star).length, 2);
+});
+
+test('pickNext with maxKm: better local creators rank first; no star means only locals', () => {
+  const camp = { ...milan, niches: ['food'] };
+  const big = cr('local-big', 'ranikhet', { reach: { followers: 80000, engagementPct: 6, source: 'https://x.com/a' } }), small = cr('local-small', 'almora');
+  assert.equal(quality(big) > quality(small), true);
+  assert.deepEqual(pickNext([small, big, cr('far', 'delhi')], 3, camp).map((x) => x.id), ['local-big', 'local-small']);
 });
