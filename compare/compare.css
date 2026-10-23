@@ -1,0 +1,28 @@
+:root{--bg:#08070d;--card:#14101c;--line:rgba(232,186,108,.28);--gold:#E8BA6C;--ink:#F2EFE6;--mut:#b9b2a4;--ok:#6ee7c4;--warn:#ffb86b;--bad:#ff7a8a}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(120% 60% at 50% -10%,#241a35 0%,var(--bg) 60%) fixed;color:var(--ink);font:16px/1.5 Outfit,system-ui,sans-serif}
+a{color:inherit}main{max-width:900px;margin:0 auto;padding:0 16px 56px}
+.cp-nav{display:flex;justify-content:space-between;align-items:center;max-width:900px;margin:0 auto;padding:14px 16px}
+.cp-brand{display:flex;align-items:center;gap:9px;text-decoration:none;font-size:19px}.cp-brand img{width:30px;height:30px;border-radius:8px}.cp-brand span{color:var(--gold)}
+.cp-nav>a:last-child{font-size:13px;color:var(--mut);text-decoration:none}
+.cp-kicker{font-size:11px;font-weight:800;letter-spacing:.2em;color:var(--gold)}
+.cp-hero h1{font:800 clamp(30px,8vw,50px)/1.05 Georgia,serif;margin:8px 0 10px;color:#FFE0AE}.cp-hero h1 em{font-style:normal;color:var(--ink)}.cp-hero p{color:var(--mut);margin:0;max-width:560px}
+.cp-disclose{margin:16px 0;padding:12px 14px;border-radius:14px;border:1px solid var(--line);background:rgba(232,186,108,.08);font-size:14px;color:#e6dfcf}
+.cp-panel,.cp-card,.cp-verdict{background:linear-gradient(160deg,#1a1326,var(--card));border:1px solid var(--line);border-radius:20px;padding:16px;margin:0 0 14px}
+.cp-row{display:grid;gap:12px;grid-template-columns:1fr;margin-bottom:14px}@media(min-width:640px){.cp-row{grid-template-columns:1fr 1fr}}
+label{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--gold);display:block}
+select,input[type=search]{display:block;width:100%;margin-top:6px;font:inherit;color:var(--ink);background:#0d0b14;border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.cp-weights{display:grid;gap:10px;grid-template-columns:1fr}@media(min-width:640px){.cp-weights{grid-template-columns:1fr 1fr}}
+.cp-w{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--ink);text-transform:none;letter-spacing:0;font-weight:500}.cp-w b{display:flex;justify-content:space-between;color:var(--gold);font-size:12px;letter-spacing:.06em;text-transform:uppercase}
+input[type=range]{width:100%;accent-color:var(--gold);min-height:32px}
+.cp-verdict{font-size:15px;border-color:rgba(110,231,196,.4)}
+.cp-card{display:grid;gap:10px;animation:cpIn .4s ease both}.cp-card.top{border-color:var(--ok);box-shadow:0 0 0 1px var(--ok) inset}
+.cp-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}.cp-head h3{margin:0;font:800 18px/1.25 Georgia,serif;color:#FFE0AE}.cp-head small{display:block;font:500 12px Outfit;color:var(--mut)}
+.cp-score{flex:none;text-align:center;min-width:64px;padding:8px 10px;border-radius:14px;background:#0d0b14;border:1px solid var(--line)}.cp-score b{display:block;font:800 26px/1 Georgia,serif;color:var(--ok)}.cp-score span{font-size:10px;color:var(--mut);letter-spacing:.08em}
+.cp-price{font:800 24px Georgia,serif}.cp-price small{font:500 13px Outfit;color:var(--mut);margin-left:6px}
+.cp-bars{display:grid;gap:5px}.cp-bar{display:grid;grid-template-columns:130px 1fr;gap:8px;align-items:center;font-size:12px;color:var(--mut)}@media(max-width:480px){.cp-bar{grid-template-columns:96px 1fr}}
+.cp-bar i{display:block;height:8px;border-radius:5px;background:rgba(255,255,255,.08);overflow:hidden}.cp-bar i s{display:block;height:100%;background:linear-gradient(90deg,#C8913E,var(--gold));border-radius:5px;transition:width .35s}
+.cp-tags{display:flex;flex-wrap:wrap;gap:6px}.cp-tags span{padding:2px 9px;border-radius:999px;font-size:11px;font-weight:700;border:1px solid rgba(255,255,255,.16);color:var(--mut)}.cp-tags span.y{color:#07090f;background:var(--ok);border-color:transparent}.cp-tags span.w{color:#07090f;background:var(--warn);border-color:transparent}
+.cp-note{font-size:13px;color:#d8d5ce;margin:0}.cp-src{font-size:12px;color:var(--mut)}
+.cp-fine{font-size:12.5px;color:var(--mut)}
+@keyframes cpIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){.cp-card{animation:none}.cp-bar i s{transition:none}}

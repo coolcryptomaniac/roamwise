@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#08070d">
+  <title>Compare travel packages | RoamWise</title>
+  <meta name="description" content="Compare hill-trip packages from travel sites, local operators, creators and RoamWise side by side, scored on price, inclusions, clarity, safety and flexibility. You set the weights.">
+  <link rel="canonical" href="https://roamwise.co.in/compare/"><link rel="icon" href="../icons/favicon-32.png">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="compare.css">
+</head>
+<body>
+  <nav class="cp-nav"><a href="../" class="cp-brand"><img src="../icons/icon-192.png" alt=""><b>Roam<span>Wise</span></b></a><a href="../packages/">Student group trips</a></nav>
+  <main>
+    <header class="cp-hero">
+      <span class="cp-kicker">PACKAGE COMPARISON</span>
+      <h1>Same trip, <em>side by side.</em></h1>
+      <p>Prices, what is really included, and how clear and safe each offer is. Slide the weights to what matters to you.</p>
+    </header>
+    <p class="cp-disclose" role="note"><b>We sell one of these.</b> RoamWise offers are scored by exactly the same rules as everyone else's, and every number comes from a field you can see below. The score is not a customer review. Something a seller’s page does not mention counts as not offered, so a seller may include more if you ask them.</p>
+    <section class="cp-panel" aria-label="Filters and weights">
+      <div class="cp-row">
+        <label>Seller type <select id="cpType"></select></label>
+        <label>Search <input id="cpQ" type="search" placeholder="Almora, Lansdowne, seller" autocomplete="off"></label>
+      </div>
+      <div class="cp-weights" id="cpWeights"></div>
+    </section>
+    <section class="cp-verdict" id="cpVerdict" aria-live="polite"></section>
+    <section class="cp-list" id="cpList"></section>
+    <p class="cp-fine" id="cpFine"></p>
+  </main>
+  <script type="module" src="compare.js"></script>
+</body>
+</html>

@@ -56,6 +56,7 @@ const TOP_LEVEL_URLS = [
   `${SITE}/books/`,
   `${SITE}/map/`,
   `${SITE}/providers/join/`,
+  `${SITE}/compare/`,
   `${SITE}/local-business/`,
   `${SITE}/creators/join-artist.html`,
   `${SITE}/creators/artist-terms.html`,
