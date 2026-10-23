@@ -44,6 +44,7 @@ function rwPartnersSync(){
         try{ lsSet('rw_partners_cache', JSON.stringify(window.RW_PARTNERS)); }catch(e){ /* storage best-effort, ignore */ }
         if(el('partnersOut')) rwPartnersRender();
         if(typeof rwListingRepaint==='function') rwListingRepaint();
+        if(typeof rwPromoRepaint==='function') rwPromoRepaint();
       }
     }).catch(function(){});
   }catch(e){ /* best-effort Firestore write, ignore */ }

@@ -41,8 +41,13 @@
     var msg = 'Namaste ' + a.name + ', I found you through RoamWise. I would like to buy "' + w.title + '" (' + price + '). Please share availability, shipping and payment details.';
     return '<article class="rwx-card rwx-art" data-tilt><div class="rwx-img"><img loading="lazy" src="' + esc(w.image) + '" alt="' + esc(w.title + ', an original painting by ' + a.name) + '"><span class="rwx-tag">' + esc((w.type || 'Original').toUpperCase()) + '</span><span class="rwx-price">' + esc(price) + '</span></div><div class="rwx-b"><h3>' + esc(w.title) + '</h3><div class="rwx-area">&#127912; ' + esc(a.name) + ' &middot; ' + esc(a.studio || '') + '</div><a class="rwx-cta" target="_blank" rel="noopener" href="' + esc(wa(a.whatsapp, msg)) + '">Buy now <span>&rarr;</span></a></div></article>';
   }
+  /* The live partner list (Firestore, with the WhatsApp numbers owners gave on the join form) arrives after first paint.
+     rwPromoRepaint() redraws only when one of the promoted partners' numbers changed, so cards upgrade from email to WhatsApp. */
+  var lastSig = null;
+  function sig() { var P = partners(), c = window.__rwPromoIds || []; return c.map(function (id) { return id + ':' + ((P[id] || {}).bookingWhatsapp || ''); }).join('|'); }
   function run() { Promise.all([fetchJson('/data/home-promo.json'), fetchJson('/creators/artists-data.json')]).then(function (r) {
     var cfg = r[0], data = r[1], P = partners();
+    window.__rwPromoIds = (cfg.stays || []).map(function (c) { return c.partnerId; }).concat(cfg.nomad ? [cfg.nomad.partnerId] : []); lastSig = sig();
     var nm = cfg.nomad && P[cfg.nomad.partnerId] ? nomad(cfg.nomad, P[cfg.nomad.partnerId]) : '';
     var stays = (cfg.stays || []).map(function (c) { return P[c.partnerId] ? stay(c, P[c.partnerId]) : ''; }).join('');
     var a = (data.artists || []).filter(function (x) { return x.id === (cfg.art || {}).artistId; })[0], arts = '';
@@ -55,5 +60,6 @@
     function boot() { if (!/** @type {any} */ (window).rwCarousel) return setTimeout(boot, 200); ['Stays', 'Nomad', 'Art'].forEach(function (k) { var t = document.getElementById('rwx' + k); if (t) /** @type {any} */ (window).rwCarousel(t, { dots: document.getElementById('rwx' + k + 'Dots'), auto: k === 'Stays' ? 5200 : k === 'Nomad' ? 6000 : 4200 }); }); }
     boot();
   }).catch(function () { host.style.display = 'none'; }); }
+  /** @type {any} */ (window).rwPromoRepaint = function () { if (lastSig !== null && sig() !== lastSig) run(); };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run); else run();
 })();
