@@ -301,19 +301,15 @@ function rwStopCountdown(){ if(_cdTimer){ clearInterval(_cdTimer); _cdTimer=null
 })();
 
 /* PAYMENT */
-/* ===== TESTIMONIALS: edit this list with REAL user quotes when you have them.
-   Each = [quote, who]. They rotate each time the pay modal opens. ===== */
-var RW_TESTIMONIALS = [
-  ['Planned our whole Manali trip in one evening \u2014 the budget split alone saved us so many arguments.', '\u2014 Priya, group trip to Himachal'],
-  ['The \u20b9100 was the easiest yes ever. Made a 5-day Goa plan with costs in minutes.', '\u2014 Rahul, Bengaluru'],
-  ['Finally a planner that gets Indian trips \u2014 crowds, budgets, everything in one place.', '\u2014 Sneha, Delhi']
-];
+/* ===== TESTIMONIALS: only add REAL, consented customer quotes here: [quote, who].
+   While this list is empty the testimonial block stays hidden (no placeholder quotes). ===== */
+var RW_TESTIMONIALS = [];
 var _rwTestiIdx = 0;
 function rwRotateTesti(){
   if(!RW_TESTIMONIALS.length) return;
   var t = RW_TESTIMONIALS[_rwTestiIdx % RW_TESTIMONIALS.length];
   _rwTestiIdx++;
-  var q=el('testiQuote'), w=el('testiWho');
+  var q=el('testiQuote'), w=el('testiWho'), box=el('payTesti'); if(box) box.style.display='';
   if(q) q.innerHTML='\u201c'+t[0]+'\u201d';
   if(w) w.innerHTML=t[1];
 }
