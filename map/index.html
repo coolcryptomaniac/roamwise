@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#08070d">
   <title>Uttarakhand map: stays, food and culture | RoamWise</title>
-  <meta name="description" content="Tap a place in Uttarakhand to see RoamWise partner stays, local food, culture and how to get there. Almora, Lansdowne, Nainital, Rishikesh and more.">
+  <meta name="description" content="Swipe through all 13 districts of Uttarakhand. See what makes each one different, where RoamWise partner stays are, local food, culture and how to get there.">
   <link rel="canonical" href="https://roamwise.co.in/map/"><link rel="icon" href="../icons/favicon-32.png">
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../vendor/leaflet/leaflet.css">
@@ -12,18 +12,24 @@
 <body>
   <header class="mp-top">
     <a href="../" class="mp-brand"><img src="../icons/icon-192.png" alt=""><b>Roam<span>Wise</span></b></a>
-    <label class="mp-search"><span class="mp-sr">Search places</span><input id="mpQ" type="search" placeholder="Search Almora, Rishikesh&hellip;" autocomplete="off"></label>
+    <label class="mp-search"><span class="mp-sr">Search districts and places</span><input id="mpQ" type="search" placeholder="Search a district or place&hellip;" autocomplete="off"></label>
     <div class="mp-chips" id="mpChips" role="group" aria-label="Region"></div>
   </header>
   <main class="mp-main">
-    <div id="mpMap" class="mp-map" role="application" aria-label="Map of Uttarakhand. Use the place list below as a keyboard alternative."></div>
-    <aside id="mpSheet" class="mp-sheet" aria-live="polite" aria-label="Place details" tabindex="-1">
-      <button type="button" class="mp-grab" id="mpGrab" aria-label="Show or hide place details" aria-expanded="false"></button>
-      <div id="mpBody" class="mp-body"><p class="mp-empty">Tap a place on the map to see where to stay, what to eat and what to see.</p></div>
+    <div class="mp-left">
+      <div id="mpMap" class="mp-map" role="application" aria-label="Map of Uttarakhand. Use the district cards below as a keyboard alternative."></div>
+      <section class="mp-car" aria-label="Districts of Uttarakhand">
+        <div class="mp-car-bar"><b>13 districts</b><span id="mpCount" aria-live="polite"></span><span class="mp-arrows"><button type="button" id="mpPrev" aria-label="Previous district">&#8249;</button><button type="button" id="mpNext" aria-label="Next district">&#8250;</button></span></div>
+        <div id="mpTrack" class="mp-track" tabindex="-1"></div>
+        <p id="mpEmpty" class="mp-empty" hidden>No district matches that search.</p>
+      </section>
+    </div>
+    <aside id="mpSheet" class="mp-sheet" aria-live="polite" aria-label="District details" tabindex="-1">
+      <div id="mpBody" class="mp-body"><p class="mp-empty">Swipe the district cards to explore. The map follows, and RoamWise partners appear as gold pins.</p></div>
     </aside>
   </main>
-  <nav class="mp-list" aria-label="All places"><ul id="mpList"></ul></nav>
-  <p class="mp-fine">Marker positions are approximate. Partners shown are those RoamWise has listed publicly; &ldquo;enquiries only&rdquo; means the agreement is still pending. Map data &copy; OpenStreetMap contributors.</p>
+  <nav class="mp-list" aria-label="All districts"><ul id="mpList"></ul></nav>
+  <p class="mp-fine">Map positions are approximate; partner pins sit around the town, not on the building. Partners shown are those RoamWise has listed publicly; &ldquo;enquiries only&rdquo; means the agreement is still pending. Map data &copy; OpenStreetMap contributors.</p>
   <script src="../vendor/leaflet/leaflet.js"></script>
   <script src="../partners-data.js"></script>
   <script type="module" src="map.js"></script>
