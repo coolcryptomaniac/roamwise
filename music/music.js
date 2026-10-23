@@ -1,6 +1,6 @@
 // music/music.js - the music library page: stage (carousel, visualiser, controls, moods) and the bookshelf.
 // Data: releases.json (albums with a YouTube playlist). Playback: the YouTube iframe player, loaded only when you press play.
-import { cleanReleases, groupByYear, shelves, spineStyle, fmtDuration, filterReleases, musicUrl, albumUrl, coverOf, MOODS, byMood, smartMood, makeQueue, advance, lighten } from './shelf-core.mjs';
+import { cleanReleases, groupByYear, shelves, spineStyle, fmtDuration, filterReleases, musicUrl, albumUrl, ytmUrl, coverOf, MOODS, byMood, smartMood, makeQueue, advance, lighten } from './shelf-core.mjs';
 import { mountViz, mountDust } from './viz.js';
 import { mountCarousel } from './carousel.js';
 import { createSpotify } from './spotify.js';
@@ -122,7 +122,7 @@ function show(r) {
   $('muTitle').textContent = r.title; $('muTrack').textContent = '';
   showEngine(r);
   $('muSub').textContent = state.mood ? (MOODS.find((m) => m.id === state.mood) || {}).label + ' mix · ' + (state.queue.index + 1) + ' of ' + state.queue.items.length : (r.published ? r.published.slice(0, 4) : 'Mohit Pandey') + ' · ' + (state.queue.index + 1) + ' of ' + state.queue.items.length;
-  $('muYTM').href = r.playlist ? albumUrl(r.playlist) : musicUrl(r.id);
+  $('muYTM').href = ytmUrl(r.id, r.playlist);
   $('muMiniCover').style.backgroundImage = 'url("' + coverOf(r) + '")'; $('muMiniTitle').textContent = r.title;
   document.body.style.setProperty('--glow', lighten(s.from, 0.45));
   document.querySelectorAll('.mu-spine').forEach((b) => b.classList.toggle('on', b.dataset.id === r.id));

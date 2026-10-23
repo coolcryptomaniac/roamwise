@@ -82,6 +82,8 @@ export function neighbour(list, id, dir, shuffle = false, rand = Math.random) {
 }
 
 export const albumUrl = (playlist) => 'https://music.youtube.com/playlist?list=' + playlist;
+/* The song inside its album, as YouTube Music opens it (app or web). */
+export const ytmUrl = (id, playlist) => 'https://music.youtube.com/watch?v=' + id + (playlist ? '&list=' + playlist : '');
 export const watchUrl = (id) => 'https://www.youtube.com/watch?v=' + id;
 export const musicUrl = (id) => 'https://music.youtube.com/watch?v=' + id;
 export const coverUrl = (id) => 'https://i.ytimg.com/vi/' + id + '/hqdefault.jpg';

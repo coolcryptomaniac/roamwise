@@ -27,10 +27,11 @@
       var x = el('button', 'rwm-cb ' + b[0], b[1]); x.type = 'button'; x.setAttribute('aria-label', b[2]); ctl.appendChild(x);
     });
     var eng = el('span', 'rwm-eng'); eng.setAttribute('role', 'group'); eng.setAttribute('aria-label', 'Player');
-    ['spotify', 'youtube'].forEach(function (k) { var x = el('button', '', k === 'spotify' ? 'Spotify' : 'YouTube'); x.type = 'button'; x.dataset.eng = k; x.onclick = function () { engine = k; try { localStorage.setItem('mu-engine', k); } catch (e) {} if (cur) playAlbum(cur.pl, cur.title, cur.sp); }; eng.appendChild(x); });
+    ['spotify', 'youtube'].forEach(function (k) { var x = el('button', '', k === 'spotify' ? 'Spotify' : 'YouTube'); x.type = 'button'; x.dataset.eng = k; x.onclick = function () { engine = k; try { localStorage.setItem('mu-engine', k); } catch (e) {} if (cur) playAlbum(cur.pl, cur.title, cur.sp, cur.ytm); }; eng.appendChild(x); });
     bar.appendChild(vid); bar.appendChild(info); bar.appendChild(eng);
+    var ym = el('a', 'rwm-ytm2', 'Play in YouTube Music app'); ym.target = '_blank'; ym.rel = 'noopener noreferrer';
     var ytm = el('a', 'rwm-ytm', 'Open in YouTube Music'); ytm.target = '_blank'; ytm.rel = 'noopener noreferrer';
-    bar.appendChild(ctl); bar.appendChild(ytm); var host0 = document.getElementById('rwMusic'); var anchor = row.parentNode.classList.contains('rwm-rowwrap') ? row.parentNode : row; anchor.parentNode.insertBefore(bar, anchor);
+    bar.appendChild(ctl); bar.appendChild(ytm); bar.appendChild(ym); var host0 = document.getElementById('rwMusic'); var anchor = row.parentNode.classList.contains('rwm-rowwrap') ? row.parentNode : row; anchor.parentNode.insertBefore(bar, anchor);
     bar.querySelector('.rwm-prev').onclick = function () { try { yt.previousVideo(); } catch (e) {} };
     bar.querySelector('.rwm-next').onclick = function () { try { yt.nextVideo(); } catch (e) {} };
     bar.querySelector('.rwm-pp').onclick = function () { try { yt.getPlayerState() === 1 ? yt.pauseVideo() : yt.playVideo(); } catch (e) {} };
@@ -63,8 +64,8 @@
       });
     }).catch(function () { bar.querySelector('.rwm-bs').textContent = 'Spotify is blocked here \u2014 tap the link below.'; });
   }
-  function playAlbum(pl, title, spId) {
-    cur = { pl: pl, title: title, sp: spId };
+  function playAlbum(pl, title, spId, ytm) {
+    cur = { pl: pl, title: title, sp: spId, ytm: ytm || (cur && cur.ytm) };
     if (!bar) buildBar();
     var useSpot = engine === 'spotify' && !!spId || (!pl && !!spId);
     var first = !bar.classList.contains('on'); bar.classList.add('on');
@@ -73,6 +74,7 @@
     document.getElementById('rwmSp').hidden = !useSpot; document.getElementById('rwmFrame').hidden = useSpot;
     bar.querySelectorAll('.rwm-eng button').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.eng === (useSpot ? 'spotify' : 'youtube'))); b.disabled = (b.dataset.eng === 'spotify' && !spId) || (b.dataset.eng === 'youtube' && !pl); });
     bar.querySelector('.rwm-bt').textContent = title; bar.querySelector('.rwm-bs').textContent = useSpot ? 'Playing from Spotify' : 'Loading\u2026';
+    if (cur.ytm) bar.querySelector('.rwm-ytm2').href = cur.ytm;
     var link = bar.querySelector('.rwm-ytm');
     link.textContent = useSpot ? 'Open in Spotify' : 'Open in YouTube Music';
     link.href = useSpot ? 'https://open.spotify.com/album/' + encodeURIComponent(spId) : 'https://music.youtube.com/playlist?list=' + encodeURIComponent(pl);
@@ -99,7 +101,7 @@
     list.filter(function (r) { return r && /^[A-Za-z0-9_-]{11}$/.test(r.id || '') && r.title && !seen[r.id] && (seen[r.id] = 1); })
       .sort(function (a, b) { return String(b.published || '').localeCompare(String(a.published || '')); })
       .slice(0, 14).forEach(function (r) {
-        var a = document.createElement('a'); a.className = 'rwm-it'; a.href = 'https://music.youtube.com/playlist?list=' + (r.playlist || ''); a.dataset.id = r.id; a.dataset.pl = r.playlist || ''; a.dataset.sp = /^https:\/\/open\.spotify\.com\/album\/[A-Za-z0-9]{10,40}$/.test(r.spotify || '') ? r.spotify.split('/').pop() : ''; a.setAttribute('role', 'listitem'); if (!r.playlist && !a.dataset.sp) a.href = '/music/#' + r.id; else if (a.dataset.sp) a.href = 'https://open.spotify.com/album/' + a.dataset.sp;
+        var a = document.createElement('a'); a.className = 'rwm-it'; a.href = 'https://music.youtube.com/playlist?list=' + (r.playlist || ''); a.dataset.id = r.id; a.dataset.ytm = 'https://music.youtube.com/watch?v=' + r.id + (r.playlist ? '&list=' + r.playlist : ''); a.dataset.pl = r.playlist || ''; a.dataset.sp = /^https:\/\/open\.spotify\.com\/album\/[A-Za-z0-9]{10,40}$/.test(r.spotify || '') ? r.spotify.split('/').pop() : ''; a.setAttribute('role', 'listitem'); if (!r.playlist && !a.dataset.sp) a.href = '/music/#' + r.id; else if (a.dataset.sp) a.href = 'https://open.spotify.com/album/' + a.dataset.sp;
         var c = document.createElement('div'); c.className = 'rwm-cov';
         var i = document.createElement('img'); i.loading = 'lazy'; i.alt = ''; if (r.art && /^https:\/\/(image-cdn[a-z0-9-]*\.spotifycdn\.com|i\.scdn\.co)\//.test(r.art)) { i.src = r.art; c.classList.add('sq'); } else i.src = 'https://i.ytimg.com/vi/' + r.id + '/hqdefault.jpg'; c.appendChild(i);
         var p = document.createElement('span'); p.className = 'rwm-play'; p.setAttribute('aria-hidden', 'true'); p.textContent = '▶'; c.appendChild(p);
@@ -108,7 +110,7 @@
       });
     row.addEventListener('click', function (e) {
       var a = e.target.closest && e.target.closest('.rwm-it'); if (!a || (!a.dataset.pl && !a.dataset.sp)) return;
-      e.preventDefault(); if (activeEl) activeEl.classList.remove('on'); activeEl = a; a.classList.add('on'); a.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' }); playAlbum(a.dataset.pl, a.querySelector('.rwm-t').textContent, a.dataset.sp);
+      e.preventDefault(); if (activeEl) activeEl.classList.remove('on'); activeEl = a; a.classList.add('on'); a.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' }); playAlbum(a.dataset.pl, a.querySelector('.rwm-t').textContent, a.dataset.sp, a.dataset.ytm);
     });
     var wrap = el('div', 'rwm-rowwrap'); row.parentNode.insertBefore(wrap, row); wrap.appendChild(row);
     ['prev', 'next'].forEach(function (d) {
