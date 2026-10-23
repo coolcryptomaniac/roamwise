@@ -25,18 +25,21 @@
       "name": "Prachi (Deliciously Directionless)",
       "platform": "blog",
       "url": "https://deliciouslydirectionless.com/",
-      "baseCity": "",
-      "baseConfirmed": false,
-      "email": "",
-      "emailSource": "",
+      "baseCity": "mumbai",
+      "baseConfirmed": true,
+      "email": "prachi.patange@gmail.com",
+      "emailSource": "https://deliciouslydirectionless.com/hire-me/ (published by creator, obfuscated)",
       "contactRoute": "https://deliciouslydirectionless.com/hire-me/",
-      "status": "needs-email",
-      "found": "Food and travel blog with a Kumaon food post; base city not confirmed.",
+      "status": "sent",
+      "found": "Mumbai-based freelance food/travel writer; own hire-me page publishes contact email. Personalised on Conde Nast Traveller x District Top Restaurant Awards jury post.",
       "niches": [
         "food",
         "travel"
       ],
-      "sentFor": []
+      "sentFor": [
+        "milan-heights"
+      ],
+      "sentOn": "2026-10-23"
     },
     {
       "id": "ananyaaa-negi",
