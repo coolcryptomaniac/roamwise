@@ -47,7 +47,7 @@ window.RW_PARTNER_SEED = [{
      No WhatsApp number or photos are on file yet, so the listing routes guests through the
      RoamWise stays flow rather than a direct chat. Add bookingWhatsapp/photos when received. */
   id:'p_soulmate_homestay', cat:'stay', zone:'Almora', area:'Kotyura',
-  name:'Soulmate Homestay', verified:'signed', listingReady:true,
+  name:'Soulmate Homestay', verified:'signed', listingReady:true, bookingMode:'whatsapp', bookingWhatsapp:'919105334889',
   photos:[
     {src:'assets/property-photos/soulmate-front.jpg',alt:'Soulmate Homestay and restaurant entrance with yellow steps in Kotyura, Almora',caption:'Entrance · photo shared for this listing'},
     {src:'assets/property-photos/soulmate-cafe.jpg',alt:'Soulmate cafe seating with a wooden wall and cow mural',caption:'Cafe seating · photo shared for this listing'},
