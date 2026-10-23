@@ -108,3 +108,14 @@ body.mu-playing .mu-arm{transform:rotate(4deg)}
 .mu-ytm:before{content:"\25B6";font-size:11px}
 @media(prefers-reduced-motion:reduce){.mu-arm{transition:none}}
 #muMiniCover{background-size:178% auto;background-position:center;background-repeat:no-repeat}
+/* Spotify engine */
+.mc-art.sq{background-size:cover}
+.mu-video-slot.sp{aspect-ratio:auto;min-height:352px;background:transparent;border-color:rgba(30,215,96,.35)}
+.mu-sp-host{position:absolute;inset:0;border-radius:14px;overflow:hidden}.mu-sp-host iframe{width:100%!important;height:100%!important;border:0;display:block}
+.mu-eng{display:inline-flex;border:1px solid rgba(217,180,105,.45);border-radius:999px;overflow:hidden}
+.mu-eng button{font:700 12px Outfit,system-ui,sans-serif;padding:8px 12px;border:0;background:rgba(0,0,0,.3);color:var(--paper);cursor:pointer}
+.mu-eng button[aria-pressed="true"]{background:linear-gradient(180deg,#fff0c2,#d9b469);color:#2b1a10}
+.mu-eng button:disabled{opacity:.35;cursor:not-allowed}
+body.mu-sp .mu-vol{display:none}
+body.mu-stage-away.mu-started.mu-sp .mu-video-slot{position:relative}
+#muVideoBox[hidden],.mu-sp-host[hidden]{display:none}

@@ -1,6 +1,6 @@
 // music/carousel.js - 3D album carousel: drag, swipe, arrow keys, click a side album to bring it forward.
 // The centre album shows a vinyl record sliding out of its sleeve; it spins while music plays.
-import { coverUrl, spineStyle } from './shelf-core.mjs';
+import { coverOf, spineStyle } from './shelf-core.mjs';
 
 const esc = (v) => String(v == null ? '' : v).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
@@ -13,7 +13,7 @@ export function mountCarousel(root, { onChange, onActivate }) {
     track.innerHTML = items.map((r, i) => {
       const s = spineStyle(r);
       return '<button type="button" class="mc-card" data-i="' + i + '" aria-label="' + esc(r.title) + '" style="--a:' + s.from + ';--b:' + s.to + '">'
-        + '<span class="mc-disc" style="--cover:url(\'' + coverUrl(r.id) + '\')"></span><span class="mc-art" style="--img:url(\'' + coverUrl(r.id) + '\')"></span><span class="mc-gloss"></span></button>';
+        + '<span class="mc-disc" style="--cover:url(\'' + coverOf(r) + '\')"></span><span class="mc-art' + (r.art ? ' sq' : '') + '" style="--img:url(\'' + coverOf(r) + '\')"></span><span class="mc-gloss"></span></button>';
     }).join('');
     cards = [...track.children]; layout();
   }

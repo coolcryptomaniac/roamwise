@@ -25,7 +25,8 @@ export function cleanReleases(list) {
     const seq = Number.isFinite(Number(r.seq)) ? Number(r.seq) : 0;
     const moods = (Array.isArray(r.moods) ? r.moods : []).filter((m) => MOOD_IDS.has(m));
     const spotify = /^https:\/\/open\.spotify\.com\/album\/[A-Za-z0-9]{10,40}$/.test(String(r.spotify || '')) ? String(r.spotify) : '';
-    out.push({ id, title, published, durationSec: sec, playlist: pl, seq, moods, spotify });
+    const art = /^https:\/\/(image-cdn[a-z0-9-]*\.spotifycdn\.com|i\.scdn\.co)\/image\/[A-Za-z0-9]+$/.test(String(r.art || '')) ? String(r.art) : '';
+    out.push({ id, title, published, durationSec: sec, playlist: pl, seq, moods, spotify, art });
   }
   return out.sort((a, b) => (a.published < b.published ? 1 : a.published > b.published ? -1 : b.seq - a.seq || a.title.localeCompare(b.title)));
 }
@@ -84,6 +85,8 @@ export const albumUrl = (playlist) => 'https://music.youtube.com/playlist?list='
 export const watchUrl = (id) => 'https://www.youtube.com/watch?v=' + id;
 export const musicUrl = (id) => 'https://music.youtube.com/watch?v=' + id;
 export const coverUrl = (id) => 'https://i.ytimg.com/vi/' + id + '/hqdefault.jpg';
+/* Real square album art from Spotify when we have it, else the YouTube thumbnail. */
+export const coverOf = (r) => (r && r.art) || coverUrl(r && r.id);
 
 /* Albums tagged with a mood. */
 export const byMood = (list, mood) => list.filter((r) => (r.moods || []).includes(mood));
