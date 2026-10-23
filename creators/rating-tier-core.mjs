@@ -37,6 +37,15 @@ export function rateTier(m = {}, opts = {}) {
   if (followers >= 10000 && views && vpf < 0.02) { redFlags.push('dead_reach'); reasons.push('reels reach under 2% of followers'); }
   if (followers >= 20000 && er && er < expectedEngagementPct(followers) / 4) { if (!redFlags.includes('low_engagement')) redFlags.push('low_engagement'); reasons.push('engagement is a quarter of what is normal for this size'); }
 
+  /* Extra signals only exist when Instagram's own API was used: they explain, and cap, but never accuse on their own. */
+  const sg = opts.signals || {};
+  const capReasons = [];
+  if (num(sg.giveaways) >= 3) capReasons.push(`${num(sg.giveaways)} giveaways in the last posts (followers may be prize-chasers)`);
+  if (num(sg.viralDependence) >= 10) capReasons.push('one post carries most of the engagement');
+  if (num(sg.commentToLike) >= 25) capReasons.push('unusually many comments per like (possible comment pods)');
+  if (num(sg.adSharePct) >= 70) capReasons.push('feed is mostly ads');
+  if (num(sg.lastPostDays) >= 45 && sg.lastPostDays != null) capReasons.push(`no post for ${num(sg.lastPostDays)} days`);
+
   if (redFlags.length) tier = 'mirage';
   else if (!followers || (followers < 1000 && !bookings)) { tier = 'basecamp'; reasons.push(followers ? 'under 1,000 followers' : 'follower count not given'); }
   else if (q.score >= 60 && !q.flags.includes('low_reach') && !q.flags.includes('inactive_lately')) { tier = 'ridge'; reasons.push(...q.why.slice(0, 2)); }
@@ -50,6 +59,8 @@ export function rateTier(m = {}, opts = {}) {
   if (tier === 'ridge' && !verified) reasons.push('numbers are self-reported, not yet checked');
   if (clicks >= 50 && !bookings && TIERS.indexOf(tier) > TIERS.indexOf('trail')) { tier = 'trail'; reasons.push(`${clicks} clicks but no bookings yet`); }
 
+  if (capReasons.length && TIERS.indexOf(tier) > TIERS.indexOf('trail')) { tier = 'trail'; }
+  if (capReasons.length) reasons.push(...capReasons.slice(0, 2));
   let overridden = false;
   if (TIERS.includes(opts.override)) { overridden = opts.override !== tier; tier = opts.override; if (overridden) reasons.unshift('set by the RoamWise founder'); }
 
@@ -60,7 +71,7 @@ export function rateTier(m = {}, opts = {}) {
     ridge: verified ? `Bring ${Math.max(0, SUMMIT.minBookings - bookings)} more verified bookings${followers < SUMMIT.minFollowers ? ' and grow past 50,000 followers' : ''} for Summit.` : 'Get your Insights numbers checked, then bring bookings for Summit.',
     summit: 'Top tier.',
   }[tier];
-  return { tier, ...TIER_INFO[tier], reasons: [...new Set(reasons)].slice(0, 4), next, evidence: verified ? 'checked' : 'self-reported', score: q.score, overridden };
+  return { tier, ...TIER_INFO[tier], reasons: [...new Set(reasons)].slice(0, 4), next, evidence: verified ? (opts.viaInstagram ? 'instagram' : 'checked') : 'self-reported', score: q.score, overridden };
 }
 
 /** Rank value used to prefer better tiers when scores tie. */
