@@ -11,7 +11,7 @@ export const WHATSAPP = '919987379730'; // RoamWise business number (js/copilot/
 export const PACKAGES = Object.freeze({
   almora: {
     id: 'almora', name: 'Almora Food Trail', tagline: 'Yaadein le jayein: food, ridges and temples from a hill kitchen',
-    nights: 3, days: 4, start: 'Kathgodam station', stay: 'Milan Heights, Dharanaula, Almora', accent: '#E8BA6C',
+    nights: 3, days: 4, start: 'Kathgodam station', stay: 'Milan Heights, Milan Chowk, Almora', accent: '#E8BA6C',
     status: 'open', statusNote: 'Pilot batch: the stay confirms rooms and the student rate when you ask for dates.',
     itinerary: [
       { title: 'Arrive and taste', plan: 'Meet at Kathgodam, ride up the hill (about 3 hours), check in, evening food walk: bal mithai, singori, Kumaoni snacks.', memory: 'The first group photo with the hills behind you.' },

@@ -206,7 +206,7 @@ def prop_card(im, photo, t, lt, name, sub, fx, fy, zoom0, h=1080, cw=900):
 def s_milan(t):
     lt = t - 19.5; im = vgrad((40, 18, 12), (16, 8, 30))
     sunb = sunburst(t, (80, 30, 20), (170, 80, 40), 14, .25); im = Image.blend(im, sunb, .35)
-    prop_card(im, MILAN, t, lt, 'MILAN HEIGHTS', 'Dharanaula, Almora  ·  stay + restaurant', .5, .35, 1.0)
+    prop_card(im, MILAN, t, lt, 'MILAN HEIGHTS', 'Milan Chowk, Almora  ·  stay + restaurant', .5, .35, 1.0)
     badge(im, W / 2, 232, '⭐ EXCLUSIVE ROAMWISE TIE-UP', 38, GOLD, INK, a=clamp((lt - .5) / .3))
     stamp(im, 760, 1010, [('₹1,500 – ₹3,000', 66), ('/ night + GST', 38)], 2.7, lt, (232, 186, 108), INK)
     speech(im, 400, 1500, '🧑', 'Neeche gaming zone bhi hai?! 🎮', 4.2, lt, 44)

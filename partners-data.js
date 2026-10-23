@@ -32,12 +32,12 @@ window.rwStayPublicEligible = function(p){
 /* Homepage pilot. The user confirmed Milan Heights has signed; availability,
    rates and the final reservation are still confirmed directly with the hotel. */
 window.RW_PARTNER_SEED = [{
-  id:'p_milan_heights', cat:'stay', zone:'Almora', area:'Dharanaula, opposite Milan Cafe',
+  id:'p_milan_heights', cat:'stay', zone:'Almora', area:'Milan Chowk, Almora',
   name:'Milan Heights', verified:'signed', listingReady:true, bookingMode:'whatsapp',
   bookingWhatsapp:'917302315845', supportEmail:'support@roamwise.co.in',
   badges:['partner'],
   photos:[
-    {src:'assets/property-photos/milan-heights-front.jpg',alt:'Milan Heights building and restaurant entrance in Dharanaula, Almora',caption:'Milan Heights frontage · photo shared for this listing'},
+    {src:'assets/property-photos/milan-heights-front.jpg',alt:'Milan Heights building and restaurant entrance at Milan Chowk, Almora',caption:'Milan Heights frontage · photo shared for this listing'},
     {src:'assets/property-photos/milan-heights-gaming.jpg',alt:'Milan Heights gaming zone with racing game screens and visitors',caption:'Gaming zone · photo from Milan Heights on Instagram'}
   ],
   instagramUrl:'https://www.instagram.com/milan_height/',
