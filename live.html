@@ -180,9 +180,9 @@ function cu(id,to,gold){var n=el(id);if(!n||!to)return;var t0=null,dur=1200;func
 el("cgrid").innerHTML=CLASSES.map(function(c,i){return "<button class=\"cbtn\" onclick=\"cpick("+i+")\">"+"<span class=\"ci\">"+c.icon+"</span>"+"<div class=\"cl\">"+esc(c.label)+"</div>"+"<div class=\"cr\">"+fmt(c.min)+(c.max<1000000000?" \u2013 "+fmt(c.max):"+")+  "</div></button>";}).join("");
 function cpick(i){picked=CLASSES[i];var bs=document.querySelectorAll(".cbtn");bs.forEach(function(b){b.classList.remove("on");});if(bs[i])bs[i].classList.add("on");if(!el("fAmt").value)el("fAmt").placeholder=picked.min.toLocaleString("en-IN");}
 function loadStats(){
-  function baseline(){el("sU").textContent="26";el("sP").textContent="500";el("sC").textContent="₹21K/mo";}
+  function baseline(){el("sU").textContent="26";el("sP").textContent="500";el("sC").textContent="₹14K/mo";}
   if(!db){baseline();return;}
-  db.collection("meta").doc("publicStats").onSnapshot(function(d){var v=d.exists?(d.data()||{}):{};var u=v.users!=null?v.users:26,r=v.revenue!=null?v.revenue:500;cu("sU",u,false);cu("sP",r,false);var cv=el("sC");if(cv)cv.textContent="₹21K/mo";},baseline);
+  db.collection("meta").doc("publicStats").onSnapshot(function(d){var v=d.exists?(d.data()||{}):{};var u=v.users!=null?v.users:26,r=v.revenue!=null?v.revenue:500;cu("sU",u,false);cu("sP",r,false);var cv=el("sC");if(cv)cv.textContent="₹14K/mo";},baseline);
   db.collection("meta").doc("investorStats").onSnapshot(function(d){
     var v=d.exists?(d.data()||{}):{},count=v.count||0,total=v.total||0,pct=RAISE>0?Math.min(100,Math.round(total/RAISE*100)):0;
     cu("sN",count,false);

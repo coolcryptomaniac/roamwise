@@ -338,7 +338,7 @@ let USERS=[],CLAIMS=[],PAYMENTS=[],LEDGER=[],VCS=[],CASHFREE_ORDERS=[],CURRENT_A
 let REFERRERS_LIVE=[],TEAM_ACCESS=[],DIRECT_PARTNERS=[],DIRECT_BOOKINGS=[],FINANCE_COSTS={},COMPLIANCE_OVERRIDES={},DEV_REQUESTS=[],LAST_LIABILITY=null,LAST_BUSINESS_SUMMARY=null,LAST_EBITDA=null,REV_TOTAL=0;
 let PROMO_CODES=[],NOTIFICATION_QUEUE=[],LEAN_OPS_POLICY={},LAST_LEAN_OPS=null,MFA_RESOLVER=null,MFA_VERIFICATION_ID="",MFA_ENROLLMENT_ID="",LOGIN_RECAPTCHA=null,ENROLL_RECAPTCHA=null;
 let RULES_TEXT="",RULES_INFO=null;
-let PITCH={users:26,revenue:500,burn:21000,team:3,min:500000,target:2500000,hard:5000000,stage:"Seed / late pre-seed",thesis:"The AI-native operating system between wanting to travel and completing the trip."};
+let PITCH={users:26,revenue:500,burn:14000,team:2,min:500000,target:2500000,hard:5000000,stage:"Seed / late pre-seed",thesis:"The AI-native operating system between wanting to travel and completing the trip."};
 const $=id=>document.getElementById(id); const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 function toast(msg,bad=false){const t=$("toast");t.textContent=msg;t.style.borderColor=bad?"var(--red)":"var(--green)";t.classList.remove("hidden");clearTimeout(t._timer);t._timer=setTimeout(()=>t.classList.add("hidden"),4500)}
 function money(n){return "₹"+Number(n||0).toLocaleString("en-IN")} function when(v){if(!v)return "—";try{const d=v.toDate?v.toDate():new Date(v);return d.toLocaleDateString("en-IN",{day:"numeric",month:"short",year:"numeric"})}catch{return "—"}} function inputDate(v){if(!v)return new Date().toISOString().slice(0,10);try{const d=v.toDate?v.toDate():new Date(v);return d.toISOString().slice(0,10)}catch{return new Date().toISOString().slice(0,10)}}

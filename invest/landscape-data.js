@@ -83,7 +83,7 @@ window.RW_FUNDING_CLIMATE = [
    ========================================================================= */
 window.RW_RESILIENCE = [
   { icon:'\ud83d\udd25', k:'Lean operating base',
-    v:'One founder, three interns, no office and no agency. Confirmed intern payroll burn is \u20b921,000 per month, before any future founder/cofounder salaries.',
+    v:'One founder, two interns, no office and no agency. Confirmed intern payroll burn is \u20b914,000 per month, before any future founder/cofounder salaries.',
     why:'The base is lean, but it is not zero. Hiring and distribution spend should unlock only against retention, paid conversion and revenue milestones.' },
 
   { icon:'\ud83d\udcb0', k:'Revenue from day one, three ways',

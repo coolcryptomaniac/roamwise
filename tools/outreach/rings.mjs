@@ -25,13 +25,15 @@ export function ringFor(city, from = ALMORA) {
 export function fromCity(city) { const c = CITIES[String(city || '').trim().toLowerCase()]; return c ? { lat: c[0], lon: c[1] } : ALMORA; }
 const ORDER = { near: 0, regional: 1, far: 2 };
 /* Next creators to email for one campaign: matching niche, confirmed base city, a public business email, not yet
-   contacted for this campaign; nearest ring (measured from the campaign city) first. */
+   contacted for this campaign; nearest ring (measured from the campaign city) first.
+   A campaign may set maxKm (food-vlogger and painting promotions use 90): anyone farther than that, or whose city is unknown, is never picked. */
 export function pickNext(creators, n = 3, campaign = { id: 'milan-heights', city: 'almora', niches: [] }) {
   const from = fromCity(campaign.city), want = (campaign.niches || []).map((x) => x.toLowerCase());
   return creators
     .filter((c) => c.status === 'pending' && c.baseConfirmed === true && /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(c.email || '') && ringFor(c.baseCity, from).ring !== 'unknown'
       && !(c.sentFor || []).includes(campaign.id) && (!want.length || (c.niches || []).some((x) => want.includes(String(x).toLowerCase()))))
     .map((c) => ({ c, r: ringFor(c.baseCity, from) }))
+    .filter((x) => !(campaign.maxKm > 0) || (x.r.km != null && x.r.km <= campaign.maxKm))
     .sort((a, b) => ORDER[a.r.ring] - ORDER[b.r.ring] || a.r.km - b.r.km)
     .slice(0, n).map((x) => ({ ...x.c, ring: x.r.ring, km: x.r.km }));
 }
