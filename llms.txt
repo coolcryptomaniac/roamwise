@@ -18,6 +18,13 @@
 - Founder offer: Pro for a one-time Rs 100 (lifetime), limited to the first 1,000 members
 - After the founder seats are filled, standard plans apply (daily, weekly, monthly, 3-month, yearly, lifetime); current prices are listed in the app's payment screen
 
+## Partners and matching
+- Partner chooser on the home page for travel creators, stays, painting artists, music artists, transport providers, colleges and local businesses
+- Explainable matching: each suggested stay lists the visible reasons it fits (same town, cafe or lounge space for art or music, direct WhatsApp contact for pickups, and so on). When nothing fits, it says so instead of forcing a match
+- Matches are suggestions only. Both sides approve the terms; RoamWise never moves money automatically
+- Paid Featured placement on the home page, labelled "Featured": Rs 500 for 7 days, Rs 1,000 for 15 days, Rs 2,000 for 30 days in the first position. Details: https://www.roamwise.co.in/feature/
+- Official payment address (also on https://www.roamwise.co.in/pay/): roamwisepay@ybl, account holder MOHIT PANDEY
+
 ## About
 - Made in Almora, Uttarakhand by Mohit Pandey
 - Web: https://www.roamwise.co.in

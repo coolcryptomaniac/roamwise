@@ -1,0 +1,4 @@
+{
+  "note": "Paid featured partners shown on the home page. Add an item only after payment and listing are confirmed. 'until' is the last day (YYYY-MM-DD, IST). tier is 2000, 1000 or 500. Items past 'until' are hidden automatically.",
+  "items": []
+}

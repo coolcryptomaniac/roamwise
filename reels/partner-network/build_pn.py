@@ -96,14 +96,22 @@ def s_engine(t):
     lt = t - 30.7; im = vgrad((8, 14, 40), (20, 8, 50)); im = Image.blend(im, sunburst(t, (20, 40, 110), (90, 50, 160), 14, .3), .35)
     text(im, (W / 2, 190), 'AUTO AI', int(110 * ease_out_back(lt / .35)) + 1, GOLD, stroke=10, sfill=INK)
     text(im, (W / 2, 330), 'MATCHING ENGINE', int(86 * ease_out_back((lt - .1) / .35)) + 1, (255, 255, 255), stroke=9, sfill=INK)
-    L = [(200, 560 + i * 170) for i in range(6)]; R = [(880, 560 + i * 170) for i in range(6)]
-    d = ImageDraw.Draw(im); pairs = [(0, 1), (1, 0), (2, 3), (3, 2), (4, 5), (5, 4)]
-    for n, (a, b) in enumerate(pairs):
-        k = clamp((lt - .8 - .35 * n) / .5)
+    text(im, (W / 2, 430), 'Har role ko sahi PROPERTY se', 46, CREAM, stroke=6, sfill=INK)
+    roles = [('🎥', 'Creator'), ('🎨', 'Painter'), ('🎶', 'Music'), ('🚕', 'Transport'), ('🎓', 'College')]
+    L = [(170, 590 + i * 200) for i in range(5)]
+    R = [(900, 690), (900, 990), (900, 1290)]
+    links = [(0, 0), (1, 1), (2, 2), (3, 0), (4, 1)]
+    d = ImageDraw.Draw(im)
+    for n, (a, b) in enumerate(links):
+        k = clamp((lt - .8 - .4 * n) / .5)
         if k > 0:
-            x1, y1 = L[a]; x2, y2 = R[b]; d.line((x1, y1, x1 + (x2 - x1) * k, y1 + (y2 - y1) * k), fill=GOLD + (255,), width=7)
-    for i, (x, y) in enumerate(L): put_emoji(im, ROLES6[i], x, y, 120)
-    for i, (x, y) in enumerate(R): put_emoji(im, ROLES6[(i + 1) % 6] if False else ROLES6[[1, 0, 3, 2, 5, 4][i]], x, y, 120)
+            x1, y1 = L[a]; x2, y2 = R[b]; d.line((x1 + 80, y1, x1 + 80 + (x2 - 70 - x1 - 80) * k, y1 + (y2 - y1) * k), fill=GOLD + (255,), width=7)
+    for i, (x, y) in enumerate(L):
+        put_emoji(im, roles[i][0], x, y - 12, 110); text(im, (x, y + 62), roles[i][1], 28, CREAM, stroke=4, sfill=INK)
+    for i, (x, y) in enumerate(R):
+        put_emoji(im, '🏡', x, y - 12, 130); text(im, (x, y + 70), 'Property', 28, CREAM, stroke=4, sfill=INK)
+    k = clamp((lt - 2.9) / .4)
+    if k > 0: put_emoji(im, '🤖', 540, 940, 150 * ease_out_back((lt - 2.9) / .4))
     if lt > 3.2: badge(im, W / 2, 1640, 'AI shortlists  ·  Dono taraf approve ✅', 38, (20, 150, 110), (255, 255, 255), a=clamp((lt - 3.2) / .3))
     if lt > 3.9: text(im, (W / 2, 1745), 'Paisa apne aap kabhi nahi hilta. Suggestion hai, promise nahi.', 28, (210, 200, 230), bold=False, stroke=3)
     return im
@@ -117,7 +125,8 @@ def s_cta(t):
     if lt > .6: text(im, (W / 2, 1180), 'roamwise.co.in', int(96 * ease_out_back((lt - .6) / .3)) + 1, GOLD, stroke=8, sfill=RED)
     if lt > 1.0: text(im, (W / 2, 1320), 'Homepage pe: "Partner with RoamWise"', 46, CREAM, stroke=6, sfill=RED)
     if lt > 1.5: text(im, (W / 2, 1450), 'Creators: free register 🎥', 54, (255, 255, 255), stroke=7, sfill=RED)
-    if lt > 1.9: text(im, (W / 2, 1600), 'Matches are suggestions, not promises.', 28, (255, 235, 220), bold=False, stroke=3)
+    if lt > 1.8: text(im, (W / 2, 1530), 'Top pe Featured: ₹500 se ₹2,000', 44, GOLD, stroke=6, sfill=RED)
+    if lt > 2.0: text(im, (W / 2, 1620), 'Matches are suggestions, not promises.', 28, (255, 235, 220), bold=False, stroke=3)
     rng = np.random.default_rng(3)
     for i in range(40):
         x = rng.uniform(0, W); sp = rng.uniform(300, 700); ph0 = rng.uniform(0, 3); y = ((lt * sp + ph0 * 500) % (H + 200)) - 100
