@@ -1,0 +1,281 @@
+[
+ {
+  "id": "almora",
+  "name": "Almora",
+  "region": "Kumaon",
+  "lat": 29.597,
+  "lng": 79.659,
+  "zoom": 10,
+  "tagline": "Ridge towns, temple trails and the heart of Kumaoni food and craft.",
+  "traits": [
+   "Bal mithai and singori sweets",
+   "Aipan floor art and Baithaki Holi",
+   "Kasar Devi and Jageshwar temples",
+   "Binsar and deodar forest walks"
+  ],
+  "places": [
+   "almora",
+   "jageshwar",
+   "ranikhet"
+  ],
+  "zones": [
+   "Almora"
+  ]
+ },
+ {
+  "id": "nainital",
+  "name": "Nainital",
+  "region": "Kumaon",
+  "lat": 29.391,
+  "lng": 79.454,
+  "zoom": 10,
+  "tagline": "Lakes, a Himalayan gateway and the edge of the Corbett jungle.",
+  "traits": [
+   "Naini, Bhimtal and Sattal lakes",
+   "Kainchi Dham ashram",
+   "Corbett safari base at Ramnagar",
+   "Kathgodam railhead and Haldwani"
+  ],
+  "places": [
+   "nainital",
+   "kainchi",
+   "corbett"
+  ],
+  "zones": [
+   "Nainital",
+   "Kainchi",
+   "Corbett"
+  ]
+ },
+ {
+  "id": "bageshwar",
+  "name": "Bageshwar",
+  "region": "Kumaon",
+  "lat": 29.838,
+  "lng": 79.771,
+  "zoom": 10,
+  "tagline": "The Kumaon snow-view ridge and the road to the Pindari glacier.",
+  "traits": [
+   "Kausani sunrise over the snow peaks",
+   "Baijnath temple group at Garur",
+   "Pindari and Kafni glacier treks",
+   "Uttarayani fair in January"
+  ],
+  "places": [
+   "kausani"
+  ],
+  "zones": [
+   "Kausani"
+  ]
+ },
+ {
+  "id": "pithoragarh",
+  "name": "Pithoragarh",
+  "region": "Kumaon",
+  "lat": 29.583,
+  "lng": 80.218,
+  "zoom": 9,
+  "tagline": "Far-east Kumaon, facing the Panchachuli peaks and the Johar valley.",
+  "traits": [
+   "Munsiyari and the Panchachuli view",
+   "Johar valley and its heritage museum",
+   "Gateway to the Adi Kailash route",
+   "Soar valley, a quieter hill basin"
+  ],
+  "places": [
+   "munsiyari"
+  ],
+  "zones": [
+   "Munsiyari"
+  ]
+ },
+ {
+  "id": "champawat",
+  "name": "Champawat",
+  "region": "Kumaon",
+  "lat": 29.334,
+  "lng": 80.091,
+  "zoom": 10,
+  "tagline": "Temples and tea gardens in the south-east corner, by the Nepal border.",
+  "traits": [
+   "Baleshwar temple, a medieval stone shrine",
+   "Mayawati Advaita Ashram near Lohaghat",
+   "Abbott Mount, a small hill retreat",
+   "Banbasa and the Sharda river border"
+  ],
+  "places": [],
+  "zones": [
+   "Champawat"
+  ]
+ },
+ {
+  "id": "udham-singh-nagar",
+  "name": "Udham Singh Nagar",
+  "region": "Kumaon",
+  "lat": 28.976,
+  "lng": 79.401,
+  "zoom": 10,
+  "tagline": "The flat terai, with farmland, Sikh heritage and big reservoirs.",
+  "traits": [
+   "Nanakmatta Sahib gurudwara",
+   "Nanak Sagar reservoir",
+   "Kashipur and Rudrapur markets",
+   "Rice and sugarcane farmland"
+  ],
+  "places": [],
+  "zones": [
+   "Rudrapur"
+  ]
+ },
+ {
+  "id": "dehradun",
+  "name": "Dehradun",
+  "region": "Garhwal",
+  "lat": 30.316,
+  "lng": 78.032,
+  "zoom": 10,
+  "tagline": "The capital: rail and air links, cafes, and the road up to Mussoorie.",
+  "traits": [
+   "Forest Research Institute campus",
+   "Landour and Mussoorie above the Mall",
+   "Rishikesh yoga and rafting nearby",
+   "Largest cluster of startup incubators"
+  ],
+  "places": [
+   "dehradun",
+   "mussoorie",
+   "rishikesh"
+  ],
+  "zones": [
+   "Dehradun",
+   "Mussoorie",
+   "Rishikesh"
+  ]
+ },
+ {
+  "id": "haridwar",
+  "name": "Haridwar",
+  "region": "Garhwal",
+  "lat": 29.946,
+  "lng": 78.164,
+  "zoom": 11,
+  "tagline": "Where the Ganga leaves the hills, a pilgrimage city on the Delhi rail line.",
+  "traits": [
+   "Ganga aarti at Har ki Pauri",
+   "A Kumbh Mela city",
+   "Old-bazaar kachori and sweets",
+   "Rajaji National Park on its edge"
+  ],
+  "places": [
+   "haridwar"
+  ],
+  "zones": [
+   "Haridwar"
+  ]
+ },
+ {
+  "id": "pauri-garhwal",
+  "name": "Pauri Garhwal",
+  "region": "Garhwal",
+  "lat": 30.153,
+  "lng": 78.78,
+  "zoom": 10,
+  "tagline": "Quiet oak and pine ridges, army heritage and the Lansdowne foothills.",
+  "traits": [
+   "Lansdowne and the Garhwal Rifles centre",
+   "Kotdwar, the railhead",
+   "Khirsu and Pauri viewpoints",
+   "Village homestays and Garhwali cooking"
+  ],
+  "places": [
+   "lansdowne"
+  ],
+  "zones": [
+   "Lansdowne"
+  ]
+ },
+ {
+  "id": "tehri-garhwal",
+  "name": "Tehri Garhwal",
+  "region": "Garhwal",
+  "lat": 30.378,
+  "lng": 78.434,
+  "zoom": 10,
+  "tagline": "A huge mountain lake, Dhanaulti forests and the temple ridges above it.",
+  "traits": [
+   "Tehri lake and its water sports",
+   "Dhanaulti and Kanatal forests",
+   "Surkanda Devi and Kunjapuri temples",
+   "Rafting stretches on the Ganga near Rishikesh"
+  ],
+  "places": [],
+  "zones": [
+   "Tehri",
+   "Dhanaulti"
+  ]
+ },
+ {
+  "id": "rudraprayag",
+  "name": "Rudraprayag",
+  "region": "Garhwal",
+  "lat": 30.285,
+  "lng": 78.981,
+  "zoom": 10,
+  "tagline": "Rivers meeting and the road to Kedarnath, Chopta and Tungnath.",
+  "traits": [
+   "Kedarnath shrine",
+   "Chopta and Tungnath, the high temple trek",
+   "Deoria Tal lake",
+   "Alaknanda meets Mandakini at Rudraprayag"
+  ],
+  "places": [
+   "kedarnath"
+  ],
+  "zones": [
+   "Kedarnath"
+  ]
+ },
+ {
+  "id": "chamoli",
+  "name": "Chamoli",
+  "region": "Garhwal",
+  "lat": 30.404,
+  "lng": 79.32,
+  "zoom": 9,
+  "tagline": "High Himalaya: Badrinath, Auli and the Valley of Flowers.",
+  "traits": [
+   "Badrinath shrine",
+   "Auli meadows and winter skiing",
+   "Valley of Flowers and Hemkund Sahib",
+   "Nanda Devi National Park"
+  ],
+  "places": [
+   "badrinath",
+   "auli"
+  ],
+  "zones": [
+   "Badrinath",
+   "Auli"
+  ]
+ },
+ {
+  "id": "uttarkashi",
+  "name": "Uttarkashi",
+  "region": "Garhwal",
+  "lat": 30.727,
+  "lng": 78.445,
+  "zoom": 9,
+  "tagline": "The source rivers: Gangotri, Yamunotri and high meadow treks.",
+  "traits": [
+   "Gangotri and Yamunotri shrines",
+   "Harsil valley and its apple orchards",
+   "Dodital and Dayara Bugyal treks",
+   "Nehru Institute of Mountaineering"
+  ],
+  "places": [],
+  "zones": [
+   "Uttarkashi",
+   "Harsil"
+  ]
+ }
+]

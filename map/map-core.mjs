@@ -22,7 +22,7 @@ export function cleanPlaces(raw) {
     seen.add(id);
     const t = p.travel || {};
     return {
-      id, name: txt(p.name, 50), region: p.region, zone: txt(p.zone || p.name, 40), lat, lng,
+      id, name: txt(p.name, 50), region: p.region, zone: txt(p.zone || p.name, 40), lat, lng, district: txt(p.district, 40).toLowerCase().replace(/[^a-z-]/g, ''),
       page: typeof p.page === 'string' && PAGE_RE.test(p.page) ? p.page : '', pageLabel: txt(p.pageLabel, 60),
       blurb: txt(p.blurb, 200), culture: list(p.culture, 6, 160), food: list(p.food, 6, 160),
       travel: { reach: txt(t.reach, 200), best: txt(t.best, 120), tip: txt(t.tip, 200) },
@@ -44,6 +44,43 @@ export function tierOf(p) {
 
 /** Safe card model for a partner: no phone numbers or emails are ever passed to the page. */
 export const partnerCard = (p) => ({ id: String(p.id || ''), name: txt(p.name, 80), area: txt(p.area, 100), type: txt(p.propertyType || p.cat || 'stay', 30), tier: tierOf(p) });
+
+/** Districts: well-formed rows only. `places` keeps only ids that exist; `zones` are partner zones that belong to the district. */
+export function cleanDistricts(raw, places) {
+  if (!Array.isArray(raw)) return [];
+  const ids = new Set((places || []).map((p) => p.id)), seen = new Set();
+  return raw.map((d) => {
+    if (!d || typeof d !== 'object') return null;
+    const id = txt(d.id, 40).toLowerCase().replace(/[^a-z-]/g, ''), lat = Number(d.lat), lng = Number(d.lng), zoom = Math.round(Number(d.zoom));
+    if (!id || seen.has(id) || !REGIONS.includes(d.region)) return null;
+    if (!(lat >= BOUNDS.south && lat <= BOUNDS.north && lng >= BOUNDS.west && lng <= BOUNDS.east)) return null;
+    seen.add(id);
+    return { id, name: txt(d.name, 40), region: d.region, lat, lng, zoom: zoom >= 7 && zoom <= 12 ? zoom : 10, tagline: txt(d.tagline, 160),
+      traits: list(d.traits, 5, 100), places: list(d.places, 8, 30).filter((x) => ids.has(x)), zones: list(d.zones, 8, 40) };
+  }).filter(Boolean);
+}
+
+export const partnersForDistrict = (partners, d) => (Array.isArray(partners) ? partners : [])
+  .filter((p) => isPublicPartner(p) && d.zones.some((z) => z.toLowerCase() === String(p.zone || '').toLowerCase()));
+
+/** Google Maps search link built only from the partner's public name and area; the exact spot is resolved by Google, not guessed here. */
+export const mapsLink = (p) => 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent([txt(p.name, 80), txt(p.area, 100)].filter(Boolean).join(' '));
+
+/** One pin per public partner, placed at its town (never invented building coordinates). `slot`/`of` let the page fan pins
+ *  that share a town out in screen pixels so they do not hide each other. `approx` is always true: the page says so. */
+export function partnerPins(partners, d, places) {
+  const found = partnersForDistrict(partners, d);
+  return found.map((p, i) => {
+    const town = (places || []).find((pl) => pl.zone.toLowerCase() === String(p.zone || '').toLowerCase()) || d;
+    return { card: partnerCard(p), maps: mapsLink(p), lat: town.lat, lng: town.lng, slot: i, of: found.length, approx: true };
+  });
+}
+
+export const searchDistricts = (districts, places, q) => {
+  const s = String(q || '').toLowerCase().trim();
+  if (!s) return districts;
+  return districts.filter((d) => (d.name + ' ' + d.region + ' ' + d.tagline + ' ' + d.traits.join(' ') + ' ' + d.places.map((id) => (places.find((p) => p.id === id) || {}).name || '').join(' ')).toLowerCase().includes(s));
+};
 
 export const searchPlaces = (places, q) => {
   const s = String(q || '').toLowerCase().trim();
