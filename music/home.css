@@ -35,3 +35,10 @@
 .rwm-ytm{justify-self:center;padding:9px 16px;border-radius:999px;background:linear-gradient(180deg,#fff0c2,#d9b469);color:#2b1a10;text-decoration:none}
 .rwm-bar .rwm-bt{font-size:18px}.rwm-bar .rwm-bs{white-space:normal}
 @media(prefers-reduced-motion:reduce){.rwm-bar.on{animation:none}}
+.rwm-cov.sq img{transform:none}
+.rwm-sph{width:100%;height:100%}.rwm-sph iframe{width:100%!important;height:100%!important;border:0;display:block}
+.rwm-bar.sp .rwm-vid{aspect-ratio:auto;height:352px;background:transparent}
+.rwm-bar.sp .rwm-prev,.rwm-bar.sp .rwm-next,.rwm-bar.sp .rwm-pp,.rwm-bar.sp .rwm-bs{display:none}
+.rwm-eng{display:inline-flex;justify-self:center;border:1px solid rgba(232,186,108,.45);border-radius:999px;overflow:hidden}
+.rwm-eng button{font:700 12px Outfit,system-ui,sans-serif;padding:7px 13px;border:0;background:rgba(0,0,0,.35);color:#f3e8cf;cursor:pointer}
+.rwm-eng button[aria-pressed="true"]{background:linear-gradient(180deg,#fff0c2,#d9b469);color:#2b1a10}.rwm-eng button:disabled{opacity:.35}

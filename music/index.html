@@ -26,7 +26,7 @@
         <div class="mu-viz-modes" role="group" aria-label="Visualiser style">
           <button type="button" data-viz="bars" aria-pressed="true">Bars</button><button type="button" data-viz="wave" aria-pressed="false">Wave</button><button type="button" data-viz="ridge" aria-pressed="false">Ridge</button>
         </div></div>
-      <div class="mu-video-slot"><div class="mu-video" id="muVideoBox"><div id="muFrame"></div></div>
+      <div class="mu-video-slot" id="muVideoSlot"><div class="mu-video" id="muVideoBox"><div id="muFrame"></div></div><div class="mu-sp-host" id="muSpHost" hidden></div>
         <div class="mu-fallback" id="muFallback" hidden><p>This album can't be played inside the page.</p><a id="muFallbackLink" class="mu-btn" target="_blank" rel="noopener noreferrer">Listen on YouTube Music</a> <a id="muFallbackSp" class="mu-btn" target="_blank" rel="noopener noreferrer" hidden>Listen on Spotify</a></div></div>
     </div>
     <div class="mu-progress"><span id="muCur">0:00</span><input type="range" id="muSeek" min="0" max="1000" value="0" aria-label="Seek"><span id="muDurT">0:00</span></div>
@@ -37,6 +37,7 @@
       <button type="button" id="muNext" aria-label="Next album">&#9197;</button>
       <button type="button" id="muRepeat" aria-pressed="false" aria-label="Repeat: off" data-mode="off">&#128257;</button>
       <label class="mu-vol"><span class="mu-sr">Volume</span>&#128266;<input type="range" id="muVol" min="0" max="100" value="80"></label>
+      <span class="mu-eng" id="muEng" role="group" aria-label="Player"><button type="button" data-eng="spotify" aria-pressed="true">Spotify</button><button type="button" data-eng="youtube" aria-pressed="false">YouTube</button></span>
       <a id="muYTM" class="mu-ytm" target="_blank" rel="noopener noreferrer">YouTube Music</a>
     </div>
     <div id="muMoods" class="mu-moods" role="group" aria-label="Moods"></div>

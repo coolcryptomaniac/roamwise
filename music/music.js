@@ -1,13 +1,17 @@
 // music/music.js - the music library page: stage (carousel, visualiser, controls, moods) and the bookshelf.
 // Data: releases.json (albums with a YouTube playlist). Playback: the YouTube iframe player, loaded only when you press play.
-import { cleanReleases, groupByYear, shelves, spineStyle, fmtDuration, filterReleases, musicUrl, albumUrl, coverUrl, MOODS, byMood, smartMood, makeQueue, advance, lighten } from './shelf-core.mjs';
+import { cleanReleases, groupByYear, shelves, spineStyle, fmtDuration, filterReleases, musicUrl, albumUrl, coverOf, MOODS, byMood, smartMood, makeQueue, advance, lighten } from './shelf-core.mjs';
 import { mountViz, mountDust } from './viz.js';
 import { mountCarousel } from './carousel.js';
+import { createSpotify } from './spotify.js';
 
 const $ = (id) => document.getElementById(id);
 const esc = (v) => String(v == null ? '' : v).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const state = { all: [], shown: [], queue: { items: [], index: 0 }, current: null, shuffle: false, repeat: 'off', mood: '', query: '', playing: false, failed: false };
-let swipeT = 0;
+let swipeT = 0, spPos = 0, spDur = 0;
+function savedEngine() { try { return localStorage.getItem('mu-engine') === 'youtube' ? 'youtube' : 'spotify'; } catch (e) { return 'spotify'; } }
+state.engine = savedEngine();
+const useSp = (r) => state.engine === 'spotify' && !!(r && r.spotify);
 let yt = null, ytIsReady = false, ytPending = '', ytReady = null, ticker = 0, carousel, viz, dust;
 
 async function load() {
@@ -62,8 +66,7 @@ function tick() {
 function onPlayerError(e) {
   console.warn('YouTube player error', e && e.data);
   const r = state.current; if (!r) return;
-  $('muFallback').hidden = false; $('muFallbackLink').href = r.playlist ? albumUrl(r.playlist) : musicUrl(r.id);
-  const sp = $('muFallbackSp'); sp.hidden = !r.spotify; if (r.spotify) sp.href = r.spotify;
+  showFallback(r);
   setPlaying(false);
 }
 function onPlayerState(e) {
@@ -71,7 +74,28 @@ function onPlayerState(e) {
   else if (e.data === 2) setPlaying(false);
   else if (e.data === 0 && albumDone()) { setPlaying(false); autoNext(); }
 }
+function onSpState(d) {
+  spPos = d.position || 0; spDur = d.duration || 0;
+  const playing = !d.isPaused;
+  if (playing !== state.playing && useSp(state.current)) setPlaying(playing);
+  if (spDur > 0) { $('muSeek').value = Math.round(spPos / spDur * 1000); $('muCur').textContent = fmtDuration(Math.round(spPos / 1000)); $('muDurT').textContent = fmtDuration(Math.round(spDur / 1000)); }
+}
+function onSpError() { const r = state.current; if (!r) return; showFallback(r); setPlaying(false); }
+const sp = createSpotify($('muSpHost'), { onState: onSpState, onError: onSpError });
+function showEngine(r) {
+  const on = useSp(r);
+  $('muVideoSlot').classList.toggle('sp', on); $('muSpHost').hidden = !on; $('muVideoBox').hidden = on;
+  document.body.classList.toggle('mu-sp', on);
+  document.querySelectorAll('#muEng [data-eng]').forEach((b) => { b.setAttribute('aria-pressed', String(b.dataset.eng === state.engine)); b.disabled = b.dataset.eng === 'spotify' && !r.spotify; });
+}
+function showFallback(r) {
+  $('muFallback').hidden = false; $('muFallbackLink').href = r.playlist ? albumUrl(r.playlist) : musicUrl(r.id);
+  const el = $('muFallbackSp'); el.hidden = !r.spotify; if (r.spotify) el.href = r.spotify;
+}
 async function startPlayback(r) {
+  showEngine(r);
+  if (useSp(r)) { try { if (yt && ytIsReady) yt.pauseVideo(); } catch (e) { /* ignore */ } sp.load(r.spotify.split('/').pop(), true); return; }
+  sp.pause();
   try {
     const YT = await loadApi();
     if (yt && ytIsReady) { yt.loadPlaylist({ list: r.playlist, listType: 'playlist' }); return; }
@@ -96,9 +120,10 @@ function show(r) {
   state.current = r;
   const s = spineStyle(r); viz.setPalette(lighten(s.from, 0.55), lighten(s.to, 0.85), s.height + s.width);
   $('muTitle').textContent = r.title; $('muTrack').textContent = '';
+  showEngine(r);
   $('muSub').textContent = state.mood ? (MOODS.find((m) => m.id === state.mood) || {}).label + ' mix · ' + (state.queue.index + 1) + ' of ' + state.queue.items.length : (r.published ? r.published.slice(0, 4) : 'Mohit Pandey') + ' · ' + (state.queue.index + 1) + ' of ' + state.queue.items.length;
   $('muYTM').href = r.playlist ? albumUrl(r.playlist) : musicUrl(r.id);
-  $('muMiniCover').style.backgroundImage = 'url("' + coverUrl(r.id) + '")'; $('muMiniTitle').textContent = r.title;
+  $('muMiniCover').style.backgroundImage = 'url("' + coverOf(r) + '")'; $('muMiniTitle').textContent = r.title;
   document.body.style.setProperty('--glow', lighten(s.from, 0.45));
   document.querySelectorAll('.mu-spine').forEach((b) => b.classList.toggle('on', b.dataset.id === r.id));
 }
@@ -109,7 +134,7 @@ function play(r) {
   carousel.select(state.queue.index, true); show(r);
   $('muSeek').value = 0; $('muCur').textContent = '0:00'; $('muDurT').textContent = '0:00';
   $('muStage').classList.add('has-track'); document.body.classList.add('mu-started');
-  if (r.playlist) startPlayback(r);
+  if (r.playlist || r.spotify) startPlayback(r);
 }
 function setQueue(list, startId, mood) {
   state.mood = mood; state.queue = makeQueue(list, startId, state.shuffle);
@@ -125,6 +150,7 @@ function go(dir, ended) {
 function autoNext() { go(1, true); }
 function toggle() {
   if (!state.current) return;
+  if (useSp(state.current)) { if (!sp.ready) play(state.current); else sp.toggle(); return; }
   if (!yt || !yt.getPlayerState) { play(state.current); return; }
   yt.getPlayerState() === 1 ? yt.pauseVideo() : yt.playVideo();
 }
@@ -162,7 +188,12 @@ document.addEventListener('click', (e) => {
   else if (id === 'muRepeat') { state.repeat = { off: 'all', all: 'one', one: 'off' }[state.repeat]; e.target.dataset.mode = state.repeat; e.target.setAttribute('aria-label', 'Repeat: ' + state.repeat); e.target.textContent = state.repeat === 'one' ? '\u{1F502}' : '\u{1F501}'; e.target.setAttribute('aria-pressed', String(state.repeat !== 'off')); }
   else if (e.target.dataset.viz) { viz.setMode(e.target.dataset.viz); document.querySelectorAll('[data-viz]').forEach((b) => b.setAttribute('aria-pressed', String(b === e.target))); }
 });
-$('muSeek').addEventListener('input', (e) => { try { const d = yt.getDuration(); yt.seekTo(d * e.target.value / 1000, true); } catch (x) { /* not ready */ } });
+$('muEng').addEventListener('click', (e) => {
+  const b = e.target.closest('[data-eng]'); if (!b || b.disabled) return;
+  state.engine = b.dataset.eng; try { localStorage.setItem('mu-engine', state.engine); } catch (x) { /* ignore */ }
+  if (state.current) { if (!useSp(state.current)) sp.pause(); play(state.current); }
+});
+$('muSeek').addEventListener('input', (e) => { if (useSp(state.current)) { if (spDur) sp.seek(spDur / 1000 * e.target.value / 1000); return; } try { const d = yt.getDuration(); yt.seekTo(d * e.target.value / 1000, true); } catch (x) { /* not ready */ } });
 $('muVol').addEventListener('input', (e) => { try { yt.setVolume(Number(e.target.value)); } catch (x) { /* not ready */ } });
 $('muSearch').addEventListener('input', (e) => { state.query = e.target.value; renderShelf(); });
 document.addEventListener('keydown', (e) => {

@@ -13,7 +13,9 @@
       "seq": 1,
       "published": "",
       "durationSec": 0,
-      "moods": []
+      "moods": [],
+      "spotify": "https://open.spotify.com/album/6eG5TVjrfV20M5uB3uhUsy",
+      "art": "https://image-cdn-fa.spotifycdn.com/image/ab67616d0000b273ac9ea20fe8ebd1482704d6fb"
     },
     {
       "id": "gwi_qN111zo",
@@ -22,7 +24,9 @@
       "seq": 2,
       "published": "",
       "durationSec": 0,
-      "moods": []
+      "moods": [],
+      "spotify": "https://open.spotify.com/album/1EwuuLrhPpRZCRSEyFriD5",
+      "art": "https://image-cdn-fa.spotifycdn.com/image/ab67616d0000b273dfa6d686c0d6bb7a74543c88"
     },
     {
       "id": "iSsnlA-2IV0",
@@ -33,7 +37,9 @@
       "durationSec": 0,
       "moods": [
         "pahadi"
-      ]
+      ],
+      "spotify": "https://open.spotify.com/album/55VIApgrhWnwPLP1qylkIS",
+      "art": "https://image-cdn-fa.spotifycdn.com/image/ab67616d0000b2736ffa6a47445a4da5de33f0f2"
     },
     {
       "id": "4qzO5qfz1EU",
@@ -44,7 +50,9 @@
       "durationSec": 0,
       "moods": [
         "pahadi"
-      ]
+      ],
+      "spotify": "https://open.spotify.com/album/2s24zH49tVk8LNU9M2YTJp",
+      "art": "https://image-cdn-fa.spotifycdn.com/image/ab67616d0000b273e4e060f29947f73d3c8925aa"
     },
     {
       "id": "y0JPHqJCoHU",
@@ -55,7 +63,9 @@
       "durationSec": 0,
       "moods": [
         "uplift"
-      ]
+      ],
+      "spotify": "https://open.spotify.com/album/2VjneTaQ3dhDZOpTv2xW5u",
+      "art": "https://image-cdn-ak.spotifycdn.com/image/ab67616d0000b2734d37fda8cdc6a997742eaa7b"
     },
     {
       "id": "4zswsza1QyE",
@@ -66,7 +76,9 @@
       "durationSec": 0,
       "moods": [
         "love"
-      ]
+      ],
+      "spotify": "https://open.spotify.com/album/4O0EetEmbfDwTCOOLK28rD",
+      "art": "https://image-cdn-fa.spotifycdn.com/image/ab67616d0000b273e4422300bc48c48b6ed9fc7a"
     },
     {
       "id": "NauVRXmEhbg",
@@ -77,7 +89,9 @@
       "durationSec": 0,
       "moods": [
         "pahadi"
-      ]
+      ],
+      "spotify": "https://open.spotify.com/album/77u2zgwr4SKvSp271GKj0k",
+      "art": "https://image-cdn-ak.spotifycdn.com/image/ab67616d0000b2731b38d15b345f3ec95aacef50"
     },
     {
       "id": "0JDsofi8mJc",
@@ -86,7 +100,9 @@
       "seq": 8,
       "published": "",
       "durationSec": 0,
-      "moods": []
+      "moods": [],
+      "spotify": "https://open.spotify.com/album/2Q245RH7jTWsfRvyJ0eTTQ",
+      "art": "https://image-cdn-ak.spotifycdn.com/image/ab67616d0000b273d2cbd96e4dd5b725cdc91b27"
     },
     {
       "id": "_ZSEEgGlFp4",
@@ -97,7 +113,9 @@
       "durationSec": 0,
       "moods": [
         "love"
-      ]
+      ],
+      "spotify": "https://open.spotify.com/album/2Dn7KN3HDjZ5Abk110r4kH",
+      "art": "https://image-cdn-fa.spotifycdn.com/image/ab67616d0000b2732282f6f8a97dd242b913151e"
     },
     {
       "id": "j_4GnMbbpCQ",
@@ -109,7 +127,9 @@
       "moods": [
         "pahadi",
         "uplift"
-      ]
+      ],
+      "spotify": "https://open.spotify.com/album/0dtRu3EIqWu8LvLCuKeuL8",
+      "art": "https://image-cdn-fa.spotifycdn.com/image/ab67616d0000b273cf8421a884c0d397743078b2"
     },
     {
       "id": "UhATfgbGtUU",
@@ -120,7 +140,9 @@
       "durationSec": 0,
       "moods": [
         "uplift"
-      ]
+      ],
+      "spotify": "https://open.spotify.com/album/6zVKpN0mrLTb1mxBuaSk01",
+      "art": "https://image-cdn-fa.spotifycdn.com/image/ab67616d0000b27339c1744a10f5305a44d95e48"
     },
     {
       "id": "_OnrHUucfdE",
@@ -131,7 +153,9 @@
       "durationSec": 0,
       "moods": [
         "love"
-      ]
+      ],
+      "spotify": "https://open.spotify.com/album/7K7Cjze5HzzYXIf8VQ7DxZ",
+      "art": "https://image-cdn-ak.spotifycdn.com/image/ab67616d0000b273b64ba4f171c03778f630b464"
     },
     {
       "id": "6mE_d-0zrLE",
@@ -142,7 +166,9 @@
       "durationSec": 0,
       "moods": [
         "cosmic"
-      ]
+      ],
+      "spotify": "https://open.spotify.com/album/2V14SOkg6Y8XNFiTYUfrp0",
+      "art": "https://image-cdn-fa.spotifycdn.com/image/ab67616d0000b273bebb982067d9bc018f744cb4"
     },
     {
       "id": "n4RtApM-Sj0",
@@ -153,7 +179,9 @@
       "durationSec": 0,
       "moods": [
         "love"
-      ]
+      ],
+      "spotify": "https://open.spotify.com/album/7HLGO7jPt1doPCbJnjDk28",
+      "art": "https://image-cdn-fa.spotifycdn.com/image/ab67616d0000b2733bdea7cefb1f7eb52e9beb2c"
     },
     {
       "id": "IZZ39hZ0t_A",
@@ -164,7 +192,9 @@
       "durationSec": 0,
       "moods": [
         "cosmic"
-      ]
+      ],
+      "spotify": "https://open.spotify.com/album/2hEjk9Vq4A86DvKXvqx1dC",
+      "art": "https://image-cdn-fa.spotifycdn.com/image/ab67616d0000b273b49514076ff10d45d7184751"
     },
     {
       "id": "548lqAvO1NY",
@@ -175,7 +205,9 @@
       "durationSec": 0,
       "moods": [
         "cosmic"
-      ]
+      ],
+      "spotify": "https://open.spotify.com/album/0euiz0hcGZody7nFyXaRNM",
+      "art": "https://image-cdn-ak.spotifycdn.com/image/ab67616d0000b2734ef116991375564910eb8190"
     },
     {
       "id": "JmWJT15RQ1Q",
@@ -186,7 +218,9 @@
       "durationSec": 0,
       "moods": [
         "cosmic"
-      ]
+      ],
+      "spotify": "https://open.spotify.com/album/2Ss8PQrdFDxzph233hHHXH",
+      "art": "https://image-cdn-fa.spotifycdn.com/image/ab67616d0000b273f4a4cf4e2024afc00f441245"
     },
     {
       "id": "D1oqEmLqNcc",
@@ -197,7 +231,9 @@
       "durationSec": 0,
       "moods": [
         "devotion"
-      ]
+      ],
+      "spotify": "https://open.spotify.com/album/7Cul0CXei1uQHcAr7GA4za",
+      "art": "https://image-cdn-fa.spotifycdn.com/image/ab67616d0000b27343c5a9d97a11fc58d586daf1"
     },
     {
       "id": "pCkLRDQouNs",
@@ -230,7 +266,9 @@
       "durationSec": 0,
       "moods": [
         "party"
-      ]
+      ],
+      "spotify": "https://open.spotify.com/album/18SDEl6h7d7aqsSdSIPnEx",
+      "art": "https://image-cdn-fa.spotifycdn.com/image/ab67616d0000b2738f5f8bf1b020af8a90bcf182"
     },
     {
       "id": "4NP49mnH768",
@@ -242,7 +280,8 @@
       "moods": [
         "pahadi"
       ],
-      "spotify": "https://open.spotify.com/album/2j0DvEZbvR135ol0ULktKH"
+      "spotify": "https://open.spotify.com/album/2j0DvEZbvR135ol0ULktKH",
+      "art": "https://image-cdn-fa.spotifycdn.com/image/ab67616d0000b273d90088d63e42ef5257365b29"
     },
     {
       "id": "MhB6tofEoGI",
@@ -255,7 +294,8 @@
         "pahadi",
         "cosmic"
       ],
-      "spotify": "https://open.spotify.com/album/4gEFxcjl7EHEUQT2scSxHm"
+      "spotify": "https://open.spotify.com/album/4gEFxcjl7EHEUQT2scSxHm",
+      "art": "https://image-cdn-fa.spotifycdn.com/image/ab67616d0000b273957930fe3a6a2ece3aeeb05b"
     },
     {
       "id": "Ueh_jAROV5I",
@@ -268,7 +308,8 @@
         "pahadi",
         "uplift"
       ],
-      "spotify": "https://open.spotify.com/album/4YknLE61y3yFoZ1KARu8dj"
+      "spotify": "https://open.spotify.com/album/4YknLE61y3yFoZ1KARu8dj",
+      "art": "https://image-cdn-fa.spotifycdn.com/image/ab67616d0000b2731aed560a2670679fa0b5309e"
     },
     {
       "id": "48xD4AnsVac",
@@ -281,7 +322,8 @@
         "pahadi",
         "devotion"
       ],
-      "spotify": "https://open.spotify.com/album/33uvY1MZca16H0lN020Mfs"
+      "spotify": "https://open.spotify.com/album/33uvY1MZca16H0lN020Mfs",
+      "art": "https://image-cdn-fa.spotifycdn.com/image/ab67616d0000b27309f146143a4f7659d321d8d1"
     }
   ],
   "moodsNote": "Moods are a first guess from the titles only. Edit the moods list on any release (pahadi, love, party, devotion, cosmic, uplift) to change the mixes."
