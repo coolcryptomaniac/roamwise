@@ -1,0 +1,189 @@
+[
+ {
+  "id": "tt-lansdowne-5882",
+  "type": "ota",
+  "seller": "TravelTriangle",
+  "title": "Lansdowne weekend (package 5882)",
+  "region": "Lansdowne",
+  "nights": 2,
+  "pricePP": 12600,
+  "currency": "INR",
+  "from": "Delhi, private AC car",
+  "has": {
+   "stay": true,
+   "meals": true,
+   "guide": false,
+   "transport": true,
+   "insurance": false
+  },
+  "safety": {
+   "namedOperator": false,
+   "safetyPlan": false,
+   "reviewed": false
+  },
+  "flex": {
+   "payInParts": false,
+   "freeChange": false,
+   "cancellationStated": true
+  },
+  "url": "",
+  "checked": "2026-10-23",
+  "note": "Breakfast, dinner and one lunch. Guide not mentioned. Price changes by date; listing says it may be unavailable."
+ },
+ {
+  "id": "hf-lansdowne-6893",
+  "type": "ota",
+  "seller": "Holidify",
+  "title": "Lansdowne budget (package 6893)",
+  "region": "Lansdowne",
+  "nights": 2,
+  "pricePP": 54,
+  "currency": "USD",
+  "from": "Kotdwar by train plus vehicle",
+  "has": {
+   "stay": true,
+   "meals": true,
+   "guide": false,
+   "transport": true,
+   "insurance": false
+  },
+  "safety": {
+   "namedOperator": false,
+   "safetyPlan": false,
+   "reviewed": false
+  },
+  "flex": {
+   "payInParts": false,
+   "freeChange": false,
+   "cancellationStated": false
+  },
+  "url": "",
+  "checked": "2026-10-23",
+  "suspect": true,
+  "note": "Shown as $54, which looks like a listing error. Left out of price scoring until confirmed with the seller."
+ },
+ {
+  "id": "twd-almora-binsar",
+  "type": "local",
+  "seller": "Tour Travel World",
+  "title": "Almora + Binsar",
+  "region": "Almora",
+  "nights": 3,
+  "pricePP": 14500,
+  "currency": "INR",
+  "from": "Delhi pickup and drop",
+  "has": {
+   "stay": true,
+   "meals": true,
+   "guide": false,
+   "transport": true,
+   "insurance": false
+  },
+  "safety": {
+   "namedOperator": true,
+   "safetyPlan": false,
+   "reviewed": false
+  },
+  "flex": {
+   "payInParts": false,
+   "freeChange": false,
+   "cancellationStated": false
+  },
+  "url": "",
+  "checked": "2026-10-23",
+  "note": "Meals listed without a formal plan. Guide costs extra."
+ },
+ {
+  "id": "av-kumaon",
+  "type": "local",
+  "seller": "Anubhav Vacations",
+  "title": "Kumaon circuit",
+  "region": "Kumaon",
+  "nights": 0,
+  "pricePP": 82500,
+  "currency": "INR",
+  "from": "Internal transfers only",
+  "has": {
+   "stay": true,
+   "meals": true,
+   "guide": false,
+   "transport": true,
+   "insurance": false
+  },
+  "safety": {
+   "namedOperator": true,
+   "safetyPlan": false,
+   "reviewed": false
+  },
+  "flex": {
+   "payInParts": false,
+   "freeChange": false,
+   "cancellationStated": false
+  },
+  "url": "",
+  "checked": "2026-10-23",
+  "note": "Night count not stated on the page, so a per-night price cannot be worked out. All meals, home-cooked. Forest walk only."
+ },
+ {
+  "id": "rw-almora-3n",
+  "type": "roamwise",
+  "seller": "RoamWise",
+  "title": "Almora Food Trail (8 friends, one vehicle + kit)",
+  "region": "Almora",
+  "nights": 3,
+  "pricePP": 13020,
+  "currency": "INR",
+  "from": "Kathgodam station (not Delhi)",
+  "has": {
+   "stay": true,
+   "meals": true,
+   "guide": true,
+   "transport": true,
+   "insurance": false
+  },
+  "safety": {
+   "namedOperator": true,
+   "safetyPlan": true,
+   "reviewed": false
+  },
+  "flex": {
+   "payInParts": true,
+   "freeChange": false,
+   "cancellationStated": true
+  },
+  "url": "https://roamwise.co.in/packages/",
+  "checked": "2026-10-23",
+  "note": "Price includes 5% GST. Pilot batch, so no customer reviews yet. Does not include the Delhi drive that the sites above include."
+ },
+ {
+  "id": "rw-lansdowne-2n",
+  "type": "roamwise",
+  "seller": "RoamWise",
+  "title": "Lansdowne Pine & Peace (8 friends, one vehicle + kit)",
+  "region": "Lansdowne",
+  "nights": 2,
+  "pricePP": 8925,
+  "currency": "INR",
+  "from": "Kotdwar station (not Delhi)",
+  "has": {
+   "stay": true,
+   "meals": true,
+   "guide": true,
+   "transport": true,
+   "insurance": false
+  },
+  "safety": {
+   "namedOperator": true,
+   "safetyPlan": true,
+   "reviewed": false
+  },
+  "flex": {
+   "payInParts": true,
+   "freeChange": false,
+   "cancellationStated": true
+  },
+  "url": "https://roamwise.co.in/packages/",
+  "checked": "2026-10-23",
+  "note": "Opening soon; the homestay agreement is being finalised. Price includes 5% GST."
+ }
+]
