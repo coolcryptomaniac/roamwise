@@ -21,6 +21,13 @@ h1{font:800 32px/1.1 Georgia,serif;margin:10px 0;text-wrap:balance}h1 em{color:v
 .btn.alt{background:transparent;color:var(--gold);border:1px solid var(--gold)}.btn:focus-visible{outline:2px solid #fff;outline-offset:2px}
 .panel{padding:18px;border-radius:20px;border:1px solid var(--border);background:var(--panel)}ol{padding-left:20px;color:var(--muted)}li{margin:0 0 8px}ol b{color:var(--ink)}
 .upi{display:flex;gap:16px;flex-wrap:wrap;align-items:center}.upi img{width:150px;height:150px;border-radius:14px;background:#fff;padding:6px}.vpa{font:800 20px/1.2 system-ui;color:var(--ink);word-break:break-all}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0 4px}.chips span{padding:6px 12px;border-radius:999px;border:1px solid var(--border);background:rgba(255,255,255,.05);font-size:13px;color:var(--ink)}
+.prev{margin:18px 0 6px;padding:16px;border-radius:20px;border:1px dashed rgba(224,183,104,.5);background:rgba(224,183,104,.05)}.prev .cap{font-size:11px;letter-spacing:.14em;font-weight:800;color:var(--gold);margin:0 0 10px}
+.card{max-width:300px;padding:12px 14px;border-radius:16px;border:1px solid rgba(224,183,104,.45);background:linear-gradient(160deg,#1b1226,#0f0a18)}.card i{font-style:normal;font-size:10px;font-weight:800;letter-spacing:.12em;color:#1a1208;background:var(--gold);border-radius:6px;padding:2px 6px}.card b{display:block;margin:6px 0 2px}.card small{color:var(--muted)}
+.trust{display:grid;grid-template-columns:minmax(0,1fr);gap:10px}@media(min-width:640px){.trust{grid-template-columns:repeat(3,minmax(0,1fr))}}.trust div{padding:14px;border-radius:16px;border:1px solid var(--border);background:var(--panel);font-size:14px;color:var(--muted)}.trust b{display:block;color:var(--ink);margin-bottom:4px}
+details{border:1px solid var(--border);border-radius:14px;background:var(--panel);padding:12px 16px;margin:0 0 8px}summary{cursor:pointer;font-weight:700;color:var(--ink);min-height:28px}details p{margin:8px 0 0;font-size:14px}
+.sticky{position:sticky;bottom:10px;margin-top:22px;display:flex;justify-content:center}.sticky a{box-shadow:0 12px 30px -8px rgba(0,0,0,.8)}
+@media(prefers-reduced-motion:no-preference){.t{transition:transform .25s}.t:hover{transform:translateY(-4px)}}
 .note{font-size:13px;color:var(--muted)}a{color:var(--gold)}
 </style>
 </head>
@@ -31,6 +38,8 @@ h1{font:800 32px/1.1 Georgia,serif;margin:10px 0;text-wrap:balance}h1 em{color:v
 <h1>Be seen at the <em>top</em> of RoamWise.</h1>
 <p>Stays, painting artists, creators, music artists, transport providers, colleges and local businesses can pay a small, fixed fee to be shown in the Featured strip right under the planner on the home page. No bidding, no hidden charges.</p>
 
+<div class="chips"><span>Fixed price</span><span>No bidding</span><span>Labelled &ldquo;Featured&rdquo;</span><span>Starts after we confirm</span></div>
+
 <h2>Pick a slot</h2>
 <div class="tiers">
  <div class="t"><span class="eb">SPOTLIGHT</span><b class="p">₹500</b><small>7 days</small><ul><li>Featured strip on the home page</li><li>Rotates with other featured partners</li></ul><a class="btn" data-tier="500" data-days="7" href="#pay">Choose ₹500</a></div>
@@ -38,6 +47,9 @@ h1{font:800 32px/1.1 Georgia,serif;margin:10px 0;text-wrap:balance}h1 em{color:v
  <div class="t top"><span class="eb">TOP</span><b class="p">₹2,000</b><small>30 days</small><ul><li>First position in the strip</li><li>Shown before Prime and Spotlight slots</li></ul><a class="btn" data-tier="2000" data-days="30" href="#pay">Choose ₹2,000</a></div>
 </div>
 <p class="note" style="margin-top:12px">Featured is paid promotion and is labelled &ldquo;Featured&rdquo; on the site. It is not a guarantee of enquiries, bookings or sales. We may decline a listing that is unclear, unverified or misleading.</p>
+
+<div class="prev"><p class="cap">WHAT VISITORS SEE</p><div class="card"><i>FEATURED</i><b>Your name here</b><small>Stay &middot; Almora<br>One line about what you offer</small></div></div>
+<p class="note">Your card links to the page you give us, shown in the Featured strip under the planner on the home page.</p>
 
 <h2 id="pay">How to book</h2>
 <div class="panel">
@@ -54,6 +66,17 @@ h1{font:800 32px/1.1 Georgia,serif;margin:10px 0;text-wrap:balance}h1 em{color:v
 <p class="note" style="margin-top:12px">This is the official RoamWise payment address, also shown on <a href="../pay/">roamwise.co.in/pay</a>. Always confirm the account holder name before you approve. If you scan the QR, enter the amount yourself. Opening an app or scanning a QR does not confirm payment.</p>
 <a class="btn alt" id="mailBtn" href="mailto:founder@roamwise.co.in">Email my details &amp; UTR</a>
 </div>
+
+<h2>Pay with confidence</h2>
+<div class="trust"><div><b>Official address</b>roamwisepay@ybl is the RoamWise UPI address, also listed on <a href="../pay/">roamwise.co.in/pay</a>.</div><div><b>HDFC Bank current account</b>Payments go to a current account held by the founder, Mohit Pandey.</div><div><b>Clear receipts</b>Receipts are issued by Mohit Pandey, sole proprietor of RoamWise. RoamWise is not yet a registered company.</div></div>
+
+<h2>Questions</h2>
+<details><summary>Do I get a guaranteed number of enquiries?</summary><p>No. Featured is paid visibility, not a promise of enquiries, bookings or sales.</p></details>
+<details><summary>When does my slot start?</summary><p>After we confirm your payment and check your listing. It runs for the number of days you chose and then ends on its own.</p></details>
+<details><summary>Who can be featured?</summary><p>Real stays, painting artists, creators, music artists, transport providers, colleges and local businesses with a public link we can check.</p></details>
+<details><summary>What if I paid but have not heard back?</summary><p>Email <a href="mailto:founder@roamwise.co.in">founder@roamwise.co.in</a> with your UTR and we will reply.</p></details>
+
+<div class="sticky"><a class="btn" href="#pay">Book a slot</a></div>
 
 <h2>Good to know</h2>
 <ul class="note"><li>Featured partners must be real, with a public link we can check.</li><li>Your slot ends on its own at the end date.</li><li>Questions before you pay: <a href="mailto:founder@roamwise.co.in">founder@roamwise.co.in</a>.</li></ul>
