@@ -18,6 +18,10 @@
 - Founder offer: Pro for a one-time Rs 100 (lifetime), limited to the first 1,000 members
 - After the founder seats are filled, standard plans apply (daily, weekly, monthly, 3-month, yearly, lifetime); current prices are listed in the app's payment screen
 
+## Stays
+- Homestays and hotels in Almora (Milan Heights, Soulmate Homestay, Big Bro Hotel for long workations), booked directly with the host: https://www.roamwise.co.in/stays/almora/
+- Each stay enquiry carries a short RoamWise code (RW-XXXXXX). Stay payments are made to the property directly, not to RoamWise.
+
 ## Partners and matching
 - Partner chooser on the home page for travel creators, stays, painting artists, music artists, transport providers, colleges and local businesses
 - Explainable matching: each suggested stay lists the visible reasons it fits (same town, cafe or lounge space for art or music, direct WhatsApp contact for pickups, and so on). When nothing fits, it says so instead of forcing a match
