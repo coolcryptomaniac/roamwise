@@ -1,4 +1,4 @@
-/* Distance rings for the Milan Heights (Dharanaula, Almora) creator outreach.
+/* Distance rings for the Milan Heights (Milan Chowk, Almora) creator outreach.
    Straight-line (great-circle) distance from Almora; road distance is longer. Pure functions, no network. */
 export const ALMORA = Object.freeze({ lat: 29.597, lon: 79.659 });
 export const RINGS = Object.freeze({ near: 90, regional: 500 }); // km; anything farther is "far"

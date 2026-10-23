@@ -93,7 +93,7 @@ export const SEED_POLICIES = Object.freeze([
     reason: 'Owner agreed: free stay on non-weekend nights in the off-season, optional cash up to Rs 5,000 if the creator brings customers who book.',
     freeStay: { nights: 2, weekdaysOnly: true, offSeasonOnly: true, offSeasonMonths: [1, 2, 7, 8, 9], meals: false, maxPerMonth: 2 },
     performanceCash: { max: 5000, ratePct: 10 },
-    location: { town: 'Almora', lat: 29.5966, lng: 79.6593 },   // Dharanaula, opposite Milan Cafe
+    location: { town: 'Almora', lat: 29.5966, lng: 79.6593 },   // Milan Chowk, Almora
     whatsapp: '917302315845',                                       // the public booking number in partners-data.js
     niches: ['mountains', 'food', 'culture', 'budget'],
     /* Founder, 2026-10-20: the owner (Vaibhav) expects rooms to fill on their own and wants food vloggers, not room-for-content swaps. */

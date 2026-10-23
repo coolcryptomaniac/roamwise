@@ -1,8 +1,106 @@
 {
   "note": "Homepage promo. Prices are optional: set 'from' (number, in rupees per night) only when the owner has confirmed an indicative rate. Until then the card says rates are confirmed on WhatsApp.",
   "stays": [
-    { "partnerId": "p_milan_heights", "tag": "SIGNED PARTNER", "area": "Dharanaula, Almora", "line": "Stay above the bazaar, with a restaurant and a gaming zone downstairs.", "exclusive": true, "from": 1500, "to": 3000, "gst": true, "cta": "Book now on WhatsApp", "ask": "I would like to book a room" },
-    { "partnerId": "p_corbett_jungle_view", "tag": "FOUNDER-INTRODUCED", "area": "Ghildiyal Gaon, near Lansdowne", "line": "Six-bedroom family homestay with hill and jungle views.", "from": 1830, "exclusive": true, "save": { "vs": "MakeMyTrip", "ota": 2200, "checked": "22 Oct 2026" }, "cta": "Book direct on WhatsApp", "ask": "I would like to book a stay" }
+    {
+      "partnerId": "p_milan_heights",
+      "tag": "SIGNED PARTNER",
+      "area": "Milan Chowk, Almora",
+      "line": "Stay above the bazaar, with a restaurant and a gaming zone downstairs.",
+      "exclusive": true,
+      "from": 1500,
+      "to": 3000,
+      "gst": true,
+      "cta": "Book now on WhatsApp",
+      "ask": "I would like to book a room",
+      "chips": [
+        "Restaurant downstairs",
+        "Gaming zone",
+        "Milan Chowk"
+      ]
+    },
+    {
+      "partnerId": "p_corbett_jungle_view",
+      "tag": "FOUNDER-INTRODUCED",
+      "area": "Ghildiyal Gaon, near Lansdowne",
+      "line": "Six-bedroom family homestay with hill and jungle views.",
+      "from": 1830,
+      "exclusive": true,
+      "save": {
+        "vs": "MakeMyTrip",
+        "ota": 2200,
+        "checked": "22 Oct 2026"
+      },
+      "cta": "Book direct on WhatsApp",
+      "ask": "I would like to book a stay",
+      "chips": [
+        "6 bedrooms",
+        "Up to 12 guests",
+        "Jungle views"
+      ]
+    },
+    {
+      "partnerId": "p_soulmate_homestay",
+      "tag": "SIGNED PARTNER",
+      "area": "Kotyura, Almora",
+      "line": "Kumaoni cooking with a local host, a cafe, a garden play area and a lantern-lit walkway.",
+      "chips": [
+        "Local host",
+        "Cafe",
+        "Garden play area"
+      ],
+      "exclusive": false,
+      "cta": "Enquire by email",
+      "ask": "I would like to enquire about a stay"
+    },
+    {
+      "partnerId": "p_woodbook_devine",
+      "tag": "SIGNED PARTNER",
+      "area": "Galoon, Tirthan Valley, Himachal",
+      "line": "A wooden treehouse and cottage among apple trees, with an outdoor fireplace and valley views.",
+      "chips": [
+        "Treehouse",
+        "Outdoor fireplace",
+        "5 rooms"
+      ],
+      "exclusive": false,
+      "cta": "Book on WhatsApp",
+      "ask": "I would like to book a stay"
+    },
+    {
+      "partnerId": "p_new_himank",
+      "tag": "SIGNED PARTNER",
+      "area": "Chachoga Road, Manali, Himachal",
+      "line": "A homestay with its own restaurant, about a 7-minute walk to Mall Road. Public listings mention free breakfast and balconies.",
+      "chips": [
+        "On-site restaurant",
+        "Balconies",
+        "Near Mall Road"
+      ],
+      "exclusive": false,
+      "cta": "Enquire by email",
+      "ask": "I would like to enquire about a stay"
+    }
   ],
-  "art": { "artistId": "natasha-guleria", "artworkIds": ["shiva-dhyan", "shree-yantra", "maryada-ram"] }
+  "art": {
+    "artistId": "natasha-guleria",
+    "artworkIds": [
+      "shiva-dhyan",
+      "shree-yantra",
+      "maryada-ram"
+    ]
+  },
+  "nomad": {
+    "partnerId": "p_big_bro_hotel",
+    "title": "WORKATION · BIG BRO HOTEL, ALMORA",
+    "area": "Ghurson, Almora",
+    "hero": "A hotel with a glass-walled lounge facing the pine hills, a desk and chair in the rooms, and inverter backup. 4 rooms are kept for long stays.",
+    "photoOrder": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ],
+    "note": "Wi-Fi speed (100 Mbps) is as told by the owner and has not been speed-tested by RoamWise yet. Meals come from the hotel restaurant and are not in the rate. There is no guest kitchen or shared work area. Taxes and the final total are confirmed with the hotel before you pay."
+  }
 }
