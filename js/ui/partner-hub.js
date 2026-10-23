@@ -15,7 +15,7 @@
 (function(){
   var MAIL='founder@roamwise.co.in';
   var ROLES=[
-    {id:'creator',ico:'🎥',name:'Travel creator',
+    {id:'creator',eng:'creator',ico:'🎥',name:'Travel creator',
      match:['Your niche and the places you shoot','Barter, hybrid or paid, whichever you are open to','Followers checked against your public profile','Stays whose hosts want that kind of content'],
      ready:['Instagram or YouTube link','Where you want to travel','What you can deliver (reels, stories, photos)'],
      next:'Register free in about 2 minutes. RoamWise verifies the profile before any match is sent.',
@@ -25,22 +25,22 @@
      ready:['Property name and town','Room count and starting price','A photo or Google Maps link'],
      next:'Apply in about 3 minutes. Hosts and creators approve the same terms before anything is agreed.',
      cta:'List your stay',href:'/partner/join/?src=home-stay',stat:'stays'},
-    {id:'artist',ico:'🎨',name:'Painting artist',
+    {id:'artist',eng:'painter',ico:'🎨',name:'Painting artist',
      match:['Your themes, such as Shiva, yantra, Devi or landscapes','Hotels, cafes and resorts that look for wall art','Commission, exhibition or workshop, whichever you offer','Buyers who enquire for your style'],
      ready:['A few clear photos of your work','Sizes and your price range','Instagram or website link'],
      next:'Founding artists get a free page. Buyers enquire with you directly and you agree price and delivery yourself.',
      cta:'Open your artist page',href:'/creators/join-artist.html?src=home-artist',stat:'artists'},
-    {id:'music',ico:'🎶',name:'Music artist',
+    {id:'music',eng:'music',ico:'🎶',name:'Music artist',
      match:['Your genre and mood','Stays, cafes and events that want live or ambient music','Travel creators who need original tracks for reels','Festivals and campaigns in the hills'],
      ready:['Links to two or three tracks','Your city and where you can perform','Whether you own the rights to what you share'],
      next:'There is no music form yet. Send a short brief by email and the founder replies personally.',
      cta:'Email a music brief',mail:{subject:'Music artist partnership with RoamWise',body:'Hi RoamWise team,\n\nI am a music artist and would like to partner.\n\nName:\nGenre and mood:\nCity:\nTrack links:\nI own the rights to the tracks I am sharing: yes / no\nBest way to reach me:\n'}},
-    {id:'transport',ico:'🚕',name:'Transport provider',
+    {id:'transport',eng:'transport',ico:'🚕',name:'Transport provider',
      match:['The routes and towns you cover','Vehicle type and seats','Pickup points near the stays travellers book','Season and availability'],
      ready:['Vehicle types and seat counts','Routes you drive','Your permit and licence details to share when asked'],
      next:'There is no transport form yet. Send a short brief by email and the founder replies personally. Rates are agreed directly with you.',
      cta:'Email a transport brief',mail:{subject:'Transport partnership with RoamWise',body:'Hi RoamWise team,\n\nI provide transport and would like to partner.\n\nName / business:\nBase town:\nRoutes covered:\nVehicle types and seats:\nPermit / licence available on request: yes / no\nBest way to reach me:\n'}},
-    {id:'college',ico:'🎓',name:'College or campus',
+    {id:'college',eng:'college',ico:'🎓',name:'College or campus',
      match:['Student community size and events','Interest in travel, creator and entrepreneurship programmes','Campus creators who can join the network','In-kind terms both sides agree in writing'],
      ready:['Name of the club, cell or department','Event dates you are planning','Who signs on behalf of the college'],
      next:'See how a campus partnership is structured, then email a short brief. Terms are agreed in writing with the college.',
@@ -75,6 +75,8 @@
    +'#rwPartnerHub .ph-more{font-size:13px;color:#e8ba6c;font-weight:700}'
    +'#rwPartnerHub .ph-fine{margin:12px 0 0;font-size:11.5px;line-height:1.5;opacity:.65}'
    +'#rwPartnerHub .ph-nojs{font-size:13px;line-height:1.9}#rwPartnerHub .ph-nojs a{color:#e8ba6c}'
+   +'#rwPartnerHub .ph-q{margin:14px 0 0}#rwPartnerHub .ph-q label{display:block;font-size:12.5px;font-weight:700;color:#FFE0AE;margin:0 0 6px}#rwPartnerHub .ph-qr{display:flex;gap:8px;flex-wrap:wrap}#rwPartnerHub .ph-qr input{flex:1 1 140px;min-width:0;min-height:46px;box-sizing:border-box;padding:0 14px;border-radius:12px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.06);color:#F2EFE6;font:500 14px system-ui,sans-serif}#rwPartnerHub .ph-qr button{border:0;cursor:pointer}'
+   +'#rwPartnerHub .ph-m{margin:10px 0 0;padding:10px 12px;border-radius:14px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1)}#rwPartnerHub .ph-m b{display:block;font-size:14px}#rwPartnerHub .ph-m small{display:block;font-size:11.5px;opacity:.7;margin-bottom:4px}#rwPartnerHub .ph-none{font-size:13px;line-height:1.5;margin:10px 0 0}'
    +'@media(prefers-reduced-motion:reduce){#rwPartnerHub *{transition:none!important}}';
 
   function el(tag,cls,html){var n=document.createElement(tag);if(cls)n.className=cls;if(html!=null)n.innerHTML=html;return n;}
@@ -99,12 +101,24 @@
 
   function renderPanel(panel,role){
     var act=role.mail?'<a class="ph-go" href="'+esc(mailHref(role.mail))+'">'+esc(role.cta)+'</a>':'<a class="ph-go" href="'+esc(role.href)+'">'+esc(role.cta)+' &rarr;</a>';
+    var feat='<a class="ph-more" href="/feature/">Get featured from \u20B9500</a>';
     var more=role.more?'<a class="ph-more" href="'+esc(role.more.href)+'">'+esc(role.more.label)+'</a>':'';
     panel.innerHTML='<div class="ph-cols"><div><p class="ph-k">What the match is based on</p>'+list(role.match)+'</div><div><p class="ph-k">Have ready</p>'+list(role.ready)+'</div></div>'
-      +'<p class="ph-nx">'+esc(role.next)+'</p><div class="ph-acts">'+act+more+'</div>'
+      +(role.eng?'<form class="ph-q" novalidate><label for="phTown">Try the match engine: which town?</label><div class="ph-qr"><input id="phTown" maxlength="40" placeholder="e.g. Almora" autocomplete="off"><button type="submit" class="ph-go">Show my matches</button></div><div class="ph-res" aria-live="polite"></div></form>':'')
+      +'<p class="ph-nx">'+esc(role.next)+'</p><div class="ph-acts">'+act+more+feat+'</div>'
       +'<p class="ph-fine">Matches are suggestions, not promises. Both sides approve the terms, and money is never moved automatically. Your details are used only to find you a match.</p>';
+    var f=panel.querySelector('.ph-q');if(f)f.addEventListener('submit',function(e){e.preventDefault();runMatch(role,f.querySelector('input').value.trim(),f.querySelector('.ph-res'));});
   }
 
+  function runMatch(role,town,out){
+    var stays=(window.RW_PARTNERS||[]).filter(function(p){return typeof window.rwStayPublicEligible==='function'?window.rwStayPublicEligible(p):true;});
+    out.textContent='Matching\u2026';
+    import('/creators/partner-match-core.mjs').then(function(m){
+      var r=m.matchStays(role.eng,{town:town},stays,3);
+      if(!r.length){out.innerHTML='<p class="ph-none">No strong match yet'+(town?' in '+esc(town):'')+'. We would rather say so than force one. Join and we will match you as stays and partners are added.</p>';return;}
+      out.innerHTML=r.map(function(x){return '<div class="ph-m"><b>'+esc(x.name)+'</b><small>'+esc(x.town)+' &middot; '+x.score+'/100 fit signals</small><ul class="ph-l">'+x.reasons.slice(0,3).map(function(y){return '<li>'+esc(y)+'</li>';}).join('')+'</ul></div>';}).join('')+'<p class="ph-fine">Fit signals come from each listing\u2019s public details. They are not a prediction of sales or enquiries. Both sides approve before anything is agreed.</p>';
+    }).catch(function(){out.textContent='The match tool could not load. Please try again.';});
+  }
   function build(host){
     var s=el('style');s.textContent=CSS;document.head.appendChild(s);
     host.innerHTML='<span class="ph-eb">PARTNER WITH ROAMWISE</span><h2>Find your <em>right match</em></h2>'
