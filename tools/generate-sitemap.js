@@ -54,6 +54,8 @@ const TOP_LEVEL_URLS = [
   `${SITE}/creators/gallery.html`,
   `${SITE}/memories/`,
   `${SITE}/books/`,
+  `${SITE}/map/`,
+  `${SITE}/providers/join/`,
   `${SITE}/local-business/`,
   `${SITE}/creators/join-artist.html`,
   `${SITE}/creators/artist-terms.html`,
