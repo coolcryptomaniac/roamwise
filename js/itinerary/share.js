@@ -50,7 +50,7 @@ function rwShareGo(id, href){
   if(id==='insta'){
     try{ navigator.clipboard.writeText(ctx.text+' '+ctx.url); }catch(e){ /* clipboard best-effort, ignore */ }
     showToast('Caption copied \u2014 opening Instagram to paste \ud83d\udcf7');
-    try{ window.open('https://www.instagram.com/','_blank'); }catch(e){ /* best-effort, ignore */ }
+    try{ window.open('https://www.instagram.com/','_blank','noopener'); }catch(e){ /* best-effort, ignore */ }
     return;
   }
   if(id==='more'){
@@ -66,7 +66,7 @@ function rwShareGo(id, href){
 var APP_URL_SHARE='https://www.roamwise.co.in';
 function doShare(txt){
   if(navigator.share){ navigator.share({title:'RoamWise Pro',text:txt,url:APP_URL_SHARE}).then(function(){xpAdd(15,'Shared \u2014 spreading the word');}).catch(function(){}); }
-  else{ window.open('https://wa.me/?text='+encodeURIComponent(txt+' '+APP_URL_SHARE),'_blank'); xpAdd(15,'Shared \u2014 spreading the word'); }
+  else{ window.open('https://wa.me/?text='+encodeURIComponent(txt+' '+APP_URL_SHARE),'_blank','noopener'); xpAdd(15,'Shared \u2014 spreading the word'); }
 }
 function shareApp(what){
   var m={app:'\ud83e\udd77 Found a travel app that shows the LEAST crowded month for any place on Earth + ninja hacks. \u20b9100 lifetime, no subscription.',

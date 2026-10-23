@@ -178,12 +178,12 @@ function mapsRoute(dest){
 function openStrava(){
   var t0=Date.now();
   window.location.href='strava://record';
-  setTimeout(function(){ if(!document.hidden && Date.now()-t0<2200) window.open('https://www.strava.com/mobile','_blank'); },1300);
+  setTimeout(function(){ if(!document.hidden && Date.now()-t0<2200) window.open('https://www.strava.com/mobile','_blank','noopener'); },1300);
   xpAdd(5,'Tracking armed');
 }
 function shareLive(dest){
   var txt='🛰️ Heading to '+dest+'! Tracking my route — planned with RoamWise 🥷 '+APP_URL_SHARE;
-  window.open('https://wa.me/?text='+encodeURIComponent(txt),'_blank');
+  window.open('https://wa.me/?text='+encodeURIComponent(txt),'_blank','noopener');
 }
 function trackBar(d){
   var full=d.name+', '+(d.country||'');

@@ -10,6 +10,13 @@
   # GitHub Pages sends this today; the Android app and partner pages rely on it.
   Access-Control-Allow-Origin: *
 
+/admin/*
+  X-Frame-Options: SAMEORIGIN
+  Content-Security-Policy: frame-ancestors 'self'
+/staff/*
+  X-Frame-Options: SAMEORIGIN
+  Content-Security-Policy: frame-ancestors 'self'
+
 /assets/*
   Cache-Control: public, max-age=86400
 /icons/*
