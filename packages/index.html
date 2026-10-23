@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en" class="rw-opening-skip">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#08070d">
+  <title>Student group trips in Kumaon and Garhwal | RoamWise</title>
+  <meta name="description" content="Eight friends, one hill kitchen, calm dates and a local guide every day. RoamWise student group packages for Almora and Lansdowne, with pay-in-parts.">
+  <link rel="canonical" href="https://roamwise.co.in/packages/"><link rel="icon" href="../icons/favicon-32.png">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet"><link rel="stylesheet" href="packages.css">
+</head>
+<body>
+  <nav class="pk-nav"><a href="../" class="pk-brand"><img src="../icons/icon-192.png" alt=""><b>Roam<span>Wise</span></b></a><a href="../">Back to RoamWise</a></nav>
+  <main>
+    <header class="pk-hero">
+      <span class="pk-kicker">STUDENT GROUP TRIPS</span>
+      <h1>Yaadein le jayein.<br><em>Eight friends, one hill.</em></h1>
+      <p>Everything planned: a stay, a local guide every day, the transport and the calmest dates on the road. Pay in parts, with no interest.</p>
+    </header>
+
+    <section class="pk-tabs" id="pkTabs" aria-label="Choose a package"></section>
+
+    <section class="pk-panel">
+      <div class="pk-controls">
+        <div class="pk-field"><label for="pkSize">Friends travelling</label>
+          <div class="pk-step"><button type="button" id="pkMinus" aria-label="One fewer">&minus;</button><output id="pkSize">8</output><button type="button" id="pkPlus" aria-label="One more">+</button></div></div>
+        <div class="pk-field"><label for="pkCohort">Who is travelling</label>
+          <select id="pkCohort"><option value="any">Anyone, any weekday</option><option value="nmims">NMIMS students (sample calendar)</option></select></div>
+        <fieldset class="pk-field pk-opts"><legend>Your way</legend>
+          <label><input type="radio" name="veh" value="single" checked> One vehicle, easiest</label>
+          <label><input type="radio" name="veh" value="cheapest"> Smaller cars, cheaper</label>
+          <label><input type="radio" name="veh" value="premium"> Premium van, one vehicle all days (up to 10)</label>
+          <label class="pk-check"><input type="checkbox" id="pkKit" checked> Yaadein kit: group reel, photos, instant prints</label>
+        </fieldset>
+      </div>
+
+      <h2>Calm dates <small>fewest jams on the road</small></h2>
+      <div class="pk-dates" id="pkDates" role="radiogroup" aria-label="Choose a start date"></div>
+      <div class="pk-own"><label for="pkOwn">Or pick your own start date</label><input type="date" id="pkOwn"><span id="pkOwnRisk" class="pk-risk" aria-live="polite"></span></div>
+      <p class="pk-fine" id="pkCohortNote"></p>
+    </section>
+
+    <section class="pk-grid">
+      <article class="pk-card pk-price" id="pkPrice" aria-live="polite"></article>
+      <article class="pk-card" id="pkParts"></article>
+    </section>
+
+    <section class="pk-card"><h2>Day by day</h2><ol class="pk-days" id="pkDays"></ol></section>
+    <section class="pk-grid">
+      <article class="pk-card" id="pkTransport"></article>
+      <article class="pk-card" id="pkIncludes"></article>
+    </section>
+    <section class="pk-card" id="pkBook" hidden></section>
+    <section class="pk-card" id="pkSafety"></section>
+    <section class="pk-card" id="pkHow"></section>
+    <p class="pk-fine pk-foot">Prices include 5% GST and are a guide until the stay confirms rooms and dates. Property owners have the final say on every stay. RoamWise does not own the vehicles or rooms: licensed local partners provide them and we coordinate the trip.</p>
+  </main>
+  <script type="module" src="packages.js"></script>
+</body>
+</html>
