@@ -19,6 +19,7 @@
 
   <section id="muStage" class="mu-stage" aria-label="Player">
     <canvas id="muDust" class="mu-dust" aria-hidden="true"></canvas>
+    <button type="button" id="muResume" class="mu-resume" hidden><span>&#9654; Continue where you left off</span><b id="muResumeT"></b></button>
     <div id="muCarousel" class="mu-carousel" tabindex="0" role="group" aria-label="Albums. Use the left and right arrow keys, or swipe."></div>
     <div class="mu-now"><h2 id="muTitle">Pick an album</h2><p id="muSub"></p><p class="mu-track" id="muTrack" aria-live="polite"></p></div>
     <div class="mu-deck">
@@ -29,19 +30,33 @@
       <div class="mu-video-slot" id="muVideoSlot"><div class="mu-video" id="muVideoBox"><div id="muFrame"></div></div><div class="mu-sp-host" id="muSpHost" hidden></div>
         <div class="mu-fallback" id="muFallback" hidden><p>This album can't be played inside the page.</p><a id="muFallbackLink" class="mu-btn" target="_blank" rel="noopener noreferrer">Listen on YouTube Music</a> <a id="muFallbackSp" class="mu-btn" target="_blank" rel="noopener noreferrer" hidden>Listen on Spotify</a></div></div>
     </div>
-    <div class="mu-progress"><span id="muCur">0:00</span><input type="range" id="muSeek" min="0" max="1000" value="0" aria-label="Seek"><span id="muDurT">0:00</span></div>
-    <div class="mu-ctl">
-      <button type="button" id="muShuffle" aria-pressed="false" aria-label="Shuffle">&#128256;</button>
-      <button type="button" id="muPrev" aria-label="Previous album">&#9198;</button>
-      <button type="button" id="muPlay" class="big" aria-label="Play">&#9654;</button>
-      <button type="button" id="muNext" aria-label="Next album">&#9197;</button>
-      <button type="button" id="muRepeat" aria-pressed="false" aria-label="Repeat: off" data-mode="off">&#128257;</button>
-      <label class="mu-vol"><span class="mu-sr">Volume</span>&#128266;<input type="range" id="muVol" min="0" max="100" value="80"></label>
-      <span class="mu-eng" id="muEng" role="group" aria-label="Player"><button type="button" data-eng="spotify" aria-pressed="true">Spotify</button><button type="button" data-eng="youtube" aria-pressed="false">YouTube</button></span>
-      <a id="muYTM" class="mu-ytm" target="_blank" rel="noopener noreferrer">Play in YouTube Music app</a>
+    <section class="mu-sec" aria-labelledby="muL1">
+      <h3 class="mu-lab" id="muL1">Controls</h3>
+      <div class="mu-progress"><span id="muCur">0:00</span><input type="range" id="muSeek" min="0" max="1000" value="0" aria-label="Seek"><span id="muDurT">0:00</span></div>
+      <div class="mu-ctl">
+        <button type="button" id="muShuffle" aria-pressed="false" aria-label="Shuffle">&#128256;</button>
+        <button type="button" id="muPrev" aria-label="Previous album">&#9198;</button>
+        <button type="button" id="muPlay" class="big" aria-label="Play">&#9654;</button>
+        <button type="button" id="muNext" aria-label="Next album">&#9197;</button>
+        <button type="button" id="muRepeat" aria-pressed="false" aria-label="Repeat: off" data-mode="off">&#128257;</button>
+      </div>
+    </section>
+    <div class="mu-secs">
+      <section class="mu-sec" aria-labelledby="muL2">
+        <h3 class="mu-lab" id="muL2">Player</h3>
+        <div class="mu-opts">
+          <span class="mu-eng" id="muEng" role="group" aria-label="Player"><button type="button" data-eng="spotify" aria-pressed="true">Spotify</button><button type="button" data-eng="youtube" aria-pressed="false">YouTube</button></span>
+          <label class="mu-vol"><span class="mu-sr">Volume</span>&#128266;<input type="range" id="muVol" min="0" max="100" value="80"></label>
+          <a id="muYTM" class="mu-ytm" target="_blank" rel="noopener noreferrer">Play in YouTube Music app</a>
+        </div>
+      </section>
+      <section class="mu-sec" aria-labelledby="muL3">
+        <h3 class="mu-lab" id="muL3">Mood &amp; mix</h3>
+        <div id="muMoods" class="mu-moods" role="group" aria-label="Moods"></div>
+      </section>
     </div>
-    <div id="muMoods" class="mu-moods" role="group" aria-label="Moods"></div>
-    <p class="mu-fine">The light show moves to a synthesised beat while music plays; it does not read the audio. Moods are a first guess from the titles. Keys: K play, N next, P previous.</p>
+    <p class="mu-hint" id="muHint" aria-live="polite"></p>
+    <p class="mu-fine">Flick the albums, tap one to play or pause, press and hold the centre album for shuffle. Keys: K play, N next, P previous. The light show moves to a synthesised beat and does not read the audio. Moods are a first guess from the titles. Your last album is remembered on this device only.</p>
   </section>
 
   <div class="mu-shelf-head"><h2>The bookshelf</h2><label class="mu-search"><span class="mu-sr">Search albums</span><input id="muSearch" type="search" placeholder="Search by title" autocomplete="off"></label></div>

@@ -85,3 +85,15 @@ test('queue: shuffle keeps every album once and starts on the chosen one; advanc
   assert.equal(advance({ items: list, index: 0 }, -1, 'all', false), 3);
   assert.equal(lighten('#000000', 0.5), '#808080'); assert.equal(lighten('bad'), '#fff0c2');
 });
+
+test('cleanReleases keeps only trusted Spotify album links and art URLs', async () => {
+  const { cleanReleases, coverOf, esc } = await import('../music/shelf-core.mjs');
+  const [ok, bad] = cleanReleases([
+    { id: 'abcdefghijk', title: 'A', spotify: 'https://open.spotify.com/album/4YknLE61y3yFoZ1KARu8dj', art: 'https://image-cdn-fa.spotifycdn.com/image/ab67616d0000b273abc123' },
+    { id: 'bcdefghijkl', title: 'B', spotify: 'https://evil.example/album/4YknLE61y3yFoZ1KARu8dj', art: 'https://evil.example/x.jpg' },
+  ]);
+  assert.ok(ok.spotify && ok.art);
+  assert.equal(bad.spotify, ''); assert.equal(bad.art, '');
+  assert.match(coverOf(ok), /spotifycdn/); assert.match(coverOf(bad), /ytimg/);
+  assert.equal(esc('<a href="x">&\'</a>'), '&lt;a href=&quot;x&quot;&gt;&amp;&#39;&lt;/a&gt;');
+});

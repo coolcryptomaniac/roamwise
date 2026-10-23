@@ -86,6 +86,7 @@ export const albumUrl = (playlist) => 'https://music.youtube.com/playlist?list='
 export const ytmUrl = (id, playlist) => 'https://music.youtube.com/watch?v=' + id + (playlist ? '&list=' + playlist : '');
 export const watchUrl = (id) => 'https://www.youtube.com/watch?v=' + id;
 export const musicUrl = (id) => 'https://music.youtube.com/watch?v=' + id;
+export const esc = (v) => String(v == null ? '' : v).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 export const coverUrl = (id) => 'https://i.ytimg.com/vi/' + id + '/hqdefault.jpg';
 /* Real square album art from Spotify when we have it, else the YouTube thumbnail. */
 export const coverOf = (r) => (r && r.art) || coverUrl(r && r.id);

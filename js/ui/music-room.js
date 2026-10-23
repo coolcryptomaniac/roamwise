@@ -27,7 +27,7 @@
       var x = el('button', 'rwm-cb ' + b[0], b[1]); x.type = 'button'; x.setAttribute('aria-label', b[2]); ctl.appendChild(x);
     });
     var eng = el('span', 'rwm-eng'); eng.setAttribute('role', 'group'); eng.setAttribute('aria-label', 'Player');
-    ['spotify', 'youtube'].forEach(function (k) { var x = el('button', '', k === 'spotify' ? 'Spotify' : 'YouTube'); x.type = 'button'; x.dataset.eng = k; x.onclick = function () { engine = k; try { localStorage.setItem('mu-engine', k); } catch (e) {} if (cur) playAlbum(cur.pl, cur.title, cur.sp, cur.ytm); }; eng.appendChild(x); });
+    ['spotify', 'youtube'].forEach(function (k) { var x = el('button', '', k === 'spotify' ? 'Spotify' : 'YouTube'); x.type = 'button'; x.dataset.eng = k; x.onclick = function () { engine = k; try { localStorage.setItem('mu-engine', k); } catch (e) {} if (cur) playAlbum(cur.pl, cur.title, cur.sp, cur.ytm, cur.id); }; eng.appendChild(x); });
     bar.appendChild(vid); bar.appendChild(info); bar.appendChild(eng);
     var ym = el('a', 'rwm-ytm2', 'Play in YouTube Music app'); ym.target = '_blank'; ym.rel = 'noopener noreferrer';
     var ytm = el('a', 'rwm-ytm', 'Open in YouTube Music'); ytm.target = '_blank'; ytm.rel = 'noopener noreferrer';
@@ -64,8 +64,9 @@
       });
     }).catch(function () { bar.querySelector('.rwm-bs').textContent = 'Spotify is blocked here \u2014 tap the link below.'; });
   }
-  function playAlbum(pl, title, spId, ytm) {
-    cur = { pl: pl, title: title, sp: spId, ytm: ytm || (cur && cur.ytm) };
+  function playAlbum(pl, title, spId, ytm, id) {
+    cur = { pl: pl, title: title, sp: spId, ytm: ytm || (cur && cur.ytm), id: id || (cur && cur.id) };
+    try { if (cur.id) localStorage.setItem('mu-last', JSON.stringify({ id: cur.id, mood: '', shuffle: false, repeat: 'off', idx: 0, t: 0, at: Date.now() })); } catch (e) {}
     if (!bar) buildBar();
     var useSpot = engine === 'spotify' && !!spId || (!pl && !!spId);
     var first = !bar.classList.contains('on'); bar.classList.add('on');
@@ -100,7 +101,7 @@
     var seen = {};
     list.filter(function (r) { return r && /^[A-Za-z0-9_-]{11}$/.test(r.id || '') && r.title && !seen[r.id] && (seen[r.id] = 1); })
       .sort(function (a, b) { return String(b.published || '').localeCompare(String(a.published || '')); })
-      .slice(0, 14).forEach(function (r) {
+      .slice(0, 40).forEach(function (r) {
         var a = document.createElement('a'); a.className = 'rwm-it'; a.href = 'https://music.youtube.com/playlist?list=' + (r.playlist || ''); a.dataset.id = r.id; a.dataset.ytm = 'https://music.youtube.com/watch?v=' + r.id + (r.playlist ? '&list=' + r.playlist : ''); a.dataset.pl = r.playlist || ''; a.dataset.sp = /^https:\/\/open\.spotify\.com\/album\/[A-Za-z0-9]{10,40}$/.test(r.spotify || '') ? r.spotify.split('/').pop() : ''; a.setAttribute('role', 'listitem'); if (!r.playlist && !a.dataset.sp) a.href = '/music/#' + r.id; else if (a.dataset.sp) a.href = 'https://open.spotify.com/album/' + a.dataset.sp;
         var c = document.createElement('div'); c.className = 'rwm-cov';
         var i = document.createElement('img'); i.loading = 'lazy'; i.alt = ''; if (r.art && /^https:\/\/(image-cdn[a-z0-9-]*\.spotifycdn\.com|i\.scdn\.co)\//.test(r.art)) { i.src = r.art; c.classList.add('sq'); } else i.src = 'https://i.ytimg.com/vi/' + r.id + '/hqdefault.jpg'; c.appendChild(i);
@@ -110,8 +111,16 @@
       });
     row.addEventListener('click', function (e) {
       var a = e.target.closest && e.target.closest('.rwm-it'); if (!a || (!a.dataset.pl && !a.dataset.sp)) return;
-      e.preventDefault(); if (activeEl) activeEl.classList.remove('on'); activeEl = a; a.classList.add('on'); a.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' }); playAlbum(a.dataset.pl, a.querySelector('.rwm-t').textContent, a.dataset.sp, a.dataset.ytm);
+      e.preventDefault(); if (activeEl) activeEl.classList.remove('on'); activeEl = a; a.classList.add('on'); a.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' }); playAlbum(a.dataset.pl, a.querySelector('.rwm-t').textContent, a.dataset.sp, a.dataset.ytm, a.dataset.id);
     });
+    try {
+      var mem = JSON.parse(localStorage.getItem('mu-last') || 'null'), card = mem && row.querySelector('.rwm-it[data-id="' + String(mem.id).replace(/[^A-Za-z0-9_-]/g, '') + '"]');
+      if (card) {
+        var cb = el('button', 'rwm-cont'); cb.type = 'button'; cb.appendChild(el('span', '', '\u25B6 Continue')); cb.appendChild(el('b', '', card.querySelector('.rwm-t').textContent));
+        cb.onclick = function () { card.click(); };
+        row.parentNode.insertBefore(cb, row);
+      }
+    } catch (e) {}
     var wrap = el('div', 'rwm-rowwrap'); row.parentNode.insertBefore(wrap, row); wrap.appendChild(row);
     ['prev', 'next'].forEach(function (d) {
       var b = el('button', 'rwm-arr rwm-' + d, d === 'prev' ? '\u2039' : '\u203A'); b.type = 'button'; b.setAttribute('aria-label', d === 'prev' ? 'Scroll albums left' : 'Scroll albums right');

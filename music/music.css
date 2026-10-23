@@ -119,3 +119,14 @@ body.mu-playing .mu-arm{transform:rotate(4deg)}
 body.mu-sp .mu-vol{display:none}
 body.mu-stage-away.mu-started.mu-sp .mu-video-slot{position:relative}
 #muVideoBox[hidden],.mu-sp-host[hidden]{display:none}
+.mu-carousel.drag .mc-card{transition:none!important}.mu-carousel{cursor:grab}.mu-carousel.drag{cursor:grabbing}
+/* sections: every group of controls sits in its own bordered panel */
+.mu-sec{margin:12px 0 0;padding:12px 14px 14px;border-radius:18px;border:1px solid rgba(217,180,105,.28);background:linear-gradient(180deg,rgba(255,240,194,.05),rgba(0,0,0,.28));box-shadow:inset 0 1px 0 rgba(255,240,194,.08)}
+.mu-lab{margin:0 0 8px;font:800 10.5px/1 Outfit,system-ui,sans-serif;letter-spacing:.16em;text-transform:uppercase;color:var(--brass);opacity:.9}
+.mu-secs{display:grid;gap:0 12px}@media(min-width:760px){.mu-secs{grid-template-columns:minmax(0,1fr) minmax(0,1.4fr)}}
+.mu-opts{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.mu-moods{margin:0;justify-content:flex-start}
+.mu-resume{display:flex;flex-direction:column;align-items:center;gap:2px;margin:0 auto 6px;padding:9px 18px;border-radius:14px;border:1px solid var(--brass);background:linear-gradient(95deg,rgba(217,180,105,.3),rgba(255,240,194,.14));color:var(--brass2);font:700 13px Outfit,system-ui,sans-serif;cursor:pointer;position:relative;z-index:5;max-width:92%}
+.mu-resume[hidden]{display:none}.mu-resume b{font:600 12px Georgia,serif;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.mu-hint{min-height:18px;margin:8px 0 0;text-align:center;font-size:12.5px;color:var(--brass2);opacity:0;transition:opacity .25s}.mu-hint.on{opacity:1}
+.mu-now{touch-action:pan-y;cursor:grab}
