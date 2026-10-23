@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Join the RoamWise Creator Network</title>
+<meta name="description" content="Register once and get stay, food and travel collaboration opportunities from RoamWise partners.">
+<link rel="canonical" href="https://www.roamwise.co.in/creators/match.html?role=creator&amp;invite=founding">
+<meta property="og:title" content="Join the RoamWise Creator Network">
+<meta property="og:description" content="Register once and get stay, food and travel collaboration opportunities from RoamWise partners.">
+<meta property="og:image" content="https://www.roamwise.co.in/icon-512.png">
+<noscript><meta http-equiv="refresh" content="0;url=/creators/match.html?role=creator&amp;invite=founding"></noscript>
+<style>body{margin:0;min-height:100vh;display:grid;place-items:center;background:#0b0f14;color:#e9eef5;font:16px/1.5 system-ui,sans-serif;text-align:center;padding:24px}a{color:#f2a93b}</style>
+</head>
+<body>
+<p>Taking you to creator registration… <a id="go" href="/creators/match.html?role=creator&amp;invite=founding">Tap here if nothing happens</a>.</p>
+<script>
+(function(){
+  var q=new URLSearchParams(location.search);
+  var u=new URLSearchParams({role:'creator',invite:q.get('invite')||'founding'});
+  var src=q.get('src'); if(src) u.set('src',String(src).slice(0,40));
+  var to='/creators/match.html?'+u.toString();
+  document.getElementById('go').href=to;
+  location.replace(to);
+})();
+</script>
+</body>
+</html>
