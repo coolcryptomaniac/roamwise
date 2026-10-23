@@ -1,3 +1,4 @@
+// @ts-nocheck - classic script that talks to the YouTube IFrame API globals
 /* Home "Music Room": a swipeable row of album covers from /music/releases.json. Tapping a cover plays the album in a bottom player on the home page (YouTube IFrame API, album playlist), with an Open in YouTube Music link. Text via textContent; no tracking. */
 (function () {
   'use strict';
