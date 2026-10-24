@@ -208,7 +208,41 @@
       "checkedAt": "2026-10-19T00:00:00Z",
       "appointmentSource": "Founder instruction, 19 October 2026; no contract terms represented",
       "photo": null,
-      "artworks": [],
+      "artworks": [
+        {
+          "id": "kaali",
+          "title": "Kaali",
+          "status": "Portfolio example",
+          "type": "Digital artwork",
+          "price": "Ask artist about formats and pricing",
+          "image": "/assets/img/jagriti/kaali.jpg",
+          "url": "https://www.instagram.com/jagriti.creates/p/Dei-Ch0Assj/",
+          "medium": "Digital painting",
+          "size": null
+        },
+        {
+          "id": "gauri-ganesh",
+          "title": "Gauri Ganesh",
+          "status": "Portfolio example",
+          "type": "Illustration",
+          "price": "Ask artist about formats and pricing",
+          "image": "/assets/img/jagriti/gauri-ganesh.jpg",
+          "url": "https://in.pinterest.com/pin/461056080612085381/",
+          "medium": null,
+          "size": null
+        },
+        {
+          "id": "indian-fruit-seller",
+          "title": "Indian fruit seller",
+          "status": "Portfolio example",
+          "type": "Illustration",
+          "price": "Ask artist about formats and pricing",
+          "image": "/assets/img/jagriti/indian-fruit-seller.jpg",
+          "url": "https://in.pinterest.com/pin/461056080611978361/",
+          "medium": null,
+          "size": null
+        }
+      ],
       "whatsapp": null,
       "social": {
         "instagram": "https://www.instagram.com/jagriti.creates/",
@@ -274,7 +308,8 @@
         }
       ],
       "plan": "featured",
-      "page": "/creators/jagriti.html"
+      "page": "/creators/jagriti.html",
+      "artworksSource": "Kaali: artist's Instagram post; Gauri Ganesh and Indian fruit seller: Pinterest posts attributed to Jagriti Creates with visible artist signature. Checked 24 October 2026. Portfolio examples only; physical format, sale availability and price unconfirmed."
     },
     {
       "id": "ritesh-devarmani",
