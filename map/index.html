@@ -17,7 +17,14 @@
   </header>
   <main class="mp-main">
     <div class="mp-left">
-      <div id="mpMap" class="mp-map" role="application" aria-label="Map of Uttarakhand. Use the district cards below as a keyboard alternative."></div>
+      <div class="mp-mapwrap" id="mpWrap">
+        <div id="mpMap" class="mp-map" role="application" aria-label="Map of Uttarakhand. Use the district cards below as a keyboard alternative."></div>
+        <div class="mp-tools">
+          <button type="button" id="mpFull" aria-pressed="false">&#x26F6; Expand</button>
+          <button type="button" id="mpAll">&#8962; All partners</button>
+        </div>
+        <div id="mpPartners" class="mp-pstrip" aria-label="RoamWise partners in this district"></div>
+      </div>
       <section class="mp-car" aria-label="Districts of Uttarakhand">
         <div class="mp-car-bar"><b>13 districts</b><span id="mpCount" aria-live="polite"></span><span class="mp-arrows"><button type="button" id="mpPrev" aria-label="Previous district">&#8249;</button><button type="button" id="mpNext" aria-label="Next district">&#8250;</button></span></div>
         <div id="mpTrack" class="mp-track" tabindex="-1"></div>

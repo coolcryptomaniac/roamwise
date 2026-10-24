@@ -90,3 +90,10 @@ test('districts: bad rows dropped, search covers traits and place names', () => 
   assert.deepEqual(searchDistricts(districts, places, 'kedarnath').map((d) => d.id), ['rudraprayag']);
   assert.equal(searchDistricts(districts, places, '').length, 13);
 });
+
+test('partner card photo is a safe relative asset path or null', () => {
+  const c = partnerCard({ id: 'x', name: 'X', verified: 'signed', photos: [{ src: 'https://evil.example/a.jpg' }, { src: 'assets/property-photos/a.webp', alt: 'A' }] });
+  assert.deepStrictEqual(c.photo, { src: 'assets/property-photos/a.webp', alt: 'A' });
+  assert.strictEqual(partnerCard({ id: 'y', name: 'Y', verified: 'signed', photos: [{ src: '../../etc/passwd.jpg' }] }).photo, null);
+  assert.strictEqual(partnerCard({ id: 'z', name: 'Z', verified: 'signed' }).photo, null);
+});
