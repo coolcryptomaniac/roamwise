@@ -32,6 +32,7 @@ function rwCloseSection(id){
    content; they just render into a page shell instead of the home feed.
    ========================================================================= */
 var RW_PAGES = {
+  tripdesk: {title:'Your trip desk',sub:'Free days, transport and stays',icon:'',build:function(){}},
   partners: { title:'Stay & do',      sub:'Boutique stays and local operators we\u2019ve actually researched', icon:'\ud83e\udd1d', build:function(){ return _pageWrap('partnersSection'); } },
   events:   { title:'Event radar',    sub:'Music, startup, sport and motoring \u2014 with a trip built around each', icon:'\ud83d\udcc5', build:function(){ return _pageWrap('eventsSection'); } },
   compat:   { title:'Travel style',   sub:'Who you actually travel well with', icon:'\u2699\ufe0f', build:function(){} },
@@ -94,6 +95,7 @@ window.addEventListener('popstate', function(){
   }
 });
 function rwRouteTo(key){
+  if(key==='tripdesk' && typeof rwOpenTripDesk==='function') return rwOpenTripDesk();
   if(key==='partners' && typeof openPartners==='function') return openPartners();
   if(key==='events'   && typeof openEvents==='function')   return openEvents();
   if(key==='compat'   && typeof openCompat==='function')    return openCompat();

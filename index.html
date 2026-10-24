@@ -255,6 +255,7 @@ document.write('<div style="font:16px/1.5 system-ui,Arial,sans-serif;background:
 <link rel="preload" href="css/base/06-commerce-and-social.css" as="style">
 <link rel="preload" href="css/base/07-tusk-readability.css" as="style">
 <link rel="preload" href="css/base/08-tusk-motion.css" as="style">
+<link rel="stylesheet" href="design/trip-desk.css?v=1">
 <link rel="stylesheet" href="app.css?v=rw-v124-personal-group-planner">
 <link rel="stylesheet" href="mobile-stability.css?v=rw-v125-compact-tusk">
 <link rel="stylesheet" href="design/roamwise-akatsuki-theme.css?v=rw-v125-akatsuki-tusk">
@@ -572,6 +573,7 @@ html{-webkit-text-size-adjust:100%}
 <section class="v v-home" id="bigSix" aria-label="Main ways to use RoamWise" style="margin:14px 0 4px">
   <div class="bs-grid">
     <button type="button" class="bs-tile bs-stay" onclick="openListing()"><span class="bs-ic" aria-hidden="true">&#127969;</span><b>Book &amp; Stay</b><small>Local stays. Enquire on WhatsApp.</small></button>
+<button type="button" class="bs-tile bs-stay" onclick="rwOpenTripDesk()"><b>Flights, trains &amp; rides</b><small>Electric first. Your whole trip together.</small></button>
     <a class="bs-tile bs-nomad" href="nomads/"><span class="bs-ic" aria-hidden="true">&#128187;</span><b>Nomad Match</b><small>Work stays, 15 days to 3 months.</small></a>
     <a class="bs-tile bs-creator" href="creators/match.html?role=creator&amp;invite=founding"><span class="bs-ic" aria-hidden="true">&#127909;</span><b>Creator Match</b><small>Free stays for your content.</small></a>
     <a class="bs-tile bs-prop" href="creators/match.html?role=property"><span class="bs-ic" aria-hidden="true">&#129309;</span><b>Creators &times; Stays</b><small>Hosts: find creators who fit.</small></a>
@@ -1890,6 +1892,9 @@ function rwDismissCreatorBanner(){
 <script src="js/itinerary/journey-log.js" defer></script>
 <script src="js/itinerary/map-view.js" defer></script>
 <script src="js/itinerary/trip-footprint.js" defer></script>
+<script defer src="js/trip-desk/core.js?v=2"></script>
+<script defer src="js/trip-desk/history.js?v=2"></script>
+<script defer src="js/trip-desk/ui.js?v=2"></script>
 <script src="js/itinerary/trip-vault.js" defer></script>
 <script src="js/itinerary/meters.js" defer></script>
 <script src="js/itinerary/place-disambiguation.js" defer></script>

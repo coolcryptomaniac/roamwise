@@ -50,6 +50,7 @@ function openListing(){
     var out=el('lstOut');
     var live=rwListingAll();
     out.innerHTML='<div class="rail-h lst-live-heading"><b>Stay &amp; do</b><span>Local stays you can enquire about today. Each listing explains its status.</span></div>'
+      +'<div class="lst-trip-actions"><button onclick="rwOpenTripDesk()">My trip · flights, trains &amp; electric rides</button></div>'
       +'<div class="lst-grid" id="lstGrid">'+live.map(function(x){ return rwListCard(x,false); }).join('')+'</div>'
       +'<div class="gr-foot">The hotel confirms availability, final price including taxes, payment method and reservation directly. <a href="mailto:founder@roamwise.co.in?subject=RoamWise%20booking%20support">Need help? Contact RoamWise support</a>.</div>';
     /* Admin-uploaded photos load lazily, then the grid repaints once. */
@@ -102,6 +103,7 @@ function rwListCard(x, rail){
     +'<div class="lst-w">'+esc2((x.area||'')+(x.area?' \u00b7 ':'')+(x.zone||''))+'</div>'
     +'<div class="lst-bd">'+bl.map(rwBadge).join(' ')+'</div>'
     + (x.price&&!x.enquiryOnly? '<div class="lst-p"><b>\u20b9'+Number(x.price).toLocaleString('en-IN')+'</b> night</div>':'')
+    +'<button type="button" class="td-save-stay" onclick="event.stopPropagation();rwTripShortlist(decodeURIComponent(\''+encodeURIComponent(x.id).replace(/'/g,'%27')+'\'))">Save to my trip</button>'
     +'</div></div>';
 }
 /* What the automatic check looked at, in plain words. Guests see passes only. */
