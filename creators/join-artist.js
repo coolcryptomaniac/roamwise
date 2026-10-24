@@ -1,8 +1,8 @@
-/* Join page: renders plans from artists-data.json and prepares an application message (WhatsApp / email / copy). No data leaves the browser until the artist sends it. */
+/* Join page: renders plans from artists-data.json and prepares an application message (email / copy). No data leaves the browser until the artist sends it. */
 (function () {
   'use strict';
   var esc = function (v) { return String(v == null ? '' : v).replace(/[&<>"']/g, function (c) { return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); };
-  var WA = '919987379730', MAIL = 'founder@roamwise.co.in', planBox = document.getElementById('planBox'), planNote = document.getElementById('planNote');
+  var MAIL = 'founder@roamwise.co.in', planBox = document.getElementById('planBox'), planNote = document.getElementById('planNote');
   function card(p, k, hot) {
     return '<article class="plan' + (hot ? ' hot' : '') + '"><h3>' + esc(p.name) + '</h3><div class="pr">' + (p.price ? '&#8377;' + esc(p.price) + ' <small>one-time' + (p.days ? ' · ' + esc(p.days) + ' days' : '') + '</small>' : (k === 'thankyou' ? 'Optional <small>any amount, any time</small>' : 'Free')) + '</div><ul>' + (p.features || []).map(function (f) { return '<li>' + esc(f) + '</li>'; }).join('') + '</ul></article>';
   }
@@ -37,12 +37,11 @@
     else if (!f.consent) err = 'Please tick the confirmation so we can display your work.';
     if (err) { msg.textContent = err; out.hidden = true; return; }
     msg.textContent = ''; var b = build(f); txt.textContent = b.text; out.hidden = false;
-    document.getElementById('sendWa').href = 'https://wa.me/' + WA + '?text=' + encodeURIComponent(b.text);
     document.getElementById('sendMail').href = 'mailto:' + MAIL + '?subject=' + encodeURIComponent('Artist application: ' + b.app.name) + '&body=' + encodeURIComponent(b.text);
     out.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   });
   document.getElementById('copyBtn').addEventListener('click', function () {
-    var t = txt.textContent, done = function () { msg.textContent = 'Copied. Paste it into WhatsApp or email.'; };
+    var t = txt.textContent, done = function () { msg.textContent = 'Copied. Paste it into an email to founder@roamwise.co.in.'; };
     if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(t).then(done, function () { msg.textContent = 'Select the text above and copy it.'; }); else msg.textContent = 'Select the text above and copy it.';
   });
 })();

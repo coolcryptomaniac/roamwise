@@ -275,6 +275,40 @@
       ],
       "plan": "featured",
       "page": "/creators/jagriti.html"
+    },
+    {
+      "id": "ritesh-devarmani",
+      "name": "Ritesh Devarmani",
+      "studio": "Cannon",
+      "role": "RoamWise Founding Artist",
+      "state": "Maharashtra",
+      "website": null,
+      "instagram": null,
+      "themes": [
+        "urban portrait"
+      ],
+      "bio": null,
+      "shipping": null,
+      "returns": null,
+      "plan": "founding",
+      "page": "/creators/artist.html?a=ritesh-devarmani",
+      "photo": null,
+      "whatsapp": "918108386108",
+      "social": {},
+      "artworks": [
+        {
+          "id": "urban-portrait-title-to-be-confirmed",
+          "title": "Urban portrait (title to be confirmed)",
+          "status": "Enquire for availability",
+          "type": "Original",
+          "price": "Price on request",
+          "image": "/assets/img/ritesh-devarmani/urban-portrait.jpg",
+          "url": null,
+          "medium": null,
+          "size": null
+        }
+      ],
+      "consentGivenAt": "2026-10-24"
     }
   ],
   "properties": [

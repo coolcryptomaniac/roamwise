@@ -15,8 +15,8 @@ Status: **current** (Oct 2026). Introductory model, to be reviewed after the fir
 Own page (`creators/artist.html?a=<id>`), up to 24 paintings, gallery listing, Kala presenting the work (Sacred art gallery, wall preview, finder, comparison), price tiers, institutional buyer matches where found, enquiry log with CSV export. The old `plan: free` value still exists in the code as a restricted listing (6 paintings, no Kala) but is not used for new artists.
 
 ## Onboarding flow
-1. Artist fills `creators/join-artist.html` (client-side only), which prepares a WhatsApp or email message to the RoamWise number with a `DATA:` JSON line. A consent tick is required.
-2. Artist sends 3 to 6 painting photos with title, size and price on WhatsApp.
+1. Artist fills `creators/join-artist.html` (client-side only), which prepares an email to founder@roamwise.co.in with a `DATA:` JSON line. A consent tick is required.
+2. Artist emails painting photos with title, size and price. Registration does not route to the business WhatsApp. Buyer enquiries continue to use the artist’s own WhatsApp.
 3. Founder saves the `DATA:` JSON to a file and runs `node tools/add-artist.js file.json` (dry run), then `--write`. New artists get the founding plan by default. Rules live in `creators/artist-core.mjs` (https-only links, consent, duplicate ids).
 4. Founder copies the photos into `assets/img/<artist>/`, adds them to the new record's `artworks`, and merges. The page is live at once.
 5. Spotlight: edit `spotlight` in `artists-data.json` (`artistId`, `artworkId`, `label`, `note`). The homepage card (`creators/home-art.js`) follows it.
