@@ -175,3 +175,14 @@ require separate review — this PR is left open rather than self-merged
 specifically because of that rules diff, even though the change itself is a
 minimal, same-pattern extension with no new collection and no loosened
 guard rail.
+
+---
+
+## 8. Retreat matching: teachers and resorts (added 24 Oct 2026)
+
+Some resorts have the setting and no teacher; some teachers have a following and no place to host. The program now introduces the two when the fit is real.
+
+- **Hub:** the home page "Find your right match" has two new doors, Yoga teacher and Resort or retreat host. The teacher door runs the same explainable engine as the other roles (`creators/partner-match-core.mjs`, role `yoga`): calm or nature setting, garden/terrace/lounge as practice space, views, long-stay readiness, signed partner. Every score shows its reasons and says both sides must approve.
+- **Teacher form (`/yoga/`):** new optional fields, "I am a" (teacher or host), retreat town, group size and months, saved with the existing application (`who`, `retreatTown`, `groupSize`, `retreatMonths`). No rule change was needed: the CRM create rule does not restrict extra keys.
+- **Resort door:** `/partner/join/?retreats=1` pre-fills the "what is special" box with a retreat line so the founder can see the host wants teachers.
+- **Founder review:** introductions are made by hand from the CRM. Nothing is booked, and RoamWise never moves money between teacher and resort.

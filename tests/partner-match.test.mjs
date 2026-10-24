@@ -27,3 +27,14 @@ test('different town lowers the score and says so', () => {
   assert.ok(m.score < matchStay('creator', { town: 'Almora' }, stays[0]).score);
   assert.ok(MIN_SCORE > 0);
 });
+
+test('yoga teachers are matched to calm places with room to practise, with visible reasons', () => {
+  const calm = { id: 'a', name: 'Forest Retreat', zone: 'Almora', area: 'Binsar road', hook: 'Quiet forest stay with a garden terrace and mountain views', badges: [], cat: 'stay', listingReady: true, photos: ['1'], verified: 'signed' };
+  const busy = { id: 'b', name: 'City Inn', zone: 'Delhi', area: 'Karol Bagh', hook: 'Business hotel near the metro', badges: [], cat: 'stay', listingReady: true };
+  const r = matchStays('yoga', { town: 'Almora' }, [calm, busy]);
+  assert.equal(r.length, 1);
+  assert.equal(r[0].name, 'Forest Retreat');
+  assert.ok(r[0].reasons.some((x) => /retreat/i.test(x)) && r[0].reasons.some((x) => /practice space/i.test(x)));
+  assert.equal(r[0].needsApproval, true);
+  assert.deepEqual(matchStays('yoga', { town: 'Almora' }, [busy]), []);
+});
