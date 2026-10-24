@@ -7,7 +7,7 @@ CONT = {'AF':'Africa','AS':'Asia','EU':'Europe','NA':'North America','SA':'South
 # Common alternative names travellers actually type (curated, hand-reviewed).
 ALIAS = {
  'US':['usa','u.s.a','united states of america','america','us'],'GB':['uk','u.k','england','britain','great britain','scotland','wales'],
- 'AE':['uae','dubai','abu dhabi','emirates'],'CZ':['czechia','czech republic'],'MM':['burma','myanmar'],'TR':['turkey','turkiye','türkiye'],
+ 'AE':['uae','emirates','united arab emirates'],'CZ':['czechia','czech republic'],'MM':['burma','myanmar'],'TR':['turkey','turkiye','türkiye'],
  'NL':['holland','the netherlands'],'KR':['south korea','korea'],'KP':['north korea'],'RU':['russian federation'],'VN':['viet nam'],
  'LA':['laos','lao pdr'],'CI':['ivory coast',"cote d'ivoire"],'SZ':['eswatini','swaziland'],'MK':['north macedonia','macedonia'],
  'CV':['cape verde','cabo verde'],'TL':['east timor','timor leste'],'CD':['drc','dr congo','congo kinshasa'],'CG':['congo brazzaville'],

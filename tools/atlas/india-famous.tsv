@@ -1,0 +1,195 @@
+# name|state|district|lat|lng|type|aliases(;)  -- hand-curated tourist/famous places; override GeoNames within 12 km. Types: T temple, F fort/heritage, W lake/waterfall, M mountain/pass, B beach, I island, N park/wildlife, X cave, R hill station/resort, a town, A district seat
+Almora|Uttarakhand|Almora|29.597|79.659|a|Almorah;Almora Town
+Kasar Devi|Uttarakhand|Almora|29.643|79.676|T|Kasar Devi Temple;Crank's Ridge;Kasar Devi Almora
+Jageshwar|Uttarakhand|Almora|29.639|79.855|T|Jageshwar Dham;Jageshwar Temples;Jageshwar Mahadev
+Binsar|Uttarakhand|Almora|29.700|79.750|N|Binsar Wildlife Sanctuary;Binsar Zero Point
+Ranikhet|Uttarakhand|Almora|29.643|79.432|R|Raniket;Ranikhet Cantt
+Dwarahat|Uttarakhand|Almora|29.780|79.430|a|
+Kausani|Uttarakhand|Bageshwar|29.840|79.600|R|Kausani Valley
+Bageshwar|Uttarakhand|Bageshwar|29.838|79.771|A|Bageshwar Dham
+Baijnath|Uttarakhand|Bageshwar|29.917|79.617|T|Baijnath Temple;Garur Baijnath
+Pindari Glacier|Uttarakhand|Bageshwar|30.250|80.000|M|Pindari;Pindari Glacier Trek
+Munsiyari|Uttarakhand|Pithoragarh|30.067|80.240|R|Munsyari
+Pithoragarh|Uttarakhand|Pithoragarh|29.583|80.218|A|Mini Kashmir
+Nainital|Uttarakhand|Nainital|29.391|79.456|R|Naini Tal;Nainital Lake;Naini Lake
+Bhimtal|Uttarakhand|Nainital|29.346|79.563|R|Bhim Tal
+Sattal|Uttarakhand|Nainital|29.338|79.553|W|Sat Tal;Seven Lakes
+Mukteshwar|Uttarakhand|Nainital|29.472|79.648|R|Mukteshwar Dham;Muktesar
+Kainchi Dham|Uttarakhand|Nainital|29.399|79.503|T|Neem Karoli Baba Ashram;Kainchi;Neeb Karori
+Jim Corbett National Park|Uttarakhand|Nainital|29.530|78.775|N|Corbett;Jim Corbett;Corbett National Park;Corbett Tiger Reserve
+Ramnagar|Uttarakhand|Nainital|29.395|79.127|a|Ramnagar Corbett
+Haldwani|Uttarakhand|Nainital|29.222|79.513|a|
+Kathgodam|Uttarakhand|Nainital|29.267|79.545|a|Kathgodam Railway Station
+Champawat|Uttarakhand|Champawat|29.337|80.091|A|
+Dehradun|Uttarakhand|Dehradun|30.316|78.032|A|Dehra Dun;Doon
+Mussoorie|Uttarakhand|Dehradun|30.459|78.066|R|Mussorie;Masuri;Queen of the Hills
+Rishikesh|Uttarakhand|Dehradun|30.087|78.268|T|Hrishikesh;Yoga Capital of the World
+Laxman Jhula|Uttarakhand|Tehri Garhwal|30.126|78.330|T|Lakshman Jhula;Laxman Jula
+Haridwar|Uttarakhand|Haridwar|29.946|78.164|A|Hardwar;Gateway to the Gods
+Har Ki Pauri|Uttarakhand|Haridwar|29.956|78.170|T|Har ki Pauri;Brahma Kund
+Tehri|Uttarakhand|Tehri Garhwal|30.378|78.480|a|New Tehri;Tehri Dam
+Dhanaulti|Uttarakhand|Tehri Garhwal|30.420|78.250|R|
+Chopta|Uttarakhand|Rudraprayag|30.480|79.000|R|Chopta Tungnath;Mini Switzerland of India
+Tungnath|Uttarakhand|Rudraprayag|30.490|79.217|T|Tungnath Temple;Tungnath Chandrashila
+Kedarnath|Uttarakhand|Rudraprayag|30.735|79.067|T|Kedarnath Temple;Kedarnath Dham
+Gaurikund|Uttarakhand|Rudraprayag|30.653|79.021|a|Gauri Kund
+Badrinath|Uttarakhand|Chamoli|30.744|79.493|T|Badrinath Temple;Badrinath Dham;Badrinarayan
+Joshimath|Uttarakhand|Chamoli|30.555|79.564|a|Jyotirmath
+Auli|Uttarakhand|Chamoli|30.528|79.567|R|Auli Ski Resort
+Valley of Flowers|Uttarakhand|Chamoli|30.728|79.605|N|Valley of Flowers National Park;Phoolon Ki Ghati
+Hemkund Sahib|Uttarakhand|Chamoli|30.700|79.612|T|Hemkund;Hemkunt Sahib
+Gangotri|Uttarakhand|Uttarkashi|30.994|78.940|T|Gangotri Temple;Gangotri Dham
+Yamunotri|Uttarakhand|Uttarkashi|31.013|78.450|T|Yamunotri Temple;Yamunotri Dham
+Uttarkashi|Uttarakhand|Uttarkashi|30.728|78.445|A|
+Harsil|Uttarakhand|Uttarkashi|31.038|78.745|R|Harsil Valley
+Lansdowne|Uttarakhand|Pauri Garhwal|29.838|78.680|R|Lansdown
+Pauri|Uttarakhand|Pauri Garhwal|30.153|78.779|A|Pauri Garhwal
+Shimla|Himachal Pradesh|Shimla|31.104|77.173|A|Simla
+Manali|Himachal Pradesh|Kullu|32.239|77.189|R|Old Manali
+Kullu|Himachal Pradesh|Kullu|31.958|77.109|A|Kulu
+Dharamshala|Himachal Pradesh|Kangra|32.220|76.320|A|Dharamsala
+McLeod Ganj|Himachal Pradesh|Kangra|32.242|76.321|R|Mcleodganj;Upper Dharamshala;Little Lhasa
+Spiti Valley|Himachal Pradesh|Lahul and Spiti|32.246|78.035|M|Spiti
+Kaza|Himachal Pradesh|Lahul and Spiti|32.226|78.072|a|
+Kasol|Himachal Pradesh|Kullu|32.010|77.314|R|Parvati Valley Kasol
+Tirthan Valley|Himachal Pradesh|Kullu|31.630|77.450|R|Tirthan;Gushaini
+Dalhousie|Himachal Pradesh|Chamba|32.538|75.971|R|
+Kasauli|Himachal Pradesh|Solan|30.898|76.965|R|
+Khajjiar|Himachal Pradesh|Chamba|32.551|76.059|R|Mini Switzerland
+Rohtang Pass|Himachal Pradesh|Kullu|32.372|77.247|M|Rohtang La
+Bir|Himachal Pradesh|Kangra|32.040|76.720|R|Bir Billing
+Srinagar|Jammu and Kashmir|Srinagar|34.084|74.797|A|Dal Lake Srinagar
+Gulmarg|Jammu and Kashmir|Baramulla|34.049|74.380|R|
+Pahalgam|Jammu and Kashmir|Anantnag|34.016|75.315|R|
+Sonamarg|Jammu and Kashmir|Ganderbal|34.299|75.293|R|Sonmarg
+Jammu|Jammu and Kashmir|Jammu|32.726|74.857|A|
+Vaishno Devi|Jammu and Kashmir|Reasi|33.030|74.949|T|Vaishno Devi Temple;Mata Vaishno Devi;Katra
+Leh|Ladakh|Leh|34.164|77.585|A|Leh Ladakh;Ladakh
+Nubra Valley|Ladakh|Leh|34.690|77.560|M|Nubra;Hunder
+Pangong Lake|Ladakh|Leh|33.760|78.670|W|Pangong Tso;Pangong
+Kargil|Ladakh|Kargil|34.557|76.126|A|
+Khardung La|Ladakh|Leh|34.278|77.605|M|Khardung La Pass;Khardungla
+Amritsar|Punjab|Amritsar|31.634|74.872|A|
+Golden Temple|Punjab|Amritsar|31.620|74.876|T|Harmandir Sahib;Sri Harmandir Sahib;Darbar Sahib
+Wagah Border|Punjab|Amritsar|31.604|74.573|F|Wagah;Attari Wagah
+Chandigarh|Chandigarh|Chandigarh|30.733|76.779|A|City Beautiful
+Delhi|Delhi|New Delhi|28.614|77.209|A|New Delhi;NCT;Dilli
+Red Fort|Delhi|New Delhi|28.656|77.241|F|Lal Qila
+India Gate|Delhi|New Delhi|28.613|77.230|F|
+Qutub Minar|Delhi|New Delhi|28.525|77.185|F|Qutb Minar
+Humayun's Tomb|Delhi|New Delhi|28.593|77.251|F|Humayuns Tomb
+Jaipur|Rajasthan|Jaipur|26.912|75.787|A|Pink City
+Amber Fort|Rajasthan|Jaipur|26.985|75.851|F|Amer Fort;Amer Palace
+Hawa Mahal|Rajasthan|Jaipur|26.924|75.827|F|Palace of Winds
+Udaipur|Rajasthan|Udaipur|24.586|73.713|A|City of Lakes;Lake City
+Jodhpur|Rajasthan|Jodhpur|26.239|73.024|A|Blue City
+Mehrangarh Fort|Rajasthan|Jodhpur|26.298|73.018|F|Mehrangarh
+Jaisalmer|Rajasthan|Jaisalmer|26.916|70.908|A|Golden City
+Pushkar|Rajasthan|Ajmer|26.490|74.551|T|Pushkar Lake;Pushkar Camel Fair
+Ajmer|Rajasthan|Ajmer|26.450|74.640|A|Ajmer Sharif
+Mount Abu|Rajasthan|Sirohi|24.593|72.708|R|Abu
+Ranthambore National Park|Rajasthan|Sawai Madhopur|26.017|76.502|N|Ranthambore;Ranthambhore
+Bikaner|Rajasthan|Bikaner|28.022|73.312|A|
+Chittorgarh|Rajasthan|Chittaurgarh|24.879|74.629|F|Chittaurgarh;Chittor Fort;Chittorgarh Fort
+Agra|Uttar Pradesh|Agra|27.177|78.008|A|
+Taj Mahal|Uttar Pradesh|Agra|27.175|78.042|F|Taj
+Fatehpur Sikri|Uttar Pradesh|Agra|27.094|77.661|F|
+Varanasi|Uttar Pradesh|Varanasi|25.318|82.974|A|Benares;Banaras;Kashi
+Sarnath|Uttar Pradesh|Varanasi|25.381|83.024|T|
+Ayodhya|Uttar Pradesh|Faizabad|26.799|82.204|T|Ram Janmabhoomi;Faizabad
+Mathura|Uttar Pradesh|Mathura|27.492|77.674|A|
+Vrindavan|Uttar Pradesh|Mathura|27.580|77.700|T|Brindavan;Vrindaban
+Lucknow|Uttar Pradesh|Lucknow|26.847|80.947|A|City of Nawabs
+Prayagraj|Uttar Pradesh|Allahabad|25.435|81.846|A|Allahabad;Sangam;Triveni Sangam
+Ahmedabad|Gujarat|Ahmedabad|23.023|72.572|A|Amdavad
+Dwarka|Gujarat|Devbhumi Dwarka|22.240|68.968|T|Dwarkadhish;Dwarka Temple
+Somnath|Gujarat|Gir Somnath|20.888|70.401|T|Somnath Temple;Prabhas Patan
+Gir National Park|Gujarat|Junagadh|21.130|70.790|N|Gir;Sasan Gir;Gir Forest
+Statue of Unity|Gujarat|Narmada|21.838|73.719|F|Kevadia
+Rann of Kutch|Gujarat|Kachchh|23.850|69.700|N|Great Rann of Kutch;Rann of Kachchh;White Rann;Rann Utsav
+Bhuj|Gujarat|Kachchh|23.253|69.669|A|Kutch;Kachchh
+Mumbai|Maharashtra|Mumbai|19.076|72.878|A|Bombay
+Gateway of India|Maharashtra|Mumbai|18.922|72.835|F|
+Pune|Maharashtra|Pune|18.520|73.857|A|Poona
+Ajanta Caves|Maharashtra|Aurangabad|20.552|75.703|X|Ajanta
+Ellora Caves|Maharashtra|Aurangabad|20.026|75.179|X|Ellora;Verul
+Lonavala|Maharashtra|Pune|18.750|73.407|R|Lonavla
+Mahabaleshwar|Maharashtra|Satara|17.924|73.658|R|
+Shirdi|Maharashtra|Ahmadnagar|19.766|74.477|T|Sai Baba Shirdi
+Nashik|Maharashtra|Nashik|19.998|73.790|A|Nasik
+Panaji|Goa|North Goa|15.496|73.828|A|Panjim
+Calangute|Goa|North Goa|15.544|73.755|B|Calangute Beach
+Baga|Goa|North Goa|15.556|73.752|B|Baga Beach
+Anjuna|Goa|North Goa|15.574|73.741|B|Anjuna Beach
+Palolem|Goa|South Goa|15.010|74.023|B|Palolem Beach
+Old Goa|Goa|North Goa|15.501|73.911|F|Velha Goa;Goa Velha;Basilica of Bom Jesus
+Margao|Goa|South Goa|15.270|73.958|A|Madgaon
+Bengaluru|Karnataka|Bangalore Urban|12.972|77.594|A|Bangalore;Garden City
+Mysuru|Karnataka|Mysore|12.296|76.639|A|Mysore;Mysore Palace
+Hampi|Karnataka|Bellary|15.335|76.462|F|Vijayanagara;Hampi Ruins;Vijayanagar
+Coorg|Karnataka|Kodagu|12.420|75.740|R|Kodagu;Madikeri;Mercara
+Gokarna|Karnataka|Uttara Kannada|14.550|74.318|B|Gokarna Beach;Om Beach
+Badami|Karnataka|Bagalkot|15.919|75.676|F|Badami Caves
+Jog Falls|Karnataka|Shimoga|14.229|74.813|W|Jog Waterfalls;Gersoppa Falls
+Chikmagalur|Karnataka|Chikmagalur|13.316|75.772|R|Chikkamagaluru
+Munnar|Kerala|Idukki|10.089|77.059|R|Munar
+Alappuzha|Kerala|Alappuzha|9.498|76.338|A|Alleppey;Alleppy;Venice of the East;Kerala Backwaters
+Kochi|Kerala|Ernakulam|9.931|76.267|A|Cochin;Ernakulam
+Thekkady|Kerala|Idukki|9.603|77.168|N|Periyar;Periyar Wildlife Sanctuary
+Varkala|Kerala|Thiruvananthapuram|8.733|76.716|B|Varkala Beach;Papanasam Beach
+Kovalam|Kerala|Thiruvananthapuram|8.400|76.978|B|Kovalam Beach
+Thiruvananthapuram|Kerala|Thiruvananthapuram|8.524|76.937|A|Trivandrum
+Wayanad|Kerala|Wayanad|11.685|76.132|R|
+Kozhikode|Kerala|Kozhikode|11.259|75.780|A|Calicut
+Chennai|Tamil Nadu|Chennai|13.083|80.270|A|Madras
+Madurai|Tamil Nadu|Madurai|9.925|78.120|A|Temple City
+Meenakshi Temple|Tamil Nadu|Madurai|9.920|78.119|T|Meenakshi Amman Temple;Meenakshi Amman
+Rameswaram|Tamil Nadu|Ramanathapuram|9.288|79.313|T|Rameshwaram;Ramanathaswamy Temple
+Kanyakumari|Tamil Nadu|Kanniyakumari|8.088|77.541|A|Cape Comorin
+Ooty|Tamil Nadu|The Nilgiris|11.410|76.695|R|Udhagamandalam;Ootacamund;Udagamandalam
+Kodaikanal|Tamil Nadu|Dindigul|10.238|77.489|R|Kodai;Princess of Hill Stations
+Thanjavur|Tamil Nadu|Thanjavur|10.787|79.138|A|Tanjore;Brihadeeswara Temple
+Mahabalipuram|Tamil Nadu|Kancheepuram|12.617|80.192|F|Mamallapuram;Shore Temple
+Puducherry|Puducherry|Pondicherry|11.934|79.830|A|Pondicherry;Pondy;Auroville
+Hyderabad|Telangana|Hyderabad|17.385|78.487|A|Cyberabad;Secunderabad
+Charminar|Telangana|Hyderabad|17.362|78.475|F|
+Tirupati|Andhra Pradesh|Chittoor|13.629|79.420|T|Tirumala;Tirupati Balaji;Tirumala Venkateswara
+Visakhapatnam|Andhra Pradesh|Visakhapatnam|17.687|83.219|A|Vizag;Vishakhapatnam;Waltair
+Araku Valley|Andhra Pradesh|Visakhapatnam|18.333|82.877|R|Araku
+Kolkata|West Bengal|Kolkata|22.572|88.364|A|Calcutta;City of Joy
+Darjeeling|West Bengal|Darjiling|27.041|88.263|R|Darjiling;Queen of the Hills
+Sundarbans|West Bengal|South 24 Parganas|21.950|89.180|N|Sundarban;Sundarbans National Park
+Kalimpong|West Bengal|Darjiling|27.060|88.470|R|
+Gangtok|Sikkim|East Sikkim|27.329|88.614|A|
+Pelling|Sikkim|West Sikkim|27.300|88.240|R|
+Nathu La|Sikkim|East Sikkim|27.386|88.831|M|Nathula Pass;Nathula
+Tsomgo Lake|Sikkim|East Sikkim|27.375|88.761|W|Changu Lake;Tsangu Lake
+Lachung|Sikkim|North Sikkim|27.690|88.740|R|Yumthang Valley
+Shillong|Meghalaya|East Khasi Hills|25.574|91.883|A|Scotland of the East
+Cherrapunji|Meghalaya|East Khasi Hills|25.270|91.720|R|Sohra;Cherrapunjee;Wettest Place on Earth
+Kaziranga National Park|Assam|Golaghat|26.580|93.170|N|Kaziranga
+Guwahati|Assam|Kamrup|26.145|91.736|A|Gauhati
+Kamakhya Temple|Assam|Kamrup|26.166|91.706|T|Kamakhya;Kamakhya Devi
+Tawang|Arunachal Pradesh|Tawang|27.586|91.859|a|Tawang Monastery
+Kohima|Nagaland|Kohima|25.675|94.110|A|Hornbill Festival
+Imphal|Manipur|Imphal West|24.817|93.937|A|Loktak Lake
+Aizawl|Mizoram|Aizawl|23.727|92.717|A|
+Majuli|Assam|Jorhat|26.950|94.170|I|Majuli Island
+Puri|Odisha|Puri|19.813|85.831|T|Jagannath Puri;Jagannath Temple;Jagannath Dham
+Konark|Odisha|Puri|19.887|86.094|T|Konark Sun Temple;Sun Temple
+Bhubaneswar|Odisha|Khordha|20.296|85.825|A|Temple City of India
+Chilika Lake|Odisha|Puri|19.720|85.320|W|Chilka Lake;Chilika
+Bodh Gaya|Bihar|Gaya|24.696|84.991|T|Bodhgaya;Buddh Gaya;Mahabodhi Temple
+Patna|Bihar|Patna|25.594|85.138|A|Pataliputra
+Nalanda|Bihar|Nalanda|25.136|85.443|F|Nalanda University Ruins
+Ranchi|Jharkhand|Ranchi|23.344|85.310|A|
+Khajuraho|Madhya Pradesh|Chhatarpur|24.852|79.920|T|Khajuraho Temples
+Bhopal|Madhya Pradesh|Bhopal|23.259|77.413|A|City of Lakes
+Sanchi|Madhya Pradesh|Raisen|23.479|77.739|F|Sanchi Stupa
+Ujjain|Madhya Pradesh|Ujjain|23.182|75.784|T|Mahakaleshwar;Mahakal
+Kanha National Park|Madhya Pradesh|Mandla|22.333|80.633|N|Kanha;Kanha Tiger Reserve
+Bandhavgarh National Park|Madhya Pradesh|Umaria|23.720|81.030|N|Bandhavgarh
+Raipur|Chhattisgarh|Raipur|21.251|81.630|A|
+Port Blair|Andaman and Nicobar|South Andaman|11.623|92.726|A|Sri Vijaya Puram
+Havelock Island|Andaman and Nicobar|South Andaman|11.970|92.990|I|Swaraj Dweep;Havelock;Radhanagar Beach
+Agatti|Lakshadweep|Lakshadweep|10.860|72.180|I|Agatti Island;Lakshadweep
