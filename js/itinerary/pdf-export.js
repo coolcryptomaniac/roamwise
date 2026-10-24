@@ -575,7 +575,7 @@ function genPdf(sample){
       pdf.setTextColor(CRIM); pdf.setFont('times','bold'); pdf.setFontSize(26); pdf.text('Essentials',44,64);
       var y2=94;
       function h(t3){ pdf.setTextColor(GOLD); pdf.setFont('helvetica','bold'); pdf.setFontSize(12); pdf.text(t3,44,y2); y2+=16; pdf.setTextColor(INK); pdf.setFont('helvetica','normal'); pdf.setFontSize(10.5); }
-      if(d.cost){ h('Budget bands (per person / week)');
+      if(d.cost && isFinite(d.cost.budget) && isFinite(d.cost.mid) && isFinite(d.cost.luxury) && d.cost.luxury>0){ h('Budget bands (per person / week)');
         var mx3=d.cost.luxury||1;
         [['Backpacker',d.cost.budget],['Mid-range',d.cost.mid],['Luxury',d.cost.luxury]].forEach(function(r2){
           pdf.setTextColor(INK); pdf.text(r2[0],52,y2);
@@ -583,9 +583,9 @@ function genPdf(sample){
           pdf.setFillColor(TH.acc[0],TH.acc[1],TH.acc[2]); pdf.rect(150,y2-8,Math.max(8,300*(r2[1]/mx3)),10,'F');
           pdf.setTextColor(MUT); pdf.text('$'+r2[1],458,y2);
           y2+=17; }); y2+=8;
-        if(d.crowd){ pdf.setTextColor(TH.acc[0],TH.acc[1],TH.acc[2]); pdf.setFont('helvetica','bold'); pdf.setFontSize(10);
+        if(d.crowd && d.crowd.length>=12){ pdf.setTextColor(TH.acc[0],TH.acc[1],TH.acc[2]); pdf.setFont('helvetica','bold'); pdf.setFontSize(10);
           pdf.text('Crowd by month (J F M A M J J A S O N D)',52,y2); y2+=8;
-          for(var ci=0; ci<12; ci++){ var cv=d.crowd[ci];
+          for(var ci=0; ci<12; ci++){ var cv=Number(d.crowd[ci])||0;
             pdf.setFillColor(cv<35?60:(cv<60?224:214), cv<35?176:(cv<60?150:82), cv<35?120:(cv<60?54:74));
             pdf.rect(52+ci*33, y2, 26, 12*(cv/100)+3, 'F'); }
           y2+=26; } }

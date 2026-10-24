@@ -152,14 +152,14 @@ function askName(cb){
 function makeCard(){
   var L=logGet(); if(!L.length) return showToast('Log at least one place first');
   askName(function(name){
-    /* Painting-grade dark world map — CARTO tiles, zoom 3 (8x8 grid) */
+    /* Painting-grade dark world map — OSM tiles, zoom 3 (8x8 grid) */
     var Z=3, N=8, need=N*N, fail=false, tiles=[]; tiles.N=N;
     showToast('Painting your world\u2026 \ud83c\udfa8 (fetching your cover photo too)');
     for(var ty=0;ty<N;ty++) for(var tx=0;tx<N;tx++) (function(tx,ty){
       var im=new Image(); im.crossOrigin='anonymous';
       im.onload=function(){ tiles[ty*N+tx]=im; if(--need===0) after(); };
       im.onerror=function(){ fail=true; if(--need===0) after(); };
-      im.src='https://'+(['a','b','c'][ (tx+ty)%3 ])+'.basemaps.cartocdn.com/rastertiles/voyager/'+Z+'/'+tx+'/'+ty+'.png';
+      im.src='https://tile.openstreetmap.org/'+Z+'/'+tx+'/'+ty+'.png';
     })(tx,ty);
     /* real destination photo for the cinematic cover backdrop — the flagship/most-recent place.
        Uses fetchImg64 (fetch -> blob -> dataURL), the SAME proven path the PDF pipeline uses —
@@ -341,7 +341,7 @@ function drawCard(L, name, tiles, heroPhoto){
   });
   x.restore(); x.textAlign='left';
   x.fillStyle='#54524C'; x.font='400 10px Outfit,Arial'; x.textAlign='right';
-  x.fillText('Map \u00a9 OpenStreetMap contributors \u00a9 CARTO', MX+MW-6, MY+MH-8);
+  x.fillText('Map \u00a9 OpenStreetMap contributors', MX+MW-6, MY+MH-8);
   /* ===== LEGEND \u2014 two columns, numbered ===== */
   x.textAlign='left';
   x.fillStyle='#E8BA6C'; x.font='700 16px Outfit,Arial';
