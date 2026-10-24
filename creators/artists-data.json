@@ -179,7 +179,13 @@
         "youtube": "https://www.youtube.com/@natashaguleria2065"
       },
       "plan": "ambassador",
-      "page": "/creators/artists.html"
+      "page": "/creators/artists.html",
+      "profileReview": {
+        "status": "checked",
+        "scope": "Public Instagram profile and portfolio consistency only",
+        "reviewedAt": "2026-10-24",
+        "sourceUrl": "https://www.instagram.com/bhavitavya_kala/"
+      }
     },
     {
       "id": "jagriti-creates",
@@ -309,7 +315,13 @@
       ],
       "plan": "featured",
       "page": "/creators/jagriti.html",
-      "artworksSource": "Kaali: artist's Instagram post; Gauri Ganesh and Indian fruit seller: Pinterest posts attributed to Jagriti Creates with visible artist signature. Checked 24 October 2026. Portfolio examples only; physical format, sale availability and price unconfirmed."
+      "artworksSource": "Kaali: artist's Instagram post; Gauri Ganesh and Indian fruit seller: Pinterest posts attributed to Jagriti Creates with visible artist signature. Checked 24 October 2026. Portfolio examples only; physical format, sale availability and price unconfirmed.",
+      "profileReview": {
+        "status": "checked",
+        "scope": "Public Instagram profile and portfolio consistency only",
+        "reviewedAt": "2026-10-24",
+        "sourceUrl": "https://www.instagram.com/jagriti.creates/"
+      }
     },
     {
       "id": "ritesh-devarmani",

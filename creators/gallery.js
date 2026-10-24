@@ -10,7 +10,7 @@
     var img = a.photo && safeImg(a.photo.src) || ((a.artworks || []).filter(function (w) { return safeImg(w.image); })[0] || {}).image || '';
     var n = (a.artworks || []).length, themes = (a.themes || []).slice(0, 4).map(function (t) { return '<span>' + esc(t) + '</span>'; }).join('');
     return '<a class="hub-card" href="' + esc(href(a)) + '">' + (img ? '<img src="' + esc(img) + '" alt="' + esc(a.name) + ', ' + esc(a.studio) + '" loading="lazy" width="400" height="300">' : '<div class="hub-ph" aria-hidden="true">&#127912;</div>') +
-      '<div class="hub-b">' + badge(a) + '<h3>' + esc(a.name) + '</h3><p>' + esc(a.studio) + ' · ' + esc(a.state) + (n ? ' · ' + n + ' paintings' : '') + '</p><div class="hub-chips">' + themes + '</div><span class="sa-link">View page &rarr;</span></div></a>';
+      '<div class="hub-b">' + badge(a) + (a.profileReview && a.profileReview.status === 'checked' ? '<span class="art-profile-badge" title="RoamWise public-profile review only; not Meta verification or a transaction guarantee">✓ Instagram profile checked</span>' : '') + '<h3>' + esc(a.name) + '</h3><p>' + esc(a.studio) + ' · ' + esc(a.state) + (n ? ' · ' + n + ' paintings' : '') + '</p><div class="hub-chips">' + themes + '</div><span class="sa-link">View page &rarr;</span></div></a>';
   }
   function draw() {
     var list = all.filter(function (a) { return !active || (a.themes || []).some(function (t) { return String(t).toLowerCase() === active; }); });
