@@ -151,6 +151,8 @@
       });
       tabs.appendChild(b);
     });
+    /* Links elsewhere on the page (data-hub) open this panel on the right tab. */
+    document.addEventListener('click',function(e){var l=e.target.closest&&e.target.closest('a[data-hub]');if(!l||!ROLES.some(function(r){return r.id===l.dataset.hub;}))return;e.preventDefault();pick(l.dataset.hub);host.scrollIntoView({behavior:'smooth',block:'start'});});
     var want=(location.hash.match(/^#partner-(\w+)$/)||[])[1];
     pick(ROLES.some(function(r){return r.id===want;})?want:'creator');
     insights(host.querySelector('#phIns'));
