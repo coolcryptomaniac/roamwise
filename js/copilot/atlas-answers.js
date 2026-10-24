@@ -44,7 +44,7 @@
       var f = A.find(i.a); if (!f.best) return null;
       if (f.ambiguous) return ambig(i.a, f);
       var m = f.best, out = describe(m);
-      if (m.lat != null) out += ' (about ' + m.lat.toFixed(2) + '°N, ' + m.lng.toFixed(2) + '°E.)';
+      if (m.lat != null) out += ' (about ' + Math.abs(m.lat).toFixed(2) + '°' + (m.lat < 0 ? 'S' : 'N') + ', ' + Math.abs(m.lng).toFixed(2) + '°' + (m.lng < 0 ? 'W' : 'E') + ')';
       if (m.viaAlias) out += ' “' + esc(i.a) + '” is another name for it.';
       return out;
     }
