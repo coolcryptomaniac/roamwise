@@ -26,5 +26,5 @@ test('campaign niche filter and per-campaign dedupe', async () => {
 });
 test('campaigns file is valid', () => {
   const { campaigns } = JSON.parse(fs.readFileSync(path.join(root, 'outreach/campaigns.json'), 'utf8'));
-  campaigns.forEach((c) => { assert.ok(c.id && c.business && c.city && c.whatsapp && c.niches.length && c.phrase && c.pitch); });
+  campaigns.forEach((c) => { assert.ok(c.id && c.business && c.city && c.niches.length && c.phrase && c.pitch); if (c.active) assert.ok(c.whatsapp, c.id); });
 });

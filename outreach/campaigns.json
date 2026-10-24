@@ -1,21 +1,42 @@
 {
-  "note": "One entry per business. category decides which creator niches are matched. whatsapp is the number creators are told to message (the business's own). Only active campaigns are emailed. offer is shown to creators only as agreed directly with the business.",
-  "campaigns": [
-    {
-      "id": "milan-heights",
-      "active": true,
-      "business": "Milan Heights",
-      "category": "hotel with restaurant",
-      "city": "almora",
-      "area": "Milan Chowk, Almora",
-      "niches": [
-        "food",
-        "travel",
-        "local"
-      ],
-      "whatsapp": "+91 73023 15845",
-      "phrase": "food vlogger collab through RoamWise",
-      "pitch": "a food-vlog collaboration there: the restaurant, Kumaoni dishes and the stay"
-    }
-  ]
+ "note": "One entry per business. category decides which creator niches are matched. whatsapp is the number creators are told to message (the business's own). Only active campaigns are emailed. offer is shown to creators only as agreed directly with the business. maxKm is a hard distance limit from the campaign city (straight-line); no creator beyond it is emailed for that campaign unless they pass the star test in tools/outreach/rings.mjs (very wide reach, loved content and sourced evidence they convert), at most maxFarPerRun (default 1) per run.",
+ "campaigns": [
+  {
+   "id": "milan-heights",
+   "active": true,
+   "business": "Milan Heights",
+   "category": "hotel with restaurant",
+   "city": "almora",
+   "area": "Milan Chowk, Almora",
+   "niches": [
+    "food",
+    "travel",
+    "local"
+   ],
+   "whatsapp": "+91 73023 15845",
+   "phrase": "food vlogger collab through RoamWise",
+   "pitch": "a food-vlog collaboration there: the restaurant, Kumaoni dishes and the stay",
+   "maxKm": 90
+  },
+  {
+   "id": "natasha-art",
+   "active": false,
+   "business": "Natasha Guleria (Bhavitavya Kala)",
+   "category": "artist selling original paintings and prints",
+   "city": "almora",
+   "area": "Almora region",
+   "niches": [
+    "art",
+    "decor",
+    "lifestyle",
+    "travel",
+    "local"
+   ],
+   "whatsapp": "",
+   "phrase": "painting collab through RoamWise",
+   "pitch": "a collaboration featuring original paintings by the artist Natasha Guleria",
+   "maxKm": 90,
+   "notes": "Inactive draft. Before activating: set whatsapp to the number Natasha confirms for creator enquiries (two different numbers exist in the repo), and confirm she agrees to the outreach."
+  }
+ ]
 }
