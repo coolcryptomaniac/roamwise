@@ -183,7 +183,7 @@ function rwKasarFestivalEnded(now){
   return new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Kolkata',year:'numeric',month:'2-digit',day:'2-digit'}).format(now||new Date())>='2026-10-05';
 }
 window.rwTrackMilanWhatsApp=function(){try{if(typeof track==='function')track('kasar_milan_whatsapp_open')}catch(e){}};
-function cpSmartAnswer(t){
+function cpSmartAnswer(t){ if(t===window.rwTripAiFor && window.RWTripDesk && RWTripDesk.fallback) return RWTripDesk.fallback();   /* trip desk plan from the traveller's own details */
   /* Curated Kasar Music Fest weekend answer: keep this deterministic so Ailon
      Tusk can answer the homepage feature without an external AI key. */
   if(/kasar\s*(?:devi\s*)?(?:music\s*fest|festival)|(?:nupur\s*pant|rahgir).{0,50}(?:kasar|fest)|(?:kasar|fest).{0,50}(?:nupur\s*pant|rahgir)/i.test(String(t||''))){

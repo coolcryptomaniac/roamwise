@@ -141,6 +141,7 @@ function rwTuskNeedsClarity(t){
    Paste a blog link, a long chunk of text, or a friend's recommendation, and
    Tusk pulls the trip out of it instead of you re-typing everything. */
 function rwStartAnywhere(t){
+  if(window.rwTripAi && t===window.rwTripAiFor) return window.rwTripAi;   /* trip desk: the AI gets the full brief, the traveller sees one plain sentence */
   var isUrl=/^https?:\/\/\S+$/i.test((t||'').trim());
   var isLongPaste=(t||'').length>220;
   if(!isUrl && !isLongPaste) return null;
@@ -251,6 +252,7 @@ async function cpActionsHTML(it){
   if((/\b(evs?|electric|e-?vehicles?|charging|chargers?|green (travel|options|hub)|solar|organic farm|eco.?(stay|village|farm)|sustainab\w*)\b/i.test(String(it._raw||''))
       || (/\bcharge\b/i.test(String(it._raw||'')) && /\b(car|bike|scooter|vehicle|ev|battery|station|point|where)\b/i.test(String(it._raw||''))))
      && !/\bcarbon (ledger|score|footprint)\b/i.test(String(it._raw||''))
+     && it._raw!==window.rwTripAiFor   /* a trip plan already covers electric options; no extra hub card */
      && !/\b(charge (a|me|extra|more|fee|fees|for)|service charge|convenience charge|extra charge)\b/i.test(String(it._raw||''))){
     var _gc = '';
     var _gd = it.dest || (_cpCtx && _cpCtx.dest) || '';
@@ -388,6 +390,7 @@ async function cpActionsHTML(it){
     }
     if(geo){ lat=geo.lat; lon=geo.lon; it.dest=geo.name; }
     else {
+      if(it._raw && it._raw===window.rwTripAiFor) return [];   /* trip desk plan already asks about an unrecognised place */
       /* Not in our library, not resolvable anywhere: SAY SO and PROBE. Never
          build a confident card around a word we only half-recognised (the
          "grabbed india from 'Kanyakumari south india'" bug). If the user gave
