@@ -43,7 +43,9 @@ export function tierOf(p) {
 }
 
 /** Safe card model for a partner: no phone numbers or emails are ever passed to the page. */
-export const partnerCard = (p) => ({ id: String(p.id || ''), name: txt(p.name, 80), area: txt(p.area, 100), type: txt(p.propertyType || p.cat || 'stay', 30), tier: tierOf(p) });
+const PHOTO_RE = /^assets\/[a-z0-9][a-z0-9\-./]*\.(jpg|jpeg|png|webp)$/i;
+const photoOf = (p) => { const f = Array.isArray(p.photos) ? p.photos.find((x) => x && PHOTO_RE.test(String(x.src || ''))) : null; return f ? { src: f.src, alt: txt(f.alt, 140) } : null; };
+export const partnerCard = (p) => ({ id: String(p.id || ''), name: txt(p.name, 80), area: txt(p.area, 100), type: txt(p.propertyType || p.cat || 'stay', 30), tier: tierOf(p), photo: photoOf(p) });
 
 /** Districts: well-formed rows only. `places` keeps only ids that exist; `zones` are partner zones that belong to the district. */
 export function cleanDistricts(raw, places) {

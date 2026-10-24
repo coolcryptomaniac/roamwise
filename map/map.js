@@ -59,24 +59,49 @@ function renderDetail(d) {
 }
 
 /* ---------- map layers ---------- */
-function flashPartner(id) { partnerLayer.forEach((m) => { const n = m.getElement(); if (n) n.firstChild.classList.toggle('on', m.options.pid === id); }); }
+function flashPartner(id) { partnerLayer.forEach((m) => { const n = m.getElement(); if (n) n.firstChild.classList.toggle('on', m.options.pid === id); }); document.querySelectorAll('.mp-pc').forEach((x) => x.classList.toggle('on', x.dataset.pid === id)); }
+
+function addPin(pin, all) {
+  const r = pin.of > 1 ? (all ? 16 : 28) : 0, a = (2 * Math.PI * pin.slot) / pin.of - Math.PI / 2, dx = r * Math.cos(a), dy = r * Math.sin(a), sz = all ? 30 : 36;
+  const icon = L.divIcon({ className: 'mp-pinwrap' + (all ? ' mp-all' : ''), html: '<span class="mp-ppin">&#8962;</span>', iconSize: [sz, sz], iconAnchor: [sz / 2 - dx, sz / 2 - dy] });
+  const m = L.marker([pin.lat, pin.lng], { icon, title: pin.card.name, alt: pin.card.name + ', ' + pin.card.tier.label, pid: pin.card.id, zIndexOffset: 500 }).addTo(map);
+  const dir = dx > 5 ? 'right' : dx < -5 ? 'left' : 'top', off = dir === 'right' ? [dx + sz / 2, dy] : dir === 'left' ? [dx - sz / 2, dy] : [dx, dy - sz / 2];
+  m.bindTooltip(pin.card.name, { direction: dir, offset: off, permanent: !all && pin.of <= 3, className: 'mp-plabel' });
+  m.on('click', () => { flashPartner(pin.card.id); if (all) { const d = districts.find((x) => pinsOf(x).some((q) => q.card.id === pin.card.id)); if (d) select(d.id, { scroll: true }); } setPanel(true); });
+  partnerLayer.push(m); return m;
+}
+
+function strip(pins) {
+  const box = $('mpPartners'); box.replaceChildren();
+  pins.forEach((pin) => {
+    const c = pin.card, b = el('button', 'mp-pc'); b.type = 'button'; b.dataset.pid = c.id;
+    if (c.photo) { const im = el('img'); im.src = '../' + c.photo.src; im.alt = c.photo.alt || c.name; im.loading = 'lazy'; b.append(im); } else b.append(el('span', 'ph', '\u2302'));
+    const t = el('div'); t.append(el('b', '', c.name), el('small', '', c.area), el('em', c.tier.enquiryOnly ? 'enq' : '', c.tier.label)); b.append(t);
+    b.addEventListener('click', () => { flashPartner(c.id); map.flyTo([pin.lat, pin.lng], 14, { duration: reduce ? 0 : 0.8 }); box.querySelectorAll('.mp-pc').forEach((x) => x.classList.toggle('on', x === b)); });
+    box.append(b);
+  });
+}
 
 function drawPartners(d) {
   partnerLayer.splice(0).forEach((m) => m.remove());
-  pinsOf(d).forEach((pin) => {
-    const r = pin.of > 1 ? 24 : 0, a = (2 * Math.PI * pin.slot) / pin.of - Math.PI / 2, dx = r * Math.cos(a), dy = r * Math.sin(a);
-    const icon = L.divIcon({ className: 'mp-pinwrap', html: '<span class="mp-ppin">&#8962;</span>', iconSize: [30, 30], iconAnchor: [15 - dx, 15 - dy] });
-    const m = L.marker([pin.lat, pin.lng], { icon, title: pin.card.name, alt: pin.card.name + ', ' + pin.card.tier.label, pid: pin.card.id, zIndexOffset: 500 }).addTo(map);
-    m.bindTooltip(pin.card.name, { direction: 'top', offset: [0, -12] }); m.on('click', () => { flashPartner(pin.card.id); setPanel(true); });
-    partnerLayer.push(m);
-  });
+  const pins = pinsOf(d); pins.forEach((pin) => addPin(pin, false)); strip(pins);
+}
+
+/* Every public partner in the state at once, one pin per town fan. */
+function showAll() {
+  partnerLayer.splice(0).forEach((m) => m.remove()); if (ring) { ring.remove(); ring = null; }
+  const all = []; districts.forEach((d) => pinsOf(d).forEach((p) => all.push(p)));
+  all.forEach((pin) => addPin(pin, true)); strip(all);
+  placeMarkers.forEach((m) => { const n = m.getElement(); if (n) n.firstChild.classList.remove('dim'); });
+  const pts = all.map((p) => [p.lat, p.lng]);
+  if (pts.length) map.flyToBounds(pts, { padding: [70, 120], maxZoom: 9, duration: reduce ? 0 : 1 });
 }
 
 function focus(d) {
   if (!map) return;
   if (ring) ring.remove();
   ring = L.circle([d.lat, d.lng], { radius: 22000, className: 'mp-ring', color: '#E8BA6C', weight: 1.5, dashArray: '4 6', fillColor: '#E8BA6C', fillOpacity: 0.07, interactive: false }).addTo(map);
-  map.flyTo([d.lat, d.lng], d.zoom, { duration: reduce ? 0 : 0.9 });
+  map.flyTo([d.lat, d.lng], pinsOf(d).length ? Math.min(d.zoom + 1, 12) : d.zoom, { duration: reduce ? 0 : 0.9 });
   placeMarkers.forEach((m, id) => { const p = places.find((x) => x.id === id), n = m.getElement(); if (n) n.firstChild.classList.toggle('dim', p.district !== d.id); });
   drawPartners(d);
 }
@@ -114,7 +139,7 @@ function select(id, opt = {}) {
   const d = byId(id); if (!d) return;
   const changed = current !== id; current = id; if (changed) placeId = '';
   markCards(); renderDetail(d); focus(d);
-  if (opt.scroll) { const c = track().querySelector('[data-id="' + id + '"]'); if (c) c.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', inline: 'center', block: 'nearest' }); }
+  if (opt.scroll) { const t = track(), c = t.querySelector('[data-id="' + id + '"]'); if (c) t.scrollTo({ left: c.offsetLeft - (t.clientWidth - c.offsetWidth) / 2, behavior: reduce ? 'auto' : 'smooth' }); }
   history.replaceState(null, '', '#' + (placeId || id));
 }
 
@@ -145,7 +170,20 @@ function setPanel(open) { const s = $('mpSheet'); if (open && window.innerWidth 
 function build() {
   map = L.map('mpMap', { zoomControl: true, minZoom: 6, maxBounds: [[BOUNDS.south - 1, BOUNDS.west - 1], [BOUNDS.north + 1, BOUNDS.east + 1]] });
   map.fitBounds([[BOUNDS.south + 0.2, BOUNDS.west + 0.2], [BOUNDS.north - 0.2, BOUNDS.east - 0.2]]);
-  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 15, attribution: '&copy; OpenStreetMap contributors' }).addTo(map);
+  const osm = '&copy; OpenStreetMap contributors';
+  const bases = {
+    'Terrain': L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', { maxZoom: 15, attribution: osm + ', SRTM | &copy; OpenTopoMap' }),
+    'Satellite': L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { maxZoom: 17, attribution: 'Imagery &copy; Esri' }),
+    'Streets': L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 17, attribution: osm }),
+    'Dark': L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 17, attribution: osm, className: 'mp-darktiles' }),
+  };
+  bases.Terrain.addTo(map); L.control.layers(bases, null, { position: 'topleft', collapsed: true }).addTo(map);
+  $('mpFull').addEventListener('click', () => {
+    const w = $('mpWrap'), on = w.classList.toggle('full'); $('mpFull').setAttribute('aria-pressed', String(on)); $('mpFull').textContent = on ? '\u2715 Close' : '\u26F6 Expand';
+    document.body.style.overflow = on ? 'hidden' : ''; setTimeout(() => map.invalidateSize(), 60);
+  });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && $('mpWrap').classList.contains('full')) $('mpFull').click(); });
+  $('mpAll').addEventListener('click', showAll);
   places.forEach((p) => {
     const icon = L.divIcon({ className: 'mp-pinwrap', html: '<span class="mp-pin"></span>', iconSize: [16, 16], iconAnchor: [8, 8] });
     const m = L.marker([p.lat, p.lng], { icon, title: p.name, keyboard: true, alt: p.name }).addTo(map);
