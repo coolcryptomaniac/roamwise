@@ -39,7 +39,7 @@
     "@capacitor/android": "^8.5.3",
     "@capacitor/app": "^8.1.2",
     "@capacitor/core": "^8.5.3",
-    "@capacitor/geolocation": "^8.2.3",
+    "@capacitor/geolocation": "^8.2.4",
     "@capacitor/haptics": "^8.0.2",
     "@capacitor/push-notifications": "^8.1.3"
   },
