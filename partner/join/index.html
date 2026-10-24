@@ -140,6 +140,7 @@ try{var matchDraft=JSON.parse(sessionStorage.getItem('rwMatchDraft')||'null');if
 catch(e){}
 ctToggle();
 try{var saved=JSON.parse(sessionStorage.getItem('rwJoinDraft')||'null');if(saved&&saved.slug===slug){restore(saved);if(sessionStorage.getItem('rwJoinPending')==='1'){pending=true;show(2)}}}catch(e){}
+try{if(params.get('retreats')==='1'&&!val('hook'))$('hook').value='Open to yoga retreats and visiting teachers. Space a class could use (hall, garden, terrace): ; quiet months: .'}catch(e){}
 $('back').onclick=function(){if(!busy)show(index-1)};
 $('next').onclick=function(){if(busy||!valid(index))return;if(index<2){show(index+1);return}if(!window.firebase||!window.RW_PARTNER_CONFIG||!window.RW_PARTNER_CONFIG.firebase){tell('Could not connect to RoamWise. Please reload and try again.',true);return}try{var a=firebase.auth().currentUser;if(a){save(a);return}}catch(e){}$('next').hidden=true;$('authBox').hidden=false;$('google').focus();tell('Choose an account to save your application.')};
 var db=null,auth=null;

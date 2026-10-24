@@ -149,6 +149,17 @@ footer a{color:var(--gold)}
   <div class="sh-sub">Every accepted applicant gets the same zero-marginal-cost 30-day full Pro trial every RoamWise creator gets at the Applied tier. We deliberately did <b>not</b> add a standing free/discounted-Pro perk just for "being a verified instructor" &mdash; unlike the capped Founder offer, a self-serve instructor perk has no natural seat cap, and an open-ended free grant against an ongoing service cost is exactly the kind of liability RoamWise's own pricing docs warn against. Free and lifetime Pro beyond the trial is earned the same way it already is for every creator: through real, attributed referral sales or a certified listing &mdash; never for status alone.</div>
 </div>
 
+<div class="section" id="retreats">
+  <div class="sh">Retreat matching</div>
+  <div class="sh-title">Teachers and resorts, matched for retreats.</div>
+  <div class="sub" style="color:var(--mist);font-size:13.5px;margin:0 0 16px">Many resorts have the setting and no teacher. Many teachers have a following and no place to host. Tell us which you are, and we introduce the two sides when the fit is real.</div>
+  <div class="grid3">
+    <div class="card"><div class="stepno">A</div><h3>Yoga teachers</h3><p>Say your style, the town you would like to host in, your group size and the months you are free. We shortlist RoamWise stays with a calm setting and room to practise.</p></div>
+    <div class="card"><div class="stepno">B</div><h3>Resorts and hosts</h3><p>Say which space a class could use and your quiet months. We introduce teachers whose style and group size fit. <a href="/partner/join/?src=yoga-page&amp;retreats=1">List your resort for retreats</a>.</p></div>
+    <div class="card"><div class="stepno">C</div><h3>You both decide</h3><p>A match is a suggestion, never a promise. Both sides approve the same terms before anything is agreed, and RoamWise never moves the money.</p></div>
+  </div>
+</div>
+
 <div class="section">
   <div class="sh">How it works</div>
   <div class="sh-title">From application to your first payout.</div>
@@ -176,6 +187,10 @@ footer a{color:var(--gold)}
         <option>10,000 &ndash; 50,000</option>
         <option>50,000+</option>
       </select></label>
+      <label>I am a<select id="yWho"><option value="teacher">Yoga teacher or studio</option><option value="host">Resort or retreat host</option></select></label>
+      <label>Retreat town or region<input id="yTown" maxlength="80" placeholder="e.g. Almora, Rishikesh"></label>
+      <label>Group size<select id="yGroup"><option value="">Not sure yet</option><option>Up to 8</option><option>9 &ndash; 15</option><option>16 &ndash; 30</option><option>30+</option></select></label>
+      <label>Months for a retreat<input id="yMonths" maxlength="80" placeholder="e.g. Mar&ndash;May, Oct&ndash;Nov"></label>
       <label class="full">Style / tradition<input id="yNiche" maxlength="160" placeholder="Hatha, Vinyasa, Ashtanga, Kundalini, Ayurveda retreat, meditation…"></label>
       <label class="full">Anything useful to know<textarea id="yNote" maxlength="1200" placeholder="What do you teach, where, and what would a Certified Experience listing for your retreat/class look like?"></textarea></label>
     </div>
@@ -209,6 +224,10 @@ $('applyBtn').onclick=async function(){
     niche:$('yNiche').value.trim().slice(0,160),
     note:$('yNote').value.trim().slice(0,1200),
     wantsListing:!!$('yListing').checked,
+    who:$('yWho').value==='host'?'host':'teacher',
+    retreatTown:$('yTown').value.trim().slice(0,80),
+    groupSize:$('yGroup').value,
+    retreatMonths:$('yMonths').value.trim().slice(0,80),
     consent:true,
     source:'yoga page (inbound)',
     stage:'new',
@@ -223,7 +242,7 @@ $('applyBtn').onclick=async function(){
     if(!db)throw new Error('offline');
     await db.collection('crm').add(rec);
     show('Application received. RoamWise will review and activate your referral code shortly'+(rec.wantsListing?' — we\'ll also be in touch about verifying your listing.':'.'));
-    $('yName').value='';$('yEmail').value='';$('yHandle').value='';$('yNiche').value='';$('yNote').value='';$('yListing').checked=false;$('yConsent').checked=false;
+    $('yName').value='';$('yEmail').value='';$('yHandle').value='';$('yNiche').value='';$('yNote').value='';$('yTown').value='';$('yMonths').value='';$('yGroup').value='';$('yListing').checked=false;$('yConsent').checked=false;
   }catch(e){
     show('The form could not reach RoamWise. Opening email as a fallback…',true);
     setTimeout(function(){location.href='mailto:founder@roamwise.co.in?subject='+encodeURIComponent('Yoga & Wellness Partner application — '+name)+'&body='+encodeURIComponent(JSON.stringify(rec,null,2))},800);
