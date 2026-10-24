@@ -1,0 +1,113 @@
+# name|country ISO|region|lat|lng|type|aliases(;)   types: F heritage/monument, N nature/park, W lake/waterfall, M mountain, B beach, I island, T temple, R resort/region, A attraction
+Eiffel Tower|FR|Paris|48.858|2.294|F|Tour Eiffel
+Louvre Museum|FR|Paris|48.861|2.336|F|The Louvre;Louvre
+Mont Saint-Michel|FR|Normandy|48.636|-1.511|F|Mont St Michel
+French Riviera|FR|Provence-Alpes-Cote d'Azur|43.70|7.27|R|Cote d'Azur;Riviera
+Colosseum|IT|Lazio|41.890|12.492|F|Roman Colosseum
+Vatican City|VA||41.903|12.453|F|St Peter's Basilica;Vatican Museums
+Venice Canals|IT|Veneto|45.440|12.335|A|Grand Canal Venice
+Leaning Tower of Pisa|IT|Tuscany|43.723|10.396|F|Pisa Tower
+Amalfi Coast|IT|Campania|40.634|14.602|R|Amalfi
+Cinque Terre|IT|Liguria|44.135|9.684|R|
+Pompeii|IT|Campania|40.751|14.489|F|
+Sagrada Familia|ES|Catalonia|41.404|2.174|F|La Sagrada Familia
+Alhambra|ES|Andalusia|37.176|-3.588|F|The Alhambra
+Santorini|GR|South Aegean|36.393|25.461|I|Thira
+Mykonos|GR|South Aegean|37.446|25.329|I|
+Acropolis|GR|Attica|37.972|23.726|F|Parthenon;Acropolis of Athens
+Cappadocia|TR|Nevsehir|38.643|34.829|R|Goreme;Kapadokya
+Hagia Sophia|TR|Istanbul|41.008|28.980|F|Ayasofya
+Pamukkale|TR|Denizli|37.920|29.120|W|Cotton Castle
+Big Ben|GB||51.501|-0.125|F|Elizabeth Tower;Palace of Westminster
+Stonehenge|GB|England|51.179|-1.826|F|
+Edinburgh Castle|GB|Scotland|55.949|-3.200|F|
+Tower of London|GB||51.508|-0.076|F|
+Neuschwanstein Castle|DE|Bavaria|47.558|10.750|F|Neuschwanstein
+Brandenburg Gate|DE|Berlin|52.516|13.378|F|
+Matterhorn|CH|Valais|45.976|7.658|M|
+Jungfraujoch|CH|Bern|46.547|7.985|M|Top of Europe
+Mont Blanc|FR|Haute-Savoie|45.833|6.865|M|
+Santorini Oia|GR|South Aegean|36.462|25.375|A|Oia
+Prague Castle|CZ|Prague|50.090|14.400|F|
+Dubrovnik Old Town|HR|Dubrovnik-Neretva|42.641|18.108|F|Dubrovnik
+Plitvice Lakes|HR|Lika-Senj|44.865|15.582|W|Plitvice Lakes National Park
+Giza Pyramids|EG|Giza|29.979|31.134|F|Pyramids of Giza;Great Pyramid;Pyramids
+Luxor Temple|EG|Luxor|25.699|32.639|T|Karnak;Valley of the Kings
+Petra|JO|Ma'an|30.329|35.444|F|Rose City
+Wadi Rum|JO|Aqaba|29.576|35.420|N|Valley of the Moon
+Burj Khalifa|AE|Dubai|25.197|55.274|F|
+Sheikh Zayed Grand Mosque|AE|Abu Dhabi|24.413|54.475|T|Grand Mosque Abu Dhabi
+Masai Mara|KE|Narok|-1.500|35.140|N|Maasai Mara
+Serengeti|TZ|Mara|-2.333|34.833|N|Serengeti National Park
+Mount Kilimanjaro|TZ|Kilimanjaro|-3.067|37.355|M|Kilimanjaro
+Victoria Falls|ZW|Matabeleland North|-17.925|25.857|W|Mosi-oa-Tunya
+Table Mountain|ZA|Western Cape|-33.963|18.403|M|
+Kruger National Park|ZA|Limpopo|-23.988|31.553|N|Kruger
+Sossusvlei|NA|Hardap|-24.727|15.294|N|Namib Desert
+Marrakech Medina|MA|Marrakesh-Safi|31.629|-7.981|A|Jemaa el-Fnaa
+Sahara Desert|MA|Drâa-Tafilalet|31.100|-4.000|N|Merzouga
+Great Wall of China|CN|Beijing|40.432|116.570|F|Badaling;Mutianyu
+Forbidden City|CN|Beijing|39.916|116.397|F|Palace Museum
+Terracotta Army|CN|Shaanxi|34.385|109.278|F|Terracotta Warriors
+Zhangjiajie|CN|Hunan|29.117|110.479|N|Avatar Mountains
+Mount Fuji|JP|Yamanashi|35.361|138.727|M|Fujisan
+Fushimi Inari|JP|Kyoto|34.967|135.773|T|Fushimi Inari Shrine
+Kinkaku-ji|JP|Kyoto|35.039|135.729|T|Golden Pavilion
+Hiroshima Peace Memorial|JP|Hiroshima|34.395|132.453|F|Hiroshima Peace Park
+Angkor Wat|KH|Siem Reap|13.413|103.867|T|Angkor
+Ha Long Bay|VN|Quang Ninh|20.910|107.184|N|Halong Bay
+Hoi An Ancient Town|VN|Quang Nam|15.880|108.338|F|Hoi An
+Phi Phi Islands|TH|Krabi|7.740|98.770|I|Koh Phi Phi;Phi Phi
+Grand Palace|TH|Bangkok|13.750|100.492|F|Grand Palace Bangkok
+Railay Beach|TH|Krabi|8.012|98.837|B|Rai Leh
+Ubud|ID|Bali|-8.507|115.263|R|
+Uluwatu Temple|ID|Bali|-8.829|115.085|T|Uluwatu
+Borobudur|ID|Central Java|-7.608|110.204|T|Borobudur Temple
+Komodo National Park|ID|East Nusa Tenggara|-8.550|119.490|N|Komodo
+Gardens by the Bay|SG||1.282|103.864|A|Marina Bay Sands
+Petronas Twin Towers|MY|Kuala Lumpur|3.158|101.712|F|Petronas Towers
+Sigiriya|LK|Central Province|7.957|80.760|F|Sigiriya Rock;Lion Rock
+Ella|LK|Uva|6.867|81.046|R|Nine Arch Bridge
+Everest Base Camp|NP|Solukhumbu|28.003|86.853|M|EBC;Mount Everest Base Camp
+Mount Everest|NP|Solukhumbu|27.988|86.925|M|Everest;Sagarmatha;Chomolungma
+Annapurna Base Camp|NP|Kaski|28.530|83.878|M|ABC;Annapurna Circuit
+Tiger's Nest Monastery|BT|Paro|27.492|89.363|T|Paro Taktsang;Taktsang
+Maafushi|MV|Kaafu|3.942|73.490|I|
+Sydney Opera House|AU|New South Wales|-33.857|151.215|F|
+Great Barrier Reef|AU|Queensland|-18.287|147.700|N|
+Uluru|AU|Northern Territory|-25.345|131.037|M|Ayers Rock
+Milford Sound|NZ|Southland|-44.672|167.926|W|Piopiopiotahi
+Queenstown|NZ|Otago|-45.031|168.663|R|
+Statue of Liberty|US|New York|40.689|-74.045|F|
+Grand Canyon|US|Arizona|36.107|-112.113|N|Grand Canyon National Park
+Yellowstone National Park|US|Wyoming|44.428|-110.588|N|Yellowstone
+Yosemite National Park|US|California|37.865|-119.538|N|Yosemite
+Golden Gate Bridge|US|California|37.820|-122.479|F|
+Niagara Falls|CA|Ontario|43.080|-79.074|W|
+Banff National Park|CA|Alberta|51.496|-115.928|N|Banff;Lake Louise
+Machu Picchu|PE|Cusco|-13.163|-72.545|F|Machu Pichu
+Cusco|PE|Cusco|-13.532|-71.967|R|Cuzco
+Rainbow Mountain|PE|Cusco|-13.870|-71.303|M|Vinicunca
+Christ the Redeemer|BR|Rio de Janeiro|-22.952|-43.211|F|Cristo Redentor
+Iguazu Falls|AR|Misiones|-25.695|-54.436|W|Iguacu Falls;Iguazu
+Salar de Uyuni|BO|Potosi|-20.133|-67.489|N|Uyuni Salt Flats
+Galapagos Islands|EC|Galapagos|-0.670|-90.550|I|Galapagos
+Torres del Paine|CL|Magallanes|-51.000|-73.000|N|Torres del Paine National Park
+Easter Island|CL|Valparaiso|-27.113|-109.350|I|Rapa Nui
+Chichen Itza|MX|Yucatan|20.684|-88.568|F|
+Tulum|MX|Quintana Roo|20.211|-87.465|F|Tulum Ruins
+Cancun Hotel Zone|MX|Quintana Roo|21.136|-86.746|B|Cancun Beach
+Havana Old Town|CU|La Habana|23.137|-82.355|F|Old Havana
+Bora Bora|PF|Leeward Islands|-16.500|-151.741|I|
+Reykjavik Golden Circle|IS|South|64.256|-21.130|N|Golden Circle;Gullfoss;Geysir
+Blue Lagoon|IS|Reykjanes|63.880|-22.449|W|
+Northern Lights Tromso|NO|Troms|69.650|18.956|R|Tromso;Aurora
+Lofoten Islands|NO|Nordland|68.200|14.000|I|Lofoten
+Hallstatt|AT|Upper Austria|47.562|13.649|R|
+Moscow Red Square|RU|Moscow|55.754|37.620|F|Red Square;Kremlin
+Lake Baikal|RU|Irkutsk|53.500|108.000|W|Baikal
+Mount Elbrus|RU|Kabardino-Balkaria|43.352|42.437|M|Elbrus
+Jeju Island|KR|Jeju|33.489|126.498|I|Jejudo
+Bagan|MM|Mandalay|21.171|94.860|F|Pagan;Bagan Temples
+Luang Prabang|LA|Luang Prabang|19.886|102.135|R|
+Taj Mahal|IN|Uttar Pradesh|27.175|78.042|F|

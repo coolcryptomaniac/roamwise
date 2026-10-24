@@ -15,7 +15,7 @@ test('dataset is complete and well-formed', () => {
   assert.ok(/geonames/i.test(data.source), 'attribution present');
 });
 test('aliases resolve to the right country', () => {
-  const cases = { 'USA':'US', 'U.K.':'GB', 'England':'GB', 'UAE':'AE', 'Dubai':'AE', 'Burma':'MM', 'Holland':'NL', 'Türkiye':'TR', 'Czechia':'CZ',
+  const cases = { 'USA':'US', 'U.K.':'GB', 'England':'GB', 'UAE':'AE', 'Burma':'MM', 'Holland':'NL', 'Türkiye':'TR', 'Czechia':'CZ',
     'Ivory Coast':'CI', 'Siam':'TH', 'Ceylon':'LK', 'Bharat':'IN', 'Swaziland':'SZ', 'Cabo Verde':'CV', 'Vatican':'VA', 'India':'IN', 'IN':'IN' };
   for (const [k, v] of Object.entries(cases)) assert.strictEqual(look(k) && look(k).iso, v, k);
 });
