@@ -77,7 +77,7 @@ function openJourneyCert(){
         });
     geoP.then(function(data){
       var m=L.map('certMap',{zoomControl:false,attributionControl:false,dragging:true}).setView(data.center?[data.center.lat,data.center.lon]:[22,79],11);
-      L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png',{maxZoom:18}).addTo(m);
+      L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:18,attribution:'\u00a9 OpenStreetMap contributors'}).addTo(m);
       var pts=[], bounds=[];
       (data.pins||[]).forEach(function(p,i){
         var c=DAYC[i%DAYC.length];

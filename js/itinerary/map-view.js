@@ -221,10 +221,10 @@ function rwPaintTripMap(destName, data){
     _tripMap = L.map('tripMap', {zoomControl:true}).setView(center?[center.lat,center.lon]:[22.9,79.5], center?11:4);
     /* Base layers incl. a Google-Earth-style satellite view (Esri World Imagery)
        and topographic terrain. Users toggle between them like Wanderlog. */
-    var _streets = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png', {maxZoom:19, attribution:'\u00a9 OSM \u00a9 CARTO'});
+    var _streets = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {maxZoom:19, attribution:'\u00a9 OpenStreetMap contributors'});
     var _satellite = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {maxZoom:19, attribution:'\u00a9 Esri'});
     var _terrain = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {maxZoom:17, attribution:'\u00a9 OpenTopoMap'});
-    var _labels = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_only_labels/{z}/{x}/{y}.png', {maxZoom:19});
+    var _labels = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}', {maxZoom:19});
     _tripMapLayers = {streets:_streets, satellite:_satellite, terrain:_terrain, labels:_labels};
     _streets.addTo(_tripMap); _tripMapMode='streets';
   }
