@@ -570,6 +570,29 @@ html{-webkit-text-size-adjust:100%}
   </div>
 <section class="v v-home" id="rwFeatured" aria-label="Featured partners"></section>
 
+<section class="v v-home" id="rwMatchLinks" aria-label="Find your match">
+  <style>
+  #rwMatchLinks{margin:6px 14px 10px}
+  #rwMatchLinks h2{margin:0 0 8px;font:800 11.5px/1.2 system-ui,sans-serif;letter-spacing:.16em;color:#e8ba6c}
+  #rwMatchLinks .ml-row{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding:2px 0 6px;scroll-snap-type:x proximity}
+  #rwMatchLinks .ml-row::-webkit-scrollbar{display:none}
+  #rwMatchLinks a{flex:none;scroll-snap-align:start;display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 14px;border-radius:999px;border:1px solid rgba(232,186,108,.4);background:rgba(232,186,108,.08);color:#f3d9a4;font:700 13px system-ui,sans-serif;text-decoration:none;white-space:nowrap}
+  #rwMatchLinks a:active{transform:scale(.97)}#rwMatchLinks a:focus-visible{outline:2px solid #FFE0AE;outline-offset:2px}
+  </style>
+  <h2>FIND YOUR MATCH</h2>
+  <nav class="ml-row" aria-label="Matching doors">
+    <a href="/creators/match.html?role=creator&amp;invite=founding&amp;src=home-top">🎥 Travel creators</a>
+    <a href="/partner/join/?src=home-top">🏡 Stays</a>
+    <a href="/yoga/?src=home-top">🧘 Yoga teachers</a>
+    <a href="/partner/join/?src=home-top&amp;retreats=1">🏔️ Resorts for retreats</a>
+    <a href="/creators/join-artist.html?src=home-top">🎨 Painting artists</a>
+    <a href="/local-business/?src=home-top">🏪 Cafes &amp; shops</a>
+    <a href="#partner-music" data-hub="music">🎶 Music artists</a>
+    <a href="#partner-transport" data-hub="transport">🚕 Transport</a>
+    <a href="#partner-college" data-hub="college">🎓 Colleges</a>
+  </nav>
+</section>
+
 <section class="v v-home" id="bigSix" aria-label="Main ways to use RoamWise" style="margin:14px 0 4px">
   <div class="bs-grid">
     <button type="button" class="bs-tile bs-stay" onclick="openListing()"><span class="bs-ic" aria-hidden="true">&#127969;</span><b>Book &amp; Stay</b><small>Local stays. Enquire on WhatsApp.</small></button>
