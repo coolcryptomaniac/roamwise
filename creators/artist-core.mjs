@@ -23,7 +23,7 @@ export function validateArtist(a, existingIds = []) {
 export function toRecord(a, plan = 'founding') {
   const id = a.id || slugify(a.name);
   return { id, name: a.name, studio: a.studio, role: { founding: 'RoamWise Founding Artist', premium: 'RoamWise Premium Artist' }[plan] || 'RoamWise Artist', state: a.state, website: a.website || null, instagram: a.instagram || null,
-    themes: a.themes, bio: a.bio || null, shipping: a.shipping || null, returns: a.returns || null, plan, page: '/creators/artist.html?a=' + id, photo: null, whatsapp: a.whatsapp || null, social: {}, artworks: (a.artworks || []).map((w, i) => ({
+    themes: a.themes, bio: a.bio || null, shipping: a.shipping || null, returns: a.returns || null, plan, page: '/creators/' + id + '/', photo: null, whatsapp: a.whatsapp || null, social: {}, artworks: (a.artworks || []).map((w, i) => ({
       id: w.id || slugify(w.title) || 'work-' + (i + 1), title: w.title, status: w.status || 'Available', type: w.type || 'Original', price: w.price || 'Price on request', image: w.image || null, url: w.url || null, medium: w.medium || null, size: w.size || null })),
     consentGivenAt: new Date().toISOString().slice(0, 10) };
 }

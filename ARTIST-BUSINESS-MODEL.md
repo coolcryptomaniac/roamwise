@@ -12,7 +12,7 @@ Status: **current** (Oct 2026). Introductory model, to be reviewed after the fir
 - **Painting of the week** on the homepage is chosen by RoamWise (`spotlight` in `artists-data.json`), not sold.
 
 ## What artists get (`plans.founding` in `creators/artists-data.json`)
-Own page (`creators/artist.html?a=<id>`), up to 24 paintings, gallery listing, Kala presenting the work (Sacred art gallery, wall preview, finder, comparison), price tiers, institutional buyer matches where found, enquiry log with CSV export. The old `plan: free` value still exists in the code as a restricted listing (6 paintings, no Kala) but is not used for new artists.
+Own page (`/creators/<id>/`, a static page written by `npm run artists:build` from `artists-data.json`; noindex until it has a bio and one painting with a photo; the old `artist.html?a=<id>` link redirects there), up to 24 paintings, gallery listing, Kala presenting the work (Sacred art gallery, wall preview, finder, comparison), price tiers, institutional buyer matches where found, enquiry log with CSV export. The old `plan: free` value still exists in the code as a restricted listing (6 paintings, no Kala) but is not used for new artists.
 
 ## Onboarding flow
 1. Artist fills `creators/join-artist.html` (client-side only), which prepares an email to founder@roamwise.co.in with a `DATA:` JSON line. A consent tick is required.
