@@ -77,3 +77,13 @@ window.RW_TEAM_CONTACT = {
   email: "support@roamwise.co.in",
   note: "Accounts, bookings, payments and product help"
 };
+
+/* Official contacts. ONLY the people listed here speak for RoamWise.
+   Keep this in step with RW_TEAM: when someone leaves, remove them here too. */
+window.RW_OFFICIAL_CONTACTS = [
+  { name: "Febin", role: "Content & Growth (intern)", email: "febin@roamwise.co.in" },
+  { name: "Deepanshi", role: "B2B Partnerships (intern)", email: "deepanshi@roamwise.co.in" }
+];
+
+window.RW_CONTACT_NOTICE =
+  "Be cautious. RoamWise only works with the people listed on this page. We never ask for payment, OTPs, passwords or advance deposits over WhatsApp, Telegram, Instagram or a personal email. If someone claims to represent RoamWise and is not listed here, treat it as unofficial and write to support@roamwise.co.in to check.";
