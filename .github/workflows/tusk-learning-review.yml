@@ -29,7 +29,7 @@ jobs:
             fs.writeFileSync('tusk-learning-review.json', JSON.stringify({status:'review-only',evaluatedAt:new Date().toISOString(),recommendations:result},null,2));
           }
           JS
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         with:
           name: tusk-learning-review
           path: tusk-learning-review.json
