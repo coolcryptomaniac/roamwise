@@ -356,6 +356,28 @@
         }
       ],
       "consentGivenAt": "2026-10-24"
+    },
+    {
+      "id": "shrushti-prajapati",
+      "name": "Shrushti Prajapati",
+      "studio": "Painting stroke",
+      "role": "RoamWise Founding Artist",
+      "state": "Varanasi",
+      "website": null,
+      "instagram": "https://www.instagram.com/painting_stroke_/",
+      "themes": [
+        "Landscapes"
+      ],
+      "bio": "I am a passionate artist and creator behind painting stroke. I love expressing my imagination through acrylic paintings, nature art and beautiful scenery. I also create customised paintings based on clients ideas and preferences. For me, every painting is a way to express creativity, emotions and beauty through colours and brush strokes. My goal is to turn simple ideas into meaningful artwork and share my creativity with the world.",
+      "shipping": null,
+      "returns": null,
+      "plan": "founding",
+      "page": "/creators/artist.html?a=shrushti-prajapati",
+      "photo": null,
+      "whatsapp": "919986808828",
+      "social": {},
+      "artworks": [],
+      "consentGivenAt": "2026-10-26"
     }
   ],
   "properties": [
