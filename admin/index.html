@@ -116,6 +116,7 @@
       </section>
       <section id="business" class="section"><div class="eyebrow">Business metrics</div><h1 class="title">MRR, ARR and EBITDA — computed, not guessed.</h1><p class="lead">Revenue is matched against the live pricing ladder from real approved payments. Expenses are whatever you enter below — there is no fabricated cost line.</p>
         <div id="businessMetrics"><div class="empty">Loading…</div></div>
+        <div class="card" style="margin-top:14px"><h2>Capital discipline &amp; long-runway planning</h2><div id="capitalDiscipline"></div></div>
         <div class="card" style="margin-top:14px"><h2>10-year founder-independence model</h2><p>Starts from measured recurring MRR and owner-entered monthly costs. Every future growth, churn, variable-cost and non-subscription revenue value remains an editable assumption.</p><div id="founderEconomics"><div class="empty">Loading model…</div></div></div>
         <div class="card" style="margin-top:14px"><h2>Automated revenue engines</h2><p>Each engine can serve many customers without selling the founder's calendar. Proposed widget prices are prepaid with hard usage allowances until recurring B2B billing is approved.</p><div id="revenueEngines"></div></div>
         <div class="card" style="margin-top:14px"><h2>Revenue resilience</h2><p>Uses only completed direct bookings. It flags country, property and month concentration so RoamWise can add supply where the portfolio is weak—without changing a partner's agreed fee after booking.</p><div id="revenueResilience"><div class="empty">Loading direct-booking portfolio…</div></div></div>
@@ -311,6 +312,7 @@
 <script src="../js/pricing/usage-policy.js"></script>
 <script src="../js/admin/business-metrics.js"></script>
 <script src="../js/admin/founder-economics.js"></script>
+<script src="../js/admin/capital-discipline.js"></script>
 <script src="../js/admin/revenue-resilience.js"></script>
 <script src="../js/admin/referral-liability.js"></script>
 <script src="../js/admin/compliance-checklist.js"></script>
@@ -360,7 +362,7 @@ function startBusinessData(){
   db.collection("staff").limit(200).onSnapshot(s=>{TEAM_ACCESS=s.docs.map(d=>({id:d.id,...d.data()}));renderTeamAccess();renderLeanOps()},e=>toast("Team access: "+e.message,true));
   db.collection("partners").limit(500).onSnapshot(s=>{DIRECT_PARTNERS=s.docs.map(d=>({id:d.id,...d.data()}));renderRevenueResilience();renderLeanOps()},e=>toast("Partners: "+e.message,true));
   db.collection("roomBookings").limit(1000).onSnapshot(s=>{DIRECT_BOOKINGS=s.docs.map(d=>({id:d.id,...d.data()}));renderRevenueResilience();renderLeanOps()},e=>toast("Direct bookings: "+e.message,true));
-  db.collection("finance").doc("costs").onSnapshot(d=>{FINANCE_COSTS=d.exists?d.data():{};renderBusiness()},e=>toast("Expenses: "+e.message,true));
+  db.collection("finance").doc("costs").onSnapshot(d=>{FINANCE_COSTS=d.exists?d.data():{};renderBusiness();renderCapitalDiscipline()},e=>toast("Expenses: "+e.message,true));
   db.collection("config").doc("complianceChecklist").onSnapshot(d=>{COMPLIANCE_OVERRIDES=d.exists?d.data():{};renderCompliance()},e=>toast("Compliance: "+e.message,true));
   db.collection("devRequests").orderBy("createdAt","desc").limit(200).onSnapshot(s=>{DEV_REQUESTS=s.docs.map(d=>({id:d.id,...d.data()}));renderDevRequests();renderLeanOps()},e=>toast("Dev requests: "+e.message,true));
   db.collection("config").doc("promoCodes").onSnapshot(d=>{PROMO_CODES=(d.exists&&Array.isArray((d.data()||{}).list))?d.data().list:[];renderPromos();renderDashboardHome()},e=>toast("Promo codes: "+e.message,true));
@@ -395,7 +397,14 @@ function renderBusiness(){
   $("businessMetrics").innerHTML=RWBusinessMetrics.renderBusinessMetricsHtml(summary,ebitda,{money,esc});
   renderExpenseFields();renderInvestorTab();renderDashboardHome();renderKpis();
   renderFounderEconomics();
+
   renderRevenueResilience();
+}
+function renderCapitalDiscipline(){
+  RWCapitalDiscipline.mount($('capitalDiscipline'),FINANCE_COSTS.capitalDiscipline,async function(values){
+    if(!CURRENT_ADMIN||!CURRENT_ADMIN.uid)throw new Error('Admin sign-in required');
+    await db.collection('finance').doc('costs').set({capitalDiscipline:values,updatedAt:FV.serverTimestamp(),updatedBy:CURRENT_ADMIN.uid},{merge:true});
+  });
 }
 function renderFounderEconomics(){
   if(!$('founderEconomics'))return;
