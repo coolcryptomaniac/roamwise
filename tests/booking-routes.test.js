@@ -34,7 +34,7 @@ test('ota and website routes require https and name the site honestly', () => {
   assert.equal(c.rwBookingRoute({ ...base, bookingMode: 'ota', bookingUrl: 'http://insecure.example/x' }).type, 'none');
   assert.equal(c.rwBookingRoute({ ...base, bookingMode: 'ota', bookingUrl: 'javascript:alert(1)' }).type, 'none');
   assert.equal(c.rwBookingRoute({ ...base, bookingMode: 'website', bookingUrl: 'https://hotel.example/book' }).type, 'website');
-  assert.match(c.rwBookingActionHTML({ ...base, bookingMode: 'ota', bookingUrl: 'https://www.agoda.com/x' }), /book and pay on Agoda/);
+  assert.match(c.rwBookingActionHTML({ ...base, bookingMode: 'ota', bookingUrl: 'https://www.agoda.com/x' }), /Continue your booking on Agoda/);
 });
 
 test('phone route builds a tel link; secondary channels are offered', () => {
@@ -61,4 +61,16 @@ test('shipped room data cannot leak: no unsigned or unmatched room is live', () 
   vm.createContext(ctx);
   for (const f of ['partners-data.js', 'rooms-data.js', 'js/booking/routes.js']) vm.runInContext(fs.readFileSync(f, 'utf8'), ctx);
   assert.equal(ctx.rwRoomsLive().length, 0);
+});
+
+
+test('booking responsibilities distinguish direct, provider and inquiry channels', () => {
+  const c = load([]);
+  const text = type => JSON.stringify(c.rwBookingResponsibilities({type, site:'Agoda'}));
+  assert.match(text('direct'), /accept the total/);
+  assert.match(text('ota'), /provider or the property/);
+  assert.match(text('ota'), /support channel on your booking confirmation/);
+  for(const type of ['phone','whatsapp','website']) assert.match(text(type), /written confirmation/);
+  assert.equal(c.rwBookingResponsibilitiesHTML({type:'none'}), '');
+  assert.match(c.rwBookingActionHTML({...base, bookingMode:'phone', bookingPhone:'9876543210'}), /<summary>Who handles my booking/);
 });

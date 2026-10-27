@@ -67,6 +67,34 @@ function rwBookingRoute(p){
 }
 function rwIsOperational(p){ return rwBookingRoute(p).type!=='none'; }
 
+/* Route-specific responsibilities; external payment collection is not assumed. */
+function rwBookingResponsibilities(route){
+  if(!route || route.type==='none') return [];
+  if(route.type==='direct') return [
+    ['Confirmation', 'The property confirms availability, the final total and cancellation terms. Sending a request does not reserve a room.'],
+    ['Payment', 'Choose a payment method in the booking desk. Pay only after the property confirms and you accept the total.'],
+    ['Changes & refunds', 'Ask the property to approve date changes or cancellation. Refund handling follows the confirmed terms and payment method.']
+  ];
+  if(route.type==='ota') return [
+    ['Confirmation', 'Look for a booking reference from '+(route.site||'the booking provider')+'. Opening this link is not a reservation.'],
+    ['Payment', 'Check who collects payment at checkout: the booking provider or the property.'],
+    ['Changes & refunds', 'Start with the support channel on your booking confirmation. The provider’s booking terms apply.']
+  ];
+  if(['website','whatsapp','phone'].indexOf(route.type)<0) return [];
+  return [
+    ['Confirmation', 'Ask the property for written confirmation of your room, dates, final total and cancellation terms.'],
+    ['Payment', 'The property specifies the payment recipient and method. Verify these before paying.'],
+    ['Changes & refunds', 'Contact the property using the details on your confirmation. An inquiry or call is not a confirmed booking.']
+  ];
+}
+function rwBookingResponsibilitiesHTML(route){
+  var rows=rwBookingResponsibilities(route);
+  if(!rows.length) return '';
+  return '<details class="lst-confirm"><summary>Who handles my booking?</summary><dl>'+rows.map(function(row){
+    return '<dt><strong>'+esc2(row[0])+'</strong></dt><dd style="margin:0 0 8px">'+esc2(row[1])+'</dd>';
+  }).join('')+'</dl></details>';
+}
+
 /* HTML for the primary action plus any secondary channels. */
 function rwBookingActionHTML(p){
   var routes=rwBookingRoutes(p);
@@ -82,7 +110,7 @@ function rwBookingActionHTML(p){
       +'<p class="lst-confirm">Your reservation is confirmed directly by the hotel. Please verify current availability, final total including taxes and booking terms before paying.</p>';
   }else if(main.type==='ota'||main.type==='website'){
     html='<a class="bk-go" style="'+style+'" href="'+esc2(main.href)+'" target="_blank" rel="noopener noreferrer sponsored">'+esc2(main.label)+'</a>'
-      +'<p class="lst-confirm">You will book and pay on '+esc2(main.site)+'. Rates, availability and booking terms are set there, not by RoamWise.</p>';
+      +'<p class="lst-confirm">Continue your booking on '+esc2(main.site)+'. Rates, availability and booking terms are set there, not by RoamWise.</p>';
   }else if(main.type==='phone'){
     html='<a class="bk-go" style="'+style+'" href="'+esc2(main.href)+'">'+main.label+'</a>'
       +'<p class="lst-confirm">Your reservation is confirmed directly by the hotel. Please verify availability and the final total before paying.</p>';
@@ -90,5 +118,5 @@ function rwBookingActionHTML(p){
   var extra=routes.slice(1).filter(function(r){ return r.type==='phone'||r.type==='website'||r.type==='whatsapp'; }).map(function(r){
     return '<a class="lst-instagram" href="'+esc2(r.href)+'"'+(r.type==='phone'?'':' target="_blank" rel="noopener noreferrer"')+'>'+(r.type==='phone'?'Or call the hotel':r.type==='whatsapp'?'Or WhatsApp the hotel ↗':'Or book on the hotel’s website ↗')+'</a>';
   }).join('');
-  return html+extra;
+  return html+rwBookingResponsibilitiesHTML(main)+extra;
 }

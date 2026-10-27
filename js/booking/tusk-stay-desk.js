@@ -97,13 +97,15 @@ function rwSdReceiptHTML(room, dates, guests, destLabel){
   }
   var cancel = (room.cancel && String(room.cancel)) || ((typeof rwStayPolicyText === 'function' && room.policy) ? rwStayPolicyText(room.policy) : '');
   rows.push(['Cancellation', cancel ? e(cancel) + ' <span class="rw-note">(set by the property)</span>' : 'Not stated — ask the property before you pay']);
-  rows.push(['Money', 'You pay the property. Nothing is taken until the property confirms this exact room, dates and total.']);
+  rows.push(['Payment', 'Choose your payment method in the booking desk. Nothing is taken until the property confirms this exact room, dates and total and you accept them.']);
+  rows.push(['Changes & refunds', 'Ask the property to approve changes or cancellation; refund handling depends on the confirmed terms and payment method.']);
   var href = '/partner/?role=customer&destination=' + encodeURIComponent(room.zone || room.area || destLabel || '')
     + '&checkin=' + dates.checkIn + '&checkout=' + dates.checkOut + (guests ? '&guests=' + guests : '');
   return '<div style="padding:10px 0;border-bottom:1px solid var(--b2,#2A2A36)">'
     + '<div style="font-weight:850">' + e(room.property) + ' <span style="font-weight:500;font-size:11px;color:var(--t3)">· ' + e(room.room) + ' · ' + e(room.area || room.zone || '') + '</span></div>'
+    + '<p class="rw-note">Listed-price estimate · not a confirmed quote or reservation. The property must confirm availability and the final total.</p>'
     + '<table style="width:100%;font-size:11.5px;margin:6px 0;border-collapse:collapse">'
-    + rows.map(function(r){ return '<tr><td style="padding:3px 8px 3px 0;color:var(--t3);vertical-align:top;white-space:nowrap">' + r[0] + '</td><td style="padding:3px 0">' + r[1] + '</td></tr>'; }).join('')
+    + rows.map(function(r){ return '<tr><td style="padding:3px 8px 3px 0;color:var(--t3);vertical-align:top;white-space:nowrap">' + e(r[0]) + '</td><td style="padding:3px 0">' + r[1] + '</td></tr>'; }).join('')
     + '</table>'
     + '<a class="tk-chip gold" href="' + e(href) + '" onclick="try{track(\'tusk_verified_stay_handoff\')}catch(x){}">Send request to the property →</a>'
     + '</div>';
@@ -118,14 +120,14 @@ function rwStayDeskAnswer(raw, dest, now){
   var e = rwSdEsc, label = dest ? ' in ' + e(dest) : '';
   if(!dates){
     return { html: '<div class="tk-card tk-mini"><div class="tk-sec"><b>Happy to set up a stay' + label + '.</b>'
-      + '<div style="font-size:11.5px;color:var(--t2);margin-top:5px">Tell me the dates, for example <i>12 to 15 Nov</i> or <i>20 Nov for 3 nights</i>' + (guests ? '' : ', and how many guests') + '. Then I will show the full receipt before anything is sent.</div></div></div>', dates: null, guests: guests, count: list.length };
+      + '<div style="font-size:11.5px;color:var(--t2);margin-top:5px">Tell me the dates, for example <i>12 to 15 Nov</i> or <i>20 Nov for 3 nights</i>' + (guests ? '' : ', and how many guests') + '. Then I will show an estimate before anything is sent.</div></div></div>', dates: null, guests: guests, count: list.length };
   }
   if(!list.length){
     return { html: '<div class="tk-card tk-mini"><div class="tk-sec"><b>No verified RoamWise stay matches' + label + ' for these dates yet.</b>'
       + '<div style="font-size:11.5px;color:var(--t2);margin-top:5px">I will not guess availability. You can still browse the verified stays page, or compare other sites yourself.</div>'
       + '<div class="tk-chips" style="margin-top:8px"><a class="tk-chip gold" href="/partner/?role=customer&amp;destination=' + encodeURIComponent(dest || '') + '&amp;checkin=' + dates.checkIn + '&amp;checkout=' + dates.checkOut + '">Browse verified stays →</a></div></div></div>', dates: dates, guests: guests, count: 0 };
   }
-  var head = '🧾 Your stay receipt' + label + ' · ' + dates.checkIn + ' → ' + dates.checkOut + ' (' + dates.nights + ' night' + (dates.nights > 1 ? 's' : '') + (guests ? ', ' + guests + ' guest' + (guests > 1 ? 's' : '') : '') + ')';
+  var head = '🧾 Your stay estimate' + label + ' · ' + dates.checkIn + ' → ' + dates.checkOut + ' (' + dates.nights + ' night' + (dates.nights > 1 ? 's' : '') + (guests ? ', ' + guests + ' guest' + (guests > 1 ? 's' : '') : '') + ')';
   return { html: '<div class="tk-card tk-mini"><div class="tk-sec"><div style="font-weight:850;font-size:13.5px;margin-bottom:4px">' + head + '</div>'
     + list.slice(0, 3).map(function(r){ return rwSdReceiptHTML(r, dates, guests, dest); }).join('')
     + '<div style="font-size:10.5px;color:var(--t3);margin-top:8px">Availability is confirmed only by the property. Sending a request does not charge you; you sign in on the next page and pay only after the property says yes.</div></div></div>',

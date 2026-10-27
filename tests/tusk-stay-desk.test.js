@@ -49,6 +49,10 @@ test('receipt shows the property rate, Rs 0 from RoamWise, the property terms, a
   assert.match(text, /The property keeps ₹7,812 of ₹8,400/);
   assert.match(text, /Free cancellation up to 48h/);
   assert.match(text, /Nothing is taken until the property confirms/);
+  assert.match(text, /not a confirmed quote or reservation/);
+  assert.match(text, /Choose your payment method in the booking desk/);
+  assert.doesNotMatch(text, /You pay the property/);
+  assert.match(text, /Changes &amp; refunds/);
   assert.match(a.html, /checkin=2026-11-12&amp;checkout=2026-11-15&amp;guests=2/);
   assert.ok(!a.html.includes('<Nest>'), 'property names are escaped');
   assert.doesNotMatch(text, /GST added|cheaper than|save \d/i, 'no invented taxes or price comparisons');
