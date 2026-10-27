@@ -16,5 +16,5 @@ const fs = require('fs'), path = require('path');
   if (use === 'founding' && !open) { console.error('Founding spots are full (' + used + '/' + (o.limit || 0) + ').'); process.exit(1); }
   const rec = toRecord(sub, use);
   if (!write) { console.log('OK (dry run). Would add:\n' + JSON.stringify(rec, null, 2)); return; }
-  data.artists.push(rec); fs.writeFileSync(dataPath, JSON.stringify(data, null, 2) + '\n'); console.log('Added ' + rec.id + ' -> ' + rec.page);
+  data.artists.push(rec); fs.writeFileSync(dataPath, JSON.stringify(data, null, 2) + '\n'); console.log('Added ' + rec.id + ' -> ' + rec.page); require('child_process').execFileSync(process.execPath, [path.join(__dirname, 'build-artist-pages.js')], { stdio: 'inherit' }); console.log('Run npm run sitemap and commit creators/' + rec.id + '/ with the data change.');
 })();
