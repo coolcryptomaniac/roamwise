@@ -41,11 +41,9 @@ function ssIndex(){
   var ix=[
    {t:'Plan a trip (crowd calendar + budget)',k:'plan search itinerary budget crowd month',go:function(){tabGo('plan');}},
    {t:'Trek Vault',k:'trek hike hidden dangerous new',go:function(){tabGo('explore');scrollToId('treks');}},
-   {t:'Event Radar (FIFA, Olympics...)',k:'event fifa olympics cricket concert f1 iphone',go:function(){tabGo('explore');scrollToId('events');}},
+   {t:'Event Radar',k:'event music culture local gathering',go:function(){openEvents();}},
    {t:'Hub & Spoke India + airports + Vande Bharat + best base',k:'airport vande bharat train bus base delhi flights india',go:function(){tabGo('explore');scrollToId('hubspoke');}},
    {t:'EV Vault + breakthroughs',k:'ev electric battery tesla charging breakthrough',go:function(){tabGo('explore');scrollToId('ev');}},
-   {t:'AI Pulse (agents, robots, startups)',k:'ai claude anthropic chatgpt gemini robot startup agent',go:function(){tabGo('explore');scrollToId('aipulse');}},
-   {t:'Travel Pulse News (daily crunched headlines)',k:'news visa flight advisory pulse today',go:function(){tabGo('explore');scrollToId('newspulse');}},
    {t:'Ratings & Testimonials',k:'rating review stars testimonial feedback',go:function(){tabGo('home');scrollToId('ratings');}},
    {t:'Journey Card (poster) & Movie',k:'journey card map poster movie video souvenir',go:function(){tabGo('explore');scrollToId('jlog');}},
    {t:'Store (books, PDFs, membership)',k:'store shop buy book tshirt membership consult',go:function(){tabGo('home');scrollToId('store');}},
@@ -54,7 +52,7 @@ function ssIndex(){
    {t:'AI Arena (compare models)',k:'compare arena models benchmark',go:function(){showToast('Build any itinerary, then tap Compare AI engines');tabGo('plan');}},
    {t:'Premium PDF itinerary',k:'pdf premium download print',go:function(){tabGo('plan');showToast('Search a place, open its itinerary, tap Premium PDF');}},
    {t:'Saved for later',k:'saved wishlist heart',go:function(){showSaved();}},
-   {t:'Unlock Pro / Supporter',k:'pro pay upgrade supporter price',go:function(){openPay();}},
+   {t:'Unlock Pro',k:'pro pay upgrade price',go:function(){openPay();}},
    {t:'Basecamp (companies, emergency, packing)',k:'basecamp emergency packing operators',go:function(){tabGo('explore');scrollToId('basecamp');}},
    {t:'The Creator & books',k:'creator mohit books author about',go:function(){tabGo('home');scrollToId('creator');}},
    {t:'My Music',k:'music songs phonk spotify saavn',go:function(){openMusic();}},
@@ -79,7 +77,6 @@ function ssIndex(){
     });
   }catch(e){ /* best-effort nav helper, ignore */ }
   (typeof TREKS!=='undefined'?TREKS:[]).forEach(function(t){ ix.push({t:'Trek: '+t.n,k:t.n.toLowerCase(),go:function(){tabGo('explore');scrollToId('treks');}}); });
-  (typeof EVENTS!=='undefined'?EVENTS:[]).forEach(function(e){ ix.push({t:e.ic+' '+e.n,k:e.n.toLowerCase(),go:function(){eventPlan(e.id);}}); });
   (typeof EXPS!=='undefined'?EXPS:[]).forEach(function(e){ ix.push({t:'Experience: '+e.n,k:e.n.toLowerCase(),go:function(){tabGo('explore');scrollToId('exps');}}); });
   return ix;
 }

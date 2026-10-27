@@ -390,17 +390,6 @@ body.shell{padding-bottom:calc(104px + env(safe-area-inset-bottom))}
   .chat-tool{font-size:13.5px;min-height:44px}
 }
 .chat-tool:hover,.chat-tool:active{border-color:var(--gold,#E8BA6C);color:var(--gold,#E8BA6C)}
-#rwCreatorBanner{background:linear-gradient(90deg,#0d0a00,#1a1000,#0d0a00);border-bottom:1px solid rgba(232,186,108,.25);padding:10px 34px 10px 14px;text-align:center;position:relative;overflow:hidden}
-#rwCreatorBanner::before{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(232,186,108,.07),transparent);animation:rwcbSweep 3s ease-in-out infinite}
-@keyframes rwcbSweep{0%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
-.rwcb-row{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;position:relative;max-width:1040px;margin:0 auto}
-.rwcb-dot{width:8px;height:8px;border-radius:50%;background:var(--gold2,#E8BA6C);animation:rwcbBlink 1.4s ease-in-out infinite;flex-shrink:0}
-@keyframes rwcbBlink{0%,100%{opacity:1;box-shadow:0 0 6px var(--gold2,#E8BA6C)}50%{opacity:.3;box-shadow:none}}
-.rwcb-txt{font-family:'Outfit',sans-serif;font-size:12.5px;font-weight:600;letter-spacing:.02em;color:var(--t1,#EDE8DF)}
-.rwcb-txt em{color:var(--gold,#C8913E);font-style:normal}
-.rwcb-txt a{color:var(--gold2,#E8BA6C);font-weight:800;text-decoration:none;border-bottom:1px solid rgba(232,186,108,.5);margin-left:4px;white-space:nowrap}
-.rwcb-close{position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--t2,#8A8680);font-size:19px;line-height:1;cursor:pointer;padding:4px 8px}
-.rwcb-close:hover{color:var(--gold2,#E8BA6C)}
 </style>
 <style id="rwScale">
 /* ===== Native-app scale — bigger, thumb-friendly on mobile & tablet ===== */
@@ -574,12 +563,15 @@ html{-webkit-text-size-adjust:100%}
   <style>
   #rwMatchLinks{margin:6px 14px 10px}
   #rwMatchLinks h2{margin:0 0 8px;font:800 11.5px/1.2 system-ui,sans-serif;letter-spacing:.16em;color:#e8ba6c}
+  #rwMatchLinks summary{min-height:44px;display:list-item;cursor:pointer;padding:10px 4px;color:#f3d9a4;font-weight:700}
+  #rwMatchLinks summary:focus-visible{outline:2px solid #FFE0AE;outline-offset:2px}
   #rwMatchLinks .ml-row{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding:2px 0 6px;scroll-snap-type:x proximity}
   #rwMatchLinks .ml-row::-webkit-scrollbar{display:none}
   #rwMatchLinks a{flex:none;scroll-snap-align:start;display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 14px;border-radius:999px;border:1px solid rgba(232,186,108,.4);background:rgba(232,186,108,.08);color:#f3d9a4;font:700 13px system-ui,sans-serif;text-decoration:none;white-space:nowrap}
   #rwMatchLinks a:active{transform:scale(.97)}#rwMatchLinks a:focus-visible{outline:2px solid #FFE0AE;outline-offset:2px}
   </style>
-  <h2>FIND YOUR MATCH</h2>
+  <details id="rwPartnerDoors">
+  <summary>For hosts, creators, yoga teachers &amp; artists</summary>
   <nav class="ml-row" aria-label="Matching doors">
     <a href="/creators/match.html?role=creator&amp;invite=founding&amp;src=home-top">🎥 Travel creators</a>
     <a href="/partner/join/?src=home-top">🏡 Stays</a>
@@ -592,6 +584,7 @@ html{-webkit-text-size-adjust:100%}
     <a href="#partner-transport" data-hub="transport">🚕 Transport</a>
     <a href="#partner-college" data-hub="college">🎓 Colleges</a>
   </nav>
+  </details>
 </section>
 
 <section class="v v-home" id="bigSix" aria-label="Main ways to use RoamWise" style="margin:14px 0 4px">
@@ -599,7 +592,7 @@ html{-webkit-text-size-adjust:100%}
     <button type="button" class="bs-tile bs-stay" onclick="openListing()"><span class="bs-ic" aria-hidden="true">&#127969;</span><b>Book &amp; Stay</b><small>Local stays. Enquire on WhatsApp.</small></button>
 <button type="button" class="bs-tile bs-stay" onclick="rwOpenTripDesk()"><b>Flights, trains &amp; rides</b><small>Electric first. Your whole trip together.</small></button>
     <a class="bs-tile bs-nomad" href="nomads/"><span class="bs-ic" aria-hidden="true">&#128187;</span><b>Nomad Match</b><small>Work stays, 15 days to 3 months.</small></a>
-    <a class="bs-tile bs-creator" href="creators/match.html?role=creator&amp;invite=founding"><span class="bs-ic" aria-hidden="true">&#127909;</span><b>Creator Match</b><small>Free stays for your content.</small></a>
+    <a class="bs-tile bs-creator" href="creators/match.html?role=creator&amp;invite=founding"><span class="bs-ic" aria-hidden="true">&#127909;</span><b>Creator Match</b><small>Agree a paid, hosted or hybrid collaboration.</small></a>
     <a class="bs-tile bs-prop" href="creators/match.html?role=property"><span class="bs-ic" aria-hidden="true">&#129309;</span><b>Creators &times; Stays</b><small>Hosts: find creators who fit.</small></a>
     <button type="button" class="bs-tile bs-fit" onclick="openFitnessStays()"><span class="bs-ic" aria-hidden="true">&#127947;&#65039;</span><b>Fitness-first stays</b><small>Gyms and yoga near your stay.</small></button>
     <button type="button" class="bs-tile bs-sacred" onclick="tabGo('sacred')"><span class="bs-ic" aria-hidden="true">&#2384;</span><b>Sacred journeys</b><small>Digital Bhakti and pilgrimages.</small></button>
@@ -607,28 +600,6 @@ html{-webkit-text-size-adjust:100%}
 </section>
 </section>
 
-
-<div id="rwCreatorBanner" style="display:none">
-  <div class="rwcb-row">
-    <div class="rwcb-dot"></div>
-    <div class="rwcb-txt"><em>Travel creators &amp; influencers</em> &middot; Upload your itineraries, travel videos/reels &amp; blog posts &middot; Show off <em>Ailon Tusk</em>, <em>Trip Chat</em> &amp; trip ratings to your audience &middot; Earn <em>25&ndash;30%</em> referral commission (lifetime Pro for top creators) <a href="/creators/index.html">Apply free &rarr;</a></div>
-  </div>
-  <button class="rwcb-close" onclick="rwDismissCreatorBanner()" aria-label="Dismiss">&times;</button>
-</div>
-<script>
-(function(){
-  try{
-    if(localStorage.getItem('rw_creatorBannerDismissed')==='1') return;
-    var b=document.getElementById('rwCreatorBanner');
-    if(b) b.style.display='block';
-  }catch(e){}
-})();
-function rwDismissCreatorBanner(){
-  try{ localStorage.setItem('rw_creatorBannerDismissed','1'); }catch(e){}
-  var b=document.getElementById('rwCreatorBanner');
-  if(b) b.style.display='none';
-}
-</script>
 
 <div class="free-bar" id="freeBar">
   <span>Free searches today: <strong id="freeCount">5</strong> left</span>
@@ -640,9 +611,7 @@ function rwDismissCreatorBanner(){
 
 <section class="v v-home" id="quickGrid" style="margin:4px 14px 8px">
   <div class="qg-wrap">
-    <!-- rw-v82: the FOUR things most people actually came to do. Everything
-         else moved behind "More" so home stays a decision, not a menu. -->
-    <button class="qg-tile qg-primary" onclick="openListing()"><span class="qg-ic">🏡</span><span class="qg-lbl">Stay &amp; do</span></button>
+    <!-- Secondary trip utilities; the stay entry already lives in bigSix. -->
     <button class="qg-tile qg-primary" onclick="openMoneyLayer()"><span class="qg-ic">💰</span><span class="qg-lbl">Split money</span></button>
     <button class="qg-tile qg-primary" onclick="openNearMe()"><span class="qg-ic">📍</span><span class="qg-lbl">Near me</span></button>
     <button class="qg-tile qg-primary" style="position:relative" onclick="openBooking()"><span class="qg-ic">🧳</span><span class="qg-lbl">Your trip</span><span id="rwBasketBadge">0</span></button>
@@ -1178,11 +1147,6 @@ function rwDismissCreatorBanner(){
   <div class="trek-grid" id="circGrid"></div>
 </section>
 
-<section class="xsec v v-explore" id="events">
-  <div class="xsec-head"><h2 class="xsec-title">&#127760; World <em>moments</em></h2><button class="share-fab" onclick="shareApp('app')">&#128228; Share</button></div>
-  <p class="xsec-sub">The world&rsquo;s biggest moments &mdash; World Cups, Olympics, launches, tours &mdash; turned into trip triggers with insider timing.</p>
-  <div class="exp-grid" id="evtGrid"></div>
-</section>
 
 <ins class="adsbygoogle rw-ad v v-explore" style="display:none;margin:10px 14px" data-ad-client="ca-pub-4943859484482348" data-ad-format="auto" data-full-width-responsive="true"></ins>
 <section class="xsec v v-explore" id="hubspoke">
@@ -1194,8 +1158,6 @@ function rwDismissCreatorBanner(){
 <section class="xsec v v-explore" id="ev">
   <div class="xsec-head"><h2 class="xsec-title">&#9889; EV <em>Vault</em></h2></div>
   <p class="xsec-sub">The standout electric machine in every category &mdash; range kings, charging champs and the best picks for world travel. Specs are indicative; always verify the latest.</p>
-  <div class="mode-box" style="margin-bottom:12px"><b>&#9889; 2026 breakthroughs:</b> solid-state pilot packs enter premium EVs (900+ km claims) &bull; 5C ultrafast LFP makes 10&ndash;80% a coffee stop &bull; battery-swap crosses 4,000 stations in China &bull; megawatt charging unlocks electric trucking. 
-  <div style="display:flex;gap:8px;margin-top:9px"><a class="tact" style="flex:1;text-align:center;text-decoration:none" target="_blank" rel="noopener" href="https://www.youtube.com/results?search_query=solid+state+battery+2026">&#9654; Solid-state, explained</a><a class="tact" style="flex:1;text-align:center;text-decoration:none" target="_blank" rel="noopener" href="https://www.youtube.com/results?search_query=megawatt+charging+electric+trucks">&#9654; Megawatt charging</a></div></div>
   <div class="ev-grid" id="evGrid"></div>
 </section>
 
@@ -1259,27 +1221,10 @@ function rwDismissCreatorBanner(){
     <div class="exp"><div class="exp-ic">&#127916;</div><div class="exp-name">Journey Movie &mdash; &#8377;50</div><div class="exp-desc">Your travels as a cinematic reel with music and chapters. Free for Pro.</div><button class="tact" style="width:100%;margin-top:9px" onclick="tabGo('explore');scrollToId('jlog')">Roll camera</button></div>
     <div class="exp"><div class="exp-ic">&#128218;</div><div class="exp-name">Books by Mohit Pandey</div><div class="exp-desc">AI Ki Pathshala &bull; Yuga &bull; Volts &amp; Vengeance &mdash; on Amazon, Pothi &amp; Flipkart.</div><button class="tact" style="width:100%;margin-top:9px" onclick="scrollToId('creator')">Browse books</button></div>
     <div class="exp"><div class="exp-ic">&#9889;</div><div class="exp-name">Instant Trip Review &mdash; self-serve</div><div class="exp-desc">Check route timing, budget, crowd exposure and backup options inside the planner&mdash;without booking the founder&rsquo;s time.</div><button class="tact" style="width:100%;margin-top:9px" onclick="tabGo('plan');showToast('Build a trip, then use Tusk to audit timing, budget and backup options')">Review my trip</button></div>
-    <div class="exp" style="opacity:.75"><div class="exp-ic">&#128085;</div><div class="exp-name">Shinobi tees &amp; merch</div><div class="exp-desc">Journey Card posters and RoamWise tees &mdash; print-on-demand store coming soon.</div><button class="tact" style="width:100%;margin-top:9px" onclick="showToast('Dropping soon \u2014 Supporters get first dibs \ud83d\udc4a')">Notify me</button></div>
   </div>
 </section>
 
-<section class="xsec v v-explore" id="newspulse">
-  <div class="xsec-head"><h2 class="xsec-title">&#128240; Travel <em>Pulse</em></h2><button class="share-fab" onclick="shareApp('app')">&#128228; Share</button></div>
-  <p class="xsec-sub">Today's travel news, crunched into one line each &mdash; refreshed daily by our agent, not fake real-time.</p>
-  <div class="exp-grid" id="newsGrid"><div class="exp"><div class="exp-desc">Travel Pulse is temporarily unavailable. <a href="/blog/">Browse reviewed planning notes</a>.</div></div></div>
-</section>
 
-<section class="xsec v v-explore" id="aipulse">
-  <div class="xsec-head"><h2 class="xsec-title">&#129302; AI <em>Pulse</em></h2><button class="share-fab" onclick="shareApp('app')">&#128228; Share</button></div>
-  <p class="xsec-sub">The machines are travelling too &mdash; agents, robots and the startups building them. These examples change quickly, so verify current claims before acting.</p>
-  <div class="exp-grid">
-    <div class="exp" style="border-color:rgba(217,119,87,.5)"><div class="exp-ic">&#10024;</div><div class="exp-name">Claude &mdash; Anthropic</div><div class="exp-desc">The frontier AI assistant known for deep reasoning, long documents and agentic coding &mdash; literally the co-builder of this entire app. If you want one AI for serious work, start here.</div><a class="tact" style="display:block;text-align:center;margin-top:9px;text-decoration:none" href="https://claude.ai" target="_blank" rel="noopener">Try Claude</a></div>
-    <div class="exp"><div class="exp-ic">&#129504;</div><div class="exp-name">Tools with human judgment</div><div class="exp-desc">RoamWise can help compare routes, budgets and timing. Published travel advice is checked against named sources and clearly labels estimates.</div></div>
-    <div class="exp"><div class="exp-ic">&#129470;</div><div class="exp-name">Humanoids are walking</div><div class="exp-desc">Figure, Tesla Optimus and Unitree's G1 moved from demos to pilot factories &mdash; the first robot you meet may hand you your hotel key.</div></div>
-    <div class="exp"><div class="exp-ic">&#127470;&#127475;</div><div class="exp-name">India builds its own</div><div class="exp-desc">Sarvam AI (Indic language models), Krutrim (Ola's full-stack bet) and CoRover (BharatGPT for railways) are making AI that speaks Bharat.</div></div>
-    <div class="exp"><div class="exp-ic">&#9889;</div><div class="exp-name">AI &#215; Travel</div><div class="exp-desc">Crowd prediction, dynamic pricing beaters, instant itineraries &mdash; the whole industry is being rebuilt. You're using one of the rebuilders right now.</div></div>
-  </div>
-</section>
 
 
 
@@ -1319,13 +1264,6 @@ function rwDismissCreatorBanner(){
       <div class="exp-where">The EV encyclopedia</div>
       <div class="exp-desc">Electric vehicles, batteries and the road ahead &mdash; the complete EV encyclopedia, written with an anime-flavoured, accessible style.</div>
       <div style="display:flex;gap:7px;margin-top:9px"><a class="tact" style="flex:1;text-align:center;text-decoration:none" href="https://amzn.in/d/00yltqaL" target="_blank" rel="noopener">Amazon</a><a class="tact" style="flex:1;text-align:center;text-decoration:none" href="https://store.pothi.com/book/mohit-pandey-volts-vengeance-ev-encyclopedia/" target="_blank" rel="noopener">Pothi</a></div>
-    </div>
-    <div class="exp" style="border-color:rgba(155,89,245,.4)">
-      <div class="exp-ic">&#128155;</div>
-      <div class="exp-name">Support the mission</div>
-      <div class="exp-where">Keep the Himalayan build alive</div>
-      <div class="exp-desc">Love RoamWise? The <b>&#8377;299 Supporter tier</b> puts your name in the credits and funds the next feature. Businesses: a sponsor slot reaches every trip search.</div>
-      <button class="tact red" style="width:100%;margin-top:9px" onclick="rwOpenPaySafely(event)">&#128081; Become a Supporter</button>
     </div>
   </div>
 </section>
@@ -1423,11 +1361,9 @@ function rwDismissCreatorBanner(){
 <div class="dr-grp"><button class="dr-gh" onclick="drToggle(this)">✨ Discover<span class="chev">›</span></button><div class="dr-gb">
   <a class="dr-link" onclick="closeDrawer();scrollToId('exps')"><span class="ic">✨</span>Fresh Experiences</a>
   <a class="dr-link" onclick="closeDrawer();scrollToId('circuits')"><span class="ic">🏎️</span>Legendary Circuits</a>
-  <a class="dr-link" onclick="closeDrawer();openEvents('moments')"><span class="ic">🏟️</span>World moments</a>
   <a class="dr-link" onclick="closeDrawer();scrollToId('hubspoke')"><span class="ic">🇮🇳</span>Hub &amp; Spoke India</a>
   <a class="dr-link" onclick="closeDrawer();scrollToId('ev')"><span class="ic">⚡</span>EV Vault</a>
   <a class="dr-link" onclick="closeDrawer();scrollToId('basecamp')"><span class="ic">⛺</span>Basecamp</a>
-  <a class="dr-link" onclick="closeDrawer();tabGo('explore');scrollToId('aipulse')"><span class="ic">🤖</span>AI Pulse</a>
   <a class="dr-link" onclick="closeDrawer();openDna()"><span class="ic">🧬</span>Traveler DNA quiz</a>
 </div></div>
 <div class="dr-grp"><button class="dr-gh" onclick="drToggle(this)">👤 Account<span class="chev">›</span></button><div class="dr-gb">
@@ -1484,10 +1420,6 @@ function rwDismissCreatorBanner(){
   <a class="dr-link" onclick="closeDrawer();rwOpeningReplay()"><span class="ic">✨</span>Replay the opening</a>
   <a class="dr-link" onclick="closeDrawer();openGuide()"><span class="ic">🎓</span>How to use RoamWise</a>
 </div></div>
-<div class="dr-grp"><button class="dr-gh" onclick="drToggle(this)">🧪 Labs<span class="dr-count">2</span><span class="chev">›</span></button><div class="dr-gb">
-  <a class="dr-link" onclick="closeDrawer();openEval()"><span class="ic">📊</span>Agent evals <span style="margin-left:auto;font-size:9px;background:#7C6BFF;color:#fff;padding:1px 6px;border-radius:20px;font-weight:800">DEV</span></a>
-  <a class="dr-link" onclick="closeDrawer();openAgent()"><span class="ic">🧠</span>Tusk Agent <span style="margin-left:auto;font-size:9px;background:#7C6BFF;color:#fff;padding:1px 6px;border-radius:20px;font-weight:800">BETA</span></a>
-</div></div>
 <div class="dr-grp"><button class="dr-gh" onclick="drToggle(this)">🛠 More<span class="dr-count">14</span><span class="chev">›</span></button><div class="dr-gb">
   <a class="dr-link" onclick="drLangPick()"><span class="ic">🌐</span>Language<span id="drLangVal" style="margin-left:auto;color:var(--t3);font-size:11px"></span></a>
   <div id="drLangList" style="display:none;padding:2px 0 6px 28px"></div>
@@ -1505,11 +1437,6 @@ function rwDismissCreatorBanner(){
   <a class="dr-link" href="https://youtube.com/@mohucool" target="_blank" rel="noopener"><span class="ic">▶️</span>YouTube @mohucool</a>
   <a class="dr-link" onclick="closeDrawer();scrollToId('creator')"><span class="ic">🏔️</span>About the creator</a>
   <a class="dr-link" href="https://roamwise.co.in/careers/" onclick="event.preventDefault();rwOpenSite('careers/')"><span class="ic">💼</span>Careers &amp; internships</a>
-</div></div>
-<div class="dr-grp"><button class="dr-gh" onclick="drToggle(this)">⚖ Legal<span class="chev">›</span></button><div class="dr-gb">
-  <a class="dr-link" onclick="closeDrawer();openLegal('privacy')"><span class="ic">🔒</span>Privacy policy</a>
-  <a class="dr-link" onclick="closeDrawer();openLegal('terms')"><span class="ic">📄</span>Terms &amp; refunds</a>
-  <a class="dr-link" href="/refund-policy.html" target="_blank" rel="noopener"><span class="ic">↩️</span>Cancellation &amp; Refund Policy</a>
 </div></div>
 <div class="dr-out">RoamWise Pro v3.1<br>Made in the Himalayas &#127956;&#65039; by Mohit Pandey</div>
 </aside>
@@ -1967,7 +1894,6 @@ function rwDismissCreatorBanner(){
 <script src="js/misc/partners.js" defer></script>
 <script src="js/misc/events.js" defer></script>
 <script src="js/misc/local-help.js" defer></script>
-<script src="js/misc/event-radar-news.js" defer></script>
 <script src="js/misc/promo-music.js" defer></script>
 <script src="js/misc/listing-photos.js" defer></script>
 <script src="js/misc/listings.js" defer></script>

@@ -30,7 +30,7 @@ function showToast(msg){
 }
 
 /* Smooth-scrolls to a section, switching tabs first if needed (shell mode). */
-var VIEW_OF={sacredBand:'sacred',promofilm:'film',creator:'film',store:'store',ratings:'extras',treks:'explore',exps:'explore',circuits:'explore',ev:'explore',events:'explore',hubspoke:'explore',basecamp:'explore',jlog:'explore',app:'plan',brief:'home',aipulse:'explore',newspulse:'explore'};
+var VIEW_OF={sacredBand:'sacred',promofilm:'film',creator:'film',store:'store',ratings:'extras',treks:'explore',exps:'explore',circuits:'explore',ev:'explore',hubspoke:'explore',basecamp:'explore',jlog:'explore',app:'plan',brief:'home'};
 function scrollToId(id){
   if(document.body.classList.contains('shell') && VIEW_OF[id]){
     tabGo(VIEW_OF[id]);
