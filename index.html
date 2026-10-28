@@ -609,6 +609,40 @@ html{-webkit-text-size-adjust:100%}
 </section>
 
 
+<section class="v v-home" id="rwEveryday" aria-labelledby="rwEverydayTitle" style="margin:14px;padding:18px;border:1px solid var(--b2,#2A2A36);border-radius:20px;background:var(--bg2,#14141b)">
+  <style>
+    #rwEveryday h2{font-size:20px;margin:0 0 6px}#rwEveryday p{color:var(--t2);font-size:13px;line-height:1.6}
+    #rwEveryday .ed-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:14px 0}
+    #rwEveryday label{display:grid;gap:6px;font-size:13px;color:var(--t2);min-width:0}
+    #rwEveryday select,#rwEveryday input{box-sizing:border-box;width:100%;min-height:46px;border:1px solid var(--b2,#393945);border-radius:10px;padding:10px;background:var(--bg3,#1A1A20);color:var(--t1,#fff);font:inherit}
+    #rwEveryday button{min-height:46px;border:0;border-radius:12px;padding:12px 18px;background:var(--gold,#E8BA6C);color:#14110b;font-weight:750;font-size:14px;cursor:pointer}
+    #rwEveryday :focus-visible{outline:2px solid var(--gold,#E8BA6C);outline-offset:3px}
+    #rwEveryday .ed-links{display:flex;flex-wrap:wrap;gap:14px;margin-top:12px}#rwEveryday a{color:var(--gold,#E8BA6C);font-size:13px;padding:8px 0}
+    @media(max-width:420px){#rwEveryday .ed-grid{grid-template-columns:1fr}}
+  </style>
+  <h2 id="rwEverydayTitle">Everyday travel needs</h2>
+  <p>For work, family and the journeys that matter. Start with your needs and budget.</p>
+  <details><summary style="cursor:pointer;min-height:44px;line-height:44px">Find a plan that fits</summary>
+    <form id="rwEverydayForm">
+      <div class="ed-grid">
+        <label>What brings you here?<select id="rwEverydayPurpose" name="purpose">
+          <option value="monthly">Monthly or relocation stay</option><option value="work">Work, exam or interview trip</option>
+          <option value="family">Family visit</option><option value="medical">Stay near a hospital for a visit</option>
+          <option value="transfer">Station, airport or local transfer</option><option value="pilgrimage">Pilgrimage logistics</option>
+        </select></label>
+        <label>Destination or landmark<input id="rwEverydayPlace" name="place" required maxlength="80" placeholder="e.g. Haldwani station" autocomplete="off"></label>
+        <label>Your preference<select id="rwEverydayTier" name="tier"><option value="budget">Budget · essentials first</option><option value="comfort">Comfort · convenience matters</option><option value="premium">Premium · more privacy and space</option></select></label>
+        <label>Maximum budget for the whole request (₹)<input id="rwEverydayBudget" name="budget" type="number" min="1" max="10000000" step="1" required placeholder="Your total, not per person"></label>
+      </div>
+      <p>Planning request only. Availability, accessibility, prices and transport type need provider confirmation. For a hospital visit, share travel needs only—no medical records.</p>
+      <button type="submit">Prepare my request in Ailon Tusk →</button>
+      <p id="rwEverydayStatus" role="status" aria-live="polite"></p>
+    </form>
+    <noscript><p>Use the links below to browse stays and local services.</p></noscript>
+  </details>
+  <nav class="ed-links" aria-label="Browse everyday travel options"><a href="/nomads/">Long stays</a><a href="/partner/?role=customer">Browse stays</a><a href="/local-business/">Local services</a></nav>
+</section>
+
 <div id="rwCreatorBanner" style="display:none">
   <div class="rwcb-row">
     <div class="rwcb-dot"></div>
@@ -1876,6 +1910,7 @@ function rwDismissCreatorBanner(){
 <script src="js/booking/actions.js" defer></script>
 <script src="js/booking/price-guard.js" defer></script>
 <script src="js/booking/routes.js" defer></script>
+<script src="js/booking/everyday-needs.js" defer></script>
 <script src="js/booking/stay-code.js" defer></script>
 <script src="js/booking/mountain-conditions.js" defer></script>
 <script src="js/booking/direct-booking.js" defer></script>
