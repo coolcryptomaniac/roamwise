@@ -197,6 +197,13 @@
     .link{display:inline-flex;align-items:center;gap:7px;min-height:40px;padding:8px 12px;border:1px solid rgba(255,255,255,.105);border-radius:12px;background:rgba(255,255,255,.035);color:#d6d4de;font-size:.8rem;font-weight:720;transition:border-color .2s,background .2s,color .2s}
     .link:hover{border-color:var(--line-gold);background:rgba(236,188,100,.08);color:#ffe3aa}
     .link svg{width:15px;height:15px;fill:currentColor}
+    .official{margin:34px 0 0;padding:22px 24px;border-radius:22px;border:1px solid rgba(236,188,100,.45);background:rgba(236,188,100,.07)}
+    .official h2{margin:0 0 6px;font-size:1.25rem}
+    .official .warn{margin:0 0 14px;color:var(--muted);font-size:.92rem;line-height:1.55}
+    .official ul{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+    .official li{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:baseline}
+    .official li b{min-width:92px}
+    .official li a{color:inherit}
     .contact-band{margin-top:62px;padding:2px;border-radius:28px;background:linear-gradient(115deg,rgba(236,188,100,.86),rgba(139,92,246,.82),rgba(59,130,246,.82),rgba(236,188,100,.86));background-size:260% 100%;box-shadow:0 18px 70px rgba(74,41,145,.18);animation:bandFlow 8s linear infinite}
     .contact-inner{display:grid;grid-template-columns:1fr auto;align-items:center;gap:25px;padding:30px;border-radius:26px;background:linear-gradient(145deg,#181827,#10111f)}
     .contact-inner h2{margin:0 0 6px;font-size:clamp(1.45rem,3vw,2.15rem);letter-spacing:-.035em}
@@ -269,6 +276,12 @@
         <div id="teamOut"></div>
       </section>
 
+      <section class="official" aria-labelledby="official-heading">
+        <h2 id="official-heading">Official contacts</h2>
+        <p class="warn" id="noticeText"></p>
+        <ul id="officialOut"></ul>
+      </section>
+
       <section class="contact-band" aria-labelledby="contact-heading">
         <div class="contact-inner">
           <div><h2 id="contact-heading">Talk to the right person.</h2><p>Use general support for product help. For company, partnership or founder matters, contact Mohit directly.</p></div>
@@ -312,6 +325,9 @@
       if(contact.label)document.getElementById('supportLabel').textContent=contact.label;
       if(contact.note)document.getElementById('supportNote').textContent=contact.note;
       if(contact.email){var support=document.getElementById('supportLink');support.href='mailto:'+contact.email;support.firstChild.nodeValue=contact.email+' ';}
+      var oc=window.RW_OFFICIAL_CONTACTS||[];
+      document.getElementById('noticeText').textContent=window.RW_CONTACT_NOTICE||'';
+      document.getElementById('officialOut').innerHTML=oc.map(function(c){return '<li><b>'+esc(c.name)+'</b><span>'+esc(c.role)+'</span><a href="mailto:'+esc(c.email)+'">'+esc(c.email)+'</a></li>';}).join('');
       var host=document.getElementById('teamOut'), team=window.RW_TEAM||[], inv=window.RW_INVESTORS||[];
       var html=team.length?'<div class="grid">'+team.map(card).join('')+'</div>':'<p>Team details coming soon.</p>';
       if(inv.length)html+='<div class="section-head"><h2>Investors &amp; advisors</h2></div><div class="grid">'+inv.map(card).join('')+'</div>';

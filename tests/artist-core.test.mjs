@@ -1,7 +1,7 @@
 import test from 'node:test'; import assert from 'node:assert/strict'; import fs from 'node:fs';
 import { validateArtist, toRecord, slugify } from '../creators/artist-core.mjs';
 const ok = { name: 'Asha Rawat', studio: 'Asha Arts', state: 'Uttarakhand', themes: ['Aipan'], instagram: 'https://www.instagram.com/asha', consent: true, artworks: [{ title: 'Sun', price: '₹4,000' }] };
-test('valid artist passes and maps to a record', () => { assert.deepEqual(validateArtist(ok, []), []); const r = toRecord(ok); assert.equal(r.id, 'asha-rawat'); assert.equal(r.plan, 'founding'); assert.equal(r.role, 'RoamWise Founding Artist'); assert.equal(toRecord(ok, 'free').plan, 'free'); assert.equal(r.page, '/creators/artist.html?a=asha-rawat'); });
+test('valid artist passes and maps to a record', () => { assert.deepEqual(validateArtist(ok, []), []); const r = toRecord(ok); assert.equal(r.id, 'asha-rawat'); assert.equal(r.plan, 'founding'); assert.equal(r.role, 'RoamWise Founding Artist'); assert.equal(toRecord(ok, 'free').plan, 'free'); assert.equal(r.page, '/creators/asha-rawat/'); });
 test('consent, https and duplicates are enforced', () => {
   assert.ok(validateArtist({ ...ok, consent: false }).some(e => /consent/.test(e)));
   assert.ok(validateArtist({ ...ok, instagram: 'http://x.com/a' }).some(e => /instagram/.test(e)));

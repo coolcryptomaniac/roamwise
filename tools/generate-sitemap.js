@@ -37,6 +37,11 @@ const OUT = path.join(ROOT, 'sitemap.xml');
 // should be publicly indexable is outside this task's scope.
 const TOP_LEVEL_URLS = [
   `${SITE}/`,
+  // Hand-added to sitemap.xml after this script was written; carried here so --check passes again.
+  `${SITE}/stays/almora/`,
+  `${SITE}/workation/almora/`,
+  `${SITE}/stays/tirthan-valley/`,
+  `${SITE}/stays/lansdowne/`,
   `${SITE}/home.html`,
   `${SITE}/about.html`,
   `${SITE}/contact.html`,
@@ -49,6 +54,7 @@ const TOP_LEVEL_URLS = [
   `${SITE}/delete-account.html`,
   `${SITE}/bhakti/`,
   `${SITE}/creators/artists.html`,
+  `${SITE}/creators/natasha.html`,
   `${SITE}/creators/jagriti.html`,
   `${SITE}/creators/sacred-art.html`,
   `${SITE}/creators/gallery.html`,
@@ -60,11 +66,14 @@ const TOP_LEVEL_URLS = [
   `${SITE}/local-business/`,
   `${SITE}/creators/join-artist.html`,
   `${SITE}/creators/artist-terms.html`,
+  `${SITE}/almora-dussehra/`,
   ...['kainchi', 'pilgrimage', 'char-dham', 'panch-kedar', 'kumbh', 'vaishno-devi', 'kashi', 'tirupati', 'ayodhya', 'dwarka-somnath', 'puri-konark', 'amarnath', 'shirdi', 'bodh-gaya', 'rameswaram-madurai', 'kasar-devi-almora', 'jageshwar', 'adi-kailash', 'kailash-mansarovar'].map(slug => `${SITE}/${slug}/`),
 ];
 
 // Each of these gets its own hub/index URL plus one URL per individual
 // content page found in the directory.
+const MONTHLY = new Set([`${SITE}/creators/natasha.html`]);
+
 const SECTION_DIRS = ['guides', 'blog'];
 const SKIP_FILES = new Set(['index.html', 'read.md', 'readme.md']);
 
@@ -77,8 +86,16 @@ function listContentSlugs(dir) {
     .sort();
 }
 
+// Static artist pages written by tools/build-artist-pages.js. Only pages with real content
+// (a bio and at least one available painting with a photo) are listed; the rest carry noindex.
+function artistUrls() {
+  const { staticArtists, indexable, load } = require('./build-artist-pages.js');
+  const d = load();
+  return staticArtists(d).filter((a) => indexable(d, a)).map((a) => `${SITE}${a.page}`);
+}
+
 function buildUrls() {
-  const urls = [...TOP_LEVEL_URLS];
+  const urls = [...TOP_LEVEL_URLS, ...artistUrls()];
   for (const dir of SECTION_DIRS) {
     if (!fs.existsSync(path.join(ROOT, dir, 'index.html'))) continue;
     urls.push(`${SITE}/${dir}/`);
@@ -91,7 +108,7 @@ function buildUrls() {
 
 function render(urls) {
   const body = urls
-    .map((u) => `  <url><loc>${u}</loc><changefreq>weekly</changefreq></url>`)
+    .map((u) => `  <url><loc>${u}</loc><changefreq>${MONTHLY.has(u) ? 'monthly' : 'weekly'}</changefreq></url>`)
     .join('\n');
   return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${body}\n</urlset>\n`;
 }
