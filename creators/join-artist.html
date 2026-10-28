@@ -18,7 +18,7 @@
 
     <section class="art-section" id="plans"><span class="art-eyebrow">WHAT YOU GET</span><h2>Everything included, free for the first 100 artists.</h2><p class="art-small" id="spotsLeft"></p><div class="plans" id="planBox"><p class="sa-note">Loading plans&hellip;</p></div><h3 style="margin:22px 0 6px">From artist 101 (planned)</h3><p class="art-small">Most artists will run on autopilot. Full hands-on support is Premium only. Founding artists keep what they were promised when they joined.</p><div class="plans" id="planLater"></div><p class="art-small" id="planNote"></p></section>
 
-    <section class="art-section"><span class="art-eyebrow">HOW IT WORKS</span><h2>Live in about a day.</h2><ol class="art-small" style="line-height:1.8;font-size:15px"><li>Fill the short form below. It prepares your application.</li><li>Email it to founder@roamwise.co.in, and attach clear photos of your paintings with title, size and price.</li><li>We check your details and add your page. You approve it before it goes live.</li><li>Optional: if you wish, share a thank-you contribution once your page is live or after a sale. Entirely up to you.</li></ol></section>
+    <section class="art-section"><span class="art-eyebrow">HOW IT WORKS</span><h2>Live in about a day.</h2><ol class="art-small" style="line-height:1.8;font-size:15px"><li>Fill the short form below. It prepares your application; add photos and artwork details.</li><li>Email it to founder@roamwise.co.in, and attach clear photos of your paintings with title, size and price.</li><li>We check your details and add your page. You approve it before it goes live.</li><li>Optional: if you wish, share a thank-you contribution once your page is live or after a sale. Entirely up to you.</li></ol></section>
 
     <section class="art-section" id="apply"><span class="art-eyebrow">APPLY</span><h2>Tell us about you.</h2>
       <form class="hub-form" id="joinForm" novalidate>
@@ -29,14 +29,23 @@
         <label>Instagram link (optional)<input name="instagram" inputmode="url" placeholder="https://www.instagram.com/yourname"></label>
         <label>WhatsApp for buyers (optional, shown on your page)<input name="whatsapp" inputmode="numeric" placeholder="919876543210"></label>
         <label>Short bio (optional, up to 600 characters)<textarea name="bio" rows="4" maxlength="600"></textarea></label>
-        <label class="chk"><input type="checkbox" name="consent" required> I made these paintings (or have the right to show them), and I agree to RoamWise displaying them and my details on my page, under the <a href="artist-terms.html" target="_blank" rel="noopener">Artist terms</a>.</label>
+        <fieldset><legend>Artwork photos</legend>
+<label>Add up to 6 photos (JPEG, PNG or WebP; 3 MB each, 12 MB total)<input id="artPhotos" type="file" accept="image/jpeg,image/png,image/webp" multiple aria-describedby="photoHelp"></label>
+<p id="photoHelp" class="art-small">Photos stay on your device until you share or email them. This form does not upload or publish automatically. Use clear, original photos of work you own or have permission to display.</p>
+<div id="photoPreview" style="display:flex;flex-wrap:wrap;gap:12px" aria-live="polite"></div><button id="clearPhotos" type="button">Clear photos</button>
+<label>Artwork details (one per photo: filename, title, size and units, medium, original/print/digital, price or “on request”)<textarea name="artworkDetails" maxlength="3000" rows="5"></textarea></label>
+<label>Public portfolio or photo-folder link (optional)<input name="portfolio" type="url" maxlength="500" placeholder="https://"></label>
+</fieldset>
+<label class="chk"><input type="checkbox" name="consent" required> I made these paintings (or have the right to show them), and I agree to RoamWise displaying them and my details on my page, under the <a href="artist-terms.html" target="_blank" rel="noopener">Artist terms</a>.</label>
         <div><button class="art-button" type="submit">Prepare my application</button></div>
         <p class="art-small" id="formMsg" role="status" aria-live="polite"></p>
       </form>
-      <div id="outBox" hidden><h3>Your application</h3><div class="hub-out" id="outText"></div><p class="art-actions"><a class="art-button" id="sendMail" href="#">Send by email</a> <button class="art-button" id="copyBtn" type="button">Copy</button></p><p class="art-small">Attach your painting photos with title, size and price in your email. Preparing this application does not submit it. Registration details are not sent to our business WhatsApp. Nothing is published until you approve your page.</p></div>
+      <div id="outBox" hidden><h3>Your application</h3><div class="hub-out" id="outText"></div><p class="art-actions"><a class="art-button" id="sendMail" href="#">Send by email</a> <button class="art-button" id="sharePhotos" type="button">Share application + photos</button> <button class="art-button" id="downloadMail" type="button">Download email with photos (.eml)</button> <button class="art-button" id="copyBtn" type="button">Copy</button></p><p class="art-small">The email link includes text only: attach your selected photos manually. On supported phones, “Share application + photos” sends both through your chosen email app. You can also open the downloaded .eml in a compatible email app. Preparing this application does not submit it. Registration details are not sent to our business WhatsApp. Nothing is published until you approve your page.</p></div>
     </section>
   </main>
   <footer class="art-footer">RoamWise · Almora to Global · <a href="mailto:support@roamwise.co.in">Support</a> · <a href="/privacy.html">Privacy</a> · <a href="/terms.html">Terms</a> · <a href="artist-terms.html">Artist terms</a></footer>
+  <script src="join-artist-photos.js" defer></script>
   <script src="join-artist.js" defer></script>
   <script src="/design/celebrate.js" defer></script>
 </body></html>
+

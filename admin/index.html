@@ -21,7 +21,13 @@
     table{width:100%;border-collapse:collapse;font-size:12px}th,td{text-align:left;border-bottom:1px solid var(--line);padding:9px 6px}th{color:var(--muted)}.score{font-size:18px;font-weight:850;color:var(--green)}
     .table-wrap{overflow:auto;border:1px solid var(--line);border-radius:12px}.admin-table{min-width:860px}.admin-table td{vertical-align:top}.admin-table a{color:var(--gold);text-decoration:none;margin-right:6px}.admin-table .booking-ready{color:var(--green);font-weight:800}
     @media(max-width:850px){.layout{display:block}.side{position:fixed;top:auto;left:0;right:0;bottom:0;z-index:30;height:auto;border:0;border-top:1px solid var(--line);padding:6px max(8px,env(safe-area-inset-right)) calc(6px + env(safe-area-inset-bottom)) max(8px,env(safe-area-inset-left));background:rgba(12,14,18,.96);backdrop-filter:blur(14px);overflow-x:auto}.nav{display:flex;gap:2px;width:max-content;min-width:100%}.nav button{min-width:72px;text-align:center;padding:7px 5px;font-size:10px}.nav button.on{box-shadow:inset 0 2px var(--gold)}main{padding:20px 14px 95px}.topbar{padding:0 14px}.grid.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.grid.two,.sync-grid{grid-template-columns:1fr}.fields{grid-template-columns:1fr}.field.full{grid-column:auto}.row{align-items:flex-start;flex-direction:column}.row .actions{width:100%}.row .actions .btn{flex:1}.topbar .status{display:none}.rules-source{min-height:52dvh;font-size:10.5px}}
-  </style>
+  
+    .navlink{display:block;margin:0 0 6px;padding:11px 13px;border-radius:10px;background:var(--gold);color:#1b1304;font-weight:800;text-decoration:none}.navlink small{display:block;font-weight:600;opacity:.7;font-size:11px}
+    .navh{margin-top:8px;font-size:11px!important;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)!important;padding:6px 13px!important}.navh::after{content:" ▾"}.navh[aria-expanded=false]::after{content:" ▸"}
+    .navg{display:grid;gap:5px}.navg.closed{display:none}
+    @media(min-width:851px){.side{overflow-y:auto;overscroll-behavior:contain}}
+    @media(max-width:850px){.navh{display:none}.navg,.navg.closed{display:contents}.navlink{min-width:72px;margin:0;padding:7px 5px;font-size:10px;text-align:center}.navlink small{display:none}}
+</style>
 </head>
 <body>
 <div id="login" class="login">
@@ -40,34 +46,49 @@
   <header class="topbar"><div class="brand">RoamWise <i>Admin</i></div><div id="syncStatus" class="status"><b>●</b> Connecting…</div><button class="btn small" onclick="signOut()">Sign out</button></header>
   <div class="layout">
     <aside class="side"><nav class="nav">
+      <a class="navlink" href="command.html">Command Center <small>start here</small></a>
       <button class="on" data-page="overview" onclick="goPage('overview',this)">Overview</button>
+      <button type="button" class="navh" data-group="Run" aria-expanded="true">Run</button><div class="navg" data-g="Run">
+      <button data-page="operations" onclick="goPage('operations',this);rwPartnerLifecycleStart()">Operations</button>
+      <button data-page="stayreq" onclick="goPage('stayreq',this)">Stay requests</button>
+      <button data-page="stay-ledger" onclick="goPage('stay-ledger',this);rwStayStart()">Stay ledger</button>
+      </div>
+      <button type="button" class="navh" data-group="Money" aria-expanded="true">Money</button><div class="navg" data-g="Money">
       <button data-page="money" onclick="goPage('money',this)">Money</button>
       <button data-page="partner-payments" onclick="goPage('partner-payments',this);rwPaymentStart()">Partner payments</button>
-      <button data-page="stay-ledger" onclick="goPage('stay-ledger',this);rwStayStart()">Stay ledger</button>
-      <button data-page="users" onclick="goPage('users',this)">Users</button>
-      <button data-page="business" onclick="goPage('business',this)">Business</button>
-      <button data-page="operations" onclick="goPage('operations',this);rwPartnerLifecycleStart()">Operations</button>
-      <button data-page="autopilot" onclick="goPage('autopilot',this)">Autopilot</button>
-      <button data-page="growth-intel" onclick="goPage('growth-intel',this);rwGrowthIntelStart()">Growth &amp; Intel</button>
-      <button data-page="kpis" onclick="goPage('kpis',this)">KPIs</button>
-      <button data-page="activity" onclick="goPage('activity',this)">Activity</button>
-      <button data-page="promos" onclick="goPage('promos',this)">Promos</button>
-      <button data-page="notifications" onclick="goPage('notifications',this)">Notifications</button>
-      <button data-page="reminders" onclick="goPage('reminders',this)">Reminders</button>
-      <button data-page="stayreq" onclick="goPage('stayreq',this)">Stay requests</button>
       <button data-page="referrals" onclick="goPage('referrals',this)">Referrals</button>
+      </div>
+      <button type="button" class="navh" data-group="People" aria-expanded="true">People</button><div class="navg" data-g="People">
+      <button data-page="users" onclick="goPage('users',this)">Users</button>
       <button data-page="staff" onclick="goPage('staff',this)">Staff</button>
-      <button data-page="records" onclick="goPage('records',this)">Records &amp; SOPs</button>
-      <button data-page="compliance" onclick="goPage('compliance',this)">Compliance</button>
-      <button data-page="devrequests" onclick="goPage('devrequests',this)">Dev/AI Requests</button>
+      <button data-page="activity" onclick="goPage('activity',this)">Activity</button>
+      </div>
+      <button type="button" class="navh" data-group="Insights" aria-expanded="true">Insights</button><div class="navg" data-g="Insights">
+      <button data-page="business" onclick="goPage('business',this)">Business</button>
+      <button data-page="kpis" onclick="goPage('kpis',this)">KPIs</button>
       <button data-page="investors" onclick="goPage('investors',this)">Investor view</button>
+      </div>
+      <button type="button" class="navh" data-group="Outreach" aria-expanded="true">Outreach</button><div class="navg" data-g="Outreach">
       <button data-page="artist-outreach" onclick="goPage('artist-outreach',this);rwArtistOutreachStart()">Artist &amp; daily outreach</button>
       <button data-page="outreach" onclick="goPage('outreach',this)">VC outreach</button>
       <button data-page="trek-sales" onclick="goPage('trek-sales',this);rwTrekStart()">Trek sales</button>
       <button data-page="property-leads" onclick="goPage('property-leads',this);rwPropertyStart()">Property leads</button>
-      <button data-page="system" onclick="goPage('system',this)">System sync</button>
-      <button data-page="rules" onclick="goPage('rules',this)">Rules</button>
+      </div>
+      <button type="button" class="navh" data-group="Safety" aria-expanded="true">Safety</button><div class="navg" data-g="Safety">
       <button data-page="security" onclick="goPage('security',this)">Security</button>
+      <button data-page="rules" onclick="goPage('rules',this)">Rules</button>
+      <button data-page="compliance" onclick="goPage('compliance',this)">Compliance</button>
+      <button data-page="system" onclick="goPage('system',this)">System sync</button>
+      </div>
+      <button type="button" class="navh" data-group="More" aria-expanded="false">More</button><div class="navg closed" data-g="More">
+      <button data-page="promos" onclick="goPage('promos',this)">Promos</button>
+      <button data-page="notifications" onclick="goPage('notifications',this)">Notifications</button>
+      <button data-page="reminders" onclick="goPage('reminders',this)">Reminders</button>
+      <button data-page="autopilot" onclick="goPage('autopilot',this)">Autopilot</button>
+      <button data-page="growth-intel" onclick="goPage('growth-intel',this);rwGrowthIntelStart()">Growth &amp; Intel</button>
+      <button data-page="records" onclick="goPage('records',this)">Records &amp; SOPs</button>
+      <button data-page="devrequests" onclick="goPage('devrequests',this)">Dev/AI Requests</button>
+      </div>
     </nav></aside>
     <main>
       <section id="overview" class="section on"><div class="eyebrow">Today</div><h1 class="title">One queue, no buried actions.</h1><p class="lead">Revenue repairs, users, investor follow-ups and rule health are visible from one mobile-friendly command center.</p>
@@ -331,6 +352,7 @@
 <script src="../js/admin/lean-ops.js"></script>
 <script src="../js/admin/rules-center.js"></script>
 <script src="../js/admin/control-plane.js"></script>
+<script src="deep-link.js"></script>
 <script>
 const FIREBASE_CONFIG={apiKey:"AIzaSyDlrtpzpOb1VEmVSd9tHmu7OpmvwWosYsU",authDomain:"roamwisepro.firebaseapp.com",projectId:"roamwisepro",appId:"1:299014744987:web:d5c316743e6d7a10904f3e"};
 firebase.initializeApp(FIREBASE_CONFIG); const auth=firebase.auth(),db=firebase.firestore(),FV=firebase.firestore.FieldValue;
