@@ -35,3 +35,11 @@ Review proposals involving third-party fund custody, wallets, lending, crypto cu
 Inputs save to the dedicated `capitalDiscipline` field of the existing admin-only finance costs document using merge writes. Values are loaded only after its snapshot arrives. Live refreshes do not overwrite an open draft. Inputs changing clears stale results. Save failures retain the draft and display an error.
 
 Run `node --test tests/capital-discipline.test.js`. No rules or payment handlers were changed. This panel deliberately leaves hard spending enforcement to configured provider limits and the existing entitlement system.
+
+## Kumaon-inspired presentation
+
+The panel uses scoped styles in `css/admin/capital-discipline.css`: Aipan-inspired red/white geometric edging, a decorative Himalayan ridge, buransh-toned accents and warm gold. The mountain illustration is inline SVG, not a financial plot. No external font or image request is required.
+
+Reserve coverage is capped visually at 100%; actual available cash and reserve target remain labelled. Zero essential costs show an unassessed target rather than a full gauge. The runway track uses a fixed 240-month scale and retains the exact full-month count. All charts are derived from the unchanged calculator, with text/table equivalents and no colour-only warnings. Empty inputs show no sample balances; editing a figure removes stale charts.
+
+Run `node --test tests/capital-discipline.test.js tests/capital-discipline-ui.test.mjs` for calculation and DOM interaction checks. Responsive CSS stacks fields and cards on narrow screens; visual browser verification remains outstanding.
