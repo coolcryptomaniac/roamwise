@@ -123,6 +123,8 @@ function rwStayDeskAnswer(raw, dest, now){
       + '<div style="font-size:11.5px;color:var(--t2);margin-top:5px">Tell me the dates, for example <i>12 to 15 Nov</i> or <i>20 Nov for 3 nights</i>' + (guests ? '' : ', and how many guests') + '. Then I will show an estimate before anything is sent.</div></div></div>', dates: null, guests: guests, count: list.length };
   }
   if(!list.length){
+    var partners=typeof rwTuskPartnerStayHTML==='function'?rwTuskPartnerStayHTML(raw,dest):'';
+    if(partners) return {html:partners,dates:dates,guests:guests,count:0};
     return { html: '<div class="tk-card tk-mini"><div class="tk-sec"><b>No verified RoamWise stay matches' + label + ' for these dates yet.</b>'
       + '<div style="font-size:11.5px;color:var(--t2);margin-top:5px">I will not guess availability. You can still browse the verified stays page, or compare other sites yourself.</div>'
       + '<div class="tk-chips" style="margin-top:8px"><a class="tk-chip gold" href="/partner/?role=customer&amp;destination=' + encodeURIComponent(dest || '') + '&amp;checkin=' + dates.checkIn + '&amp;checkout=' + dates.checkOut + '">Browse verified stays →</a></div></div></div>', dates: dates, guests: guests, count: 0 };
@@ -143,4 +145,16 @@ function rwStayDeskReply(bubble, intents, t){
     cpFinish(bubble, a.html, intents, t);
     return true;
   }catch(err){ return false; }
+}
+
+/* Trip booking uses known inventory, so it must not depend on an AI quota. */
+function rwTuskBookingReply(bubble,intents,raw){
+  if(!/\b(?:book|reserve|pay for)\b[^.!?]{0,35}\b(?:this|my|the)?\s*(?:trip|plan|itinerary|holiday)\b|\bbook this\b/i.test(String(raw||''))) return false;
+  if(typeof rwTuskPlanBookingHTML!=='function') return false;
+  var ctx=typeof _cpCtx!=='undefined'&&_cpCtx||{};
+  var dest=intents.dest||ctx.dest||'', days=intents.days||ctx.days||null;
+  intents.dest=dest;
+  intents._stayDesk=true;
+  cpFinish(bubble,rwTuskPlanBookingHTML(raw,dest,days),intents,raw);
+  return true;
 }

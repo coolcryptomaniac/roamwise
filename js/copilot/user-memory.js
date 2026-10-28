@@ -293,6 +293,7 @@ function rwTuskPreAnswer(bubble, intents, t){
   if(!um && typeof rwShCommand === 'function') um = rwShCommand(t);
   if(!um && typeof rwFxCommand === 'function') um = rwFxCommand(t);
   if(um){ intents.smalltalk = 'memory'; cpFinish(bubble, um, intents, t); return true; }
+  if(typeof rwTuskBookingReply === 'function' && rwTuskBookingReply(bubble, intents, t)) return true;
   if(typeof rwEventTripReply === 'function' && rwEventTripReply(bubble, intents, t)) return true;
   if(typeof rwAtlasReply === 'function' && rwAtlasReply(bubble, intents, t)) return true;
   return (typeof rwStayDeskReply === 'function') ? rwStayDeskReply(bubble, intents, t) : false;

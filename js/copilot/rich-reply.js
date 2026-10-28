@@ -199,7 +199,7 @@ async function cpActionsHTML(it){
   var H=[];
   /* smalltalk never reaches the heavy path */
   if(it.smalltalk) return [];
-  if(it._eventTrip) return [];
+  if(it._eventTrip || it._stayDesk) return [];
   if(it._recommendCount) return [rwMonthRecommendationsHTML(it)];
   /* state-scope request: routes through the state, not a random village */
   if(it._state){
