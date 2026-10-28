@@ -145,3 +145,15 @@ export const CONSOLE_MAP = [
   ['Review', 'Autopilot, Growth and Intel, Records and SOPs, Dev requests', 'Mostly static text and checklists. Keep only if you open them weekly.', 'index.html#autopilot'],
   ['Review', 'System sync', 'A status page. Fold into a small footer strip.', 'index.html#system'],
 ];
+
+/* Properties listed directly in partners-data.js (not in the partners collection) never show up in
+   Firestore-driven views. Surface them read-only so the founder sees everything guests can see. */
+export function seedRows(seed, rows) {
+  const have = new Set((rows || []).flatMap((r) => [publicId(r), slug(r.name), r.id].filter(Boolean)));
+  return (seed || []).filter((p) => p && p.cat !== 'adventure' && p.name && !have.has(p.id) && !have.has(slug(p.name))).map((p) => {
+    const missing = [];
+    if (p.enquiryOnly) missing.push('Enquiry only: property agreement pending');
+    missing.push('Listed in code, not in the partner database (edit in partners-data.js)');
+    return { ...p, phone: p.bookingWhatsapp, st: { stage: 'bookable', mou: !p.enquiryOnly, verified: true, approved: true, published: true, bookable: true, seed: true, rooms: Number(p.roomCount || 0), checks: [], basics: [], missing, complete: false } };
+  });
+}

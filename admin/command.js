@@ -2,7 +2,7 @@
    Read-only. Reuses the admin session already signed in on /admin/ (same origin, MFA enforced there), checks admins/{uid},
    then reads Firestore. Every button opens the exact place to act (existing console, partner desk, WhatsApp);
    approvals, payments and entitlements are not written from here. ?demo=1 shows labelled sample data. */
-import { buildPartners, funnel, buildActions, insights, STAGES, CONSOLE_MAP, waUrl, toMs } from './command-core.mjs';
+import { seedRows, buildPartners, funnel, buildActions, insights, STAGES, CONSOLE_MAP, waUrl, toMs } from './command-core.mjs';
 import { buildRoster, rosterCounts } from '../creators/roster-core.mjs';
 import { SEED_POLICIES } from '../creators/property-terms-core.mjs';
 
@@ -53,6 +53,7 @@ async function loadLive() {
 
 function derive() {
   S.rows = buildPartners(S.partners, S.listed);
+  S.seed = seedRows(window.RW_PARTNER_SEED, S.rows);
   S.fun = funnel(S.rows);
   S.creators = (() => { try { const r = buildRoster(S.crm, SEED_POLICIES), c = rosterCounts(r); return { total: r.length, needsReview: c.needs_review || 0, ready: c.send || 0 }; } catch (_) { return { total: S.crm.length, needsReview: 0, ready: 0 }; } })();
   S.actions = buildActions({ partners: S.rows, leads: S.leads, bookings: S.bookings, creators: S.creators });
@@ -89,9 +90,10 @@ function today() {
     <p class="hb-sub">Each box counts properties that reached that step or further. A big drop between two boxes is where applications get stuck.</p></div>`;
 }
 
+function allRows() { return S.rows.concat(S.seed || []); }
 function partnerRows() {
   const q = S.q.trim().toLowerCase();
-  return S.rows.filter((r) => {
+  return allRows().filter((r) => {
     const s = r.st, f = S.pf;
     if (f === 'ready' && !(s.complete && !s.approved)) return false;
     if (f === 'owner' && !(!s.mou || s.basics.length)) return false;
@@ -101,10 +103,10 @@ function partnerRows() {
   });
 }
 function partners() {
-  const c = { all: S.rows.length, notlive: S.rows.filter((r) => !r.st.bookable).length, ready: S.rows.filter((r) => r.st.complete && !r.st.approved).length, owner: S.rows.filter((r) => !r.st.mou || r.st.basics.length).length, live: S.rows.filter((r) => r.st.bookable).length };
+  const A = allRows(), c = { all: A.length, notlive: A.filter((r) => !r.st.bookable).length, ready: A.filter((r) => r.st.complete && !r.st.approved).length, owner: A.filter((r) => !r.st.mou || r.st.basics.length).length, live: A.filter((r) => r.st.bookable).length };
   const chip = (k, l) => `<button type="button" class="hb-chip${S.pf === k ? ' on' : ''}" data-pf="${k}">${l} ${c[k]}</button>`;
   const rows = partnerRows().map((r) => {
-    const s = r.st, label = (STAGES.find((x) => x[0] === s.stage) || [])[1] || s.stage, tone = s.bookable ? 'good' : (s.stage === 'applied' ? 'bad' : 'warn');
+    const s = r.st, label = s.seed ? 'Live \u00b7 in code' : (STAGES.find((x) => x[0] === s.stage) || [])[1] || s.stage, tone = s.bookable ? 'good' : (s.stage === 'applied' ? 'bad' : 'warn');
     const wa = waUrl(r.phone || r.ownerWa, 'Hi, this is RoamWise about ' + (r.name || 'your property') + '.');
     const next = s.mou && s.verified && !s.approved ? { label: 'Approve', href: 'index.html#operations' } : s.mou && !s.verified ? { label: 'Verify', href: 'index.html#operations' } : s.approved && !s.published ? { label: 'Publish', href: '../partner/' } : s.published && s.rooms < 1 ? { label: 'Add rooms', href: '../partner/' } : null;
     return `<tr><td><b>${esc(r.name || 'Unnamed')}</b><div class="hb-sub">${esc([r.area, r.zone].filter(Boolean).join(', '))}</div>${s.complete && !s.approved ? '<div class="cm-ready">All owner details in</div>' : ''}</td>

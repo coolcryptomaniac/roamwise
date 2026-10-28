@@ -48,3 +48,21 @@ test('contacted guests and fresh bookings do not create actions', () => {
   const a = buildActions({ partners: [], leads: [{ id: 'x', status: 'contacted', createdAt: 1 }], bookings: [{ id: 'k', status: 'requested', createdAt: new Date().toISOString() }] });
   assert.equal(a.length, 0);
 });
+
+import { seedRows } from '../admin/command-core.mjs';
+import { featuredInvite } from '../creators/roster-core.mjs';
+import test2 from 'node:test';
+import assert2 from 'node:assert/strict';
+test2('seedRows adds code-listed stays missing from Firestore, skips duplicates and adventures', () => {
+  const seed = [{ id: 'p_woodbook_devine', name: 'Woodbook The Devine Homestay', cat: 'stay', roomCount: 5, bookingWhatsapp: '917807491275' },
+    { id: 'p_corbett_jungle_view', name: 'Corbett Jungle View Homestay', cat: 'stay', enquiryOnly: true }, { id: 'p_raft', name: 'Raft Co', cat: 'adventure' }, { id: 'p_big_bro_hotel', name: 'Big Bro Hotel', cat: 'stay' }];
+  const out = seedRows(seed, [{ id: 'x1', name: 'Big Bro Hotel' }]);
+  assert2.deepEqual(out.map((r) => r.name), ['Woodbook The Devine Homestay', 'Corbett Jungle View Homestay']);
+  assert2.ok(out[1].st.missing.some((m) => /agreement pending/.test(m)));
+});
+test2('featuredInvite is a WhatsApp link, promises nothing, and needs a phone', () => {
+  const u = featuredInvite({ name: 'Asha Rao', phone: '+91 98765 43210' });
+  assert2.match(u, /^https:\/\/wa\.me\/919876543210\?text=/);
+  assert2.match(decodeURIComponent(u), /nothing is guaranteed/);
+  assert2.equal(featuredInvite({ name: 'No Phone' }), '');
+});
