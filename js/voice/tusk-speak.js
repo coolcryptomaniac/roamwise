@@ -42,7 +42,7 @@ function tuskSpeak(text){
   if(window.RW && typeof RW.speak==='function'){ try{ RW.speak(say); return; }catch(e){ /* best-effort, ignore */ } }
   /* Capacitor Text-to-Speech plugin (works in the app where WebView speechSynthesis often doesn't) */
   if(window.Capacitor && Capacitor.Plugins && Capacitor.Plugins.TextToSpeech){
-    try{ Capacitor.Plugins.TextToSpeech.speak({ text: say, lang:'en-IN', rate:1.0 }); return; }catch(e){ /* best-effort, ignore */ }
+    try{ Capacitor.Plugins.TextToSpeech.speak({ text: say, lang:rwSpeechLang(), rate:1.0 }); return; }catch(e){ /* best-effort, ignore */ }
   }
   text = say;
   try{
@@ -62,4 +62,9 @@ function tuskSpeak(text){
     u.onerror = function(){ tuskReleaseSpeechFocus(); showToast('🔊 Voice unavailable on this device'); };
     speechSynthesis.speak(u);
   }catch(e){ tuskReleaseSpeechFocus(); showToast('🔊 Voice unavailable on this device'); }
+}
+/* Speech language follows the site language (Settings > language): Hindi -> hi-IN, else en-IN.
+   Used by voice input (voice-input.js) and the native read-aloud above. */
+function rwSpeechLang(){
+  try{ return (typeof rwLang==='function' && rwLang()==='hi') ? 'hi-IN' : 'en-IN'; }catch(e){ return 'en-IN'; }
 }

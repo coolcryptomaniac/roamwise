@@ -173,6 +173,9 @@ function rwAgentRun(objective, onTrace, onDone){
       +'versus merely researched. Anything they want to send to friends or a property \u2192 share_to_whatsapp. '
       +'Who they travel well with \u2192 travel_compatibility. Any screen they ask for \u2192 open_feature rather than '
       +'describing it. '
+      +'One-to-one booking with a host → ask dates and guests, call mountain_conditions for the place and date, then request_direct_booking; '
+      +'"host confirmed/declined" → update_direct_booking. Monthly stays or workations → quote_long_stay. '
+      +'Peace, yoga, meditation, reading, writing or research trips → quiet_stays. '
       +'IF SOMEONE SAYS THEY ARE STUCK, UNSAFE, OR HAVE MISSED THE LAST TRANSPORT: call emergency_help FIRST, talk after. '
       +'NEVER invent a price, a room, a partner or an availability. If a tool returns nothing, say so plainly \u2014 '
       +'being useless is recoverable, being wrong about a booking is not. '
@@ -234,7 +237,7 @@ RW_AGENT_IMPL.find_partners = function(a){
   var list=(typeof rwPartnersFor==='function') ? rwPartnersFor(a.zone, a.cat) : [];
   if(!list.length) return { ok:true, found:0, note:'No verified partners there yet \u2014 say so honestly.' };
   return { ok:true, found:list.length, partners:list.slice(0,6).map(function(p){
-    return { name:p.name, area:p.area, rating:p.rating, reviews:p.reviews,
+    return { id:p.id, name:p.name, area:p.area, rating:p.rating, reviews:p.reviews,
              status:p.verified, why:p._why, hook:p.hook }; }) };
 };
 RW_AGENT_IMPL.quote_stay = function(a){

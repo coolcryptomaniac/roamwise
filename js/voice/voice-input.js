@@ -23,7 +23,7 @@ function rwVoiceStart(targetId){
             if(t && !got){ got=true; try{ SRP.stop(); }catch(e){ /* best-effort, ignore */ } rwVoiceResult(t); }
           });
         }catch(e){ /* best-effort, ignore */ }
-        SRP.start({language:'en-IN', maxResults:2, partialResults:true, popup:true})
+        SRP.start({language:(typeof rwSpeechLang==='function'?rwSpeechLang():'en-IN'), maxResults:2, partialResults:true, popup:true})
           .then(function(r){
             var t=r && r.matches && r.matches[0];
             if(t && !got){ got=true; rwVoiceResult(t); }
@@ -48,7 +48,7 @@ function rwVoiceStart(targetId){
   }
   var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
   if(!SR){ showToast('\ud83c\udfa4 Voice input needs the app build with the mic add-on \u2014 for now, just type, it works great!'); return; }
-  var rec=new SR(); rec.lang='en-IN'; rec.interimResults=false;
+  var rec=new SR(); rec.lang=(typeof rwSpeechLang==='function'?rwSpeechLang():'en-IN'); rec.interimResults=false;
   rec.onresult=function(ev){ rwVoiceResult(ev.results[0][0].transcript); };
   rec.onerror=function(e){ showToast((e&&e.error==='not-allowed')?'Mic permission is off \u2014 allow it in Settings, or just type':'Didn\u2019t catch that \u2014 try again or type'); };
   try{ rec.start(); showToast('\ud83c\udfa4 Listening\u2026'); }catch(e){ showToast('Voice didn\u2019t start \u2014 typing works too!'); }
