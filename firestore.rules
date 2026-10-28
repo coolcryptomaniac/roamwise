@@ -492,8 +492,11 @@ service cloud.firestore {
     // number, so: admin read only, and an admin may only move the status along.
     // Deleted automatically after 12 months by the Worker cron.
     match /stayLeads/{id} {
-      allow read: if isAdmin();
-      allow update: if isAdmin()
+      // Guest-request desk: ops/support/partnerships staff may read the
+      // enquiries and mark them contacted so the founder is not a bottleneck.
+      // They can change ONLY status/contactedAt - never create or delete.
+      allow read: if isAdmin() || staffRole() in ['ops','support','partnerships'];
+      allow update: if (isAdmin() || staffRole() in ['ops','support','partnerships'])
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'contactedAt']);
     }
 
