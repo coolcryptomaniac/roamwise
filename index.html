@@ -592,6 +592,7 @@ html{-webkit-text-size-adjust:100%}
     <button type="button" class="bs-tile bs-stay" onclick="openListing()"><span class="bs-ic" aria-hidden="true">&#127969;</span><b>Book &amp; Stay</b><small>Local stays. Enquire on WhatsApp.</small></button>
 <button type="button" class="bs-tile bs-stay" onclick="rwOpenTripDesk()"><b>Flights, trains &amp; rides</b><small>Electric first. Your whole trip together.</small></button>
     <a class="bs-tile bs-nomad" href="nomads/"><span class="bs-ic" aria-hidden="true">&#128187;</span><b>Nomad Match</b><small>Work stays, 15 days to 3 months.</small></a>
+    <a class="bs-tile bs-quiet" href="quiet/"><span class="bs-ic" aria-hidden="true">&#129496;</span><b>Quiet Himalaya</b><small>Peaceful stays for readers, writers and yoga.</small></a>
     <a class="bs-tile bs-creator" href="creators/match.html?role=creator&amp;invite=founding"><span class="bs-ic" aria-hidden="true">&#127909;</span><b>Creator Match</b><small>Agree a paid, hosted or hybrid collaboration.</small></a>
     <a class="bs-tile bs-prop" href="creators/match.html?role=property"><span class="bs-ic" aria-hidden="true">&#129309;</span><b>Creators &times; Stays</b><small>Hosts: find creators who fit.</small></a>
     <button type="button" class="bs-tile bs-fit" onclick="openFitnessStays()"><span class="bs-ic" aria-hidden="true">&#127947;&#65039;</span><b>Fitness-first stays</b><small>Gyms and yoga near your stay.</small></button>
@@ -600,6 +601,40 @@ html{-webkit-text-size-adjust:100%}
 </section>
 </section>
 
+
+<section class="v v-home" id="rwEveryday" aria-labelledby="rwEverydayTitle" style="margin:14px;padding:18px;border:1px solid var(--b2,#2A2A36);border-radius:20px;background:var(--bg2,#14141b)">
+  <style>
+    #rwEveryday h2{font-size:20px;margin:0 0 6px}#rwEveryday p{color:var(--t2);font-size:13px;line-height:1.6}
+    #rwEveryday .ed-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:14px 0}
+    #rwEveryday label{display:grid;gap:6px;font-size:13px;color:var(--t2);min-width:0}
+    #rwEveryday select,#rwEveryday input{box-sizing:border-box;width:100%;min-height:46px;border:1px solid var(--b2,#393945);border-radius:10px;padding:10px;background:var(--bg3,#1A1A20);color:var(--t1,#fff);font:inherit}
+    #rwEveryday button{min-height:46px;border:0;border-radius:12px;padding:12px 18px;background:var(--gold,#E8BA6C);color:#14110b;font-weight:750;font-size:14px;cursor:pointer}
+    #rwEveryday :focus-visible{outline:2px solid var(--gold,#E8BA6C);outline-offset:3px}
+    #rwEveryday .ed-links{display:flex;flex-wrap:wrap;gap:14px;margin-top:12px}#rwEveryday a{color:var(--gold,#E8BA6C);font-size:13px;padding:8px 0}
+    @media(max-width:420px){#rwEveryday .ed-grid{grid-template-columns:1fr}}
+  </style>
+  <h2 id="rwEverydayTitle">Everyday travel needs</h2>
+  <p>For work, family and the journeys that matter. Start with your needs and budget.</p>
+  <details><summary style="cursor:pointer;min-height:44px;line-height:44px">Find a plan that fits</summary>
+    <form id="rwEverydayForm">
+      <div class="ed-grid">
+        <label>What brings you here?<select id="rwEverydayPurpose" name="purpose">
+          <option value="monthly">Monthly or relocation stay</option><option value="work">Work, exam or interview trip</option>
+          <option value="family">Family visit</option><option value="medical">Stay near a hospital for a visit</option>
+          <option value="transfer">Station, airport or local transfer</option><option value="pilgrimage">Pilgrimage logistics</option>
+        </select></label>
+        <label>Destination or landmark<input id="rwEverydayPlace" name="place" required maxlength="80" placeholder="e.g. Haldwani station" autocomplete="off"></label>
+        <label>Your preference<select id="rwEverydayTier" name="tier"><option value="budget">Budget · essentials first</option><option value="comfort">Comfort · convenience matters</option><option value="premium">Premium · more privacy and space</option></select></label>
+        <label>Maximum budget for the whole request (₹)<input id="rwEverydayBudget" name="budget" type="number" min="1" max="10000000" step="1" required placeholder="Your total, not per person"></label>
+      </div>
+      <p>Planning request only. Availability, accessibility, prices and transport type need provider confirmation. For a hospital visit, share travel needs only—no medical records.</p>
+      <button type="submit">Prepare my request in Ailon Tusk →</button>
+      <p id="rwEverydayStatus" role="status" aria-live="polite"></p>
+    </form>
+    <noscript><p>Use the links below to browse stays and local services.</p></noscript>
+  </details>
+  <nav class="ed-links" aria-label="Browse everyday travel options"><a href="/nomads/">Long stays</a><a href="/partner/?role=customer">Browse stays</a><a href="/local-business/">Local services</a></nav>
+</section>
 
 <div class="free-bar" id="freeBar">
   <span>Free searches today: <strong id="freeCount">5</strong> left</span>
@@ -1288,6 +1323,7 @@ html{-webkit-text-size-adjust:100%}
       <a class="foot-link" href="kainchi/">Kainchi Dham visit planner</a>
       <a class="foot-link" href="pilgrimage/">Sacred journeys · Kasar Devi, Kailash Mansarovar, Char Dham &amp; more</a>
       <a class="foot-link" href="partner/join/">List your stay · become a partner</a>
+      <a class="foot-link" href="quiet/">Quiet Himalaya · peaceful stays for readers, writers &amp; yoga travellers</a>
       <a class="foot-link" href="nomads/">Nomad Match · work stays for founders &amp; professionals</a>
       <a class="foot-link" href="nomads/join/">Own a work-friendly stay · list for nomads</a>
       <a class="foot-link" href="creators/match.html?role=creator&amp;invite=founding">Creators · register &amp; get matched with stays</a>
@@ -1753,6 +1789,8 @@ html{-webkit-text-size-adjust:100%}
 <script src="local-help-data.js" defer></script>
 <script src="referral-data.js" defer></script>
 <script src="partners-data.js" defer></script>
+<script src="conditions-data.js" defer></script>
+<script src="quiet-data.js" defer></script>
 <script src="booking-data.js" defer></script>
 <script src="affiliate-config.js" defer></script>
 <script src="business-account.js?v=20261007" defer></script>
@@ -1799,7 +1837,10 @@ html{-webkit-text-size-adjust:100%}
 <script src="js/booking/actions.js" defer></script>
 <script src="js/booking/price-guard.js" defer></script>
 <script src="js/booking/routes.js" defer></script>
+<script src="js/booking/everyday-needs.js" defer></script>
 <script src="js/booking/stay-code.js" defer></script>
+<script src="js/booking/mountain-conditions.js" defer></script>
+<script src="js/booking/direct-booking.js" defer></script>
 <script src="features/finance-tax/gst-rules.js" defer></script>
 <script src="features/trust/property-compliance.js" defer></script>
 <script src="js/booking/stay-quote.js" defer></script>
@@ -1842,6 +1883,7 @@ html{-webkit-text-size-adjust:100%}
 <script src="js/copilot/tusk-knowledge.js" defer></script>
 <script src="js/copilot/answer-cards.js" defer></script>
 <script src="js/copilot/agent.js" defer></script>
+<script src="js/copilot/tusk-quiet-tools.js" defer></script>
 <script src="js/copilot/agent-evals.js" defer></script>
 <script src="js/itinerary/ground-truth.js" defer></script>
 <script src="js/itinerary/ninja-hacks.js" defer></script>

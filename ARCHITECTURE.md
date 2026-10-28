@@ -62,7 +62,7 @@ start of the modularization effort, down from 3,099 after the prior
 "modularization-final" pass, down from 1,207 after "round 4", and down from
 629 after "round 5" — the further changes since round 5 are incidental to
 unrelated feature PRs #138-143 and this pass's `submitUtr()` one-line
-rewire, not a new extraction round) and there are **202 files** under `js/`
+rewire, not a new extraction round) and there are **206 files** under `js/`
 (including the later `js/admin/` dashboard modules and
 `js/core/push-notifications.js` — see the `js/core/` and `js/admin/`
 entries below; the count was last re-verified via `npm run mod-status`,
@@ -70,7 +70,7 @@ which is the source of truth going forward — update this line whenever
 it reports drift rather than re-deriving the number by hand),
 organized into **17 top-level subdirectories** (16 from round 5 plus the
 new `js/admin/`) plus one nested subdirectory (`js/payments/providers/`),
-plus **11 files** under `css/`. Two new top-level feature areas landed
+plus **12 files** under `css/`. Two new top-level feature areas landed
 since round 5:
 
 - **`js/admin/` (15 files, including later operations, KPI and founder-economics
@@ -1343,3 +1343,13 @@ button stay in `partner/marketplace.js`. Loaded after `js/booking/form.js`.
 
 ## Guest stay requests (WhatsApp leads)
 `js/booking/stay-lead.js` -> `POST /stay/lead` (`worker/handlers/stay-lead.js`, validation in `worker/lib/stay-lead-core.js`) -> Firestore `stayLeads/{id}` (service account only). Needs an explicit WhatsApp-contact consent choice in both forms (trip basket, room enquiry). Admin reads/acts via Admin -> Stay requests (`js/admin/stay-requests-panel.js`); the founder is told in the daily chat digest and `/admin requests`. Deleted after 12 months by the daily cron. Replaces the old client writes to the rule-less `bookings` and `stayEnquiries` collections. No payment code.
+
+## Direct booking, mountain conditions, Quiet Himalaya (Oct 2026)
+
+- `conditions-data.js` (root, loaded after `partners-data.js`): `RW_CONDITIONS`, sourced road/snow/temple advisories with an `until` date. Add items from the weekly scout run; every item needs an https `sourceUrl`.
+- `js/booking/mountain-conditions.js`: `RWConditions.forPlace(place, dateIso)` / `rwConditionsFor`. Pure lookup. A winter closure is still returned for a trip after its closing date (labelled "Closed on your dates") for 150 days.
+- `js/booking/direct-booking.js` (after `stay-code.js`): one-to-one guest-host flow on top of stay codes. `rwDirectRequest` (coded WhatsApp request + advisories), `rwDirectSetStatus` (requested -> confirmed/declined/cancelled, forward only), `rwDirectList`, `rwDirectDue`, and a bottom card that asks "did the host confirm?" (after 6 h) and reminds at check-in (within 2 days). No payment/auth/Firestore code. `rwStayNudge` in `stay-code.js` now skips direct bookings before check-in or after a decline/cancel.
+- `js/copilot/tusk-quiet-tools.js` (after `agent.js`): adds Tusk tools `mountain_conditions`, `quote_long_stay` (uses `RWNomadPlans`), `request_direct_booking`, `my_direct_bookings`, `update_direct_booking`, `quiet_stays`, inserted before `finish`. `find_partners` now returns `id` so `enquire_stay`/`request_direct_booking` can use it.
+- `quiet-data.js` + `quiet/` (standalone page, classic scripts): the Quiet Himalaya collection for readers, writers, researchers and yoga travellers. Picks reference partner ids; reasons restate only what the record or a public listing says. Yoga/meditation appear as sourced nearby places, not amenities.
+- Voice: `rwSpeechLang()` (end of `js/voice/tusk-speak.js`) returns `hi-IN` when the site language is Hindi, else `en-IN`; used by voice input and native read-aloud.
+- Tests: `tests/quiet-direct-booking.test.js`.

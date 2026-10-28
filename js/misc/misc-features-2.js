@@ -182,7 +182,7 @@ function openStrava(){
   xpAdd(5,'Tracking armed');
 }
 function shareLive(dest){
-  var txt='🛰️ Heading to '+dest+'! Tracking my route — planned with RoamWise 🥷 '+APP_URL_SHARE;
+  var txt='🛰️ Heading to '+dest+'! Tracking my route — planned with RoamWise 🥷 '+((typeof rwShareLink==='function')?rwShareLink(APP_URL_SHARE,'live_route'):APP_URL_SHARE);
   window.open('https://wa.me/?text='+encodeURIComponent(txt),'_blank','noopener');
 }
 function trackBar(d){

@@ -1,0 +1,70 @@
+/* Scoped Kumaon-inspired capital desk. Aipan-inspired geometry is decorative. */
+.capital-shell{margin-top:22px;min-width:0}
+#capitalDiscipline{--cd-cream:#f5edde;--cd-muted:#bdc7c8;--cd-line:#354249;--cd-gold:#edc582;background:#101e25;color:var(--cd-cream);border:1px solid #48514e;border-radius:24px;overflow:hidden;box-shadow:0 22px 60px #0004}
+#capitalDiscipline *{box-sizing:border-box}
+#capitalDiscipline .cd-hero{position:relative;isolation:isolate;min-height:290px;background:radial-gradient(ellipse at 90% 10%,#5c3d4d55,transparent 55%),linear-gradient(120deg,#182331,#112e3b);overflow:hidden}
+#capitalDiscipline .cd-hero-copy{position:relative;z-index:1;padding:32px 34px 48px;max-width:600px;background:linear-gradient(90deg,#14232df5 30%,#14232d90 75%,transparent)}
+#capitalDiscipline .cd-eyebrow{display:block;color:var(--cd-gold);font-size:10px;font-weight:800;letter-spacing:.17em;line-height:1.7}
+#capitalDiscipline h2{font-family:Georgia,'Times New Roman',serif;font-size:clamp(32px,4vw,48px);font-weight:400;line-height:1.08;letter-spacing:-.035em;margin:18px 0 14px}
+#capitalDiscipline h2 em{color:var(--cd-gold);font-weight:400}
+#capitalDiscipline .cd-hero p{color:#e2e4de;margin:0 0 18px;line-height:1.6;font-size:14px}
+#capitalDiscipline .cd-chip{display:inline-block;border:1px solid #b69b6c66;border-radius:99px;background:#13232aaf;padding:7px 12px;font-size:11px;color:#e8d9bc}
+#capitalDiscipline .cd-landscape{position:absolute;inset:0;width:100%;height:100%;z-index:-1}
+#capitalDiscipline .cd-aipan{position:absolute;bottom:0;left:0;right:0;height:18px;background-color:#923b42;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='18' viewBox='0 0 48 18'%3E%3Cpath d='M0 2h48M0 16h48M16 9l8-5 8 5-8 5Z' fill='none' stroke='%23f6e8d6' stroke-width='.8'/%3E%3Ccircle cx='7' cy='9' r='1.5' fill='%23f6e8d6'/%3E%3Ccircle cx='41' cy='9' r='1.5' fill='%23f6e8d6'/%3E%3C/svg%3E")}
+#capitalDiscipline .cd-body{padding:28px 32px}
+#capitalDiscipline .cd-intro{max-width:760px;margin-bottom:24px}
+#capitalDiscipline p{font-size:13px;line-height:1.75;color:var(--cd-muted)}
+#capitalDiscipline .cd-fieldset{min-width:0;margin:0 0 22px;padding:18px 20px 22px;border:1px solid var(--cd-line);border-radius:16px;background:linear-gradient(120deg,#ffffff04,transparent)}
+#capitalDiscipline legend{padding:0 10px 0 0;font-size:17px;font-weight:700;letter-spacing:-.02em}
+#capitalDiscipline .cd-step{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:50%;background:#923b423d;border:1px solid #bd6c7370;color:#f3b9b6;font-size:11px;margin-right:10px}
+#capitalDiscipline .cd-fieldset>p{margin:0 0 16px;font-size:12px}
+#capitalDiscipline .cd-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+#capitalDiscipline .field{min-width:0;display:flex;flex-direction:column;justify-content:space-between;gap:8px}
+#capitalDiscipline label{color:#dce0da;font-size:12px;line-height:1.6}
+#capitalDiscipline .input{min-height:50px;background:#0c1820;border-color:#45545a;font-size:18px;font-weight:600;font-variant-numeric:tabular-nums;color:var(--cd-cream);border-radius:10px;padding:12px}
+#capitalDiscipline .input::placeholder{font-size:13px;font-weight:400;color:#9ba9ae}
+#capitalDiscipline :is(input,button,a,summary):focus-visible{outline:2px solid var(--cd-gold);outline-offset:4px}
+#capitalDiscipline .cd-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:20px}
+#capitalDiscipline .btn{min-height:48px;padding:12px 18px;border-radius:12px;border-color:#4a5b60;background:#1b3038;color:var(--cd-cream)}
+#capitalDiscipline .btn.primary{background:var(--cd-gold);color:#1e2526;border-color:var(--cd-gold);box-shadow:0 6px 20px #edc58212}
+#capitalDiscipline .btn:hover{filter:brightness(1.08)}
+#capitalDiscipline .cd-empty{display:flex;gap:16px;align-items:center;padding:24px;border:1px dashed #69716b;border-radius:18px;margin:26px 0;background:#ffffff03}
+#capitalDiscipline .cd-empty h3{font-family:Georgia,serif;font-weight:400;font-size:20px;margin:0 0 6px}
+#capitalDiscipline .cd-empty p{margin:0;max-width:530px}
+#capitalDiscipline .cd-seed{font-size:42px;color:var(--cd-gold)}
+#capitalDiscipline .cd-section-heading{margin:30px 0 18px}
+#capitalDiscipline .cd-section-heading h3{font-family:Georgia,serif;font-weight:400;font-size:26px;margin:6px 0}
+#capitalDiscipline .cd-notice{padding:16px;border:1px solid #658f80;background:#284e413b;border-radius:12px;color:#dbefe3;font-size:13px;line-height:1.65;margin-bottom:16px}
+#capitalDiscipline .cd-notice.cd-caution{background:#63333945;border-color:#bd7077;color:#ffe2dd}
+#capitalDiscipline .cd-notice span{display:block;margin-top:5px}
+#capitalDiscipline .cd-metrics{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+#capitalDiscipline .cd-metric{min-width:0;border:1px solid var(--cd-line);border-radius:14px;padding:18px;background:#182b32}
+#capitalDiscipline .cd-metric span{font-size:12px;color:var(--cd-muted)}
+#capitalDiscipline .cd-metric strong{display:block;font-size:clamp(22px,2.6vw,30px);font-variant-numeric:tabular-nums;font-weight:650;letter-spacing:-.04em;margin:8px 0;color:var(--cd-cream);overflow-wrap:anywhere}
+#capitalDiscipline small{display:block;font-size:11px;line-height:1.6;color:var(--cd-muted)}
+#capitalDiscipline .cd-chart-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:12px}
+#capitalDiscipline .cd-chart{min-width:0;border:1px solid var(--cd-line);border-radius:14px;padding:20px;background:#12272e}
+#capitalDiscipline h4{margin:0 0 20px;font-size:13px;font-weight:600}
+#capitalDiscipline .cd-reserve{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+#capitalDiscipline .cd-reserve b{font-size:14px;overflow-wrap:anywhere}
+#capitalDiscipline .cd-ring{width:106px;height:106px;flex-shrink:0;border-radius:50%;background:conic-gradient(var(--cd-gold) var(--coverage),#35454c 0);display:grid;place-items:center}
+#capitalDiscipline .cd-ring span{display:grid;place-items:center;width:86px;height:86px;border-radius:50%;background:#12272e;font-size:25px;color:var(--cd-gold)}
+#capitalDiscipline .cd-runway-value{font-size:42px;font-weight:600;letter-spacing:-.04em;color:var(--cd-gold)}
+#capitalDiscipline .cd-runway-value span{font-size:12px;color:var(--cd-muted);letter-spacing:0;font-weight:400}
+#capitalDiscipline .cd-track{height:10px;border-radius:12px;overflow:hidden;background:#35454c;margin-top:22px}
+#capitalDiscipline .cd-track span{height:100%;display:block;background:linear-gradient(90deg,#b5a06d,#edc582);border-radius:12px}
+#capitalDiscipline .cd-axis{display:flex;justify-content:space-between;margin-top:8px;font-size:10px;color:var(--cd-muted)}
+#capitalDiscipline .cd-budget-note{display:grid;gap:6px;padding:18px 0;margin:12px 0;border-bottom:1px solid var(--cd-line);font-size:13px}
+#capitalDiscipline .cd-table-wrap{overflow-x:auto;border:1px solid var(--cd-line);border-radius:14px;margin-top:22px}
+#capitalDiscipline table{width:100%;margin:0;border-collapse:collapse;font-variant-numeric:tabular-nums;font-size:13px}
+#capitalDiscipline caption{text-align:left;padding:18px;background:#1b3038;font-size:14px;font-weight:650;color:var(--cd-cream)}
+#capitalDiscipline th,#capitalDiscipline td{padding:14px;text-align:left;border-bottom:1px solid var(--cd-line);white-space:normal;overflow-wrap:anywhere}
+#capitalDiscipline thead th{font-size:11px;color:var(--cd-muted);font-weight:500}
+#capitalDiscipline tbody th{font-weight:600;color:var(--cd-gold)}
+#capitalDiscipline .cd-footnote{font-size:11px;line-height:1.8;margin-top:16px}
+#capitalDiscipline .cd-policy{border-top:1px solid var(--cd-line);margin-top:24px;padding-top:12px}
+#capitalDiscipline summary{cursor:pointer;min-height:48px;padding:12px 0;font-size:13px;font-weight:650;color:var(--cd-gold)}
+#capitalDiscipline li{color:var(--cd-muted);font-size:13px;line-height:1.8;margin-bottom:10px}
+@media(max-width:760px){#capitalDiscipline .cd-body{padding:22px 18px}#capitalDiscipline .cd-chart-grid{grid-template-columns:1fr}#capitalDiscipline .cd-hero-copy{padding:28px 24px 44px}}
+@media(max-width:460px){#capitalDiscipline .cd-fields{grid-template-columns:1fr}#capitalDiscipline .cd-fieldset{padding:14px}#capitalDiscipline .cd-metrics{grid-template-columns:1fr}#capitalDiscipline .cd-actions .btn{width:100%}#capitalDiscipline .cd-empty{padding:18px;align-items:flex-start}#capitalDiscipline .cd-seed{display:none}#capitalDiscipline .cd-hero-copy{background:linear-gradient(90deg,#14232de8,#14232d70)}#capitalDiscipline th,#capitalDiscipline td{padding:10px;font-size:11px}}
+@media print{#capitalDiscipline{box-shadow:none}#capitalDiscipline .cd-hero{-webkit-print-color-adjust:exact;print-color-adjust:exact}#capitalDiscipline .cd-actions{display:none}}
