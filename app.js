@@ -200,7 +200,7 @@ rwInitDestAutocomplete();
 
 // PREMIUM PDF ITINERARY EXPORT (openPdfFlow/genPdf and friends) moved to js/itinerary/pdf-export.js
 
-// EVENT RADAR + TRAVEL PULSE NEWS (EVENTS/activeEvents/renderEventBanner/eventPlan/renderEvents/renderSpotlight/renderNewsPulse/rwNewsPulseFallback) moved to js/misc/event-radar-news.js
+// Maintained event discovery lives in js/misc/events.js.
 
 // Main page-render DOMContentLoaded handler (device/lang/theme init, home page wiring) moved to js/boot/init.js
 

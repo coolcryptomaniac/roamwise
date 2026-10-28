@@ -6,7 +6,7 @@
 /* ---- from app.js lines 2810-3026: adaptive "for you" rendering (useBump, FORYOU_DEFS, renderForYou) + shared card photo painter (RW_PHOTOS, rwLoadPhotoMap, rwPaintPhotos) ---- */
 /* ===== ADAPTIVE "FOR YOU" (usage-aware UI) ===== */
 function useBump(k){ try{ var u=JSON.parse(lsGet('rw_use')||'{}'); u[k]=(u[k]||0)+1; lsSet('rw_use',JSON.stringify(u)); }catch(e){ /* parse best-effort, ignore malformed/missing data */ } }
-var FORYOU_DEFS={copilot:['\ud83e\udded Copilot',function(){cpFocusHero();}],map:['\ud83d\uddfa\ufe0f Map',function(){openMapExplorer();}],group:['\ud83e\udd1d Group',function(){openGroupPlanner();}],trips:['\u2708\ufe0f Trips',function(){openVault();}],plan:['\ud83e\udded Plan',function(){tabGo('plan');}],treks:['\u26f0 Treks',function(){tabGo('explore');scrollToId('treks');}],card:['\ud83d\uddfa Card',function(){tabGo('explore');scrollToId('jlog');}],events:['\ud83c\udfdf Events',function(){tabGo('explore');scrollToId('events');}],store:['\ud83d\udecd Store',function(){tabGo('home');scrollToId('store');}],pdf:['\ud83d\udcd5 PDF',function(){tabGo('plan');}],search:['\ud83d\udd0d Search',function(){ssOpen();}],profile:['\ud83d\udc64 Profile',function(){openProfile();}]};
+var FORYOU_DEFS={copilot:['\ud83e\udded Copilot',function(){cpFocusHero();}],map:['\ud83d\uddfa\ufe0f Map',function(){openMapExplorer();}],group:['\ud83e\udd1d Group',function(){openGroupPlanner();}],trips:['\u2708\ufe0f Trips',function(){openVault();}],plan:['\ud83e\udded Plan',function(){tabGo('plan');}],treks:['\u26f0 Treks',function(){tabGo('explore');scrollToId('treks');}],card:['\ud83d\uddfa Card',function(){tabGo('explore');scrollToId('jlog');}],events:['\ud83c\udfdf Events',function(){openEvents();}],store:['\ud83d\udecd Store',function(){tabGo('home');scrollToId('store');}],pdf:['\ud83d\udcd5 PDF',function(){tabGo('plan');}],search:['\ud83d\udd0d Search',function(){ssOpen();}],profile:['\ud83d\udc64 Profile',function(){openProfile();}]};
 function renderForYou(){
   var host=el('brief'); if(!host) return;
   document.querySelectorAll('.rw-for-you-quick,.rw-discovery-feed:not(.rw-country-feed)').forEach(function(node){node.remove();});
@@ -21,18 +21,16 @@ function renderForYou(){
   host.insertBefore(wrap, host.firstChild);
   /* Popular now — image-first media row from the destination DB */
   try{
-    var live=activeEvents(), evCity=live.length? live[0].city:null;
     var curM=new Date().getMonth();
     var isClosedNow=function(d){ return d.closedM && d.closedM.indexOf(curM+1)>-1; };
     var seedH=function(str){var x=0;for(var i=0;i<str.length;i++)x=(x*31+str.charCodeAt(i))>>>0;return (x+new Date().getDate())%97;};
-    /* Month-aware: in-season (bestM) first, LIVE-event city pinned, daily-shuffled —
+    /* Month-aware: in-season (bestM) first, daily-shuffled —
        genuinely different by season AND by day, and it scales as DB grows. */
     var pool=(typeof DB!=='undefined'? DB:[]).slice()
       .filter(function(d){ return !isClosedNow(d); });
     pool.sort(function(a,b){
-      var ea=(evCity===a.name)?-200:0, eb=(evCity===b.name)?-200:0;
       var sa=((a.bestM||[]).indexOf(curM+1)>-1)?-100:0, sb=((b.bestM||[]).indexOf(curM+1)>-1)?-100:0;
-      return (ea+sa+seedH(a.name))-(eb+sb+seedH(b.name)); });
+      return (sa+seedH(a.name))-(sb+seedH(b.name)); });
     /* "In season" and "Easy visa" are specialty rows that starve fast if generic
        rows (Popular-now, Low-crowd) get first pick of the shared pool \u2014 so they
        claim their up-to-10 picks from the FULL pool first, and everything else
@@ -68,9 +66,8 @@ function renderForYou(){
     row.innerHTML='<div class="rowhead"><b>Popular now</b><a onclick="tabGo(\'explore\')">All \u2192</a></div><div class="prow">'
       + picks.map(function(d2){
           var th=themeFor(d2), a2=th.acc, dp2=th.deep, k2=th.key;
-          var badge = (evCity===d2.name)? '<span class="pb">LIVE</span>' : '';
           return '<div class="pcard" style="background:linear-gradient(160deg, rgb('+a2[0]+','+a2[1]+','+a2[2]+') 0%, rgb('+dp2[0]+','+dp2[1]+','+dp2[2]+') 85%)" onclick="el(\'destInput\').value=\''+d2.name.replace(/'/g,'')+'\';tabGo(\'plan\');runSearch()">'
-            + badge + '<span class="pe">'+(EMO[k2]||EMO.classic)+'</span><span class="pn">'+d2.name+'</span></div>';
+            + '<span class="pe">'+(EMO[k2]||EMO.classic)+'</span><span class="pn">'+d2.name+'</span></div>';
         }).join('') + '</div>';
     row.className='v v-home rw-discovery-feed';
     var bb=el('promoTop');

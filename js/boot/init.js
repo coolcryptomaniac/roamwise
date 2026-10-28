@@ -78,9 +78,6 @@ document.addEventListener('DOMContentLoaded', function(){
   try{ rwInitDevice(); }catch(e){ /* best-effort, ignore */ }
   try{ rwInitLang(); }catch(e){ /* best-effort, ignore */ }
   try{ rwInitTheme(); }catch(e){ /* best-effort, ignore */ }
-  try{ renderEventBanner(); }catch(e){ /* non-critical render step, ignore */ }
-  try{ renderEvents(); }catch(e){ /* non-critical render step, ignore */ }
-  try{ renderSpotlight(); }catch(e){ /* non-critical render step, ignore */ }
   try{ renderTicker(); }catch(e){ /* non-critical render step, ignore */ }
   try{ renderForYou(); }catch(e){ /* non-critical render step, ignore */ }
   try{ tripReminderCheck(); }catch(e){ /* best-effort, ignore */ }
@@ -118,7 +115,6 @@ document.addEventListener('DOMContentLoaded', function(){
     if(hi) hi.addEventListener('keydown',function(e){ if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); copilotSend(true); } });
   }catch(e){ /* best-effort, ignore */ }  /* fire any due trip countdown reminders */
   try{ renderPromo(); }catch(e){ /* non-critical render step, ignore */ }
-  try{ renderNewsPulse(); }catch(e){ /* non-critical render step, ignore */ }
   try{ renderRatings(); }catch(e){ /* non-critical render step, ignore */ }
   /* Apple-style scroll reveal */
   try{
