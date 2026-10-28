@@ -602,9 +602,11 @@ firebase.auth().onAuthStateChanged(function(u){
     el('docBox').style.display = ROLE==='admin'?'block':'none';
     el('finConsoleBox').style.display = ROLE==='admin'?'block':'none';
     el('taxBox').style.display = ROLE==='admin'?'block':'none';
-    el('scoreBox').style.display = (ROLE&&ROLE!=='none')?'block':'none';
-    el('salesBox').style.display = (ROLE&&ROLE!=='none')?'block':'none';
-    el('refStatsBox').style.display = (ROLE&&ROLE!=='none')?'block':'none';
+    /* Declutter: sales/outreach scoreboards only for roles that do outreach. */
+    var _outreach = ROLE==='admin'||hasRole('marketing')||hasRole('growth')||hasRole('partnerships');
+    el('scoreBox').style.display = _outreach?'block':'none';
+    el('salesBox').style.display = _outreach?'block':'none';
+    el('refStatsBox').style.display = _outreach?'block':'none';
     el('myDeskBox').style.display = (ROLE&&ROLE!=='none')?'block':'none';
     el('internAdminBox').style.display = ROLE==='admin'?'block':'none';
     el('pendingBox').style.display = ROLE==='admin'?'block':'none';
@@ -640,6 +642,32 @@ var DAILY = {
     ['Log expenses','Anything spent yesterday, with what it was for. Receipts in the shared drive.'],
     ['Check refunds/chargebacks','Anything reversed gets removed from the revenue count the same day.'],
     ['Update the running total','Revenue, expenses, and what that leaves.']
+  ],
+  ops:[
+    ['Clear guest requests','Reply to every new stay enquiry the same day; mark it contacted so nothing is double-handled.'],
+    ['Check live properties','Confirm rooms and prices are current with each active host.'],
+    ['Log blockers','Anything you cannot fix, add to Tasks for an admin.']
+  ],
+  support:[
+    ['Clear guest requests','Reply to every new stay enquiry the same day; mark it contacted.'],
+    ['Answer feedback','Reply to user feedback within 24 hours.'],
+    ['Log recurring issues','Three of the same complaint becomes a task.']
+  ],
+  partnerships:[
+    ['Review new applications','Check identity, property and experience details; submit your recommendation.'],
+    ['Chase incomplete hosts','Message hosts missing documents or photos.'],
+    ['Log every call','So nobody gets contacted twice.']
+  ],
+  content:[
+    ['Ship one piece','A guide, caption or listing description; keep claims factual.'],
+    ['Check listing copy','Fix typos and wrong photos on live properties.']
+  ],
+  engineering:[
+    ['Check open tasks','Pick the top item and ship small, reviewed changes.']
+  ],
+  qa:[
+    ['Test the booking flow','Search, enquiry and WhatsApp hand-off on mobile.'],
+    ['Report bugs as tasks','Steps, screenshot, expected vs actual.']
   ]
 };
 function loadToday(){
