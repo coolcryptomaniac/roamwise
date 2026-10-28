@@ -107,8 +107,11 @@ function rwStayEnquiryFor(partner, d){
 function rwStayNudge(){
   try{
     var list = rwStayLoad(), now = Date.now(), DAY = 86400000, due = null, i;
+    var t = new Date(), today = t.getFullYear() + '-' + String(t.getMonth() + 1).padStart(2, '0') + '-' + String(t.getDate()).padStart(2, '0');
     for(i = 0; i < list.length; i++){
       var s = list[i];
+      /* Direct bookings (direct-booking.js): don't ask "did you stay?" before check-in or after a decline/cancel. */
+      if(s.direct && ((s.checkIn && s.checkIn >= today) || s.status === 'declined' || s.status === 'cancelled')) continue;
       if(!s.answered && now - s.at > 3 * DAY && now - s.at < 120 * DAY && now - (s.nudgedAt || 0) > DAY){ due = s; break; }
     }
     if(!due || document.getElementById('rwStayNudge')) return;
