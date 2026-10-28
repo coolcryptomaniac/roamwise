@@ -34,7 +34,6 @@ function rwEverydayInit(){
     status.textContent='Your request is ready in Ailon Tusk. Review it and press Send.';
     input.scrollIntoView({block:'center',behavior:'auto'});
     input.focus({preventScroll:true});
-    try{if(typeof track==='function')track('everyday_request_prepared');}catch(e){/* optional anonymous count */}
   });
 }
 if(typeof document!=='undefined')rwEverydayInit();
