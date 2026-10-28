@@ -127,6 +127,16 @@ export function creatorIntro(creator, match, policy) {
   return creator.phone ? waLink(creator.phone, text) : '';
 }
 
+/** WhatsApp invite to become a featured RoamWise creator. Honest terms only: Featured is earned (25 referred sales or a dedicated
+    video), never promised up front. A person presses send; nothing is automatic. */
+export function featuredInvite(creator) {
+  const first = str(creator && creator.name).split(' ')[0] || 'there';
+  const text = `Hi ${first}, this is RoamWise (roamwise.co.in), an India-first travel planner. We liked your work and would love you to become a featured RoamWise creator. `
+    + 'You get a personal affiliate code (your audience gets 15% off, you keep 25%), a free Pro trial, and a chance to be featured on our home page and in the app with credit. '
+    + 'Featured status is earned through your content and referrals, nothing is guaranteed. Interested? Reply YES and we will send your creator link.';
+  return creator && creator.phone ? waLink(creator.phone, text) : '';
+}
+
 export function toCsv(rows = []) {
   const q = (v) => '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"';
   const head = ['name', 'handle', 'email', 'phone', 'town', 'stage', 'best_property', 'verdict', 'score', 'flags'];
