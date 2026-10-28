@@ -25,7 +25,7 @@ These are supply-development targets, not advertised live inventory. Hospital-ad
 ## Delivered interface
 The homepage has a collapsible planner for six needs, three preferences and an explicit whole-request INR budget. It prepares a prompt in the existing Ailon Tusk input for the user to review and send. It does not overwrite an unsent draft, persist the form, book, charge, or claim verified supply. Dates and group size are requested by the prompt.
 
-`everyday_request_prepared` is an anonymous intent counter only. Do not treat it as a confirmed lead, reservation or revenue. No destination, budget or hospital details are included in that event.
+No analytics event is recorded for this action. Do not treat a prepared request as a confirmed lead, reservation or revenue.
 
 ## Evidence and limits
 India's Ministry of Tourism reports a substantial domestic travel market and has a medical/wellness tourism strategy: https://www.pib.gov.in/newsite/erelcontent.aspx?lang=2&reg=48&relid=281995 . This supports exploring related needs; it does not prove year-round demand in Roamwise's destinations. Validate local demand and economics through completed paid requests.
