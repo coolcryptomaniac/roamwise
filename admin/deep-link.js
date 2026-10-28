@@ -13,3 +13,13 @@
   new MutationObserver(go).observe(app, { attributes: true, attributeFilter: ['class'] });
   go();
 })();
+
+/* Collapsible nav groups: the "More" group stays closed until it holds the open tab. */
+(function () {
+  var nav = document.querySelector('.nav'); if (!nav) return;
+  function set(g, open) { var h = nav.querySelector('.navh[data-group="' + g + '"]'), b = nav.querySelector('.navg[data-g="' + g + '"]'); if (!h || !b) return; b.classList.toggle('closed', !open); h.setAttribute('aria-expanded', open ? 'true' : 'false'); }
+  nav.addEventListener('click', function (e) {
+    var h = e.target.closest && e.target.closest('.navh'); if (h) { set(h.dataset.group, h.getAttribute('aria-expanded') !== 'true'); return; }
+    var b = e.target.closest && e.target.closest('button[data-page]'); var g = b && b.closest('.navg'); if (g) set(g.dataset.g, true);
+  });
+})();
