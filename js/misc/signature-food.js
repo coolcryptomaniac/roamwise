@@ -49,12 +49,14 @@ function rwFoodFor(place){
 }
 function rwFoodHTML(place){
   var f=rwFoodFor(place); if(!f) return '';
-  var img = rwArtURL(f[2]+', food illustration, warm, appetising, flat colour', 512, 320);
+  var bal = /^bal\s+mithai$/i.test(f[0]);
+  var img = bal ? 'assets/food/bal-mithai.jpg' : rwArtURL(f[2]+', food illustration, warm, appetising, flat colour', 512, 320);
   return '<div style="border-radius:14px;overflow:hidden;border:1px solid var(--b2,#2A2A36);position:relative;min-height:130px;'
     +'background-image:url('+img+');background-size:cover;background-position:center">'
     +'<div style="background:linear-gradient(0deg,rgba(6,6,10,.92) 22%,rgba(6,6,10,.25));padding:38px 14px 13px">'
     +'<div style="font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--gold,#E8BA6C);font-weight:800">Eat this here</div>'
     +'<div style="font-size:17px;font-weight:900;margin-top:2px;text-shadow:0 2px 10px rgba(0,0,0,.9)">'+esc2(f[0])+'</div>'
     +'<div style="font-size:11.5px;color:rgba(255,255,255,.86);line-height:1.55;margin-top:3px;text-shadow:0 1px 8px rgba(0,0,0,.9)">'+esc2(f[1])+'</div>'
+    +(bal?'<div style="font-size:10px;margin-top:8px">Photo: <a href="https://commons.wikimedia.org/wiki/File:Bal_mithai.jpg" target="_blank" rel="noopener">Vkumarzone</a> · <a href="https://creativecommons.org/licenses/by/3.0/" target="_blank" rel="noopener">CC BY 3.0</a> · cropped to fit</div>':'')
     +'</div></div>';
 }

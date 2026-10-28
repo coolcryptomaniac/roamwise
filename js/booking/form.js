@@ -102,8 +102,40 @@ function rwTuskOpenRoomBook(id){
   var r=rwRoomById(id),dest=r&&(r.zone||r.area)||'';
   location.href='/partner/?role=customer&destination='+encodeURIComponent(dest);
 }
+/* Property enquiries are not payment-enabled rooms. Keep both catalogues visible
+   without inventing room prices, capacity or availability for signed partners. */
+function rwTuskPartnerStayHTML(raw,dest){
+  if(typeof rwBookingRoutes!=='function') return '';
+  var norm=function(v){return String(v||'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim();};
+  var zone=norm(dest), rooms=rwTuskStayMatches(raw,dest), seen={};
+  rooms.forEach(function(r){seen[r.partnerId]=true;});
+  var list=(window.RW_PARTNERS||[]).filter(function(p){
+    if(!p || p.cat!=='stay' || !(window.rwStayPublicEligible?window.rwStayPublicEligible(p):p.verified==='signed'&&p.listingReady===true)) return false;
+    var hay=norm([p.zone,p.area,p.name].join(' '));
+    return !seen[p.id] && (!zone || zone.split(' ').every(function(w){return hay.indexOf(w)>=0;}));
+  }).slice(0,6);
+  if(!list.length) return '';
+  var dates=typeof rwSdParseDates==='function'?rwSdParseDates(raw):null;
+  var guests=typeof rwSdGuests==='function'?rwSdGuests(raw):0;
+  return '<div class="tk-card tk-mini"><div class="tk-sec"><b>🏡 Stays to enquire about'+(dest?' · '+esc2(dest):'')+'</b>'
+    +list.map(function(p){
+      var route=rwBookingRoutes(p)[0]||{type:'none'}, href=route.href, label=route.label;
+      if(route.type==='direct'||route.type==='none'){
+        href='/partner/?role=customer&destination='+encodeURIComponent(p.zone||dest||'')+(dates?'&checkin='+dates.checkIn+'&checkout='+dates.checkOut:'')+(guests?'&guests='+guests:'');
+        label=route.type==='none'?'Ask RoamWise to confirm →':'Check rooms and dates →';
+      }
+      if(route.type==='whatsapp'){
+        var message='Hello '+p.name+', I found your stay through RoamWise. '+(dates?'Check-in: '+dates.checkIn+'. Check-out: '+dates.checkOut+'. ':'')+(guests?'Guests: '+guests+'. ':'')+'Please confirm room options, availability, final total including taxes, payment method and cancellation terms.';
+        href+='?text='+encodeURIComponent(message);
+      }
+      return '<div style="padding:12px 0;border-bottom:1px solid var(--b2)"><b>'+esc2(p.name)+'</b>'
+        +'<div class="rw-note">'+esc2(p.area||p.zone||'')+' · '+(p.enquiryOnly?'Founder introduced · enquiry only':'Signed partner')+'</div>'
+        +'<div class="rw-note">Rate and availability confirmed by the property for your dates.</div>'
+        +'<a class="tk-chip gold" href="'+esc2(href)+'" target="_blank" rel="noopener noreferrer">'+esc2(label)+'</a></div>';
+    }).join('')+'<p class="rw-note">Opening a chat or sending an enquiry is not a reservation. Get written confirmation of the room, dates, total and cancellation terms before paying.</p></div></div>';
+}
 function rwTuskStayHTML(raw,dest){
-  var list=rwTuskStayMatches(raw,dest); if(!list.length)return '';
+  var list=rwTuskStayMatches(raw,dest), partners=rwTuskPartnerStayHTML(raw,dest); if(!list.length)return partners;
   var title=dest?'🏡 Best matching stays · '+esc2(dest):'🏡 Matching RoamWise stays';
   return '<div class="tk-card tk-mini"><div class="tk-sec"><div style="font-weight:850;font-size:13.5px;margin-bottom:7px">'+title+'</div>'
     +list.map(function(r){
@@ -116,7 +148,7 @@ function rwTuskStayHTML(raw,dest){
         +'</div>';
     }).join('')
     +'<div style="font-size:10.5px;color:var(--t3);margin-top:8px">These are discovery matches. The next screen shows only verified live inventory; payment stays locked until the property confirms the exact room, total and policy.</div>'
-    +'</div></div>';
+    +'</div></div>'+partners;
 }
 
 /* Resume an itinerary as a booking conversation. This is intentionally a
@@ -134,15 +166,15 @@ function rwTuskPlanBookingHTML(raw,dest,days){
   var q=encodeURIComponent(dest),label=esc2(dest)+(days?' · '+days+' days':'');
   return '<div class="tk-card tk-mini"><div class="tk-sec">'
     +'<div style="font-weight:850;font-size:13.5px">🧾 Booking assistant · '+label+'</div>'
-    +'<div style="font-size:11.5px;color:var(--t2);line-height:1.55;margin-top:5px">Open verified stays, send one request, and return to the same booking desk for the property response and pay button. Only listings with confirmed inventory and enabled payment are eligible; payment remains locked until the property confirms.</div>'
+    +'<div style="font-size:11.5px;color:var(--t2);line-height:1.55;margin-top:5px">Choose a stay below and ask the property to confirm your dates, room and total. WhatsApp stays confirm directly with the host. Online payment is available only for listings with confirmed inventory and enabled payment; payment remains locked until the property confirms.</div>'
     +'<div class="tk-chips" style="margin-top:9px">'
-    +'<a class="tk-chip gold" href="/partner/?role=customer&amp;destination='+q+'">Verified stays and payment →</a>'
+    +'<a class="tk-chip gold" href="/partner/?role=customer&amp;destination='+q+'">Browse stays →</a>'
     +'<a class="tk-chip" target="_blank" rel="noopener" href="https://www.google.com/travel/flights?q='+q+'">Flights ↗</a>'
     +'<a class="tk-chip" target="_blank" rel="noopener" href="https://www.redbus.in/">Bus ↗</a>'
     +'<a class="tk-chip" target="_blank" rel="noopener" href="https://www.irctc.co.in/nget/train-search">Train ↗</a>'
     +'<a class="tk-chip" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&destination='+q+'">Navigate ↗</a>'
     +'</div><div style="font-size:10.5px;color:var(--t3);margin-top:8px">One-tap whole-trip payment will unlock only after every selected stay, transport and activity returns live availability and a supplier-backed final price.</div>'
-    +'</div></div>'+(stay||'<div class="tk-card tk-mini"><div class="tk-sec">No RoamWise stay inventory is listed for '+esc2(dest)+' yet. Use the travel links above; nothing has been reserved or charged.</div></div>');
+    +'</div></div>'+(stay||'<div class="tk-card tk-mini"><div class="tk-sec">No matching stays were found for '+esc2(dest)+' yet. Use the travel links above; nothing has been reserved or charged.</div></div>');
 }
 
 /* ---------------- brochure / not-yet-live partner enquiry ---------------- */

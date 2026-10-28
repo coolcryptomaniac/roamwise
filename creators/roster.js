@@ -4,13 +4,13 @@
    real Firestore error if something is blocked, so an empty list is never a silent failure.
    Writes only crm/{id}.stage, which the Firestore rules already allow for the admin and the marketing role. */
 import { SEED_POLICIES, mergePolicies, policyFromPartner } from './property-terms-core.mjs';
-import { buildRoster, rosterCounts, creatorIntro, toCsv, STAGES, canSpotlight, spotlightEntry, withSpotlight, withoutSpotlight, travelAlerts, alertMessage, NICHE_NAMES, normalizeNeeds, TIER_INFO, TIERS, quickLinks } from './roster-core.mjs';
+import { buildRoster, rosterCounts, creatorIntro, toCsv, STAGES, canSpotlight, spotlightEntry, withSpotlight, withoutSpotlight, travelAlerts, alertMessage, NICHE_NAMES, normalizeNeeds, TIER_INFO, TIERS, quickLinks, featuredInvite } from './roster-core.mjs';
 import { tripOf, photoOf } from './strict-match-core.mjs';
 
 const API = 'https://roamwise-api.founder-f53.workers.dev';
 const $ = (s) => document.querySelector(s);
 const esc = (v) => String(v == null ? '' : v).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-const R = { igOff: false, igBusy: false, rows: [], policies: [], filter: 'all', q: '', errors: [], spot: [], override: [] };
+const R = { igOff: false, igBusy: false, rows: [], policies: [], filter: 'all', q: '', errors: [], spot: [], override: [], apps: {} };
 const db = () => { try { return firebase.firestore(); } catch (_) { return null; } };
 const VERDICT = { send: ['Send the offer', 'good'], negotiate: ['Needs a chat', 'warn'], no_fit: ['No fit right now', 'bad'] };
 
@@ -22,7 +22,7 @@ async function load() {
   try { const ps = await d.collection('partners').where('creatorMatching.enabled', '==', true).limit(200).get(); partners = ps.docs.map((x) => policyFromPartner(x.id, x.data() || {})); } catch (e) { R.errors.push('Partner terms: ' + (e.code || e.message)); }
   try { const a = await d.collection('crm').where('seg', '==', 'creator').limit(500).get(); apps = a.docs.map((x) => ({ id: x.id, ...x.data() })); } catch (e) { R.errors.push('Creator applications (crm): ' + (e.code || e.message) + '. Sign in with the founder account that has an admins/{uid} document.'); }
   try { const sp = await d.collection('config').doc('creatorSpotlight').get(); R.spot = sp.exists && Array.isArray((sp.data() || {}).list) ? sp.data().list : []; } catch (e) { R.spot = []; }
-  R.override = override;
+  R.override = override; R.apps = Object.fromEntries(apps.map((x) => [x.id, x]));
   R.policies = mergePolicies(mergePolicies(SEED_POLICIES, override), partners);
   R.rows = buildRoster(apps, R.policies);
 }
@@ -79,28 +79,29 @@ function spotBtn(r) {
 
 function card(r) {
   const b = r.best, v = b ? VERDICT[b.verdict] : null, pol = b && R.policies.find((p) => p.propertyId === b.propertyId);
-  const wa = b ? creatorIntro(r, b, pol) : '';
-  const others = r.matches.slice(1).map((m) => `<span class="ca-tag ${VERDICT[m.verdict][1]}">${esc(m.name)}: ${esc(VERDICT[m.verdict][0].toLowerCase())}</span>`).join('');
-  const lines = b ? b.terms.lines.filter((l) => l.status !== 'ok').map((l) => esc(l.text)).join(' · ') : '';
+  const wa = b ? creatorIntro(r, b, pol) : '', inv = featuredInvite(r), raw = R.apps[r.id] || {}, invitedAt = String(raw.featuredInvitedAt || '').slice(0, 10);
   const av = r.photoUrl ? `<img class="rs-av" src="${esc(r.photoUrl)}" alt="" loading="lazy" referrerpolicy="no-referrer">` : `<span class="rs-av rs-av0">${esc((r.name || '?').slice(0, 1).toUpperCase())}</span>`;
-  const rt = r.rating, tierTag = `<span class="ca-tag ${rt.tier === 'summit' || rt.tier === 'ridge' ? 'good' : rt.tier === 'mirage' ? 'bad' : 'warn'}" title="${esc(rt.blurb)}">${rt.icon} ${esc(rt.name)}${rt.overridden ? ' · set by founder' : ''}</span>`;
-  const ratingLine = `<p class="bd-hint">${esc(rt.evidence === 'instagram' ? 'Numbers from Instagram' : rt.evidence === 'youtube' ? 'Numbers from YouTube' : rt.evidence === 'checked' ? 'Numbers checked' : 'Numbers self-reported')}${rt.reasons.length ? ' · ' + esc(rt.reasons.join('; ')) : ''}. To move up: ${esc(rt.next)}</p>`;
-  const tags = r.nicheTags.length ? r.nicheTags.map((n) => `<span class="ca-tag good">${esc(n)}</span>`).join('') : '<span class="ca-tag warn">content type not stated</span>';
-  const bandLine = b ? `<p><span class="ca-tag ${b.band === 'local' ? 'good' : b.band === 'far' ? 'warn' : 'bad'}">${esc(b.bandLabel)}${b.proximity.km != null ? ' · ~' + Math.round(b.proximity.km) + ' km' : ''}</span> <span class="bd-hint">${esc(b.bandNote)}</span></p>` : '';
-  const needLine = b && b.needs && b.needs.niches.length ? `<p class="bd-hint">${esc(b.name)} needs: ${esc(b.needs.niches.join(', '))}${b.needs.strict ? ' (strict)' : ''}${b.nicheMatched.length ? ' · this creator matches: ' + esc(b.nicheMatched.join(', ')) : ''}</p>` : '';
-  const igLine = r.igRatedAt ? `<p class="bd-hint">Checked with Instagram on ${esc(r.igRatedAt.slice(0, 10))}</p>` : r.igFailedAt ? `<p class="bd-hint">Instagram check not possible: ${esc(r.igFailure)}. Ask for an Insights screenshot.</p>` : '';
+  const rt = r.rating, town = ((r.location && r.location.town) || '').replace(/\b[a-z]/g, (m) => m.toUpperCase());
+  const tierTag = `<span class="ca-tag ${rt.tier === 'summit' || rt.tier === 'ridge' ? 'good' : rt.tier === 'mirage' ? 'bad' : 'warn'}" title="${esc(rt.blurb)}">${rt.icon} ${esc(rt.name)}</span>`;
+  const tags = r.nicheTags.map((n) => `<span class="ca-tag good">${esc(n)}</span>`).join('');
+  const ig = r.handle ? `<a class="ca-action secondary" href="${esc(r.handle)}" target="_blank" rel="noopener noreferrer">Instagram ↗</a>` : '<span class="ca-tag warn">no Instagram link</span>';
+  const yt = r.youtube ? `<a class="ca-action secondary" href="${esc(r.youtube)}" target="_blank" rel="noopener noreferrer">YouTube ↗</a>` : '';
+  const chat = r.phone ? `<a class="ca-action green" target="_blank" rel="noopener" href="https://wa.me/${esc(String(r.phone).replace(/\D/g, ''))}">WhatsApp</a>` : '<span class="ca-tag warn">no phone</span>';
+  const mail = r.email ? `<a class="ca-action secondary" href="mailto:${esc(r.email)}">Email</a>` : '';
+  const invite = inv ? `<a class="ca-action" target="_blank" rel="noopener" data-rs-invite="${esc(r.id)}" href="${esc(inv)}">${invitedAt ? 'Invite again' : 'Invite as featured creator'}</a>` : '';
+  const match = b ? `<p class="rs-match"><b>Best property:</b> ${esc(b.name)} <span class="ca-tag ${v[1]}">${esc(v[0])}</span> · ${esc(b.proximity.label)}${b.proximity.km != null ? ` · ~${b.proximity.roadKm} km by road` : ''} · score ${b.score}${wa ? ` · <a href="${esc(wa)}" target="_blank" rel="noopener">send this offer ↗</a>` : ''}</p>` : '<p class="rs-match bd-hint">No property is open to creators yet.</p>';
+  const others = r.matches.slice(1, 4).map((m) => `<span class="ca-tag ${VERDICT[m.verdict][1]}">${esc(m.name)}: ${esc(VERDICT[m.verdict][0].toLowerCase())}</span>`).join('');
+  const flags = r.flags.map((f) => `<span class="ca-tag warn">${esc(f)}</span>`).join('');
   const links = quickLinks({ name: r.name, handle: r.handle, youtube: r.youtube }).map((l) => `<a href="${esc(l.url)}" target="_blank" rel="noopener noreferrer">${esc(l.label)} ↗</a>`).join(' · ');
-  const fp = r.footprint ? `<p class="bd-hint">Web footprint: ${esc(r.footprint.note)} ${(r.footprint.items || []).filter((i) => !i.own).slice(0, 3).map((i) => `<a href="${esc(i.url)}" target="_blank" rel="noopener noreferrer">${esc(i.domain)}</a>`).join(', ')}</p>` : '';
-  const pubLine = `<p class="bd-hint">Public check: ${links}</p>${fp}`;
   const trip = r.trip ? `<p class="bd-hint">Trip: ${esc(r.trip.town)} ${esc(r.trip.from)} to ${esc(r.trip.to)}</p>` : '';
-  return `<div class="ca-row rs-row">${av}<div><h3>${esc(r.name)} <small>${r.handle ? `<a href="${esc(r.handle)}" target="_blank" rel="noopener">profile ↗</a>` : 'no link'}</small></h3>
-    <p>${esc(((r.location && r.location.town) || 'location not set').replace(/\b[a-z]/g, (m) => m.toUpperCase()))} · ${esc(r.email || 'no email')} · ${esc(r.phone || 'no phone')} · ${esc((r.createdAt || '').slice(0, 10) || 'date unknown')}</p>
-    <div class="ca-tags">${tierTag}${tags}</div>${ratingLine}${igLine}${pubLine}${bandLine}${needLine}${trip}
-    <div class="ca-tags">${r.flags.map((f) => `<span class="ca-tag warn">${esc(f)}</span>`).join('')}</div>
-    ${b ? `<p><b>Best match: ${esc(b.name)}</b> · <span class="ca-tag ${v[1]}">${esc(v[0])}</span> · ${esc(b.proximity.label)}${b.proximity.km != null ? ` · ~${b.proximity.roadKm} km by road` : ''} · score ${b.score}${b.why.length ? ` · ${esc(b.why.join(', '))}` : ''}</p>${lines ? `<p class="bd-hint">To agree: ${lines}</p>` : ''}<div class="ca-tags">${others}</div>` : '<p class="bd-hint">No property is open to creators yet.</p>'}
-    <div class="ca-actions">${wa ? `<a class="ca-action green" target="_blank" rel="noopener" href="${esc(wa)}">WhatsApp creator</a>` : '<span class="ca-tag warn">no phone: use email</span>'}
-    <button class="ca-action secondary" type="button" data-rs-edit="pub" data-id="${esc(r.id)}">${r.publicCheckedAt ? 'Re-run public check' : 'Run public check'}</button><button class="ca-action secondary" type="button" data-rs-edit="yt" data-id="${esc(r.id)}">${r.youtube ? 'Change YouTube link' : 'Add YouTube link'}</button><button class="ca-action secondary" type="button" data-rs-edit="ig" data-id="${esc(r.id)}">${r.igRatedAt ? 'Re-check Instagram' : 'Verify from Instagram'}</button><button class="ca-action secondary" type="button" data-rs-edit="verify" data-id="${esc(r.id)}">${r.metrics.metricsVerified ? 'Numbers checked ✓' : 'Mark numbers checked'}</button><button class="ca-action secondary" type="button" data-rs-edit="tier" data-id="${esc(r.id)}">Set rating</button><button class="ca-action secondary" type="button" data-rs-edit="trip" data-id="${esc(r.id)}">${r.trip ? 'Change trip' : 'Add trip'}</button><button class="ca-action secondary" type="button" data-rs-edit="photo" data-id="${esc(r.id)}">${r.photoUrl ? 'Change photo link' : 'Add photo link'}</button>
-    ${spotBtn(r)}<select data-rs-stage="${esc(r.id)}" aria-label="Stage for ${esc(r.name)}">${STAGES.map((s) => `<option value="${s}"${s === r.stage ? ' selected' : ''}>${s}</option>`).join('')}</select></div></div></div>`;
+  const evidence = rt.evidence === 'instagram' ? 'Numbers from Instagram' : rt.evidence === 'youtube' ? 'Numbers from YouTube' : rt.evidence === 'checked' ? 'Numbers checked' : 'Numbers self-reported';
+  return `<div class="ca-row rs-row">${av}<div class="rs-body"><h3>${esc(r.name)} <small>${esc(town || 'location not set')} · ${esc((r.createdAt || '').slice(0, 10) || 'date unknown')}</small></h3>
+    <div class="ca-tags">${tierTag}${tags}${invitedAt ? `<span class="ca-tag good">Invited ${esc(invitedAt)}</span>` : ''}${flags}</div>
+    ${match}${others ? `<div class="ca-tags">${others}</div>` : ''}
+    <div class="ca-actions">${ig}${yt}${chat}${mail}${invite}</div>
+    <details class="rs-more"><summary>Checks and more actions</summary><p class="bd-hint">${esc(evidence)} · ${esc(r.email || 'no email')} · ${esc(r.phone || 'no phone')}</p><p class="bd-hint">Public check: ${links}</p>${trip}
+    <div class="ca-actions"><button class="ca-action secondary" type="button" data-rs-edit="pub" data-id="${esc(r.id)}">${r.publicCheckedAt ? 'Re-run public check' : 'Run public check'}</button><button class="ca-action secondary" type="button" data-rs-edit="yt" data-id="${esc(r.id)}">Add YouTube link</button><button class="ca-action secondary" type="button" data-rs-edit="ig" data-id="${esc(r.id)}">Check Instagram</button><button class="ca-action secondary" type="button" data-rs-edit="verify" data-id="${esc(r.id)}">Mark numbers checked</button><button class="ca-action secondary" type="button" data-rs-edit="tier" data-id="${esc(r.id)}">Set rating</button><button class="ca-action secondary" type="button" data-rs-edit="trip" data-id="${esc(r.id)}">Add trip</button><button class="ca-action secondary" type="button" data-rs-edit="photo" data-id="${esc(r.id)}">Add photo link</button>
+    ${spotBtn(r)}<select data-rs-stage="${esc(r.id)}" aria-label="Stage for ${esc(r.name)}">${STAGES.map((s) => `<option value="${s}"${s === r.stage ? ' selected' : ''}>${s}</option>`).join('')}</select></div></details></div></div>`;
 }
 
 function visible() {
@@ -113,7 +114,7 @@ function paint() {
   const host = $('#rsList'); if (!host) return;
   const c = rosterCounts(R.rows), rows = visible();
   $('#rsCounts').innerHTML = `<b>${c.total}</b> applications · <b>${c.send}</b> ready to offer · <b>${c.negotiate}</b> need a chat · <b>${c.no_match}</b> no match yet · <b>${c.needs_review}</b> need a check`;
-  const today = new Date(Date.now() + 5.5 * 3600000).toISOString().slice(0, 10), al = travelAlerts(R.rows, R.policies, today);
+  const today = new Date(Date.now() + 5.5 * 3600000).toISOString().slice(0, 10), al = travelAlerts(R.rows, R.policies, today).filter((a, i, arr) => arr.findIndex((x) => x.creatorId === a.creatorId && x.property === a.property && x.from === a.from && x.to === a.to) === i);
   $('#rsAlerts').innerHTML = al.length ? `<div class="rs-alerts"><b>Travelling near an opportunity (${al.length})</b>${al.map((a) => {
     const r = R.rows.find((x) => x.id === a.creatorId), link = r && r.phone ? 'https://wa.me/' + String(r.phone).replace(/\D/g, '') + '?text=' + encodeURIComponent(alertMessage(a, (a.creator || '').split(' ')[0])) : '';
     return `<div class="rs-al"><span>${esc(a.creator)} will be near ${esc(a.tripTown)} (${esc(a.from)} to ${esc(a.to)}), ${a.km} km from <b>${esc(a.property)}</b>${a.near ? ' · right there' : ''}</span>${link ? `<a class="ca-action green" target="_blank" rel="noopener" href="${esc(link)}">WhatsApp alert</a>` : '<span class="ca-tag warn">no phone</span>'}</div>`;
@@ -145,6 +146,10 @@ function paint() {
     else { const t = prompt('Trip town (blank to clear):', r.trip ? r.trip.town : ''); if (t == null) return; if (!t.trim()) patch = { 'barter.trip': null }; else { const f = prompt('From date YYYY-MM-DD:', r.trip ? r.trip.from : ''), to = prompt('To date YYYY-MM-DD:', r.trip ? r.trip.to : ''); const trip = tripOf({ trip: { town: t, from: f || to, to } }); if (!trip) { alert('Trip needs a town and an end date like 2026-11-05.'); return; } patch = { 'barter.trip': trip }; } }
     try { await d.collection('crm').doc(r.id).update(patch); await load(); paint(); }
     catch (e) { alert('Could not save: ' + (e.code || e.message) + '. Only the founder/admin account can do this.'); }
+  }));
+  host.querySelectorAll('[data-rs-invite]').forEach((a) => a.addEventListener('click', () => {
+    const d = db(); if (!d) return;
+    d.collection('crm').doc(a.dataset.rsInvite).update({ featuredInvitedAt: new Date().toISOString() }).then(() => { if (R.apps[a.dataset.rsInvite]) R.apps[a.dataset.rsInvite].featuredInvitedAt = new Date().toISOString(); }).catch(() => {});
   }));
   host.querySelectorAll('[data-rs-spot]').forEach((b) => b.addEventListener('click', async () => {
     const d = db(), r = R.rows.find((x) => x.id === b.dataset.id); if (!d || !r) return;
