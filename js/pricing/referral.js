@@ -195,6 +195,42 @@ function rwRefLink(code){
   return 'https://roamwise.co.in/?ref='+encodeURIComponent(code);
 }
 
+/* ===== SHARE-LINK TAGGING =====
+   Tags a roamwise.co.in link so a share can be counted by channel, and credited when the
+   sharer has their own referral code.
+   - utm_source=<channel> and utm_medium=share, only if the link has no utm_source yet.
+     NEVER utm_content: rwRefCapture() reads that parameter as a referral code.
+   - ref= is added only for the sharer's OWN code (a live referrer whose uid or email matches
+     the signed-in user). The code that brought THIS visitor here is never reused, so a friend's
+     share cannot credit the person who referred the friend.
+   - Links to other hosts, and unparsable values, are returned unchanged. */
+function rwOwnRefCode(){
+  try{
+    if(!window.user) return '';
+    var list=window.RW_REFERRERS||[], em=String(user.email||'').toLowerCase();
+    for(var i=0;i<list.length;i++){
+      var r=list[i];
+      if(!r || r.active===false) continue;
+      if((r.uid && user.uid && r.uid===user.uid) || (r.email && em && String(r.email).toLowerCase()===em)) return rwSanitizeRefCode(r.code);
+    }
+  }catch(e){ /* best-effort, ignore */ }
+  return '';
+}
+function rwShareLink(url, channel){
+  try{
+    if(!url) return '';
+    var u=new URL(String(url), location.href);
+    if(!/(^|\.)roamwise\.co\.in$/i.test(u.hostname)) return String(url||'');
+    if(!u.searchParams.has('utm_source')){
+      u.searchParams.set('utm_source', String(channel||'share').toLowerCase().replace(/[^a-z0-9_]/g,'').slice(0,24)||'share');
+      if(!u.searchParams.has('utm_medium')) u.searchParams.set('utm_medium','share');
+    }
+    var own=rwOwnRefCode();
+    if(own && !u.searchParams.has('ref')) u.searchParams.set('ref', own);
+    return u.toString();
+  }catch(e){ return String(url||''); }
+}
+
 
 /* ============================================================================
    REFERRAL CODE ENTRY (rw-v78)
