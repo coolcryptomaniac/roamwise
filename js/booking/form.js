@@ -119,6 +119,40 @@ function rwTuskStayHTML(raw,dest){
     +'</div></div>';
 }
 
+/* Signed (or founder-approved, enquiry-only) partners in a zone that take WhatsApp enquiries
+   but have no priced direct-booking rooms yet (e.g. Milan Heights, Soulmate, Big Bro in Almora).
+   They are never offered a pay button: the guest opens a coded WhatsApp enquiry and the host
+   confirms the total in writing. */
+function rwTuskEnquiryPartners(dest){
+  var zone=String(dest||'').trim().toLowerCase(); if(!zone) return [];
+  var all=window.RW_PARTNERS||[];
+  return all.filter(function(p){
+    if(!p||(p.cat&&p.cat!=='stay')) return false;
+    var elig=typeof window.rwStayPublicEligible==='function'?window.rwStayPublicEligible(p):(p.listingReady===true&&p.verified==='signed');
+    if(!elig) return false;
+    var z=String(p.zone||'').toLowerCase();
+    if(!z||!(z.indexOf(zone)>-1||zone.indexOf(z)>-1)) return false;
+    return rwBookingRoutes(p).some(function(r){ return r.type==='whatsapp'; });
+  }).slice(0,4);
+}
+function rwTuskEnquiryHTML(dest){
+  var list=rwTuskEnquiryPartners(dest); if(!list.length) return '';
+  return '<div class="tk-card tk-mini"><div class="tk-sec"><div style="font-weight:850;font-size:13.5px;margin-bottom:7px">🏡 RoamWise partner stays · '+esc2(dest)+'</div>'
+    +list.map(function(p){
+      return '<div style="padding:9px 0;border-bottom:1px solid var(--b2,#2A2A36);display:flex;gap:8px;align-items:center">'
+        +'<span style="flex:1"><b>'+esc2(p.name)+'</b><br><span style="font-size:11px;color:var(--t3)">'+esc2(p.area||p.zone||'')+'</span></span>'
+        +'<button class="tk-chip gold" onclick="rwTuskEnquire(\''+String(p.id).replace(/[^A-Za-z0-9_-]/g,'')+'\')">Ask on WhatsApp →</button></div>';
+    }).join('')
+    +'<div style="font-size:10.5px;color:var(--t3);margin-top:8px">Rates and availability are confirmed by the stay on WhatsApp, with the all-in total in writing. Nothing is reserved or charged here.</div>'
+    +'</div></div>';
+}
+function rwTuskEnquire(id){
+  try{ track('tusk_partner_enquiry'); }catch(e){ /* analytics best-effort, ignore */ }
+  var p=(window.RW_PARTNERS||[]).filter(function(x){ return x.id===id; })[0];
+  var r=typeof rwStayEnquiryFor==='function'?rwStayEnquiryFor(p,{}):{ok:false};
+  if(r&&r.ok&&r.url) window.open(r.url,'_blank','noopener');
+}
+
 /* Resume an itinerary as a booking conversation. This is intentionally a
    guarded handoff, not a pretend package checkout: direct payment is exposed
    only for supplier inventory whose bookable and paymentEnabled flags are
@@ -142,7 +176,7 @@ function rwTuskPlanBookingHTML(raw,dest,days){
     +'<a class="tk-chip" target="_blank" rel="noopener" href="https://www.irctc.co.in/nget/train-search">Train ↗</a>'
     +'<a class="tk-chip" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&destination='+q+'">Navigate ↗</a>'
     +'</div><div style="font-size:10.5px;color:var(--t3);margin-top:8px">One-tap whole-trip payment will unlock only after every selected stay, transport and activity returns live availability and a supplier-backed final price.</div>'
-    +'</div></div>'+(stay||'<div class="tk-card tk-mini"><div class="tk-sec">No RoamWise stay inventory is listed for '+esc2(dest)+' yet. Use the travel links above; nothing has been reserved or charged.</div></div>');
+    +'</div></div>'+(stay||rwTuskEnquiryHTML(dest)||'<div class="tk-card tk-mini"><div class="tk-sec">No RoamWise stay inventory is listed for '+esc2(dest)+' yet. Use the travel links above; nothing has been reserved or charged.</div></div>');
 }
 
 /* ---------------- brochure / not-yet-live partner enquiry ---------------- */

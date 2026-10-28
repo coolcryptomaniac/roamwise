@@ -60,3 +60,11 @@ test('find_partners hides partners with no working booking route', () => {
   assert.deepEqual(ids.sort(), ['p_direct', 'p_wa'].filter((i) => ids.includes(i)).sort());
   assert.ok(!ids.includes('p_none'));
 });
+
+test('booking assistant offers WhatsApp enquiry for signed zone partners with no priced rooms', () => {
+  const fs2 = require('node:fs'), vm2 = require('node:vm');
+  const { sandbox } = load();
+  vm2.runInContext(fs2.readFileSync('js/booking/form.js', 'utf8'), sandbox, { filename: 'js/booking/form.js' });
+  const out = vm2.runInContext("rwTuskEnquiryPartners('Almora').map(function(p){return p.id;})", sandbox);
+  assert.deepEqual(Array.from(out), ['p_wa']);
+});

@@ -12,7 +12,7 @@
    avoids lifting someone's restaurant photography. */
 var RW_FOOD = {
   mumbai:     ['Vada pav',            'The city in a bun \u2014 spiced potato fritter, garlic chutney, eaten standing up.',        'vada pav indian street food'],
-  almora:     ['Bal mithai',          'Roasted khoya fudge under white sugar pearls. Also: bhatt ki churkani and dubke.',      'bal mithai kumaoni sweet'],
+  almora:     ['Bal mithai',          'Roasted khoya fudge under white sugar pearls. Also: bhatt ki churkani and dubke.',      'bal mithai: dark brown khoya fudge squares coated in tiny white sugar balls, Almora sweet on a plate'],
   nagpur:     ['Oranges',             'The city is named for them \u2014 and saoji mutton will take the roof off your mouth.',     'nagpur oranges'],
   prayagraj:  ['Guava',               'Allahabadi amrood is a protected variety, sweetest in winter.',                          'fresh guava fruit'],
   ahmedabad:  ['Fafda-jalebi',        'Saturday morning ritual \u2014 crisp gram-flour strips with hot jalebi and papaya chutney.','fafda jalebi gujarati'],
@@ -49,7 +49,11 @@ function rwFoodFor(place){
 }
 function rwFoodHTML(place){
   var f=rwFoodFor(place); if(!f) return '';
-  var img = rwArtURL(f[2]+', food illustration, warm, appetising, flat colour', 512, 320);
+  /* Fixed seed per dish (not rwArtURL's random one): the picture is the same every visit,
+     so a bad render can be fixed by editing the prompt instead of rolling dice. */
+  var seed=0, key=String(f[0]); for(var i=0;i<key.length;i++) seed=(seed*31+key.charCodeAt(i))%99991;
+  var img = 'https://image.pollinations.ai/prompt/'+encodeURIComponent(f[2]+', food illustration, warm, appetising, flat colour')
+    +'?width=512&height=320&nologo=true&seed='+seed;
   return '<div style="border-radius:14px;overflow:hidden;border:1px solid var(--b2,#2A2A36);position:relative;min-height:130px;'
     +'background-image:url('+img+');background-size:cover;background-position:center">'
     +'<div style="background:linear-gradient(0deg,rgba(6,6,10,.92) 22%,rgba(6,6,10,.25));padding:38px 14px 13px">'
