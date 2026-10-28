@@ -378,6 +378,110 @@
       "social": {},
       "artworks": [],
       "consentGivenAt": "2026-10-26"
+    },
+    {
+      "id": "aipan-art-rakhi",
+      "name": "Rakhi",
+      "studio": "Aipan Art Rakhi",
+      "role": "RoamWise Founding Artist",
+      "state": "Haldwani, Uttarakhand",
+      "website": "https://www.aipanartrakhi.com/",
+      "instagram": "https://www.instagram.com/aipanart_rakhi/",
+      "themes": [
+        "Aipan",
+        "Kumaoni folk art",
+        "Spiritual"
+      ],
+      "bio": "Aipan Art Rakhi brings the traditional folk art of Kumaon to paintings and decorative pieces. Based in Haldwani, Uttarakhand, the studio offers Aipan work on canvas, wood, cloth and metal, and shares the craft through workshops. Contact Rakhi directly to explore the collection and discuss your requirements.",
+      "shipping": null,
+      "returns": null,
+      "plan": "founding",
+      "page": "/creators/aipan-art-rakhi/",
+      "photo": null,
+      "whatsapp": "919359291930",
+      "social": {
+        "facebook": "https://www.facebook.com/share/1BTQ2uiJon/",
+        "youtube": "https://www.youtube.com/@aipanart_rakhi",
+        "maps": "https://maps.app.goo.gl/Y9ALJV9Wu9T3jJNH6",
+        "googleReviews": "https://g.page/r/CbTEsRPEWu5hEAE/review"
+      },
+      "artworks": [
+        {
+          "id": "laxmi-pith",
+          "title": "Aipanart Decorations Laxmi Pith",
+          "url": "https://www.aipanartrakhi.com/products/painting-art-radhakrishna-01",
+          "sourceImage": "https://cdn.bharatrath.com/tr:n-medium/aipan-art-e_swn/12laxmi-114-mughjhfj.jpeg",
+          "price": "₹2000",
+          "image": "/assets/img/aipan-art-rakhi/laxmi-pith.jpeg",
+          "status": "Confirm availability",
+          "type": "Aipan artwork",
+          "checkedAt": "2026-10-28",
+          "size": "12 × 12 (shop listing; confirm units)"
+        },
+        {
+          "id": "ganesh-painting",
+          "title": "Aipanart Decorated by Sri Ganesh ji Painting",
+          "url": "https://www.aipanartrakhi.com/products/painting-art-radhakrishna-02",
+          "sourceImage": "https://cdn.bharatrath.com/tr:n-medium/aipan-art-e_swn/1000378981-mac4eu05.jpg",
+          "price": "₹10000",
+          "image": "/assets/img/aipan-art-rakhi/ganesh-painting.jpg",
+          "status": "Confirm availability",
+          "type": "Aipan artwork",
+          "checkedAt": "2026-10-28",
+          "size": "24 × 24 (shop listing; confirm units)"
+        },
+        {
+          "id": "ganesh-pith",
+          "title": "Aipanart Decoration Sri Ganesh Pith Aipan CC1212",
+          "url": "https://www.aipanartrakhi.com/products/aipanart-decoration-sri-krishna-af",
+          "sourceImage": "https://cdn.bharatrath.com/tr:n-medium/aipan-art-e_swn/12-ganesh-25-mughabhj.jpeg",
+          "price": "₹2000",
+          "image": "/assets/img/aipan-art-rakhi/ganesh-pith.jpeg",
+          "status": "Confirm availability",
+          "type": "Aipan artwork",
+          "checkedAt": "2026-10-28",
+          "size": "12 × 12 (shop listing; confirm units)"
+        },
+        {
+          "id": "krishna",
+          "title": "Aipanart Decoration Sri Krishna Painting",
+          "url": "https://www.aipanartrakhi.com/products/aipanart-decoration-sri-krishna-painting",
+          "sourceImage": "https://cdn.bharatrath.com/tr:n-medium/aipan-art-e_swn/Aipanart-Decoration-Sri-Krishna-Painting-m71t7fpy.png",
+          "price": "₹6000",
+          "image": "/assets/img/aipan-art-rakhi/krishna.png",
+          "status": "Confirm availability",
+          "type": "Aipan artwork",
+          "checkedAt": "2026-10-28",
+          "size": "18 × 18 (shop listing; confirm units)"
+        },
+        {
+          "id": "navadurga",
+          "title": "Aipanart Decorated Maa Navadurga Pith",
+          "url": "https://www.aipanartrakhi.com/products/aipanart-decorated-maa-navdurga-pith",
+          "sourceImage": "https://cdn.bharatrath.com/tr:n-medium/aipan-art-e_swn/aipanart-decorations-navadurga-pith-2-macedwss.png",
+          "price": "₹5000",
+          "image": "/assets/img/aipan-art-rakhi/navadurga.png",
+          "status": "Confirm availability",
+          "type": "Aipan artwork",
+          "checkedAt": "2026-10-28"
+        },
+        {
+          "id": "ganpati",
+          "title": "Aipanart Decorated Sri Ganpati Bappa",
+          "url": "https://www.aipanartrakhi.com/products/aipanart-decorated-sri-ganpati-bappa-2424",
+          "sourceImage": "https://cdn.bharatrath.com/tr:n-medium/aipan-art-e_swn/1153-m71v2isa.png",
+          "price": "₹5000",
+          "image": "/assets/img/aipan-art-rakhi/ganpati.png",
+          "status": "Confirm availability",
+          "type": "Aipan artwork",
+          "checkedAt": "2026-10-28",
+          "size": "24 × 24 (shop listing; confirm units)"
+        }
+      ],
+      "listingSource": "Artist's positive email reply with public business contact links, 24 October 2026; founder instructed listing on 28 October 2026.",
+      "biographySource": "https://www.aipanartrakhi.com/",
+      "listedAt": "2026-10-28",
+      "artworkNote": "Images © Aipan Art Rakhi, from the artist’s official shop. Prices checked 28 October 2026; confirm size units, materials, framing, shipping and availability directly before paying."
     }
   ],
   "properties": [

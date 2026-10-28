@@ -10,3 +10,4 @@
 .rs-needs summary{cursor:pointer;font-weight:700}
 .rs-need{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:8px}
 .rs-need input[type=text],.rs-need input:not([type]){min-width:200px;padding:8px 10px}
+.rs-row .rs-body{min-width:0}.rs-match{margin:6px 0}.rs-more{margin-top:8px}.rs-more summary{cursor:pointer;color:var(--muted,#9aa3b2);font-size:13px}
