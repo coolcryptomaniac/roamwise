@@ -197,7 +197,7 @@ function cardShare(){
   _rwCard.toBlob(function(blob){
     var f=new File([blob],'roamwise-journey.png',{type:'image/png'});
     if(navigator.canShare && navigator.canShare({files:[f]})){
-      navigator.share({files:[f], title:'My RoamWise Journey', text:'\u{1F977} My travel map \u2014 made on RoamWise. Make yours: https://www.roamwise.co.in'})
+      navigator.share({files:[f], title:'My RoamWise Journey', text:'\u{1F977} My travel map \u2014 made on RoamWise. Make yours: '+((typeof rwShareLink==='function')?rwShareLink('https://www.roamwise.co.in','atlas_card'):'https://www.roamwise.co.in')})
         .then(function(){ xpAdd(15,'Card shared \u2014 spreading the legend'); }).catch(function(){});
     } else { cardPNG(); showToast('Saved \u2014 now share it from your gallery to Insta/WhatsApp'); }
   },'image/png');
