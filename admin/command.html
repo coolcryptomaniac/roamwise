@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#0b0f14">
+<title>Command Center — RoamWise Admin</title>
+<link rel="icon" href="../icons/favicon-32.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&family=Inter+Tight:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="hub.css">
+<link rel="stylesheet" href="command.css">
+</head>
+<body>
+<div id="cmAuth" class="hb-auth" hidden>
+  <div class="hb-login">
+    <span class="hb-kicker">FOUNDER ACCESS</span>
+    <h1>Command Center</h1>
+    <p>Sign in once on the admin console (it asks for your second step). This page then opens automatically.</p>
+    <a class="hb-btn hb-primary" href="index.html">Open the admin console to sign in</a>
+    <p id="cmAuthMsg" class="hb-err" role="alert"></p>
+    <a class="hb-link" href="?demo=1">Preview with sample data</a>
+  </div>
+</div>
+
+<div id="cmApp" class="hb-app" hidden>
+  <aside class="hb-rail" aria-label="Sections">
+    <a class="hb-brand" href="../"><img src="../icons/icon-192.png" alt="" width="28" height="28"><b>RoamWise</b></a>
+    <nav id="cmNav">
+      <a href="#today" data-tab="today">Today</a>
+      <a href="#partners" data-tab="partners">Properties</a>
+      <a href="#guests" data-tab="guests">Guests &amp; bookings</a>
+      <a href="#people" data-tab="people">People</a>
+      <a href="#map" data-tab="map">Console map</a>
+    </nav>
+    <a class="hb-btn hb-ghost" href="index.html">Full console</a>
+  </aside>
+  <main class="hb-main">
+    <div id="cmDemo" class="hb-demo" hidden>Sample data. None of these names or numbers are real. Open without ?demo=1 to see the live site.</div>
+    <header class="hb-head">
+      <div><span class="hb-kicker" id="cmKicker">TODAY</span><h1 id="cmTitle">Command Center</h1></div>
+      <div class="hb-head-actions"><span id="cmStamp" class="hb-stamp"></span><button id="cmRefresh" class="hb-btn" type="button">Refresh</button></div>
+    </header>
+    <div id="cmErrors"></div>
+    <section id="tab-today" class="hb-tab"></section>
+    <section id="tab-partners" class="hb-tab" hidden></section>
+    <section id="tab-guests" class="hb-tab" hidden></section>
+    <section id="tab-people" class="hb-tab" hidden></section>
+    <section id="tab-map" class="hb-tab" hidden></section>
+  </main>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<script type="module" src="command.js"></script>
+</body>
+</html>
