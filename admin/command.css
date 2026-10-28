@@ -1,0 +1,28 @@
+/* admin/command.css - extras for the Command Center, on top of hub.css (same tokens). */
+.cm-section-h{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap}
+.cm-count{color:var(--muted);font-size:13px}
+.cm-queue{display:flex;flex-direction:column;gap:8px}
+.cm-act{display:grid;grid-template-columns:6px minmax(0,1fr) auto;gap:14px;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 14px 12px 0;overflow:hidden}
+.cm-act::before{content:"";align-self:stretch;background:var(--blue);border-radius:0 3px 3px 0;grid-column:1}
+.cm-act.bad::before{background:var(--rose)}.cm-act.warn::before{background:var(--accent)}.cm-act.good::before{background:var(--teal)}
+.cm-act b{display:block;font-weight:600}
+.cm-act .hb-sub{display:block}
+.cm-act-btns{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.cm-area{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:2px}
+.cm-notes{display:flex;flex-direction:column;gap:8px}
+.cm-note{padding:10px 12px;border-radius:10px;background:var(--panel2);border-left:3px solid var(--blue);font-size:14px}
+.cm-note.bad{border-color:var(--rose)}.cm-note.warn{border-color:var(--accent)}.cm-note.good{border-color:var(--teal)}
+.cm-funnel{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px}
+.cm-step{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px;display:flex;flex-direction:column;gap:2px}
+.cm-step b{font-family:var(--disp);font-size:26px;line-height:1}
+.cm-step span{color:var(--muted);font-size:12px}
+.cm-step.last{border-color:var(--teal)}
+.cm-miss{margin:0;padding-left:16px;color:var(--muted);font-size:13px}
+.cm-miss li{margin:1px 0}
+.cm-ready{color:var(--teal);font-size:12px;font-weight:600}
+.cm-btnrow{display:flex;gap:6px;flex-wrap:wrap}
+.cm-btn{font:inherit;font-size:13px;font-weight:600;border:1px solid var(--line);background:var(--panel2);color:var(--fg);padding:6px 11px;border-radius:8px;text-decoration:none;min-height:34px;display:inline-flex;align-items:center;cursor:pointer;white-space:nowrap}
+.cm-btn:hover{border-color:var(--accent)}
+.cm-btn.primary{background:var(--accent);color:#1b1304;border-color:var(--accent)}
+.cm-map-keep{color:#7be0c3}.cm-map-merge{color:#ffcf79}.cm-map-move{color:#8fc0ff}.cm-map-review{color:#ff9ea8}
+@media(max-width:860px){.cm-funnel{grid-template-columns:repeat(3,minmax(0,1fr))}.cm-act{grid-template-columns:6px minmax(0,1fr);}.cm-act-btns{grid-column:2;justify-content:flex-start}}
