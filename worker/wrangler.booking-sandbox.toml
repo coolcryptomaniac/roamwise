@@ -1,0 +1,13 @@
+# Dedicated worker: no production bindings, routes, cron or shared KV.
+name = "roamwise-booking-sandbox"
+main = "booking-sandbox.js"
+compatibility_date = "2026-01-01"
+workers_dev = true
+[vars]
+CASHFREE_ENV = "sandbox"
+CASHFREE_API_VERSION = "2025-01-01"
+BOOKING_WEBHOOK_ENABLED = "true"
+# Set the actual separate sandbox project before deployment. Empty fails closed.
+BOOKING_FIRESTORE_PROJECT = ""
+# Provision sandbox-only CASHFREE_APP_ID, CASHFREE_SECRET_KEY,
+# FIREBASE_SERVICE_ACCOUNT_JSON on this worker, never copy production secrets.

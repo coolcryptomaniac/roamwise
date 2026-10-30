@@ -6,9 +6,9 @@ export async function verifyCashfreeWorkerWebhook({rawBody,headers,secret,now=()
      !Number.isSafeInteger(maxClockSkewSeconds) || maxClockSkewSeconds<0) return false;
  const get=(name)=>typeof headers.get==='function'?headers.get(name):Object.entries(headers).find(([k])=>k.toLowerCase()===name)?.[1];
  const timestamp=get('x-webhook-timestamp'),signature=get('x-webhook-signature');
- if(typeof timestamp!=='string'||!/^\d{10}$/.test(timestamp)||
+ if(typeof timestamp!=='string'||!/^(?:\d{10}|\d{13})$/.test(timestamp)||
     typeof signature!=='string'||!/^[A-Za-z0-9+/]{43}=$/.test(signature)) return false;
- if(Math.abs(now()/1000-Number(timestamp))>maxClockSkewSeconds)return false;
+ if(Math.abs(now()/1000-(timestamp.length===13?Number(timestamp)/1000:Number(timestamp)))>maxClockSkewSeconds)return false;
  const body=rawBody instanceof Uint8Array?rawBody:new Uint8Array(rawBody);
  const prefix=new TextEncoder().encode(timestamp);
  const message=new Uint8Array(prefix.length+body.length);
