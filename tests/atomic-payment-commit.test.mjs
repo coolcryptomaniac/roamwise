@@ -21,3 +21,12 @@ test('atomic commit rejects amount changes between verification and transaction'
  const result=await commit({bookingId:'booking_1234',eventId:'payment_123456',orderId:'order_12345',amountMinor:150000,currency:'INR'});
  assert.equal(result.confirmed,false);assert.equal(read().state,'ready_for_payment');
 });
+
+test('replayed payment cannot claim a different amount or order',async()=>{
+ const {db}=mockDb({state:'confirmed',orderId:'order_12345',amountMinor:150000,currency:'INR',paymentEventId:'payment_123456'});
+ const commit=createAtomicBookingPaymentCommit(db);
+ const base={bookingId:'booking_1234',eventId:'payment_123456',orderId:'order_12345',amountMinor:150000,currency:'INR'};
+ assert.equal((await commit(base)).reason,'already_applied');
+ assert.equal((await commit({...base,amountMinor:100})).confirmed,false);
+ assert.equal((await commit({...base,orderId:'order_changed'})).confirmed,false);
+});
