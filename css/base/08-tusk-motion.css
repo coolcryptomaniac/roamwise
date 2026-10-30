@@ -40,3 +40,18 @@
 @media(max-width:350px){
   .rw-rail-btn{flex-basis:100%}
 }
+
+/* Opt-in voice studio: large visual feedback, lightweight transforms only. */
+.rw-orb-shell[hidden]{display:none!important}
+.rw-orb-shell{position:fixed;inset:0;z-index:20010;display:grid;place-items:center;padding:max(18px,env(safe-area-inset-top)) 14px max(18px,env(safe-area-inset-bottom));background:rgba(7,10,26,.89);backdrop-filter:blur(14px);color:#f4f2ff;overflow:auto}
+.rw-orb-layout{width:min(100%,620px);min-height: min(690px,90dvh);display:flex;flex-direction:column;align-items:center;border:1px solid rgba(210,196,255,.2);border-radius:28px;background:radial-gradient(circle at 48% 26%,rgba(104,65,199,.25),transparent 62%),linear-gradient(155deg,#14182d,#080c19);box-shadow:0 30px 90px rgba(0,0,0,.55);padding:20px;gap:12px}
+.rw-orb-head{width:100%;display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;font-size:15px}.rw-orb-head span{font-size:11px;color:#bbb5d4}.rw-orb-close{color:#fff;background:#28253d;border:1px solid #554b73;border-radius:50%;width:44px;height:44px;cursor:pointer}
+.rw-orb-stage{position:relative;width:min(100%,340px);height:clamp(220px,36vh,340px);display:grid;place-items:center;flex-shrink:0}.rw-orb-glow{position:relative;display:grid;place-items:center;width:70%;aspect-ratio:1}.rw-orb-core{width:75%;aspect-ratio:1;border-radius:45% 55% 63% 37%/48% 39% 61% 52%;background:radial-gradient(circle at 34% 29%,#d9b6ff,#7155ed 40%,#263fa1 75%,#0d1947);box-shadow:0 0 64px #8754d68c,0 0 110px #4258d84d;animation:rwOrbMorph 5s ease-in-out infinite alternate,rwOrbFloat 3.6s ease-in-out infinite}
+.rw-orb-ring{position:absolute;width:100%;aspect-ratio:1;border:1px solid #b391ff77;border-radius:50%;box-shadow:0 0 30px #8861ff40;animation:rwOrbOrbit 9s linear infinite}
+.rw-orb-stage[data-phase="listening"] .rw-orb-core{animation-duration:2s,1.4s;filter:saturate(1.5)}.rw-orb-stage[data-phase="thinking"] .rw-orb-ring{animation-duration:3s}.rw-orb-stage[data-phase="speaking"] .rw-orb-core{animation-duration:1.2s,1.2s;box-shadow:0 0 75px #cc83ffb0,0 0 115px #647cff77}
+.rw-orb-phase{position:absolute;bottom:0;text-align:center;font-weight:650;letter-spacing:.02em;color:#e1d8ff;margin:0}.rw-orb-transcript{min-height:1.6em;color:#c3bbe1;text-align:center;font-size:14px;line-height:1.5;max-width:100%;overflow-wrap:anywhere}
+.rw-orb-reply{width:100%;max-height:130px;overflow:auto;border:1px solid #464066;background:#10172be0;border-radius:16px;padding:14px;line-height:1.6;font-size:14px;white-space:pre-wrap;overflow-wrap:anywhere}
+.rw-orb-reply:empty{display:none}.rw-orb-controls{display:flex;flex-wrap:wrap;justify-content:center;gap:10px}.rw-orb-controls button{border-radius:999px;padding:12px 16px;min-height:46px;background:#302b51;border:1px solid #8173ae;color:#fff;font-weight:650;cursor:pointer}.rw-orb-controls button:first-child{background:linear-gradient(110deg,#684ad1,#425ac5)}.rw-orb-hint{margin-top:auto;max-width:470px;color:#aaa5be;font-size:11px;line-height:1.5;text-align:center}
+@keyframes rwOrbMorph{to{border-radius:55% 45% 31% 69%/54% 66% 34% 46%;transform:rotate(12deg) scale(1.06)}}@keyframes rwOrbFloat{50%{translate:0 -8px}}@keyframes rwOrbOrbit{to{transform:rotate(360deg)}}
+@media(max-width:520px){.rw-orb-layout{min-height:90dvh;border-radius:20px;padding:16px}.rw-orb-stage{height:clamp(190px,31vh,270px)}.rw-orb-controls button{flex:1 1 auto}}
+@media(prefers-reduced-motion:reduce){.rw-orb-core,.rw-orb-ring{animation:none!important;transition:none!important}.rw-orb-shell{backdrop-filter:none}}
