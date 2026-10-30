@@ -62,10 +62,10 @@
     var query=String(raw||'').toLowerCase();
     var name=String(intents&&intents.dest||'').trim().slice(0,90);
     if(!name)return null;
-    var type=/\\b(landslide|road|blocked|traffic|safety|route|rasta|raasta)\\b|सड़क|रास्ता/.test(query)?'road':
-      /\\b(hotel|homestay|stay|room|booking|book)\\b|होटल|कमरा/.test(query)?'stay':
-      /\\b(weather|rain|snow|mausam|barish)\\b|मौसम|बारिश/.test(query)?'weather':
-      /\\b(food|cafe|eat|khana|khaana)\\b|खाना|भोजन/.test(query)?'food':'trip';
+    var type=/\b(landslide|road|blocked|traffic|safety|route|rasta|raasta)\b|सड़क|रास्ता/.test(query)?'road':
+      /\b(hotel|homestay|stay|room|booking|book)\b|होटल|कमरा/.test(query)?'stay':
+      /\b(weather|rain|snow|mausam|barish)\b|मौसम|बारिश/.test(query)?'weather':
+      /\b(food|cafe|eat|khana|khaana)\b|खाना|भोजन/.test(query)?'food':'trip';
     var labels={road:['Route & road safety','Review dated official advisories'],
       stay:['Explore verified stays','Check availability before booking'],
       weather:['Weather & conditions','Check the forecast for your dates'],
