@@ -15,6 +15,7 @@
     document.body.appendChild(panel);
     stage=panel.querySelector('.rw-orb-stage');body=panel.querySelector('.rw-orb-transcript');subtitle=panel.querySelector('.rw-orb-phase');reply=panel.querySelector('.rw-orb-reply');
     panel.querySelector('.rw-orb-close').onclick=stop;
+    panel.addEventListener('keydown',function(e){if(e.key==='Escape')stop();});
     panel.querySelector('[data-action="interrupt"]').onclick=stop;
     panel.querySelector('[data-action="listen"]').onclick=function(){listen(true);};
     panel.querySelector('[data-action="read"]').onclick=function(){if(root.rwTuskReplaySpeech)root.rwTuskReplaySpeech();};
@@ -27,6 +28,7 @@
   }
   function listen(manual){
     if(!state.active && !manual)return;
+    if(typeof _rwVoiceActive!=='undefined' && _rwVoiceActive)return;
     if(!ensure())return;
     state.active=true;state.answerPending=false;
     var target=(typeof el==='function' && el('cpInput'))?'cpInput':'heroInput';
@@ -60,10 +62,10 @@
     if(!ensure())return false;
     var div=document.createElement('div');div.innerHTML=String(html||'');
     div.querySelectorAll('script,style,button,nav').forEach(function(n){n.remove();});
-    var speech=String(div.textContent||'').replace(/\\s+/g,' ').trim().slice(0,650);
+    var speech=String(div.textContent||'').replace(/\s+/g,' ').trim().slice(0,650);
     if(!speech){setPhase('ready','Answer is on screen · tap Speak to continue');return false;}
     reply.textContent=speech;
-    if(/\\b(pay|payment|refund|checkout|otp|password|emergency|sos)\\b/i.test(String(raw||''))){
+    if(/\b(pay|payment|refund|checkout|otp|password|emergency|sos)\b/i.test(String(raw||''))){
       setPhase('ready','Important details are on screen. Tap Speak for another question.');
       return false;
     }
@@ -72,8 +74,11 @@
       setPhase('ready','Voice is muted in Settings. The answer is above.');
       return false;
     }
-    if(typeof tuskSpeak==='function')tuskSpeak(speech);
-    else setPhase('ready','Read your answer above, then tap Speak.');
+    if(typeof tuskSpeak==='function'){
+      tuskSpeak(speech);
+      // Native TTS completion semantics differ; users can continue via Speak.
+      if(root.Capacitor || (root.RW && root.RW.speak))setPhase('ready','Listen to the reply, then tap Speak for the next turn.');
+    }else setPhase('ready','Read your answer above, then tap Speak.');
     return true;
   }
   function speechEnd(){
