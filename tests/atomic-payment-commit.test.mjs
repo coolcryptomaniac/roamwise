@@ -71,3 +71,25 @@ test('competing bookings cannot both claim the same payment ID',async()=>{
  assert.equal(bookings.get('booking_A123').state,'ready_for_payment');
  assert.equal(bookings.get('booking_B123').state,'confirmed');
 });
+
+test('payment claim cannot be reused by another booking even after first confirmation',async()=>{
+ const bookings=new Map([
+  ['booking_A123',{state:'ready_for_payment',orderId:'order_A123',amountMinor:150000,currency:'INR'}],
+  ['booking_B123',{state:'ready_for_payment',orderId:'order_B123',amountMinor:150000,currency:'INR'}],
+ ]);
+ const claims=new Map();
+ const db={collection:name=>({doc:id=>({name,id})}),runTransaction:async fn=>{
+  const writes=[];
+  const tx={get:async ref=>{const value=ref.name==='bookingPaymentClaims'?claims.get(ref.id):bookings.get(ref.id);return {exists:value!==undefined,data:()=>value}},
+   create:(ref,data)=>writes.push(()=>{if(claims.has(ref.id))throw Error('duplicate claim');claims.set(ref.id,data)}),
+   update:(ref,data)=>writes.push(()=>bookings.set(ref.id,{...bookings.get(ref.id),...data}))};
+  const result=await fn(tx);for(const write of writes)write();return result;
+ }};
+ const commit=createAtomicBookingPaymentCommit(db);
+ const payment={eventId:'payment_shared123',amountMinor:150000,currency:'INR'};
+ assert.equal((await commit({...payment,bookingId:'booking_A123',orderId:'order_A123'})).reason,'applied');
+ const rejected=await commit({...payment,bookingId:'booking_B123',orderId:'order_B123'});
+ assert.equal(rejected.reason,'payment_already_claimed');
+ assert.equal(bookings.get('booking_B123').state,'ready_for_payment');
+ assert.equal(claims.size,1);
+});
