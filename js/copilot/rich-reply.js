@@ -187,6 +187,8 @@ async function cpFinish(bubble, answerHTML, intents, raw){
   try{ if(!intents.smalltalk && typeof rwUmNotice==='function') _html += rwUmNotice(); }catch(e){ /* optional */ }
   /* Every answer ends with tappable actions — an answer is never a dead end. */
   try{ if(!intents.smalltalk&&!isKasarFestival) _html += rwTuskRail(intents.dest||'', raw||''); }catch(e){ /* best-effort, ignore */ }
+  /* Curated, public local partners and artists only; not booking inventory. */
+  try{ if(!intents.smalltalk && window.RWConnectedDiscovery) _html+=RWConnectedDiscovery.html(raw,intents); }catch(e){}
   /* Lightweight per-response feedback — bot replies only (cpFinish only ever
      finishes a 'bot' bubble). Anonymous daily counter, same pattern as track()
      elsewhere; no per-message record, no user identity. */
