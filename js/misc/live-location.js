@@ -20,7 +20,7 @@ function rwGeoNow(){
   });
 }
 function rwIsNearMe(t){
-  return /\b(near me|nearby|around me|close by|where am i|current location|my location|near here|around here)\b/i.test(String(t||''));
+  return /\b(near me|nearby|around me|close by|where am i|current location|my location|near here|around here)\b/i.test(String(t||''))\n    || /(?:मेरे|हमारे)\s*(?:आस\s*-?\s*पास|नज़दीक|नजदीक|पास)|(?:आस\s*-?\s*पास|नज़दीक|नजदीक)\s*(?:में|की|के)?|(?:मेरी|वर्तमान)\s*लोकेशन|मैं\s*कहाँ\s*हूँ|मेरे\s*करीब/i.test(String(t||''));
 }
 async function rwNearMeHTML(rawq){
   var pos;
