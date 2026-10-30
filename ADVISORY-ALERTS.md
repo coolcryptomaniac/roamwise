@@ -64,6 +64,10 @@ Without the `RW_KV` binding the live run refuses to send.
 Uttarakhand road closures, landslides, snow, rain alerts, temple dates, Char Dham, Kainchi Dham,
 Adi Kailash and traffic plans from the last 48 hours, and asks Claude (`ANTHROPIC_API_KEY`;
 `OPENAI_API_KEY` as fallback; model `ADVISORY_SCOUT_MODEL`) which ones change a traveller's plans.
+With no AI key it still runs on narrow headline rules: English headlines that name a known
+Uttarakhand place and a clear impact (road blocked, landslide, snow, red/orange alert, jam,
+yatra suspended), titled with the headline itself. Adding `ANTHROPIC_API_KEY` as a repository
+Actions secret gives better picks, Hindi news and clearer wording.
 `tools/advisory-scout/scout-core.mjs` then enforces the rules the model is not trusted with:
 - the advisory must cite one of the fetched headline links;
 - its places must map to a known Uttarakhand region;

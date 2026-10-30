@@ -7,7 +7,8 @@
       from the last 48 hours: road closures, landslides, snow, rain alerts,
       temple dates, Char Dham, Kainchi Dham, Adi Kailash, traffic plans.
    2. Asks Claude (ANTHROPIC_API_KEY; OPENAI_API_KEY as fallback) which headlines
-      change a traveller's plans, as structured JSON.
+      change a traveller's plans, as structured JSON. With no AI key it uses narrow
+      headline rules instead (English headlines naming a known place + a clear impact).
    3. Validates every proposal in scout-core.mjs (must cite a fetched headline,
       must map to a known region, max 21 days, never "official"), prunes expired
       auto items, rewrites the block, bumps RW_CONDITIONS_CHECKED.
@@ -102,8 +103,11 @@ async function main() {
   let model = 'none';
   if (headlines.length) {
     const reply = await askModel(S.buildPrompt(headlines, today, regionWords));
-    if (reply == null) failed.push('no AI key: add ANTHROPIC_API_KEY (or OPENAI_API_KEY) in Actions secrets');
-    else { proposals = S.parseModelJson(reply); model = process.env.ANTHROPIC_API_KEY ? 'anthropic' : 'openai'; }
+    if (reply == null) {
+      proposals = S.ruleProposals(headlines, regionWords);
+      model = 'headline-rules';
+      failed.push('no AI key: used the narrow headline rules (English only). Add ANTHROPIC_API_KEY in Actions secrets for smarter picks, Hindi news and better wording');
+    } else { proposals = S.parseModelJson(reply); model = process.env.ANTHROPIC_API_KEY ? 'anthropic' : 'openai'; }
   }
   const auto = RW_CONDITIONS.filter((c) => c.auto);
   const manual = RW_CONDITIONS.filter((c) => !c.auto);
