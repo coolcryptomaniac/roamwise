@@ -40,21 +40,22 @@ function tuskSpeak(text){
   if(!say) return;
   if(!rwVoiceEnabled()){ showToast('🔇 Voice narration is muted — turn it back on in Settings'); return; }
   _rwTuskLastSpeech = say.slice(0, 2000);
+  var spoken=rwTuskSpeechPronunciation(say);
   tuskClaimSpeechFocus();
-  if(window.RW && typeof RW.speak==='function'){ try{ RW.speak(say); return; }catch(e){ /* best-effort, ignore */ } }
+  if(window.RW && typeof RW.speak==='function'){ try{ RW.speak(spoken); return; }catch(e){ /* best-effort, ignore */ } }
   /* Native app output: treat promise rejection as failure, not as audible success.
      Avoid overlapping fallback voices when the plugin speaks successfully. */
   var tts=window.Capacitor && Capacitor.Plugins && Capacitor.Plugins.TextToSpeech;
   if(tts && typeof tts.speak==='function'){
     try{
-      var result=tts.speak({text:say,lang:rwSpeechOutputLang(say),rate:_rwTuskSpeechRate});
+      var result=tts.speak({text:spoken,lang:rwSpeechOutputLang(say),rate:_rwTuskSpeechRate});
       if(result && typeof result.then==='function'){
         result.then(tuskReleaseSpeechFocus,function(){ tuskReleaseSpeechFocus(); showToast('🔊 Voice unavailable on this device — your answer is still on screen'); });
       }else tuskReleaseSpeechFocus();
       return;
     }catch(e){ /* Fall through to web speech when native invocation throws. */ }
   }
-  text = say;
+  text = spoken;
   try{
     if(!window.speechSynthesis){ showToast('\ud83d\udd0a Read-aloud isn\u2019t available here \u2014 the text is on screen above'); return; }
     speechSynthesis.cancel();
@@ -120,4 +121,20 @@ function rwTuskCycleSpeechRate(){
   _rwTuskSpeechRate=rates[(i+1)%rates.length];
   showToast('Voice speed: '+_rwTuskSpeechRate+'× (applies to next playback)');
   return _rwTuskSpeechRate;
+}
+
+/* Curated spoken-only local toponyms, when Hindi voice is selected.
+   Visible answers remain unchanged. Do not mistake this for a Kumaoni accent
+   model: the sound still depends on the installed Hindi TTS voice. */
+function rwTuskSpeechPronunciation(text){
+  var source=String(text||'');
+  if(rwSpeechOutputLang(source)!=='hi-IN')return source;
+  var names={
+    'Kumaon':'कुमाऊँ','Almora':'अल्मोड़ा','Nainital':'नैनीताल',
+    'Chakrata':'चकराता','Kanatal':'कनाताल','Kausani':'कौसानी',
+    'Mukteshwar':'मुक्तेश्वर','Binsar':'बिनसर','Ranikhet':'रानीखेत',
+    'Pithoragarh':'पिथौरागढ़','Harsil':'हर्षिल','Jibhi':'जीभी'
+  };
+  return source.replace(/\b(Kumaon|Almora|Nainital|Chakrata|Kanatal|Kausani|Mukteshwar|Binsar|Ranikhet|Pithoragarh|Harsil|Jibhi)\b/gi,
+    function(match){return names[Object.keys(names).filter(function(k){return k.toLowerCase()===match.toLowerCase();})[0]]||match;});
 }
