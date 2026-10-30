@@ -5,7 +5,7 @@
 
 ## Supplier decision
 - Qikink: first sample candidate. Official site advertises custom storefront support, POD, COD and 2–3 business-day dispatch. Dispatch is not delivery. Confirm actual SKU, API access, wallet funding, print cost, shipping, tax, RTO and defect policy in the seller account. https://qikink.com/
-- NexelPrint: second sample candidate, not an approved partner. Official catalogue distinguishes 240 GSM tees from 320–350 GSM hoodies. Obtain a full landed quote and test quality rather than assuming vendor marketing is a guarantee. https://nexelprint.com/pricing
+- NexelPrint: earlier research candidate, superseded by the active Qikink/Printrove/Printify shortlist; not an approved partner. Official catalogue distinguishes 240 GSM tees from 320–350 GSM hoodies. Obtain a full landed quote and test quality rather than assuming vendor marketing is a guarantee. https://nexelprint.com/pricing
 - Roposo Clout: exclude. Official notice says marketplace services ended 1 April 2026. https://app.roposoclout.com/b2b/login
 - Pocketly: no verified wholesale integration identified. Do not connect a similarly named lending service or unverified app.
 - Travel goods: shortlist domestic suppliers only after comparing actual samples, invoice identity, shipping to Almora and a metro, tracking, return handling and margin. Until then, remain concepts. Affiliate links require approved accounts and disclosure; resale is a distinct model, not commission income.
@@ -31,7 +31,7 @@ Run `node --check shop/shop.js`, `node --check shop/catalog.js`, `node --test te
 
 | Channel | RoamWise responsibility | Supplier responsibility | Revenue |
 |---|---|---|---|
-| Clothing | Founder-approved designs, product listings, website/WhatsApp order intake and customer support | Qikink; NexelPrint as the premium candidate pending approval: garment, print, packing and delivery | Retail price less fulfilment and other actual costs |
+| Clothing | Founder-approved designs, product listings, website/WhatsApp order intake and customer support | Qikink, Printrove or Printify, selected per approved SKU and destination: garment, print, packing and delivery | Retail price less fulfilment and other actual costs |
 | Travel essentials | Demand screening, curated listings, order attribution and agreed commission accounting | Approved dropshipping supplier: stock, dispatch, tracking and contracted returns handling | Fixed negotiated percentage or rupee commission per eligible order |
 
 Do not substitute an arbitrary wholesale markup for the travel-goods commission agreement. Record for each supplier: percentage or fixed amount; commission base (including or excluding tax/shipping); who collects payment; seller/invoice issuer; when commission is earned; cancelled/refunded order treatment; settlement cycle; support and returns owner. No rate or supplier agreement has been accepted yet.
@@ -50,3 +50,6 @@ Implementation boundary: the existing `/cashfree/order` grants Pro/Bhakti entitl
 Before charging: a confirmed, immutable order must carry approved SKU/variant, quantity, shipping details, server-calculated total, seller identity, fulfilment confirmation and payment expiry. Cashfree should create a session for that order; trusted status verification must match order ID, amount and INR before marking paid. Direct UPI should use the same order reference, recipient and exact total, remain pending until the receiving bank/merchant record is reconciled by an authorised operator, and never trust a screenshot, UTR entry or return from a payment app as confirmation. Reconcile across both methods to avoid duplicate charging; fulfil each order once. Cashfree settlement destination remains controlled by the existing merchant dashboard, not by setting this UPI ID.
 
 Remaining inputs: approved product SKU/variants and full prices, supplier account/fulfilment configuration, plus merchandise payment sandbox verification before enabling checkout. The confirmed payment preference requires no change to existing Pro, stays or entitlement logic.
+
+## Three-provider configuration
+`RWShopProviders` in `shop/catalog.js` lists Qikink, Printrove and Printify, all `not_connected`. Customers can express an optional preference for POD items (including the tote); travel-goods enquiries do not offer print providers. This is a catalogue/enquiry configuration, not an API integration or promise that every concept exists at every provider. See `PROVIDERS-AND-CURATION.md` for the dated comparison and travel-goods launch rules. Never substitute providers automatically after a customer's sample/specification is confirmed.

@@ -69,3 +69,19 @@ test('clipboard failure leaves a selectable manual fallback', async () => {
   assert.match(d.querySelector('#message-status').textContent,/Select and copy/);
   dom.window.close();
 });
+test('all three POD preferences are available and excluded from non-POD enquiries', () => {
+  const dom=setup(), d=dom.window.document;
+  assert.deepEqual(Array.from(d.querySelector('#provider').options, o=>o.value), ['auto','qikink','printrove','printify']);
+  assert.equal(d.querySelectorAll('#provider-options article').length,3);
+  d.querySelector('.product button').click();
+  d.querySelector('#provider').value='printrove';
+  d.querySelector('#request-form').requestSubmit();
+  assert.match(d.querySelector('#message').value,/Print provider preference: Printrove/);
+  d.querySelector('[data-filter="travel"]').click();
+  d.querySelectorAll('.product button')[1].click();
+  assert.equal(d.querySelector('#provider-field').hidden,true);
+  assert.equal(d.querySelector('#provider').disabled,true);
+  d.querySelector('#request-form').requestSubmit();
+  assert.doesNotMatch(d.querySelector('#message').value,/Printrove|Print provider preference/);
+  dom.window.close();
+});
