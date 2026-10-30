@@ -13,3 +13,9 @@ test('checkpoint never advances when storage fails',async()=>{
  await runSupplyImportBatch(rows,{batchSize:2},{persist:async()=>{},checkpoint:async n=>{cursor=n}});
  assert.equal(cursor,2);
 });
+
+test('planner never exceeds the Firestore adapter write limit',()=>{
+ const many=Array.from({length:500},(_,i)=>({name:'Place '+i,category:'stay',sourceUrl:'https://example.org/'+i,sourceLicense:'authorized'}));
+ assert.equal(planSupplyImport(many).nextCursor,400);
+ assert.throws(()=>planSupplyImport(many,{batchSize:451}),RangeError);
+});
