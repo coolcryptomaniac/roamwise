@@ -6,7 +6,7 @@ import { createAtomicBookingPaymentCommit } from '../js/booking/atomic-payment-c
 // firebase-admin installed in the backend environment. Never connects to prod.
 const host=process.env.FIRESTORE_EMULATOR_HOST;
 test('Firestore emulator serializes competing payment claims', {skip:!host}, async()=>{
- const {default:admin}=await import('firebase-admin');
+ const {default:admin}=await import('./emulator/node_modules/firebase-admin/lib/index.js');
  const app=admin.initializeApp({projectId:'roamwise-booking-emulator-test'},'booking-claim-test-'+process.pid);
  try {
   const db=app.firestore();
