@@ -93,3 +93,15 @@ test('payment claim cannot be reused by another booking even after first confirm
  assert.equal(bookings.get('booking_B123').state,'ready_for_payment');
  assert.equal(claims.size,1);
 });
+
+test('expired or invalid payment windows never create confirmed bookings',async()=>{
+ const args={bookingId:'booking_1234',eventId:'payment_123456',orderId:'order_12345',amountMinor:150000,currency:'INR'};
+ for(const paymentExpiresAt of ['2020-01-01T00:00:00.000Z','not-a-date']){
+  const {db,read}=mockDb({state:'ready_for_payment',orderId:'order_12345',amountMinor:150000,currency:'INR',paymentExpiresAt});
+  assert.equal((await createAtomicBookingPaymentCommit(db)(args)).reason,'payment_window_expired');
+  assert.equal(read().state,'ready_for_payment');
+ }
+ const {db,read}=mockDb({state:'ready_for_payment',orderId:'order_12345',amountMinor:150000,currency:'INR',paymentExpiresAt:'2099-01-01T00:00:00.000Z'});
+ assert.equal((await createAtomicBookingPaymentCommit(db)(args)).reason,'applied');
+ assert.equal(read().state,'confirmed');
+});
