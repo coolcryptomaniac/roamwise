@@ -1,6 +1,14 @@
 // @ts-nocheck
 function copilotVoiceHero(){ rwVoiceStart('heroInput'); }
 var _rwVoiceTarget='heroInput';
+/* Respect the user's selected language, with Hindi as the default for Hindi UI. */
+function rwVoiceLocale(){
+  var configured = (typeof rwSpeechLang==='function' ? rwSpeechLang() : '');
+  if(configured && configured !== 'en-IN') return configured;
+  var lang = (document.documentElement.lang || navigator.language || '').toLowerCase();
+  return lang.indexOf('hi')===0 ? 'hi-IN' : (configured || 'en-IN');
+}
+var _rwLastVoiceResult='', _rwLastVoiceAt=0;
 function rwVoiceStart(targetId){
   _rwVoiceTarget = targetId || 'heroInput';
   /* Native bridge (old wrapper) if present */
@@ -23,7 +31,7 @@ function rwVoiceStart(targetId){
             if(t && !got){ got=true; try{ SRP.stop(); }catch(e){ /* best-effort, ignore */ } rwVoiceResult(t); }
           });
         }catch(e){ /* best-effort, ignore */ }
-        SRP.start({language:(typeof rwSpeechLang==='function'?rwSpeechLang():'en-IN'), maxResults:2, partialResults:true, popup:true})
+        SRP.start({language:rwVoiceLocale(), maxResults:2, partialResults:true, popup:true})
           .then(function(r){
             var t=r && r.matches && r.matches[0];
             if(t && !got){ got=true; rwVoiceResult(t); }
@@ -48,7 +56,7 @@ function rwVoiceStart(targetId){
   }
   var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
   if(!SR){ showToast('\ud83c\udfa4 Voice input needs the app build with the mic add-on \u2014 for now, just type, it works great!'); return; }
-  var rec=new SR(); rec.lang=(typeof rwSpeechLang==='function'?rwSpeechLang():'en-IN'); rec.interimResults=false;
+  var rec=new SR(); rec.lang=rwVoiceLocale(); rec.interimResults=false;
   rec.onresult=function(ev){ rwVoiceResult(ev.results[0][0].transcript); };
   rec.onerror=function(e){ showToast((e&&e.error==='not-allowed')?'Mic permission is off \u2014 allow it in Settings, or just type':'Didn\u2019t catch that \u2014 try again or type'); };
   try{ rec.start(); showToast('\ud83c\udfa4 Listening\u2026'); }catch(e){ showToast('Voice didn\u2019t start \u2014 typing works too!'); }
@@ -56,7 +64,11 @@ function rwVoiceStart(targetId){
 /* Called by the native bridge (and by the web path above) */
 function rwVoiceResult(text){
   var inp = el(_rwVoiceTarget) || el('heroInput'); if(!inp || !text) return;
-  inp.value = text;
+  /* Native and web speech callbacks may report the same final phrase twice. */
+  var now=Date.now(), normalized=String(text).trim();
+  if(!normalized || (normalized===_rwLastVoiceResult && now-_rwLastVoiceAt<1500)) return;
+  _rwLastVoiceResult=normalized; _rwLastVoiceAt=now;
+  inp.value = normalized;
   copilotSend(_rwVoiceTarget==='heroInput');
 }
 function rwVoiceState(state, msg){
