@@ -10,13 +10,13 @@ export function normalizeCashfreePaymentEvent(webhook, booking) {
    return { accepted:false, reason:'invalid_payload' };
  if (!booking || booking.orderId !== order.order_id || !/^[a-zA-Z0-9_-]{8,100}$/.test(String(booking.id||'')))
    return { accepted:false, reason:'unknown_order' };
- const amount=Number(order.order_amount);
+ // Cashfree payment IDs must be canonical decimal integers; do not allow\n // scientific notation, fractions or objects to become claim document IDs.\n const paymentId=String(payment.cf_payment_id);\n if (!/^[0-9]{1,30}$/.test(paymentId) ||\n     (typeof payment.cf_payment_id === 'number' && (!Number.isSafeInteger(payment.cf_payment_id) || payment.cf_payment_id <= 0)) ||\n     /^0+$/.test(paymentId)) return { accepted:false, reason:'invalid_payment_id' };\n const amount=Number(order.order_amount);
  if (!Number.isFinite(amount) || amount <= 0 || !Number.isSafeInteger(Math.round(amount*100)) ||
      Math.abs(amount*100-Math.round(amount*100))>1e-7)
    return { accepted:false, reason:'invalid_amount' };
  return { accepted:true, payload:{
    bookingId:booking.id, amountMinor:Math.round(amount*100),
    event:{orderId:order.order_id,status:payment.payment_status === 'SUCCESS'?'SUCCESS':'NOT_PAID',
-     currency:order.order_currency,paymentId:String(payment.cf_payment_id)},
+     currency:order.order_currency,paymentId},
  } };
 }
