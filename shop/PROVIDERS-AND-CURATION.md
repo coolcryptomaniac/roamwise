@@ -60,3 +60,13 @@ For direct commission contracts propose a rate only after full cost and responsi
 
 ## Approved shortlist expansion
 Founder requested a few recurring-use essentials. The public concept catalogue now contains five non-POD candidates: packing cubes, tech organiser, compact quick-dry towel, backpack rain cover and reusable laundry/shoe bag. The towel, rain cover and laundry/shoe bag were added to the existing two. Clothes and the printed tote remain POD concepts. Recurring usefulness is the selection rationale, not proof of permanent demand. Rain covers have seasonal demand; every SKU still requires the rubric and supplier approval above. Keep the five-item live travel-goods cap; no expanded supplier catalogue import.
+
+## Photo-friendly capsule — 30 October 2026
+Add three enquiry-only concepts under a separate Photo-friendly finds filter: original mountain/buransh bag charm, colourful woven phone wrist strap, and Aipan-inspired bandana/bag scarf. Keep practical essentials as the core catalogue. These are product directions, not approved supplier SKUs, guaranteed bestsellers or live Instagram-performance measurements.
+
+Trend signals: Vogue India (21 July 2026) and Condé Nast Traveller (2 July 2026) cover bag charms; Moneycontrol's 2026 phone-accessories coverage includes wristlets and crossbody styling. The bandana is RoamWise's styling/design proposal, not a measured trending-product claim. No audience conversion data was obtained.
+- https://www.vogue.in/content/7-vogue-approved-bag-charms-to-accessorise-your-everyday-handbag
+- https://www.cntraveller.com/article/best-bag-charms-to-adorn-your-tote-whether-youre-at-home-or-away
+- https://www.moneycontrol.com/lifestyle/fashion/summer-2026-fashion-5-phone-accessories-that-are-defining-style-this-season-article-13858041.html
+
+Pilot only one or two approved style SKUs at a time alongside the five core essentials. Reuse the quality, commission and fulfilment gates above; review style interest every two weeks and retire weak concepts. Use original/licensed artwork; do not source counterfeit character charms. Verify strap compatibility and attachment; do not make anti-theft, anti-drop or climbing-safety claims. Photograph actual samples for close-up reel demos and outfit/bag styling. Do not label generated mockups as product photos. No content has been posted and no supplier has been contacted by this change.

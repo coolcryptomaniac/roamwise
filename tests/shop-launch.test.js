@@ -14,12 +14,12 @@ function setup() {
   return dom;
 }
 test('catalogue IDs are unique and there are no purchase claims', () => {
-  assert.equal(new Set(catalog.map(p=>p.id)).size,9);
-  for(const p of catalog) { assert.ok(['wear','travel'].includes(p.category)); assert.equal(p.price,undefined); }
+  assert.equal(new Set(catalog.map(p=>p.id)).size,12);
+  for(const p of catalog) { assert.ok(['wear','travel','style'].includes(p.category)); assert.equal(p.price,undefined); }
 });
 test('filters and enquiry correctly change between clothing and accessories', () => {
   const dom=setup(), d=dom.window.document;
-  assert.equal(d.querySelectorAll('.product').length,9);
+  assert.equal(d.querySelectorAll('.product').length,12);
   d.querySelector('[data-filter="wear"]').click();
   assert.equal(d.querySelectorAll('.product').length,3);
   d.querySelector('.product button').click();
@@ -83,5 +83,18 @@ test('all three POD preferences are available and excluded from non-POD enquirie
   assert.equal(d.querySelector('#provider').disabled,true);
   d.querySelector('#request-form').requestSubmit();
   assert.doesNotMatch(d.querySelector('#message').value,/Printrove|Print provider preference/);
+  dom.window.close();
+});
+
+test('photo-friendly finds filter shows three enquiry-only style concepts', () => {
+  const dom=setup(),d=dom.window.document;
+  d.querySelector('[data-filter="style"]').click();
+  assert.equal(d.querySelectorAll('.product').length,3);
+  assert.match(d.querySelector('#products').textContent,/buransh bag charm/);
+  d.querySelector('.product button').click();
+  assert.equal(d.querySelector('#provider').disabled,true);
+  d.querySelector('#request-form').requestSubmit();
+  assert.match(d.querySelector('#message').value,/pahad-bag-charm/);
+  assert.match(d.querySelector('#message').value,/not an order/);
   dom.window.close();
 });
