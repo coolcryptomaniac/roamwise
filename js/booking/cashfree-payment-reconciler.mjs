@@ -18,7 +18,9 @@ export function createCashfreePaymentReconciler({appId,secretKey,environment='sa
    });
    if(!response.ok) throw new Error('Cashfree reconciliation unavailable');
    const data=await response.json();
-   const amount=Number(data?.payment_amount);
+   if (!data || (typeof data.payment_amount !== 'number' && typeof data.payment_amount !== 'string') || String(data.payment_amount).trim()==='')
+    throw new Error('Invalid Cashfree payment amount');
+   const amount=Number(data.payment_amount);
    if(!Number.isFinite(amount)||amount<=0||!Number.isSafeInteger(Math.round(amount*100))||Math.abs(amount*100-Math.round(amount*100))>1e-7)
     throw new Error('Invalid Cashfree payment amount');
    if (data.order_id !== orderId || String(data.cf_payment_id) !== String(paymentId))
