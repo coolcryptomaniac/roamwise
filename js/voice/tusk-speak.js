@@ -68,8 +68,8 @@ function tuskSpeak(text){
     if(pick) u.voice=pick;
     /* Android WebView often accepts .speak() but silently produces no audio
        without throwing — surface an error toast so the user isn't left guessing */
-    u.onend = tuskReleaseSpeechFocus;
-    u.onerror = function(){ tuskReleaseSpeechFocus(); showToast('🔊 Voice unavailable on this device'); };
+    u.onend = function(){ tuskReleaseSpeechFocus(); try{ if(window.RWTuskVoiceStudio) RWTuskVoiceStudio.speechEnd(); }catch(e){} };
+    u.onerror = function(){ tuskReleaseSpeechFocus(); if(window.RWTuskVoiceStudio) RWTuskVoiceStudio.speechFailure(); showToast('🔊 Voice unavailable on this device'); };
     speechSynthesis.speak(u);
   }catch(e){ tuskReleaseSpeechFocus(); showToast('🔊 Voice unavailable on this device'); }
 }
