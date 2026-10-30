@@ -1,65 +1,107 @@
 // @ts-nocheck
+/* Accessible, interruptible voice capture for the existing Tusk composer.
+   One active session, one final transcript, no background microphone capture. */
 function copilotVoiceHero(){ rwVoiceStart('heroInput'); }
-var _rwVoiceTarget='heroInput';
-function rwVoiceStart(targetId){
-  _rwVoiceTarget = targetId || 'heroInput';
-  /* Native bridge (old wrapper) if present */
-  if(window.RW && typeof RW.startVoice==='function'){
-    try{ RW.startVoice(); showToast('\ud83c\udfa4 Listening\u2026'); return; }catch(e){ /* toast is a nice-to-have, ignore */ }
+var _rwVoiceTarget='heroInput', _rwVoiceSession=0, _rwVoiceActive=false;
+var _rwVoiceStop=null, _rwVoiceListener=null;
+function rwVoiceNotice(state, message){
+  if(typeof document==='undefined') return;
+  var input=el(_rwVoiceTarget) || el('heroInput');
+  if(!input || !input.parentNode) return;
+  var box=el('rwVoiceNotice');
+  if(!box){
+    box=document.createElement('div');
+    box.id='rwVoiceNotice'; box.setAttribute('role','status');
+    box.setAttribute('aria-live','polite'); box.className='rw-voice-notice';
+    input.parentNode.appendChild(box);
   }
-  /* Capacitor SpeechRecognition plugin (community, installed in the app build) */
-  if(window.Capacitor && Capacitor.Plugins && Capacitor.Plugins.SpeechRecognition){
-    var SRP=Capacitor.Plugins.SpeechRecognition;
-    (function(){
-      /* v7 community plugin flow: check availability -> ensure permission ->
-         start with a result listener (some versions resolve start(), others
-         emit 'partialResults'/return matches). We handle both. */
-      function begin(){
-        showToast('\ud83c\udfa4 Listening\u2026');
-        var got=false;
-        try{
-          SRP.addListener && SRP.addListener('partialResults', function(data){
-            var t=data && data.matches && data.matches[0];
-            if(t && !got){ got=true; try{ SRP.stop(); }catch(e){ /* best-effort, ignore */ } rwVoiceResult(t); }
-          });
-        }catch(e){ /* best-effort, ignore */ }
-        SRP.start({language:(typeof rwSpeechLang==='function'?rwSpeechLang():'en-IN'), maxResults:2, partialResults:true, popup:true})
-          .then(function(r){
-            var t=r && r.matches && r.matches[0];
-            if(t && !got){ got=true; rwVoiceResult(t); }
-            else if(!got){ setTimeout(function(){ if(!got) showToast('Didn\u2019t catch that \u2014 speak clearly, or type'); }, 800); }
-          })
-          .catch(function(){ if(!got) showToast('Mic couldn\u2019t start \u2014 check mic permission in Settings, or type'); });
-      }
-      Promise.resolve(SRP.checkPermissions ? SRP.checkPermissions() : {speechRecognition:'granted'})
-        .then(function(p){
-          var ok = p && (p.speechRecognition==='granted' || p.speechRecognition==='limited');
-          if(ok) return true;
-          return (SRP.requestPermissions ? SRP.requestPermissions() : Promise.resolve({speechRecognition:'granted'}))
-            .then(function(rp){ return rp && rp.speechRecognition==='granted'; });
-        })
-        .then(function(granted){
-          if(granted){ begin(); }
-          else { showToast('Mic permission is off \u2014 allow Microphone in Settings, then tap \ud83c\udfa4 again'); }
-        })
-        .catch(function(){ begin(); }); /* some versions lack checkPermissions — just try */
-    })();
+  box.textContent=message || '';
+  box.dataset.state=state;
+  input.setAttribute('aria-describedby','rwVoiceNotice');
+  // Expose live microphone state to CSS without binding to a particular button.
+  try{ document.documentElement.classList.toggle('rw-voice-listening',state==='listening'); }catch(e){}
+}
+function rwVoiceStop(){
+  _rwVoiceSession++; _rwVoiceActive=false;
+  var stop=_rwVoiceStop; _rwVoiceStop=null;
+  if(stop) try{ stop(); }catch(e){}
+  if(_rwVoiceListener && _rwVoiceListener.remove) try{ _rwVoiceListener.remove(); }catch(e){}
+  _rwVoiceListener=null;
+  rwVoiceNotice('idle','Microphone stopped. Tap the mic to speak again.');
+}
+function rwVoiceStart(targetId){
+  if(_rwVoiceActive){ rwVoiceStop(); return; } // tap again = stop, not a second recorder
+  _rwVoiceTarget=targetId || 'heroInput';
+  if(typeof tuskStopSpeech==='function') tuskStopSpeech(); // natural barge-in
+  var token=++_rwVoiceSession; _rwVoiceActive=true;
+  rwVoiceNotice('listening','Listening… Tap the mic again to stop.');
+  function valid(){ return token===_rwVoiceSession && _rwVoiceActive; }
+  function fail(message){
+    if(!valid()) return;
+    rwVoiceStop(); rwVoiceNotice('error',message);
+    if(typeof showToast==='function') showToast(message);
+  }
+  function finalText(text){
+    if(!valid() || !String(text||'').trim()) return;
+    rwVoiceStop(); rwVoiceResult(String(text).trim());
+  }
+  /* Native bridge (legacy Android wrapper). A native callback calls rwVoiceResult. */
+  if(window.RW && typeof RW.startVoice==='function'){
+    try{
+      _rwVoiceStop=function(){ if(typeof RW.stopVoice==='function') RW.stopVoice(); };
+      RW.startVoice(); return;
+    }catch(e){ _rwVoiceStop=null; }
+  }
+  /* Capacitor plugin: result can arrive through start() or listener.
+     A session token + finalText guard prevents duplicate submissions. */
+  var plugin=window.Capacitor && Capacitor.Plugins && Capacitor.Plugins.SpeechRecognition;
+  if(plugin){
+    _rwVoiceStop=function(){ if(plugin.stop) plugin.stop(); };
+    Promise.resolve(plugin.checkPermissions ? plugin.checkPermissions():{speechRecognition:'granted'})
+      .then(function(p){
+        if(!valid()) return false;
+        if(p && (p.speechRecognition==='granted'||p.speechRecognition==='limited')) return true;
+        return plugin.requestPermissions ? plugin.requestPermissions().then(function(v){return v && v.speechRecognition==='granted';}):false;
+      })
+      .then(function(granted){
+        if(!valid()) return;
+        if(!granted) return fail('Microphone permission is off. Enable it in Settings or type.');
+        if(plugin.addListener) Promise.resolve(plugin.addListener('partialResults',function(d){
+          // Some plugin builds emit a single finalized match here.
+          var match=d && d.matches && d.matches[0];
+          if(match) finalText(match);
+        })).then(function(listener){
+          if(valid()) _rwVoiceListener=listener;
+          else if(listener && listener.remove) listener.remove();
+        }).catch(function(){});
+        Promise.resolve(plugin.start({language:typeof rwSpeechLang==='function'?rwSpeechLang():'en-IN',maxResults:2,partialResults:false,popup:true}))
+          .then(function(v){ if(v && v.matches && v.matches[0]) finalText(v.matches[0]); })
+          .catch(function(){fail('Voice input unavailable. Please type or check microphone permissions.');});
+      }).catch(function(){fail('Microphone permission or voice recognition failed. Please type instead.');});
     return;
   }
-  var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if(!SR){ showToast('\ud83c\udfa4 Voice input needs the app build with the mic add-on \u2014 for now, just type, it works great!'); return; }
-  var rec=new SR(); rec.lang=(typeof rwSpeechLang==='function'?rwSpeechLang():'en-IN'); rec.interimResults=false;
-  rec.onresult=function(ev){ rwVoiceResult(ev.results[0][0].transcript); };
-  rec.onerror=function(e){ showToast((e&&e.error==='not-allowed')?'Mic permission is off \u2014 allow it in Settings, or just type':'Didn\u2019t catch that \u2014 try again or type'); };
-  try{ rec.start(); showToast('\ud83c\udfa4 Listening\u2026'); }catch(e){ showToast('Voice didn\u2019t start \u2014 typing works too!'); }
+  var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR) return fail('Voice input is not supported in this browser. Please type instead.');
+  try{
+    var rec=new SR();
+    rec.lang=typeof rwSpeechLang==='function'?rwSpeechLang():'en-IN';
+    rec.interimResults=false; rec.continuous=false;
+    rec.onresult=function(e){var t=e.results && e.results[0] && e.results[0][0]; if(t) finalText(t.transcript);};
+    rec.onerror=function(e){ fail(e && e.error==='not-allowed'?'Microphone permission denied. Enable it in Settings.':'Voice recognition failed. Please try again or type.'); };
+    rec.onend=function(){ if(valid()) fail('Listening ended without a result. Try again or type.'); };
+    _rwVoiceStop=function(){rec.stop();}; rec.start();
+  }catch(e){fail('Could not start the microphone. Please type instead.');}
 }
-/* Called by the native bridge (and by the web path above) */
+/* Native bridge callback (also used by the browser and Capacitor paths). */
 function rwVoiceResult(text){
-  var inp = el(_rwVoiceTarget) || el('heroInput'); if(!inp || !text) return;
-  inp.value = text;
+  if(_rwVoiceActive) rwVoiceStop();
+  var input=el(_rwVoiceTarget)||el('heroInput');
+  if(!input || !String(text||'').trim()) return;
+  input.value=String(text).trim();
+  rwVoiceNotice('complete','Voice captured. Preparing your travel answer.');
   copilotSend(_rwVoiceTarget==='heroInput');
 }
-function rwVoiceState(state, msg){
-  if(state==='error' && msg) showToast(msg);
-  if(state==='listening') showToast('\ud83c\udfa4 Listening\u2026');
+function rwVoiceState(state,msg){
+  if(state==='error'){rwVoiceStop();rwVoiceNotice('error',msg||'Voice error. Please type instead.');}
+  else if(state==='listening') rwVoiceNotice('listening','Listening… Tap the mic again to stop.');
 }
