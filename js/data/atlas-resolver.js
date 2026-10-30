@@ -71,6 +71,7 @@
   }
 
   function find(query, opt) {
+    if (root && root.RW_INDIA_LANG) query = root.RW_INDIA_LANG.canonical(query);
     opt = opt || {}; if (!A.ready) return { matches: [], best: null, ambiguous: false, ready: false };
     var segs = String(query || '').split(/[,;|]/).map(norm).filter(Boolean), full = norm(query), pool = [], ctxWords = [];
     var tryHead = function (txt) { return A.idx[txt] || null; };
