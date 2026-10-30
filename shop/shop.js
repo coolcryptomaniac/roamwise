@@ -46,6 +46,7 @@
     const form = new FormData(event.target);
     const message = ['Hello RoamWise,', 'I am interested in: ' + selected.name + ' (' + selected.id + ').',
       selected.sizes ? 'Preferred size: ' + form.get('size') : 'Size: not applicable',
+      'Payment preference: ' + (form.get('payment') === 'upi' ? 'UPI to roamwisepay@ybl after order confirmation' : 'Cashfree secure checkout after order confirmation'),
       'Quantity: ' + form.get('quantity'), 'Delivery PIN: ' + (form.get('pincode') || 'Not supplied'),
       'Please share final sample photos, specifications, full price, delivery estimate and return terms when ready.',
       'I understand this is an enquiry only, not an order or reservation.'].join('\n');

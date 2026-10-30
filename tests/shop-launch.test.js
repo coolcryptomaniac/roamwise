@@ -28,6 +28,10 @@ test('filters and enquiry correctly change between clothing and accessories', ()
   d.querySelector('[name="pincode"]').value='263601';
   d.querySelector('#request-form').requestSubmit();
   assert.match(d.querySelector('#message').value,/Quantity: 2/);
+  assert.match(d.querySelector('#message').value,/Cashfree secure checkout after order confirmation/);
+  d.querySelector('[name="payment"]').value='upi';
+  d.querySelector('#request-form').requestSubmit();
+  assert.match(d.querySelector('#message').value,/UPI to roamwisepay@ybl after order confirmation/);
   assert.match(d.querySelector('#message').value,/263601/);
   assert.match(d.querySelector('#email').href,/^mailto:support@roamwise.co.in\?subject=/);
   const whatsapp = new URL(d.querySelector('#whatsapp').href);
