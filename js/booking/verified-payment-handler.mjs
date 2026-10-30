@@ -19,6 +19,6 @@ export async function handleVerifiedBookingPayment(payload, { verifySignature, l
  });
  if (!checked.accepted) return { confirmed: false, reason: checked.reason };
  // Backend must atomically verify state/order and enforce unique payment event ID.
- const result = await applyConfirmedPayment({ bookingId, eventId: checked.eventId, orderId: booking.orderId });
+ const result = await applyConfirmedPayment({ bookingId, eventId: checked.eventId, orderId: booking.orderId, amountMinor: booking.amountMinor, currency: booking.currency });
  return { confirmed: result?.confirmed === true, reason: result?.reason || null };
 }
