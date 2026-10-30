@@ -33,6 +33,17 @@
    ================================================================= */
 
 /* --- 1. ACTION RAIL --- */
+/* Deterministic UI-only context. Never represents a live advisory or confirmed booking. */
+function rwTuskRailContext(raw){
+  var q=String(raw||'').toLowerCase();
+  if(/\b(road|landslide|blocked|closure|traffic|safe|safety|rasta|raasta|sadak)\b|सड़क|रास्ता|भूस्खलन/.test(q)) return 'safety';
+  if(/\b(food|eat|restaurant|cafe|khana|khaana|dish|cuisine)\b|खाना|भोजन/.test(q)) return 'food';
+  if(/\b(weather|rain|snow|forecast|barish|mausam)\b|मौसम|बारिश/.test(q)) return 'weather';
+  if(/\b(best time|when to go|season|kab ja|kab jana)\b|कब जाएं|कब जाना/.test(q)) return 'season';
+  if(/\b(stay|hotel|homestay|room|book|booking)\b|होटल|बुकिंग/.test(q)) return 'stay';
+  return 'general';
+}
+
 function rwTuskRail(dest, raw){
   var d = (dest||'').replace(/'/g, "\\'");
   var q = (raw||'').replace(/'/g, "\\'").slice(0,120);
@@ -50,6 +61,11 @@ function rwTuskRail(dest, raw){
   h+=btn('⏯️','Pause / Resume',"rwTuskPauseResume()");
   h+=btn('🔁','Replay',"rwTuskReplaySpeech()");
   h+=btn('🎚️','Speed',"rwTuskCycleSpeechRate()");
+  var topic=rwTuskRailContext(raw);
+  if(d && topic==='safety') h+=btn('⚠️','Road advisories', "cpFollow('Check dated official road and safety advisories for "+d+"')");
+  if(d && topic==='food') h+=btn('🍲','Local food', "cpFollow('What local food should I try in "+d+"?')");
+  if(d && topic==='weather') h+=btn('☁️','Weather details', "cpFollow('Check the weather and forecast for "+d+"')");
+  if(d && topic==='season') h+=btn('📅','Best season', "cpFollow('When is the best time to visit "+d+"?')");
   h+=btn('\ud83d\udcd6','Log feeling',"openJourneyLog()");
   return h+'</div>';
 }
