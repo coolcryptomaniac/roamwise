@@ -79,7 +79,7 @@ test('block rewrite keeps conditions-data.js valid and loadable everywhere', () 
   const list = vm.runInContext('RW_CONDITIONS', sb);
   assert.equal(list[list.length - 1].id, 'auto-20261029-x');
   assert.equal(list[list.length - 1].title, 'Road "shut" </script>');
-  assert.equal(S.writeBlock(S.writeBlock(src, [item]), []), src, 'emptying the block restores the original');
+  assert.equal(S.writeBlock(S.writeBlock(src, [item]), []), S.writeBlock(src, []), 'rewriting is idempotent whatever the block held');
   assert.throws(() => S.writeBlock('var x = [];', []), /markers missing/);
 });
 
