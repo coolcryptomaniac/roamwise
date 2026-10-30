@@ -9,7 +9,18 @@
   /* returns {type, a, b} or null */
   function intent(t) {
     var q = String(t || '').trim().replace(CLEAN, '').replace(/\s+/g, ' ');
-    if (!q || q.length > 120) return null;
+    if (!q || q.length > 180) return null;
+    // Hindi / Hinglish speech transcripts: preserve place names and their context.
+    // Only geography intents are handled here; booking and payment remain in their dedicated flows.
+    var natural = q.match(/^(?:mujhe\s+)?(.+?)\s+(?:kahan|kahaan|कहाँ|कहां)\s+(?:hai|he|है)(?:\s+.*)?$/i);
+    if (natural) return {type:'where',a:natural[1]};
+    var whereHindi = q.match(/^(?:where is|kahan hai|kahaan hai|कहाँ है|कहां है)\s+(.+)$/i);
+    if (whereHindi) return {type:'where',a:whereHindi[1]};
+    var nearHindi = q.match(/^(?:places|spots|ghumne ki jagah|ghumne ki jagahen|घूमने की जगह|घूमने की जगहें)\s+(?:near|around|paas|के पास)\s+(.+)$/i)
+      || q.match(/^(.+?)\s+(?:ke paas|ke aas paas|के पास|के आसपास)\s+(?:kya|kahan|क्या|कहाँ|ghumne ki jagah|places|spots).*/i);
+    if (nearHindi) return {type:'near',a:nearHindi[1]};
+    var distanceHindi = q.match(/^(.+?)\s+(?:se|से)\s+(.+?)\s+(?:kitna|kitni|कितना|कितनी)\s+(?:dur|door|दूर).*$/i);
+    if (distanceHindi) return {type:'distance',a:distanceHindi[1],b:distanceHindi[2]};
     var m;
     if ((m = q.match(/^(?:what(?:'s| is) the )?distance (?:between|from) (.+?) (?:and|to) (.+)$/i)) || (m = q.match(/^how far (?:is|are) (.+?) (?:from|to) (.+)$/i)) ||
         (m = q.match(/^(.+?) to (.+?) distance$/i))) {
@@ -72,7 +83,7 @@
       if (html) return cpFinish(bubble, html, intents, t);
       var nm = it.a;
       if (typeof rwResolvePlace === 'function') return rwResolvePlace(nm).then(function (p) {
-        if (p) return cpFinish(bubble, '<b>' + esc(p.name) + '</b>' + (p.admin ? ', ' + esc(p.admin) : '') + (p.country ? ', ' + esc(p.country) : '') + ' (about ' + Number(p.lat).toFixed(2) + '°, ' + Number(p.lon).toFixed(2) + '°). Want me to plan a trip there?', intents, t);
+        if (p) return cpFinish(bubble, '<b>' + esc(p.name) + '</b>' + (p.admin ? ', ' + esc(p.admin) : '') + (p.country ? ', ' + esc(p.country) : '') + ' (about ' + Number(p.lat).toFixed(2) + '°, ' + Number(p.lon).toFixed(2) + '°).<br><a href="/?destination=' + encodeURIComponent(p.name) + '">Plan a trip →</a> · <a href="/partner/?role=customer&amp;destination=' + encodeURIComponent(p.name) + '">Find verified stays →</a><br><small>For live road closures or event updates, check current dated advisories and official sources before travelling; map lookup does not verify road conditions.</small>', intents, t);
         return cpFinish(bubble, 'I couldn’t place “' + esc(nm) + '” on the map. Could you add the district, state or country?', intents, t);
       });
       return cpFinish(bubble, 'I couldn’t place “' + esc(nm) + '”. Could you add the district, state or country?', intents, t);
