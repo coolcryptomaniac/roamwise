@@ -45,3 +45,14 @@ test('identical Cashfree webhook replay acknowledges success without changing pa
  assert.equal(second.body.reason,'already_applied');
  assert.equal(read().paymentEventId,'payment_123456');
 });
+
+test('malformed Cashfree payment identifiers cannot create payment claims',async()=>{
+ const {handler,request,read}=fixture();
+ const base={type:'PAYMENT_SUCCESS_WEBHOOK',data:{order:{order_id:'order_12345',order_amount:1500,order_currency:'INR'},payment:{cf_payment_id:123456,payment_status:'SUCCESS'}}};
+ for(const id of ['1e5','1.2','-42','0',0,1.25,Number.MAX_SAFE_INTEGER+1,{},null]){
+  const event=structuredClone(base);event.data.payment.cf_payment_id=id;
+  const result=await handler(request(event));
+  assert.notEqual(result.status,200,'invalid payment ID should not confirm: '+String(id));
+ }
+ assert.equal(read().state,'ready_for_payment');
+});
