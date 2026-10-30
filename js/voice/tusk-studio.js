@@ -113,6 +113,7 @@
     if(!speech){setPhase('ready','Answer is on screen · tap Speak to continue');return false;}
     reply.textContent=speech;
     renderResults(raw,intents);
+    try{if(root.RWConnectedDiscovery&&cards)root.RWConnectedDiscovery.renderInto(cards,raw,intents);}catch(e){}
     if(/\b(pay|payment|refund|checkout|otp|password|emergency|sos)\b/i.test(String(raw||''))){
       setPhase('ready','Important details are on screen. Tap Speak for another question.');
       return false;
