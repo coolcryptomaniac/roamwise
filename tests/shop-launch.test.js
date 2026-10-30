@@ -30,6 +30,10 @@ test('filters and enquiry correctly change between clothing and accessories', ()
   assert.match(d.querySelector('#message').value,/Quantity: 2/);
   assert.match(d.querySelector('#message').value,/263601/);
   assert.match(d.querySelector('#email').href,/^mailto:support@roamwise.co.in\?subject=/);
+  const whatsapp = new URL(d.querySelector('#whatsapp').href);
+  assert.equal(whatsapp.origin, 'https://wa.me');
+  assert.equal(whatsapp.pathname, '/919987379730');
+  assert.equal(whatsapp.searchParams.get('text'), d.querySelector('#message').value);
   assert.match(d.querySelector('#message-status').textContent,/not sent/);
   d.querySelector('[data-filter="travel"]').click();
   d.querySelector('.product button').click();

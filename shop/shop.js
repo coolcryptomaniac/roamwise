@@ -50,14 +50,15 @@
       'Please share final sample photos, specifications, full price, delivery estimate and return terms when ready.',
       'I understand this is an enquiry only, not an order or reservation.'].join('\n');
     document.getElementById('message').value = message;
+    document.getElementById('whatsapp').href = 'https://wa.me/919987379730?text=' + encodeURIComponent(message);
     document.getElementById('email').href = 'mailto:support@roamwise.co.in?subject=' + encodeURIComponent('RoamWise shop enquiry: ' + selected.id) + '&body=' + encodeURIComponent(message);
-    document.getElementById('message-status').textContent = 'Message prepared, not sent. Send it to support@roamwise.co.in.';
+    document.getElementById('message-status').textContent = 'Message prepared, not sent. Open WhatsApp or email, then send when ready.';
     document.getElementById('message-panel').hidden = false;
   });
   document.getElementById('copy').addEventListener('click', async () => {
     const message = document.getElementById('message');
-    try { await navigator.clipboard.writeText(message.value); document.getElementById('message-status').textContent = 'Copied. Paste and send to support@roamwise.co.in.'; }
-    catch (_) { message.focus(); message.select(); document.getElementById('message-status').textContent = 'Select and copy the message, then send it to support@roamwise.co.in.'; }
+    try { await navigator.clipboard.writeText(message.value); document.getElementById('message-status').textContent = 'Copied. Paste into WhatsApp to +91 99873 79730 or email support@roamwise.co.in.'; }
+    catch (_) { message.focus(); message.select(); document.getElementById('message-status').textContent = 'Select and copy the message, then send via WhatsApp to +91 99873 79730 or email support@roamwise.co.in.'; }
   });
   render('all');
 })();
