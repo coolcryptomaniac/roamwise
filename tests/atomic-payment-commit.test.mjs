@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createAtomicBookingPaymentCommit } from '../js/booking/atomic-payment-commit.mjs';
-function mockDb(initial){let data={...initial};const db={collection:()=>({doc:id=>({id})}),runTransaction:async fn=>fn({get:async()=>({exists:true,data:()=>({...data})}),update:(_,change)=>{data={...data,...change}}})};return {db,read:()=>data};}
+function mockDb(initial){let data={...initial};const claims=new Map();if(initial.state==='confirmed' && initial.paymentEventId) claims.set(initial.paymentEventId,{bookingId:'booking_1234',orderId:initial.orderId,amountMinor:initial.amountMinor,currency:initial.currency});const db={collection:name=>({doc:id=>({id,collection:name})}),runTransaction:async fn=>fn({get:async ref=>ref.collection==='bookingPaymentClaims'?{exists:claims.has(ref.id),data:()=>claims.get(ref.id)}:{exists:true,data:()=>({...data})},create:(ref,claim)=>{claims.set(ref.id,claim)},update:(_,change)=>{data={...data,...change}}})};return {db,read:()=>data};}
 test('atomic commit confirms once and permits exact replay',async()=>{
  const {db,read}=mockDb({state:'ready_for_payment',orderId:'order_12345',amountMinor:150000,currency:'INR'});
  const commit=createAtomicBookingPaymentCommit(db);
