@@ -1768,5 +1768,14 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
 
+    // Private supply ingestion staging. Only trusted server Admin SDK writes;
+    // all mobile/web Firestore SDK access is explicitly denied.
+    match /supplyDiscovery/{recordId} {
+      allow read, write: if false;
+    }
+    match /supplyImportJobs/{jobId} {
+      allow read, write: if false;
+    }
+
   }
 }
