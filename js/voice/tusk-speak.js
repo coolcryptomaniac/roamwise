@@ -135,6 +135,6 @@ function rwTuskSpeechPronunciation(text){
     'Mukteshwar':'मुक्तेश्वर','Binsar':'बिनसर','Ranikhet':'रानीखेत',
     'Pithoragarh':'पिथौरागढ़','Harsil':'हर्षिल','Jibhi':'जीभी'
   };
-  return source.replace(/\\b(Kumaon|Almora|Nainital|Chakrata|Kanatal|Kausani|Mukteshwar|Binsar|Ranikhet|Pithoragarh|Harsil|Jibhi)\\b/gi,
+  return source.replace(/\b(Kumaon|Almora|Nainital|Chakrata|Kanatal|Kausani|Mukteshwar|Binsar|Ranikhet|Pithoragarh|Harsil|Jibhi)\b/gi,
     function(match){return names[Object.keys(names).filter(function(k){return k.toLowerCase()===match.toLowerCase();})[0]]||match;});
 }
