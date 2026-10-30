@@ -4,7 +4,7 @@ import { createBookingPaymentProcessor } from '../js/booking/booking-payment-pro
 const payload={bookingId:'booking_1234',amountMinor:150000,event:{orderId:'order_12345',status:'SUCCESS',currency:'INR',paymentId:'pay_123456'}};
 function fixture(){
  let data={state:'ready_for_payment',orderId:'order_12345',amountMinor:150000,currency:'INR'};
- const db={collection:()=>({doc:id=>({id})}),runTransaction:async fn=>fn({get:async()=>({exists:true,data:()=>({...data})}),update:(_,patch)=>{data={...data,...patch}}})};
+ const claims=new Map();const db={collection:name=>({doc:id=>({id,collection:name})}),runTransaction:async fn=>fn({get:async ref=>ref.collection==='bookingPaymentClaims'?{exists:claims.has(ref.id),data:()=>claims.get(ref.id)}:{exists:true,data:()=>({...data})},create:(ref,claim)=>{claims.set(ref.id,claim)},update:(_,patch)=>{data={...data,...patch}}})};
  return {db,read:()=>data};
 }
 test('verified event confirms booking transactionally, with safe replay',async()=>{
