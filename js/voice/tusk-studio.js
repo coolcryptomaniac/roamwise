@@ -3,7 +3,7 @@
    No microphone is opened on page load. Stop always cancels the loop. */
 (function(root){
   var state={active:false,turns:0,limit:8,phase:'idle',answerPending:false};
-  var panel=null,stage=null,body=null,subtitle=null,reply=null;
+  var panel=null,stage=null,body=null,subtitle=null,reply=null,cards=null;
   function escape(s){return String(s||'').replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
   function ensure(){
     if(typeof document==='undefined') return false;
@@ -11,9 +11,9 @@
     panel=document.createElement('section');
     panel.className='rw-orb-shell';panel.id='rwTuskStudio';panel.hidden=true;
     panel.setAttribute('role','dialog');panel.setAttribute('aria-label','Ailon Tusk voice conversation');
-    panel.innerHTML='<div class="rw-orb-layout"><header class="rw-orb-head"><strong>✦ Ailon Tusk</strong><span>Voice conversation · beta</span><button type="button" class="rw-orb-close" aria-label="Close voice conversation">✕</button></header><div class="rw-orb-stage" data-phase="idle"><div class="rw-orb-glow"><div class="rw-orb-core" aria-hidden="true"></div><div class="rw-orb-ring" aria-hidden="true"></div></div><p class="rw-orb-phase" role="status" aria-live="polite">Ready to listen</p></div><p class="rw-orb-transcript"></p><div class="rw-orb-reply" aria-label="Tusk answer"></div><div class="rw-orb-controls"><button type="button" data-action="listen">🎙️ Speak</button><button type="button" data-action="interrupt">⏹ Stop</button><button type="button" data-action="read">🔊 Read again</button></div><p class="rw-orb-hint">Talk in Hindi, English or Hinglish. Responses depend on available device voices. Stop at any time. No always-on microphone.</p></div>';
+    panel.innerHTML='<div class="rw-orb-layout"><header class="rw-orb-head"><strong>✦ Ailon Tusk</strong><span>Voice conversation · beta</span><button type="button" class="rw-orb-close" aria-label="Close voice conversation">✕</button></header><div class="rw-orb-stage" data-phase="idle"><div class="rw-orb-glow"><div class="rw-orb-core" aria-hidden="true"></div><div class="rw-orb-ring" aria-hidden="true"></div></div><p class="rw-orb-phase" role="status" aria-live="polite">Ready to listen</p></div><p class="rw-orb-transcript"></p><div class="rw-orb-reply" aria-label="Tusk answer"></div><section class="rw-orb-cards" aria-label="Travel results"></section><div class="rw-orb-controls"><button type="button" data-action="listen">🎙️ Speak</button><button type="button" data-action="interrupt">⏹ Stop</button><button type="button" data-action="read">🔊 Read again</button></div><p class="rw-orb-hint">Talk in Hindi, English or Hinglish. Responses depend on available device voices. Stop at any time. No always-on microphone.</p></div>';
     document.body.appendChild(panel);
-    stage=panel.querySelector('.rw-orb-stage');body=panel.querySelector('.rw-orb-transcript');subtitle=panel.querySelector('.rw-orb-phase');reply=panel.querySelector('.rw-orb-reply');
+    stage=panel.querySelector('.rw-orb-stage');body=panel.querySelector('.rw-orb-transcript');subtitle=panel.querySelector('.rw-orb-phase');reply=panel.querySelector('.rw-orb-reply');cards=panel.querySelector('.rw-orb-cards');
     panel.querySelector('.rw-orb-close').onclick=stop;
     panel.addEventListener('keydown',function(e){if(e.key==='Escape')stop();});
     panel.querySelector('[data-action="interrupt"]').onclick=stop;
@@ -39,7 +39,7 @@
   function start(){
     if(!ensure())return false;
     panel.hidden=false;state.active=true;state.turns=0;state.answerPending=false;
-    body.textContent='';reply.textContent='';
+    body.textContent='';reply.textContent='';if(cards)cards.replaceChildren();
     listen(true);panel.querySelector('[data-action="interrupt"]').focus();
     return true;
   }
@@ -56,7 +56,54 @@
     if(body)body.textContent='You: '+String(t||'').slice(0,240);
     setPhase('thinking','Finding your answer…');
   }
-  function answer(html,raw){
+  /* Safe, responsive, structured results; every value is textContent.
+     Cards are navigation prompts, not live prices/road-open claims. */
+  function resultModel(raw,intents){
+    var query=String(raw||'').toLowerCase();
+    var name=String(intents&&intents.dest||'').trim().slice(0,90);
+    if(!name)return null;
+    var type=/\\b(landslide|road|blocked|traffic|safety|route|rasta|raasta)\\b|सड़क|रास्ता/.test(query)?'road':
+      /\\b(hotel|homestay|stay|room|booking|book)\\b|होटल|कमरा/.test(query)?'stay':
+      /\\b(weather|rain|snow|mausam|barish)\\b|मौसम|बारिश/.test(query)?'weather':
+      /\\b(food|cafe|eat|khana|khaana)\\b|खाना|भोजन/.test(query)?'food':'trip';
+    var labels={road:['Route & road safety','Review dated official advisories'],
+      stay:['Explore verified stays','Check availability before booking'],
+      weather:['Weather & conditions','Check the forecast for your dates'],
+      food:['Local food','Discover authentic regional dishes'],
+      trip:['Discover '+name,'Create a day-wise travel plan']};
+    return {name:name,type:type,title:labels[type][0],hint:labels[type][1]};
+  }
+  function renderResults(raw,intents){
+    if(!cards)return null;
+    cards.replaceChildren();
+    var data=resultModel(raw,intents);
+    if(!data)return null;
+    var card=document.createElement('article');card.className='rw-orb-card';
+    var badge=document.createElement('div');badge.className='rw-orb-badge';badge.textContent='✦ Travel guide · '+data.type;
+    var heading=document.createElement('h3');heading.textContent=data.name;
+    var summary=document.createElement('p');summary.textContent=data.hint;
+    var buttons=document.createElement('div');buttons.className='rw-orb-card-actions';
+    function action(label,fn){
+      var b=document.createElement('button');b.type='button';b.textContent=label;
+      b.addEventListener('click',fn);buttons.appendChild(b);
+    }
+    action('🗺️ Plan trip',function(){
+      stop();if(typeof cpGoPlan==='function')cpGoPlan(data.name,0);
+    });
+    action(data.type==='road'?'⚠️ Check road alerts':data.type==='stay'?'🏡 Find stays':'💬 Ask follow-up',function(){
+      stop();
+      if(typeof cpFollow==='function'){
+        var prompts={road:'Check dated official road and safety advisories for ',
+          stay:'Find verified stays and confirm live availability in ',
+          weather:'Show the dated weather forecast for ',
+          food:'Recommend local food in ',trip:'Tell me more about visiting '};
+        cpFollow(prompts[data.type]+data.name);
+      }
+    });
+    card.appendChild(badge);card.appendChild(heading);card.appendChild(summary);card.appendChild(buttons);
+    cards.appendChild(card);return data;
+  }
+  function answer(html,raw,intents){
     if(!state.active || !state.answerPending)return false;
     state.answerPending=false;
     if(!ensure())return false;
@@ -65,6 +112,7 @@
     var speech=String(div.textContent||'').replace(/\s+/g,' ').trim().slice(0,650);
     if(!speech){setPhase('ready','Answer is on screen · tap Speak to continue');return false;}
     reply.textContent=speech;
+    renderResults(raw,intents);
     if(/\b(pay|payment|refund|checkout|otp|password|emergency|sos)\b/i.test(String(raw||''))){
       setPhase('ready','Important details are on screen. Tap Speak for another question.');
       return false;
@@ -92,7 +140,7 @@
     },550);
   }
   function speechFailure(){if(state.active)setPhase('ready','Voice unavailable. Read above, then tap Speak.');}
-  var api={start:start,stop:stop,listen:listen,transcript:transcript,answer:answer,speechEnd:speechEnd,speechFailure:speechFailure,state:state};
+  var api={start:start,stop:stop,listen:listen,transcript:transcript,answer:answer,resultModel:resultModel,speechEnd:speechEnd,speechFailure:speechFailure,state:state};
   if(typeof module!=='undefined'&&module.exports)module.exports=api;
   if(root)root.RWTuskVoiceStudio=api;
 })(typeof window!=='undefined'?window:null);
