@@ -13,11 +13,20 @@ test('verified event confirms booking transactionally, with safe replay',async()
  assert.equal((await processor(payload)).confirmed,true);
  assert.equal(read().state,'confirmed');
  // Subsequent webhook is rejected before transactional replay because booking is no longer payable.
- assert.equal((await processor(payload)).reason,'booking_not_payable');
+ assert.equal((await processor(payload)).reason,'already_applied');
 });
 test('invalid signature cannot mutate booking',async()=>{
  const {db,read}=fixture();
  const processor=createBookingPaymentProcessor({db,verifySignature:async()=>false,loadBooking:async()=>read()});
  assert.equal((await processor(payload)).reason,'invalid_signature');
  assert.equal(read().state,'ready_for_payment');
+});
+
+test('verified replay cannot change confirmed payment identity',async()=>{
+ const {db,read}=fixture();
+ const processor=createBookingPaymentProcessor({db,verifySignature:async()=>true,loadBooking:async()=>read()});
+ assert.equal((await processor(payload)).confirmed,true);
+ const changed={...payload,event:{...payload.event,paymentId:'pay_different'}};
+ assert.equal((await processor(changed)).confirmed,false);
+ assert.equal(read().paymentEventId,'payment_pay_123456');
 });
