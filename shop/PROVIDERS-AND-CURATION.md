@@ -41,7 +41,7 @@ Sources:
 - https://baapstore.com/
 
 ## Proposed curation rubric — not observed demand data
-Start with at most five live items. Candidate categories: packing cubes, tech organisers, quick-dry towels, backpack rain covers and compact daypacks. These are travel-fit hypotheses, not verified bestsellers. Delay battery gadgets, electrical adapters and safety-critical equipment until product-specific checks and support arrangements exist.
+Start with at most five live items. Candidate categories: packing cubes, tech organisers, quick-dry towels, backpack rain covers and reusable laundry/shoe bags. These are travel-fit hypotheses, not verified bestsellers. Delay battery gadgets, electrical adapters and safety-critical equipment until product-specific checks and support arrangements exist.
 
 For every candidate capture SKU/source URL, intended trip use, dated demand evidence, price/last checked date, supplier identity, source permissions, commission type/rate/base, allowed traffic, dispatch/coverage, return terms, sample result and named operator. Do not copy unlicensed images or descriptions.
 
@@ -57,3 +57,6 @@ Publish only at 75/100 or above AND with all mandatory gates: approved programme
 Pilot over 30 days; record product clicks, enquiries, attributed/validated sales, cancellations, returns, support minutes and net earned commission per delivered order. Review weekly; pause stale stock/prices, revoked campaigns, delivery failures or negative contribution. Low traffic is inconclusive, not proof of no demand. Commission becomes earned only at the programme/contract's validation event, not at click or payment initiation.
 
 For direct commission contracts propose a rate only after full cost and responsibilities are known. Specify tax/shipping exclusions, partial refunds, COD/RTO liability, payout date and reconciliation evidence. No supplier rate is fixed by this document.
+
+## Approved shortlist expansion
+Founder requested a few recurring-use essentials. The public concept catalogue now contains five non-POD candidates: packing cubes, tech organiser, compact quick-dry towel, backpack rain cover and reusable laundry/shoe bag. The towel, rain cover and laundry/shoe bag were added to the existing two. Clothes and the printed tote remain POD concepts. Recurring usefulness is the selection rationale, not proof of permanent demand. Rain covers have seasonal demand; every SKU still requires the rubric and supplier approval above. Keep the five-item live travel-goods cap; no expanded supplier catalogue import.

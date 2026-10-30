@@ -1,7 +1,7 @@
 # Kumaon collection launch — 30 October 2026
 
 ## Delivered
-`/shop/` is a concept catalogue and client-side enquiry composer, linked from the homepage. Six concepts, category filtering, applicable size selection, quantity and optional PIN validation, encoded email handoff and copy fallback. No personal information is persisted by this page, and no message is sent automatically. No supplier integration, payments, reservations, inventory or order tracking is active.
+`/shop/` is a concept catalogue and client-side enquiry composer, linked from the homepage. Nine concepts, category filtering, applicable size selection, quantity and optional PIN validation, encoded email handoff and copy fallback. No personal information is persisted by this page, and no message is sent automatically. No supplier integration, payments, reservations, inventory or order tracking is active.
 
 ## Supplier decision
 - Qikink: first sample candidate. Official site advertises custom storefront support, POD, COD and 2–3 business-day dispatch. Dispatch is not delivery. Confirm actual SKU, API access, wallet funding, print cost, shipping, tax, RTO and defect policy in the seller account. https://qikink.com/

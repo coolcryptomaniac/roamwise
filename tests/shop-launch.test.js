@@ -14,12 +14,12 @@ function setup() {
   return dom;
 }
 test('catalogue IDs are unique and there are no purchase claims', () => {
-  assert.equal(new Set(catalog.map(p=>p.id)).size,6);
+  assert.equal(new Set(catalog.map(p=>p.id)).size,9);
   for(const p of catalog) { assert.ok(['wear','travel'].includes(p.category)); assert.equal(p.price,undefined); }
 });
 test('filters and enquiry correctly change between clothing and accessories', () => {
   const dom=setup(), d=dom.window.document;
-  assert.equal(d.querySelectorAll('.product').length,6);
+  assert.equal(d.querySelectorAll('.product').length,9);
   d.querySelector('[data-filter="wear"]').click();
   assert.equal(d.querySelectorAll('.product').length,3);
   d.querySelector('.product button').click();

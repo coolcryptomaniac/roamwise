@@ -8,6 +8,9 @@
     {id:'almora-tote',fulfilment:'pod',name:'Almora to global.',type:'Everyday tote',category:'travel',motif:'ALMORA → GLOBAL',tone:'cream',sizes:false,description:'A simple carry-all concept for books, small finds and unhurried days. Material and load capacity pending samples.'},
     {id:'packing-cubes',name:'A place for everything.',type:'Packing cube set',category:'travel',motif:'PACK LIGHT',tone:'green',sizes:false,description:'A travel-essential sourcing shortlist. Supplier, dimensions, materials and final selection are not yet confirmed.'},
     {id:'tech-organiser',name:'Work from somewhere.',type:'Tech organiser',category:'travel',motif:'GO SLOW. STAY READY.',tone:'blue',sizes:false,description:'A proposed organiser for cables and small accessories. Supplier and product specifications pending verification.'}
+    ,{id:'quick-dry-towel',name:'Freshen up. Pack down.',type:'Compact travel towel',category:'travel',motif:'FRESH START',tone:'cream',sizes:false,description:'A compact towel candidate for stays, gym visits and travel. Absorbency, drying time, material and wash durability must pass sample checks before sale.'}
+    ,{id:'backpack-rain-cover',name:'A little cover for the journey.',type:'Backpack rain cover',category:'travel',motif:'RAIN READY',tone:'green',sizes:false,description:'A cover candidate for everyday commutes and wet-weather travel. Backpack capacity, fastening and water resistance are pending verification; not a waterproof guarantee.'}
+    ,{id:'laundry-shoe-bag',name:'Keep the clean things clean.',type:'Reusable laundry / shoe bag',category:'travel',motif:'SORT. PACK. REPEAT.',tone:'blue',sizes:false,description:'A washable bag candidate to separate shoes or used clothes in your luggage. Dimensions, seams, closures and wash performance pending sample approval.'}
   ];
   root.RWShopProviders = [
     {id:'qikink',name:'Qikink',role:'India-first sample candidate',status:'not_connected',url:'https://qikink.com/'},
