@@ -17,7 +17,10 @@ export async function commitVerifiedBookingPayment({env,orderId,paymentId,amount
  const read=async path=>call(base+'/'+path+'?transaction='+encodeURIComponent(transaction));
  // Mapping must be written by trusted order creation, not by webhook/customer.
  const mapping=await read('bookingOrderMappings/'+orderId);
- const bookingId=unpack(mapping).bookingId;
+ const trustedMapping=unpack(mapping);
+ const bookingId=trustedMapping.bookingId;
+ if(trustedMapping.orderId!==orderId || trustedMapping.amountMinor!==amountMinor || trustedMapping.currency!==currency)
+  return {confirmed:false,reason:'order_mapping_mismatch'};
  if(!/^[A-Za-z0-9_-]{8,100}$/.test(String(bookingId||'')))return {confirmed:false,reason:'unknown_order'};
  const bookingDoc=await read('bookingSessions/'+bookingId);
  if(!bookingDoc)return {confirmed:false,reason:'missing_booking'};
