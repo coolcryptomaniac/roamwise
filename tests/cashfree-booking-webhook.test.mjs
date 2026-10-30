@@ -6,7 +6,7 @@ const signingSecret='server_only_test_secret_123456';
 const timestamp='1793440000';
 const payload={bookingId:'booking_1234',amountMinor:150000,event:{orderId:'order_12345',status:'SUCCESS',currency:'INR',paymentId:'pay_123456'}};
 function fixture(){let record={state:'ready_for_payment',orderId:'order_12345',amountMinor:150000,currency:'INR'};
- const db={collection:()=>({doc:id=>({id})}),runTransaction:async fn=>fn({get:async()=>({exists:true,data:()=>({...record})}),update:(_,patch)=>{record={...record,...patch}}})};
+ const claims=new Map();const db={collection:name=>({doc:id=>({id,collection:name})}),runTransaction:async fn=>fn({get:async ref=>ref.collection==='bookingPaymentClaims'?{exists:claims.has(ref.id),data:()=>claims.get(ref.id)}:{exists:true,data:()=>({...record})},create:(ref,claim)=>{claims.set(ref.id,claim)},update:(_,patch)=>{record={...record,...patch}}})};
  const handler=createCashfreeBookingWebhook({db,signingSecret,now:()=>Number(timestamp)*1000,loadBooking:async()=>record});
  const rawBody=Buffer.from(JSON.stringify(payload));
  const signature=createHmac('sha256',signingSecret).update(timestamp).update(rawBody).digest('base64');
