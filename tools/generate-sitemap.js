@@ -60,6 +60,7 @@ const TOP_LEVEL_URLS = [
   `${SITE}/creators/gallery.html`,
   `${SITE}/memories/`,
   `${SITE}/books/`,
+  `${SITE}/shop/`,
   `${SITE}/map/`,
   `${SITE}/providers/join/`,
   `${SITE}/compare/`,

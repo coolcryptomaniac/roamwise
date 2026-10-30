@@ -1,0 +1,63 @@
+(function() {
+  'use strict';
+  const catalog = window.RWShopCatalog;
+  const grid = document.getElementById('products');
+  let selected = null;
+  function render(filter) {
+    grid.replaceChildren();
+    const products = catalog.filter(p => filter === 'all' || p.category === filter);
+    products.forEach(p => {
+      const card = document.createElement('article');
+      card.className = 'product';
+      const art = document.createElement('div');
+      art.className = 'concept ' + p.tone;
+      const motif = document.createElement('strong');
+      motif.textContent = p.motif;
+      const label = document.createElement('small');
+      label.textContent = 'DESIGN DIRECTION · NOT A PRODUCT PHOTO';
+      art.append(motif, label);
+      const type = document.createElement('p'); type.className = 'eyebrow'; type.textContent = p.type;
+      const title = document.createElement('h3'); title.textContent = p.name;
+      const description = document.createElement('p'); description.textContent = p.description;
+      const status = document.createElement('p'); status.className = 'muted'; status.textContent = 'In development · Price to be confirmed';
+      const button = document.createElement('button'); button.type = 'button'; button.textContent = 'Enquire about this concept →';
+      button.addEventListener('click', () => {
+        selected = p;
+        document.getElementById('request-form').reset();
+        document.getElementById('selected-name').textContent = p.name;
+        document.getElementById('size').disabled = !p.sizes;
+        document.getElementById('size').closest('label').hidden = !p.sizes;
+        document.getElementById('message-panel').hidden = true;
+        document.getElementById('enquiry').hidden = false;
+        document.getElementById('enquiry').scrollIntoView({behavior:'smooth',block:'start'});
+        document.querySelector('#request-form ' + (p.sizes ? 'select' : 'input')).focus({preventScroll:true});
+      });
+      card.append(art, type, title, description, status, button); grid.append(card);
+    });
+    document.getElementById('count').textContent = products.length + ' concepts · Enquiries open';
+  }
+  document.querySelectorAll('[data-filter]').forEach(button => button.addEventListener('click', () => {
+    document.querySelectorAll('[data-filter]').forEach(b => b.setAttribute('aria-pressed', String(b === button)));
+    render(button.dataset.filter);
+  }));
+  document.getElementById('request-form').addEventListener('submit', event => {
+    event.preventDefault();
+    if (!selected || !event.target.reportValidity()) return;
+    const form = new FormData(event.target);
+    const message = ['Hello RoamWise,', 'I am interested in: ' + selected.name + ' (' + selected.id + ').',
+      selected.sizes ? 'Preferred size: ' + form.get('size') : 'Size: not applicable',
+      'Quantity: ' + form.get('quantity'), 'Delivery PIN: ' + (form.get('pincode') || 'Not supplied'),
+      'Please share final sample photos, specifications, full price, delivery estimate and return terms when ready.',
+      'I understand this is an enquiry only, not an order or reservation.'].join('\n');
+    document.getElementById('message').value = message;
+    document.getElementById('email').href = 'mailto:support@roamwise.co.in?subject=' + encodeURIComponent('RoamWise shop enquiry: ' + selected.id) + '&body=' + encodeURIComponent(message);
+    document.getElementById('message-status').textContent = 'Message prepared, not sent. Send it to support@roamwise.co.in.';
+    document.getElementById('message-panel').hidden = false;
+  });
+  document.getElementById('copy').addEventListener('click', async () => {
+    const message = document.getElementById('message');
+    try { await navigator.clipboard.writeText(message.value); document.getElementById('message-status').textContent = 'Copied. Paste and send to support@roamwise.co.in.'; }
+    catch (_) { message.focus(); message.select(); document.getElementById('message-status').textContent = 'Select and copy the message, then send it to support@roamwise.co.in.'; }
+  });
+  render('all');
+})();
