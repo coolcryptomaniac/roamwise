@@ -10,7 +10,7 @@ export async function handleVerifiedBookingPayment(payload, { verifySignature, l
  const bookingId = String(payload?.bookingId || '');
  if (!/^[a-zA-Z0-9_-]{8,100}$/.test(bookingId)) return { confirmed: false, reason: 'invalid_booking' };
  const booking = await loadBooking(bookingId);
- if (!booking || booking.state !== 'ready_for_payment') return { confirmed: false, reason: 'booking_not_payable' };
+ if (!booking || !['ready_for_payment', 'confirmed'].includes(booking.state)) return { confirmed: false, reason: 'booking_not_payable' };
  const checked = evaluatePaymentWebhook({
    signatureVerified: verified, bookingId,
    expectedOrderId: booking.orderId, expectedAmountMinor: booking.amountMinor,
