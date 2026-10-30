@@ -34,10 +34,12 @@ function tuskReleaseSpeechFocus(){
   try{ if(window.RWAudioFocus && RWAudioFocus.release) RWAudioFocus.release('speech'); }catch(e){ /* best-effort, ignore */ }
 }
 
+var _rwTuskLastSpeech = '', _rwTuskSpeechRate = 1;
 function tuskSpeak(text){
   var say = tuskSpeakable(text);
   if(!say) return;
   if(!rwVoiceEnabled()){ showToast('🔇 Voice narration is muted — turn it back on in Settings'); return; }
+  _rwTuskLastSpeech = say.slice(0, 2000);
   tuskClaimSpeechFocus();
   if(window.RW && typeof RW.speak==='function'){ try{ RW.speak(say); return; }catch(e){ /* best-effort, ignore */ } }
   /* Native app output: treat promise rejection as failure, not as audible success.
@@ -45,7 +47,7 @@ function tuskSpeak(text){
   var tts=window.Capacitor && Capacitor.Plugins && Capacitor.Plugins.TextToSpeech;
   if(tts && typeof tts.speak==='function'){
     try{
-      var result=tts.speak({text:say,lang:rwSpeechLang(),rate:1.0});
+      var result=tts.speak({text:say,lang:rwSpeechOutputLang(say),rate:_rwTuskSpeechRate});
       if(result && typeof result.then==='function'){
         result.then(tuskReleaseSpeechFocus,function(){ tuskReleaseSpeechFocus(); showToast('🔊 Voice unavailable on this device — your answer is still on screen'); });
       }else tuskReleaseSpeechFocus();
@@ -59,7 +61,7 @@ function tuskSpeak(text){
     var u=new SpeechSynthesisUtterance(text);
     /* slightly slower and lower than default: reads as a wry aside rather than
        an announcement. Hindi voice handles Hinglish word shapes better. */
-    u.lang=rwSpeechOutputLang(say); u.rate=0.94; u.pitch=0.92; u.volume=1;
+    u.lang=rwSpeechOutputLang(say); u.rate=_rwTuskSpeechRate; u.pitch=0.92; u.volume=1;
     /* prefer an Indian-English/Hindi voice if the device has one */
     var vs=speechSynthesis.getVoices();
     var pick=rwSpeechPickVoice(vs,u.lang);
@@ -89,4 +91,33 @@ function rwSpeechPickVoice(voices,lang){
   if(exact.length) return exact[0];
   var indian=list.filter(function(v){return /^(hi|en)-IN$/i.test(v.lang||'');});
   return indian[0]||null;
+}
+
+/* User-initiated controls. Pause/resume is only offered where Web Speech
+   exposes reliable state; native TTS can still be stopped and replayed. */
+function rwTuskSpeechControls(){
+  var web=window.speechSynthesis, nativeBridge=window.RW && typeof RW.speak==='function';
+  var nativePlugin=window.Capacitor && Capacitor.Plugins && Capacitor.Plugins.TextToSpeech;
+  return { canPause:!!(web && !nativeBridge && !nativePlugin && typeof web.pause==='function' && typeof web.resume==='function'),
+           canReplay:!!_rwTuskLastSpeech, rate:_rwTuskSpeechRate };
+}
+function rwTuskPauseResume(){
+  var cfg=rwTuskSpeechControls(), web=window.speechSynthesis;
+  if(!cfg.canPause){ showToast('Pause/resume is not supported by this voice engine. Use Replay instead.');return false; }
+  try{
+    if(web.paused){ web.resume(); return true; }
+    if(web.speaking){ web.pause(); return true; }
+    showToast('Nothing is speaking yet. Tap Read aloud first.');
+  }catch(e){ showToast('Voice pause is unavailable on this device.'); }
+  return false;
+}
+function rwTuskReplaySpeech(){
+  if(!_rwTuskLastSpeech){showToast('Nothing to replay yet. Tap Read aloud first.');return false;}
+  tuskSpeak(_rwTuskLastSpeech); return true;
+}
+function rwTuskCycleSpeechRate(){
+  var rates=[0.8,1,1.2], i=rates.indexOf(_rwTuskSpeechRate);
+  _rwTuskSpeechRate=rates[(i+1)%rates.length];
+  showToast('Voice speed: '+_rwTuskSpeechRate+'× (applies to next playback)');
+  return _rwTuskSpeechRate;
 }
