@@ -25,3 +25,18 @@
 }
 @keyframes rwVoicePulse{50%{opacity:.35;transform:scale(.8)}}
 @media(prefers-reduced-motion:reduce){.rw-voice-listening .rw-voice-notice::before{animation:none}}
+
+/* Adaptive action rail: touch-friendly without stretching cards off-screen. */
+.rw-rail{max-width:100%;min-width:0;overflow-wrap:anywhere}
+.rw-rail-btn{min-height:40px;max-width:100%;touch-action:manipulation}
+@media(max-width:600px){
+  .rw-rail{display:flex;flex-wrap:wrap;gap:8px;align-items:stretch}
+  .rw-rail-h{flex:0 0 100%}
+  .rw-rail-btn{flex:1 1 calc(50% - 8px);min-width:0;min-height:44px;
+    white-space:normal;text-align:center;overflow-wrap:anywhere}
+  .rw-fx-mode{min-height:40px;padding:7px 12px}
+  .rw-voice-notice{font-size:13px}
+}
+@media(max-width:350px){
+  .rw-rail-btn{flex-basis:100%}
+}

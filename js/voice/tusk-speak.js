@@ -40,9 +40,17 @@ function tuskSpeak(text){
   if(!rwVoiceEnabled()){ showToast('🔇 Voice narration is muted — turn it back on in Settings'); return; }
   tuskClaimSpeechFocus();
   if(window.RW && typeof RW.speak==='function'){ try{ RW.speak(say); return; }catch(e){ /* best-effort, ignore */ } }
-  /* Capacitor Text-to-Speech plugin (works in the app where WebView speechSynthesis often doesn't) */
-  if(window.Capacitor && Capacitor.Plugins && Capacitor.Plugins.TextToSpeech){
-    try{ Capacitor.Plugins.TextToSpeech.speak({ text: say, lang:rwSpeechLang(), rate:1.0 }); return; }catch(e){ /* best-effort, ignore */ }
+  /* Native app output: treat promise rejection as failure, not as audible success.
+     Avoid overlapping fallback voices when the plugin speaks successfully. */
+  var tts=window.Capacitor && Capacitor.Plugins && Capacitor.Plugins.TextToSpeech;
+  if(tts && typeof tts.speak==='function'){
+    try{
+      var result=tts.speak({text:say,lang:rwSpeechLang(),rate:1.0});
+      if(result && typeof result.then==='function'){
+        result.then(tuskReleaseSpeechFocus,function(){ tuskReleaseSpeechFocus(); showToast('🔊 Voice unavailable on this device — your answer is still on screen'); });
+      }else tuskReleaseSpeechFocus();
+      return;
+    }catch(e){ /* Fall through to web speech when native invocation throws. */ }
   }
   text = say;
   try{
@@ -51,10 +59,10 @@ function tuskSpeak(text){
     var u=new SpeechSynthesisUtterance(text);
     /* slightly slower and lower than default: reads as a wry aside rather than
        an announcement. Hindi voice handles Hinglish word shapes better. */
-    u.lang='hi-IN'; u.rate=0.94; u.pitch=0.92; u.volume=1;
+    u.lang=rwSpeechOutputLang(say); u.rate=0.94; u.pitch=0.92; u.volume=1;
     /* prefer an Indian-English/Hindi voice if the device has one */
     var vs=speechSynthesis.getVoices();
-    var pick=vs.filter(function(v){ return /hi-IN|en-IN/i.test(v.lang); })[0];
+    var pick=rwSpeechPickVoice(vs,u.lang);
     if(pick) u.voice=pick;
     /* Android WebView often accepts .speak() but silently produces no audio
        without throwing — surface an error toast so the user isn't left guessing */
@@ -67,4 +75,18 @@ function tuskSpeak(text){
    Used by voice input (voice-input.js) and the native read-aloud above. */
 function rwSpeechLang(){
   try{ return (typeof rwLang==='function' && rwLang()==='hi') ? 'hi-IN' : 'en-IN'; }catch(e){ return 'en-IN'; }
+}
+
+/* Prefer speech matching the visible script, then the user's site language.
+   Hinglish in Latin script remains Indian English rather than always Hindi. */
+function rwSpeechOutputLang(text){
+  if(/[\u0900-\u097f]/.test(String(text||''))) return 'hi-IN';
+  return rwSpeechLang();
+}
+function rwSpeechPickVoice(voices,lang){
+  var list=voices||[];
+  var exact=list.filter(function(v){return String(v.lang||'').toLowerCase()===String(lang).toLowerCase();});
+  if(exact.length) return exact[0];
+  var indian=list.filter(function(v){return /^(hi|en)-IN$/i.test(v.lang||'');});
+  return indian[0]||null;
 }
