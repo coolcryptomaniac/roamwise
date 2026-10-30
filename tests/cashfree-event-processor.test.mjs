@@ -20,3 +20,28 @@ test('signed unknown order cannot confirm booking',async()=>{
  const altered={type:'PAYMENT_SUCCESS_WEBHOOK',data:{order:{order_id:'other_order',order_amount:1500,order_currency:'INR'},payment:{cf_payment_id:123456,payment_status:'SUCCESS'}}};
  assert.equal((await handler(request(altered))).status,409);assert.equal(read().state,'ready_for_payment');
 });
+
+test('Cashfree signed payload tampering and unsigned callbacks cannot confirm',async()=>{
+ const {handler,request,read}=fixture();
+ const signed=request();
+ const tampered={...signed,rawBody:Buffer.from(signed.rawBody.toString().replace('1500','1000'))};
+ assert.equal((await handler(tampered)).status,401);
+ assert.equal((await handler({rawBody:signed.rawBody,headers:{}})).status,401);
+ assert.equal(read().state,'ready_for_payment');
+});
+test('Cashfree signed event rejects wrong amount, currency and failed status',async()=>{
+ const {handler,request,read}=fixture();
+ const original={type:'PAYMENT_SUCCESS_WEBHOOK',data:{order:{order_id:'order_12345',order_amount:1500,order_currency:'INR'},payment:{cf_payment_id:123456,payment_status:'SUCCESS'}}};
+ const amount=structuredClone(original);amount.data.order.order_amount=1499;
+ const currency=structuredClone(original);currency.data.order.order_currency='USD';
+ const failed=structuredClone(original);failed.data.payment.payment_status='FAILED';
+ for(const event of [amount,currency,failed]) assert.notEqual((await handler(request(event))).status,200);
+ assert.equal(read().state,'ready_for_payment');
+});
+test('identical Cashfree webhook replay acknowledges success without changing payment',async()=>{
+ const {handler,request,read}=fixture();
+ const first=await handler(request());const second=await handler(request());
+ assert.equal(first.status,200);assert.equal(second.status,200);
+ assert.equal(second.body.reason,'already_applied');
+ assert.equal(read().paymentEventId,'payment_123456');
+});
