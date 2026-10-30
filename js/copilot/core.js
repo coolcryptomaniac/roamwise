@@ -764,7 +764,6 @@ function rwUserProfile(){
 var RW_PLACE_CACHE={};
 async function rwResolvePlace(name){
   if(!name) return null;
-  // Resolve curated Hindi and alternate spellings before cache lookup.
   if(typeof rwPlaceCanonicalName==='function') name=rwPlaceCanonicalName(name);
   var key='rw_geo_'+String(name).toLowerCase().replace(/[^a-z0-9]/g,'');
   if(RW_PLACE_CACHE[key]) return RW_PLACE_CACHE[key];
