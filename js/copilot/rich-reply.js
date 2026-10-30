@@ -205,7 +205,7 @@ async function cpFinish(bubble, answerHTML, intents, raw){
     var topPos = bubble.offsetTop - 8;
     log.scrollTop = topPos>0 ? topPos : 0;
   }
-  try{ if(window.RWTuskVoiceStudio) RWTuskVoiceStudio.answer(answerHTML,raw); }catch(e){}
+  try{ if(window.RWTuskVoiceStudio) RWTuskVoiceStudio.answer(answerHTML,raw,intents); }catch(e){}
   _cpHist.push({q:raw, a:bubble.textContent.slice(0,300)}); if(_cpHist.length>8) _cpHist.shift();
   try{ track('copilot_uses'); }catch(e){ /* analytics best-effort, ignore */ }
 }

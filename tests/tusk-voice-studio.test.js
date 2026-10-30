@@ -4,7 +4,7 @@ function build(){
  const calls={listen:0,speak:[],stop:0,timer:null};
  const nodes={};
  function node(){return {textContent:'',dataset:{},hidden:true,isConnected:true,
-   setAttribute(){},focus(){},querySelectorAll(){return []},
+   setAttribute(){},focus(){},appendChild(){},replaceChildren(){},querySelectorAll(){return []},
    querySelector(selector){if(!nodes[selector])nodes[selector]=node();return nodes[selector];},
    addEventListener(){},set innerHTML(s){this._html=s;this.textContent=s.replace(/<[^>]+>/g,' ');},get innerHTML(){return this._html||''}};}
  const dom={body:{appendChild(){}},createElement:()=>node()};

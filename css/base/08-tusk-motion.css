@@ -55,3 +55,20 @@
 @keyframes rwOrbMorph{to{border-radius:55% 45% 31% 69%/54% 66% 34% 46%;transform:rotate(12deg) scale(1.06)}}@keyframes rwOrbFloat{50%{translate:0 -8px}}@keyframes rwOrbOrbit{to{transform:rotate(360deg)}}
 @media(max-width:520px){.rw-orb-layout{min-height:90dvh;border-radius:20px;padding:16px}.rw-orb-stage{height:clamp(190px,31vh,270px)}.rw-orb-controls button{flex:1 1 auto}}
 @media(prefers-reduced-motion:reduce){.rw-orb-core,.rw-orb-ring{animation:none!important;transition:none!important}.rw-orb-shell{backdrop-filter:none}}
+
+/* Voice results: concise destination cards with safe, explicit actions. */
+.rw-orb-cards{width:100%;display:grid;gap:12px;min-width:0}
+.rw-orb-cards:empty{display:none}
+.rw-orb-card{position:relative;overflow:hidden;border:1px solid rgba(180,157,255,.34);border-radius:20px;padding:15px;
+ background:linear-gradient(128deg,rgba(88,59,173,.33),rgba(27,46,99,.52));box-shadow:0 10px 30px rgba(4,6,22,.2)}
+.rw-orb-card:before{content:'';position:absolute;inset:0 0 auto;height:3px;background:linear-gradient(90deg,#a676ff,#65b7ff,#f5d285)}
+.rw-orb-badge{font-size:11px;letter-spacing:.07em;text-transform:uppercase;color:#c8b6ff;font-weight:650}
+.rw-orb-card h3{font-size:clamp(18px,4.5vw,25px);line-height:1.2;margin:9px 0;color:#fff;overflow-wrap:anywhere}
+.rw-orb-card p{font-size:13px;color:#dbd9ef;margin:0 0 12px}
+.rw-orb-card-actions{display:flex;gap:9px;flex-wrap:wrap}
+.rw-orb-card-actions button{flex:1 1 140px;min-height:44px;border-radius:12px;color:#fff;
+ background:#352b65;border:1px solid #8d80c7;padding:10px 12px;font-weight:650;cursor:pointer}
+.rw-orb-card-actions button:hover,.rw-orb-card-actions button:focus-visible{background:#4c3e80;outline-offset:2px}
+@media(max-width:420px){.rw-orb-card{padding:13px}.rw-orb-card-actions button{flex-basis:100%}}
+@media(prefers-reduced-motion:no-preference){.rw-orb-card{animation:rwFxIn .38s ease both}}
+@media(prefers-reduced-motion:reduce){.rw-orb-card{animation:none!important}}
