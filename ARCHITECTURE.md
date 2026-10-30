@@ -62,7 +62,7 @@ start of the modularization effort, down from 3,099 after the prior
 "modularization-final" pass, down from 1,207 after "round 4", and down from
 629 after "round 5" — the further changes since round 5 are incidental to
 unrelated feature PRs #138-143 and this pass's `submitUtr()` one-line
-rewire, not a new extraction round) and there are **208 files** under `js/`
+rewire, not a new extraction round) and there are **209 files** under `js/`
 (including the later `js/admin/` dashboard modules and
 `js/core/push-notifications.js` — see the `js/core/` and `js/admin/`
 entries below; the count was last re-verified via `npm run mod-status`,
@@ -286,9 +286,10 @@ in a later pass)
 - `focus.js` — single-audible-owner arbitration across cues/music/speech/video
 - `reminders.js` — local trip-countdown notification scheduling
 
-### `js/voice/` (2 files)
+### `js/voice/` (3 files)
 - `tusk-speak.js` — TTS output (native bridge in-app, Web Speech on web)
 - `voice-input.js` — speech-to-text input handling
+- `tusk-studio.js` — opt-in animated voice interface and bounded turn-taking
 
 ### `js/booking/` (11 files)
 - `actions.js` — on-trip action hub
