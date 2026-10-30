@@ -21,6 +21,8 @@ export function createCashfreePaymentReconciler({appId,secretKey,environment='sa
    const amount=Number(data?.payment_amount);
    if(!Number.isFinite(amount)||amount<=0||!Number.isSafeInteger(Math.round(amount*100))||Math.abs(amount*100-Math.round(amount*100))>1e-7)
     throw new Error('Invalid Cashfree payment amount');
+   if (data.order_id !== orderId || String(data.cf_payment_id) !== String(paymentId))
+    throw new Error('Cashfree payment identity mismatch');
    return {orderId:data.order_id,paymentId:String(data.cf_payment_id),status:data.payment_status,
     amountMinor:Math.round(amount*100),currency:data.payment_currency};
   } finally {clearTimeout(timer)}
