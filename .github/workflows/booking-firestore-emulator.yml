@@ -23,4 +23,4 @@ jobs:
       - name: Install isolated emulator dependencies
         run: npm install --prefix tests/emulator --no-audit --no-fund
       - name: Run real Firestore transaction contention test
-        run: cd tests/emulator && npx firebase emulators:exec --only firestore --project roamwise-booking-emulator-test 'node --test tests/booking-firestore-emulator.test.mjs' --config ../../firebase.json
+        run: cd tests/emulator && npx firebase emulators:exec --only firestore --project roamwise-booking-emulator-test 'node --test ../../tests/booking-firestore-emulator.test.mjs' --config ../../firebase.json
