@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { createRawBookingWebhookHandler } from '../js/booking/raw-booking-webhook.mjs';
 const data={bookingId:'booking_1234',amountMinor:150000,event:{orderId:'order_12345',status:'SUCCESS',currency:'INR',paymentId:'pay_123456'}};
 function setup(){let record={state:'ready_for_payment',orderId:'order_12345',amountMinor:150000,currency:'INR'};let checked=0;
- const db={collection:()=>({doc:id=>({id})}),runTransaction:async fn=>fn({get:async()=>({exists:true,data:()=>record}),update:(_,patch)=>{record={...record,...patch}}})};
+ const claims=new Map();const db={collection:name=>({doc:id=>({id,collection:name})}),runTransaction:async fn=>fn({get:async ref=>ref.collection==='bookingPaymentClaims'?{exists:claims.has(ref.id),data:()=>claims.get(ref.id)}:{exists:true,data:()=>record},create:(ref,claim)=>{claims.set(ref.id,claim)},update:(_,patch)=>{record={...record,...patch}}})};
  const handler=createRawBookingWebhookHandler({db,verifyRawSignature:async ({rawBody})=>{checked++;return Buffer.isBuffer(rawBody);},loadBooking:async()=>record});
  return {handler,read:()=>record,checks:()=>checked};}
 test('raw signed webhook confirms only after verifying original bytes',async()=>{
