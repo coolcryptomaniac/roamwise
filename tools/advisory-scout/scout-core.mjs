@@ -117,8 +117,9 @@ export function validate(proposals, headlines, existing, today, regionsFor) {
     if (until < today) { reasons.push('already over: ' + title); continue; }
     if (until > addDays(today, MAX_DAYS)) until = addDays(today, MAX_DAYS);
     if (until < from) until = from;
-    const dup = existing.concat(accepted).find((e) => e && (e.sourceUrl === h.url || (e.kind === kind && similar(e.title, title) >= 0.6
-      && regionsFor((e.match || []).join(' | ')).some((r) => regions.includes(r)) && e.until >= today)));
+    /* One auto advisory per kind and region at a time; a curated one blocks only a similar title. */
+    const dup = existing.concat(accepted).find((e) => e && (e.sourceUrl === h.url || (e.kind === kind && e.until >= today
+      && regionsFor((e.match || []).join(' | ')).some((r) => regions.includes(r)) && (e.auto || similar(e.title, title) >= 0.6))));
     if (dup) { reasons.push('duplicate of ' + dup.id); continue; }
     accepted.push({
       id: `auto-${from.replace(/-/g, '')}-${slug(title)}`, kind, official: false, auto: true,
@@ -127,6 +128,39 @@ export function validate(proposals, headlines, existing, today, regionsFor) {
     if (accepted.length >= MAX_NEW) break;
   }
   return { accepted, reasons };
+}
+
+/* ------------------------------------------------------------ no-AI fallback
+   Used when no AI key is configured. Deliberately narrow: English headlines that name a
+   known Uttarakhand place AND a clear travel impact. Title is the headline itself; the
+   detail tells people to confirm locally. Everything still goes through validate(). */
+const RULES = [
+  { kind: 'road', days: 2, re: /\b(landslides?|road|highway|route|nh[- ]?\d+)\b[^.]*\b(closed|blocked|shut|cut off|washed away|suspended)\b|\b(closed|blocked|shut)\b[^.]*\b(road|highway|route)\b|\blandslide\b/i },
+  { kind: 'snow', days: 3, re: /\bsnow(fall)?\b/i },
+  { kind: 'rain', days: 2, re: /\b(red|orange) alert\b|\bheavy (rain|rainfall)\b|\bcloudburst\b/i },
+  { kind: 'crowd', days: 3, re: /\b(traffic jam|gridlock|heavy rush|huge crowd|crowds? swell|stranded)\b/i },
+  { kind: 'closure', days: 14, re: /\b(portals?|kapat|doors?|yatra)\b[^.]*\b(close|closed|closing|suspended|halted)\b/i },
+];
+const NOT_HERE = /\b(nepal|himachal|kashmir|ladakh|sikkim|shimla|manali|ooty|coonoor|udhagamandalam|kerala|thane|mumbai|delhi-ncr)\b/i;
+const NOISE = /\b(contract|tender|inaugurat\w*|satire|epfo|election|poll|arrest\w*|murder|court|bypass bridge|stock|shares?)\b/i;
+
+export function ruleProposals(headlines, regionWords) {
+  const out = [];
+  headlines.forEach((h, i) => {
+    const t = h.title.replace(/\s+-\s+[^-]{2,60}$/, '').trim();
+    if (!/^[\x20-\x7E‘-”–—]+$/.test(t)) return;
+    if (NOT_HERE.test(t) || NOISE.test(t)) return;
+    const low = t.toLowerCase();
+    const places = regionWords.filter((w) => low.includes(w));
+    if (!places.length) return;
+    const r = RULES.find((x) => x.re.test(t));
+    if (!r) return;
+    const from = h.published.slice(0, 10);
+    out.push({ headline: i, kind: r.kind, title: t.length > 90 ? t.slice(0, 88).replace(/\s+\S*$/, '') + '…' : t,
+      detail: `${h.source || 'A news report'} reports this. Check with local police or the district administration before you travel.`,
+      places, from, until: addDays(from, r.days) });
+  });
+  return out;
 }
 
 /** Current auto items kept (not expired) + new ones, newest first, capped. */

@@ -82,3 +82,24 @@ test('block rewrite keeps conditions-data.js valid and loadable everywhere', () 
   assert.equal(S.writeBlock(S.writeBlock(src, [item]), []), src, 'emptying the block restores the original');
   assert.throws(() => S.writeBlock('var x = [];', []), /markers missing/);
 });
+
+test('no-AI fallback: only English headlines with a known place and a clear impact', () => {
+  const { RW_UK_REGIONS } = require('../features/travel-safety/data/places.js');
+  const words = RW_UK_REGIONS.flatMap((r) => r.words);
+  const mk = (title) => ({ title, url: 'https://news.google.com/rss/articles/' + title.length, source: 'ANI', published: '2026-10-30T03:00:00.000Z' });
+  const h = [
+    mk("Kedarnath Dham receives season's first heavy snowfall; temperatures plummet - ANI News"),
+    mk('Landslide blocks Almora-Bageshwar road near Takula - Amar Ujala'),
+    mk('Coonoor hill road closed after landslide - The Hindu'),
+    mk('SRM Contractors secures contract for Almora road - Megaproject'),
+    mk('Uttarakhand shivers amid snowfall - Revoi'),
+    mk('लखनपुर में पहाड़ी से गिरीं चट्टानें, आदि कैलाश मार्ग बंद'),
+    mk('Nainital hosts a book fair this weekend'),
+  ];
+  const props = S.ruleProposals(h, words);
+  assert.deepEqual(props.map((p) => [p.headline, p.kind]), [[0, 'snow'], [1, 'road']]);
+  assert.match(props[1].detail, /Check with local police/);
+  assert.equal(props[1].until, '2026-11-01');
+  const { accepted } = S.validate(props.concat([{ ...props[0], headline: 0 }]), h, [], TODAY, rwUkRegionsForText);
+  assert.equal(accepted.length, 2, 'one auto advisory per kind and region');
+});
