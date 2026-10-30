@@ -98,6 +98,7 @@ function rwVoiceResult(text){
   var input=el(_rwVoiceTarget)||el('heroInput');
   if(!input || !String(text||'').trim()) return;
   input.value=String(text).trim();
+  try{ if(window.RWTuskVoiceStudio) RWTuskVoiceStudio.transcript(input.value); }catch(e){}
   rwVoiceNotice('complete','Voice captured. Preparing your travel answer.');
   copilotSend(_rwVoiceTarget==='heroInput');
 }
