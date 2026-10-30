@@ -30,3 +30,44 @@ test('replayed payment cannot claim a different amount or order',async()=>{
  assert.equal((await commit({...base,amountMinor:100})).confirmed,false);
  assert.equal((await commit({...base,orderId:'order_changed'})).confirmed,false);
 });
+
+// Simulates Firestore optimistic concurrency: both contenders read the same
+// unclaimed payment, but only one transaction may commit the claim document.
+test('competing bookings cannot both claim the same payment ID',async()=>{
+ const bookings=new Map([
+  ['booking_A123',{state:'ready_for_payment',orderId:'order_A123',amountMinor:150000,currency:'INR'}],
+  ['booking_B123',{state:'ready_for_payment',orderId:'order_B123',amountMinor:150000,currency:'INR'}],
+ ]);
+ const claims=new Map();
+ let firstRead;const firstReadReached=new Promise(resolve=>{firstRead=resolve});
+ let releaseFirst;const firstCanFinish=new Promise(resolve=>{releaseFirst=resolve});
+ let transactions=0;
+ const db={collection:name=>({doc:id=>({collection:name,id})}),runTransaction:async fn=>{
+  const index=++transactions;
+  const reads=[];const writes=[];
+  const tx={get:async ref=>{
+   const key=ref.collection+'/'+ref.id;
+   const value=ref.collection==='bookingPaymentClaims'?claims.get(ref.id):bookings.get(ref.id);
+   reads.push({key,exists:value!==undefined});
+   if(index===1 && ref.collection==='bookingPaymentClaims'){firstRead();await firstCanFinish;}
+   return {exists:value!==undefined,data:()=>value};
+  },create:(ref,value)=>writes.push({type:'create',ref,value}),update:(ref,value)=>writes.push({type:'update',ref,value})};
+  const result=await fn(tx);
+  // Simulated optimistic conflict: a competing transaction already created a read doc.
+  if(reads.some(r=>r.key.startsWith('bookingPaymentClaims/') && !r.exists && claims.has(r.key.split('/')[1])))
+   return {confirmed:false,reason:'transaction_conflict'};
+  for(const w of writes){if(w.type==='create')claims.set(w.ref.id,w.value);else bookings.set(w.ref.id,{...bookings.get(w.ref.id),...w.value});}
+  return result;
+ }};
+ const commit=createAtomicBookingPaymentCommit(db);
+ const args={eventId:'payment_shared123',amountMinor:150000,currency:'INR'};
+ const first=commit({...args,bookingId:'booking_A123',orderId:'order_A123'});
+ await firstReadReached;
+ const second=await commit({...args,bookingId:'booking_B123',orderId:'order_B123'});
+ releaseFirst();const firstResult=await first;
+ assert.equal(second.confirmed,true);
+ assert.equal(firstResult.confirmed,false);
+ assert.equal(claims.size,1);
+ assert.equal(bookings.get('booking_A123').state,'ready_for_payment');
+ assert.equal(bookings.get('booking_B123').state,'confirmed');
+});
