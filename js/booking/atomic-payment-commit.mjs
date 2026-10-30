@@ -12,7 +12,7 @@ export function createAtomicBookingPaymentCommit(db, { collection = 'bookingSess
      const snap = await tx.get(ref);
      if (!snap.exists) return { confirmed: false, reason: 'missing_booking' };
      const booking = snap.data();
-     if (booking.state === 'confirmed' && booking.paymentEventId === eventId) return { confirmed: true, reason: 'already_applied' };
+     if (booking.state === 'confirmed' && booking.paymentEventId === eventId && booking.orderId === orderId && booking.amountMinor === amountMinor && booking.currency === currency) return { confirmed: true, reason: 'already_applied' };
      if (booking.state !== 'ready_for_payment' || booking.orderId !== orderId || booking.amountMinor !== amountMinor || booking.currency !== currency)
        return { confirmed: false, reason: 'state_or_order_changed' };
      tx.update(ref, { state: 'confirmed', paymentEventId: eventId, confirmedAt: new Date().toISOString() });
