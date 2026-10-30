@@ -26,6 +26,9 @@
 - Each stay enquiry carries a short RoamWise code (RW-XXXXXX). Stay payments are made to the property directly, not to RoamWise.
 
 ## Guides
+- Uttarakhand travel rules & permits checker (Char Dham registration, Kedarnath helicopter via IRCTC only, Adi Kailash Inner Line Permit, Mussoorie registration, green cess, Kainchi Dham rules): https://www.roamwise.co.in/uttarakhand-travel-rules/
+- Uttarakhand road & safety status (sourced closures, crowds, snow, events; emergency numbers 112 and 1070; free region alerts): https://www.roamwise.co.in/uttarakhand-road-status/
+- Booking scam checker for Kedarnath helicopter, Char Dham, homestay and taxi links, UPI IDs and phone numbers: https://www.roamwise.co.in/booking-safety/
 - Almora Dussehra: why the whole Ravan family is burned, the 2026 effigies, the day hour by hour, tips, and Vijayadashami 2027 (9 Oct): https://www.roamwise.co.in/almora-dussehra/
 
 ## Partners and matching

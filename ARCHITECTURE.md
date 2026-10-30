@@ -62,7 +62,7 @@ start of the modularization effort, down from 3,099 after the prior
 "modularization-final" pass, down from 1,207 after "round 4", and down from
 629 after "round 5" — the further changes since round 5 are incidental to
 unrelated feature PRs #138-143 and this pass's `submitUtr()` one-line
-rewire, not a new extraction round) and there are **206 files** under `js/`
+rewire, not a new extraction round) and there are **207 files** under `js/`
 (including the later `js/admin/` dashboard modules and
 `js/core/push-notifications.js` — see the `js/core/` and `js/admin/`
 entries below; the count was last re-verified via `npm run mod-status`,
@@ -108,6 +108,11 @@ prints PASS/DRIFT per number in under a second.
   gating and the unified token schema — see PUSH-NOTIFICATIONS-SETUP.md.
   Server-side send path lives in `worker/handlers/push.js` (admin-only,
   not part of this app's classic-`<script>` chain).
+- `alert-follow.js` — loaded right after `push-notifications.js`. Handles
+  `/?follow=almora,nainital` and `/?unfollow=1` links from the static
+  travel-safety pages: saves `users/{uid}.alertRegions` (self-write, no rule
+  change) and turns push on. The Worker's `handlers/advisory-alerts.js` reads
+  it. See ADVISORY-ALERTS.md.
 - `storage-utils.js` — `localStorage` read/write helpers
 - `text-utils.js` — string/text formatting + HTML-escaping helpers
 

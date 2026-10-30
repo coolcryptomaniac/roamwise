@@ -1,0 +1,80 @@
+/* Uttarakhand travel-safety pages: rules checker, road & safety status, booking safety.
+   Calm mountain palette; light by default, dark when the device asks. */
+:root{--bg:#f6f4ef;--panel:#fff;--ink:#1c2321;--muted:#5b6662;--line:#dde3df;--brand:#0f5c4c;--brand-ink:#fff;--accent:#c46a12;
+  --ok:#1d7a46;--ok-bg:#e6f4ec;--warn:#9a5b00;--warn-bg:#fff3dd;--bad:#b3261e;--bad-bg:#fde8e6;--info-bg:#e9f1f8;--max:1080px}
+@media (prefers-color-scheme:dark){:root{--bg:#0f1513;--panel:#17201d;--ink:#e8eeeb;--muted:#a3b0ab;--line:#2a3632;--brand:#4fc2a3;--brand-ink:#06201a;--accent:#f0a35a;
+  --ok:#6fd49a;--ok-bg:#12291d;--warn:#f2c26b;--warn-bg:#2b2310;--bad:#ff8a80;--bad-bg:#331614;--info-bg:#14222d}}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans","Noto Sans Devanagari",sans-serif}
+a{color:var(--brand)}
+.skip{position:absolute;left:-999px}.skip:focus{left:16px;top:8px;background:var(--brand);color:var(--brand-ink);padding:6px 10px;z-index:9}
+.ts-top{position:sticky;top:0;z-index:5;display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 16px;background:var(--panel);border-bottom:1px solid var(--line)}
+.ts-brand{display:flex;align-items:center;gap:8px;color:var(--ink);font-weight:700;text-decoration:none}
+.ts-brand img{border-radius:7px}
+.ts-top nav{display:flex;gap:14px;overflow-x:auto;white-space:nowrap;font-size:.9rem}
+.ts-top nav a{color:var(--muted);text-decoration:none}.ts-top nav a[aria-current="page"]{color:var(--brand);font-weight:700}
+main{max-width:var(--max);margin:0 auto;padding:0 16px 48px}
+.ts-hero{padding:36px 0 18px}
+.ts-kicker{margin:0 0 6px;color:var(--accent);font-size:.78rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase}
+h1{margin:0 0 10px;font-size:clamp(1.9rem,5.5vw,3rem);line-height:1.1;letter-spacing:-.01em}
+h2{margin:36px 0 12px;font-size:clamp(1.35rem,3.5vw,1.8rem);line-height:1.2}
+h3{margin:0 0 6px;font-size:1.05rem;line-height:1.35}
+.ts-lead{max-width:700px;font-size:1.08rem;color:var(--muted);margin:0 0 8px}
+.ts-small{font-size:.86rem;color:var(--muted)}
+.ts-panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px}
+.ts-form{display:grid;gap:16px}
+.ts-form label{display:grid;gap:6px;font-weight:600;font-size:.95rem}
+.ts-form input[type=date],.ts-form input[type=text],.ts-form input[type=search],.ts-form select{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 12px;min-height:44px;width:100%}
+.ts-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
+.ts-chips{display:flex;flex-wrap:wrap;gap:8px}
+.ts-chip{font:inherit;font-size:.92rem;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:999px;padding:8px 14px;min-height:40px;cursor:pointer}
+.ts-chip[aria-pressed="true"]{background:var(--brand);border-color:var(--brand);color:var(--brand-ink);font-weight:600}
+.ts-checks{display:flex;flex-wrap:wrap;gap:10px 18px;font-weight:400}
+.ts-checks label{display:flex;align-items:center;gap:8px;font-weight:400}
+.ts-checks input{width:20px;height:20px;accent-color:var(--brand)}
+fieldset{border:0;margin:0;padding:0}legend{font-weight:600;margin-bottom:8px}
+.ts-group{margin-top:22px}
+.ts-group-h{font-size:1.15rem;margin:0 0 10px}
+.ts-note,.ts-empty{color:var(--muted);margin:0 0 10px}
+.ts-ok{background:var(--ok-bg);color:var(--ok);border-radius:12px;padding:12px 14px;font-weight:600}
+.ts-card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px;margin:0 0 12px}
+.ts-rule.kind-must{border-left:4px solid var(--accent)}
+.ts-rule.kind-safety{border-left:4px solid var(--brand)}
+.ts-adv{border-left:4px solid var(--warn)}
+.ts-card ul{margin:6px 0 8px;padding-left:20px}.ts-card li{margin:4px 0}
+.ts-card p{margin:6px 0}
+.ts-tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
+.ts-badge{font-size:.74rem;font-weight:700;letter-spacing:.03em;border-radius:999px;padding:3px 9px;background:var(--info-bg);color:var(--ink)}
+.ts-badge.st-in-force{background:var(--warn-bg);color:var(--warn)}
+.ts-badge.st-draft{background:var(--info-bg)}
+.ts-badge.is-official{background:var(--ok-bg);color:var(--ok)}
+.ts-badge.is-confirm{background:var(--warn-bg);color:var(--warn)}
+.ts-badge.is-closed,.ts-badge.kind-closure{background:var(--bad-bg);color:var(--bad)}
+.ts-meta{font-size:.88rem;color:var(--muted)}
+.ts-src{font-size:.82rem;color:var(--muted)}
+.ts-links{display:flex;flex-wrap:wrap;gap:8px 16px}
+.ts-link{font-weight:600;text-decoration:none}.ts-link:hover{text-decoration:underline}
+.ts-link.is-official::before{content:"✓ ";color:var(--ok)}
+.ts-actions{display:flex;flex-wrap:wrap;gap:10px;margin:18px 0}
+.ts-btn{display:inline-flex;align-items:center;justify-content:center;font:inherit;font-weight:700;border:0;border-radius:12px;padding:11px 16px;min-height:44px;background:var(--brand);color:var(--brand-ink);text-decoration:none;cursor:pointer}
+.ts-btn.quiet{background:transparent;color:var(--brand);border:1.5px solid var(--brand)}
+.ts-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
+.ts-grid .ts-card{margin:0}
+.ts-emergency{display:flex;flex-wrap:wrap;gap:10px}
+.ts-emergency a{flex:1 1 200px;text-align:center;font-weight:800;font-size:1.1rem;text-decoration:none;background:var(--bad);color:#fff;border-radius:12px;padding:12px}
+.ts-verdict{border-radius:14px;padding:16px;margin-top:16px;border:1px solid var(--line)}
+.ts-verdict h3{font-size:1.2rem}
+.ts-verdict.v-official,.ts-verdict.v-roamwise{background:var(--ok-bg);border-color:var(--ok)}
+.ts-verdict.v-official h3,.ts-verdict.v-roamwise h3{color:var(--ok)}
+.ts-verdict.v-high-risk{background:var(--bad-bg);border-color:var(--bad)}.ts-verdict.v-high-risk h3{color:var(--bad)}
+.ts-verdict.v-caution{background:var(--warn-bg);border-color:var(--warn)}.ts-verdict.v-caution h3{color:var(--warn)}
+.ts-verdict.v-unknown{background:var(--info-bg)}
+.ts-inline{display:flex;gap:10px;flex-wrap:wrap}.ts-inline input{flex:1 1 240px}
+.ts-faq details{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin:0 0 10px}
+.ts-faq summary{font-weight:700;cursor:pointer}
+footer{max-width:var(--max);margin:0 auto;padding:24px 16px 40px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}
+footer a{color:var(--muted)}
+@media print{.ts-top,.ts-form,.ts-actions,footer,#ts-all-wrap,.no-print{display:none!important}body{background:#fff;color:#000}.ts-card{break-inside:avoid}}
+.ts-follow{margin-top:28px}.ts-follow h2{margin-top:0}
+#ts-filter{margin-bottom:16px}
