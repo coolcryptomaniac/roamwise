@@ -24,6 +24,12 @@ export function createAtomicBookingPaymentCommit(db, { collection = 'bookingSess
      if (claimSnap.exists) return { confirmed: false, reason: 'payment_already_claimed' };
      if (booking.state !== 'ready_for_payment' || booking.orderId !== orderId || booking.amountMinor !== amountMinor || booking.currency !== currency)
        return { confirmed: false, reason: 'state_or_order_changed' };
+     // Never confirm a booking whose server-defined payment window has expired.
+     if (booking.paymentExpiresAt != null) {
+       const expiry = Date.parse(booking.paymentExpiresAt);
+       if (!Number.isFinite(expiry) || expiry <= Date.now())
+         return { confirmed: false, reason: 'payment_window_expired' };
+     }
      tx.create(claimRef, { bookingId, orderId, amountMinor, currency, claimedAt: new Date().toISOString() });
      tx.update(ref, { state: 'confirmed', paymentEventId: eventId, confirmedAt: new Date().toISOString() });
      return { confirmed: true, reason: 'applied' };
