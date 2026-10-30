@@ -14,3 +14,14 @@
   .rw-fx > *, .rw-fx .tk-bul{ animation:none; }
   .rw-fx-caret::after{ animation:none; }
 }
+
+/* Voice affordance: a modest, accessible status rather than a blocking modal. */
+.rw-voice-notice{font-size:12px;line-height:1.45;color:var(--t2,#b8bbd0);margin:6px 0;max-width:100%;overflow-wrap:anywhere}
+.rw-voice-notice[data-state="listening"]{color:var(--a,#9a8aff);font-weight:600}
+.rw-voice-notice[data-state="error"]{color:var(--err,#f28b82)}
+.rw-voice-listening .rw-voice-notice[data-state="listening"]::before{
+ content:"";display:inline-block;width:7px;height:7px;border-radius:50%;
+ background:currentColor;margin-right:7px;animation:rwVoicePulse 1.5s ease-in-out infinite;
+}
+@keyframes rwVoicePulse{50%{opacity:.35;transform:scale(.8)}}
+@media(prefers-reduced-motion:reduce){.rw-voice-listening .rw-voice-notice::before{animation:none}}
