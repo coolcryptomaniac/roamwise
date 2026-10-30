@@ -45,15 +45,37 @@ Messages carry at most 3 advisories, each with its source. Emails share the
 `maxEmailsPerRun` budget and stop at the Gmail daily cap; the rest goes next run.
 Without the `RW_KV` binding the live run refuses to send.
 
-### Switch it on
-1. Merge (the Worker deploys itself). Nothing is sent until step 2.
-2. Firebase Console → Firestore → `config/tripNotifySettings` (same doc as booking emails), add
-   booleans: `advisoryAlerts`, `partnerAlerts`, `teamDigest` = `true` as wanted.
-3. Cloudflare → Worker `roamwise-api` → Settings → Variables and Secrets → add Secret
-   `ALERT_TEAM_EMAILS` = `you@example.com,teammate@example.com` (up to 10).
-4. Email needs the Gmail relay from `EMAIL-PUSH-SETUP.md`; push needs `PUSH-NOTIFICATIONS-SETUP.md`.
-5. Test as admin: `POST /admin/advisory-alerts/run` with your Firebase ID token. It is a dry run
-   (counts only) unless you add `?dry=0`; add `?digest=1` to include the team digest.
+### How it is switched on (in code, no console steps)
+- `worker/wrangler.toml` sets `ADVISORY_ALERTS = "guests,partners,digest"`, so all three parts run
+  once the Worker deploys. To stop one, remove its word and merge, or set the matching boolean
+  (`advisoryAlerts`, `partnerAlerts`, `teamDigest`) to `false` in Firestore
+  `config/tripNotifySettings`; a Firestore value always wins over the Worker var.
+- The digest email list is the Worker secret `ALERT_TEAM_EMAILS`. The deploy workflow
+  (`.github/workflows/deploy-worker.yml`) sets it on every Worker deploy from the repo secret
+  `ALERT_TEAM_EMAILS`, or `TO_EMAIL` when that is not set.
+- Email from the Worker needs the Gmail relay (`EMAIL-PUSH-SETUP.md`); push needs
+  `PUSH-NOTIFICATIONS-SETUP.md`. Without them the run still works for whichever channel exists.
+- Test as admin: `POST /admin/advisory-alerts/run` with your Firebase ID token. It is a dry run
+  (counts only) unless you add `?dry=0`; add `?digest=1` to include the team digest.
+
+## Daily news scout (new advisories without manual work)
+`.github/workflows/uttarakhand-advisory-scout.yml` runs every morning at 06:15 IST (and on
+"Run workflow"). `tools/advisory-scout/scout.mjs` reads Google News in English and Hindi for
+Uttarakhand road closures, landslides, snow, rain alerts, temple dates, Char Dham, Kainchi Dham,
+Adi Kailash and traffic plans from the last 48 hours, and asks Claude (`ANTHROPIC_API_KEY`;
+`OPENAI_API_KEY` as fallback; model `ADVISORY_SCOUT_MODEL`) which ones change a traveller's plans.
+`tools/advisory-scout/scout-core.mjs` then enforces the rules the model is not trusted with:
+- the advisory must cite one of the fetched headline links;
+- its places must map to a known Uttarakhand region;
+- it is always `official:false` ("confirm locally") and `auto:true`;
+- it lasts at most 21 days; expired auto items are removed every run;
+- at most 6 new a day and 25 in total; near-duplicates of existing items are skipped.
+
+Auto items live between the `AUTO-SCOUT` markers at the end of `RW_CONDITIONS` in
+`conditions-data.js`. Delete one there to remove it early; move it above the block to keep it.
+The workflow rebuilds `data/conditions.json`, runs the tests, commits to `main`, and emails the
+team (`MAIL_USERNAME`/`MAIL_APP_PASSWORD`/`TO_EMAIL`) when something was added. The site
+redeploys and the Worker alerts people within the hour.
 
 ### Data and privacy
 - Reads `roomBookings`, `users` (pushTokens, email, alertRegions), `admins`, `stayLeads`

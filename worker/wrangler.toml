@@ -53,6 +53,10 @@ id = "be31e0935be843219cea1edf2203877b"   # <-- the ONLY line you edit in this f
 # ---------------------------------------------------------------------------
 [vars]
 CASHFREE_ENV = "live"
+# Travel advisory alerts (worker/handlers/advisory-alerts.js, ADVISORY-ALERTS.md): which parts run
+# when config/tripNotifySettings does not set them. A false there always wins. Remove a word to stop it.
+#   guests = guests with stays + region followers, partners = property owners, digest = daily team digest
+ADVISORY_ALERTS = "guests,partners,digest"
 # GST on RoamWise's own fee (stay ledger statement). Keep "false" until RoamWise holds a
 # GST registration, then set "true". Rules and review: features/finance-tax/gst-rules.js.
 RW_GST_REGISTERED = "false"

@@ -1,0 +1,79 @@
+# ============================================================================
+# Uttarakhand advisory scout — reads Uttarakhand travel news every morning
+# ============================================================================
+# 1. tools/advisory-scout/scout.mjs reads Google News (English + Hindi) for road
+#    closures, landslides, snow, rain alerts, temple dates, Char Dham, Kainchi Dham,
+#    Adi Kailash and traffic plans from the last 48 hours.
+# 2. Claude (ANTHROPIC_API_KEY; OPENAI_API_KEY as fallback) picks the headlines that
+#    change a traveller's plans. Code then checks every pick: it must cite a fetched
+#    headline, name a known Uttarakhand place, last at most 21 days, and is always
+#    shown as "confirm locally". Expired auto items are removed.
+# 3. conditions-data.js is updated, data/conditions.json rebuilt, tests run, and the
+#    change is committed to main. The site redeploys; the Worker then alerts guests,
+#    region followers and partners within the hour (ADVISORY-ALERTS.md).
+# 4. If anything was added, the team gets an email summary (MAIL_* secrets).
+# Cost: ~1–2 minutes of Actions a day, one small AI call.
+# ============================================================================
+name: Uttarakhand advisory scout
+
+on:
+  schedule:
+    - cron: '45 0 * * *'      # 06:15 IST (GitHub may run it a little late)
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: advisory-scout
+  cancel-in-progress: false
+
+jobs:
+  scout:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      MAILU: ${{ secrets.MAIL_USERNAME }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 20
+
+      - name: Read today's Uttarakhand news and update advisories
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: node tools/advisory-scout/scout.mjs | tee scout-report.md
+
+      - name: Rebuild feed and test
+        run: |
+          node --check conditions-data.js
+          node tools/build-conditions-json.js
+          node --test tests/travel-safety.test.mjs tests/advisory-scout.test.mjs tests/advisory-alerts-run.test.mjs
+
+      - name: Commit if anything changed
+        id: commit
+        run: |
+          git config user.name  "advisory-scout-bot"
+          git config user.email "bot@roamwise.co.in"
+          git add conditions-data.js data/conditions.json
+          if git diff --staged --quiet; then echo "added=0" >> "$GITHUB_OUTPUT"; echo "no change"; exit 0; fi
+          added=$(grep -c '^- \*\*added\*\*' scout-report.md || true)
+          git commit -m "Advisory scout: ${added} new Uttarakhand advisories ($(TZ=Asia/Kolkata date +%F))"
+          git pull --rebase --autostash origin main
+          git push
+          echo "added=${added}" >> "$GITHUB_OUTPUT"
+
+      - name: Email the team (only when something was added)
+        if: env.MAILU != '' && steps.commit.outputs.added != '0' && steps.commit.outputs.added != ''
+        uses: dawidd6/action-send-mail@v23
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          username: ${{ secrets.MAIL_USERNAME }}
+          password: ${{ secrets.MAIL_APP_PASSWORD }}
+          subject: "RoamWise: ${{ steps.commit.outputs.added }} new Uttarakhand travel advisories"
+          to: ${{ secrets.TO_EMAIL }}
+          from: RoamWise Advisory Scout <${{ secrets.MAIL_USERNAME }}>
+          body: file://scout-report.md

@@ -17,7 +17,7 @@ function build() {
   const advisories = RW_CONDITIONS.map((c) => {
     if (!c.id || !ISO.test(c.until) || !/^https:\/\//.test(c.sourceUrl || '')) throw new Error('bad advisory ' + (c.id || '?'));
     return {
-      id: c.id, kind: c.kind, official: !!c.official, title: c.title, detail: c.detail,
+      id: c.id, kind: c.kind, official: !!c.official, auto: !!c.auto, title: c.title, detail: c.detail,
       from: ISO.test(c.from || '') ? c.from : null, until: c.until, source: c.source, sourceUrl: c.sourceUrl,
       match: c.match, regions: rwUkRegionsForText((c.match || []).join(' | ')),
     };

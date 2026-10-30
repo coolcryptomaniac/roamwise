@@ -9,7 +9,8 @@
    admins, stayLeads, all through the service account. Writes: only dead push-token pruning on
    users docs (same as trip reminders) and KV "already told" markers. No rule, auth or payment change.
 
-   Switches (Firestore config/tripNotifySettings, all default OFF):
+   Switches (Firestore config/tripNotifySettings; a missing field falls back to the Worker var
+   ADVISORY_ALERTS = "guests,partners,digest" in wrangler.toml; a false in Firestore always wins):
      advisoryAlerts — guests with live stay bookings + users who follow regions
      partnerAlerts  — the property owner of affected bookings
      teamDigest     — daily email to ALERT_TEAM_EMAILS (Worker secret, comma list) + push to admins
@@ -24,7 +25,7 @@ import { sendMail, mailerKind } from '../lib/mailer.js';
 import { pushTokensOf } from '../lib/reminder-core.js';
 import * as core from '../lib/advisory-alerts-core.js';
 
-const FEED_URL = 'https://www.roamwise.co.in/data/conditions.json';
+const FEED_URL = 'https://roamwise.co.in/data/conditions.json';
 const MARK_TTL = 120 * 86400;
 
 async function loadFeed(env) {
@@ -39,7 +40,7 @@ export async function runAdvisoryAlerts(env, opts = {}) {
   const dry = opts.dry === true;
   const projectId = parseServiceAccount(env).project_id;
   const token = await getServiceAccountAccessToken(env);
-  const settings = core.parseAdvisorySettings(await getDoc(env, token, projectId, 'config/tripNotifySettings').catch(() => null));
+  const settings = core.parseAdvisorySettings(await getDoc(env, token, projectId, 'config/tripNotifySettings').catch(() => null), env.ADVISORY_ALERTS);
   const mail = mailerKind(env);
   const report = { dry, today, settings, mailer: mail, guests: 0, followers: 0, partners: 0, pushes: 0, emails: 0, deferred: 0, failed: 0, affectedBookings: 0, digest: null };
   if (!settings.advisoryAlerts && !settings.partnerAlerts && !settings.teamDigest) return { ...report, off: true };

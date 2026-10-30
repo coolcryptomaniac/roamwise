@@ -99,6 +99,13 @@ test('all on: guests, follower, partner and team are each told once', async () =
   assert.deepEqual([again.guests, again.followers, again.partners, w.log.push.length, w.log.mail.length], [0, 0, 0, 0, 0], 'nobody is told twice');
 });
 
+test('Worker var turns alerts on without any Firestore switch', async () => {
+  const w = world(null);
+  w.env.ADVISORY_ALERTS = 'guests';
+  const r = await withFetch(w.fetchMock, () => runAdvisoryAlerts(w.env, { now: NOW }));
+  assert.deepEqual([r.settings.advisoryAlerts, r.settings.partnerAlerts, r.guests, r.partners], [true, false, 2, 0]);
+});
+
 test('dry run sends nothing and marks nothing; no KV means no live send', async () => {
   const w = world({ advisoryAlerts: true, partnerAlerts: true, teamDigest: true });
   const r = await withFetch(w.fetchMock, () => runAdvisoryAlerts(w.env, { now: NOW, dry: true, digest: true }));

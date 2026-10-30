@@ -57,6 +57,11 @@ var RW_CONDITIONS = [
     title: 'Early snow in Lahaul-Spiti: high passes shut',
     detail: 'On 15 Oct 2026 the Leh-Manali highway was closed beyond Darcha, the Manali-Kaza road was closed, and Shinkula, Baralacha La and Kunzum were shut to vehicles. Treat anything past Atal Tunnel as weather-dependent and check with police before setting out.',
     from: '2026-10-15', until: '2026-11-30',
-    source: 'ETV Bharat', sourceUrl: 'https://www.etvbharat.com/en/state/snow-rain-herald-onset-of-winter-in-himachal-pradesh-enn26101503615' }
+    source: 'ETV Bharat', sourceUrl: 'https://www.etvbharat.com/en/state/snow-rain-herald-onset-of-winter-in-himachal-pradesh-enn26101503615' },
+  /* AUTO-SCOUT:START  Written daily by .github/workflows/uttarakhand-advisory-scout.yml from
+     Uttarakhand news (tools/advisory-scout). auto:true items are always official:false
+     ("confirm locally"), expire within 21 days and are pruned by the scout. To remove one
+     early, delete it here; to keep one longer, move it above this block. */
+  /* AUTO-SCOUT:END */
 ];
 if (typeof module !== 'undefined' && module.exports) module.exports = { RW_CONDITIONS: RW_CONDITIONS, RW_CONDITIONS_CHECKED: RW_CONDITIONS_CHECKED };

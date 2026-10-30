@@ -24,14 +24,19 @@ export const MAX_PER_MESSAGE = 3;
 
 export const ADVISORY_DEFAULTS = Object.freeze({ advisoryAlerts: false, partnerAlerts: false, teamDigest: false, maxEmailsPerRun: 40 });
 
-/** Switches live in Firestore config/tripNotifySettings next to the booking switches; all default OFF. */
-export function parseAdvisorySettings(doc) {
+/** Switches live in Firestore config/tripNotifySettings next to the booking switches.
+    A boolean set there always wins (so the founder can turn any part off from the console).
+    A missing field falls back to the Worker var ADVISORY_ALERTS ("guests,partners,digest"),
+    so the switches can also be turned on in code (worker/wrangler.toml) and deployed. */
+export function parseAdvisorySettings(doc, envDefault) {
   const d = doc && typeof doc === 'object' ? doc : {};
+  const on = new Set(String(envDefault || '').split(',').map((x) => x.trim().toLowerCase()).filter(Boolean));
+  const pick = (field, word) => (typeof d[field] === 'boolean' ? d[field] : on.has(word));
   const cap = Math.round(Number(d.maxEmailsPerRun));
   return {
-    advisoryAlerts: d.advisoryAlerts === true,
-    partnerAlerts: d.partnerAlerts === true,
-    teamDigest: d.teamDigest === true,
+    advisoryAlerts: pick('advisoryAlerts', 'guests'),
+    partnerAlerts: pick('partnerAlerts', 'partners'),
+    teamDigest: pick('teamDigest', 'digest'),
     maxEmailsPerRun: Number.isFinite(cap) ? Math.min(90, Math.max(1, cap)) : ADVISORY_DEFAULTS.maxEmailsPerRun,
   };
 }

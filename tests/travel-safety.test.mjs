@@ -93,7 +93,9 @@ test('conditions.json is current and every advisory has a region list', () => {
   assert.equal(core.parseFeed({ version: 2 }), null);
 });
 
-const FEED = core.parseFeed(JSON.parse(fs.readFileSync('data/conditions.json', 'utf8')));
+/* Manual (curated) advisories only, so the daily auto-scout additions cannot change these expectations. */
+const RAW = JSON.parse(fs.readFileSync('data/conditions.json', 'utf8'));
+const FEED = core.parseFeed({ ...RAW, advisories: RAW.advisories.filter((a) => !a.auto) });
 
 test('alerts: bookings in window and in an affected region get the advisory', () => {
   const today = '2026-10-30';
@@ -128,6 +130,9 @@ test('alerts: messages are escaped, capped and carry sources', () => {
   assert.equal(d.stale, true, 'list older than 7 days needs review');
   const s = core.parseAdvisorySettings({ advisoryAlerts: true, maxEmailsPerRun: 500 });
   assert.deepEqual([s.advisoryAlerts, s.partnerAlerts, s.teamDigest, s.maxEmailsPerRun], [true, false, false, 90]);
+  const e = core.parseAdvisorySettings({ partnerAlerts: false }, 'guests, partners,digest');
+  assert.deepEqual([e.advisoryAlerts, e.partnerAlerts, e.teamDigest], [true, false, true], 'Worker var turns on; a Firestore false wins');
+  assert.equal(core.parseAdvisorySettings(null, '').advisoryAlerts, false);
   assert.equal(core.istToday(Date.parse('2026-10-30T20:00:00Z')), '2026-10-31');
 });
 
