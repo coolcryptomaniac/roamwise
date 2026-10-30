@@ -1,4 +1,5 @@
 import {verifyCashfreeWorkerWebhook} from '../lib/cashfree-booking-webhook-verify.js';
+import {reconcileCashfreeWorkerPayment} from '../lib/cashfree-booking-reconcile.js';
 
 // Fail-closed Cloudflare entrypoint. Booking confirmation requires a separate
 // atomic Firestore REST transaction adapter, not a non-atomic PATCH.
@@ -18,7 +19,19 @@ export async function handleBookingCashfreeWebhook(request,env){
   if(!await verifyCashfreeWorkerWebhook({rawBody:body,headers:request.headers,secret}))
    return Response.json({confirmed:false,reason:'invalid_signature'},{status:401});
  }catch{return Response.json({confirmed:false,reason:'verification_unavailable'},{status:503});}
- // Do not acknowledge as processed: signed event alone is insufficient.
- // Must independently reconcile payment and atomically claim in Firestore.
+ let event;
+ try{event=JSON.parse(new TextDecoder('utf-8',{fatal:true}).decode(body));}
+ catch{return Response.json({confirmed:false,reason:'invalid_json'},{status:400});}
+ const orderId=event?.data?.order?.order_id,paymentId=event?.data?.payment?.cf_payment_id;
+ if(event?.type!=='PAYMENT_SUCCESS_WEBHOOK'||typeof orderId!=='string'||
+   !/^[A-Za-z0-9_-]{1,100}$/.test(orderId)||!/^[0-9]{1,30}$/.test(String(paymentId||'')))
+  return Response.json({confirmed:false,reason:'unsupported_event'},{status:400});
+ let payment;
+ try{payment=await reconcileCashfreeWorkerPayment({orderId,paymentId,env});}
+ catch{return Response.json({confirmed:false,reason:'reconciliation_unavailable'},{status:503});}
+ if(payment.status!=='SUCCESS'||payment.currency!=='INR')
+  return Response.json({confirmed:false,reason:'payment_not_eligible'},{status:409});
+ // Independent provider verification is necessary, but not sufficient.
+ // Do not acknowledge success until an atomic Firestore claim is committed.
  return Response.json({confirmed:false,reason:'booking_commit_not_integrated'},{status:503});
 }
