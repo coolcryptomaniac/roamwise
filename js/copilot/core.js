@@ -764,6 +764,7 @@ function rwUserProfile(){
 var RW_PLACE_CACHE={};
 async function rwResolvePlace(name){
   if(!name) return null;
+  if(typeof rwPlaceCanonicalName==='function') name=rwPlaceCanonicalName(name);
   var key='rw_geo_'+String(name).toLowerCase().replace(/[^a-z0-9]/g,'');
   if(RW_PLACE_CACHE[key]) return RW_PLACE_CACHE[key];
   try{ var c=JSON.parse(lsGet(key)||'null'); if(c){ RW_PLACE_CACHE[key]=c; return c; } }catch(e){ /* parse best-effort, ignore malformed/missing data */ }

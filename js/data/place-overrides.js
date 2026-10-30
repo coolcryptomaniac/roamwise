@@ -11,6 +11,27 @@
    hill station, "Bir" to Ukraine. For an India-first travel app those are the
    exact queries that must be right, so the best-known travel meaning wins. */
 var RW_PLACE_OVERRIDES = {
+  /* Additional small Indian destinations: geocoders may omit or mis-rank them. */
+  chakrata:{name:'Chakrata',admin:'Dehradun, Uttarakhand',lat:30.7049,lon:77.8635},
+  kanatal:{name:'Kanatal',admin:'Tehri Garhwal, Uttarakhand',lat:30.4108,lon:78.3478},
+  dhanaulti:{name:'Dhanaulti',admin:'Tehri Garhwal, Uttarakhand',lat:30.406,lon:78.233},
+  mukteshwar:{name:'Mukteshwar',admin:'Nainital, Uttarakhand',lat:29.4723,lon:79.6479},
+  binsar:{name:'Binsar',admin:'Almora, Uttarakhand',lat:29.7036,lon:79.7589},
+  kausani:{name:'Kausani',admin:'Bageshwar, Uttarakhand',lat:29.8437,lon:79.6033},
+  chopta:{name:'Chopta',admin:'Rudraprayag, Uttarakhand',lat:30.4903,lon:79.217},
+  harsil:{name:'Harsil',admin:'Uttarkashi, Uttarakhand',lat:31.035,lon:78.746},
+  sankri:{name:'Sankri',admin:'Uttarkashi, Uttarakhand',lat:31.08,lon:78.18},
+  khirsu:{name:'Khirsu',admin:'Pauri Garhwal, Uttarakhand',lat:30.1685,lon:78.8654},
+  landour:{name:'Landour',admin:'Dehradun, Uttarakhand',lat:30.4615,lon:78.08},
+  pangot:{name:'Pangot',admin:'Nainital, Uttarakhand',lat:29.422,lon:79.439},
+  jibhi:{name:'Jibhi',admin:'Kullu, Himachal Pradesh',lat:31.589,lon:77.352},
+  tirthan:{name:'Tirthan Valley',admin:'Kullu, Himachal Pradesh',lat:31.64,lon:77.41},
+  kalpa:{name:'Kalpa',admin:'Kinnaur, Himachal Pradesh',lat:31.538,lon:78.251},
+  tabo:{name:'Tabo',admin:'Lahaul and Spiti, Himachal Pradesh',lat:32.094,lon:78.383},
+  chitkul:{name:'Chitkul',admin:'Kinnaur, Himachal Pradesh',lat:31.35,lon:78.435},
+  mechuka:{name:'Mechuka',admin:'Shi Yomi, Arunachal Pradesh',lat:28.6,lon:94.12},
+  mawlynnong:{name:'Mawlynnong',admin:'East Khasi Hills, Meghalaya',lat:25.204,lon:91.916},
+  majuli:{name:'Majuli',admin:'Assam',lat:26.95,lon:94.17},
   /* Famous Indian TOWNS/destinations that geocoders miss or mis-rank to foreign
      namesakes. Curated = never wrong, no network needed. */
   kanyakumari:{name:'Kanyakumari', admin:'Tamil Nadu', lat:8.0883, lon:77.5385},
@@ -113,3 +134,36 @@ var RW_PLACE_OVERRIDES = {
   khajuraho:{name:'Khajuraho',admin:'Madhya Pradesh',lat:24.8318,lon:79.9199},
   portblair:{name:'Port Blair',admin:'Andaman & Nicobar',lat:11.6234,lon:92.7265}
 };
+
+/* Canonicalize known variants without guessing unrelated village names. */
+var RW_PLACE_ALIASES = {
+  "chakrataa": "chakrata",
+  "chakarata": "chakrata",
+  "चकराता": "chakrata",
+  "kanataal": "kanatal",
+  "कनाताल": "kanatal",
+  "dhanolti": "dhanaulti",
+  "धनौल्टी": "dhanaulti",
+  "mukteshvar": "mukteshwar",
+  "मुक्तेश्वर": "mukteshwar",
+  "बिनसर": "binsar",
+  "कौसानी": "kausani",
+  "चोपता": "chopta",
+  "हर्षिल": "harsil",
+  "हरसिल": "harsil",
+  "सांकरी": "sankri",
+  "खिर्सू": "khirsu",
+  "जीभी": "jibhi",
+  "तीर्थन": "tirthan",
+  "कल्पा": "kalpa",
+  "ताबो": "tabo",
+  "चितकुल": "chitkul",
+  "माजुली": "majuli",
+  "मावलिननोंग": "mawlynnong"
+};
+function rwPlaceCanonicalName(value){
+  var raw=String(value==null?'':value).trim();
+  var key=raw.toLowerCase().replace(/\s+/g,' ');
+  var compact=key.replace(/[^a-z\u0900-\u097f]/g,'');
+  return RW_PLACE_ALIASES[key] || RW_PLACE_ALIASES[compact] || raw;
+}
