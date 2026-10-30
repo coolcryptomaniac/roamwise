@@ -16,13 +16,15 @@ test('speech voice preference chooses exact locale over generic Indian voice',()
  assert.equal(s.rwSpeechPickVoice([], 'hi-IN'),null);
 });
 test('native TTS synchronous failure falls back to Web Speech',()=>{
- let spoken=0;const {s}=setup({Capacitor:{Plugins:{TextToSpeech:{speak(){throw Error('native unavailable')}}}},},
- SpeechSynthesisUtterance:function(txt){this.text=txt;},
- speechSynthesis:{cancel(){},getVoices(){return []},speak(){spoken++;}}});
+ let spoken=0;
+ const plugins={TextToSpeech:{speak:function(){throw new Error('native unavailable');}}};
+ const web={cancel:function(){},getVoices:function(){return [];},speak:function(){spoken++;}};
+ const {s}=setup({Capacitor:{Plugins:plugins},SpeechSynthesisUtterance:function(t){this.text=t;},speechSynthesis:web});
  s.tuskSpeak('Kanatal');assert.equal(spoken,1);
 });
 test('native promise rejection reports failure, not a successful playback',async()=>{
- const {s,notices}=setup({Capacitor:{Plugins:{TextToSpeech:{speak(){return Promise.reject(Error('unavailable'));}}}}});
+ const plugins={TextToSpeech:{speak:function(){return Promise.reject(new Error('unavailable'));}}};
+ const {s,notices}=setup({Capacitor:{Plugins:plugins}});
  s.tuskSpeak('Hello');await new Promise(resolve=>setTimeout(resolve,0));
  assert.ok(notices.some(x=>/unavailable/.test(x)));
 });
