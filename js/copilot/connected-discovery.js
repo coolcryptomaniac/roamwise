@@ -29,9 +29,9 @@
      status:'Published artist profile · contact directly'}
   ];
   var REGION_WORDS={
-    lansdowne:/\\b(lansdowne|lansdown|pauri|bansi|ghildiyal)\\b|लैंसडाउन|पौड़ी/i,
-    himachal:/\\b(himachal|himanchal|manali|kullu|banjar|tirthan|jibhi|kasol|shimla|dalhousie|dharamshala|kinnaur|spiti|kalpa|chitkul)\\b|हिमाचल|मनाली|कुल्लू|तीर्थन|जीभी|शिमला/i,
-    almora:/\\b(almora|kasar devi|binsar|ranikhet|kausani|kumaon|haldwani)\\b|अल्मोड़ा|अल्मोड़ा|बिनसर|रानीखेत|कौसानी|कुमाऊँ|हल्द्वानी/i
+    lansdowne:/\b(lansdowne|lansdown|pauri|bansi|ghildiyal)\b|लैंसडाउन|पौड़ी/i,
+    himachal:/\b(himachal|himanchal|manali|kullu|banjar|tirthan|jibhi|kasol|shimla|dalhousie|dharamshala|kinnaur|spiti|kalpa|chitkul)\b|हिमाचल|मनाली|कुल्लू|तीर्थन|जीभी|शिमला/i,
+    almora:/\b(almora|kasar devi|binsar|ranikhet|kausani|kumaon|haldwani)\b|अल्मोड़ा|अल्मोड़ा|बिनसर|रानीखेत|कौसानी|कुमाऊँ|हल्द्वानी/i
   };
   function regionFor(text){
     var q=String(text||'');
@@ -41,10 +41,10 @@
   function intentFor(text){
     var q=String(text||'').toLowerCase();
     return {
-      nomad:/\\b(nomad|workation|work from|remote work|cowork|digital nomad|long stay|monthly stay)\\b|वर्केशन|वर्क फ्रॉम/i.test(q),
-      culture:/\\b(art|artist|painting|culture|craft|handmade|heritage|local experience|workshop|creator)\\b|कला|कलाकार|संस्कृति|पेंटिंग/i.test(q),
-      stay:/\\b(stay|hotel|homestay|room|accommodation|book|booking|where to sleep)\\b|होटल|होमस्टे|कमरा|रहना/i.test(q),
-      exclude:/\\b(otp|password|refund|payment failed|cancel booking|emergency|sos|ambulance)\\b|आपातकाल/i.test(q)
+      nomad:/\b(nomad|workation|work from|remote work|cowork|digital nomad|long stay|monthly stay)\b|वर्केशन|वर्क फ्रॉम/i.test(q),
+      culture:/\b(art|artist|painting|culture|craft|handmade|heritage|local experience|workshop|creator)\b|कला|कलाकार|संस्कृति|पेंटिंग/i.test(q),
+      stay:/\b(stay|hotel|homestay|room|accommodation|book|booking|where to sleep)\b|होटल|होमस्टे|कमरा|रहना/i.test(q),
+      exclude:/\b(otp|password|refund|payment failed|cancel booking|emergency|sos|ambulance)\b|आपातकाल/i.test(q)
     };
   }
   function partnerEligible(id){
