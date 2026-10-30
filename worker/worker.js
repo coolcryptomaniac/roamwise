@@ -72,6 +72,7 @@ import { handleNomadAdvise } from './handlers/nomad-ai.js';
 import { handleBusiness } from './handlers/business.js';
 import { handleAICAReview } from './handlers/ai-ca.js';
 import { handlePaymentEvent } from './handlers/payment-events.js';
+import { handleBookingCashfreeWebhook } from './handlers/booking-cashfree-webhook.js';
 import { handleStay } from './handlers/stay-ledger.js';
 import { handleInvoiceSweep, runInvoiceSweepCron } from './handlers/invoices.js';
 import { handleBot, botDeps } from './handlers/bot.js';
@@ -98,6 +99,8 @@ export default {
     const path = url.pathname.replace(/^\/+|\/+$/g, '');
 
     if(path === 'health') return handleHealth(env);
+    // Server-to-server endpoint; no public CORS or booking confirmation until atomic persistence is integrated.
+    if(path === 'booking/cashfree/webhook') return handleBookingCashfreeWebhook(request, env);
 
     /* Flood / per-route limits and body-size cap (additive; see lib/rate-limit.js). */
     const refused = await abuseGuard(request, path);
