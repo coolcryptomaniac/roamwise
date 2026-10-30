@@ -1768,5 +1768,10 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
 
+    // Trusted Admin SDK only: payment claims must never be client readable or writable.
+    match /bookingPaymentClaims/{claimId} {
+      allow read, write: if false;
+    }
+
   }
 }
