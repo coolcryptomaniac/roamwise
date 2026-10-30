@@ -1,3 +1,4 @@
+// @ts-nocheck
 /* Small, reviewed Hindi place-name lexicon. Never silently infer unknown names.
    Atlas can resolve these against its existing GeoNames data, avoiding extra downloads.
    Additional names belong in a sourced, licensed data import with disambiguation. */
