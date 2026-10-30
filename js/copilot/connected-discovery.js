@@ -61,7 +61,8 @@
     if(flags.exclude)return [];
     var region=regionFor((intents&&intents.dest||'')+' '+text);
     if(!region)return [];
-    var includePartner=flags.stay||flags.nomad||(!flags.culture);
+    var tripIntent=/\b(travel|trip|visit|tour|itinerary|explore)\b|यात्रा|घूमना/i.test(String(text||''));
+    var includePartner=flags.stay||flags.nomad||tripIntent||(!flags.culture);
     var includeArtists=flags.culture||!flags.stay;
     var out=[];
     PARTNERS.forEach(function(p){
