@@ -60,6 +60,7 @@ function rwTuskRail(dest, raw){
   h+=btn('\ud83d\udd0a','Read aloud',"rwTuskReadLast()");
   h+=btn('⏯️','Pause / Resume',"rwTuskPauseResume()");
   h+=btn('🔁','Replay',"rwTuskReplaySpeech()");
+  h+=btn('✨','Voice mode',"RWTuskVoiceStudio.start()");
   h+=btn('🎚️','Speed',"rwTuskCycleSpeechRate()");
   var topic=rwTuskRailContext(raw);
   if(d && topic==='safety') h+=btn('⚠️','Road advisories', "cpFollow('Check dated official road and safety advisories for "+d+"')");
@@ -204,6 +205,7 @@ async function cpFinish(bubble, answerHTML, intents, raw){
     var topPos = bubble.offsetTop - 8;
     log.scrollTop = topPos>0 ? topPos : 0;
   }
+  try{ if(window.RWTuskVoiceStudio) RWTuskVoiceStudio.answer(answerHTML,raw); }catch(e){}
   _cpHist.push({q:raw, a:bubble.textContent.slice(0,300)}); if(_cpHist.length>8) _cpHist.shift();
   try{ track('copilot_uses'); }catch(e){ /* analytics best-effort, ignore */ }
 }
