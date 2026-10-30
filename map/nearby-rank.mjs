@@ -1,8 +1,8 @@
 // Pure geospatial ranking; only caller-approved public listings are eligible.
 export function distanceKm(a,b){
-  const valid=p=>p&&Number.isFinite(p.lat)&&Number.isFinite(p.lon)&&Math.abs(p.lat)<=90&&Math.abs(p.lon)<=180;
+  const valid=p=>p&&Number.isFinite(p.lat)&&Number.isFinite(p.lon??p.lng)&&Math.abs(p.lat)<=90&&Math.abs(p.lon??p.lng)<=180;
   if(!valid(a)||!valid(b)) return null;
-  const rad=Math.PI/180, dlat=(b.lat-a.lat)*rad, dlon=(b.lon-a.lon)*rad;
+  const rad=Math.PI/180, dlat=(b.lat-a.lat)*rad, dlon=((b.lon??b.lng)-(a.lon??a.lng))*rad;
   const h=Math.sin(dlat/2)**2+Math.cos(a.lat*rad)*Math.cos(b.lat*rad)*Math.sin(dlon/2)**2;
   return 6371.0088*2*Math.asin(Math.min(1,Math.sqrt(h)));
 }
