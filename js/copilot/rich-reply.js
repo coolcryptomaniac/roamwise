@@ -47,6 +47,9 @@ function rwTuskRail(dest, raw){
   h+=btn('\ud83d\udcb0','Budget',"openMoneyLayer()");
   h+=btn('\u23f0','Remind me',"rwRemindAsk('"+q+"')");
   h+=btn('\ud83d\udd0a','Read aloud',"rwTuskReadLast()");
+  h+=btn('⏯️','Pause / Resume',"rwTuskPauseResume()");
+  h+=btn('🔁','Replay',"rwTuskReplaySpeech()");
+  h+=btn('🎚️','Speed',"rwTuskCycleSpeechRate()");
   h+=btn('\ud83d\udcd6','Log feeling',"openJourneyLog()");
   return h+'</div>';
 }
