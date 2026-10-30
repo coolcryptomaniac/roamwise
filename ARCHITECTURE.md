@@ -108,6 +108,11 @@ prints PASS/DRIFT per number in under a second.
   gating and the unified token schema — see PUSH-NOTIFICATIONS-SETUP.md.
   Server-side send path lives in `worker/handlers/push.js` (admin-only,
   not part of this app's classic-`<script>` chain).
+- `alert-follow.js` — loaded right after `push-notifications.js`. Handles
+  `/?follow=almora,nainital` and `/?unfollow=1` links from the static
+  travel-safety pages: saves `users/{uid}.alertRegions` (self-write, no rule
+  change) and turns push on. The Worker's `handlers/advisory-alerts.js` reads
+  it. See ADVISORY-ALERTS.md.
 - `storage-utils.js` — `localStorage` read/write helpers
 - `text-utils.js` — string/text formatting + HTML-escaping helpers
 

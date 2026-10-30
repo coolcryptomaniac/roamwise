@@ -38,6 +38,9 @@ Leave a switch false to keep that part off.
 - As admin, POST `/admin/trip-notify/run` (dry-run by default; add `?dry=0` to send for real) with your Firebase ID token — it reports how many acks and reminders it would send.
 - For reminders: confirm a test booking with check-in 3 days (or tomorrow) away and wait for the 11:00 IST run, or run it manually with `?dry=0`.
 
+## Advisory alerts and the team digest
+The same relay, push setup and `config/tripNotifySettings` doc also drive travel advisory alerts (guests, region followers, partners) and a daily team digest. Switches `advisoryAlerts`, `partnerAlerts`, `teamDigest` and the `ALERT_TEAM_EMAILS` secret: see `ADVISORY-ALERTS.md`.
+
 ## Push (web + Android)
 Push delivery already exists (`PUSH-NOTIFICATIONS-SETUP.md`): users who allow notifications get them. Reminders reach only users who have a registered device, so email covers the rest. Android push also needs the app build with `google-services.json` as described in that guide.
 
