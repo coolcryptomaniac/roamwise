@@ -20,3 +20,11 @@ test('Cashfree reconciliation fails closed on HTTP errors and invalid amounts',a
  await assert.rejects(()=>invalid({orderId:'order_12345',paymentId:'123456'}));
  await assert.rejects(()=>unavailable({orderId:'../bad',paymentId:'123456'}));
 });
+
+test('Cashfree lookup rejects empty or missing amounts and inconsistent identities',async()=>{
+ const base={order_id:'order_12345',cf_payment_id:123456,payment_status:'SUCCESS',payment_amount:1500,payment_currency:'INR'};
+ for(const change of [{payment_amount:null},{payment_amount:''},{payment_amount:' '},{order_id:'order_other'},{cf_payment_id:999999}]){
+  const lookup=createCashfreePaymentReconciler({...options,fetchImpl:async()=>({ok:true,json:async()=>({...base,...change}})});
+  await assert.rejects(()=>lookup({orderId:'order_12345',paymentId:'123456'}));
+ }
+});
