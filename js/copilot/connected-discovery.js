@@ -72,6 +72,12 @@
     ARTISTS.forEach(function(p){
       if(p.region===region&&includeArtists)out.push(p);
     });
+    /* Public creator matching entry, never a claim that a particular creator is contracted. */
+    if(/\b(creator|creators|influencer|vlogger|content collaboration)\b|क्रिएटर/i.test(String(text||''))){
+      out.push({id:'creator-network',name:'RoamWise Creator Network',category:'creator',
+        region:region,description:'Meet local creators and propose collaborations with stays and artists',
+        href:'/creators/match.html',image:null,status:'Explore collaborations · both sides approve terms'});
+    }
     // For broad Himachal queries, show local art first; for explicitly lodging requests stays first.
     if(region==='himachal'&&!flags.stay)out.sort(function(a,b){return a.category==='artist'?-1:b.category==='artist'?1:0;});
     return out.slice(0,3).map(function(p){return Object.assign({},p);});
