@@ -53,6 +53,7 @@
 
 import { CORS, json } from './lib/http.js';
 import { handleHealth } from './handlers/health.js';
+import { handleSarvamVoice } from './handlers/sarvam-voice.js';
 import { handleAI } from './handlers/ai.js';
 import { handleKala } from './handlers/kala.js';
 import { handleTuskReport, handleTuskReports } from './handlers/tusk-report.js';
@@ -99,6 +100,7 @@ export default {
     const path = url.pathname.replace(/^\/+|\/+$/g, '');
 
     if(path === 'health') return handleHealth(env);
+    if(path === 'voice/sarvam/byok' && request.method === 'POST') return handleSarvamVoice(request);
     // Server-to-server endpoint; no public CORS or booking confirmation until atomic persistence is integrated.
     if(path === 'booking/cashfree/webhook') return handleBookingCashfreeWebhook(request, env);
 
