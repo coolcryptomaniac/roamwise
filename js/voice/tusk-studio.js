@@ -125,12 +125,20 @@
   }
   /* Expressive spoken introductions only. The factual answer remains intact.
      Kumaoni-inspired phrases are language style, not cloned regional audio. */
-  function spokenStyle(text){
-    var say=String(text||'');
-    if(state.style==='guide')return say;
-    var hindi=/[\u0900-\u097f]/.test(say)||(
-      typeof root.rwSpeechOutputLang==='function' && root.rwSpeechOutputLang(say)==='hi-IN');
-    if(state.style==='kumaoni-style')return (hindi?'भुला, सुनो ज़रा। ':'Bhula, suno zara. ')+say;
+  function spokenStyle(text,query){
+    var say=String(text||''),q=String(query||'').toLowerCase();
+    var hindi=/[\u0900-\u097f]/.test(say)||
+      (typeof root.rwSpeechOutputLang==='function' && root.rwSpeechOutputLang(say)==='hi-IN');
+    var route=/\b(road|route|traffic|blocked|landslide|rasta|raasta)\b|सड़क|रास्ता/.test(q);
+    var educational=/\b(history|culture|why|how|explain|facts|learn|temple)\b|इतिहास|संस्कृति|मंदिर/.test(q);
+    if(state.style==='guide'){
+      return (hindi?'काम की जानकारी सुनिए। ':'Here are the useful details. ')+say;
+    }
+    if(state.style==='kumaoni-style'){
+      return (hindi?'भुला, सुनो ज़रा। ':'Bhula, suno zara. ')+say;
+    }
+    if(route)return (hindi?'रास्ते की बात है, थोड़ा ध्यान से। ':'Road trip? Safety first, adventure second! ')+say;
+    if(educational)return (hindi?'चलो, एक नई बात सीखते हैं। ':'A little travel wisdom, coming right up! ')+say;
     return (hindi?'अरे वाह, चलिए जानते हैं। ':'Nice! Here is what I found. ')+say;
   }
   function answer(html,raw,intents){
@@ -154,7 +162,7 @@
       return false;
     }
     if(typeof tuskSpeak==='function'){
-      tuskSpeak(spokenStyle(speech));
+      tuskSpeak(spokenStyle(speech,raw));
       // Native TTS completion semantics differ; users can continue via Speak.
       if(root.Capacitor || (root.RW && root.RW.speak))setPhase('ready','Listen to the reply, then tap Speak for the next turn.');
     }else setPhase('ready','Read your answer above, then tap Speak.');
