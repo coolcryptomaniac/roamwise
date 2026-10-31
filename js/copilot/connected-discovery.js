@@ -106,10 +106,13 @@
     var includeArtists=flags.culture||!flags.stay;
     var out=[];
     visiblePartners().forEach(function(p){
-      var pRegion=regionFor((p.zone||'')+' '+(p.area||''));
+      var fallback=PARTNERS.find(function(k){return k.id===p.id;});
+      var pRegion=regionFor((p.zone||'')+' '+(p.area||''))||(fallback&&fallback.region)||'';
       if(pRegion!==region||!includePartner)return;
-      if(flags.nomad && !(p.nomad&&p.nomad.enabled))return;
-      var item=asCard(p,region);
+      var nomad=(p.nomad&&p.nomad.enabled)||(fallback&&fallback.category==='nomad'&&!p.zone);
+      if(flags.nomad && !nomad)return;
+      var item=p.zone?asCard(p,region):fallback?Object.assign({},fallback):null;
+      if(!item)return;
       if(item.category==='nomad'&&!flags.nomad&&!flags.stay)return;
       out.push(item);
     });
