@@ -283,3 +283,17 @@
 .rw-orb-answer-tile p{margin:0;font-size:clamp(13px,2.8vw,15px);line-height:1.65;color:#f8f0ff;white-space:normal}
 .rw-orb-close{position:relative;z-index:12;min-width:44px;min-height:44px;touch-action:manipulation}
 @media(max-width:420px){.rw-orb-answer-tile{padding:11px 12px}}
+
+/* Mobile voice mode: keep the orb, response and controls in one scrollable dialog. */
+.rw-orb-shell{align-items:start;justify-items:center;overscroll-behavior:contain;overflow-y:auto;overflow-x:hidden;padding:max(12px,env(safe-area-inset-top)) 10px max(16px,env(safe-area-inset-bottom))}
+.rw-orb-layout{box-sizing:border-box;max-width:100%;min-height:0;height:auto;overflow:visible;gap:12px}
+.rw-orb-stage{height:clamp(135px,23dvh,215px)!important;width:min(100%,270px);margin-inline:auto}
+.rw-orb-phase{position:relative;bottom:auto;z-index:2;max-width:100%;font-size:13px;line-height:1.4;text-align:center;overflow-wrap:anywhere}
+.rw-orb-reply,.rw-orb-transcript,.rw-orb-full-answer,.rw-orb-cards{box-sizing:border-box;width:100%;min-width:0;max-width:100%;overflow-wrap:anywhere}
+.rw-orb-reply{max-height:120px;overflow-y:auto;line-height:1.5}
+.rw-orb-full-answer{max-height:none;overflow:visible}
+.rw-orb-full-content{max-height:min(43dvh,400px);overflow-y:auto;overscroll-behavior:contain}
+.rw-orb-cards{max-height:none;overflow:visible}
+.rw-orb-controls{width:100%;max-width:100%;box-sizing:border-box}
+.rw-orb-controls button{min-height:44px;white-space:normal;overflow-wrap:anywhere}
+@media(max-width:480px){.rw-orb-layout{padding:14px 12px;border-radius:20px}.rw-orb-head{flex-wrap:nowrap}.rw-orb-head span{display:none}.rw-orb-stage{height:clamp(120px,20dvh,180px)!important}.rw-orb-full-content{max-height:38dvh}}
