@@ -178,6 +178,7 @@ function openSettings(){
   try{ rwMountPersonalisationSetting(); }catch(e){ /* optional on-device preferences */ }
   try{ rwRenderLinkedSignInMethods(); }catch(e){ /* auth may still be loading */ }
   try{ rwVoiceMountSetting(); }catch(e){ /* best-effort, ignore */ }
+  try{ if(window.RWTuskVoiceProvider)RWTuskVoiceProvider.mount(); }catch(e){ /* optional BYOK settings */ }
   try{ var tp=el('tabPickWrap'); if(tp) tp.innerHTML=rwTabPickerHTML(); }catch(e){ /* best-effort, ignore */ }
   /* ---- UI simplification ----
      Provider choice and API keys are power-user territory: Smart Search works
