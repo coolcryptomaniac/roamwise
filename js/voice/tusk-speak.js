@@ -100,10 +100,35 @@ function rwSpeechOutputLang(text){
   if(/[\u0900-\u097f]/.test(String(text||'')))return 'hi-IN';
   return rwSpeechLang();
 }
+/* Only real OS-installed voices can be selected. This is not a cloud actor.
+   Web Speech voices are loaded asynchronously on some Android browsers. */
+var RW_TUSK_ACTOR_KEY='rw_tusk_voice_actor';
+function rwTuskInstalledVoices(){
+  try{
+    if(!window.speechSynthesis || !speechSynthesis.getVoices)return [];
+    return speechSynthesis.getVoices().filter(function(v){return /^(hi|en)-IN$/i.test(v.lang||'');});
+  }catch(e){return [];}
+}
+function rwTuskSelectedVoice(){
+  try{return localStorage.getItem(RW_TUSK_ACTOR_KEY)||'';}catch(e){return '';}
+}
+function rwTuskCycleActorVoice(){
+  var list=rwTuskInstalledVoices();
+  if(!list.length){showToast('No Indian Hindi/English device voices found. Using system voice.');return '';}
+  var stored=rwTuskSelectedVoice(),at=list.findIndex(function(v){return v.voiceURI===stored;});
+  var next=list[(at+1)%list.length];
+  try{localStorage.setItem(RW_TUSK_ACTOR_KEY,next.voiceURI||'');}catch(e){}
+  showToast('Voice actor: '+String(next.name||next.lang)+' · '+next.lang+' (device voice)');
+  return next.voiceURI||'';
+}
 function rwSpeechPickVoice(voices,lang){
-  var list=voices||[];
+  var list=voices||[],preferred=rwTuskSelectedVoice();
+  if(preferred){
+    var chosen=list.filter(function(v){return v.voiceURI===preferred && String(v.lang||'').toLowerCase()===String(lang).toLowerCase();})[0];
+    if(chosen)return chosen;
+  }
   var exact=list.filter(function(v){return String(v.lang||'').toLowerCase()===String(lang).toLowerCase();});
-  if(exact.length) return exact[0];
+  if(exact.length)return exact[0];
   var indian=list.filter(function(v){return /^(hi|en)-IN$/i.test(v.lang||'');});
   return indian[0]||null;
 }
