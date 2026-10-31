@@ -14,6 +14,7 @@ function tuskSpeakable(text){
 }
 
 function tuskStopSpeech(){
+  try{if(window.RWTuskVoiceProvider)RWTuskVoiceProvider.stop();}catch(e){}
   try{ if(window.RW && typeof RW.stopSpeaking==='function') RW.stopSpeaking(); }catch(e){ /* best-effort, ignore */ }
   try{ if(window.RW && typeof RW.stopSpeak==='function') RW.stopSpeak(); }catch(e){ /* best-effort, ignore */ }
   try{
@@ -35,13 +36,22 @@ function tuskReleaseSpeechFocus(){
 }
 
 var _rwTuskLastSpeech = '', _rwTuskSpeechRate = 1;
-function tuskSpeak(text){
+function tuskSpeak(text,skipByok){
   var say = tuskSpeakable(text);
   if(!say) return;
   if(!rwVoiceEnabled()){ showToast('🔇 Voice narration is muted — turn it back on in Settings'); return; }
   _rwTuskLastSpeech = say.slice(0, 2000);
   var spoken=rwTuskSpeechPronunciation(say);
   tuskClaimSpeechFocus();
+  /* Explicit BYOK voice only. The user pays the provider; on network/credit
+     errors we gracefully return to the free installed device voice. */
+  var optional=window.RWTuskVoiceProvider;
+  if(!skipByok && optional && optional.selected()==='sarvam'){
+    optional.speak(spoken,rwSpeechOutputLang(say)).then(function(success){
+      if(!success) tuskSpeak(say,true);
+    });
+    return;
+  }
   if(window.RW && typeof RW.speak==='function'){ try{ RW.speak(spoken); return; }catch(e){ /* best-effort, ignore */ } }
   /* Native app output: treat promise rejection as failure, not as audible success.
      Avoid overlapping fallback voices when the plugin speaks successfully. */
