@@ -11,16 +11,17 @@
     panel=document.createElement('section');
     panel.className='rw-orb-shell';panel.id='rwTuskStudio';panel.hidden=true;
     panel.setAttribute('role','dialog');panel.setAttribute('aria-label','Ailon Tusk voice conversation');
-    panel.innerHTML='<div class="rw-orb-layout"><header class="rw-orb-head"><strong>☁️ ✦ Ailon Tusk</strong><span>RoamWise · Shinobi voice</span><button type="button" class="rw-orb-close" aria-label="Close voice conversation">✕</button></header><div class="rw-orb-stage" data-phase="idle"><div class="rw-orb-glow"><div class="rw-orb-core" aria-hidden="true"><span class="rw-orb-brand">RW</span></div><div class="rw-orb-ring" aria-hidden="true"></div></div><p class="rw-orb-phase" role="status" aria-live="polite">Ready to listen</p></div><p class="rw-orb-transcript"></p><div class="rw-orb-reply" aria-label="Tusk answer"></div><details class="rw-orb-full-answer" open><summary>📖 Full travel answer · tap to collapse</summary><div class="rw-orb-full-content"></div></details><section class="rw-orb-cards" aria-label="Travel results"></section><div class="rw-orb-controls"><button type="button" data-action="listen">🎙️ Speak</button><button type="button" data-action="interrupt">⏹ Stop</button><button type="button" data-action="read">🔊 Read again</button><button type="button" data-action="language">🌐 Voice language</button><button type="button" data-action="style">🎭 Friendly voice</button><button type="button" data-action="actor" aria-label="Select installed Indian voice actor">🎧 Voice actor</button><button type="button" data-action="provider">⚙️ Voice provider</button></div><p class="rw-orb-hint">Talk in Hindi, English or Hinglish. Responses depend on available device voices. Stop at any time. No always-on microphone.</p></div>';
+    panel.innerHTML='<div class="rw-orb-layout"><header class="rw-orb-head"><strong>☁️ ✦ Ailon Tusk</strong><span>RoamWise · Shinobi voice</span><button type="button" class="rw-orb-close" aria-label="Close voice conversation">✕</button></header><div class="rw-orb-stage" data-phase="idle"><div class="rw-orb-glow"><div class="rw-orb-stars" aria-hidden="true"></div><div class="rw-orb-route" aria-hidden="true"></div><div class="rw-orb-core" aria-hidden="true"><span class="rw-orb-emblem" aria-hidden="true">☁</span><span class="rw-orb-brand">RW</span><span class="rw-orb-mountain" aria-hidden="true">⌁ ⛰ ⌁</span></div><div class="rw-orb-ring" aria-hidden="true"></div><div class="rw-orb-nodes" aria-hidden="true"><i></i><i></i><i></i><i></i></div></div><p class="rw-orb-phase" role="status" aria-live="polite">Ready to listen</p></div><p class="rw-orb-transcript"></p><div class="rw-orb-reply" aria-label="Tusk answer"></div><details class="rw-orb-full-answer" open><summary>📖 Full travel answer · tap to collapse</summary><div class="rw-orb-full-content"></div></details><section class="rw-orb-cards" aria-label="Travel results"></section><div class="rw-orb-controls"><button type="button" data-action="listen">🎙️ Speak</button><button type="button" data-action="interrupt">⏹ Stop</button><button type="button" data-action="read">🔊 Read again</button><button type="button" data-action="language">🌐 Voice language</button><button type="button" data-action="style">🎭 Friendly voice</button><button type="button" data-action="actor" aria-label="Select installed Indian voice actor">🎧 Voice actor</button><button type="button" data-action="provider">⚙️ Voice provider</button></div><section class="rw-orb-picker" hidden aria-label="Voice preferences"><header><strong class="rw-orb-picker-title">Voice options</strong><button type="button" data-action="dismiss-picker" aria-label="Close voice options">✕</button></header><p class="rw-orb-picker-note"></p><div class="rw-orb-picker-options" role="group" aria-label="Available choices"></div></section><p class="rw-orb-hint">Talk in Hindi, English or Hinglish. Responses depend on available device voices. Stop at any time. No always-on microphone.</p></div>';
     document.body.appendChild(panel);
     stage=panel.querySelector('.rw-orb-stage');body=panel.querySelector('.rw-orb-transcript');subtitle=panel.querySelector('.rw-orb-phase');reply=panel.querySelector('.rw-orb-reply');details=panel.querySelector('.rw-orb-full-content');cards=panel.querySelector('.rw-orb-cards');
     panel.querySelector('.rw-orb-close').onclick=stop;
+    panel.querySelector('[data-action="dismiss-picker"]').onclick=closeVoicePicker;
     panel.addEventListener('keydown',function(e){if(e.key==='Escape')stop();});
     panel.querySelector('[data-action="interrupt"]').onclick=stop;
     panel.querySelector('[data-action="listen"]').onclick=function(){listen(true);};
     panel.querySelector('[data-action="read"]').onclick=function(){if(root.rwTuskReplaySpeech)root.rwTuskReplaySpeech();};
-    panel.querySelector('[data-action="language"]').onclick=function(){if(root.rwTuskCycleVoicePreference)root.rwTuskCycleVoicePreference();};
-    panel.querySelector('[data-action="actor"]').onclick=function(){if(root.rwTuskCycleActorVoice)root.rwTuskCycleActorVoice();};
+    panel.querySelector('[data-action="language"]').onclick=function(){openVoicePicker('language');};
+    panel.querySelector('[data-action="actor"]').onclick=function(){openVoicePicker('actor');};
     panel.querySelector('[data-action="provider"]').onclick=function(){stop();if(root.openSettings)root.openSettings();};
     panel.querySelector('[data-action="style"]').onclick=function(){
       var modes=['friendly','guide','kumaoni-style'],i=modes.indexOf(state.style);
@@ -29,6 +30,98 @@
       if(typeof root.showToast==='function')root.showToast('Voice style: '+state.style+' · regional style, not a native accent voice');
     };
     return true;
+  }
+
+  /* Real in-studio selectors: Android sometimes fills getVoices() only
+     after voiceschanged. A toast behind this dialog is not actionable UI. */
+  var pickerMode='',voicesListening=false;
+  function closeVoicePicker(){
+    pickerMode='';
+    if(!panel)return;
+    var box=panel.querySelector('.rw-orb-picker');
+    if(box)box.hidden=true;
+  }
+  function setVoiceSelection(value){
+    if(typeof root.localStorage==='undefined')return;
+    try{root.localStorage.setItem('rw_tusk_voice_lang',value);}catch(e){}
+  }
+  function renderVoicePicker(){
+    if(!panel || !pickerMode)return;
+    var box=panel.querySelector('.rw-orb-picker'),title=box.querySelector('.rw-orb-picker-title'),
+      note=box.querySelector('.rw-orb-picker-note'),area=box.querySelector('.rw-orb-picker-options');
+    if(!area)return;
+    area.replaceChildren();
+    function item(label,detail,selected,fn){
+      var b=document.createElement('button');
+      b.type='button';b.className='rw-orb-picker-option';
+      b.setAttribute('aria-pressed',String(!!selected));
+      var strong=document.createElement('strong');strong.textContent=label;
+      var small=document.createElement('small');small.textContent=detail;
+      b.appendChild(strong);b.appendChild(small);
+      b.onclick=fn;area.appendChild(b);
+    }
+    if(pickerMode==='language'){
+      title.textContent='🌐 Voice language';
+      note.textContent='Select speech language. Hinglish works using Hindi/Indian English voices. Kumaoni-style is a conversation style, not a native neural voice.';
+      var pref=typeof root.rwTuskVoicePreference==='function'?root.rwTuskVoicePreference():'auto';
+      [['auto','Automatic','Detect Hindi script or follow site language'],
+       ['hi-IN','Hindi · हिन्दी','Prefer an installed Hindi India voice'],
+       ['en-IN','English / Hinglish','Prefer an installed Indian English voice']]
+       .forEach(function(choice){
+          item(choice[1],choice[2],pref===choice[0],function(){
+            setVoiceSelection(choice[0]);
+            if(typeof root.showToast==='function')root.showToast('Voice language: '+choice[1]);
+            refreshVoiceControlLabels();closeVoicePicker();
+          });
+       });
+    }else{
+      title.textContent='🎧 Voice actor';
+      note.textContent='Only voices actually installed in this browser. Android can load them after a short delay. Native app voices may differ.';
+      var list=typeof root.rwTuskInstalledVoices==='function'?root.rwTuskInstalledVoices():[];
+      var selected=typeof root.rwTuskSelectedVoice==='function'?root.rwTuskSelectedVoice():'';
+      item('System default','Let the device pick the voice',!selected,function(){
+        try{root.localStorage.setItem('rw_tusk_voice_actor','');}catch(e){}
+        refreshVoiceControlLabels();closeVoicePicker();
+      });
+      list.forEach(function(v){
+        item(String(v.name||v.lang),String(v.lang||'')+(v.localService?' · on-device':''),selected===v.voiceURI,function(){
+          try{root.localStorage.setItem('rw_tusk_voice_actor',v.voiceURI||'');}catch(e){}
+          refreshVoiceControlLabels();closeVoicePicker();
+        });
+      });
+      if(!list.length){
+        var empty=document.createElement('p');empty.className='rw-orb-no-voices';
+        empty.textContent='No Indian Hindi/English voices reported yet. Using the device default; install or enable voices in device Text-to-speech settings.';
+        area.appendChild(empty);
+      }
+      if(!voicesListening && root.speechSynthesis && typeof root.speechSynthesis.addEventListener==='function'){
+        voicesListening=true;
+        root.speechSynthesis.addEventListener('voiceschanged',function(){if(pickerMode==='actor')renderVoicePicker();});
+      }
+    }
+  }
+  function openVoicePicker(mode){
+    if(!ensure())return false;
+    pickerMode=mode==='actor'?'actor':'language';
+    var box=panel.querySelector('.rw-orb-picker');box.hidden=false;
+    renderVoicePicker();
+    if(typeof box.scrollIntoView==='function')box.scrollIntoView({block:'nearest',behavior:'instant'});
+    var first=box.querySelector('.rw-orb-picker-options button');
+    if(first&&first.focus)first.focus();
+    return true;
+  }
+  function refreshVoiceControlLabels(){
+    if(!panel)return;
+    var lang=typeof root.rwTuskVoicePreference==='function'?root.rwTuskVoicePreference():'auto';
+    var speech=panel.querySelector('[data-action="language"]');
+    if(speech)speech.textContent='🌐 '+(lang==='hi-IN'?'Hindi':lang==='en-IN'?'English / Hinglish':'Auto language');
+    var actor=panel.querySelector('[data-action="actor"]');
+    if(actor){
+      var selected=typeof root.rwTuskSelectedVoice==='function'?root.rwTuskSelectedVoice():'';
+      var voices=typeof root.rwTuskInstalledVoices==='function'?root.rwTuskInstalledVoices():[];
+      var match=voices.filter(function(v){return v.voiceURI===selected;})[0];
+      actor.textContent='🎧 '+(match?String(match.name||'Voice actor').slice(0,21):'System voice');
+    }
   }
   function setPhase(phase,message){
     state.phase=phase;
@@ -49,11 +142,11 @@
     if(!ensure())return false;
     panel.hidden=false;state.active=true;state.turns=0;state.answerPending=false;state.session++;
     body.textContent='';reply.textContent='';if(details)details.textContent='';if(cards)cards.replaceChildren();
-    listen(true);panel.querySelector('[data-action="interrupt"]').focus();
+    closeVoicePicker();refreshVoiceControlLabels();listen(true);panel.querySelector('[data-action="interrupt"]').focus();
     return true;
   }
   function stop(){
-    state.active=false;state.answerPending=false;state.session++;
+    closeVoicePicker();state.active=false;state.answerPending=false;state.session++;
     if(typeof rwVoiceStop==='function')rwVoiceStop();
     if(typeof tuskStopSpeech==='function')tuskStopSpeech();
     if(panel)panel.hidden=true;
@@ -125,6 +218,21 @@
     }
     cards.appendChild(card);return data;
   }
+  function renderProviderFallback(query,intents){
+    if(!cards)return;
+    cards.replaceChildren();
+    var card=document.createElement('article');card.className='rw-orb-fallback';
+    var heading=document.createElement('h3');heading.textContent='⚡ AI is busy · Tusk still has tools';card.appendChild(heading);
+    var note=document.createElement('p');
+    note.textContent='Your request was not completed by the AI provider. You can retry, use the built-in trip planner, or ask by text. No live availability or route conditions are implied.';
+    card.appendChild(note);
+    var actions=document.createElement('div');actions.className='rw-orb-card-actions';
+    function button(label,fn){var b=document.createElement('button');b.type='button';b.textContent=label;b.addEventListener('click',fn);actions.appendChild(b);}
+    button('↻ Retry answer',function(){stop();if(typeof cpFollow==='function')cpFollow(String(query||'').slice(0,250));});
+    if(intents&&intents.dest)button('🗺️ Built-in trip planner',function(){stop();if(typeof cpGoPlan==='function')cpGoPlan(intents.dest,Number(intents.days)||0);});
+    button('⌨️ Ask by text',function(){stop();if(typeof root.openCopilot==='function')root.openCopilot();});
+    card.appendChild(actions);cards.appendChild(card);
+  }
   /* Expressive spoken introductions only. The factual answer remains intact.
      Kumaoni-inspired phrases are language style, not cloned regional audio. */
   function spokenStyle(text,query){
@@ -156,14 +264,19 @@
     if(!complete){setPhase('ready','Answer is on screen · tap Speak to continue');return false;}
     if(details)details.textContent=complete;
     reply.textContent=complete.length>650?'🔊 Voice preview: '+speech+'…':'🔊 '+speech;
-    renderResults(raw,intents);
-    try{if(root.RWConnectedDiscovery&&cards)root.RWConnectedDiscovery.renderInto(cards,raw,intents);}catch(e){}
+    var providerBusy=/(?:AI engines unreachable|Too many requests|rate limit|service unavailable|managed.AI allowance is used|HTTP 429)/i.test(complete);
+    if(providerBusy){
+      renderProviderFallback(raw,intents);
+    }else{
+      renderResults(raw,intents);
+      try{if(root.RWConnectedDiscovery&&cards)root.RWConnectedDiscovery.renderInto(cards,raw,intents);}catch(e){}
+    }
     if(/\b(pay|payment|refund|checkout|otp|password|emergency|sos)\b/i.test(String(raw||''))){
       setPhase('ready','Important details are on screen. Tap Speak for another question.');
       return false;
     }
     // Never narrate a provider failure as though it were a successful itinerary.
-    if(/(?:AI engines unreachable|Too many requests|rate limit|service unavailable)/i.test(complete)){
+    if(providerBusy){
       setPhase('ready','AI provider unavailable · review the message or retry later');
       return false;
     }
@@ -191,7 +304,7 @@
     },180);
   }
   function speechFailure(){if(state.active)setPhase('ready','Voice unavailable. Read above, then tap Speak.');}
-  var api={start:start,stop:stop,listen:listen,transcript:transcript,partialTranscript:partialTranscript,answer:answer,resultModel:resultModel,spokenStyle:spokenStyle,speechEnd:speechEnd,speechFailure:speechFailure,state:state};
+  var api={start:start,stop:stop,listen:listen,transcript:transcript,partialTranscript:partialTranscript,answer:answer,resultModel:resultModel,renderProviderFallback:renderProviderFallback,spokenStyle:spokenStyle,openVoicePicker:openVoicePicker,renderVoicePicker:renderVoicePicker,speechEnd:speechEnd,speechFailure:speechFailure,state:state};
   if(typeof module!=='undefined'&&module.exports)module.exports=api;
   if(root)root.RWTuskVoiceStudio=api;
 })(typeof window!=='undefined'?window:null);

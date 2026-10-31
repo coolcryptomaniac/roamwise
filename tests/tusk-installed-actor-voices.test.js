@@ -21,7 +21,7 @@ test('actor control exists in visible voice studio and docs prohibit exposed per
  const studio=fs.readFileSync('js/voice/tusk-studio.js','utf8');
  const guide=fs.readFileSync('docs/tusk-gemini-live-voice-integration.md','utf8');
  assert.match(studio,/data-action="actor"/);
- assert.match(studio,/rwTuskCycleActorVoice/);
+ assert.match(studio,/openVoicePicker\('actor'\)/);
  assert.match(guide,/Never ship the permanent key/);
  assert.match(guide,/not a deployed service/);
 });

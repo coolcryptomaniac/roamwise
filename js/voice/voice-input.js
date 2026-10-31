@@ -2,6 +2,16 @@
 /* Accessible, interruptible voice capture for the existing Tusk composer.
    One active session, one final transcript, no background microphone capture. */
 function copilotVoiceHero(){ rwVoiceStart('heroInput'); }
+/* Honor explicit Tusk speech language for recognition too. 'auto' retains
+   the existing site-language default; code-switching remains best-effort. */
+function rwVoiceInputLanguage(){
+  try{
+    var selected=typeof rwTuskVoicePreference==='function'?rwTuskVoicePreference():'auto';
+    if(selected==='hi-IN'||selected==='en-IN')return selected;
+  }catch(e){}
+  return typeof rwSpeechLang==='function'?rwSpeechLang():'en-IN';
+}
+
 var _rwVoiceTarget='heroInput', _rwVoiceSession=0, _rwVoiceActive=false;
 var _rwVoiceStop=null, _rwVoiceListener=null;
 function rwVoiceNotice(state, message){
@@ -74,7 +84,7 @@ function rwVoiceStart(targetId){
           if(valid()) _rwVoiceListener=listener;
           else if(listener && listener.remove) listener.remove();
         }).catch(function(){});
-        Promise.resolve(plugin.start({language:typeof rwSpeechLang==='function'?rwSpeechLang():'en-IN',maxResults:2,partialResults:false,popup:true}))
+        Promise.resolve(plugin.start({language:rwVoiceInputLanguage(),maxResults:2,partialResults:false,popup:true}))
           .then(function(v){ if(v && v.matches && v.matches[0]) finalText(v.matches[0]); })
           .catch(function(){fail('Voice input unavailable. Please type or check microphone permissions.');});
       }).catch(function(){fail('Microphone permission or voice recognition failed. Please type instead.');});
@@ -84,7 +94,7 @@ function rwVoiceStart(targetId){
   if(!SR) return fail('Voice input is not supported in this browser. Please type instead.');
   try{
     var rec=new SR();
-    rec.lang=typeof rwSpeechLang==='function'?rwSpeechLang():'en-IN';
+    rec.lang=rwVoiceInputLanguage();
     rec.interimResults=true; rec.continuous=false;
     rec.onresult=function(e){
       if(!valid())return;

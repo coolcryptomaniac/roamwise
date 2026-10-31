@@ -201,3 +201,73 @@
  .rw-orb-full-content{max-height:40dvh}
 }
 @media(prefers-reduced-motion:reduce){.rw-orb-brand,.rw-orb-core::before,.rw-orb-core::after{animation:none!important}}
+
+/* Shinobi × RoamWise constellation: CSS-only, GPU-friendly, no extra assets. */
+.rw-orb-glow{isolation:isolate}
+.rw-orb-stars{position:absolute;inset:-18%;border-radius:50%;pointer-events:none;opacity:.85;
+ background-image:radial-gradient(circle at 16% 19%,#ffe5a8 1.2px,transparent 2px),
+ radial-gradient(circle at 76% 13%,#fb719c 1.5px,transparent 2.5px),
+ radial-gradient(circle at 10% 78%,#97dbff 1.5px,transparent 2.5px),
+ radial-gradient(circle at 82% 82%,#f9bc6e 1.2px,transparent 2.5px),
+ radial-gradient(circle at 48% 4%,#ad9bff 1px,transparent 2px);
+ animation:rwStarDrift 16s linear infinite}
+.rw-orb-route{position:absolute;inset:-6%;border-radius:48%;pointer-events:none;
+ border:2px dashed rgba(247,134,176,.37);transform:rotate(-24deg);
+ box-shadow:0 0 28px rgba(170,48,132,.22);animation:rwRouteSpin 16s linear infinite}
+.rw-orb-core{overflow:visible;isolation:isolate}
+.rw-orb-core::before{height:42%;width:102%;border:3px solid #fa5b9a;
+ box-shadow:0 0 14px rgba(236,47,116,.7);transform:rotate(-27deg)}
+.rw-orb-core::after{height:42%;width:103%;border:2px solid rgba(255,213,121,.85);
+ box-shadow:0 0 13px rgba(250,199,83,.5);transform:rotate(32deg)}
+.rw-orb-emblem{position:absolute;left:50%;top:8%;transform:translateX(-50%);
+ color:#fa8cb6;font-size:clamp(20px,5vw,35px);opacity:.85;
+ filter:drop-shadow(0 0 8px rgba(246,69,128,.7))}
+.rw-orb-mountain{position:absolute;bottom:9%;left:0;right:0;text-align:center;color:#ead6ff;
+ font-size:clamp(13px,3vw,22px);letter-spacing:.08em;text-shadow:0 0 9px #7b8df7}
+.rw-orb-brand{font-size:clamp(22px,5.3vw,38px);letter-spacing:.16em}
+.rw-orb-nodes{position:absolute;inset:-12%;border-radius:50%;pointer-events:none;animation:rwRouteSpin 11s linear infinite}
+.rw-orb-nodes i{position:absolute;display:block;width:8px;height:8px;border-radius:50%;
+ background:#a9deff;box-shadow:0 0 12px 5px rgba(124,195,255,.35)}
+.rw-orb-nodes i:nth-child(1){top:5%;left:46%;background:#f67da9}
+.rw-orb-nodes i:nth-child(2){right:3%;top:50%}
+.rw-orb-nodes i:nth-child(3){left:7%;bottom:15%;background:#f8cc77}
+.rw-orb-nodes i:nth-child(4){right:23%;bottom:5%;background:#a9bbff}
+.rw-orb-stage[data-phase="listening"] .rw-orb-nodes{animation-duration:5s}
+.rw-orb-stage[data-phase="listening"] .rw-orb-route{border-color:#6deaff;box-shadow:0 0 30px #46b5ed55}
+.rw-orb-stage[data-phase="thinking"] .rw-orb-nodes{animation-duration:3s}
+.rw-orb-stage[data-phase="speaking"] .rw-orb-core{filter:drop-shadow(0 0 19px #cb63e7)}
+.rw-orb-stage[data-phase="ready"] .rw-orb-stars{opacity:.5}
+@keyframes rwRouteSpin{to{transform:rotate(336deg)}}
+@keyframes rwStarDrift{to{transform:rotate(360deg)}}
+
+/* Voice selectors are actual inline settings sheets, not invisible toasts. */
+.rw-orb-picker[hidden]{display:none!important}
+.rw-orb-picker{z-index:5;width:100%;max-width:100%;min-width:0;box-sizing:border-box;
+ padding:13px;border-radius:17px;display:grid;gap:10px;
+ border:1px solid rgba(175,141,245,.7);
+ background:linear-gradient(145deg,#21193e,#121b38);box-shadow:0 12px 30px #05061170}
+.rw-orb-picker header{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.rw-orb-picker header strong{font-size:16px}
+.rw-orb-picker header button{min-height:44px;min-width:44px;border:1px solid #8f78ca;
+ border-radius:12px;background:#272044;color:#fff}
+.rw-orb-picker-note{margin:0;font-size:12px;line-height:1.6;color:#d3c6f0}
+.rw-orb-picker-options{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,190px),1fr));gap:8px;max-height:35dvh;overflow-y:auto}
+.rw-orb-picker-option{text-align:left;display:flex;flex-direction:column;gap:5px;
+ padding:12px;min-width:0;max-width:100%;color:#f8f3ff;min-height:66px;
+ border:1px solid #5d5485;border-radius:12px;background:#25254a;cursor:pointer}
+.rw-orb-picker-option[aria-pressed="true"]{border-color:#ffbf73;
+ box-shadow:inset 0 0 0 1px #ffbf73,0 0 15px #e49a5f33;background:#342b55}
+.rw-orb-picker-option strong{font-size:13px;overflow-wrap:anywhere}
+.rw-orb-picker-option small{font-size:11px;color:#c5c3d9;overflow-wrap:anywhere}
+.rw-orb-no-voices{grid-column:1/-1;margin:0;font-size:12px;line-height:1.5;color:#efddff}
+.rw-orb-controls button:focus-visible,.rw-orb-picker button:focus-visible{outline:2px solid #ffe0a0;outline-offset:2px}
+.rw-orb-fallback{width:100%;min-width:0;border:1px solid #e8ad64;border-radius:15px;
+ padding:15px;background:linear-gradient(130deg,#352440,#161b34)}
+.rw-orb-fallback h3{margin:0 0 7px;font-size:16px;color:#ffdd9d}
+.rw-orb-fallback p{margin:0 0 12px;font-size:12px;line-height:1.6;color:#e5d6ee}
+@media(max-width:420px){.rw-orb-picker-options{grid-template-columns:minmax(0,1fr)}
+ .rw-orb-picker{padding:11px}.rw-orb-stage{height:clamp(160px,25dvh,220px)!important}}
+@media(prefers-reduced-motion:reduce){
+ .rw-orb-stars,.rw-orb-route,.rw-orb-nodes{animation:none!important}
+ .rw-orb-stage[data-phase="speaking"] .rw-orb-core{filter:none!important}
+}

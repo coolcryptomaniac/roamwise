@@ -19,6 +19,6 @@ test('invalid stored preference falls back to automatic',()=>{
 test('voice mode UI exposes preference action and quicker turn transition',()=>{
  const src=fs.readFileSync('js/voice/tusk-studio.js','utf8');
  assert.match(src,/data-action="language"/);
- assert.match(src,/rwTuskCycleVoicePreference/);
+ assert.match(src,/openVoicePicker\('language'\)/);
  assert.match(src,/\},180\);/);
 });
