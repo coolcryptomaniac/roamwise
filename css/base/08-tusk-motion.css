@@ -271,3 +271,15 @@
  .rw-orb-stars,.rw-orb-route,.rw-orb-nodes{animation:none!important}
  .rw-orb-stage[data-phase="speaking"] .rw-orb-core{filter:none!important}
 }
+
+/* Akatsuki-inspired crimson clouds and violet RoamWise travel cards. */
+.rw-orb-layout{background:linear-gradient(155deg,#160e29 0%,#241039 48%,#310e28 100%)}
+.rw-orb-head{border-bottom:1px solid rgba(255,86,111,.38)}
+.rw-orb-stage{background:radial-gradient(circle at 50% 40%,rgba(127,44,199,.24),transparent 65%)}
+.rw-orb-core{box-shadow:0 0 24px #a12be577,0 0 42px #e3314a55}
+.rw-orb-emblem{color:#ff405e;text-shadow:0 0 12px #f53658}
+.rw-orb-answer-tile{margin:0 0 10px;padding:13px 14px;border-radius:14px;min-width:0;overflow-wrap:anywhere;background:linear-gradient(135deg,rgba(94,37,151,.34),rgba(76,18,49,.42));border:1px solid rgba(224,92,148,.4);box-shadow:inset 3px 0 0 #dc456e}
+.rw-orb-answer-tile strong{display:block;font-size:12px;letter-spacing:.04em;color:#ffb5d0;margin-bottom:6px}
+.rw-orb-answer-tile p{margin:0;font-size:clamp(13px,2.8vw,15px);line-height:1.65;color:#f8f0ff;white-space:normal}
+.rw-orb-close{position:relative;z-index:12;min-width:44px;min-height:44px;touch-action:manipulation}
+@media(max-width:420px){.rw-orb-answer-tile{padding:11px 12px}}
