@@ -68,7 +68,7 @@
     if(image && !/^\/?(?:assets|images)\//.test(image))image='';
     return {id:String(p.id||''),name:name,category:category,region:region,
       description:String((p.area||p.zone||'')+' · '+(nomad?'workation option':isEnquiry?'founder-introduced enquiry':'RoamWise stay')).slice(0,180),
-      href:region==='lansdowne'?'/stays/lansdowne/':region==='himachal'?'/stays/tirthan-valley/':region==='almora'?(nomad?'/workation/almora/':'/stays/almora/'):'/partners/',
+      href:p.id==='p_corbett_jungle_view'?'/stays/lansdowne/':p.id==='p_woodbook_devine'?'/stays/tirthan-valley/':p.id==='p_big_bro_hotel'?'/workation/almora/':'/partners/',
       image:image?'/'+image.replace(/^\//,''):null,
       status:isEnquiry?'Enquiry only · confirm agreement and rates':nomad?'Confirm work facilities, price and dates':'Signed partner · confirm availability',
       nomad:p.nomad||null, verified:p.verified, area:String(p.area||'').slice(0,100)};
