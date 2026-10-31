@@ -96,6 +96,39 @@
       .then(function(r){if(!r.ok)throw Error('artist catalog unavailable');return r.json();})
       .then(updatePublishedArtists).catch(function(){return 0;});
   }
+  function preferences(text,intents){
+    var q=String(text||''),i=intents||{};
+    var budget=Number(i.budget)||0,match=q.match(/(?:₹|rs\.?|inr)\s*([\d,]{3,})/i);
+    if(match)budget=Number(match[1].replace(/,/g,''))||budget;
+    var days=Math.max(0,Math.min(365,Number(i.days)||0));
+    var nights=q.match(/(\d{1,3})\s*(?:nights?|days?|din|रात|दिन)/i);
+    if(nights)days=Number(nights[1]);
+    var month=/\b(month|monthly|mahina|workation|digital nomad)\b|महीना|वर्केशन/i.test(q);
+    if(month&&days===0)days=30;
+    return {budget:budget,days:days,monthly:month,remote:/\b(nomad|remote|workation|wifi|wi-fi|desk|backup|cowork|work from)\b|वर्केशन/i.test(q),
+      quiet:/\b(quiet|peace|silent|calm|nature|forest|shaant)\b|शांत|सुकून/i.test(q)};
+  }
+  function rankOne(p,params,flags,query){
+    var score=p.category==='artist'?(flags.culture?80:52):p.category==='creator'?40:62;
+    if(p.category==='nomad'){
+      score+=params.remote?35:0;
+      var n=p.nomad||{},minimum=Number(n.minNights)||0;
+      if(params.days && minimum && params.days<minimum)score-=90;
+      if(params.remote && n.desk)score+=7;
+      if(params.remote && n.backup)score+=6;
+      var declared=params.days>=28?Number(n.rate30):params.days>=15?Number(n.rate15):0;
+      if(params.budget>0 && declared>0){
+        score+=declared<=params.budget?18:-16;
+        p.priceHint='Host-stated ₹'+declared.toLocaleString('en-IN')+' · reconfirm total directly';
+      }
+    }
+    if(p.category==='stay'&&params.remote)score-=7;
+    if(params.quiet&&/peace|quiet|forest|orchard/i.test(p.description||''))score+=5;
+    if(p.verified==='signed')score+=8;
+    if(p.status&&/enquiry only/i.test(p.status))score-=2;
+    if(query && p.area && query.toLowerCase().includes(p.area.toLowerCase()))score+=15;
+    return score;
+  }
   function picks(text,intents){
     var flags=intentFor(text);
     if(flags.exclude)return [];
@@ -119,8 +152,13 @@
         description:'Explore opt-in collaborations with regional creators and hosts',
         href:'/creators/match.html',image:null,status:'Both sides approve terms'});
     }
-    if(region==='himachal'&&!flags.stay)out.sort(function(a,b){return a.category==='artist'?-1:b.category==='artist'?1:0;});
-    return out.slice(0,4).map(function(p){return Object.assign({},p);});
+    var pref=preferences(text,intents),query=String(text||'');
+    out=out.map(function(p){var copy=Object.assign({},p);copy._rank=rankOne(copy,pref,flags,query);return copy;});
+    if(region==='himachal'&&!flags.stay&&!pref.remote){
+      out.forEach(function(p){if(p.category==='artist')p._rank+=20;});
+    }
+    out.sort(function(a,b){return b._rank-a._rank||a.name.localeCompare(b.name);});
+    return out.slice(0,4).map(function(p){delete p._rank;return p;});
   }
   function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
   function html(text,intents){
@@ -132,7 +170,7 @@
         return '<a class="rw-connected-item" href="'+esc(p.href)+'">'
           +(p.image?'<img src="'+esc(p.image)+'" alt="" loading="lazy" width="180" height="120">':'')
           +'<span class="rw-connected-detail"><b>'+esc(p.name)+'</b><small>'+esc(p.description)+'</small>'
-          +'<em>'+esc(p.status)+'</em></span></a>';
+          +'<em>'+esc(p.status)+'</em>'+(p.priceHint?'<small>'+esc(p.priceHint)+'</small>':'')+'</span></a>';
       }).join('')+'</div></section>';
   }
   function renderInto(node,text,intents){
@@ -149,11 +187,12 @@
       var title=document.createElement('b');title.textContent=p.name;content.appendChild(title);
       var desc=document.createElement('small');desc.textContent=p.description;content.appendChild(desc);
       var status=document.createElement('em');status.textContent=p.status;content.appendChild(status);
+      if(p.priceHint){var price=document.createElement('small');price.textContent=p.priceHint;content.appendChild(price);}
       link.appendChild(content);section.appendChild(link);
     });
     node.appendChild(section);return items.length;
   }
-  var api={regionFor:regionFor,intentFor:intentFor,picks:picks,html:html,renderInto:renderInto,refreshArtists:refreshArtists,updatePublishedArtists:updatePublishedArtists,visiblePartners:visiblePartners};
+  var api={regionFor:regionFor,intentFor:intentFor,picks:picks,html:html,renderInto:renderInto,refreshArtists:refreshArtists,updatePublishedArtists:updatePublishedArtists,visiblePartners:visiblePartners,preferences:preferences};
   if(typeof module!=='undefined'&&module.exports)module.exports=api;
   if(root){root.RWConnectedDiscovery=api; if(typeof document!=='undefined')refreshArtists();}
 })(typeof window!=='undefined'?window:null);
