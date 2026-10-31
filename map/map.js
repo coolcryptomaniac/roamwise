@@ -1,6 +1,7 @@
 // map/map.js - the Uttarakhand map: a swipeable carousel of the 13 districts drives the map. Leaflet is a classic script
 // (window.L); partners-data.js provides window.RW_PARTNER_SEED. Every string from data is placed with textContent.
 import { BOUNDS, REGIONS, cleanPlaces, cleanDistricts, partnerPins, searchDistricts } from './map-core.mjs';
+import { distanceKm } from './nearby-rank.mjs';
 
 const $ = (id) => document.getElementById(id);
 function el(tag, cls, text) { const n = document.createElement(tag); if (cls) n.className = cls; if (text != null) n.textContent = text; return n; }
@@ -184,6 +185,21 @@ function build() {
   });
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && $('mpWrap').classList.contains('full')) $('mpFull').click(); });
   $('mpAll').addEventListener('click', showAll);
+  $('mpNear').addEventListener('click', () => {
+    const status = $('mpNearStatus');
+    if (!navigator.geolocation) { status.textContent = 'Location unavailable. Select a district manually.'; return; }
+    status.textContent = 'Requesting location permission…';
+    navigator.geolocation.getCurrentPosition((pos) => {
+      const origin = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+      const ranked = places.map((p) => ({ place: p, km: distanceKm(origin, p) }))
+        .filter((x) => x.km !== null).sort((a, b) => a.km - b.km);
+      if (!ranked.length) { status.textContent = 'No nearby places available in this map. Select manually.'; return; }
+      const nearest = ranked[0];
+      status.textContent = 'Nearest mapped town: ' + nearest.place.name + ' (about ' + Math.round(nearest.km) + ' km straight-line; not live travel time).';
+      selectPlace(nearest.place.id);
+    }, () => { status.textContent = 'Location not available or permission denied. Select a district manually.'; },
+    { enableHighAccuracy: false, timeout: 12000, maximumAge: 60000 });
+  });
   places.forEach((p) => {
     const icon = L.divIcon({ className: 'mp-pinwrap', html: '<span class="mp-pin"></span>', iconSize: [16, 16], iconAnchor: [8, 8] });
     const m = L.marker([p.lat, p.lng], { icon, title: p.name, keyboard: true, alt: p.name }).addTo(map);
