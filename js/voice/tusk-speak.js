@@ -102,7 +102,7 @@ function rwSpeechLang(){
    This is not a claim of native Kumaoni or Garhwali synthesis. */
 var RW_TUSK_VOICE_LANG_KEY='rw_tusk_voice_lang';
 function rwTuskVoicePreference(){
-  try{var x=localStorage.getItem(RW_TUSK_VOICE_LANG_KEY);return x==='hi-IN'||x==='en-IN'?x:'auto';}catch(e){return 'auto';}
+  try{var x=localStorage.getItem(RW_TUSK_VOICE_LANG_KEY);return x==='hi-IN'||x==='en-IN'||x==='kumaoni'?x:'auto';}catch(e){return 'auto';}
 }
 function rwTuskCycleVoicePreference(){
   var choices=['auto','hi-IN','en-IN'],i=choices.indexOf(rwTuskVoicePreference()),next=choices[(i+1)%choices.length];
@@ -112,6 +112,7 @@ function rwTuskCycleVoicePreference(){
 }
 function rwSpeechOutputLang(text){
   var preference=rwTuskVoicePreference();
+  if(preference==='kumaoni')return 'hi-IN';
   if(preference!=='auto')return preference;
   if(/[\u0900-\u097f]/.test(String(text||'')))return 'hi-IN';
   return rwSpeechLang();
