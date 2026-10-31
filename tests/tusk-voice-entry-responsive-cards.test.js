@@ -28,7 +28,7 @@ test('voice studio offers friendly, educational, Kumaoni-inspired style without 
  const studio=context.RWTuskVoiceStudio;
  assert.equal(studio.spokenStyle('Kanatal is a village').includes('Nice!'),true);
  studio.state.style='guide';assert.equal(studio.spokenStyle('Kanatal is a village'),'Kanatal is a village');
- studio.state.style='kumaoni-style';assert.match(studio.spokenStyle('Almora'),'Bhula, suno zara');
+ studio.state.style='kumaoni-style';assert.match(studio.spokenStyle('Almora'),/Bhula, suno zara/);
  assert.match(studio.spokenStyle('अल्मोड़ा'),/भुला/);
  assert.match(source,/data-action="style"/);
 });
