@@ -266,7 +266,7 @@
     if(!complete){setPhase('ready','Answer is on screen · tap Speak to continue');return false;}
     if(details){
       details.replaceChildren();
-      var sections=complete.split(/(?<=[.!?।])\\s+(?=[A-Z\\u0900-\\u097f0-9])/).filter(Boolean);
+      var sections=complete.split(/[.!?।]+\s*/).filter(Boolean);
       sections.slice(0,24).forEach(function(line,index){
         var block=document.createElement('article');block.className='rw-orb-answer-tile';
         var label=document.createElement('strong');label.textContent=index===0?'✦ Tusk summary':'◆ Detail '+index;
