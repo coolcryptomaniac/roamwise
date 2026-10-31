@@ -266,7 +266,8 @@
     if(!complete){setPhase('ready','Answer is on screen · tap Speak to continue');return false;}
     if(details){
       details.replaceChildren();
-      var sections=complete.split(/[.!?।]+\s*/).filter(Boolean);
+      var sections=complete.match(/[^.!?।]+[.!?।]?/g)||[];
+      sections=sections.map(function(t){return t.trim();}).filter(Boolean);
       sections.slice(0,24).forEach(function(line,index){
         var block=document.createElement('article');block.className='rw-orb-answer-tile';
         var label=document.createElement('strong');label.textContent=index===0?'✦ Tusk summary':'◆ Detail '+index;
@@ -275,8 +276,14 @@
       });
       if(sections.length>24){var rest=document.createElement('p');rest.textContent=sections.slice(24).join(' ');details.appendChild(rest);}
     }
-    reply.textContent=complete.length>650?'🔊 Voice preview: '+speech+'…':'🔊 '+speech;
-    var providerBusy=/(?:AI engines unreachable|Too many requests|rate limit|service unavailable|managed.AI allowance is used|HTTP 429)/i.test(complete);
+    reply.textContent=complete.length>650?'🔊 '+speech+'…':'🔊 '+speech;
+    var providerBusy=/(?:AI engines unreachable|Too many requests|rate limit|service unavailable|managed.AI allowance is used|HTTP 429|AI provider unavailable)/i.test(complete);
+    // The modal owns the visible answer in voice mode. Never overlay a giant
+    // failure headline across the orb or duplicate it as spoken travel advice.
+    if(providerBusy){
+      reply.textContent='The hosted AI is temporarily unavailable. Try again or use the built-in planner.';
+      if(details){details.replaceChildren();var info=document.createElement('p');info.textContent='The AI service could not finish this request. No booking, live price or availability was confirmed.';details.appendChild(info);}
+    }
     if(providerBusy){
       renderProviderFallback(raw,intents);
     }else{
