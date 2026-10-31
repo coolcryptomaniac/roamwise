@@ -2,7 +2,7 @@
 /* Ailon Tusk voice studio: opt-in turn-taking, not a claim of full-duplex audio.
    No microphone is opened on page load. Stop always cancels the loop. */
 (function(root){
-  var state={active:false,turns:0,limit:8,phase:'idle',answerPending:false,style:'friendly'};
+  var state={active:false,turns:0,limit:8,phase:'idle',answerPending:false,style:'friendly',session:0,interim:''};
   var panel=null,stage=null,body=null,subtitle=null,reply=null,cards=null;
   function escape(s){return String(s||'').replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
   function ensure(){
@@ -37,7 +37,7 @@
     if(!state.active && !manual)return;
     if(typeof _rwVoiceActive!=='undefined' && _rwVoiceActive)return;
     if(!ensure())return;
-    state.active=true;state.answerPending=false;
+    state.active=true;state.answerPending=false;state.interim='';
     var target=(typeof el==='function' && el('cpInput'))?'cpInput':'heroInput';
     setPhase('listening','Listening · बोलिए');
     if(typeof rwVoiceStart==='function') rwVoiceStart(target);
@@ -45,20 +45,27 @@
   }
   function start(){
     if(!ensure())return false;
-    panel.hidden=false;state.active=true;state.turns=0;state.answerPending=false;
+    panel.hidden=false;state.active=true;state.turns=0;state.answerPending=false;state.session++;
     body.textContent='';reply.textContent='';if(cards)cards.replaceChildren();
     listen(true);panel.querySelector('[data-action="interrupt"]').focus();
     return true;
   }
   function stop(){
-    state.active=false;state.answerPending=false;
+    state.active=false;state.answerPending=false;state.session++;
     if(typeof rwVoiceStop==='function')rwVoiceStop();
     if(typeof tuskStopSpeech==='function')tuskStopSpeech();
     if(panel)panel.hidden=true;
     state.phase='idle';
   }
+  function partialTranscript(t){
+    if(!state.active || state.phase!=='listening')return false;
+    state.interim=String(t||'').slice(0,260);
+    if(body)body.textContent='You · listening: '+state.interim;
+    return true;
+  }
   function transcript(t){
     if(!state.active)return;
+    state.interim='';
     state.turns++;state.answerPending=true;
     if(body)body.textContent='You: '+String(t||'').slice(0,240);
     setPhase('thinking','Finding your answer…');
@@ -86,7 +93,9 @@
     var data=resultModel(raw,intents);
     if(!data)return null;
     var card=document.createElement('article');card.className='rw-orb-card';
-    var badge=document.createElement('div');badge.className='rw-orb-badge';badge.textContent='✦ Travel guide · '+data.type;
+    var badge=document.createElement('div');badge.className='rw-orb-badge';badge.textContent='✦ '+({road:'Route safety',stay:'Places to stay',weather:'Weather',food:'Local flavours',trip:'Destination guide'}[data.type]);
+    var pictogram=document.createElement('div');pictogram.className='rw-orb-card-icon';
+    pictogram.setAttribute('aria-hidden','true');pictogram.textContent=({road:'🛣️',stay:'🏡',weather:'🌤️',food:'🍲',trip:'🏔️'}[data.type]);
     var heading=document.createElement('h3');heading.textContent=data.name;
     var summary=document.createElement('p');summary.textContent=data.hint;
     var buttons=document.createElement('div');buttons.className='rw-orb-card-actions';
@@ -107,7 +116,11 @@
         cpFollow(prompts[data.type]+data.name);
       }
     });
-    card.appendChild(badge);card.appendChild(heading);card.appendChild(summary);card.appendChild(buttons);
+    card.appendChild(pictogram);card.appendChild(badge);card.appendChild(heading);card.appendChild(summary);card.appendChild(buttons);
+    if(intents && Number(intents.days)>0 && Number(intents.days)<=60){
+      var length=document.createElement('div');length.className='rw-orb-card-duration';
+      length.textContent='🗓️ '+Math.round(Number(intents.days))+' day trip · dates and prices need confirmation';card.appendChild(length);
+    }
     cards.appendChild(card);return data;
   }
   /* Expressive spoken introductions only. The factual answer remains intact.
@@ -153,12 +166,13 @@
     // A new capture only follows an explicit opt-in start; permission/browser
     // restrictions can still require another tap.
     setPhase('ready','Your turn · tap Speak or continue talking');
+    var session=state.session;
     if(typeof setTimeout==='function')setTimeout(function(){
-      if(state.active && state.phase==='ready')listen(false);
+      if(state.active && session===state.session && state.phase==='ready')listen(false);
     },180);
   }
   function speechFailure(){if(state.active)setPhase('ready','Voice unavailable. Read above, then tap Speak.');}
-  var api={start:start,stop:stop,listen:listen,transcript:transcript,answer:answer,resultModel:resultModel,spokenStyle:spokenStyle,speechEnd:speechEnd,speechFailure:speechFailure,state:state};
+  var api={start:start,stop:stop,listen:listen,transcript:transcript,partialTranscript:partialTranscript,answer:answer,resultModel:resultModel,spokenStyle:spokenStyle,speechEnd:speechEnd,speechFailure:speechFailure,state:state};
   if(typeof module!=='undefined'&&module.exports)module.exports=api;
   if(root)root.RWTuskVoiceStudio=api;
 })(typeof window!=='undefined'?window:null);
