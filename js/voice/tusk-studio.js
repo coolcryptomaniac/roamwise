@@ -3,7 +3,7 @@
    No microphone is opened on page load. Stop always cancels the loop. */
 (function(root){
   var state={active:false,turns:0,limit:8,phase:'idle',answerPending:false,style:'friendly',session:0,interim:''};
-  var panel=null,stage=null,body=null,subtitle=null,reply=null,cards=null,details=null;
+  var panel=null,stage=null,body=null,subtitle=null,reply=null,cards=null,details=null,conversation=null;
   function escape(s){return String(s||'').replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
   function ensure(){
     if(typeof document==='undefined') return false;
@@ -11,9 +11,9 @@
     panel=document.createElement('section');
     panel.className='rw-orb-shell';panel.id='rwTuskStudio';panel.hidden=true;
     panel.setAttribute('role','dialog');panel.setAttribute('aria-label','Ailon Tusk voice conversation');
-    panel.innerHTML='<div class="rw-orb-layout"><header class="rw-orb-head"><strong>☁️ ✦ Ailon Tusk</strong><span>RoamWise · Shinobi voice</span><button type="button" class="rw-orb-close" aria-label="Close voice conversation">✕</button></header><div class="rw-orb-stage" data-phase="idle"><div class="rw-orb-glow"><div class="rw-orb-stars" aria-hidden="true"></div><div class="rw-orb-route" aria-hidden="true"></div><div class="rw-orb-core" aria-hidden="true"><span class="rw-orb-emblem" aria-hidden="true">☁</span><span class="rw-orb-brand">RW</span><span class="rw-orb-mountain" aria-hidden="true">⌁ ⛰ ⌁</span></div><div class="rw-orb-ring" aria-hidden="true"></div><div class="rw-orb-nodes" aria-hidden="true"><i></i><i></i><i></i><i></i></div></div><p class="rw-orb-phase" role="status" aria-live="polite">Ready to listen</p></div><p class="rw-orb-transcript"></p><div class="rw-orb-reply" aria-label="Tusk answer"></div><details class="rw-orb-full-answer" open><summary>📖 Full travel answer · tap to collapse</summary><div class="rw-orb-full-content"></div></details><section class="rw-orb-cards" aria-label="Travel results"></section><div class="rw-orb-controls"><button type="button" data-action="listen">🎙️ Speak</button><button type="button" data-action="interrupt">⏹ Stop</button><button type="button" data-action="read">🔊 Read again</button><button type="button" data-action="language">🌐 Voice language</button><button type="button" data-action="style">🎭 Friendly voice</button><button type="button" data-action="actor" aria-label="Select installed Indian voice actor">🎧 Voice actor</button><button type="button" data-action="provider">⚙️ Voice provider</button></div><section class="rw-orb-picker" hidden aria-label="Voice preferences"><header><strong class="rw-orb-picker-title">Voice options</strong><button type="button" data-action="dismiss-picker" aria-label="Close voice options">✕</button></header><p class="rw-orb-picker-note"></p><div class="rw-orb-picker-options" role="group" aria-label="Available choices"></div></section><p class="rw-orb-hint">Talk in Hindi, English or Hinglish. Responses depend on available device voices. Stop at any time. No always-on microphone.</p></div>';
+    panel.innerHTML='<div class="rw-orb-layout"><header class="rw-orb-head"><strong>☁️ ✦ Ailon Tusk</strong><span>RoamWise · Shinobi voice</span><button type="button" class="rw-orb-close" aria-label="Close voice conversation">✕</button></header><div class="rw-orb-stage" data-phase="idle"><div class="rw-orb-glow"><div class="rw-orb-stars" aria-hidden="true"></div><div class="rw-orb-route" aria-hidden="true"></div><div class="rw-orb-core" aria-hidden="true"><span class="rw-orb-emblem" aria-hidden="true">☁</span><span class="rw-orb-brand">RW</span><span class="rw-orb-mountain" aria-hidden="true">⌁ ⛰ ⌁</span></div><div class="rw-orb-ring" aria-hidden="true"></div><div class="rw-orb-nodes" aria-hidden="true"><i></i><i></i><i></i><i></i></div></div><p class="rw-orb-phase" role="status" aria-live="polite">Ready to listen</p></div><p class="rw-orb-transcript"></p><section class="rw-orb-conversation" aria-label="Voice conversation" role="log" aria-live="polite" aria-relevant="additions"></section><div class="rw-orb-reply" aria-label="Tusk answer"></div><details class="rw-orb-full-answer" open><summary>📖 Full travel answer · tap to collapse</summary><div class="rw-orb-full-content"></div></details><section class="rw-orb-cards" aria-label="Travel results"></section><div class="rw-orb-controls"><button type="button" data-action="listen">🎙️ Speak</button><button type="button" data-action="interrupt">⏹ Stop</button><button type="button" data-action="read">🔊 Read again</button><button type="button" data-action="language">🌐 Voice language</button><button type="button" data-action="style">🎭 Friendly voice</button><button type="button" data-action="actor" aria-label="Select installed Indian voice actor">🎧 Voice actor</button><button type="button" data-action="provider">⚙️ Voice provider</button></div><section class="rw-orb-picker" hidden aria-label="Voice preferences"><header><strong class="rw-orb-picker-title">Voice options</strong><button type="button" data-action="dismiss-picker" aria-label="Close voice options">✕</button></header><p class="rw-orb-picker-note"></p><div class="rw-orb-picker-options" role="group" aria-label="Available choices"></div></section><p class="rw-orb-hint">Talk in Hindi, English or Hinglish. Responses depend on available device voices. Stop at any time. No always-on microphone.</p></div>';
     document.body.appendChild(panel);
-    stage=panel.querySelector('.rw-orb-stage');body=panel.querySelector('.rw-orb-transcript');subtitle=panel.querySelector('.rw-orb-phase');reply=panel.querySelector('.rw-orb-reply');details=panel.querySelector('.rw-orb-full-content');cards=panel.querySelector('.rw-orb-cards');
+    stage=panel.querySelector('.rw-orb-stage');body=panel.querySelector('.rw-orb-transcript');subtitle=panel.querySelector('.rw-orb-phase');reply=panel.querySelector('.rw-orb-reply');details=panel.querySelector('.rw-orb-full-content');cards=panel.querySelector('.rw-orb-cards');conversation=panel.querySelector('.rw-orb-conversation');
     panel.querySelector('.rw-orb-close').onclick=stop;
     panel.querySelector('[data-action="dismiss-picker"]').onclick=closeVoicePicker;
     panel.addEventListener('keydown',function(e){if(e.key==='Escape')stop();});
@@ -130,6 +130,15 @@
     if(!ensure())return;
     stage.dataset.phase=phase;subtitle.textContent=message||phase;
   }
+  function addTurn(who,message){
+    if(!conversation)return;
+    var turn=document.createElement('article');turn.className='rw-orb-turn rw-orb-turn-'+who;
+    var name=document.createElement('strong');name.textContent=who==='user'?'You · आप':'✦ Ailon Tusk';
+    var content=document.createElement('p');content.textContent=String(message||'').slice(0,1200);
+    turn.appendChild(name);turn.appendChild(content);conversation.appendChild(turn);
+    while(conversation.children.length>12)conversation.removeChild(conversation.firstChild);
+    if(typeof turn.scrollIntoView==='function')turn.scrollIntoView({block:'nearest'});
+  }
   function listen(manual){
     if(!state.active && !manual)return;
     if(typeof _rwVoiceActive!=='undefined' && _rwVoiceActive)return;
@@ -143,7 +152,7 @@
   function start(){
     if(!ensure())return false;
     panel.hidden=false;state.active=true;state.turns=0;state.answerPending=false;state.session++;
-    body.textContent='';reply.textContent='';if(details)details.textContent='';if(cards)cards.replaceChildren();
+    body.textContent='';reply.textContent='';if(details)details.textContent='';if(cards)cards.replaceChildren();if(conversation)conversation.replaceChildren();
     closeVoicePicker();refreshVoiceControlLabels();listen(true);panel.querySelector('[data-action="interrupt"]').focus();
     return true;
   }
@@ -165,6 +174,7 @@
     state.interim='';
     state.turns++;state.answerPending=true;
     if(body)body.textContent='You: '+String(t||'').slice(0,240);
+    addTurn('user',t);
     setPhase('thinking','Finding your answer…');
   }
   /* Safe, responsive, structured results; every value is textContent.
@@ -284,6 +294,7 @@
       reply.textContent='The hosted AI is temporarily unavailable. Try again or use the built-in planner.';
       if(details){details.replaceChildren();var info=document.createElement('p');info.textContent='The AI service could not finish this request. No booking, live price or availability was confirmed.';details.appendChild(info);}
     }
+    addTurn('assistant',providerBusy?'AI provider unavailable. Use the built-in planner or try again.':speech);
     if(providerBusy){
       renderProviderFallback(raw,intents);
     }else{
@@ -317,7 +328,7 @@
     if(state.turns>=state.limit){setPhase('ready','Conversation paused after 8 turns. Tap Speak to continue.');return;}
     // A new capture only follows an explicit opt-in start; permission/browser
     // restrictions can still require another tap.
-    setPhase('ready','Your turn · tap Speak or continue talking');
+    setPhase('ready','Your turn · बोलिए · tap Speak if microphone needs permission');
     var session=state.session;
     if(typeof setTimeout==='function')setTimeout(function(){
       if(state.active && session===state.session && state.phase==='ready')listen(false);
