@@ -85,8 +85,22 @@ function rwVoiceStart(targetId){
   try{
     var rec=new SR();
     rec.lang=typeof rwSpeechLang==='function'?rwSpeechLang():'en-IN';
-    rec.interimResults=false; rec.continuous=false;
-    rec.onresult=function(e){var t=e.results && e.results[0] && e.results[0][0]; if(t) finalText(t.transcript);};
+    rec.interimResults=true; rec.continuous=false;
+    rec.onresult=function(e){
+      if(!valid())return;
+      var partial='',complete='';
+      for(var i=e.resultIndex||0;i<(e.results||[]).length;i++){
+        var result=e.results[i],choice=result&&result[0];
+        if(!choice)continue;
+        if(result.isFinal!==false)complete+=String(choice.transcript||'');
+        else partial+=String(choice.transcript||'');
+      }
+      if(complete.trim())finalText(complete);
+      else if(partial.trim()&&window.RWTuskVoiceStudio&&
+        typeof window.RWTuskVoiceStudio.partialTranscript==='function'){
+        window.RWTuskVoiceStudio.partialTranscript(partial);
+      }
+    };
     rec.onerror=function(e){ fail(e && e.error==='not-allowed'?'Microphone permission denied. Enable it in Settings.':'Voice recognition failed. Please try again or type.'); };
     rec.onend=function(){ if(valid()) fail('Listening ended without a result. Try again or type.'); };
     _rwVoiceStop=function(){rec.stop();}; rec.start();
