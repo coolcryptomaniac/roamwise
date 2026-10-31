@@ -1773,5 +1773,13 @@ service cloud.firestore {
       allow read, write: if false;
     }
 
+    // Private supply ingestion staging. Admin SDK only; deny all browser/mobile reads and writes.
+    match /supplyDiscovery/{recordId} {
+      allow read, write: if false;
+    }
+    match /supplyImportJobs/{jobId} {
+      allow read, write: if false;
+    }
+
   }
 }
