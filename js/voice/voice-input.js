@@ -8,6 +8,7 @@ function rwVoiceInputLanguage(){
   try{
     var selected=typeof rwTuskVoicePreference==='function'?rwTuskVoicePreference():'auto';
     if(selected==='hi-IN'||selected==='en-IN')return selected;
+    if(selected==='kumaoni')return 'hi-IN';
   }catch(e){}
   return typeof rwSpeechLang==='function'?rwSpeechLang():'en-IN';
 }

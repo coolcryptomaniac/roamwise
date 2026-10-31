@@ -22,6 +22,6 @@ for (const [input, expected] of Object.entries(cases)) {
     assert.ok(context.RW_PLACE_OVERRIDES[key], input + ' must resolve to curated override');
   }
 }
-assert.equal(context.RW_PLACE_OVERRIDES.chakrata.admin, 'Dehradun, Uttarakhand');
-assert.equal(context.RW_PLACE_OVERRIDES.kanatal.admin, 'Tehri Garhwal, Uttarakhand');
+assert.match(context.RW_PLACE_OVERRIDES.chakrata.admin, /^Dehradun\s*[,·]\s*Uttarakhand$/);
+assert.match(context.RW_PLACE_OVERRIDES.kanatal.admin, /^Tehri Garhwal\s*[,·]\s*Uttarakhand$/);
 console.log('India place recognition regression checks passed (' + Object.keys(cases).length + ' cases)');

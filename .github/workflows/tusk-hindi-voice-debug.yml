@@ -1,0 +1,40 @@
+name: Tusk Hindi voice Android internal debug APK
+on:
+  push:
+    branches:
+      - feature/tusk-hindi-voice-phase1-607
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  debug-apk:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v3
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Validate voice JS syntax
+        run: node --check js/voice/voice-input.js
+      - name: Prepare Capacitor Android
+        run: |
+          if [ ! -d android ]; then npx cap add android; fi
+          npx cap sync android
+      - name: Build unsigned-for-release debug APK (test only)
+        working-directory: android
+        run: bash ./gradlew assembleDebug --no-daemon
+      - uses: actions/upload-artifact@v4
+        with:
+          name: tusk-hindi-voice-internal-debug-apk
+          path: android/app/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
+          retention-days: 7
