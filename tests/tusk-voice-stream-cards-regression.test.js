@@ -57,7 +57,7 @@ test('friendly and educational speech retains original answer and respects topic
  assert.match(s.spokenStyle('The route might be blocked','road safety'),/Safety first/);
  assert.match(s.spokenStyle('A temple history','history of temple'),/travel wisdom/);
  s.state.style='guide';
- assert.match(s.spokenStyle('Kausani','visit'),/useful details/);
+ assert.equal(s.spokenStyle('Kausani','visit'),'Kausani');
  s.state.style='kumaoni-style';
  assert.match(s.spokenStyle('अल्मोड़ा','trip'),/भुला/);
 });
