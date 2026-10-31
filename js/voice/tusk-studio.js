@@ -66,7 +66,8 @@
       var pref=typeof root.rwTuskVoicePreference==='function'?root.rwTuskVoicePreference():'auto';
       [['auto','Automatic','Detect Hindi script or follow site language'],
        ['hi-IN','Hindi · हिन्दी','Prefer an installed Hindi India voice'],
-       ['en-IN','English / Hinglish','Prefer an installed Indian English voice']]
+       ['en-IN','English / Hinglish','Prefer an installed Indian English voice'],
+       ['kumaoni','Kumaoni · कुमाऊँनी','Regional phrasing with available Hindi voice; not native Kumaoni synthesis']]
        .forEach(function(choice){
           item(choice[1],choice[2],pref===choice[0],function(){
             setVoiceSelection(choice[0]);
@@ -113,8 +114,9 @@
   function refreshVoiceControlLabels(){
     if(!panel)return;
     var lang=typeof root.rwTuskVoicePreference==='function'?root.rwTuskVoicePreference():'auto';
+    if(lang==='kumaoni')state.style='kumaoni-style';
     var speech=panel.querySelector('[data-action="language"]');
-    if(speech)speech.textContent='🌐 '+(lang==='hi-IN'?'Hindi':lang==='en-IN'?'English / Hinglish':'Auto language');
+    if(speech)speech.textContent='🌐 '+(lang==='hi-IN'?'Hindi':lang==='en-IN'?'English / Hinglish':lang==='kumaoni'?'Kumaoni style':'Auto language');
     var actor=panel.querySelector('[data-action="actor"]');
     if(actor){
       var selected=typeof root.rwTuskSelectedVoice==='function'?root.rwTuskSelectedVoice():'';
@@ -262,7 +264,17 @@
     var complete=String(div.textContent||'').replace(/\s+/g,' ').trim().slice(0,20000);
     var speech=complete.slice(0,650);
     if(!complete){setPhase('ready','Answer is on screen · tap Speak to continue');return false;}
-    if(details)details.textContent=complete;
+    if(details){
+      details.replaceChildren();
+      var sections=complete.split(/(?<=[.!?।])\\s+(?=[A-Z\\u0900-\\u097f0-9])/).filter(Boolean);
+      sections.slice(0,24).forEach(function(line,index){
+        var block=document.createElement('article');block.className='rw-orb-answer-tile';
+        var label=document.createElement('strong');label.textContent=index===0?'✦ Tusk summary':'◆ Detail '+index;
+        var content=document.createElement('p');content.textContent=line;
+        block.appendChild(label);block.appendChild(content);details.appendChild(block);
+      });
+      if(sections.length>24){var rest=document.createElement('p');rest.textContent=sections.slice(24).join(' ');details.appendChild(rest);}
+    }
     reply.textContent=complete.length>650?'🔊 Voice preview: '+speech+'…':'🔊 '+speech;
     var providerBusy=/(?:AI engines unreachable|Too many requests|rate limit|service unavailable|managed.AI allowance is used|HTTP 429)/i.test(complete);
     if(providerBusy){
@@ -288,10 +300,11 @@
     if(typeof tuskSpeak==='function'){
       tuskSpeak(spokenStyle(speech,raw));
       // Native TTS completion semantics differ; users can continue via Speak.
-      if(root.Capacitor || (root.RW && root.RW.speak))setPhase('ready','Listen to the reply, then tap Speak for the next turn.');
+      if(root.Capacitor || (root.RW && root.RW.speak && !root.speechSynthesis))setPhase('ready','Listen to the reply, then tap Speak for the next turn.');
     }else setPhase('ready','Read your answer above, then tap Speak.');
     return true;
   }
+  function speechStarted(){if(state.active)setPhase('speaking','Speaking · सुनिए · tap Stop to interrupt');}
   function speechEnd(){
     if(!state.active || state.phase!=='speaking')return;
     if(state.turns>=state.limit){setPhase('ready','Conversation paused after 8 turns. Tap Speak to continue.');return;}
@@ -304,7 +317,7 @@
     },180);
   }
   function speechFailure(){if(state.active)setPhase('ready','Voice unavailable. Read above, then tap Speak.');}
-  var api={start:start,stop:stop,listen:listen,transcript:transcript,partialTranscript:partialTranscript,answer:answer,resultModel:resultModel,renderProviderFallback:renderProviderFallback,spokenStyle:spokenStyle,openVoicePicker:openVoicePicker,renderVoicePicker:renderVoicePicker,speechEnd:speechEnd,speechFailure:speechFailure,state:state};
+  var api={start:start,stop:stop,listen:listen,transcript:transcript,partialTranscript:partialTranscript,answer:answer,resultModel:resultModel,renderProviderFallback:renderProviderFallback,spokenStyle:spokenStyle,openVoicePicker:openVoicePicker,renderVoicePicker:renderVoicePicker,speechStarted:speechStarted,speechEnd:speechEnd,speechFailure:speechFailure,state:state};
   if(typeof module!=='undefined'&&module.exports)module.exports=api;
   if(root)root.RWTuskVoiceStudio=api;
 })(typeof window!=='undefined'?window:null);
