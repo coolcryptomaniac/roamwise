@@ -82,8 +82,22 @@ function rwSpeechLang(){
 
 /* Prefer speech matching the visible script, then the user's site language.
    Hinglish in Latin script remains Indian English rather than always Hindi. */
+/* Spoken language is user-selectable; only installed system voices are used.
+   This is not a claim of native Kumaoni or Garhwali synthesis. */
+var RW_TUSK_VOICE_LANG_KEY='rw_tusk_voice_lang';
+function rwTuskVoicePreference(){
+  try{var x=localStorage.getItem(RW_TUSK_VOICE_LANG_KEY);return x==='hi-IN'||x==='en-IN'?x:'auto';}catch(e){return 'auto';}
+}
+function rwTuskCycleVoicePreference(){
+  var choices=['auto','hi-IN','en-IN'],i=choices.indexOf(rwTuskVoicePreference()),next=choices[(i+1)%choices.length];
+  try{localStorage.setItem(RW_TUSK_VOICE_LANG_KEY,next);}catch(e){}
+  if(typeof showToast==='function')showToast('Voice language: '+(next==='auto'?'Automatic':next==='hi-IN'?'Hindi (India)':'Indian English')+' · available installed voice used');
+  return next;
+}
 function rwSpeechOutputLang(text){
-  if(/[\u0900-\u097f]/.test(String(text||''))) return 'hi-IN';
+  var preference=rwTuskVoicePreference();
+  if(preference!=='auto')return preference;
+  if(/[\u0900-\u097f]/.test(String(text||'')))return 'hi-IN';
   return rwSpeechLang();
 }
 function rwSpeechPickVoice(voices,lang){
