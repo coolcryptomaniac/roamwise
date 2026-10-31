@@ -1768,8 +1768,12 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
 
-    // Private supply ingestion staging. Only trusted server Admin SDK writes;
-    // all mobile/web Firestore SDK access is explicitly denied.
+    // Trusted Admin SDK only: payment claims must never be client readable or writable.
+    match /bookingPaymentClaims/{claimId} {
+      allow read, write: if false;
+    }
+
+    // Private supply ingestion staging. Admin SDK only; deny all browser/mobile reads and writes.
     match /supplyDiscovery/{recordId} {
       allow read, write: if false;
     }
