@@ -136,7 +136,7 @@
     var name=document.createElement('strong');name.textContent=who==='user'?'You · आप':'✦ Ailon Tusk';
     var content=document.createElement('p');content.textContent=String(message||'').slice(0,1200);
     turn.appendChild(name);turn.appendChild(content);conversation.appendChild(turn);
-    while(conversation.children.length>12)conversation.removeChild(conversation.firstChild);
+    while(conversation.children && conversation.children.length>12)conversation.removeChild(conversation.firstChild);
     if(typeof turn.scrollIntoView==='function')turn.scrollIntoView({block:'nearest'});
   }
   function listen(manual){
