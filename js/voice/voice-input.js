@@ -92,7 +92,7 @@ function rwVoiceStart(targetId){
       for(var i=e.resultIndex||0;i<(e.results||[]).length;i++){
         var result=e.results[i],choice=result&&result[0];
         if(!choice)continue;
-        if(result.isFinal)complete+=String(choice.transcript||'');
+        if(result.isFinal!==false)complete+=String(choice.transcript||'');
         else partial+=String(choice.transcript||'');
       }
       if(complete.trim())finalText(complete);
