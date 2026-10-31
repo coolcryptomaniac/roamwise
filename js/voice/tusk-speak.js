@@ -52,7 +52,12 @@ function tuskSpeak(text,skipByok){
     });
     return;
   }
-  if(window.RW && typeof RW.speak==='function'){ try{ RW.speak(spoken); return; }catch(e){ /* best-effort, ignore */ } }
+  // Respect selected browser voices. The generic RW bridge cannot select an actor.
+  // Only use it when no explicit actor is selected and no native TTS plugin exists.
+  var hasNativeTts=!!(window.Capacitor && Capacitor.Plugins && Capacitor.Plugins.TextToSpeech);
+  if(!rwTuskSelectedVoice() && !hasNativeTts && window.RW && typeof RW.speak==='function' && !window.speechSynthesis){
+    try{ RW.speak(spoken); return; }catch(e){ /* Fall back to Web Speech. */ }
+  }
   /* Native app output: treat promise rejection as failure, not as audible success.
      Avoid overlapping fallback voices when the plugin speaks successfully. */
   var tts=window.Capacitor && Capacitor.Plugins && Capacitor.Plugins.TextToSpeech;
@@ -79,6 +84,7 @@ function tuskSpeak(text,skipByok){
     if(pick) u.voice=pick;
     /* Android WebView often accepts .speak() but silently produces no audio
        without throwing — surface an error toast so the user isn't left guessing */
+    u.onstart = function(){ try{if(window.RWTuskVoiceStudio)RWTuskVoiceStudio.speechStarted();}catch(e){} };
     u.onend = function(){ tuskReleaseSpeechFocus(); try{ if(window.RWTuskVoiceStudio) RWTuskVoiceStudio.speechEnd(); }catch(e){} };
     u.onerror = function(){ tuskReleaseSpeechFocus(); if(window.RWTuskVoiceStudio) RWTuskVoiceStudio.speechFailure(); showToast('🔊 Voice unavailable on this device'); };
     speechSynthesis.speak(u);
