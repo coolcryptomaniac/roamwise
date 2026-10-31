@@ -217,6 +217,21 @@
     }
     cards.appendChild(card);return data;
   }
+  function renderProviderFallback(query,intents){
+    if(!cards)return;
+    cards.replaceChildren();
+    var card=document.createElement('article');card.className='rw-orb-fallback';
+    var heading=document.createElement('h3');heading.textContent='⚡ AI is busy · Tusk still has tools';card.appendChild(heading);
+    var note=document.createElement('p');
+    note.textContent='Your request was not completed by the AI provider. You can retry, use the built-in trip planner, or ask by text. No live availability or route conditions are implied.';
+    card.appendChild(note);
+    var actions=document.createElement('div');actions.className='rw-orb-card-actions';
+    function button(label,fn){var b=document.createElement('button');b.type='button';b.textContent=label;b.addEventListener('click',fn);actions.appendChild(b);}
+    button('↻ Retry answer',function(){stop();if(typeof cpFollow==='function')cpFollow(String(query||'').slice(0,250));});
+    if(intents&&intents.dest)button('🗺️ Built-in trip planner',function(){stop();if(typeof cpGoPlan==='function')cpGoPlan(intents.dest,Number(intents.days)||0);});
+    button('⌨️ Ask by text',function(){stop();if(typeof root.openCopilot==='function')root.openCopilot();});
+    card.appendChild(actions);cards.appendChild(card);
+  }
   /* Expressive spoken introductions only. The factual answer remains intact.
      Kumaoni-inspired phrases are language style, not cloned regional audio. */
   function spokenStyle(text,query){
@@ -248,14 +263,19 @@
     if(!complete){setPhase('ready','Answer is on screen · tap Speak to continue');return false;}
     if(details)details.textContent=complete;
     reply.textContent=complete.length>650?'🔊 Voice preview: '+speech+'…':'🔊 '+speech;
-    renderResults(raw,intents);
-    try{if(root.RWConnectedDiscovery&&cards)root.RWConnectedDiscovery.renderInto(cards,raw,intents);}catch(e){}
+    var providerBusy=/(?:AI engines unreachable|Too many requests|rate limit|service unavailable|managed.AI allowance is used|HTTP 429)/i.test(complete);
+    if(providerBusy){
+      renderProviderFallback(raw,intents);
+    }else{
+      renderResults(raw,intents);
+      try{if(root.RWConnectedDiscovery&&cards)root.RWConnectedDiscovery.renderInto(cards,raw,intents);}catch(e){}
+    }
     if(/\b(pay|payment|refund|checkout|otp|password|emergency|sos)\b/i.test(String(raw||''))){
       setPhase('ready','Important details are on screen. Tap Speak for another question.');
       return false;
     }
     // Never narrate a provider failure as though it were a successful itinerary.
-    if(/(?:AI engines unreachable|Too many requests|rate limit|service unavailable)/i.test(complete)){
+    if(providerBusy){
       setPhase('ready','AI provider unavailable · review the message or retry later');
       return false;
     }
@@ -283,7 +303,7 @@
     },180);
   }
   function speechFailure(){if(state.active)setPhase('ready','Voice unavailable. Read above, then tap Speak.');}
-  var api={start:start,stop:stop,listen:listen,transcript:transcript,partialTranscript:partialTranscript,answer:answer,resultModel:resultModel,spokenStyle:spokenStyle,openVoicePicker:openVoicePicker,renderVoicePicker:renderVoicePicker,speechEnd:speechEnd,speechFailure:speechFailure,state:state};
+  var api={start:start,stop:stop,listen:listen,transcript:transcript,partialTranscript:partialTranscript,answer:answer,resultModel:resultModel,renderProviderFallback:renderProviderFallback,spokenStyle:spokenStyle,openVoicePicker:openVoicePicker,renderVoicePicker:renderVoicePicker,speechEnd:speechEnd,speechFailure:speechFailure,state:state};
   if(typeof module!=='undefined'&&module.exports)module.exports=api;
   if(root)root.RWTuskVoiceStudio=api;
 })(typeof window!=='undefined'?window:null);
