@@ -52,7 +52,12 @@ function tuskSpeak(text,skipByok){
     });
     return;
   }
-  if(window.RW && typeof RW.speak==='function'){ try{ RW.speak(spoken); return; }catch(e){ /* best-effort, ignore */ } }
+  // Respect selected browser voices. The generic RW bridge cannot select an actor.
+  // Only use it when no explicit actor is selected and no native TTS plugin exists.
+  var hasNativeTts=!!(window.Capacitor && Capacitor.Plugins && Capacitor.Plugins.TextToSpeech);
+  if(!rwTuskSelectedVoice() && !hasNativeTts && window.RW && typeof RW.speak==='function' && !window.speechSynthesis){
+    try{ RW.speak(spoken); return; }catch(e){ /* Fall back to Web Speech. */ }
+  }
   /* Native app output: treat promise rejection as failure, not as audible success.
      Avoid overlapping fallback voices when the plugin speaks successfully. */
   var tts=window.Capacitor && Capacitor.Plugins && Capacitor.Plugins.TextToSpeech;
@@ -79,6 +84,7 @@ function tuskSpeak(text,skipByok){
     if(pick) u.voice=pick;
     /* Android WebView often accepts .speak() but silently produces no audio
        without throwing — surface an error toast so the user isn't left guessing */
+    u.onstart = function(){ try{if(window.RWTuskVoiceStudio)RWTuskVoiceStudio.speechStarted();}catch(e){} };
     u.onend = function(){ tuskReleaseSpeechFocus(); try{ if(window.RWTuskVoiceStudio) RWTuskVoiceStudio.speechEnd(); }catch(e){} };
     u.onerror = function(){ tuskReleaseSpeechFocus(); if(window.RWTuskVoiceStudio) RWTuskVoiceStudio.speechFailure(); showToast('🔊 Voice unavailable on this device'); };
     speechSynthesis.speak(u);
@@ -96,7 +102,7 @@ function rwSpeechLang(){
    This is not a claim of native Kumaoni or Garhwali synthesis. */
 var RW_TUSK_VOICE_LANG_KEY='rw_tusk_voice_lang';
 function rwTuskVoicePreference(){
-  try{var x=localStorage.getItem(RW_TUSK_VOICE_LANG_KEY);return x==='hi-IN'||x==='en-IN'?x:'auto';}catch(e){return 'auto';}
+  try{var x=localStorage.getItem(RW_TUSK_VOICE_LANG_KEY);return x==='hi-IN'||x==='en-IN'||x==='kumaoni'?x:'auto';}catch(e){return 'auto';}
 }
 function rwTuskCycleVoicePreference(){
   var choices=['auto','hi-IN','en-IN'],i=choices.indexOf(rwTuskVoicePreference()),next=choices[(i+1)%choices.length];
@@ -106,6 +112,7 @@ function rwTuskCycleVoicePreference(){
 }
 function rwSpeechOutputLang(text){
   var preference=rwTuskVoicePreference();
+  if(preference==='kumaoni')return 'hi-IN';
   if(preference!=='auto')return preference;
   if(/[\u0900-\u097f]/.test(String(text||'')))return 'hi-IN';
   return rwSpeechLang();

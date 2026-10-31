@@ -31,7 +31,7 @@ test('language picker opens visibly and updates persisted locale',()=>{
  const x=boot();
  assert.equal(x.studio.openVoicePicker('language'),true);
  assert.equal(x.picker.hidden,false);
- assert.equal(x.opts.children.length,3);
+ assert.equal(x.opts.children.length,4);
  x.opts.children[1].onclick();
  assert.equal(x.saved.rw_tusk_voice_lang,'hi-IN');
  assert.equal(x.picker.hidden,true);
