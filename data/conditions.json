@@ -1,6 +1,6 @@
 {
  "version": 1,
- "checked": "2026-10-30",
+ "checked": "2026-10-31",
  "regions": [
   {
    "id": "almora",
@@ -358,6 +358,42 @@
     "shinkula"
    ],
    "regions": []
+  },
+  {
+   "id": "auto-20261030-watch-video-shri-gangotri-dham-covered-i",
+   "kind": "snow",
+   "official": false,
+   "auto": true,
+   "title": "WATCH VIDEO: Shri Gangotri Dham Covered in Fresh Snowfall as Winter Arrives in…",
+   "detail": "The Sunday Guardian reports this. Check with local police or the district administration before you travel.",
+   "from": "2026-10-30",
+   "until": "2026-11-02",
+   "source": "The Sunday Guardian",
+   "sourceUrl": "https://news.google.com/rss/articles/CBMilgJBVV95cUxOeW5nVS1PM0V0NUsxeDdiUXA5N1VaZHhVYXlCeEdTMWNzS0FmMFByTWNidklPd1lDOHQzdXE5RHk2cWVrY2tPcUNNekYwb29GWG1hV0FCeVJPc0liOTRaakJhSTBhN3R4MThienRzODN3Q0ZEbUJ2ZkJRWUlSZFNPVndZbmRpUV8xbnRBR3NpUXRNd0hNNzJtNUFfRFBjUV80dE82V3F1R3R4b2lvRzhSV1MzcWVHQ2diWHJpLTB5N0VvdENMXzZ2X3pKenB3YWoyWXNtWjBfSi15UjRsc1hHS2N4UllkejQzUXRWNWgwbUdWT2JiaWllNW1VNWpzX3hGV2kwWjVMZW5CdUpyYUpfMkh2cjRFZ9IBmwJBVV95cUxNSnBrOHBFdUdqTmVWSW50UzY4ZjlTX1JwU0FGSTlpSEdtZWlHVXFVbnMzbmt1T29aRG1FbGV3SE01ZWpLNmJsa0YtVmtvWDZHWG9iS2kyZGx0dzBObjlURTItbmhCVXJsdzIyZnM2RjRfbklfc3VDaW92eGtWSGhkRmlzR0JIOFgwT0YyVkoyUjdBNkhTOWMzNE44WHNXanptZjh5UEJEYnpRYU1zbGlJeVZaUjhwOE9lNE9MNzhyckY5SVFWaGdIc1hiWjVXNVM3QWhheF9MZ3lxS2FrNHpGMFgySHdfczVZS3N3RWFFMHV1azQ0MnJrYlVBNVRxSmU1MVdWMzRIcEZoM1NDak1mTFZuZmVGS2l5LVpB?oc=5",
+   "match": [
+    "gangotri"
+   ],
+   "regions": [
+    "uttarkashi"
+   ]
+  },
+  {
+   "id": "auto-20261029-gridlock-forces-tourists-to-cancel-kainc",
+   "kind": "crowd",
+   "official": false,
+   "auto": true,
+   "title": "Gridlock forces tourists to cancel Kainchi Dham trips amid soaring hotel rates",
+   "detail": "Pioneer Edge reports this. Check with local police or the district administration before you travel.",
+   "from": "2026-10-29",
+   "until": "2026-11-01",
+   "source": "Pioneer Edge",
+   "sourceUrl": "https://news.google.com/rss/articles/CBMipAFBVV95cUxOTUNSam9VRDFpXzhoSC1JdG5sNDZvb0phdVJvUm9ER0FDLXEyc1dieWxJcGtWdWtRWl9Xdk54eUExMVVWWEdXVWYtLWhBQ00zb2FHeG5zeGt0SXc4TTFxaG9Xb1B1RkFYYlp0TEk0V2dSc0QzWUFXOU9MSmI5aGp4WDdBLXRnUFZJdXg2QzFIYzg4by1ZcWJseVhCLThKNEpXZzE5cg?oc=5",
+   "match": [
+    "kainchi"
+   ],
+   "regions": [
+    "nainital"
+   ]
   },
   {
    "id": "auto-20261030-kedarnath-dham-receives-season-s-first-h",
