@@ -131,3 +131,23 @@
  .rw-connected-item img{width:64px;flex-basis:64px;height:70px}
  .rw-tusk-voice-entry{font-size:12px;padding:7px 9px}}
 @media(prefers-reduced-motion:reduce){.rw-connected-item,.rw-tusk-voice-entry{transition:none!important;animation:none!important}}
+
+/* Rich, viewport-safe travel results; visual cues are labels, not live data. */
+.rw-orb-card{display:grid;grid-template-columns:minmax(0,1fr);width:100%;max-width:100%;min-width:0;contain:layout style}
+.rw-orb-card-icon{font-size:clamp(26px,6vw,42px);line-height:1.1;width:max-content;max-width:100%;filter:drop-shadow(0 3px 8px rgba(120,95,240,.4))}
+.rw-orb-card-duration{font-size:11px;color:#dfd4ff;border-top:1px solid rgba(180,160,220,.24);margin-top:12px;padding-top:10px;overflow-wrap:anywhere}
+.rw-orb-cards>.rw-orb-card,.rw-orb-cards>.rw-connected{min-width:0;max-width:100%;box-sizing:border-box}
+.rw-orb-stage[data-phase="listening"] .rw-orb-ring{border-color:rgba(90,220,240,.8);box-shadow:0 0 40px rgba(70,190,245,.3)}
+.rw-orb-stage[data-phase="thinking"] .rw-orb-core{filter:hue-rotate(15deg)}
+.rw-orb-stage[data-phase="speaking"] .rw-orb-ring{box-shadow:0 0 48px rgba(164,112,255,.65)}
+@media(max-width:420px){
+ .rw-orb-shell{padding:max(8px,env(safe-area-inset-top)) 8px max(8px,env(safe-area-inset-bottom))}
+ .rw-orb-layout{width:100%;max-width:100%;min-width:0;padding:12px;min-height:0;max-height:calc(100dvh - 16px);overflow-y:auto;overflow-x:hidden}
+ .rw-orb-stage{height:clamp(145px,25vh,220px);flex-shrink:0}
+ .rw-orb-reply{max-height:110px;font-size:13px}
+ .rw-orb-controls{width:100%;min-width:0}
+ .rw-orb-controls button{flex:1 1 calc(50% - 10px);min-width:0;max-width:100%;overflow-wrap:anywhere}
+ .rw-orb-card-actions button{min-width:0}
+}
+@media(max-width:340px){.rw-orb-controls button{flex-basis:100%}}
+@media(prefers-reduced-motion:reduce){.rw-orb-card-icon{filter:none}.rw-orb-stage[data-phase="thinking"] .rw-orb-core{filter:none}}
