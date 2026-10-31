@@ -105,6 +105,7 @@
     pickerMode=mode==='actor'?'actor':'language';
     var box=panel.querySelector('.rw-orb-picker');box.hidden=false;
     renderVoicePicker();
+    if(typeof box.scrollIntoView==='function')box.scrollIntoView({block:'nearest',behavior:'instant'});
     var first=box.querySelector('.rw-orb-picker-options button');
     if(first&&first.focus)first.focus();
     return true;
