@@ -47,14 +47,54 @@
       exclude:/\b(otp|password|refund|payment failed|cancel booking|emergency|sos|ambulance)\b|आपातकाल/i.test(q)
     };
   }
-  function partnerEligible(id){
-    var items=root && root.RW_PARTNER_SEED;
-    if(!Array.isArray(items))return false; // no data => no partner claim
-    var p=items.find(function(x){return x.id===id;});
-    if(!p)return false;
-    if(typeof root.rwStayPublicEligible==='function')return !!root.rwStayPublicEligible(p);
-    return p.listingReady===true && (p.verified==='signed' ||
-      (p.verified==='founder-approved' && p.enquiryOnly===true && !!p.founderApproval));
+  /* A live public catalog is authoritative when present. Only use a seed
+     fallback before partner sync loads; never recommend researched or revoked
+     Firestore entries as active stays. */
+  function visiblePartners(){
+    var live=root && root.RW_PARTNERS, seed=root && root.RW_PARTNER_SEED;
+    var list=Array.isArray(live)&&live.length?live:(Array.isArray(seed)?seed:[]);
+    return list.filter(function(p){
+      if(!p || p.listingReady!==true)return false;
+      if(typeof root.rwStayPublicEligible==='function')return !!root.rwStayPublicEligible(p);
+      return p.verified==='signed'||(p.verified==='founder-approved'&&p.enquiryOnly===true&&!!p.founderApproval);
+    });
+  }
+  function asCard(p,region){
+    var isEnquiry=p.enquiryOnly===true||p.verified==='founder-approved';
+    var nomad=p.nomad && p.nomad.enabled;
+    var category=nomad?'nomad':'stay';
+    var name=String(p.name||'').slice(0,120);
+    var photos=p.photos||[], image=photos.length?String(photos[0].src||''):'';
+    if(image && !/^\/?(?:assets|images)\//.test(image))image='';
+    return {id:String(p.id||''),name:name,category:category,region:region,
+      description:String((p.area||p.zone||'')+' · '+(nomad?'workation option':isEnquiry?'founder-introduced enquiry':'RoamWise stay')).slice(0,180),
+      href:region==='lansdowne'?'/stays/lansdowne/':region==='himachal'?'/stays/tirthan-valley/':region==='almora'?(nomad?'/workation/almora/':'/stays/almora/'):'/partners/',
+      image:image?'/'+image.replace(/^\//,''):null,
+      status:isEnquiry?'Enquiry only · confirm agreement and rates':nomad?'Confirm work facilities, price and dates':'Signed partner · confirm availability',
+      nomad:p.nomad||null, verified:p.verified, area:String(p.area||'').slice(0,100)};
+  }
+  var PUBLIC_ARTISTS=ARTISTS.slice();
+  function updatePublishedArtists(json){
+    if(!json||!Array.isArray(json.artists))return 0;
+    var incoming=[];
+    json.artists.forEach(function(a){
+      if(!a || !a.name || !/^\/creators\/[a-z0-9\/-]+(?:\.html)?$/i.test(String(a.page||'')))return;
+      var region=regionFor((a.state||'')+' '+(a.city||''));
+      if(!region)return;
+      var photo=a.photo&&a.photo.src;
+      if(photo&&!/^\/(?:assets|images)\//.test(photo))photo=null;
+      incoming.push({id:String(a.id||''),name:String(a.name).slice(0,110)+(a.studio?' · '+String(a.studio).slice(0,70):''),
+        category:'artist',region:region,description:'Published local artist · view artwork and collaboration options',
+        href:a.page,image:photo||null,status:'Published artist profile · contact directly'});
+    });
+    if(incoming.length)PUBLIC_ARTISTS=incoming;
+    return incoming.length;
+  }
+  function refreshArtists(){
+    if(!root || typeof root.fetch!=='function')return Promise.resolve(0);
+    return root.fetch('/creators/artists-data.json',{credentials:'omit',cache:'no-store'})
+      .then(function(r){if(!r.ok)throw Error('artist catalog unavailable');return r.json();})
+      .then(updatePublishedArtists).catch(function(){return 0;});
   }
   function picks(text,intents){
     var flags=intentFor(text);
@@ -65,23 +105,25 @@
     var includePartner=flags.stay||flags.nomad||tripIntent||(!flags.culture);
     var includeArtists=flags.culture||!flags.stay;
     var out=[];
-    PARTNERS.forEach(function(p){
-      if(p.region!==region||!includePartner||!partnerEligible(p.id))return;
-      if(p.category==='nomad' && !flags.nomad && !flags.stay)return;
-      out.push(p);
+    visiblePartners().forEach(function(p){
+      var fallback=PARTNERS.find(function(k){return k.id===p.id;});
+      var pRegion=regionFor((p.zone||'')+' '+(p.area||''))||(fallback&&fallback.region)||'';
+      if(pRegion!==region||!includePartner)return;
+      var nomad=(p.nomad&&p.nomad.enabled)||(fallback&&fallback.category==='nomad'&&!p.zone);
+      if(flags.nomad && !nomad)return;
+      var item=p.zone?asCard(p,region):fallback?Object.assign({},fallback):null;
+      if(!item)return;
+      if(item.category==='nomad'&&!flags.nomad&&!flags.stay)return;
+      out.push(item);
     });
-    ARTISTS.forEach(function(p){
-      if(p.region===region&&includeArtists)out.push(p);
-    });
-    /* Public creator matching entry, never a claim that a particular creator is contracted. */
+    PUBLIC_ARTISTS.forEach(function(p){if(p.region===region&&includeArtists)out.push(p);});
     if(/\b(creator|creators|influencer|vlogger|content collaboration)\b|क्रिएटर/i.test(String(text||''))){
-      out.push({id:'creator-network',name:'RoamWise Creator Network',category:'creator',
-        region:region,description:'Meet local creators and propose collaborations with stays and artists',
-        href:'/creators/match.html',image:null,status:'Explore collaborations · both sides approve terms'});
+      out.push({id:'creator-network',name:'RoamWise Creator Network',category:'creator',region:region,
+        description:'Explore opt-in collaborations with regional creators and hosts',
+        href:'/creators/match.html',image:null,status:'Both sides approve terms'});
     }
-    // For broad Himachal queries, show local art first; for explicitly lodging requests stays first.
     if(region==='himachal'&&!flags.stay)out.sort(function(a,b){return a.category==='artist'?-1:b.category==='artist'?1:0;});
-    return out.slice(0,3).map(function(p){return Object.assign({},p);});
+    return out.slice(0,4).map(function(p){return Object.assign({},p);});
   }
   function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
   function html(text,intents){
@@ -114,7 +156,7 @@
     });
     node.appendChild(section);return items.length;
   }
-  var api={regionFor:regionFor,intentFor:intentFor,picks:picks,html:html,renderInto:renderInto};
+  var api={regionFor:regionFor,intentFor:intentFor,picks:picks,html:html,renderInto:renderInto,refreshArtists:refreshArtists,updatePublishedArtists:updatePublishedArtists,visiblePartners:visiblePartners};
   if(typeof module!=='undefined'&&module.exports)module.exports=api;
-  if(root)root.RWConnectedDiscovery=api;
+  if(root){root.RWConnectedDiscovery=api; if(typeof document!=='undefined')refreshArtists();}
 })(typeof window!=='undefined'?window:null);
