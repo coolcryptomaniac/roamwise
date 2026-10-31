@@ -78,7 +78,7 @@
     if(!json||!Array.isArray(json.artists))return 0;
     var incoming=[];
     json.artists.forEach(function(a){
-      if(!a || !a.name || !/^\/creators\/[a-z0-9\/-]+(?:\\.html)?$/i.test(String(a.page||'')))return;
+      if(!a || !a.name || !/^\/creators\/[a-z0-9\/-]+(?:\.html)?$/i.test(String(a.page||'')))return;
       var region=regionFor((a.state||'')+' '+(a.city||''));
       if(!region)return;
       var photo=a.photo&&a.photo.src;
