@@ -184,5 +184,7 @@ function rwPlaceCanonicalName(value){
   var raw=String(value==null?'':value).trim();
   var key=raw.toLowerCase().replace(/\s+/g,' ');
   var compact=key.replace(/[^a-z\u0900-\u097f]/g,'');
-  return RW_PLACE_ALIASES[key] || RW_PLACE_ALIASES[compact] || raw;
+  var resolved=RW_PLACE_ALIASES[key] || RW_PLACE_ALIASES[compact] || raw;
+  var normalized=String(resolved).toLowerCase().replace(/[^a-z]/g,'');
+  return RW_PLACE_OVERRIDES[normalized] ? RW_PLACE_OVERRIDES[normalized].name : resolved;
 }
