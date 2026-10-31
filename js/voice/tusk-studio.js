@@ -132,7 +132,7 @@
     var route=/\b(road|route|traffic|blocked|landslide|rasta|raasta)\b|सड़क|रास्ता/.test(q);
     var educational=/\b(history|culture|why|how|explain|facts|learn|temple)\b|इतिहास|संस्कृति|मंदिर/.test(q);
     if(state.style==='guide'){
-      return (hindi?'काम की जानकारी सुनिए। ':'Here are the useful details. ')+say;
+      return say; // Guide mode stays factual without prefixed chatter.
     }
     if(state.style==='kumaoni-style'){
       return (hindi?'भुला, सुनो ज़रा। ':'Bhula, suno zara. ')+say;
