@@ -56,11 +56,11 @@ function openCopilot(){
   if(!ov){
     ov=document.createElement('div'); ov.id='cpOverlay'; ov.className='overlay';
     ov.innerHTML='<div class="sheet" style="display:flex;flex-direction:column;max-height:92dvh">'
-      +'<div class="sheet-head"><b>\ud83e\udded Travel Copilot</b><span style="margin-left:auto;display:flex;gap:6px"><button class="x" title="Clear chat" onclick="cpClearChat()">\ud83e\uddf9</button><button class="x" onclick="closeCopilot()">\u2715</button></span></div>'
+      +'<div class="sheet-head"><b>\ud83e\udded Travel Copilot</b><span class="rw-tusk-chat-head-actions"><button type="button" class="rw-tusk-voice-entry" onclick="RWTuskVoiceStudio.start()" aria-label="Open Tusk voice conversation">🎙️ Voice Mode</button><button class="x" title="Clear chat" onclick="cpClearChat()">\ud83e\uddf9</button><button class="x" onclick="closeCopilot()">\u2715</button></span></div>'
       +'<div id="cpLog" style="flex:1;overflow-y:auto;padding:4px 2px;min-height:120px"></div>'
       +'<div id="cpModels" style="display:flex;gap:6px;flex-wrap:wrap;margin:8px 0 4px"></div>'
       +'<div style="display:flex;gap:6px;flex-wrap:wrap;margin:2px 0 6px" id="cpChips"></div>'
-      +'<div style="display:flex;gap:8px;align-items:flex-end">'
+      +'<div class="rw-tusk-compose-actions" style="display:flex;gap:8px;align-items:flex-end">'
       +'<textarea id="cpInput" rows="1" placeholder="Type or speak your plan\u2026" style="flex:1;background:var(--bg3,#1A1A20);border:1px solid var(--b2,#2A2A36);border-radius:12px;padding:11px 12px;color:inherit;font:inherit;resize:none;outline:none"></textarea>'
       +'<button class="tact" id="cpMic" style="padding:11px 12px" onclick="rwVoiceStart(\'cpInput\')">\ud83c\udfa4</button>'
       +'<button class="tact" style="padding:11px 14px;font-weight:800;background:linear-gradient(135deg,var(--gold,#E8BA6C),var(--gold2,#C8913E));color:#0A0A0C;border:none" onclick="copilotSend()">\u27a4</button>'

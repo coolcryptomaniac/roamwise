@@ -167,7 +167,7 @@
   function html(text,intents){
     var list=picks(text,intents);
     if(!list.length)return '';
-    return '<section class="rw-connected" aria-label="Local RoamWise discoveries"><h3>✦ Discover more with RoamWise</h3>'
+    return '<section class="rw-connected" data-size="compact" aria-label="Local RoamWise discoveries"><div class="rw-connected-top"><h3>✦ Discover more with RoamWise</h3><button type="button" class="rw-connected-size" onclick="rwTuskToggleCardSize(this)" aria-label="Toggle local listing card size">↔ Card size</button></div>'
       +'<p class="rw-connected-note">Related local listings · availability and collaborations require confirmation</p><div class="rw-connected-grid">'
       +list.map(function(p){
         return '<a class="rw-connected-item" href="'+esc(p.href)+'">'
@@ -180,9 +180,10 @@
     if(!node||typeof document==='undefined')return 0;
     var items=picks(text,intents);
     if(!items.length)return 0;
-    var section=document.createElement('section');section.className='rw-connected rw-connected-studio';
+    var section=document.createElement('section');section.className='rw-connected rw-connected-studio';section.dataset.size='compact';
     section.setAttribute('aria-label','Related RoamWise local discoveries');
     var heading=document.createElement('h3');heading.textContent='✦ Local connections';section.appendChild(heading);
+    var sizeBtn=document.createElement('button');sizeBtn.type='button';sizeBtn.className='rw-connected-size';sizeBtn.textContent='↔ Card size';sizeBtn.setAttribute('aria-label','Toggle local listing card size');sizeBtn.addEventListener('click',function(){toggleSize(sizeBtn);});section.appendChild(sizeBtn);
     items.forEach(function(p){
       var link=document.createElement('a');link.className='rw-connected-item';link.href=p.href;
       if(p.image){var img=document.createElement('img');img.src=p.image;img.alt='';img.loading='lazy';link.appendChild(img);}
@@ -195,7 +196,15 @@
     });
     node.appendChild(section);return items.length;
   }
-  var api={regionFor:regionFor,intentFor:intentFor,picks:picks,html:html,renderInto:renderInto,refreshArtists:refreshArtists,updatePublishedArtists:updatePublishedArtists,visiblePartners:visiblePartners,preferences:preferences};
+  function toggleSize(button){
+    var box=button&&button.closest&&button.closest('.rw-connected');
+    if(!box)return 'compact';
+    var next=box.dataset.size==='comfortable'?'compact':'comfortable';
+    box.dataset.size=next;
+    button.setAttribute('aria-pressed',String(next==='comfortable'));
+    return next;
+  }
+  var api={regionFor:regionFor,intentFor:intentFor,picks:picks,html:html,renderInto:renderInto,refreshArtists:refreshArtists,updatePublishedArtists:updatePublishedArtists,visiblePartners:visiblePartners,preferences:preferences,toggleSize:toggleSize};
   if(typeof module!=='undefined'&&module.exports)module.exports=api;
-  if(root){root.RWConnectedDiscovery=api; if(typeof document!=='undefined')refreshArtists();}
+  if(root){root.RWConnectedDiscovery=api;root.rwTuskToggleCardSize=toggleSize; if(typeof document!=='undefined')refreshArtists();}
 })(typeof window!=='undefined'?window:null);

@@ -2,7 +2,7 @@
 /* Ailon Tusk voice studio: opt-in turn-taking, not a claim of full-duplex audio.
    No microphone is opened on page load. Stop always cancels the loop. */
 (function(root){
-  var state={active:false,turns:0,limit:8,phase:'idle',answerPending:false};
+  var state={active:false,turns:0,limit:8,phase:'idle',answerPending:false,style:'friendly'};
   var panel=null,stage=null,body=null,subtitle=null,reply=null,cards=null;
   function escape(s){return String(s||'').replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
   function ensure(){
@@ -11,7 +11,7 @@
     panel=document.createElement('section');
     panel.className='rw-orb-shell';panel.id='rwTuskStudio';panel.hidden=true;
     panel.setAttribute('role','dialog');panel.setAttribute('aria-label','Ailon Tusk voice conversation');
-    panel.innerHTML='<div class="rw-orb-layout"><header class="rw-orb-head"><strong>✦ Ailon Tusk</strong><span>Voice conversation · beta</span><button type="button" class="rw-orb-close" aria-label="Close voice conversation">✕</button></header><div class="rw-orb-stage" data-phase="idle"><div class="rw-orb-glow"><div class="rw-orb-core" aria-hidden="true"></div><div class="rw-orb-ring" aria-hidden="true"></div></div><p class="rw-orb-phase" role="status" aria-live="polite">Ready to listen</p></div><p class="rw-orb-transcript"></p><div class="rw-orb-reply" aria-label="Tusk answer"></div><section class="rw-orb-cards" aria-label="Travel results"></section><div class="rw-orb-controls"><button type="button" data-action="listen">🎙️ Speak</button><button type="button" data-action="interrupt">⏹ Stop</button><button type="button" data-action="read">🔊 Read again</button><button type="button" data-action="language">🌐 Voice language</button></div><p class="rw-orb-hint">Talk in Hindi, English or Hinglish. Responses depend on available device voices. Stop at any time. No always-on microphone.</p></div>';
+    panel.innerHTML='<div class="rw-orb-layout"><header class="rw-orb-head"><strong>✦ Ailon Tusk</strong><span>Voice conversation · beta</span><button type="button" class="rw-orb-close" aria-label="Close voice conversation">✕</button></header><div class="rw-orb-stage" data-phase="idle"><div class="rw-orb-glow"><div class="rw-orb-core" aria-hidden="true"></div><div class="rw-orb-ring" aria-hidden="true"></div></div><p class="rw-orb-phase" role="status" aria-live="polite">Ready to listen</p></div><p class="rw-orb-transcript"></p><div class="rw-orb-reply" aria-label="Tusk answer"></div><section class="rw-orb-cards" aria-label="Travel results"></section><div class="rw-orb-controls"><button type="button" data-action="listen">🎙️ Speak</button><button type="button" data-action="interrupt">⏹ Stop</button><button type="button" data-action="read">🔊 Read again</button><button type="button" data-action="language">🌐 Voice language</button><button type="button" data-action="style">🎭 Friendly voice</button></div><p class="rw-orb-hint">Talk in Hindi, English or Hinglish. Responses depend on available device voices. Stop at any time. No always-on microphone.</p></div>';
     document.body.appendChild(panel);
     stage=panel.querySelector('.rw-orb-stage');body=panel.querySelector('.rw-orb-transcript');subtitle=panel.querySelector('.rw-orb-phase');reply=panel.querySelector('.rw-orb-reply');cards=panel.querySelector('.rw-orb-cards');
     panel.querySelector('.rw-orb-close').onclick=stop;
@@ -20,6 +20,12 @@
     panel.querySelector('[data-action="listen"]').onclick=function(){listen(true);};
     panel.querySelector('[data-action="read"]').onclick=function(){if(root.rwTuskReplaySpeech)root.rwTuskReplaySpeech();};
     panel.querySelector('[data-action="language"]').onclick=function(){if(root.rwTuskCycleVoicePreference)root.rwTuskCycleVoicePreference();};
+    panel.querySelector('[data-action="style"]').onclick=function(){
+      var modes=['friendly','guide','kumaoni-style'],i=modes.indexOf(state.style);
+      state.style=modes[(i+1)%modes.length];
+      this.textContent=state.style==='guide'?'📚 Educational voice':state.style==='kumaoni-style'?'🏔️ Kumaoni-style':'🎭 Friendly voice';
+      if(typeof root.showToast==='function')root.showToast('Voice style: '+state.style+' · regional style, not a native accent voice');
+    };
     return true;
   }
   function setPhase(phase,message){
@@ -104,6 +110,16 @@
     card.appendChild(badge);card.appendChild(heading);card.appendChild(summary);card.appendChild(buttons);
     cards.appendChild(card);return data;
   }
+  /* Expressive spoken introductions only. The factual answer remains intact.
+     Kumaoni-inspired phrases are language style, not cloned regional audio. */
+  function spokenStyle(text){
+    var say=String(text||'');
+    if(state.style==='guide')return say;
+    var hindi=/[\u0900-\u097f]/.test(say)||(
+      typeof root.rwSpeechOutputLang==='function' && root.rwSpeechOutputLang(say)==='hi-IN');
+    if(state.style==='kumaoni-style')return (hindi?'भुला, सुनो ज़रा। ':'Bhula, suno zara. ')+say;
+    return (hindi?'अरे वाह, चलिए जानते हैं। ':'Nice! Here is what I found. ')+say;
+  }
   function answer(html,raw,intents){
     if(!state.active || !state.answerPending)return false;
     state.answerPending=false;
@@ -125,7 +141,7 @@
       return false;
     }
     if(typeof tuskSpeak==='function'){
-      tuskSpeak(speech);
+      tuskSpeak(spokenStyle(speech));
       // Native TTS completion semantics differ; users can continue via Speak.
       if(root.Capacitor || (root.RW && root.RW.speak))setPhase('ready','Listen to the reply, then tap Speak for the next turn.');
     }else setPhase('ready','Read your answer above, then tap Speak.');
@@ -142,7 +158,7 @@
     },180);
   }
   function speechFailure(){if(state.active)setPhase('ready','Voice unavailable. Read above, then tap Speak.');}
-  var api={start:start,stop:stop,listen:listen,transcript:transcript,answer:answer,resultModel:resultModel,speechEnd:speechEnd,speechFailure:speechFailure,state:state};
+  var api={start:start,stop:stop,listen:listen,transcript:transcript,answer:answer,resultModel:resultModel,spokenStyle:spokenStyle,speechEnd:speechEnd,speechFailure:speechFailure,state:state};
   if(typeof module!=='undefined'&&module.exports)module.exports=api;
   if(root)root.RWTuskVoiceStudio=api;
 })(typeof window!=='undefined'?window:null);
