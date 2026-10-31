@@ -161,7 +161,17 @@
       out.forEach(function(p){if(p.category==='artist')p._rank+=20;});
     }
     out.sort(function(a,b){return b._rank-a._rank||a.name.localeCompare(b.name);});
-    return out.slice(0,4).map(function(p){delete p._rank;return p;});
+    // Merge aliases such as "Hotel Milan Heights" and "Milan Heights".
+    // Do this AFTER ranking so the strongest, approved entry wins.
+    var seen={};
+    return out.filter(function(p){
+      var key=String(p.name||'').toLowerCase()
+        .replace(/\b(hotel|homestay|stay|the|guesthouse|retreat)\b/g,'')
+        .replace(/[^a-z0-9\u0900-\u097f]+/g,'').trim();
+      if(!key)key=p.id;
+      if(seen[key])return false;
+      seen[key]=true;return true;
+    }).slice(0,4).map(function(p){delete p._rank;return p;});
   }
   function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
   function html(text,intents){
