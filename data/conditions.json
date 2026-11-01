@@ -1,6 +1,6 @@
 {
  "version": 1,
- "checked": "2026-10-31",
+ "checked": "2026-11-01",
  "regions": [
   {
    "id": "almora",
@@ -358,6 +358,42 @@
     "shinkula"
    ],
    "regions": []
+  },
+  {
+   "id": "auto-20261031-heavy-rainfall-alert-issued-in-uttarakha",
+   "kind": "rain",
+   "official": false,
+   "auto": true,
+   "title": "Heavy rainfall alert issued in Uttarakhand; Kedarnath pedestrian route disrupted",
+   "detail": "DD News reports this. Check with local police or the district administration before you travel.",
+   "from": "2026-10-31",
+   "until": "2026-11-02",
+   "source": "DD News",
+   "sourceUrl": "https://news.google.com/rss/articles/CBMiqAFBVV95cUxPS1cxYmlrVFBwaU0zZkdUQUJIMjY0VExDd1lJbzEtMGlfYUcwd2I3WFpCUEZTdV9adnFrYktQYlhrdXRCa09XLVZMNDRyak5hYkJxaVB6RThjNmRZY0xTbVRyOFlNSHNTNzlTckc2dk9GU1hLcTZCay1DeTRRN1RnNlg4dTByNm9NQW9oMUpKWnBSS2J1Si1Hd25pLTJ2NEZQLWRQdjdTaWk?oc=5",
+   "match": [
+    "kedarnath"
+   ],
+   "regions": [
+    "rudraprayag"
+   ]
+  },
+  {
+   "id": "auto-20261031-nature-s-bounty-fresh-snowfall-in-higher",
+   "kind": "snow",
+   "official": false,
+   "auto": true,
+   "title": "Nature's Bounty: Fresh Snowfall In Higher Himalayas, Clearing Skies Bring Stunning…",
+   "detail": "ETV Bharat reports this. Check with local police or the district administration before you travel.",
+   "from": "2026-10-31",
+   "until": "2026-11-03",
+   "source": "ETV Bharat",
+   "sourceUrl": "https://news.google.com/rss/articles/CBMipAFBVV95cUxOc2xJXzlxZ0dKb2p3ME9TS3p4MjgtVFFxbjFVd1VIY2M1ZVluWmxaTjNyYVQ2M1dxOHlSS0dyN1F5Ylg3dTVUXzRVRGRmTHZlOThpWEEzM0JnQjdhektULUMtUjhsci1nNldTeDVnQ3k5QV9HVnVYNlA1VHBSY08wNkEtbjM4RGdnZkxIRUZUZGF6ZXJzWFFmS0tqZmtqbXNJSnk4Q9IBqgFBVV95cUxNNlQ0Mm9vVmdJMHNKRU5OdkpNOHNwdC0wX3JyRGRsWWwwanFNTU9fX3VndmNvcFR1ZlNOcDlTSjJpRl85MkVfSzlmVjVRTVJUSE9GWktsUWJDQnRFdzZiOHBMSHhic2MtU1hfYV9FOVducE5fTlhXNDFqUENBeDVkZEZ6bm9JWVF0dmNuVi1aWEtWeDhMdjNuaTd6dW13WC0xT0dxbUdyX21pQQ?oc=5",
+   "match": [
+    "pauri"
+   ],
+   "regions": [
+    "pauri"
+   ]
   },
   {
    "id": "auto-20261030-watch-video-shri-gangotri-dham-covered-i",
