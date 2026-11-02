@@ -297,3 +297,14 @@
 .rw-orb-controls{width:100%;max-width:100%;box-sizing:border-box}
 .rw-orb-controls button{min-height:44px;white-space:normal;overflow-wrap:anywhere}
 @media(max-width:480px){.rw-orb-layout{padding:14px 12px;border-radius:20px}.rw-orb-head{flex-wrap:nowrap}.rw-orb-head span{display:none}.rw-orb-stage{height:clamp(120px,20dvh,180px)!important}.rw-orb-full-content{max-height:38dvh}}
+
+/* Conversation-first voice mode: compact live dialogue above expandable travel detail. */
+.rw-orb-conversation{display:flex;flex-direction:column;gap:9px;width:100%;max-height:32dvh;overflow-y:auto;overscroll-behavior:contain;padding:3px 2px;box-sizing:border-box}
+.rw-orb-turn{max-width:91%;min-width:0;box-sizing:border-box;padding:11px 13px;border:1px solid #76579e;border-radius:16px;background:linear-gradient(125deg,#241c46,#28183c);overflow-wrap:anywhere}
+.rw-orb-turn-user{align-self:flex-end;background:linear-gradient(120deg,#41328a,#34275f);border-color:#8b7be5;border-bottom-right-radius:5px}
+.rw-orb-turn-assistant{align-self:flex-start;border-color:#c85c93;border-bottom-left-radius:5px}
+.rw-orb-turn strong{display:block;font-size:12px;color:#f9b6db;margin-bottom:5px}
+.rw-orb-turn-user strong{color:#c6d7ff}
+.rw-orb-turn p{margin:0;font-size:14px;line-height:1.55;color:#f7f1ff;white-space:pre-wrap}
+.rw-orb-full-answer:not([open]){max-height:50px;overflow:hidden}
+@media(max-width:480px){.rw-orb-conversation{max-height:29dvh}.rw-orb-turn{max-width:95%;padding:10px 12px}.rw-orb-turn p{font-size:13px}}
