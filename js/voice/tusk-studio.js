@@ -141,6 +141,7 @@
   }
   function listen(manual){
     if(!state.active && !manual)return;
+    if(state.realtime)return;
     if(typeof _rwVoiceActive!=='undefined' && _rwVoiceActive)return;
     if(!ensure())return;
     state.active=true;state.answerPending=false;state.interim='';
@@ -388,6 +389,7 @@
     try{live.speaker.pause();live.speaker.srcObject=null;}catch(e){}
   }
   function speechEnd(){
+    if(state.realtime)return;
     if(!state.active || state.phase!=='speaking')return;
     if(state.turns>=state.limit){setPhase('ready','Conversation paused after 8 turns. Tap Speak to continue.');return;}
     // A new capture only follows an explicit opt-in start; permission/browser
