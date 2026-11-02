@@ -20,7 +20,7 @@ jobs:
         with:
           distribution: temurin
           java-version: '17'
-      - uses: android-actions/setup-android@v3
+      - uses: android-actions/setup-android@v4
       - name: Install dependencies
         run: npm ci --no-audit --no-fund
       - name: Validate voice JS syntax
