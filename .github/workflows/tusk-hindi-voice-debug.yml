@@ -32,7 +32,7 @@ jobs:
       - name: Build unsigned-for-release debug APK (test only)
         working-directory: android
         run: bash ./gradlew assembleDebug --no-daemon
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: tusk-hindi-voice-internal-debug-apk
           path: android/app/build/outputs/apk/debug/*.apk
