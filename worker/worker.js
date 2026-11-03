@@ -35,6 +35,10 @@
      GET  /leads                partner lead finder        -> handlers/leads.js
      POST /cashfree/order              create a Cashfree order (secrets stay server-side) -> handlers/cashfree.js
      GET  /cashfree/order/:id/status   confirm order_status with Cashfree     -> handlers/cashfree.js
+     GET  /shop/catalogue              public merchandise catalogue (no prices accepted from clients) -> handlers/shop-order.js
+     POST /shop/quote | /shop/order    server-priced merchandise quote / order (Cashfree or direct UPI) -> handlers/shop-order.js
+     GET  /shop/order/:id/status       buyer status (order token); verifies Cashfree before marking paid
+     POST /shop/cashfree/webhook       signed Cashfree callback for shop orders
      POST /partner/cashfree/order      confirmed direct-stay checkout          -> handlers/partner-cashfree.js
      GET  /partner/cashfree/order/:bookingId/status  verify and persist paid stay -> handlers/partner-cashfree.js
      POST /push/send                   admin-only: send an FCM push to one user -> handlers/push.js
@@ -82,11 +86,17 @@ import { handleTripNotify, runTripNotifications } from './handlers/trip-notify.j
 import { handleStayLead, purgeOldStayLeads } from './handlers/stay-lead.js';
 import { sendAdminDigest } from './handlers/bot-admin.js';
 import { handleAdvisoryAlerts, runAdvisoryAlerts } from './handlers/advisory-alerts.js';
+import { createShopHandlers } from './handlers/shop-order.js';
 
 // Only Cashfree PG calls use this diagnostic transport. The actual order,
 // identity and entitlement rules stay inside handlers/cashfree.js unchanged.
 const { handleCashfreeOrder, handleCashfreeOrderStatus, handleBhaktiAccess } = createCashfreeHandlers({
   request:cashfreeTransportFetch
+});
+
+// Merchandise checkout: Cashfree calls go through the same diagnostic transport; nothing else is shared.
+const { handleShopCatalogue, handleShopQuote, handleShopOrder, handleShopStatus, handleShopWebhook } = createShopHandlers({
+  fetchImpl: (url, options) => cashfreeTransportFetch(url, options)
 });
 
 /* ------------------------------------------------------------------ router */
@@ -103,6 +113,8 @@ export default {
     if(path === 'voice/sarvam/byok' && request.method === 'POST') return handleSarvamVoice(request);
     // Server-to-server endpoint; no public CORS or booking confirmation until atomic persistence is integrated.
     if(path === 'booking/cashfree/webhook') return handleBookingCashfreeWebhook(request, env);
+    // Signed server-to-server Cashfree callback for shop orders; never IP-throttled so a real payment is not dropped.
+    if(path === 'shop/cashfree/webhook') return handleShopWebhook(request, env);
 
     /* Flood / per-route limits and body-size cap (additive; see lib/rate-limit.js). */
     const refused = await abuseGuard(request, path);
@@ -138,6 +150,12 @@ export default {
     const bhaktiStatus=path.match(/^bhakti\/order\/([^/]+)\/status$/);
     if(bhaktiStatus && request.method === 'GET')return handleCashfreeOrderStatus(request,env,bhaktiStatus[1],true);
     if(path === 'payment-events' && request.method === 'POST') return handlePaymentEvent(request, env);
+
+    if(path === 'shop/catalogue' && request.method === 'GET') return handleShopCatalogue(request, env);
+    if(path === 'shop/quote' && request.method === 'POST') return handleShopQuote(request, env);
+    if(path === 'shop/order' && request.method === 'POST') return handleShopOrder(request, env);
+    const shopStatus = path.match(/^shop\/order\/([^/]+)\/status$/);
+    if(shopStatus && request.method === 'GET') return handleShopStatus(request, env, shopStatus[1]);
 
     if(path === 'partner/cashfree/order' && request.method === 'POST') return handlePartnerCashfreeOrder(request, env);
 

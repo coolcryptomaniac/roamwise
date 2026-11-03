@@ -1716,6 +1716,14 @@ service cloud.firestore {
     // signed-in user may create a booking request; only the owning partner
     // may move it along (status/note/confirmation), never touching who the
     // parties are.
+    // ---------- SHOP ORDERS (merchandise, Qikink print-on-demand) ----------
+    // Written ONLY by the Worker (service account, bypasses rules). Contains buyer name, phone
+    // and address, so it is admin-read-only and never client-writable.
+    match /shopOrders/{id} {
+      allow read: if isAdmin();
+      allow write: if false;
+    }
+
     match /roomBookings/{ref} {
       allow read: if isAdmin()
                   || (request.auth != null && resource.data.partnerUid == request.auth.uid)
