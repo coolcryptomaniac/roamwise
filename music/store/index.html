@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Music Store: download songs, license for film | RoamWise</title>
+<meta name="description" content="Download songs by Mohit Pandey for Rs 20, or license a track for your YouTube channel, short film, ad or feature film. Instant delivery and a licence certificate.">
+<link rel="canonical" href="https://www.roamwise.co.in/music/store/">
+<meta name="theme-color" content="#150b06">
+<link rel="icon" href="../../favicon.ico">
+<link rel="stylesheet" href="store.css">
+</head>
+<body>
+<nav class="ms-top"><a href="../../" class="ms-brand"><img src="../../icons/icon-192.png" width="30" height="30" alt="">RoamWise</a><a href="../" class="ms-link">Listen to the library</a></nav>
+<header class="ms-hero">
+  <span class="ms-eyebrow">THE MUSIC STORE</span>
+  <h1>Take the song home. <em>Or put it in your film.</em></h1>
+  <p>Every track is original music by Mohit Pandey, with full rights held by the artist. Download a track for personal listening, or buy a licence to use it in your video, film or ad. You get the file and a licence certificate straight after paying.</p>
+  <p id="msBanner" class="ms-banner" role="status" hidden></p>
+</header>
+
+<main>
+<section aria-labelledby="msTiers" class="ms-sec">
+  <h2 id="msTiers">Which one do I need?</h2>
+  <div id="msTierList" class="ms-tiers"></div>
+  <details class="ms-terms"><summary>Licence terms (all tiers)</summary><ul id="msTerms"></ul></details>
+</section>
+
+<section aria-labelledby="msTracks" class="ms-sec">
+  <h2 id="msTracks">All tracks</h2>
+  <div id="msGrid" class="ms-grid" aria-live="polite"><p class="ms-muted">Loading tracks…</p></div>
+</section>
+
+<section id="msCheckout" class="ms-sec ms-co" aria-labelledby="msCoTitle" hidden>
+  <h2 id="msCoTitle">Checkout</h2>
+  <p id="msCoItem" class="ms-co-item"></p>
+  <form id="msForm" novalidate>
+    <label>Full name<input id="ms-name" autocomplete="name" maxlength="80" required></label>
+    <label>Mobile number<input id="ms-phone" type="tel" inputmode="numeric" autocomplete="tel" maxlength="15" placeholder="10-digit mobile" required></label>
+    <label>Email (for support about this order)<input id="ms-email" type="email" autocomplete="email" maxlength="160" required></label>
+    <fieldset id="msTierPick" hidden><legend>Licence type</legend></fieldset>
+    <div id="msLicFields" hidden>
+      <label>Licence issued to (person or company)<input id="ms-licensee" maxlength="100"></label>
+      <label>Film / video / project title<input id="ms-project" maxlength="120"></label>
+    </div>
+    <fieldset id="msMethods"><legend>Pay with</legend>
+      <label class="ms-radio"><input type="radio" name="payMethod" value="cashfree" checked> Cashfree (UPI, cards, netbanking)</label>
+      <label class="ms-radio" id="msUpiOpt"><input type="radio" name="payMethod" value="upi"> Direct UPI to roamwisepay@ybl (confirmed by us before delivery)</label>
+    </fieldset>
+    <label class="ms-radio"><input type="checkbox" id="ms-agree"> I have read the licence terms and the use allowed for what I am buying.</label>
+    <p id="msError" class="ms-error" role="alert" hidden></p>
+    <button type="submit" id="msPay" class="ms-btn">Pay</button>
+  </form>
+  <div id="msUpi" class="ms-upi" hidden>
+    <h3>Pay by UPI</h3>
+    <p>Pay exactly <b id="msUpiAmt"></b> to <b>roamwisepay@ybl</b> with reference <b id="msUpiRef"></b>.</p>
+    <a id="msUpiOpen" class="ms-btn">Open UPI app</a>
+    <div id="msUpiQr" class="ms-qr" aria-label="UPI QR code"></div>
+    <p class="ms-muted">Your file is released after we match the payment to this order, usually within a few hours. Keep this page's link; your order is saved in this browser.</p>
+  </div>
+</section>
+
+<section id="msStatus" class="ms-sec" aria-live="polite" hidden>
+  <h2>Your order</h2>
+  <p id="msStatusText"></p>
+  <p><a id="msDownload" class="ms-btn" hidden>Download</a></p>
+  <p id="msDlNote" class="ms-muted" hidden></p>
+  <article id="msCert" class="ms-cert" hidden></article>
+  <p><button type="button" id="msPrint" class="ms-btn ghost" hidden>Print / save certificate as PDF</button></p>
+</section>
+
+<section class="ms-sec" aria-labelledby="msVerifyT">
+  <h2 id="msVerifyT">Check a licence</h2>
+  <form id="msVerify" class="ms-verify"><label>Licence number<input id="ms-lic-no" placeholder="RWM-XXXXXXXXXX" maxlength="14"></label><button class="ms-btn ghost" type="submit">Check</button></form>
+  <p id="msVerifyOut" class="ms-muted" aria-live="polite"></p>
+</section>
+</main>
+<footer class="ms-foot"><p>Questions, bigger projects or exclusive rights: WhatsApp <a href="https://wa.me/919987379730">+91 99873 79730</a>. Prices include no hidden fees; GST, where applicable, will be shown before you pay.</p></footer>
+<script src="store.js" defer></script>
+</body>
+</html>

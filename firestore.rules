@@ -1728,6 +1728,11 @@ service cloud.firestore {
       allow read, write: if false;
     }
 
+    // Music store orders (downloads and film licences): buyer contact details, so admin-read-only and never client-writable.
+    match /musicOrders/{id} {
+      allow read: if isAdmin();
+      allow write: if false;
+    }
     match /roomBookings/{ref} {
       allow read: if isAdmin()
                   || (request.auth != null && resource.data.partnerUid == request.auth.uid)

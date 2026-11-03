@@ -113,6 +113,10 @@ id = "be31e0935be843219cea1edf2203877b"
 # [[r2_buckets]]
 # binding = "RW_BUCKET"
 # bucket_name = "roamwise-data"
+#
+# The music store (worker/handlers/music-order.js) reads PRIVATE audio from this binding:
+# keys tracks/<youtube-id>.mp3 (and optional tracks/<youtube-id>.wav for licence buyers).
+# Also set the Worker secret MUSIC_LINK_SECRET (32+ random characters). See music/store/LAUNCH.md.
 # ---------------------------------------------------------------------------
 
 # ---------------------------------------------------------------------------
