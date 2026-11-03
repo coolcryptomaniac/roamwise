@@ -67,9 +67,11 @@ test('Worker usage reservation fails closed without durable metering', async () 
   assert.equal(out.reason, 'meter_not_configured');
 });
 
-test('production Worker fixes a low-cost Groq model and durable usage binding', () => {
+test('production Worker keeps metered provider configuration but disables funded AI by default', () => {
   const config = read('worker/wrangler.toml');
-  assert.match(config, /MANAGED_AI_ENABLED\s*=\s*"true"/);
+  assert.match(config, /MANAGED_AI_ENABLED\s*=\s*"false"/);
+  assert.match(config, /AI_MIN_PAID_BUDGET_PAISE\s*=\s*"0"/);
+  assert.match(config, /AI_FREE_DAILY_PAISE\s*=\s*"0"/);
   assert.match(config, /GROQ_MODEL\s*=\s*"openai\/gpt-oss-20b"/);
   assert.match(config, /binding\s*=\s*"AI_USAGE"/);
   assert.doesNotMatch(config, /GROQ_API_KEY\s*=/);

@@ -67,12 +67,12 @@ CASHFREE_API_VERSION = "2025-01-01"
 # FIREBASE_SERVICE_ACCOUNT_JSON and AI_USAGE are all present. The model is
 # intentionally a server-owned, non-secret setting; browser-submitted model
 # and token-limit values are ignored.
-MANAGED_AI_ENABLED = "true"
+MANAGED_AI_ENABLED = "false"
 GROQ_MODEL = "openai/gpt-oss-20b"
 WORKERS_AI_MODEL = "@cf/google/gemma-4-26b-a4b-it"
 SARVAM_MODEL = "sarvam-105b-conversations"
 # Kala (sacred-art guide, /kala/chat) uses only the free providers above: Workers AI, then Groq (shares GROQ_MONTHLY_REQUEST_CAP).
-GROQ_MONTHLY_REQUEST_CAP = "12000"
+GROQ_MONTHLY_REQUEST_CAP = "0"
 # --- Revenue-gated AI spend (worker/lib/spend-governor.js) -------------------
 # Paid AI budget this month = max(AI_MIN_PAID_BUDGET_PAISE,
 #   revenue * (1 - AI_TARGET_MARGIN) - FIXED_MONTHLY_COSTS_PAISE).
@@ -81,9 +81,9 @@ GROQ_MONTHLY_REQUEST_CAP = "12000"
 # Revenue is recorded automatically from live Cashfree payments; to seed history
 # run: npx wrangler kv key put --binding AI_USAGE "rw-revenue:2026-10" "<paise>"
 AI_TARGET_MARGIN = "0.2"
-FIXED_MONTHLY_COSTS_PAISE = "0"
-AI_MIN_PAID_BUDGET_PAISE = "150000"
-AI_FREE_DAILY_PAISE = "900"
+FIXED_MONTHLY_COSTS_PAISE = "50000"
+AI_MIN_PAID_BUDGET_PAISE = "0"
+AI_FREE_DAILY_PAISE = "0"
 GROQ_FREE_TIER = "true"
 # Optional premium route (Claude) for Pro/Elite users. Needs the existing
 # ANTHROPIC_API_KEY secret and only runs while spend < ratio of the budget.
