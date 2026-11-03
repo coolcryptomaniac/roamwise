@@ -95,7 +95,7 @@ const { handleCashfreeOrder, handleCashfreeOrderStatus, handleBhaktiAccess } = c
 });
 
 // Merchandise checkout: Cashfree calls go through the same diagnostic transport; nothing else is shared.
-const { handleShopCatalogue, handleShopQuote, handleShopOrder, handleShopStatus, handleShopWebhook } = createShopHandlers({
+const { handleShopCatalogue, handleShopQuote, handleShopOrder, handleShopStatus, handleShopWebhook, runShopFulfilmentCron } = createShopHandlers({
   fetchImpl: (url, options) => cashfreeTransportFetch(url, options)
 });
 
@@ -199,6 +199,8 @@ export default {
       try{ if(env.FIREBASE_SERVICE_ACCOUNT_JSON) await runTripNotifications(env, { mode: 'ack' }); }catch(e){ /* best-effort */ }
       /* New closures / crowds / events reach guests, followers and partners within the hour. Switches default OFF. */
       try{ if(env.FIREBASE_SERVICE_ACCOUNT_JSON) await runAdvisoryAlerts(env, {}); }catch(e){ /* best-effort */ }
+      /* Paid shop orders not yet at Qikink (it was off or briefly down). No-op unless config/shop.qikinkEnabled. */
+      try{ if(env.FIREBASE_SERVICE_ACCOUNT_JSON) await runShopFulfilmentCron(env); }catch(e){ /* retried next hour */ }
       return;
     }
     try{

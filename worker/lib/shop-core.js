@@ -1,6 +1,7 @@
 /* Pure merchandise-checkout rules: validation, server-side pricing, order ids, UPI intent.
  * No network and no storage here, so every rule is unit-tested. All money is integer paise. */
 import { SHOP_CATALOGUE } from './shop-catalogue.js';
+import { canonicalState } from './india-states.js';
 
 export const UPI_ID = 'roamwisepay@ybl';
 export const UPI_PAYEE = 'RoamWise';
@@ -27,7 +28,7 @@ export function validateCustomer(c) {
   const email = clean(c.email, 160);
   if (name.length < 2) return { error: 'invalid_name', message: 'Enter your full name.' };
   if (!phone) return { error: 'invalid_phone', message: 'Enter a valid 10-digit Indian mobile number.' };
-  if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) return { error: 'invalid_email', message: 'That email address does not look right.' };
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) return { error: 'invalid_email', message: 'That email address does not look right.' };
   return { value: { name, phone, email } };
 }
 
@@ -36,7 +37,9 @@ export function validateShipTo(s) {
   const v = { line1: clean(s.line1, 120), line2: clean(s.line2, 120), city: clean(s.city, 60), state: clean(s.state, 40), pin: String(s.pin == null ? '' : s.pin).trim() };
   if (v.line1.length < 5) return { error: 'invalid_address', message: 'Enter your delivery address (house, street, area).' };
   if (v.city.length < 2) return { error: 'invalid_city', message: 'Enter your city or town.' };
-  if (v.state.length < 2) return { error: 'invalid_state', message: 'Enter your state.' };
+  const state = canonicalState(v.state);
+  if (!state) return { error: 'invalid_state', message: 'Choose your state or union territory from the list.' };
+  v.state = state;
   if (!validPin(v.pin)) return { error: 'invalid_pin', message: 'Enter a valid 6-digit PIN code.' };
   return { value: v };
 }

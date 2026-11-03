@@ -1723,6 +1723,10 @@ service cloud.firestore {
       allow read: if isAdmin();
       allow write: if false;
     }
+    // Cached Qikink API token: Worker (service account) only. Never readable by any client.
+    match /shopSecrets/{id} {
+      allow read, write: if false;
+    }
 
     match /roomBookings/{ref} {
       allow read: if isAdmin()
