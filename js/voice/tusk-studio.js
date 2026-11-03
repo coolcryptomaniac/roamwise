@@ -288,15 +288,20 @@
     if(!complete){setPhase('ready','Answer is on screen · tap Speak to continue');return false;}
     if(details){
       details.replaceChildren();
-      var sections=complete.match(/[^.!?।]+[.!?।]?/g)||[];
-      sections=sections.map(function(t){return t.trim();}).filter(Boolean);
-      sections.slice(0,24).forEach(function(line,index){
-        var block=document.createElement('article');block.className='rw-orb-answer-tile';
-        var label=document.createElement('strong');label.textContent=index===0?'✦ Tusk summary':'◆ Detail '+index;
-        var content=document.createElement('p');content.textContent=line;
-        block.appendChild(label);block.appendChild(content);details.appendChild(block);
-      });
-      if(sections.length>24){var rest=document.createElement('p');rest.textContent=sections.slice(24).join(' ');details.appendChild(rest);}
+      // Prefer readable topic paragraphs over one tile per sentence. The old
+      // algorithm generated "Detail 22" and split budgets mid-number on mobile.
+      var meaningful=usable.replace(/\s+/g,' ').trim();
+      var chunks=meaningful.match(/.{1,650}(?:\s|$)/g)||[meaningful];
+      var first=document.createElement('article');first.className='rw-orb-answer-tile';
+      var firstHeading=document.createElement('strong');firstHeading.textContent='✦ Travel overview';
+      var firstText=document.createElement('p');firstText.textContent=chunks[0]||meaningful;
+      first.appendChild(firstHeading);first.appendChild(firstText);details.appendChild(first);
+      if(chunks.length>1){
+        var full=document.createElement('details');full.className='rw-orb-long-answer';
+        var summary=document.createElement('summary');summary.textContent='Read complete answer';
+        var text=document.createElement('p');text.textContent=chunks.slice(1).join(' ');
+        full.appendChild(summary);full.appendChild(text);details.appendChild(full);
+      }
     }
     reply.textContent='';
     var providerBusy=(diagnostic && usable.length<20) || (!diagnostic && /(?:AI engines unreachable|Too many requests|rate limit|service unavailable|managed.AI allowance is used|HTTP 429|AI provider unavailable)/i.test(complete));
