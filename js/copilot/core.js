@@ -1,7 +1,6 @@
 // @ts-nocheck
 /* ==================== COPILOT: CORE (chat + parser + intent memory + world resolver) ====================
    Extracted verbatim from app.js (Phase 4b modularization).
-
    This is deliberately ONE file, not the five originally proposed
    (chat.js / web-lookup.js / intent-memory.js) — the deterministic-parser
    copilot core is one interleaved ~890-line block (Phase 4a's finding,
@@ -12,7 +11,6 @@
    Splitting these three "modules" into separate files would not reduce
    coupling, only scatter it — so per the phase-4b brief's explicit
    allowance, it ships as one file, well under the 1000-line hard cap.
-
    Contains, in source order:
      - AI TRAVEL COPILOT: openCopilot/cpFocusHero/closeCopilot/cpClearChat/
        cpBubble/cpModelChips, cpDbFind/cpSmartAnswer, rolling chat memory
@@ -23,7 +21,6 @@
        fuzzy-match helpers cpParseRegex depends on).
      - WORLD GEOCODER + WORLD PLACE RESOLVER (rwGeocode/rwVerifyDest,
        RW_PLACE_OVERRIDES/rwResolvePlace).
-
    LOAD-ORDER NOTE: this file contains app.js's original top-level
    `if(lsGet('rw_keep_chat')==='1'){...} else {...}` init block, which
    executes at PARSE TIME (not from inside a function). That is exactly the
@@ -39,7 +36,6 @@
    RW_HOME_CC, etc.) is a normal function-body reference resolved at call
    time, long after every script on the page — including app.js — has
    finished loading, so none of them are order-sensitive. ==== */
-
 /* ==================== AI TRAVEL COPILOT ====================
    One box, natural language, no menus: "Reaching Manali tomorrow, rain
    expected, find a cafe to work from, bus back to Delhi Sunday, keep it
@@ -284,7 +280,6 @@ function cpSmartAnswer(t){ if(t===window.rwTripAiFor && window.RWTripDesk && RWT
   }
   return null;
 }
-
 /* ==================== MINI WEB LOOKUP ====================
    When the curated DB and guide APIs come up empty, search the free open web:
    Wikipedia's search API + DuckDuckGo's Instant Answer API — both keyless and
@@ -341,7 +336,6 @@ function rwWebAnswerHTML(q, res){
     +'</div></div>';
   return out;
 }
-
 /* One canonical known-place map: curated overrides + DB + major cities. Used by
    multi-city detection AND single-destination rescue below. */
 function rwKnownMap(){
@@ -369,7 +363,6 @@ function rwScanKnown(t){
   kept.sort(function(a,b){ return a.at-b.at; });
   return kept.map(function(h){return h.name;}).filter(function(n,i,a){return a.indexOf(n)===i;});
 }
-
 function rwEditDist(a,b){
   a=String(a); b=String(b);
   var la=a.length, lb=b.length;
@@ -414,7 +407,6 @@ function rwNormalizeQuery(t){
   for(var i=0;i<RW_SYN.length;i++){ t=t.replace(RW_SYN[i][0], RW_SYN[i][1]); }
   return t.replace(/\s{2,}/g,' ');
 }
-
 
 /* ============================================================================
    WORLD GEOCODER (rw-v77) — stop guessing whether a word is a place
@@ -934,14 +926,9 @@ function copilotSend(fromHero){
         var answer = (txt||'').trim();
         if(!answer){
           var kb2 = cpSmartAnswer(t) || '', _old = (kb2||!_ck) ? null : rwAnsStale(_ck); if(_old) kb2 = _old;
-          // Useful no-provider response for a resolved destination. This is
-          // static guidance, NOT a live price, availability or road report.
+          // Deterministic destination guidance; no live status implied.
           if(!kb2 && intents && intents.dest){
-            var safeDest=esc2(String(intents.dest).slice(0,90));
-            kb2='<b>Explore '+safeDest+' with RoamWise</b><br>'
-              +'I can help plan a route, a day-wise itinerary, local experiences and a stay enquiry without a hosted AI model.'
-              +'<br>Tell me your travel dates, starting city, number of travellers and budget to refine the plan.'
-              +'<br>Check live weather, road conditions, prices and availability with the relevant provider before booking.';
+            kb2='<b>Explore '+esc2(String(intents.dest).slice(0,90))+'</b><br>Plan routes, itineraries and stay enquiries. Tell me your dates, origin, group size and budget. Verify current prices, availability, weather and roads before booking.';
           }
           var note = (typeof rwAiDownNote==='function') ? rwAiDownNote(err, !!_old) : '<span class="rw-note">\u26a1 AI engines unreachable right now \u2014 answered by Ailon Tusk\u2019s own engine.</span>';
           if(intents.dest) rwLearn(intents.dest);
