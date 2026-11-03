@@ -934,6 +934,25 @@ function copilotSend(fromHero){
           if(!kb2 && intents && intents.dest){
             kb2='<b>Explore '+esc2(String(intents.dest).slice(0,90))+'</b><br>Plan routes, itineraries and stay enquiries. Tell me your dates, origin, group size and budget. Verify current prices, availability, weather and roads before booking.';
           }
+          // Keep the requested trip length even when external providers fail.
+          // Use an itinerary framework, never invented attractions, live rates or booking claims.
+          var fallbackDays = Math.max(0, Math.min(14, Math.floor(Number(intents && intents.days)||0)));
+          if(fallbackDays && intents && intents.dest && (!kb2 || /Explore [^<]+<\\/b>/.test(kb2))){
+            var destinationSafe=esc2(String(intents.dest).slice(0,90));
+            var dayBlocks=[];
+            for(var dayNo=1;dayNo<=fallbackDays;dayNo++){
+              var activity=dayNo===1?'Arrival, local orientation and a relaxed evening'
+                :dayNo===fallbackDays?'Checkout, buffer time and return journey'
+                :dayNo%3===2?'Explore a verified local attraction and nearby food'
+                :dayNo%3===0?'Culture, neighbourhood discovery and flexible activities'
+                :'Choose a day excursion after checking realistic journey time';
+              dayBlocks.push('<p><strong>Day '+dayNo+':</strong> '+activity+'.</p>');
+            }
+            kb2='<h3>'+fallbackDays+'-day planning outline for '+destinationSafe+'</h3>'
+              +'<p>Offline planning outline, not a confirmed itinerary. No live transport, weather, availability or prices have been checked.</p>'
+              +dayBlocks.join('')
+              +'<p>To personalize: share departure city, travel dates, travellers and total budget. Check current travel advisories and property availability before booking.</p>';
+          }
           var note = (typeof rwAiDownNote==='function') ? rwAiDownNote(err, !!_old) : '<span class="rw-note">\u26a1 AI engines unreachable right now \u2014 answered by Ailon Tusk\u2019s own engine.</span>';
           if(intents.dest) rwLearn(intents.dest);
           cpFinish(thinking, (kb2? kb2+'<br>':'')+note, intents, t);
