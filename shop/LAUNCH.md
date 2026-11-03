@@ -95,3 +95,15 @@ fulfilmentState values: `not_started`, `queued`, `submitting`, `submitted`, `nee
 Not built yet: tracking/AWB sync back to the buyer, an admin screen for `needs_attention` orders, refunds and cancelling a Qikink order. Qikink's order list is not available in Sandbox, so status sync can only be tested live.
 
 Go-live for fulfilment: test in Sandbox with a Sandbox secret and `QIKINK_ENV=sandbox`; confirm the order appears in the Qikink sandbox; then switch both secrets and `QIKINK_ENV` to live and set `qikinkEnvironment: "live"` together with Cashfree live.
+
+## Live products and Qikink SKUs (3 Nov 2026)
+Three products are in `worker/lib/shop-catalogue.js`, each using the **Store SKU** shown in Qikink -> My Products -> product variations (the field Qikink's docs call "SKU from the My Products page" for `search_from_my_products: 1`):
+
+| Product | Qikink product id | Price | Store SKU |
+|---|---|---|---|
+| Almora After Dark Oversized Hoodie (Black, S) | 65013066 | Rs 1,999 | `v-9R6l3yaFaVZW1scJMRQqubfWrwza9XuZ` |
+| RoamWise Red Mandala Headband | 65013400 | Rs 199 | `v-9R6l3yaFaVZW1scJMxcpubfWrwzY-Xua` |
+| RoamWise Red Mandala Large Tote Bag | 65013344 | Rs 799 | `v-9R6l3yaFaVZW1scJMhArubfWrwzY9HWb` |
+
+**Not yet proven:** the SKUs were copied from Qikink's dashboard but no order has been sent to Qikink Sandbox. On the first sandbox order, if Qikink answers `Invalid value for sku`, try the "Product SKU" column instead (`UOsHd-Bk-S`, `UAOPHdBnd-Wh-NA`, `UAOPLargeTb-Wh-NA`) and tell the team. The order lands in `needs_attention` with Qikink's message, never silently.
+Product images are Qikink's own mockups (`clientProducts/<Qikink product id / 2>/images/default.jpg`). Delivery fees are still unset, so quotes stay refused until `shipping.defaultFeePaise` or rules are configured.

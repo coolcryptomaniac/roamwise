@@ -8,6 +8,7 @@
   const $ = (id) => document.getElementById(id);
   const form = $('buy-form');
   const ORDER_RE = /^RWS-[A-HJKMNP-Z2-9]{10}$/;
+  let products = [];
   let product = null;
   let quote = null;
 
@@ -24,10 +25,20 @@
   };
   const val = (name) => form.elements[name].value.trim();
   const cart = () => [{ id: product.id, variant: val('variant'), qty: Number(val('qty')) }];
+  const setProduct = (id) => {
+    product = products.find((p) => p.id === id) || products[0];
+    if (!product) return;
+    $('buy-product').value = product.id;
+    const select = $('buy-variant'); select.replaceChildren();
+    product.variants.forEach((v) => { const o = document.createElement('option'); o.value = v.id; o.textContent = v.label + ' · ' + money(product.pricePaise); select.append(o); });
+    form.elements.qty.max = String(product.maxQty);
+    if (Number(form.elements.qty.value) > product.maxQty) form.elements.qty.value = String(product.maxQty);
+    resetQuote();
+  };
   const ship = () => ({ line1: val('line1'), line2: val('line2'), city: val('city'), state: val('state'), pin: val('pin') });
   const customer = () => ({ name: val('buyName'), phone: val('buyPhone'), email: val('buyEmail') });
-  const resetQuote = () => { quote = null; $('buy-methods').hidden = true; $('buy-pay').hidden = true; say('buy-summary', ''); };
-  ['variant', 'qty', 'pin'].forEach((n) => form.elements[n].addEventListener('input', resetQuote));
+  function resetQuote() { quote = null; $('buy-methods').hidden = true; $('buy-pay').hidden = true; say('buy-summary', ''); }
+  ['product', 'variant', 'qty', 'pin'].forEach((n) => form.elements[n].addEventListener('input', resetQuote));
 
   const STATUS_TEXT = {
     paid: 'Payment received. Your order is confirmed. We will update you on WhatsApp.',
@@ -113,11 +124,17 @@
     if (returned && ORDER_RE.test(returned)) { showStatus(returned, 10); }
     const r = await api('/shop/catalogue').catch(() => null);
     if (!r || !r.ok) return;
-    product = (r.data.products || []).find((p) => p.id === root.dataset.product);
-    if (!product) return;
-    const select = $('buy-variant');
-    product.variants.forEach((v) => { const o = document.createElement('option'); o.value = v.id; o.textContent = v.label + ' · ' + money(product.pricePaise); select.append(o); });
-    form.elements.qty.max = String(product.maxQty);
+    products = r.data.products || [];
+    if (!products.length) return;
+    const pick = $('buy-product');
+    products.forEach((p) => { const o = document.createElement('option'); o.value = p.id; o.textContent = p.name + ' · ' + money(p.pricePaise); pick.append(o); });
+    pick.addEventListener('change', () => setProduct(pick.value));
+    setProduct(products[0].id);
+    document.querySelectorAll('[data-buy]').forEach((a) => {
+      if (!r.data.checkoutOpen || !products.some((p) => p.id === a.dataset.buy)) return;
+      a.hidden = false;
+      a.addEventListener('click', () => { root.hidden = false; setProduct(a.dataset.buy); });
+    });
     if (r.data.checkoutOpen) root.hidden = false;
   })();
 })();

@@ -81,3 +81,26 @@ test('returning from Cashfree checks status with the stored order token', async 
   assert.match(d.getElementById('buy-status').textContent, /Payment received/);
   dom.window.close();
 });
+
+test('product picker: lists every live product, switches variants, price and max quantity, and orders the chosen one', async () => {
+  const body = {checkoutOpen: true, products: [
+    {id: 'almora-after-dark-hoodie', name: 'Hoodie', pricePaise: 199900, maxQty: 5, variants: [{id: 'black-s', label: 'Black · Size S'}]},
+    {id: 'roamwise-mandala-tote', name: 'Tote', pricePaise: 79900, maxQty: 3, variants: [{id: 'standard', label: 'Red · Standard size'}]}]};
+  const routes = {'/shop/catalogue': () => ({status: 200, body}), '/shop/quote': () => ({status: 200, body: {ok: true, subtotalPaise: 79900, shippingPaise: 9900, totalPaise: 89800, methods: {cashfree: true, upi: true}}})};
+  const {dom, d, calls} = setup({routes}); await tick();
+  const pick = d.getElementById('buy-product');
+  assert.equal(pick.options.length, 2);
+  assert.match(d.getElementById('buy-variant').textContent, /Black · Size S · ₹1,999/);
+  // the "Order online" button on the tote section selects the tote and reveals the form
+  const btn = d.querySelector('[data-buy="roamwise-mandala-tote"]');
+  assert.equal(btn.hidden, false);
+  btn.click();
+  assert.equal(pick.value, 'roamwise-mandala-tote');
+  assert.match(d.getElementById('buy-variant').textContent, /Red · Standard size · ₹799/);
+  assert.equal(d.getElementById('buy-qty').max, '3');
+  fill(d);
+  d.getElementById('buy-quote').click(); await tick();
+  const q = calls.find((c) => c.path === '/shop/quote').body;
+  assert.deepEqual(q.items, [{id: 'roamwise-mandala-tote', variant: 'standard', qty: 1}]);
+  dom.window.close();
+});

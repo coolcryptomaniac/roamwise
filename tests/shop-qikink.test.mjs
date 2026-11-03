@@ -187,3 +187,23 @@ test('UPI orders are not sent to Qikink until an authorised person marks them pa
   await s.h.runShopFulfilmentCron(s.env);
   assert.equal(s.docs.get(key).fulfilmentState, 'submitted');
 });
+
+test('shipped catalogue: every product variant has a Qikink My Products SKU and a reachable-looking image', () => {
+  assert.deepEqual(SHOP_CATALOGUE.products.map((p) => [p.id, p.pricePaise]), [['almora-after-dark-hoodie', 199900], ['roamwise-mandala-headband', 19900], ['roamwise-mandala-tote', 79900]]);
+  const seen = new Set();
+  for (const p of SHOP_CATALOGUE.products) {
+    assert.match(p.image, /^https:\/\/qikink-assets\.s3\.ap-south-1\.amazonaws\.com\/clients\/665802\/clientProducts\/\d+\/images\/default\.jpg$/);
+    for (const v of p.variants) { assert.ok(v.qikinkSku && v.qikinkSku.length <= 50, p.id); assert.ok(!seen.has(v.qikinkSku)); seen.add(v.qikinkSku); }
+  }
+});
+
+test('orders for each shipped product build a valid Qikink payload with its own SKU', () => {
+  for (const p of SHOP_CATALOGUE.products) {
+    const v = p.variants[0];
+    const ord = { orderId: 'RWS-ABCDEFGHJK', totalPaise: p.pricePaise + 9900, lines: [{ id: p.id, variant: v.id, qty: 1, unitPaise: p.pricePaise }], customer: { name: 'Asha Rawat', phone: '9876543210', email: 'a@example.com' }, ship: { line1: '12 Mall Road', city: 'Almora', state: 'Uttarakhand', pin: '263601' } };
+    const { body, error } = buildQikinkOrder(ord, (l) => { const pr = SHOP_CATALOGUE.products.find((x) => x.id === l.id); return pr.variants.find((x) => x.id === l.variant).qikinkSku; });
+    assert.equal(error, undefined);
+    assert.equal(body.line_items[0].sku, v.qikinkSku);
+    assert.equal(body.line_items[0].price, p.pricePaise / 100);
+  }
+});
