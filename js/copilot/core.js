@@ -407,19 +407,16 @@ function rwNormalizeQuery(t){
   for(var i=0;i<RW_SYN.length;i++){ t=t.replace(RW_SYN[i][0], RW_SYN[i][1]); }
   return t.replace(/\s{2,}/g,' ');
 }
-
 /* ============================================================================
    WORLD GEOCODER (rw-v77) — stop guessing whether a word is a place
    ============================================================================
    The real fix for "you" being treated as a destination isn't a longer
    stop-list — it's ASKING A PLACE DATABASE. We use OpenStreetMap Nominatim:
    free, worldwide, down to street level, no API key.
-
    WORKS WITHOUT THE WORKER. If rwApi('geo') exists we proxy through the
    Cloudflare Worker (better: edge-cached, and it keeps our request rate
    inside OSM's policy). If not, we call Nominatim directly from the browser.
    If BOTH fail, we fall back to the local curated DB — never to a guess.
-
    Results are cached in localStorage forever-ish, because a place's existence
    does not change.
    ========================================================================= */
@@ -441,7 +438,6 @@ function rwGeocode(q){
   if(!q || q.length<2) return Promise.resolve(null);
   var hit=rwGeoCacheGet(q);
   if(hit!==undefined) return Promise.resolve(hit);
-
   /* local curated DB first — instant, offline, and always right for our cities */
   try{
     var known=rwKnownMap();
@@ -451,11 +447,9 @@ function rwGeocode(q){
       rwGeoCacheSet(q, localv); return Promise.resolve(localv);
     }
   }catch(e){ /* best-effort, ignore */ }
-
   var url;
   try{ url = (window.rwApi && rwApi('geo')) ? rwApi('geo')+'?q='+encodeURIComponent(q) : null; }catch(e){ url=null; }
   if(!url) url='https://nominatim.openstreetmap.org/search?format=json&limit=1&addressdetails=1&q='+encodeURIComponent(q);
-
   return fetch(url, { headers:{ 'Accept':'application/json' } })
     .then(function(r){ return r.json(); })
     .then(function(d){
@@ -481,7 +475,6 @@ function rwVerifyDest(parsed){
     return parsed;
   });
 }
-
 function cpParseRegex(t){
   t = rwNormalizeQuery(t);
   /* -------- input hygiene: greetings, smalltalk, junk -------- */
@@ -933,6 +926,12 @@ function copilotSend(fromHero){
           // Deterministic destination guidance; no live status implied.
           if(!kb2 && intents && intents.dest){
             kb2='<b>Explore '+esc2(String(intents.dest).slice(0,90))+'</b><br>Plan routes, itineraries and stay enquiries. Tell me your dates, origin, group size and budget. Verify current prices, availability, weather and roads before booking.';
+          }
+          // Offline fallback has no confirmed prices, bookings or live conditions.
+          var days=Math.max(0,Math.min(14,Math.floor(Number(intents&&intents.days)||0))),rows=[];
+          if(days&&intents&&intents.dest&&(!kb2||kb2.indexOf('<b>Explore ')===0)){
+            for(var d=1;d<=days;d++)rows.push('<p><strong>Day '+d+':</strong> '+(d===1?'Arrival and local orientation':d===days?'Checkout and return journey':d%2?'Explore a verified local attraction':'Culture, food and flexible activities')+'; verify timings and availability.</p>');
+            kb2='<h3>'+days+'-day outline for '+esc2(String(intents.dest).slice(0,90))+'</h3><p>Offline plan only. No live prices or bookings verified.</p>'+rows.join('')+'<p>Share dates, origin, group size and budget.</p>';
           }
           var note = (typeof rwAiDownNote==='function') ? rwAiDownNote(err, !!_old) : '<span class="rw-note">\u26a1 AI engines unreachable right now \u2014 answered by Ailon Tusk\u2019s own engine.</span>';
           if(intents.dest) rwLearn(intents.dest);
