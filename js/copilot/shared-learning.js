@@ -95,3 +95,28 @@ function rwShCommand(t){
   }
   return null;
 }
+
+/* Server-verified destination knowledge before costly model inference.
+   Restrict to general destination questions; dates, live conditions and
+   personal itineraries continue through the normal planner/AI pipeline. */
+function rwCuratedFirst(query,intents,bubble,next){
+  var dest=String(intents&&intents.dest||'').trim().toLowerCase();
+  var raw=String(query||'');
+  var slug=dest.normalize('NFKD').replace(/[^a-z0-9 -]/g,'').trim().replace(/\s+/g,'-');
+  var url=rwShUrl('tusk/curated');
+  if(!url || !/^[a-z0-9][a-z0-9_-]{1,79}$/.test(slug) ||
+     /\b(today|tomorrow|now|live|current|weather|traffic|price|availability|book|reserve|my|our|we|i|budget|from|to)\b/i.test(raw) ||
+     /\d/.test(raw) || /[?&]/.test(dest))return next();
+  return fetch(url+'?type=destination&id='+encodeURIComponent(slug))
+    .then(function(r){return r.ok?r.json():null;})
+    .then(function(j){
+      if(!j||!j.hit||!j.data||!j.data.name)return next();
+      var d=j.data,escape=(typeof escHtml==='function')?escHtml:function(v){return String(v).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});};
+      var pieces=['<b>'+escape(d.name)+'</b>'];
+      ['summary','bestSeason','culture','transportTips','safetyTips'].forEach(function(k){if(typeof d[k]==='string')pieces.push(escape(d[k]));});
+      if(Array.isArray(d.highlights))pieces.push('Highlights: '+escape(d.highlights.join(', ')));
+      pieces.push('<span class="rw-note">Verified RoamWise destination guide · general information, not live conditions or availability.</span>');
+      cpFinish(bubble,pieces.join('<br>'),intents,raw);
+      return {_shared:true};
+    }).catch(function(){return next();});
+}
