@@ -892,7 +892,11 @@ function copilotSend(fromHero){
     var hist=_cpHist.slice(-6).map(function(h){ return 'User: '+h.q+'\nCopilot: '+h.a; }).join('\n');
     /* Ground the model in the real guide before it answers — this is what stops
        confident-but-wrong replies about small towns. */
-    (typeof rwCuratedFirst==='function'?rwCuratedFirst(t,intents,thinking,function(){return typeof rwSharedFirst==='function'?rwSharedFirst(_ck,thinking,intents,t,function(){return intents.dest?wvGuide(intents.dest):Promise.resolve(null);}):(intents.dest?wvGuide(intents.dest):Promise.resolve(null);}):(typeof rwSharedFirst==='function'?rwSharedFirst(_ck,thinking,intents,t,function(){return intents.dest?wvGuide(intents.dest):Promise.resolve(null);}):(intents.dest?wvGuide(intents.dest):Promise.resolve(null))).then(function(g){ if(g&&g._shared) return;
+    (function(){
+      var guide=function(){return intents.dest?wvGuide(intents.dest):Promise.resolve(null);};
+      var shared=function(){return typeof rwSharedFirst==='function'?rwSharedFirst(_ck,thinking,intents,t,guide):guide();};
+      return typeof rwCuratedFirst==='function'?rwCuratedFirst(t,intents,thinking,shared):shared();
+    })().then(function(g){ if(g&&g._shared) return;
       var facts = g && g.extract ? 'Verified guide text for '+g.title+': '+g.extract.slice(0,600)+'\n' : '';
       try{
         if(typeof RW_PLACE_FACTS!=='undefined'){
