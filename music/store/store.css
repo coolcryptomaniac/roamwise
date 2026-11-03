@@ -1,0 +1,41 @@
+:root{--brass:#d9b469;--brass2:#fff0c2;--paper:#f3e8cf;--wood:#2b1a10;--ink:#1c110a;color-scheme:dark}
+*{box-sizing:border-box}html{-webkit-text-size-adjust:100%}
+body{margin:0;color:var(--paper);font:16px/1.55 Outfit,system-ui,sans-serif;background:radial-gradient(70% 40% at 50% 0%,rgba(255,196,110,.2),transparent 70%),linear-gradient(180deg,#1c110a,#150b06);min-height:100vh}
+a{color:var(--brass)}
+.ms-top,.ms-hero,main,.ms-foot{max-width:1100px;margin:0 auto;padding-left:16px;padding-right:16px}
+.ms-top{display:flex;justify-content:space-between;align-items:center;padding-top:14px;padding-bottom:14px}
+.ms-brand{display:inline-flex;gap:9px;align-items:center;color:var(--paper);text-decoration:none;font-weight:700}.ms-brand img{border-radius:8px}
+.ms-link{font-size:13px;text-decoration:none}
+.ms-eyebrow{display:inline-block;color:var(--brass);padding:5px 12px;border:1px solid rgba(217,180,105,.5);border-radius:6px;font-size:12px;letter-spacing:.12em}
+.ms-hero h1{font:800 clamp(28px,6.5vw,46px)/1.08 Georgia,serif;margin:12px 0 10px}.ms-hero h1 em{color:var(--brass2)}
+.ms-hero p{max-width:60ch}
+.ms-banner{padding:10px 14px;border:1px solid rgba(217,180,105,.5);border-radius:10px;background:rgba(217,180,105,.1)}
+.ms-sec{margin:26px 0}.ms-sec h2{font:700 24px/1.2 Georgia,serif;margin:0 0 12px}
+.ms-muted{opacity:.75;font-size:14px}
+.ms-tiers{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px}
+.ms-tier{border:1px solid rgba(217,180,105,.35);border-radius:12px;padding:14px;background:rgba(255,240,194,.04)}
+.ms-tier h3{margin:0 0 4px;font-size:16px}.ms-tier b{font-size:22px;color:var(--brass2)}.ms-tier p{margin:6px 0 0;font-size:14px;opacity:.9}
+.ms-terms{margin-top:12px;font-size:14px}.ms-terms summary{cursor:pointer;color:var(--brass)}
+.ms-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:14px}
+.ms-card{border:1px solid rgba(217,180,105,.3);border-radius:12px;overflow:hidden;background:rgba(0,0,0,.25);display:flex;flex-direction:column}
+.ms-card img{width:100%;aspect-ratio:16/9;object-fit:cover;display:block;background:#000}
+.ms-card h3{font-size:15px;margin:10px 12px 4px;line-height:1.3}
+.ms-card .ms-actions{display:flex;gap:8px;padding:8px 12px 12px;margin-top:auto;flex-wrap:wrap}
+.ms-btn{display:inline-block;border:0;border-radius:9px;padding:10px 14px;background:var(--brass);color:var(--ink);font:700 14px Outfit,system-ui,sans-serif;text-decoration:none;cursor:pointer}
+.ms-btn.ghost{background:transparent;color:var(--brass);border:1px solid var(--brass)}
+.ms-btn[disabled],.ms-btn[aria-disabled=true]{opacity:.45;cursor:not-allowed}
+.ms-co{border:1px solid rgba(217,180,105,.4);border-radius:14px;padding:16px;background:rgba(0,0,0,.28)}
+.ms-co form{display:grid;gap:12px;max-width:520px}
+.ms-co label{display:grid;gap:4px;font-size:14px}
+.ms-co input:not([type=radio]):not([type=checkbox]){padding:10px;border-radius:8px;border:1px solid rgba(217,180,105,.5);background:#120a05;color:var(--paper);font-size:16px}
+.ms-co fieldset{border:1px solid rgba(217,180,105,.3);border-radius:10px}
+.ms-radio{display:flex!important;grid-template-columns:none!important;gap:8px;align-items:flex-start}
+.ms-co-item{font-weight:700;color:var(--brass2)}
+.ms-error{color:#ffb4a8}
+.ms-qr{background:#fff;display:inline-block;padding:10px;border-radius:8px;margin:8px 0}
+.ms-verify{display:flex;gap:10px;align-items:end;flex-wrap:wrap}.ms-verify input{padding:10px;border-radius:8px;border:1px solid rgba(217,180,105,.5);background:#120a05;color:var(--paper);font-size:16px}
+.ms-cert{background:#fffaf0;color:#2b1a10;border:3px double #8a6a2b;border-radius:6px;padding:22px;max-width:760px}
+.ms-cert h3{font:800 24px Georgia,serif;margin:0 0 8px;text-align:center}.ms-cert dl{display:grid;grid-template-columns:max-content 1fr;gap:4px 14px;margin:12px 0}.ms-cert dt{font-weight:700}.ms-cert dd{margin:0}
+.ms-cert ol{font-size:13px;padding-left:18px}.ms-cert small{display:block;margin-top:10px}
+.ms-foot{padding-top:20px;padding-bottom:50px;font-size:13px;opacity:.85}
+@media print{body{background:#fff;color:#000}.ms-top,.ms-hero,.ms-sec:not(#msStatus),.ms-foot,#msStatus h2,#msStatusText,#msDownload,#msDlNote,#msPrint{display:none!important}#msStatus{display:block!important}.ms-cert{border-color:#000;max-width:none}}

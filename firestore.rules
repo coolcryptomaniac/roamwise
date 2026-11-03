@@ -1716,6 +1716,11 @@ service cloud.firestore {
     // signed-in user may create a booking request; only the owning partner
     // may move it along (status/note/confirmation), never touching who the
     // parties are.
+    // Music store orders (downloads and film licences): buyer contact details, so admin-read-only and never client-writable.
+    match /musicOrders/{id} {
+      allow read: if isAdmin();
+      allow write: if false;
+    }
     match /roomBookings/{ref} {
       allow read: if isAdmin()
                   || (request.auth != null && resource.data.partnerUid == request.auth.uid)

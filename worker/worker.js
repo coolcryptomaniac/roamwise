@@ -74,6 +74,7 @@ import { handleBusiness } from './handlers/business.js';
 import { handleAICAReview } from './handlers/ai-ca.js';
 import { handlePaymentEvent } from './handlers/payment-events.js';
 import { handleBookingCashfreeWebhook } from './handlers/booking-cashfree-webhook.js';
+import { createMusicHandlers } from './handlers/music-order.js';
 import { handleStay } from './handlers/stay-ledger.js';
 import { handleInvoiceSweep, runInvoiceSweepCron } from './handlers/invoices.js';
 import { handleBot, botDeps } from './handlers/bot.js';
@@ -87,6 +88,11 @@ import { handleAdvisoryAlerts, runAdvisoryAlerts } from './handlers/advisory-ale
 // identity and entitlement rules stay inside handlers/cashfree.js unchanged.
 const { handleCashfreeOrder, handleCashfreeOrderStatus, handleBhaktiAccess } = createCashfreeHandlers({
   request:cashfreeTransportFetch
+});
+
+// Music store (paid downloads + film licences): Cashfree calls use the same diagnostic transport; nothing else is shared.
+const { handleMusicCatalogue, handleMusicOrder, handleMusicStatus, handleMusicDownload, handleMusicLicence, handleMusicWebhook } = createMusicHandlers({
+  fetchImpl: (url, options) => cashfreeTransportFetch(url, options)
 });
 
 /* ------------------------------------------------------------------ router */
@@ -103,10 +109,21 @@ export default {
     if(path === 'voice/sarvam/byok' && request.method === 'POST') return handleSarvamVoice(request);
     // Server-to-server endpoint; no public CORS or booking confirmation until atomic persistence is integrated.
     if(path === 'booking/cashfree/webhook') return handleBookingCashfreeWebhook(request, env);
+    // Server-to-server music-store webhook: signature-checked inside the handler, so it sits before the browser abuse guard.
+    if(path === 'music/cashfree/webhook') return handleMusicWebhook(request, env);
 
     /* Flood / per-route limits and body-size cap (additive; see lib/rate-limit.js). */
     const refused = await abuseGuard(request, path);
     if(refused) return json({ error: refused.error }, refused.status);
+
+    if(path === 'music/catalogue' && request.method === 'GET') return handleMusicCatalogue(request, env);
+    if(path === 'music/order' && request.method === 'POST') return handleMusicOrder(request, env);
+    { const m = /^music\/(order|download|licence)\/([^/]+)(?:\/status)?$/.exec(path);
+      if(m && request.method === 'GET'){
+        if(m[1] === 'order' && /\/status$/.test(path)) return handleMusicStatus(request, env, m[2]);
+        if(m[1] === 'download') return handleMusicDownload(request, env, m[2]);
+        if(m[1] === 'licence') return handleMusicLicence(request, env, m[2]);
+      } }
 
     if(path === 'ai' && request.method === 'POST'){
       if(await aiGuard(request))
