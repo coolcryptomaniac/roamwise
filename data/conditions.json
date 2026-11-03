@@ -1,6 +1,6 @@
 {
  "version": 1,
- "checked": "2026-11-02",
+ "checked": "2026-11-03",
  "regions": [
   {
    "id": "almora",
@@ -360,6 +360,47 @@
    "regions": []
   },
   {
+   "id": "auto-20261102-char-dham-yatra-2026-check-closing-dates",
+   "kind": "closure",
+   "official": false,
+   "auto": true,
+   "title": "Char Dham Yatra 2026: Check Closing Dates And Timings Of Yamunotri, Gangotri, Kedarnath…",
+   "detail": "Times Now reports this. Check with local police or the district administration before you travel.",
+   "from": "2026-11-02",
+   "until": "2026-11-16",
+   "source": "Times Now",
+   "sourceUrl": "https://news.google.com/rss/articles/CBMi6wFBVV95cUxQTzFKODZKa1lPMlV1a3hUVjB5N25yZ29NMll2d1RyQWdyZWhwUnNHZjI1Tk5lMjRqRS00cndsNkFLMy1GQUtnLUFadGxyWVdwTDVCajVDOWl6MGYzNXlFSkp1S3Yxc29SOHVsd1Q5RVBEX3dyb1hTV1k4dkwwWXhOSVJwNURBbkVteEw3Zi1fUTBlSk55MWlLWDNQeXljSUpvcUlBNXNlQWU2U1B6dEJ2YjMxejc1RmVJUUtaaEdrUVpCbERwNUhybXBQUUxZdWg5WFJ4VGRVRC1INVN5QmIwTDRueDNzQ1BPZHBJ0gHwAUFVX3lxTE12M0ZDMXhTLXdPQ2lxOE1aVzdGckR4WTh6WmJhVGRHM0R4b0M5MnNIVlA2RHY3YUxzazM1SUp3enFPeUg0T1dxQk13c2VQUkt3VVJLc0NaWjktUF95ZUt3Y1QycnBSNVBCeWRqRjVmYUdLSnNMWUZYNUhZLXZ1S0hHSUZlUS1LRVNSeEZwWXI4bDRzS3dNRkJXSkI3dUlNUkZ5Um10cnpFVjF4NEI1NjRQOWV6ck1IWWVaYVdnZ3ZEZHBma05CTngySnBHb0dqWk9qczZxRk9EZ3VjczFrdTVfWWV0RGtJQWtmUjNMYXNscA?oc=5",
+   "match": [
+    "kedarnath",
+    "badrinath",
+    "gangotri",
+    "yamunotri"
+   ],
+   "regions": [
+    "rudraprayag",
+    "chamoli",
+    "uttarkashi"
+   ]
+  },
+  {
+   "id": "auto-20261102-charter-helicopter-flights-for-char-dham",
+   "kind": "closure",
+   "official": false,
+   "auto": true,
+   "title": "Charter Helicopter Flights For Char Dham Yatra Suspended In Dehradun",
+   "detail": "Asianet Newsable reports this. Check with local police or the district administration before you travel.",
+   "from": "2026-11-02",
+   "until": "2026-11-16",
+   "source": "Asianet Newsable",
+   "sourceUrl": "https://news.google.com/rss/articles/CBMixgFBVV95cUxOcWJjZFRmQXRHcDVVVmJ6MzRzaTl3LTRDQW9lb2xwVGdGNzBMcWVIUTJPOGxJRVFMOUpoQ2o4VzM3RnhiOXFQV0FXc0dQekdEbThodjFXajRlTTFPLVU5V2ZQa090cVVsQ3pydk5ka1pmR0VRZDdmS3BFNklLSldINE5YX3BKSE1Cc1BUcHZIWWZZSTUySTh2WnFfWFdfWEJiZkI1UkJYT3pKZ3hKT3Y0OVdYY3dwcmVYVlVJQWR3emdXaUZSbXfSAcsBQVVfeXFMT194amFPcXZuV204ZVp3UUF6cG15MFk1enZxVXo2QUtWYTZwdi1ZSUdySDhJeVJxUExpRzl6eWZnaDNHWFI0bWFfU2JiLW51MFN2bTZNTnNjejV2SlY2YU90VzkwQmdCZGM5T2tvY3lFdDlhYmF3VVBNWlJUc1Biakl6WllpS0dkUVgxRzRYdk9mbkd2SFhFSjVLdmJhdUJOTFRwbW1vcGg2RzJHZGVPbmxCVVZpZTE0ZWtJUTVKeDhLTW5yOG5mbVZyY00?oc=5",
+   "match": [
+    "dehradun"
+   ],
+   "regions": [
+    "dehradun"
+   ]
+  },
+  {
    "id": "auto-20261102-uttarakhand-badrinath-turns-picturesque-",
    "kind": "snow",
    "official": false,
@@ -378,24 +419,6 @@
    ]
   },
   {
-   "id": "auto-20261031-heavy-rainfall-alert-issued-in-uttarakha",
-   "kind": "rain",
-   "official": false,
-   "auto": true,
-   "title": "Heavy rainfall alert issued in Uttarakhand; Kedarnath pedestrian route disrupted",
-   "detail": "DD News reports this. Check with local police or the district administration before you travel.",
-   "from": "2026-10-31",
-   "until": "2026-11-02",
-   "source": "DD News",
-   "sourceUrl": "https://news.google.com/rss/articles/CBMiqAFBVV95cUxPS1cxYmlrVFBwaU0zZkdUQUJIMjY0VExDd1lJbzEtMGlfYUcwd2I3WFpCUEZTdV9adnFrYktQYlhrdXRCa09XLVZMNDRyak5hYkJxaVB6RThjNmRZY0xTbVRyOFlNSHNTNzlTckc2dk9GU1hLcTZCay1DeTRRN1RnNlg4dTByNm9NQW9oMUpKWnBSS2J1Si1Hd25pLTJ2NEZQLWRQdjdTaWk?oc=5",
-   "match": [
-    "kedarnath"
-   ],
-   "regions": [
-    "rudraprayag"
-   ]
-  },
-  {
    "id": "auto-20261031-nature-s-bounty-fresh-snowfall-in-higher",
    "kind": "snow",
    "official": false,
@@ -411,42 +434,6 @@
    ],
    "regions": [
     "pauri"
-   ]
-  },
-  {
-   "id": "auto-20261030-watch-video-shri-gangotri-dham-covered-i",
-   "kind": "snow",
-   "official": false,
-   "auto": true,
-   "title": "WATCH VIDEO: Shri Gangotri Dham Covered in Fresh Snowfall as Winter Arrives in…",
-   "detail": "The Sunday Guardian reports this. Check with local police or the district administration before you travel.",
-   "from": "2026-10-30",
-   "until": "2026-11-02",
-   "source": "The Sunday Guardian",
-   "sourceUrl": "https://news.google.com/rss/articles/CBMilgJBVV95cUxOeW5nVS1PM0V0NUsxeDdiUXA5N1VaZHhVYXlCeEdTMWNzS0FmMFByTWNidklPd1lDOHQzdXE5RHk2cWVrY2tPcUNNekYwb29GWG1hV0FCeVJPc0liOTRaakJhSTBhN3R4MThienRzODN3Q0ZEbUJ2ZkJRWUlSZFNPVndZbmRpUV8xbnRBR3NpUXRNd0hNNzJtNUFfRFBjUV80dE82V3F1R3R4b2lvRzhSV1MzcWVHQ2diWHJpLTB5N0VvdENMXzZ2X3pKenB3YWoyWXNtWjBfSi15UjRsc1hHS2N4UllkejQzUXRWNWgwbUdWT2JiaWllNW1VNWpzX3hGV2kwWjVMZW5CdUpyYUpfMkh2cjRFZ9IBmwJBVV95cUxNSnBrOHBFdUdqTmVWSW50UzY4ZjlTX1JwU0FGSTlpSEdtZWlHVXFVbnMzbmt1T29aRG1FbGV3SE01ZWpLNmJsa0YtVmtvWDZHWG9iS2kyZGx0dzBObjlURTItbmhCVXJsdzIyZnM2RjRfbklfc3VDaW92eGtWSGhkRmlzR0JIOFgwT0YyVkoyUjdBNkhTOWMzNE44WHNXanptZjh5UEJEYnpRYU1zbGlJeVZaUjhwOE9lNE9MNzhyckY5SVFWaGdIc1hiWjVXNVM3QWhheF9MZ3lxS2FrNHpGMFgySHdfczVZS3N3RWFFMHV1azQ0MnJrYlVBNVRxSmU1MVdWMzRIcEZoM1NDak1mTFZuZmVGS2l5LVpB?oc=5",
-   "match": [
-    "gangotri"
-   ],
-   "regions": [
-    "uttarkashi"
-   ]
-  },
-  {
-   "id": "auto-20261030-kedarnath-dham-receives-season-s-first-h",
-   "kind": "snow",
-   "official": false,
-   "auto": true,
-   "title": "Kedarnath Dham receives season's first heavy snowfall; temperatures plummet",
-   "detail": "ANI News reports this. Check with local police or the district administration before you travel.",
-   "from": "2026-10-30",
-   "until": "2026-11-02",
-   "source": "ANI News",
-   "sourceUrl": "https://news.google.com/rss/articles/CBMi1wFBVV95cUxPTC1sd2l0S0ZEN01qUzJlejBvMEFxRlRYbWlKSVZzZDEzS3RPU01nWEpjeF9Gazk4WjVYaFNrUWJpZ3BBS2tsbzhfeWdldW1xQ2E0d3lRbjhBTi01aTJBR0dyUkZJd0FudjFKNTBqSWw2cjQwMjIzSlRzYmFQWk5pYmhwVmUzOEp4RWpJcm1uMDJrOUpFdUl1eXYzUlVOYmM3MG5sWEJEZnpQN2VuXzVHNFhsZGI1Mmx0Wm8zX2EyVXlwd255cXdIeGlNRS02YUxyRTJvblFJZw?oc=5",
-   "match": [
-    "kedarnath"
-   ],
-   "regions": [
-    "rudraprayag"
    ]
   }
  ]
