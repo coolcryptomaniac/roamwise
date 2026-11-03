@@ -102,11 +102,11 @@ function rwShCommand(t){
 function rwCuratedFirst(query,intents,bubble,next){
   var dest=String(intents&&intents.dest||'').trim().toLowerCase();
   var raw=String(query||'');
-  var slug=dest.normalize('NFKD').replace(/[^a-z0-9 -]/g,'').trim().replace(/\\s+/g,'-');
+  var slug=dest.normalize('NFKD').replace(/[^a-z0-9 -]/g,'').trim().replace(/\s+/g,'-');
   var url=rwShUrl('tusk/curated');
   if(!url || !/^[a-z0-9][a-z0-9_-]{1,79}$/.test(slug) ||
-     /\\b(today|tomorrow|now|live|current|weather|traffic|price|availability|book|reserve|my|our|we|i|budget|from|to)\\b/i.test(raw) ||
-     /\\d/.test(raw) || /[?&]/.test(dest))return next();
+     /\b(today|tomorrow|now|live|current|weather|traffic|price|availability|book|reserve|my|our|we|i|budget|from|to)\b/i.test(raw) ||
+     /\d/.test(raw) || /[?&]/.test(dest))return next();
   return fetch(url+'?type=destination&id='+encodeURIComponent(slug))
     .then(function(r){return r.ok?r.json():null;})
     .then(function(j){
