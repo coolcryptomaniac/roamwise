@@ -937,7 +937,7 @@ function copilotSend(fromHero){
           // Keep the requested trip length even when external providers fail.
           // Use an itinerary framework, never invented attractions, live rates or booking claims.
           var fallbackDays = Math.max(0, Math.min(14, Math.floor(Number(intents && intents.days)||0)));
-          if(fallbackDays && intents && intents.dest && (!kb2 || /Explore [^<]+<\\/b>/.test(kb2))){
+          if(fallbackDays && intents && intents.dest && (!kb2 || kb2.indexOf('<b>Explore ')===0)){
             var destinationSafe=esc2(String(intents.dest).slice(0,90));
             var dayBlocks=[];
             for(var dayNo=1;dayNo<=fallbackDays;dayNo++){
