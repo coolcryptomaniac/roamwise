@@ -9,11 +9,13 @@
  *    (reached from the status poll or the signed webhook). Direct UPI orders stay
  *    `awaiting_upi_payment` until an authorised person reconciles the bank record and sets
  *    status to `paid` in Firestore. A screenshot, UTR or app return is never proof of payment.
- *  - Nothing here submits to Qikink. Paid orders wait in the queue (fulfilmentState: 'queued').
+ *  - Paid orders are queued (fulfilmentState: 'queued') and sent to Qikink by lib/shop-fulfil.js, but only when
+ *    config/shop.qikinkEnabled is true and the Qikink Worker secrets exist; an hourly cron retries failures.
  *  - Checkout is OFF unless config/shop.enabled === true (admin-written, public-read, flags only). */
 import { CORS, json } from '../lib/http.js';
 import { getServiceAccountAccessToken, parseServiceAccount } from '../lib/service-account.js';
-import { createDocIfAbsent, getDoc, updateDoc } from '../lib/firestore-rest.js';
+import { createDocIfAbsent, getDoc, queryEqualsString, updateDoc } from '../lib/firestore-rest.js';
+import { createFulfilment } from '../lib/shop-fulfil.js';
 import { verifyCashfreeWorkerWebhook } from '../lib/cashfree-booking-webhook-verify.js';
 import { SHOP_CATALOGUE, publicCatalogue } from '../lib/shop-catalogue.js';
 import {
@@ -62,11 +64,17 @@ const bearer = (request) => { const m = /^Bearer\s+(.+)$/i.exec(request.headers.
 
 export function createShopHandlers(overrides) {
   const deps = Object.assign({
-    catalogue: SHOP_CATALOGUE, context: serviceContext, getDoc, createDocIfAbsent, updateDoc,
+    catalogue: SHOP_CATALOGUE, context: serviceContext, getDoc, createDocIfAbsent, updateDoc, queryEqualsString,
+    qikinkFetch: (...a) => fetch(...a),
     fetchImpl: (...a) => fetch(...a),
     now: () => new Date(),
     randomBytes: (n) => crypto.getRandomValues(new Uint8Array(n)),
   }, overrides || {});
+
+  const fulfil = createFulfilment({
+    getDoc: (...a) => deps.getDoc(...a), updateDoc: (...a) => deps.updateDoc(...a), queryEqualsString: (...a) => deps.queryEqualsString(...a),
+    fetchImpl: (...a) => deps.qikinkFetch(...a), now: () => deps.now(), catalogue: deps.catalogue,
+  });
 
   async function loadMethods(env, ctx) {
     let cfg;
@@ -99,6 +107,8 @@ export function createShopHandlers(overrides) {
     await deps.updateDoc(env, ctx.accessToken, ctx.projectId, `shopOrders/${id}`, {
       status: 'paid', paidAt: at, updatedAt: at, paymentProvider: 'cashfree', cashfreeStatus: 'PAID', fulfilmentState: 'queued',
     });
+    /* Never throws; when Qikink is off or fails the order simply stays queued for the hourly retry. */
+    await fulfil.fulfilOrder(env, ctx, id, { ...order, status: 'paid', fulfilmentState: 'queued' });
     return { state: 'paid' };
   }
 
@@ -244,7 +254,14 @@ export function createShopHandlers(overrides) {
     return Response.json({ ok: true, state: result.state });
   }
 
-  return { handleShopCatalogue, handleShopQuote, handleShopOrder, handleShopStatus, handleShopWebhook };
+  /* Hourly cron entry (worker.js): retry queued paid orders. No-op without the service account. */
+  async function runShopFulfilmentCron(env) {
+    const ctx = await deps.context(env);
+    if (ctx.error) return { skipped: 'backend_unavailable' };
+    return fulfil.runFulfilmentCron(env, ctx);
+  }
+
+  return { handleShopCatalogue, handleShopQuote, handleShopOrder, handleShopStatus, handleShopWebhook, runShopFulfilmentCron };
 }
 
 const defaults = createShopHandlers();
@@ -253,3 +270,4 @@ export const handleShopQuote = defaults.handleShopQuote;
 export const handleShopOrder = defaults.handleShopOrder;
 export const handleShopStatus = defaults.handleShopStatus;
 export const handleShopWebhook = defaults.handleShopWebhook;
+export const runShopFulfilmentCron = defaults.runShopFulfilmentCron;

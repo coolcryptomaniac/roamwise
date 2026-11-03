@@ -25,7 +25,7 @@ function setup({open = true, url = 'https://www.roamwise.co.in/shop/', routes = 
 const tick = () => new Promise((r) => setTimeout(r, 20));
 function fill(d) {
   const set = (id, v) => { d.getElementById(id).value = v; };
-  set('buy-name', 'Asha Rawat'); set('buy-phone', '9876543210'); set('buy-line1', '12 Mall Road'); set('buy-city', 'Almora'); set('buy-state', 'Uttarakhand'); set('buy-pin', '263601');
+  set('buy-name', 'Asha Rawat'); set('buy-phone', '9876543210'); set('buy-email', 'asha@example.com'); set('buy-line1', '12 Mall Road'); set('buy-city', 'Almora'); set('buy-state', 'Uttarakhand'); set('buy-pin', '263601');
 }
 
 test('order form stays hidden while checkout is closed; WhatsApp ordering remains', async () => {
