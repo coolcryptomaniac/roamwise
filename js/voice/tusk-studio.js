@@ -11,10 +11,17 @@
     panel=document.createElement('section');
     panel.className='rw-orb-shell';panel.id='rwTuskStudio';panel.hidden=true;
     panel.setAttribute('role','dialog');panel.setAttribute('aria-label','Ailon Tusk voice conversation');
-    panel.innerHTML='<div class="rw-orb-layout"><header class="rw-orb-head"><strong>☁️ ✦ Ailon Tusk</strong><span>RoamWise · Shinobi voice</span><button type="button" class="rw-orb-close" aria-label="Close voice conversation">✕</button></header><div class="rw-orb-stage" data-phase="idle"><div class="rw-orb-glow"><div class="rw-orb-stars" aria-hidden="true"></div><div class="rw-orb-route" aria-hidden="true"></div><div class="rw-orb-core" aria-hidden="true"><span class="rw-orb-emblem" aria-hidden="true">☁</span><span class="rw-orb-brand">RW</span><span class="rw-orb-mountain" aria-hidden="true">⌁ ⛰ ⌁</span></div><div class="rw-orb-ring" aria-hidden="true"></div><div class="rw-orb-nodes" aria-hidden="true"><i></i><i></i><i></i><i></i></div></div><p class="rw-orb-phase" role="status" aria-live="polite">Ready to listen</p></div><p class="rw-orb-transcript"></p><section class="rw-orb-conversation" aria-label="Voice conversation" role="log" aria-live="polite" aria-relevant="additions"></section><div class="rw-orb-reply" aria-label="Tusk answer"></div><details class="rw-orb-full-answer"><summary>📖 Full travel answer · tap to collapse</summary><div class="rw-orb-full-content"></div></details><section class="rw-orb-cards" aria-label="Travel results"></section><div class="rw-orb-controls"><button type="button" data-action="listen">🎙️ Speak</button><button type="button" data-action="interrupt">⏹ Stop</button><button type="button" data-action="read">🔊 Read again</button><button type="button" data-action="language">🌐 Voice language</button><button type="button" data-action="style">🎭 Friendly voice</button><button type="button" data-action="actor" aria-label="Select installed Indian voice actor">🎧 Voice actor</button><button type="button" data-action="provider">⚙️ Voice provider</button></div><section class="rw-orb-picker" hidden aria-label="Voice preferences"><header><strong class="rw-orb-picker-title">Voice options</strong><button type="button" data-action="dismiss-picker" aria-label="Close voice options">✕</button></header><p class="rw-orb-picker-note"></p><div class="rw-orb-picker-options" role="group" aria-label="Available choices"></div></section><p class="rw-orb-hint">Talk in Hindi, English or Hinglish. Responses depend on available device voices. Stop at any time. No always-on microphone.</p></div>';
+    panel.innerHTML='<div class="rw-orb-layout"><header class="rw-orb-head"><strong>☁️ ✦ Ailon Tusk</strong><span>RoamWise · Shinobi voice</span><button type="button" class="rw-orb-close" aria-label="Close voice conversation">✕</button></header><div class="rw-orb-stage" data-phase="idle"><div class="rw-orb-glow"><div class="rw-orb-stars" aria-hidden="true"></div><div class="rw-orb-route" aria-hidden="true"></div><div class="rw-orb-core" aria-hidden="true"><span class="rw-orb-emblem" aria-hidden="true">☁</span><span class="rw-orb-brand">RW</span><span class="rw-orb-mountain" aria-hidden="true">⌁ ⛰ ⌁</span></div><div class="rw-orb-ring" aria-hidden="true"></div><div class="rw-orb-nodes" aria-hidden="true"><i></i><i></i><i></i><i></i></div></div><p class="rw-orb-phase" role="status" aria-live="polite">Ready to listen</p></div><p class="rw-orb-transcript"></p><section class="rw-orb-conversation" aria-label="Voice conversation" role="log" aria-live="polite" aria-relevant="additions"></section><div class="rw-orb-reply" aria-label="Tusk answer"></div><details class="rw-orb-full-answer"><summary>📖 Full travel answer · tap to collapse</summary><div class="rw-orb-full-content"></div></details><section class="rw-orb-cards" aria-label="Travel results"></section><div class="rw-orb-controls"><button type="button" data-action="listen">🎙️ Speak</button><button type="button" data-action="realtime" hidden>⚡ Realtime beta</button><button type="button" data-action="interrupt">⏹ Stop</button><button type="button" data-action="read">🔊 Read again</button><button type="button" data-action="language">🌐 Voice language</button><button type="button" data-action="style">🎭 Friendly voice</button><button type="button" data-action="actor" aria-label="Select installed Indian voice actor">🎧 Voice actor</button><button type="button" data-action="provider">⚙️ Voice provider</button></div><section class="rw-orb-picker" hidden aria-label="Voice preferences"><header><strong class="rw-orb-picker-title">Voice options</strong><button type="button" data-action="dismiss-picker" aria-label="Close voice options">✕</button></header><p class="rw-orb-picker-note"></p><div class="rw-orb-picker-options" role="group" aria-label="Available choices"></div></section><p class="rw-orb-hint">Talk in Hindi, English or Hinglish. Responses depend on available device voices. Stop at any time. No always-on microphone.</p></div>';
     document.body.appendChild(panel);
     stage=panel.querySelector('.rw-orb-stage');body=panel.querySelector('.rw-orb-transcript');subtitle=panel.querySelector('.rw-orb-phase');reply=panel.querySelector('.rw-orb-reply');details=panel.querySelector('.rw-orb-full-content');cards=panel.querySelector('.rw-orb-cards');conversation=panel.querySelector('.rw-orb-conversation');
     panel.querySelector('.rw-orb-close').onclick=stop;
+    var realtimeButton=panel.querySelector('[data-action="realtime"]');
+    if(realtimeButton){realtimeButton.hidden=!realtimeAvailable();realtimeButton.onclick=function(){
+      if(state.realtime){realtimeStop();setPhase('ready','Realtime stopped · tap Speak for standard voice');return;}
+      if(typeof rwVoiceStop==='function')rwVoiceStop();
+      if(typeof tuskStopSpeech==='function')tuskStopSpeech();
+      realtimeStart().then(function(ok){if(ok)realtimeButton.textContent='⏹ End realtime';});
+    };}
     panel.querySelector('[data-action="dismiss-picker"]').onclick=closeVoicePicker;
     panel.addEventListener('keydown',function(e){if(e.key==='Escape')stop();});
     panel.querySelector('[data-action="interrupt"]').onclick=stop;
@@ -141,6 +148,7 @@
   }
   function listen(manual){
     if(!state.active && !manual)return;
+    if(state.realtime)return;
     if(typeof _rwVoiceActive!=='undefined' && _rwVoiceActive)return;
     if(!ensure())return;
     state.active=true;state.answerPending=false;state.interim='';
@@ -158,6 +166,7 @@
   }
   function stop(){
     closeVoicePicker();state.active=false;state.answerPending=false;state.session++;
+    realtimeStop();
     if(typeof rwVoiceStop==='function')rwVoiceStop();
     if(typeof tuskStopSpeech==='function')tuskStopSpeech();
     if(panel)panel.hidden=true;
@@ -323,7 +332,72 @@
     return true;
   }
   function speechStarted(){if(state.active)setPhase('speaking','Speaking · सुनिए · tap Stop to interrupt');}
+  /* Opt-in realtime pilot: use native WebRTC only with an explicitly configured
+     short-lived session endpoint. No secret or provider API key in the browser.
+     Existing browser speech recognition remains the default fallback. */
+  function realtimeAvailable(){
+    return !!(root && root.isSecureContext && root.RW_CONFIG &&
+      /^https:\/\//.test(String(root.RW_CONFIG.realtimeVoiceSessionUrl||'')) &&
+      root.navigator && root.navigator.mediaDevices && root.navigator.mediaDevices.getUserMedia &&
+      root.RTCPeerConnection);
+  }
+  function realtimeStart(){
+    if(!state.active || !realtimeAvailable())return Promise.resolve(false);
+    if(state.realtime)return Promise.resolve(true);
+    var url=String(root.RW_CONFIG.realtimeVoiceSessionUrl);
+    var token=state.session;
+    var pc=null,stream=null;
+    setPhase('thinking','Connecting realtime voice…');
+    return root.navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true}})
+      .then(function(mic){
+        stream=mic;
+        if(!state.active||state.session!==token)throw Error('Session ended');
+        pc=new root.RTCPeerConnection();
+        mic.getTracks().forEach(function(track){pc.addTrack(track,mic);});
+        var speaker=document.createElement('audio');speaker.autoplay=true;speaker.setAttribute('playsinline','');
+        pc.ontrack=function(event){speaker.srcObject=event.streams[0];};
+        var events=pc.createDataChannel('oai-events');
+        events.onmessage=function(event){
+          if(!state.active||state.session!==token)return;
+          var msg;try{msg=JSON.parse(event.data);}catch(e){return;}
+          if(msg.type==='input_audio_buffer.speech_started')setPhase('listening','Listening · बोलिए');
+          if(msg.type==='response.audio.delta'||msg.type==='response.output_audio.delta')setPhase('speaking','Tusk is speaking · interrupt any time');
+          if(msg.type==='conversation.item.input_audio_transcription.completed' && msg.transcript)addTurn('user',msg.transcript);
+          if((msg.type==='response.audio_transcript.done'||msg.type==='response.output_audio_transcript.done') && msg.transcript)addTurn('assistant',msg.transcript);
+          if(msg.type==='error')setPhase('error','Realtime provider error · switch to standard voice');
+        };
+        return pc.createOffer().then(function(offer){
+          return pc.setLocalDescription(offer).then(function(){
+            return root.fetch(url,{method:'POST',headers:{'Content-Type':'application/sdp'},body:offer.sdp,cache:'no-store'});
+          });
+        }).then(function(response){
+          if(!response.ok)throw Error('Realtime session '+response.status);
+          return response.text();
+        }).then(function(answer){
+          if(!state.active||state.session!==token)throw Error('Session ended');
+          return pc.setRemoteDescription({type:'answer',sdp:answer});
+        }).then(function(){
+          state.realtime={pc:pc,stream:stream,speaker:speaker,events:events};
+          setPhase('listening','Realtime voice connected · बोलिए');
+          return true;
+        });
+      }).catch(function(){
+        if(pc)try{pc.close();}catch(e){}
+        if(stream)stream.getTracks().forEach(function(track){track.stop();});
+        if(state.active&&state.session===token)setPhase('ready','Realtime unavailable · use standard Speak');
+        return false;
+      });
+  }
+  function realtimeStop(){
+    var live=state.realtime;state.realtime=null;
+    if(!live)return;
+    if(panel){var b=panel.querySelector('[data-action="realtime"]');if(b)b.textContent='⚡ Realtime beta';}
+    try{live.pc.close();}catch(e){}
+    try{live.stream.getTracks().forEach(function(track){track.stop();});}catch(e){}
+    try{live.speaker.pause();live.speaker.srcObject=null;}catch(e){}
+  }
   function speechEnd(){
+    if(state.realtime)return;
     if(!state.active || state.phase!=='speaking')return;
     if(state.turns>=state.limit){setPhase('ready','Conversation paused after 8 turns. Tap Speak to continue.');return;}
     // A new capture only follows an explicit opt-in start; permission/browser
@@ -335,7 +409,7 @@
     },180);
   }
   function speechFailure(){if(state.active)setPhase('ready','Voice unavailable. Read above, then tap Speak.');}
-  var api={start:start,stop:stop,listen:listen,transcript:transcript,partialTranscript:partialTranscript,answer:answer,resultModel:resultModel,renderProviderFallback:renderProviderFallback,spokenStyle:spokenStyle,openVoicePicker:openVoicePicker,renderVoicePicker:renderVoicePicker,speechStarted:speechStarted,speechEnd:speechEnd,speechFailure:speechFailure,state:state};
+  var api={start:start,stop:stop,realtimeAvailable:realtimeAvailable,realtimeStart:realtimeStart,realtimeStop:realtimeStop,listen:listen,transcript:transcript,partialTranscript:partialTranscript,answer:answer,resultModel:resultModel,renderProviderFallback:renderProviderFallback,spokenStyle:spokenStyle,openVoicePicker:openVoicePicker,renderVoicePicker:renderVoicePicker,speechStarted:speechStarted,speechEnd:speechEnd,speechFailure:speechFailure,state:state};
   if(typeof module!=='undefined'&&module.exports)module.exports=api;
   if(root)root.RWTuskVoiceStudio=api;
 })(typeof window!=='undefined'?window:null);

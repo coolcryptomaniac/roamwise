@@ -53,3 +53,57 @@ Remaining inputs: approved product SKU/variants and full prices, supplier accoun
 
 ## Three-provider configuration
 `RWShopProviders` in `shop/catalog.js` lists Qikink, Printrove and Printify, all `not_connected`. Customers can express an optional preference for POD items (including the tote); travel-goods enquiries do not offer print providers. This is a catalogue/enquiry configuration, not an API integration or promise that every concept exists at every provider. See `PROVIDERS-AND-CURATION.md` for the dated comparison and travel-goods launch rules. Never substitute providers automatically after a customer's sample/specification is confirmed.
+
+## Merchandise checkout build — 3 November 2026 (separate payment PR; OFF by default)
+Built: `GET /shop/catalogue`, `POST /shop/quote`, `POST /shop/order`, `GET /shop/order/:id/status`, `POST /shop/cashfree/webhook` in `worker/handlers/shop-order.js`; server-side prices in `worker/lib/shop-catalogue.js`; order form in `shop/index.html` + `shop/checkout.js`; `shopOrders` Firestore rule (admin read, no client write). Orders are separate from Pro, Bhakti and stays: no entitlement or `users/{uid}` writes.
+
+How it behaves
+- The browser sends item/variant/quantity only. The Worker prices every order in paise and stores the order before payment starts.
+- Delivery is quoted after the PIN. With no fee configured the quote is refused ("we will confirm delivery on WhatsApp"); a fee is never guessed.
+- Cashfree: order is marked `paid` only after a Cashfree lookup matches order id, amount and INR (status poll or signed webhook). Mismatches set `integrityFlag` and never pay.
+- Direct UPI (`roamwisepay@ybl`): exact amount and order id in the UPI link/QR. The order stays `awaiting_upi_payment` until an authorised person matches the bank record and sets `status` to `paid` in Firestore. Screenshots, UTR text and app returns are not proof. Customer-facing UPI intent links can be declined by some banking apps for non-merchant VPAs; test with real handsets before announcing.
+- Paid orders get `fulfilmentState: 'queued'`. Nothing is sent to Qikink automatically.
+
+Go-live checklist (nothing charges until step 4)
+1. Fill `shipping` in `worker/lib/shop-catalogue.js` from real Qikink/courier costs (`rules`, `defaultFeePaise`). Add products and variants (with `qikinkSku`) as they are approved.
+2. Deploy the Worker (GitHub Actions → "Deploy Worker (manual)"). Needs the existing `CASHFREE_APP_ID`, `CASHFREE_SECRET_KEY`, `FIREBASE_SERVICE_ACCOUNT_JSON`. Optional `SHOP_WEBHOOK_URL`. Register `/shop/cashfree/webhook` as the PAYMENT_SUCCESS webhook in the Cashfree dashboard.
+3. Sandbox test end to end: paid, failed, abandoned, duplicate webhook, UPI order. Verify a Cashfree sandbox order reaches `paid` and a refund path exists.
+4. Publish seller identity, dispatch and delivery estimate, cancellation/return/defect terms and a tax/invoice decision (see the checklist above), then create `config/shop` in Firestore: `{enabled:true, environment:'sandbox'|'live', cashfreeEnabled:true, upiEnabled:true}`. `environment` must match the Worker's `CASHFREE_ENV`. Setting `enabled:false` closes checkout instantly.
+5. Pilot with five paid orders as planned above.
+
+Still open: an admin screen for orders (until then use the Firebase console, collection `shopOrders`); Qikink order submission and tracking (needs the Qikink API documentation and credentials, which this repo has not verified); refunds; email/WhatsApp notification of new orders.
+
+## Qikink order submission — 3 November 2026 (follow-up PR, OFF by default)
+
+Paid orders are sent to Qikink by the Worker (`worker/lib/shop-fulfil.js`). Nothing is sent until ALL of these are true:
+
+1. Worker secrets `QIKINK_CLIENT_ID` and `QIKINK_CLIENT_SECRET` exist (never in public JS, chat or the repo). `QIKINK_ENV` is `sandbox` (default) or `live`; the secret must belong to that environment (Qikink's secret differs between Sandbox and Live).
+2. `config/shop.qikinkEnabled === true` and `config/shop.qikinkEnvironment` equals `QIKINK_ENV`.
+3. The product variant in `worker/lib/shop-catalogue.js` has its **My Products SKU** in `qikinkSku` (Qikink dashboard -> My Products). Without it the paid order simply waits in `queued`.
+4. A sandbox-paid order is never sent to live Qikink (it is parked as `needs_attention`).
+
+How it behaves
+- Order number sent to Qikink: `rws_` + the 10-character order id, lower-case (14 characters, unique, a-z0-9_ only).
+- Payload: `search_from_my_products: 1`, `gateway: "Prepaid"`, `qikink_shipping: 1`, the server-side total, buyer address (address1 trimmed to 90 characters with overflow into address2, province from the official state list). Email is now required at checkout because Qikink requires it.
+- Qikink issues a new token on every token call, so the token is cached in `shopSecrets/qikinkToken_<env>` (server-only, no client access) and refreshed at most once on a 401/403.
+- Network errors, 429 and 5xx stay `queued` and the hourly cron retries (up to 24 tries). A 400 validation rejection goes to `needs_attention` with Qikink's message in `fulfilmentNote`; it is never resent automatically.
+- A submission that is interrupted mid-flight is parked as `needs_attention` after 15 minutes. Check the Qikink dashboard for the order number before resubmitting by hand, because Qikink would reject a duplicate number.
+- Direct-UPI orders are not sent until a person who has reconciled the bank record sets `status: "paid"` and `fulfilmentState: "queued"` on the order in Firestore.
+
+fulfilmentState values: `not_started`, `queued`, `submitting`, `submitted`, `needs_attention`.
+
+Not built yet: tracking/AWB sync back to the buyer, an admin screen for `needs_attention` orders, refunds and cancelling a Qikink order. Qikink's order list is not available in Sandbox, so status sync can only be tested live.
+
+Go-live for fulfilment: test in Sandbox with a Sandbox secret and `QIKINK_ENV=sandbox`; confirm the order appears in the Qikink sandbox; then switch both secrets and `QIKINK_ENV` to live and set `qikinkEnvironment: "live"` together with Cashfree live.
+
+## Live products and Qikink SKUs (3 Nov 2026)
+Three products are in `worker/lib/shop-catalogue.js`, each using the **Store SKU** shown in Qikink -> My Products -> product variations (the field Qikink's docs call "SKU from the My Products page" for `search_from_my_products: 1`):
+
+| Product | Qikink product id | Price | Store SKU |
+|---|---|---|---|
+| Almora After Dark Oversized Hoodie (Black, S) | 65013066 | Rs 1,999 | `v-9R6l3yaFaVZW1scJMRQqubfWrwza9XuZ` |
+| RoamWise Red Mandala Headband | 65013400 | Rs 199 | `v-9R6l3yaFaVZW1scJMxcpubfWrwzY-Xua` |
+| RoamWise Red Mandala Large Tote Bag | 65013344 | Rs 799 | `v-9R6l3yaFaVZW1scJMhArubfWrwzY9HWb` |
+
+**Not yet proven:** the SKUs were copied from Qikink's dashboard but no order has been sent to Qikink Sandbox. On the first sandbox order, if Qikink answers `Invalid value for sku`, try the "Product SKU" column instead (`UOsHd-Bk-S`, `UAOPHdBnd-Wh-NA`, `UAOPLargeTb-Wh-NA`) and tell the team. The order lands in `needs_attention` with Qikink's message, never silently.
+Product images are Qikink's own mockups (`clientProducts/<Qikink product id / 2>/images/default.jpg`). Delivery fees are still unset, so quotes stay refused until `shipping.defaultFeePaise` or rules are configured.

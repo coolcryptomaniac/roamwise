@@ -1716,6 +1716,18 @@ service cloud.firestore {
     // signed-in user may create a booking request; only the owning partner
     // may move it along (status/note/confirmation), never touching who the
     // parties are.
+    // ---------- SHOP ORDERS (merchandise, Qikink print-on-demand) ----------
+    // Written ONLY by the Worker (service account, bypasses rules). Contains buyer name, phone
+    // and address, so it is admin-read-only and never client-writable.
+    match /shopOrders/{id} {
+      allow read: if isAdmin();
+      allow write: if false;
+    }
+    // Cached Qikink API token: Worker (service account) only. Never readable by any client.
+    match /shopSecrets/{id} {
+      allow read, write: if false;
+    }
+
     // Music store orders (downloads and film licences): buyer contact details, so admin-read-only and never client-writable.
     match /musicOrders/{id} {
       allow read: if isAdmin();
