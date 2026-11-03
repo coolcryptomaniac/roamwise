@@ -9,6 +9,7 @@
    free, and crucially uses NO KV writes.
    ========================================================================= */
 import { json } from '../lib/http.js';
+import { curatedAnswer } from '../lib/tusk-curated.js';
 import { verifyFirebaseIdToken } from '../lib/firebase-verify.js';
 import { getServiceAccountAccessToken, parseServiceAccount } from '../lib/service-account.js';
 import { getDoc } from '../lib/firestore-rest.js';
@@ -113,6 +114,15 @@ export async function handleAI(request, env){
     const body = await request.json();
     const policy = managedAIRequest(body, env);
     if(!policy.prompt) return json({ error: 'no prompt' }, 400);
+    // Verified, published knowledge is served without a generative model or
+    // managed-AI allowance; no live prices, bookings or status are implied.
+    if(body.knowledgeType && body.knowledgeId){
+      try{
+        const accessToken=await getServiceAccountAccessToken(env);
+        const curated=await curatedAnswer(env,accessToken,sa.project_id,body);
+        if(curated)return json(curated);
+      }catch(e){/* continue to normal model route */ }
+    }
     // Allowance comes from a short KV cache; Firestore is read only on a miss.
     let limit = await getCachedLimit(env, claims.uid);
     if(limit === null){
