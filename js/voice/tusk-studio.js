@@ -272,7 +272,12 @@
     // Preserve all answer text in the Studio. The voice reads a shorter excerpt,
     // but users must not have to close the Studio to see the full itinerary.
     var complete=String(div.textContent||'').replace(/\s+/g,' ').trim().slice(0,20000);
-    var speech=complete.slice(0,650);
+    // The copilot can produce a valid cached or deterministic answer even when
+    // its hosted provider fails. Strip the diagnostic note from narration and
+    // treat only a note-only response as an actual no-answer failure.
+    var diagnostic=/⚡ AI engines unreachable right now/i.test(complete);
+    var usable=diagnostic?complete.split(/⚡ AI engines unreachable right now/i)[0].trim():complete;
+    var speech=usable.slice(0,650);
     if(!complete){setPhase('ready','Answer is on screen · tap Speak to continue');return false;}
     if(details){
       details.replaceChildren();
@@ -287,7 +292,7 @@
       if(sections.length>24){var rest=document.createElement('p');rest.textContent=sections.slice(24).join(' ');details.appendChild(rest);}
     }
     reply.textContent='';
-    var providerBusy=/(?:AI engines unreachable|Too many requests|rate limit|service unavailable|managed.AI allowance is used|HTTP 429|AI provider unavailable)/i.test(complete);
+    var providerBusy=(diagnostic && usable.length<20) || (!diagnostic && /(?:AI engines unreachable|Too many requests|rate limit|service unavailable|managed.AI allowance is used|HTTP 429|AI provider unavailable)/i.test(complete));
     // The modal owns the visible answer in voice mode. Never overlay a giant
     // failure headline across the orb or duplicate it as spoken travel advice.
     if(providerBusy){
