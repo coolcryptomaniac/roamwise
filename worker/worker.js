@@ -35,10 +35,6 @@
      GET  /leads                partner lead finder        -> handlers/leads.js
      POST /cashfree/order              create a Cashfree order (secrets stay server-side) -> handlers/cashfree.js
      GET  /cashfree/order/:id/status   confirm order_status with Cashfree     -> handlers/cashfree.js
-     GET  /shop/catalogue              public merchandise catalogue (no prices accepted from clients) -> handlers/shop-order.js
-     POST /shop/quote | /shop/order    server-priced merchandise quote / order (Cashfree or direct UPI) -> handlers/shop-order.js
-     GET  /shop/order/:id/status       buyer status (order token); verifies Cashfree before marking paid
-     POST /shop/cashfree/webhook       signed Cashfree callback for shop orders
      POST /partner/cashfree/order      confirmed direct-stay checkout          -> handlers/partner-cashfree.js
      GET  /partner/cashfree/order/:bookingId/status  verify and persist paid stay -> handlers/partner-cashfree.js
      POST /push/send                   admin-only: send an FCM push to one user -> handlers/push.js
@@ -62,6 +58,7 @@ import { handleAI } from './handlers/ai.js';
 import { handleKala } from './handlers/kala.js';
 import { handleTuskReport, handleTuskReports } from './handlers/tusk-report.js';
 import { handleTuskLearnedGet, handleTuskLearnedPost, handleTuskLearnedDrop } from './handlers/tusk-learned.js';
+import { handleTuskCurated } from './handlers/tusk-curated.js';
 import { abuseGuard, aiGuard } from './lib/rate-limit.js';
 import { refreshNews, handleNews } from './handlers/news.js';
 import { refreshEvents, handleEvents, handleEventsRefresh } from './handlers/events.js';
@@ -86,17 +83,11 @@ import { handleTripNotify, runTripNotifications } from './handlers/trip-notify.j
 import { handleStayLead, purgeOldStayLeads } from './handlers/stay-lead.js';
 import { sendAdminDigest } from './handlers/bot-admin.js';
 import { handleAdvisoryAlerts, runAdvisoryAlerts } from './handlers/advisory-alerts.js';
-import { createShopHandlers } from './handlers/shop-order.js';
 
 // Only Cashfree PG calls use this diagnostic transport. The actual order,
 // identity and entitlement rules stay inside handlers/cashfree.js unchanged.
 const { handleCashfreeOrder, handleCashfreeOrderStatus, handleBhaktiAccess } = createCashfreeHandlers({
   request:cashfreeTransportFetch
-});
-
-// Merchandise checkout: Cashfree calls go through the same diagnostic transport; nothing else is shared.
-const { handleShopCatalogue, handleShopQuote, handleShopOrder, handleShopStatus, handleShopWebhook, runShopFulfilmentCron } = createShopHandlers({
-  fetchImpl: (url, options) => cashfreeTransportFetch(url, options)
 });
 
 /* ------------------------------------------------------------------ router */
@@ -113,8 +104,6 @@ export default {
     if(path === 'voice/sarvam/byok' && request.method === 'POST') return handleSarvamVoice(request);
     // Server-to-server endpoint; no public CORS or booking confirmation until atomic persistence is integrated.
     if(path === 'booking/cashfree/webhook') return handleBookingCashfreeWebhook(request, env);
-    // Signed server-to-server Cashfree callback for shop orders; never IP-throttled so a real payment is not dropped.
-    if(path === 'shop/cashfree/webhook') return handleShopWebhook(request, env);
 
     /* Flood / per-route limits and body-size cap (additive; see lib/rate-limit.js). */
     const refused = await abuseGuard(request, path);
@@ -130,6 +119,7 @@ export default {
 
     if(path === 'tusk/report' && request.method === 'POST') return handleTuskReport(request, env);
     if(path === 'tusk/reports' && request.method === 'GET') return handleTuskReports(request, env);
+    if(path === 'tusk/curated' && request.method === 'GET') return handleTuskCurated(request, env);
     if(path === 'tusk/learned' && request.method === 'GET') return handleTuskLearnedGet(request, env);
     if(path === 'tusk/learned' && request.method === 'POST') return handleTuskLearnedPost(request, env);
     if(path === 'tusk/learned/drop' && request.method === 'POST') return handleTuskLearnedDrop(request, env);
@@ -150,12 +140,6 @@ export default {
     const bhaktiStatus=path.match(/^bhakti\/order\/([^/]+)\/status$/);
     if(bhaktiStatus && request.method === 'GET')return handleCashfreeOrderStatus(request,env,bhaktiStatus[1],true);
     if(path === 'payment-events' && request.method === 'POST') return handlePaymentEvent(request, env);
-
-    if(path === 'shop/catalogue' && request.method === 'GET') return handleShopCatalogue(request, env);
-    if(path === 'shop/quote' && request.method === 'POST') return handleShopQuote(request, env);
-    if(path === 'shop/order' && request.method === 'POST') return handleShopOrder(request, env);
-    const shopStatus = path.match(/^shop\/order\/([^/]+)\/status$/);
-    if(shopStatus && request.method === 'GET') return handleShopStatus(request, env, shopStatus[1]);
 
     if(path === 'partner/cashfree/order' && request.method === 'POST') return handlePartnerCashfreeOrder(request, env);
 
@@ -199,8 +183,6 @@ export default {
       try{ if(env.FIREBASE_SERVICE_ACCOUNT_JSON) await runTripNotifications(env, { mode: 'ack' }); }catch(e){ /* best-effort */ }
       /* New closures / crowds / events reach guests, followers and partners within the hour. Switches default OFF. */
       try{ if(env.FIREBASE_SERVICE_ACCOUNT_JSON) await runAdvisoryAlerts(env, {}); }catch(e){ /* best-effort */ }
-      /* Paid shop orders not yet at Qikink (it was off or briefly down). No-op unless config/shop.qikinkEnabled. */
-      try{ if(env.FIREBASE_SERVICE_ACCOUNT_JSON) await runShopFulfilmentCron(env); }catch(e){ /* retried next hour */ }
       return;
     }
     try{
