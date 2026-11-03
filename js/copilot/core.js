@@ -934,6 +934,15 @@ function copilotSend(fromHero){
         var answer = (txt||'').trim();
         if(!answer){
           var kb2 = cpSmartAnswer(t) || '', _old = (kb2||!_ck) ? null : rwAnsStale(_ck); if(_old) kb2 = _old;
+          // Useful no-provider response for a resolved destination. This is
+          // static guidance, NOT a live price, availability or road report.
+          if(!kb2 && intents && intents.dest){
+            var safeDest=esc2(String(intents.dest).slice(0,90));
+            kb2='<b>Explore '+safeDest+' with RoamWise</b><br>'
+              +'I can help plan a route, a day-wise itinerary, local experiences and a stay enquiry without a hosted AI model.'
+              +'<br>Tell me your travel dates, starting city, number of travellers and budget to refine the plan.'
+              +'<br>Check live weather, road conditions, prices and availability with the relevant provider before booking.';
+          }
           var note = (typeof rwAiDownNote==='function') ? rwAiDownNote(err, !!_old) : '<span class="rw-note">\u26a1 AI engines unreachable right now \u2014 answered by Ailon Tusk\u2019s own engine.</span>';
           if(intents.dest) rwLearn(intents.dest);
           cpFinish(thinking, (kb2? kb2+'<br>':'')+note, intents, t);
