@@ -53,3 +53,22 @@ Remaining inputs: approved product SKU/variants and full prices, supplier accoun
 
 ## Three-provider configuration
 `RWShopProviders` in `shop/catalog.js` lists Qikink, Printrove and Printify, all `not_connected`. Customers can express an optional preference for POD items (including the tote); travel-goods enquiries do not offer print providers. This is a catalogue/enquiry configuration, not an API integration or promise that every concept exists at every provider. See `PROVIDERS-AND-CURATION.md` for the dated comparison and travel-goods launch rules. Never substitute providers automatically after a customer's sample/specification is confirmed.
+
+## Merchandise checkout build — 3 November 2026 (separate payment PR; OFF by default)
+Built: `GET /shop/catalogue`, `POST /shop/quote`, `POST /shop/order`, `GET /shop/order/:id/status`, `POST /shop/cashfree/webhook` in `worker/handlers/shop-order.js`; server-side prices in `worker/lib/shop-catalogue.js`; order form in `shop/index.html` + `shop/checkout.js`; `shopOrders` Firestore rule (admin read, no client write). Orders are separate from Pro, Bhakti and stays: no entitlement or `users/{uid}` writes.
+
+How it behaves
+- The browser sends item/variant/quantity only. The Worker prices every order in paise and stores the order before payment starts.
+- Delivery is quoted after the PIN. With no fee configured the quote is refused ("we will confirm delivery on WhatsApp"); a fee is never guessed.
+- Cashfree: order is marked `paid` only after a Cashfree lookup matches order id, amount and INR (status poll or signed webhook). Mismatches set `integrityFlag` and never pay.
+- Direct UPI (`roamwisepay@ybl`): exact amount and order id in the UPI link/QR. The order stays `awaiting_upi_payment` until an authorised person matches the bank record and sets `status` to `paid` in Firestore. Screenshots, UTR text and app returns are not proof. Customer-facing UPI intent links can be declined by some banking apps for non-merchant VPAs; test with real handsets before announcing.
+- Paid orders get `fulfilmentState: 'queued'`. Nothing is sent to Qikink automatically.
+
+Go-live checklist (nothing charges until step 4)
+1. Fill `shipping` in `worker/lib/shop-catalogue.js` from real Qikink/courier costs (`rules`, `defaultFeePaise`). Add products and variants (with `qikinkSku`) as they are approved.
+2. Deploy the Worker (GitHub Actions → "Deploy Worker (manual)"). Needs the existing `CASHFREE_APP_ID`, `CASHFREE_SECRET_KEY`, `FIREBASE_SERVICE_ACCOUNT_JSON`. Optional `SHOP_WEBHOOK_URL`. Register `/shop/cashfree/webhook` as the PAYMENT_SUCCESS webhook in the Cashfree dashboard.
+3. Sandbox test end to end: paid, failed, abandoned, duplicate webhook, UPI order. Verify a Cashfree sandbox order reaches `paid` and a refund path exists.
+4. Publish seller identity, dispatch and delivery estimate, cancellation/return/defect terms and a tax/invoice decision (see the checklist above), then create `config/shop` in Firestore: `{enabled:true, environment:'sandbox'|'live', cashfreeEnabled:true, upiEnabled:true}`. `environment` must match the Worker's `CASHFREE_ENV`. Setting `enabled:false` closes checkout instantly.
+5. Pilot with five paid orders as planned above.
+
+Still open: an admin screen for orders (until then use the Firebase console, collection `shopOrders`); Qikink order submission and tracking (needs the Qikink API documentation and credentials, which this repo has not verified); refunds; email/WhatsApp notification of new orders.

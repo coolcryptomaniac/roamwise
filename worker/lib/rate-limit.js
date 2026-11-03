@@ -45,6 +45,8 @@ export const ROUTE_LIMITS = {
   'bhakti/order':            ['bhakti-order', 600, 600, 10],
   'partner/cashfree/order':  ['pcf-order', 600, 600, 10],
   'payment-events':          ['pay-ev', 2000, 600, 120],
+  'shop-order':              ['shop-order', 300, 600, 0],
+  'shop-quote':              ['shop-quote', 600, 600, 0],
   'leads':                   ['leads', 12, 600, 0],
   'status':                  ['cf-status', 2000, 600, 120],
   'ai-anon':                 ['ai-anon', 200, 60, 0],
@@ -53,6 +55,9 @@ export const ROUTE_LIMITS = {
 
 export function routeKey(path, method){
   if(method === 'POST' && (path === 'cashfree/order' || path === 'bhakti/order' || path === 'partner/cashfree/order' || path === 'payment-events')) return path;
+  if(method === 'POST' && path === 'shop/order') return 'shop-order';
+  if(method === 'POST' && path === 'shop/quote') return 'shop-quote';
+  if(method === 'GET' && /^shop\/order\/[^/]+\/status$/.test(path)) return 'status';
   if(method === 'GET' && (path === 'bhakti/access' || /^bhakti\/order\/[^/]+\/status$/.test(path)))return 'status';
   if(path === 'leads') return 'leads';
   if(method === 'GET' && /^(partner\/)?cashfree\/order\/[^/]+\/status$/.test(path)) return 'status';
