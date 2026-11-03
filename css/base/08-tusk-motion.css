@@ -308,3 +308,10 @@
 .rw-orb-turn p{margin:0;font-size:14px;line-height:1.55;color:#f7f1ff;white-space:pre-wrap}
 .rw-orb-full-answer:not([open]){max-height:50px;overflow:hidden}
 @media(max-width:480px){.rw-orb-conversation{max-height:29dvh}.rw-orb-turn{max-width:95%;padding:10px 12px}.rw-orb-turn p{font-size:13px}}
+
+/* Keep the listening/status caption below the animated orb, not over its centre.
+   Reserve space in the flow so Android small screens never overlap transcript. */
+.rw-orb-stage{margin-bottom:20px!important}
+.rw-orb-phase{position:absolute!important;top:100%;bottom:auto!important;left:0;right:0;min-height:20px;max-width:100%;padding:2px 4px;box-sizing:border-box}
+.rw-orb-transcript{position:relative;z-index:1;margin-top:2px;min-height:0}
+@media(max-width:480px){.rw-orb-stage{margin-bottom:28px!important}.rw-orb-phase{font-size:12px;line-height:1.35}}
