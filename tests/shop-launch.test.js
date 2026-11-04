@@ -14,12 +14,12 @@ function setup() {
   return dom;
 }
 test('catalogue IDs are unique and there are no purchase claims', () => {
-  assert.equal(new Set(catalog.map(p=>p.id)).size,12);
-  for(const p of catalog) { assert.ok(['wear','travel','style'].includes(p.category)); assert.equal(p.price,undefined); }
+  assert.equal(new Set(catalog.map(p=>p.id)).size,20);
+  for(const p of catalog) { assert.ok(['wear','travel','style','rave'].includes(p.category)); assert.equal(p.price,undefined); }
 });
 test('filters and enquiry correctly change between clothing and accessories', () => {
   const dom=setup(), d=dom.window.document;
-  assert.equal(d.querySelectorAll('.product').length,12);
+  assert.equal(d.querySelectorAll('.product').length,20);
   d.querySelector('[data-filter="wear"]').click();
   assert.equal(d.querySelectorAll('.product').length,3);
   d.querySelector('.product button').click();
@@ -69,20 +69,25 @@ test('clipboard failure leaves a selectable manual fallback', async () => {
   assert.match(d.querySelector('#message-status').textContent,/Select and copy/);
   dom.window.close();
 });
-test('all three POD preferences are available and excluded from non-POD enquiries', () => {
+test('customers only see RoamWise branding, not supplier controls', () => {
   const dom=setup(), d=dom.window.document;
-  assert.deepEqual(Array.from(d.querySelector('#provider').options, o=>o.value), ['auto','qikink','printrove','printify']);
-  assert.equal(d.querySelectorAll('#provider-options article').length,3);
+  assert.equal(d.querySelector('#provider'), null);
+  assert.equal(d.querySelector('#provider-options'), null);
+  assert.equal(d.querySelector('#providers'), null);
   d.querySelector('.product button').click();
-  d.querySelector('#provider').value='printrove';
   d.querySelector('#request-form').requestSubmit();
-  assert.match(d.querySelector('#message').value,/Print provider preference: Printrove/);
-  d.querySelector('[data-filter="travel"]').click();
-  d.querySelectorAll('.product button')[1].click();
-  assert.equal(d.querySelector('#provider-field').hidden,true);
-  assert.equal(d.querySelector('#provider').disabled,true);
+  assert.doesNotMatch(d.querySelector('#message').value,/Qikink|Printrove|Printify|Print provider preference/);
+  dom.window.close();
+});
+test('Rave Series contains eight enquiry-only visual concepts', () => {
+  const dom=setup(), d=dom.window.document;
+  d.querySelector('[data-filter="rave"]').click();
+  assert.equal(d.querySelectorAll('.product').length,8);
+  assert.equal(d.querySelectorAll('.visual-rave .merch-shape').length,8);
+  d.querySelector('.product button').click();
   d.querySelector('#request-form').requestSubmit();
-  assert.doesNotMatch(d.querySelector('#message').value,/Printrove|Print provider preference/);
+  assert.match(d.querySelector('#message').value,/rave-shadow/);
+  assert.match(d.querySelector('#message').value,/enquiry only/);
   dom.window.close();
 });
 
@@ -92,7 +97,7 @@ test('photo-friendly finds filter shows three enquiry-only style concepts', () =
   assert.equal(d.querySelectorAll('.product').length,3);
   assert.match(d.querySelector('#products').textContent,/buransh bag charm/);
   d.querySelector('.product button').click();
-  assert.equal(d.querySelector('#provider').disabled,true);
+  assert.equal(d.querySelector('#size').disabled,true);
   d.querySelector('#request-form').requestSubmit();
   assert.match(d.querySelector('#message').value,/pahad-bag-charm/);
   assert.match(d.querySelector('#message').value,/not an order/);
