@@ -9,6 +9,7 @@
    free, and crucially uses NO KV writes.
    ========================================================================= */
 import { json } from '../lib/http.js';
+import { curatedAnswer } from '../lib/tusk-curated.js';
 import { verifyFirebaseIdToken } from '../lib/firebase-verify.js';
 import { getServiceAccountAccessToken, parseServiceAccount } from '../lib/service-account.js';
 import { getDoc } from '../lib/firestore-rest.js';
@@ -98,7 +99,6 @@ export async function handleAI(request, env){
     if(String(env.MANAGED_AI_ENABLED || '').toLowerCase() !== 'true'){
       return json({ error:'managed_ai_disabled', message:'Ailon Tusk Automatic is temporarily using its on-device planner.' }, 503);
     }
-    if(!env.AI&&!env.GROQ_API_KEY&&!env.SARVAM_API_KEY)return json({error:'ai_not_configured',message:'Managed AI has no server route configured.'},501);
     let sa;
     try{ sa = parseServiceAccount(env); }
     catch(e){ return json({ error:'meter_not_configured', message:'Managed AI is unavailable until secure account metering is configured.' }, 501); }
@@ -113,6 +113,16 @@ export async function handleAI(request, env){
     const body = await request.json();
     const policy = managedAIRequest(body, env);
     if(!policy.prompt) return json({ error: 'no prompt' }, 400);
+    // Verified, published knowledge is served without a generative model or
+    // managed-AI allowance; no live prices, bookings or status are implied.
+    if(body.knowledgeType && body.knowledgeId){
+      try{
+        const accessToken=await getServiceAccountAccessToken(env);
+        const curated=await curatedAnswer(env,accessToken,sa.project_id,body);
+        if(curated)return json(curated);
+      }catch(e){/* continue to normal model route */ }
+    }
+    if(!env.AI&&!env.GROQ_API_KEY&&!env.SARVAM_API_KEY)return json({error:'ai_not_configured',message:'Managed AI has no server route configured.'},501);
     // Allowance comes from a short KV cache; Firestore is read only on a miss.
     let limit = await getCachedLimit(env, claims.uid);
     if(limit === null){
