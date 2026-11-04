@@ -9,6 +9,17 @@
     products.forEach(p => {
       const card = document.createElement('article');
       card.className = 'product';
+      if (p.live) {
+        card.classList.add('live');
+        const img = document.createElement('img'); img.src = p.image; img.alt = p.alt; img.loading = 'lazy'; img.width = 360; img.style.cssText = 'max-width:100%;height:auto;border-radius:12px';
+        const ltype = document.createElement('p'); ltype.className = 'eyebrow'; ltype.textContent = p.type;
+        const ltitle = document.createElement('h3'); ltitle.textContent = p.name;
+        const ldesc = document.createElement('p'); ldesc.textContent = p.description;
+        const lprice = document.createElement('p'); const pb = document.createElement('strong'); pb.textContent = p.price + ' · Available now'; lprice.append(pb);
+        const link = document.createElement('a'); link.className = 'button'; link.href = p.href; link.textContent = 'View and order →';
+        card.append(img, ltype, ltitle, ldesc, lprice, link); grid.append(card);
+        return;
+      }
       const art = document.createElement('div');
       art.className = 'concept ' + p.tone;
       if (p.visual) art.classList.add('visual-' + p.visual);
@@ -36,7 +47,8 @@
       });
       card.append(art, type, title, description, status, button); grid.append(card);
     });
-    document.getElementById('count').textContent = products.length + ' concepts · Enquiries open';
+    const nLive = products.filter(p => p.live).length;
+    document.getElementById('count').textContent = (nLive ? nLive + ' available now · ' : '') + (products.length - nLive) + ' concepts · Enquiries open';
   }
   document.querySelectorAll('[data-filter]').forEach(button => button.addEventListener('click', () => {
     document.querySelectorAll('[data-filter]').forEach(b => b.setAttribute('aria-pressed', String(b === button)));

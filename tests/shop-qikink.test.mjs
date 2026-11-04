@@ -192,7 +192,7 @@ test('shipped catalogue: every product variant has a Qikink My Products SKU and 
   assert.deepEqual(SHOP_CATALOGUE.products.map((p) => [p.id, p.pricePaise]), [['almora-after-dark-hoodie', 199900], ['roamwise-mandala-headband', 19900], ['roamwise-mandala-tote', 79900]]);
   const seen = new Set();
   for (const p of SHOP_CATALOGUE.products) {
-    assert.match(p.image, /^https:\/\/qikink-assets\.s3\.ap-south-1\.amazonaws\.com\/clients\/665802\/clientProducts\/\d+\/images\/default\.jpg$/);
+    assert.match(p.image, /^https:\/\/roamwise\.co\.in\/shop\/img\/[a-z]+\.jpg$/);
     for (const v of p.variants) { assert.ok(v.qikinkSku && v.qikinkSku.length <= 50, p.id); assert.ok(!seen.has(v.qikinkSku)); seen.add(v.qikinkSku); }
   }
 });

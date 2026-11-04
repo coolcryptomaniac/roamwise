@@ -1,7 +1,10 @@
-/* Public concepts only. No supplier SKU, stock or purchase availability implied. */
+/* Concepts have no stock or purchase availability implied. Entries with live:true are on sale and link to their order section on the page. */
 (function(root) {
   'use strict';
   const products = [
+    {id:'almora-after-dark-hoodie',live:true,href:'#almora-after-dark',name:'Almora After Dark',type:'Oversized hoodie',category:'wear',image:'/shop/img/hoodie.jpg',alt:'Black Almora After Dark oversized hoodie',price:'₹1,999',description:'Our first RoamWise original, made on demand and confirmed with you before it ships.'},
+    {id:'roamwise-mandala-headband',live:true,href:'#roamwise-mandala-headband',name:'Red Mandala Headband',type:'All-over printed headband',category:'style',image:'/shop/img/headband.jpg',alt:'RoamWise Red Mandala headband',price:'₹199',description:'A red mandala print, made on demand. Easy to wear for travel photos and festival days.'},
+    {id:'roamwise-mandala-tote',live:true,href:'#roamwise-mandala-tote',name:'Red Mandala Large Tote',type:'Large tote bag',category:'travel',image:'/shop/img/tote.jpg',alt:'RoamWise Red Mandala large tote bag',price:'₹799',description:'A roomy carry-all in the red mandala print, made on demand.'},
     {id:'panchachuli-tee',fulfilment:'pod',name:'Five peaks. One home.',type:'Oversized tee',category:'wear',motif:'PANCHACHULI',tone:'violet',sizes:true,visual:'tee',description:'A quiet mountain-line graphic. Proposed heavyweight cotton, with fit and fabric awaiting sample approval.'},
     {id:'aipan-tee',fulfilment:'pod',name:'Aipan, in everyday life.',type:'RoamWise design tee',category:'wear',motif:'AIPAN / ऐपन',tone:'red',sizes:true,visual:'tee',description:'A red-and-white design direction inspired by Kumaon. Final artwork will be supplied and approved by RoamWise before printing.'},
     {id:'pahad-hoodie',fulfilment:'pod',name:'Take the hills with you.',type:'Mountain hoodie',category:'wear',motif:'PAHAD',tone:'gold',sizes:true,visual:'hoodie',description:'A layered mountain graphic for cool evenings. Fabric weight and warmth have not yet been tested; this is not technical winter gear.'},
