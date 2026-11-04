@@ -91,11 +91,11 @@ test('Rave Series contains eight enquiry-only visual concepts', () => {
   dom.window.close();
 });
 
-test('photo-friendly finds filter shows one live product and three enquiry-only style concepts', () => {
+test('photo-friendly finds filter shows two live products and two style concepts', () => {
   const dom=setup(),d=dom.window.document;
   d.querySelector('[data-filter="style"]').click();
   assert.equal(d.querySelectorAll('.product').length,4);
-  assert.equal(d.querySelectorAll('.product.live').length,1);
+  assert.equal(d.querySelectorAll('.product.live').length,2);
   assert.match(d.querySelector('#products').textContent,/buransh bag charm/);
   d.querySelector('.product button').click();
   assert.equal(d.querySelector('#size').disabled,true);
@@ -108,8 +108,8 @@ test('photo-friendly finds filter shows one live product and three enquiry-only 
 test('live products show as real cards with price and link to their order section; no supplier names visible', () => {
   const dom=setup(),d=dom.window.document;
   const live=[...d.querySelectorAll('.product.live')];
-  assert.equal(live.length,3);
-  assert.deepEqual(live.map(c=>c.querySelector('a').getAttribute('href')),['#almora-after-dark','#roamwise-mandala-headband','#roamwise-mandala-tote']);
+  assert.equal(live.length,4);
+  assert.deepEqual(live.map(c=>c.querySelector('a').getAttribute('href')),['#almora-after-dark','#roamwise-mandala-headband','#roamwise-mandala-tote','#aipan-scarf']);
   assert.match(live[0].textContent,/₹1,999 · Available now/);
   assert.equal(live[0].querySelector('button'),null);
   assert.doesNotMatch(d.documentElement.outerHTML,/qikink|printify|printrove/i);
