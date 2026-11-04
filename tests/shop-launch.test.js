@@ -14,14 +14,14 @@ function setup() {
   return dom;
 }
 test('catalogue IDs are unique and there are no purchase claims', () => {
-  assert.equal(new Set(catalog.map(p=>p.id)).size,20);
-  for(const p of catalog) { assert.ok(['wear','travel','style','rave'].includes(p.category)); assert.equal(p.price,undefined); }
+  assert.equal(new Set(catalog.map(p=>p.id)).size,23);
+  for(const p of catalog) { assert.ok(['wear','travel','style','rave'].includes(p.category)); if(p.live) assert.ok(p.price); else assert.equal(p.price,undefined); }
 });
 test('filters and enquiry correctly change between clothing and accessories', () => {
   const dom=setup(), d=dom.window.document;
-  assert.equal(d.querySelectorAll('.product').length,20);
+  assert.equal(d.querySelectorAll('.product').length,23);
   d.querySelector('[data-filter="wear"]').click();
-  assert.equal(d.querySelectorAll('.product').length,3);
+  assert.equal(d.querySelectorAll('.product').length,4);
   d.querySelector('.product button').click();
   assert.equal(d.querySelector('#size').disabled,false);
   d.querySelector('[name="quantity"]').value='2';
@@ -91,15 +91,27 @@ test('Rave Series contains eight enquiry-only visual concepts', () => {
   dom.window.close();
 });
 
-test('photo-friendly finds filter shows three enquiry-only style concepts', () => {
+test('photo-friendly finds filter shows one live product and three enquiry-only style concepts', () => {
   const dom=setup(),d=dom.window.document;
   d.querySelector('[data-filter="style"]').click();
-  assert.equal(d.querySelectorAll('.product').length,3);
+  assert.equal(d.querySelectorAll('.product').length,4);
+  assert.equal(d.querySelectorAll('.product.live').length,1);
   assert.match(d.querySelector('#products').textContent,/buransh bag charm/);
   d.querySelector('.product button').click();
   assert.equal(d.querySelector('#size').disabled,true);
   d.querySelector('#request-form').requestSubmit();
   assert.match(d.querySelector('#message').value,/pahad-bag-charm/);
   assert.match(d.querySelector('#message').value,/not an order/);
+  dom.window.close();
+});
+
+test('live products show as real cards with price and link to their order section; no supplier names visible', () => {
+  const dom=setup(),d=dom.window.document;
+  const live=[...d.querySelectorAll('.product.live')];
+  assert.equal(live.length,3);
+  assert.deepEqual(live.map(c=>c.querySelector('a').getAttribute('href')),['#almora-after-dark','#roamwise-mandala-headband','#roamwise-mandala-tote']);
+  assert.match(live[0].textContent,/₹1,999 · Available now/);
+  assert.equal(live[0].querySelector('button'),null);
+  assert.doesNotMatch(d.documentElement.outerHTML,/qikink|printify|printrove/i);
   dom.window.close();
 });
