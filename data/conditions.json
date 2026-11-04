@@ -1,6 +1,6 @@
 {
  "version": 1,
- "checked": "2026-11-03",
+ "checked": "2026-11-04",
  "regions": [
   {
    "id": "almora",
@@ -360,6 +360,24 @@
    "regions": []
   },
   {
+   "id": "auto-20261103-8-trekkers-still-stranded-in-uttarkashi-",
+   "kind": "crowd",
+   "official": false,
+   "auto": true,
+   "title": "8 trekkers still stranded in Uttarkashi over 5 days",
+   "detail": "Rediff reports this. Check with local police or the district administration before you travel.",
+   "from": "2026-11-03",
+   "until": "2026-11-06",
+   "source": "Rediff",
+   "sourceUrl": "https://news.google.com/rss/articles/CBMi0AFBVV95cUxQYS1VYWVlUXo0emVkRDdKdU5JS1RKMXc2NFpJRkRGTzNfMHJVV1pnUlllS1RhR0I5c1FpNFgtM2Z2XzgwY1ZWbU1vS09lWGhLb1FWcGpNWHZXZjlVVlpQZXVlbThHZ3FETmlJUVRYX2s1VGVteDJnZzNKMnhQRE9nOFUxUzNuSE5ka3hDWU9TSDB4MjF0anViSGktQzU4cWNYSjh5U2pVcnRGMnRfOVhfQmFBOFJOdEsxNG9JR0g2cUtJYlBxZzZBYTJ3U3lDMnpX0gHTAUFVX3lxTE9ibmFUNWc5YXRSUy1WNkFNZ0xrd0d0Zlhrb1VwclIyVHRRaUFJclRJN1lZSkRDZWFscDhEcG9WQ2xJMnBTdV9pWE9XRF9OODRoUFA4SVRSRW9xcElsQlhJaGtEZC1ydDFBMHdMMWluU3FFdHlfbTBXQVBUbGVZeG5TOHkxSVNZY0dkZE5LZmNfMDV0RWRpaWtJSjMzMHV1LUJzcEZ2WXJqRFlfWF82SE93NjdSbmg4bGVkWlg2SGlhUWxfWjlOYXc3X1ZpbTR5VE9qYzA?oc=5",
+   "match": [
+    "uttarkashi"
+   ],
+   "regions": [
+    "uttarkashi"
+   ]
+  },
+  {
    "id": "auto-20261102-char-dham-yatra-2026-check-closing-dates",
    "kind": "closure",
    "official": false,
@@ -416,24 +434,6 @@
    ],
    "regions": [
     "chamoli"
-   ]
-  },
-  {
-   "id": "auto-20261031-nature-s-bounty-fresh-snowfall-in-higher",
-   "kind": "snow",
-   "official": false,
-   "auto": true,
-   "title": "Nature's Bounty: Fresh Snowfall In Higher Himalayas, Clearing Skies Bring Stunning…",
-   "detail": "ETV Bharat reports this. Check with local police or the district administration before you travel.",
-   "from": "2026-10-31",
-   "until": "2026-11-03",
-   "source": "ETV Bharat",
-   "sourceUrl": "https://news.google.com/rss/articles/CBMipAFBVV95cUxOc2xJXzlxZ0dKb2p3ME9TS3p4MjgtVFFxbjFVd1VIY2M1ZVluWmxaTjNyYVQ2M1dxOHlSS0dyN1F5Ylg3dTVUXzRVRGRmTHZlOThpWEEzM0JnQjdhektULUMtUjhsci1nNldTeDVnQ3k5QV9HVnVYNlA1VHBSY08wNkEtbjM4RGdnZkxIRUZUZGF6ZXJzWFFmS0tqZmtqbXNJSnk4Q9IBqgFBVV95cUxNNlQ0Mm9vVmdJMHNKRU5OdkpNOHNwdC0wX3JyRGRsWWwwanFNTU9fX3VndmNvcFR1ZlNOcDlTSjJpRl85MkVfSzlmVjVRTVJUSE9GWktsUWJDQnRFdzZiOHBMSHhic2MtU1hfYV9FOVducE5fTlhXNDFqUENBeDVkZEZ6bm9JWVF0dmNuVi1aWEtWeDhMdjNuaTd6dW13WC0xT0dxbUdyX21pQQ?oc=5",
-   "match": [
-    "pauri"
-   ],
-   "regions": [
-    "pauri"
    ]
   }
  ]
