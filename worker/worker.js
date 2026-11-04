@@ -56,6 +56,7 @@
    ========================================================================= */
 
 import { CORS, json } from './lib/http.js';
+import { handleAgentMail } from './handlers/agentmail-outreach.js';
 import { handleHealth } from './handlers/health.js';
 import { handleSarvamVoice } from './handlers/sarvam-voice.js';
 import { handleAI } from './handlers/ai.js';
@@ -112,6 +113,7 @@ export default {
     // Isolated server-to-server routes: do not inherit the public API's CORS.
     const businessPath = new URL(request.url).pathname.match(/^\/v1\/business\/([^/]+)$/);
     if(businessPath) return handleBusiness(request, env, businessPath[1]);
+    if(new URL(request.url).pathname === '/admin/agentmail/outreach') return handleAgentMail(request, env);
     if(request.method === 'OPTIONS') return new Response(null, { headers: CORS });
     const url = new URL(request.url);
     const path = url.pathname.replace(/^\/+|\/+$/g, '');
