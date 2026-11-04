@@ -15,10 +15,16 @@ verify these two bindings exist in the **production Worker**:
   use an encrypted Secret or Worker variable. It must be an AgentMail inbox, not
   automatically `founder@roamwise.co.in` unless that address is actually configured there.
 
-Provider selection remains Gmail relay > AgentMail > Resend. If Gmail relay
-is configured, it continues to be used. AgentMail is selected only when both
-AgentMail bindings are present. To switch providers, adjust the production
-bindings deliberately, not during a blind deployment.
+Provider selection for existing automatic Worker notifications is **AgentMail > Gmail relay > Resend**.
+For explicitly manual sends (`sendMail(env, { ..., channel: 'manual' })`) it is **Gmail relay > AgentMail > Resend**.
+Both AgentMail bindings must exist before it can be selected. No automatic
+provider retry occurs after an HTTP/network failure, preventing duplicate sends.
+A missing provider configuration can fall back to the next configured provider.
+
+The Worker has no public manual-send endpoint. Manual email is still sent
+from Gmail directly or through trusted internal code with `channel: 'manual'`.
+This routing change is not a two-way AI email agent, inbox reader, or approval
+system; those require separate authenticated workflows and consent.
 
 ## Validate and deploy
 

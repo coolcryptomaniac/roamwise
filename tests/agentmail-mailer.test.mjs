@@ -7,8 +7,22 @@ test('AgentMail requires both secret and inbox id', () => {
   assert.equal(mailerKind({ AGENTMAIL_INBOX_ID: 'agent@example.com' }), null);
   assert.equal(mailerKind({ AGENTMAIL_API_KEY: 'secret', AGENTMAIL_INBOX_ID: 'agent@example.com' }), 'agentmail');
 });
-test('existing Gmail relay retains precedence', () => {
-  assert.equal(mailerKind({ GMAIL_RELAY_URL: 'https://relay.example', GMAIL_RELAY_SECRET: 'secret', AGENTMAIL_API_KEY: 'secret', AGENTMAIL_INBOX_ID: 'agent@example.com' }), 'gmail');
+test('AgentMail is primary for automated mail; Gmail for manual mail', () => {
+  const env = { GMAIL_RELAY_URL: 'https://relay.example', GMAIL_RELAY_SECRET: 'secret', AGENTMAIL_API_KEY: 'secret', AGENTMAIL_INBOX_ID: 'agent@example.com' };
+  assert.equal(mailerKind(env), 'agentmail');
+  assert.equal(mailerKind(env, { channel: 'manual' }), 'gmail');
+  assert.equal(mailerKind({ GMAIL_RELAY_URL: env.GMAIL_RELAY_URL, GMAIL_RELAY_SECRET: env.GMAIL_RELAY_SECRET }), 'gmail');
+  assert.equal(mailerKind({ AGENTMAIL_API_KEY: env.AGENTMAIL_API_KEY, AGENTMAIL_INBOX_ID: env.AGENTMAIL_INBOX_ID }, { channel: 'manual' }), 'agentmail');
+});
+test('manual mail sends through Gmail relay when both are configured', async () => {
+  const original = globalThis.fetch;
+  let url;
+  globalThis.fetch = async (u) => { url = u; return { json: async () => ({ ok: true }) }; };
+  try {
+    const env = { GMAIL_RELAY_URL: 'https://relay.example', GMAIL_RELAY_SECRET: 'secret', AGENTMAIL_API_KEY: 'key', AGENTMAIL_INBOX_ID: 'inbox' };
+    assert.deepEqual(await sendMail(env, { to: 'founder@roamwise.co.in', subject: 'Manual', text: 'Test', channel: 'manual' }), { ok: true });
+    assert.equal(url, 'https://relay.example');
+  } finally { globalThis.fetch = original; }
 });
 test('AgentMail sends through authenticated inbox without leaking secret', async () => {
   const original = globalThis.fetch;

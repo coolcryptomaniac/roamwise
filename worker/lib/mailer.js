@@ -1,23 +1,30 @@
 /* ============================================================================
    worker/lib/mailer.js — one place that sends email from the Worker.
    ============================================================================
-   Preferred: the founder's own Gmail, through a tiny Google Apps Script web app
-   (tools/gmail-relay/Code.gs). Free; Google enforces the daily limit.
-     secrets: GMAIL_RELAY_URL, GMAIL_RELAY_SECRET
-   Fallback: AgentMail if AGENTMAIL_API_KEY and AGENTMAIL_INBOX_ID are set;\n   then Resend if RESEND_API_KEY is set. Existing Gmail preference is preserved.
+   Automated messages prefer AgentMail; Gmail relay is the secondary
+   provider when AgentMail is not configured. Explicit manual sends prefer
+   Gmail. Existing callers remain automation by default.
+   No retry to a second provider after a send failure (avoids duplicate mail).
    Never throws. Returns { ok:true } or { ok:false, reason } where reason is
    'cap' (daily limit reached - try again tomorrow), 'not_configured' or 'error'. */
 const DEFAULT_FROM = 'RoamWise <hello@roamwise.co.in>';
 
-export function mailerKind(env) {
-  if (env && env.GMAIL_RELAY_URL && env.GMAIL_RELAY_SECRET) return 'gmail';
-  if (env && env.AGENTMAIL_API_KEY && env.AGENTMAIL_INBOX_ID) return 'agentmail';
+export function mailerKind(env, { channel = 'automation' } = {}) {
+  const gmail = !!(env && env.GMAIL_RELAY_URL && env.GMAIL_RELAY_SECRET);
+  const agentmail = !!(env && env.AGENTMAIL_API_KEY && env.AGENTMAIL_INBOX_ID);
+  if (channel === 'manual') {
+    if (gmail) return 'gmail';
+    if (agentmail) return 'agentmail';
+  } else {
+    if (agentmail) return 'agentmail';
+    if (gmail) return 'gmail';
+  }
   if (env && env.RESEND_API_KEY) return 'resend';
   return null;
 }
 
-export async function sendMail(env, { to, subject, html, text, unsubUrl }) {
-  const kind = mailerKind(env);
+export async function sendMail(env, { to, subject, html, text, unsubUrl, channel = 'automation' }) {
+  const kind = mailerKind(env, { channel });
   if (!kind) return { ok: false, reason: 'not_configured' };
   try {
     if (kind === 'gmail') {
