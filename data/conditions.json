@@ -1,6 +1,6 @@
 {
  "version": 1,
- "checked": "2026-11-04",
+ "checked": "2026-11-05",
  "regions": [
   {
    "id": "almora",
@@ -358,6 +358,24 @@
     "shinkula"
    ],
    "regions": []
+  },
+  {
+   "id": "auto-20261104-bhu-researchers-generate-landslide-susce",
+   "kind": "road",
+   "official": false,
+   "auto": true,
+   "title": "BHU Researchers Generate Landslide Susceptibility Map Of Uttarkashi",
+   "detail": "ETV Bharat reports this. Check with local police or the district administration before you travel.",
+   "from": "2026-11-04",
+   "until": "2026-11-06",
+   "source": "ETV Bharat",
+   "sourceUrl": "https://news.google.com/rss/articles/CBMiugFBVV95cUxPMTBPTzVscE8xYUlFVGtoeU5RanBpV2swR0dtbC1YWV9ySnRvc2FGakZlUEw3LUpFdGo4TkZDVmdFMWhYRU4xRzhaZmxXRXRGaWtwczNodUliTEJ0bEJvYk9BMktLZ3NTeHYwOEFKbTY2YTZxTEhTdEV2alVPdjJPQ3hiZDdtWWJybEczZXRxbHpzMUpQejlOUlZCLTF0NlR5aDdFQXBkcTF5bjFUaUxROXRCT2lmLVdxU2fSAb8BQVVfeXFMTWRSN3pkY0JSQ1JFcVFxUktrekE0UDRoU1dBTEhUQjQ4c0ZoNDVnUHNwdFRkS0w1S2ZWanR2WVlRNU02Y0Z4aXM5aHpscDI5czIwU1pqS2hOOFJDemNhM0NYTllTdXdOdGVWaXgyTUY5UVltOXlfekpOb1k0SWU1dm1TWHVFbFNaeXgyUkhqWEVybWJHMzIyc291cGd3VmlUdTFSMDhRVXBMU1pJdWpQZVhyNVJOWUlpZTQ3YVhGSzQ?oc=5",
+   "match": [
+    "uttarkashi"
+   ],
+   "regions": [
+    "uttarkashi"
+   ]
   },
   {
    "id": "auto-20261103-8-trekkers-still-stranded-in-uttarkashi-",
