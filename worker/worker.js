@@ -57,6 +57,7 @@
 
 import { CORS, json } from './lib/http.js';
 import { handleAgentMail } from './handlers/agentmail-outreach.js';
+import {handleCreatorAutopilot,runCreatorAutopilot} from './handlers/creator-autopilot.js';
 import { handleHealth } from './handlers/health.js';
 import { handleSarvamVoice } from './handlers/sarvam-voice.js';
 import { handleAI } from './handlers/ai.js';
@@ -114,6 +115,7 @@ export default {
     const businessPath = new URL(request.url).pathname.match(/^\/v1\/business\/([^/]+)$/);
     if(businessPath) return handleBusiness(request, env, businessPath[1]);
     if(new URL(request.url).pathname === '/admin/agentmail/outreach') return handleAgentMail(request, env);
+    if(new URL(request.url).pathname === '/admin/creator-autopilot') return handleCreatorAutopilot(request,env);
     if(request.method === 'OPTIONS') return new Response(null, { headers: CORS });
     const url = new URL(request.url);
     const path = url.pathname.replace(/^\/+|\/+$/g, '');
@@ -224,6 +226,7 @@ export default {
       try{ if(env.FIREBASE_SERVICE_ACCOUNT_JSON) await runShopFulfilmentCron(env); }catch(e){ /* retried next hour */ }
       return;
     }
+    try{if(env.CREATOR_AUTOPILOT_ENABLED==='true') await runCreatorAutopilot(env);}catch(e){/* observe-only; no external sends */}
     try{
       await refreshNews(env);
       if(new Date().getUTCDay() === 1) await refreshEvents(env);
