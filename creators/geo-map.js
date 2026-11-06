@@ -20,7 +20,7 @@ var towns={
 'manali':[32.244,77.189],'shimla':[31.104,77.173],'srinagar':[34.084,74.874]
 };
 var map=null,layer=null;
-function norm(v){return String(v||'').toLowerCase().trim().replace(/[^a-z ]/g,' ').replace(/\\s+/g,' ')}
+function norm(v){return String(v||'').toLowerCase().trim().replace(/[^a-z ]/g,' ').replace(/\s+/g,' ')}
 function city(a){var b=a.barter||{},l=b.location||{},m=a.matchProfile||{};return String(l.town||a.town||a.city||(typeof a.location==='string'?a.location:'')||(Array.isArray(m.destinations)?m.destinations[0]:'')||'').trim()}
 function esc(v){return String(v||'').replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
 async function load(){var status=document.getElementById('rwGeoStatus');status.textContent='Loading approximate town distribution…';
