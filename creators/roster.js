@@ -3,6 +3,7 @@
    with search, stage filter, one-tap WhatsApp, stage updates and a CSV export. It loads on its own and prints the
    real Firestore error if something is blocked, so an empty list is never a silent failure.
    Writes only crm/{id}.stage, which the Firestore rules already allow for the admin and the marketing role. */
+import { instagramUrl } from './social-links.mjs';
 import { SEED_POLICIES, mergePolicies, policyFromPartner } from './property-terms-core.mjs';
 import { buildRoster, rosterCounts, creatorIntro, toCsv, STAGES, canSpotlight, spotlightEntry, withSpotlight, withoutSpotlight, travelAlerts, alertMessage, NICHE_NAMES, normalizeNeeds, TIER_INFO, TIERS, quickLinks, featuredInvite } from './roster-core.mjs';
 import { tripOf, photoOf } from './strict-match-core.mjs';
@@ -84,7 +85,7 @@ function card(r) {
   const rt = r.rating, town = ((r.location && r.location.town) || '').replace(/\b[a-z]/g, (m) => m.toUpperCase());
   const tierTag = `<span class="ca-tag ${rt.tier === 'summit' || rt.tier === 'ridge' ? 'good' : rt.tier === 'mirage' ? 'bad' : 'warn'}" title="${esc(rt.blurb)}">${rt.icon} ${esc(rt.name)}</span>`;
   const tags = r.nicheTags.map((n) => `<span class="ca-tag good">${esc(n)}</span>`).join('');
-  const ig = r.handle ? `<a class="ca-action secondary" href="${esc(r.handle)}" target="_blank" rel="noopener noreferrer">Instagram ↗</a>` : '<span class="ca-tag warn">no Instagram link</span>';
+  const ig = instagramUrl(r.handle) ? `<a class="ca-action secondary" href="${esc(instagramUrl(r.handle))}" target="_blank" rel="noopener noreferrer">Instagram ↗</a>` : '<span class="ca-tag warn">no Instagram link</span>';
   const yt = r.youtube ? `<a class="ca-action secondary" href="${esc(r.youtube)}" target="_blank" rel="noopener noreferrer">YouTube ↗</a>` : '';
   const chat = r.phone ? `<a class="ca-action green" target="_blank" rel="noopener" href="https://wa.me/${esc(String(r.phone).replace(/\D/g, ''))}">WhatsApp</a>` : '<span class="ca-tag warn">no phone</span>';
   const mail = r.email ? `<a class="ca-action secondary" href="mailto:${esc(r.email)}">Email</a>` : '';
