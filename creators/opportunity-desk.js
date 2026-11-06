@@ -1,0 +1,30 @@
+/* Creator local opportunity desk: conservative locality-first recommendations.
+ * Read-only. Email drafts open in the user's mail client; no silent sending. */
+(function(){'use strict';
+var root=document.getElementById('caDash');if(!root||!window.firebase)return;
+var panel=document.createElement('section');panel.className='ca-panel';panel.id='rwOpportunityDesk';
+panel.innerHTML='<div class="ca-head"><div><small>LOCAL-FIRST OPPORTUNITIES</small><h2>Creator opportunity desk</h2><p>Review suggested pairings and draft outreach. No automatic sends, bookings, or paid commitments.</p></div><button id="rwMatchRefresh" class="ca-action secondary">Refresh matches</button></div><div id="rwMatchStatus" role="status" aria-live="polite"></div><div class="rw-match-controls"><label>Property <select id="rwMatchProperty"></select></label><label>Minimum confidence <select id="rwMatchConfidence"><option value="exact">Same town only</option><option value="region">Same town or stated destination</option></select></label></div><div id="rwMatchList"></div>';
+var nav=document.getElementById('rwCreatorNav');if(nav)nav.insertAdjacentElement('afterend',panel);else root.querySelector('.ca-hero').insertAdjacentElement('afterend',panel);
+var apps=[],properties=[];
+var clean=function(v){return String(v==null?'':v).trim()};
+var norm=function(v){return clean(v).toLowerCase().normalize('NFKD').replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ').trim()};
+var esc=function(v){return clean(v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})};
+function town(a){var b=a.barter||{},l=b.location||{};return clean(l.town||a.city||a.town||(typeof a.location==='string'?a.location:''))}
+function destinations(a){var m=a.matchProfile||{};return Array.isArray(m.destinations)?m.destinations.map(norm):[]}
+function propertyTown(p){var l=p.location||{},m=p.creatorMatching||{};return clean(l.town||l.city||p.city||p.town||m.town)}
+function pick(a,p,regional){var t=norm(town(a)),pt=norm(propertyTown(p));if(!pt)return null;if(t&&t===pt)return{level:'Same town',rank:2};if(regional&&destinations(a).includes(pt))return{level:'Creator-stated destination',rank:1};return null}
+function emailDraft(a,p){var to=clean(a.email);if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(to))return '';
+var subject='RoamWise collaboration enquiry — '+clean(p.name||'local property');
+var body='Hi '+clean(a.name||'there')+',\n\nRoamWise is exploring a possible collaboration around '+clean(p.name||'a local partner')+' in '+propertyTown(p)+'. This is an enquiry, not a confirmed booking or paid assignment.\n\nWould you be interested in reviewing a brief? Please share your availability, deliverables and rates. Property availability, compensation, content usage rights and travel terms will be agreed before confirmation.\n\nRegards,\nRoamWise';
+return 'mailto:'+encodeURIComponent(to)+'?subject='+encodeURIComponent(subject)+'&body='+encodeURIComponent(body)}
+function draw(){var idx=Number(document.getElementById('rwMatchProperty').value),p=properties[idx],region=document.getElementById('rwMatchConfidence').value==='region',box=document.getElementById('rwMatchList');if(!p){box.textContent='No location-verified partner properties available.';return}
+var seen=new Set(),matches=[];apps.forEach(function(a){var key=norm(a.email)||norm(a.handle)||norm(a.name)+'|'+norm(town(a));if(!key||seen.has(key))return;seen.add(key);var m=pick(a,p,region);if(m)matches.push({a:a,m:m})});matches.sort(function(a,b){return b.m.rank-a.m.rank});box.innerHTML=matches.slice(0,40).map(function(x){var a=x.a,u=emailDraft(a,p);return '<article class="rw-match-card"><div><strong>'+esc(a.name||'Creator')+'</strong><p>'+esc(town(a)||'Location not supplied')+' · '+esc(x.m.level)+'</p><small>Application: '+esc(a.stage||'new')+' · Manual eligibility and terms check required</small></div>'+(u?'<a href="'+esc(u)+'" aria-label="Draft email to '+esc(a.name||'creator')+'">Draft email</a>':'<span>No verified email</span>')+'</article>'}).join('')||'<p>No confirmed same-town matches. Do not substitute distant creators automatically.</p>';
+document.getElementById('rwMatchStatus').textContent=matches.length+' locality matches found; '+Math.min(matches.length,40)+' shown. No messages sent.'}
+async function load(){var status=document.getElementById('rwMatchStatus');status.textContent='Loading approved matching inputs…';try{var user=firebase.auth().currentUser;if(!user||!user.emailVerified){status.textContent='Verified administrator login required.';return}
+var db=firebase.firestore(),admin=await db.collection('admins').doc(user.uid).get();if(!admin.exists){status.textContent='Administrator access required.';return}
+var results=await Promise.all([db.collection('crm').where('seg','==','creator').limit(500).get(),db.collection('partners').where('creatorMatching.enabled','==',true).limit(200).get()]);
+apps=results[0].docs.map(function(d){return Object.assign({id:d.id},d.data()||{})});
+properties=results[1].docs.map(function(d){return Object.assign({id:d.id},d.data()||{})}).filter(function(p){return !!propertyTown(p)&&p.creatorMatching&&p.creatorMatching.enabled===true});
+var sel=document.getElementById('rwMatchProperty');sel.textContent='';properties.forEach(function(p,i){var opt=document.createElement('option');opt.value=String(i);opt.textContent=clean(p.name||p.propertyName||p.id)+' · '+propertyTown(p);sel.appendChild(opt)});draw()}catch(e){status.textContent='Match data unavailable: '+(e.code||e.message)+'. No messages sent.'}}
+document.getElementById('rwMatchRefresh').addEventListener('click',load);document.getElementById('rwMatchProperty').addEventListener('change',draw);document.getElementById('rwMatchConfidence').addEventListener('change',draw);firebase.auth().onAuthStateChanged(function(u){if(u)load();else document.getElementById('rwMatchStatus').textContent='Sign in to see opportunities.'});
+})();
