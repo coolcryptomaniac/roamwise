@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#0b0f14">
+<title>Quick add — RoamWise Admin</title>
+<link rel="icon" href="../icons/favicon-32.png">
+<link rel="stylesheet" href="quick-add.css">
+</head>
+<body>
+<main class="qa">
+<section id="qaAuth" hidden>
+  <form id="qaLogin" class="qa-card">
+    <small>FOUNDER ACCESS</small><h1>Quick add</h1>
+    <p>Sign in with the founder account.</p>
+    <label>Email<input id="qaEmail" type="email" autocomplete="email" required></label>
+    <label>Password<input id="qaPass" type="password" autocomplete="current-password" required></label>
+    <button class="qa-btn" type="submit">Sign in</button><p id="qaAuthMsg" class="qa-err" role="alert"></p>
+  </form>
+</section>
+<section id="qaApp" hidden>
+  <header><small>ROAMWISE / FOUNDER</small><h1>Quick add</h1>
+  <p>Add a creator, artist, property partner or transport partner who agreed by email reply, phone, WhatsApp or in person. No form or paperwork needed from them. Saved to the CRM as "verbal-confirmed", so you can see exactly who has and has not filled the formal form.</p>
+  <p><a href="hub.html">← Admin hub</a></p></header>
+  <form id="qaForm" class="qa-card" novalidate>
+    <div class="qa-row">
+      <label>Who are you adding?<select id="f_type"><option value="creator">Creator</option><option value="artist">Artist</option><option value="property">Property partner</option><option value="transport">Transport partner</option></select></label>
+      <label>How did they agree?<select id="f_via"><option value="email-reply">Email reply</option><option value="phone-call">Phone call</option><option value="whatsapp">WhatsApp</option><option value="in-person">In person</option><option value="other">Other</option></select></label>
+      <label>Date they agreed<input id="f_confirmedOn" type="date"></label>
+    </div>
+    <details id="qaPasteBox"><summary>Paste their email reply to fill the form (optional)</summary>
+      <textarea id="f_paste" rows="6" placeholder="Paste the reply here. Only their name, email, phone and links are picked up. You check everything before saving."></textarea>
+      <button type="button" class="qa-btn ghost" id="qaParse">Fill from reply</button></details>
+    <div class="qa-row">
+      <label>Name<input id="f_name" maxlength="120"></label>
+      <label>Email<input id="f_email" type="email" maxlength="160"></label>
+      <label>Phone / WhatsApp<input id="f_phone" inputmode="tel" maxlength="30"></label>
+    </div>
+    <div class="qa-row">
+      <label>Base town or city<input id="f_town" maxlength="80" placeholder="e.g. Uttarkashi"></label>
+      <label>Places they can cover (commas)<input id="f_places" maxlength="300" placeholder="e.g. Harsil Valley, Gangotri, Dayara Bugyal, Tehri"></label>
+    </div>
+    <div class="qa-row" data-for="creator">
+      <label>YouTube link<input id="f_youtube" maxlength="300" placeholder="https://youtube.com/@..."></label>
+      <label>Instagram (@name or link)<input id="f_instagram" maxlength="200"></label>
+      <label>Niche<input id="f_niche" maxlength="120" placeholder="travel, trekking, camping"></label>
+    </div>
+    <div class="qa-row" data-for="creator">
+      <label>Views per video, from<input id="f_viewsMin" type="number" min="0"></label>
+      <label>to<input id="f_viewsMax" type="number" min="0"></label>
+      <label>Match within (km)<input id="f_radiusKm" type="number" min="0" max="500" placeholder="100"></label>
+      <label>Region<input id="f_region" maxlength="60" placeholder="Garhwal"></label>
+    </div>
+    <div class="qa-row" data-for="creator">
+      <label>Deal types<input id="f_dealTypes" maxlength="80" placeholder="paid, hybrid, selective barter"></label>
+      <label>Minimum cash ask (₹, if stated)<input id="f_cashMin" type="number" min="0"></label>
+      <label>Stage<select id="f_stage"><option value="contacted">Contacted</option><option value="new">New</option><option value="shortlisted">Shortlisted</option><option value="offered">Offered</option><option value="active">Active</option></select></label>
+    </div>
+    <div class="qa-row" data-for="artist">
+      <label>Portfolio link<input id="f_link_artist" maxlength="300"></label>
+      <label>Themes<input id="f_themes" maxlength="160"></label>
+      <label>Medium<input id="f_medium" maxlength="120"></label>
+    </div>
+    <div class="qa-row" data-for="property">
+      <label>Contact person<input id="f_contactPerson" maxlength="80"></label>
+      <label>Rooms (approx.)<input id="f_rooms" type="number" min="0"></label>
+      <label>Tags<input id="f_tags" maxlength="160" placeholder="homestay, family, serene"></label>
+      <label>Website or listing link<input id="f_link_property" maxlength="300"></label>
+    </div>
+    <div class="qa-row" data-for="transport">
+      <label>Vehicles<input id="f_vehicles" maxlength="160" placeholder="Innova, Tempo Traveller"></label>
+      <label>Operator type<input id="f_operatorType" maxlength="40" placeholder="driver-owner, agency"></label>
+    </div>
+    <label>What they said (their words, short)<textarea id="f_said" rows="2" maxlength="600"></textarea></label>
+    <label>Your note<textarea id="f_note" rows="2" maxlength="600"></textarea></label>
+    <label class="qa-check"><input id="f_consent" type="checkbox" checked> They agreed to be listed with RoamWise</label>
+    <button class="qa-btn" type="submit" id="qaSave">Save to CRM</button>
+    <p id="qaMsg" role="status"></p>
+  </form>
+  <p class="qa-fine">Still needed from them before anything goes public or any money moves: photos for artists, the property agreement (MOU) for stays, licence and insurance checks for transport, and verified payout details. This page records the relationship only. It never grants Pro, sets a creator tier, sends a message or pays anyone.</p>
+</section>
+</main>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<script type="module" src="quick-add.js"></script>
+</body>
+</html>

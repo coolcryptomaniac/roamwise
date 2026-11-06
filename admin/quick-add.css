@@ -1,0 +1,20 @@
+:root{color-scheme:dark}
+body{margin:0;background:#0b0f14;color:#e8edf3;font:15px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+.qa{max-width:860px;margin:0 auto;padding:20px 16px 60px}
+small{letter-spacing:.12em;color:#8fa3b8}
+h1{margin:.2em 0}
+a{color:#7fc4ff}
+.qa-card{background:#121823;border:1px solid #223048;border-radius:14px;padding:16px;display:grid;gap:12px}
+.qa-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+label{display:grid;gap:4px;font-size:13px;color:#b7c5d6}
+input,select,textarea{font:inherit;color:#fff;background:#080a10;border:1px solid #2a3850;border-radius:10px;padding:10px;width:100%;box-sizing:border-box}
+.qa-check{display:flex;gap:8px;align-items:center}
+.qa-check input{width:auto}
+.qa-btn{font:inherit;font-weight:600;border:0;border-radius:10px;padding:11px 16px;background:#3b8cf5;color:#fff;cursor:pointer}
+.qa-btn.ghost{background:#1c2940}
+.qa-btn:disabled{opacity:.5}
+.qa-err{color:#ff8a8a}
+.qa-ok{color:#7be0a0}
+.qa-fine{color:#8fa3b8;font-size:13px}
+details{border:1px dashed #2a3850;border-radius:10px;padding:10px}
+[hidden]{display:none!important}
