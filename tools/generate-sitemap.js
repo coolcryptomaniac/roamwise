@@ -58,6 +58,7 @@ const TOP_LEVEL_URLS = [
   `${SITE}/creators/jagriti.html`,
   `${SITE}/creators/sacred-art.html`,
   `${SITE}/creators/gallery.html`,
+  `${SITE}/creators/harry-rawat/`,
   `${SITE}/memories/`,
   `${SITE}/books/`,
   `${SITE}/shop/`,

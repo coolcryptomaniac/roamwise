@@ -77,6 +77,54 @@
         "local"
       ],
       "sentFor": []
+    },
+    {
+      "id": "harry-rawat",
+      "name": "Harry Rawat (Bheem Pahadi)",
+      "aliases": [
+        "Bheem Pahadi",
+        "Unknown Pahadi"
+      ],
+      "platform": "instagram",
+      "url": "https://www.instagram.com/bheempahadi10/",
+      "youtube": "https://www.youtube.com/@bheempahadivlogs",
+      "page": "/creators/harry-rawat/",
+      "baseCity": "uttarkashi",
+      "baseConfirmed": true,
+      "email": "",
+      "emailSource": "",
+      "contactRoute": "https://www.instagram.com/bheempahadi10/",
+      "status": "replied",
+      "networkStatus": "joined",
+      "joinedOn": "2026-11-06",
+      "registrationStatus": "studio-account-not-confirmed",
+      "found": "Creator confirmed interest in joining the RoamWise Creator Programme and supplied his channels, Uttarkashi base, coverage and collaboration preferences by email on 6 November 2026. Added on founder instruction. Previously addressed as Unknown Pahadi.",
+      "niches": [
+        "travel",
+        "lifestyle",
+        "camping",
+        "trekking",
+        "adventure",
+        "himalayas"
+      ],
+      "coverage": [
+        "Uttarkashi",
+        "Harsil Valley",
+        "Gangotri",
+        "Dayara Bugyal",
+        "Tehri",
+        "Nearby Himalayan destinations, depending on campaign"
+      ],
+      "collaborationModes": [
+        "paid",
+        "hybrid",
+        "selective barter"
+      ],
+      "collaborationNote": "Selective barter depends on property, location and campaign requirements. Rates, dates, deliverables, travel, accommodation and usage rights require agreement. No campaign or hosted stay confirmed.",
+      "rates": null,
+      "availability": "on enquiry",
+      "sentFor": [],
+      "repliedOn": "2026-11-06"
     }
   ]
 }
