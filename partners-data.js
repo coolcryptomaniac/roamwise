@@ -26,7 +26,7 @@ window.RW_PARTNER_TIERS = [
    Unapproved research stays remain hidden. The explicit review marker is required. */
 window.rwStayPublicEligible = function(p){
   return !!p && p.listingReady===true && (p.verified==='signed' ||
-    (p.verified==='founder-approved' && p.enquiryOnly===true && p.founderApproval==='Mohit Pandey · 2026-10-18'));
+    (p.verified==='founder-approved' && p.enquiryOnly===true && (p.founderApproval==='Mohit Pandey · 2026-10-18' || p.founderApproval==='Mohit Pandey · 2026-11-06')));
 };
 
 /* Homepage pilot. The user confirmed Milan Heights has signed; availability,
@@ -136,7 +136,31 @@ window.RW_PARTNER_SEED = [{
   instagramUrl:'https://www.instagram.com/reel/DZXJj9ATtyB/',
   hook:'A peaceful six-bedroom homestay in Ghildiyal Gaon near Bansi, in the Lansdowne region. Public listings mention attached bathrooms, Wi-Fi, kitchen access and parking. Ask owner Rekha Shastri on WhatsApp to confirm rooms, meals, rates and timings. Founder-introduced; enquiries only, property agreement pending.'
 
-}];
+},
+  /* Amor Hospitality supplied rate sheets & galleries 6 Nov 2026. These are
+     INTERNAL INTAKE records, not approved listings: no signed MOU, no photo
+     redistribution approval on file, no inventory hold or checkout approval.
+     No net rates or sales-manager contacts should appear in public scripts. */
+  {id:'p_amor_tattwaa',cat:'stay',zone:'Jim Corbett',area:'Sitabani Gate, Bhalon',
+   name:'The Tattwaa Corbett Spa & Resort',propertyType:'Forest resort',roomCount:60,
+   verified:'founder-approved',listingReady:true,founderApproval:'Mohit Pandey · 2026-11-06',enquiryOnly:true,bookingMode:'enquiry',
+   website:'https://www.tattwaa.com/',
+   hook:'Forest resort near Sitabani Gate with spa, pool, group and event facilities. Rates and partnership approval pending.'},
+  {id:'p_amor_nanau',cat:'stay',zone:'Jim Corbett',area:'Patkote Road, Sitabani Gate',
+   name:'Nanau Resort & Spa',propertyType:'Boutique forest retreat',roomCount:23,
+   verified:'founder-approved',listingReady:true,founderApproval:'Mohit Pandey · 2026-11-06',enquiryOnly:true,bookingMode:'enquiry',
+   website:'https://nanauresort.com/',
+   hook:'Pet-friendly boutique retreat with spa and selected plunge-pool rooms. Enquiry only; commercial approval pending.'},
+  {id:'p_amor_padma',cat:'stay',zone:'Manali',area:'Naggar Road',
+   name:'Padma Villa — Private Mountain Estate',propertyType:'Luxury villa',roomCount:6,
+   verified:'founder-approved',listingReady:true,founderApproval:'Mohit Pandey · 2026-11-06',enquiryOnly:true,bookingMode:'enquiry',
+   instagramUrl:'https://www.instagram.com/padmavillamanali/',
+   hook:'Six-key boutique mountain villa for small groups, with select jacuzzi and bath-tub suites. Enquiry only; terms pending.'},
+  {id:'p_amor_aramness',cat:'stay',zone:'Gir',area:'Gir National Park, Gujarat',
+   name:'Aramness Gir',propertyType:'Luxury wilderness retreat',
+   verified:'founder-approved',listingReady:true,founderApproval:'Mohit Pandey · 2026-11-06',enquiryOnly:true,bookingMode:'enquiry',
+   hook:'Luxury private-pool Kothis near Gir National Park. Partner rate sheet received; final listing terms pending.'}
+];
 
 /* Commission model — what we actually earn, stated plainly for both sides. */
 window.RW_PARTNER_MODEL = {
