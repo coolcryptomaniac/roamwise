@@ -3,6 +3,7 @@
  * no customer content in KV, no sending or payments.
  */
 import {triageInbox,maintenanceReport} from '../lib/creator-inbox-triage.mjs';
+import {planOutreach} from '../lib/creator-autopilot-core.mjs';
 const reply=(body,status=200)=>new Response(JSON.stringify(body),{status,headers:{'content-type':'application/json','cache-control':'no-store'}});
 const prefix='creator-autopilot:';
 function authorized(request,env){
@@ -28,7 +29,21 @@ export async function handleCreatorAutopilot(request,env){
    return reply({enabled:env.CREATOR_AUTOPILOT_ENABLED==='true',report:last||null});
  }
  if(request.method==='POST'){
-   // Manual run is an observe-only report. No sends, database changes or AI calls.
+   let data={};try{data=await request.json()}catch{return reply({error:'invalid_json'},400)}
+   if(data.action==='triage'){
+     if(!Array.isArray(data.messages)||data.messages.length>100)return reply({error:'max_100_messages'},400);
+     return reply({mode:'read_only',results:triageInbox(data.messages.map(m=>({id:m.id,subject:m.subject,snippet:m.snippet}))),sent:0});
+   }
+   if(data.action==='plan'){
+     if(!Array.isArray(data.creators)||!Array.isArray(data.properties)||data.creators.length>100||data.properties.length>100)return reply({error:'max_100_records_per_type'},400);
+     const plan=planOutreach(data.creators,data.properties,Array.isArray(data.history)?data.history.slice(0,500):[]);
+     return reply({mode:'draft_only',plan});
+   }
+   if(data.action==='maintenance'){
+     if(!Array.isArray(data.creators)||!Array.isArray(data.properties)||data.creators.length>100||data.properties.length>100)return reply({error:'max_100_records_per_type'},400);
+     return reply({mode:'read_only',report:maintenanceReport({creators:data.creators,properties:data.properties,outbox:Array.isArray(data.outbox)?data.outbox.slice(0,100):[]})});
+   }
+   if(data.action!=='run')return reply({error:'unknown_action'},400);
    const result=await runCreatorAutopilot(env);
    return reply(result,result.ok?200:503);
  }
