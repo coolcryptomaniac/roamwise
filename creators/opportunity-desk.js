@@ -7,13 +7,13 @@ panel.innerHTML='<div class="ca-head"><div><small>LOCAL-FIRST OPPORTUNITIES</sma
 var nav=document.getElementById('rwCreatorNav');if(nav)nav.insertAdjacentElement('afterend',panel);else root.querySelector('.ca-hero').insertAdjacentElement('afterend',panel);
 var apps=[],properties=[];
 var clean=function(v){return String(v==null?'':v).trim()};
-var norm=function(v){return clean(v).toLowerCase().normalize('NFKD').replace(/[^a-z0-9 ]/g,' ').replace(/\\s+/g,' ').trim()};
+var norm=function(v){return clean(v).toLowerCase().normalize('NFKD').replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ').trim()};
 var esc=function(v){return clean(v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})};
 function town(a){var b=a.barter||{},l=b.location||{};return clean(l.town||a.city||a.town||(typeof a.location==='string'?a.location:''))}
 function destinations(a){var m=a.matchProfile||{};return Array.isArray(m.destinations)?m.destinations.map(norm):[]}
 function propertyTown(p){var l=p.location||{},m=p.creatorMatching||{};return clean(l.town||l.city||p.city||p.town||m.town)}
 function pick(a,p,regional){var t=norm(town(a)),pt=norm(propertyTown(p));if(!pt)return null;if(t&&t===pt)return{level:'Same town',rank:2};if(regional&&destinations(a).includes(pt))return{level:'Creator-stated destination',rank:1};return null}
-function emailDraft(a,p){var to=clean(a.email);if(!/^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$/.test(to))return '';
+function emailDraft(a,p){var to=clean(a.email);if(!/^[^@\s]+@[^@\s]+\\.[^@\s]+$/.test(to))return '';
 var subject='RoamWise collaboration enquiry — '+clean(p.name||'local property');
 var body='Hi '+clean(a.name||'there')+',\\n\\nRoamWise is exploring a possible collaboration around '+clean(p.name||'a local partner')+' in '+propertyTown(p)+'. This is an enquiry, not a confirmed booking or paid assignment.\\n\\nWould you be interested in reviewing a brief? Please share your availability, deliverables and rates. Property availability, compensation, content usage rights and travel terms will be agreed before confirmation.\\n\\nRegards,\\nRoamWise';
 return 'mailto:'+encodeURIComponent(to)+'?subject='+encodeURIComponent(subject)+'&body='+encodeURIComponent(body)}
