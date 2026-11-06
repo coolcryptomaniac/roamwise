@@ -59,6 +59,9 @@ function rwBookingRoutes(p){
   if(routes.whatsapp&&mode&&mode!=='whatsapp') routes.whatsapp=null;
   var order=[mode].concat(['direct','whatsapp','ota','website','phone']);
   order.forEach(function(k){ if(routes[k]&&!out.some(function(r){ return r.type===k; })) out.push(routes[k]); });
+  if(p.enquiryOnly===true && p.founderApproval==='Mohit Pandey · 2026-11-06' && p.supportEmail==='support@roamwise.co.in') {
+    return [{type:'enquiry',label:'Enquire with RoamWise →',href:'mailto:support@roamwise.co.in',site:'RoamWise'}];
+  }
   return p.enquiryOnly===true?out.filter(function(r){return r.type==='whatsapp'||r.type==='phone';}):out;
 }
 function rwBookingRoute(p){
@@ -80,7 +83,7 @@ function rwBookingResponsibilities(route){
     ['Payment', 'Check who collects payment at checkout: the booking provider or the property.'],
     ['Changes & refunds', 'Start with the support channel on your booking confirmation. The provider’s booking terms apply.']
   ];
-  if(['website','whatsapp','phone'].indexOf(route.type)<0) return [];
+  if(['website','whatsapp','phone','enquiry'].indexOf(route.type)<0) return [];
   return [
     ['Confirmation', 'Ask the property for written confirmation of your room, dates, final total and cancellation terms.'],
     ['Payment', 'The property specifies the payment recipient and method. Verify these before paying.'],
@@ -104,6 +107,10 @@ function rwBookingActionHTML(p){
   if(main.type==='direct'){
     html='<button class="bk-go" style="margin-top:12px" onclick="rwOverlayClose(\'lstOv\');openStays(\''+esc2(p.zone||'')+'\',\''+esc2(p.id)+'\')">'+main.label+'</button>'
       +'<p class="lst-confirm">Book directly through RoamWise. The property confirms your dates before payment opens.</p>';
+  }else if(main.type==='enquiry'){
+    var subject='RoamWise stay enquiry: '+p.name;
+    var msg='Hello RoamWise, I am interested in '+p.name+' in '+(p.zone||'India')+'. Please check availability for my dates, total cost, deposit schedule, cancellation and booking terms. My dates, guests and contact number are: ';
+    html='<a class="bk-go" style="'+style+'" href="mailto:support@roamwise.co.in?subject='+encodeURIComponent(subject)+'&body='+encodeURIComponent(msg)+'">Enquire with RoamWise →</a>'+'<p class="lst-confirm">This is an enquiry, not a reservation. We confirm rates, dates and deposit terms in writing before requesting any payment.</p>';
   }else if(main.type==='whatsapp'){
     var text='Hello '+p.name+', I found your stay through RoamWise. I am interested in staying in '+(p.zone||'your area')+'. Please share available room options for my dates, the final total including applicable taxes, payment method, and booking terms.';
     html='<a class="bk-go lst-wa" style="'+style+'" href="'+esc2(main.href+'?text='+encodeURIComponent(text))+'" data-wa-base="'+esc2(main.href)+'" data-wa-text="'+esc2(text)+'" data-pid="'+esc2(p.id)+'" data-pname="'+esc2(p.name)+'" onclick="return typeof rwStayWaClick===\'function\'?rwStayWaClick(this):true" target="_blank" rel="noopener noreferrer">'+main.label+'</a>'
