@@ -143,22 +143,22 @@ window.RW_PARTNER_SEED = [{
      No net rates or sales-manager contacts should appear in public scripts. */
   {id:'p_amor_tattwaa',cat:'stay',zone:'Jim Corbett',area:'Sitabani Gate, Bhalon',
    name:'The Tattwaa Corbett Spa & Resort',propertyType:'Forest resort',roomCount:60,
-   verified:'founder-approved',listingReady:true,founderApproval:'Mohit Pandey · 2026-11-06',enquiryOnly:true,bookingMode:'enquiry',
+   verified:'founder-approved',listingReady:true,founderApproval:'Mohit Pandey · 2026-11-06',enquiryOnly:true,bookingMode:'enquiry',supportEmail:'support@roamwise.co.in',
    website:'https://www.tattwaa.com/',
    hook:'Forest resort near Sitabani Gate with spa, pool, group and event facilities. Rates and partnership approval pending.'},
   {id:'p_amor_nanau',cat:'stay',zone:'Jim Corbett',area:'Patkote Road, Sitabani Gate',
    name:'Nanau Resort & Spa',propertyType:'Boutique forest retreat',roomCount:23,
-   verified:'founder-approved',listingReady:true,founderApproval:'Mohit Pandey · 2026-11-06',enquiryOnly:true,bookingMode:'enquiry',
+   verified:'founder-approved',listingReady:true,founderApproval:'Mohit Pandey · 2026-11-06',enquiryOnly:true,bookingMode:'enquiry',supportEmail:'support@roamwise.co.in',
    website:'https://nanauresort.com/',
    hook:'Pet-friendly boutique retreat with spa and selected plunge-pool rooms. Enquiry only; commercial approval pending.'},
   {id:'p_amor_padma',cat:'stay',zone:'Manali',area:'Naggar Road',
    name:'Padma Villa — Private Mountain Estate',propertyType:'Luxury villa',roomCount:6,
-   verified:'founder-approved',listingReady:true,founderApproval:'Mohit Pandey · 2026-11-06',enquiryOnly:true,bookingMode:'enquiry',
+   verified:'founder-approved',listingReady:true,founderApproval:'Mohit Pandey · 2026-11-06',enquiryOnly:true,bookingMode:'enquiry',supportEmail:'support@roamwise.co.in',
    instagramUrl:'https://www.instagram.com/padmavillamanali/',
    hook:'Six-key boutique mountain villa for small groups, with select jacuzzi and bath-tub suites. Enquiry only; terms pending.'},
   {id:'p_amor_aramness',cat:'stay',zone:'Gir',area:'Gir National Park, Gujarat',
    name:'Aramness Gir',propertyType:'Luxury wilderness retreat',
-   verified:'founder-approved',listingReady:true,founderApproval:'Mohit Pandey · 2026-11-06',enquiryOnly:true,bookingMode:'enquiry',
+   verified:'founder-approved',listingReady:true,founderApproval:'Mohit Pandey · 2026-11-06',enquiryOnly:true,bookingMode:'enquiry',supportEmail:'support@roamwise.co.in',
    hook:'Luxury private-pool Kothis near Gir National Park. Partner rate sheet received; final listing terms pending.'}
 ];
 
