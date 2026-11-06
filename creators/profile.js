@@ -1,0 +1,7 @@
+import {instagramUrl} from './social-links.mjs';const $=id=>document.getElementById(id);
+const safe=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const id=new URLSearchParams(location.search).get('id');
+async function boot(){try{if(!id||!/^[-a-zA-Z0-9_]{1,90}$/.test(id))throw Error('invalid');const r=await fetch('../network/directory.json');if(!r.ok)throw Error('offline');const d=await r.json();const p=(d.creators||[]).find(x=>x.id===id&&x.publicApproved===true&&x.publicConsent===true);if(!p)throw Error('unpublished');
+document.title=p.name+' · RoamWise Creator Portfolio';$('name').textContent=p.name;$('intro').textContent=[p.niche,p.town,p.description].filter(Boolean).join(' · ');const ig=instagramUrl(p.instagram);$('portfolio').innerHTML='<div class="profile"><span class="tag">PUBLIC CREATOR PORTFOLIO</span><h3>'+safe(p.name)+'</h3><p>'+safe(p.description||'Available for professional collaboration enquiries.')+'</p>'+(ig?'<a target="_blank" rel="noopener noreferrer" href="'+safe(ig)+'">Instagram portfolio</a>':'')+'</div>';
+}catch(e){$('name').textContent='Profile not yet published';$('intro').textContent='This creator has not approved a public portfolio, or the listing is not available. Private application details are never exposed.'}}
+boot();
