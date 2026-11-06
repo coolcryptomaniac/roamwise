@@ -1,6 +1,6 @@
 {
  "version": 1,
- "checked": "2026-11-05",
+ "checked": "2026-11-06",
  "regions": [
   {
    "id": "almora",
@@ -434,24 +434,6 @@
    ],
    "regions": [
     "dehradun"
-   ]
-  },
-  {
-   "id": "auto-20261102-uttarakhand-badrinath-turns-picturesque-",
-   "kind": "snow",
-   "official": false,
-   "auto": true,
-   "title": "Uttarakhand: Badrinath turns picturesque after fresh snowfall, plunging temperatures…",
-   "detail": "www.indiagazette.com reports this. Check with local police or the district administration before you travel.",
-   "from": "2026-11-02",
-   "until": "2026-11-05",
-   "source": "www.indiagazette.com",
-   "sourceUrl": "https://news.google.com/rss/articles/CBMi5wFBVV95cUxNOENJTGFTQllzd3BCNUZPTXBRMXlfM1R1UWJiUXZWMG14OGdTakVLZVUtNTF1dTAyOE9xU054bWxXV3NaUGE2dGRiRTdmNVRtT2tsUVdmSzFmQVBhMFZhUG9aa2ZXZFVGTUJITmZKak41Vk8tV3VKUkpJSUxQcE5JSTFjZjNySmgxc0tjTjB3RXU4ZjNNNGREUlgwZ1Z0WUZtX0lSMUJtYzI1Q3REYVdxOFFkNEtZNGhVbnlhank3V0xIOG5sQ2NFb1QxQ21kOUJsTm9CNHM4X0RJSElhNGZYTWtLRTJmMnc?oc=5",
-   "match": [
-    "badrinath"
-   ],
-   "regions": [
-    "chamoli"
    ]
   }
  ]
