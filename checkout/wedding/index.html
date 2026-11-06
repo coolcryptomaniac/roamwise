@@ -1,0 +1,23 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>RoamWise · Wedding Planning Checkout</title><style>body{margin:0;background:#151128;color:#ffedda;font:16px system-ui,sans-serif}main{max-width:540px;margin:32px auto;padding:24px;border:1px solid #9277a4;border-radius:22px;background:#2a1b3e}h1{color:#ffdd9c}label{display:block;margin:16px 0}input,select{width:100%;box-sizing:border-box;padding:13px;background:#fff;color:#161327;border-radius:10px;border:0}button{padding:15px;width:100%;background:#f5ce86;color:#231531;border:0;border-radius:20px;font-weight:800;cursor:pointer}button:disabled{opacity:.45}a{color:#ffd28d}p{line-height:1.5}.small{font-size:13px;color:#dfcddd}</style></head><body><main><a href="/escapes/">← All RoamWise escapes</a><h1>💍 Wedding planning</h1><p>RoamWise helps shortlist venues, contact suppliers and prepare a proposal. <b>Paying for planning does not reserve a venue.</b></p><form id="checkout"><label>Planning service<select id="product"><option value="wedding_discovery">Venue discovery — ₹3,000</option><option value="wedding_priority">Priority planning — ₹5,000</option></select></label><label>Your full name<input id="name" required maxlength="80" autocomplete="name"></label><label>Mobile number (India)<input id="phone" required inputmode="tel" autocomplete="tel" pattern="[0-9+ -]{10,17}"></label><label>Email<input id="email" required type="email" autocomplete="email"></label><label><input id="terms" type="checkbox" required style="width:auto"> I accept the <a href="/escapes/#booking-policy" target="_blank">refund policy</a>, understand this is a planning service, and agree to be contacted for fulfilment.</label><button id="pay" type="submit" disabled>Secure checkout not configured</button></form><p id="notice" role="status" aria-live="polite" class="small">No payment has been taken.</p><p class="small">Payment verification and booking confirmation are separate steps. For assistance: support@roamwise.co.in.</p></main><script src="https://sdk.cashfree.com/js/v3/cashfree.js"></script><script type="module">
+const form=document.getElementById('checkout'),button=document.getElementById('pay'),notice=document.getElementById('notice');
+// Install a *verified* HTTPS payment Worker endpoint through deployment config.
+// No browser-authored product total; Worker PRODUCT_CATALOG_JSON is authoritative.
+const endpoint=window.ROAMWISE_PAYMENT_WORKER_URL||'';
+const approved=/^https:\/\/[a-z0-9.-]+\/(?:v1\/payments\/create)?$/i.test(endpoint);
+if(approved){button.disabled=false;button.textContent='Continue to secure Cashfree checkout';}
+form.addEventListener('submit',async e=>{e.preventDefault();if(!approved)return;
+button.disabled=true;notice.textContent='Creating secure payment order…';
+const phone=document.getElementById('phone').value.replace(/[^0-9+]/g,'');if(!/^\+?[0-9]{10,15}$/.test(phone)){notice.textContent='Enter a valid mobile number';button.disabled=false;return;}
+try{
+const email=document.getElementById('email').value.trim();
+const productId=document.getElementById('product').value;
+const key=crypto.randomUUID();
+const response=await fetch(endpoint,{method:'POST',headers:{'content-type':'application/json','x-idempotency-key':key},body:JSON.stringify({productId,currency:'INR',country:'IN',method:'upi',customer:{id:'rw_'+key.slice(0,20),email,phone}})});
+const data=await response.json();if(!response.ok)throw Error(data.error||'Payment order unavailable');
+if(data.provider!=='cashfree'||data.checkout?.kind!=='cashfree_session'||!data.checkout.paymentSessionId)throw Error('Cashfree is not available');
+if(!window.Cashfree)throw Error('Cashfree checkout library unavailable');
+notice.textContent='Opening secure payment. Your planning request will be confirmed after payment verification.';
+const cf=window.Cashfree({mode:data.checkout.environment==='production'?'production':'sandbox'});
+await cf.checkout({paymentSessionId:data.checkout.paymentSessionId,redirectTarget:'_self'});
+}catch(error){notice.textContent='Unable to start checkout. No payment confirmation has been recorded. Please contact support.'}finally{button.disabled=false;}
+});</script></body></html>
