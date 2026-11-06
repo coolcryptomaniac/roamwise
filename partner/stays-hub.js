@@ -14,7 +14,7 @@
   function esc(v) { return String(v == null ? '' : v).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
   function digits(v) { return String(v || '').replace(/\D/g, ''); }
   function norm(v) { return String(v || '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim(); }
-  function photoUrl(src) { return typeof src === 'string' && /^assets\/property-photos\/[a-z0-9-]+\.(?:jpg|jpeg|png|webp)$/i.test(src) ? '../' + src : ''; }
+  function photoUrl(src) { if(typeof src!=='string')return ''; if(/^assets\/property-photos\/[a-z0-9-]+\.(?:jpg|jpeg|png|webp)$/i.test(src))return '../'+src; try { var u=new URL(src); return u.protocol==='https:' && ['assets.simplotel.com','nanauresort.com'].includes(u.hostname) ? u.href : ''; } catch(e){return '';} }
   function supportWa() { var c = (root.RW_PARTNER_CONFIG && root.RW_PARTNER_CONFIG.chat) || {}; return digits(c.supportWhatsapp); }
 
   function allStays() {
@@ -67,7 +67,7 @@
   }
 
   function card(p, ctx) {
-    var ph = (p.photos || []).map(function (x) { return { src: photoUrl(x.src), alt: x.alt }; }).filter(function (x) { return x.src; })[0];
+    var ph = (p.photos || (p.heroImage ? [{src:p.heroImage,alt:p.name}] : [])).map(function (x) { return { src: photoUrl(x.src), alt: x.alt }; }).filter(function (x) { return x.src; })[0];
     var wa = whatsappOf(p), milan = root.RW_MILAN_PILOT && root.RW_MILAN_PILOT.isMilan(p.name);
     var price = milan ? '<p class="rw-stay-price"><b>Approx. ₹1,613–₹3,226 per room, per night</b></p>' : '<p class="rw-stay-price muted">Rate confirmed by the host for your dates.</p>';
     // Keep customer booking relationship at RoamWise. Do not route paid prospects to hosts.
