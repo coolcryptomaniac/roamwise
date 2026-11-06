@@ -70,9 +70,8 @@
     var ph = (p.photos || []).map(function (x) { return { src: photoUrl(x.src), alt: x.alt }; }).filter(function (x) { return x.src; })[0];
     var wa = whatsappOf(p), milan = root.RW_MILAN_PILOT && root.RW_MILAN_PILOT.isMilan(p.name);
     var price = milan ? '<p class="rw-stay-price"><b>Approx. ₹1,613–₹3,226 per room, per night</b></p>' : '<p class="rw-stay-price muted">Rate confirmed by the host for your dates.</p>';
-    var action = wa
-      ? '<a class="btn rw-stay-wa" data-stay-wa="' + esc(p.id) + '" href="https://wa.me/' + wa + '?text=' + encodeURIComponent(stayMessage(p, ctx)) + '" target="_blank" rel="noopener noreferrer">Ask ' + esc(p.name) + ' on WhatsApp ↗</a>'
-      : '<button class="btn rw-stay-ask" type="button" data-stay-ask="' + esc(p.id) + '">Ask RoamWise to confirm →</button>';
+    // Keep customer booking relationship at RoamWise. Do not route paid prospects to hosts.
+    var action = '<a class="btn rw-stay-ask" href="/escapes/#request-quote">Book through RoamWise →</a>';
     var maps = p.mapsUrl ? ' <a class="rw-stay-map" href="' + esc(p.mapsUrl) + '" target="_blank" rel="noopener noreferrer">Map ↗</a>' : '';
     return '<article class="rw-stay-card" data-stay="' + esc(p.id) + '">' +
       (ph ? '<img class="rw-stay-img" loading="lazy" src="' + esc(ph.src) + '" alt="' + esc(ph.alt || p.name) + '">' : '') +
