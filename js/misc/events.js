@@ -172,6 +172,17 @@ function rwEventsRender(){
     +'<div style="font-size:11px;color:var(--t3);margin-top:14px;line-height:1.6">Dates marked <b>~ typical</b> are our best estimate from previous years, not an announcement. Always confirm with the organiser before you book travel.</div>';
 }
 
+/* Who the event matters to (1-5), from window.RW_EVENT_STAKE. Our opinion, shown as such. */
+function rwStakePanel(e){
+  var m=(window.RW_EVENT_STAKE||{})[e.id]; if(!m) return '';
+  var L=[['R','RoamWise'],['F','Founder'],['U','Users'],['C','Creators'],['P','Property partners'],['A','Artists'],['V','Vendors']];
+  var rows=L.map(function(x){ var n=Number(m[x[0]])||0;
+    return '<div class="roi-row"><span class="roi-lbl">'+x[1]+'</span><span class="roi-bar"><i style="width:'+Math.round(n/5*100)+'%"></i></span><span class="roi-num">'+n+'/5</span></div>';
+  }).join('');
+  return '<div class="roi-panel" style="margin-top:12px"><div class="roi-head"><span class="roi-badge">'+esc2(m.b||'')+'</span><span class="roi-net">priority '+esc2(String(m.p))+'/5</span></div>'
+    +rows+'<div class="roi-note">Importance ratings are our opinion, weighted RoamWise 30%, founder 15%, users 15%, others 10% each.</div></div>';
+}
+
 function rwEventWorth(id){
   var e=rwEventById(id); if(!e) return;
   var ov=el('evWorthOv');
@@ -180,7 +191,7 @@ function rwEventWorth(id){
   ov.innerHTML='<div class="sheet" style="max-width:430px"><div class="sheet-h"><b>\u2696\ufe0f '+esc2(e.name)+'</b>'
     +'<button onclick="rwOverlayClose(\'evWorthOv\')" class="tact">\u2715</button></div>'
     +'<div style="font-size:12px;color:var(--t2);margin:2px 0 12px">'+esc2(e.place)+' \u00b7 '+esc2(rwEventDate(e))+'</div>'
-    + rwROIPanel(e)
+    + rwROIPanel(e) + rwStakePanel(e)
     +'<button class="tact" style="width:100%;margin-top:12px;font-weight:800;background:linear-gradient(135deg,var(--gold,#E8BA6C),var(--gold2,#C8913E));color:#0A0A0C;border:none" onclick="rwOverlayClose(\'evWorthOv\');rwEventPlan(\''+e.id+'\')">\u2728 Build my trip anyway</button></div>';
   ov.classList.add('open');
 }
