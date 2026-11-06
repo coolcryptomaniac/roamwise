@@ -31,7 +31,7 @@ function rwCardArt(x){
 }
 function rwListingPhotoUrl(src){
   if(typeof rwUploadedPhotoOk==='function'&&rwUploadedPhotoOk(src)) return src;
-  return typeof src==='string'&&/^assets\/property-photos\/[a-z0-9-]+\.(?:jpg|jpeg|png|webp)$/i.test(src)?src:'';
+  if(typeof src==='string'&&/^assets\/property-photos\/[a-z0-9-]+\.(?:jpg|jpeg|png|webp)$/i.test(src))return src;try{var u=new URL(src);if(u.protocol==='https:'&&['assets.simplotel.com','nanauresort.com'].includes(u.hostname))return u.href;}catch(e){}return '';
 }
 function rwListingAttr(value){
   return esc2(value).replace(/"/g,'&quot;').replace(/'/g,'&#39;');
