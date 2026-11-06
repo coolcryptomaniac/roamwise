@@ -78,7 +78,7 @@
       '<div class="rw-stay-body"><span class="eyebrow">ROAMWISE STAY · ' + esc(String(p.zone || '').toUpperCase()) + '</span>' +
       '<h2>' + esc(p.name) + '</h2><p class="muted">' + esc(p.area || '') + maps + '</p><div class="rw-stay-badges">' + badgeHtml(p) + '</div>' +
       price + '<p>' + esc(p.hook || '') + '</p><div class="actions">' + action + '</div>' +
-      '<small class="muted">Your dates, guest count and that you found the stay through RoamWise go with the message. Confirm your reservation directly with the host.</small></div></article>';
+      '<small class="muted">RoamWise coordinates availability, your quotation and booking confirmation. A payment receipt alone does not guarantee a room.</small></div></article>';
   }
 
   function renderStays(h, ctx) {
