@@ -23,7 +23,7 @@ rows.forEach(function(el){var body=el.querySelector('.rs-body');if(!body)return;
 banner.setAttribute('data-visible-duplicates',String(duplicates));
 }
 update();
-var observer=new MutationObserver(function(m){if(m.some(function(x){return x.target!==nav&&x.target!==banner&&x.target!==banner.firstChild}))schedule()});
+var observer=new MutationObserver(function(m){if(m.some(function(x){return x.target!==nav&&x.target!==banner&&!nav.contains(x.target)&&!banner.contains(x.target)}))schedule()});
 var pending=false;function schedule(){if(pending)return;pending=true;requestAnimationFrame(function(){pending=false;update()})}
 observer.observe(dash,{childList:true,subtree:true});
 window.addEventListener('hashchange',function(){var id=location.hash.slice(1);var el=id&&document.getElementById(id);if(el)el.scrollIntoView({behavior:'smooth',block:'start'})});
