@@ -11,7 +11,9 @@ const inr = (n) => 'Rs ' + Math.round(n).toLocaleString('en-IN');
 const fmt = (iso, long) => new Date(iso + 'T12:00:00Z').toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short', ...(long ? { year: 'numeric' } : {}), timeZone: 'UTC' });
 const today = new Date(Date.now() + 5.5 * 3600e3).toISOString().slice(0, 10); // India date
 
-const state = { pkg: 'almora', n: GROUP.default, cohort: 'any', vehicle: 'single', kit: true, start: null };
+const requestedDestination = new URLSearchParams(window.location.search).get('destination');
+const initialPackage = requestedDestination && Object.prototype.hasOwnProperty.call(PACKAGES, requestedDestination) ? requestedDestination : 'almora';
+const state = { pkg: initialPackage, n: GROUP.default, cohort: 'any', vehicle: 'single', kit: true, start: null };
 const opts = () => ({ vehicle: state.vehicle, kit: state.kit });
 const bars = (levels) => '<div class="pk-bars" aria-hidden="true">' + levels.map((l) => '<i class="l' + l + '"></i>').join('') + '</div>';
 
@@ -108,7 +110,7 @@ function fixPremium() { // a premium van seats 10 guests plus the guide: step th
 function renderBookForm(errors) {
   const pkg = PACKAGES[state.pkg], price = priceFor(state.pkg, state.n, opts());
   $('pkBook').hidden = false;
-  $('pkBook').innerHTML = '<h2>Reserve ' + esc(pkg.name) + '</h2><p class="pk-fine">' + esc(state.n) + ' travellers from ' + esc(fmt(state.start, true)) + ', ' + esc(inr(price.totalPP)) + ' per person. Nothing is charged here: we check dates first, then send payment details.</p>'
+  $('pkBook').innerHTML = '<h2>Request booking · ' + esc(pkg.name) + '</h2><p class="pk-fine">' + esc(state.n) + ' travellers from ' + esc(fmt(state.start, true)) + ', ' + esc(inr(price.totalPP)) + ' per person. This sends a booking request, not an instant confirmed reservation. We verify partner capacity, final price, transport and taxes before offering a secure payment link; no payment is taken on this page.</p>'
     + (errors && errors.length ? '<ul class="pk-errors" role="alert">' + errors.map((e) => '<li>' + esc(e) + '</li>').join('') + '</ul>' : '')
     + '<form id="pkBookForm" novalidate><div class="pk-form">'
     + '<label>Lead traveller name<input name="leadName" autocomplete="name" required></label>'
