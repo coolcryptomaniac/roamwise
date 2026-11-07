@@ -1,6 +1,6 @@
 {
  "version": 1,
- "checked": "2026-11-06",
+ "checked": "2026-11-07",
  "regions": [
   {
    "id": "almora",
@@ -358,42 +358,6 @@
     "shinkula"
    ],
    "regions": []
-  },
-  {
-   "id": "auto-20261104-bhu-researchers-generate-landslide-susce",
-   "kind": "road",
-   "official": false,
-   "auto": true,
-   "title": "BHU Researchers Generate Landslide Susceptibility Map Of Uttarkashi",
-   "detail": "ETV Bharat reports this. Check with local police or the district administration before you travel.",
-   "from": "2026-11-04",
-   "until": "2026-11-06",
-   "source": "ETV Bharat",
-   "sourceUrl": "https://news.google.com/rss/articles/CBMiugFBVV95cUxPMTBPTzVscE8xYUlFVGtoeU5RanBpV2swR0dtbC1YWV9ySnRvc2FGakZlUEw3LUpFdGo4TkZDVmdFMWhYRU4xRzhaZmxXRXRGaWtwczNodUliTEJ0bEJvYk9BMktLZ3NTeHYwOEFKbTY2YTZxTEhTdEV2alVPdjJPQ3hiZDdtWWJybEczZXRxbHpzMUpQejlOUlZCLTF0NlR5aDdFQXBkcTF5bjFUaUxROXRCT2lmLVdxU2fSAb8BQVVfeXFMTWRSN3pkY0JSQ1JFcVFxUktrekE0UDRoU1dBTEhUQjQ4c0ZoNDVnUHNwdFRkS0w1S2ZWanR2WVlRNU02Y0Z4aXM5aHpscDI5czIwU1pqS2hOOFJDemNhM0NYTllTdXdOdGVWaXgyTUY5UVltOXlfekpOb1k0SWU1dm1TWHVFbFNaeXgyUkhqWEVybWJHMzIyc291cGd3VmlUdTFSMDhRVXBMU1pJdWpQZVhyNVJOWUlpZTQ3YVhGSzQ?oc=5",
-   "match": [
-    "uttarkashi"
-   ],
-   "regions": [
-    "uttarkashi"
-   ]
-  },
-  {
-   "id": "auto-20261103-8-trekkers-still-stranded-in-uttarkashi-",
-   "kind": "crowd",
-   "official": false,
-   "auto": true,
-   "title": "8 trekkers still stranded in Uttarkashi over 5 days",
-   "detail": "Rediff reports this. Check with local police or the district administration before you travel.",
-   "from": "2026-11-03",
-   "until": "2026-11-06",
-   "source": "Rediff",
-   "sourceUrl": "https://news.google.com/rss/articles/CBMi0AFBVV95cUxQYS1VYWVlUXo0emVkRDdKdU5JS1RKMXc2NFpJRkRGTzNfMHJVV1pnUlllS1RhR0I5c1FpNFgtM2Z2XzgwY1ZWbU1vS09lWGhLb1FWcGpNWHZXZjlVVlpQZXVlbThHZ3FETmlJUVRYX2s1VGVteDJnZzNKMnhQRE9nOFUxUzNuSE5ka3hDWU9TSDB4MjF0anViSGktQzU4cWNYSjh5U2pVcnRGMnRfOVhfQmFBOFJOdEsxNG9JR0g2cUtJYlBxZzZBYTJ3U3lDMnpX0gHTAUFVX3lxTE9ibmFUNWc5YXRSUy1WNkFNZ0xrd0d0Zlhrb1VwclIyVHRRaUFJclRJN1lZSkRDZWFscDhEcG9WQ2xJMnBTdV9pWE9XRF9OODRoUFA4SVRSRW9xcElsQlhJaGtEZC1ydDFBMHdMMWluU3FFdHlfbTBXQVBUbGVZeG5TOHkxSVNZY0dkZE5LZmNfMDV0RWRpaWtJSjMzMHV1LUJzcEZ2WXJqRFlfWF82SE93NjdSbmg4bGVkWlg2SGlhUWxfWjlOYXc3X1ZpbTR5VE9qYzA?oc=5",
-   "match": [
-    "uttarkashi"
-   ],
-   "regions": [
-    "uttarkashi"
-   ]
   },
   {
    "id": "auto-20261102-char-dham-yatra-2026-check-closing-dates",
