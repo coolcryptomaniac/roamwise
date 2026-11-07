@@ -12,7 +12,7 @@ const headers=env=>({'content-type':'application/json','x-api-version':env.CASHF
 function price(body,env){
  const p=RATE[String(body.stay||'')];if(!p)throw Error('Unknown property');
  const start=String(body.checkin||''),end=String(body.checkout||'');
- if(!/^\\d{4}-\\d{2}-\\d{2}$/.test(start)||!/^\\d{4}-\\d{2}-\\d{2}$/.test(end))throw Error('Invalid dates');
+ if(!/^\d{4}-\d{2}-\d{2}$/.test(start)||!/^\d{4}-\d{2}-\d{2}$/.test(end))throw Error('Invalid dates');
  const a=Date.parse(start+'T00:00:00Z'),b=Date.parse(end+'T00:00:00Z'),n=(b-a)/86400000;
  if(!Number.isInteger(n)||n<1||n>14||a<Date.now()-86400000||start<p.from||end>p.until)throw Error('Stay dates unavailable');
  if(body.stay==='padma'&&start<='2027-01-10'&&end>'2026-12-18')throw Error('Peak dates need updated pricing');
@@ -28,8 +28,8 @@ export async function createStayOrder(request,env){
  if(!env.CASHFREE_APP_ID||!env.CASHFREE_SECRET_KEY||!kv(env))return json({error:'stay_checkout_unavailable'},503);
  let b;try{b=await request.json()}catch(_){return json({error:'invalid_json'},400)}
  let quote;try{quote=price(b,env)}catch(e){return json({error:'invalid_quote',message:e.message},422)}
- const phone=String(b.phone||'').replace(/[\\s()-]/g,''),email=String(b.email||'').trim();
- if(!/^\\+?\\d{10,15}$/.test(phone)||!/^\\S+@\\S+\\.\\S+$/.test(email))return json({error:'contact_required'},422);
+ const phone=String(b.phone||'').replace(/[\s()-]/g,''),email=String(b.email||'').trim();
+ if(!/^\+?\d{10,15}$/.test(phone)||!/^\S+@\S+\.\S+$/.test(email))return json({error:'contact_required'},422);
  const id='rwstay_'+crypto.randomUUID().replace(/-/g,'');
  const record={...quote,id,email,phone,status:'payment_pending',confirmed:false,createdAt:new Date().toISOString()};
  await kv(env).put('stayorder:'+id,JSON.stringify(record),{expirationTtl:60*60*24*180});
