@@ -155,9 +155,11 @@ window.RW_PARTNER_SEED = [{
    name:'Padma Villa — Private Mountain Estate',propertyType:'Luxury villa',roomCount:6,
    verified:'founder-approved',listingReady:true,founderApproval:'Mohit Pandey · 2026-11-06',enquiryOnly:true,bookingMode:'enquiry',supportEmail:'support@roamwise.co.in',
    instagramUrl:'https://www.instagram.com/padmavillamanali/',
+   heroImage:'/assets/img/roamwise-logo-176.webp',imageStatus:'awaiting_property_photo',
    hook:'Six-key boutique mountain villa for small groups, with select jacuzzi and bath-tub suites. Enquiry only; terms pending.'},
   {id:'p_amor_aramness',cat:'stay',zone:'Gir',area:'Gir National Park, Gujarat',
    name:'Aramness Gir',propertyType:'Luxury wilderness retreat',
+   heroImage:'/assets/img/roamwise-logo-176.webp',imageStatus:'awaiting_property_photo',
    verified:'founder-approved',listingReady:true,founderApproval:'Mohit Pandey · 2026-11-06',enquiryOnly:true,bookingMode:'enquiry',supportEmail:'support@roamwise.co.in',
    hook:'Luxury private-pool Kothis near Gir National Park. Partner rate sheet received; final listing terms pending.'}
 ];
