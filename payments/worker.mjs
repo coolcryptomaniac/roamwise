@@ -42,6 +42,7 @@ async function webhook(req,env,provider){
 // (20% gross margin on sale before payment fees), rounded up to whole rupees.
 // These are accommodation-only; activities and transport are not included.
 const AMOR_STAYS=Object.freeze({
+ tattwaa:{label:'Tattwaa Corbett — Forest Room, CPAI + hi-tea',net:5500,validFrom:'2026-11-07',validTo:'2027-03-31',taxIncluded:false,provisionalCarryForward:true,blackouts:[]},
  nanau:{label:'Nanau Resort & Spa — Sitabani Studio, CP + hi-tea',net:5500,validFrom:'2026-10-01',validTo:'2027-03-31',taxIncluded:true,blackouts:['2026-12-24','2026-12-25','2026-12-26','2026-12-27','2026-12-28','2026-12-29','2026-12-30','2026-12-31','2027-01-01','2027-01-02','2027-01-03','2027-01-23','2027-01-24','2027-01-25','2027-01-26','2027-03-20','2027-03-21','2027-03-26','2027-03-27']},
  padma:{label:'Padma Villa Manali — Royal Chamber, EP',net:5000,validFrom:'2026-10-01',validTo:'2027-03-31',taxIncluded:false,blackouts:[]},
  aramness:{label:'Aramness Gir — Kothi, AP all meals',net:72216,validFrom:'2026-10-16',validTo:'2027-02-28',taxIncluded:true,blackouts:[]}
@@ -58,9 +59,9 @@ function stayQuote(body,env){
  if(body.stay==='padma'&&start<='2027-01-10'&&end>'2026-12-18')throw Object.assign(new Error('Padma peak-season rates require a separate quote.'),{status:422});
  if(body.stay==='aramness'&&body.peakOrFair===true)throw Object.assign(new Error('Special fair/blackout rates require a separate quote.'),{status:422});
  // Padma rate is tax-exclusive; configured GST rate must be explicit.
- const taxRate=body.stay==='padma'?Number(env.PADMA_GST_RATE):0;
- if(body.stay==='padma'&&(![0.05,0.12,0.18].includes(taxRate)))throw Object.assign(new Error('Padma tax rate must be verified by operations before checkout.'),{status:422});
- const base=Math.ceil(p.net*nights*1.25),total=body.stay==='padma'?Math.ceil(base*(1+taxRate)):base;
+ const taxRate=!p.taxIncluded?Number(env.STAY_GST_RATE):0;
+ if(!p.taxIncluded&&(![0.05,0.12,0.18].includes(taxRate)))throw Object.assign(new Error('Tax rate must be configured by operations before checkout.'),{status:422});
+ const base=Math.ceil(p.net*nights*1.25),total=!p.taxIncluded?Math.ceil(base*(1+taxRate)):base;
  const portion=body.paymentType==='full'?100:body.paymentType==='advance'?25:0;
  if(!portion)throw Object.assign(new Error('Choose advance or full payment.'),{status:422});
  return {stay:body.stay,label:p.label,checkin:start,checkout:end,nights,guests:2,total,portion,amount:Math.ceil(total*portion/100),currency:'INR',status:'payment_pending_supplier_confirmation',extrasExcluded:true};
