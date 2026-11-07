@@ -56,6 +56,7 @@
    ========================================================================= */
 
 import { CORS, json } from './lib/http.js';
+import { createStayOrder, stayOrderStatus } from './handlers/stay-cashfree.js';
 import { handleAgentMail } from './handlers/agentmail-outreach.js';
 import {handleCreatorAutopilot,runCreatorAutopilot} from './handlers/creator-autopilot.js';
 import { handleHealth } from './handlers/health.js';
@@ -167,6 +168,9 @@ export default {
 
     if(path === 'events/refresh') return handleEventsRefresh(request, env);
 
+    if(path === 'stays/checkout' && request.method === 'POST') return createStayOrder(request,env);
+    const stayCfStatus=path.match(/^stays\/status\/(rwstay_[a-f0-9]{32})$/);
+    if(stayCfStatus && request.method === 'GET') return stayOrderStatus(request,env,stayCfStatus[1]);
     if(path === 'cashfree/order' && request.method === 'POST') return handleCashfreeOrder(request, env);
     if(path === 'bhakti/access' && request.method === 'GET') return handleBhaktiAccess(request, env);
     if(path === 'bhakti/order' && request.method === 'POST') return handleCashfreeOrder(request, env, true);
