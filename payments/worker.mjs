@@ -46,7 +46,7 @@ const AMOR_STAYS=Object.freeze({
  padma:{label:'Padma Villa Manali — Royal Chamber, EP',net:5000,validFrom:'2026-10-01',validTo:'2027-03-31',taxIncluded:false,blackouts:[]},
  aramness:{label:'Aramness Gir — Kothi, AP all meals',net:72216,validFrom:'2026-10-16',validTo:'2027-02-28',taxIncluded:true,blackouts:[]}
 });
-function stayQuote(body){
+function stayQuote(body,env){
  const p=AMOR_STAYS[String(body.stay||'')];if(!p)throw Object.assign(new Error('This property requires an updated supplier tariff.'),{status:422});
  const start=String(body.checkin||''),end=String(body.checkout||'');
  if(!/^\d{4}-\d{2}-\d{2}$/.test(start)||!/^\d{4}-\d{2}-\d{2}$/.test(end))throw Object.assign(new Error('Choose valid dates.'),{status:422});
@@ -58,7 +58,7 @@ function stayQuote(body){
  if(body.stay==='padma'&&start<='2027-01-10'&&end>'2026-12-18')throw Object.assign(new Error('Padma peak-season rates require a separate quote.'),{status:422});
  if(body.stay==='aramness'&&body.peakOrFair===true)throw Object.assign(new Error('Special fair/blackout rates require a separate quote.'),{status:422});
  // Padma rate is tax-exclusive; configured GST rate must be explicit.
- const taxRate=body.stay==='padma'?Number(body.padmaTaxRate):0;
+ const taxRate=body.stay==='padma'?Number(env.PADMA_GST_RATE):0;
  if(body.stay==='padma'&&(![0.05,0.12,0.18].includes(taxRate)))throw Object.assign(new Error('Padma tax rate must be verified by operations before checkout.'),{status:422});
  const base=Math.ceil(p.net*nights*1.25),total=body.stay==='padma'?Math.ceil(base*(1+taxRate)):base;
  const portion=body.paymentType==='full'?100:body.paymentType==='advance'?25:0;
@@ -70,7 +70,7 @@ async function createStayPayment(req,env){
  if(!allowedOrigin(req,env))return out({error:'origin_not_allowed'},403,corsHeaders);
  if(!env.CASHFREE_APP_ID||!env.CASHFREE_SECRET_KEY||!env.STAY_ORDERS)return out({error:'stay_checkout_not_configured'},503,corsHeaders);
  let b;try{b=await readJson(req)}catch(e){return out({error:'invalid_json'},400,corsHeaders)}
- let q;try{q=stayQuote(b)}catch(e){return out({error:'invalid_quote',message:e.message},e.status||422,corsHeaders)}
+ let q;try{q=stayQuote(b,env)}catch(e){return out({error:'invalid_quote',message:e.message},e.status||422,corsHeaders)}
  const phone=String(b.phone||'').replace(/[\s()-]/g,''),email=String(b.email||'').trim();
  if(!/^\+?\d{10,15}$/.test(phone)||!/^\S+@\S+\.\S+$/.test(email))return out({error:'valid_phone_and_email_required'},422,corsHeaders);
  const id='rwstay_'+safeId(crypto.randomUUID()),live=String(env.CASHFREE_ENV||'sandbox')==='live';
