@@ -120,7 +120,9 @@
   });
 
   (async function init() {
-    const returned = new URLSearchParams(location.search).get('order_id');
+    const params = new URLSearchParams(location.search);
+    const returned = params.get('order_id');
+    const requestedSku = params.get('buy');
     if (returned && ORDER_RE.test(returned)) { showStatus(returned, 10); }
     const r = await api('/shop/catalogue').catch(() => null);
     if (!r || !r.ok) return;
@@ -129,12 +131,12 @@
     const pick = $('buy-product');
     products.forEach((p) => { const o = document.createElement('option'); o.value = p.id; o.textContent = p.name + ' · ' + money(p.pricePaise); pick.append(o); });
     pick.addEventListener('change', () => setProduct(pick.value));
-    setProduct(products[0].id);
+    setProduct(products.some(p => p.id === requestedSku) ? requestedSku : products[0].id);
     document.querySelectorAll('[data-buy]').forEach((a) => {
       if (!r.data.checkoutOpen || !products.some((p) => p.id === a.dataset.buy)) return;
       a.hidden = false;
       a.addEventListener('click', () => { root.hidden = false; setProduct(a.dataset.buy); });
     });
-    if (r.data.checkoutOpen) root.hidden = false;
+    if (r.data.checkoutOpen) { root.hidden = false; if (requestedSku && products.some(p => p.id === requestedSku)) root.scrollIntoView({ behavior: 'smooth', block: 'start' }); } else { say('buy-status', 'Online checkout is temporarily unavailable while supplier and delivery rates are confirmed. No payment can be taken.'); }
   })();
 })();
