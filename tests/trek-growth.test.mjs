@@ -44,7 +44,7 @@ test('financial CTAs are disabled until a server-side gateway flag is truly on',
  const homepage=read('js/ui/trek-home-carousel.js');
  const limits=read('worker/lib/rate-limit.js');
  assert.match(worker,/checkoutEnabled:!!\(gate\?\.checkoutEnabled===true/);
- assert.match(app,/checkoutEnabled:r\.checkoutEnabled===true/);
+ assert.match(app,/state\.checkoutEnabled=r\.checkoutEnabled===true/);
  assert.match(app,/if\(!state\.checkoutEnabled\)\{enquire\(id\)/);
  assert.match(homepage,/data\.checkoutEnabled===true\?/);
  assert.match(limits,/'trek-enquiry'/);
