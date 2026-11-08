@@ -74,7 +74,7 @@ async function catalog(){
   state.items=r.items||[];
   $('catalog').innerHTML=state.items.length?state.items.map(p=>{
    const image=p.imageUrl?'<img loading="lazy" alt="Trek provided by operator" src="'+esc(p.imageUrl)+'" style="width:100%;height:156px;object-fit:cover;border-radius:12px;margin-bottom:12px">':'';
-   return '<article class="card">'+image+'<div class="head"><span class="mini">'+esc(p.provider.role).toUpperCase()+' · VERIFIED PARTNER</span><span class="chip">'+esc(p.start)+'</span></div><h3>'+esc(p.name)+'</h3><p>'+esc(p.provider.name)+' · '+esc(p.region)+'</p><p>'+esc(p.duration)+' day(s) · '+esc(p.difficulty||'Difficulty pending')+'</p><div class="price">'+money(p.unitPrice)+' <small>operator rate / '+esc(p.pricingUnit||'person')+'</small></div><p class="terms">RoamWise fee: 1%, max ₹99 per booking. Booking subject to operator confirmation.</p><button type="button" data-checkout="'+esc(p.id)+'">View price &amp; book securely →</button></article>';
+   return '<article class="card">'+image+'<div class="head"><span class="mini">'+esc(p.provider.role).toUpperCase()+' · VERIFIED PARTNER</span><span class="chip">'+esc(p.start)+'</span></div><h3>'+esc(p.name)+'</h3><p>'+esc(p.provider.name)+' · '+esc(p.region)+'</p>'+(p.provider.cofounders?'<p class="terms">Founders: '+esc(p.provider.cofounders)+'</p>':'')+(p.provider.instagram?'<p class="terms"><a href="'+esc(p.provider.instagram)+'" target="_blank" rel="noopener noreferrer">Operator Instagram ↗</a></p>':'')+'<p>'+esc(p.duration)+' day(s) · '+esc(p.difficulty||'Difficulty pending')+'</p><div class="price">'+money(p.unitPrice)+' <small>operator rate / '+esc(p.pricingUnit||'person')+'</small></div><p class="terms">RoamWise fee: 1%, max ₹99 per booking. Booking subject to operator confirmation.</p><button type="button" data-checkout="'+esc(p.id)+'">View price &amp; book securely →</button></article>';
   }).join(''):'<div class="card"><h3>No verified departures published yet</h3><p>Applications and draft itineraries are not bookable until an authorised operator and RoamWise complete review.</p></div>';
   for(const b of $('catalog').querySelectorAll('[data-checkout]'))b.addEventListener('click',()=>checkout(b.dataset.checkout));
  }catch(e){$('catalog').innerHTML='<p class="notice">Catalog temporarily unavailable: '+esc(e.message)+'</p>'}
@@ -83,7 +83,7 @@ function toObject(form){return Object.fromEntries(new FormData(form).entries())}
 async function submitJoin(ev){
  ev.preventDefault();if(!checkLogin())return;
  const form=ev.currentTarget,b=toObject(form);
- b.consent=!!form.elements.consent.checked;
+ b.consent=!!form.elements.consent.checked;b.showFounderNames=!!form.elements.showFounderNames.checked;
  try{
   const out=await api('/treks/apply',b,true);
   message(out.message||'Application sent. Founder review pending.');tab('studio');
@@ -202,8 +202,11 @@ function invited(){
  if(params.get('invite')==='hikeandseek'){
   const f=$('joinForm');f.elements.role.value='company';f.elements.name.value='Hike & Seek';
   f.elements.website.value='https://hikeandseek.in/';f.elements.region.value='Dehradun, Uttarakhand';
+  f.elements.instagram.value='https://www.instagram.com/hike_and__seek/';
+  f.elements.cofounders.value='Gaurav Aswal; Aanchal Kandari';
+  f.elements.showFounderNames.checked=false;
   const banner=$('inviteMessage');banner.classList.remove('hidden');
-  banner.textContent='Hike & Seek invitation preview. This form is not submitted or verified on your behalf. An authorised team member must sign in, confirm their own contact information and choose to apply.';
+  banner.textContent='Hike & Seek invitation preview. Cofounder names and Instagram are prefilled from founder-supplied information and public references. Public-founder display is OFF. An authorised representative must verify or edit the details, sign in and submit. No private phone number is prefilled or published.';
   tab('join');
  }else if(location.hash){const id=location.hash.slice(1);if($(id)&&$(id).classList.contains('view'))tab(id)}
 }
