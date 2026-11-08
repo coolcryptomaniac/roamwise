@@ -105,6 +105,11 @@ export async function runWalletReleases(env, nowMs = Date.now(), deps = {}) {
       if (!w) { await env.RW_KV.delete(k.name); continue; }
       const sent = [];
       for (const lot of dueLots(w, nowMs)) {
+        if (lot.method === 'upi') {
+          w = { ...w, lots: w.lots.map((l) => (l.lotId === lot.lotId ? { ...l, state: 'attention', bankStatus: 'UPI refund by RoamWise' } : l)) };
+          await (deps.sendMail || sendMail)(env, { to: 'founder@roamwise.co.in', subject: 'Send UPI refund: Rs ' + lot.remaining, text: 'Wallet credit of Rs ' + lot.remaining + ' (from direct UPI order ' + lot.orderId + ') is due back to ' + w.email + '. Send it by UPI to the account it came from, then reply to the guest.' });
+          continue;
+        }
         const r = await (deps.cfRefund || cfRefund)(env, { orderId: lot.orderId, amount: lot.remaining, refundId: 'rwr' + lot.lotId.slice(-30), note: 'RoamWise wallet refund' });
         w = markBank(w, lot.lotId, r, nowMs);
         if (r.ok) { refunded++; sent.push(lot.remaining); }

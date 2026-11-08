@@ -6,7 +6,8 @@
  *      after 24 hours, or after 7 days when the refund looks unusual (large amount or many refunds).
  *   3. A bank refund always goes to the ORIGINAL Cashfree order, so the wallet never pays out more than came in.
  * The wallet is closed-loop (spend only on RoamWise), which is why credit never becomes cash except as a refund
- * to the original payment. Lots are amounts in whole rupees. */
+ * to the original payment. Lots are amounts in whole rupees. Credit from a direct UPI payment (no Cashfree order)
+ * cannot be refunded by API: when its hold ends it is handed to the founder to send back by UPI. */
 
 export const HOLD_NORMAL_MS = 24 * 3600 * 1000;
 export const HOLD_REVIEW_MS = 7 * 24 * 3600 * 1000;
@@ -72,7 +73,7 @@ export function creditRefund(w, { refId, origins, phone, note }, nowMs) {
   const hold = holdFor(w, total, nowMs);
   const at = new Date(nowMs).toISOString(), releaseAt = new Date(nowMs + hold.ms).toISOString();
   const lots = origins.filter((o) => o.amount > 0).map((o, i) => ({
-    lotId: refId.slice(-24) + 'x' + i, refId, orderId: o.orderId, amount: o.amount, remaining: o.amount,
+    lotId: refId.slice(-24) + 'x' + i, refId, orderId: o.orderId, method: o.method === 'upi' ? 'upi' : 'cashfree', amount: o.amount, remaining: o.amount,
     source: 'refund', state: 'credit', review: hold.review, createdAt: at, releaseAt, note: String(note || '').slice(0, 120),
   }));
   const p = normPhone(phone);
@@ -91,7 +92,7 @@ export function spend(w, amount, refId, nowMs) {
     if (!left) return;
     const take = Math.min(left, l.remaining);
     l.remaining -= take; left -= take; if (!l.remaining) l.state = 'used';
-    used.push({ orderId: l.orderId, amount: take, lotId: l.lotId });
+    used.push({ orderId: l.orderId, amount: take, lotId: l.lotId, method: l.method || 'cashfree' });
   });
   return { wallet: { ...w, lots, log: [...(w.log || []), { at: new Date(nowMs).toISOString(), kind: 'spend', amount, refId }].slice(-100) }, used };
 }

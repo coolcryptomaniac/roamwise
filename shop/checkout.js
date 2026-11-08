@@ -16,6 +16,10 @@
   let quote = null;
   let checkoutOpen = false;
   let loaded = null; // promise for the catalogue request
+  /* RoamWise wallet: the private wallet token from a wallet link (?wallet=) or the wallet page on this device. */
+  let walletT = new URLSearchParams(location.search).get('wallet') || '';
+  try { if (walletT) localStorage.setItem('rwWalletT', walletT); else walletT = localStorage.getItem('rwWalletT') || ''; } catch (_) { /* private mode */ }
+  let walletPaise = 0;
 
   const money = (paise) => '₹' + (paise / 100).toLocaleString('en-IN', { minimumFractionDigits: paise % 100 ? 2 : 0, maximumFractionDigits: 2 });
   const say = (id, text) => { $(id).textContent = text; };
@@ -91,6 +95,7 @@
 
   const STATUS_TEXT = {
     paid: 'Payment received. Your order is confirmed. We will update you on WhatsApp.',
+    refunded_to_wallet: 'This order was refunded to your RoamWise wallet. Check your email for the wallet link.',
     awaiting_payment: 'We have not received confirmation of your payment yet. If money left your account, do not pay again; message us with your order ID.',
     awaiting_upi_payment: 'Waiting for your UPI payment to be verified in our bank record. This is not instant. Do not pay twice.',
     payment_setup_failed: 'The payment could not be started and no money was taken. Please try again.',
@@ -134,7 +139,7 @@
     say('buy-summary', 'Item ' + money(quote.subtotalPaise) + ' + delivery ' + money(quote.shippingPaise) + ' = ' + money(quote.totalPaise));
     let first = true;
     form.querySelectorAll('input[name="payMethod"]').forEach((radio) => {
-      const open = !!quote.methods[radio.value];
+      const open = radio.value === 'wallet' ? walletPaise >= quote.totalPaise && quote.totalPaise % 100 === 0 : !!quote.methods[radio.value];
       radio.closest('label').hidden = !open; radio.disabled = !open; radio.checked = open && first;
       if (open) first = false;
     });
@@ -150,11 +155,12 @@
     if (!method) return;
     $('buy-pay').disabled = true;
     say('buy-status', 'Creating your order…');
-    const r = await post('/shop/order', { items: cart(), customer: customer(), ship: ship(), method }).catch(() => null);
+    const r = await post('/shop/order', { items: cart(), customer: customer(), ship: ship(), method, ...(method === 'wallet' ? { wallet: walletT } : {}) }).catch(() => null);
     $('buy-pay').disabled = false;
     if (!r || !r.ok) { say('buy-status', (r && r.data.message) || 'Could not create the order. No payment was taken.'); return; }
     store.set(r.data.orderId, r.data.token);
     if (r.data.method === 'upi') { showUpi(r.data); return; }
+    if (r.data.method === 'wallet') { form.hidden = true; showStatus(r.data.orderId, 0); return; }
     try {
       await loadScript('https://sdk.cashfree.com/js/v3/cashfree.js');
       const cashfree = window.Cashfree({ mode: r.data.environment === 'production' ? 'production' : 'sandbox' });
@@ -169,6 +175,11 @@
     const params = new URLSearchParams(location.search);
     const returned = params.get('order_id');
     if (returned && ORDER_RE.test(returned)) showStatus(returned, 10);
+    if (walletT) api('/wallet?t=' + encodeURIComponent(walletT)).then((w) => {
+      if (!w.ok) return;
+      walletPaise = (w.data.wallet.balance || 0) * 100;
+      say('buy-wallet-label', 'RoamWise wallet credit (' + money(walletPaise) + ' available)');
+    }).catch(() => { /* wallet is optional */ });
     const r = await api('/shop/catalogue').catch(() => null);
     if (r && r.ok) {
       products = r.data.products || [];

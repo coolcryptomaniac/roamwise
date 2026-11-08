@@ -59,6 +59,7 @@ import { CORS, json } from './lib/http.js';
 import { createStayOrder, stayOrderStatus, handleStayCashfreeWebhook, stayRates, stayQuote } from './handlers/stay-cashfree.js';
 import { handleStayDecide, runStayDeadlines } from './handlers/stay-lifecycle.js';
 import { handleWallet, runWalletReleases } from './handlers/wallet.js';
+import { handleShopDecide, runShopRefundCron } from './handlers/shop-order.js';
 import { handleAgentMail } from './handlers/agentmail-outreach.js';
 import {handleCreatorAutopilot,runCreatorAutopilot} from './handlers/creator-autopilot.js';
 import { handleHealth } from './handlers/health.js';
@@ -173,6 +174,7 @@ export default {
 
     if(path === 'stays/rates' && request.method === 'GET') return stayRates();
     if(path === 'stays/decide' && request.method === 'GET') return handleStayDecide(request, env);
+    if(path === 'shop/decide' && request.method === 'GET') return handleShopDecide(request, env);
     if(path === 'wallet' || /^wallet\/(keep|bank|link)$/.test(path)) return handleWallet(request, env, path);
     if(path === 'stays/quote' && request.method === 'POST') return stayQuote(request);
     if(path === 'stays/checkout' && request.method === 'POST') return createStayOrder(request,env);
@@ -237,6 +239,7 @@ export default {
       try{ if(env.FIREBASE_SERVICE_ACCOUNT_JSON) await runShopFulfilmentCron(env); }catch(e){ /* retried next hour */ }
       /* Paid stays nobody confirmed in time go to the guest wallet; wallet credit past its hold goes back to the bank. */
       try{ await runStayDeadlines(env); }catch(e){ /* retried next hour */ }
+      try{ if(env.FIREBASE_SERVICE_ACCOUNT_JSON) await runShopRefundCron(env); }catch(e){ /* retried next hour */ }
       try{ await runWalletReleases(env); }catch(e){ /* retried next hour */ }
       return;
     }

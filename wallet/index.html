@@ -8,7 +8,7 @@
 <p class="muted" style="margin-top:14px">Or get a new private link by email</p><input id="email" type="email" placeholder="you@example.com" autocomplete="email"><button id="sendLink" type="button" class="ghost">Email me a link</button>
 <p id="signMsg" role="status" class="muted"></p></section>
 <section id="wallet" hidden><div class="muted">Available credit</div><div id="bal">₹0</div><p class="muted" id="who"></p>
-<a class="btn" id="book" href="/packages/amor-checkout.html">Book a stay with your credit</a>
+<a class="btn" id="book" href="/packages/amor-checkout.html">Book a stay with your credit</a><a class="btn" id="shop" href="/shop/#collection">Shop with your credit</a>
 <div id="lots"></div><p class="muted">Credit you don't use goes back to your original payment method automatically on the date shown (after 24 hours, or 7 days for larger refunds while we run checks). Keeping it as credit means it stays here until you tap "Send to my bank".</p></section>
 <p id="msg" role="status"></p></main>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script><script src="/partner/config.js"></script>
@@ -17,7 +17,7 @@
 'use strict';
 var API='https://roamwise-api.founder-f53.workers.dev',$=function(id){return document.getElementById(id)};
 var params=new URLSearchParams(location.search),token=params.get('t')||'';
-try{if(token)sessionStorage.setItem('rwWalletT',token);else token=sessionStorage.getItem('rwWalletT')||''}catch(e){}
+try{if(token)localStorage.setItem('rwWalletT',token);else token=localStorage.getItem('rwWalletT')||''}catch(e){}
 var idToken='';
 var inr=function(n){return '₹'+Number(n||0).toLocaleString('en-IN')};
 var day=function(s){return s?new Date(s).toLocaleString('en-IN',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}):''};
@@ -26,7 +26,7 @@ function call(path,body){var h={'content-type':'application/json'};if(idToken)h.
 var STATE={credit:'Goes to your bank on ',kept:'Kept as credit',bank:'Sent back to your bank',used:'Used for a booking',attention:'Our team is processing this refund'};
 function render(w){
   $('signin').hidden=true;$('wallet').hidden=false;$('bal').textContent=inr(w.balance);$('who').textContent=w.email;
-  if(token)$('book').href='/packages/amor-checkout.html?wallet='+encodeURIComponent(token);
+  if(token){$('book').href='/packages/amor-checkout.html?wallet='+encodeURIComponent(token);$('shop').href='/shop/?wallet='+encodeURIComponent(token)+'#collection'}
   var box=$('lots');box.replaceChildren();
   w.lots.forEach(function(l){var d=document.createElement('div');d.className='lot';
     var t=document.createElement('div');t.textContent=inr(l.amount)+(l.note?' · '+l.note:'');d.append(t);

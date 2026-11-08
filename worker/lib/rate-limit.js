@@ -66,7 +66,7 @@ export function routeKey(path, method){
   if(method === 'GET' && /^music\/(order\/[^/]+\/status|download\/[^/]+|licence\/[^/]+)$/.test(path)) return 'status';
   if(path === 'leads') return 'leads';
   if(method === 'POST' && path === 'wallet/link') return 'wallet-link';
-  if(path === 'wallet' || /^wallet\/(keep|bank)$/.test(path) || path === 'stays/decide') return 'wallet';
+  if(path === 'wallet' || /^wallet\/(keep|bank)$/.test(path) || path === 'stays/decide' || path === 'shop/decide') return 'wallet';
   if(method === 'POST' && (path === 'stays/checkout' || path === 'stays/quote')) return 'stay-order';
   if(method === 'GET' && /^(partner\/)?cashfree\/order\/[^/]+\/status$/.test(path)) return 'status';
   return null;
