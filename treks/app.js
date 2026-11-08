@@ -90,11 +90,14 @@ async function catalog(){
  try{
   const r=await api('/treks/catalog');
   state.items=r.items||[];state.checkoutEnabled=r.checkoutEnabled===true;
-  $('catalog').innerHTML=state.items.length?state.items.map(p=>{
+  const operatorFilter=new URLSearchParams(location.search).get('operator');
+  const displayItems=operatorFilter?state.items.filter(p=>p.provider?.id===operatorFilter):state.items;
+  $('discoverTitle').textContent=displayItems.length&&operatorFilter?'Verified departures · '+displayItems[0].provider.name:'Upcoming verified departures';
+  $('catalog').innerHTML=displayItems.length?displayItems.map(p=>{
    const photos=[...new Set([...(Array.isArray(p.galleryUrls)?p.galleryUrls:[]),p.imageUrl].filter(u=>typeof u==='string'&&/^https:\/\//i.test(u)))].slice(0,4);
    const image=photos.length?'<div class="trek-photo-strip" aria-label="Real photos provided by the approved operator">'+photos.map((u,i)=>'<img loading="lazy" decoding="async" src="'+esc(u)+'" alt="Operator-provided trek photograph '+(i+1)+' of '+photos.length+'">').join('')+'</div>':'';
    return '<article class="card">'+image+'<div class="head"><span class="mini">'+esc(p.provider.role).toUpperCase()+' · VERIFIED PARTNER</span><span class="chip">'+esc(p.start)+'</span></div><h3>'+esc(p.name)+'</h3><p>'+esc(p.provider.name)+' · '+esc(p.region)+'</p>'+(p.provider.cofounders?'<p class="terms">Founders: '+esc(p.provider.cofounders)+'</p>':'')+(p.provider.instagram?'<p class="terms"><a href="'+esc(p.provider.instagram)+'" target="_blank" rel="noopener noreferrer">Operator Instagram ↗</a></p>':'')+(p.provider.businessWhatsapp?'<p><a class="button" href="'+esc(whatsappLink(p.provider.businessWhatsapp,p.name,p.provider.name))+'" target="_blank" rel="noopener noreferrer">Ask operator on WhatsApp ↗</a></p>':'')+'<p>'+esc(p.duration)+' day(s) · '+esc(p.difficulty||'Difficulty pending')+(p.meetingPoint?' · Meet: '+esc(p.meetingPoint):'')+'</p><div class="price">'+money(p.unitPrice)+' <small>operator rate / '+esc(p.pricingUnit||'person')+'</small></div><p class="terms">RoamWise fee: 1%, max ₹99 per booking. Booking subject to operator confirmation.</p><div class="row">'+(state.checkoutEnabled?'<button type="button" data-checkout="'+esc(p.id)+'">View price &amp; book securely →</button>':'<span class="chip">Direct checkout pending approval</span>')+'<button type="button" class="secondary" data-enquire="'+esc(p.id)+'">Ask operator →</button></div></article>';
-  }).join(''):'<div class="card"><h3>No verified departures published yet</h3><p>Applications and draft itineraries are not bookable until an authorised operator and RoamWise complete review.</p></div>';
+  }).join(''):'<div class="card"><h3>No verified departures published yet</h3><p>Applications and draft itineraries are not bookable until an authorised operator and RoamWise complete review.</p><a href="/treks/#discover">Browse the RoamWise Trails network →</a></div>';
   for(const b of $('catalog').querySelectorAll('[data-checkout]'))b.addEventListener('click',()=>checkout(b.dataset.checkout));
   for(const b of $('catalog').querySelectorAll('[data-enquire]'))b.addEventListener('click',()=>enquire(b.dataset.enquire));
   if(!state.deepLinked){
