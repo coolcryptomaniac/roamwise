@@ -48,7 +48,7 @@ function publicProvider(provider){
 }
 function publicPackage(pkg,provider){
  return {id:pkg.id,provider:publicProvider(provider),name:pkg.name,region:pkg.region,start:pkg.start,duration:pkg.duration,
-  difficulty:pkg.difficulty,pricePerPerson:pkg.pricePerPerson,seats:pkg.seats,includes:pkg.includes,
+  difficulty:pkg.difficulty,unitPrice:pkg.unitPrice,pricingUnit:pkg.pricingUnit,seats:pkg.seats,includes:pkg.includes,
   excludes:pkg.excludes,itinerary:pkg.itinerary,refundPolicy:pkg.refundPolicy,imageUrl:pkg.imageUrl,
   safetyNote:pkg.safetyNote,operatorConfirmationRequired:true};
 }
@@ -66,11 +66,11 @@ async function quote(ctx,id,seats){
  if(!entry)return {error:'not_available'};
  const p=entry.pkg;const count=Number(seats);
  if(!Number.isSafeInteger(count)||count<1||count>12||count>Number(p.seats))return {error:'invalid_seats'};
- const base=Number(p.pricePerPerson);
+ const base=Number(p.unitPrice);
  if(!Number.isSafeInteger(base)||base<100||base>200000)return {error:'invalid_rate'};
- const subtotal=base*count,fee=feeFor(subtotal);
+ const subtotal=base*(p.pricingUnit==='person'?count:1);if(subtotal>500000)return {error:'amount_too_large'};const fee=feeFor(subtotal);
  return {pkg:p,owner:entry.owner,count,quote:{packageId:id,name:p.name,departure:p.start,travellers:count,
-   perPerson:base,operatorTotal:subtotal,roamwiseServiceFee:fee,total:subtotal+fee,currency:'INR',
+   unitPrice:base,pricingUnit:p.pricingUnit,operatorTotal:subtotal,roamwiseServiceFee:fee,total:subtotal+fee,currency:'INR',
    partnerCommission:0,confirmation:'Pending operator confirmation after successful payment'}};
 }
 async function isAdmin(ctx,claims){
@@ -122,14 +122,14 @@ export async function handleTrekMarketplace(request,env,path){
    const b=await readJSON(request),owner=await doc(ctx,'trekProviders/'+claims.uid);
    if(!owner||!['pending_review','approved'].includes(owner.status))return apiError('partner_application_required',403);
    const name=safe(b.name,110),region=safe(b.region,100),start=safe(b.start,10),
-    price=Number(b.pricePerPerson),seats=Number(b.seats),days=Number(b.duration);
+    price=Number(b.unitPrice),seats=Number(b.seats),days=Number(b.duration);
    if(!name||!region||!ISO.test(start)||Date.parse(start+'T00:00:00Z')<=Date.now()||
       !Number.isSafeInteger(price)||price<100||price>200000||
       !Number.isSafeInteger(seats)||seats<1||seats>100||
       !Number.isSafeInteger(days)||days<1||days>60||
       !safe(b.includes,1800)||!safe(b.itinerary,3500)||!safe(b.refundPolicy,800)||!safe(b.safetyNote,800))
       return apiError('missing_or_invalid_package_details',422);
-   const data={ownerUid:claims.uid,name,region,start,pricePerPerson:price,seats,duration:days,
+   const data={ownerUid:claims.uid,name,region,start,unitPrice:price,pricingUnit:['person','vehicle','group'].includes(b.pricingUnit)?b.pricingUnit:'person',seats,duration:days,
       difficulty:safe(b.difficulty,60),includes:safe(b.includes,1800),excludes:safe(b.excludes,1800),
       itinerary:safe(b.itinerary,3500),refundPolicy:safe(b.refundPolicy,800),
       safetyNote:safe(b.safetyNote,800),imageUrl:/^https:\/\//.test(b.imageUrl||'')?safe(b.imageUrl,450):'',
@@ -154,7 +154,7 @@ export async function handleTrekMarketplace(request,env,path){
     const provider=await doc(ctx,'trekProviders/'+b.id);
     if(!provider)return apiError('not_found',404);
     await patch(ctx,'trekProviders/'+b.id,{status:b.action==='approve'?'approved':'paused',verified:b.action==='approve',
-      approvedAt:b.action==='approve'?utcNow():safe(provider.approvedAt,40),reviewerUid:claims.uid});
+      approvedAt:b.action==='approve'?(provider.approvedAt||utcNow()):safe(provider.approvedAt,40),reviewerUid:claims.uid});
     return json({ok:true});
    }
    if(b.kind==='package'&&packagePattern.test(b.id||'')&&['publish','pause'].includes(b.action)){
