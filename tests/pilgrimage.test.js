@@ -18,7 +18,7 @@ test('all pilgrimage entries load with strict CSP, valid local assets and no inv
     assert.match(html, /connect-src 'none'/); assert.doesNotMatch(html, /<script(?![^>]*src=)|\sstyle=|\sonclick=/);
     for (const node of doc.querySelectorAll('script[src],link[rel="stylesheet"]')) assert.ok(fs.existsSync(path.resolve(base, node.getAttribute('src') || node.getAttribute('href'))));
     assert.equal(doc.querySelectorAll('.journey-card').length, 18);
-    if (id !== 'pilgrimage') { assert.match(doc.getElementById('source-age').textContent, /not an imported live feed/); assert.equal(doc.getElementById('standard-begin').disabled, true); assert.ok(doc.querySelector('a[href="tel:112"]')); }
+    if (id !== 'pilgrimage') { assert.match(doc.getElementById('source-age').textContent, /not an imported live feed|last checked over 30 days ago\. Verify the current destination website/); assert.equal(doc.getElementById('standard-begin').disabled, true); assert.ok(doc.querySelector('a[href="tel:112"]')); }
     d.window.close();
   }
 });
