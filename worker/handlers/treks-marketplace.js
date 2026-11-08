@@ -84,10 +84,10 @@ export async function handleTrekMarketplace(request,env,path){
  try{ctx=await firestoreContext(env)}catch(_){return apiError('trek_service_unavailable',503)}
  if(path==='treks/catalog'&&request.method==='GET'){
   try{
-   const [packages,providers]=await Promise.all([listing(ctx,'trekPackages',500),listing(ctx,'trekProviders',500)]);
+   const [packages,providers,gate]=await Promise.all([listing(ctx,'trekPackages',500),listing(ctx,'trekProviders',500),doc(ctx,'config/trekMarketplace')]);
    const map=new Map(providers.filter(p=>p.status==='approved'&&p.verified===true).map(p=>[p.id,p]));
    const items=packages.filter(p=>p.status==='published'&&map.has(p.ownerUid)&&ISO.test(p.start)&&Date.parse(p.start+'T00:00:00Z')>Date.now()).map(p=>publicPackage(p,map.get(p.ownerUid)));
-   return json({items,feePolicy:'1% of operator subtotal, capped at INR 99; disclosed before payment'});
+   return json({items,checkoutEnabled:!!(gate?.checkoutEnabled===true&&gate.environment===(String(env.CASHFREE_ENV||'sandbox')==='live'?'live':'sandbox')&&env.CASHFREE_APP_ID&&env.CASHFREE_SECRET_KEY),feePolicy:'1% of operator subtotal, capped at INR 99; disclosed before payment'});
   }catch(_){return apiError('catalog_unavailable',503)}
  }
  if(path==='treks/enquiry'&&request.method==='POST'){
