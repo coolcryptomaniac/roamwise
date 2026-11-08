@@ -54,7 +54,7 @@ window.RW_PARTNER_SEED = [{
     {src:'assets/property-photos/soulmate-walkway.jpg',alt:'Soulmate covered walkway lit with lanterns and star lights at night',caption:'Walkway at night · photo shared for this listing'}
   ],
   supportEmail:'support@roamwise.co.in',
-  /* Guests book through RoamWise only (never via an OTA or the host's own number). Hidden until the partner admin opens it for bookings (bookingMode). */
+  /* Guests book and pay through RoamWise only (never via an OTA or the host's own number). */
   mapsUrl:'https://www.google.com/maps/search/?api=1&query=Soulmate+Homestay+Kotyura+Almora',
   badges:['local','quiet'],
   hook:'Kumaoni cooking and Himalayan surroundings in Kotyura, Almora, with a local host. Ask RoamWise to confirm rooms, dates and the final total.'
@@ -64,14 +64,14 @@ window.RW_PARTNER_SEED = [{
      breakfast, Wi-Fi and balconies, about 0.6 km from Mall Road. No rating or rate is shown
      until the Trust Desk price audit is complete. Add photos when received. */
   id:'p_new_himank', cat:'stay', zone:'Manali', area:'Chachoga Road, near Hotel Vintage',
-  name:'New Himank', verified:'signed', listingReady:true,
+  name:'New Himank', verified:'signed', listingReady:true, bookingMode:'roamwise',
   photos:[
     {src:'assets/property-photos/new-himank-room.webp',alt:'New Himank guest room with wooden panelling, large windows and a TV in Manali',caption:'Guest room · photo shared for this listing'},
     {src:'assets/property-photos/new-himank-dining.webp',alt:'New Himank attic dining hall with wooden ceiling and window views in Manali',caption:'Dining hall · photo shared for this listing'},
     {src:'assets/property-photos/new-himank-signboard.webp',alt:'New Himank signboard on the building front in Manali',caption:'Entrance signboard · photo shared for this listing'}
   ],
   supportEmail:'support@roamwise.co.in',
-  /* Guests book through RoamWise only (never via an OTA or the host's own number). Hidden until the partner admin opens it for bookings (bookingMode). */
+  /* Guests book and pay through RoamWise only (never via an OTA or the host's own number). */
   mapsUrl:'https://www.google.com/maps/search/?api=1&query=New+Himank+Homestay+Chachoga+Road+Manali',
   hook:'Homestay with an on-site restaurant on Chachoga Road, Manali, about a 7-minute walk to Mall Road. Public listings mention free breakfast, Wi-Fi and balconies in every room. Ask RoamWise to confirm rooms, dates and the final total.'
 },{
@@ -103,7 +103,7 @@ window.RW_PARTNER_SEED = [{
      seed fields win over the live Firestore entry on merge, so contact, route and policy stay in the partner admin.
      Photos: supplied by the founder on 16 Oct 2026 for this listing under the MOU content permission (clause 12).
      Replace with the owner's own photos when received. "RoamWise Checked" is computed by RWTrust, not set here. */
-  id:'p_big_bro_hotel', cat:'stay', zone:'Almora', area:'Ghurson', name:'Big Bro Hotel', verified:'signed', listingReady:true,
+  id:'p_big_bro_hotel', cat:'stay', zone:'Almora', area:'Ghurson', name:'Big Bro Hotel', verified:'signed', listingReady:true, bookingMode:'roamwise',
   /* Long stays (MOU Annexure A1 / Schedule B B3): 15 nights Rs 30,000; 1 month Rs 50,000; 3 months Rs 1,50,000 in total
      (Rs 50,000 a month); 4 rooms; minimum 15 nights. Owner told the founder on 17 Oct 2026: Wi-Fi 100 Mbps, inverter backup. Owner confirmed the inverter covers the rooms (backup 'full'), a desk and chair
      and a quiet spot for calls exist. No guest kitchen and no shared work area; meals means the paid hotel restaurant, not included in the rate. verified:false until a speed test is on file. */

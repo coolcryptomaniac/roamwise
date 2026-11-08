@@ -1,0 +1,44 @@
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import { price, publicRates, RATE, STAY_ADVANCE } from '../worker/handlers/stay-cashfree.js';
+
+const NOW = Date.parse('2026-11-08T00:00:00Z');
+const q = (stay, checkin, checkout, paymentType = 'full') => price({ stay, checkin, checkout, paymentType }, NOW);
+
+test('Amor nightly stays: supplier rate x 1.25, advance 25% or full, peak dates refused', () => {
+  const n = q('nanau', '2026-11-20', '2026-11-22');
+  assert.equal(n.total, 13750); assert.equal(n.amount, 13750);
+  assert.equal(q('nanau', '2026-11-20', '2026-11-22', 'advance').amount, 3438);
+  assert.throws(() => q('nanau', '2026-12-30', '2027-01-01'), /Peak dates/);
+  assert.throws(() => q('nanau', '2026-11-20', '2026-12-10'), /up to 14 nights/);
+});
+
+test('Big Bro long-stay plans charge the plan price; other lengths take the refundable advance', () => {
+  assert.equal(q('bigbro', '2026-12-01', '2026-12-16').amount, 30000);
+  assert.equal(q('bigbro', '2026-12-01', '2026-12-31').amount, 50000);
+  assert.equal(q('bigbro', '2026-12-01', '2027-03-01').amount, 150000);
+  const short = q('bigbro', '2026-12-01', '2026-12-03');
+  assert.equal(short.kind, 'advance'); assert.equal(short.amount, STAY_ADVANCE);
+});
+
+test('every other stay is reservable online with the fixed advance', () => {
+  for (const s of ['milan', 'soulmate', 'woodbook', 'newhimank', 'corbett']) {
+    const r = q(s, '2026-11-20', '2026-11-23');
+    assert.equal(r.kind, 'advance'); assert.equal(r.amount, 1000); assert.equal(r.nights, 3);
+  }
+  assert.throws(() => q('milan', '2026-11-01', '2026-11-03'), /Choose check-in/); // in the past
+  assert.throws(() => q('nowhere', '2026-11-20', '2026-11-21'), /Unknown property/);
+});
+
+test('public rates never expose supplier nets', () => {
+  const pub = JSON.stringify(publicRates());
+  for (const p of Object.values(RATE)) if (p.net) assert.doesNotMatch(pub, new RegExp('"' + p.net + '"|:' + p.net + '[,}]'));
+  assert.equal(publicRates().nanau.perNight, 6875);
+});
+
+test('every stay the site offers for payment exists in the Worker price list', async () => {
+  const fs = await import('node:fs');
+  const src = fs.readFileSync('js/booking/routes.js', 'utf8');
+  const map = /var RW_PAY_STAYS = (\{[\s\S]*?\});/.exec(src)[1];
+  for (const id of map.match(/: '([a-z]+)'/g).map((m) => m.slice(3, -1))) assert.ok(RATE[id], id);
+});

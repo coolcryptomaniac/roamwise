@@ -21,7 +21,8 @@ test('admin partner page exposes full details, editing and Stay & do publishing'
   assert.match(app,/async function liveListPublish\(id,on\)/);
   assert.match(app,/Approve this property first/,'only approved properties can be published');
   assert.match(app,/The MOU has not been accepted yet/);
-  assert.match(app,/Show this number to travellers \(owner agreed\)/,'owner number is public only by explicit opt-in');
+  assert.doesNotMatch(app,/e\.bookingWhatsapp=|e\.bookingPhone=/,'owner numbers are never written to the public list');
+  assert.match(app,/Book &amp; pay through RoamWise|Book & pay through RoamWise/);
   assert.match(app,/collection\('config'\)\.doc\('partners'\)/);
   assert.match(app,/Everything else saved for this property/);
 });
@@ -52,19 +53,20 @@ test('admin panel functions render details, save edits and publish to config/par
   const html=els['pd-u1'].innerHTML;
   assert.match(html,/Soulmate Homestay/);assert.match(html,/Not on Stay &amp; Do|Not on Stay &amp; do/);
   assert.match(html,/Everything else saved/);assert.match(html,/wa\.me\/919876543210/);
-  // publish WITHOUT the WhatsApp opt-in: no number goes public
-  mk('pdwa-u1').checked=false;
+  // publish with no booking mode chosen: listed but hidden from travellers, no number goes public
+  mk('pdmode-u1').value='';
   await api.liveListPublish('u1',true);
   let list=store['config/partners'].list;
   assert.equal(list.length,1);assert.equal(list[0].id,'p_soulmate_homestay');
   assert.equal(list[0].verified,'signed');assert.equal(list[0].listingReady,true);
   assert.equal(list[0].bookingWhatsapp,undefined);assert.deepEqual(list[0].badges,['local','quiet']);
-  // publish WITH the opt-in
-  mk('pdwa-u1').checked=true;
+  // open for bookings: guests book and pay through RoamWise; the owner's number stays private
+  mk('pdmode-u1').value='roamwise';
   await api.liveListPublish('u1',true);
   list=store['config/partners'].list;
   assert.equal(list.length,1,'republishing replaces, never duplicates');
-  assert.equal(list[0].bookingWhatsapp,'919876543210');assert.equal(list[0].bookingMode,'whatsapp');
+  assert.equal(list[0].bookingMode,'roamwise');assert.equal(list[0].bookingWhatsapp,undefined);assert.equal(list[0].bookingPhone,undefined);
+  assert.doesNotMatch(JSON.stringify(store['config/partners']),/9876543210/);
   // saving edits: valid values persist (and mirror phone into ownerWa); bad links are refused
   const inp=(k,v,type)=>({tagName:'INPUT',type:type||'text',value:v,getAttribute:()=>k});
   els['pd-u1'].querySelectorAll=()=>[inp('name','Soulmate Homestay'),inp('phone','+91 98765 43210','text'),inp('roomCount','4','number'),inp('photoUrl','https://example.com/a.jpg'),inp('mapsUrl','https://www.google.com/maps/place/x')];
@@ -78,7 +80,7 @@ test('admin panel functions render details, save edits and publish to config/par
 
   // photos: saved to config/photo_<id>_<n>, counted on the partner, mirrored to the live entry
   store['partners/u1'].status='active';
-  mk('pdwa-u1').checked=true;
+  mk('pdmode-u1').value='roamwise';
   await api.liveListPublish('u1',true);
   const png='data:image/webp;base64,AAAA';
   api.photoDraft.u1=[{src:png,caption:'Front'},{src:png,caption:'Room'}];

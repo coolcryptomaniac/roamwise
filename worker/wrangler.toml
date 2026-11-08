@@ -53,6 +53,9 @@ id = "be31e0935be843219cea1edf2203877b"   # <-- the ONLY line you edit in this f
 # ---------------------------------------------------------------------------
 [vars]
 CASHFREE_ENV = "live"
+# Qikink order API: "live" sends PAID shop orders to the real Qikink account (wallet is charged).
+# Must match config/shop.qikinkEnvironment (set by the "Shop checkout switches" workflow).
+QIKINK_ENV = "live"
 # Travel advisory alerts (worker/handlers/advisory-alerts.js, ADVISORY-ALERTS.md): which parts run
 # when config/tripNotifySettings does not set them. A false there always wins. Remove a word to stop it.
 #   guests = guests with stays + region followers, partners = property owners, digest = daily team digest

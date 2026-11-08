@@ -124,6 +124,10 @@ function rwTuskPartnerStayHTML(raw,dest){
         href='/partner/?role=customer&destination='+encodeURIComponent(p.zone||dest||'')+(dates?'&checkin='+dates.checkIn+'&checkout='+dates.checkOut:'')+(guests?'&guests='+guests:'');
         label=route.type==='none'?'Ask RoamWise to confirm →':'Check rooms and dates →';
       }
+      if(route.type==='pay'){
+        href+=(dates?'&checkin='+dates.checkIn+'&checkout='+dates.checkOut:'');
+        label='Book & pay →';
+      }
       if(route.type==='roamwise'){
         href+='?text='+encodeURIComponent(rwBookingText(p,{checkIn:dates&&dates.checkIn,checkOut:dates&&dates.checkOut,guests:guests}));
       }

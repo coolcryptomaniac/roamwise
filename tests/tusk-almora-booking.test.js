@@ -13,7 +13,7 @@ test('real Almora partner seeds appear even with zero payment-enabled rooms',()=
   const html=s.rwTuskPlanBookingHTML('Book this trip to Almora','Almora',5);
   for(const name of ['Milan Heights','Soulmate Homestay','Big Bro Hotel'])assert.ok(html.includes(name));
   assert.doesNotMatch(html,/No matching stays|No RoamWise stay inventory|₹\d/);
-  assert.match(html,/wa\.me\/919987379730/);
+  assert.match(html,/amor-checkout\.html\?stay=milan/);
   assert.doesNotMatch(html,/917302315845|919105334889/);
   assert.match(html,/not a reservation/);
   assert.doesNotMatch(s.rwTuskStayHTML('stay in Manali','Manali'),/Milan Heights/);
@@ -21,7 +21,7 @@ test('real Almora partner seeds appear even with zero payment-enabled rooms',()=
 test('dated room enquiry includes exact trip details and does not invent a price',()=>{
   const s=load(),a=s.rwStayDeskAnswer('book a room 12 to 15 Nov for 3 guests','Almora',new Date('2026-10-28'));
   const html=decodeURIComponent(a.html);
-  assert.match(html,/Check-in: 2026-11-12/);assert.match(html,/Check-out: 2026-11-15/);assert.match(html,/Guests: 3/);
+  assert.match(html,/checkin=2026-11-12/);assert.match(html,/checkout=2026-11-15/);
   assert.match(html,/Soulmate Homestay/);assert.doesNotMatch(html,/No verified|₹\d/);
 });
 test('unsigned records stay hidden; signed properties without a public number use the enquiry desk',()=>{

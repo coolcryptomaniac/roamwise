@@ -2,33 +2,64 @@
    Orders are NOT Pro entitlements. Amounts are calculated here, never accepted from the client. */
 import { json } from '../lib/http.js';
 import { verifyCashfreeWorkerWebhook } from '../lib/cashfree-booking-webhook-verify.js';
-const RATE={
- nanau:{name:'Nanau Resort & Spa · Sitabani Studio CP',net:5500,taxIncluded:true,from:'2026-11-07',until:'2027-03-31'},
- padma:{name:'Padma Villa · Royal Chamber EP',net:5000,taxIncluded:true,from:'2026-11-07',until:'2027-03-31'},
- aramness:{name:'Aramness Gir · Kothi AP',net:72216,taxIncluded:true,from:'2026-11-07',until:'2027-02-28'},
- tattwaa:{name:'Tattwaa Corbett · Forest Room CPAI + hi-tea (provisional)',net:5500,taxIncluded:true,from:'2026-11-07',until:'2027-03-31'}
+/* Every RoamWise stay is bookable and payable online (founder decision, 8 Nov 2026: take the money, refund
+   if the stay cannot be confirmed). Three kinds, all priced here, never by the browser:
+   - nightly: supplier rate x 1.25 per room night (Amor rate sheets, taxes included)
+   - plans:   fixed long-stay prices for exact lengths (Big Bro, owner-stated); other lengths fall back to advance
+   - advance: a fixed refundable booking advance; RoamWise confirms the room and the balance is paid at the stay
+   `supplier` decides who gets the paid-booking email: Amor's sales desk for Amor stays, otherwise RoamWise. */
+export const STAY_ADVANCE = 1000;
+export const RATE={
+ nanau:{kind:'nightly',name:'Nanau Resort & Spa · Sitabani Studio CP',net:5500,from:'2026-11-07',until:'2027-03-31',peak:['2026-12-24','2027-01-03'],supplier:'amor'},
+ padma:{kind:'nightly',name:'Padma Villa · Royal Chamber EP',net:5000,from:'2026-11-07',until:'2027-03-31',peak:['2026-12-18','2027-01-10'],supplier:'amor'},
+ aramness:{kind:'nightly',name:'Aramness Gir · Kothi AP',net:72216,from:'2026-11-07',until:'2027-02-28',supplier:'amor'},
+ tattwaa:{kind:'nightly',name:'Tattwaa Corbett · Forest Room CPAI + hi-tea (provisional)',net:5500,from:'2026-11-07',until:'2027-03-31',supplier:'amor'},
+ bigbro:{kind:'plans',name:'Big Bro Hotel, Almora',plans:{15:30000,30:50000,90:150000},supplier:'roamwise'},
+ milan:{kind:'advance',name:'Milan Heights, Almora',supplier:'roamwise'},
+ soulmate:{kind:'advance',name:'Soulmate Homestay, Kotyura, Almora',supplier:'roamwise'},
+ woodbook:{kind:'advance',name:'Woodbook The Devine Homestay, Tirthan Valley',supplier:'roamwise'},
+ newhimank:{kind:'advance',name:'New Himank, Manali',supplier:'roamwise'},
+ corbett:{kind:'advance',name:'Corbett Jungle View Homestay, Lansdowne',supplier:'roamwise'}
 };
-const CF=env=>String(env.CASHFREE_ENV||'sandbox')==='live'?'https://api.cashfree.com':'https://sandbox.cashfree.com';
-const headers=env=>({'content-type':'application/json','x-api-version':env.CASHFREE_API_VERSION||'2025-01-01','x-client-id':env.CASHFREE_APP_ID,'x-client-secret':env.CASHFREE_SECRET_KEY});
-function price(body,env){
+const NIGHTLY_MARKUP=1.25;
+/* Public price card for the booking page (no supplier nets). */
+export function publicRates(){
+ return Object.fromEntries(Object.entries(RATE).map(([id,p])=>[id,{name:p.name,kind:p.kind,
+  ...(p.kind==='nightly'?{perNight:Math.ceil(p.net*NIGHTLY_MARKUP),from:p.from,until:p.until,peak:p.peak||null}:{}),
+  ...(p.kind==='plans'?{plans:p.plans}:{}),advance:STAY_ADVANCE}]));
+}
+export function price(body,now=Date.now()){
  const p=RATE[String(body.stay||'')];if(!p)throw Error('Unknown property');
  const start=String(body.checkin||''),end=String(body.checkout||'');
  if(!/^\d{4}-\d{2}-\d{2}$/.test(start)||!/^\d{4}-\d{2}-\d{2}$/.test(end))throw Error('Invalid dates');
  const a=Date.parse(start+'T00:00:00Z'),b=Date.parse(end+'T00:00:00Z'),n=(b-a)/86400000;
- if(!Number.isInteger(n)||n<1||n>14||a<Date.now()-86400000||start<p.from||end>p.until)throw Error('Stay dates unavailable');
- if(body.stay==='padma'&&start<='2027-01-10'&&end>'2026-12-18')throw Error('Peak dates need updated pricing');
- if(body.stay==='nanau'&&start<='2027-01-03'&&end>'2026-12-24')throw Error('Peak dates need updated pricing');
- const tax=0; // Amor confirmed on 7 Nov 2026 that all supplied rate-sheet rates are inclusive.
-
- const full=Math.ceil(p.net*n*1.25),percent=body.paymentType==='full'?100:body.paymentType==='advance'?25:0;
- if(!percent)throw Error('Choose advance or full payment');
- return {stay:body.stay,property:p.name,checkin:start,checkout:end,nights:n,guests:2,total:full,portion:percent,amount:Math.ceil(full*percent/100),currency:'INR'};
+ const maxNights=p.kind==='nightly'?14:90;
+ if(!Number.isInteger(n)||n<1||n>maxNights||a<now-86400000)throw Error('Choose check-in and check-out dates (up to '+maxNights+' nights).');
+ if(p.kind==='nightly'){
+  if(start<p.from||end>p.until)throw Error('Stay dates unavailable');
+  if(p.peak&&start<=p.peak[1]&&end>p.peak[0])throw Error('Peak dates need updated pricing');
+  const full=Math.ceil(p.net*n*NIGHTLY_MARKUP),percent=body.paymentType==='full'?100:body.paymentType==='advance'?25:0;
+  if(!percent)throw Error('Choose advance or full payment');
+  return {stay:body.stay,property:p.name,kind:'nightly',checkin:start,checkout:end,nights:n,guests:2,total:full,portion:percent,amount:Math.ceil(full*percent/100),currency:'INR'};
+ }
+ if(p.kind==='plans'&&p.plans[n]){
+  const full=p.plans[n],percent=body.paymentType==='advance'?25:100;
+  return {stay:body.stay,property:p.name,kind:'plan',checkin:start,checkout:end,nights:n,guests:2,total:full,portion:percent,amount:Math.ceil(full*percent/100),currency:'INR'};
+ }
+ /* Rate confirmed by RoamWise for the dates: take a refundable advance now, adjusted in the final bill. */
+ return {stay:body.stay,property:p.name,kind:'advance',checkin:start,checkout:end,nights:n,guests:2,total:null,portion:null,amount:STAY_ADVANCE,currency:'INR'};
+}
+export async function stayRates(){ return json({advance:STAY_ADVANCE,stays:publicRates()}); }
+/* POST /stays/quote: the exact amount the checkout would charge, without creating an order. */
+export async function stayQuote(request){
+ let b;try{b=await request.json()}catch(_){return json({error:'invalid_json'},400)}
+ try{return json({ok:true,quote:price(b)})}catch(e){return json({error:'invalid_quote',message:e.message},422)}
 }
 function kv(env){return env.RW_KV}
 export async function createStayOrder(request,env){
  if(!env.CASHFREE_APP_ID||!env.CASHFREE_SECRET_KEY||!kv(env))return json({error:'stay_checkout_unavailable'},503);
  let b;try{b=await request.json()}catch(_){return json({error:'invalid_json'},400)}
- let quote;try{quote=price(b,env)}catch(e){return json({error:'invalid_quote',message:e.message},422)}
+ let quote;try{quote=price(b)}catch(e){return json({error:'invalid_quote',message:e.message},422)}
  const phone=String(b.phone||'').replace(/[\s()-]/g,''),email=String(b.email||'').trim();
  if(!/^\+?\d{10,15}$/.test(phone)||!/^\S+@\S+\.\S+$/.test(email))return json({error:'contact_required'},422);
  const id='rwstay_'+crypto.randomUUID().replace(/-/g,'');
@@ -49,20 +80,25 @@ export async function stayOrderStatus(request,env,id){
  return json({orderId:id,status:paid?'paid_pending_confirmation':data.order_status,confirmed:false});
 }
 
-const bookingRecipient='sales@amorhospitality.in';
+const SUPPLIER_INBOX={amor:'sales@amorhospitality.in',roamwise:'founder@roamwise.co.in'};
 async function alertSupplier(env,record){
  if(!env.AGENTMAIL_API_KEY||!env.AGENTMAIL_INBOX_BUSINESS)return {sent:false,reason:'notification_provider_unconfigured'};
  if(record.supplierNotifiedAt)return {sent:true,duplicate:true};
- const text=['NEW PAID ROAMWISE BOOKING REQUEST — PROPERTY CONFIRMATION PENDING',
+ const amor=(RATE[record.stay]||{}).supplier==='amor';
+ const lines=['NEW PAID ROAMWISE BOOKING REQUEST — PROPERTY CONFIRMATION PENDING',
  'Reference: '+record.id,'Property: '+record.property,'Check-in: '+record.checkin,
  'Check-out: '+record.checkout,'Nights: '+record.nights,'Guests: '+record.guests,
- 'RoamWise payment status: verified PAID; this is a request, not a confirmed room.',
- record.shareWithSupplier?'Guest email: '+record.email+'; Guest phone: '+record.phone:'Guest contact held by RoamWise pending consent.',
- 'Please confirm availability, booking ID, final inclusions, and cancellation policy to founder@roamwise.co.in.',
- 'For urgent booking support: +91 9650432605 / +91 9997317170'].join('\\n');
+ 'Paid to RoamWise: Rs '+record.amount+(record.kind==='advance'?' (refundable booking advance; balance as confirmed)':record.portion&&record.portion<100?' ('+record.portion+'% advance of Rs '+record.total+')':''),
+ 'RoamWise payment status: verified PAID; this is a request, not a confirmed room.'];
+ if(amor)lines.push(record.shareWithSupplier?'Guest email: '+record.email+'; Guest phone: '+record.phone:'Guest contact held by RoamWise pending consent.',
+  'Please confirm availability, booking ID, final inclusions, and cancellation policy to founder@roamwise.co.in.',
+  'For urgent booking support: +91 9650432605 / +91 9997317170');
+ else lines.push('Guest email: '+record.email+'; Guest phone: '+record.phone,
+  'Next: confirm the room with the host, tell the guest the balance (if any), or refund in full if it cannot be confirmed.');
+ const text=lines.join('\n');
  const resp=await fetch('https://api.agentmail.to/v0/inboxes/'+encodeURIComponent(env.AGENTMAIL_INBOX_BUSINESS)+'/messages/send',{
  method:'POST',headers:{authorization:'Bearer '+env.AGENTMAIL_API_KEY,'content-type':'application/json'},
- body:JSON.stringify({to:[bookingRecipient],subject:'ACTION: Paid RoamWise stay request '+record.id,text})});
+ body:JSON.stringify({to:[SUPPLIER_INBOX[(RATE[record.stay]||{}).supplier]||SUPPLIER_INBOX.roamwise],subject:'ACTION: Paid RoamWise stay request '+record.id,text})});
  if(!resp.ok)return {sent:false,reason:'supplier_email_failed',httpStatus:resp.status};
  record.supplierNotifiedAt=new Date().toISOString();
  await env.RW_KV.put('stayorder:'+record.id,JSON.stringify(record),{expirationTtl:60*60*24*180});

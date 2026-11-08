@@ -1,0 +1,37 @@
+name: Partner list - remove host contacts (manual)
+
+# Removes owners' WhatsApp/phone numbers and outside booking links from the public config/partners list.
+# Guests book and pay through RoamWise only; owners' numbers stay in partners/{id} (admin-only).
+# Repo secret needed: FIREBASE_SERVICE_ACCOUNT. Prints counts only, never a number.
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Only report what would change'
+        type: choice
+        options: ['false', 'true']
+        default: 'false'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: partners-scrub
+  cancel-in-progress: false
+
+jobs:
+  scrub:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+      - name: Scrub config/partners
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+        run: |
+          if [ -z "$FIREBASE_SERVICE_ACCOUNT" ]; then echo "::error::Add FIREBASE_SERVICE_ACCOUNT in repository Actions secrets."; exit 1; fi
+          node tools/partners-scrub-contacts.mjs ${{ inputs.dry_run == 'true' && '--dry-run' || '' }}
