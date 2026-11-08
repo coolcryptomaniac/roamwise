@@ -38,6 +38,18 @@ test('onboarding does not require Pro, payment stays gated, and operator photos 
  assert.match(worker,/order\.order_status==='PAID'/);
  assert.match(html,/showBusinessWhatsapp/);
 });
+test('financial CTAs are disabled until a server-side gateway flag is truly on',()=>{
+ const worker=read('worker/handlers/treks-marketplace.js');
+ const app=read('treks/app.js');
+ const homepage=read('js/ui/trek-home-carousel.js');
+ const limits=read('worker/lib/rate-limit.js');
+ assert.match(worker,/checkoutEnabled:!!\(gate\?\.checkoutEnabled===true/);
+ assert.match(app,/checkoutEnabled:r\.checkoutEnabled===true/);
+ assert.match(app,/if\(!state\.checkoutEnabled\)\{enquire\(id\)/);
+ assert.match(homepage,/data\.checkoutEnabled===true\?/);
+ assert.match(limits,/'trek-enquiry'/);
+ assert.match(limits,/'trek-order'/);
+});
 test('itinerary generation explicitly refuses to invent confirmed facts',()=>{
  const js=read('treks/studio-plus.js');
  assert.match(js,/Pending operator confirmation/);
