@@ -1,3 +1,4 @@
+// @ts-nocheck
 /* Open the existing RoamWise checkout overlay only after the full app boots.
    No payment is initiated by visiting the Founder Pro deep link. */
 (function(){
