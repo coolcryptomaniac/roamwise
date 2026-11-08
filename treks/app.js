@@ -63,6 +63,8 @@ $('loginBtn').addEventListener('click',login);
 function signedIn(u){
  state.user=u;
  $('loginBtn').textContent=u?'Sign out · '+(u.email||'account'):'Sign in with Google';
+ $('adminTab').classList.add('hidden');
+ if(u){api('/treks/admin',null,true).then(()=>{$('adminTab').classList.remove('hidden')}).catch(()=>{});}
  if(u){const email=$('joinForm').elements.email;if(!email.value)email.value=u.email||'';
   const bill=$('checkoutForm').elements.email;if(!bill.value)bill.value=u.email||'';}
  if(location.search.includes('order_id='))checkReturned();
@@ -85,7 +87,7 @@ async function catalog(){
   if(!state.deepLinked){
    state.deepLinked=true;
    const queryId=new URLSearchParams(location.search).get('package');
-   if(queryId&&state.items.some(p=>p.id===queryId)){tab('discover');checkout(queryId)}
+   if(queryId&&state.items.some(p=>p.id===queryId)){checkout(queryId)}
   }
  }catch(e){$('catalog').innerHTML='<p class="notice">Catalog temporarily unavailable: '+esc(e.message)+'</p>'}
 }
