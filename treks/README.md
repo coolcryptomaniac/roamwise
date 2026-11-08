@@ -1,6 +1,6 @@
 # RoamWise Trails — partner self-onboarding and checkout
 
-Status: review-gated feature, not merged or deployed. It does not constitute an affiliation announcement or a live Hike & Seek listing.
+Status: the original review-gated onboarding implementation merged as PR #712 on 8 Nov 2026. Later features must pass CI and deployment checks separately. Neither the invitation page nor its source-linked trek examples constitute an onboarded Hike & Seek affiliation or payable departure.
 
 ## Pages and users
 - /treks/ — public verified-departure discovery; Hike & Seek invitation preview is explicitly unverified and never bookable.
@@ -15,6 +15,18 @@ The RoamWise founder supplied the names **Gaurav Aswal** and **Aanchal Kandari**
 The public unclaimed invitation preview displays both names with verification caveats and links to their public profiles. The founder clarified that **+91 92863 22067** (WhatsApp international format **919286322067**) is **Hike & Seek's business booking/enquiry number**, not a private cofounder phone. It is therefore intentionally saved in the RoamWise Trails preview as the company's public business contact, with direct WhatsApp enquiry links on each invitation-only trek. The WhatsApp button asks for price, dates, inclusions and booking details; it does **not** represent a RoamWise-confirmed departure or RoamWise payment. The invitation form prefills this business number, the cofounder names and company Instagram for a real operator to verify. Publishing cofounders and displaying a business WhatsApp on **approved operator catalog cards** remain separate opt-ins, both default OFF. No application is submitted on Hike & Seek's behalf.
 
 Public Hike & Seek trek names were researched from https://hikeandseek.in/ and appear as source-linked invitation examples only. No relationship, rights to images, prices, availability, or terms are assumed. Its Tungnath listing appears inconsistent on length and inclusions; an authorised representative must check these before approval. The same onboarding is reusable for Trek The Himalayas, Indiahikes and similar operators. Neither is claimed as a RoamWise partner.
+
+
+## Partner-studio growth enhancement (8 Nov 2026)
+- Photo: real Kedarkantha trek photograph by Sachinbauriyan (CC BY-SA 4.0) is prominently credited in the hero, explicitly marked illustrative, **not** operator-owned. The itinerary sample summit photo is CC BY-SA 4.0 by ShilpiC17. Live package images must be supplied and authorised by the operator.
+- Login: Google Firebase sign-in is retained; the actual authenticated email autofills the application. The Founder review tab is hidden unless the authenticated request to the admin endpoint succeeds.
+- Partner desk: a real overview of their packages, published batches, verified-paid requests and direct enquiries. Empty values remain truthful; no fake performance or social proof.
+- Trek itinerary studio: deterministic conversion of actual operator-entered details into a shareable day-wise brief, copying and print/Save PDF browser flow; no AI API, invented stop, fake health information, automatic route verification or publishing.
+- Promotion: operator controls copied WhatsApp/Instagram captions; they are not posted or sent by RoamWise automatically.
+- Enquiries: POST /treks/enquiry checks consent and a **currently approved provider with a published future package**; GET /treks/enquiries is authenticated owner-only for an approved operator. The customer’s contact details are shared only because that customer consented for the specific package. There is no automatic charge.
+- Homepage: js/ui/trek-home-carousel.js reads only public /treks/catalog; data is assembled with textContent, displays approved future departures only and links to /treks/?package=<id>#discover for checkout review. No claimed partner, generated price, booking guarantee or public contact beyond operator opt-in.
+- Pro: a separate optional ₹100 Founder Pro offer links to the existing RoamWise payment overlay; entitlement, seat caps and actual availability are controlled by the main-site checkout, not this trekking page. Buying Pro does not buy approval, priority safety ranking, promotion or guaranteed leads.
+- The original Cashfree checkout switch remains disabled unless explicitly verified. Do **not** test by charging a card or enable it merely because code merges.
 
 ## Commercial terms
 - Operator/platform commission: 0% for three years beginning on verified approval for approved trekking companies, guides, transport and similar experience providers. No automatic charge is imposed after that period by this implementation.
