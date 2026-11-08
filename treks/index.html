@@ -27,7 +27,12 @@ h1{font-family:Georgia,serif;font-size:clamp(37px,5.4vw,67px);line-height:1.1;ma
 .metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:15px 0}
 .metric{padding:15px;border:1px solid var(--line);border-radius:14px;background:#231a39}.metric strong{display:block;font-size:25px;color:var(--gold)}.metric small{font-size:12px}
 .poster{background:linear-gradient(145deg,#3e1e4d,#1d1734);border:1px solid #a6888a;border-radius:18px;padding:18px;max-width:680px}
-.poster .poster-photo{width:100%;max-height:230px;object-fit:cover;border-radius:12px}.poster h3{color:var(--gold);margin:12px 0}
+.poster .poster-photo{width:100%;max-height:230px;object-fit:cover;border-radius:12px}
+.trek-photo-strip{display:flex;gap:9px;overflow-x:auto;scroll-snap-type:x mandatory;margin-bottom:13px}
+.trek-photo-strip img{display:block;flex:0 0 84%;width:84%;height:165px;object-fit:cover;border-radius:13px;scroll-snap-align:start}
+.trek-photo-strip img:only-child{width:100%;flex-basis:100%}
+.itinerary-wizard{margin:15px 0;padding:15px;border:1px solid #76617c;border-radius:15px;background:#221a35}
+.itinerary-wizard textarea{margin-bottom:9px}.poster h3{color:var(--gold);margin:12px 0}
 .profile-actions{display:flex;flex-wrap:wrap;gap:9px;margin:10px 0}
 #itineraryOutput{white-space:pre-wrap;overflow-wrap:anywhere;min-height:85px}
 @media (pointer:coarse) and (orientation:portrait), (max-width:950px){.hero{grid-template-columns:1fr}.fields{grid-template-columns:1fr}.fields .full{grid-column:auto}.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.bar .right{flex-wrap:wrap}}
@@ -106,13 +111,14 @@ footer{padding:28px 0 44px;color:#c2afd2;border-top:1px solid #55456b;margin-top
 <div class="metrics" aria-label="Partner performance summary">
 <div class="metric"><strong id="statPackages">—</strong><small>Departures</small></div><div class="metric"><strong id="statLive">—</strong><small>Published</small></div>
 <div class="metric"><strong id="statBookings">—</strong><small>Paid requests</small></div><div class="metric"><strong id="statEnquiries">—</strong><small>New enquiries</small></div></div>
-<div class="profile-actions"><button type="button" id="copyPartnerLink" class="secondary">Copy marketplace link</button><button type="button" id="copyPromo" class="secondary">Create WhatsApp promotion</button><button type="button" id="copyCaption" class="secondary">Create Instagram caption</button></div>
+<div class="profile-actions"><button type="button" id="copyPartnerLink" class="secondary">Copy marketplace link</button><button type="button" id="copyPromo" class="secondary">Create WhatsApp promotion</button><button type="button" id="copyCaption" class="secondary">Create Instagram caption</button><button type="button" id="printPromo" class="secondary">Print branded batch poster</button></div>
 <p class="terms">Growth tip: publish a clear meeting point, all inclusions, exact dates, a small-group policy and real photographs. Avoid unsupported discounts, false seat counts or made-up reviews.</p>
 <div id="promotionOutput" class="dark" role="status" aria-live="polite">Choose a promotion tool after saving your first batch. You can copy the output and share it yourself.</div>
 <div class="sep"></div><h3>Enquiry inbox</h3><p class="muted">Interested travellers can request details before paying. Only your own approved-package enquiries appear here, with the consent they provided.</p><div id="enquiryCards" class="grid"></div>
 </div>
 <div class="panel" id="itineraryDesk"><span class="kicker">Fast itinerary studio</span><h2>Build a beautiful trek itinerary</h2>
 <p class="muted">Fill the batch form below with your real trip details. Generate a polished, editable day-wise itinerary, then copy, print or save as PDF. It never invents route conditions, permits, inclusions or prices.</p>
+<div class="itinerary-wizard"><label for="dayNotes">Quick route notes · one real activity or stop per line</label><textarea id="dayNotes" rows="4" maxlength="3300" placeholder="Dehradun pickup and drive to base village&#10;Acclimatisation walk and briefing&#10;Summit morning, return to campsite&#10;Return transfer to Dehradun"></textarea><div class="row"><button id="fillDayPlan" type="button">Turn notes into day-wise itinerary</button><small>Unprovided days are marked “details pending”; nothing is invented. Review before saving.</small></div></div>
 <div class="profile-actions"><button id="makeItinerary" type="button">Generate from batch details</button><button id="copyItinerary" type="button" class="secondary">Copy itinerary</button><button id="printItinerary" type="button" class="secondary">Print / Save PDF</button></div>
 <div class="poster" id="itineraryPoster"><img class="poster-photo" id="posterPhoto" src="https://commons.wikimedia.org/wiki/Special:FilePath/View_from_the_Kedarkanth_Peak%2C_uttarakhand.jpg?width=960" alt="Real sunrise photograph from Kedarkantha peak, illustrative and not operator-owned"><h3 id="posterTitle">Your upcoming batch</h3><div id="itineraryOutput" role="status" aria-live="polite">Complete your departure fields to create a shareable itinerary preview.</div><p class="terms" id="posterCredit">Illustrative summit photo: ShilpiC17, CC BY-SA 4.0, <a href="https://commons.wikimedia.org/wiki/File:View_from_the_Kedarkanth_Peak,_uttarakhand.jpg" target="_blank" rel="noopener noreferrer">Wikimedia Commons</a>. Replace with a photo you own or have permission to use.</p></div></div>
 <div class="panel"><h2>Create or revise a package</h2><p class="muted">Available for applicant companies, guides and transport partners. Each new or edited package returns to pending review. Use exact departure dates, real operator prices and route/safety details; no unverified prices will go live.</p>
@@ -130,6 +136,7 @@ footer{padding:28px 0 44px;color:#c2afd2;border-top:1px solid #55456b;margin-top
 <label class="full">What to pack / fitness guidance <textarea name="packingList" maxlength="850" rows="2" placeholder="Shoes, layers, water, fitness and medical prerequisites"></textarea></label>
 <label>Difficulty <select name="difficulty"><option>Easy</option><option>Moderate</option><option>Difficult</option><option>Expert</option><option>Not applicable</option></select></label>
 <label>Image URL (with permission) <input name="imageUrl" type="url" placeholder="https://…"></label>
+<label class="full">Real trek gallery photo URLs (optional, max 4, one per line) <textarea name="galleryUrls" maxlength="1800" rows="3" placeholder="https://your-licensed-photo-1.jpg&#10;https://your-licensed-photo-2.jpg"></textarea><small>Use only real photographs you own or have permission to publish. These appear after founder review.</small></label>
 <label class="full">Day-by-day itinerary <textarea name="itinerary" maxlength="3500" rows="5" required placeholder="Day 1: ...&#10;Day 2: ..."></textarea></label>
 <label class="full">What's included <textarea name="includes" maxlength="1800" rows="3" required placeholder="Guide, meals, transport, accommodation, permits"></textarea></label>
 <label class="full">What's excluded <textarea name="excludes" maxlength="1800" rows="2" placeholder="Insurance, porter, extra travel, etc."></textarea></label>
