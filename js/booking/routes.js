@@ -6,7 +6,8 @@
    Host WhatsApp numbers, phone numbers and OTA links are never shown to guests.
 
      direct    RoamWise rooms with a price, bookable + paymentEnabled flags
-     pay       stays with a server-priced Cashfree checkout (pick dates, pay)
+     pay       server-priced Cashfree checkout: nightly rate, long-stay plan or a
+               refundable booking advance (pick dates, pay)
      roamwise  everything else: a coded WhatsApp to RoamWise with the stay and
                dates filled in; RoamWise confirms the room and sends a pay link
 
@@ -15,7 +16,10 @@
    hidden otherwise. Pure functions, no DOM, so tests can run them directly.
    ========================================================================= */
 var RW_BOOKING_WA = '919987379730'; /* RoamWise bookings WhatsApp */
-var RW_PAY_STAYS = { p_amor_tattwaa: 'tattwaa', p_amor_nanau: 'nanau', p_amor_padma: 'padma', p_amor_aramness: 'aramness' };
+/* Partner id -> stay id in the Worker's stay checkout (worker/handlers/stay-cashfree.js RATE). */
+var RW_PAY_STAYS = { p_amor_tattwaa: 'tattwaa', p_amor_nanau: 'nanau', p_amor_padma: 'padma', p_amor_aramness: 'aramness',
+  p_milan_heights: 'milan', p_soulmate_homestay: 'soulmate', p_big_bro_hotel: 'bigbro', p_woodbook_devine: 'woodbook',
+  p_new_himank: 'newhimank', p_corbett_jungle_view: 'corbett' };
 function rwLivePartners(){
   return (window.RW_PARTNERS||[]).filter(function(p){ return p&&p.verified==='signed'&&p.listingReady===true; });
 }

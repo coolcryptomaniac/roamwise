@@ -15,10 +15,17 @@
    Same pattern as referrers: the file is a fallback so the directory works
    offline, Firestore keeps it fresh, and no code file is ever edited. */
 
+/* Same property under two ids (admin publishes p_hotel_milan_heights, the seed has p_milan_heights): one listing only. */
+function rwPartnerKey(p){ return String(p&&p.zone||'').toLowerCase()+'|'+String(p&&p.name||'').toLowerCase().replace(/^hotel\s+/,'').replace(/[^a-z0-9]+/g,''); }
 function rwPartnersMerge(list){
-  var seed=window.RW_PARTNER_SEED||[], approved=(list||[]).filter(function(p){ return p.verified==='signed'&&p.listingReady===true; });
+  var seed=window.RW_PARTNER_SEED||[];
+  list=(list||[]).map(function(p){
+    var twin=p&&seed.filter(function(s){ return s.id!==p.id&&rwPartnerKey(s)===rwPartnerKey(p); })[0];
+    return twin?Object.assign({},p,{id:twin.id}):p;
+  });
+  var approved=list.filter(function(p){ return p.verified==='signed'&&p.listingReady===true; });
   seed.forEach(function(s){
-    var match=(list||[]).filter(function(p){ return String(p.id)===String(s.id); })[0];
+    var match=list.filter(function(p){ return String(p.id)===String(s.id); })[0];
     var index=approved.findIndex(function(p){ return String(p.id)===String(s.id); });
     if(index>=0){
       /* An enquiry introduction inherits no stale signed badges, rates or payment facts. */

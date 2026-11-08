@@ -31,7 +31,7 @@ test('Stay & do shows approved enquiry introductions and signed ready partners w
     { id: 'unsigned', name: 'Unsigned Lodge', zone: 'Manali', verified: 'listed', listingReady: true, bookingMode: 'whatsapp', bookingWhatsapp: '919800000000' },
     { id: 'not-ready', name: 'Signed but not ready', zone: 'Manali', verified: 'signed', listingReady: false, bookingMode: 'whatsapp', bookingWhatsapp: '919800000000' }
   );
-  assert.deepEqual(Array.from(context.rwListingAll(), p => p.id).sort(), ['p_amor_aramness', 'p_amor_nanau', 'p_amor_padma', 'p_amor_tattwaa', 'p_corbett_jungle_view', 'p_milan_heights', 'p_soulmate_homestay', 'p_woodbook_devine']);
+  assert.deepEqual(Array.from(context.rwListingAll(), p => p.id).sort(), ['p_amor_aramness', 'p_amor_nanau', 'p_amor_padma', 'p_amor_tattwaa', 'p_big_bro_hotel', 'p_corbett_jungle_view', 'p_milan_heights', 'p_new_himank', 'p_soulmate_homestay', 'p_woodbook_devine']);
 });
 
 test('signed partners with no booking route stay hidden until a route is saved', () => {
@@ -44,15 +44,15 @@ test('signed partners with no booking route stay hidden until a route is saved',
   assert.ok(ids().includes('p_no_route'));
 });
 
-test('Soulmate is listed for booking through RoamWise; New Himank stays hidden (no OTA links) until opened', () => {
+test('every signed stay, Big Bro and New Himank included, is open for booking through RoamWise; no OTA links', () => {
   const { context, window } = appContext();
   const ids = () => Array.from(context.rwListingAll(), p => p.id).sort();
-  assert.deepEqual(ids(), ['p_amor_aramness', 'p_amor_nanau', 'p_amor_padma', 'p_amor_tattwaa', 'p_corbett_jungle_view', 'p_milan_heights', 'p_soulmate_homestay', 'p_woodbook_devine']);
+  assert.deepEqual(ids(), ['p_amor_aramness', 'p_amor_nanau', 'p_amor_padma', 'p_amor_tattwaa', 'p_big_bro_hotel', 'p_corbett_jungle_view', 'p_milan_heights', 'p_new_himank', 'p_soulmate_homestay', 'p_woodbook_devine']);
   assert.equal(window.RW_PARTNERS.find(x => x.id === 'p_soulmate_homestay').bookingWhatsapp, undefined, 'host numbers are not shipped to the browser');
-  for (const id of ['p_new_himank']) {
+  for (const id of ['p_new_himank', 'p_big_bro_hotel']) {
     const p = window.RW_PARTNERS.find(x => x.id === id);
     assert.equal(p.bookingUrl, undefined, id + ' must not link to an OTA');
-    assert.equal(p.bookingMode, undefined);
+    assert.equal(p.bookingMode, 'roamwise');
   }
 });
 
@@ -65,8 +65,8 @@ test('once opened for bookings, Soulmate and New Himank book through RoamWise li
     context.rwListOpen(id);
     assert.doesNotMatch(overlay.innerHTML, new RegExp(num));
     assert.match(overlay.innerHTML, /wa\.me\/919987379730/);
-    assert.match(overlay.innerHTML, /Book through RoamWise/);
-    assert.match(overlay.innerHTML, /all-in price/);
+    assert.match(overlay.innerHTML, /Pick dates &amp; pay|Pick dates & pay/);
+    assert.match(overlay.innerHTML, /amor-checkout\.html\?stay=(soulmate|newhimank)/);
     assert.doesNotMatch(overlay.innerHTML, /openStays|See rooms|makemytrip|Hygge/);
     if (id === 'p_new_himank') for (const f of ['room', 'dining', 'signboard']) assert.match(overlay.innerHTML, new RegExp('new-himank-' + f + '\\.webp'));
   }
@@ -76,12 +76,12 @@ test('Milan detail books through RoamWise and shows RoamWise support', () => {
   const { context, overlay } = appContext();
   context.rwListOpen('p_milan_heights');
   assert.match(overlay.innerHTML, /wa\.me\/919987379730/);
-  assert.match(overlay.innerHTML, /Book through RoamWise/);
+  assert.match(overlay.innerHTML, /amor-checkout\.html\?stay=milan/);
   assert.match(overlay.innerHTML, /milan-heights-front\.jpg/);
   assert.match(overlay.innerHTML, /milan-heights-gaming\.jpg/);
   assert.match(overlay.innerHTML, /More photos &amp; videos on Milan Heights’ Instagram/);
   assert.match(overlay.innerHTML, /mailto:support@roamwise\.co\.in/);
-  assert.match(overlay.innerHTML, /all-in price/);
+  assert.match(overlay.innerHTML, /full refund/);
 });
 
 test('stale cache cannot overwrite the trusted Milan pilot record', () => {

@@ -2,7 +2,7 @@ name: Shop checkout switches (manual)
 
 # Sets the shop checkout flags in Firestore config/shop: enabled, cashfreeEnabled, upiEnabled and the
 # Cashfree environment, which must match CASHFREE_ENV in worker/wrangler.toml ("live") or Cashfree stays off.
-# Writes only those fields; qikinkEnabled and anything else in config/shop is left as it is.
+# Also sets qikinkEnabled / qikinkEnvironment (paid orders go to Qikink automatically). Nothing else is touched.
 # Repo secret needed: FIREBASE_SERVICE_ACCOUNT (the same one the Firestore rules deploy uses).
 
 on:
@@ -28,6 +28,16 @@ on:
         type: choice
         options: ['live', 'sandbox']
         default: 'live'
+      qikink:
+        description: 'Send paid orders to Qikink automatically (charges the Qikink wallet)'
+        type: choice
+        options: ['true', 'false']
+        default: 'true'
+      qikink_environment:
+        description: 'Qikink environment (must match QIKINK_ENV in worker/wrangler.toml)'
+        type: choice
+        options: ['live', 'sandbox']
+        default: 'live'
 
 permissions:
   contents: read
@@ -50,7 +60,7 @@ jobs:
           FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
         run: |
           if [ -z "$FIREBASE_SERVICE_ACCOUNT" ]; then echo "::error::Add FIREBASE_SERVICE_ACCOUNT in repository Actions secrets."; exit 1; fi
-          node tools/shop-config-set.mjs --enabled=${{ inputs.enabled }} --cashfree=${{ inputs.cashfree }} --upi=${{ inputs.upi }} --environment=${{ inputs.environment }}
+          node tools/shop-config-set.mjs --enabled=${{ inputs.enabled }} --cashfree=${{ inputs.cashfree }} --upi=${{ inputs.upi }} --environment=${{ inputs.environment }} --qikink=${{ inputs.qikink }} --qikink-environment=${{ inputs.qikink_environment }}
       - name: Check the live shop reports checkout open
         if: ${{ inputs.enabled == 'true' }}
         run: |

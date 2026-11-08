@@ -27,7 +27,8 @@ test('Corbett is a clearly labelled founder introduction on both public stay sur
   assert.match(overlay.innerHTML,/property agreement is pending/);
   assert.match(overlay.innerHTML,/wa\.me\/919987379730/);   // RoamWise books it; the host's numbers are never shown
   assert.doesNotMatch(overlay.innerHTML,/917037365263|919867012129|tel:/);
-  assert.doesNotMatch(overlay.innerHTML,/Signed Partner|RoamWise Checked|GST Verified|See rooms &amp; book|Cashfree/);
+  assert.doesNotMatch(overlay.innerHTML,/Signed Partner|RoamWise Checked|GST Verified|See rooms &amp; book/);
+  assert.match(overlay.innerHTML,/amor-checkout\.html\?stay=corbett/, 'guests can reserve and pay through RoamWise');
   assert.equal(p.price,undefined);
   for(const photo of p.photos) assert.ok(fs.existsSync(photo.src));
 });
@@ -36,7 +37,7 @@ test('enquiry-only introductions cannot expose direct or OTA payments even with 
   w.RW_ROOMS=[{partnerId:p.id,bookable:true,paymentEnabled:true,price:2000}];
   for(const mode of ['direct','ota','website']) {
     const altered={...p,bookingMode:mode,bookingUrl:'https://www.airbnb.co.in/rooms/1662787644512775118'};
-    assert.ok(c.rwBookingRoutes(altered).every(r=>r.type==='roamwise'));
+    assert.ok(c.rwBookingRoutes(altered).every(r=>r.type==='pay'||r.type==='roamwise'));
   }
   p.bookingMode='direct';
   assert.equal(c.rwRoomsLive().length,0);
