@@ -94,8 +94,18 @@ export async function handleTrekMarketplace(request,env,path){
  if(!claims)return apiError('verified_login_required',401);
  if(path==='treks/mine'&&request.method==='GET'){
   try{
-   const [partner,packages]=await Promise.all([doc(ctx,'trekProviders/'+claims.uid),queryEqualsString(env,ctx.token,ctx.project,'trekPackages','ownerUid',claims.uid,200)]);
-   return json({partner,packages});
+   const [partner,packages,bookings]=await Promise.all([
+    doc(ctx,'trekProviders/'+claims.uid),
+    queryEqualsString(env,ctx.token,ctx.project,'trekPackages','ownerUid',claims.uid,200),
+    queryEqualsString(env,ctx.token,ctx.project,'trekBookings','ownerUid',claims.uid,200)
+   ]);
+   const requests=bookings.filter(b=>['paid_pending_operator_confirmation','operator_confirmed','refund_review_required'].includes(b.state)).map(b=>({
+     id:b.id,packageName:b.packageName,departure:b.departure,travellers:b.travellers,
+     operatorTotal:b.operatorTotal,state:b.state,operatorDecisionNote:b.operatorDecisionNote||'',
+     guestEmail:b.shareContactWithOperator?b.guestEmail:null,
+     guestPhone:b.shareContactWithOperator?b.guestPhone:null
+   }));
+   return json({partner,packages,bookings:requests});
   }catch(_){return apiError('account_unavailable',503)}
  }
  if(path==='treks/apply'&&request.method==='POST'){
@@ -139,6 +149,24 @@ export async function handleTrekMarketplace(request,env,path){
    else await create(ctx,'trekPackages',id,{...data,createdAt:utcNow()});
    return json({ok:true,id,status:'pending_review'});
   }catch(_){return apiError('package_save_unavailable',503)}
+ }
+ if(path==='treks/operator/decision'&&request.method==='POST'){
+  try{
+   const input=await readJSON(request),id=safe(input.bookingId,64),action=safe(input.action,25);
+   if(!orderPattern.test(id)||!['confirm','refund_review'].includes(action))return apiError('invalid_decision',422);
+   const operator=await doc(ctx,'trekProviders/'+claims.uid);
+   if(!operator||operator.verified!==true||operator.status!=='approved')return apiError('approved_operator_required',403);
+   const record=await doc(ctx,'trekBookings/'+id);
+   if(!record||record.ownerUid!==claims.uid)return apiError('forbidden',403);
+   if(record.state!=='paid_pending_operator_confirmation')return apiError('booking_not_awaiting_decision',409);
+   const note=safe(input.note,300);
+   if(note.length<8)return apiError('operator_reference_required',422);
+   const cf=await verifyProviderOrder(env,id,record.amount);
+   if(cf.order_status!=='PAID')return apiError('payment_not_verified',409);
+   await patch(ctx,'trekBookings/'+id,{state:action==='confirm'?'operator_confirmed':'refund_review_required',
+     operatorDecisionAt:utcNow(),operatorDecisionNote:note,confirmedByUid:claims.uid});
+   return json({ok:true,automaticRefund:false,automaticPayout:false});
+  }catch(_){return apiError('decision_unavailable',503)}
  }
  if(path==='treks/admin'&&request.method==='GET'){
   if(!await isAdmin(ctx,claims))return apiError('forbidden',403);
