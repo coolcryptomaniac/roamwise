@@ -49,6 +49,9 @@ export const ROUTE_LIMITS = {
   'shop-order':              ['shop-order', 300, 600, 0],
   'shop-quote':              ['shop-quote', 600, 600, 0],
   'leads':                   ['leads', 12, 600, 0],
+  'wallet-link':             ['wallet-link', 10, 600, 0],
+  'wallet':                  ['wallet', 600, 600, 60],
+  'stay-order':              ['stay-order', 300, 600, 0],
   'status':                  ['cf-status', 2000, 600, 120],
   'ai-anon':                 ['ai-anon', 200, 60, 0],
   'flood':                   ['flood', 1500, 60, 0]
@@ -62,6 +65,9 @@ export function routeKey(path, method){
   if(method === 'GET' && (path === 'bhakti/access' || /^bhakti\/order\/[^/]+\/status$/.test(path)))return 'status';
   if(method === 'GET' && /^music\/(order\/[^/]+\/status|download\/[^/]+|licence\/[^/]+)$/.test(path)) return 'status';
   if(path === 'leads') return 'leads';
+  if(method === 'POST' && path === 'wallet/link') return 'wallet-link';
+  if(path === 'wallet' || /^wallet\/(keep|bank)$/.test(path) || path === 'stays/decide' || path === 'shop/decide') return 'wallet';
+  if(method === 'POST' && (path === 'stays/checkout' || path === 'stays/quote')) return 'stay-order';
   if(method === 'GET' && /^(partner\/)?cashfree\/order\/[^/]+\/status$/.test(path)) return 'status';
   return null;
 }

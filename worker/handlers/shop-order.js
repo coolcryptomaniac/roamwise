@@ -16,6 +16,8 @@ import { CORS, json } from '../lib/http.js';
 import { getServiceAccountAccessToken, parseServiceAccount } from '../lib/service-account.js';
 import { createDocIfAbsent, getDoc, queryEqualsString, updateDoc } from '../lib/firestore-rest.js';
 import { createFulfilment } from '../lib/shop-fulfil.js';
+import { createShopWallet } from './shop-wallet.js';
+import { walletKeyFromRequest, spendWallet } from './wallet.js';
 import { verifyCashfreeWorkerWebhook } from '../lib/cashfree-booking-webhook-verify.js';
 import { SHOP_CATALOGUE, publicCatalogue } from '../lib/shop-catalogue.js';
 import {
@@ -76,6 +78,11 @@ export function createShopHandlers(overrides) {
     fetchImpl: (...a) => deps.qikinkFetch(...a), now: () => deps.now(), catalogue: deps.catalogue,
   });
 
+  const shopWallet = createShopWallet({
+    getDoc: (...a) => deps.getDoc(...a), updateDoc: (...a) => deps.updateDoc(...a), queryEqualsString: (...a) => deps.queryEqualsString(...a),
+    context: (...a) => deps.context(...a), now: () => deps.now(), sendMail: deps.sendMail,
+  });
+
   async function loadMethods(env, ctx) {
     let cfg;
     try { cfg = await deps.getDoc(env, ctx.accessToken, ctx.projectId, 'config/shop'); }
@@ -107,6 +114,7 @@ export function createShopHandlers(overrides) {
     await deps.updateDoc(env, ctx.accessToken, ctx.projectId, `shopOrders/${id}`, {
       status: 'paid', paidAt: at, updatedAt: at, paymentProvider: 'cashfree', cashfreeStatus: 'PAID', fulfilmentState: 'queued',
     });
+    await shopWallet.notifyPaid(env, id, { ...order, status: 'paid', paidAt: at });
     /* Never throws; when Qikink is off or fails the order simply stays queued for the hourly retry. */
     await fulfil.fulfilOrder(env, ctx, id, { ...order, status: 'paid', fulfilmentState: 'queued' });
     return { state: 'paid' };
@@ -149,8 +157,10 @@ export function createShopHandlers(overrides) {
     if (ctx.error) return ctx.error;
     const state = await loadMethods(env, ctx);
     if (state.error) return state.error;
-    const method = body.method === 'upi' ? 'upi' : body.method === 'cashfree' ? 'cashfree' : null;
-    if (!method || !state.methods[method]) return json({ error: 'method_unavailable', message: 'That payment method is not available right now.' }, 409);
+    const method = body.method === 'upi' ? 'upi' : body.method === 'cashfree' ? 'cashfree' : body.method === 'wallet' ? 'wallet' : null;
+    if (!method || (method !== 'wallet' && !state.methods[method])) return json({ error: 'method_unavailable', message: 'That payment method is not available right now.' }, 409);
+    const walletKey = method === 'wallet' ? await walletKeyFromRequest(request, env, String(body.wallet || '')) : null;
+    if (method === 'wallet' && !walletKey) return json({ error: 'wallet_sign_in', message: 'Open your wallet link again to pay with credit.' }, 401);
     const customer = validateCustomer(body.customer);
     if (customer.error) return json({ error: customer.error, message: customer.message }, 422);
     const ship = validateShipTo(body.ship);
@@ -174,6 +184,23 @@ export function createShopHandlers(overrides) {
 
     const summary = { orderId: id, token, method, status: order.status, subtotalPaise: priced.subtotalPaise, shippingPaise: priced.shippingPaise, totalPaise: priced.totalPaise };
     if (method === 'upi') return json({ ...summary, upi: upiIntent(id, priced.totalPaise) });
+    if (method === 'wallet') {
+      /* The order exists first, so credit is only spent on a saved order. Wallet credit is whole rupees. */
+      let used;
+      try {
+        if (priced.totalPaise % 100) throw new Error('paise');
+        used = await spendWallet(env, walletKey, priced.totalPaise / 100, id);
+      } catch (_) {
+        try { await deps.updateDoc(env, ctx.accessToken, ctx.projectId, `shopOrders/${id}`, { status: 'payment_setup_failed', updatedAt: deps.now().toISOString() }); } catch (__) { /* best effort */ }
+        return json({ error: 'wallet_low', message: 'Your wallet credit is not enough for this order. No credit was used.' }, 409);
+      }
+      const paidAt = deps.now().toISOString();
+      const paid = { ...order, status: 'paid', paidAt, paymentProvider: 'wallet', paidFromLots: used, fulfilmentState: 'queued' };
+      await deps.updateDoc(env, ctx.accessToken, ctx.projectId, `shopOrders/${id}`, { status: 'paid', paidAt, updatedAt: paidAt, paymentProvider: 'wallet', paidFromLots: used, fulfilmentState: 'queued' });
+      await shopWallet.notifyPaid(env, id, paid);
+      await fulfil.fulfilOrder(env, ctx, id, paid);
+      return json({ ...summary, status: 'paid' });
+    }
 
     const notifyUrl = String(env.SHOP_WEBHOOK_URL || DEFAULT_WEBHOOK_URL);
     const cfBody = {
@@ -261,7 +288,8 @@ export function createShopHandlers(overrides) {
     return fulfil.runFulfilmentCron(env, ctx);
   }
 
-  return { handleShopCatalogue, handleShopQuote, handleShopOrder, handleShopStatus, handleShopWebhook, runShopFulfilmentCron };
+  return { handleShopCatalogue, handleShopQuote, handleShopOrder, handleShopStatus, handleShopWebhook, runShopFulfilmentCron,
+    handleShopDecide: shopWallet.handleShopDecide, runShopRefundCron: shopWallet.runShopRefundCron };
 }
 
 const defaults = createShopHandlers();
@@ -271,3 +299,5 @@ export const handleShopOrder = defaults.handleShopOrder;
 export const handleShopStatus = defaults.handleShopStatus;
 export const handleShopWebhook = defaults.handleShopWebhook;
 export const runShopFulfilmentCron = defaults.runShopFulfilmentCron;
+export const handleShopDecide = defaults.handleShopDecide;
+export const runShopRefundCron = defaults.runShopRefundCron;

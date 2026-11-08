@@ -3,6 +3,8 @@
 import { json } from '../lib/http.js';
 import { verifyCashfreeWorkerWebhook } from '../lib/cashfree-booking-webhook-verify.js';
 import { cfBase as CF, cfHeaders as headers } from '../lib/cashfree-pg.js';
+import { onStayPaid } from './stay-lifecycle.js';
+import { walletKeyFromRequest, spendWallet } from './wallet.js';
 /* Every RoamWise stay is bookable and payable online (founder decision, 8 Nov 2026: take the money, refund
    if the stay cannot be confirmed). Three kinds, all priced here, never by the browser:
    - nightly: supplier rate x 1.25 per room night (Amor rate sheets, taxes included)
@@ -65,6 +67,15 @@ export async function createStayOrder(request,env){
  if(!/^\+?\d{10,15}$/.test(phone)||!/^\S+@\S+\.\S+$/.test(email))return json({error:'contact_required'},422);
  const id='rwstay_'+crypto.randomUUID().replace(/-/g,'');
  const record={...quote,id,email,phone,shareWithSupplier:b.shareWithSupplier===true,status:'payment_pending',confirmed:false,createdAt:new Date().toISOString()};
+ /* Pay with RoamWise wallet credit when the guest is signed in (wallet link or Google/phone sign-in) and has enough. */
+ if(b.payWith==='wallet'){
+  const key=await walletKeyFromRequest(request,env,String(b.wallet||''));
+  if(!key)return json({error:'wallet_sign_in',message:'Open your wallet link again to pay with credit.'},401);
+  try{record.paidFromLots=await spendWallet(env,key,quote.amount,id)}catch(e){return json({error:'wallet_low',message:'Your wallet credit is not enough for this booking.'},409)}
+  record.paidWith='wallet';
+  await onStayPaid(env,record);
+  return json({paid:true,orderId:id,quote});
+ }
  await kv(env).put('stayorder:'+id,JSON.stringify(record),{expirationTtl:60*60*24*180});
  const body={order_id:id,order_amount:quote.amount,order_currency:'INR',customer_details:{customer_id:id,customer_phone:phone,customer_email:email},order_meta:{return_url:'https://roamwise.co.in/packages/amor-checkout.html?order_id='+id,notify_url:'https://roamwise-api.founder-f53.workers.dev/stays/cashfree/webhook'},order_note:(quote.property+' '+quote.checkin+' '+quote.checkout).slice(0,200)};
  let r,data;try{r=await fetch(CF(env)+'/pg/orders',{method:'POST',headers:{...headers(env),'x-idempotency-key':id},body:JSON.stringify(body)});data=await r.json()}catch(_){return json({error:'cashfree_unreachable'},502)}
@@ -77,8 +88,8 @@ export async function stayOrderStatus(request,env,id){
  let r,data;try{r=await fetch(CF(env)+'/pg/orders/'+id,{headers:headers(env)});data=await r.json()}catch(_){return json({error:'cashfree_unreachable'},502)}
  if(!r.ok||data.order_id!==id||data.order_currency!=='INR'||Number(data.order_amount)!==record.amount)return json({error:'payment_verification_failed'},409);
  const paid=data.order_status==='PAID';
- if(paid&&record.status!=='paid_pending_confirmation'){record.status='paid_pending_confirmation';record.paidAt=new Date().toISOString();await kv(env).put('stayorder:'+id,JSON.stringify(record),{expirationTtl:60*60*24*180})}
- return json({orderId:id,status:paid?'paid_pending_confirmation':data.order_status,confirmed:false});
+ if(paid&&record.status==='payment_pending'){await onStayPaid(env,record);if(RATE[record.stay]&&RATE[record.stay].supplier==='amor')await alertSupplier(env,record)}
+ return json({orderId:id,status:paid?record.status:data.order_status,confirmed:record.status==='confirmed'});
 }
 
 const SUPPLIER_INBOX={amor:'sales@amorhospitality.in',roamwise:'founder@roamwise.co.in'};
@@ -93,6 +104,7 @@ async function alertSupplier(env,record){
  'RoamWise payment status: verified PAID; this is a request, not a confirmed room.'];
  if(amor)lines.push(record.shareWithSupplier?'Guest email: '+record.email+'; Guest phone: '+record.phone:'Guest contact held by RoamWise pending consent.',
   'Please confirm availability, booking ID, final inclusions, and cancellation policy to founder@roamwise.co.in.',
+  ...(record.hostLinks?['','One tap is enough:','Confirm this booking: '+record.hostLinks.confirm,"Can't host these dates: "+record.hostLinks.decline,'Need more time (once): '+record.hostLinks.extend,'No answer within 24 hours refunds the guest automatically.','']:[]),
   'For urgent booking support: +91 9650432605 / +91 9997317170');
  else lines.push('Guest email: '+record.email+'; Guest phone: '+record.phone,
   'Next: confirm the room with the host, tell the guest the balance (if any), or refund in full if it cannot be confirmed.');
@@ -122,9 +134,10 @@ export async function handleStayCashfreeWebhook(request,env){
  if(!r.ok)return json({error:'cashfree_lookup_failed'},503);
  const order=await r.json();
  if(order.order_status!=='PAID'||order.order_id!==id||order.order_currency!=='INR'||Number(order.order_amount)!==record.amount)return json({error:'payment_integrity_failed'},409);
+ if(record.status==='payment_pending')await onStayPaid(env,record);
+ /* Amor's booking desk gets its own email with the guest details and the host links; RoamWise stays are handled from the founder email. */
+ if(!(RATE[record.stay]&&RATE[record.stay].supplier==='amor'))return json({ok:true,status:record.status});
  if(record.supplierNotifiedAt)return json({ok:true,duplicate:true});
- record.status='paid_pending_confirmation';record.paidAt=record.paidAt||new Date().toISOString();
- await env.RW_KV.put('stayorder:'+id,JSON.stringify(record),{expirationTtl:60*60*24*180});
  const sent=await alertSupplier(env,record);
  if(!sent.sent)return json({ok:false,error:sent.reason},503);
  return json({ok:true,status:record.status,supplierNotified:true});
