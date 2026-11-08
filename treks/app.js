@@ -125,6 +125,15 @@ async function review(){
    const isPkg=!!p.ownerUid&&!!p.unitPrice,kind=isPkg?'package':'provider',id=isPkg?p.id:p.ownerUid;
    return '<article class="card"><span class="chip">'+esc(kind)+' · '+esc(p.status)+'</span><h3>'+esc(p.name)+'</h3><p>'+esc(p.region||'')+'</p><p>'+esc(isPkg?money(p.unitPrice)+' / '+esc(p.pricingUnit||'person')+' • '+p.start:(p.email||'')+' • '+(p.website||''))+'</p><p>'+esc(isPkg?p.safetyNote||'No safety notes':p.safetyCredentials||'No certificates supplied')+'</p><div class="row"><button data-action="'+(isPkg?'publish':'approve')+'" data-kind="'+kind+'" data-id="'+esc(id)+'">'+(isPkg?'Publish':'Approve')+'</button><button class="secondary" data-action="pause" data-kind="'+kind+'" data-id="'+esc(id)+'">Pause</button></div></article>';
   }).join(''):'<p>No submissions yet.</p>';
+  $('bookingCards').innerHTML=(d.bookings||[]).length?(d.bookings||[]).map(o=>
+   '<article class="card"><span class="status">'+esc(o.state)+'</span><h3>'+esc(o.packageName)+'</h3><p>Departure '+esc(o.departure)+' · '+esc(o.travellers)+' traveller(s)</p><p>'+esc(o.guestEmail)+' · '+esc(o.guestPhone)+'</p><p>Collected '+money(o.amount)+' · operator price '+money(o.operatorTotal)+' · RoamWise fee '+money(o.roamwiseServiceFee)+'</p><p>Reference '+esc(o.id)+'</p>'+(o.state==='paid_pending_operator_confirmation'?'<div class="row"><button type="button" data-bookact="confirm" data-id="'+esc(o.id)+'">Confirm with operator</button><button type="button" class="secondary" data-bookact="refund_review" data-id="'+esc(o.id)+'">Flag refund review</button></div>':'<p class="muted">Operator decision: '+esc(o.operatorDecisionNote||'Not yet recorded')+'</p>')+'</article>').join(''):
+   '<p class="muted">No trek bookings recorded.</p>';
+  for(const b of $('bookingCards').querySelectorAll('[data-bookact]'))b.addEventListener('click',async()=>{
+   const note=prompt(b.dataset.bookact==='confirm'?'Enter written operator confirmation/reference (required):':'Explain why the booking needs manual refund review:');
+   if(!note)return;
+   try{await api('/treks/admin/action',{kind:'booking',id:b.dataset.id,action:b.dataset.bookact,note},true);message('Decision recorded. No automatic payout or refund was initiated.');review();}
+   catch(e){message(e.message,true)}
+  });
   for(const b of $('reviewCards').querySelectorAll('[data-action]'))b.addEventListener('click',async()=>{
    if(!confirm('Verify all source details and apply '+b.dataset.action+' to this '+b.dataset.kind+'?'))return;
    try{await api('/treks/admin/action',{kind:b.dataset.kind,id:b.dataset.id,action:b.dataset.action},true);message('Reviewed: '+b.dataset.action);review();catalog();}
@@ -173,7 +182,7 @@ async function checkReturned(){
  if(!/^rwtrek_[a-f0-9]{32}$/.test(id||'')||!state.user)return;
  try{
   const r=await api('/treks/order/'+id+'/status',null,true);
-  message(r.state==='paid_pending_operator_confirmation'?'Cashfree payment verified. Operator confirmation is pending. Your reference: '+id:
+  message(r.state==='operator_confirmed'?'Operator confirmed your booking. Your reference: '+id:r.state==='refund_review_required'?'Your booking requires refund review; contact support using reference: '+id:r.state==='paid_pending_operator_confirmation'?'Cashfree payment verified. Operator confirmation is pending. Your reference: '+id:
    'Payment not verified yet ('+r.state+'). Do not pay a second time until this reference is checked: '+id);
  }catch(e){message('Could not verify order '+id+'. Contact support before paying again. '+e.message,true)}
 }
