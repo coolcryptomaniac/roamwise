@@ -9,6 +9,11 @@ Status: review-gated feature, not merged or deployed. It does not constitute an 
 - /treks/#review — founder/admin approval desk for partners, departures and paid booking follow-up.
 - The homepage's Partner with RoamWise chooser points trekking and transport applicants here.
 
+### Hike & Seek cofounder-source note (8 Nov 2026)
+The RoamWise founder supplied the names **Gaurav Aswal** and **Aanchal Kandari** as Hike & Seek cofounders. Indexed public Instagram results for [Aanchal (@aanchalkandari)](https://www.instagram.com/aanchalkandari/reels/) display the bio statement "Co-founder @hike_and__seek" and describe her as Mussoorie-based, interested in Himalayan treks and hidden cafes. The official Hike & Seek site lists [@hike_and__seek](https://www.instagram.com/hike_and__seek/) as its company Instagram and describes operations based in Dehradun. Firecrawl direct Instagram scraping returned site unsupported; these are search-indexed bio references, **not** screenshots or permission to copy her images. Gaurav's cofounder role is founder-provided and still needs operator confirmation.
+
+The public unclaimed invitation preview displays both names with verification caveats and links to their public profiles. The prospective operator's join form prefills these names and the official company Instagram only when the Hike & Seek invite link is used. Cofounder/public-name publication defaults **OFF**; an authorised representative must opt in and be approved. The supplied personal contact phone is **not stored in public GitHub, JavaScript or documentation**, and should be entered only through an access-restricted founder CRM/contact mechanism, not via a public URL or partner-prepopulated field.
+
 Public Hike & Seek trek names were researched from https://hikeandseek.in/ and appear as source-linked invitation examples only. No relationship, rights to images, prices, availability, or terms are assumed. Its Tungnath listing appears inconsistent on length and inclusions; an authorised representative must check these before approval. The same onboarding is reusable for Trek The Himalayas, Indiahikes and similar operators. Neither is claimed as a RoamWise partner.
 
 ## Commercial terms
