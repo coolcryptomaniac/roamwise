@@ -99,7 +99,7 @@ async function mine(){
    'Organisation: <strong>'+esc(d.partner.name)+'</strong> · <span class="status">'+esc(d.partner.status)+'</span>. Operator commission: <strong>0%</strong> for the first three years from approval. Financial contributions are voluntary, not a condition of listing.':
    'You have not applied yet. Open <strong>Become a partner</strong> and submit your professional details.';
   $('mineCards').innerHTML=state.packages.length?state.packages.map(p=>
-   '<div class="card"><div class="head"><span class="status">'+esc(p.status)+'</span><span class="mini">'+esc(p.start)+'</span></div><h3>'+esc(p.name)+'</h3><p>'+esc(p.region)+' · '+money(p.pricePerPerson)+' / person</p><button type="button" class="secondary" data-edit="'+esc(p.id)+'">Edit / resubmit for review</button></div>').join(''):
+   '<div class="card"><div class="head"><span class="status">'+esc(p.status)+'</span><span class="mini">'+esc(p.start)+'</span></div><h3>'+esc(p.name)+'</h3><p>'+esc(p.region)+' · '+money(p.unitPrice)+' / '+esc(p.pricingUnit||'person')+'</p><button type="button" class="secondary" data-edit="'+esc(p.id)+'">Edit / resubmit for review</button></div>').join(''):
    '<div class="card"><h3>Ready for your first package?</h3><p>Create a trip, guided walk, group experience or private transport itinerary. Pricing stays unpublished until approved.</p></div>';
   for(const b of $('mineCards').querySelectorAll('[data-edit]'))b.addEventListener('click',()=>editPackage(b.dataset.edit));
  }catch(e){$('studioSummary').textContent='Could not load studio: '+e.message}
