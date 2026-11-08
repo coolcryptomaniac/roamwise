@@ -33,8 +33,7 @@ window.rwStayPublicEligible = function(p){
    rates and the final reservation are still confirmed directly with the hotel. */
 window.RW_PARTNER_SEED = [{
   id:'p_milan_heights', cat:'stay', zone:'Almora', area:'Milan Chowk, Almora',
-  name:'Milan Heights', verified:'signed', listingReady:true, bookingMode:'whatsapp',
-  bookingWhatsapp:'917302315845', supportEmail:'support@roamwise.co.in',
+  name:'Milan Heights', verified:'signed', listingReady:true, bookingMode:'roamwise', supportEmail:'support@roamwise.co.in',
   badges:['partner'],
   photos:[
     {src:'assets/property-photos/milan-heights-front.jpg',alt:'Milan Heights building and restaurant entrance at Milan Chowk, Almora',caption:'Milan Heights frontage · photo shared for this listing'},
@@ -45,9 +44,9 @@ window.RW_PARTNER_SEED = [{
 },{
   /* Onboarded by the founder and approved in admin (partnerPublicProfiles, verifiedAt 2026-10-06).
      No WhatsApp number or photos are on file yet, so the listing routes guests through the
-     RoamWise stays flow rather than a direct chat. Add bookingWhatsapp/photos when received. */
+     RoamWise stays flow rather than a direct chat. Add photos when received. */
   id:'p_soulmate_homestay', cat:'stay', zone:'Almora', area:'Kotyura',
-  name:'Soulmate Homestay', verified:'signed', listingReady:true, bookingMode:'whatsapp', bookingWhatsapp:'919105334889',
+  name:'Soulmate Homestay', verified:'signed', listingReady:true, bookingMode:'roamwise',
   photos:[
     {src:'assets/property-photos/soulmate-front.jpg',alt:'Soulmate Homestay and restaurant entrance with yellow steps in Kotyura, Almora',caption:'Entrance · photo shared for this listing'},
     {src:'assets/property-photos/soulmate-cafe.jpg',alt:'Soulmate cafe seating with a wooden wall and cow mural',caption:'Cafe seating · photo shared for this listing'},
@@ -55,7 +54,7 @@ window.RW_PARTNER_SEED = [{
     {src:'assets/property-photos/soulmate-walkway.jpg',alt:'Soulmate covered walkway lit with lanterns and star lights at night',caption:'Walkway at night · photo shared for this listing'}
   ],
   supportEmail:'support@roamwise.co.in',
-  /* Signed partners book by WhatsApp only (never via an OTA). Hidden until bookingMode:'whatsapp' + bookingWhatsapp are saved from the partner admin. */
+  /* Guests book through RoamWise only (never via an OTA or the host's own number). Hidden until the partner admin opens it for bookings (bookingMode). */
   mapsUrl:'https://www.google.com/maps/search/?api=1&query=Soulmate+Homestay+Kotyura+Almora',
   badges:['local','quiet'],
   hook:'Kumaoni cooking and Himalayan surroundings in Kotyura, Almora, with a local host. Ask RoamWise to confirm rooms, dates and the final total.'
@@ -63,7 +62,7 @@ window.RW_PARTNER_SEED = [{
   /* Approved in the partner admin (MOU accepted 2026-09-30). Details below come from public
      travel-site listings (hotels.com / Expedia): Chachoga Road near Hotel Vintage, free
      breakfast, Wi-Fi and balconies, about 0.6 km from Mall Road. No rating or rate is shown
-     until the Trust Desk price audit is complete. Add bookingWhatsapp/photos when received. */
+     until the Trust Desk price audit is complete. Add photos when received. */
   id:'p_new_himank', cat:'stay', zone:'Manali', area:'Chachoga Road, near Hotel Vintage',
   name:'New Himank', verified:'signed', listingReady:true,
   photos:[
@@ -72,7 +71,7 @@ window.RW_PARTNER_SEED = [{
     {src:'assets/property-photos/new-himank-signboard.webp',alt:'New Himank signboard on the building front in Manali',caption:'Entrance signboard · photo shared for this listing'}
   ],
   supportEmail:'support@roamwise.co.in',
-  /* Signed partners book by WhatsApp only (never via an OTA). Hidden until bookingMode:'whatsapp' + bookingWhatsapp are saved from the partner admin. */
+  /* Guests book through RoamWise only (never via an OTA or the host's own number). Hidden until the partner admin opens it for bookings (bookingMode). */
   mapsUrl:'https://www.google.com/maps/search/?api=1&query=New+Himank+Homestay+Chachoga+Road+Manali',
   hook:'Homestay with an on-site restaurant on Chachoga Road, Manali, about a 7-minute walk to Mall Road. Public listings mention free breakfast, Wi-Fi and balconies in every room. Ask RoamWise to confirm rooms, dates and the final total.'
 },{
@@ -81,8 +80,7 @@ window.RW_PARTNER_SEED = [{
      (thedevinehomestay.com). Partner Free, 7% on completed stays; availability confirmed on WhatsApp and calls.
      Photos: uploaded by the business owner to its Justdial listing (16 Oct 2026); the MOU authorises their use. */
   id:'p_woodbook_devine', cat:'stay', zone:'Tirthan Valley', area:'Galoon, P.O. Deotha, Banjar (near Laida Secret Waterfall)',
-  name:'Woodbook The Devine Homestay', verified:'signed', listingReady:true, bookingMode:'whatsapp',
-  bookingWhatsapp:'917807491275', supportEmail:'support@roamwise.co.in',
+  name:'Woodbook The Devine Homestay', verified:'signed', listingReady:true, bookingMode:'roamwise', supportEmail:'support@roamwise.co.in',
   propertyType:'Homestay', roomCount:5, maxGuests:14,
   photos:[
     {src:'assets/property-photos/woodbook-treehouse.webp',alt:'A-frame wooden treehouse with a balcony and the cottage beside it, Woodbook, Banjar',caption:'Treehouse \u00b7 photo from the property\u2019s own listing'},
@@ -124,7 +122,7 @@ window.RW_PARTNER_SEED = [{
   id:'p_corbett_jungle_view', cat:'stay', zone:'Lansdowne', area:'Ghildiyal Gaon, P.O. Bansi, Pauri Garhwal 246155',
   name:'Corbett Jungle View Homestay', verified:'founder-approved', listingReady:true,
   founderApproval:'Mohit Pandey · 2026-10-18', enquiryOnly:true, ownerMouAccepted:false,
-  bookingMode:'whatsapp', bookingWhatsapp:'917037365263', bookingPhone:'919867012129',
+  bookingMode:'roamwise',
   supportEmail:'support@roamwise.co.in', propertyType:'Family homestay', roomCount:6, maxGuests:12,
   badges:['founder'],
   mapsUrl:'https://www.google.com/maps/search/?api=1&query=Corbett+Jungle+View+Homestay+Ghildiyal+Gaon+Bansi+Lansdowne',

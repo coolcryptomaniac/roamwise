@@ -17,8 +17,21 @@ test('pricing is server-side, in paise, and refuses unknown or invalid input', (
   assert.equal(priceCart([item], '963601', cat()).error, 'invalid_pin');
 });
 
+test('live delivery fees: Rs 99 standard, Rs 149 remote zones, free from Rs 1,000', () => {
+  const fee = (pin, sub) => shippingFeePaise(pin, sub);
+  assert.equal(fee('263601', 19900), 9900);   // Almora
+  assert.equal(fee('110001', 79900), 9900);   // Delhi
+  assert.equal(fee('781001', 19900), 14900);  // Guwahati
+  assert.equal(fee('190001', 19900), 14900);  // Srinagar
+  assert.equal(fee('744101', 19900), 14900);  // Port Blair
+  assert.equal(fee('682555', 19900), 14900);  // Lakshadweep
+  assert.equal(fee('682001', 19900), 9900);   // Kochi stays standard
+  assert.equal(fee('781001', 100000), 0);     // free from Rs 1,000 anywhere
+  assert.equal(fee('263601', 99999), 9900);
+});
+
 test('shipping is never guessed: unconfigured PINs are refused, rules and free threshold apply', () => {
-  assert.equal(priceCart([item], '263601').error, 'shipping_not_available'); // shipped catalogue has no fee yet
+  assert.equal(priceCart([item], '263601', cat({ defaultFeePaise: null })).error, 'shipping_not_available');
   assert.equal(shippingFeePaise('263601', 1000, cat({ rules: [{ pinPrefixes: ['26'], feePaise: 6900 }] })), 6900);
   assert.equal(shippingFeePaise('110001', 1000, cat({ rules: [{ pinPrefixes: ['26'], feePaise: 6900 }] })), 9900);
   assert.equal(shippingFeePaise('110001', 500000, cat({ freeAbovePaise: 100000 })), 0);
@@ -66,11 +79,13 @@ function harness({ cfg, cashfree = {}, catalogue } = {}) {
 const req = (body, headers = {}, method = 'POST') => new Request('https://w.test/x', { method, headers: { 'content-type': 'application/json', ...headers }, body: body == null ? undefined : JSON.stringify(body) });
 const goodOrder = (method) => ({ items: [item], method, customer: { name: 'Asha Rawat', phone: '9876543210', email: 'a@example.com' }, ship: { line1: '12 Mall Road', city: 'Almora', state: 'Uttarakhand', pin: '263601' } });
 
-test('shipped catalogue refuses to quote until a delivery fee is configured', async () => {
+test('shipped catalogue quotes the configured delivery fee from the server, never the client', async () => {
   const { h, env } = harness();
-  const res = await h.handleShopQuote(req({ items: [item], pin: '263601' }), env);
-  assert.equal(res.status, 422);
-  assert.equal((await res.json()).error, 'shipping_not_available');
+  const res = await h.handleShopQuote(req({ items: [item], pin: '263601', shippingPaise: 0, totalPaise: 1 }), env);
+  assert.equal(res.status, 200);
+  const body = await res.json();
+  assert.equal(body.shippingPaise, body.subtotalPaise >= 100000 ? 0 : 9900);
+  assert.equal(body.totalPaise, body.subtotalPaise + body.shippingPaise);
 });
 
 test('checkout is closed unless config/shop.enabled is true', async () => {

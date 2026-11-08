@@ -124,15 +124,14 @@ function rwTuskPartnerStayHTML(raw,dest){
         href='/partner/?role=customer&destination='+encodeURIComponent(p.zone||dest||'')+(dates?'&checkin='+dates.checkIn+'&checkout='+dates.checkOut:'')+(guests?'&guests='+guests:'');
         label=route.type==='none'?'Ask RoamWise to confirm →':'Check rooms and dates →';
       }
-      if(route.type==='whatsapp'){
-        var message='Hello '+p.name+', I found your stay through RoamWise. '+(dates?'Check-in: '+dates.checkIn+'. Check-out: '+dates.checkOut+'. ':'')+(guests?'Guests: '+guests+'. ':'')+'Please confirm room options, availability, final total including taxes, payment method and cancellation terms.';
-        href+='?text='+encodeURIComponent(message);
+      if(route.type==='roamwise'){
+        href+='?text='+encodeURIComponent(rwBookingText(p,{checkIn:dates&&dates.checkIn,checkOut:dates&&dates.checkOut,guests:guests}));
       }
       return '<div style="padding:12px 0;border-bottom:1px solid var(--b2)"><b>'+esc2(p.name)+'</b>'
         +'<div class="rw-note">'+esc2(p.area||p.zone||'')+' · '+(p.enquiryOnly?'Founder introduced · enquiry only':'Signed partner')+'</div>'
-        +'<div class="rw-note">Rate and availability confirmed by the property for your dates.</div>'
+        +'<div class="rw-note">RoamWise confirms the room and the all-in price for your dates.</div>'
         +'<a class="tk-chip gold" href="'+esc2(href)+'" target="_blank" rel="noopener noreferrer">'+esc2(label)+'</a></div>';
-    }).join('')+'<p class="rw-note">Opening a chat or sending an enquiry is not a reservation. Get written confirmation of the room, dates, total and cancellation terms before paying.</p></div></div>';
+    }).join('')+'<p class="rw-note">Book and pay only through RoamWise. A chat is not a reservation until RoamWise confirms your room and sends the payment link.</p></div></div>';
 }
 function rwTuskStayHTML(raw,dest){
   var list=rwTuskStayMatches(raw,dest), partners=rwTuskPartnerStayHTML(raw,dest); if(!list.length)return partners;
@@ -166,7 +165,7 @@ function rwTuskPlanBookingHTML(raw,dest,days){
   var q=encodeURIComponent(dest),label=esc2(dest)+(days?' · '+days+' days':'');
   return '<div class="tk-card tk-mini"><div class="tk-sec">'
     +'<div style="font-weight:850;font-size:13.5px">🧾 Booking assistant · '+label+'</div>'
-    +'<div style="font-size:11.5px;color:var(--t2);line-height:1.55;margin-top:5px">Choose a stay below and ask the property to confirm your dates, room and total. WhatsApp stays confirm directly with the host. Online payment is available only for listings with confirmed inventory and enabled payment; payment remains locked until the property confirms.</div>'
+    +'<div style="font-size:11.5px;color:var(--t2);line-height:1.55;margin-top:5px">Choose a stay below and book through RoamWise. RoamWise confirms your dates, room and the all-in price, then sends a secure payment link. Instant online payment opens for stays with confirmed inventory and enabled payment.</div>'
     +'<div class="tk-chips" style="margin-top:9px">'
     +'<a class="tk-chip gold" href="/partner/?role=customer&amp;destination='+q+'">Browse stays →</a>'
     +'<a class="tk-chip" target="_blank" rel="noopener" href="https://www.google.com/travel/flights?q='+q+'">Flights ↗</a>'

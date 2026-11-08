@@ -70,7 +70,7 @@
     $('buy-upi').hidden = true; $('buy-closed').hidden = true; $('buy-intro').hidden = false; form.hidden = false;
     await loaded;
     if (!checkoutOpen || !products.some((p) => p.id === id)) {
-      showClosed(button, 'Online payment is paused while delivery charges are being confirmed. No payment can be taken here right now.');
+      showClosed(button, 'Online payment is not available for this item right now. No payment can be taken here.');
     } else {
       setProduct(id);
       $('buy-product-row').hidden = !!button; // the button already chose the product

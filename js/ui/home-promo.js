@@ -1,10 +1,11 @@
 /* Homepage promo: two swipeable rows built from data/home-promo.json, partners-data.js and creators/artists-data.json.
-   Stays: "Book now" opens the property's own WhatsApp (signed partners) or an enquiry (founder-introduced, agreement pending).
+   Stays: "Book now" opens a coded WhatsApp to RoamWise (guests book and pay through RoamWise; host numbers are never shown).
    Paintings: "Buy now" opens Natasha's WhatsApp with the painting and price filled in. Prices for stays only show when set in the JSON. */
 (function () {
   'use strict';
   var host = document.getElementById('rwPromo'); if (!host) return;
   var esc = function (v) { return String(v == null ? '' : v).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
+  var ROAMWISE_WA = '919987379730'; /* RoamWise bookings WhatsApp */
   var wa = function (num, text) { return 'https://wa.me/' + num + '?text=' + encodeURIComponent(text); };
   function fetchJson(u) { return fetch(u).then(function (r) { if (!r.ok) throw 0; return r.json(); }); }
   function partners() { var a = [].concat(/** @type {any} */ (window).RW_PARTNER_SEED || [], /** @type {any} */ (window).RW_PARTNERS || []), m = {}; a.forEach(function (p) { if (p && p.id) m[p.id] = p; }); return m; }
@@ -17,9 +18,9 @@
   /* Every enquiry button carries the property id so a click registers a RoamWise booking code (js/booking/stay-code.js) and the
      code is written into the WhatsApp or email text. Without it an enquiry would leave no record in the stay ledger. */
   function cta(label, p, msg, subject) {
-    var num = p.bookingWhatsapp, mail = p.supportEmail || 'support@roamwise.co.in';
-    var base = num ? 'https://wa.me/' + num : 'mailto:' + mail;
-    var href = num ? wa(num, msg) : 'mailto:' + mail + '?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(msg);
+    var num = ROAMWISE_WA;
+    var base = 'https://wa.me/' + num;
+    var href = wa(num, msg);
     return '<a class="rwx-cta" target="_blank" rel="noopener" data-pid="' + esc(p.id) + '" data-pname="' + esc(p.name) + '" data-wa-text="' + esc(msg) + '" data-wa-base="' + esc(base) + '" data-subject="' + esc(subject) + '" href="' + esc(href) + '">' + esc(label) + ' <span>&rarr;</span></a>';
   }
   function chips(a) { return a && a.length ? '<ul class="rwx-chips">' + a.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ul>' : ''; }
@@ -31,15 +32,15 @@
     var img = function (i) { var x = ph[(c.photoOrder || [])[i % ph.length] != null ? c.photoOrder[i % ph.length] : i % ph.length] || ph[0]; return '<img loading="lazy" src="/' + esc(String(x.src).replace(/^\//, '')) + '" alt="' + esc(x.alt || p.name) + '">'; };
     var hero = '<article class="rwx-card rwx-nm" data-tilt><div class="rwx-img">' + img(0) + '<span class="rwx-tag">SIGNED ROAMWISE PARTNER</span><span class="rwx-ex rwx-ex-soft">WORKATION STAYS</span></div><div class="rwx-b"><h3>' + esc(p.name) + '</h3><div class="rwx-area">&#128205; ' + esc(c.area) + '</div><p>' + esc(c.hero) + '</p>' + chips(['Wi-Fi 100 Mbps (owner-told)', 'Inverter backup', 'Desk and chair', 'Quiet spot for calls']) + '<p class="rwx-swipe">Swipe for 15-night to 3-month plans &rarr;</p></div></article>';
     var cards = ps.map(function (pl, i) {
-      var msg = 'Namaste ' + p.name + ', I found you on RoamWise. I am interested in the ' + pl.label + ' work stay (' + String(pl.total.toLocaleString('en-IN')) + ' rupees as shown). Check-in date: ____  Guests: ____. Please confirm availability, taxes and the final total.';
+      var msg = 'Namaste RoamWise, at ' + p.name + ' I am interested in the ' + pl.label + ' work stay (' + String(pl.total.toLocaleString('en-IN')) + ' rupees as shown). Check-in date: ____  Guests: ____. Please confirm availability, taxes and the final total.';
       return '<article class="rwx-card rwx-nm" data-tilt><div class="rwx-img">' + img(i + 1) + '<span class="rwx-tag">' + esc(pl.tag) + '</span><span class="rwx-price">' + inr(pl.total) + ' <small>/ ' + esc(pl.label) + '</small></span></div><div class="rwx-b"><h3>' + esc(pl.label) + ' at ' + esc(p.name) + '</h3><div class="rwx-area">About ' + inr(pl.perNight) + ' a night &middot; ' + esc(pl.note) + '</div>' + chips(pl.derived ? ['Not in the agreement: monthly rate x 2'] : ['Rate agreed with the hotel']) + cta('Enquire for this plan', p, msg, 'Work stay enquiry: ' + p.name + ' (' + pl.label + ')') + '</div></article>';
     }).join('');
     return hero + cards;
   }
   function stay(c, p) {
-    var photo = p.photos && p.photos[0], num = p.bookingWhatsapp, mail = p.supportEmail; if (!photo || !(num || mail)) return '';
-    var price = c.from ? (c.to ? inr(c.from) + ' &ndash; ' + inr(c.to) : 'From ' + inr(c.from)) + ' <small>/ night' + (c.gst ? ' + GST' : '') + ', by room</small>' : 'Rates on WhatsApp';
-    var msg = 'Namaste ' + p.name + ', I found you on RoamWise. ' + (c.ask || 'I would like to book') + '. Dates: ____  Guests: ____. Please share availability and the total.';
+    var photo = p.photos && p.photos[0]; if (!photo || !(typeof rwBookingOpen !== 'function' || rwBookingOpen(p))) return '';
+    var price = c.from ? (c.to ? inr(c.from) + ' &ndash; ' + inr(c.to) : 'From ' + inr(c.from)) + ' <small>/ night' + (c.gst ? ' + GST' : '') + ', by room</small>' : 'Rates from RoamWise';
+    var msg = 'Namaste RoamWise, ' + (c.ask || 'I would like to book') + ' at ' + p.name + '. Dates: ____  Guests: ____. Please confirm availability and the all-in price, and send the payment link.';
     return '<article class="rwx-card" data-tilt><div class="rwx-img"><img loading="lazy" src="/' + esc(String(photo.src).replace(/^\//, '')) + '" alt="' + esc(photo.alt || p.name) + '"><span class="rwx-tag">' + esc(c.tag) + '</span>' + (c.exclusive ? '<span class="rwx-ex">&#9733; EXCLUSIVE ROAMWISE TIE-UP</span>' : '') + '<span class="rwx-price">' + price + '</span></div><div class="rwx-b"><h3>' + esc(p.name) + '</h3><div class="rwx-area">&#128205; ' + esc(c.area) + '</div><p>' + esc(c.line) + '</p>' + chips(c.chips) + save(c) + cta(c.cta, p, msg, 'Stay enquiry: ' + p.name) + '</div></article>';
   }
   function art(a, w) {
@@ -47,10 +48,10 @@
     var msg = 'Namaste ' + a.name + ', I found you through RoamWise. I would like to buy "' + w.title + '" (' + price + '). Please share availability, shipping and payment details.';
     return '<article class="rwx-card rwx-art" data-tilt><div class="rwx-img"><img loading="lazy" src="' + esc(w.image) + '" alt="' + esc(w.title + ', an original painting by ' + a.name) + '"><span class="rwx-tag">' + esc((w.type || 'Original').toUpperCase()) + '</span><span class="rwx-price">' + esc(price) + '</span></div><div class="rwx-b"><h3>' + esc(w.title) + '</h3><div class="rwx-area">&#127912; ' + esc(a.name) + ' &middot; ' + esc(a.studio || '') + '</div><a class="rwx-cta" target="_blank" rel="noopener" href="' + esc(wa(a.whatsapp, msg)) + '">Buy now <span>&rarr;</span></a></div></article>';
   }
-  /* The live partner list (Firestore, with the WhatsApp numbers owners gave on the join form) arrives after first paint.
-     rwPromoRepaint() redraws only when one of the promoted partners' numbers changed, so cards upgrade from email to WhatsApp. */
+  /* The live partner list (Firestore) arrives after first paint. rwPromoRepaint() redraws only when a promoted partner's
+     booking status changed. */
   var lastSig = null;
-  function sig() { var P = partners(), c = /** @type {any} */ (window).__rwPromoIds || []; return c.map(function (id) { return id + ':' + ((P[id] || {}).bookingWhatsapp || ''); }).join('|'); }
+  function sig() { var P = partners(), c = /** @type {any} */ (window).__rwPromoIds || []; return c.map(function (id) { return id + ':' + ((P[id] || {}).bookingMode || ''); }).join('|'); }
   function run() { Promise.all([fetchJson('/data/home-promo.json'), fetchJson('/creators/artists-data.json')]).then(function (r) {
     var cfg = r[0], data = r[1], P = partners();
     /** @type {any} */ (window).__rwPromoIds = (cfg.stays || []).map(function (c) { return c.partnerId; }).concat(cfg.nomad ? [cfg.nomad.partnerId] : []); lastSig = sig();

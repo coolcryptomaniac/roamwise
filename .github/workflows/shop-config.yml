@@ -1,0 +1,58 @@
+name: Shop checkout switches (manual)
+
+# Sets the shop checkout flags in Firestore config/shop: enabled, cashfreeEnabled, upiEnabled and the
+# Cashfree environment, which must match CASHFREE_ENV in worker/wrangler.toml ("live") or Cashfree stays off.
+# Writes only those fields; qikinkEnabled and anything else in config/shop is left as it is.
+# Repo secret needed: FIREBASE_SERVICE_ACCOUNT (the same one the Firestore rules deploy uses).
+
+on:
+  workflow_dispatch:
+    inputs:
+      enabled:
+        description: 'Shop checkout open'
+        type: choice
+        options: ['true', 'false']
+        default: 'true'
+      cashfree:
+        description: 'Offer Cashfree (UPI, cards, netbanking)'
+        type: choice
+        options: ['true', 'false']
+        default: 'true'
+      upi:
+        description: 'Offer direct UPI to roamwisepay@ybl'
+        type: choice
+        options: ['true', 'false']
+        default: 'true'
+      environment:
+        description: 'Cashfree environment (must match the Worker)'
+        type: choice
+        options: ['live', 'sandbox']
+        default: 'live'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: shop-config
+  cancel-in-progress: false
+
+jobs:
+  set:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+      - name: Write config/shop flags
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+        run: |
+          if [ -z "$FIREBASE_SERVICE_ACCOUNT" ]; then echo "::error::Add FIREBASE_SERVICE_ACCOUNT in repository Actions secrets."; exit 1; fi
+          node tools/shop-config-set.mjs --enabled=${{ inputs.enabled }} --cashfree=${{ inputs.cashfree }} --upi=${{ inputs.upi }} --environment=${{ inputs.environment }}
+      - name: Check the live shop reports checkout open
+        if: ${{ inputs.enabled == 'true' }}
+        run: |
+          sleep 65  # the catalogue response is cached for 60 seconds
+          curl -fsS https://roamwise-api.founder-f53.workers.dev/shop/catalogue | node -e "let s='';process.stdin.on('data',d=>s+=d).on('end',()=>{const j=JSON.parse(s);console.log('checkoutOpen:',j.checkoutOpen,'products:',j.products.length);if(!j.checkoutOpen)process.exit(1)})"

@@ -19,30 +19,35 @@ test('no route means not operational', () => {
   assert.equal(c.rwBookingActionHTML(base), '');
 });
 
-test('whatsapp needs a valid number and whatsapp mode', () => {
+test('guests book through RoamWise only: host WhatsApp, phone and OTA links never reach the page', () => {
   const c = load([]);
-  assert.equal(c.rwBookingRoute({ ...base, bookingMode: 'whatsapp', bookingWhatsapp: '9876543210' }).href, 'https://wa.me/919876543210');
-  assert.equal(c.rwBookingRoute({ ...base, bookingMode: 'whatsapp', bookingWhatsapp: '123' }).type, 'none');
-  assert.equal(c.rwBookingRoute({ ...base, bookingMode: 'ota', bookingWhatsapp: '9876543210' }).type, 'none');
+  for (const p of [
+    { ...base, bookingMode: 'whatsapp', bookingWhatsapp: '9876543210' },
+    { ...base, bookingMode: 'phone', bookingPhone: '9876543210' },
+    { ...base, bookingMode: 'ota', bookingUrl: 'https://www.makemytrip.com/hotels/x' },
+    { ...base, bookingMode: 'website', bookingUrl: 'https://hotel.example/book', bookingPhone: '9876543210' },
+    { ...base, bookingMode: 'roamwise' },
+  ]) {
+    const r = c.rwBookingRoute(p);
+    assert.equal(r.type, 'roamwise', p.bookingMode);
+    assert.equal(r.href, 'https://wa.me/919987379730');
+    const html = c.rwBookingActionHTML(p);
+    assert.doesNotMatch(html, /9876543210|tel:|makemytrip|hotel\.example/);
+    assert.match(html, /Book through RoamWise/);
+    assert.match(html, /Hello%20RoamWise%2C%20I%20would%20like%20to%20book%20Stay/);
+  }
 });
 
-test('ota and website routes require https and name the site honestly', () => {
+test('stays with a RoamWise checkout go straight to pick dates and pay, with RoamWise WhatsApp as the fallback', () => {
   const c = load([]);
-  const ota = c.rwBookingRoute({ ...base, bookingMode: 'ota', bookingUrl: 'https://www.makemytrip.com/hotels/x' });
-  assert.equal(ota.type, 'ota');
-  assert.match(ota.label, /MakeMyTrip/);
-  assert.equal(c.rwBookingRoute({ ...base, bookingMode: 'ota', bookingUrl: 'http://insecure.example/x' }).type, 'none');
-  assert.equal(c.rwBookingRoute({ ...base, bookingMode: 'ota', bookingUrl: 'javascript:alert(1)' }).type, 'none');
-  assert.equal(c.rwBookingRoute({ ...base, bookingMode: 'website', bookingUrl: 'https://hotel.example/book' }).type, 'website');
-  assert.match(c.rwBookingActionHTML({ ...base, bookingMode: 'ota', bookingUrl: 'https://www.agoda.com/x' }), /Continue your booking on Agoda/);
-});
-
-test('phone route builds a tel link; secondary channels are offered', () => {
-  const c = load([]);
-  assert.equal(c.rwBookingRoute({ ...base, bookingMode: 'phone', bookingPhone: '9876543210' }).href, 'tel:+919876543210');
-  const both = { ...base, bookingMode: 'website', bookingUrl: 'https://hotel.example/b', bookingPhone: '9876543210' };
-  assert.equal(c.rwBookingRoutes(both).length, 2);
-  assert.match(c.rwBookingActionHTML(both), /Or call the hotel/);
+  const amor = { ...base, id: 'p_amor_nanau', verified: 'founder-approved', enquiryOnly: true, founderApproval: 'Mohit Pandey · 2026-11-06', bookingMode: 'enquiry' };
+  const routes = c.rwBookingRoutes(amor);
+  assert.deepEqual(Array.from(routes, r => r.type), ['pay', 'roamwise']);
+  assert.equal(routes[0].href, '/packages/amor-checkout.html?stay=nanau');
+  const html = c.rwBookingActionHTML(amor);
+  assert.match(html, /Pick dates &amp; pay|Pick dates & pay/);
+  assert.match(html, /Or ask RoamWise on WhatsApp/);
+  assert.equal(c.rwBookingRoute({ ...amor, founderApproval: '' }).type, 'none', 'unapproved introductions stay hidden');
 });
 
 test('direct needs a live partner, direct mode and a bookable priced room', () => {
@@ -64,13 +69,14 @@ test('shipped room data cannot leak: no unsigned or unmatched room is live', () 
 });
 
 
-test('booking responsibilities distinguish direct, provider and inquiry channels', () => {
+test('booking responsibilities: RoamWise confirms, collects payment and refunds', () => {
   const c = load([]);
-  const text = type => JSON.stringify(c.rwBookingResponsibilities({type, site:'Agoda'}));
+  const text = type => JSON.stringify(c.rwBookingResponsibilities({type}));
   assert.match(text('direct'), /accept the total/);
-  assert.match(text('ota'), /provider or the property/);
-  assert.match(text('ota'), /support channel on your booking confirmation/);
-  for(const type of ['phone','whatsapp','website']) assert.match(text(type), /written confirmation/);
+  assert.match(text('pay'), /full refund/);
+  assert.match(text('roamwise'), /secure payment link/);
+  assert.match(text('roamwise'), /never pay the property separately/);
+  for (const type of ['phone', 'whatsapp', 'website', 'ota']) assert.equal(c.rwBookingResponsibilities({type}).length, 0);
   assert.equal(c.rwBookingResponsibilitiesHTML({type:'none'}), '');
-  assert.match(c.rwBookingActionHTML({...base, bookingMode:'phone', bookingPhone:'9876543210'}), /<summary>Who handles my booking/);
+  assert.match(c.rwBookingActionHTML({...base, bookingMode:'roamwise'}), /<summary>Who handles my booking/);
 });

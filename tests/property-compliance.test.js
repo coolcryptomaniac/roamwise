@@ -2,7 +2,7 @@ const assert = require('node:assert/strict');
 const test = require('node:test');
 const T = require('../features/trust/property-compliance.js');
 
-const base = { verified: 'signed', listingReady: true, routeType: 'whatsapp', area: 'Kotyura', photoCount: 4 };
+const base = { verified: 'signed', listingReady: true, routeType: 'roamwise', area: 'Kotyura', photoCount: 4 };
 
 test('signed + working route + photos earns RoamWise Checked, not Trusted', () => {
   const r = T.assess(base);

@@ -30,7 +30,7 @@
     if (typeof rwBookingRoutes !== 'function') return null;
     if (p.verified !== 'signed' && p.verified !== 'founder-approved') return null;
     if (p.listingReady !== true) return null;
-    return rwBookingRoutes(p).filter(function (r) { return r.type === 'whatsapp'; })[0] || null;
+    return rwBookingRoutes(p).filter(function (r) { return r.type === 'roamwise'; })[0] || null;
   }
 
   function bookForm(p) {
@@ -42,7 +42,7 @@
     var guests = make('input'); guests.type = 'number'; guests.min = '1'; guests.max = '20'; guests.value = '2';
     f.appendChild(lab('Check-in', date)); f.appendChild(lab('Nights', nights)); f.appendChild(lab('Guests', guests));
     var cond = make('div');
-    var go = make('button', 'qh-btn', 'Request on WhatsApp'); go.type = 'submit';
+    var go = make('button', 'qh-btn', 'Book through RoamWise'); go.type = 'submit';
     var msg = make('div', 'qh-msg'); msg.setAttribute('role', 'status');
     f.appendChild(cond); f.appendChild(go); f.appendChild(msg);
     var showCond = function () {
@@ -58,7 +58,7 @@
         : { ok: false, error: 'Booking desk did not load. Please refresh.' };
       if (!r.ok) { msg.className = 'qh-msg err'; msg.textContent = r.error; return; }
       msg.className = 'qh-msg';
-      msg.textContent = 'Opening WhatsApp. Your booking code is ' + r.code + '. Nothing is booked or paid until the host confirms.';
+      msg.textContent = 'Opening WhatsApp to RoamWise. Your booking code is ' + r.code + '. RoamWise confirms the room and sends a secure payment link.';
       try { window.open(r.url, '_blank', 'noopener'); } catch (err) { location.href = r.url; }
     });
     return f;

@@ -11,7 +11,7 @@
    ========================================================================= */
 window.RW_TRUST_BADGES = {
   founder: { id:'founder', label:'Founder introduced', short:'Enquiry only', icon:'', color:'#E8BE77',
-    means:'Published at the founder’s request for direct enquiries. The property agreement is pending; rates and booking terms must be confirmed with the host.',
+    means:'Published at the founder’s request. The property agreement is pending; RoamWise confirms the room, rate and terms before you pay.',
     earn:'Founder approved this introduction; no signed agreement, payment readiness or property inspection is implied.' },
   partner: {
     id:'partner', label:'Signed RoamWise Partner', short:'Signed Partner', icon:'\u2705',

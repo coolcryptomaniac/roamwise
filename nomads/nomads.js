@@ -9,7 +9,7 @@ const esc = v => String(v == null ? '' : v).replace(/[&<>"']/g, c => ({ '&': '&a
 const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const cfg = window.RW_PARTNER_CONFIG || {};
 const SUPPORT_EMAIL = cfg.supportEmail || 'support@roamwise.co.in';
-const SUPPORT_WA = (cfg.chat && cfg.chat.supportWhatsapp) || '';
+const SUPPORT_WA = (cfg.chat && cfg.chat.supportWhatsapp) || '919987379730'; // RoamWise bookings; host numbers are never shown
 const params = new URLSearchParams(location.search);
 const AI_API = (window.RW_CONFIG && window.RW_CONFIG.nomadAiUrl) || 'https://roamwise-api.founder-f53.workers.dev/nomad/advise';
 
@@ -72,12 +72,12 @@ const ring = score => {
 function spaceCard(r) {
   const s = r.item, b = briefNow(), t = r.tier;
   const msg = seekerMessage(b, { name: s.name });
-  const wa = waLink(s.bookingWhatsapp, msg) || (SUPPORT_WA ? waLink(SUPPORT_WA, 'Nomad Match enquiry for ' + s.name + '\n' + msg) : '');
+  const wa = waLink(SUPPORT_WA, 'Nomad Match booking for ' + s.name + '\n' + msg);
   const href = s.sample ? '' : (wa || mailLink(SUPPORT_EMAIL, 'Nomad stay enquiry: ' + s.name, msg));
   return '<article class="nm-card" style="--tier:' + t.tier.color + '"><div class="nm-card-top"><div class="nm-ring-wrap">' + ring(r.score) + '</div><div><span class="nm-badge">' + esc(t.tier.label) + (t.verified ? ' · verified' : ' · self-declared') + '</span><h3>' + esc(s.name) + '</h3><p class="nm-where">' + esc(s.zone || '') + (s.sample ? ' · <em>sample, not a real property</em>' : '') + '</p></div></div>' +
     '<div class="nm-price">' + (r.monthly ? '₹' + r.monthly.toLocaleString('en-IN') + '<small>/month</small>' + (r.total ? '<span>about ₹' + r.total.toLocaleString('en-IN') + ' for the stay</span>' : '') : '<small>Rate on request</small>') + '</div>' +
     '<ul class="nm-why">' + r.reasons.map(x => '<li>' + esc(x) + '</li>').join('') + r.gaps.map(x => '<li class="gap">' + esc(x) + '</li>').join('') + '</ul>' +
-    (href ? '<a class="nm-btn" target="_blank" rel="noopener noreferrer" href="' + esc(href) + '">Chat with host</a>' : '<span class="nm-btn off">Preview only</span>') + '</article>';
+    (href ? '<a class="nm-btn" target="_blank" rel="noopener noreferrer" href="' + esc(href) + '">Book through RoamWise</a>' : '<span class="nm-btn off">Preview only</span>') + '</article>';
 }
 function destCard(r) {
   const d = r.item, b = briefNow();

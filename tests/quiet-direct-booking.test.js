@@ -125,7 +125,7 @@ test('Tusk tools: registered before finish, long-stay quote, direct request, qui
   const d = I.request_direct_booking({ partnerId: 'p_lahaul', checkIn: iso(3), nights: 2, guests: 2 });
   assert.equal(d.ok, true);
   assert.equal(d.advisories.length, 1);
-  assert.match(opened[0], /^https:\/\/wa\.me\/919876543211\?text=/);
+  assert.match(opened[0], /^https:\/\/wa\.me\/919987379730\?text=/); // RoamWise, never the host
   assert.equal(I.update_direct_booking({ code: d.code.toLowerCase(), status: 'confirmed' }).ok, true);
   assert.equal(I.my_direct_bookings().bookings[0].status, 'confirmed');
   assert.equal(I.mountain_conditions({ place: 'Kedarnath' }).found, 1);

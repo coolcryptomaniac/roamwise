@@ -7,11 +7,17 @@
 export const SHOP_CATALOGUE = Object.freeze({
   version: 1,
   currency: 'INR',
-  /* Delivery is confirmed after the buyer's PIN is entered. Leave defaultFeePaise null until real
-   * Qikink/courier costs are known: with null, quotes for any PIN without a matching rule are
-   * refused instead of guessing a fee. Rules are checked in order; first matching prefix wins.
-   * Example: rules: [{ pinPrefixes: ['26', '24'], feePaise: 6900 }], defaultFeePaise: 9900 */
-  shipping: Object.freeze({ rules: Object.freeze([]), defaultFeePaise: null, freeAbovePaise: null }),
+  /* Delivery fee by PIN (founder decision, 8 Nov 2026): free from Rs 1,000; otherwise Rs 99, or Rs 149 for
+   * zones couriers charge extra for. Cost basis: Qikink bills Rs 63.70 per 500 g incl. GST (air), and up to
+   * Rs 127.40 per 500 g where India Post serves north-east PINs (qikink.com/shipping, checked 8 Nov 2026).
+   * Rules are checked in order; first matching prefix wins.
+   *   18, 19  Jammu & Kashmir, Ladakh        78, 79  Assam and the north-east states
+   *   744     Andaman & Nicobar              6825    Lakshadweep (6825xx) */
+  shipping: Object.freeze({
+    rules: Object.freeze([Object.freeze({ pinPrefixes: Object.freeze(['18', '19', '78', '79', '744', '6825']), feePaise: 14900 })]),
+    defaultFeePaise: 9900,
+    freeAbovePaise: 100000,
+  }),
   products: Object.freeze([
     Object.freeze({
       id: 'almora-after-dark-hoodie',
