@@ -53,6 +53,7 @@ function publicPackage(pkg,provider){
  return {id:pkg.id,provider:publicProvider(provider),name:pkg.name,region:pkg.region,start:pkg.start,duration:pkg.duration,
   difficulty:pkg.difficulty,unitPrice:pkg.unitPrice,pricingUnit:pkg.pricingUnit,seats:pkg.seats,includes:pkg.includes,
   excludes:pkg.excludes,itinerary:pkg.itinerary,refundPolicy:pkg.refundPolicy,imageUrl:pkg.imageUrl,
+  galleryUrls:Array.isArray(pkg.galleryUrls)?pkg.galleryUrls.slice(0,4):[],
   safetyNote:pkg.safetyNote,altitude:pkg.altitude||'',meetingPoint:pkg.meetingPoint||'',
      minGroupSize:pkg.minGroupSize||null,packingList:pkg.packingList||'',operatorConfirmationRequired:true};
 }
@@ -174,6 +175,18 @@ export async function handleTrekMarketplace(request,env,path){
    return json({ok:true,status:'pending_review',message:'Application received. No public affiliation or sales until approval.'});
   }catch(_){return apiError('application_unavailable',503)}
  }
+ if(path==='treks/package/close'&&request.method==='POST'){
+  try{
+   const input=await readJSON(request),id=safe(input.packageId,64);
+   if(!packagePattern.test(id))return apiError('invalid_package',422);
+   const pkg=await doc(ctx,'trekPackages/'+id);
+   if(!pkg||pkg.ownerUid!==claims.uid)return apiError('forbidden',403);
+   if(pkg.status==='paused')return json({ok:true,status:'paused',alreadyClosed:true});
+   if(!['published','pending_review'].includes(pkg.status))return apiError('departure_not_closable',409);
+   await patch(ctx,'trekPackages/'+id,{status:'paused',closedByOperator:true,closedAt:utcNow(),updatedAt:utcNow()});
+   return json({ok:true,status:'paused',note:'New booking and enquiry requests stopped. Existing paid requests still need individual handling.'});
+  }catch(_){return apiError('close_departure_unavailable',503)}
+ }
  if(path==='treks/package'&&request.method==='POST'){
   try{
    const b=await readJSON(request),owner=await doc(ctx,'trekProviders/'+claims.uid);
@@ -186,6 +199,8 @@ export async function handleTrekMarketplace(request,env,path){
       !Number.isSafeInteger(days)||days<1||days>60||
       !safe(b.includes,1800)||!safe(b.itinerary,3500)||!safe(b.refundPolicy,800)||!safe(b.safetyNote,800))
       return apiError('missing_or_invalid_package_details',422);
+   const gallery=String(b.galleryUrls||'').split(/\r?\n/).map(v=>v.trim()).filter(Boolean);
+   if(gallery.length>4||gallery.some(u=>u.length>450||!/^https:\/\/[^\s<>"']+$/i.test(u)))return apiError('invalid_gallery_urls',422);
    const data={ownerUid:claims.uid,name,region,start,unitPrice:price,pricingUnit:['person','vehicle','group'].includes(b.pricingUnit)?b.pricingUnit:'person',seats,duration:days,
       difficulty:safe(b.difficulty,60),altitude:safe(b.altitude,90),meetingPoint:safe(b.meetingPoint,160),
        minGroupSize:Number.isSafeInteger(Number(b.minGroupSize))&&Number(b.minGroupSize)>=1&&Number(b.minGroupSize)<=100?Number(b.minGroupSize):null,
@@ -193,6 +208,7 @@ export async function handleTrekMarketplace(request,env,path){
        includes:safe(b.includes,1800),excludes:safe(b.excludes,1800),
       itinerary:safe(b.itinerary,3500),refundPolicy:safe(b.refundPolicy,800),
       safetyNote:safe(b.safetyNote,800),imageUrl:/^https:\/\//.test(b.imageUrl||'')?safe(b.imageUrl,450):'',
+      galleryUrls:gallery,
       status:'pending_review',updatedAt:utcNow()};
    const id=packagePattern.test(b.id||'')?b.id:'tp_'+crypto.randomUUID().replace(/-/g,'');
    const prev=await doc(ctx,'trekPackages/'+id);
