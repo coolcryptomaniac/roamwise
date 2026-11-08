@@ -25,9 +25,12 @@ fetch(API,{method:'GET',cache:'no-store'}).then(function(r){
  items.forEach(function(p){
   var a=document.createElement('a');a.className='rw-sales-card';a.href='/treks/?package='+encodeURIComponent(p.id)+'#discover';
   a.setAttribute('aria-label','View '+p.name+' departure and secure booking options');
-  if(/^https:\/\//.test(p.imageUrl||'')){
-   var img=document.createElement('img');img.loading='lazy';img.decoding='async';img.src=p.imageUrl;
-   img.alt='Photo provided by '+p.provider.name+' for '+p.name;a.appendChild(img);
+  var photo=[p.imageUrl].concat(Array.isArray(p.galleryUrls)?p.galleryUrls:[]).find(function(u){return typeof u==='string'&&/^https:\/\/[^\s<>"']+$/i.test(u)});
+  if(photo){
+   var img=document.createElement('img');img.loading='lazy';img.decoding='async';img.src=photo;
+   img.alt='Photo provided by '+p.provider.name+' for '+p.name;
+   img.addEventListener('error',function(){img.remove();var tag=text('div','🏔️ Operator photo temporarily unavailable');tag.style.cssText='padding:35px 14px;min-height:158px;background:#332541;color:#ffdfb0';a.prepend(tag)});
+   a.appendChild(img);
   }else{
    var placeholder=text('div','🏔️ Real trek photo pending','');
    placeholder.style.cssText='display:flex;align-items:center;justify-content:center;height:158px;background:linear-gradient(130deg,#54416c,#271b3d);color:#f5d6a5;font-weight:700';
