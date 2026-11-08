@@ -158,7 +158,7 @@ function clonePackage(id){
 }
 function editPackage(id){
  const p=state.packages.find(x=>x.id===id);if(!p)return;
- const f=$('packageForm');
+ const f=$('packageForm');f.reset(); // Never retain another operator batch's unsaved fields/photos.
  for(const e of Array.from(f.elements)){if(e.name&&e.name in p)e.value=e.name==='galleryUrls'&&Array.isArray(p.galleryUrls)?p.galleryUrls.join('\n'):p[e.name];}
  f.scrollIntoView({behavior:'smooth',block:'center'});message('Editing '+p.name+'. Saving will return it to review.');
 }
