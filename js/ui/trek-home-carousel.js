@@ -40,7 +40,7 @@ fetch(API,{method:'GET',cache:'no-store'}).then(function(r){
   if(p.meetingPoint)box.appendChild(text('small','Pickup/meet: '+p.meetingPoint));
   if(p.includes)box.appendChild(text('small','Includes: '+p.includes.slice(0,190)));
   box.appendChild(text('span','Operator price ₹'+Number(p.unitPrice).toLocaleString('en-IN')+' / '+(p.pricingUnit||'person'),'rw-price'));
-  box.appendChild(text('b','View itinerary · secure booking options →'));
+  box.appendChild(text('b',data.checkoutEnabled===true?'View itinerary · checkout options →':'View itinerary · request booking details →'));
   a.appendChild(box);root.appendChild(a);
  });
 }).catch(fallback);
