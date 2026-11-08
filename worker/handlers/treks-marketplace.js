@@ -12,6 +12,7 @@ import {calculateTrekQuote} from '../../treks/price-policy.mjs';
 
 const safe=(v,n=160)=>String(v==null?'':v).trim().slice(0,n);
 const allowedRoles=['company','guide','transport','experience'];
+const enquiryPattern=/^te_[a-f0-9]{32}$/;
 const ISO=/^\d{4}-\d{2}-\d{2}$/;
 const orderPattern=/^rwtrek_[a-f0-9]{32}$/;
 const packagePattern=/^tp_[a-f0-9]{32}$/;
@@ -52,7 +53,8 @@ function publicPackage(pkg,provider){
  return {id:pkg.id,provider:publicProvider(provider),name:pkg.name,region:pkg.region,start:pkg.start,duration:pkg.duration,
   difficulty:pkg.difficulty,unitPrice:pkg.unitPrice,pricingUnit:pkg.pricingUnit,seats:pkg.seats,includes:pkg.includes,
   excludes:pkg.excludes,itinerary:pkg.itinerary,refundPolicy:pkg.refundPolicy,imageUrl:pkg.imageUrl,
-  safetyNote:pkg.safetyNote,operatorConfirmationRequired:true};
+  safetyNote:pkg.safetyNote,altitude:pkg.altitude||'',meetingPoint:pkg.meetingPoint||'',
+     minGroupSize:pkg.minGroupSize||null,packingList:pkg.packingList||'',operatorConfirmationRequired:true};
 }
 async function approved(ctx,id){
  if(!packagePattern.test(id||''))return null;
@@ -88,12 +90,41 @@ export async function handleTrekMarketplace(request,env,path){
    return json({items,feePolicy:'1% of operator subtotal, capped at INR 99; disclosed before payment'});
   }catch(_){return apiError('catalog_unavailable',503)}
  }
+ if(path==='treks/enquiry'&&request.method==='POST'){
+  try{
+   const b=await readJSON(request);
+   if(b.website||b.fax||b.companyHomepage)return apiError('invalid_enquiry',422); // hidden honeypot
+   const name=safe(b.name,80),email=safe(b.email,160).toLowerCase(),phone=safe(b.phone,20),note=safe(b.message,500);
+   if(b.consent!==true||name.length<2||!validEmail(email)||phone&&!validPhone(phone.replace(/[\\s()-]/g,''))||note.length<5)
+     return apiError('complete_enquiry_and_consent',422);
+   if(!packagePattern.test(b.packageId||''))return apiError('invalid_package',422);
+   const entry=await approved(ctx,b.packageId);
+   if(!entry)return apiError('departure_not_available',409);
+   const id='te_'+crypto.randomUUID().replace(/-/g,'');
+   const record={ownerUid:entry.pkg.ownerUid,packageId:entry.pkg.id,packageName:entry.pkg.name,
+     name,email,phone:phone.replace(/[\\s()-]/g,''),message:note,consent:true,status:'new',createdAt:utcNow(),source:'roamwise-treks'};
+   await create(ctx,'trekEnquiries',id,record);
+   return json({ok:true,reference:id,message:'Enquiry sent to the operator inbox. No booking or payment was made.'},201);
+  }catch(_){return apiError('enquiry_unavailable',503)}
+ }
  if(path==='treks/quote'&&request.method==='POST'){
   try{const b=await readJSON(request);const q=await quote(ctx,b.packageId,b.seats);return q.error?apiError(q.error,409):json({quote:q.quote});}
   catch(_){return apiError('invalid_quote',422)}
  }
  const claims=await identity(request,ctx);
  if(!claims)return apiError('verified_login_required',401);
+ if(path==='treks/enquiries'&&request.method==='GET'){
+  try{
+   const partner=await doc(ctx,'trekProviders/'+claims.uid);
+   if(!partner||partner.status!=='approved'||partner.verified!==true)return apiError('approved_operator_required',403);
+   const requests=await queryEqualsString(env,ctx.token,ctx.project,'trekEnquiries','ownerUid',claims.uid,150);
+   return json({items:requests.filter(e=>enquiryPattern.test(e.id||'')&&e.consent===true)
+     .sort((a,b)=>String(b.createdAt).localeCompare(String(a.createdAt))).map(e=>({
+      id:e.id,packageId:e.packageId,packageName:e.packageName,name:e.name,email:e.email,phone:e.phone,
+      message:e.message,status:e.status,createdAt:e.createdAt
+     }))});
+  }catch(_){return apiError('enquiries_unavailable',503)}
+ }
  if(path==='treks/mine'&&request.method==='GET'){
   try{
    const [partner,packages,bookings]=await Promise.all([
@@ -144,7 +175,10 @@ export async function handleTrekMarketplace(request,env,path){
       !safe(b.includes,1800)||!safe(b.itinerary,3500)||!safe(b.refundPolicy,800)||!safe(b.safetyNote,800))
       return apiError('missing_or_invalid_package_details',422);
    const data={ownerUid:claims.uid,name,region,start,unitPrice:price,pricingUnit:['person','vehicle','group'].includes(b.pricingUnit)?b.pricingUnit:'person',seats,duration:days,
-      difficulty:safe(b.difficulty,60),includes:safe(b.includes,1800),excludes:safe(b.excludes,1800),
+      difficulty:safe(b.difficulty,60),altitude:safe(b.altitude,90),meetingPoint:safe(b.meetingPoint,160),
+       minGroupSize:Number.isSafeInteger(Number(b.minGroupSize))&&Number(b.minGroupSize)>=1&&Number(b.minGroupSize)<=100?Number(b.minGroupSize):null,
+       packingList:safe(b.packingList,850),
+       includes:safe(b.includes,1800),excludes:safe(b.excludes,1800),
       itinerary:safe(b.itinerary,3500),refundPolicy:safe(b.refundPolicy,800),
       safetyNote:safe(b.safetyNote,800),imageUrl:/^https:\/\//.test(b.imageUrl||'')?safe(b.imageUrl,450):'',
       status:'pending_review',updatedAt:utcNow()};
