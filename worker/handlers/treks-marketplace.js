@@ -113,6 +113,18 @@ export async function handleTrekMarketplace(request,env,path){
  }
  const claims=await identity(request,ctx);
  if(!claims)return apiError('verified_login_required',401);
+ if(path==='treks/enquiries/status'&&request.method==='POST'){
+  try{
+   const provider=await doc(ctx,'trekProviders/'+claims.uid);
+   if(!provider||provider.status!=='approved'||provider.verified!==true)return apiError('approved_operator_required',403);
+   const input=await readJSON(request),id=safe(input.id,64),status=safe(input.status,16);
+   if(!enquiryPattern.test(id)||!['new','contacted','closed'].includes(status))return apiError('invalid_enquiry_status',422);
+   const previous=await doc(ctx,'trekEnquiries/'+id);
+   if(!previous||previous.ownerUid!==claims.uid)return apiError('not_found',404);
+   await patch(ctx,'trekEnquiries/'+id,{status,updatedAt:utcNow(),followupNote:safe(input.note,200)});
+   return json({ok:true,status});
+  }catch(_){return apiError('enquiry_update_unavailable',503)}
+ }
  if(path==='treks/enquiries'&&request.method==='GET'){
   try{
    const partner=await doc(ctx,'trekProviders/'+claims.uid);
