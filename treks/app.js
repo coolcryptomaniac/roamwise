@@ -17,7 +17,7 @@ const HIKES=[
  ['Nag Tibba','Operator details pending','https://hikeandseek.in/trip/nag-tibba-trek/'],
  ['Kedarnath Dham','Operator details pending','https://hikeandseek.in/trip/kedarnath-dham/']
 ];
-const state={user:null,auth:null,items:[],packages:[],active:null,nonce:null};
+const state={user:null,auth:null,items:[],packages:[],active:null,nonce:null,deepLinked:false};
 function message(s,bad){$('msg').textContent=s||'';$('msg').style.color=bad?'#ff989c':'#ffd395';}
 function tab(id){
  for(const s of document.querySelectorAll('.view'))s.classList.toggle('active',s.id===id);
@@ -62,7 +62,7 @@ async function login(){
 $('loginBtn').addEventListener('click',login);
 function signedIn(u){
  state.user=u;
- $('loginBtn').textContent=u?'Sign out · '+(u.email||'account'):'Sign in';
+ $('loginBtn').textContent=u?'Sign out · '+(u.email||'account'):'Sign in with Google';
  if(u){const email=$('joinForm').elements.email;if(!email.value)email.value=u.email||'';
   const bill=$('checkoutForm').elements.email;if(!bill.value)bill.value=u.email||'';}
  if(location.search.includes('order_id='))checkReturned();
@@ -77,10 +77,16 @@ async function catalog(){
   const r=await api('/treks/catalog');
   state.items=r.items||[];
   $('catalog').innerHTML=state.items.length?state.items.map(p=>{
-   const image=p.imageUrl?'<img loading="lazy" alt="Trek provided by operator" src="'+esc(p.imageUrl)+'" style="width:100%;height:156px;object-fit:cover;border-radius:12px;margin-bottom:12px">':'';
-   return '<article class="card">'+image+'<div class="head"><span class="mini">'+esc(p.provider.role).toUpperCase()+' · VERIFIED PARTNER</span><span class="chip">'+esc(p.start)+'</span></div><h3>'+esc(p.name)+'</h3><p>'+esc(p.provider.name)+' · '+esc(p.region)+'</p>'+(p.provider.cofounders?'<p class="terms">Founders: '+esc(p.provider.cofounders)+'</p>':'')+(p.provider.instagram?'<p class="terms"><a href="'+esc(p.provider.instagram)+'" target="_blank" rel="noopener noreferrer">Operator Instagram ↗</a></p>':'')+(p.provider.businessWhatsapp?'<p><a class="button" href="'+esc(whatsappLink(p.provider.businessWhatsapp,p.name,p.provider.name))+'" target="_blank" rel="noopener noreferrer">Ask operator on WhatsApp ↗</a></p>':'')+'<p>'+esc(p.duration)+' day(s) · '+esc(p.difficulty||'Difficulty pending')+'</p><div class="price">'+money(p.unitPrice)+' <small>operator rate / '+esc(p.pricingUnit||'person')+'</small></div><p class="terms">RoamWise fee: 1%, max ₹99 per booking. Booking subject to operator confirmation.</p><button type="button" data-checkout="'+esc(p.id)+'">View price &amp; book securely →</button></article>';
+   const image=p.imageUrl?'<img loading="lazy" alt="Photograph supplied by the trek operator" src="'+esc(p.imageUrl)+'" style="width:100%;height:156px;object-fit:cover;border-radius:12px;margin-bottom:12px">':'';
+   return '<article class="card">'+image+'<div class="head"><span class="mini">'+esc(p.provider.role).toUpperCase()+' · VERIFIED PARTNER</span><span class="chip">'+esc(p.start)+'</span></div><h3>'+esc(p.name)+'</h3><p>'+esc(p.provider.name)+' · '+esc(p.region)+'</p>'+(p.provider.cofounders?'<p class="terms">Founders: '+esc(p.provider.cofounders)+'</p>':'')+(p.provider.instagram?'<p class="terms"><a href="'+esc(p.provider.instagram)+'" target="_blank" rel="noopener noreferrer">Operator Instagram ↗</a></p>':'')+(p.provider.businessWhatsapp?'<p><a class="button" href="'+esc(whatsappLink(p.provider.businessWhatsapp,p.name,p.provider.name))+'" target="_blank" rel="noopener noreferrer">Ask operator on WhatsApp ↗</a></p>':'')+'<p>'+esc(p.duration)+' day(s) · '+esc(p.difficulty||'Difficulty pending')+(p.meetingPoint?' · Meet: '+esc(p.meetingPoint):'')+'</p><div class="price">'+money(p.unitPrice)+' <small>operator rate / '+esc(p.pricingUnit||'person')+'</small></div><p class="terms">RoamWise fee: 1%, max ₹99 per booking. Booking subject to operator confirmation.</p><div class="row"><button type="button" data-checkout="'+esc(p.id)+'">View price &amp; book securely →</button><button type="button" class="secondary" data-enquire="'+esc(p.id)+'">Ask operator →</button></div></article>';
   }).join(''):'<div class="card"><h3>No verified departures published yet</h3><p>Applications and draft itineraries are not bookable until an authorised operator and RoamWise complete review.</p></div>';
   for(const b of $('catalog').querySelectorAll('[data-checkout]'))b.addEventListener('click',()=>checkout(b.dataset.checkout));
+  for(const b of $('catalog').querySelectorAll('[data-enquire]'))b.addEventListener('click',()=>enquire(b.dataset.enquire));
+  if(!state.deepLinked){
+   state.deepLinked=true;
+   const queryId=new URLSearchParams(location.search).get('package');
+   if(queryId&&state.items.some(p=>p.id===queryId)){tab('discover');checkout(queryId)}
+  }
  }catch(e){$('catalog').innerHTML='<p class="notice">Catalog temporarily unavailable: '+esc(e.message)+'</p>'}
 }
 function toObject(form){return Object.fromEntries(new FormData(form).entries())}
@@ -157,6 +163,26 @@ async function review(){
  }catch(e){$('reviewCards').innerHTML='<p class="notice">Founder-only review: '+esc(e.message)+'</p>'}
 }
 $('refreshReview').addEventListener('click',review);
+function enquire(id){
+ const p=state.items.find(x=>x.id===id);
+ if(!p){message('This departure is not available for enquiries.',true);return}
+ const el=$('enquiryPanel'),f=$('enquiryForm');f.reset();f.elements.packageId.value=p.id;
+ if(state.user?.email)f.elements.email.value=state.user.email;
+ $('enquiryTitle').textContent='Ask '+p.provider.name+' about '+p.name;
+ el.classList.remove('hidden');el.scrollIntoView({behavior:'smooth',block:'center'});
+}
+$('closeEnquiry').addEventListener('click',()=>$('enquiryPanel').classList.add('hidden'));
+$('enquiryForm').addEventListener('submit',async ev=>{
+ ev.preventDefault();
+ const f=ev.currentTarget,b=toObject(f);b.consent=f.elements.consent.checked;
+ const button=f.querySelector('button[type="submit"]');button.disabled=true;
+ try{
+  const response=await api('/treks/enquiry',b);
+  message('Enquiry saved for the operator. Reference: '+response.reference+' · No payment or reservation made.');
+  $('enquiryPanel').classList.add('hidden');
+ }catch(e){message('Could not send enquiry: '+e.message,true)}
+ finally{button.disabled=false}
+});
 function checkout(id){
  const p=state.items.find(x=>x.id===id);if(!p){message('Departure no longer available.',true);return}
  state.active=p;state.nonce=crypto.randomUUID();
@@ -209,7 +235,7 @@ function invited(){
   f.elements.instagram.value='https://www.instagram.com/hike_and__seek/';
   f.elements.cofounders.value='Gaurav Aswal; Aanchal Kandari';
   f.elements.phone.value='+'+HIKE_SEEK_WHATSAPP;
-  f.elements.showFounderNames.checked=false;
+  f.elements.showFounderNames.checked=false;f.elements.showBusinessWhatsapp.checked=false;
   const banner=$('inviteMessage');banner.classList.remove('hidden');
   banner.textContent='Hike & Seek invitation preview. Cofounder names, Instagram and the RoamWise-founder-confirmed business booking WhatsApp are prefilled for an authorised representative to verify or edit. No application is submitted automatically. Public contact display on approved operator pages requires opt-in.';
   tab('join');
