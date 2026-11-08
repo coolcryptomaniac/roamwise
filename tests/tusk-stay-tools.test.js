@@ -46,7 +46,7 @@ test('enquire_stay opens a coded WhatsApp link and refuses unverified or route-l
   const r = sandbox.RW_AGENT_IMPL.enquire_stay({ partnerId: 'p_wa', checkIn: '2026-11-10', nights: 2, guests: 3 });
   assert.equal(r.ok, true);
   assert.match(r.code, /^RW-[A-Z2-9]{6}$/);
-  assert.match(opened[0], /^https:\/\/wa\.me\/919876543210\?text=/);
+  assert.match(opened[0], /^https:\/\/wa\.me\/919987379730\?text=/); // RoamWise, never the host
   assert.match(decodeURIComponent(opened[0]), new RegExp(r.code));
   assert.equal(sandbox.RW_AGENT_IMPL.enquire_stay({ partnerId: 'p_none', checkIn: '2026-11-10', guests: 2 }).ok, false);
   assert.equal(sandbox.RW_AGENT_IMPL.enquire_stay({ partnerId: 'p_direct', checkIn: '2026-11-10', guests: 2 }).ok, false);

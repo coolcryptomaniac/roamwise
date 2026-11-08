@@ -35,20 +35,15 @@ export function parseCommand(text) {
   return { cmd: m[1].toLowerCase(), args: (m[2] || '').trim().split(/\s+/).filter(Boolean), raw: t };
 }
 
-const waNumber = (v) => {
-  let d = String(v || '').replace(/\D/g, '');
-  if (d.length === 10) d = '91' + d;
-  return d.length >= 11 && d.length <= 15 ? d : '';
-};
-const httpsUrl = (v) => { try { const u = new URL(String(v || '').trim()); return u.protocol === 'https:' ? u.href : ''; } catch (_) { return ''; } };
 
-/* The route a guest would use, mirroring js/booking/routes.js (mode decides which field counts). */
+/* RoamWise bookings WhatsApp. Guests book and pay through RoamWise; host numbers are never shown (8 Nov 2026). */
+export const ROAMWISE_WA = '919987379730';
+
+/* The route a guest would use, mirroring js/booking/routes.js: any property opened for bookings goes through RoamWise. */
 export function routeOf(p) {
   const mode = String(p.bookingMode || '').toLowerCase();
   if (mode === 'direct') return { type: 'direct' };
-  if (mode === 'whatsapp' && waNumber(p.bookingWhatsapp)) return { type: 'whatsapp', number: waNumber(p.bookingWhatsapp) };
-  if ((mode === 'ota' || mode === 'website') && httpsUrl(p.bookingUrl)) return { type: mode, url: httpsUrl(p.bookingUrl) };
-  if (mode === 'phone' && String(p.bookingPhone || '').replace(/\D/g, '').length >= 10) return { type: 'phone' };
+  if (mode) return { type: 'roamwise', number: ROAMWISE_WA };
   return { type: 'none' };
 }
 
@@ -93,22 +88,21 @@ export function parseEnquiry(args) {
 }
 
 export function enquiryText(p, d, code) {
-  return 'Hello ' + p.name + ', I found your stay through RoamWise.\n'
+  return 'Hello RoamWise, I would like to book ' + p.name + '.\n'
     + 'Dates: check-in ' + d.checkIn + ' for ' + d.nights + ' night' + (d.nights > 1 ? 's' : '') + '.\n'
     + 'Guests: ' + d.guests + '.\n'
-    + 'Please share availability, the final total including applicable taxes, payment method and booking terms.\n\n'
+    + 'Please confirm availability and the all-in price, and send the payment link.\n\n'
     + 'RoamWise booking code: ' + code;
 }
 
 /** Final reply after a code has been registered. Never reveals a number for a non-WhatsApp route. */
 export function enquiryReply(p, d, code) {
   const r = routeOf(p);
-  if (r.type === 'whatsapp') {
-    return 'Tap to message ' + p.name + ' with your dates filled in:\nhttps://wa.me/' + r.number + '?text=' + encodeURIComponent(enquiryText(p, d, code))
-      + '\n\nYour booking code: ' + code + '\nAfter your trip send: /stayed ' + code + ' yes   (or no)\nThe stay confirms availability and the price. Nothing is booked or paid yet.';
+  if (r.type === 'roamwise') {
+    return 'Tap to book ' + p.name + ' with RoamWise, your dates filled in:\nhttps://wa.me/' + r.number + '?text=' + encodeURIComponent(enquiryText(p, d, code))
+      + '\n\nYour booking code: ' + code + '\nAfter your trip send: /stayed ' + code + ' yes   (or no)\nRoamWise confirms the room and the all-in price, then sends a secure payment link. Nothing is booked or paid yet.';
   }
-  if (r.type === 'ota' || r.type === 'website') return p.name + ' takes bookings on its own site (rates and terms are set there):\n' + r.url + '\nYour reference: ' + code;
-  return p.name + ' books through the RoamWise app (' + (r.type === 'direct' ? 'see rooms and book' : 'call the property from its page') + '): ' + SITE + '\nYour reference: ' + code;
+  return p.name + ' books through the RoamWise app (see rooms and book): ' + SITE + '\nYour reference: ' + code;
 }
 
 /** "/join Sunrise Homestay, Almora, 6, 05ABCDE1234F1Z5, owner@upi, 9876543210". Returns { value } or { error }. */

@@ -6,7 +6,7 @@
  * was checked ("paperwork on file"), never that a place is safe, legal or well run.
  *
  * Input is a listing entry (config/partners shape) plus optional private facts an admin adds:
- *   routeType      'direct'|'whatsapp'|'ota'|'website'|'phone'|'none'  (from rwBookingRoute)
+ *   routeType      'direct'|'pay'|'roamwise'|'none'  (from rwBookingRoute)
  *   gstVerified    true once an admin confirmed the GSTIN on the GST portal
  *   payoutReady    true when UPI / bank details are on file (never the details themselves)
  *   photoCount     number of photos the guest can see
@@ -31,10 +31,10 @@ var CHECKS=[
    fix:'Approve the property in the partner admin after the MOU is accepted.'},
   {id:'route',label:'A booking route that works',weight:20,critical:true,
    test:function(p){var t=p.routeType||'none';return {ok:t!=='none',note:t!=='none'?t:''};},
-   fix:'Save a booking route (WhatsApp number, booking link or phone) in the partner admin.'},
-  {id:'contact',label:'Guests can reach the property',weight:10,critical:false,
-   test:function(p){var t=p.routeType;return {ok:t==='whatsapp'||t==='phone'||t==='direct'||!!p.supportEmail};},
-   fix:'Add a WhatsApp number or phone the owner agreed to show.'},
+   fix:'Open the property for bookings in the partner admin.'},
+  {id:'contact',label:'Guests can reach RoamWise about the stay',weight:10,critical:false,
+   test:function(p){var t=p.routeType;return {ok:t==='roamwise'||t==='pay'||t==='direct'||!!p.supportEmail};},
+   fix:'Open the property for bookings so guests can book through RoamWise.'},
   {id:'photos',label:'Photos shared by the host',weight:15,critical:false,
    test:function(p){var c=n(p.photoCount)||((p.photos||[]).length);return {ok:c>=2,partial:c===1,note:c+' photo'+(c===1?'':'s')};},
    fix:'Upload at least two real photos of the property.'},

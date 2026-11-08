@@ -13,7 +13,8 @@ test('real Almora partner seeds appear even with zero payment-enabled rooms',()=
   const html=s.rwTuskPlanBookingHTML('Book this trip to Almora','Almora',5);
   for(const name of ['Milan Heights','Soulmate Homestay','Big Bro Hotel'])assert.ok(html.includes(name));
   assert.doesNotMatch(html,/No matching stays|No RoamWise stay inventory|₹\d/);
-  assert.match(html,/wa\.me\/917302315845/);
+  assert.match(html,/wa\.me\/919987379730/);
+  assert.doesNotMatch(html,/917302315845|919105334889/);
   assert.match(html,/not a reservation/);
   assert.doesNotMatch(s.rwTuskStayHTML('stay in Manali','Manali'),/Milan Heights/);
 });

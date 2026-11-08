@@ -81,13 +81,13 @@ test('Milan Heights event and Ailon Tusk send an attributed WhatsApp enquiry',()
   assert.match(html,/id="musicEventsIndia"/);
   assert.match(html,/Jodhpur RIFF/);
   assert.match(html,/e\.end>=today/,'event cards expire themselves after their last day');
-  assert.match(tusk,/WhatsApp Milan Heights · mention RoamWise/);
+  assert.match(tusk,/Book Milan Heights through RoamWise/);
+  assert.doesNotMatch(tusk,/917302315845/, 'the hotel number is never shown to guests');
   assert.match(tusk,/function rwKasarFestivalEnded\(now\)/);
-  assert.match(tusk,/next available dates on WhatsApp/);
+  assert.match(tusk,/share the next available dates/);
   assert.doesNotMatch(tusk,/7% commission|Request Milan Heights on RoamWise/);
-  assert.match(app,/function milanWhatsAppMessage\(\).*found your stay through RoamWise/);
-  assert.match(app,/kasar_milan_whatsapp_open/);
-  assert.doesNotMatch(read('partner/stays-hub.js')+app.slice(app.indexOf('function renderSearchResults'),app.indexOf('function milanWhatsAppMessage')),/booking\.com|airbnb|aviasales|viator|discovercars/i,'signed stays and trip tabs never hand off to third-party sites');
+  assert.doesNotMatch(app,/917302315845/);
+  assert.doesNotMatch(read('partner/stays-hub.js')+app.slice(app.indexOf('function renderSearchResults'),app.indexOf('function renderMilanWhatsAppCard')),/booking\.com|airbnb|aviasales|viator|discovercars/i,'signed stays and trip tabs never hand off to third-party sites');
   assert.match(market,/if\(role==='customer'\)\{if\(DEMO\)\{searchSupport\(\);validateCards\(\)/);
   const start=app.indexOf('function liveCustomer(){'),end=app.indexOf('function liveOwner()',start),guestFlow=app.slice(start,end);
   assert.match(guestFlow,/renderSearchResults\(\[\],false\)/);
@@ -103,6 +103,7 @@ test('festival handoff switches to a general Almora enquiry after Oct 4 in India
   assert.equal(state.rwKasarFestivalEnded(new Date('2026-10-04T18:30:00Z')),true);
   const reply=state.cpSmartAnswer('Plan Kasar Music Fest 2.0 in Almora');
   assert.match(reply,/weekend has passed/);
-  assert.match(reply,/next available dates/);
+  assert.match(reply,/Book Milan Heights through RoamWise/);
+  assert.match(decodeURIComponent(reply),/next available dates/);
   assert.doesNotMatch(reply,/Rahgir and Nupur Pant|₹2,000 pass/);
 });

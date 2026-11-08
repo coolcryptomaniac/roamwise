@@ -54,7 +54,7 @@ test('telegram: enquire registers a code, reply carries the WhatsApp link, /stay
   const out = d.sent[0];
   assert.match(out.url, /api\.telegram\.org\/bott\/sendMessage/);
   const code = /RW-[A-Z2-9]{6}/.exec(out.body.text)[0];
-  assert.match(out.body.text, /https:\/\/wa\.me\/919876543210\?text=/);
+  assert.match(out.body.text, /https:\/\/wa\.me\/919987379730\?text=/); assert.doesNotMatch(out.body.text, /9876543210/);
   const rec = d.ledger.get(code);
   assert.equal(rec.partnerId, 'p_milan_heights'); assert.equal(rec.source, 'bot'); assert.equal(rec.status, 'enquired');
   assert.doesNotMatch(JSON.stringify(rec), /"7"|chat/);   // no raw chat id stored

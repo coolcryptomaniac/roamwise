@@ -113,7 +113,7 @@ function rwTrustBlock(x){
   if(!ok.length) return '';
   return '<div class="lst-confirm" style="margin-top:10px"><b>What RoamWise checked</b><br>'
     + ok.map(function(c){ return '\u2713 '+esc2(c.label); }).join('<br>')
-    + '<br><i>Automatic paperwork check, not an inspection. Always confirm rates and terms with the property.</i></div>';
+    + '<br><i>Automatic paperwork check, not an inspection. RoamWise confirms rates and terms before you pay.</i></div>';
 }
 function rwListOpen(id){
   var all=rwListingAll();

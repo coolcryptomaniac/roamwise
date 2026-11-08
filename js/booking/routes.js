@@ -2,33 +2,20 @@
 /* ============================================================================
    BOOKING ROUTES — one answer to "how can a guest actually book this property?"
    ============================================================================
-   A property is only shown to guests when it has at least one WORKING route:
+   Founder decision (8 Nov 2026): guests book and pay through RoamWise only.
+   Host WhatsApp numbers, phone numbers and OTA links are never shown to guests.
 
      direct    RoamWise rooms with a price, bookable + paymentEnabled flags
-     whatsapp  bookingWhatsapp (a real wa.me number the property opted to publish)
-     ota       bookingUrl on a third-party site (Booking.com, MakeMyTrip, Airbnb…)
-     website   bookingUrl on the property's own site
-     phone     bookingPhone (tel: link)
+     pay       stays with a server-priced Cashfree checkout (pick dates, pay)
+     roamwise  everything else: a coded WhatsApp to RoamWise with the stay and
+               dates filled in; RoamWise confirms the room and sends a pay link
 
-   No route -> the property is hidden everywhere (Stay & do, stays page, Tusk,
-   search). It reappears automatically the moment a route is saved in the
-   partner admin. Pure functions, no DOM, so tests can run them directly.
+   A property is shown only when the admin has opened it for bookings
+   (bookingMode saved) or it is a founder-approved enquiry listing. It stays
+   hidden otherwise. Pure functions, no DOM, so tests can run them directly.
    ========================================================================= */
-function rwWaNumber(v){
-  var d=String(v||'').replace(/\D/g,'');
-  if(d.length===10) d='91'+d;
-  return d.length>=11&&d.length<=15?d:'';
-}
-function rwHttpsUrl(v){
-  try{ var u=new URL(String(v||'').trim()); return u.protocol==='https:'?u.href:''; }catch(e){ return ''; }
-}
-function rwHostLabel(url){
-  try{
-    var h=new URL(url).hostname.replace(/^www\./,'');
-    var known={'booking.com':'Booking.com','makemytrip.com':'MakeMyTrip','goibibo.com':'Goibibo','agoda.com':'Agoda','airbnb.co.in':'Airbnb','airbnb.com':'Airbnb','expedia.com':'Expedia','hotels.com':'Hotels.com','tripadvisor.in':'Tripadvisor','tripadvisor.com':'Tripadvisor','cleartrip.com':'Cleartrip','oyorooms.com':'OYO','stayvista.com':'StayVista'};
-    return known[h]||h;
-  }catch(e){ return 'the booking site'; }
-}
+var RW_BOOKING_WA = '919987379730'; /* RoamWise bookings WhatsApp */
+var RW_PAY_STAYS = { p_amor_tattwaa: 'tattwaa', p_amor_nanau: 'nanau', p_amor_padma: 'padma', p_amor_aramness: 'aramness' };
 function rwLivePartners(){
   return (window.RW_PARTNERS||[]).filter(function(p){ return p&&p.verified==='signed'&&p.listingReady===true; });
 }
@@ -41,28 +28,32 @@ function rwRoomsLive(){
   rwLivePartners().forEach(function(p){ if(String(p.bookingMode||'').toLowerCase()==='direct') ok[p.id]=1; });
   return (window.RW_ROOMS||[]).filter(function(r){ return ok[r.partnerId]&&rwRoomIsLive(r); });
 }
+/* Has this property been opened for bookings? (admin saved a mode, or a founder-approved enquiry listing) */
+function rwBookingOpen(p){
+  if(!p) return false;
+  if(p.enquiryOnly===true) return p.verified==='founder-approved'&&!!p.founderApproval;
+  var mode=String(p.bookingMode||'').toLowerCase();
+  if(mode==='direct') return (window.RW_ROOMS||[]).some(function(r){ return r.partnerId===p.id&&rwRoomIsLive(r); });
+  return !!mode;
+}
+/* The guest's message to RoamWise for this stay; d = {checkIn, checkOut, nights, guests} (all optional). */
+function rwBookingText(p, d){
+  d=d||{};
+  var t='Hello RoamWise, I would like to book '+p.name+(p.zone?' ('+p.zone+')':'')+'.';
+  if(d.checkIn) t+=' Check-in: '+d.checkIn+(d.checkOut?'. Check-out: '+d.checkOut:(d.nights?' for '+d.nights+' night'+(d.nights>1?'s':''):''))+'.';
+  if(d.guests) t+=' Guests: '+d.guests+'.';
+  return t+' Please confirm availability and the all-in price, and send the payment link.';
+}
 /* All valid channels for a partner, primary first. */
 function rwBookingRoutes(p){
   var out=[];
-  if(!p) return out;
+  if(!rwBookingOpen(p)) return out;
   var mode=String(p.bookingMode||'').toLowerCase();
   var rooms=(window.RW_ROOMS||[]).filter(function(r){ return r.partnerId===p.id&&rwRoomIsLive(r); });
-  var wa=rwWaNumber(p.bookingWhatsapp), url=rwHttpsUrl(p.bookingUrl), tel=String(p.bookingPhone||'').replace(/\D/g,'');
-  var routes={
-    direct: mode==='direct'&&rooms.length?{type:'direct',label:'See rooms & book →',partnerId:p.id}:null,
-    whatsapp: wa?{type:'whatsapp',label:'Ask the hotel on WhatsApp ↗',href:'https://wa.me/'+wa,number:wa}:null,
-    ota: url&&mode==='ota'?{type:'ota',label:'Book on '+(p.bookingOtaName||rwHostLabel(url))+' ↗',href:url,site:p.bookingOtaName||rwHostLabel(url)}:null,
-    website: url&&mode==='website'?{type:'website',label:'Book on the hotel’s website ↗',href:url,site:rwHostLabel(url)}:null,
-    phone: tel.length>=10&&tel.length<=13?{type:'phone',label:'Call the hotel',href:'tel:+'+(tel.length===10?'91':'')+tel}:null
-  };
-  /* A WhatsApp number only counts when the property is in whatsapp mode (or no mode is set, for older entries). */
-  if(routes.whatsapp&&mode&&mode!=='whatsapp') routes.whatsapp=null;
-  var order=[mode].concat(['direct','whatsapp','ota','website','phone']);
-  order.forEach(function(k){ if(routes[k]&&!out.some(function(r){ return r.type===k; })) out.push(routes[k]); });
-  if(p.enquiryOnly===true && p.founderApproval==='Mohit Pandey · 2026-11-06' && p.supportEmail==='support@roamwise.co.in') {
-    return [{type:'enquiry',label:'Enquire with RoamWise →',href:'mailto:support@roamwise.co.in',site:'RoamWise'}];
-  }
-  return p.enquiryOnly===true?out.filter(function(r){return r.type==='whatsapp'||r.type==='phone';}):out;
+  if(mode==='direct'&&rooms.length&&p.enquiryOnly!==true) out.push({type:'direct',label:'See rooms & book →',partnerId:p.id});
+  if(RW_PAY_STAYS[p.id]) out.push({type:'pay',label:'Pick dates & pay →',href:'/packages/amor-checkout.html?stay='+RW_PAY_STAYS[p.id],site:'RoamWise'});
+  out.push({type:'roamwise',label:'Book through RoamWise →',href:'https://wa.me/'+RW_BOOKING_WA,number:RW_BOOKING_WA,site:'RoamWise'});
+  return out;
 }
 function rwBookingRoute(p){
   var all=rwBookingRoutes(p);
@@ -78,16 +69,16 @@ function rwBookingResponsibilities(route){
     ['Payment', 'Choose a payment method in the booking desk. Pay only after the property confirms and you accept the total.'],
     ['Changes & refunds', 'Ask the property to approve date changes or cancellation. Refund handling follows the confirmed terms and payment method.']
   ];
-  if(route.type==='ota') return [
-    ['Confirmation', 'Look for a booking reference from '+(route.site||'the booking provider')+'. Opening this link is not a reservation.'],
-    ['Payment', 'Check who collects payment at checkout: the booking provider or the property.'],
-    ['Changes & refunds', 'Start with the support channel on your booking confirmation. The provider’s booking terms apply.']
+  if(route.type==='pay') return [
+    ['Confirmation', 'You pay through RoamWise (Cashfree). RoamWise then confirms the room with the property and sends you the booking details.'],
+    ['Payment', 'The amount is calculated by RoamWise for your dates. Pay only on this site; never pay the property separately.'],
+    ['Changes & refunds', 'Write to RoamWise. If the property cannot confirm your room, RoamWise starts a full refund to your original payment method.']
   ];
-  if(['website','whatsapp','phone','enquiry'].indexOf(route.type)<0) return [];
+  if(route.type!=='roamwise') return [];
   return [
-    ['Confirmation', 'Ask the property for written confirmation of your room, dates, final total and cancellation terms.'],
-    ['Payment', 'The property specifies the payment recipient and method. Verify these before paying.'],
-    ['Changes & refunds', 'Contact the property using the details on your confirmation. An inquiry or call is not a confirmed booking.']
+    ['Confirmation', 'RoamWise checks the room with the property and confirms your dates and the all-in price in writing.'],
+    ['Payment', 'RoamWise sends a secure payment link (UPI or card). Pay only through RoamWise; never pay the property separately.'],
+    ['Changes & refunds', 'Write to RoamWise. If your room cannot be confirmed after payment, RoamWise starts a full refund.']
   ];
 }
 function rwBookingResponsibilitiesHTML(route){
@@ -98,32 +89,27 @@ function rwBookingResponsibilitiesHTML(route){
   }).join('')+'</dl></details>';
 }
 
-/* HTML for the primary action plus any secondary channels. */
+/* HTML for the primary action (and the RoamWise WhatsApp as a second option when a checkout exists). */
 function rwBookingActionHTML(p){
   var routes=rwBookingRoutes(p);
   if(!routes.length) return '';
   var main=routes[0], html='';
   var style='display:block;text-align:center;text-decoration:none;margin-top:12px';
+  var wa=routes.filter(function(r){ return r.type==='roamwise'; })[0];
+  var waLink=function(cls,label){
+    var text=rwBookingText(p);
+    return '<a class="'+cls+'" style="'+(cls==='bk-go lst-wa'?style:'')+'" href="'+esc2(wa.href+'?text='+encodeURIComponent(text))+'" data-wa-base="'+esc2(wa.href)+'" data-wa-text="'+esc2(text)+'" data-pid="'+esc2(p.id)+'" data-pname="'+esc2(p.name)+'" onclick="return typeof rwStayWaClick===\'function\'?rwStayWaClick(this):true" target="_blank" rel="noopener noreferrer">'+label+'</a>';
+  };
   if(main.type==='direct'){
     html='<button class="bk-go" style="margin-top:12px" onclick="rwOverlayClose(\'lstOv\');openStays(\''+esc2(p.zone||'')+'\',\''+esc2(p.id)+'\')">'+main.label+'</button>'
       +'<p class="lst-confirm">Book directly through RoamWise. The property confirms your dates before payment opens.</p>';
-  }else if(main.type==='enquiry'){
-    var subject='RoamWise stay enquiry: '+p.name;
-    var msg='Hello RoamWise, I am interested in '+p.name+' in '+(p.zone||'India')+'. Please check availability for my dates, total cost, deposit schedule, cancellation and booking terms. My dates, guests and contact number are: ';
-    html='<a class="bk-go" style="'+style+'" href="mailto:support@roamwise.co.in?subject='+encodeURIComponent(subject)+'&body='+encodeURIComponent(msg)+'">Enquire with RoamWise →</a>'+'<p class="lst-confirm">This is an enquiry, not a reservation. We confirm rates, dates and deposit terms in writing before requesting any payment.</p>';
-  }else if(main.type==='whatsapp'){
-    var text='Hello '+p.name+', I found your stay through RoamWise. I am interested in staying in '+(p.zone||'your area')+'. Please share available room options for my dates, the final total including applicable taxes, payment method, and booking terms.';
-    html='<a class="bk-go lst-wa" style="'+style+'" href="'+esc2(main.href+'?text='+encodeURIComponent(text))+'" data-wa-base="'+esc2(main.href)+'" data-wa-text="'+esc2(text)+'" data-pid="'+esc2(p.id)+'" data-pname="'+esc2(p.name)+'" onclick="return typeof rwStayWaClick===\'function\'?rwStayWaClick(this):true" target="_blank" rel="noopener noreferrer">'+main.label+'</a>'
-      +'<p class="lst-confirm">Your reservation is confirmed directly by the hotel. Please verify current availability, final total including taxes and booking terms before paying.</p>';
-  }else if(main.type==='ota'||main.type==='website'){
-    html='<a class="bk-go" style="'+style+'" href="'+esc2(main.href)+'" target="_blank" rel="noopener noreferrer sponsored">'+esc2(main.label)+'</a>'
-      +'<p class="lst-confirm">Continue your booking on '+esc2(main.site)+'. Rates, availability and booking terms are set there, not by RoamWise.</p>';
-  }else if(main.type==='phone'){
+  }else if(main.type==='pay'){
     html='<a class="bk-go" style="'+style+'" href="'+esc2(main.href)+'">'+main.label+'</a>'
-      +'<p class="lst-confirm">Your reservation is confirmed directly by the hotel. Please verify availability and the final total before paying.</p>';
+      +'<p class="lst-confirm">Choose your dates, see the total and pay securely through RoamWise.</p>';
+  }else{
+    html=waLink('bk-go lst-wa',main.label)
+      +'<p class="lst-confirm">RoamWise confirms the room and the all-in price, then sends you a secure payment link.</p>';
   }
-  var extra=routes.slice(1).filter(function(r){ return r.type==='phone'||r.type==='website'||r.type==='whatsapp'; }).map(function(r){
-    return '<a class="lst-instagram" href="'+esc2(r.href)+'"'+(r.type==='phone'?'':' target="_blank" rel="noopener noreferrer"')+'>'+(r.type==='phone'?'Or call the hotel':r.type==='whatsapp'?'Or WhatsApp the hotel ↗':'Or book on the hotel’s website ↗')+'</a>';
-  }).join('');
+  var extra=main.type!=='roamwise'&&wa?waLink('lst-instagram','Or ask RoamWise on WhatsApp ↗'):'';
   return html+rwBookingResponsibilitiesHTML(main)+extra;
 }
