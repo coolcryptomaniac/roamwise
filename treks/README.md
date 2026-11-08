@@ -5,7 +5,7 @@ Status: review-gated feature, not merged or deployed. It does not constitute an 
 ## Pages and users
 - /treks/ — public verified-departure discovery; Hike & Seek invitation preview is explicitly unverified and never bookable.
 - /treks/#join — logged-in applications for trekking companies, guides, transport operators and outdoor experiences.
-- /treks/#studio — applicant package submission, package updates and review status.
+- /treks/#studio — applicant package submission, package updates, review status and owner-only verified-paid booking inbox.
 - /treks/#review — founder/admin approval desk for partners, departures and paid booking follow-up.
 - The homepage's Partner with RoamWise chooser points trekking and transport applicants here.
 
@@ -24,6 +24,8 @@ Worker-only Firestore collections under the existing Firebase project:
 - trekPackages/{tp_uuid} — owner, departure, capacity, unit price, pricing unit, itinerary, inclusion/exclusion, refund/safety details; pending review until approved.
 - trekBookings/{rwtrek_hash} — server-calculated total and fee, guest and provider references; payment pending or paid pending operator confirmation, later manually confirmed or flagged for refund review.
 - config/trekMarketplace — launch switch read by the Cloudflare Worker; must explicitly contain checkoutEnabled=true AND environment matching the Worker's CASHFREE_ENV to allow checkout. Keep checkoutEnabled=false by default. DO NOT change it to true while testing a live Worker configuration.
+
+Verified operators may confirm only their own paid bookings or flag them for founder refund review. Buyers can opt in to sharing contact details with that specific operator; otherwise the operator sees the booking but no guest email or phone, so RoamWise must coordinate the contact. Confirmations do not trigger payments or automatic payouts.
 
 The existing Firestore security rules are not broadened: server service-account handlers perform reads/writes, and the public catalog exposes only approved professional information. Applicants must have Firebase-verified email. Administrators have their existing admins/{uid} record. Browser-supplied prices, operator IDs and payout instructions are never trusted.
 
@@ -45,8 +47,9 @@ The existing Firestore security rules are not broadened: server service-account 
 - [ ] Test unauthorized partner edits, unapproved catalog listing suppression, checkout price manipulation, duplicate nonce/idempotent order creation, webhook replay, exact amount verification and customer-only status access.
 - [ ] Test all three pricing units (person, vehicle, group), multi-person group capacities, broken dates, unavailable seats and pending confirmation.
 - [ ] Test that marking booking operator_confirmed survives later status checks and webhook retries.
+- [ ] Test consent-based contact redaction and owner-only operator booking decisions.
 - [ ] Test cancellations, actual Cashfree refunds, refund liability and settlement manually before launch.
-- [ ] Run node --check on worker/handlers/treks-marketplace.js, worker/worker.js, treks/app.js and js/ui/partner-hub.js; then npm run check, npm test and Chrome/Android end-to-end testing. These were not performed from this connected-tool session.
+- [ ] Run node --check on worker/handlers/treks-marketplace.js, worker/worker.js, treks/app.js and js/ui/partner-hub.js; then npm run check, npm test and Chrome/Android end-to-end testing. Those full repository checks were not performed from this connected-tool session. A syntax check of changed frontend/handler functions and an in-tool execution of the core price-policy scenarios passed. The unit test file tests/trek-price-policy.test.mjs is committed and will run under npm test.
 - [ ] Independent review of payment/auth changes and explicit production deploy. Never enable checkout merely by merging this PR.
 
 ## Explicit nonclaims
