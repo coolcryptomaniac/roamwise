@@ -83,7 +83,8 @@ footer{padding:28px 0 44px;color:#c2afd2;border-top:1px solid #55456b;margin-top
 <label>Region / pickup <input name="region" maxlength="100" required placeholder="Dehradun • Sankri"></label>
 <label>Departure date <input name="start" type="date" required></label>
 <label>Duration (days) <input name="duration" type="number" min="1" max="60" value="5" required></label>
-<label>Operator rate per person ₹ <input name="pricePerPerson" type="number" min="100" max="200000" required placeholder="Exact payable operator amount"></label>
+<label>Operator unit price ₹ <input name="unitPrice" type="number" min="100" max="200000" required placeholder="Exact payable operator amount"></label>
+<label>Pricing unit <select name="pricingUnit"><option value="person">Per traveller</option><option value="vehicle">Per private vehicle</option><option value="group">Per private group</option></select></label>
 <label>Maximum seats for this departure <input name="seats" type="number" min="1" max="100" required value="12"></label>
 <label>Difficulty <select name="difficulty"><option>Easy</option><option>Moderate</option><option>Difficult</option><option>Expert</option><option>Not applicable</option></select></label>
 <label>Image URL (with permission) <input name="imageUrl" type="url" placeholder="https://…"></label>
