@@ -39,6 +39,13 @@ async function youtubeEvents(known) {
   const seed = read('memories/seed.json').events, ids = new Set(seed.map(e => e.id));
   const folders = folderEvents().filter(e => !ids.has(e.id));
   let events = seed.concat(folders);
+  /* Videos found by an earlier --youtube run live only in data.json; keep them so an offline build or --check
+     does not drop (or flag) them. */
+  const file0 = path.join(root, 'memories/data.json');
+  const known = new Set(events.map(e => e.id));
+  if (fs.existsSync(file0)) {
+    try { events = events.concat((JSON.parse(fs.readFileSync(file0, 'utf8')).events || []).filter(e => /^yt-/.test(e.id) && !known.has(e.id))); } catch (_) { /* rebuilt below */ }
+  }
   const knownVideos = new Set(); events.forEach(e => (e.videos || []).forEach(v => v.youtube && knownVideos.add(v.youtube)));
   if (process.argv.includes('--youtube')) events = events.concat(await youtubeEvents(knownVideos));
   events.sort((a, b) => String(b.date).localeCompare(String(a.date)));

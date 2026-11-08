@@ -16,7 +16,10 @@
         const ltitle = document.createElement('h3'); ltitle.textContent = p.name;
         const ldesc = document.createElement('p'); ldesc.textContent = p.description;
         const lprice = document.createElement('p'); const pb = document.createElement('strong'); pb.textContent = p.price + ' · Available now'; lprice.append(pb);
-        const link = document.createElement('a'); link.className = 'button'; link.href = p.href; link.textContent = 'View and order →';
+        const link = document.createElement('a'); link.className = 'button'; link.href = p.href;
+        const sellsOnline = !!document.querySelector('[data-buy="' + p.id + '"]');
+        if (sellsOnline) link.dataset.buyJump = p.id; // checkout.js opens the payment panel under that product
+        link.textContent = sellsOnline ? 'Buy now →' : 'View and order →';
         card.append(img, ltype, ltitle, ldesc, lprice, link); grid.append(card);
         return;
       }

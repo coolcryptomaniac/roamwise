@@ -66,7 +66,8 @@ test('Lansdowne search renders the enquiry status and attributed owner contact w
   assert.match(host.innerHTML,/Corbett Jungle View Homestay/);
   assert.match(host.innerHTML,/Founder introduced/);
   assert.match(host.innerHTML,/Enquiry only/);
-  assert.match(host.innerHTML,/wa\.me\/917037365263/);
-  assert.match(host.innerHTML,/I%20found%20your%20stay%20through%20RoamWise/);
+  // Booking interest is routed to RoamWise (6 Nov 2026), carrying the guest's dates to the quote form.
+  assert.doesNotMatch(host.innerHTML,/wa\.me\//);
+  assert.match(host.innerHTML,/href="\/escapes\/\?stay=Corbett%20Jungle%20View%20Homestay&amp;zone=Lansdowne&amp;start=2026-11-01&amp;end=2026-11-02&amp;guests=2#request-quote"/);
   assert.doesNotMatch(host.innerHTML,/RoamWise Partner|Checked|Trusted|Cashfree|Book now/);
 });

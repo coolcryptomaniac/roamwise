@@ -28,10 +28,25 @@ function fill(d) {
   set('buy-name', 'Asha Rawat'); set('buy-phone', '9876543210'); set('buy-email', 'asha@example.com'); set('buy-line1', '12 Mall Road'); set('buy-city', 'Almora'); set('buy-state', 'Uttarakhand'); set('buy-pin', '263601');
 }
 
-test('order form stays hidden while checkout is closed; WhatsApp ordering remains', async () => {
+test('Buy now while checkout is closed opens the panel under the button with a WhatsApp order, no payment form', async () => {
   const {dom, d} = setup({open: false}); await tick();
   assert.equal(d.getElementById('buy').hidden, true);
   assert.match(d.querySelector('#almora-after-dark a.button').href, /wa\.me\/919987379730/);
+  const btn = d.querySelector('[data-buy="almora-after-dark-hoodie"]');
+  assert.equal(btn.hidden, false);
+  btn.click(); await tick();
+  assert.equal(d.getElementById('buy').hidden, false);
+  assert.equal(btn.nextElementSibling.id, 'buy'); // checkout sits right after the Buy now button
+  assert.equal(d.getElementById('buy-form').hidden, true);
+  assert.match(d.querySelector('#buy-closed a').href, /wa\.me\/919987379730\?text=.*Almora%20After%20Dark/);
+  dom.window.close();
+});
+
+test('Buy now when the checkout service is unreachable still offers a WhatsApp order', async () => {
+  const {dom, d} = setup({routes: {'/shop/catalogue': () => ({status: 503, body: {}})}}); await tick();
+  d.querySelector('[data-buy="roamwise-mandala-tote"]').click(); await tick();
+  assert.equal(d.getElementById('buy-form').hidden, true);
+  assert.match(d.querySelector('#buy-closed a').href, /Tote%20Bag/);
   dom.window.close();
 });
 
@@ -41,7 +56,10 @@ test('open checkout: quote shows server totals, UPI order shows exact amount, an
     '/shop/order': () => ({status: 200, body: {orderId: ID, token: 'tok', method: 'upi', totalPaise: 209800, upi: {pa: 'roamwisepay@ybl', amount: '2098.00', uri: 'upi://pay?pa=roamwisepay%40ybl&am=2098.00'}}}),
   };
   const {dom, d, calls} = setup({routes}); await tick();
+  assert.equal(d.getElementById('buy').hidden, true); // nothing opens until a Buy now is tapped
+  d.querySelector('[data-buy="almora-after-dark-hoodie"]').click(); await tick();
   assert.equal(d.getElementById('buy').hidden, false);
+  assert.equal(d.getElementById('buy-product-row').hidden, true);
   assert.equal(d.getElementById('buy-variant').options.length, 1);
   fill(d);
   d.getElementById('buy-quote').click(); await tick();
@@ -63,6 +81,7 @@ test('open checkout: quote shows server totals, UPI order shows exact amount, an
 test('a refused quote (for example unconfigured delivery) shows the server message and no pay button', async () => {
   const routes = {'/shop/quote': () => ({status: 422, body: {error: 'shipping_not_available', message: 'We will confirm delivery to this PIN code on WhatsApp before you pay.'}})};
   const {dom, d} = setup({routes}); await tick();
+  d.querySelector('[data-buy="almora-after-dark-hoodie"]').click(); await tick();
   fill(d); d.getElementById('buy-quote').click(); await tick();
   assert.match(d.getElementById('buy-summary').textContent, /confirm delivery to this PIN code on WhatsApp/);
   assert.equal(d.getElementById('buy-pay').hidden, true);
@@ -90,11 +109,11 @@ test('product picker: lists every live product, switches variants, price and max
   const {dom, d, calls} = setup({routes}); await tick();
   const pick = d.getElementById('buy-product');
   assert.equal(pick.options.length, 2);
-  assert.match(d.getElementById('buy-variant').textContent, /Black · Size S · ₹1,999/);
-  // the "Order online" button on the tote section selects the tote and reveals the form
+  // the Buy now button on the tote section selects the tote and opens checkout right under it
   const btn = d.querySelector('[data-buy="roamwise-mandala-tote"]');
   assert.equal(btn.hidden, false);
-  btn.click();
+  btn.click(); await tick();
+  assert.equal(btn.nextElementSibling.id, 'buy');
   assert.equal(pick.value, 'roamwise-mandala-tote');
   assert.match(d.getElementById('buy-variant').textContent, /Red · Standard size · ₹799/);
   assert.equal(d.getElementById('buy-qty').max, '3');
@@ -102,5 +121,13 @@ test('product picker: lists every live product, switches variants, price and max
   d.getElementById('buy-quote').click(); await tick();
   const q = calls.find((c) => c.path === '/shop/quote').body;
   assert.deepEqual(q.items, [{id: 'roamwise-mandala-tote', variant: 'standard', qty: 1}]);
+  dom.window.close();
+});
+
+test('homepage deep link ?buy= opens checkout under that product', async () => {
+  const {dom, d} = setup({url: 'https://www.roamwise.co.in/shop/?buy=almora-after-dark-hoodie'}); await tick();
+  assert.equal(d.getElementById('buy').hidden, false);
+  assert.equal(d.querySelector('[data-buy="almora-after-dark-hoodie"]').nextElementSibling.id, 'buy');
+  assert.equal(d.getElementById('buy-product').value, 'almora-after-dark-hoodie');
   dom.window.close();
 });
