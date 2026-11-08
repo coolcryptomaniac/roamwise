@@ -47,3 +47,13 @@ test('marketing poster is explicit about approval and real photo rights',()=>{
  assert.match(studio,/Photo: /);
  assert.match(studio,/Print → Save as PDF/);
 });
+
+test('approved operators may share their own filtered listing and see truthful readiness steps',()=>{
+ assert.match(portal,/new URLSearchParams\(location\.search\)\.get\('operator'\)/);
+ assert.match(portal,/p\.provider\?\.id===operatorFilter/);
+ assert.match(studio,/function readiness\(/);
+ assert.match(studio,/owner\?\.status/);
+ assert.match(studio,/currentOwner\?\.status==='approved'/);
+ assert.match(studio,/rights to verify/);
+ assert.match(studio,/not a safety certification, rating or promise of sales/);
+});
