@@ -5,6 +5,9 @@ const API='https://roamwise-api.founder-f53.workers.dev';
 const $=id=>document.getElementById(id);
 const esc=v=>String(v==null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const money=v=>'₹'+Number(v||0).toLocaleString('en-IN');
+// Founder-confirmed public business WhatsApp number used for Hike & Seek trek bookings.
+const HIKE_SEEK_WHATSAPP='919286322067';
+const whatsappLink=(phone,trek)=>'https://wa.me/'+String(phone).replace(/[^0-9]/g,'')+'?text='+encodeURIComponent('Hi Hike & Seek, I found '+trek+' on RoamWise. Please share available dates, operator price, inclusions, pickup point and how to book.');
 const HIKES=[
  ['Tungnath / Chandrashila','3 days on listing; 4 days in itinerary','https://hikeandseek.in/trip/tungnath/'],
  ['Brahmatal','Operator details pending','https://hikeandseek.in/trip/brahmatal/'],
@@ -65,7 +68,8 @@ function signedIn(u){
  if(location.search.includes('order_id='))checkReturned();
 }
 function showHikePreview(){
- $('hikePreview').innerHTML=HIKES.map(([title,detail,url])=>'<article class="card"><div class="head"><span class="mini">SOURCE-LINKED CANDIDATE</span><span class="chip">Not onboarded</span></div><h3>'+esc(title)+'</h3><p>'+esc(detail)+'</p><p class="terms">Price, seats, dates and route details to be confirmed by Hike &amp; Seek.</p><a href="'+esc(url)+'" target="_blank" rel="noopener noreferrer">View original listing ↗</a></article>').join('');
+ $('hikeBusinessContact').innerHTML='<strong>Hike &amp; Seek business WhatsApp for bookings &amp; enquiries: <a href="tel:+919286322067">+91 92863 22067</a></strong><p>This is the company booking contact supplied by the RoamWise founder. Enquiries go directly to Hike &amp; Seek; RoamWise does not confirm or collect payment for these invitation-only treks.</p><a class="button" href="'+esc(whatsappLink(HIKE_SEEK_WHATSAPP,'Hike & Seek trekking packages'))+'" target="_blank" rel="noopener noreferrer">WhatsApp Hike &amp; Seek →</a>';
+ $('hikePreview').innerHTML=HIKES.map(([title,detail,url])=>'<article class="card"><div class="head"><span class="mini">SOURCE-LINKED CANDIDATE</span><span class="chip">Not onboarded</span></div><h3>'+esc(title)+'</h3><p>'+esc(detail)+'</p><p class="terms">Price, seats, dates and route details to be confirmed by Hike &amp; Seek.</p><p><a class="button" href="'+esc(whatsappLink(HIKE_SEEK_WHATSAPP,title))+'" target="_blank" rel="noopener noreferrer">Enquire on Hike &amp; Seek WhatsApp →</a></p><a href="'+esc(url)+'" target="_blank" rel="noopener noreferrer">View original listing ↗</a></article>').join('');
 }
 async function catalog(){
  $('catalog').innerHTML='<p class="muted">Loading approved departures…</p>';
@@ -74,7 +78,7 @@ async function catalog(){
   state.items=r.items||[];
   $('catalog').innerHTML=state.items.length?state.items.map(p=>{
    const image=p.imageUrl?'<img loading="lazy" alt="Trek provided by operator" src="'+esc(p.imageUrl)+'" style="width:100%;height:156px;object-fit:cover;border-radius:12px;margin-bottom:12px">':'';
-   return '<article class="card">'+image+'<div class="head"><span class="mini">'+esc(p.provider.role).toUpperCase()+' · VERIFIED PARTNER</span><span class="chip">'+esc(p.start)+'</span></div><h3>'+esc(p.name)+'</h3><p>'+esc(p.provider.name)+' · '+esc(p.region)+'</p>'+(p.provider.cofounders?'<p class="terms">Founders: '+esc(p.provider.cofounders)+'</p>':'')+(p.provider.instagram?'<p class="terms"><a href="'+esc(p.provider.instagram)+'" target="_blank" rel="noopener noreferrer">Operator Instagram ↗</a></p>':'')+'<p>'+esc(p.duration)+' day(s) · '+esc(p.difficulty||'Difficulty pending')+'</p><div class="price">'+money(p.unitPrice)+' <small>operator rate / '+esc(p.pricingUnit||'person')+'</small></div><p class="terms">RoamWise fee: 1%, max ₹99 per booking. Booking subject to operator confirmation.</p><button type="button" data-checkout="'+esc(p.id)+'">View price &amp; book securely →</button></article>';
+   return '<article class="card">'+image+'<div class="head"><span class="mini">'+esc(p.provider.role).toUpperCase()+' · VERIFIED PARTNER</span><span class="chip">'+esc(p.start)+'</span></div><h3>'+esc(p.name)+'</h3><p>'+esc(p.provider.name)+' · '+esc(p.region)+'</p>'+(p.provider.cofounders?'<p class="terms">Founders: '+esc(p.provider.cofounders)+'</p>':'')+(p.provider.instagram?'<p class="terms"><a href="'+esc(p.provider.instagram)+'" target="_blank" rel="noopener noreferrer">Operator Instagram ↗</a></p>':'')+(p.provider.businessWhatsapp?'<p><a class="button" href="'+esc(whatsappLink(p.provider.businessWhatsapp,p.name))+'" target="_blank" rel="noopener noreferrer">Ask operator on WhatsApp ↗</a></p>':'')+'<p>'+esc(p.duration)+' day(s) · '+esc(p.difficulty||'Difficulty pending')+'</p><div class="price">'+money(p.unitPrice)+' <small>operator rate / '+esc(p.pricingUnit||'person')+'</small></div><p class="terms">RoamWise fee: 1%, max ₹99 per booking. Booking subject to operator confirmation.</p><button type="button" data-checkout="'+esc(p.id)+'">View price &amp; book securely →</button></article>';
   }).join(''):'<div class="card"><h3>No verified departures published yet</h3><p>Applications and draft itineraries are not bookable until an authorised operator and RoamWise complete review.</p></div>';
   for(const b of $('catalog').querySelectorAll('[data-checkout]'))b.addEventListener('click',()=>checkout(b.dataset.checkout));
  }catch(e){$('catalog').innerHTML='<p class="notice">Catalog temporarily unavailable: '+esc(e.message)+'</p>'}
@@ -83,7 +87,7 @@ function toObject(form){return Object.fromEntries(new FormData(form).entries())}
 async function submitJoin(ev){
  ev.preventDefault();if(!checkLogin())return;
  const form=ev.currentTarget,b=toObject(form);
- b.consent=!!form.elements.consent.checked;b.showFounderNames=!!form.elements.showFounderNames.checked;
+ b.consent=!!form.elements.consent.checked;b.showBusinessWhatsapp=!!form.elements.showBusinessWhatsapp.checked;b.showFounderNames=!!form.elements.showFounderNames.checked;
  try{
   const out=await api('/treks/apply',b,true);
   message(out.message||'Application sent. Founder review pending.');tab('studio');
@@ -204,9 +208,10 @@ function invited(){
   f.elements.website.value='https://hikeandseek.in/';f.elements.region.value='Dehradun, Uttarakhand';
   f.elements.instagram.value='https://www.instagram.com/hike_and__seek/';
   f.elements.cofounders.value='Gaurav Aswal; Aanchal Kandari';
+  f.elements.phone.value='+'+HIKE_SEEK_WHATSAPP;
   f.elements.showFounderNames.checked=false;
   const banner=$('inviteMessage');banner.classList.remove('hidden');
-  banner.textContent='Hike & Seek invitation preview. Cofounder names and Instagram are prefilled from founder-supplied information and public references. Public-founder display is OFF. An authorised representative must verify or edit the details, sign in and submit. No private phone number is prefilled or published.';
+  banner.textContent='Hike & Seek invitation preview. Cofounder names, Instagram and the RoamWise-founder-confirmed business booking WhatsApp are prefilled for an authorised representative to verify or edit. No application is submitted automatically. Public contact display on approved operator pages requires opt-in.';
   tab('join');
  }else if(location.hash){const id=location.hash.slice(1);if($(id)&&$(id).classList.contains('view'))tab(id)}
 }
