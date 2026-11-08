@@ -34,7 +34,7 @@ export async function createStayOrder(request,env){
  const id='rwstay_'+crypto.randomUUID().replace(/-/g,'');
  const record={...quote,id,email,phone,shareWithSupplier:b.shareWithSupplier===true,status:'payment_pending',confirmed:false,createdAt:new Date().toISOString()};
  await kv(env).put('stayorder:'+id,JSON.stringify(record),{expirationTtl:60*60*24*180});
- const body={order_id:id,order_amount:quote.amount,order_currency:'INR',customer_details:{customer_id:id,customer_phone:phone,customer_email:email},order_meta:{return_url:'https://roamwise.co.in/packages/amor-checkout.html?order_id='+id},order_note:(quote.property+' '+quote.checkin+' '+quote.checkout).slice(0,200)};
+ const body={order_id:id,order_amount:quote.amount,order_currency:'INR',customer_details:{customer_id:id,customer_phone:phone,customer_email:email},order_meta:{return_url:'https://roamwise.co.in/packages/amor-checkout.html?order_id='+id,notify_url:'https://roamwise-api.founder-f53.workers.dev/stays/cashfree/webhook'},order_note:(quote.property+' '+quote.checkin+' '+quote.checkout).slice(0,200)};
  let r,data;try{r=await fetch(CF(env)+'/pg/orders',{method:'POST',headers:{...headers(env),'x-idempotency-key':id},body:JSON.stringify(body)});data=await r.json()}catch(_){return json({error:'cashfree_unreachable'},502)}
  if(!r.ok||!data.payment_session_id||data.order_id!==id||Number(data.order_amount)!==quote.amount)return json({error:'cashfree_order_failed'},502);
  return json({paymentSessionId:data.payment_session_id,orderId:id,environment:CF(env).includes('sandbox')?'sandbox':'production',quote});
