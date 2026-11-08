@@ -57,6 +57,7 @@
 
 import { CORS, json } from './lib/http.js';
 import { createStayOrder, stayOrderStatus, handleStayCashfreeWebhook } from './handlers/stay-cashfree.js';
+import { publicCatalog, quoteStay } from './lib/universal-stay-catalog.js';
 import { handleAgentMail } from './handlers/agentmail-outreach.js';
 import {handleCreatorAutopilot,runCreatorAutopilot} from './handlers/creator-autopilot.js';
 import { handleHealth } from './handlers/health.js';
@@ -169,6 +170,8 @@ export default {
 
     if(path === 'events/refresh') return handleEventsRefresh(request, env);
 
+    if(path === 'stays/catalog' && request.method === 'GET') return json({properties:publicCatalog()});
+    if(path === 'stays/quote' && request.method === 'POST'){const b=await request.json().catch(()=>null);if(!b)return json({error:'invalid_json'},400);const q=quoteStay(b);return json(q,q.ok?200:422);}
     if(path === 'stays/checkout' && request.method === 'POST') return createStayOrder(request,env);
     const stayCfStatus=path.match(/^stays\/status\/(rwstay_[a-f0-9]{32})$/);
     if(stayCfStatus && request.method === 'GET') return stayOrderStatus(request,env,stayCfStatus[1]);
