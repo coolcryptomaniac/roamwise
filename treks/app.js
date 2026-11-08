@@ -102,6 +102,17 @@ async function mine(){
    '<div class="card"><div class="head"><span class="status">'+esc(p.status)+'</span><span class="mini">'+esc(p.start)+'</span></div><h3>'+esc(p.name)+'</h3><p>'+esc(p.region)+' · '+money(p.unitPrice)+' / '+esc(p.pricingUnit||'person')+'</p><button type="button" class="secondary" data-edit="'+esc(p.id)+'">Edit / resubmit for review</button></div>').join(''):
    '<div class="card"><h3>Ready for your first package?</h3><p>Create a trip, guided walk, group experience or private transport itinerary. Pricing stays unpublished until approved.</p></div>';
   for(const b of $('mineCards').querySelectorAll('[data-edit]'))b.addEventListener('click',()=>editPackage(b.dataset.edit));
+  $('partnerBookingCards').innerHTML=(d.bookings||[]).length?(d.bookings||[]).map(o=>
+    '<article class="card"><span class="chip">'+esc(o.state)+'</span><h3>'+esc(o.packageName)+'</h3><p>Departure '+esc(o.departure)+' · '+esc(o.travellers)+' traveller(s)</p><p>Operator booking value '+money(o.operatorTotal)+'</p><p>'+esc(o.guestEmail||'Customer email held privately by RoamWise')+(o.guestPhone?' · '+esc(o.guestPhone):'')+'</p><p>Ref '+esc(o.id)+'</p>'+
+    (o.state==='paid_pending_operator_confirmation'?'<div class="row"><button data-op-action="confirm" data-id="'+esc(o.id)+'" type="button">Confirm booking</button><button data-op-action="refund_review" data-id="'+esc(o.id)+'" class="secondary" type="button">Cannot fulfil</button></div>':'<p class="muted">Decision: '+esc(o.operatorDecisionNote||o.state)+'</p>')+'</article>').join(''):
+    '<p class="muted">No verified paid bookings for your operator account yet.</p>';
+  for(const b of $('partnerBookingCards').querySelectorAll('[data-op-action]'))b.addEventListener('click',async()=>{
+    const note=prompt(b.dataset.opAction==='confirm'?'Enter actual reservation/seat confirmation reference (required):':'Explain availability problem and request manual customer refund review:');
+    if(!note)return;
+    try{await api('/treks/operator/decision',{bookingId:b.dataset.id,action:b.dataset.opAction,note},true);
+      message('Decision recorded. No money transferred or refunded automatically.');mine();}
+    catch(e){message(e.message,true)}
+  });
  }catch(e){$('studioSummary').textContent='Could not load studio: '+e.message}
 }
 function editPackage(id){
@@ -167,7 +178,7 @@ $('closeCheckout').addEventListener('click',()=>$('checkoutPanel').classList.add
 $('checkoutForm').addEventListener('submit',async ev=>{
  ev.preventDefault();if(!checkLogin()||!state.active)return;
  const f=ev.currentTarget,b=toObject(f);b.seats=Number(b.seats);b.nonce=state.nonce;
- b.acknowledgePending=f.elements.acknowledgePending.checked;b.agreeTerms=f.elements.agreeTerms.checked;
+ b.acknowledgePending=f.elements.acknowledgePending.checked;b.agreeTerms=f.elements.agreeTerms.checked;b.shareContactWithOperator=f.elements.shareContactWithOperator.checked;
  $('payBtn').disabled=true;message('Creating secure Cashfree order…');
  try{
   const r=await api('/treks/order',b,true);
