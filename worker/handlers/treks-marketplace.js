@@ -190,7 +190,7 @@ async function createOrder(request,env,ctx,claims){
  if(environment==='sandbox'&&!await isAdmin(ctx,claims))return apiError('sandbox_admin_only',403);
  let b;try{b=await readJSON(request)}catch(_){return apiError('invalid_json',400)}
  const phone=safe(b.phone,20).replace(/[\s()-]/g,''),email=safe(b.email,180);
- if(!validPhone(phone)||!validEmail(email)||!b.acknowledgePending||!b.agreeTerms)return apiError('checkout_fields_required',422);
+ if(!validPhone(phone)||!validEmail(email)||email.toLowerCase()!==String(claims.email||'').toLowerCase()||!b.acknowledgePending||!b.agreeTerms)return apiError('checkout_fields_required',422);
  if(!/^[a-f0-9-]{36}$/.test(b.nonce||''))return apiError('invalid_nonce',422);
  const quoted=await quote(ctx,b.packageId,b.seats);
  if(quoted.error)return apiError(quoted.error,409);
