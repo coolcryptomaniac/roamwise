@@ -56,7 +56,7 @@
    ========================================================================= */
 
 import { CORS, json } from './lib/http.js';
-import { createStayOrder, stayOrderStatus } from './handlers/stay-cashfree.js';
+import { createStayOrder, stayOrderStatus, handleStayCashfreeWebhook } from './handlers/stay-cashfree.js';
 import { handleAgentMail } from './handlers/agentmail-outreach.js';
 import {handleCreatorAutopilot,runCreatorAutopilot} from './handlers/creator-autopilot.js';
 import { handleHealth } from './handlers/health.js';
@@ -129,6 +129,7 @@ export default {
     if(path === 'music/cashfree/webhook') return handleMusicWebhook(request, env);
     // Signed server-to-server Cashfree callback for shop orders; never IP-throttled so a real payment is not dropped.
     if(path === 'shop/cashfree/webhook') return handleShopWebhook(request, env);
+    if(path === 'stays/cashfree/webhook') return handleStayCashfreeWebhook(request, env);
 
     /* Flood / per-route limits and body-size cap (additive; see lib/rate-limit.js). */
     const refused = await abuseGuard(request, path);
