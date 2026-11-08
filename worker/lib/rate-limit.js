@@ -48,6 +48,10 @@ export const ROUTE_LIMITS = {
   'music-order':             ['music-order', 300, 600, 0],
   'shop-order':              ['shop-order', 300, 600, 0],
   'shop-quote':              ['shop-quote', 600, 600, 0],
+  'trek-enquiry':            ['trek-enquiry', 20, 600, 0],
+  'trek-order':              ['trek-order', 300, 600, 10],
+  'trek-quote':              ['trek-quote', 400, 600, 0],
+  'trek-status':             ['trek-status', 2000, 600, 120],
   'leads':                   ['leads', 12, 600, 0],
   'wallet-link':             ['wallet-link', 10, 600, 0],
   'wallet':                  ['wallet', 600, 600, 60],
@@ -61,6 +65,10 @@ export function routeKey(path, method){
   if(method === 'POST' && (path === 'cashfree/order' || path === 'bhakti/order' || path === 'partner/cashfree/order' || path === 'payment-events' || path === 'music/order')) return path;
   if(method === 'POST' && path === 'shop/order') return 'shop-order';
   if(method === 'POST' && path === 'shop/quote') return 'shop-quote';
+  if(method === 'POST' && path === 'treks/enquiry') return 'trek-enquiry';
+  if(method === 'POST' && path === 'treks/order') return 'trek-order';
+  if(method === 'POST' && path === 'treks/quote') return 'trek-quote';
+  if(method === 'GET' && /^treks\/order\/rwtrek_[a-f0-9]{32}\/status$/.test(path)) return 'trek-status';
   if(method === 'GET' && /^shop\/order\/[^/]+\/status$/.test(path)) return 'status';
   if(method === 'GET' && (path === 'bhakti/access' || /^bhakti\/order\/[^/]+\/status$/.test(path)))return 'status';
   if(method === 'GET' && /^music\/(order\/[^/]+\/status|download\/[^/]+|licence\/[^/]+)$/.test(path)) return 'status';
