@@ -18,7 +18,7 @@ Public Hike & Seek trek names were researched from https://hikeandseek.in/ and a
 
 
 ## Partner-studio growth enhancement (8 Nov 2026)
-- Photo: real Kedarkantha trek photograph by Princerawat1243 (CC BY-SA 4.0) is prominently credited in the hero, explicitly marked illustrative, **not** operator-owned. The itinerary sample photo of the Sankri base is CC0 by Himalayanwarrior. Live package images must be supplied and authorised by the operator.
+- Photo: real Kedarkantha trek photograph by Sachinbauriyan (CC BY-SA 4.0) is prominently credited in the hero, explicitly marked illustrative, **not** operator-owned. The itinerary sample summit photo is CC BY-SA 4.0 by ShilpiC17. Live package images must be supplied and authorised by the operator.
 - Login: Google Firebase sign-in is retained; the actual authenticated email autofills the application. The Founder review tab is hidden unless the authenticated request to the admin endpoint succeeds.
 - Partner desk: a real overview of their packages, published batches, verified-paid requests and direct enquiries. Empty values remain truthful; no fake performance or social proof.
 - Trek itinerary studio: deterministic conversion of actual operator-entered details into a shareable day-wise brief, copying and print/Save PDF browser flow; no AI API, invented stop, fake health information, automatic route verification or publishing.
