@@ -226,8 +226,12 @@ async function createOrder(request,env,ctx,claims){
     order_meta:{return_url:'https://roamwise.co.in/treks/?order_id='+id,
       notify_url:'https://roamwise-api.founder-f53.workers.dev/treks/cashfree/webhook'},
     order_note:record.packageName.slice(0,160)};
+   const hex=id.slice('rwtrek_'.length);
+   // Cashfree expects UUID-shaped idempotency keys, not our order ID string.
+   const idempotencyKey=[hex.slice(0,8),hex.slice(8,12),'5'+hex.slice(13,16),
+     '8'+hex.slice(17,20),hex.slice(20)].join('-');
    const response=await fetch(cfBase(env)+'/pg/orders',{method:'POST',
-     headers:{...cfHeaders(env),'x-idempotency-key':id},body:JSON.stringify(body)});
+     headers:{...cfHeaders(env),'x-idempotency-key':idempotencyKey},body:JSON.stringify(body)});
    if(!response.ok)return apiError('cashfree_order_unavailable',502);
    order=await response.json();
   }
