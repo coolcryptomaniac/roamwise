@@ -238,7 +238,7 @@ async function createOrder(request,env,ctx,claims){
  if(quoted.error)return apiError(quoted.error,409);
  const hash=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(claims.uid+':'+b.nonce));
  const id='rwtrek_'+Array.from(new Uint8Array(hash)).slice(0,16).map(x=>x.toString(16).padStart(2,'0')).join('');
- const payload={id,guestUid:claims.uid,guestEmail:email,guestPhone:phone,packageId:quoted.pkg.id,
+ const payload={id,guestUid:claims.uid,guestEmail:email,guestPhone:phone,packageId:quoted.quote.packageId,
   ownerUid:quoted.pkg.ownerUid,packageName:quoted.pkg.name,departure:quoted.pkg.start,
   travellers:quoted.count,amount:quoted.quote.total,operatorTotal:quoted.quote.operatorTotal,
   roamwiseServiceFee:quoted.quote.roamwiseServiceFee,partnerCommission:0,
