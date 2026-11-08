@@ -32,12 +32,10 @@
   function nights(ctx) { var a = new Date(ctx.checkin + 'T12:00:00'), b = new Date(ctx.checkout + 'T12:00:00'); var n = Math.round((b - a) / 864e5); return n > 0 ? n : 0; }
   function tripLine(ctx) { var n = nights(ctx); return (ctx.checkin || '?') + ' to ' + (ctx.checkout || '?') + (n ? ' (' + n + ' night' + (n > 1 ? 's' : '') + ')' : '') + ', ' + ctx.guests + ' guest' + (ctx.guests > 1 ? 's' : ''); }
 
-  function stayMessage(p, ctx) {
-    return 'Hello ' + p.name + ', I found your stay through RoamWise. Check-in: ' + ctx.checkin + '. Check-out: ' + ctx.checkout + '. Guests: ' + ctx.guests +
-      '. Please share available room options, the final total including all applicable taxes, payment method, and booking terms. Please note this enquiry came through RoamWise.';
-  }
-  function roamwiseMessage(p, ctx) {
-    return 'Hello RoamWise, I would like to enquire about ' + p.name + ' (' + (p.area ? p.area + ', ' : '') + p.zone + '). Check-in: ' + ctx.checkin + '. Check-out: ' + ctx.checkout + '. Guests: ' + ctx.guests + '. Please confirm availability and the final total including taxes.';
+  /* The RoamWise quote form (escapes) prefills from these params, so the guest never retypes dates. */
+  function quoteUrl(p, ctx) {
+    var q = { stay: p.name, zone: p.zone || '', start: ctx.checkin || '', end: ctx.checkout || '', guests: ctx.guests || '' };
+    return '/escapes/?' + Object.keys(q).filter(function (k) { return q[k] !== ''; }).map(function (k) { return k + '=' + encodeURIComponent(q[k]); }).join('&') + '#request-quote';
   }
   function openEnquiry(subject, body) {
     var wa = supportWa();
@@ -68,10 +66,10 @@
 
   function card(p, ctx) {
     var ph = (p.photos || (p.heroImage ? [{src:p.heroImage,alt:p.name}] : [])).map(function (x) { return { src: photoUrl(x.src), alt: x.alt }; }).filter(function (x) { return x.src; })[0];
-    var wa = whatsappOf(p), milan = root.RW_MILAN_PILOT && root.RW_MILAN_PILOT.isMilan(p.name);
+    var milan = root.RW_MILAN_PILOT && root.RW_MILAN_PILOT.isMilan(p.name);
     var price = milan ? '<p class="rw-stay-price"><b>Approx. ₹1,613–₹3,226 per room, per night</b></p>' : '<p class="rw-stay-price muted">Rate confirmed by the host for your dates.</p>';
     // Keep customer booking relationship at RoamWise. Do not route paid prospects to hosts.
-    var action = '<a class="btn rw-stay-ask" href="/escapes/#request-quote">Book through RoamWise →</a>';
+    var action = '<a class="btn rw-stay-ask" data-stay-ask="' + esc(p.id) + '" href="' + esc(quoteUrl(p, ctx)) + '">Book through RoamWise →</a>';
     var maps = p.mapsUrl ? ' <a class="rw-stay-map" href="' + esc(p.mapsUrl) + '" target="_blank" rel="noopener noreferrer">Map ↗</a>' : '';
     return '<article class="rw-stay-card" data-stay="' + esc(p.id) + '">' +
       (ph ? '<img class="rw-stay-img" loading="lazy" src="' + esc(ph.src) + '" alt="' + esc(ph.alt || p.name) + '">' : '') +
@@ -88,12 +86,8 @@
     if (hit.length) { head = '<p class="rw-stay-head"><b>' + hit.length + ' RoamWise stay' + (hit.length > 1 ? 's' : '') + (ctx.destination ? ' in ' + esc(ctx.destination) : '') + '</b> · ' + esc(tripLine(ctx)) + '</p>'; list = hit; }
     else { head = '<p class="rw-stay-head"><b>No RoamWise stay in “' + esc(ctx.destination) + '” yet.</b> Here are the places we do have:</p>'; list = all; }
     h.innerHTML = head + '<div class="rw-stay-list">' + list.map(function (p) { return card(p, ctx); }).join('') + '</div>' + groupLink();
-    Array.prototype.forEach.call(h.querySelectorAll('[data-stay-wa]'), function (a) { a.addEventListener('click', function () { track('stay_whatsapp_open'); if (/milan/i.test(a.getAttribute('data-stay-wa'))) track('kasar_milan_whatsapp_open'); }); });
-    Array.prototype.forEach.call(h.querySelectorAll('[data-stay-ask]'), function (b) {
-      b.addEventListener('click', function () {
-        var p = all.filter(function (x) { return x.id === b.getAttribute('data-stay-ask'); })[0]; if (!p) return;
-        track('stay_roamwise_enquiry'); openEnquiry('Stay enquiry: ' + p.name, roamwiseMessage(p, ctx));
-      });
+    Array.prototype.forEach.call(h.querySelectorAll('[data-stay-ask]'), function (a) {
+      a.addEventListener('click', function () { track('stay_roamwise_enquiry'); });
     });
   }
 
@@ -134,7 +128,7 @@
 
   root.RWStaysHub = {
     render: function (h, ctx, cat) { if (cat && cat !== 'stay') { renderOther(h, ctx, cat); return; } renderStays(h, ctx); loadLive(function () { if (Object.keys(live).length) renderStays(h, ctx); }); },
-    allStays: allStays, matches: matches, stayMessage: stayMessage
+    allStays: allStays, matches: matches, quoteUrl: quoteUrl
   };
   if (typeof module === 'object' && module.exports) module.exports = root.RWStaysHub;
 })(typeof window === 'undefined' ? globalThis : window);

@@ -31,7 +31,7 @@ test('Stay & do shows approved enquiry introductions and signed ready partners w
     { id: 'unsigned', name: 'Unsigned Lodge', zone: 'Manali', verified: 'listed', listingReady: true, bookingMode: 'whatsapp', bookingWhatsapp: '919800000000' },
     { id: 'not-ready', name: 'Signed but not ready', zone: 'Manali', verified: 'signed', listingReady: false, bookingMode: 'whatsapp', bookingWhatsapp: '919800000000' }
   );
-  assert.deepEqual(Array.from(context.rwListingAll(), p => p.id).sort(), ['p_corbett_jungle_view', 'p_milan_heights', 'p_soulmate_homestay', 'p_woodbook_devine']);
+  assert.deepEqual(Array.from(context.rwListingAll(), p => p.id).sort(), ['p_amor_aramness', 'p_amor_nanau', 'p_amor_padma', 'p_amor_tattwaa', 'p_corbett_jungle_view', 'p_milan_heights', 'p_soulmate_homestay', 'p_woodbook_devine']);
 });
 
 test('signed partners with no booking route stay hidden until a route is saved', () => {
@@ -47,7 +47,7 @@ test('signed partners with no booking route stay hidden until a route is saved',
 test('Soulmate is listed with its WhatsApp number; New Himank stays hidden (no OTA links) until one is published', () => {
   const { context, window } = appContext();
   const ids = () => Array.from(context.rwListingAll(), p => p.id).sort();
-  assert.deepEqual(ids(), ['p_corbett_jungle_view', 'p_milan_heights', 'p_soulmate_homestay', 'p_woodbook_devine']);
+  assert.deepEqual(ids(), ['p_amor_aramness', 'p_amor_nanau', 'p_amor_padma', 'p_amor_tattwaa', 'p_corbett_jungle_view', 'p_milan_heights', 'p_soulmate_homestay', 'p_woodbook_devine']);
   assert.equal(window.RW_PARTNERS.find(x => x.id === 'p_soulmate_homestay').bookingWhatsapp, '919105334889');
   for (const id of ['p_new_himank']) {
     const p = window.RW_PARTNERS.find(x => x.id === id);

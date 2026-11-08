@@ -32,7 +32,7 @@ export function cleanPlaces(raw) {
 
 /** Same rule as window.rwStayPublicEligible in partners-data.js. Kept identical; a test compares the two. */
 export const isPublicPartner = (p) => !!p && p.listingReady === true && (p.verified === 'signed'
-  || (p.verified === 'founder-approved' && p.enquiryOnly === true && p.founderApproval === 'Mohit Pandey · 2026-10-18'));
+  || (p.verified === 'founder-approved' && p.enquiryOnly === true && (p.founderApproval === 'Mohit Pandey · 2026-10-18' || p.founderApproval === 'Mohit Pandey · 2026-11-06')));
 
 export const partnersForPlace = (partners, place) => (Array.isArray(partners) ? partners : [])
   .filter((p) => isPublicPartner(p) && String(p.zone || '').toLowerCase() === place.zone.toLowerCase());

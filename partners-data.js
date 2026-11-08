@@ -134,7 +134,7 @@ window.RW_PARTNER_SEED = [{
   ],
   videoUrl:'https://www.youtube.com/shorts/g_Nl3QI5HOo',
   instagramUrl:'https://www.instagram.com/reel/DZXJj9ATtyB/',
-  hook:'A peaceful six-bedroom homestay in Ghildiyal Gaon near Bansi, in the Lansdowne region. Public listings mention attached bathrooms, Wi-Fi, kitchen access and parking. Ask owner Rekha Shastri on WhatsApp to confirm rooms, meals, rates and timings. Founder-introduced; enquiries only, property agreement pending.'
+  hook:'A peaceful six-bedroom homestay in Ghildiyal Gaon near Bansi, in the Lansdowne region. Public listings mention attached bathrooms, Wi-Fi, kitchen access and parking. Hosted by owner Rekha Shastri; RoamWise confirms rooms, meals, rates and timings for your dates. Founder-introduced; enquiries only, property agreement pending.'
 
 },
   /* Amor Hospitality supplied rate sheets & galleries 6 Nov 2026. These are
@@ -155,11 +155,11 @@ window.RW_PARTNER_SEED = [{
    name:'Padma Villa — Private Mountain Estate',propertyType:'Luxury villa',roomCount:6,
    verified:'founder-approved',listingReady:true,founderApproval:'Mohit Pandey · 2026-11-06',enquiryOnly:true,bookingMode:'enquiry',supportEmail:'support@roamwise.co.in',
    instagramUrl:'https://www.instagram.com/padmavillamanali/',
-   heroImage:'/assets/img/roamwise-logo-176.webp',imageStatus:'awaiting_property_photo',
+   /* No property photo yet: cards render as text until Amor sends one we may use. */
    hook:'Six-key boutique mountain villa for small groups, with select jacuzzi and bath-tub suites. Enquiry only; terms pending.'},
   {id:'p_amor_aramness',cat:'stay',zone:'Gir',area:'Gir National Park, Gujarat',
    name:'Aramness Gir',propertyType:'Luxury wilderness retreat',
-   heroImage:'/assets/img/roamwise-logo-176.webp',imageStatus:'awaiting_property_photo',
+   heroImage:'https://assets.simplotel.com/simplotel/image/upload/x_0,y_39,w_1970,h_1970,r_0,c_crop,q_80,fl_progressive/w_550,f_auto,c_fit/aramness/Kothis,_Aramness_Gallery_24', photos:[{src:'https://assets.simplotel.com/simplotel/image/upload/x_0,y_39,w_1970,h_1970,r_0,c_crop,q_80,fl_progressive/w_550,f_auto,c_fit/aramness/Kothis,_Aramness_Gallery_24',alt:'Aramness Gir Kothi exterior, official property gallery'}],
    verified:'founder-approved',listingReady:true,founderApproval:'Mohit Pandey · 2026-11-06',enquiryOnly:true,bookingMode:'enquiry',supportEmail:'support@roamwise.co.in',
    hook:'Luxury private-pool Kothis near Gir National Park. Partner rate sheet received; final listing terms pending.'}
 ];
