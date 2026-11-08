@@ -15,13 +15,13 @@ function stats(){
  $('statPackages').textContent=packages.length;
  $('statLive').textContent=packages.filter(p=>p.status==='published').length;
  $('statBookings').textContent=bookings.length;
- $('statEnquiries').textContent=enquiries.length;
+ $('statEnquiries').textContent=enquiries.filter(q=>q.status==='new').length;
 }
-async function api(path){
+async function api(path,body){
  const user=window.firebase?.auth?.().currentUser;
  if(!user)return null;
  const token=await user.getIdToken();
- const r=await fetch(API+path,{headers:{authorization:'Bearer '+token}});
+ const r=await fetch(API+path,{method:body?'POST':'GET',headers:{authorization:'Bearer '+token,...(body?{'content-type':'application/json'}:{})},...(body?{body:JSON.stringify(body)}:{})});
  if(!r.ok)throw Error('Could not load partner records ('+r.status+')');
  return r.json();
 }
@@ -52,7 +52,22 @@ function renderEnquiries(){
   card.appendChild(desc);
   const contact=document.createElement('p');
   contact.textContent='Email: '+(q.email||'Not provided')+(q.phone?' · Phone: '+q.phone:'');
-  card.appendChild(contact);box.appendChild(card);
+  card.appendChild(contact);
+  const status=document.createElement('p');status.textContent='Follow-up: '+(q.status||'new');card.appendChild(status);
+  if(q.status!=='closed'){
+   const bar=document.createElement('div');bar.className='row';
+   for(const action of (q.status==='new'?['contacted','closed']:['closed'])){
+    const button=document.createElement('button');button.type='button';button.className='secondary';
+    button.textContent=action==='contacted'?'Mark contacted':'Close enquiry';
+    button.addEventListener('click',async()=>{
+     button.disabled=true;
+     try{await api('/treks/enquiries/status',{id:q.id,status:action,note:''});q.status=action;stats();renderEnquiries();}
+     catch(e){$('promotionOutput').textContent='Could not update enquiry: '+e.message;button.disabled=false}
+    });bar.appendChild(button);
+   }
+   card.appendChild(bar);
+  }
+  box.appendChild(card);
  }
 }
 function build(){
@@ -84,7 +99,7 @@ function build(){
 function make(){
  generated=build();$('posterTitle').textContent=field('name')||'Your upcoming batch';$('itineraryOutput').textContent=generated;
  const url=field('imageUrl');
- if(/^https:\/\//.test(url)){$('posterPhoto').src=url;$('posterPhoto').alt='Operator-supplied trek image (use only with permission)';}
+ if(/^https:\/\//.test(url)){$('posterPhoto').src=url;$('posterPhoto').alt='Operator-supplied trek image (use only with permission)';$('posterCredit').textContent='Photograph supplied by the operator, who confirms they have permission for this use.';}
  $('itineraryPoster').scrollIntoView({behavior:'smooth',block:'nearest'});
 }
 async function copy(text){
