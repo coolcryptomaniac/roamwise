@@ -56,6 +56,7 @@
    ========================================================================= */
 
 import { CORS, json } from './lib/http.js';
+import { handleTrekMarketplace } from './handlers/treks-marketplace.js';
 import { createStayOrder, stayOrderStatus, handleStayCashfreeWebhook, stayRates, stayQuote } from './handlers/stay-cashfree.js';
 import { handleStayDecide, runStayDeadlines } from './handlers/stay-lifecycle.js';
 import { handleWallet, runWalletReleases } from './handlers/wallet.js';
@@ -133,10 +134,13 @@ export default {
     // Signed server-to-server Cashfree callback for shop orders; never IP-throttled so a real payment is not dropped.
     if(path === 'shop/cashfree/webhook') return handleShopWebhook(request, env);
     if(path === 'stays/cashfree/webhook') return handleStayCashfreeWebhook(request, env);
+    if(path === 'treks/cashfree/webhook') return handleTrekMarketplace(request, env, path);
 
     /* Flood / per-route limits and body-size cap (additive; see lib/rate-limit.js). */
     const refused = await abuseGuard(request, path);
     if(refused) return json({ error: refused.error }, refused.status);
+
+    if(path.startsWith('treks/')) return handleTrekMarketplace(request, env, path);
 
     if(path === 'music/catalogue' && request.method === 'GET') return handleMusicCatalogue(request, env);
     if(path === 'music/order' && request.method === 'POST') return handleMusicOrder(request, env);
