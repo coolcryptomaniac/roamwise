@@ -1,6 +1,7 @@
 /* Accommodation-only, pay-first Cashfree checkout on the existing roamwise-api Worker.
    Orders are NOT Pro entitlements. Amounts are calculated here, never accepted from the client. */
 import { json } from '../lib/http.js';
+import { quoteStay } from '../lib/universal-stay-catalog.js';
 import { verifyCashfreeWorkerWebhook } from '../lib/cashfree-booking-webhook-verify.js';
 const RATE={
  nanau:{name:'Nanau Resort & Spa · Sitabani Studio CP',net:5500,taxIncluded:true,from:'2026-11-07',until:'2027-03-31'},
@@ -11,20 +12,10 @@ const RATE={
 const CF=env=>String(env.CASHFREE_ENV||'sandbox')==='live'?'https://api.cashfree.com':'https://sandbox.cashfree.com';
 const headers=env=>({'content-type':'application/json','x-api-version':env.CASHFREE_API_VERSION||'2025-01-01','x-client-id':env.CASHFREE_APP_ID,'x-client-secret':env.CASHFREE_SECRET_KEY});
 function price(body,env){
- const p=RATE[String(body.stay||'')];if(!p)throw Error('Unknown property');
- if(body.stay==='tattwaa')throw Error('Tattwaa checkout paused: published supplier rate expired; choose another property.');
- const start=String(body.checkin||''),end=String(body.checkout||'');
- if(!/^\d{4}-\d{2}-\d{2}$/.test(start)||!/^\d{4}-\d{2}-\d{2}$/.test(end))throw Error('Invalid dates');
- const a=Date.parse(start+'T00:00:00Z'),b=Date.parse(end+'T00:00:00Z'),n=(b-a)/86400000;
- if(!Number.isInteger(n)||n<1||n>14||a<Date.now()-86400000||start<p.from||end>p.until)throw Error('Stay dates unavailable');
- if(body.stay==='padma'&&start<='2027-01-10'&&end>'2026-12-18')throw Error('Peak dates need updated pricing');
- if(body.stay==='aramness'&&start<='2027-01-05'&&end>'2026-12-18')throw Error('Festive dates require confirmed all-inclusive supplement');
- if(body.stay==='nanau'&&start<='2027-01-03'&&end>'2026-12-24')throw Error('Peak dates need updated pricing');
- const tax=0; // Amor confirmed on 7 Nov 2026 that all supplied rate-sheet rates are inclusive.
-
- const full=Math.ceil(p.net*n*1.25),percent=body.paymentType==='full'?100:body.paymentType==='advance'?25:0;
+ const q=quoteStay(body);if(!q.ok)throw Error(q.error);
+ const percent=body.paymentType==='full'?100:body.paymentType==='advance'?25:0;
  if(!percent)throw Error('Choose advance or full payment');
- return {stay:body.stay,property:p.name,checkin:start,checkout:end,nights:n,guests:2,total:full,portion:percent,amount:Math.ceil(full*percent/100),currency:'INR'};
+ return {...q,portion:percent,amount:Math.ceil(q.total*percent/100)};
 }
 function kv(env){return env.RW_KV}
 export async function createStayOrder(request,env){
