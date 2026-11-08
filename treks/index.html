@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#130c21">
+<title>RoamWise Trails — Trek companies, local guides & transport</title>
+<meta name="description" content="Discover verified Himalayan trekking operators. Apply to list treks, guiding services and transport on RoamWise. Secure checkout when approved.">
+<link rel="canonical" href="https://roamwise.co.in/treks/">
+<style>
+:root{color-scheme:dark;--bg:#100b1b;--card:#1c1630;--card2:#251b3a;--ink:#fff7eb;--muted:#cfc2da;--gold:#ffd395;--pink:#ed7978;--line:#594971;--good:#92e0ba}
+*{box-sizing:border-box}body{margin:0;color:var(--ink);background:radial-gradient(ellipse at 75% -15%,#4c245d,transparent 48%),radial-gradient(ellipse at -5% 42%,#612d38,transparent 34%),var(--bg);font:15px/1.55 system-ui,-apple-system,Segoe UI,sans-serif}
+a{color:var(--gold)}.shell{max-width:1150px;margin:0 auto;padding:0 20px}
+nav{border-bottom:1px solid #4b365c88;background:#140e2099;backdrop-filter:blur(12px)}
+.bar{display:flex;align-items:center;justify-content:space-between;gap:16px;min-height:76px}
+.brand{color:white;text-decoration:none;font-size:23px;font-weight:850;letter-spacing:-1px}.brand span{color:var(--gold)}
+nav .right{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+nav .right a{font-size:13px;text-decoration:none}
+.hero{padding:64px 0 42px;display:grid;grid-template-columns:1.1fr .9fr;align-items:center;gap:38px}
+.kicker{display:inline-block;padding:6px 11px;border:1px solid #8f6b62;border-radius:99px;color:var(--gold);font-size:12px;font-weight:750;letter-spacing:.08em;text-transform:uppercase}
+h1{font-family:Georgia,serif;font-size:clamp(37px,5.4vw,67px);line-height:1.1;margin:15px 0}h1 em{font-style:normal;color:var(--gold)}
+.hero p{color:var(--muted);font-size:17px;max-width:620px}
+.hero-art{min-height:320px;border:1px solid #926762;border-radius:28px;background:linear-gradient(180deg,#8a566299,#231a38),linear-gradient(145deg,#422a5f,#a14850);display:flex;align-items:center;justify-content:center;box-shadow:0 30px 80px #09051290;overflow:hidden}
+.hero-art svg{width:95%;height:290px;filter:drop-shadow(0 10px 15px #1710209c)}
+.pills{display:flex;gap:8px;flex-wrap:wrap;margin:23px 0}.pills span{font-size:12px;border:1px solid #6b547a;padding:8px 12px;border-radius:99px;background:#2d2246}
+.tabs{display:flex;gap:9px;flex-wrap:wrap;margin:15px 0 23px}
+button,.button{appearance:none;font:inherit;color:#19101b;background:linear-gradient(115deg,var(--gold),#f4a3a1);border:0;border-radius:12px;padding:12px 17px;font-weight:780;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:7px}
+button.secondary,.tabs button{background:#342748;color:var(--ink);border:1px solid #66517f}
+.tabs button[aria-selected=true]{border-color:var(--gold);background:#4c354f;color:var(--gold)}
+button:disabled{opacity:.6;cursor:not-allowed}
+input,select,textarea{font:inherit;background:#151023;border:1px solid #79658b;color:white;border-radius:10px;padding:12px;width:100%;min-width:0}
+input:focus,select:focus,textarea:focus,button:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+input[type=checkbox]{width:auto;accent-color:#df8b88}
+h2{font-family:Georgia,serif;font-size:clamp(27px,3vw,36px);line-height:1.2;margin:0 0 15px}
+h3{font-size:20px;margin:0 0 8px}.muted,small{color:var(--muted)}
+.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:17px}.card{border:1px solid var(--line);border-radius:21px;padding:22px;background:linear-gradient(145deg,#29203e,#1a1329);box-shadow:0 10px 30px #07041044;min-width:0}
+.card p{color:var(--muted);margin:8px 0 13px}.card .mini{font-size:12px;color:var(--gold);font-weight:750}
+.card .head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:8px}.chip{font-size:11px;border-radius:99px;border:1px solid #a17f75;padding:4px 10px;color:#f9c3a6}
+.price{font-size:23px;font-weight:850;color:var(--gold);margin:12px 0}.price small{font-size:12px;font-weight:450}
+.panel{background:#1e172d;border:1px solid var(--line);border-radius:22px;padding:25px;margin:17px 0}
+section.view{display:none;padding-bottom:40px}section.view.active{display:block}
+.fields{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}.fields .full{grid-column:span 2}
+label{display:block;color:#f8ebf4;font-weight:650;font-size:13px}label input,label select,label textarea{display:block;margin-top:5px;font-weight:400}
+.labelcheck{display:flex;gap:10px;align-items:flex-start;margin:17px 0;font-weight:500}
+.notice{border:1px solid #987259;border-radius:14px;padding:15px 17px;color:#f6d7ab;background:#3d2a315b;margin:15px 0}.notice.good{border-color:#51896f;background:#233c36;color:#aaf2ce}
+#msg{min-height:25px;color:var(--gold);margin-top:12px;white-space:pre-wrap}
+.status{display:inline-block;border:1px solid #a0836f;border-radius:99px;font-size:12px;padding:4px 9px;color:var(--gold)}
+footer{padding:28px 0 44px;color:#c2afd2;border-top:1px solid #55456b;margin-top:40px;font-size:13px}
+.hidden{display:none!important}.row{display:flex;align-items:center;gap:11px;flex-wrap:wrap}.sep{height:1px;background:#594971;margin:20px 0}
+.terms{font-size:13px;color:var(--muted)}.terms strong{color:var(--gold)}.dark{background:#130e23;border:1px solid #745f80;border-radius:14px;padding:16px}
+.kart{font-weight:750;color:#fff7e5}
+@media(max-width:800px){.hero{grid-template-columns:1fr;padding-top:35px}.hero-art{min-height:170px}.hero-art svg{height:180px}.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.fields{grid-template-columns:1fr}.fields .full{grid-column:auto}}
+@media(max-width:560px){.grid{grid-template-columns:1fr}.hero{gap:8px}h1{font-size:37px}.bar{align-items:flex-start;padding:14px 0;flex-direction:column}.panel{padding:17px}.card{padding:18px}.tabs{gap:7px}.tabs button{font-size:12px;padding:10px 12px}}
+</style></head>
+<body>
+<nav><div class="shell bar"><a class="brand" href="/">Roam<span>Wise</span> ✦ Trails</a><div class="right"><a href="/partner/">Stays</a><a href="/creators/">Creators</a><a href="/" aria-label="Home">Home</a><button class="secondary" id="loginBtn" type="button">Sign in</button></div></div></nav>
+<main class="shell">
+<header class="hero"><div><span class="kicker">Himalayan connections · RoamWise</span><h1>Better treks.<br><em>Local people first.</em></h1><p>A thoughtful marketplace for trekking organisations, certified guides, local transport and experiences. Real operator prices, transparent small checkout fee, and human-confirmed departures.</p><div class="pills"><span>🥾 Independent trekking companies</span><span>🏔️ Local guides</span><span>🚐 Transport partners</span><span>✨ Custom experiences</span></div></div>
+<div class="hero-art" aria-hidden="true"><svg viewBox="0 0 500 280"><circle cx="362" cy="72" r="53" fill="#f9c78b" opacity=".86"/><path d="M0 264 140 57l75 105 50-79 201 181Z" fill="#342249" stroke="#e0aaa2" stroke-width="2"/><path d="m65 170 75-113 42 59-39-14-27 36-12-12Z" fill="#f1d5d5"/><path d="m232 136 33-53 80 102-68-39-17 19Z" fill="#ebd1d4"/><path d="M0 245c130-30 250 20 500-35v70H0Z" fill="#211b32"/><path d="m120 255 35-17 32 20 31-23 42 21 52-19" fill="none" stroke="#efbd8b" stroke-width="4" stroke-dasharray="4 10"/></svg></div>
+</header>
+<div class="tabs" role="tablist" aria-label="Trek marketplace"><button data-tab="discover" aria-selected="true">Discover departures</button><button data-tab="join" aria-selected="false">Become a partner</button><button data-tab="studio" aria-selected="false">Partner studio</button><button data-tab="review" aria-selected="false" id="adminTab">Founder review</button></div>
+<section class="view active" id="discover" aria-labelledby="discoverTitle"><h2 id="discoverTitle">Upcoming verified departures</h2><p class="muted">Only founder-approved operators and approved departures can take online payments. Live seats and availability are confirmed by the operator.</p><div id="catalog" class="grid"></div>
+<div class="panel"><h2>Hike &amp; Seek · Invitation preview</h2><p class="muted">A friendly trekking business we would love to welcome. The following trek names come from its public website; <strong>this is not a claimed, verified or bookable RoamWise partnership</strong>. Operators choose their own prices and dates after signing in.</p>
+<div id="hikePreview" class="grid"></div><p class="terms">Public source: <a href="https://hikeandseek.in/" target="_blank" rel="noopener noreferrer">hikeandseek.in ↗</a>. Site detail discrepancies will be checked by the operator before publication.</p><a class="button" href="?invite=hikeandseek#join" id="hikeInvite">Open Hike &amp; Seek invitation form →</a></div>
+</section>
+<section class="view" id="join"><div class="panel"><span class="kicker">Free to join · Review required</span><h2>Introduce your organisation</h2><p class="muted">Companies, individual guides and transport owners can apply. No public page or financial commitment appears without review. Hike &amp; Seek's introductory partnership includes a 3-year 0% operator-commission waiver from approval; any later contribution is voluntary and never required.</p>
+<div id="inviteMessage" class="notice hidden"></div><form id="joinForm"><div class="fields">
+<label>Partner type <select name="role" required><option value="company">Trekking company / operator</option><option value="guide">Independent guide / trek leader</option><option value="transport">Transport provider / driver</option><option value="experience">Other outdoor experience</option></select></label>
+<label>Business or public name <input name="name" maxlength="100" required placeholder="Your registered / public name"></label>
+<label>Primary region <input name="region" maxlength="100" required placeholder="Uttarakhand, Kumaon, Himachal…"></label>
+<label>Company website (optional) <input name="website" type="url" placeholder="https://…"></label>
+<label>Verified sign-in email <input name="email" type="email" required placeholder="Same email as your RoamWise login"></label>
+<label>Business phone <input name="phone" type="tel" required pattern="[+0-9]{10,16}" placeholder="+9198…"></label>
+<label>Registration / license details <input name="registration" maxlength="100" placeholder="Business registration, where applicable"></label>
+<label>Certifications / emergency-readiness <input name="safetyCredentials" maxlength="500" placeholder="BMC, first aid, guides, equipment…"></label>
+<label class="full">Vehicle permits / insurance (transport) <input name="vehiclePermit" maxlength="150" placeholder="Commercial permits and insurance information, if relevant"></label>
+<label class="full">Describe your operations <textarea name="description" rows="3" maxlength="800" placeholder="Treks, fleet, operating regions, specialities"></textarea></label>
+<label class="full">Standard cancellation &amp; refund policy <textarea name="refundPolicy" rows="3" maxlength="800" placeholder="Policies to verify; package-specific terms can differ"></textarea></label>
+</div><label class="labelcheck"><input name="consent" type="checkbox" required> I am authorised to submit this organisation and agree to have RoamWise review my professional information. No implied affiliation until approved.</label><button type="submit">Submit for review</button></form></div>
+<div class="notice">Financial model: 0% operator commission for the first three years after approval. Any financial gift or contribution later is entirely optional, never solicited during checkout, and buys no preferential safety or verification treatment. Customers see a separate RoamWise service fee: 1%, capped at ₹99 per booking. Operator prices remain theirs.</div></section>
+<section class="view" id="studio"><div class="panel"><h2>Your partner studio</h2><div id="studioSummary" class="notice">Sign in to see your application and create packages.</div><div id="mineCards" class="grid"></div></div>
+<div class="panel"><h2>Create or revise a package</h2><p class="muted">Available for applicant companies, guides and transport partners. Each new or edited package returns to pending review. Use exact departure dates, real operator prices and route/safety details; no unverified prices will go live.</p>
+<form id="packageForm"><input type="hidden" name="id"><div class="fields">
+<label>Name / route <input name="name" maxlength="110" required placeholder="e.g. Kedarkantha Winter Trek"></label>
+<label>Region / pickup <input name="region" maxlength="100" required placeholder="Dehradun • Sankri"></label>
+<label>Departure date <input name="start" type="date" required></label>
+<label>Duration (days) <input name="duration" type="number" min="1" max="60" value="5" required></label>
+<label>Operator rate per person ₹ <input name="pricePerPerson" type="number" min="100" max="200000" required placeholder="Exact payable operator amount"></label>
+<label>Maximum seats for this departure <input name="seats" type="number" min="1" max="100" required value="12"></label>
+<label>Difficulty <select name="difficulty"><option>Easy</option><option>Moderate</option><option>Difficult</option><option>Expert</option><option>Not applicable</option></select></label>
+<label>Image URL (with permission) <input name="imageUrl" type="url" placeholder="https://…"></label>
+<label class="full">Day-by-day itinerary <textarea name="itinerary" maxlength="3500" rows="5" required placeholder="Day 1: ...&#10;Day 2: ..."></textarea></label>
+<label class="full">What's included <textarea name="includes" maxlength="1800" rows="3" required placeholder="Guide, meals, transport, accommodation, permits"></textarea></label>
+<label class="full">What's excluded <textarea name="excludes" maxlength="1800" rows="2" placeholder="Insurance, porter, extra travel, etc."></textarea></label>
+<label class="full">Cancellation &amp; refund terms <textarea name="refundPolicy" maxlength="800" rows="3" required></textarea></label>
+<label class="full">Safety protocols, permits, emergency contact route <textarea name="safetyNote" maxlength="800" rows="3" required></textarea></label>
+</div><div class="row" style="margin-top:17px"><button type="submit">Save as pending review</button><button class="secondary" type="reset">Clear form</button></div></form></div></section>
+<section class="view" id="review"><div class="panel"><h2>Founder trust &amp; package desk</h2><p class="muted">Admin-only. Verify authorisation, guide qualifications, operator bank/settlement arrangements, business details, departure inclusions, prices, insurance and emergency escalation before approval.</p><button type="button" id="refreshReview">Refresh review queue</button><div id="reviewCards" class="grid" style="margin-top:16px"></div></div></section>
+<section class="panel hidden" id="checkoutPanel"><h2 id="checkoutTitle">Secure trek checkout</h2><div class="dark" id="checkoutQuote"></div><form id="checkoutForm"><input name="packageId" type="hidden">
+<label>Number of trekkers <select name="seats" id="checkoutSeats"><option value="1">1 traveller</option><option value="2">2 travellers</option><option value="3">3 travellers</option><option value="4">4 travellers</option><option value="5">5 travellers</option><option value="6">6 travellers</option></select></label>
+<div class="fields" style="margin-top:14px"><label>Contact phone <input name="phone" type="tel" pattern="[+0-9]{10,16}" required></label><label>Email receipt <input name="email" type="email" required></label></div>
+<label class="labelcheck"><input name="acknowledgePending" type="checkbox" required> I understand that paying places a request subject to operator availability and confirmation; it does not guarantee a seat. If the operator cannot fulfil it, RoamWise will handle the refund under the disclosed terms.</label>
+<label class="labelcheck"><input name="agreeTerms" type="checkbox" required> I have read this package's displayed cancellation, refund, inclusion and exclusion terms and agree to the secure payment process.</label>
+<div class="row"><button type="submit" id="payBtn">Proceed to Cashfree checkout</button><button type="button" class="secondary" id="closeCheckout">Cancel</button></div>
+<p class="terms">Cashfree handles UPI/card details. RoamWise currently cannot automate supplier split payouts. A payment becomes a paid, pending-confirmation booking, not an instantly guaranteed trek.</p></form></section>
+<p id="msg" role="status" aria-live="polite"></p>
+</main><footer><div class="shell">RoamWise · Made for independent journeys · <a href="mailto:support@roamwise.co.in">Support</a> · <a href="/privacy.html">Privacy</a></div></footer>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="/partner/config.js"></script><script src="https://sdk.cashfree.com/js/v3/cashfree.js"></script>
+<script src="app.js" defer></script>
+</body></html>
