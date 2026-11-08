@@ -35,6 +35,14 @@ Public Hike & Seek trek names were researched from https://hikeandseek.in/ and a
 - Individual seat pricing: subtotal = unit price times traveller count. Vehicle and private-group pricing: subtotal = unit price, regardless of passenger count.
 - Examples: INR 3,000 operator total => INR 30 fee; INR 9,999 => INR 99 fee; INR 20,000 => INR 99 fee. Payment gateway charges, GST and refund costs may exceed the RoamWise fee: budget a subsidy rather than claiming positive unit contribution margin.
 
+## Operator operations and promotion — 9 Nov 2026
+- A signed-in applicant can create a new batch from an existing trek, leaving departure date and identity blank for separate review.
+- An operator can close only their **own** pending or approved departure. `POST /treks/package/close` changes its status to `paused`, preventing future catalogue, quote, and enquiry discovery; it does **not** cancel existing paid bookings, trigger refunds, or automatically reopen the departure. Operator edits return the package to founder review.
+- A package can include up to four operator-submitted HTTPS photo URLs, with publication rights to be checked by the founder before approval; galleries appear only in verified public departures. Nothing from private Hike & Seek or Instagram accounts is scraped into these galleries.
+- The quick itinerary wizard converts a representative's actual route notes to editable day-by-day draft lines. Missing days stay clearly marked for completion; routes, permits, medical or safety facts are never fabricated.
+- Partner Growth Desk can generate review-aware social copy and a printable branded batch poster. Draft posters are marked `NOT BOOKABLE`; only approved packages receive direct departure links.
+- Main homepage carousel continues to use only approved package records, preferring real operator-uploaded photos when available, with a non-photo fallback if missing or broken.
+
 ## Protected data and verification
 Worker-only Firestore collections under the existing Firebase project:
 - trekProviders/{uid} — verified-email applicant, role, details, safety/permit information, pending/approved/paused review status.
