@@ -91,7 +91,8 @@ async function catalog(){
   const r=await api('/treks/catalog');
   state.items=r.items||[];state.checkoutEnabled=r.checkoutEnabled===true;
   $('catalog').innerHTML=state.items.length?state.items.map(p=>{
-   const image=p.imageUrl?'<img loading="lazy" alt="Photograph supplied by the trek operator" src="'+esc(p.imageUrl)+'" style="width:100%;height:156px;object-fit:cover;border-radius:12px;margin-bottom:12px">':'';
+   const photos=[...new Set([...(Array.isArray(p.galleryUrls)?p.galleryUrls:[]),p.imageUrl].filter(u=>typeof u==='string'&&/^https:\/\//i.test(u)))].slice(0,4);
+   const image=photos.length?'<div class="trek-photo-strip" aria-label="Real photos provided by the approved operator">'+photos.map((u,i)=>'<img loading="lazy" decoding="async" src="'+esc(u)+'" alt="Operator-provided trek photograph '+(i+1)+' of '+photos.length+'">').join('')+'</div>':'';
    return '<article class="card">'+image+'<div class="head"><span class="mini">'+esc(p.provider.role).toUpperCase()+' · VERIFIED PARTNER</span><span class="chip">'+esc(p.start)+'</span></div><h3>'+esc(p.name)+'</h3><p>'+esc(p.provider.name)+' · '+esc(p.region)+'</p>'+(p.provider.cofounders?'<p class="terms">Founders: '+esc(p.provider.cofounders)+'</p>':'')+(p.provider.instagram?'<p class="terms"><a href="'+esc(p.provider.instagram)+'" target="_blank" rel="noopener noreferrer">Operator Instagram ↗</a></p>':'')+(p.provider.businessWhatsapp?'<p><a class="button" href="'+esc(whatsappLink(p.provider.businessWhatsapp,p.name,p.provider.name))+'" target="_blank" rel="noopener noreferrer">Ask operator on WhatsApp ↗</a></p>':'')+'<p>'+esc(p.duration)+' day(s) · '+esc(p.difficulty||'Difficulty pending')+(p.meetingPoint?' · Meet: '+esc(p.meetingPoint):'')+'</p><div class="price">'+money(p.unitPrice)+' <small>operator rate / '+esc(p.pricingUnit||'person')+'</small></div><p class="terms">RoamWise fee: 1%, max ₹99 per booking. Booking subject to operator confirmation.</p><div class="row">'+(state.checkoutEnabled?'<button type="button" data-checkout="'+esc(p.id)+'">View price &amp; book securely →</button>':'<span class="chip">Direct checkout pending approval</span>')+'<button type="button" class="secondary" data-enquire="'+esc(p.id)+'">Ask operator →</button></div></article>';
   }).join(''):'<div class="card"><h3>No verified departures published yet</h3><p>Applications and draft itineraries are not bookable until an authorised operator and RoamWise complete review.</p></div>';
   for(const b of $('catalog').querySelectorAll('[data-checkout]'))b.addEventListener('click',()=>checkout(b.dataset.checkout));
@@ -123,10 +124,17 @@ async function mine(){
    'Organisation: <strong>'+esc(d.partner.name)+'</strong> · <span class="status">'+esc(d.partner.status)+'</span>. Operator commission: <strong>0%</strong> for the first three years from approval. Financial contributions are voluntary, not a condition of listing.':
    'You have not applied yet. Open <strong>Become a partner</strong> and submit your professional details.';
   $('mineCards').innerHTML=state.packages.length?state.packages.map(p=>
-   '<div class="card"><div class="head"><span class="status">'+esc(p.status)+'</span><span class="mini">'+esc(p.start)+'</span></div><h3>'+esc(p.name)+'</h3><p>'+esc(p.region)+' · '+money(p.unitPrice)+' / '+esc(p.pricingUnit||'person')+'</p><div class="row"><button type="button" class="secondary" data-edit="'+esc(p.id)+'">Edit / resubmit</button><button type="button" class="secondary" data-clone="'+esc(p.id)+'">New batch from this trek</button></div></div>').join(''):
+   '<div class="card"><div class="head"><span class="status">'+esc(p.status)+'</span><span class="mini">'+esc(p.start)+'</span></div><h3>'+esc(p.name)+'</h3><p>'+esc(p.region)+' · '+money(p.unitPrice)+' / '+esc(p.pricingUnit||'person')+'</p><div class="row"><button type="button" class="secondary" data-edit="'+esc(p.id)+'">Edit / resubmit</button><button type="button" class="secondary" data-clone="'+esc(p.id)+'">New batch from this trek</button>'+(['published','pending_review'].includes(p.status)?'<button type="button" class="secondary" data-close="'+esc(p.id)+'">Close departure</button>':'')+'</div></div>').join(''):
    '<div class="card"><h3>Ready for your first package?</h3><p>Create a trip, guided walk, group experience or private transport itinerary. Pricing stays unpublished until approved.</p></div>';
   for(const b of $('mineCards').querySelectorAll('[data-edit]'))b.addEventListener('click',()=>editPackage(b.dataset.edit));
   for(const b of $('mineCards').querySelectorAll('[data-clone]'))b.addEventListener('click',()=>clonePackage(b.dataset.clone));
+  for(const b of $('mineCards').querySelectorAll('[data-close]'))b.addEventListener('click',async()=>{
+   if(!confirm('Close this trek departure to new customers? Existing paid requests must still be managed. Reopening requires review.'))return;
+   b.disabled=true;
+   try{const res=await api('/treks/package/close',{packageId:b.dataset.close},true);
+    message(res.note||'Departure closed to new enquiries and payment requests.');await mine();await catalog();
+   }catch(e){message('Could not close this departure: '+e.message,true);b.disabled=false}
+  });
   $('partnerBookingCards').innerHTML=(d.bookings||[]).length?(d.bookings||[]).map(o=>
     '<article class="card"><span class="chip">'+esc(o.state)+'</span><h3>'+esc(o.packageName)+'</h3><p>Departure '+esc(o.departure)+' · '+esc(o.travellers)+' traveller(s)</p><p>Operator booking value '+money(o.operatorTotal)+'</p><p>'+esc(o.guestEmail||'Customer email held privately by RoamWise')+(o.guestPhone?' · '+esc(o.guestPhone):'')+'</p><p>Ref '+esc(o.id)+'</p>'+
     (o.state==='paid_pending_operator_confirmation'?'<div class="row"><button data-op-action="confirm" data-id="'+esc(o.id)+'" type="button">Confirm booking</button><button data-op-action="refund_review" data-id="'+esc(o.id)+'" class="secondary" type="button">Cannot fulfil</button></div>':'<p class="muted">Decision: '+esc(o.operatorDecisionNote||o.state)+'</p>')+'</article>').join(''):
@@ -143,7 +151,7 @@ async function mine(){
 function clonePackage(id){
  const p=state.packages.find(x=>x.id===id);if(!p)return;
  const f=$('packageForm');f.reset();
- for(const e of Array.from(f.elements)){if(e.name&&e.name in p&&e.name!=='id'&&e.name!=='start')e.value=p[e.name];}
+ for(const e of Array.from(f.elements)){if(e.name&&e.name in p&&e.name!=='id'&&e.name!=='start')e.value=e.name==='galleryUrls'&&Array.isArray(p.galleryUrls)?p.galleryUrls.join('\n'):p[e.name];}
  f.elements.id.value='';f.elements.start.value='';
  f.scrollIntoView({behavior:'smooth',block:'center'});
  message('New draft batch copied from '+p.name+'. Set the new date and verify the price, seats, itinerary, permits and safety details. Nothing is published until reviewed.');
@@ -151,7 +159,7 @@ function clonePackage(id){
 function editPackage(id){
  const p=state.packages.find(x=>x.id===id);if(!p)return;
  const f=$('packageForm');
- for(const e of Array.from(f.elements)){if(e.name&&e.name in p)e.value=p[e.name];}
+ for(const e of Array.from(f.elements)){if(e.name&&e.name in p)e.value=e.name==='galleryUrls'&&Array.isArray(p.galleryUrls)?p.galleryUrls.join('\n'):p[e.name];}
  f.scrollIntoView({behavior:'smooth',block:'center'});message('Editing '+p.name+'. Saving will return it to review.');
 }
 $('packageForm').addEventListener('submit',async ev=>{
