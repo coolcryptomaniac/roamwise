@@ -45,7 +45,8 @@ async function readJSON(request){
 }
 function publicProvider(provider){
  return {id:provider.id,name:provider.name,role:provider.role,region:provider.region,website:provider.website,description:provider.description,
-  instagram:provider.instagram||'',cofounders:provider.showFounderNames===true?provider.cofounders||'':''};
+  instagram:provider.instagram||'',cofounders:provider.showFounderNames===true?provider.cofounders||'':'',
+   businessWhatsapp:provider.showBusinessWhatsapp===true?String(provider.phone||'').replace(/[^0-9]/g,''):''};
 }
 function publicPackage(pkg,provider){
  return {id:pkg.id,provider:publicProvider(provider),name:pkg.name,region:pkg.region,start:pkg.start,duration:pkg.duration,
@@ -119,6 +120,7 @@ export async function handleTrekMarketplace(request,env,path){
      website:safe(b.website,250),description:safe(b.description,800),
      instagram:/^https:\/\/(?:www\.)?instagram\.com\/[A-Za-z0-9._]{1,35}\/?$/.test(safe(b.instagram,200))?safe(b.instagram,200):'',
      cofounders:safe(b.cofounders,250),showFounderNames:b.showFounderNames===true,
+      showBusinessWhatsapp:b.showBusinessWhatsapp===true,
      phone:safe(b.phone,20),
      email:safe(b.email,180),registration:safe(b.registration,100),safetyCredentials:safe(b.safetyCredentials,500),
      vehiclePermit:safe(b.vehiclePermit,150),refundPolicy:safe(b.refundPolicy,800),status:'pending_review',
