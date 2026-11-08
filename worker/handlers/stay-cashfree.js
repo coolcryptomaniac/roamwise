@@ -6,17 +6,19 @@ const RATE={
  nanau:{name:'Nanau Resort & Spa · Sitabani Studio CP',net:5500,taxIncluded:true,from:'2026-11-07',until:'2027-03-31'},
  padma:{name:'Padma Villa · Royal Chamber EP',net:5000,taxIncluded:true,from:'2026-11-07',until:'2027-03-31'},
  aramness:{name:'Aramness Gir · Kothi AP',net:72216,taxIncluded:true,from:'2026-11-07',until:'2027-02-28'},
- tattwaa:{name:'Tattwaa Corbett · Forest Room CPAI + hi-tea (provisional)',net:5500,taxIncluded:true,from:'2026-11-07',until:'2027-03-31'}
+ tattwaa:{name:'Tattwaa Corbett · Forest Room CPAI + hi-tea (rate expired)',net:5500,taxIncluded:true,from:'2026-11-07',until:'2026-03-31'}
 };
 const CF=env=>String(env.CASHFREE_ENV||'sandbox')==='live'?'https://api.cashfree.com':'https://sandbox.cashfree.com';
 const headers=env=>({'content-type':'application/json','x-api-version':env.CASHFREE_API_VERSION||'2025-01-01','x-client-id':env.CASHFREE_APP_ID,'x-client-secret':env.CASHFREE_SECRET_KEY});
 function price(body,env){
  const p=RATE[String(body.stay||'')];if(!p)throw Error('Unknown property');
+ if(body.stay==='tattwaa')throw Error('Tattwaa checkout paused: published supplier rate expired; choose another property.');
  const start=String(body.checkin||''),end=String(body.checkout||'');
  if(!/^\d{4}-\d{2}-\d{2}$/.test(start)||!/^\d{4}-\d{2}-\d{2}$/.test(end))throw Error('Invalid dates');
  const a=Date.parse(start+'T00:00:00Z'),b=Date.parse(end+'T00:00:00Z'),n=(b-a)/86400000;
  if(!Number.isInteger(n)||n<1||n>14||a<Date.now()-86400000||start<p.from||end>p.until)throw Error('Stay dates unavailable');
  if(body.stay==='padma'&&start<='2027-01-10'&&end>'2026-12-18')throw Error('Peak dates need updated pricing');
+ if(body.stay==='aramness'&&start<='2027-01-05'&&end>'2026-12-18')throw Error('Festive dates require confirmed all-inclusive supplement');
  if(body.stay==='nanau'&&start<='2027-01-03'&&end>'2026-12-24')throw Error('Peak dates need updated pricing');
  const tax=0; // Amor confirmed on 7 Nov 2026 that all supplied rate-sheet rates are inclusive.
 
