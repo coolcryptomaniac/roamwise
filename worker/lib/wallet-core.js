@@ -106,8 +106,10 @@ export function bankSoon(w, lotId, nowMs) {
 }
 /* Lots the hourly job should send back to the bank now. */
 export const dueLots = (w, nowMs) => (w.lots || []).filter((l) => l.state === 'credit' && l.remaining > 0 && Date.parse(l.releaseAt) <= nowMs);
+export const BANK_MAX_FAILURES = 3;
 export function markBank(w, lotId, result, nowMs) {
-  return { ...w, lots: w.lots.map((l) => (l.lotId === lotId ? { ...l, state: result.ok ? 'bank' : 'credit', bankRefundId: result.refundId || l.bankRefundId,
+  return { ...w, lots: w.lots.map((l) => (l.lotId === lotId ? { ...l, state: result.ok ? 'bank' : ((l.bankFailures || 0) + 1 >= BANK_MAX_FAILURES ? 'attention' : 'credit'),
+    bankFailures: result.ok ? (l.bankFailures || 0) : (l.bankFailures || 0) + 1, bankRefundId: result.refundId || l.bankRefundId,
     bankStatus: result.status || '', bankAt: new Date(nowMs).toISOString(), bankError: result.ok ? '' : String(result.error || '').slice(0, 120),
     releaseAt: result.ok ? l.releaseAt : new Date(nowMs + 6 * 3600 * 1000).toISOString(), remaining: result.ok ? 0 : l.remaining, bankAmount: result.ok ? l.remaining : 0 } : l)) };
 }

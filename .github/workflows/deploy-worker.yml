@@ -69,6 +69,15 @@ jobs:
         run: |
           if [ -z "$TEAM" ]; then echo "no ALERT_TEAM_EMAILS / TO_EMAIL secret: digest email skipped"; exit 0; fi
           printf '%s' "$TEAM" | npx --yes wrangler@4 secret put ALERT_TEAM_EMAILS || echo "::warning::could not set ALERT_TEAM_EMAILS"
+      - name: Wallet link secret (created once, never printed)
+        # Signs wallet and booking-decision links. Generated on first deploy only; an existing secret is kept.
+        working-directory: worker
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          if npx --yes wrangler@4 secret list 2>/dev/null | grep -q '"WALLET_LINK_SECRET"'; then echo "WALLET_LINK_SECRET already set"; exit 0; fi
+          openssl rand -hex 32 | npx --yes wrangler@4 secret put WALLET_LINK_SECRET >/dev/null && echo "WALLET_LINK_SECRET created" || echo "::warning::could not set WALLET_LINK_SECRET"
       - name: Health (3 tries)
         id: health
         run: |
