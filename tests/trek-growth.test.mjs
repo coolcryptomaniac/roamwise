@@ -32,7 +32,7 @@ test('onboarding does not require Pro, payment stays gated, and operator photos 
  const html=read('treks/index.html');
  const worker=read('worker/handlers/treks-marketplace.js');
  assert.match(html,/Partner registration and batch management work without a Pro purchase/);
- assert.match(html,/Princerawat1243/);
+ assert.match(html,/Sachinbauriyan/);
  assert.match(html,/CC BY-SA 4\.0/);
  assert.match(worker,/gate\.checkoutEnabled!==true/);
  assert.match(worker,/order\.order_status==='PAID'/);
