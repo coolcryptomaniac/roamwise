@@ -236,6 +236,7 @@ async function createOrder(request,env,ctx,claims){
   ownerUid:quoted.pkg.ownerUid,packageName:quoted.pkg.name,departure:quoted.pkg.start,
   travellers:quoted.count,amount:quoted.quote.total,operatorTotal:quoted.quote.operatorTotal,
   roamwiseServiceFee:quoted.quote.roamwiseServiceFee,partnerCommission:0,
+  shareContactWithOperator:b.shareContactWithOperator===true,
   state:'payment_pending',seatStatus:'operator_confirmation_pending',createdAt:utcNow(),
   refundPolicy:quoted.pkg.refundPolicy,amountCurrency:'INR'};
  try{
