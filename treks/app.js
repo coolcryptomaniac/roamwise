@@ -122,8 +122,8 @@ async function review(){
  try{
   const d=await api('/treks/admin',null,true),pending=(d.partners||[]).concat(d.packages||[]);
   $('reviewCards').innerHTML=pending.length?pending.map(p=>{
-   const isPkg=!!p.ownerUid&&!!p.pricePerPerson,kind=isPkg?'package':'provider',id=isPkg?p.id:p.ownerUid;
-   return '<article class="card"><span class="chip">'+esc(kind)+' · '+esc(p.status)+'</span><h3>'+esc(p.name)+'</h3><p>'+esc(p.region||'')+'</p><p>'+esc(isPkg?money(p.pricePerPerson)+' / person • '+p.start:(p.email||'')+' • '+(p.website||''))+'</p><p>'+esc(isPkg?p.safetyNote||'No safety notes':p.safetyCredentials||'No certificates supplied')+'</p><div class="row"><button data-action="'+(isPkg?'publish':'approve')+'" data-kind="'+kind+'" data-id="'+esc(id)+'">'+(isPkg?'Publish':'Approve')+'</button><button class="secondary" data-action="pause" data-kind="'+kind+'" data-id="'+esc(id)+'">Pause</button></div></article>';
+   const isPkg=!!p.ownerUid&&!!p.unitPrice,kind=isPkg?'package':'provider',id=isPkg?p.id:p.ownerUid;
+   return '<article class="card"><span class="chip">'+esc(kind)+' · '+esc(p.status)+'</span><h3>'+esc(p.name)+'</h3><p>'+esc(p.region||'')+'</p><p>'+esc(isPkg?money(p.unitPrice)+' / '+esc(p.pricingUnit||'person')+' • '+p.start:(p.email||'')+' • '+(p.website||''))+'</p><p>'+esc(isPkg?p.safetyNote||'No safety notes':p.safetyCredentials||'No certificates supplied')+'</p><div class="row"><button data-action="'+(isPkg?'publish':'approve')+'" data-kind="'+kind+'" data-id="'+esc(id)+'">'+(isPkg?'Publish':'Approve')+'</button><button class="secondary" data-action="pause" data-kind="'+kind+'" data-id="'+esc(id)+'">Pause</button></div></article>';
   }).join(''):'<p>No submissions yet.</p>';
   for(const b of $('reviewCards').querySelectorAll('[data-action]'))b.addEventListener('click',async()=>{
    if(!confirm('Verify all source details and apply '+b.dataset.action+' to this '+b.dataset.kind+'?'))return;
