@@ -3,9 +3,9 @@
 import { json } from '../lib/http.js';
 const RATE={
  nanau:{name:'Nanau Resort & Spa · Sitabani Studio CP',net:5500,taxIncluded:true,from:'2026-11-07',until:'2027-03-31'},
- padma:{name:'Padma Villa · Royal Chamber EP',net:5000,taxIncluded:false,from:'2026-11-07',until:'2027-03-31'},
+ padma:{name:'Padma Villa · Royal Chamber EP',net:5000,taxIncluded:true,from:'2026-11-07',until:'2027-03-31'},
  aramness:{name:'Aramness Gir · Kothi AP',net:72216,taxIncluded:true,from:'2026-11-07',until:'2027-02-28'},
- tattwaa:{name:'Tattwaa Corbett · Forest Room CPAI + hi-tea (provisional)',net:5500,taxIncluded:false,from:'2026-11-07',until:'2027-03-31'}
+ tattwaa:{name:'Tattwaa Corbett · Forest Room CPAI + hi-tea (provisional)',net:5500,taxIncluded:true,from:'2026-11-07',until:'2027-03-31'}
 };
 const CF=env=>String(env.CASHFREE_ENV||'sandbox')==='live'?'https://api.cashfree.com':'https://sandbox.cashfree.com';
 const headers=env=>({'content-type':'application/json','x-api-version':env.CASHFREE_API_VERSION||'2025-01-01','x-client-id':env.CASHFREE_APP_ID,'x-client-secret':env.CASHFREE_SECRET_KEY});
@@ -17,9 +17,9 @@ function price(body,env){
  if(!Number.isInteger(n)||n<1||n>14||a<Date.now()-86400000||start<p.from||end>p.until)throw Error('Stay dates unavailable');
  if(body.stay==='padma'&&start<='2027-01-10'&&end>'2026-12-18')throw Error('Peak dates need updated pricing');
  if(body.stay==='nanau'&&start<='2027-01-03'&&end>'2026-12-24')throw Error('Peak dates need updated pricing');
- const tax=p.taxIncluded?0:Number(env.STAY_GST_RATE);
- if(!p.taxIncluded&&![0.05,0.12,0.18].includes(tax))throw Error('Applicable GST must be configured before checkout');
- const full=Math.ceil(Math.ceil(p.net*n*1.25)*(1+tax)),percent=body.paymentType==='full'?100:body.paymentType==='advance'?25:0;
+ const tax=0; // Amor confirmed on 7 Nov 2026 that all supplied rate-sheet rates are inclusive.
+
+ const full=Math.ceil(p.net*n*1.25),percent=body.paymentType==='full'?100:body.paymentType==='advance'?25:0;
  if(!percent)throw Error('Choose advance or full payment');
  return {stay:body.stay,property:p.name,checkin:start,checkout:end,nights:n,guests:2,total:full,portion:percent,amount:Math.ceil(full*percent/100),currency:'INR'};
 }
