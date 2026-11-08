@@ -144,8 +144,8 @@ export async function handleTrekMarketplace(request,env,path){
  }
  if(path==='treks/admin'&&request.method==='GET'){
   if(!await isAdmin(ctx,claims))return apiError('forbidden',403);
-  try{const [partners,packages]=await Promise.all([listing(ctx,'trekProviders',400),listing(ctx,'trekPackages',400)]);
-   return json({partners,packages});}catch(_){return apiError('admin_unavailable',503)}
+  try{const [partners,packages,bookings]=await Promise.all([listing(ctx,'trekProviders',400),listing(ctx,'trekPackages',400),listing(ctx,'trekBookings',200)]);
+   return json({partners,packages,bookings});}catch(_){return apiError('admin_unavailable',503)}
  }
  if(path==='treks/admin/action'&&request.method==='POST'){
   if(!await isAdmin(ctx,claims))return apiError('forbidden',403);
@@ -165,6 +165,16 @@ export async function handleTrekMarketplace(request,env,path){
     await patch(ctx,'trekPackages/'+b.id,{status:b.action==='publish'?'published':'paused',
       reviewedAt:utcNow(),reviewerUid:claims.uid});
     return json({ok:true});
+   }
+   if(b.kind==='booking'&&orderPattern.test(b.id||'')&&['confirm','refund_review'].includes(b.action)){
+    const record=await doc(ctx,'trekBookings/'+b.id);
+    if(!record)return apiError('not_found',404);
+    if(record.state!=='paid_pending_operator_confirmation')return apiError('not_pending_operator_confirmation',409);
+    const note=safe(b.note,300);
+    if(note.length<8)return apiError('operator_evidence_required',422);
+    await patch(ctx,'trekBookings/'+b.id,{state:b.action==='confirm'?'operator_confirmed':'refund_review_required',
+      operatorDecisionAt:utcNow(),operatorDecisionNote:note,reviewerUid:claims.uid});
+    return json({ok:true,automaticRefund:false,automaticPayout:false});
    }
    return apiError('invalid_action',422);
   }catch(_){return apiError('review_unavailable',503)}
@@ -233,11 +243,11 @@ async function orderStatus(env,ctx,claims,id){
  if(!record||record.guestUid!==claims.uid)return apiError('not_found',404);
  try{
   const order=await verifyProviderOrder(env,id,record.amount);
-  if(order.order_status==='PAID'&&record.state!=='paid_pending_operator_confirmation'){
+  if(order.order_status==='PAID'&&record.state==='payment_pending'){
    await patch(ctx,'trekBookings/'+id,{state:'paid_pending_operator_confirmation',paidAt:utcNow()});
   }
-  return json({orderId:id,state:order.order_status==='PAID'?'paid_pending_operator_confirmation':order.order_status,
-    operatorConfirmationPending:true,operatorTotal:record.operatorTotal,serviceFee:record.roamwiseServiceFee});
+  return json({orderId:id,state:order.order_status==='PAID'?(record.state==='operator_confirmed'||record.state==='refund_review_required'?record.state:'paid_pending_operator_confirmation'):order.order_status,
+    operatorConfirmationPending:record.state!=='operator_confirmed',operatorTotal:record.operatorTotal,serviceFee:record.roamwiseServiceFee});
  }catch(_){return apiError('payment_verification_unavailable',503)}
 }
 async function handleWebhook(request,env){
@@ -256,7 +266,7 @@ async function handleWebhook(request,env){
  try{
   const order=await verifyProviderOrder(env,id,record.amount);
   if(order.order_status!=='PAID')return apiError('not_paid',409);
-  if(record.state!=='paid_pending_operator_confirmation')
+  if(record.state==='payment_pending')
    await patch(ctx,'trekBookings/'+id,{state:'paid_pending_operator_confirmation',paidAt:utcNow()});
   return json({received:true,operatorConfirmationPending:true});
  }catch(_){return apiError('verification_unavailable',503)}
