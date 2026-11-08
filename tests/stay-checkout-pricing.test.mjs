@@ -42,3 +42,17 @@ test('every stay the site offers for payment exists in the Worker price list', a
   const map = /var RW_PAY_STAYS = (\{[\s\S]*?\});/.exec(src)[1];
   for (const id of map.match(/: '([a-z]+)'/g).map((m) => m.slice(3, -1))) assert.ok(RATE[id], id);
 });
+
+test('stay checkout creates the Cashfree order (regression: helpers must be defined)', async () => {
+  const { createStayOrder } = await import('../worker/handlers/stay-cashfree.js');
+  const kv = new Map(); const calls = [];
+  const env = { CASHFREE_APP_ID: 'a', CASHFREE_SECRET_KEY: 's', CASHFREE_ENV: 'live', RW_KV: { put: async (k, v) => kv.set(k, v), get: async (k) => kv.get(k) } };
+  const realFetch = globalThis.fetch;
+  globalThis.fetch = async (url, o) => { calls.push(url); const b = JSON.parse(o.body); return { ok: true, json: async () => ({ payment_session_id: 'ps', order_id: b.order_id, order_amount: b.order_amount }) }; };
+  try {
+    const res = await createStayOrder(new Request('https://x/', { method: 'POST', body: JSON.stringify({ stay: 'milan', checkin: '2027-01-20', checkout: '2027-01-22', email: 'a@b.in', phone: '9876543210', paymentType: 'full' }) }), env);
+    assert.equal(res.status, 200);
+    assert.equal(calls[0], 'https://api.cashfree.com/pg/orders');
+    assert.equal((await res.json()).quote.amount, 1000);
+  } finally { globalThis.fetch = realFetch; }
+});
