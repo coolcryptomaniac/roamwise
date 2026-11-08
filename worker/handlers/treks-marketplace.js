@@ -44,7 +44,8 @@ async function readJSON(request){
  return JSON.parse(text);
 }
 function publicProvider(provider){
- return {id:provider.id,name:provider.name,role:provider.role,region:provider.region,website:provider.website,description:provider.description};
+ return {id:provider.id,name:provider.name,role:provider.role,region:provider.region,website:provider.website,description:provider.description,
+  instagram:provider.instagram||'',cofounders:provider.showFounderNames===true?provider.cofounders||'':''};
 }
 function publicPackage(pkg,provider){
  return {id:pkg.id,provider:publicProvider(provider),name:pkg.name,region:pkg.region,start:pkg.start,duration:pkg.duration,
@@ -115,7 +116,10 @@ export async function handleTrekMarketplace(request,env,path){
    if(safe(b.email,180).toLowerCase()!==safe(claims.email,180).toLowerCase())return apiError('email_must_match_login',422);
    const existing=await doc(ctx,'trekProviders/'+claims.uid);
    const next={ownerUid:claims.uid,name:safe(b.name,100),role:b.role,region:safe(b.region,100),
-     website:safe(b.website,250),description:safe(b.description,800),phone:safe(b.phone,20),
+     website:safe(b.website,250),description:safe(b.description,800),
+     instagram:/^https:\/\/(?:www\.)?instagram\.com\/[A-Za-z0-9._]{1,35}\/?$/.test(safe(b.instagram,200))?safe(b.instagram,200):'',
+     cofounders:safe(b.cofounders,250),showFounderNames:b.showFounderNames===true,
+     phone:safe(b.phone,20),
      email:safe(b.email,180),registration:safe(b.registration,100),safetyCredentials:safe(b.safetyCredentials,500),
      vehiclePermit:safe(b.vehiclePermit,150),refundPolicy:safe(b.refundPolicy,800),status:'pending_review',
      verified:false,commissionPercent:0,feeWaiverYears:3,contributions:'voluntary_only_never_required',
