@@ -18,7 +18,7 @@ function readiness(){
   ['Business application submitted',!!currentOwner],
   ['Operator approved by RoamWise',currentOwner?.status==='approved'],
   ['Upcoming departure set',!!p&&/^\d{4}-\d{2}-\d{2}$/.test(p.start||'')&&Date.parse(p.start+'T00:00:00Z')>Date.now()],
-  ['Real licensed trek photograph added',!!p&&Boolean(p.imageUrl||(Array.isArray(p.galleryUrls)&&p.galleryUrls.length))],
+  ['Trek photograph URL supplied (rights to verify)',!!p&&Boolean(p.imageUrl||(Array.isArray(p.galleryUrls)&&p.galleryUrls.length))],
   ['Clear pickup, inclusions and exclusions',!!p&&Boolean(p.meetingPoint&&p.includes&&p.excludes)],
   ['Safety, packing and cancellation details',!!p&&Boolean(p.safetyNote&&p.packingList&&p.refundPolicy)],
   ['Trek reviewed and publicly published',!!p&&p.status==='published']
