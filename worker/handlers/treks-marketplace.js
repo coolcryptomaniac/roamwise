@@ -8,6 +8,7 @@ import {parseServiceAccount,getServiceAccountAccessToken} from '../lib/service-a
 import {getDoc,updateDoc,createDocIfAbsent,listDocs,queryEqualsString} from '../lib/firestore-rest.js';
 import {cfBase,cfHeaders} from '../lib/cashfree-pg.js';
 import {verifyCashfreeWorkerWebhook} from '../lib/cashfree-booking-webhook-verify.js';
+import {calculateTrekQuote} from '../../treks/price-policy.mjs';
 
 const safe=(v,n=160)=>String(v==null?'':v).trim().slice(0,n);
 const allowedRoles=['company','guide','transport','experience'];
@@ -42,7 +43,6 @@ async function readJSON(request){
  if(text.length>12000)throw Error('body_too_large');
  return JSON.parse(text);
 }
-function feeFor(subtotal){return Math.min(99,Math.ceil(subtotal*0.01))}
 function publicProvider(provider){
  return {id:provider.id,name:provider.name,role:provider.role,region:provider.region,website:provider.website,description:provider.description};
 }
@@ -64,14 +64,12 @@ async function approved(ctx,id){
 async function quote(ctx,id,seats){
  const entry=await approved(ctx,id);
  if(!entry)return {error:'not_available'};
- const p=entry.pkg;const count=Number(seats);
- if(!Number.isSafeInteger(count)||count<1||count>12||count>Number(p.seats))return {error:'invalid_seats'};
- const base=Number(p.unitPrice);
- if(!Number.isSafeInteger(base)||base<100||base>200000)return {error:'invalid_rate'};
- const subtotal=base*(p.pricingUnit==='person'?count:1);if(subtotal>500000)return {error:'amount_too_large'};const fee=feeFor(subtotal);
- return {pkg:p,owner:entry.owner,count,quote:{packageId:id,name:p.name,departure:p.start,travellers:count,
-   unitPrice:base,pricingUnit:p.pricingUnit,operatorTotal:subtotal,roamwiseServiceFee:fee,total:subtotal+fee,currency:'INR',
-   partnerCommission:0,confirmation:'Pending operator confirmation after successful payment'}};
+ const p=entry.pkg;
+ try {
+  const calculated=calculateTrekQuote({unitPrice:p.unitPrice,pricingUnit:p.pricingUnit,travellers:seats,capacity:p.seats});
+  return {pkg:p,owner:entry.owner,count:calculated.travellers,quote:{packageId:id,name:p.name,departure:p.start,...calculated,
+    confirmation:'Pending operator confirmation after successful payment'}};
+ }catch(e){return {error:e.message||'invalid_quote'}}
 }
 async function isAdmin(ctx,claims){
  return !!(claims&&await doc(ctx,'admins/'+claims.uid));
