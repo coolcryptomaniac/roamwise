@@ -74,7 +74,7 @@ async function catalog(){
   state.items=r.items||[];
   $('catalog').innerHTML=state.items.length?state.items.map(p=>{
    const image=p.imageUrl?'<img loading="lazy" alt="Trek provided by operator" src="'+esc(p.imageUrl)+'" style="width:100%;height:156px;object-fit:cover;border-radius:12px;margin-bottom:12px">':'';
-   return '<article class="card">'+image+'<div class="head"><span class="mini">'+esc(p.provider.role).toUpperCase()+' · VERIFIED PARTNER</span><span class="chip">'+esc(p.start)+'</span></div><h3>'+esc(p.name)+'</h3><p>'+esc(p.provider.name)+' · '+esc(p.region)+'</p><p>'+esc(p.duration)+' day(s) · '+esc(p.difficulty||'Difficulty pending')+'</p><div class="price">'+money(p.pricePerPerson)+' <small>operator rate / person</small></div><p class="terms">RoamWise fee: 1%, max ₹99 per booking. Booking subject to operator confirmation.</p><button type="button" data-checkout="'+esc(p.id)+'">View price &amp; book securely →</button></article>';
+   return '<article class="card">'+image+'<div class="head"><span class="mini">'+esc(p.provider.role).toUpperCase()+' · VERIFIED PARTNER</span><span class="chip">'+esc(p.start)+'</span></div><h3>'+esc(p.name)+'</h3><p>'+esc(p.provider.name)+' · '+esc(p.region)+'</p><p>'+esc(p.duration)+' day(s) · '+esc(p.difficulty||'Difficulty pending')+'</p><div class="price">'+money(p.unitPrice)+' <small>operator rate / '+esc(p.pricingUnit||'person')+'</small></div><p class="terms">RoamWise fee: 1%, max ₹99 per booking. Booking subject to operator confirmation.</p><button type="button" data-checkout="'+esc(p.id)+'">View price &amp; book securely →</button></article>';
   }).join(''):'<div class="card"><h3>No verified departures published yet</h3><p>Applications and draft itineraries are not bookable until an authorised operator and RoamWise complete review.</p></div>';
   for(const b of $('catalog').querySelectorAll('[data-checkout]'))b.addEventListener('click',()=>checkout(b.dataset.checkout));
  }catch(e){$('catalog').innerHTML='<p class="notice">Catalog temporarily unavailable: '+esc(e.message)+'</p>'}
@@ -113,7 +113,7 @@ function editPackage(id){
 $('packageForm').addEventListener('submit',async ev=>{
  ev.preventDefault();if(!checkLogin())return;
  const f=ev.currentTarget,b=toObject(f);
- b.pricePerPerson=Number(b.pricePerPerson);b.seats=Number(b.seats);b.duration=Number(b.duration);
+ b.unitPrice=Number(b.unitPrice);b.seats=Number(b.seats);b.duration=Number(b.duration);
  try{const d=await api('/treks/package',b,true);message('Package saved ('+d.id+'). It remains hidden from customers until founder review.');f.reset();mine();}
  catch(e){message(e.message,true)}
 });
@@ -149,7 +149,7 @@ async function refreshQuote(){
  $('checkoutQuote').textContent='Verifying price…';
  try{
   const r=await api('/treks/quote',{packageId:state.active.id,seats}),q=r.quote;
-  $('checkoutQuote').innerHTML='<p><b>'+esc(q.name)+'</b> · '+esc(q.departure)+'</p><p>Operator price: '+money(q.perPerson)+' × '+q.travellers+' = '+money(q.operatorTotal)+'</p><p>RoamWise booking/service fee: '+money(q.roamwiseServiceFee)+'</p><p class="price">Total payable: '+money(q.total)+'</p><p class="terms">Package inclusions: '+esc(state.active.includes)+'</p><p class="terms">Exclusions: '+esc(state.active.excludes||'None listed')+'</p><p class="terms">Refund/cancellation: '+esc(state.active.refundPolicy)+'</p><p class="terms">Safety: '+esc(state.active.safetyNote)+'</p>';
+  $('checkoutQuote').innerHTML='<p><b>'+esc(q.name)+'</b> · '+esc(q.departure)+'</p><p>Operator price: '+money(q.unitPrice)+(q.pricingUnit==='person'?' × '+q.travellers:' / '+esc(q.pricingUnit))+' = '+money(q.operatorTotal)+'</p><p>RoamWise booking/service fee: '+money(q.roamwiseServiceFee)+'</p><p class="price">Total payable: '+money(q.total)+'</p><p class="terms">Package inclusions: '+esc(state.active.includes)+'</p><p class="terms">Exclusions: '+esc(state.active.excludes||'None listed')+'</p><p class="terms">Refund/cancellation: '+esc(state.active.refundPolicy)+'</p><p class="terms">Safety: '+esc(state.active.safetyNote)+'</p>';
   $('payBtn').disabled=false;
  }catch(e){$('checkoutQuote').textContent=e.message;$('payBtn').disabled=true}
 }
