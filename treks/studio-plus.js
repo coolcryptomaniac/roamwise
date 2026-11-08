@@ -10,7 +10,26 @@ const esc=v=>String(v==null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;'
 const fmt=v=>Number(v||0).toLocaleString('en-IN');
 const field=n=>String(form.elements[n]?.value||'').trim();
 const link=id=>'https://roamwise.co.in/treks/'+(id?'?package='+encodeURIComponent(id)+'#discover':'#discover');
-let packages=[],bookings=[],enquiries=[],generated='',selected=null;
+let packages=[],bookings=[],enquiries=[],generated='',selected=null,currentOwner=null;
+function readiness(){
+ const box=$('readinessChecklist');if(!box)return;
+ const p=packages.find(x=>x.status==='published')||packages[0];
+ const checks=[
+  ['Business application submitted',!!currentOwner],
+  ['Operator approved by RoamWise',currentOwner?.status==='approved'],
+  ['Upcoming departure set',!!p&&/^\d{4}-\d{2}-\d{2}$/.test(p.start||'')&&Date.parse(p.start+'T00:00:00Z')>Date.now()],
+  ['Real licensed trek photograph added',!!p&&Boolean(p.imageUrl||(Array.isArray(p.galleryUrls)&&p.galleryUrls.length))],
+  ['Clear pickup, inclusions and exclusions',!!p&&Boolean(p.meetingPoint&&p.includes&&p.excludes)],
+  ['Safety, packing and cancellation details',!!p&&Boolean(p.safetyNote&&p.packingList&&p.refundPolicy)],
+  ['Trek reviewed and publicly published',!!p&&p.status==='published']
+ ];
+ box.replaceChildren();
+ const title=document.createElement('strong');title.textContent='Listing readiness · '+checks.filter(x=>x[1]).length+'/'+checks.length;box.appendChild(title);
+ const ul=document.createElement('ul');ul.style.cssText='margin:10px 0 0;padding-left:19px';
+ for(const [label,ok] of checks){const li=document.createElement('li');li.textContent=(ok?'✓ ':'○ ')+label;ul.appendChild(li)}
+ box.appendChild(ul);
+ const foot=document.createElement('p');foot.className='terms';foot.textContent='Readiness helps operators improve presentation; it is not a safety certification, rating or promise of sales.';box.appendChild(foot);
+}
 function stats(){
  $('statPackages').textContent=packages.length;
  $('statLive').textContent=packages.filter(p=>p.status==='published').length;
@@ -28,16 +47,17 @@ async function api(path,body){
 async function load(){
  try{
   const user=window.firebase?.auth?.().currentUser;
-  if(!user){packages=[];bookings=[];enquiries=[];stats();return}
+  if(!user){packages=[];bookings=[];enquiries=[];currentOwner=null;stats();readiness();return}
   const d=await api('/treks/mine');
   packages=d?.packages||[];bookings=d?.bookings||[];stats();
   if(packages.length&&!selected)selected=packages.find(p=>p.status==='published')||packages[0];
-  const owner=d?.partner;
+  const owner=d?.partner;currentOwner=owner||null;
+  $('copyPartnerLink').textContent=owner?.status==='approved'?'Copy verified operator page':'Copy marketplace link';
   if(owner?.status==='approved'){
    try{const q=await api('/treks/enquiries');enquiries=q?.items||[];}
    catch(_){enquiries=[];}
   }else enquiries=[];
-  stats();renderEnquiries();
+  stats();renderEnquiries();readiness();
  }catch(e){$('promotionOutput').textContent=e.message}
 }
 function renderEnquiries(){
@@ -146,7 +166,12 @@ function share(kind){
 }
 $('makeItinerary').addEventListener('click',make);
 $('copyItinerary').addEventListener('click',()=>copy(generated||build()));
-$('copyPartnerLink').addEventListener('click',()=>copy(link()));
+$('copyPartnerLink').addEventListener('click',()=>{
+ const operatorUid=currentOwner?.ownerUid;
+ if(currentOwner?.status==='approved'&&typeof operatorUid==='string'&&operatorUid.length<160)
+  copy('https://roamwise.co.in/treks/?operator='+encodeURIComponent(operatorUid)+'#discover');
+ else copy(link());
+});
 $('copyPromo').addEventListener('click',()=>share('whatsapp'));
 $('copyCaption').addEventListener('click',()=>share('instagram'));
 function openPrintable(html,filename){
