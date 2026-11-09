@@ -1,7 +1,167 @@
 {
   "schemaVersion": 2,
-  "checkedAt": "2026-11-02T11:54:56.269Z",
+  "checkedAt": "2026-11-09T12:24:57.533Z",
   "signals": [
+    {
+      "company": "Anthropic",
+      "category": "ai-agent",
+      "title": "v0.2.179",
+      "url": "https://github.com/anthropics/claude-agent-sdk-python/releases/tag/v0.2.179",
+      "publishedAt": "2026-11-06T17:57:35Z",
+      "source": "Official anthropics/claude-agent-sdk-python GitHub release"
+    },
+    {
+      "company": "Anthropic",
+      "category": "ai-agent",
+      "title": "v0.3.319",
+      "url": "https://github.com/anthropics/claude-agent-sdk-typescript/releases/tag/v0.3.319",
+      "publishedAt": "2026-11-06T17:03:50Z",
+      "source": "Official anthropics/claude-agent-sdk-typescript GitHub release"
+    },
+    {
+      "company": "OpenAI",
+      "category": "technology",
+      "title": "v7.53.0",
+      "url": "https://github.com/openai/openai-node/releases/tag/v7.53.0",
+      "publishedAt": "2026-11-06T09:06:02Z",
+      "source": "Official openai/openai-node GitHub release"
+    },
+    {
+      "company": "Anthropic",
+      "category": "technology",
+      "title": "sdk-v1.6.0",
+      "url": "https://github.com/anthropics/anthropic-sdk-typescript/releases/tag/sdk-v1.6.0",
+      "publishedAt": "2026-11-05T19:00:33Z",
+      "source": "Official anthropics/anthropic-sdk-typescript GitHub release"
+    },
+    {
+      "company": "OpenAI",
+      "category": "technology",
+      "title": "v7.52.0",
+      "url": "https://github.com/openai/openai-node/releases/tag/v7.52.0",
+      "publishedAt": "2026-11-05T18:05:29Z",
+      "source": "Official openai/openai-node GitHub release"
+    },
+    {
+      "company": "OpenAI",
+      "category": "technology",
+      "title": "v7.51.0",
+      "url": "https://github.com/openai/openai-node/releases/tag/v7.51.0",
+      "publishedAt": "2026-11-05T00:56:11Z",
+      "source": "Official openai/openai-node GitHub release"
+    },
+    {
+      "company": "Anthropic",
+      "category": "technology",
+      "title": "google-cloud-sdk-v1.1.3",
+      "url": "https://github.com/anthropics/anthropic-sdk-typescript/releases/tag/google-cloud-sdk-v1.1.3",
+      "publishedAt": "2026-11-04T20:25:17Z",
+      "source": "Official anthropics/anthropic-sdk-typescript GitHub release"
+    },
+    {
+      "company": "Anthropic",
+      "category": "technology",
+      "title": "vertex-sdk-v1.1.2",
+      "url": "https://github.com/anthropics/anthropic-sdk-typescript/releases/tag/vertex-sdk-v1.1.2",
+      "publishedAt": "2026-11-04T20:25:14Z",
+      "source": "Official anthropics/anthropic-sdk-typescript GitHub release"
+    },
+    {
+      "company": "Anthropic",
+      "category": "technology",
+      "title": "sdk-v1.5.0",
+      "url": "https://github.com/anthropics/anthropic-sdk-typescript/releases/tag/sdk-v1.5.0",
+      "publishedAt": "2026-11-04T20:25:11Z",
+      "source": "Official anthropics/anthropic-sdk-typescript GitHub release"
+    },
+    {
+      "company": "OpenAI",
+      "category": "technology",
+      "title": "v7.50.0",
+      "url": "https://github.com/openai/openai-node/releases/tag/v7.50.0",
+      "publishedAt": "2026-11-04T02:23:57Z",
+      "source": "Official openai/openai-node GitHub release"
+    },
+    {
+      "company": "Anthropic",
+      "category": "ai-agent",
+      "title": "v0.2.178",
+      "url": "https://github.com/anthropics/claude-agent-sdk-python/releases/tag/v0.2.178",
+      "publishedAt": "2026-11-04T00:54:29Z",
+      "source": "Official anthropics/claude-agent-sdk-python GitHub release"
+    },
+    {
+      "company": "Anthropic",
+      "category": "ai-agent",
+      "title": "v0.3.318",
+      "url": "https://github.com/anthropics/claude-agent-sdk-typescript/releases/tag/v0.3.318",
+      "publishedAt": "2026-11-04T00:00:55Z",
+      "source": "Official anthropics/claude-agent-sdk-typescript GitHub release"
+    },
+    {
+      "company": "OpenAI",
+      "category": "technology",
+      "title": "v7.49.0",
+      "url": "https://github.com/openai/openai-node/releases/tag/v7.49.0",
+      "publishedAt": "2026-11-03T20:28:05Z",
+      "source": "Official openai/openai-node GitHub release"
+    },
+    {
+      "company": "OpenAI",
+      "category": "technology",
+      "title": "v7.48.0",
+      "url": "https://github.com/openai/openai-node/releases/tag/v7.48.0",
+      "publishedAt": "2026-11-03T18:06:52Z",
+      "source": "Official openai/openai-node GitHub release"
+    },
+    {
+      "company": "Anthropic",
+      "category": "ai-agent",
+      "title": "v0.2.177",
+      "url": "https://github.com/anthropics/claude-agent-sdk-python/releases/tag/v0.2.177",
+      "publishedAt": "2026-11-03T02:17:57Z",
+      "source": "Official anthropics/claude-agent-sdk-python GitHub release"
+    },
+    {
+      "company": "Anthropic",
+      "category": "ai-agent",
+      "title": "v0.3.317",
+      "url": "https://github.com/anthropics/claude-agent-sdk-typescript/releases/tag/v0.3.317",
+      "publishedAt": "2026-11-03T01:25:37Z",
+      "source": "Official anthropics/claude-agent-sdk-typescript GitHub release"
+    },
+    {
+      "company": "Anthropic",
+      "category": "technology",
+      "title": "google-cloud-sdk-v1.1.2",
+      "url": "https://github.com/anthropics/anthropic-sdk-typescript/releases/tag/google-cloud-sdk-v1.1.2",
+      "publishedAt": "2026-11-02T19:17:27Z",
+      "source": "Official anthropics/anthropic-sdk-typescript GitHub release"
+    },
+    {
+      "company": "Anthropic",
+      "category": "technology",
+      "title": "foundry-sdk-v1.1.1",
+      "url": "https://github.com/anthropics/anthropic-sdk-typescript/releases/tag/foundry-sdk-v1.1.1",
+      "publishedAt": "2026-11-02T19:17:21Z",
+      "source": "Official anthropics/anthropic-sdk-typescript GitHub release"
+    },
+    {
+      "company": "Anthropic",
+      "category": "technology",
+      "title": "vertex-sdk-v1.1.1",
+      "url": "https://github.com/anthropics/anthropic-sdk-typescript/releases/tag/vertex-sdk-v1.1.1",
+      "publishedAt": "2026-11-02T19:17:16Z",
+      "source": "Official anthropics/anthropic-sdk-typescript GitHub release"
+    },
+    {
+      "company": "Anthropic",
+      "category": "technology",
+      "title": "sdk-v1.4.0",
+      "url": "https://github.com/anthropics/anthropic-sdk-typescript/releases/tag/sdk-v1.4.0",
+      "publishedAt": "2026-11-02T19:17:13Z",
+      "source": "Official anthropics/anthropic-sdk-typescript GitHub release"
+    },
     {
       "company": "OpenAI",
       "category": "technology",
@@ -59,188 +219,12 @@
       "source": "Official anthropics/claude-agent-sdk-typescript GitHub release"
     },
     {
-      "company": "OpenAI",
-      "category": "technology",
-      "title": "v7.45.1",
-      "url": "https://github.com/openai/openai-node/releases/tag/v7.45.1",
-      "publishedAt": "2026-10-27T15:37:54Z",
-      "source": "Official openai/openai-node GitHub release"
-    },
-    {
       "company": "Anthropic",
       "category": "ai-agent",
       "title": "v0.3.311",
       "url": "https://github.com/anthropics/claude-agent-sdk-typescript/releases/tag/v0.3.311",
       "publishedAt": "2026-10-26T21:51:29Z",
       "source": "Official anthropics/claude-agent-sdk-typescript GitHub release"
-    },
-    {
-      "company": "OpenAI",
-      "category": "technology",
-      "title": "v7.45.0",
-      "url": "https://github.com/openai/openai-node/releases/tag/v7.45.0",
-      "publishedAt": "2026-10-26T19:14:21Z",
-      "source": "Official openai/openai-node GitHub release"
-    },
-    {
-      "company": "OpenAI",
-      "category": "technology",
-      "title": "v7.44.0",
-      "url": "https://github.com/openai/openai-node/releases/tag/v7.44.0",
-      "publishedAt": "2026-10-26T15:31:46Z",
-      "source": "Official openai/openai-node GitHub release"
-    },
-    {
-      "company": "Anthropic",
-      "category": "ai-agent",
-      "title": "v0.2.174",
-      "url": "https://github.com/anthropics/claude-agent-sdk-python/releases/tag/v0.2.174",
-      "publishedAt": "2026-10-24T00:24:14Z",
-      "source": "Official anthropics/claude-agent-sdk-python GitHub release"
-    },
-    {
-      "company": "Anthropic",
-      "category": "ai-agent",
-      "title": "v0.3.310",
-      "url": "https://github.com/anthropics/claude-agent-sdk-typescript/releases/tag/v0.3.310",
-      "publishedAt": "2026-10-23T23:39:13Z",
-      "source": "Official anthropics/claude-agent-sdk-typescript GitHub release"
-    },
-    {
-      "company": "Anthropic",
-      "category": "technology",
-      "title": "google-cloud-sdk-v1.1.1",
-      "url": "https://github.com/anthropics/anthropic-sdk-typescript/releases/tag/google-cloud-sdk-v1.1.1",
-      "publishedAt": "2026-10-23T23:23:48Z",
-      "source": "Official anthropics/anthropic-sdk-typescript GitHub release"
-    },
-    {
-      "company": "Anthropic",
-      "category": "technology",
-      "title": "aws-sdk-v1.1.1",
-      "url": "https://github.com/anthropics/anthropic-sdk-typescript/releases/tag/aws-sdk-v1.1.1",
-      "publishedAt": "2026-10-23T23:23:45Z",
-      "source": "Official anthropics/anthropic-sdk-typescript GitHub release"
-    },
-    {
-      "company": "Anthropic",
-      "category": "technology",
-      "title": "sdk-v1.3.0",
-      "url": "https://github.com/anthropics/anthropic-sdk-typescript/releases/tag/sdk-v1.3.0",
-      "publishedAt": "2026-10-23T23:23:43Z",
-      "source": "Official anthropics/anthropic-sdk-typescript GitHub release"
-    },
-    {
-      "company": "Anthropic",
-      "category": "technology",
-      "title": "google-cloud-sdk-v1.1.0",
-      "url": "https://github.com/anthropics/anthropic-sdk-typescript/releases/tag/google-cloud-sdk-v1.1.0",
-      "publishedAt": "2026-10-23T13:09:27Z",
-      "source": "Official anthropics/anthropic-sdk-typescript GitHub release"
-    },
-    {
-      "company": "Anthropic",
-      "category": "technology",
-      "title": "foundry-sdk-v1.1.0",
-      "url": "https://github.com/anthropics/anthropic-sdk-typescript/releases/tag/foundry-sdk-v1.1.0",
-      "publishedAt": "2026-10-23T13:09:22Z",
-      "source": "Official anthropics/anthropic-sdk-typescript GitHub release"
-    },
-    {
-      "company": "Anthropic",
-      "category": "technology",
-      "title": "bedrock-sdk-v1.1.0",
-      "url": "https://github.com/anthropics/anthropic-sdk-typescript/releases/tag/bedrock-sdk-v1.1.0",
-      "publishedAt": "2026-10-23T13:09:19Z",
-      "source": "Official anthropics/anthropic-sdk-typescript GitHub release"
-    },
-    {
-      "company": "Anthropic",
-      "category": "technology",
-      "title": "vertex-sdk-v1.1.0",
-      "url": "https://github.com/anthropics/anthropic-sdk-typescript/releases/tag/vertex-sdk-v1.1.0",
-      "publishedAt": "2026-10-23T13:09:16Z",
-      "source": "Official anthropics/anthropic-sdk-typescript GitHub release"
-    },
-    {
-      "company": "Anthropic",
-      "category": "technology",
-      "title": "sdk-v1.2.0",
-      "url": "https://github.com/anthropics/anthropic-sdk-typescript/releases/tag/sdk-v1.2.0",
-      "publishedAt": "2026-10-23T13:09:13Z",
-      "source": "Official anthropics/anthropic-sdk-typescript GitHub release"
-    },
-    {
-      "company": "Anthropic",
-      "category": "ai-agent",
-      "title": "v0.2.173",
-      "url": "https://github.com/anthropics/claude-agent-sdk-python/releases/tag/v0.2.173",
-      "publishedAt": "2026-10-22T23:15:46Z",
-      "source": "Official anthropics/claude-agent-sdk-python GitHub release"
-    },
-    {
-      "company": "Anthropic",
-      "category": "ai-agent",
-      "title": "v0.3.309",
-      "url": "https://github.com/anthropics/claude-agent-sdk-typescript/releases/tag/v0.3.309",
-      "publishedAt": "2026-10-22T22:18:33Z",
-      "source": "Official anthropics/claude-agent-sdk-typescript GitHub release"
-    },
-    {
-      "company": "OpenAI",
-      "category": "technology",
-      "title": "v7.43.0",
-      "url": "https://github.com/openai/openai-node/releases/tag/v7.43.0",
-      "publishedAt": "2026-10-22T21:31:14Z",
-      "source": "Official openai/openai-node GitHub release"
-    },
-    {
-      "company": "Anthropic",
-      "category": "ai-agent",
-      "title": "v0.2.172",
-      "url": "https://github.com/anthropics/claude-agent-sdk-python/releases/tag/v0.2.172",
-      "publishedAt": "2026-10-22T05:23:38Z",
-      "source": "Official anthropics/claude-agent-sdk-python GitHub release"
-    },
-    {
-      "company": "Anthropic",
-      "category": "ai-agent",
-      "title": "v0.3.308",
-      "url": "https://github.com/anthropics/claude-agent-sdk-typescript/releases/tag/v0.3.308",
-      "publishedAt": "2026-10-22T04:35:21Z",
-      "source": "Official anthropics/claude-agent-sdk-typescript GitHub release"
-    },
-    {
-      "company": "OpenAI",
-      "category": "technology",
-      "title": "v7.42.0",
-      "url": "https://github.com/openai/openai-node/releases/tag/v7.42.0",
-      "publishedAt": "2026-10-22T03:41:51Z",
-      "source": "Official openai/openai-node GitHub release"
-    },
-    {
-      "company": "Anthropic",
-      "category": "ai-agent",
-      "title": "v0.2.171",
-      "url": "https://github.com/anthropics/claude-agent-sdk-python/releases/tag/v0.2.171",
-      "publishedAt": "2026-10-21T23:06:54Z",
-      "source": "Official anthropics/claude-agent-sdk-python GitHub release"
-    },
-    {
-      "company": "Anthropic",
-      "category": "ai-agent",
-      "title": "v0.3.307",
-      "url": "https://github.com/anthropics/claude-agent-sdk-typescript/releases/tag/v0.3.307",
-      "publishedAt": "2026-10-21T22:17:12Z",
-      "source": "Official anthropics/claude-agent-sdk-typescript GitHub release"
-    },
-    {
-      "company": "OpenAI",
-      "category": "technology",
-      "title": "v7.41.0",
-      "url": "https://github.com/openai/openai-node/releases/tag/v7.41.0",
-      "publishedAt": "2026-10-21T15:30:50Z",
-      "source": "Official openai/openai-node GitHub release"
     }
   ],
   "collaborationRoutes": [
