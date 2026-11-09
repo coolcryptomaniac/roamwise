@@ -1,6 +1,6 @@
 {
  "version": 1,
- "checked": "2026-11-08",
+ "checked": "2026-11-09",
  "regions": [
   {
    "id": "almora",
@@ -358,24 +358,6 @@
     "shinkula"
    ],
    "regions": []
-  },
-  {
-   "id": "auto-20261106-kedarnath-yatra-continues-as-rain-eases-",
-   "kind": "rain",
-   "official": false,
-   "auto": true,
-   "title": "Kedarnath Yatra continues as rain eases; IMD issues orange alert for Uttarakhand",
-   "detail": "DD News reports this. Check with local police or the district administration before you travel.",
-   "from": "2026-11-06",
-   "until": "2026-11-08",
-   "source": "DD News",
-   "sourceUrl": "https://news.google.com/rss/articles/CBMiqAFBVV95cUxPX1k1bERxZm9RcnN5UVFwVDdYMTZjR29EQWc2MUg2MVRJdFk5S29YaFFFcUo4SDhzN3RvRWZMRVgzeEpoUC1ib1k1bE5VRklBNWkxRXFLZ2tRYVFvWkFUcV8wSnR2Uk5hQlg3dERIUGFKS0ZWZGRVMHNHbGtHZjFsUk53TXMwMjBEWWxNRnpKbmVFV1VlcFVSMl9ZOHRESGMyM25MV0tvNng?oc=5",
-   "match": [
-    "kedarnath"
-   ],
-   "regions": [
-    "rudraprayag"
-   ]
   },
   {
    "id": "auto-20261102-char-dham-yatra-2026-check-closing-dates",
