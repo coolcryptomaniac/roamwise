@@ -3,7 +3,7 @@
  */
 const fs=require('node:fs'),path=require('node:path'),cp=require('node:child_process');
 const root=path.resolve(__dirname,'..'),dest=path.join(root,'www');
-const dirs=['shop','embed','packages','treks','music','js','css','assets','images','fonts','icons','creators','partners','nomads','books','kainchi','events','maps','stay','stays','rooms','booking','artist','artists','features','platform-v5','nmims','pilgrimage','weddings','privacy','terms','pro','wallet','auth','legal','offline','manifest'];
+const dirs=['partner','properties','transport','experiences','travel','trips','creator','payments','support','staff','public','data','locales','i18n','shop','embed','packages','treks','music','js','css','assets','images','fonts','icons','creators','partners','nomads','books','kainchi','events','maps','stay','stays','rooms','booking','artist','artists','features','platform-v5','nmims','pilgrimage','weddings','privacy','terms','pro','wallet','auth','legal','offline','manifest'];
 const rootExt=/\.(?:html|css|js|mjs|json|png|jpg|jpeg|webp|svg|gif|ico|woff2?|ttf|webmanifest|txt|xml)$/i;
 const files=cp.execFileSync('git',['ls-files','-z'],{cwd:root,encoding:'buffer'}).toString('utf8').split('\0').filter(Boolean);
 const allow=f=>{const parts=f.split('/');if(parts.some(x=>x.startsWith('.')||x==='node_modules'||x==='www'))return false;if(parts.length===1)return rootExt.test(f)&&!/(?:package|lock|capacitor|firebase|firestore|tsconfig|eslint|wrangler|service-account|credentials|secret|test|config\.local)/i.test(f);return dirs.includes(parts[0])&&!/(?:\.test\.|\.spec\.|\.env|secret|credentials|service-account)/i.test(f);};
