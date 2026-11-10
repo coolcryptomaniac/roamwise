@@ -1,0 +1,7 @@
+import test from 'node:test';import assert from 'node:assert/strict';import {reconcileOrder,reconcileBatch,istBudgetDay} from '../worker/lib/finance-reconciliation.js';
+const row={order:{id:'R1',totalPaise:199900,status:'paid',fulfilmentState:'submitted'},payment:{orderId:'R1',verified:true,currency:'INR',amountPaise:199900,status:'paid'},journal:{orderId:'R1',posted:true,debitPaise:199900,creditPaise:199900},supplier:{orderId:'R1',providerOrderId:'Q1'}};
+test('matched order reconciles',()=>assert.equal(reconcileOrder(row).ok,true));
+test('payment mismatch and missing supplier reference hold order',()=>{const r=reconcileOrder({...row,payment:{...row.payment,amountPaise:100},supplier:null});assert.equal(r.ok,false);assert.ok(r.issues.includes('supplier_reference_missing'));});
+test('wallet credit never misreported as bank refund',()=>{const r=reconcileOrder({...row,order:{...row.order,status:'refunded_to_wallet'},refund:{orderId:'R1',amountPaise:199900,status:'pending'}});assert.ok(r.issues.includes('refund_not_settled'));});
+test('duplicate IDs are flagged',()=>{const r=reconcileBatch([row,row]);assert.equal(r.ok,1);assert.equal(r.exceptions.length,1);});
+test('budget day respects IST midnight',()=>{assert.equal(istBudgetDay('2026-11-10T18:29:00Z'),istBudgetDay('2026-11-10T00:00:00Z'));assert.notEqual(istBudgetDay('2026-11-10T18:31:00Z'),istBudgetDay('2026-11-10T00:00:00Z'));});
