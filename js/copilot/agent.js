@@ -34,6 +34,9 @@ var RW_AGENT_TOOLS = [
   { type:'function', function:{ name:'enquire_stay',
     description:'For a verified partner that books by WhatsApp (from find_partners): open a WhatsApp enquiry with the dates, group size and budget filled in, carrying a RoamWise booking code. Ask the traveller for dates and group size first. This does not book or pay.',
     parameters:{ type:'object', properties:{ partnerId:{type:'string'}, checkIn:{type:'string', description:'YYYY-MM-DD'}, nights:{type:'number'}, guests:{type:'number'}, rooms:{type:'number'}, budget:{type:'number'}, note:{type:'string'} }, required:['partnerId','checkIn','guests'] } } },
+  { type:'function', function:{ name:'open_roamwise_checkout',
+    description:'Open the official RoamWise category checkout or offer page for the traveller. Never submit payment, set a price, claim availability, or book automatically. The traveller must approve payment on the official checkout.',
+    parameters:{type:'object',properties:{category:{type:'string',enum:['shop','stays','packages','treks','pro','music']}},required:['category']} } },
   { type:'function', function:{ name:'my_bookings',
     description:'Look up the travellers own bookings and their status.',
     parameters:{ type:'object', properties:{} } } },
@@ -150,6 +153,15 @@ var RW_AGENT_IMPL = {
       hidden_gems: hit.gems||[],
       local_tip: hit.local||'',
       visa: hit.visa||null};
+  },
+  open_roamwise_checkout: function(a){
+    var pages={shop:'/shop/',stays:'/',packages:'/packages/',treks:'/treks/',pro:'/',music:'/music/store/'};
+    var target=pages[a&&a.category];
+    if(!target)return {ok:false,error:'unsupported category'};
+    if(typeof window==='undefined'||!window.location)return {ok:false,error:'browser unavailable'};
+    // Navigation only. All pricing, authentication, Cashfree/UPI and verification remain in existing checkout flows.
+    window.location.assign(target);
+    return {ok:true,action:'navigating_to_official_checkout',category:a.category,bookingConfirmed:false,paymentConfirmed:false};
   },
   finish: function(a){ return {ok:true, done:true, answer:a.answer||''}; }
 };
