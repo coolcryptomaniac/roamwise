@@ -78,4 +78,58 @@ test('leads call log: staff can log a call as themselves, nobody else, exact sha
   await assertFails(getDoc(doc(s(), 'leads/c1')));
   await assertSucceeds(getDoc(doc(admin(), 'leads/c1')));
 });
+/* ---- B2B desk (staff/b2b-desk.js): b2bDeals + b2bTxns ---- */
+const b2b = () => env.authenticatedContext('b2b1').firestore();
+const b2bOther = () => env.authenticatedContext('b2b2').firestore();
+const DEAL = { ownerUid: 'b2b1', ownerName: 'D', name: 'Pine Nest', kind: 'stay', city: 'Almora', contact: 'Asha', phone: '9876543210', email: '', plan: 'free', bookingModel: 'commission', listingFee: 0, note: '', nextAt: '', stage: 'lead', createdAt: 'x', updatedAt: 'x' };
+const TXN = { dealId: 'd1', dealName: 'Pine Nest', enteredBy: 'b2b1', enteredByName: 'D', kind: 'plan_fee', method: 'upi', amount: 2499, ref: '123456789012', proofUrl: '', date: '2026-11-10', note: '', status: 'reported', at: 'x' };
+test('b2bDeals: B2B staff create and work only their own deals; others see nothing', async () => {
+  await env.withSecurityRulesDisabled(async ctx => {
+    await setDoc(doc(ctx.firestore(), 'staff/b2b1'), { role: 'partnerships' });
+    await setDoc(doc(ctx.firestore(), 'staff/b2b2'), { role: 'staff', roles: ['staff', 'bd'] });
+  });
+  await assertSucceeds(setDoc(doc(b2b(), 'b2bDeals/d1'), DEAL));
+  await assertSucceeds(getDoc(doc(b2b(), 'b2bDeals/d1')));
+  await assertSucceeds(getDoc(doc(admin(), 'b2bDeals/d1')));
+  await assertFails(getDoc(doc(b2bOther(), 'b2bDeals/d1')));
+  await assertFails(getDoc(doc(u1(), 'b2bDeals/d1')));
+  await assertFails(getDoc(doc(anon(), 'b2bDeals/d1')));
+  await assertFails(setDoc(doc(u1(), 'b2bDeals/x1'), { ...DEAL, ownerUid: 'u1' }));
+  const marketing = env.authenticatedContext('staff1').firestore();
+  await assertFails(setDoc(doc(marketing, 'b2bDeals/x2'), { ...DEAL, ownerUid: 'staff1' }));
+  await assertFails(setDoc(doc(b2b(), 'b2bDeals/x3'), { ...DEAL, ownerUid: 'b2b2' }));
+  await assertSucceeds(setDoc(doc(b2bOther(), 'b2bDeals/d2'), { ...DEAL, ownerUid: 'b2b2' }));
+});
+test('b2bDeals: staff cannot create or mark a deal signed, countersigned or live, or forge a signature', async () => {
+  await assertFails(setDoc(doc(b2b(), 'b2bDeals/x4'), { ...DEAL, stage: 'mou_signed' }));
+  await assertFails(setDoc(doc(b2b(), 'b2bDeals/x5'), { ...DEAL, mouSignedAt: '2026-11-10' }));
+  await assertFails(setDoc(doc(b2b(), 'b2bDeals/x6'), { ...DEAL, listingFee: 20000 }));
+  await assertSucceeds(updateDoc(doc(b2b(), 'b2bDeals/d1'), { stage: 'mou_sent', mouToken: 'a'.repeat(32), mouSentAt: 'x', updatedAt: 'y' }));
+  await assertFails(updateDoc(doc(b2b(), 'b2bDeals/d1'), { stage: 'mou_signed' }));
+  await assertFails(updateDoc(doc(b2b(), 'b2bDeals/d1'), { stage: 'live' }));
+  await assertFails(updateDoc(doc(b2b(), 'b2bDeals/d1'), { mouSignedAt: 'x', mouSignedBy: 'Me' }));
+  await assertFails(updateDoc(doc(b2b(), 'b2bDeals/d1'), { ownerUid: 'b2b2' }));
+  await assertFails(updateDoc(doc(b2bOther(), 'b2bDeals/d1'), { note: 'mine now' }));
+  await assertSucceeds(updateDoc(doc(b2b(), 'b2bDeals/d1'), { mouSignedLink: 'https://roamwise.co.in/partner/mou/?s=A', updatedAt: 'z' }));
+});
+test('b2bTxns: staff only add reported money on their own deal; only an admin verifies; rows are evidence', async () => {
+  await assertSucceeds(setDoc(doc(b2b(), 'b2bTxns/t1'), TXN));
+  await assertFails(setDoc(doc(b2b(), 'b2bTxns/t2'), { ...TXN, status: 'verified' }));
+  await assertFails(setDoc(doc(b2b(), 'b2bTxns/t3'), { ...TXN, amount: 600000 }));
+  await assertFails(setDoc(doc(b2b(), 'b2bTxns/t4'), { ...TXN, enteredBy: 'b2b2' }));
+  await assertFails(setDoc(doc(b2b(), 'b2bTxns/t5'), { ...TXN, dealId: 'd2' }));
+  await assertFails(setDoc(doc(b2b(), 'b2bTxns/t6'), { ...TXN, decidedBy: 'b2b1' }));
+  await assertFails(updateDoc(doc(b2b(), 'b2bTxns/t1'), { status: 'verified' }));
+  await assertFails(updateDoc(doc(b2b(), 'b2bTxns/t1'), { amount: 1 }));
+  await assertSucceeds(getDoc(doc(b2b(), 'b2bTxns/t1')));
+  await assertFails(getDoc(doc(b2bOther(), 'b2bTxns/t1')));
+  await assertSucceeds(updateDoc(doc(admin(), 'b2bTxns/t1'), { status: 'verified', decidedBy: 'adminUid' }));
+});
+test('b2bDeals: once signed (written by the Worker) the deal is frozen for staff; admin finishes it', async () => {
+  await env.withSecurityRulesDisabled(async ctx => { await updateDoc(doc(ctx.firestore(), 'b2bDeals/d1'), { stage: 'mou_signed', mouSignedAt: '2026-11-10T06:30:00.000Z', mouSignedBy: 'Asha' }); });
+  await assertFails(updateDoc(doc(b2b(), 'b2bDeals/d1'), { note: 'edit after signing' }));
+  await assertFails(updateDoc(doc(b2b(), 'b2bDeals/d1'), { stage: 'lead' }));
+  await assertSucceeds(getDoc(doc(b2b(), 'b2bDeals/d1')));
+  await assertSucceeds(updateDoc(doc(admin(), 'b2bDeals/d1'), { stage: 'countersigned' }));
+});
 test.after(async () => { await env.cleanup(); });

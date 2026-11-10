@@ -52,8 +52,15 @@
      booking status changed. */
   var lastSig = null;
   function sig() { var P = partners(), c = /** @type {any} */ (window).__rwPromoIds || []; return c.map(function (id) { return id + ':' + ((P[id] || {}).bookingMode || ''); }).join('|'); }
-  function run() { Promise.all([fetchJson('/data/home-promo.json'), fetchJson('/creators/artists-data.json')]).then(function (r) {
-    var cfg = r[0], data = r[1], P = partners();
+  /* Daily order from the Worker (js/ui/home-daily.js): the same curated stays, a different one first each day.
+     Ids the feed does not know keep their place at the end; with no feed the JSON order is used as before. */
+  function daily(stays, feed) {
+    var order = feed && Array.isArray(feed.stayOrder) ? feed.stayOrder : []; if (!order.length) return stays;
+    var rank = function (c) { var i = order.indexOf(c.partnerId); return i < 0 ? order.length : i; };
+    return stays.map(function (c, i) { return { c: c, i: i }; }).sort(function (a, b) { return rank(a.c) - rank(b.c) || a.i - b.i; }).map(function (x) { return x.c; });
+  }
+  function run() { Promise.all([fetchJson('/data/home-promo.json'), fetchJson('/creators/artists-data.json'), /** @type {any} */ (window).__rwDaily || Promise.resolve(null)]).then(function (r) {
+    var cfg = r[0], data = r[1], P = partners(); cfg.stays = daily(cfg.stays || [], r[2]);
     /** @type {any} */ (window).__rwPromoIds = (cfg.stays || []).map(function (c) { return c.partnerId; }).concat(cfg.nomad ? [cfg.nomad.partnerId] : []); lastSig = sig();
     var nm = cfg.nomad && P[cfg.nomad.partnerId] ? nomad(cfg.nomad, P[cfg.nomad.partnerId]) : '';
     var stays = (cfg.stays || []).map(function (c) { return P[c.partnerId] ? stay(c, P[c.partnerId]) : ''; }).join('');

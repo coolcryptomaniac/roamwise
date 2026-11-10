@@ -76,8 +76,22 @@
     $('toJoin').href = '../join/?' + jq.toString();
     $('afterSign').hidden = false;
   }
+  /* ---- deal link from the staff B2B desk (?deal=ID&k=TOKEN): the signature is also recorded against that
+     deal by the Worker, so staff see "signed" without anyone forwarding a link. Signing never waits on it. ---- */
+  var API = String((cfg.paymentApi && cfg.paymentApi.workerUrl) || cfg.workerUrl || 'https://roamwise-api.founder-f53.workers.dev').replace(/\/+$/, '');
+  var dealId = (q.get('deal') || '').replace(/[^A-Za-z0-9_-]/g, '').slice(0, 40), dealKey = (q.get('k') || '').replace(/[^a-f0-9]/g, '').slice(0, 64);
+  function recordSignature(now, phone) {
+    if (!dealId || dealKey.length < 32 || typeof fetch !== 'function') return;
+    try {
+      fetch(API + '/b2b/mou-signed', { method: 'POST', headers: { 'Content-Type': 'application/json' }, keepalive: true,
+        body: JSON.stringify({ deal: dealId, k: dealKey, name: now.name, desig: now.desig, phone: phone, clientAt: now.at, property: property }) }).catch(function () {});
+    } catch (e) { /* the signed copy on WhatsApp remains the record */ }
+  }
+  var wantsPrint = q.get('print') === '1';
+  if (wantsPrint) { q.delete('print'); history.replaceState(null, '', '?' + q.toString()); }
   var st = signedState();
   if (st) renderSigned(st, '');
+  if (wantsPrint) setTimeout(function () { try { window.print(); } catch (e) { /* the Print button is still on the page */ } }, 600);
   $('acceptForm').addEventListener('submit', function (e) {
     e.preventDefault();
     var name = clip($('aName').value, 80), phone = $('aPhone').value.replace(/[^\d+]/g, '').slice(0, 16);
@@ -85,6 +99,8 @@
     if (phone.replace(/\D/g, '').length < 10) { $('aPhone').focus(); $('aPhone').setCustomValidity('Enter a 10-digit number'); $('aPhone').reportValidity(); return; }
     if (!$('aOk').checked) { $('aOk').reportValidity(); return; }
     var now = { at: new Date().toISOString(), name: name, desig: $('aDesig').value };
+    recordSignature(now, phone);
+    q.delete('k'); /* the signing key is single-purpose; keep it out of the signed copy link */
     q.set('s', now.name); q.set('d', now.desig); q.set('at', now.at);
     if (property && !offer) q.set('property', property);
     history.replaceState(null, '', '?' + q.toString());

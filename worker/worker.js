@@ -48,6 +48,8 @@
      POST /admin/ai-ca/review          admin-only redacted finance/compliance review -> handlers/ai-ca.js
      POST /admin/invoices/sweep        admin-only: issue invoices for paid orders with none yet -> handlers/invoices.js
      POST /admin/advisory-alerts/run   admin-only: advisory alerts + team digest (dry-run default) -> handlers/advisory-alerts.js
+     POST /b2b/mou-signed              public, token-gated: a partner's MOU signature recorded on its B2B deal -> handlers/b2b-mou.js
+     GET  /home/daily                  today's home page feed (rotated curated stays + advisories in force) -> handlers/home-daily.js
 
    Cron: runs daily; refreshes news every run, events once a week (Mondays).
 
@@ -96,6 +98,8 @@ import { handleStayLead, purgeOldStayLeads } from './handlers/stay-lead.js';
 import { sendAdminDigest } from './handlers/bot-admin.js';
 import { handleAdvisoryAlerts, runAdvisoryAlerts } from './handlers/advisory-alerts.js';
 import { createShopHandlers } from './handlers/shop-order.js';
+import { handleMouSigned } from './handlers/b2b-mou.js';
+import { refreshHomeDaily, handleHomeDaily } from './handlers/home-daily.js';
 
 // Only Cashfree PG calls use this diagnostic transport. The actual order,
 // identity and entitlement rules stay inside handlers/cashfree.js unchanged.
@@ -173,6 +177,10 @@ export default {
     if(path === 'news') return handleNews(request, env, ctx);
 
     if(path === 'events') return handleEvents(request, env, ctx);
+
+    if(path === 'home/daily') return handleHomeDaily(request, env, ctx);
+
+    if(path === 'b2b/mou-signed') return handleMouSigned(request, env);
 
     if(path === 'events/refresh') return handleEventsRefresh(request, env);
 
@@ -252,6 +260,8 @@ export default {
       await refreshNews(env);
       if(new Date().getUTCDay() === 1) await refreshEvents(env);
     }catch(e){ /* a cron failure must never take the Worker down */ }
+    /* Home page: store today's snapshot of the curated promo stays and travel advisories (one KV write a day). */
+    try{ await refreshHomeDaily(env); }catch(e){ /* yesterday's snapshot keeps serving */ }
     /* Invoices for any verified payment that has none (idempotent; no-op without the service account). */
     try{ if(env.FIREBASE_SERVICE_ACCOUNT_JSON) await runInvoiceSweepCron(env); }catch(e){ /* invoicing is best-effort; the admin page can re-run it */ }
     /* Inactivity reminder emails (7+ days away). No-ops until RESEND_API_KEY + EMAIL_UNSUB_SECRET are set. */

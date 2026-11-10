@@ -62,7 +62,7 @@ start of the modularization effort, down from 3,099 after the prior
 "modularization-final" pass, down from 1,207 after "round 4", and down from
 629 after "round 5" — the further changes since round 5 are incidental to
 unrelated feature PRs #138-143 and this pass's `submitUtr()` one-line
-rewire, not a new extraction round) and there are **213 files** under `js/`
+rewire, not a new extraction round) and there are **214 files** under `js/`
 (including the later `js/admin/` dashboard modules and
 `js/core/push-notifications.js` — see the `js/core/` and `js/admin/`
 entries below; the count was last re-verified via `npm run mod-status`,
@@ -1360,3 +1360,8 @@ button stay in `partner/marketplace.js`. Loaded after `js/booking/form.js`.
 - `quiet-data.js` + `quiet/` (standalone page, classic scripts): the Quiet Himalaya collection for readers, writers, researchers and yoga travellers. Picks reference partner ids; reasons restate only what the record or a public listing says. Yoga/meditation appear as sourced nearby places, not amenities.
 - Voice: `rwSpeechLang()` (end of `js/voice/tusk-speak.js`) returns `hi-IN` when the site language is Hindi, else `en-IN`; used by voice input and native read-aloud.
 - Tests: `tests/quiet-direct-booking.test.js`.
+
+
+## js/ui/home-daily.js (10 Nov 2026)
+
+Daily home feed reader. Fetches `GET /home/daily` from the Worker (1.5 s limit, cached per India day), exposes `window.__rwDaily`, and adds the advisories-in-force strip to `#rwPromo`. Loads before `js/ui/home-promo.js`, which uses the feed's `stayOrder`. No feed, no change. See `staff/B2B-DESK.md`.

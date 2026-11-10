@@ -294,6 +294,11 @@ button,select,input,textarea{font:inherit}
     <div id="crmList" style="margin-top:10px"><p class="note">Loading…</p></div>
   </div>
 
+  <div class="card" id="b2bBox" style="display:none">
+    <div class="lab">&#129309; B2B desk &middot; deals, MOUs, packages, payments</div>
+    <div id="b2bOut"><p class="note">Loading&hellip;</p></div>
+  </div>
+
   <div class="card" id="partnerReviewBox" style="display:none">
     <div class="lab">🏡 Property review desk</div>
     <p class="note">Review applications and send a recommendation to Mohit. You cannot activate, suspend, change payments or remove staff access.</p>
@@ -443,6 +448,8 @@ button,select,input,textarea{font:inherit}
 <script src="../business-account.js?v=20261007"></script>
 <script src="../features/finance-tax/tax-engine.js"></script>
 <script src="../resource-data.js"></script>
+<script src="b2b-core.js?v=20261110"></script>
+<script src="b2b-desk.js?v=20261110"></script>
 <script>
 function showModal(html){
   var m=el('hrModal');
@@ -617,6 +624,7 @@ firebase.auth().onAuthStateChanged(function(u){
     if(ROLE==='finance') loadLedger();
     if(ROLE==='marketing') loadCrm();
     if(hasRole('partnerships')) loadPartnerReview();
+    try{ if(typeof b2bDeskInit==='function') b2bDeskInit(); }catch(e){}
     if(ROLE==='admin') loadOrders();
     if(ROLE==='admin') loadLeads();
     if(ROLE==='admin') hrLoad();
@@ -1653,7 +1661,7 @@ function pendingRefresh(){
 function pendingActivate(uid){
   db.collection('staff').doc(uid).get().then(function(d){
     var p=d.data()||{};
-    var roleOpts=['staff','marketing','finance','admin'];
+    var roleOpts=['staff','partnerships','marketing','finance','support','ops','admin'];
     showModal('<div class="card"><h3 style="margin:0 0 4px">✅ Activate '+esc(p.name||p.email||'')+'</h3>'
       +'<p class="note" style="margin-bottom:10px">'+esc(p.email||'')+' — this is the account that signed in, verified by Firebase. You are not typing an ID; you are confirming this exact person.</p>'
       +'<label class="lab">Name</label><input id="pa_name" class="inp" value="'+esc(p.name||'')+'">'
@@ -2580,7 +2588,15 @@ var RW_COMM = {
   listing:   { pct:0,  label:'Free listing (no commission)' }
 };
 function deskPartnerHTML(me){
-  if(!hasRole('bd') && !hasRole('growth') && !hasRole('marketing') && ROLE!=='admin') return '';
+  if(!hasRole('bd') && !hasRole('partnerships') && !hasRole('growth') && !hasRole('marketing') && ROLE!=='admin') return '';
+  /* config/partners is admin-write only (firestore.rules), so this form used to fail with a permission
+     error for everyone except the founder. B2B staff now add the business as a deal on the B2B desk. */
+  if(ROLE!=='admin'){
+    if(!hasRole('bd') && !hasRole('partnerships')) return '';
+    return '<div class="dk-lab">ADD A PARTNER</div>'
+      +'<div class="dk-note" style="margin-bottom:9px">Spoke to a homestay or operator? Add them as a deal, send the MOU and track it to signature on the B2B desk above.</div>'
+      +'<button class="btn go" style="width:100%;padding:12px" onclick="b2bNewDeal()">\ud83e\udd1d Add a business</button>';
+  }
   return '<div class="dk-lab">ADD A PARTNER</div>'
     +'<div class="dk-note" style="margin-bottom:9px">Signed up a homestay or operator? Add them here \u2014 they appear in the app within seconds. No code, no waiting on Mohit.</div>'
     +'<button class="btn go" style="width:100%;padding:12px" onclick="openPartnerAdd()">\ud83e\udd1d Onboard a business</button>'
