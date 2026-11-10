@@ -1,0 +1,3 @@
+import test from 'node:test';import assert from 'node:assert/strict';import {reserveOnce,claimId} from '../worker/lib/finance-atomic-claims.js';
+test('single claim for concurrent same-id attempts',async()=>{const ids=new Set();const create=async(_e,_t,_p,_c,id)=>{if(ids.has(id))return false;ids.add(id);return true;};const args={env:{},accessToken:'x',projectId:'p',kind:'qikink',id:'order-7',create};const results=await Promise.all([reserveOnce(args),reserveOnce(args)]);assert.deepEqual(results.map(x=>x.reserved).sort(),[false,true]);});
+test('claim key rejects paths and invalid amounts',async()=>{assert.throws(()=>claimId('x','../bad'));await assert.rejects(reserveOnce({kind:'x',id:'y',amountPaise:-1}));});
