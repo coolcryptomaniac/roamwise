@@ -26,7 +26,10 @@
    Object.keys(PAGES).forEach(function(k){var b=document.createElement('button');b.type='button';b.className='tab';b.textContent=names[k];b.setAttribute('aria-pressed',String(k===selected));b.onclick=function(){selected=k;render();};tabs.appendChild(b);});
    body.textContent='Explore '+names[selected].toLowerCase()+' on RoamWise. Select an offer and review its final price before paying.';
    cta.textContent='Explore '+names[selected]+' on RoamWise';
-   cta.href=ROOT+PAGES[selected];
+   var itemId=(el.dataset.itemId||'').trim();
+   var direct=selected==='shop'&&/^[a-z0-9-]{1,60}$/.test(itemId);
+   cta.href=ROOT+PAGES[selected]+(direct?'?buy='+encodeURIComponent(itemId):'');
+   if(direct){cta.textContent='Buy now · review and pay';body.textContent='Open the selected RoamWise item checkout in one tap. Confirm your delivery details and server-verified total before authorizing payment.';}
   }
   render();
  }
