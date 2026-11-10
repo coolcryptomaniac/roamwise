@@ -412,10 +412,7 @@ function rwAgentGo(){
   rwAgentRun(obj, function(tr){ rwAgentRenderTrace(tr, host); },
     function(res){
       rwAgentRenderTrace(res.trace, host);
-      if(res.ok) host.insertAdjacentHTML('beforeend',
-        '<div class="rw-cine-panel" style="margin-top:12px;padding:20px">'
-        +'<div style="position:relative;z-index:1"><b style="color:#4ADE80;font-size:13px;letter-spacing:.06em">\u2713 OBJECTIVE COMPLETE</b>'
-        +'<div style="font-size:14px;color:#EDEAE2;margin-top:8px;line-height:1.65">'+esc2(res.answer||'')+'</div></div></div>');
+      if(res.ok) host.insertAdjacentHTML('beforeend', rwTuskAgentResultHTML(res.answer||''));
       else host.insertAdjacentHTML('beforeend',
         '<div style="border:1px solid #E05B5B;background:rgba(224,91,91,.08);border-radius:12px;padding:14px;margin-top:10px">'
         +'<b style="color:#E05B5B;font-size:13px">Stopped: '+esc2(res.reason)+'</b>'
@@ -440,3 +437,19 @@ function rwAgentRenderTrace(trace, host){
 }
 
 RW_AGENT_IMPL.trip_desk=function(a){if(typeof RWTripDesk==='undefined')return {ok:false,error:'Trip desk unavailable'};if(a.open&&typeof rwOpenTripDesk==='function')rwOpenTripDesk();return {ok:true,trip:RWTripDesk.summary()};};
+
+/* RoamWise violet/blue/gold compact-first agent result. Escapes all model text. */
+function rwTuskAgentResultHTML(answer){
+  var raw=String(answer||'').slice(0,12000), lines=raw.split(/\n+/).map(function(x){return x.trim();}).filter(Boolean);
+  var summary=(lines[0]||'Completed').slice(0,220);
+  var cards=lines.slice(1,5).map(function(line){
+    return '<article style="flex:0 0 min(78vw,240px);scroll-snap-align:start;background:#1C1C38;border:1px solid rgba(115,87,246,.35);border-radius:18px;padding:14px;min-height:90px;color:#F8F7FF;white-space:normal">'
+      +esc2(line.slice(0,240))+'</article>';
+  }).join('');
+  return '<section aria-label="Ailon Tusk answer" style="margin-top:12px;padding:18px;background:#111226;color:#F8F7FF;border:1px solid #7357F6;border-radius:18px">'
+    +'<div style="font-size:12px;font-weight:700;letter-spacing:.05em;color:#D9AA55">AILON TUSK · ROAMWISE</div>'
+    +'<p style="font-size:15px;line-height:1.5;margin:10px 0">'+esc2(summary)+'</p>'
+    +(cards?'<div aria-label="Suggested results" style="display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;padding:4px 0 12px">'+cards+'</div>':'')
+    +(raw.length>summary.length?'<details style="margin-top:10px"><summary style="cursor:pointer;color:#B9A7FF;min-height:36px">Show full answer</summary><div style="white-space:pre-wrap;overflow-wrap:anywhere;font-size:13px;line-height:1.6;margin-top:10px">'+esc2(raw)+'</div></details>':'')
+    +'<div style="font-size:11px;color:#C8C4DF;margin-top:10px">Prices, availability and payment status require checkout verification.</div></section>';
+}
