@@ -1,0 +1,25 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "ailon-tusk",
+  "version": "0.1.0",
+  "description": "Discover approved RoamWise travel listings and open verified checkout pages without creating payments.",
+  "author": {
+    "name": "RoamWise"
+  },
+  "extensions": {
+    "com.openai": {
+      "interface": {
+        "displayName": "Ailon Tusk",
+        "shortDescription": "Discover and book with RoamWise",
+        "longDescription": "Explore approved public travel listings and hand off to official RoamWise checkout. This plugin does not create orders, verify live inventory, charge customers, or confirm bookings.",
+        "developerName": "RoamWise",
+        "category": "Travel",
+        "capabilities": [
+          "Search approved public RoamWise listings by ID",
+          "Open official RoamWise checkout categories"
+        ],
+        "prompt": "Show me RoamWise travel offers and how to book safely."
+      }
+    }
+  }
+}
