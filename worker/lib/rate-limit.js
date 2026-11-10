@@ -53,6 +53,7 @@ export const ROUTE_LIMITS = {
   'trek-quote':              ['trek-quote', 400, 600, 0],
   'trek-status':             ['trek-status', 2000, 600, 120],
   'leads':                   ['leads', 12, 600, 0],
+  'b2b-mou':                 ['b2b-mou', 30, 600, 0],
   'wallet-link':             ['wallet-link', 10, 600, 0],
   'wallet':                  ['wallet', 600, 600, 60],
   'stay-order':              ['stay-order', 300, 600, 0],
@@ -73,6 +74,7 @@ export function routeKey(path, method){
   if(method === 'GET' && (path === 'bhakti/access' || /^bhakti\/order\/[^/]+\/status$/.test(path)))return 'status';
   if(method === 'GET' && /^music\/(order\/[^/]+\/status|download\/[^/]+|licence\/[^/]+)$/.test(path)) return 'status';
   if(path === 'leads') return 'leads';
+  if(method === 'POST' && path === 'b2b/mou-signed') return 'b2b-mou';
   if(method === 'POST' && path === 'wallet/link') return 'wallet-link';
   if(path === 'wallet' || /^wallet\/(keep|bank)$/.test(path) || path === 'stays/decide' || path === 'shop/decide') return 'wallet';
   if(method === 'POST' && (path === 'stays/checkout' || path === 'stays/quote')) return 'stay-order';
@@ -86,7 +88,7 @@ export const MAX_BODY_BYTES = 65536;   /* public JSON routes never need more */
 export async function abuseGuard(request, path, cacheImpl){
   if(path === 'health') return null;
   /* Read-only public data routes are already cached at the edge and are hit by everyone on a shared Wi-Fi; never throttle them. */
-  if(request.method === 'GET' && /^(geo|news|events)$/.test(path)) return null;
+  if(request.method === 'GET' && /^(geo|news|events|home\/daily)$/.test(path)) return null;
   const ip = clientIp(request);
   const len = Number(request.headers.get('content-length') || 0);
   const rk = routeKey(path, request.method);

@@ -855,6 +855,80 @@ service cloud.firestore {
       }
     }
 
+    // ---------- B2B DESK (staff/b2b-desk.js) ----------
+    // Partner and package deals worked by B2B staff, and the money they report.
+    // A deal holds a business contact, so it is readable only by the staff
+    // member who owns it and by admins. Staff can move a deal only through the
+    // stages they are responsible for: mou_signed is written by the Worker
+    // (service account) when the partner signs their own MOU link, and
+    // countersigned / live are admin steps. Staff can never set the signature
+    // fields or change who owns a deal.
+    function isB2BStaff() {
+      return request.auth != null
+        && exists(/databases/$(database)/documents/staff/$(request.auth.uid))
+        && (get(/databases/$(database)/documents/staff/$(request.auth.uid)).data.role in ['partnerships','bd']
+            || get(/databases/$(database)/documents/staff/$(request.auth.uid)).data.get('roles', []).hasAny(['partnerships','bd']));
+    }
+    function b2bDealShapeOk(d) {
+      return d.keys().hasOnly(['ownerUid','ownerName','name','kind','city','contact','phone','email','plan',
+                               'bookingModel','listingFee','note','nextAt','longStay','pkg','stage',
+                               'mouToken','mouSentAt','mouSignedLink','createdAt','updatedAt'])
+        && d.name is string && d.name.size() >= 2 && d.name.size() <= 110
+        && d.city is string && d.city.size() <= 90
+        && d.stage in ['lead','pitched','mou_sent','lost']
+        && d.get('note', '') is string && d.get('note', '').size() <= 600
+        && d.get('listingFee', 0) is number && d.get('listingFee', 0) >= 0 && d.get('listingFee', 0) <= 10000
+        && d.get('mouToken', '') is string && d.get('mouToken', '').size() <= 64
+        && d.get('mouSignedLink', '') is string && d.get('mouSignedLink', '').size() <= 1200;
+    }
+    match /b2bDeals/{id} {
+      allow read: if isAdmin() || isStaffAdmin()
+        || (isB2BStaff() && resource.data.ownerUid == request.auth.uid);
+      allow create: if isAdmin() || (
+           isB2BStaff()
+        && request.resource.data.ownerUid == request.auth.uid
+        && b2bDealShapeOk(request.resource.data)
+      );
+      // A deal already signed, countersigned or live is frozen for staff.
+      allow update: if isAdmin() || (
+           isB2BStaff()
+        && resource.data.ownerUid == request.auth.uid
+        && resource.data.stage in ['lead','pitched','mou_sent','lost']
+        && request.resource.data.diff(resource.data).affectedKeys()
+             .hasOnly(['name','kind','city','contact','phone','email','plan','bookingModel','listingFee',
+                       'note','nextAt','longStay','pkg','stage','mouToken','mouSentAt','mouSignedLink','updatedAt'])
+        && request.resource.data.name is string && request.resource.data.name.size() >= 2
+        && request.resource.data.name.size() <= 110
+        && request.resource.data.stage in ['lead','pitched','mou_sent','lost']
+        && request.resource.data.get('note', '') is string && request.resource.data.get('note', '').size() <= 600
+        && request.resource.data.get('listingFee', 0) is number && request.resource.data.get('listingFee', 0) <= 10000
+        && request.resource.data.get('mouSignedLink', '') is string && request.resource.data.get('mouSignedLink', '').size() <= 1200
+      );
+      allow delete: if isAdmin();
+    }
+    // Money reported against a deal. Staff may only ADD a row, as themselves,
+    // with status 'reported', on a deal they own. They cannot edit or delete
+    // it afterwards (it is evidence), and only an admin can mark it verified
+    // or rejected. Nothing here moves money; it is a record to reconcile.
+    match /b2bTxns/{id} {
+      allow read: if isAdmin() || isStaffAdmin()
+        || (isB2BStaff() && resource.data.enteredBy == request.auth.uid);
+      allow create: if isAdmin() || (
+           isB2BStaff()
+        && request.resource.data.enteredBy == request.auth.uid
+        && request.resource.data.status == 'reported'
+        && request.resource.data.keys().hasOnly(['dealId','dealName','enteredBy','enteredByName','kind','method',
+                                                 'amount','ref','proofUrl','date','note','status','at'])
+        && request.resource.data.kind in ['plan_fee','setup_fee','package_deposit','package_balance','commission','refund','other']
+        && request.resource.data.method in ['upi','bank','cashfree','cash']
+        && request.resource.data.amount is number
+        && request.resource.data.amount > 0 && request.resource.data.amount <= 500000
+        && request.resource.data.dealId is string
+        && get(/databases/$(database)/documents/b2bDeals/$(request.resource.data.dealId)).data.ownerUid == request.auth.uid
+      );
+      allow update, delete: if isAdmin();
+    }
+
     // ---------- TASKS (the intern work board) ----------
     match /tasks/{id} {
       allow read: if isAdmin() || isStaff();

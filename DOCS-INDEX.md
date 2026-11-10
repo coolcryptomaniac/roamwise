@@ -164,4 +164,5 @@ follow-up content fix:
    Pro-yearly price; live config prices Pro yearly at ₹2,499
    (`PRICING-REFERRAL-MATH.md` §3 already carries the corrected figures).
 
+- `staff/B2B-DESK.md`: the staff B2B desk (deals, MOU send / sign / download, package quotes, reported payments), who may do what, and the daily home feed (`GET /home/daily`). Read this when touching `staff/b2b-*.js`, `b2bDeals` / `b2bTxns` rules, `worker/handlers/b2b-mou.js` or `worker/handlers/home-daily.js`.
 - `data/home-promo.json` and `memories/seed.json` (not docs): homepage promo config (stay cards and Natasha paintings; set `from` for an indicative nightly rate) and hand-curated Memories events. `tools/build-memories.js` builds `memories/data.json`; the `memories-sync` workflow keeps it current from `assets/memories/YYYY-MM-DD-name/` folders and new @mohucool event videos.
