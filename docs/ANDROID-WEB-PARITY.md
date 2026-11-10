@@ -1,0 +1,4 @@
+# RoamWise Android / web parity
+The Android Capacitor webDir is generated and should never be manually maintained. Run `npm run android:sync` before every Android build; this first copies current tracked public web assets into `www/`, then runs Capacitor sync. CI checks that the core shop checkout, embed and travel pages are included.
+This fixes stale/missing bundled assets but does not establish that all Android interactions work. Validate Android WebView auth redirects, browser popups, Cashfree checkout return URL, back navigation, permissions, geolocation, camera and voice, external links, file downloads and deep links on a real device. Some flows may need native plugins or Chrome Custom Tabs.
+Never assume a GitHub merge updates an installed APK. Publish a newly signed Android build through the existing release channel and ask users to update.
