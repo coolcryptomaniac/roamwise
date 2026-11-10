@@ -1,0 +1,31 @@
+name: Ailon Tusk safety regression
+on:
+  pull_request:
+    paths:
+      - 'worker/handlers/ai.js'
+      - 'worker/handlers/tusk-mcp.js'
+      - 'worker/lib/tusk-*.js'
+      - 'js/copilot/agent.js'
+      - 'tests/tusk-*.test.*'
+      - '.github/workflows/tusk-safety.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'worker/handlers/tusk-mcp.js'
+      - 'worker/lib/tusk-*.js'
+      - 'js/copilot/agent.js'
+      - 'tests/tusk-*.test.*'
+permissions:
+  contents: read
+jobs:
+  safety:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node --check worker/worker.js
+      - run: node --check worker/handlers/tusk-mcp.js
+      - run: node --check js/copilot/agent.js
+      - run: node --test tests/tusk-mcp.test.mjs tests/tusk-presentation.test.mjs tests/tusk-commerce-ui.test.mjs tests/tusk-agent-results.test.js
