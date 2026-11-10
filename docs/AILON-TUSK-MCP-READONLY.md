@@ -1,0 +1,4 @@
+# Ailon Tusk MCP integration
+POST /tusk/mcp implements minimal JSON-RPC initialize, ping, tools/list and tools/call. Two read-only tools: approved KV listing by explicit ID and official RoamWise checkout category handoff. No private records, payment writes, price promises, AI inference or BYOK secrets.
+This is a stateless minimal MCP endpoint, not a complete production ChatGPT App. Before third-party registration validate protocol compatibility, HTTPS host, authentication and consent for future personalized tools, abuse limits, tool results, platform review and live discovery.
+Run node --test tests/tusk-mcp.test.mjs and deployment smoke tests. Never expose payment creation or booking confirmation tools until end-to-end authentication, server-side pricing, idempotency and Cashfree webhook reconciliation are proven.
