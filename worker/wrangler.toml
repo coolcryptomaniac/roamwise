@@ -53,6 +53,8 @@ id = "be31e0935be843219cea1edf2203877b"   # <-- the ONLY line you edit in this f
 # ---------------------------------------------------------------------------
 [vars]
 PUBLIC_DISPLAY_CACHE_ENABLED = "false" # enable only after approved source backfill and verification
+PUBLIC_DISPLAY_SYNC_ENABLED = "false" # bounded daily source reads, default off
+PUBLIC_DISPLAY_SYNC_TARGETS = "[]" # explicit approved collection/id pairs, max 10 per run
 CASHFREE_ENV = "live"
 # Qikink order API: "live" sends PAID shop orders to the real Qikink account (wallet is charged).
 # Must match config/shop.qikinkEnvironment (set by the "Shop checkout switches" workflow).
