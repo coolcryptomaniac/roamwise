@@ -155,7 +155,7 @@ var RW_AGENT_IMPL = {
       visa: hit.visa||null};
   },
   open_roamwise_checkout: function(a){
-    var pages={shop:'/shop/',stays:'/stay-and-do/',packages:'/packages/',treks:'/treks/',pro:'/pro/',music:'/music/store/'};
+    var pages={shop:'/shop/',stays:'/',packages:'/packages/',treks:'/treks/',pro:'/',music:'/music/store/'};
     var target=pages[a&&a.category];
     if(!target)return {ok:false,error:'unsupported category'};
     if(typeof window==='undefined'||!window.location)return {ok:false,error:'browser unavailable'};
