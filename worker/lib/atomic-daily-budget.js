@@ -20,7 +20,7 @@ export function budgetPaths(projectId,instant,expenseId){
 }
 function getInteger(doc,key){const v=doc?.fields?.[key]?.integerValue;return v===undefined?0:Number(v);}
 export async function reserveDailyExpense({projectId,accessToken,expenseId,type,amountPaise,instant=new Date(),approved=false,maxAttempts=3}){
- if(!validKey(accessToken)||!validKey(expenseId))throw new Error('invalid_auth_or_id');
+ if(typeof accessToken!=='string'||!accessToken.trim()||!validKey(expenseId))throw new Error('invalid_auth_or_id');
  const p=budgetPaths(projectId,instant,expenseId);
  const root=ROOT+projectId+'/databases/(default)/documents';
  for(let attempt=0;attempt<maxAttempts;attempt++){
@@ -28,8 +28,10 @@ export async function reserveDailyExpense({projectId,accessToken,expenseId,type,
   if(!tx)throw new Error('transaction_unavailable');
   const r=await request(root+':batchGet',accessToken,{documents:[p.aggregate,p.claim],transaction:tx});
   // Firestore batchGet may return documents out of order.
-  const docs=Array.isArray(r)?r:[];
+  const docs=Array.isArray(r)?r:(r&&Array.isArray(r.responses)?r.responses:[]);
+  if(docs.length!==2)throw new Error('incomplete_transaction_read');
   const find=path=>docs.find(x=>x.found?.name===path||x.missing===path)?.found;
+  if(!docs.some(x=>x.found?.name===p.aggregate||x.missing===p.aggregate)||!docs.some(x=>x.found?.name===p.claim||x.missing===p.claim))throw new Error('missing_transaction_read');
   const existing=find(p.claim);
   if(existing)return {reserved:false,reason:'duplicate_expense_id',day:p.day};
   const budget=find(p.aggregate);
