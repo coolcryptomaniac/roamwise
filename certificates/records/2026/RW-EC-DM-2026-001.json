@@ -6,9 +6,16 @@
   "internship_start": "2026-08-10",
   "internship_end": "2026-11-10",
   "issued_on": "2026-11-10",
-  "pdf_sha256": "7f2b6cb37a5a3a570c644b061cbf673224ed745d1030fece61e50f64b224f7d4",
+  "pdf_sha256": "ed6d5a400d3b61acb58818171757481852fd9868e1e08086446e9177de5fdade",
   "verification_url": "https://roamwise.co.in/certificates/verify/?id=RW-EC-DM-2026-001",
   "delivery_status": "sent",
   "delivery_date": "2026-11-10",
-  "notes": "The PDF SHA-256 matches the official signed public registry. Visual JPG is provided for sharing and is not the hash-registered PDF."
+  "notes": "Signed replacement public registry entry. No employee contact information is published. Final PDFs were delivered by Gmail; this metadata is not a public PDF archive.",
+  "accepted_pdf_sha256": {
+    "portrait": "ed6d5a400d3b61acb58818171757481852fd9868e1e08086446e9177de5fdade",
+    "landscape": "9a47305b0dae045e8d21ca8b53e09fd9c792402f671700c4e4cb65e262a3e9c3",
+    "verification_record": "5f8675d812d13e1774d963eae99d733794da02fd2a829d7e2953d8d864acfb1f"
+  },
+  "status": "issued",
+  "supersession": "Only the 2026-11-10 original-photograph corrected PDFs are accepted; previous PDF versions are superseded."
 }
