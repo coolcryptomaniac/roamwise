@@ -24,7 +24,7 @@
     "sitemap:check": "node tools/generate-sitemap.js --check",
     "content:build": "node tools/build-editorial.js",
     "content:check": "node tools/build-editorial.js --check && node tools/check-editorial.js && npm run sitemap:check",
-    "sync": "npx cap sync android",
+    "sync": "npm run android:sync",
     "open": "npx cap open android",
     "business:context": "node features/business-travel/tools/context.cjs",
     "business:check": "node features/business-travel/tools/check.cjs",
@@ -35,7 +35,9 @@
     "pilgrimage:check": "node features/pilgrimage/check.cjs",
     "pilgrimage:test": "node --test tests/pilgrimage.test.js",
     "lite:build": "node tools/build-lite.cjs",
-    "lite:check": "node tools/build-lite.cjs --check"
+    "lite:check": "node tools/build-lite.cjs --check",
+    "android:web": "node tools/build-android-www.cjs",
+    "android:sync": "npm run android:web && npx cap sync android"
   },
   "dependencies": {
     "@capacitor-community/speech-recognition": "^7.0.1",
