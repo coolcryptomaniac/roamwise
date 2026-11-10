@@ -1,3 +1,4 @@
+import { runScheduledAudit, AUDIT_CRONS } from './lib/scheduled-site-audits.js';
 /* ============================================================================
    RoamWise Cloudflare Worker — SINGLE entry point.
    ============================================================================
@@ -242,6 +243,10 @@ export default {
   /* ONE scheduled handler. News daily; events on Mondays only, to stay well
      inside the Ticketmaster free quota. */
   async scheduled(event, env, ctx){
+    if(event && (event.cron===AUDIT_CRONS.weekly || event.cron===AUDIT_CRONS.monthly)){
+      await runScheduledAudit(env,event.cron,new Date(event.scheduledTime||Date.now()));
+      return;
+    }
     /* Hourly trigger: booking acknowledgement emails only (guests expect a prompt reply). */
     if(event && event.cron === '0 * * * *'){
       try{ if(env.FIREBASE_SERVICE_ACCOUNT_JSON) await runTripNotifications(env, { mode: 'ack' }); }catch(e){ /* best-effort */ }
