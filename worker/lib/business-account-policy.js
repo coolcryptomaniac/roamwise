@@ -1,7 +1,7 @@
 /* RoamWise operating-account policy. Only masked bank identifiers in source.
  * This module never initiates payments, payouts or beneficiary changes.
  */
-export const OPERATING_ACCOUNT=Object.freeze({bank:'HDFC Bank',last4:'8061',purpose:'business_current_account',cashfreeSettlement:'active_in_founder_screenshot_2026-11-10',upi:'roamwisepay@ybl',upiLinkedAccountVerified:false,payoutsActivated:false});
+export const OPERATING_ACCOUNT=Object.freeze({bank:'HDFC Bank',last4:'8061',purpose:'business_current_account',cashfreeSettlement:'active_in_founder_screenshot_2026-11-10',upi:'roamwisepay@ybl',upiLinkageOwnerConfirmed:true,upiLinkedAccountBankVerified:false,payoutsActivated:false});
 const MUTATIONS=new Set(['payout','refund','beneficiary_change','bank_account_change','supplier_payment','subscription_charge','wallet_transfer']);
 export function assessMoneyAction({action,founderApproved=false,providerSupported=false,verifiedAccountLast4='',beneficiaryVerified=false}={}){
  if(!MUTATIONS.has(action))return {allowed:false,reason:'unsupported_action'};
