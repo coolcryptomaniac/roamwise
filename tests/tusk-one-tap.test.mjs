@@ -1,0 +1,4 @@
+import test from 'node:test';import assert from 'node:assert/strict';import {handleTuskMcp} from '../worker/handlers/tusk-mcp.js';
+async function call(args){const r=await handleTuskMcp(new Request('https://example.test/tusk/mcp',{method:'POST',body:JSON.stringify({jsonrpc:'2.0',id:1,method:'tools/call',params:{name:'roamwise_checkout_handoff',arguments:args}})}),{});return r.json();}
+test('shop SKU handoff deep links directly to existing secure checkout',async()=>{const x=await call({category:'shop',itemId:'aipan-hoodie'});const v=JSON.parse(x.result.content[0].text);assert.equal(v.url,'https://www.roamwise.co.in/shop/?buy=aipan-hoodie');assert.equal(v.paymentConfirmed,false);});
+test('reject invalid and non-shop item deep links',async()=>{for(const args of [{category:'shop',itemId:'../admin'},{category:'stays',itemId:'aipan-hoodie'}])assert.equal((await call(args)).error.code,-32602);});
