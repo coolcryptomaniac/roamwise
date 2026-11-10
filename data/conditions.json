@@ -1,6 +1,6 @@
 {
  "version": 1,
- "checked": "2026-11-09",
+ "checked": "2026-11-10",
  "regions": [
   {
    "id": "almora",
@@ -358,6 +358,24 @@
     "shinkula"
    ],
    "regions": []
+  },
+  {
+   "id": "auto-20261109-uttarakhand-heavy-rain-lashes-dehradun-a",
+   "kind": "rain",
+   "official": false,
+   "auto": true,
+   "title": "Uttarakhand: Heavy rain lashes Dehradun as 97 roads remain blocked; schools shut today",
+   "detail": "DD News reports this. Check with local police or the district administration before you travel.",
+   "from": "2026-11-09",
+   "until": "2026-11-11",
+   "source": "DD News",
+   "sourceUrl": "https://news.google.com/rss/articles/CBMirwFBVV95cUxQcUN2aWJRMnBqdTU4NnNZRlg3SWJ3ODBZWFpKQy1sV0VpVFJYektHcHFPdUE2b0RucENjaHc1VWluXy1rc1UtX1VNUGVTR1BRSDQ4YzJRN0pVVnhSTGFCSEo3azIzSWIwdEtScExQUkNneUZpMnNuSW1OaHdsTzRaWE5nTmhtR0xIeFBidnBVT0EzcUZWUF81QmEwcVlaQWFwLU5CMkl6dWFXd3JUWDhF?oc=5",
+   "match": [
+    "dehradun"
+   ],
+   "regions": [
+    "dehradun"
+   ]
   },
   {
    "id": "auto-20261102-char-dham-yatra-2026-check-closing-dates",
