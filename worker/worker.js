@@ -59,6 +59,7 @@
 
 import { CORS, json } from './lib/http.js';
 import { handlePublicDisplayCache } from './handlers/public-cache.js';
+import { syncApprovedPublicTargets } from './lib/public-display-sync.js';
 import { handleTrekMarketplace } from './handlers/treks-marketplace.js';
 import { createStayOrder, stayOrderStatus, handleStayCashfreeWebhook, stayRates, stayQuote } from './handlers/stay-cashfree.js';
 import { handleStayDecide, runStayDeadlines } from './handlers/stay-lifecycle.js';
@@ -265,6 +266,8 @@ export default {
     }catch(e){ /* a cron failure must never take the Worker down */ }
     /* Home page: store today's snapshot of the curated promo stays and travel advisories (one KV write a day). */
     try{ await refreshHomeDaily(env); }catch(e){ /* yesterday's snapshot keeps serving */ }
+    // Explicit public display targets only; opt-in, bounded, no collection scans.
+    try{ await syncApprovedPublicTargets(env); }catch(e){ /* preserve prior cache; monitor in staging */ }
     /* Invoices for any verified payment that has none (idempotent; no-op without the service account). */
     try{ if(env.FIREBASE_SERVICE_ACCOUNT_JSON) await runInvoiceSweepCron(env); }catch(e){ /* invoicing is best-effort; the admin page can re-run it */ }
     /* Inactivity reminder emails (7+ days away). No-ops until RESEND_API_KEY + EMAIL_UNSUB_SECRET are set. */
