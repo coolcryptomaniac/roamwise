@@ -9,6 +9,7 @@
    free, and crucially uses NO KV writes.
    ========================================================================= */
 import { json } from '../lib/http.js';
+import { tuskPresentation } from '../lib/tusk-presentation.js';
 import { curatedAnswer } from '../lib/tusk-curated.js';
 import { verifyFirebaseIdToken } from '../lib/firebase-verify.js';
 import { getServiceAccountAccessToken, parseServiceAccount } from '../lib/service-account.js';
@@ -137,7 +138,7 @@ export async function handleAI(request, env){
     const peek = await peekManagedAI(env, claims.uid, limit);
     if(peek.ok){
       const hit = await getCachedAnswer(env, cacheKey);
-      if(hit) return json({text:hit.text,remaining:peek.remaining,limit:peek.limit,route:hit.provider,model:hit.model,usage:null,cached:true});
+      if(hit) return json({text:hit.text,presentation:tuskPresentation(hit.text,{expanded:body.expanded===true}),remaining:peek.remaining,limit:peek.limit,route:hit.provider,model:hit.model,usage:null,cached:true});
     }
     // Revenue-gated routing (see lib/spend-governor.js): cache first, then the
     // free allowances, then paid routes only while spend stays under the
@@ -161,7 +162,7 @@ export async function handleAI(request, env){
     if(!answer||!answer.text)return json({error:'provider_error',message:'Ailon Tusk is temporarily using its on-device planner.',remaining:reserved.remaining,code:last},502);
     try{await chargeSpend(env,used.name,used.est,used.freeTier);}catch(e){/* accounting is best-effort */}
     await putCachedAnswer(env, cacheKey, answer);
-    return json({text:answer.text,remaining:reserved.remaining,limit:reserved.limit,route:answer.provider,model:answer.model,usage:answer.usage||null});
+    return json({text:answer.text,presentation:tuskPresentation(answer.text,{expanded:body.expanded===true}),remaining:reserved.remaining,limit:reserved.limit,route:answer.provider,model:answer.model,usage:answer.usage||null});
   }catch(e){
     return json({ error: 'ai failed' }, 500);
   }
