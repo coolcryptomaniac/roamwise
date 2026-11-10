@@ -58,6 +58,7 @@
    ========================================================================= */
 
 import { CORS, json } from './lib/http.js';
+import { handlePublicDisplayCache } from './handlers/public-cache.js';
 import { handleTrekMarketplace } from './handlers/treks-marketplace.js';
 import { createStayOrder, stayOrderStatus, handleStayCashfreeWebhook, stayRates, stayQuote } from './handlers/stay-cashfree.js';
 import { handleStayDecide, runStayDeadlines } from './handlers/stay-lifecycle.js';
@@ -130,6 +131,8 @@ export default {
     const path = url.pathname.replace(/^\/+|\/+$/g, '');
 
     if(path === 'health') return handleHealth(env);
+    { const publicCacheMatch=/^public-cache\/(destinations|publicProperties|publicCreators|publicExperiences)\/([A-Za-z0-9_-]{1,100})$/.exec(path);
+      if(publicCacheMatch) return handlePublicDisplayCache(request,env,publicCacheMatch[1],publicCacheMatch[2]); }
     if(path === 'voice/sarvam/byok' && request.method === 'POST') return handleSarvamVoice(request);
     // Server-to-server endpoint; no public CORS or booking confirmation until atomic persistence is integrated.
     if(path === 'booking/cashfree/webhook') return handleBookingCashfreeWebhook(request, env);
