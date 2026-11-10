@@ -68,6 +68,9 @@ import {handleCreatorAutopilot,runCreatorAutopilot} from './handlers/creator-aut
 import { handleHealth } from './handlers/health.js';
 import { handleSarvamVoice } from './handlers/sarvam-voice.js';
 import { handleAI } from './handlers/ai.js';
+import { handleTuskCapabilities, handleTuskOpenApi } from './handlers/tusk-partner.js';
+import { handlePublicDisplayCache } from './handlers/public-cache.js';
+import { syncApprovedPublicTargets } from './lib/public-display-sync.js';
 import { recordTuskDailyReview } from './lib/tusk-daily-review.js';
 import { handleKala } from './handlers/kala.js';
 import { handleTuskReport, handleTuskReports } from './handlers/tusk-report.js';
@@ -131,6 +134,9 @@ export default {
     const path = url.pathname.replace(/^\/+|\/+$/g, '');
 
     if(path === 'health') return handleHealth(env);
+    if(path === 'tusk/capabilities') return handleTuskCapabilities(request);
+    if(path === 'tusk/openapi.json') return handleTuskOpenApi(request);
+    { const m=/^public-cache\/(destinations|publicProperties|publicCreators|publicExperiences)\/([A-Za-z0-9_-]{1,100})$/.exec(path); if(m) return handlePublicDisplayCache(request,env,m[1],m[2]); }
     if(path === 'voice/sarvam/byok' && request.method === 'POST') return handleSarvamVoice(request);
     // Server-to-server endpoint; no public CORS or booking confirmation until atomic persistence is integrated.
     if(path === 'booking/cashfree/webhook') return handleBookingCashfreeWebhook(request, env);
@@ -263,6 +269,7 @@ export default {
     }catch(e){ /* a cron failure must never take the Worker down */ }
     /* Home page: store today's snapshot of the curated promo stays and travel advisories (one KV write a day). */
     try{ await refreshHomeDaily(env); }catch(e){ /* yesterday's snapshot keeps serving */ }
+    try{ await syncApprovedPublicTargets(env); }catch(e){ /* preserve prior cache */ }
     // Daily safe Tusk audit: deterministic, read-only, no model charges or production edits.
     try{ await recordTuskDailyReview(env); }catch(e){ /* best effort */ }
     /* Invoices for any verified payment that has none (idempotent; no-op without the service account). */
