@@ -16,3 +16,8 @@ This change adds an opt-in, GET-only public-display endpoint at `/public-cache/:
 5. Track Firestore reads, KV operations, cache-hit rate and billing; budget $10/month Google Cloud target, not a hard spending guarantee.
 6. Run `node --test tests/cloudflare-public-cache.test.mjs` and staging smoke tests before deployment.
 No live data has been copied. No production deployment or billing changes have been made.
+
+## Incremental sync now in PR #736
+Daily cron calls `syncApprovedPublicTargets` but exits unless `PUBLIC_DISPLAY_SYNC_ENABLED=true`. The JSON `PUBLIC_DISPLAY_SYNC_TARGETS` accepts up to 10 explicit `{"collection":"destinations","id":"almora"}` entries, from approved public collections only. It reads at most 10 Firestore documents per day, projects allowed display fields, and removes KV records when source docs are absent or no longer approved. Errors preserve the previous cache until TTL expiry. This is a bounded pilot, not a full-database mirror; no data copied yet.
+
+**Before enabling:** inspect actual collection names and source document consent flags (`approvedForPublic=true`, `visibility=public`), then stage test and verify deletion propagation. Run `node --test tests/public-display-sync.test.mjs tests/cloudflare-public-cache.test.mjs`. Cache endpoints remain disabled independently. Never add payment/user collection IDs to targets. For larger datasets, use checkpointed paginated backfill with a dedicated queue or D1; do not increase cron reads without a cost review.
