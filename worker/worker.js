@@ -68,6 +68,7 @@ import {handleCreatorAutopilot,runCreatorAutopilot} from './handlers/creator-aut
 import { handleHealth } from './handlers/health.js';
 import { handleSarvamVoice } from './handlers/sarvam-voice.js';
 import { handleAI } from './handlers/ai.js';
+import {handleTuskCapabilities,handleTuskOpenApi} from './handlers/tusk-partner.js';
 import { handleKala } from './handlers/kala.js';
 import { handleTuskReport, handleTuskReports } from './handlers/tusk-report.js';
 import { handleTuskLearnedGet, handleTuskLearnedPost, handleTuskLearnedDrop } from './handlers/tusk-learned.js';
@@ -130,6 +131,8 @@ export default {
     const path = url.pathname.replace(/^\/+|\/+$/g, '');
 
     if(path === 'health') return handleHealth(env);
+    if(path === 'tusk/capabilities') return handleTuskCapabilities(request);
+    if(path === 'tusk/openapi.json') return handleTuskOpenApi(request);
     if(path === 'voice/sarvam/byok' && request.method === 'POST') return handleSarvamVoice(request);
     // Server-to-server endpoint; no public CORS or booking confirmation until atomic persistence is integrated.
     if(path === 'booking/cashfree/webhook') return handleBookingCashfreeWebhook(request, env);
