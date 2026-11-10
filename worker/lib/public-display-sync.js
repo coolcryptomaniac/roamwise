@@ -25,7 +25,7 @@ export async function syncApprovedPublicTargets(env){
  const targets=parseSyncTargets(env.PUBLIC_DISPLAY_SYNC_TARGETS);
  if(!targets.length)return {status:'no_valid_targets',processed:0};
  const sa=parseServiceAccount(env);
- const token=await getServiceAccountAccessToken(sa);
+ const token=await getServiceAccountAccessToken(env);
  let processed=0,removed=0;
  for(const {collection,id} of targets){
   // Fail closed on Firestore errors. Do not overwrite cached data on transient source failure.
