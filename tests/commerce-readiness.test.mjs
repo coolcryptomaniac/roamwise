@@ -1,0 +1,7 @@
+import test from 'node:test';import assert from 'node:assert/strict';
+import {reviewListing,readinessReport,earnedCommission,fulfillmentDecision} from '../worker/lib/commerce-readiness.js';
+test('unverified Qikink SKU never becomes buyable',()=>{const r=reviewListing({id:'x',channel:'qikink_pod',retailPricePaise:199900,landedCostPaise:90000});assert.equal(r.eligible,false);assert.ok(r.missing.includes('supplierSku'));});
+test('no fictional commission or pending booking earnings',()=>{assert.equal(earnedCommission({order:{verified:true,status:'completed',grossPaise:100000}}).amountPaise,0);assert.equal(earnedCommission({contract:{type:'percent',basis:'gross',bps:700},order:{verified:false,status:'completed',grossPaise:100000}}).amountPaise,0);});
+test('verified 7 percent contract calculates in paise',()=>{assert.deepEqual(earnedCommission({contract:{type:'percent',basis:'net_ex_tax',bps:700},order:{verified:true,status:'completed',netExTaxPaise:150000}}),{earned:true,amountPaise:10500,reason:'verified_completed'});});
+test('refunds and bad payment amounts never fulfill',()=>{assert.equal(fulfillmentDecision({payment:{verified:true,status:'paid',orderId:'A',currency:'INR',amountPaise:100},order:{id:'A',totalPaise:200,fulfillmentState:'queued'},listing:{channel:'qikink_pod'}}).reason,'payment_mismatch');});
+test('duplicate listings are flagged',()=>{const r=readinessReport([{id:'a',channel:'travel_package'},{id:'a',channel:'travel_package'}]);assert.equal(r.exceptions.length,2);});
