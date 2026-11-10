@@ -1,0 +1,32 @@
+name: Cloudflare public cache safety
+on:
+  pull_request:
+    paths:
+      - 'worker/lib/cloudflare-public-cache.js'
+      - 'worker/lib/public-display-sync.js'
+      - 'worker/handlers/public-cache.js'
+      - 'worker/worker.js'
+      - 'worker/wrangler.toml'
+      - 'tests/cloudflare-public-cache.test.mjs'
+      - 'tests/public-display-sync.test.mjs'
+      - '.github/workflows/cloudflare-public-cache-tests.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'worker/lib/cloudflare-public-cache.js'
+      - 'worker/lib/public-display-sync.js'
+      - 'worker/handlers/public-cache.js'
+      - 'tests/cloudflare-public-cache.test.mjs'
+      - 'tests/public-display-sync.test.mjs'
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node --check worker/worker.js
+      - run: node --test tests/cloudflare-public-cache.test.mjs tests/public-display-sync.test.mjs
