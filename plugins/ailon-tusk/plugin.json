@@ -19,10 +19,7 @@
           "Open official RoamWise checkout categories"
         ],
         "defaultPrompt": "Explore approved RoamWise listings and booking options",
-        "websiteURL": "https://roamwise.co.in",
-        "supportURL": "https://roamwise.co.in",
-        "privacyPolicyURL": "https://roamwise.co.in/privacy",
-        "termsOfServiceURL": "https://roamwise.co.in/terms"
+        "websiteURL": "https://roamwise.co.in"
       },
       "review": {
         "commerce": true,
