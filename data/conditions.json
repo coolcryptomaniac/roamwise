@@ -1,6 +1,6 @@
 {
  "version": 1,
- "checked": "2026-11-10",
+ "checked": "2026-11-11",
  "regions": [
   {
    "id": "almora",
@@ -358,6 +358,24 @@
     "shinkula"
    ],
    "regions": []
+  },
+  {
+   "id": "auto-20261110-heavy-rainfall-alert-issued-in-uttarakha",
+   "kind": "rain",
+   "official": false,
+   "auto": true,
+   "title": "Heavy rainfall alert issued in Uttarakhand; Kedarnath pedestrian route disrupted",
+   "detail": "DD News reports this. Check with local police or the district administration before you travel.",
+   "from": "2026-11-10",
+   "until": "2026-11-12",
+   "source": "DD News",
+   "sourceUrl": "https://news.google.com/rss/articles/CBMiqAFBVV95cUxPS1cxYmlrVFBwaU0zZkdUQUJIMjY0VExDd1lJbzEtMGlfYUcwd2I3WFpCUEZTdV9adnFrYktQYlhrdXRCa09XLVZMNDRyak5hYkJxaVB6RThjNmRZY0xTbVRyOFlNSHNTNzlTckc2dk9GU1hLcTZCay1DeTRRN1RnNlg4dTByNm9NQW9oMUpKWnBSS2J1Si1Hd25pLTJ2NEZQLWRQdjdTaWk?oc=5",
+   "match": [
+    "kedarnath"
+   ],
+   "regions": [
+    "rudraprayag"
+   ]
   },
   {
    "id": "auto-20261109-uttarakhand-heavy-rain-lashes-dehradun-a",
