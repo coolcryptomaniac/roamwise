@@ -47,7 +47,7 @@ async function claudeAI(policy,env){
 }
 async function groqAI(policy,env){
   if(!env.GROQ_API_KEY||!env.GROQ_MODEL)throw new Error('groq_unavailable');
-  const cap=await reserveProviderRequest(env,'groq',Number(env.GROQ_MONTHLY_REQUEST_CAP)||12000);if(!cap.ok)throw new Error(cap.reason);
+  const cap=await reserveProviderRequest(env,'groq',Number(env.GROQ_MONTHLY_REQUEST_CAP ?? 0));if(!cap.ok)throw new Error(cap.reason);
   const r=await fetch('https://api.groq.com/openai/v1/chat/completions',{method:'POST',headers:{Authorization:`Bearer ${env.GROQ_API_KEY}`,'Content-Type':'application/json'},body:JSON.stringify({model:policy.model,messages:[{role:'system',content:SYSTEM},{role:'user',content:policy.prompt}],max_tokens:policy.maxTokens})});
   const d=await r.json();if(!r.ok)throw new Error('groq_failed');return {text:String(d?.choices?.[0]?.message?.content||'').trim(),provider:'groq',model:policy.model,usage:d?.usage||null};
 }
