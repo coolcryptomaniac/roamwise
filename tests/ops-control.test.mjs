@@ -32,3 +32,16 @@ test('KV persistence only contains non-secret status',async()=>{
  assert.equal(JSON.stringify([...data]).includes('never-save'),false);
  assert.equal(sanitizedAudit(job,'dry-run',now).outcome,'dry-run');
 });
+
+test('unknown automation actions fail closed; read-only actions remain eligible',()=>{
+ const unknown={...job,actions:['delete-records']};
+ assert.equal(validateJob(unknown).reason,'action_not_allowlisted');
+ assert.equal(decideRun({job:unknown,now}).allow,false);
+ assert.equal(needsApproval(unknown),true);
+ assert.equal(decideRun({job:{...job,actions:['triage','summarize']},now}).allow,true);
+});
+test('invalid or missing cost estimates are not assumed free',()=>{
+ for(const bad of [{...job,estimatedPaidCostPaise:undefined},{...job,estimatedAiNeurons:NaN},{...job,estimatedPaidCostPaise:-1}]){
+   assert.equal(validateJob(bad).reason,'invalid_cost_estimate');
+ }
+});
