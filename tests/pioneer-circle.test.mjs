@@ -22,6 +22,12 @@ test('only settled, explicitly funded margin can generate a suggested reward', (
   for(const change of [{approved:false},{settled:false},{refunded:true},{chargeback:true},{netRealizedMarginPaise:-1},{netRealizedMarginPaise:1.1},{remainingApprovedPoolPaise:0}])
     assert.equal(suggestedRewardPaise({...good,...change}),0);
 });
+test('early users have optional stronger *relative* benefit without exceeding available margin', () => {
+  const base={approved:true,settled:true,netRealizedMarginPaise:10000,remainingApprovedPoolPaise:3000,maxBenefitPerOrderPaise:3000};
+  assert.equal(suggestedRewardPaise({...base,seat:10}),1000);
+  assert.equal(suggestedRewardPaise({...base,seat:500}),800);
+  assert.equal(suggestedRewardPaise({...base,seat:2000}),600);
+});
 test('change policy needs independently eligible supermajority and no veto', () => {
   const a=['ops','finance','security'];
   assert.equal(proposedRuleCanPass({eligibleSigners:a,approvals:['ops','finance']}),true);
