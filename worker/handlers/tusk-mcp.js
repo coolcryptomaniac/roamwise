@@ -2,7 +2,9 @@
 import { readPublicDisplayCache,cacheKey } from '../lib/cloudflare-public-cache.js';
 const toolDefs=[
  {name:'roamwise_public_listing',description:'Get one approved public RoamWise listing by collection and ID. Does not verify price or availability.',inputSchema:{type:'object',properties:{collection:{type:'string',enum:['destinations','publicProperties','publicCreators','publicExperiences']},id:{type:'string',pattern:'^[A-Za-z0-9_-]{1,100}$'}},required:['collection','id'],additionalProperties:false}},
- {name:'roamwise_checkout_handoff',description:'Provide a link to the official RoamWise category page. Does not create orders or confirm bookings.',inputSchema:{type:'object',properties:{category:{type:'string',enum:['shop','stays','packages','treks','pro','music']},itemId:{type:'string',description:'Optional live RoamWise shop catalogue item ID (shop only)',pattern:'^[a-z0-9-]{1,60}={shop:'/shop/',stays:'/',packages:'/packages/',treks:'/treks/',pro:'/',music:'/music/store/'};
+ {name:'roamwise_checkout_handoff',description:'Provide a link to the official RoamWise category page. Does not create orders or confirm bookings.',inputSchema:{type:'object',properties:{category:{type:'string',enum:['shop','stays','packages','treks','pro','music']},itemId:{type:'string',description:'Optional live RoamWise shop catalogue item ID (shop only)',pattern:'^[a-z0-9-]{1,60}$'}},required:['category'],additionalProperties:false}}
+];
+const pages={shop:'/shop/',stays:'/',packages:'/packages/',treks:'/treks/',pro:'/',music:'/music/store/'};
 function response(id,result){return Response.json({jsonrpc:'2.0',id,result},{headers:{'Cache-Control':'no-store','X-Content-Type-Options':'nosniff'}});}
 function error(id,code,message,status=200){return Response.json({jsonrpc:'2.0',id,error:{code,message}},{status,headers:{'Cache-Control':'no-store'}});}
 export async function handleTuskMcp(request,env){
