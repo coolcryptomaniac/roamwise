@@ -5,7 +5,8 @@ function build(){
   var anchor=document.getElementById('rwSalesTreks');
   if(!anchor || document.getElementById('rwPioneerRail'))return;
   var parent=anchor.parentElement, heading=anchor.previousElementSibling;
-  if(!parent || !heading)return;
+  if(heading && !heading.classList.contains('rw-trackheading'))heading=heading.previousElementSibling;
+  if(!parent || !heading || !heading.classList.contains('rw-trackheading'))return;
   var sec=document.createElement('div');sec.id='rwPioneerRail';
   sec.innerHTML='<div class="rw-trackheading"><h2>🌌 Pioneer Circle · TrailMesh · Mountain journeys</h2><div><button class="rw-arrow" data-rw-prev="rwPioneerTrack" aria-label="Previous discovery card">‹</button> <button class="rw-arrow" data-rw-next="rwPioneerTrack" aria-label="Next discovery card">›</button></div></div>'+
   '<p style="color:#dac9dc;margin:3px 0 9px">Build better journeys together. Rewards require verification; offline tools never replace emergency equipment.</p>'+
