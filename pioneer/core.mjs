@@ -29,7 +29,11 @@ export function suggestedRewardPaise(input = {}) {
       !valid(input.netRealizedMarginPaise) ||
       !valid(input.remainingApprovedPoolPaise) ||
       !valid(input.maxBenefitPerOrderPaise)) return 0;
-  const sourceShare = Math.floor(input.netRealizedMarginPaise * 0.10);
+  // No inflation: an early cohort receives a larger share of the SAME approved
+  // maximum, never an additional liability. A missing seat uses the default.
+  const cohort = cohortForSeat(input.seat);
+  const boostBps = cohort?.id === 'origin' ? 10000 : cohort?.id === 'pioneer' ? 8000 : cohort?.id === 'explorer' ? 6000 : 10000;
+  const sourceShare = Math.floor(input.netRealizedMarginPaise * 0.10 * boostBps / 10000);
   return Math.min(sourceShare, input.remainingApprovedPoolPaise,
                   input.maxBenefitPerOrderPaise);
 }
