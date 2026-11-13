@@ -5,11 +5,16 @@ import { price, publicRates, RATE, STAY_ADVANCE } from '../worker/handlers/stay-
 const NOW = Date.parse('2026-11-08T00:00:00Z');
 const q = (stay, checkin, checkout, paymentType = 'full') => price({ stay, checkin, checkout, paymentType }, NOW);
 
-test('Amor nightly stays: supplier rate x 1.25, advance 25% or full, peak dates refused', () => {
+test('Amor stays: net + 7% commission + 18% GST on it; peak nights priced, not refused', () => {
   const n = q('nanau', '2026-11-20', '2026-11-22');
-  assert.equal(n.total, 13750); assert.equal(n.amount, 13750);
-  assert.equal(q('nanau', '2026-11-20', '2026-11-22', 'advance').amount, 3438);
-  assert.throws(() => q('nanau', '2026-12-30', '2027-01-01'), /Peak dates/);
+  assert.equal(n.total, 11910); // 2 x 5,500 (tax included) x 1.0826, rounded up to Rs 10
+  assert.equal(n.amount, 11910);
+  // Amor wants the full amount when arrival is under 15 days away, 30% when it is more than 30 days away.
+  assert.equal(q('nanau', '2026-11-20', '2026-11-22', 'advance').amount, 11910);
+  const far = q('nanau', '2027-02-08', '2027-02-10', 'advance');
+  assert.equal(far.amount, 3580); assert.equal(far.portion, 30); assert.equal(far.balance, 11910 - 3580); assert.equal(far.balanceDueBy, '2027-01-31');
+  const peak = q('nanau', '2026-12-30', '2027-01-01');
+  assert.equal(peak.peakNights, 2); assert.equal(peak.total, Math.ceil(2 * 7000 * 1.0826 / 10) * 10);
   assert.throws(() => q('nanau', '2026-11-20', '2026-12-10'), /up to 14 nights/);
 });
 
@@ -33,7 +38,7 @@ test('every other stay is reservable online with the fixed advance', () => {
 test('public rates never expose supplier nets', () => {
   const pub = JSON.stringify(publicRates());
   for (const p of Object.values(RATE)) if (p.net) assert.doesNotMatch(pub, new RegExp('"' + p.net + '"|:' + p.net + '[,}]'));
-  assert.equal(publicRates().nanau.perNight, 6875);
+  assert.equal(publicRates().nanau.rooms.studio.perNight.CP, 5960);
 });
 
 test('every stay the site offers for payment exists in the Worker price list', async () => {

@@ -1,4 +1,6 @@
 # Amor Cashfree checkout deployment checklist
+> **Superseded (13 Nov 2026):** live Amor pricing is `worker/lib/amor-pricing.js` on the roamwise-api Worker (net rate + 7% commission + 18% GST on it). The commercial assumptions below are historical.
+
 
 Implemented in PR #698; **not live until the payment router Worker and homepage are deployed**.
 

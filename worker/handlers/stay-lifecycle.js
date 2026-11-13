@@ -55,6 +55,8 @@ export async function onStayPaid(env, record, nowMs = Date.now(), deps = {}) {
     'Namaste! We have received ' + rs(record.amount) + ' for ' + record.property + ', ' + record.checkin + ' to ' + record.checkout + '.',
     'Your reference: ' + record.id, '',
     'We are confirming the room with the property now and will write to you within 24 hours.',
+    ...(record.balance > 0 ? ['This was your advance. The balance of ' + rs(record.balance) + ' is due by ' + record.balanceDueBy + '; we send the payment link once the booking is confirmed.'] : []),
+    ...(record.nonRefundable ? ['These festive dates are non-refundable at the property once confirmed.'] : []),
     'If the room cannot be confirmed, the full amount goes straight to your RoamWise wallet. You can book another stay with it, or it is sent back to your bank automatically after 24 hours.',
     '', 'Questions: reply to this email or write to support@roamwise.co.in.', '— RoamWise',
   ].join('\n') });
@@ -93,6 +95,7 @@ async function confirmStay(env, record, by, nowMs, deps = {}) {
   await (deps.sendMail || sendMail)(env, { to: record.email, subject: 'Confirmed: ' + record.property, text: [
     'Your stay at ' + record.property + ' is confirmed: ' + record.checkin + ' to ' + record.checkout + '.',
     'Reference: ' + record.id + (record.kind === 'advance' ? '. Your ' + rs(record.amount) + ' advance is adjusted in the final bill.' : '.'),
+    ...(record.balance > 0 ? ['Balance ' + rs(record.balance) + ' is due by ' + record.balanceDueBy + '. Pay it here (use the email you booked with): ' + SITE + '/packages/amor-checkout.html?balance=' + record.id] : []),
     '', 'Have a lovely trip! — RoamWise',
   ].join('\n') });
   return true;

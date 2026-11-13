@@ -1,3 +1,4 @@
+// Superseded 13 Nov 2026 by worker/lib/amor-rates.js, amor-pricing.js and amor-packages.js (live checkout).
 // Amor Hospitality supplier schedules: internal modelling only, not customer checkout.
 // Source: PDF rate sheets forwarded 6 Nov 2026. Tattwaa sheet expired 31 Mar 2026.
 // Rates are not prices to publish, and booking must await live partner confirmation.
