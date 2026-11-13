@@ -46,7 +46,7 @@ export function createShopWallet(deps) {
     const email = order.customer && order.customer.email;
     if (!email) return { ok: false, error: 'no_email' };
     const origins = Array.isArray(order.paidFromLots) && order.paidFromLots.length
-      ? order.paidFromLots.map((l) => ({ orderId: l.orderId, amount: l.amount, method: l.method || 'cashfree', source: l.source, expiresAt: l.expiresAt, paidLot: l.paidLot }))
+      ? order.paidFromLots.map((l) => ({ orderId: l.orderId, amount: l.amount, method: l.method || 'cashfree', source: l.source, expiresAt: l.expiresAt, paidLot: l.paidLot, paidAt: l.paidAt }))
       : [{ orderId: order.cashfreeOrderId || id, amount: Math.round(order.totalPaise / 100), method: order.method === 'upi' ? 'upi' : 'cashfree' }];
     const nowMs = deps.now().getTime();
     const r = await creditWallet(env, { email, phone: order.customer.phone, refId: id, origins, note: 'Refund: shop order ' + id }, nowMs);

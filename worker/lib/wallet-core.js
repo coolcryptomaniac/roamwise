@@ -77,7 +77,7 @@ export function creditRefund(w, { refId, origins, phone, note }, nowMs) {
       createdAt: at, note: String(note || '').slice(0, 120) };
     /* Money that came from a Founding Traveller Credit pack goes back into the pack, with the pack's own expiry. */
     if (o.source === 'bonus') return { ...base, orderId: null, source: 'bonus', state: 'kept', expiresAt: o.expiresAt, paidLot: o.paidLot || null };
-    if (o.source === 'prepaid') return { ...base, source: 'prepaid', state: 'kept', expiresAt: o.expiresAt };
+    if (o.source === 'prepaid') return { ...base, source: 'prepaid', state: 'kept', expiresAt: o.expiresAt, paidAt: o.paidAt || at };
     return { ...base, source: 'refund', state: 'credit', review: hold.review, releaseAt };
   });
   const p = normPhone(phone);
@@ -98,7 +98,7 @@ export function spend(w, amount, refId, nowMs) {
     const take = Math.min(left, l.remaining);
     l.remaining -= take; left -= take; if (!l.remaining) l.state = 'used';
     used.push({ orderId: l.orderId, amount: take, lotId: l.lotId, method: l.method || 'cashfree',
-      ...(l.source === 'prepaid' || l.source === 'bonus' ? { source: l.source, expiresAt: l.expiresAt, paidLot: l.paidLot } : {}) });
+      ...(l.source === 'prepaid' || l.source === 'bonus' ? { source: l.source, expiresAt: l.expiresAt, paidLot: l.paidLot, paidAt: l.paidAt } : {}) });
   });
   return { wallet: { ...w, lots, log: [...(w.log || []), { at: new Date(nowMs).toISOString(), kind: 'spend', amount, refId }].slice(-100) }, used };
 }
@@ -133,7 +133,7 @@ export function creditPrepaid(w, { refId, orderId, paid, bonus, phone, note }, n
   if ((w.lots || []).some((l) => l.refId === refId)) return { wallet: w, lots: [], duplicate: true };
   const at = new Date(nowMs).toISOString(), expiresAt = new Date(nowMs + CREDIT_VALID_DAYS * DAY_MS).toISOString();
   const paidLot = { lotId: refId.slice(-24) + 'p', refId, orderId, method: 'cashfree', amount: paid, remaining: paid, source: 'prepaid',
-    state: 'kept', createdAt: at, expiresAt, note: String(note || '').slice(0, 120) };
+    state: 'kept', createdAt: at, paidAt: at, expiresAt, note: String(note || '').slice(0, 120) };
   const lots = [paidLot];
   if (bonus > 0) lots.push({ lotId: refId.slice(-24) + 'b', refId, orderId: null, method: 'bonus', amount: bonus, remaining: bonus, source: 'bonus',
     state: 'kept', createdAt: at, expiresAt, paidLot: paidLot.lotId, note: 'Bonus credit from RoamWise' });
@@ -167,6 +167,11 @@ export const refundedAtExpiryWithin = (w, nowMs, days) => (w && w.lots || []).so
 /* Lots the hourly job should send back to the bank now. */
 export const dueLots = (w, nowMs) => (w.lots || []).filter((l) => l.state === 'credit' && l.remaining > 0 && Date.parse(l.releaseAt) <= nowMs);
 export const BANK_MAX_FAILURES = 3;
+/* Cashfree refunds a payment only within six months of it (docs: "You can initiate refunds only within six months of
+   the original successful transaction"). Pack money older than this is paid back by RoamWise directly (UPI or bank
+   transfer), never left waiting on a refund the gateway will refuse. 175 days leaves margin for retries. */
+export const GATEWAY_REFUND_DAYS = 175;
+export const pastGatewayWindow = (l, nowMs) => l.method !== 'upi' && l.source === 'prepaid' && nowMs - Date.parse(l.paidAt || l.createdAt) > GATEWAY_REFUND_DAYS * 24 * 3600 * 1000;
 export function markBank(w, lotId, result, nowMs) {
   return { ...w, lots: w.lots.map((l) => (l.lotId === lotId ? { ...l, state: result.ok ? 'bank' : ((l.bankFailures || 0) + 1 >= BANK_MAX_FAILURES ? 'attention' : 'credit'),
     bankFailures: result.ok ? (l.bankFailures || 0) : (l.bankFailures || 0) + 1, bankRefundId: result.refundId || l.bankRefundId,

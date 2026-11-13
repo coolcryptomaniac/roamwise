@@ -77,7 +77,7 @@ test('paid pack: wallet credit, member number, wall, counts and emails; idempote
   assert.equal(mails.length, 3, 'second call does nothing');
 });
 
-test('expiry: reminders at 30 and 7 days, then a REAL bank refund of unused paid credit and the bonus lapses', async () => {
+test('expiry: reminders at 30 and 7 days, then unused paid credit is really paid back (directly after six months) and the bonus lapses', async () => {
   const env = mkEnv(); mails.length = 0;
   const key = await W.walletKey('m@x.in');
   const w = W.creditPrepaid(W.emptyWallet('m@x.in'), { refId: 'rwcred_c', orderId: 'rwcred_c', paid: 5000, bonus: 300 }, T0).wallet;
@@ -90,11 +90,22 @@ test('expiry: reminders at 30 and 7 days, then a REAL bank refund of unused paid
   await runCreditExpiry(env, T0 + 360 * DAY + 1000, deps);
   let after = await loadWallet(env, key);
   assert.equal(after.lots.find((l) => l.source === 'bonus').state, 'lapsed');
-  const refunds = [];
-  await runWalletReleases(env, T0 + 360 * DAY + 2000, { ...deps, cfRefund: async (env, r) => { refunds.push(r); return { ok: true, refundId: 'x', status: 'SUCCESS' }; } });
-  assert.deepEqual(refunds.map((r) => [r.orderId, r.amount]), [['rwcred_c', 5000]], 'refunded to the original Cashfree order, inside 365 days');
+  const refunds = []; mails.length = 0;
+  const cf = { ...deps, cfRefund: async (env, r) => { refunds.push(r); return { ok: true, refundId: 'x', status: 'SUCCESS' }; } };
+  await runWalletReleases(env, T0 + 360 * DAY + 2000, cf);
+  assert.equal(refunds.length, 0, 'Cashfree refunds only within six months, so no gateway refund is attempted at day 360');
   after = await loadWallet(env, key);
-  assert.equal(W.refundedAtExpiryWithin(after, T0 + 380 * DAY, 30), true, 'welcome-back bonus applies');
+  assert.equal(after.lots.find((l) => l.source === 'prepaid').state, 'attention');
+  assert.deepEqual(mails.map((m) => m.to).sort(), ['founder@roamwise.co.in', 'm@x.in'], 'founder pays directly; guest asked for UPI ID');
+  /* Asking for money back early (inside six months) goes straight back through Cashfree. */
+  const env2 = mkEnv(); const k2 = await W.walletKey('e@x.in');
+  let w2 = W.creditPrepaid(W.emptyWallet('e@x.in'), { refId: 'rwcred_d', orderId: 'rwcred_d', paid: 5000, bonus: 300 }, T0).wallet;
+  w2 = W.bankSoon(w2, w2.lots[0].lotId, T0 + 30 * DAY);
+  await env2.RW_KV.put('wallet:' + k2, JSON.stringify(w2)); await env2.RW_KV.put('walletdue:' + k2, '1');
+  await runWalletReleases(env2, T0 + 32 * DAY, cf);
+  assert.deepEqual(refunds.map((r) => [r.orderId, r.amount]), [['rwcred_d', 5000]]);
+  const back = await loadWallet(env2, k2);
+  assert.equal(back.lots[0].state, 'bank');
 });
 
 test('checkout rejects missing terms and never trusts a browser amount; status verifies with Cashfree', async () => {

@@ -84,7 +84,7 @@ export async function onCreditPaid(env, record, nowMs = Date.now(), deps = {}) {
     'How your credit works:',
     '- Spend it on any RoamWise stay, package or wedding until ' + until + '. Your own ' + rs(record.pay) + ' is used first, the bonus last.',
     '- Changed your mind? Ask for your unused money back any time from your wallet; it goes to your original payment method. The matching share of the bonus is then given up.',
-    '- Anything of your ' + rs(record.pay) + ' still unused on ' + until + ' is refunded automatically to your original payment method. Unused bonus credit ends that day.',
+    '- Anything of your ' + rs(record.pay) + ' still unused on ' + until + ' is refunded to you automatically (to your original payment method within six months of paying, after that by UPI or bank transfer). Unused bonus credit ends that day.',
     '- This is prepaid travel credit, not an investment: it earns no interest or returns and gives no shares.',
   ];
   await send(env, { to: record.holder, subject: 'Welcome, Founding Traveller #' + member.n + ': ' + rs(record.credit) + ' travel credit', text: [
@@ -163,7 +163,7 @@ export async function runCreditExpiry(env, nowMs = Date.now(), deps = {}) {
         await send(env, { to: w.email, subject: rs(r.amount) + ' of RoamWise credit ends on ' + r.expiresAt.slice(0, 10), text: [
           'You have ' + rs(r.amount) + ' of RoamWise travel credit that ends on ' + r.expiresAt.slice(0, 10) + '.',
           'Book a stay, package or wedding with it: ' + SITE + '/#rwSalesPackages' + (wl ? '\nYour wallet: ' + wl.url : ''),
-          'If you do not use it, your own unused money is refunded to your original payment method automatically on that day. Unused bonus credit ends then.',
+          'If you do not use it, your own unused money is refunded to you on that day (by UPI or bank transfer; reply with your UPI ID to make it quicker). Unused bonus credit ends then.',
           '', '— RoamWise'].join('\n') });
       }
       const e = expireCredit(w, nowMs);
@@ -171,7 +171,7 @@ export async function runCreditExpiry(env, nowMs = Date.now(), deps = {}) {
       if (e.refunding || e.lapsed) {
         expired++;
         await send(env, { to: w.email, subject: 'Your RoamWise credit year has ended', text: [
-          e.refunding ? rs(e.refunding) + ' of your unused money is being refunded to your original payment method now (it usually shows in 5 to 7 working days).' : '',
+          e.refunding ? rs(e.refunding) + ' of your unused money is being refunded to you now. You will get a separate email about how it reaches you.' : '',
           e.lapsed ? rs(e.lapsed) + ' of unused bonus credit has ended.' : '',
           'Thank you for travelling with RoamWise. If you would like to start a new credit year, you get an extra welcome-back bonus within ' + REJOIN_WINDOW_DAYS + ' days of your refund: ' + SITE + '/credit/',
           '', '— RoamWise'].filter(Boolean).join('\n') });
