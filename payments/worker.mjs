@@ -39,32 +39,19 @@ async function webhook(req,env,provider){
 
 
 // Amor Hospitality: server-priced two-night packages. Retail = 1.25x partner net
-// (20% gross margin on sale before payment fees), rounded up to whole rupees.
-// These are accommodation-only; activities and transport are not included.
+// All Amor rates are supplier-confidential, season-dependent and must be represented
+// by an immutable, authenticated, supplier-held quote before payment. Never publish
+// net-rate values or let the request body choose the price/deposit.
 const AMOR_STAYS=Object.freeze({
- tattwaa:{label:'Tattwaa Corbett — Forest Room, CPAI + hi-tea',net:5500,validFrom:'2026-11-07',validTo:'2027-03-31',taxIncluded:false,provisionalCarryForward:true,blackouts:[]},
- nanau:{label:'Nanau Resort & Spa — Sitabani Studio, CP + hi-tea',net:5500,validFrom:'2026-10-01',validTo:'2027-03-31',taxIncluded:true,blackouts:['2026-12-24','2026-12-25','2026-12-26','2026-12-27','2026-12-28','2026-12-29','2026-12-30','2026-12-31','2027-01-01','2027-01-02','2027-01-03','2027-01-23','2027-01-24','2027-01-25','2027-01-26','2027-03-20','2027-03-21','2027-03-26','2027-03-27']},
- padma:{label:'Padma Villa Manali — Royal Chamber, EP',net:5000,validFrom:'2026-10-01',validTo:'2027-03-31',taxIncluded:false,blackouts:[]},
- aramness:{label:'Aramness Gir — Kothi, AP all meals',net:72216,validFrom:'2026-10-16',validTo:'2027-02-28',taxIncluded:true,blackouts:[]}
+ tattwaa:{label:'Tattwaa Corbett Spa & Resort'},
+ nanau:{label:'Nanau Resort & Spa'},
+ padma:{label:'Padma Villa Manali'},
+ aramness:{label:'Aramness Gir'}
 });
 function stayQuote(body,env){
- const p=AMOR_STAYS[String(body.stay||'')];if(!p)throw Object.assign(new Error('This property requires an updated supplier tariff.'),{status:422});
- const start=String(body.checkin||''),end=String(body.checkout||'');
- if(!/^\d{4}-\d{2}-\d{2}$/.test(start)||!/^\d{4}-\d{2}-\d{2}$/.test(end))throw Object.assign(new Error('Choose valid dates.'),{status:422});
- const from=Date.parse(start+'T00:00:00Z'),to=Date.parse(end+'T00:00:00Z');
- const nights=(to-from)/86400000;
- if(!Number.isInteger(nights)||nights<1||nights>14||from<Date.now()-86400000)throw Object.assign(new Error('Choose a future stay of 1–14 nights.'),{status:422});
- if(start<p.validFrom||end>p.validTo)throw Object.assign(new Error('Dates fall outside the contracted rate validity.'),{status:422});
- for(let d=from;d<to;d+=86400000){const day=new Date(d).toISOString().slice(0,10);if(p.blackouts.includes(day))throw Object.assign(new Error('These dates require a separate peak-season quotation.'),{status:422})}
- if(body.stay==='padma'&&start<='2027-01-10'&&end>'2026-12-18')throw Object.assign(new Error('Padma peak-season rates require a separate quote.'),{status:422});
- if(body.stay==='aramness'&&body.peakOrFair===true)throw Object.assign(new Error('Special fair/blackout rates require a separate quote.'),{status:422});
- // Padma rate is tax-exclusive; configured GST rate must be explicit.
- const taxRate=!p.taxIncluded?Number(env.STAY_GST_RATE):0;
- if(!p.taxIncluded&&(![0.05,0.12,0.18].includes(taxRate)))throw Object.assign(new Error('Tax rate must be configured by operations before checkout.'),{status:422});
- const base=Math.ceil(p.net*nights*1.25),total=!p.taxIncluded?Math.ceil(base*(1+taxRate)):base;
- const portion=body.paymentType==='full'?100:body.paymentType==='advance'?25:0;
- if(!portion)throw Object.assign(new Error('Choose advance or full payment.'),{status:422});
- return {stay:body.stay,label:p.label,checkin:start,checkout:end,nights,guests:2,total,portion,amount:Math.ceil(total*portion/100),currency:'INR',status:'payment_pending_supplier_confirmation',extrasExcluded:true};
+ const p=AMOR_STAYS[String(body.stay||'')];
+ if(!p)throw Object.assign(new Error('This property requires a current approved tariff.'),{status:422});
+ throw Object.assign(new Error('Fresh Amor supplier availability, tax and refundable locked quote must be approved first; payments are not enabled for these properties.'),{status:422});
 }
 async function createStayPayment(req,env){
  const corsHeaders=cors(req,env);
