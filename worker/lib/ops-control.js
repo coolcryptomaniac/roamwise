@@ -8,6 +8,9 @@ export const DEFAULT_RULES = Object.freeze({
   maxRunsPerDay: 24,
   maxAiNeuronsPerDay: 8000, // conservative cap below free daily allowance
   maxEstimatedPaidCostPaisePerDay: 0,
+  // Only enumerated, read-only actions may run without a dated authorization.
+  // Unknown actions are rejected rather than treated as harmless by default.
+  allowedReadActions: Object.freeze(['draft','read','triage','classify','summarize','analyze','report','preview','health-check','cache-refresh','data-validation','metrics-read']),
   approvalRequired: Object.freeze(['payment','refund','payout','supplier-order','publish','email-send','staff-permission','credential-change','deployment','customer-data-export']),
 });
 const safeName = (s) => typeof s === 'string' && /^[a-z][a-z0-9-]{1,63}$/.test(s);
@@ -20,10 +23,14 @@ export function validateJob(job, rules = DEFAULT_RULES) {
   if (!Number.isFinite(job.intervalSeconds) || job.intervalSeconds < rules.minIntervalSeconds) return { ok:false, reason:'interval_too_short' };
   if (!Array.isArray(job.actions) || job.actions.length === 0) return { ok:false, reason:'missing_actions' };
   if (job.actions.some(x => !safeName(x))) return { ok:false, reason:'invalid_action' };
+  if (job.actions.some(x => !rules.allowedReadActions.includes(x) && !rules.approvalRequired.includes(x))) return { ok:false, reason:'action_not_allowlisted' };
+  if (!Number.isFinite(job.estimatedAiNeurons) || job.estimatedAiNeurons < 0 ||
+      !Number.isFinite(job.estimatedPaidCostPaise) || job.estimatedPaidCostPaise < 0)
+    return { ok:false, reason:'invalid_cost_estimate' };
   return { ok:true };
 }
 export function needsApproval(job, rules = DEFAULT_RULES) {
-  return job.actions.some(x => rules.approvalRequired.includes(x));
+  return job.actions.some(x => !rules.allowedReadActions.includes(x));
 }
 export function decideRun({job, state, budget, now = Date.now(), rules = DEFAULT_RULES, approval = null}) {
   const valid = validateJob(job, rules);
