@@ -79,15 +79,19 @@ function build({ name, legs, extras = [], checkin, rooms = 1, extraBeds = 0, pay
   const floor = ceil10(floorFor(cost)), cap = Math.min(cost * (1 + POLICY.maxMarkup), Number.isFinite(pub) ? pub * (1 - POLICY.undercut) : Infinity);
   let total = ceil10(target);
   if (total > cap) total = Math.max(floor, floor10(cap));
-  const advance = Math.min(total, ceil10(total * upfrontCost / cost));
-  const full = paymentType === 'full', adv = paymentType === 'advance';
-  if (!full && !adv) fail('Choose advance or full payment');
+  /* Inside the final-payment window (balance would already be due), the whole amount is due now:
+   * no advance option and never a balance date in the past. */
+  const dueAt = at(checkin) - Math.max(...legs.map((l) => balanceLeadDays(AMOR[l.stay].deposit))) * DAY;
+  const fullOnly = dueAt <= now + DAY;
+  const advance = fullOnly ? total : Math.min(total, ceil10(total * upfrontCost / cost));
+  if (paymentType !== 'full' && paymentType !== 'advance') fail('Choose advance or full payment');
+  const full = paymentType === 'full' || fullOnly;
   const nights = legs.reduce((s, l) => s + l.nights + (l.gapBefore || 0), 0);
   const q = {
     stay: kind === 'package' ? 'pkg' : legs[0].stay, package: kind === 'package' ? id : undefined, property: name, kind,
     checkin, checkout: outLegs[outLegs.length - 1].checkout, nights, rooms, guests, legs: outLegs,
     extras: extras.map((x) => x.label || (GIR_EXTRAS[x.ref] || {}).label), total, portion: full ? 100 : Math.round(advance / total * 100), amount: full ? total : advance,
-    advanceAmount: advance, balance: full ? 0 : total - advance, balanceDueBy: full ? null : balanceDue(legs, checkin),
+    advanceAmount: advance, fullOnly: fullOnly || undefined, balance: full ? 0 : total - advance, balanceDueBy: full ? null : balanceDue(legs, checkin),
     peakNights, nonRefundable, currency: 'INR', supplier: 'amor', provisional: legs.some((l) => AMOR[l.stay].provisional) || undefined,
     ...(Number.isFinite(pub) && pub > total ? { publicPrice: Math.round(pub), saving: Math.round(pub - total) } : {}),
   };

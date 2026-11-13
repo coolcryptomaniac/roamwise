@@ -7,6 +7,8 @@
  * Seasonality used: Indian wedding season (late Nov-Feb) drives honeymoons Dec-Mar; Manali snowfall is likeliest
  * late Dec-Feb; Corbett is at its best Nov-Mar; Gir is open 16 Oct-15 Jun (Aramness winter rates to 28 Feb). */
 
+import { AMOR } from './amor-rates.js';
+
 const pkg = (o) => Object.freeze({ guestsPerRoom: 2, ...o });
 
 export const PACKAGES = Object.freeze({
@@ -149,5 +151,7 @@ export function publicPackages() {
     id: k.id, group: k.group, name: k.name, nightsLabel: k.nightsLabel, tagline: k.tagline, best: k.best, photo: k.photo,
     includes: k.includes, note: k.note || null, exclusiveDeal: !!k.exclusiveDeal, window: k.window || null,
     rooms: k.rooms ? k.rooms.max : 1, extraGuests: k.extraGuests || 0, guestsPerRoom: k.guestsPerRoom,
+    /* Where the guest stays, so the checkout names the property instead of asking for one. */
+    properties: [...new Set(k.legs.map((l) => l.stay))].filter((s) => AMOR[s]).map((s) => ({ id: s, name: AMOR[s].name, place: AMOR[s].place || '' })),
   }));
 }

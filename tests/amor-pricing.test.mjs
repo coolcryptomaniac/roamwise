@@ -108,3 +108,12 @@ test('homepage cards carry engine hooks for every package', () => {
   const html = fs.readFileSync('index.html', 'utf8');
   for (const id of Object.keys(PACKAGES)) assert.match(html, new RegExp('data-rw-pkg="' + id + '" data-rw-from="\\d+"'), id);
 });
+
+test('inside the final-payment window the full amount is due now, never a balance date in the past', () => {
+  const g = pricePackage({ package: 'gir-lion-honeymoon', checkin: '2026-11-13', paymentType: 'advance' }, NOW).quote;
+  assert.equal(g.fullOnly, true); assert.equal(g.amount, g.total); assert.equal(g.balance, 0); assert.equal(g.balanceDueBy, null);
+  const far = pricePackage({ package: 'gir-lion-honeymoon', checkin: '2027-01-20', paymentType: 'advance' }, NOW).quote;
+  assert.ok(!far.fullOnly && far.balance > 0 && far.balanceDueBy > '2026-11-13');
+  const pub = publicPackageList(NOW).find((k) => k.id === 'manali-mountain-pheras');
+  assert.ok(pub.properties.some((p) => p.id === 'padma'), 'wedding checkout names Padma Villa');
+});

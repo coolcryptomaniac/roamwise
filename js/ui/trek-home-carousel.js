@@ -6,6 +6,8 @@ var root=document.getElementById('rwSalesTreks');
 if(!root)return;
 function text(tag,value,cls){var n=document.createElement(tag);n.textContent=value;if(cls)n.className=cls;return n}
 function fallback(){
+ /* No verified departures yet: hide the rail instead of showing an empty carousel on the homepage. */
+ var rail=document.getElementById('rwTreksRail');if(rail){rail.hidden=true;return}
  root.replaceChildren();
  var p=text('p','No verified trekking departures have been published yet. Discover the RoamWise Trails network.');
  p.style.cssText='color:#dac9dc;padding:12px';root.appendChild(p);
