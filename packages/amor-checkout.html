@@ -22,6 +22,7 @@ const range=(a,b)=>Array.from({length:b-a+1},(_,i)=>[a+i,String(a+i)]);
 function setMode(){
  if(mode==='balance'){$('title').textContent='Pay your balance';$('intro').hidden=true;['stayFields','checkoutWrap','countRow','phoneWrap','payWrap','shareWrap'].forEach(i=>$(i).hidden=true);$('checkin').required=false;$('phone').required=false;$('balanceFields').hidden=false;$('balRef').textContent=balanceOf;$('total').textContent='Enter the email you booked with and pay the balance shown in your confirmation.';$('rateNote').hidden=true;return}
  if(mode==='package'){$('stayFields').hidden=true;$('checkoutWrap').hidden=true}
+ if(mode==='stay'&&choices.includes(params.get('stay'))){const o=$('stay').selectedOptions[0];$('stay').hidden=true;document.querySelector('label[for="stay"]').hidden=true;$('title').textContent='Book '+o.textContent;document.title=o.textContent+' · Book direct | RoamWise';$('intro').textContent='Choose your room, meals and dates, see the exact amount and pay securely. RoamWise books it with '+o.textContent.split(',')[0]+'; if it cannot be confirmed you get a full refund.'}
 }
 function amorFields(){const s=RATES&&RATES.stays[$('stay').value],amor=mode==='stay'&&s&&s.kind==='amor';$('amorFields').hidden=!amor;$('countRow').hidden=mode==='stay'&&!amor;
  if(!amor)return;const want=params.get('room'),wantPlan=params.get('plan');
@@ -29,7 +30,7 @@ function amorFields(){const s=RATES&&RATES.stays[$('stay').value],amor=mode==='s
  opts($('plan'),s.plans.map(p=>[p.id,p.label]),true);if(wantPlan&&s.plans.some(p=>p.id===wantPlan))$('plan').value=wantPlan;
  const r=s.rooms[$('room').value],max=Math.min(8,r.keys||1);opts($('rooms'),range(1,max),true);$('extraLabel').textContent='Extra beds';opts($('extra'),range(0,Number($('rooms').value)),true);$('roomsWrap').hidden=max===1}
 function pkgFields(){const k=PKG;$('title').textContent=k.name;$('intro').textContent='Pick your start date and pay securely: 25% advance or in full. RoamWise books every stay in the package; if anything cannot be confirmed you get a full refund.';
- $('pkgBox').hidden=false;$('pkgName').textContent=k.nightsLabel+(k.from?' · from '+inr(k.from.total):'');$('pkgTag').textContent=k.tagline+' · Best: '+k.best;$('pkgDeal').hidden=!k.exclusiveDeal;$('pkgInc').innerHTML=k.includes.map(x=>'<li>'+esc(x)+'</li>').join('');$('pkgNote').textContent=k.note||'';
+ $('pkgBox').hidden=false;$('pkgName').textContent=k.nightsLabel+(k.from?' · from '+inr(k.from.total):'');$('pkgTag').innerHTML=(k.properties&&k.properties.length?'<b>Stay at: '+k.properties.map(p=>esc(p.name+(p.place?', '+p.place:''))).join(' → ')+'</b><br>':'')+esc(k.tagline+' · Best: '+k.best);$('pkgDeal').hidden=!k.exclusiveDeal;$('pkgInc').innerHTML=k.includes.map(x=>'<li>'+esc(x)+'</li>').join('');$('pkgNote').textContent=k.note||'';
  if(k.window){$('checkin').min=k.window.from>today?k.window.from:today;$('checkin').max=k.window.to}if(!$('checkin').value&&k.from)$('checkin').value=k.from.checkin;
  $('roomsWrap').hidden=k.rooms<=1;opts($('rooms'),range(1,k.rooms),true);$('extraWrap').hidden=!k.extraGuests;$('extraLabel').textContent='Extra guests (beyond '+k.guestsPerRoom+')';opts($('extra'),range(0,k.extraGuests||0),true);if(!k.extraGuests&&k.rooms<=1)$('countRow').hidden=true}
 function body(){if(mode==='balance')return {balanceOf,email:$('email').value};
@@ -42,11 +43,12 @@ async function preview(){if(mode==='balance')return;const my=++seq,b=body();$('t
  try{const r=await fetch(API+'/stays/quote',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(b)}),d=await r.json();if(my!==seq)return;
   if(!r.ok){$('total').textContent=d.message||'These dates cannot be booked online.';$('pay').disabled=true;return}
   const q=d.quote;$('pay').disabled=false;$('payWrap').hidden=q.kind==='advance';
-  const advOpt=$('paymentType').options[0];if(q.advanceAmount)advOpt.textContent=Math.round(q.advanceAmount/q.total*100)+'% advance ('+inr(q.advanceAmount)+')';
+  const advOpt=$('paymentType').options[0];advOpt.hidden=advOpt.disabled=!!q.fullOnly;if(q.fullOnly)$('paymentType').value='full';else if(q.advanceAmount)advOpt.textContent=Math.round(q.advanceAmount/q.total*100)+'% advance ('+inr(q.advanceAmount)+')';
   if(q.kind==='advance'){$('total').textContent='Pay '+inr(q.amount)+' now to reserve '+q.nights+' night'+(q.nights>1?'s':'')+'.';$('detail').textContent='RoamWise confirms the room and the final rate; the advance is adjusted in your bill, or refunded in full.';return}
   $('total').textContent='Total '+inr(q.total)+' · Pay now: '+inr(q.amount);
   const lines=[];if(q.legs)q.legs.forEach(l=>lines.push('<b>'+esc(l.property)+'</b>: '+(l.rooms>1?l.rooms+' × ':'')+esc(l.room)+', '+esc(l.plan)+', '+l.checkin+' → '+l.checkout+' ('+l.nights+' night'+(l.nights>1?'s':'')+')'));
   if(q.extras&&q.extras.length)lines.push('Also included: '+q.extras.map(esc).join('; '));
+  if(q.fullOnly)lines.push('These dates are inside the property\'s final-payment window, so the full amount is due now.');
   if(q.balance)lines.push('Balance '+inr(q.balance)+' due by '+q.balanceDueBy+'. We email you the payment link once the booking is confirmed.');
   if(q.peakNights)lines.push(q.peakNights+' peak / festive night'+(q.peakNights>1?'s':'')+' priced at the property\'s peak rate.');
   if(q.nonRefundable)lines.push('<b>Festive dates are non-refundable at the property once confirmed.</b>');

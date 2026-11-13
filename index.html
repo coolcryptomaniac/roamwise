@@ -613,9 +613,13 @@ html{-webkit-text-size-adjust:100%}
 <a class="rw-sales-card" data-rw-pkg="manali-signature-wedding" data-rw-from="782080" href="/packages/amor-checkout.html?package=manali-signature-wedding" aria-label="Book Signature Snow Wedding"><div class="rw-package-photo"><img loading="lazy" decoding="async" src="https://images.unsplash.com/photo-1470770841072-f978cf4d019e?auto=format&fit=crop&w=920&q=80" alt="Illustrative Himalayan landscape; not a photograph of Padma Villa" onerror="this.style.display='none';this.parentElement.classList.add('rw-photo-unavailable')"><span class="rw-photo-note">Manali area · illustrative photo</span></div><span class="rw-sales-copy"><small>💍 Wedding · 5 days / 4 nights</small><strong>Signature Snow Wedding</strong><small>Whole villa for 4 nights<br>Breakfast and dinner for all guests<br>Rs 3,50,000 wedding budget: florals, décor, mandap, pandit, film and photos, live music, makeup, hampers, cake</small><small><span class="rw-price">From ₹7,82,080</span>for 12 · +8 with extra beds · all taxes included · best Late Jan-Feb for snow (outside the 18 Dec-10 Jan blackout)</small><b>Pick dates · pay advance or in full →</b></span></a>
 </div>
 <script src="/js/ui/amor-offers.js" defer></script>
-<div class="rw-trackheading"><h2>🥾 Trekking departures · Book with verified operators</h2><div><button class="rw-arrow" data-rw-prev="rwSalesTreks" aria-label="Previous trek">‹</button> <button class="rw-arrow" data-rw-next="rwSalesTreks" aria-label="Next trek">›</button></div></div>
+<div id="rwEventsRail" hidden><div class="rw-trackheading"><h2>🎉 Festivals &amp; events · Plan a trip around one</h2><div><button class="rw-arrow" data-rw-prev="rwSalesEvents" aria-label="Previous event">‹</button> <button class="rw-arrow" data-rw-next="rwSalesEvents" aria-label="Next event">›</button></div></div>
+<p style="margin:2px 0 9px;color:#dac9dc">Upcoming festivals, fairs and conferences. Tap one and Ailon Tusk plans the trip around it. Dates marked “usual dates” are not yet announced.</p>
+<div class="rw-sales-track" id="rwSalesEvents" tabindex="0" aria-label="Upcoming events carousel"></div></div>
+<script src="js/ui/events-home-rail.js?v=20261113" defer></script>
+<div id="rwTreksRail"><div class="rw-trackheading"><h2>🥾 Trekking departures · Book with verified operators</h2><div><button class="rw-arrow" data-rw-prev="rwSalesTreks" aria-label="Previous trek">‹</button> <button class="rw-arrow" data-rw-next="rwSalesTreks" aria-label="Next trek">›</button></div></div>
 <p style="margin:2px 0 9px;color:#dac9dc">Real operator prices and departure dates. Booking and availability require operator confirmation. Unverified invitations never appear here.</p>
-<div class="rw-sales-track" id="rwSalesTreks" aria-label="Approved trekking departures" tabindex="0"><p style="color:#dac9dc">Checking upcoming verified departures…</p></div>
+<div class="rw-sales-track" id="rwSalesTreks" aria-label="Approved trekking departures" tabindex="0"><p style="color:#dac9dc">Checking upcoming verified departures…</p></div></div>
 <div class="rw-trackheading"><h2>🛍️ Kumaon collection · Shop RoamWise</h2><div><button class="rw-arrow" data-rw-prev="rwSalesShop" aria-label="Previous products">‹</button> <button class="rw-arrow" data-rw-next="rwSalesShop" aria-label="Next products">›</button></div></div>
 <div class="rw-sales-track" id="rwSalesShop" tabindex="0" aria-label="Shop product carousel">
 <a class="rw-sales-card" href="/shop/#aipan-scarf"><img loading="lazy" src="/shop/img/aipan-scarf.webp" alt="Aipan scarf product"><span class="rw-sales-copy"><strong>RoamWise Aipan Scarf</strong><small>80 × 80 cm · order on WhatsApp</small><b>₹349 · View item →</b></span></a>
@@ -625,7 +629,7 @@ html{-webkit-text-size-adjust:100%}
 </section>
 <script>(function(){var box=document.getElementById('rwSalesCarousels');if(!box)return;box.addEventListener('click',function(e){var btn=e.target.closest('[data-rw-prev],[data-rw-next]');if(!btn)return;var id=btn.getAttribute('data-rw-next')||btn.getAttribute('data-rw-prev');var el=document.getElementById(id);if(el)el.scrollBy({left:btn.hasAttribute('data-rw-next')?280:-280,behavior:'smooth'})});if(window.matchMedia('(prefers-reduced-motion: reduce)').matches)return;var timer=setInterval(function(){if(document.hidden)return;var el=document.getElementById('rwSalesStays');if(!el)return;el.scrollBy({left:el.scrollLeft+el.clientWidth+10>=el.scrollWidth? -el.scrollWidth:265,behavior:'smooth'})},5100);box.addEventListener('pointerdown',function(){clearInterval(timer)},{once:true})})();</script>
 
-<section class="v v-home" id="rwDiwali2026" aria-label="RoamWise Diwali 2026 travel offers">
+<section class="v" hidden id="rwDiwali2026" aria-label="RoamWise Diwali 2026 travel offers">
  <div class="d-spark" aria-hidden="true">✦ 🎇 ✨</div>
  <span class="d-tag">🪔 ROAMWISE FESTIVE ESCAPES · 2026</span>
  <div class="d-icons" role="img" aria-label="Festive diyas, sweets and lights">🪔 ✨ 🍬 🎆</div>
@@ -788,7 +792,7 @@ html{-webkit-text-size-adjust:100%}
   <div class="rwx-mount"></div>
 </section>
 
-<section class="xsec v v-home v-explore" id="brand-ambassador" aria-labelledby="ambassadorTitle">
+<section class="xsec v v-explore" id="brand-ambassador" aria-labelledby="ambassadorTitle">
   <style>
   #brand-ambassador{margin:28px 12px 10px;padding:22px 14px 20px;border-radius:28px;position:relative;overflow:hidden;background:radial-gradient(120% 80% at 0% 0%,rgba(232,186,108,.14),transparent 55%),radial-gradient(90% 70% at 100% 100%,rgba(120,80,200,.18),transparent 60%),#150f26;border:1px solid rgba(232,186,108,.22);box-shadow:0 24px 60px -24px rgba(0,0,0,.7),inset 0 1px 0 rgba(255,255,255,.06)}
   #brand-ambassador .xsec-title em{background:linear-gradient(90deg,#ff7a59,#e8ba6c,#ff7a59);background-size:200% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:rwaShine 5s linear infinite}
@@ -883,7 +887,7 @@ html{-webkit-text-size-adjust:100%}
 
 <section class="v v-home v-explore" id="rwPartnerHub" aria-label="Partner with RoamWise"><noscript><p class="ph-nojs">Partner with RoamWise: <a href="/creators/match.html?role=creator&amp;invite=founding">travel creators</a> · <a href="/partner/join/">stays</a> · <a href="/creators/join-artist.html">painting artists</a> · <a href="/local-business/">local businesses</a> · or email <a href="mailto:founder@roamwise.co.in">founder@roamwise.co.in</a> (music, transport, colleges).</p></noscript></section>
 
-<section class="v v-home v-explore rw-band" id="joinBand" aria-label="For hosts, creators and partners"><h2 class="xsec-title" style="margin:6px 4px 10px">For hosts, creators &amp; <em>partners</em></h2>
+<section class="v v-explore rw-band" id="joinBand" aria-label="For hosts, creators and partners"><h2 class="xsec-title" style="margin:6px 4px 10px">For hosts, creators &amp; <em>partners</em></h2>
   <a class="rw-card rw-card-sacred" href="/shop/"><span class="rw-card-ic" aria-hidden="true">🏔️</span><span class="rw-card-tx"><b>Carry a little pahad · Kumaon collection</b><small>Explore clothing concepts and travel essentials. Enquiries open; products in development.</small></span><span class="rw-card-go" aria-hidden="true">→</span></a>
   <a class="rw-card rw-card-sacred" href="creators/join-artist.html">
     <span class="rw-card-ic" aria-hidden="true">&#127912;</span>
@@ -922,7 +926,7 @@ html{-webkit-text-size-adjust:100%}
   </a>
 </section>
 
-<section class="xsec v v-home v-explore" id="rwMemories" aria-labelledby="rwmTitle" style="margin:30px 14px 14px">
+<section class="xsec v v-explore" id="rwMemories" aria-labelledby="rwmTitle" style="margin:30px 14px 14px">
   <span class="rwm-eyebrow">MEMORIES</span>
   <h2 class="rwm-h" id="rwmTitle">Moments we <em>lived</em></h2>
   <p class="rwm-sub">Festivals, stages and launches from the RoamWise journey. New events, photos and videos appear here on their own.</p>
@@ -931,14 +935,14 @@ html{-webkit-text-size-adjust:100%}
 
 
 
-<section class="xsec v v-home v-explore" id="rwBooks" aria-labelledby="rwbTitle" style="margin:30px 14px 14px">
+<section class="xsec v v-explore" id="rwBooks" aria-labelledby="rwbTitle" style="margin:30px 14px 14px">
   <span class="rwb-eyebrow">THE LIBRARY</span>
   <h2 class="rwb-h" id="rwbTitle">Step into the <em>library</em></h2>
   <p class="rwb-sub">Four books by Mohit Pandey, on the shelf. Big buttons for Pothi, Amazon and Flipkart.</p>
   <div class="rwb-mount"></div>
 </section>
 
-<section class="xsec v v-home v-explore" id="rwMusic" aria-labelledby="rwMusicTitle">
+<section class="xsec v v-explore" id="rwMusic" aria-labelledby="rwMusicTitle">
   <span class="rwm-eyebrow">THE MUSIC ROOM</span>
   <h2 class="rwm-h" id="rwMusicTitle">Albums to <em>travel with</em></h2>
   <p class="rwm-sub">Songs by Mohit Pandey from the Himalayas. Pick a cover, shuffle by mood, or let the library choose.</p>
@@ -1464,12 +1468,13 @@ html{-webkit-text-size-adjust:100%}
   </div>
   <div class="dr-xp" id="drXp"></div>
   <div class="dr-search"><input id="drSearch" placeholder="Search the menu…" oninput="drFilter(this.value)" autocomplete="off"><span class="dr-search-ic">🔍</span></div>
-  <div class="dr-grp open"><button class="dr-gh" onclick="drToggle(this)">🧭 Travel<span class="dr-count">9</span><span class="chev">›</span></button><div class="dr-gb">
+  <div class="dr-grp open"><button class="dr-gh" onclick="drToggle(this)">🧭 Travel<span class="dr-count">10</span><span class="chev">›</span></button><div class="dr-gb">
   <a class="dr-link" onclick="closeDrawer();tabGo('plan')"><span class="ic">✈️</span>Plan a trip</a>
   <a class="dr-link" onclick="closeDrawer();cpFocusHero()"><span class="ic">🧭</span>Copilot chat</a>
   <a class="dr-link" onclick="closeDrawer();openMapExplorer()"><span class="ic">🗺️</span>Live world map</a>
   <a class="dr-link" onclick="closeDrawer();openGroupPlanner()"><span class="ic">🤝</span>Group planner</a>
   <a class="dr-link" onclick="closeDrawer();openGroupChat()"><span class="ic">💬</span>Group chat</a>
+  <a class="dr-link" id="rwMeshMenu" onclick="closeDrawer();rwOpenTrailMesh('connect')"><span class="ic">📡</span>Trail Mesh <small style="opacity:.7">offline</small></a>
   <a class="dr-link" onclick="closeDrawer();openVault()"><span class="ic">✈️</span>My Trips (offline)</a>
   <a class="dr-link" onclick="closeDrawer();tabGo('explore');scrollToId('treks')"><span class="ic">⛰️</span>Trek Vault</a>
   <a class="dr-link" onclick="closeDrawer();showSaved()"><span class="ic">♥</span>Saved for later</a>
@@ -1931,6 +1936,7 @@ html{-webkit-text-size-adjust:100%}
 <script src="js/booking/form.js" defer></script>
 <script src="js/booking/stay-lead.js" defer></script>
 <script src="js/booking/tusk-stay-desk.js" defer></script>
+<script src="js/booking/tusk-direct-offers.js?v=20261113" defer></script>
 <script src="js/booking/local-rides.js" defer></script>
 <script src="js/booking/pnr-parser.js" defer></script>
 <script src="js/booking/arrival-mode.js" defer></script>
@@ -2002,7 +2008,8 @@ html{-webkit-text-size-adjust:100%}
 <script src="js/itinerary/rain-contingency.js" defer></script>
 <script src="js/itinerary/camera-itinerary.js" defer></script>
 <script src="js/itinerary/memories-studio.js" defer></script>
-<script src="js/ui/pioneer-home.js?v=20261113" defer></script>
+<script src="js/ui/trailmesh-entry.js?v=20261113" defer></script>
+<script src="js/ui/pioneer-home.js?v=20261113b" defer></script>
 <script src="js/ui/trek-home-carousel.js" defer></script>
 <script src="js/ui/page-router.js" defer></script>
 <script src="js/ui/layout-modes.js" defer></script>
