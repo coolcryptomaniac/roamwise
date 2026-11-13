@@ -5,12 +5,15 @@ import { price, publicRates, RATE, STAY_ADVANCE } from '../worker/handlers/stay-
 const NOW = Date.parse('2026-11-08T00:00:00Z');
 const q = (stay, checkin, checkout, paymentType = 'full') => price({ stay, checkin, checkout, paymentType }, NOW);
 
-test('Amor nightly stays: supplier rate x 1.25, advance 25% or full, peak dates refused', () => {
-  const n = q('nanau', '2026-11-20', '2026-11-22');
-  assert.equal(n.total, 13750); assert.equal(n.amount, 13750);
-  assert.equal(q('nanau', '2026-11-20', '2026-11-22', 'advance').amount, 3438);
-  assert.throws(() => q('nanau', '2026-12-30', '2027-01-01'), /Peak dates/);
-  assert.throws(() => q('nanau', '2026-11-20', '2026-12-10'), /up to 14 nights/);
+test('All four Amor stays require a fresh quote and never collect stale rates or a fixed advance', () => {
+  for (const stay of ['nanau','padma','aramness','tattwaa']) {
+    assert.throws(() => q(stay, '2026-11-20', '2026-11-22', 'advance'), /supplier-confirmed quote/);
+    assert.throws(() => q(stay, '2026-11-20', '2026-11-22', 'full'), /supplier-confirmed quote/);
+    assert.equal(publicRates()[stay].advance, null);
+    assert.equal(publicRates()[stay].status, 'quote_required');
+    assert.equal(publicRates()[stay].kind, 'quote_only');
+    assert.ok(!('perNight' in publicRates()[stay]));
+  }
 });
 
 test('Big Bro long-stay plans charge the plan price; other lengths take the refundable advance', () => {
@@ -33,7 +36,7 @@ test('every other stay is reservable online with the fixed advance', () => {
 test('public rates never expose supplier nets', () => {
   const pub = JSON.stringify(publicRates());
   for (const p of Object.values(RATE)) if (p.net) assert.doesNotMatch(pub, new RegExp('"' + p.net + '"|:' + p.net + '[,}]'));
-  assert.equal(publicRates().nanau.perNight, 6875);
+  assert.equal(publicRates().nanau.status, 'quote_required');
 });
 
 test('every stay the site offers for payment exists in the Worker price list', async () => {
