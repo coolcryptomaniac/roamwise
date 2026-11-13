@@ -101,6 +101,7 @@ import { handleBot, botDeps } from './handlers/bot.js';
 import { handleReminders, runInactivityReminders } from './handlers/reminders.js';
 import { handleTripNotify, runTripNotifications } from './handlers/trip-notify.js';
 import { handleStayLead, purgeOldStayLeads } from './handlers/stay-lead.js';
+import { runDataCleanup } from './handlers/data-cleanup.js';
 import { sendAdminDigest } from './handlers/bot-admin.js';
 import { handleAdvisoryAlerts, runAdvisoryAlerts } from './handlers/advisory-alerts.js';
 import { createShopHandlers } from './handlers/shop-order.js';
@@ -292,6 +293,8 @@ export default {
     try{ if(env.FIREBASE_SERVICE_ACCOUNT_JSON) await runAdvisoryAlerts(env, { digest: true }); }catch(e){ /* best-effort */ }
     /* Guest stay requests are kept 12 months, then deleted (see privacy.html). */
     try{ if(env.FIREBASE_SERVICE_ACCOUNT_JSON) await purgeOldStayLeads(env); }catch(e){ /* retried tomorrow */ }
+    /* Sundays: delete short-lived data (beacons, presence, old chat messages, old Tusk misses). Never money records. */
+    try{ await runDataCleanup(env); }catch(e){ /* retried next Sunday */ }
     /* Founder digest on Telegram/WhatsApp. Skipped unless the bot secrets and admin ids are set. */
     try{ if(env.BOT_ADMIN_TELEGRAM || env.BOT_ADMIN_WHATSAPP) await sendAdminDigest(env, botDeps(env)); }catch(e){ /* digest is best-effort */ }
   },
