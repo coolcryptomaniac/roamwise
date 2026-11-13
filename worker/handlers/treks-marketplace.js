@@ -9,6 +9,16 @@ import {getDoc,updateDoc,createDocIfAbsent,listDocs,queryEqualsString} from '../
 import {cfBase,cfHeaders} from '../lib/cashfree-pg.js';
 import {verifyCashfreeWorkerWebhook} from '../lib/cashfree-booking-webhook-verify.js';
 import {calculateTrekQuote} from '../../treks/price-policy.mjs';
+import {sendMail} from '../lib/mailer.js';
+
+const FOUNDER_EMAIL='founder@roamwise.co.in';
+const SITE='https://roamwise.co.in/treks/';
+/* Plain-language notifications so nobody has to keep checking the page. Best effort: never blocks or fails a request. */
+async function notify(env,to,subject,lines){
+ if(!to)return;
+ try{await sendMail(env,{to,subject,text:lines.filter(x=>x!==null&&x!==undefined).join('\n')+'\n\n— RoamWise Trails\nsupport@roamwise.co.in'})}catch(_){/* best effort */}
+}
+const ROLE_LABEL={company:'Trekking company',guide:'Independent guide',transport:'Transport provider',experience:'Outdoor experience'};
 
 const safe=(v,n=160)=>String(v==null?'':v).trim().slice(0,n);
 const allowedRoles=['company','guide','transport','experience'];
@@ -18,6 +28,8 @@ const orderPattern=/^rwtrek_[a-f0-9]{32}$/;
 const packagePattern=/^tp_[a-f0-9]{32}$/;
 const validEmail=(v)=>/^\S+@\S+\.\S+$/.test(v);
 const validPhone=(v)=>/^\+?[0-9]{10,15}$/.test(v);
+/* Accept what people actually type: spaces, dashes, brackets, a leading 0 or none of the +91. */
+const cleanPhone=(v)=>{let d=String(v==null?'':v).replace(/[\s().-]/g,'');if(/^0[6-9]\d{9}$/.test(d))d=d.slice(1);if(/^[6-9]\d{9}$/.test(d))d='+91'+d;return d.slice(0,16)};
 const utcNow=()=>new Date().toISOString();
 const apiError=(reason,status=400)=>json({error:reason},status);
 async function firestoreContext(env){
@@ -64,6 +76,7 @@ async function approved(ctx,id){
  const owner=await doc(ctx,'trekProviders/'+pkg.ownerUid);
  if(!owner||owner.status!=='approved'||owner.verified!==true)return null;
  if(!ISO.test(pkg.start)||Date.parse(pkg.start+'T00:00:00Z')<=Date.now())return null;
+ pkg.id=id; // getDoc returns fields only
  return {pkg,owner};
 }
 async function quote(ctx,id,seats){
@@ -95,16 +108,19 @@ export async function handleTrekMarketplace(request,env,path){
   try{
    const b=await readJSON(request);
    if(b.website||b.fax||b.companyHomepage)return apiError('invalid_enquiry',422); // hidden honeypot
-   const name=safe(b.name,80),email=safe(b.email,160).toLowerCase(),phone=safe(b.phone,20),note=safe(b.message,500);
-   if(b.consent!==true||name.length<2||!validEmail(email)||phone&&!validPhone(phone.replace(/[\\s()-]/g,''))||note.length<5)
+   const name=safe(b.name,80),email=safe(b.email,160).toLowerCase(),phone=cleanPhone(b.phone),note=safe(b.message,500);
+   if(b.consent!==true||name.length<2||!validEmail(email)||phone&&!validPhone(phone)||note.length<5)
      return apiError('complete_enquiry_and_consent',422);
    if(!packagePattern.test(b.packageId||''))return apiError('invalid_package',422);
    const entry=await approved(ctx,b.packageId);
    if(!entry)return apiError('departure_not_available',409);
    const id='te_'+crypto.randomUUID().replace(/-/g,'');
    const record={ownerUid:entry.pkg.ownerUid,packageId:entry.pkg.id,packageName:entry.pkg.name,
-     name,email,phone:phone.replace(/[\\s()-]/g,''),message:note,consent:true,status:'new',createdAt:utcNow(),source:'roamwise-treks'};
+     name,email,phone,message:note,consent:true,status:'new',createdAt:utcNow(),source:'roamwise-treks'};
    await create(ctx,'trekEnquiries',id,record);
+   await notify(env,entry.owner.email,'New enquiry: '+entry.pkg.name,['Hello '+entry.owner.name+',','',name+' asked about '+entry.pkg.name+' ('+entry.pkg.start+'):','"'+note+'"','',
+     'Reply to them directly: '+email+(phone?' · '+phone:''),'They agreed to share these details with you for this trek only.','',
+     'When you have replied, mark it "contacted" in your partner studio: '+SITE+'#studio']);
    return json({ok:true,reference:id,message:'Enquiry sent to the operator inbox. No booking or payment was made.'},201);
   }catch(_){return apiError('enquiry_unavailable',503)}
  }
@@ -156,23 +172,45 @@ export async function handleTrekMarketplace(request,env,path){
  }
  if(path==='treks/apply'&&request.method==='POST'){
   try{
-   const b=await readJSON(request);
-   if(!allowedRoles.includes(b.role)||!b.consent||!b.name||!validPhone(safe(b.phone,20))||!validEmail(safe(b.email,180)))return apiError('complete_required_fields',422);
+   const b=await readJSON(request),phone=cleanPhone(b.phone);
+   const missing=[];
+   if(!allowedRoles.includes(b.role))missing.push('role');
+   if(safe(b.name,100).length<2)missing.push('name');
+   if(safe(b.region,100).length<2)missing.push('region');
+   if(!validPhone(phone))missing.push('phone');
+   if(!validEmail(safe(b.email,180)))missing.push('email');
+   if(b.consent!==true)missing.push('consent');
+   if(missing.length)return json({error:'complete_required_fields',fields:missing},422);
    if(safe(b.email,180).toLowerCase()!==safe(claims.email,180).toLowerCase())return apiError('email_must_match_login',422);
    const existing=await doc(ctx,'trekProviders/'+claims.uid);
+   /* An approved operator updating their profile stays approved, so live treks keep selling; the founder is told what changed. */
+   const keepApproval=existing?.status==='approved'&&existing.verified===true;
    const next={ownerUid:claims.uid,name:safe(b.name,100),role:b.role,region:safe(b.region,100),
      website:safe(b.website,250),description:safe(b.description,800),
      instagram:/^https:\/\/(?:www\.)?instagram\.com\/[A-Za-z0-9._]{1,35}\/?$/.test(safe(b.instagram,200))?safe(b.instagram,200):'',
      cofounders:safe(b.cofounders,250),showFounderNames:b.showFounderNames===true,
       showBusinessWhatsapp:b.showBusinessWhatsapp===true,
-     phone:safe(b.phone,20),
+     phone,
      email:safe(b.email,180),registration:safe(b.registration,100),safetyCredentials:safe(b.safetyCredentials,500),
-     vehiclePermit:safe(b.vehiclePermit,150),refundPolicy:safe(b.refundPolicy,800),status:'pending_review',
-     verified:false,commissionPercent:0,feeWaiverYears:3,contributions:'voluntary_only_never_required',
+     vehiclePermit:safe(b.vehiclePermit,150),refundPolicy:safe(b.refundPolicy,800),
+     status:keepApproval?'approved':'pending_review',verified:keepApproval,reviewNote:keepApproval?safe(existing.reviewNote,300):'',
+     commissionPercent:0,feeWaiverYears:3,contributions:'voluntary_only_never_required',
      updatedAt:utcNow(),createdAt:existing?.createdAt||utcNow()};
    if(existing)await patch(ctx,'trekProviders/'+claims.uid,next);
    else await create(ctx,'trekProviders',claims.uid,next);
-   return json({ok:true,status:'pending_review',message:'Application received. No public affiliation or sales until approval.'});
+   await notify(env,FOUNDER_EMAIL,(keepApproval?'Trek partner updated profile: ':existing?'Trek partner resubmitted: ':'New trek partner application: ')+next.name,[
+     next.name+' ('+(ROLE_LABEL[next.role]||next.role)+', '+next.region+')',
+     'Contact: '+next.email+' · '+next.phone,next.website?'Website: '+next.website:null,
+     'Safety / certifications: '+(next.safetyCredentials||'not given'),next.registration?'Registration: '+next.registration:null,'',
+     keepApproval?'They stay approved. Check the change and pause them if needed:':'Review and approve or request changes:',SITE+'#review']);
+   if(!existing)await notify(env,next.email,'We received your RoamWise Trails application',['Hello '+next.name+',','',
+     'Thank you for applying to list with RoamWise Trails. Here is what happens next:',
+     '1. Add your first departure in your partner studio (dates, price, day-by-day plan, inclusions, safety): '+SITE+'#studio',
+     '2. RoamWise reviews your business and the departure, usually within 2 working days.',
+     '3. We email you when you are approved and when each departure goes live.',
+     '4. Travellers can then enquire or book; enquiries and paid bookings arrive in your studio and by email.',
+     '','There is no joining fee and 0% commission on your price for your first three years.']);
+   return json({ok:true,status:next.status,message:keepApproval?'Profile updated. You stay approved and your live treks keep selling.':'Application received. Next: add your first departure below. We review within 2 working days and email you.'});
   }catch(_){return apiError('application_unavailable',503)}
  }
  if(path==='treks/package/close'&&request.method==='POST'){
@@ -190,9 +228,17 @@ export async function handleTrekMarketplace(request,env,path){
  if(path==='treks/package'&&request.method==='POST'){
   try{
    const b=await readJSON(request),owner=await doc(ctx,'trekProviders/'+claims.uid);
-   if(!owner||!['pending_review','approved'].includes(owner.status))return apiError('partner_application_required',403);
+   if(!owner||!['pending_review','approved','changes_requested'].includes(owner.status))return apiError('partner_application_required',403);
    const name=safe(b.name,110),region=safe(b.region,100),start=safe(b.start,10),
     price=Number(b.unitPrice),seats=Number(b.seats),days=Number(b.duration);
+   const problems=[];
+   if(!name)problems.push('name');if(!region)problems.push('region');
+   if(!ISO.test(start)||Date.parse(start+'T00:00:00Z')<=Date.now())problems.push('start');
+   if(!Number.isSafeInteger(price)||price<100||price>200000)problems.push('unitPrice');
+   if(!Number.isSafeInteger(seats)||seats<1||seats>100)problems.push('seats');
+   if(!Number.isSafeInteger(days)||days<1||days>60)problems.push('duration');
+   for(const k of ['itinerary','includes','refundPolicy','safetyNote'])if(!safe(b[k],10))problems.push(k);
+   if(problems.length)return json({error:'missing_or_invalid_package_details',fields:problems},422);
    if(!name||!region||!ISO.test(start)||Date.parse(start+'T00:00:00Z')<=Date.now()||
       !Number.isSafeInteger(price)||price<100||price>200000||
       !Number.isSafeInteger(seats)||seats<1||seats>100||
@@ -213,9 +259,14 @@ export async function handleTrekMarketplace(request,env,path){
    const id=packagePattern.test(b.id||'')?b.id:'tp_'+crypto.randomUUID().replace(/-/g,'');
    const prev=await doc(ctx,'trekPackages/'+id);
    if(prev&&prev.ownerUid!==claims.uid)return apiError('forbidden',403);
-   if(prev)await patch(ctx,'trekPackages/'+id,data);
+   if(prev)await patch(ctx,'trekPackages/'+id,{...data,reviewNote:''});
    else await create(ctx,'trekPackages',id,{...data,createdAt:utcNow()});
-   return json({ok:true,id,status:'pending_review'});
+   await notify(env,FOUNDER_EMAIL,(prev?'Trek departure edited: ':'New trek departure: ')+name+' · '+owner.name,[
+     name+' by '+owner.name+(owner.status==='approved'?' (approved operator)':' (operator not approved yet)'),
+     start+' · '+days+' days · Rs '+price.toLocaleString('en-IN')+' per '+data.pricingUnit+' · '+seats+' seats',
+     prev&&prev.status==='published'?'It was live; it is hidden until you publish it again.':null,'',
+     'Review: '+SITE+'#review']);
+   return json({ok:true,id,status:'pending_review',wasLive:prev?.status==='published'});
   }catch(_){return apiError('package_save_unavailable',503)}
  }
  if(path==='treks/operator/decision'&&request.method==='POST'){
@@ -244,20 +295,34 @@ export async function handleTrekMarketplace(request,env,path){
  if(path==='treks/admin/action'&&request.method==='POST'){
   if(!await isAdmin(ctx,claims))return apiError('forbidden',403);
   try{const b=await readJSON(request);
-   if(b.kind==='provider'&&/^[A-Za-z0-9_-]{1,128}$/.test(b.id||'')&&['approve','pause'].includes(b.action)){
+   const reviewNote=safe(b.note,300);
+   if(b.kind==='provider'&&/^[A-Za-z0-9_-]{1,128}$/.test(b.id||'')&&['approve','pause','changes'].includes(b.action)){
     const provider=await doc(ctx,'trekProviders/'+b.id);
     if(!provider)return apiError('not_found',404);
-    await patch(ctx,'trekProviders/'+b.id,{status:b.action==='approve'?'approved':'paused',verified:b.action==='approve',
-      approvedAt:b.action==='approve'?(provider.approvedAt||utcNow()):safe(provider.approvedAt,40),reviewerUid:claims.uid});
+    if(b.action==='changes'&&reviewNote.length<5)return apiError('review_note_required',422);
+    await patch(ctx,'trekProviders/'+b.id,{status:b.action==='approve'?'approved':b.action==='changes'?'changes_requested':'paused',verified:b.action==='approve',
+      approvedAt:b.action==='approve'?(provider.approvedAt||utcNow()):safe(provider.approvedAt,40),reviewerUid:claims.uid,
+      reviewNote:b.action==='approve'?'':reviewNote,reviewedAt:utcNow()});
+    if(b.action==='approve')await notify(env,provider.email,'You are approved on RoamWise Trails',['Hello '+provider.name+',','',
+      'Your business is approved on RoamWise Trails.','Each departure you add is checked once before it goes live; we email you when it does.',
+      'Add or manage departures: '+SITE+'#studio']);
+    else await notify(env,provider.email,b.action==='changes'?'Please update your RoamWise Trails application':'Your RoamWise Trails listing is paused',['Hello '+provider.name+',','',
+      b.action==='changes'?'Thank you for applying. Before we can approve you, please update:':'Your listing is paused, so your treks are not shown to travellers for now.',
+      reviewNote?'"'+reviewNote+'"':null,'',b.action==='changes'?'Update and resubmit here (Become a partner tab): '+SITE+'#join':'Questions? Reply to this email.']);
     return json({ok:true});
    }
-   if(b.kind==='package'&&packagePattern.test(b.id||'')&&['publish','pause'].includes(b.action)){
+   if(b.kind==='package'&&packagePattern.test(b.id||'')&&['publish','pause','changes'].includes(b.action)){
     const pkg=await doc(ctx,'trekPackages/'+b.id);
     if(!pkg)return apiError('not_found',404);
     const owner=await doc(ctx,'trekProviders/'+pkg.ownerUid);
     if(b.action==='publish'&&(!owner||owner.status!=='approved'||owner.verified!==true))return apiError('approve_provider_first',409);
-    await patch(ctx,'trekPackages/'+b.id,{status:b.action==='publish'?'published':'paused',
-      reviewedAt:utcNow(),reviewerUid:claims.uid});
+    if(b.action==='changes'&&reviewNote.length<5)return apiError('review_note_required',422);
+    await patch(ctx,'trekPackages/'+b.id,{status:b.action==='publish'?'published':b.action==='changes'?'changes_requested':'paused',
+      reviewNote:b.action==='publish'?'':reviewNote,reviewedAt:utcNow(),reviewerUid:claims.uid});
+    if(owner)await notify(env,owner.email,b.action==='publish'?'Live on RoamWise: '+pkg.name:b.action==='changes'?'Please update: '+pkg.name:'Paused: '+pkg.name,['Hello '+owner.name+',','',
+      b.action==='publish'?pkg.name+' ('+pkg.start+') is now live. Share this link with travellers:':b.action==='changes'?pkg.name+' ('+pkg.start+') needs a few changes before it can go live:':pkg.name+' ('+pkg.start+') has been paused and is hidden from travellers.',
+      b.action==='publish'?SITE+'?package='+encodeURIComponent(b.id)+'#discover':reviewNote?'"'+reviewNote+'"':null,'',
+      'Manage your departures: '+SITE+'#studio']);
     return json({ok:true});
    }
    if(b.kind==='booking'&&orderPattern.test(b.id||'')&&['confirm','refund_review'].includes(b.action)){
@@ -293,7 +358,7 @@ async function createOrder(request,env,ctx,claims){
  if(!gate||gate.checkoutEnabled!==true||gate.environment!==environment)return apiError('checkout_not_enabled',503);
  if(environment==='sandbox'&&!await isAdmin(ctx,claims))return apiError('sandbox_admin_only',403);
  let b;try{b=await readJSON(request)}catch(_){return apiError('invalid_json',400)}
- const phone=safe(b.phone,20).replace(/[\s()-]/g,''),email=safe(b.email,180);
+ const phone=cleanPhone(b.phone),email=safe(b.email,180);
  if(!validPhone(phone)||!validEmail(email)||email.toLowerCase()!==String(claims.email||'').toLowerCase()||!b.acknowledgePending||!b.agreeTerms)return apiError('checkout_fields_required',422);
  if(!/^[a-f0-9-]{36}$/.test(b.nonce||''))return apiError('invalid_nonce',422);
  const quoted=await quote(ctx,b.packageId,b.seats);
@@ -337,6 +402,16 @@ async function createOrder(request,env,ctx,claims){
     quote:quoted.quote,seatStatus:'operator_confirmation_pending'});
  }catch(_){return apiError('order_unavailable',503)}
 }
+/* A verified payment: the operator is asked to confirm the seats; the founder gets a copy. Once per booking (state guard above). */
+async function notifyPaid(env,ctx,record,id){
+ const owner=record.ownerUid?await doc(ctx,'trekProviders/'+record.ownerUid).catch(()=>null):null;
+ const lines=[record.packageName+' · departure '+record.departure+' · '+record.travellers+' traveller(s)',
+  'Your price for this booking: Rs '+Number(record.operatorTotal||0).toLocaleString('en-IN'),'Reference: '+id,
+  record.shareContactWithOperator?'Traveller: '+record.guestEmail+(record.guestPhone?' · '+record.guestPhone:''):'The traveller chose not to share contact details; RoamWise will coordinate.','',
+  'Please confirm the seats (or say you cannot) in your partner studio: '+SITE+'#studio'];
+ if(owner)await notify(env,owner.email,'Paid booking to confirm: '+record.packageName,['Hello '+owner.name+',','','A traveller has paid through RoamWise.',...lines]);
+ await notify(env,FOUNDER_EMAIL,'Paid trek booking: '+record.packageName,[...lines,'Operator: '+(owner?owner.name+' · '+owner.email:'unknown')]);
+}
 async function orderStatus(env,ctx,claims,id){
  const record=await doc(ctx,'trekBookings/'+id);
  if(!record||record.guestUid!==claims.uid)return apiError('not_found',404);
@@ -344,6 +419,7 @@ async function orderStatus(env,ctx,claims,id){
   const order=await verifyProviderOrder(env,id,record.amount);
   if(order.order_status==='PAID'&&record.state==='payment_pending'){
    await patch(ctx,'trekBookings/'+id,{state:'paid_pending_operator_confirmation',paidAt:utcNow()});
+   await notifyPaid(env,ctx,record,id);
   }
   return json({orderId:id,state:order.order_status==='PAID'?(record.state==='operator_confirmed'||record.state==='refund_review_required'?record.state:'paid_pending_operator_confirmation'):order.order_status,
     operatorConfirmationPending:record.state!=='operator_confirmed',operatorTotal:record.operatorTotal,serviceFee:record.roamwiseServiceFee});
@@ -365,8 +441,10 @@ async function handleWebhook(request,env){
  try{
   const order=await verifyProviderOrder(env,id,record.amount);
   if(order.order_status!=='PAID')return apiError('not_paid',409);
-  if(record.state==='payment_pending')
+  if(record.state==='payment_pending'){
    await patch(ctx,'trekBookings/'+id,{state:'paid_pending_operator_confirmation',paidAt:utcNow()});
+   await notifyPaid(env,ctx,record,id);
+  }
   return json({received:true,operatorConfirmationPending:true});
  }catch(_){return apiError('verification_unavailable',503)}
 }
