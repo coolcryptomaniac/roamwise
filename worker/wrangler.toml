@@ -52,6 +52,9 @@ id = "be31e0935be843219cea1edf2203877b"   # <-- the ONLY line you edit in this f
 # unless PAYMENT_PROVIDER=cashfree and CASHFREE_ENVIRONMENT=live there too.
 # ---------------------------------------------------------------------------
 [vars]
+# Weekly cleanup of short-lived Firestore data (worker/handlers/data-cleanup.js). "false" = count only.
+DATA_CLEANUP_ENABLED = "true"
+CHAT_RETENTION_DAYS = "180"
 PUBLIC_DISPLAY_CACHE_ENABLED = "false"
 PUBLIC_DISPLAY_SYNC_ENABLED = "false"
 PUBLIC_DISPLAY_SYNC_TARGETS = "[]"
