@@ -3,7 +3,7 @@
  * 20-25%+ by demand, never more than a 200% markup, never below the 7% floor agreed with Amor, and never above
  * a known public price for the same thing (hotel's own rate, OTAs). Supplier nets never leave this module except
  * in `supplierNet`, which goes to KV and to Amor's own booking email, never to the browser. */
-import { AMOR, PLAN_LABEL, COMMISSION, COMMISSION_GST, roomGstRate, supplierUpfront } from './amor-rates.js';
+import { AMOR, GIR_EXTRAS, PLAN_LABEL, COMMISSION, COMMISSION_GST, roomGstRate, advanceShare, balanceLeadDays } from './amor-rates.js';
 import { PACKAGES } from './amor-packages.js';
 import { POLICY, marginFor, sellFor, floorFor } from './amor-policy.js';
 
@@ -61,12 +61,14 @@ function build({ name, legs, extras = [], checkin, rooms = 1, extraBeds = 0, pay
     const daysOut = Math.floor((t - now) / DAY);
     const p = AMOR[leg.stay];
     cost += c.cost; target += c.sell; pub += c.pub; peakNights += c.peakNights; nonRefundable = nonRefundable || c.nonRefundable;
-    upfrontCost += c.cost * Math.max(0.25, supplierUpfront(p.deposit, daysOut, c.nonRefundable));
+    upfrontCost += c.cost * advanceShare(p.deposit, daysOut);
     t += leg.nights * DAY;
     const L = { property: p.name, place: p.place, room: p.rooms[leg.room].label, plan: PLAN_LABEL[leg.plan] + (p.planNote ? ' · ' + p.planNote : ''), checkin: start, checkout: iso(t), nights: leg.nights, rooms };
     outLegs.push(L); supplierNet.push({ ...L, stay: leg.stay, mealPlan: leg.plan, extraBeds, cost: Math.round(c.cost) });
   }
-  for (const x of extras) {
+  for (const e of extras) {
+    const x = e.ref ? { ...GIR_EXTRAS[e.ref], ...e } : e;
+    if (!(x.cost > 0)) fail('This package is being updated; please try again shortly.');
     const n = x.cost * (x.per === 'room' ? rooms : 1);
     cost += n; upfrontCost += x.prepay ? n : n * 0.25;
     target += sellFor(n, x.budget ? POLICY.weddingBudgetMargin : POLICY.extrasMargin);
@@ -84,7 +86,7 @@ function build({ name, legs, extras = [], checkin, rooms = 1, extraBeds = 0, pay
   const q = {
     stay: kind === 'package' ? 'pkg' : legs[0].stay, package: kind === 'package' ? id : undefined, property: name, kind,
     checkin, checkout: outLegs[outLegs.length - 1].checkout, nights, rooms, guests, legs: outLegs,
-    extras: extras.map((x) => x.label), total, portion: full ? 100 : Math.round(advance / total * 100), amount: full ? total : advance,
+    extras: extras.map((x) => x.label || (GIR_EXTRAS[x.ref] || {}).label), total, portion: full ? 100 : Math.round(advance / total * 100), amount: full ? total : advance,
     advanceAmount: advance, balance: full ? 0 : total - advance, balanceDueBy: full ? null : balanceDue(legs, checkin),
     peakNights, nonRefundable, currency: 'INR', supplier: 'amor', provisional: legs.some((l) => AMOR[l.stay].provisional) || undefined,
     ...(Number.isFinite(pub) && pub > total ? { publicPrice: Math.round(pub), saving: Math.round(pub - total) } : {}),
@@ -92,13 +94,13 @@ function build({ name, legs, extras = [], checkin, rooms = 1, extraBeds = 0, pay
   return { quote: q, supplierNet, cost };
 }
 function balanceDue(legs, checkin) {
-  const lead = Math.max(...legs.map((l) => ({ corbett: 8, padma: 8, aramness: 31 })[AMOR[l.stay].deposit] || 8));
+  const lead = Math.max(...legs.map((l) => balanceLeadDays(AMOR[l.stay].deposit)));
   return iso(at(checkin) - lead * DAY);
 }
 
 /* A single Amor stay chosen on the booking page. */
 export function priceStay(body, now = Date.now()) {
-  const p = AMOR[body.stay]; if (!p) fail('Unknown property');
+  const p = AMOR[body.stay]; if (!p) fail('Online prices for this stay are loading; please try again in a minute.');
   const room = body.room && p.rooms[body.room] ? body.room : Object.keys(p.rooms)[0];
   const plan = p.plans.includes(body.plan) ? body.plan : p.plans[0];
   const checkin = String(body.checkin || ''), checkout = String(body.checkout || '');

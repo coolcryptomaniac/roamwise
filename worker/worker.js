@@ -59,7 +59,7 @@
 
 import { CORS, json } from './lib/http.js';
 import { handleTrekMarketplace } from './handlers/treks-marketplace.js';
-import { createStayOrder, stayOrderStatus, handleStayCashfreeWebhook, stayRates, stayQuote } from './handlers/stay-cashfree.js';
+import { createStayOrder, stayOrderStatus, handleStayCashfreeWebhook, stayRates, stayQuote, stayRatesKey } from './handlers/stay-cashfree.js';
 import { handleStayDecide, runStayDeadlines } from './handlers/stay-lifecycle.js';
 import { handleWallet, runWalletReleases } from './handlers/wallet.js';
 import { handleShopDecide, runShopRefundCron } from './handlers/shop-order.js';
@@ -193,11 +193,12 @@ export default {
 
     if(path === 'events/refresh') return handleEventsRefresh(request, env);
 
-    if(path === 'stays/rates' && request.method === 'GET') return stayRates();
+    if(path === 'stays/rates' && request.method === 'GET') return stayRates(request, env);
+    if(path === 'stays/rates-key' && request.method === 'GET') return stayRatesKey(request, env);
     if(path === 'stays/decide' && request.method === 'GET') return handleStayDecide(request, env);
     if(path === 'shop/decide' && request.method === 'GET') return handleShopDecide(request, env);
     if(path === 'wallet' || /^wallet\/(keep|bank|link)$/.test(path)) return handleWallet(request, env, path);
-    if(path === 'stays/quote' && request.method === 'POST') return stayQuote(request);
+    if(path === 'stays/quote' && request.method === 'POST') return stayQuote(request, env);
     if(path === 'stays/checkout' && request.method === 'POST') return createStayOrder(request,env);
     const stayCfStatus=path.match(/^stays\/status\/(rwstay_[a-f0-9]{32})$/);
     if(stayCfStatus && request.method === 'GET') return stayOrderStatus(request,env,stayCfStatus[1]);

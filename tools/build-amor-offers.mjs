@@ -1,19 +1,20 @@
 #!/usr/bin/env node
-/* Refreshes every Amor price shown on the homepage from the live price engine (worker/lib/amor-pricing.js).
- *   node tools/build-amor-offers.mjs          rewrite index.html in place
- *   node tools/build-amor-offers.mjs --check  exit 1 if any homepage price is stale (CI / daily upkeep)
- * Cards carry data-rw-pkg / data-rw-stay and data-rw-from; the visible "From ₹..." text is rewritten to match. */
+/* Refreshes the no-JavaScript fallback prices on the homepage Amor cards from the LIVE Worker (/stays/rates).
+ * Net rates are sealed on the Worker, so prices can only come from it. In the browser, js/ui/amor-offers.js
+ * already shows live prices and season order; this keeps the static HTML close for crawlers and old browsers.
+ *   node tools/build-amor-offers.mjs           rewrite index.html in place
+ *   node tools/build-amor-offers.mjs --check   exit 1 if any homepage price differs from the Worker */
 import fs from 'node:fs';
-import { publicRates, publicPackageList } from '../worker/handlers/stay-cashfree.js';
 
+const API = 'https://roamwise-api.founder-f53.workers.dev/stays/rates';
 const FILE = new URL('../index.html', import.meta.url);
 const inr = (n) => '₹' + Math.round(n).toLocaleString('en-IN');
 const STAY_ROOM = { nanau: ['studio', 'CP'], padma: ['royal', 'EP'], aramness: ['kothi', 'AP'], tattwaa: ['forest', 'CP'] };
 
-export function expectedPrices() {
-  const out = {}, rates = publicRates();
-  for (const k of publicPackageList()) if (k.from) out['pkg:' + k.id] = k.from.total;
-  for (const [id, [room, plan]] of Object.entries(STAY_ROOM)) out['stay:' + id] = rates[id].rooms[room].perNight[plan];
+export function expectedFrom(d) {
+  const out = {};
+  for (const k of d.packages || []) if (k.from) out['pkg:' + k.id] = k.from.total;
+  for (const [id, [room, plan]] of Object.entries(STAY_ROOM)) { const r = d.stays && d.stays[id] && d.stays[id].rooms && d.stays[id].rooms[room]; if (r && r.perNight[plan]) out['stay:' + id] = r.perNight[plan]; }
   return out;
 }
 
@@ -33,9 +34,9 @@ export function rewrite(html, want) {
 }
 
 if (import.meta.url === 'file://' + process.argv[1]) {
-  const html = fs.readFileSync(FILE, 'utf8'), { html: next, changed } = rewrite(html, expectedPrices());
-  if (process.argv.includes('--check')) {
-    if (changed) { console.error('Amor homepage prices are stale (' + changed + ' cards). Run: node tools/build-amor-offers.mjs'); process.exit(1); }
-    console.log('Amor homepage prices match the price engine.');
-  } else { fs.writeFileSync(FILE, next); console.log('Updated ' + changed + ' Amor cards on index.html.'); }
+  const d = await (await fetch(API)).json(), want = expectedFrom(d);
+  if (!Object.keys(want).length) { console.error('The Worker returned no Amor prices (rate book not loaded?). Nothing changed.'); process.exit(2); }
+  const html = fs.readFileSync(FILE, 'utf8'), { html: next, changed } = rewrite(html, want);
+  if (process.argv.includes('--check')) { if (changed) { console.error(changed + ' homepage Amor prices differ from the Worker. Run: node tools/build-amor-offers.mjs'); process.exit(1); } console.log('Homepage Amor prices match the Worker.'); }
+  else { fs.writeFileSync(FILE, next); console.log('Updated ' + changed + ' Amor cards on index.html.'); }
 }

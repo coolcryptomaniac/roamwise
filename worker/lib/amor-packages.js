@@ -1,11 +1,11 @@
 /* Curated Amor packages for winter 2026-27. Prices are NOT written here: the Worker prices every package
  * from the net rate sheets for the guest's exact dates (season, peak nights, blackout tables, supplements).
- * `extras.cost` is RoamWise's own tax-inclusive cost and stays on the server.
+ * `extras.cost` is RoamWise's own tax-inclusive cost and stays on the server; `ref` extras take their cost from the
+ * sealed rate book (lodge price list).
  * Celebration / wedding budgets are pass-through money RoamWise spends with the property or local vendors on
  * the couple's behalf (itemised receipts), so their cost is exactly the amount shown.
  * Seasonality used: Indian wedding season (late Nov-Feb) drives honeymoons Dec-Mar; Manali snowfall is likeliest
  * late Dec-Feb; Corbett is at its best Nov-Mar; Gir is open 16 Oct-15 Jun (Aramness winter rates to 28 Feb). */
-import { GIR_EXTRAS as G } from './amor-rates.js';
 
 const pkg = (o) => Object.freeze({ guestsPerRoom: 2, ...o });
 
@@ -39,7 +39,7 @@ export const PACKAGES = Object.freeze({
     id: 'gir-lion-honeymoon', group: 'honeymoon', name: 'Lions & a Private Pool, Gir', nightsLabel: '3 days / 2 nights', exclusiveDeal: true,
     tagline: 'A private-pool Kothi, all meals and your own Gir lion safari',
     legs: [{ stay: 'aramness', room: 'kothi', plan: 'AP', nights: 2 }],
-    extras: [{ ...G.keshodTransfer, label: 'Keshod airport pickup' }, { ...G.keshodTransfer, label: 'Keshod airport drop' }, G.girSafari],
+    extras: [{ ref: 'keshodTransfer', label: 'Keshod airport pickup' }, { ref: 'keshodTransfer', label: 'Keshod airport drop' }, { ref: 'girSafari' }],
     best: 'Nov-Feb (park open from 16 Oct)', photo: 'aramness', window: { from: '2026-11-13', to: '2027-02-27' },
     includes: ['2 nights in a Kothi with private pool', 'Breakfast, lunch and dinner', 'One private Gir safari with park entry (permit on ID, subject to forest department allocation)', 'Keshod airport pickup and drop by Innova Crysta', 'Conservation fee and all taxes'],
   }),
@@ -65,7 +65,7 @@ export const PACKAGES = Object.freeze({
     id: 'gir-family-safari', group: 'family', name: 'Gir Family Lion Safari', nightsLabel: '4 days / 3 nights', guestsPerRoom: 4, exclusiveDeal: true,
     tagline: 'Two safaris, Somnath darshan and a two-bedroom private-pool Kothi',
     legs: [{ stay: 'aramness', room: 'family', plan: 'AP', nights: 3 }],
-    extras: [{ ...G.keshodTransfer, label: 'Keshod airport pickup' }, { ...G.keshodTransfer, label: 'Keshod airport drop' }, G.girSafari, G.devaliaSafari, G.somnath],
+    extras: [{ ref: 'keshodTransfer', label: 'Keshod airport pickup' }, { ref: 'keshodTransfer', label: 'Keshod airport drop' }, { ref: 'girSafari' }, { ref: 'devaliaSafari' }, { ref: 'somnath' }],
     best: 'Nov-Feb', photo: 'aramness', window: { from: '2026-11-13', to: '2027-02-26' },
     includes: ['3 nights in a Family Kothi (2 bedrooms, private pool, 4 guests)', 'All meals', 'Private Gir safari and private Devalia safari, park entry included', 'Somnath temple excursion', 'Keshod airport pickup and drop', 'One child up to 12 free on the parents\' bed', 'Conservation fee and all taxes'],
   }),

@@ -9,6 +9,8 @@ import { walletKeyFromRequest, spendWallet } from './wallet.js';
 import { priceStay, pricePackage, publicAmor } from '../lib/amor-pricing.js';
 import { PACKAGES, publicPackages } from '../lib/amor-packages.js';
 import { inSeason } from '../lib/amor-policy.js';
+import { ensureAmorRates, publicKeyJwk } from '../lib/amor-rates-store.js';
+import { amorRatesLoaded } from '../lib/amor-rates.js';
 /* Every RoamWise stay is bookable and payable online (founder decision, 8 Nov 2026: take the money, refund
    if the stay cannot be confirmed). Kinds, all priced here, never by the browser:
    - amor:    Amor Hospitality net rate sheets, any room and meal plan, season and peak nights, plus
@@ -40,13 +42,14 @@ export function packageFrom(id){
 }
 /* Public price card for the booking page (no supplier nets). */
 export function publicRates(){
- const amor=publicAmor();
+ const amor=amorRatesLoaded()?publicAmor():{};
  return Object.fromEntries(Object.entries(RATE).map(([id,p])=>[id,{name:p.name,kind:p.kind,
-  ...(p.kind==='amor'?amor[id]:{}),
+  ...(p.kind==='amor'?(amor[id]||{unavailable:true}):{}),
   ...(p.kind==='plans'?{plans:p.plans}:{}),advance:STAY_ADVANCE}]));
 }
 /* Package cards, best for this moment first: in season today, then in season within a month, then cheaper first. */
 export function publicPackageList(now=Date.now()){
+ if(!amorRatesLoaded())return [];
  const day=(n)=>new Date(now+n*864e5).toISOString().slice(0,10),today=day(0),month=day(30);
  return publicPackages().map((k)=>{const from=packageFrom(k.id),open=!k.window||k.window.to>=today;
   const hot=open&&(inSeason(k.group,today)||!!(k.window&&k.window.from<=month));
@@ -74,9 +77,12 @@ function priceOther(body,p,now){
  /* Rate confirmed by RoamWise for the dates: take a refundable advance now, adjusted in the final bill. */
  return {stay:body.stay,property:p.name,kind:'advance',checkin:start,checkout:end,nights:n,guests:2,total:null,portion:null,amount:STAY_ADVANCE,currency:'INR',supplier:p.supplier};
 }
-export async function stayRates(){ return json({advance:STAY_ADVANCE,stays:publicRates(),packages:publicPackageList()}); }
+export async function stayRates(request,env){ await ensureAmorRates(env); return json({advance:STAY_ADVANCE,stays:publicRates(),packages:publicPackageList()}); }
+/* GET /stays/rates-key: the PUBLIC half of the rate-book key, for tools/amor-rates-seal.mjs. Never the rates. */
+export async function stayRatesKey(request,env){ const k=await publicKeyJwk(env||{}); return k?json(k):json({error:'key_not_ready'},503); }
 /* POST /stays/quote: the exact amount the checkout would charge, without creating an order. */
-export async function stayQuote(request){
+export async function stayQuote(request,env){
+ await ensureAmorRates(env);
  let b;try{b=await request.json()}catch(_){return json({error:'invalid_json'},400)}
  try{return json({ok:true,quote:price(b)})}catch(e){return json({error:'invalid_quote',message:e.message},422)}
 }
@@ -85,6 +91,7 @@ export async function createStayOrder(request,env){
  if(!env.CASHFREE_APP_ID||!env.CASHFREE_SECRET_KEY||!kv(env))return json({error:'stay_checkout_unavailable'},503);
  let b;try{b=await request.json()}catch(_){return json({error:'invalid_json'},400)}
  if(b.balanceOf)return createBalanceOrder(b,env);
+ await ensureAmorRates(env);
  let quote,supplierNet;try{({quote,supplierNet}=priceFull(b))}catch(e){return json({error:'invalid_quote',message:e.message},422)}
  const phone=String(b.phone||'').replace(/[\s()-]/g,''),email=String(b.email||'').trim();
  if(!/^\+?\d{10,15}$/.test(phone)||!/^\S+@\S+\.\S+$/.test(email))return json({error:'contact_required'},422);
