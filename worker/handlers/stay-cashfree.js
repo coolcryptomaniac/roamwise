@@ -13,10 +13,13 @@ import { walletKeyFromRequest, spendWallet } from './wallet.js';
    `supplier` decides who gets the paid-booking email: Amor's sales desk for Amor stays, otherwise RoamWise. */
 export const STAY_ADVANCE = 1000;
 export const RATE={
- nanau:{kind:'nightly',name:'Nanau Resort & Spa · Sitabani Studio CP',net:5500,from:'2026-11-07',until:'2027-03-31',peak:['2026-12-24','2027-01-03'],supplier:'amor'},
- padma:{kind:'nightly',name:'Padma Villa · Royal Chamber EP',net:5000,from:'2026-11-07',until:'2027-03-31',peak:['2026-12-18','2027-01-10'],supplier:'amor'},
- aramness:{kind:'nightly',name:'Aramness Gir · Kothi AP',net:72216,from:'2026-11-07',until:'2027-02-28',supplier:'amor'},
- tattwaa:{kind:'nightly',name:'Tattwaa Corbett · Forest Room CPAI + hi-tea (provisional)',net:5500,from:'2026-11-07',until:'2027-03-31',supplier:'amor'},
+ // Amor wholesale rate cards are confidential, date-sensitive and NOT sellable without
+ // an approved supplier hold, tax/invoicing model and immutable server-side quote.
+ // These IDs remain listed so existing links and leads resolve, but payment fails closed.
+ nanau:{kind:'quote_only',name:'Nanau Resort & Spa, Corbett',supplier:'amor'},
+ padma:{kind:'quote_only',name:'Padma Villa, Manali',supplier:'amor'},
+ aramness:{kind:'quote_only',name:'Aramness Gir',supplier:'amor'},
+ tattwaa:{kind:'quote_only',name:'Tattwaa Corbett Spa & Resort',supplier:'amor'},
  bigbro:{kind:'plans',name:'Big Bro Hotel, Almora',plans:{15:30000,30:50000,90:150000},supplier:'roamwise'},
  milan:{kind:'advance',name:'Milan Heights, Almora',supplier:'roamwise'},
  soulmate:{kind:'advance',name:'Soulmate Homestay, Kotyura, Almora',supplier:'roamwise'},
@@ -24,15 +27,16 @@ export const RATE={
  newhimank:{kind:'advance',name:'New Himank, Manali',supplier:'roamwise'},
  corbett:{kind:'advance',name:'Corbett Jungle View Homestay, Lansdowne',supplier:'roamwise'}
 };
-const NIGHTLY_MARKUP=1.25;
+const NIGHTLY_MARKUP=1.07; // Future Amor room markup, only after verified commercial/tax and quote approval.
 /* Public price card for the booking page (no supplier nets). */
 export function publicRates(){
  return Object.fromEntries(Object.entries(RATE).map(([id,p])=>[id,{name:p.name,kind:p.kind,
   ...(p.kind==='nightly'?{perNight:Math.ceil(p.net*NIGHTLY_MARKUP),from:p.from,until:p.until,peak:p.peak||null}:{}),
-  ...(p.kind==='plans'?{plans:p.plans}:{}),advance:STAY_ADVANCE}]));
+  ...(p.kind==='plans'?{plans:p.plans}:{}),advance:p.kind==='quote_only'?null:STAY_ADVANCE,status:p.kind==='quote_only'?'quote_required':'available'}]));
 }
 export function price(body,now=Date.now()){
  const p=RATE[String(body.stay||'')];if(!p)throw Error('Unknown property');
+ if(p.kind==='quote_only')throw Error('A dated supplier-confirmed quote is required before any Amor Hospitality advance or full payment. Request a quote on /packages/amor-luxury.html.');
  const start=String(body.checkin||''),end=String(body.checkout||'');
  if(!/^\d{4}-\d{2}-\d{2}$/.test(start)||!/^\d{4}-\d{2}-\d{2}$/.test(end))throw Error('Invalid dates');
  const a=Date.parse(start+'T00:00:00Z'),b=Date.parse(end+'T00:00:00Z'),n=(b-a)/86400000;
