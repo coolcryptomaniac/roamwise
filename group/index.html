@@ -1,0 +1,47 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Pay your share | RoamWise</title><meta name="robots" content="noindex"><link rel="icon" href="../icons/favicon-32.png">
+<style>
+body{margin:0;background:#100c1c;color:#fff0dc;font:16px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+main{max-width:560px;margin:auto;padding:22px 18px 60px}a{color:#ffd08a}h1{color:#f8c985;font-size:26px;margin:6px 0}
+.card{background:rgba(255,255,255,.04);border:1px solid rgba(248,201,133,.25);border-radius:16px;padding:16px;margin:14px 0}
+.bar{height:10px;background:rgba(255,255,255,.08);border-radius:10px;overflow:hidden;margin:10px 0}.bar u{display:block;height:100%;background:#E8BA6C}
+.who{display:flex;flex-wrap:wrap;gap:6px}.who span{font-size:12px;padding:3px 9px;border-radius:99px;background:rgba(255,255,255,.07)}.who span.p{background:rgba(74,222,128,.18)}
+label{display:block;font-size:13px;margin:10px 0 4px}input{width:100%;box-sizing:border-box;padding:11px;border-radius:10px;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.05);color:inherit;font:inherit}
+button{width:100%;margin-top:14px;padding:13px;border:0;border-radius:12px;background:#E8BA6C;color:#100c1c;font-weight:800;font:inherit;font-weight:800;cursor:pointer}button:disabled{opacity:.5}
+small{opacity:.75}.brand{font-weight:800;color:#E8BA6C;text-decoration:none}
+</style></head><body><main>
+<a class="brand" href="../">Roam<span style="color:#fff">Wise</span></a>
+<h1 id="title">Pay your share</h1><p id="sub">Loading the group…</p>
+<div class="card" id="prog" hidden><b id="paidLine"></b><div class="bar"><u id="barFill" style="width:0"></u></div><div class="who" id="who"></div><p id="dl" style="margin:10px 0 0"></p></div>
+<p id="note" role="status" aria-live="polite" style="font-weight:700"></p>
+<form class="card" id="join" hidden>
+<p style="margin:0">Your share: <b id="share"></b></p>
+<label for="n">Your name</label><input id="n" autocomplete="name" required minlength="2">
+<label for="e">Email (for your receipt)</label><input id="e" type="email" autocomplete="email" required>
+<label for="p">Mobile</label><input id="p" type="tel" autocomplete="tel" pattern="[+0-9 ()-]{10,20}" required>
+<label style="display:flex;gap:8px;align-items:flex-start"><input id="t" type="checkbox" required style="width:auto;margin-top:4px"><span>I understand the stay is booked only when everyone has paid. If the group misses the deadline, or the property cannot confirm, my share comes back to my RoamWise wallet and then to my original payment method.</span></label>
+<button id="go" type="submit">Pay my share securely</button><p id="msg" role="status" aria-live="polite"></p>
+<small>Payments by Cashfree. RoamWise never asks for your OTP or UPI PIN.</small>
+</form>
+</main><script src="https://sdk.cashfree.com/js/v3/cashfree.js"></script><script>
+const $=id=>document.getElementById(id),q=new URLSearchParams(location.search),API='https://roamwise-api.founder-f53.workers.dev';
+const inr=n=>'₹'+Number(n).toLocaleString('en-IN'),esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const pot=q.get('pot')||'',order=q.get('order_id')||'';
+function show(p){
+ $('title').textContent=p.property;$('sub').textContent=p.checkin+' to '+p.checkout+' · '+p.nights+' night'+(p.nights>1?'s':'')+' · organised by '+p.organiser+' · total '+inr(p.total)+(p.kind==='advance'?' (booking advance)':'');
+ $('prog').hidden=false;$('paidLine').textContent=p.paid+' of '+p.shares+' shares paid';$('barFill').style.width=Math.round(p.paid/p.shares*100)+'%';
+ $('who').innerHTML=p.members.map(m=>m?'<span class="p">✓ '+esc(m)+'</span>':'<span>waiting</span>').join('');
+ $('dl').textContent=p.status==='complete'?'Everyone paid! RoamWise is confirming the booking with the property.':p.open?'Everyone must pay by '+new Date(p.deadline).toLocaleString('en-IN',{dateStyle:'medium',timeStyle:'short'})+'.':'This group payment is closed.'+(p.status.indexOf('expired')===0?' Everyone who paid has their share back in their RoamWise wallet.':'');
+ const next=p.shareAmounts[p.paid]||p.shareAmounts[p.shareAmounts.length-1];$('share').textContent=inr(next);$('join').hidden=!p.open||order&&p.status!=='collecting';
+}
+async function load(){if(!/^rwpot_[a-f0-9]{24}$/.test(pot)){$('sub').textContent='This group link is not valid.';return}
+ try{if(/^rwgrp_[a-f0-9]{32}$/.test(order)){$('sub').textContent='Checking your payment…';const r=await fetch(API+'/group/order/'+order),d=await r.json();if(d.pot)show(d.pot);
+   $('note').textContent=d.status==='paid'?'Payment received, thank you! Your receipt is on its way by email.':d.status==='refunded_to_wallet'?'This share was already taken, so your payment is back in your RoamWise wallet.':'Payment not completed yet.';if(d.status==='paid')$('join').hidden=true;return}
+  const r=await fetch(API+'/group/'+pot);if(!r.ok)throw 0;show(await r.json())}catch(_){$('sub').textContent='Could not load this group. Please try again.'}}
+$('join').addEventListener('submit',async e=>{e.preventDefault();$('go').disabled=true;$('msg').textContent='Opening secure checkout…';
+ try{const r=await fetch(API+'/group/'+pot+'/join',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({name:$('n').value,email:$('e').value,phone:$('p').value,acceptTerms:$('t').checked})}),d=await r.json();
+  if(!r.ok)throw Error(d.message||'Could not start the payment');
+  await Cashfree({mode:d.environment==='production'?'production':'sandbox'}).checkout({paymentSessionId:d.paymentSessionId,redirectTarget:'_self'})}
+ catch(err){$('msg').textContent=err.message;$('go').disabled=false}});
+load();
+</script></body></html>

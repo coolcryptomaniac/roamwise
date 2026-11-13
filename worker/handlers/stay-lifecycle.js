@@ -67,6 +67,8 @@ export async function onStayPaid(env, record, nowMs = Date.now(), deps = {}) {
 /* Full amount back to the guest's wallet. origins keep the money tied to the Cashfree payments it came from. */
 export async function refundStayToWallet(env, record, reason, nowMs = Date.now(), deps = {}) {
   if (record.status === 'refunded_to_wallet') return { ok: true, duplicate: true };
+  /* Group stays (handlers/group-pot.js): each member gets their own share back in their own wallet. */
+  if (Array.isArray(record.groupMembers) && record.groupMembers.length) return refundGroupStay(env, record, reason, nowMs, deps);
   const origins = Array.isArray(record.paidFromLots) && record.paidFromLots.length
     ? record.paidFromLots.map((l) => ({ orderId: l.orderId, amount: l.amount, method: l.method, source: l.source, expiresAt: l.expiresAt, paidLot: l.paidLot, paidAt: l.paidAt }))
     : [{ orderId: record.id, amount: record.amount }];
@@ -85,6 +87,25 @@ export async function refundStayToWallet(env, record, reason, nowMs = Date.now()
     wl ? 'Your wallet: ' + wl.url : '', '', '— RoamWise',
   ].filter((x) => x !== null).join('\n') });
   return { ok: true, releaseAt: r.releaseAt };
+}
+
+async function refundGroupStay(env, record, reason, nowMs, deps) {
+  const send = deps.sendMail || sendMail;
+  let releaseAt = '';
+  for (const m of record.groupMembers) {
+    const r = await creditWallet(env, { email: m.email, phone: m.phone, refId: m.orderId, origins: [{ orderId: m.orderId, amount: m.amount }],
+      note: 'Refund: group stay ' + record.property + ' ' + record.checkin }, nowMs);
+    releaseAt = r.releaseAt || releaseAt;
+    await send(env, { to: m.email, subject: rs(m.amount) + ' is in your RoamWise wallet', text: [
+      'Hi ' + (m.first || 'there') + ', we could not confirm ' + record.property + ' for ' + record.checkin + '. Sorry about that.',
+      'Your share of ' + rs(m.amount) + ' is in your RoamWise wallet right now. Use it for another stay, or do nothing and it goes back to your original payment method automatically' + (r.releaseAt ? ' on ' + r.releaseAt.slice(0, 10) : '') + '.',
+      '', '— RoamWise',
+    ].join('\n') });
+  }
+  record.status = 'refunded_to_wallet'; record.refundedAt = new Date(nowMs).toISOString(); record.refundReason = reason;
+  await putOrder(env, record);
+  await env.RW_KV.delete('staydue:' + record.id);
+  return { ok: true, releaseAt, members: record.groupMembers.length };
 }
 
 async function confirmStay(env, record, by, nowMs, deps = {}) {
