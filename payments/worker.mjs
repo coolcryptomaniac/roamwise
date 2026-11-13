@@ -38,7 +38,7 @@ async function webhook(req,env,provider){
 }
 
 
-// Amor Hospitality: server-priced two-night packages. Retail = 1.25x partner net
+// Amor Hospitality: no public wholesale pricing or live-payment endpoint without locked supplier quote.
 // All Amor rates are supplier-confidential, season-dependent and must be represented
 // by an immutable, authenticated, supplier-held quote before payment. Never publish
 // net-rate values or let the request body choose the price/deposit.
