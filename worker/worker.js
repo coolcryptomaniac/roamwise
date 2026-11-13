@@ -62,6 +62,7 @@ import { handleTrekMarketplace } from './handlers/treks-marketplace.js';
 import { createStayOrder, stayOrderStatus, handleStayCashfreeWebhook, stayRates, stayQuote, stayRatesKey } from './handlers/stay-cashfree.js';
 import { handleStayDecide, runStayDeadlines } from './handlers/stay-lifecycle.js';
 import { handleWallet, runWalletReleases } from './handlers/wallet.js';
+import { creditPacks, createCreditOrder, creditOrderStatus, handleCreditWebhook, runCreditExpiry } from './handlers/credit-packs.js';
 import { handleShopDecide, runShopRefundCron } from './handlers/shop-order.js';
 import { handleAgentMail } from './handlers/agentmail-outreach.js';
 import {handleCreatorAutopilot,runCreatorAutopilot} from './handlers/creator-autopilot.js';
@@ -147,6 +148,7 @@ export default {
     // Signed server-to-server Cashfree callback for shop orders; never IP-throttled so a real payment is not dropped.
     if(path === 'shop/cashfree/webhook') return handleShopWebhook(request, env);
     if(path === 'stays/cashfree/webhook') return handleStayCashfreeWebhook(request, env);
+    if(path === 'credit/cashfree/webhook') return handleCreditWebhook(request, env);
     if(path === 'treks/cashfree/webhook') return handleTrekMarketplace(request, env, path);
 
     /* Flood / per-route limits and body-size cap (additive; see lib/rate-limit.js). */
@@ -198,6 +200,9 @@ export default {
     if(path === 'stays/decide' && request.method === 'GET') return handleStayDecide(request, env);
     if(path === 'shop/decide' && request.method === 'GET') return handleShopDecide(request, env);
     if(path === 'wallet' || /^wallet\/(keep|bank|link)$/.test(path)) return handleWallet(request, env, path);
+    if(path === 'credit/packs' && request.method === 'GET') return creditPacks(request, env);
+    if(path === 'credit/checkout' && request.method === 'POST') return createCreditOrder(request, env);
+    if(path.startsWith('credit/order/') && request.method === 'GET') return creditOrderStatus(request, env, path.slice(13));
     if(path === 'stays/quote' && request.method === 'POST') return stayQuote(request, env);
     if(path === 'stays/checkout' && request.method === 'POST') return createStayOrder(request,env);
     const stayCfStatus=path.match(/^stays\/status\/(rwstay_[a-f0-9]{32})$/);
@@ -270,6 +275,8 @@ export default {
       await refreshNews(env);
       if(new Date().getUTCDay() === 1) await refreshEvents(env);
     }catch(e){ /* a cron failure must never take the Worker down */ }
+    /* Founding Traveller Credit: expiry reminders, then a real refund of unused paid credit at expiry. */
+    try{ await runCreditExpiry(env); }catch(e){ /* retried tomorrow */ }
     /* Home page: store today's snapshot of the curated promo stays and travel advisories (one KV write a day). */
     try{ await refreshHomeDaily(env); }catch(e){ /* yesterday's snapshot keeps serving */ }
     try{ await syncApprovedPublicTargets(env); }catch(e){ /* preserve prior cache */ }

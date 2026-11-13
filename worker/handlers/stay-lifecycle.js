@@ -68,7 +68,7 @@ export async function onStayPaid(env, record, nowMs = Date.now(), deps = {}) {
 export async function refundStayToWallet(env, record, reason, nowMs = Date.now(), deps = {}) {
   if (record.status === 'refunded_to_wallet') return { ok: true, duplicate: true };
   const origins = Array.isArray(record.paidFromLots) && record.paidFromLots.length
-    ? record.paidFromLots.map((l) => ({ orderId: l.orderId, amount: l.amount }))
+    ? record.paidFromLots.map((l) => ({ orderId: l.orderId, amount: l.amount, method: l.method, source: l.source, expiresAt: l.expiresAt, paidLot: l.paidLot }))
     : [{ orderId: record.id, amount: record.amount }];
   const r = await creditWallet(env, { email: record.email, phone: record.phone, refId: record.id, origins,
     note: 'Refund: ' + record.property + ' ' + record.checkin }, nowMs);

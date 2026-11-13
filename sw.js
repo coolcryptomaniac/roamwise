@@ -23,7 +23,7 @@
  *    and promo.mp4. Live data must stay live, and the video is tens of MB.
  * ------------------------------------------------------------------------- */
 
-var VERSION = 'rw-v152-direct-checkout';
+var VERSION = 'rw-v153-founding-credit';
 var HTML_CACHE = VERSION + '-html';
 var ASSET_CACHE = VERSION + '-assets';
 
@@ -131,7 +131,7 @@ self.addEventListener('fetch', function (e) {
        network first; the cached copy is only the offline fallback. */
     /* Booking and payment pages must never be served stale: a cached old checkout once
        showed the wrong property and the wrong advance. Network first, cache only offline. */
-    var mustBeFresh = isHTML && /^\/(packages|wallet|pay|checkout)\b/.test(url.pathname);
+    var mustBeFresh = isHTML && /^\/(packages|wallet|pay|checkout|credit)\b/.test(url.pathname);
     if (mustBeFresh || req.cache === 'no-store' || req.cache === 'reload') {
       e.respondWith(
         fetch(req).then(function (res) {
