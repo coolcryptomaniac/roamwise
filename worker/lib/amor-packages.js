@@ -87,6 +87,22 @@ export const PACKAGES = Object.freeze({
     best: 'Dec-Feb', photo: 'padma',
     includes: ['2 nights Pebble Path Cottage with plunge pool, Nanau (Corbett)', '1 travel day (overnight Volvo or flight via Delhi; not included, we can quote)', '3 nights Glass Suite with jacuzzi, Padma Villa (Manali)', 'Breakfast and dinner at both', 'Candle-light dinner and bonfire', 'All taxes'],
   }),
+  'amor-grand-hop': pkg({
+    id: 'amor-grand-hop', group: 'circuit', name: 'Grand Amor Hop: Jungle, Spa & Snow', nightsLabel: '9 days / 7 hotel nights',
+    tagline: 'Two Corbett forest resorts, then a bathtub suite at a private Manali estate',
+    legs: [{ stay: 'tattwaa', room: 'junior', plan: 'MAP', nights: 2 }, { stay: 'nanau', room: 'pebble', plan: 'MAP', nights: 2 }, { stay: 'padma', room: 'king', plan: 'MAP', nights: 3, gapBefore: 1 }],
+    extras: [{ label: 'Resort-to-resort transfer in Corbett (short drive near Sitabani)', cost: 2000 }, { label: 'Celebration credit Rs 4,000 at Padma Villa: candle-light dinner and bonfire', cost: 4000, public: 4000 }],
+    best: 'Dec-Mar', photo: 'tattwaa',
+    includes: ['2 nights Junior Suite with bathtub at Tattwaa (pool, spa)', '2 nights plunge-pool cottage at Nanau', '1 travel day (overnight Volvo or flight via Delhi; not included, we can quote)', '3 nights King Suite with bathtub and balcony at Padma Villa, Manali', 'Breakfast and dinner throughout', 'Corbett transfer, candle-light dinner and bonfire', 'All taxes'],
+  }),
+  'family-forest-snow': pkg({
+    id: 'family-forest-snow', group: 'family', name: 'Family Forest & Snow Holiday', nightsLabel: '7 days / 5 hotel nights', rooms: { max: 4 },
+    tagline: 'Pool and jungle trails at Tattwaa, then a pet-friendly mountain estate in Manali',
+    legs: [{ stay: 'tattwaa', room: 'premium', plan: 'MAP', nights: 2 }, { stay: 'padma', room: 'royal', plan: 'MAP', nights: 3, gapBefore: 1 }],
+    extras: [{ label: 'Bonfire and barbeque evening at Padma Villa (Rs 3,000 credit per room)', cost: 3000, public: 3000, per: 'room' }],
+    best: 'Late Dec school holidays, Feb-Mar', photo: 'padma',
+    includes: ['2 nights Premium Room at Tattwaa (pool, game zone, nature trails)', '1 travel day (not included, we can quote a cab or Volvo)', '3 nights Royal Chamber at Padma Villa, Manali', 'Breakfast and dinner throughout', 'Bonfire and barbeque evening', 'Kids up to 5 free at Tattwaa and up to 12 at Padma on the parents\' bed', 'All taxes'],
+  }),
   'manali-white-christmas': pkg({
     id: 'manali-white-christmas', group: 'festive', name: 'White Christmas & New Year, Manali', nightsLabel: '5 days / 4 nights', rooms: { max: 4 },
     tagline: 'Four winter nights at a private estate, with a New Year bonfire and cake',
@@ -105,7 +121,7 @@ export const PACKAGES = Object.freeze({
     extras: [{ label: 'Wedding budget Rs 75,000: mandap décor, pandit ji and samagri, photographer (1 day), mehendi artist, wedding cake', cost: 75000, budget: true }],
     best: 'Oct-Nov and Feb-Mar (clear days, before and after peak snow)', photo: 'padma',
     includes: ['Whole villa for 2 nights, only your guests', 'Breakfast and dinner for everyone', 'Rs 75,000 wedding budget spent by RoamWise with receipts: décor, pandit, photographer, mehendi, cake', 'A RoamWise coordinator on WhatsApp from booking to send-off', 'All taxes'],
-    note: 'Event use is confirmed by the villa in writing before the date is locked; if not approved you get a full refund. Music outdoors ends by 10 pm.',
+    note: 'Weddings at Padma Villa are approved by Amor Hospitality; the villa confirms your date and event plan in writing within 24 hours of payment, or you get a full refund. Music outdoors ends by 10 pm.',
   }),
   'manali-intimate-wedding': pkg({
     id: 'manali-intimate-wedding', group: 'wedding', name: 'Intimate Himalayan Wedding Weekend', nightsLabel: '4 days / 3 nights', guestsPerRoom: 12, extraGuests: 8,
@@ -114,7 +130,7 @@ export const PACKAGES = Object.freeze({
     extras: [{ label: 'Wedding budget Rs 1,75,000: haldi and mehendi décor, mandap, pandit ji, photo and video (2 days), DJ and sound for the sangeet, bonfire barbeque, cake', cost: 175000, budget: true }],
     best: 'Oct-Nov and Feb-Mar', photo: 'padma',
     includes: ['Whole villa for 3 nights', 'Breakfast and dinner for all guests', 'Rs 1,75,000 wedding budget: haldi, mehendi, mandap, pandit, photo and video, sangeet sound, bonfire barbeque, cake', 'Coordinator from booking to send-off', 'All taxes'],
-    note: 'Event use is confirmed by the villa in writing before the date is locked; if not approved you get a full refund. Music outdoors ends by 10 pm.',
+    note: 'Weddings at Padma Villa are approved by Amor Hospitality; the villa confirms your date and event plan in writing within 24 hours of payment, or you get a full refund. Music outdoors ends by 10 pm.',
   }),
   'manali-signature-wedding': pkg({
     id: 'manali-signature-wedding', group: 'wedding', name: 'Signature Snow Wedding', nightsLabel: '5 days / 4 nights', guestsPerRoom: 12, extraGuests: 8,
@@ -123,7 +139,7 @@ export const PACKAGES = Object.freeze({
     extras: [{ label: 'Wedding budget Rs 3,50,000: florals and full décor for every function, mandap, pandit ji, wedding film and photos (3 days), live musician and DJ, makeup artist, welcome hampers, cake', cost: 350000, budget: true }],
     best: 'Late Jan-Feb for snow (outside the 18 Dec-10 Jan blackout)', photo: 'padma',
     includes: ['Whole villa for 4 nights', 'Breakfast and dinner for all guests', 'Rs 3,50,000 wedding budget: florals, décor, mandap, pandit, film and photos, live music, makeup, hampers, cake', 'Coordinator from booking to send-off', 'All taxes'],
-    note: 'Event use is confirmed by the villa in writing before the date is locked; if not approved you get a full refund. Music outdoors ends by 10 pm. Snow is never guaranteed.',
+    note: 'Weddings at Padma Villa are approved by Amor Hospitality; the villa confirms your date and event plan in writing within 24 hours of payment, or you get a full refund. Music outdoors ends by 10 pm. Snow is never guaranteed.',
   }),
 });
 
