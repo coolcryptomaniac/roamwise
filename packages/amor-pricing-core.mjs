@@ -19,7 +19,8 @@ export function buildAmorQuote({roomCostsMinor=[],serviceCostsMinor=[],roomMarku
  const roomRetailMinor=roomCostMinor+ceilBps(roomCostMinor,roomMarkupBps);
  const packageTargetMinor=supplierCostMinor+ceilBps(supplierCostMinor,packageTargetBps);
  const serviceRetailMinor=Math.min(serviceCostMinor+ceilBps(serviceCostMinor,serviceMaxBps),Math.max(serviceCostMinor,packageTargetMinor-roomRetailMinor));
- const customerTotalMinor=Math.max(0,roomRetailMinor+serviceRetailMinor-passThroughDiscountMinor);
+ if(passThroughDiscountMinor>serviceRetailMinor-serviceCostMinor)throw Error('Package discount exceeds independently costed service contribution; room markup must remain <=7%');
+ const customerTotalMinor=roomRetailMinor+serviceRetailMinor-passThroughDiscountMinor;
  const realisedMarkupBps=supplierCostMinor?Math.round((customerTotalMinor-supplierCostMinor)*10000/supplierCostMinor):0;
  const readyForPayment=datedSupplierConfirmed===true&&taxesValidated===true&&invoiceAndRefundTermsAccepted===true;
  const checkoutOptions=readyForPayment?(supplierDepositBps<=2500?['advance25','full']:['full']):[];
