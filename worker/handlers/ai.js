@@ -11,6 +11,7 @@
 import { json } from '../lib/http.js';
 import { tuskPresentation } from '../lib/tusk-presentation.js';
 import { curatedAnswer } from '../lib/tusk-curated.js';
+import { matchFacts, factsBlock, directFactAnswer, guardAnswer } from '../lib/tusk-facts.js';
 import { verifyFirebaseIdToken } from '../lib/firebase-verify.js';
 import { getServiceAccountAccessToken, parseServiceAccount } from '../lib/service-account.js';
 import { getDoc } from '../lib/firestore-rest.js';
@@ -18,7 +19,7 @@ import { managedAILimit, managedAIRequest, peekManagedAI, reserveManagedAI, rese
 import { chargeSpend, estimateCostPaise, planRoutes, readBudget } from '../lib/spend-governor.js';
 import { answerCacheKey, getCachedAnswer, getCachedLimit, putCachedAnswer, putCachedLimit } from '../lib/ai-cache.js';
 
-const SYSTEM='You are Ailon Tusk, RoamWise travel copilot. Treat the user\'s explicitly named city/locality as the destination; never replace it with the enclosing state or country. Treat next month, October and similar phrases as dates, never places. Use supplied RoamWise facts as authoritative. If inventory, price, weather or opening status is not verified, say so and ask one precise question. Never claim a booking or payment succeeded unless the server-confirmed record says so. Be brief: answer first in at most 4 short lines or 5 bullets, no preamble, no repeating the question, then offer one short follow-up. Write a full day-by-day itinerary or a long explanation only when the user asks for one (itinerary, plan, more detail, explain). Never invent prices, hotel names, availability, discounts, refund terms, event dates, opening hours or phone numbers: if a fact is not in the supplied RoamWise facts, say you are not sure and point to the RoamWise packages or ask. RoamWise sells only its listed stays and packages; do not offer to book anything else.';
+const SYSTEM='You are Ailon Tusk, RoamWise travel copilot. Treat the user\'s explicitly named city/locality as the destination; never replace it with the enclosing state or country. Treat next month, October and similar phrases as dates, never places. Use supplied RoamWise facts as authoritative. If inventory, price, weather or opening status is not verified, say so and ask one precise question. Never claim a booking or payment succeeded unless the server-confirmed record says so. Be brief: answer first in at most 4 short lines or 5 bullets, no preamble, no repeating the question, then offer one short follow-up. Write a full day-by-day itinerary or a long explanation only when the user asks for one (itinerary, plan, more detail, explain). Never invent prices, hotel names, availability, discounts, refund terms, event dates, opening hours or phone numbers: if a fact is not in the supplied RoamWise facts, say you are not sure and point to the RoamWise packages or ask. RoamWise sells only its listed stays and packages; do not offer to book anything else. Give a phone number or website only if it appears in the verified facts. When verified facts give open/closed dates, compare them with today\'s date before saying whether something is open now.';
 /* Older Workers AI models answer {response}; newer ones (Gemma 4) answer in the
    OpenAI shape {choices:[{message:{content}}]}. Accept both. */
 export function workersAIText(out){
@@ -114,6 +115,12 @@ export async function handleAI(request, env){
     const body = await request.json();
     const policy = managedAIRequest(body, env);
     if(!policy.prompt) return json({ error: 'no prompt' }, 400);
+    // Verified facts pack (worker/data/tusk-facts.js): emergency questions are
+    // answered straight from it; otherwise matching facts ground the model.
+    const factItems = matchFacts(policy.prompt);
+    const direct = directFactAnswer(policy.prompt, factItems);
+    if(direct) return json({ text:direct.text, presentation:tuskPresentation(direct.text,{expanded:body.expanded===true}), route:'verified-facts', verified:true, checkedAt:direct.checkedAt, cached:true });
+    if(factItems.length) policy.prompt = factsBlock(factItems) + '\n\nTraveller: ' + policy.prompt;
     // Verified, published knowledge is served without a generative model or
     // managed-AI allowance; no live prices, bookings or status are implied.
     if(body.knowledgeType && body.knowledgeId){
@@ -138,6 +145,7 @@ export async function handleAI(request, env){
     const peek = await peekManagedAI(env, claims.uid, limit);
     if(peek.ok){
       const hit = await getCachedAnswer(env, cacheKey);
+      if(hit) hit.text = guardAnswer(hit.text);
       if(hit) return json({text:hit.text,presentation:tuskPresentation(hit.text,{expanded:body.expanded===true}),remaining:peek.remaining,limit:peek.limit,route:hit.provider,model:hit.model,usage:null,cached:true});
     }
     // Revenue-gated routing (see lib/spend-governor.js): cache first, then the
@@ -161,6 +169,8 @@ export async function handleAI(request, env){
     for(const r of plan){try{answer=await r.run(policy,env);if(answer&&answer.text){used=r;break;}}catch(e){last=String(e&&e.message||e)}}
     if(!answer||!answer.text)return json({error:'provider_error',message:'Ailon Tusk is temporarily using its on-device planner.',remaining:reserved.remaining,code:last},502);
     try{await chargeSpend(env,used.name,used.est,used.freeTier);}catch(e){/* accounting is best-effort */}
+    // Never pass on a phone number or link the facts pack has not verified.
+    answer.text = guardAnswer(answer.text);
     await putCachedAnswer(env, cacheKey, answer);
     return json({text:answer.text,presentation:tuskPresentation(answer.text,{expanded:body.expanded===true}),remaining:reserved.remaining,limit:reserved.limit,route:answer.provider,model:answer.model,usage:answer.usage||null});
   }catch(e){
