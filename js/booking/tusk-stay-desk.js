@@ -123,7 +123,7 @@ function rwStayDeskAnswer(raw, dest, now){
       + '<div style="font-size:11.5px;color:var(--t2);margin-top:5px">Tell me the dates, for example <i>12 to 15 Nov</i> or <i>20 Nov for 3 nights</i>' + (guests ? '' : ', and how many guests') + '. Then I will show an estimate before anything is sent.</div></div></div>', dates: null, guests: guests, count: list.length };
   }
   if(!list.length){
-    var partners=typeof rwTuskPartnerStayHTML==='function'?rwTuskPartnerStayHTML(raw,dest):'';
+    var partners=typeof rwTuskPartnerStayHTML==='function'?rwTuskPartnerStayHTML(raw,dest,now):'';
     if(partners) return {html:partners,dates:dates,guests:guests,count:0};
     return { html: '<div class="tk-card tk-mini"><div class="tk-sec"><b>No verified RoamWise stay matches' + label + ' for these dates yet.</b>'
       + '<div style="font-size:11.5px;color:var(--t2);margin-top:5px">I will not guess availability. You can still browse the verified stays page, or compare other sites yourself.</div>'
