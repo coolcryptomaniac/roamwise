@@ -29,20 +29,24 @@ export function setAmorRates(book) {
   loadedVersion = book.version || 'unknown';
 }
 
-/* Advance RoamWise asks for, per property (founder decision, 13 Nov 2026): 25% in general, 50% where the property
- * itself demands it at booking (Padma). When arrival is inside the property's final-payment window, the guest pays in
- * full, so RoamWise never pays a supplier balance out of its own money. Safaris (prepay) are always 100%.
- *   corbett (Tattwaa, Nanau): balance due 7 days before arrival -> full payment within 8 days
- *   padma: 50% at booking, balance 7 days before arrival      -> full payment within 8 days
- *   aramness: 25% at booking, balance 30 days before arrival   -> full payment within 31 days */
+/* Advance RoamWise asks for, per property, matching each property's own deposit rule so RoamWise never pays a
+ * supplier out of its own money (founder decision, 13 Nov 2026, after Amor confirmed the Corbett rule):
+ *   corbett (Tattwaa, Nanau): 30% when arrival is more than 30 days away, 50% from 30 to 8 days, full within 8 days
+ *     (sheet: 25-30% token at 30+ days, 50% by 15 days, 100% by 7 days)
+ *   padma: 50% at booking, full within 8 days (balance due 7 days before arrival)
+ *   aramness: 25% at booking, full within 31 days (balance due 30 days before arrival)
+ *   default: 25%, full within 8 days. Safaris (prepay) are always 100%. */
 export const ADVANCE_RULES = Object.freeze({
-  corbett: { advance: 0.25, fullWithinDays: 8 },
-  padma: { advance: 0.50, fullWithinDays: 8 },
-  aramness: { advance: 0.25, fullWithinDays: 31 },
-  default: { advance: 0.25, fullWithinDays: 8 },
+  corbett: { tiers: [[30, 0.30], [8, 0.50]], fullWithinDays: 8 },
+  padma: { tiers: [[8, 0.50]], fullWithinDays: 8 },
+  aramness: { tiers: [[31, 0.25]], fullWithinDays: 31 },
+  default: { tiers: [[8, 0.25]], fullWithinDays: 8 },
 });
+/* tiers: [minDaysOut, share] from farthest to nearest; the first tier the arrival clears applies. */
 export function advanceShare(policy, daysOut) {
   const r = ADVANCE_RULES[policy] || ADVANCE_RULES.default;
-  return daysOut < r.fullWithinDays ? 1 : r.advance;
+  if (daysOut < r.fullWithinDays) return 1;
+  for (const [min, share] of r.tiers) if (daysOut > min || (min === r.fullWithinDays && daysOut >= min)) return share;
+  return 1;
 }
 export const balanceLeadDays = (policy) => (ADVANCE_RULES[policy] || ADVANCE_RULES.default).fullWithinDays;

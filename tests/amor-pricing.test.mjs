@@ -66,12 +66,12 @@ test('Aramness is never dearer than the lodge\'s published rate; fee passes thro
   assert.ok(pricePackage({ package: 'gir-lion-honeymoon', checkin: '2027-02-08', paymentType: 'full' }, NOW).quote.saving > 0);
 });
 
-test('advance: 25% in general, 50% at Padma, full inside the property\'s final-payment window; safaris 100%', () => {
-  assert.equal(advanceShare('corbett', 40), 0.25); assert.equal(advanceShare('corbett', 20), 0.25); assert.equal(advanceShare('corbett', 5), 1);
+test('advance: matches each property (Corbett 30/50%, Padma 50%, Gir 25%), full inside the property\'s final-payment window; safaris 100%', () => {
+  assert.equal(advanceShare('corbett', 40), 0.30); assert.equal(advanceShare('corbett', 20), 0.50); assert.equal(advanceShare('corbett', 8), 0.50); assert.equal(advanceShare('corbett', 5), 1);
   assert.equal(advanceShare('padma', 40), 0.5); assert.equal(advanceShare('padma', 6), 1);
   assert.equal(advanceShare('aramness', 40), 0.25); assert.equal(advanceShare('aramness', 20), 1);
   const q = (stay, room, plan, ci, co) => price({ stay, room, plan, checkin: ci, checkout: co, paymentType: 'advance' }, NOW);
-  assert.equal(q('nanau', 'studio', 'CP', '2027-02-08', '2027-02-10').portion, 25);
+  assert.equal(q('nanau', 'studio', 'CP', '2027-02-08', '2027-02-10').portion, 30);
   assert.equal(q('padma', 'royal', 'EP', '2027-02-08', '2027-02-10').portion, 50);
   const soon = q('aramness', 'kothi', 'AP', '2026-11-20', '2026-11-22'); assert.equal(soon.amount, soon.total);
   assert.ok(pricePackage({ package: 'gir-lion-honeymoon', checkin: '2027-02-08', paymentType: 'advance' }, NOW).quote.portion > 25);
