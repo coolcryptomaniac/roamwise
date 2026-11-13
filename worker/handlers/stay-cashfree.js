@@ -8,6 +8,7 @@ import { sendMail } from '../lib/mailer.js';
 import { walletKeyFromRequest, spendWallet } from './wallet.js';
 import { priceStay, pricePackage, publicAmor } from '../lib/amor-pricing.js';
 import { PACKAGES, publicPackages } from '../lib/amor-packages.js';
+import { inSeason } from '../lib/amor-policy.js';
 /* Every RoamWise stay is bookable and payable online (founder decision, 8 Nov 2026: take the money, refund
    if the stay cannot be confirmed). Kinds, all priced here, never by the browser:
    - amor:    Amor Hospitality net rate sheets, any room and meal plan, season and peak nights, plus
@@ -44,7 +45,15 @@ export function publicRates(){
   ...(p.kind==='amor'?amor[id]:{}),
   ...(p.kind==='plans'?{plans:p.plans}:{}),advance:STAY_ADVANCE}]));
 }
-export function publicPackageList(){return publicPackages().map((k)=>({...k,from:packageFrom(k.id)}))}
+/* Package cards, best for this moment first: in season today, then in season within a month, then cheaper first. */
+export function publicPackageList(now=Date.now()){
+ const day=(n)=>new Date(now+n*864e5).toISOString().slice(0,10),today=day(0),month=day(30);
+ return publicPackages().map((k)=>{const from=packageFrom(k.id),open=!k.window||k.window.to>=today;
+  const hot=open&&(inSeason(k.group,today)||!!(k.window&&k.window.from<=month));
+  const soon=open&&!hot&&inSeason(k.group,month);
+  return {...k,from,open,hot,soon};
+ }).sort((a,b)=>(b.open-a.open)||(b.hot-a.hot)||(b.soon-a.soon)||((a.from?a.from.total:9e9)-(b.from?b.from.total:9e9)));
+}
 /* Full pricing, with the private supplier cost for Amor bookings (KV and Amor's email only). */
 export function priceFull(body,now=Date.now()){
  if(body&&body.package){const r=pricePackage(body,now);return {quote:r.quote,supplierNet:r.supplierNet}}

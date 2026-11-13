@@ -15,6 +15,9 @@ export const COMMISSION = 0.07;
 export const COMMISSION_GST = 0.18;
 export const EXTRA_DISCOUNT_HEADROOM = 500; // per booking, some properties only; not applied to prices
 
+/* Public price references (tax included, per room per night) cap guest prices: `rack` = the hotel's own published
+ * rate; `market: { PLAN: price }` = lowest checked OTA/direct price for that room and plan, set by the weekly market
+ * check with its source in docs/amor-market-check.md. */
 export const roomGstRate = (tariff) => (tariff <= 7500 ? 0.05 : 0.18);
 
 /* Dates are inclusive ISO night dates (the night that starts on that date). */
@@ -89,17 +92,19 @@ export const AMOR = Object.freeze({
   },
 });
 
-/* Priced extras from the Aramness sheet (tax-inclusive costs to RoamWise). Safaris need 100% upfront and are non-refundable. */
+/* Priced extras from the Aramness sheet (tax-inclusive costs to RoamWise). Safaris need 100% upfront and are non-refundable.
+ * `public` = what a guest pays the lodge directly for the same thing (the lodge's own list price). */
 const GST18 = (n) => Math.round(n * 1.18);
+const pub = (o) => ({ ...o, public: o.cost });
 export const GIR_EXTRAS = Object.freeze({
-  keshodTransfer: { label: 'Keshod airport transfer, Innova Crysta (one way)', cost: 5500 },
-  rajkotTransfer: { label: 'Rajkot airport transfer, Innova Crysta (one way)', cost: 11500 },
-  diuTransfer: { label: 'Diu airport transfer, Innova Crysta (one way)', cost: 8000 },
-  girSafari: { label: 'Private Gir National Park safari (up to 6 guests, park entry included)', cost: GST18(18000) + 1000, prepay: true },
-  devaliaSafari: { label: 'Private Devalia Park safari (up to 6 guests, park entry included)', cost: GST18(12500) + 1000, prepay: true },
-  somnath: { label: 'Somnath temple excursion, 4-5 hours, Innova Crysta', cost: 6000 },
-  maldhari: { label: 'Maldhari village visit (60-90 minutes)', cost: GST18(5000) },
-  birding: { label: 'Bird-watching walk (60-90 minutes)', cost: GST18(7000) },
+  keshodTransfer: pub({ label: 'Keshod airport transfer, Innova Crysta (one way)', cost: 5500 }),
+  rajkotTransfer: pub({ label: 'Rajkot airport transfer, Innova Crysta (one way)', cost: 11500 }),
+  diuTransfer: pub({ label: 'Diu airport transfer, Innova Crysta (one way)', cost: 8000 }),
+  girSafari: pub({ label: 'Private Gir National Park safari (up to 6 guests, park entry included)', cost: GST18(18000) + 1000, prepay: true }),
+  devaliaSafari: pub({ label: 'Private Devalia Park safari (up to 6 guests, park entry included)', cost: GST18(12500) + 1000, prepay: true }),
+  somnath: pub({ label: 'Somnath temple excursion, 4-5 hours, Innova Crysta', cost: 6000 }),
+  maldhari: pub({ label: 'Maldhari village visit (60-90 minutes)', cost: GST18(5000) }),
+  birding: pub({ label: 'Bird-watching walk (60-90 minutes)', cost: GST18(7000) }),
 });
 
 /* Share of the stay Amor needs at booking, by property policy and days to arrival. RoamWise never collects

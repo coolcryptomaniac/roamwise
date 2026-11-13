@@ -1,14 +1,29 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { nightCost, priceStay, pricePackage, MARKUP } from '../worker/lib/amor-pricing.js';
+import { marginOf, POLICY } from '../worker/lib/amor-policy.js';
 import { PACKAGES } from '../worker/lib/amor-packages.js';
 import { publicRates, publicPackageList, price, amorBookingLines } from '../worker/handlers/stay-cashfree.js';
 
 const NOW = Date.parse('2026-11-13T06:00:00Z');
 const ceil10 = (n) => Math.ceil(n / 10) * 10;
 
-test('markup is exactly 7% commission plus 18% GST on the commission', () => {
+test('the 7% floor is commission plus 18% GST on it; the policy matches PR #695 (20% margin, 200% markup cap)', () => {
   assert.equal(Math.round(MARKUP * 10000), 10826);
+  assert.equal(POLICY.baseMargin, 0.20); assert.equal(POLICY.maxMarkup, 2);
+});
+
+test('every stay and package earns at least 20% unless a public price caps it, and never less than the 7% floor', () => {
+  for (const id of Object.keys(PACKAGES)) {
+    const k = PACKAGES[id];
+    for (const d of [(k.window && k.window.from) || '2027-02-08', (k.window && k.window.from) || '2027-02-12']) {
+      const r = pricePackage({ package: id, checkin: d, paymentType: 'full' }, NOW, false);
+      const m = marginOf(r.quote.total, r.cost).margin;
+      assert.ok(r.quote.total >= r.cost * MARKUP - 1, id + ' below floor');
+      assert.ok(r.quote.total <= r.cost * 3, id + ' above 200% markup');
+      if (!r.quote.saving) assert.ok(m >= 0.199, id + ' margin ' + m.toFixed(3));
+    }
+  }
 });
 
 test('tax-exclusive sheets get hotel GST: 5% up to Rs 7,500 a night, 18% above', () => {
@@ -28,11 +43,14 @@ test('season tables and supplements follow each sheet', () => {
   assert.throws(() => nightCost('aramness', 'kothi', 'AP', '2027-03-02'), /bookable online/);
 });
 
-test('Aramness is sold as an exclusive deal below its published rate, conservation fee once per stay', () => {
+test('Aramness is never dearer than the lodge\'s own published rate; conservation fee passes through at cost', () => {
   const r = publicRates().aramness.rooms.kothi;
   assert.ok(r.perNight.AP < r.publishedRate);
   const q = price({ stay: 'aramness', room: 'kothi', plan: 'AP', checkin: '2027-02-08', checkout: '2027-02-10', paymentType: 'full' }, NOW);
-  assert.equal(q.total, ceil10((72216 * 2 + 1500) * MARKUP));
+  assert.equal(q.total, Math.floor((84960 * 2 + 1500) * 0.99 / 10) * 10);
+  assert.ok(q.saving > 0 && q.publicPrice === 84960 * 2 + 1500);
+  const gir = pricePackage({ package: 'gir-lion-honeymoon', checkin: '2027-02-08', paymentType: 'full' }, NOW).quote;
+  assert.ok(gir.saving > 0, 'Gir package must beat booking each part direct');
 });
 
 test('advance never falls below what Amor needs at booking', () => {
@@ -80,7 +98,6 @@ test('quotes and public data never carry supplier nets; Amor email does', () => 
     const k = PACKAGES[id], d = (k.window && k.window.from) || '2027-02-08';
     const r = pricePackage({ package: id, checkin: d, paymentType: 'full' }, NOW);
     assert.ok(!JSON.stringify(r.quote).includes('"cost"'), id);
-    assert.ok(r.quote.total >= r.cost * 1.08, id + ' margin'); // at least ~8% over cost after rounding
     const lines = amorBookingLines({ property: k.name, supplierNet: r.supplierNet }).join('\n');
     assert.match(lines, /Total net to Amor: Rs /); assert.ok(!lines.includes(String(r.quote.total.toLocaleString('en-IN'))) || r.quote.total === Math.round(r.cost), id);
   }
