@@ -19,6 +19,15 @@ export const POLICY = Object.freeze({
 });
 
 const P = POLICY;
+/* High-demand nights beyond the hotels' own peak lists: long weekends, festivals, school breaks (Indian calendar).
+ * Treated like peak nights for margin only (cost is unchanged). The daily offers task may add dates by pull request. */
+const range = (a, b) => { const o = []; for (let t = Date.parse(a + 'T00:00:00Z'); t <= Date.parse(b + 'T00:00:00Z'); t += 864e5) o.push(new Date(t).toISOString().slice(0, 10)); return o; };
+export const DEMAND_DATES = new Set([
+  ...range('2026-12-24', '2027-01-02'), // Christmas and New Year week
+  ...range('2027-01-23', '2027-01-26'), // Republic Day long weekend
+  ...range('2027-03-20', '2027-03-22'), // Holi long weekend
+  ...range('2027-03-26', '2027-03-28'), // Good Friday long weekend
+]);
 /* Peak seasons by package type (month numbers, 1-12): honeymoon Dec-Mar after the wedding season, weddings Nov-Feb,
  * families late Dec and school holidays (May-Jun, Oct), Gir Nov-Feb. */
 export const SEASON = { honeymoon: [12, 1, 2, 3], wedding: [11, 12, 1, 2], family: [12, 5, 6, 10], circuit: [12, 1, 2], festive: [12, 1] };
@@ -27,7 +36,7 @@ export function marginFor(date, { kind, group, peak } = {}) {
   const d = new Date(date + 'T00:00:00Z'), dow = d.getUTCDay(), month = d.getUTCMonth() + 1;
   let m = P.baseMargin;
   if (dow === 5 || dow === 6) m += P.uplift.weekend; // Friday and Saturday nights
-  if (peak) m += P.uplift.peak;
+  if (peak || DEMAND_DATES.has(date)) m += P.uplift.peak;
   if (kind === 'package') m += P.uplift.bundle;
   if (group && SEASON[group] && SEASON[group].includes(month)) m += P.uplift.season;
   return Math.min(m, P.maxMargin);
