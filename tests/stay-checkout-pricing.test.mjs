@@ -1,15 +1,25 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { price, publicRates, RATE, STAY_ADVANCE } from '../worker/handlers/stay-cashfree.js';
+import { sellFor } from '../worker/lib/amor-policy.js';
+import { setAmorRates } from '../worker/lib/amor-rates.js';
+import fs from 'node:fs';
+const BOOK = JSON.parse(fs.readFileSync(new URL('./fixtures/amor-rates.sample.json', import.meta.url), 'utf8')); // made-up numbers
+setAmorRates(BOOK);
+const STUDIO = BOOK.properties.nanau.rooms.studio.rates.CP, SUP = BOOK.properties.nanau.peakSupplement;
 
 const NOW = Date.parse('2026-11-08T00:00:00Z');
 const q = (stay, checkin, checkout, paymentType = 'full') => price({ stay, checkin, checkout, paymentType }, NOW);
 
-test('Amor nightly stays: supplier rate x 1.25, advance 25% or full, peak dates refused', () => {
-  const n = q('nanau', '2026-11-20', '2026-11-22');
-  assert.equal(n.total, 13750); assert.equal(n.amount, 13750);
-  assert.equal(q('nanau', '2026-11-20', '2026-11-22', 'advance').amount, 3438);
-  assert.throws(() => q('nanau', '2026-12-30', '2027-01-01'), /Peak dates/);
+test('Amor stays: 20% base margin (commission + 18% GST on it), peak nights priced, not refused', () => {
+  const n = q('nanau', '2026-11-20', '2026-11-22'); // Fri + Sat nights: weekend uplift
+  assert.equal(n.total, Math.ceil(2 * sellFor(STUDIO, 0.23) / 10) * 10);
+  assert.equal(q('nanau', '2026-11-20', '2026-11-22', 'advance').portion, 25); // 12 days out: still 25%
+  const far = q('nanau', '2027-02-08', '2027-02-10', 'advance'); // Mon + Tue nights
+  assert.equal(far.total, Math.ceil(2 * sellFor(STUDIO, 0.20) / 10) * 10);
+  assert.equal(far.portion, 25); assert.equal(far.balance, far.total - far.amount); assert.equal(far.balanceDueBy, '2027-01-31');
+  const peak = q('nanau', '2026-12-30', '2027-01-01');
+  assert.equal(peak.peakNights, 2); assert.equal(peak.total, Math.ceil(2 * sellFor(STUDIO + SUP, 0.25) / 10) * 10);
   assert.throws(() => q('nanau', '2026-11-20', '2026-12-10'), /up to 14 nights/);
 });
 
@@ -32,8 +42,8 @@ test('every other stay is reservable online with the fixed advance', () => {
 
 test('public rates never expose supplier nets', () => {
   const pub = JSON.stringify(publicRates());
-  for (const p of Object.values(RATE)) if (p.net) assert.doesNotMatch(pub, new RegExp('"' + p.net + '"|:' + p.net + '[,}]'));
-  assert.equal(publicRates().nanau.perNight, 6875);
+  assert.ok(!pub.includes('"rates"') && !pub.includes('"cost"'));
+  assert.equal(publicRates().nanau.rooms.studio.perNight.CP, Math.ceil(sellFor(STUDIO, 0.20) / 10) * 10);
 });
 
 test('every stay the site offers for payment exists in the Worker price list', async () => {

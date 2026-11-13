@@ -1,4 +1,6 @@
 # Amor package booking — production gates (6 November 2026)
+> **Update (13 Nov 2026):** Amor stays and packages are live on the roamwise-api Worker (`worker/lib/amor-*.js`). Advances never fall below each property's own deposit rule; balances are paid through a linked Cashfree order once the booking is confirmed.
+
 Do not turn on live payment collection until sandbox and supplier acceptance.
 
 ## Supplier schedule

@@ -1,0 +1,450 @@
+{
+ "version": "TEST FIXTURE: made-up numbers, not Amor rates",
+ "source": "tests only",
+ "properties": {
+  "tattwaa": {
+   "name": "The Tattwaa Corbett Spa & Resort",
+   "place": "Sitabani Gate, Bhalon, Jim Corbett",
+   "taxIncluded": false,
+   "provisional": true,
+   "validFrom": "2026-11-13",
+   "validTo": "2027-03-31",
+   "plans": [
+    "CP",
+    "MAP",
+    "AP"
+   ],
+   "planNote": "Evening hi-tea included",
+   "rooms": {
+    "forest": {
+     "label": "Forest Room with private sit-out",
+     "pax": 2,
+     "keys": 14,
+     "rates": {
+      "CP": 4950,
+      "MAP": 5400,
+      "AP": 5850
+     }
+    },
+    "premium": {
+     "label": "Premium Room with private sit-out",
+     "pax": 2,
+     "keys": 16,
+     "rates": {
+      "CP": 5400,
+      "MAP": 5850,
+      "AP": 6300
+     }
+    },
+    "pine": {
+     "label": "Pine Cottage with private sit-out",
+     "pax": 2,
+     "keys": 6,
+     "rates": {
+      "CP": 5400,
+      "MAP": 5850,
+      "AP": 6300
+     }
+    },
+    "junior": {
+     "label": "Junior Suite with bathtub",
+     "pax": 2,
+     "keys": 8,
+     "rates": {
+      "CP": 6100,
+      "MAP": 6550,
+      "AP": 7000
+     }
+    },
+    "villa": {
+     "label": "Private Pool Villa room (8-bedroom villa)",
+     "pax": 2,
+     "keys": 8,
+     "rates": {
+      "CP": 6100,
+      "MAP": 6550,
+      "AP": 7000
+     }
+    }
+   },
+   "extraBed": {
+    "CP": 1350,
+    "MAP": 1800,
+    "AP": 2250
+   },
+   "peakDates": [
+    "2026-12-24",
+    "2026-12-25",
+    "2026-12-26",
+    "2026-12-27",
+    "2026-12-28",
+    "2026-12-29",
+    "2026-12-30",
+    "2026-12-31",
+    "2027-01-01",
+    "2027-01-02",
+    "2027-01-03",
+    "2027-01-23",
+    "2027-01-24",
+    "2027-01-25",
+    "2027-01-26",
+    "2027-03-20",
+    "2027-03-21",
+    "2027-03-26",
+    "2027-03-27"
+   ],
+   "peakSupplement": 1350,
+   "blocked": [
+    "2026-12-24",
+    "2026-12-25",
+    "2026-12-26",
+    "2026-12-27",
+    "2026-12-28",
+    "2026-12-29",
+    "2026-12-30",
+    "2026-12-31",
+    "2027-01-01"
+   ],
+   "blockedReason": "Christmas and New Year at Tattwaa are sold as festive packages; ask us for the gala rate.",
+   "freeChildUpTo": 5,
+   "deposit": "corbett"
+  },
+  "nanau": {
+   "name": "Nanau Resort & Spa",
+   "place": "Sitabani Gate, Patkote Road, Jim Corbett",
+   "taxIncluded": true,
+   "validFrom": "2026-10-01",
+   "validTo": "2027-03-31",
+   "plans": [
+    "CP",
+    "MAP",
+    "AP"
+   ],
+   "planNote": "Evening hi-tea included",
+   "rooms": {
+    "studio": {
+     "label": "Sitabani Studio with private sit-out",
+     "pax": 2,
+     "keys": 12,
+     "rates": {
+      "CP": 4950,
+      "MAP": 5650,
+      "AP": 6300
+     }
+    },
+    "jungle": {
+     "label": "Jungle Suite with two twin beds",
+     "pax": 2,
+     "keys": 4,
+     "rates": {
+      "CP": 4950,
+      "MAP": 5650,
+      "AP": 6300
+     }
+    },
+    "pebble": {
+     "label": "Pebble Path Cottage with plunge pool",
+     "pax": 2,
+     "keys": 3,
+     "rates": {
+      "CP": 5650,
+      "MAP": 6300,
+      "AP": 7000
+     }
+    },
+    "suite1": {
+     "label": "Nanau Suite with plunge pool and bathtub",
+     "pax": 2,
+     "keys": 1,
+     "rates": {
+      "CP": 7000,
+      "MAP": 8100,
+      "AP": 9000
+     }
+    },
+    "apartment": {
+     "label": "Two-bedroom Jungle Apartment (4 guests)",
+     "pax": 4,
+     "keys": 1,
+     "rates": {
+      "CP": 9900,
+      "MAP": 11250,
+      "AP": 12600
+     }
+    },
+    "suite2": {
+     "label": "Two-bedroom Nanau Suite, plunge pool and bathtub (4 guests)",
+     "pax": 4,
+     "keys": 1,
+     "rates": {
+      "CP": 11700,
+      "MAP": 13050,
+      "AP": 14400
+     }
+    }
+   },
+   "extraBed": {
+    "CP": 900,
+    "MAP": 1350,
+    "AP": 1800
+   },
+   "peakDates": [
+    "2026-12-24",
+    "2026-12-25",
+    "2026-12-26",
+    "2026-12-27",
+    "2026-12-28",
+    "2026-12-29",
+    "2026-12-30",
+    "2026-12-31",
+    "2027-01-01",
+    "2027-01-02",
+    "2027-01-03",
+    "2027-01-23",
+    "2027-01-24",
+    "2027-01-25",
+    "2027-01-26",
+    "2027-03-20",
+    "2027-03-21",
+    "2027-03-26",
+    "2027-03-27"
+   ],
+   "peakSupplement": 1350,
+   "freeChildUpTo": 7,
+   "deposit": "corbett"
+  },
+  "padma": {
+   "name": "Padma Villa, a private mountain estate",
+   "place": "Naggar Road, Manali",
+   "taxIncluded": false,
+   "validFrom": "2026-10-01",
+   "validTo": "2027-03-31",
+   "plans": [
+    "EP",
+    "CP",
+    "MAP"
+   ],
+   "rooms": {
+    "royal": {
+     "label": "Royal Chamber, forest and mountain view",
+     "pax": 2,
+     "keys": 4,
+     "rates": {
+      "EP": 4500,
+      "CP": 4950,
+      "MAP": 5850
+     },
+     "peak": {
+      "EP": 5650,
+      "CP": 6200,
+      "MAP": 7300
+     }
+    },
+    "king": {
+     "label": "King Suite with bathtub and private balcony",
+     "pax": 2,
+     "keys": 1,
+     "rates": {
+      "EP": 9000,
+      "CP": 9000,
+      "MAP": 9900
+     },
+     "peak": {
+      "EP": 11250,
+      "CP": 11250,
+      "MAP": 12400
+     }
+    },
+    "glass": {
+     "label": "Glass Suite (sky view) with jacuzzi",
+     "pax": 2,
+     "keys": 1,
+     "rates": {
+      "EP": 11250,
+      "CP": 11250,
+      "MAP": 12150
+     },
+     "peak": {
+      "EP": 14050,
+      "CP": 14050,
+      "MAP": 15200
+     }
+    },
+    "villa": {
+     "label": "Entire 6-bedroom villa (up to 12 guests)",
+     "pax": 12,
+     "keys": 1,
+     "exclusive": true,
+     "rates": {
+      "EP": 36000,
+      "CP": 40500,
+      "MAP": 45000
+     },
+     "peak": {
+      "EP": 45000,
+      "CP": 50650,
+      "MAP": 56250
+     }
+    }
+   },
+   "extraBed": {
+    "EP": 1350,
+    "CP": 1350,
+    "MAP": 1800
+   },
+   "extraBedPeak": {
+    "EP": 1800,
+    "CP": 1800,
+    "MAP": 2250
+   },
+   "peakDates": [
+    "2026-11-06",
+    "2026-11-07",
+    "2026-12-18",
+    "2026-12-19",
+    "2026-12-20",
+    "2026-12-21",
+    "2026-12-22",
+    "2026-12-23",
+    "2026-12-24",
+    "2026-12-25",
+    "2026-12-26",
+    "2026-12-27",
+    "2026-12-28",
+    "2026-12-29",
+    "2026-12-30",
+    "2026-12-31",
+    "2027-01-01",
+    "2027-01-02",
+    "2027-01-03",
+    "2027-01-04",
+    "2027-01-05",
+    "2027-01-06",
+    "2027-01-07",
+    "2027-01-08",
+    "2027-01-09",
+    "2027-01-10",
+    "2027-01-22",
+    "2027-01-23",
+    "2027-01-24",
+    "2027-01-25",
+    "2027-03-19",
+    "2027-03-20",
+    "2027-03-21",
+    "2027-03-25",
+    "2027-03-26",
+    "2027-03-27"
+   ],
+   "peakTable": true,
+   "peakNonRefundable": true,
+   "freeChildUpTo": 12,
+   "deposit": "padma"
+  },
+  "aramness": {
+   "name": "Aramness Gir",
+   "place": "Gir National Park, Gujarat",
+   "taxIncluded": true,
+   "validFrom": "2026-11-13",
+   "validTo": "2027-02-28",
+   "plans": [
+    "AP"
+   ],
+   "rooms": {
+    "kothi": {
+     "label": "Kothi with private pool (1 bedroom)",
+     "pax": 2,
+     "rates": {
+      "AP": 65000
+     },
+     "peak": {
+      "AP": 67300
+     },
+     "rack": 76450
+    },
+    "family": {
+     "label": "Family Kothi with private pool (2 bedrooms, 4 guests)",
+     "pax": 4,
+     "rates": {
+      "AP": 88000
+     },
+     "peak": {
+      "AP": 91100
+     },
+     "rack": 103550
+    }
+   },
+   "peakDates": [
+    "2026-11-05",
+    "2026-11-06",
+    "2026-11-07",
+    "2026-11-08",
+    "2026-11-09",
+    "2026-11-10",
+    "2026-11-11",
+    "2026-12-24",
+    "2026-12-25",
+    "2026-12-26",
+    "2026-12-27",
+    "2026-12-28",
+    "2026-12-29",
+    "2026-12-30",
+    "2026-12-31",
+    "2027-01-01",
+    "2027-01-02"
+   ],
+   "peakTable": true,
+   "perStayFee": {
+    "label": "Conservation fee",
+    "amount": 1350
+   },
+   "exclusiveDeal": true,
+   "freeChildUpTo": 12,
+   "childMealsFrom": 6,
+   "deposit": "aramness"
+  }
+ },
+ "girExtras": {
+  "keshodTransfer": {
+   "label": "Keshod airport transfer, Innova Crysta (one way)",
+   "cost": 4950,
+   "public": 4950
+  },
+  "rajkotTransfer": {
+   "label": "Rajkot airport transfer, Innova Crysta (one way)",
+   "cost": 10350,
+   "public": 10350
+  },
+  "diuTransfer": {
+   "label": "Diu airport transfer, Innova Crysta (one way)",
+   "cost": 7200,
+   "public": 7200
+  },
+  "girSafari": {
+   "label": "Private Gir National Park safari (up to 6 guests, park entry included)",
+   "cost": 20000,
+   "prepay": true,
+   "public": 20000
+  },
+  "devaliaSafari": {
+   "label": "Private Devalia Park safari (up to 6 guests, park entry included)",
+   "cost": 14200,
+   "prepay": true,
+   "public": 14200
+  },
+  "somnath": {
+   "label": "Somnath temple excursion, 4-5 hours, Innova Crysta",
+   "cost": 5400,
+   "public": 5400
+  },
+  "maldhari": {
+   "label": "Maldhari village visit (60-90 minutes)",
+   "cost": 5300,
+   "public": 5300
+  },
+  "birding": {
+   "label": "Bird-watching walk (60-90 minutes)",
+   "cost": 7450,
+   "public": 7450
+  }
+ }
+}

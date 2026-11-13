@@ -104,7 +104,7 @@ function rwTuskOpenRoomBook(id){
 }
 /* Property enquiries are not payment-enabled rooms. Keep both catalogues visible
    without inventing room prices, capacity or availability for signed partners. */
-function rwTuskPartnerStayHTML(raw,dest){
+function rwTuskPartnerStayHTML(raw,dest,now){
   if(typeof rwBookingRoutes!=='function') return '';
   var norm=function(v){return String(v||'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim();};
   var zone=norm(dest), rooms=rwTuskStayMatches(raw,dest), seen={};
@@ -115,7 +115,7 @@ function rwTuskPartnerStayHTML(raw,dest){
     return !seen[p.id] && (!zone || zone.split(' ').every(function(w){return hay.indexOf(w)>=0;}));
   }).slice(0,6);
   if(!list.length) return '';
-  var dates=typeof rwSdParseDates==='function'?rwSdParseDates(raw):null;
+  var dates=typeof rwSdParseDates==='function'?rwSdParseDates(raw,now):null;
   var guests=typeof rwSdGuests==='function'?rwSdGuests(raw):0;
   return '<div class="tk-card tk-mini"><div class="tk-sec"><b>🏡 Stays to enquire about'+(dest?' · '+esc2(dest):'')+'</b>'
     +list.map(function(p){

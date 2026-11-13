@@ -1,4 +1,6 @@
 # Amor Cashfree checkout deployment checklist
+> **Superseded (13 Nov 2026):** live Amor pricing is `worker/lib/amor-pricing.js` on the roamwise-api Worker (net rate + 7% commission + 18% GST on it). The commercial assumptions below are historical.
+
 
 Implemented in PR #698; **not live until the payment router Worker and homepage are deployed**.
 
@@ -12,12 +14,7 @@ Implemented in PR #698; **not live until the payment router Worker and homepage 
 - Configure and verify approved Cashfree domain/origin, merchant travel/accommodation category, settlement and refund capability.
 
 ## Commercial assumptions
-- Nanau Sitabani Studio CP+hi-tea: partner net ₹5,500 per night inclusive of taxes. Retail ₹6,875/night; 2 nights ₹13,750; 25% advance ₹3,438. Dates Oct 2026–Mar 2027; known blackout dates blocked.
-- Padma Royal Chamber EP: partner net ₹5,000 per night exclusive of tax. Retail ₹6,250/night **before tax**; 2 nights ₹12,500 before tax; checkout blocked until tax configured. Blackout window 18 Dec 2026–10 Jan 2027 blocked.
-- Aramness Kothi AP: partner net ₹72,216 per night inclusive of taxes. Retail ₹90,270/night; 2 nights ₹180,540; 25% advance ₹45,135. Conservation fee, safaris and other extras excluded. Special fair/blackout dates require manual rate updates.
-- Tattwaa Forest Room CPAI + hi-tea: previous supplier net ₹5,500/night exclusive of applicable taxes; RoamWise provisional retail ₹6,875/night before tax, 2 nights ₹13,750 before tax. Previous PDF validity ended 31 March 2026; owner has directed continued use pending replacement, not a new supplier-confirmed tariff. Configure STAY_GST_RATE and disclose provisional basis. Supplier blackout supplements and cancellation policy still require confirmation.
-- All prices are one room / two guests, no transport or optional excursions included. Customer payment means **paid, property confirmation pending**, not a guaranteed room.
-- The server rejects unpriced products, dates outside contracted validity, and certain known peak dates. It does not currently have live inventory or a supplier availability API.
+Removed (13 Nov 2026): supplier net rates are confidential and now live only in the sealed rate book on the roamwise-api Worker (`worker/data/amor-rates.sealed.json`).
 
 ## Must pass before enabling live collection
 1. Run sandbox order creation for advance and full payment; verify server-side amount, dates, currency, return URL and duplicate submissions.
