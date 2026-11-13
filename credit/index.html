@@ -1,0 +1,108 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Founding Traveller Credit | RoamWise</title>
+<meta name="description" content="Back RoamWise early: buy travel credit, get up to 10% extra, a founding member number and perks. Spend it on any RoamWise stay, package or wedding. Your unused money is always refunded.">
+<link rel="canonical" href="https://roamwise.co.in/credit/">
+<style>
+body{background:#100c1c;color:#fff0dc;font:16px/1.5 system-ui;margin:0}main{max-width:820px;margin:0 auto;padding:22px 18px 60px}
+a{color:#ffd08a}h1{color:#f8c985;font-size:30px;margin:10px 0 6px;line-height:1.2}h2{color:#ffdea8;font-size:21px;margin:28px 0 10px}
+.lead{color:#e9d9ea;font-size:17px;margin:0 0 14px}.badge{display:inline-block;background:#2ed6b433;border:1px solid #2ed6b4;color:#9ff2df;border-radius:999px;padding:3px 12px;font-size:13px;font-weight:700}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
+.pack{border:2px solid #4b3a63;border-radius:18px;padding:16px;background:#20162e;cursor:pointer;text-align:left;color:inherit;font:inherit;position:relative}
+.pack[aria-pressed=true]{border-color:#ffd08a;box-shadow:0 0 0 3px #ffd08a33}.pack:disabled{opacity:.45;cursor:not-allowed}
+.pack b{display:block;font-size:18px;color:#ffdea8}.pay{font-size:24px;font-weight:800;margin:6px 0 2px}.get{color:#9ff2df;font-weight:700}.left{font-size:12px;color:#d5c4d5;margin-top:4px}
+.pack ul{margin:8px 0 0;padding-left:18px;font-size:13px;color:#e9d9ea}
+section.card{border:2px solid #bd7ce7;border-radius:20px;padding:20px;background:#20162e;margin-top:18px}
+label{display:block;margin:12px 0 5px}input[type=email],input[type=tel],input[type=text]{width:100%;box-sizing:border-box;padding:13px;border-radius:9px;border:1px solid #9989ac;background:#120d1d;color:#fff;font-size:16px}
+.check{display:flex;gap:10px;align-items:flex-start;margin:12px 0}.check input{margin-top:4px;width:18px;height:18px;flex:none}
+button.buy{padding:15px;border:0;border-radius:12px;background:linear-gradient(100deg,#ffd08a,#e9a864);color:#201426;font-weight:800;font-size:17px;cursor:pointer;width:100%;margin-top:14px}button.buy:disabled{opacity:.5}
+#sum{font-size:20px;font-weight:800;color:#ffcb7e;margin:12px 0 0}.how{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px}
+.how div{background:#1a1226;border:1px solid #3b2d50;border-radius:14px;padding:14px;font-size:15px}.how b{color:#ffdea8;display:block;margin-bottom:4px}
+details{background:#1a1226;border:1px solid #3b2d50;border-radius:12px;padding:12px 14px;margin:8px 0}summary{cursor:pointer;font-weight:700;color:#ffdea8}
+#wall{display:flex;flex-wrap:wrap;gap:8px}#wall span{background:#2a1d3d;border:1px solid #4b3a63;border-radius:999px;padding:4px 12px;font-size:14px}
+small,.muted{color:#cbb9cd;font-size:13px}#msg{min-height:1.4em;color:#ffd08a}.ok{border-color:#2ed6b4!important}
+</style></head><body><main>
+<p><a href="/">← RoamWise</a></p>
+<span class="badge" id="seats">Founding Traveller Credit</span>
+<h1>Back RoamWise early. Travel on it all year.</h1>
+<p class="lead">Buy travel credit today and get <b>up to 10% extra</b>, a founding member number and perks. Spend it on any RoamWise stay, honeymoon, family package or Manali wedding. Your own money is never locked in: what you don't use comes back to you.</p>
+
+<section class="card" id="done" hidden></section>
+
+<h2>1. Choose your pack</h2>
+<div class="grid" id="packs" role="group" aria-label="Credit packs"><p class="muted">Loading packs…</p></div>
+
+<section class="card" id="buyCard">
+<h2 style="margin-top:0">2. Your details</h2>
+<form id="f">
+<label for="email">Your email</label><input id="email" type="email" required autocomplete="email">
+<label for="phone">Phone</label><input id="phone" type="tel" required pattern="[+0-9 ()-]{10,20}" autocomplete="tel">
+<div class="check"><input id="gift" type="checkbox"><label for="gift" style="margin:0">This is a gift (credit goes to someone else's RoamWise wallet)</label></div>
+<div id="giftWrap" hidden><label for="giftTo">Their email</label><input id="giftTo" type="email"></div>
+<div class="check"><input id="showOnWall" type="checkbox"><label for="showOnWall" style="margin:0">Put my name on the Founders Wall</label></div>
+<div id="wallWrap" hidden><label for="wallName">Name to show (first name and city is fine)</label><input id="wallName" type="text" maxlength="40"></div>
+<div class="check"><input id="terms" type="checkbox" required><label for="terms" style="margin:0">I understand this is prepaid travel credit for RoamWise services, valid for 360 days, not an investment. It earns no interest or returns and gives no shares. My unused paid amount is refunded at the end, and unused bonus credit ends.</label></div>
+<p id="sum" aria-live="polite"></p>
+<button class="buy" id="buy" type="submit" disabled>Choose a pack</button>
+<p id="msg" role="status" aria-live="polite"></p>
+<small>Payment is handled securely by Cashfree (UPI, cards, net banking). No card or UPI PIN is collected on this page.</small>
+</form>
+</section>
+
+<h2>How it works</h2>
+<div class="how">
+<div><b>1. Buy a pack</b>₹5,000 to ₹50,000. RoamWise adds bonus credit on top straight away.</div>
+<div><b>2. Travel</b>Use it at checkout for any RoamWise stay, package or wedding within 360 days. Your money is spent first, the bonus last.</div>
+<div><b>3. Never lose your money</b>Want it back? Ask in your wallet any time. Unused money is refunded automatically on day 360.</div>
+<div><b>4. Come back</b>Start a new credit year within 30 days of a refund and get an extra welcome-back bonus.</div>
+</div>
+
+<h2>Founders Wall</h2>
+<div id="wall"><span class="muted">Be the first name here.</span></div>
+
+<h2>Questions</h2>
+<details><summary>Is this an investment?</summary><p>No. It is prepaid credit for RoamWise trips: no interest, no returns, no shares and no profit share. Your benefit is the bonus credit and the member perks. If RoamWise ever raises money, that will be a separate, properly documented offer.</p></details>
+<details><summary>What happens if I don't use it?</summary><p>We email you 30 and 7 days before it ends. On day 360, whatever is left of the money you paid goes back to your original payment method automatically. We never keep it, and we never roll it over without asking you. Unused bonus credit ends that day.</p></details>
+<details><summary>Can I get my money back early?</summary><p>Yes. Open your wallet and choose "send to bank" on your pack credit. The unused part of what you paid is refunded to your original payment method, and the matching share of the bonus is given up.</p></details>
+<details><summary>What can I spend it on?</summary><p>Every stay, package and wedding you can book on roamwise.co.in, for you or anyone you book for. It cannot be exchanged for cash.</p></details>
+<details><summary>How do I get the Pro and other perks?</summary><p>We set them up for you within 48 hours of payment and email you. Your founding member number is in your welcome email.</p></details>
+<details><summary>Why at most 10% bonus?</summary><p>So every trip you take with credit still pays the hotels and guides fairly. We would rather give you a sustainable bonus every year than a big one once.</p></details>
+</main>
+<script src="https://sdk.cashfree.com/js/v3/cashfree.js"></script>
+<script>
+(function(){
+var API='https://roamwise-api.founder-f53.workers.dev',$=function(id){return document.getElementById(id)},pick=null,data=null;
+var rs=function(n){return '₹'+Number(n||0).toLocaleString('en-IN')};
+var esc=function(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})};
+function render(){
+ var box=$('packs');box.innerHTML='';
+ data.packs.forEach(function(p){
+  var b=document.createElement('button');b.type='button';b.className='pack';b.disabled=!!p.soldOut;b.setAttribute('aria-pressed',pick===p.id?'true':'false');
+  b.innerHTML='<b>'+esc(p.name)+'</b><div class="pay">'+rs(p.pay)+'</div><div class="get">'+(p.soldOut?'Sold out':'Get '+rs(p.credit)+' credit (+'+p.bonusPct+'%)')+'</div>'
+   +(p.left!=null&&!p.soldOut?'<div class="left">'+p.left+' left</div>':'')+'<ul>'+p.perks.map(function(x){return '<li>'+esc(x)+'</li>'}).join('')+'</ul>';
+  b.onclick=function(){pick=p.id;render();sum()};box.appendChild(b);
+ });
+ $('seats').textContent=data.foundingLeft>0?'Founding offer: '+data.foundingLeft+' of 100 founding places left (+2% extra)':'Founding Traveller Credit · '+data.members+' members';
+ var wall=$('wall');if(data.wall&&data.wall.length){wall.innerHTML=data.wall.map(function(m){return '<span>#'+esc(m.n)+' '+esc(m.name)+'</span>'}).join('')}
+}
+function sum(){var p=data&&data.packs.filter(function(x){return x.id===pick})[0];
+ $('sum').textContent=p?'You pay '+rs(p.pay)+' · you get '+rs(p.credit)+' travel credit':'';$('buy').disabled=!p;$('buy').textContent=p?'Pay '+rs(p.pay)+' with Cashfree / UPI':'Choose a pack';}
+$('gift').onchange=function(){$('giftWrap').hidden=!this.checked;$('giftTo').required=this.checked};
+$('showOnWall').onchange=function(){$('wallWrap').hidden=!this.checked};
+fetch(API+'/credit/packs').then(function(r){return r.json()}).then(function(d){if(!d.ok)throw 0;data=d;var q=new URLSearchParams(location.search).get('pack');if(q&&d.packs.some(function(p){return p.id===q&&!p.soldOut}))pick=q;render();sum()})
+ .catch(function(){$('packs').innerHTML='<p>Packs could not load. Please refresh, or write to support@roamwise.co.in.</p>'});
+$('f').addEventListener('submit',async function(e){e.preventDefault();if(!pick)return;$('buy').disabled=true;$('msg').textContent='Creating your secure payment…';
+ try{var r=await fetch(API+'/credit/checkout',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({pack:pick,email:$('email').value,phone:$('phone').value,
+  giftTo:$('gift').checked?$('giftTo').value:'',showOnWall:$('showOnWall').checked,wallName:$('wallName').value,acceptTerms:$('terms').checked})});
+  var d=await r.json();if(!r.ok)throw new Error(d.message||'Checkout unavailable. Please try again.');
+  var cf=Cashfree({mode:d.environment==='production'?'production':'sandbox'});$('msg').textContent='Opening secure checkout…';
+  await cf.checkout({paymentSessionId:d.paymentSessionId,redirectTarget:'_self'});
+ }catch(err){$('msg').textContent=err.message||'Checkout unavailable';$('buy').disabled=false}});
+var oid=new URLSearchParams(location.search).get('order_id');
+if(oid){var done=$('done');done.hidden=false;done.textContent='Checking your payment…';
+ fetch(API+'/credit/order/'+encodeURIComponent(oid)).then(function(r){return r.json()}).then(function(d){
+  if(d.status==='paid'){done.className='card ok';done.innerHTML='<h2 style="margin-top:0">Welcome, Founding Traveller #'+esc(d.memberNo)+'</h2><p>'+rs(d.credit)+' of travel credit is in '+(d.gift?'their':'your')+' RoamWise wallet, valid until '+esc(String(d.expiresAt||'').slice(0,10))+'. Check your email for the wallet link and your perks.</p><p><a href="/#rwSalesPackages">Plan your first trip →</a></p>';$('buyCard').hidden=true}
+  else done.textContent='Payment not completed yet ('+(d.status||d.error||'unknown')+'). If money left your account, it will show here within a few minutes, or write to support@roamwise.co.in.';
+ }).catch(function(){done.textContent='Could not check the payment. Refresh in a minute.'})}
+})();
+</script>
+</body></html>

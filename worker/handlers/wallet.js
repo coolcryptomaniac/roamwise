@@ -19,7 +19,9 @@ import {
 
 const SITE = 'https://roamwise.co.in';
 const FIREBASE_PROJECT = 'roamwisepro';
+export const loadWallet = async (env, key) => (await env.RW_KV.get('wallet:' + key, 'json')) || null;
 const load = async (env, key) => (await env.RW_KV.get('wallet:' + key, 'json')) || null;
+export async function saveWallet(env, key, w) { return save(env, key, w); }
 async function save(env, key, w) {
   await env.RW_KV.put('wallet:' + key, JSON.stringify(w));
   if ((w.lots || []).some((l) => l.state === 'credit' && l.remaining > 0)) await env.RW_KV.put('walletdue:' + key, '1');
