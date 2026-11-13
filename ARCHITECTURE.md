@@ -316,6 +316,7 @@ in a later pass)
   answering path, and the in-room games. Re-audited in the
   modularization-final pass and confirmed as one cohesive unit, not
   further split.
+- `chat-safety.js` (~40 lines) — scam shield: `rwChatRisk()`/`rwChatRiskHTML()` add a warning + Report link under other people's messages that ask for OTPs/PINs, money, UPI/bank details or outside payment links. Loaded right after `group-chat-social.js`.
 - `group-chat-social.js` (477 lines) — reactions/streak/presence/member/
   moderation layer that renders on top of `group-chat.js`'s rooms
 - `group-compromise.js` — group decision/compromise engine
