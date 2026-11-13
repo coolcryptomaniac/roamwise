@@ -21,7 +21,7 @@ test('real Almora partner seeds appear even with zero payment-enabled rooms',()=
 test('dated room enquiry includes exact trip details and does not invent a price',()=>{
   const s=load(),a=s.rwStayDeskAnswer('book a room 12 to 15 Nov for 3 guests','Almora',new Date('2026-10-28'));
   const html=decodeURIComponent(a.html);
-  const dates = html.match(/checkin=(20\\d\\d)-11-12&amp;checkout=(20\\d\\d)-11-15/);
+  const dates = html.match(/checkin=(20\d\d)-11-12&amp;checkout=(20\d\d)-11-15/);
   assert.ok(dates, 'keep exact 12–15 November dates in booking link');
   assert.equal(dates[1], dates[2], 'check-in and check-out years must match');
   assert.ok(new Date(dates[1] + '-11-12T23:59:59Z') >= new Date(), 'never suggest a past stay date');
