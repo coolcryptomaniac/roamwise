@@ -14,7 +14,7 @@ import { verifyFirebaseIdToken } from '../lib/firebase-verify.js';
 import { cfRefund, cfConfigured } from '../lib/cashfree-pg.js';
 import {
   walletKey, emptyWallet, creditRefund, spend, keepLot, bankSoon, dueLots, markBank, publicWallet, balance,
-  walletLinkToken, readWalletLinkToken, normEmail, normPhone, validEmail,
+  walletLinkToken, readWalletLinkToken, normEmail, normPhone, validEmail, pastGatewayWindow,
 } from '../lib/wallet-core.js';
 
 const SITE = 'https://roamwise.co.in';
@@ -107,6 +107,12 @@ export async function runWalletReleases(env, nowMs = Date.now(), deps = {}) {
       if (!w) { await env.RW_KV.delete(k.name); continue; }
       const sent = [];
       for (const lot of dueLots(w, nowMs)) {
+        if (pastGatewayWindow(lot, nowMs)) {
+          w = { ...w, lots: w.lots.map((l) => (l.lotId === lot.lotId ? { ...l, state: 'attention', bankStatus: 'Direct refund by RoamWise (UPI or bank transfer)' } : l)) };
+          await (deps.sendMail || sendMail)(env, { to: 'founder@roamwise.co.in', subject: 'Send credit refund directly: Rs ' + lot.remaining, text: 'Pack credit of Rs ' + lot.remaining + ' (order ' + lot.orderId + ', paid ' + String(lot.paidAt || lot.createdAt).slice(0, 10) + ') is due back to ' + w.email + (w.phones && w.phones[0] ? ', phone ' + w.phones[0] : '') + '.\nCashfree cannot refund payments older than six months, so send it by UPI or bank transfer within 5 working days, then mark it done in the admin wallet tools.\nThe guest has been asked to reply with their UPI ID.' });
+          await (deps.sendMail || sendMail)(env, { to: w.email, subject: 'Your RoamWise refund: Rs ' + lot.remaining.toLocaleString('en-IN'), text: 'Rs ' + lot.remaining.toLocaleString('en-IN') + ' of your RoamWise credit is being refunded to you.\n\nYour card or UPI payment is more than six months old, so instead of reversing it, RoamWise pays you directly within 5 working days. Please reply to this email with your UPI ID (or bank account and IFSC) so it reaches you quickly.\n\n— RoamWise' });
+          continue;
+        }
         if (lot.method === 'upi') {
           w = { ...w, lots: w.lots.map((l) => (l.lotId === lot.lotId ? { ...l, state: 'attention', bankStatus: 'UPI refund by RoamWise' } : l)) };
           await (deps.sendMail || sendMail)(env, { to: 'founder@roamwise.co.in', subject: 'Send UPI refund: Rs ' + lot.remaining, text: 'Wallet credit of Rs ' + lot.remaining + ' (from direct UPI order ' + lot.orderId + ') is due back to ' + w.email + '. Send it by UPI to the account it came from, then reply to the guest.' });
