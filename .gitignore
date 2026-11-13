@@ -2,6 +2,8 @@
 node_modules/
 .firecrawl/
 _site
+# Android web bundle, rebuilt by tools/build-android-www.cjs and the android-web-parity test
+www/
 
 # Cloudflare Worker and local development credentials (all directories).
 # Example/template files are safe to track; real values never are.
