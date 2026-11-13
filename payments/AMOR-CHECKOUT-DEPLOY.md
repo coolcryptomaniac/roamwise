@@ -1,29 +1,34 @@
-# Amor Cashfree checkout deployment checklist
+# Amor Hospitality — operational booking and pricing gates (13 November 2026)
+Amor partners: The Tattwaa Corbett Spa & Resort, Nanau Resort & Spa, Padma Villa Manali and Aramness Gir.
 
-Implemented in PR #698; **not live until the payment router Worker and homepage are deployed**.
+## Current founder commercial direction
+- Room-only resale markup: **maximum 7% on agreed net room cost**; do not apply the earlier 25% room multiplier.
+- Experience-led packages: **target 20–25% overall markup on all supplier costs**, only if real, independently quoted add-ons support it. Room line remains capped at 7%; the package target is **not** a promised profit margin.
+- Any supplier discount **up to Rs 500**, on select properties only, needs a property/date/amount-specific written confirmation. Founder may choose to pass it on, retain it, or split it. Do not announce an unapproved discount.
+- A retail price comparison, sale badge or crossed-out MRP requires the same property, exact room category, guest count, check-in/out, meal plan, cancellation rule, taxes and date/time snapshot. OTA cashbacks and card deals should not be described as universal prices.
+- Fees and taxes: model supplier quoted inclusive/exclusive tax per rate sheet, separately confirm the actual invoice route and any applicable GST service classification with accountant; do not add GST to an already tax-inclusive supplier amount by assumption.
+- Supplier net rate data is confidential: keep in private approved pricing store or Worker secret, never in public code, cards, JS, logs or HTML.
 
-## Routing
-- Serve `payments/worker.mjs` from the dedicated payment-router Cloudflare Worker.
-- Route the browser's `/v1/stays/checkout` path to that Worker on the RoamWise domain, or set `window.RW_STAY_CHECKOUT_API` before loading `packages/amor-checkout.html` to its deployed endpoint. Without this routing the checkout fails closed.
-- Bind a Cloudflare KV namespace `STAY_ORDERS` for booking/order records. Protect access to this namespace.
-- Configure Worker secrets `CASHFREE_APP_ID`, `CASHFREE_SECRET_KEY` and `CASHFREE_ENV=live` only after sandbox testing. Never commit secrets.
-- For Padma and Tattwaa, configure `STAY_GST_RATE` with the confirmed applicable decimal tax rate (0.05, 0.12, or 0.18). The endpoint rejects Padma payments without this server-side rate.
-- Configure Cashfree webhook to `/v1/webhooks/cashfree`, verify signature, and connect an authenticated fulfilment consumer that maps paid order IDs to `STAY_ORDERS`. Current public status endpoint performs Cashfree server reconciliation, but does not yet dispatch supplier notifications, confirmation vouchers, or refunds.
-- Configure and verify approved Cashfree domain/origin, merchant travel/accommodation category, settlement and refund capability.
+## Supplier sheets and dated validity
+- Nanau: October 2026 through March 2027, rate sheet explicitly inclusive of taxes; peak supplements and child/pet add-ons apply. 25–30% token, 50% before 15 days, 100% at least 7 days before arrival. Confirm actual booking deadlines and supply quote.
+- Padma: normal tariff 1 Oct–18 Dec 2026 and 11 Jan–31 Mar 2027; separate 18 Dec–10 Jan peak tariff. PDF explicitly says TAX-EXCLUSIVE, despite 7 Nov email saying inclusive. 50% at booking; rest at least seven days before arrival. Six rooms, up to 12 overnight occupants on entire villa; wedding/event capacity and venue permission unknown and require a custom event quote.
+- Aramness: 16 Oct 2026 through 28 Feb 2027 tariff, all-major-meal Kothi. Special fair / blackout sheet differs. Conservation fees and safaris are separate; safari prepayment is 100%; property booking requires 25% inside 3 working days and remaining by 30 days before arrival. Gujarat property may be promoted on rack rates or written exclusive deals: do NOT assume wholesale discount will be honoured absent partner confirmation.
+- Tattwaa: PDF expires **31 March 2026**. Request fresh Nov 2026–Mar 2027 rates and reconcile reported 60 keys / eight-bedroom private-pool villa inventory. Do not sell off expired room rates.
+- Verify the Tattwaa Sitabani Gate–Bhalon address on Amor's PDF against similarly named properties on OTAs (some listings point to Dhela) before using OTA comps.
+- Wedding and group rates are explicitly **ad hoc**, not contracted. Get venue permission, day guest limits, food, décor, sound, vendor, safety, cancellation, occupancy, room-block and extra guest rates in writing.
 
-## Commercial assumptions
-- Nanau Sitabani Studio CP+hi-tea: partner net ₹5,500 per night inclusive of taxes. Retail ₹6,875/night; 2 nights ₹13,750; 25% advance ₹3,438. Dates Oct 2026–Mar 2027; known blackout dates blocked.
-- Padma Royal Chamber EP: partner net ₹5,000 per night exclusive of tax. Retail ₹6,250/night **before tax**; 2 nights ₹12,500 before tax; checkout blocked until tax configured. Blackout window 18 Dec 2026–10 Jan 2027 blocked.
-- Aramness Kothi AP: partner net ₹72,216 per night inclusive of taxes. Retail ₹90,270/night; 2 nights ₹180,540; 25% advance ₹45,135. Conservation fee, safaris and other extras excluded. Special fair/blackout dates require manual rate updates.
-- Tattwaa Forest Room CPAI + hi-tea: previous supplier net ₹5,500/night exclusive of applicable taxes; RoamWise provisional retail ₹6,875/night before tax, 2 nights ₹13,750 before tax. Previous PDF validity ended 31 March 2026; owner has directed continued use pending replacement, not a new supplier-confirmed tariff. Configure STAY_GST_RATE and disclose provisional basis. Supplier blackout supplements and cancellation policy still require confirmation.
-- All prices are one room / two guests, no transport or optional excursions included. Customer payment means **paid, property confirmation pending**, not a guaranteed room.
-- The server rejects unpriced products, dates outside contracted validity, and certain known peak dates. It does not currently have live inventory or a supplier availability API.
+## Payment safeguards
+- Both payment paths — `worker/handlers/stay-cashfree.js` and `payments/worker.mjs` — reject all four Amor IDs until a separately implemented approved locked quote is live.
+- Existing checkout displays a quote-only message and links to `/packages/amor-luxury.html`. No Cashfree/UPI payment or wallet deduction for unsold Amor packages while these gates are active.
+- When enabled, Cashfree orders MUST use immutable server-stored quote ID/total, linked to a supplier room hold, date and category, taxes, cancellation rules, invoice entity, discount evidence and payment schedule; never accept client-supplied total.
+- Customer may choose 25% advance only if the supplier deposit deadline can be covered without RoamWise financing the shortfall. Full payment is possible if the quotation is valid and terms disclosed. Padma needs at least 50% at booking; default **full only** from a 25%/100% UI unless 50% is separately introduced. Gir early-arrival cases may need 100%.
+- Signed Cashfree webhook and independent payment lookup; atomic idempotent claiming; supplier acknowledgement, fulfilment and guest voucher after hold, as well as original-source refund reconciliation, are mandatory.
+- Public cards disclose that quoted packages and extras are subject to supplier confirmation, never guaranteed safaris or instant inventory.
+- All four source PDFs and any net-rate derivations must remain private; do not attach them to GitHub.
 
-## Must pass before enabling live collection
-1. Run sandbox order creation for advance and full payment; verify server-side amount, dates, currency, return URL and duplicate submissions.
-2. Verify Cashfree webhook signature, replay protection, idempotent booking updates, supplier notification, customer receipt, reconciliation, and refund workflow.
-3. Validate tax, peak dates, and property cancellation policies with Amor Hospitality.
-4. Test UPI, card, Android and mobile browsers, and unsuccessful payment/retry scenarios.
-5. Confirm live Worker routing and Cashfree merchant configuration. Merge/deploy only after the above checks.
-
-Do not advertise automatic supplier booking, automatic refunds, or a confirmed reservation until these workflows exist.
+## Priority actions
+1. Written commercial addendum: max 7% room markup, entitlement to reseller booking and customer payment collection; exact tax and ₹500 eligibility matrix.
+2. Latest Tattwaa Nov 2026–Mar 2027 tariff and room configuration; Padma contradictory tax instruction; Aramness rack vs exclusive eligibility and peak restrictions.
+3. Every product: dated room/meal/inclusions and supplier hold; separate add-on supplier quotes and cancellation terms for package margin.
+4. Build private rate-book + signed admin quote acceptance + live inventory confirmation. Run sandbox 25% and full orders (and 50% option where legally/commercially needed) before enabling production.
+5. Compete with OTP-specific public OTA totals, not a one-off unverified headline price. Get photo use rights and real Padma media.
