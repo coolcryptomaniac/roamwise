@@ -396,6 +396,7 @@ function chatBubble(id, m, mine){
     +'<div class="tc-bub'+(mine?' me':'')+'" ondblclick="chatReact(\''+id+'\',\'\u2764\ufe0f\')" oncontextmenu="chatReactPicker(\''+id+'\',event);return false">'
     +(mine?'':'<div class="tc-nm">'+esc2(m.name||'Traveller')+'</div>')
     +esc2(m.text||'')
+    +(!mine && typeof rwChatRiskHTML==='function' ? rwChatRiskHTML(m.text) : '')
     +'</div>'
     + chatReactsHTML(id, m)
     +'</div></div>';
