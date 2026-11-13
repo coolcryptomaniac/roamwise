@@ -2,3 +2,14 @@
 node_modules/
 .firecrawl/
 _site
+
+# Cloudflare Worker and local development credentials (all directories).
+# Example/template files are safe to track; real values never are.
+.env
+.env.*
+!.env.example
+!.env.*.example
+.dev.vars
+.dev.vars.*
+!.dev.vars.example
+!.dev.vars.*.example

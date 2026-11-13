@@ -27,7 +27,7 @@ test('uses Workers AI first and never calls a paid provider',async()=>{
 test('falls back to Groq when Workers AI fails, then fails soft',async()=>{
   stubCaches(); let seen;
   global.fetch=async(u,o)=>{seen={u,o};return new Response(JSON.stringify({choices:[{message:{content:'Hi from Groq'}}]}),{status:200})};
-  const env={AI:{async run(){throw new Error('quota')}},GROQ_API_KEY:'g',GROQ_MODEL:'m',AI_USAGE:{async get(){return '0'},async put(){}}};
+  const env={AI:{async run(){throw new Error('quota')}},GROQ_API_KEY:'g',GROQ_MODEL:'m',GROQ_MONTHLY_REQUEST_CAP:'2',AI_USAGE:{async get(){return '0'},async put(){}}};
   const d=await (await K.handleKala(post('kala/chat',{q:'hi'}),env,'kala/chat')).json();
   assert.equal(d.provider,'groq'); assert.equal(seen.u,'https://api.groq.com/openai/v1/chat/completions');
   global.fetch=async()=>new Response('{"error":"secret"}',{status:500});
@@ -37,4 +37,15 @@ test('empty and oversized requests are refused',async()=>{
   stubCaches(); const env={AI:{async run(){return {response:'x'}}}};
   assert.equal((await K.handleKala(post('kala/chat',{q:''}),env,'kala/chat')).status,400);
   assert.equal((await K.handleKala(post('kala/chat',{q:'x'},{'content-length':'999999'}),env,'kala/chat')).status,413);
+});
+
+test('explicit zero or missing Groq cap never invokes Groq',async()=>{
+  stubCaches(); let paid=0;
+  global.fetch=async()=>{paid++;return new Response('{}',{status:200})};
+  const env={GROQ_API_KEY:'g',GROQ_MODEL:'m',AI_USAGE:{async get(){return '0'},async put(){}}};
+  const zero=await K.handleKala(post('kala/chat',{q:'hello'}),{...env,GROQ_MONTHLY_REQUEST_CAP:'0'},'kala/chat');
+  const missing=await K.handleKala(post('kala/chat',{q:'hello'}),env,'kala/chat');
+  assert.equal(zero.status,502);
+  assert.equal(missing.status,502);
+  assert.equal(paid,0);
 });

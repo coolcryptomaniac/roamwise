@@ -11,16 +11,16 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 35
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
           node-version: '20'
           cache: npm
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v6
         with:
           distribution: temurin
           java-version: '17'
-      - uses: android-actions/setup-android@v3
+      - uses: android-actions/setup-android@v4
       - name: Install dependencies
         run: npm ci --no-audit --no-fund
       - name: Validate voice JS syntax
@@ -32,7 +32,7 @@ jobs:
       - name: Build unsigned-for-release debug APK (test only)
         working-directory: android
         run: bash ./gradlew assembleDebug --no-daemon
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: tusk-hindi-voice-internal-debug-apk
           path: android/app/build/outputs/apk/debug/*.apk

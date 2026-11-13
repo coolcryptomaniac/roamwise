@@ -40,7 +40,7 @@ async function viaWorkersAI(messages, env) {
 }
 async function viaGroq(messages, env) {
   if (!env.GROQ_API_KEY || !env.GROQ_MODEL) throw new Error('unavailable');
-  const cap = await reserveProviderRequest(env, 'groq', Number(env.GROQ_MONTHLY_REQUEST_CAP) || 12000); if (!cap.ok) throw new Error(cap.reason);
+  const cap = await reserveProviderRequest(env, 'groq', Number(env.GROQ_MONTHLY_REQUEST_CAP ?? 0)); if (!cap.ok) throw new Error(cap.reason);
   const r = await fetch('https://api.groq.com/openai/v1/chat/completions', { method: 'POST', headers: { Authorization: 'Bearer ' + env.GROQ_API_KEY, 'Content-Type': 'application/json' }, body: JSON.stringify({ model: env.GROQ_MODEL, messages, max_tokens: 220, temperature: 0.7 }) });
   const d = await r.json(); if (!r.ok) throw new Error('failed');
   const text = cleanReply(d && d.choices && d.choices[0] && d.choices[0].message && d.choices[0].message.content); if (!text) throw new Error('empty'); return { text, provider: 'groq' };
