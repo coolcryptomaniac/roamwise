@@ -64,16 +64,18 @@ export function stayTotals(orders, nowMs) {
   return { totals: t, earnings: [...by.values()].sort((a, b) => (b.booked + b.earned) - (a.booked + a.earned)) };
 }
 
-export function buildLedger({ wallets, orders, nowMs = Date.now(), promoCap = PROMO_CAP_DEFAULT, truncated = false } = {}) {
+export function buildLedger({ wallets, orders, earnings = [], nowMs = Date.now(), promoCap = PROMO_CAP_DEFAULT, truncated = false } = {}) {
   const w = walletTotals(wallets, nowMs), s = stayTotals(orders, nowMs);
   const alerts = [];
   if (w.bonusIssuedThisMonth > promoCap) alerts.push({ code: 'promo_cap_exceeded', message: 'Bonus coins issued this month (Rs ' + w.bonusIssuedThisMonth + ') are over the cap of Rs ' + promoCap + '.' });
   if (s.totals.unknownNet) alerts.push({ code: 'partner_amount_unknown', message: s.totals.unknownNet + ' paid stay(s) have no supplier amount on record, so what is owed to the property is not counted.' });
   if (truncated) alerts.push({ code: 'partial_scan', message: 'Too many records for one run; totals are a lower bound.' });
-  const heldForOthers = w.guestCash + s.totals.partnerPayable;
+  /* Creator, artist and property earnings recorded in the Earnings pocket and not yet paid out. */
+  const earningsPayable = (earnings || []).reduce((t, a) => t + ((a && a.entries) || []).filter((x) => x.status === 'available').reduce((u, x) => u + rupees(x.amount), 0), 0);
+  const heldForOthers = w.guestCash + s.totals.partnerPayable + earningsPayable;
   return {
     at: new Date(nowMs).toISOString(), month: istMonth(nowMs), promoCap,
-    accounts: { ...w, ...s.totals, heldForOthers },
+    accounts: { ...w, ...s.totals, earningsPayable, heldForOthers },
     earnings: s.earnings, alerts, ok: alerts.length === 0,
   };
 }

@@ -25,15 +25,15 @@ async function readAll(env, prefix) {
 
 export async function runCompanyLedger(env, { nowMs = Date.now() } = {}) {
   if (!env.RW_KV) return null;
-  const w = await readAll(env, 'wallet:'), o = await readAll(env, 'stayorder:');
+  const w = await readAll(env, 'wallet:'), o = await readAll(env, 'stayorder:'), e = await readAll(env, 'earn:');
   const promoCap = Number(env.PROMO_MONTHLY_CAP) > 0 ? Number(env.PROMO_MONTHLY_CAP) : PROMO_CAP_DEFAULT;
-  const ledger = buildLedger({ wallets: w.rows, orders: o.rows, nowMs, promoCap, truncated: w.truncated || o.truncated });
+  const ledger = buildLedger({ wallets: w.rows, orders: o.rows, earnings: e.rows, nowMs, promoCap, truncated: w.truncated || o.truncated || e.truncated });
   await env.RW_KV.put('ledger:last', JSON.stringify(ledger));
   await env.RW_KV.put('ledger:day:' + ledger.at.slice(0, 10), JSON.stringify(ledger.accounts), { expirationTtl: 90 * 24 * 3600 });
   return ledger;
 }
 
-async function requireAdmin(request, env, deps) {
+export async function requireAdmin(request, env, deps) {
   if (deps.requireAdmin) return deps.requireAdmin(request, env);
   let sa;
   try { sa = parseServiceAccount(env); } catch (e) { return { error: json({ error: 'not_configured' }, 501) }; }

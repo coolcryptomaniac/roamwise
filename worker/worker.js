@@ -65,6 +65,7 @@ import { handleStayDecide, runStayDeadlines } from './handlers/stay-lifecycle.js
 import { handleWallet, runWalletReleases } from './handlers/wallet.js';
 import { handleCompanyLedger, runCompanyLedger } from './handlers/company-ledger.js';
 import { handleReferral, runReferralRewards } from './handlers/referrals.js';
+import { handleEarnings } from './handlers/earnings.js';
 import { creditPacks, createCreditOrder, creditOrderStatus, handleCreditWebhook, runCreditExpiry } from './handlers/credit-packs.js';
 import { handleShopDecide, runShopRefundCron } from './handlers/shop-order.js';
 import { handleAgentMail } from './handlers/agentmail-outreach.js';
@@ -207,6 +208,7 @@ export default {
     if(path === 'shop/decide' && request.method === 'GET') return handleShopDecide(request, env);
     if(path === 'wallet' || /^wallet\/(keep|bank|link)$/.test(path)) return handleWallet(request, env, path);
     if(path === 'referral/me' || path === 'referral/claim') return handleReferral(request, env, path);
+    if(path === 'earnings/me' || path === 'admin/earnings' || path === 'admin/earnings/add' || path === 'admin/earnings/paid') return handleEarnings(request, env, path);
     if(path === 'credit/packs' && request.method === 'GET') return creditPacks(request, env);
     if(path === 'credit/checkout' && request.method === 'POST') return createCreditOrder(request, env);
     if(path.startsWith('credit/order/') && request.method === 'GET') return creditOrderStatus(request, env, path.slice(13));
