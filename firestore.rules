@@ -713,6 +713,19 @@ service cloud.firestore {
 
     // ---------- CRM (contact database: personal data, admin-only) ----------
     // Never publicly readable - it holds names and emails of real people.
+    // People Hub outbox (worker/handlers/partner-inform.js). Only the Worker
+    // (service account, bypasses rules) creates messages. An admin can read
+    // them and turn a draft into 'approved' (the next hourly run sends it) or
+    // 'cancelled'. Nothing else can be changed from a browser.
+    match /outbox/{id} {
+      allow read: if isAdmin();
+      allow update: if isAdmin()
+        && resource.data.status == 'draft'
+        && request.resource.data.status in ['approved', 'cancelled']
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'decidedAt']);
+      allow create, delete: if false;
+    }
+
     match /crm/{id} {
       allow read, update, delete: if isAdmin();
       // Marketing intern: creator-partnership records only, and only to move

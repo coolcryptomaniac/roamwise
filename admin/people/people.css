@@ -1,0 +1,25 @@
+/* People Hub: a dense, phone-friendly sheet on top of ../hub.css */
+.pp-bar{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 12px}
+.pp-bar input,.pp-bar select{flex:1 1 140px;min-width:0;padding:9px 11px;border-radius:10px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.04);color:inherit;font:inherit}
+.pp-chips{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 12px}
+.pp-chip{padding:5px 10px;border-radius:999px;border:1px solid rgba(255,255,255,.16);background:none;color:inherit;font:inherit;font-size:12px;cursor:pointer}
+.pp-chip[aria-pressed="true"]{border-color:#E8BA6C;color:#E8BA6C}
+.pp-list{display:grid;gap:10px}
+.pp-card{border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:12px;background:rgba(255,255,255,.025)}
+.pp-top{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}
+.pp-name{font-weight:600;font-size:15px}
+.pp-sub{font-size:12px;opacity:.7;margin-top:2px}
+.pp-tags{display:flex;flex-wrap:wrap;gap:5px;margin:8px 0}
+.pp-tag{font-size:11px;padding:2px 8px;border-radius:999px;background:rgba(255,255,255,.07)}
+.pp-tag.t-creator{background:rgba(232,186,108,.16)}.pp-tag.t-artist{background:rgba(167,139,250,.18)}.pp-tag.t-property{background:rgba(74,222,128,.15)}
+.pp-tag.warn{background:rgba(248,113,113,.14)}
+.pp-meter{height:5px;border-radius:5px;background:rgba(255,255,255,.08);overflow:hidden;margin:6px 0}
+.pp-meter u{display:block;height:100%;background:#E8BA6C}
+.pp-acts{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.pp-acts a,.pp-acts button,.pp-acts select{font:inherit;font-size:12px;padding:7px 11px;border-radius:9px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.04);color:inherit;text-decoration:none;cursor:pointer}
+.pp-acts .wa{background:#0E6B4C;border-color:#0E6B4C}
+.pp-next{font-size:12px;color:#E8BA6C;font-weight:600}
+.pp-perfect{border-color:#E8BA6C;box-shadow:0 0 0 1px rgba(232,186,108,.35)}
+.pp-ask{margin:0 0 14px;padding:12px;border-radius:12px;border:1px solid rgba(232,186,108,.35);background:rgba(232,186,108,.06);white-space:pre-wrap;font-size:13px;line-height:1.5}
+.pp-note{font-size:12px;opacity:.7;line-height:1.5}
+.pp-empty{padding:24px;text-align:center;opacity:.7;border:1px dashed rgba(255,255,255,.15);border-radius:12px}

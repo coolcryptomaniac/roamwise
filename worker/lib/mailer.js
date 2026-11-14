@@ -4,6 +4,9 @@
    Automated messages prefer AgentMail; Gmail relay is the secondary
    provider when AgentMail is not configured. Explicit manual sends prefer
    Gmail. Existing callers remain automation by default.
+   channel 'partner' (partner auto-inform): Brevo's free plan (300/day) first,
+   then the Gmail relay. A Brevo quota refusal (402/429) means nothing was
+   sent, so that one case falls through to Gmail.
    No retry to a second provider after a send failure (avoids duplicate mail).
    Never throws. Returns { ok:true } or { ok:false, reason } where reason is
    'cap' (daily limit reached - try again tomorrow), 'not_configured' or 'error'. */
@@ -23,7 +26,31 @@ export function mailerKind(env, { channel = 'automation' } = {}) {
   return null;
 }
 
+const brevoReady = (env) => !!(env && env.BREVO_API_KEY && env.BREVO_SENDER_EMAIL);
+async function sendBrevo(env, { to, subject, html, text, unsubUrl }) {
+  try {
+    const res = await fetch('https://api.brevo.com/v3/smtp/email', {
+      method: 'POST',
+      headers: { 'api-key': env.BREVO_API_KEY, 'content-type': 'application/json', accept: 'application/json' },
+      body: JSON.stringify({
+        sender: { name: 'Mohit from RoamWise', email: env.BREVO_SENDER_EMAIL }, to: [{ email: to }],
+        replyTo: { email: 'support@roamwise.co.in' }, subject, htmlContent: html, textContent: text || '',
+        ...(unsubUrl ? { headers: { 'List-Unsubscribe': `<${unsubUrl}>`, 'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click' } } : {}),
+      }),
+    });
+    return res.ok ? { ok: true, provider: 'brevo' } : { ok: false, reason: (res.status === 402 || res.status === 429) ? 'cap' : 'error' };
+  } catch (_) { return { ok: false, reason: 'error' }; }
+}
+
 export async function sendMail(env, { to, subject, html, text, unsubUrl, channel = 'automation' }) {
+  if (channel === 'partner') {
+    if (brevoReady(env)) {
+      const r = await sendBrevo(env, { to, subject, html, text, unsubUrl });
+      if (r.ok || r.reason !== 'cap') return r;
+    }
+    if (!(env && env.GMAIL_RELAY_URL && env.GMAIL_RELAY_SECRET)) return { ok: false, reason: brevoReady(env) ? 'cap' : 'not_configured' };
+    channel = 'manual'; /* -> Gmail relay */
+  }
   const kind = mailerKind(env, { channel });
   if (!kind) return { ok: false, reason: 'not_configured' };
   try {

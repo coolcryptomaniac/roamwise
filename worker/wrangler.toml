@@ -52,6 +52,9 @@ id = "be31e0935be843219cea1edf2203877b"   # <-- the ONLY line you edit in this f
 # unless PAYMENT_PROVIDER=cashfree and CASHFREE_ENVIRONMENT=live there too.
 # ---------------------------------------------------------------------------
 [vars]
+# People Hub auto-inform (worker/handlers/partner-inform.js). "false" = drafts only. Mail: Brevo free (BREVO_API_KEY + BREVO_SENDER_EMAIL secrets), then Gmail relay.
+PARTNER_INFORM_ENABLED = "true"
+PARTNER_DAILY_CAP = "15"
 PUBLIC_DISPLAY_CACHE_ENABLED = "false"
 PUBLIC_DISPLAY_SYNC_ENABLED = "false"
 PUBLIC_DISPLAY_SYNC_TARGETS = "[]"

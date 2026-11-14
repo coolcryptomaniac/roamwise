@@ -101,6 +101,7 @@ import { handleBot, botDeps } from './handlers/bot.js';
 import { handleReminders, runInactivityReminders } from './handlers/reminders.js';
 import { handleTripNotify, runTripNotifications } from './handlers/trip-notify.js';
 import { handleGroup, runGroupPots } from './handlers/group-pot.js';
+import { runPartnerInform, handlePartnerUnsubscribe } from './handlers/partner-inform.js';
 import { handleStayLead, purgeOldStayLeads } from './handlers/stay-lead.js';
 import { sendAdminDigest } from './handlers/bot-admin.js';
 import { handleAdvisoryAlerts, runAdvisoryAlerts } from './handlers/advisory-alerts.js';
@@ -237,6 +238,7 @@ export default {
     if(path === 'push/send' && request.method === 'POST') return handlePushSend(request, env);
 
     if(path === 'email/unsubscribe' || path === 'admin/reminders/run') return handleReminders(request, env, path);
+    if(path === 'partners/unsubscribe' && (request.method === 'GET' || request.method === 'POST')) return handlePartnerUnsubscribe(request, env);
 
     if(path === 'admin/trip-notify/run') return handleTripNotify(request, env);
 
@@ -272,6 +274,8 @@ export default {
       try{ await runWalletReleases(env); }catch(e){ /* retried next hour */ }
       /* Group "pay your share": pots past their deadline refund every paid member to their own wallet. */
       try{ await runGroupPots(env); }catch(e){ /* retried next hour */ }
+      /* People Hub engine: perfect matches any daytime hour, routine once a day within the cap, money matters as drafts. */
+      try{ await runPartnerInform(env); }catch(e){ /* retried next hour */ }
       return;
     }
     try{if(env.CREATOR_AUTOPILOT_ENABLED==='true') await runCreatorAutopilot(env);}catch(e){/* observe-only; no external sends */}
