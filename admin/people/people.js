@@ -129,10 +129,29 @@ function sheet(){
     <div class="pp-list">${S.view.map(card).join('') || '<div class="pp-empty">Nobody matches these filters.</div>'}</div>`;
 }
 
+/* Match card: person on the left, property on the right, score in the middle. */
+const initial = (n) => esc(String(n || '?').trim().charAt(0).toUpperCase() || '?');
+function matchCard(p, i){
+  const ph = phoneKey(p.phone), m = p.bestMatch, perfect = m.score >= PERFECT_SCORE && m.verdict === 'send';
+  return `<article class="pp-card pp-match${perfect ? ' pp-perfect' : ''}">
+    <div class="pp-pair">
+      <div class="pp-side"><span class="pp-av">${initial(p.name)}</span><div class="pp-name">${esc(p.name)}</div><div class="pp-sub">${esc(p.town || 'Town not set')}</div></div>
+      <div class="pp-score" style="--s:${Math.max(0, Math.min(100, Number(m.score) || 0))}"><b>${esc(m.score)}</b><span>${perfect ? 'perfect' : m.verdict === 'send' ? 'ready' : 'chat first'}</span></div>
+      <div class="pp-side"><span class="pp-av pp-av-p">${initial(m.name)}</span><div class="pp-name">${esc(m.name)}</div><div class="pp-sub">property</div></div>
+    </div>
+    <div class="pp-tags">${p.niches.slice(0, 4).map((n) => `<span class="pp-tag">${esc(n)}</span>`).join('')}${p.verified ? '<span class="pp-tag">verified</span>' : ''}</div>
+    <div class="pp-next">${esc(p.nextAction)}</div>
+    <div class="pp-acts">
+      ${ph ? `<button class="wa" onclick="ppContact(${i},'wa')">WhatsApp</button><button onclick="ppContact(${i},'call')">Call</button>` : ''}
+      ${p.email ? `<button onclick="ppContact(${i},'mail')">Email</button>` : ''}
+      ${p.instagram ? `<a href="https://www.instagram.com/${esc(p.instagram)}/" target="_blank" rel="noopener">Instagram</a>` : ''}
+    </div></article>`;
+}
+
 function matches(){
   S.view = S.people.filter((p) => p.bestMatch).sort((a, b) => b.bestMatch.score - a.bestMatch.score);
   return `<p class="pp-note">Best property for each creator from the strict matcher (niche, distance, terms, rating). Gold border = perfect match (score ${PERFECT_SCORE}+ and ready): these will auto-inform first once the outbox engine is on.</p>
-    <div class="pp-list">${S.view.map(card).join('') || '<div class="pp-empty">No matches yet. Open more property offers in Creator admin, or ask creators for their home town.</div>'}</div>`;
+    <div class="pp-list">${S.view.map(matchCard).join('') || '<div class="pp-empty">No matches yet. Open more property offers in Creator admin, or ask creators for their home town.</div>'}</div>`;
 }
 
 const kpi = (v, l, sub) => `<div class="hb-kpi"><b>${esc(v)}</b><span>${esc(l)}</span>${sub ? `<small>${esc(sub)}</small>` : ''}</div>`;

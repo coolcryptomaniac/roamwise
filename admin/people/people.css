@@ -23,3 +23,14 @@
 .pp-ask{margin:0 0 14px;padding:12px;border-radius:12px;border:1px solid rgba(232,186,108,.35);background:rgba(232,186,108,.06);white-space:pre-wrap;font-size:13px;line-height:1.5}
 .pp-note{font-size:12px;opacity:.7;line-height:1.5}
 .pp-empty{padding:24px;text-align:center;opacity:.7;border:1px dashed rgba(255,255,255,.15);border-radius:12px}
+
+/* Matches tab: person and property side by side with the score between them */
+.pp-match{padding:14px}
+.pp-pair{display:grid;grid-template-columns:1fr auto 1fr;gap:8px;align-items:center;text-align:center}
+.pp-side{min-width:0}.pp-side .pp-name{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pp-av{display:grid;place-items:center;width:46px;height:46px;border-radius:50%;margin:0 auto 6px;font-weight:700;font-size:18px;background:rgba(232,186,108,.18);border:1px solid rgba(232,186,108,.5)}
+.pp-av-p{background:rgba(74,222,128,.14);border-color:rgba(74,222,128,.45)}
+.pp-score{width:62px;height:62px;border-radius:50%;display:grid;place-content:center;background:conic-gradient(#E8BA6C calc(var(--s)*1%),rgba(255,255,255,.1) 0);position:relative}
+.pp-score::before{content:"";position:absolute;inset:5px;border-radius:50%;background:#0b0f14}
+.pp-score b,.pp-score span{position:relative;display:block;line-height:1.1}.pp-score b{font-size:17px}.pp-score span{font-size:9px;opacity:.75;text-transform:uppercase;letter-spacing:.4px}
+.pp-match .pp-tags{justify-content:center}.pp-match .pp-next{text-align:center;margin:4px 0}.pp-match .pp-acts{justify-content:center}
