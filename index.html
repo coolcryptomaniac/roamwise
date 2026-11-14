@@ -1537,6 +1537,8 @@ html{-webkit-text-size-adjust:100%}
   <a class="dr-link" onclick="drThemePick()"><span class="ic">🎨</span>Theme &amp; look <span style="margin-left:auto;font-size:9px;background:var(--gold,#E8BA6C);color:#0A0A0C;padding:1px 6px;border-radius:20px;font-weight:800">9 LOOKS</span></a>
   <span id="drThemeVal" style="display:none"></span>
   <div id="drThemeList" style="display:none;padding:2px 0 6px 28px"></div>
+  <a class="dr-link" onclick="var w=el('rwWalletColorDrawer');w.style.display=w.style.display==='none'?'block':'none';rwMountWalletColorSetting()"><span class="ic rw-wallet-ic-slot" data-size="20">&#128091;</span>Wallet colour<span style="margin-left:auto;color:var(--t3);font-size:11px">tap</span></a>
+  <div id="rwWalletColorDrawer" style="display:none;padding:2px 0 8px 28px"></div>
   <a class="dr-link" onclick="closeDrawer();openIconThemePicker()"><span class="ic">✨</span>Icon style<span style="margin-left:auto;color:var(--t3);font-size:11px">tap</span></a>
   <a class="dr-link" onclick="closeDrawer();openSizeSettings()"><span class="ic">🔤</span>Text &amp; icon size</a>
 </div></div>

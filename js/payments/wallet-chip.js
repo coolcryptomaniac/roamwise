@@ -19,9 +19,12 @@
     violet: { body: '#8b5cf6', dark: '#5b21b6', trim: '#e8ba6c' }
   };
 
-  /* A wallet with a gold flap and the RoamWise logo in the centre. */
+  var NAMES = { teal: 'Himalayan teal', gold: 'Saffron gold', violet: 'Royal violet' };
+  function chosen() { try { var v = localStorage.getItem('rw_wallet_color'); return PALETTES[v] ? v : 'teal'; } catch (e) { return 'teal'; } }
+
+  /* A wallet with a gold flap and the RoamWise logo in the centre. No palette = the user's choice. */
   function rwWalletIcon(size, palette) {
-    var p = PALETTES[palette] || PALETTES.teal, s = size || 24;
+    var p = PALETTES[palette || chosen()] || PALETTES.teal, s = size || 24;
     return '<svg class="rw-wallet-ic" width="' + s + '" height="' + s + '" viewBox="0 0 48 48" aria-hidden="true" focusable="false">' +
       '<rect x="3" y="11" width="42" height="31" rx="7" fill="' + p.body + '"/>' +
       '<path d="M3 18a7 7 0 0 1 7-7h28a7 7 0 0 1 7 7v1H3z" fill="' + p.dark + '"/>' +
@@ -47,6 +50,34 @@
   var num = function (n) { return Number(n || 0).toLocaleString('en-IN'); };
 
   function rwOpenWallet() { location.href = '/wallet/'; }
+
+  /* Settings: pick the wallet colour from three swatches (each drawn as the real icon). */
+  function rwSetWalletColor(id) {
+    if (!PALETTES[id]) return;
+    try { localStorage.setItem('rw_wallet_color', id); } catch (e) { /* storage best-effort */ }
+    document.querySelectorAll('.rw-wallet-ic-slot').forEach(function (n) { n.innerHTML = rwWalletIcon(+(n.getAttribute('data-size') || 22)); });
+    var chip = document.getElementById('rwWalletChip');
+    if (chip && chip.firstElementChild && chip.firstElementChild.tagName.toLowerCase() === 'svg') chip.firstElementChild.outerHTML = rwWalletIcon(22);
+    var dr = document.getElementById('rwDrWalletIc'); if (dr) dr.innerHTML = rwWalletIcon(20);
+    rwMountWalletColorSetting();
+  }
+  function rwWalletColorPickerHTML() {
+    var cur = chosen();
+    return '<div class="rw-wcp" role="radiogroup" aria-label="Wallet colour">' + Object.keys(PALETTES).map(function (k) {
+      return '<button type="button" role="radio" aria-checked="' + (k === cur) + '" class="rw-wcp-opt' + (k === cur ? ' on' : '') + '" onclick="rwSetWalletColor(\'' + k + '\')">' +
+        rwWalletIcon(34, k) + '<span>' + NAMES[k] + '</span></button>';
+    }).join('') + '</div>';
+  }
+  function rwMountWalletColorSetting() {
+    var body = document.querySelector('#settingsOverlay .modal-body');
+    var host = document.getElementById('rwWalletColorSec');
+    if (!host && body) {
+      host = document.createElement('div'); host.id = 'rwWalletColorSec'; host.className = 'key-section';
+      body.insertBefore(host, body.firstChild);
+    }
+    if (host) host.innerHTML = '<div class="key-sec-title">Wallet colour</div>' + rwWalletColorPickerHTML();
+    ['rwWalletColorPage', 'rwWalletColorDrawer'].forEach(function (id) { var n = document.getElementById(id); if (n) n.innerHTML = rwWalletColorPickerHTML(); });
+  }
 
   function paint(cash, bonus) {
     var chip = document.getElementById('rwWalletChip');
@@ -81,6 +112,13 @@
   function init() {
     var icon = document.getElementById('rwDrWalletIc');
     if (icon) icon.innerHTML = rwWalletIcon(20);
+    document.querySelectorAll('.rw-wallet-ic-slot').forEach(function (n) { n.innerHTML = rwWalletIcon(+(n.getAttribute('data-size') || 22)); });
+    if (!document.getElementById('rwWalletColorCss')) {
+      var st = document.createElement('style'); st.id = 'rwWalletColorCss';
+      st.textContent = '.rw-wcp{display:flex;gap:8px;flex-wrap:wrap}.rw-wcp-opt{display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 10px;border-radius:12px;border:1px solid #ffffff26;background:#ffffff0d;color:inherit;font:600 11px system-ui,sans-serif;cursor:pointer;min-width:84px}.rw-wcp-opt.on{border-color:#e8ba6c;box-shadow:0 0 0 2px #e8ba6c55}';
+      document.head.appendChild(st);
+    }
+    if (document.getElementById('rwWalletColorPage')) rwMountWalletColorSetting();
     var tries = 0;
     (function hook() {
       try {
@@ -94,5 +132,7 @@
   W.rwWalletIcon = rwWalletIcon;
   W.rwCoinIcon = rwCoinIcon;
   W.rwOpenWallet = rwOpenWallet;
+  W.rwSetWalletColor = rwSetWalletColor;
+  W.rwMountWalletColorSetting = rwMountWalletColorSetting;
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
 })();

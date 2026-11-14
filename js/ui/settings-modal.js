@@ -176,6 +176,7 @@ function renderKeyBoxes(){
 function openSettings(){
   renderKeyBoxes();
   try{ rwMountPersonalisationSetting(); }catch(e){ /* optional on-device preferences */ }
+  try{ rwMountWalletColorSetting(); }catch(e){ /* wallet colour picker is optional */ }
   try{ rwRenderLinkedSignInMethods(); }catch(e){ /* auth may still be loading */ }
   try{ rwVoiceMountSetting(); }catch(e){ /* best-effort, ignore */ }
   try{ if(window.RWTuskVoiceProvider)RWTuskVoiceProvider.mount(); }catch(e){ /* optional BYOK settings */ }

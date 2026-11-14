@@ -9,7 +9,7 @@
 <p id="signMsg" role="status" class="muted"></p></section>
 <section id="wallet" hidden><div class="muted">Total you can spend</div><div id="bal">₹0</div><div class="tiles"><div class="tile cash"><div class="tl"><b class="sym">₹</b>Cash</div><div class="tv" id="cashBal">₹0</div><div class="muted">Real money from refunds and packs. Can go back to your bank.</div></div><div class="tile coin"><div class="tl"><span id="coinIc"></span>Bonus coins</div><div class="tv" id="coinBal">0</div><div class="muted">RoamWise gift credit. Spend on stays and the shop; used after your cash; can't be withdrawn.</div></div></div><p class="muted" id="who"></p>
 <a class="btn" id="book" href="/packages/amor-checkout.html">Book a stay with your credit</a><a class="btn" id="shop" href="/shop/#collection">Shop with your credit</a>
-<div id="lots"></div><p class="muted">Credit you don't use goes back to your original payment method automatically on the date shown (after 24 hours, or 7 days for larger refunds while we run checks). Keeping it as credit means it stays here until you tap "Send to my bank".</p></section>
+<div id="lots"></div><div class="muted" style="margin-top:14px">Wallet colour</div><div id="rwWalletColorPage"></div><p class="muted">Credit you don't use goes back to your original payment method automatically on the date shown (after 24 hours, or 7 days for larger refunds while we run checks). Keeping it as credit means it stays here until you tap "Send to my bank".</p></section>
 <p id="msg" role="status"></p></main>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script><script src="/partner/config.js"></script><script src="/js/payments/wallet-chip.js"></script>
 <script>
@@ -45,7 +45,7 @@ $('sendOtp').onclick=function(){if(!auth)return;var p=$('phone').value.replace(/
   try{var v=new firebase.auth.RecaptchaVerifier('recaptcha',{size:'invisible'});auth.signInWithPhoneNumber(p,v).then(function(c){confirmation=c;$('otp').hidden=$('verifyOtp').hidden=false;$('signMsg').textContent='Code sent.'}).catch(function(e){$('signMsg').textContent='Phone sign-in is not available right now. Use Google or the email link.'})}catch(e){$('signMsg').textContent='Phone sign-in is not available right now.'}};
 $('verifyOtp').onclick=function(){if(confirmation)confirmation.confirm($('otp').value.trim()).catch(function(){$('signMsg').textContent='That code did not work.'})};
 $('sendLink').onclick=function(){fetch(API+'/wallet/link',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({email:$('email').value})}).then(function(r){return r.json()}).then(function(d){$('signMsg').textContent=d.message||'Check your inbox.'})};
-try{$('wIc').innerHTML=rwWalletIcon(40);$('coinIc').innerHTML=rwCoinIcon(18)}catch(e){}
+try{$('wIc').className='rw-wallet-ic-slot';$('wIc').setAttribute('data-size','40');$('wIc').innerHTML=rwWalletIcon(40);$('coinIc').innerHTML=rwCoinIcon(18)}catch(e){}
 if(token)load();else $('signin').hidden=false;
 })();
 </script></body></html>
