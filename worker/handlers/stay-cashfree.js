@@ -32,7 +32,7 @@ export const RATE={
  newhimank:{kind:'advance',name:'New Himank, Manali',supplier:'roamwise'},
  corbett:{kind:'advance',name:'Corbett Jungle View Homestay, Lansdowne',supplier:'roamwise'}
 };
-const isAmor=(r)=>r.supplier==='amor'||(RATE[r.stay]||{}).supplier==='amor';
+export const isAmor=(r)=>r.supplier==='amor'||(RATE[r.stay]||{}).supplier==='amor';
 /* Lowest total for each package, for the cards (a quiet February date, or the first day it is sold). */
 const PRICE_REF=Date.parse('2026-11-13T00:00:00Z');
 export function packageFrom(id){
@@ -161,7 +161,7 @@ async function onBalancePaid(env,record){
 }
 
 const SUPPLIER_INBOX={amor:'sales@amorhospitality.in',roamwise:'founder@roamwise.co.in'};
-async function alertSupplier(env,record){
+export async function alertSupplier(env,record){
  if(!env.AGENTMAIL_API_KEY||!env.AGENTMAIL_INBOX_BUSINESS)return {sent:false,reason:'notification_provider_unconfigured'};
  if(record.supplierNotifiedAt)return {sent:true,duplicate:true};
  const amor=isAmor(record);

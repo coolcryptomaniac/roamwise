@@ -100,6 +100,7 @@ import { handleInvoiceSweep, runInvoiceSweepCron } from './handlers/invoices.js'
 import { handleBot, botDeps } from './handlers/bot.js';
 import { handleReminders, runInactivityReminders } from './handlers/reminders.js';
 import { handleTripNotify, runTripNotifications } from './handlers/trip-notify.js';
+import { handleGroup, runGroupPots } from './handlers/group-pot.js';
 import { runPartnerInform, handlePartnerUnsubscribe } from './handlers/partner-inform.js';
 import { handleStayLead, purgeOldStayLeads } from './handlers/stay-lead.js';
 import { sendAdminDigest } from './handlers/bot-admin.js';
@@ -149,6 +150,7 @@ export default {
     // Signed server-to-server Cashfree callback for shop orders; never IP-throttled so a real payment is not dropped.
     if(path === 'shop/cashfree/webhook') return handleShopWebhook(request, env);
     if(path === 'stays/cashfree/webhook') return handleStayCashfreeWebhook(request, env);
+    if(path.indexOf('group/') === 0) return handleGroup(request, env, path);
     if(path === 'credit/cashfree/webhook') return handleCreditWebhook(request, env);
     if(path === 'treks/cashfree/webhook') return handleTrekMarketplace(request, env, path);
 
@@ -270,6 +272,8 @@ export default {
       try{ await runStayDeadlines(env); }catch(e){ /* retried next hour */ }
       try{ if(env.FIREBASE_SERVICE_ACCOUNT_JSON) await runShopRefundCron(env); }catch(e){ /* retried next hour */ }
       try{ await runWalletReleases(env); }catch(e){ /* retried next hour */ }
+      /* Group "pay your share": pots past their deadline refund every paid member to their own wallet. */
+      try{ await runGroupPots(env); }catch(e){ /* retried next hour */ }
       /* People Hub engine: perfect matches any daytime hour, routine once a day within the cap, money matters as drafts. */
       try{ await runPartnerInform(env); }catch(e){ /* retried next hour */ }
       return;
