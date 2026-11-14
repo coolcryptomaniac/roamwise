@@ -190,6 +190,22 @@ export function publicWallet(w, nowMs) {
       bankOn: l.state === 'credit' ? l.releaseAt : null, review: !!l.review, bankStatus: l.bankStatus || '',
       credited: l.createdAt,
     })).reverse(),
+    stats: walletStats(w, nowMs),
+    activity: (w.log || []).slice(-15).reverse().map((e) => ({ at: e.at, kind: e.kind, amount: e.amount })),
     now: new Date(nowMs).toISOString(),
+  };
+}
+
+/* Read-only account summary for the wallet page ("virtual bank" view). Whole rupees. */
+export function walletStats(w, nowMs) {
+  const lots = (w && w.lots) || [], log = (w && w.log) || [], soon = nowMs + 30 * 24 * 3600 * 1000;
+  const sum = (xs, f) => xs.reduce((t, x) => t + (Number(f(x)) || 0), 0);
+  return {
+    cashIn: sum(lots.filter((l) => l.source !== 'bonus'), (l) => l.amount),
+    coinsEarned: sum(lots.filter((l) => l.source === 'bonus'), (l) => l.amount),
+    spent: sum(log.filter((e) => e.kind === 'spend'), (e) => e.amount),
+    sentToBank: sum(lots, (l) => l.bankAmount),
+    onWayToBank: sum(lots.filter((l) => l.state === 'credit' && l.remaining > 0), (l) => l.remaining),
+    expiringSoon: sum(lots.filter((l) => lotOpen(l) && l.expiresAt && Date.parse(l.expiresAt) <= soon), (l) => l.remaining),
   };
 }
