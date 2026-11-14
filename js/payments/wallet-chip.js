@@ -49,7 +49,12 @@
   var inr = function (n) { return '₹' + Number(n || 0).toLocaleString('en-IN'); };
   var num = function (n) { return Number(n || 0).toLocaleString('en-IN'); };
 
-  function rwOpenWallet() { location.href = '/wallet/'; }
+  /* Inside the Android app a folder URL is answered with the home page, so name the file there. */
+  function rwOpenWallet() {
+    var native = false;
+    try { native = !!(W.Capacitor && W.Capacitor.isNativePlatform && W.Capacitor.isNativePlatform()); } catch (e) { native = false; }
+    location.href = native ? '/wallet/index.html' : '/wallet/';
+  }
 
   /* Settings: pick the wallet colour from three swatches (each drawn as the real icon). */
   function rwSetWalletColor(id) {
