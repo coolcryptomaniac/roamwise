@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#0b0f14">
+<title>People Hub — RoamWise Admin</title>
+<link rel="icon" href="../../icons/favicon-32.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&family=Inter+Tight:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../hub.css">
+<link rel="stylesheet" href="people.css">
+</head>
+<body>
+<div id="pAuth" class="hb-auth" hidden>
+  <form id="pLogin" class="hb-login">
+    <span class="hb-kicker">FOUNDER ACCESS</span>
+    <h1>People Hub</h1>
+    <p>Creators, artists and property partners in one sheet. Sign in with the founder account.</p>
+    <label for="pEmail">Email</label><input id="pEmail" type="email" autocomplete="email" required>
+    <label for="pPass">Password</label><input id="pPass" type="password" autocomplete="current-password" required>
+    <button class="hb-btn hb-primary" type="submit">Sign in</button>
+    <p id="pAuthMsg" class="hb-err" role="alert"></p>
+    <a class="hb-link" href="?demo=1">Preview with sample data</a>
+  </form>
+</div>
+
+<div id="pApp" class="hb-app" hidden>
+  <aside class="hb-rail" aria-label="Sections">
+    <a class="hb-brand" href="../../"><img src="../../icons/icon-192.png" alt="" width="28" height="28"><b>RoamWise</b></a>
+    <nav id="pNav">
+      <a href="#sheet" data-tab="sheet">Sheet</a>
+      <a href="#matches" data-tab="matches">Matches</a>
+      <a href="#kpis" data-tab="kpis">KPIs</a>
+      <a href="#outbox" data-tab="outbox">Outbox</a>
+    </nav>
+    <a class="hb-link" href="../hub.html">Admin Hub</a>
+    <button id="pOut" class="hb-btn hb-ghost" type="button">Sign out</button>
+  </aside>
+  <main class="hb-main">
+    <div id="pDemo" class="hb-demo" hidden>Sample data. None of these names or numbers are real.</div>
+    <header class="hb-head">
+      <div><span class="hb-kicker">PEOPLE HUB</span><h1 id="pTitle">Everyone we work with</h1></div>
+      <div class="hb-head-actions"><span id="pStamp" class="hb-stamp"></span>
+        <button id="pAsk" class="hb-btn" type="button">Ask Tusk</button>
+        <button id="pCsv" class="hb-btn" type="button">CSV</button>
+        <button id="pRefresh" class="hb-btn" type="button">Refresh</button></div>
+    </header>
+    <div id="pErrors"></div>
+    <div id="pAskOut" class="pp-ask" hidden></div>
+    <section id="tab-sheet" class="hb-tab"></section>
+    <section id="tab-matches" class="hb-tab" hidden></section>
+    <section id="tab-kpis" class="hb-tab" hidden></section>
+    <section id="tab-outbox" class="hb-tab" hidden></section>
+  </main>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<script type="module" src="people.js"></script>
+</body>
+</html>
