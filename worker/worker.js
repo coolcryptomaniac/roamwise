@@ -64,6 +64,7 @@ import { createStayOrder, stayOrderStatus, handleStayCashfreeWebhook, stayRates,
 import { handleStayDecide, runStayDeadlines } from './handlers/stay-lifecycle.js';
 import { handleWallet, runWalletReleases } from './handlers/wallet.js';
 import { handleCompanyLedger, runCompanyLedger } from './handlers/company-ledger.js';
+import { handleReferral, runReferralRewards } from './handlers/referrals.js';
 import { creditPacks, createCreditOrder, creditOrderStatus, handleCreditWebhook, runCreditExpiry } from './handlers/credit-packs.js';
 import { handleShopDecide, runShopRefundCron } from './handlers/shop-order.js';
 import { handleAgentMail } from './handlers/agentmail-outreach.js';
@@ -205,6 +206,7 @@ export default {
     if(path === 'stays/decide' && request.method === 'GET') return handleStayDecide(request, env);
     if(path === 'shop/decide' && request.method === 'GET') return handleShopDecide(request, env);
     if(path === 'wallet' || /^wallet\/(keep|bank|link)$/.test(path)) return handleWallet(request, env, path);
+    if(path === 'referral/me' || path === 'referral/claim') return handleReferral(request, env, path);
     if(path === 'credit/packs' && request.method === 'GET') return creditPacks(request, env);
     if(path === 'credit/checkout' && request.method === 'POST') return createCreditOrder(request, env);
     if(path.startsWith('credit/order/') && request.method === 'GET') return creditOrderStatus(request, env, path.slice(13));
@@ -289,6 +291,8 @@ export default {
     /* Founding Traveller Credit: expiry reminders, then a real refund of unused paid credit at expiry. */
     try{ await runCreditExpiry(env); }catch(e){ /* retried tomorrow */ }
     /* Company ledger: read-only daily snapshot of money held for guests and partners. */
+    /* Referral rewards: bonus coins to both people once the friend's first paid stay is finished. Off unless REFERRALS_ENABLED. */
+    try{ await runReferralRewards(env); }catch(e){ /* retried tomorrow */ }
     try{ await runCompanyLedger(env); }catch(e){ /* rebuilt tomorrow or on demand */ }
     /* Home page: store today's snapshot of the curated promo stays and travel advisories (one KV write a day). */
     try{ await refreshHomeDaily(env); }catch(e){ /* yesterday's snapshot keeps serving */ }
