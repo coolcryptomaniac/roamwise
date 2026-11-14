@@ -13,6 +13,7 @@ const DEMO = new URLSearchParams(location.search).has('demo');
 const TABS = { overview: 'Overview', creators: 'Creators', properties: 'Properties', sales: 'Sales', links: 'Quick links' };
 const LINKS = [
   ['People Hub', 'Creators, artists and properties in one sheet', '/admin/people/'],
+  ['Company ledger', 'Money held for guests and partners, and earnings by property', '/admin/ledger/'],
   ['Admin console', 'Bookings, partners, payments and settings', '/admin/'],
   ['Creator network admin', 'Applications, activation, payouts', '/creators/admin.html'],
   ['Creator matches', 'Public matching desk', '/creators/match.html'],
