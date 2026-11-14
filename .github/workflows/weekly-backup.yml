@@ -1,0 +1,60 @@
+name: Weekly encrypted backup (Firestore + KV)
+
+# Every Sunday 03:30 IST: exports Firestore and the durable Cloudflare KV records,
+# encrypts them with BACKUP_PASSPHRASE (AES-256, PBKDF2), and keeps the encrypted file
+# as a workflow artifact for 90 days. Free: GitHub Actions minutes + free-tier reads.
+# Repo secrets: FIREBASE_SERVICE_ACCOUNT, CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID, BACKUP_PASSPHRASE.
+# Without BACKUP_PASSPHRASE the job stops before exporting, so nothing unencrypted is ever stored.
+# Restore: see tools/backup/RESTORE.md
+
+on:
+  schedule:
+    - cron: '0 22 * * 6'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: weekly-backup
+  cancel-in-progress: false
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Check secrets
+        env:
+          BACKUP_PASSPHRASE: ${{ secrets.BACKUP_PASSPHRASE }}
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+        run: |
+          if [ -z "$BACKUP_PASSPHRASE" ]; then echo "::error::Add BACKUP_PASSPHRASE (a long random password, kept safe offline) in repository Actions secrets."; exit 1; fi
+          if [ -z "$FIREBASE_SERVICE_ACCOUNT" ]; then echo "::error::Add FIREBASE_SERVICE_ACCOUNT in repository Actions secrets."; exit 1; fi
+      - name: Export
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: node tools/backup/export.mjs "$RUNNER_TEMP/rw-backup"
+      - name: Encrypt and remove the plain copy
+        env:
+          BACKUP_PASSPHRASE: ${{ secrets.BACKUP_PASSPHRASE }}
+        run: |
+          STAMP=$(date -u +%Y-%m-%d)
+          tar -C "$RUNNER_TEMP" -czf "$RUNNER_TEMP/rw.tgz" rw-backup
+          rm -rf "$RUNNER_TEMP/rw-backup"
+          openssl enc -aes-256-cbc -pbkdf2 -iter 200000 -salt -in "$RUNNER_TEMP/rw.tgz" -out "$RUNNER_TEMP/roamwise-backup-$STAMP.tgz.enc" -pass env:BACKUP_PASSPHRASE
+          rm -f "$RUNNER_TEMP/rw.tgz"
+          ls -la "$RUNNER_TEMP"/roamwise-backup-*.enc
+          echo "STAMP=$STAMP" >> "$GITHUB_ENV"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: roamwise-backup-${{ env.STAMP }}
+          path: ${{ runner.temp }}/roamwise-backup-*.tgz.enc
+          retention-days: 90
+          if-no-files-found: error
