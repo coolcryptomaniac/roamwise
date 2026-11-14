@@ -34,7 +34,7 @@ async function codeFor(email) {
 }
 
 /* Who is asking: a Firebase sign-in (verified email) or a wallet link (the email already received a private link). */
-async function identify(request, env, token, nowMs, deps) {
+export async function identify(request, env, token, nowMs, deps) {
   const m = /^Bearer\s+(.+)$/i.exec(request.headers.get('authorization') || '');
   if (m) {
     try {

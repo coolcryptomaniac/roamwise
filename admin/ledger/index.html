@@ -14,7 +14,7 @@
 .lg-owed{border-color:#14b8a6}.lg-coin{border-color:#e8ba6c}.lg-ours{border-color:#8b5cf6}
 .lg-alert{border-left:4px solid #e8ba6c;background:#e8ba6c1f;padding:10px 12px;border-radius:8px;margin:8px 0}.lg-ok{border-left:4px solid #14b8a6;background:#14b8a61f;padding:10px 12px;border-radius:8px;margin:8px 0}
 table{width:100%;border-collapse:collapse;font-size:14px}th,td{text-align:right;padding:9px 8px;border-bottom:1px solid #ffffff1a}th:first-child,td:first-child{text-align:left}
-.lg-scroll{overflow-x:auto}.lg-muted{opacity:.7;font-size:13px}
+.lg-scroll{overflow-x:auto}.lg-form{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin:10px 0}.lg-form input,.lg-form select,.lg-pay input{padding:10px;border-radius:9px;border:1px solid #ffffff33;background:#0b0f14;color:inherit;font-size:14px;min-width:0}.lg-pay{display:flex;gap:6px;justify-content:flex-end}.lg-pay input{width:120px}.lg-tax{color:#e8ba6c;font-size:12px;display:block}.lg-muted{opacity:.7;font-size:13px}
 </style>
 </head>
 <body>
@@ -39,6 +39,11 @@ table{width:100%;border-collapse:collapse;font-size:14px}th,td{text-align:right;
   <h2>Earnings by property</h2>
   <p class="lg-muted">Booked = guest has paid, stay not finished. Earned = 48 hours after check-out. This screen only shows what is owed; it pays nothing.</p>
   <div class="lg-scroll"><table><thead><tr><th>Property</th><th>Stays</th><th>Collected</th><th>Booked</th><th>Earned</th></tr></thead><tbody id="lRows"></tbody></table></div>
+  <h2>Creator, artist and partner earnings</h2>
+  <p class="lg-muted">Record what RoamWise owes someone, pay them by UPI or bank yourself, then mark it paid with the reference. Creators and artists are limited to ₹10,000 of new earnings a month.</p>
+  <form id="eAdd" class="lg-form"><input id="eEmail" type="email" placeholder="Partner email" required><input id="eName" placeholder="Name"><select id="eRole"><option value="creator">Creator</option><option value="artist">Artist</option><option value="property">Property</option></select><input id="eAmt" type="number" min="1" step="1" placeholder="Amount ₹" required><input id="eNote" placeholder="What for (shown to them)"><button class="hb-btn hb-primary" type="submit">Add earning</button></form>
+  <p id="eMsg" class="lg-muted" role="status"></p>
+  <div class="lg-scroll"><table><thead><tr><th>Person</th><th>Role</th><th>This month</th><th>Waiting</th><th>Paid</th><th>Pay</th></tr></thead><tbody id="eRows"></tbody></table></div>
   <p><button class="hb-btn" id="lRun" type="button">Refresh now</button> <span id="lMsg" class="lg-muted" role="status"></span></p>
 </main>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>

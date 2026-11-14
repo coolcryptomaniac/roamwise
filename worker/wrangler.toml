@@ -59,6 +59,9 @@ PARTNER_DAILY_CAP = "15"
 REFERRALS_ENABLED = "true"
 # Most new bonus coins RoamWise gives away in one month (referrals stop at this; the company ledger alerts on it).
 PROMO_MONTHLY_CAP = "50000"
+# Earnings pocket (worker/handlers/earnings.js): most a creator or artist can earn in one month, and the yearly total at which the admin page says "check tax before paying".
+EARN_MONTHLY_CAP = "10000"
+EARN_TAX_WATCH = "20000"
 PUBLIC_DISPLAY_CACHE_ENABLED = "false"
 PUBLIC_DISPLAY_SYNC_ENABLED = "false"
 PUBLIC_DISPLAY_SYNC_TARGETS = "[]"
