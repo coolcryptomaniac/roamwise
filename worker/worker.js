@@ -45,6 +45,7 @@
      POST /admin/creator/ig-rating     admin-only: rate a creator from Instagram Business Discovery -> handlers/creator-rating.js
      POST /admin/creator/public-check  admin-only: YouTube Data API numbers + web footprint links -> handlers/creator-public-check.js
      POST /nomad/advise                public: Workers AI explains Nomad Match picks (cached, capped) -> handlers/nomad-ai.js
+     GET  /admin/ledger, POST /admin/ledger/run   admin-only read-only company ledger -> handlers/company-ledger.js
      POST /admin/ai-ca/review          admin-only redacted finance/compliance review -> handlers/ai-ca.js
      POST /admin/invoices/sweep        admin-only: issue invoices for paid orders with none yet -> handlers/invoices.js
      POST /admin/advisory-alerts/run   admin-only: advisory alerts + team digest (dry-run default) -> handlers/advisory-alerts.js
@@ -62,6 +63,8 @@ import { handleTrekMarketplace } from './handlers/treks-marketplace.js';
 import { createStayOrder, stayOrderStatus, handleStayCashfreeWebhook, stayRates, stayQuote, stayRatesKey } from './handlers/stay-cashfree.js';
 import { handleStayDecide, runStayDeadlines } from './handlers/stay-lifecycle.js';
 import { handleWallet, runWalletReleases } from './handlers/wallet.js';
+import { handleCompanyLedger, runCompanyLedger } from './handlers/company-ledger.js';
+import { handleReferral, runReferralRewards } from './handlers/referrals.js';
 import { creditPacks, createCreditOrder, creditOrderStatus, handleCreditWebhook, runCreditExpiry } from './handlers/credit-packs.js';
 import { handleShopDecide, runShopRefundCron } from './handlers/shop-order.js';
 import { handleAgentMail } from './handlers/agentmail-outreach.js';
@@ -203,6 +206,7 @@ export default {
     if(path === 'stays/decide' && request.method === 'GET') return handleStayDecide(request, env);
     if(path === 'shop/decide' && request.method === 'GET') return handleShopDecide(request, env);
     if(path === 'wallet' || /^wallet\/(keep|bank|link)$/.test(path)) return handleWallet(request, env, path);
+    if(path === 'referral/me' || path === 'referral/claim') return handleReferral(request, env, path);
     if(path === 'credit/packs' && request.method === 'GET') return creditPacks(request, env);
     if(path === 'credit/checkout' && request.method === 'POST') return createCreditOrder(request, env);
     if(path.startsWith('credit/order/') && request.method === 'GET') return creditOrderStatus(request, env, path.slice(13));
@@ -247,6 +251,7 @@ export default {
     if(path === 'stay/lead') return handleStayLead(request, env);
 
     if(path === 'admin/ai-ca/review' && request.method === 'POST') return handleAICAReview(request, env);
+    if(path === 'admin/ledger' || path === 'admin/ledger/run') return handleCompanyLedger(request, env, path);
 
     if(path === 'admin/invoices/sweep' && request.method === 'POST') return handleInvoiceSweep(request, env);
 
@@ -285,6 +290,10 @@ export default {
     }catch(e){ /* a cron failure must never take the Worker down */ }
     /* Founding Traveller Credit: expiry reminders, then a real refund of unused paid credit at expiry. */
     try{ await runCreditExpiry(env); }catch(e){ /* retried tomorrow */ }
+    /* Company ledger: read-only daily snapshot of money held for guests and partners. */
+    /* Referral rewards: bonus coins to both people once the friend's first paid stay is finished. Off unless REFERRALS_ENABLED. */
+    try{ await runReferralRewards(env); }catch(e){ /* retried tomorrow */ }
+    try{ await runCompanyLedger(env); }catch(e){ /* rebuilt tomorrow or on demand */ }
     /* Home page: store today's snapshot of the curated promo stays and travel advisories (one KV write a day). */
     try{ await refreshHomeDaily(env); }catch(e){ /* yesterday's snapshot keeps serving */ }
     try{ await syncApprovedPublicTargets(env); }catch(e){ /* preserve prior cache */ }

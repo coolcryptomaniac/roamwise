@@ -96,11 +96,29 @@
     if (chip) chip.style.display = on ? 'inline-flex' : 'none';
   }
 
+  /* Referral links (?ref=RWXXXXXXXX): remember the code, then claim it once after sign-in.
+     Coins are paid by the server only after the friend's first stay is completed. */
+  function rememberRef() {
+    try {
+      var c = (new URLSearchParams(location.search).get('ref') || '').toUpperCase();
+      if (/^RW[A-Z2-7]{8}$/.test(c)) localStorage.setItem('rw_ref_code', c);
+    } catch (e) { /* storage best-effort */ }
+  }
+  function claimRef(token) {
+    var code = '', device = '';
+    try { code = localStorage.getItem('rw_ref_code') || ''; device = localStorage.getItem('rw_devid') || ''; } catch (e) { return; }
+    if (!code) return;
+    fetch(API + '/referral/claim', { method: 'POST', headers: { authorization: 'Bearer ' + token, 'content-type': 'application/json' }, body: JSON.stringify({ code: code, device: device }) })
+      .then(function (r) { if (r.status !== 401 && r.status !== 403) { try { localStorage.removeItem('rw_ref_code'); } catch (e) { /* ignore */ } } })
+      .catch(function () { /* tried again on the next visit */ });
+  }
+
   /* Balance comes from the Worker with the user's Firebase sign-in; no wallet yet shows ₹0. */
   function refresh(u) {
     if (!u) { show(false); return; }
     show(true); paint(0, 0);
     u.getIdToken().then(function (t) {
+      claimRef(t);
       return fetch(API + '/wallet', { headers: { authorization: 'Bearer ' + t } });
     }).then(function (r) { return r.json(); }).then(function (d) {
       if (!d || !d.wallet) return;
@@ -110,6 +128,7 @@
   }
 
   function init() {
+    rememberRef();
     var icon = document.getElementById('rwDrWalletIc');
     if (icon) icon.innerHTML = rwWalletIcon(20);
     document.querySelectorAll('.rw-wallet-ic-slot').forEach(function (n) { n.innerHTML = rwWalletIcon(+(n.getAttribute('data-size') || 22)); });
