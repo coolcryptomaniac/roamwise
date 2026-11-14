@@ -484,7 +484,7 @@ html{-webkit-text-size-adjust:100%}
   .nav-right .btn-pro{padding:6px 9px;font-size:10px}
 }
 </style>
-<style id="rwHomepageSalesRefinement">.rw-sales-track{overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch}.rw-sales-card{min-height:320px}@media(max-width:600px){#rwSalesCarousels{margin:8px!important;padding:12px!important}#rwSalesCarousels .rw-sales-card{flex-basis:76vw!important}#rwDiwali2026{padding:18px!important}#rwDiwali2026 .d-cards{display:none!important}}@media(prefers-reduced-motion:reduce){#rwSalesCarousels{scroll-behavior:auto}}</style><style id="rwPackagePhotoStyles">.rw-deal{display:inline-block;width:max-content;font-size:11px;font-weight:800;padding:3px 9px;border-radius:20px;background:#2ed6b433;border:1px solid #2ed6b4;color:#bff6e8}.rw-package-photo{height:158px;position:relative;overflow:hidden;background:linear-gradient(135deg,#425d62,#241633)}.rw-package-photo img{height:100%;width:100%;object-fit:cover;display:block}.rw-photo-note{position:absolute;bottom:0;left:0;right:0;padding:5px 8px;color:#fff;background:linear-gradient(transparent,#130d21da);font-size:11px;text-shadow:0 1px 3px #000}.rw-photo-unavailable:before{content:"Scenic image currently unavailable";display:grid;place-items:center;height:100%;font-size:12px;color:#fff}</style></head>
+<style id="rwHomepageSalesRefinement">.rw-sales-track{overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch}.rw-sales-card{min-height:320px}@media(max-width:600px){#rwSalesCarousels{margin:8px!important;padding:12px!important}#rwSalesCarousels .rw-sales-card{flex-basis:76vw!important}#rwDiwali2026{padding:18px!important}#rwDiwali2026 .d-cards{display:none!important}}@media(prefers-reduced-motion:reduce){#rwSalesCarousels{scroll-behavior:auto}}</style><style id="rwPackagePhotoStyles">.rw-deal{display:inline-block;width:max-content;font-size:11px;font-weight:800;padding:3px 9px;border-radius:20px;background:#2ed6b433;border:1px solid #2ed6b4;color:#bff6e8}.rw-package-photo{height:158px;position:relative;overflow:hidden;background:linear-gradient(135deg,#425d62,#241633)}.rw-package-photo img{height:100%;width:100%;object-fit:cover;display:block}.rw-photo-note{position:absolute;bottom:0;left:0;right:0;padding:5px 8px;color:#fff;background:linear-gradient(transparent,#130d21da);font-size:11px;text-shadow:0 1px 3px #000}.rw-photo-unavailable:before{content:"Scenic image currently unavailable";display:grid;place-items:center;height:100%;font-size:12px;color:#fff}</style><style id="rwWalletChipStyles">.rw-wallet-chip{display:inline-flex;align-items:center;gap:6px;padding:4px 10px 4px 5px;border-radius:999px;border:1px solid #e8ba6c88;background:linear-gradient(135deg,#0f766e33,#14b8a622);color:#fff3d6;font:700 12px Outfit,system-ui,sans-serif;cursor:pointer;white-space:nowrap;min-height:34px}.rw-wallet-chip:hover{border-color:#e8ba6c}.rw-wc-amt{display:inline-flex;align-items:center;gap:7px}.rw-wc-coin{display:inline-flex;align-items:center;gap:3px;color:#f8d58f}.rw-wallet-ic{display:block;flex:none}.rw-dr-wallet small{margin-left:auto;color:#e8ba6c;font-weight:700}@media(max-width:400px){.rw-wallet-chip{padding:4px;gap:0}.rw-wc-amt{display:none}}</style></head>
 <body class="rw-akatsuki-theme shell" data-view="home">
 <div id="rwVeil" role="status" aria-live="polite"><img src="/assets/img/roamwise-logo-176.webp" alt="" width="72" height="72" fetchpriority="high"><span>Roam<b>Wise</b></span><i></i><small>Getting things ready…</small></div>
 <div class="intro" id="intro" onclick="killIntro()">
@@ -525,6 +525,9 @@ html{-webkit-text-size-adjust:100%}
       <button class="xp-chip" id="xpChip" onclick="openBadges()" title="Your traveler rank">&#129399; <span id="xpChipTxt">Genin</span></button>
       <button class="btn btn-pro" id="proBtn" onclick="return rwOpenPaySafely(event)">Pro &#8377;100</button>
       <button class="btn" id="authBtn" onclick="openAuth()" style="display:none;background:linear-gradient(135deg,var(--gold,#E8BA6C),var(--gold2,#C8913E));color:#0A0A0C;font-weight:800;border:none;padding:8px 16px;white-space:nowrap">Sign in</button>
+      <!-- Wallet balance chip: signed-in users only, beside the avatar like MakeMyTrip / Uber.
+           Rupee = real cash, gold coin = RoamWise bonus credit. -->
+      <button class="rw-wallet-chip" id="rwWalletChip" type="button" onclick="rwOpenWallet()" style="display:none" aria-label="Wallet">Wallet</button>
       <span class="auth-avatar-wrap" id="authAvatarWrap" style="display:none">
         <img class="avatar" id="authAvatar" src="" alt="Account" onclick="authMenu()">
         <span class="auth-verified-badge" id="authVerifiedBadge" title="Verified email" aria-label="Verified email">&#10003;</span>
@@ -1467,6 +1470,7 @@ html{-webkit-text-size-adjust:100%}
   <div id="drAcct">
     <button class="dr-signin" onclick="closeDrawer();openAuth()">Sign in / Create account</button>
   </div>
+  <a class="dr-link rw-dr-wallet" href="/wallet/"><span class="ic" id="rwDrWalletIc">&#128091;</span>Wallet &middot; cash &amp; bonus coins<small id="rwDrWalletAmt"></small></a>
   <div class="dr-xp" id="drXp"></div>
   <div class="dr-search"><input id="drSearch" placeholder="Search the menu…" oninput="drFilter(this.value)" autocomplete="off"><span class="dr-search-ic">🔍</span></div>
   <div class="dr-grp open"><button class="dr-gh" onclick="drToggle(this)">🧭 Travel<span class="dr-count">10</span><span class="chev">›</span></button><div class="dr-gb">
@@ -1533,6 +1537,8 @@ html{-webkit-text-size-adjust:100%}
   <a class="dr-link" onclick="drThemePick()"><span class="ic">🎨</span>Theme &amp; look <span style="margin-left:auto;font-size:9px;background:var(--gold,#E8BA6C);color:#0A0A0C;padding:1px 6px;border-radius:20px;font-weight:800">9 LOOKS</span></a>
   <span id="drThemeVal" style="display:none"></span>
   <div id="drThemeList" style="display:none;padding:2px 0 6px 28px"></div>
+  <a class="dr-link" onclick="var w=el('rwWalletColorDrawer');w.style.display=w.style.display==='none'?'block':'none';rwMountWalletColorSetting()"><span class="ic rw-wallet-ic-slot" data-size="20">&#128091;</span>Wallet colour<span style="margin-left:auto;color:var(--t3);font-size:11px">tap</span></a>
+  <div id="rwWalletColorDrawer" style="display:none;padding:2px 0 8px 28px"></div>
   <a class="dr-link" onclick="closeDrawer();openIconThemePicker()"><span class="ic">✨</span>Icon style<span style="margin-left:auto;color:var(--t3);font-size:11px">tap</span></a>
   <a class="dr-link" onclick="closeDrawer();openSizeSettings()"><span class="ic">🔤</span>Text &amp; icon size</a>
 </div></div>
@@ -2061,6 +2067,7 @@ html{-webkit-text-size-adjust:100%}
 <script src="tusk-data.js" defer></script>
 <script src="js/boot/auth-security.js?v=rw-auth-nonblocking-2" defer></script>
 <script src="js/boot/auth-init.js?v=rw-android-google-3" defer></script>
+<script src="js/payments/wallet-chip.js" defer></script>
 <script src="js/core/push-notifications.js?v=rw-v121-hollywood-smooth-read" defer></script>
 <script src="js/core/alert-follow.js?v=rw-alerts-1" defer></script>
 <script src="app.js?v=rw-v121-hollywood-smooth-read" defer></script>

@@ -62,7 +62,7 @@ start of the modularization effort, down from 3,099 after the prior
 "modularization-final" pass, down from 1,207 after "round 4", and down from
 629 after "round 5" — the further changes since round 5 are incidental to
 unrelated feature PRs #138-143 and this pass's `submitUtr()` one-line
-rewire, not a new extraction round) and there are **219 files** under `js/` (incl. `js/ui/amor-offers.js`, the season-ordered homepage Amor offers, and `js/ui/trailmesh-entry.js`, which opens the native Android Trail Mesh or the web kit, `js/ui/events-home-rail.js`, the homepage events carousel, and `js/booking/tusk-direct-offers.js`, Tusk's live-priced package cards)
+rewire, not a new extraction round) and there are **220 files** under `js/` (incl. `js/payments/wallet-chip.js`, the header wallet chip and drawer link with the cash and bonus-coin icons, `js/ui/amor-offers.js`, the season-ordered homepage Amor offers, and `js/ui/trailmesh-entry.js`, which opens the native Android Trail Mesh or the web kit, `js/ui/events-home-rail.js`, the homepage events carousel, and `js/booking/tusk-direct-offers.js`, Tusk's live-priced package cards)
 (including the later `js/admin/` dashboard modules and
 `js/core/push-notifications.js` — see the `js/core/` and `js/admin/`
 entries below; the count was last re-verified via `npm run mod-status`,
