@@ -23,18 +23,20 @@ function demo(){
   ];
   const list = rows.map(fromCreatorRow).concat([fromPartner({ id: 'p', name: 'Sample Cottage', email: 'stay@example.com', city: 'nainital', status: 'live' }), fromArtist({ id: 'a', name: 'Sample Artist', instagram: 'https://www.instagram.com/sample.art', themes: ['aipan'] })]);
   S.raw = list.length; S.people = mergePeople(list);
+  S.outbox = [{ id: 'o1', status: 'draft', tier: 'review', toName: 'Ravi', subject: 'A stay collaboration for you at Sample Camp', reason: 'money or identity: needs Mohit', createdAt: new Date().toISOString(), channel: 'email' }, { id: 'o2', status: 'sent', tier: 'perfect', toName: 'Asha', subject: 'A stay collaboration for you at Sample Cottage', provider: 'brevo', createdAt: new Date().toISOString() }];
 }
 
 async function load(){
   firebase.apps.length || firebase.initializeApp(CFG);
   const db = S.db = firebase.firestore(); S.errors = [];
   const safe = async (label, fn) => { try { return await fn(); } catch (e) { S.errors.push(label + ': ' + (e.code || e.message)); return null; } };
-  const [apps, leads, parts, pol, artists] = await Promise.all([
+  const [apps, leads, parts, pol, artists, outbox] = await Promise.all([
     safe('Creator applications', () => db.collection('crm').where('seg', '==', 'creator').limit(500).get()),
     safe('Property and other leads', () => db.collection('crm').where('seg', 'in', ['property', 'trek-company', 'yogapreneur']).limit(1000).get()),
     safe('Property partners', () => db.collection('partners').limit(500).get()),
     safe('Property terms', () => db.collection('config').doc('creatorPolicies').get()),
     safe('Artists', async () => { const r = await fetch('../../creators/artists-data.json', { cache: 'no-store' }); if (!r.ok) throw Error('HTTP ' + r.status); return r.json(); }),
+    safe('Outbox', () => db.collection('outbox').orderBy('createdAt', 'desc').limit(100).get()),
   ]);
   const docs = (q) => (q ? q.docs.map((d) => ({ id: d.id, ...d.data() })) : []);
   const partners = docs(parts);
@@ -43,7 +45,7 @@ async function load(){
   const list = buildRoster(docs(apps), policies).map(fromCreatorRow)
     .concat(partners.map(fromPartner), docs(leads).map(fromCrmLead).filter(Boolean), ((artists && artists.artists) || []).map(fromArtist));
   S.raw = list.length; S.people = mergePeople(list);
-  S.outbox = []; /* filled by the auto-inform engine (next PR, with its admin-read Firestore rule) */
+  S.outbox = docs(outbox);
 }
 
 /* ---------- actions ---------- */
@@ -70,6 +72,11 @@ window.ppContact = async (i, how) => {
   stamp(p, { lastContactAt: at, ...(p.stage === 'new' ? { stage: 'contacted' } : {}) });
   p.lastContactAt = at; if (p.stage === 'new') p.stage = 'contacted';
   window.open(url, how === 'call' ? '_self' : '_blank', 'noopener');
+};
+window.ppDecide = async (i, status) => {
+  const m = S.outbox[i]; if (!m || m.status !== 'draft') return;
+  if (!DEMO) { try { await S.db.collection('outbox').doc(m.id).update({ status, decidedAt: new Date().toISOString() }); } catch (e) { S.errors.push('Outbox: ' + (e.code || e.message)); render(); return; } }
+  m.status = status; render();
 };
 window.ppStage = async (i, stage) => { const p = S.view[i]; if (!p || !STAGES.includes(stage)) return; p.stage = stage; await stamp(p, { stage }); render(); };
 
@@ -143,10 +150,10 @@ function kpis(){
 function outbox(){
   const tiers = { perfect: 0, routine: 0, review: 0, skip: 0 };
   S.people.forEach((p) => { if (p.bestMatch) tiers[messageTier(p, { kind: 'match', score: p.bestMatch.score, verdict: p.bestMatch.verdict })]++; });
-  const rows = S.outbox.map((m) => `<div class="pp-card"><div class="pp-top"><div><div class="pp-name">${esc(m.subject || m.kind || 'Message')}</div><div class="pp-sub">${esc(m.toName || '')} · ${esc(m.channel || 'email')} · ${esc(String(m.createdAt || '').slice(0, 16))}</div></div><div class="pp-next">${esc(m.status || '')}</div></div></div>`).join('');
+  const rows = S.outbox.map((m, i) => `<div class="pp-card${m.status === 'draft' ? ' pp-perfect' : ''}"><div class="pp-top"><div><div class="pp-name">${esc(m.subject || m.kind || 'Message')}</div><div class="pp-sub">${esc(m.toName || '')} · ${esc(m.tier || '')} · ${esc(m.provider || m.channel || 'email')} · ${esc(String(m.createdAt || '').slice(0, 16).replace('T', ' '))}${m.reason ? ' · ' + esc(m.reason) : ''}</div></div><div class="pp-next">${esc(m.status || '')}</div></div>${m.status === 'draft' ? `<div class="pp-acts"><button class="wa" onclick="ppDecide(${i},'approved')">Approve and send</button><button onclick="ppDecide(${i},'cancelled')">Cancel</button></div>` : ''}</div>`).join('');
   return `<p class="pp-note">Auto-inform rules: people who opted in get <b>perfect</b> matches straight away (even past the daily cap), <b>routine</b> updates within the daily cap, and anything about money, refunds, payouts, contracts or disputes waits here as a <b>draft for you</b>. Every message is RoamWise-branded HTML.</p>
     <div class="hb-kpis">${kpi(tiers.perfect, 'Perfect: send now')}${kpi(tiers.routine, 'Routine: within cap')}${kpi(tiers.review, 'Drafts for you')}${kpi(tiers.skip, 'Skipped: no consent or contact')}</div>
-    <h2>Recent messages</h2><div class="pp-list">${rows || '<div class="pp-empty">The sending engine comes in the next update; messages will appear here.</div>'}</div>`;
+    <h2>Recent messages</h2><div class="pp-list">${rows || '<div class="pp-empty">No messages yet. The engine runs every hour between 8:30 am and 8:30 pm.</div>'}</div>`;
 }
 
 const VIEWS = { sheet, matches, kpis, outbox };
