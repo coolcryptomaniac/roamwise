@@ -23,7 +23,7 @@ function rwTuskWorkerSearch(q,out){
  // Public-only retrieval. Do not send PII or secrets to the search endpoint.
  // Server applies a second independent guard.
  var question=String(q||'').trim().slice(0,180);
- if(!question||/[\\r\\n<>]/.test(question)||/[\\w.+-]+@[\\w.-]+\\.[a-z]{2,}/i.test(question))return Promise.resolve();
+ if(!question||/[\r\n<>]/.test(question)||/[\w.+-]+@[\w.-]+\.[a-z]{2,}/i.test(question))return Promise.resolve();
  var language='en-IN';
  try{var picker=document.getElementById('rwHomeVoiceLang');if(picker)language=picker.value||language;}catch(e){}
  return fetch(endpoint+'?q='+encodeURIComponent(question)+'&lang='+encodeURIComponent(language),{
