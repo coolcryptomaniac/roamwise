@@ -567,7 +567,7 @@ body[data-view="home"] #rwEveryday,body[data-view="home"] #promofilm {display:no
 <!-- ============ COPILOT HERO — the front door, Claude-style ============ -->
 <section class="v v-home v-copilot" id="copilotHero" style="margin:16px 14px 8px">
   <div class="tusk-title"><span>⚡</span><b>Ailon Tusk</b><em>· your travel copilot</em><i>ALWAYS CURIOUS</i></div>
-  <div class="rw-tusk-hero-tools"><button type="button" class="rw-tusk-voice-entry" onclick="RWTuskVoiceStudio.start()" aria-label="Start Ailon Tusk voice conversation">🎙️ Voice Mode</button><span>Hindi · English · Kumaoni-style</span></div>
+  <div class="rw-tusk-hero-tools"><button type="button" class="rw-tusk-voice-entry" onclick="RWTuskVoiceStudio.start()" aria-label="Start Ailon Tusk voice conversation">🎙️ Voice Mode</button><label for="rwHomeVoiceLang" style="font-size:12px">Language <select id="rwHomeVoiceLang" aria-label="Voice language" style="background:#211832;color:#f7e9ff;border:1px solid #866caa;border-radius:9px;padding:5px;font-size:12px"><option value="en-IN">English</option><option value="hi-IN">हिन्दी</option><option value="kn-IN">ಕನ್ನಡ</option><option value="ta-IN">தமிழ்</option><option value="te-IN">తెలుగు</option><option value="bn-IN">বাংলা</option><option value="mr-IN">मराठी</option><option value="ml-IN">മലയാളം</option></select></label><span style="font-size:10px">Device support varies</span></div>
   <div id="heroLog" style="display:none;margin-bottom:10px;max-height:52vh;overflow-y:auto"></div>
   <div class="copilot-compose" style="position:relative;background:linear-gradient(180deg,var(--bg2,#12121C),rgba(18,18,28,.55));border:1.5px solid rgba(232,186,108,.35);border-radius:22px;padding:14px;box-shadow:0 8px 30px rgba(0,0,0,.35)">
     <textarea id="heroInput" rows="5" placeholder="Ask me anything &mdash; &ldquo;chill 4 days near Rishikesh under 12k&rdquo;"
@@ -1985,6 +1985,7 @@ body[data-view="home"] #rwEveryday,body[data-view="home"] #promofilm {display:no
 <script src="js/copilot/user-memory.js" defer></script>
 <script src="js/copilot/shared-learning.js" defer></script>
 <script src="js/copilot/typing-fx.js" defer></script>
+<script src="js/copilot/summit-atlas.js?v=20261116" defer></script>
 <script src="js/copilot/core.js?v=rw-route-quiet-1" defer></script>
 <script src="js/copilot/connected-discovery.js" defer></script>
 <script src="js/copilot/rich-reply.js" defer></script>
@@ -2099,6 +2100,20 @@ body[data-view="home"] #rwEveryday,body[data-view="home"] #promofilm {display:no
     try{history.replaceState(history.state,'',u.pathname+u.search+u.hash)}catch(e){}
     setTimeout(function(){if(typeof openAuth==='function')openAuth();},300);
   },{once:true});
+})();
+</script>
+<script id="rwBtsPrefill">
+(function(){
+ var p=new URLSearchParams(location.search),q=p.get('rw_summit_q');
+ if(!q)return;
+ addEventListener('load',function(){
+   var inp=document.getElementById('heroInput');if(!inp)return;
+   inp.value=q.slice(0,1500);
+   try{inp.scrollIntoView({block:'center'});}catch(e){}
+   var hint=document.createElement('p');hint.textContent='Summit itinerary loaded. Edit and press Send to ask the full Ailon copilot.';hint.style.cssText='font-size:12px;color:#e8ba6c;margin:4px 8px';inp.parentElement.appendChild(hint);
+   var u=new URL(location.href);u.searchParams.delete('rw_summit_q');
+   try{history.replaceState(history.state,'',u.pathname+u.search+u.hash);}catch(e){}
+ },{once:true});
 })();
 </script>
 </body>
