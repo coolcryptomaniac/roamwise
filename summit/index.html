@@ -75,9 +75,22 @@ var $=function(id){return document.getElementById(id)};
 var params=new URLSearchParams(location.search);
 var rep=(params.get('rep')||'').toUpperCase().replace(/[^A-Z0-9_-]/g,'').slice(0,24);
 $('rep').value=rep;
+// Keep the promoter's voluntary share code attached to account creation, not
+// just the QR landing visit. This is attribution only, not a Pro entitlement.
+function carrySource(){
+  var code=$('rep').value.toUpperCase().replace(/[^A-Z0-9_-]/g,'').slice(0,24);
+  document.querySelectorAll('a[href^="/?"]').forEach(function(a){
+    var u=new URL(a.getAttribute('href'),location.origin);
+    u.searchParams.set('rw_campaign','bts26');
+    if(code)u.searchParams.set('rw_rep',code);
+    else u.searchParams.delete('rw_rep');
+    a.setAttribute('href',u.pathname+u.search+u.hash);
+  });
+}
+carrySource();
 function url(){var u=new URL('/summit/',location.origin);u.searchParams.set('src','bts26');var s=$('rep').value.toUpperCase().replace(/[^A-Z0-9_-]/g,'').slice(0,24);if(s)u.searchParams.set('rep',s);return u.toString();}
 function makeQR(){var el=$('qr');el.replaceChildren();if(typeof QRCode==='function'){new QRCode(el,{text:url(),width:172,height:172,colorDark:'#171124',colorLight:'#ffffff',correctLevel:QRCode.CorrectLevel.H});}else{el.textContent='QR unavailable. Copy the link instead.';el.style.color='#111';}}
-$('rep').addEventListener('input',function(){this.value=this.value.toUpperCase().replace(/[^A-Z0-9_-]/g,'');makeQR()});
+$('rep').addEventListener('input',function(){this.value=this.value.toUpperCase().replace(/[^A-Z0-9_-]/g,'');makeQR();carrySource()});
 $('copy').addEventListener('click',function(){var link=url();if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(link).then(function(){$('qrNote').textContent='Link copied';}).catch(function(){$('qrNote').textContent=link;});else $('qrNote').textContent=link;});
 $('save').addEventListener('click',function(){var cn=$('qr').querySelector('canvas'),im=$('qr').querySelector('img');var href=cn&&cn.toDataURL?cn.toDataURL('image/png'):im&&im.src;if(!href){$('qrNote').textContent='QR not available; copy the link instead.';return;}var a=document.createElement('a');a.href=href;a.download='roamwise-bts26-'+($('rep').value||'team')+'.png';a.click();});
 if(document.readyState==='complete')makeQR();else addEventListener('load',makeQR,{once:true});
@@ -89,15 +102,37 @@ function bubble(who,t){var el=document.createElement('p');el.className='msg '+wh
 function stop(){active=false;busy=false;$('orb').classList.remove('on');if(recognition){try{recognition.abort()}catch(e){}recognition=null;}if('speechSynthesis' in window)try{speechSynthesis.cancel()}catch(e){}status('Voice stopped. You can still type.')}
 function talk(answer){if(!active||!('speechSynthesis' in window))return;busy=true;try{speechSynthesis.cancel();var u=new SpeechSynthesisUtterance(answer);u.lang=/[\u0900-\u097F]/.test(answer)?'hi-IN':'en-IN';u.rate=.98;u.onend=function(){busy=false;if(active&&turns<8){status('Your turn · listening…');listen();}else if(active)status('Eight turns complete. Press Start voice for another round.')};u.onerror=function(){busy=false;status('Audio playback unavailable. Read the answer above.');};speechSynthesis.speak(u);}catch(e){busy=false;status('Speech playback unavailable. Text still works.')}}
 function respond(t){
- var q=t.toLowerCase();
- if(/date|when|time|where|venue|location|place/.test(q))return 'The Bengaluru Tech Summit is 17 to 19 November 2026 at BIEC on Tumkur Road, Bengaluru. The official programme has session times and can change.';
- if(/speak|who|people|guest|attend/.test(q))return 'The published speaker list includes Kris Gopalakrishnan, Kiran Mazumdar-Shaw, Vivek Raghavan from Sarvam AI, and investor Prashanth Prakash. Please check the official list for updates.';
- if(/fact|surprise|quiz|challenge|game/.test(q))return ['Fun fact! This is the 29th edition of the Bengaluru Tech Summit. Your challenge: name one place you would visit after Bengaluru, and tell me why.','Did you know? STPI is sponsoring space for around one hundred startups. Your challenge: plan a three-day team offsite with a tiny budget.','Try this: you have two free days and a train ticket. Would you pick Mysuru, Coorg, or the Western Ghats? Tell me your budget.'][turns%3];
- if(/voice|hindi|ai|model|robot|language/.test(q))return 'I am in a lightweight summit demo with spoken questions and answers, when your device supports Web Speech. The full Ailon travel copilot is on RoamWise. The programme includes a session on Voice and Vernacular AI.';
- if(/pro|free|pass|coupon|reward|sign|register/.test(q))return 'You can try the RoamWise planner for free. Event Pro access is not automatically activated by scanning this card. Register on the main RoamWise website, and check published eligibility.';
- if(/who are you|roamwise|business|offsite|stay|travel/.test(q))return 'RoamWise is a travel-planning platform built in Almora, Uttarakhand. I help with budgets, routes, groups, curated stays and simpler corporate offsites. Want to try planning a trip?';
- if(/hello|hi|namaste|hey|kaise|kya/.test(q))return 'Namaste! Welcome to the RoamWise little corner of the future. Your next adventure can start with one question. What kind of journey makes you happy?';
- return 'I like that question! I have verified details for this summit, but for a custom travel plan or deeper answer, open the full Ailon Tusk planner using the link below. What destination and budget should we explore?';
+ var q=t.toLowerCase().trim();
+ // A tiny opt-in game gives the user an actual second conversational turn.
+ if(/(?:play|start|ask|give me).{0,20}quiz|quiz me|test me/.test(q)){
+   window.rwSummitMiniQuiz=true;
+   return 'Quick summit quiz! What does BIEC stand for? A: Bangalore International Exhibition Centre; B: Bengaluru International Engineering College. Say A or B!';
+ }
+ if(window.rwSummitMiniQuiz && /^(?:a|b|option a|option b|first|second|bangalore international|bengaluru international)/.test(q)){
+   window.rwSummitMiniQuiz=false;
+   return /^(?:a|option a|first|bangalore international)/.test(q)
+    ?'Exactly! You found BIEC. Your bonus challenge: pitch RoamWise in eight words. I will help polish it!'
+    :'Almost! A is correct: Bangalore International Exhibition Centre. Now try the eight-word RoamWise pitch challenge!';
+ }
+ if(/investor|network|lead|prospect|connect|partnership|intro|customer|pitch|meet someone/.test(q))
+   return 'Best lead hunt: find travel operators, corporate HR or operations teams, retreat venues and AI voice builders. Offer a 30-second demo, ask what travel task wastes their time, then request permission to follow up. Summit networking programmes and admission rules are on the organiser site. No introductions are guaranteed.';
+ if(/vernacular|bhasha|session|agenda|schedule|what.*see|talk.*attend|programme/.test(q))
+   return 'For RoamWise, look at Bhasha & Beyond: Voice and Vernacular AI on the Wednesday Startup Stage 2 programme, the startup stages and enterprise AI sessions. Check the official timetable for exact rooms and any changes. Which interests you more: voice AI or travel partnerships?';
+ if(/speaker|speakers|who.*coming|who.*attend|keynote|kris|kiran|sarvam|prashanth/.test(q))
+   return 'The published speaker list includes Kris Gopalakrishnan, Kiran Mazumdar-Shaw, Sarvam AI co-founder Vivek Raghavan and investor Prashanth Prakash. They are announced speakers, not confirmed meetings with RoamWise.';
+ if(/(?:when|date|timing|venue|where is|how to reach|location|place is)/.test(q))
+   return 'Bengaluru Tech Summit 2026 is 17 to 19 November at the Bangalore International Exhibition Centre, BIEC, on Tumkur Road. Session timings can change; the organiser timetable is the source of truth.';
+ if(/(?:fun|fact|surprise|challenge|game|wow|amaze)/.test(q))
+   return ['Fun fact! It is the 29th edition of Bengaluru Tech Summit. Here is your challenge: invent an eight-word travel startup pitch!','STPI says around one hundred startups are being given sponsored exhibit space. Your challenge: make a weekend offsite plan for a five-person team.','The 2026 event theme is AI & Beyond. If your future travel AI had one superpower, would it be understanding your language, dodging crowds, or booking transport?'][turns%3];
+ if(/(?:voice|hindi|ai|model|robot|language|speech|kumaoni)/.test(q))
+   return 'This summit edition uses short spoken turns with your browser speech tools when supported. It is not a live, full-duplex voice model. The main Ailon Tusk planner handles more travel questions. Should we try a voice AI quiz or a real travel itinerary?';
+ if(/(?:pro|free|pass|coupon|reward|sign|register|account|offer)/.test(q))
+   return 'The RoamWise planner is free to try. Create a free account using the button above. A QR scan does not automatically grant Founder Pro; any special seats require a separate verified allocation and published eligibility.';
+ if(/(?:who are you|roamwise|business|offsite|stay|travel|trip)/.test(q))
+   return 'RoamWise is an Almora-built trip planning platform. I help people explore routes, budgets, group journeys, curated stays and offsites. Tell me your starting city, destination and budget and I can guide you to the full planner.';
+ if(/(?:hello|hi|namaste|hey|kaise|kya)/.test(q))
+   return 'Namaste Bengaluru! I am Ailon Tusk. Here is a choice: play the summit quiz, find a networking opportunity, or invent your dream no-crowd journey. What sounds fun?';
+ return 'That is a thoughtful question! I can answer verified summit basics and run a little travel challenge here. For an open-ended custom AI response, tap the link to the main Ailon travel copilot below. What would you like to explore next?';
 }
 function ask(text){text=String(text||'').trim().slice(0,450);if(!text)return;turns++;bubble('you',text);var answer=respond(text);bubble('bot',answer);$('question').value='';talk(answer);if(active&&turns>=8)status('Eight turns done. Restart voice if you wish.');}
 $('askForm').addEventListener('submit',function(ev){ev.preventDefault();ask($('question').value)});
