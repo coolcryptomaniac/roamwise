@@ -17,7 +17,7 @@
    ========================================================================= */
 export const TUSK_FACTS = {
   v: 1,
-  reviewedAt: '2026-11-14',
+  reviewedAt: '2026-11-15',
   items: [
     {
       id: 'emergency-india',
@@ -60,8 +60,8 @@ export const TUSK_FACTS = {
         'Safari and night-stay permits are booked only on the official Corbett Tiger Reserve portal (corbettonline.uk.gov.in; info at corbettgov.org). Dhikala sells out within minutes of release.',
         'Nearest railway station: Ramnagar. Kathgodam is the other common rail-head.'
       ],
-      sources: ['https://corbettgov.org', 'https://corbettonline.uk.gov.in'],
-      checkedAt: '2026-11-14',
+      sources: ['https://corbettgov.org', 'https://corbettonline.uk.gov.in', 'https://corbettonline.uk.gov.in/crbt_junglesafari.aspx'],
+      checkedAt: '2026-11-15',
       validUntil: '2027-06-15'
     },
     {
@@ -116,6 +116,33 @@ export const TUSK_FACTS = {
       sources: ['https://112.gov.in', 'https://ndma.gov.in'],
       checkedAt: '2026-11-14',
       validUntil: '2027-11-14'
+    },
+    {
+      id: 'ghnp-tirthan',
+      title: 'Great Himalayan National Park (Tirthan and Sainj valleys, Kullu)',
+      keys: ['ghnp', 'great himalayan national park', 'tirthan', 'sainj', 'shairopa', 'gushaini'],
+      facts: [
+        'Entry to the Great Himalayan National Park is by permit only; you cannot enter without prior permission.',
+        'Core-zone permits are issued at the park head office in Shamshi (Kullu); range offices are at Shairopa (Tirthan Valley) and Ropa (Sainj Valley).',
+        'Still and video cameras are charged extra. Fees change, so confirm the latest fee with the park authorities (greathimalayannationalpark.org).',
+        'Multi-day trekkers must hire certified guides and porters. Open fires are banned and all non-biodegradable litter must be carried out.'
+      ],
+      sources: ['https://greathimalayannationalpark.org/plan-your-trip/fees-rules-and-guidelines/'],
+      checkedAt: '2026-11-15',
+      validUntil: '2027-11-15'
+    },
+    {
+      id: 'nainital-zoo',
+      title: 'Pt. G.B. Pant High Altitude Zoo, Nainital',
+      keys: ['nainital zoo', 'high altitude zoo', 'pant zoo'],
+      facts: [
+        'The zoo is about 1 km from Nainital bus station, at about 2,100 m; a zoo shuttle runs from the bus station.',
+        'It is closed on Mondays, all national holidays, Holi and Diwali.',
+        'Timings and ticket prices are not listed on the district site (nainital.nic.in); confirm at the gate.'
+      ],
+      sources: ['https://nainital.nic.in/tourist-place/zoo/'],
+      checkedAt: '2026-11-15',
+      validUntil: '2027-11-15'
     },
     {
       id: 'booking-safety',
