@@ -8,7 +8,7 @@
  var css=document.createElement('style');css.id='rwCarouselFeedbackStyles';
  css.textContent=
  '.rw-sales-track,.rwx-track,.rwa-track,.rw-cards-track,[data-rw-carousel]{overscroll-behavior-x:contain;scroll-padding-inline:12px;-webkit-overflow-scrolling:touch}'+
- '.rw-sales-card,.rwx-card,.rw-card,.rw-arrow,[data-rw-prev],[data-rw-next]{-webkit-tap-highlight-color:transparent;touch-action:pan-y}'+
+ '.rw-sales-card,.rwx-card,.rw-card,.rw-arrow,[data-rw-prev],[data-rw-next]{-webkit-tap-highlight-color:transparent;touch-action:manipulation}'+
  '.rw-sales-card:focus-visible,.rwx-card:focus-visible,.rw-card:focus-visible,.rw-arrow:focus-visible{outline:3px solid #f7d68a!important;outline-offset:3px}'+
  '@media(prefers-reduced-motion:no-preference){.rw-sales-card,.rwx-card,.rw-card,.rw-arrow,[data-rw-prev],[data-rw-next]{transition:transform .17s ease,box-shadow .17s ease,filter .17s ease}'+
  '.rw-sales-card.rw-touch-active,.rwx-card.rw-touch-active,.rw-card.rw-touch-active,.rw-arrow.rw-touch-active{transform:scale(.978)!important;filter:brightness(1.07)}'+
