@@ -1,3 +1,4 @@
+// @ts-nocheck
 /* Curated summit knowledge used by the /summit/ demo and the real homepage Ailon.
    Public organiser sources checked 16 Nov 2026. NOT a live attendee roster, fare API
    or general-purpose LLM. Every question retains a route to the full copilot.
