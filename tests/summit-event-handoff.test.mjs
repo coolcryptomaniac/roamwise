@@ -6,6 +6,7 @@ import vm from 'node:vm';
 const src = (path) => fs.readFileSync(new URL('../' + path, import.meta.url), 'utf8');
 const handoffSrc=src('js/copilot/event-handoff.js');
 const core=src('js/copilot/core.js');
+const sourced=src('js/copilot/sourced-search.js');
 const eventHandler=src('js/misc/events.js');
 const index=src('index.html');
 const fallback=src('js/copilot/rich-reply.js');
@@ -63,12 +64,12 @@ test('other event cards use verified events without fabricated pricing',()=>{
 test('event handoff intercepts before generic travel parser',()=>{
   assert.ok(eventHandler.includes('RWEventHandoff.fromCarousel(e)'));
   assert.ok(eventHandler.indexOf('RWEventHandoff.fromCarousel(e)')<eventHandler.indexOf("copilotSend(!!el('heroInput'))"));
-  assert.ok(core.indexOf('RWEventHandoff.find(t)')<core.indexOf('rwTuskNeedsClarity(t)'));
+  assert.ok(core.indexOf('RWEventHandoff.answerInCopilot(t,fromHero)')<core.indexOf('rwTuskNeedsClarity(t)'));
   assert.ok(index.includes('js/copilot/event-handoff.js'));
 });
 test('AI outages provide sourced search instead of unverified day plans and travel cards',()=>{
   assert.match(core,/rwMiniSearch\(t\)/);
-  assert.match(core,/_noGenericActions=true/);
+  assert.match(sourced,/_noGenericActions=true/);
   assert.doesNotMatch(core,/var days=Math\.max\(0,Math\.min\(14,Math\.floor\(Number\(intents&&intents\.days/);
   assert.match(fallback,/intents\._noGenericActions/);
   assert.match(worker,/tusk\/search/);
