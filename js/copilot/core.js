@@ -814,6 +814,18 @@ function copilotSend(fromHero){
     var hl=el('heroLog'); if(hl) hl.style.display='block';
   } else { _cpTargetLog='cpLog'; }
   var aiText=null; cpBubble(t.replace(/[<>]/g,''),'me');
+  // Conference/event itineraries are NOT generic city questions. Render
+  // the verified event plan before the destination parser and trek tools.
+  try{
+    var curatedEvent=window.RWEventHandoff&&RWEventHandoff.find(t);
+    if(curatedEvent){
+      var curatedHtml=RWEventHandoff.plan(curatedEvent,RWEventHandoff.originFrom(t));
+      cpBubble(curatedHtml,'bot');
+      try{if(window.RWTuskVoiceStudio)RWTuskVoiceStudio.answer(curatedHtml,t,{});}catch(e){}
+      if(fromHero)RWEventHandoff.moveToAilon();
+      return;
+    }
+  }catch(e){/* preserve normal copilot if the event helper is unavailable */}
   try{var summit=window.RWSummitAtlas&&window.RWSummitAtlas.answer(t,{force:false,language:document.getElementById('rwHomeVoiceLang')?.value||'en-IN'});if(summit){var safe=String(summit.text).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});var html='<b>✦ Ailon Tusk · BTS 2026</b><p>'+safe+'</p><p><a href="/summit/">Explore summit toolkit ↗</a> · <a href="'+summit.source+'" target="_blank" rel="noopener">Official source ↗</a></p>';cpBubble(html,'bot');try{if(window.RWTuskVoiceStudio)RWTuskVoiceStudio.answer(html,t,{});}catch(e){}return;}}catch(e){/* normal copilot fallback */}
   try{
     var _nm=(typeof rwNmimsAnswer==='function')?rwNmimsAnswer(t):null;
