@@ -64,5 +64,5 @@ if(location.hash==='#rwLead'){
     if(form)form.scrollIntoView({behavior:'smooth',block:'start'});
   });
 }
-if(deeper)deeper.addEventListener('click',function(){var text=q&&q.value.trim();if(text){var u=new URL(deeper.href,location.origin);u.searchParams.set('rw_summit_q',text);deeper.href=u.pathname+u.search+u.hash;}});
+if(deeper)deeper.addEventListener('click',function(){var text=(q&&q.value.trim())||window.rwLastSummitQuestion;if(text){var u=new URL(deeper.href,location.origin);u.searchParams.set('rw_summit_q',text);deeper.href=u.pathname+u.search+u.hash;}});
 })();
