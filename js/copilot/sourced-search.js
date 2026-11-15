@@ -1,8 +1,24 @@
 // @ts-nocheck
 /* Optional public web lookup and honest AI-outage response for Ailon Tusk.
    Loaded as a classic script before core.js. No API secrets or personal data. */
+/* Keep the main app on Firebase. This is only a public, read-only source
+   lookup against the SAME Cloudflare Worker other RoamWise features use.
+   Never send Firebase tokens, cookies or private trip memory to this URL. */
+function rwTuskPublicSearchEndpoint(){
+ var fromRuntime=null;
+ try{if(typeof rwApi==='function')fromRuntime=rwApi('tusk/search');}catch(e){}
+ if(fromRuntime)return fromRuntime;
+ var configured='';
+ try{configured=String(window.RW_CONFIG&&window.RW_CONFIG.workerUrl||'').trim();}catch(e){}
+ // Accept a future app-approved HTTPS Worker URL, but never a private HTTP
+ // origin from visitor input. The production default below is already used
+ // by the homepage trek and stay public catalogues.
+ if(/^https:\/\/[a-z0-9.-]+\.workers\.dev\/?$/i.test(configured))
+   return configured.replace(/\/+$/,'')+'/tusk/search';
+ return 'https://roamwise-api.founder-f53.workers.dev/tusk/search';
+}
 function rwTuskWorkerSearch(q,out){
- var endpoint=(typeof rwApi==='function')?rwApi('tusk/search'):null;
+ var endpoint=rwTuskPublicSearchEndpoint();
  if(!endpoint)return Promise.resolve();
  // Public-only retrieval. Do not send PII or secrets to the search endpoint.
  // Server applies a second independent guard.
@@ -10,7 +26,9 @@ function rwTuskWorkerSearch(q,out){
  if(!question||/[\\r\\n<>]/.test(question)||/[\\w.+-]+@[\\w.-]+\\.[a-z]{2,}/i.test(question))return Promise.resolve();
  var language='en-IN';
  try{var picker=document.getElementById('rwHomeVoiceLang');if(picker)language=picker.value||language;}catch(e){}
- return fetch(endpoint+'?q='+encodeURIComponent(question)+'&lang='+encodeURIComponent(language))
+ return fetch(endpoint+'?q='+encodeURIComponent(question)+'&lang='+encodeURIComponent(language),{
+   credentials:'omit',referrerPolicy:'no-referrer',mode:'cors',cache:'no-store'
+ })
  .then(function(r){if(!r.ok)throw new Error('Search unavailable');return r.json();})
  .then(function(data){
    if(!data||!data.available)return;
