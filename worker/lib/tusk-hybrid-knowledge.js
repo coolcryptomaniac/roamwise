@@ -36,7 +36,7 @@ export function recordValid(doc, date = new Date()){
   if(!doc || doc.approved !== true || !ID_RE.test(String(doc.id||'')))return false;
   if(!Array.isArray(doc.sources) || !doc.sources.length || !doc.sources.every(validSource))return false;
   if(typeof doc.title !== 'string' || !doc.title || typeof doc.summary !== 'string' || doc.summary.length > 12000)return false;
-  if(!/^\d{4}-\d{2}-\d{2}$/.test(String(doc.checkedAt||'')))return false;
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(String(doc.checkedAt||'')) || !/^\d{4}-\d{2}-\d{2}$/.test(String(doc.validUntil||'')))return false;
   const today=date.toISOString().slice(0,10);
   if(doc.checkedAt>today || (doc.validUntil && doc.validUntil<today))return false;
   return true;
