@@ -2089,5 +2089,17 @@ body[data-view="home"] #rwEveryday,body[data-view="home"] #promofilm {display:no
 <script src="itinerary-library/preset-loader.js" defer></script>
 <script src="js/ui/trek-founder-pro-deeplink.js" defer></script>
 <script src="js/boot/boot-ok.js" defer></script>
+<script id="rwBtsSignup">
+/* Only opens account creation after a deliberate summit CTA click. */
+(function(){
+  var params=new URLSearchParams(location.search);
+  if(params.get('rw_signup')!=='bts26')return;
+  addEventListener('load',function(){
+    var u=new URL(location.href);u.searchParams.delete('rw_signup');
+    try{history.replaceState(history.state,'',u.pathname+u.search+u.hash)}catch(e){}
+    setTimeout(function(){if(typeof openAuth==='function')openAuth();},300);
+  },{once:true});
+})();
+</script>
 </body>
 </html>
