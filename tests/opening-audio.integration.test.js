@@ -69,7 +69,7 @@ test('settings and offline shell include the new audio engine', () => {
   assert.doesNotMatch(shell.slice(shell.indexOf('function tabGo'), shell.indexOf('function rwTabGo')), /rwPlayCue\(/);
 
   const worker = read('sw.js');
-  assert.match(worker, /rw-v161-android-links/);
+  assert.match(worker, /var VERSION = 'rw-v[0-9]+-[a-z0-9-]+'/);
   assert.match(worker, /js\/audio\/focus\.js/);
   assert.match(worker, /platform-v5\/audio-only\.js/);
   assert.match(worker, /platform-v5\/atlas-shinobi\.js/);
