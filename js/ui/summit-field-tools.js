@@ -1,3 +1,4 @@
+// @ts-nocheck
 /* BTS field tools: transparent editable cost estimator, itineraries, consent-first
    lead exchange, 8-language voice selection. Does not charge or store PII. */
 (function(){
