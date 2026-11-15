@@ -289,6 +289,21 @@ async function rwMiniSearch(q){
   q=String(q||'').slice(0,140);
   var out={abs:null, absSrc:null, absUrl:null, hits:[]};
   var jobs=[];
+  // If an approved server-side search provider is configured, use its
+  // source-linked snippets. A disabled provider simply falls back to the free
+  // Wikipedia / DDG sources below. Never put API credentials in client JS.
+  var endpoint = (typeof rwApi==='function') ? rwApi('tusk/search') : null;
+  if(endpoint){
+    jobs.push(fetch(endpoint+'?q='+encodeURIComponent(q)).then(function(r){
+      if(!r.ok)throw new Error('Search unavailable');return r.json();
+    }).then(function(data){
+      if(data&&Array.isArray(data.hits))data.hits.slice(0,4).forEach(function(hit){
+        try{var safe=new URL(hit.url);if(safe.protocol!=='https:')return;
+          out.hits.unshift({t:String(hit.title||'').slice(0,120)+(hit.description?' — '+String(hit.description).slice(0,140):''),u:safe.href,s:'Brave Search'});
+        }catch(e){}
+      });
+    }).catch(function(){}));
+  }
   jobs.push(fetch('https://api.duckduckgo.com/?q='+encodeURIComponent(q)+'&format=json&no_html=1&skip_disambig=1')
     .then(function(r){return r.json();}).then(function(d){
       var a=d.AbstractText||d.Answer||d.Definition||'';
@@ -934,20 +949,20 @@ function copilotSend(fromHero){
       aiCallAny(prompt, 260, function(err, txt){
         var answer = (txt||'').trim();
         if(!answer){
-          var kb2 = cpSmartAnswer(t) || '', _old = (kb2||!_ck) ? null : rwAnsStale(_ck); if(_old) kb2 = _old;
-          // Deterministic destination guidance; no live status implied.
-          if(!kb2 && intents && intents.dest){
-            kb2='<b>Explore '+esc2(String(intents.dest).slice(0,90))+'</b><br>Plan routes, itineraries and stay enquiries. Tell me your dates, origin, group size and budget. Verify current prices, availability, weather and roads before booking.';
+          // When all AI engines are unavailable, do not invent day-wise
+          // schedules or append a generic trek/vault product to unrelated
+          // questions. Try optional server search, then safe open sources.
+          var knownAnswer = cpSmartAnswer(t) || '';
+          var note = (typeof rwAiDownNote==='function') ? rwAiDownNote(err,false) : '<span class="rw-note">AI provider unavailable. Linked-source fallback.</span>';
+          intents._noGenericActions=true;
+          if(knownAnswer && !/^<b>Explore /i.test(knownAnswer)){
+            cpFinish(thinking, knownAnswer+'<br>'+note, intents, t);
+            return;
           }
-          // Offline fallback has no confirmed prices, bookings or live conditions.
-          var days=Math.max(0,Math.min(14,Math.floor(Number(intents&&intents.days)||0))),rows=[];
-          if(days&&intents&&intents.dest&&(!kb2||kb2.indexOf('<b>Explore ')===0)){
-            for(var d=1;d<=days;d++)rows.push('<p><strong>Day '+d+':</strong> '+(d===1?'Arrival and local orientation':d===days?'Checkout and return journey':d%2?'Explore a verified local attraction':'Culture, food and flexible activities')+'; verify timings and availability.</p>');
-            kb2='<h3>'+days+'-day outline for '+esc2(String(intents.dest).slice(0,90))+'</h3><p>Offline plan only. No live prices or bookings verified.</p>'+rows.join('')+'<p>Share dates, origin, group size and budget.</p>';
-          }
-          var note = (typeof rwAiDownNote==='function') ? rwAiDownNote(err, !!_old) : '<span class="rw-note">\u26a1 AI engines unreachable right now \u2014 answered by Ailon Tusk\u2019s own engine.</span>';
-          if(intents.dest) rwLearn(intents.dest);
-          cpFinish(thinking, (kb2? kb2+'<br>':'')+note, intents, t);
+          Promise.resolve().then(function(){return rwMiniSearch(t);}).then(function(res){
+            var result=res?rwWebAnswerHTML(t,res):'<div class="tk-card"><div class="tk-head"><div class="tk-place">🔎 Unable to verify this answer</div></div><div class="tk-sec"><p>I cannot confirm this using an available AI model or public sources right now. Please refine your question or consult a primary source.</p><div class="tk-chips"><a class="tk-chip" target="_blank" rel="noopener" href="https://www.google.com/search?q='+encodeURIComponent(t)+'">Search Google ↗</a><a class="tk-chip" target="_blank" rel="noopener" href="https://duckduckgo.com/?q='+encodeURIComponent(t)+'">Search DuckDuckGo ↗</a></div></div></div>';
+            cpFinish(thinking,result+'<br>'+note,intents,t);
+          }).catch(function(){cpFinish(thinking,'<b>Could not verify that answer.</b> Try a more specific question. '+note,intents,t);});
           return;
         }
         /* AI wants a clarifying question with tappable options \u2014 render real
