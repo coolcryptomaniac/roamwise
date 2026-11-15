@@ -85,6 +85,12 @@ function fromCarousel(e){
    else {return false;}
    if(typeof root.rwHaptic==='function')root.rwHaptic('light');
    moveToAilon();
+   // The shell can animate its tab change; repeat positioning after one paint.
+   // Only scroll once more if the hero is still mounted and visible.
+   if(typeof root.requestAnimationFrame==='function')root.requestAnimationFrame(function(){
+     var hero=document.getElementById('copilotHero');
+     if(hero&&hero.getClientRects&&hero.getClientRects().length)moveToAilon();
+   });
    try{if(typeof root.track==='function')root.track('event_plans');}catch(e){}
    return true;
  }catch(err){return false;}
