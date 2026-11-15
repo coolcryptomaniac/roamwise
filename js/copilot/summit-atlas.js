@@ -20,7 +20,7 @@ var entries=[
 ['venue',/\b(where|venue|address|biec|location|hall|gate|entrance)\b|कहाँ|ಎಲ್ಲಿ/,'The venue is Bangalore International Exhibition Centre (BIEC), Tumkur Road, Madavara area, northwest Bengaluru. Exact entry gates and hall allocations are shown in the organiser venue map.'],
 ['theme',/theme|ai & beyond|29th|edition/,'This is the 29th Bengaluru Tech Summit. The announced theme is “AI & Beyond”; AI, deeptech, semiconductors, biotech, startups and global collaboration are major tracks.'],
 ['exhibitors',/\b(exhibitors?|which companies|companies attending|list of companies)\b/,'The organiser advertises 1,800+ exhibitors as a projection. Use the official exhibitor listing to verify individual companies; it is a changing directory, not a confirmed list I can invent.'],
-['startups',/\b(startups? coming|startup list|startup exhibitors?|which startups?|startup companies)\b/,'The organiser promotes a 1,000+ startup showcase. I cannot verify the complete roster offline. Open the official exhibitor directory and ask each participating startup whether it is actually onsite before promising an introduction.'],
+['startups',/\b(startups?|startup list|startup exhibitors?|startup companies)\b/,'The organiser promotes a 1,000+ startup showcase. I cannot verify the complete roster offline. Open the official exhibitor directory and ask each participating startup whether it is actually onsite before promising an introduction.'],
 ['roster',/\b(attendees?|participants?|guest list|everyone coming|who is coming)\b/,'Public programmes and exhibitor directories are available, but a complete verified list of individual attendees is not. Published speakers are not guaranteed onsite at a specific time.'],
 ['speakers',/\b(speakers?|keynotes?|who is speaking)\b/,'The published speaker list includes Kris Gopalakrishnan, Kiran Mazumdar-Shaw, Vivek Raghavan and Prashanth Prakash. The organiser’s speaker directory is authoritative, and changes can occur.'],
 ['kris',/kris gopalakrishnan|infosys cofounder/,'Kris Gopalakrishnan is listed among BTS 2026 speakers. Follow the official agenda for his stage and timing; a conference listing does not imply a private meeting.'],
@@ -91,7 +91,7 @@ var entries=[
 ['cubbon',/cubbon park|vidhana soudha/,'Cubbon Park is a large green central-city retreat. Pair it with architecture around Vidhana Soudha when your summit schedule allows and check public access.'],
 ['lalbagh',/lalbagh|botanical garden/,'Lalbagh Botanical Garden is farther south in Bengaluru and suits a spare half-day, not a quick break between BIEC sessions.'],
 ['creative',/bangalore creative circus|art space|culture nearby/,'Bangalore Creative Circus in Yeshwanthpur is a creative, sustainability-oriented space suitable for a relaxed stop after a long event day. Verify today’s opening and event calendar.'],
-['kannada-culture',/kannada culture|local culture|karna[t]?aka heritage|local arts|local dialect/,'Bengaluru’s Kannada culture includes theatre, classical and contemporary music, filter coffee, traditional darshinis and markets. Avoid equating a whole culture with one language or restaurant.'],
+['kannada-culture',/kannada|local culture|karna[t]?aka heritage|local arts|local dialect/,'Bengaluru’s Kannada culture includes theatre, classical and contemporary music, filter coffee, traditional darshinis and markets. Avoid equating a whole culture with one language or restaurant.'],
 ['food',/what to eat|local food|breakfast|dosa|idli|filter coffee|bisi bele bath/,'Try a local darshini for idli-vada, dosa, filter coffee or bisi bele bath. Ask about ingredients and allergies. Find food near BIEC or your metro interchange rather than taking long detours at rush hour.'],
 ['quiet',/quiet|calm|avoid crowds|anxiety|rest break|low stress/,'Build in breaks: preselect only two sessions per day, find a quiet seat away from main halls, arrive before a rush and use shorter meetings by appointment. You can leave whenever the crowds become too much.'],
 ['access',/wheelchair|accessibility|disability|step free/,'Ask the organiser about accessible gate, lift, seating and restroom routes. Verify Madavara metro accessibility and the actual venue entry point; don’t assume every hall is step-free.'],
@@ -122,7 +122,7 @@ function answer(text,opts){
  var force=!!opts.force, language=String(opts.language||'en-IN');
  if(!force && !summitScope.test(text) && Date.now()>sessionUntil)return null;
  var topic=null, best=-Infinity;for(var i=0;i<entries.length;i++){
-  var found=text.match(entries[i][1]);if(!found)continue;
+  var found=text.toLowerCase().match(entries[i][1]);if(!found)continue;
   var category=entries[i][0];
   var score=found[0].length+(category==='dates'||category==='venue'||category==='reach'? -4:0);
   if(/^(?:harish|manoj|deepanshu|vijay|vishal|ahmed|tourism-investor|investor-deadline|investor-contact|startup-meet|investor-apply)$/.test(category))score+=15;
