@@ -89,6 +89,17 @@ WORKERS_AI_MODEL = "@cf/google/gemma-4-26b-a4b-it"
 SARVAM_MODEL = "sarvam-105b-conversations"
 # Kala (sacred-art guide, /kala/chat) uses only the free providers above: Workers AI, then Groq (shares GROQ_MONTHLY_REQUEST_CAP).
 GROQ_MONTHLY_REQUEST_CAP = "0"
+# Ailon public retrieval v1 (all optional; paid provider remains off).
+# RoamWise's reviewed public facts work without any extra service.
+# Exact KV writes are opt-in: each unique public query can cost a KV write.
+TUSK_EXACT_KV_ENABLED = "false"
+TUSK_KV_TTL_SECONDS = "3600"
+# Vectorize + approved R2 documents only. Nothing is auto-embedded or published.
+TUSK_VECTOR_SEARCH_ENABLED = "false"
+TUSK_VECTOR_MIN_SCORE = "0.87"
+# Licensed live search requires founder-approved Brave account and Worker secret.
+TUSK_WEB_SEARCH_ENABLED = "false"
+
 # --- Revenue-gated AI spend (worker/lib/spend-governor.js) -------------------
 # Paid AI budget this month = max(AI_MIN_PAID_BUDGET_PAISE,
 #   revenue * (1 - AI_TARGET_MARGIN) - FIXED_MONTHLY_COSTS_PAISE).
@@ -142,6 +153,23 @@ id = "be31e0935be843219cea1edf2203877b"
 #
 [ai]
 binding = "AI"
+# OPTIONAL later, after an approved 50-200 document pilot:
+# Use the multilingual BGE-M3 model for Hindi/Kannada/English and create the
+# Vectorize index with the SAME dimensions (BGE-M3 = 1024) and cosine metric:
+# npx wrangler vectorize create roamwise-tusk-approved --dimensions=1024 --metric=cosine
+# [[vectorize]]
+# binding = "TUSK_VECTOR_INDEX"
+# index_name = "roamwise-tusk-approved"
+#
+# OPTIONAL public, reviewed source documents (not bookings, user data or audio):
+# Create an R2 Standard bucket after confirming subscription/usage limits.
+# [[r2_buckets]]
+# binding = "TUSK_KB_BUCKET"
+# bucket_name = "roamwise-tusk-knowledge"
+#
+# Files must be manually approved JSON under tusk-approved/v1/<id>.json.
+# Both bindings and TUSK_VECTOR_SEARCH_ENABLED=true are required before use.
+
 # ---------------------------------------------------------------------------
 
 # Anonymous "this answer was wrong" reports (worker/handlers/tusk-report.js).
