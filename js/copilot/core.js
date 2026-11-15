@@ -293,7 +293,7 @@ async function rwMiniSearch(q){
   jobs.push(fetch('https://api.duckduckgo.com/?q='+encodeURIComponent(q)+'&format=json&no_html=1&skip_disambig=1')
     .then(function(r){return r.json();}).then(function(d){
       var a=d.AbstractText||d.Answer||d.Definition||'';
-      if(a){ out.abs=String(a).slice(0,420); out.absSrc=d.AbstractSource||'DuckDuckGo'; out.absUrl=d.AbstractURL||''; }
+      if(a && !out.trustedSummary){ out.abs=String(a).slice(0,420); out.absSrc=d.AbstractSource||'DuckDuckGo'; out.absUrl=d.AbstractURL||''; }
       (d.RelatedTopics||[]).slice(0,3).forEach(function(x){
         if(x && x.Text && x.FirstURL) out.hits.push({t:String(x.Text).slice(0,110), u:x.FirstURL, s:'DDG'});
       });
@@ -328,6 +328,8 @@ function rwWebAnswerHTML(q,res){
       +'<div style="font-size:11px;color:var(--t3)">Context from '+esc2(res.absSrc||'open sources')
       +(safe(res.absUrl)?' · <a href="'+esc2(safe(res.absUrl))+'" target="_blank" rel="noopener noreferrer">Read original ↗</a>':'')+'</div>';
   }
+  if(res.checkedAt)out+='<p style="font-size:11px;color:var(--t3)">Curated source last reviewed: '+esc2(String(res.checkedAt))+'</p>';
+  if(res.liveVerificationRequired)out+='<p style="font-size:11px;color:var(--gold,#E8BA6C)">Background guidance only — check live prices, dates, availability or service status with the official operator.</p>';
   if(hits.length){
     out+='<div style="font-size:11px;letter-spacing:.05em;font-weight:800;margin-top:12px">Swipe verified links — read the underlying pages before relying on them</div>'
       +'<div data-rw-carousel="sources" role="list" aria-label="Search sources" tabindex="0" style="display:flex;gap:10px;overflow-x:auto;overscroll-behavior-x:contain;scroll-snap-type:x mandatory;scroll-padding-inline:10px;padding:10px 1px 12px;-webkit-overflow-scrolling:touch">'
