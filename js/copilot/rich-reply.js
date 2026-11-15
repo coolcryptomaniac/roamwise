@@ -176,7 +176,7 @@ async function cpFinish(bubble, answerHTML, intents, raw){
   intents._raw = raw;
   try{ rwRemember('user', raw, {dest:intents.dest, topic:intents.topic, days:intents.days}); }catch(e){ /* best-effort, ignore */ }
   var isKasarFestival=/kasar\s*(?:devi\s*)?(?:music\s*fest|festival)|(?:nupur\s*pant|rahgir).{0,50}(?:kasar|fest)|(?:kasar|fest).{0,50}(?:nupur\s*pant|rahgir)/i.test(String(raw||''));
-  var actions = isKasarFestival ? [] : await cpActionsHTML(intents);
+  var actions = (isKasarFestival || intents._noGenericActions) ? [] : await cpActionsHTML(intents);
   var parts=[]; if(answerHTML) parts.push(answerHTML);
   if(actions.length) parts.push(actions.join('<br><br>'));
   if(!parts.length) parts.push('I can handle destinations, dates, budgets, weather, cafes, buses/trains and sharing \u2014 try: \u201cPlan 4 days in Udaipur under \u20b912,000.\u201d');
@@ -186,9 +186,9 @@ async function cpFinish(bubble, answerHTML, intents, raw){
   try{ if(intents.smalltalk==='greet' && typeof rwUmChipsHTML==='function') _html += rwUmChipsHTML(); }catch(e){ /* optional */ }
   try{ if(!intents.smalltalk && typeof rwUmNotice==='function') _html += rwUmNotice(); }catch(e){ /* optional */ }
   /* Every answer ends with tappable actions — an answer is never a dead end. */
-  try{ if(!intents.smalltalk&&!isKasarFestival) _html += rwTuskRail(intents.dest||'', raw||''); }catch(e){ /* best-effort, ignore */ }
+  try{ if(!intents.smalltalk&&!isKasarFestival&&!intents._noGenericActions) _html += rwTuskRail(intents.dest||'', raw||''); }catch(e){ /* best-effort, ignore */ }
   /* Curated, public local partners and artists only; not booking inventory. */
-  try{ if(!intents.smalltalk && window.RWConnectedDiscovery) _html+=RWConnectedDiscovery.html(raw,intents); }catch(e){}
+  try{ if(!intents.smalltalk && !intents._noGenericActions && window.RWConnectedDiscovery) _html+=RWConnectedDiscovery.html(raw,intents); }catch(e){}
   /* Lightweight per-response feedback — bot replies only (cpFinish only ever
      finishes a 'bot' bubble). Anonymous daily counter, same pattern as track()
      elsewhere; no per-message record, no user identity. */

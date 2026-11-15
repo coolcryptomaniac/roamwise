@@ -59,6 +59,7 @@
    ========================================================================= */
 
 import { CORS, json } from './lib/http.js';
+import { handleTuskWebSearch } from './handlers/tusk-web-search.js';
 import { handleTrekMarketplace } from './handlers/treks-marketplace.js';
 import { createStayOrder, stayOrderStatus, handleStayCashfreeWebhook, stayRates, stayQuote, stayRatesKey } from './handlers/stay-cashfree.js';
 import { handleStayDecide, runStayDeadlines } from './handlers/stay-lifecycle.js';
@@ -173,6 +174,12 @@ export default {
         if(m[1] === 'licence') return handleMusicLicence(request, env, m[2]);
       } }
 
+    if(path === 'tusk/search'){
+      // Existing abuseGuard runs above. Bound search cost by per-IP AI guard
+      // plus an explicitly disabled-by-default paid provider switch.
+      if(await aiGuard(request)) return json({error:'Search rate limit reached.'},429);
+      return handleTuskWebSearch(request,env);
+    }
     if(path === 'ai' && request.method === 'POST'){
       if(await aiGuard(request))
         return json({ error: 'Too many requests — try again in a minute.' }, 429);

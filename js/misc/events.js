@@ -258,8 +258,12 @@ function rwEventPlan(id){
   var q='I want to go to '+e.name+' at '+e.place+', '+e.country+' ('+when+'). '
     +'Plan the trip around it. '+theme+' '
     +'Use honest India road times if travel is overland, give a realistic budget, and flag anything I must arrange in advance (permits, tickets, acclimatisation).';
+  // Curated, visible handoff comes first. Never send event cards to a generic
+  // location parser that can append a trek vault to a conference query.
+  if(window.RWEventHandoff && RWEventHandoff.fromCarousel(e))return;
   rwCloseSection('eventsSection');
   var inp=el('heroInput')||el('cpInput');
   if(inp){ inp.value=q; try{ copilotSend(!!el('heroInput')); }catch(err){ /* best-effort, ignore */ } }
+  if(window.RWEventHandoff)RWEventHandoff.moveToAilon();
   showToast('\u2728 Planning your '+e.name+' trip');
 }

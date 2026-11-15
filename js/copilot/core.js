@@ -289,6 +289,7 @@ async function rwMiniSearch(q){
   q=String(q||'').slice(0,140);
   var out={abs:null, absSrc:null, absUrl:null, hits:[]};
   var jobs=[];
+  jobs.push(rwTuskWorkerSearch(q,out));
   jobs.push(fetch('https://api.duckduckgo.com/?q='+encodeURIComponent(q)+'&format=json&no_html=1&skip_disambig=1')
     .then(function(r){return r.json();}).then(function(d){
       var a=d.AbstractText||d.Answer||d.Definition||'';
@@ -814,6 +815,7 @@ function copilotSend(fromHero){
     var hl=el('heroLog'); if(hl) hl.style.display='block';
   } else { _cpTargetLog='cpLog'; }
   var aiText=null; cpBubble(t.replace(/[<>]/g,''),'me');
+  try{if(window.RWEventHandoff&&RWEventHandoff.answerInCopilot(t,fromHero))return;}catch(e){/* normal copilot fallback */}
   try{var summit=window.RWSummitAtlas&&window.RWSummitAtlas.answer(t,{force:false,language:document.getElementById('rwHomeVoiceLang')?.value||'en-IN'});if(summit){var safe=String(summit.text).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});var html='<b>✦ Ailon Tusk · BTS 2026</b><p>'+safe+'</p><p><a href="/summit/">Explore summit toolkit ↗</a> · <a href="'+summit.source+'" target="_blank" rel="noopener">Official source ↗</a></p>';cpBubble(html,'bot');try{if(window.RWTuskVoiceStudio)RWTuskVoiceStudio.answer(html,t,{});}catch(e){}return;}}catch(e){/* normal copilot fallback */}
   try{
     var _nm=(typeof rwNmimsAnswer==='function')?rwNmimsAnswer(t):null;
@@ -921,23 +923,7 @@ function copilotSend(fromHero){
         +facts+(hist? 'Conversation so far:\n'+hist+'\n':'')+'User: '+(aiText||t)+'\nCopilot:';
       aiCallAny(prompt, 260, function(err, txt){
         var answer = (txt||'').trim();
-        if(!answer){
-          var kb2 = cpSmartAnswer(t) || '', _old = (kb2||!_ck) ? null : rwAnsStale(_ck); if(_old) kb2 = _old;
-          // Deterministic destination guidance; no live status implied.
-          if(!kb2 && intents && intents.dest){
-            kb2='<b>Explore '+esc2(String(intents.dest).slice(0,90))+'</b><br>Plan routes, itineraries and stay enquiries. Tell me your dates, origin, group size and budget. Verify current prices, availability, weather and roads before booking.';
-          }
-          // Offline fallback has no confirmed prices, bookings or live conditions.
-          var days=Math.max(0,Math.min(14,Math.floor(Number(intents&&intents.days)||0))),rows=[];
-          if(days&&intents&&intents.dest&&(!kb2||kb2.indexOf('<b>Explore ')===0)){
-            for(var d=1;d<=days;d++)rows.push('<p><strong>Day '+d+':</strong> '+(d===1?'Arrival and local orientation':d===days?'Checkout and return journey':d%2?'Explore a verified local attraction':'Culture, food and flexible activities')+'; verify timings and availability.</p>');
-            kb2='<h3>'+days+'-day outline for '+esc2(String(intents.dest).slice(0,90))+'</h3><p>Offline plan only. No live prices or bookings verified.</p>'+rows.join('')+'<p>Share dates, origin, group size and budget.</p>';
-          }
-          var note = (typeof rwAiDownNote==='function') ? rwAiDownNote(err, !!_old) : '<span class="rw-note">\u26a1 AI engines unreachable right now \u2014 answered by Ailon Tusk\u2019s own engine.</span>';
-          if(intents.dest) rwLearn(intents.dest);
-          cpFinish(thinking, (kb2? kb2+'<br>':'')+note, intents, t);
-          return;
-        }
+        if(!answer){ rwTuskSearchFailure(thinking,t,intents,err); return; }
         /* AI wants a clarifying question with tappable options \u2014 render real
            chips via rwTuskAsk instead of dumping "ASK: ... || a | b" as text. */
         var askM = answer.match(/^ASK:\s*(.+?)\s*\|\|\s*(.+)$/i);
