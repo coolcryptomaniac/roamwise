@@ -109,7 +109,7 @@ function respond(t){
  // Keep the playful quiz in the original demo, and send complex open-ended
  // questions to the main copilot without pretending this mini-demo is an LLM.
  if(!/quiz me|play a quiz|start a quiz|^a$|^b$|^option [ab]$|^surprise me$/.test(q)){
-   var selected=document.getElementById('rwBtsLang');
+   var selected=typeof document!=='undefined'?document.getElementById('rwBtsLang'):null;
    var shared=window.RWSummitAtlas&&RWSummitAtlas.answer(t,{force:true,language:selected?selected.value:'en-IN'});
    if(shared&&shared.id!=='fallback')return shared.text;
  }
