@@ -311,30 +311,39 @@ async function rwMiniSearch(q){
   try{ await Promise.all(jobs); }catch(e){ /* best-effort, ignore */ }
   return (out.abs || out.hits.length) ? out : null;
 }
-function rwWebAnswerHTML(q, res){
+function rwWebAnswerHTML(q,res){
+  // Public web matches are leads for verification, not a model-certified answer.
+  // Keep links explicitly HTTPS and render useful swipeable source cards.
   var g='https://www.google.com/search?q='+encodeURIComponent(q);
   var dd='https://duckduckgo.com/?q='+encodeURIComponent(q);
-  var out='<div class="tk-card"><div class="tk-head" style="background:linear-gradient(150deg,#1E3A5F,#0A1628)">'
-    +'<div class="tk-place">🔎 Web lookup</div>'
-    +'<div class="tk-meta">Free open sources · “'+esc2(String(q).slice(0,70))+'”</div></div>'
-    +'<div class="tk-sec">';
-  if(res.abs){
-    out+='<div style="font-size:12.5px;line-height:1.65;color:var(--t2)">'+esc2(res.abs)+'</div>'
-      +'<div style="font-size:10.5px;color:var(--t3);margin-top:4px">Source: '+esc2(res.absSrc||'web')
-      +(res.absUrl? ' · <a href="'+res.absUrl+'" target="_blank" rel="noopener" style="color:var(--gold,#E8BA6C)">open</a>':'')+'</div>';
+  function safe(url){
+    try{var u=new URL(String(url||''));return u.protocol==='https:'?u.href:'';}catch(e){return '';}
   }
-  if(res.hits.length){
-    out+='<div class="tk-lab" style="margin-top:9px">Top matches</div>'
-      + res.hits.slice(0,4).map(function(h){
-          return '<div class="tk-bul"><a href="'+h.u+'" target="_blank" rel="noopener" style="color:inherit;text-decoration:underline dotted">'+esc2(h.t)+'</a> <span style="color:var(--t3);font-size:10px">'+esc2(h.s)+'</span></div>';
-        }).join('');
+  var summary=String(res&&res.abs||'').slice(0,650);
+  var hits=Array.isArray(res&&res.hits)?res.hits.filter(function(hit){return safe(hit.u);}).slice(0,6):[];
+  var out='<div class="tk-card rw-search-results"><div class="tk-head" style="background:linear-gradient(140deg,#273052,#151f36)"><div class="tk-place">🔎 Sources to explore</div>'
+    +'<div class="tk-meta">Public web results · '+esc2(String(q).slice(0,85))+'</div></div><div class="tk-sec">';
+  if(summary){
+    out+='<div style="font-size:12.5px;line-height:1.65;margin-bottom:8px">'+esc2(summary)+'</div>'
+      +'<div style="font-size:11px;color:var(--t3)">Context from '+esc2(res.absSrc||'open sources')
+      +(safe(res.absUrl)?' · <a href="'+esc2(safe(res.absUrl))+'" target="_blank" rel="noopener noreferrer">Read original ↗</a>':'')+'</div>';
   }
-  out+='<div class="tk-chips" style="margin-top:10px">'
-    +'<a class="tk-chip" style="text-decoration:none" target="_blank" rel="noopener" href="'+g+'">🌐 Full Google results</a>'
-    +'<a class="tk-chip" style="text-decoration:none" target="_blank" rel="noopener" href="'+dd+'">🦆 DuckDuckGo</a>'
-    +'</div>'
-    +'<div style="font-size:10px;color:var(--t3);margin-top:7px">Wikipedia + DuckDuckGo open APIs — no key, nothing tracked.</div>'
-    +'</div></div>';
+  if(hits.length){
+    out+='<div style="font-size:11px;letter-spacing:.05em;font-weight:800;margin-top:12px">Swipe verified links — read the underlying pages before relying on them</div>'
+      +'<div data-rw-carousel="sources" role="list" aria-label="Search sources" tabindex="0" style="display:flex;gap:10px;overflow-x:auto;overscroll-behavior-x:contain;scroll-snap-type:x mandatory;scroll-padding-inline:10px;padding:10px 1px 12px;-webkit-overflow-scrolling:touch">'
+      +hits.map(function(h){
+        var u=safe(h.u),name='';
+        try{name=new URL(u).hostname.replace(/^www\./,'');}catch(e){name='source';}
+        return '<a role="listitem" href="'+esc2(u)+'" target="_blank" rel="noopener noreferrer" style="flex:0 0 clamp(184px,68vw,248px);min-height:118px;border:1px solid #e2b4ff55;border-radius:14px;background:linear-gradient(145deg,#211b3f,#102d35);padding:13px;scroll-snap-align:start;color:#f5efff;text-decoration:none">'
+          +'<span style="font-size:10px;color:#eecb8f;display:block;margin-bottom:6px">'+esc2(name)+' · '+esc2(String(h.s||'web'))+'</span>'
+          +'<b style="font-size:12.5px;line-height:1.45;display:block">'+esc2(String(h.t||'Open source').slice(0,195))+'</b>'
+          +'<span style="font-size:11px;color:#b9dce4;display:block;margin-top:9px">Open source ↗</span></a>';
+      }).join('')+'</div>';
+  }
+  if(!hits.length&&!summary)out+='<p>Search providers returned no confirmed matches. Try a more precise public question or use an official organiser website.</p>';
+  out+='<div class="tk-chips" style="margin-top:9px"><a class="tk-chip" style="text-decoration:none" target="_blank" rel="noopener" href="'+g+'">🌐 Google Search ↗</a>'
+    +'<a class="tk-chip" style="text-decoration:none" target="_blank" rel="noopener" href="'+dd+'">DuckDuckGo ↗</a></div>'
+    +'<p style="font-size:10px;color:var(--t3);margin-top:10px">These are linked source excerpts, not independent fact-checking. Live lookup may be unavailable when the search service is not configured.</p></div></div>';
   return out;
 }
 /* One canonical known-place map: curated overrides + DB + major cities. Used by
