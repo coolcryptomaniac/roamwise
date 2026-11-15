@@ -15,8 +15,12 @@ const DYNAMIC_RE = /\b(?:live|latest|today|now|right now|tomorrow|current|this w
 const STOP = new Set('the and of on in is a an for to from do can you me my at with what how this that please want about when which trip travel tourism india tell give around'.split(' '));
 
 export const parsePublicQuery = (text) => {
-  const query = String(text || '').normalize('NFKC').replace(/\s+/g,' ').trim();
-  if(query.length < 5 || query.length > MAX_QUESTION || /[\r\n<>\u0000-\u001f]/.test(query) || SECRET_RE.test(query)) return null;
+  const raw=String(text||'');
+  // Reject controls BEFORE whitespace folding, otherwise an attacker can
+  // hide a newline inside an otherwise innocent public search.
+  if(/[\r\n<>\u0000-\u001f]/.test(raw))return null;
+  const query = raw.normalize('NFKC').replace(/\s+/g,' ').trim();
+  if(query.length < 5 || query.length > MAX_QUESTION || SECRET_RE.test(query)) return null;
   return query;
 };
 export const isDynamicQuery = q => DYNAMIC_RE.test(String(q||''));
