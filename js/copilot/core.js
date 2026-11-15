@@ -815,6 +815,18 @@ function copilotSend(fromHero){
     var hl=el('heroLog'); if(hl) hl.style.display='block';
   } else { _cpTargetLog='cpLog'; }
   var aiText=null; cpBubble(t.replace(/[<>]/g,''),'me');
+  /* Shared summit fact layer: same curated answers in voice and chat.
+     No guessed startup roster or pass access; off-topic trips use the full AI. */
+  try{
+    var known=window.RWSummitAtlas&&window.RWSummitAtlas.answer(t,{force:false,language:document.getElementById('rwHomeVoiceLang')?.value||'en-IN'});
+    if(known){
+      var safe=String(known.text).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});
+      var html='<b>✦ Ailon Tusk · BTS 2026</b><p>'+safe+'</p><p><a href="/summit/">Explore summit toolkit ↗</a> · <a href="'+known.source+'" target="_blank" rel="noopener">Official source ↗</a></p>';
+      cpBubble(html,'bot');
+      try{if(window.RWTuskVoiceStudio)RWTuskVoiceStudio.answer(html,t,{});}catch(e){}
+      return;
+    }
+  }catch(e){/* keep existing copilot flow available */}
   /* Startup Garage / NMIMS pass questions and "I am a creator / I own a stay": fixed answers, no AI call. */
   try{
     var _nm=(typeof rwNmimsAnswer==='function')?rwNmimsAnswer(t):null;
