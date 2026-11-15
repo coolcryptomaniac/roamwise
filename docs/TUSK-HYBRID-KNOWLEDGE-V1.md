@@ -17,6 +17,7 @@ Ailon's existing authenticated `POST /ai` model routing remains unchanged: `MANA
 - `worker/lib/tusk-hybrid-knowledge.js`: pure sanitisation, expiry, exact-cache and optional approved-vector logic.
 - `worker/data/tusk-facts.js`: reviewed seed inventory with primary sources.
 - `js/copilot/sourced-search.js`: browser adapter; public source cards and freshness metadata.
+  - Even while `RW_CONFIG.backend='firebase'` and `workerUrl=''`, this **public-only** adapter discovers the established RoamWise Worker origin `https://roamwise-api.founder-f53.workers.dev`, already used by public stay/trek features. This does not switch authenticated accounts, payments or checkout to Worker. The URL must be updated if deployment migrates; the fetch sends no credentials or referrer.
 - `js/copilot/core.js`: existing results UI with swipeable HTTPS source cards.
 - `worker/lib/ai-cache.js`: separate authenticated model answer cache; does **not** replace source freshness checks.
 
