@@ -5,6 +5,17 @@
  */
 (function(root){
 'use strict';
+function installStyles(){
+ if(typeof document==='undefined'||document.getElementById('rwEventHandoffCSS'))return;
+ var sheet=document.createElement('style');sheet.id='rwEventHandoffCSS';
+ sheet.textContent='.rw-event-answer .rw-event-plan-grid{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;overscroll-behavior-x:contain;padding:8px 2px 13px;scrollbar-width:thin}'+
+ '.rw-event-answer .rw-event-mini{flex:0 0 clamp(170px,60vw,235px);scroll-snap-align:start;border:1px solid rgba(221,185,251,.35);border-radius:13px;background:linear-gradient(145deg,#211b3f,#142b3b);padding:13px;color:#f9f5ff}'+
+ '.rw-event-answer .rw-event-mini b{display:block;margin:0 0 7px;font-size:13px}'+
+ '.rw-event-answer .rw-event-mini p{font-size:12px;line-height:1.5;color:#d8def0;margin:0}'+
+ '.rw-event-answer .rw-event-links{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}'+
+ '.rw-event-answer .tk-chip{display:inline-flex;text-decoration:none;font-weight:750}';
+ document.head.appendChild(sheet);
+}
 function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','"':'&quot;'}[c];});}
 function summit(q){return /\b(bengaluru tech summit|bangalore tech summit|bts[ -]?2026|biec)\b/i.test(String(q||''));}
 function intent(q){return /\b(plan|trip|attend|visit|travel|going|go to|itinerary|reach|budget|conference)\b/i.test(String(q||''));}
@@ -24,6 +35,7 @@ function links(){
   +'</div>';
 }
 function plan(event, origin){
+ installStyles();
  var e=event||{};
  if(e.id==='bts-2026'){
  var originLabel=origin?'<p style="font-size:12px"><b>Starting from:</b> '+esc(origin)+' · Compare live train/air prices and total transfers before choosing a route.</p>'
@@ -61,6 +73,7 @@ function moveToAilon(){
 }
 function fromCarousel(e){
  if(!e)return false;
+ installStyles();
  var message='Plan my trip to '+String(e.name||'this event')+' ('+String(e.start||'')+').';
  var html=plan(e,'');
  try{
