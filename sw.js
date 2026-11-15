@@ -23,7 +23,7 @@
  *    and promo.mp4. Live data must stay live, and the video is tens of MB.
  * ------------------------------------------------------------------------- */
 
-var VERSION = 'rw-v161-android-links';
+var VERSION = 'rw-v162-summit-event-handoff';
 var HTML_CACHE = VERSION + '-html';
 var ASSET_CACHE = VERSION + '-assets';
 
