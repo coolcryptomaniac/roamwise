@@ -23,6 +23,7 @@ const P = POLICY;
  * Treated like peak nights for margin only (cost is unchanged). The daily offers task may add dates by pull request. */
 const range = (a, b) => { const o = []; for (let t = Date.parse(a + 'T00:00:00Z'); t <= Date.parse(b + 'T00:00:00Z'); t += 864e5) o.push(new Date(t).toISOString().slice(0, 10)); return o; };
 export const DEMAND_DATES = new Set([
+  ...range('2026-11-21', '2026-11-24'), // Guru Nanak Jayanti (Tue 24 Nov, gazetted) bridge long weekend
   ...range('2026-12-24', '2027-01-02'), // Christmas and New Year week
   ...range('2027-01-23', '2027-01-26'), // Republic Day long weekend
   ...range('2027-03-20', '2027-03-22'), // Holi long weekend
