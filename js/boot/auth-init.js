@@ -363,7 +363,7 @@ function loginGoogle(){
       .then(function(){if(b){b.disabled=false;b.removeAttribute('aria-busy');}});
     return;
   }
-  if(rwIsNativePlatform())return authError('Google sign-in needs the latest RoamWise app build. Email sign-in works now.');
+  if(rwIsNativePlatform())return authError('Google sign-in is not available in this version of the app yet. Please update RoamWise from Google Play, or sign in with email and password below.');
   firebase.auth().signInWithPopup(new firebase.auth.GoogleAuthProvider())
     .then(function(){if(window.RWAuthSecurity)RWAuthSecurity.rememberProvider('google.com');closeAuth();showToast('Signed in with Google ✓');})
     .catch(function(e){authError(rwGoogleError(e));});

@@ -13,6 +13,12 @@
     { id: 'wallet', icon: '', label: 'Wallet', href: '/wallet/' },
     { id: 'invite', icon: '🎁', label: 'Invite & earn', href: '/wallet/#invite' }
   ];
+  /* Inside the Android app a folder URL such as /wallet/ is answered with the home page (unstyled, stuck),
+     so name the file there. The website keeps the clean URL. */
+  function native() {
+    try { return !!(W.Capacitor && W.Capacitor.isNativePlatform && W.Capacitor.isNativePlatform()); } catch (e) { return false; }
+  }
+  function target(href) { return native() ? href.replace(/^(\/[^?#]*\/)(?=$|[?#])/, '$1index.html') : href; }
   function tap(item, ev) {
     if (item.href) return;
     ev.preventDefault();
@@ -24,7 +30,7 @@
     var row = document.createElement('div'); row.className = 'rwq-row'; row.setAttribute('role', 'list');
     ITEMS.forEach(function (item) {
       var a = document.createElement('a');
-      a.className = 'rwq-item'; a.href = item.href || '#'; a.setAttribute('role', 'listitem');
+      a.className = 'rwq-item'; a.href = item.href ? target(item.href) : '#'; a.setAttribute('role', 'listitem');
       var c = document.createElement('span'); c.className = 'rwq-ic';
       if (item.id === 'wallet' && W.rwWalletIcon) { c.className += ' rw-wallet-ic-slot'; c.setAttribute('data-size', '28'); c.innerHTML = W.rwWalletIcon(28); } else c.textContent = item.icon || '👛';
       if (item.note) { var n = document.createElement('i'); n.textContent = item.note; c.appendChild(n); }

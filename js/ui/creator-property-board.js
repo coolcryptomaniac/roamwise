@@ -98,8 +98,8 @@
   function render(host,creators){
     var left=creators.map(creatorRow).join('');
     if(!left) left=example();
-    left+='<a class="bd-cta" href="creators/match.html?role=creator&invite=founding">Register as creator</a>';
-    var right=(stays()||'<div class="bd-e">Stays that welcome creators will appear here.</div>')+'<a class="bd-cta" href="creators/match.html?role=property">Hosts: find creators</a>';
+    left+='<a class="bd-cta" href="/creators/match.html?role=creator&invite=founding">Register as creator</a>';
+    var right=(stays()||'<div class="bd-e">Stays that welcome creators will appear here.</div>')+'<a class="bd-cta" href="/creators/match.html?role=property">Hosts: find creators</a>';
     host.innerHTML='<div class="bd-h"><b>Creators &times; Stays</b><span>Matched by RoamWise</span></div><div class="bd-g">'
       +'<div class="bd-c"><div class="bd-k">Top creators<i></i></div>'+left+'</div><div class="bd-c"><div class="bd-k">Top stays<i></i></div>'+right+'</div></div>'
       +'<div class="bd-note">Property owners have the final say on every stay. Creator stays are mostly on weekdays and in the off-season, unless the creator brings paying guests.</div>';
