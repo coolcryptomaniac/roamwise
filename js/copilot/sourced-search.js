@@ -31,7 +31,8 @@ function rwTuskWorkerSearch(q,out){
        if(url.protocol!=='https:'||url.username||url.password)return;
        var item={t:String(hit.title||'').slice(0,110)+(hit.description?' — '+String(hit.description).slice(0,140):''),u:url.href,s:String(hit.source||data.source||'Public source').slice(0,50)};
        out.hits.unshift(item);
-       if(!out.absUrl)out.absUrl=url.href;
+       if(trustworthy && !out._rwPrimarySource){out.absUrl=url.href;out._rwPrimarySource=true;}
+       else if(!out.absUrl)out.absUrl=url.href;
      }catch(e){/* reject non-HTTPS or malformed source */ }
    });
  }).catch(function(){/* other sources remain available */});
