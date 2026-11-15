@@ -5,6 +5,13 @@ function copilotVoiceHero(){ rwVoiceStart('heroInput'); }
 /* Honor explicit Tusk speech language for recognition too. 'auto' retains
    the existing site-language default; code-switching remains best-effort. */
 function rwVoiceInputLanguage(){
+  // Shared BTS / homepage voice language picker. Speech services and Android
+  // locale packs may be unavailable; fall back to text without fake fluency.
+  try{
+    var picker=typeof document!=='undefined'&&document.getElementById('rwHomeVoiceLang');
+    if(picker&&/^(en|hi|kn|ta|te|bn|mr|ml)-IN$/.test(picker.value))return picker.value;
+  }catch(e){}
+
   try{
     var selected=typeof rwTuskVoicePreference==='function'?rwTuskVoicePreference():'auto';
     if(selected==='hi-IN'||selected==='en-IN')return selected;

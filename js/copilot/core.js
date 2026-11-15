@@ -805,8 +805,7 @@ async function rwResolvePlace(name){
 function copilotSend(fromHero){
   var inp = el(fromHero? 'heroInput' : 'cpInput');
   var t=(inp && inp.value||'').trim(); if(!t) return;
-  /* Search must stay quiet. The previous 10-second CTA music cue restarted on
-     every prompt and broke concentration; retain tactile feedback only. */
+  /* Keep search quiet; haptics only, no restarting music. */
   try{ if(typeof rwStopCue==='function')rwStopCue(false);if(typeof rwHaptic==='function')rwHaptic('light'); }catch(e){ /* best-effort, ignore */ }
   inp.value='';
   if(fromHero){
@@ -815,7 +814,7 @@ function copilotSend(fromHero){
     var hl=el('heroLog'); if(hl) hl.style.display='block';
   } else { _cpTargetLog='cpLog'; }
   var aiText=null; cpBubble(t.replace(/[<>]/g,''),'me');
-  /* Startup Garage / NMIMS pass questions and "I am a creator / I own a stay": fixed answers, no AI call. */
+  try{var summit=window.RWSummitAtlas&&window.RWSummitAtlas.answer(t,{force:false,language:document.getElementById('rwHomeVoiceLang')?.value||'en-IN'});if(summit){var safe=String(summit.text).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});var html='<b>✦ Ailon Tusk · BTS 2026</b><p>'+safe+'</p><p><a href="/summit/">Explore summit toolkit ↗</a> · <a href="'+summit.source+'" target="_blank" rel="noopener">Official source ↗</a></p>';cpBubble(html,'bot');try{if(window.RWTuskVoiceStudio)RWTuskVoiceStudio.answer(html,t,{});}catch(e){}return;}}catch(e){/* normal copilot fallback */}
   try{
     var _nm=(typeof rwNmimsAnswer==='function')?rwNmimsAnswer(t):null;
     if(_nm){ var _nmb=cpBubble('\u2026','bot'); try{track('nmims_ailon');}catch(e){/* anonymous counter, best-effort */} rwNmimsShow(_nmb,_nm); return; }
