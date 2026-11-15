@@ -12,9 +12,9 @@ const NOW = Date.parse('2026-11-08T00:00:00Z');
 const q = (stay, checkin, checkout, paymentType = 'full') => price({ stay, checkin, checkout, paymentType }, NOW);
 
 test('Amor stays: 20% base margin (commission + 18% GST on it), peak nights priced, not refused', () => {
-  const n = q('nanau', '2026-11-20', '2026-11-22'); // Fri + Sat nights: weekend uplift
+  const n = q('nanau', '2026-11-27', '2026-11-29'); // Fri + Sat nights: weekend uplift
   assert.equal(n.total, Math.ceil(2 * sellFor(STUDIO, 0.23) / 10) * 10);
-  assert.equal(q('nanau', '2026-11-20', '2026-11-22', 'advance').portion, 50); // 12 days out: Corbett needs 50%
+  assert.equal(q('nanau', '2026-11-27', '2026-11-29', 'advance').portion, 50); // 19 days out: Corbett needs 50%
   const far = q('nanau', '2027-02-08', '2027-02-10', 'advance'); // Mon + Tue nights
   assert.equal(far.total, Math.ceil(2 * sellFor(STUDIO, 0.20) / 10) * 10);
   assert.equal(far.portion, 30); assert.equal(far.balance, far.total - far.amount); assert.equal(far.balanceDueBy, '2027-01-31');
