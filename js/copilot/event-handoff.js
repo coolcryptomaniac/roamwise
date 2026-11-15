@@ -89,5 +89,14 @@ function fromCarousel(e){
    return true;
  }catch(err){return false;}
 }
-root.RWEventHandoff={summit:summit,intent:intent,find:find,plan:plan,originFrom:originFrom,fromCarousel:fromCarousel,moveToAilon:moveToAilon};
+function answerInCopilot(t,fromHero){
+ var event=find(t);
+ if(!event||typeof root.cpBubble!=='function')return false;
+ var html=plan(event,originFrom(t));
+ root.cpBubble(html,'bot');
+ try{if(root.RWTuskVoiceStudio)root.RWTuskVoiceStudio.answer(html,t,{});}catch(e){}
+ if(fromHero)moveToAilon();
+ return true;
+}
+root.RWEventHandoff={summit:summit,intent:intent,find:find,plan:plan,originFrom:originFrom,fromCarousel:fromCarousel,moveToAilon:moveToAilon,answerInCopilot:answerInCopilot};
 })(typeof window!=='undefined'?window:globalThis);
