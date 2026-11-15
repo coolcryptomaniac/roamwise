@@ -79,7 +79,7 @@ var entries=[
 ['privacy',/privacy|track me|record my voice|data protection|consent/,'The standalone summit demo does not upload audio itself or save contact form entries to a server. Speech recognition may rely on your browser service; only share contact details through an explicit mailto or vCard action.'],
 ['book',/book now|hotel book|reserve flight|pay now|checkout/,'This summit demo does not process payment or confirm bookings. Use verified partner or airline/train operators and check full final prices before authorising a charge.'],
 ['reach',/reach the venue|how to reach|directions|airport transfer|from airport/,'From BLR airport, compare licensed airport taxis with public transport to a Green Line metro connection. BIEC is close to Madavara metro at the northwest end of the Green Line. Allow buffer for city traffic and entry queues.'],
-['metro',/madavara|metro station|green line|nagasandra|metro route/,'Madavara is the Green Line terminus nearest BIEC. For train-to-metro connections, check Bengaluru Metro/BMRCL’s current service and first/last-train timings. Follow official wayfinding to the venue gate.'],
+['metro',/madavara|metro station|green line|nagasandra|metro route|metro\b/,'Madavara is the Green Line terminus nearest BIEC. For train-to-metro connections, check Bengaluru Metro/BMRCL’s current service and first/last-train timings. Follow official wayfinding to the venue gate.'],
 ['rail',/train|railway|yesvantpur|yeshwanthpur|ksr|sbc/,'Travel into Bengaluru via a suitable railway station, then connect by metro or cab to BIEC. Check exact long-distance trains, quotas and final fares at IRCTC, not in a static summit guide.'],
 ['flights',/flights?|airfare|airport|from delhi|from dehradun|from mumbai|overseas/,'Compare live flights to BLR (Kempegowda International Airport) from your origin, luggage and airport-transfer costs. Airline schedules and fares change continuously and are not held by this page.'],
 ['international',/international visitor|from abroad|visa|passport|foreign guest/,'International visitors should confirm current Indian entry/visa rules with the Government of India, choose flights to BLR, and account for local transport, accommodation, food, entry category and currency costs.'],
@@ -126,6 +126,8 @@ function answer(text,opts){
   var category=entries[i][0];
   var score=found[0].length+(category==='dates'||category==='venue'||category==='reach'? -4:0);
   if(/^(?:harish|manoj|deepanshu|vijay|vishal|ahmed|tourism-investor|investor-deadline|investor-contact|startup-meet|investor-apply)$/.test(category))score+=15;
+  if(category==='metro'&&/metro|madavara|nagasandra/.test(text.toLowerCase()))score+=10;
+  if(category==='kannada-culture'&&/kannada.{0,20}culture|culture.{0,20}kannada/.test(text.toLowerCase()))score+=18;
   if(score>best){best=score;topic=entries[i];}
  }
  if(!topic){ if(!force)return null;
