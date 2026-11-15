@@ -56,5 +56,12 @@ function validLead(){var form=document.getElementById('rwLeadForm');if(!form.rep
 document.getElementById('rwLeadForm').addEventListener('submit',function(ev){ev.preventDefault();if(!validLead())return;var x=lead(),body='RoamWise summit contact exchange, consent confirmed by promoter.\n\nName: '+x.name+'\nEmail: '+x.email+'\nPhone: '+x.phone+'\nDesignation: '+x.role+'\nCompany: '+x.company+'\nInterest: '+x.interest+'\nNotes: '+x.notes+'\n\nSource: BTS 2026 / '+(new URLSearchParams(location.search).get('rep')||'unattributed')+'\nPlease follow up only for the agreed purpose.';document.getElementById('rwLeadStatus').textContent='Opening email app. Review and press Send there; not automatically saved.';location.href='mailto:founder@roamwise.co.in?subject='+encodeURIComponent('BTS 2026 consented lead — '+x.name)+'&body='+encodeURIComponent(body);});
 document.getElementById('rwLeadVcard').addEventListener('click',function(){if(!validLead())return;var x=lead(),safe=function(s){return String(s||'').replace(/[\\;,\n\r]/g,function(c){return {'\\':'\\\\',';':'\\;',',':'\\,','\n':'\\n','\r':''}[c]||'';});};var card=['BEGIN:VCARD','VERSION:3.0','FN:'+safe(x.name),'EMAIL:'+safe(x.email),'TEL:'+safe(x.phone),'TITLE:'+safe(x.role),'ORG:'+safe(x.company),'NOTE:'+safe(x.interest+' | '+x.notes),'END:VCARD'].join('\r\n');var url=URL.createObjectURL(new Blob([card],{type:'text/vcard;charset=utf-8'}));var a=document.createElement('a');a.href=url;a.download='roamwise-contact.vcf';a.click();setTimeout(function(){URL.revokeObjectURL(url);},2000);document.getElementById('rwLeadStatus').textContent='Local contact file created. Keep it secure and delete it when no longer needed.';});
 document.getElementById('rwReelCopy').addEventListener('click',function(){copyText('RoamWise BTS 2026 reel (consent required): 0–3 s: scan QR; 3–8 s: ask Ailon a travel challenge; 8–13 s: show useful answer; 13–15 s: CTA “Try RoamWise for free”. No endorsement or free Pro claim.')});
+// Dynamic sections may be inserted after the browser's initial fragment scroll.
+if(location.hash==='#rwLead'){
+  requestAnimationFrame(function(){
+    var form=document.getElementById('rwLead');
+    if(form)form.scrollIntoView({behavior:'smooth',block:'start'});
+  });
+}
 if(deeper)deeper.addEventListener('click',function(){var text=q&&q.value.trim();if(text){var u=new URL(deeper.href,location.origin);u.searchParams.set('rw_summit_q',text);deeper.href=u.pathname+u.search+u.hash;}});
 })();
