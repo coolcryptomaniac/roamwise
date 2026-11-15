@@ -4,18 +4,37 @@
 function rwTuskWorkerSearch(q,out){
  var endpoint=(typeof rwApi==='function')?rwApi('tusk/search'):null;
  if(!endpoint)return Promise.resolve();
- return fetch(endpoint+'?q='+encodeURIComponent(q)).then(function(r){
-   if(!r.ok)throw new Error('Search provider unavailable');
-   return r.json();
- }).then(function(data){
-   if(data&&Array.isArray(data.hits))data.hits.slice(0,4).forEach(function(hit){
+ // Public-only retrieval. Do not send PII or secrets to the search endpoint.
+ // Server applies a second independent guard.
+ var question=String(q||'').trim().slice(0,180);
+ if(!question||/[\\r\\n<>]/.test(question)||/[\\w.+-]+@[\\w.-]+\\.[a-z]{2,}/i.test(question))return Promise.resolve();
+ var language='en-IN';
+ try{var picker=document.getElementById('rwHomeVoiceLang');if(picker)language=picker.value||language;}catch(e){}
+ return fetch(endpoint+'?q='+encodeURIComponent(question)+'&lang='+encodeURIComponent(language))
+ .then(function(r){if(!r.ok)throw new Error('Search unavailable');return r.json();})
+ .then(function(data){
+   if(!data||!data.available)return;
+   var hits=Array.isArray(data.hits)?data.hits.slice(0,4):[];
+   var trustworthy=data.route==='curated'||data.route==='approved-vector';
+   // Officially reviewed facts trump an unrelated DDG abstract even when
+   // requests finish in a different order.
+   if(data.summary && (trustworthy||!out.abs)){
+     out.abs=String(data.summary).slice(0,650);
+     out.absSrc=String(data.source||'Public sources').slice(0,70);
+     out.trustedSummary=trustworthy;
+     if(data.checkedAt)out.checkedAt=String(data.checkedAt).slice(0,20);
+   }
+   if(data.requiresLiveVerification)out.liveVerificationRequired=true;
+   hits.forEach(function(hit){
      try{
        var url=new URL(hit.url);
-       if(url.protocol!=='https:')return;
-       out.hits.unshift({t:String(hit.title||'').slice(0,120)+(hit.description?' — '+String(hit.description).slice(0,140):''),u:url.href,s:'Brave Search'});
-     }catch(e){/* skip invalid external result */}
+       if(url.protocol!=='https:'||url.username||url.password)return;
+       var item={t:String(hit.title||'').slice(0,110)+(hit.description?' — '+String(hit.description).slice(0,140):''),u:url.href,s:String(hit.source||data.source||'Public source').slice(0,50)};
+       out.hits.unshift(item);
+       if(!out.absUrl)out.absUrl=url.href;
+     }catch(e){/* reject non-HTTPS or malformed source */ }
    });
- }).catch(function(){/* DDG and Wikipedia remain available as a fallback */});
+ }).catch(function(){/* other sources remain available */});
 }
 function rwTuskSearchFailure(thinking,t,intents,err){
  // Avoid made-up dates, schedules and unrelated trek cards if paid AI is down.
