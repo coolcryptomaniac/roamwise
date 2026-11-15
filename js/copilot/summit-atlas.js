@@ -121,7 +121,13 @@ function answer(text,opts){
  opts=opts||{}; text=String(text||'').trim().slice(0,1200); if(!text)return null;
  var force=!!opts.force, language=String(opts.language||'en-IN');
  if(!force && !summitScope.test(text) && Date.now()>sessionUntil)return null;
- var topic=null; for(var i=0;i<entries.length;i++){if(entries[i][1].test(text)){topic=entries[i];break;}}
+ var topic=null, best=-Infinity;for(var i=0;i<entries.length;i++){
+  var found=text.match(entries[i][1]);if(!found)continue;
+  var category=entries[i][0];
+  var score=found[0].length+(category==='dates'||category==='venue'||category==='reach'? -4:0);
+  if(/^(?:harish|manoj|deepanshu|vijay|vishal|ahmed|tourism-investor|investor-deadline|investor-contact|startup-meet|investor-apply)$/.test(category))score+=15;
+  if(score>best){best=score;topic=entries[i];}
+ }
  if(!topic){ if(!force)return null;
   return {id:'fallback', text:'This short summit guide cannot verify that particular answer. For open-ended travel planning open the full Ailon Tusk, or consult the organiser’s current programme and exhibitor directory.',source:SOURCES.event};
  }
