@@ -18,7 +18,7 @@ const groups=[
  ['What is the history of Kedarnath?','en-IN'],
  ['When was the Taj Mahal constructed in Agra?','en-IN'],
  ['Explain the historical background of Almora','en-IN'],
- ['What is the heritage of Kumaoni Aipan?','en-IN'],
+ ['Kumaon ke Aipan ka cultural heritage kya chha?','kfy-Latn'],
  ['How did ancient Himalayan temple architecture develop?','en-IN'],
  ['What is the traditional cuisine of Kumaon?','en-IN'],
  ['History of Gir National Park in Gujarat','en-IN'],
@@ -48,7 +48,7 @@ const groups=[
  ['What are the broad seasons in Himachal Pradesh?','en-IN'],
  ['Where do buses usually connect with railway routes?','en-IN'],
  ['कुमाऊँ में बोली जाने वाली भाषा क्या है?','hi-IN'],
- ['Kasar Devi ke aas paas typical climate kaisa hai?','hi-Latn']
+ ['Kasar Devi ke aas paas typical climate kaisa chha?','kfy-Latn']
  ]],
  ['policy','travel_rules',[
  ['Do Indian tourists need a visa for Thailand?','en-IN'],
