@@ -286,6 +286,9 @@ function cpSmartAnswer(t){ if(t===window.rwTripAiFor && window.RWTripDesk && RWT
    CORS-open. NOT Google crawling (blocked + against ToS); the card links out to
    full Google / DuckDuckGo results in one tap, which covers the same need. */
 async function rwMiniSearch(q){
+  // All providers below are public, including Wikipedia and DuckDuckGo.
+  // Never transmit sensitive queries even when the Worker rejects them.
+  if(typeof rwTuskIsPublicQuery!=='function'||!rwTuskIsPublicQuery(q))return null;
   q=String(q||'').slice(0,140);
   var out={abs:null, absSrc:null, absUrl:null, hits:[]};
   var jobs=[];
