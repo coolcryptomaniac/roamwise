@@ -41,7 +41,7 @@ function rwBookingOpen(p){
   return !!mode;
 }
 /* The guest's message to RoamWise for this stay; d = {checkIn, checkOut, nights, guests} (all optional). */
-function rwBookingText(p, d){
+function rwBookingRequestText(p, d){
   d=d||{};
   var t='Hello RoamWise, I would like to book '+p.name+(p.zone?' ('+p.zone+')':'')+'.';
   if(d.checkIn) t+=' Check-in: '+d.checkIn+(d.checkOut?'. Check-out: '+d.checkOut:(d.nights?' for '+d.nights+' night'+(d.nights>1?'s':''):''))+'.';
@@ -101,7 +101,7 @@ function rwBookingActionHTML(p){
   var style='display:block;text-align:center;text-decoration:none;margin-top:12px';
   var wa=routes.filter(function(r){ return r.type==='roamwise'; })[0];
   var waLink=function(cls,label){
-    var text=rwBookingText(p);
+    var text=rwBookingRequestText(p);
     return '<a class="'+cls+'" style="'+(cls==='bk-go lst-wa'?style:'')+'" href="'+esc2(wa.href+'?text='+encodeURIComponent(text))+'" data-wa-base="'+esc2(wa.href)+'" data-wa-text="'+esc2(text)+'" data-pid="'+esc2(p.id)+'" data-pname="'+esc2(p.name)+'" onclick="return typeof rwStayWaClick===\'function\'?rwStayWaClick(this):true" target="_blank" rel="noopener noreferrer">'+label+'</a>';
   };
   if(main.type==='direct'){

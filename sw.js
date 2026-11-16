@@ -23,7 +23,7 @@
  *    and promo.mp4. Live data must stay live, and the video is tens of MB.
  * ------------------------------------------------------------------------- */
 
-var VERSION = 'rw-v166-professional-match-deck';
+var VERSION = 'rw-v167-chat-safety';
 var HTML_CACHE = VERSION + '-html';
 var ASSET_CACHE = VERSION + '-assets';
 

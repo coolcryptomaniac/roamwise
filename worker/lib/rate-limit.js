@@ -106,13 +106,17 @@ export async function abuseGuard(request, path, cacheImpl){
   return null;
 }
 
-/* /ai: one request per signed-in user per minute (keyed by a hash of the
+/* /ai: a few requests per signed-in user per minute (keyed by a hash of the
    bearer token, so a whole college sharing one IP is NOT throttled together).
    Requests with no token get a looser per-IP limit and are rejected as 401
    by the handler anyway. */
+export const AI_USER_PER_MINUTE = 6;
 export async function aiGuard(request, cacheImpl){
   const m = /^Bearer\s+(.+)$/i.exec(request.headers.get('authorization') || '');
-  if(m) return overLimit('ai-user', await sha256Hex(m[1]), 1, 60, cacheImpl);
+  /* One a minute refused the second question of any real conversation, which
+     showed up as "AI engines unreachable (Too many requests)". Spend is capped
+     separately by the monthly allowance and budget checks in handlers/ai.js. */
+  if(m) return overLimit('ai-user', await sha256Hex(m[1]), AI_USER_PER_MINUTE, 60, cacheImpl);
   const [name, limit, win] = ROUTE_LIMITS['ai-anon'];
   return overLimit(name, clientIp(request), limit, win, cacheImpl);
 }

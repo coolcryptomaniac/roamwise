@@ -244,6 +244,8 @@ export default {
     const cfStatus = path.match(/^cashfree\/order\/([^/]+)\/status$/);
     if(cfStatus && request.method === 'GET') return handleCashfreeOrderStatus(request, env, cfStatus[1]);
 
+    /* Must come before the stay/ prefix below, which otherwise answers it with 404. */
+    if(path === 'stay/lead') return handleStayLead(request, env);
     if(path.indexOf('stay/') === 0) return handleStay(request, env, path);
 
     if(path.indexOf('bot/') === 0) return handleBot(request, env, path);
@@ -257,7 +259,6 @@ export default {
 
     if(path === 'admin/advisory-alerts/run') return handleAdvisoryAlerts(request, env);
 
-    if(path === 'stay/lead') return handleStayLead(request, env);
 
     if(path === 'admin/ai-ca/review' && request.method === 'POST') return handleAICAReview(request, env);
     if(path === 'admin/ledger' || path === 'admin/ledger/run') return handleCompanyLedger(request, env, path);

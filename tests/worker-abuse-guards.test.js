@@ -47,9 +47,11 @@ test('/ai is limited per signed-in user, not per shared IP',async()=>{
   const c=fakeCache(), ip={ 'CF-Connecting-IP':'9.9.9.9' };
   const a=()=>req('ai',{method:'POST',headers:{...ip,authorization:'Bearer tokenA'}});
   const b=()=>req('ai',{method:'POST',headers:{...ip,authorization:'Bearer tokenB'}});
-  assert.equal(await RL.aiGuard(a(),c),false);
+  /* a normal back-and-forth conversation is allowed; a script is not */
+  for(let i=0;i<RL.AI_USER_PER_MINUTE;i++) assert.equal(await RL.aiGuard(a(),c),false);
   assert.equal(await RL.aiGuard(a(),c),true);
   assert.equal(await RL.aiGuard(b(),c),false);
+  assert.ok(RL.AI_USER_PER_MINUTE>=3&&RL.AI_USER_PER_MINUTE<=10);
 });
 test('turnstile is dormant without a secret; verifies when token present; required flag works',async()=>{
   assert.deepEqual(await TS.verifyTurnstile(req('x'),{}),{ok:true,skipped:true});
