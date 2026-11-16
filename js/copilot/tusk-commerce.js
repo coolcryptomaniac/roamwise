@@ -35,6 +35,9 @@
     .finally(function(){if(timer)clearTimeout(timer);});
  }
  function items(kind,data,q){
+   // Never put an unrelated Manali offer under a query for another city.
+   var destination=String(q||'').toLowerCase().match(/\b(?:manali|almora|corbett|gir|nainital|ranikhet|kasar devi|tirthan|lansdowne|delhi|mumbai|goa|bengaluru|jaipur|paris|london|zurich|kathmandu)\b/);
+   destination=destination?destination[0]:'';
    var lower=String(q||'').toLowerCase();
    if(kind==='shop'){
      var all=Array.isArray(data.products)?data.products:[];
@@ -42,11 +45,18 @@
      return (matched.length?matched:all).slice(0,2).map(function(p){return {id:p.id,type:'shop',title:p.name,subtitle:p.type,price:rupees(p.pricePaise)+' item price · delivery quoted later',picture:p.image,buy:!!data.checkoutOpen};});
    }
    if(kind==='packages'){
-     return (Array.isArray(data.packages)?data.packages:[]).filter(function(p){return p.open!==false;}).slice(0,2).map(function(p){return {id:p.id,type:'package',title:p.name,subtitle:p.nightsLabel||'Dates and rooms at checkout',price:p.from&&Number.isFinite(Number(p.from.total))?'From '+money(p.from.total)+' · recheck for your dates':'Price after choosing dates',buy:true};});
+     var packages=(Array.isArray(data.packages)?data.packages:[]).filter(function(p){return p.open!==false;});
+     if(destination)packages=packages.filter(function(p){
+       return String(p.name+' '+(p.properties||[]).map(function(x){return x.name+' '+(x.place||'');}).join(' ')).toLowerCase().indexOf(destination)>-1;
+     });
+     var group=/(?:honeymoon|romantic|couple|हनीमून)/i.test(q)?'honeymoon':/(?:wedding|marriage|shaadi|शादी)/i.test(q)?'wedding':'';
+     if(group){var matching=packages.filter(function(p){return p.group===group||String(p.name).toLowerCase().indexOf(group)>-1;});if(matching.length)packages=matching;}
+     return packages.slice(0,2).map(function(p){return {id:p.id,type:'package',title:p.name,subtitle:p.nightsLabel||'Dates and rooms at checkout',price:p.from&&Number.isFinite(Number(p.from.total))?'From '+money(p.from.total)+' · recheck for your dates':'Price after choosing dates',buy:true};});
    }
    if(kind==='stays'){
      var stays=data.stays||{}, keys=Object.keys(stays);
      var matched=keys.filter(function(id){var s=stays[id];return s&&String(s.name+' '+s.place).toLowerCase().split(/[ ,]+/).some(function(w){return w.length>3&&lower.indexOf(w)>-1;});});
+     if(destination&&!matched.length)return [];
      return (matched.length?matched:keys).slice(0,2).map(function(id){var s=stays[id];return {id:id,type:'stay',title:s.name,subtitle:s.place||'Check dates and availability',price:'Exact quote at checkout',buy:true};});
    }
    return [{id:'treks',type:'treks',title:'Verified treks and guides',subtitle:'Choose a departure and check operator approval, seats and price',price:'Price verified at operator checkout',buy:false}];
