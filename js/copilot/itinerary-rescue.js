@@ -60,7 +60,7 @@
   if(/\b(?:refund|pay|buy|book|booking status|visa|passport|schedule of flights|ticket|reservation|how much is|price of|cost of|emergency|ambulance)\b|रिफंड|भुगतान|बुकिंग का स्टेटस/i.test(t))return null;
   let explicitDays=Number(p.days);
   if(!Number.isInteger(explicitDays)||explicitDays<1||explicitDays>30){
-    const spoken=t.match(/(?:\b(\d{1,2})\s*(?:din|dino|days?)\b|(\d{1,2})\s*दिन\b?|\b(das|paanch|teen|saat)\s+din\b|\b(दस|पांच|तीन|सात)\s*दिन)/i);
+    const spoken=t.match(/(?:\b(\d{1,2})\s*(?:din|dino|days?)\b|(\d{1,2})\s*दिन|\b(das|paanch|teen|saat)\s+din\b|(दस|पांच|तीन|सात)\s*दिन)/i);
     const n={das:10,paanch:5,teen:3,saat:7,'दस':10,'पांच':5,'तीन':3,'सात':7};
     explicitDays=spoken?Number(spoken[1]||spoken[2]||n[String(spoken[3]||spoken[4]).toLowerCase()]):0;
   }
