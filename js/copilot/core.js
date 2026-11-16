@@ -272,7 +272,12 @@ function cpSmartAnswer(t){ if(t===window.rwTripAiFor && window.RWTripDesk && RWT
     var out='<b>'+hit.name+'</b> · '+hit.country+' ('+hit.region+')';
     var dm=t.match(/(\d+)\s*[- ]?\s*day/i),nd=dm?parseInt(dm[1],10):0;
     out+=costLine(hit,nd);
-    if(hit.visa) out+='<br>🛂 '+hit.visa.type+' · '+hit.visa.cost+' · '+hit.visa.days+' days'+(hit.visa.note? ' — '+hit.visa.note:'');
+    // Visa processing-duration metadata is NOT the user's requested trip length.
+    // For domestic cities do not render a confusing "0 days" line.
+    if(hit.visa && hit.country==='India' && hit.visa.type==='None')
+      out+='<br>🛂 Domestic travel within India · no international visa needed for Indian travellers (check any applicable local entry rules)';
+    else if(hit.visa)
+      out+='<br>🛂 Visa/entry requirements must be checked with official authorities for your nationality and travel dates.';
     if(best) out+='<br>📅 Best months: '+best;
     if(low) out+=' · quietest: <b>'+low+'</b>';
     out+='<br><span style="font-size:10.5px;color:var(--t3)">Planning estimates, not live bookable prices. Compare exact dates and inclusions before paying.</span>';
