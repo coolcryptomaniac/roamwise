@@ -5,6 +5,8 @@
  * Internal functions are exported for deterministic Node tests.
  */
 import { TUSK_FACTS } from '../data/tusk-facts.js';
+import { TUSK_EVERGREEN_FACTS } from '../data/tusk-evergreen-facts.js';
+import { classifyKnowledgeQuestion } from './tusk-knowledge-policy.js';
 import { matchFacts } from './tusk-facts.js';
 
 const EMBEDDING_MODEL = '@cf/baai/bge-m3';
@@ -26,7 +28,7 @@ export const parsePublicQuery = (text) => {
   if(query.length < 5 || query.length > MAX_QUESTION || SECRET_RE.test(query) || PRIVATE_CONTEXT_RE.test(query) || TOKEN_SHAPE_RE.test(query)) return null;
   return query;
 };
-export const isDynamicQuery = q => DYNAMIC_RE.test(String(q||''));
+export const isDynamicQuery = q => DYNAMIC_RE.test(String(q||'')) || ['dynamic','policy','private'].includes(classifyKnowledgeQuestion(q).bucket);
 export const normalizePublicQuery = q => String(q||'').normalize('NFKC').toLocaleLowerCase('en').replace(/[^\p{L}\p{N}]+/gu,' ').replace(/\s+/g,' ').trim();
 export const publicTokens = q => normalizePublicQuery(q).split(' ').filter(x=>x.length>2 && !STOP.has(x)).slice(0,25);
 export function lexicalMatch(q, text){
@@ -50,7 +52,9 @@ export function recordValid(doc, date = new Date()){
 }
 export function curatedMatches(q, date = new Date()){
   const dynamic=isDynamicQuery(q);
-  const items=matchFacts(q,{pack:TUSK_FACTS,now:date});
+  const knowledge=classifyKnowledgeQuestion(q);
+  const evergreen=knowledge.bucket==='anchor'?matchFacts(q,{pack:TUSK_EVERGREEN_FACTS,now:date}):[];
+  const items=evergreen.length?evergreen:matchFacts(q,{pack:TUSK_FACTS,now:date});
   if(!items.length)return null;
   const hits=[];
   for(const it of items.slice(0,2)){
@@ -58,7 +62,7 @@ export function curatedMatches(q, date = new Date()){
     hits.push({title:String(it.title||'').slice(0,110),description:plain((it.facts||[]).join(' ')).slice(0,340),url:it.sources.find(validSource),source:'RoamWise fact pack',checkedAt:it.checkedAt});
   }
   if(!hits.length)return null;
-  return {available:true,source:'RoamWise verified facts',route:'curated',summary:dynamic?'Background guidance only. Live prices, availability and schedules require an up-to-date official or licensed source.':hits[0].description,hits,checkedAt:hits[0].checkedAt,requiresLiveVerification:dynamic};
+  return {available:true,source:'RoamWise verified facts',route:'curated',knowledgeClass:evergreen.length?'evergreen_anchor':'dated_reference',summary:dynamic?'Background guidance only. Live prices, availability and schedules require an up-to-date official or licensed source.':hits[0].description,hits,checkedAt:hits[0].checkedAt,requiresLiveVerification:dynamic};
 }
 function flag(env,name){return String(env&&env[name]||'').toLowerCase()==='true';}
 export function useExactCache(env){return flag(env,'TUSK_EXACT_KV_ENABLED') && !!(env.RW_KV&&env.RW_KV.get&&env.RW_KV.put);}

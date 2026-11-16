@@ -277,7 +277,7 @@
     state.answerPending=false;
     if(!ensure())return false;
     var div=document.createElement('div');div.innerHTML=String(html||'');
-    div.querySelectorAll('script,style,button,nav,.rw-connected,.rw-rail').forEach(function(n){n.remove();});
+    div.querySelectorAll('script,style,button,nav,.rw-connected,.rw-rail,.rw-tusk-commerce').forEach(function(n){n.remove();});
     // Preserve all answer text in the Studio. The voice reads a shorter excerpt,
     // but users must not have to close the Studio to see the full itinerary.
     var complete=String(div.textContent||'').replace(/\s+/g,' ').trim().slice(0,20000);
@@ -317,6 +317,7 @@
     }else{
       renderResults(raw,intents);
       try{if(root.RWConnectedDiscovery&&cards)root.RWConnectedDiscovery.renderInto(cards,raw,intents);}catch(e){}
+      try{if(root.RWTuskCommerce&&cards)root.RWTuskCommerce.renderInto(cards,raw,intents);}catch(e){}
     }
     if(/\b(pay|payment|refund|checkout|otp|password|emergency|sos)\b/i.test(String(raw||''))){
       setPhase('ready','Important details are on screen. Tap Speak for another question.');
