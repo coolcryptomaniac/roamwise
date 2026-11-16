@@ -31,6 +31,18 @@ test('itinerary rescue is loaded before the Ailon pre-answer hook and bypasses A
  assert.match(src,/role="status"/);
  assert.match(src,/6500/,'slow geocoder has a finite timeout');
 });
+test('real Ailon core parser retains screenshot city and ten-day duration',()=>{
+ const {makeTusk}=require('../tools/ai-ops/tusk-harness.cjs');
+ const tusk=makeTusk();
+ for(const [prompt,city] of [['10 days in Bengaluru','Bengaluru'],['10 days plan almora','Almora'],['10 days in Rishikesh','Rishikesh']]){
+   const parsed=tusk.parse(prompt);
+   assert.equal(parsed.days,10,prompt);
+   assert.equal(String(parsed.dest||'').toLowerCase(),city.toLowerCase(),prompt);
+   assert.equal(parsed.smalltalk,undefined,prompt);
+ }
+ const hindi=tusk.parse('मुझे ऋषिकेश में 10 दिन की यात्रा चाहिए');
+ assert.notEqual(hindi.smalltalk,'greet','Hindi-only trip is not a greeting');
+});
 test('screenshot phrases are parsed as 10-day itineraries for the correct place',()=>{
  const {s}=app();
  for(const [q,name] of [['10 days in Bengaluru','Bengaluru'],['10 days plan almora','Almora'],['10 days in rishikesh','Rishikesh'],['I want a 10 day trip in Bangalore','Bangalore']]){
