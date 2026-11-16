@@ -85,11 +85,18 @@ function rwOffersStayCards(data, want, dates){
 
 function rwOffersCard(title, sub, price, href, cta){
   var e = rwOffersEsc;
-  return '<a href="' + e(href) + '" onclick="try{track(\'tusk_direct_offer\')}catch(x){}" style="flex:0 0 min(74vw,230px);scroll-snap-align:start;display:flex;flex-direction:column;gap:5px;text-decoration:none;color:var(--t1,#fff);background:#221631;border:1px solid #816b84;border-radius:14px;padding:12px">'
+  var parsed = /[?&](package|stay)=([a-z0-9-]{1,80})/.exec(href||'');
+  var ci = /[?&]checkin=(\d{4}-\d{2}-\d{2})/.exec(href||'');
+  var co = /[?&]checkout=(\d{4}-\d{2}-\d{2})/.exec(href||'');
+  var pay = parsed ? '<button type="button" data-tusk-open="' + (parsed[1]==='package'?'package':'stay')
+    + '" data-tusk-id="' + e(parsed[2]) + '"' + (ci?' data-tusk-checkin="'+ci[1]+'"':'') + (co?' data-tusk-checkout="'+co[1]+'"':'')
+    + ' style="background:#e6b86f;border:0;border-radius:9px;padding:8px;color:#201426;font-weight:800">Review &amp; pay inside Ailon</button>' : '';
+  return '<div style="flex:0 0 min(74vw,230px);scroll-snap-align:start;display:flex;flex-direction:column;gap:6px;color:var(--t1,#fff);background:#221631;border:1px solid #816b84;border-radius:14px;padding:12px">'
     + '<b style="font-size:13.5px;line-height:1.3">' + e(title) + '</b>'
     + '<span style="font-size:11.5px;color:var(--t2,#dac9dc);line-height:1.4">' + e(sub) + '</span>'
     + '<span style="font-weight:800;color:#ffcb7e;font-size:13px">' + e(price) + '</span>'
-    + '<span style="margin-top:auto;font-size:12px;font-weight:800;color:#201426;background:linear-gradient(100deg,#ffd08a,#e9a864);border-radius:9px;padding:7px 9px;text-align:center">' + e(cta) + '</span></a>';
+    + pay
+    + '<a href="' + e(href) + '" style="margin-top:auto;font-size:12px;font-weight:800;color:#f6ce8b;text-align:center">' + e(cta) + '</a></div>';
 }
 
 function rwOffersHTML(data, want, raw){
@@ -105,8 +112,8 @@ function rwOffersHTML(data, want, raw){
     : want.groups.indexOf('honeymoon') > -1 ? 'Here are honeymoon stays you can book directly, prices for your dates at checkout.'
     : want.groups.indexOf('family') > -1 ? 'Family holidays you can book directly, all taxes included.'
     : 'Book these directly with RoamWise, all taxes included.';
-  return '<div class="tk-card tk-mini"><div class="tk-sec"><div style="font-size:13px;line-height:1.5;margin-bottom:8px">' + rwOffersEsc(lead)
-    + ' Pay a 25–50% advance or in full; if a stay cannot be confirmed you get a full refund.</div>'
+  return '<div class="tk-card tk-mini"><div class="tk-sec"><div style="font-size:11px;color:#f3cb8a;font-weight:800;margin-bottom:5px">RoamWise own offers · promotional</div><div style="font-size:13px;line-height:1.5;margin-bottom:8px">' + rwOffersEsc(lead)
+    + ' The exact advance or full amount is checked for your dates; if a stay cannot be confirmed you get a full refund.</div>'
     + '<div aria-label="Bookable packages" style="display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;padding:2px 0 8px">' + cards.join('') + '</div>'
     + '<div class="tk-chips" style="margin-top:4px"><button class="tk-chip" onclick="var i=document.getElementById(\'heroInput\')||document.getElementById(\'cpInput\');if(i){i.value=\'Compare these packages in more detail\';try{copilotSend(!!document.getElementById(\'heroInput\'))}catch(x){}}">More detail</button>'
     + '<a class="tk-chip" href="mailto:founder@roamwise.co.in?subject=' + encodeURIComponent('Package enquiry') + '">Ask a planner</a></div></div></div>';
