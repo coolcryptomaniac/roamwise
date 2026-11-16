@@ -25,7 +25,8 @@ test('index.html loads new scripts before they are needed', () => {
   const h = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
   const i = s => h.indexOf('src="' + s + '"');
   assert.ok(i('js/copilot/nmims-answers.js') > 0);
-  assert.ok(i('js/copilot/nmims-answers.js') < i('js/copilot/core.js?v=rw-route-quiet-1'));
+  const coreAt=h.search(/src="js\/copilot\/core\.js(?:\?[^"]*)?"/);
+  assert.ok(coreAt>0&&i('js/copilot/nmims-answers.js')<coreAt);
   assert.ok(i('js/ui/rave-card.js') > 0);
   assert.ok(fs.existsSync(path.join(root, 'assets/audio/rave-to-hell-lite.mp3')));
 });
