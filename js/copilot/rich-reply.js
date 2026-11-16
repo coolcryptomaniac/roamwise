@@ -189,6 +189,9 @@ async function cpFinish(bubble, answerHTML, intents, raw){
   try{ if(!intents.smalltalk&&!isKasarFestival&&!intents._noGenericActions) _html += rwTuskRail(intents.dest||'', raw||''); }catch(e){ /* best-effort, ignore */ }
   /* Curated, public local partners and artists only; not booking inventory. */
   try{ if(!intents.smalltalk && !intents._noGenericActions && window.RWConnectedDiscovery) _html+=RWConnectedDiscovery.html(raw,intents); }catch(e){}
+  /* Only intent-relevant first-party cards, never inferred prices or paid action.
+     Run after the answer and skip personal, emergency and existing offer replies. */
+  try{ if(window.RWTuskCommerce) _html+=await RWTuskCommerce.cardsHTML(raw,intents); }catch(e){}
   /* Lightweight per-response feedback — bot replies only (cpFinish only ever
      finishes a 'bot' bubble). Anonymous daily counter, same pattern as track()
      elsewhere; no per-message record, no user identity. */
