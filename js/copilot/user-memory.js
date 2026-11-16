@@ -293,6 +293,7 @@ function rwTuskPreAnswer(bubble, intents, t){
   if(!um && typeof rwShCommand === 'function') um = rwShCommand(t);
   if(!um && typeof rwFxCommand === 'function') um = rwFxCommand(t);
   if(um){ intents.smalltalk = 'memory'; cpFinish(bubble, um, intents, t); return true; }
+  if(window.RWTuskItinerary && RWTuskItinerary.reply(bubble,intents,t)) return true; /* explicit city + duration wins over AI outage or broad search */
   if(typeof rwTuskOffersReply === 'function' && rwTuskOffersReply(bubble, intents, t)) return true;   /* bookable packages: live prices, no AI */
   if(typeof rwTuskBookingReply === 'function' && rwTuskBookingReply(bubble, intents, t)) return true;
   if(typeof rwEventTripReply === 'function' && rwEventTripReply(bubble, intents, t)) return true;
