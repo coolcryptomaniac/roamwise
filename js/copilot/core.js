@@ -1,41 +1,8 @@
 // @ts-nocheck
-/* ==================== COPILOT: CORE (chat + parser + intent memory + world resolver) ====================
-   Extracted verbatim from app.js (Phase 4b modularization).
-   This is deliberately ONE file, not the five originally proposed
-   (chat.js / web-lookup.js / intent-memory.js) — the deterministic-parser
-   copilot core is one interleaved ~890-line block (Phase 4a's finding,
-   re-verified for Phase 4b): cpParseRegex() calls into the mini-web-lookup
-   helpers (rwKnownMap/rwScanKnown/rwFuzzyPlace) dozens of times, the World
-   Place Resolver's rwKnownMap() is itself built from cpParseRegex's own
-   known-place data, and copilotSend() drives the whole thing end to end.
-   Splitting these three "modules" into separate files would not reduce
-   coupling, only scatter it — so per the phase-4b brief's explicit
-   allowance, it ships as one file, well under the 1000-line hard cap.
-   Contains, in source order:
-     - AI TRAVEL COPILOT: openCopilot/cpFocusHero/closeCopilot/cpClearChat/
-       cpBubble/cpModelChips, cpDbFind/cpSmartAnswer, rolling chat memory
-       (rwRemember/rwRecall/rwAskedBefore), the deterministic parser
-       (cpParseRegex) and copilotSend() itself.
-     - SELF-IMPROVING INTENT MEMORY (rwLearnIntent/rwUserProfile).
-     - MINI WEB LOOKUP (rwMiniSearch/rwWebAnswerHTML + the known-place /
-       fuzzy-match helpers cpParseRegex depends on).
-     - WORLD GEOCODER + WORLD PLACE RESOLVER (rwGeocode/rwVerifyDest,
-       RW_PLACE_OVERRIDES/rwResolvePlace).
-   LOAD-ORDER NOTE: this file contains app.js's original top-level
-   `if(lsGet('rw_keep_chat')==='1'){...} else {...}` init block, which
-   executes at PARSE TIME (not from inside a function). That is exactly the
-   class of hazard Phase 4a flagged — moving it into a module that loads
-   BEFORE app.js used to risk a ReferenceError if lsGet/lsSet weren't yet
-   defined. That is now resolved structurally: js/core/storage-utils.js
-   (a true leaf utility, zero dependencies) loads first in index.html,
-   before this file and before app.js, so lsGet/lsSet are always already
-   defined by the time this runs, regardless of relative order. Every other
-   cross-reference in this file (cpDbFind, DB, rwDetectState,
-   rwDetectCountry, RW_COMMON_WORDS, aiCallAny, cpFinish, cpActionsHTML,
-   rwTuskAsk, rwMasalaWrap, tkSmalltalk, rwLearn, wvGuide, CITY_NAME_FIXUPS,
-   RW_HOME_CC, etc.) is a normal function-body reference resolved at call
-   time, long after every script on the page — including app.js — has
-   finished loading, so none of them are order-sensitive. ==== */
+/* Ailon Tusk core: chat, cpParseRegex intent/context, search and geocoder.
+   Depends on storage-utils.js loading first; other globals resolve at runtime.
+   Planning-first reply routing lives in itinerary-rescue.js and user-memory.js.
+   Keep private queries out of public search fallback. */
 /* ==================== AI TRAVEL COPILOT ====================
    One box, natural language, no menus: "Reaching Manali tomorrow, rain
    expected, find a cafe to work from, bus back to Delhi Sunday, keep it
