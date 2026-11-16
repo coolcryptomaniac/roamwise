@@ -152,8 +152,27 @@
  }
  function request(path,body){return fetch(API+path,{method:'POST',headers:{'content-type':'application/json'},credentials:'omit',referrerPolicy:'no-referrer',body:JSON.stringify(body)}).then(async function(r){var d=await r.json().catch(function(){return {};});if(!r.ok)throw Error(d.message||d.error||'Checkout unavailable');return d;});}
  function validForm(){if(!state)return false;var f=state.form;if(typeof f.reportValidity==='function'&&!f.reportValidity())return false;return true;}
+ function readyToQuote(){
+   if(!state)return false;
+   var f=state.form.elements;
+   if(state.kind==='shop'){
+     var pin=String(f.pin.value||'').trim(),qty=Number(f.qty.value);
+     if(!/^[1-9][0-9]{5}$/.test(pin)||!Number.isInteger(qty)||qty<1||qty>state.item.maxQty){
+       say('Choose quantity and a valid six-digit shipping PIN to see the final price.');return false;
+     }
+     return true;
+   }
+   var dates=formValues();
+   if(!/^\d{4}-\d{2}-\d{2}$/.test(dates.checkin)||dates.checkin<new Date().toISOString().slice(0,10)){
+     say('Choose a valid future date for your quote.');return false;
+   }
+   if(state.kind==='stay'&&(!/^\d{4}-\d{2}-\d{2}$/.test(dates.checkout)||dates.checkout<=dates.checkin)){
+     say('Check-out must be after check-in.');return false;
+   }
+   return true;
+ }
  function doQuote(){
-   if(!state||busy||!validForm())return Promise.resolve();
+   if(!state||busy||!readyToQuote())return Promise.resolve();
    var cur=state;busy=true;cur.pay.disabled=true;say('Checking the final amount with RoamWise…');
    var b=formValues(),endpoint=cur.kind==='shop'?'/shop/quote':'/stays/quote';
    return request(endpoint,cur.kind==='shop'?b:b).then(function(d){
@@ -217,7 +236,7 @@
    }).catch(function(e){if(state===cur){say((e.message||'Checkout did not complete')+' Check the payment status before trying again.');}})
     .finally(function(){busy=false;});
  }
- function open(kind,id){
+ function open(kind,id,prefill){
    if(!safeId.test(String(id||''))||!['shop','package','stay'].includes(kind))return Promise.resolve(false);
    var path=kind==='shop'?'/shop/catalogue':'/stays/rates';
    return get(path).then(function(data){
@@ -225,12 +244,21 @@
      if(kind==='shop'){item=(data.products||[]).find(function(p){return p.id===id;});if(!data.checkoutOpen)return false;}
      else if(kind==='package')item=(data.packages||[]).find(function(p){return p.id===id&&p.open!==false;});
      else item=(data.stays||{})[id];
-     if(!item)return false;makeForm(kind,item);return true;
+     if(!item)return false;
+     makeForm(kind,item);
+     if(prefill&&state&&state.form){
+       var f=state.form.elements,now=new Date().toISOString().slice(0,10);
+       if(f.checkin&&/^\d{4}-\d{2}-\d{2}$/.test(String(prefill.checkin||''))&&prefill.checkin>=now)f.checkin.value=prefill.checkin;
+       if(f.checkout&&/^\d{4}-\d{2}-\d{2}$/.test(String(prefill.checkout||''))&&prefill.checkout>String(f.checkin&&f.checkin.value||''))f.checkout.value=prefill.checkout;
+     }
+     return true;
    }).catch(function(){return false;});
  }
  document.addEventListener('click',function(event){
    var buy=event.target.closest&&event.target.closest('[data-tusk-open]');
-   if(buy){event.preventDefault();open(buy.getAttribute('data-tusk-open'),buy.getAttribute('data-tusk-id')).then(function(ok){if(!ok&&root.showToast)root.showToast('Checkout not available; use the official listing link.');});return;}
+   if(buy){event.preventDefault();open(buy.getAttribute('data-tusk-open'),buy.getAttribute('data-tusk-id'),{
+      checkin:buy.getAttribute('data-tusk-checkin'),checkout:buy.getAttribute('data-tusk-checkout')
+     }).then(function(ok){if(!ok&&root.showToast)root.showToast('Checkout not available; use the official listing link.');});return;}
    var hide=event.target.closest&&event.target.closest('[data-tusk-hide-offers]');
    if(hide){try{localStorage.setItem('rw_tusk_offers','hide');}catch(e){};document.querySelectorAll('.rw-tusk-commerce').forEach(function(e){e.remove();});}
  });
