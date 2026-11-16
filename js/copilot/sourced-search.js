@@ -13,7 +13,7 @@ function rwTuskIsPublicQuery(q){
  if(/[\w.+-]+@[\w.-]+\.[a-z]{2,}/i.test(normalized))return false;
  if(/(?:\+?\d[\d\s().-]{9,}\d)/.test(normalized))return false;
  if(/\b(?:password|api[ _-]?key|private key|access token|auth(?:orization)? token|otp|account number|credit card|upi pin)\b/i.test(normalized))return false;
- if(/\b(?:my|our)\s+(?:booking|reservation|account|payment|refund|wallet|order|ticket|flight|hotel|stay|trip history|itinerary)\b/i.test(normalized))return false;
+ if(/\b(?:my|our)\s+(?:booking|reservation|account|payment|refund|wallet|order|ticket|flight|hotel|stay|trip history|itinerary)\b|मेरी\s*(?:बुकिंग|टिकट|यात्रा)|मेरा\s*(?:रिफंड|पेमेंट|अकाउंट)|ನನ್ನ\s*(?:ಬುಕಿಂಗ್|ಖಾತೆ|ಟಿಕೆಟ್)|ನಮ್ಮ\s*(?:ಬುಕಿಂಗ್|ಖಾತೆ)/i.test(normalized))return false;
  if(/\b(?:sk-[a-z0-9_-]{12,}|ghp_[a-z0-9]{20,}|AIza[a-z0-9_-]{30,})\b/i.test(normalized))return false;
  return normalized.trim().length>=5;
 }
