@@ -14,7 +14,7 @@ const MAX_QUESTION = 180;
 const ID_RE = /^[a-z0-9][a-z0-9-]{0,59}$/;
 const SECRET_RE = /(?:\b[\w.+-]+@[\w.-]+\.[a-z]{2,}\b|\b(?:\+?\d[\d\s().-]{9,}\d)\b|\b(?:password|api[ _-]?key|private key|access token|otp|account number|credit card)\b)/i;
 // Even a manually constructed public API call must not be used for private trips.
-const PRIVATE_CONTEXT_RE = /\b(?:my|our)\s+(?:booking|reservation|account|payment|refund|wallet|order|ticket|flight|hotel|stay|trip history|itinerary)\b/i;
+const PRIVATE_CONTEXT_RE = /\b(?:my|our)\s+(?:booking|reservation|account|payment|refund|wallet|order|ticket|flight|hotel|stay|trip history|itinerary)\b|मेरी\s*(?:बुकिंग|टिकट|यात्रा)|मेरा\s*(?:रिफंड|पेमेंट|अकाउंट)|ನನ್ನ\s*(?:ಬುಕಿಂಗ್|ಖಾತೆ|ಟಿಕೆಟ್)|ನಮ್ಮ\s*(?:ಬುಕಿಂಗ್|ಖಾತೆ)/i;
 const TOKEN_SHAPE_RE = /\b(?:sk-[a-z0-9_-]{12,}|ghp_[a-z0-9]{20,}|AIza[a-z0-9_-]{30,})\b/i;
 const DYNAMIC_RE = /\b(?:live|latest|today|now|right now|tomorrow|current|this week|price|cost|fare|booking|available|availability|open now|status|news|flight|train|ticket|weather|traffic|closed|schedule|rates?|stock|investor meeting|reservation)\b|आज|अभी|ಇಂದು|ಈಗ/i;
 const STOP = new Set('the and of on in is a an for to from do can you me my at with what how this that please want about when which trip travel tourism india tell give around'.split(' '));
