@@ -61,8 +61,10 @@
   const explicitDays=Number(p.days);
   if(!Number.isInteger(explicitDays)||explicitDays<1||explicitDays>30)return null;
   // A stay lasting ten days is not necessarily a request to construct an itinerary.
-  const intent=/(?:\b(?:plan|planning|itinerary|days?|nights?|trip|holiday|visit|travel|explore|ghumna|ghumne)\b|दिन|यात्रा|घूमने)/i.test(t);
-  if(!intent)return null;
+  const planWord=/(?:\b(?:plan|planning|itinerary|trip|holiday|visit|travel|explore|ghumna|ghumne)\b|यात्रा|घूमने)/i.test(t);
+  const durationVisit=/\b\d{1,2}\s*[- ]?\s*(?:days?|nights?|din)\s+(?:in|at|around|to)\s+[A-Za-z]/i.test(t);
+  if(!planWord&&!durationVisit)return null;
+  if(!planWord&&/\b(?:hotel|room|stay|hostel|homestay|rent|price|rate|availability|flight|train|bus)\b/i.test(t))return null;
   let dest=String(p.dest||'').trim();
   if(!dest||dest.length>85||p._notAPlace||p._recommendCount)return null;
   // Explicit destination has priority. A follow-up '10 days there' can inherit
@@ -120,7 +122,7 @@
      out+='<p>Also available: <a href="'+esc('/itinerary-library/'+preset.html)+'" target="_blank" rel="noopener">'+esc(preset.days)+'-day prepared '+esc(preset.name)+' route ↗</a> (a separate example, not this '+esc(plan.days)+'-day plan).</p>';
    }
    out+='<p style="font-size:11px;color:#bcb8cd">Confirm opening days, tickets, weather, road conditions and accessibility before leaving. This is not live inventory.</p>'
-      +'<div class="tk-chips"><button class="tk-chip" type="button" onclick="cpGoPlan('+JSON.stringify(String(destination)).replace(/"/g,'&quot;')+','+plan.days+')">Open full trip planner</button></div>'
+      +'<div class="tk-chips"><button class="tk-chip" type="button" data-rw-itinerary-place="'+esc(destination)+'" data-rw-itinerary-days="'+plan.days+'">Open full trip planner</button></div>'
       +'</div></section>';
    return out;
  }
@@ -164,5 +166,13 @@
    });
    return true;
  }
+ document.addEventListener('click',function(e){
+   const target=e.target&&e.target.closest&&e.target.closest('[data-rw-itinerary-place]');
+   if(!target)return;
+   e.preventDefault();
+   const name=target.getAttribute('data-rw-itinerary-place');
+   const days=Number(target.getAttribute('data-rw-itinerary-days'));
+   if(typeof cpGoPlan==='function'&&name&&Number.isInteger(days)&&days>=1&&days<=30)cpGoPlan(name,days);
+ });
  root.RWTuskItinerary={intent:isPlan,render:render,reply:reply,seedNames:Object.keys(SEEDS)};
 })(window);
