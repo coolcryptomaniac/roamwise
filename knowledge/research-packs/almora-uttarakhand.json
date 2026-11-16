@@ -1,0 +1,114 @@
+{
+  "slug": "almora-uttarakhand",
+  "name": "Almora",
+  "region": "Uttarakhand",
+  "country": "India",
+  "title": "Almora without the rush: ridge-town heritage and quieter Kumaon excursions",
+  "description": "Use Almora as a thoughtful hill-town base, with separate days for its market, Kasar Devi, Chitai, Jageshwar and Binsar rather than rushed tick-box tourism.",
+  "aliases": [
+    "Almora",
+    "Kumaon",
+    "Kasar Devi"
+  ],
+  "summary": "A ridge town whose market, religious heritage and surrounding forests call for flexible, weather-aware pacing.",
+  "sections": [
+    {
+      "heading": "Begin with the old town, not a distant viewpoint",
+      "text": "Almora is laid out along a ridge; moving through its streets is a different experience from a fast road itinerary. Start with Lala Bazaar and the Nanda Devi area rather than scheduling a string of distant excursions on arrival. A slow first day leaves room to understand the bazaars, local crafts and respectful temple visiting, and to confirm onward transport. The district administration describes the town's old lanes and ridge setting. Treat this walking order as a RoamWise editorial recommendation rather than an official route."
+    },
+    {
+      "heading": "Kasar Devi, Chitai and the meaning of a short outing",
+      "text": "Kasar Devi and Chitai Golu Devta Temple are recognised places in the district tourism material. They can be approached as separate low-pressure outings with time to stay in one place instead of a single rushed circuit. Allow meaningful room for road traffic, small parking areas, ceremonies and the fact that temple spaces are not film sets. Avoid announcing fixed journey times or promising solitude: weekend conditions and religious gatherings can change the character of an otherwise peaceful visit."
+    },
+    {
+      "heading": "When to spend a full day on the wider Kumaon landscape",
+      "text": "Binsar forest and the Jageshwar temple group belong on a different planning scale from the old-town market. Their appeal lies in the forest and heritage setting, not in a guaranteed Himalayan view or an exact photo checklist. Check access, weather and the latest local directions before deciding how far to go; a quieter traveller can keep an entire day flexible instead of squeezing both places into one afternoon. More distant Ranikhet or Kausani options deserve their own day or overnight base if the road itinerary is lengthy."
+    }
+  ],
+  "decisions": [
+    {
+      "goal": "Low walking effort and local culture",
+      "choice": "Almora town centre with Lala Bazaar and Nanda Devi area",
+      "caveat": "Narrow streets and slopes vary in accessibility."
+    },
+    {
+      "goal": "Reflective half-day",
+      "choice": "Kasar Devi as an individual visit",
+      "caveat": "Check traffic, parking and local temple etiquette."
+    },
+    {
+      "goal": "Forest and temple heritage",
+      "choice": "Use separate flexible days for Binsar or Jageshwar",
+      "caveat": "Confirm access, weather and road conditions."
+    }
+  ],
+  "days": [
+    {
+      "title": "Arrive and find the rhythm",
+      "plan": "Rest after travelling, explore Lala Bazaar and take a gentle old-town walk."
+    },
+    {
+      "title": "Town and living culture",
+      "plan": "Visit the Nanda Devi area respectfully and spend time in local markets and neighbourhoods."
+    },
+    {
+      "title": "Kasar Devi landscape",
+      "plan": "Visit Kasar Devi, allow unstructured walking time where safe and permitted, and return without a rushed transfer."
+    },
+    {
+      "title": "Chitai and a slower afternoon",
+      "plan": "See Chitai Golu Temple and choose one nearby quiet experience rather than combining multiple distant sites."
+    },
+    {
+      "title": "One bigger excursion",
+      "plan": "Choose either Binsar or Jageshwar based on current conditions and your interests; do not promise both in a short day."
+    }
+  ],
+  "facts": [
+    {
+      "text": "The district describes Almora as a ridge town and names Lala Bazaar, Kasar Devi and Nanda Devi among places of interest.",
+      "sourceId": "district-interest"
+    },
+    {
+      "text": "The Almora district tourism list includes Jageshwar Dham and Chitai Golu Temple.",
+      "sourceId": "district-tourist"
+    },
+    {
+      "text": "Nanda Devi Temple is associated with the Chand rulers in the district's religious-place guide.",
+      "sourceId": "district-religious"
+    }
+  ],
+  "sources": [
+    {
+      "id": "district-interest",
+      "url": "https://almora.nic.in/places-of-interest/",
+      "label": "Almora district · Places of Interest",
+      "supports": "Ridge-town setting, Lala Bazaar, Nanda Devi and Kasar Devi",
+      "checkedAt": "2026-11-16"
+    },
+    {
+      "id": "district-tourist",
+      "url": "https://almora.nic.in/tourist-places/",
+      "label": "Almora district · Tourist Places",
+      "supports": "Jageshwar Dham, Chitai and regional attraction identities",
+      "checkedAt": "2026-11-16"
+    },
+    {
+      "id": "district-religious",
+      "url": "https://almora.nic.in/temple/",
+      "label": "Almora district · Religious Places",
+      "supports": "Nanda Devi and temple background",
+      "checkedAt": "2026-11-16"
+    }
+  ],
+  "firstPublished": null,
+  "photo": null,
+  "approval": {
+    "status": "needs_review",
+    "humanReviewed": false,
+    "reviewedBy": null,
+    "reviewedAt": null,
+    "evidence": null
+  },
+  "researchNotes": "AI-assisted source-backed editorial draft. Requires human source-by-source audit, original-value check and legal image review before /places/ publication. Does not assert personal visitation or verified live availability."
+}

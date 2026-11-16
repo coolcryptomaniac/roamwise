@@ -13,7 +13,7 @@
 'use strict';
 const fs = require('fs'), path = require('path'), zlib = require('zlib'), vm = require('vm');
 
-const SKIP_DIRS = new Set(['.git', 'node_modules', '_site']);
+const SKIP_DIRS = new Set(['.git', 'node_modules', '_site', 'knowledge']); /* research drafts, sources and optional migrations must not be served from Pages */
 /* never minified: service worker (kept readable for debugging), already-minified files, vendor/ (third-party bundles) */
 /* Money and identity code is published byte-for-byte as tested: payments, pricing, auth, referral, admin, pass desk. */
 const KEEP_AS_IS = /^(js\/payments\/|js\/pricing\/|js\/boot\/auth-|referral-data\.js$|admin\/|nmims\/|my-payments\/|partner\/|ops\/)/;

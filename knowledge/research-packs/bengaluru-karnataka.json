@@ -1,0 +1,114 @@
+{
+  "slug": "bengaluru-karnataka",
+  "name": "Bengaluru",
+  "region": "Karnataka",
+  "country": "India",
+  "title": "Bengaluru beyond traffic: a neighbourhood-first heritage and garden plan",
+  "description": "A practical Bengaluru city guide built around garden districts, government heritage sites and deliberately unhurried city days.",
+  "aliases": [
+    "Bengaluru",
+    "Bangalore",
+    "ಬೆಂಗಳೂರು"
+  ],
+  "summary": "Group gardens, old-city sites and city neighbourhoods rather than letting long traffic crossings dominate the visit.",
+  "sections": [
+    {
+      "heading": "Think in clusters rather than a famous-places checklist",
+      "text": "The district's tourism pages describe Bengaluru through an unusually varied mix of government architecture, gardens and older palace sites. Start by choosing one area of the city for each part of the day. Cubbon Park and the surrounding civic buildings make a coherent central cluster, while Lalbagh and the older southern neighbourhoods work better as a separate day. This is an editorial pacing choice, not a promise of particular journey times; congestion, rain, entry arrangements and accessibility should be checked for your actual dates."
+    },
+    {
+      "heading": "Gardens are not interchangeable",
+      "text": "Cubbon Park is a large central green space surrounded by civic architecture including Vidhana Soudha and Attara Kacheri. Lalbagh is a botanical garden with an extensive plant collection, glasshouse and historic landscape. If your time is limited, choose between a central park-and-architecture day and a botanical-garden experience rather than treating both as a hurried morning transfer. If you prefer quieter spaces, plan flexible arrival windows rather than assuming any weekday will be empty or any attraction will be open when you arrive."
+    },
+    {
+      "heading": "Add an old-city or specialist-interest day deliberately",
+      "text": "The Bengaluru Urban district tourism guide identifies Tipu Sultan's Summer Palace and Bangalore Palace as separate heritage experiences. They are not interchangeable with a technology exhibition or a commercial shopping district. Decide whether your third day should focus on regional history, local food, art institutions or a more contemporary city visit. Avoid combining distant attractions based on straight-line map distance; Bengaluru's traffic and venue schedules deserve a new check shortly before departure."
+    }
+  ],
+  "decisions": [
+    {
+      "goal": "Central green spaces and civic architecture",
+      "choice": "Cubbon Park and the exterior public realm around Vidhana Soudha",
+      "caveat": "Check access restrictions and public building visit rules."
+    },
+    {
+      "goal": "Botanical history and photography",
+      "choice": "Lalbagh as a dedicated half-day",
+      "caveat": "Opening days, special events and photography policies can change."
+    },
+    {
+      "goal": "Old Bengaluru heritage",
+      "choice": "Tipu Sultan's Summer Palace as one anchor",
+      "caveat": "Check entry and museum conditions before travel."
+    }
+  ],
+  "days": [
+    {
+      "title": "Arrival and gentle orientation",
+      "plan": "Choose a central base and explore one nearby public neighbourhood after check-in."
+    },
+    {
+      "title": "Civic Bengaluru and Cubbon Park",
+      "plan": "Visit Cubbon Park and view the civic buildings from permitted public areas."
+    },
+    {
+      "title": "Lalbagh and a slower southern day",
+      "plan": "Make Lalbagh the main botanical visit, with space for food and neighbourhood exploration."
+    },
+    {
+      "title": "Heritage choice",
+      "plan": "Choose Tipu Sultan's Summer Palace or another verified historic site and avoid an exhausting cross-city loop."
+    },
+    {
+      "title": "Your interest day",
+      "plan": "Choose art, technology, local food or an outdoor experience based on current availability and weather."
+    }
+  ],
+  "facts": [
+    {
+      "text": "The Bengaluru Urban district tourism guide lists Vidhana Soudha, Bangalore Palace and Tipu Palace as heritage sites.",
+      "sourceId": "urban-guide"
+    },
+    {
+      "text": "Cubbon Park is a historic central green space associated with the surrounding government district.",
+      "sourceId": "urban-cubbon"
+    },
+    {
+      "text": "Karnataka Tourism describes Lalbagh, Cubbon Park, Bangalore Palace and Nandi Hills among Bengaluru attractions.",
+      "sourceId": "state-guide"
+    }
+  ],
+  "sources": [
+    {
+      "id": "urban-guide",
+      "url": "https://bengaluruurban.nic.in/en/tourism/",
+      "label": "Bengaluru Urban district · Tourism",
+      "supports": "Heritage and botanical location identities",
+      "checkedAt": "2026-11-16"
+    },
+    {
+      "id": "urban-cubbon",
+      "url": "https://bengaluruurban.nic.in/en/tourist-place/cubbon-park/",
+      "label": "Bengaluru Urban district · Cubbon Park",
+      "supports": "Central historic park and its civic setting",
+      "checkedAt": "2026-11-16"
+    },
+    {
+      "id": "state-guide",
+      "url": "https://karnatakatourism.org/en/destinations/bengaluru/",
+      "label": "Government of Karnataka Tourism · Bengaluru",
+      "supports": "Garden, palace and other destination attractions",
+      "checkedAt": "2026-11-16"
+    }
+  ],
+  "firstPublished": null,
+  "photo": null,
+  "approval": {
+    "status": "needs_review",
+    "humanReviewed": false,
+    "reviewedBy": null,
+    "reviewedAt": null,
+    "evidence": null
+  },
+  "researchNotes": "AI-assisted source-backed editorial draft. Requires human source-by-source audit, original-value check and legal image review before /places/ publication. Does not assert personal visitation or verified live availability."
+}
