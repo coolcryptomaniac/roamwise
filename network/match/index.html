@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en-IN"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0c0e1d"><meta name="robots" content="noindex,follow">
+<title>RoamWise Match Deck — Discover collaborations</title>
+<meta name="description" content="Explore opt-in professional collaborations for travel creators, stays, trekking, arts and destination weddings. Save ideas locally; nothing is booked or sent automatically.">
+<link rel="canonical" href="https://www.roamwise.co.in/network/match/">
+<link rel="stylesheet" href="./match.css">
+</head><body>
+<header class="top"><a class="brand" href="/">Roam<span>Wise</span></a><nav aria-label="Match deck navigation"><a href="/network/">Network Atlas</a><a href="/creators/match.html?role=creator">Creators</a><a href="/partner/join/">Properties</a></nav></header>
+<main class="shell">
+ <section class="intro"><p class="eyebrow">THE HIMALAYAN COLLABORATION NETWORK · AILON MATCH</p><h1>Swipe right on <em>good collaborations.</em></h1>
+ <p>Creators × stays. Artists × venues. Trek leaders × transport. Wedding planners × suppliers. Explore a promising fit without sharing your details or promising a deal.</p>
+ <p class="sub">Professional connections, not a dating service. Match percentages describe preference alignment—not a verification or safety guarantee.</p></section>
+ <section class="workspace" aria-label="Explore professional matches">
+ <aside class="preferences">
+ <h2>Build your matching lens</h2><p class="sub">These preferences stay on your device. Select a role to find complementary businesses.</p>
+ <form id="matchPrefs">
+   <label>I'm here as<select id="matchRole" name="role">
+    <option value="creator">🎥 Travel creator</option><option value="influencer">📱 Influencer</option>
+    <option value="property">🏡 Stay / property</option><option value="artist">🎨 Artist / musician</option>
+    <option value="yoga_teacher">🧘 Wellness teacher</option><option value="trekking_company">🥾 Trekking company</option>
+    <option value="trekking_guide">🧭 Trekking guide</option><option value="travel_provider">🗺️ Travel operator</option>
+    <option value="transport">🚐 Transport provider</option><option value="wedding_venue">💒 Wedding venue</option>
+    <option value="wedding_provider">💐 Wedding professional</option><option value="wedding_planner">💍 Wedding planner</option>
+    <option value="experience">🏕️ Local experience host</option><option value="traveller">🧳 Traveller / customer</option>
+   </select></label>
+   <label>Preferred town or region<input id="matchRegion" maxlength="80" placeholder="e.g. Almora, Manali, Goa" autocomplete="off"></label>
+   <label>Your interests<input id="matchTopics" maxlength="180" placeholder="e.g. yoga, local art, trekking" autocomplete="off"></label>
+   <label>Collaboration style<select id="matchMode"><option value="">Any agreed approach</option><option value="barter">Barter / in-kind</option><option value="hybrid">Hybrid</option><option value="paid">Paid project</option><option value="custom">Custom discussion</option></select></label>
+   <label>Explore<select id="matchView"><option value="profiles">Real approved profiles</option><option value="ideas">Collaboration ideas</option></select></label>
+ </form>
+ <p class="trust"><strong>Privacy first:</strong> No account information, private applications, customer locations or contact details enter this page's index. Match preferences and saved items stay in this browser.</p>
+ <a class="small-action" id="matchJoin" href="/creators/match.html?role=creator">Join the network / request an introduction</a>
+ </aside>
+ <section class="deck-area" aria-label="Swipeable matching cards">
+  <div class="deck-top"><div><h2>Discover matches <span class="sparkle">✧</span></h2><p id="deckStatus" role="status" aria-live="polite">Loading the public consent-approved directory…</p></div><span id="deckPosition" class="counter" aria-live="off">0 / 0</span></div>
+  <div id="deckCard" class="deck-card" tabindex="0" aria-label="Current collaboration card">
+   <div class="loading-card">Preparing your collaboration deck…</div>
+  </div>
+  <div class="actions" aria-label="Card controls">
+   <button id="skipBtn" type="button" class="skip" aria-label="Skip this card"><span aria-hidden="true">✕</span><small>Pass</small></button>
+   <button id="saveBtn" type="button" class="save" aria-label="Save this card"><span aria-hidden="true">♥</span><small>Shortlist</small></button>
+   <button id="detailsBtn" type="button" class="details" aria-label="Open profile or collaboration application"><span aria-hidden="true">↗</span><small>Explore</small></button>
+  </div>
+  <p class="gesture">Swipe left to pass, right to shortlist. You can also use the buttons or arrow keys.</p>
+ </section>
+ </section>
+ <section class="saved-section"><div class="saved-head"><h2>My shortlist</h2><button type="button" id="clearSaved" class="clear">Clear saved IDs</button></div>
+ <p class="sub">Saved only in this browser; RoamWise does not message another party on your behalf.</p><div id="savedCards" class="saved-cards" aria-live="polite"></div></section>
+ <section class="footer-doors"><h2>Get on the right side of the network</h2>
+  <div class="doors"><a href="/creators/match.html?role=creator">🎥 Creator onboarding</a><a href="/partner/join/">🏡 Property / venue onboarding</a>
+  <a href="/providers/join/">🥾 Trek / travel provider onboarding</a><a href="/creators/join-artist.html">🎨 Artist onboarding</a>
+  <a href="/network/">🌍 Public network atlas</a></div>
+  <p>Being shortlisted does not mean the other party has accepted. Verification, legal capacity, rates, availability, deliverables and permissions must be confirmed by both sides.</p>
+ </section>
+</main><footer>RoamWise · Professional matching only · <a href="/privacy.html">Privacy</a> · <a href="/contact.html">Report a profile or revoke consent</a></footer>
+<script type="module" src="./match.js"></script></body></html>

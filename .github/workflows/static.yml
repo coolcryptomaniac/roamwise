@@ -87,6 +87,7 @@ jobs:
         run: |
           npm install --no-save --no-audit --no-fund esbuild@0.25
           node tools/build-destination-library.cjs
+          node tools/build-network-matches.mjs
           node tools/build-dist.cjs _site
           test -f _site/index.html && test -f _site/lite/index.html && test -f _site/sw.js
           for f in _site/app.js _site/rw-config.js _site/js/runtime/freshness.js; do node --check "$f"; done
