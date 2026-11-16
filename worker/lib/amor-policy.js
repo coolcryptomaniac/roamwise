@@ -25,6 +25,7 @@ const range = (a, b) => { const o = []; for (let t = Date.parse(a + 'T00:00:00Z'
 export const DEMAND_DATES = new Set([
   ...range('2026-11-21', '2026-11-24'), // Guru Nanak Jayanti (Tue 24 Nov, gazetted) bridge long weekend
   ...range('2026-12-24', '2027-01-02'), // Christmas and New Year week
+  ...range('2027-01-03', '2027-01-15'), // Delhi school winter vacation (DoE 2026-27 calendar: 1-15 Jan); Lohri/Makar Sankranti 14 Jan
   ...range('2027-01-23', '2027-01-26'), // Republic Day long weekend
   ...range('2027-03-20', '2027-03-22'), // Holi long weekend
   ...range('2027-03-26', '2027-03-28'), // Good Friday long weekend

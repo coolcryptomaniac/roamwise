@@ -19,6 +19,14 @@ Margin = RoamWise commission before GST ÷ pre-GST guest price. GST at 18% is ch
 - **Padma Villa:** listed on Booking.com (rated 7.4) with no price visible; the SaffronStays "PADM Villa" listing is withdrawn. No public price found.
 - Booking.com search pages render prices with JavaScript, so a plain scrape returns nothing (15 Firecrawl credits used on 13 Nov, no data). The weekly check uses free web search first and at most 15 Firecrawl credits a run.
 
+### Check of 16 Nov 2026 (free web search only)
+
+- **Tattwaa:** Hotels.com and Expedia-group pages list room types (Standard, Superior, Family, Premium) but show no price without dates. The hotel's own brochure has no room tariff. No like-for-like price found.
+- **Nanau:** Hotels.com India showed ₹6,472 incl. taxes for 17–18 Nov 2026, with no room type or meal plan named, so it is not used as a cap. Hotels.com names its rooms Sal Studio, Jungle Studio and Presidential Suite.
+- **Padma Villa:** both SaffronStays "PADM Villa" listings (Glass Suite, King Suite) still say "no longer on our network". No public price found.
+- **Aramness Gir:** the lodge's own site has a wellness programme rate card (valid to 28 Feb 2026, so expired), not a room-only kothi rate. Published-rate cap above is unchanged.
+- No new market caps added.
+
 ## How to add a reference
 
 Add `market: { CP: 9000 }` to the room in `worker/lib/amor-rates.js` (tax-included, same room and meal plan, for a comparable date), add a row above with the source and date, then run `node tools/build-amor-offers.mjs` and `npm test`.
