@@ -15,7 +15,7 @@ function app(opts={}){
   console,Date,Promise,setTimeout,clearTimeout,setInterval,clearInterval,
   cpDbFind:(name)=>['Almora','Bengaluru','Rishikesh'].includes(name)?{name,country:'India',gems:[]}:null,
   rwKnownMap:()=>({almora:'Almora',bengaluru:'Bengaluru',rishikesh:'Rishikesh'}),
-  rwResolvePlace:async name=>{calls.push(name);return {name,country:'India',lowConf:false}},
+  rwResolvePlace:async name=>{calls.push(name);return {name,country:name==='Tbilisi'?'Georgia':'India',lowConf:false}},
   cpFinish:(_bubble,html,intents,raw)=>finished.push({html,intents,raw}),
   RW_PRESETS:{find:async()=>null},
   RW_INDIA_LANG:{aliases:{'बेंगलुरु':'Bengaluru','अल्मोड़ा':'Almora','ऋषिकेश':'Rishikesh'}}
@@ -100,6 +100,6 @@ test('worldwide city with no reviewed seed gets honest draft after geocode, not 
  assert.match(finished[0].html,/Tbilisi/);
  assert.match(finished[0].html,/no fully reviewed day-wise pack/i);
  assert.match(finished[0].html,/Day 5/);
- assert.doesNotMatch(finished[0].html,/Wikipedia|confirmed entry/);
+ assert.doesNotMatch(finished[0].html,/Wikipedia|Sources to explore/);
  assert.deepEqual(calls,['Tbilisi']);
 });
