@@ -35,6 +35,7 @@ Disallow: /staff/
 Disallow: /deck/
 Disallow: /agent/
 Disallow: /content/
+Disallow: /knowledge/
 Disallow: /tools/
 
 Sitemap: https://www.roamwise.co.in/sitemap.xml
