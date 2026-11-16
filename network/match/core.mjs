@@ -142,5 +142,5 @@ export const MATCH_IDEAS=Object.freeze([
  {forRole:'property',withRole:'creator',title:'Property × creator',explanation:'Consider non-binding creative collaborations with opt-in professionals',tags:['stay','creator']}
 ]);
 export function conceptIdeasFor(role){
- return MATCH_IDEAS.filter(x=>x.forRole===role||(COMPLEMENTS[role]||[]).includes(x.withRole)).slice(0,10);
+ return MATCH_IDEAS.filter(x=>x.forRole===role||x.withRole===role).slice(0,10);
 }
