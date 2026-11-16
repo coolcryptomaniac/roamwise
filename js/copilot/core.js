@@ -501,7 +501,10 @@ function cpParseRegex(t){
   var RAW_T = t;
   t = String(t).replace(/^\s*(hey+|hii+|hi|hello+|helo|yo|namaste|namaskar|hola|sup|wassup|bhai|bro|dear|please|pls)\b[\s,!.]*/i, '');
   var BARE = t.replace(/[^a-z]/gi,'');
-  if(!BARE || /^(thanks?|thankyou|thx|ty|ok(ay)?|hmm+|nice|cool|great|good|wow|love(it|you)?|bye|goodbye|gn|goodnight|goodmorning|gm|noneofthese|none)$/i.test(BARE)){
+  // Hindi/Kannada voice transcripts are not empty greetings merely because
+  // their destination names use a non-Latin script.
+  var HAS_INDIC=/[\u0900-\u097f\u0c80-\u0cff]/.test(t);
+  if((!BARE&&!HAS_INDIC) || /^(thanks?|thankyou|thx|ty|ok(ay)?|hmm+|nice|cool|great|good|wow|love(it|you)?|bye|goodbye|gn|goodnight|goodmorning|gm|noneofthese|none)$/i.test(BARE)){
     var out0={dest:null,to:null,days:null,budget:null,wants:[],smalltalk: !BARE ? 'greet' : (/thank|thx|ty/i.test(BARE)?'thanks':(/bye|gn|goodnight/i.test(BARE)?'bye':(/none/i.test(BARE)?'none':'nice')))};
     return out0;
   }
