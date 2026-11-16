@@ -1,0 +1,606 @@
+{
+  "version": 1,
+  "description": "Deterministic public-knowledge routing and privacy classification; not a substitute for source accuracy review or model evaluation.",
+  "samples": [
+    {
+      "id": "anc-01",
+      "query": "Where is Gir National Park in India?",
+      "expected": "anchor",
+      "language": "en"
+    },
+    {
+      "id": "anc-02",
+      "query": "What is the history of Jim Corbett National Park?",
+      "expected": "anchor",
+      "language": "en"
+    },
+    {
+      "id": "anc-03",
+      "query": "Where is Rohtang Pass located?",
+      "expected": "anchor",
+      "language": "en"
+    },
+    {
+      "id": "anc-04",
+      "query": "What is the history of Badrinath temple?",
+      "expected": "anchor",
+      "language": "en"
+    },
+    {
+      "id": "anc-05",
+      "query": "What is the architecture of Kedarnath temple?",
+      "expected": "anchor",
+      "language": "en"
+    },
+    {
+      "id": "anc-06",
+      "query": "Where is the Great Himalayan National Park?",
+      "expected": "anchor",
+      "language": "en"
+    },
+    {
+      "id": "anc-07",
+      "query": "What is the cultural heritage of Kumaon?",
+      "expected": "anchor",
+      "language": "en"
+    },
+    {
+      "id": "anc-08",
+      "query": "Which state contains Sasan Gir?",
+      "expected": "anchor",
+      "language": "en"
+    },
+    {
+      "id": "anc-09",
+      "query": "Where was the Almora heritage town established?",
+      "expected": "anchor",
+      "language": "en"
+    },
+    {
+      "id": "anc-10",
+      "query": "Explain the ancient heritage of Ranikhet",
+      "expected": "anchor",
+      "language": "en"
+    },
+    {
+      "id": "anc-11",
+      "query": "Which mountain range surrounds Manali?",
+      "expected": "anchor",
+      "language": "en"
+    },
+    {
+      "id": "anc-12",
+      "query": "Where is the river source of the Yamuna?",
+      "expected": "anchor",
+      "language": "en"
+    },
+    {
+      "id": "anc-13",
+      "query": "Explain the tradition of Aipan art",
+      "expected": "anchor",
+      "language": "en"
+    },
+    {
+      "id": "anc-14",
+      "query": "Which deity is associated with Kedarnath?",
+      "expected": "anchor",
+      "language": "en"
+    },
+    {
+      "id": "anc-15",
+      "query": "Which state is Corbett Tiger Reserve located in?",
+      "expected": "anchor",
+      "language": "en"
+    },
+    {
+      "id": "anc-16",
+      "query": "Where is the Nainital high altitude zoo?",
+      "expected": "anchor",
+      "language": "en"
+    },
+    {
+      "id": "anc-17",
+      "query": "What is the traditional cuisine of Kumaon?",
+      "expected": "anchor",
+      "language": "en"
+    },
+    {
+      "id": "anc-18",
+      "query": "गिर राष्ट्रीय उद्यान कहाँ है?",
+      "expected": "anchor",
+      "language": "hi"
+    },
+    {
+      "id": "anc-19",
+      "query": "केदारनाथ मंदिर का इतिहास क्या है?",
+      "expected": "anchor",
+      "language": "hi"
+    },
+    {
+      "id": "anc-20",
+      "query": "ಕೇದಾರನಾಥ ದೇವಾಲಯದ ಇತಿಹಾಸ ತಿಳಿಸಿ",
+      "expected": "anchor",
+      "language": "kn"
+    },
+    {
+      "id": "ref-01",
+      "query": "What is the IATA airport code for Dehradun?",
+      "expected": "reference",
+      "language": "en"
+    },
+    {
+      "id": "ref-02",
+      "query": "Which time zone is used in Uttarakhand?",
+      "expected": "reference",
+      "language": "en"
+    },
+    {
+      "id": "ref-03",
+      "query": "What plug type is standard in India?",
+      "expected": "reference",
+      "language": "en"
+    },
+    {
+      "id": "ref-04",
+      "query": "What is the voltage standard for hotels in India?",
+      "expected": "reference",
+      "language": "en"
+    },
+    {
+      "id": "ref-05",
+      "query": "Which side is the driving side in Nepal?",
+      "expected": "reference",
+      "language": "en"
+    },
+    {
+      "id": "ref-06",
+      "query": "How far is the distance between Almora and Ranikhet?",
+      "expected": "reference",
+      "language": "en"
+    },
+    {
+      "id": "ref-07",
+      "query": "What is the standard time in India?",
+      "expected": "reference",
+      "language": "en"
+    },
+    {
+      "id": "ref-08",
+      "query": "Which airport code is used for Pantnagar?",
+      "expected": "reference",
+      "language": "en"
+    },
+    {
+      "id": "ref-09",
+      "query": "What is the typical climate in Kausani?",
+      "expected": "reference",
+      "language": "en"
+    },
+    {
+      "id": "ref-10",
+      "query": "What are the usual rainy season months in Uttarakhand?",
+      "expected": "reference",
+      "language": "en"
+    },
+    {
+      "id": "ref-11",
+      "query": "What is the official language of Uttarakhand?",
+      "expected": "reference",
+      "language": "en"
+    },
+    {
+      "id": "ref-12",
+      "query": "Describe the road network connecting Almora and Haldwani",
+      "expected": "reference",
+      "language": "en"
+    },
+    {
+      "id": "ref-13",
+      "query": "What is the highway serving Nainital?",
+      "expected": "reference",
+      "language": "en"
+    },
+    {
+      "id": "ref-14",
+      "query": "What is the railway route to Ramnagar?",
+      "expected": "reference",
+      "language": "en"
+    },
+    {
+      "id": "ref-15",
+      "query": "Which socket type is common in Thailand?",
+      "expected": "reference",
+      "language": "en"
+    },
+    {
+      "id": "ref-16",
+      "query": "Describe the border of Uttarakhand",
+      "expected": "reference",
+      "language": "en"
+    },
+    {
+      "id": "ref-17",
+      "query": "Are the national park boundary maps of Gir available?",
+      "expected": "reference",
+      "language": "en"
+    },
+    {
+      "id": "ref-18",
+      "query": "What is the time zone in Estonia?",
+      "expected": "reference",
+      "language": "en"
+    },
+    {
+      "id": "ref-19",
+      "query": "कुमाऊँ की मुख्य भाषा कौन सी है?",
+      "expected": "reference",
+      "language": "hi"
+    },
+    {
+      "id": "ref-20",
+      "query": "हवाईअड्डा कोड देहरादून क्या है?",
+      "expected": "reference",
+      "language": "hi"
+    },
+    {
+      "id": "dyn-01",
+      "query": "What is the hotel price today in Manali?",
+      "expected": "dynamic",
+      "language": "en"
+    },
+    {
+      "id": "dyn-02",
+      "query": "Is Gir safari open now?",
+      "expected": "dynamic",
+      "language": "en"
+    },
+    {
+      "id": "dyn-03",
+      "query": "What is the latest road status on the Nainital route?",
+      "expected": "dynamic",
+      "language": "en"
+    },
+    {
+      "id": "dyn-04",
+      "query": "Is the Corbett safari available tomorrow?",
+      "expected": "dynamic",
+      "language": "en"
+    },
+    {
+      "id": "dyn-05",
+      "query": "Find a bookable room in Almora tonight",
+      "expected": "dynamic",
+      "language": "en"
+    },
+    {
+      "id": "dyn-06",
+      "query": "What is the cheapest flight fare Delhi to Bengaluru?",
+      "expected": "dynamic",
+      "language": "en"
+    },
+    {
+      "id": "dyn-07",
+      "query": "Are train seats available this week?",
+      "expected": "dynamic",
+      "language": "en"
+    },
+    {
+      "id": "dyn-08",
+      "query": "How much does a Manali honeymoon package cost?",
+      "expected": "dynamic",
+      "language": "en"
+    },
+    {
+      "id": "dyn-09",
+      "query": "What is today's exchange rate INR to USD?",
+      "expected": "dynamic",
+      "language": "en"
+    },
+    {
+      "id": "dyn-10",
+      "query": "Check the live air quality in Dehradun",
+      "expected": "dynamic",
+      "language": "en"
+    },
+    {
+      "id": "dyn-11",
+      "query": "Will it rain tomorrow in Ranikhet?",
+      "expected": "dynamic",
+      "language": "en"
+    },
+    {
+      "id": "dyn-12",
+      "query": "Are there any road closed alerts today?",
+      "expected": "dynamic",
+      "language": "en"
+    },
+    {
+      "id": "dyn-13",
+      "query": "What is the schedule of buses to Haldwani?",
+      "expected": "dynamic",
+      "language": "en"
+    },
+    {
+      "id": "dyn-14",
+      "query": "I want to buy a hoodie from the shop",
+      "expected": "dynamic",
+      "language": "en"
+    },
+    {
+      "id": "dyn-15",
+      "query": "Check availability for the RoamWise tote bag",
+      "expected": "dynamic",
+      "language": "en"
+    },
+    {
+      "id": "dyn-16",
+      "query": "Can I book a trekking package for next month?",
+      "expected": "dynamic",
+      "language": "en"
+    },
+    {
+      "id": "dyn-17",
+      "query": "Show me current booking prices for Milan Heights",
+      "expected": "dynamic",
+      "language": "en"
+    },
+    {
+      "id": "dyn-18",
+      "query": "What are the festival dates in 2027?",
+      "expected": "dynamic",
+      "language": "en"
+    },
+    {
+      "id": "dyn-19",
+      "query": "आज नैनीताल में मौसम कैसा है?",
+      "expected": "dynamic",
+      "language": "hi"
+    },
+    {
+      "id": "dyn-20",
+      "query": "ಇಂದು ಗಿರ್ ಸಫಾರಿ ತೆರೆದಿದೆಯೇ?",
+      "expected": "dynamic",
+      "language": "kn"
+    },
+    {
+      "id": "pol-01",
+      "query": "Which visa rules apply for Thailand?",
+      "expected": "policy",
+      "language": "en"
+    },
+    {
+      "id": "pol-02",
+      "query": "What passport validity is needed for Finland?",
+      "expected": "policy",
+      "language": "en"
+    },
+    {
+      "id": "pol-03",
+      "query": "What are the entry requirements for Nepal?",
+      "expected": "policy",
+      "language": "en"
+    },
+    {
+      "id": "pol-04",
+      "query": "Are vaccination requirements changing for New Zealand?",
+      "expected": "policy",
+      "language": "en"
+    },
+    {
+      "id": "pol-05",
+      "query": "What are the customs duty rules for importing travel items?",
+      "expected": "policy",
+      "language": "en"
+    },
+    {
+      "id": "pol-06",
+      "query": "Show a travel advisory for Uttarakhand",
+      "expected": "policy",
+      "language": "en"
+    },
+    {
+      "id": "pol-07",
+      "query": "Are travel warnings active for Gir?",
+      "expected": "policy",
+      "language": "en"
+    },
+    {
+      "id": "pol-08",
+      "query": "What permit requirements apply to Rohtang?",
+      "expected": "policy",
+      "language": "en"
+    },
+    {
+      "id": "pol-09",
+      "query": "Is there a travel ban for a foreign country?",
+      "expected": "policy",
+      "language": "en"
+    },
+    {
+      "id": "pol-10",
+      "query": "How do the GST rules apply to bookings?",
+      "expected": "policy",
+      "language": "en"
+    },
+    {
+      "id": "pol-11",
+      "query": "Explain driving regulation for international visitors",
+      "expected": "policy",
+      "language": "en"
+    },
+    {
+      "id": "pol-12",
+      "query": "What are the passport rules for India?",
+      "expected": "policy",
+      "language": "en"
+    },
+    {
+      "id": "pol-13",
+      "query": "What is the latest visa policy for Estonia?",
+      "expected": "policy",
+      "language": "en"
+    },
+    {
+      "id": "pol-14",
+      "query": "Which visa requirements apply when visiting Switzerland?",
+      "expected": "policy",
+      "language": "en"
+    },
+    {
+      "id": "pol-15",
+      "query": "Do travel advisories change for Nepal?",
+      "expected": "policy",
+      "language": "en"
+    },
+    {
+      "id": "pol-16",
+      "query": "Show updated vaccination requirements for a safari",
+      "expected": "policy",
+      "language": "en"
+    },
+    {
+      "id": "pol-17",
+      "query": "What are border entry requirements for foreign tourists?",
+      "expected": "policy",
+      "language": "en"
+    },
+    {
+      "id": "pol-18",
+      "query": "What is the permit requirement for Kedarnath?",
+      "expected": "policy",
+      "language": "en"
+    },
+    {
+      "id": "pol-19",
+      "query": "वीजा नियम क्या हैं थाईलैंड के लिए?",
+      "expected": "policy",
+      "language": "hi"
+    },
+    {
+      "id": "pol-20",
+      "query": "ಪಾಸ್ಪೋರ್ಟ್ ಪ್ರವೇಶ ನಿಯಮ ಏನು?",
+      "expected": "policy",
+      "language": "kn"
+    },
+    {
+      "id": "pri-01",
+      "query": "What is the status of my booking?",
+      "expected": "private",
+      "language": "en"
+    },
+    {
+      "id": "pri-02",
+      "query": "Find our hotel stay payment receipt",
+      "expected": "private",
+      "language": "en"
+    },
+    {
+      "id": "pri-03",
+      "query": "Where is my wallet balance?",
+      "expected": "private",
+      "language": "en"
+    },
+    {
+      "id": "pri-04",
+      "query": "Show the status of my refund",
+      "expected": "private",
+      "language": "en"
+    },
+    {
+      "id": "pri-05",
+      "query": "Can you access my account?",
+      "expected": "private",
+      "language": "en"
+    },
+    {
+      "id": "pri-06",
+      "query": "Here is my email example@example.com",
+      "expected": "private",
+      "language": "en"
+    },
+    {
+      "id": "pri-07",
+      "query": "Call me at +91 9876543210",
+      "expected": "private",
+      "language": "en"
+    },
+    {
+      "id": "pri-08",
+      "query": "My OTP is 123456, help me",
+      "expected": "private",
+      "language": "en"
+    },
+    {
+      "id": "pri-09",
+      "query": "Use my API key for travel search",
+      "expected": "private",
+      "language": "en"
+    },
+    {
+      "id": "pri-10",
+      "query": "My private key is stored here",
+      "expected": "private",
+      "language": "en"
+    },
+    {
+      "id": "pri-11",
+      "query": "Find our trip history",
+      "expected": "private",
+      "language": "en"
+    },
+    {
+      "id": "pri-12",
+      "query": "What happened to our payment?",
+      "expected": "private",
+      "language": "en"
+    },
+    {
+      "id": "pri-13",
+      "query": "Show my ticket status",
+      "expected": "private",
+      "language": "en"
+    },
+    {
+      "id": "pri-14",
+      "query": "Our reservation details are missing",
+      "expected": "private",
+      "language": "en"
+    },
+    {
+      "id": "pri-15",
+      "query": "my itinerary for a personal trip",
+      "expected": "private",
+      "language": "en"
+    },
+    {
+      "id": "pri-16",
+      "query": "Please check sk-abcdefghijklmnopqrstuvwxyz12345",
+      "expected": "private",
+      "language": "en"
+    },
+    {
+      "id": "pri-17",
+      "query": "Access token abcdefghijklmnop",
+      "expected": "private",
+      "language": "en"
+    },
+    {
+      "id": "pri-18",
+      "query": "मेरी बुकिंग का स्टेटस बताओ",
+      "expected": "private",
+      "language": "hi"
+    },
+    {
+      "id": "pri-19",
+      "query": "मेरा रिफंड कहाँ है?",
+      "expected": "private",
+      "language": "hi"
+    },
+    {
+      "id": "pri-20",
+      "query": "ನನ್ನ ಬುಕಿಂಗ್ ವಿವರ ತೋರಿಸಿ",
+      "expected": "private",
+      "language": "kn"
+    }
+  ]
+}
