@@ -66,12 +66,19 @@
   }
   if(!Number.isInteger(explicitDays)||explicitDays<1||explicitDays>30)return null;
   // A stay lasting ten days is not necessarily a request to construct an itinerary.
-  const planWord=/(?:\b(?:plan|planning|itinerary|trip|holiday|visit|travel|explore|ghumna|ghumne)\b|यात्रा|घूमने)/i.test(t);
+  const planWord=/(?:\b(?:plan|planning|itinerary|trip|holiday|visit|travel|explore|ghumna|ghumne)\b|यात्रा|घूमने|घूमना|घुमना)/i.test(t);
+  if(!/\b(?:plan|planning|itinerary|trip|travel|visit|explore)\b|यात्रा|घूमने|घूमना/i.test(t)
+     && /\b(?:package|packages|honeymoon|wedding|resort deal|offer)\b|हनीमून|पैकेज|शादी/i.test(t))return null;
   const durationVisit=/\b\d{1,2}\s*[- ]?\s*(?:days?|nights?|din)\s+(?:in|at|around|to)\s+[A-Za-z]/i.test(t)
     || /(?:\d{1,2}|दस|पांच|तीन|सात)\s*दिन\s*(?:के\s*लिए|की\s*यात्रा|में)/.test(t);
   if(!planWord&&!durationVisit)return null;
   if(!planWord&&/\b(?:hotel|room|stay|hostel|homestay|rent|price|rate|availability|flight|train|bus)\b/i.test(t))return null;
   let dest=String(p.dest||'').trim();
+  // Recognize a few common regional-script aliases; the full reviewed Hindi
+  // lexicon and worldwide geocoder handle other supported locations.
+  const regional={'ಬೆಂಗಳೂರು':'Bengaluru','ಬೆಂಗಳೂರಿನಲ್ಲಿ':'Bengaluru','ಅಲ್ಮೋರಾ':'Almora','ರಿಷಿಕೇಶ':'Rishikesh'};
+  const kannada=Object.keys(regional).find(k=>t.indexOf(k)!==-1);
+  if(kannada)dest=regional[kannada];
   // The core parser currently tokenizes Latin place names only. Recover
   // reviewed Hindi aliases from the existing atlas lexicon rather than
   // inventing a transliteration from arbitrary user text.
