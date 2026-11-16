@@ -58,15 +58,30 @@
   const t=String(raw||'').trim(),p=intents||{};
   if(!t||t.length>350||p.smalltalk||p._country||p._state||p._eventTrip||p._route)return null;
   if(/\b(?:refund|pay|buy|book|booking status|visa|passport|schedule of flights|ticket|reservation|how much is|price of|cost of|emergency|ambulance)\b|रिफंड|भुगतान|बुकिंग का स्टेटस/i.test(t))return null;
-  const explicitDays=Number(p.days);
+  let explicitDays=Number(p.days);
+  if(!Number.isInteger(explicitDays)||explicitDays<1||explicitDays>30){
+    const spoken=t.match(/(?:\b(\d{1,2})\s*(?:din|dino|days?)\b|(\d{1,2})\s*दिन\b?|\b(das|paanch|teen|saat)\s+din\b|\b(दस|पांच|तीन|सात)\s*दिन)/i);
+    const n={das:10,paanch:5,teen:3,saat:7,'दस':10,'पांच':5,'तीन':3,'सात':7};
+    explicitDays=spoken?Number(spoken[1]||spoken[2]||n[String(spoken[3]||spoken[4]).toLowerCase()]):0;
+  }
   if(!Number.isInteger(explicitDays)||explicitDays<1||explicitDays>30)return null;
   // A stay lasting ten days is not necessarily a request to construct an itinerary.
   const planWord=/(?:\b(?:plan|planning|itinerary|trip|holiday|visit|travel|explore|ghumna|ghumne)\b|यात्रा|घूमने)/i.test(t);
-  const durationVisit=/\b\d{1,2}\s*[- ]?\s*(?:days?|nights?|din)\s+(?:in|at|around|to)\s+[A-Za-z]/i.test(t);
+  const durationVisit=/\b\d{1,2}\s*[- ]?\s*(?:days?|nights?|din)\s+(?:in|at|around|to)\s+[A-Za-z]/i.test(t)
+    || /(?:\d{1,2}|दस|पांच|तीन|सात)\s*दिन\s*(?:के\s*लिए|की\s*यात्रा|में)/.test(t);
   if(!planWord&&!durationVisit)return null;
   if(!planWord&&/\b(?:hotel|room|stay|hostel|homestay|rent|price|rate|availability|flight|train|bus)\b/i.test(t))return null;
   let dest=String(p.dest||'').trim();
-  if(!dest||dest.length>85||p._notAPlace||p._recommendCount)return null;
+  // The core parser currently tokenizes Latin place names only. Recover
+  // reviewed Hindi aliases from the existing atlas lexicon rather than
+  // inventing a transliteration from arbitrary user text.
+  if(root.RW_INDIA_LANG&&root.RW_INDIA_LANG.aliases){
+    const aliases=Object.keys(root.RW_INDIA_LANG.aliases).sort((a,b)=>b.length-a.length);
+    const nativeName=aliases.find(k=>t.indexOf(k)!==-1);
+    if(nativeName)dest=root.RW_INDIA_LANG.aliases[nativeName];
+  }
+  if(!dest||dest.length>85||p._recommendCount)return null;
+  if(p._notAPlace&&!(root.RW_INDIA_LANG&&Object.values(root.RW_INDIA_LANG.aliases||{}).includes(dest)))return null;
   // Explicit destination has priority. A follow-up '10 days there' can inherit
   // only if the parser recorded _inherited, not from a stale unrelated memory.
   if(p._inherited&&!/\b(?:there|here|that place|same|it)\b|वहाँ|वहा/i.test(t))return null;
@@ -144,9 +159,19 @@
    let known=false,db=null;
    try{db=typeof cpDbFind==='function'?cpDbFind(plan.dest):null;}catch(e){}
    try{known=!!(isKnown||db||(typeof rwKnownMap==='function'&&rwKnownMap()[plan.dest.toLowerCase()]));}catch(e){known=isKnown||!!db;}
+   const atlas=(root.RW_ATLAS&&root.RW_ATLAS.ready&&typeof root.rwAtlasFind==='function')?
+     root.rwAtlasFind(plan.dest):null;
+   const atlasPlace=atlas&&atlas.best&&!atlas.ambiguous?{
+     name:atlas.best.name,country:atlas.best.country||atlas.best.where||'',
+     lat:atlas.best.lat,lon:atlas.best.lng
+   }:atlas&&atlas.ambiguous?{lowConf:true,alts:atlas.matches||[]}:null;
    const placeTask=known?Promise.resolve({name:plan.dest,country:db&&db.country||''}):
-      (typeof rwResolvePlace==='function'?rwResolvePlace(plan.dest):Promise.resolve(null));
-   const presetTask=(root.RW_PRESETS&&root.RW_PRESETS.find)?root.RW_PRESETS.find({destination:plan.dest,duration:plan.days,forcePreset:false}).catch(()=>null):Promise.resolve(null);
+     atlasPlace?Promise.resolve(atlasPlace):
+     (typeof rwResolvePlace==='function'?rwResolvePlace(plan.dest):Promise.resolve(null));
+   // A locally reviewed 10-day seed is complete; don't delay it for a
+   // separate, possibly mismatched preset manifest downloaded over the network.
+   const presetTask=SEEDS[knownKey]?Promise.resolve(null):
+     (root.RW_PRESETS&&root.RW_PRESETS.find)?root.RW_PRESETS.find({destination:plan.dest,duration:plan.days,forcePreset:false}).catch(()=>null):Promise.resolve(null);
    // A slow geocoder or unavailable preset library must not leave the spinner forever.
    Promise.race([
      Promise.all([placeTask,presetTask]),
