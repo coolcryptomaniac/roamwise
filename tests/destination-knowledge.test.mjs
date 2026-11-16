@@ -51,5 +51,5 @@ test('home page links to the public library; no 53k crawlable thin URLs are gene
  assert.match(read('.github/workflows/static.yml'),/node tools\/build-destination-library\.cjs/);
  const yaml=read('.github/workflows/destination-research.yml');
  assert.match(yaml,/schedule:/);assert.match(yaml,/upload-artifact/);
- assert.doesNotMatch(yaml,/git push|wrangler|publish|create-pull-request/);
+ assert.doesNotMatch(yaml,/git push|wrangler|create-pull-request|actions\/deploy-pages|contents: write/);
 });
