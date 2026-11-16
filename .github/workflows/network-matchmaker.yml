@@ -1,0 +1,39 @@
+# Daily read-only matchmaking over explicitly public, mutually opted-in
+# professional listings. Private CRM, Firestore applications and travellers'
+# identity data are NEVER fetched by this GitHub Action.
+name: Network matchmaker
+on:
+  schedule:
+    - cron: '10 3 * * *' # approximately 08:40 IST (GitHub may delay)
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  reviewed-public-matches:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+      - name: Build opt-in public matching index and read-only ranked report
+        shell: bash
+        run: |
+          node --check tools/build-network-matches.mjs
+          node tools/build-network-matches.mjs --source network/directory.json \
+            --out "$RUNNER_TEMP/approved-public-profiles.json" \
+            --report-out "$RUNNER_TEMP/match-suggestions.json" \
+            --date "$(date -u +%F)"
+          node -e 'const d=require(process.env.RUNNER_TEMP+"/approved-public-profiles.json"); if(d.profiles.some(p=>p.email||p.phone||p.uid||p.privateRate||p.bank))process.exit(1); console.log(d.profiles.length+" opt-in public profiles; no private records")'
+          echo "### RoamWise Matchmaker" >> "$GITHUB_STEP_SUMMARY"
+          echo "Explainable professional compatibility suggestions generated from consented listings only. No messages, agreements, booking holds, paid AI calls or payments." >> "$GITHUB_STEP_SUMMARY"
+      - name: Save reviewable matching artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: roamwise-public-match-review
+          path: |
+            ${{ runner.temp }}/approved-public-profiles.json
+            ${{ runner.temp }}/match-suggestions.json
+          retention-days: 30
+          if-no-files-found: error
