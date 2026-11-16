@@ -12,7 +12,7 @@
  function rupees(paise){return '₹'+(Number(paise||0)/100).toLocaleString('en-IN',{maximumFractionDigits:2});}
  function money(inr){return '₹'+Math.round(Number(inr)||0).toLocaleString('en-IN');}
  function allowedQuery(q){
-   if(typeof rwTuskIsPublicQuery==='function'&&!rwTuskIsPublicQuery(q))return false;
+   if(typeof rwTuskIsPublicQuery!=='function'||!rwTuskIsPublicQuery(q))return false;
    return !/\b(?:emergency|ambulance|police|sos|assault|suicide|self harm|medical|injury|landslide|missing person|scam|fraud|otp|password)\b|आपातकाल|इमरजेंसी|मदद चाहिए/i.test(q||'');
  }
  function category(q){
@@ -35,6 +35,9 @@
     .finally(function(){if(timer)clearTimeout(timer);});
  }
  function items(kind,data,q){
+   // Never put an unrelated Manali offer under a query for another city.
+   var destination=String(q||'').toLowerCase().match(/\b(?:manali|almora|corbett|gir|nainital|ranikhet|kasar devi|tirthan|lansdowne|delhi|mumbai|goa|bengaluru|jaipur|paris|london|zurich|kathmandu)\b/);
+   destination=destination?destination[0]:'';
    var lower=String(q||'').toLowerCase();
    if(kind==='shop'){
      var all=Array.isArray(data.products)?data.products:[];
@@ -42,11 +45,18 @@
      return (matched.length?matched:all).slice(0,2).map(function(p){return {id:p.id,type:'shop',title:p.name,subtitle:p.type,price:rupees(p.pricePaise)+' item price · delivery quoted later',picture:p.image,buy:!!data.checkoutOpen};});
    }
    if(kind==='packages'){
-     return (Array.isArray(data.packages)?data.packages:[]).filter(function(p){return p.open!==false;}).slice(0,2).map(function(p){return {id:p.id,type:'package',title:p.name,subtitle:p.nightsLabel||'Dates and rooms at checkout',price:p.from&&Number.isFinite(Number(p.from.total))?'From '+money(p.from.total)+' · recheck for your dates':'Price after choosing dates',buy:true};});
+     var packages=(Array.isArray(data.packages)?data.packages:[]).filter(function(p){return p.open!==false;});
+     if(destination)packages=packages.filter(function(p){
+       return String(p.name+' '+(p.properties||[]).map(function(x){return x.name+' '+(x.place||'');}).join(' ')).toLowerCase().indexOf(destination)>-1;
+     });
+     var group=/(?:honeymoon|romantic|couple|हनीमून)/i.test(q)?'honeymoon':/(?:wedding|marriage|shaadi|शादी)/i.test(q)?'wedding':'';
+     if(group){var matching=packages.filter(function(p){return p.group===group||String(p.name).toLowerCase().indexOf(group)>-1;});if(matching.length)packages=matching;}
+     return packages.slice(0,2).map(function(p){return {id:p.id,type:'package',title:p.name,subtitle:p.nightsLabel||'Dates and rooms at checkout',price:p.from&&Number.isFinite(Number(p.from.total))?'From '+money(p.from.total)+' · recheck for your dates':'Price after choosing dates',buy:true};});
    }
    if(kind==='stays'){
      var stays=data.stays||{}, keys=Object.keys(stays);
      var matched=keys.filter(function(id){var s=stays[id];return s&&String(s.name+' '+s.place).toLowerCase().split(/[ ,]+/).some(function(w){return w.length>3&&lower.indexOf(w)>-1;});});
+     if(destination&&!matched.length)return [];
      return (matched.length?matched:keys).slice(0,2).map(function(id){var s=stays[id];return {id:id,type:'stay',title:s.name,subtitle:s.place||'Check dates and availability',price:'Exact quote at checkout',buy:true};});
    }
    return [{id:'treks',type:'treks',title:'Verified treks and guides',subtitle:'Choose a departure and check operator approval, seats and price',price:'Price verified at operator checkout',buy:false}];
@@ -146,7 +156,16 @@
    var details=el('p','', 'rw-tusk-checkout-summary');details.setAttribute('aria-live','polite');details.style.cssText='font-size:14px;line-height:1.5;color:#fff2cf';
    var link=el('a','Open full RoamWise checkout');link.href=kind==='shop'?'/shop/?buy='+encodeURIComponent(item.id):kind==='package'?'/packages/amor-checkout.html?package='+encodeURIComponent(item.id):'/packages/amor-checkout.html?stay='+encodeURIComponent(item.id);
    link.style.cssText='display:block;font-size:12px;color:#f6d49e;margin:10px 0';form.appendChild(quote);form.appendChild(details);form.appendChild(pay);form.appendChild(link);host._body.appendChild(form);state.pay=pay;state.details=details;
-   form.addEventListener('input',markDirty);form.addEventListener('change',markDirty);
+   // Contact and delivery-address edits do not change the server quote.
+   // Re-quote only when price inputs change, to avoid needless repeat API calls.
+   var pricingFields=kind==='shop'?['variant','qty','pin']:
+     kind==='stay'?['checkin','checkout','paymentType','room','plan']:['checkin','paymentType'];
+   ['input','change'].forEach(function(type){
+     form.addEventListener(type,function(e){
+       var name=e&&e.target&&e.target.name;
+       if(pricingFields.indexOf(name)>-1)markDirty();
+     });
+   });
    quote.addEventListener('click',function(){doQuote();});
    pay.addEventListener('click',function(){doPay();});
  }
@@ -228,10 +247,13 @@
      cur.details.textContent='Reference '+id+'. Cashfree securely handles the payment. Do not initiate a second charge until this order is checked.';
      say('Opening Cashfree secure payment window…');
      return loadSDK().then(function(){
+       // Ailon's overlay normally has high z-index. Hide it so the official
+       // Cashfree modal is never obscured by the review sheet.
+       if(modal)modal.style.display='none';
        var gateway=root.Cashfree({mode:d.environment==='production'?'production':'sandbox'});
-       return Promise.resolve(gateway.checkout({paymentSessionId:session,redirectTarget:'_modal'})).then(function(){
-         return checkStatus(cur,id,token);
-       });
+       return Promise.resolve(gateway.checkout({paymentSessionId:session,redirectTarget:'_modal'}))
+         .then(function(){return checkStatus(cur,id,token);})
+         .finally(function(){if(modal&&state===cur)modal.style.display='flex';});
      });
    }).catch(function(e){if(state===cur){say((e.message||'Checkout did not complete')+' Check the payment status before trying again.');}})
     .finally(function(){busy=false;});
