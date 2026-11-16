@@ -1,0 +1,8 @@
+{
+  "version": 1,
+  "source": "public-network-directory-only",
+  "sourceUpdatedAt": "2026-11-06",
+  "publicMatchingPolicy": "Only publicApproved+publicConsent+matchConsent+matchApproved. Traveller identity is never exported.",
+  "profiles": [],
+  "limited": false
+}
