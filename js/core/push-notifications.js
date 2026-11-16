@@ -96,6 +96,10 @@ function rwPushClearToken(){
 function rwPushRegisterNative(){
   if(!(window.Capacitor && Capacitor.Plugins && Capacitor.Plugins.PushNotifications)) return;
   if(!rwPushOptedIn()) return;
+  /* An app build without its Firebase config has no FirebaseAuthentication
+     plugin, and calling register() on such a build closes the app. Push is a
+     bonus: skip it there instead of crashing. */
+  if(!Capacitor.Plugins.FirebaseAuthentication) return;
   var PN = Capacitor.Plugins.PushNotifications;
   try{
     PN.checkPermissions().then(function(p){

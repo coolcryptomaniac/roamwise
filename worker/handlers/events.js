@@ -65,7 +65,10 @@ export async function handleEvents(request, env, ctx){
 
 export async function handleEventsRefresh(request, env){
   const url = new URL(request.url);
-  if(env.REFRESH_TOKEN && url.searchParams.get('token') !== env.REFRESH_TOKEN)
+  /* Closed unless a token is configured AND matches. With no token set this
+     used to be open to anyone, which lets a stranger burn the events quota;
+     the scheduled refresh does not use this route. */
+  if(!env.REFRESH_TOKEN || url.searchParams.get('token') !== env.REFRESH_TOKEN)
     return json({ error: 'unauthorised' }, 401);
   return json(await refreshEvents(env));
 }

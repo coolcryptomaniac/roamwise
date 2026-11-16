@@ -290,14 +290,21 @@ function chatVibeHTML(){
     +'</div>';
 }
 
+/* Every message is another member's input: refuse odd ids, clean the fields
+   that become HTML (js/social/chat-safety.js), and never let one bad message
+   break the whole chat. */
 function chatBubble(id, m, mine){
+  if(!m || typeof rwChatSafeId !== 'function' || !rwChatSafeId(id)) return '';
+  try{ return chatBubbleHTML(id, rwChatCleanMessage(m), mine); }catch(e){ return ''; }
+}
+function chatBubbleHTML(id, m, mine){
   var kind = m.kind||'text', K = CHAT_KINDS[kind]||CHAT_KINDS.text;
   if(kind==='poll'){
     return '<div class="tc-row"><div class="tc-av">\ud83d\uddf3\ufe0f</div>'
       +'<div style="max-width:88%">'+rwPollHTML(id, m)+chatReactsHTML(id, m)+'</div></div>';
   }
   if(kind==='tusk'){
-    var richHtml = (m.payload && m.payload.html) ? (typeof rwBalanceDivs==='function' ? rwBalanceDivs(m.payload.html) : m.payload.html) : '';
+    var richHtml = (m.payload && m.payload.html) ? rwChatSafeHtml(typeof rwBalanceDivs==='function' ? rwBalanceDivs(m.payload.html) : m.payload.html) : '';
     var inner = richHtml
       ? '<div class="tusk-rich clamped" id="tr_'+id+'">'+richHtml+'</div>'
         +'<button class="tusk-more" onclick="var b=el(\'tr_'+id+'\');b.classList.toggle(\'clamped\');this.textContent=b.classList.contains(\'clamped\')?\'Show more\':\'Show less\'">Show more</button>'
@@ -327,7 +334,7 @@ function chatBubble(id, m, mine){
     var pExp=m.payload||{};
     return '<div style="margin:6px 0"><div style="background:var(--bg2,#12121C);border-left:3px solid #4ADE80;border-radius:9px;padding:8px 12px">'
       +'<div style="font-size:9.5px;color:#4ADE80;font-weight:800;text-transform:uppercase;letter-spacing:.08em">\ud83d\udcb0 Expense</div>'
-      +'<div style="font-size:12.5px;margin-top:2px"><b>'+esc2(pExp.payerName||m.name||'Someone')+'</b> paid <b style="color:var(--gold,#E8BA6C)">\u20b9'+((pExp.amount||0).toLocaleString('en-IN'))+'</b> for '+esc2(pExp.what||'')+'</div></div></div>';
+      +'<div style="font-size:12.5px;margin-top:2px"><b>'+esc2(pExp.payerName||m.name||'Someone')+'</b> paid <b style="color:var(--gold,#E8BA6C)">\u20b9'+(Number(pExp.amount||0).toLocaleString('en-IN'))+'</b> for '+esc2(pExp.what||'')+'</div></div></div>';
   }
   if(kind==='settle'){
     return '<div style="margin:5px 0;text-align:center"><span style="font-size:11px;color:#4ADE80;background:rgba(74,222,128,.1);padding:3px 10px;border-radius:999px">\u2705 '+esc2(m.text||'settled up')+'</span></div>';
@@ -365,7 +372,8 @@ function chatBubble(id, m, mine){
   if(kind==='meet'){
     var pMeet=m.payload||{};
     var place=pMeet.place||m.text||'', when=pMeet.when||'', city=pMeet.city||place;
-    var mapQ=encodeURIComponent(place+(pMeet.city?', '+pMeet.city:''));
+    /* encodeURIComponent leaves ' ( ) alone; this value sits inside onclick="...('...')" */
+    var mapQ=encodeURIComponent(place+(pMeet.city?', '+pMeet.city:'')).replace(/['()]/g,function(c){return '%'+c.charCodeAt(0).toString(16).toUpperCase();});
     var mapUrl=pMeet.map||('https://www.google.com/maps/search/?api=1&query='+mapQ);
     var slug=(city||place).toLowerCase().replace(/[^a-z ]/g,'').trim().replace(/\s+/g,'-');
     var bms='https://in.bookmyshow.com/explore/events-'+encodeURIComponent(slug);
@@ -377,9 +385,9 @@ function chatBubble(id, m, mine){
       +'<div style="font-size:13px;font-weight:700;margin:3px 0 1px">'+esc2(place)+'</div>'
       +(when?'<div style="font-size:12px;color:var(--t2)">\ud83d\udd52 '+esc2(when)+'</div>':'')
       +'<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px">'
-      +'<a class="chat-tool" style="text-decoration:none" href="'+esc2(mapUrl)+'" target="_blank" rel="noopener" onclick="return rwOpenMap(\''+mapQ+'\')">\ud83d\uddfa\ufe0f Open in Maps</a>'
-      +'<a class="chat-tool" style="text-decoration:none" href="'+esc2(bms)+'" target="_blank" rel="noopener">\ud83c\udfab Events here</a>'
-      +'<a class="chat-tool" style="text-decoration:none" href="'+esc2(zomato)+'" target="_blank" rel="noopener">\ud83c\udf7d\ufe0f Food</a>'
+      +'<a class="chat-tool" style="text-decoration:none" href="'+rwChatAttr(mapUrl)+'" target="_blank" rel="noopener" onclick="return rwOpenMap(\''+mapQ+'\')">\ud83d\uddfa\ufe0f Open in Maps</a>'
+      +'<a class="chat-tool" style="text-decoration:none" href="'+rwChatAttr(bms)+'" target="_blank" rel="noopener">\ud83c\udfab Events here</a>'
+      +'<a class="chat-tool" style="text-decoration:none" href="'+rwChatAttr(zomato)+'" target="_blank" rel="noopener">\ud83c\udf7d\ufe0f Food</a>'
       +'</div></div></div>';
   }
   if(kind==='budget' || kind==='plan' || kind==='paid'){
