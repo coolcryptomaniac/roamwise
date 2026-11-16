@@ -146,7 +146,16 @@
    var details=el('p','', 'rw-tusk-checkout-summary');details.setAttribute('aria-live','polite');details.style.cssText='font-size:14px;line-height:1.5;color:#fff2cf';
    var link=el('a','Open full RoamWise checkout');link.href=kind==='shop'?'/shop/?buy='+encodeURIComponent(item.id):kind==='package'?'/packages/amor-checkout.html?package='+encodeURIComponent(item.id):'/packages/amor-checkout.html?stay='+encodeURIComponent(item.id);
    link.style.cssText='display:block;font-size:12px;color:#f6d49e;margin:10px 0';form.appendChild(quote);form.appendChild(details);form.appendChild(pay);form.appendChild(link);host._body.appendChild(form);state.pay=pay;state.details=details;
-   form.addEventListener('input',markDirty);form.addEventListener('change',markDirty);
+   // Contact and delivery-address edits do not change the server quote.
+   // Re-quote only when price inputs change, to avoid needless repeat API calls.
+   var pricingFields=kind==='shop'?['variant','qty','pin']:
+     kind==='stay'?['checkin','checkout','paymentType','room','plan']:['checkin','paymentType'];
+   ['input','change'].forEach(function(type){
+     form.addEventListener(type,function(e){
+       var name=e&&e.target&&e.target.name;
+       if(pricingFields.indexOf(name)>-1)markDirty();
+     });
+   });
    quote.addEventListener('click',function(){doQuote();});
    pay.addEventListener('click',function(){doPay();});
  }
@@ -228,10 +237,13 @@
      cur.details.textContent='Reference '+id+'. Cashfree securely handles the payment. Do not initiate a second charge until this order is checked.';
      say('Opening Cashfree secure payment window…');
      return loadSDK().then(function(){
+       // Ailon's overlay normally has high z-index. Hide it so the official
+       // Cashfree modal is never obscured by the review sheet.
+       if(modal)modal.style.display='none';
        var gateway=root.Cashfree({mode:d.environment==='production'?'production':'sandbox'});
-       return Promise.resolve(gateway.checkout({paymentSessionId:session,redirectTarget:'_modal'})).then(function(){
-         return checkStatus(cur,id,token);
-       });
+       return Promise.resolve(gateway.checkout({paymentSessionId:session,redirectTarget:'_modal'}))
+         .then(function(){return checkStatus(cur,id,token);})
+         .finally(function(){if(modal&&state===cur)modal.style.display='flex';});
      });
    }).catch(function(e){if(state===cur){say((e.message||'Checkout did not complete')+' Check the payment status before trying again.');}})
     .finally(function(){busy=false;});
