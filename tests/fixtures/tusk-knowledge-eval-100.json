@@ -220,7 +220,7 @@
     },
     {
       "id": "ref-17",
-      "query": "Are the national park boundary maps of Gir available?",
+      "query": "Describe the national park boundary maps of Gir",
       "expected": "reference",
       "language": "en"
     },
