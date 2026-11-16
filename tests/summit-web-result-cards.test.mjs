@@ -41,5 +41,7 @@ test('unknown and empty result lists remain honest',()=>{
 
 test('service worker updates cache generation for summit fixes',()=>{
   const sw=fs.readFileSync(new URL('../sw.js',import.meta.url),'utf8');
-  assert.match(sw,/rw-v162-summit-event-handoff/);
+  const m=/var VERSION = 'rw-v(\d+)-[^']+'/.exec(sw);
+  assert.ok(m,'service-worker release version must be present');
+  assert.ok(Number(m[1])>=162,'service-worker must be newer than the summit cache generation');
 });
