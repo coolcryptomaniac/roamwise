@@ -52,6 +52,7 @@ const js='<script>(function(){var q=document.getElementById("rw-place-search"),l
 const ld={'@context':'https://schema.org','@type':'CollectionPage',name:'RoamWise destination knowledge library',url:SITE+'/places/',hasPart:rows.map(r=>({'@type':'Article',headline:r.title,url:SITE+r.url}))};
 save(path.join(OUT,'index.html'),page('Destination knowledge library','Human-reviewed India travel guides and original route decisions, with sources and one-click AI planning.','/places/',content,ld,js));
 const compact=rows.map(r=>({name:r.name,region:r.region,url:r.url,aliases:r.aliases,summary:r.description,checkedAt:r.checkedAt,facts:r.facts||[],sources:r.sources||[]}));
+save(path.join(OUT,'data/assistant-index.json'),JSON.stringify({version:1,records:compact})+'\n');
 save(path.join(OUT,'data/assistant-index.js'),'/* Published and reviewed sources only. */\nwindow.RW_DEST_GUIDES='+JSON.stringify(compact)+';\n');
 if(errors.length||changed.length){console.error(errors.concat(changed.map(x=>'Generated file stale: '+x)).join('\n'));process.exitCode=1;}
 else console.log((CHECK?'Checked':'Built')+' '+rows.length+' existing reviewed guide entries, '+newRecords.length+' approved destination guides.');
