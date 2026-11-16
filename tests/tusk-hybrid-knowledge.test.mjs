@@ -13,6 +13,10 @@ test('refuses personal identifiers and tokens in a public retrieval request',()=
  assert.equal(parsePublicQuery('my api key is sk-bad'),null);
  assert.equal(parsePublicQuery('hello'), 'hello');
  assert.equal(parsePublicQuery('hello\nmalicious'),null);
+ assert.equal(parsePublicQuery('My booking is AB123'),null);
+ assert.equal(parsePublicQuery('Our payment status'),null);
+ assert.equal(parsePublicQuery('use sk-abcdefghijklmnopqrstuvwxyz12345'),null);
+ assert.equal(parsePublicQuery('General safari permits for Gir'), 'General safari permits for Gir');
 });
 test('live prices and schedules cannot use semantic or exact answer cache',()=>{
  for(const query of ['What is the price today for a train to Mumbai?',

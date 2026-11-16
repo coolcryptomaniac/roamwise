@@ -4,6 +4,19 @@
 /* Keep the main app on Firebase. This is only a public, read-only source
    lookup against the SAME Cloudflare Worker other RoamWise features use.
    Never send Firebase tokens, cookies or private trip memory to this URL. */
+/* Public lookup is NOT for account, booking or contact details. Keep the
+   same screening in the browser before calling *any* third-party search. */
+function rwTuskIsPublicQuery(q){
+ var raw=String(q==null?'':q);
+ if(raw.length<5||raw.length>180||/[\r\n<>\u0000-\u001f]/.test(raw))return false;
+ var normalized=typeof raw.normalize==='function'?raw.normalize('NFKC'):raw;
+ if(/[\w.+-]+@[\w.-]+\.[a-z]{2,}/i.test(normalized))return false;
+ if(/(?:\+?\d[\d\s().-]{9,}\d)/.test(normalized))return false;
+ if(/\b(?:password|api[ _-]?key|private key|access token|auth(?:orization)? token|otp|account number|credit card|upi pin)\b/i.test(normalized))return false;
+ if(/\b(?:my|our)\s+(?:booking|reservation|account|payment|refund|wallet|order|ticket|flight|hotel|stay|trip history|itinerary)\b/i.test(normalized))return false;
+ if(/\b(?:sk-[a-z0-9_-]{12,}|ghp_[a-z0-9]{20,}|AIza[a-z0-9_-]{30,})\b/i.test(normalized))return false;
+ return normalized.trim().length>=5;
+}
 function rwTuskPublicSearchEndpoint(){
  var fromRuntime=null;
  try{if(typeof rwApi==='function')fromRuntime=rwApi('tusk/search');}catch(e){}
@@ -22,8 +35,8 @@ function rwTuskWorkerSearch(q,out){
  if(!endpoint)return Promise.resolve();
  // Public-only retrieval. Do not send PII or secrets to the search endpoint.
  // Server applies a second independent guard.
- var question=String(q||'').trim().slice(0,180);
- if(!question||/[\r\n<>]/.test(question)||/[\w.+-]+@[\w.-]+\.[a-z]{2,}/i.test(question))return Promise.resolve();
+ var question=String(q||'').trim();
+ if(!rwTuskIsPublicQuery(question))return Promise.resolve();
  var language='en-IN';
  try{var picker=document.getElementById('rwHomeVoiceLang');if(picker)language=picker.value||language;}catch(e){}
  return fetch(endpoint+'?q='+encodeURIComponent(question)+'&lang='+encodeURIComponent(language),{
@@ -62,6 +75,10 @@ function rwTuskSearchFailure(thinking,t,intents,err){
  intents._noGenericActions=true;
  if(known&&!/^<b>Explore /i.test(known)){
    cpFinish(thinking,known+'<br>'+note,intents,t);return;
+ }
+ if(!rwTuskIsPublicQuery(t)){
+   cpFinish(thinking,'<div class="tk-card"><div class="tk-head"><div class="tk-place">🔒 Private question</div></div><div class="tk-sec"><p>Public web lookup was skipped to protect personal or booking details. Remove private details for a general search, or use your secure RoamWise booking page.</p></div></div><br>'+note,intents,t);
+   return;
  }
  Promise.resolve().then(function(){return rwMiniSearch(t);}).then(function(res){
    var html=res?rwWebAnswerHTML(t,res):'<div class="tk-card"><div class="tk-head"><div class="tk-place">🔎 Unable to verify this answer</div></div><div class="tk-sec"><p>Available AI and public sources could not confirm this. Please refine the question or check a primary source.</p><div class="tk-chips"><a class="tk-chip" target="_blank" rel="noopener" href="https://www.google.com/search?q='+encodeURIComponent(t)+'">Google Search ↗</a><a class="tk-chip" target="_blank" rel="noopener" href="https://duckduckgo.com/?q='+encodeURIComponent(t)+'">DuckDuckGo ↗</a></div></div></div>';

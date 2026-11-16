@@ -11,6 +11,9 @@ const EMBEDDING_MODEL = '@cf/baai/bge-m3';
 const MAX_QUESTION = 180;
 const ID_RE = /^[a-z0-9][a-z0-9-]{0,59}$/;
 const SECRET_RE = /(?:\b[\w.+-]+@[\w.-]+\.[a-z]{2,}\b|\b(?:\+?\d[\d\s().-]{9,}\d)\b|\b(?:password|api[ _-]?key|private key|access token|otp|account number|credit card)\b)/i;
+// Even a manually constructed public API call must not be used for private trips.
+const PRIVATE_CONTEXT_RE = /\b(?:my|our)\s+(?:booking|reservation|account|payment|refund|wallet|order|ticket|flight|hotel|stay|trip history|itinerary)\b/i;
+const TOKEN_SHAPE_RE = /\b(?:sk-[a-z0-9_-]{12,}|ghp_[a-z0-9]{20,}|AIza[a-z0-9_-]{30,})\b/i;
 const DYNAMIC_RE = /\b(?:live|latest|today|now|right now|tomorrow|current|this week|price|cost|fare|booking|available|availability|open now|status|news|flight|train|ticket|weather|traffic|closed|schedule|rates?|stock|investor meeting|reservation)\b|आज|अभी|ಇಂದು|ಈಗ/i;
 const STOP = new Set('the and of on in is a an for to from do can you me my at with what how this that please want about when which trip travel tourism india tell give around'.split(' '));
 
@@ -20,7 +23,7 @@ export const parsePublicQuery = (text) => {
   // hide a newline inside an otherwise innocent public search.
   if(/[\r\n<>\u0000-\u001f]/.test(raw))return null;
   const query = raw.normalize('NFKC').replace(/\s+/g,' ').trim();
-  if(query.length < 5 || query.length > MAX_QUESTION || SECRET_RE.test(query)) return null;
+  if(query.length < 5 || query.length > MAX_QUESTION || SECRET_RE.test(query) || PRIVATE_CONTEXT_RE.test(query) || TOKEN_SHAPE_RE.test(query)) return null;
   return query;
 };
 export const isDynamicQuery = q => DYNAMIC_RE.test(String(q||''));
