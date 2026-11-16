@@ -277,7 +277,7 @@
     state.answerPending=false;
     if(!ensure())return false;
     var div=document.createElement('div');div.innerHTML=String(html||'');
-    div.querySelectorAll('script,style,button,nav,.rw-connected,.rw-rail').forEach(function(n){n.remove();});
+    div.querySelectorAll('script,style,button,nav,.rw-connected,.rw-rail,.rw-tusk-commerce').forEach(function(n){n.remove();});
     // Preserve all answer text in the Studio. The voice reads a shorter excerpt,
     // but users must not have to close the Studio to see the full itinerary.
     var complete=String(div.textContent||'').replace(/\s+/g,' ').trim().slice(0,20000);
