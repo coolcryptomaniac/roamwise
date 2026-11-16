@@ -12,7 +12,7 @@
  function rupees(paise){return '₹'+(Number(paise||0)/100).toLocaleString('en-IN',{maximumFractionDigits:2});}
  function money(inr){return '₹'+Math.round(Number(inr)||0).toLocaleString('en-IN');}
  function allowedQuery(q){
-   if(typeof rwTuskIsPublicQuery==='function'&&!rwTuskIsPublicQuery(q))return false;
+   if(typeof rwTuskIsPublicQuery!=='function'||!rwTuskIsPublicQuery(q))return false;
    return !/\b(?:emergency|ambulance|police|sos|assault|suicide|self harm|medical|injury|landslide|missing person|scam|fraud|otp|password)\b|आपातकाल|इमरजेंसी|मदद चाहिए/i.test(q||'');
  }
  function category(q){
