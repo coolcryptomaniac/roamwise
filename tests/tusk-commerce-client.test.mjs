@@ -9,7 +9,7 @@ function browser(){
  const catalogue={checkoutOpen:true,products:[
   {id:'almora-after-dark-hoodie',name:'Almora After Dark Oversized Hoodie',type:'Hoodie',pricePaise:199900,maxQty:5,variants:[{id:'black-s',label:'Black S'}]},
   {id:'roamwise-mandala-tote',name:'Red Mandala Tote',type:'Tote',pricePaise:79900,maxQty:5,variants:[{id:'standard',label:'Standard'}]}]};
- const rates={packages:[{id:'manali-snow-honeymoon',open:true,name:'Manali Snow Honeymoon',nightsLabel:'3 nights',from:{total:20000}}],stays:{milan:{name:'Milan Heights',kind:'advance'}}};
+ const rates={packages:[{id:'manali-snow-honeymoon',open:true,name:'Manali Snow Honeymoon',nightsLabel:'3 nights',from:{total:20000}}],stays:{milan:{name:'Milan Heights, Almora',place:'Almora',kind:'advance'}}};
  const window={};const mem=new Map();
  const ctx={window,document:{addEventListener:(event,fn)=>{listeners[event]=fn;}},
   localStorage:{getItem:k=>mem.get(k)||null,setItem:(k,v)=>mem.set(k,v)},
