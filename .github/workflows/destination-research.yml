@@ -1,0 +1,34 @@
+# Destination Knowledge Library research queue — no unattended SEO publishing.
+# A low-cost daily job produces 50 distinct identity-level research briefs.
+# Only signed-off source-backed editorial records can enter public pages.
+name: Destination research queue
+on:
+  schedule:
+    - cron: '20 2 * * *' # about 07:50 IST; GitHub schedules can be delayed
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  candidates:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+      - name: Generate deduplicated candidate briefs
+        shell: bash
+        run: |
+          node --check tools/knowledge-candidates.cjs
+          node tools/knowledge-candidates.cjs --date "$(date -u +%F)" --count 50 --out "$RUNNER_TEMP/destination-research-candidates.json"
+          node -e 'const a=require(process.env.RUNNER_TEMP+"/destination-research-candidates.json"); if(a.count!==50||a.items.some(x=>x.publicationStatus!=="research-candidate-only"||!x.noindex))process.exit(1); console.log("Candidate-only batch verified: "+a.count)'
+          echo "### RoamWise destination research queue" >> "$GITHUB_STEP_SUMMARY"
+          echo "50 source-verification candidates generated. **None published or sent to paid AI.**" >> "$GITHUB_STEP_SUMMARY"
+      - name: Store research queue for manual or agent-assisted drafting
+        uses: actions/upload-artifact@v7
+        with:
+          name: roamwise-destination-research
+          path: ${{ runner.temp }}/destination-research-candidates.json
+          retention-days: 30
+          if-no-files-found: error
