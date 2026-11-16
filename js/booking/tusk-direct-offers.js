@@ -22,6 +22,10 @@ var RW_OFFER_STAYS = {
   tattwaa: /tattwa+|tatwa/i, nanau: /\bnanau\b/i, padma: /\bpadma\b/i, aramness: /arama?ness|\bkothi\b/i
 };
 function rwOffersIntent(raw){
+  // The older Amor pre-answer must respect the same private/emergency rules
+  // as the new first-party offer rail. Never pitch a stay on a support case.
+  if(typeof rwTuskIsPublicQuery==='function'&&!rwTuskIsPublicQuery(raw))return null;
+  if(/\b(?:emergency|sos|ambulance|police|assault|injury|scam|fraud|refund|cancellation|complaint)\b|आपातकाल|इमरजेंसी/i.test(String(raw||'')))return null;
   var t = String(raw || '').toLowerCase();
   if(!t || t.length > 400) return null;
   var want = { groups: [], places: [], stays: [] };
