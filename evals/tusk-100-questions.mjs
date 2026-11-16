@@ -103,10 +103,10 @@ const groups=[
  ['Send this to guest@example.com','en-IN'],
  ['Check our refund status on my payment','en-IN'],
  ['What is my wallet balance?','en-IN'],
- ['My hotel reservation needs to change','en-IN'],
+ ['मेरी बुकिंग का स्टेटस बताओ','hi-IN'],
  ['I forgot my password for checkout','en-IN'],
  ['Call +91 9876543210 about a stay','en-IN'],
- ['Show our trip history','en-IN'],
+ ['ನನ್ನ ಬುಕಿಂಗ್ ವಿವರ ತೋರಿಸಿ','kn-IN'],
  ['My account number is 1234567890','en-IN'],
  ['Use api key sk-abcdefghijklmnopqrstuvwxyz12345','en-IN']
  ]],
