@@ -86,6 +86,11 @@ test('the real published directory is empty until the source directory has appro
  assert.equal(conceptIdeasFor('wedding_planner').some(x=>x.withRole==='wedding_venue'),true);
  assert.equal(conceptIdeasFor('creator').some(x=>x.withRole==='property'),true);
  assert.equal(conceptIdeasFor('traveller').length>0,true);
+ for(const role of Object.keys(ROLE_INFO)){
+  const ideas=conceptIdeasFor(role);
+  assert.ok(ideas.length>0,'expected at least one concept for '+role);
+  assert.ok(ideas.every(x=>x.forRole===role||x.withRole===role),'concept must involve selected role: '+role);
+ }
 });
 test('generated public match index contains no private records and is stable',()=>{
  execFileSync(process.execPath,['tools/build-network-matches.mjs','--check'],{cwd:ROOT,timeout:20000});
