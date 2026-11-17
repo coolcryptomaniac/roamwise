@@ -61,6 +61,7 @@ function rwMountBasicAISetting(){
     var title=document.createElement('b');title.textContent='Ailon Tusk · Included AI';box.appendChild(title);
     var status=document.createElement('p');status.id='rwBasicAIStatus';status.setAttribute('aria-live','polite');box.appendChild(status);
     var note=document.createElement('small');note.textContent='Short chat and travel plans. Requests use RoamWise\'s Cloudflare service. Daily availability is shared; search and saved guides remain available.';box.appendChild(note);
+    var credits=document.createElement('a');credits.href='/ai-credits/';credits.textContent='Explore AI credit packs · ₹10–₹1,000';credits.style.display='block';credits.style.marginTop='8px';box.appendChild(credits);
     host.insertBefore(box,host.firstChild);
   }
   rwBasicAIPaint();if(rwBasicAIAvailable())rwBasicAIRequest().catch(function(){rwBasicAIPaint();});

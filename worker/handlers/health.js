@@ -19,6 +19,8 @@ export function handleHealth(env){
       basicAI: env.BASIC_AI_ENABLED === 'true' && !!env.AI?.run
         && !!env.BASIC_AI_QUOTA && !!env.FIREBASE_SERVICE_ACCOUNT_JSON,
       basicAIMeter: !!env.BASIC_AI_QUOTA,
+      aiCreditLedger: !!env.AI_CREDIT_ACCOUNTS && !!env.AI_CREDIT_BUDGET,
+      aiCreditSales: env.AI_CREDITS_ENABLED === 'true',
       kv:     !!env.RW_KV,
       events: !!env.TICKETMASTER_KEY,
       refreshProtected: !!env.REFRESH_TOKEN,

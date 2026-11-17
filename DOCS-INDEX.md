@@ -42,6 +42,8 @@ no longer match the repo — flagged explicitly below and in the PR summary.
 
 ## Worker (Cloudflare) — read when touching `worker/`
 
+`docs/ai-credit-packs.md` — current implementation, 18 November 2026, sales disabled: INR 10–1,000 prepaid AI packs, model/service tariffs, SQLite balance integrity, Cashfree reconciliation, managed access versus BYOK, and staging/release requirements. Read before changing AI credit checkout, pricing, the financial ledger or Gateway enablement. The included free allowance is documented separately in `docs/shared-cloudflare-ai.md`.
+
 | File | Purpose | Status | Read this when... |
 |---|---|---|---|
 | `worker/WHATS-LEFT.md` | Current wiring status of the Worker: what's deployed vs. not, `rw-config.js`'s `backend`/`workerUrl` state. | current (verified: `rw-config.js` still has `backend:'firebase'`, `workerUrl:''` — Worker is still disconnected exactly as this doc says) | Before deploying or wiring up the Worker — this is the "what actually needs doing" doc. |
