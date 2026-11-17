@@ -107,9 +107,9 @@ test('WebGPU AI: setup failures become plain-language messages', () => {
   assert.match(ctx.rwWebGPUFriendlyError(new Error('Device lost: out of memory')), /Light size/);
 });
 
-test('BYOK is advanced-only: Groq, Cerebras, Gemini, Claude, OpenRouter; Tusk Automatic stays default', () => {
+test('BYOK is advanced-only, including Hugging Face; Tusk Automatic stays default', () => {
   const prov = fs.readFileSync(path.join(root, 'js/copilot/ai-providers.js'), 'utf8');
-  assert.match(prov, /RW_BYOK_PROVS=\['groq','cerebras','gemini','anthropic','openrouter'\]/);
+  assert.match(prov, /RW_BYOK_PROVS=\['groq','cerebras','gemini','anthropic','openrouter','huggingface'\]/);
   assert.match(prov, /function rwAdvancedAI\(\)\{ return window\.RW_IS_ADMIN===true \|\| lsGet\('rwAdvAI'\)==='1'; \}/);
   assert.match(prov, /cerebras:'https:\/\/api\.cerebras\.ai\/v1'/);
   const settings = fs.readFileSync(path.join(root, 'js/ui/settings-modal.js'), 'utf8');

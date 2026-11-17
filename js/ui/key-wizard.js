@@ -1,7 +1,7 @@
 // @ts-nocheck
 // 60-SECOND AI KEY WIZARD + MODEL COMPARISON ARENA — extracted verbatim from
 // app.js (modularization round 4). Onboarding flow that walks a user through
-// getting a free AI provider key (WIZ steps, keyProvider prefix-sniffing,
+// connecting an optional AI provider key (WIZ steps, keyProvider prefix-sniffing,
 // openProvider popup, wizPaint/wizNext/wizTest/wizSave/wizSmartPaste), plus
 // the "AI Arena" side-by-side model comparison (compareModels) reachable
 // from the itinerary result CTA. Depends on runtime globals from app.js
@@ -18,7 +18,10 @@ var WIZ=[
   trouble:'Billing prompt? That model is paid-only on your Google account. RoamWise calls Gemini Flash-Lite; free-tier limits and pricing are set by Google and can change.'},
  {p:'openrouter',n:'OpenRouter',url:'https://openrouter.ai/keys',why:'One key \u2192 many free models (lower daily cap)',ph:'sk-or-\u2026',
   steps:['Sign in (Google/GitHub)','Tap \u201cCreate Key\u201d','Copy the sk-or-\u2026 key'],
-  trouble:'Free slots are ~50 calls/day and queue at peak; a one-time $10 top-up raises it to ~1,000/day. Groq avoids that entirely.'}
+  trouble:'Free slots are ~50 calls/day and queue at peak; a one-time $10 top-up raises it to ~1,000/day. Groq avoids that entirely.'},
+ {p:'huggingface',n:'Hugging Face (your credits)',url:'https://huggingface.co/settings/tokens',why:'Optional paid usage on your HF account; tests also consume credits',ph:'hf_\u2026',
+  steps:['Check your Hugging Face billing balance; free accounts have no included monthly inference credits','Create a fine-grained token with Inference Providers permission','Copy the hf_ token; optionally choose a supported chat model below'],
+  trouble:'A read-only token may lack inference permission. Credit, model and provider limits are controlled by Hugging Face. Prompts go to HF and its selected provider.'}
 ];
 var wizI=0;
 function keyProvider(k){
@@ -27,6 +30,7 @@ function keyProvider(k){
   if(/^gsk_/.test(k)) return 'groq';
   if(/^sk-or-/.test(k)) return 'openrouter';
   if(/^sk-ant-/.test(k)) return 'anthropic';
+  if(/^hf_/.test(k)) return 'huggingface';
   /* Deliberately NOT guessing here: an unprefixed key used to be assumed
      Mistral, which hijacked other providers' keys and tested them against the wrong
      API — the reported "save & test fails". Unknown format => no guess, and
@@ -49,10 +53,11 @@ function openProvider(url){
 function openWizard(){ wizI=0; wizPaint(); el('wizOverlay').classList.add('open'); try{track('wiz_opens');}catch(e){ /* analytics best-effort, ignore */ } }
 function wizPaint(){
   var w=WIZ[wizI], has=!!lsGet('rwKey_'+w.p);
-  var armed=['sarvam','groq','cerebras','gemini','openrouter','mistral','anthropic','custom','ondevice','webgpu'].filter(function(p){return lsGet('rwKey_'+p);});
+  var armed=['sarvam','groq','cerebras','gemini','openrouter','mistral','anthropic','huggingface','custom','ondevice','webgpu'].filter(function(p){return lsGet('rwKey_'+p);});
   el('wizBody').innerHTML=
    '<div class="mode-box" style="margin-bottom:12px">\u26a1 <b>Smart paste:</b> already have ANY key? Paste it \u2014 I\u2019ll detect the provider, save & test it automatically.'
-  +'<div class="key-row" style="margin-top:8px"><input class="k-inp" id="wizAny" placeholder="AIza\u2026 / gsk_\u2026 / sk-or-\u2026 / sk-ant-\u2026"><button class="k-save" onclick="wizSmartPaste()">Detect & Save</button></div>'
+  +'<div class="key-row" style="margin-top:8px"><input class="k-inp" type="password" id="wizAny" placeholder="AIza\u2026 / gsk_\u2026 / sk-or-\u2026 / sk-ant-\u2026 / hf_\u2026"><button class="k-save" onclick="wizSmartPaste()">Detect & Save</button></div>'
+  +'<div class="key-box-hint">Testing sends a small request and may use provider credits. Hugging Face uses your paid HF balance.</div>'
   +'<div id="wizAnyStatus" style="font-size:11px;margin-top:6px;min-height:14px"></div></div>'
   +'<div style="font-size:11px;color:var(--t3);margin-bottom:6px">STEP '+(wizI+1)+' OF '+WIZ.length+(armed.length?' \u00b7 <span style="color:#16BF96">'+armed.length+' engine'+(armed.length>1?'s':'')+' armed \u2713</span>':'')+'</div>'
   +'<div style="font-size:16px;font-weight:700;margin-bottom:3px">'+w.n+(has?' <span style="color:#16BF96;font-size:11px">\u2713 saved</span>':'')+'</div>'
@@ -61,7 +66,8 @@ function wizPaint(){
   +'<div style="border:1px dashed var(--b2);border-radius:11px;padding:10px 12px;margin-bottom:10px">'
   + w.steps.map(function(s,i){return '<div class="ti-day"><b style="min-width:16px">'+(i+1)+'.</b><span>'+s+'</span></div>';}).join('')
   +'<div style="font-size:10px;color:var(--gold2);margin-top:5px">\ud83d\udca1 '+w.trouble+'</div></div>'
-  +'<div class="key-row"><input class="k-inp" id="wizKey" placeholder="2\ufe0f\u20e3 Paste the key \u2014 '+w.ph+'"><button class="k-save" onclick="wizSave()">Save & Test</button></div>'
+  +(w.p==='huggingface' ? '<div class="key-row"><input class="k-inp" id="wizHFModel" aria-label="Hugging Face model ID" maxlength="200" placeholder="'+AI_MODELS.huggingface[0]+'" value="'+String(lsGet('rwHFModel')||'').replace(/"/g,'&quot;')+'" oninput="lsSet(\'rwHFModel\',this.value.trim())"></div><div class="key-box-hint">Leave the model blank for '+AI_MODELS.huggingface[0]+'.</div>' : '')
+  +'<div class="key-row"><input class="k-inp" type="password" id="wizKey" placeholder="2\ufe0f\u20e3 Paste the key \u2014 '+w.ph+'"><button class="k-save" onclick="wizSave()">Save & Test</button></div>'
   +'<div id="wizStatus" style="font-size:11px;margin-top:8px;min-height:16px"></div>'
   +'<div style="display:flex;gap:8px;margin-top:12px">'
   +(wizI>0?'<button class="tact" style="flex:1" onclick="wizI--;wizPaint()">\u2190 Back</button>':'')
@@ -70,7 +76,7 @@ function wizPaint(){
 function wizNext(){ if(wizI<WIZ.length-1){ wizI++; wizPaint(); } else { el('wizOverlay').classList.remove('open'); showToast('\ud83e\udd16 AI armed \u2014 itineraries are now personalised'); } }
 function wizTest(prov,key,stEl,onOk){
   stEl.textContent='Testing '+prov+'\u2026'; stEl.style.color='var(--t3)';
-  aiRequest(prov, key, AI_MODELS[prov][0], 'Reply with exactly: OK', 10)
+  aiRequest(prov, key, rwAIProviderModels(prov)[0], 'Reply with exactly: OK', 10)
     .then(function(){ lsSet('rwKey_'+prov,key); activeProv=prov; lsSet('rwProv',prov);
       try{ rwAutoBackup(); rwOfferBackup(); }catch(e){ /* best-effort, ignore */ }
       stEl.textContent='\u2705 '+prov.charAt(0).toUpperCase()+prov.slice(1)+' is working \u2014 saved & set as your engine.'; stEl.style.color='#16BF96';
@@ -93,7 +99,7 @@ function wizSmartPaste(){
 }
 /* ===== MODEL COMPARISON ARENA ===== */
 function compareModels(name, days){
-  var provs = ['sarvam','groq','cerebras','gemini','openrouter','mistral','anthropic','custom','ondevice','webgpu'].filter(function(p){return lsGet('rwKey_'+p);});
+  var provs = ['sarvam','groq','cerebras','gemini','openrouter','mistral','anthropic','huggingface','custom','ondevice','webgpu'].filter(function(p){return lsGet('rwKey_'+p) && (p!=='huggingface'||activeProv==='huggingface');});
   var ov = el('cmpOverlay');
   if(!ov){
     ov=document.createElement('div'); ov.id='cmpOverlay'; ov.className='overlay';
@@ -114,7 +120,7 @@ function compareModels(name, days){
   var results=[];
   provs.forEach(function(p){
     var t0=Date.now();
-    aiRequest(p, lsGet('rwKey_'+p), AI_MODELS[p][0], prompt, 700)
+    aiRequest(p, lsGet('rwKey_'+p), rwAIProviderModels(p)[0], prompt, 700)
       .then(function(txt){ var dt=((Date.now()-t0)/1000).toFixed(1);
         el('cmpT_'+p).textContent=dt+'s'; el('cmpT_'+p).className='tbadge pop';
         el('cmpB_'+p).textContent=txt.slice(0,460)+(txt.length>460?'\u2026':'');

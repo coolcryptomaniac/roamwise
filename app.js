@@ -310,6 +310,7 @@ var AI_MODELS = {
   cerebras: ['gpt-oss-120b','llama3.1-8b','llama-3.3-70b'],
   gemini: ['gemini-3.5-flash-lite','gemini-3.8-flash','gemini-flash-latest'],
   custom: [''],
+  huggingface: ['meta-llama/Llama-3.1-8B-Instruct:cheapest'],
   ondevice: ['on-device'],
   webgpu: ['webgpu'],
   openrouter: ['meta-llama/llama-3.3-70b-instruct:free','mistralai/mistral-small-3.1-24b-instruct:free','google/gemma-3-27b-it:free'],

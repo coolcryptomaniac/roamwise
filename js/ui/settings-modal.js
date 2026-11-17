@@ -141,6 +141,7 @@ var PROV_META = {
   webgpu:   {label:'On this device (WebGPU) \u00b7 phone or PC graphics chip', hint:'Free and private. Downloads a small open model once (about 0.7 to 1.8 GB). Needs Chrome or Edge with WebGPU; best on 8 GB+ RAM. Uses battery; keep Wi-Fi on for the download', url:'https://webllm.mlc.ai', ph:''},
   custom:   {label:'Local server (Ollama, LM Studio)', hint:'Runs on your own PC. Set the base URL + model below; the key can be any text. Ollama needs OLLAMA_ORIGINS=https://www.roamwise.co.in', url:'https://ollama.com/download', ph:'any text (local) or API key'},
   openrouter:{label:'OpenRouter \u00b7 many models', hint:'openrouter.ai/keys \u2014 free slots ~50/day', url:'https://openrouter.ai/keys', ph:'sk-or-...'},
+  huggingface:{label:'Hugging Face \u00b7 your credits', hint:'Create a token with Inference Providers permission. Requests and tests use your HF credits; free accounts have no included monthly credits. Your prompts go to HF and its selected provider.', url:'https://huggingface.co/settings/tokens', ph:'hf_...'},
   sarvam:   {label:'Sarvam AI \u00b7 India-first chat', hint:'dashboard.sarvam.ai \u2014 Sarvam-105B Conversations for Indian-language and code-mixed chat', url:'https://dashboard.sarvam.ai', ph:'sk_...'},
   mistral:  {label:'Mistral', hint:'console.mistral.ai \u2014 free prototyping tier', url:'https://console.mistral.ai/api-keys', ph:'...'},
   anthropic:{label:'Claude (Anthropic)', hint:'console.anthropic.com \u2014 paid only, no free tier', url:'https://console.anthropic.com/settings/keys', ph:'sk-ant-...'}
@@ -156,6 +157,10 @@ function renderKeyBoxes(){
       +'<div class="key-box-name">'+m.label+(free?' <span style="font-size:9px;color:#4ADE80;border:1px solid rgba(74,222,128,.4);border-radius:999px;padding:1px 6px;margin-left:4px">no card</span>':'')
       +' <span class="key-status ks-empty" id="'+p+'Status">not set</span></div>'
       +'<div class="key-box-hint"><a href="'+m.url+'" target="_blank" rel="noopener">'+m.hint+'</a></div>'
+      +(p==='huggingface'
+        ? '<div class="key-row"><input class="k-inp" type="text" id="huggingfaceModel" aria-label="Hugging Face model ID" maxlength="200" placeholder="'+AI_MODELS.huggingface[0]+'" value="'+String(lsGet('rwHFModel')||'').replace(/"/g,'&quot;')+'" oninput="lsSet(\'rwHFModel\',this.value.trim())"></div>'
+          +'<div class="key-box-hint">Optional model ID; leave blank for '+AI_MODELS.huggingface[0]+'. <a href="https://huggingface.co/playground" target="_blank" rel="noopener">Choose a supported chat model</a>. Used only when you select Hugging Face.</div>'
+        : '')
       +(p==='webgpu'
         ? '<div class="key-row"><select class="k-inp" id="webgpuSize">'+Object.keys(RW_WEBGPU_MODELS).map(function(k){ return '<option value="'+k+'">'+RW_WEBGPU_MODELS[k].label+'</option>'; }).join('')+'</select></div>'
           +'<div class="key-row"><button class="k-save" onclick="rwEnableWebGPU()">Download &amp; enable</button><button class="k-clear" onclick="rwRemoveWebGPU()">Remove model</button></div>'
@@ -175,6 +180,8 @@ function renderKeyBoxes(){
 }
 function openSettings(){
   renderKeyBoxes();
+  /* Rebuild controls from the current opt-in state when reopening Settings. */
+  ['advToggle','advOptIn','advOff'].forEach(function(id){ var n=el(id); if(n) n.remove(); });
   try{ rwMountPersonalisationSetting(); }catch(e){ /* optional on-device preferences */ }
   try{ rwMountWalletColorSetting(); }catch(e){ /* wallet colour picker is optional */ }
   try{ rwRenderLinkedSignInMethods(); }catch(e){ /* auth may still be loading */ }
@@ -194,7 +201,7 @@ function openSettings(){
       var adv = [];
       secs.forEach(function(sec){
         var t = (sec.textContent||'');
-        if(/AI Mode|API Keys/i.test(t)) adv.push(sec);
+        if(/AI Mode|API Keys/i.test(t) || sec.querySelector('.prov-select, #keyBoxes')) adv.push(sec);
       });
       if(adv.length){
         /* Customers get one automatic Ailon mode. Provider/key controls are
@@ -215,7 +222,7 @@ function openSettings(){
           return;
         }
         if(window.RW_IS_ADMIN!==true&&!el('advOff')){ var off=document.createElement('button'); off.id='advOff'; off.className='tact'; off.style.cssText='width:100%;margin:0 0 10px;font-size:12px;opacity:.7'; off.textContent='Turn off advanced AI (use Ailon Tusk Automatic)'; off.onclick=function(){ lsSet('rwAdvAI',''); if(activeProv!=='roamwise'&&activeProv!=='smart'&&activeProv!=='ondevice'&&activeProv!=='webgpu'&&activeProv!=='custom') setProv(isPro?'roamwise':'smart'); showToast('Back to Ailon Tusk Automatic'); closeSettings(); }; body.insertBefore(off, body.firstChild); }
-        var hasKey = activeProv==='roamwise' || ['sarvam','groq','cerebras','gemini','openrouter','mistral','anthropic','custom','ondevice','webgpu'].some(function(x){ return lsGet('rwKey_'+x); });
+        var hasKey = activeProv==='roamwise' || ['sarvam','groq','cerebras','gemini','openrouter','mistral','anthropic','huggingface','custom','ondevice','webgpu'].some(function(x){ return lsGet('rwKey_'+x); });
         var btn = document.createElement('button');
         btn.id='advToggle'; btn.className='tact';
         btn.style.cssText='width:100%;margin:4px 0 10px;font-size:12.5px';
@@ -230,7 +237,7 @@ function openSettings(){
       }
     }
   }, 0);
-  ['sarvam','groq','cerebras','gemini','openrouter','mistral','anthropic','custom','ondevice','webgpu'].forEach(function(p){
+  ['sarvam','groq','cerebras','gemini','openrouter','mistral','anthropic','huggingface','custom','ondevice','webgpu'].forEach(function(p){
     var inp=el(p+'Key'), stat=el(p+'Status'), val=lsGet('rwKey_'+p);
     if(inp) inp.value=val;
     if(stat){ stat.textContent = val?'set':'not set'; stat.className = 'key-status '+(val?'ks-set':'ks-empty'); }
@@ -248,9 +255,9 @@ function setProv(p){
   document.querySelectorAll('.prov-btn').forEach(function(b){ b.classList.toggle('on', b.dataset.p===p); });
   var chip = el('modeChip');
   if(chip){
-    var labels = {smart:'Smart Mode (free)', roamwise:'RoamWise Hosted AI', gemini:'Gemini AI (free)', groq:'Groq AI (free)', cerebras:'Cerebras AI', sarvam:'Sarvam India AI', anthropic:'Claude AI'};
+    var labels = {smart:'Smart Mode (free)', roamwise:'RoamWise Hosted AI', gemini:'Gemini AI (free)', groq:'Groq AI (free)', cerebras:'Cerebras AI', sarvam:'Sarvam India AI', anthropic:'Claude AI', huggingface:'Hugging Face (your credits)'};
     chip.textContent = labels[p]||p;
-    chip.className = 'mode-chip '+(p==='anthropic'||p==='roamwise'?'mode-ai':'mode-free');
+    chip.className = 'mode-chip '+(p==='anthropic'||p==='roamwise'||p==='huggingface'?'mode-ai':'mode-free');
   }
   showToast(p==='smart' ? 'Smart Search active (no key needed)' : p==='roamwise' ? 'RoamWise Hosted AI active — monthly allowance applies' : 'AI mode: '+(p.charAt(0).toUpperCase()+p.slice(1)));
 }
