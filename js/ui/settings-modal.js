@@ -180,6 +180,7 @@ function renderKeyBoxes(){
 }
 function openSettings(){
   renderKeyBoxes();
+  try{ rwMountBasicAISetting(); }catch(e){ /* included AI is optional */ }
   /* Rebuild controls from the current opt-in state when reopening Settings. */
   ['advToggle','advOptIn','advOff'].forEach(function(id){ var n=el(id); if(n) n.remove(); });
   try{ rwMountPersonalisationSetting(); }catch(e){ /* optional on-device preferences */ }

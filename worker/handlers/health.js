@@ -16,6 +16,9 @@ export function handleHealth(env){
       aiKey:  !!env.GROQ_API_KEY,
       aiModel: !!env.GROQ_MODEL,
       aiMeter: !!env.AI_USAGE,
+      basicAI: env.BASIC_AI_ENABLED === 'true' && !!env.AI?.run
+        && !!env.BASIC_AI_QUOTA && !!env.FIREBASE_SERVICE_ACCOUNT_JSON,
+      basicAIMeter: !!env.BASIC_AI_QUOTA,
       kv:     !!env.RW_KV,
       events: !!env.TICKETMASTER_KEY,
       refreshProtected: !!env.REFRESH_TOKEN,
