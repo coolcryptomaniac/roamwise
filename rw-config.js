@@ -8,6 +8,8 @@ window.RW_CONFIG = {
      when configured, otherwise the existing Firebase/device path. */
   backend: 'firebase',
   workerUrl: '',
+  /* Dedicated included-AI route; does not switch payments or other backends. */
+  basicAI: { enabled: true, url: 'https://roamwise-api.founder-f53.workers.dev/ai/basic' },
   /* Separate regulated-money control plane for creator campaigns. Leave blank
      until provider underwriting, KYC and protected-hold terms are approved. */
   creatorProtectionUrl: '',
