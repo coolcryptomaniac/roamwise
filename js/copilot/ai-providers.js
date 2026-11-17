@@ -22,13 +22,41 @@ function extractJSON(txt){
 /* Bring-your-own-key is for advanced users only. Everyone else gets Ailon Tusk
    Automatic (answer cache + RoamWise Workers AI). Admins always qualify; anyone
    else opts in from Settings. BYOK providers: Groq, Cerebras, Gemini, Claude,
-   OpenRouter (on-device / local-server options stay open to all). */
-var RW_BYOK_PROVS=['groq','cerebras','gemini','anthropic','openrouter'];
+   OpenRouter, Hugging Face (on-device / local-server options stay open to all). */
+var RW_BYOK_PROVS=['groq','cerebras','gemini','anthropic','openrouter','huggingface'];
 function rwAdvancedAI(){ return window.RW_IS_ADMIN===true || lsGet('rwAdvAI')==='1'; }
+
+/* HF is billed to the user's account. It is used only when selected, never
+   added to the automatic fallback pool. Model IDs stay editable as HF's
+   available models/providers change; no paid generation is used to list them. */
+function rwAIProviderModels(prov){
+  var configured=prov==='huggingface' ? String(lsGet('rwHFModel')||'').trim() : '';
+  return configured ? [configured] : (AI_MODELS[prov]||[]);
+}
+function rwHFError(status){
+  var messages={
+    401:'Hugging Face token rejected. Create a new token in HF settings.',
+    402:'Hugging Face credits required. Check your HF billing balance.',
+    403:'Enable Inference Providers permission for this Hugging Face token.',
+    404:'Hugging Face model unavailable. Choose a chat model in Settings.',
+    429:'Hugging Face rate limit reached. Wait before trying again.',
+    503:'Hugging Face model is temporarily unavailable. Try again later.'
+  };
+  return messages[status]||('Hugging Face request failed (HTTP '+status+'). Check your model and account settings.');
+}
 
 function aiRequest(prov, key, model, prompt, maxTok, jsonMode){
   if(prov==='webgpu') return rwWebGPUAsk(prompt, maxTok);  /* GPU model in the browser */
   if(prov==='ondevice') return rwOnDeviceAsk(prompt);  /* runs in the browser: no URL, key or timeout */
+  if(prov==='huggingface'){
+    if(!/^hf_[A-Za-z0-9]+$/.test(String(key||''))) return Promise.reject(new Error('Paste a Hugging Face hf_ token with Inference Providers permission.'));
+    model=String(lsGet('rwHFModel')||model||'').trim();
+    if(model.length>200 || !/^[A-Za-z0-9][\w.-]*\/[A-Za-z0-9][\w.-]*(?::[A-Za-z0-9][\w.-]*)?$/.test(model)) return Promise.reject(new Error('Enter a Hugging Face chat model ID: owner/model, optionally :provider.'));
+    maxTok=Math.max(1,Math.min(4096,Math.floor(Number(maxTok)||700)));
+    /* JSON-mode support varies by HF provider; keep the existing tolerant
+       parser and explicit prompt instead of requiring unsupported json_object. */
+    if(jsonMode) prompt=String(prompt)+'\nReturn only valid JSON, without Markdown fences or commentary.';
+  }
   var url, headers, body;
   if(prov==='anthropic'){
     url='https://api.anthropic.com/v1/messages';
@@ -41,7 +69,8 @@ function aiRequest(prov, key, model, prompt, maxTok, jsonMode){
     body=JSON.stringify({contents:[{parts:[{text:prompt}]}], generationConfig:gc});
   } else {
     var bases={groq:'https://api.groq.com/openai/v1', openrouter:'https://openrouter.ai/api/v1',
-      mistral:'https://api.mistral.ai/v1', sarvam:'https://api.sarvam.ai/v1', cerebras:'https://api.cerebras.ai/v1'};
+      mistral:'https://api.mistral.ai/v1', sarvam:'https://api.sarvam.ai/v1', cerebras:'https://api.cerebras.ai/v1',
+      huggingface:'https://router.huggingface.co/v1'};
     if(prov==='custom'){
       bases.custom=(lsGet('rwCustomBase')||'http://localhost:11434/v1').replace(/\/+$/,'');
       model=lsGet('rwCustomModel')||model;
@@ -50,17 +79,20 @@ function aiRequest(prov, key, model, prompt, maxTok, jsonMode){
     headers={'Content-Type':'application/json','Authorization':'Bearer '+key};
     if(prov==='openrouter'){ headers['HTTP-Referer']='https://www.roamwise.co.in'; headers['X-Title']='RoamWise Pro'; }
     var ob={model:model, max_tokens:maxTok, messages:[{role:'user',content:prompt}]};
-    if(jsonMode && prov!=='openrouter') ob.response_format={type:'json_object'};
+    if(jsonMode && prov!=='openrouter' && prov!=='huggingface') ob.response_format={type:'json_object'};
     body=JSON.stringify(ob);
   }
   var ctrl = ('AbortController' in window)? new AbortController() : null;
   var tmr = ctrl? setTimeout(function(){ ctrl.abort(); }, 15000) : null;
-  return fetch(url,{method:'POST',headers:headers,body:body,signal:ctrl?ctrl.signal:undefined})
-    .then(function(r){ return r.json().then(function(d){ return {status:r.status, data:d}; }); })
+  return fetch(url,{method:'POST',headers:headers,body:body,signal:ctrl?ctrl.signal:undefined,
+    credentials:prov==='huggingface'?'omit':undefined,redirect:prov==='huggingface'?'error':'follow'})
+    .then(function(r){ return r.json().catch(function(e){ if(prov==='huggingface') return {}; throw e; }).then(function(d){ return {status:r.status, data:d}; }); })
     .then(function(res){
       clearTimeout(tmr);
       var data=res.data;
       if(res.status>=400){
+        /* Do not display an upstream echo of a user's credential or prompt. */
+        if(prov==='huggingface'){ var he=new Error(rwHFError(res.status)); he.httpStatus=res.status; throw he; }
         var em=(data&&data.error&&(data.error.message||data.error))
               || (data&&data.message)  /* Cerebras & friends: flat {message,type,code} */
               || ('HTTP '+res.status);
@@ -128,7 +160,7 @@ function aiCall(prompt, maxTok, cb, jsonMode){
     return;
   }
   if(prov==='smart' || !key){ lastAiSource=null; cb(null,null); return; }
-  var models = AI_MODELS[prov]||[];
+  var models = rwAIProviderModels(prov);
   /* Groq: put whatever testKey() last discovered as a REAL working model for
      THIS key (via Groq's live /models endpoint) first in line, ahead of the
      static guesses — it's always at least as current as this hardcoded list. */
@@ -161,6 +193,8 @@ function aiCallAny(prompt, maxTok, cb, jsonMode){
     aiCall(prompt,maxTok,cb,jsonMode);
     return;
   }
+  /* HF deliberately stays out of this list: a saved key alone is not consent
+     to spend HF credits when another provider or Smart mode is selected. */
   var all=['sarvam','groq','cerebras','gemini','openrouter','mistral','anthropic','custom','ondevice','webgpu'];
   var order=[activeProv].concat(all.filter(function(p){ return p!==activeProv; }))
     .filter(function(p){ return p && p!=='smart' && lsGet('rwKey_'+p); });
@@ -168,7 +202,7 @@ function aiCallAny(prompt, maxTok, cb, jsonMode){
   var oi=0;
   (function nextProv(lastErr){
     if(oi>=order.length){ lastAiSource=null; cb(lastErr||'All providers failed', null); return; }
-    var prov=order[oi++], key=lsGet('rwKey_'+prov), models=AI_MODELS[prov]||[], mi=0;
+    var prov=order[oi++], key=lsGet('rwKey_'+prov), models=rwAIProviderModels(prov), mi=0;
     (function tryM(err){
       if(mi>=models.length){ nextProv(err); return; }
       var m=models[mi++];
@@ -186,14 +220,15 @@ function aiCallAny(prompt, maxTok, cb, jsonMode){
 /* Key tester
  — used by the Test buttons in Settings */
 function testKeyFallbackChain(prov, key, st){
-  var models=AI_MODELS[prov]||[], i=0;
+  var models=rwAIProviderModels(prov), i=0;
   (function tryM(lastErr){
     if(i>=models.length){ st.textContent='✗ '+String(lastErr).slice(0,60); st.className='key-status ks-bad'; showToast('Key failed: '+String(lastErr).slice(0,80)); return; }
     var m=models[i++];
     aiRequest(prov,key,m,'Reply with exactly: OK',10)
       .then(function(){ st.textContent='✓ working ('+m+')'; st.className='key-status ks-ok'; showToast(prov+' key verified ✓'); if(prov==='groq') lsSet('rwKey_groq_model', m); })
       .catch(function(e){
-        if(e.httpStatus===401||e.httpStatus===403){ st.textContent='✗ invalid key'; st.className='key-status ks-bad'; showToast('Key rejected — regenerate it and paste again'); }
+        if(prov==='huggingface'){ st.textContent='✗ '+String(e.message||e); st.className='key-status ks-bad'; }
+        else if(e.httpStatus===401||e.httpStatus===403){ st.textContent='✗ invalid key'; st.className='key-status ks-bad'; showToast('Key rejected — regenerate it and paste again'); }
         else tryM(e.message||e);
       });
   })(null);

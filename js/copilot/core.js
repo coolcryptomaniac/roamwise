@@ -101,7 +101,7 @@ var _cpHist = []; /* [{q,a}] capped — gives the AI real conversational memory 
 function cpModelChips(targetId){
   var host = el(targetId); if(!host) return;
   var admin = rwAdvancedAI();
-  var provs = admin ? ['sarvam','groq','cerebras','gemini','openrouter','mistral','anthropic','custom','ondevice','webgpu'].filter(function(p){ return lsGet('rwKey_'+p); }) : [];
+  var provs = admin ? ['sarvam','groq','cerebras','gemini','openrouter','mistral','anthropic','huggingface','custom','ondevice','webgpu'].filter(function(p){ return lsGet('rwKey_'+p); }) : [];
   var cur = (typeof activeProv!=='undefined')? activeProv : 'smart';
   var chips = [['smart','\u26a1 Ailon Tusk Automatic']].concat(provs.map(function(p){ return [p, p.charAt(0).toUpperCase()+p.slice(1)]; }));
   host.innerHTML = chips.map(function(c){

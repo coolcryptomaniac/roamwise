@@ -57,7 +57,7 @@ Daily hub implementation: `features/kainchi-yatra/docs/DAILY-UPDATES.md`.
 Original Phase 0 hand-off: `features/kainchi-yatra/docs/CHATGPT-BRIEF.md`.
 
 As of this commit (post PRs #138-143, plus the subscription-vs-one-off
-Cashfree gating pass), `app.js` is **581 lines** (down from ~19,300 at the
+Cashfree gating pass), `app.js` is **582 lines** (down from ~19,300 at the
 start of the modularization effort, down from 3,099 after the prior
 "modularization-final" pass, down from 1,207 after "round 4", and down from
 629 after "round 5" — the further changes since round 5 are incidental to

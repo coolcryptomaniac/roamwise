@@ -1587,7 +1587,7 @@ body[data-view="home"] #rwEveryday,body[data-view="home"] #promofilm {display:no
 <div class="overlay" id="wizOverlay">
   <div class="modal" style="max-width:400px">
     <button class="modal-close" onclick="el('wizOverlay').classList.remove('open')">&#215;</button>
-    <div class="modal-head"><div class="modal-title">&#129504; 60-second AI setup</div><div class="modal-sub">Free keys &mdash; open, copy, paste, done</div></div>
+    <div class="modal-head"><div class="modal-title">&#129504; 60-second AI setup</div><div class="modal-sub">Optional provider keys &mdash; usage and billing depend on your provider</div></div>
     <div class="modal-body" id="wizBody"></div>
   </div>
 </div>
@@ -1847,6 +1847,7 @@ body[data-view="home"] #rwEveryday,body[data-view="home"] #promofilm {display:no
           <button class="prov-btn" data-p="gemini" onclick="setProv('gemini')"><span class="pn">&#10024; Gemini Flash</span><span class="ps ps-free">Google &bull; Free tier</span></button>
           <button class="prov-btn" data-p="groq" onclick="setProv('groq')"><span class="pn">&#10024; Llama 3 (Groq)</span><span class="ps ps-free">Groq &bull; Free tier</span></button>
           <button class="prov-btn" data-p="openrouter" onclick="setProv('openrouter')"><span class="pn">&#128640; OpenRouter</span><span class="ps ps-free">1 key &bull; many FREE models</span></button>
+          <button class="prov-btn" data-p="huggingface" onclick="setProv('huggingface')"><span class="pn">Hugging Face</span><span class="ps ps-paid">Your key &bull; Your HF credits</span></button>
           <button class="prov-btn" data-p="sarvam" onclick="setProv('sarvam')"><span class="pn">&#127470;&#127475; Sarvam AI</span><span class="ps ps-paid">India-first chat &bull; voice-ready</span></button>
           <button class="prov-btn" data-p="mistral" onclick="setProv('mistral')"><span class="pn">&#127467;&#127479; Mistral</span><span class="ps ps-free">Free tier</span></button>
           <button class="prov-btn" data-p="anthropic" onclick="setProv('anthropic')"><span class="pn">&#10024; Claude Sonnet</span><span class="ps ps-paid">Anthropic &bull; $0.023/req</span></button>
