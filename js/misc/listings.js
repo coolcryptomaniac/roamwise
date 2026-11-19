@@ -71,7 +71,7 @@ function rwListingAll(){
   out.forEach(function(x){
     if(!x._ownBadges) x._ownBadges = (x.badges||[]).slice();
     var base = x._ownBadges.length ? x._ownBadges.slice() : [];
-    if(x.enquiryOnly===true) base=['founder'];
+    if(x.enquiryOnly===true) base=[x.verified==='self-listed'?'selflisted':'founder'];
     if(!base.length){ base = x.verified==='signed' ? ['verified'] : ['listed']; if((x.rating||0)>=4.8 && (x.reviews||0)>=200) base.push('loved'); }
     /* Automatic compliance check: same rules every time, from evidence already on file. */
     if(typeof RWTrust!=='undefined'){
@@ -86,11 +86,16 @@ function rwListingAll(){
   return out.sort(function(a,b){ return rwBadgeRank(b)-rwBadgeRank(a); });
 }
 function rwBadgeRank(x){
-  var order=['listed','founder','verified','checked','gst','trusted','slept','loved','green','local','signature'];
+  var order=['listed','selflisted','founder','verified','checked','gst','trusted','slept','loved','green','local','signature'];
   return (x.badges||[]).reduce(function(m,b){ return Math.max(m, order.indexOf(b)); }, -1);
 }
 function rwListingFor(badge){
   return rwListingAll().filter(function(x){ return (x.badges||[]).indexOf(badge)>-1; }).slice(0,8);
+}
+/* Segments and package names from a self-listed host (never prices: those are confirmed on enquiry). */
+function rwListSegLine(x){
+  var seg=(x.segmentLabels||[]).slice(0,2), pk=(x.packages||[]).slice(0,2).map(function(p){ return p.name+(p.nights?' ('+p.nights+'N)':''); });
+  var t=seg.concat(pk); return t.length?'<div class="lst-w" style="opacity:.85">'+esc2(t.join(' \u00b7 '))+'</div>':'';
 }
 function rwListCard(x, rail){
   var bl=(x.badges||[]).slice(-2);
@@ -102,6 +107,7 @@ function rwListCard(x, rail){
     +'</div>'
     +'<div class="lst-w">'+esc2((x.area||'')+(x.area?' \u00b7 ':'')+(x.zone||''))+'</div>'
     +'<div class="lst-bd">'+bl.map(rwBadge).join(' ')+'</div>'
+    + rwListSegLine(x)
     + (x.price&&!x.enquiryOnly? '<div class="lst-p"><b>\u20b9'+Number(x.price).toLocaleString('en-IN')+'</b> night</div>':'')
     +'<button type="button" class="td-save-stay" onclick="event.stopPropagation();rwTripShortlist(decodeURIComponent(\''+encodeURIComponent(x.id).replace(/'/g,'%27')+'\'))">Save to my trip</button>'
     +'</div></div>';

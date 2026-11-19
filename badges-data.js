@@ -13,6 +13,9 @@ window.RW_TRUST_BADGES = {
   founder: { id:'founder', label:'Founder introduced', short:'Enquiry only', icon:'', color:'#E8BE77',
     means:'Published at the founder’s request. The property agreement is pending; RoamWise confirms the room, rate and terms before you pay.',
     earn:'Founder approved this introduction; no signed agreement, payment readiness or property inspection is implied.' },
+  selflisted: { id:'selflisted', label:'New on RoamWise', short:'New · enquiry', icon:'', color:'#A5B4FC',
+    means:'The host listed it and signed the RoamWise MOU, and it passed our automatic checks. RoamWise has not visited yet; we confirm the room, rate and terms before you pay.',
+    earn:'Host self-listed: MOU signed, verified email and phone, map or website link, real photo.' },
   partner: {
     id:'partner', label:'Signed RoamWise Partner', short:'Signed Partner', icon:'\u2705',
     color:'#5EEAD4',

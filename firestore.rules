@@ -1759,6 +1759,20 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
 
+    // Self-listing (worker/handlers/partner-self-list.js). Written ONLY by the
+    // Worker's service account (which bypasses rules). mouEvidence holds the IP,
+    // browser and verified email recorded when a host signed the MOU: admin-only.
+    // selfListing holds the latest automatic-check result: the host may read
+    // their own, so the join page can show what to fix.
+    match /mouEvidence/{uid} {
+      allow read: if isAdmin();
+      allow create, update, delete: if false;
+    }
+    match /selfListing/{uid} {
+      allow read: if isPartner(uid) || isAdmin() || isPartnerships();
+      allow create, update, delete: if false;
+    }
+
     // ---------- PUBLIC PARTNER CURATION -------------------------------
     // Public-safe, admin-owned projection for marketplace trust/character labels.
     // Hosts can edit their room inventory, but cannot self-award Premium,

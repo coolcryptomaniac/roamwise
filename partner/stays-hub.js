@@ -54,7 +54,7 @@
   }
 
   function badgeHtml(p) {
-    if (p.enquiryOnly) return '<span class="rw-stay-pill">Founder introduced</span><span class="rw-stay-pill alt">Enquiry only</span>';
+    if (p.enquiryOnly) return '<span class="rw-stay-pill">' + (p.verified === 'self-listed' ? 'New on RoamWise' : 'Founder introduced') + '</span><span class="rw-stay-pill alt">Enquiry only</span>';
     var out = ['<span class="rw-stay-pill">RoamWise Partner</span>'];
     try {
       var T = root.RWTrust, B = root.RW_TRUST_BADGES;

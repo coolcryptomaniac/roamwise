@@ -35,7 +35,7 @@ function rwRoomsLive(){
 /* Has this property been opened for bookings? (admin saved a mode, or a founder-approved enquiry listing) */
 function rwBookingOpen(p){
   if(!p) return false;
-  if(p.enquiryOnly===true) return p.verified==='founder-approved'&&!!p.founderApproval;
+  if(p.enquiryOnly===true) return (p.verified==='founder-approved'&&!!p.founderApproval)||(typeof window.rwSelfListedOk==='function'&&window.rwSelfListedOk(p));
   var mode=String(p.bookingMode||'').toLowerCase();
   if(mode==='direct') return (window.RW_ROOMS||[]).some(function(r){ return r.partnerId===p.id&&rwRoomIsLive(r); });
   return !!mode;

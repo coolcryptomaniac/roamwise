@@ -132,7 +132,7 @@ function rwTuskPartnerStayHTML(raw,dest,now){
         href+='?text='+encodeURIComponent(rwBookingText(p,{checkIn:dates&&dates.checkIn,checkOut:dates&&dates.checkOut,guests:guests}));
       }
       return '<div style="padding:12px 0;border-bottom:1px solid var(--b2)"><b>'+esc2(p.name)+'</b>'
-        +'<div class="rw-note">'+esc2(p.area||p.zone||'')+' · '+(p.enquiryOnly?'Founder introduced · enquiry only':'Signed partner')+'</div>'
+        +'<div class="rw-note">'+esc2(p.area||p.zone||'')+' · '+(p.enquiryOnly?(p.verified==='self-listed'?'New on RoamWise · enquiry only':'Founder introduced · enquiry only'):'Signed partner')+'</div>'
         +'<div class="rw-note">RoamWise confirms the room and the all-in price for your dates.</div>'
         +'<a class="tk-chip gold" href="'+esc2(href)+'" target="_blank" rel="noopener noreferrer">'+esc2(label)+'</a></div>';
     }).join('')+'<p class="rw-note">Book and pay only through RoamWise. A chat is not a reservation until RoamWise confirms your room and sends the payment link.</p></div></div>';

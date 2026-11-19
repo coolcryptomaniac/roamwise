@@ -153,5 +153,5 @@ $('emailCreate').onclick=function(){emailSignUp(true)};$('emailLogin').onclick=f
 if(auth)auth.getRedirectResult().catch(function(err){pending=false;try{sessionStorage.removeItem('rwJoinPending')}catch(e){}tell(err&&err.message?err.message:'Could not finish sign-in. Please try email instead.',true)});
 })();
 </script>
-<script src="longstay.js"></script>
+<script src="longstay.js"></script><script src="segments.js"></script>
 </body></html>
