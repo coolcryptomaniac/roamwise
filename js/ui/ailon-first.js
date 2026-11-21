@@ -2,7 +2,7 @@
    this file does not pretend to confirm payments or supplier inventory. */
 (function () {
   'use strict';
-  var W = window;
+  var W = /** @type {any} */ (window);
   var PROMPTS = {
     itinerary: 'Help me plan a complete trip. Ask me for my destination, dates, number of travellers, interests and total budget. Build a day-by-day itinerary and show any missing arrangements before I book.',
     stay: 'Help me find a trustworthy stay. Ask for destination, dates, group size and budget. Compare suitable options, clarify availability and total price, and guide me to a booking enquiry.',
@@ -24,7 +24,7 @@
   };
   var lastPromptAt=0;
   function startPrompt(key){
-    var inp=document.getElementById('heroInput'), prompt=PROMPTS[key];
+    var inp=/** @type {HTMLTextAreaElement|null} */ (document.getElementById('heroInput')), prompt=PROMPTS[key];
     if(!inp || !prompt) return false;
     var now=Date.now(); if(now-lastPromptAt<900) return true; lastPromptAt=now;
     if(inp.value.trim()){
@@ -56,6 +56,7 @@
   W.rwAilonStart=startPrompt;
   W.rwMoreOpenAction=openAction;
   document.addEventListener('click',function(e){
+    if (!(e.target instanceof Element)) return;
     var btn=e.target.closest('[data-rw-tusk],[data-rw-open]');
     if(!btn) return;
     if(btn.hasAttribute('data-rw-tusk')) {e.preventDefault();startPrompt(btn.getAttribute('data-rw-tusk'));return;}
