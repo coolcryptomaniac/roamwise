@@ -91,7 +91,7 @@
   });
   render('all');
   // Daily drafts are visible as previews only; never added to the server's paid catalogue.
-  fetch('/shop/daily-products.json', {cache:'no-store'}).then(r => {
+  if (typeof fetch === 'function') fetch('/shop/daily-products.json', {cache:'no-store'}).then(r => {
     if (!r.ok) throw new Error('daily products unavailable');
     return r.json();
   }).then(data => {
