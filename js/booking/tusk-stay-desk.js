@@ -83,10 +83,11 @@ function rwSdEsc(s){
 /* One receipt card for one room. Pure: same inputs, same HTML. */
 function rwSdReceiptHTML(room, dates, guests, destLabel){
   var e = rwSdEsc, rate = Math.round(+room.price || 0), n = dates.nights;
-  var terms = window.RW_BOOK_TERMS || {}, feePct = Number(terms.commissionPct) || 7;
-  var rows = [];
+  var rows = [], totalEstimate = null;
   if(rate > 0 && typeof rwStayQuote === 'function'){
+    var terms = window.RW_BOOK_TERMS || {}, feePct = Number(terms.commissionPct) || 7;
     var q = rwStayQuote({ rate: rate, nights: n, rooms: 1, policy: room.policy, feePct: feePct });
+    totalEstimate = q.total;
     rows.push(['Room estimate', rwSdMoney(rate) + ' × ' + n + ' night' + (n > 1 ? 's' : '') + ' = <b>' + rwSdMoney(q.total) + '</b>']);
     rows.push(['Final payable', 'Taxes and any mandatory charges must be confirmed by the property before payment']);
   }else{
@@ -98,14 +99,25 @@ function rwSdReceiptHTML(room, dates, guests, destLabel){
   rows.push(['Changes & refunds', 'Ask the property to approve changes or cancellation; refund handling depends on the confirmed terms and payment method.']);
   var href = '/partner/?role=customer&destination=' + encodeURIComponent(room.zone || room.area || destLabel || '')
     + '&checkin=' + dates.checkIn + '&checkout=' + dates.checkOut + (guests ? '&guests=' + guests : '');
-  return '<div style="padding:10px 0;border-bottom:1px solid var(--b2,#2A2A36)">'
-    + '<div style="font-weight:850">' + e(room.property) + ' <span style="font-weight:500;font-size:11px;color:var(--t3)">· ' + e(room.room) + ' · ' + e(room.area || room.zone || '') + '</span></div>'
-    + '<p class="rw-note">Listed-price estimate · not a confirmed quote or reservation. The property must confirm availability and the final total.</p>'
-    + '<table style="width:100%;font-size:11.5px;margin:6px 0;border-collapse:collapse">'
-    + rows.map(function(r){ return '<tr><td style="padding:3px 8px 3px 0;color:var(--t3);vertical-align:top;white-space:nowrap">' + e(r[0]) + '</td><td style="padding:3px 0">' + r[1] + '</td></tr>'; }).join('')
-    + '</table>'
-    + '<a class="tk-chip gold" href="' + e(href) + '" onclick="try{track(\'tusk_verified_stay_handoff\')}catch(x){}">Send request to the property →</a>'
-    + '</div>';
+  // Only display a licensed photograph that the partner record explicitly approved.
+  var photo = room.photoLicensed === true && /^(https:\/\/|\/assets\/|\/images\/)/.test(String(room.image || '')) ? String(room.image) : '';
+  var visual = photo ? '<img src="' + e(photo) + '" alt="' + e(room.property || 'Property') + ' room photo" loading="lazy">'
+    : '<div class="rw-room-placeholder" role="img" aria-label="Image pending verification"><span aria-hidden="true">⌁</span><small>PHOTOS ON REQUEST</small></div>';
+  return '<article class="rw-room-card">'
+    + '<div class="rw-room-media">' + visual + '<span class="rw-room-status">Property confirmation required</span></div>'
+    + '<div class="rw-room-content">'
+    + '<div class="rw-room-property">' + e(room.property || 'RoamWise stay') + '</div>'
+    + '<h3>' + e(room.room || 'Room enquiry') + '</h3>'
+    + '<div class="rw-room-location">' + e(room.area || room.zone || destLabel || '') + (guests ? ' · ' + guests + ' guest' + (guests > 1 ? 's' : '') : '') + '</div>'
+    + (cancel ? '<div class="rw-room-term">' + e(cancel) + '</div>' : '')
+    + '<div class="rw-room-total">' + (rate > 0 ? rwSdMoney(rate) : 'Rate on request')
+    + '<small>' + (rate > 0 ? 'per night · listed estimate' : 'No confirmed quote') + '</small></div>'
+    + (totalEstimate != null ? '<div class="rw-room-estimate">Estimated ' + n + '-night room subtotal: ' + rwSdMoney(totalEstimate) + '</div>' : '')
+    + '<p class="rw-room-disclaimer">Listed-price estimate · not a confirmed quote or reservation. The property must confirm availability and the final total.</p>'
+    + '<details class="rw-room-details"><summary>Price, cancellation & payment terms</summary>'
+    + '<table><tbody>' + rows.map(function(r){ return '<tr><th scope="row">' + e(r[0]) + '</th><td>' + r[1] + '</td></tr>'; }).join('') + '</tbody></table></details>'
+    + '<a class="rw-room-button" href="' + e(href) + '">Request this room →</a>'
+    + '</div></article>';
 }
 
 /* The whole answer. Returns {html, dates, guests, count} or null when this is not a clear stay ask. */
@@ -128,7 +140,7 @@ function rwStayDeskAnswer(raw, dest, now){
   }
   var head = '🧾 Your stay estimate' + label + ' · ' + dates.checkIn + ' → ' + dates.checkOut + ' (' + dates.nights + ' night' + (dates.nights > 1 ? 's' : '') + (guests ? ', ' + guests + ' guest' + (guests > 1 ? 's' : '') : '') + ')';
   return { html: '<div class="tk-card tk-mini"><div class="tk-sec"><div style="font-weight:850;font-size:13.5px;margin-bottom:4px">' + head + '</div>'
-    + list.slice(0, 3).map(function(r){ return rwSdReceiptHTML(r, dates, guests, dest); }).join('')
+    + '<div class="rw-room-carousel" role="region" aria-label="Swipeable stay recommendations" tabindex="0">' + list.slice(0, 3).map(function(r){ return rwSdReceiptHTML(r, dates, guests, dest); }).join('') + '</div>'
     + '<div style="font-size:10.5px;color:var(--t3);margin-top:8px">Availability is confirmed only by the property. Sending a request does not charge you; you sign in on the next page and pay only after the property says yes.</div></div></div>',
     dates: dates, guests: guests, count: list.length };
 }
