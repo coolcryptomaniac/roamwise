@@ -4,12 +4,12 @@
 <meta name="theme-color" content="#0a1020"><meta name="description" content="Plan your team's next retreat with RoamWise. Compare per-person budgets, explore Himalayan and Corbett stays, and request a flexible corporate programme.">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self' https://roamwise-api.founder-f53.workers.dev; object-src 'none'; base-uri 'none'; form-action 'none'">
 <title>Corporate Retreats & Workations | RoamWise</title>
-<link rel="icon" href="../icons/icon-192.png"><link rel="stylesheet" href="./style.css">
-<script type="module" src="./app.mjs"></script></head>
+<link rel="icon" href="../icons/icon-192.png"><link rel="stylesheet" href="./style.css"><link rel="stylesheet" href="./enterprise.css">
+<script type="module" src="./app.mjs"></script><script type="module" src="./enterprise-ui.mjs"></script></head>
 <body>
 <a class="skip" href="#planner">Skip to retreat planner</a>
 <header class="nav"><a class="logo" href="../"><img class="brand-image" src="../assets/img/roamwise-logo-176.webp" width="43" height="43" alt=""><span>RoamWise<small>FOR TEAMS</small></span></a>
-<nav aria-label="Corporate navigation"><a href="#planner">Plan retreat</a><a href="#stays">Stays</a><a href="#credits">Corporate credits</a><a class="outline" href="#enquire">Request proposal <span aria-hidden="true">↗</span></a></nav></header>
+<nav aria-label="Corporate navigation"><a href="#planner">Plan retreat</a><a href="#enterprise">For companies</a><a href="#stays">Stays</a><a href="#credits">Corporate credits</a><a class="outline" href="#enquire">Request proposal <span aria-hidden="true">↗</span></a></nav></header>
 <main>
 <section class="hero wrap"><div class="hero-copy">
 <p class="eyebrow"><span class="orb"></span> YOUR TEAM. AN EXTRAORDINARY PLACE.</p>
@@ -51,6 +51,65 @@
 <p class="fine">Bonuses shown are illustrative maximums—not cash, fixed returns, stored funds or an approved offer. Paid amounts and applicable refunds would be governed by a signed supplier-backed agreement and legal review. GST treatment is quote-specific.</p></div>
 <div class="rail" id="tierRail" aria-label="Corporate allocation examples"></div>
 <div class="explain-row"><div class="explain"><span>01</span><strong>Allocate</strong><p>Give us your annual team travel plan. No advance requested at enquiry stage.</p></div><div class="explain"><span>02</span><strong>Verify</strong><p>Our supplier quotes, taxes and cost controls determine which bonuses are feasible.</p></div><div class="explain"><span>03</span><strong>Approve</strong><p>Contract, cancellation terms and financial sign-offs come before payment.</p></div></div></section>
+
+<section class="wrap section enterprise" id="enterprise">
+  <div class="section-head">
+    <div><p class="eyebrow">04 — ANNUAL PEOPLE &amp; TRAVEL PARTNERSHIPS</p>
+      <h2>One company.<br><em>A year of good journeys.</em></h2></div>
+    <p>For a 1,000-person employer, the goal is not a 1,000-person hotel booking. Model repeated small offsites, workations and individual perks.</p>
+  </div>
+  <div class="pillars">
+    <article class="pillar"><span class="pillar-number">01 / PLATFORM</span><h3>Employee travel benefits</h3>
+      <p>Annual access to RoamWise Pro and the corporate planning desk. Seat allocation, domain verification and fair-use limits are defined in a signed licence.</p>
+      <strong>Illustrative ₹150–₹300 / allocated employee / year</strong></article>
+    <article class="pillar"><span class="pillar-number">02 / EXPERIENCES</span><h3>Retreats by department</h3>
+      <p>Separate quotes for 30–80-person teams, 15–25-person leadership groups and flexible workations. Pay against supplier-confirmed statements of work.</p>
+      <strong>Supplier-confirmed, per-trip pricing</strong></article>
+    <article class="pillar"><span class="pillar-number">03 / MEMBER PERKS</span><h3>Optional travel rewards</h3>
+      <p>Eligible employees or a partner's community can receive discounts, priority enquiries or non-transferable service benefits—not tradeable coins.</p>
+      <strong>No crypto wallet or token is issued</strong></article>
+  </div>
+  <div class="enterprise-grid">
+    <form id="enterpriseScenario" class="panel enterprise-form" autocomplete="off">
+      <p class="eyebrow">LIVE ENTERPRISE SCENARIO</p><h3>Build an annual programme</h3>
+      <p class="fine">An editable commercial illustration. These inputs are not a quotation, a purchase order or a commitment from any property.</p>
+      <div class="enterprise-fields">
+        <label>Company headcount<input name="employees" type="number" min="1" max="10000" step="1" value="1000" required></label>
+        <label>Annual licence / employee (₹)<input name="licensePerSeat" type="number" min="150" max="300" step="10" value="250" required></label>
+        <label>Department offsites / year<input name="departmentTrips" type="number" min="0" max="24" step="1" value="4" required></label>
+        <label>People / department offsite<input name="departmentSize" type="number" min="1" max="1000" step="1" value="60" required></label>
+        <label>Budget / person / department trip (₹)<input name="departmentPerHead" type="number" min="1000" max="100000" step="500" value="12000" required></label>
+        <label>Leadership retreats / year<input name="leadershipTrips" type="number" min="0" max="24" step="1" value="2" required></label>
+      </div>
+      <details class="enterprise-advanced"><summary>Adjust leadership, workations &amp; employee holidays</summary>
+        <div class="enterprise-fields advanced-inner">
+          <label>Leadership participants<input name="leadershipSize" type="number" min="1" max="100" value="20" required></label>
+          <label>Leadership spend / person (₹)<input name="leadershipPerHead" type="number" min="1000" max="200000" step="500" value="25000" required></label>
+          <label>Workation bookings / year<input name="workationBookings" type="number" min="0" max="10000" value="24" required></label>
+          <label>Average workation booking (₹)<input name="workationPerBooking" type="number" min="1000" max="300000" step="500" value="20000" required></label>
+          <label>Personal holiday bookings<input name="personalBookings" type="number" min="0" max="10000" value="50" required></label>
+          <label>Average personal trip booking (₹)<input name="personalPerBooking" type="number" min="1000" max="300000" step="500" value="15000" required></label>
+        </div>
+      </details>
+      <p class="status" id="enterpriseError" role="status" aria-live="polite"></p>
+    </form>
+    <aside class="panel enterprise-output" aria-live="polite">
+      <span class="micro">Illustrative annual licence fee · not including taxes</span>
+      <strong id="enterpriseLicense" class="enterprise-amount">₹2,50,000</strong>
+      <span class="micro">Potential employee &amp; team booking value · not RoamWise revenue</span>
+      <strong id="enterpriseBookings" class="enterprise-amount soft">₹51,10,000</strong>
+      <div id="enterpriseBreakdown" class="enterprise-breakdown"></div>
+      <div class="enterprise-note"><strong>Economic guardrail</strong><p>Each trip is quoted separately. RoamWise should accept it only where its approved quote clears its contribution threshold after supplier and operating costs. The licence requires its own AI/support cost budget.</p></div>
+      <button class="btn primary wide-button" id="useEnterpriseBrief" type="button">Include scenario in company enquiry ↗</button>
+    </aside>
+  </div>
+  <div class="web3-concept">
+    <div><p class="eyebrow">OPTIONAL — SUBJECT TO A SIGNED AGREEMENT</p>
+      <h3>Could CoinDCX power travel rewards?</h3>
+      <p>Possible future partnership: RoamWise supplies INR-denominated stays and experiences; a separately contracted regulated provider handles any digital-asset rewards and conversions on its own systems. We do not offer crypto deposits, custody, staking or travel tokens.</p></div>
+    <div class="web3-status"><span>PARTNERSHIP EXPLORATION ONLY</span><strong>No CoinDCX agreement or payment integration exists.</strong><small>Rewards, software licences, refunds and crypto services require separate approvals.</small></div>
+  </div>
+</section>
 <section class="closing" id="enquire"><div class="wrap enquiry-grid"><div><p class="eyebrow">04 — START A CONVERSATION</p><h2>The right plan starts<br>with one good brief.</h2><p>Startup, growing SaaS business or global company—we'll tailor the proposal to your headcount, timing, needs and budget. No deposit needed to send the brief.</p><div class="contact-steps">Brief received → Supplier checks → Bespoke proposal → Company approval</div></div>
 <form id="companyForm" class="panel company-form"><h3>Request corporate onboarding</h3><p class="fine">This registers an enquiry, not a funded corporate wallet or verified company account.</p><div class="fields"><label>Company name<input name="company" required maxlength="100" autocomplete="organization" placeholder="Your organisation"></label><label>Your name<input name="contact" required maxlength="80" autocomplete="name" placeholder="Your name"></label><label class="full">Work email<input name="email" type="email" required maxlength="160" autocomplete="email" placeholder="you@company.com"></label><label>Role / department<input name="role" maxlength="80" placeholder="People & Culture"></label><label>Phone / WhatsApp (optional)<input name="phone" type="tel" maxlength="22" placeholder="+91 …"></label>
 <label class="full consent"><input name="consent" type="checkbox" required><span>I agree RoamWise can contact me about this corporate request. This is not marketing consent. <a href="../privacy.html" target="_blank" rel="noopener">Privacy policy</a>.</span></label></div>
