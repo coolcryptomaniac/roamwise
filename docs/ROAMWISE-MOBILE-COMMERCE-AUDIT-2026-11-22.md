@@ -5,7 +5,7 @@
 ## What was inspected
 
 - 2,597 tracked repository paths from the `main` tree (directory + file entries); **11** representative entry pages inspected for static `href` links, including Home, More, partnerships, packages/checkout, shop, artists, wallet and host onboarding.
-- **186** page/link occurrences; **8** unresolved static targets found in these entry pages. A static route existing in Git does **not** establish that its live JavaScript, assets, permissions, APIs, checkout or Android deep-link work.
+- **186** page/link occurrences; **0** unresolved static targets found in these entry pages. A static route existing in Git does **not** establish that its live JavaScript, assets, permissions, APIs, checkout or Android deep-link work.
 - Source-only audit. **Not** a deployed Android/Chrome browser test, complete DOM runtime trace, full network crawl, API uptime check or Cashfree transaction test.
 
 ## Confirmed founder-reported regressions and patch
@@ -348,9 +348,9 @@ Status = `✓` means a file/folder exists in the repository tree; `Review` means
 | `index.html` | `/packages/amor-checkout.html?package=manali-intimate-wedding` | ✓ |
 | `index.html` | `/packages/amor-checkout.html?package=manali-signature-wedding` | ✓ |
 | `more/index.html` | `/packages/` | ✓ |
-| `packages/index.html` | `/packages/../icons/favicon-32.png` | Review |
+| `packages/index.html` | `/icons/favicon-32.png` | ✓ |
 | `packages/index.html` | `/packages/packages.css` | ✓ |
-| `packages/index.html` | `/packages/../` | Review |
+| `packages/index.html` | `/` | ✓ |
 | `wallet/index.html` | `/packages/amor-checkout.html` | ✓ |
 | `wallet/index.html` | `/packages/amor-checkout.html?wallet=` | ✓ |
 
@@ -367,13 +367,13 @@ Status = `✓` means a file/folder exists in the repository tree; `Review` means
 | `more/index.html` | `/partner/` | ✓ |
 | `partnership/index.html` | `/partner/index.html` | ✓ |
 | `partner/index.html` | `/partner/partner.css` | ✓ |
-| `partner/index.html` | `/partner/../` | Review |
+| `partner/index.html` | `/` | ✓ |
 | `partner/index.html` | `/partner/join/` | ✓ |
-| `partner/join/index.html` | `/partner/join/../../` | Review |
-| `partner/join/index.html` | `/partner/join/../mou/` | Review |
-| `partner/join/index.html` | `/partner/join/../../privacy.html` | Review |
-| `partner/join/index.html` | `/partner/join/../` | Review |
-| `partner/join/index.html` | `/partner/join/../../terms.html` | Review |
+| `partner/join/index.html` | `/` | ✓ |
+| `partner/join/index.html` | `/partner/mou/` | ✓ |
+| `partner/join/index.html` | `/privacy.html` | ✓ |
+| `partner/join/index.html` | `/partner/` | ✓ |
+| `partner/join/index.html` | `/terms.html` | ✓ |
 
 ### /pilgrimage/ — 2 links
 
