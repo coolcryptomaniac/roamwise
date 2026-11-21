@@ -14,12 +14,12 @@ function setup() {
   return dom;
 }
 test('catalogue IDs are unique and there are no purchase claims', () => {
-  assert.equal(new Set(catalog.map(p=>p.id)).size,23);
+  assert.equal(new Set(catalog.map(p=>p.id)).size,25);
   for(const p of catalog) { assert.ok(['wear','travel','style','rave'].includes(p.category)); if(p.live) assert.ok(p.price); else assert.equal(p.price,undefined); }
 });
 test('filters and enquiry correctly change between clothing and accessories', () => {
   const dom=setup(), d=dom.window.document;
-  assert.equal(d.querySelectorAll('.product').length,23);
+  assert.equal(d.querySelectorAll('.product').length,25);
   d.querySelector('[data-filter="wear"]').click();
   assert.equal(d.querySelectorAll('.product').length,4);
   d.querySelector('.product button').click();
@@ -79,10 +79,10 @@ test('customers only see RoamWise branding, not supplier controls', () => {
   assert.doesNotMatch(d.querySelector('#message').value,/Qikink|Printrove|Printify|Print provider preference/);
   dom.window.close();
 });
-test('Rave Series contains eight enquiry-only visual concepts', () => {
+test('Rave Series contains eight classic concepts and two new design previews', () => {
   const dom=setup(), d=dom.window.document;
   d.querySelector('[data-filter="rave"]').click();
-  assert.equal(d.querySelectorAll('.product').length,8);
+  assert.equal(d.querySelectorAll('.product').length,10);
   assert.equal(d.querySelectorAll('.visual-rave .merch-shape').length,8);
   d.querySelector('.product button').click();
   d.querySelector('#request-form').requestSubmit();
