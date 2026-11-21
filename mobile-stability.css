@@ -132,12 +132,12 @@ body {
 /* Compact, safe-area friendly Ailon Tusk composer on narrow phone screens. */
 @media (max-width: 600px) {
   #copilotHero .copilot-compose {
-    min-height: 214px !important;
-    grid-template-rows: minmax(132px, 1fr) auto;
+    min-height: 164px !important;
+    grid-template-rows: minmax(94px, 1fr) auto;
     align-content: stretch;
   }
   #copilotHero #heroInput {
-    min-height: 132px !important;
+    min-height: 94px !important;
     max-height: 180px;
     height: auto !important;
     line-height: 1.4;
@@ -149,6 +149,6 @@ body {
   }
 }
 @media (max-width: 600px) and (max-height: 720px) {
-  #copilotHero .copilot-compose { min-height: 196px !important; }
-  #copilotHero #heroInput { min-height: 116px !important; }
+  #copilotHero .copilot-compose { min-height: 156px !important; }
+  #copilotHero #heroInput { min-height: 88px !important; }
 }
