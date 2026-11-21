@@ -1,0 +1,26 @@
+/* Ailon Tusk – simple photo-first room options, following the shop's card language. */
+.rw-room-carousel{display:flex;gap:13px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-padding:2px;padding:9px 2px 18px;scrollbar-width:thin;max-width:100%;overscroll-behavior-inline:contain}
+.rw-room-card{flex:0 0 min(310px,88vw);min-width:0;scroll-snap-align:start;background:#fff;color:#18243a!important;border:1px solid #e3e6e8;border-radius:21px;overflow:hidden;box-shadow:0 7px 20px #00000018}
+.rw-room-media{position:relative;background:linear-gradient(132deg,#d5dfd8,#e3d7ca);height:178px}
+.rw-room-media img{width:100%;height:100%;object-fit:cover}
+.rw-room-placeholder{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#516458;gap:6px;font-size:14px}
+.rw-room-placeholder span{font-size:68px;line-height:1}
+.rw-room-placeholder small{font-size:10px;letter-spacing:.1em}
+.rw-room-status{position:absolute;top:10px;left:10px;background:#fffffff0;color:#314b41;border-radius:999px;padding:5px 9px;font-size:10px;font-weight:800;max-width:94%}
+.rw-room-content{padding:15px 15px 16px;display:flex;flex-direction:column;gap:7px}
+.rw-room-property{font-size:12px;color:#627080;font-weight:700}
+.rw-room-content h3{margin:0!important;font:800 18px/1.25 system-ui,sans-serif!important;letter-spacing:-.02em;color:#18243a!important}
+.rw-room-location{color:#677386;font-size:11px}
+.rw-room-term{color:#12674c;background:#e8f5ee;border-radius:9px;display:inline-block;padding:6px 8px;font-size:11px;line-height:1.35}
+.rw-room-total{color:#162236;font-size:24px;font-weight:850;line-height:1.25;margin-top:5px}
+.rw-room-total small{display:block;color:#737f8b;font-weight:400;font-size:11px}
+.rw-room-estimate{font-size:11px;color:#415164}
+.rw-room-disclaimer{font-size:10px;color:#6d7783;line-height:1.4;margin:0!important}
+.rw-room-details{border-top:1px solid #e5e7eb;margin-top:4px;padding-top:8px;color:#233349;font-size:11px}
+.rw-room-details summary{cursor:pointer;color:#293e52;font-weight:750}
+.rw-room-details table{width:100%;border-collapse:collapse;margin-top:7px}
+.rw-room-details th,.rw-room-details td{padding:5px 3px;border-bottom:1px solid #edf0f2;text-align:left;vertical-align:top}
+.rw-room-details th{font-weight:700;min-width:70px}
+.rw-room-button{background:#0e8d6d;color:#fff!important;border:0;text-align:center;border-radius:13px;text-decoration:none;display:block;padding:12px 10px;font-weight:800;font-size:12px}
+.rw-room-button:focus-visible,.rw-room-carousel:focus-visible{outline:3px solid #0e8d6d;outline-offset:2px}
+@media(prefers-reduced-motion:reduce){.rw-room-carousel{scroll-behavior:auto}}
