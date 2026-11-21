@@ -40,6 +40,7 @@
      GET  /shop/order/:id/status       buyer status (order token); verifies Cashfree before marking paid
      POST /shop/cashfree/webhook       signed Cashfree callback for shop orders
      POST /partner/cashfree/order      confirmed direct-stay checkout          -> handlers/partner-cashfree.js
+     POST /partner/self-list           MOU-signed host auto-checks + enquiry-only listing -> handlers/partner-self-list.js
      GET  /partner/cashfree/order/:bookingId/status  verify and persist paid stay -> handlers/partner-cashfree.js
      POST /push/send                   admin-only: send an FCM push to one user -> handlers/push.js
      POST /admin/creator/ig-rating     admin-only: rate a creator from Instagram Business Discovery -> handlers/creator-rating.js
@@ -108,6 +109,7 @@ import { handleTripNotify, runTripNotifications } from './handlers/trip-notify.j
 import { handleGroup, runGroupPots } from './handlers/group-pot.js';
 import { runPartnerInform, handlePartnerUnsubscribe } from './handlers/partner-inform.js';
 import { handleStayLead, purgeOldStayLeads } from './handlers/stay-lead.js';
+import { handlePartnerSelfList } from './handlers/partner-self-list.js';
 import { sendAdminDigest } from './handlers/bot-admin.js';
 import { handleAdvisoryAlerts, runAdvisoryAlerts } from './handlers/advisory-alerts.js';
 import { createShopHandlers } from './handlers/shop-order.js';
@@ -258,6 +260,7 @@ export default {
     if(path === 'admin/advisory-alerts/run') return handleAdvisoryAlerts(request, env);
 
     if(path === 'stay/lead') return handleStayLead(request, env);
+    if(path === 'partner/self-list') return handlePartnerSelfList(request, env);
 
     if(path === 'admin/ai-ca/review' && request.method === 'POST') return handleAICAReview(request, env);
     if(path === 'admin/ledger' || path === 'admin/ledger/run') return handleCompanyLedger(request, env, path);
@@ -269,7 +272,7 @@ export default {
 
     if(path === 'nomad/advise' && request.method === 'POST') return handleNomadAdvise(request, env);
 
-    return json({ error: 'not found', try: ['/health', '/ai', '/news', '/events', '/geo', '/leads', '/cashfree/order', '/partner/cashfree/order', '/push/send', '/admin/ai-ca/review', '/admin/invoices/sweep', '/admin/creator/ig-rating', '/nomad/advise', '/email/unsubscribe', '/admin/reminders/run', '/admin/trip-notify/run', '/admin/advisory-alerts/run', '/stay/enquiry', '/stay/lead', '/stay/confirm', '/bot/telegram', '/bot/whatsapp'] }, 404);
+    return json({ error: 'not found', try: ['/health', '/ai', '/news', '/events', '/geo', '/leads', '/cashfree/order', '/partner/cashfree/order', '/push/send', '/admin/ai-ca/review', '/admin/invoices/sweep', '/admin/creator/ig-rating', '/nomad/advise', '/email/unsubscribe', '/admin/reminders/run', '/admin/trip-notify/run', '/admin/advisory-alerts/run', '/stay/enquiry', '/stay/lead', '/partner/self-list', '/stay/confirm', '/bot/telegram', '/bot/whatsapp'] }, 404);
   },
 
   /* ONE scheduled handler. News daily; events on Mondays only, to stay well

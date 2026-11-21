@@ -56,7 +56,7 @@
     return list.filter(function(p){
       if(!p || p.listingReady!==true)return false;
       if(typeof root.rwStayPublicEligible==='function')return !!root.rwStayPublicEligible(p);
-      return p.verified==='signed'||(p.verified==='founder-approved'&&p.enquiryOnly===true&&!!p.founderApproval);
+      return p.verified==='signed'||(p.verified==='founder-approved'&&p.enquiryOnly===true&&!!p.founderApproval)||(p.verified==='self-listed'&&p.enquiryOnly===true&&!!p.selfListed);
     });
   }
   function asCard(p,region){
@@ -67,7 +67,7 @@
     var photos=p.photos||[], image=photos.length?String(photos[0].src||''):'';
     if(image && !/^\/?(?:assets|images)\//.test(image))image='';
     return {id:String(p.id||''),name:name,category:category,region:region,
-      description:String((p.area||p.zone||'')+' · '+(nomad?'workation option':isEnquiry?'founder-introduced enquiry':'RoamWise stay')).slice(0,180),
+      description:String((p.area||p.zone||'')+' · '+(nomad?'workation option':p.verified==='self-listed'?'new listing, enquiry only'+(p.segmentLabels&&p.segmentLabels.length?' · '+p.segmentLabels.slice(0,2).join(', '):''):isEnquiry?'founder-introduced enquiry':'RoamWise stay')).slice(0,180),
       href:p.id==='p_corbett_jungle_view'?'/stays/lansdowne/':p.id==='p_woodbook_devine'?'/stays/tirthan-valley/':p.id==='p_big_bro_hotel'?'/workation/almora/':'/partners/',
       image:image?'/'+image.replace(/^\//,''):null,
       status:isEnquiry?'Enquiry only · confirm agreement and rates':nomad?'Confirm work facilities, price and dates':'Signed partner · confirm availability',

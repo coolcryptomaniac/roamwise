@@ -19,13 +19,19 @@
 window.RW_PARTNER_TIERS = [
   { id:'signed',  label:'RoamWise Partner',  icon:'\u2705', note:'MoU signed \u2014 verified by us' },
   { id:'founder-approved', label:'Founder introduced', icon:'', note:'Enquiries only; property agreement pending' },
+  { id:'self-listed', label:'New on RoamWise', icon:'', note:'Host signed the MOU and passed automatic checks; enquiries only until RoamWise verifies it' },
   { id:'listed',  label:'Researched',        icon:'\ud83d\udcdd', note:'Found in our research, not yet a partner' }
 ];
 
 /* Founder introductions are public enquiries, never signed inventory or payment approval.
    Unapproved research stays remain hidden. The explicit review marker is required. */
+/* Self-listed: the host signed the current MOU and the Worker's automatic checks passed
+   (worker/lib/partner-self-list-core.js). Enquiry only: no price, payment or signed badge. */
+window.rwSelfListedOk = function(p){
+  return !!p && p.verified==='self-listed' && p.enquiryOnly===true && !!p.selfListed && p.selfListed.mouVersion==='RW-PMOU-2026-09-27-V4';
+};
 window.rwStayPublicEligible = function(p){
-  return !!p && p.listingReady===true && (p.verified==='signed' ||
+  return !!p && p.listingReady===true && (p.verified==='signed' || window.rwSelfListedOk(p) ||
     (p.verified==='founder-approved' && p.enquiryOnly===true && (p.founderApproval==='Mohit Pandey · 2026-10-18' || p.founderApproval==='Mohit Pandey · 2026-11-06')));
 };
 

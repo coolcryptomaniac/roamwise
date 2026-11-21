@@ -27,3 +27,11 @@ Signed inventory and paid booking approval continue to require their existing MO
 
 ## Automatic maintenance
 `node tools/partner-health-check.js` reads the public listings and the site and reports what guests can see, what is hidden and why, missing photos, bad links and out-of-range policy values. It is read-only. A weekly scheduled task runs it every Monday morning (India time) and reports in plain words. It never changes data.
+
+## Self-listing (automatic go-live, enquiry only) — Nov 2026
+A host who completes `/partner/join/` and types their name to sign the MOU is checked automatically by the Worker (`POST /partner/self-list`, `worker/lib/partner-self-list-core.js`):
+MOU current and signed with the owner's name, email verified, Indian mobile, Maps/website link, a real photo, at least one segment, a plausible price, valid GSTIN if given, and not a duplicate (same name+town, or phone on another account → held for a human).
+* **Pass:** a `verified:'self-listed'`, `enquiryOnly:true` entry is added to `config/partners`. It shows on Stay & do, the map, the stays hub and in Tusk as **New on RoamWise · Enquiry only**. Segments and package names show; prices, phone, GSTIN and payout details never do.
+* **Fail:** nothing is published; the host sees exactly what to fix and a **Check again** button.
+* **Evidence:** `mouEvidence/{uid}` (admin-only) records the signed name, IP, browser, verified email and a SHA-256 of the signed terms. `selfListing/{uid}` holds the last check result (host-readable).
+* **Payments stay manual:** a self-listed property cannot take payments. Approve it in the partner admin and publish it as before to switch on booking and the signed-partner badge; "Remove from Stay & do" takes a self-listing down.
