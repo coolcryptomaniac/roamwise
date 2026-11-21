@@ -246,6 +246,8 @@ export default {
     const cfStatus = path.match(/^cashfree\/order\/([^/]+)\/status$/);
     if(cfStatus && request.method === 'GET') return handleCashfreeOrderStatus(request, env, cfStatus[1]);
 
+    // Exact stay lead route must precede the generic stay ledger prefix.
+    if(path === 'stay/lead') return handleStayLead(request, env);
     if(path.indexOf('stay/') === 0) return handleStay(request, env, path);
 
     if(path.indexOf('bot/') === 0) return handleBot(request, env, path);
@@ -259,7 +261,6 @@ export default {
 
     if(path === 'admin/advisory-alerts/run') return handleAdvisoryAlerts(request, env);
 
-    if(path === 'stay/lead') return handleStayLead(request, env);
     if(path === 'partner/self-list') return handlePartnerSelfList(request, env);
 
     if(path === 'admin/ai-ca/review' && request.method === 'POST') return handleAICAReview(request, env);
