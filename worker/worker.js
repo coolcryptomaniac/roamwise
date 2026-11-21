@@ -109,6 +109,7 @@ import { handleTripNotify, runTripNotifications } from './handlers/trip-notify.j
 import { handleGroup, runGroupPots } from './handlers/group-pot.js';
 import { runPartnerInform, handlePartnerUnsubscribe } from './handlers/partner-inform.js';
 import { handleStayLead, purgeOldStayLeads } from './handlers/stay-lead.js';
+import { handleCorporateLead, purgeOldCorporateLeads } from './handlers/corporate-lead.js';
 import { handlePartnerSelfList } from './handlers/partner-self-list.js';
 import { sendAdminDigest } from './handlers/bot-admin.js';
 import { handleAdvisoryAlerts, runAdvisoryAlerts } from './handlers/advisory-alerts.js';
@@ -260,6 +261,7 @@ export default {
     if(path === 'admin/advisory-alerts/run') return handleAdvisoryAlerts(request, env);
 
     if(path === 'stay/lead') return handleStayLead(request, env);
+    if(path === 'corporate/lead') return handleCorporateLead(request, env);
     if(path === 'partner/self-list') return handlePartnerSelfList(request, env);
 
     if(path === 'admin/ai-ca/review' && request.method === 'POST') return handleAICAReview(request, env);
@@ -321,6 +323,7 @@ export default {
     try{ if(env.FIREBASE_SERVICE_ACCOUNT_JSON) await runAdvisoryAlerts(env, { digest: true }); }catch(e){ /* best-effort */ }
     /* Guest stay requests are kept 12 months, then deleted (see privacy.html). */
     try{ if(env.FIREBASE_SERVICE_ACCOUNT_JSON) await purgeOldStayLeads(env); }catch(e){ /* retried tomorrow */ }
+    try{ if(env.FIREBASE_SERVICE_ACCOUNT_JSON) await purgeOldCorporateLeads(env); }catch(e){ /* retried tomorrow */ }
     /* Founder digest on Telegram/WhatsApp. Skipped unless the bot secrets and admin ids are set. */
     try{ if(env.BOT_ADMIN_TELEGRAM || env.BOT_ADMIN_WHATSAPP) await sendAdminDigest(env, botDeps(env)); }catch(e){ /* digest is best-effort */ }
   },
