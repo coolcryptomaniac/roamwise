@@ -1,12 +1,9 @@
 /* Ailon-first, calm travel homepage. Secondary sections remain in code and are reachable from /more/. */
-body.shell[data-view="home"] #rwSalesCarousels,
-body.shell[data-view="home"] #rwFeatured,
 body.shell[data-view="home"] #rwMatchLinks,
 body.shell[data-view="home"] #bigSix,
 body.shell[data-view="home"] #rwEveryday,
 body.shell[data-view="home"] #quickGrid,
 body.shell[data-view="home"] #rwPartnerHub,
-body.shell[data-view="home"] #rwPromo,
 body.shell[data-view="home"] #rwInceptionPanel,
 body.shell[data-view="home"] #officialNotice,
 body.shell[data-view="home"] #app,
@@ -24,9 +21,7 @@ body.shell[data-view="home"] .nav .sw-tabs,
 body.shell[data-view="home"] #rwAudioQuickToggle,
 body.shell[data-view="home"] #rwSettingsShortcut,
 body.shell[data-view="home"] #modeChip,
-body.shell[data-view="home"] #xpChip,
-body.shell[data-view="home"] #proBtn,
-body.shell[data-view="home"] #rwWalletChip {display:none!important}
+body.shell[data-view="home"] #xpChip {display:none!important}
 body.shell[data-view="home"] .nav-inner {max-width:1120px}
 body.shell[data-view="home"] .nav-right {gap:8px}
 body.shell[data-view="home"] #copilotHero,
