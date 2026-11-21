@@ -11,7 +11,6 @@ body.shell[data-view="home"] #rwInceptionPanel,
 body.shell[data-view="home"] #officialNotice,
 body.shell[data-view="home"] #app,
 body.shell[data-view="home"] #results,
-body.shell[data-view="home"] #freeBar,
 body.shell[data-view="home"] #promoTop,
 body.shell[data-view="home"] > #rwRaveCard,
 body.shell[data-view="home"] > #rwBoard,
@@ -67,6 +66,8 @@ body.shell[data-view="home"] #rwQuick .rwq-row {justify-content:space-between;ga
 body.shell[data-view="home"] #rwQuick .rwq-item {flex:1 1 20%;min-width:0;max-width:150px}
 body.shell[data-view="home"] #rwQuick .rwq-ic {width:50px;height:50px;border-radius:15px;box-shadow:none}
 body.shell[data-view="home"] #rwQuick .rwq-lb {font-size:11px}
+body.shell[data-view="home"] #freeBar {box-sizing:border-box;width:min(calc(100% - 24px),860px);margin:11px auto 7px!important;min-height:40px;padding:8px 14px;border:1px solid rgba(201,173,220,.16);border-radius:12px;background:rgba(26,21,33,.6);color:#cfc2d7;font-size:11.5px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
+body.shell[data-view="home"] #freeBar .free-link {color:#e8c58b;font-size:11.5px;text-decoration:underline;cursor:pointer}
 .rw-drawer-core {padding:14px 14px 10px;border-bottom:1px solid rgba(255,255,255,.12)}
 .rw-drawer-cta {width:100%;min-height:48px;border:0;border-radius:12px;background:linear-gradient(120deg,#eac68b,#bb9bdc);color:#1f172a;font-size:15px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:space-between;padding:12px 14px}
 .rw-drawer-corelinks {display:grid;grid-template-columns:1fr 1fr;gap:7px;margin:10px 0}
