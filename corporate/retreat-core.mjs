@@ -18,6 +18,22 @@ export const VENUES = Object.freeze([
   {id:'jungle',name:'Corbett Jungle View Homestay',area:'Lansdowne',region:'Lansdowne',keys:6,guests:12,status:'Founder-introduced enquiry · approval pending',url:'https://roamwise.co.in/stay/',kind:'Village homestay',note:'6 rooms; 12 listed guests'},
   {id:'bigbro',name:'Big Bro Hotel',area:'Almora',region:'Almora',keys:null,guests:null,status:'Signed stay partner · capacity unverified',url:'https://roamwise.co.in/stay/',kind:'Hill hotel',note:'Four rooms in long-stay programme; total retreat capacity not verified'}
 ]);
+/* Publicly researched sourcing prospects, not RoamWise inventory, endorsed partners
+   or available conference space. Their own pages are the only source for claims. */
+export const SOURCING_LEADS = Object.freeze([
+  {id:'anantum',name:'Anantum Gateway Resorts & Spa',area:'Corbett',region:'Corbett',keys:172,guests:null,seats:300,
+   status:'Outside RoamWise network · source and contract required',kind:'Large convention resort',
+   url:'https://www.anantumgatewayresorts.com/',note:'Official corporate brochure: 172 rooms; site advertises an Avednam conference hall for 300, seating layout to verify'},
+  {id:'corbettgrand',name:'Corbett The Grand',area:'Corbett',region:'Corbett',keys:150,guests:null,seats:null,
+   status:'Outside RoamWise network · source and contract required',kind:'Large forest resort',
+   url:'https://corbettthegrand.com/',note:'Official website says 150+ rooms, conference facilities; inventory and meeting layout require direct enquiry'},
+  {id:'baagh',name:'Resorts By The Baagh',area:'Corbett',region:'Corbett',keys:90,guests:null,seats:600,
+   status:'Outside RoamWise network · source and contract required',kind:'Event-focused forest resort',
+   url:'https://www.resortsbythebaagh.com/',note:'Public 90-room listing; resort says Hornbill Nest hall holds 600; event seating is not overnight bed capacity'},
+  {id:'tribhav',name:'TRIBHAV Rohtang Heights Resort',area:'Manali',region:'Manali',keys:null,guests:null,seats:200,
+   status:'Outside RoamWise network · source and contract required',kind:'Manali meeting resort',
+   url:'https://tribhav.com/rohtangheights',note:'Official site advertises a 200-person conference hall; bedroom inventory unverified'}
+]);
 export function tierFor(amount) {
   const cash = Number(amount);
   if (!Number.isFinite(cash) || cash < 0) throw new Error('Enter a non-negative amount.');
