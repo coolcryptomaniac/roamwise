@@ -642,7 +642,33 @@ body[data-view="home"] #rwEveryday,body[data-view="home"] #promofilm {display:no
 <a class="rw-sales-card" href="/shop/?buy=roamwise-mandala-headband#buy"><img loading="lazy" src="/shop/img/headband.jpg" alt="RoamWise mandala headband"><span class="rw-sales-copy"><strong>Mandala Headband</strong><small>Made on demand · delivery ₹99</small><b>₹199 · Buy now →</b></span></a>
 </div><p style="font-size:12px;color:#c6b5d1">Reservations and product orders require a confirmed total and payment verification. No unverified payment is shown as a completed booking.</p>
 </section>
-<script>(function(){var box=document.getElementById('rwSalesCarousels');if(!box)return;box.addEventListener('click',function(e){var btn=e.target.closest('[data-rw-prev],[data-rw-next]');if(!btn)return;var id=btn.getAttribute('data-rw-next')||btn.getAttribute('data-rw-prev');var el=document.getElementById(id);if(el)el.scrollBy({left:btn.hasAttribute('data-rw-next')?280:-280,behavior:'smooth'})});if(window.matchMedia('(prefers-reduced-motion: reduce)').matches)return;var timer=setInterval(function(){if(document.hidden)return;var el=document.getElementById('rwSalesStays');if(!el)return;el.scrollBy({left:el.scrollLeft+el.clientWidth+10>=el.scrollWidth? -el.scrollWidth:265,behavior:'smooth'})},5100);box.addEventListener('pointerdown',function(){clearInterval(timer)},{once:true})})();</script>
+<script>(function(){
+  var box=document.getElementById('rwSalesCarousels'); if(!box)return;
+  var reduce=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+  /* Arrow navigation wraps cleanly rather than ending on an empty edge. */
+  box.addEventListener('click',function(e){
+    var b=e.target.closest('[data-rw-prev],[data-rw-next]'); if(!b)return;
+    var id=b.getAttribute('data-rw-next')||b.getAttribute('data-rw-prev');
+    var rail=document.getElementById(id); if(!rail)return;
+    var forward=b.hasAttribute('data-rw-next'),limit=Math.max(0,rail.scrollWidth-rail.clientWidth);
+    var next=rail.scrollLeft+(forward?280:-280);
+    if(forward&&next>=limit-8)next=0;
+    else if(!forward&&next<0)next=limit;
+    rail.scrollTo({left:next,behavior:reduce?'auto':'smooth'});
+  });
+  /* Reuse existing pause-on-touch/offscreen carousel helper; no cloned
+     commerce links or duplicate product IDs. It does not animate if the
+     user requests reduced motion. Trek/event rails are populated asynchronously
+     and therefore stay manual until their verified inventory arrives. */
+  function install(){
+    if(typeof window.rwCarousel!=='function')return;
+    ['rwSalesStays','rwSalesPackages','rwSalesWeddings','rwSalesShop'].forEach(function(id,i){
+      var rail=document.getElementById(id);
+      if(rail&&rail.children.length>1)window.rwCarousel(rail,{auto:5800+(i*350)});
+    });
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();
+})();</script>
 
 
 
