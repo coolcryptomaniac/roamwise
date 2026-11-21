@@ -144,7 +144,8 @@
      out+='<p>Also available: <a href="'+esc('/itinerary-library/'+preset.html)+'" target="_blank" rel="noopener">'+esc(preset.days)+'-day prepared '+esc(preset.name)+' route ↗</a> (a separate example, not this '+esc(plan.days)+'-day plan).</p>';
    }
    out+='<p style="font-size:11px;color:#bcb8cd">Confirm opening days, tickets, weather, road conditions and accessibility before leaving. This is not live inventory.</p>'
-      +'<div class="tk-chips"><button class="tk-chip" type="button" data-rw-itinerary-place="'+esc(destination)+'" data-rw-itinerary-days="'+plan.days+'">Open full trip planner</button></div>'
+      +'<div class="tk-chips"><button class="tk-chip" type="button" data-rw-itinerary-place="'+esc(destination)+'" data-rw-itinerary-days="'+plan.days+'">Open full trip planner</button>'
+      +'<a class="tk-chip" href="/packages/?destination='+encodeURIComponent(destination.toLowerCase())+'">Browse stays &amp; packages</a></div>'
       +'</div></section>';
    return out;
  }
