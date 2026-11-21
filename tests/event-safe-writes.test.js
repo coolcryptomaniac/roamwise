@@ -29,7 +29,8 @@ test('first paint: header, menu button and bottom tabs are plain HTML (no wait f
   const html = rd('index.html');
   assert.match(html, /<body class="rw-akatsuki-theme shell" data-view="home">/);
   const nav = html.match(/<nav class="tabbar" id="tabbar"[^>]*>([\s\S]*?)<\/nav>/)[1];
-  ['home', 'plan', 'copilot', 'store', 'more'].forEach(k => assert.match(nav, new RegExp('id="tb-' + k + '"')));
+  // Traveler-first default: Ailon and Trips replace the former Store shortcut.
+  ['home', 'copilot', 'plan', 'trips', 'more'].forEach(k => assert.match(nav, new RegExp('id="tb-' + k + '"')));
   assert.match(nav, /window\.rwTabGo&amp;&amp;rwTabGo/);   /* taps before scripts load must not throw */
   assert.match(html, /<button class="hamb" onclick="openDrawer\(\)"/);
   assert.match(html, /Instant shell:[\s\S]{0,400}tier!=="fast"&&n\.tier!=="medium"/);
