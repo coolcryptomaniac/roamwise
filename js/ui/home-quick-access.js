@@ -1,17 +1,14 @@
-/* Home quick access: one calm row of round shortcuts under the Tusk box, so group chat,
-   group planning, Trail Mesh and the wallet are one tap from the home screen.
+/* Home quick access: four essential shortcuts under Tusk; the advanced tools live under More.
    Classic script. Each item calls an existing global or opens an existing page; if a
    feature has not loaded yet the tap falls back to the menu drawer. */
 (function () {
   'use strict';
   var W = /** @type {any} */ (window);
   var ITEMS = [
-    { id: 'chat', icon: '💬', label: 'Group chat', run: function () { W.openGroupChat(); } },
-    { id: 'plan', icon: '🤝', label: 'Plan together', run: function () { W.openGroupPlanner(); } },
-    { id: 'mesh', icon: '📡', label: 'Trail Mesh', note: 'offline', run: function () { W.rwOpenTrailMesh('connect'); } },
-    { id: 'split', icon: '👥', label: 'Split a stay', href: '/packages/amor-checkout.html' },
-    { id: 'wallet', icon: '', label: 'Wallet', href: '/wallet/' },
-    { id: 'invite', icon: '🎁', label: 'Invite & earn', href: '/wallet/#invite' }
+    { id: 'stays', icon: '🏡', label: 'Find stays', run: function () { W.openListing(); } },
+    { id: 'transport', icon: '🚆', label: 'Transport', run: function () { W.rwOpenTripDesk(); } },
+    { id: 'experiences', icon: '✨', label: 'Experiences', run: function () { W.openExperiences(); } },
+    { id: 'more', icon: '☰', label: 'All tools', href: '/more/' }
   ];
   /* Inside the Android app a folder URL such as /wallet/ is answered with the home page (unstyled, stuck),
      so name the file there. The website keeps the clean URL. */
