@@ -1,0 +1,111 @@
+import {BONUS_TIERS, VENUES, bonusIllustration, estimateRetreat, matchVenues, requiredFaceCostCeiling} from './retreat-core.mjs';
+const $=id=>document.getElementById(id);
+const fmt=n=>'₹'+Math.round(n).toLocaleString('en-IN');
+const fields=['employees','nights','destination','sharing','startDate','endDate','perPerson','allocation','splitSlider','notes'];
+let current=null;
+function node(tag,cls,text){const el=document.createElement(tag);if(cls)el.className=cls;if(text!=null)el.textContent=text;return el;}
+function add(parent,tag,cls,text){const el=node(tag,cls,text);parent.append(el);return el;}
+function validateDates(){
+  const a=$('startDate').value,b=$('endDate').value;
+  if((a&&!b)||(!a&&b))return 'Enter both check-in and check-out dates, or leave both blank.';
+  if(a&&b){const ms=Date.parse(b+'T12:00:00Z')-Date.parse(a+'T12:00:00Z');if(ms<=0)return 'Check-out must be after check-in.';if(Math.round(ms/86400000)!==Number($('nights').value))return 'Check-in/out span must equal the selected number of nights.';if(a<new Date().toLocaleDateString('en-CA'))return 'Please choose future dates.';}
+  return '';
+}
+function render(){
+  try{
+    current=estimateRetreat({employees:$('employees').value,nights:$('nights').value,perPerson:$('perPerson').value,sharing:$('sharing').value});
+    $('totalQuote').textContent=fmt(current.total);$('perEmployee').textContent=fmt(current.perPerson);
+    $('teamNumber').textContent=current.employees.toLocaleString('en-IN');$('roomNumber').textContent=current.roomsNeeded.toLocaleString('en-IN');
+    $('duration').textContent=current.nights+' night'+(current.nights===1?'':'s');
+    const issue=validateDates();$('estimateNote').textContent=issue || 'Planning estimate only, excluding quote-specific taxes and supplier confirmation; not a payable price.';
+    renderVenues();renderAllocation();
+  }catch(e){current=null;$('estimateNote').textContent=e.message;}
+}
+function renderVenues(){
+  const rail=$('venueRail');rail.replaceChildren();
+  const matched=matchVenues(current.employees,Number($('sharing').value),$('destination').value);
+  $('venueEmpty').hidden=matched.length>0;
+  matched.forEach(p=>{
+    const card=add(rail,'article','venue-card');const art=add(card,'div','venue-top');
+    add(art,'span','category',p.kind+' · '+p.area);
+    const body=add(card,'div','venue-body');add(body,'h3','',p.name);
+    add(body,'p','',p.note);
+    const chips=add(body,'div','venue-tags');
+    add(chips,'span','',p.keys!=null?p.keys+' rooms/keys listed':'Room stock to confirm');
+    add(chips,'span','',p.capacity);
+    add(body,'p','',p.status);
+    const foot=add(body,'div','venue-foot');
+    add(foot,'span','', 'Supplier confirmation required');
+    const a=add(foot,'a','', 'View property ↗');a.href=p.url;a.target='_blank';a.rel='noopener noreferrer';
+  });
+}
+function renderAllocation(){
+  const raw=Number($('allocation').value);
+  if(!Number.isFinite(raw)||raw<100000||raw>100000000){$('bonusAmount').textContent='Enter ₹1L–₹10Cr';$('tierLabel').textContent='No offer calculated';return;}
+  const b=bonusIllustration(raw),split=Number($('splitSlider').value);
+  $('bonusAmount').textContent=fmt(b.bonusCeiling);
+  $('tierLabel').textContent=b.tier+' · up to '+b.rate+'% conditional bonus';
+  $('centralPct').textContent=split+'%';
+  $('centralAmount').textContent=fmt(b.paid*split/100);
+  $('individualAmount').textContent=fmt(b.paid*(100-split)/100);
+  const rail=$('tierRail');rail.replaceChildren();
+  BONUS_TIERS.filter(t=>t.min>=500000).forEach(t=>{
+    const card=add(rail,'article','tier-card'+(t.min===b.paid?' active':''));
+    add(card,'span','micro',t.label+' allocation');
+    add(card,'strong','',fmt(t.min));add(card,'p','', 'Up to '+t.rate+'% conditional extras · '+fmt(t.min*t.rate/100)+' ceiling');
+    const btn=add(card,'button','',t.min===b.paid?'Selected example':'Explore this amount');btn.type='button';
+    btn.addEventListener('click',()=>{$('allocation').value=String(t.min);renderAllocation();});
+  });
+  // Required cost ceiling is for internal education only, not an approved quote.
+  const c=requiredFaceCostCeiling({cash:b.paid,bonus:b.bonusCeiling,opsPct:0});
+  document.documentElement.dataset.supplierCostCeilingPct=String(Math.round(c.maximumSupplierCostPercentOfFace));
+}
+function railMove(id,dir){const el=$(id);el.scrollBy({left:dir*(el.querySelector('article')?.getBoundingClientRect().width||310)+dir*17,behavior:'smooth'});}
+$('venueNext').addEventListener('click',()=>railMove('venueRail',1));$('venuePrev').addEventListener('click',()=>railMove('venueRail',-1));
+fields.forEach(id=>$(id).addEventListener('input',render));$('destination').addEventListener('change',render);
+function brief(){
+  if(!current)throw new Error('Please enter a valid employee count and budget.');
+  const dates=validateDates();if(dates)throw new Error(dates);
+  const c=new FormData($('companyForm'));
+  if(!c.get('consent'))throw new Error('Please consent to contact about your enquiry.');
+  const company=String(c.get('company')||'').trim(),contact=String(c.get('contact')||'').trim(),email=String(c.get('email')||'').trim();
+  if(company.length<2||contact.length<2||!/^\S+@\S+\.\S+$/.test(email))throw new Error('Please enter your company, name and work email.');
+  const allocation=Number($('allocation').value);
+  if(!Number.isFinite(allocation)||allocation<100000||allocation>100000000)throw new Error('Enter an allocation between ₹1 lakh and ₹10 crore.');
+  return {company,contact,email,role:String(c.get('role')||'').trim(),phone:String(c.get('phone')||'').trim(),
+    employees:current.employees,nights:current.nights,sharing:Number($('sharing').value),
+    perPerson:current.perPerson,estimate:current.total,destination:$('destination').value,
+    startDate:$('startDate').value,endDate:$('endDate').value,
+    preferences:[...document.querySelectorAll('[name="preference"]:checked')].map(x=>x.value),
+    notes:$('notes').value.trim(),allocation,centralSharePct:Number($('splitSlider').value),consent:true,source:'corporate-page'};
+}
+function messageFor(p){
+  return ['RoamWise corporate retreat enquiry','Company: '+p.company,'Contact: '+p.contact+' ('+p.email+')',
+    'Role: '+p.role,'Phone: '+p.phone,'Employees: '+p.employees,'Destination: '+p.destination,
+    'Dates: '+(p.startDate&&p.endDate?p.startDate+' to '+p.endDate:'Flexible'),
+    'Nights: '+p.nights,'Sharing: '+p.sharing,'Per person target: '+fmt(p.perPerson),
+    'Illustrative retreat value: '+fmt(p.estimate),'Potential annual allocation: '+fmt(p.allocation),
+    'Central retreats share: '+p.centralSharePct+'%','Preferences: '+p.preferences.join(', '),
+    'Notes: '+p.notes,'All figures indicative; no booking/payment agreed.'].join('\n');
+}
+$('emailFallback').addEventListener('click',()=>{
+  try{const p=brief();location.href='mailto:founder@roamwise.co.in?subject='+encodeURIComponent('Corporate retreat enquiry — '+p.company)+'&body='+encodeURIComponent(messageFor(p));$('formStatus').textContent='An email draft was prepared. Please send it from your email app.';}
+  catch(e){$('formStatus').textContent=e.message;}
+});
+$('companyForm').addEventListener('submit',async e=>{
+  e.preventDefault();
+  const status=$('formStatus');const btn=$('sendBtn');let p;
+  try{p=brief();}catch(err){status.textContent=err.message;return;}
+  if(btn.disabled)return;
+  btn.disabled=true;status.textContent='Submitting secure enquiry…';
+  const controller=new AbortController();const timeout=setTimeout(()=>controller.abort(),12000);
+  try{
+    const endpoint='https://roamwise-api.founder-f53.workers.dev/corporate/lead';
+    const res=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(p),signal:controller.signal,cache:'no-store'});
+    const result=await res.json().catch(()=>null);
+    if(res.ok&&result?.ok){status.textContent='Enquiry received. Reference: '+result.id+'. We will verify suppliers before making an offer.';btn.textContent='Brief received';return;}
+    status.textContent=(result?.message||'Online intake is not active yet.')+' You can use “prepare an email with this brief” below.';
+  }catch(_){status.textContent='Could not confirm submission. Please use the email option below; no enquiry has been marked received.';}
+  finally{clearTimeout(timeout);btn.disabled=false;}
+});
+render();
