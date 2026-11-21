@@ -4,10 +4,10 @@
   'use strict';
   var W = /** @type {any} */ (window);
   var PROMPTS = {
-    itinerary: 'Help me plan a complete trip. Ask me for my destination, dates, number of travellers, interests and total budget. Build a day-by-day itinerary and show any missing arrangements before I book.',
-    stay: 'Help me find a trustworthy stay. Ask for destination, dates, group size and budget. Compare suitable options, clarify availability and total price, and guide me to a booking enquiry.',
-    transport: 'Help me arrange transport for my trip. Ask my origin, destination, travel dates and passengers. Compare available train, bus, flight and taxi options, giving electric transport priority where practical.',
-    booking: 'Help me review my trip and booking requests. Ask for the trip or reference first, distinguish confirmed reservations from pending enquiries, and tell me what remains to book. Do not assume a payment or booking is confirmed.'
+    itinerary: 'Plan a day-by-day trip to ',
+    stay: 'Find stays in ',
+    transport: 'Compare train, bus, flight and electric taxi options from ',
+    booking: 'Check the status of my booking reference: '
   };
   var ACTIONS = {
     stays: function () { return W.openListing && W.openListing(); },
@@ -37,10 +37,11 @@
     inp.value=prompt;
     try{inp.dispatchEvent(new Event('input',{bubbles:true}));}catch(e){}
     inp.scrollIntoView({behavior:'smooth',block:'center'});
-    if(typeof W.copilotSend==='function'){
-      try{W.copilotSend(true);return true;}catch(e){}
-    }
+    /* A one-tap shortcut starts the right flow; it must not send a generic
+       instruction to a public search fallback or consume a search credit.
+       The visitor supplies the missing trip details, then presses Send. */
     inp.focus();
+    try{inp.setSelectionRange(inp.value.length,inp.value.length);}catch(e){}
     return true;
   }
   function openAction(key){
