@@ -27,9 +27,9 @@ test('Ailon is the primary entry point and saved trips and requests remain reach
   assert.match(home,/id="rwTuskDesk"/);
   assert.match(home,/data-rw-open="bookings"/);
   assert.match(home,/data-rw-open="itineraries"/);
-  assert.match(script,/W\.copilotSend\(true\)/);
-  assert.match(script,/Do not assume a payment or booking is confirmed/);
-  assert.match(css,/body\.shell\[data-view="home"\] #rwSalesCarousels/);
+  assert.doesNotMatch(script,/W\.copilotSend\(true\)/,'starter prompts must not fire an empty generic search');
+  assert.match(script,/booking: 'Check the status of my booking reference:/);
+  assert.doesNotMatch(css,/body\.shell\[data-view="home"\] #rwSalesCarousels\s*,/,'sales carousels must remain visible on Home');
   assert.match(css,/body\.shell\[data-view="home"\] #bigSix/);
 });
 
