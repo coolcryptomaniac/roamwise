@@ -1,0 +1,239 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://roamwise.co.in/schemas/ailon-booking-card-v1",
+  "title": "Ailon Tusk Booking Card v1",
+  "description": "Server-returned read-only booking candidate. No payment authority. Unverified inventory must remain assisted_enquiry.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "propertyId",
+    "roomTypeId",
+    "displayName",
+    "bookingMode",
+    "verificationState",
+    "checkIn",
+    "checkOut",
+    "guests",
+    "currency",
+    "available",
+    "totalAmountMinor",
+    "quoteCheckedAt",
+    "quoteExpiresAt",
+    "source",
+    "cancellation"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": "1.0.0"
+    },
+    "propertyId": {
+      "type": "string",
+      "minLength": 2,
+      "maxLength": 120,
+      "pattern": "^[a-z0-9][a-z0-9-_]*$"
+    },
+    "roomTypeId": {
+      "type": "string",
+      "minLength": 2,
+      "maxLength": 120
+    },
+    "displayName": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 160
+    },
+    "roomName": {
+      "type": "string",
+      "maxLength": 160
+    },
+    "bookingMode": {
+      "enum": [
+        "assisted_enquiry",
+        "direct_verified"
+      ]
+    },
+    "verificationState": {
+      "enum": [
+        "verified",
+        "review_required",
+        "suspended"
+      ]
+    },
+    "checkIn": {
+      "type": "string",
+      "format": "date"
+    },
+    "checkOut": {
+      "type": "string",
+      "format": "date"
+    },
+    "guests": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 30
+    },
+    "currency": {
+      "enum": [
+        "INR"
+      ]
+    },
+    "available": {
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "totalAmountMinor": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "minimum": 0
+    },
+    "quoteCheckedAt": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "date-time"
+    },
+    "quoteExpiresAt": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "date-time"
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "reference"
+      ],
+      "properties": {
+        "kind": {
+          "enum": [
+            "partner_live",
+            "supplier_api",
+            "verified_owner",
+            "enquiry_only"
+          ]
+        },
+        "reference": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 400
+        }
+      }
+    },
+    "cancellation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "summary",
+        "version"
+      ],
+      "properties": {
+        "summary": {
+          "type": "string",
+          "maxLength": 350
+        },
+        "version": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "photo": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "url": {
+          "type": "string",
+          "format": "uri"
+        },
+        "licensed": {
+          "const": true
+        },
+        "alt": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "url",
+        "licensed",
+        "alt"
+      ],
+      "additionalProperties": false
+    },
+    "inclusions": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "maxLength": 100
+      },
+      "maxItems": 15
+    },
+    "quoteId": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "maxLength": 180
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "bookingMode": {
+            "const": "direct_verified"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "verificationState": {
+            "const": "verified"
+          },
+          "available": {
+            "const": true
+          },
+          "source": {
+            "properties": {
+              "kind": {
+                "enum": [
+                  "partner_live",
+                  "supplier_api",
+                  "verified_owner"
+                ]
+              }
+            }
+          },
+          "totalAmountMinor": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "quoteCheckedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "quoteExpiresAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "quoteId": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    }
+  ]
+}
