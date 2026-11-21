@@ -1,0 +1,20 @@
+{
+  "payload": {
+    "schema": 2,
+    "id": "RW-EV-DH-2026-004",
+    "name": "Dhanush",
+    "type": "Event participation",
+    "event": "Bengaluru Tech Summit 2026",
+    "role": "Marketing & Promotion",
+    "duration": "3 days",
+    "issued_on": "2026-11-21",
+    "issuer": "RoamWise Technologies",
+    "status": "issued",
+    "sha256": [
+      "9f68d216c96b6daba031d93e8fa023f47a9acc0f2a05c61ac70e33b222d8b6a9",
+      "000c5378742b01518e77384dfd126e367e5757a17888ca32a3917eff3bf440ce"
+    ]
+  },
+  "keyId": "73bfae6480347caf",
+  "signature": "+qWxO1QuXUYfYCBbIZyURXMgbLAIy8FvVw9xxrDLsWtgmqjj14JgmXT5c5LVxIT8BdGBavMEZYiO/lk2J1dfBA=="
+}
