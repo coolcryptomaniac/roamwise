@@ -275,7 +275,9 @@ function renderTabbar(){
     var ic = (RW_ICON_THEME!=='emoji' && typeof rwIcon==='function' && RW_ICON_PATHS[k]) ? rwIcon(k) : t.icon;
     return '<button id="tb-'+k+'" onclick="rwTabGo(\''+k+'\')"><span class="ti">'+ic+'</span>'+t.label+'</button>';
   }).join('');
-  rwTabMark(lsGet('rw_last_tab')||'home');
+  /* Persisted shortcuts are not evidence of the currently visible page. */
+  var visible = document.body && document.body.dataset ? document.body.dataset.view : 'home';
+  rwTabMark(RW_TABS[visible] ? visible : 'home');
 }
 function rwTabGo(k){
   var t=RW_TABS[k]; if(!t) return;
