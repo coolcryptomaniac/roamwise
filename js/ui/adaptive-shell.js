@@ -244,25 +244,25 @@ if(window.matchMedia){ try{ matchMedia('(max-width:768px)').addEventListener('ch
 var RW_TABS = {
   home:     {icon:'\ud83c\udfd4\ufe0f', label:'Home',     run:function(){ tabGo('home'); }},
   plan:     {icon:'\u2708\ufe0f',      label:'Plan',     run:function(){ tabGo('plan'); }},
-  copilot:  {icon:'\ud83e\udded',      label:'Copilot',  run:function(){ tabGo('copilot'); setTimeout(function(){ var i=el('heroInput'); if(i) i.focus(); },300); }},
+  copilot:  {icon:'\u2726',      label:'Ailon',  run:function(){ tabGo('copilot'); setTimeout(function(){ var i=el('heroInput'); if(i) i.focus(); },300); }},
   explore:  {icon:'\u26e9\ufe0f',      label:'Explore',  run:function(){ tabGo('explore'); }},
   map:      {icon:'\ud83d\uddfa\ufe0f',label:'Map',      run:function(){ if(window._lastItin && _lastItin.name){ openTripMap(_lastItin.name,null); } else { openMapExplorer(); } }},
   store:    {icon:'\ud83d\udecd\ufe0f',label:'Store',    run:function(){ tabGo('store'); }},
   film:     {icon:'\ud83c\udfb6',      label:'Memories', run:function(){ tabGo('film'); }},
   sacred:   {icon:'\ud83d\udd49\ufe0f', label:'Sacred',   run:function(){ tabGo('sacred'); }},
   ratings:  {icon:'\u2b50',            label:'Reviews',  run:function(){ tabGo('extras'); }},
-  trips:    {icon:'\ud83e\uddf3',      label:'Trips',    run:function(){ openVault(); }},
+  trips:    {icon:'\ud83e\uddf3',      label:'Trips',    run:function(){ if(typeof openBooking==='function') openBooking(); else if(typeof openVault==='function') openVault(); }},
   group:    {icon:'\ud83e\udd1d',      label:'Group',   run:function(){ openGroupPlanner(); }},
   chat:     {icon:'\ud83d\udcac',      label:'Chat',    run:function(){ openGroupChat(); }},
   pro:      {icon:'\ud83d\udc51',      label:'Pro',      run:function(){ openPay(); }},
   settings: {icon:'\u2699\ufe0f',      label:'Settings', run:function(){ openSettings(); }},
-  more:     {icon:'\u2630',            label:'More',     run:function(){ openDrawer(); }}
+  more:     {icon:'\u2630',            label:'More',     run:function(){ try { var nativeApp=window.Capacitor&&Capacitor.isNativePlatform&&Capacitor.isNativePlatform(); location.href=nativeApp?'/more/index.html':'/more/'; } catch(e){ location.href='/more/'; } }}
 };
-var RW_TABS_DEFAULT = ['home','plan','copilot','store','more'];
+var RW_TABS_DEFAULT = ['home','copilot','plan','trips','more'];
 function rwTabIds(){
   try{
     var v=JSON.parse(lsGet('rw_tabs')||'null');
-    if(v && v.length>=3 && v.every(function(k){ return RW_TABS[k]; })) return v.slice(0,5);
+    if(v && v.length>=3 && v.every(function(k){ return RW_TABS[k]; })) { if(JSON.stringify(v)==='["home","plan","copilot","store","more"]'){ lsSet('rw_tabs',JSON.stringify(RW_TABS_DEFAULT)); return RW_TABS_DEFAULT; } return v.slice(0,5); }
   }catch(e){ /* parse best-effort, ignore malformed/missing data */ }
   return RW_TABS_DEFAULT;
 }
@@ -332,7 +332,7 @@ function tabGo(t){
   try{ if(window._rvAll) _rvAll(); }catch(e){ /* best-effort, ignore */ }
   try{ rwTabMark(t); }catch(e){ /* best-effort, ignore */ }
   if(t==='pro'){ openPay(); return; }
-  if(t==='more'){ openDrawer(); return; }
+  if(t==='more'){ RW_TABS.more.run(); return; }
   if(document.body.classList.contains('shell')){
     /* Only real views may be set. 'treks' was being passed here (it is a
        SECTION inside Explore, not a view), which set data-view to something no
