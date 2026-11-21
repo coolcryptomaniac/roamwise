@@ -5,3 +5,5 @@
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.btn{transition:none}}
 
 .sourcing-intro{margin:40px 0 18px;padding-top:22px;border-top:1px solid var(--border)}.sourcing-intro h3{font-size:29px;font-family:Georgia,serif;font-weight:400;margin:5px 0 8px}.sourcing-intro .fine{max-width:750px;margin-bottom:0}
+
+.brand-image{border-radius:13px;object-fit:cover;flex:none;border:1px solid #f4c98777}
