@@ -40,13 +40,14 @@ test('only clear booking asks trigger the desk', () => {
   assert.equal(s.rwSdIsStayAsk('book a train to Delhi'), false);
 });
 
-test('receipt shows the property rate, Rs 0 from RoamWise, the property terms, and a prefilled link', () => {
+test('receipt shows customer price estimate and terms without private B2B settlement data', () => {
   const s = load(ROOMS);
   const a = s.rwStayDeskAnswer('book a room 12 to 15 Nov for 2 guests', 'Almora', NOW);
   const text = a.html.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ');
   assert.match(text, /₹2,800 × 3 nights = ₹8,400/);
-  assert.match(text, /RoamWise charges you ₹0/);
-  assert.match(text, /The property keeps ₹7,812 of ₹8,400/);
+  assert.match(text, /Room estimate/);
+  assert.match(text, /Final payable/);
+  assert.doesNotMatch(text, /The property keeps|commission|RoamWise charges you|\b7%\b/i);
   assert.match(text, /Free cancellation up to 48h/);
   assert.match(text, /Nothing is taken until the property confirms/);
   assert.match(text, /not a confirmed quote or reservation/);
