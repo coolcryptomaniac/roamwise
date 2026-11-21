@@ -25,3 +25,12 @@
 .rw-fb button{background:none;border:none;cursor:pointer;font-size:1.2rem;line-height:1;padding:6px 8px;min-width:40px;min-height:40px;opacity:.75}
 .rw-fb button:disabled{cursor:default}
 @media (min-width:900px){#heroLog>div,#cpLog>div{max-width:min(100%,78ch)}}
+
+/* Secondary answer controls stay accessible without overwhelming the first screen. */
+.rw-rail-more{display:block;margin-top:8px}
+.rw-rail-more>summary{display:inline-block;cursor:pointer;color:var(--gold,#E8BA6C);padding:7px 3px;font-size:var(--rw-fs-small);font-weight:700}
+.rw-rail-more>summary:focus-visible{outline:2px solid var(--gold,#E8BA6C);outline-offset:3px}
+.rw-rail-extra{padding:7px 0 0;display:flex;flex-wrap:wrap;gap:3px}
+.rw-tusk-itinerary details{margin:7px 0;border-color:rgba(231,193,139,.36)!important}
+.rw-tusk-itinerary details[open]{background:#192038!important}
+.rw-tusk-itinerary .tk-chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
