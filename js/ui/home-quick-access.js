@@ -8,6 +8,7 @@
     { id: 'stays', icon: '🏡', label: 'Find stays', run: function () { W.openListing(); } },
     { id: 'transport', icon: '🚆', label: 'Transport', run: function () { W.rwOpenTripDesk(); } },
     { id: 'experiences', icon: '✨', label: 'Experiences', run: function () { W.openExperiences(); } },
+    { id: 'wallet', icon: '👛', label: 'Wallet', href: '/wallet/' },
     { id: 'more', icon: '☰', label: 'All tools', href: '/more/' }
   ];
   /* Inside the Android app a folder URL such as /wallet/ is answered with the home page (unstyled, stuck),
