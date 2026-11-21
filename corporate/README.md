@@ -7,6 +7,10 @@ then attempts an email alert to `founder@roamwise.co.in`. No mailer requirement 
 No checkout, refundable deposit, bonus issuance, gift-card instrument, company authentication,
 supplier inventory hold or instant-confirmed reservation has been implemented.
 
+## Corporate employer model (22 Nov 2026)
+
+See [COINDCX-PARTNERSHIP.md](COINDCX-PARTNERSHIP.md) for the current phased employer-first, Web3-later approach, updated legal/financial guardrails and suggested CoinDCX outreach tracks. `/corporate/#enterprise` now contains an independently configurable 3-pillar annual employer scenario; it keeps programme licence billings separate from travel GMV and never creates coins, codes, payment orders or employee accounts.
+
 ## Non-negotiable approval rules
 
 1. Sales may **never** promise a payment-linked credit or 10–35% promotional reward
