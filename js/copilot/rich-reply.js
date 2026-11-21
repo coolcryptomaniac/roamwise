@@ -50,25 +50,28 @@ function rwTuskRail(dest, raw){
   function btn(icon,label,fn){
     return '<button class="rw-rail-btn" onclick="'+fn+'"><span>'+icon+'</span>'+label+'</button>';
   }
-  var h='<div class="rw-rail"><div class="rw-rail-h">DO SOMETHING WITH THIS</div>';
-  if(d) h+=btn('\ud83d\uddfa\ufe0f','Map',"openTripMap('"+d+"',null)");
-  if(d) h+=btn('\ud83e\udded','Navigate',"rwTuskNavigate('"+d+"')");
-  if(d) h+=btn('\ud83d\uddd3\ufe0f','Plan it',"cpGoPlan('"+d+"',0)");
-  if(d) h+=btn('\ud83d\udecd\ufe0f','Book',"cpFollow('Book this trip to "+d+"')");
-  h+=btn('\ud83d\udcb0','Budget',"openMoneyLayer()");
-  h+=btn('\u23f0','Remind me',"rwRemindAsk('"+q+"')");
-  h+=btn('\ud83d\udd0a','Read aloud',"rwTuskReadLast()");
-  h+=btn('⏯️','Pause / Resume',"rwTuskPauseResume()");
+  var topic=rwTuskRailContext(raw), h='<div class="rw-rail" aria-label="Helpful next actions">';
+  if(d && topic==='safety') h+=btn('⚠️','Road advisories',"cpFollow('Check dated official road and safety advisories for "+d+"')");
+  else if(d && topic==='food') h+=btn('🍲','Local food',"cpFollow('What local food should I try in "+d+"?')");
+  else if(d && topic==='weather') h+=btn('☁️','Forecast',"cpFollow('Check the weather and forecast for "+d+"')");
+  else if(d && topic==='season') h+=btn('📅','Best time',"cpFollow('When is the best time to visit "+d+"?')");
+  else if(d && topic==='stay') h+=btn('🛍️','Stay options',"cpFollow('Find bookable stays in "+d+"')");
+  else if(d) h+=btn('🗓️','Plan it',"cpGoPlan('"+d+"',0)");
+  if(d) h+=btn('🗺️','Map',"openTripMap('"+d+"',null)");
+  if(d && topic!=='safety' && topic!=='weather') h+=btn('🧳','Book',"cpFollow('Book this trip to "+d+"')");
+  /* Less-frequent controls are still available, not deleted. */
+  h+='<details class="rw-rail-more"><summary>More tools</summary><div class="rw-rail-extra">';
+  if(d) h+=btn('🧭','Navigate',"rwTuskNavigate('"+d+"')");
+  if(d) h+=btn('🗓️','Plan details',"cpGoPlan('"+d+"',0)");
+  h+=btn('💰','Budget',"openMoneyLayer()");
+  h+=btn('⏰','Reminder',"rwRemindAsk('"+q+"')");
+  h+=btn('🔊','Read aloud',"rwTuskReadLast()");
+  h+=btn('⏯️','Pause',"rwTuskPauseResume()");
   h+=btn('🔁','Replay',"rwTuskReplaySpeech()");
   h+=btn('✨','Voice mode',"RWTuskVoiceStudio.start()");
-  h+=btn('🎚️','Speed',"rwTuskCycleSpeechRate()");
-  var topic=rwTuskRailContext(raw);
-  if(d && topic==='safety') h+=btn('⚠️','Road advisories', "cpFollow('Check dated official road and safety advisories for "+d+"')");
-  if(d && topic==='food') h+=btn('🍲','Local food', "cpFollow('What local food should I try in "+d+"?')");
-  if(d && topic==='weather') h+=btn('☁️','Weather details', "cpFollow('Check the weather and forecast for "+d+"')");
-  if(d && topic==='season') h+=btn('📅','Best season', "cpFollow('When is the best time to visit "+d+"?')");
-  h+=btn('\ud83d\udcd6','Log feeling',"openJourneyLog()");
-  return h+'</div>';
+  h+=btn('🎚️','Voice speed',"rwTuskCycleSpeechRate()");
+  h+=btn('📖','Journey log',"openJourneyLog()");
+  return h+'</div></details></div>';
 }
 function rwTuskNavigate(dest){
   /* Let the installed navigation app own continuous turn-by-turn GPS. That
