@@ -2,6 +2,31 @@
   "note": "Hand-curated memories. New ones are added automatically by tools/build-memories.js from folders in assets/memories/YYYY-MM-DD-name/ (photos plus an optional event.json) and, in CI, from new @mohucool YouTube videos about events.",
   "events": [
     {
+      "id": "bengaluru-tech-summit-2026",
+      "date": "2026-11-19",
+      "title": "RoamWise at Bengaluru Tech Summit 2026",
+      "place": "BIEC, Bengaluru, Karnataka",
+      "caption": "RoamWise Bengaluru Tech Summit 2026 outreach and Ailon Tusk demonstrations, 17–19 November. Explore the archived videos and summit materials; the event has concluded.",
+      "theme": "launch",
+      "emoji": "🚀",
+      "cover": "",
+      "photos": [],
+      "videos": [
+        {
+          "title": "Summit ke baad… jaayein kahan? · RoamWise",
+          "youtube": "42_OibYl_yg"
+        },
+        {
+          "title": "RoamWise at Bengaluru Tech Summit",
+          "youtube": "Jz5hebOvd6Q"
+        },
+        {
+          "title": "RoamWise BTS 2026 announcement",
+          "youtube": "5TiLF9tYf-U"
+        }
+      ]
+    },
+    {
       "id": "almora-dussehra-2026",
       "date": "2026-10-20",
       "title": "Almora Dussehra 2026",
@@ -12,7 +37,11 @@
       "cover": "",
       "photos": [],
       "videos": [
-        { "title": "Rave to Hell × Almora Dussehra: the mini movie", "youtube": "-aS1wd0xfJI", "note": "Plays right here" }
+        {
+          "title": "Rave to Hell × Almora Dussehra: the mini movie",
+          "youtube": "-aS1wd0xfJI",
+          "note": "Plays right here"
+        }
       ]
     },
     {
@@ -25,12 +54,30 @@
       "emoji": "🎶",
       "cover": "/assets/img/music/kasar-fest-2026-stage-1.jpg",
       "photos": [
-        { "src": "/assets/img/music/kasar-fest-2026-stage-1.jpg", "cap": "Main stage under the Kasar Music Fest 2.0 banner" },
-        { "src": "/assets/img/music/kasar-fest-2026-nupur-pant.jpg", "cap": "With Nupur Pant at Kasar Music Fest 2.0" },
-        { "src": "/assets/img/music/kasar-fest-2026-rahgir.jpg", "cap": "With Rahgir at Kasar Music Fest 2.0" },
-        { "src": "/assets/img/music/kasar-fest-2026-stage-3.jpg", "cap": "Singer and band, Kasar Music Fest 2.0" },
-        { "src": "/assets/img/music/kasar-fest-2026-stage-2.jpg", "cap": "Stage lights, evening set" },
-        { "src": "/assets/img/music/kasar-fest-2026-crowd.jpg", "cap": "The crowd, 4 October 2026" }
+        {
+          "src": "/assets/img/music/kasar-fest-2026-stage-1.jpg",
+          "cap": "Main stage under the Kasar Music Fest 2.0 banner"
+        },
+        {
+          "src": "/assets/img/music/kasar-fest-2026-nupur-pant.jpg",
+          "cap": "With Nupur Pant at Kasar Music Fest 2.0"
+        },
+        {
+          "src": "/assets/img/music/kasar-fest-2026-rahgir.jpg",
+          "cap": "With Rahgir at Kasar Music Fest 2.0"
+        },
+        {
+          "src": "/assets/img/music/kasar-fest-2026-stage-3.jpg",
+          "cap": "Singer and band, Kasar Music Fest 2.0"
+        },
+        {
+          "src": "/assets/img/music/kasar-fest-2026-stage-2.jpg",
+          "cap": "Stage lights, evening set"
+        },
+        {
+          "src": "/assets/img/music/kasar-fest-2026-crowd.jpg",
+          "cap": "The crowd, 4 October 2026"
+        }
       ],
       "videos": []
     },
@@ -44,10 +91,18 @@
       "emoji": "🚀",
       "cover": "/nmims/assets/roamwise-ecell-startup-garage.png",
       "photos": [
-        { "src": "/nmims/assets/roamwise-ecell-startup-garage.png", "cap": "RoamWise × E-Cell, Startup Garage" }
+        {
+          "src": "/nmims/assets/roamwise-ecell-startup-garage.png",
+          "cap": "RoamWise × E-Cell, Startup Garage"
+        }
       ],
       "videos": [
-        { "title": "Startup Garage pass: how to redeem", "src": "/nmims/pr-kit/video/Reel1-Startup-Garage-pass.mp4", "poster": "/nmims/pr-kit/video/cover-A.jpg", "note": "Reel from the event" }
+        {
+          "title": "Startup Garage pass: how to redeem",
+          "src": "/nmims/pr-kit/video/Reel1-Startup-Garage-pass.mp4",
+          "poster": "/nmims/pr-kit/video/cover-A.jpg",
+          "note": "Reel from the event"
+        }
       ]
     }
   ]
