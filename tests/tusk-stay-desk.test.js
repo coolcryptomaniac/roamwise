@@ -72,3 +72,18 @@ test('this change leaves payment, auth and rules files untouched', () => {
   const src = read('js/booking/tusk-stay-desk.js').replace(/\/\*[\s\S]*?\*\//g, '');
   assert.doesNotMatch(src, /firebase|firestore|cashfree|razorpay|upi:|fetch\(/i);
 });
+
+
+test('stay results render mobile swipe cards with explicit enquiry rather than checkout', () => {
+  const s = load(ROOMS);
+  const answer = s.rwStayDeskAnswer('book a room 12 to 15 Nov for 2 guests', 'Almora', NOW);
+  assert.match(answer.html, /rw-room-carousel/);
+  assert.match(answer.html, /rw-room-card/);
+  assert.match(answer.html, /Request this room/);
+  assert.match(answer.html, /Property confirmation required/);
+  assert.doesNotMatch(answer.html, /Pay now|Confirmed booking|onclick=/);
+  const licensed = { ...ROOMS[0], image:'https://example.com/partner-approved-room.jpg', photoLicensed:true };
+  assert.match(s.rwSdReceiptHTML(licensed, answer.dates, 2, 'Almora'), /partner-approved-room.jpg/);
+  const unapproved = { ...licensed, photoLicensed:false };
+  assert.doesNotMatch(s.rwSdReceiptHTML(unapproved, answer.dates, 2, 'Almora'), /partner-approved-room.jpg/);
+});

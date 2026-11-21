@@ -1,0 +1,83 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1200" role="img" aria-labelledby="title desc">
+<title id="title">Rave to Rise × Buransh — original back-print concept</title>
+<desc id="desc">A rising sun over Kumaon-inspired Himalayan peaks, with hand-drawn rhododendron petals and Aipan geometry; scalable vector preview.</desc>
+<defs>
+  <linearGradient id="sun" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#ffe4a1"/><stop offset=".4" stop-color="#f57936"/><stop offset="1" stop-color="#b81731"/></linearGradient>
+  <linearGradient id="sky" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#321c43"/><stop offset="1" stop-color="#d82d45"/></linearGradient>
+  <linearGradient id="mount" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#faf0db"/><stop offset="1" stop-color="#e47d60"/></linearGradient>
+  <filter id="warm"><feGaussianBlur stdDeviation="12"/></filter>
+</defs>
+<g stroke-linejoin="round">
+<circle cx="500" cy="610" r="305" fill="none" stroke="#f6c979" stroke-width="9"/>
+<circle cx="500" cy="610" r="326" fill="none" stroke="#e65c42" stroke-width="3" stroke-dasharray="3 20"/>
+<circle cx="786.0" cy="610.0" r="8" fill="#f3c36b"/>
+<circle cx="780.5" cy="665.8" r="4" fill="#f7e3bc"/>
+<circle cx="764.2" cy="719.4" r="4" fill="#f7e3bc"/>
+<circle cx="737.8" cy="768.9" r="4" fill="#f7e3bc"/>
+<circle cx="702.2" cy="812.2" r="8" fill="#f3c36b"/>
+<circle cx="658.9" cy="847.8" r="4" fill="#f7e3bc"/>
+<circle cx="609.4" cy="874.2" r="4" fill="#f7e3bc"/>
+<circle cx="555.8" cy="890.5" r="4" fill="#f7e3bc"/>
+<circle cx="500.0" cy="896.0" r="8" fill="#f3c36b"/>
+<circle cx="444.2" cy="890.5" r="4" fill="#f7e3bc"/>
+<circle cx="390.6" cy="874.2" r="4" fill="#f7e3bc"/>
+<circle cx="341.1" cy="847.8" r="4" fill="#f7e3bc"/>
+<circle cx="297.8" cy="812.2" r="8" fill="#f3c36b"/>
+<circle cx="262.2" cy="768.9" r="4" fill="#f7e3bc"/>
+<circle cx="235.8" cy="719.4" r="4" fill="#f7e3bc"/>
+<circle cx="219.5" cy="665.8" r="4" fill="#f7e3bc"/>
+<circle cx="214.0" cy="610.0" r="8" fill="#f3c36b"/>
+<circle cx="219.5" cy="554.2" r="4" fill="#f7e3bc"/>
+<circle cx="235.8" cy="500.6" r="4" fill="#f7e3bc"/>
+<circle cx="262.2" cy="451.1" r="4" fill="#f7e3bc"/>
+<circle cx="297.8" cy="407.8" r="8" fill="#f3c36b"/>
+<circle cx="341.1" cy="372.2" r="4" fill="#f7e3bc"/>
+<circle cx="390.6" cy="345.8" r="4" fill="#f7e3bc"/>
+<circle cx="444.2" cy="329.5" r="4" fill="#f7e3bc"/>
+<circle cx="500.0" cy="324.0" r="8" fill="#f3c36b"/>
+<circle cx="555.8" cy="329.5" r="4" fill="#f7e3bc"/>
+<circle cx="609.4" cy="345.8" r="4" fill="#f7e3bc"/>
+<circle cx="658.9" cy="372.2" r="4" fill="#f7e3bc"/>
+<circle cx="702.2" cy="407.8" r="8" fill="#f3c36b"/>
+<circle cx="737.8" cy="451.1" r="4" fill="#f7e3bc"/>
+<circle cx="764.2" cy="500.6" r="4" fill="#f7e3bc"/>
+<circle cx="780.5" cy="554.2" r="4" fill="#f7e3bc"/>
+<circle cx="500" cy="510" r="228" fill="url(#sun)"/>
+<circle cx="500" cy="510" r="253" fill="none" stroke="#fff0c0" stroke-width="4" opacity=".8"/>
+<path d="M165 675 290 515 380 595 520 390 656 594 740 492 846 690 860 785 155 785Z" fill="#211a34" stroke="#f2b37a" stroke-width="8"/>
+<path d="M289 518 380 595 520 393 658 595 612 578 520 464 428 628 383 581 340 596Z" fill="url(#mount)" opacity=".98"/>
+<path d="M163 711 306 625 430 703 552 612 687 703 803 631 853 735 844 800 158 800Z" fill="url(#sky)" stroke="#f1ba88" stroke-width="6"/>
+<path d="M157 815q170-130 343 0t345-4" fill="none" stroke="#f6c77e" stroke-width="16"/>
+<path d="M157 841q170-130 343 0t345-4" fill="none" stroke="#b62c3a" stroke-width="5"/>
+<path d="M475 798q-24-66-9-132l-21-35 25-25 35 5 26 26-19 31 5 141z" fill="#1b1626" stroke="#f0c182" stroke-width="8"/>
+<path d="M470 637q-26 16-42 51m94-49q26 19 41 47M471 799l-17 55m53-57 24 58" fill="none" stroke="#f0c182" stroke-width="12"/>
+<g transform="translate(20 755) scale(.9)">
+ <path d="M130 110q-105-68-10-116 44 14 35 57 57-76 96 11-26 52-69 42 62 58-17 111-49-13-45-59-52 54-101-23 19-59 70-44z" fill="#d22b45" stroke="#f8b879" stroke-width="7"/>
+ <circle cx="135" cy="114" r="30" fill="#edb36b"/><path d="m127 92 9 23 17-14-10 27-22-2Z" fill="#712c42"/>
+</g>
+<g transform="translate(750 812) rotate(28) scale(.76)">
+ <path d="M130 110q-105-68-10-116 44 14 35 57 57-76 96 11-26 52-69 42 62 58-17 111-49-13-45-59-52 54-101-23 19-59 70-44z" fill="#d22b45" stroke="#f8b879" stroke-width="7"/>
+ <circle cx="135" cy="114" r="30" fill="#edb36b"/>
+</g>
+<g transform="translate(0 100)" fill="none" stroke="#fff0ce" stroke-width="5">
+  <circle cx="500" cy="185" r="67"/><circle cx="500" cy="185" r="42"/>
+  <path d="M500 85v200M400 185h200M430 115l140 140M430 255l140-140"/>
+</g>
+<g transform="translate(0 88)"><ellipse cx="500" cy="185" rx="25" ry="76" transform="rotate(0 500 285)" fill="#f49b4f" opacity=".82"/>
+<ellipse cx="500" cy="185" rx="25" ry="76" transform="rotate(30 500 285)" fill="#e04442" opacity=".82"/>
+<ellipse cx="500" cy="185" rx="25" ry="76" transform="rotate(60 500 285)" fill="#f49b4f" opacity=".82"/>
+<ellipse cx="500" cy="185" rx="25" ry="76" transform="rotate(90 500 285)" fill="#e04442" opacity=".82"/>
+<ellipse cx="500" cy="185" rx="25" ry="76" transform="rotate(120 500 285)" fill="#f49b4f" opacity=".82"/>
+<ellipse cx="500" cy="185" rx="25" ry="76" transform="rotate(150 500 285)" fill="#e04442" opacity=".82"/>
+<ellipse cx="500" cy="185" rx="25" ry="76" transform="rotate(180 500 285)" fill="#f49b4f" opacity=".82"/>
+<ellipse cx="500" cy="185" rx="25" ry="76" transform="rotate(210 500 285)" fill="#e04442" opacity=".82"/>
+<ellipse cx="500" cy="185" rx="25" ry="76" transform="rotate(240 500 285)" fill="#f49b4f" opacity=".82"/>
+<ellipse cx="500" cy="185" rx="25" ry="76" transform="rotate(270 500 285)" fill="#e04442" opacity=".82"/>
+<ellipse cx="500" cy="185" rx="25" ry="76" transform="rotate(300 500 285)" fill="#f49b4f" opacity=".82"/>
+<ellipse cx="500" cy="185" rx="25" ry="76" transform="rotate(330 500 285)" fill="#e04442" opacity=".82"/></g>
+<g fill="#fff1d1" font-family="Georgia, serif" text-anchor="middle">
+ <text x="500" y="1010" font-size="64" font-weight="bold" letter-spacing="12">RAVE TO RISE</text>
+ <text x="500" y="1058" font-size="22" letter-spacing="8">BURANSH • HIMALAYA • ROAMWISE</text>
+</g>
+<g stroke="#f9d89d" fill="none" stroke-width="5"><path d="m420 1110 80-30 80 30-80 27Z"/><path d="m470 1110 30-30 30 30-30 27Z"/><circle cx="500" cy="1110" r="8" fill="#f9d89d"/></g>
+</g></svg>

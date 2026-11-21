@@ -1,0 +1,33 @@
+{
+  "schemaVersion": "1.0.0",
+  "updatedAt": "2026-11-22",
+  "policy": "review-only; never part of checkout or Qikink paid catalogue without explicit approval",
+  "products": [
+    {
+      "id": "daily-2026-11-22",
+      "name": "Myar Pahad · Oversized hoodie",
+      "type": "Oversized hoodie",
+      "description": "Home is a direction. Original Himalayan layered ridge and geru-gold Aipan-inspired linework; final garment and placement require print review.",
+      "image": "/shop/img/daily-2026-11-22.svg",
+      "category": "wear",
+      "visual": "hoodie",
+      "status": "design-review",
+      "live": false,
+      "sizes": true,
+      "price": null,
+      "qikinkSku": null,
+      "inventory": null,
+      "fulfilment": "unapproved",
+      "creativeSource": "Original procedural vector concept; not a physical product photo",
+      "trendEvidence": "Qualitative culturally led streetwear signal; no sales/search rank claimed",
+      "createdOnIST": "2026-11-22",
+      "rightsStatus": "original_concept_requires_final_review",
+      "palette": [
+        "#6b8560",
+        "#d6ad68",
+        "#fbf0d8"
+      ],
+      "theme": "Myar Pahad"
+    }
+  ]
+}

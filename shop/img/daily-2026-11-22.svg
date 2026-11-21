@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1200" aria-labelledby="t d" role="img"><title id="t">Myar Pahad original mountain hoodie graphic</title><desc id="d">Olive, cream and ochre Himalayan layers and original Kumaoni-inspired diamond linework for a hoodie back.</desc>
+<defs><linearGradient id="r" x2="0" y2="1"><stop stop-color="#fcf1cc"/><stop offset="1" stop-color="#d6ad68"/></linearGradient></defs>
+<g fill="none" stroke-linejoin="round">
+<circle cx="500" cy="560" r="315" stroke="#d6ad68" stroke-width="8"/><circle cx="500" cy="560" r="343" stroke="#fbf0d8" stroke-width="3" stroke-dasharray="5 19"/>
+<circle cx="500" cy="500" r="210" fill="url(#r)"/>
+<path d="M140 716 300 510l100 100 124-239 155 241 92-107 92 218" fill="#232e39" stroke="#d6ad68" stroke-width="10"/>
+<path d="m300 514 101 100 123-241 154 239-155-154-84 170-43-48-49 41Z" fill="#fbf0d8"/>
+<path d="M135 763 312 658l119 91 130-128 141 100 155-30v161H135Z" fill="#6b8560" stroke="#d6ad68" stroke-width="8"/>
+<path d="M136 818q160-89 300 0t420-13M140 847q198-80 350 0t370-15" stroke="#fbf0d8" stroke-width="9"/>
+<path d="m500 105 90 89-90 88-90-88ZM500 126l68 68-68 66-68-66ZM500 153l39 40-39 38-39-38Z" stroke="#fbf0d8" stroke-width="7"/><circle cx="500" cy="194" r="13" fill="#d6ad68"/>
+<g stroke="#d6ad68" stroke-width="5"><path d="m165 917 335-34 335 34"/><path d="m190 1045 310 32 310-32"/></g></g>
+<g text-anchor="middle" fill="#fbf0d8" font-family="Georgia, serif"><text x="500" y="990" font-size="82" letter-spacing="5" font-weight="700">MYAR PAHAD</text><text x="500" y="1036" font-size="21" letter-spacing="8">ROAMWISE · ALMORA TO GLOBAL</text></g></svg>

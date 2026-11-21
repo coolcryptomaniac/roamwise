@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 700" role="img" aria-label="RoamWise Rave to Rise front chest emblem">
+<g fill="none" stroke-linejoin="round" stroke="#f8dca4" stroke-width="13">
+<circle cx="350" cy="350" r="290"/><circle cx="350" cy="350" r="256" stroke="#e95d4c" stroke-width="8"/>
+<path d="M160 466 270 340l80 64 92-160 103 133 70 91" />
+<path d="M219 468q131-74 262 0t139 4" stroke="#e95d4c" stroke-width="25"/>
+<path d="M350 60v580M60 350h580" stroke-width="4" stroke-dasharray="3 26"/>
+</g>
+<circle cx="350" cy="240" r="78" fill="#ef9149"/>
+<g fill="#f8dca4" font-family="Georgia,serif" text-anchor="middle"><text x="350" y="565" font-size="42" letter-spacing="9">ROAMWISE</text><text x="350" y="605" font-size="20" letter-spacing="4">ALMORA TO GLOBAL</text></g>
+</svg>
