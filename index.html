@@ -493,18 +493,8 @@ body[data-view="home"] #brand-ambassador,body[data-view="home"] #rwPromo,
 body[data-view="home"] #rwPartnerHub,body[data-view="home"] #rwMatchLinks,
 body[data-view="home"] #rwEveryday,body[data-view="home"] #promofilm {display:none!important}
 #rwSalesShop,.rw-trackheading:has(+ #rwSalesShop){display:none!important}
-#rwBtsSummit{max-width:960px;margin:12px auto;padding:0 14px;box-sizing:border-box}
-#rwBtsSummit .bts-card{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:15px;background:radial-gradient(circle at 92% 5%,#b75aa450,transparent 42%),linear-gradient(115deg,#19192d,#30204f);border:1px solid #b79cea88;border-radius:20px;padding:clamp(17px,3vw,24px);box-shadow:0 10px 30px #05071355}
-#rwBtsSummit .bts-text{flex:1 1 240px}
-#rwBtsSummit .bts-eyebrow{font:800 11px/1.5 system-ui;letter-spacing:.15em;color:#f6cd8a;text-transform:uppercase}
-#rwBtsSummit h2{font-size:clamp(20px,3vw,28px);line-height:1.15;color:#f6efff;margin:8px 0}
-#rwBtsSummit p{color:#d9d1ec;margin:5px 0 0;line-height:1.5}
-#rwBtsSummit .bts-actions{display:flex;flex:0 1 230px;flex-wrap:wrap;gap:7px}
-#rwBtsSummit a{display:inline-flex;align-items:center;justify-content:center;border-radius:12px;padding:10px 13px;text-decoration:none;font-weight:800;min-height:44px}
-#rwBtsSummit .bts-primary{background:#f2c779;color:#1d122e}
-#rwBtsSummit .bts-alt{border:1px solid #ba9ec5;color:#f9efff}
-@media(max-width:600px){#rwBtsSummit .bts-actions{flex:1 1 100%}#rwBtsSummit a{flex:1}}
 </style>
+<link rel="stylesheet" href="design/ailon-first.css?v=20261121">
 </head>
 <body class="rw-akatsuki-theme shell" data-view="home">
 <div id="rwVeil" role="status" aria-live="polite"><img src="/assets/img/roamwise-logo-176.webp" alt="" width="72" height="72" fetchpriority="high"><span>Roam<b>Wise</b></span><i></i><small>Getting things ready…</small></div>
@@ -566,11 +556,11 @@ body[data-view="home"] #rwEveryday,body[data-view="home"] #promofilm {display:no
 
 <!-- ============ COPILOT HERO — the front door, Claude-style ============ -->
 <section class="v v-home v-copilot" id="copilotHero" style="margin:16px 14px 8px">
-  <div class="tusk-title"><span>⚡</span><b>Ailon Tusk</b><em>· your travel copilot</em><i>ALWAYS CURIOUS</i></div>
+  <div class="tusk-title"><span>✦</span><b>Ailon Tusk</b><em>· one place for your whole journey</em></div>
   <div class="rw-tusk-hero-tools"><button type="button" class="rw-tusk-voice-entry" onclick="RWTuskVoiceStudio.start()" aria-label="Start Ailon Tusk voice conversation">🎙️ Voice Mode</button><label for="rwHomeVoiceLang" style="font-size:12px">Language <select id="rwHomeVoiceLang" aria-label="Voice language" style="background:#211832;color:#f7e9ff;border:1px solid #866caa;border-radius:9px;padding:5px;font-size:12px"><option value="en-IN">English</option><option value="hi-IN">हिन्दी</option><option value="kn-IN">ಕನ್ನಡ</option><option value="ta-IN">தமிழ்</option><option value="te-IN">తెలుగు</option><option value="bn-IN">বাংলা</option><option value="mr-IN">मराठी</option><option value="ml-IN">മലയാളം</option></select></label><span style="font-size:10px">Device support varies</span></div>
   <div id="heroLog" style="display:none;margin-bottom:10px;max-height:52vh;overflow-y:auto"></div>
   <div class="copilot-compose" style="position:relative;background:linear-gradient(180deg,var(--bg2,#12121C),rgba(18,18,28,.55));border:1.5px solid rgba(232,186,108,.35);border-radius:22px;padding:14px;box-shadow:0 8px 30px rgba(0,0,0,.35)">
-    <textarea id="heroInput" rows="5" placeholder="Ask me anything &mdash; &ldquo;chill 4 days near Rishikesh under 12k&rdquo;"
+    <textarea id="heroInput" rows="4" placeholder="Where would you like to go? Tell Ailon your dates, travellers and budget…"
       style="display:block;width:100%;box-sizing:border-box;background:transparent;border:none;padding:8px 8px 44px;color:inherit;font:inherit;font-size:16.5px;resize:none;outline:none;min-height:168px;line-height:1.6"></textarea>
     <div class="copilot-actions" style="position:absolute;right:12px;bottom:12px;display:flex;gap:8px;align-items:center">
       <button onclick="scanImageOpen()" aria-label="Scan a screenshot" title="Scan a screenshot or reel"
@@ -582,21 +572,23 @@ body[data-view="home"] #rwEveryday,body[data-view="home"] #promofilm {display:no
     </div>
     <div id="heroModels" style="position:absolute;left:14px;bottom:16px;display:flex;gap:6px;flex-wrap:wrap;max-width:58%"></div>
   </div>
-
-
-<section class="v v-home" id="rwBtsSummit" aria-label="Bengaluru Tech Summit RoamWise activation">
-  <div class="bts-card">
-    <div class="bts-text"><span class="bts-eyebrow">✦ 17–19 November · BIEC · AI &amp; Beyond</span>
-    <h2>Bengaluru Tech Summit, meet Ailon Tusk.</h2>
-    <p>Ask about speakers, try an interactive voice challenge, or share a RoamWise QR with someone new.</p></div>
-    <div class="bts-actions"><a class="bts-primary" href="/summit/?src=home">🎙️ Talk to Ailon</a><a class="bts-alt" href="/summit/#fieldkit">📲 Get QR card</a></div>
+  <div class="rw-tusk-prompts" id="rwTuskPrompts" role="group" aria-label="Start with Ailon Tusk">
+    <button type="button" data-rw-tusk="itinerary">✈️ Plan an itinerary</button>
+    <button type="button" data-rw-tusk="stay">🏡 Find a stay</button>
+    <button type="button" data-rw-tusk="transport">🚆 Travel options</button>
+    <button type="button" data-rw-tusk="booking">🧳 Booking assistance</button>
+  </div>
+  <p class="rw-tusk-trust">Ailon helps you plan and start enquiries. Prices and reservations require provider confirmation.</p>
+</section>
+<section class="v v-home rw-trip-desk" id="rwTuskDesk" aria-labelledby="rwTuskDeskTitle">
+  <div><p class="rw-desk-eyebrow">YOUR JOURNEY</p><h2 id="rwTuskDeskTitle">Your trip, one place</h2><p class="rw-desk-caption">Keep saved itineraries and booking requests close to your chat.</p></div>
+  <div class="rw-desk-actions">
+    <button type="button" data-rw-open="itineraries">Saved itineraries <span aria-hidden="true">↗</span></button>
+    <button type="button" data-rw-open="bookings">Booking requests <span aria-hidden="true">↗</span></button>
   </div>
 </section>
-<script>
-(function(){var today=new Date().toLocaleDateString('en-CA',{timeZone:'Asia/Kolkata'});
- if(today>'2026-11-19'){var el=document.getElementById('rwBtsSummit');if(el)el.hidden=true;}
-})();
-</script>
+
+
 <!-- Quick access (js/ui/home-quick-access.js): group chat, planning, Trail Mesh, split pay, wallet, invite -->
 <nav class="v v-home" id="rwQuick" aria-label="Quick access"></nav>
 <section class="v v-home" id="rwSalesCarousels" aria-label="RoamWise swipeable escapes and shop" style="margin:12px 14px;color:#f7e8d8">
@@ -698,7 +690,6 @@ body[data-view="home"] #rwEveryday,body[data-view="home"] #promofilm {display:no
     <button type="button" class="bs-tile bs-fit" onclick="openFitnessStays()"><span class="bs-ic" aria-hidden="true">&#127947;&#65039;</span><b>Fitness-first stays</b><small>Gyms and yoga near your stay.</small></button>
     <button type="button" class="bs-tile bs-sacred" onclick="tabGo('sacred')"><span class="bs-ic" aria-hidden="true">&#2384;</span><b>Sacred journeys</b><small>Digital Bhakti and pilgrimages.</small></button>
   </div>
-</section>
 </section>
 
 
@@ -1414,7 +1405,7 @@ body[data-view="home"] #rwEveryday,body[data-view="home"] #promofilm {display:no
 </section>
 
 <!-- NVIDIA Inception: membership disclosure only, not a partner badge or an official NVIDIA lockup. -->
-<section class="v v-home" aria-labelledby="rw-inception-title" style="max-width:1120px;margin:32px auto 0;padding:0 18px">
+<section class="v v-home" id="rwInceptionPanel" aria-labelledby="rw-inception-title" style="max-width:1120px;margin:32px auto 0;padding:0 18px">
   <div style="border:1px solid rgba(177,151,210,.28);border-radius:16px;background:linear-gradient(110deg,rgba(38,27,56,.94),rgba(21,19,30,.96));padding:20px 22px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:15px">
     <div style="flex:1 1 280px;min-width:0">
       <p style="margin:0 0 6px;color:#d6b8f4;font-size:11px;font-weight:700;letter-spacing:.13em;text-transform:uppercase">Startup program membership</p>
@@ -1479,14 +1470,22 @@ body[data-view="home"] #rwEveryday,body[data-view="home"] #promofilm {display:no
 </footer>
 
 <!-- APP SHELL: bottom tabs + drawer -->
-<nav class="tabbar" id="tabbar" style="grid-template-columns:repeat(5,1fr)"><button id="tb-home" class="on" onclick="window.rwTabGo&amp;&amp;rwTabGo('home')"><span class="ti"><svg class="rwi" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 11.5 12 5l8 6.5"/><path d="M6 10.5V19a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-8.5"/><path d="M10 20v-4.5a2 2 0 0 1 4 0V20"/></svg></span>Home</button><button id="tb-plan" onclick="window.rwTabGo&amp;&amp;rwTabGo('plan')"><span class="ti"><svg class="rwi" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 4 3 11l6 2.5L12 20l3-7.5L21 4Z"/><path d="M9 13.5 21 4"/></svg></span>Plan</button><button id="tb-copilot" onclick="window.rwTabGo&amp;&amp;rwTabGo('copilot')"><span class="ti"><svg class="rwi" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="m12 7 2 5-2 5-2-5 2-5Z"/><circle cx="12" cy="12" r="1" fill="currentColor" stroke="none"/></svg></span>Copilot</button><button id="tb-store" onclick="window.rwTabGo&amp;&amp;rwTabGo('store')"><span class="ti"><svg class="rwi" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8h12l-1 11a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1L6 8Z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg></span>Store</button><button id="tb-more" onclick="window.rwTabGo&amp;&amp;rwTabGo('more')"><span class="ti"><svg class="rwi" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></span>More</button></nav>
-<script>(function(){try{var n=document.getElementById("tabbar");if(!n)return;var t=localStorage.getItem("rw_tabs");if(t&&t!=="null"&&t!=='["home","plan","copilot","store","more"]'){n.innerHTML="";return;}var l=localStorage.getItem("rw_last_tab")||"home";var b=document.getElementById("tb-"+l),h=document.getElementById("tb-home");if(b&&h&&b!==h){h.classList.remove("on");b.classList.add("on");}}catch(e){}})();
+<nav class="tabbar" id="tabbar" style="grid-template-columns:repeat(5,1fr)" aria-label="Primary navigation">
+  <button id="tb-home" class="on" onclick="window.rwTabGo&amp;&amp;rwTabGo('home')"><span class="ti" aria-hidden="true">⌂</span>Home</button>
+  <button id="tb-copilot" onclick="window.rwTabGo&amp;&amp;rwTabGo('copilot')"><span class="ti" aria-hidden="true">✦</span>Ailon</button>
+  <button id="tb-plan" onclick="window.rwTabGo&amp;&amp;rwTabGo('plan')"><span class="ti" aria-hidden="true">✈</span>Plan</button>
+  <button id="tb-trips" onclick="window.rwTabGo&amp;&amp;rwTabGo('trips')"><span class="ti" aria-hidden="true">▣</span>Trips</button>
+  <button id="tb-more" onclick="window.rwTabGo&amp;&amp;rwTabGo('more')"><span class="ti" aria-hidden="true">☰</span>More</button>
+</nav>
+<script>(function(){try{var n=document.getElementById("tabbar");if(!n)return;var t=localStorage.getItem("rw_tabs");if(t&&t!=="null"&&t!=='["home","copilot","plan","trips","more"]'&&t!=='["home","plan","copilot","store","more"]'){n.innerHTML="";return;}var l=localStorage.getItem("rw_last_tab")||"home";var b=document.getElementById("tb-"+l),h=document.getElementById("tb-home");if(b&&h&&b!==h){h.classList.remove("on");b.classList.add("on");}}catch(e){}})();
 /* Instant shell: the header, side-menu button and bottom tabs are plain HTML, so on a fast or medium link the loading veil lifts after the first frame instead of waiting for ~180 scripts. Slow links keep the veil (it shows honest progress while taps would do nothing). */
 (function(){try{var n=window.__RW_NET;if(n&&n.tier!=="fast"&&n.tier!=="medium")return;var go=function(){var v=document.getElementById("rwVeil");if(!v)return;v.className="rw-veil-off";setTimeout(function(){if(v.parentNode)v.parentNode.removeChild(v);},300);};(window.requestAnimationFrame||setTimeout)(function(){(window.requestAnimationFrame||setTimeout)(go);});}catch(e){}})();</script>
 
 <div class="drawer-bk" id="drawerBk" onclick="closeDrawer()"></div>
 <aside class="drawer" id="drawer" role="dialog" aria-modal="true" aria-label="RoamWise menu" aria-hidden="true">
   <div class="dr-head"><div class="dr-title">Roam<span>Wise</span> Pro</div><button class="dr-x" onclick="closeDrawer()">&#215;</button></div>
+  <div class="rw-drawer-core"><button type="button" class="rw-drawer-cta" onclick="closeDrawer();rwTabGo('copilot')">✦ Ask Ailon Tusk <span>→</span></button><div class="rw-drawer-corelinks"><button type="button" onclick="closeDrawer();rwTabGo('plan')">Plan a trip</button><button type="button" onclick="closeDrawer();openBooking()">Booking requests</button><button type="button" onclick="closeDrawer();openListing()">Find stays</button></div><a class="rw-drawer-all" href="/more/">Explore all tools &amp; features →</a></div>
+  <details class="rw-drawer-advanced"><summary>Advanced &amp; legacy menu</summary>
   <a class="dr-link" onclick="closeDrawer();tabGo('sacred')"><span class="ic">&#2384;</span>Sacred journeys &amp; Digital Bhakti</a>
   <a class="dr-link" href="/local-business/"><span class="ic">&#127978;</span>Shops &amp; cafes &middot; get creators</a>
   <a class="dr-link" href="/books/"><span class="ic">&#128218;</span>Books &middot; samples &amp; buy links</a>
@@ -1594,6 +1593,7 @@ body[data-view="home"] #rwEveryday,body[data-view="home"] #promofilm {display:no
   <a class="dr-link" href="https://roamwise.co.in/careers/" onclick="event.preventDefault();rwOpenSite('careers/')"><span class="ic">💼</span>Careers &amp; internships</a>
 </div></div>
 <div class="dr-out">RoamWise Pro v3.1<br>Made in the Himalayas &#127956;&#65039; by Mohit Pandey</div>
+</details>
 </aside>
 
 <!-- WIZARD -->
@@ -2101,7 +2101,8 @@ body[data-view="home"] #rwEveryday,body[data-view="home"] #promofilm {display:no
 <script src="js/boot/auth-security.js?v=rw-auth-nonblocking-2" defer></script>
 <script src="js/boot/auth-init.js?v=rw-android-google-3" defer></script>
 <script src="js/payments/wallet-chip.js" defer></script>
-<script src="js/ui/home-quick-access.js" defer></script>
+<script src="js/ui/home-quick-access.js?v=20261121" defer></script>
+<script src="js/ui/ailon-first.js?v=20261121" defer></script>
 <script src="js/core/push-notifications.js?v=rw-v121-hollywood-smooth-read" defer></script>
 <script src="js/core/alert-follow.js?v=rw-alerts-1" defer></script>
 <script src="app.js?v=rw-v121-hollywood-smooth-read" defer></script>
