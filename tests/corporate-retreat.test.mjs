@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
   bonusIllustration,estimateRetreat,checkCapacity,matchVenues,
-  requiredFaceCostCeiling,testProfit,bonusAllowed,VENUES
+  requiredFaceCostCeiling,testProfit,bonusAllowed,VENUES,SOURCING_LEADS
 } from '../corporate/retreat-core.mjs';
 import {parseCorporateLead,expiredCorporateLead} from '../worker/lib/corporate-lead-core.js';
 
@@ -75,4 +75,14 @@ test('corporate intake retention expires after one year',()=>{
   const now=Date.parse('2027-12-31T00:00:00Z');
   assert.equal(expiredCorporateLead('2026-11-21T00:00:00Z',now),true);
   assert.equal(expiredCorporateLead('2027-11-21T00:00:00Z',now),false);
+});
+
+test('all large-venue leads remain external research, never RoamWise approved inventory',()=>{
+  assert.ok(SOURCING_LEADS.length>=4);
+  assert.ok(SOURCING_LEADS.every(s=>s.status.includes('Outside RoamWise network')));
+  const anantum=SOURCING_LEADS.find(x=>x.id==='anantum');
+  assert.equal(anantum.keys,172);
+  assert.equal(anantum.seats,300);
+  assert.equal(SOURCING_LEADS.find(x=>x.id==='baagh').keys,90);
+  assert.equal(SOURCING_LEADS.find(x=>x.id==='tribhav').keys,null);
 });
