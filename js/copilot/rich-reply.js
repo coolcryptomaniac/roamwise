@@ -66,7 +66,7 @@ function rwTuskRail(dest, raw){
   h+=btn('💰','Budget',"openMoneyLayer()");
   h+=btn('⏰','Reminder',"rwRemindAsk('"+q+"')");
   h+=btn('🔊','Read aloud',"rwTuskReadLast()");
-  h+=btn('⏯️','Pause',"rwTuskPauseResume()");
+  h+=btn('⏯️','Pause / Resume',"rwTuskPauseResume()");
   h+=btn('🔁','Replay',"rwTuskReplaySpeech()");
   h+=btn('✨','Voice mode',"RWTuskVoiceStudio.start()");
   h+=btn('🎚️','Voice speed',"rwTuskCycleSpeechRate()");
