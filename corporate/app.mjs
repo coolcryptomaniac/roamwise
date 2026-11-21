@@ -1,4 +1,4 @@
-import {BONUS_TIERS, VENUES, bonusIllustration, estimateRetreat, matchVenues, requiredFaceCostCeiling} from './retreat-core.mjs';
+import {BONUS_TIERS, SOURCING_LEADS, VENUES, bonusIllustration, estimateRetreat, matchVenues, requiredFaceCostCeiling} from './retreat-core.mjs';
 const $=id=>document.getElementById(id);
 const fmt=n=>'₹'+Math.round(n).toLocaleString('en-IN');
 const fields=['employees','nights','destination','sharing','startDate','endDate','perPerson','allocation','splitSlider','notes'];
@@ -8,7 +8,7 @@ function add(parent,tag,cls,text){const el=node(tag,cls,text);parent.append(el);
 function validateDates(){
   const a=$('startDate').value,b=$('endDate').value;
   if((a&&!b)||(!a&&b))return 'Enter both check-in and check-out dates, or leave both blank.';
-  if(a&&b){const ms=Date.parse(b+'T12:00:00Z')-Date.parse(a+'T12:00:00Z');if(ms<=0)return 'Check-out must be after check-in.';if(Math.round(ms/86400000)!==Number($('nights').value))return 'Check-in/out span must equal the selected number of nights.';if(a<new Date().toLocaleDateString('en-CA'))return 'Please choose future dates.';}
+  if(a&&b){const ms=Date.parse(b+'T12:00:00Z')-Date.parse(a+'T12:00:00Z');if(ms<=0)return 'Check-out must be after check-in.';if(Math.round(ms/86400000)!==Number($('nights').value))return 'Check-in/out span must equal the selected number of nights.';if(a<[new Date().getFullYear(),String(new Date().getMonth()+1).padStart(2,'0'),String(new Date().getDate()).padStart(2,'0')].join('-'))return 'Please choose future dates.';}
   return '';
 }
 function render(){
@@ -18,7 +18,7 @@ function render(){
     $('teamNumber').textContent=current.employees.toLocaleString('en-IN');$('roomNumber').textContent=current.roomsNeeded.toLocaleString('en-IN');
     $('duration').textContent=current.nights+' night'+(current.nights===1?'':'s');
     const issue=validateDates();$('estimateNote').textContent=issue || 'Planning estimate only, excluding quote-specific taxes and supplier confirmation; not a payable price.';
-    renderVenues();renderAllocation();
+    renderVenues();renderSourcing();renderAllocation();
   }catch(e){current=null;$('estimateNote').textContent=e.message;}
 }
 function renderVenues(){
@@ -37,6 +37,28 @@ function renderVenues(){
     const foot=add(body,'div','venue-foot');
     add(foot,'span','', 'Supplier confirmation required');
     const a=add(foot,'a','', 'View property ↗');a.href=p.url;a.target='_blank';a.rel='noopener noreferrer';
+  });
+}
+function renderSourcing(){
+  const rail=$('sourcingRail');rail.replaceChildren();
+  const dest=$('destination').value;
+  const matched=SOURCING_LEADS.filter(p=>dest==='Any'||p.region===dest);
+  $('sourcingEmpty').hidden=matched.length>0;
+  matched.forEach(p=>{
+    const card=add(rail,'article','venue-card');
+    const art=add(card,'div','venue-top');add(art,'span','category','Independent sourcing · '+p.area);
+    const body=add(card,'div','venue-body');
+    add(body,'h3','',p.name);add(body,'p','',p.note);
+    const chips=add(body,'div','venue-tags');
+    add(chips,'span','',p.keys!=null?p.keys+' publicly listed rooms':'Rooms to verify');
+    if(p.seats!=null)add(chips,'span','',p.seats+' advertised meeting seats');
+    const rooms=Math.ceil(current.employees/Number($('sharing').value));
+    const fit=p.keys!=null&&rooms>p.keys?'Room count insufficient for single venue':
+      p.seats!=null&&current.employees>p.seats?'Advertised hall too small for one plenary':'Potential physical fit · not verified';
+    add(body,'p','',fit);
+    add(body,'p','',p.status);
+    const foot=add(body,'div','venue-foot');add(foot,'span','','No partnership or inventory held');
+    const a=add(foot,'a','','Official site ↗');a.href=p.url;a.target='_blank';a.rel='noopener noreferrer';
   });
 }
 function renderAllocation(){
@@ -61,7 +83,8 @@ function renderAllocation(){
   document.documentElement.dataset.supplierCostCeilingPct=String(Math.round(c.maximumSupplierCostPercentOfFace));
 }
 function railMove(id,dir){const el=$(id);el.scrollBy({left:dir*(el.querySelector('article')?.getBoundingClientRect().width||310)+dir*17,behavior:'smooth'});}
-$('venueNext').addEventListener('click',()=>railMove('venueRail',1));$('venuePrev').addEventListener('click',()=>railMove('venueRail',-1));
+$('venueNext').addEventListener('click',()=>railMove('venueRail',1));
+$('sourceNext').addEventListener('click',()=>railMove('sourcingRail',1));$('sourcePrev').addEventListener('click',()=>railMove('sourcingRail',-1));$('venuePrev').addEventListener('click',()=>railMove('venueRail',-1));
 fields.forEach(id=>$(id).addEventListener('input',render));$('destination').addEventListener('change',render);
 function brief(){
   if(!current)throw new Error('Please enter a valid employee count and budget.');
