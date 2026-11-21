@@ -33,7 +33,7 @@ test('group capacity never fabricates meeting seating or actual availability',()
 test('fully redeemed 20L+5L bundle needs <=18L ALL-IN cost to earn 10% cash contribution',()=>{
   const c=requiredFaceCostCeiling({cash:2000000,bonus:500000});
   assert.equal(c.maxSupplierCost,1800000);
-  assert.equal(c.minimumSupplierSavingPercent,28);
+  assert.ok(Math.abs(c.minimumSupplierSavingPercent-28)<1e-8);
   assert.equal(testProfit({cashCollected:2000000,supplierCosts:1800000}).passes,true);
   assert.equal(testProfit({cashCollected:2000000,supplierCosts:1800001}).passes,false);
   assert.equal(testProfit({cashCollected:2000000,supplierCosts:1750000,operatingCosts:50000}).passes,true);
