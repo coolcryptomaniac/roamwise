@@ -1,0 +1,42 @@
+name: Certificate batch generator
+on:
+  workflow_dispatch:
+    inputs:
+      csv_path:
+        description: Reviewed repository CSV path (no photo paths)
+        required: true
+        type: string
+permissions:
+  contents: read
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install rendering dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y fonts-dejavu-core
+          pip install -r certificates/engine/requirements.txt
+      - name: Validate input path and generate reviewed batch
+        env:
+          CSV_PATH: ${{ inputs.csv_path }}
+        run: |
+          python3 - <<'PY'
+          import os,csv,subprocess
+          from pathlib import Path
+          root=Path.cwd().resolve(); p=(root/os.environ['CSV_PATH']).resolve()
+          if root not in p.parents or p.suffix!='.csv' or not p.is_file(): raise SystemExit('Invalid CSV path')
+          rows=list(csv.DictReader(p.open()))
+          if len(rows)>250 or any(r.get('photo') for r in rows): raise SystemExit('Use local generator for photos or batches above 250')
+          subprocess.run(['python3','certificates/engine/issue.py',str(p),'--issue','--output','certificate-batch'],check=True)
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: reviewed-certificate-batch
+          path: certificate-batch/
+          retention-days: 30
