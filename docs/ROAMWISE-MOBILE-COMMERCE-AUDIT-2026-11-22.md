@@ -485,3 +485,26 @@ Status = `✓` means a file/folder exists in the repository tree; `Review` means
 6. Check visual assets, permission to use Natasha Guleria photo/paintings, and Play Console marketing rights. Play Store feature graphics and screenshots must accurately depict released functions.
 7. Paid ₹10–₹50 itinerary variants require an explicit SKU/product, tax treatment, entitlement and server-side verified Cashfree flow before turning on a payable CTA.
 8. **No permanent deletion proposed.** Founder can select exact entries from this inventory for archive/removal.
+
+## Important compliance and commercial-copy review (not changed automatically)
+
+The currently published `/partnership/` page was observed advertising **8% property commission**, **25–30% creator commissions**, and promises about direct property payments and cancellation handling. Current founder-specific commercial arrangements may differ (for example a documented 7% property partnership): these are **not validated as universally approved terms**. Obtain explicit founder approval before publishing rates or commission/refund guarantees and reconcile with live contract and checkout terms.
+
+Similarly, some main homepage package copy states supplier pre-approval, confirmation windows, and 100% refund conditions. Preserve sale links but verify contract-backed conditions before relying on such claims. Do **not** silently update or infer terms.
+
+### Planned paid itinerary add-on — do not activate until reviewed
+
+- Keep useful draft planning free. Make optional upgrades distinct: conceptual `₹10` simple export, `₹29` rich day-wise route, `₹49` enhanced maps/packing/checklists, with an accurate preview. These are **candidate prices/products**, not live SKUs or promises.
+- Gate paid export delivery on **server-side** verified payment, order idempotency, receipt, GST/tax disclosures, refunds, and entitlement reconciliation; keep user privacy and unique trip details out of public caches.
+- **Google Play distinction matters:** physical travel services/room bookings are treated differently from in-app digital itinerary content and subscriptions. Digital goods in Play-distributed apps normally require Play Billing unless a relevant permitted exception or enrolled alternative-billing programme applies; India supports a programme for user choice subject to enrolment/terms. Verify package/region and platform-specific checkout and Play Console policy before directing Android users to Cashfree for a digital product. See https://support.google.com/googleplay/android-developer/answer/9858738 and https://support.google.com/googleplay/android-developer/answer/13306652.
+- For hotels, weddings, shop merchandise, and external activities, retain existing purchase/inquiry paths and differentiate `Request sent` vs `Payment received` vs `Provider confirmed` vs `Cancelled/refunded` using authenticated server state only.
+
+### Nomadz-inspired conversion contract (not a technology migration)
+
+1. **Choose** category/destination/dates/guests in one focused view, or natural-language Ailon prompt. Use approved original media, no invented supplier rates.
+2. **Compare** 2–5 readable cards in a swipeable row with total including taxes, location, inclusions, cancellation policy, and status. Avoid dozen-button AI action rails.
+3. **Review** one trip basket and total, with supplier availability/request status explicit. One-tap proceed only when the authenticated checkout supports it.
+4. **Pay** using the correct provider for the purchase class (Cashfree where permissible, applicable Play digital billing rules elsewhere); never mark payment from client-side callback alone.
+5. **Track** in Trips + Ailon with durable reference, confirmations and outstanding tasks. Offer voice follow-up but require explicit user action for payment.
+
+Implementation acceptance: no 404, no duplicate old/new navigation, no hidden commercial rails, no blocked free search because a generic starter prompt auto-submitted, no false available-now or payment-success claims, and no unnecessary animation with reduced-motion enabled.
