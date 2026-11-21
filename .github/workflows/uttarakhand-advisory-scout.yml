@@ -67,7 +67,7 @@ jobs:
 
       - name: Email the team (only when something was added)
         if: env.MAILU != '' && steps.commit.outputs.added != '0' && steps.commit.outputs.added != ''
-        uses: dawidd6/action-send-mail@v23
+        uses: dawidd6/action-send-mail@v24
         with:
           server_address: smtp.gmail.com
           server_port: 465
