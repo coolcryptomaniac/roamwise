@@ -4,8 +4,8 @@
    Tusk reads the dates and guests from the message and shows, BEFORE anything
    is sent or paid, an itemised receipt built only from the property's own
    numbers: nights x the property's listed rate, what RoamWise charges the guest
-   (always Rs 0), what the property keeps after RoamWise's fee, and the
-   cancellation terms exactly as the property set them. It then opens the
+   and the cancellation terms exactly as the property set them. Internal
+   commission and settlement calculations are never shown to customers. It opens the
    existing partner booking desk with the dates already filled in.
 
    Deliberate limits (policy + safety):
@@ -87,13 +87,10 @@ function rwSdReceiptHTML(room, dates, guests, destLabel){
   var rows = [];
   if(rate > 0 && typeof rwStayQuote === 'function'){
     var q = rwStayQuote({ rate: rate, nights: n, rooms: 1, policy: room.policy, feePct: feePct });
-    rows.push(['Room', rwSdMoney(rate) + ' × ' + n + ' night' + (n > 1 ? 's' : '') + ' = <b>' + rwSdMoney(q.total) + '</b>']);
-    rows.push(['RoamWise charges you', '<b>₹0</b> (the property pays RoamWise ' + feePct + '% only after a completed stay)']);
-    rows.push(['The property keeps', rwSdMoney(q.propertyReceives) + ' of ' + rwSdMoney(q.total)]);
-    rows.push(['Taxes', 'set and shown by the property at confirmation — not added here']);
+    rows.push(['Room estimate', rwSdMoney(rate) + ' × ' + n + ' night' + (n > 1 ? 's' : '') + ' = <b>' + rwSdMoney(q.total) + '</b>']);
+    rows.push(['Final payable', 'Taxes and any mandatory charges must be confirmed by the property before payment']);
   }else{
     rows.push(['Room', 'Rate on request — the property confirms the exact total']);
-    rows.push(['RoamWise charges you', '<b>₹0</b>']);
   }
   var cancel = (room.cancel && String(room.cancel)) || ((typeof rwStayPolicyText === 'function' && room.policy) ? rwStayPolicyText(room.policy) : '');
   rows.push(['Cancellation', cancel ? e(cancel) + ' <span class="rw-note">(set by the property)</span>' : 'Not stated — ask the property before you pay']);
