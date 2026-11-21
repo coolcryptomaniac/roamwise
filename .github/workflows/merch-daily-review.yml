@@ -1,0 +1,48 @@
+name: One original merchandise design concept per day
+on:
+  schedule:
+    - cron: '50 4 * * *' # 10:20 IST, best-effort GitHub schedule
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: roamwise-merch-daily-draft
+  cancel-in-progress: false
+
+jobs:
+  propose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Generate exactly one original review-only SKU concept
+        run: |
+          node --test tests/merch-daily.test.mjs
+          node tools/merch-daily.mjs
+          git diff --check
+      - name: Open/update merchandise approval PR (never auto-publish paid inventory)
+        uses: peter-evans/create-pull-request@v7
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: 'design: daily RoamWise apparel concept for review'
+          title: 'Daily RoamWise original apparel design — review & supplier QA'
+          body: |
+            Automated DAILY DESIGN REVIEW ONLY. One unique, dated original concept is added per run to
+            `shop/daily-products.json` with scalable vector preview. This PR may accumulate days if approval is pending.
+
+            NOT a sellable Qikink SKU, not confirmed stock or price, and not a Cashfree product.
+            Approval checklist:
+            - [ ] Artwork/IP originality, motif rights and print file prepress (CMYK/DTF guidelines) checked
+            - [ ] Authentic garment, placement and all advertised sizes confirmed in Qikink My Products
+            - [ ] Source cost, delivery, GST, fees, returns and margin reviewed
+            - [ ] Sample ordered only if explicitly approved; sample QA passed
+            - [ ] Approved supplier SKU mapped server-side, no private identifiers in public JS
+            - [ ] Production checkout tested in sandbox; founder approves listing
+          branch: bot/merch-daily-review
+          delete-branch: true
