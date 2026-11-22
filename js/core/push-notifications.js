@@ -146,6 +146,21 @@ function rwPushClearToken(){
   db.collection('users').doc(user.uid).set(patch, {merge:true}).catch(function(){ /* best-effort, ignore */ });
 }
 
+/* Android channels let users quiet travel inspiration without silencing
+   bookings, account messages or relevant safety warnings. */
+function rwPushNativeChannels(PN){
+  if(!PN || !PN.createChannel) return Promise.resolve();
+  var channels = [
+    {id:'rw_booking',name:'Bookings & trips',description:'Bookings, payments and check-in reminders',importance:4},
+    {id:'rw_account',name:'Account',description:'Security and membership updates',importance:4},
+    {id:'rw_safety',name:'Travel safety',description:'Relevant safety and route alerts',importance:4},
+    {id:'rw_travel',name:'Travel inspiration',description:'Opt-in guides and destination ideas',importance:2},
+    {id:'rw_offers',name:'Offers & benefits',description:'Opt-in offers and verified perks',importance:2},
+    {id:'rw_operations',name:'RoamWise team',description:'Staff-only operational digests',importance:2}
+  ];
+  return Promise.all(channels.map(function(c){ return PN.createChannel(c).catch(function(){}); }));
+}
+
 /* -------------------------- ANDROID (Capacitor) -------------------------- */
 function rwPushRegisterNative(){
   if(!(window.Capacitor && Capacitor.Plugins && Capacitor.Plugins.PushNotifications)) return;
@@ -162,7 +177,6 @@ function rwPushRegisterNative(){
         rwPushSyncToggleUi();
         return;
       }
-      PN.register();
       PN.addListener('registration', function(tok){
         try{ rwPushSaveToken(tok.value, 'android'); }catch(e){ /* best-effort, ignore */ }
       });
@@ -171,6 +185,7 @@ function rwPushRegisterNative(){
         try{ showToast('📣 '+(n.title||'RoamWise')+(n.body?': '+n.body:'')); }catch(e){ /* toast is a nice-to-have, ignore */ }
       });
       PN.addListener('pushNotificationActionPerformed', rwPushOpenTarget);
+      rwPushNativeChannels(PN).then(function(){ return PN.register(); }).catch(function(){ /* app remains usable without push */ });
     }).catch(function(){});
   }catch(e){ /* best-effort, ignore */ }
 }
