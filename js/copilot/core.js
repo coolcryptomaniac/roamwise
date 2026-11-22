@@ -300,6 +300,7 @@ function rwAtlasAnswerHTML(q,res){
   var foods=(Array.isArray(a.food)?a.food:[]).slice(0,6);
   var people=(Array.isArray(a.people)?a.people:[]).slice(0,8);
   var highlights=(Array.isArray(a.highlights)?a.highlights:[]).slice(0,8);
+  var facts=(Array.isArray(a.facts)?a.facts:[]).slice(0,5);
   var verified=a.status==='source-backed-overview';
   var link=safeUrl((res.hits&&res.hits[0]&&res.hits[0].u)||a.photo&&a.photo.referencePage);
   var title='<div class="tk-head"><div class="tk-place">🏔 '+esc2(String(a.name||'Destination'))+'</div>'
@@ -311,6 +312,7 @@ function rwAtlasAnswerHTML(q,res){
     days.forEach(function(d){html+='<div class="rw-atlas-day"><b>Day '+(Number(d.day)||1)+'</b><span>'+esc2(String(d.description||''))+'</span></div>';});
     html+='</div>';
   }
+  if(facts.length)html+='<div class="rw-atlas-section-title">Source-backed quick facts</div><ul class="rw-atlas-facts">'+facts.map(function(x){return '<li>'+esc2(x)+'</li>';}).join('')+'</ul>';
   if(highlights.length)html+='<div class="rw-atlas-section-title">Explore</div><div class="rw-atlas-tags">'+highlights.map(function(x){return '<span>'+esc2(x)+'</span>';}).join('')+'</div>';
   if(foods.length)html+='<div class="rw-atlas-section-title">Regional food to try <small>Availability varies</small></div><div class="rw-atlas-tags">'+foods.map(function(x){return '<span>'+esc2(x)+'</span>';}).join('')+'</div>';
   if(people.length){
