@@ -110,3 +110,43 @@ html[data-rw-design] #rwSalesArtists a:focus-visible{outline:3px solid #eac576;o
    min-height:42px!important;margin:0!important;align-self:center!important;
  }
 }
+
+/* Compact visible settings control on the user-approved AI-first homepage.
+   Restore the real gear instead of forcing travellers through More. */
+html[data-rw-design] body.shell[data-view="home"] #rwSettingsShortcut {
+ display:inline-flex!important;align-items:center;justify-content:center;
+ min-width:42px;min-height:42px;border-radius:13px;flex:0 0 auto;
+ background:#24223c;color:#f6d48c;border:1px solid #bc9d5d65;
+ font-size:20px;cursor:pointer;
+}
+html[data-rw-design] body.shell[data-view="home"] #rwSettingsShortcut:focus-visible {
+ outline:3px solid #f6d48c;outline-offset:2px;
+}
+/* Settings is a deliberate destination, not a blocking splash screen. */
+#settingsOverlay .modal {max-height:min(90dvh,900px);display:flex;flex-direction:column;overflow:hidden;}
+#settingsOverlay .modal-body {overflow-y:auto;overscroll-behavior:contain;scroll-padding-top:12px;padding-bottom:max(20px,env(safe-area-inset-bottom));}
+#rwSettingsHome {background:linear-gradient(135deg,#1b223b,#211a35);border:1px solid #b39cc655;border-radius:17px;margin-bottom:12px;padding:15px;color:#f5effb;}
+#rwSettingsHome .rw-settings-home-title {font:800 18px/1.3 system-ui,sans-serif;margin-bottom:12px;}
+#rwSettingsHome .rw-settings-jumps {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;}
+#rwSettingsHome .rw-settings-jumps button,
+#rwSettingsHome .rw-settings-size {min-height:44px;border:1px solid #a68ebb75;border-radius:12px;background:#302845;color:#f5effb;padding:9px 10px;font:700 12px/1.3 system-ui,sans-serif;cursor:pointer;}
+#rwSettingsHome .rw-settings-jumps button:focus-visible,
+#rwSettingsHome .rw-settings-size:focus-visible,
+#rwSettingsHome select:focus-visible,
+#rwSettingsHome input:focus-visible {outline:3px solid #f1cb7e;outline-offset:2px;}
+#rwSettingsHome .rw-settings-essentials {display:grid;grid-template-columns:1fr 1fr;gap:8px;align-items:stretch;margin-top:11px;}
+#rwSettingsHome .rw-settings-language {display:flex;flex-direction:column;gap:5px;font:700 12px system-ui,sans-serif;}
+#rwSettingsHome select {min-height:44px;max-width:100%;border-radius:11px;background:#302845;color:#f5effb;border:1px solid #b59ec275;padding:8px;font:600 13px system-ui,sans-serif;}
+#rwSettingsHome .rw-settings-external {display:flex;align-items:flex-start;gap:11px;cursor:pointer;border-top:1px solid #ae99bf40;padding:12px 0 0;margin-top:12px;}
+#rwSettingsHome .rw-settings-external input {width:21px;height:21px;flex:0 0 21px;accent-color:#e4bd73;margin:2px 0 0;}
+#rwSettingsHome .rw-settings-external span {display:grid;gap:4px;}
+#rwSettingsHome .rw-settings-external strong {font:700 12px/1.4 system-ui,sans-serif;}
+#rwSettingsHome .rw-settings-external small {font:400 11px/1.5 system-ui,sans-serif;color:#cbbfda;}
+@media(max-width:420px){
+ html[data-rw-design] body.shell[data-view="home"] #rwSettingsShortcut {min-width:40px;min-height:42px;}
+ html[data-rw-design] body.shell[data-view="home"] #xpChip,
+ html[data-rw-design] body.shell[data-view="home"] #rwAudioQuickToggle {display:none!important;}
+ #settingsOverlay .modal {max-height:92dvh;border-radius:18px 18px 0 0;}
+ #rwSettingsHome {padding:12px;}
+}
+@media(prefers-reduced-motion:reduce){#rwSettingsHome * {scroll-behavior:auto!important;transition:none!important;}}
