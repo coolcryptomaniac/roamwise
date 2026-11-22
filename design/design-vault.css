@@ -1,0 +1,57 @@
+/* RoamWise Design Vault · PR #831. Additive skins only; NEVER suppress commerce. */
+html[data-rw-design] body.shell[data-view="home"] #rwSalesCarousels { display:block!important; box-sizing:border-box; width:min(calc(100% - 24px),1120px); margin:14px auto!important; padding:8px 4px 15px!important; }
+html[data-rw-design] body.shell[data-view="home"] #rwSalesShop { display:flex!important; }
+html[data-rw-design] body.shell[data-view="home"] #rwSalesShop + p { display:block!important; }
+html[data-rw-design] body.shell[data-view="home"] .rw-trackheading:has(+ #rwSalesShop) { display:flex!important; }
+html[data-rw-design] body.shell[data-view="home"] #brand-ambassador { display:block!important; box-sizing:border-box; max-width:1120px; }
+html[data-rw-design] body.shell[data-view="home"] #rwSalesCarousels .rw-sales-track {scroll-snap-type:x mandatory; overscroll-behavior-x:contain;scroll-padding-inline:8px; -webkit-overflow-scrolling:touch;}
+html[data-rw-design] body.shell[data-view="home"] #rwSalesCarousels .rw-sales-card { scroll-snap-align:start; min-height:0; }
+html[data-rw-design] body.shell[data-view="home"] #rwSalesCarousels .rw-sales-card img {object-fit:cover;}
+html[data-rw-design] body.shell[data-view="home"] #rwSalesCarousels .rw-trackheading {margin-top:16px;}
+html[data-rw-design] body.shell[data-view="home"] #rwSalesCarousels .rw-trackheading h2 {font-size:clamp(18px,3vw,24px);line-height:1.25;}
+html[data-rw-design] body.shell[data-view="home"] .rw-vault-wallet-link {display:inline-flex;align-items:center;justify-content:center;min-height:40px;padding:6px 9px;color:#ebc471;border:1px solid #ebc47170;border-radius:12px;text-decoration:none;font:700 12px system-ui,sans-serif;white-space:nowrap;}
+html[data-rw-design] .rw-vault-wallet-link:focus-visible,html[data-rw-design] #rw-design-vault button:focus-visible {outline:2px solid #ebc471;outline-offset:3px;}
+#rw-design-vault {margin:12px 0 20px;padding:14px;border:1px solid #ab91c366;border-radius:16px;background:#1a1528;color:#f4ecff;}
+#rw-design-vault h3 {font-size:16px;margin:0 0 4px;}
+#rw-design-vault p {font-size:12px;color:#d4c8e2;margin:0 0 12px;}
+#rw-design-vault .rw-vault-choices {display:grid;gap:8px}
+#rw-design-vault button {min-height:50px;border-radius:12px;text-align:left;padding:9px 12px;background:#302640;border:1px solid #9b7cba66;color:#fff;cursor:pointer;display:flex;gap:10px;align-items:center;}
+#rw-design-vault button[aria-pressed="true"] {border-color:#ebc471;background:#3a2d34;}
+#rw-design-vault button .rw-vault-label {display:grid;gap:3px;flex:1;}
+#rw-design-vault button small {font-size:11px;color:#d4c8e2;}
+/* New default: clear, compact and commercially complete. */
+html[data-rw-design="himalayan-saanjh"] body.shell {background:#080e1e;}
+html[data-rw-design="himalayan-saanjh"] body.shell[data-view="home"] #copilotHero {width:min(calc(100% - 24px),1080px);background:linear-gradient(135deg,#1e1a33,#14162a);border:1px solid #8e78b850;border-radius:22px;margin:16px auto 8px!important;box-shadow:0 12px 32px #0004;}
+html[data-rw-design="himalayan-saanjh"] #copilotHero .tusk-title {margin-bottom:10px;}
+html[data-rw-design="himalayan-saanjh"] #copilotHero .tusk-title b {font-size:clamp(23px,4vw,31px);}
+html[data-rw-design="himalayan-saanjh"] #copilotHero .copilot-compose {background:#242138!important;border:1px solid #8872a960!important;border-radius:16px!important;min-height:85px;padding:8px!important;}
+html[data-rw-design="himalayan-saanjh"] #copilotHero #heroInput {height:78px!important;min-height:78px!important;max-height:250px!important;padding:10px 8px 38px!important;line-height:1.4!important;}
+html[data-rw-design="himalayan-saanjh"] #copilotHero .copilot-compose:focus-within #heroInput {height:142px!important;min-height:142px!important;}
+html[data-rw-design="himalayan-saanjh"] #copilotHero #heroModels {display:none!important;}
+html[data-rw-design="himalayan-saanjh"] #copilotHero .copilot-actions button[aria-label="Scan a screenshot"] {display:none!important;}
+html[data-rw-design="himalayan-saanjh"] #rwTuskPrompts {display:flex;flex-wrap:wrap;gap:7px;margin:10px 0 3px;}
+html[data-rw-design="himalayan-saanjh"] #rwTuskPrompts button {flex:1 1 135px;min-height:42px;text-align:center;border-radius:999px;background:#322f47;font-size:12px;}
+html[data-rw-design="himalayan-saanjh"] body.shell[data-view="home"] #rwSalesCarousels .rw-sales-card {flex-basis:clamp(210px,47vw,294px)!important;border-radius:16px;}
+html[data-rw-design="himalayan-saanjh"] body.shell[data-view="home"] #rwSalesCarousels .rw-sales-copy {min-height:190px;padding:12px;gap:6px;}
+html[data-rw-design="himalayan-saanjh"] body.shell[data-view="home"] #rwSalesCarousels .rw-sales-copy b {background:linear-gradient(110deg,#e8b75a,#f5d485);color:#1b1420;}
+html[data-rw-design="himalayan-saanjh"] body.shell[data-view="home"] #rwTuskDesk {max-width:1080px;}
+/* Ailon-first layout from 21 Nov, retained as a selectable legacy option. */
+html[data-rw-design="kasar-cloud"] body.shell[data-view="home"] #rwSalesCarousels {max-width:860px;}
+html[data-rw-design="kasar-cloud"] body.shell[data-view="home"] #rwSalesCarousels .rw-sales-card {flex-basis:clamp(215px,68vw,270px)!important;}
+/* Commerce-first older edition: stronger Buransh red/amber framing. */
+html[data-rw-design="buransh-bazaar"] body.shell[data-view="home"] #rwSalesCarousels {max-width:1150px;}
+html[data-rw-design="buransh-bazaar"] body.shell[data-view="home"] #copilotHero {background:linear-gradient(135deg,#2b132b,#1a1226);border-color:#d1797b99;max-width:950px;}
+html[data-rw-design="buransh-bazaar"] body.shell[data-view="home"] #rwSalesCarousels .rw-sales-card {flex-basis:clamp(245px,33vw,300px)!important;}
+html[data-rw-design="buransh-bazaar"] body.shell[data-view="home"] #rwSalesCarousels .rw-trackheading h2 {color:#f5c37a;}
+@media(max-width:600px) {
+ html[data-rw-design] body.shell[data-view="home"] #rwSalesCarousels {padding:4px 12px!important;}
+ html[data-rw-design] body.shell[data-view="home"] #rwSalesCarousels .rw-sales-card {flex-basis:76vw!important;}
+ html[data-rw-design] body.shell[data-view="home"] #rwSalesCarousels .rw-sales-copy {min-height:0!important;}
+ html[data-rw-design] body.shell[data-view="home"] #rwSalesCarousels .rw-sales-copy small {font-size:12px;}
+ html[data-rw-design] body.shell[data-view="home"] .nav-right .rw-vault-wallet-link {font-size:0;min-width:34px;padding:4px 7px;}
+ html[data-rw-design] body.shell[data-view="home"] .nav-right .rw-vault-wallet-link::before {content:"👛";font-size:17px;}
+ html[data-rw-design="himalayan-saanjh"] #copilotHero .tusk-title em {display:none;}
+}
+@media(prefers-reduced-motion:reduce) {
+ html[data-rw-design] #rwSalesCarousels *,html[data-rw-design] #brand-ambassador *{animation:none!important;transition:none!important;scroll-behavior:auto!important;}
+}
