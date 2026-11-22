@@ -3,6 +3,7 @@
  * Protocols: stateless 2026-07-28 and legacy 2025-11-25/2025-03-26.
  */
 import {publicSearch,publicItem,toCard,CATALOG_VERSION} from '../lib/roamwise-discovery-catalog.js';
+import {ROAMWISE_CARDS_URI,ROAMWISE_CARDS_HTML} from '../lib/roamwise-mcp-ui.js';
 const BASE='https://www.roamwise.co.in';
 const SERVER={name:'roamwise-discovery',version:'1.0.0',title:'RoamWise · Himalayan travel and art'};
 const MODERN='2026-07-28';
@@ -19,7 +20,7 @@ export const DISCOVERY_TOOLS=[
  {name:'search_roamwise',title:'Search RoamWise',description:descriptions.search,inputSchema:{type:'object',properties:{q:{type:'string',maxLength:120,description:'Search by artist, hotel, town, activity or service'},type:{type:'string',enum:TYPES},region:{type:'string',maxLength:100},limit:{type:'integer',minimum:1,maximum:12,default:6}},additionalProperties:false}},
  {name:'get_roamwise_listing',title:'Get RoamWise listing',description:descriptions.detail,inputSchema:{type:'object',properties:{id:{type:'string',pattern:'^[a-z0-9-]{1,80}$'}},required:['id'],additionalProperties:false}},
  {name:'roamwise_enquiry_link',title:'Continue on RoamWise',description:descriptions.handoff,inputSchema:{type:'object',properties:{id:{type:'string',pattern:'^[a-z0-9-]{1,80}$'}},required:['id'],additionalProperties:false}}
-].map(t=>({...t,annotations:{readOnlyHint:true,destructiveHint:false,idempotentHint:true,openWorldHint:false}}));
+].map(t=>({...t,...(t.name==='search_roamwise'?{_meta:{ui:{resourceUri:ROAMWISE_CARDS_URI},'openai/outputTemplate':ROAMWISE_CARDS_URI}}:{}),annotations:{readOnlyHint:true,destructiveHint:false,idempotentHint:true,openWorldHint:false}}));
 const allowedFields={
  search_roamwise:new Set(['q','type','region','limit']),
  get_roamwise_listing:new Set(['id']),
@@ -62,14 +63,19 @@ export async function handleRoamwiseMcp(request){
  if(body.id===undefined||body.id===null)return rpcError(null,-32600,'Request ID required',400);
  if(body.method==='server/discover'){
   if(!modern)return rpcError(body.id,-32601,'Method not found');
-  return rpc(body.id,{supportedVersions:[MODERN],capabilities:{tools:{listChanged:false}},instructions:'Read-only public travel and art discovery; availability, prices, reservations and payment must be confirmed at RoamWise.'},true);
+  return rpc(body.id,{supportedVersions:[MODERN],capabilities:{tools:{listChanged:false},resources:{listChanged:false}},instructions:'Read-only public travel and art discovery; availability, prices, reservations and payment must be confirmed at RoamWise.'},true);
  }
  if(body.method==='initialize'){
   const requested=body.params?.protocolVersion;
-  return rpc(body.id,{protocolVersion:LEGACY.includes(requested)?requested:LEGACY[0],capabilities:{tools:{listChanged:false}},serverInfo:SERVER});
+  return rpc(body.id,{protocolVersion:LEGACY.includes(requested)?requested:LEGACY[0],capabilities:{tools:{listChanged:false},resources:{listChanged:false}},serverInfo:SERVER});
  }
  if(body.method==='ping')return rpc(body.id,{},modern);
  if(body.method==='tools/list')return rpc(body.id,{tools:DISCOVERY_TOOLS},modern);
+ if(body.method==='resources/list')return rpc(body.id,{resources:[{uri:ROAMWISE_CARDS_URI,name:'RoamWise listing carousel',description:'Image-first, swipeable public discovery cards',mimeType:'text/html;profile=mcp-app'}]},modern);
+ if(body.method==='resources/read'){
+  if(body.params?.uri!==ROAMWISE_CARDS_URI)return rpcError(body.id,-32602,'Unknown resource');
+  return rpc(body.id,{contents:[{uri:ROAMWISE_CARDS_URI,mimeType:'text/html;profile=mcp-app',text:ROAMWISE_CARDS_HTML,_meta:{ui:{prefersBorder:true,csp:{resourceDomains:['https://www.roamwise.co.in']}}}}]},modern);
+ }
  if(body.method!=='tools/call')return rpcError(body.id,-32601,'Method not found');
  const name=body.params?.name,args=body.params?.arguments??{};
  if(!validateToolArgs(name,args))return rpcError(body.id,-32602,'Invalid tool or arguments');
