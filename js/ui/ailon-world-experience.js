@@ -132,6 +132,73 @@
     actions.append(planBtn, stay); info.append(actions); item.append(photo, info);
     return item;
   }
+  /* Full atlas search is deliberate and on-demand. The 34k-city source is
+     geography, not verified hotel inventory or permanently current advice. */
+  async function searchAtlas(query, suppliedAtlas) {
+    const raw=clean(query);
+    if(raw.length<2)return {status:'short',matches:[]};
+    const a=suppliedAtlas||W.RW_ATLAS;
+    if(!a||typeof a.find!=='function')return {status:'unavailable',matches:[]};
+    try{
+      if(a._state && !a._state.ready && typeof a.loadAll==='function')
+        await a.loadAll();
+      const result=a.find(raw);
+      if(!result || !result.ready)return {status:'unavailable',matches:[]};
+      if(!result.best)return {status:'not-found',matches:[]};
+      const items=(result.ambiguous ? result.matches : [result.best]).slice(0,6);
+      const seen=new Set();
+      const matches=[];
+      for(const r of items){
+        const name=clean(r.name),country=clean(r.country),region=clean(r.where||r.state||'');
+        if(!name || !country)continue;
+        const id=(name+'|'+region+'|'+country).toLocaleLowerCase('en');
+        if(seen.has(id))continue;
+        seen.add(id);
+        matches.push({id,name,country,region,tag:clean(r.label||'Place'),fromAtlas:true});
+      }
+      return {status:result.ambiguous?'ambiguous':'matched',matches};
+    }catch(_){return {status:'unavailable',matches:[]};}
+  }
+  function worldSearchControl(){
+    const form=make('form','rw-world-search');
+    form.setAttribute('role','search');
+    const searchInput=make('input','');
+    searchInput.type='search';searchInput.name='place';searchInput.maxLength=90;
+    searchInput.placeholder='Find any city, region or country…';
+    searchInput.setAttribute('aria-label','Find a destination in the world atlas');
+    const submit=make('button','','Find place');
+    submit.type='submit';
+    const status=make('p','rw-world-search-status','Browse featured places below, or search the worldwide atlas.');
+    status.setAttribute('role','status');status.setAttribute('aria-live','polite');
+    const results=make('div','rw-world-search-results');
+    form.append(searchInput,submit,status,results);
+    form.addEventListener('submit',async e=>{
+      e.preventDefault();
+      const name=clean(searchInput.value);
+      if(name.length<2){status.textContent='Enter at least two characters.';return;}
+      const original=destinations.find(d=>d.name.toLocaleLowerCase('en')===name.toLocaleLowerCase('en'));
+      if(original){results.replaceChildren();status.textContent='Found in RoamWise curated destinations.';chooser(original);return;}
+      status.textContent='Looking up '+name+' in the destination atlas…';
+      submit.disabled=true;results.replaceChildren();
+      const response=await searchAtlas(name);
+      submit.disabled=false;
+      if(searchInput.value.trim()!==name)return; // stale asynchronous request
+      if(!response.matches.length){
+        status.textContent=response.status==='not-found'
+          ? 'No exact atlas match. Try adding the state or country, or ask Ailon to help.'
+          : 'The atlas is not available offline right now. The featured destinations still work.';
+        return;
+      }
+      status.textContent=response.status==='ambiguous'
+        ? 'Several places share that name. Select the right one.'
+        : 'Place found in the atlas. This does not imply a bookable stay.';
+      for(const d of response.matches){
+        const b=make('button','rw-world-search-result',d.name+' · '+(d.region||d.country));
+        b.type='button';b.addEventListener('click',()=>chooser(d));results.append(b);
+      }
+    });
+    return form;
+  }
   function mountWorldRail() {
     const hero=document.getElementById('copilotHero');
     if (!hero || document.getElementById('rwWorldRail')) return;
@@ -151,7 +218,7 @@
     track.setAttribute('aria-label','Infinite horizontal destinations');track.tabIndex=0;
     // Three copies enable bounded, seamless-feeling recentering without unbounded nodes.
     for (let pass=0; pass<3; pass++) destinations.forEach((d,i)=>track.append(card(d,i)));
-    section.append(head,track);
+    section.append(head,worldSearchControl(),track);
     hero.insertAdjacentElement('afterend', section);
     const oneWidth=()=>track.scrollWidth/3;
     let ignore=false, didInit=false;
@@ -265,5 +332,5 @@
         if(j && j.version===1 && j.assets && typeof j.assets==='object')media=j.assets;
       }).catch(()=>{}).finally(()=>{clearTimeout(stop);mountWorldRail();mountCategoryDeck();});
   });
-  W.RWAilonWorld = { destinationPool, staysURL, modeChoices: modes.map(x=>x[0]) };
+  W.RWAilonWorld = { destinationPool, staysURL, searchAtlas, modeChoices: modes.map(x=>x[0]) };
 })();
