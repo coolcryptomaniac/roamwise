@@ -617,7 +617,9 @@ function cpParseRegex(t){
   if(/shoe\s*string|shoestring|bare\s*bones|barebones|backpack(er|ing)?|cheapest|sasta|low\s*budget|tight\s*budget/i.test(t)) out.style='budget';
   else if(/luxur(y|ious)|lavish|5\s*star|premium|shaandaar/i.test(t)) out.style='luxury';
   if(_cpCtx && !out._recommendCount){
-    var refersBack = /\b(there|here|that place|it|same|also|and|what about|how about)\b/i.test(t) || !out.dest;
+    var refersBack = /\b(there|here|that place|same place|same trip|same destination|it|also|and|what about|how about)\b/i.test(t);
+    /* A new planning question without a place must NOT silently inherit the last city.
+       Only explicit follow-up language may use conversational context. */
     if(!out.dest && refersBack && _cpCtx.dest){ out.dest = _cpCtx.dest; out._inherited = true; }
     /* days/budget belong to a TRIP, not to the user forever. Carrying \u20b98,500
        from an Almora chat into a brand-new Switzerland request produced a
@@ -687,16 +689,16 @@ function cpParseRegex(t){
       }
     }
   }
-  /* a weak leftover token ("busget" typo) that isn't a known place loses to
-     the destination we already know from this conversation */
-  if(!out._country && out._weakDest && _cpCtx && _cpCtx.dest && out.dest && !rwKnownMap()[String(out.dest).toLowerCase()]){
-    /* never inherit a destination that was itself a parse slip */
-    if(!RW_COMMON_WORDS.test(String(_cpCtx.dest))){ out.dest = _cpCtx.dest; out._inherited = true; }
+  /* A possible NEW location must never be overwritten by the previous trip.
+     It may be an unfamiliar place, not a typo: downstream place resolution
+     can verify it, while no destination is safer than reusing stale context. */
+  if(!out._country && out._weakDest && out.dest && !rwKnownMap()[String(out.dest).toLowerCase()]){
+    out._needsPlaceVerification = true;
   }
   /* and never REMEMBER a common-word destination for future turns */
   if(out.dest && RW_COMMON_WORDS.test(String(out.dest)) && !rwKnownMap()[String(out.dest).toLowerCase()]) out._weakDest = true;
   var _junk = out.dest && RW_COMMON_WORDS.test(String(out.dest)) && !rwKnownMap()[String(out.dest).toLowerCase()];
-  if(out.dest && !_junk) _cpCtx = {dest:out.dest, days:out.days, budget:out.budget};
+  if(out.dest && !_junk && !out._weakDest) _cpCtx = {dest:out.dest, days:out.days, budget:out.budget};
   else if(out._country) _cpCtx = {dest:null, days:out.days, budget:out.budget, country:out._country};
   /* learn what this user tends to ask for — powers personalisation over time */
   try{ rwLearnIntent(out); }catch(e){ /* best-effort, ignore */ }
