@@ -3,6 +3,7 @@
  * 4: optional licensed Brave Search. No scraping, automatic publishing or LLM
  * synthesis from third-party snippets. Default route uses zero paid calls. */
 import { json } from '../lib/http.js';
+import { atlasAnswer } from '../lib/tusk-atlas-answer.js';
 import { parsePublicQuery, isDynamicQuery, curatedMatches, getExactCache, putExactCache,
   approvedVectorMatch, status } from '../lib/tusk-hybrid-knowledge.js';
 
@@ -36,10 +37,17 @@ export async function handleTuskWebSearch(request,env){
  const cached=dynamic?null:await getExactCache(env,query,lang);
  if(cached)return json({...cached,query,cache:'exact'});
  const curated=curatedMatches(query);
+ // Atlas covers itineraries, food, culture, photo references and notable people.
+ // Do not bypass the existing curated policy on live/price/safety questions.
+ const atlas=atlasAnswer(query);
+ const atlasIntent=/\b(?:itinerary|itineraries|plan|trip|days|food|eat|cuisine|dishes|photo|picture|image|people|notable|famous|culture|attractions|things to do)\b|यात्रा|खाना|भोजन|फोटो|तस्वीर|प्रसिद्ध/i.test(query);
+ if(atlas&&atlasIntent&&!dynamic)return json({...atlas,query});
  if(curated && !dynamic){
    await putExactCache(env,query,lang,curated);
    return json({...curated,query,cache:'none'});
  }
+ // Bare place queries also resolve locally without paid model inference.
+ if(atlas&&!dynamic)return json({...atlas,query});
  const semantic=dynamic?null:await approvedVectorMatch(env,query);
  if(semantic){
    await putExactCache(env,query,lang,semantic);
@@ -51,6 +59,7 @@ export async function handleTuskWebSearch(request,env){
  if(live)return json({...live,query,context:curated||undefined});
  if(curated)return json({...curated,query,cache:'none',requiresLiveVerification:true,
    note:'No live source connected. Background information only; verify with the official site.'});
+ if(atlas)return json({...atlas,query,requiresLiveVerification:true,note:'Editorial context only; live conditions and bookings require official verification.'});
  return json({available:false,route:'not-configured',query,hits:[],requiresLiveVerification:true,
    error:'No validated answer is available. Live search requires explicit provider configuration.'},503);
 }
