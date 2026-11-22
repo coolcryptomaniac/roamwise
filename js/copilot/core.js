@@ -957,6 +957,14 @@ function copilotSend(fromHero){
       window._tkCarryShown = place;
     }
     if(place && new RegExp(place.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'i').test(t)) window._tkCarryShown=place;
+    // A free traveller with no local destination card still gets a reviewed
+    // RoamWise Worker lookup before any generic advice or outside search.
+    if(place&&!kb&&typeof rwTuskIsPublicQuery==='function'&&rwTuskIsPublicQuery(t)){
+      Promise.resolve().then(function(){return rwMiniSearch(t);}).then(function(res){
+        cpFinish(thinking,res?rwWebAnswerHTML(t,res):'',intents,t);
+      }).catch(function(){cpFinish(thinking,'',intents,t);});
+      return;
+    }
     if(place){
       /* the card built in cpActionsHTML now carries the guide content; if we
          also have a text summary, give it a dash of masala */
@@ -964,9 +972,9 @@ function copilotSend(fromHero){
     } else if(kb){
       cpFinish(thinking, rwMasalaWrap(kb), intents, t);
     } else {
-      /* Nothing curated and no place named — quietly search the free open
-         web (Wikipedia + DuckDuckGo, keyless, CORS-open) and present a card. */
-      var _keyPrompt = 'I cover destinations, weather, budgets, transport and sharing. For open-ended conversation, add a free AI key \u2014 takes 2 minutes: <button class="tact" style="font-size:11px;padding:4px 10px" onclick="openWizard()">Get a free key</button>';
+      /* RoamWise knowledge is first; no API-key setup nag or unapproved
+         external search when the visitor asks an unindexed question. */
+      var _keyPrompt=(typeof rwTuskOfflinePlanningCard==='function'?rwTuskOfflinePlanningCard(t):'')||'<div class="tk-card"><div class="tk-head"><div class="tk-place">No verified RoamWise answer yet</div></div><div class="tk-sec"><p>Try a destination, dates or a more specific question. RoamWise guides are available now, and optional external sources can be enabled in Settings.</p><div class="tk-chips"><a class="tk-chip" href="/guides/">Explore RoamWise guides ↗</a></div></div></div>';
       /* MUST NOT throw: file:// cross-origin fetch can reject in the APK; an
          uncaught reject would freeze the "…" bubble = "chat broken in app". */
       Promise.resolve().then(function(){ return rwMiniSearch(t); }).then(function(res){
