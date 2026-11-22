@@ -1918,9 +1918,14 @@ body[data-view="home"] #rwEveryday,body[data-view="home"] #promofilm {display:no
     <button class="modal-close" onclick="closeSettings()">&#215;</button>
     <div class="modal-head" style="text-align:left;padding:16px 20px 12px">
       <div class="modal-title" style="font-size:17px">&#9881; Settings</div>
-      <div class="modal-sub">Sound &bull; Personalisation &bull; Account &bull; Optional AI tools</div>
+      <div class="modal-sub">Automatic AI &bull; Optional BYOK &bull; Design &bull; Account</div>
     </div>
     <div class="modal-body">
+      <details id="rwByokGuide" class="key-section" style="border:1px solid #ad8b6c80;border-radius:14px;padding:12px;margin-bottom:12px;background:#272038">
+        <summary style="font-weight:800;color:#f6d8a0;cursor:pointer;min-height:38px">✨ Guided AI setup · automatic or your own key</summary>
+        <p style="font-size:12px;line-height:1.6;color:#e5d9ed;margin:6px 0 9px">1. Keep <strong>Ailon Tusk Automatic</strong> for no-key travel planning. 2. For advanced models, choose a provider below and follow its key instructions. 3. Save the key in the provider settings—not in chat. 4. Change back to Automatic any time. Actual speed and usage depend on the provider and your plan.</p>
+        <p style="font-size:11px;color:#d9c7e0;margin:0">Your BYOK credentials must never be shared in a conversation or public listing. Group planning, itineraries and bookings work independently of provider selection.</p>
+      </details>
       <div class="key-section">
         <div class="key-sec-title">Ailon Tusk Automatic <small style="font-size:10px;font-weight:400;color:var(--t3);text-transform:none;letter-spacing:0">&mdash; no keys or technical setup</small></div>
         <div class="prov-select">
