@@ -64,7 +64,9 @@ function rwPushSyncCategoryUi(){
 }
 function rwPushLoadCategories(){
   if(typeof user === 'undefined' || !user || typeof db === 'undefined' || !db) return;
-  db.collection('users').doc(user.uid).get().then(function(doc){
+  var profile = db.collection('users').doc(user.uid);
+  if(!profile || typeof profile.get !== 'function') return;
+  profile.get().then(function(doc){
     if(typeof user === 'undefined' || !user || user.uid !== doc.id) return;
     var stored = (doc.exists && doc.data() && doc.data().notificationPrefs) || {};
     rwPushCategoryPrefs = Object.assign({}, RW_PUSH_CATEGORY_DEFAULTS);
@@ -265,7 +267,7 @@ function rwPushMountToggle(){
     }).join('') + '</div>'
     + '<small style="display:block;color:var(--t3);margin-top:8px">Travel ideas and offers are off until you switch them on. Booking and safety alerts are never advertisements.</small>';
   modal.appendChild(box);
-  box.querySelectorAll('[data-rw-push-cat]').forEach(function(el){
+  (box.querySelectorAll ? box.querySelectorAll('[data-rw-push-cat]') : []).forEach(function(el){
     el.addEventListener('change', function(){ rwPushSetCategory(el.getAttribute('data-rw-push-cat'), el.checked); });
   });
   rwPushSyncCategoryUi();
