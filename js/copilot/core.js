@@ -622,8 +622,13 @@ function cpParseRegex(t){
      in the small curated DB. Otherwise the parser keeps reusing the previous
      destination when somebody asks for a different worldwide city. */
   var explicitNewPlace = /\b(?:trip|journey|travel|visit|visiting|explore|stay|staying|plan|planning|go|going)\b.{0,32}\b(?:to|in|near|around|at|for)\s+(?!the\b|a\b|my\b|next\b|this\b|under\b|below\b|within\b)[A-Za-z\u00c0-\u024f]{3,}/i.test(t);
-  if(!explicitNewPlace && /\b(?:what|how) about\s+[A-Z][a-z\u00c0-\u024f]{2,}/.test(t))
+  /* 'What about Funchal?' is a NEW place; 'what about food there?' is
+     still a follow-up about the current one. Normalisation lowercases input. */
+  var newPlaceFollow = t.match(/\b(?:what|how)\s+about\s+([a-z\u00c0-\u024f]{3,}(?:\s+[a-z\u00c0-\u024f]{3,})?)/i);
+  if(newPlaceFollow && !/^(?:the|this|that|there|here|same|my|our|it|food|restaurants?|cafe|weather|rain|safety|prices?|costs?|budget|transport|trains?|flights?|buses|taxis|visa|hotels?|stays?|activities|things|planning|itinerary|bookings?|photos|maps|history|how|why|where|when)\b/i.test(newPlaceFollow[1])){
     explicitNewPlace=true;
+    if(!out.dest){out.dest=newPlaceFollow[1].trim();out._weakDest=true;}
+  }
   if(explicitNewPlace)out._explicitNewPlace=true;
   if(_cpCtx && !out._recommendCount){
     var refersBack = /\b(there|here|that place|it|same|also|and|what about|how about)\b/i.test(t) || !out.dest;
