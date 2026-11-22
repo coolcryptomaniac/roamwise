@@ -14,7 +14,7 @@
     if(!chip||!link)return;
     // Only one wallet control: signed-in balance chip OR icon linking to wallet.
     var visible=chip.style.display!=='none'&&getComputedStyle(chip).display!=='none'&&!chip.hidden;
-    link.hidden=visible;
+    link.toggleAttribute('hidden',visible);
     if(visible)chip.setAttribute('title','Open RoamWise wallet');
   }
   if(chip&&link){
