@@ -42,12 +42,14 @@ test('destination rail progressively loads unique entries and never invents pric
  const track=dom.window.document.getElementById('rwDestinationTrack');
  assert.equal(track.querySelectorAll('.rw-destination-card').length,12);
  track.dispatchEvent(new dom.window.Event('scroll'));
- assert.equal(track.querySelectorAll('.rw-destination-card').length,23,'new destinations append until all are visible');
- assert.equal(track.querySelectorAll('img').length,0,'unknown destinations use branded fallbacks');
- assert.equal(track.querySelectorAll('a.rw-dest-stays').length,23);
+ assert.equal(track.querySelectorAll('.rw-destination-card').length,24,'new destinations load in bounded batches');
+ track.dispatchEvent(new dom.window.Event('scroll'));
+ assert.equal(track.querySelectorAll('.rw-destination-card').length,29,'all six curated Kumaon + 23 DB destinations appear');
+ assert.ok(track.querySelectorAll('.rw-photo-fallback').length>=23,'unknown destinations use branded fallbacks');
+ assert.equal(track.querySelectorAll('a.rw-dest-stays').length,29);
  const first=track.querySelector('.rw-dest-plan');
  first.click();
  assert.equal(promptCount,1);
- assert.match(dom.window.document.getElementById('heroInput').value,/Sample city 0/);
+ assert.match(dom.window.document.getElementById('heroInput').value,/Almora/);
  assert.equal(dom.window.document.querySelectorAll('[data-price]').length,0,'no invented payment or stay prices');
 });
