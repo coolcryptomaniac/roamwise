@@ -1043,6 +1043,10 @@ const FEATURED={
       [
         "Mahatma Gandhi",
         "Associated with Anasakti Ashram in Kausani"
+      ],
+      [
+        "Sumitranandan Pant",
+        "Poet born in Kausani"
       ]
     ],
     "days": [
