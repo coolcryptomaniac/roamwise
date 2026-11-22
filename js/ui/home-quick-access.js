@@ -1,4 +1,4 @@
-/* Home quick access: four essential shortcuts under Tusk; the advanced tools live under More.
+/* Home quick access: compact horizontal shortcuts under Tusk; advanced tools live under More.
    Classic script. Each item calls an existing global or opens an existing page; if a
    feature has not loaded yet the tap falls back to the menu drawer. */
 (function () {
@@ -8,6 +8,9 @@
     { id: 'stays', icon: '🏡', label: 'Find stays', run: function () { W.openListing(); } },
     { id: 'transport', icon: '🚆', label: 'Transport', run: function () { W.rwOpenTripDesk(); } },
     { id: 'experiences', icon: '✨', label: 'Experiences', run: function () { W.openExperiences(); } },
+    { id: 'group-chat', icon: '💬', label: 'Group chat', run: function () { W.openGroupChat(); } },
+    { id: 'group-plan', icon: '👥', label: 'Group planning', run: function () { W.openGroupPlanner(); } },
+    { id: 'mesh', icon: '📡', label: 'TrailMesh', href: '/trailmesh/' },
     { id: 'more', icon: '☰', label: 'All tools', href: '/more/' }
   ];
   /* Inside the Android app a folder URL such as /wallet/ is answered with the home page (unstyled, stuck),
