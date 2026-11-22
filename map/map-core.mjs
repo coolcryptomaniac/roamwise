@@ -32,6 +32,7 @@ export function cleanPlaces(raw) {
 
 /** Same rule as window.rwStayPublicEligible in partners-data.js. Kept identical; a test compares the two. */
 export const isPublicPartner = (p) => !!p && p.listingReady === true && (p.verified === 'signed'
+  || (p.verified === 'self-listed' && p.enquiryOnly === true && p.selfListed?.mouVersion === 'RW-PMOU-2026-09-27-V4')
   || (p.verified === 'founder-approved' && p.enquiryOnly === true && (p.founderApproval === 'Mohit Pandey · 2026-10-18' || p.founderApproval === 'Mohit Pandey · 2026-11-06')));
 
 export const partnersForPlace = (partners, place) => (Array.isArray(partners) ? partners : [])
@@ -39,6 +40,7 @@ export const partnersForPlace = (partners, place) => (Array.isArray(partners) ? 
 
 export function tierOf(p) {
   if (p.verified === 'signed') return { label: 'RoamWise Partner', note: 'Agreement signed', enquiryOnly: false };
+  if (p.verified === 'self-listed') return { label: 'New on RoamWise', note: 'Self-listed; signed MOU and automatic checks, enquiry only', enquiryOnly: true };
   return { label: 'Founder introduced', note: 'Enquiries only; agreement pending', enquiryOnly: true };
 }
 

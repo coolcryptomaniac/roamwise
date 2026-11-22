@@ -18,9 +18,18 @@
   function supportWa() { var c = (root.RW_PARTNER_CONFIG && root.RW_PARTNER_CONFIG.chat) || {}; return digits(c.supportWhatsapp); }
 
   function allStays() {
-    var seed = Array.isArray(root.RW_PARTNER_SEED) ? root.RW_PARTNER_SEED : [];
-    return seed.filter(function (p) { return p && p.cat === 'stay' && (root.rwStayPublicEligible ? root.rwStayPublicEligible(p) : p.verified === 'signed' && p.listingReady !== false); })
-      .map(function (p) { return Object.assign({}, p, p.enquiryOnly ? {} : live[p.id] || {}); });
+    var seed=Array.isArray(root.RW_PARTNER_SEED)?root.RW_PARTNER_SEED:[];
+    var dynamic=(Array.isArray(root.RW_STAYS_PUBLIC_LIVE)?root.RW_STAYS_PUBLIC_LIVE:[]).concat(Array.isArray(root.RW_PARTNERS)?root.RW_PARTNERS:[]);
+    var merged=[],seen={};
+    // Firestore-backed public entries first; seed entries are offline fallback.
+    // Self-listed properties MUST be MOU-checked and enquiry-only.
+    dynamic.concat(seed).forEach(function(p){
+      if(!p||p.cat!=='stay'||!(root.rwStayPublicEligible?root.rwStayPublicEligible(p):p.verified==='signed'&&p.listingReady===true))return;
+      var key=(String(p.zone||'')+'|'+String(p.name||'').replace(/^hotel\s+/i,'')).toLowerCase().replace(/[^a-z0-9|]/g,'');
+      if(seen[key])return;seen[key]=true;
+      merged.push(Object.assign({},p,p.enquiryOnly?{}:live[p.id]||{}));
+    });
+    return merged;
   }
   function whatsappOf(p) { var n = digits(p.bookingWhatsapp); return n && (!p.bookingMode || p.bookingMode === 'whatsapp') ? n : ''; }
 
@@ -124,12 +133,24 @@
       root.firebase.firestore().collection('config').doc('partners').get().then(function (d) {
         var list = d.exists && d.data() && Array.isArray(d.data().list) ? d.data().list : [];
         list.forEach(function (x) { if (x && x.id) live[x.id] = { bookingMode: x.bookingMode }; });
+        // Project only safe public fields into the browser's dynamic stay feed.
+        // No owner phone, wholesale rate, payout, document evidence or bank data.
+        root.RW_STAYS_PUBLIC_LIVE=list.filter(function(p){
+          return p&&p.cat==='stay'&&p.verified==='self-listed'&&p.enquiryOnly===true
+           &&p.listingReady===true&&p.selfListed&&p.selfListed.mouVersion==='RW-PMOU-2026-09-27-V4'
+           &&(!root.rwStayPublicEligible||root.rwStayPublicEligible(p));
+        }).map(function(p){return {
+          id:p.id,name:p.name,zone:p.zone,area:p.area,cat:'stay',verified:'self-listed',
+          enquiryOnly:true,listingReady:true,bookingMode:'enquiry',hook:p.hook||'',
+          segments:Array.isArray(p.segments)?p.segments.slice(0,6):[],
+          selfListed:{mouVersion:'RW-PMOU-2026-09-27-V4'}
+        };});
       }).catch(function () {}).then(done);
     } catch (e) { done(); }
   }
 
   root.RWStaysHub = {
-    render: function (h, ctx, cat) { if (cat && cat !== 'stay') { renderOther(h, ctx, cat); return; } renderStays(h, ctx); loadLive(function () { if (Object.keys(live).length) renderStays(h, ctx); }); },
+    render: function (h, ctx, cat) { if (cat && cat !== 'stay') { renderOther(h, ctx, cat); return; } renderStays(h, ctx); loadLive(function () { renderStays(h, ctx); }); },
     allStays: allStays, matches: matches, quoteUrl: quoteUrl
   };
   if (typeof module === 'object' && module.exports) module.exports = root.RWStaysHub;

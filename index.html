@@ -499,6 +499,8 @@ body[data-view="home"] #rwEveryday,body[data-view="home"] #promofilm {display:no
 <link rel="stylesheet" href="design/design-vault.css?v=840-1">
 <script src="design/design-vault.js?v=840-1" defer></script>
 <link rel="stylesheet" href="design/home-curated-commerce.css?v=20261122">
+<link rel="stylesheet" href="design/home-mobile-recovery.css?v=20261122-2">
+<script src="js/ui/home-mobile-recovery.js?v=20261122-2" defer></script>
 <script src="js/ui/home-curated-discovery.js?v=20261122" defer></script>
 </head>
 <body class="rw-akatsuki-theme shell" data-view="home">
@@ -595,8 +597,23 @@ body[data-view="home"] #rwEveryday,body[data-view="home"] #promofilm {display:no
 </section>
 
 
-<!-- Quick access (js/ui/home-quick-access.js): stays, transport, experiences and More -->
+<!-- Quick access (js/ui/home-quick-access.js): stays, transport, experiences, groups and More -->
 <nav class="v v-home" id="rwQuick" aria-label="Quick access"></nav>
+<!-- Partner discovery: useful entry points without a cluttered second navigation bar. -->
+<section class="v v-home" id="rwPartnerFrontdoors" aria-label="Grow and collaborate with RoamWise">
+ <h2>Bring your world to RoamWise</h2>
+ <p>Join as a host, creator, artist or business; discover like-minded partners. Property self-listings can go live for <strong>enquiries</strong> after automatic checks and signed MOU evidence. Paid bookings require verification.</p>
+ <div class="rw-partner-door-grid">
+  <a class="rw-partner-door" href="/partner/join/"><span class="rw-door-icon" aria-hidden="true">🏡</span><strong>List your stay</strong><small>Self-register, sign your MOU and receive enquiries.</small><span>Start listing →</span></a>
+  <a class="rw-partner-door" href="/creators/match.html?role=creator"><span class="rw-door-icon" aria-hidden="true">🎬</span><strong>Join as creator</strong><small>Explore stays and compatible collaborations.</small><span>Creator opportunities →</span></a>
+  <a class="rw-partner-door" href="/creators/join-artist.html"><span class="rw-door-icon" aria-hidden="true">🎨</span><strong>List your art</strong><small>Share your original portfolio and commissions.</small><span>Artist registration →</span></a>
+  <a class="rw-partner-door" href="/local-business/"><span class="rw-door-icon" aria-hidden="true">🏪</span><strong>Local businesses</strong><small>Bring authentic shops, guides and experiences online.</small><span>Explore registration →</span></a>
+  <a class="rw-partner-door" href="/network/match/"><span class="rw-door-icon" aria-hidden="true">🤝</span><strong>Creator × property</strong><small>Discover opt-in matches ranked for relevance, not fictitious ratings.</small><span>Explore matches →</span></a>
+  <a class="rw-partner-door" href="/corporate/"><span class="rw-door-icon" aria-hidden="true">💼</span><strong>Team travel &amp; HR</strong><small>Quiet offsites, leadership retreats and employee travel.</small><span>Corporate enquiries →</span></a>
+  <a class="rw-partner-door" href="/about.html"><span class="rw-door-icon" aria-hidden="true">🌄</span><strong>Our founder &amp; story</strong><small>Meet the entrepreneur building RoamWise in Kumaon.</small><span>About RoamWise →</span></a>
+  <a class="rw-partner-door" href="/pricing.html"><span class="rw-door-icon" aria-hidden="true">👑</span><strong>Membership &amp; Pro</strong><small>See plans and AI search allowances in one place.</small><span>Compare subscriptions →</span></a>
+ </div>
+</section>
 <section class="v v-home" id="rwSalesCarousels" aria-label="RoamWise swipeable escapes and shop" style="margin:12px 14px;color:#f7e8d8">
 <div class="rw-discovery-heading"><div><p class="rw-discovery-eyebrow">DISCOVER · ROAMWISE</p><h2 id="rwDiscoverTitle">Stays &amp; packages</h2><p class="rw-discovery-sub">Swipe thoughtful picks. Choose a category to see only what matters.</p></div><a href="/more/" aria-label="View all RoamWise categories" style="white-space:nowrap;color:#ecc58b;font-size:12px;align-self:center">All tools ↗</a></div>
 <nav id="rwDiscoverFilters" aria-label="Explore curated RoamWise listings"><a href="/packages/">Stays &amp; packages</a> · <a href="/itinerary-library/">Itineraries</a> · <a href="/creators/gallery.html">Artists</a> · <a href="/shop/">Shop</a> · <a href="/corporate/">Teams &amp; HR</a></nav>
@@ -1891,15 +1908,24 @@ body[data-view="home"] #rwEveryday,body[data-view="home"] #promofilm {display:no
   </div>
 </div>
 
+<footer class="v v-home" id="rwHomeFooter" aria-label="RoamWise footer">
+ <nav aria-label="Company and help"><a href="/about.html">About &amp; founder</a><a href="/team.html">Team</a><a href="/partner/join/">List your stay</a><a href="/creators/">Creators</a><a href="/corporate/">For teams</a><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a><a href="/more/">More tools</a></nav>
+ <p>RoamWise · Almora, Uttarakhand · Ailon Tusk travel copilot · Booking prices and availability require supplier confirmation.</p>
+</footer>
 <!-- SETTINGS MODAL -->
 <div class="overlay" id="settingsOverlay">
   <div class="modal modal-lg">
     <button class="modal-close" onclick="closeSettings()">&#215;</button>
     <div class="modal-head" style="text-align:left;padding:16px 20px 12px">
       <div class="modal-title" style="font-size:17px">&#9881; Settings</div>
-      <div class="modal-sub">Sound &bull; Personalisation &bull; Account &bull; Optional AI tools</div>
+      <div class="modal-sub">Automatic AI &bull; Optional BYOK &bull; Design &bull; Account</div>
     </div>
     <div class="modal-body">
+      <details id="rwByokGuide" class="key-section" style="border:1px solid #ad8b6c80;border-radius:14px;padding:12px;margin-bottom:12px;background:#272038">
+        <summary style="font-weight:800;color:#f6d8a0;cursor:pointer;min-height:38px">✨ Guided AI setup · automatic or your own key</summary>
+        <p style="font-size:12px;line-height:1.6;color:#e5d9ed;margin:6px 0 9px">1. Keep <strong>Ailon Tusk Automatic</strong> for no-key travel planning. 2. For advanced models, choose a provider below and follow its key instructions. 3. Save the key in the provider settings—not in chat. 4. Change back to Automatic any time. Actual speed and usage depend on the provider and your plan.</p>
+        <p style="font-size:11px;color:#d9c7e0;margin:0">Your BYOK credentials must never be shared in a conversation or public listing. Group planning, itineraries and bookings work independently of provider selection.</p>
+      </details>
       <div class="key-section">
         <div class="key-sec-title">Ailon Tusk Automatic <small style="font-size:10px;font-weight:400;color:var(--t3);text-transform:none;letter-spacing:0">&mdash; no keys or technical setup</small></div>
         <div class="prov-select">

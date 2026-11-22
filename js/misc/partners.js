@@ -23,7 +23,11 @@ function rwPartnersMerge(list){
     var twin=p&&seed.filter(function(s){ return s.id!==p.id&&rwPartnerKey(s)===rwPartnerKey(p); })[0];
     return twin?Object.assign({},p,{id:twin.id}):p;
   });
-  var approved=list.filter(function(p){ return p.verified==='signed'&&p.listingReady===true; });
+  var approved=list.filter(function(p){
+    // Self-listed, MOU-checked stays are visible for ENQUIRIES only.
+    return window.rwStayPublicEligible ? window.rwStayPublicEligible(p)
+      : p && p.verified==='signed' && p.listingReady===true;
+  });
   seed.forEach(function(s){
     var match=list.filter(function(p){ return String(p.id)===String(s.id); })[0];
     var index=approved.findIndex(function(p){ return String(p.id)===String(s.id); });
@@ -52,6 +56,7 @@ function rwPartnersSync(){
         if(el('partnersOut')) rwPartnersRender();
         if(typeof rwListingRepaint==='function') rwListingRepaint();
         if(typeof rwPromoRepaint==='function') rwPromoRepaint();
+        try{document.dispatchEvent(new CustomEvent('rw:partners-refreshed'));}catch(e){/* presentation-only signal */}
       }
     }).catch(function(){});
   }catch(e){ /* best-effort Firestore write, ignore */ }

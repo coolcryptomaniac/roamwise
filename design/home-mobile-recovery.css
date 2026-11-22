@@ -1,0 +1,87 @@
+/* UI recovery: keep premium legacy card frames + spacious Ailon composer.
+   Applied after theme CSS; scoped to home/mobile, no commerce logic changed. */
+html[data-rw-design] body.shell[data-view="home"] #copilotHero{
+  background:linear-gradient(145deg,#241a35,#171429)!important;
+  border:1.5px solid #9d6e9988!important;
+  box-shadow:0 14px 36px #05040e8a!important;
+  border-radius:24px!important
+}
+html[data-rw-design] body.shell[data-view="home"] #copilotHero .copilot-compose{
+ background:linear-gradient(160deg,#151323,#241a31)!important;
+ border:1.5px solid #b8768277!important;
+ box-shadow:inset 0 0 0 1px #edc48720!important;
+ border-radius:21px!important;min-height:0!important
+}
+html[data-rw-design] body.shell[data-view="home"] #rwSalesCarousels .rw-sales-card{
+ border:1.5px solid #c49a7c99!important;
+ border-radius:21px!important;
+ box-shadow:0 8px 24px #09071478!important
+}
+html[data-rw-design] body.shell[data-view="home"] #rwSalesCarousels .rw-sales-card:focus-visible{
+ border:2px solid #f6cf8c!important;outline:3px solid #fff5a0;outline-offset:2px
+}
+html[data-rw-design] body.shell[data-view="home"] #rwSalesCarousels .rw-sales-copy b{
+ background:linear-gradient(110deg,#f0c178,#f4d49d)!important;color:#20142a!important
+}
+/* One account wallet, no duplicate label. A wallet icon remains in the header.
+   When a signed-in balance chip appears, the standalone link is hidden by JS. */
+.nav .rw-vault-wallet-link[hidden]{display:none!important}
+.nav .rw-vault-wallet-link{font-size:0!important;min-width:42px;height:42px;display:inline-flex;align-items:center;justify-content:center;border:1px solid #c59c5380;border-radius:13px}
+.nav .rw-vault-wallet-link::before{content:"👛";font-size:20px}
+#rwPartnerFrontdoors{max-width:1080px;margin:14px auto 22px;padding:0 14px}
+#rwPartnerFrontdoors h2{color:#f3d29b;margin:0;font-size:clamp(20px,3.4vw,26px);line-height:1.2}
+#rwPartnerFrontdoors p{margin:8px 0 13px;color:#d7c6d5;font-size:13px;line-height:1.55}
+#rwPartnerFrontdoors .rw-partner-door-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:11px}
+#rwPartnerFrontdoors .rw-partner-door{
+ display:flex;flex-direction:column;gap:8px;text-decoration:none;
+ border:1.5px solid #ac85ae8c;border-radius:19px;background:linear-gradient(155deg,#312039,#19162b);
+ min-height:150px;padding:17px;color:#f8ebf9;box-shadow:0 7px 23px #0004
+}
+#rwPartnerFrontdoors .rw-partner-door:focus-visible{outline:3px solid #f2cb8c;outline-offset:3px}
+#rwPartnerFrontdoors .rw-partner-door .rw-door-icon{font-size:27px}
+#rwPartnerFrontdoors .rw-partner-door strong{font-size:16px;line-height:1.25}
+#rwPartnerFrontdoors .rw-partner-door small{font-size:12px;line-height:1.45;color:#dac9df}
+#rwPartnerFrontdoors .rw-partner-door span:last-child{margin-top:auto;color:#f5cc8b;font-size:12px;font-weight:750}
+#rwHomeFooter{border-top:1px solid #72567980;margin:35px auto 20px;max-width:1080px;padding:19px 14px 8px;color:#d0c1d6;font-size:12px}
+#rwHomeFooter nav{display:flex;gap:9px 16px;flex-wrap:wrap}
+#rwHomeFooter a{color:#e6cdad;text-decoration:none}
+#rwHomeFooter a:focus-visible{outline:2px solid #eebf7d}
+@media(max-width:750px){
+ .nav .sw-tabs,.nav #modeChip,.nav #xpChip,.nav #rwAudioQuickToggle{display:none!important}
+ .nav #proBtn{display:none!important} /* Pro lives in pricing/More instead */
+ .nav .nav-inner{display:flex;justify-content:space-between;align-items:center;gap:8px!important;padding-inline:12px!important}
+ .nav .nav-right{display:flex;align-items:center;justify-content:flex-end;gap:6px!important;min-width:0;overflow:visible}
+ .nav .nav-right .nav-ic{flex:0 0 42px;width:42px;height:42px;border-radius:12px}
+ .nav #rwSettingsShortcut{display:inline-flex!important;align-items:center;justify-content:center!important;order:2}
+ .nav .nav-right button[aria-label="Search"]{order:1;display:inline-flex;align-items:center;justify-content:center}
+ .nav #rwWalletChip,.nav .rw-vault-wallet-link{order:3;min-width:42px}
+ .nav .auth-avatar-wrap{order:4;flex:none}
+ .nav .hamb{order:5;flex:none;min-width:42px}
+ html[data-rw-design] body.shell[data-view="home"] #copilotHero #heroInput{
+   height:128px!important;min-height:128px!important;max-height:250px!important;
+   padding:12px 12px 48px!important;line-height:1.5!important
+ }
+ html[data-rw-design] body.shell[data-view="home"] #copilotHero .copilot-compose:focus-within #heroInput{
+   height:166px!important;min-height:166px!important
+ }
+ #rwPartnerFrontdoors .rw-partner-door-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ #rwPartnerFrontdoors .rw-partner-door{padding:13px;min-height:150px}
+ #rwPartnerFrontdoors .rw-partner-door strong{font-size:14px}
+}
+@media(max-width:370px){
+ .nav .nav-inner{gap:4px!important;padding-inline:7px!important}
+ .nav .nav-right{gap:3px!important}
+ .nav #rwSettingsShortcut,.nav .nav-right button[aria-label="Search"],.nav .hamb{width:39px!important;min-width:39px}
+ .nav .rw-wallet-chip{padding:4px!important}
+}
+@media(prefers-reduced-motion:reduce){#rwPartnerFrontdoors *,#rwSalesCarousels *{transition:none!important}}
+
+/* Newly self-listed, MOU-checked venues use the SAME premium rail but no guessed property photo. */
+#rwSalesCarousels .rw-new-self-listing{min-height:0!important;overflow:hidden}
+#rwSalesCarousels .rw-new-self-listing-art{
+ height:151px;display:grid;place-items:center;font-size:62px;
+ background:radial-gradient(circle at 68% 30%,#a587bd88,transparent 55%),linear-gradient(145deg,#41314f,#1a3042);
+ border-bottom:1px solid #e9bd8d66
+}
+#rwSalesCarousels .rw-new-self-listing .rw-sales-copy{display:grid;gap:9px}
+#rwSalesCarousels .rw-new-self-listing .rw-sales-copy strong{color:#f8e9d2}
