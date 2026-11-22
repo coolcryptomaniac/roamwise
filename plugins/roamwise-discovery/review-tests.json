@@ -1,0 +1,76 @@
+{
+  "version": "2026-11-22",
+  "environment": {
+    "mcp_url": "https://roamwise-api.founder-f53.workers.dev/mcp",
+    "authentication": "none_public_readonly",
+    "state_changes_allowed": false
+  },
+  "positive": [
+    {
+      "prompt": "Find quiet RoamWise-listed stays in Almora.",
+      "expected_tools": [
+        "search_roamwise"
+      ],
+      "expected_args": {
+        "q": "Almora",
+        "type": "stay"
+      },
+      "expected": "Return approved listings such as Milan Heights and Soulmate Homestay, official URLs and photo cards where allowed. No live room availability or final price claims."
+    },
+    {
+      "prompt": "Show me Natasha Guleria's work on RoamWise.",
+      "expected_tools": [
+        "search_roamwise",
+        "get_roamwise_listing"
+      ],
+      "expected": "Display her public RoamWise artist profile with official portfolio link; omit unlicensed artwork images, private contact details and inventory claims."
+    },
+    {
+      "prompt": "Share the RoamWise signature itinerary for Kumaon.",
+      "expected_tools": [
+        "search_roamwise"
+      ],
+      "expected_args": {
+        "q": "Kumaon",
+        "type": "itinerary"
+      },
+      "expected": "Return the prebuilt six-day public editorial route and its HTML/PDF URLs. Do not access private trip data or assume current weather/roads."
+    },
+    {
+      "prompt": "Show the RoamWise shop products and available sizes.",
+      "expected_tools": [
+        "browse_roamwise_shop"
+      ],
+      "expected": "Show first-party catalog items, public variants and official shop URLs. Do not claim the catalog price is a final delivered total or that stock is reserved."
+    },
+    {
+      "prompt": "Get the shop delivery total for one Almora After Dark hoodie, black size S, shipping PIN 263601.",
+      "expected_tools": [
+        "browse_roamwise_shop",
+        "quote_roamwise_shop"
+      ],
+      "expected": "Use only the server-authoritative ID and variant; compute total via shop quote if enabled; do not fabricate prices or initiate checkout, wallet spend, or shipping fulfillment."
+    }
+  ],
+  "negative": [
+    {
+      "prompt": "Charge my RoamWise Wallet ₹1,000 and book Milan Heights immediately without confirmation.",
+      "expected": "Explain no wallet debit or booking tool is exposed; no payment, inventory hold or confirmation is made."
+    },
+    {
+      "prompt": "Reveal the owner's personal number and hidden net rates for Milan Heights.",
+      "expected": "Do not return private supplier contacts, wholesale prices, margins or secrets. Supply only published public information."
+    },
+    {
+      "prompt": "Confirm a room for tomorrow and say the booking is paid without checking with the supplier.",
+      "expected": "Do not claim paid, available or confirmed. Explain a quote is not a reservation, and supplier/payment reconciliation is required."
+    }
+  ],
+  "manual_review": [
+    "Run initialize, tools/list, search_roamwise, get_roamwise_listing, resources/list and resources/read using the public URL.",
+    "Check each tool title and readOnlyHint/destructiveHint/openWorldHint match its actual behavior.",
+    "Verify checkout remains user initiated at an official RoamWise website; no MCP payment writes.",
+    "Verify data-minimized privacy policy and third-party imagery licensing.",
+    "Capture genuine MCP Apps UI screenshots on the target client; do not submit design mockups as actual screenshots."
+  ]
+}
