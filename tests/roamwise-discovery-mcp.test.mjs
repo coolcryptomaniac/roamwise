@@ -67,3 +67,26 @@ test('MCP fails closed for unknown tool or unapproved listing',async()=>{
  const absent=await (await call('tools/call',{name:'get_roamwise_listing',arguments:{id:'private-owner'}})).json();
  assert.equal(absent.result.structuredContent.found,false);
 });
+
+test('MCP Apps resource exposes a licensed-image safe swipeable view',async()=>{
+ const list=await (await call('tools/list')).json();
+ const search=list.result.tools.find(t=>t.name==='search_roamwise');
+ assert.match(search._meta.ui.resourceUri,/^ui:\/\/roamwise-discovery\//);
+ const resources=await (await call('resources/list')).json();
+ assert.equal(resources.result.resources.length,1);
+ const read=await (await call('resources/read',{uri:resources.result.resources[0].uri})).json();
+ const file=read.result.contents[0];
+ assert.equal(file.mimeType,'text/html;profile=mcp-app');
+ assert.ok(file.text.includes('ui/notifications/tool-result'));
+ assert.ok(file.text.includes('ui/open-link'));
+ assert.deepEqual(file._meta.ui.csp.resourceDomains,['https://www.roamwise.co.in']);
+});
+test('package categories are enquiry only and REST OpenAPI is described',async()=>{
+ const packages=publicSearch({type:'package'});
+ assert.equal(packages.items.length,2);
+ assert.ok(packages.items.every(x=>x.booking_mode==='assisted_enquiry'));
+ const r=await handleRoamwiseDiscovery(new Request('https://api.roamwise.co.in/v1/discovery/openapi.json'),'v1/discovery/openapi.json');
+ const body=await r.json();
+ assert.equal(body.openapi,'3.1.0');
+ assert.ok(body.paths['/v1/discovery/search']);
+});
