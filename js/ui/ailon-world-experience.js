@@ -162,11 +162,11 @@
   function worldSearchControl(){
     const form=make('form','rw-world-search');
     form.setAttribute('role','search');
-    const searchInput=make('input','');
+    const searchInput=/** @type {HTMLInputElement} */ (make('input',''));
     searchInput.type='search';searchInput.name='place';searchInput.maxLength=90;
     searchInput.placeholder='Find any city, region or country…';
     searchInput.setAttribute('aria-label','Find a destination in the world atlas');
-    const submit=make('button','','Find place');
+    const submit=/** @type {HTMLButtonElement} */ (make('button','','Find place'));
     submit.type='submit';
     const status=make('p','rw-world-search-status','Browse featured places below, or search the worldwide atlas.');
     status.setAttribute('role','status');status.setAttribute('aria-live','polite');
