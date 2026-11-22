@@ -1,7 +1,6 @@
 -- RoamWise public knowledge library v1.
 -- Source of truth for CURATED travel knowledge only. Do not store user profiles,
 -- authentication credentials, Cashfree orders or financial entitlements here.
-PRAGMA foreign_keys=ON;
 CREATE TABLE IF NOT EXISTS destinations (
   id TEXT PRIMARY KEY,
   slug TEXT NOT NULL UNIQUE,
@@ -69,7 +68,7 @@ CREATE TABLE IF NOT EXISTS itinerary_templates (
 CREATE INDEX IF NOT EXISTS idx_itinerary_dest_days ON itinerary_templates(destination_id,days,status);
 CREATE TABLE IF NOT EXISTS media_assets (
   id TEXT PRIMARY KEY,
-  destination_id TEXT REFERENCES destinations(id),
+  destination_id TEXT,
   r2_key TEXT UNIQUE,
   public_path TEXT,
   mime_type TEXT NOT NULL,
