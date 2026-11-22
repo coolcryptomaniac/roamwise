@@ -57,6 +57,7 @@ test('RoamWise verified source prevents external calls even if fallback is enabl
 });
 test('contact details, secret tokens, private bookings and control chars never reach any third-party provider',async()=>{
  const {ctx,calls}=instance();
+ ctx.window.localStorage={getItem:()=> '1'}; // opt-in never overrides private-query screening
  const cases=[
   'my email is guest@example.com',
   'call me on +91 9876543210 please',
@@ -81,4 +82,15 @@ test('AI outage on private question shows a local warning without public lookup 
  assert.equal(finished.length,1);
  assert.match(finished[0],/Public knowledge lookup was skipped/);
  assert.doesNotMatch(finished[0],/google\.com\/search/);
+});
+
+test('long non-private travel prompts stay useful without leaking to public services',()=>{
+ const {ctx,calls,finished}=instance();
+ const prompt='Please plan a relaxed three day weekend trip around Almora and Kasar Devi with a comfortable homestay, gentle local sightseeing, slow mornings, meals, scenic viewpoints, and transport guidance for a family who wants a quiet schedule with plenty of rest and enough time to enjoy local culture.';
+ assert.ok(prompt.length>180);
+ ctx.rwTuskSearchFailure({},prompt,{},{});
+ assert.equal(calls.length,0);
+ assert.equal(finished.length,1);
+ assert.match(finished[0],/Planning mode/);
+ assert.doesNotMatch(finished[0],/Private question/);
 });
