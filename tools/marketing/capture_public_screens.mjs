@@ -40,12 +40,18 @@ try{
  // Do not erase any app content or invent UI for store listing screenshots.
  await page.waitForTimeout(6500);
  const shots=[
-  ['ailon','copilotHero'],
-  ['artists','rwSalesArtists'],
-  ['weddings','rwSalesWeddings'],
-  ['shop','rwSalesShop']
+  ['ailon','copilotHero',null],
+  ['artists','rwSalesArtists','artists'],
+  ['weddings','rwSalesWeddings','teams'],
+  ['shop','rwSalesShop','shop']
  ];
- for(const [name,id] of shots){
+ for(const [name,id,category] of shots){
+   // Capture the real, user-selected category; never force hidden elements visible.
+   if(category){
+     const filter=page.locator('#rwDiscoverFilters button[data-category="'+category+'"]');
+     await filter.waitFor({state:'visible',timeout:10000});
+     await filter.click();
+   }
    const target=page.locator('#'+id);
    if(!await target.count())throw new Error('Missing section: '+id);
    const visible=await target.isVisible();
