@@ -31,9 +31,23 @@ test('artist carousel is animated by shared helper, with reduced-motion and exis
 });
 test('PWA freshness/build versions match and design editions asset URLs are versioned',()=>{
  const sw=read('sw.js'),fresh=read('js/runtime/freshness.js');
- const pattern=/rw-v168-artist-home-rail/;
- assert.match(sw,pattern);
- assert.match(fresh,pattern);
- assert.match(home,/design\/design-vault\.js\?v=833-1/);
- assert.match(home,/design\/design-vault\.css\?v=833-1/);
+ const version=sw.match(/var VERSION = '([^']+)'/);
+ assert.ok(version,'service worker must publish version');
+ assert.match(version[1],/^rw-v\d+-/);
+ assert.ok(fresh.includes("var BUILD = '"+version[1]+"'"),'PWA and cache must match');
+ const jsVersion=home.match(/design\/design-vault\.js\?v=([\d-]+)"/);
+ const cssVersion=home.match(/design\/design-vault\.css\?v=([\d-]+)"/);
+ assert.ok(jsVersion&&cssVersion,'both asset URLs must be versioned');
+ assert.equal(jsVersion[1],cssVersion[1]);
+});
+
+test('new default shrinks legacy 214px mobile composer without disturbing selectable legacy editions',()=>{
+ const css=read('design/design-vault.css');
+ const block=css.slice(css.indexOf('Mobile Ailon compactness fix:'));
+ assert.match(block,/min-height:0!important;height:auto!important/);
+ assert.match(block,/grid-template-rows:minmax\(78px,auto\) auto!important/);
+ assert.match(block,/max-width:600px/);
+ assert.match(block,/himalayan-saanjh/);
+ assert.doesNotMatch(block,/kasar-cloud|buransh-bazaar/);
+ assert.match(read('mobile-stability.css'),/min-height: 214px !important/,'legacy rule is preserved');
 });
