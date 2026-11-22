@@ -62,13 +62,15 @@
       return;
     }
     if (typeof W.tabGo === 'function') { try { W.tabGo('home'); } catch (_) {} }
-    existing.value = 'Plan a trip to ' + d.name + ', ' + d.country + '. Ask for my dates, guests and budget, then show a day-by-day itinerary and available RoamWise stays without assuming prices or availability.';
+    existing.value = 'Plan a trip to ' + d.name + ', ' + (d.region || d.country) + '. Ask for my dates, guests and budget, then show a day-by-day itinerary and available RoamWise stays without assuming prices or availability.';
     existing.dispatchEvent(new Event('input', { bubbles: true }));
     existing.scrollIntoView({ behavior: 'smooth', block: 'center' });
     existing.focus();
     // User taps Send; opening a destination never silently submits a query or books.
   }
   function visibleStayCount(d) {
+    // The worldwide atlas contains place identities, not approved supplier links.
+    if(d.fromAtlas)return 0;
     const records = Array.isArray(W.RW_PARTNER_SEED) ? W.RW_PARTNER_SEED : [];
     const norm = v => clean(v).toLocaleLowerCase('en').replace(/[^a-z0-9]/g, '');
     return records.filter(p => p && p.cat === 'stay' &&
@@ -96,7 +98,7 @@
     const closeButton = make('button', 'rw-world-close', '✕');
     closeButton.type = 'button'; closeButton.setAttribute('aria-label', 'Close destination choices');
     closeButton.addEventListener('click', close);
-    const head = make('h3', '', d.name + ', ' + d.country);
+    const head = make('h3', '', d.name + ', ' + (d.region || d.country));
     const count = visibleStayCount(d);
     const sub = make('p', '', count
       ? count + ' RoamWise partner listing' + (count===1?'':'s') + ' found for this place. Prices and availability require confirmation.'
