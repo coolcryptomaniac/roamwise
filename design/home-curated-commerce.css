@@ -77,3 +77,12 @@ body.shell[data-view="copilot"] #rwSettingsShortcut {display:none!important}
  #rwSalesCarousels .rw-sales-card{flex-basis:82vw!important}
 }
 @media(prefers-reduced-motion:reduce){#rwSalesCarousels .rw-sales-card{transition:none!important}}
+
+/* Default edition: keep the purchase/artist catalog discoverable through its
+   selected category. Secondary promotional content is under More, not mixed
+   into every category's cards. Legacy visual editions remain selectable. */
+html[data-rw-design="himalayan-saanjh"] body.shell[data-view="home"] #rwCreditCard,
+html[data-rw-design="himalayan-saanjh"] body.shell[data-view="home"] #rwPioneerRail,
+html[data-rw-design="himalayan-saanjh"] body.shell[data-view="home"] #brand-ambassador {
+  display:none!important;
+}
