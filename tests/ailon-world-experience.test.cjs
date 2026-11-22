@@ -14,7 +14,7 @@ test('explicitly named worldwide destination never inherits prior destination',(
   assert.equal(newPlace.dest,'Ushuaia');
   assert.notEqual(newPlace.dest,'Almora');
   const whatAbout=t.parse('What about Funchal');
-  assert.notEqual(whatAbout.dest,'Almora');
+  assert.equal(String(whatAbout.dest).toLowerCase(),'funchal');
   assert.notEqual(whatAbout.dest,'Ushuaia');
 });
 
