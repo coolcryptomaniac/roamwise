@@ -11,7 +11,7 @@ const STAYS=Object.freeze({
 });
 const YYYYMMDD=/^\d{4}-\d{2}-\d{2}$/;
 const ID=/^[a-z0-9][a-z0-9-]{1,79}$/;
-const safeAmount=(n)=>Number.isFinite(Number(n))&&Number(n)>=0?Number(n):null;
+const safeAmount=(n)=>n!==null&&n!==undefined&&n!==''&&Number.isFinite(Number(n))&&Number(n)>=0?Number(n):null;
 function dateOk(v){if(typeof v!=='string'||!YYYYMMDD.test(v))return false;const d=new Date(v+'T00:00:00Z');return Number.isFinite(d.getTime())&&d.toISOString().slice(0,10)===v;}
 function allowedExact(args,keys){return !!args&&typeof args==='object'&&!Array.isArray(args)&&Object.keys(args).every(k=>keys.includes(k));}
 export function validateCommerceArgs(name,args){
