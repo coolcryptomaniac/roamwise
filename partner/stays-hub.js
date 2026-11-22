@@ -25,7 +25,7 @@
     // Self-listed properties MUST be MOU-checked and enquiry-only.
     dynamic.concat(seed).forEach(function(p){
       if(!p||p.cat!=='stay'||!(root.rwStayPublicEligible?root.rwStayPublicEligible(p):p.verified==='signed'&&p.listingReady===true))return;
-      var key=(String(p.zone||'')+'|'+String(p.name||'').replace(/^hotel\\s+/i,'')).toLowerCase().replace(/[^a-z0-9|]/g,'');
+      var key=(String(p.zone||'')+'|'+String(p.name||'').replace(/^hotel\s+/i,'')).toLowerCase().replace(/[^a-z0-9|]/g,'');
       if(seen[key])return;seen[key]=true;
       merged.push(Object.assign({},p,p.enquiryOnly?{}:live[p.id]||{}));
     });
