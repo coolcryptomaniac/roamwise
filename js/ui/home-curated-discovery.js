@@ -20,7 +20,8 @@
   // The APK intentionally does not bundle 192 large itinerary PDFs. Open the
   // published HTML/PDF and specialist web pages by HTTPS from its local WebView.
   try {
-    var isNative=location.protocol==='file:' || !!(window.Capacitor&&window.Capacitor.isNativePlatform&&window.Capacitor.isNativePlatform());
+    var app=/** @type {any} */ (window);
+    var isNative=location.protocol==='file:' || !!(app.Capacitor&&app.Capacitor.isNativePlatform&&app.Capacitor.isNativePlatform());
     if(isNative){
       [].slice.call(section.querySelectorAll('a[href]')).forEach(function(a){
         var href=a.getAttribute('href')||'';
