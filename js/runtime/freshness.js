@@ -3,7 +3,7 @@
 (function () {
   'use strict';
 
-  var BUILD = 'rw-v167-himalayan-design-vault';
+  var BUILD = 'rw-v168-artist-home-rail';
   var inApp = !!window.RW || (typeof window.PLAY_MODE !== 'undefined' && window.PLAY_MODE);
   if (inApp || !window.isSecureContext || !('serviceWorker' in navigator)) return;
 
