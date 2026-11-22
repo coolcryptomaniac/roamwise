@@ -64,6 +64,7 @@ test('Ailon home and core checkout links remain in DOM',()=>{
 test('Android build includes design vault and PWA bundle cache bumps together',()=>{
  const build=read('tools/build-android-www.cjs');
  assert.match(build,/'design','memories'/);
- assert.match(read('sw.js'),/rw-v167-himalayan-design-vault/);
- assert.match(read('js/runtime/freshness.js'),/rw-v167-himalayan-design-vault/);
+ const cache=read('sw.js').match(/var VERSION = '([^']+)'/);
+ assert.ok(cache && /^rw-v\d+-/.test(cache[1]),'versioned service worker cache');
+ assert.ok(read('js/runtime/freshness.js').includes("var BUILD = '"+cache[1]+"'"),'PWA BUILD and cache VERSION always match');
 });
