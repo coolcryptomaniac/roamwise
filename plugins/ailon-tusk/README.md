@@ -1,3 +1,5 @@
+> **Legacy package — not the current directory submission.** The old `/tusk/mcp` URL at `api.roamwise.co.in` remains unverified. For the deployed, read-only public RoamWise MCP and current OpenAI/Claude directory checklist use [../roamwise-discovery/README.md](../roamwise-discovery/README.md). OpenAI now accepts MCP-only submissions directly in its portal; a ZIP is not mandatory unless bundling a plugin. Do not submit this legacy manifest without updating its endpoint, schema and test cases.
+
 # Ailon Tusk ChatGPT plugin submission candidate
 
 This is a source package, not a submitted or approved plugin. Before upload, verify `api.roamwise.co.in` resolves and serves the Cloudflare Worker `/tusk/mcp` endpoint. The current MCP endpoint is intentionally read-only and unauthenticated; personalized booking/payment tools require OAuth and verified consent.
