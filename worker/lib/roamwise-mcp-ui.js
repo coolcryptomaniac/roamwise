@@ -69,7 +69,7 @@ function allowedUrl(raw){try{const u=new URL(raw);return u.protocol==='https:'&&
 function open(raw){const url=allowedUrl(raw);if(!url)return;send('ui/open-link',{url},++serial)}
 function tool(name,args){return new Promise((resolve,reject)=>{const id=++serial;requests.set(id,{resolve,reject});send('tools/call',{name,arguments:args},id);setTimeout(()=>{if(requests.has(id)){requests.delete(id);reject(Error('Chat host did not return a quote. Please continue on RoamWise.'))}},14000)})}
 function money(paise){return '₹'+(Number(paise)/100).toLocaleString('en-IN',{maximumFractionDigits:2})}
-function kind(i){return i.category==='product'?'Merchandise':i.category==='artist'?'Featured creator':i.category==='stay'?'Handpicked stay':i.category==='package'?'Curated experience':'Travel copilot'}
+function kind(i){return i.category==='product'?'Merchandise':i.category==='artist'?'Featured creator':i.category==='stay'?'Handpicked stay':i.category==='package'?'Curated experience':i.category==='itinerary'?'Shareable itinerary':'Travel copilot'}
 function eligibleImage(url){try{const u=new URL(url);return u.protocol==='https:'&&HOSTS.has(u.hostname)}catch{return false}}
 function showPanel(){panel.classList.add('open');panel.replaceChildren()}
 function titleLine(t,sub){panel.append(el('h3','',t),el('p','',sub))}
@@ -113,16 +113,25 @@ function shopQuote(i){
   catch(e){drawQuote({ok:false,message:e.message},i.url)}finally{submit.disabled=false;submit.textContent='Check total'}
  };
 }
+async function sharePublic(i){
+ const url=allowedUrl(i.share_url||i.url);if(!url)return;
+ try{
+  if(navigator.share){await navigator.share({title:i.title,url});return}
+  if(navigator.clipboard?.writeText){await navigator.clipboard.writeText(url);const notice=el('div','outcome','Public itinerary link copied. It does not contain your private trip details.');showPanel();panel.append(notice);return}
+ }catch(e){if(e?.name==='AbortError')return}
+ open(url);
+}
 function drawCard(i){
  const card=el('article','card'),visual=el('div','visual');
  if(eligibleImage(i.image_url)){const img=el('img');img.src=i.image_url;img.alt=i.title+' picture';img.loading='lazy';visual.append(img)}
- else{visual.append(el('span','placeholder',i.category==='artist'?'🎨':i.category==='stay'?'🏡':i.category==='product'?'🛍️':i.category==='package'?'🌄':'✦'))}
- visual.append(el('span','corner',i.category==='stay'?'Enquiry only':i.category==='product'?'New quote required':i.category==='artist'?'Artist profile':'Explore'));
+ else{visual.append(el('span','placeholder',i.category==='artist'?'🎨':i.category==='stay'?'🏡':i.category==='product'?'🛍️':i.category==='package'?'🌄':i.category==='itinerary'?'🗺️':'✦'))}
+ visual.append(el('span','corner',i.category==='stay'?'Enquiry only':i.category==='product'?'New quote required':i.category==='artist'?'Artist profile':i.category==='itinerary'?'Ready-made route':'Explore'));
  const body=el('div','content');body.append(el('div','kind',kind(i)),el('h2','',i.title||'RoamWise listing'),el('div','location','⌖ '+(i.subtitle||i.region||'India')));
  if(i.description)body.append(el('p','desc',i.description));
  const tags=el('div','pills');
  tags.append(el('span','pill',i.category==='stay'?'Partner-listed':i.category==='product'?'RoamWise shop':i.category==='artist'?'Portfolio':'RoamWise'));
  if(i.category==='stay')tags.append(el('span','pill','Availability unconfirmed'));
+ if(i.category==='itinerary'){tags.append(el('span','pill',String(i.days||'?')+'-day plan'));tags.append(el('span','pill','Routes need rechecking'))}
  if(i.category==='product')tags.append(el('span','pill','Delivery varies'));
  body.append(tags);
  if(i.price_text)body.append(el('div','price',i.price_text));
@@ -133,6 +142,7 @@ function drawCard(i){
  }else if(i.category==='product'){
   const check=el('button','primary','Check total');check.onclick=()=>shopQuote(i);actions.append(check);
  }else if(i.category==='artist'){view.textContent='Explore portfolio'}
+ else if(i.category==='itinerary'){view.textContent='View itinerary';const share=el('button','primary','Share');share.onclick=()=>sharePublic(i);actions.append(share)}
  else if(i.category==='package'){view.textContent='Enquire'}
  body.append(actions);card.append(visual,body);return card;
 }
@@ -142,7 +152,7 @@ function render(data){
  const cards=Array.isArray(data.cards)?data.cards:data.card?[data.card]:[];
  rail.replaceChildren();
  const headline=document.getElementById('headline');
- if(cards.length)headline.textContent=cards[0].category==='artist'?'Meet remarkable creators.':cards[0].category==='stay'?'Find your next quiet escape.':cards[0].category==='product'?'Curated for the journey.':cards[0].category==='package'?'Journeys worth sharing.':'Discover the extraordinary.';
+ if(cards.length)headline.textContent=cards[0].category==='artist'?'Meet remarkable creators.':cards[0].category==='stay'?'Find your next quiet escape.':cards[0].category==='product'?'Curated for the journey.':cards[0].category==='package'?'Journeys worth sharing.':cards[0].category==='itinerary'?'Share a beautiful journey.':'Discover the extraordinary.';
  if(!cards.length){rail.append(el('p','small','No published listing matched your search.'));return}
  cards.slice(0,12).forEach(c=>rail.append(drawCard(c)));
 }

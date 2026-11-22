@@ -96,8 +96,44 @@ jobs:
             sleep 10
           done
           exit 1
+      - name: Smoke MCP discovery + itineraries (read-only)
+        id: mcp_smoke
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import json, time, urllib.request, urllib.error
+          root = 'https://roamwise-api.founder-f53.workers.dev'
+          def call(path, payload=None):
+              data = json.dumps(payload).encode() if payload is not None else None
+              req = urllib.request.Request(root + path, data=data, headers={'Content-Type':'application/json','Accept':'application/json'}, method='POST' if payload is not None else 'GET')
+              for attempt in range(3):
+                  try:
+                      with urllib.request.urlopen(req, timeout=20) as response:
+                          return json.load(response)
+                  except (urllib.error.URLError, TimeoutError, ValueError):
+                      if attempt == 2: raise
+                      time.sleep(4)
+          def rpc(method, params=None):
+              result = call('/mcp', {'jsonrpc':'2.0','id':1,'method':method,**({'params':params} if params is not None else {})})
+              assert 'error' not in result, 'MCP request failed: ' + method
+              return result['result']
+          listing = call('/v1/discovery/search?q=Almora&type=stay')
+          assert listing['count'] >= 2 and listing['cards'], 'Almora stay cards missing'
+          assert not listing['cards'][0]['availability_verified'], 'Unexpected availability claim'
+          tools = {t['name'] for t in rpc('tools/list')['tools']}
+          assert {'search_roamwise','get_roamwise_listing','roamwise_enquiry_link','roamwise_capabilities','quote_roamwise_stay','quote_roamwise_shop','browse_roamwise_shop'} <= tools, 'Tool list incomplete'
+          caps = rpc('tools/call', {'name':'roamwise_capabilities','arguments':{}})['structuredContent']
+          assert caps['modules']['wallet']['publicMcpAccess'] is False, 'Wallet auth boundary failed'
+          assert caps['modules']['itineraries']['personalTripsExposed'] is False, 'Private itinerary boundary failed'
+          itin = rpc('tools/call', {'name':'search_roamwise','arguments':{'q':'Kumaon','type':'itinerary'}})['structuredContent']
+          assert any(i['id']=='kumaon-signature-itinerary' for i in itin['items']), 'Public itinerary missing'
+          resource = rpc('resources/list')['resources'][0]['uri']
+          view = rpc('resources/read', {'uri':resource})['contents'][0]
+          assert view['mimeType'] == 'text/html;profile=mcp-app' and 'RoamWise' in view['text'], 'MCP card UI missing'
+          print('MCP, public listings, itinerary sharing and privacy boundaries verified')
+          PY
       - name: Roll back to the previous version
-        if: failure() && steps.health.outcome == 'failure'
+        if: failure() && (steps.health.outcome == 'failure' || steps.mcp_smoke.outcome == 'failure')
         working-directory: worker
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}

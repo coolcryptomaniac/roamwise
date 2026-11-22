@@ -31,7 +31,7 @@ test('MCP legacy handshake and public tool list work',async()=>{
  const init=await (await call('initialize',{protocolVersion:'2025-11-25'})).json();
  assert.equal(init.result.protocolVersion,'2025-11-25');
  const list=await (await call('tools/list')).json();
- assert.deepEqual(list.result.tools.map(t=>t.name),['search_roamwise','get_roamwise_listing','roamwise_enquiry_link','browse_roamwise_shop','quote_roamwise_stay','quote_roamwise_shop']);
+ assert.deepEqual(list.result.tools.map(t=>t.name),['search_roamwise','get_roamwise_listing','roamwise_enquiry_link','roamwise_capabilities','browse_roamwise_shop','quote_roamwise_stay','quote_roamwise_shop']);
  assert.ok(list.result.tools.every(t=>t.annotations.readOnlyHint));
 });
 test('MCP modern discover and tool-call metadata work',async()=>{
@@ -89,4 +89,29 @@ test('package categories are enquiry only and REST OpenAPI is described',async()
  const body=await r.json();
  assert.equal(body.openapi,'3.1.0');
  assert.ok(body.paths['/v1/discovery/search']);
+});
+
+test('Public itinerary cards use existing editorial HTML and PDF, never private trip vault records',()=>{
+ const found=publicSearch({type:'itinerary',q:'Kumaon'});
+ assert.equal(found.count,1);
+ const card=found.items[0];
+ assert.equal(card.id,'kumaon-signature-itinerary');assert.equal(card.days,6);
+ assert.match(card.share_url,/itinerary-library\/presets\/kumaon\/signature\.html$/);
+ assert.match(card.pdf_url,/itinerary-library\/presets\/kumaon\/signature\.pdf$/);
+ assert.equal(card.availability_verified,false);
+ assert.equal(JSON.stringify(found).includes('customer_email'),false);
+ assert.equal(JSON.stringify(found).includes('wallet:'),false);
+});
+test('MCP capabilities are versioned and keep account/wallet data behind authentication',async()=>{
+ const response=await (await call('tools/call',{name:'roamwise_capabilities',arguments:{}})).json();
+ const d=response.result.structuredContent;
+ assert.equal(d.modules.wallet.publicMcpAccess,false);
+ assert.equal(d.modules.itineraries.personalTripsExposed,false);
+ assert.equal(d.modules.payments.userApprovalRequired,true);
+ const api=await handleRoamwiseDiscovery(new Request(endpoint.replace('/mcp','/v1/discovery/capabilities')),'v1/discovery/capabilities');
+ assert.equal(api.status,200);assert.equal((await api.json()).version,d.version);
+});
+test('Capabilities tool refuses extraneous and private account arguments',async()=>{
+ const wrong=await (await call('tools/call',{name:'roamwise_capabilities',arguments:{token:'private'}})).json();
+ assert.equal(wrong.error.code,-32602);
 });

@@ -4,6 +4,7 @@
  */
 import {publicSearch,publicItem,toCard,CATALOG_VERSION} from '../lib/roamwise-discovery-catalog.js';
 import {ROAMWISE_CARDS_URI,ROAMWISE_CARDS_HTML} from '../lib/roamwise-mcp-ui.js';
+import {publicCapabilities} from '../lib/roamwise-mcp-capabilities.js';
 import {COMMERCE_TOOLS,runCommercePreview,validateCommerceArgs} from '../lib/roamwise-commerce-preview.js';
 const BASE='https://www.roamwise.co.in';
 const SERVER={name:'roamwise-discovery',version:'1.0.0',title:'RoamWise · Himalayan travel and art'};
@@ -11,7 +12,7 @@ const MODERN='2026-07-28';
 const LEGACY=['2025-11-25','2025-03-26'];
 const MIME={'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store','X-Content-Type-Options':'nosniff'};
 const REST_HEADERS={...MIME,'Access-Control-Allow-Origin':'*','Cache-Control':'public, max-age=300'};
-const TYPES=['artist','stay','package','assistant'];
+const TYPES=['artist','stay','package','assistant','itinerary'];
 const descriptions={
  search:'Search reviewed public RoamWise artist profiles, stays and Ailon Tusk. Return cards with canonical RoamWise links. No live availability, prices or reservation guarantees.',
  detail:'Get a single public RoamWise listing and its canonical link by ID; no private contacts, payment details or inventory.',
@@ -20,12 +21,14 @@ const descriptions={
 export const DISCOVERY_TOOLS=[
  {name:'search_roamwise',title:'Search RoamWise',description:descriptions.search,inputSchema:{type:'object',properties:{q:{type:'string',maxLength:120,description:'Search by artist, hotel, town, activity or service'},type:{type:'string',enum:TYPES},region:{type:'string',maxLength:100},limit:{type:'integer',minimum:1,maximum:12,default:6}},additionalProperties:false}},
  {name:'get_roamwise_listing',title:'Get RoamWise listing',description:descriptions.detail,inputSchema:{type:'object',properties:{id:{type:'string',pattern:'^[a-z0-9-]{1,80}$'}},required:['id'],additionalProperties:false}},
- {name:'roamwise_enquiry_link',title:'Continue on RoamWise',description:descriptions.handoff,inputSchema:{type:'object',properties:{id:{type:'string',pattern:'^[a-z0-9-]{1,80}$'}},required:['id'],additionalProperties:false}}
+ {name:'roamwise_enquiry_link',title:'Continue on RoamWise',description:descriptions.handoff,inputSchema:{type:'object',properties:{id:{type:'string',pattern:'^[a-z0-9-]{1,80}$'}},required:['id'],additionalProperties:false}},
+ {name:'roamwise_capabilities',title:'RoamWise capabilities',description:'Read public RoamWise connector capabilities and future readiness: public listings, editorial itinerary sharing, merchant checkout, authenticated wallet. Never access a private account or start a payment.',inputSchema:{type:'object',properties:{},additionalProperties:false}}
 ,...COMMERCE_TOOLS].map(t=>({...t,...(['search_roamwise','browse_roamwise_shop','quote_roamwise_stay','quote_roamwise_shop'].includes(t.name)?{_meta:{ui:{resourceUri:ROAMWISE_CARDS_URI},'openai/outputTemplate':ROAMWISE_CARDS_URI}}:{}),annotations:{readOnlyHint:true,destructiveHint:false,idempotentHint:true,openWorldHint:false}}));
 const allowedFields={
  search_roamwise:new Set(['q','type','region','limit']),
  get_roamwise_listing:new Set(['id']),
- roamwise_enquiry_link:new Set(['id'])
+ roamwise_enquiry_link:new Set(['id']),
+ roamwise_capabilities:new Set([])
 };
 function rpc(id,result,modern=false){
  const stamped=modern?{...result,_meta:{'io.modelcontextprotocol/serverInfo':SERVER}}:result;
@@ -41,6 +44,7 @@ function validateToolArgs(name,args){
  if(COMMERCE_TOOLS.some(t=>t.name===name))return validateCommerceArgs(name,args);
  if(!allowedFields[name]||!args||typeof args!=='object'||Array.isArray(args))return false;
  if(Object.keys(args).some(k=>!allowedFields[name].has(k)))return false;
+ if(name==='roamwise_capabilities')return Object.keys(args).length===0;
  if(name==='search_roamwise'){
   if(args.q!==undefined&&(typeof args.q!=='string'||args.q.length>120))return false;
   if(args.region!==undefined&&(typeof args.region!=='string'||args.region.length>100))return false;
@@ -82,6 +86,7 @@ export async function handleRoamwiseMcp(request,env={},deps={}){
  const name=body.params?.name,args=body.params?.arguments??{};
  if(!validateToolArgs(name,args))return rpcError(body.id,-32602,'Invalid tool or arguments');
  try{
+  if(name==='roamwise_capabilities')return rpc(body.id,toolResult(publicCapabilities()),modern);
   if(COMMERCE_TOOLS.some(t=>t.name===name))return rpc(body.id,toolResult(await runCommercePreview(name,args,env,deps)),modern);
   if(name==='search_roamwise'){
    const data=publicSearch(args);
@@ -97,8 +102,11 @@ export function handleRoamwiseDiscovery(request,path){
  if(request.method!=='GET')return new Response('Method not allowed',{status:405,headers:{Allow:'GET'}});
  const url=new URL(request.url);
  let result,status=200;
- if(path==='v1/discovery/openapi.json'){
+ if(path==='v1/discovery/capabilities'){
+  result=publicCapabilities();
+ }else if(path==='v1/discovery/openapi.json'){
   result={openapi:'3.1.0',info:{title:'RoamWise Public Discovery API',version:'1.0.0',description:'Public read-only discovery. Listings are not verified availability or price quotes.'},servers:[{url:'https://api.roamwise.co.in'}],paths:{
+   '/v1/discovery/capabilities':{get:{operationId:'getRoamwiseCapabilities',summary:'Read public connector feature states',responses:{'200':{description:'Versioned capability registry'}}}},
    '/v1/discovery/search':{get:{operationId:'searchRoamwise',summary:'Search public RoamWise artist, stay, package and assistant listings',parameters:[{name:'q',in:'query',schema:{type:'string',maxLength:120}},{name:'type',in:'query',schema:{type:'string',enum:TYPES}},{name:'region',in:'query',schema:{type:'string'}},{name:'limit',in:'query',schema:{type:'integer',minimum:1,maximum:12}}],responses:{'200':{description:'Curated public listing cards'},'400':{description:'Invalid search'}}}},
    '/v1/discovery/items/{id}':{get:{operationId:'getRoamwiseListing',summary:'Get a public RoamWise listing',parameters:[{name:'id',in:'path',required:true,schema:{type:'string'}}],responses:{'200':{description:'Public listing details'},'404':{description:'Not found'}}}}
   }};
