@@ -76,7 +76,7 @@ export async function handleRoamwiseMcp(request,env={},deps={}){
  if(body.method==='resources/list')return rpc(body.id,{resources:[{uri:ROAMWISE_CARDS_URI,name:'RoamWise listing carousel',description:'Image-first, swipeable public discovery cards',mimeType:'text/html;profile=mcp-app'}]},modern);
  if(body.method==='resources/read'){
   if(body.params?.uri!==ROAMWISE_CARDS_URI)return rpcError(body.id,-32602,'Unknown resource');
-  return rpc(body.id,{contents:[{uri:ROAMWISE_CARDS_URI,mimeType:'text/html;profile=mcp-app',text:ROAMWISE_CARDS_HTML,_meta:{ui:{prefersBorder:true,csp:{resourceDomains:['https://www.roamwise.co.in']}}}}]},modern);
+  return rpc(body.id,{contents:[{uri:ROAMWISE_CARDS_URI,mimeType:'text/html;profile=mcp-app',text:ROAMWISE_CARDS_HTML,_meta:{ui:{prefersBorder:true,csp:{resourceDomains:['https://www.roamwise.co.in','https://roamwise.co.in']}}}}]},modern);
  }
  if(body.method!=='tools/call')return rpcError(body.id,-32601,'Method not found');
  const name=body.params?.name,args=body.params?.arguments??{};
