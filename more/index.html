@@ -2,7 +2,7 @@
 <html lang="en-IN"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>More | RoamWise</title>
-<meta name="description" content="Find RoamWise travel tools, trip history, stays, TrailMesh, creators, and company information in one organized place.">
+<meta name="description" content="Quickly find RoamWise AI search, saved trips, booking requests, subscriptions, corporate retreats, artist and creator listings, and partner self-onboarding.">
 <link rel="canonical" href="https://www.roamwise.co.in/more/">
 <meta name="theme-color" content="#151020">
 <link rel="icon" href="/favicon.ico">
@@ -18,7 +18,7 @@ h1{font-size:clamp(37px,7vw,55px);line-height:1.06;letter-spacing:-.05em;margin:
 .search{display:flex;align-items:center;gap:9px;max-width:720px;border:1px solid #716080;background:rgba(22,18,30,.88);border-radius:14px;padding:0 16px;margin-bottom:28px}
 .search span{font-size:18px;color:#cfbbdb}.search input{border:0;outline:none;background:transparent;color:var(--ink);min-height:52px;flex:1;width:100%;font-size:15px}
 .search input::placeholder{color:#ae9eb8}
-.featured{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:11px;margin-bottom:28px}
+.featured{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:11px;margin-bottom:28px}
 .tile{display:flex;flex-direction:column;gap:10px;text-decoration:none;min-height:125px;padding:18px;border:1px solid #5a4868;border-radius:16px;background:linear-gradient(135deg,#2e2240,#1a1524);transition:transform .17s,border-color .17s}
 .tile:hover,.tool:hover{transform:translateY(-2px);border-color:#b18ad4}.tile .ic{font-size:22px}.tile strong{font-size:15px}.tile small{font-size:12px;color:var(--muted);line-height:1.5}
 .group{border-top:1px solid rgba(205,176,227,.19);margin:0}.group summary{cursor:pointer;list-style:none;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:21px 4px;min-height:66px;font-weight:760;font-size:18px}.group summary::-webkit-details-marker{display:none}.group summary::after{content:"+";font-size:26px;font-weight:300;color:var(--gold)}.group[open] summary::after{content:"−"}
@@ -31,25 +31,27 @@ h1{font-size:clamp(37px,7vw,55px);line-height:1.06;letter-spacing:-.05em;margin:
 .empty{display:none;border:1px dashed var(--line);border-radius:12px;padding:18px;color:var(--muted)}
 .no-results .empty{display:block}.no-results .group{display:none}
 .note{font-size:12px;line-height:1.7;color:#aa9eb0;margin:25px 0 0}.foot{border-top:1px solid rgba(205,176,227,.17);padding:23px 0 0;margin-top:32px;display:flex;flex-wrap:wrap;gap:15px;font-size:12px;color:var(--muted)}.foot a{text-decoration:none;color:#dcc7eb}
-@media(max-width:600px){.wrap{padding:0 14px}.featured{grid-template-columns:repeat(2,minmax(0,1fr))}.tile{min-height:113px;padding:14px}.tools{grid-template-columns:1fr}.intro{font-size:14px}.tool{min-height:66px}.top{padding:14px 0}}
+@media(max-width:600px){.wrap{padding:0 14px}.featured{grid-template-columns:repeat(2,minmax(0,1fr))}.tile{min-height:116px;padding:14px}.tools{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.intro{font-size:14px}.tool{min-height:96px;align-items:flex-start;gap:7px;flex-direction:column;padding:11px}.tool .ic{width:31px;height:31px}.tool strong{font-size:12px}.tool small{font-size:10.5px}.top{padding:14px 0}}
 @media(prefers-reduced-motion:reduce){.tool,.tile{transition:none}html{scroll-behavior:auto}}
 </style></head>
 <body><div class="wrap">
 <nav class="top" aria-label="More page navigation"><a class="brand" href="/"><img src="/assets/img/roamwise-logo-176.webp" width="37" height="37" alt="">RoamWise</a><a class="back" href="/">← Back to Ailon</a></nav>
-<header><div class="eyebrow">ROAMWISE · ALL IN ONE PLACE</div><h1>More, <em>when you need it.</em></h1><p class="intro">Your trip stays simple. Everything else—from saved itineraries and local experiences to advanced tools and partner services—has its own place here.</p></header>
-<label class="search"><span aria-hidden="true">⌕</span><input id="moreSearch" type="search" autocomplete="off" aria-label="Search tools and features" placeholder="Search trips, bookings, TrailMesh, creators…"></label>
-<nav class="featured" aria-label="Most used travel actions">
-  <a class="tile" href="/"><span class="ic">✦</span><strong>Ask Ailon Tusk</strong><small>Plan and ask in natural language</small></a>
-  <a class="tile" href="/?rw_open=bookings"><span class="ic">🧳</span><strong>Booking requests</strong><small>Check what is pending</small></a>
-  <a class="tile" href="/?rw_open=stays"><span class="ic">🏡</span><strong>Find stays</strong><small>Discover local accommodation</small></a>
+<header><div class="eyebrow">ROAMWISE · ALL IN ONE PLACE</div><h1>More, <em>when you need it.</em></h1><p class="intro">Everything RoamWise offers, organized by what you want to do. Ask Ailon for any trip, or open a specialist tool below.</p></header>
+<label class="search"><span aria-hidden="true">⌕</span><input id="moreSearch" type="search" autocomplete="off" aria-label="Search tools and features" placeholder="Search AI, booking, partner, artist, HR, shop…"></label>
+<nav class="featured" aria-label="Most useful RoamWise actions">
+  <a class="tile" href="/"><span class="ic">✦</span><strong>Ask Ailon</strong><small>AI search &amp; travel planning</small></a>
+  <a class="tile" href="/?rw_open=bookings"><span class="ic">🧳</span><strong>My booking requests</strong><small>Track pending enquiries</small></a>
+  <a class="tile" href="/partner/join/"><span class="ic">🏡</span><strong>List a service</strong><small>Self-onboard as a partner</small></a>
+  <a class="tile" href="/corporate/"><span class="ic">💼</span><strong>Corporate &amp; HR</strong><small>Offsites and employee benefits</small></a>
 </nav>
 <main id="moreDirectory">
 <details class="group" open><summary>Plan &amp; manage a trip</summary><p>Everything you need from the first idea to a supplier-confirmed reservation.</p><div class="tools">
-  <a class="tool" href="/?rw_open=itineraries"><span class="ic">🗂️</span><span><strong>Saved itineraries</strong><small>Offline trip plans and earlier journeys</small></span></a>
+  <a class="tool" href="/?rw_open=itineraries"><span class="ic">🗂️</span><span><strong>My saved itineraries</strong><small>Offline trip plans and earlier journeys</small></span></a>
+  <a class="tool" href="/itinerary-library/"><span class="ic">🗺️</span><span><strong>Beautiful sample itineraries</strong><small>Open, share or download public trip plans</small></span></a>
   <a class="tool" href="/?rw_open=transport"><span class="ic">🚆</span><span><strong>Transport desk</strong><small>Flights, trains, bus and taxi discovery</small></span></a>
   <a class="tool" href="/packages/"><span class="ic">🧭</span><span><strong>Travel packages</strong><small>Stays, dates, prices and booking steps</small></span></a>
   <a class="tool" href="/?rw_open=experiences"><span class="ic">✨</span><span><strong>Experiences</strong><small>Browse activities and things to do</small></span></a>
-  <a class="tool" href="/wallet/"><span class="ic">👛</span><span><strong>Wallet</strong><small>Wallet balances and payment activity</small></span></a>
+  
   <a class="tool" href="/?rw_open=saved"><span class="ic">♥</span><span><strong>Saved places</strong><small>Keep discoveries for later</small></span></a>
 </div></details>
 <details class="group"><summary>Explore &amp; local discovery</summary><p>Specialized travel experiences away from the main homepage.</p><div class="tools">
@@ -65,15 +67,29 @@ h1{font-size:clamp(37px,7vw,55px);line-height:1.06;letter-spacing:-.05em;margin:
   <a class="tool" href="/?rw_open=groups"><span class="ic">👥</span><span><strong>Group planning</strong><small>Coordinate journeys together</small></span></a>
   <a class="tool" href="/tools/"><span class="ic">🧰</span><span><strong>Travel tool collection</strong><small>Specialist calculators and utilities</small></span></a>
   <a class="tool" href="/?rw_open=journey"><span class="ic">📓</span><span><strong>Journey journal</strong><small>Keep personal travel notes</small></span></a>
-  <a class="tool" href="/shop/"><span class="ic">🛍️</span><span><strong>RoamWise shop</strong><small>Curated accessories and merchandise</small></span></a>
+  
   <a class="tool" href="/?rw_open=settings"><span class="ic">⚙️</span><span><strong>Settings</strong><small>Languages, accessibility, AI preferences</small></span></a>
 </div></details>
-<details class="group"><summary>For hosts, creators &amp; local businesses</summary><p>Partner portals and collaboration tools—separate from the traveler experience.</p><div class="tools">
-  <a class="tool" href="/partner/join/"><span class="ic">🏡</span><span><strong>List your property</strong><small>Host and local-operator onboarding</small></span></a>
+<details class="group"><summary>Shop, subscription &amp; wallet</summary><p>Clear prices, real checkout pages and account tools.</p><div class="tools">
+  <a class="tool" href="/shop/"><span class="ic">🛍️</span><span><strong>RoamWise shop</strong><small>Hoodies, Aipan art and travel accessories</small></span></a>
+  <a class="tool" href="/pricing.html"><span class="ic">👑</span><span><strong>Pro &amp; subscriptions</strong><small>Compare Free, Plus, Pro and membership terms</small></span></a>
+  <a class="tool" href="/wallet/"><span class="ic">👛</span><span><strong>My RoamWise wallet</strong><small>View eligible credit and payment activity</small></span></a>
+  <a class="tool" href="/creators/gallery.html"><span class="ic">🎨</span><span><strong>Explore original art</strong><small>Artist profiles, galleries and enquiries</small></span></a>
+</div></details>
+<details class="group"><summary>Corporate offsites &amp; HR packages</summary><p>Tailored proposals for companies, HR teams and retreat organisers.</p><div class="tools">
+  <a class="tool" href="/corporate/#offsites"><span class="ic">🏔️</span><span><strong>Corporate team offsites</strong><small>Department retreats and supplier-confirmed quotes</small></span></a>
+  <a class="tool" href="/corporate/#hr"><span class="ic">💼</span><span><strong>HR &amp; employee benefits</strong><small>Annual travel perks and group enquiries</small></span></a>
+  <a class="tool" href="/packages/"><span class="ic">🧭</span><span><strong>Curated group packages</strong><small>Explore existing RoamWise offers</small></span></a>
+</div></details>
+<details class="group"><summary>List, grow &amp; find collaborators</summary><p>Partner portals and collaboration tools—separate from the traveler experience.</p><div class="tools">
+  <a class="tool" href="/partner/join/"><span class="ic">🏡</span><span><strong>List your property</strong><small>Hotel, homestay or retreat self-onboarding</small></span></a>
+  <a class="tool" href="/providers/join/"><span class="ic">🚕</span><span><strong>List a travel service</strong><small>Guide, transport and operator onboarding</small></span></a>
+  <a class="tool" href="/creators/join-artist.html"><span class="ic">🎨</span><span><strong>List as an artist</strong><small>Create an artist profile and art enquiries</small></span></a>
+  <a class="tool" href="/nomads/join/"><span class="ic">💻</span><span><strong>List a nomad-friendly stay</strong><small>Long-stay hosts and work-friendly spaces</small></span></a>
   <a class="tool" href="/partner/"><span class="ic">🔐</span><span><strong>Partner portal</strong><small>Manage partner information</small></span></a>
-  <a class="tool" href="/creators/match.html?role=creator"><span class="ic">🎥</span><span><strong>Creator opportunities</strong><small>Collaborate with stays and destinations</small></span></a>
-  <a class="tool" href="/creators/match.html?role=property"><span class="ic">🤝</span><span><strong>Hosts × creators</strong><small>Find a compatible creator</small></span></a>
-  <a class="tool" href="/network/match/"><span class="ic">💜</span><span><strong>Collaboration matching</strong><small>Discover relevant partners</small></span></a>
+  <a class="tool" href="/creators/match.html?role=creator"><span class="ic">🎥</span><span><strong>Join as a travel creator</strong><small>Self-list and find stay collaborations</small></span></a>
+  <a class="tool" href="/creators/match.html?role=property"><span class="ic">🤝</span><span><strong>Property × creator matching</strong><small>Find collaborators for approved stays</small></span></a>
+  <a class="tool" href="/network/match/"><span class="ic">💜</span><span><strong>Swipe collaboration matches</strong><small>Opt-in property, artist and creator matches</small></span></a>
   <a class="tool" href="/local-business/"><span class="ic">🏪</span><span><strong>Local business network</strong><small>Cafés, shops and services</small></span></a>
 </div></details>
 <details class="group"><summary>Company, culture &amp; support</summary><p>The people, history and supporting resources behind RoamWise.</p><div class="tools">
@@ -89,6 +105,26 @@ h1{font-size:clamp(37px,7vw,55px);line-height:1.06;letter-spacing:-.05em;margin:
 <p class="note">Bookings, availability and final prices are verified with suppliers. RoamWise never treats an enquiry or an unverified payment as a confirmed reservation.</p>
 <footer class="foot"><a href="/">Ailon Tusk</a><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a><a href="/refund-policy.html">Refunds</a><a href="/contact.html">Contact</a><span>RoamWise · Almora, Uttarakhand</span></footer>
 </div>
+<script>
+(function(){
+  // The Android APK bundles a deliberately small set of pages. For public
+  // specialist routes it hasn't bundled, open the real HTTPS RoamWise page.
+  // Folder links inside the APK must use index.html, not a directory URL.
+  try {
+    var nativeApp=location.protocol==='file:' || !!(window.Capacitor&&window.Capacitor.isNativePlatform&&window.Capacitor.isNativePlatform());
+    if(!nativeApp)return;
+    var bundled=new Set(['partner','properties','transport','experiences','travel','trips','creator','payments','support','staff','public','data','shop','packages','treks','music','creators','partners','nomads','books','kainchi','events','maps','stay','stays','rooms','booking','artist','artists','features','pilgrimage','weddings','wallet','auth','legal','more','corporate']);
+    [].slice.call(document.querySelectorAll('a[href^="/"]')).forEach(function(a){
+      var href=a.getAttribute('href')||'';
+      if(href==='/'||href.charAt(1)==='?'){a.href='../index.html'+href.slice(1);return;}
+      var top=/^\/([^/?#]+)/.exec(href);
+      if(!top)return;
+      if(!bundled.has(top[1])){a.href='https://www.roamwise.co.in'+href;return;}
+      a.href='../'+href.replace(/^\//,'').replace(/\/(?=[?#]|$)/,'/index.html');
+    });
+  }catch(e){ /* leave ordinary links intact if native detection fails */ }
+})();
+</script>
 <script>
 (function(){
 var input=document.getElementById('moreSearch'),directory=document.getElementById('moreDirectory'),groups=[].slice.call(directory.querySelectorAll('.group'));

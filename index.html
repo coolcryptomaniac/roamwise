@@ -493,12 +493,13 @@ html{-webkit-text-size-adjust:100%}
 body[data-view="home"] #brand-ambassador,body[data-view="home"] #rwPromo,
 body[data-view="home"] #rwPartnerHub,body[data-view="home"] #rwMatchLinks,
 body[data-view="home"] #rwEveryday,body[data-view="home"] #promofilm {display:none!important}
-#rwSalesShop,.rw-trackheading:has(+ #rwSalesShop){display:none!important}
 </style>
 <link rel="stylesheet" href="design/ailon-first.css?v=20261121">
 <link rel="stylesheet" href="design/ailon-room-carousel.css?v=20261122">
 <link rel="stylesheet" href="design/design-vault.css?v=840-1">
 <script src="design/design-vault.js?v=840-1" defer></script>
+<link rel="stylesheet" href="design/home-curated-commerce.css?v=20261122">
+<script src="js/ui/home-curated-discovery.js?v=20261122" defer></script>
 </head>
 <body class="rw-akatsuki-theme shell" data-view="home">
 <div id="rwVeil" role="status" aria-live="polite"><img src="/assets/img/roamwise-logo-176.webp" alt="" width="72" height="72" fetchpriority="high"><span>Roam<b>Wise</b></span><i></i><small>Getting things ready…</small></div>
@@ -566,7 +567,7 @@ body[data-view="home"] #rwEveryday,body[data-view="home"] #promofilm {display:no
   <div id="heroLog" style="display:none;margin-bottom:10px;max-height:52vh;overflow-y:auto"></div>
   <div class="copilot-compose" style="position:relative;background:linear-gradient(180deg,var(--bg2,#12121C),rgba(18,18,28,.55));border:1.5px solid rgba(232,186,108,.35);border-radius:22px;padding:14px;box-shadow:0 8px 30px rgba(0,0,0,.35)">
     <textarea id="heroInput" rows="4" placeholder="Where would you like to go? Tell Ailon your dates, travellers and budget…"
-      style="display:block;width:100%;box-sizing:border-box;background:transparent;border:none;padding:8px 8px 44px;color:inherit;font:inherit;font-size:16.5px;resize:none;outline:none;min-height:168px;line-height:1.6"></textarea>
+      style="display:block;width:100%;box-sizing:border-box;background:transparent;border:none;padding:8px 8px 44px;color:inherit;font:inherit;font-size:16.5px;resize:vertical;outline:none;min-height:103px;line-height:1.6"></textarea>
     <div class="copilot-actions" style="position:absolute;right:12px;bottom:12px;display:flex;gap:8px;align-items:center">
       <button onclick="scanImageOpen()" aria-label="Scan a screenshot" title="Scan a screenshot or reel"
         style="width:36px;height:36px;border-radius:50%;border:1px solid var(--b2,#2A2A36);background:var(--bg3,#1A1A20);color:var(--t2);font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center">&#128247;</button>
@@ -597,7 +598,41 @@ body[data-view="home"] #rwEveryday,body[data-view="home"] #promofilm {display:no
 <!-- Quick access (js/ui/home-quick-access.js): stays, transport, experiences and More -->
 <nav class="v v-home" id="rwQuick" aria-label="Quick access"></nav>
 <section class="v v-home" id="rwSalesCarousels" aria-label="RoamWise swipeable escapes and shop" style="margin:12px 14px;color:#f7e8d8">
+<div class="rw-discovery-heading"><div><p class="rw-discovery-eyebrow">DISCOVER · ROAMWISE</p><h2 id="rwDiscoverTitle">Stays &amp; packages</h2><p class="rw-discovery-sub">Swipe thoughtful picks. Choose a category to see only what matters.</p></div><a href="/more/" aria-label="View all RoamWise categories" style="white-space:nowrap;color:#ecc58b;font-size:12px;align-self:center">All tools ↗</a></div>
+<nav id="rwDiscoverFilters" aria-label="Explore curated RoamWise listings"><a href="/packages/">Stays &amp; packages</a> · <a href="/itinerary-library/">Itineraries</a> · <a href="/creators/gallery.html">Artists</a> · <a href="/shop/">Shop</a> · <a href="/corporate/">Teams &amp; HR</a></nav>
+
 <style>#rwSalesCarousels .rw-sales-track{display:flex;overflow-x:auto;gap:13px;scroll-snap-type:x mandatory;padding:9px 3px 14px;scrollbar-width:thin}#rwSalesCarousels .rw-sales-card{flex:0 0 clamp(216px,28vw,270px);scroll-snap-align:start;background:#221631;border:1px solid #816b84;border-radius:16px;overflow:hidden;color:#f9ead6;text-decoration:none;display:flex;flex-direction:column}#rwSalesCarousels .rw-sales-card img{width:100%;height:158px;object-fit:cover;background:#211b39}#rwSalesCarousels .rw-sales-copy{padding:15px;display:grid;gap:7px;flex:1}#rwSalesCarousels .rw-sales-copy strong{font-size:16px}#rwSalesCarousels .rw-sales-copy small{color:#dac9dc}#rwSalesCarousels .rw-sales-copy b{color:#f5c681}#rwSalesCarousels .rw-arrow{background:#271c40;color:#fff;border:1px solid #e3ba82;border-radius:50%;width:38px;height:38px;cursor:pointer}#rwSalesCarousels .rw-trackheading{display:flex;align-items:center;justify-content:space-between;gap:12px}#rwSalesCarousels .rw-trackheading h2{margin:8px 0;color:#ffdea8;font-size:clamp(21px,3.5vw,30px)}@media(prefers-reduced-motion:reduce){#rwSalesCarousels *{scroll-behavior:auto!important}}#rwSalesCarousels .rw-sales-card{position:relative;border:2px solid transparent;background:linear-gradient(#221631,#221631) padding-box,linear-gradient(135deg,#ffbd69,#ef5a77,#876bff,#2ed6b4) border-box;box-shadow:0 5px 24px #0006;transition:transform .25s ease,box-shadow .25s ease}#rwSalesCarousels .rw-sales-card:hover,#rwSalesCarousels .rw-sales-card:focus-visible{transform:translateY(-4px);box-shadow:0 9px 28px #b86cff44}#rwSalesCarousels .rw-sales-copy{min-height:225px}#rwSalesCarousels .rw-sales-copy b{display:block;margin-top:auto;padding:12px 10px;border-radius:12px;background:linear-gradient(100deg,#ffcf80,#f5ad70);color:#1e1430;text-align:center;font-size:13px}#rwSalesCarousels .rw-sales-copy .rw-price{display:block;font-size:16px;font-weight:800;color:#ffcf80}#rwSalesCarousels .rw-sales-card:focus-visible{outline:3px solid #fff;outline-offset:3px}@media(prefers-reduced-motion:reduce){#rwSalesCarousels .rw-sales-card{transition:none}}</style>
+
+<!-- Editorial itineraries are prebuilt public pages, never another traveller's private trip. -->
+<div class="rw-trackheading"><h2>🗺️ Beautiful journeys · Open &amp; share</h2><div><button type="button" class="rw-arrow" data-rw-prev="rwSalesItineraries" aria-label="Previous itinerary">‹</button> <button type="button" class="rw-arrow" data-rw-next="rwSalesItineraries" aria-label="Next itinerary">›</button></div></div>
+<p class="rw-feature-track-desc">A real day-by-day itinerary with a shareable web page and PDF. Recheck current roads, permits and availability.</p>
+<div class="rw-sales-track" id="rwSalesItineraries" tabindex="0" aria-label="Shareable itineraries">
+  <article class="rw-itinerary-card">
+    <div class="rw-itinerary-art"><span class="rw-itin-icon" aria-hidden="true">🏔️</span><span class="rw-itin-kicker">SIGNATURE · 6 DAYS · UTTARAKHAND</span><h3>Kumaon, slowly</h3></div>
+    <div class="rw-itin-body"><p class="rw-itin-route">Almora · Binsar · Jageshwar · Munsiyari</p><div class="rw-itin-facts"><span>Day-by-day route</span><span>Public share link</span><span>PDF</span></div>
+      <div class="rw-itin-actions"><a href="/itinerary-library/presets/kumaon/signature.html">View journey</a><a href="/itinerary-library/presets/kumaon/signature.pdf">PDF ↓</a></div>
+    </div>
+  </article>
+  <article class="rw-itinerary-card">
+    <div class="rw-itinerary-art ladakh"><span class="rw-itin-icon" aria-hidden="true">🌄</span><span class="rw-itin-kicker">SIGNATURE · 6 DAYS · LADAKH</span><h3>The high-altitude road</h3></div>
+    <div class="rw-itin-body"><p class="rw-itin-route">Leh · Nubra Valley · Pangong Lake · Leh</p><div class="rw-itin-facts"><span>Acclimatisation buffers</span><span>Shareable</span><span>PDF</span></div>
+      <div class="rw-itin-actions"><a href="/itinerary-library/presets/ladakh/signature.html">View journey</a><a href="/itinerary-library/presets/ladakh/signature.pdf">PDF ↓</a></div>
+    </div>
+  </article>
+  <article class="rw-itinerary-card">
+    <div class="rw-itinerary-art rishikesh"><span class="rw-itin-icon" aria-hidden="true">🌿</span><span class="rw-itin-kicker">SIGNATURE · 4 DAYS · UTTARAKHAND</span><h3>River to the hills</h3></div>
+    <div class="rw-itin-body"><p class="rw-itin-route">Rishikesh · Mussoorie · Slow Himalayan escape</p><div class="rw-itin-facts"><span>Balanced pace</span><span>Public route</span><span>PDF</span></div>
+      <div class="rw-itin-actions"><a href="/itinerary-library/presets/rishikesh-mussoorie/signature.html">View journey</a><a href="/itinerary-library/presets/rishikesh-mussoorie/signature.pdf">PDF ↓</a></div>
+    </div>
+  </article>
+</div>
+<div class="rw-trackheading"><h2>🤝 Corporate retreats &amp; HR travel</h2><div><button type="button" class="rw-arrow" data-rw-prev="rwSalesCorporate" aria-label="Previous team package">‹</button> <button type="button" class="rw-arrow" data-rw-next="rwSalesCorporate" aria-label="Next team package">›</button></div></div>
+<p class="rw-feature-track-desc">Team offsites, leadership getaways and employee travel benefit enquiries. Quotes require group size, dates and supplier confirmation.</p>
+<div class="rw-sales-track" id="rwSalesCorporate" tabindex="0" aria-label="Corporate and HR options">
+  <article class="rw-corporate-card"><span class="rw-corp-label">FOR HR &amp; FOUNDERS · REQUEST A QUOTE</span><h3>Department offsites, without the chaos</h3><p>Explore curated team retreats for groups, with stays, meals, local experiences and transparent supplier-confirmed quotations.</p><a href="/corporate/#offsites">Plan a team retreat →</a></article>
+  <article class="rw-corporate-card"><span class="rw-corp-label">EMPLOYEE EXPERIENCE · ENQUIRY ONLY</span><h3>Travel benefits for your team</h3><p>Explore an annual travel-perks partnership for employees. Benefit rules, budgets and booking terms are designed with HR.</p><a href="/corporate/#hr">Explore HR packages →</a></article>
+</div>
+
 <!-- Artist inventory: first among sellable rails so Natasha is visible above travel packages. -->
 <div class="rw-trackheading"><h2>🎨 Featured artists · Natasha Guleria</h2><div><button class="rw-arrow" data-rw-prev="rwSalesArtists" aria-label="Previous artist">‹</button> <button class="rw-arrow" data-rw-next="rwSalesArtists" aria-label="Next artist">›</button></div></div>
 <p style="margin:3px 0 10px;color:#dac9dc">Independent Himalayan art, original paintings and creator commissions. Explore the verified artist profile before enquiring.</p>
@@ -653,8 +688,8 @@ body[data-view="home"] #rwEveryday,body[data-view="home"] #promofilm {display:no
 <div class="rw-trackheading"><h2>🛍️ Kumaon collection · Shop RoamWise</h2><div><button class="rw-arrow" data-rw-prev="rwSalesShop" aria-label="Previous products">‹</button> <button class="rw-arrow" data-rw-next="rwSalesShop" aria-label="Next products">›</button></div></div>
 <div class="rw-sales-track" id="rwSalesShop" tabindex="0" aria-label="Shop product carousel">
 <a class="rw-sales-card" href="/shop/#aipan-scarf"><img loading="lazy" src="/shop/img/aipan-scarf.webp" alt="Aipan scarf product"><span class="rw-sales-copy"><strong>RoamWise Aipan Scarf</strong><small>80 × 80 cm · order on WhatsApp</small><b>₹349 · View item →</b></span></a>
-<a class="rw-sales-card" href="/shop/?buy=almora-after-dark-hoodie#buy"><img loading="lazy" src="/shop/img/hoodie.jpg" alt="Almora After Dark hoodie"><span class="rw-sales-copy"><strong>Almora After Dark Hoodie</strong><small>Free delivery · pay by UPI or card</small><b>₹1,999 · Buy now →</b></span></a>
-<a class="rw-sales-card" href="/shop/?buy=roamwise-mandala-headband#buy"><img loading="lazy" src="/shop/img/headband.jpg" alt="RoamWise mandala headband"><span class="rw-sales-copy"><strong>Mandala Headband</strong><small>Made on demand · delivery ₹99</small><b>₹199 · Buy now →</b></span></a>
+<a class="rw-sales-card" href="/shop/?buy=almora-after-dark-hoodie#buy"><img loading="lazy" src="/shop/img/hoodie.jpg" alt="Almora After Dark hoodie"><span class="rw-sales-copy"><strong>Almora After Dark Hoodie</strong><small>Sizes and delivery calculated at checkout</small><b>View sizes &amp; quote →</b></span></a>
+<a class="rw-sales-card" href="/shop/?buy=roamwise-mandala-headband#buy"><img loading="lazy" src="/shop/img/headband.jpg" alt="RoamWise mandala headband"><span class="rw-sales-copy"><strong>Mandala Headband</strong><small>Made on demand · confirm delivery and total</small><b>View item &amp; quote →</b></span></a>
 </div><p style="font-size:12px;color:#c6b5d1">Reservations and product orders require a confirmed total and payment verification. No unverified payment is shown as a completed booking.</p>
 </section>
 <script>(function(){var box=document.getElementById('rwSalesCarousels');if(!box)return;box.addEventListener('click',function(e){var btn=e.target.closest('[data-rw-prev],[data-rw-next]');if(!btn)return;var id=btn.getAttribute('data-rw-next')||btn.getAttribute('data-rw-prev');var track=document.getElementById(id);if(track)track.scrollBy({left:btn.hasAttribute('data-rw-next')?280:-280,behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'})});/* Autoplay is owned by design/carousel.js via Design Vault. Never create two competing timers. */})();</script>
@@ -1484,14 +1519,13 @@ body[data-view="home"] #rwEveryday,body[data-view="home"] #promofilm {display:no
 </footer>
 
 <!-- APP SHELL: bottom tabs + drawer -->
-<nav class="tabbar" id="tabbar" style="grid-template-columns:repeat(5,1fr)" aria-label="Primary navigation">
+<nav class="tabbar" id="tabbar" style="grid-template-columns:repeat(4,1fr)" aria-label="Primary navigation">
   <button id="tb-home" class="on" onclick="window.rwTabGo&amp;&amp;rwTabGo('home')"><span class="ti" aria-hidden="true">⌂</span>Home</button>
   <button id="tb-copilot" onclick="window.rwTabGo&amp;&amp;rwTabGo('copilot')"><span class="ti" aria-hidden="true">✦</span>Ailon</button>
   <button id="tb-plan" onclick="window.rwTabGo&amp;&amp;rwTabGo('plan')"><span class="ti" aria-hidden="true">✈</span>Plan</button>
-  <button id="tb-trips" onclick="window.rwTabGo&amp;&amp;rwTabGo('trips')"><span class="ti" aria-hidden="true">▣</span>Trips</button>
   <button id="tb-more" onclick="window.rwTabGo&amp;&amp;rwTabGo('more')"><span class="ti" aria-hidden="true">☰</span>More</button>
 </nav>
-<script>(function(){try{var n=document.getElementById("tabbar");if(!n)return;var t=localStorage.getItem("rw_tabs");if(t&&t!=="null"&&t!=='["home","copilot","plan","trips","more"]'&&t!=='["home","plan","copilot","store","more"]'){n.innerHTML="";return;}var l=localStorage.getItem("rw_last_tab")||"home";var b=document.getElementById("tb-"+l),h=document.getElementById("tb-home");if(b&&h&&b!==h){h.classList.remove("on");b.classList.add("on");}}catch(e){}})();
+<script>(function(){try{var n=document.getElementById("tabbar");if(!n)return;var t=localStorage.getItem("rw_tabs");/* Keep the four static navigation buttons visible while scripts load, even for custom saved tabs. */var l=localStorage.getItem("rw_last_tab")||"home";if(l==="trips")l="home";var b=document.getElementById("tb-"+l),h=document.getElementById("tb-home");if(b&&h&&b!==h){h.classList.remove("on");b.classList.add("on");}}catch(e){}})();
 /* Instant shell: the header, side-menu button and bottom tabs are plain HTML, so on a fast or medium link the loading veil lifts after the first frame instead of waiting for ~180 scripts. Slow links keep the veil (it shows honest progress while taps would do nothing). */
 (function(){try{var n=window.__RW_NET;if(n&&n.tier!=="fast"&&n.tier!=="medium")return;var go=function(){var v=document.getElementById("rwVeil");if(!v)return;v.className="rw-veil-off";setTimeout(function(){if(v.parentNode)v.parentNode.removeChild(v);},300);};(window.requestAnimationFrame||setTimeout)(function(){(window.requestAnimationFrame||setTimeout)(go);});}catch(e){}})();</script>
 

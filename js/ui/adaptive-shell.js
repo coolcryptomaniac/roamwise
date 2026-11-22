@@ -258,12 +258,23 @@ var RW_TABS = {
   settings: {icon:'\u2699\ufe0f',      label:'Settings', run:function(){ openSettings(); }},
   more:     {icon:'\u2630',            label:'More',     run:function(){ try { var nativeApp=window.Capacitor&&Capacitor.isNativePlatform&&Capacitor.isNativePlatform(); location.href=nativeApp?'/more/index.html':'/more/'; } catch(e){ location.href='/more/'; } }}
 };
-var RW_TABS_DEFAULT = ['home','copilot','plan','trips','more'];
+var RW_TABS_DEFAULT = ['home','copilot','plan','more'];
 function rwTabIds(){
+  // Trips lives under More and on the journey desk, never as a bottom tab.
+  // Preserve personal choices while migrating any earlier five-tab defaults.
   try{
     var v=JSON.parse(lsGet('rw_tabs')||'null');
-    if(v && v.length>=3 && v.every(function(k){ return RW_TABS[k]; })) { if(JSON.stringify(v)==='["home","plan","copilot","store","more"]'){ lsSet('rw_tabs',JSON.stringify(RW_TABS_DEFAULT)); return RW_TABS_DEFAULT; } return v.slice(0,5); }
-  }catch(e){ /* parse best-effort, ignore malformed/missing data */ }
+    if(Array.isArray(v)){
+      var oldDefault=JSON.stringify(v)==='["home","copilot","plan","trips","more"]' ||
+        JSON.stringify(v)==='["home","plan","copilot","store","more"]';
+      if(oldDefault){ lsSet('rw_tabs',JSON.stringify(RW_TABS_DEFAULT)); return RW_TABS_DEFAULT; }
+      var clean=v.filter(function(k,i){return k!=='trips'&&!!RW_TABS[k]&&v.indexOf(k)===i;}).slice(0,5);
+      if(clean.length>=3){
+        if(clean.length!==v.length)lsSet('rw_tabs',JSON.stringify(clean));
+        return clean;
+      }
+    }
+  }catch(e){ /* malformed storage falls back to a safe four-tab bar */ }
   return RW_TABS_DEFAULT;
 }
 function renderTabbar(){
@@ -275,9 +286,11 @@ function renderTabbar(){
     var ic = (RW_ICON_THEME!=='emoji' && typeof rwIcon==='function' && RW_ICON_PATHS[k]) ? rwIcon(k) : t.icon;
     return '<button id="tb-'+k+'" onclick="rwTabGo(\''+k+'\')"><span class="ti">'+ic+'</span>'+t.label+'</button>';
   }).join('');
-  rwTabMark(lsGet('rw_last_tab')||'home');
+  rwTabMark(lsGet('rw_last_tab')==='trips'?'home':(lsGet('rw_last_tab')||'home'));
 }
 function rwTabGo(k){
+  // Legacy deep links still open the booking desk, but never restore a Trips tab.
+  if(k==='trips'){ if(typeof openBooking==='function')openBooking(); else if(typeof openVault==='function')openVault(); return; }
   var t=RW_TABS[k]; if(!t) return;
   rwTabMark(k); lsSet('rw_last_tab', k);
   try{ t.run(); }catch(e){ /* best-effort, ignore */ }
@@ -307,7 +320,7 @@ function rwTabPickerHTML(){
   return '<div class="key-box"><div class="key-box-name">\ud83d\udcf1 Bottom bar \u2014 pick up to 5</div>'
     +'<div class="key-box-hint">Tap to add or remove. These are the shortcuts you reach with one thumb.</div>'
     +'<div id="tabPick" style="display:flex;flex-wrap:wrap;gap:7px;margin-top:9px">'
-    + Object.keys(RW_TABS).map(function(k){
+    + Object.keys(RW_TABS).filter(function(k){return k!=='trips';}).map(function(k){
         var on=cur.indexOf(k)>-1;
         return '<button onclick="rwTabToggle(\''+k+'\')" style="font-size:11.5px;padding:6px 11px;border-radius:999px;cursor:pointer;'
           +'border:1px solid '+(on?'var(--gold,#E8BA6C)':'var(--b2,#2A2A36)')+';'

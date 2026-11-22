@@ -41,13 +41,32 @@ test('More has a real page, searchable tools and Android-friendly navigation',()
   assert.match(more,/href="\/memories\/"/);
   assert.match(more,/href="\/\?rw_open=bookings"/);
   assert.match(quick,/href: '\/more\/'/);
-  assert.match(adaptive,/var RW_TABS_DEFAULT = \['home','copilot','plan','trips','more'\]/);
+  assert.match(adaptive,/var RW_TABS_DEFAULT = \['home','copilot','plan','more'\]/);
+  assert.doesNotMatch(read('index.html'),/id="tb-trips"/);
+  assert.match(more,/href="\/partner\/join\/"/);
+  assert.match(more,/href="\/corporate\/\#hr"/);
+  assert.match(more,/href="\/pricing\.html"/);
   assert.match(adaptive,/\/more\/index\.html/);
   for(const p of ['more/index.html','memories/index.html','design/ailon-first.css','js/ui/ailon-first.js'])assert.ok(fs.existsSync(p));
 });
 
 test('new scripts remain syntactically valid',()=>{
-  for(const p of ['js/ui/ailon-first.js','js/ui/adaptive-shell.js','js/ui/home-quick-access.js']){
+  for(const p of ['js/ui/ailon-first.js','js/ui/adaptive-shell.js','js/ui/home-quick-access.js','js/ui/home-curated-discovery.js']){
     assert.doesNotThrow(()=>new vm.Script(read(p),{filename:p}));
   }
+});
+
+test('curated commerce is a single category at a time, with real itinerary, shop and HR destinations',()=>{
+  const home=read('index.html'),dir=read('js/ui/home-curated-discovery.js'),style=read('design/home-curated-commerce.css');
+  assert.match(home,/id="rwDiscoverFilters"/);
+  assert.match(home,/id="rwSalesItineraries"/);
+  assert.match(home,/id="rwSalesCorporate"/);
+  assert.match(home,/href="\/itinerary-library\/presets\/kumaon\/signature\.pdf"/);
+  assert.match(home,/href="\/corporate\/#hr"/);
+  assert.match(home,/id="rwSalesShop"/);
+  assert.doesNotMatch(home,/#rwSalesShop,\.rw-trackheading:has\(\+ #rwSalesShop\)\{display:none!important\}/);
+  assert.match(dir,/sessionStorage\.setItem\('rw_discovery_category'/);
+  assert.match(dir,/aria-pressed/);
+  assert.match(style,/\[hidden\].*display:none!important/);
+  assert.match(read('corporate/index.html'),/Supplier|supplier/);
 });
