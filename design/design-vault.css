@@ -81,3 +81,12 @@ html[data-rw-design="himalayan-saanjh"] .rw-tusk-itinerary .tk-chip {
 @media(prefers-reduced-motion:reduce) {
  html[data-rw-design] #rwSalesCarousels *,html[data-rw-design] #brand-ambassador *{animation:none!important;transition:none!important;scroll-behavior:auto!important;}
 }
+
+
+/* First commercial rail: actual independent artists and Natasha's existing photo assets. */
+html[data-rw-design] #rwSalesArtists .rw-sales-card{border-color:#b99a6499;background:linear-gradient(160deg,#292038,#171628);}
+html[data-rw-design] #rwSalesArtists .rw-sales-card:first-child{border-color:#edc36e;box-shadow:0 8px 26px #03020a55;}
+html[data-rw-design] #rwSalesArtists .rw-artist-pattern{display:grid;place-items:center;height:158px;background:radial-gradient(circle at 65% 20%,#685080,#30223c 55%,#1a142a);font-size:64px;color:#f3ce92;}
+html[data-rw-design] #rwSalesArtists .rw-sales-copy b{color:#fce1ac;}
+html[data-rw-design] #rwSalesArtists a:focus-visible{outline:3px solid #eac576;outline-offset:2px;}
+@media(prefers-reduced-motion:reduce){html[data-rw-design] #rwSalesArtists *{animation:none!important;transition:none!important;scroll-behavior:auto!important;}}
