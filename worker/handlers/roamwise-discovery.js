@@ -10,7 +10,7 @@ const MODERN='2026-07-28';
 const LEGACY=['2025-11-25','2025-03-26'];
 const MIME={'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store','X-Content-Type-Options':'nosniff'};
 const REST_HEADERS={...MIME,'Access-Control-Allow-Origin':'*','Cache-Control':'public, max-age=300'};
-const TYPES=['artist','stay','assistant'];
+const TYPES=['artist','stay','package','assistant'];
 const descriptions={
  search:'Search reviewed public RoamWise artist profiles, stays and Ailon Tusk. Return cards with canonical RoamWise links. No live availability, prices or reservation guarantees.',
  detail:'Get a single public RoamWise listing and its canonical link by ID; no private contacts, payment details or inventory.',
@@ -94,7 +94,12 @@ export function handleRoamwiseDiscovery(request,path){
  if(request.method!=='GET')return new Response('Method not allowed',{status:405,headers:{Allow:'GET'}});
  const url=new URL(request.url);
  let result,status=200;
- if(path==='v1/discovery/search'){
+ if(path==='v1/discovery/openapi.json'){
+  result={openapi:'3.1.0',info:{title:'RoamWise Public Discovery API',version:'1.0.0',description:'Public read-only discovery. Listings are not verified availability or price quotes.'},servers:[{url:'https://api.roamwise.co.in'}],paths:{
+   '/v1/discovery/search':{get:{operationId:'searchRoamwise',summary:'Search public RoamWise artist, stay, package and assistant listings',parameters:[{name:'q',in:'query',schema:{type:'string',maxLength:120}},{name:'type',in:'query',schema:{type:'string',enum:TYPES}},{name:'region',in:'query',schema:{type:'string'}},{name:'limit',in:'query',schema:{type:'integer',minimum:1,maximum:12}}],responses:{'200':{description:'Curated public listing cards'},'400':{description:'Invalid search'}}}},
+   '/v1/discovery/items/{id}':{get:{operationId:'getRoamwiseListing',summary:'Get a public RoamWise listing',parameters:[{name:'id',in:'path',required:true,schema:{type:'string'}}],responses:{'200':{description:'Public listing details'},'404':{description:'Not found'}}}}
+  }};
+ }else if(path==='v1/discovery/search'){
   const params=Object.fromEntries(['q','type','region','limit'].filter(k=>url.searchParams.has(k)).map(k=>[k,k==='limit'?Number(url.searchParams.get(k)):url.searchParams.get(k)]));
   try{
    const data=publicSearch(params);
