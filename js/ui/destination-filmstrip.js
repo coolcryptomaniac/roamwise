@@ -6,6 +6,14 @@
 (function(root){
  'use strict';
  var PER_PAGE=12, queued=false, index=0, places=[];
+ var LOCAL=[
+   {id:'almora',name:'Almora',country:'India'},
+   {id:'kasar-devi',name:'Kasar Devi',country:'India'},
+   {id:'nainital',name:'Nainital',country:'India'},
+   {id:'ranikhet',name:'Ranikhet',country:'India'},
+   {id:'kausani',name:'Kausani',country:'India'},
+   {id:'bhimtal',name:'Bhimtal',country:'India'}
+ ];
  var PHOTO={
    almora:{src:'/assets/property-photos/milan-heights-front.jpg',note:'RoamWise partner-stay photo'},
    manali:{src:'/assets/property-photos/new-himank-room.webp',note:'RoamWise partner-stay photo'}
@@ -18,7 +26,7 @@
    /* Only first-party public assets or explicitly approved R2/owned CDN media.
       Never interpolate city names into unreliable generated-image endpoints. */
    var src=String(m.src||'');
-   if(src.startsWith('/assets/')||src.startsWith('/media/'))return {src:src,note:String(m.note||'Curated travel image')};
+   if(src.startsWith('/assets/')||src.startsWith('/media/')||/^https:\/\/assets\.roamwise\.co\.in\/media\/[a-zA-Z0-9_./%-]+$/.test(src))return {src:src,note:String(m.note||'Curated travel image')};
    return null;
  }
  function uniqueDestinations(data){
@@ -72,7 +80,7 @@
    var rootNode=document.getElementById('rwDestinationsRail'),track=document.getElementById('rwDestinationTrack');
    if(!rootNode||!track||rootNode.dataset.ready==='1')return;
    rootNode.dataset.ready='1';
-   places=uniqueDestinations(typeof DB!=='undefined'?DB:[]);
+   places=uniqueDestinations(LOCAL.concat(typeof DB!=='undefined'?DB:[]));
    var status=document.getElementById('rwDestinationCount');
    if(!places.length){rootNode.hidden=true;return;}
    function append(){
