@@ -63,7 +63,7 @@ export async function runTripNotifications(env, opts = {}) {
       if (tokens.length && !dry) {
         const dead = [];
         for (const t of tokens) {
-          const r = await sendOne(token, projectId, t.token, { title: msg.push.title, body: msg.push.body }, null, msg.push.url);
+          const r = await sendOne(token, projectId, t.token, { title: msg.push.title, body: msg.push.body }, { rw_category: 'booking', rw_url: msg.push.url }, msg.push.url);
           if (r.ok) delivered = true; else if (isDeadToken(r)) dead.push(`pushTokens.${t.deviceId}`);
         }
         if (dead.length) await deleteFields(env, token, projectId, `users/${b.guestUid}`, dead).catch(() => {});
