@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<script id="rw-design-edition-init">try{var rwSavedDesign=localStorage.getItem("rw_design_edition");document.documentElement.setAttribute("data-rw-design",["himalayan-saanjh","kasar-cloud","buransh-bazaar"].indexOf(rwSavedDesign)>=0?rwSavedDesign:"himalayan-saanjh");}catch(e){document.documentElement.setAttribute("data-rw-design","himalayan-saanjh");}</script>
 <script id="rw-watchdog">
 /* Boot watchdog. Never blocks: all work is on timers/events. If the app has not
    started (js/boot/boot-ok.js sets __RW_BOOTED) it first offers a Reload, and if
@@ -496,6 +497,8 @@ body[data-view="home"] #rwEveryday,body[data-view="home"] #promofilm {display:no
 </style>
 <link rel="stylesheet" href="design/ailon-first.css?v=20261121">
 <link rel="stylesheet" href="design/ailon-room-carousel.css?v=20261122">
+<link rel="stylesheet" href="design/design-vault.css?v=831-1">
+<script src="design/design-vault.js?v=831-1" defer></script>
 </head>
 <body class="rw-akatsuki-theme shell" data-view="home">
 <div id="rwVeil" role="status" aria-live="polite"><img src="/assets/img/roamwise-logo-176.webp" alt="" width="72" height="72" fetchpriority="high"><span>Roam<b>Wise</b></span><i></i><small>Getting things ready…</small></div>
@@ -540,6 +543,7 @@ body[data-view="home"] #rwEveryday,body[data-view="home"] #promofilm {display:no
       <!-- Wallet balance chip: signed-in users only, beside the avatar like MakeMyTrip / Uber.
            Rupee = real cash, gold coin = RoamWise bonus credit. -->
       <button class="rw-wallet-chip" id="rwWalletChip" type="button" onclick="rwOpenWallet()" style="display:none" aria-label="Wallet">Wallet</button>
+      <a class="rw-vault-wallet-link" href="/wallet/" aria-label="Open RoamWise wallet and AI credits">Wallet</a>
       <span class="auth-avatar-wrap" id="authAvatarWrap" style="display:none">
         <img class="avatar" id="authAvatar" src="" alt="Account" onclick="authMenu()">
         <span class="auth-verified-badge" id="authVerifiedBadge" title="Verified email" aria-label="Verified email">&#10003;</span>
@@ -644,7 +648,7 @@ body[data-view="home"] #rwEveryday,body[data-view="home"] #promofilm {display:no
 <a class="rw-sales-card" href="/shop/?buy=roamwise-mandala-headband#buy"><img loading="lazy" src="/shop/img/headband.jpg" alt="RoamWise mandala headband"><span class="rw-sales-copy"><strong>Mandala Headband</strong><small>Made on demand · delivery ₹99</small><b>₹199 · Buy now →</b></span></a>
 </div><p style="font-size:12px;color:#c6b5d1">Reservations and product orders require a confirmed total and payment verification. No unverified payment is shown as a completed booking.</p>
 </section>
-<script>(function(){var box=document.getElementById('rwSalesCarousels');if(!box)return;box.addEventListener('click',function(e){var btn=e.target.closest('[data-rw-prev],[data-rw-next]');if(!btn)return;var id=btn.getAttribute('data-rw-next')||btn.getAttribute('data-rw-prev');var el=document.getElementById(id);if(el)el.scrollBy({left:btn.hasAttribute('data-rw-next')?280:-280,behavior:'smooth'})});if(window.matchMedia('(prefers-reduced-motion: reduce)').matches)return;var timer=setInterval(function(){if(document.hidden)return;var el=document.getElementById('rwSalesStays');if(!el)return;el.scrollBy({left:el.scrollLeft+el.clientWidth+10>=el.scrollWidth? -el.scrollWidth:265,behavior:'smooth'})},5100);box.addEventListener('pointerdown',function(){clearInterval(timer)},{once:true})})();</script>
+<script>(function(){var box=document.getElementById('rwSalesCarousels');if(!box)return;box.addEventListener('click',function(e){var btn=e.target.closest('[data-rw-prev],[data-rw-next]');if(!btn)return;var id=btn.getAttribute('data-rw-next')||btn.getAttribute('data-rw-prev');var track=document.getElementById(id);if(track)track.scrollBy({left:btn.hasAttribute('data-rw-next')?280:-280,behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'})});/* Autoplay is owned by design/carousel.js via Design Vault. Never create two competing timers. */})();</script>
 
 
 

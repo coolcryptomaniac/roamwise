@@ -1,0 +1,83 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "RoamWise outbound event to Zapier (v1)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "event_id",
+    "event_type",
+    "created_at",
+    "payload_version",
+    "consent",
+    "data"
+  ],
+  "properties": {
+    "event_id": {
+      "type": "string",
+      "minLength": 10,
+      "maxLength": 128
+    },
+    "event_type": {
+      "type": "string",
+      "enum": [
+        "trip.enquiry.created",
+        "partner.lead.created",
+        "trip.itinerary.share_requested"
+      ]
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "payload_version": {
+      "const": 1
+    },
+    "consent": {
+      "type": "boolean",
+      "const": true
+    },
+    "data": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "itinerary_id": {
+          "type": "string",
+          "maxLength": 128
+        },
+        "region": {
+          "type": "string",
+          "maxLength": 100
+        },
+        "start_date": {
+          "type": "string",
+          "format": "date"
+        },
+        "end_date": {
+          "type": "string",
+          "format": "date"
+        },
+        "travellers": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1000
+        },
+        "language": {
+          "type": "string",
+          "maxLength": 12
+        },
+        "summary": {
+          "type": "string",
+          "maxLength": 600
+        },
+        "partner_category": {
+          "type": "string",
+          "maxLength": 80
+        },
+        "share_link": {
+          "type": "string",
+          "format": "uri"
+        }
+      }
+    }
+  }
+}

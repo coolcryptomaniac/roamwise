@@ -175,6 +175,7 @@ function renderKeyBoxes(){
 }
 function openSettings(){
   renderKeyBoxes();
+  try{if(window.RWDesignVault)RWDesignVault.mountSettings();}catch(e){/* visual settings must never block payments */}
   try{ rwMountPersonalisationSetting(); }catch(e){ /* optional on-device preferences */ }
   try{ rwMountWalletColorSetting(); }catch(e){ /* wallet colour picker is optional */ }
   try{ rwRenderLinkedSignInMethods(); }catch(e){ /* auth may still be loading */ }

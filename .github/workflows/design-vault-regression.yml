@@ -1,0 +1,39 @@
+name: Design Vault regression and link inventory
+
+on:
+  pull_request:
+    paths:
+      - 'design/design-vault.*'
+      - 'index.html'
+      - 'js/copilot/sourced-search.js'
+      - 'js/ui/settings-modal.js'
+      - 'partners/**'
+      - 'scripts/route-feature-inventory.mjs'
+      - 'tests/design-vault-regression.test.mjs'
+      - '.github/workflows/design-vault-regression.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  design-vault:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install test-only DOM dependency
+        run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Run design, DOM, and privacy regression tests
+        run: node --test tests/design-vault-regression.test.mjs tests/design-vault-dom-smoke.test.mjs tests/tusk-public-privacy.test.mjs
+      - name: Generate route inventory (report only)
+        run: node scripts/route-feature-inventory.mjs --out=reports/route-inventory.json
+      - name: Publish route audit for review
+        uses: actions/upload-artifact@v4
+        with:
+          name: route-inventory
+          path: reports/route-inventory.json
+          retention-days: 14

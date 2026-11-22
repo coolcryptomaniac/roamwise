@@ -3,7 +3,7 @@
 (function () {
   'use strict';
 
-  var BUILD = 'rw-v166-professional-match-deck';
+  var BUILD = 'rw-v167-himalayan-design-vault';
   var inApp = !!window.RW || (typeof window.PLAY_MODE !== 'undefined' && window.PLAY_MODE);
   if (inApp || !window.isSecureContext || !('serviceWorker' in navigator)) return;
 
