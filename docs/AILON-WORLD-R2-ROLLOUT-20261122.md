@@ -6,6 +6,7 @@ Visual reference: founder-provided mobile screenshots of spacious original Ailon
 ## What this PR changes
 
 - `js/ui/ailon-world-experience.js` renders a horizontally looping **bounded** 3-copy rail of up to 96 *distinct* records from the existing curated `DB` (not fabricated "all-Earth" listings). Active cards are non-booking discovery. Tap destination = choose **Plan with Ailon** (prefill; user must send) or **Find stays** (filters `/escapes/`; no availability promise).
+- Adds an **on-demand worldwide atlas lookup** beside the curated rail, resolving thousands of global city/place identities only when a visitor explicitly searches. Multiple namesakes are presented for selection, and selected province/country is preserved in the Ailon prompt. Atlas matches are expressly not bookable supply, and no new travel facts are invented.
 - Adds an image-first four-category Explore & Book home gallery using *existing* card photos: Stays, Weddings, Packages and Shop. Weddings have their own filter instead of being buried under Teams & HR.
 - Adds Ailon AI settings shortcut beside the hero. The button opens the existing real settings/provider/BYOK/on-device controls, not an untested model router. It never pays for an API or uploads keys.
 - Adds black-and-white editorial, cinematic and card itinerary presentation skins to existing `.rw-tusk-itinerary` cards. Map view hands off to the existing map function; no fabricated stops.
@@ -54,6 +55,7 @@ The repository already documents:
 
 - [ ] Run `node --test tests/ailon-world-experience.test.cjs` with Node 22, and existing Tusk/checkout test suites.
 - [ ] Inspect preview on 360/390/412px screens; no nav overlap, wedding category accessible, all cards have useful fallback, reduced-motion respected.
+- [ ] Search `Ushuaia`, `Funchal`, and ambiguous `Springfield` via the new **Find place** field; check that results are unique, place region is preserved and no 34k-card DOM/image fetch occurs on home load.
 - [ ] Search *different places in sequence*, e.g. `3 days in Almora` → `4 days in Ushuaia` → `what about Funchal?`, plus `what about food there?` for genuine follow-ups. Ensure new cities never inherit previous named places.
 - [ ] Verify first-click category shows matching existing cards (including paid wedding cards), correct prices unaffected, no automatic checkout.
 - [ ] Check itinerary editorial/cinematic/cards/map modes with maps and multi-day plans. The visual switch must not edit quotes or bookings.
