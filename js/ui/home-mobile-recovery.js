@@ -25,6 +25,44 @@
     }
     document.addEventListener('rw:auth-changed',sync);
   }
+  // Mirror only already-published, self-listed MOU-approved stay records.
+  // These are ENQUIRY ONLY. Never display host pricing, contact data or payment.
+  function addPublicCards(){
+    var partners=Array.isArray(window.RW_PARTNERS)?window.RW_PARTNERS:[];
+    function allowed(p){
+      return !!p&&p.cat==='stay'&&p.verified==='self-listed'&&p.enquiryOnly===true
+       &&p.listingReady===true&&p.selfListed
+       &&p.selfListed.mouVersion==='RW-PMOU-2026-09-27-V4'
+       &&(!window.rwStayPublicEligible||window.rwStayPublicEligible(p));
+    }
+    function render(id,arr){
+      var rail=document.getElementById(id);if(!rail)return;
+      arr.slice(0,12).forEach(function(p){
+        var key=String(p.id||'').replace(/[^a-zA-Z0-9_-]/g,'');
+        if(!key||rail.querySelector('[data-rw-self-listed="'+key+'"]'))return;
+        var link=document.createElement('a');
+        link.className='rw-sales-card rw-new-self-listing';
+        link.dataset.rwSelfListed=key;
+        var params=new URLSearchParams({stay:String(p.name||''),zone:String(p.zone||'')});
+        link.href='/escapes/?'+params.toString()+'#request-quote';
+        link.setAttribute('aria-label','Enquire about '+String(p.name||'')+' on RoamWise');
+        var art=document.createElement('div');art.className='rw-new-self-listing-art';art.textContent='🏡';
+        var copy=document.createElement('span');copy.className='rw-sales-copy';
+        var title=document.createElement('strong');title.textContent=String(p.name||'New RoamWise stay');
+        var where=document.createElement('small');where.textContent=String(p.area||p.zone||'India')+' · New on RoamWise · Self-listed';
+        var trust=document.createElement('small');trust.textContent='MOU accepted · automatic checks · enquiry only. Dates, availability and final price require confirmation.';
+        var action=document.createElement('b');action.textContent='Request a quote →';
+        copy.append(title,where,trust,action);link.append(art,copy);rail.append(link);
+      });
+    }
+    var publicStays=partners.filter(allowed);
+    render('rwSalesStays',publicStays);
+    render('rwSalesWeddings',publicStays.filter(function(p){
+      return Array.isArray(p.segments)&&p.segments.indexOf('wedding')>=0;
+    }));
+  }
+  addPublicCards();
+  document.addEventListener('rw:partners-refreshed',addPublicCards);
   var front=document.getElementById('rwPartnerFrontdoors');
   if(front&&front.hasAttribute('data-rw-fallback-hidden'))front.removeAttribute('data-rw-fallback-hidden');
  }
