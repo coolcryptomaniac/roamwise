@@ -12,7 +12,7 @@ test('premium Ailon and cards are retained and mobile header gives Settings a di
  assert.match(css,/#rwSettingsShortcut\{display:inline-flex!important/);
  assert.match(css,/#copilotHero #heroInput/);
  assert.match(css,/#rwSalesCarousels \.rw-sales-card/);
- assert.match(js,/link\.hidden=visible/);
+ assert.match(js,/link\.toggleAttribute\('hidden',visible\)/);
  assert.match(home,/home-mobile-recovery\.js/);
  assert.match(home,/home-mobile-recovery\.css/);
 });
