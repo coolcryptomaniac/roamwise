@@ -63,3 +63,13 @@ test('retired plural partner link has a non-JS redirect and safe fallback',()=>{
  assert.match(page,/url=\/partner\//);
  assert.match(page,/href="\/partner\/join\/"/);
 });
+
+
+test('mobile pinch-zoom remains accessible when users enlarge itinerary and booking text',()=>{
+ const html=read('index.html');
+ const match=html.match(/<meta\s+name="viewport"\s+content="([^"]+)"/);
+ assert.ok(match,'viewport meta exists');
+ assert.match(match[1],/width=device-width/);
+ assert.doesNotMatch(match[1],/user-scalable=no|maximum-scale=1/,
+   'users must be able to pinch-zoom itineraries and product details');
+});
