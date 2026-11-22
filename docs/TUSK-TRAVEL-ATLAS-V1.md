@@ -5,9 +5,9 @@
 ## What is actually included
 
 - **124** India destination records, with stable IDs, region, attraction names, 3-day **editorial itinerary starters**, regional food suggestions, a provenance/reference URL and a photo reference.
-- **15** destination profiles with source-backed overviews and concise facts: Almora, Kasar Devi, Binsar, Jageshwar, Kausani, Ranikhet, Nainital, Bhimtal, Mukteshwar, Champawat, Bhowali, Pithoragarh, Rishikesh, Mussoorie and Auli.
-- **109** destination index leads awaiting individual source/fact review; these may be used as **suggestions only** and must not be advertised as verified guides, live itinerary bookings or product inventory.
-- Named historical/cultural people only where an official source supports an association. First examples include Swami Vivekananda, Uday Shankar, Govind Ballabh Pant, Mahatma Gandhi and Sumitranandan Pant; never auto-infer a person's private contact details.
+- **18** destination profiles with source-backed overviews and concise facts: Almora, Kasar Devi, Binsar, Jageshwar, Kausani, Ranikhet, Nainital, Bhimtal, Mukteshwar, Champawat, Bhowali, Pithoragarh, Rishikesh, Mussoorie, Auli, Jaipur, Hampi and Rameswaram.
+- **106** destination index leads awaiting individual source/fact review; these may be used as **suggestions only** and must not be advertised as verified guides, live itinerary bookings or product inventory.
+- Named historical/cultural people only where an official source supports an association. First examples include Swami Vivekananda, Uday Shankar, Govind Ballabh Pant, Mahatma Gandhi, Sumitranandan Pant, Maharaja Sawai Jai Singh II, Krishnadevaraya and A. P. J. Abdul Kalam; never auto-infer a person's private contact details.
 - **No photos embedded or downloaded** by this PR. Each record carries a photo *source-page reference*, descriptive alt-text placeholder and the explicit rights state `not-cleared`. Before showing an image, obtain the actual asset, file-specific license, photographer credit, original source and any required written commercial permission. Do **not** assume an official tourism website permits redistribution.
 - No location-based ads, net supplier rates, travel booking claims, payment actions, automated fact publishing, personal information indexing or paid web-search switches.
 
