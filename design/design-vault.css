@@ -173,3 +173,6 @@ html[data-rw-design] body.shell[data-view="home"] #rwSettingsShortcut:focus-visi
 .rw-atlas-result a:focus-visible {outline:3px solid #f6cf89;outline-offset:3px;}
 @media(max-width:375px){.rw-atlas-result .rw-atlas-day {grid-template-columns:1fr;gap:3px}.rw-atlas-result .tk-sec{padding:12px!important}}
 @media(prefers-reduced-motion:reduce){.rw-atlas-result * {scroll-behavior:auto!important;animation:none!important;transition:none!important}}
+
+.rw-atlas-result .rw-atlas-facts{margin:6px 0 10px;padding-left:20px;color:#e8ddf0;font:400 12px/1.65 system-ui,sans-serif;}
+.rw-atlas-result .rw-atlas-facts li{margin:5px 0;}
