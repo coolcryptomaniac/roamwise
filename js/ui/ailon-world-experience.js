@@ -323,7 +323,7 @@
     containers.forEach(el=>{ if(typeof MutationObserver==='function')new MutationObserver(mount).observe(el,{childList:true,subtree:true});});
   }
   bodyReady(()=>{
-    mountAiSettings(); itinerarySkin();
+    mountAiSettings(); itinerarySkin(); mountCategoryDeck();
     // The approved asset manifest is loaded before cards mount. A failed or
     // unavailable R2 catalog never blocks the user from the local destination
     // list and its gradient/image fallback.
@@ -332,7 +332,7 @@
     fetch('/data/ailon/media-manifest-v1.json',{cache:'force-cache',signal:controller.signal})
       .then(r=>r.ok?r.json():null).then(j=>{
         if(j && j.version===1 && j.assets && typeof j.assets==='object')media=j.assets;
-      }).catch(()=>{}).finally(()=>{clearTimeout(stop);mountWorldRail();mountCategoryDeck();});
+      }).catch(()=>{}).finally(()=>{clearTimeout(stop);mountWorldRail();});
   });
   W.RWAilonWorld = { destinationPool, staysURL, searchAtlas, modeChoices: modes.map(x=>x[0]) };
 })();
