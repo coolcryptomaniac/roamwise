@@ -31,7 +31,16 @@ const allowedFields={
  roamwise_capabilities:new Set([])
 };
 function rpc(id,result,modern=false){
- const stamped=modern?{...result,_meta:{'io.modelcontextprotocol/serverInfo':SERVER}}:result;
+ // MCP 2026-07-28 cacheable results MUST include both required fields.
+ // Public tool/resource definitions and UI markup are identical for all users.
+ // A tool invocation is not a cacheable listing; keep its result untouched.
+ const cacheable=Object.hasOwn(result,'tools')||Object.hasOwn(result,'resources')
+   ||Object.hasOwn(result,'contents')||Object.hasOwn(result,'supportedVersions');
+ const stamped=modern?{
+  ...result,
+  ...(cacheable?{ttlMs:60000,cacheScope:'public'}:{}),
+  _meta:{...(result._meta||{}),'io.modelcontextprotocol/serverInfo':SERVER}
+ }:result;
  return new Response(JSON.stringify({jsonrpc:'2.0',id,result:stamped}),{headers:MIME});
 }
 function rpcError(id,code,message,status=200){

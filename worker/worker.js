@@ -73,6 +73,7 @@ import { handleShopDecide, runShopRefundCron } from './handlers/shop-order.js';
 import { handleAgentMail } from './handlers/agentmail-outreach.js';
 import {handleCreatorAutopilot,runCreatorAutopilot} from './handlers/creator-autopilot.js';
 import { handleHealth } from './handlers/health.js';
+import { handleOpenAIAppsChallenge } from './lib/openai-apps-challenge.js';
 import { handleSarvamVoice } from './handlers/sarvam-voice.js';
 import { handleAI } from './handlers/ai.js';
 import { handleTuskMcp } from './handlers/tusk-mcp.js';
@@ -146,6 +147,8 @@ export default {
     const path = url.pathname.replace(/^\/+|\/+$/g, '');
 
     if(path === 'health') return handleHealth(env);
+    // Public plugin-domain challenge must return bare text, not a JSON 404.
+    if(path === '.well-known/openai-apps-challenge') return handleOpenAIAppsChallenge(request,env);
     if(path === 'tusk/capabilities') return handleTuskCapabilities(request);
     if(path === 'tusk/mcp' && request.method !== 'OPTIONS') return handleTuskMcp(request,env);
     if(path === 'tusk/openapi.json') return handleTuskOpenApi(request);

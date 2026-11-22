@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {handleRoamwiseMcp,handleRoamwiseDiscovery} from '../worker/handlers/roamwise-discovery.js';
 import {publicSearch,publicItem} from '../worker/lib/roamwise-discovery-catalog.js';
+import {handleOpenAIAppsChallenge,DEFAULT_OPENAI_APPS_CHALLENGE} from '../worker/lib/openai-apps-challenge.js';
 
 const endpoint='https://api.roamwise.co.in/mcp';
 const call=async (method,params={},modern=false)=>{
@@ -114,4 +115,36 @@ test('MCP capabilities are versioned and keep account/wallet data behind authent
 test('Capabilities tool refuses extraneous and private account arguments',async()=>{
  const wrong=await (await call('tools/call',{name:'roamwise_capabilities',arguments:{token:'private'}})).json();
  assert.equal(wrong.error.code,-32602);
+});
+
+test('OpenAI domain ownership challenge returns exact plaintext at public origin',async()=>{
+ const url='https://roamwise-api.founder-f53.workers.dev/.well-known/openai-apps-challenge';
+ const response=handleOpenAIAppsChallenge(new Request(url));
+ assert.equal(response.status,200);
+ assert.match(response.headers.get('content-type'),/^text\/plain/);
+ assert.equal(response.headers.get('cache-control'),'no-store, max-age=0');
+ assert.equal(await response.text(),DEFAULT_OPENAI_APPS_CHALLENGE);
+ const head=handleOpenAIAppsChallenge(new Request(url,{method:'HEAD'}));
+ assert.equal(head.status,200);assert.equal(await head.text(),'');
+ const post=handleOpenAIAppsChallenge(new Request(url,{method:'POST'}));
+ assert.equal(post.status,405);
+ const rotated=handleOpenAIAppsChallenge(new Request(url),{OPENAI_APPS_CHALLENGE_TOKEN:'ReplacementTestToken1234567890ABCDEF'});
+ assert.equal(await rotated.text(),'ReplacementTestToken1234567890ABCDEF');
+});
+
+test('MCP 2026-07-28 cache hints satisfy OpenAI resources/read validation',async()=>{
+ const discovered=await (await call('server/discover',{},true)).json();
+ const tools=await (await call('tools/list',{},true)).json();
+ const resources=await (await call('resources/list',{},true)).json();
+ const uri=resources.result.resources[0].uri;
+ const read=await (await call('resources/read',{uri},true)).json();
+ for(const data of [discovered,tools,resources,read]){
+  assert.equal(data.result.ttlMs,60000);
+  assert.equal(data.result.cacheScope,'public');
+  assert.ok(data.result._meta['io.modelcontextprotocol/serverInfo']);
+ }
+ assert.equal(read.result.contents[0].mimeType,'text/html;profile=mcp-app');
+ assert.match(read.result.contents[0].text,/RoamWise/);
+ const invocation=await (await call('tools/call',{name:'search_roamwise',arguments:{q:'Kumaon'}},true)).json();
+ assert.equal('cacheScope' in invocation.result,false);
 });
