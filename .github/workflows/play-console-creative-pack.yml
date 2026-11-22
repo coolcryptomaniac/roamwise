@@ -1,0 +1,41 @@
+name: Play Console creative pack (source-based)
+
+on:
+  push:
+    paths:
+      - 'tools/marketing/build_play_assets.py'
+      - 'tools/marketing/capture_public_screens.mjs'
+      - '.github/workflows/play-console-creative-pack.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  creative:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install Pillow
+        run: python -m pip install --disable-pip-version-check 'Pillow>=10,<12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install headless browser for real public screenshots
+        run: |
+          npm install --no-save --no-package-lock --ignore-scripts playwright@1.58.2
+          npx playwright install --with-deps chromium
+          node tools/marketing/capture_public_screens.mjs
+      - name: Generate verified-source artwork and available screenshots
+        run: python tools/marketing/build_play_assets.py
+      - name: Upload marketing assets for manual review
+        uses: actions/upload-artifact@v4
+        with:
+          name: roamwise-play-console-natasha-pack
+          path: build/play-console-2026/
+          retention-days: 30
+          if-no-files-found: error
