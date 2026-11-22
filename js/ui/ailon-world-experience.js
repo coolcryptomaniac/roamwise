@@ -2,7 +2,7 @@
    and display-only itinerary skins. Does not mutate bookings, prices or payments. */
 (function () {
   'use strict';
-  const W = window;
+  const W = /** @type {any} */ (window);
   const bodyReady = fn => document.readyState === 'loading'
     ? document.addEventListener('DOMContentLoaded', fn, { once: true }) : fn();
   const clean = value => String(value || '').trim().slice(0, 140);
@@ -54,7 +54,7 @@
     return old ? {src: safeURL(old), alt: 'Illustrative destination photograph: ' + d.name, credit:''} : null;
   }
   function plan(d) {
-    const existing = document.getElementById('heroInput');
+    const existing = /** @type {HTMLTextAreaElement|null} */ (document.getElementById('heroInput'));
     if (!existing) { location.href = '/?rw_open=itineraries'; return; }
     if (existing.value.trim()) {
       existing.focus();
@@ -194,7 +194,7 @@
       }
       button.append(art,make('strong','',item.label));
       button.addEventListener('click',()=>{
-        const filter=document.querySelector('#rwDiscoverFilters button[data-category="'+item.cat+'"]');
+        const filter=/** @type {HTMLButtonElement|null} */ (document.querySelector('#rwDiscoverFilters button[data-category="'+item.cat+'"]'));
         if(filter)filter.click();
         sales.scrollIntoView({behavior:'smooth',block:'start'});
       });
