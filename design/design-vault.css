@@ -90,3 +90,20 @@ html[data-rw-design] #rwSalesArtists .rw-artist-pattern{display:grid;place-items
 html[data-rw-design] #rwSalesArtists .rw-sales-copy b{color:#fce1ac;}
 html[data-rw-design] #rwSalesArtists a:focus-visible{outline:3px solid #eac576;outline-offset:2px;}
 @media(prefers-reduced-motion:reduce){html[data-rw-design] #rwSalesArtists *{animation:none!important;transition:none!important;scroll-behavior:auto!important;}}
+
+
+/* Mobile Ailon compactness fix: legacy mobile-stability.css forces a 214px
+   composer. Override ONLY Himalayan Saanjh, never the two saved legacy skins. */
+@media (max-width:600px) {
+ html[data-rw-design="himalayan-saanjh"] body.shell[data-view="home"] #copilotHero .copilot-compose {
+   min-height:0!important;height:auto!important;
+   grid-template-rows:minmax(78px,auto) auto!important;
+   align-content:start!important;row-gap:6px!important;
+ }
+ html[data-rw-design="himalayan-saanjh"] body.shell[data-view="home"] #copilotHero #heroInput {
+   height:78px!important;min-height:78px!important;max-height:250px!important;
+ }
+ html[data-rw-design="himalayan-saanjh"] body.shell[data-view="home"] #copilotHero .copilot-actions {
+   min-height:42px!important;margin:0!important;align-self:center!important;
+ }
+}
