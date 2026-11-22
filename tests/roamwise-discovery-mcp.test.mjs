@@ -1,0 +1,69 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {handleRoamwiseMcp,handleRoamwiseDiscovery} from '../worker/handlers/roamwise-discovery.js';
+import {publicSearch,publicItem} from '../worker/lib/roamwise-discovery-catalog.js';
+
+const endpoint='https://api.roamwise.co.in/mcp';
+const call=async (method,params={},modern=false)=>{
+ const headers={'Content-Type':'application/json','Accept':'application/json, text/event-stream'};
+ if(modern){headers['MCP-Protocol-Version']='2026-07-28';headers['Mcp-Method']=method;if(method==='tools/call')headers['Mcp-Name']=params.name;
+ params={...params,_meta:{'io.modelcontextprotocol/protocolVersion':'2026-07-28','io.modelcontextprotocol/clientCapabilities':{}}};}
+ return handleRoamwiseMcp(new Request(endpoint,{method:'POST',headers,body:JSON.stringify({jsonrpc:'2.0',id:1,method,params})}));
+};
+
+test('catalog: Natasha is linked to the published RoamWise page, not alleged live stock',()=>{
+ const item=publicItem('natasha-guleria');
+ assert.equal(item.type,'artist');assert.match(item.url,/creators\/natasha\.html$/);
+ assert.equal(item.image_url,null);assert.equal(item.availability_verified,false);assert.equal(item.price_verified,false);
+ assert.equal(item.booking_confirmed,false);
+});
+test('catalog: Almora returns approved stays with no live prices',()=>{
+ const result=publicSearch({q:'Almora',type:'stay'});
+ assert.ok(result.items.length>=2);
+ assert.ok(result.items.every(x=>x.type==='stay'&&!x.availability_verified&&!x.price_verified));
+ assert.ok(result.items.every(x=>!('ownerPhone' in x)&&!('ownerRate' in x)));
+});
+test('catalog: invalid types fail closed and limits are bounded',()=>{
+ assert.throws(()=>publicSearch({type:'admin'}));
+ assert.equal(publicSearch({limit:999}).items.length<=12,true);
+});
+test('MCP legacy handshake and public tool list work',async()=>{
+ const init=await (await call('initialize',{protocolVersion:'2025-11-25'})).json();
+ assert.equal(init.result.protocolVersion,'2025-11-25');
+ const list=await (await call('tools/list')).json();
+ assert.deepEqual(list.result.tools.map(t=>t.name),['search_roamwise','get_roamwise_listing','roamwise_enquiry_link']);
+ assert.ok(list.result.tools.every(t=>t.annotations.readOnlyHint));
+});
+test('MCP modern discover and tool-call metadata work',async()=>{
+ const disc=await (await call('server/discover',{},true)).json();
+ assert.ok(disc.result.supportedVersions.includes('2026-07-28'));
+ const body=await (await call('tools/call',{name:'search_roamwise',arguments:{q:'Natasha'}},true)).json();
+ assert.equal(body.result.structuredContent.items[0].id,'natasha-guleria');
+ assert.equal(body.result.structuredContent.cards[0].image_url,null);
+ assert.ok(body.result._meta['io.modelcontextprotocol/serverInfo']);
+});
+test('MCP rejects missing metadata and malicious parameter injection',async()=>{
+ const bad=await handleRoamwiseMcp(new Request(endpoint,{method:'POST',headers:{'Content-Type':'application/json','MCP-Protocol-Version':'2026-07-28','Mcp-Method':'tools/list'},body:JSON.stringify({jsonrpc:'2.0',id:1,method:'tools/list'})}));
+ assert.equal(bad.status,400);
+ const evil=await (await call('tools/call',{name:'search_roamwise',arguments:{q:'stay',admin:true}})).json();
+ assert.equal(evil.error.code,-32602);
+});
+test('MCP enquiry is link-only without initiating payment',async()=>{
+ const response=await (await call('tools/call',{name:'roamwise_enquiry_link',arguments:{id:'milan-heights'}})).json();
+ const data=response.result.structuredContent;
+ assert.equal(data.requiresUserApproval,true);assert.equal(data.paymentConfirmed,false);
+ assert.equal(data.bookingConfirmed,false);assert.match(data.url,/roamwise\.co\.in/);
+});
+test('REST endpoint returns filtered listings and 404 for unknown item',async()=>{
+ const request=new Request('https://api.roamwise.co.in/v1/discovery/search?q=Almora&type=stay');
+ const a=await handleRoamwiseDiscovery(request,'v1/discovery/search');
+ const body=await a.json();assert.equal(a.status,200);assert.ok(body.count>=2);assert.ok(body.cards[0].url);
+ const b=await handleRoamwiseDiscovery(new Request('https://api.roamwise.co.in/v1/discovery/items/unknown'),'v1/discovery/items/unknown');
+ assert.equal(b.status,404);
+});
+test('MCP fails closed for unknown tool or unapproved listing',async()=>{
+ const unknown=await (await call('tools/call',{name:'delete_booking',arguments:{id:'one'}})).json();
+ assert.equal(unknown.error.code,-32602);
+ const absent=await (await call('tools/call',{name:'get_roamwise_listing',arguments:{id:'private-owner'}})).json();
+ assert.equal(absent.result.structuredContent.found,false);
+});
