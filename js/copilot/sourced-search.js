@@ -68,6 +68,23 @@ function rwTuskWorkerSearch(q,out){
    });
  }).catch(function(){/* other sources remain available */});
 }
+/* Local structured answer when remote AI is down. No PII is sent to public search,
+   and no price, availability or supplier acceptance is invented. */
+function rwTuskOfflinePlanningCard(question){
+ var q=String(question||'');
+ if(!/(?:itinerary|plan|trip|travel|stay|hotel|homestay|tour|holiday|weekend|destination|transport|taxi|flight|train|bus|यात्रा|योजना|सफ़र|ट्रिप|होटल)/i.test(q))return '';
+ // Account, payment and booking reference checks must stay on authenticated rails.
+ if(/(?:\b(?:password|otp|token|pin|payment|refund|account number|booking reference|confirmation code|credit card)\b|[\w.+-]+@[\w.-]+\.[a-z]{2,}|\+?\d[\d\s().-]{9,}\d)/i.test(q))return '';
+ var transport=/(?:transport|taxi|flight|train|bus|transfer|vehicle|cab|रेल|बस|टैक्सी)/i.test(q);
+ var hotel=/(?:stay|hotel|homestay|room|resort|होटल)/i.test(q);
+ var heading=transport?'🚆 Transport plan':hotel?'🏡 Stay shortlist':'🗺️ Trip planning draft';
+ var main=transport
+   ?'<ol><li>Tell me your origin and destination.</li><li>Add departure and return dates, and traveller count.</li><li>Compare train, bus, flight and taxi routes; prioritise electric options where verified.</li><li>Review provider-confirmed availability and payable fares before booking.</li></ol>'
+   :hotel
+   ?'<ol><li>Choose destination, check-in, check-out and number of guests.</li><li>Compare listed properties by location, amenities and confirmed rates.</li><li>Select room and payment option only after the provider confirms availability.</li></ol>'
+   :'<ol><li>Choose destination, travel dates, travellers and total budget.</li><li>Build a day-by-day route with travel time, meals and experiences.</li><li>Compare available stays and transport. Mark missing arrangements.</li><li>Save the plan, then request supplier confirmation before paying.</li></ol>';
+ return '<div class="tk-card rw-tusk-offline" role="status"><div class="tk-head"><div class="tk-place">'+heading+'</div></div><div class="tk-sec"><p><b>Planning mode</b> — live AI is temporarily unavailable, so these are safe next steps, not a verified itinerary or booking.</p>'+main+'<div class="tk-chips"><a class="tk-chip" href="/packages/">Explore packages ↗</a><a class="tk-chip" href="/?rw_open=itineraries">Saved itineraries ↗</a><a class="tk-chip" href="/wallet/">Wallet ↗</a></div></div></div>';
+}
 function rwTuskSearchFailure(thinking,t,intents,err){
  // Avoid made-up dates, schedules and unrelated trek cards if paid AI is down.
  var known=cpSmartAnswer(t)||'';
@@ -76,6 +93,8 @@ function rwTuskSearchFailure(thinking,t,intents,err){
  if(known&&!/^<b>Explore /i.test(known)){
    cpFinish(thinking,known+'<br>'+note,intents,t);return;
  }
+ var localPlan=rwTuskOfflinePlanningCard(t);
+ if(localPlan){cpFinish(thinking,localPlan+'<br>'+note,intents,t);return;}
  if(!rwTuskIsPublicQuery(t)){
    cpFinish(thinking,'<div class="tk-card"><div class="tk-head"><div class="tk-place">🔒 Private question</div></div><div class="tk-sec"><p>Public web lookup was skipped to protect personal or booking details. Remove private details for a general search, or use your secure RoamWise booking page.</p></div></div><br>'+note,intents,t);
    return;
