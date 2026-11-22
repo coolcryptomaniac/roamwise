@@ -1,0 +1,54 @@
+name: Ailon Discovery PR Checks
+on:
+  pull_request:
+    paths:
+      - 'index.html'
+      - 'js/copilot/core.js'
+      - 'js/ui/destination-filmstrip.js'
+      - 'js/ui/home-curated-discovery.js'
+      - 'design/destination-filmstrip.css'
+      - 'knowledge/**'
+      - 'tests/ailon-destination-context.test.cjs'
+      - 'tests/destination-filmstrip.test.cjs'
+      - '.github/workflows/ailon-discovery-check.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  focused-checks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate JS syntax
+        run: |
+          node --check js/copilot/core.js
+          node --check js/ui/destination-filmstrip.js
+          node --check js/ui/home-curated-discovery.js
+          node --check knowledge/tools/build-cloudflare-seeds.cjs
+      - name: Run focused browserless regression tests
+        run: node --test tests/ailon-destination-context.test.cjs tests/destination-filmstrip.test.cjs
+      - name: Prepare draft-only knowledge seed
+        run: |
+          node knowledge/tools/build-cloudflare-seeds.cjs /tmp/roamwise-knowledge-seeds
+          test -f /tmp/roamwise-knowledge-seeds/destinations.candidate.sql
+          test -f /tmp/roamwise-knowledge-seeds/media-rights-review.json
+          if grep -q '"approved_to_upload": true' /tmp/roamwise-knowledge-seeds/media-rights-review.json; then
+            echo 'Generated manifest must never auto-approve uploads' >&2
+            exit 1
+          fi
+      - name: Check D1 schema compatibility locally
+        run: |
+          python3 - <<'PY'
+          import sqlite3
+          conn=sqlite3.connect(':memory:')
+          conn.executescript(open('knowledge/schema/001_public_destination_d1.sql').read())
+          conn.executescript(open('knowledge/schema/002_public_media_faq_itinerary.sql').read())
+          tables={x[0] for x in conn.execute("SELECT name FROM sqlite_master WHERE type='table'")}
+          assert {'public_destination','public_destination_media','public_destination_faq','public_destination_itinerary'} <= tables
+          assert conn.execute('PRAGMA foreign_key_check').fetchall()==[]
+          print('D1 public schemas parsed; no external database touched')
+          PY
