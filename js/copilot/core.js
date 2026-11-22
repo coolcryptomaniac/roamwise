@@ -457,7 +457,9 @@ function rwGeocode(q){
 function rwVerifyDest(parsed){
   if(!parsed || !parsed.dest || !parsed._weakDest) return Promise.resolve(parsed);
   return rwGeocode(parsed.dest).then(function(g){
-    if(g){ parsed.dest=g.name; parsed._geo=g; parsed._weakDest=false; }
+    if(g){ parsed.dest=g.name; parsed._geo=g; parsed._weakDest=false;
+      _cpCtx={dest:parsed.dest, days:parsed.days, budget:parsed.budget};
+    }
     else { parsed._notAPlace=parsed.dest; parsed.dest=null; }   /* honest: we don't know */
     return parsed;
   });
@@ -616,9 +618,16 @@ function cpParseRegex(t){
   /* travel STYLE words: "shoestring" is a style, not a rupee figure */
   if(/shoe\s*string|shoestring|bare\s*bones|barebones|backpack(er|ing)?|cheapest|sasta|low\s*budget|tight\s*budget/i.test(t)) out.style='budget';
   else if(/luxur(y|ious)|lavish|5\s*star|premium|shaandaar/i.test(t)) out.style='luxury';
+  /* A new place must win over old chat context, even if this place is not yet
+     in the small curated DB. Otherwise the parser keeps reusing the previous
+     destination when somebody asks for a different worldwide city. */
+  var explicitNewPlace = /\b(?:trip|journey|travel|visit|visiting|explore|stay|staying|plan|planning|go|going)\b.{0,32}\b(?:to|in|near|around|at|for)\s+(?!the\b|a\b|my\b|next\b|this\b|under\b|below\b|within\b)[A-Za-z\u00c0-\u024f]{3,}/i.test(t);
+  if(!explicitNewPlace && /\b(?:what|how) about\s+[A-Z][a-z\u00c0-\u024f]{2,}/.test(t))
+    explicitNewPlace=true;
+  if(explicitNewPlace)out._explicitNewPlace=true;
   if(_cpCtx && !out._recommendCount){
     var refersBack = /\b(there|here|that place|it|same|also|and|what about|how about)\b/i.test(t) || !out.dest;
-    if(!out.dest && refersBack && _cpCtx.dest){ out.dest = _cpCtx.dest; out._inherited = true; }
+    if(!out.dest && refersBack && !explicitNewPlace && _cpCtx.dest){ out.dest = _cpCtx.dest; out._inherited = true; }
     /* days/budget belong to a TRIP, not to the user forever. Carrying \u20b98,500
        from an Almora chat into a brand-new Switzerland request produced a
        nonsense "won't cover" verdict for a budget the user never stated. Only
@@ -689,15 +698,16 @@ function cpParseRegex(t){
   }
   /* a weak leftover token ("busget" typo) that isn't a known place loses to
      the destination we already know from this conversation */
-  if(!out._country && out._weakDest && _cpCtx && _cpCtx.dest && out.dest && !rwKnownMap()[String(out.dest).toLowerCase()]){
+  if(!explicitNewPlace && !out._country && out._weakDest && _cpCtx && _cpCtx.dest && out.dest && !rwKnownMap()[String(out.dest).toLowerCase()]){
     /* never inherit a destination that was itself a parse slip */
     if(!RW_COMMON_WORDS.test(String(_cpCtx.dest))){ out.dest = _cpCtx.dest; out._inherited = true; }
   }
   /* and never REMEMBER a common-word destination for future turns */
   if(out.dest && RW_COMMON_WORDS.test(String(out.dest)) && !rwKnownMap()[String(out.dest).toLowerCase()]) out._weakDest = true;
   var _junk = out.dest && RW_COMMON_WORDS.test(String(out.dest)) && !rwKnownMap()[String(out.dest).toLowerCase()];
-  if(out.dest && !_junk) _cpCtx = {dest:out.dest, days:out.days, budget:out.budget};
+  if(out.dest && !_junk && !out._weakDest) _cpCtx = {dest:out.dest, days:out.days, budget:out.budget};
   else if(out._country) _cpCtx = {dest:null, days:out.days, budget:out.budget, country:out._country};
+  else if(explicitNewPlace && (!out.dest || out._weakDest)) _cpCtx = null; /* no stale city while geocoding */
   /* learn what this user tends to ask for — powers personalisation over time */
   try{ rwLearnIntent(out); }catch(e){ /* best-effort, ignore */ }
   return out;
