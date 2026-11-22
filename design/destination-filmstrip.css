@@ -28,3 +28,42 @@
 #copilotHero .rw-tusk-ai-settings:focus-visible{outline:3px solid #ffd48f;outline-offset:2px}
 @media(max-width:600px){#rwDestinationsRail{padding:12px 8px 14px;margin:12px auto 18px}#rwDestinationTrack .rw-destination-card{flex-basis:72vw;max-width:276px}#rwDestinationsRail .rw-destinations-top{align-items:center}#rwDestinationsRail .rw-destinations-top p{max-width:220px}#copilotHero .tusk-title em{display:none}}
 @media(prefers-reduced-motion:reduce){#rwDestinationTrack{scroll-behavior:auto!important}#rwDestinationTrack .rw-destination-card{transition:none!important;transform:none!important}}
+
+
+/* Preserve the user's earlier spacious Ailon Tusk design in the default
+   Himalayan Saanjh theme, without altering either selectable legacy skin.
+   These selectors deliberately outrank previous compact mobile overrides. */
+html[data-rw-design="himalayan-saanjh"] body.shell[data-view="home"] #copilotHero{
+  background:linear-gradient(145deg,#1b1530,#110f23)!important;
+  border:1.5px solid #8d6aca!important;
+  border-radius:24px!important;
+  padding:17px 15px!important;
+  box-shadow:0 14px 32px #05020f88!important;
+}
+html[data-rw-design="himalayan-saanjh"] body.shell[data-view="home"] #copilotHero .copilot-compose{
+  min-height:0!important;height:auto!important;display:block!important;
+  background:linear-gradient(145deg,#11101f,#191226)!important;
+  border:1.5px solid #a779af!important;
+  padding:14px!important;border-radius:24px!important;
+  box-shadow:inset 0 0 0 1px #f2cf9e14,0 8px 22px #07041470!important;
+}
+html[data-rw-design="himalayan-saanjh"] body.shell[data-view="home"] #copilotHero #heroInput{
+  height:146px!important;min-height:146px!important;max-height:320px!important;
+  padding:10px 9px 53px!important;line-height:1.55!important;
+  font-size:16px!important;resize:vertical;
+}
+html[data-rw-design="himalayan-saanjh"] body.shell[data-view="home"] #copilotHero .copilot-compose:focus-within #heroInput{
+  height:184px!important;min-height:184px!important;
+}
+html[data-rw-design="himalayan-saanjh"] body.shell[data-view="home"] #copilotHero .tusk-title em{
+  display:inline!important;opacity:.75;font-size:12px;
+}
+html[data-rw-design="himalayan-saanjh"] body.shell[data-view="home"] #copilotHero .rw-tusk-voice-entry{
+  background:linear-gradient(115deg,#593ba1,#3d468d)!important;
+  color:#fff!important;border:1px solid #a18eea!important;
+}
+@media(max-width:600px){
+ html[data-rw-design="himalayan-saanjh"] body.shell[data-view="home"] #copilotHero .tusk-title em{
+   display:none!important;
+ }
+}
