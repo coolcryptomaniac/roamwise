@@ -68,8 +68,15 @@
     existing.focus();
     // User taps Send; opening a destination never silently submits a query or books.
   }
+  function visibleStayCount(d) {
+    const records = Array.isArray(W.RW_PARTNER_SEED) ? W.RW_PARTNER_SEED : [];
+    const norm = v => clean(v).toLocaleLowerCase('en').replace(/[^a-z0-9]/g, '');
+    return records.filter(p => p && p.cat === 'stay' &&
+      norm(p.zone) === norm(d.name) &&
+      typeof W.rwStayPublicEligible === 'function' && W.rwStayPublicEligible(p)).length;
+  }
   function staysURL(d) {
-    return '/escapes/?' + new URLSearchParams({ zone: d.name }).toString();
+    return '/escapes/?' + new URLSearchParams({ zone: d.name }).toString() + '#request-quote';
   }
   function chooser(d) {
     let ov = document.getElementById('rwWorldChoice');
@@ -90,11 +97,14 @@
     closeButton.type = 'button'; closeButton.setAttribute('aria-label', 'Close destination choices');
     closeButton.addEventListener('click', close);
     const head = make('h3', '', d.name + ', ' + d.country);
-    const sub = make('p', '', 'Build your trip or browse stays. Availability and prices are confirmed separately.');
+    const count = visibleStayCount(d);
+    const sub = make('p', '', count
+      ? count + ' RoamWise partner listing' + (count===1?'':'s') + ' found for this place. Prices and availability require confirmation.'
+      : 'No verified RoamWise stay is listed for this place in the public seed yet. You can still request help finding accommodation.');
     const actions = make('div', 'rw-world-choice-actions');
     const planButton = make('button', '', '✦ Plan with Ailon');
     planButton.type = 'button'; planButton.addEventListener('click', () => {close();plan(d);});
-    const browse = make('a', '', '⌂ Find stays'); browse.href = staysURL(d);
+    const browse = make('a', '', count ? '⌂ Request stay quote' : '⌂ Ask about stays'); browse.href = staysURL(d);
     actions.append(planButton, browse); pane.append(closeButton, head, sub, actions);
     ov.replaceChildren(pane); ov.hidden = false; closeButton.focus();
   }
@@ -118,7 +128,7 @@
     const actions = make('div', 'rw-world-actions');
     const planBtn = make('button', '', 'Plan trip');
     planBtn.type='button'; planBtn.addEventListener('click', () => plan(d));
-    const stay = make('a', '', 'Find stays'); stay.href=staysURL(d);
+    const stay = make('a', '', visibleStayCount(d) ? 'Check stays' : 'Ask for stay'); stay.href=staysURL(d);
     actions.append(planBtn, stay); info.append(actions); item.append(photo, info);
     return item;
   }
