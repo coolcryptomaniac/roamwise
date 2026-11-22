@@ -278,10 +278,10 @@ const ROWS=[
   ""
  ],
  [
-  "naukuchiatal-outer",
-  "Naukuchiatal Valley",
-  "K",
-  "lakeside villages;birding;quiet stays",
+  "goa",
+  "Goa",
+  "O",
+  "Panaji;Old Goa;beach villages",
   ""
  ],
  [
@@ -1194,7 +1194,7 @@ export function searchTravelAtlas(query){
  const q=' '+normalize(query)+' ';
  const matched=[];
  for(const entry of entries){
-   const aliases=[entry.name,...entry.aliases];
+   const aliases=[entry.name,entry.id.replace(/-/g,' '),...entry.aliases];
    let score=0;
    for(const a of aliases){
      const key=' '+normalize(a)+' ';
