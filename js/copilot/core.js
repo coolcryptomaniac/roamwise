@@ -823,7 +823,7 @@ function copilotSend(fromHero){
     if(_sa){ aiText = _sa; }   /* pasted link/text: AI gets the instruction; parser, cache and feedback keep the user's own words */
   }catch(e){ /* best-effort, ignore */ }
   /* App navigation intents: "open settings", "go to store", "show my trips"… */
-  var NAV=[[/settings|api key/i,'Settings',function(){openSettings();}],
+  var NAV=[[/settings|api key/i,'Settings',function(){openSettings(true);}],
     [/store|merch/i,'the Store',function(){tabGo('home');var st=el('store');if(st){var fh=st.querySelector('.fold-head');if(fh&&!fh.classList.contains('open'))fh.click();st.scrollIntoView({behavior:'smooth'});}}],
     [/music/i,'your Music',function(){openMusic();}],
     [/profile|account/i,'your Profile',function(){openProfile();}],
