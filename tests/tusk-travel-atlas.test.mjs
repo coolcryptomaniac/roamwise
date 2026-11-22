@@ -74,13 +74,15 @@ test('Worker answers atlas questions before paid external providers, but retains
 });
 test('mobile card uses escaped text and links only to a reviewed reference page',()=>{
  const file=fs.readFileSync(new URL('../js/copilot/core.js',import.meta.url),'utf8');
- const start=file.indexOf('function rwAtlasAnswerHTML(q,res){');
+ const cards=fs.readFileSync(new URL('../js/copilot/atlas-cards.js',import.meta.url),'utf8');
+ const start=file.indexOf('function rwWebAnswerHTML(q,res){');
  const end=file.indexOf('/* One canonical known-place map',start);
  assert.ok(start>=0&&end>start);
+ assert.match(cards,/function rwAtlasAnswerHTML/);
  const ctx={
   URL,esc2:(s)=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))
  };
- vm.createContext(ctx);vm.runInContext(file.slice(start,end),ctx);
+ vm.createContext(ctx);vm.runInContext(cards+'\n'+file.slice(start,end),ctx);
  const data=atlasAnswer('Almora itinerary local food famous people photo');
  const input={
    abs:data.summary,hits:data.hits.map(x=>({u:x.url,t:x.title,s:x.source})),
@@ -100,9 +102,11 @@ test('mobile card uses escaped text and links only to a reviewed reference page'
 
 test('hosted Ailon retrieves destination-only public grounding before model generation',()=>{
  const core=fs.readFileSync(new URL('../js/copilot/core.js',import.meta.url),'utf8');
- assert.ok(core.includes("var question='Travel guide to '+String(intents.dest)"));
- assert.match(core,/rwTuskWorkerSearch\(question,source\)/);
- assert.match(core,/_rwAtlasContext/);
+ const grounding=fs.readFileSync(new URL('../js/copilot/atlas-grounding.js',import.meta.url),'utf8');
+ assert.ok(grounding.includes("var question='Travel guide to '+String(dest)"));
+ assert.match(grounding,/rwTuskWorkerSearch\(question,source\)/);
+ assert.match(core,/rwAtlasGroundGuide\(intents\.dest,base\)/);
+ assert.match(grounding,/_rwAtlasContext/);
  assert.match(core,/do not present editorial suggestions as verified facts/);
 });
 
