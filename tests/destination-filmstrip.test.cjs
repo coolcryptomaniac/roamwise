@@ -74,6 +74,6 @@ test('missing destination photo becomes a branded fallback; no Pollinations depe
 });
 test('source includes R2 media path guard and avoids synthetic payment orders',()=>{
   assert.match(source,/RW_DEST_MEDIA/);
-  assert.match(source,/assets\.roamwise\.co\.in/);
+  assert.ok(source.includes('assets\\.roamwise\\.co\\.in'), 'strict trusted media hostname pattern is present');
   assert.doesNotMatch(source,/cashfree\/order|paymentSessionId/);
 });
