@@ -157,6 +157,42 @@
     back.addEventListener('click',()=>track.scrollBy({left:-Math.min(540,track.clientWidth*.8),behavior:'smooth'}));
     next.addEventListener('click',()=>track.scrollBy({left:Math.min(540,track.clientWidth*.8),behavior:'smooth'}));
   }
+  function mountCategoryDeck() {
+    const sales=document.getElementById('rwSalesCarousels');
+    if(!sales || document.getElementById('rwCategoryDeck'))return;
+    const section=make('section','rw-category-deck v v-home');
+    section.id='rwCategoryDeck';section.setAttribute('aria-label','Explore and book categories');
+    section.append(make('h2','','Explore & Book'));
+    const grid=make('div','rw-category-grid');
+    const items=[
+      {id:'rwSalesStays',cat:'stays',label:'Stays & hotels',fallback:'🏡'},
+      {id:'rwSalesWeddings',cat:'weddings',label:'Destination weddings',fallback:'💍'},
+      {id:'rwSalesPackages',cat:'stays',label:'Travel packages',fallback:'🧭'},
+      {id:'rwSalesShop',cat:'shop',label:'RoamWise shop',fallback:'🛍️'}
+    ];
+    items.forEach((item,i)=>{
+      const button=make('button','rw-category-item');
+      button.type='button';button.setAttribute('aria-label','Explore '+item.label);
+      const art=make('span','rw-category-art',item.fallback);
+      art.style.background='linear-gradient(130deg,'+gradient[i%gradient.length]+',#131323)';
+      const imgSource=sales.querySelector('#'+item.id+' .rw-sales-card img');
+      if(imgSource && imgSource.getAttribute('src')){
+        const img=document.createElement('img');
+        img.src=imgSource.getAttribute('src');img.alt='';
+        img.loading='lazy';img.decoding='async';
+        img.onerror=()=>img.remove();art.append(img);
+      }
+      button.append(art,make('strong','',item.label));
+      button.addEventListener('click',()=>{
+        const filter=document.querySelector('#rwDiscoverFilters button[data-category="'+item.cat+'"]');
+        if(filter)filter.click();
+        sales.scrollIntoView({behavior:'smooth',block:'start'});
+      });
+      grid.append(button);
+    });
+    section.append(grid);
+    sales.insertAdjacentElement('beforebegin',section);
+  }
   function mountAiSettings() {
     const hero = document.getElementById('copilotHero');
     const title = hero && hero.querySelector('.tusk-title');
@@ -217,7 +253,7 @@
     fetch('/data/ailon/media-manifest-v1.json',{cache:'force-cache',signal:controller.signal})
       .then(r=>r.ok?r.json():null).then(j=>{
         if(j && j.version===1 && j.assets && typeof j.assets==='object')media=j.assets;
-      }).catch(()=>{}).finally(()=>{clearTimeout(stop);mountWorldRail();});
+      }).catch(()=>{}).finally(()=>{clearTimeout(stop);mountWorldRail();mountCategoryDeck();});
   });
   W.RWAilonWorld = { destinationPool, staysURL, modeChoices: modes.map(x=>x[0]) };
 })();
