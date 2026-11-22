@@ -1,0 +1,79 @@
+/* RoamWise mobile-first storefront: one prominent action, easy thumb navigation.
+ * Layered after legacy themes; applies only to the four-tab Ailon-first shell. */
+body.shell[data-view="home"] #rwSalesCarousels{
+  display:block!important;box-sizing:border-box;
+  width:min(calc(100% - 24px),1080px);max-width:1080px;
+  margin:18px auto 28px!important;padding:0 4px!important;
+}
+body.shell[data-view="home"] #rwSalesCarousels [hidden],
+body.shell[data-view="home"] #rwSalesCarousels .rw-trackheading[hidden],
+body.shell[data-view="home"] #rwSalesCarousels .rw-sales-track[hidden] {display:none!important}
+#rwSalesShop{display:flex!important}
+#rwSalesShop[hidden]{display:none!important}
+#rwSalesCarousels .rw-discovery-heading{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin:3px 4px 13px}
+#rwSalesCarousels .rw-discovery-eyebrow{margin:0 0 5px;color:#e8be83;text-transform:uppercase;letter-spacing:.15em;font-size:10px;font-weight:850}
+#rwSalesCarousels .rw-discovery-heading h2{font-size:clamp(22px,4vw,30px);line-height:1.18;letter-spacing:-.03em;color:#fff1e0;margin:0}
+#rwSalesCarousels .rw-discovery-sub{font-size:12.5px;line-height:1.45;color:#baaac8;margin:5px 0 0}
+#rwDiscoverFilters{display:flex;gap:8px;overflow-x:auto;scroll-snap-type:x proximity;scrollbar-width:none;-webkit-overflow-scrolling:touch;padding:4px 4px 12px;margin:0 0 13px}
+#rwDiscoverFilters::-webkit-scrollbar{display:none}
+#rwDiscoverFilters button{white-space:nowrap;flex:0 0 auto;min-height:44px;scroll-snap-align:start;border:1px solid #6f5676;background:#231a30;color:#eee0f6;border-radius:999px;padding:9px 14px;font:750 12.5px/1.2 system-ui,sans-serif;cursor:pointer}
+#rwDiscoverFilters button.selected{background:#edc783;color:#20172b;border-color:#edc783;box-shadow:0 2px 12px #e9ad5040}
+#rwDiscoverFilters button:focus-visible,#rwSalesCarousels a:focus-visible{outline:3px solid #f9d8ad;outline-offset:3px}
+#rwSalesCarousels .rw-trackheading{margin:5px 3px 7px}
+#rwSalesCarousels .rw-trackheading h2{font-size:clamp(18px,3vw,23px);font-weight:800;line-height:1.25;color:#f4d9aa}
+#rwSalesCarousels .rw-arrow{min-width:43px;min-height:43px}
+#rwSalesCarousels .rw-sales-track{gap:13px;scroll-padding:4px;padding:6px 3px 15px;scroll-snap-type:x mandatory}
+#rwSalesCarousels .rw-sales-card{
+  flex:0 0 min(312px,86vw)!important;min-height:0!important;max-width:312px;
+  border:1px solid rgba(204,175,226,.48)!important;border-radius:20px;
+  background:#21192e!important;box-shadow:0 9px 25px #05000f55!important;
+  transition:transform .16s ease,border-color .16s ease;
+}
+#rwSalesCarousels .rw-sales-card:hover,#rwSalesCarousels .rw-sales-card:focus-visible{border-color:#edc783!important;transform:translateY(-2px)}
+#rwSalesCarousels .rw-sales-card img{height:176px!important;object-fit:cover}
+#rwSalesCarousels .rw-sales-copy{min-height:0!important;padding:14px!important;gap:8px!important}
+#rwSalesCarousels .rw-sales-copy strong{font-size:16px;line-height:1.32;letter-spacing:-.01em}
+#rwSalesCarousels .rw-sales-copy small{font-size:12.4px;line-height:1.5;color:#d9c8db}
+#rwSalesCarousels .rw-sales-copy b{font-size:12px;border-radius:11px;padding:11px 12px;min-height:44px;display:flex;justify-content:center;align-items:center}
+#rwSalesCarousels .rw-sales-copy .rw-price{font-size:16px}
+#rwSalesCarousels .rw-feature-track-desc{margin:2px 4px 10px;color:#d0bfda;font-size:12.5px;line-height:1.55}
+#rwSalesCarousels .rw-itinerary-card,#rwSalesCarousels .rw-corporate-card{
+  flex:0 0 min(334px,88vw);max-width:334px;min-height:305px;display:flex;flex-direction:column;
+  overflow:hidden;position:relative;scroll-snap-align:start;border-radius:20px;
+  border:1px solid rgba(217,188,234,.5);background:linear-gradient(145deg,#221830,#18162f);
+  color:#f9ebff;text-decoration:none;box-shadow:0 9px 25px #05000f66
+}
+#rwSalesCarousels .rw-itinerary-art{height:151px;display:flex;flex-direction:column;justify-content:flex-end;padding:17px;position:relative;overflow:hidden;background:radial-gradient(circle at 80% 30%,#8c8dc477,transparent 48%),linear-gradient(145deg,#49305a,#19394c)}
+#rwSalesCarousels .rw-itinerary-art:after{content:"";position:absolute;width:260px;height:220px;top:75px;right:-60px;border:2px solid #eac39d77;border-radius:47%;transform:rotate(-23deg)}
+#rwSalesCarousels .rw-itinerary-art h3{position:relative;z-index:1;margin:5px 0 0;font-size:23px;line-height:1.1;letter-spacing:-.035em;color:white}
+#rwSalesCarousels .rw-itinerary-art .rw-itin-icon{font-size:29px;line-height:1}
+#rwSalesCarousels .rw-itinerary-art .rw-itin-kicker{font-size:10px;letter-spacing:.11em;text-transform:uppercase;font-weight:800;color:#fbe3b5}
+#rwSalesCarousels .rw-itinerary-art.ladakh{background:radial-gradient(circle at 80% 20%,#e2bb8266,transparent 55%),linear-gradient(130deg,#75484e,#293c66)}
+#rwSalesCarousels .rw-itinerary-art.rishikesh{background:radial-gradient(circle at 75% 30%,#b5f4c555,transparent 55%),linear-gradient(130deg,#275e54,#2b304c)}
+#rwSalesCarousels .rw-itin-body{padding:14px;display:grid;gap:10px;flex:1}
+#rwSalesCarousels .rw-itin-route{font-size:12.5px;line-height:1.55;color:#e4cfdf}
+#rwSalesCarousels .rw-itin-facts{display:flex;gap:6px;flex-wrap:wrap}
+#rwSalesCarousels .rw-itin-facts span{border:1px solid #69516f;border-radius:100px;font-size:10.5px;color:#ebd5f0;padding:5px 8px}
+#rwSalesCarousels .rw-itin-actions{display:flex;gap:8px;margin-top:auto}
+#rwSalesCarousels .rw-itin-actions a{min-height:44px;flex:1;text-decoration:none;border-radius:12px;padding:11px 10px;display:grid;place-items:center;font-size:12px;font-weight:800;border:1px solid #b392cb;color:#fff}
+#rwSalesCarousels .rw-itin-actions a:first-child{background:#ebc481;color:#23172c;border-color:#ebc481}
+#rwSalesCarousels .rw-corporate-card{min-height:245px;padding:22px;gap:11px;justify-content:space-between}
+#rwSalesCarousels .rw-corporate-card h3{font-size:21px;line-height:1.2;letter-spacing:-.03em;margin:0}
+#rwSalesCarousels .rw-corporate-card p{color:#dfd1e4;font-size:13px;line-height:1.55;margin:0}
+#rwSalesCarousels .rw-corporate-card .rw-corp-label{font-size:10px;text-transform:uppercase;letter-spacing:.12em;font-weight:800;color:#f1c58b}
+#rwSalesCarousels .rw-corporate-card a{border-radius:12px;background:#eec985;color:#241a34;min-height:44px;padding:11px 14px;text-decoration:none;text-align:center;font-weight:800;font-size:12px}
+body.shell[data-view="copilot"] .nav .sw-tabs,
+body.shell[data-view="copilot"] #xpChip,
+body.shell[data-view="copilot"] #modeChip,
+body.shell[data-view="copilot"] #rwAudioQuickToggle,
+body.shell[data-view="copilot"] #rwSettingsShortcut {display:none!important}
+@media(max-width:650px){
+ body.shell #copilotHero{margin:12px auto 10px!important;width:calc(100% - 20px)!important;padding:16px 13px!important}
+ body.shell #copilotHero #heroInput{height:103px!important;min-height:103px!important;max-height:230px!important;padding:8px 6px 48px!important;font-size:15px!important}
+ body.shell #copilotHero #heroInput:focus{height:128px!important}
+ body.shell #copilotHero .copilot-compose{padding:8px 10px!important}
+ body.shell #copilotHero .tusk-title{margin-bottom:11px}
+ body.shell #rwTuskDesk{width:calc(100% - 20px);padding:15px!important}
+ #rwSalesCarousels .rw-sales-card{flex-basis:82vw!important}
+}
+@media(prefers-reduced-motion:reduce){#rwSalesCarousels .rw-sales-card{transition:none!important}}
