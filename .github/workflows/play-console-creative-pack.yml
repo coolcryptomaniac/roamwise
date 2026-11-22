@@ -13,7 +13,7 @@ permissions:
 
 jobs:
   creative:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 12
     steps:
       - uses: actions/checkout@v4
@@ -26,7 +26,6 @@ jobs:
         with:
           node-version: '22'
       - name: Install headless browser for real public screenshots
-        continue-on-error: true
         run: |
           npm install --no-save --no-package-lock --ignore-scripts playwright@1.58.2
           npx playwright install --with-deps chromium
