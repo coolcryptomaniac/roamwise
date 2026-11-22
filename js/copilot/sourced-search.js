@@ -63,6 +63,7 @@ function rwTuskWorkerSearch(q,out){
        food:(Array.isArray(a.food)?a.food:[]).slice(0,6).map(function(x){return String(x).slice(0,70);}),
        people:(Array.isArray(a.people)?a.people:[]).slice(0,8).map(function(p){return {name:String(p.name||'').slice(0,90),context:String(p.context||'').slice(0,160)};}),
        highlights:(Array.isArray(a.highlights)?a.highlights:[]).slice(0,8).map(function(x){return String(x).slice(0,90);}),
+       facts:(Array.isArray(a.facts)?a.facts:[]).slice(0,5).map(function(x){return String(x).slice(0,230);}),
        photo:{
          referencePage:String(a.photo&&a.photo.referencePage||'').slice(0,300),
          rights:'not-cleared',displayAllowed:false
