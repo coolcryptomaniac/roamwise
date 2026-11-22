@@ -96,8 +96,15 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v5
         with:
+          # Unique on retries: GitHub retains artifacts from earlier attempts in the same run.
+          name: github-pages-${{ github.run_attempt }}
           # The optimised copy built above (same content as the repository, smaller scripts)
           path: '_site'
+      - name: Allow Pages artifact metadata to propagate
+        # GitHub's artifact API can briefly return no metadata after a successful upload.
+        run: sleep 12
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v5
+        with:
+          artifact_name: github-pages-${{ github.run_attempt }}
