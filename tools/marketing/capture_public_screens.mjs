@@ -11,7 +11,7 @@ try{
  page.on('pageerror',err=>console.log('page-error:',String(err).slice(0,160)));
  const response=await page.goto('https://roamwise.co.in/',{waitUntil:'domcontentloaded',timeout:45000});
  console.log('Live homepage response:',response?.status());
- await page.waitForTimeout(800);
+ await page.waitForTimeout(2600);
  // The site's cinematic opening covers the real UI unless dismissed. Screenshots
  // must show genuine application content, never four identical intro frames.
  const skip=page.locator('#rwOpening .rw-skip');
