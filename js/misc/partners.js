@@ -56,6 +56,7 @@ function rwPartnersSync(){
         if(el('partnersOut')) rwPartnersRender();
         if(typeof rwListingRepaint==='function') rwListingRepaint();
         if(typeof rwPromoRepaint==='function') rwPromoRepaint();
+        try{document.dispatchEvent(new CustomEvent('rw:partners-refreshed'));}catch(e){/* presentation-only signal */}
       }
     }).catch(function(){});
   }catch(e){ /* best-effort Firestore write, ignore */ }
