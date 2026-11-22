@@ -5,9 +5,9 @@ body.shell[data-view="home"] #rwSalesCarousels{
   width:min(calc(100% - 24px),1080px);max-width:1080px;
   margin:18px auto 28px!important;padding:0 4px!important;
 }
-body.shell[data-view="home"] #rwSalesCarousels [hidden],
-body.shell[data-view="home"] #rwSalesCarousels .rw-trackheading[hidden],
-body.shell[data-view="home"] #rwSalesCarousels .rw-sales-track[hidden] {display:none!important}
+html[data-rw-design] body.shell[data-view="home"] #rwSalesCarousels [hidden],
+html[data-rw-design] body.shell[data-view="home"] #rwSalesCarousels .rw-trackheading[hidden],
+html[data-rw-design] body.shell[data-view="home"] #rwSalesCarousels .rw-sales-track[hidden] {display:none!important}
 #rwSalesShop{display:flex!important}
 #rwSalesShop[hidden]{display:none!important}
 #rwSalesCarousels .rw-discovery-heading{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin:3px 4px 13px}
