@@ -32,6 +32,7 @@
 var RWNotificationComposer = (function(){
   var MAX_TITLE = 100, MAX_BODY = 500, MAX_URL = 500;
   var TARGET_TYPES = ['all','uid'];
+  var CATEGORIES = ['booking','account','safety','travel','offers'];
 
   /** Mirrors worker/handlers/push.js's own field limits (MAX_TITLE/MAX_BODY/
    *  MAX_URL) on the push-notifications branch, so a queued entry is already
@@ -40,13 +41,15 @@ var RWNotificationComposer = (function(){
     var title = String(input && input.title || '').trim().slice(0, MAX_TITLE);
     var body = String(input && input.body || '').trim().slice(0, MAX_BODY);
     var url = String(input && input.url || '').trim().slice(0, MAX_URL);
+    var category = String(input && input.category || 'travel');
+    if(CATEGORIES.indexOf(category) < 0) return {ok:false,error:'Choose a valid notification topic.'};
     var targetType = TARGET_TYPES.indexOf(input && input.targetType) > -1 ? input.targetType : 'all';
     var targetUid = String(input && input.targetUid || '').trim().slice(0, 128);
     if(!title) return { ok:false, error:'Title is required.' };
     if(!body) return { ok:false, error:'Body is required.' };
     if(targetType === 'uid' && !targetUid) return { ok:false, error:'Add a target UID, or switch target to "All users".' };
     return { ok:true, notification: {
-      title: title, body: body, url: url,
+      title: title, body: body, url: url, category: category,
       target: targetType === 'uid' ? { type:'uid', uid:targetUid } : { type:'all' },
       status: 'queued'
     }};
@@ -63,7 +66,7 @@ var RWNotificationComposer = (function(){
     var rows = (queue || []).map(function(n){
       var tag = n.status === 'sent' ? '<span class="tag good">sent</span>' : (n.status === 'failed' ? '<span class="tag warn">failed</span>' : '<span class="tag">queued — not sent</span>');
       return '<div class="row"><div class="grow"><strong>' + esc(n.title) + '</strong> ' + tag +
-        '<div class="meta">' + esc(n.body) + '</div>' +
+        '<div class="meta">' + esc(n.body) + '</div><div class="meta">Topic: ' + esc(n.category || 'legacy') + '</div>' +
         '<div class="meta">To: ' + esc(targetLabel(n.target)) + (n.url ? ' &middot; opens ' + esc(n.url) : '') + ' &middot; queued ' + when(n.createdAt) + '</div></div>' +
         '<div class="actions">' + (n.status === 'queued' ? '<button class="btn small" onclick="markNotificationSent(\'' + esc(n.id) + '\')">Mark sent</button>' : '') +
         '<button class="btn danger small" onclick="deleteNotificationQueueItem(\'' + esc(n.id) + '\')">Delete</button></div></div>';
@@ -73,7 +76,7 @@ var RWNotificationComposer = (function(){
   }
 
   return {
-    MAX_TITLE: MAX_TITLE, MAX_BODY: MAX_BODY, MAX_URL: MAX_URL, TARGET_TYPES: TARGET_TYPES,
+    MAX_TITLE: MAX_TITLE, MAX_BODY: MAX_BODY, MAX_URL: MAX_URL, TARGET_TYPES: TARGET_TYPES, CATEGORIES: CATEGORIES,
     normalizeNotification: normalizeNotification,
     targetLabel: targetLabel,
     renderQueueHtml: renderQueueHtml

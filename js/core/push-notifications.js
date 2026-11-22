@@ -46,6 +46,62 @@
 
 var RW_PUSH_OPTIN_KEY = 'rw_push_optin';   /* '1' | '0' | '' (never asked) */
 var RW_PUSH_DEVICE_KEY = 'rw_push_device_id';
+/* Saved on the signed-in user's Firestore profile; marketing never opts in by default. */
+var RW_PUSH_CATEGORY_DEFAULTS = { booking:true, account:true, safety:true, travel:false, offers:false };
+var RW_PUSH_CATEGORY_LABELS = {
+  booking:['Bookings & trip reminders','Requests, confirmations, check-in and payments'],
+  account:['Account & membership','Security, Pro benefits and important account changes'],
+  safety:['Journey safety','Relevant road, weather and access alerts'],
+  travel:['Travel ideas','Curated places, useful guides and trip inspiration'],
+  offers:['Offers & new perks','Occasional verified deals and membership benefits']
+};
+var rwPushCategoryPrefs = Object.assign({}, RW_PUSH_CATEGORY_DEFAULTS);
+function rwPushSyncCategoryUi(){
+  Object.keys(RW_PUSH_CATEGORY_DEFAULTS).forEach(function(key){
+    var el = document.getElementById('rwPushCategory_'+key);
+    if(el) el.checked = rwPushCategoryPrefs[key] === true;
+  });
+}
+function rwPushLoadCategories(){
+  if(typeof user === 'undefined' || !user || typeof db === 'undefined' || !db) return;
+  var profile = db.collection('users').doc(user.uid);
+  if(!profile || typeof profile.get !== 'function') return;
+  profile.get().then(function(doc){
+    if(typeof user === 'undefined' || !user || user.uid !== doc.id) return;
+    var stored = (doc.exists && doc.data() && doc.data().notificationPrefs) || {};
+    rwPushCategoryPrefs = Object.assign({}, RW_PUSH_CATEGORY_DEFAULTS);
+    Object.keys(RW_PUSH_CATEGORY_DEFAULTS).forEach(function(key){
+      if(typeof stored[key] === 'boolean') rwPushCategoryPrefs[key] = stored[key];
+    });
+    rwPushSyncCategoryUi();
+  }).catch(function(){ /* use conservative defaults; never opt in to marketing */ });
+}
+function rwPushSetCategory(key, enabled){
+  if(!Object.prototype.hasOwnProperty.call(RW_PUSH_CATEGORY_DEFAULTS,key)) return;
+  rwPushCategoryPrefs[key] = !!enabled;
+  rwPushSyncCategoryUi();
+  if(typeof user === 'undefined' || !user || typeof db === 'undefined' || !db) return;
+  var delta = { notificationPrefs:{} };
+  delta.notificationPrefs[key] = !!enabled;
+  db.collection('users').doc(user.uid).set(delta,{merge:true}).catch(function(){
+    rwPushCategoryPrefs[key] = RW_PUSH_CATEGORY_DEFAULTS[key];
+    rwPushSyncCategoryUi();
+    try{ showToast('Could not save notification settings. Please try again.'); }catch(e){}
+  });
+}
+function rwPushOpenTarget(event){
+  try{
+    var payload = event && event.notification || event || {};
+    var d = payload.data || {};
+    var raw = String(d.rw_url || d.url || '');
+    if(!raw){ tabGo('home'); return; }
+    var u = new URL(raw, 'https://www.roamwise.co.in');
+    if(!['roamwise.co.in','www.roamwise.co.in'].includes(u.hostname) || u.protocol !== 'https:') return;
+    // Browser/Capacitor use the same local route. Admin is not bundled into APK.
+    if(u.pathname.startsWith('/admin/')) window.open(u.href,'_blank','noopener');
+    else window.location.assign(u.pathname + u.search + u.hash);
+  }catch(e){ try{ tabGo('home'); }catch(_){} }
+}
 
 /* Stable per-browser-install id, generated once and reused across sessions/
    token refreshes, so re-registering (e.g. after an FCM token rotates)
@@ -92,6 +148,21 @@ function rwPushClearToken(){
   db.collection('users').doc(user.uid).set(patch, {merge:true}).catch(function(){ /* best-effort, ignore */ });
 }
 
+/* Android channels let users quiet travel inspiration without silencing
+   bookings, account messages or relevant safety warnings. */
+function rwPushNativeChannels(PN){
+  if(!PN || !PN.createChannel) return Promise.resolve();
+  var channels = [
+    {id:'rw_booking',name:'Bookings & trips',description:'Bookings, payments and check-in reminders',importance:4},
+    {id:'rw_account',name:'Account',description:'Security and membership updates',importance:4},
+    {id:'rw_safety',name:'Travel safety',description:'Relevant safety and route alerts',importance:4},
+    {id:'rw_travel',name:'Travel inspiration',description:'Opt-in guides and destination ideas',importance:2},
+    {id:'rw_offers',name:'Offers & benefits',description:'Opt-in offers and verified perks',importance:2},
+    {id:'rw_operations',name:'RoamWise team',description:'Staff-only operational digests',importance:2}
+  ];
+  return Promise.all(channels.map(function(c){ return PN.createChannel(c).catch(function(){}); }));
+}
+
 /* -------------------------- ANDROID (Capacitor) -------------------------- */
 function rwPushRegisterNative(){
   if(!(window.Capacitor && Capacitor.Plugins && Capacitor.Plugins.PushNotifications)) return;
@@ -108,7 +179,6 @@ function rwPushRegisterNative(){
         rwPushSyncToggleUi();
         return;
       }
-      PN.register();
       PN.addListener('registration', function(tok){
         try{ rwPushSaveToken(tok.value, 'android'); }catch(e){ /* best-effort, ignore */ }
       });
@@ -116,7 +186,8 @@ function rwPushRegisterNative(){
       PN.addListener('pushNotificationReceived', function(n){
         try{ showToast('📣 '+(n.title||'RoamWise')+(n.body?': '+n.body:'')); }catch(e){ /* toast is a nice-to-have, ignore */ }
       });
-      PN.addListener('pushNotificationActionPerformed', function(){ try{ tabGo('home'); }catch(e){ /* best-effort nav helper, ignore */ } });
+      PN.addListener('pushNotificationActionPerformed', rwPushOpenTarget);
+      rwPushNativeChannels(PN).then(function(){ return PN.register(); }).catch(function(){ /* app remains usable without push */ });
     }).catch(function(){});
   }catch(e){ /* best-effort, ignore */ }
 }
@@ -187,7 +258,19 @@ function rwPushMountToggle(){
     + '<span><b style="display:block;font-size:12.5px">Trip reminders &amp; alerts</b>'
     + '<small style="display:block;color:var(--t2);line-height:1.55;margin-top:3px">Get notified about trip countdowns, price drops, crowd alerts and new guides. Turn off anytime — no repeated prompts.</small></span></label>'
     + (supported ? '' : '<div style="font-size:10px;color:var(--t3);margin-top:6px">Not supported in this browser/app right now.</div>');
+  box.innerHTML += '<details style="margin-top:12px;border:1px solid var(--b2);border-radius:12px;padding:10px 12px"><summary style="cursor:pointer;font-weight:650;font-size:12.5px">Choose notification topics</summary>'
+    + '<div style="display:grid;gap:7px">' + Object.keys(RW_PUSH_CATEGORY_DEFAULTS).map(function(key){
+      var copy = RW_PUSH_CATEGORY_LABELS[key];
+      return '<label style="display:flex;align-items:flex-start;gap:10px;padding:9px 10px;border:1px solid var(--b2);border-radius:11px">'
+        + '<input type="checkbox" data-rw-push-cat="'+key+'" id="rwPushCategory_'+key+'" style="margin-top:3px;accent-color:var(--gold)">'
+        + '<span><b style="display:block;font-size:12px">'+copy[0]+'</b><small style="display:block;color:var(--t2);margin-top:2px">'+copy[1]+'</small></span></label>';
+    }).join('') + '</div>'
+    + '<small style="display:block;color:var(--t3);margin-top:8px">Travel ideas and offers are off until you switch them on. Booking and safety alerts are never advertisements.</small></details>';
   modal.appendChild(box);
+  (box.querySelectorAll ? box.querySelectorAll('[data-rw-push-cat]') : []).forEach(function(el){
+    el.addEventListener('change', function(){ rwPushSetCategory(el.getAttribute('data-rw-push-cat'), el.checked); });
+  });
+  rwPushSyncCategoryUi();
   var toggle = box.querySelector('#rwPushToggle');
   if(toggle) toggle.addEventListener('change', function(e){ rwPushSetOptIn(e.target.checked); });
   rwPushSyncToggleUi();
@@ -238,4 +321,5 @@ function rwPushInit(){
     if(rwPushOptedIn()) rwPushRegisterWhenReady();
   }catch(e){ /* best-effort, ignore */ }
   try{ rwPushMountToggle(); }catch(e){ /* best-effort, ignore */ }
+  try{ rwPushWhenSignedIn(rwPushLoadCategories, 0); }catch(e){ /* best-effort, ignore */ }
 }

@@ -36,6 +36,7 @@ import { json } from '../lib/http.js';
 import { verifyFirebaseIdToken } from '../lib/firebase-verify.js';
 import { getServiceAccountAccessToken, parseServiceAccount } from '../lib/service-account.js';
 import { getDoc, deleteFields } from '../lib/firestore-rest.js';
+import { notificationCategory, preferenceAllows, throttleSeconds } from '../lib/notification-policy.js';
 
 const MAX_TITLE = 100;
 const MAX_BODY = 500;
@@ -62,6 +63,7 @@ function validatePayload(body) {
       return 'url must be an https:// string';
     }
   }
+  if (notificationCategory(body.category) === undefined) return 'unknown notification category';
   if (body.data != null) {
     if (typeof body.data !== 'object' || Array.isArray(body.data)) return 'data must be a flat object';
     const keys = Object.keys(body.data);
@@ -97,10 +99,14 @@ export async function requireAdmin(request, env, projectId) {
 }
 
 export async function sendOne(accessToken, projectId, token, notification, data, url) {
+  const category = data && data.rw_category;
+  const channels = { booking:'rw_booking', account:'rw_account', safety:'rw_safety',
+    travel:'rw_travel', offers:'rw_offers', operations:'rw_operations' };
   const message = {
     token,
     notification,
     ...(data ? { data: Object.fromEntries(Object.entries(data).map(([k, v]) => [k, String(v)])) } : {}),
+    ...(channels[category] ? { android: { notification: { channel_id: channels[category] } } } : {}),
     ...(url ? { webpush: { fcm_options: { link: url } } } : {}),
   };
   const res = await fetch(`https://fcm.googleapis.com/v1/projects/${projectId}/messages:send`, {
@@ -143,6 +149,18 @@ export async function handlePushSend(request, env) {
   if (validationError) return badRequest(validationError);
 
   const userDoc = await getDoc(env, auth.accessToken, projectId, `users/${body.uid}`);
+  const category = notificationCategory(body.category);
+  if (category && !preferenceAllows(category, userDoc && userDoc.notificationPrefs)) {
+    return json({ ok: true, sent: 0, failed: 0, skipped: 'category_disabled', category });
+  }
+  // Promotional/discovery sends must have both user consent and a KV rate-limit.
+  // A missing KV binding fails closed instead of permitting unlimited pushes.
+  const cooldown = throttleSeconds(category);
+  const capKey = cooldown && 'push:category:v1:' + category + ':' + body.uid;
+  if (cooldown) {
+    if (!env.RW_KV) return json({ error: 'rate_limit_unavailable' }, 503);
+    if (await env.RW_KV.get(capKey)) return json({ ok: true, sent: 0, failed: 0, skipped: 'frequency_cap', category });
+  }
   const pushTokens = (userDoc && userDoc.pushTokens) || {};
   const deviceIds = Object.keys(pushTokens).filter((k) => pushTokens[k] && pushTokens[k].token);
   if (!deviceIds.length) return json({ error: 'no_tokens', message: 'target user has no registered devices' }, 404);
@@ -152,7 +170,8 @@ export async function handlePushSend(request, env) {
   const deadFieldPaths = [];
   for (const deviceId of deviceIds) {
     const token = pushTokens[deviceId].token;
-    const result = await sendOne(auth.accessToken, projectId, token, notification, body.data, body.url);
+    const data = category ? { ...(body.data || {}), rw_category: category, ...(body.url ? { rw_url: body.url } : {}) } : body.data;
+    const result = await sendOne(auth.accessToken, projectId, token, notification, data, body.url);
     results.push({ deviceId, platform: pushTokens[deviceId].platform || 'unknown', ok: result.ok });
     if (!result.ok && isDeadToken(result)) deadFieldPaths.push(`pushTokens.${deviceId}`);
   }
@@ -166,5 +185,6 @@ export async function handlePushSend(request, env) {
   }
 
   const sent = results.filter((r) => r.ok).length;
-  return json({ ok: true, sent, failed: results.length - sent, prunedDeadTokens: deadFieldPaths.length, results });
+  if (sent && cooldown) await env.RW_KV.put(capKey, String(Date.now()), { expirationTtl: cooldown });
+  return json({ ok: true, sent, failed: results.length - sent, prunedDeadTokens: deadFieldPaths.length, category, results });
 }

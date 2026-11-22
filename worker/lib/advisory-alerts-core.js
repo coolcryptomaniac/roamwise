@@ -154,7 +154,7 @@ export function buildTeamDigest(feed, today, stats) {
     `New guest stay requests waiting for a reply: ${stats.newLeads == null ? 'n/a' : stats.newLeads}`,
     stale ? `List last reviewed ${feed.checked || 'never'}: run the weekly news scout and update conditions-data.js.` : `List last reviewed ${feed.checked}.`,
   ];
-  const push = { title: `RoamWise daily: ${active.length} advisories, ${stats.affectedBookings || 0} stays affected`.slice(0, 80), body: (expiring.length ? `${expiring.length} expiring soon. ` : '') + (stale ? 'Advisory list needs a review.' : 'Advisory list is current.'), url: 'https://www.roamwise.co.in/admin/' };
+  const push = { title: `RoamWise Ops: ${active.length} travel advisories`.slice(0, 80), body: `Staff summary · ${stats.affectedBookings || 0} stays affected. ` + (stale ? 'Review dated sources in Admin.' : 'Sources reviewed.'), url: 'https://www.roamwise.co.in/admin/' };
   const html = shell(`Daily travel-safety digest · ${today}`, '<ul>' + lines.map((l) => `<li>${esc(l)}</li>`).join('') + '</ul>' + (active.length ? '<p><b>Live advisories</b></p>' + advHtml(active) : ''));
   const text = `Daily travel-safety digest ${today}\n\n` + lines.map((l) => '- ' + l).join('\n') + (active.length ? `\n\nLive advisories:\n${advText(active)}` : '');
   return { push, email: { subject: `RoamWise travel-safety digest ${today}`, html, text }, lines, stale };
