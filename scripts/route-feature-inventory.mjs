@@ -49,7 +49,9 @@ const pages=files.map(file=>{
   if(link)links.push(link);
  }
  return {route:pageUrl(file),source:path.relative(root,file).replaceAll(path.sep,'/'),
-  links:links.length,broken:[...new Set(links.filter(x=>!x.found).map(x=>x.route))].sort(),
+  links:links.length,outboundRoutes:[...new Set(links.map(x=>x.route))].sort(),
+  category:/^\/(?:shop|packages|wallet|credit|pay|pricing)/.test(pageUrl(file))?'Commerce':/^\/(?:creators|partner|partners|network|local-business)/.test(pageUrl(file))?'Partners & creators':/^\/(?:admin|staff|team)/.test(pageUrl(file))?'Operations':/^\/(?:itinerary|guides|blog|treks|map|tools|pilgrimage|kainchi)/.test(pageUrl(file))?'Travel content':'General',
+  broken:[...new Set(links.filter(x=>!x.found).map(x=>x.route))].sort(),
   commercial:/\b(?:cashfree|wallet|checkout|buy now|book now|booking|package|shop|artist|wedding)\b/i.test(html)};
 });
 const broken=pages.flatMap(p=>p.broken.map(route=>({from:p.route,to:route})));
