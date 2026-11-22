@@ -45,12 +45,12 @@ function render(payload){
   const media=document.createElement('div');media.className='media';
   if(typeof item.image_url==='string'&&item.image_url.startsWith('https://www.roamwise.co.in/')){
    const img=document.createElement('img');img.src=item.image_url;img.alt='Photo for '+item.title;img.loading='lazy';img.referrerPolicy='no-referrer';media.append(img);
-  }else{const icon=document.createElement('span');icon.className='fallback';icon.textContent=item.category==='artist'?'🎨':item.category==='stay'?'🏡':'✦';media.append(icon)}
+  }else{const icon=document.createElement('span');icon.className='fallback';icon.textContent=item.category==='artist'?'🎨':item.category==='stay'?'🏡':item.category==='package'?'🧭':'✦';media.append(icon)}
   const inner=document.createElement('div');inner.className='inner';
-  const category=document.createElement('span');category.className='pill';category.textContent=item.category==='stay'?'Stay · Enquire':item.category==='artist'?'Featured artist':'Travel assistant';
+  const category=document.createElement('span');category.className='pill';category.textContent=item.category==='stay'?'Stay · Enquire':item.category==='package'?'Package · Enquire':item.category==='artist'?'Featured artist':'Travel assistant';
   const title=document.createElement('h2');title.textContent=item.title||'RoamWise listing';
   const desc=document.createElement('p');desc.textContent=item.subtitle||item.region||'';
-  const btn=document.createElement('button');btn.className='action';btn.textContent=item.category==='stay'?'View & enquire':'View profile';btn.addEventListener('click',()=>openSafe(item.url));
+  const btn=document.createElement('button');btn.className='action';btn.textContent=['stay','package'].includes(item.category)?'View & enquire':'View profile';btn.addEventListener('click',()=>openSafe(item.url));
   inner.append(category,title,desc,btn);card.append(media,inner);rail.append(card);
  }
 }
