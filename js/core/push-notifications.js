@@ -258,14 +258,14 @@ function rwPushMountToggle(){
     + '<span><b style="display:block;font-size:12.5px">Trip reminders &amp; alerts</b>'
     + '<small style="display:block;color:var(--t2);line-height:1.55;margin-top:3px">Get notified about trip countdowns, price drops, crowd alerts and new guides. Turn off anytime — no repeated prompts.</small></span></label>'
     + (supported ? '' : '<div style="font-size:10px;color:var(--t3);margin-top:6px">Not supported in this browser/app right now.</div>');
-  box.innerHTML += '<div class="key-sec-title" style="margin-top:14px">Choose notification topics</div>'
+  box.innerHTML += '<details style="margin-top:12px;border:1px solid var(--b2);border-radius:12px;padding:10px 12px"><summary style="cursor:pointer;font-weight:650;font-size:12.5px">Choose notification topics</summary>'
     + '<div style="display:grid;gap:7px">' + Object.keys(RW_PUSH_CATEGORY_DEFAULTS).map(function(key){
       var copy = RW_PUSH_CATEGORY_LABELS[key];
       return '<label style="display:flex;align-items:flex-start;gap:10px;padding:9px 10px;border:1px solid var(--b2);border-radius:11px">'
         + '<input type="checkbox" data-rw-push-cat="'+key+'" id="rwPushCategory_'+key+'" style="margin-top:3px;accent-color:var(--gold)">'
         + '<span><b style="display:block;font-size:12px">'+copy[0]+'</b><small style="display:block;color:var(--t2);margin-top:2px">'+copy[1]+'</small></span></label>';
     }).join('') + '</div>'
-    + '<small style="display:block;color:var(--t3);margin-top:8px">Travel ideas and offers are off until you switch them on. Booking and safety alerts are never advertisements.</small>';
+    + '<small style="display:block;color:var(--t3);margin-top:8px">Travel ideas and offers are off until you switch them on. Booking and safety alerts are never advertisements.</small></details>';
   modal.appendChild(box);
   (box.querySelectorAll ? box.querySelectorAll('[data-rw-push-cat]') : []).forEach(function(el){
     el.addEventListener('change', function(){ rwPushSetCategory(el.getAttribute('data-rw-push-cat'), el.checked); });
