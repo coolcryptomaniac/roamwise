@@ -12,7 +12,7 @@ export const ROAMWISE_CARDS_HTML=String.raw`<!doctype html>
 .top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}
 .brand{display:flex;align-items:center;gap:10px;min-width:0}
 .mark{width:35px;height:35px;border-radius:12px;background:#262044;color:#eacf8e;display:grid;place-items:center;font-size:20px;flex-shrink:0}
-.eyebrow{font-size:10px;letter-spacing:.13em;font-weight:780;text-transform:uppercase;color:#73648c}
+.mark img{height:100%;width:100%;object-fit:contain;border-radius:12px}.eyebrow{font-size:10px;letter-spacing:.13em;font-weight:780;text-transform:uppercase;color:#73648c}
 h1{font-size:16px;line-height:1.2;letter-spacing:-.02em;margin:2px 0 0;color:#242039}
 .nav{display:flex;gap:6px}
 button{cursor:pointer;border:1px solid #dcd9e7;background:white;color:#302743;border-radius:12px;min-height:44px;padding:10px 12px;touch-action:manipulation}
@@ -53,7 +53,7 @@ h2{margin:0;font-size:18px;letter-spacing:-.035em;line-height:1.17;color:#242039
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;animation:none!important}}
 </style></head>
 <body><main class="shell" aria-label="RoamWise interactive discovery">
-<header class="top"><div class="brand"><div class="mark" aria-hidden="true">✦</div><div><div class="eyebrow">RoamWise · Curated by people</div><h1 id="headline">Discover the extraordinary.</h1></div></div><div class="nav"><button id="prev" type="button" aria-label="Previous card">‹</button><button id="next" type="button" aria-label="Next card">›</button></div></header>
+<header class="top"><div class="brand"><div class="mark"><img src="https://www.roamwise.co.in/assets/img/roamwise-logo-176.webp" width="35" height="35" alt="RoamWise"></div><div><div class="eyebrow">RoamWise · Curated by people</div><h1 id="headline">Discover the extraordinary.</h1></div></div><div class="nav"><button id="prev" type="button" aria-label="Previous card">‹</button><button id="next" type="button" aria-label="Next card">›</button></div></header>
 <section class="rail" id="rail" aria-label="Listings" aria-live="polite"><p class="small">Loading approved listings…</p></section>
 <section id="panel" class="panel" aria-label="Review quote"></section>
 <p class="footer">Artwork and room availability are not guaranteed by a listing. All purchases require separate approval and secure checkout.</p>
