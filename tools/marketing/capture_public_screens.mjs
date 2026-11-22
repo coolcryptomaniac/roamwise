@@ -8,6 +8,11 @@ mkdirSync(dir,{recursive:true});
 const browser=await chromium.launch({headless:true,args:['--no-sandbox']});
 try{
  const page=await browser.newPage({viewport:{width:390,height:694},deviceScaleFactor:1,isMobile:true,hasTouch:true});
+ // The public app's first-run welcome walkthrough obscures commerce.
+ // Suppress it only in this isolated screenshot browser; production is unchanged.
+ await page.addInitScript(()=>{
+   try{localStorage.setItem('rw_onboarded','1');sessionStorage.setItem('rw_intro','1');}catch(e){}
+ });
  page.on('pageerror',err=>console.log('page-error:',String(err).slice(0,160)));
  const response=await page.goto('https://roamwise.co.in/',{waitUntil:'domcontentloaded',timeout:45000});
  console.log('Live homepage response:',response?.status());
@@ -19,6 +24,12 @@ try{
  await page.locator('#rwOpening').waitFor({state:'hidden',timeout:14000}).catch(()=>{});
  if(await page.locator('#rwOpening').count() && await page.locator('#rwOpening').isVisible())
    throw new Error('Cinematic intro still covers UI: refusing misleading Play screenshots');
+ const onboarding=page.locator('#rwOnboardOv.open');
+ if(await onboarding.count() && await onboarding.isVisible()){
+   await onboarding.locator('button[onclick*="rwOnboardDone"]').first().click({timeout:5000});
+ }
+ if(await page.locator('#rwOnboardOv.open').count() && await page.locator('#rwOnboardOv.open').isVisible())
+   throw new Error('Onboarding walkthrough still covers UI: refusing misleading Play screenshots');
  await page.waitForTimeout(750);
  const shots=[
   ['ailon','copilotHero'],
