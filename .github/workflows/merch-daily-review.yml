@@ -49,7 +49,7 @@ jobs:
         run: |
           set -euo pipefail
           TODAY=$(TZ=Asia/Kolkata date +%F)
-          node -e "const fs=require('fs');fs.writeFileSync('shop/daily-run-status.json',JSON.stringify({schemaVersion:'1.0.0',dateIST:process.env.TODAY||'$TODAY',lastRunUTC:new Date().toISOString(),purpose:'review-only artwork, no Qikink SKU or checkout activation'},null,2)+'\\n');"
+          node -e "const fs=require('fs');fs.writeFileSync('shop/daily-run-status.json',JSON.stringify({schemaVersion:'1.0.0',dateIST:'$TODAY',lastRunUTC:new Date().toISOString(),purpose:'review-only artwork, no Qikink SKU or checkout activation'},null,2));"
           git config user.name "roamwise-merch-bot"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           # Do not stage generated 300-DPI binaries, secrets, build/, or customer data.
