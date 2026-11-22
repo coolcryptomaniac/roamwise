@@ -2,7 +2,7 @@
  * This UI never handles payment, owner data, credentials or booking state.
  */
 export const ROAMWISE_CARDS_URI='ui://roamwise-discovery/cards-v1.html';
-export const ROAMWISE_CARDS_HTML=String.raw\`<!doctype html>
+export const ROAMWISE_CARDS_HTML=String.raw`<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>RoamWise listings</title>
 <style>
@@ -68,4 +68,4 @@ document.getElementById('next').addEventListener('click',()=>rail.scrollBy({left
 if(window.openai?.toolOutput)accept({structuredContent:window.openai.toolOutput});
 send('ui/initialize',{protocolVersion:'2026-01-26',appInfo:{name:'roamwise-cards',version:'1.0.0'},appCapabilities:{availableDisplayModes:['inline','fullscreen']}},1);
 })();
-</script></body></html>\`;
+</script></body></html>`;
