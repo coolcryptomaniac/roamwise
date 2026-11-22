@@ -5,14 +5,15 @@
 (function(){
  'use strict';
  var GROUPS={
-   stays:['rwSalesStays','rwSalesPackages'],
+   stays:['rwSalesStays','rwSalesPackages','rwSalesWeddings'],
    itineraries:['rwSalesItineraries'],
    artists:['rwSalesArtists'],
    shop:['rwSalesShop'],
-   teams:['rwSalesCorporate','rwSalesWeddings'],
+   teams:['rwSalesCorporate'],
+   weddings:['rwSalesWeddings'],
    adventures:['rwTreksRail','rwEventsRail']
  };
- var TITLES={stays:'Stays & packages',itineraries:'Itineraries',artists:'Artists',shop:'Shop',teams:'Teams & HR',adventures:'Treks & events'};
+ var TITLES={stays:'Stays & packages',itineraries:'Itineraries',artists:'Artists',shop:'Shop',teams:'Corporate',weddings:'Weddings',adventures:'Treks & events'};
  function mount(){
   var section=document.getElementById('rwSalesCarousels'),nav=document.getElementById('rwDiscoverFilters');
   if(!section||!nav||nav.dataset.ready==='1')return;
@@ -65,13 +66,17 @@
   });
   function select(cat,scroll){
    active=cat;
+   /* The Weddings rail intentionally belongs to both Stays and Weddings.
+      Apply visibility once per DOM node, not once per category: otherwise
+      whichever category is visited last can incorrectly hide a shared rail. */
+   var shown=groups[cat]||[],visited=[];
    Object.keys(groups).forEach(function(key){
     groups[key].forEach(function(node){
-     if(!node)return;
-     node.hidden=key!==cat;
-     // Some rails have a script-controlled hidden attribute; only reveal
-     // the wrapper if there is actual approved material to show.
-     if(key===cat&&(node.id==='rwEventsRail'||node.id==='rwTreksRail')){
+     if(!node||visited.indexOf(node)!==-1)return;
+     visited.push(node);
+     node.hidden=shown.indexOf(node)===-1;
+     // Dynamic rails must contain approved cards before being revealed.
+     if(!node.hidden&&(node.id==='rwEventsRail'||node.id==='rwTreksRail')){
        var inner=node.querySelector('.rw-sales-track');
        if(!inner||!inner.querySelector('.rw-sales-card'))node.hidden=true;
      }
