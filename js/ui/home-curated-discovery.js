@@ -9,10 +9,11 @@
    itineraries:['rwSalesItineraries'],
    artists:['rwSalesArtists'],
    shop:['rwSalesShop'],
-   teams:['rwSalesCorporate','rwSalesWeddings'],
+   teams:['rwSalesCorporate'],
+   weddings:['rwSalesWeddings'],
    adventures:['rwTreksRail','rwEventsRail']
  };
- var TITLES={stays:'Stays & packages',itineraries:'Itineraries',artists:'Artists',shop:'Shop',teams:'Teams & HR',adventures:'Treks & events'};
+ var TITLES={stays:'Stays & packages',itineraries:'Itineraries',artists:'Artists',shop:'Shop',teams:'Teams & HR',weddings:'💍 Weddings',adventures:'Treks & events'};
  function mount(){
   var section=document.getElementById('rwSalesCarousels'),nav=document.getElementById('rwDiscoverFilters');
   if(!section||!nav||nav.dataset.ready==='1')return;
