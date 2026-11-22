@@ -69,7 +69,7 @@ export async function runAdvisoryAlerts(env, opts = {}) {
       else {
         const dead = [];
         for (const t of tokens) {
-          const r = await sendOne(token, projectId, t.token, { title: msg.push.title, body: msg.push.body }, null, msg.push.url);
+          const r = await sendOne(token, projectId, t.token, { title: msg.push.title, body: msg.push.body }, { rw_category: 'safety', rw_url: msg.push.url }, msg.push.url);
           if (r.ok) delivered = true; else if (isDeadToken(r)) dead.push(`pushTokens.${t.deviceId}`);
         }
         if (dead.length) await deleteFields(env, token, projectId, `users/${uid}`, dead).catch(() => {});
@@ -166,7 +166,7 @@ export async function runAdvisoryAlerts(env, opts = {}) {
       const user = await getDoc(env, token, projectId, `users/${a.id}`).catch(() => null);
       for (const t of user ? pushTokensOf(user) : []) {
         if (dry) { sent++; continue; }
-        const r = await sendOne(token, projectId, t.token, { title: d.push.title, body: d.push.body }, null, d.push.url);
+        const r = await sendOne(token, projectId, t.token, { title: d.push.title, body: d.push.body }, { rw_category: 'operations', rw_url: d.push.url }, d.push.url);
         if (r.ok) sent++;
       }
     }
