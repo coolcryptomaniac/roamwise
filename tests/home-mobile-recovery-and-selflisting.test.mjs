@@ -39,6 +39,8 @@ test('MOU-checked self-listings survive Firestore merge into the app directory',
 test('stay cards draw self-listed public MOU records from live Firestore source without paid route',()=>{
  const source=read('partner/stays-hub.js');
  assert.match(source,/root\.RW_PARTNERS/);
+ assert.match(source,/RW_STAYS_PUBLIC_LIVE/);
+ assert.match(source,/selfListed\.mouVersion===\x27RW-PMOU-2026-09-27-V4\x27/);
  assert.match(source,/dynamic\.concat\(seed\)/);
  assert.match(source,/p\.enquiryOnly\?\{\}:live\[p\.id\]/);
  assert.match(source,/Enquiry only/);
