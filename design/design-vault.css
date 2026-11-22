@@ -52,6 +52,32 @@ html[data-rw-design="buransh-bazaar"] body.shell[data-view="home"] #rwSalesCarou
  html[data-rw-design] body.shell[data-view="home"] .nav-right .rw-vault-wallet-link::before {content:"👛";font-size:17px;}
  html[data-rw-design="himalayan-saanjh"] #copilotHero .tusk-title em {display:none;}
 }
+/* Calm, readable Ailon itinerary cards: uses existing verified itinerary-rescue markup. */
+html[data-rw-design="himalayan-saanjh"] .rw-tusk-itinerary {
+ background:linear-gradient(155deg,#111a31,#171429)!important;border:1px solid #9c82b966!important;
+ border-radius:20px!important;box-shadow:0 12px 28px #0005;overflow:hidden;
+ color:#f3f0f8!important;margin:12px 0;
+}
+html[data-rw-design="himalayan-saanjh"] .rw-tusk-itinerary .tk-head {
+ padding:16px 18px!important;background:linear-gradient(115deg,#28213e,#15182b)!important;
+ border-bottom:1px solid #d5b47744;
+}
+html[data-rw-design="himalayan-saanjh"] .rw-tusk-itinerary .tk-place {
+ font-size:clamp(17px,3vw,23px)!important;line-height:1.3;font-weight:800;color:#fce1ac!important;
+}
+html[data-rw-design="himalayan-saanjh"] .rw-tusk-itinerary .tk-meta {color:#cec4e0!important;font-size:11px;}
+html[data-rw-design="himalayan-saanjh"] .rw-tusk-itinerary .tk-sec {padding:14px 17px!important;font-size:13px!important;line-height:1.65!important;}
+html[data-rw-design="himalayan-saanjh"] .rw-tusk-itinerary details {
+ border:1px solid #b9a2cb55!important;border-radius:14px!important;
+ padding:12px 13px!important;background:#1a2137!important;color:#eee7f5!important;
+}
+html[data-rw-design="himalayan-saanjh"] .rw-tusk-itinerary details summary {
+ color:#f6d48c!important;font-size:14px!important;line-height:1.4;min-height:30px;
+}
+html[data-rw-design="himalayan-saanjh"] .rw-tusk-itinerary .tk-chip {
+ display:inline-flex;min-height:42px;align-items:center;border-radius:12px;
+ background:#e8ba6c!important;color:#16121a!important;font-weight:800!important;text-decoration:none;
+}
 @media(prefers-reduced-motion:reduce) {
  html[data-rw-design] #rwSalesCarousels *,html[data-rw-design] #brand-ambassador *{animation:none!important;transition:none!important;scroll-behavior:auto!important;}
 }
