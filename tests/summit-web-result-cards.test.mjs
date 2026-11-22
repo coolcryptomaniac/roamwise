@@ -18,7 +18,17 @@ test('result sources appear as swipeable accessible cards',()=>{
   assert.match(html,/scroll-snap-type:x mandatory/);
   assert.match(html,/Timetable page/);
   assert.match(html,/Source|source/);
-  assert.match(html,/Google Search/);
+  assert.match(html,/RoamWise guides/);
+  assert.doesNotMatch(html,/External Google search|External DuckDuckGo/);
+  assert.match(html,/aria-label="Search sources"/);
+});
+
+test('external search links are offered only with explicit opt-in',()=>{
+  context.rwTuskExternalSourcesEnabled=()=>true;
+  const html=render('BTS 2026 public programme',{hits:[]});
+  assert.match(html,/External Google search/);
+  assert.match(html,/External DuckDuckGo/);
+  context.rwTuskExternalSourcesEnabled=()=>false;
 });
 
 test('unsafe external links are omitted, even when provider returns HTML',()=>{
