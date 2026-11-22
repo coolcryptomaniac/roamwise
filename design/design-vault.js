@@ -62,7 +62,7 @@
   }
   function initCarousels(){
     if(typeof window.rwCarousel!=='function')return;
-    ['rwSalesStays','rwSalesPackages','rwSalesWeddings','rwSalesShop'].forEach(function(id){
+    ['rwSalesArtists','rwSalesStays','rwSalesPackages','rwSalesWeddings','rwSalesShop'].forEach(function(id){
       var track=document.getElementById(id);
       if(track&&track.querySelectorAll('.rw-sales-card').length>1)window.rwCarousel(track,{auto:5700});
     });
