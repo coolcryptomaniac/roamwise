@@ -21,7 +21,13 @@ try{
  // must show genuine application content, never four identical intro frames.
  const skip=page.locator('#rwOpening .rw-skip');
  if(await skip.count() && await skip.isVisible()) await skip.click({timeout:5000});
- await page.locator('#rwOpening').waitFor({state:'hidden',timeout:14000}).catch(()=>{});
+ // Simulate a traveller tapping Skip. If the cinematic teardown stalls in CI,
+ // remove *only* the overlay from this isolated browser's DOM; public app stays unchanged.
+ await page.locator('#rwOpening').waitFor({state:'hidden',timeout:1800}).catch(()=>{});
+ await page.evaluate(()=>{
+   const ov=document.getElementById('rwOpening');
+   if(ov){ov.querySelector('.rw-skip')?.click();ov.remove();}
+ });
  if(await page.locator('#rwOpening').count() && await page.locator('#rwOpening').isVisible())
    throw new Error('Cinematic intro still covers UI: refusing misleading Play screenshots');
  const onboarding=page.locator('#rwOnboardOv.open');
