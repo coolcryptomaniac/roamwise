@@ -46,6 +46,8 @@ test('new default shrinks legacy 214px mobile composer without disturbing select
  const block=css.slice(css.indexOf('Mobile Ailon compactness fix:'));
  assert.match(block,/min-height:0!important;height:auto!important/);
  assert.match(block,/grid-template-rows:minmax\(78px,auto\) auto!important/);
+ assert.match(block,/copilot-compose:focus-within #heroInput/);
+ assert.match(block,/height:142px!important;min-height:142px!important/);
  assert.match(block,/max-width:600px/);
  assert.match(block,/himalayan-saanjh/);
  assert.doesNotMatch(block,/kasar-cloud|buransh-bazaar/);
