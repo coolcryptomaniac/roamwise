@@ -502,6 +502,8 @@ body[data-view="home"] #rwEveryday,body[data-view="home"] #promofilm {display:no
 <link rel="stylesheet" href="design/home-mobile-recovery.css?v=20261122-2">
 <script src="js/ui/home-mobile-recovery.js?v=20261122-2" defer></script>
 <script src="js/ui/home-curated-discovery.js?v=20261122" defer></script>
+<link rel="stylesheet" href="design/destination-filmstrip.css?v=20261123">
+<script src="js/ui/destination-filmstrip.js?v=20261123" defer></script>
 </head>
 <body class="rw-akatsuki-theme shell" data-view="home">
 <div id="rwVeil" role="status" aria-live="polite"><img src="/assets/img/roamwise-logo-176.webp" alt="" width="72" height="72" fetchpriority="high"><span>Roam<b>Wise</b></span><i></i><small>Getting things ready…</small></div>
@@ -564,7 +566,7 @@ body[data-view="home"] #rwEveryday,body[data-view="home"] #promofilm {display:no
 
 <!-- ============ COPILOT HERO — the front door, Claude-style ============ -->
 <section class="v v-home v-copilot" id="copilotHero" style="margin:16px 14px 8px">
-  <div class="tusk-title"><span>✦</span><b>Ailon Tusk</b><em>· one place for your whole journey</em></div>
+  <div class="tusk-title"><span>✦</span><b>Ailon Tusk</b><em>· one place for your whole journey</em><button class="rw-tusk-ai-settings" type="button" onclick="openSettings()" aria-label="AI settings: provider, BYOK, privacy and voice options" title="Configure Ailon Tusk">⚙ AI settings</button></div>
   <div class="rw-tusk-hero-tools"><button type="button" class="rw-tusk-voice-entry" onclick="RWTuskVoiceStudio.start()" aria-label="Start Ailon Tusk voice conversation">🎙️ Voice Mode</button><label for="rwHomeVoiceLang" style="font-size:12px">Language <select id="rwHomeVoiceLang" aria-label="Voice language" style="background:#211832;color:#f7e9ff;border:1px solid #866caa;border-radius:9px;padding:5px;font-size:12px"><option value="en-IN">English</option><option value="hi-IN">हिन्दी</option><option value="kn-IN">ಕನ್ನಡ</option><option value="ta-IN">தமிழ்</option><option value="te-IN">తెలుగు</option><option value="bn-IN">বাংলা</option><option value="mr-IN">मराठी</option><option value="ml-IN">മലയാളം</option></select></label><span style="font-size:10px">Device support varies</span></div>
   <div id="heroLog" style="display:none;margin-bottom:10px;max-height:52vh;overflow-y:auto"></div>
   <div class="copilot-compose" style="position:relative;background:linear-gradient(180deg,var(--bg2,#12121C),rgba(18,18,28,.55));border:1.5px solid rgba(232,186,108,.35);border-radius:22px;padding:14px;box-shadow:0 8px 30px rgba(0,0,0,.35)">
@@ -599,6 +601,16 @@ body[data-view="home"] #rwEveryday,body[data-view="home"] #promofilm {display:no
 
 <!-- Quick access (js/ui/home-quick-access.js): stays, transport, experiences, groups and More -->
 <nav class="v v-home" id="rwQuick" aria-label="Quick access"></nav>
+<!-- Lazy local-first destinations: no Pollinations calls, no fake availability. -->
+<section class="v v-home" id="rwDestinationsRail" aria-label="Explore destinations with Ailon Tusk">
+  <div class="rw-destinations-top">
+    <div><h2>🌍 Explore destinations</h2><p>Swipe around the world. Plan with Ailon or discover stays; listing availability must be confirmed.</p></div>
+    <div class="rw-destinations-controls"><button id="rwDestinationPrev" type="button" aria-label="Scroll destinations left">‹</button><button id="rwDestinationNext" type="button" aria-label="Scroll destinations right">›</button></div>
+  </div>
+  <div class="rw-destination-track" id="rwDestinationTrack" tabindex="0" role="region" aria-roledescription="carousel" aria-label="Browse destinations horizontally"></div>
+  <small id="rwDestinationCount" aria-live="polite">Loading curated destinations…</small>
+  <noscript><a href="/itinerary-library/">Browse the itinerary library</a></noscript>
+</section>
 <!-- Partner discovery: useful entry points without a cluttered second navigation bar. -->
 <section class="v v-home" id="rwPartnerFrontdoors" aria-label="Grow and collaborate with RoamWise">
  <h2>Bring your world to RoamWise</h2>
