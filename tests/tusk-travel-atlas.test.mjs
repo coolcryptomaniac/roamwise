@@ -100,7 +100,7 @@ test('mobile card uses escaped text and links only to a reviewed reference page'
 
 test('hosted Ailon retrieves destination-only public grounding before model generation',()=>{
  const core=fs.readFileSync(new URL('../js/copilot/core.js',import.meta.url),'utf8');
- assert.match(core,/Travel guide to '+String\(intents.dest\)/);
+ assert.ok(core.includes("var question='Travel guide to '+String(intents.dest)"));
  assert.match(core,/rwTuskWorkerSearch\(question,source\)/);
  assert.match(core,/_rwAtlasContext/);
  assert.match(core,/do not present editorial suggestions as verified facts/);
