@@ -1,0 +1,73 @@
+name: RoamWise Hosting Parity Watch
+
+# Read-only. Does not create orders, change DNS or select a backup provider.
+on:
+  schedule:
+    - cron: '23 */6 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: roamwise-hosting-parity
+  cancel-in-progress: false
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+      - name: Check live and Cloudflare staging site
+        id: probe
+        continue-on-error: true
+        env:
+          RW_LIVE_SITE_URL: ${{ vars.RW_LIVE_SITE_URL }}
+          RW_CLOUDFLARE_SITE_URL: ${{ vars.RW_CLOUDFLARE_SITE_URL }}
+        run: |
+          # Empty GitHub variables must not erase the monitor's defaults.
+          [ -n "$RW_LIVE_SITE_URL" ] || export RW_LIVE_SITE_URL=https://roamwise.co.in
+          [ -n "$RW_CLOUDFLARE_SITE_URL" ] || export RW_CLOUDFLARE_SITE_URL=https://roamwise-web.pages.dev
+          node tools/ai-ops/hosting-parity.cjs
+      - name: Upload read-only diagnostic report
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: hosting-parity-report
+          path: hosting-parity-result.json
+          if-no-files-found: ignore
+          retention-days: 14
+      - name: Open one hosting incident if check fails
+        if: steps.probe.outcome == 'failure'
+        uses: actions/github-script@v9
+        with:
+          script: |
+            const fs = require('fs');
+            const title = '[Hosting] RoamWise website parity check failed';
+            const data = fs.existsSync('hosting-parity-result.json')
+              ? JSON.parse(fs.readFileSync('hosting-parity-result.json', 'utf8')) : {};
+            const failures = Array.isArray(data.results)
+              ? data.results.filter(x => !x.ok).map(x => `- ${x.site} ${x.page}: ${x.detail}`) : ['- Monitor did not produce a report'];
+            const issues = await github.paginate(github.rest.issues.listForRepo, {
+              owner: context.repo.owner, repo: context.repo.repo, state: 'open', per_page: 100
+            });
+            if (issues.some(x => x.title === title && !x.pull_request)) return;
+            await github.rest.issues.create({
+              owner: context.repo.owner, repo: context.repo.repo, title,
+              body: [
+                'Public, read-only availability checks failed:',
+                ...failures, '',
+                'This does NOT prove an authentication or Cashfree payment failure. It does NOT initiate failover.',
+                'Check Firebase Authorized Domains, actual Google sign-in, Cashfree-approved domains, Worker health, and the sandbox checkout manually.',
+                'Do not switch production domain/DNS until verified. Never post API keys or customer data.',
+                `Run: ${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`
+              ].join('\n'),
+              labels: ['agent-report']
+            });
+      - name: Preserve failure status
+        if: steps.probe.outcome == 'failure'
+        run: exit 1
