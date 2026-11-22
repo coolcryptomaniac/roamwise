@@ -24,7 +24,8 @@ function pageUrl(file){
 }
 function target(raw){
  if(!raw||raw.startsWith('#')||/^(?:https?:|mailto:|tel:|sms:|javascript:|data:|blob:|\/\/)/i.test(raw))return null;
- if(/[{}$<>]/.test(raw))return null;
+ // Ignore JS template concatenations such as href="/'+esc(url)+'"; these are runtime links, not literal routes.
+ if(/[{}$<>'"`]/.test(raw))return null;
  let clean=raw.split(/[?#]/)[0].trim();
  if(!clean)return null;
  try{clean=decodeURIComponent(clean);}catch(e){return null;}
