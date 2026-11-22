@@ -252,39 +252,42 @@ function cpSmartAnswer(t){ if(t===window.rwTripAiFor && window.RWTripDesk && RWT
   }
   return null;
 }
-/* ==================== MINI WEB LOOKUP ====================
-   When the curated DB and guide APIs come up empty, search the free open web:
-   Wikipedia's search API + DuckDuckGo's Instant Answer API — both keyless and
-   CORS-open. NOT Google crawling (blocked + against ToS); the card links out to
-   full Google / DuckDuckGo results in one tap, which covers the same need. */
+/* ==================== ROAMWISE-FIRST KNOWLEDGE LOOKUP ====================
+   Consult the RoamWise Worker (approved facts, optional reviewed KB) BEFORE
+   any other service. External browser queries require an explicit opt-in. */
 async function rwMiniSearch(q){
-  // All providers below are public, including Wikipedia and DuckDuckGo.
-  // Never transmit sensitive queries even when the Worker rejects them.
   if(typeof rwTuskIsPublicQuery!=='function'||!rwTuskIsPublicQuery(q))return null;
   q=String(q||'').slice(0,140);
-  var out={abs:null, absSrc:null, absUrl:null, hits:[]};
-  var jobs=[];
-  jobs.push(rwTuskWorkerSearch(q,out));
-  jobs.push(fetch('https://api.duckduckgo.com/?q='+encodeURIComponent(q)+'&format=json&no_html=1&skip_disambig=1')
-    .then(function(r){return r.json();}).then(function(d){
-      var a=d.AbstractText||d.Answer||d.Definition||'';
-      if(a && !out.trustedSummary){ out.abs=String(a).slice(0,420); out.absSrc=d.AbstractSource||'DuckDuckGo'; out.absUrl=d.AbstractURL||''; }
-      (d.RelatedTopics||[]).slice(0,3).forEach(function(x){
-        if(x && x.Text && x.FirstURL) out.hits.push({t:String(x.Text).slice(0,110), u:x.FirstURL, s:'DDG'});
-      });
-    }).catch(function(){}));
-  jobs.push(fetch('https://en.wikipedia.org/w/rest.php/v1/search/page?q='+encodeURIComponent(q)+'&limit=3')
-    .then(function(r){return r.json();}).then(function(d){
-      (d.pages||[]).forEach(function(pg){
-        out.hits.push({t:pg.title+(pg.description? ' — '+pg.description : ''), u:'https://en.wikipedia.org/wiki/'+encodeURIComponent(pg.key), s:'Wikipedia'});
-      });
-      if(!out.abs && d.pages && d.pages[0] && d.pages[0].excerpt){
-        out.abs=String(d.pages[0].excerpt).replace(/<[^>]*>/g,'').slice(0,320); out.absSrc='Wikipedia';
-        out.absUrl='https://en.wikipedia.org/wiki/'+encodeURIComponent(d.pages[0].key);
-      }
-    }).catch(function(){}));
-  try{ await Promise.all(jobs); }catch(e){ /* best-effort, ignore */ }
-  return (out.abs || out.hits.length) ? out : null;
+  var out={abs:null,absSrc:null,absUrl:null,hits:[]};
+  // Sequential retrieval: no third party receives queries with a local answer.
+  if(typeof rwTuskWorkerSearch==='function'){
+    try{await rwTuskWorkerSearch(q,out);}catch(e){/* no inferred answer */}
+  }
+  if(out.abs||out.hits.length)return out;
+  if(typeof rwTuskExternalSourcesEnabled!=='function'||!rwTuskExternalSourcesEnabled())return null;
+  // The traveller explicitly enabled public fallbacks in Settings.
+  await Promise.all([
+    fetch('https://api.duckduckgo.com/?q='+encodeURIComponent(q)+'&format=json&no_html=1&skip_disambig=1')
+      .then(function(r){return r.json();}).then(function(d){
+        var a=d.AbstractText||d.Answer||d.Definition||'';
+        if(a){out.abs=String(a).slice(0,420);out.absSrc=d.AbstractSource||'DuckDuckGo';out.absUrl=d.AbstractURL||'';}
+        (d.RelatedTopics||[]).slice(0,3).forEach(function(x){
+          if(x&&x.Text&&x.FirstURL)out.hits.push({t:String(x.Text).slice(0,110),u:x.FirstURL,s:'DDG'});
+        });
+      }).catch(function(){}),
+    fetch('https://en.wikipedia.org/w/rest.php/v1/search/page?q='+encodeURIComponent(q)+'&limit=3')
+      .then(function(r){return r.json();}).then(function(d){
+        (d.pages||[]).forEach(function(pg){
+          out.hits.push({t:pg.title+(pg.description?' — '+pg.description:''),u:'https://en.wikipedia.org/wiki/'+encodeURIComponent(pg.key),s:'Wikipedia'});
+        });
+        if(!out.abs&&d.pages&&d.pages[0]&&d.pages[0].excerpt){
+          out.abs=String(d.pages[0].excerpt).replace(/<[^>]*>/g,'').slice(0,320);
+          out.absSrc='Wikipedia';
+          out.absUrl='https://en.wikipedia.org/wiki/'+encodeURIComponent(d.pages[0].key);
+        }
+      }).catch(function(){})
+  ]);
+  return (out.abs||out.hits.length)?out:null;
 }
 function rwWebAnswerHTML(q,res){
   // Public web matches are leads for verification, not a model-certified answer.
@@ -296,7 +299,7 @@ function rwWebAnswerHTML(q,res){
   }
   var summary=String(res&&res.abs||'').slice(0,650);
   var hits=Array.isArray(res&&res.hits)?res.hits.filter(function(hit){return safe(hit.u);}).slice(0,6):[];
-  var out='<div class="tk-card rw-search-results"><div class="tk-head" style="background:linear-gradient(140deg,#273052,#151f36)"><div class="tk-place">🔎 Sources to explore</div>'
+  var out='<div class="tk-card rw-search-results"><div class="tk-head" style="background:linear-gradient(140deg,#273052,#151f36)"><div class="tk-place">🏔 RoamWise knowledge & sources</div>'
     +'<div class="tk-meta">Public web results · '+esc2(String(q).slice(0,85))+'</div></div><div class="tk-sec">';
   if(summary){
     out+='<div style="font-size:12.5px;line-height:1.65;margin-bottom:8px">'+esc2(summary)+'</div>'
@@ -318,8 +321,8 @@ function rwWebAnswerHTML(q,res){
       }).join('')+'</div>';
   }
   if(!hits.length&&!summary)out+='<p>Search providers returned no confirmed matches. Try a more precise public question or use an official organiser website.</p>';
-  out+='<div class="tk-chips" style="margin-top:9px"><a class="tk-chip" style="text-decoration:none" target="_blank" rel="noopener" href="'+g+'">🌐 Google Search ↗</a>'
-    +'<a class="tk-chip" style="text-decoration:none" target="_blank" rel="noopener" href="'+dd+'">DuckDuckGo ↗</a></div>'
+  out+='<div class="tk-chips" style="margin-top:9px"><a class="tk-chip" href="/guides/">RoamWise guides ↗</a><a class="tk-chip" href="/packages/">Explore packages ↗</a>'
+    +((typeof rwTuskExternalSourcesEnabled==='function'&&rwTuskExternalSourcesEnabled())?'<a class="tk-chip" target="_blank" rel="noopener noreferrer" href="'+g+'">External Google search ↗</a><a class="tk-chip" target="_blank" rel="noopener noreferrer" href="'+dd+'">External DuckDuckGo ↗</a>':'')+'</div>'
     +'<p style="font-size:10px;color:var(--t3);margin-top:10px">These are linked source excerpts, not independent fact-checking. Live lookup may be unavailable when the search service is not configured.</p></div></div>';
   return out;
 }
