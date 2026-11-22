@@ -47,7 +47,12 @@
    if(found){
      var img=el('img');img.src=found.src;img.loading='lazy';img.decoding='async';
      img.alt=place.name+' — '+found.note;
-     img.addEventListener('error',function(){if(img.parentNode)img.parentNode.removeChild(img);media.classList.add('rw-photo-fallback');});
+     img.addEventListener('error',function(){
+       if(img.parentNode)img.parentNode.removeChild(img);
+       media.classList.add('rw-photo-fallback');
+       media.appendChild(el('span','rw-destination-mark',place.name.slice(0,1).toUpperCase()));
+       if(credit)credit.textContent='Photo unavailable · explore the destination';
+     });
      media.appendChild(img);
      var credit=el('span','rw-destination-credit',found.note);media.appendChild(credit);
    }else{
@@ -107,6 +112,9 @@
    if(prev)prev.addEventListener('click',function(){move(-1)});
    if(next)next.addEventListener('click',function(){move(1)});
  }
- if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);
- else init();
+ /* defer scripts can execute with document.readyState === 'interactive' while
+    later deferred destination data scripts have NOT executed yet. DOMContentLoaded
+    fires after all deferred scripts, so wait unless loading is fully complete. */
+ if(document.readyState==='complete')init();
+ else document.addEventListener('DOMContentLoaded',init,{once:true});
 })(window);
