@@ -28,12 +28,13 @@
   // Mirror only already-published, self-listed MOU-approved stay records.
   // These are ENQUIRY ONLY. Never display host pricing, contact data or payment.
   function addPublicCards(){
-    var partners=Array.isArray(window.RW_PARTNERS)?window.RW_PARTNERS:[];
+    var W=/** @type {any} */ (window);
+    var partners=Array.isArray(W.RW_PARTNERS)?W.RW_PARTNERS:[];
     function allowed(p){
       return !!p&&p.cat==='stay'&&p.verified==='self-listed'&&p.enquiryOnly===true
        &&p.listingReady===true&&p.selfListed
        &&p.selfListed.mouVersion==='RW-PMOU-2026-09-27-V4'
-       &&(!window.rwStayPublicEligible||window.rwStayPublicEligible(p));
+       &&(!W.rwStayPublicEligible||W.rwStayPublicEligible(p));
     }
     function render(id,arr){
       var rail=document.getElementById(id);if(!rail)return;
