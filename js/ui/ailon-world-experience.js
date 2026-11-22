@@ -305,8 +305,11 @@
           btn.addEventListener('click',()=>{
             if(key==='map'){
               const place=card.querySelector('.tk-place');
-              if(typeof W.openTripMap==='function' && place && place.textContent.trim()){
-                try{ W.openTripMap(place.textContent.trim()); }catch(_){ /* no fabricated stops */ }
+              const title=card.getAttribute('aria-label')||'';
+              const labelled=title.match(/^\\d+\\s+day itinerary for\\s+(.+)$/i);
+              const name=(labelled && labelled[1]) || (place && (place.textContent||'').replace(/^.*?\\d+-day\\s+/i,'').replace(/\\s+itinerary$/i,'').trim()) || '';
+              if(typeof W.openTripMap==='function' && name){
+                try{ W.openTripMap(name); }catch(_){ if(typeof W.openMapExplorer==='function')W.openMapExplorer(); }
               } else if(typeof W.openMapExplorer==='function')W.openMapExplorer();
             }else{
               apply(card,key);
