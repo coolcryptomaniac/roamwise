@@ -104,11 +104,12 @@ jobs:
           python3 - <<'PY'
           import json, subprocess
           root = 'https://roamwise-api.founder-f53.workers.dev'
-          def call(path, payload=None):
+          def call(path, payload=None, extra_headers=None):
               command = ['curl','-fsS','--connect-timeout','6','--max-time','25','--retry','2','--retry-delay','2',
                          '-H','Accept: application/json, text/event-stream']
               if payload is not None:
                   command += ['-X','POST','-H','Content-Type: application/json','--data-binary','@-']
+              for header in (extra_headers or []): command += ['-H',header]
               result = subprocess.run(command + [root + path], input=json.dumps(payload) if payload is not None else None,
                                       text=True, capture_output=True, timeout=90)
               if result.returncode:
@@ -119,6 +120,29 @@ jobs:
               result = call('/mcp', {'jsonrpc':'2.0','id':1,'method':method,**({'params':params} if params is not None else {})})
               assert 'error' not in result, 'MCP request failed: ' + method
               return result['result']
+          def rpc_modern(method, params=None):
+              meta={'io.modelcontextprotocol/protocolVersion':'2026-07-28',
+                    'io.modelcontextprotocol/clientCapabilities':{}}
+              enriched=dict(params or {})
+              enriched['_meta']=meta
+              payload={'jsonrpc':'2.0','id':2,'method':method,'params':enriched}
+              headers=['MCP-Protocol-Version: 2026-07-28','Mcp-Method: '+method]
+              if method=='tools/call': headers += ['Mcp-Name: '+str(enriched.get('name',''))]
+              result=call('/mcp',payload,headers)
+              assert 'error' not in result, 'MCP 2026-07-28 failed: '+method
+              return result['result']
+          # The exact text token is public domain ownership proof, not a secret.
+          verify=subprocess.run(['curl','-fsS','--max-time','20',
+            root+'/.well-known/openai-apps-challenge'],
+            text=True,capture_output=True,timeout=35)
+          assert verify.returncode==0, 'OpenAI domain challenge endpoint unreachable'
+          assert verify.stdout=='zW7Q6A_aJzxxiLSyCOKhxrWV4RfwXYg9Fr9_AjbOeIE', 'OpenAI domain token mismatch'
+          modern_list=rpc_modern('tools/list')
+          modern_resources=rpc_modern('resources/list')
+          modern_read=rpc_modern('resources/read',{'uri':modern_resources['resources'][0]['uri']})
+          for result in (modern_list,modern_resources,modern_read):
+              assert result['ttlMs']==60000 and result['cacheScope']=='public', 'MCP cache fields missing'
+          assert 'RoamWise' in modern_read['contents'][0]['text'], 'Modern UI resource missing'
           listing = call('/v1/discovery/search?q=Almora&type=stay')
           assert listing['count'] >= 2 and listing['cards'], 'Almora stay cards missing'
           assert not listing['cards'][0]['availability_verified'], 'Unexpected availability claim'
