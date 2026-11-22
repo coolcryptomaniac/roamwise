@@ -116,11 +116,11 @@ h1{font-size:clamp(37px,7vw,55px);line-height:1.06;letter-spacing:-.05em;margin:
     var bundled=new Set(['partner','properties','transport','experiences','travel','trips','creator','payments','support','staff','public','data','shop','packages','treks','music','creators','partners','nomads','books','kainchi','events','maps','stay','stays','rooms','booking','artist','artists','features','pilgrimage','weddings','wallet','auth','legal','more','corporate']);
     [].slice.call(document.querySelectorAll('a[href^="/"]')).forEach(function(a){
       var href=a.getAttribute('href')||'';
-      if(href==='/'||href.charAt(1)==='?')return;
+      if(href==='/'||href.charAt(1)==='?'){a.href='../index.html'+href.slice(1);return;}
       var top=/^\/([^/?#]+)/.exec(href);
       if(!top)return;
       if(!bundled.has(top[1])){a.href='https://www.roamwise.co.in'+href;return;}
-      a.href=href.replace(/\/(?=[?#]|$)/,'/index.html');
+      a.href='../'+href.replace(/^\//,'').replace(/\/(?=[?#]|$)/,'/index.html');
     });
   }catch(e){ /* leave ordinary links intact if native detection fails */ }
 })();
