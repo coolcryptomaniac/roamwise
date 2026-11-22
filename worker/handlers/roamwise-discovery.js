@@ -4,6 +4,7 @@
  */
 import {publicSearch,publicItem,toCard,CATALOG_VERSION} from '../lib/roamwise-discovery-catalog.js';
 import {ROAMWISE_CARDS_URI,ROAMWISE_CARDS_HTML} from '../lib/roamwise-mcp-ui.js';
+import {COMMERCE_TOOLS,runCommercePreview,validateCommerceArgs} from '../lib/roamwise-commerce-preview.js';
 const BASE='https://www.roamwise.co.in';
 const SERVER={name:'roamwise-discovery',version:'1.0.0',title:'RoamWise · Himalayan travel and art'};
 const MODERN='2026-07-28';
@@ -20,7 +21,7 @@ export const DISCOVERY_TOOLS=[
  {name:'search_roamwise',title:'Search RoamWise',description:descriptions.search,inputSchema:{type:'object',properties:{q:{type:'string',maxLength:120,description:'Search by artist, hotel, town, activity or service'},type:{type:'string',enum:TYPES},region:{type:'string',maxLength:100},limit:{type:'integer',minimum:1,maximum:12,default:6}},additionalProperties:false}},
  {name:'get_roamwise_listing',title:'Get RoamWise listing',description:descriptions.detail,inputSchema:{type:'object',properties:{id:{type:'string',pattern:'^[a-z0-9-]{1,80}$'}},required:['id'],additionalProperties:false}},
  {name:'roamwise_enquiry_link',title:'Continue on RoamWise',description:descriptions.handoff,inputSchema:{type:'object',properties:{id:{type:'string',pattern:'^[a-z0-9-]{1,80}$'}},required:['id'],additionalProperties:false}}
-].map(t=>({...t,...(t.name==='search_roamwise'?{_meta:{ui:{resourceUri:ROAMWISE_CARDS_URI},'openai/outputTemplate':ROAMWISE_CARDS_URI}}:{}),annotations:{readOnlyHint:true,destructiveHint:false,idempotentHint:true,openWorldHint:false}}));
+,...COMMERCE_TOOLS].map(t=>({...t,...(['search_roamwise','browse_roamwise_shop','quote_roamwise_stay','quote_roamwise_shop'].includes(t.name)?{_meta:{ui:{resourceUri:ROAMWISE_CARDS_URI},'openai/outputTemplate':ROAMWISE_CARDS_URI}}:{}),annotations:{readOnlyHint:true,destructiveHint:false,idempotentHint:true,openWorldHint:false}}));
 const allowedFields={
  search_roamwise:new Set(['q','type','region','limit']),
  get_roamwise_listing:new Set(['id']),
@@ -37,6 +38,7 @@ function toolResult(data,isError=false){
  return {content:[{type:'text',text:JSON.stringify(data)}],structuredContent:data,isError};
 }
 function validateToolArgs(name,args){
+ if(COMMERCE_TOOLS.some(t=>t.name===name))return validateCommerceArgs(name,args);
  if(!allowedFields[name]||!args||typeof args!=='object'||Array.isArray(args))return false;
  if(Object.keys(args).some(k=>!allowedFields[name].has(k)))return false;
  if(name==='search_roamwise'){
@@ -48,7 +50,7 @@ function validateToolArgs(name,args){
  }
  return typeof args.id==='string'&&/^[a-z0-9-]{1,80}$/.test(args.id);
 }
-export async function handleRoamwiseMcp(request){
+export async function handleRoamwiseMcp(request,env={},deps={}){
  if(request.method!=='POST')return new Response('Method not allowed',{status:405,headers:{Allow:'POST','Cache-Control':'no-store'}});
  if(Number(request.headers.get('content-length')||0)>8192)return rpcError(null,-32600,'Request too large',413);
  let body;try{const raw=await request.text();if(raw.length>8192)return rpcError(null,-32600,'Request too large',413);body=JSON.parse(raw);}catch{return rpcError(null,-32700,'Parse error',400);}
@@ -63,7 +65,7 @@ export async function handleRoamwiseMcp(request){
  if(body.id===undefined||body.id===null)return rpcError(null,-32600,'Request ID required',400);
  if(body.method==='server/discover'){
   if(!modern)return rpcError(body.id,-32601,'Method not found');
-  return rpc(body.id,{supportedVersions:[MODERN],capabilities:{tools:{listChanged:false},resources:{listChanged:false}},instructions:'Read-only public travel and art discovery; availability, prices, reservations and payment must be confirmed at RoamWise.'},true);
+  return rpc(body.id,{supportedVersions:[MODERN],capabilities:{tools:{listChanged:false},resources:{listChanged:false}},instructions:'Read-only listing discovery and server-calculated quote previews. Never initiate payment, reserve rooms, promise inventory or disclose private records.'},true);
  }
  if(body.method==='initialize'){
   const requested=body.params?.protocolVersion;
@@ -80,6 +82,7 @@ export async function handleRoamwiseMcp(request){
  const name=body.params?.name,args=body.params?.arguments??{};
  if(!validateToolArgs(name,args))return rpcError(body.id,-32602,'Invalid tool or arguments');
  try{
+  if(COMMERCE_TOOLS.some(t=>t.name===name))return rpc(body.id,toolResult(await runCommercePreview(name,args,env,deps)),modern);
   if(name==='search_roamwise'){
    const data=publicSearch(args);
    return rpc(body.id,toolResult({...data,cards:data.items.map(toCard)}),modern);
