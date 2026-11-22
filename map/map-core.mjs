@@ -40,6 +40,7 @@ export const partnersForPlace = (partners, place) => (Array.isArray(partners) ? 
 
 export function tierOf(p) {
   if (p.verified === 'signed') return { label: 'RoamWise Partner', note: 'Agreement signed', enquiryOnly: false };
+  if (p.verified === 'self-listed') return { label: 'New on RoamWise', note: 'Self-listed; signed MOU and automatic checks, enquiry only', enquiryOnly: true };
   return { label: 'Founder introduced', note: 'Enquiries only; agreement pending', enquiryOnly: true };
 }
 
