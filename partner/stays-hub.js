@@ -18,9 +18,18 @@
   function supportWa() { var c = (root.RW_PARTNER_CONFIG && root.RW_PARTNER_CONFIG.chat) || {}; return digits(c.supportWhatsapp); }
 
   function allStays() {
-    var seed = Array.isArray(root.RW_PARTNER_SEED) ? root.RW_PARTNER_SEED : [];
-    return seed.filter(function (p) { return p && p.cat === 'stay' && (root.rwStayPublicEligible ? root.rwStayPublicEligible(p) : p.verified === 'signed' && p.listingReady !== false); })
-      .map(function (p) { return Object.assign({}, p, p.enquiryOnly ? {} : live[p.id] || {}); });
+    var seed=Array.isArray(root.RW_PARTNER_SEED)?root.RW_PARTNER_SEED:[];
+    var dynamic=Array.isArray(root.RW_PARTNERS)?root.RW_PARTNERS:[];
+    var merged=[],seen={};
+    // Firestore-backed public entries first; seed entries are offline fallback.
+    // Self-listed properties MUST be MOU-checked and enquiry-only.
+    dynamic.concat(seed).forEach(function(p){
+      if(!p||p.cat!=='stay'||!(root.rwStayPublicEligible?root.rwStayPublicEligible(p):p.verified==='signed'&&p.listingReady===true))return;
+      var key=(String(p.zone||'')+'|'+String(p.name||'').replace(/^hotel\\s+/i,'')).toLowerCase().replace(/[^a-z0-9|]/g,'');
+      if(seen[key])return;seen[key]=true;
+      merged.push(Object.assign({},p,p.enquiryOnly?{}:live[p.id]||{}));
+    });
+    return merged;
   }
   function whatsappOf(p) { var n = digits(p.bookingWhatsapp); return n && (!p.bookingMode || p.bookingMode === 'whatsapp') ? n : ''; }
 
