@@ -53,12 +53,7 @@ jobs:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: npx --yes wrangler@4 deploy --dry-run --outdir /tmp/worker-dry
-      - name: Deploy
-        working-directory: worker
-        env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-        run: npx --yes wrangler@4 deploy
+      # Maintain existing secrets BEFORE code deployment so rollback restores the previous application revision.
       - name: Team email list for the daily travel-safety digest
         # ALERT_TEAM_EMAILS (comma list) if set, else TO_EMAIL. Skipped when neither exists.
         working-directory: worker
@@ -88,6 +83,12 @@ jobs:
         run: |
           if npx --yes wrangler@4 secret list 2>/dev/null | grep -q '"AMOR_RATES_KEY"'; then echo "AMOR_RATES_KEY already set"; exit 0; fi
           openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:3072 2>/dev/null | npx --yes wrangler@4 secret put AMOR_RATES_KEY >/dev/null && echo "AMOR_RATES_KEY created" || echo "::warning::could not set AMOR_RATES_KEY"
+      - name: Deploy
+        working-directory: worker
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: npx --yes wrangler@4 deploy
       - name: Health (3 tries)
         id: health
         run: |
@@ -101,18 +102,19 @@ jobs:
         shell: bash
         run: |
           python3 - <<'PY'
-          import json, time, urllib.request, urllib.error
+          import json, subprocess
           root = 'https://roamwise-api.founder-f53.workers.dev'
           def call(path, payload=None):
-              data = json.dumps(payload).encode() if payload is not None else None
-              req = urllib.request.Request(root + path, data=data, headers={'Content-Type':'application/json','Accept':'application/json'}, method='POST' if payload is not None else 'GET')
-              for attempt in range(3):
-                  try:
-                      with urllib.request.urlopen(req, timeout=20) as response:
-                          return json.load(response)
-                  except (urllib.error.URLError, TimeoutError, ValueError):
-                      if attempt == 2: raise
-                      time.sleep(4)
+              command = ['curl','-fsS','--connect-timeout','6','--max-time','25','--retry','2','--retry-delay','2',
+                         '-H','Accept: application/json, text/event-stream']
+              if payload is not None:
+                  command += ['-X','POST','-H','Content-Type: application/json','--data-binary','@-']
+              result = subprocess.run(command + [root + path], input=json.dumps(payload) if payload is not None else None,
+                                      text=True, capture_output=True, timeout=90)
+              if result.returncode:
+                  raise RuntimeError('Public API smoke failed at ' + path + ': ' + result.stderr[:280])
+              try: return json.loads(result.stdout)
+              except ValueError: raise RuntimeError('Invalid JSON from public API at ' + path)
           def rpc(method, params=None):
               result = call('/mcp', {'jsonrpc':'2.0','id':1,'method':method,**({'params':params} if params is not None else {})})
               assert 'error' not in result, 'MCP request failed: ' + method
@@ -139,4 +141,4 @@ jobs:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: |
-          npx --yes wrangler@4 rollback --message "auto-rollback after failed health check" --yes
+          npx --yes wrangler@4 rollback --message "auto-rollback after failed health or MCP smoke" --yes

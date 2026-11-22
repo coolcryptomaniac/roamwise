@@ -1,0 +1,40 @@
+name: RoamWise public MCP reachability
+
+# No credentials and no deployment. Check existing public endpoints from a
+# GitHub runner before merging changes to the production Worker release flow.
+on:
+  pull_request:
+    paths:
+      - 'worker/**'
+      - '.github/workflows/deploy-worker.yml'
+      - '.github/workflows/mcp-reachability.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Public GET and MCP POST without browser impersonation
+        shell: bash
+        run: |
+          set -euo pipefail
+          base=https://roamwise-api.founder-f53.workers.dev
+          curl --fail --silent --show-error --max-time 20 "$base/health" -o /tmp/rw-health.json
+          curl --fail --silent --show-error --max-time 20 "$base/v1/discovery/search?q=Almora&type=stay" -o /tmp/rw-discovery.json
+          curl --fail --silent --show-error --max-time 20 "$base/mcp" \
+            -H 'Content-Type: application/json' -H 'Accept: application/json, text/event-stream' \
+            --data-binary '{"jsonrpc":"2.0","id":1,"method":"tools/list"}' -o /tmp/rw-mcp.json
+          python3 - <<'PY'
+          import json
+          def read(path):
+              with open(path,encoding='utf-8') as f: return json.load(f)
+          assert read('/tmp/rw-health.json').get('ok') is True
+          assert read('/tmp/rw-discovery.json').get('count',0) >= 1
+          names={t['name'] for t in read('/tmp/rw-mcp.json')['result']['tools']}
+          assert 'search_roamwise' in names
+          print('Cloudflare read-only health, discovery and MCP POST all reachable using curl')
+          PY
