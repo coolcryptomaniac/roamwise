@@ -206,6 +206,7 @@
         <div class="card"><h2>New notification</h2><div class="fields">
           <div class="field full"><label>Title</label><input id="notifTitle" class="input" placeholder="e.g. Your trip to Jaipur starts tomorrow"></div>
           <div class="field full"><label>Body</label><textarea id="notifBody" class="input"></textarea></div>
+          <div class="field"><label>Topic</label><select id="notifCategory" class="input"><option value="booking">Bookings and reminders</option><option value="account">Account and membership</option><option value="safety">Travel safety</option><option value="travel" selected>Travel ideas (opt-in)</option><option value="offers">Offers (explicit opt-in)</option></select></div>
           <div class="field"><label>Target</label><select id="notifTargetType" class="input"><option value="all" selected>All users</option><option value="uid">One user (UID)</option></select></div>
           <div class="field"><label>Target UID (if one user)</label><input id="notifTargetUid" class="input" placeholder="Firebase UID"></div>
           <div class="field full"><label>Open URL (optional)</label><input id="notifUrl" class="input" placeholder="https://www.roamwise.co.in/live/"></div></div>
@@ -604,6 +605,7 @@ function renderNotifications(){
 async function queueNotification(){
   const norm=RWNotificationComposer.normalizeNotification({
     title:$("notifTitle").value,body:$("notifBody").value,url:$("notifUrl").value,
+    category:$("notifCategory").value,
     targetType:$("notifTargetType").value,targetUid:$("notifTargetUid").value
   });
   if(!norm.ok)return toast(norm.error,true);
