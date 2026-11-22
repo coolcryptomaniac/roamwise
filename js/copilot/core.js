@@ -910,11 +910,32 @@ function copilotSend(fromHero){
     /* Ground the model in the real guide before it answers — this is what stops
        confident-but-wrong replies about small towns. */
     (function(){
-      var guide=function(){return intents.dest?wvGuide(intents.dest):Promise.resolve(null);};
+      var guide=function(){
+        var g0=intents.dest?wvGuide(intents.dest):Promise.resolve(null);
+        return Promise.resolve(g0).then(function(g){
+          // Query the RoamWise-owned public atlas using just the destination,
+          // never the traveller's personal itinerary, names or booking data.
+          if(!intents.dest||typeof rwTuskWorkerSearch!=='function')return g;
+          var question='Travel guide to '+String(intents.dest).slice(0,75)+' itinerary and food';
+          if(typeof rwTuskIsPublicQuery!=='function'||!rwTuskIsPublicQuery(question))return g;
+          var source={hits:[]};
+          return Promise.resolve(rwTuskWorkerSearch(question,source)).then(function(){
+            var a=source.atlas;if(!a)return g;
+            var context='RoamWise '+(a.status==='source-backed-overview'?'source-backed overview':'editorial travel ideas (not verified facts)')+' for '+a.name+': ';
+            context+='Attractions: '+(a.highlights||[]).join(', ')+'. ';
+            context+='Suggested itinerary: '+(a.itinerary||[]).map(function(d){return 'Day '+d.day+' '+d.description;}).join(' / ')+'. ';
+            context+='Regional food ideas: '+(a.food||[]).join(', ')+'. ';
+            if(a.status==='source-backed-overview')context+='Sourced background: '+(a.facts||[]).join(' ')+'. ';
+            context+='No verified real-time pricing, openings, traffic or confirmed reservations. Photo references lack commercial usage clearance.';
+            return Object.assign({},g||{},{_rwAtlasContext:context.slice(0,1800)});
+          }).catch(function(){return g;});
+        });
+      };
       var shared=function(){return typeof rwSharedFirst==='function'?rwSharedFirst(_ck,thinking,intents,t,guide):guide();};
       return typeof rwCuratedFirst==='function'?rwCuratedFirst(t,intents,thinking,shared):shared();
     })().then(function(g){ if(g&&g._shared) return;
       var facts = g && g.extract ? 'Verified guide text for '+g.title+': '+g.extract.slice(0,600)+'\n' : '';
+      if(g&&g._rwAtlasContext)facts+='RoamWise travel atlas grounding — do not present editorial suggestions as verified facts: '+g._rwAtlasContext+'\n';
       try{
         if(typeof RW_PLACE_FACTS!=='undefined'){
           var _pfq=(intents.dest||t||'').toLowerCase(); var _pf=null;
