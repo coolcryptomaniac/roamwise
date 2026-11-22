@@ -21,7 +21,8 @@
  function el(tag,klass,txt){var n=document.createElement(tag);if(klass)n.className=klass;if(txt!=null)n.textContent=txt;return n;}
  function clean(s){return String(s||'').toLowerCase().normalize('NFKD').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');}
  function safeMedia(entry){
-   var m=root.RW_DEST_MEDIA && root.RW_DEST_MEDIA[entry.id] || PHOTO[entry.id];
+   var mediaIndex=/** @type {any} */ (root).RW_DEST_MEDIA;
+   var m=mediaIndex && mediaIndex[entry.id] || PHOTO[entry.id];
    if(!m||!m.src)return null;
    /* Only first-party public assets or explicitly approved R2/owned CDN media.
       Never interpolate city names into unreliable generated-image endpoints. */
@@ -67,7 +68,8 @@
    var plan=el('button','rw-dest-plan','Plan trip');
    plan.type='button';plan.setAttribute('aria-label','Ask Ailon Tusk to plan '+place.name);
    plan.addEventListener('click',function(){
-     var field=document.getElementById('heroInput'),hero=document.getElementById('copilotHero');
+     var field=/** @type {HTMLTextAreaElement|null} */ (document.getElementById('heroInput'));
+     var hero=document.getElementById('copilotHero');
      if(field && typeof root.copilotSend==='function'){
        field.value='Plan a trip to '+place.name+(place.country?', '+place.country:'');
        if(hero)hero.scrollIntoView({behavior:root.matchMedia&&root.matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'});
