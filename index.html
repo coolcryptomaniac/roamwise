@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<script id="rw-design-edition-init">try{var rwSavedDesign=localStorage.getItem("rw_design_edition");document.documentElement.setAttribute("data-rw-design",["himalayan-saanjh","kasar-cloud","buransh-bazaar"].indexOf(rwSavedDesign)>=0?rwSavedDesign:"himalayan-saanjh");}catch(e){document.documentElement.setAttribute("data-rw-design","himalayan-saanjh");}</script>
 <script id="rw-watchdog">
 /* Boot watchdog. Never blocks: all work is on timers/events. If the app has not
    started (js/boot/boot-ok.js sets __RW_BOOTED) it first offers a Reload, and if
@@ -496,6 +497,8 @@ body[data-view="home"] #rwEveryday,body[data-view="home"] #promofilm {display:no
 </style>
 <link rel="stylesheet" href="design/ailon-first.css?v=20261121">
 <link rel="stylesheet" href="design/ailon-room-carousel.css?v=20261122">
+<link rel="stylesheet" href="design/design-vault.css?v=831-1">
+<script src="design/design-vault.js?v=831-1" defer></script>
 </head>
 <body class="rw-akatsuki-theme shell" data-view="home">
 <div id="rwVeil" role="status" aria-live="polite"><img src="/assets/img/roamwise-logo-176.webp" alt="" width="72" height="72" fetchpriority="high"><span>Roam<b>Wise</b></span><i></i><small>Getting things ready…</small></div>
@@ -540,6 +543,7 @@ body[data-view="home"] #rwEveryday,body[data-view="home"] #promofilm {display:no
       <!-- Wallet balance chip: signed-in users only, beside the avatar like MakeMyTrip / Uber.
            Rupee = real cash, gold coin = RoamWise bonus credit. -->
       <button class="rw-wallet-chip" id="rwWalletChip" type="button" onclick="rwOpenWallet()" style="display:none" aria-label="Wallet">Wallet</button>
+      <a class="rw-vault-wallet-link" href="/wallet/" aria-label="Open RoamWise wallet and AI credits">Wallet</a>
       <span class="auth-avatar-wrap" id="authAvatarWrap" style="display:none">
         <img class="avatar" id="authAvatar" src="" alt="Account" onclick="authMenu()">
         <span class="auth-verified-badge" id="authVerifiedBadge" title="Verified email" aria-label="Verified email">&#10003;</span>
