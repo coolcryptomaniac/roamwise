@@ -36,7 +36,9 @@ try{
  }
  if(await page.locator('#rwOnboardOv.open').count() && await page.locator('#rwOnboardOv.open').isVisible())
    throw new Error('Onboarding walkthrough still covers UI: refusing misleading Play screenshots');
- await page.waitForTimeout(750);
+ // Give the app's transient first-visit XP toast time to disappear naturally.
+ // Do not erase any app content or invent UI for store listing screenshots.
+ await page.waitForTimeout(6500);
  const shots=[
   ['ailon','copilotHero'],
   ['artists','rwSalesArtists'],
