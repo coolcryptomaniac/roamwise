@@ -99,10 +99,14 @@ export async function requireAdmin(request, env, projectId) {
 }
 
 export async function sendOne(accessToken, projectId, token, notification, data, url) {
+  const category = data && data.rw_category;
+  const channels = { booking:'rw_booking', account:'rw_account', safety:'rw_safety',
+    travel:'rw_travel', offers:'rw_offers', operations:'rw_operations' };
   const message = {
     token,
     notification,
     ...(data ? { data: Object.fromEntries(Object.entries(data).map(([k, v]) => [k, String(v)])) } : {}),
+    ...(channels[category] ? { android: { notification: { channel_id: channels[category] } } } : {}),
     ...(url ? { webpush: { fcm_options: { link: url } } } : {}),
   };
   const res = await fetch(`https://fcm.googleapis.com/v1/projects/${projectId}/messages:send`, {
