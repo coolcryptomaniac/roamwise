@@ -9,8 +9,8 @@ import {handleTuskWebSearch} from '../worker/handlers/tusk-web-search.js';
 const unique=a=>new Set(a).size===a.length;
 test('124 India destinations are indexed with unique stable IDs and provenance',()=>{
  assert.equal(TUSK_ATLAS_STATS.total,124);
- assert.equal(TUSK_ATLAS_STATS.sourceBacked,15);
- assert.equal(TUSK_ATLAS_STATS.leads,109);
+ assert.equal(TUSK_ATLAS_STATS.sourceBacked,18);
+ assert.equal(TUSK_ATLAS_STATS.leads,106);
  assert.equal(TUSK_ATLAS_STATS.photoCleared,0);
  assert.equal(unique(TUSK_ATLAS.map(p=>p.id)),true);
  for(const p of TUSK_ATLAS){
@@ -104,4 +104,14 @@ test('hosted Ailon retrieves destination-only public grounding before model gene
  assert.match(core,/rwTuskWorkerSearch\(question,source\)/);
  assert.match(core,/_rwAtlasContext/);
  assert.match(core,/do not present editorial suggestions as verified facts/);
+});
+
+test('three additional official cultural profiles are discoverable',()=>{
+ for(const [destination,person] of [['Jaipur','Maharaja Sawai Jai Singh II'],['Hampi','Krishnadevaraya'],['Rameswaram','A. P. J. Abdul Kalam']]){
+  const a=atlasAnswer('Learn the history of '+destination+' famous people');
+  assert.equal(a.knowledgeClass,'source-backed-overview');
+  assert.ok(a.atlas.people.some(p=>p.name===person));
+  assert.ok(a.atlas.facts.length>=1);
+ }
+ assert.ok(atlasAnswer('Kasar Devi famous people').atlas.people.some(p=>p.name==='Swami Vivekananda'));
 });
