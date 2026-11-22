@@ -93,3 +93,17 @@ html[data-rw-design="himalayan-saanjh"] #copilotHero .tusk-title b{letter-spacin
   min-height:136px!important;height:136px!important;font-size:17px!important
  }
 }
+
+/* On-demand atlas lookup keeps the carousel visually compact and prevents
+   loading tens of thousands of map records or remote images on page open. */
+.rw-world-search{margin:0 2px 12px;display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+.rw-world-search input{box-sizing:border-box;flex:1 1 200px;min-width:0;min-height:45px;padding:10px 14px;background:#181529;border:1px solid #b49dc27a;color:#fff0e7;border-radius:13px;font:500 14px system-ui,sans-serif}
+.rw-world-search input::placeholder{color:#c8b9d0}
+.rw-world-search>button{min-height:45px;border-radius:12px;border:1px solid #f1ca89;padding:10px 16px;background:#f1ca89;color:#241528;font:800 12px system-ui,sans-serif;cursor:pointer}
+.rw-world-search>button:disabled{opacity:.55;cursor:wait}
+.rw-world-search-status{flex:0 0 100%;margin:0;color:#c9b9d1;font:500 11.5px/1.5 system-ui,sans-serif}
+.rw-world-search-results{flex:0 0 100%;display:flex;flex-wrap:wrap;gap:7px}
+.rw-world-search-results:empty{display:none}
+.rw-world-search-result{min-height:44px;max-width:100%;padding:8px 12px;overflow-wrap:anywhere;border:1px solid #b49dc27a;border-radius:12px;color:#f6e8e1;background:#282038;font:700 12px/1.45 system-ui,sans-serif;text-align:left;cursor:pointer}
+.rw-world-search :is(input,button):focus-visible{outline:3px solid #f3dcb3;outline-offset:3px}
+@media(max-width:480px){.rw-world-search>button{padding:10px 13px}.rw-world-search input{flex-basis:170px}}
