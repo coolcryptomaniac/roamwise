@@ -168,7 +168,7 @@ export default {
 
     // Public, read-only AI discovery: same catalog for MCP and REST.
     if(path === 'mcp') return handleRoamwiseMcp(request);
-    if(path === 'v1/discovery/search' || /^v1\/discovery\/items\/[a-z0-9-]{1,80}$/.test(path)) return handleRoamwiseDiscovery(request, path);
+    if(path === 'v1/discovery/search' || path === 'v1/discovery/openapi.json' || /^v1\/discovery\/items\/[a-z0-9-]{1,80}$/.test(path)) return handleRoamwiseDiscovery(request, path);
 
     if(path.startsWith('treks/')) return handleTrekMarketplace(request, env, path);
 
