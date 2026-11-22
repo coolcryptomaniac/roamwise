@@ -53,7 +53,7 @@ h2{margin:0;font-size:18px;letter-spacing:-.035em;line-height:1.17;color:#242039
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;animation:none!important}}
 </style></head>
 <body><main class="shell" aria-label="RoamWise interactive discovery">
-<header class="top"><div class="brand"><div class="mark" aria-hidden="true">✦</div><div><div class="eyebrow">RoamWise · Curated by people</div><h1>Stay somewhere remarkable.</h1></div></div><div class="nav"><button id="prev" type="button" aria-label="Previous card">‹</button><button id="next" type="button" aria-label="Next card">›</button></div></header>
+<header class="top"><div class="brand"><div class="mark" aria-hidden="true">✦</div><div><div class="eyebrow">RoamWise · Curated by people</div><h1 id="headline">Discover the extraordinary.</h1></div></div><div class="nav"><button id="prev" type="button" aria-label="Previous card">‹</button><button id="next" type="button" aria-label="Next card">›</button></div></header>
 <section class="rail" id="rail" aria-label="Listings" aria-live="polite"><p class="small">Loading approved listings…</p></section>
 <section id="panel" class="panel" aria-label="Review quote"></section>
 <p class="footer">Artwork and room availability are not guaranteed by a listing. All purchases require separate approval and secure checkout.</p>
@@ -141,6 +141,8 @@ function render(data){
  if(data.quote&&!data.cards){showPanel();titleLine('RoamWise price preview','Server-calculated amount; payment still requires your approval.');drawQuote(data,data.checkoutUrl);return}
  const cards=Array.isArray(data.cards)?data.cards:data.card?[data.card]:[];
  rail.replaceChildren();
+ const headline=document.getElementById('headline');
+ if(cards.length)headline.textContent=cards[0].category==='artist'?'Meet remarkable creators.':cards[0].category==='stay'?'Find your next quiet escape.':cards[0].category==='product'?'Curated for the journey.':cards[0].category==='package'?'Journeys worth sharing.':'Discover the extraordinary.';
  if(!cards.length){rail.append(el('p','small','No published listing matched your search.'));return}
  cards.slice(0,12).forEach(c=>rail.append(drawCard(c)));
 }
