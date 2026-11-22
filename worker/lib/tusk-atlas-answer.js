@@ -34,6 +34,7 @@ export function atlasAnswer(question){
     food:match.foodSuggestions.map(compact),
     people:match.people.map(p=>({name:compact(p.name),context:compact(p.context)})),
     highlights:match.highlights.map(compact),
+    facts:match.facts.map(compact),
     photo:{referencePage:match.photo.referencePage,rights:'not-cleared',displayAllowed:false}
   },
   cache:'none'
