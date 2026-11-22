@@ -1,0 +1,49 @@
+name: Merchandise print-file candidates (no supplier publication)
+on:
+  pull_request:
+    paths:
+      - 'tools/merch-prepress.py'
+      - 'shop/img/rave-rise-buransh-*.svg'
+      - '.github/workflows/merch-prepress-check.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install pinned dependencies
+        run: python -m pip install --disable-pip-version-check 'cairosvg==2.8.2' 'pillow==11.3.0'
+      - name: Export original Rave to Rise print candidates
+        run: |
+          python tools/merch-prepress.py --design-id rave-rise-buransh --out-dir build/merch-print-candidates
+          python tools/merch-prepress.py --design-id daily-2026-11-22 --placements back --out-dir build/myar-pahad-candidates
+      - name: Sanity-check export manifest and Qikink file restrictions
+        run: |
+          python - <<'PY'
+          import json, pathlib
+          for location, expected in [('build/merch-print-candidates', 3), ('build/myar-pahad-candidates', 1)]:
+              root=pathlib.Path(location)
+              manifest=json.loads((root/'manifest.json').read_text())
+              assert manifest['status']=='candidate_not_supplier_approved'
+              assert len(manifest['files']) == expected
+              for row in manifest['files']:
+                  assert len(row['file']) < 25
+                  assert row['dpi'] == 300
+                  assert row['bytes'] <= 25_000_000
+                  assert (root/row['file']).is_file()
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: qikink-upload-candidates-review-required
+          path: |
+            build/merch-print-candidates/
+            build/myar-pahad-candidates/
+          retention-days: 30
