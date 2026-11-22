@@ -103,6 +103,10 @@ function rwTuskSearchFailure(thinking,t,intents,err){
    cpFinish(thinking,known+'<br>'+note,intents,t);return;
  }
  if(!rwTuskIsPublicQuery(t)){
+   // Long but harmless travel prompts can still get private, offline
+   // planning guidance; nothing is sent to a public service.
+   var safeOffline=rwTuskOfflinePlanningCard(t);
+   if(safeOffline){cpFinish(thinking,safeOffline+'<br>'+note,intents,t);return;}
    cpFinish(thinking,'<div class="tk-card"><div class="tk-head"><div class="tk-place">🔒 Private question</div></div><div class="tk-sec"><p>Public knowledge lookup was skipped to protect personal or booking details. Open your secure RoamWise booking or trip page for account-specific information.</p></div></div><br>'+note,intents,t);
    return;
  }
