@@ -11,7 +11,7 @@ try{
  // The public app's first-run welcome walkthrough obscures commerce.
  // Suppress it only in this isolated screenshot browser; production is unchanged.
  await page.addInitScript(()=>{
-   try{localStorage.setItem('rw_onboarded','1');sessionStorage.setItem('rw_intro','1');}catch(e){}
+   try{localStorage.setItem('rw_onboarded','1');localStorage.setItem('rw_prevday',new Date().toDateString());sessionStorage.setItem('rw_intro','1');}catch(e){}
  });
  page.on('pageerror',err=>console.log('page-error:',String(err).slice(0,160)));
  const response=await page.goto('https://roamwise.co.in/',{waitUntil:'domcontentloaded',timeout:45000});
@@ -50,7 +50,14 @@ try{
    if(!visible)throw new Error('Hidden section: '+id);
    await page.evaluate((targetId)=>{
      const el=document.getElementById(targetId);
-     if(el)window.scrollTo({top:Math.max(0,el.getBoundingClientRect().top+window.scrollY-116),behavior:'instant'});
+     if(!el)return;
+     let start=el;
+     if(targetId!=='copilotHero'){
+       let prior=el.previousElementSibling;
+       while(prior && !prior.classList.contains('rw-trackheading')) prior=prior.previousElementSibling;
+       if(prior)start=prior; // Include the real collection title, not a cut-off paragraph.
+     }
+     window.scrollTo({top:Math.max(0,start.getBoundingClientRect().top+window.scrollY-72),behavior:'instant'});
    },id);
    await page.waitForTimeout(450);
    const path=resolve(dir,name+'.png');
