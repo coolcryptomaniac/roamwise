@@ -1,0 +1,41 @@
+{
+  "name": "roamwise-discovery",
+  "version": "1.0.0",
+  "description": "Read-only discovery and server-priced previews of RoamWise's public travel, art, and itinerary catalog.",
+  "author": {
+    "name": "RoamWise",
+    "email": "support@roamwise.co.in",
+    "url": "https://www.roamwise.co.in"
+  },
+  "homepage": "https://www.roamwise.co.in",
+  "repository": "https://github.com/coolcryptomaniac/roamwise",
+  "keywords": [
+    "travel",
+    "itineraries",
+    "himalaya",
+    "artists",
+    "stays",
+    "commerce"
+  ],
+  "mcpServers": "./.mcp.json",
+  "interface": {
+    "displayName": "RoamWise Discovery",
+    "shortDescription": "Discover Himalayan stays, artists, trip plans and merchandise.",
+    "longDescription": "Explore RoamWise's reviewed public artist profiles, stays, curated packages, and shareable itineraries. Browse merchandise and request price previews calculated by RoamWise. Room availability, stock, final booking confirmation, and payment are not guaranteed by a listing or quote; continue to RoamWise's merchant checkout or enquire.",
+    "developerName": "RoamWise",
+    "category": "Travel",
+    "capabilities": [
+      "Read"
+    ],
+    "websiteURL": "https://www.roamwise.co.in",
+    "privacyPolicyURL": "https://www.roamwise.co.in/privacy.html",
+    "termsOfServiceURL": "https://www.roamwise.co.in/terms.html",
+    "defaultPrompt": [
+      "Find peaceful RoamWise-listed stays near Almora.",
+      "Show Natasha Guleria's public artist profile.",
+      "Share a six-day RoamWise Kumaon itinerary.",
+      "What RoamWise merchandise can I browse?"
+    ],
+    "brandColor": "#372956"
+  }
+}
