@@ -34,5 +34,5 @@ export function publicSearch({q='',type='',region='',limit=6}={}){
  return {version:CATALOG_VERSION,count:ranked.length,items:ranked.slice(0,max).map(x=>x.item),disclaimer:'Discovery listings only; no live room or artwork stock, verified quote, booking confirmation or payment. Follow official URLs and request a current quote.'};
 }
 export function toCard(item){
- return {id:item.id,title:item.title,subtitle:item.subtitle,image_url:item.image_url,url:item.url,category:item.type,region:item.region,booking_mode:item.booking_mode,partner_status:item.partner_status,availability_verified:false,price_verified:false};
+ return {id:item.id,title:item.title,subtitle:item.subtitle,description:item.description,image_url:item.image_url,url:item.url,category:item.type,region:item.region,booking_mode:item.booking_mode,partner_status:item.partner_status,availability_verified:false,price_verified:false};
 }

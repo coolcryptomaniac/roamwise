@@ -31,7 +31,7 @@ test('MCP legacy handshake and public tool list work',async()=>{
  const init=await (await call('initialize',{protocolVersion:'2025-11-25'})).json();
  assert.equal(init.result.protocolVersion,'2025-11-25');
  const list=await (await call('tools/list')).json();
- assert.deepEqual(list.result.tools.map(t=>t.name),['search_roamwise','get_roamwise_listing','roamwise_enquiry_link']);
+ assert.deepEqual(list.result.tools.map(t=>t.name),['search_roamwise','get_roamwise_listing','roamwise_enquiry_link','browse_roamwise_shop','quote_roamwise_stay','quote_roamwise_shop']);
  assert.ok(list.result.tools.every(t=>t.annotations.readOnlyHint));
 });
 test('MCP modern discover and tool-call metadata work',async()=>{
@@ -79,7 +79,7 @@ test('MCP Apps resource exposes a licensed-image safe swipeable view',async()=>{
  assert.equal(file.mimeType,'text/html;profile=mcp-app');
  assert.ok(file.text.includes('ui/notifications/tool-result'));
  assert.ok(file.text.includes('ui/open-link'));
- assert.deepEqual(file._meta.ui.csp.resourceDomains,['https://www.roamwise.co.in']);
+ assert.deepEqual(file._meta.ui.csp.resourceDomains,['https://www.roamwise.co.in','https://roamwise.co.in']);
 });
 test('package categories are enquiry only and REST OpenAPI is described',async()=>{
  const packages=publicSearch({type:'package'});
