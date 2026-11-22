@@ -17,6 +17,18 @@
   var section=document.getElementById('rwSalesCarousels'),nav=document.getElementById('rwDiscoverFilters');
   if(!section||!nav||nav.dataset.ready==='1')return;
   nav.dataset.ready='1';
+  // The APK intentionally does not bundle 192 large itinerary PDFs. Open the
+  // published HTML/PDF and specialist web pages by HTTPS from its local WebView.
+  try {
+    var isNative=location.protocol==='file:' || !!(window.Capacitor&&window.Capacitor.isNativePlatform&&window.Capacitor.isNativePlatform());
+    if(isNative){
+      [].slice.call(section.querySelectorAll('a[href]')).forEach(function(a){
+        var href=a.getAttribute('href')||'';
+        if(href.indexOf('/itinerary-library/')===0 || href.indexOf('/corporate/')===0)
+          a.href='https://www.roamwise.co.in'+href;
+      });
+    }
+  }catch(e){ /* web links remain valid as ordinary relative URLs */ }
   var groups={};
   Object.keys(GROUPS).forEach(function(cat){
    groups[cat]=[];
