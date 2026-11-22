@@ -4,8 +4,8 @@
 ## What is implemented
 - `/shop/` now has a white, mobile-first, swipeable Ailon-inspired discovery interface with voice input where the browser supports Web Speech Recognition. Select a card, then explicitly continue to the **existing** product checkout or the review-only enquiry form.
 - Catalog has one original **Rave to Rise × Buransh** graphic concept in two garment candidates (T-shirt and hoodie) with separate transparent vector previews for **back, chest, sleeve** under `shop/img/`. These are concepts, **not manufacturing mockups** or provider-approved print files. The independent bitmap generated during design review also remains a non-print-ready concept until proper full-size prepress.
-- `.github/workflows/merch-daily-review.yml` runs at 04:50 UTC / ~10:20 IST each day and opens/updates a PR with **exactly one additional original, dated design concept** (one proposed garment per day). Scheduling is best effort, subject to GitHub Actions.
-- `tools/merch-daily.mjs` generates **procedural vector art**, no expensive AI API calls, and appends a review-only record to `shop/daily-products.json`. The site loads approved/merged entries as **concept previews**. No new product is made payable automatically.
+- `.github/workflows/merch-daily-review.yml` runs at 04:50 UTC / ~10:20 IST each day and commits **at most one new original, dated design concept** per IST day directly to the public preview inventory. It never commits a payable Qikink SKU. Scheduling is best effort, subject to GitHub Actions.
+- `tools/merch-daily.mjs` generates **procedural vector art**, no expensive AI API calls, and appends a review-only record to `shop/daily-products.json`. The site loads daily entries as clearly marked **unapproved concept previews**, never as verified product listings. No new product is made payable automatically.
 - Inspiration rotation: original Rave series, Aipan-inspired geometry, Panchachuli, Buransh, Kasar Devi, Myar Pahad, Almora landscapes. Avoid copyrighted anime franchise artwork, official marks and unlicensed artists' designs.
 
 ## Current AI and Qikink capabilities — no false promises
@@ -24,7 +24,7 @@ The daily pipeline is **autonomous design ideation**, not live model-generated a
 
 ## Operational constraints
 - No paid ads, unapproved seller commitments, automatic Qikink-wallet charges or outside AI API spend are introduced.
-- An unreviewed design goes into a **GitHub PR** and a public listing is a preview **only after the PR is merged**. This is intentionally not a fulfilment-ready inventory feed.
-- GitHub Actions requires `contents:write` / `pull-requests:write` effective permission to open review PRs; branch protections and repository policy may limit this.
+- Unreviewed original vector designs may be auto-committed to GitHub's public **concept preview** feed, with no purchase enabled. Real SKUs, prices and inventory must still pass a separate human approval before becoming buyable. This is intentionally not a fulfilment-ready inventory feed.
+- GitHub Actions needs only `contents:write` to commit dated concept records; the original PR bot route was denied by repository settings on 22 Nov 2026. Daily commits stage only the dated SVG, concept JSON and a run-status JSON, never binary print artifacts. Protected branches may still reject commits.
 - Existing homepage Ailon booking/room data contracts remain distinct from the new shop visual cards; no supplier live quote is fabricated by this UI.
 - Future trend insight sources: internal product search with consent, Google Search Console verified metrics, actual orders, credible streetwear market research, and first-party interviews.
