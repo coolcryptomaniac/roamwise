@@ -24,6 +24,7 @@ test('124 India destinations are indexed with unique stable IDs and provenance',
    assert.equal(p.photo.rights,'not-cleared');
    assert.ok(!Object.hasOwn(p.photo,'imageUrl'),'no undocumented photo embedding');
    if(p.status==='editorial-lead') assert.equal(p.checkedAt,null);
+   if(p.status==='source-backed-overview')assert.ok(p.facts.length>=1);
  }
 });
 test('contextual matching distinguishes similar locations and public Hindi names',()=>{
@@ -89,9 +90,18 @@ test('mobile card uses escaped text and links only to a reviewed reference page'
  assert.match(html,/Suggested 3-day itinerary/);
  assert.match(html,/Regional food to try/);
  assert.match(html,/People & culture/);
+ assert.match(html,/Source-backed quick facts/);
  assert.match(html,/Photo/);
  assert.match(html,/not embedded/);
  assert.doesNotMatch(html,/<img src=x/);
  assert.doesNotMatch(html,/<img\s/i);
  assert.match(html,/href="https:\/\/uttarakhandtourism\.gov\.in\/destination\/almora"/);
+});
+
+test('hosted Ailon retrieves destination-only public grounding before model generation',()=>{
+ const core=fs.readFileSync(new URL('../js/copilot/core.js',import.meta.url),'utf8');
+ assert.match(core,/Travel guide to '+String\(intents.dest\)/);
+ assert.match(core,/rwTuskWorkerSearch\(question,source\)/);
+ assert.match(core,/_rwAtlasContext/);
+ assert.match(core,/do not present editorial suggestions as verified facts/);
 });
