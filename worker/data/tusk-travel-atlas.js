@@ -989,7 +989,10 @@ const FEATURED={
   "almora": {
     "source": "https://uttarakhandtourism.gov.in/destination/almora",
     "overview": "Kumaon cultural town on a mountain ridge, known for traditional markets, crafts and views.",
-    "facts": ["Almora is regarded as a cultural centre of the Kumaon region.","The town was associated with the Chand dynasty and maintains traditional crafts and markets."],
+    "facts": [
+      "Almora is regarded as a cultural centre of the Kumaon region.",
+      "The town was associated with the Chand dynasty and maintains traditional crafts and markets."
+    ],
     "people": [
       [
         "Swami Vivekananda",
@@ -1013,17 +1016,37 @@ const FEATURED={
   "kasar-devi": {
     "source": "https://www.incredibleindia.gov.in/en/uttarakhand/almora/kasar-devi-temple",
     "overview": "Hilltop temple and retreat area near Almora known for contemplative walks and scenery.",
-    "facts": ["Kasar Devi Temple stands on a hill near Almora.","The area has a well-established spiritual and contemplative travel history."],
+    "facts": [
+      "Kasar Devi Temple stands on a hill near Almora.",
+      "The area has a well-established spiritual and contemplative travel history."
+    ],
     "days": [
       "Arrive, settle in, and take an easy walk",
       "Visit Kasar Devi Temple and enjoy slow viewpoints",
       "Explore Almora or leave after breakfast"
+    ],
+    "people": [
+      [
+        "Swami Vivekananda",
+        "Meditated at Kasar Devi in the 1890s"
+      ],
+      [
+        "Alfred Sorensen (Sunyata)",
+        "Danish spiritual figure associated with the Kasar Devi area"
+      ],
+      [
+        "Timothy Leary",
+        "American psychologist associated with the area's 20th-century counterculture history"
+      ]
     ]
   },
   "jageshwar": {
     "source": "https://uttarakhandtourism.gov.in/destination/jageshwar",
     "overview": "Historic cluster of Shiva temples in a forested valley in the Almora district.",
-    "facts": ["Jageshwar is a Shiva temple complex in the Almora district.","The complex comprises more than a hundred historic stone temples."],
+    "facts": [
+      "Jageshwar is a Shiva temple complex in the Almora district.",
+      "The complex comprises more than a hundred historic stone temples."
+    ],
     "days": [
       "Arrive and visit the primary temple group",
       "Explore the temple complex and deodar forest at an unhurried pace",
@@ -1033,7 +1056,10 @@ const FEATURED={
   "binsar": {
     "source": "https://www.uttarakhandtourism.gov.in/destination/binsar",
     "overview": "Forested Himalayan wildlife landscape and viewpoint area near Almora.",
-    "facts": ["Binsar is a forested wildlife landscape near Almora.","The region includes Himalayan viewpoints and Bineshwar Mahadev Temple."],
+    "facts": [
+      "Binsar is a forested wildlife landscape near Almora.",
+      "The region includes Himalayan viewpoints and Bineshwar Mahadev Temple."
+    ],
     "days": [
       "Arrive and enjoy a forest-edge stay",
       "Choose a permitted viewpoint trail with local guidance",
@@ -1043,7 +1069,10 @@ const FEATURED={
   "kausani": {
     "source": "https://uttarakhandtourism.gov.in/destination/kausani",
     "overview": "Mountain village appreciated for long Himalayan views and surrounding valley scenery.",
-    "facts": ["Kausani has panoramic views towards Himalayan peaks including Trishul and Nanda Devi.","Mahatma Gandhi stayed in the area, remembered at Anasakti Ashram."],
+    "facts": [
+      "Kausani has panoramic views towards Himalayan peaks including Trishul and Nanda Devi.",
+      "Mahatma Gandhi stayed in the area, remembered at Anasakti Ashram."
+    ],
     "people": [
       [
         "Mahatma Gandhi",
@@ -1063,7 +1092,10 @@ const FEATURED={
   "ranikhet": {
     "source": "https://www.uttarakhandtourism.gov.in/destination/ranikhet",
     "overview": "Cantonment hill town with wooded roads, viewpoints, and a gentler travel pace.",
-    "facts": ["Ranikhet is a hill town in Kumaon.","Majkhali is noted by Uttarakhand Tourism as a stargazing location."],
+    "facts": [
+      "Ranikhet is a hill town in Kumaon.",
+      "Majkhali is noted by Uttarakhand Tourism as a stargazing location."
+    ],
     "days": [
       "Arrive and explore the town slowly",
       "Visit Chaubatia and nearby viewpoints",
@@ -1073,7 +1105,10 @@ const FEATURED={
   "nainital": {
     "source": "https://uttarakhandtourism.gov.in/destination/nainital",
     "overview": "Lake-centred Kumaon hill town, with Naini Lake at the heart of its visitor circuit.",
-    "facts": ["Nainital is a lake-centred hill town.","Boating on Naini Lake is among the town's well-known visitor activities."],
+    "facts": [
+      "Nainital is a lake-centred hill town.",
+      "Boating on Naini Lake is among the town's well-known visitor activities."
+    ],
     "days": [
       "Arrive and walk the lakefront",
       "Visit the temple and one viewpoint; keep boats weather-dependent",
@@ -1083,7 +1118,10 @@ const FEATURED={
   "bhimtal": {
     "source": "https://uttarakhandtourism.gov.in/destination/bhimtal",
     "overview": "Lake town near Nainital, suited to gentle sightseeing and forested surroundings.",
-    "facts": ["Bhimtal is a Kumaon lake town near Nainital.","Victoria Dam and Bhimeshwar Temple are notable local sites."],
+    "facts": [
+      "Bhimtal is a Kumaon lake town near Nainital.",
+      "Victoria Dam and Bhimeshwar Temple are notable local sites."
+    ],
     "days": [
       "Lakeside arrival and sunset walk",
       "Visit Bhimeshwar Temple and Victoria Dam",
@@ -1093,7 +1131,10 @@ const FEATURED={
   "champawat": {
     "source": "https://uttarakhandtourism.gov.in/public/destination/champawat",
     "overview": "Historic Kumaon town and regional heritage centre, including Baleshwar Temple.",
-    "facts": ["Champawat is a historic Kumaon town.","Baleshwar Temple is a notable heritage attraction."],
+    "facts": [
+      "Champawat is a historic Kumaon town.",
+      "Baleshwar Temple is a notable heritage attraction."
+    ],
     "days": [
       "Arrive and walk the town",
       "Visit Baleshwar Temple and nearby heritage streets",
@@ -1103,7 +1144,10 @@ const FEATURED={
   "bhowali": {
     "source": "https://www.uttarakhandtourism.gov.in/destination/bhowali",
     "overview": "Fruit-market hill junction connecting several Kumaon lake and orchard routes.",
-    "facts": ["Bhowali is a fruit-market town in Kumaon.","Its road links connect nearby lake and hill destinations."],
+    "facts": [
+      "Bhowali is a fruit-market town in Kumaon.",
+      "Its road links connect nearby lake and hill destinations."
+    ],
     "days": [
       "Arrive and explore the fruit-market area",
       "Select one nearby lake or orchard landscape",
@@ -1113,7 +1157,10 @@ const FEATURED={
   "mukteshwar": {
     "source": "https://uttarakhandtourism.gov.in/destination/mukteshwar",
     "overview": "Hill-area destination in Kumaon known for mountain views and rural stays.",
-    "facts": ["Mukteshwar is a Kumaon hill-area destination.","The local visitor circuit includes the temple and mountain viewpoints."],
+    "facts": [
+      "Mukteshwar is a Kumaon hill-area destination.",
+      "The local visitor circuit includes the temple and mountain viewpoints."
+    ],
     "days": [
       "Arrive and settle into a hill stay",
       "Visit temple and local viewpoints",
@@ -1123,7 +1170,10 @@ const FEATURED={
   "pithoragarh": {
     "source": "https://www.uttarakhandtourism.gov.in/destination/pithoragarh",
     "overview": "Hill town within the Soar valley and gateway to parts of eastern Kumaon.",
-    "facts": ["Pithoragarh lies in the Soar Valley of eastern Kumaon.","The town is a regional gateway for travel in the eastern Himalayan hills."],
+    "facts": [
+      "Pithoragarh lies in the Soar Valley of eastern Kumaon.",
+      "The town is a regional gateway for travel in the eastern Himalayan hills."
+    ],
     "days": [
       "Arrive and orient within the valley",
       "Explore local viewpoints and heritage",
@@ -1133,7 +1183,10 @@ const FEATURED={
   "rishikesh": {
     "source": "https://uttarakhandtourism.gov.in/search",
     "overview": "Riverside pilgrimage and yoga destination in Uttarakhand; activity providers require independent verification.",
-    "facts": ["Rishikesh is on the Ganga in Uttarakhand.","The destination is widely associated with yoga, spiritual travel and the riverfront."],
+    "facts": [
+      "Rishikesh is on the Ganga in Uttarakhand.",
+      "The destination is widely associated with yoga, spiritual travel and the riverfront."
+    ],
     "days": [
       "Arrive and walk a riverfront area",
       "Explore local spiritual heritage and yoga options",
@@ -1143,7 +1196,10 @@ const FEATURED={
   "mussoorie": {
     "source": "https://uttarakhandtourism.gov.in/destination/mussoorie",
     "overview": "Popular Garhwal hill station with walks, heritage areas and neighbouring Landour.",
-    "facts": ["Mussoorie is a Garhwal hill station.","Landour and hill walks form part of its visitor circuit."],
+    "facts": [
+      "Mussoorie is a Garhwal hill station.",
+      "Landour and hill walks form part of its visitor circuit."
+    ],
     "days": [
       "Arrive and explore a central walk",
       "Spend a slow morning around Landour",
@@ -1153,11 +1209,71 @@ const FEATURED={
   "auli": {
     "source": "https://uttarakhandtourism.gov.in/destination/auli",
     "overview": "Mountain resort region noted for high-altitude scenery and skiing in suitable conditions.",
-    "facts": ["Auli is known as a skiing destination in Uttarakhand.","High-altitude weather and access conditions vary by season."],
+    "facts": [
+      "Auli is known as a skiing destination in Uttarakhand.",
+      "High-altitude weather and access conditions vary by season."
+    ],
     "days": [
       "Arrive via the appropriate access town",
       "Explore safe viewpoints or verified seasonal activities",
       "Allow weather buffer before departure"
+    ]
+  },
+  "jaipur": {
+    "source": "https://www.incredibleindia.gov.in/en/rajasthan/jaipur",
+    "overview": "Rajasthan's capital is known for planned heritage streets, forts, palaces and traditional craft markets.",
+    "facts": [
+      "Jaipur was founded by Maharaja Sawai Jai Singh II in 1727.",
+      "Amber Fort, City Palace and Hawa Mahal are prominent features of Jaipur's heritage landscape."
+    ],
+    "people": [
+      [
+        "Maharaja Sawai Jai Singh II",
+        "Founder of Jaipur and patron of astronomy"
+      ]
+    ],
+    "days": [
+      "Arrive and explore the old-city area around Hawa Mahal",
+      "Visit Amber Fort with time for local crafts and a leisurely meal",
+      "Explore City Palace and nearby historical sights before departure"
+    ]
+  },
+  "hampi": {
+    "source": "https://www.incredibleindia.gov.in/en/karnataka/hampi/a-journey-through-the-sacred-sites-of-hampi",
+    "overview": "Hampi preserves temple complexes and monuments associated with the Vijayanagara Empire.",
+    "facts": [
+      "Hampi's monuments are associated with the Vijayanagara Empire.",
+      "The Krishna Temple is associated with Emperor Krishnadevaraya."
+    ],
+    "people": [
+      [
+        "Krishnadevaraya",
+        "Vijayanagara ruler associated with commissioning the Krishna Temple"
+      ]
+    ],
+    "days": [
+      "Arrive and explore Hampi Bazaar and Virupaksha Temple",
+      "Explore the Vijaya Vittala Temple Complex and nearby heritage",
+      "Visit Krishna Temple and choose a relaxed heritage walk before departure"
+    ]
+  },
+  "rameswaram": {
+    "source": "https://www.incredibleindia.gov.in/en/tamil-nadu/rameswaram/dr-apj-abdul-kalam-memorial",
+    "overview": "Tamil Nadu pilgrimage island known for Ramanathaswamy Temple and its connection to scientist A. P. J. Abdul Kalam.",
+    "facts": [
+      "Rameswaram is on an island in Tamil Nadu.",
+      "Former Indian President and scientist A. P. J. Abdul Kalam was born in Rameswaram."
+    ],
+    "people": [
+      [
+        "A. P. J. Abdul Kalam",
+        "Scientist and former President of India, born in Rameswaram"
+      ]
+    ],
+    "days": [
+      "Arrive and explore Ramanathaswamy Temple surroundings",
+      "Visit coastal viewpoints and local heritage with weather checks",
+      "Visit the Abdul Kalam memorial and depart"
     ]
   }
 };
