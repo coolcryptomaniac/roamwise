@@ -70,3 +70,12 @@ test('curated commerce is a single category at a time, with real itinerary, shop
   assert.match(style,/\[hidden\].*display:none!important/);
   assert.match(read('corporate/index.html'),/Supplier|supplier/);
 });
+
+test('default curated homepage hides duplicate promotions while leaving destinations in More',()=>{
+  const css=read('design/home-curated-commerce.css'),more=read('more/index.html');
+  assert.match(css,/data-rw-design="himalayan-saanjh".*#rwCreditCard/);
+  assert.match(css,/data-rw-design="himalayan-saanjh".*#rwPioneerRail/);
+  assert.match(css,/data-rw-design="himalayan-saanjh".*#brand-ambassador/);
+  assert.match(more,/href="\/credit\/"/);
+  assert.match(more,/href="\/pioneer\/"/);
+});
