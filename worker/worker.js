@@ -76,6 +76,7 @@ import { handleHealth } from './handlers/health.js';
 import { handleSarvamVoice } from './handlers/sarvam-voice.js';
 import { handleAI } from './handlers/ai.js';
 import { handleTuskMcp } from './handlers/tusk-mcp.js';
+import { handleRoamwiseMcp, handleRoamwiseDiscovery } from './handlers/roamwise-discovery.js';
 import { handleTuskCapabilities, handleTuskOpenApi } from './handlers/tusk-partner.js';
 import { handlePublicDisplayCache } from './handlers/public-cache.js';
 import { syncApprovedPublicTargets } from './lib/public-display-sync.js';
@@ -164,6 +165,10 @@ export default {
     /* Flood / per-route limits and body-size cap (additive; see lib/rate-limit.js). */
     const refused = await abuseGuard(request, path);
     if(refused) return json({ error: refused.error }, refused.status);
+
+    // Public, read-only AI discovery: same catalog for MCP and REST.
+    if(path === 'mcp') return handleRoamwiseMcp(request);
+    if(path === 'v1/discovery/search' || path === 'v1/discovery/openapi.json' || /^v1\/discovery\/items\/[a-z0-9-]{1,80}$/.test(path)) return handleRoamwiseDiscovery(request, path);
 
     if(path.startsWith('treks/')) return handleTrekMarketplace(request, env, path);
 
