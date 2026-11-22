@@ -53,6 +53,22 @@ function rwTuskWorkerSearch(q,out){
  .then(function(data){
    if(!data||!data.available)return;
    var hits=Array.isArray(data.hits)?data.hits.slice(0,4):[];
+   if(data.route==='atlas'&&data.atlas&&typeof data.atlas==='object'){
+     // Only stable read-only content; never treat photo references as image src.
+     var a=data.atlas;
+     out.atlas={
+       name:String(a.name||'').slice(0,100),region:String(a.region||'').slice(0,100),
+       status:String(a.status||'').slice(0,40),
+       itinerary:(Array.isArray(a.itinerary)?a.itinerary:[]).slice(0,5).map(function(d){return {day:Number(d.day)||0,description:String(d.description||'').slice(0,260)};}),
+       food:(Array.isArray(a.food)?a.food:[]).slice(0,6).map(function(x){return String(x).slice(0,70);}),
+       people:(Array.isArray(a.people)?a.people:[]).slice(0,8).map(function(p){return {name:String(p.name||'').slice(0,90),context:String(p.context||'').slice(0,160)};}),
+       highlights:(Array.isArray(a.highlights)?a.highlights:[]).slice(0,8).map(function(x){return String(x).slice(0,90);}),
+       photo:{
+         referencePage:String(a.photo&&a.photo.referencePage||'').slice(0,300),
+         rights:'not-cleared',displayAllowed:false
+       }
+     };
+   }
    var trustworthy=data.route==='curated'||data.route==='approved-vector';
    out.rwRoute=String(data.route||'').slice(0,32);
    // Officially reviewed facts trump an unrelated DDG abstract even when
