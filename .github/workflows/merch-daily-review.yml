@@ -1,7 +1,7 @@
 name: One original merchandise design concept per day
 on:
-  # A one-time validation run when this workflow is changed on main; the
-  # daily schedule remains the recurring publisher of review-only designs.
+  # First-change smoke test; daily schedule remains recurring. GitHub Actions
+  # may be delayed. All changes are concept-only with no checkout permission.
   push:
     branches: [main]
     paths:
@@ -12,7 +12,6 @@ on:
 
 permissions:
   contents: write
-  pull-requests: write
 
 concurrency:
   group: roamwise-merch-daily-draft
@@ -46,23 +45,20 @@ jobs:
           name: merch-print-candidate-${{ github.run_id }}
           path: build/daily-merch-candidate/
           retention-days: 14
-      - name: Open/update merchandise approval PR (never auto-publish paid inventory)
-        uses: peter-evans/create-pull-request@v7
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          commit-message: 'design: daily RoamWise apparel concept for review'
-          title: 'Daily RoamWise original apparel design — review & supplier QA'
-          body: |
-            Automated DAILY DESIGN REVIEW ONLY. One unique, dated original concept is added per run to
-            `shop/daily-products.json` with scalable vector preview. This PR may accumulate days if approval is pending.
-
-            NOT a sellable Qikink SKU, not confirmed stock or price, and not a Cashfree product.
-            Approval checklist:
-            - [ ] Artwork/IP originality, motif rights and print file prepress (CMYK/DTF guidelines) checked
-            - [ ] Authentic garment, placement and all advertised sizes confirmed in Qikink My Products
-            - [ ] Source cost, delivery, GST, fees, returns and margin reviewed
-            - [ ] Sample ordered only if explicitly approved; sample QA passed
-            - [ ] Approved supplier SKU mapped server-side, no private identifiers in public JS
-            - [ ] Production checkout tested in sandbox; founder approves listing
-          branch: bot/merch-daily-review
-          delete-branch: true
+      - name: Auto-commit ONLY non-sellable design previews (no PR permission required)
+        run: |
+          set -euo pipefail
+          TODAY=$(TZ=Asia/Kolkata date +%F)
+          node -e "const fs=require('fs');fs.writeFileSync('shop/daily-run-status.json',JSON.stringify({schemaVersion:'1.0.0',dateIST:process.env.TODAY||'$TODAY',lastRunUTC:new Date().toISOString(),purpose:'review-only artwork, no Qikink SKU or checkout activation'},null,2)+'\\n');"
+          git config user.name "roamwise-merch-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          # Do not stage generated 300-DPI binaries, secrets, build/, or customer data.
+          git add -- shop/daily-products.json "shop/img/daily-$TODAY.svg" shop/daily-run-status.json
+          if git diff --cached --quiet; then
+            echo "Already produced today's design: $TODAY"
+          else
+            git commit -m "design: publish review-only apparel concept for $TODAY"
+            git pull --rebase origin main
+            git push origin HEAD:main
+          fi
+          echo "Concept-only inventory updated; Qikink SKU catalogue unchanged."
