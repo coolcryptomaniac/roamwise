@@ -214,8 +214,8 @@ function festLine(d, mi, month){
    Saying "custom tee in 10 minutes at the beach" would be a lie that generates
    refunds and one-star reviews, so the UI states the timeline up front.
 
-   Artwork uses Pollinations (free, keyless, no signup) — verified returning
-   real 768x768 JPEGs. */
+   Artwork previews may rely on a third-party generator, which can be unavailable.
+   A failed image must never result in a merch payment attempt. */
 var RW_SLOGAN_BANK = {
   _pattern: [
     '{P} ka {N}, mind kare {R}',
