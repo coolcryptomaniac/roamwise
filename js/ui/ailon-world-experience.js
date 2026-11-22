@@ -30,7 +30,7 @@
     }
     // Preserve broad geographic variety rather than repeating the last searched place.
     const output = [];
-    while ((india.length || world.length) && output.length < 48) {
+    while ((india.length || world.length) && output.length < 96) {
       if (india.length) output.push(india.shift());
       if (world.length) output.push(world.shift());
       if (world.length) output.push(world.shift());
@@ -208,18 +208,16 @@
     containers.forEach(el=>{ if(typeof MutationObserver==='function')new MutationObserver(mount).observe(el,{childList:true,subtree:true});});
   }
   bodyReady(()=>{
-    mountAiSettings(); mountWorldRail(); itinerarySkin();
-    // Manifest contains only owner-approved, attributed assets. If absent, retain
-    // existing licensed local/remote photos and visible gradients; never use
-    // Pollinations as an automatic card image source.
-    fetch('/data/ailon/media-manifest-v1.json',{cache:'force-cache'})
+    mountAiSettings(); itinerarySkin();
+    // The approved asset manifest is loaded before cards mount. A failed or
+    // unavailable R2 catalog never blocks the user from the local destination
+    // list and its gradient/image fallback.
+    const controller=new AbortController();
+    const stop=setTimeout(()=>controller.abort(),1800);
+    fetch('/data/ailon/media-manifest-v1.json',{cache:'force-cache',signal:controller.signal})
       .then(r=>r.ok?r.json():null).then(j=>{
-        if(!j || j.version!==1 || !j.assets)return;
-        media=j.assets;
-        const rail=document.getElementById('rwWorldRail');
-        if(!rail)return;
-        // New catalog files and their review status apply on the next refresh.
-      }).catch(()=>{});
+        if(j && j.version===1 && j.assets && typeof j.assets==='object')media=j.assets;
+      }).catch(()=>{}).finally(()=>{clearTimeout(stop);mountWorldRail();});
   });
   W.RWAilonWorld = { destinationPool, staysURL, modeChoices: modes.map(x=>x[0]) };
 })();
