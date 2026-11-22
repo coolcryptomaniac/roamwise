@@ -272,7 +272,7 @@ var RW_MERCH = { retail:499, podCost:315, get margin(){ return this.retail - thi
 function rwMerchHTML(place){
   var P = String(place||'your trip');
   var sl = rwSlogans(place, 6);
-  var art = rwArtURL(P+' travel, '+RW_ART_STYLES[0][1], 512, 512);
+  var art = ''; /* Generate only when the visitor explicitly chooses an art style. */
   return '<div class="tk-card"><div class="tk-head" style="background:linear-gradient(150deg,#7C3AED,#0A0A0C)">'
     +'<div class="tk-place">\ud83d\udc55 '+esc2(P)+' tee</div>'
     +'<div class="tk-meta">Your slogan, your artwork, printed and shipped</div></div>'
@@ -287,10 +287,11 @@ function rwMerchHTML(place){
     + RW_ART_STYLES.map(function(a,i){ return '<button class="tk-chip'+(i===0?' gold':'')+'" onclick="rwMerchArt('+i+',\''+P.replace(/'/g,'')+'\',this)">'+a[0]+'</button>'; }).join('')
     +'</div>'
     +'<div style="margin-top:10px;border-radius:14px;overflow:hidden;border:1px solid var(--b2,#2A2A36);background:#000;aspect-ratio:1;position:relative">'
-    +'<img id="merchArt" loading="lazy" decoding="async" src="'+art+'" style="width:100%;height:100%;object-fit:cover;display:block" alt="">' 
+    +'<img id="merchArt" loading="lazy" decoding="async" data-ready="0" style="width:100%;height:100%;object-fit:cover;display:none" alt="Generated artwork preview">'
+    +'<div id="merchArtFallback" role="status" style="display:grid;place-items:center;text-align:center;position:absolute;inset:0;padding:22px;color:#e4c88f;background:linear-gradient(140deg,#36284b,#1a202f)">Choose an artwork style to create a preview</div>' 
     +'<div id="merchOverlay" style="position:absolute;left:0;right:0;bottom:0;padding:14px;background:linear-gradient(0deg,rgba(0,0,0,.82),transparent);'
     +'font-weight:900;font-size:17px;text-align:center;text-shadow:0 2px 12px rgba(0,0,0,.9)">'+esc2(sl[0])+'</div></div>'
-    +'<div style="font-size:10px;color:var(--t3);margin-top:6px">Artwork generated free via Pollinations \u00b7 regenerate as often as you like</div>'
+    +'<div style="font-size:10px;color:var(--t3);margin-top:6px">Artwork is generated only after you choose a style. The external image service may be unavailable; ordering is disabled until a preview loads.</div>'
     +'</div>'
     +'<div class="tk-sec"><div class="tk-lab">How it gets to you</div>'
     +'<div class="tk-bul"><b>Printed &amp; shipped \u2014 4\u20137 days.</b> Order before you travel, or ship to your hotel if the trip is a week out.</div>'
@@ -310,11 +311,20 @@ function rwMerchArt(i, place, btn){
   var a=RW_ART_STYLES[i]; if(!a) return;
   [].forEach.call(btn.parentNode.querySelectorAll('.tk-chip'), function(b){ b.classList.remove('gold'); });
   btn.classList.add('gold');
-  var img=el('merchArt'); if(img) img.src = rwArtURL(place+' travel, '+a[1], 512, 512);
+  var img=el('merchArt'), fallback=el('merchArtFallback');
+  if(img){
+    img.dataset.ready='0'; img.style.display='none';
+    if(fallback){fallback.textContent='Generating preview…';fallback.style.display='grid';}
+    img.onload=function(){ if(img.naturalWidth>0){img.dataset.ready='1';img.style.display='block';if(fallback)fallback.style.display='none';} };
+    img.onerror=function(){img.dataset.ready='0';img.style.display='none';if(fallback){fallback.textContent='Image service unavailable. Choose another style or retry later.';fallback.style.display='grid';}};
+    img.src=rwArtURL(place+' travel, '+a[1], 512, 512);
+  }
 }
 function rwMerchOrder(place){
   var slogan = (el('merchSlogan')||{}).value || '';
-  var art = (el('merchArt')||{}).src || '';
+  var img=el('merchArt');
+  var art = (img&&img.dataset.ready==='1'&&img.naturalWidth>0)?img.src:'';
+  if(!art){showToast('Generate and load an artwork preview before ordering.');return;}
   if(!slogan.trim()){ showToast('Add a line first'); return; }
   var ov=el('merchOverlayBox');
   if(!ov){
