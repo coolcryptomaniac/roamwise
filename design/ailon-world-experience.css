@@ -78,3 +78,18 @@ html[data-rw-design="himalayan-saanjh"] #copilotHero #heroInput{
 .rw-category-item:focus-visible{outline:3px solid #ebc589;outline-offset:3px;border-radius:18px}
 @media(max-width:650px){.rw-category-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}.rw-category-deck{margin-top:18px}.rw-category-item .rw-category-art{border-radius:16px}}
 @media(prefers-reduced-motion:reduce){.rw-category-item img{transition:none!important}}
+
+/* Restore an easy-to-tap Ailon input, without the old 400px blank mobile composer. */
+html[data-rw-design="himalayan-saanjh"] body.shell[data-view="home"] #copilotHero #heroInput {
+ min-height:138px!important;height:138px!important;max-height:270px!important;
+ padding:15px 14px 51px!important;font-size:17px!important
+}
+html[data-rw-design="himalayan-saanjh"] body.shell[data-view="home"] #copilotHero .copilot-compose:focus-within #heroInput {
+ min-height:180px!important;height:180px!important
+}
+html[data-rw-design="himalayan-saanjh"] #copilotHero .tusk-title b{letter-spacing:-.04em}
+@media(max-width:480px){
+ html[data-rw-design="himalayan-saanjh"] body.shell[data-view="home"] #copilotHero #heroInput {
+  min-height:136px!important;height:136px!important;font-size:17px!important
+ }
+}
