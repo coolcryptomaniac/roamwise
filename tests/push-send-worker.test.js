@@ -276,3 +276,54 @@ test('handlePushSend: prunes a dead (UNREGISTERED) token after a failed send', a
   assert.equal(out.prunedDeadTokens, 1);
   assert.ok(calls.some((c) => c.patch && c.patch.includes('pushTokens.dead')));
 });
+
+
+test('handlePushSend: invalid categories are rejected rather than treated as account alerts', async () => {
+  const { handlePushSend } = await loadHandler();
+  const { env, idTokenKeyPem, kid, calls } = makeHarness();
+  const token = makeIdToken(idTokenKeyPem, kid);
+  const res = await handlePushSend(req({ uid:'target', title:'Hi', body:'Body', category:'fake-account' },token),env);
+  assert.equal(res.status,400);
+  assert.equal(calls.filter(c=>c.url && c.url.includes('fcm.googleapis.com')).length,0);
+});
+
+test('handlePushSend: offers are suppressed without affirmative opt-in', async () => {
+  const { handlePushSend } = await loadHandler();
+  const userDoc = { fields:{
+    pushTokens:{mapValue:{fields:{d1:{mapValue:{fields:{token:{stringValue:'REAL'}}}}}}}
+  }};
+  const { env, idTokenKeyPem, kid, calls } = makeHarness({userDoc});
+  const res = await handlePushSend(req({uid:'target',title:'Perks',body:'A verified perk',category:'offers'},makeIdToken(idTokenKeyPem,kid)),env);
+  assert.equal(res.status,200);
+  const out = await res.json();
+  assert.equal(out.skipped,'category_disabled');
+  assert.equal(out.sent,0);
+  assert.equal(calls.filter(c=>c.url && c.url.includes('fcm.googleapis.com')).length,0);
+});
+
+test('handlePushSend: opted-in offers use the quiet Android channel and once-per-week KV cap', async () => {
+  const { handlePushSend } = await loadHandler();
+  const userDoc = { fields: {
+    notificationPrefs:{mapValue:{fields:{offers:{booleanValue:true}}}},
+    pushTokens:{mapValue:{fields:{d1:{mapValue:{fields:{token:{stringValue:'ANDROID'}, platform:{stringValue:'android'}}}}}}}
+  }};
+  const sends = [];
+  const { env, idTokenKeyPem, kid } = makeHarness({
+    userDoc, fcmHandler:(body)=>{sends.push(body.message);return jsonRes({name:'sent'});}
+  });
+  const stored = new Map();
+  env.RW_KV = {
+    get: async k => stored.get(k)||null,
+    put: async (k,v) => {stored.set(k,v);}
+  };
+  const auth = makeIdToken(idTokenKeyPem,kid);
+  const payload = {uid:'target',title:'Verified benefit',body:'View an available member perk',category:'offers',url:'https://roamwise.co.in/'};
+  const first = await handlePushSend(req(payload,auth),env);
+  assert.equal((await first.json()).sent,1);
+  assert.equal(sends.length,1);
+  assert.equal(sends[0].android.notification.channel_id,'rw_offers');
+  assert.equal(sends[0].data.rw_category,'offers');
+  const second = await handlePushSend(req(payload,auth),env);
+  assert.equal((await second.json()).skipped,'frequency_cap');
+  assert.equal(sends.length,1);
+});
