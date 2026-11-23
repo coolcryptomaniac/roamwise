@@ -97,7 +97,7 @@ async function getMediaIndex(db,env){
   out[row.slug]={src:origin+'/media/'+encodeURIComponent(row.id),
    note:row.attribution||'RoamWise licensed destination image',
    alt:row.alt_text,rightsStatus:row.rights_status,status:'published',
-   licenseProof:'reviewed'};
+   licenseProof:'verified-in-d1-editorial-ledger'};
  }
  return {version:1,assets:out,ready:true};
 }
