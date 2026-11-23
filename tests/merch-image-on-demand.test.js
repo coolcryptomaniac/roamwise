@@ -41,7 +41,7 @@ test('explicitly choosing a merch style requests an image preview',()=>{
  assert.equal(fallback.hidden,true);
 });
 test('custom merch order stays gated on successfully loaded preview',()=>{
- const order=section('rwMerchOrder','rwMerchSize');
+ const order=section('rwMerchOrder','rwMerchSubmit');
  assert.match(order,/preview\.naturalWidth<100/);
  assert.match(order,/preview\.dataset\.previewFailed==='1'/);
 });
