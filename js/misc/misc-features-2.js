@@ -289,7 +289,7 @@ var RW_MERCH = { retail:499, podCost:315, get margin(){ return this.retail - thi
 function rwMerchHTML(place){
   var P = String(place||'your trip');
   var sl = rwSlogans(place, 6);
-  var art = rwArtURL(P+' travel, '+RW_ART_STYLES[0][1], 512, 512);
+  /* Do not consume Pollinations credits just by opening a merch card. */
   return '<div class="tk-card"><div class="tk-head" style="background:linear-gradient(150deg,#7C3AED,#0A0A0C)">'
     +'<div class="tk-place">\ud83d\udc55 '+esc2(P)+' tee</div>'
     +'<div class="tk-meta">Your slogan, your artwork, printed and shipped</div></div>'
@@ -304,7 +304,7 @@ function rwMerchHTML(place){
     + RW_ART_STYLES.map(function(a,i){ return '<button class="tk-chip'+(i===0?' gold':'')+'" onclick="rwMerchArt('+i+',\''+P.replace(/'/g,'')+'\',this)">'+a[0]+'</button>'; }).join('')
     +'</div>'
     +'<div style="margin-top:10px;border-radius:14px;overflow:hidden;border:1px solid var(--b2,#2A2A36);background:#000;aspect-ratio:1;position:relative">'
-    +'<img id="merchArt" loading="lazy" decoding="async" src="'+art+'" onload="rwMerchImageReady(this)" onerror="rwMerchImageError(this)" style="width:100%;height:100%;object-fit:cover;display:block" alt="Generated merch artwork preview"><div id="merchPreviewUnavailable" hidden role="status" style="position:absolute;inset:0;place-items:center;padding:18px;text-align:center;background:linear-gradient(145deg,#261c37,#745277);color:#fff8ed;font-weight:750">Preview unavailable. Try another style — payment is disabled until your artwork loads.</div>' 
+    +'<img id="merchArt" loading="lazy" decoding="async" onload="rwMerchImageReady(this)" onerror="rwMerchImageError(this)" style="width:100%;height:100%;object-fit:cover;display:none" alt="Generated merch artwork preview"><div id="merchPreviewUnavailable" role="status" style="position:absolute;inset:0;display:grid;place-items:center;padding:18px;text-align:center;background:linear-gradient(145deg,#261c37,#745277);color:#fff8ed;font-weight:750">Choose an artwork style to generate a preview. Ordering stays disabled until the image loads.</div>' 
     +'<div id="merchOverlay" style="position:absolute;left:0;right:0;bottom:0;padding:14px;background:linear-gradient(0deg,rgba(0,0,0,.82),transparent);'
     +'font-weight:900;font-size:17px;text-align:center;text-shadow:0 2px 12px rgba(0,0,0,.9)">'+esc2(sl[0])+'</div></div>'
     +'<div style="font-size:10px;color:var(--t3);margin-top:6px">Generated art is a preview only. If it fails, choose another style; no payment without a loaded preview.</div>'
