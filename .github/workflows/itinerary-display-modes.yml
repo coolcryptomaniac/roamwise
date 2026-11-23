@@ -1,0 +1,29 @@
+name: Itinerary Display Modes
+on:
+  pull_request:
+    paths:
+      - 'itinerary-library/assets/preset-runtime.js'
+      - 'itinerary-library/assets/preset-view-modes.js'
+      - 'itinerary-library/assets/preset-view-modes.css'
+      - 'tests/itinerary-display-modes.test.js'
+      - '.github/workflows/itinerary-display-modes.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  view-modes:
+    runs-on: ubuntu-latest
+    timeout-minutes: 9
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Install dependencies for DOM tests
+        run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Check syntax and route-independent view controls
+        run: |
+          node --check itinerary-library/assets/preset-runtime.js
+          node --check itinerary-library/assets/preset-view-modes.js
+          node --test tests/itinerary-display-modes.test.js
