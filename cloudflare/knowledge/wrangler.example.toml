@@ -1,0 +1,23 @@
+# Isolated preview only. COPY and fill this file explicitly before deploying.
+# Do not merge bindings into worker/wrangler.toml (which serves live Cashfree).
+# Copy to cloudflare/knowledge/wrangler.toml *locally* after provisioning resources.
+name = "roamwise-public-knowledge-preview"
+main = "approved-reader.mjs"
+compatibility_date = "2026-11-23"
+
+[vars]
+# This domain must point to THIS dedicated Worker and have valid HTTPS
+# before publishing the first reviewed media manifest.
+PUBLIC_MEDIA_ORIGIN = ""
+PUBLIC_ALLOWED_ORIGINS = "https://roamwise-web.pages.dev,https://roamwise.co.in,https://www.roamwise.co.in,https://roamwise.tech"
+
+# Create a NEW empty D1 database, not an existing Firestore/payment database.
+[[d1_databases]]
+binding = "PUBLIC_KNOWLEDGE_DB"
+database_name = "roamwise-knowledge-dev"
+database_id = "REPLACE-WITH-NEW-D1-DATABASE-UUID"
+
+# Create a separate private R2 bucket; never make its raw keys public by default.
+[[r2_buckets]]
+binding = "PUBLIC_MEDIA_BUCKET"
+bucket_name = "roamwise-public-media-dev"
