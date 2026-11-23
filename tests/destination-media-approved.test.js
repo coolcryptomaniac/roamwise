@@ -58,7 +58,7 @@ test('manifest arriving later upgrades a Tokyo placeholder without changing dest
 test('manifest network failures preserve existing browsing and fallback',async()=>{
  const d=setup(),w=d.window;
  w.fetch=async()=>{throw Error('offline')};
- assert.deepEqual(await w.RWDestinationMedia.load(),{});
+ assert.equal(Object.keys(await w.RWDestinationMedia.load()).length,0);
  assert.ok(w.document.querySelector('[data-rw-destination-id="tokyo"] .rw-photo-fallback'));
  d.window.close();
 });
