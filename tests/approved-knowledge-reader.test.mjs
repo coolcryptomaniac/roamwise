@@ -10,8 +10,9 @@ const okMedia={id:'tokyo-v1',destination_id:'tokyo',slug:'tokyo',r2_key:'media/d
  status:'published',published_at:'2026-11-22'};
 function fakeEnv(overrides={}){
  let getCount=0;
- const db={prepare(sql){return {bind(...args){
-  return {
+ const db={prepare(sql){
+  const query={
+   bind(...args){return query;},
    async all(){
     if(sql.includes('FROM public_destination_media m'))return {results:[okMedia,{...okMedia,id:'not-cleared',rights_status:'pending'}]};
     if(sql.includes('FROM public_destination_faq'))return {results:[]};
@@ -25,7 +26,8 @@ function fakeEnv(overrides={}){
     throw Error('Unexpected SQL '+sql);
    }
   };
- }};}};
+  return query;
+ }};
  const bucket={async get(key){getCount++;return {body:new Uint8Array([82,73,70,70]),size:4}}};
  return {env:{
   PUBLIC_KNOWLEDGE_DB:db,PUBLIC_MEDIA_BUCKET:bucket,
