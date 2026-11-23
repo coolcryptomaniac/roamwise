@@ -36,4 +36,17 @@
   async function photos(){const db=await loadRootPhotos();if(!db)return;let keys=[];try{keys=JSON.parse(body.dataset.photoKeys||'[]')}catch(e){}keys=[body.dataset.gateway,body.dataset.destination,...keys].filter(Boolean);const found=[];const seen=new Set();for(const k of keys){const hit=findPhoto(db,k);if(hit&&!seen.has(hit[1])){seen.add(hit[1]);found.push(hit);if(found.length>=5)break}}if(!found.length)return;const hero=document.querySelector('.hero-photo');if(hero){hero.style.backgroundImage=`url("${upgradePhoto(found[0][1])}")`;hero.classList.add('ready')}
     const anchor=document.querySelector('.local-intel-section')||document.querySelector('main .section');if(!anchor)return;const sec=document.createElement('section');sec.className='section local-photo-section';sec.id='rwLocalPhotos';sec.innerHTML='<h2>Local <em>Frames</em></h2><p class="lead">Destination imagery is pulled from the existing RoamWise photo library when a verified local match exists. The cinematic engine keeps the route readable even when imagery is unavailable.</p><div class="local-frames"></div>';const grid=sec.querySelector('.local-frames');found.slice(0,5).forEach(([name,url])=>{const f=document.createElement('figure');f.className='local-frame';f.innerHTML='<img loading="lazy" referrerpolicy="no-referrer" alt="'+esc(name)+'"><span>'+esc(name)+'</span>';f.querySelector('img').src=upgradePhoto(url);grid.appendChild(f)});anchor.after(sec)}
   photos();
+  /* Shared across all 192 existing preset HTML files without regenerating
+     HTML/PDF. Additive: any asset-load failure leaves classic cinematic view
+     untouched. View switching only changes presentation, never source data. */
+  (function loadPresetDisplayModes(){
+    var stylesheet=document.createElement('link');
+    stylesheet.rel='stylesheet';
+    stylesheet.href='../../assets/preset-view-modes.css?v=20261123';
+    document.head.appendChild(stylesheet);
+    var script=document.createElement('script');
+    script.src='../../assets/preset-view-modes.js?v=20261123';
+    script.async=true;
+    document.body.appendChild(script);
+  })();
 })();
