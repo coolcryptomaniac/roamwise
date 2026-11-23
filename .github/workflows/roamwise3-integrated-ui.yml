@@ -1,0 +1,36 @@
+name: RoamWise 3 Integrated UI
+on:
+  pull_request:
+    paths:
+      - 'js/ui/roamwise-world-enhancements.js'
+      - 'design/roamwise-world-enhancements.css'
+      - 'js/ui/destination-filmstrip.js'
+      - 'js/misc/misc-features-2.js'
+      - 'itinerary-library/assets/**'
+      - 'tests/roamwise3-integration.test.js'
+      - 'tests/itinerary-display-modes.test.js'
+      - '.github/workflows/roamwise3-integrated-ui.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  integration:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Install regression-test dependencies
+        run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Validate classic JS and shared itinerary modules
+        run: |
+          node --check js/ui/roamwise-world-enhancements.js
+          node --check js/ui/destination-filmstrip.js
+          node --check itinerary-library/assets/preset-view-modes.js
+          node --check js/misc/misc-features-2.js
+      - name: Run integrated UI, Ailon and itinerary regressions
+        run: |
+          node --test tests/roamwise3-integration.test.js tests/itinerary-display-modes.test.js tests/ailon-destination-context.test.cjs tests/destination-media-approved.test.js tests/ailon-discovery-ui.test.cjs
