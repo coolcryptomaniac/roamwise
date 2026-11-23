@@ -26,6 +26,11 @@ CREATE TABLE IF NOT EXISTS public_destination_media (
   CHECK((status!='published') OR
         (rights_status IN ('owned','licensed','public-domain')
          AND license_proof IS NOT NULL
+         AND length(trim(license_proof))>=12
+         AND reviewed_at IS NOT NULL
+         AND published_at IS NOT NULL
+         AND size_bytes BETWEEN 1 AND 4194304
+         AND mime_type IN ('image/avif','image/webp','image/jpeg','image/png')
          AND public_url IS NOT NULL))
 );
 CREATE INDEX IF NOT EXISTS idx_public_destination_media
