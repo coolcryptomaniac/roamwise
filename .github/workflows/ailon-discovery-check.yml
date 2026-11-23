@@ -59,5 +59,24 @@ jobs:
           tables={x[0] for x in conn.execute("SELECT name FROM sqlite_master WHERE type='table'")}
           assert {'public_destination','public_destination_media','public_destination_faq','public_destination_itinerary'} <= tables
           assert conn.execute('PRAGMA foreign_key_check').fetchall()==[]
-          print('D1 public schemas parsed; no external database touched')
+          conn.execute("INSERT INTO public_destination (id,slug,name,country_iso,status,indexed,created_at,updated_at) VALUES ('tokyo','tokyo','Tokyo','JP','published',1,'2026-11-23','2026-11-23')")
+          def insert_media(reviewed_at, rights='licensed'):
+              conn.execute("INSERT INTO public_destination_media (id,destination_id,r2_key,public_url,mime_type,alt_text,rights_status,license_proof,size_bytes,status,created_at,reviewed_at,published_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)",(
+                  'tokyo-photo','tokyo','media/tokyo.webp','https://assets.roamwise.co.in/media/tokyo-photo',
+                  'image/webp','Tokyo skyline',rights,'approved-licence-ledger-001',65536,'published',
+                  '2026-11-23',reviewed_at,'2026-11-23'))
+          import sqlite3 as sqlite
+          try:
+              insert_media(None)
+              raise AssertionError('Unreviewed media was allowed to publish')
+          except sqlite.IntegrityError:
+              pass
+          try:
+              insert_media('2026-11-22',rights='pending')
+              raise AssertionError('Pending-rights media was allowed to publish')
+          except sqlite.IntegrityError:
+              pass
+          insert_media('2026-11-22')
+          assert conn.execute("SELECT COUNT(*) FROM public_destination_media WHERE status='published'").fetchone()[0] == 1
+          print('D1 public schemas and media publication constraints validated; no external database touched')
           PY
