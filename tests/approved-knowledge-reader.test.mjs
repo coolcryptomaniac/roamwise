@@ -7,7 +7,7 @@ const okDest={id:'tokyo',slug:'tokyo',name:'Tokyo',country_iso:'JP',region:'Kant
 const okMedia={id:'tokyo-v1',destination_id:'tokyo',slug:'tokyo',r2_key:'media/destinations/tokyo/v1.webp',
  alt_text:'Tokyo skyline at dusk',attribution:'Licensed RoamWise media',rights_status:'licensed',
  license_proof:'media-approval-2026-11-22',mime_type:'image/webp',size_bytes:64000,
- status:'published',published_at:'2026-11-22'};
+ status:'published',reviewed_at:'2026-11-21',published_at:'2026-11-22'};
 function fakeEnv(overrides={}){
  let getCount=0;
  const db={prepare(sql){
@@ -44,7 +44,7 @@ test('rejects short, malformed and oversized queries',()=>{
 test('published data requires human approval and published media requires rights plus size',()=>{
  assert.ok(approved(okDest));assert.equal(approved({...okDest,status:'candidate'}),false);
  assert.ok(mediaApproved(okMedia));
- for(const props of [{status:'draft'},{rights_status:'pending'},{license_proof:''},{size_bytes:10e6},{mime_type:'text/html'}])
+ for(const props of [{status:'draft'},{rights_status:'pending'},{license_proof:''},{reviewed_at:null},{published_at:null},{id:'bad/key'},{size_bytes:10e6},{mime_type:'text/html'}])
   assert.equal(mediaApproved({...okMedia,...props}),false);
 });
 test('search only returns reviewed public rows, never customer data or payment claims',async()=>{
