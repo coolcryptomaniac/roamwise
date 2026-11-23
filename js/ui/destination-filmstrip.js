@@ -22,12 +22,19 @@
  function clean(s){return String(s||'').toLowerCase().normalize('NFKD').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');}
  function safeMedia(entry){
    var mediaIndex=/** @type {any} */ (root).RW_DEST_MEDIA;
-   var m=mediaIndex && mediaIndex[entry.id] || PHOTO[entry.id];
+   var candidate=mediaIndex && mediaIndex[entry.id];
+   var trusted=candidate && candidate.status==='published'
+     && ['owned','licensed','public-domain'].indexOf(candidate.rightsStatus)!==-1
+     && typeof candidate.licenseProof==='string' && candidate.licenseProof.length>=12;
+   var m=trusted?candidate:PHOTO[entry.id];
    if(!m||!m.src)return null;
-   /* Only first-party public assets or explicitly approved R2/owned CDN media.
-      Never interpolate city names into unreliable generated-image endpoints. */
    var src=String(m.src||'');
-   if(src.startsWith('/assets/')||src.startsWith('/media/')||/^https:\/\/assets\.roamwise\.co\.in\/media\/[a-zA-Z0-9_./%-]+$/.test(src))return {src:src,note:String(m.note||'Curated travel image')};
+   if((src.startsWith('/assets/')||src.startsWith('/media/'))
+     && !src.includes('..') && !src.includes('//') && !/[?#\\]/.test(src))
+     return {src:src,note:String(m.note||'Curated travel image'),alt:String(m.alt||entry.name)};
+   if(/^https:\/\/assets\.roamwise\.co\.in\/media\/[a-zA-Z0-9_./%-]+$/.test(src)
+     && !src.includes('..'))
+     return {src:src,note:String(m.note||'Curated travel image'),alt:String(m.alt||entry.name)};
    return null;
  }
  function uniqueDestinations(data){
@@ -40,27 +47,29 @@
    });
    return out;
  }
+ function drawFallback(media,place,label){
+   media.className='rw-destination-photo rw-photo-fallback';
+   while(media.firstChild)media.removeChild(media.firstChild);
+   media.appendChild(el('span','rw-destination-mark',place.name.slice(0,1).toUpperCase()));
+   media.appendChild(el('span','rw-destination-credit',label));
+ }
+ function renderPhoto(media,place){
+   var found=safeMedia(place);
+   if(!found)return drawFallback(media,place,'Photo pending · destination guide available');
+   media.className='rw-destination-photo';
+   while(media.firstChild)media.removeChild(media.firstChild);
+   var img=el('img');img.src=found.src;img.loading='lazy';img.decoding='async';
+   img.alt=place.name+' — '+found.alt;
+   img.addEventListener('error',function(){drawFallback(media,place,'Photo unavailable · explore the destination');});
+   media.appendChild(img);
+   media.appendChild(el('span','rw-destination-credit',found.note));
+ }
  function card(place){
    var article=el('article','rw-destination-card');
    article.setAttribute('aria-label','Explore '+place.name);
+   article.setAttribute('data-rw-destination-id',place.id);
    var media=el('div','rw-destination-photo');article.appendChild(media);
-   var found=safeMedia(place);
-   if(found){
-     var img=el('img');img.src=found.src;img.loading='lazy';img.decoding='async';
-     img.alt=place.name+' — '+found.note;
-     img.addEventListener('error',function(){
-       if(img.parentNode)img.parentNode.removeChild(img);
-       media.classList.add('rw-photo-fallback');
-       media.appendChild(el('span','rw-destination-mark',place.name.slice(0,1).toUpperCase()));
-       if(credit)credit.textContent='Photo unavailable · explore the destination';
-     });
-     media.appendChild(img);
-     var credit=el('span','rw-destination-credit',found.note);media.appendChild(credit);
-   }else{
-     media.classList.add('rw-photo-fallback');
-     media.appendChild(el('span','rw-destination-mark',place.name.slice(0,1).toUpperCase()));
-     media.appendChild(el('span','rw-destination-credit','Photo pending · destination guide available'));
-   }
+   renderPhoto(media,place);
    var body=el('div','rw-destination-content');article.appendChild(body);
    body.appendChild(el('strong','',place.name));
    body.appendChild(el('small','',place.country||'Explore the destination'));
@@ -113,6 +122,13 @@
    }
    if(prev)prev.addEventListener('click',function(){move(-1)});
    if(next)next.addEventListener('click',function(){move(1)});
+   if(typeof root.addEventListener==='function')root.addEventListener('rw:destination-media-ready',function(){
+     /* Review-approved R2 media may arrive after first paint; preserve scroll. */
+     places.forEach(function(place){
+       var item=track.querySelector('[data-rw-destination-id="'+place.id+'"]');
+       if(item){var media=item.querySelector('.rw-destination-photo');if(media)renderPhoto(media,place);}
+     });
+   });
  }
  /* defer scripts can execute with document.readyState === 'interactive' while
     later deferred destination data scripts have NOT executed yet. DOMContentLoaded
