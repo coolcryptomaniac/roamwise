@@ -38,13 +38,13 @@
    var res=await root.fetch(MANIFEST,{credentials:'omit',cache:'no-store'});
    if(!res.ok)return {};
    var approved=validate(await res.json());
-   root.RW_DEST_MEDIA=approved;
+   /** @type {any} */ (root).RW_DEST_MEDIA=approved;
    if(typeof root.dispatchEvent==='function'&&typeof root.CustomEvent==='function')
      root.dispatchEvent(new root.CustomEvent('rw:destination-media-ready'));
    return approved;
   }catch(_e){return {};}
  }
- root.RWDestinationMedia={validate:validate,safeUrl:safeUrl,load:load};
+ /** @type {any} */ (root).RWDestinationMedia={validate:validate,safeUrl:safeUrl,load:load};
  if(document.readyState==='complete')load();
  else document.addEventListener('DOMContentLoaded',load,{once:true});
 })(window);
