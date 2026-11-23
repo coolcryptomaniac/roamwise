@@ -1,0 +1,23 @@
+name: Merch Image On Demand
+on:
+  pull_request:
+    paths:
+      - 'js/misc/misc-features-2.js'
+      - 'tests/merch-image-on-demand.test.js'
+      - '.github/workflows/merch-image-on-demand.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify merch preview gating without remote generation
+        run: |
+          node --check js/misc/misc-features-2.js
+          node --test tests/merch-image-on-demand.test.js
