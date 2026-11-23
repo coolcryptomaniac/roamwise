@@ -1,0 +1,109 @@
+/* Premium, low-work Ailon-first visual layer: active only on the current default edition. */
+#copilotHero .tusk-title {align-items:center;position:relative}
+#copilotHero .rw-ailon-ai-settings {
+  margin-left:auto;white-space:nowrap;min-height:44px;padding:8px 11px;
+  border:1px solid rgba(235,198,136,.72);border-radius:12px;
+  background:#231b35;color:#f9d89c;font:750 12px system-ui,sans-serif;cursor:pointer;
+}
+#copilotHero .rw-ailon-ai-settings:focus-visible{outline:3px solid #fbe5b6;outline-offset:3px}
+.rw-ailon-ai-note{padding:12px;border:1px solid #cab18c66;background:#271f31;color:#f4e9d2;border-radius:12px;font-size:12px;line-height:1.6}
+html[data-rw-design="himalayan-saanjh"] #copilotHero{
+  background:radial-gradient(circle at 10% 0%,#3c305d88,transparent 60%),linear-gradient(155deg,#171323,#0a0b13)!important;
+  border-color:#a287bf88!important;box-shadow:0 14px 42px #0301089c!important
+}
+html[data-rw-design="himalayan-saanjh"] #copilotHero #heroInput{
+  font-size:clamp(16px,2.5vw,19px)!important;line-height:1.6!important
+}
+.rw-world-section{box-sizing:border-box;width:min(calc(100% - 24px),1100px);margin:22px auto 14px;color:#f4e9db}
+.rw-world-heading{display:flex;align-items:end;justify-content:space-between;gap:13px;margin:0 2px 14px}
+.rw-world-heading small{font:850 10px/1.5 system-ui,sans-serif;letter-spacing:.15em;color:#eccb8d}
+.rw-world-heading h2{font:800 clamp(22px,4vw,31px)/1.15 system-ui,sans-serif;letter-spacing:-.035em;margin:4px 0 5px}
+.rw-world-heading p{font:400 12.5px/1.5 system-ui,sans-serif;color:#c8bad1;max-width:630px;margin:0}
+.rw-world-nav{display:flex;gap:7px}
+.rw-world-nav button{width:44px;height:44px;cursor:pointer;border:1px solid #bc9bca;background:#211a35;color:#f9ebf3;border-radius:50%;font:800 27px system-ui,sans-serif}
+.rw-world-track{display:flex;gap:13px;overflow-x:auto;scroll-snap-type:x proximity;padding:8px 4px 16px;overscroll-behavior-inline:contain;scrollbar-width:thin;scrollbar-color:#8c67a4 #171421}
+.rw-world-card{flex:0 0 clamp(212px,26vw,275px);scroll-snap-align:start;border-radius:21px;overflow:hidden;background:#181421;border:1px solid #9880a68f;box-shadow:0 7px 24px #05040b88;min-height:280px;transition:transform .18s,border-color .18s}
+.rw-world-card:focus-within,.rw-world-card:hover{border-color:#eac283;transform:translateY(-2px)}
+.rw-world-photo{display:block;width:100%;height:185px;position:relative;border:0;overflow:hidden;padding:0;background:#25344d;cursor:pointer}
+.rw-world-photo:before{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at 25% 20%,#f4c88066,transparent 45%);z-index:1;pointer-events:none}
+.rw-world-photo img{height:100%;width:100%;object-fit:cover;display:block;transition:transform .35s}
+.rw-world-card:hover .rw-world-photo img{transform:scale(1.035)}
+.rw-world-photo-label{position:absolute;z-index:2;left:0;right:0;bottom:0;text-align:left;padding:36px 13px 12px;background:linear-gradient(transparent,#090913dd);font:bold 23px/1.1 system-ui,sans-serif;color:#fff;text-shadow:0 2px 9px #000b}
+.rw-world-info{padding:12px 13px 14px;display:grid;gap:11px}
+.rw-world-info small{font:500 12px system-ui,sans-serif;color:#d9cade}
+.rw-world-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.rw-world-actions button,.rw-world-actions a,.rw-world-choice-actions button,.rw-world-choice-actions a{display:flex;justify-content:center;align-items:center;min-height:44px;padding:10px 9px;border:1px solid #eac382;border-radius:11px;background:#eac382;color:#170f20;text-decoration:none;font:800 12px/1.15 system-ui,sans-serif;cursor:pointer;text-align:center}
+.rw-world-actions a,.rw-world-choice-actions a{background:#312841;border-color:#b59ebd;color:#fff2d9}
+.rw-world-actions :is(button,a):focus-visible,.rw-world-nav button:focus-visible{outline:3px solid #f5ddb5;outline-offset:3px}
+.rw-world-choice[hidden]{display:none!important}
+.rw-world-choice{position:fixed;inset:0;z-index:2147481900;display:grid;place-items:center;padding:16px;background:#06040bd9;backdrop-filter:blur(6px)}
+.rw-world-choice-panel{width:min(100%,430px);border-radius:20px;padding:23px;background:#161321;border:1px solid #e7bd87;box-shadow:0 18px 60px #000b;color:#f9f1ec;position:relative}
+.rw-world-choice-panel h3{font:800 24px/1.2 system-ui,sans-serif;margin:18px 0 7px}
+.rw-world-choice-panel p{font:400 14px/1.5 system-ui,sans-serif;color:#d3c1da;margin:0 0 18px}
+.rw-world-close{position:absolute;top:10px;right:10px;min-width:44px;min-height:44px;background:#2d243f;border:1px solid #88719e;color:white;border-radius:12px;cursor:pointer}
+.rw-world-choice-actions{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.rw-itinerary-view-switch{display:flex;gap:6px;flex-wrap:wrap;padding:12px 14px;border-bottom:1px solid #77708655;background:#14131d}
+.rw-itinerary-view-switch button{min-height:42px;border:1px solid #8e809a;border-radius:11px;background:#282433;color:#f8f3f6;padding:8px 12px;font:750 12px system-ui,sans-serif;cursor:pointer}
+.rw-itinerary-view-switch button[aria-pressed="true"]{background:#f8f1e5;color:#1a1620;border-color:#f8f1e5}
+.rw-tusk-itinerary[data-rw-itinerary-style="editorial"]{background:#08080b!important;color:#fff!important;border-color:#535158!important}
+.rw-tusk-itinerary[data-rw-itinerary-style="editorial"] .tk-head{background:#101015!important;color:#fff!important}
+.rw-tusk-itinerary[data-rw-itinerary-style="editorial"] .tk-place{color:#fff!important}
+.rw-tusk-itinerary[data-rw-itinerary-style="cinematic"]{background:linear-gradient(120deg,#102f43,#241c32,#3e2c23)!important;box-shadow:0 17px 45px #0009!important;transition:background .3s}
+.rw-tusk-itinerary[data-rw-itinerary-style="cinematic"] .tk-head{background:linear-gradient(115deg,#102f46,#542f3d)!important}
+.rw-tusk-itinerary[data-rw-itinerary-style="cards"] .tk-sec{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,210px),1fr));gap:10px}
+.rw-tusk-itinerary[data-rw-itinerary-style="cards"] .tk-sec>div,.rw-tusk-itinerary[data-rw-itinerary-style="cards"] .tk-sec>details{border:1px solid #8f7d9a77;border-radius:12px;padding:11px}
+#rwDiscoverFilters button[data-category="weddings"]{border-color:#e5ad8c;background:#372237;color:#ffe3ca}
+#rwDiscoverFilters button[data-category="weddings"].selected{background:#edc783;color:#211828}
+@media(max-width:570px){
+  .rw-world-card{flex-basis:min(74vw,268px)}
+  .rw-world-heading h2{font-size:23px}
+  #copilotHero .rw-ailon-ai-settings{font-size:11px;padding:8px;order:3}
+  #copilotHero .tusk-title em{display:none}
+}
+@media(prefers-reduced-motion:reduce){
+  .rw-world-card,.rw-world-photo img,.rw-tusk-itinerary[data-rw-itinerary-style]{animation:none!important;transition:none!important}
+  .rw-world-track{scroll-behavior:auto!important}
+}
+
+/* The four visual storefront doors use real cards that already exist in the
+   approved RoamWise inventory. No photos or bookability are invented. */
+.rw-category-deck{box-sizing:border-box;width:min(calc(100% - 24px),1100px);margin:18px auto 8px;color:#f9f0e5}
+.rw-category-deck h2{font:850 clamp(21px,3.8vw,30px)/1.2 system-ui,sans-serif;letter-spacing:-.035em;margin:0 2px 14px}
+.rw-category-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.rw-category-item{min-width:0;border:0;padding:0;background:transparent;color:#f8f1ea;text-align:left;cursor:pointer;font-family:system-ui,sans-serif}
+.rw-category-item .rw-category-art{display:grid;place-items:center;position:relative;overflow:hidden;border-radius:19px;aspect-ratio:1.15;background:#23334a;font-size:60px;box-shadow:0 7px 27px #03030980;border:1px solid #9c81aa99}
+.rw-category-item img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .24s ease}
+.rw-category-item:hover img{transform:scale(1.04)}
+.rw-category-item strong{display:block;font-size:clamp(13px,2.2vw,18px);padding:9px 2px;line-height:1.3}
+.rw-category-item:focus-visible{outline:3px solid #ebc589;outline-offset:3px;border-radius:18px}
+@media(max-width:650px){.rw-category-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}.rw-category-deck{margin-top:18px}.rw-category-item .rw-category-art{border-radius:16px}}
+@media(prefers-reduced-motion:reduce){.rw-category-item img{transition:none!important}}
+
+/* Restore an easy-to-tap Ailon input, without the old 400px blank mobile composer. */
+html[data-rw-design="himalayan-saanjh"] body.shell[data-view="home"] #copilotHero #heroInput {
+ min-height:138px!important;height:138px!important;max-height:270px!important;
+ padding:15px 14px 51px!important;font-size:17px!important
+}
+html[data-rw-design="himalayan-saanjh"] body.shell[data-view="home"] #copilotHero .copilot-compose:focus-within #heroInput {
+ min-height:180px!important;height:180px!important
+}
+html[data-rw-design="himalayan-saanjh"] #copilotHero .tusk-title b{letter-spacing:-.04em}
+@media(max-width:480px){
+ html[data-rw-design="himalayan-saanjh"] body.shell[data-view="home"] #copilotHero #heroInput {
+  min-height:136px!important;height:136px!important;font-size:17px!important
+ }
+}
+
+/* On-demand atlas lookup keeps the carousel visually compact and prevents
+   loading tens of thousands of map records or remote images on page open. */
+.rw-world-search{margin:0 2px 12px;display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+.rw-world-search input{box-sizing:border-box;flex:1 1 200px;min-width:0;min-height:45px;padding:10px 14px;background:#181529;border:1px solid #b49dc27a;color:#fff0e7;border-radius:13px;font:500 14px system-ui,sans-serif}
+.rw-world-search input::placeholder{color:#c8b9d0}
+.rw-world-search>button{min-height:45px;border-radius:12px;border:1px solid #f1ca89;padding:10px 16px;background:#f1ca89;color:#241528;font:800 12px system-ui,sans-serif;cursor:pointer}
+.rw-world-search>button:disabled{opacity:.55;cursor:wait}
+.rw-world-search-status{flex:0 0 100%;margin:0;color:#c9b9d1;font:500 11.5px/1.5 system-ui,sans-serif}
+.rw-world-search-results{flex:0 0 100%;display:flex;flex-wrap:wrap;gap:7px}
+.rw-world-search-results:empty{display:none}
+.rw-world-search-result{min-height:44px;max-width:100%;padding:8px 12px;overflow-wrap:anywhere;border:1px solid #b49dc27a;border-radius:12px;color:#f6e8e1;background:#282038;font:700 12px/1.45 system-ui,sans-serif;text-align:left;cursor:pointer}
+.rw-world-search :is(input,button):focus-visible{outline:3px solid #f3dcb3;outline-offset:3px}
+@media(max-width:480px){.rw-world-search>button{padding:10px 13px}.rw-world-search input{flex-basis:170px}}

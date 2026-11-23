@@ -214,8 +214,8 @@ function festLine(d, mi, month){
    Saying "custom tee in 10 minutes at the beach" would be a lie that generates
    refunds and one-star reviews, so the UI states the timeline up front.
 
-   Artwork uses Pollinations (free, keyless, no signup) — verified returning
-   real 768x768 JPEGs. */
+   Artwork previews may rely on a third-party generator, which can be unavailable.
+   A failed image must never result in a merch payment attempt. */
 var RW_SLOGAN_BANK = {
   _pattern: [
     '{P} ka {N}, mind kare {R}',
@@ -254,10 +254,27 @@ function rwSlogans(place, n){
   for(var i=out.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=out[i]; out[i]=out[j]; out[j]=t; }
   return out.slice(0, n||8);
 }
-/* free, keyless AI artwork */
+/* Optional generated preview: deterministic seed enables browser/CDN cache reuse.
+   Production destination/media galleries must use owned/approved assets, not this endpoint. */
 function rwArtURL(prompt, w, h){
-  return 'https://image.pollinations.ai/prompt/'+encodeURIComponent(prompt)
-    +'?width='+(w||768)+'&height='+(h||768)+'&nologo=true&seed='+Math.floor(Math.random()*99999);
+  var str=String(prompt||''),hash=2166136261;
+  for(var i=0;i<str.length;i++){hash^=str.charCodeAt(i);hash=Math.imul(hash,16777619);}
+  return 'https://image.pollinations.ai/prompt/'+encodeURIComponent(str)
+    +'?width='+(w||768)+'&height='+(h||768)+'&nologo=true&seed='+(hash>>>0);
+}
+function rwMerchImageError(img){
+  if(!img)return;
+  img.style.display='none';
+  img.dataset.previewFailed='1';
+  var p=el('merchPreviewUnavailable');
+  if(p)p.hidden=false;
+}
+function rwMerchImageReady(img){
+  if(!img)return;
+  img.dataset.previewFailed='0';
+  img.style.display='block';
+  var p=el('merchPreviewUnavailable');
+  if(p)p.hidden=true;
 }
 var RW_ART_STYLES = [
   ['Retro poster','vintage 1970s travel poster, flat colour, screen print, bold'],
@@ -287,10 +304,10 @@ function rwMerchHTML(place){
     + RW_ART_STYLES.map(function(a,i){ return '<button class="tk-chip'+(i===0?' gold':'')+'" onclick="rwMerchArt('+i+',\''+P.replace(/'/g,'')+'\',this)">'+a[0]+'</button>'; }).join('')
     +'</div>'
     +'<div style="margin-top:10px;border-radius:14px;overflow:hidden;border:1px solid var(--b2,#2A2A36);background:#000;aspect-ratio:1;position:relative">'
-    +'<img id="merchArt" loading="lazy" decoding="async" src="'+art+'" style="width:100%;height:100%;object-fit:cover;display:block" alt="">' 
+    +'<img id="merchArt" loading="lazy" decoding="async" src="'+art+'" onload="rwMerchImageReady(this)" onerror="rwMerchImageError(this)" style="width:100%;height:100%;object-fit:cover;display:block" alt="Generated merch artwork preview"><div id="merchPreviewUnavailable" hidden role="status" style="position:absolute;inset:0;place-items:center;padding:18px;text-align:center;background:linear-gradient(145deg,#261c37,#745277);color:#fff8ed;font-weight:750">Preview unavailable. Try another style — payment is disabled until your artwork loads.</div>' 
     +'<div id="merchOverlay" style="position:absolute;left:0;right:0;bottom:0;padding:14px;background:linear-gradient(0deg,rgba(0,0,0,.82),transparent);'
     +'font-weight:900;font-size:17px;text-align:center;text-shadow:0 2px 12px rgba(0,0,0,.9)">'+esc2(sl[0])+'</div></div>'
-    +'<div style="font-size:10px;color:var(--t3);margin-top:6px">Artwork generated free via Pollinations \u00b7 regenerate as often as you like</div>'
+    +'<div style="font-size:10px;color:var(--t3);margin-top:6px">Generated art is a preview only. If it fails, choose another style; no payment without a loaded preview.</div>'
     +'</div>'
     +'<div class="tk-sec"><div class="tk-lab">How it gets to you</div>'
     +'<div class="tk-bul"><b>Printed &amp; shipped \u2014 4\u20137 days.</b> Order before you travel, or ship to your hotel if the trip is a week out.</div>'
@@ -310,11 +327,15 @@ function rwMerchArt(i, place, btn){
   var a=RW_ART_STYLES[i]; if(!a) return;
   [].forEach.call(btn.parentNode.querySelectorAll('.tk-chip'), function(b){ b.classList.remove('gold'); });
   btn.classList.add('gold');
-  var img=el('merchArt'); if(img) img.src = rwArtURL(place+' travel, '+a[1], 512, 512);
+  var img=el('merchArt'); if(img){img.style.display='block';img.dataset.previewFailed='0';var p=el('merchPreviewUnavailable');if(p)p.hidden=true;img.src=rwArtURL(place+' travel, '+a[1], 512, 512);}
 }
 function rwMerchOrder(place){
   var slogan = (el('merchSlogan')||{}).value || '';
-  var art = (el('merchArt')||{}).src || '';
+  var preview=el('merchArt');
+  if(!preview || !preview.complete || preview.naturalWidth<100 || preview.dataset.previewFailed==='1'){
+    showToast('Artwork has not loaded. Try another style before ordering.');return;
+  }
+  var art=preview.src||'';
   if(!slogan.trim()){ showToast('Add a line first'); return; }
   var ov=el('merchOverlayBox');
   if(!ov){

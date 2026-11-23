@@ -457,7 +457,10 @@ function rwGeocode(q){
 function rwVerifyDest(parsed){
   if(!parsed || !parsed.dest || !parsed._weakDest) return Promise.resolve(parsed);
   return rwGeocode(parsed.dest).then(function(g){
-    if(g){ parsed.dest=g.name; parsed._geo=g; parsed._weakDest=false; }
+    if(g){ parsed.dest=g.name; parsed._geo=g; parsed._weakDest=false;
+      /* Store a newly verified destination only after geocoding succeeds. */
+      _cpCtx={dest:parsed.dest, days:parsed.days, budget:parsed.budget};
+    }
     else { parsed._notAPlace=parsed.dest; parsed.dest=null; }   /* honest: we don't know */
     return parsed;
   });
@@ -616,9 +619,20 @@ function cpParseRegex(t){
   /* travel STYLE words: "shoestring" is a style, not a rupee figure */
   if(/shoe\s*string|shoestring|bare\s*bones|barebones|backpack(er|ing)?|cheapest|sasta|low\s*budget|tight\s*budget/i.test(t)) out.style='budget';
   else if(/luxur(y|ious)|lavish|5\s*star|premium|shaandaar/i.test(t)) out.style='luxury';
+  /* Explicit worldwide place changes must override conversational "what about".
+     Ailon may not yet know the city. Geocode it instead of returning old trip. */
+  var explicitNewPlace = /\b(?:trip|journey|travel|visit|visiting|explore|stay|staying|plan|planning|go|going)\b.{0,32}\b(?:to|in|near|around|at|for)\s+(?!the\b|a\b|my\b|next\b|this\b|under\b|below\b|within\b)[A-Za-z\u00c0-\u024f]{3,}/i.test(t);
+  var newPlaceFollow = t.match(/\b(?:what|how)\s+about\s+([a-z\u00c0-\u024f]{3,}(?:\s+[a-z\u00c0-\u024f]{3,})?)/i);
+  if(newPlaceFollow && !/^(?:the|this|that|there|here|same|my|our|it|food|restaurants?|cafe|weather|rain|safety|prices?|costs?|budget|transport|trains?|flights?|buses|taxis|visa|hotels?|stays?|activities|things|planning|itinerary|bookings?|photos|maps|history|how|why|where|when)\b/i.test(newPlaceFollow[1])){
+    explicitNewPlace=true;
+    if(!out.dest){out.dest=newPlaceFollow[1].trim();out._weakDest=true;}
+  }
+  if(explicitNewPlace)out._explicitNewPlace=true;
   if(_cpCtx && !out._recommendCount){
-    var refersBack = /\b(there|here|that place|it|same|also|and|what about|how about)\b/i.test(t) || !out.dest;
-    if(!out.dest && refersBack && _cpCtx.dest){ out.dest = _cpCtx.dest; out._inherited = true; }
+    var refersBack = /\b(there|here|that place|same place|same trip|same destination|it|also|and|what about|how about)\b/i.test(t);
+    /* A new planning question without a place must NOT silently inherit the last city.
+       Only explicit follow-up language may use conversational context. */
+    if(!out.dest && refersBack && !explicitNewPlace && _cpCtx.dest){ out.dest = _cpCtx.dest; out._inherited = true; }
     /* days/budget belong to a TRIP, not to the user forever. Carrying \u20b98,500
        from an Almora chat into a brand-new Switzerland request produced a
        nonsense "won't cover" verdict for a budget the user never stated. Only
@@ -687,17 +701,18 @@ function cpParseRegex(t){
       }
     }
   }
-  /* a weak leftover token ("busget" typo) that isn't a known place loses to
-     the destination we already know from this conversation */
-  if(!out._country && out._weakDest && _cpCtx && _cpCtx.dest && out.dest && !rwKnownMap()[String(out.dest).toLowerCase()]){
-    /* never inherit a destination that was itself a parse slip */
-    if(!RW_COMMON_WORDS.test(String(_cpCtx.dest))){ out.dest = _cpCtx.dest; out._inherited = true; }
+  /* A possible NEW location must never be overwritten by the previous trip.
+     It may be an unfamiliar place, not a typo: downstream place resolution
+     can verify it, while no destination is safer than reusing stale context. */
+  if(!out._country && out._weakDest && out.dest && !rwKnownMap()[String(out.dest).toLowerCase()]){
+    out._needsPlaceVerification = true;
   }
   /* and never REMEMBER a common-word destination for future turns */
   if(out.dest && RW_COMMON_WORDS.test(String(out.dest)) && !rwKnownMap()[String(out.dest).toLowerCase()]) out._weakDest = true;
   var _junk = out.dest && RW_COMMON_WORDS.test(String(out.dest)) && !rwKnownMap()[String(out.dest).toLowerCase()];
-  if(out.dest && !_junk) _cpCtx = {dest:out.dest, days:out.days, budget:out.budget};
+  if(out.dest && !_junk && !out._weakDest) _cpCtx = {dest:out.dest, days:out.days, budget:out.budget};
   else if(out._country) _cpCtx = {dest:null, days:out.days, budget:out.budget, country:out._country};
+  else if(explicitNewPlace && (!out.dest || out._weakDest)) _cpCtx = null; /* prevent stale city while verifying */
   /* learn what this user tends to ask for — powers personalisation over time */
   try{ rwLearnIntent(out); }catch(e){ /* best-effort, ignore */ }
   return out;

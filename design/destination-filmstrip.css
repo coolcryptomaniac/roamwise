@@ -1,0 +1,69 @@
+/* RoamWise destination library v1 — cinematic but light on 4G phones. */
+#rwDestinationsRail{margin:18px auto 23px;padding:15px 12px 18px;width:min(calc(100% - 24px),1120px);box-sizing:border-box;background:linear-gradient(135deg,#0f0b19,#20172b 65%,#171421);border:1px solid #5b4770;border-radius:22px;color:#faf5ed;contain:layout style}
+#rwDestinationsRail[hidden]{display:none!important}
+#rwDestinationsRail .rw-destinations-top{display:flex;justify-content:space-between;gap:12px;align-items:flex-end;margin:0 4px 10px}
+#rwDestinationsRail .rw-destinations-top h2{font-size:clamp(21px,4vw,27px);line-height:1.15;margin:0;color:#ffe4b5;letter-spacing:-.03em}
+#rwDestinationsRail .rw-destinations-top p{font-size:12px;line-height:1.5;color:#c7b6cb;margin:5px 0 0}
+#rwDestinationsRail .rw-destinations-controls{display:flex;align-items:center;gap:6px;flex-shrink:0}
+#rwDestinationsRail .rw-destinations-controls button{width:38px;height:38px;border-radius:12px;border:1px solid #9a83b9;background:#241936;color:#f7e7cc;font-size:22px;cursor:pointer}
+#rwDestinationsRail .rw-destinations-controls button:focus-visible,#rwDestinationsRail .rw-destination-actions :focus-visible{outline:3px solid #f7dc9a;outline-offset:2px}
+#rwDestinationTrack{display:flex;overflow-x:auto;gap:13px;scroll-snap-type:x proximity;overscroll-behavior-inline:contain;scroll-padding-inline:4px;padding:8px 4px 14px;-webkit-overflow-scrolling:touch;scrollbar-width:thin}
+#rwDestinationTrack .rw-destination-card{flex:0 0 clamp(210px,34vw,260px);min-width:0;scroll-snap-align:start;background:#120e1d;border:1px solid #6c577c;border-radius:17px;overflow:hidden;box-shadow:0 9px 25px #0004;transition:transform .18s ease,border-color .18s ease}
+#rwDestinationTrack .rw-destination-card:hover{border-color:#e6c27e;transform:translateY(-2px)}
+#rwDestinationTrack .rw-destination-photo{height:157px;position:relative;background:linear-gradient(135deg,#322354,#704565 58%,#d1a971);overflow:hidden}
+#rwDestinationTrack .rw-destination-photo img{display:block;width:100%;height:100%;object-fit:cover}
+#rwDestinationTrack .rw-destination-photo.rw-photo-fallback{background:radial-gradient(circle at 80% 12%,#ae7f73 0,transparent 33%),linear-gradient(145deg,#25213f 18%,#61517b 62%,#b98d66);display:flex;align-items:center;justify-content:center}
+#rwDestinationTrack .rw-destination-mark{font-size:68px;font-weight:800;line-height:1;opacity:.45;text-shadow:0 5px 23px #20142d}
+#rwDestinationTrack .rw-destination-credit{position:absolute;bottom:7px;left:8px;right:8px;font-size:9px;font-weight:650;color:#fff9ec;background:#140d1ca6;border-radius:8px;padding:4px 7px;max-width:max-content}
+#rwDestinationTrack .rw-destination-content{padding:12px 13px 14px;display:grid;gap:5px}
+#rwDestinationTrack .rw-destination-content strong{font-size:17px;font-weight:800;color:#fff7ef;line-height:1.2;min-height:22px}
+#rwDestinationTrack .rw-destination-content small{font-size:12px;color:#cbbbd4;line-height:1.4}
+#rwDestinationTrack .rw-destination-actions{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:8px}
+#rwDestinationTrack .rw-destination-actions button,#rwDestinationTrack .rw-destination-actions a{display:flex;align-items:center;justify-content:center;text-align:center;font-family:inherit;font-size:12px;font-weight:750;min-height:42px;padding:7px 5px;cursor:pointer;border-radius:11px;text-decoration:none;box-sizing:border-box}
+#rwDestinationTrack .rw-dest-plan{color:#1a1123;background:#f6cc7f;border:1px solid #f6cc7f}
+#rwDestinationTrack .rw-dest-stays{color:#f6e7fd;background:#2a2137;border:1px solid #9875ab}
+#rwDestinationsRail #rwDestinationCount{color:#c9b7d4;font-size:11px;padding:0 4px}
+#copilotHero .tusk-title{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+#copilotHero .rw-tusk-ai-settings{margin-left:auto;display:inline-flex;align-items:center;gap:5px;min-height:38px;padding:8px 11px;border:1px solid #9e84c6;border-radius:12px;background:#241931;color:#f8e7c9;font:700 12px system-ui,sans-serif;cursor:pointer}
+#copilotHero .rw-tusk-ai-settings:focus-visible{outline:3px solid #ffd48f;outline-offset:2px}
+@media(max-width:600px){#rwDestinationsRail{padding:12px 8px 14px;margin:12px auto 18px}#rwDestinationTrack .rw-destination-card{flex-basis:72vw;max-width:276px}#rwDestinationsRail .rw-destinations-top{align-items:center}#rwDestinationsRail .rw-destinations-top p{max-width:220px}#copilotHero .tusk-title em{display:none}}
+@media(prefers-reduced-motion:reduce){#rwDestinationTrack{scroll-behavior:auto!important}#rwDestinationTrack .rw-destination-card{transition:none!important;transform:none!important}}
+
+
+/* Preserve the user's earlier spacious Ailon Tusk design in the default
+   Himalayan Saanjh theme, without altering either selectable legacy skin.
+   These selectors deliberately outrank previous compact mobile overrides. */
+html[data-rw-design="himalayan-saanjh"] body.shell[data-view="home"] #copilotHero{
+  background:linear-gradient(145deg,#1b1530,#110f23)!important;
+  border:1.5px solid #8d6aca!important;
+  border-radius:24px!important;
+  padding:17px 15px!important;
+  box-shadow:0 14px 32px #05020f88!important;
+}
+html[data-rw-design="himalayan-saanjh"] body.shell[data-view="home"] #copilotHero .copilot-compose{
+  min-height:0!important;height:auto!important;display:block!important;
+  background:linear-gradient(145deg,#11101f,#191226)!important;
+  border:1.5px solid #a779af!important;
+  padding:14px!important;border-radius:24px!important;
+  box-shadow:inset 0 0 0 1px #f2cf9e14,0 8px 22px #07041470!important;
+}
+html[data-rw-design="himalayan-saanjh"] body.shell[data-view="home"] #copilotHero #heroInput{
+  height:146px!important;min-height:146px!important;max-height:320px!important;
+  padding:10px 9px 53px!important;line-height:1.55!important;
+  font-size:16px!important;resize:vertical;
+}
+html[data-rw-design="himalayan-saanjh"] body.shell[data-view="home"] #copilotHero .copilot-compose:focus-within #heroInput{
+  height:184px!important;min-height:184px!important;
+}
+html[data-rw-design="himalayan-saanjh"] body.shell[data-view="home"] #copilotHero .tusk-title em{
+  display:inline!important;opacity:.75;font-size:12px;
+}
+html[data-rw-design="himalayan-saanjh"] body.shell[data-view="home"] #copilotHero .rw-tusk-voice-entry{
+  background:linear-gradient(115deg,#593ba1,#3d468d)!important;
+  color:#fff!important;border:1px solid #a18eea!important;
+}
+@media(max-width:600px){
+ html[data-rw-design="himalayan-saanjh"] body.shell[data-view="home"] #copilotHero .tusk-title em{
+   display:none!important;
+ }
+}
