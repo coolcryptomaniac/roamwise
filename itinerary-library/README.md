@@ -89,3 +89,35 @@ These are fallback route designs, not live operational guarantees. Weather, road
 ## Local intelligence & sharing
 
 The v1.1 cinematic runtime adds destination-specific photo hooks, lazy local/day maps, local food/movement/etiquette/visual context, and share mode attribution (`Made by RoamWise for <user>`). Normal viewing stays clean; personalized attribution is activated for share/print flows.
+
+
+## Four presentation views (additive; all cached presets)
+
+Each generated HTML preset now loads the shared display-mode controls from
+`assets/preset-view-modes.js` and `assets/preset-view-modes.css` through the
+existing `preset-runtime.js`. Existing HTML/PDF files do not need to be
+regenerated just to receive these presentation options.
+
+- **Cinematic** — original full-colour scroll and animated day carousel.
+- **Black & white** — readable monochrome editorial view with complete daily text.
+- **Cards** — responsive grid of day cards; no clipped daily notes.
+- **Map** — schematic route and local map action highlighted, with days visible.
+
+A view can be shared with a query parameter, for example:
+`/itinerary-library/presets/kumaon/signature.html?view=editorial`.
+The selected view is also stored locally as `rw_preset_view_v1` and reused
+on future presets, unless an explicit URL parameter overrides it. Users can
+change modes without reloading or losing itinerary content.
+
+**Map honesty:** the illustrated route is a schematic, not geographically
+accurate turn-by-turn navigation. The separate local map is fetched only
+after a user opens it; road closures, distances, schedules and permits are
+not automatically verified.
+
+**Accessibility:** buttons expose `aria-pressed`, views respect reduced
+motion, and print preserves full itinerary text regardless of chosen layout.
+
+**Safety:** no changes are made to provider prices, Cashfree checkout,
+availability, authentication or booking state. The modes affect only
+presentation. All modes must be manually checked on the deployed
+Cloudflare Pages preview before a production cutover.
