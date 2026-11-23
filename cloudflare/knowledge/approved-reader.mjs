@@ -19,7 +19,11 @@ function approved(row){
 }
 function mediaApproved(row){
  return !!(row && row.status==='published' && LICENSES.includes(row.rights_status)
-   && row.license_proof && row.r2_key && IMG_TYPES.includes(row.mime_type)
+   && typeof row.license_proof==='string' && row.license_proof.trim().length>=12
+   && row.reviewed_at && row.published_at && row.r2_key
+   && /^[a-zA-Z0-9_-]{1,96}$/.test(row.id)
+   && typeof row.alt_text==='string' && row.alt_text.trim()
+   && IMG_TYPES.includes(row.mime_type)
    && row.size_bytes>0 && row.size_bytes<=4*1024*1024);
 }
 function allowedOrigin(origin,env){
@@ -85,10 +89,11 @@ async function getMediaIndex(db,env){
  if(!origin||!env.PUBLIC_MEDIA_BUCKET)return {version:1,assets:{},ready:false,reason:'media-service-not-configured'};
  const out={};
  const rows=await db.prepare(`SELECT m.id,m.destination_id,m.r2_key,m.alt_text,m.attribution,m.rights_status,
- m.license_proof,m.mime_type,m.size_bytes,m.status,d.slug FROM public_destination_media m
+ m.license_proof,m.mime_type,m.size_bytes,m.status,m.reviewed_at,m.published_at,d.slug FROM public_destination_media m
  JOIN public_destination d ON d.id=m.destination_id
  WHERE m.status='published' AND m.rights_status IN ('owned','licensed','public-domain')
- AND m.license_proof IS NOT NULL AND m.r2_key IS NOT NULL
+ AND length(trim(m.license_proof))>=12 AND m.r2_key IS NOT NULL
+ AND m.reviewed_at IS NOT NULL AND m.published_at IS NOT NULL
  AND d.status='published' AND d.indexed=1 AND d.human_approved_at IS NOT NULL
  AND (d.next_review_at IS NULL OR date(d.next_review_at)>=date('now'))
  ORDER BY m.published_at DESC LIMIT 150`).all();
@@ -103,7 +108,7 @@ async function getMediaIndex(db,env){
 }
 async function getMedia(db,bucket,id){
  if(!/^[a-zA-Z0-9_-]{1,96}$/.test(id))return new Response('Not found',{status:404});
- const row=await db.prepare(`SELECT id,r2_key,mime_type,size_bytes,rights_status,license_proof,status
+ const row=await db.prepare(`SELECT id,r2_key,mime_type,size_bytes,rights_status,license_proof,status,reviewed_at,published_at,alt_text
  FROM public_destination_media WHERE id=? LIMIT 1`).bind(id).first();
  if(!mediaApproved(row))return new Response('Not found',{status:404});
  const file=await bucket.get(row.r2_key);
