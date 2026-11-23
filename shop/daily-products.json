@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "updatedAt": "2026-11-22",
+  "updatedAt": "2026-11-23",
   "policy": "review-only; never part of checkout or Qikink paid catalogue without explicit approval",
   "products": [
     {
@@ -28,6 +28,32 @@
         "#fbf0d8"
       ],
       "theme": "Myar Pahad"
+    },
+    {
+      "id": "daily-2026-11-23",
+      "name": "Rave to Rise · Oversized graphic T-shirt",
+      "type": "Oversized graphic T-shirt",
+      "description": "Sunlight beyond the ridge. Original RoamWise motif, concept only; print placement, garment fabric, sizes, price and Qikink production SKU require approval.",
+      "image": "/shop/img/daily-2026-11-23.svg",
+      "category": "rave",
+      "visual": "tee",
+      "status": "design-review",
+      "live": false,
+      "sizes": true,
+      "price": null,
+      "qikinkSku": null,
+      "inventory": null,
+      "fulfilment": "unapproved",
+      "creativeSource": "Original procedural vector illustration, curated theme rotation, not a supplier SKU",
+      "trendEvidence": "Qualitative design themes; no search volume or sales rank claim",
+      "createdOnIST": "2026-11-23",
+      "rightsStatus": "original_concept_requires_final_review",
+      "palette": [
+        "#ce3852",
+        "#f28a55",
+        "#fce8bf"
+      ],
+      "theme": "Rave to Rise"
     }
   ]
 }
