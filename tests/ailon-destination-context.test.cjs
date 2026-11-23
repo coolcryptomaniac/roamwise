@@ -51,3 +51,13 @@ test('switching between known destinations never carries stale budget or days',(
  assert.equal(three.dest,'Manali');
  assert.equal(three.days,null);
 });
+
+test('explicit worldwide what-about destination does not reuse the last trip',()=>{
+ const a=fresh();
+ assert.equal(a.parse('Plan 3 days in Almora').dest,'Almora');
+ const next=a.parse('What about Funchal?');
+ assert.equal(String(next.dest).toLowerCase(),'funchal');
+ assert.notEqual(next._inherited,true);
+ assert.equal(next._explicitNewPlace,true);
+ assert.equal(a.state._cpCtx,null,'old city must be cleared until new place is verified');
+});
