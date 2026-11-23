@@ -5,6 +5,9 @@ on:
       - 'index.html'
       - 'js/copilot/core.js'
       - 'js/ui/destination-filmstrip.js'
+      - 'js/ui/ailon-world-experience.js'
+      - 'design/ailon-world-experience.css'
+      - 'tests/roamwise3-integrated-ui.test.js'
       - 'js/ui/destination-media-loader.js'
       - 'media/destination-manifest-v1.json'
       - 'cloudflare/knowledge/**'
@@ -34,12 +37,13 @@ jobs:
         run: |
           node --check js/copilot/core.js
           node --check js/ui/destination-filmstrip.js
+          node --check js/ui/ailon-world-experience.js
           node --check js/ui/destination-media-loader.js
           node --check cloudflare/knowledge/approved-reader.mjs
           node --check js/ui/home-curated-discovery.js
           node --check knowledge/tools/build-cloudflare-seeds.cjs
       - name: Run focused browserless regression tests
-        run: node --test tests/ailon-destination-context.test.cjs tests/destination-filmstrip.test.cjs tests/destination-media-approved.test.js tests/approved-knowledge-reader.test.mjs
+        run: node --test tests/ailon-destination-context.test.cjs tests/destination-filmstrip.test.cjs tests/destination-media-approved.test.js tests/approved-knowledge-reader.test.mjs tests/roamwise3-integrated-ui.test.js
       - name: Prepare draft-only knowledge seed
         run: |
           node knowledge/tools/build-cloudflare-seeds.cjs /tmp/roamwise-knowledge-seeds
