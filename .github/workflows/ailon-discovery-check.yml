@@ -5,6 +5,11 @@ on:
       - 'index.html'
       - 'js/copilot/core.js'
       - 'js/ui/destination-filmstrip.js'
+      - 'js/ui/destination-media-loader.js'
+      - 'media/destination-manifest-v1.json'
+      - 'cloudflare/knowledge/**'
+      - 'tests/destination-media-approved.test.js'
+      - 'tests/approved-knowledge-reader.test.mjs'
       - 'js/ui/home-curated-discovery.js'
       - 'design/destination-filmstrip.css'
       - 'knowledge/**'
@@ -23,14 +28,18 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - name: Install DOM test dependencies
+        run: npm ci --ignore-scripts --no-audit --no-fund
       - name: Validate JS syntax
         run: |
           node --check js/copilot/core.js
           node --check js/ui/destination-filmstrip.js
+          node --check js/ui/destination-media-loader.js
+          node --check cloudflare/knowledge/approved-reader.mjs
           node --check js/ui/home-curated-discovery.js
           node --check knowledge/tools/build-cloudflare-seeds.cjs
       - name: Run focused browserless regression tests
-        run: node --test tests/ailon-destination-context.test.cjs tests/destination-filmstrip.test.cjs
+        run: node --test tests/ailon-destination-context.test.cjs tests/destination-filmstrip.test.cjs tests/destination-media-approved.test.js tests/approved-knowledge-reader.test.mjs
       - name: Prepare draft-only knowledge seed
         run: |
           node knowledge/tools/build-cloudflare-seeds.cjs /tmp/roamwise-knowledge-seeds
