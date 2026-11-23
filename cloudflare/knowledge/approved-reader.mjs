@@ -82,7 +82,7 @@ function mediaOrigin(env){
 }
 async function getMediaIndex(db,env){
  const origin=mediaOrigin(env);
- if(!origin)return {version:1,assets:{},ready:false,reason:'media-domain-not-configured'};
+ if(!origin||!env.PUBLIC_MEDIA_BUCKET)return {version:1,assets:{},ready:false,reason:'media-service-not-configured'};
  const out={};
  const rows=await db.prepare(`SELECT m.id,m.destination_id,m.r2_key,m.alt_text,m.attribution,m.rights_status,
  m.license_proof,m.mime_type,m.size_bytes,m.status,d.slug FROM public_destination_media m
@@ -107,7 +107,7 @@ async function getMedia(db,bucket,id){
  FROM public_destination_media WHERE id=? LIMIT 1`).bind(id).first();
  if(!mediaApproved(row))return new Response('Not found',{status:404});
  const file=await bucket.get(row.r2_key);
- if(!file)return new Response('Not found',{status:404});
+ if(!file||file.size>4*1024*1024)return new Response('Not found',{status:404});
  return new Response(file.body,{headers:{
   'content-type':row.mime_type,'x-content-type-options':'nosniff',
   'content-security-policy':"default-src 'none'; sandbox",
