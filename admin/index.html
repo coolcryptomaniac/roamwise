@@ -202,15 +202,18 @@
         <button class="btn" id="srRefresh" type="button">Refresh</button>
         <div id="srList"><div class="empty">Open this tab to load.</div></div>
       </section>
-      <section id="notifications" class="section"><div class="eyebrow">Push notifications</div><h1 class="title">Compose now, send once a sender exists.</h1><p class="lead">Queued at <code>notificationQueue/{id}</code>, admin-only. Not wired to a live send endpoint yet — see the page for exact status.</p>
+      <section id="notifications" class="section"><div class="eyebrow">Push notifications</div><h1 class="title">Review and deliver useful alerts.</h1><p class="lead">Drafts never send until an admin approves them. Verified, opt-in-only offers and travel tips are delivered by the Worker within frequency limits.</p>
         <div class="card"><h2>New notification</h2><div class="fields">
           <div class="field full"><label>Title</label><input id="notifTitle" class="input" placeholder="e.g. Your trip to Jaipur starts tomorrow"></div>
           <div class="field full"><label>Body</label><textarea id="notifBody" class="input"></textarea></div>
           <div class="field"><label>Topic</label><select id="notifCategory" class="input"><option value="booking">Bookings and reminders</option><option value="account">Account and membership</option><option value="safety">Travel safety</option><option value="travel" selected>Travel ideas (opt-in)</option><option value="offers">Offers (explicit opt-in)</option></select></div>
           <div class="field"><label>Target</label><select id="notifTargetType" class="input"><option value="all" selected>All users</option><option value="uid">One user (UID)</option></select></div>
           <div class="field"><label>Target UID (if one user)</label><input id="notifTargetUid" class="input" placeholder="Firebase UID"></div>
-          <div class="field full"><label>Open URL (optional)</label><input id="notifUrl" class="input" placeholder="https://www.roamwise.co.in/live/"></div></div>
-          <button class="btn primary" style="margin-top:12px" onclick="queueNotification()">Add to queue</button></div>
+          <div class="field full"><label>RoamWise destination link (required)</label><input id="notifUrl" class="input" placeholder="https://www.roamwise.co.in/"></div>
+          <div class="field"><label>Verified offer ID (only for Offers)</label><input id="notifOfferId" class="input" placeholder="ID in config/notificationOffers"></div>
+          <div class="field full"><label style="display:flex;gap:9px;align-items:center"><input id="notifReviewed" type="checkbox"> I reviewed the source, facts, prices and destination. Nothing unverified is promised.</label></div></div>
+          <button class="btn primary" style="margin-top:12px" onclick="queueNotification()">Save draft</button></div>
+        <div class="card" style="margin-top:14px"><h2>Delivery control</h2><p class="meta">Preview without sending. The Worker automatically delivers approved campaigns during permitted hours and caps each run at 35 users. Actual Pro-expiry dates power account reminders.</p><div class="actions"><button class="btn" onclick="runApprovedNotifications(true)">Preview recipients</button><button class="btn good" onclick="runApprovedNotifications(false)">Dispatch approved now</button></div><div id="notifDispatchResult" class="meta" aria-live="polite"></div></div>
         <div class="card" style="margin-top:14px"><h2>Queue</h2><div id="notificationQueueList"><div class="empty">Loading…</div></div></div>
       </section>
       <section id="referrals" class="section"><div class="eyebrow">Referral / creator liability</div><h1 class="title">What RoamWise owes its referrers.</h1><p class="lead">Computed only from approved claims. Rates come from the admin-controlled directory (historical stamps are capped at 30%); self-referrals and repeat buyer commissions are excluded.</p>
@@ -606,16 +609,49 @@ async function queueNotification(){
   const norm=RWNotificationComposer.normalizeNotification({
     title:$("notifTitle").value,body:$("notifBody").value,url:$("notifUrl").value,
     category:$("notifCategory").value,
+    reviewedContent:$("notifReviewed").checked,verifiedOfferId:$("notifOfferId").value,
     targetType:$("notifTargetType").value,targetUid:$("notifTargetUid").value
   });
   if(!norm.ok)return toast(norm.error,true);
   try{
     await db.collection("notificationQueue").add({...norm.notification,createdAt:FV.serverTimestamp(),createdBy:CURRENT_ADMIN.uid});
-    $("notifTitle").value="";$("notifBody").value="";$("notifUrl").value="";$("notifTargetUid").value="";
-    toast("Queued — not sent yet (no live sender wired up).")
+    $("notifTitle").value="";$("notifBody").value="";$("notifUrl").value="";$("notifTargetUid").value="";$("notifOfferId").value="";$("notifReviewed").checked=false;
+    toast("Draft saved. Approval is needed before delivery.")
   }catch(e){toast(friendlyError(e),true)}
 }
-async function markNotificationSent(id){try{await db.collection("notificationQueue").doc(id).set({status:"sent",sentAt:FV.serverTimestamp(),sentBy:CURRENT_ADMIN.uid},{merge:true})}catch(e){toast(friendlyError(e),true)}}
+async function approveNotificationQueueItem(id){
+  try{
+    const ref=db.collection("notificationQueue").doc(id),snap=await ref.get();
+    if(!snap.exists||snap.data().status!=="queued")return toast("Only drafts can be approved.",true);
+    const n=snap.data();
+    if(!confirm("Approve this real notification?\\n\\n"+n.title+"\\nCategory: "+n.category+"\\nAudience: "+(n.target&&n.target.type==="all"?"Opted-in users":"One user")+"\\nLink: "+n.url))return;
+    await ref.update({status:"approved",approvedAt:FV.serverTimestamp(),approvedBy:CURRENT_ADMIN.uid});
+    toast("Approved for server-side delivery.");
+  }catch(e){toast(friendlyError(e),true)}
+}
+async function revokeNotificationQueueItem(id){
+  if(!confirm("Revoke this campaign? Delivered notifications cannot be recalled."))return;
+  try{
+    const ref=db.collection("notificationQueue").doc(id),snap=await ref.get();
+    if(!snap.exists||snap.data().status!=="approved")return toast("Not an active campaign.",true);
+    await ref.update({status:"revoked",revokedAt:FV.serverTimestamp(),revokedBy:CURRENT_ADMIN.uid});
+    toast("Campaign revoked.");
+  }catch(e){toast(friendlyError(e),true)}
+}
+async function runApprovedNotifications(dry){
+  if(!dry&&!confirm("Send ONLY approved campaigns to consenting users now? This is a real send."))return;
+  const resultEl=$("notifDispatchResult");
+  try{
+    resultEl.textContent=dry?"Checking eligible recipients...":"Running approved dispatch...";
+    const active=auth.currentUser;if(!active)throw Error("Sign in as admin");
+    const bearer=await active.getIdToken();
+    const api="https://roamwise-api.founder-f53.workers.dev/admin/notifications/run?dry="+(dry?"1":"0");
+    const r=await fetch(api,{method:"POST",headers:{"authorization":"Bearer "+bearer}});
+    const output=await r.json();if(!r.ok)throw Error(output.error||"Worker unavailable");
+    resultEl.textContent=(dry?"Preview: ":"Dispatch report: ")+JSON.stringify(output);
+    toast(dry?"Preview complete. No messages sent.":"Dispatch finished. See counts.");
+  }catch(e){resultEl.textContent=String(e.message||e);toast(String(e.message||e),true)}
+}
 async function deleteNotificationQueueItem(id){if(!confirm("Delete this queued notification?"))return;try{await db.collection("notificationQueue").doc(id).delete()}catch(e){toast(friendlyError(e),true)}}
 /* ---------------------------------------------------------------------
    Dashboard home — Overview tab's "command center" card. Thin aggregator
