@@ -49,7 +49,7 @@ test('no paid calls or promotional cards for emergencies and private booking que
 });
 test('payments require user action, a verified quote, Cashfree and server-side status',()=>{
  assert.match(source,/data-tusk-open/);
- assert.match(source,/if\(!state\|\|busy\|\|!state\.quote\|\|!validForm\(\)\)return/);
+ assert.match(source,/if\(!state\|\|busy\|\|state\.paymentAttempted\|\|!state\.quote\|\|!validForm\(\)\)return/);
  assert.match(source,/sent!==amount/);
  assert.match(source,/redirectTarget:'_modal'/);
  assert.match(source,/\/shop\/quote/);

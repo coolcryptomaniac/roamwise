@@ -34,6 +34,7 @@ var RW_AGENT_TOOLS = [
   { type:'function', function:{ name:'enquire_stay',
     description:'For a verified partner that books by WhatsApp (from find_partners): open a WhatsApp enquiry with the dates, group size and budget filled in, carrying a RoamWise booking code. Ask the traveller for dates and group size first. This does not book or pay.',
     parameters:{ type:'object', properties:{ partnerId:{type:'string'}, checkIn:{type:'string', description:'YYYY-MM-DD'}, nights:{type:'number'}, guests:{type:'number'}, rooms:{type:'number'}, budget:{type:'number'}, note:{type:'string'} }, required:['partnerId','checkIn','guests'] } } },
+  {type:'function',function:{name:'prepare_roamwise_checkout',description:'Propose a specific RoamWise shop product, stay or package using its actual catalogue ID. Does not open a payment or set a price. The traveller must tap Review and approve the server quote.',parameters:{type:'object',properties:{kind:{type:'string',enum:['shop','stay','package']},id:{type:'string'}},required:['kind','id']}}},
   { type:'function', function:{ name:'open_roamwise_checkout',
     description:'Open the official RoamWise category checkout or offer page for the traveller. Never submit payment, set a price, claim availability, or book automatically. The traveller must approve payment on the official checkout.',
     parameters:{type:'object',properties:{category:{type:'string',enum:['shop','stays','packages','treks','pro','music']}},required:['category']} } },
@@ -153,6 +154,10 @@ var RW_AGENT_IMPL = {
       hidden_gems: hit.gems||[],
       local_tip: hit.local||'',
       visa: hit.visa||null};
+  },
+  prepare_roamwise_checkout:function(a){
+    if(!a||!['shop','stay','package'].includes(a.kind)||!(/^[a-z0-9-]{1,80}$/).test(String(a.id||'')))return {ok:false,error:'invalid_catalogue_reference'};
+    return {ok:true,action:'review_catalogue_offer',kind:a.kind,id:a.id,requiresServerQuote:true,requiresUserApproval:true,paymentConfirmed:false};
   },
   open_roamwise_checkout: function(a){
     var pages={shop:'/shop/',stays:'/',packages:'/packages/',treks:'/treks/',pro:'/',music:'/music/store/'};
@@ -412,7 +417,9 @@ function rwAgentGo(){
   rwAgentRun(obj, function(tr){ rwAgentRenderTrace(tr, host); },
     function(res){
       rwAgentRenderTrace(res.trace, host);
-      if(res.ok) host.insertAdjacentHTML('beforeend', rwTuskAgentResultHTML(res.answer||''));
+      if(res.ok){host.insertAdjacentHTML('beforeend', rwTuskAgentResultHTML(res.answer||''));
+        var seen=new Set();(res.trace||[]).filter(t=>t.kind==='observation').forEach(function(t){var x=t.data;if(!x||x.action!=='review_catalogue_offer'||x.ok!==true||!['shop','stay','package'].includes(x.kind)||!(/^[a-z0-9-]{1,80}$/).test(x.id)||seen.has(x.kind+':'+x.id)||seen.size>=3)return;seen.add(x.kind+':'+x.id);var button=document.createElement('button');button.type='button';button.textContent='Review '+x.kind+' offer in Ailon';button.className='tact';button.setAttribute('data-tusk-open',x.kind);button.setAttribute('data-tusk-id',x.id);host.appendChild(button);});
+      }
       else host.insertAdjacentHTML('beforeend',
         '<div style="border:1px solid #E05B5B;background:rgba(224,91,91,.08);border-radius:12px;padding:14px;margin-top:10px">'
         +'<b style="color:#E05B5B;font-size:13px">Stopped: '+esc2(res.reason)+'</b>'
