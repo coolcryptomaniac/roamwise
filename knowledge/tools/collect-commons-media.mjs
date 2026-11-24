@@ -10,7 +10,7 @@ const MAX=4*1024*1024;
 const strip=s=>String(s||'').replace(/<[^>]*>/g,' ').replace(/\s+/g,' ').trim().slice(0,500);
 export function selectMedia(info){
  const m=info?.extmetadata||{},license=m.LicenseShortName?.value;
- const licenses={'CC BY 4.0':'https://creativecommons.org/licenses/by/4.0/','CC BY 3.0':'https://creativecommons.org/licenses/by/3.0/','CC0':'https://creativecommons.org/publicdomain/zero/1.0/'};
+ const licenses={'CC BY-SA 4.0':'https://creativecommons.org/licenses/by-sa/4.0/','CC BY-SA 3.0':'https://creativecommons.org/licenses/by-sa/3.0/','CC BY 4.0':'https://creativecommons.org/licenses/by/4.0/','CC BY 3.0':'https://creativecommons.org/licenses/by/3.0/','CC0':'https://creativecommons.org/publicdomain/zero/1.0/'};
  if(!Object.hasOwn(licenses,license)||m.Restrictions?.value?.trim())return null;
  if(!['image/jpeg','image/png','image/webp'].includes(info.mime)||!Number.isSafeInteger(info.size)||info.size<=0||info.size>MAX)return null;
  let url,source;try{url=new URL(info.url);source=new URL(info.descriptionurl);}catch{return null;}
@@ -37,7 +37,7 @@ function put(key,file,mime){
  if(p.status!==0)throw Error('R2 upload failed');
 }
 export async function collect({out='/tmp/rw-commons-intake',upload=false}={}){
- await fs.mkdir(out,{recursive:true});const report={version:1,assets:[],skipped:[],uploaded:0,published:0};
+ await fs.mkdir(out,{recursive:true});const report={version:1,assets:[],skipped:[],uploaded:0,published:0,failedUploads:0};
  for(const [id,title] of PLACES){
   try{
    const page=await json('en.wikipedia.org',{action:'query',titles:title,prop:'pageimages',piprop:'name',pilicense:'free',redirects:'1'});
@@ -48,15 +48,15 @@ export async function collect({out='/tmp/rw-commons-intake',upload=false}={}){
    const ext={'image/jpeg':'jpg','image/png':'png','image/webp':'webp'}[m.mime],key='intake/commons/'+id+'/'+sha+'.'+ext;
    const name=path.join(out,id+'.'+ext),meta=path.join(out,id+'.json');
    await fs.writeFile(name,bytes);
-   const row={destinationId:id,sourcePage:m.source,sourceFile:file,license:m.license,licenseUrl:m.licenseUrl,creator:m.author,sourceUrl:m.url,sha256:sha,size:bytes.length,mime:m.mime,r2Key:key,reviewStatus:'pending',published:false,collectedAt:new Date().toISOString()};
+   const row={destinationId:id,sourcePage:m.source,sourceFile:file,license:m.license,licenseUrl:m.licenseUrl,shareAlike:m.license.startsWith('CC BY-SA'),creator:m.author,sourceUrl:m.url,sha256:sha,size:bytes.length,mime:m.mime,r2Key:key,reviewStatus:'pending',published:false,collectedAt:new Date().toISOString()};
    await fs.writeFile(meta,JSON.stringify(row,null,2)+'\n');
-   if(upload){put(key,name,m.mime);put(key+'.json',meta,'application/json');report.uploaded++;}
    report.assets.push(row);
+   if(upload){try{put(key,name,m.mime);put(key+'.json',meta,'application/json');report.uploaded++;}catch(e){report.failedUploads++;throw e;}}
   }catch(e){report.skipped.push({destinationId:id,reason:String(e.message).slice(0,150)});}
  }
  await fs.writeFile(path.join(out,'report.json'),JSON.stringify(report,null,2)+'\n');
  console.log(JSON.stringify({collected:report.assets.length,uploaded:report.uploaded,published:0,skipped:report.skipped}));
- if(!report.assets.length||upload&&report.uploaded!==report.assets.length)throw Error('No verified collection or incomplete upload');
+ if(!report.assets.length||upload&&(report.failedUploads||report.uploaded!==report.assets.length))throw Error('No verified collection or incomplete upload');
  return report;
 }
 if(process.argv[1]&&import.meta.url===pathToFileURL(path.resolve(process.argv[1])).href)await collect({upload:process.argv.includes('--upload')});
