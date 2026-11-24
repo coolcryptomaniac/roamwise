@@ -93,6 +93,7 @@ export async function createStayOrder(request,env){
  if(b.balanceOf)return createBalanceOrder(b,env);
  await ensureAmorRates(env);
  let quote,supplierNet;try{({quote,supplierNet}=priceFull(b))}catch(e){return json({error:'invalid_quote',message:e.message},422)}
+ if(Object.prototype.hasOwnProperty.call(b,'expectedAmountPaise')&&(!Number.isSafeInteger(b.expectedAmountPaise)||b.expectedAmountPaise!==Math.round(quote.amount*100)))return json({error:'quote_changed',message:'Price changed. Review a fresh quote before paying.'},409);
  const phone=String(b.phone||'').replace(/[\s()-]/g,''),email=String(b.email||'').trim();
  if(!/^\+?\d{10,15}$/.test(phone)||!/^\S+@\S+\.\S+$/.test(email))return json({error:'contact_required'},422);
  const id='rwstay_'+crypto.randomUUID().replace(/-/g,'');

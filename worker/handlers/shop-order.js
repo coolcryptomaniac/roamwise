@@ -168,6 +168,7 @@ export function createShopHandlers(overrides) {
     const priced = priceCart(body.items, ship.value.pin, deps.catalogue);
     if (priced.error) return json({ error: priced.error, message: priced.message }, 422);
 
+    if(Object.prototype.hasOwnProperty.call(body,'expectedAmountPaise')&&(!Number.isSafeInteger(body.expectedAmountPaise)||body.expectedAmountPaise!==priced.totalPaise))return json({error:'quote_changed',message:'Price changed. Review a fresh quote before paying.'},409);
     const id = newOrderId(deps.randomBytes(10));
     const token = hex(deps.randomBytes(24));
     const at = deps.now().toISOString();

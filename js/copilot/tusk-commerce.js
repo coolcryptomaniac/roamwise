@@ -10,7 +10,7 @@
  var safeId=/^[a-z0-9-]{1,80}$/;
  function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
  function rupees(paise){return '₹'+(Number(paise||0)/100).toLocaleString('en-IN',{maximumFractionDigits:2});}
- function money(inr){return '₹'+Math.round(Number(inr)||0).toLocaleString('en-IN');}
+ function money(inr){return '₹'+(Number(inr)||0).toLocaleString('en-IN',{maximumFractionDigits:2});}
  function allowedQuery(q){
    if(typeof rwTuskIsPublicQuery!=='function'||!rwTuskIsPublicQuery(q))return false;
    return !/\b(?:emergency|ambulance|police|sos|assault|suicide|self harm|medical|injury|landslide|missing person|scam|fraud|otp|password)\b|आपातकाल|इमरजेंसी|मदद चाहिए/i.test(q||'');
@@ -222,15 +222,16 @@
    return true;
  }
  function doQuote(){
-   if(!state||busy||!readyToQuote())return Promise.resolve();
+   if(!state||busy||state.paymentAttempted||!readyToQuote())return Promise.resolve();
    var cur=state;busy=true;cur.pay.disabled=true;say('Checking the final amount with RoamWise…');
    var b=formValues(),endpoint=cur.kind==='shop'?'/shop/quote':'/stays/quote';
    return request(endpoint,cur.kind==='shop'?b:b).then(function(d){
      if(state!==cur)return;
      var q=cur.kind==='shop'?d:d.quote;
      if(!q||!Number.isFinite(Number(cur.kind==='shop'?q.totalPaise:q.amount))||Number(cur.kind==='shop'?q.totalPaise:q.amount)<=0)throw Error('Invalid quote returned');
-     if(cur.kind==='shop'&&!q.methods.cashfree){cur.quote=null;say('Cashfree is not enabled for this item. Use full shop checkout or enquiry.');return;}
-     cur.quote={body:b,amount:cur.kind==='shop'?Number(q.totalPaise):Number(q.amount),data:q,signature:JSON.stringify(b)};
+     if(cur.kind==='shop'&&(!q.methods||!q.methods.cashfree)){cur.quote=null;say('Cashfree is not enabled for this item. Use full shop checkout or enquiry.');return;}
+     if(JSON.stringify(formValues())!==JSON.stringify(b)){markDirty();return;}
+     cur.quote={expiresAt:Date.now()+5*60*1000,body:b,amount:cur.kind==='shop'?Number(q.totalPaise):Number(q.amount),data:q,signature:JSON.stringify(b)};
      var full=cur.kind==='shop'?rupees(q.totalPaise):money(q.amount);
      var total=cur.kind==='shop'?' (including '+rupees(q.shippingPaise)+' delivery)':' · total '+(q.total!=null?money(q.total):'to be confirmed');
      cur.details.textContent='Pay now '+full+total+'. Availability / supplier acceptance is not guaranteed by payment.';
@@ -256,9 +257,9 @@
      }).catch(function(){if(state===cur)say('Payment status unavailable. Do not pay again; contact RoamWise with reference '+id);});
  }
  function doPay(){
-   if(!state||busy||!state.quote||!validForm())return Promise.resolve();
+   if(!state||busy||state.paymentAttempted||!state.quote||!validForm())return Promise.resolve();
    var cur=state,b=formValues();
-   if(JSON.stringify(b)!==cur.quote.signature){markDirty();return Promise.resolve();}
+   if(Date.now()>=cur.quote.expiresAt||JSON.stringify(b)!==cur.quote.signature){markDirty();return Promise.resolve();}
    busy=true;cur.pay.disabled=true;say('Creating a secure Cashfree session…');
    var amount=cur.quote.amount, payload;
    if(cur.kind==='shop'){
@@ -267,6 +268,8 @@
    }else{
      payload=Object.assign({},b,{email:cur.form.elements.email.value.trim(),phone:cur.form.elements.phone.value.trim(),shareWithSupplier:cur.form.elements.shareWithSupplier.checked});
    }
+   payload.expectedAmountPaise=cur.kind==='shop'?amount:Math.round(amount*100);
+   cur.paymentAttempted=true;
    return request(cur.kind==='shop'?'/shop/order':'/stays/checkout',payload).then(function(d){
      if(state!==cur)return;
      var sent=cur.kind==='shop'?Number(d.totalPaise):Number(d.quote&&d.quote.amount);
@@ -274,6 +277,8 @@
      var session=cur.kind==='shop'?d.payment_session_id:d.paymentSessionId;
      if(!session||!d.orderId)throw Error('Payment session missing. Check your order before retrying.');
      var id=String(d.orderId),token=String(d.token||'');
+     cur.orderRef=id;
+     var statusButton=el('button','Check payment status');statusButton.type='button';statusButton.onclick=function(){checkStatus(cur,id,token);};cur.form.appendChild(statusButton);
      if(cur.kind==='shop'&&token){try{localStorage.setItem('rwShopOrder.'+id,token);}catch(e){}}
      cur.details.textContent='Reference '+id+'. Cashfree securely handles the payment. Do not initiate a second charge until this order is checked.';
      say('Opening Cashfree secure payment window…');
