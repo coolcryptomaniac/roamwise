@@ -19,7 +19,7 @@
    q=String(q||'').toLowerCase();
    if(!allowedQuery(q))return '';
    if(/\b(?:hoodie|tote|headband|shop|merch|merchandise|buy a|buy the|gift|souvenir|shopping|aipan shirt|t-shirt)\b|हुडी|खरीदना|शॉप|उपहार/i.test(q))return 'shop';
-   if(/\b(?:trek|trekking|hiking|guide|hike)\b|ट्रेक|ट्रेकिंग/i.test(q))return 'treks';
+   if(/\b(?:trek|trekking|hiking|trek guide|hike)\b|ट्रेक|ट्रेकिंग/i.test(q))return 'treks';
    if(/\b(?:package|packages|honeymoon|wedding|holiday deal|family holiday|resort package|tour package)\b|पैकेज|हनीमून|शादी/i.test(q))return 'packages';
    if(/\b(?:hotel|homestay|room|resort|stay|book a villa|book a cottage|accommodation)\b|होटल|होमस्टे|कमरा|रुकना/i.test(q))return 'stays';
    return '';

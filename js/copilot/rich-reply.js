@@ -186,7 +186,7 @@ async function cpFinish(bubble, answerHTML, intents, raw){
   try{ if(intents.smalltalk==='greet' && typeof rwUmChipsHTML==='function') _html += rwUmChipsHTML(); }catch(e){ /* optional */ }
   try{ if(!intents.smalltalk && typeof rwUmNotice==='function') _html += rwUmNotice(); }catch(e){ /* optional */ }
   /* Every answer ends with tappable actions — an answer is never a dead end. */
-  try{ if(!intents.smalltalk&&!isKasarFestival&&!intents._noGenericActions) _html += rwTuskRail(intents.dest||'', raw||''); }catch(e){ /* best-effort, ignore */ }
+  try{ if(!intents.smalltalk&&!isKasarFestival&&(!intents._noGenericActions||intents._rwAllowDestinationCommerce)) _html += rwTuskRail(intents.dest||'', raw||''); }catch(e){ /* best-effort, ignore */ }
   /* Curated, public local partners and artists only; not booking inventory. */
   try{ if(!intents.smalltalk && (!intents._noGenericActions||intents._rwAllowDestinationCommerce) && window.RWConnectedDiscovery) _html+=RWConnectedDiscovery.html(raw,intents); }catch(e){}
   /* Only intent-relevant first-party cards, never inferred prices or paid action.
