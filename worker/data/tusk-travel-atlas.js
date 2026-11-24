@@ -1277,23 +1277,63 @@ const FEATURED={
     ]
   }
 };
+const EDITORIAL={
+  "goa": {
+    "name": "Goa",
+    "summary": "Choose quieter South Goa beaches, heritage around Panaji and Old Goa, or livelier North Goa. Keep travel between the north and south flexible.",
+    "highlights": [
+      "Panaji and Fontainhas",
+      "Old Goa heritage",
+      "South Goa beach villages"
+    ],
+    "food": [
+      "Goan fish curry",
+      "Bebinca",
+      "Xacuti"
+    ],
+    "days": [
+      "Arrive, settle in and explore Panaji or your chosen beach neighbourhood.",
+      "Choose Old Goa heritage and Fontainhas, or a relaxed coastal day; check opening times.",
+      "Enjoy a quiet beach morning or village market before departure."
+    ]
+  },
+  "coorg": {
+    "name": "Coorg (Kodagu)",
+    "summary": "Coffee estates, forested hills and Kodagu culture. Base yourself near Madikeri or an estate stay; avoid tightly packed drives.",
+    "highlights": [
+      "Madikeri",
+      "Raja's Seat",
+      "Coffee estates and local markets"
+    ],
+    "food": [
+      "Kadambuttu",
+      "Pandi curry",
+      "Estate filter coffee"
+    ],
+    "days": [
+      "Arrive near Madikeri and enjoy a relaxed town walk.",
+      "Ask an estate host about a coffee experience; consider Raja's Seat and local food.",
+      "Choose a short nature walk if conditions permit, then depart."
+    ]
+  }
+};
 const normalize=s=>String(s||'').normalize('NFKC').toLowerCase().replace(/[^\p{L}\p{N}]+/gu,' ').trim();
 const entries=ROWS.map(([id,name,regionKey,stops,aliases])=>{
- const group=REGIONS[regionKey],featured=FEATURED[id];
- const highlights=stops.split(';').map(s=>s.trim()).filter(Boolean);
- const suggestions=(featured&&featured.days)||[
+ const group=REGIONS[regionKey],featured=FEATURED[id],editorial=EDITORIAL[id];
+ const highlights=editorial?.highlights||stops.split(';').map(s=>s.trim()).filter(Boolean);
+ const suggestions=(featured&&featured.days)||editorial?.days||[
    'Arrival and relaxed exploration around '+highlights[0],
    'Select '+(highlights[1]||'a local attraction')+' and '+(highlights[2]||'a slow cultural stop'),
    'Leave a flexible final morning before departure'
  ];
  return Object.freeze({
-   id,name,region:group[0],country:'India',
+   id,name:editorial?.name||name,region:group[0],country:'India',
    aliases:(aliases||'').split(';').filter(Boolean),
-   highlights,foodSuggestions:group[1].split('|'),
+   highlights,foodSuggestions:editorial?.food||group[1].split('|'),
    facts:(featured&&featured.facts||[]),
    people:(featured&&featured.people||[]).map(([name,context])=>({name,context})),
    suggestedItinerary:suggestions.map((description,index)=>({day:index+1,description})),
-   summary:featured?.overview||('Editorial destination lead in '+group[0]+'. Attractions are suggestions requiring local confirmation.'),
+   summary:featured?.overview||editorial?.summary||('Editorial destination lead in '+group[0]+'. Attractions are suggestions requiring local confirmation.'),
    status:featured?'source-backed-overview':'editorial-lead',
    checkedAt:featured?'2026-11-22':null,
    sourcePage:featured?.source||group[2],
