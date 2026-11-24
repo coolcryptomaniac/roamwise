@@ -1,34 +1,7 @@
 // @ts-nocheck
-/* ============================================================================
-   js/admin/notification-composer.js
-   ----------------------------------------------------------------------------
-   Push-notification composer for the admin "Notifications" tab.
-
-   WIRING STATUS, CHECKED AGAINST THE REPO AT WRITE TIME: the parallel
-   `claude/push-notifications` branch (worker/handlers/push.js's admin-only
-   `POST /push/send`, which verifies a Firebase ID token, confirms the caller
-   is a real admin, looks up the target user's registered FCM tokens SERVER-
-   SIDE from Firestore, and sends via FCM) had NOT been merged into main as
-   of this file's commit — `git log origin/main..origin/claude/push-notifications`
-   showed 3 unmerged commits. That endpoint also only ever targets ONE `uid`
-   at a time by design (see its header comment) — there is no broadcast/topic
-   send yet either.
-
-   So this file builds the composer UI SHELL against a `notificationQueue`
-   Firestore collection a real sender can consume later — it does NOT call
-   any send endpoint and does NOT claim a notification was delivered. Every
-   queued doc's status stays 'queued' until a human or a future scheduled
-   job (fed by /push/send once that branch lands, or the Firebase Console's
-   own composer — see PUSH-NOTIFICATIONS-SETUP.md) actually sends it and
-   flips the status by hand or via that job. Follow-up, not done here: point
-   a small sender at this queue and call /push/send once per queued 'uid'
-   target (that endpoint is single-target, so an 'all' target would need the
-   sender to fan out one call per registered user — do this server-side,
-   never by having the browser loop over every user's uid itself).
-
-   Pure validation + HTML-string functions only; the Firestore read/write
-   and DOM wiring live in admin/index.html.
-   ========================================================================= */
+/* Admin notification composer. Draft -> explicit admin approval -> backend queue.
+   It NEVER sends from the browser. A Worker endpoint may dispatch approved
+   messages after checking user consent, offer verification, and frequency caps. */
 var RWNotificationComposer = (function(){
   var MAX_TITLE = 100, MAX_BODY = 500, MAX_URL = 500;
   var TARGET_TYPES = ['all','uid'];
@@ -42,14 +15,24 @@ var RWNotificationComposer = (function(){
     var body = String(input && input.body || '').trim().slice(0, MAX_BODY);
     var url = String(input && input.url || '').trim().slice(0, MAX_URL);
     var category = String(input && input.category || 'travel');
+    var reviewedContent = !!(input && input.reviewedContent === true);
+    var verifiedOfferId = String(input && input.verifiedOfferId || '').trim().slice(0,80);
     if(CATEGORIES.indexOf(category) < 0) return {ok:false,error:'Choose a valid notification topic.'};
     var targetType = TARGET_TYPES.indexOf(input && input.targetType) > -1 ? input.targetType : 'all';
     var targetUid = String(input && input.targetUid || '').trim().slice(0, 128);
     if(!title) return { ok:false, error:'Title is required.' };
     if(!body) return { ok:false, error:'Body is required.' };
     if(targetType === 'uid' && !targetUid) return { ok:false, error:'Add a target UID, or switch target to "All users".' };
+    if(targetType === 'all' && !['travel','offers'].includes(category))
+      return {ok:false,error:'Bookings, safety and account alerts require one specific user.'};
+    if(!/^https:\/\/(?:www\.)?roamwise\.co\.in\//.test(url) || url.indexOf('/admin/') > 0)
+      return {ok:false,error:'Choose a safe RoamWise page as the tap destination.'};
+    if(category === 'travel' && !reviewedContent)
+      return {ok:false,error:'Review the travel information before queuing it.'};
+    if(category === 'offers' && !verifiedOfferId)
+      return {ok:false,error:'A verified live offer ID from config/notificationOffers is required.'};
     return { ok:true, notification: {
-      title: title, body: body, url: url, category: category,
+      title: title, body: body, url: url, category: category, reviewedContent: reviewedContent, verifiedOfferId: verifiedOfferId,
       target: targetType === 'uid' ? { type:'uid', uid:targetUid } : { type:'all' },
       status: 'queued'
     }};
@@ -64,15 +47,29 @@ var RWNotificationComposer = (function(){
     var esc = (helpers && helpers.esc) || function(s){ return String(s==null?'':s); };
     var when = (helpers && helpers.when) || function(){ return ''; };
     var rows = (queue || []).map(function(n){
-      var tag = n.status === 'sent' ? '<span class="tag good">sent</span>' : (n.status === 'failed' ? '<span class="tag warn">failed</span>' : '<span class="tag">queued — not sent</span>');
-      return '<div class="row"><div class="grow"><strong>' + esc(n.title) + '</strong> ' + tag +
-        '<div class="meta">' + esc(n.body) + '</div><div class="meta">Topic: ' + esc(n.category || 'legacy') + '</div>' +
-        '<div class="meta">To: ' + esc(targetLabel(n.target)) + (n.url ? ' &middot; opens ' + esc(n.url) : '') + ' &middot; queued ' + when(n.createdAt) + '</div></div>' +
-        '<div class="actions">' + (n.status === 'queued' ? '<button class="btn small" onclick="markNotificationSent(\'' + esc(n.id) + '\')">Mark sent</button>' : '') +
-        '<button class="btn danger small" onclick="deleteNotificationQueueItem(\'' + esc(n.id) + '\')">Delete</button></div></div>';
+      var status = n.status === 'completed'
+        ? '<span class="tag good">completed · '+Number(n.deliveredCount||0)+' delivered</span>'
+        : n.status === 'approved'
+        ? '<span class="tag warn">approved · pending delivery</span>'
+        : n.status === 'queued'
+        ? '<span class="tag">draft · not sent</span>'
+        : '<span class="tag">'+esc(n.status || 'unknown')+'</span>';
+      var id = String(n.id || '').replace(/[^A-Za-z0-9_-]/g,'');
+      var actions = n.status === 'queued'
+        ? '<button class="btn small good" onclick="approveNotificationQueueItem(\\''+id+'\\')">Review &amp; approve</button>'
+        : n.status === 'approved'
+        ? '<button class="btn small" onclick="revokeNotificationQueueItem(\\''+id+'\\')">Revoke</button>' : '';
+      return '<div class="row"><div class="grow"><strong>'+esc(n.title)+'</strong> '+status+
+        '<div class="meta">'+esc(n.body)+'</div>'+
+        '<div class="meta">Topic: '+esc(n.category||'legacy')+
+        ' · To: '+esc(targetLabel(n.target))+
+        (n.url?' · opens '+esc(n.url):'')+
+        ' · queued '+when(n.createdAt)+'</div></div>'+
+        '<div class="actions">'+actions+
+        '<button class="btn danger small" onclick="deleteNotificationQueueItem(\\''+id+'\\')">Delete</button></div></div>';
     }).join('');
-    return '<div class="alert"><b>Not wired to a live sender yet.</b> Queuing here does not deliver anything — see this file\'s header for exact status and the follow-up needed once <code>claude/push-notifications</code> lands.</div>' +
-      '<div class="list" style="margin-top:12px">' + (rows || '<div class="empty">Nothing queued. Compose one below.</div>') + '</div>';
+    return '<div class="alert"><b>Delivery requires approval.</b> Drafts and old queued notifications are never sent automatically. Verified offers need a separate active entry in <code>config/notificationOffers</code>; offers and travel ideas require recipient opt-in.</div>'
+      + '<div class="list" style="margin-top:12px">'+(rows||'<div class="empty">No campaigns queued.</div>')+'</div>';
   }
 
   return {
