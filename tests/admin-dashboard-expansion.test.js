@@ -134,7 +134,7 @@ test('notification-composer: no bulk transactional messages or unverified offers
   assert.equal(RWNotificationComposer.normalizeNotification(base).ok,false);
   assert.equal(RWNotificationComposer.normalizeNotification({...base,targetType:'uid',targetUid:'abc123'}).ok,true);
   assert.equal(RWNotificationComposer.normalizeNotification({...base,category:'offers',targetType:'all'}).ok,false);
-  assert.equal(RWNotificationComposer.normalizeNotification({...base,category:'offers',verifiedOfferId:'verified-123'}).ok,true);
+  assert.equal(RWNotificationComposer.normalizeNotification({...base,category:'offers',verifiedOfferId:'verified-123',reviewedContent:true}).ok,true);
   assert.equal(RWNotificationComposer.normalizeNotification({...base,category:'travel',reviewedContent:true,url:'https://evil.example/'}).ok,false);
 });
 test('notification-composer: lengthy payloads are trimmed, and review approval is explicit', () => {
