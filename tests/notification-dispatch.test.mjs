@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { trustedDestination, marketingWindow, campaignValidation, proExpiryEvent } from '../worker/lib/notification-campaign-core.js';
-import { runNotificationDispatch } from '../worker/handlers/notification-dispatch.js';
+import { runNotificationDispatch, notifyVerifiedProActivation } from '../worker/handlers/notification-dispatch.js';
 
 const NOW = Date.parse('2026-11-24T06:30:00Z'); // 12:00 IST
 const day=86400000;
@@ -101,4 +101,18 @@ test('membership notifications use real future Pro expiry and are deduplicated',
   assert.equal(proExpiryEvent(user('lifetime',{},true,0),NOW),null);
   assert.equal(proExpiryEvent(user('expired',{},true,NOW-day),NOW),null);
   assert.equal(proExpiryEvent(user('notpro',{},false,NOW+day),NOW),null);
+});
+
+test('verified purchase alerts are sent only for a persisted matching Pro order',async()=>{
+  const member={...user('paid',{account:true},true,NOW+30*day),proPayId:'ord_123'};
+  const h=harness([],[member]);
+  const env={FIREBASE_SERVICE_ACCOUNT_JSON:'test-only',RW_KV:h.fake.kv};
+  const denied=await notifyVerifiedProActivation(env,'paid','unpaid_order',h.fake);
+  assert.equal(denied.skipped,'not_verified');
+  assert.equal(h.sent.length,0);
+  const granted=await notifyVerifiedProActivation(env,'paid','ord_123',h.fake);
+  assert.equal(granted.sent,1);
+  assert.match(h.sent[0].msg.title,/Pro is active/);
+  assert.equal((await notifyVerifiedProActivation(env,'paid','ord_123',h.fake)).skipped,'already_delivered');
+  assert.equal(h.sent.length,1);
 });
