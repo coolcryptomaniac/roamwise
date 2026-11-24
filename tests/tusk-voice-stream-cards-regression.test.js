@@ -2,16 +2,16 @@ const test=require('node:test'),assert=require('node:assert/strict'),fs=require(
 const inputSource=fs.readFileSync('js/voice/voice-input.js','utf8');
 const studioSource=fs.readFileSync('js/voice/tusk-studio.js','utf8');
 test('browser partial transcripts show live, but only final results submit',()=>{
- const notices=[],speech=[],input={value:''};let submits=0,rec;
+ const notices=[],speech=[],input={value:''};let submits=0,rec,queries=[];
  function SR(){rec=this;this.start=()=>{};this.stop=()=>{};}
  const w={window:null,SpeechRecognition:SR,el:()=>input,showToast:s=>notices.push(s),
- copilotSend:()=>{submits++;},RWTuskVoiceStudio:{partialTranscript:s=>speech.push(s),transcript(){}},console};
+ copilotSend:(hero,spoken)=>{submits++;queries.push([hero,spoken]);},RWTuskVoiceStudio:{partialTranscript:s=>speech.push(s),transcript(){}},console};
  w.window=w;vm.createContext(w);vm.runInContext(inputSource,w);
  w.rwVoiceStart('heroInput');
  rec.onresult({resultIndex:0,results:[{isFinal:false,0:{transcript:'Almora ke paas'}}]});
  assert.equal(submits,0);assert.deepEqual(speech,['Almora ke paas']);
  rec.onresult({resultIndex:0,results:[{isFinal:true,0:{transcript:'Almora ke paas kya dekhein'}}]});
- assert.equal(submits,1);assert.equal(input.value,'Almora ke paas kya dekhein');
+ assert.equal(submits,1);assert.equal(input.value,'');assert.deepEqual(queries,[[true,'Almora ke paas kya dekhein']]);
  rec.onresult({resultIndex:0,results:[{isFinal:true,0:{transcript:'duplicate'}}]});
  assert.equal(submits,1);
 });

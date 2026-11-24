@@ -47,6 +47,9 @@
     var title=document.createElement('h3');title.textContent='🏔 Design editions';area.appendChild(title);
     var note=document.createElement('p');note.textContent='Switch freely. Your trips, wallet, bookings and shop stay unchanged.';area.appendChild(note);
     var choices=document.createElement('div');choices.className='rw-vault-choices';area.appendChild(choices);
+    var moods=[['default','Original'],['rave','Raveverse · KAAL & AGNI'],['odyssey','Ailon Odyssey'],['aipan','Kumaoni Aipan']];
+    var moodTitle=document.createElement('h3');moodTitle.textContent='Visual atmosphere';area.appendChild(moodTitle);
+    var mood=document.createElement('select');mood.setAttribute('aria-label','Visual atmosphere');moods.forEach(function(m){var o=document.createElement('option');o.value=m[0];o.textContent=m[1];mood.appendChild(o);});mood.value=document.documentElement.getAttribute('data-rw-mood')||'default';mood.addEventListener('change',function(){applyMood(mood.value);try{localStorage.setItem('rw_visual_mood',mood.value);}catch(e){}});area.appendChild(mood);
     editions.forEach(function(e){
       var button=document.createElement('button');button.type='button';
       button.setAttribute('aria-pressed',String(current()===e.id));
@@ -68,7 +71,8 @@
     });
   }
   window.RWDesignVault={current:current,select:choose,mountSettings:mountSettings,editions:editions.map(function(e){return {id:e.id,name:e.name};})};
-  function ready(){apply(current());initCarousels();}
+  function applyMood(v){document.documentElement.setAttribute('data-rw-mood',['rave','odyssey','aipan'].indexOf(v)>=0?v:'default');}
+  function ready(){apply(current());try{applyMood(localStorage.getItem('rw_visual_mood'));}catch(e){applyMood('default');}initCarousels();}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',ready,{once:true});
   else ready();
 })();

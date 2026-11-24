@@ -3,12 +3,12 @@ const assert=require('node:assert/strict');
 const vm=require('node:vm'),fs=require('node:fs');
 const source=fs.readFileSync('js/voice/voice-input.js','utf8');
 function setup(){
- let recognizers=[],sent=0,stops=0,barge=0;
+ let recognizers=[],sent=0,stops=0,barge=0,queries=[];
  const input={value:''};
  function Recognition(){recognizers.push(this);this.start=()=>{};this.stop=()=>{stops++;};}
- const s={window:{SpeechRecognition:Recognition},el:()=>input,copilotSend:()=>{sent++;},tuskStopSpeech:()=>{barge++;},showToast:()=>{},console};
+ const s={window:{SpeechRecognition:Recognition},el:()=>input,copilotSend:(hero,spoken)=>{sent++;queries.push([hero,spoken]);},tuskStopSpeech:()=>{barge++;},showToast:()=>{},console};
  vm.createContext(s);vm.runInContext(source,s);
- return {s,input,recognizers,stats:()=>({sent,stops,barge})};
+ return {s,input,recognizers,queries,stats:()=>({sent,stops,barge})};
 }
 test('mic tap toggles off and interrupts previous spoken reply',()=>{
  const x=setup();x.s.rwVoiceStart('heroInput');
@@ -17,11 +17,11 @@ test('mic tap toggles off and interrupts previous spoken reply',()=>{
  assert.equal(x.stats().stops,1);assert.equal(x.stats().sent,0);
 });
 test('final browser transcript submits exactly once',()=>{
- const x=setup();x.s.rwVoiceStart('heroInput');
+ const x=setup();x.input.value='unsent draft';x.s.rwVoiceStart('heroInput');
  const r=x.recognizers[0];
  r.onresult({results:[[{transcript:'Kanatal jaana hai'}]]});
  r.onresult({results:[[{transcript:'second result'}]]});
- assert.equal(x.input.value,'Kanatal jaana hai');
+ assert.equal(x.input.value,'unsent draft');assert.deepEqual(x.queries,[[true,'Kanatal jaana hai']]);
  assert.equal(x.stats().sent,1);
 });
 test('late browser error after explicit stop cannot submit',()=>{

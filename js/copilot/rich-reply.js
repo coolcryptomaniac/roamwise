@@ -45,30 +45,25 @@ function rwTuskRailContext(raw){
 }
 
 function rwTuskRail(dest, raw){
-  var d = (dest||'').replace(/'/g, "\\'");
-  var q = (raw||'').replace(/'/g, "\\'").slice(0,120);
-  function btn(icon,label,fn){
-    return '<button class="rw-rail-btn" onclick="'+fn+'"><span>'+icon+'</span>'+label+'</button>';
+  var d=String(dest||'').slice(0,120), q=String(raw||'').slice(0,120), topic=rwTuskRailContext(raw);
+  function attr(s){return String(s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+  function arg(v){return JSON.stringify(v);}
+  function btn(icon,label,fn){return '<button class="rw-rail-btn" onclick="'+attr(fn)+'"><span>'+icon+'</span>'+label+'</button>';}
+  var h='<div class="rw-rail"><div class="rw-rail-h">Useful next steps</div>';
+  if(d&&topic==='general'){
+    h+=btn('🗺️','Map','openTripMap('+arg(d)+',null)');
+    h+=btn('🗓️','Plan it','cpGoPlan('+arg(d)+',0)');
+    h+=btn('🛏️','Find stays','cpFollow('+arg('Find stays in '+d)+')');
   }
-  var h='<div class="rw-rail"><div class="rw-rail-h">DO SOMETHING WITH THIS</div>';
-  if(d) h+=btn('\ud83d\uddfa\ufe0f','Map',"openTripMap('"+d+"',null)");
-  if(d) h+=btn('\ud83e\udded','Navigate',"rwTuskNavigate('"+d+"')");
-  if(d) h+=btn('\ud83d\uddd3\ufe0f','Plan it',"cpGoPlan('"+d+"',0)");
-  if(d) h+=btn('\ud83d\udecd\ufe0f','Book',"cpFollow('Book this trip to "+d+"')");
-  h+=btn('\ud83d\udcb0','Budget',"openMoneyLayer()");
-  h+=btn('\u23f0','Remind me',"rwRemindAsk('"+q+"')");
-  h+=btn('\ud83d\udd0a','Read aloud',"rwTuskReadLast()");
-  h+=btn('⏯️','Pause / Resume',"rwTuskPauseResume()");
-  h+=btn('🔁','Replay',"rwTuskReplaySpeech()");
-  h+=btn('✨','Voice mode',"RWTuskVoiceStudio.start()");
-  h+=btn('🎚️','Speed',"rwTuskCycleSpeechRate()");
-  var topic=rwTuskRailContext(raw);
-  if(d && topic==='safety') h+=btn('⚠️','Road advisories', "cpFollow('Check dated official road and safety advisories for "+d+"')");
-  if(d && topic==='food') h+=btn('🍲','Local food', "cpFollow('What local food should I try in "+d+"?')");
-  if(d && topic==='weather') h+=btn('☁️','Weather details', "cpFollow('Check the weather and forecast for "+d+"')");
-  if(d && topic==='season') h+=btn('📅','Best season', "cpFollow('When is the best time to visit "+d+"?')");
-  h+=btn('\ud83d\udcd6','Log feeling',"openJourneyLog()");
-  return h+'</div>';
+  if(d&&topic==='stay')h+=btn('🛏️','Compare stays','cpFollow('+arg('Compare available stays in '+d)+')');
+  if(d&&topic==='safety')h+=btn('⚠️','Road advisories','cpFollow('+arg('Check dated official road and safety advisories for '+d)+')');
+  if(d&&topic==='food')h+=btn('🍲','Local food','cpFollow('+arg('What local food should I try in '+d+'?')+')');
+  if(d&&topic==='weather')h+=btn('☁️','Weather details','cpFollow('+arg('Check the weather and forecast for '+d)+')');
+  if(d&&topic==='season')h+=btn('📅','Best season','cpFollow('+arg('When is the best time to visit '+d+'?')+')');
+  h+=btn('🔊','Read aloud','rwTuskReadLast()');
+  h+='<details class="rw-extra-actions"><summary>More controls</summary>'+btn('⏯️','Pause / Resume','rwTuskPauseResume()')+btn('🔁','Replay','rwTuskReplaySpeech()')+btn('🎚️','Speed','rwTuskCycleSpeechRate()');
+  if(d)h+=btn('🧭','Navigate','rwTuskNavigate('+arg(d)+')')+btn('⏰','Remind me','rwRemindAsk('+arg(q)+')');
+  return h+'</details></div>';
 }
 function rwTuskNavigate(dest){
   /* Let the installed navigation app own continuous turn-by-turn GPS. That

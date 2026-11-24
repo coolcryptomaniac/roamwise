@@ -496,17 +496,17 @@ body[data-view="home"] #rwEveryday,body[data-view="home"] #promofilm {display:no
 </style>
 <link rel="stylesheet" href="design/ailon-first.css?v=20261121">
 <link rel="stylesheet" href="design/ailon-room-carousel.css?v=20261122">
-<link rel="stylesheet" href="design/design-vault.css?v=20261124-870">
-<script src="design/design-vault.js?v=20261124-870" defer></script>
+<link rel="stylesheet" href="design/design-vault.css?v=20261124-880">
+<script src="design/design-vault.js?v=20261124-880" defer></script>
 <link rel="stylesheet" href="design/home-curated-commerce.css?v=20261122">
-<link rel="stylesheet" href="design/home-mobile-recovery.css?v=20261122-2">
+<link rel="stylesheet" href="design/home-mobile-recovery.css?v=20261124-guided">
 <script src="js/ui/home-mobile-recovery.js?v=20261122-2" defer></script>
 <script src="js/ui/home-curated-discovery.js?v=20261122" defer></script>
 <link rel="stylesheet" href="design/destination-filmstrip.css?v=20261123">
-<script src="js/ui/destination-media-loader.js?v=20261123" defer></script>
-<script src="js/ui/destination-filmstrip.js?v=20261123" defer></script>
-<link rel="stylesheet" href="design/ailon-world-experience.css?v=20261124-route-ux">
-<script src="js/ui/ailon-world-experience.js?v=20261124-route-ux" defer></script>
+<script src="js/ui/destination-media-loader.js?v=20261124-guided" defer></script>
+<script src="js/ui/destination-filmstrip.js?v=20261124-guided" defer></script>
+<link rel="stylesheet" href="design/ailon-world-experience.css?v=20261124-guided">
+<script src="js/ui/ailon-world-experience.js?v=20261124-guided" defer></script>
 </head>
 <body class="rw-akatsuki-theme shell" data-view="home">
 <div id="rwVeil" role="status" aria-live="polite"><img src="/assets/img/roamwise-logo-176.webp" alt="" width="72" height="72" fetchpriority="high"><span>Roam<b>Wise</b></span><i></i><small>Getting things ready…</small></div>
@@ -586,9 +586,9 @@ body[data-view="home"] #rwEveryday,body[data-view="home"] #promofilm {display:no
     <div id="heroModels" style="position:absolute;left:14px;bottom:16px;display:flex;gap:6px;flex-wrap:wrap;max-width:58%"></div>
   </div>
   <div class="rw-tusk-prompts" id="rwTuskPrompts" role="group" aria-label="Start with Ailon Tusk">
-    <button type="button" data-rw-tusk="itinerary">✈️ Plan an itinerary</button>
+    <button type="button" data-rw-tusk="itinerary">🧭 Plan a trip</button>
     <button type="button" data-rw-tusk="stay">🏡 Find a stay</button>
-    <button type="button" data-rw-tusk="transport">🚆 Travel options</button>
+    <button type="button" data-rw-tusk="transport">🚆 Compare transport</button>
     <button type="button" data-rw-tusk="booking">🧳 Booking assistance</button>
   </div>
   <p class="rw-tusk-trust">Ailon helps you plan and start enquiries. Prices and reservations require provider confirmation.</p>
@@ -2041,9 +2041,9 @@ body[data-view="home"] #rwEveryday,body[data-view="home"] #promofilm {display:no
 <script src="js/runtime/rules-check.js" defer></script>
 <script src="js/audio/reminders.js" defer></script>
 <script src="js/voice/tusk-speak.js?v=rw-v118-mobile-audio-fresh" defer></script>
-<script src="js/voice/voice-input.js" defer></script>
+<script src="js/voice/voice-input.js?v=20261124-guided" defer></script>
 <script src="js/voice/voice-provider.js" defer></script>
-<script src="js/voice/tusk-studio.js" defer></script>
+<script src="js/voice/tusk-studio.js?v=20261124-guided" defer></script>
 <script src="js/booking/affiliate-links.js" defer></script>
 <script src="js/booking/actions.js" defer></script>
 <script src="js/booking/price-guard.js" defer></script>
@@ -2098,9 +2098,9 @@ body[data-view="home"] #rwEveryday,body[data-view="home"] #promofilm {display:no
 <script src="data/ailon-atlas-snapshot.js?v=20261124-874" defer></script>
 <script src="js/copilot/atlas-cards.js?v=20261124-874" defer></script>
 <script src="js/copilot/atlas-grounding.js?v=20261124-atlas1" defer></script>
-<script src="js/copilot/core.js?v=20261124-872" defer></script>
+<script src="js/copilot/core.js?v=20261124-guided" defer></script>
 <script src="js/copilot/connected-discovery.js" defer></script>
-<script src="js/copilot/rich-reply.js?v=20261124-874" defer></script>
+<script src="js/copilot/rich-reply.js?v=20261124-guided" defer></script>
 <script src="js/copilot/tusk-persona.js" defer></script>
 <script src="js/copilot/atlas-answers.js" defer></script>
 <script src="js/copilot/tusk-knowledge.js" defer></script>
@@ -2145,7 +2145,7 @@ body[data-view="home"] #rwEveryday,body[data-view="home"] #promofilm {display:no
 <script src="js/ui/trek-home-carousel.js" defer></script>
 <script src="js/ui/page-router.js" defer></script>
 <script src="js/ui/layout-modes.js" defer></script>
-<script src="js/ui/settings-modal.js?v=20261124-db1" defer></script>
+<script src="js/ui/settings-modal.js?v=20261124-guided" defer></script>
 <script src="js/ui/key-wizard.js" defer></script>
 <script src="js/ui/themes.js?v=rw-aurora-1" defer></script>
 <script src="js/ui/adaptive-shell.js" defer></script>
@@ -2194,7 +2194,7 @@ body[data-view="home"] #rwEveryday,body[data-view="home"] #promofilm {display:no
 <script src="js/boot/auth-init.js?v=rw-android-google-3" defer></script>
 <script src="js/payments/wallet-chip.js" defer></script>
 <script src="js/ui/home-quick-access.js?v=20261121" defer></script>
-<script src="js/ui/ailon-first.js?v=20261121" defer></script>
+<script src="js/ui/ailon-first.js?v=20261124-guided" defer></script>
 <script src="js/core/push-notifications.js?v=rw-v121-hollywood-smooth-read" defer></script>
 <script src="js/core/alert-follow.js?v=rw-alerts-1" defer></script>
 <script src="app.js?v=rw-v121-hollywood-smooth-read" defer></script>
