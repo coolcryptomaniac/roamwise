@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "updatedAt": "2026-11-23",
+  "updatedAt": "2026-11-24",
   "policy": "review-only; never part of checkout or Qikink paid catalogue without explicit approval",
   "products": [
     {
@@ -54,6 +54,32 @@
         "#fce8bf"
       ],
       "theme": "Rave to Rise"
+    },
+    {
+      "id": "daily-2026-11-24",
+      "name": "Buransh Blooms · Oversized hoodie",
+      "type": "Oversized hoodie",
+      "description": "Rhododendrons in the rain. Original RoamWise motif, concept only; print placement, garment fabric, sizes, price and Qikink production SKU require approval.",
+      "image": "/shop/img/daily-2026-11-24.svg",
+      "category": "wear",
+      "visual": "hoodie",
+      "status": "design-review",
+      "live": false,
+      "sizes": true,
+      "price": null,
+      "qikinkSku": null,
+      "inventory": null,
+      "fulfilment": "unapproved",
+      "creativeSource": "Original procedural vector illustration, curated theme rotation, not a supplier SKU",
+      "trendEvidence": "Qualitative design themes; no search volume or sales rank claim",
+      "createdOnIST": "2026-11-24",
+      "rightsStatus": "original_concept_requires_final_review",
+      "palette": [
+        "#bf3552",
+        "#e17772",
+        "#fff0cf"
+      ],
+      "theme": "Buransh Blooms"
     }
   ]
 }
