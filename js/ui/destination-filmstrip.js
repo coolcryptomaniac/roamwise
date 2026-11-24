@@ -96,7 +96,8 @@
    var rootNode=document.getElementById('rwDestinationsRail'),track=document.getElementById('rwDestinationTrack');
    if(!rootNode||!track||rootNode.dataset.ready==='1')return;
    rootNode.dataset.ready='1';
-   places=uniqueDestinations(LOCAL.concat(typeof DB!=='undefined'?DB:[]));
+   var atlas=/** @type {any} */(root).RW_LOCAL_ATLAS;
+   places=uniqueDestinations(LOCAL.concat(Array.isArray(atlas)?atlas:[],typeof DB!=='undefined'?DB:[]));
    var status=document.getElementById('rwDestinationCount');
    if(!places.length){rootNode.hidden=true;return;}
    function append(){
@@ -124,7 +125,7 @@
    if(next)next.addEventListener('click',function(){move(1)});
    if(typeof root.addEventListener==='function')root.addEventListener('rw:destination-media-ready',function(){
      /* Review-approved R2 media may arrive after first paint; preserve scroll. */
-     places.forEach(function(place){
+     places.slice(0,index).forEach(function(place){
        var item=track.querySelector('[data-rw-destination-id="'+place.id+'"]');
        if(item){var media=item.querySelector('.rw-destination-photo');if(media)renderPhoto(media,place);}
      });

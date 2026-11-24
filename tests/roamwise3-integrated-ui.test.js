@@ -16,7 +16,7 @@ test('one discovery rail and one AI settings shortcut, no second injection',()=>
  assert.match(world,/worldSearchControl/);
  assert.match(world,/mountCategoryDeck/);
  assert.match(world,/itinerarySkin/);
- assert.match(page,/ailon-world-experience\.js\?v=20261124-route-ux/);
+ assert.match(page,/ailon-world-experience\.js\?v=20261124-guided/);
  assert.match(page,/destination-filmstrip\.js/);
 });
 test('world atlas search and category deck augment the existing rail',async()=>{

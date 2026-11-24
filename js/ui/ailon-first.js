@@ -34,6 +34,33 @@
       return true;
     }
     try{ if(typeof W.tabGo==='function') W.tabGo('home'); }catch(e){}
+    // Collect useful details locally instead of sending an instruction-shaped prompt.
+    if(key==='booking'&&typeof W.openBooking==='function'){W.openBooking();return true;}
+    var panel=document.getElementById('rwGuidedPrompt');
+    if(!panel){
+      panel=document.createElement('form');panel.id='rwGuidedPrompt';panel.className='rw-guided-prompt';
+      inp.closest('.copilot-compose')?.insertAdjacentElement('beforebegin',panel);
+    }
+    panel.hidden=false;panel.replaceChildren();
+    var title=document.createElement('h3');title.textContent=key==='transport'?'Where are you travelling from and to?':key==='stay'?'Find a stay that suits you':'Build your trip';panel.appendChild(title);
+    var fields=key==='transport'?[['origin','Starting city'],['dest','Destination'],['date','Departure date'],['guests','Passengers']]:[['dest','Destination(s), e.g. Almora, Nainital'],['days','Days'],['date','Travel date (optional)'],['guests','Travellers'],['budget','Budget in ₹ (optional)']];
+    var inputs={};
+    fields.forEach(function(field){
+      var label=document.createElement('label');label.textContent=field[1];var fieldInput=document.createElement('input');fieldInput.name=field[0];fieldInput.maxLength=120;fieldInput.type=field[0]==='date'?'date':['days','guests','budget'].includes(field[0])?'number':'text';
+      if(fieldInput.type==='number')fieldInput.min='1';if(field[0]==='days')fieldInput.max='30';fieldInput.required=field[0]==='dest'||field[0]==='origin';label.appendChild(fieldInput);panel.appendChild(label);inputs[field[0]]=fieldInput;
+    });
+    var styles=document.createElement('div');styles.className='rw-guided-vibes';var picked=new Set();
+    ['Relaxed','Culture','Adventure','Food','Family'].forEach(function(v){var b=document.createElement('button');b.type='button';b.textContent=v;b.setAttribute('aria-pressed','false');b.onclick=function(){if(picked.has(v))picked.delete(v);else picked.add(v);b.setAttribute('aria-pressed',String(picked.has(v)));};styles.appendChild(b);});if(key!=='transport')panel.appendChild(styles);
+    var go=document.createElement('button');go.type='submit';go.textContent='Ask Ailon';panel.appendChild(go);
+    var cancel=document.createElement('button');cancel.type='button';cancel.textContent='Close';cancel.onclick=function(){panel.hidden=true;};panel.appendChild(cancel);
+    panel.onsubmit=function(event){event.preventDefault();if(inp.value.trim()){inp.focus();return;}
+      var val=k=>inputs[k]?inputs[k].value.trim():'';
+      var query=key==='transport'?'Compare transport from '+val('origin')+' to '+val('dest')+'; prefer verified electric options.':key==='stay'?'Find stays in '+val('dest'):'Plan a '+(val('days')?val('days')+' day ':'')+'trip to '+val('dest');
+      if(val('date'))query+='; departing '+val('date');if(val('guests'))query+='; '+val('guests')+' travellers';if(val('budget'))query+='; budget ₹'+val('budget');if(picked.size)query+='; interests: '+Array.from(picked).join(', ');
+      inp.value=query;inp.dispatchEvent(new Event('input',{bubbles:true}));panel.hidden=true;if(typeof W.copilotSend==='function')W.copilotSend(true);
+    };
+    if(key!=='booking'){inputs[fields[0][0]].focus();panel.scrollIntoView({block:'nearest'});return true;}
+    panel.hidden=true;
     inp.value=prompt;
     try{inp.dispatchEvent(new Event('input',{bubbles:true}));}catch(e){}
     inp.scrollIntoView({behavior:'smooth',block:'center'});

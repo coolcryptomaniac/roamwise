@@ -21,7 +21,7 @@
  function validate(json){
   var result={};
   if(!json||json.version!==1||!json.assets||Array.isArray(json.assets)||typeof json.assets!=='object')return result;
-  Object.keys(json.assets).slice(0,250).forEach(function(slug){
+  Object.keys(json.assets).slice(0,1000).forEach(function(slug){
    if(!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug))return;
    var a=json.assets[slug];
    if(!a||a.status!=='published'||LICENSES.indexOf(a.rightsStatus)<0
@@ -48,7 +48,7 @@
  async function load(){
   if(typeof root.fetch!=='function')return {};
   try{
-   var res=await root.fetch(MANIFEST,{credentials:'omit',cache:'no-store'});
+   var res=await root.fetch(MANIFEST,{credentials:'omit',cache:'default'});
    if(!res.ok)return {};
    var data=await res.json();remoteEnabled=data&&data.remoteReady===true;
    var approved=validate(data);

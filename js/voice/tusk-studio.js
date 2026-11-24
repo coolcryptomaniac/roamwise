@@ -152,7 +152,7 @@
     if(typeof _rwVoiceActive!=='undefined' && _rwVoiceActive)return;
     if(!ensure())return;
     state.active=true;state.answerPending=false;state.interim='';
-    var target=(typeof el==='function' && el('cpInput'))?'cpInput':'heroInput';
+    var target='heroInput';
     setPhase('listening','Listening · बोलिए');
     if(typeof rwVoiceStart==='function') rwVoiceStart(target);
     else setPhase('error','Voice input unavailable — type instead');
@@ -170,6 +170,8 @@
     if(typeof rwVoiceStop==='function')rwVoiceStop();
     if(typeof tuskStopSpeech==='function')tuskStopSpeech();
     if(panel)panel.hidden=true;
+    // The canonical conversation is already in heroLog; never re-submit a transcript.
+    var log=typeof document.getElementById==='function'?document.getElementById('heroLog'):null;if(log&&log.children.length){log.style.display='block';log.scrollTop=log.scrollHeight;}
     state.phase='idle';
   }
   function partialTranscript(t){

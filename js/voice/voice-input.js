@@ -129,10 +129,10 @@ function rwVoiceResult(text){
   if(_rwVoiceActive) rwVoiceStop();
   var input=el(_rwVoiceTarget)||el('heroInput');
   if(!input || !String(text||'').trim()) return;
-  input.value=String(text).trim();
-  try{ if(window.RWTuskVoiceStudio) RWTuskVoiceStudio.transcript(input.value); }catch(e){}
+  var spoken=String(text).trim();
+  try{ if(window.RWTuskVoiceStudio) RWTuskVoiceStudio.transcript(spoken); }catch(e){}
   rwVoiceNotice('complete','Voice captured. Preparing your travel answer.');
-  copilotSend(_rwVoiceTarget==='heroInput');
+  copilotSend(true,spoken);
 }
 function rwVoiceState(state,msg){
   if(state==='error'){rwVoiceStop();rwVoiceNotice('error',msg||'Voice error. Please type instead.');}
