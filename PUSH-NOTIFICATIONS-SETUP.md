@@ -224,3 +224,45 @@ the full rationale, referencing the PR #152 price-tampering lesson).
 - **Android app:** needs `@capacitor/push-notifications` in the build repo's package.json (was missing; fixed in Roamwiseapkaabbuild, build now fails if it is absent) and a release built after that fix. `POST_NOTIFICATIONS` is already added by the build workflow; Android 13+ shows the system permission dialog.
 - **Web (Chrome etc.):** `features.webPush` is true and the VAPID key is now set in `rw-config.js` (Oct 2026). To rotate it: Firebase console -> Project settings -> Cloud Messaging -> Web Push certificates -> Generate key pair, paste the public key. `firebase-messaging-sw.js` now uses the real web appId.
 - **Default:** users who never chose are opted in; the browser/OS prompt still appears (web: on the first tap after sign-in).
+
+
+## Reviewed notifications and account events (November 2026)
+
+The admin **Notifications** tab now saves drafts to `notificationQueue`. An admin must
+review the content and click **Review & approve**; drafts and earlier `queued` records
+are **never** sent just because the Worker starts.
+
+- Worker path: `POST /admin/notifications/run`, authenticated as a Firestore
+  `admins/{uid}` user. Default is `?dry=1`: preview only. `?dry=0` explicitly
+  sends approved campaigns. No browser ever reads recipients' FCM tokens.
+- Scheduled delivery: `NOTIFICATIONS_AUTOSEND = "true"` in
+  `worker/wrangler.toml`; every hourly tick attempts approved messages.
+  The daily tick also checks server-recorded `users/{uid}.proUntil` for Pro
+  plans expiring in 7 days or within 24 hours. Lifetime and expired accounts
+  are not sent a guessed expiration notice.
+- Categories: booking, safety, account are **one-UID** only. Travel and offers
+  can target all **consenting** registered users; neither category defaults on.
+  Promotions dispatch only between 09:00 and 19:59 IST. Max 35 deliveries
+  per run, per-user dedupe KV markers, 48-hour travel and 7-day offer caps.
+- A travel draft requires source-content review. An offer additionally requires
+  a matching, active `config/notificationOffers.list` entry with
+  `{id, status:"verified", active:true, reviewedAt:"<ISO timestamp>",
+  expiresAt:"<ISO timestamp>", url:"https://www.roamwise.co.in/..."}`.
+  The offer review must be less than 7 days old and its destination must exactly
+  match the campaign. This list is currently manually curated by an admin;
+  a promo code stored in `config/promoCodes` **does not** prove redeemability.
+- Admin can preview, dispatch, or revoke an approved campaign. A completed
+  campaign reports actual successful recipient counts, never a fabricated send.
+  Revoke is not a recall for already delivered messages.
+- The handler fails closed when the Firebase service account or KV binding
+  is missing. A missing or out-of-date verified offer record also blocks that
+  offer. No push content or device token is published publicly.
+- Scaling note: broadcast is intentionally capped at 1,000 users per run and
+  refuses to mark larger audiences complete. Replace the full users scan with
+  paginated Firestore delivery when RoamWise scales beyond this pilot.
+
+**Deployment**: merging source is not Cloudflare production deployment.
+Deploy the Worker with the production account and unchanged service-account
+secret, verify the health endpoint and run a dry run from Admin. On Android
+only a newly built and distributed release shows the native logo and channels;
+merging the web repository alone cannot update existing APKs.
