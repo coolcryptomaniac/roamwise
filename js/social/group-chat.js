@@ -147,7 +147,7 @@ function tripChatOpen(roomId, roomName){
          Changed ones (a reaction, a poll vote) are patched in place. Nothing
          else is touched. This is what makes a chat feel like a chat.
       ==================================================================== */
-      _chatMsgs = qs.docs.map(function(doc){ var m=doc.data()||{}; m._id=doc.id; return m; });
+      _chatMsgs = qs.docs.filter(function(doc){return typeof rwChatSafeId==='function'&&rwChatSafeId(doc.id);}).map(function(doc){ var m=doc.data()||{}; m._id=doc.id; return rwChatCleanMessage(m); });
       var wasNearBottom = (log.scrollHeight - log.scrollTop - log.clientHeight) < 140;
       var visible = _chatMsgs.filter(function(m){ return !rwIsBlocked(m.uid); });
 

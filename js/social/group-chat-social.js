@@ -291,13 +291,17 @@ function chatVibeHTML(){
 }
 
 function chatBubble(id, m, mine){
+  if(!m || typeof rwChatSafeId !== 'function' || !rwChatSafeId(id)) return '';
+  try{return chatBubbleHTML(id, rwChatCleanMessage(m), mine);}catch(e){return '';}
+}
+function chatBubbleHTML(id, m, mine){
   var kind = m.kind||'text', K = CHAT_KINDS[kind]||CHAT_KINDS.text;
   if(kind==='poll'){
     return '<div class="tc-row"><div class="tc-av">\ud83d\uddf3\ufe0f</div>'
       +'<div style="max-width:88%">'+rwPollHTML(id, m)+chatReactsHTML(id, m)+'</div></div>';
   }
   if(kind==='tusk'){
-    var richHtml = (m.payload && m.payload.html) ? (typeof rwBalanceDivs==='function' ? rwBalanceDivs(m.payload.html) : m.payload.html) : '';
+    var richHtml = (m.payload && m.payload.html) ? rwChatSafeHtml(m.payload.html) : '';
     var inner = richHtml
       ? '<div class="tusk-rich clamped" id="tr_'+id+'">'+richHtml+'</div>'
         +'<button class="tusk-more" onclick="var b=el(\'tr_'+id+'\');b.classList.toggle(\'clamped\');this.textContent=b.classList.contains(\'clamped\')?\'Show more\':\'Show less\'">Show more</button>'
@@ -365,8 +369,8 @@ function chatBubble(id, m, mine){
   if(kind==='meet'){
     var pMeet=m.payload||{};
     var place=pMeet.place||m.text||'', when=pMeet.when||'', city=pMeet.city||place;
-    var mapQ=encodeURIComponent(place+(pMeet.city?', '+pMeet.city:''));
-    var mapUrl=pMeet.map||('https://www.google.com/maps/search/?api=1&query='+mapQ);
+    var mapQ=encodeURIComponent(place+(pMeet.city?', '+pMeet.city:'')).replace(/['()]/g,function(c){return '%'+c.charCodeAt(0).toString(16).toUpperCase();});
+    var mapUrl=rwChatSafeUrl(pMeet.map)||('https://www.google.com/maps/search/?api=1&query='+mapQ);
     var slug=(city||place).toLowerCase().replace(/[^a-z ]/g,'').trim().replace(/\s+/g,'-');
     var bms='https://in.bookmyshow.com/explore/events-'+encodeURIComponent(slug);
     /* Zomato has no stable city-slug URL (that 404s in the app WebView). Its
@@ -377,9 +381,9 @@ function chatBubble(id, m, mine){
       +'<div style="font-size:13px;font-weight:700;margin:3px 0 1px">'+esc2(place)+'</div>'
       +(when?'<div style="font-size:12px;color:var(--t2)">\ud83d\udd52 '+esc2(when)+'</div>':'')
       +'<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px">'
-      +'<a class="chat-tool" style="text-decoration:none" href="'+esc2(mapUrl)+'" target="_blank" rel="noopener" onclick="return rwOpenMap(\''+mapQ+'\')">\ud83d\uddfa\ufe0f Open in Maps</a>'
-      +'<a class="chat-tool" style="text-decoration:none" href="'+esc2(bms)+'" target="_blank" rel="noopener">\ud83c\udfab Events here</a>'
-      +'<a class="chat-tool" style="text-decoration:none" href="'+esc2(zomato)+'" target="_blank" rel="noopener">\ud83c\udf7d\ufe0f Food</a>'
+      +'<a class="chat-tool" style="text-decoration:none" href="'+rwChatAttr(mapUrl)+'" target="_blank" rel="noopener" onclick="return rwOpenMap(\''+mapQ+'\')">\ud83d\uddfa\ufe0f Open in Maps</a>'
+      +'<a class="chat-tool" style="text-decoration:none" href="'+rwChatAttr(bms)+'" target="_blank" rel="noopener">\ud83c\udfab Events here</a>'
+      +'<a class="chat-tool" style="text-decoration:none" href="'+rwChatAttr(zomato)+'" target="_blank" rel="noopener">\ud83c\udf7d\ufe0f Food</a>'
       +'</div></div></div>';
   }
   if(kind==='budget' || kind==='plan' || kind==='paid'){
@@ -396,6 +400,7 @@ function chatBubble(id, m, mine){
     +'<div class="tc-bub'+(mine?' me':'')+'" ondblclick="chatReact(\''+id+'\',\'\u2764\ufe0f\')" oncontextmenu="chatReactPicker(\''+id+'\',event);return false">'
     +(mine?'':'<div class="tc-nm">'+esc2(m.name||'Traveller')+'</div>')
     +esc2(m.text||'')
+    +(!mine ? rwChatRiskHTML(m.text,id) : '')
     +'</div>'
     + chatReactsHTML(id, m)
     +'</div></div>';
@@ -421,7 +426,7 @@ function rwReportOpen(ctx){
     + reasons.map(function(r,i){ return '<button class="tk-chip'+(i===0?' gold':'')+'" onclick="[].forEach.call(this.parentNode.children,function(b){b.classList.remove(\'gold\')});this.classList.add(\'gold\');window._repReason=\''+r.replace(/'/g,"")+'\'">'+r+'</button>'; }).join('')
     +'</div>'
     +'<textarea id="repDetail" class="k-inp" style="width:100%;min-height:96px" placeholder="What happened? Paste any message text \u2014 it helps."></textarea>'
-    +'<button class="g-btn" style="width:100%;min-height:44px;margin-top:11px" onclick="rwReportSend('+JSON.stringify(ctx||{}).replace(/"/g,'&quot;')+')">Send report</button>'
+    +'<button class="g-btn" style="width:100%;min-height:44px;margin-top:11px" onclick="rwReportSend('+rwChatAttr(JSON.stringify(ctx||{}))+')">Send report</button>'
     +'<div style="background:var(--bg3,#1A1A20);border-radius:12px;padding:11px 13px;margin-top:12px">'
     +'<b style="font-size:12px">What happens next</b>'
     +'<div class="tk-bul">I read every report myself, usually within 24 hours.</div>'

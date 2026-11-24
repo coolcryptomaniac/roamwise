@@ -210,6 +210,13 @@ async function cpFinish(bubble, answerHTML, intents, raw){
   _cpHist.push({q:raw, a:bubble.textContent.slice(0,300)}); if(_cpHist.length>8) _cpHist.shift();
   try{ track('copilot_uses'); }catch(e){ /* analytics best-effort, ignore */ }
 }
+function rwIsTrekQuestion(raw){
+  var q=String(raw||'');
+  if(/\b(trek|treks|trekking|trekker|trekkers|hike|hikes|hiking|base camp)\b/i.test(q))return true;
+  if(/\b(conference|expo|convention|hackathon|meetup|webinar|workshop|seminar|delegate|speaker|keynote|startup|investor|business|tech|technology|ai|g20|leaders|global|economic|trade)\b/i.test(q))return false;
+  if(/\btrails?\b(?!\s*mesh)/i.test(q))return true;
+  return /\bsummit\b/i.test(q)&&/\b(climb|climbing|peak|mountain|altitude|ascent|expedition|push|attempt)\b/i.test(q);
+}
 function cpGoPlan(dest, days){
   closeCopilot();
   var di=el('destInput'); if(di) di.value=dest;
@@ -296,7 +303,7 @@ async function cpActionsHTML(it){
     return [rwProgressHTML()];
   }
   /* trekking */
-  if(/\b(trek|trekking|trail|summit|base camp|hike|hiking)\b/i.test(String(it._raw||''))){
+  if(rwIsTrekQuestion(String(it._raw||''))){
     var _tg = null;
     var _rw = String(it._raw||'').toLowerCase();
     ['easy','moderate','difficult','hard','extreme'].forEach(function(g){ if(_rw.indexOf(g)>-1) _tg=g; });
