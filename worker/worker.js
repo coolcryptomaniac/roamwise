@@ -95,6 +95,7 @@ import { createCashfreeHandlers } from './handlers/cashfree.js';
 import { cashfreeTransportFetch } from './lib/cashfree-transport.js';
 import { handlePartnerCashfreeOrder, handlePartnerCashfreeStatus } from './handlers/partner-cashfree.js';
 import { handlePushSend } from './handlers/push.js';
+import { handleNotificationDispatch, runNotificationDispatch } from './handlers/notification-dispatch.js';
 import { handleCreatorRating } from './handlers/creator-rating.js';
 import { handleCreatorPublicCheck } from './handlers/creator-public-check.js';
 import { handleNomadAdvise } from './handlers/nomad-ai.js';
@@ -261,6 +262,7 @@ export default {
     if(path.indexOf('bot/') === 0) return handleBot(request, env, path);
 
     if(path === 'push/send' && request.method === 'POST') return handlePushSend(request, env);
+    if(path === 'admin/notifications/run') return handleNotificationDispatch(request, env);
 
     if(path === 'email/unsubscribe' || path === 'admin/reminders/run') return handleReminders(request, env, path);
     if(path === 'partners/unsubscribe' && (request.method === 'GET' || request.method === 'POST')) return handlePartnerUnsubscribe(request, env);
@@ -292,6 +294,8 @@ export default {
       try{ if(env.FIREBASE_SERVICE_ACCOUNT_JSON) await runTripNotifications(env, { mode: 'ack' }); }catch(e){ /* best-effort */ }
       /* New closures / crowds / events reach guests, followers and partners within the hour. Switches default OFF. */
       try{ if(env.FIREBASE_SERVICE_ACCOUNT_JSON) await runAdvisoryAlerts(env, {}); }catch(e){ /* best-effort */ }
+      /* Only explicitly approved campaigns; no legacy drafts, no unverified offers. */
+      try{ if(env.NOTIFICATIONS_AUTOSEND === 'true' && env.FIREBASE_SERVICE_ACCOUNT_JSON) await runNotificationDispatch(env, { dry:false, account:false }); }catch(e){ /* best-effort */ }
       /* Paid shop orders not yet at Qikink (it was off or briefly down). No-op unless config/shop.qikinkEnabled. */
       try{ if(env.FIREBASE_SERVICE_ACCOUNT_JSON) await runShopFulfilmentCron(env); }catch(e){ /* retried next hour */ }
       /* Paid stays nobody confirmed in time go to the guest wallet; wallet credit past its hold goes back to the bank. */
@@ -328,6 +332,8 @@ export default {
     try{ if(env.FIREBASE_SERVICE_ACCOUNT_JSON) await runTripNotifications(env, { mode: 'all' }); }catch(e){ /* best-effort */ }
     /* Advisory alerts + the daily team travel-safety digest (config/tripNotifySettings switches, default OFF). */
     try{ if(env.FIREBASE_SERVICE_ACCOUNT_JSON) await runAdvisoryAlerts(env, { digest: true }); }catch(e){ /* best-effort */ }
+    /* Only server-verified Pro expiration, never guessed entitlement changes. */
+    try{ if(env.NOTIFICATIONS_AUTOSEND === 'true' && env.FIREBASE_SERVICE_ACCOUNT_JSON) await runNotificationDispatch(env, { dry:false, account:true }); }catch(e){ /* best-effort */ }
     /* Guest stay requests are kept 12 months, then deleted (see privacy.html). */
     try{ if(env.FIREBASE_SERVICE_ACCOUNT_JSON) await purgeOldStayLeads(env); }catch(e){ /* retried tomorrow */ }
     /* Founder digest on Telegram/WhatsApp. Skipped unless the bot secrets and admin ids are set. */

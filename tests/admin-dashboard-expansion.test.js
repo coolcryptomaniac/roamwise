@@ -117,36 +117,42 @@ test('promo-manager: renderPromoListHtml is honest that redemption counts are no
 // ---------------------------------------------------------------------------
 // Notification composer
 // ---------------------------------------------------------------------------
-test('notification-composer: normalizeNotification requires title and body', () => {
-  assert.equal(RWNotificationComposer.normalizeNotification({ body: 'b' }).ok, false);
-  assert.equal(RWNotificationComposer.normalizeNotification({ title: 't' }).ok, false);
-  const good = RWNotificationComposer.normalizeNotification({ title: 't', body: 'b' });
-  assert.equal(good.ok, true);
-  assert.equal(good.notification.status, 'queued');
-  assert.equal(good.notification.target.type, 'all');
+test('notification-composer: no draft is auto-approved or marked delivered', () => {
+  assert.equal(RWNotificationComposer.normalizeNotification({body:'x'}).ok, false);
+  const good = RWNotificationComposer.normalizeNotification({
+    title:'New local guide',body:'Explore our curated destination notes.',
+    url:'https://www.roamwise.co.in/guides/',category:'travel',
+    reviewedContent:true,targetType:'all'
+  });
+  assert.equal(good.ok,true);
+  assert.equal(good.notification.status,'queued');
+  assert.equal(good.notification.reviewedContent,true);
 });
-
-test('notification-composer: a uid target requires a non-empty uid', () => {
-  const bad = RWNotificationComposer.normalizeNotification({ title: 't', body: 'b', targetType: 'uid' });
-  assert.equal(bad.ok, false);
-  const good = RWNotificationComposer.normalizeNotification({ title: 't', body: 'b', targetType: 'uid', targetUid: 'abc123' });
-  assert.equal(good.ok, true);
-  assert.equal(good.notification.target.type, 'uid');
-  assert.equal(good.notification.target.uid, 'abc123');
+test('notification-composer: no bulk transactional messages or unverified offers', () => {
+  const base = {title:'Booking notice',body:'Please review your stay.',url:'https://roamwise.co.in/',
+    category:'booking',targetType:'all'};
+  assert.equal(RWNotificationComposer.normalizeNotification(base).ok,false);
+  assert.equal(RWNotificationComposer.normalizeNotification({...base,targetType:'uid',targetUid:'abc123'}).ok,true);
+  assert.equal(RWNotificationComposer.normalizeNotification({...base,category:'offers',targetType:'all'}).ok,false);
+  assert.equal(RWNotificationComposer.normalizeNotification({...base,category:'offers',verifiedOfferId:'verified-123'}).ok,true);
+  assert.equal(RWNotificationComposer.normalizeNotification({...base,category:'travel',reviewedContent:true,url:'https://evil.example/'}).ok,false);
 });
-
-test('notification-composer: title/body/url are capped at their limits, matching worker/handlers/push.js', () => {
-  const long = 'x'.repeat(1000);
-  const r = RWNotificationComposer.normalizeNotification({ title: long, body: long, url: long });
-  assert.equal(r.notification.title.length, RWNotificationComposer.MAX_TITLE);
-  assert.equal(r.notification.body.length, RWNotificationComposer.MAX_BODY);
-  assert.equal(r.notification.url.length, RWNotificationComposer.MAX_URL);
-});
-
-test('notification-composer: renderQueueHtml is explicit that nothing is actually sent yet', () => {
-  const html = RWNotificationComposer.renderQueueHtml([{ id: '1', title: 'Hi', body: 'B', status: 'queued', target: { type: 'all' } }], {});
-  assert.match(html, /Not wired to a live sender yet/);
-  assert.match(html, /queued — not sent/);
+test('notification-composer: lengthy payloads are trimmed, and review approval is explicit', () => {
+  const r=RWNotificationComposer.normalizeNotification({title:'x'.repeat(1000),body:'y'.repeat(1000),
+    url:'https://roamwise.co.in/'+'z'.repeat(1000),category:'travel',reviewedContent:true});
+  assert.equal(r.ok,true);
+  assert.equal(r.notification.title.length,RWNotificationComposer.MAX_TITLE);
+  assert.equal(r.notification.body.length,RWNotificationComposer.MAX_BODY);
+  assert.equal(r.notification.url.length,RWNotificationComposer.MAX_URL);
+  const html=RWNotificationComposer.renderQueueHtml([
+    {id:'1',title:'Guide',body:'Review',status:'queued',target:{type:'all'}},
+    {id:'2',title:'Guide',body:'Review',status:'approved',target:{type:'all'}},
+    {id:'3',title:'Guide',body:'Review',status:'completed',deliveredCount:2,target:{type:'all'}}
+  ],{});
+  assert.match(html,/Drafts and old queued notifications are never sent automatically/);
+  assert.match(html,/draft · not sent/);
+  assert.match(html,/approved · pending delivery/);
+  assert.match(html,/2 delivered/);
 });
 
 // ---------------------------------------------------------------------------

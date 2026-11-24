@@ -8,6 +8,7 @@ import { createDocIfAbsent, getDoc, incrementField, updateDoc } from '../lib/fir
 import { FOUNDER_NMIMS_RESERVED, FOUNDER_TOTAL_SEATS, founderSeatsLeft } from '../lib/founder-cap.js';
 import { BHAKTI_PRODUCTS, bhaktiProduct, bhaktiGrantPath } from '../lib/bhakti-products.js';
 import { recordRevenue } from '../lib/spend-governor.js';
+import { notifyVerifiedProActivation } from './notification-dispatch.js';
 
 const SANDBOX_BASE = 'https://sandbox.cashfree.com';
 const LIVE_BASE = 'https://api.cashfree.com';
@@ -249,7 +250,14 @@ export function createCashfreeHandlers(overrides){
         });
         persisted=true;
         // Feeds the AI spend budget (lib/spend-governor.js). Live money only; never blocks fulfilment.
-        if(isLive(env)){ try{ await recordRevenue(env,id,Math.round(Number(receipt.amountINR)*100)); }catch(_){/* metric only */} }
+        if(isLive(env)){
+          try{ await recordRevenue(env,id,Math.round(Number(receipt.amountINR)*100)); }catch(_){/* metric only */}
+          // Only after persisted verified Pro entitlement, never for a pending
+          // checkout, speculative benefit or sandbox purchase.
+          if(!product && env.NOTIFICATIONS_AUTOSEND==='true'){
+            try{ await notifyVerifiedProActivation(env,ctx.claims.uid,id); }catch(_){/* paid activation is never blocked by push */ }
+          }
+        }
       }catch(_){return json({error:'entitlement_persistence_failed',message:'Payment is confirmed, but account activation is still retrying. Check My Payments.'},503);}
     }
     if(product)return json({order_id:id,order_status:data.order_status||'UNKNOWN',productId:receipt.planId,level:product.level,fulfilled:persisted});
