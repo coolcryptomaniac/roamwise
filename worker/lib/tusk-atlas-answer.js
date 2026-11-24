@@ -1,8 +1,8 @@
 /* Public, no-key travel atlas responses. Editorial suggestions are NOT verified
  * schedules, transport fares, opening status, supplier inventory or bookings. */
-import { searchTravelAtlas, TUSK_ATLAS_STATS } from '../data/tusk-travel-atlas.js';
+import { searchTravelAtlas, TUSK_ATLAS, TUSK_ATLAS_STATS } from '../data/tusk-travel-atlas.js';
 
-import { searchWorldAtlas } from '../data/tusk-world-atlas.js';
+import { searchWorldAtlas, WORLD_ATLAS } from '../data/tusk-world-atlas.js';
 
 const compact=x=>String(x||'').replace(/[\u0000-\u001f<>]/g,' ').replace(/\s+/g,' ').trim();
 const live=/\b(?:live|price|cost|fare|book|booking|reserve|available|availability|today|tomorrow|now|current|weather|traffic|open|closed|schedule|ticket|hotel rate)\b|अभी|आज/i;
@@ -12,8 +12,13 @@ const pictures=/\b(?:photo|picture|image|photograph|gallery|visual)\b|फोट�
 const plan=/\b(?:itinerary|itineraries|trip|travel|plan|day|days|visit|things to do|tour|route)\b|यात्रा|घूम|योजना/i;
 
 export function atlasAnswer(question){
+ const normalize=s=>String(s||'').normalize('NFKC').toLowerCase().replace(/[^\p{L}\p{N}\p{M}]+/gu,' ').trim();
+ const all=[...TUSK_ATLAS,...WORLD_ATLAS];
+ const key=normalize(question).replace(/^(?:plan a trip to|plan trip to|travel to|visit|explore|guide to|where is|tell me about) /,'');
+ const exact=all.filter(d=>[d.name,d.id.replace(/-/g,' '),...(d.aliases||[])].some(n=>normalize(n)===key||normalize(n+' '+d.country)===key));
+ if(exact.length>1)return null;
  const india=searchTravelAtlas(question)[0], world=searchWorldAtlas(question);
- const match=india&&world?null:india||world;
+ const match=exact[0]||(india&&world?null:india||world);
  if(!match)return null;
  const subject=compact(question),isLive=live.test(subject);
  const asksFood=food.test(subject),asksPeople=people.test(subject),asksPhoto=pictures.test(subject),asksPlan=plan.test(subject);

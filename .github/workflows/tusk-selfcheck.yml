@@ -55,6 +55,16 @@ jobs:
           node-version: '22'
       - name: Tusk regression tests
         run: node --test tests/tusk-regression.test.js tests/tusk-report.test.js
+      - name: Deterministic Ailon brain evaluation
+        id: brain
+        continue-on-error: true
+        run: node evals/tusk-brain-eval.mjs tusk-brain-eval.json
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: tusk-brain-evaluation
+          path: tusk-brain-eval.json
+          retention-days: 30
       - name: Fetch anonymous thumbs-down reports
         if: github.event_name != 'pull_request'
         continue-on-error: true
@@ -77,9 +87,11 @@ jobs:
             const fs = require('fs');
             if (!fs.existsSync('tusk-selfcheck-result.json')) return;
             const result = JSON.parse(fs.readFileSync('tusk-selfcheck-result.json', 'utf8'));
-            if (!result.goldenFailures.length && !result.flagged) return;
+            const brain = fs.existsSync('tusk-brain-eval.json') ? JSON.parse(fs.readFileSync('tusk-brain-eval.json','utf8')) : null;
+            if (!result.goldenFailures.length && !result.flagged && !(brain && brain.failures.length)) return;
             const title = '[Tusk QA] Ailon Tusk self-check needs attention';
             const body = fs.readFileSync('tusk-selfcheck-report.md', 'utf8')
+              + '\n\nDeterministic brain evaluation: ' + (brain ? brain.passed + '/' + brain.total + '; failures: ' + brain.failures.join(', ') : 'not available')
               + '\n\nWorkflow run: ' + context.serverUrl + '/' + context.repo.owner + '/' + context.repo.repo + '/actions/runs/' + context.runId
               + '\n\nClose this issue once the listed answers are fixed; the bot opens a fresh one if new problems appear.';
             const issues = await github.paginate(github.rest.issues.listForRepo, {
@@ -92,5 +104,5 @@ jobs:
               await github.rest.issues.create({ owner: context.repo.owner, repo: context.repo.repo, title, body, labels: ['agent-report'] });
             }
       - name: Fail if the regression guard failed
-        if: steps.check.outcome == 'failure'
+        if: steps.check.outcome == 'failure' || steps.brain.outcome == 'failure'
         run: exit 1

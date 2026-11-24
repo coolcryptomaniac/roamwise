@@ -1,0 +1,15 @@
+# Ailon Tusk scalable brain
+## Layers
+1. Browser: 354 bundled editorial/source-backed profiles, low-latency offline fallback (184 India, 170 international).
+2. Dedicated Cloudflare D1: approved facts and provenance, separate source-attributed place index. Geographic references are not tourist guides, permits, safety or inventory. Existing 226 candidates stay unpublished until reviewed.
+3. R2: rights-reviewed media only. This release does not upload or publish photos/videos.
+4. RoamWise public commerce: eligible properties, published artists and actual catalogue products; only server quotes authorize checkout. Regional suggestions are not exact-location inventory. No supplier or payment authority changes.
+5. Existing AI agent and supported tools for more complex requests. Hosted AI and live data availability depend on configuration and quota. Off-domain/unknown/private queries must use an appropriate configured route or state limits; no universal accuracy claim.
+
+## Activation
+After merge, run Deploy isolated RoamWise knowledge preview on main with DEPLOY-KNOWLEDGE-PREVIEW to apply schema 004, import new 354 atlas candidates idempotently and update the reader. Existing D1/R2 resources and GitHub environment are reused.
+Run RoamWise geographic index intake with country IN, offset 0, include_heritage true, import_remote true, confirmation IMPORT-GEOGRAPHIC-INDEX. If UNESCO export format changes or download fails, rerun with include_heritage false to import GeoNames. Review report; repeat with nextOffset or use ALL, offset 0. Each run imports up to 5,000 distinct source identities, not 5,000 full guides. The current source is fetched fresh so offsets can shift; stable IDs deduplicate repeated batches, but completeness is not guaranteed until a stable full source snapshot is reconciled. Do not claim a count until SELECT COUNT(*) FROM public_place_index. GeoNames cities500 is a broad populated-place dataset, not a count of tourist attractions. UNESCO heritage export metadata is names/IDs/coordinates only, source link retained; no copied text/images. For initial activation run preview deploy and verify /health, then production API deployment as normal. No DNS, billing, live bookings or customer data changes.
+
+## Continuous improvement and evaluation
+Daily existing Tusk self-check runs a deterministic scorecard of every bundled destination, 100 labelled multilingual knowledge policy cases, private and dynamic guards, unknown and geographic fallback. Existing Node tests cover commerce and agent tool harness. Protected feedback, when configured, is aggregated into QA categories only; no raw customer text in public issues. A human reviews source and error patterns, creates synthetic regression cases, then approves changes through CI. No model weights are trained; paid live LLM evals remain manual via npm run evals with authorized provider credentials. The deterministic score is not a production LLM quality rating. 
+Sources: https://www.geonames.org/export/ ; https://download.geonames.org/export/dump/readme.txt ; https://whc.unesco.org/en/list/ .

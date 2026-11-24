@@ -43,7 +43,7 @@ export async function handleTuskWebSearch(request,env){
  // Do not bypass the existing curated policy on live/price/safety questions.
  const atlas=atlasAnswer(query);
  const atlasIntent=/\b(?:itinerary|itineraries|plan|trip|days|food|eat|cuisine|dishes|photo|picture|image|people|notable|famous|culture|attractions|things to do)\b|यात्रा|खाना|भोजन|फोटो|तस्वीर|प्रसिद्ध/i.test(query);
- if(!dynamic&&!curated&&atlas){
+ if(!dynamic&&atlas&&(!curated||atlasIntent)){
    const reviewed=await approvedDestinationAnswer(env,atlas);
    if(reviewed)return json({...reviewed,query});
  }
