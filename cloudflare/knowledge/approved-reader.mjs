@@ -108,8 +108,10 @@ async function getMediaIndex(db,env){
 }
 async function getMedia(db,bucket,id){
  if(!/^[a-zA-Z0-9_-]{1,96}$/.test(id))return new Response('Not found',{status:404});
- const row=await db.prepare(`SELECT id,r2_key,mime_type,size_bytes,rights_status,license_proof,status,reviewed_at,published_at,alt_text
- FROM public_destination_media WHERE id=? LIMIT 1`).bind(id).first();
+ const row=await db.prepare(`SELECT m.id,m.r2_key,m.mime_type,m.size_bytes,m.rights_status,m.license_proof,m.status,m.reviewed_at,m.published_at,m.alt_text
+ FROM public_destination_media m JOIN public_destination d ON d.id=m.destination_id
+ WHERE m.id=? AND d.status='published' AND d.indexed=1 AND d.human_approved_at IS NOT NULL
+ AND (d.next_review_at IS NULL OR date(d.next_review_at)>=date('now')) LIMIT 1`).bind(id).first();
  if(!mediaApproved(row))return new Response('Not found',{status:404});
  const file=await bucket.get(row.r2_key);
  if(!file||file.size>4*1024*1024)return new Response('Not found',{status:404});

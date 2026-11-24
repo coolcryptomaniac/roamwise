@@ -3,6 +3,7 @@
  * 4: optional licensed Brave Search. No scraping, automatic publishing or LLM
  * synthesis from third-party snippets. Default route uses zero paid calls. */
 import { json } from '../lib/http.js';
+import { approvedDestinationAnswer } from '../lib/tusk-approved-reader.js';
 import { atlasAnswer } from '../lib/tusk-atlas-answer.js';
 import { parsePublicQuery, isDynamicQuery, curatedMatches, getExactCache, putExactCache,
   approvedVectorMatch, status } from '../lib/tusk-hybrid-knowledge.js';
@@ -41,6 +42,10 @@ export async function handleTuskWebSearch(request,env){
  // Do not bypass the existing curated policy on live/price/safety questions.
  const atlas=atlasAnswer(query);
  const atlasIntent=/\b(?:itinerary|itineraries|plan|trip|days|food|eat|cuisine|dishes|photo|picture|image|people|notable|famous|culture|attractions|things to do)\b|यात्रा|खाना|भोजन|फोटो|तस्वीर|प्रसिद्ध/i.test(query);
+ if(!dynamic&&!curated&&atlas){
+   const reviewed=await approvedDestinationAnswer(env,atlas);
+   if(reviewed)return json({...reviewed,query});
+ }
  if(atlas&&atlasIntent&&!dynamic)return json({...atlas,query});
  if(curated && !dynamic){
    await putExactCache(env,query,lang,curated);
