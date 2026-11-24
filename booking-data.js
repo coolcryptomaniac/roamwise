@@ -16,13 +16,15 @@
 /* Stay pricing guardrail: the platform supports TWO supplier models, never both
    on the same booking. Private wholesale/net rates stay server/admin-side. */
 window.RW_STAY_PRICING_POLICY = {
-  commissionPct: 8,
+  commissionPct: 7,            // Partner Free plan; matches partner/config.js and stay-ledger-core
+  paidPlanCommissionPct: 5,    // Partner paid plans (desk / annual / three-year)
+  commissionReview: 'Commission rates are reviewed yearly, or sooner if the business needs it.',
   netMarkupTargetPct: 8,
   netMarkupMaxPct: 10,
   minimumViableMarginPct: 3,
   customerSavingTargetPct: 3,
   models: {
-    commission: 'Property supplies its public/direct sell rate; RoamWise earns 8% only after a completed stay.',
+    commission: 'Property supplies its public/direct sell rate; RoamWise earns 7% (Partner Free) or 5% (paid partner plan) only after a completed stay.',
     protectedNet: 'Property supplies a confidential B2B net rate; RoamWise targets an 8% gross markup, capped at 10%, while aiming to keep the like-for-like guest rate at least 3% below the best audited public rate.'
   },
   noDoubleCharge: true,
