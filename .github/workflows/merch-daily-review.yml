@@ -31,7 +31,7 @@ jobs:
           node --test tests/merch-daily.test.mjs
           node tools/merch-daily.mjs
           git diff --check
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with:
           python-version: '3.11'
       - name: Install pinned rasterisation dependencies
