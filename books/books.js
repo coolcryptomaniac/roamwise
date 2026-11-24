@@ -1,5 +1,5 @@
 /* RoamWise Bookshelf: renders the Home carousel (#rwBooks .rwb-mount) and /books/ (#rwbPage) from /books/data.json.
-   Kindle-style sample reader opens only for books that have /books/samples/<id>.json. Text set via esc(); no tracking.
+   Kindle-style sample reader opens only for books marked "sample": true in data.json AND that have /books/samples/<id>.json (no 404 probing). Text set via esc(); no tracking.
    Never invents links: empty Pothi shows "link soon"; empty Amazon/Flipkart fall back to a store search for the title. */
 (function () {
   'use strict';
@@ -10,7 +10,7 @@
 
   function get(u) { return fetch(u, { cache: 'no-cache' }).then(function (r) { if (!r.ok) throw 0; return r.json(); }); }
   function load() { return DATA ? Promise.resolve(DATA) : get('/books/data.json').then(function (d) { DATA = d; return d; }); }
-  function hasSample(id) { if (id in SAMPLES) return Promise.resolve(SAMPLES[id]); return get('/books/samples/' + encodeURIComponent(id) + '.json').then(function (d) { return (SAMPLES[id] = d && d.chapters && d.chapters.length ? d : null); }, function () { return (SAMPLES[id] = null); }); }
+  function hasSample(id) { if (id in SAMPLES) return Promise.resolve(SAMPLES[id]); var bk = DATA && (DATA.books || []).filter(function (x) { return x.id === id; })[0]; if (!bk || bk.sample !== true) return Promise.resolve(SAMPLES[id] = null); return get('/books/samples/' + encodeURIComponent(id) + '.json').then(function (d) { return (SAMPLES[id] = d && d.chapters && d.chapters.length ? d : null); }, function () { return (SAMPLES[id] = null); }); }
 
   function cover(b) {
     var c = b.cover || {}, img = safeSrc(c.image);

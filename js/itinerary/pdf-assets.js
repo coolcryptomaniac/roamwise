@@ -49,13 +49,42 @@ function fetchBmp(url){ /* ImageBitmap for canvas composition (map tiles) */
   return fetch(url).then(function(r){ if(!r.ok) throw 0; return r.blob(); })
     .then(function(b){ return createImageBitmap(b); });
 }
+/* Wikipedia request gate (25 Nov 2026 test report): the homepage cards fired ~32
+   parallel Wikipedia calls (same title twice each) and most came back 429 Too Many
+   Requests, so cards lost their photos. Now: at most 3 in flight, results cached per
+   title for the session (a real "no image" is cached too; network errors and 429s are
+   not), and a 60 s back-off after a 429 so we stop hammering. */
+var RW_WIKI_GATE={inflight:0,max:3,queue:[],coolUntil:0,mem:{}};
+function rwWikiGet(url){
+  var G=RW_WIKI_GATE;
+  if(Date.now()<G.coolUntil) return Promise.reject(429);
+  return new Promise(function(res,rej){
+    G.queue.push(function(){
+      if(Date.now()<G.coolUntil){ rej(429); return pump(); }
+      G.inflight++;
+      fetch(url).then(function(r){ if(r.status===429){ G.coolUntil=Date.now()+60000; throw 429; } if(!r.ok && r.status!==404) throw r.status; return r.status===404?{}:r.json(); })
+        .then(res,rej).then(done,done);
+    });
+    pump();
+  });
+  function done(){ G.inflight--; pump(); }
+  function pump(){ while(G.inflight<G.max && G.queue.length) G.queue.shift()(); }
+}
+function rwWikiMemo(kind,q,compute){
+  var key='rwwiki:'+kind+':'+String(q).toLowerCase(), G=RW_WIKI_GATE;
+  if(G.mem[key]) return G.mem[key];
+  try{ var hit=sessionStorage.getItem(key); if(hit!==null) return (G.mem[key]=Promise.resolve(hit||null)); }catch(e){}
+  var p=compute().then(function(u){ try{ sessionStorage.setItem(key,u||''); }catch(e){} return u||null; },
+    function(){ delete G.mem[key]; return null; }); /* transient failure: retry on a later call */
+  return (G.mem[key]=p);
+}
 function wikiAction(q){
   /* Stricter image lookup: only return an image when Wikipedia actually has a
      matching article with a real page image. This prevents wrong-image bugs
      (e.g. a food query returning an unrelated thumbnail) by checking the page
      isn't a "missing" stub and the title reasonably matches the query. */
-  return fetch('https://en.wikipedia.org/w/api.php?action=query&prop=pageimages|info&piprop=thumbnail&pithumbsize=640&redirects=1&format=json&origin=*&titles='+encodeURIComponent(q))
-    .then(function(r){return r.json();}).then(function(d){
+  return rwWikiMemo('action',q,function(){ return rwWikiGet('https://en.wikipedia.org/w/api.php?action=query&prop=pageimages|info&piprop=thumbnail&pithumbsize=640&redirects=1&format=json&origin=*&titles='+encodeURIComponent(q))
+    .then(function(d){
       var pgs=d.query&&d.query.pages; if(!pgs) return null;
       var k=Object.keys(pgs)[0]; var pg=pgs[k];
       if(!pg || pg.missing!==undefined) return null;           /* no such article */
@@ -67,7 +96,7 @@ function wikiAction(q){
       var overlap=qWords.some(function(w){ return title.indexOf(w)>=0; });
       if(qWords.length && !overlap) return null;
       return pg.thumbnail.source;
-    }).catch(function(){return null;});
+    }); });
 }
 function openverseThumb(q){
   return fetch('https://api.openverse.org/v1/images/?q='+encodeURIComponent(q)+'&page_size=1&license_type=all')
@@ -84,6 +113,7 @@ function imgTry(getters){ /* iterate candidate URL getters until a download succ
   }).catch(function(){ return imgTry(getters); });
 }
 function wikiAny(q, alt){ /* REST summary (proxy-safe) -> alt REST -> action -> openverse */
+  if(alt && String(alt).toLowerCase()===String(q).toLowerCase()) alt=null; /* callers pass (q,q): don't ask twice */
   return wikiThumb(q).then(function(u){ if(u) return u; return alt? wikiThumb(alt):null; })
     .then(function(u){ if(u) return u; return wikiAction(q); })
     .then(function(u){ if(u) return u; return alt? wikiAction(alt):null; })
@@ -153,8 +183,6 @@ function wikiThumb(q){
   /* The REST summary already returns a working thumbnail URL. The old code
      rewrote its size to /640px- which produced a path that often 404s (and
      404s harder through the image proxy) — return the URL as-is. */
-  return fetch('https://en.wikipedia.org/api/rest_v1/page/summary/'+encodeURIComponent(q))
-    .then(function(r){return r.json();})
-    .then(function(d){ return (d.thumbnail&&d.thumbnail.source) || null; })
-    .catch(function(){ return null; });
+  return rwWikiMemo('summary',q,function(){ return rwWikiGet('https://en.wikipedia.org/api/rest_v1/page/summary/'+encodeURIComponent(q))
+    .then(function(d){ return (d.thumbnail&&d.thumbnail.source) || null; }); });
 }

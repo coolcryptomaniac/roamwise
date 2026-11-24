@@ -16,7 +16,7 @@ function installStyles(){
  '.rw-event-answer .tk-chip{display:inline-flex;text-decoration:none;font-weight:750}';
  document.head.appendChild(sheet);
 }
-function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','"':'&quot;'}[c];});}
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
 function summit(q){return /\b(bengaluru tech summit|bangalore tech summit|bts[ -]?2026|biec)\b/i.test(String(q||''));}
 function intent(q){return /\b(plan|trip|attend|visit|travel|going|go to|itinerary|reach|budget|conference)\b/i.test(String(q||''));}
 function find(t){

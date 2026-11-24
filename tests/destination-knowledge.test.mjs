@@ -2,15 +2,17 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
+import os from 'node:os';
 import vm from 'node:vm';
 import {execFileSync} from 'node:child_process';
 import {fileURLToPath} from 'node:url';
 const ROOT=fileURLToPath(new URL('../',import.meta.url));
 const read=p=>fs.readFileSync(path.join(ROOT,p),'utf8');
 test('destination library builds only reviewed editorial records as public SEO URLs',()=>{
- const result=execFileSync(process.execPath,['tools/build-destination-library.cjs'],{cwd:ROOT,encoding:'utf8',timeout:20000});
+ const tmp=fs.mkdtempSync(path.join(os.tmpdir(),'rw-places-')),env={...process.env,RW_PLACES_OUT:tmp}; /* never write generated pages into the source tree */
+ const result=execFileSync(process.execPath,['tools/build-destination-library.cjs'],{cwd:ROOT,encoding:'utf8',timeout:20000,env});
  assert.match(result,/reviewed|editorial/i);
- const hub=read('places/index.html'),index=read('places/data/assistant-index.json');
+ const hub=fs.readFileSync(path.join(tmp,'index.html'),'utf8'),index=fs.readFileSync(path.join(tmp,'data/assistant-index.json'),'utf8');
  const published=JSON.parse(index);
  assert.ok(published.records.length>=4);
  assert.match(hub,/Search|Find a reviewed destination/);
@@ -19,7 +21,8 @@ test('destination library builds only reviewed editorial records as public SEO U
  assert.match(hub,/data-search=/);
  assert.ok(published.records.every(x=>/^\/guides\/[a-z0-9-]+\.html$|^\/places\/[a-z0-9-]+\/$/.test(x.url)));
  assert.doesNotMatch(hub,/53,000 verified travel guides|guaranteed travel|all 53,000 pages/);
- execFileSync(process.execPath,['tools/build-destination-library.cjs','--check'],{cwd:ROOT,timeout:20000});
+ execFileSync(process.execPath,['tools/build-destination-library.cjs','--check'],{cwd:ROOT,timeout:20000,env});
+ fs.rmSync(tmp,{recursive:true,force:true});
 });
 test('the research candidate scheduler yields exactly 50 deterministic non-published atlas briefs',()=>{
  const exec=()=>JSON.parse(execFileSync(process.execPath,['tools/knowledge-candidates.cjs','--date','2026-11-16','--count','50'],{cwd:ROOT,encoding:'utf8',timeout:45000,maxBuffer:8*1024*1024}));
