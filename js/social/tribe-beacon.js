@@ -250,7 +250,7 @@ function rwBeaconFind(){
   if(!mine){ host.innerHTML=''; return; }
   if(typeof db==='undefined'||!db){ host.innerHTML='<div class="note">Offline \u2014 need a connection.</div>'; return; }
   host.innerHTML='<div class="note">\ud83d\udd0d Looking for lit beacons near you\u2026</div>';
-  db.collection('beacons').limit(300).get().then(function(qs){
+  db.collection('beacons').where('expireAt','>',firebase.firestore.Timestamp.fromMillis(Date.now()-5*60*1000)).limit(300).get().then(function(qs){
     var now=Date.now(), rows=[];
     qs.forEach(function(d){
       var b=d.data()||{};

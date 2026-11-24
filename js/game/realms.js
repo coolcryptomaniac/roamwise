@@ -345,6 +345,7 @@ function rwPassportIssue(){
       var rec={ id:id, place:v.place, when:v.when||'', note:v.note||'',
         uid:user.uid, name:(user.displayName||'Traveller'), house:rwHouse()||null,
         verified: !!chk.ok,
+        vkm: (chk.ok && typeof chk.km==='number') ? Math.round(chk.km*10)/10 : null,
         issued: firebase.firestore.FieldValue.serverTimestamp(),
         issuer:'roamwise.co.in' };
       return db.collection('passports').doc(id).set(rec).then(function(){

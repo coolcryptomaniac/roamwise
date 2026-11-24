@@ -1,7 +1,7 @@
 /* Real Firestore rules tests (emulator). Run: npm run rules:test
    Needs Java + firebase-tools; not part of `npm test` so the default suite stays offline. */
 import { initializeTestEnvironment, assertSucceeds, assertFails } from '@firebase/rules-unit-testing';
-import { doc, setDoc, getDoc, updateDoc, deleteField, serverTimestamp, increment } from 'firebase/firestore';
+import { doc, setDoc, getDoc, updateDoc, deleteField, serverTimestamp, increment, Timestamp, collection, query, where, limit, getDocs } from 'firebase/firestore';
 import fs from 'node:fs';
 import test from 'node:test';
 
@@ -131,5 +131,32 @@ test('b2bDeals: once signed (written by the Worker) the deal is frozen for staff
   await assertFails(updateDoc(doc(b2b(), 'b2bDeals/d1'), { stage: 'lead' }));
   await assertSucceeds(getDoc(doc(b2b(), 'b2bDeals/d1')));
   await assertSucceeds(updateDoc(doc(admin(), 'b2bDeals/d1'), { stage: 'countersigned' }));
+});
+test('squads: signed-in members can read and post; anonymous visitors cannot read contacts', async () => {
+  await assertSucceeds(setDoc(doc(u1(), 'squads/s1'), { uid: 'u1', key: 'almora_dec', note: 'Going in Dec', contact: '@asha', created: serverTimestamp() }));
+  await assertSucceeds(getDoc(doc(u2(), 'squads/s1')));
+  await assertFails(getDoc(doc(anon(), 'squads/s1')));
+});
+test('passports: honest unverified and verified stamps save; verified without a distance, or too far, is refused', async () => {
+  const base = { uid: 'u1', place: 'Almora', issued: serverTimestamp() };
+  await assertSucceeds(setDoc(doc(u1(), 'passports/p1'), { ...base, verified: false }));
+  await assertSucceeds(setDoc(doc(u1(), 'passports/p2'), { ...base, verified: true, vkm: 3.2 }));
+  await assertFails(setDoc(doc(u1(), 'passports/p3'), { ...base, verified: true }));
+  await assertFails(setDoc(doc(u1(), 'passports/p4'), { ...base, verified: true, vkm: 900 }));
+  await assertFails(setDoc(doc(u1(), 'passports/p5'), { uid: 'u1', place: 'Almora', verified: false, issued: Timestamp.fromMillis(Date.now() - 864e5) }));
+  await assertSucceeds(getDoc(doc(anon(), 'passports/p2'))); // public verification page still works
+});
+test('beacons: max 2 h lifetime, live beacons readable, expired ones hidden', async () => {
+  const live = { uid: 'u1', lat: 29.6, lon: 79.66, tags: ['trek'], expireAt: Timestamp.fromMillis(Date.now() + 2 * 3600e3) };
+  await assertSucceeds(setDoc(doc(u1(), 'beacons/u1'), live));
+  await assertFails(setDoc(doc(u2(), 'beacons/u2'), { ...live, uid: 'u2', expireAt: Timestamp.fromMillis(Date.now() + 30 * 864e5) }));
+  await assertFails(setDoc(doc(u2(), 'beacons/u2'), { uid: 'u2', lat: 1, lon: 2 }));
+  await env.withSecurityRulesDisabled(async ctx => { await setDoc(doc(ctx.firestore(), 'beacons/old'), { uid: 'old', lat: 29.6, lon: 79.66, expireAt: Timestamp.fromMillis(Date.now() - 864e5) }); });
+  await assertSucceeds(getDoc(doc(u2(), 'beacons/u1')));
+  await assertFails(getDoc(doc(u2(), 'beacons/old')));
+  const q = query(collection(u2(), 'beacons'), where('expireAt', '>', Timestamp.fromMillis(Date.now() - 5 * 60e3)), limit(300));
+  const snap = await assertSucceeds(getDocs(q)); // the app's exact query shape
+  if (snap.docs.some(d => d.id === 'old')) throw new Error('expired beacon returned');
+  await assertFails(getDocs(query(collection(u2(), 'beacons'), limit(300)))); // unfiltered scrape refused
 });
 test.after(async () => { await env.cleanup(); });
