@@ -119,3 +119,12 @@ test('three additional official cultural profiles are discoverable',()=>{
  }
  assert.ok(atlasAnswer('Kasar Devi famous people').atlas.people.some(p=>p.name==='Swami Vivekananda'));
 });
+
+test('local-only query does not call optional external search',async()=>{
+ const previous=globalThis.fetch;let calls=0;
+ globalThis.fetch=async()=>{calls++;throw new Error('external calls prohibited');};
+ try{
+  const r=await handleTuskWebSearch(new Request('https://example.test/tusk/search?q=Unknown%20invented%20place%20today&localOnly=1'),{BRAVE_SEARCH_API_KEY:'test-only',TUSK_LIVE_SEARCH:'1'});
+  assert.equal(r.status,503);assert.equal(calls,0);
+ }finally{globalThis.fetch=previous;}
+});
