@@ -52,6 +52,10 @@ id = "be31e0935be843219cea1edf2203877b"   # <-- the ONLY line you edit in this f
 # unless PAYMENT_PROVIDER=cashfree and CASHFREE_ENVIRONMENT=live there too.
 # ---------------------------------------------------------------------------
 [vars]
+# No broadcast is generated. Only admin-reviewed status=approved messages send.
+# User categories/opt-in, source validation, quiet hours, per-user frequency
+# caps and audited FCM delivery still apply. To halt, set to "false".
+NOTIFICATIONS_AUTOSEND = "true"
 # People Hub auto-inform (worker/handlers/partner-inform.js). "false" = drafts only. Mail: Brevo free (BREVO_API_KEY + BREVO_SENDER_EMAIL secrets), then Gmail relay.
 PARTNER_INFORM_ENABLED = "true"
 PARTNER_DAILY_CAP = "15"
