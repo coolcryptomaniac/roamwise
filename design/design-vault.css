@@ -110,3 +110,55 @@ html[data-rw-design] #rwSalesArtists a:focus-visible{outline:3px solid #eac576;o
    min-height:42px!important;margin:0!important;align-self:center!important;
  }
 }
+
+/* Settings is a deliberate destination, not a blocking splash screen. */
+#settingsOverlay .modal {max-height:min(90dvh,900px);display:flex;flex-direction:column;overflow:hidden;}
+#settingsOverlay .modal-body {overflow-y:auto;overscroll-behavior:contain;scroll-padding-top:12px;padding-bottom:max(20px,env(safe-area-inset-bottom));}
+#rwSettingsHome {background:linear-gradient(135deg,#1b223b,#211a35);border:1px solid #b39cc655;border-radius:17px;margin-bottom:12px;padding:15px;color:#f5effb;}
+#rwSettingsHome .rw-settings-home-title {font:800 18px/1.3 system-ui,sans-serif;margin-bottom:12px;}
+#rwSettingsHome .rw-settings-jumps {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;}
+#rwSettingsHome .rw-settings-jumps button,
+#rwSettingsHome .rw-settings-size {min-height:44px;border:1px solid #a68ebb75;border-radius:12px;background:#302845;color:#f5effb;padding:9px 10px;font:700 12px/1.3 system-ui,sans-serif;cursor:pointer;}
+#rwSettingsHome .rw-settings-jumps button:focus-visible,
+#rwSettingsHome .rw-settings-size:focus-visible,
+#rwSettingsHome select:focus-visible,
+#rwSettingsHome input:focus-visible {outline:3px solid #f1cb7e;outline-offset:2px;}
+#rwSettingsHome .rw-settings-essentials {display:grid;grid-template-columns:1fr 1fr;gap:8px;align-items:stretch;margin-top:11px;}
+#rwSettingsHome .rw-settings-language {display:flex;flex-direction:column;gap:5px;font:700 12px system-ui,sans-serif;}
+#rwSettingsHome select {min-height:44px;max-width:100%;border-radius:11px;background:#302845;color:#f5effb;border:1px solid #b59ec275;padding:8px;font:600 13px system-ui,sans-serif;}
+#rwSettingsHome .rw-settings-external {display:flex;align-items:flex-start;gap:11px;cursor:pointer;border-top:1px solid #ae99bf40;padding:12px 0 0;margin-top:12px;}
+#rwSettingsHome .rw-settings-external input {width:21px;height:21px;flex:0 0 21px;accent-color:#e4bd73;margin:2px 0 0;}
+#rwSettingsHome .rw-settings-external span {display:grid;gap:4px;}
+#rwSettingsHome .rw-settings-external strong {font:700 12px/1.4 system-ui,sans-serif;}
+#rwSettingsHome .rw-settings-external small {font:400 11px/1.5 system-ui,sans-serif;color:#cbbfda;}
+@media(max-width:420px){
+ #settingsOverlay .modal {max-height:92dvh;border-radius:18px 18px 0 0;}
+ #rwSettingsHome {padding:12px;}
+}
+@media(prefers-reduced-motion:reduce){#rwSettingsHome * {scroll-behavior:auto!important;transition:none!important;}}
+
+/* Ailon source-backed and editorial travel atlas result — lightweight,
+   accessible and compatible with the three versioned design editions. */
+.rw-atlas-result {overflow:hidden;border-radius:19px!important;border:1px solid #9d87bf77!important;background:#111527!important;color:#f5f1fb!important;}
+.rw-atlas-result .tk-head {background:linear-gradient(130deg,#292344,#1b2540)!important;padding:16px 17px!important;}
+.rw-atlas-result .tk-place {font-size:19px!important;line-height:1.3;color:#f4d49e!important;}
+.rw-atlas-result .tk-meta {font-size:11px;color:#d2c5e0!important;}
+.rw-atlas-result .tk-sec {padding:14px 16px!important;}
+.rw-atlas-result .rw-atlas-intro {font-size:13px;line-height:1.6;color:#ded6e9;}
+.rw-atlas-result .rw-atlas-section-title {font:800 13px/1.4 system-ui,sans-serif;margin:16px 0 8px;color:#f5d394;}
+.rw-atlas-result .rw-atlas-section-title small {font-weight:500;font-size:10px;color:#d4c6df;margin-left:5px;}
+.rw-atlas-result .rw-atlas-days {display:grid;gap:7px;}
+.rw-atlas-result .rw-atlas-day {display:grid;grid-template-columns:65px 1fr;gap:10px;padding:11px 12px;border:1px solid #b1a2ca47;background:#1e2539;border-radius:12px;font:400 12px/1.55 system-ui,sans-serif;}
+.rw-atlas-result .rw-atlas-day b {color:#edc479;}
+.rw-atlas-result .rw-atlas-tags {display:flex;gap:7px;flex-wrap:wrap;}
+.rw-atlas-result .rw-atlas-tags span {padding:7px 10px;border-radius:999px;background:#2b2742;color:#eee2f7;border:1px solid #a18eb660;font:600 11px/1.4 system-ui,sans-serif;}
+.rw-atlas-result .rw-atlas-person {font:400 12px/1.6 system-ui,sans-serif;color:#e7def2;margin:4px 0;}
+.rw-atlas-result .rw-atlas-photo {display:inline-flex;align-items:center;min-height:44px;color:#f2d48d;text-decoration:underline;font:700 12px/1.4 system-ui,sans-serif;margin-top:10px;}
+.rw-atlas-result .rw-atlas-rights,.rw-atlas-result .rw-atlas-caution {font:400 11px/1.6 system-ui,sans-serif;color:#c5bbd3;margin:9px 0;}
+.rw-atlas-result .rw-atlas-caution {border-top:1px solid #a99ab74a;padding-top:11px;}
+.rw-atlas-result a:focus-visible {outline:3px solid #f6cf89;outline-offset:3px;}
+@media(max-width:375px){.rw-atlas-result .rw-atlas-day {grid-template-columns:1fr;gap:3px}.rw-atlas-result .tk-sec{padding:12px!important}}
+@media(prefers-reduced-motion:reduce){.rw-atlas-result * {scroll-behavior:auto!important;animation:none!important;transition:none!important}}
+
+.rw-atlas-result .rw-atlas-facts{margin:6px 0 10px;padding-left:20px;color:#e8ddf0;font:400 12px/1.65 system-ui,sans-serif;}
+.rw-atlas-result .rw-atlas-facts li{margin:5px 0;}

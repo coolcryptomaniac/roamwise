@@ -24,17 +24,40 @@ function instance(){
  vm.runInContext(core.slice(start,end),ctx);
  return {ctx,calls,finished};
 }
-test('general public travel information still invokes free source providers',async()=>{
+test('public travel lookups start with RoamWise Worker and keep external providers disabled',async()=>{
  const {ctx,calls}=instance();
  assert.equal(ctx.rwTuskIsPublicQuery('How to visit Gir National Park?'),true);
  await ctx.rwMiniSearch('How to visit Gir National Park?');
+ assert.equal(calls.length,1);
+ assert.match(calls[0][0],/\/tusk\/search\?/);
+});
+test('explicit opt-in consults external providers only after the RoamWise miss',async()=>{
+ const {ctx,calls}=instance();
+ ctx.window.localStorage={getItem:(key)=>key==='rw_tusk_external_search'?'1':null};
+ await ctx.rwMiniSearch('How to visit an unindexed public place?');
  assert.equal(calls.length,3);
  assert.match(calls[0][0],/\/tusk\/search\?/);
  assert.match(calls[1][0],/duckduckgo/);
  assert.match(calls[2][0],/wikipedia/);
 });
+test('RoamWise verified source prevents external calls even if fallback is enabled',async()=>{
+ const {ctx,calls}=instance();
+ ctx.window.localStorage={getItem:()=> '1'};
+ ctx.fetch=async(...args)=>{
+   calls.push(args);
+   return {ok:true,json:async()=>({
+     available:true,route:'curated',summary:'Reviewed local advice',
+     source:'RoamWise facts',hits:[{title:'Official',url:'https://uttarakhandtourism.gov.in/'}]
+   })};
+ };
+ const result=await ctx.rwMiniSearch('Kasar Devi quiet travel advice');
+ assert.equal(calls.length,1);
+ assert.match(calls[0][0],/\/tusk\/search\?/);
+ assert.equal(result.trustedSummary,true);
+});
 test('contact details, secret tokens, private bookings and control chars never reach any third-party provider',async()=>{
  const {ctx,calls}=instance();
+ ctx.window.localStorage={getItem:()=> '1'}; // opt-in never overrides private-query screening
  const cases=[
   'my email is guest@example.com',
   'call me on +91 9876543210 please',
@@ -57,6 +80,17 @@ test('AI outage on private question shows a local warning without public lookup 
  ctx.rwTuskSearchFailure({},'My booking is AB123',{},{});
  assert.equal(calls.length,0);
  assert.equal(finished.length,1);
- assert.match(finished[0],/Public web lookup was skipped/);
+ assert.match(finished[0],/Public knowledge lookup was skipped/);
  assert.doesNotMatch(finished[0],/google\.com\/search/);
+});
+
+test('long non-private travel prompts stay useful without leaking to public services',()=>{
+ const {ctx,calls,finished}=instance();
+ const prompt='Please plan a relaxed three day weekend trip around Almora and Kasar Devi with a comfortable homestay, gentle local sightseeing, slow mornings, meals, scenic viewpoints, and transport guidance for a family who wants a quiet schedule with plenty of rest and enough time to enjoy local culture.';
+ assert.ok(prompt.length>180);
+ ctx.rwTuskSearchFailure({},prompt,{},{});
+ assert.equal(calls.length,0);
+ assert.equal(finished.length,1);
+ assert.match(finished[0],/Planning mode/);
+ assert.doesNotMatch(finished[0],/Private question/);
 });

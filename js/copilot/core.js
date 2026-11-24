@@ -252,41 +252,41 @@ function cpSmartAnswer(t){ if(t===window.rwTripAiFor && window.RWTripDesk && RWT
   }
   return null;
 }
-/* ==================== MINI WEB LOOKUP ====================
-   When the curated DB and guide APIs come up empty, search the free open web:
-   Wikipedia's search API + DuckDuckGo's Instant Answer API — both keyless and
-   CORS-open. NOT Google crawling (blocked + against ToS); the card links out to
-   full Google / DuckDuckGo results in one tap, which covers the same need. */
+/* RoamWise-first knowledge lookup; external providers require consent. */
 async function rwMiniSearch(q){
-  // All providers below are public, including Wikipedia and DuckDuckGo.
-  // Never transmit sensitive queries even when the Worker rejects them.
   if(typeof rwTuskIsPublicQuery!=='function'||!rwTuskIsPublicQuery(q))return null;
   q=String(q||'').slice(0,140);
-  var out={abs:null, absSrc:null, absUrl:null, hits:[]};
-  var jobs=[];
-  jobs.push(rwTuskWorkerSearch(q,out));
-  jobs.push(fetch('https://api.duckduckgo.com/?q='+encodeURIComponent(q)+'&format=json&no_html=1&skip_disambig=1')
-    .then(function(r){return r.json();}).then(function(d){
-      var a=d.AbstractText||d.Answer||d.Definition||'';
-      if(a && !out.trustedSummary){ out.abs=String(a).slice(0,420); out.absSrc=d.AbstractSource||'DuckDuckGo'; out.absUrl=d.AbstractURL||''; }
-      (d.RelatedTopics||[]).slice(0,3).forEach(function(x){
-        if(x && x.Text && x.FirstURL) out.hits.push({t:String(x.Text).slice(0,110), u:x.FirstURL, s:'DDG'});
-      });
-    }).catch(function(){}));
-  jobs.push(fetch('https://en.wikipedia.org/w/rest.php/v1/search/page?q='+encodeURIComponent(q)+'&limit=3')
-    .then(function(r){return r.json();}).then(function(d){
-      (d.pages||[]).forEach(function(pg){
-        out.hits.push({t:pg.title+(pg.description? ' — '+pg.description : ''), u:'https://en.wikipedia.org/wiki/'+encodeURIComponent(pg.key), s:'Wikipedia'});
-      });
-      if(!out.abs && d.pages && d.pages[0] && d.pages[0].excerpt){
-        out.abs=String(d.pages[0].excerpt).replace(/<[^>]*>/g,'').slice(0,320); out.absSrc='Wikipedia';
-        out.absUrl='https://en.wikipedia.org/wiki/'+encodeURIComponent(d.pages[0].key);
-      }
-    }).catch(function(){}));
-  try{ await Promise.all(jobs); }catch(e){ /* best-effort, ignore */ }
-  return (out.abs || out.hits.length) ? out : null;
+  var out={abs:null,absSrc:null,absUrl:null,hits:[]};
+  if(typeof rwTuskWorkerSearch==='function'){
+    try{await rwTuskWorkerSearch(q,out);}catch(e){/* no inferred answer */}
+  }
+  if(out.abs||out.hits.length)return out;
+  if(typeof rwTuskExternalSourcesEnabled!=='function'||!rwTuskExternalSourcesEnabled())return null;
+  await Promise.all([
+    fetch('https://api.duckduckgo.com/?q='+encodeURIComponent(q)+'&format=json&no_html=1&skip_disambig=1')
+      .then(function(r){return r.json();}).then(function(d){
+        var a=d.AbstractText||d.Answer||d.Definition||'';
+        if(a){out.abs=String(a).slice(0,420);out.absSrc=d.AbstractSource||'DuckDuckGo';out.absUrl=d.AbstractURL||'';}
+        (d.RelatedTopics||[]).slice(0,3).forEach(function(x){
+          if(x&&x.Text&&x.FirstURL)out.hits.push({t:String(x.Text).slice(0,110),u:x.FirstURL,s:'DDG'});
+        });
+      }).catch(function(){}),
+    fetch('https://en.wikipedia.org/w/rest.php/v1/search/page?q='+encodeURIComponent(q)+'&limit=3')
+      .then(function(r){return r.json();}).then(function(d){
+        (d.pages||[]).forEach(function(pg){
+          out.hits.push({t:pg.title+(pg.description?' — '+pg.description:''),u:'https://en.wikipedia.org/wiki/'+encodeURIComponent(pg.key),s:'Wikipedia'});
+        });
+        if(!out.abs&&d.pages&&d.pages[0]&&d.pages[0].excerpt){
+          out.abs=String(d.pages[0].excerpt).replace(/<[^>]*>/g,'').slice(0,320);
+          out.absSrc='Wikipedia';
+          out.absUrl='https://en.wikipedia.org/wiki/'+encodeURIComponent(d.pages[0].key);
+        }
+      }).catch(function(){})
+  ]);
+  return (out.abs||out.hits.length)?out:null;
 }
 function rwWebAnswerHTML(q,res){
+  if(res&&res.atlas&&typeof rwAtlasAnswerHTML==='function')return rwAtlasAnswerHTML(q,res);
   // Public web matches are leads for verification, not a model-certified answer.
   // Keep links explicitly HTTPS and render useful swipeable source cards.
   var g='https://www.google.com/search?q='+encodeURIComponent(q);
@@ -296,7 +296,7 @@ function rwWebAnswerHTML(q,res){
   }
   var summary=String(res&&res.abs||'').slice(0,650);
   var hits=Array.isArray(res&&res.hits)?res.hits.filter(function(hit){return safe(hit.u);}).slice(0,6):[];
-  var out='<div class="tk-card rw-search-results"><div class="tk-head" style="background:linear-gradient(140deg,#273052,#151f36)"><div class="tk-place">🔎 Sources to explore</div>'
+  var out='<div class="tk-card rw-search-results"><div class="tk-head" style="background:linear-gradient(140deg,#273052,#151f36)"><div class="tk-place">🏔 RoamWise knowledge & sources</div>'
     +'<div class="tk-meta">Public web results · '+esc2(String(q).slice(0,85))+'</div></div><div class="tk-sec">';
   if(summary){
     out+='<div style="font-size:12.5px;line-height:1.65;margin-bottom:8px">'+esc2(summary)+'</div>'
@@ -318,8 +318,8 @@ function rwWebAnswerHTML(q,res){
       }).join('')+'</div>';
   }
   if(!hits.length&&!summary)out+='<p>Search providers returned no confirmed matches. Try a more precise public question or use an official organiser website.</p>';
-  out+='<div class="tk-chips" style="margin-top:9px"><a class="tk-chip" style="text-decoration:none" target="_blank" rel="noopener" href="'+g+'">🌐 Google Search ↗</a>'
-    +'<a class="tk-chip" style="text-decoration:none" target="_blank" rel="noopener" href="'+dd+'">DuckDuckGo ↗</a></div>'
+  out+='<div class="tk-chips" style="margin-top:9px"><a class="tk-chip" href="/guides/">RoamWise guides ↗</a><a class="tk-chip" href="/packages/">Explore packages ↗</a>'
+    +((typeof rwTuskExternalSourcesEnabled==='function'&&rwTuskExternalSourcesEnabled())?'<a class="tk-chip" target="_blank" rel="noopener noreferrer" href="'+g+'">External Google search ↗</a><a class="tk-chip" target="_blank" rel="noopener noreferrer" href="'+dd+'">External DuckDuckGo ↗</a>':'')+'</div>'
     +'<p style="font-size:10px;color:var(--t3);margin-top:10px">These are linked source excerpts, not independent fact-checking. Live lookup may be unavailable when the search service is not configured.</p></div></div>';
   return out;
 }
@@ -835,7 +835,7 @@ function copilotSend(fromHero){
     if(_sa){ aiText = _sa; }   /* pasted link/text: AI gets the instruction; parser, cache and feedback keep the user's own words */
   }catch(e){ /* best-effort, ignore */ }
   /* App navigation intents: "open settings", "go to store", "show my trips"… */
-  var NAV=[[/settings|api key/i,'Settings',function(){openSettings();}],
+  var NAV=[[/settings|api key/i,'Settings',function(){openSettings(true);}],
     [/store|merch/i,'the Store',function(){tabGo('home');var st=el('store');if(st){var fh=st.querySelector('.fold-head');if(fh&&!fh.classList.contains('open'))fh.click();st.scrollIntoView({behavior:'smooth'});}}],
     [/music/i,'your Music',function(){openMusic();}],
     [/profile|account/i,'your Profile',function(){openProfile();}],
@@ -883,11 +883,15 @@ function copilotSend(fromHero){
     /* Ground the model in the real guide before it answers — this is what stops
        confident-but-wrong replies about small towns. */
     (function(){
-      var guide=function(){return intents.dest?wvGuide(intents.dest):Promise.resolve(null);};
+      var guide=function(){
+        var base=intents.dest?wvGuide(intents.dest):Promise.resolve(null);
+        return typeof rwAtlasGroundGuide==='function'?rwAtlasGroundGuide(intents.dest,base):base;
+      };
       var shared=function(){return typeof rwSharedFirst==='function'?rwSharedFirst(_ck,thinking,intents,t,guide):guide();};
       return typeof rwCuratedFirst==='function'?rwCuratedFirst(t,intents,thinking,shared):shared();
     })().then(function(g){ if(g&&g._shared) return;
       var facts = g && g.extract ? 'Verified guide text for '+g.title+': '+g.extract.slice(0,600)+'\n' : '';
+      if(g&&g._rwAtlasContext)facts+='RoamWise travel atlas grounding — do not present editorial suggestions as verified facts: '+g._rwAtlasContext+'\n';
       try{
         if(typeof RW_PLACE_FACTS!=='undefined'){
           var _pfq=(intents.dest||t||'').toLowerCase(); var _pf=null;
@@ -969,6 +973,12 @@ function copilotSend(fromHero){
       window._tkCarryShown = place;
     }
     if(place && new RegExp(place.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'i').test(t)) window._tkCarryShown=place;
+    if(place&&!kb&&typeof rwTuskIsPublicQuery==='function'&&rwTuskIsPublicQuery(t)){
+      Promise.resolve().then(function(){return rwMiniSearch(t);}).then(function(res){
+        cpFinish(thinking,res?rwWebAnswerHTML(t,res):'',intents,t);
+      }).catch(function(){cpFinish(thinking,'',intents,t);});
+      return;
+    }
     if(place){
       /* the card built in cpActionsHTML now carries the guide content; if we
          also have a text summary, give it a dash of masala */
@@ -976,9 +986,7 @@ function copilotSend(fromHero){
     } else if(kb){
       cpFinish(thinking, rwMasalaWrap(kb), intents, t);
     } else {
-      /* Nothing curated and no place named — quietly search the free open
-         web (Wikipedia + DuckDuckGo, keyless, CORS-open) and present a card. */
-      var _keyPrompt = 'I cover destinations, weather, budgets, transport and sharing. For open-ended conversation, add a free AI key \u2014 takes 2 minutes: <button class="tact" style="font-size:11px;padding:4px 10px" onclick="openWizard()">Get a free key</button>';
+      var _keyPrompt=(typeof rwTuskOfflinePlanningCard==='function'?rwTuskOfflinePlanningCard(t):'')||'<div class="tk-card"><div class="tk-head"><div class="tk-place">No verified RoamWise answer yet</div></div><div class="tk-sec"><p>Try a destination, dates or a more specific question. RoamWise guides are available now, and optional external sources can be enabled in Settings.</p><div class="tk-chips"><a class="tk-chip" href="/guides/">Explore RoamWise guides ↗</a></div></div></div>';
       /* MUST NOT throw: file:// cross-origin fetch can reject in the APK; an
          uncaught reject would freeze the "…" bubble = "chat broken in app". */
       Promise.resolve().then(function(){ return rwMiniSearch(t); }).then(function(res){
