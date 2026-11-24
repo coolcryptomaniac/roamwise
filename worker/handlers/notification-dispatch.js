@@ -107,6 +107,12 @@ export async function runNotificationDispatch(env, opts = {}, extras = {}) {
       continue;
     }
     report.campaigns++;
+    // Do not falsely mark an all-users campaign complete if a bounded scan
+    // could have omitted users. Expand via pagination before scaling past 1000.
+    if (c.target.type === 'all' && users.length >= MAX_USERS) {
+      report.reviewedOut++;
+      continue;
+    }
     const audience = c.target.type === 'uid'
       ? [{ id: c.target.uid, ...(userMap.get(c.target.uid) ||
         await d.getDoc(auth, 'users/' + c.target.uid) || {}) }]
@@ -126,12 +132,17 @@ export async function runNotificationDispatch(env, opts = {}, extras = {}) {
       if (result.failed) { report.failed += result.failed; if (!result.sent) pending = true; }
       if (result.sent) { report.sent++; delivered++; }
     }
-    if (!dry && !pending) {
-      await d.update(auth, 'notificationQueue/' + id, {
-        status: 'completed', completedAt: new Date(nowMs).toISOString(),
-        deliveredCount: delivered, suppressedCount: suppressed
-      });
-      report.completed++;
+    if (!dry) {
+      const update = {
+        deliveredCount: Number(c.deliveredCount || 0) + delivered,
+        suppressedCount: Number(c.suppressedCount || 0) + suppressed
+      };
+      if (!pending) {
+        update.status = 'completed';
+        update.completedAt = new Date(nowMs).toISOString();
+        report.completed++;
+      }
+      await d.update(auth, 'notificationQueue/' + id, update);
     }
   }
 
