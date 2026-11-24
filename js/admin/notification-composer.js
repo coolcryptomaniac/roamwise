@@ -29,6 +29,7 @@ var RWNotificationComposer = (function(){
       return {ok:false,error:'Choose a safe RoamWise page as the tap destination.'};
     if(category === 'travel' && !reviewedContent)
       return {ok:false,error:'Review the travel information before queuing it.'};
+    if(category === 'offers' && !reviewedContent) return {ok:false,error:'Review the verified offer copy before queuing it.'};
     if(category === 'offers' && !verifiedOfferId)
       return {ok:false,error:'A verified live offer ID from config/notificationOffers is required.'};
     return { ok:true, notification: {

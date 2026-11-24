@@ -246,10 +246,10 @@ are **never** sent just because the Worker starts.
   per run, per-user dedupe KV markers, 48-hour travel and 7-day offer caps.
 - A travel draft requires source-content review. An offer additionally requires
   a matching, active `config/notificationOffers.list` entry with
-  `{id, status:"verified", active:true, reviewedAt:"<ISO timestamp>",
+  `{id, status:"verified", active:true, title:"<verified title>",\n  body:"<verified text>", reviewedAt:"<ISO timestamp>",
   expiresAt:"<ISO timestamp>", url:"https://www.roamwise.co.in/..."}`.
   The offer review must be less than 7 days old and its destination must exactly
-  match the campaign. This list is currently manually curated by an admin;
+  match the campaign, including its title and body exactly. This list is currently manually curated by an admin;
   a promo code stored in `config/promoCodes` **does not** prove redeemability.
 - Admin can preview, dispatch, or revoke an approved campaign. A completed
   campaign reports actual successful recipient counts, never a fabricated send.

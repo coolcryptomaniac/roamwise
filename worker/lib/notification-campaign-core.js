@@ -39,6 +39,9 @@ export function campaignValidation(c, nowMs, verifiedOffers) {
     const rows = Array.isArray(verifiedOffers) ? verifiedOffers : [];
     const o = rows.find(x => x && x.id === id && id && x.status === 'verified' && x.active === true);
     if (!o || !trustedDestination(o.url) || o.url !== c.url) return 'offer_not_verified';
+    if (c.reviewedContent !== true || typeof o.title !== 'string' ||
+        typeof o.body !== 'string' || o.title !== c.title || o.body !== c.body)
+      return 'offer_copy_not_verified';
     const reviewedAt = Date.parse(String(o.reviewedAt || ''));
     if (!Number.isFinite(reviewedAt) || nowMs - reviewedAt > 7 * DAY ||
         reviewedAt > nowMs + 60000) return 'offer_review_stale';
