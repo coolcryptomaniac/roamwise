@@ -278,7 +278,7 @@ function openSettings(force){
           if(!el('advOptIn')){
             var ob=document.createElement('button');
             ob.id='advOptIn'; ob.className='tact'; ob.style.cssText='width:100%;margin:4px 0 10px;font-size:12.5px';
-            ob.textContent='\u2699 Advanced: bring your own AI key';
+            ob.textContent='⚙ AI models & API keys (BYOK)';
             ob.onclick=function(){
               if(ob.dataset.armed!=='1'){ ob.dataset.armed='1'; ob.textContent='Keys are billed to you by the provider. Tap again to enable advanced AI'; return; }
               lsSet('rwAdvAI','1'); showToast('Advanced AI enabled'); openSettings();
@@ -298,7 +298,7 @@ function openSettings(force){
           btn.textContent = (open?'\u2699 Optional AI tools':'\u2699 Hide optional AI tools');
         };
         adv.forEach(function(x){ x.style.display = hasKey?'':'none'; });
-        btn.textContent = hasKey ? '\u2699 Hide optional AI tools' : '\u2699 Optional AI tools';
+        btn.textContent = hasKey ? '⚙ Hide AI models & keys' : '⚙ Configure AI models & keys';
         body.insertBefore(btn, body.firstChild);
       }
     }

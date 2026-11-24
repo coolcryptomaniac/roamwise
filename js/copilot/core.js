@@ -807,12 +807,13 @@ async function rwResolvePlace(name){
     return place;
   }catch(e){ return null; }
 }
-function copilotSend(fromHero){
+function copilotSend(fromHero, spokenText){
   var inp = el(fromHero? 'heroInput' : 'cpInput');
-  var t=(inp && inp.value||'').trim(); if(!t) return;
+  var direct=typeof spokenText==='string';
+  var t=(direct?spokenText:(inp && inp.value||'')).trim(); if(!t) return;
   /* Keep search quiet; haptics only, no restarting music. */
   try{ if(typeof rwStopCue==='function')rwStopCue(false);if(typeof rwHaptic==='function')rwHaptic('light'); }catch(e){ /* best-effort, ignore */ }
-  inp.value='';
+  if(!direct&&inp)inp.value='';
   if(fromHero){
     /* Conversation flows vertically right on the page — no popup. */
     _cpTargetLog='heroLog';

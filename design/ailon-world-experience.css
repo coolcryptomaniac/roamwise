@@ -137,3 +137,31 @@ html[data-rw-design="himalayan-saanjh"] #copilotHero .tusk-title b{letter-spacin
 html[data-rw-design="himalayan-saanjh"] body.shell[data-view="home"] :is(#rwQuick,#brief){display:none!important}
 @media(max-width:700px){#tripMapSection #tripMap,#tripMapSection #tripMapList{flex:0 0 100%!important;width:100%}#tripMapSection #tripMapList{max-height:320px!important}#heroLog .rw-itinerary-days{grid-template-columns:minmax(0,1fr)!important}}
 @media(min-width:1500px){body.shell[data-view="home"] #copilotHero,body.shell[data-view="copilot"] #copilotHero{width:min(calc(100% - 48px),1120px)}#heroLog .rw-itinerary-day{font-size:17px}}
+
+/* Optional visual moods: no remote media or continuous animation. Preserve default layout. */
+html[data-rw-mood="rave"]{--rw-mood-a:#6c27c7;--rw-mood-b:#a21f46;--rw-mood-c:#eec0ff}
+html[data-rw-mood="odyssey"]{--rw-mood-a:#154a81;--rw-mood-b:#1e5364;--rw-mood-c:#b4f2ff}
+html[data-rw-mood="aipan"]{--rw-mood-a:#862f36;--rw-mood-b:#563026;--rw-mood-c:#ffe6c1}
+html[data-rw-mood]:not([data-rw-mood="default"]) body.shell #copilotHero{background:radial-gradient(ellipse at 15% 0%,var(--rw-mood-a),transparent 65%),linear-gradient(145deg,#0b0a15,var(--rw-mood-b))!important;border-color:var(--rw-mood-c)!important}
+html[data-rw-mood]:not([data-rw-mood="default"]) #copilotHero .tusk-title b{color:var(--rw-mood-c)}
+html[data-rw-mood="aipan"] #copilotHero{outline:3px double #f6e1ba;outline-offset:-7px}
+.rw-tusk-itinerary[data-rw-mood="rave"]{--rw-trip-a:#42166f;--rw-trip-b:#5e1636;--rw-trip-ink:#ffe2ff}
+.rw-tusk-itinerary[data-rw-mood="odyssey"]{--rw-trip-a:#123252;--rw-trip-b:#164754;--rw-trip-ink:#d8f6ff}
+.rw-tusk-itinerary[data-rw-mood="aipan"]{--rw-trip-a:#73272e;--rw-trip-b:#422721;--rw-trip-ink:#ffe4bd}
+#heroLog .rw-tusk-itinerary[data-rw-mood]:not([data-rw-mood="default"]):not([data-rw-itinerary-style="editorial"]) .tk-head{background:linear-gradient(135deg,var(--rw-trip-a),var(--rw-trip-b))!important;color:var(--rw-trip-ink)!important}
+#heroLog .rw-tusk-itinerary[data-rw-mood]:not([data-rw-mood="default"]):not([data-rw-itinerary-style="editorial"]) .rw-itinerary-day{background:linear-gradient(135deg,var(--rw-trip-a),var(--rw-trip-b))!important;border-color:var(--rw-trip-ink)!important}
+.rw-itinerary-mood,#rw-design-vault select{font:600 14px system-ui;min-height:44px;color:#fff;background:#272138;border:1px solid #ae92c3;border-radius:10px;padding:8px;max-width:100%}
+.rw-guided-prompt[hidden]{display:none!important}
+.rw-guided-prompt{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,190px),1fr));gap:10px;padding:15px;margin:10px 0;border:1px solid #ad91c6;border-radius:15px;background:#17152a;color:#fff;font:14px/1.5 system-ui}
+.rw-guided-prompt h3,.rw-guided-vibes{grid-column:1/-1;margin:0}
+.rw-guided-prompt label{min-width:0;display:grid;gap:4px}
+.rw-guided-prompt input,.rw-guided-prompt button{box-sizing:border-box;min-width:0;width:100%;min-height:44px;background:#272138;border:1px solid #9b83b1;border-radius:9px;padding:9px;color:#fff;font:16px system-ui}
+.rw-guided-vibes{display:flex;gap:6px;flex-wrap:wrap}
+.rw-guided-vibes button{width:auto;font-size:13px}
+.rw-guided-vibes button[aria-pressed="true"],.rw-guided-prompt button[type="submit"]{background:#f1c77e;color:#221627}
+.rw-extra-actions{flex-basis:100%;margin-top:5px}
+.rw-extra-actions summary{font-size:13px;cursor:pointer;padding:8px;color:#e4cee9}
+#heroLog .rw-rail-btn{min-height:44px}
+#heroLog>div{max-width:100%;box-sizing:border-box;font-size:clamp(14px,1.1vw,18px)!important}
+@media(max-width:520px){#heroLog>div{margin-left:0!important;margin-right:0!important}.rw-guided-prompt{grid-template-columns:minmax(0,1fr)}}
+@media(prefers-reduced-motion:reduce){html[data-rw-mood] #copilotHero *{animation:none!important;scroll-behavior:auto!important}}
