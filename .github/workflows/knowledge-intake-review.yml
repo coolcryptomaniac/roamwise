@@ -1,0 +1,48 @@
+name: RoamWise knowledge intake review
+on:
+  pull_request:
+    paths:
+      - 'knowledge/**'
+      - 'worker/data/tusk-*-atlas.js'
+      - 'tests/knowledge-six-enhancements.test.mjs'
+  schedule:
+    - cron: '15 3 * * 1'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: knowledge-intake-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+      - name: Generate candidate, translation and private-media review artifacts
+        run: |
+          node knowledge/tools/prepare-atlas-intake.mjs /tmp/roamwise-atlas-intake
+          node knowledge/tools/validate-media-intake.mjs /tmp/roamwise-atlas-intake/media-upload-plan.json
+      - name: Verify candidate SQL against the canonical schema locally
+        run: |
+          python3 - <<'PY'
+          import sqlite3, pathlib
+          db=sqlite3.connect(':memory:')
+          for f in sorted(pathlib.Path('knowledge/schema').glob('00[123]_*.sql')):
+              db.executescript(f.read_text())
+          seed=pathlib.Path('/tmp/roamwise-atlas-intake/atlas-candidates.sql').read_text()
+          db.executescript(seed); db.executescript(seed)
+          assert db.execute("select count(*) from public_destination where indexed=1 or status='published'").fetchone()[0]==0
+          assert db.execute("select count(*) from public_editorial_intake where status='approved'").fetchone()[0]==0
+          print(db.execute("select count(*) from public_destination").fetchone()[0], 'candidate destinations')
+          PY
+      - name: Check a bounded batch of source references
+        if: github.event_name != 'pull_request'
+        run: node knowledge/tools/check-source-links.mjs /tmp/roamwise-atlas-intake/source-link-report.json
+      - uses: actions/upload-artifact@v7
+        with:
+          name: knowledge-intake-review
+          path: /tmp/roamwise-atlas-intake/
+          retention-days: 30

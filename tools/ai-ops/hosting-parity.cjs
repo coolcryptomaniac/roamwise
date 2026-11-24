@@ -57,8 +57,12 @@ async function checkHosting(fetcher = global.fetch, targets = TARGETS, paths = P
   for (const target of targets) {
     for (const check of paths) results.push(await probe(fetcher, target, check));
   }
+  const home=results.filter(item=>item.page==='/'&&item.ok);
+  const distinct=new Set(home.map(item=>item.finalHost));
+  const independentOrigins=targets.length<2?null:home.length===targets.length&&distinct.size===targets.length;
   return {
-    ok: results.every(item => item.ok),
+    ok: results.every(item => item.ok)&&independentOrigins!==false,
+    independentOrigins,
     results,
     checksOnly: 'public read-only HTTP + static content markers',
     googleSignInVerified: false,
@@ -73,6 +77,7 @@ if (require.main === module) {
     fs.writeFileSync('hosting-parity-result.json', JSON.stringify(result, null, 2) + '\n');
     const failed = result.results.filter(item => !item.ok);
     for (const row of result.results) console.log((row.ok ? 'PASS ' : 'FAIL ') + row.site + ' ' + row.page + ' ' + (row.ok ? row.finalHost : row.detail));
+    if (result.independentOrigins===false) console.error('Independent origin check failed: missing homepage or shared final hostname.');
     if (failed.length) console.error('Hosting parity checks failed; do NOT automatically change DNS or payment routing.');
     process.exitCode = result.ok ? 0 : 1;
   }).catch(() => {

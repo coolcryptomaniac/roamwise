@@ -1,0 +1,10 @@
+# Separate preview only; do not attach production DNS or routes.
+name = "roamwise-public-browse-failover-preview"
+main = "public-browse-preview.mjs"
+compatibility_date = "2026-11-24"
+workers_dev = true
+
+[vars]
+PUBLIC_FAILOVER_ENABLED = "false"
+PRIMARY_ORIGIN = "https://roamwise.co.in"
+BACKUP_ORIGIN = "https://roamwise-web.pages.dev"

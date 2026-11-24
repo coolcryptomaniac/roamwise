@@ -5,6 +5,8 @@
 (function(root){
  'use strict';
  var MANIFEST='/media/destination-manifest-v1.json';
+ var remoteEnabled=false;
+ var REMOTE='https://assets.roamwise.co.in/v1/media-manifest';
  var LICENSES=['owned','licensed','public-domain'];
  function safeUrl(src){
   if(typeof src!=='string'||src.length>450||/[\\?#]/.test(src)||/%2e/i.test(src))return false;
@@ -32,19 +34,32 @@
   });
   return result;
  }
+ async function loadRemote(){
+  try{
+   var res=await root.fetch(REMOTE,{credentials:'omit',mode:'cors',referrerPolicy:'no-referrer',redirect:'error',signal:AbortSignal.timeout(3000)});
+   if(!res.ok)return {};
+   var data=await res.json();if(data.ready!==true)return {};
+   var approved=validate(data);
+   /** @type {any} */ (root).RW_DEST_MEDIA=Object.assign({},/** @type {any} */(root).RW_DEST_MEDIA||{},approved);
+   if(typeof root.dispatchEvent==='function'&&typeof root.CustomEvent==='function')root.dispatchEvent(new root.CustomEvent('rw:destination-media-ready'));
+   return approved;
+  }catch(_e){return {};}
+ }
  async function load(){
   if(typeof root.fetch!=='function')return {};
   try{
    var res=await root.fetch(MANIFEST,{credentials:'omit',cache:'no-store'});
    if(!res.ok)return {};
-   var approved=validate(await res.json());
+   var data=await res.json();remoteEnabled=data&&data.remoteReady===true;
+   var approved=validate(data);
    /** @type {any} */ (root).RW_DEST_MEDIA=approved;
    if(typeof root.dispatchEvent==='function'&&typeof root.CustomEvent==='function')
      root.dispatchEvent(new root.CustomEvent('rw:destination-media-ready'));
    return approved;
   }catch(_e){return {};}
  }
- /** @type {any} */ (root).RWDestinationMedia={validate:validate,safeUrl:safeUrl,load:load};
- if(document.readyState==='complete')load();
- else document.addEventListener('DOMContentLoaded',load,{once:true});
+ /** @type {any} */ (root).RWDestinationMedia={validate:validate,safeUrl:safeUrl,load:load,loadRemote:loadRemote};
+ function start(){load().then(function(){if(remoteEnabled)loadRemote();});}
+ if(document.readyState==='complete')start();
+ else document.addEventListener('DOMContentLoaded',start,{once:true});
 })(window);

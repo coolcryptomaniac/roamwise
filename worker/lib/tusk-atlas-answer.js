@@ -2,6 +2,8 @@
  * schedules, transport fares, opening status, supplier inventory or bookings. */
 import { searchTravelAtlas, TUSK_ATLAS_STATS } from '../data/tusk-travel-atlas.js';
 
+import { searchWorldAtlas } from '../data/tusk-world-atlas.js';
+
 const compact=x=>String(x||'').replace(/[\u0000-\u001f<>]/g,' ').replace(/\s+/g,' ').trim();
 const live=/\b(?:live|price|cost|fare|book|booking|reserve|available|availability|today|tomorrow|now|current|weather|traffic|open|closed|schedule|ticket|hotel rate)\b|अभी|आज/i;
 const food=/\b(?:food|eat|dishes|cuisine|specialit(?:y|ies)|meal|restaurant|taste|local food)\b|खाना|भोजन|पकवान/i;
@@ -10,7 +12,8 @@ const pictures=/\b(?:photo|picture|image|photograph|gallery|visual)\b|फोट�
 const plan=/\b(?:itinerary|itineraries|trip|travel|plan|day|days|visit|things to do|tour|route)\b|यात्रा|घूम|योजना/i;
 
 export function atlasAnswer(question){
- const match=searchTravelAtlas(question)[0];
+ const india=searchTravelAtlas(question)[0], world=searchWorldAtlas(question);
+ const match=india&&world?null:india||world;
  if(!match)return null;
  const subject=compact(question),isLive=live.test(subject);
  const asksFood=food.test(subject),asksPeople=people.test(subject),asksPhoto=pictures.test(subject),asksPlan=plan.test(subject);
@@ -27,7 +30,7 @@ export function atlasAnswer(question){
   available:true,route:'atlas',source,knowledgeClass:match.status,
   summary:bits.join(' ').slice(0,650),
   checkedAt:match.checkedAt,requiresLiveVerification:true,
-  hits:[{title:match.name+' — government tourism reference',description:'Open source and verify local details before travel',url:match.sourcePage,source:match.status==='source-backed-overview'?'Government tourism guide':'Tourism directory — editorial lead'}],
+  hits:[{title:match.name+(match.sourceType==='unreviewed-travel-reference'?' — travel reference (review pending)':' — government tourism reference'),description:'Open source and verify local details before travel',url:match.sourcePage,source:match.sourceType==='unreviewed-travel-reference'?'Travel reference — editorial lead':match.status==='source-backed-overview'?'Government tourism guide':'Tourism directory — editorial lead'}],
   atlas:{
     id:match.id,name:match.name,region:match.region,status:match.status,
     itinerary:match.suggestedItinerary.map(d=>({day:d.day,description:compact(d.description)})),

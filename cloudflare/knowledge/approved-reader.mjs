@@ -63,6 +63,8 @@ async function getDestination(db,slug){
  WHERE slug=? AND status='published' AND indexed=1 AND human_approved_at IS NOT NULL
  AND (next_review_at IS NULL OR date(next_review_at)>=date('now')) LIMIT 1`).bind(slug).first();
  if(!approved(row))return null;
+ const sources=await db.prepare(`SELECT source_url,supports,checked_at FROM public_destination_source
+ WHERE destination_id=? AND (expires_at IS NULL OR date(expires_at)>=date('now')) LIMIT 12`).bind(row.id).all();
  const faqs=await db.prepare(`SELECT question,answer,reviewed_at FROM public_destination_faq
  WHERE destination_id=? AND status='published' AND reviewed_at IS NOT NULL
  AND (valid_until IS NULL OR date(valid_until)>=date('now')) LIMIT 12`).bind(row.id).all();
@@ -77,6 +79,7 @@ async function getDestination(db,slug){
  return {id:row.id,slug:row.slug,name:row.name,country:row.country_iso,
  region:row.region||null,summary:row.summary||'',url:cleanCanonical(row.canonical_url),
  humanReviewedAt:row.human_approved_at,sourceCheckedAt:row.source_checked_at,
+ sources:(sources.results||[]).filter(s=>{try{const u=new URL(s.source_url);return u.protocol==='https:'&&!u.username&&!u.password&&s.checked_at;}catch(_){return false;}}).map(s=>({url:s.source_url,supports:s.supports,checkedAt:s.checked_at})),
  faq:(faqs.results||[]).map(x=>({question:x.question,answer:x.answer,reviewedAt:x.reviewed_at})),
  itineraries:items,pricesVerified:false,availabilityVerified:false};
 }
@@ -108,8 +111,10 @@ async function getMediaIndex(db,env){
 }
 async function getMedia(db,bucket,id){
  if(!/^[a-zA-Z0-9_-]{1,96}$/.test(id))return new Response('Not found',{status:404});
- const row=await db.prepare(`SELECT id,r2_key,mime_type,size_bytes,rights_status,license_proof,status,reviewed_at,published_at,alt_text
- FROM public_destination_media WHERE id=? LIMIT 1`).bind(id).first();
+ const row=await db.prepare(`SELECT m.id,m.r2_key,m.mime_type,m.size_bytes,m.rights_status,m.license_proof,m.status,m.reviewed_at,m.published_at,m.alt_text
+ FROM public_destination_media m JOIN public_destination d ON d.id=m.destination_id
+ WHERE m.id=? AND d.status='published' AND d.indexed=1 AND d.human_approved_at IS NOT NULL
+ AND (d.next_review_at IS NULL OR date(d.next_review_at)>=date('now')) LIMIT 1`).bind(id).first();
  if(!mediaApproved(row))return new Response('Not found',{status:404});
  const file=await bucket.get(row.r2_key);
  if(!file||file.size>4*1024*1024)return new Response('Not found',{status:404});
