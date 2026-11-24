@@ -107,12 +107,12 @@
    if(hidden()||scope===null||(intents&&(intents.smalltalk||intents._offers||intents._stayDesk||intents._noGenericActions&&!destinationGuide)))return Promise.resolve('');
    if(destinationGuide&&scope&&(!kind||kind==='stays'||kind==='packages')){
      if(!allowedQuery(String(raw).length<5?'Guide to '+raw:raw))return Promise.resolve('');
-     return get('/stays/rates').then(function(data){
+     return Promise.all([get('/stays/rates').catch(()=>null),get('/shop/catalogue').catch(()=>null)]).then(function(results){
+       var data=results[0],shop=results[1];
+       if(!data)return enquiry(scope,true)+(shop?railMarkup('shop',relatedShop(shop,scope)):'');
        var list=items('packages',data,raw,scope).concat(items('stays',data,raw,scope));
-       return list.length?railMarkup('destination',list):enquiry(scope,false);
-     }).catch(function(){return enquiry(scope,true);}).then(function(staysHTML){
-       return get('/shop/catalogue').then(function(shop){return staysHTML+railMarkup('shop',relatedShop(shop,scope));}).catch(function(){return staysHTML;});
-     });
+       return (list.length?railMarkup('destination',list):enquiry(scope,false))+(shop?railMarkup('shop',relatedShop(shop,scope)):'');
+     }).catch(function(){return enquiry(scope,true);});
    }
    if(!kind)return Promise.resolve('');
    return dataFor(kind).then(function(d){var list=items(kind,d,raw,scope);return list.length?railMarkup(kind,list):scope&&(kind==='stays'||kind==='packages')?enquiry(scope,false):'';}).catch(function(){return '';});

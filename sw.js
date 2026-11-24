@@ -23,7 +23,7 @@
  *    and promo.mp4. Live data must stay live, and the video is tens of MB.
  * ------------------------------------------------------------------------- */
 
-var VERSION = 'rw-v171-scalable-ailon-brain';
+var VERSION = 'rw-v172-route-responsive';
 var HTML_CACHE = VERSION + '-html';
 var ASSET_CACHE = VERSION + '-assets';
 
