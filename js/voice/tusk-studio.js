@@ -171,7 +171,7 @@
     if(typeof tuskStopSpeech==='function')tuskStopSpeech();
     if(panel)panel.hidden=true;
     // The canonical conversation is already in heroLog; never re-submit a transcript.
-    var log=document.getElementById('heroLog');if(log&&log.children.length){log.style.display='block';log.scrollTop=log.scrollHeight;}
+    var log=typeof document.getElementById==='function'?document.getElementById('heroLog'):null;if(log&&log.children.length){log.style.display='block';log.scrollTop=log.scrollHeight;}
     state.phase='idle';
   }
   function partialTranscript(t){
