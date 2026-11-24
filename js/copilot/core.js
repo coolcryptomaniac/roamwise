@@ -252,20 +252,16 @@ function cpSmartAnswer(t){ if(t===window.rwTripAiFor && window.RWTripDesk && RWT
   }
   return null;
 }
-/* ==================== ROAMWISE-FIRST KNOWLEDGE LOOKUP ====================
-   Consult the RoamWise Worker (approved facts, optional reviewed KB) BEFORE
-   any other service. External browser queries require an explicit opt-in. */
+/* RoamWise-first knowledge lookup; external providers require consent. */
 async function rwMiniSearch(q){
   if(typeof rwTuskIsPublicQuery!=='function'||!rwTuskIsPublicQuery(q))return null;
   q=String(q||'').slice(0,140);
   var out={abs:null,absSrc:null,absUrl:null,hits:[]};
-  // Sequential retrieval: no third party receives queries with a local answer.
   if(typeof rwTuskWorkerSearch==='function'){
     try{await rwTuskWorkerSearch(q,out);}catch(e){/* no inferred answer */}
   }
   if(out.abs||out.hits.length)return out;
   if(typeof rwTuskExternalSourcesEnabled!=='function'||!rwTuskExternalSourcesEnabled())return null;
-  // The traveller explicitly enabled public fallbacks in Settings.
   await Promise.all([
     fetch('https://api.duckduckgo.com/?q='+encodeURIComponent(q)+'&format=json&no_html=1&skip_disambig=1')
       .then(function(r){return r.json();}).then(function(d){
@@ -977,8 +973,6 @@ function copilotSend(fromHero){
       window._tkCarryShown = place;
     }
     if(place && new RegExp(place.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'i').test(t)) window._tkCarryShown=place;
-    // A free traveller with no local destination card still gets a reviewed
-    // RoamWise Worker lookup before any generic advice or outside search.
     if(place&&!kb&&typeof rwTuskIsPublicQuery==='function'&&rwTuskIsPublicQuery(t)){
       Promise.resolve().then(function(){return rwMiniSearch(t);}).then(function(res){
         cpFinish(thinking,res?rwWebAnswerHTML(t,res):'',intents,t);
@@ -992,8 +986,6 @@ function copilotSend(fromHero){
     } else if(kb){
       cpFinish(thinking, rwMasalaWrap(kb), intents, t);
     } else {
-      /* RoamWise knowledge is first; no API-key setup nag or unapproved
-         external search when the visitor asks an unindexed question. */
       var _keyPrompt=(typeof rwTuskOfflinePlanningCard==='function'?rwTuskOfflinePlanningCard(t):'')||'<div class="tk-card"><div class="tk-head"><div class="tk-place">No verified RoamWise answer yet</div></div><div class="tk-sec"><p>Try a destination, dates or a more specific question. RoamWise guides are available now, and optional external sources can be enabled in Settings.</p><div class="tk-chips"><a class="tk-chip" href="/guides/">Explore RoamWise guides ↗</a></div></div></div>';
       /* MUST NOT throw: file:// cross-origin fetch can reject in the APK; an
          uncaught reject would freeze the "…" bubble = "chat broken in app". */
