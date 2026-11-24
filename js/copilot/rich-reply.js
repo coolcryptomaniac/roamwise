@@ -178,6 +178,7 @@ async function cpFinish(bubble, answerHTML, intents, raw){
   var isKasarFestival=/kasar\s*(?:devi\s*)?(?:music\s*fest|festival)|(?:nupur\s*pant|rahgir).{0,50}(?:kasar|fest)|(?:kasar|fest).{0,50}(?:nupur\s*pant|rahgir)/i.test(String(raw||''));
   var actions = (isKasarFestival || intents._noGenericActions) ? [] : await cpActionsHTML(intents);
   var parts=[]; if(answerHTML) parts.push(answerHTML);
+  if(intents._rwDestinationId&&typeof rwReviewedAtlasHTML==='function'){try{var reviewed=await rwReviewedAtlasHTML(intents._rwDestinationId);if(reviewed)parts.push(reviewed);}catch(e){}}
   if(actions.length) parts.push(actions.join('<br><br>'));
   if(!parts.length) parts.push('I can handle destinations, dates, budgets, weather, cafes, buses/trains and sharing \u2014 try: \u201cPlan 4 days in Udaipur under \u20b912,000.\u201d');
   try{ rwRemember('tusk', (answerHTML||'').replace(/<[^>]*>/g,' ').slice(0,200), {}); }catch(e){ /* best-effort, ignore */ }

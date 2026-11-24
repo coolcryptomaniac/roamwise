@@ -34,7 +34,7 @@ jobs:
       - name: Apply only additive schemas to the isolated D1 and seed candidates
         run: |
           set -eu
-          for schema in knowledge/schema/001_public_destination_d1.sql knowledge/schema/002_public_media_faq_itinerary.sql knowledge/schema/003_editorial_intake.sql /tmp/roamwise-atlas-intake/atlas-candidates.sql; do
+          for schema in knowledge/schema/001_public_destination_d1.sql knowledge/schema/002_public_media_faq_itinerary.sql knowledge/schema/003_editorial_intake.sql knowledge/schema/004_public_place_index.sql /tmp/roamwise-atlas-intake/atlas-candidates.sql; do
             npx --yes wrangler@4 d1 execute roamwise-knowledge-dev --config cloudflare/knowledge/wrangler.preview.generated.toml --remote --file "$schema"
           done
       - name: Deploy dedicated read-only preview (no production domain)

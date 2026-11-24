@@ -1,0 +1,89 @@
+name: RoamWise geographic index intake
+on:
+  workflow_dispatch:
+    inputs:
+      country:
+        description: 'IN for India or ALL for worldwide'
+        required: true
+        default: 'IN'
+      offset:
+        description: 'Batch offset (see preceding run report)'
+        required: true
+        default: '0'
+      include_heritage:
+        description: 'Include UNESCO official site identities'
+        type: boolean
+        default: true
+      import_remote:
+        description: 'Apply bounded batch to the dedicated knowledge database'
+        type: boolean
+        default: false
+      confirmation:
+        description: 'For remote import type IMPORT-GEOGRAPHIC-INDEX'
+        required: false
+  pull_request:
+    paths:
+      - 'knowledge/tools/*geographic*'
+      - 'knowledge/schema/004_public_place_index.sql'
+      - '.github/workflows/geographic-index-intake.yml'
+permissions:
+  contents: read
+concurrency:
+  group: geographic-index-intake
+  cancel-in-progress: false
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Test source parser, attribution and idempotent SQL
+        run: python3 knowledge/tools/test_geographic_index.py
+      - name: Fetch bounded source dumps and prepare candidate identity batch
+        if: github.event_name == 'workflow_dispatch'
+        env:
+          COUNTRY: ${{ inputs.country }}
+          OFFSET: ${{ inputs.offset }}
+          HERITAGE: ${{ inputs.include_heritage }}
+        run: |
+          set -eu
+          curl --fail --location --proto '=https' --max-time 180 --max-filesize 50000000 https://download.geonames.org/export/dump/cities500.zip -o /tmp/cities500.zip
+          if [ "$HERITAGE" = "true" ]; then
+            curl --fail --location --proto '=https' --max-time 60 --max-filesize 30000000 https://whc.unesco.org/en/list/xml/ -o /tmp/heritage.xml
+            python3 knowledge/tools/prepare-geographic-index.py --geonames /tmp/cities500.zip --unesco /tmp/heritage.xml --country "$COUNTRY" --offset "$OFFSET" --out /tmp/geo
+          else
+            python3 knowledge/tools/prepare-geographic-index.py --geonames /tmp/cities500.zip --country "$COUNTRY" --offset "$OFFSET" --out /tmp/geo
+          fi
+      - uses: actions/upload-artifact@v7
+        if: github.event_name == 'workflow_dispatch'
+        with:
+          name: geographic-index-batch
+          path: /tmp/geo/
+          retention-days: 14
+  import:
+    needs: prepare
+    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main' && inputs.import_remote && inputs.confirmation == 'IMPORT-GEOGRAPHIC-INDEX'
+    runs-on: ubuntu-latest
+    environment: knowledge-preview
+    env:
+      RW_PREVIEW_D1_ID: ${{ vars.RW_PREVIEW_D1_ID }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+      - uses: actions/download-artifact@v7
+        with:
+          name: geographic-index-batch
+          path: /tmp/geo
+      - name: Import into dedicated knowledge D1 only
+        run: |
+          set -eu
+          node knowledge/tools/configure-preview.mjs
+          cfg=cloudflare/knowledge/wrangler.preview.generated.toml
+          npx --yes wrangler@4 d1 execute roamwise-knowledge-dev --config "$cfg" --remote --file knowledge/schema/004_public_place_index.sql
+          npx --yes wrangler@4 d1 execute roamwise-knowledge-dev --config "$cfg" --remote --file /tmp/geo/place-index.sql
+          npx --yes wrangler@4 d1 execute roamwise-knowledge-dev --config "$cfg" --remote --command "SELECT COUNT(*) AS indexed_geographic_references FROM public_place_index;"
+      - if: always()
+        run: rm -f cloudflare/knowledge/wrangler.preview.generated.toml

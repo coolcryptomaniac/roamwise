@@ -103,3 +103,24 @@ function rwLocalAtlasReply(bubble,intents,raw,allowDetailed){
   cpFinish(bubble,rwLocalAtlasHTML(d),intents,raw);
   return true;
 }
+
+/* Request only the canonical destination, never the traveller's full message.
+ * A short timeout preserves the bundled guide when D1 is not published or offline. */
+async function rwReviewedAtlasHTML(id){
+  var root=/** @type {any} */(window);
+  var rows=Array.isArray(root.RW_LOCAL_ATLAS)?root.RW_LOCAL_ATLAS:[];
+  var d=rows.find(function(x){return x.id===id;});
+  if(!d||typeof rwTuskPublicSearchEndpoint!=='function')return '';
+  var controller=new AbortController(),timer=setTimeout(function(){controller.abort();},1400);
+  try{
+    var r=await fetch(rwTuskPublicSearchEndpoint()+'?localOnly=1&q='+encodeURIComponent('Guide to '+d.name),{method:'GET',credentials:'omit',referrerPolicy:'no-referrer',cache:'no-store',signal:controller.signal});
+    if(!r.ok)return '';
+    var data=await r.json();
+    if(data.route!=='curated'||data.source!=='RoamWise reviewed D1 knowledge'||!data.summary||!data.checkedAt)return '';
+    var links=(Array.isArray(data.hits)?data.hits:[]).slice(0,3).map(function(h){
+      try{var u=new URL(h.url);return u.protocol==='https:'&&!u.username&&!u.password?'<a href="'+esc2(u.href)+'" rel="noopener noreferrer">'+esc2(String(h.title||'Reviewed source').slice(0,120))+'</a>':'';}catch(e){return '';}
+    }).filter(Boolean);
+    if(!links.length)return '';
+    return '<section class="tk-card"><div class="tk-sec"><b>RoamWise reviewed knowledge</b><p>'+esc2(String(data.summary).slice(0,650))+'</p><small>Reviewed '+esc2(String(data.checkedAt).slice(0,10))+' · Check live conditions separately.</small><p>'+links.join(' · ')+'</p></div></section>';
+  }catch(e){return '';}finally{clearTimeout(timer);}
+}

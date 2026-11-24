@@ -7,10 +7,10 @@ import {atlasAnswer} from '../worker/lib/tusk-atlas-answer.js';
 import {handleTuskWebSearch} from '../worker/handlers/tusk-web-search.js';
 
 const unique=a=>new Set(a).size===a.length;
-test('124 India destinations are indexed with unique stable IDs and provenance',()=>{
- assert.equal(TUSK_ATLAS_STATS.total,124);
+test('184 India destinations are indexed with unique stable IDs and provenance',()=>{
+ assert.equal(TUSK_ATLAS_STATS.total,184);
  assert.equal(TUSK_ATLAS_STATS.sourceBacked,18);
- assert.equal(TUSK_ATLAS_STATS.leads,106);
+ assert.equal(TUSK_ATLAS_STATS.leads,166);
  assert.equal(TUSK_ATLAS_STATS.photoCleared,0);
  assert.equal(unique(TUSK_ATLAS.map(p=>p.id)),true);
  for(const p of TUSK_ATLAS){

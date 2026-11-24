@@ -43,6 +43,15 @@ function cleanCanonical(value){
  }catch(_e){}
  return null;
 }
+function placeKey(value){
+ const s=String(value||'').normalize('NFKC').toLowerCase().replace(/[^\p{L}\p{N}\p{M}]+/gu,' ').trim();
+ return s.length>=2&&s.length<=80?s:null;
+}
+async function searchPlaceIndex(db,value){
+ const key=placeKey(value);if(!key)return [];
+ const rows=await db.prepare("SELECT source_id,name,country_iso,admin_region,feature_type,source_url,attribution FROM public_place_index WHERE name_key=? ORDER BY country_iso,source_id LIMIT 7").bind(key).all();
+ return rows.results||[];
+}
 async function searchDestination(db,term){
  // Escape LIKE wildcard characters: a search term must not turn into a full table scan.
  const like='%'+term.replace(/[\\%_]/g,'\\$&')+'%';
@@ -140,6 +149,11 @@ export default {
     const q=safeQuery(url.searchParams.get('q'));
     if(!q)return response({error:'query_must_be_2_to_80_characters'},400,headers);
     return response({version:1,items:await searchDestination(env.PUBLIC_KNOWLEDGE_DB,q),liveBooking:false},200,headers);
+   }
+   if(path==='/v1/places'){
+    const q=safeQuery(url.searchParams.get('q'));
+    if(!q)return response({error:'invalid_place'},400,headers);
+    return response({version:1,kind:'geographic-reference',items:await searchPlaceIndex(env.PUBLIC_KNOWLEDGE_DB,q),liveBooking:false},200,headers);
    }
    if(path==='/v1/media-manifest')return response(await getMediaIndex(env.PUBLIC_KNOWLEDGE_DB,env),200,headers);
    const dest=path.match(/^\/v1\/destinations\/([a-z0-9-]+)$/);

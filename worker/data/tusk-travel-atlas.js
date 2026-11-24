@@ -983,6 +983,426 @@ const ROWS=[
   "C",
   "Tagore Hill;local waterfalls;urban lakes",
   ""
+ ],
+ [
+  "dwarahat",
+  "Dwarahat",
+  "K",
+  "Historic temple groups;local market;village walks",
+  "द्वाराहाट"
+ ],
+ [
+  "dunagiri",
+  "Dunagiri",
+  "K",
+  "Temple area;forest trails;village walks",
+  "दूनागिरी"
+ ],
+ [
+  "sitalakhet",
+  "Sitalakhet",
+  "K",
+  "Forest trails;village walks;Himalayan viewpoints",
+  "शीतलाखेत"
+ ],
+ [
+  "jalna",
+  "Jalna, Almora",
+  "K",
+  "Village walks;orchard landscapes;Himalayan viewpoints",
+  "Jalna Almora"
+ ],
+ [
+  "haldwani",
+  "Haldwani",
+  "K",
+  "Local markets;Gaula river area;Kumaoni craft discovery",
+  "हल्द्वानी"
+ ],
+ [
+  "lalkuan",
+  "Lalkuan",
+  "K",
+  "Town market;local food;nearby forest landscapes",
+  "लालकुआं"
+ ],
+ [
+  "didihat",
+  "Didihat",
+  "K",
+  "Town viewpoints;local market;village walks",
+  "डीडीहाट"
+ ],
+ [
+  "dharchula",
+  "Dharchula",
+  "K",
+  "Kali river area;local market;mountain landscapes",
+  "धारचूला"
+ ],
+ [
+  "berinag",
+  "Berinag",
+  "K",
+  "Tea garden landscapes;Himalayan viewpoints;village walks",
+  "बेरीनाग"
+ ],
+ [
+  "gangolihat",
+  "Gangolihat",
+  "K",
+  "Temple area;local market;nearby cave heritage",
+  "गंगोलीहाट"
+ ],
+ [
+  "patal-bhuvaneshwar",
+  "Patal Bhuvaneshwar",
+  "K",
+  "Cave temple area;village walks;mountain views",
+  "पाताल भुवनेश्वर"
+ ],
+ [
+  "someshwar",
+  "Someshwar",
+  "K",
+  "Valley landscapes;local temples;village markets",
+  "सोमेश्वर"
+ ],
+ [
+  "kathgodam",
+  "Kathgodam",
+  "K",
+  "Foothill landscapes;local food;river area",
+  "काठगोदाम"
+ ],
+ [
+  "rudrapur",
+  "Rudrapur",
+  "K",
+  "Local markets;regional cuisine;urban parks",
+  "रुद्रपुर"
+ ],
+ [
+  "jibhi",
+  "Jibhi",
+  "H",
+  "Village walks;forest landscapes;waterfall area",
+  "जीभी"
+ ],
+ [
+  "banjar",
+  "Banjar",
+  "H",
+  "Valley villages;local markets;river landscapes",
+  "बंजार"
+ ],
+ [
+  "naggar",
+  "Naggar",
+  "H",
+  "Naggar Castle area;art heritage;village lanes",
+  "नग्गर"
+ ],
+ [
+  "old-manali",
+  "Old Manali",
+  "H",
+  "Village lanes;Manu Temple area;riverside walks",
+  "ओल्ड मनाली"
+ ],
+ [
+  "kufri",
+  "Kufri",
+  "H",
+  "Hill viewpoints;forest landscapes;village walks",
+  "कुफरी"
+ ],
+ [
+  "chail",
+  "Chail",
+  "H",
+  "Palace area;forest walks;hill viewpoints",
+  "चैल"
+ ],
+ [
+  "kalpa",
+  "Kalpa",
+  "H",
+  "Village architecture;orchard landscapes;mountain viewpoints",
+  "कल्पा"
+ ],
+ [
+  "chitkul",
+  "Chitkul",
+  "H",
+  "Village lanes;Baspa valley;mountain landscapes",
+  "छितकुल"
+ ],
+ [
+  "mcleod-ganj",
+  "McLeod Ganj",
+  "H",
+  "Tibetan cultural sites;local markets;forest paths",
+  "McLeodganj"
+ ],
+ [
+  "chamba",
+  "Chamba",
+  "H",
+  "Temple heritage;Chaugan area;local craft markets",
+  "चंबा"
+ ],
+ [
+  "dhanaulti",
+  "Dhanaulti",
+  "G",
+  "Forest parks;hill viewpoints;village walks",
+  "धनौल्टी"
+ ],
+ [
+  "chakrata",
+  "Chakrata",
+  "G",
+  "Deodar landscapes;local market;waterfall area",
+  "चकराता"
+ ],
+ [
+  "uttarkashi",
+  "Uttarkashi",
+  "G",
+  "Temple area;Bhagirathi river;local markets",
+  "उत्तरकाशी"
+ ],
+ [
+  "rudraprayag",
+  "Rudraprayag",
+  "G",
+  "River confluence;temple area;local walks",
+  "रुद्रप्रयाग"
+ ],
+ [
+  "pauri",
+  "Pauri",
+  "G",
+  "Mountain viewpoints;local market;temple heritage",
+  "पौड़ी"
+ ],
+ [
+  "joshimath",
+  "Joshimath",
+  "G",
+  "Temple area;mountain landscapes;local market",
+  "Jyotirmath"
+ ],
+ [
+  "mathura",
+  "Mathura",
+  "U",
+  "Temple heritage;Yamuna ghats;local markets",
+  "मथुरा"
+ ],
+ [
+  "vrindavan",
+  "Vrindavan",
+  "U",
+  "Temple heritage;local markets;Yamuna area",
+  "वृंदावन"
+ ],
+ [
+  "sarnath",
+  "Sarnath",
+  "U",
+  "Buddhist heritage;museum area;archaeological park",
+  "सारनाथ"
+ ],
+ [
+  "bharatpur",
+  "Bharatpur",
+  "R",
+  "Keoladeo park area;local markets;fort heritage",
+  "भरतपुर"
+ ],
+ [
+  "bundi",
+  "Bundi",
+  "R",
+  "Palace heritage;stepwells;old-town lanes",
+  "बूंदी"
+ ],
+ [
+  "ajmer",
+  "Ajmer",
+  "R",
+  "Dargah area;Ana Sagar;old markets",
+  "अजमेर"
+ ],
+ [
+  "dwarka",
+  "Dwarka",
+  "A",
+  "Temple area;coastal landscapes;local markets",
+  "द्वारका"
+ ],
+ [
+  "somnath",
+  "Somnath",
+  "A",
+  "Temple area;coast;local food",
+  "सोमनाथ"
+ ],
+ [
+  "statue-of-unity",
+  "Statue of Unity",
+  "A",
+  "Memorial complex;Narmada river;surrounding landscapes",
+  "Ekta Nagar"
+ ],
+ [
+  "lonavala",
+  "Lonavala",
+  "M",
+  "Hill viewpoints;local markets;nearby cave heritage",
+  "लोनावला"
+ ],
+ [
+  "alibaug",
+  "Alibaug",
+  "M",
+  "Coastal villages;beaches;local markets",
+  "Alibag"
+ ],
+ [
+  "ratnagiri",
+  "Ratnagiri",
+  "M",
+  "Coastal landscapes;historic sites;local food",
+  "रत्नागिरी"
+ ],
+ [
+  "chikmagalur",
+  "Chikmagalur",
+  "W",
+  "Coffee estates;hill landscapes;local markets",
+  "Chikkamagaluru"
+ ],
+ [
+  "udupi",
+  "Udupi",
+  "W",
+  "Temple area;coastal landscapes;local cuisine",
+  "उडुपी"
+ ],
+ [
+  "badami",
+  "Badami",
+  "W",
+  "Cave temple heritage;lake area;old town",
+  "बादामी"
+ ],
+ [
+  "dandeli",
+  "Dandeli",
+  "W",
+  "Forest landscapes;river area;local villages",
+  "दांदेली"
+ ],
+ [
+  "thekkady",
+  "Thekkady",
+  "V",
+  "Periyar area;spice gardens;local market",
+  "Kumily"
+ ],
+ [
+  "kovalam",
+  "Kovalam",
+  "V",
+  "Beach areas;coastal walks;local food",
+  "कोवलम"
+ ],
+ [
+  "kumarakom",
+  "Kumarakom",
+  "V",
+  "Backwater landscapes;village walks;birdwatching area",
+  "कुमारकोम"
+ ],
+ [
+  "kodaikanal",
+  "Kodaikanal",
+  "T",
+  "Lake area;hill viewpoints;forest landscapes",
+  "कोडईकनाल"
+ ],
+ [
+  "thanjavur",
+  "Thanjavur",
+  "T",
+  "Temple heritage;art traditions;local markets",
+  "Tanjore"
+ ],
+ [
+  "chettinad",
+  "Chettinad",
+  "T",
+  "Mansion heritage;crafts;local food",
+  "चेट्टिनाड"
+ ],
+ [
+  "araku-valley",
+  "Araku Valley",
+  "Z",
+  "Coffee landscapes;valley villages;local markets",
+  "अराकू"
+ ],
+ [
+  "warangal",
+  "Warangal",
+  "Z",
+  "Fort heritage;temple areas;local markets",
+  "वारंगल"
+ ],
+ [
+  "majuli",
+  "Majuli",
+  "N",
+  "River island villages;monastic culture;local crafts",
+  "माजुली"
+ ],
+ [
+  "ziro",
+  "Ziro",
+  "N",
+  "Valley landscapes;village culture;local markets",
+  "ज़ीरो"
+ ],
+ [
+  "dawki",
+  "Dawki",
+  "N",
+  "River landscapes;village walks;local food",
+  "डावकी"
+ ],
+ [
+  "mawlynnong",
+  "Mawlynnong",
+  "N",
+  "Village walks;living-root bridge area;local landscapes",
+  "मावलिन्नोंग"
+ ],
+ [
+  "kalimpong",
+  "Kalimpong",
+  "E",
+  "Monastery areas;flower nurseries;hill views",
+  "कालिम्पोंग"
+ ],
+ [
+  "gopalpur",
+  "Gopalpur",
+  "Q",
+  "Beach walks;coastal village areas;local food",
+  "गोपालपुर"
  ]
 ];
 const FEATURED={

@@ -4,6 +4,7 @@
  * synthesis from third-party snippets. Default route uses zero paid calls. */
 import { json } from '../lib/http.js';
 import { approvedDestinationAnswer } from '../lib/tusk-approved-reader.js';
+import { geographicAnswer } from '../lib/tusk-geographic-brain.js';
 import { atlasAnswer } from '../lib/tusk-atlas-answer.js';
 import { parsePublicQuery, isDynamicQuery, curatedMatches, getExactCache, putExactCache,
   approvedVectorMatch, status } from '../lib/tusk-hybrid-knowledge.js';
@@ -42,7 +43,7 @@ export async function handleTuskWebSearch(request,env){
  // Do not bypass the existing curated policy on live/price/safety questions.
  const atlas=atlasAnswer(query);
  const atlasIntent=/\b(?:itinerary|itineraries|plan|trip|days|food|eat|cuisine|dishes|photo|picture|image|people|notable|famous|culture|attractions|things to do)\b|यात्रा|खाना|भोजन|फोटो|तस्वीर|प्रसिद्ध/i.test(query);
- if(!dynamic&&!curated&&atlas){
+ if(!dynamic&&atlas&&(!curated||atlasIntent)){
    const reviewed=await approvedDestinationAnswer(env,atlas);
    if(reviewed)return json({...reviewed,query});
  }
@@ -58,6 +59,9 @@ export async function handleTuskWebSearch(request,env){
    await putExactCache(env,query,lang,semantic);
    return json({...semantic,query,cache:'none'});
  }
+ // Geographic identity is a bounded no-key fallback, never a live answer.
+ const geographic=dynamic?null:await geographicAnswer(env,query);
+ if(geographic)return json({...geographic,query});
  // On dynamic questions check the provider first; a stale curated fact must
  // never be presented as current availability or a live ticket quote.
  const live=url.searchParams.get('localOnly')==='1'?null:await liveSearch(env,query);

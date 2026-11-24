@@ -16,8 +16,8 @@ import {choosePublicOrigin} from '../cloudflare/failover/public-browse-preview.m
 import hosting from '../tools/ai-ops/hosting-parity.cjs';
 
 test('international discovery adds distinct editorial leads, not verified facts or inventory',()=>{
- assert.equal(WORLD_ATLAS.length,102);
- assert.equal(new Set(WORLD_ATLAS.map(x=>x.id)).size,102);
+ assert.equal(WORLD_ATLAS.length,170);
+ assert.equal(new Set(WORLD_ATLAS.map(x=>x.id)).size,170);
  for(const city of ['Tokyo','Nairobi','Funchal','Helsinki','Tallinn','Sydney']){
   const a=atlasAnswer('Plan a trip to '+city);
   assert.equal(a.atlas.name,city);
@@ -46,11 +46,11 @@ test('reviewed D1 lookup is optional, destination-only and requires provenance',
  assert.equal(await approvedDestinationAnswer({},atlas),null);
  assert.equal(await approvedDestinationAnswer({PUBLIC_KNOWLEDGE_READER:{fetch:async()=>Response.json({slug:'tokyo',summary:'unreviewed'})}},atlas),null);
 });
-test('all 226 records, Hindi scaffolds and native review queues remain unapproved',()=>{
+test('all 354 records, Hindi scaffolds and native review queues remain unapproved',()=>{
  const r=prepareIntake('2026-11-24T00:00:00Z');
- assert.equal(r.stats.destinations,226);assert.equal(r.stats.international,102);
- assert.equal(r.stats.hindiDrafts,226);assert.equal(r.stats.translationReviewJobs,678);
- assert.equal(r.stats.autoPublished,0);assert.equal(new Set(r.rows.map(x=>x.id)).size,226);
+ assert.equal(r.stats.destinations,354);assert.equal(r.stats.international,170);
+ assert.equal(r.stats.hindiDrafts,354);assert.equal(r.stats.translationReviewJobs,1062);
+ assert.equal(r.stats.autoPublished,0);assert.equal(new Set(r.rows.map(x=>x.id)).size,354);
  assert.match(r.sql,/ON CONFLICT\(id\) DO NOTHING/);
  assert.match(r.sql,/'needs_review'/);
  assert.doesNotMatch(r.sql,/'published'/);
