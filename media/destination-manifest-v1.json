@@ -2,6 +2,7 @@
   "version": 1,
   "updatedAt": null,
   "source": "RoamWise editorial rights ledger",
+  "remoteReady": false,
   "assets": {},
-  "note": "Intentionally empty until photographs are approved and the R2 media delivery domain has been configured. No third-party generated images, unlicensed partner photos, or invented availability."
+  "note": "Intentionally empty until photographs are approved and the R2 media delivery domain has been configured. Enable remoteReady only after the reviewed manifest endpoint passes acceptance."
 }

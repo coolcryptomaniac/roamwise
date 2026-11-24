@@ -8,6 +8,8 @@ export async function approvedDestinationAnswer(env,atlas){
   if(!response.ok)return null;
   const d=await response.json();
   if(d.slug!==slug||!d.humanReviewedAt||typeof d.summary!=='string'||!d.summary.trim())return null;
-  return {available:true,route:'curated',source:'RoamWise reviewed D1 knowledge',summary:d.summary.slice(0,650),checkedAt:d.sourceCheckedAt||d.humanReviewedAt,requiresLiveVerification:true,hits:[{title:atlas.atlas.name+' — editorial reference',url:atlas.hits[0].url,description:'Confirm live details before travel',source:'Travel reference'}],cache:'none'};
+  const sources=(Array.isArray(d.sources)?d.sources:[]).slice(0,5).filter(s=>{try{const u=new URL(s.url);return u.protocol==='https:'&&!u.username&&!u.password&&s.checkedAt;}catch(_){return false;}});
+  if(!sources.length)return null;
+  return {available:true,route:'curated',source:'RoamWise reviewed D1 knowledge',summary:d.summary.slice(0,650),checkedAt:d.sourceCheckedAt||d.humanReviewedAt,requiresLiveVerification:true,hits:sources.map(s=>({title:atlas.atlas.name+' — reviewed reference',url:s.url,description:String(s.supports||'').slice(0,240),source:'RoamWise reviewed source ledger'})),cache:'none'};
  }catch(_){return null;}
 }

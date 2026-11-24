@@ -52,6 +52,7 @@ jobs:
               ? JSON.parse(fs.readFileSync('hosting-parity-result.json', 'utf8')) : {};
             const failures = Array.isArray(data.results)
               ? data.results.filter(x => !x.ok).map(x => `- ${x.site} ${x.page}: ${x.detail}`) : ['- Monitor did not produce a report'];
+            if(data.independentOrigins===false)failures.push('- Hosts did not demonstrate independent final home origins.');
             const issues = await github.paginate(github.rest.issues.listForRepo, {
               owner: context.repo.owner, repo: context.repo.repo, state: 'open', per_page: 100
             });
