@@ -94,7 +94,8 @@ test('direct booking: ask "did the host confirm?" only after 6 hours, at most da
 test('"did you stay?" nudge skips a direct booking whose check-in is still ahead', () => {
   const { sandbox, store } = load((s) => {
     const shown = [];
-    s.document = { getElementById: () => null, createElement: () => ({ style: {}, setAttribute() {}, querySelector: () => ({}), firstChild: {} }), body: { appendChild: (n) => shown.push(n) } };
+    s.location={hash:''};s.__view='booking';
+    s.document = { getElementById: () => null, createElement: () => ({ style: {}, setAttribute() {}, querySelector: () => ({}), firstChild: {} }), body: { getAttribute:()=>s.__view, appendChild: (n) => shown.push(n) } };
     s.__shown = shown;
   });
   const old = Date.now() - 5 * 86400000;
@@ -102,7 +103,9 @@ test('"did you stay?" nudge skips a direct booking whose check-in is still ahead
   sandbox.rwStayNudge();
   assert.equal(sandbox.__shown.length, 0);
   store.rw_stay_codes_v1 = JSON.stringify([{ code: 'RW-BBBBBB', secret: 'x', partnerId: 'p_wa', name: 'Q', at: old, answered: false }]);
-  sandbox.rwStayNudge();
+  sandbox.__view='home';sandbox.rwStayNudge();
+  assert.equal(sandbox.__shown.length,0,'homepage never interrupted');
+  sandbox.__view='booking';sandbox.rwStayNudge();
   assert.equal(sandbox.__shown.length, 1);                                        // ordinary enquiry still nudged
 });
 

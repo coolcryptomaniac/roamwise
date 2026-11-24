@@ -125,7 +125,7 @@
   // Explicit destination has priority. A follow-up '10 days there' can inherit
   // only if the parser recorded _inherited, not from a stale unrelated memory.
   if(p._inherited&&!/\b(?:there|here|that place|same|it)\b|वहाँ|वहा/i.test(t))return null;
-  return {dest,days:explicitDays,budget:Number(p.budget)||null,vibe:Array.isArray(p.vibe)?p.vibe:[],raw:t};
+  return {dest,days:explicitDays,budget:Number(p.budget)||null,vibe:Array.isArray(p.vibe)?p.vibe:[],raw:t,...(places.length===1?{places}: {})};
  }
  function genericDays(plan,db){
    // For places without a reviewed place-specific pack, be explicit about
@@ -230,7 +230,7 @@
    // Only trust a recognised place, not a generic word the regex guessed.
    let known=false,db=null;
    try{db=typeof cpDbFind==='function'?cpDbFind(plan.dest):null;}catch(e){}
-   try{known=!!(isKnown||db||EXTRA[knownKey]||(typeof rwKnownMap==='function'&&rwKnownMap()[plan.dest.toLowerCase()]));}catch(e){known=isKnown||!!db||!!EXTRA[knownKey];}
+   try{known=!!(isKnown||db||plan.places?.length||EXTRA[knownKey]||(typeof rwKnownMap==='function'&&rwKnownMap()[plan.dest.toLowerCase()]));}catch(e){known=isKnown||!!db||!!plan.places?.length||!!EXTRA[knownKey];}
    const atlas=(root.RW_ATLAS&&root.RW_ATLAS.ready&&typeof root.rwAtlasFind==='function')?
      root.rwAtlasFind(plan.dest):null;
    const atlasPlace=atlas&&atlas.best&&!atlas.ambiguous?{

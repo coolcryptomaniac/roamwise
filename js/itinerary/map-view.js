@@ -104,14 +104,14 @@ function openTripMap(destName, stops){
     var signature=JSON.stringify([destName,raw.map(s=>[s.day,s.name,s.city,s.lat,s.lon])]);var hash=2166136261;for(var i=0;i<signature.length;i++){hash=Math.imul(hash^signature.charCodeAt(i),16777619);}var cacheKey='rw_tripmap_v3_'+(hash>>>0).toString(36);
     var cached=null; try{ cached=JSON.parse(lsGet(cacheKey)||'null'); }catch(e){ /* parse best-effort, ignore malformed/missing data */ }
     var geoP;
-    if(cached && cached.pins && cached.pins.length){ geoP=Promise.resolve(cached); }
+    if(cached && cached.pins && cached.pins.length && cached.cachedAt && Date.now()-cached.cachedAt<7*86400000){ geoP=Promise.resolve(cached); }
     else {
       geoP = rwGeocodeStopsNear(destName, raw).then(function(out){
-        try{ lsSet(cacheKey, JSON.stringify(out)); }catch(e){ /* storage best-effort, ignore */ }
+        try{ lsSet(cacheKey, JSON.stringify({...out,cachedAt:Date.now()})); }catch(e){ /* storage best-effort, ignore */ }
         return out;
       });
     }
-    geoP.then(function(data){ rwPaintTripMap(destName, data); });
+    geoP.then(function(data){ rwPaintTripMap(destName, data); }).catch(function(){rwPaintTripMap(destName,{center:null,pins:[]});});
   });
 }
 /* Geocode a destination centroid + a list of {day,name,note} stops, discarding any

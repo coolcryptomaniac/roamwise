@@ -135,4 +135,5 @@ function rwStayNudge(){
 }
 if(typeof window !== 'undefined' && typeof document !== 'undefined'){
   window.addEventListener('load', function(){ setTimeout(rwStayNudge, 5000); });
+  window.addEventListener('hashchange', function(){ if(/^#\/?(?:booking|stay)/i.test(location.hash||''))rwStayNudge();else {var n=document.getElementById('rwStayNudge');if(n)n.remove();} });
 }
