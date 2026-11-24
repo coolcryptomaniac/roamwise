@@ -128,6 +128,9 @@ function rwTuskOffersReply(bubble, intents, t){
   if(/more detail|compare these|itinerary|day by day|day-by-day/i.test(String(t || ''))) return false;   /* long answers only when asked */
   var want = rwOffersIntent(t);
   if(!want) return false;
+  var local=typeof rwLocalAtlasRecord==='function'?rwLocalAtlasRecord(t,intents):null;
+  if(local&&!want.places.length&&!want.stays.length)return false; // never substitute Manali for another destination
+  if(intents&&(intents.multi||intents._route))return false;
   intents._offers = true;
   rwOffersLoad().then(function(data){
     var html = rwOffersHTML(data, want, t);

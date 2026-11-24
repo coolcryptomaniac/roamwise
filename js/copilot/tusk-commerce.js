@@ -34,10 +34,20 @@
     .then(function(data){cache[path]={time:Date.now(),data:data};return data;})
     .finally(function(){if(timer)clearTimeout(timer);});
  }
- function items(kind,data,q){
-   // Never put an unrelated Manali offer under a query for another city.
-   var destination=String(q||'').toLowerCase().match(/\b(?:manali|almora|corbett|gir|nainital|ranikhet|kasar devi|tirthan|lansdowne|delhi|mumbai|goa|bengaluru|jaipur|paris|london|zurich|kathmandu)\b/);
-   destination=destination?destination[0]:'';
+ function scopeFor(q,intents){
+   var d=typeof rwLocalAtlasRecord==='function'?rwLocalAtlasRecord(q,intents):null;
+   if(d)return d.id==='coorg'?'Coorg':d.name;
+   if(intents&&(intents.multi||intents._route||intents._weakDest||intents._needsPlaceVerification))return null;
+   if(intents&&intents.dest)return String(intents.dest).slice(0,100);
+   var m=String(q||'').match(/\b(?:manali|almora|corbett|gir|nainital|ranikhet|kasar devi|tirthan|lansdowne|delhi|mumbai|goa|coorg|bengaluru|jaipur|paris|london|zurich|kathmandu)\b/i);
+   return m?m[0]:'';
+ }
+ function placeMatch(value,scope){
+   var norm=function(x){return String(x||'').toLowerCase().replace(/[^\p{L}\p{N}]+/gu,' ').trim();};
+   return !!scope&&(' '+norm(value)+' ').includes(' '+norm(scope)+' ');
+ }
+ function items(kind,data,q,scope){
+   var destination=scope;
    var lower=String(q||'').toLowerCase();
    if(kind==='shop'){
      var all=Array.isArray(data.products)?data.products:[];
@@ -47,7 +57,7 @@
    if(kind==='packages'){
      var packages=(Array.isArray(data.packages)?data.packages:[]).filter(function(p){return p.open!==false;});
      if(destination)packages=packages.filter(function(p){
-       return String(p.name+' '+(p.properties||[]).map(function(x){return x.name+' '+(x.place||'');}).join(' ')).toLowerCase().indexOf(destination)>-1;
+       return placeMatch(p.name+' '+(p.properties||[]).map(function(x){return x.name+' '+(x.place||'');}).join(' '),destination);
      });
      var group=/(?:honeymoon|romantic|couple|हनीमून)/i.test(q)?'honeymoon':/(?:wedding|marriage|shaadi|शादी)/i.test(q)?'wedding':'';
      if(group){var matching=packages.filter(function(p){return p.group===group||String(p.name).toLowerCase().indexOf(group)>-1;});if(matching.length)packages=matching;}
@@ -55,7 +65,7 @@
    }
    if(kind==='stays'){
      var stays=data.stays||{}, keys=Object.keys(stays);
-     var matched=keys.filter(function(id){var s=stays[id];return s&&String(s.name+' '+s.place).toLowerCase().split(/[ ,]+/).some(function(w){return w.length>3&&lower.indexOf(w)>-1;});});
+     var matched=keys.filter(function(id){var s=stays[id];return s&&(destination?placeMatch(s.name+' '+s.place,destination):String(s.name+' '+s.place).toLowerCase().split(/[ ,]+/).some(function(w){return w.length>3&&lower.indexOf(w)>-1;}));});
      if(destination&&!matched.length)return [];
      return (matched.length?matched:keys).slice(0,2).map(function(id){var s=stays[id];return {id:id,type:'stay',title:s.name,subtitle:s.place||'Check dates and availability',price:'Exact quote at checkout',buy:true};});
    }
@@ -80,16 +90,27 @@
     +'<button type="button" data-tusk-hide-offers style="border:0;background:none;color:#c9bcdc;font-size:11px;text-decoration:underline;cursor:pointer">Hide these offers</button>'
     +'<p style="font-size:10px;color:#c9bcdc;margin:5px 0 0">Listing prices are indicative; server quote, availability, booking terms and Cashfree confirmation control checkout. No booking is confirmed just by paying.</p></div></section>';
  }
+ function enquiry(scope,offline){
+   return '<section class="tk-card rw-tusk-commerce"><div class="tk-sec"><b>'+esc(scope)+' · stay and package enquiry</b><p style="font-size:12px">'+(offline?'Live catalogue could not be checked.':'No matching direct-checkout listing was returned.')+' No payment is requested until a real offer is available.</p><a class="tk-chip" href="/escapes/?zone='+encodeURIComponent(scope)+'#request-quote">Request a quote</a></div></section>';
+ }
  function cardsHTML(raw,intents){
+   var scope=scopeFor(raw,intents),destinationGuide=!!(intents&&intents._rwAllowDestinationCommerce);
    var kind=category(raw);
-   if(!kind||hidden()||(intents&&(intents.smalltalk||intents._noGenericActions||intents._offers||intents._stayDesk)))return Promise.resolve('');
-   return dataFor(kind).then(function(d){return railMarkup(kind,items(kind,d,raw));}).catch(function(){return '';});
+   if(hidden()||scope===null||(intents&&(intents.smalltalk||intents._offers||intents._stayDesk||intents._noGenericActions&&!destinationGuide)))return Promise.resolve('');
+   if(destinationGuide&&scope&&(!kind||kind==='stays'||kind==='packages')){
+     if(!allowedQuery(String(raw).length<5?'Guide to '+raw:raw))return Promise.resolve('');
+     return get('/stays/rates').then(function(data){
+       var list=items('packages',data,raw,scope).concat(items('stays',data,raw,scope));
+       return list.length?railMarkup('destination',list):enquiry(scope,false);
+     }).catch(function(){return enquiry(scope,true);});
+   }
+   if(!kind)return Promise.resolve('');
+   return dataFor(kind).then(function(d){var list=items(kind,d,raw,scope);return list.length?railMarkup(kind,list):scope&&(kind==='stays'||kind==='packages')?enquiry(scope,false):'';}).catch(function(){return '';});
  }
  function speakCardsInto(container,raw,intents){
-   var kind=category(raw);
-   if(!container||!kind||hidden()||(intents&&(intents._noGenericActions||intents.smalltalk)))return Promise.resolve();
-   return dataFor(kind).then(function(d){
-     var markup=railMarkup(kind,items(kind,d,raw));if(!markup)return;
+   if(!container)return Promise.resolve();
+   return cardsHTML(raw,intents).then(function(markup){
+     if(!markup)return;
      var host=document.createElement('div');host.innerHTML=markup;
      while(host.firstChild)container.appendChild(host.firstChild);
    }).catch(function(){});

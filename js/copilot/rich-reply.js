@@ -188,7 +188,7 @@ async function cpFinish(bubble, answerHTML, intents, raw){
   /* Every answer ends with tappable actions — an answer is never a dead end. */
   try{ if(!intents.smalltalk&&!isKasarFestival&&!intents._noGenericActions) _html += rwTuskRail(intents.dest||'', raw||''); }catch(e){ /* best-effort, ignore */ }
   /* Curated, public local partners and artists only; not booking inventory. */
-  try{ if(!intents.smalltalk && !intents._noGenericActions && window.RWConnectedDiscovery) _html+=RWConnectedDiscovery.html(raw,intents); }catch(e){}
+  try{ if(!intents.smalltalk && (!intents._noGenericActions||intents._rwAllowDestinationCommerce) && window.RWConnectedDiscovery) _html+=RWConnectedDiscovery.html(raw,intents); }catch(e){}
   /* Only intent-relevant first-party cards, never inferred prices or paid action.
      Run after the answer and skip personal, emergency and existing offer replies. */
   try{ if(window.RWTuskCommerce) _html+=await RWTuskCommerce.cardsHTML(raw,intents); }catch(e){}
