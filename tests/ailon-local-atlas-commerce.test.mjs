@@ -23,7 +23,7 @@ function browser(){
 test('generated browser data exactly matches canonical India and international profiles',()=>{
  const {ctx}=browser();
  const expected=[...TUSK_ATLAS,...WORLD_ATLAS].map(d=>({id:d.id,name:d.name,country:d.country,region:d.region,aliases:d.aliases,highlights:d.highlights,food:d.foodSuggestions,facts:d.facts,people:d.people,itinerary:d.suggestedItinerary,summary:d.summary,status:d.status,source:d.sourcePage}));
- assert.equal(expected.length,226);
+ assert.equal(expected.length,354);
  assert.equal(JSON.stringify(ctx.window.RW_LOCAL_ATLAS),JSON.stringify(expected));
 });
 test('Goa and Coorg show rich itinerary, food and actions without AI or outbound calls',()=>{
