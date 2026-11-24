@@ -1,23 +1,6 @@
 {
   "events": [
     {
-      "id": "yt-AzgY3e39ovs",
-      "date": "2026-11-24",
-      "title": "Roamwise Bengaluru Tech Summit #bengaluru #roamwise #ai #travel #startup #science #technology",
-      "place": "",
-      "caption": "New on YouTube @mohucool.",
-      "theme": "fire",
-      "emoji": "🎬",
-      "cover": "",
-      "photos": [],
-      "videos": [
-        {
-          "title": "Roamwise Bengaluru Tech Summit #bengaluru #roamwise #ai #travel #startup #science #technology",
-          "youtube": "AzgY3e39ovs"
-        }
-      ]
-    },
-    {
       "id": "yt-CHN-vPpPlg0",
       "date": "2026-11-21",
       "title": "GTA 6 craze,should i bevome streamer.. #gta6 #mohitpandey #ai #rave #raveseries #gta #launch #viral",
@@ -56,6 +39,10 @@
         {
           "title": "RoamWise BTS 2026 announcement",
           "youtube": "5TiLF9tYf-U"
+        },
+        {
+          "title": "Roamwise Bengaluru Tech Summit #bengaluru #roamwise #ai #travel #startup #science #technology",
+          "youtube": "AzgY3e39ovs"
         }
       ]
     },

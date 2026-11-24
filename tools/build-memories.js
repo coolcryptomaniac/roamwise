@@ -48,6 +48,19 @@ async function youtubeEvents(known) {
   }
   const knownVideos = new Set(); events.forEach(e => (e.videos || []).forEach(v => v.youtube && knownVideos.add(v.youtube)));
   if (process.argv.includes('--youtube')) events = events.concat(await youtubeEvents(knownVideos));
+  // Keep the completed Bengaluru summit in one archive, including new videos.
+  const summit = events.find(e => e.id === 'bengaluru-tech-summit-2026');
+  if (summit) {
+    const seen = new Set((summit.videos || []).map(v => v.youtube));
+    const append = videos => { for (const v of videos || []) if (v.youtube && !seen.has(v.youtube)) { summit.videos.push(v); seen.add(v.youtube); } };
+    if (fs.existsSync(file0)) {
+      try { append((JSON.parse(fs.readFileSync(file0, 'utf8')).events || []).find(e => e.id === summit.id)?.videos); } catch (_) {}
+    }
+    events = events.filter(e => {
+      if (!/^yt-/.test(e.id) || !/bengaluru tech summit|\bBTS 2026\b/i.test(e.title)) return true;
+      append(e.videos); return false;
+    });
+  }
   events.sort((a, b) => String(b.date).localeCompare(String(a.date)));
   const out = JSON.stringify({ events }, null, 2) + '\n', file = path.join(root, 'memories/data.json');
   if (process.argv.includes('--check')) { if (!fs.existsSync(file) || fs.readFileSync(file, 'utf8') !== out) { console.error('memories/data.json is out of date: run node tools/build-memories.js'); process.exit(1); } console.log('memories data OK (' + events.length + ' events)'); return; }

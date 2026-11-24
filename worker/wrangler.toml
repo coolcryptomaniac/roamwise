@@ -180,3 +180,9 @@ binding = "AI"
 # Reading them needs a secret: npx wrangler secret put TUSK_REPORT_TOKEN
 # and the same value as the TUSK_REPORT_TOKEN GitHub Actions secret, plus the
 # ROAMWISE_WORKER_URL repository variable, for .github/workflows/tusk-selfcheck.yml.
+
+# Dedicated read-only public knowledge service, deployed and verified separately.
+# Only destination slugs are forwarded; no customer, auth or payment data.
+[[services]]
+binding = "PUBLIC_KNOWLEDGE_READER"
+service = "roamwise-public-knowledge-preview"

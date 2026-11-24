@@ -105,3 +105,21 @@ test('two hosts resolving to one final home origin fail parity',async()=>{
  const r=await hosting.checkHosting(async()=>({status:200,url:'https://same.example/',text:async()=> 'RoamWise'}),[{name:'a',url:'https://a.example'},{name:'b',url:'https://b.example'}],[{path:'/',marker:/RoamWise/}]);
  assert.equal(r.independentOrigins,false);assert.equal(r.ok,false);assert.equal(r.cashfreePaymentVerified,false);
 });
+
+test('production configuration preserves the dedicated read-only service binding',()=>{
+ const config=fs.readFileSync(new URL('../worker/wrangler.toml',import.meta.url),'utf8');
+ assert.match(config,/\[\[services\]\]\s*binding = "PUBLIC_KNOWLEDGE_READER"\s*service = "roamwise-public-knowledge-preview"/);
+});
+test('bound knowledge reader supplies reviewed public context and fails back on unavailable candidates',async()=>{
+ const calls=[];
+ let reviewed=true;
+ const env={PUBLIC_KNOWLEDGE_READER:{async fetch(url){calls.push(url);return reviewed?Response.json({slug:'tokyo',humanReviewedAt:'2026-11-24',summary:'Reviewed example overview',sources:[{url:'https://example.org/tokyo',checkedAt:'2026-11-24',supports:'Overview'}]}):new Response(null,{status:404});}}};
+ const request=new Request('https://example.test/tusk/search?q=Tokyo%20itinerary&localOnly=1');
+ const a=await handleTuskWebSearch(request,env);assert.equal(a.status,200);assert.equal((await a.json()).source,'RoamWise reviewed D1 knowledge');
+ reviewed=false;
+ const b=await handleTuskWebSearch(request,env);assert.equal(b.status,200);assert.equal((await b.json()).atlas.name,'Tokyo');
+ const before=calls.length;
+ const p=await handleTuskWebSearch(new Request('https://example.test/tusk/search?q=my%20booking%20in%20Tokyo'),env);assert.equal(p.status,400);
+ assert.equal(calls.length,before);
+ assert.ok(calls.every(url=>url==='https://knowledge.internal/v1/destinations/tokyo'));
+});

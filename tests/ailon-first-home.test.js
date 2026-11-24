@@ -13,9 +13,10 @@ test('completed Bengaluru summit is archived, not promoted on the app homepage',
   assert.doesNotMatch(home,/Bengaluru Tech Summit, meet Ailon Tusk/);
   const event=seed.events.find(e=>e.id==='bengaluru-tech-summit-2026');
   assert.ok(event,'summit archive must survive memories rebuilds');
-  assert.equal(event.videos.length,3);
+  assert.ok(event.videos.length>=3);
+  for(const id of ['42_OibYl_yg','Jz5hebOvd6Q','5TiLF9tYf-U'])assert.ok(event.videos.some(v=>v.youtube===id));
   assert.equal(data.events.filter(e=>e.id===event.id).length,1);
-  assert.equal(data.events.filter(e=>/^yt-/.test(e.id)&&/Summit/i.test(e.title)).length,0);
+  assert.equal(data.events.filter(e=>/^yt-/.test(e.id)&&/Bengaluru Tech Summit|\bBTS 2026\b/i.test(e.title)).length,0);
 });
 
 test('Ailon is the primary entry point and saved trips and requests remain reachable',()=>{
