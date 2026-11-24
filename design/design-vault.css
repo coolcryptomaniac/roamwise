@@ -136,3 +136,29 @@ html[data-rw-design] #rwSalesArtists a:focus-visible{outline:3px solid #eac576;o
  #rwSettingsHome {padding:12px;}
 }
 @media(prefers-reduced-motion:reduce){#rwSettingsHome * {scroll-behavior:auto!important;transition:none!important;}}
+
+/* Ailon source-backed and editorial travel atlas result — lightweight,
+   accessible and compatible with the three versioned design editions. */
+.rw-atlas-result {overflow:hidden;border-radius:19px!important;border:1px solid #9d87bf77!important;background:#111527!important;color:#f5f1fb!important;}
+.rw-atlas-result .tk-head {background:linear-gradient(130deg,#292344,#1b2540)!important;padding:16px 17px!important;}
+.rw-atlas-result .tk-place {font-size:19px!important;line-height:1.3;color:#f4d49e!important;}
+.rw-atlas-result .tk-meta {font-size:11px;color:#d2c5e0!important;}
+.rw-atlas-result .tk-sec {padding:14px 16px!important;}
+.rw-atlas-result .rw-atlas-intro {font-size:13px;line-height:1.6;color:#ded6e9;}
+.rw-atlas-result .rw-atlas-section-title {font:800 13px/1.4 system-ui,sans-serif;margin:16px 0 8px;color:#f5d394;}
+.rw-atlas-result .rw-atlas-section-title small {font-weight:500;font-size:10px;color:#d4c6df;margin-left:5px;}
+.rw-atlas-result .rw-atlas-days {display:grid;gap:7px;}
+.rw-atlas-result .rw-atlas-day {display:grid;grid-template-columns:65px 1fr;gap:10px;padding:11px 12px;border:1px solid #b1a2ca47;background:#1e2539;border-radius:12px;font:400 12px/1.55 system-ui,sans-serif;}
+.rw-atlas-result .rw-atlas-day b {color:#edc479;}
+.rw-atlas-result .rw-atlas-tags {display:flex;gap:7px;flex-wrap:wrap;}
+.rw-atlas-result .rw-atlas-tags span {padding:7px 10px;border-radius:999px;background:#2b2742;color:#eee2f7;border:1px solid #a18eb660;font:600 11px/1.4 system-ui,sans-serif;}
+.rw-atlas-result .rw-atlas-person {font:400 12px/1.6 system-ui,sans-serif;color:#e7def2;margin:4px 0;}
+.rw-atlas-result .rw-atlas-photo {display:inline-flex;align-items:center;min-height:44px;color:#f2d48d;text-decoration:underline;font:700 12px/1.4 system-ui,sans-serif;margin-top:10px;}
+.rw-atlas-result .rw-atlas-rights,.rw-atlas-result .rw-atlas-caution {font:400 11px/1.6 system-ui,sans-serif;color:#c5bbd3;margin:9px 0;}
+.rw-atlas-result .rw-atlas-caution {border-top:1px solid #a99ab74a;padding-top:11px;}
+.rw-atlas-result a:focus-visible {outline:3px solid #f6cf89;outline-offset:3px;}
+@media(max-width:375px){.rw-atlas-result .rw-atlas-day {grid-template-columns:1fr;gap:3px}.rw-atlas-result .tk-sec{padding:12px!important}}
+@media(prefers-reduced-motion:reduce){.rw-atlas-result * {scroll-behavior:auto!important;animation:none!important;transition:none!important}}
+
+.rw-atlas-result .rw-atlas-facts{margin:6px 0 10px;padding-left:20px;color:#e8ddf0;font:400 12px/1.65 system-ui,sans-serif;}
+.rw-atlas-result .rw-atlas-facts li{margin:5px 0;}

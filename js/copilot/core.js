@@ -290,6 +290,7 @@ async function rwMiniSearch(q){
   return (out.abs||out.hits.length)?out:null;
 }
 function rwWebAnswerHTML(q,res){
+  if(res&&res.atlas&&typeof rwAtlasAnswerHTML==='function')return rwAtlasAnswerHTML(q,res);
   // Public web matches are leads for verification, not a model-certified answer.
   // Keep links explicitly HTTPS and render useful swipeable source cards.
   var g='https://www.google.com/search?q='+encodeURIComponent(q);
@@ -886,11 +887,15 @@ function copilotSend(fromHero){
     /* Ground the model in the real guide before it answers — this is what stops
        confident-but-wrong replies about small towns. */
     (function(){
-      var guide=function(){return intents.dest?wvGuide(intents.dest):Promise.resolve(null);};
+      var guide=function(){
+        var base=intents.dest?wvGuide(intents.dest):Promise.resolve(null);
+        return typeof rwAtlasGroundGuide==='function'?rwAtlasGroundGuide(intents.dest,base):base;
+      };
       var shared=function(){return typeof rwSharedFirst==='function'?rwSharedFirst(_ck,thinking,intents,t,guide):guide();};
       return typeof rwCuratedFirst==='function'?rwCuratedFirst(t,intents,thinking,shared):shared();
     })().then(function(g){ if(g&&g._shared) return;
       var facts = g && g.extract ? 'Verified guide text for '+g.title+': '+g.extract.slice(0,600)+'\n' : '';
+      if(g&&g._rwAtlasContext)facts+='RoamWise travel atlas grounding — do not present editorial suggestions as verified facts: '+g._rwAtlasContext+'\n';
       try{
         if(typeof RW_PLACE_FACTS!=='undefined'){
           var _pfq=(intents.dest||t||'').toLowerCase(); var _pf=null;
