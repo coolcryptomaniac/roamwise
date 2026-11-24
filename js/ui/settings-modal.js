@@ -173,7 +173,78 @@ function renderKeyBoxes(){
       +'</div>';
   }).join('');
 }
-function openSettings(){
+/* A quiet Settings landing area: familiar jumps, native language picker and
+   explicit privacy choice. Sections and older Design Vault editions stay intact. */
+function rwMountSettingsHome(){
+  var overlay=el('settingsOverlay'),body=overlay&&overlay.querySelector('.modal-body');
+  if(!body)return;
+  var subtitle=overlay.querySelector('.modal-sub');
+  if(subtitle)subtitle.textContent='Design · Language · Accessibility · Privacy · Account';
+  var panel=el('rwSettingsHome');
+  if(!panel){
+    panel=document.createElement('section');
+    panel.id='rwSettingsHome';panel.className='rw-settings-home';
+    var title=document.createElement('div');title.className='rw-settings-home-title';
+    title.textContent='Make RoamWise yours';panel.appendChild(title);
+    var links=document.createElement('nav');links.className='rw-settings-jumps';
+    links.setAttribute('aria-label','Settings sections');
+    [
+      ['🎨 Design','rw-design-vault'],
+      ['🔊 Voice','rwVoiceSetting'],
+      ['🔐 Account','rwLinkedSignIn'],
+      ['🤖 AI options','keyBoxes']
+    ].forEach(function(entry){
+      var b=document.createElement('button');b.type='button';b.textContent=entry[0];
+      b.addEventListener('click',function(){
+        var target=el(entry[1]);
+        if(!target)return;
+        // Advanced tools remain behind the existing user-controlled toggle.
+        if(entry[1]==='keyBoxes'){
+          var toggle=el('advToggle')||el('advOptIn');
+          if(toggle&&target.getClientRects&&target.getClientRects().length===0){toggle.click();}
+        }
+        target.scrollIntoView({block:'nearest',behavior:'smooth'});
+      });
+      links.appendChild(b);
+    });panel.appendChild(links);
+    var row=document.createElement('div');row.className='rw-settings-essentials';
+    var lang=document.createElement('label');lang.className='rw-settings-language';
+    var langTitle=document.createElement('span');langTitle.textContent='🌐 Language';
+    var select=document.createElement('select');select.id='rwSettingsLanguage';
+    select.setAttribute('aria-label','RoamWise language');
+    (typeof RW_LANGS!=='undefined'?RW_LANGS:[]).forEach(function(entry){
+      var option=document.createElement('option');option.value=entry.code;
+      option.textContent=entry.native;select.appendChild(option);
+    });
+    select.addEventListener('change',function(){rwSetLang(select.value);});
+    lang.appendChild(langTitle);lang.appendChild(select);row.appendChild(lang);
+    var size=document.createElement('button');size.type='button';size.className='rw-settings-size';
+    size.textContent='🔤 Text & icon size';size.addEventListener('click',function(){openSizeSettings();});
+    row.appendChild(size);panel.appendChild(row);
+    var external=document.createElement('label');external.className='rw-settings-external';
+    var check=document.createElement('input');check.type='checkbox';check.id='rwTuskExternalSearch';
+    var copy=document.createElement('span');
+    var strong=document.createElement('strong');strong.textContent='External sources if RoamWise has no match';
+    var desc=document.createElement('small');
+    desc.textContent='Off by default. If enabled, public questions may be sent to DuckDuckGo and Wikipedia after RoamWise knowledge search. Private bookings and contact details are never sent.';
+    copy.appendChild(strong);copy.appendChild(desc);
+    external.appendChild(check);external.appendChild(copy);panel.appendChild(external);
+    check.addEventListener('change',function(){
+      try{window.localStorage.setItem('rw_tusk_external_search',check.checked?'1':'0');}catch(e){}
+    });
+    body.insertBefore(panel,body.firstChild);
+  }
+  var language=el('rwSettingsLanguage');
+  if(language&&typeof rwLang==='function')language.value=rwLang();
+  var externalCheck=el('rwTuskExternalSearch');
+  if(externalCheck)externalCheck.checked=typeof rwTuskExternalSourcesEnabled==='function'&&rwTuskExternalSourcesEnabled();
+}
+function openSettings(force){
+  var settingsOverlay=el('settingsOverlay');
+  if(!settingsOverlay)return;
+  // Never pop Settings up from bootstrap, network callbacks or a silent timer.
+  // Explicit voice/chat navigation may call openSettings(true).
+  if(!force&&!settingsOverlay.classList.contains('open')&&window.navigator&&window.navigator.userActivation&&window.navigator.userActivation.isActive===false)return;
   renderKeyBoxes();
   try{if(window.RWDesignVault)RWDesignVault.mountSettings();}catch(e){/* visual settings must never block payments */}
   try{ rwMountPersonalisationSetting(); }catch(e){ /* optional on-device preferences */ }
@@ -182,6 +253,7 @@ function openSettings(){
   try{ rwVoiceMountSetting(); }catch(e){ /* best-effort, ignore */ }
   try{ if(window.RWTuskVoiceProvider)RWTuskVoiceProvider.mount(); }catch(e){ /* optional BYOK settings */ }
   try{ var tp=el('tabPickWrap'); if(tp) tp.innerHTML=rwTabPickerHTML(); }catch(e){ /* best-effort, ignore */ }
+  try{ rwMountSettingsHome(); }catch(e){ /* never block the existing settings */ }
   /* ---- UI simplification ----
      Provider choice and API keys are power-user territory: Smart Search works
      with no key at all, so for most people these sections are noise that makes

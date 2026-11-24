@@ -6,6 +6,13 @@
    Never send Firebase tokens, cookies or private trip memory to this URL. */
 /* Public lookup is NOT for account, booking or contact details. Keep the
    same screening in the browser before calling *any* third-party search. */
+/* External browser-provider requests are off by default. Traveller consent is
+   local to this device, never included in a travel or account request. */
+function rwTuskExternalSourcesEnabled(){
+ try{return !!(window.localStorage&&window.localStorage.getItem('rw_tusk_external_search')==='1');}
+ catch(e){return false;}
+}
+
 function rwTuskIsPublicQuery(q){
  var raw=String(q==null?'':q);
  if(raw.length<5||raw.length>180||/[\r\n<>\u0000-\u001f]/.test(raw))return false;
@@ -47,6 +54,7 @@ function rwTuskWorkerSearch(q,out){
    if(!data||!data.available)return;
    var hits=Array.isArray(data.hits)?data.hits.slice(0,4):[];
    var trustworthy=data.route==='curated'||data.route==='approved-vector';
+   out.rwRoute=String(data.route||'').slice(0,32);
    // Officially reviewed facts trump an unrelated DDG abstract even when
    // requests finish in a different order.
    if(data.summary && (trustworthy||!out.abs)){
@@ -86,21 +94,31 @@ function rwTuskOfflinePlanningCard(question){
  return '<div class="tk-card rw-tusk-offline" role="status"><div class="tk-head"><div class="tk-place">'+heading+'</div></div><div class="tk-sec"><p><b>Planning mode</b> — live AI is temporarily unavailable, so these are safe next steps, not a verified itinerary or booking.</p>'+main+'<div class="tk-chips"><a class="tk-chip" href="/packages/">Explore packages ↗</a><a class="tk-chip" href="/?rw_open=itineraries">Saved itineraries ↗</a><a class="tk-chip" href="/wallet/">Wallet ↗</a></div></div></div>';
 }
 function rwTuskSearchFailure(thinking,t,intents,err){
- // Avoid made-up dates, schedules and unrelated trek cards if paid AI is down.
+ // Local destination data remains the very first answer path; public knowledge
+ // lookup is next. Generic planning instructions are the last resort.
  var known=cpSmartAnswer(t)||'';
- var note=(typeof rwAiDownNote==='function')?rwAiDownNote(err,false):'<span class="rw-note">AI unavailable: showing source links.</span>';
+ var note=(typeof rwAiDownNote==='function')?rwAiDownNote(err,false):'<span class="rw-note">AI unavailable: showing RoamWise sources.</span>';
  intents._noGenericActions=true;
  if(known&&!/^<b>Explore /i.test(known)){
    cpFinish(thinking,known+'<br>'+note,intents,t);return;
  }
- var localPlan=rwTuskOfflinePlanningCard(t);
- if(localPlan){cpFinish(thinking,localPlan+'<br>'+note,intents,t);return;}
  if(!rwTuskIsPublicQuery(t)){
-   cpFinish(thinking,'<div class="tk-card"><div class="tk-head"><div class="tk-place">🔒 Private question</div></div><div class="tk-sec"><p>Public web lookup was skipped to protect personal or booking details. Remove private details for a general search, or use your secure RoamWise booking page.</p></div></div><br>'+note,intents,t);
+   // Long but harmless travel prompts can still get private, offline
+   // planning guidance; nothing is sent to a public service.
+   var safeOffline=rwTuskOfflinePlanningCard(t);
+   if(safeOffline){cpFinish(thinking,safeOffline+'<br>'+note,intents,t);return;}
+   cpFinish(thinking,'<div class="tk-card"><div class="tk-head"><div class="tk-place">🔒 Private question</div></div><div class="tk-sec"><p>Public knowledge lookup was skipped to protect personal or booking details. Open your secure RoamWise booking or trip page for account-specific information.</p></div></div><br>'+note,intents,t);
    return;
  }
  Promise.resolve().then(function(){return rwMiniSearch(t);}).then(function(res){
-   var html=res?rwWebAnswerHTML(t,res):'<div class="tk-card"><div class="tk-head"><div class="tk-place">🔎 Unable to verify this answer</div></div><div class="tk-sec"><p>Available AI and public sources could not confirm this. Please refine the question or check a primary source.</p><div class="tk-chips"><a class="tk-chip" target="_blank" rel="noopener" href="https://www.google.com/search?q='+encodeURIComponent(t)+'">Google Search ↗</a><a class="tk-chip" target="_blank" rel="noopener" href="https://duckduckgo.com/?q='+encodeURIComponent(t)+'">DuckDuckGo ↗</a></div></div></div>';
-   cpFinish(thinking,html+'<br>'+note,intents,t);
- }).catch(function(){cpFinish(thinking,'<b>Could not verify that answer.</b> Try a more specific question. '+note,intents,t);});
+   if(res){
+     cpFinish(thinking,rwWebAnswerHTML(t,res)+'<br>'+note,intents,t);
+     return;
+   }
+   var localPlan=rwTuskOfflinePlanningCard(t);
+   if(localPlan){cpFinish(thinking,localPlan+'<br>'+note,intents,t);return;}
+   cpFinish(thinking,'<div class="tk-card"><div class="tk-head"><div class="tk-place">🔎 No verified RoamWise match yet</div></div><div class="tk-sec"><p>Our reviewed knowledge database has no verified answer for this question. Try a destination, date or topic, or explore our guides. External public sources can be enabled in Settings.</p><div class="tk-chips"><a class="tk-chip" href="/guides/">RoamWise guides ↗</a></div></div></div><br>'+note,intents,t);
+ }).catch(function(){
+   cpFinish(thinking,'<b>Could not verify that answer.</b> RoamWise knowledge search is unavailable; try again later. '+note,intents,t);
+ });
 }
