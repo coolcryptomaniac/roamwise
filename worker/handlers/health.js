@@ -13,6 +13,10 @@ export function handleHealth(env){
       ai:     String(env.MANAGED_AI_ENABLED || '').toLowerCase() === 'true'
         && !!env.GROQ_API_KEY && !!env.GROQ_MODEL
         && !!env.FIREBASE_SERVICE_ACCOUNT_JSON && !!env.AI_USAGE,
+      basicAI: env.BASIC_AI_ENABLED === 'true' && !!env.AI?.run && !!env.BASIC_AI_QUOTA && !!env.FIREBASE_SERVICE_ACCOUNT_JSON,
+      basicAIMeter: !!env.BASIC_AI_QUOTA,
+      workersAI: !!env.AI?.run,
+      sarvamAI: !!env.SARVAM_API_KEY,
       aiKey:  !!env.GROQ_API_KEY,
       aiModel: !!env.GROQ_MODEL,
       aiMeter: !!env.AI_USAGE,

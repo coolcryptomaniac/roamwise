@@ -88,6 +88,11 @@ CASHFREE_API_VERSION = "2025-01-01"
 # intentionally a server-owned, non-secret setting; browser-submitted model
 # and token-limit values are ignored.
 MANAGED_AI_ENABLED = "false"
+# Keep disabled until account usage and signed-in sandbox smoke tests pass.
+BASIC_AI_ENABLED = "false"
+BASIC_AI_DAILY_LIMIT = "10"
+BASIC_AI_DAILY_NEURONS = "8000"
+BASIC_AI_DAILY_REQUEST_CAP = "1000"
 GROQ_MODEL = "openai/gpt-oss-20b"
 WORKERS_AI_MODEL = "@cf/google/gemma-4-26b-a4b-it"
 SARVAM_MODEL = "sarvam-105b-conversations"
@@ -157,6 +162,14 @@ id = "be31e0935be843219cea1edf2203877b"
 #
 [ai]
 binding = "AI"
+
+[[durable_objects.bindings]]
+name = "BASIC_AI_QUOTA"
+class_name = "BasicAIQuota"
+
+[[migrations]]
+tag = "basic-ai-quota-v1"
+new_sqlite_classes = ["BasicAIQuota"]
 # OPTIONAL later, after an approved 50-200 document pilot:
 # Use the multilingual BGE-M3 model for Hindi/Kannada/English and create the
 # Vectorize index with the SAME dimensions (BGE-M3 = 1024) and cosine metric:
