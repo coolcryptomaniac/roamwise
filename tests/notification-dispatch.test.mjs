@@ -56,8 +56,9 @@ test('campaign verification blocks unsafe links, bulk account messages and old d
 test('verified offers need independent active, recently reviewed source',()=>{
   const c={...fresh(),category:'offers',verifiedOfferId:'o1',url:'https://roamwise.co.in/shop/'};
   assert.equal(campaignValidation(c,NOW,[]),'offer_not_verified');
-  const o={id:'o1',status:'verified',active:true,url:c.url,reviewedAt:new Date(NOW-day).toISOString(),expiresAt:new Date(NOW+day).toISOString()};
+  const o={id:'o1',status:'verified',active:true,title:c.title,body:c.body,url:c.url,reviewedAt:new Date(NOW-day).toISOString(),expiresAt:new Date(NOW+day).toISOString()};
   assert.equal(campaignValidation(c,NOW,[o]),null);
+  assert.equal(campaignValidation({...c,body:'Unverified extra discount'},NOW,[o]),'offer_copy_not_verified');
   assert.equal(campaignValidation(c,NOW,[{...o,active:false}]),'offer_not_verified');
   assert.equal(campaignValidation(c,NOW,[{...o,reviewedAt:new Date(NOW-9*day).toISOString()}]),'offer_review_stale');
 });
