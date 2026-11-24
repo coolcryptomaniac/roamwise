@@ -56,9 +56,9 @@ var RWNotificationComposer = (function(){
         : '<span class="tag">'+esc(n.status || 'unknown')+'</span>';
       var id = String(n.id || '').replace(/[^A-Za-z0-9_-]/g,'');
       var actions = n.status === 'queued'
-        ? '<button class="btn small good" onclick="approveNotificationQueueItem(\\''+id+'\\')">Review &amp; approve</button>'
+        ? '<button class="btn small good" onclick="approveNotificationQueueItem(\''+id+'\')">Review &amp; approve</button>'
         : n.status === 'approved'
-        ? '<button class="btn small" onclick="revokeNotificationQueueItem(\\''+id+'\\')">Revoke</button>' : '';
+        ? '<button class="btn small" onclick="revokeNotificationQueueItem(\''+id+'\')">Revoke</button>' : '';
       return '<div class="row"><div class="grow"><strong>'+esc(n.title)+'</strong> '+status+
         '<div class="meta">'+esc(n.body)+'</div>'+
         '<div class="meta">Topic: '+esc(n.category||'legacy')+
@@ -66,7 +66,7 @@ var RWNotificationComposer = (function(){
         (n.url?' · opens '+esc(n.url):'')+
         ' · queued '+when(n.createdAt)+'</div></div>'+
         '<div class="actions">'+actions+
-        '<button class="btn danger small" onclick="deleteNotificationQueueItem(\\''+id+'\\')">Delete</button></div></div>';
+        '<button class="btn danger small" onclick="deleteNotificationQueueItem(\''+id+'\')">Delete</button></div></div>';
     }).join('');
     return '<div class="alert"><b>Delivery requires approval.</b> Drafts and old queued notifications are never sent automatically. Verified offers need a separate active entry in <code>config/notificationOffers</code>; offers and travel ideas require recipient opt-in.</div>'
       + '<div class="list" style="margin-top:12px">'+(rows||'<div class="empty">No campaigns queued.</div>')+'</div>';
