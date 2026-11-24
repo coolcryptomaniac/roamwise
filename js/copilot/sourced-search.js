@@ -113,6 +113,7 @@ function rwTuskOfflinePlanningCard(question){
 function rwTuskSearchFailure(thinking,t,intents,err){
  // Local destination data remains the very first answer path; public knowledge
  // lookup is next. Generic planning instructions are the last resort.
+ if(typeof rwLocalAtlasReply==='function'&&rwLocalAtlasReply(thinking,intents,t,true))return;
  var known=cpSmartAnswer(t)||'';
  var note=(typeof rwAiDownNote==='function')?rwAiDownNote(err,false):'<span class="rw-note">AI unavailable: showing RoamWise sources.</span>';
  intents._noGenericActions=true;

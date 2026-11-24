@@ -869,6 +869,7 @@ function copilotSend(fromHero){
   }
   if(typeof rwUmLearn==='function') rwUmLearn(intents,t);   /* per-user memory: facts only, on this device */
   if(typeof rwTuskPreAnswer==='function' && rwTuskPreAnswer(thinking,intents,t)) return;   /* memory commands, festival trips: no AI call */
+  if(typeof rwLocalAtlasReply==='function'&&rwLocalAtlasReply(thinking,intents,t,false))return;
   var hasKey = (typeof activeProv!=='undefined') && (activeProv==='roamwise' || (activeProv!=='smart' && lsGet('rwKey_'+activeProv)));
   if(isKasarFestival){
     var festivalAnswer=cpSmartAnswer(t);
@@ -960,6 +961,7 @@ function copilotSend(fromHero){
        guide for anywhere on Earth, and only then admit it needs a key. This is
        what turned "generic answers" into real ones. */
     if(intents.smalltalk){ cpFinish(thinking, tkSmalltalk(intents.smalltalk), intents, t); return; }
+    if(typeof rwLocalAtlasReply==='function'&&rwLocalAtlasReply(thinking,intents,t,true))return;
     if(intents._country || intents._state){ cpFinish(thinking, '', intents, t); return; }
     var kb = intents._country ? null : cpSmartAnswer(t);
     var place = intents.dest;

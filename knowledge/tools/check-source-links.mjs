@@ -6,7 +6,7 @@ import {pathToFileURL} from 'node:url';
 import {TUSK_ATLAS} from '../../worker/data/tusk-travel-atlas.js';
 import {WORLD_ATLAS} from '../../worker/data/tusk-world-atlas.js';
 export async function auditLinks({fetcher=fetch,offset=0,limit=12}={}){
- const allowed=new Set(['en.wikivoyage.org','uttarakhandtourism.gov.in','www.incredibleindia.gov.in']);
+ const allowed=new Set(['en.wikivoyage.org','uttarakhandtourism.gov.in','www.incredibleindia.gov.in','goa-tourism.com','karnatakatourism.org']);
  const links=[...new Set([...TUSK_ATLAS,...WORLD_ATLAS].map(d=>d.sourcePage))].filter(s=>{
   try{const u=new URL(s);return u.protocol==='https:'&&allowed.has(u.hostname)&&!u.username&&!u.password&&!u.search&&!u.hash;}catch(_){return false;}
  });
