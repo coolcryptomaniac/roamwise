@@ -204,7 +204,17 @@
   function itinerarySkin() {
     const containers=[document.getElementById('heroLog'),document.getElementById('results')].filter(Boolean);
     const selected=()=>{try{return modes.some(x=>x[0]===localStorage.getItem(KEY))?localStorage.getItem(KEY):'editorial';}catch(_){return 'editorial';}};
-    function apply(card,mode){ card.dataset.rwItineraryStyle=mode; }
+    function apply(card,mode){
+      card.dataset.rwItineraryStyle=mode;
+      card.querySelectorAll('.rw-itinerary-day').forEach((day,i)=>{day.open=mode!=='cinematic'||i===0;});
+      const id=card.getAttribute('data-rw-map-name');
+      const atlas=Array.isArray(W.RW_LOCAL_ATLAS)?W.RW_LOCAL_ATLAS:[];
+      const d=atlas.find(r=>r.name===id);
+      const media=d&&W.RW_DEST_MEDIA&&W.RW_DEST_MEDIA[d.id];
+      if(!card.querySelector('.rw-itinerary-cover')&&media&&media.status==='published'&&['owned','licensed','public-domain'].includes(media.rightsStatus)&&String(media.licenseProof||'').length>=12&&/^(?:\/(?:assets|media)\/|https:\/\/assets\.roamwise\.co\.in\/media\/)/.test(media.src||'')&&!String(media.src).includes('..')){
+        const im=make('img','rw-itinerary-cover');im.src=media.src;im.alt=media.alt||id;im.loading='lazy';im.decoding='async';im.onerror=()=>im.remove();card.querySelector('.tk-head')?.prepend(im);
+      }
+    }
     function mount(){
       containers.forEach(root=>root.querySelectorAll('.rw-tusk-itinerary').forEach(card=>{
         if (card.querySelector('.rw-itinerary-view-switch'))return;
@@ -214,13 +224,12 @@
           const btn=make('button','',label);btn.type='button';
           btn.addEventListener('click',()=>{
             if(key==='map'){
-              const place=card.querySelector('.tk-place');
               const title=card.getAttribute('aria-label')||'';
-              const labelled=title.match(/^\\d+\\s+day itinerary for\\s+(.+)$/i);
-              const name=(labelled && labelled[1]) || (place && (place.textContent||'').replace(/^.*?\\d+-day\\s+/i,'').replace(/\\s+itinerary$/i,'').trim()) || '';
-              if(typeof W.openTripMap==='function' && name){
-                try{ W.openTripMap(name); }catch(_){ if(typeof W.openMapExplorer==='function')W.openMapExplorer(); }
-              } else if(typeof W.openMapExplorer==='function')W.openMapExplorer();
+              const labelled=title.match(/^\d+\s+day itinerary for\s+(.+)$/i);
+              const name=card.getAttribute('data-rw-map-name')||(labelled&&labelled[1])||'';
+              let stops=[];try{stops=JSON.parse(card.getAttribute('data-rw-map-stops')||'[]');}catch(_){}
+              if(typeof W.openTripMap==='function'&&name){try{W.openTripMap(name,stops);}catch(_){if(typeof W.openMapExplorer==='function')W.openMapExplorer();}}
+              else if(typeof W.openMapExplorer==='function')W.openMapExplorer();
             }else{
               apply(card,key);
               try{localStorage.setItem(KEY,key);}catch(_){}

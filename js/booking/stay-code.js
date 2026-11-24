@@ -117,6 +117,8 @@ function rwStayNudge(){
       if(!s.answered && now - s.at > 3 * DAY && now - s.at < 120 * DAY && now - (s.nudgedAt || 0) > DAY){ due = s; break; }
     }
     if(!due || document.getElementById('rwStayNudge')) return;
+    // Do not interrupt Ailon, maps, or guests browsing the homepage. Show only inside booking review.
+    if(!document.body || !/booking|stay/i.test(document.body.getAttribute('data-view')||'')&&!/^#\/?(?:booking|stay)/i.test(location.hash||''))return;
     due.nudgedAt = now; rwStaySave(list);
     var box = document.createElement('div');
     box.id = 'rwStayNudge';
@@ -133,4 +135,5 @@ function rwStayNudge(){
 }
 if(typeof window !== 'undefined' && typeof document !== 'undefined'){
   window.addEventListener('load', function(){ setTimeout(rwStayNudge, 5000); });
+  window.addEventListener('hashchange', function(){ if(/^#\/?(?:booking|stay)/i.test(location.hash||''))rwStayNudge();else {var n=document.getElementById('rwStayNudge');if(n)n.remove();} });
 }

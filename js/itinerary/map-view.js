@@ -52,7 +52,7 @@ function rwTripMapTypeChips(){
   if(!host){
     var mapEl=el('tripMap'); if(!mapEl) return;
     host=document.createElement('div'); host.id='tripMapTypes';
-    host.style.cssText='display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap';
+    host.style.cssText='display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap;flex:0 0 100%;align-items:center;align-self:flex-start';
     mapEl.parentNode.insertBefore(host, mapEl);
   }
   var types=[['streets','\ud83d\uddfa\ufe0f Map'],['satellite','\ud83d\udef0\ufe0f Satellite'],['terrain','\u26f0\ufe0f Terrain']];
@@ -101,17 +101,17 @@ function openTripMap(destName, stops){
   rwEnsureLeaflet(function(ok){
     if(!ok){ el('tripMapList').innerHTML='<div class="note" style="padding:10px">Map needs internet the first time. Your saved trips still work offline.</div>'; return; }
     /* geocode destination + each stop (cached) */
-    var cacheKey='rw_tripmap_v2_'+destName.toLowerCase().replace(/[^a-z0-9]/g,'');
+    var signature=JSON.stringify([destName,raw.map(s=>[s.day,s.name,s.city,s.lat,s.lon])]);var hash=2166136261;for(var i=0;i<signature.length;i++){hash=Math.imul(hash^signature.charCodeAt(i),16777619);}var cacheKey='rw_tripmap_v3_'+(hash>>>0).toString(36);
     var cached=null; try{ cached=JSON.parse(lsGet(cacheKey)||'null'); }catch(e){ /* parse best-effort, ignore malformed/missing data */ }
     var geoP;
-    if(cached && cached.pins && cached.pins.length){ geoP=Promise.resolve(cached); }
+    if(cached && cached.pins && cached.pins.length && cached.cachedAt && Date.now()-cached.cachedAt<7*86400000){ geoP=Promise.resolve(cached); }
     else {
       geoP = rwGeocodeStopsNear(destName, raw).then(function(out){
-        try{ lsSet(cacheKey, JSON.stringify(out)); }catch(e){ /* storage best-effort, ignore */ }
+        try{ lsSet(cacheKey, JSON.stringify({...out,cachedAt:Date.now()})); }catch(e){ /* storage best-effort, ignore */ }
         return out;
       });
     }
-    geoP.then(function(data){ rwPaintTripMap(destName, data); });
+    geoP.then(function(data){ rwPaintTripMap(destName, data); }).catch(function(){rwPaintTripMap(destName,{center:null,pins:[]});});
   });
 }
 /* Geocode a destination centroid + a list of {day,name,note} stops, discarding any
@@ -121,12 +121,19 @@ function openTripMap(destName, stops){
    Cinematic Itinerary add-on (roamwise-premium-itinerary.js) via window.rwGeocodeStopsNear.
    Returns a Promise<{center:{lat,lon}|null, pins:[{day,name,note,lat,lon}]}>. */
 function rwGeocodeStopsNear(destName, rawStops){
-  var jobs = (rawStops||[]).map(function(s){
-    var q=(s.name?s.name+', ':'')+destName;
-    return gcode(q).then(function(g){ return g?{day:s.day,name:s.name||destName,note:s.note||'',lat:g.lat,lon:g.lon}:null; });
+  var raw=rawStops||[], circuit=new Set(raw.map(s=>s.city||destName)).size>1;
+  var valid=p=>p&&Number.isFinite(p.lat)&&Number.isFinite(p.lon)&&Math.abs(p.lat)<=90&&Math.abs(p.lon)<=180;
+  var jobs = raw.map(function(s){
+    if(valid(s))return Promise.resolve({day:s.day,name:s.name,note:s.note||'',lat:s.lat,lon:s.lon});
+    var city=s.city||destName,q=s.name===city?city:(s.name?s.name+', ':'')+city;
+    return gcode(q).then(async function(g){
+      if(!valid(g))return null;
+      if(circuit){const c=await gcode(city);if(!valid(c)||rwHaversine(c.lat,c.lon,g.lat,g.lon)>=222)return null;}
+      return {day:s.day,name:s.name||destName,note:s.note||'',lat:g.lat,lon:g.lon};
+    }).catch(()=>null);
   });
   return Promise.all([gcode(destName), Promise.all(jobs)]).then(function(res){
-    var center=res[0], pins=(res[1]||[]).filter(Boolean);
+    var center=res[0], pins=(res[1]||[]).filter(Boolean);if(circuit&&pins.length)return {center:center||pins[0],pins:pins};if(!center&&pins.length&&raw.every(valid))center=pins[0];
     if(!center) return {center:null, pins:[]}; /* no valid centroid to sanity-check against — reject all pins rather than trust them unvalidated */
     /* drop pins absurdly far from the destination centroid — true radial distance (haversine),
        not a lat/lon box, so a diagonal point isn't wrongly let through (a box check would allow
@@ -232,8 +239,8 @@ function rwPaintTripMap(destName, data){
   rwTripMapTypeChips();
 
   if(!pins.length){
-    el('tripMapSub').textContent='Mapped '+destName;
-    el('tripMapList').innerHTML='<div class="note" style="padding:10px">Showing '+esc2(destName)+'. Plan a full itinerary to map every day\u2019s stops in order.</div>';
+    window._tripPins=[];el('tripMapSub').textContent=center?'Destination overview · '+destName:'Location could not be resolved · '+destName;
+    el('tripMapList').innerHTML='<div class="note" style="padding:10px">No verified stop coordinates yet for '+esc2(destName)+'. The map is an overview, not a mapped route.</div>';
     if(center){ var m=L.marker([center.lat,center.lon]).addTo(_tripMap); _tripLayers.push(m); _tripMap.setView([center.lat,center.lon],11); }
     return;
   }
@@ -250,7 +257,7 @@ function rwPaintTripMap(destName, data){
   if(latlngs.length>1){ var line=L.polyline(latlngs,{color:'#E8BA6C',weight:3,opacity:.6,dashArray:'6,8'}).addTo(_tripMap); _tripLayers.push(line); }
   try{ _tripMap.fitBounds(bounds,{padding:[40,40],maxZoom:13}); }catch(e){ /* best-effort, ignore */ }
 
-  el('tripMapSub').textContent=pins.length+' stops across '+destName+' \u2014 tap a pin or a stop below.';
+  el('tripMapSub').textContent=pins.length+' mapped stops · dashed lines show visit order, not driving directions.';
   /* side list, grouped by day */
   var byDay={}; pins.forEach(function(p,i){ (byDay[p.day||1]=byDay[p.day||1]||[]).push({p:p,i:i}); });
   var html='';

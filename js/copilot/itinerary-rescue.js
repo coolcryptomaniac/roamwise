@@ -54,9 +54,37 @@
  function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
  function key(name){return String(name||'').toLowerCase().normalize('NFKD').replace(/[^a-z0-9]/g,'');}
  function canonical(name){let k=key(name);return k==='bangalore'?'bengaluru':k==='kasardevi'?'almora':k==='almorah'?'almora':k;}
+ // Town-level coordinates are approximate map anchors, not navigation endpoints.
+ const TOWN_ANCHORS={almora:[29.597,79.659],nainital:[29.38,79.46],ranikhet:[29.643,79.432],bhimtal:[29.346,79.55],jaipur:[26.912,75.787]};
+ const EXTRA={
+  jaipur:['Amber Fort','Panna Meena ka Kund','City Palace','Jantar Mantar','Hawa Mahal','Albert Hall Museum','Nahargarh Fort','Gaitor cenotaphs','Jal Mahal viewpoint','Johari Bazaar'],
+  almora:['Lala Bazaar','Nanda Devi Temple','Kasar Devi Temple','Chitai Golu Devta Temple','Katarmal Sun Temple','Binsar landscape'],
+  nainital:['Naini Lake','Naina Devi Temple','Mall Road','Snow View area','Governor’s House area','Naina Peak area'],
+  ranikhet:['Chaubatia gardens','Jhoola Devi Temple','Ranikhet town','Upat area','Majkhali'],
+  bhimtal:['Bhimtal Lake','Bhimeshwar Temple area','Sattal','Naukuchiatal','Bhimtal town']
+ };
+ function routePlaces(raw){
+   const q=' '+String(raw||'').normalize('NFKC').toLowerCase().replace(/[^\p{L}\p{M}\p{N}]+/gu,' ').trim()+' ';
+   const rows=Array.isArray(root.RW_LOCAL_ATLAS)?root.RW_LOCAL_ATLAS:[];
+   const fallback=['Almora','Nainital','Ranikhet','Bhimtal','Jaipur'].map(name=>({name,id:name.toLowerCase(),country:'India'}));
+   const candidates=new Map([...fallback,...rows].map(d=>[d.id,d]));
+   let matches=[];
+   for(const d of candidates.values()){
+     const aliases=[d.name,d.id.replace(/-/g,' '),...(d.aliases||[])];
+     for(const a of aliases){
+       const v=String(a||'').normalize('NFKC').toLowerCase().replace(/[^\p{L}\p{M}\p{N}]+/gu,' ').trim();
+       const index=v.length>=3?q.indexOf(' '+v+' '):-1;
+       if(index>=0)matches.push({d,index,length:v.length});
+     }
+   }
+   matches.sort((a,b)=>a.index-b.index||b.length-a.length);
+   const out=[],seen=new Set();let end=-1;
+   for(const m of matches){if(m.index<end||seen.has(m.d.id))continue;out.push(m.d);seen.add(m.d.id);end=m.index+m.length+1;}
+   return out;
+ }
  function isPlan(raw,intents){
   const t=String(raw||'').trim(),p=intents||{};
-  if(!t||t.length>350||p.smalltalk||p._country||p._state||p._eventTrip||p._route)return null;
+  if(!t||t.length>350||p.smalltalk||p._country||p._state||p._eventTrip)return null;
   if(/\b(?:refund|pay|buy|book|booking status|visa|passport|schedule of flights|ticket|reservation|how much is|price of|cost of|emergency|ambulance)\b|रिफंड|भुगतान|बुकिंग का स्टेटस/i.test(t))return null;
   let explicitDays=Number(p.days);
   if(!Number.isInteger(explicitDays)||explicitDays<1||explicitDays>30){
@@ -73,7 +101,12 @@
     || /(?:\d{1,2}|दस|पांच|तीन|सात)\s*दिन\s*(?:के\s*लिए|की\s*यात्रा|में)/.test(t);
   if(!planWord&&!durationVisit)return null;
   if(!planWord&&/\b(?:hotel|room|stay|hostel|homestay|rent|price|rate|availability|flight|train|bus)\b/i.test(t))return null;
-  let dest=String(p.dest||'').trim();
+  const places=routePlaces(t);
+  if(p._route&&places.length<2)return null;
+  let dest=places.length===1?places[0].name:String(p.dest||'').trim();
+  if(places.length>1){
+    return {dest:places.map(d=>d.name).join(' → '),places,days:explicitDays,budget:Number(p.budget)||null,vibe:Array.isArray(p.vibe)?p.vibe:[],raw:t};
+  }
   // Recognize a few common regional-script aliases; the full reviewed Hindi
   // lexicon and worldwide geocoder handle other supported locations.
   const regional={'ಬೆಂಗಳೂರು':'Bengaluru','ಬೆಂಗಳೂರಿನಲ್ಲಿ':'Bengaluru','ಅಲ್ಮೋರಾ':'Almora','ರಿಷಿಕೇಶ':'Rishikesh'};
@@ -92,7 +125,7 @@
   // Explicit destination has priority. A follow-up '10 days there' can inherit
   // only if the parser recorded _inherited, not from a stale unrelated memory.
   if(p._inherited&&!/\b(?:there|here|that place|same|it)\b|वहाँ|वहा/i.test(t))return null;
-  return {dest,days:explicitDays,budget:Number(p.budget)||null,vibe:Array.isArray(p.vibe)?p.vibe:[],raw:t};
+  return {dest,days:explicitDays,budget:Number(p.budget)||null,vibe:Array.isArray(p.vibe)?p.vibe:[],raw:t,...(places.length===1?{places}: {})};
  }
  function genericDays(plan,db){
    // For places without a reviewed place-specific pack, be explicit about
@@ -112,39 +145,66 @@
      ['Departure preparations','Choose a nearby attraction if time permits','Pack and check onward transport','Leave adequate transfer time']
    ];
    return Array.from({length:plan.days},(_,i)=>{
-     const t=themes[i%themes.length],suggestion=gems[i%gems.length],meal=food[i%food.length];
+     const t=themes[i%themes.length],suggestion=gems[i],meal=food[i%food.length];
      return {title:t[0],morning:suggestion?'Consider '+suggestion+' (confirm current access)':t[1],
        afternoon:t[2],evening:meal?'Try '+meal+' where available':t[3]};
    });
  }
  function render(plan,place,db,preset){
-   const norm=canonical(plan.dest),seed=SEEDS[norm],rows=seed?Array.from({length:plan.days},(_,i)=>seed[i%seed.length]):genericDays(plan,db);
-   const destination=place&&place.name&&place.lowConf!==true?place.name:plan.dest;
+   const norm=canonical(plan.dest),seed=SEEDS[norm],route=plan.places||[{id:norm,name:plan.dest,country:place?.country||db?.country||''}];
+   const rows=[],stops=[];
+   const add=(day,base,local,first,last,source)=>{
+     const id=canonical(base.name), names=EXTRA[id]||source?.highlights||[];
+     const attraction=names[local];
+     const title=first?'Arrive in '+base.name:last?'Departure from '+base.name:attraction||'Flexible day in '+base.name;
+     const r={title,morning:attraction?'Explore '+attraction+' (check access before leaving)':first?'Settle in and orient yourself':'Choose an unvisited local attraction or rest',afternoon:first&&day>1?'Transfer from the previous base; allow time for hill roads and check-in':attraction?'Explore nearby streets or a local cultural stop; leave travel time':'Enjoy a slow local walk or a confirmed experience',evening:'Try local cuisine; keep an optional evening free'};
+     rows.push({...r,base:base.name,attraction});
+     if(first||route.length===1&&attraction){
+       const point=TOWN_ANCHORS[id];
+       stops.push({day,name:route.length===1&&attraction?attraction:base.name,city:base.name,note:route.length===1&&attraction?'Suggested attraction':'Approximate town base',...(route.length>1&&point?{lat:point[0],lon:point[1]}:{})});
+     }
+   };
+   if(route.length>1){
+     if(route.length>plan.days)return '<section class="tk-card"><div class="tk-sec">You requested '+route.length+' destinations in '+plan.days+' days. Please choose more days or fewer places so that each base has time for travel and rest.</div></section>';
+     let day=0;
+     route.forEach((d,i)=>{const count=Math.floor(plan.days/route.length)+(i<plan.days%route.length?1:0);for(let j=0;j<count;j++){day++;add(day,d,j,j===0,day===plan.days,d);}});
+   }else if(seed){
+     for(let i=0;i<plan.days;i++){if(i<seed.length){const d=seed[i];rows.push({title:d[0],morning:d[1],afternoon:d[2],evening:d[3],base:plan.dest});}else add(i+1,route[0],i,false,i===plan.days-1,route[0]);}
+   }else if(EXTRA[norm]||route[0].highlights){
+     for(let i=0;i<plan.days;i++)add(i+1,route[0],i,i===0,i===plan.days-1,route[0]);
+   }else rows.push(...genericDays(plan,db));
+   if(!stops.length){
+     const point=TOWN_ANCHORS[norm];
+     if(point)stops.push({day:1,name:plan.dest,city:plan.dest,note:'Approximate town base',lat:point[0],lon:point[1]});
+     else stops.push({day:1,name:plan.dest,city:plan.dest,note:'Destination base'});
+   }
+   const destination=route.length>1?plan.dest:place&&place.name&&place.lowConf!==true?place.name:plan.dest;
    const country=place&&place.country?place.country:(db&&db.country)||'';
-   let out='<section class="tk-card rw-tusk-itinerary" aria-label="'+esc(plan.days)+' day itinerary for '+esc(destination)+'">'
+   let out='<section class="tk-card rw-tusk-itinerary" aria-label="'+esc(plan.days)+' day itinerary for '+esc(destination)+'" data-rw-map-name="'+esc(route[0].name)+'" data-rw-map-stops="'+esc(JSON.stringify(stops))+'">'
     +'<div class="tk-head"><div class="tk-place">🗺️ '+esc(plan.days)+'-day '+esc(destination)+' itinerary</div>'
     +'<div class="tk-meta">'+esc(country?country+' · ':'')+'Day-by-day draft · works when hosted AI is unavailable</div></div>'
     +'<div class="tk-sec" style="font-size:12.5px;line-height:1.55">'
     +'<p>Here is a <b>'+esc(plan.days)+'-day</b> plan, paced for a realistic visit. Named sights are suggestions, not confirmed entry or reservations.'
     +(plan.budget?' Your stated overall budget is ₹'+Math.round(plan.budget).toLocaleString('en-IN')+'; prices need an exact-date quote.':'')+'</p>';
    if(!seed)out+='<p style="color:#f3cb8a">This destination has no fully reviewed day-wise pack yet; the outline uses existing RoamWise place suggestions and flags unverified activities rather than inventing attraction names.</p>';
-   out+='<div style="display:grid;gap:9px">';
+   if(route.length>1)out+='<p class="rw-route-overview"><b>Suggested circuit:</b> '+esc(route.map(d=>d.name).join(' → '))+' · '+plan.days+' days. Transfer days included; order follows your request, not a verified road optimization.</p>';
+   out+='<div class="rw-itinerary-days" style="display:grid;gap:9px">';
    rows.forEach(function(day,i){
      const r=Array.isArray(day)?{title:day[0],morning:day[1],afternoon:day[2],evening:day[3]}:day;
-     let cycle=(seed&&i>=seed.length)?' · optional repeat with fresh activities':'';
-     out+='<details'+(i===0?' open':'')+' style="border:1px solid #6c6486;border-radius:12px;padding:9px 11px;background:#141b30">'
+     let cycle='';
+     out+='<details'+(i===0?' open':'')+' class="rw-itinerary-day" style="border:1px solid #6c6486;border-radius:12px;padding:9px 11px;background:#141b30">'
        +'<summary style="font-weight:750;cursor:pointer;color:#f6d597">Day '+(i+1)+' · '+esc(r.title)+esc(cycle)+'</summary>'
-       +'<div style="padding-top:8px;line-height:1.7">🌅 '+esc(r.morning)+'<br>☀️ '+esc(r.afternoon)+'<br>🌆 '+esc(r.evening)+'</div></details>';
+       +'<div class="rw-day-body"><small class="rw-day-base">'+esc(r.base||destination)+'</small><div><b>Morning</b><p>'+esc(r.morning)+'</p></div><div><b>Afternoon</b><p>'+esc(r.afternoon)+'</p></div><div><b>Evening</b><p>'+esc(r.evening)+'</p></div></div></details>';
    });
    out+='</div>';
-   const official=SOURCES[norm];
+   const official=route.length===1?SOURCES[norm]:null;
    if(official)out+='<p style="margin-top:12px">Attractions reference: <a href="'+esc(official)+'" target="_blank" rel="noopener noreferrer">Official tourism guide ↗</a></p>';
    if(preset&&preset.html&&/^https?:|^\//.test(preset.html)===false){
      // The preset can be a DIFFERENT itinerary length/region. State it plainly.
      out+='<p>Also available: <a href="'+esc('/itinerary-library/'+preset.html)+'" target="_blank" rel="noopener">'+esc(preset.days)+'-day prepared '+esc(preset.name)+' route ↗</a> (a separate example, not this '+esc(plan.days)+'-day plan).</p>';
    }
    out+='<p style="font-size:11px;color:#bcb8cd">Confirm opening days, tickets, weather, road conditions and accessibility before leaving. This is not live inventory.</p>'
-      +'<div class="tk-chips"><button class="tk-chip" type="button" data-rw-itinerary-place="'+esc(destination)+'" data-rw-itinerary-days="'+plan.days+'">Open full trip planner</button></div>'
+      +(route.length===1?'<div class="tk-chips"><button class="tk-chip" type="button" data-rw-itinerary-place="'+esc(destination)+'" data-rw-itinerary-days="'+plan.days+'">Open full trip planner</button></div>':'')
       +'</div></section>';
    return out;
  }
@@ -160,12 +220,17 @@
      if(phase<phases.length-1)phase++;
    };
    loading();
+   if(plan.places?.length>1){
+     intents.multi=true;intents.dest='';intents._rwCircuit=true;
+     Promise.resolve().then(()=>{alive=false;cpFinish(bubble,render(plan,null,null,null),intents,raw);});
+     return true;
+   }
    const timer=setInterval(loading,850);
    const knownKey=canonical(plan.dest),isKnown=!!SEEDS[knownKey];
    // Only trust a recognised place, not a generic word the regex guessed.
    let known=false,db=null;
    try{db=typeof cpDbFind==='function'?cpDbFind(plan.dest):null;}catch(e){}
-   try{known=!!(isKnown||db||(typeof rwKnownMap==='function'&&rwKnownMap()[plan.dest.toLowerCase()]));}catch(e){known=isKnown||!!db;}
+   try{known=!!(isKnown||db||plan.places?.length||EXTRA[knownKey]||(typeof rwKnownMap==='function'&&rwKnownMap()[plan.dest.toLowerCase()]));}catch(e){known=isKnown||!!db||!!plan.places?.length||!!EXTRA[knownKey];}
    const atlas=(root.RW_ATLAS&&root.RW_ATLAS.ready&&typeof root.rwAtlasFind==='function')?
      root.rwAtlasFind(plan.dest):null;
    const atlasPlace=atlas&&atlas.best&&!atlas.ambiguous?{
@@ -206,5 +271,5 @@
    const days=Number(target.getAttribute('data-rw-itinerary-days'));
    if(typeof cpGoPlan==='function'&&name&&Number.isInteger(days)&&days>=1&&days<=30)cpGoPlan(name,days);
  });
- root.RWTuskItinerary={intent:isPlan,render:render,reply:reply,seedNames:Object.keys(SEEDS)};
+ root.RWTuskItinerary={intent:isPlan,render:render,reply:reply,seedNames:Object.keys(SEEDS),routePlaces:routePlaces};
 })(window);

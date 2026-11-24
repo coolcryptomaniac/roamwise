@@ -107,3 +107,33 @@ html[data-rw-design="himalayan-saanjh"] #copilotHero .tusk-title b{letter-spacin
 .rw-world-search-result{min-height:44px;max-width:100%;padding:8px 12px;overflow-wrap:anywhere;border:1px solid #b49dc27a;border-radius:12px;color:#f6e8e1;background:#282038;font:700 12px/1.45 system-ui,sans-serif;text-align:left;cursor:pointer}
 .rw-world-search :is(input,button):focus-visible{outline:3px solid #f3dcb3;outline-offset:3px}
 @media(max-width:480px){.rw-world-search>button{padding:10px 13px}.rw-world-search input{flex-basis:170px}}
+
+/* Repair narrow-card and map layouts across desktop-mode mobile, tablets and TVs. */
+#copilotHero,#heroLog,#heroLog .tk-card,#heroLog .tk-sec,#heroLog .rw-tusk-itinerary{min-width:0;max-width:100%;box-sizing:border-box;overflow-wrap:anywhere}
+#heroLog .rw-tusk-itinerary{width:100%;container-type:inline-size;font-size:clamp(14px,1.1vw,18px)}
+#heroLog .rw-tusk-itinerary .tk-sec{display:block!important;padding:clamp(12px,2vw,22px)!important;font-size:inherit!important;line-height:1.65!important}
+.rw-itinerary-days{grid-template-columns:minmax(0,1fr);gap:12px!important}
+.rw-tusk-itinerary[data-rw-itinerary-style="cards"] .rw-itinerary-days{grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr))}
+.rw-itinerary-day{min-width:0;padding:14px!important}
+.rw-itinerary-day summary{font-size:1.05em;min-height:32px}
+.rw-day-body{display:grid;gap:9px;padding-top:9px}
+.rw-day-body p{margin:2px 0 0;font-size:inherit}
+.rw-day-body b{font-size:.78em;text-transform:uppercase;letter-spacing:.06em}
+.rw-day-base{opacity:.8;font-size:.85em}
+.rw-itinerary-cover{display:block;width:100%;aspect-ratio:16/9;max-height:320px;object-fit:cover;border-radius:12px;margin-bottom:12px}
+.rw-tusk-itinerary[data-rw-itinerary-style="editorial"]{background:#f8f7f4!important;color:#161616!important;border-color:#aaa!important}
+.rw-tusk-itinerary[data-rw-itinerary-style="editorial"] .tk-head{background:#f0efeb!important;color:#171717!important}
+.rw-tusk-itinerary[data-rw-itinerary-style="editorial"] :is(.tk-place,.tk-meta,.tk-sec,p,small,summary,b,a){color:#181818!important}
+.rw-tusk-itinerary[data-rw-itinerary-style="editorial"] .rw-itinerary-day{background:white!important;border-color:#c9c9c9!important}
+.rw-tusk-itinerary[data-rw-itinerary-style="editorial"] .rw-itinerary-cover{filter:grayscale(1)}
+.rw-tusk-itinerary[data-rw-itinerary-style="cinematic"] .rw-itinerary-day{background:linear-gradient(140deg,#1e2a40,#302039)!important;border-color:#907ca0!important}
+.rw-tusk-itinerary[data-rw-itinerary-style="cinematic"] .rw-day-body{padding:16px 0}
+#tripMapSection #tripMapTypes{flex:0 0 100%!important;align-items:center!important;align-self:flex-start!important;height:auto!important}
+#tripMapSection #tripMapTypes button{min-height:44px;height:auto!important;flex:0 0 auto}
+#tripMapSection #tripMap{min-width:0;max-width:100%;height:clamp(280px,56vh,650px)!important}
+#tripMapSection #tripMapList{min-width:0;max-width:100%}
+#heroLog .rw-rail{flex-wrap:wrap;max-width:100%;overflow-wrap:anywhere}
+#heroLog img{max-width:100%;height:auto}
+html[data-rw-design="himalayan-saanjh"] body.shell[data-view="home"] :is(#rwQuick,#brief){display:none!important}
+@media(max-width:700px){#tripMapSection #tripMap,#tripMapSection #tripMapList{flex:0 0 100%!important;width:100%}#tripMapSection #tripMapList{max-height:320px!important}#heroLog .rw-itinerary-days{grid-template-columns:minmax(0,1fr)!important}}
+@media(min-width:1500px){body.shell[data-view="home"] #copilotHero,body.shell[data-view="copilot"] #copilotHero{width:min(calc(100% - 48px),1120px)}#heroLog .rw-itinerary-day{font-size:17px}}
