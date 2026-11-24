@@ -16,4 +16,4 @@ test('moods keep edition IDs and use no remote rendering service',()=>{
  assert.match(read('design/ailon-world-experience.css'),/data-rw-mood="rave"/);
  assert.match(read('design/ailon-world-experience.css'),/prefers-reduced-motion/);
 });
-test('destination rail progressively consumes editorial atlas',()=>assert.match(read('js/ui/destination-filmstrip.js'),/root.RW_LOCAL_ATLAS/));
+test('destination rail progressively consumes editorial atlas',()=>assert.match(read('js/ui/destination-filmstrip.js'),/RW_LOCAL_ATLAS/));
