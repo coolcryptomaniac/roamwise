@@ -12,16 +12,6 @@
    exact queries that must be right, so the best-known travel meaning wins. */
 var RW_PLACE_OVERRIDES = {
   /* Additional small Indian destinations: geocoders may omit or mis-rank them. */
-  chakrata:{name:'Chakrata',admin:'Dehradun, Uttarakhand',lat:30.7049,lon:77.8635},
-  kanatal:{name:'Kanatal',admin:'Tehri Garhwal, Uttarakhand',lat:30.4108,lon:78.3478},
-  dhanaulti:{name:'Dhanaulti',admin:'Tehri Garhwal, Uttarakhand',lat:30.406,lon:78.233},
-  mukteshwar:{name:'Mukteshwar',admin:'Nainital, Uttarakhand',lat:29.4723,lon:79.6479},
-  binsar:{name:'Binsar',admin:'Almora, Uttarakhand',lat:29.7036,lon:79.7589},
-  kausani:{name:'Kausani',admin:'Bageshwar, Uttarakhand',lat:29.8437,lon:79.6033},
-  chopta:{name:'Chopta',admin:'Rudraprayag, Uttarakhand',lat:30.4903,lon:79.217},
-  harsil:{name:'Harsil',admin:'Uttarkashi, Uttarakhand',lat:31.035,lon:78.746},
-  sankri:{name:'Sankri',admin:'Uttarkashi, Uttarakhand',lat:31.08,lon:78.18},
-  khirsu:{name:'Khirsu',admin:'Pauri Garhwal, Uttarakhand',lat:30.1685,lon:78.8654},
   landour:{name:'Landour',admin:'Dehradun, Uttarakhand',lat:30.4615,lon:78.08},
   pangot:{name:'Pangot',admin:'Nainital, Uttarakhand',lat:29.422,lon:79.439},
   jibhi:{name:'Jibhi',admin:'Kullu, Himachal Pradesh',lat:31.589,lon:77.352},

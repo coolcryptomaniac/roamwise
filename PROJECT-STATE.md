@@ -204,7 +204,7 @@ curl -sL -o bundletool.jar https://github.com/google/bundletool/releases/downloa
 
 # 4. Generate keystore ONLY if truly lost AND nothing published yet:
 keytool -genkeypair -v -keystore build/rw.keystore -alias roamwise -keyalg RSA -keysize 2048 \
-  -validity 10950 -storepass roamwise2026 -keypass roamwise2026 \
+  -validity 10950 -storepass "$KEYSTORE_PASSWORD" -keypass "$KEYSTORE_PASSWORD" \
   -dname "CN=Mohit Pandey, OU=GYANVERSE, O=RoamWise, L=Almora, ST=Uttarakhand, C=IN"
 ```
 **AndroidManifest.xml MUST include** `<uses-sdk android:minSdkVersion="24" android:targetSdkVersion="34" />` — omitting this caused a real bug once (Android blocked install as "incompatible/unsafe").

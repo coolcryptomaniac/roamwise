@@ -40,9 +40,9 @@ Android SDK (or use a free cloud builder — see bottom).
      signingConfigs {
        release {
          storeFile file('rw.keystore')
-         storePassword 'roamwise2026'
+         storePassword System.getenv('KEYSTORE_PASSWORD')
          keyAlias 'roamwise'
-         keyPassword 'roamwise2026'
+         keyPassword System.getenv('KEYSTORE_PASSWORD')
        }
      }
      buildTypes { release { signingConfig signingConfigs.release } }
