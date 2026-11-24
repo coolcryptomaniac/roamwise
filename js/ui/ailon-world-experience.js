@@ -242,8 +242,8 @@
         mood.setAttribute('aria-label','Itinerary visual theme');
         for(const [v,label] of [['default','Original'],['rave','Raveverse'],['odyssey','Odyssey'],['aipan','Aipan']]){const option=make('option','',label);option.value=v;mood.appendChild(option);}
         mood.value=document.documentElement.getAttribute('data-rw-mood')||'default';
-        card.dataset.rwMood=mood.value;
-        mood.addEventListener('change',()=>{card.dataset.rwMood=mood.value;});
+        card.setAttribute('data-rw-mood',mood.value);
+        mood.addEventListener('change',()=>{card.setAttribute('data-rw-mood',mood.value);});
         bar.appendChild(mood);
         card.prepend(bar);apply(card,selected());
       }));

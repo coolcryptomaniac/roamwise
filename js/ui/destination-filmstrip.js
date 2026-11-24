@@ -96,7 +96,8 @@
    var rootNode=document.getElementById('rwDestinationsRail'),track=document.getElementById('rwDestinationTrack');
    if(!rootNode||!track||rootNode.dataset.ready==='1')return;
    rootNode.dataset.ready='1';
-   places=uniqueDestinations(LOCAL.concat(Array.isArray(root.RW_LOCAL_ATLAS)?root.RW_LOCAL_ATLAS:[],typeof DB!=='undefined'?DB:[]));
+   var atlas=/** @type {any} */(root).RW_LOCAL_ATLAS;
+   places=uniqueDestinations(LOCAL.concat(Array.isArray(atlas)?atlas:[],typeof DB!=='undefined'?DB:[]));
    var status=document.getElementById('rwDestinationCount');
    if(!places.length){rootNode.hidden=true;return;}
    function append(){
