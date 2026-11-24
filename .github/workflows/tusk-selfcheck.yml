@@ -21,6 +21,10 @@ on:
       - 'tools/ai-ops/tusk-*'
       - 'worker/handlers/tusk-report.js'
       - 'tests/tusk-*.test.js'
+      - 'tests/tusk-brain-eval.test.mjs'
+      - 'worker/data/tusk-*-atlas.js'
+      - 'worker/lib/tusk-geographic-brain.js'
+      - 'evals/tusk-brain-eval.mjs'
   pull_request:
     paths:
       - 'js/copilot/**'
@@ -28,6 +32,10 @@ on:
       - 'tools/ai-ops/tusk-*'
       - 'worker/handlers/tusk-report.js'
       - 'tests/tusk-*.test.js'
+      - 'tests/tusk-brain-eval.test.mjs'
+      - 'worker/data/tusk-*-atlas.js'
+      - 'worker/lib/tusk-geographic-brain.js'
+      - 'evals/tusk-brain-eval.mjs'
 
 permissions:
   contents: read

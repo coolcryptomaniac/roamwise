@@ -31,7 +31,14 @@
   var REGION_WORDS={
     lansdowne:/\b(lansdowne|lansdown|pauri|bansi|ghildiyal)\b|लैंसडाउन|पौड़ी/i,
     himachal:/\b(himachal|himanchal|manali|kullu|banjar|tirthan|jibhi|kasol|shimla|dalhousie|dharamshala|kinnaur|spiti|kalpa|chitkul)\b|हिमाचल|मनाली|कुल्लू|तीर्थन|जीभी|शिमला/i,
-    almora:/\b(almora|kasar devi|binsar|ranikhet|kausani|kumaon|haldwani)\b|अल्मोड़ा|अल्मोड़ा|बिनसर|रानीखेत|कौसानी|कुमाऊँ|हल्द्वानी/i
+    almora:/\b(almora|kasar devi|binsar|ranikhet|kausani|kumaon|haldwani|dwarahat|dunagiri|sitalakhet|someshwar)\b|अल्मोड़ा|अल्मोड़ा|बिनसर|रानीखेत|कौसानी|कुमाऊँ|हल्द्वानी/i
+    ,goa:/\b(goa|panaji|margao|mapusa|palolem|calangute)\b|गोवा/i
+    ,corbett:/\b(corbett|ramnagar|dhikuli)\b|कॉर्बेट/i
+    ,gir:/\b(gir|sasan gir|junagadh)\b/i
+    ,delhi:/\b(delhi|new delhi|gurugram|noida|delhi ncr)\b|दिल्ली/i
+    ,maharashtra:/\b(maharashtra|mumbai|pune|nashik|nagpur|lonavala|alibaug)\b|महाराष्ट्र/i
+    ,varanasi:/\b(varanasi|banaras|kashi|sarnath)\b|वाराणसी/i
+    ,coorg:/\b(coorg|kodagu|madikeri)\b/i
   };
   function regionFor(text){
     var q=String(text||'');
@@ -52,7 +59,7 @@
      Firestore entries as active stays. */
   function visiblePartners(){
     var live=root && root.RW_PARTNERS, seed=root && root.RW_PARTNER_SEED;
-    var list=Array.isArray(live)&&live.length?live:(Array.isArray(seed)?seed:[]);
+    var list=Array.isArray(live)?live:(Array.isArray(seed)?seed:[]);
     return list.filter(function(p){
       if(!p || p.listingReady!==true)return false;
       if(typeof root.rwStayPublicEligible==='function')return !!root.rwStayPublicEligible(p);
@@ -60,7 +67,7 @@
     });
   }
   function asCard(p,region){
-    var isEnquiry=p.enquiryOnly===true||p.verified==='founder-approved';
+    var isEnquiry=p.enquiryOnly===true||p.verified==='founder-approved'||p.verified==='self-listed';
     var nomad=p.nomad && p.nomad.enabled;
     var category=nomad?'nomad':'stay';
     var name=String(p.name||'').slice(0,120);
@@ -70,7 +77,7 @@
       description:String((p.area||p.zone||'')+' · '+(nomad?'workation option':p.verified==='self-listed'?'new listing, enquiry only'+(p.segmentLabels&&p.segmentLabels.length?' · '+p.segmentLabels.slice(0,2).join(', '):''):isEnquiry?'founder-introduced enquiry':'RoamWise stay')).slice(0,180),
       href:p.id==='p_corbett_jungle_view'?'/stays/lansdowne/':p.id==='p_woodbook_devine'?'/stays/tirthan-valley/':p.id==='p_big_bro_hotel'?'/workation/almora/':'/partners/',
       image:image?'/'+image.replace(/^\//,''):null,
-      status:isEnquiry?'Enquiry only · confirm agreement and rates':nomad?'Confirm work facilities, price and dates':'Signed partner · confirm availability',
+      status:isEnquiry||p.verified==='self-listed'?'Enquiry only · confirm agreement and rates':nomad?'Confirm work facilities, price and dates':'Signed partner · confirm availability',
       nomad:p.nomad||null, verified:p.verified, area:String(p.area||'').slice(0,100)};
   }
   var PUBLIC_ARTISTS=ARTISTS.slice();
@@ -80,6 +87,7 @@
     json.artists.forEach(function(a){
       if(!a || !a.name || !/^\/creators\/[a-z0-9\/-]+(?:\.html)?$/i.test(String(a.page||'')))return;
       var region=regionFor((a.state||'')+' '+(a.city||''));
+      if(!region&&a.city)region='place:'+String(a.city).toLowerCase().trim();
       if(!region)return;
       var photo=a.photo&&a.photo.src;
       if(photo&&!/^\/(?:assets|images)\//.test(photo))photo=null;
@@ -87,7 +95,7 @@
         category:'artist',region:region,description:'Published local artist · view artwork and collaboration options',
         href:a.page,image:photo||null,status:'Published artist profile · contact directly'});
     });
-    if(incoming.length)PUBLIC_ARTISTS=incoming;
+    PUBLIC_ARTISTS=incoming;
     return incoming.length;
   }
   function refreshArtists(){
@@ -132,7 +140,12 @@
   function picks(text,intents){
     var flags=intentFor(text);
     if(flags.exclude)return [];
-    var region=regionFor((intents&&intents.dest||'')+' '+text);
+    var dest=intents&&intents.dest||'';
+    var explicit=typeof rwLocalAtlasRecord==='function'?rwLocalAtlasRecord(text,intents):null;
+    if(intents&&(intents.multi||intents._route||intents._weakDest||intents._needsPlaceVerification))return [];
+    if(explicit)dest=explicit.name;
+    var region=regionFor(dest)||regionFor(text);
+    if(!region&&dest)region='place:'+String(dest).toLowerCase().trim();
     if(!region)return [];
     var tripIntent=/\b(travel|trip|visit|tour|itinerary|explore)\b|यात्रा|घूमना/i.test(String(text||''));
     var includePartner=flags.stay||flags.nomad||tripIntent||(!flags.culture);
@@ -141,7 +154,8 @@
     visiblePartners().forEach(function(p){
       var fallback=PARTNERS.find(function(k){return k.id===p.id;});
       var pRegion=regionFor((p.zone||'')+' '+(p.area||''))||(fallback&&fallback.region)||'';
-      if(pRegion!==region||!includePartner)return;
+      var exact=!!dest&&[p.zone,p.area,p.city].some(function(x){return x&&String(x).toLowerCase().trim()===String(dest).toLowerCase().trim();});
+      if((!exact&&pRegion!==region)||!includePartner)return;
       var nomad=(p.nomad&&p.nomad.enabled)||(fallback&&fallback.category==='nomad'&&!p.zone);
       if(flags.nomad && !nomad)return;
       var item=p.zone?asCard(p,region):fallback?Object.assign({},fallback):null;

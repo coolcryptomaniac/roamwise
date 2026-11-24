@@ -71,6 +71,14 @@
    }
    return [{id:'treks',type:'treks',title:'Verified treks and guides',subtitle:'Choose a departure and check operator approval, seats and price',price:'Price verified at operator checkout',buy:false}];
  }
+ function relatedShop(data,scope){
+   var name=String(scope||'').toLowerCase().trim();
+   var kumaon=/^(almora|kasar devi|binsar|ranikhet|kausani|haldwani|nainital|bhimtal|mukteshwar|kumaon|dwarahat|sitalakhet)$/i.test(name);
+   return (Array.isArray(data.products)?data.products:[]).filter(function(p){
+     var words=String(p.name+' '+(p.description||'')).toLowerCase();
+     return placeMatch(p.name,name)||(kumaon&&/\b(?:almora|kumaon|kumaoni|aipan)\b/i.test(words));
+   }).slice(0,2).map(function(p){return {id:p.id,type:'shop',title:p.name,subtitle:'Destination-inspired merchandise · not necessarily locally made',price:rupees(p.pricePaise)+' item price · delivery quoted later',picture:p.image,buy:!!data.checkoutOpen};});
+ }
  function dataFor(kind){return get(kind==='shop'?'/shop/catalogue':kind==='treks'?'/treks/catalog':'/stays/rates');}
  function cardMarkup(a){
    if(!safeId.test(String(a.id))||!['shop','package','stay','treks'].includes(a.type))return '';
@@ -102,7 +110,9 @@
      return get('/stays/rates').then(function(data){
        var list=items('packages',data,raw,scope).concat(items('stays',data,raw,scope));
        return list.length?railMarkup('destination',list):enquiry(scope,false);
-     }).catch(function(){return enquiry(scope,true);});
+     }).catch(function(){return enquiry(scope,true);}).then(function(staysHTML){
+       return get('/shop/catalogue').then(function(shop){return staysHTML+railMarkup('shop',relatedShop(shop,scope));}).catch(function(){return staysHTML;});
+     });
    }
    if(!kind)return Promise.resolve('');
    return dataFor(kind).then(function(d){var list=items(kind,d,raw,scope);return list.length?railMarkup(kind,list):scope&&(kind==='stays'||kind==='packages')?enquiry(scope,false):'';}).catch(function(){return '';});

@@ -64,10 +64,10 @@ const md = [
   ''
 ];
 if(rows.length){
-  md.push('### Reported answers (' + rows.reduce((n, r) => n + r.count, 0) + ' reports, ' + rows.length + ' distinct questions, ' + flagged + ' need a look)', '',
-    '| Question | Shown | Parsed place | Count | Verdict |', '|---|---|---|---|---|',
-    ...rows.map(r => '| ' + esc(r.q).slice(0, 140) + ' | ' + esc(r.kind) + ' | ' + esc(r.dest) + ' | ' + r.count + ' | ' + esc(r.verdict) + ' |'), '',
-    'Reports contain the question text only (emails and long numbers removed); no account or device information.');
+  // The repository is public: never publish user question text, even redacted.
+  const counts={};
+  for(const r of rows){const kind=/^unknown/.test(r.verdict)?'unknown-place':/fault|disagrees/.test(r.verdict)?'parser-regression':/rejected/.test(r.verdict)?'rejected-event':'other-review';counts[kind]=(counts[kind]||0)+r.count;}
+  md.push('### Aggregate reported answers (' + rows.reduce((n,r)=>n+r.count,0) + ' reports)', '', ...Object.entries(counts).map(([k,n])=>'- '+k+': '+n), '', 'No user text, location strings or identifiers are included. Review protected reports separately and add synthetic regression fixtures.');
 }else if(reportsPath){
   md.push('No thumbs-down reports in the last 30 days.');
 }

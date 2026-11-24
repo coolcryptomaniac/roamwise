@@ -57,3 +57,15 @@ test('text and animated voice render paths both integrated',()=>{
  assert.match(v,/RWConnectedDiscovery\.renderInto\(cards,raw,intents\)/);
  assert.ok(i.indexOf('connected-discovery.js')<i.indexOf('rich-reply.js'));
 });
+
+test('published artists from other regions and explicit destinations are discoverable',()=>{
+ const x=setup({RW_PARTNERS:[{id:'new-goa',name:'Goa Test Stay',zone:'Goa',verified:'signed',listingReady:true}]});
+ x.updatePublishedArtists({artists:[{id:'mumbai-art',name:'Test Artist',state:'Maharashtra',page:'/creators/test-artist/'}]});
+ assert.ok(x.picks('art in Mumbai',{dest:'Mumbai'}).some(p=>p.id==='mumbai-art'));
+ assert.ok(x.picks('stay in Goa',{dest:'Goa'}).some(p=>p.id==='new-goa'));
+ assert.ok(!x.picks('stay in Berlin',{dest:'Berlin'}).some(p=>p.id==='new-goa'));
+});
+test('an authoritative empty partner list never revives stale seed supply',()=>{
+ const x=setup({RW_PARTNERS:[]});
+ assert.ok(!x.picks('Himachal',{dest:'Himachal'}).some(p=>p.category==='stay'));
+});
