@@ -65,7 +65,7 @@ export async function handleEvents(request, env, ctx){
 
 export async function handleEventsRefresh(request, env){
   const url = new URL(request.url);
-  if(env.REFRESH_TOKEN && url.searchParams.get('token') !== env.REFRESH_TOKEN)
+  if(!env.REFRESH_TOKEN || url.searchParams.get('token') !== env.REFRESH_TOKEN)
     return json({ error: 'unauthorised' }, 401);
   return json(await refreshEvents(env));
 }

@@ -3,7 +3,7 @@
 (function () {
   'use strict';
 
-  var BUILD = 'rw-v173-ailon-guided';
+  var BUILD = 'rw-v174-chat-safety';
   var inApp = !!window.RW || (typeof window.PLAY_MODE !== 'undefined' && window.PLAY_MODE);
   if (inApp || !window.isSecureContext || !('serviceWorker' in navigator)) return;
 

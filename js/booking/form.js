@@ -129,7 +129,7 @@ function rwTuskPartnerStayHTML(raw,dest,now){
         label='Book & pay →';
       }
       if(route.type==='roamwise'){
-        href+='?text='+encodeURIComponent(rwBookingText(p,{checkIn:dates&&dates.checkIn,checkOut:dates&&dates.checkOut,guests:guests}));
+        href+='?text='+encodeURIComponent(rwBookingRequestText(p,{checkIn:dates&&dates.checkIn,checkOut:dates&&dates.checkOut,guests:guests}));
       }
       return '<div style="padding:12px 0;border-bottom:1px solid var(--b2)"><b>'+esc2(p.name)+'</b>'
         +'<div class="rw-note">'+esc2(p.area||p.zone||'')+' · '+(p.enquiryOnly?(p.verified==='self-listed'?'New on RoamWise · enquiry only':'Founder introduced · enquiry only'):'Signed partner')+'</div>'
