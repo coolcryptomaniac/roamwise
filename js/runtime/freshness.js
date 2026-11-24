@@ -3,7 +3,7 @@
 (function () {
   'use strict';
 
-  var BUILD = 'rw-v169-compact-ailon-mobile';
+  var BUILD = 'rw-v170-rich-destination-atlas';
   var inApp = !!window.RW || (typeof window.PLAY_MODE !== 'undefined' && window.PLAY_MODE);
   if (inApp || !window.isSecureContext || !('serviceWorker' in navigator)) return;
 

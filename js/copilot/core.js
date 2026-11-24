@@ -961,6 +961,7 @@ function copilotSend(fromHero){
        guide for anywhere on Earth, and only then admit it needs a key. This is
        what turned "generic answers" into real ones. */
     if(intents.smalltalk){ cpFinish(thinking, tkSmalltalk(intents.smalltalk), intents, t); return; }
+    if(typeof rwLocalAtlasReply==='function'&&rwLocalAtlasReply(thinking,intents,t,true))return;
     if(intents._country || intents._state){ cpFinish(thinking, '', intents, t); return; }
     var kb = intents._country ? null : cpSmartAnswer(t);
     var place = intents.dest;

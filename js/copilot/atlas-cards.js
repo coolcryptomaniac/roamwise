@@ -41,7 +41,8 @@ function rwAtlasAnswerHTML(q,res){
 /* Deterministic guide and booking scope: no AI key or external lookup required.
  * Prefer an explicitly mentioned place; never silently use the previous city. */
 function rwLocalAtlasRecord(raw,intents){
-  var rows=Array.isArray(window.RW_LOCAL_ATLAS)?window.RW_LOCAL_ATLAS:[];
+  var root=/** @type {any} */(window);
+  var rows=Array.isArray(root.RW_LOCAL_ATLAS)?root.RW_LOCAL_ATLAS:[];
   var norm=function(s){return String(s||'').normalize('NFKC').toLowerCase().replace(/[^\p{L}\p{N}]+/gu,' ').trim();};
   var q=norm(raw);
   if(!q||q.length>180||intents&&(intents.multi||intents._route||intents._country&&!intents.dest))return null;
@@ -75,19 +76,24 @@ function rwLocalAtlasSimple(raw,record){
 function rwLocalAtlasHTML(record){
   var d=record;
   var html=rwAtlasAnswerHTML(d.name,{abs:d.summary,hits:[{u:d.source}],atlas:{name:d.name,region:d.region,status:d.status,itinerary:d.itinerary,food:d.food,people:d.people,highlights:d.highlights,facts:d.facts}});
-  var dest=encodeURIComponent(d.name),safe=esc2(d.name);
-  var media=window.RW_DEST_MEDIA&&window.RW_DEST_MEDIA[d.id];
+  var dest=encodeURIComponent(d.id==='coorg'?'Coorg':d.name),safe=esc2(d.name);
+  var root=/** @type {any} */(window);
+  var media=root.RW_DEST_MEDIA&&root.RW_DEST_MEDIA[d.id];
   var art='';
   if(media&&media.status==='published'&&['owned','licensed','public-domain'].includes(media.rightsStatus)&&typeof media.licenseProof==='string'&&media.licenseProof.length>=12&&/^(?:\/(?:assets|media)\/[a-zA-Z0-9_./%-]+|https:\/\/assets\.roamwise\.co\.in\/media\/[a-zA-Z0-9_./%-]+)$/.test(media.src||'')&&!String(media.src).includes('..')){
     art='<img src="'+esc2(media.src)+'" alt="'+esc2(media.alt||safe)+'" loading="lazy" style="width:100%;max-height:200px;object-fit:cover;border-radius:12px" onerror="this.remove()">';
   }
-  return '<section class="tk-card rw-local-atlas" aria-label="Destination guide"><div class="tk-head" style="background:linear-gradient(135deg,#30304e,#203c43)"><div class="tk-place">'+safe+'</div><div class="tk-meta">RoamWise local guide · works without hosted AI</div></div><div class="tk-sec">'+art+
-    '<div class="tk-chips"><a class="tk-chip" href="/escapes/?zone='+dest+'#request-quote">Find or request stays</a><a class="tk-chip" href="/packages/">Browse RoamWise packages</a></div>'+
-    '<p style="font-size:11px;color:var(--t3)">Select dates, guests and budget for a tailored plan. Only matching live RoamWise listings can be purchased directly.</p></div></section>'+html;
+  var controls='<p style="font-size:11px;color:var(--t3)">RoamWise local guide · works without hosted AI.</p>'+art;
+  controls+='<div class="tk-lab">Plan or book</div><div class="tk-chips"><a class="tk-chip" href="/escapes/?zone='+dest+'#request-quote">Find or request stays</a><a class="tk-chip" href="/packages/">Browse RoamWise packages</a></div>';
+  if(typeof tkItinChips==='function')controls+=tkItinChips(d.id==='coorg'?'Coorg':d.name);
+  controls+='<p style="font-size:11px;color:var(--t3)">Select dates, guests and budget for a tailored plan. Only matching live RoamWise listings can be purchased directly.</p>';
+  return html.replace('tk-card rw-atlas-result','tk-card rw-atlas-result rw-local-atlas').replace('<div class="tk-sec">','<div class="tk-sec">'+controls);
 }
 function rwLocalAtlasReply(bubble,intents,raw,allowDetailed){
   var d=rwLocalAtlasRecord(raw,intents);
-  if(!rwLocalAtlasSafe(raw,d)||(!allowDetailed&&!rwLocalAtlasSimple(raw,d)))return false;
+  if(!rwLocalAtlasSafe(raw,d))return false;
+  var simple=rwLocalAtlasSimple(raw,d);
+  if(!simple&&(!allowDetailed||!/\b(?:plan|trip|itinerary|travel|visit|explore|stay|hotel|package|holiday|food|attractions|culture)\b|यात्रा|घूम|योजना|भोजन/i.test(raw)))return false;
   if(intents._eventTrip||intents._stayDesk||intents._offers||intents.smalltalk||intents._noGenericActions)return false;
   intents.dest=d.name;
   intents._rwDestinationId=d.id;

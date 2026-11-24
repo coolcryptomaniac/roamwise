@@ -1295,7 +1295,8 @@ const EDITORIAL={
       "Arrive, settle in and explore Panaji or your chosen beach neighbourhood.",
       "Choose Old Goa heritage and Fontainhas, or a relaxed coastal day; check opening times.",
       "Enjoy a quiet beach morning or village market before departure."
-    ]
+    ],
+    "source": "https://goa-tourism.com/popular-destination/"
   },
   "coorg": {
     "name": "Coorg (Kodagu)",
@@ -1314,7 +1315,8 @@ const EDITORIAL={
       "Arrive near Madikeri and enjoy a relaxed town walk.",
       "Ask an estate host about a coffee experience; consider Raja's Seat and local food.",
       "Choose a short nature walk if conditions permit, then depart."
-    ]
+    ],
+    "source": "https://karnatakatourism.org/en/destinations/coorg/"
   }
 };
 const normalize=s=>String(s||'').normalize('NFKC').toLowerCase().replace(/[^\p{L}\p{N}]+/gu,' ').trim();
@@ -1336,9 +1338,9 @@ const entries=ROWS.map(([id,name,regionKey,stops,aliases])=>{
    summary:featured?.overview||editorial?.summary||('Editorial destination lead in '+group[0]+'. Attractions are suggestions requiring local confirmation.'),
    status:featured?'source-backed-overview':'editorial-lead',
    checkedAt:featured?'2026-11-22':null,
-   sourcePage:featured?.source||group[2],
+   sourcePage:featured?.source||editorial?.source||group[2],
    // This is a PHOTO REFERENCE (not an image URL): no permission to embed.
-   photo:{referencePage:featured?.source||group[2],alt:'Travel imagery to be reviewed for '+name,rights:'not-cleared',displayAllowed:false}
+   photo:{referencePage:featured?.source||editorial?.source||group[2],alt:'Travel imagery to be reviewed for '+name,rights:'not-cleared',displayAllowed:false}
  });
 });
 export const TUSK_ATLAS=Object.freeze(entries);

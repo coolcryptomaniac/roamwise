@@ -23,7 +23,7 @@
  *    and promo.mp4. Live data must stay live, and the video is tens of MB.
  * ------------------------------------------------------------------------- */
 
-var VERSION = 'rw-v169-compact-ailon-mobile';
+var VERSION = 'rw-v170-rich-destination-atlas';
 var HTML_CACHE = VERSION + '-html';
 var ASSET_CACHE = VERSION + '-assets';
 
