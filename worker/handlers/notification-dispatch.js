@@ -163,6 +163,25 @@ export async function runNotificationDispatch(env, opts = {}, extras = {}) {
   }
   return report;
 }
+/* A payment-confirmation hook calls this only AFTER the verified receipt and
+   entitlement are persisted. Failure to notify never reverses payment. */
+export async function notifyVerifiedProActivation(env, uid, orderId, extras = {}) {
+  if (!env.RW_KV || !env.FIREBASE_SERVICE_ACCOUNT_JSON ||
+      !/^[A-Za-z0-9_-]{1,128}$/.test(String(uid || '')) ||
+      !/^[A-Za-z0-9_-]{1,100}$/.test(String(orderId || '')))
+    return { skipped:'not_configured' };
+  const d = depsOf(env, extras);
+  const auth = await d.context();
+  const user = await d.getDoc(auth, 'users/' + uid);
+  // Re-read the SERVER entitlement: no notification on a pending payment.
+  if (!user || user.pro !== true || String(user.proPayId || '') !== String(orderId))
+    return { skipped:'not_verified' };
+  return sendRecipient(d, auth, uid, user, 'paid-pro-' + orderId, {
+    title:'Your RoamWise Pro is active',
+    body:'Your verified payment is complete and your Pro access is ready. View membership details.',
+    url:SITE + '/my-payments/',category:'account'
+  }, false, Date.now());
+}
 export async function handleNotificationDispatch(request, env) {
   if (request.method !== 'POST') return json({ error: 'not_found' }, 404);
   let projectId;
