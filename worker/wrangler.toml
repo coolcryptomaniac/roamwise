@@ -95,6 +95,11 @@ BASIC_AI_ENABLED = "false"
 BASIC_AI_DAILY_LIMIT = "10"
 BASIC_AI_DAILY_NEURONS = "8000"
 BASIC_AI_DAILY_REQUEST_CAP = "1000"
+# Paid AI remains disabled until sandbox, reconciliation and accounting checks pass.
+AI_CREDITS_ENABLED = "false"
+AI_CREDITS_DAILY_PROVIDER_PAISE = "2000"
+AI_CREDITS_GATEWAY_ENABLED = "false"
+AI_CREDITS_GATEWAY_ID = ""
 GROQ_MODEL = "openai/gpt-oss-20b"
 WORKERS_AI_MODEL = "@cf/google/gemma-4-26b-a4b-it"
 SARVAM_MODEL = "sarvam-105b-conversations"
@@ -172,6 +177,18 @@ class_name = "BasicAIQuota"
 [[migrations]]
 tag = "basic-ai-quota-v1"
 new_sqlite_classes = ["BasicAIQuota"]
+
+[[durable_objects.bindings]]
+name = "AI_CREDIT_ACCOUNTS"
+class_name = "AICreditAccount"
+
+[[durable_objects.bindings]]
+name = "AI_CREDIT_BUDGET"
+class_name = "AICreditBudget"
+
+[[migrations]]
+tag = "ai-credit-ledger-v1"
+new_sqlite_classes = ["AICreditAccount", "AICreditBudget"]
 # OPTIONAL later, after an approved 50-200 document pilot:
 # Use the multilingual BGE-M3 model for Hindi/Kannada/English and create the
 # Vectorize index with the SAME dimensions (BGE-M3 = 1024) and cosine metric:

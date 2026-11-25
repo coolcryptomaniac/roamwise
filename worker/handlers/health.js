@@ -15,6 +15,8 @@ export function handleHealth(env){
         && !!env.FIREBASE_SERVICE_ACCOUNT_JSON && !!env.AI_USAGE,
       basicAI: env.BASIC_AI_ENABLED === 'true' && !!env.AI?.run && !!env.BASIC_AI_QUOTA && !!env.FIREBASE_SERVICE_ACCOUNT_JSON,
       basicAIMeter: !!env.BASIC_AI_QUOTA,
+      aiCreditLedger: !!env.AI_CREDIT_ACCOUNTS && !!env.AI_CREDIT_BUDGET,
+      aiCreditSales: env.AI_CREDITS_ENABLED === 'true',
       workersAI: !!env.AI?.run,
       sarvamAI: !!env.SARVAM_API_KEY,
       aiKey:  !!env.GROQ_API_KEY,

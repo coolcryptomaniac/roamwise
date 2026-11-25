@@ -78,6 +78,8 @@ import { handleSarvamVoice } from './handlers/sarvam-voice.js';
 import { handleAI } from './handlers/ai.js';
 import { handleBasicAI } from './handlers/basic-ai.js';
 export { BasicAIQuota } from './lib/basic-ai-quota.js';
+export { AICreditAccount, AICreditBudget } from './lib/ai-credit-ledger.js';
+import { handleAICredits } from './handlers/ai-credits.js';
 import { handleTuskMcp } from './handlers/tusk-mcp.js';
 import { handleRoamwiseMcp, handleRoamwiseDiscovery } from './handlers/roamwise-discovery.js';
 import { handleTuskCapabilities, handleTuskOpenApi } from './handlers/tusk-partner.js';
@@ -195,6 +197,7 @@ export default {
       return handleTuskWebSearch(request,env);
     }
     if(path === 'ai/basic') return handleBasicAI(request,env);
+    if(path.startsWith('ai/credits/')) return handleAICredits(request,env,path);
     if(path === 'ai' && request.method === 'POST'){
       if(await aiGuard(request))
         return json({ error: 'Too many requests — try again in a minute.' }, 429);
