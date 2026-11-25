@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "version": "2026-11-25.1",
+  "name": "RoamWise Signature",
+  "colors": {
+    "amber": "#ffcf80", "coral": "#ef5a77", "violet": "#876bff", "teal": "#2ed6b4",
+    "ink": "#11101c", "plum": "#221631", "gold": "#e8ba6c", "cream": "#fff0dc"
+  },
+  "borders": {
+    "ailon": { "colors": ["amber", "coral", "violet", "teal", "amber"], "width": 2, "duration": 12 },
+    "spectrum": { "colors": ["amber", "coral", "violet", "teal", "amber"], "width": 2, "duration": 16 },
+    "founder": { "colors": ["gold", "cream", "amber", "violet", "gold"], "width": 2, "duration": 18 }
+  },
+  "cards": {
+    "ailon": { "border": "ailon", "surface": "ink", "radius": 24 },
+    "travel": { "border": "spectrum", "surface": "plum", "radius": 20 },
+    "credit": { "border": "founder", "surface": "plum", "radius": 24 }
+  },
+  "animations": {
+    "border": { "recipe": "gradient-orbit", "enabled": true },
+    "hover": { "recipe": "lift", "distance": 3, "duration": 220 },
+    "credit": { "recipe": "soft-sheen", "duration": 18 }
+  },
+  "carousel": { "interval": 5700, "autoplay": true, "gap": 13, "cardWidth": 312, "snap": "mandatory", "pauseOnInteraction": true },
+  "editions": [
+    { "id": "himalayan-saanjh", "name": "Himalayan Saanjh", "desc": "Latest · Ailon-first with signature colour borders" },
+    { "id": "kasar-cloud", "name": "Kasar Cloud", "desc": "Legacy 2 · compact Ailon-first edition" },
+    { "id": "buransh-bazaar", "name": "Buransh Bazaar", "desc": "Legacy 1 · classic commerce-forward edition" }
+  ],
+  "moods": ["default", "rave", "odyssey", "aipan"],
+  "components": [
+    { "id": "ailon-composer", "recipe": "ailon", "name": "Ailon animated composer" },
+    { "id": "travel-card", "recipe": "travel", "name": "Photo and itinerary cards" },
+    { "id": "founder-credit", "recipe": "credit", "name": "Founding Traveller Credit card" },
+    { "id": "wallet-card", "recipe": "credit", "name": "Wallet cash and bonus cards" },
+    { "id": "swipe-carousel", "recipe": "carousel", "name": "Swipe, snap and looping navigation" }
+  ]
+}

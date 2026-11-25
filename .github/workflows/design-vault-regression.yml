@@ -3,7 +3,16 @@ name: Design Vault regression and link inventory
 on:
   pull_request:
     paths:
-      - 'design/design-vault.*'
+      - 'design/**'
+      - 'worker/handlers/design-catalogue.js'
+      - 'tools/design-catalogue.cjs'
+      - 'tests/design-engine.test.mjs'
+      - 'tests/stay-browser.test.mjs'
+      - 'js/ui/stay-browser.js'
+      - 'js/ui/ailon-first.js'
+      - 'js/voice/stay-concierge.js'
+      - 'js/voice/tusk-studio.js'
+      - 'tests/voice-stay-concierge.test.mjs'
       - 'index.html'
       - 'js/copilot/sourced-search.js'
       - 'js/ui/settings-modal.js'
@@ -29,7 +38,7 @@ jobs:
       - name: Install test-only DOM dependency
         run: npm ci --ignore-scripts --no-audit --no-fund
       - name: Run design, DOM, and privacy regression tests
-        run: node --test tests/design-vault-regression.test.mjs tests/design-vault-dom-smoke.test.mjs tests/tusk-public-privacy.test.mjs tests/home-artists-commerce.test.mjs
+        run: node tools/design-catalogue.cjs --check && node --test tests/design-engine.test.mjs tests/stay-browser.test.mjs tests/voice-stay-concierge.test.mjs tests/design-vault-regression.test.mjs tests/design-vault-dom-smoke.test.mjs tests/tusk-public-privacy.test.mjs tests/home-artists-commerce.test.mjs
       - name: Generate route inventory (report only)
         run: node scripts/route-feature-inventory.mjs --out=reports/route-inventory.json
       - name: Publish route audit for review

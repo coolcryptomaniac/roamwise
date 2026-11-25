@@ -804,6 +804,7 @@ function copilotSend(fromHero, spokenText){
     var hl=el('heroLog'); if(hl) hl.style.display='block';
   } else { _cpTargetLog='cpLog'; }
   var aiText=null; cpBubble(t.replace(/[<>]/g,''),'me');
+  if(window.RWVoiceStayBooking&&RWVoiceStayBooking.accept(t,function(html,intents,raw){cpFinish(cpBubble('…','bot'),html,intents,raw);},direct))return;
   try{if(window.RWEventHandoff&&RWEventHandoff.answerInCopilot(t,fromHero))return;}catch(e){/* normal copilot fallback */}
   try{var summit=window.RWSummitAtlas&&window.RWSummitAtlas.answer(t,{force:false,language:document.getElementById('rwHomeVoiceLang')?.value||'en-IN'});if(summit){var safe=String(summit.text).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});var html='<b>✦ Ailon Tusk · BTS 2026</b><p>'+safe+'</p><p><a href="/summit/">Explore summit toolkit ↗</a> · <a href="'+summit.source+'" target="_blank" rel="noopener">Official source ↗</a></p>';cpBubble(html,'bot');try{if(window.RWTuskVoiceStudio)RWTuskVoiceStudio.answer(html,t,{});}catch(e){}return;}}catch(e){/* normal copilot fallback */}
   try{

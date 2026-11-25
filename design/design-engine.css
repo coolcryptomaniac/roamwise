@@ -1,0 +1,65 @@
+/* Shared signature recipes. Loaded after the layout skins so editions retain their borders. */
+@property --rwde-angle { syntax:'<angle>'; initial-value:0deg; inherits:false; }
+:root{
+ --rwde-ailon-colors:#ffcf80,#ef5a77,#876bff,#2ed6b4,#ffcf80;
+ --rwde-travel-colors:#ffcf80,#ef5a77,#876bff,#2ed6b4,#ffcf80;
+ --rwde-credit-colors:#e8ba6c,#fff0dc,#ffcf80,#876bff,#e8ba6c;
+ --rwde-ailon-surface:#11101c;--rwde-travel-surface:#221631;--rwde-credit-surface:#221631;
+ --rwde-ailon-radius:24px;--rwde-travel-radius:20px;--rwde-credit-radius:24px;
+ --rwde-ailon-width:2px;--rwde-travel-width:2px;--rwde-credit-width:2px;
+ --rwde-ailon-duration:12s;--rwde-travel-duration:16s;--rwde-credit-duration:18s;
+ --rwde-gap:13px;--rwde-card-width:312px;--rwde-snap:mandatory;--rwde-lift:-3px;--rwde-hover-duration:220ms;--rwde-sheen-duration:18s;
+}
+html body :is(.rw-credit-feature,.rw-credit-plastic,.pack,.tile.cash,.tile.coin){
+ --rwde-colors:var(--rwde-credit-colors);--rwde-surface:var(--rwde-credit-surface);--rwde-radius:var(--rwde-credit-radius);--rwde-width:var(--rwde-credit-width);--rwde-duration:var(--rwde-credit-duration);
+}
+html[data-rw-engine] body.shell[data-view] #copilotHero .copilot-compose,
+html body .rw-design-composer{
+ --rwde-colors:var(--rwde-ailon-colors);--rwde-surface:var(--rwde-ailon-surface);--rwde-radius:var(--rwde-ailon-radius);--rwde-width:var(--rwde-ailon-width);--rwde-duration:var(--rwde-ailon-duration);
+}
+html[data-rw-engine] body.shell #rwSalesCarousels .rw-sales-card,
+html body .rw-world-card,html body .rw-design-travel{
+ --rwde-colors:var(--rwde-travel-colors);--rwde-surface:var(--rwde-travel-surface);--rwde-radius:var(--rwde-travel-radius);--rwde-width:var(--rwde-travel-width);--rwde-duration:var(--rwde-travel-duration);
+}
+html[data-rw-engine] body.shell[data-view] #copilotHero .copilot-compose,
+html[data-rw-engine] body.shell #rwSalesCarousels .rw-sales-card,
+html body :is(.rw-world-card,.rw-credit-feature,.rw-credit-plastic,.pack,.tile.cash,.tile.coin,.rw-design-composer,.rw-design-travel){
+ position:relative;box-sizing:border-box;
+ border:var(--rwde-width) solid transparent!important;border-radius:var(--rwde-radius)!important;
+ background:linear-gradient(var(--rwde-surface),var(--rwde-surface)) padding-box,conic-gradient(from var(--rwde-angle),var(--rwde-colors)) border-box!important;
+ animation:rwDesignOrbit var(--rwde-duration) linear infinite;
+ box-shadow:0 10px 30px #05020c55!important;
+}
+@keyframes rwDesignOrbit{to{--rwde-angle:360deg}}
+html[data-rw-engine] body.shell[data-view] #copilotHero .copilot-compose:focus-within{box-shadow:0 0 0 3px #ac78ff30,0 10px 32px #0006!important}
+html[data-rw-engine] body.shell #rwSalesCarousels .rw-sales-track{gap:var(--rwde-gap);scroll-snap-type:x var(--rwde-snap)}
+html[data-rw-engine] body.shell #rwSalesCarousels .rw-sales-card{flex-basis:min(var(--rwde-card-width),80vw)!important;max-width:var(--rwde-card-width);overflow:hidden;transition:transform var(--rwde-hover-duration) ease}
+html[data-rw-engine] body.shell #rwSalesCarousels .rw-sales-card:hover{transform:translateY(var(--rwde-lift))}
+html[data-rw-engine] body.shell #rwSalesCarousels .rw-sales-copy small{font-size:14px}
+html[data-rw-engine] body.shell #rwSalesCarousels .rw-sales-copy b{background:linear-gradient(100deg,#ffcf80,#f5ad70)!important;color:#201426!important;font-size:14px}
+.rw-credit-feature{display:grid;grid-template-columns:minmax(0,1fr) minmax(220px,340px);align-items:center;gap:24px;width:min(calc(100% - 24px),1080px);margin:20px auto;padding:clamp(20px,3vw,32px);color:#fff0dc;isolation:isolate;overflow:hidden}
+.rw-credit-feature h2{font:800 clamp(24px,3.8vw,36px)/1.16 Outfit,system-ui,sans-serif;letter-spacing:-.025em;color:#ffdea8;margin:8px 0 12px;max-width:21ch}
+.rw-credit-eyebrow{font:750 14px/1.5 Outfit,system-ui,sans-serif;letter-spacing:.1em;text-transform:uppercase;color:#f1cb8d;margin:0}
+.rw-credit-feature p:not(.rw-credit-eyebrow){font:400 16px/1.6 Outfit,system-ui,sans-serif;color:#e2d4e8;margin:0 0 14px}
+.rw-credit-feature .rw-credit-terms{font-size:14px!important;color:#c7b8d0!important;margin-top:14px!important}
+.rw-credit-cta{display:inline-flex;justify-content:center;align-items:center;min-height:48px;padding:12px 20px;box-sizing:border-box;border-radius:13px;background:linear-gradient(100deg,#ffd08a,#f0af73);color:#201426;font:800 16px/1.2 Outfit,system-ui,sans-serif;text-decoration:none;border:0;cursor:pointer}
+.rw-credit-feature a:focus-visible,.rw-credit-cta:focus-visible{outline:3px solid #fff1ce;outline-offset:4px}
+.rw-credit-plastic{width:100%;min-width:0;aspect-ratio:1.586;padding:clamp(18px,2.5vw,26px);display:flex;flex-direction:column;justify-content:space-between;overflow:hidden;color:#fff1d4;transform:rotate(-3deg);isolation:isolate}
+.rw-credit-plastic:before{content:'';position:absolute;inset:-100%;z-index:-1;background:linear-gradient(110deg,transparent 42%,#e8ba6c12 47%,#fff3c12b 50%,transparent 58%);transform:translateX(-30%);animation:rwCreditSheen var(--rwde-sheen-duration) ease-in-out infinite;pointer-events:none}
+.rw-credit-plastic:after{content:'';position:absolute;width:260px;height:260px;border:1px solid #e8ba6c40;border-radius:50%;right:-110px;bottom:-150px;box-shadow:0 0 0 25px #e8ba6c08,0 0 0 50px #e8ba6c06;pointer-events:none;z-index:-1}
+@keyframes rwCreditSheen{0%,35%{transform:translateX(-30%)}75%,100%{transform:translateX(30%)}}
+.rw-credit-plastic strong{font:800 19px/1.2 Outfit,system-ui,sans-serif;letter-spacing:.02em}.rw-credit-plastic small{font:600 13px/1.4 system-ui;color:#dcc7e8;letter-spacing:.13em;text-transform:uppercase}
+.rw-credit-plastic .rw-credit-card-title{font:700 clamp(18px,2.5vw,25px)/1.2 Outfit,system-ui,sans-serif;max-width:17ch}
+.rw-credit-chip{width:37px;height:28px;border:1px solid #ffdfa0;border-radius:7px;background:linear-gradient(90deg,transparent 32%,#bc8b3c 33% 35%,transparent 36% 66%,#bc8b3c 67% 69%,transparent 70%),linear-gradient(0deg,transparent 45%,#bc8b3c 46% 50%,transparent 51%),linear-gradient(135deg,#ffdf9f,#b27e36);display:block;margin:12px 0}
+.rw-credit-benefits{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 18px}.rw-credit-benefits span{font:650 14px/1.4 system-ui;background:#34263f;border:1px solid #ad8fba70;border-radius:999px;padding:7px 11px;color:#f5e5f6}
+.rw-credit-page-hero{max-width:100%;width:100%;margin:22px 0}.rw-credit-page-hero h1{font:800 clamp(28px,4vw,42px)/1.12 Outfit,system-ui,sans-serif;color:#ffdea8;margin:10px 0 14px}
+.pack{min-height:245px}.pack[aria-pressed=true]{outline:3px solid #ffd08a;outline-offset:3px}.pack:focus-visible{outline:3px solid #fff;outline-offset:4px}.pack ul,.pack .left{font-size:14px}
+.rw-design-motion{display:flex;gap:9px;align-items:center;font:600 14px/1.5 system-ui;margin:16px 0 7px}.rw-design-motion input{width:20px;height:20px;accent-color:#e8ba6c}#rw-design-vault>a{color:#ffd08a;font-size:14px;display:inline-flex;align-items:center;min-height:44px}
+html body [data-rw-visible="false"],html[data-rw-motion="off"] body :is(.copilot-compose,.rw-sales-card,.rw-world-card,.rw-credit-feature,.rw-credit-plastic,.pack,.tile,.rw-design-composer,.rw-design-travel),html[data-rw-border-animation="false"] body :is(.copilot-compose,.rw-sales-card,.rw-world-card,.rw-credit-feature,.rw-credit-plastic,.pack,.tile,.rw-design-composer,.rw-design-travel){animation-play-state:paused!important}
+html body .rw-credit-plastic[data-rw-visible="false"]:before,html[data-rw-motion="off"] .rw-credit-plastic:before{animation-play-state:paused!important}
+html[data-rw-motion="off"] body :is(.rw-sales-card,.rw-world-card){transition:none!important}
+@media(max-width:650px){.rw-credit-feature{grid-template-columns:1fr;gap:22px}.rw-credit-feature .rw-credit-plastic{max-width:320px;justify-self:center;transform:rotate(-2deg)}.rw-credit-feature h2{max-width:none}.rw-credit-page-hero{padding:20px}.rw-credit-feature .rw-credit-cta{width:100%}}
+@media(prefers-reduced-motion:reduce){
+ html body :is(.copilot-compose,.rw-sales-card,.rw-world-card,.rw-credit-feature,.rw-credit-plastic,.pack,.tile,.rw-design-composer,.rw-design-travel){animation:none!important;transition:none!important}
+ .rw-credit-plastic:before{animation:none!important}.rw-credit-plastic{transform:none!important}
+}

@@ -60,6 +60,7 @@
    ========================================================================= */
 
 import { CORS, json } from './lib/http.js';
+import { handleDesignCatalogue } from './handlers/design-catalogue.js';
 import { handleTuskWebSearch } from './handlers/tusk-web-search.js';
 import { handleTrekMarketplace } from './handlers/treks-marketplace.js';
 import { createStayOrder, stayOrderStatus, handleStayCashfreeWebhook, stayRates, stayQuote, stayRatesKey } from './handlers/stay-cashfree.js';
@@ -153,6 +154,7 @@ export default {
     const path = url.pathname.replace(/^\/+|\/+$/g, '');
 
     if(path === 'health') return handleHealth(env);
+    if(path === 'design/catalogue') return handleDesignCatalogue(request,env);
     // Public plugin-domain challenge must return bare text, not a JSON 404.
     if(path === '.well-known/openai-apps-challenge') return handleOpenAIAppsChallenge(request,env);
     if(path === 'tusk/capabilities') return handleTuskCapabilities(request);

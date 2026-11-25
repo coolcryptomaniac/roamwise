@@ -23,7 +23,7 @@
  *    and promo.mp4. Live data must stay live, and the video is tens of MB.
  * ------------------------------------------------------------------------- */
 
-var VERSION = 'rw-v174-chat-safety';
+var VERSION = 'rw-v176-signature-booking';
 var HTML_CACHE = VERSION + '-html';
 var ASSET_CACHE = VERSION + '-assets';
 
@@ -39,6 +39,13 @@ var PRECACHE = [
   '/design/roamwise-akatsuki-theme.css',
   '/design/home-polish.css',
   '/design/celebrate.js',
+  '/design/catalogue-core.js',
+  '/design/catalogue-seed.js',
+  '/design/design-engine.js',
+  '/design/design-engine.css',
+  '/design/stay-browser.css',
+  '/js/ui/stay-browser.js',
+  '/js/voice/stay-concierge.js',
   '/app.js',
   '/rw-config.js',
   '/js/runtime/freshness.js',

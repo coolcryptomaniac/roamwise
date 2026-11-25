@@ -32,7 +32,7 @@ test('Settings opens deliberately, has an accessible shortcut and keeps three ed
  assert.match(vault,/himalayan-saanjh/);
  assert.match(vault,/kasar-cloud/);
  assert.match(vault,/buransh-bazaar/);
- assert.match(html,/design\/design-vault\.css\?v=20261124-880/);
+ assert.match(html,/design\/design-vault\.css\?v=20261125-1/);
 });
 test('booking and payment processing are not moved into the search module',()=>{
  assert.doesNotMatch(search,/\/payments\/checkout|Cashfree\.createOrder/);

@@ -1377,3 +1377,11 @@ button stay in `partner/marketplace.js`. Loaded after `js/booking/form.js`.
 ## js/ui/home-daily.js (10 Nov 2026)
 
 Daily home feed reader. Fetches `GET /home/daily` from the Worker (1.5 s limit, cached per India day), exposes `window.__rwDaily`, and adds the advisories-in-force strip to `#rwPromo`. Loads before `js/ui/home-promo.js`, which uses the feed's `stayOrder`. No feed, no change. See `staff/B2B-DESK.md`.
+
+### Shared signature design engine (November 2026)
+
+`design/catalogue.json` holds versioned visual recipes. `catalogue-core.js` validates them; `catalogue-seed.js` is the generated offline copy; `design-engine.js` maps them to scoped CSS variables and motion controls. The existing Design Vault preserves layout editions and the existing carousel helper consumes carousel settings. The read-only Worker `/design/catalogue` serves its matching release from existing KV, with a bundled fallback. The main-only catalogue publisher stores and verifies each version. See `docs/design-engine.md` for release and rollback details.
+
+### Voice stay quote selection
+
+`js/voice/stay-concierge.js` intercepts explicit spoken stay requests in the shared copilot dispatcher. It gathers dates, guests and budget, reads the live rate book and full-price quotes, and requires an option plus explicit confirmation before producing the existing Cashfree checkout URL. Voice Studio mirrors the same choices. This module never creates orders or debits a wallet. See `docs/voice-stay-booking.md` for transactional prerequisites.

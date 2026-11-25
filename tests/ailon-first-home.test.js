@@ -74,7 +74,7 @@ test('curated commerce is a single category at a time, with real itinerary, shop
 
 test('default curated homepage hides duplicate promotions while leaving destinations in More',()=>{
   const css=read('design/home-curated-commerce.css'),more=read('more/index.html');
-  assert.match(css,/data-rw-design="himalayan-saanjh".*#rwCreditCard/);
+  assert.match(css,/data-rw-design\] body.shell\[data-view="home"\] #rwCreditCard \{display:grid!important/);
   assert.match(css,/data-rw-design="himalayan-saanjh".*#rwPioneerRail/);
   assert.match(css,/data-rw-design="himalayan-saanjh".*#brand-ambassador/);
   assert.match(more,/href="\/credit\/"/);

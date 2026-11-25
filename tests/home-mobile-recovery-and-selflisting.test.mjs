@@ -22,7 +22,8 @@ test('home has useful partner self-registration, founder, corporate and visible 
    assert.ok(home.includes(s),s);
  assert.match(home,/id="rwPartnerFrontdoors"/);
  assert.match(quick,/label: 'Group chat'/);
- assert.match(quick,/label: 'Group planning'/);
+ assert.match(quick,/label: 'Plan together'/);
+ assert.match(quick,/label: 'Wallet', href: '\/wallet\/'/);
  assert.match(quick,/label: 'TrailMesh'/);
  assert.match(home,/id="rwHomeFooter"/);
 });

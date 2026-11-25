@@ -165,6 +165,7 @@
     return true;
   }
   function stop(){
+    if(root.RWVoiceStayBooking)root.RWVoiceStayBooking.reset();
     closeVoicePicker();state.active=false;state.answerPending=false;state.session++;
     realtimeStop();
     if(typeof rwVoiceStop==='function')rwVoiceStop();
@@ -286,7 +287,7 @@
     // Preserve a valid built-in/cached answer even when a provider warning is appended.
     var diagnostic=/⚡ AI engines unreachable right now/i.test(complete);
     var usable=diagnostic?complete.split(/⚡ AI engines unreachable right now/i)[0].trim():complete;
-    var speech=usable.slice(0,650);
+    var speech=intents&&intents._voiceStay?String(intents._voiceStaySpeech||usable):usable.slice(0,650);
     if(!complete){setPhase('ready','Answer is on screen · tap Speak to continue');return false;}
     if(details){
       details.replaceChildren();
@@ -317,11 +318,14 @@
     if(providerBusy){
       renderProviderFallback(raw,intents);
     }else{
-      renderResults(raw,intents);
+      if(intents&&intents._voiceStay){
+        cards.replaceChildren();var booking=document.createElement('div');booking.innerHTML=String(html||'');
+        booking.querySelectorAll('[data-rw-voice-stay],.rw-voice-stay a').forEach(function(action){cards.appendChild(action.cloneNode(true));});
+      }else renderResults(raw,intents);
       try{if(root.RWConnectedDiscovery&&cards)root.RWConnectedDiscovery.renderInto(cards,raw,intents);}catch(e){}
       try{if(root.RWTuskCommerce&&cards)root.RWTuskCommerce.renderInto(cards,raw,intents);}catch(e){}
     }
-    if(/\b(pay|payment|refund|checkout|otp|password|emergency|sos)\b/i.test(String(raw||''))){
+    if(!(intents&&intents._voiceStay)&&/\b(pay|payment|refund|checkout|otp|password|emergency|sos)\b/i.test(String(raw||''))){
       setPhase('ready','Important details are on screen. Tap Speak for another question.');
       return false;
     }
@@ -336,7 +340,7 @@
       return false;
     }
     if(typeof tuskSpeak==='function'){
-      tuskSpeak(spokenStyle(speech,raw));
+      tuskSpeak(intents&&intents._voiceStay?speech:spokenStyle(speech,raw));
       // Native TTS completion semantics differ; users can continue via Speak.
       if(root.Capacitor || (root.RW && root.RW.speak && !root.speechSynthesis))setPhase('ready','Listen to the reply, then tap Speak for the next turn.');
     }else setPhase('ready','Read your answer above, then tap Speak.');
