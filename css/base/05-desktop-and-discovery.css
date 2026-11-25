@@ -232,6 +232,8 @@
 .rw-open-field input{flex:1;min-width:0;background:none;border:none;outline:none;color:#fff;
   font:inherit;font-size:16px;padding:13px 0}
 .rw-open-field input::placeholder{color:#6E6C66}
+/* The global input:focus ring drew a second box inside this field (whose own border already lights up via :focus-within), and desktop had no side padding so the text touched the edge. */
+.rw-open-field input,.rw-open-field input:focus{box-shadow:none!important;padding-left:14px!important;padding-right:6px!important;border-radius:12px}
 .rw-open-field button{flex:0 0 auto;width:48px;height:48px;border-radius:14px;border:none;cursor:pointer;
   background:linear-gradient(135deg,#E8BA6C,#C8913E);color:#07090F;font-size:21px;font-weight:800;
   transition:transform .18s cubic-bezier(.34,1.56,.64,1)}
