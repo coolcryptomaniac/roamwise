@@ -1,0 +1,26 @@
+name: Included AI quota runtime
+on:
+  pull_request:
+    paths:
+      - 'worker/**'
+      - 'tools/check-basic-ai-runtime.cjs'
+      - '.github/workflows/basic-ai-quota.yml'
+permissions:
+  contents: read
+jobs:
+  quota:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    env:
+      WRANGLER_SEND_METRICS: 'false'
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+      - name: Install isolated local runtime
+        run: npm install --prefix "$RUNNER_TEMP/rw-ai-runtime" --no-fund --no-audit miniflare@4.20260730.0 wrangler@4.164.0
+      - name: Bundle without deploying or invoking inference
+        run: '"$RUNNER_TEMP/rw-ai-runtime/node_modules/.bin/wrangler" deploy --config worker/wrangler.toml --dry-run --outdir "$RUNNER_TEMP/basic-ai-bundle"'
+      - name: Exercise real SQLite quota concurrency
+        run: RW_MINIFLARE_MODULE="$RUNNER_TEMP/rw-ai-runtime/node_modules/miniflare" node tools/check-basic-ai-runtime.cjs "$RUNNER_TEMP/basic-ai-bundle/worker.js"
