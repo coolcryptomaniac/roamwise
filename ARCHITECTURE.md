@@ -508,6 +508,16 @@ opening/animation modules: `atlas-shinobi.js`, `audio-only.js`,
 `performance.js`).
 
 ### `worker/` — optional Cloudflare Worker (not loaded by the app by default)
+
+Paid AI credits use the standalone classic-script page `ai-credits/`, linked from
+the included-AI Settings card. `worker/handlers/ai-credits.js` handles
+`/ai/credits/*`; `worker/lib/ai-credit-policy.js` owns packs, model allowlists and
+versioned tariffs, `ai-credit-payments.js` verifies Cashfree orders/refunds, and
+`ai-credit-ledger.js` exports the per-account `AICreditAccount` and daily
+`AICreditBudget` SQLite Durable Objects. Sales and Gateway access default off.
+Balances are separate from travel payments and existing Pro/BYOK entitlements.
+See `docs/ai-credit-packs.md` for migrations, release checks and limitations.
+
 `worker.js` is a thin entry point (routing table + `fetch()`/`scheduled()`
 dispatch only) that routes `/health`, `/ai` (Groq proxy), `/news`, `/events`,
 `/events/refresh`, `/geo` (Nominatim proxy), `/leads` (OpenStreetMap-
