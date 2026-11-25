@@ -114,6 +114,7 @@ import { handleTripNotify, runTripNotifications } from './handlers/trip-notify.j
 import { handleGroup, runGroupPots } from './handlers/group-pot.js';
 import { runPartnerInform, handlePartnerUnsubscribe } from './handlers/partner-inform.js';
 import { handleStayLead, purgeOldStayLeads } from './handlers/stay-lead.js';
+import { handleCorporateLead, purgeOldCorporateLeads } from './handlers/corporate-lead.js';
 import { handlePartnerSelfList } from './handlers/partner-self-list.js';
 import { sendAdminDigest } from './handlers/bot-admin.js';
 import { handleAdvisoryAlerts, runAdvisoryAlerts } from './handlers/advisory-alerts.js';
@@ -260,6 +261,7 @@ export default {
 
     // Exact stay lead route must precede the generic stay ledger prefix.
     if(path === 'stay/lead') return handleStayLead(request, env);
+    if(path === 'corporate/lead') return env.CORPORATE_INTAKE_ENABLED==='true'?handleCorporateLead(request,env):json({error:'intake_disabled'},503);
     if(path.indexOf('stay/') === 0) return handleStay(request, env, path);
 
     if(path.indexOf('bot/') === 0) return handleBot(request, env, path);
@@ -339,6 +341,7 @@ export default {
     try{ if(env.NOTIFICATIONS_AUTOSEND === 'true' && env.FIREBASE_SERVICE_ACCOUNT_JSON) await runNotificationDispatch(env, { dry:false, account:true }); }catch(e){ /* best-effort */ }
     /* Guest stay requests are kept 12 months, then deleted (see privacy.html). */
     try{ if(env.FIREBASE_SERVICE_ACCOUNT_JSON) await purgeOldStayLeads(env); }catch(e){ /* retried tomorrow */ }
+    try{ if(env.CORPORATE_INTAKE_ENABLED==='true'&&env.FIREBASE_SERVICE_ACCOUNT_JSON) await purgeOldCorporateLeads(env); }catch(e){ /* retried tomorrow */ }
     /* Founder digest on Telegram/WhatsApp. Skipped unless the bot secrets and admin ids are set. */
     try{ if(env.BOT_ADMIN_TELEGRAM || env.BOT_ADMIN_WHATSAPP) await sendAdminDigest(env, botDeps(env)); }catch(e){ /* digest is best-effort */ }
   },
