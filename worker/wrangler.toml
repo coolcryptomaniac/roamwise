@@ -52,6 +52,8 @@ id = "be31e0935be843219cea1edf2203877b"   # <-- the ONLY line you edit in this f
 # unless PAYMENT_PROVIDER=cashfree and CASHFREE_ENVIRONMENT=live there too.
 # ---------------------------------------------------------------------------
 [vars]
+# Corporate CRM stays off until access rules, retention and lead delivery are verified.
+CORPORATE_INTAKE_ENABLED = "false"
 # No broadcast is generated. Only admin-reviewed status=approved messages send.
 # User categories/opt-in, source validation, quiet hours, per-user frequency
 # caps and audited FCM delivery still apply. To halt, set to "false".

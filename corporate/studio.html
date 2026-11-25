@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0a1020"><meta name="description" content="Plan your team's next retreat with RoamWise. Compare per-person budgets, explore Himalayan and Corbett stays, and request a flexible corporate programme.">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self' https://roamwise-api.founder-f53.workers.dev; object-src 'none'; base-uri 'none'; form-action 'none'">
+<title>Corporate Retreats & Workations | RoamWise</title>
+<link rel="icon" href="../icons/icon-192.png"><link rel="stylesheet" href="./style.css"><link rel="stylesheet" href="./enterprise.css">
+<script type="module" src="./app.mjs"></script><script type="module" src="./enterprise-ui.mjs"></script></head>
+<body>
+<a class="skip" href="#planner">Skip to retreat planner</a>
+<header class="nav"><a class="logo" href="../"><img class="brand-image" src="../assets/img/roamwise-logo-176.webp" width="43" height="43" alt=""><span>RoamWise<small>FOR TEAMS</small></span></a>
+<nav aria-label="Corporate navigation"><a href="#planner">Plan retreat</a><a href="#enterprise">For companies</a><a href="#stays">Stays</a><a href="#credits">Corporate credits</a><a class="outline" href="#enquire">Request proposal <span aria-hidden="true">↗</span></a></nav></header>
+<main>
+<section class="hero wrap"><div class="hero-copy">
+<p class="eyebrow"><span class="orb"></span> YOUR TEAM. AN EXTRAORDINARY PLACE.</p>
+<h1>Take work<br><em>somewhere wonderful.</em></h1>
+<p class="intro">Offsites, leadership retreats and flexible workations—all planned in one thoughtful space. Tell us the team size and what matters. We'll build around you.</p>
+<div class="hero-cta"><a class="btn primary" href="#planner">Build your retreat <span aria-hidden="true">↗</span></a><a class="btn secondary" href="#stays">Explore destinations</a></div>
+<div class="trust"><span>✧ Private leadership escapes</span><span>◇ Flexible group planning · capacity to verify</span><span>✓ No payment to request a quote</span></div></div>
+<div class="hero-art" aria-label="Illustrated mountain resort scene"><div class="mountain back"></div><div class="mountain middle"></div><div class="mountain front"></div><div class="resort"><span></span><span></span><span></span></div><div class="hero-glass"><span class="micro">THE WAY TEAMS COME TOGETHER</span><strong>One memorable<br>journey.</strong><div>01 / Strategy &nbsp; 02 / Connection &nbsp; 03 / Space</div></div></div></section>
+<section class="wrap section" id="planner"><div class="section-head"><div><p class="eyebrow">01 — THE RETREAT STUDIO</p><h2>Every team is different.<br><em>Build around yours.</em></h2></div><p>Instant indicative maths. Every property, date, venue and supplier price must be confirmed in your final proposal.</p></div>
+<div class="planner-grid"><form class="panel form-panel" id="retreatForm">
+<div class="fields">
+<label>Number of employees<input id="employees" name="employees" type="number" min="1" max="10000" step="1" value="150" required inputmode="numeric"></label>
+<label>Nights<select id="nights" name="nights"><option value="1">1 night</option><option value="2" selected>2 nights / 3 days</option><option value="3">3 nights / 4 days</option><option value="5">5 nights</option><option value="7">7 nights</option><option value="14">14 nights</option><option value="30">30 nights</option></select></label>
+<label>Destination<select id="destination" name="destination"><option>Any</option><option>Corbett</option><option>Manali</option><option>Almora</option><option>Lansdowne</option></select></label>
+<label>Room sharing<select id="sharing" name="sharing"><option value="1">Single occupancy</option><option value="2" selected>Twin sharing</option><option value="3">Triple sharing (if permitted)</option></select></label>
+<label>Check-in date<input id="startDate" type="date" name="startDate"></label>
+<label>Check-out date<input id="endDate" type="date" name="endDate"></label>
+<label class="full">Target spend per employee (₹)<input id="perPerson" name="perPerson" type="number" min="1000" max="1000000" step="500" value="25000" required></label>
+<fieldset class="full"><legend>What should the retreat include?</legend><div class="chips"><label><input type="checkbox" name="preference" value="Workshops" checked><span>Workshops</span></label><label><input type="checkbox" name="preference" value="Nature & wellness" checked><span>Nature & wellness</span></label><label><input type="checkbox" name="preference" value="Team building"><span>Team building</span></label><label><input type="checkbox" name="preference" value="Fast Wi-Fi"><span>Fast Wi-Fi</span></label><label><input type="checkbox" name="preference" value="Accessibility"><span>Accessibility</span></label><label><input type="checkbox" name="preference" value="Low crowd"><span>Quiet setting</span></label><label><input type="checkbox" name="preference" value="EV transport"><span>EV options</span></label><label><input type="checkbox" name="preference" value="Dietary needs"><span>Dietary needs</span></label></div></fieldset>
+<label class="full">Anything else? <textarea id="notes" name="notes" rows="3" maxlength="800" placeholder="Arrival cities, dietary needs, agenda, accessible rooms, no-alcohol preferences, preferred dates…"></textarea></label></div>
+<p class="hint">No live availability is shown. Room count is not proof of event or fire-code capacity. We verify both before a proposal.</p>
+</form>
+<aside class="quote panel" aria-live="polite"><p class="eyebrow">YOUR LIVE PLANNING SNAPSHOT</p><span class="micro">Estimated programme value</span><strong id="totalQuote" class="hero-number">₹37,50,000</strong><div class="quote-lines">
+<div><span>Per employee</span><b id="perEmployee">₹25,000</b></div>
+<div><span>Employees</span><b id="teamNumber">150</b></div><div><span>Rooms needed</span><b id="roomNumber">75</b></div>
+<div><span>Duration</span><b id="duration">2 nights</b></div></div>
+<p id="estimateNote" class="fine">Illustration only; prices, taxes, supplier terms and dates have not been checked.</p><a href="#enquire" class="btn primary wide-button">Request this itinerary <span aria-hidden="true">→</span></a>
+<div class="assurance"><span>✓</span> No debit, deposit or booking is created here.</div></aside></div></section>
+<section class="section tint" id="stays"><div class="wrap"><div class="section-head"><div><p class="eyebrow">02 — RETREATS WITH CHARACTER</p><h2>Places worth<br><em>getting together for.</em></h2></div><p>RoamWise-listed stays, not a promise of full-venue buyout. We check room inventory, meeting space, meals and logistics with the supplier.</p></div>
+<div class="rail" id="venueRail" aria-label="Listed retreat properties"></div><p id="venueEmpty" class="fine" hidden>No listings match this destination. Try “Any” or request a custom multi-property search.</p><div class="rail-footer"><span>Swipe to explore venues</span><div><button type="button" aria-label="Previous venue" id="venuePrev">←</button><button type="button" aria-label="Next venue" id="venueNext">→</button></div></div>
+<div class="sourcing-intro"><div><p class="eyebrow">LARGE-GROUP SOURCING · NOT PARTNERED</p><h3>Bring the whole company together.</h3><p class="fine">These independent resorts advertise larger facilities. They have NOT joined RoamWise, and no dates, rates, room blocks or meeting layouts are reserved or verified.</p></div></div>
+<div class="rail" id="sourcingRail" aria-label="External large-group sourcing leads"></div>
+<p id="sourcingEmpty" class="fine" hidden>There are no large-venue research leads for this destination yet. Request a tailored venue search.</p>
+<div class="rail-footer"><span>Independent research · ask for a custom sourcing proposal</span><div><button type="button" aria-label="Previous sourcing lead" id="sourcePrev">←</button><button type="button" aria-label="Next sourcing lead" id="sourceNext">→</button></div></div>
+<div class="pipeline"><div><strong>Planning 250+ people?</strong><p>Single-resort stays may not accommodate the whole team. Ask for a multi-property venue cluster with a central conference hall, dedicated transport and a single coordinated agenda.</p></div><a href="#enquire" class="text-link">Ask for a large-group sourcing plan ↗</a></div></div></section>
+<section class="wrap section" id="credits"><div class="section-head"><div><p class="eyebrow">03 — A FLEXIBLE CORPORATE PROGRAMME</p><h2>One annual budget.<br><em>More freedom to travel.</em></h2></div><p>Consider event budgets, individual workations or a blended programme. Any extra value must be separately negotiated with suppliers; no discount is offered here.</p></div>
+<div class="credits-panel"><div class="credits-top"><div><span class="micro">Indicative annual programme allocation</span><label class="money-input"><span>₹</span><input type="number" id="allocation" min="100000" max="100000000" step="100000" value="2000000" aria-label="Corporate programme allocation in rupees"></label></div><div><span class="micro">Supplier-approved extras</span><strong class="bonus-num" id="bonusAmount">Not quoted</strong><span class="micro" id="tierLabel">Subject to a written proposal</span></div></div>
+<div class="split"><label>Central retreats <strong id="centralPct">70%</strong><input id="splitSlider" type="range" min="0" max="100" step="5" value="70"></label><div><div><span>Centralised offsites</span><b id="centralAmount"></b></div><div><span>Individual workations</span><b id="individualAmount"></b></div></div></div>
+<p class="fine">No bonus, discount, cash return or stored funds are offered by this planner. Paid amounts and applicable refunds would be governed by a signed supplier-backed agreement and legal review. GST treatment is quote-specific.</p></div>
+<div class="rail" id="tierRail" aria-label="Corporate allocation examples"></div>
+<div class="explain-row"><div class="explain"><span>01</span><strong>Allocate</strong><p>Give us your annual team travel plan. No advance requested at enquiry stage.</p></div><div class="explain"><span>02</span><strong>Verify</strong><p>Our supplier quotes, taxes and cost controls determine which bonuses are feasible.</p></div><div class="explain"><span>03</span><strong>Approve</strong><p>Contract, cancellation terms and financial sign-offs come before payment.</p></div></div></section>
+
+<section class="wrap section enterprise" id="enterprise">
+  <div class="section-head">
+    <div><p class="eyebrow">04 — ANNUAL PEOPLE &amp; TRAVEL PARTNERSHIPS</p>
+      <h2>One company.<br><em>A year of good journeys.</em></h2></div>
+    <p>For a 1,000-person employer, the goal is not a 1,000-person hotel booking. Model repeated small offsites, workations and individual perks.</p>
+  </div>
+  <div class="pillars">
+    <article class="pillar"><span class="pillar-number">01 / PLATFORM</span><h3>Employee travel benefits</h3>
+      <p>Annual access to RoamWise Pro and the corporate planning desk. Seat allocation, domain verification and fair-use limits are defined in a signed licence.</p>
+      <strong>Illustrative ₹150–₹300 / allocated employee / year</strong></article>
+    <article class="pillar"><span class="pillar-number">02 / EXPERIENCES</span><h3>Retreats by department</h3>
+      <p>Separate quotes for 30–80-person teams, 15–25-person leadership groups and flexible workations. Pay against supplier-confirmed statements of work.</p>
+      <strong>Supplier-confirmed, per-trip pricing</strong></article>
+    <article class="pillar"><span class="pillar-number">03 / MEMBER PERKS</span><h3>Optional travel rewards</h3>
+      <p>Eligible employees or a partner's community can receive discounts, priority enquiries or non-transferable service benefits—not tradeable coins.</p>
+      <strong>No crypto wallet or token is issued</strong></article>
+  </div>
+  <div class="enterprise-grid">
+    <form id="enterpriseScenario" class="panel enterprise-form" autocomplete="off">
+      <p class="eyebrow">LIVE ENTERPRISE SCENARIO</p><h3>Build an annual programme</h3>
+      <p class="fine">An editable commercial illustration. These inputs are not a quotation, a purchase order or a commitment from any property.</p>
+      <div class="enterprise-fields">
+        <label>Company headcount<input name="employees" type="number" min="1" max="10000" step="1" value="1000" required></label>
+        <label>Annual licence / employee (₹)<input name="licensePerSeat" type="number" min="150" max="300" step="10" value="250" required></label>
+        <label>Department offsites / year<input name="departmentTrips" type="number" min="0" max="24" step="1" value="4" required></label>
+        <label>People / department offsite<input name="departmentSize" type="number" min="1" max="1000" step="1" value="60" required></label>
+        <label>Budget / person / department trip (₹)<input name="departmentPerHead" type="number" min="1000" max="100000" step="500" value="12000" required></label>
+        <label>Leadership retreats / year<input name="leadershipTrips" type="number" min="0" max="24" step="1" value="2" required></label>
+      </div>
+      <details class="enterprise-advanced"><summary>Adjust leadership, workations &amp; employee holidays</summary>
+        <div class="enterprise-fields advanced-inner">
+          <label>Leadership participants<input name="leadershipSize" type="number" min="1" max="100" value="20" required></label>
+          <label>Leadership spend / person (₹)<input name="leadershipPerHead" type="number" min="1000" max="200000" step="500" value="25000" required></label>
+          <label>Workation bookings / year<input name="workationBookings" type="number" min="0" max="10000" value="24" required></label>
+          <label>Average workation booking (₹)<input name="workationPerBooking" type="number" min="1000" max="300000" step="500" value="20000" required></label>
+          <label>Personal holiday bookings<input name="personalBookings" type="number" min="0" max="10000" value="50" required></label>
+          <label>Average personal trip booking (₹)<input name="personalPerBooking" type="number" min="1000" max="300000" step="500" value="15000" required></label>
+        </div>
+      </details>
+      <p class="status" id="enterpriseError" role="status" aria-live="polite"></p>
+    </form>
+    <aside class="panel enterprise-output" aria-live="polite">
+      <span class="micro">Illustrative annual licence fee · not including taxes</span>
+      <strong id="enterpriseLicense" class="enterprise-amount">₹2,50,000</strong>
+      <span class="micro">Potential employee &amp; team booking value · not RoamWise revenue</span>
+      <strong id="enterpriseBookings" class="enterprise-amount soft">₹51,10,000</strong>
+      <div id="enterpriseBreakdown" class="enterprise-breakdown"></div>
+      <div class="enterprise-note"><strong>Economic guardrail</strong><p>Each trip is quoted separately. RoamWise should accept it only where its approved quote clears its contribution threshold after supplier and operating costs. The licence requires its own AI/support cost budget.</p></div>
+      <button class="btn primary wide-button" id="useEnterpriseBrief" type="button">Include scenario in company enquiry ↗</button>
+    </aside>
+  </div>
+  </section>
+<section class="closing" id="enquire"><div class="wrap enquiry-grid"><div><p class="eyebrow">04 — START A CONVERSATION</p><h2>The right plan starts<br>with one good brief.</h2><p>Startup, growing SaaS business or global company—we'll tailor the proposal to your headcount, timing, needs and budget. No deposit needed to send the brief.</p><div class="contact-steps">Brief received → Supplier checks → Bespoke proposal → Company approval</div></div>
+<form id="companyForm" class="panel company-form"><h3>Request corporate onboarding</h3><p class="fine">This prepares an email in your own mail app. No enquiry is sent until you send it yourself.</p><div class="fields"><label>Company name<input name="company" required maxlength="100" autocomplete="organization" placeholder="Your organisation"></label><label>Your name<input name="contact" required maxlength="80" autocomplete="name" placeholder="Your name"></label><label class="full">Work email<input name="email" type="email" required maxlength="160" autocomplete="email" placeholder="you@company.com"></label><label>Role / department<input name="role" maxlength="80" placeholder="People & Culture"></label><label>Phone / WhatsApp (optional)<input name="phone" type="tel" maxlength="22" placeholder="+91 …"></label>
+<label class="full consent"><input name="consent" type="checkbox" required><span>I agree RoamWise can contact me about this corporate request. This is not marketing consent. <a href="../privacy.html" target="_blank" rel="noopener">Privacy policy</a>.</span></label></div>
+<button type="submit" class="btn primary wide-button" id="sendBtn">Prepare email enquiry <span aria-hidden="true">→</span></button><p class="status" id="formStatus" role="status" aria-live="polite"></p><button type="button" class="text-link" id="emailFallback">Prepare an email with this brief</button></form></div></section>
+</main><footer class="footer"><div class="wrap"><div class="footbrand">RoamWise <span>— Thoughtful travel for good teams.</span></div><div><a href="../">Home</a><a href="../nomads/">Nomad Match</a><a href="../business/">Expense planner</a><a href="mailto:founder@roamwise.co.in">Contact</a></div></div></footer></body></html>
