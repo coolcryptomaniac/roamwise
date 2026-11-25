@@ -247,6 +247,7 @@ function openSettings(force){
   if(!force&&!settingsOverlay.classList.contains('open')&&window.navigator&&window.navigator.userActivation&&window.navigator.userActivation.isActive===false)return;
   renderKeyBoxes();
   try{if(window.RWDesignVault)RWDesignVault.mountSettings();}catch(e){/* visual settings must never block payments */}
+  try{ if(typeof rwMountBasicAISetting==='function')rwMountBasicAISetting(); }catch(e){ /* included AI is optional */ }
   try{ rwMountPersonalisationSetting(); }catch(e){ /* optional on-device preferences */ }
   try{ rwMountWalletColorSetting(); }catch(e){ /* wallet colour picker is optional */ }
   try{ rwRenderLinkedSignInMethods(); }catch(e){ /* auth may still be loading */ }

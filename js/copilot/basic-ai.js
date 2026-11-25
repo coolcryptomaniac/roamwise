@@ -12,6 +12,7 @@ function rwBasicAIEndpoint(){
 function rwBasicAIAvailable(){var u=rwBasicAIUser();return !!(rwBasicAIEndpoint()&&u&&!u.isAnonymous);}
 function rwBasicAIStatusText(){
   var u=rwBasicAIUser(),q=rwBasicAIUsage;
+  if(!rwBasicAIEndpoint())return 'Included AI is not enabled yet. Search and saved guides are available.';
   if(!u||u.isAnonymous)return 'Sign in for up to 10 included AI answers per day. No API key needed.';
   if(q&&q.uid===u.uid&&q.message)return q.message;
   if(q&&q.uid===u.uid&&Number.isFinite(q.remaining))return q.remaining+' of '+q.limit+' included AI answers left today. Resets at 05:30 IST.';
@@ -53,7 +54,7 @@ function rwBasicAICompactPrompt(facts,question){
   return 'Traveller context (may be incomplete):\n'+String(facts||'').slice(-1800)+'\n\nLatest question:\n'+String(question||'').slice(-1800);
 }
 function rwMountBasicAISetting(){
-  if(!rwBasicAIEndpoint())return;
+  if(!(window.RW_CONFIG&&window.RW_CONFIG.basicAI))return;
   var host=document.querySelector('#settingsOverlay .modal-body');if(!host)return;
   var box=document.getElementById('rwBasicAISetting');
   if(!box){

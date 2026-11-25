@@ -871,7 +871,8 @@ function copilotSend(fromHero, spokenText){
   if(typeof rwUmLearn==='function') rwUmLearn(intents,t);   /* per-user memory: facts only, on this device */
   if(typeof rwTuskPreAnswer==='function' && rwTuskPreAnswer(thinking,intents,t)) return;   /* memory commands, festival trips: no AI call */
   if(typeof rwLocalAtlasReply==='function'&&rwLocalAtlasReply(thinking,intents,t,false))return;
-  var hasKey = (typeof activeProv!=='undefined') && (activeProv==='roamwise' || (activeProv!=='smart' && lsGet('rwKey_'+activeProv)));
+  var basicAI=typeof activeProv!=='undefined'&&activeProv==='smart'&&typeof rwBasicAIAvailable==='function'&&rwBasicAIAvailable();
+  var hasKey = basicAI || ((typeof activeProv!=='undefined') && (activeProv==='roamwise' || (activeProv!=='smart' && lsGet('rwKey_'+activeProv))));
   if(isKasarFestival){
     var festivalAnswer=cpSmartAnswer(t);
     if(festivalAnswer){try{track('kasar_ailon_tailor');}catch(e){/* anonymous daily counter */}cpFinish(thinking,rwMasalaWrap(festivalAnswer),intents,t);return;}
@@ -901,6 +902,8 @@ function copilotSend(fromHero, spokenText){
           if(_pf) facts = 'AUTHORITATIVE curated facts (trust these over everything else): '+_pf+'\n' + facts;
         }
       }catch(e){ /* best-effort, ignore */ }
+      /* Included AI receives only curated guide context and the explicit question, not remembered account data or trip history. */
+      var basicGuideFacts=facts;
       /* Explicit state beats hoping the model infers it from the transcript. */
       var recent = rwRecall(6).map(function(t){ return (t.role==='user'?'User: ':'Assistant: ')+t.text; }).join('\n');
       if(recent) facts += 'Recent conversation:\n'+recent+'\n';
@@ -931,7 +934,9 @@ function copilotSend(fromHero, spokenText){
         +'MONEY: the user\u2019s selected currency is '+((CURR.find(function(x){return x.c===AC;})||{s:'\u20b9',c:'INR'}).s)+' ('+AC+'). Always give prices in that symbol, never $ unless AC is literally USD. '
         +'Prefer the verified guide text below over your own recollection; if it contradicts you, trust it. No markdown headers, no bullet spam.\n'
         +facts+(hist? 'Conversation so far:\n'+hist+'\n':'')+'User: '+(aiText||t)+'\nCopilot:';
-      aiCallAny(prompt, 260, function(err, txt){
+      if(basicAI)prompt=rwBasicAICompactPrompt(basicGuideFacts,aiText||t);
+      var askAI=basicAI?rwBasicAICall:function(p,cb){aiCallAny(p,260,cb);};
+      askAI(prompt, function(err, txt){
         var answer = (txt||'').trim();
         if(!answer){ rwTuskSearchFailure(thinking,t,intents,err); return; }
         /* AI wants a clarifying question with tappable options \u2014 render real
@@ -949,8 +954,9 @@ function copilotSend(fromHero, spokenText){
             return;
           }
         }
-        answer = escHtml(answer); if(_ck) rwAnsRemember(_ck,t,answer);   /* kept only if relevant */
-        if(lastAiSource && lastAiSource.prov!==activeProv){
+        answer = escHtml(answer); if(_ck&&!basicAI) rwAnsRemember(_ck,t,answer);   /* included answers stay out of the shared browser cache */
+        if(basicAI)answer+=rwBasicAIBadge();
+        if(!basicAI && lastAiSource && lastAiSource.prov!==activeProv){
           answer += '<br><span class="rw-note">\u21aa answered by <b>'+esc2(lastAiSource.prov)+'</b> \u2014 '+esc2(activeProv)+' was unavailable</span>';
         }
         if(intents.dest) rwLearn(intents.dest);
