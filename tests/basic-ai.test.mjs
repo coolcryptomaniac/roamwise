@@ -165,3 +165,13 @@ test('included AI Settings works without BYOK and displays server quota and safe
   assert.ok(w.rwBasicAICompactPrompt('x'.repeat(9000),'LATEST QUESTION').endsWith('LATEST QUESTION'));
   dom.window.close();
 });
+
+
+test('included AI is wired but production stays disabled and personal context is excluded',()=>{
+  const core=readFileSync('js/copilot/core.js','utf8');
+  assert.match(readFileSync('index.html','utf8'),/js\/copilot\/basic-ai\.js/);
+  assert.match(readFileSync('rw-config.js','utf8'),/basicAI:\s*\{\s*enabled:\s*false/);
+  assert.match(core,/rwBasicAICompactPrompt\(basicGuideFacts,aiText\|\|t\)/);
+  assert.match(core,/if\(_ck&&!basicAI\) rwAnsRemember/);
+  assert.match(readFileSync('js/ui/settings-modal.js','utf8'),/rwMountBasicAISetting\(\)/);
+});

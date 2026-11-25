@@ -119,6 +119,7 @@ function rwAnsRemember(key, query, answerHtml){
   }catch(e){ /* cache is best-effort */ }
 }
 function rwAiDownNote(err, usedSaved){
+  if(/^Included AI: /.test(String(err||'')))return '<span class="rw-note">'+esc2(String(err).slice(0,240))+' Search and saved guides remain available.</span>';
   return '<span class="rw-note">⚡ AI engines unreachable right now'
     + (err ? ' (' + esc2(String(err).slice(0,60)) + ')' : '')
     + (usedSaved ? ' — showing your saved answer.' : ' — answered by Ailon Tusk’s own engine.') + '</span>';

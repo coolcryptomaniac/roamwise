@@ -419,14 +419,12 @@ function rwGeoCacheSet(q,v){
     c[q.toLowerCase()]=v; lsSet(RW_GEO_CACHE, JSON.stringify(c));
   }catch(e){ /* parse best-effort, ignore malformed/missing data */ }
 }
-/* Returns a Promise of {name, display, lat, lon, type, country} or null. */
-function rwGeocode(q){
+/* Returns a Promise of {name, display, lat, lon, type, country} or null. */ function rwGeocode(q){
   q=String(q||'').trim();
   if(!q || q.length<2) return Promise.resolve(null);
   var hit=rwGeoCacheGet(q);
   if(hit!==undefined) return Promise.resolve(hit);
-  /* local curated DB first — instant, offline, and always right for our cities */
-  try{
+  /* local curated DB first — instant, offline, and always right for our cities */ try{
     var known=rwKnownMap();
     var k=q.toLowerCase();
     if(known[k]){
@@ -453,13 +451,11 @@ function rwGeocode(q){
     })
     .catch(function(){ return null; });   /* offline: never guess, just return null */
 }
-/* Verify a WEAK destination guess before the app acts on it. */
-function rwVerifyDest(parsed){
+/* Verify a WEAK destination guess before the app acts on it. */ function rwVerifyDest(parsed){
   if(!parsed || !parsed.dest || !parsed._weakDest) return Promise.resolve(parsed);
   return rwGeocode(parsed.dest).then(function(g){
     if(g){ parsed.dest=g.name; parsed._geo=g; parsed._weakDest=false;
-      /* Store a newly verified destination only after geocoding succeeds. */
-      _cpCtx={dest:parsed.dest, days:parsed.days, budget:parsed.budget};
+      /* Store a newly verified destination only after geocoding succeeds. */ _cpCtx={dest:parsed.dest, days:parsed.days, budget:parsed.budget};
     }
     else { parsed._notAPlace=parsed.dest; parsed.dest=null; }   /* honest: we don't know */
     return parsed;
@@ -467,8 +463,7 @@ function rwVerifyDest(parsed){
 }
 function cpParseRegex(t){
   t = rwNormalizeQuery(t);
-  /* -------- input hygiene: greetings, smalltalk, junk -------- */
-  var RAW_T = t;
+  /* -------- input hygiene: greetings, smalltalk, junk -------- */ var RAW_T = t;
   t = String(t).replace(/^\s*(hey+|hii+|hi|hello+|helo|yo|namaste|namaskar|hola|sup|wassup|bhai|bro|dear|please|pls)\b[\s,!.]*/i, '');
   var BARE = t.replace(/[^a-z]/gi,'');
   // Hindi/Kannada voice transcripts are not empty greetings merely because
@@ -497,8 +492,7 @@ function cpParseRegex(t){
     out.dest=route[2].trim();
     out._route=true;
   }
-  /* budget: 12000 | 12,000 | Rs12000 | ₹12,000 | 8k | under 15k */
-  var m=t.match(/(?:\u20b9|rs\.?\s?|inr\s?)?\s?([\d,]{2,})\s?(k\b|thousand)?/i);
+  /* budget: 12000 | 12,000 | Rs12000 | ₹12,000 | 8k | under 15k */ var m=t.match(/(?:\u20b9|rs\.?\s?|inr\s?)?\s?([\d,]{2,})\s?(k\b|thousand)?/i);
   var mk=t.match(/(?:under|below|within|budget(?: of)?|max)?\s*(?:\u20b9|rs\.?|inr)?\s*(\d{1,3})\s*k\b/i);
   if(mk) out.budget=parseInt(mk[1],10)*1000;
   else { var mb=t.match(/(?:\u20b9|rs\.?\s?|inr\s?)\s?([\d,]{3,})|(?:under|below|within|budget(?: of)?|max)\s*(?:\u20b9|rs\.?|inr)?\s*([\d,]{3,})/i);
@@ -515,8 +509,7 @@ function cpParseRegex(t){
     var wdm=t.match(/\b(one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen)\s*[- ]?\s*(?:day|night|din)s?\b/i);
     if(wdm) out.days=WORD_DAYS[wdm[1].toLowerCase()];
   }
-  /* destination: DB first (incl. fuzzy), then preposition, then leftover-token */
-  var hit=(out.dest||out._recommendCount)?null:cpDbFind(t); if(hit) out.dest=hit.name;
+  /* destination: DB first (incl. fuzzy), then preposition, then leftover-token */ var hit=(out.dest||out._recommendCount)?null:cpDbFind(t); if(hit) out.dest=hit.name;
   if(!out.dest && !out._recommendCount){
     /* Take EVERY preposition match, not just the first: "what to eat in Manali"
        used to capture "eat" from "to eat" and then look up a guide for a verb.
@@ -571,17 +564,14 @@ function cpParseRegex(t){
     [/work|remote|workation|wifi|digital.?nomad/i,'workation']
   ];
   VIBES.forEach(function(v){ if(v[0].test(t)) out.vibe.push(v[1]); });
-  /* proximity: "near Delhi", "close to Mumbai", "around Bangalore" */
-  var near=t.match(/(?:near|close to|around|from)\s+([A-Z][a-zA-Z]{2,})/);
+  /* proximity: "near Delhi", "close to Mumbai", "around Bangalore" */ var near=t.match(/(?:near|close to|around|from)\s+([A-Z][a-zA-Z]{2,})/);
   if(near) out.near=near[1];
-  /* fuzzy duration words when no number given */
-  if(out.days==null){
+  /* fuzzy duration words when no number given */ if(out.days==null){
     if(/long weekend|weekend/i.test(t)) out.days=3;
     else if(/week\b/i.test(t)) out.days=7;
     else if(/fortnight|two weeks/i.test(t)) out.days=14;
   }
-  /* season/timing hint */
-  var MON=/\b(jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|jun(?:e)?|jul(?:y)?|aug(?:ust)?|sep(?:tember)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)\b/i.exec(t);
+  /* season/timing hint */ var MON=/\b(jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|jun(?:e)?|jul(?:y)?|aug(?:ust)?|sep(?:tember)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)\b/i.exec(t);
   if(MON) out.month=MON[1];
   var _monthNames=['jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec'];
   if(out._recommendCount){
@@ -601,8 +591,7 @@ function cpParseRegex(t){
      entirely, because each message was parsed in isolation. Inherit the last
      destination/days/budget when this turn doesn't state its own and clearly
      refers back ("there", "it", or simply omits the place). */
-  /* which TOPIC is this turn about? drives compact follow-up answers */
-  var TOPICS=[[/\b(weather|rain|temperature|forecast|climate|season)\b/i,'weather'],
+  /* which TOPIC is this turn about? drives compact follow-up answers */ var TOPICS=[[/\b(weather|rain|temperature|forecast|climate|season)\b/i,'weather'],
               [/\b(eat|eating|food|cuisine|dish|restaurant|breakfast|lunch|dinner|drink|cafe|cafes)\b/i,'eat'],
               [/\b(reach|reaching|get in|getting there|flight|flights|train|trains|route|routes)\b/i,'reach'],
               [/\b(get around|local transport|taxi|auto|metro|rickshaw|scooter)\b/i,'around'],
@@ -616,8 +605,7 @@ function cpParseRegex(t){
     if(_tn){ _tScore[TOPICS[ti][1]]=_tn; if(_tn>_tBestN){ _tBestN=_tn; _tBest=TOPICS[ti][1]; } }
   }
   if(_tBest){ out.topic=_tBest; out.topics=Object.keys(_tScore); }
-  /* travel STYLE words: "shoestring" is a style, not a rupee figure */
-  if(/shoe\s*string|shoestring|bare\s*bones|barebones|backpack(er|ing)?|cheapest|sasta|low\s*budget|tight\s*budget/i.test(t)) out.style='budget';
+  /* travel STYLE words: "shoestring" is a style, not a rupee figure */ if(/shoe\s*string|shoestring|bare\s*bones|barebones|backpack(er|ing)?|cheapest|sasta|low\s*budget|tight\s*budget/i.test(t)) out.style='budget';
   else if(/luxur(y|ious)|lavish|5\s*star|premium|shaandaar/i.test(t)) out.style='luxury';
   /* Explicit worldwide place changes must override conversational "what about".
      Ailon may not yet know the city. Geocode it instead of returning old trip. */
@@ -643,8 +631,7 @@ function cpParseRegex(t){
       if(out.budget==null && _cpCtx.budget) out.budget = _cpCtx.budget;
     }
   }
-  /* ---- MULTI-CITY: "delhi covering delhi, jaipur, mumbai, goa" ---- */
-  out.stops = (function(){
+  /* ---- MULTI-CITY: "delhi covering delhi, jaipur, mumbai, goa" ---- */ out.stops = (function(){
     if(out._route) return null;
     var names = rwScanKnown(t);
     /* A city followed by its state is qualification, not a two-stop route.
@@ -707,14 +694,12 @@ function cpParseRegex(t){
   if(!out._country && out._weakDest && out.dest && !rwKnownMap()[String(out.dest).toLowerCase()]){
     out._needsPlaceVerification = true;
   }
-  /* and never REMEMBER a common-word destination for future turns */
-  if(out.dest && RW_COMMON_WORDS.test(String(out.dest)) && !rwKnownMap()[String(out.dest).toLowerCase()]) out._weakDest = true;
+  /* and never REMEMBER a common-word destination for future turns */ if(out.dest && RW_COMMON_WORDS.test(String(out.dest)) && !rwKnownMap()[String(out.dest).toLowerCase()]) out._weakDest = true;
   var _junk = out.dest && RW_COMMON_WORDS.test(String(out.dest)) && !rwKnownMap()[String(out.dest).toLowerCase()];
   if(out.dest && !_junk && !out._weakDest) _cpCtx = {dest:out.dest, days:out.days, budget:out.budget};
   else if(out._country) _cpCtx = {dest:null, days:out.days, budget:out.budget, country:out._country};
   else if(explicitNewPlace && (!out.dest || out._weakDest)) _cpCtx = null; /* prevent stale city while verifying */
-  /* learn what this user tends to ask for — powers personalisation over time */
-  try{ rwLearnIntent(out); }catch(e){ /* best-effort, ignore */ }
+  /* learn what this user tends to ask for — powers personalisation over time */ try{ rwLearnIntent(out); }catch(e){ /* best-effort, ignore */ }
   return out;
 }
 /* ---- SELF-IMPROVING INTENT MEMORY ----
@@ -758,8 +743,7 @@ async function rwResolvePlace(name){
   var key='rw_geo_'+String(name).toLowerCase().replace(/[^a-z0-9]/g,'');
   if(RW_PLACE_CACHE[key]) return RW_PLACE_CACHE[key];
   try{ var c=JSON.parse(lsGet(key)||'null'); if(c){ RW_PLACE_CACHE[key]=c; return c; } }catch(e){ /* parse best-effort, ignore malformed/missing data */ }
-  /* curated meaning first — no network needed, and never wrong */
-  var ovKey = String(name).toLowerCase().replace(/[^a-z]/g,'');
+  /* curated meaning first — no network needed, and never wrong */ var ovKey = String(name).toLowerCase().replace(/[^a-z]/g,'');
   if(RW_PLACE_OVERRIDES[ovKey]){
     var o = RW_PLACE_OVERRIDES[ovKey];
     var placeOv = {name:o.name, country:'India', cc:'IN', admin:o.admin, lat:o.lat, lon:o.lon,
@@ -871,7 +855,8 @@ function copilotSend(fromHero, spokenText){
   if(typeof rwUmLearn==='function') rwUmLearn(intents,t);   /* per-user memory: facts only, on this device */
   if(typeof rwTuskPreAnswer==='function' && rwTuskPreAnswer(thinking,intents,t)) return;   /* memory commands, festival trips: no AI call */
   if(typeof rwLocalAtlasReply==='function'&&rwLocalAtlasReply(thinking,intents,t,false))return;
-  var hasKey = (typeof activeProv!=='undefined') && (activeProv==='roamwise' || (activeProv!=='smart' && lsGet('rwKey_'+activeProv)));
+  var basicAI=typeof activeProv!=='undefined'&&activeProv==='smart'&&typeof rwBasicAIAvailable==='function'&&rwBasicAIAvailable();
+  var hasKey = basicAI || ((typeof activeProv!=='undefined') && (activeProv==='roamwise' || (activeProv!=='smart' && lsGet('rwKey_'+activeProv))));
   if(isKasarFestival){
     var festivalAnswer=cpSmartAnswer(t);
     if(festivalAnswer){try{track('kasar_ailon_tailor');}catch(e){/* anonymous daily counter */}cpFinish(thinking,rwMasalaWrap(festivalAnswer),intents,t);return;}
@@ -901,6 +886,8 @@ function copilotSend(fromHero, spokenText){
           if(_pf) facts = 'AUTHORITATIVE curated facts (trust these over everything else): '+_pf+'\n' + facts;
         }
       }catch(e){ /* best-effort, ignore */ }
+      /* Included AI receives only curated guide context and the explicit question, not remembered account data or trip history. */
+      var basicGuideFacts=facts;
       /* Explicit state beats hoping the model infers it from the transcript. */
       var recent = rwRecall(6).map(function(t){ return (t.role==='user'?'User: ':'Assistant: ')+t.text; }).join('\n');
       if(recent) facts += 'Recent conversation:\n'+recent+'\n';
@@ -931,7 +918,9 @@ function copilotSend(fromHero, spokenText){
         +'MONEY: the user\u2019s selected currency is '+((CURR.find(function(x){return x.c===AC;})||{s:'\u20b9',c:'INR'}).s)+' ('+AC+'). Always give prices in that symbol, never $ unless AC is literally USD. '
         +'Prefer the verified guide text below over your own recollection; if it contradicts you, trust it. No markdown headers, no bullet spam.\n'
         +facts+(hist? 'Conversation so far:\n'+hist+'\n':'')+'User: '+(aiText||t)+'\nCopilot:';
-      aiCallAny(prompt, 260, function(err, txt){
+      if(basicAI)prompt=rwBasicAICompactPrompt(basicGuideFacts,aiText||t);
+      var askAI=basicAI?rwBasicAICall:function(p,cb){aiCallAny(p,260,cb);};
+      askAI(prompt, function(err, txt){
         var answer = (txt||'').trim();
         if(!answer){ rwTuskSearchFailure(thinking,t,intents,err); return; }
         /* AI wants a clarifying question with tappable options \u2014 render real
@@ -949,8 +938,9 @@ function copilotSend(fromHero, spokenText){
             return;
           }
         }
-        answer = escHtml(answer); if(_ck) rwAnsRemember(_ck,t,answer);   /* kept only if relevant */
-        if(lastAiSource && lastAiSource.prov!==activeProv){
+        answer = escHtml(answer); if(_ck&&!basicAI) rwAnsRemember(_ck,t,answer);   /* included answers stay out of the shared browser cache */
+        if(basicAI)answer+=rwBasicAIBadge();
+        if(!basicAI && lastAiSource && lastAiSource.prov!==activeProv){
           answer += '<br><span class="rw-note">\u21aa answered by <b>'+esc2(lastAiSource.prov)+'</b> \u2014 '+esc2(activeProv)+' was unavailable</span>';
         }
         if(intents.dest) rwLearn(intents.dest);
