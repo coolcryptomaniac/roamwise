@@ -26,7 +26,19 @@
       }.bind(null, job), function () { /* keep the gradient */ }).then(function () { active--; setTimeout(pump, 120); });
     }
   }
+  /* Curated photos (media/destinations/manifest.json): one checked, freely licensed photo per place, served
+     from our own site and mirrored to R2. Places without one fall back to the Wikipedia lookup below. */
+  var CURATED = null, CREDIT_URL = '/media/destinations/credits.html';
+  function slug(name) { return String(name).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''); }
+  function curated(d) { var a = CURATED && CURATED[slug(canon(d.name))]; return a && /^\/media\/destinations\/[a-z0-9-]+\.webp$/.test(a.src) ? a : null; }
   function photo(card, d) {
+    var c = curated(d);
+    if (c) {
+      card.style.backgroundImage = 'linear-gradient(180deg,rgba(0,0,0,.05) 35%,rgba(0,0,0,.72)),url("' + c.src + '")';
+      card.classList.add('has-photo');
+      card.title = 'Photo: ' + c.credit;
+      return;
+    }
     var cached = get(key(d.name));
     if (cached && /^https:/.test(cached)) return paint(card, cached);
     if (slow()) return;
@@ -44,15 +56,21 @@
     var c = node('button', 'rw-dr-card'); c.type = 'button';
     var h = HUES[d.name.length % HUES.length];
     c.style.backgroundImage = 'linear-gradient(160deg,rgb(' + h.join(',') + '),#14121f)';
-    c.setAttribute('aria-label', 'Plan a trip to ' + d.name + (d.region ? ', ' + d.region : ''));
-    c.append(node('span', 'rw-dr-name', d.name), node('span', 'rw-dr-sub', d.region || d.country || ''));
+    var where = sub(d) || (d.country !== 'India' ? d.country : '') || '';
+    c.setAttribute('aria-label', 'Plan a trip to ' + d.name + (where ? ', ' + where : ''));
+    c.append(node('span', 'rw-dr-name', d.name), node('span', 'rw-dr-sub', where));
     c.addEventListener('click', function () { plan(d); });
     photo(c, d);
     return c;
   }
+  /* The destination DB and the place overrides name some places twice (Coorg / Coorg (Kodagu) / Coorg (Madikeri)). */
+  var ALIAS = { 'coorg (kodagu)': 'Coorg', 'coorg (madikeri)': 'Coorg', 'alleppey (alappuzha)': 'Alleppey', 'mcleod ganj': 'McLeodganj', 'ziro': 'Ziro Valley', 'new delhi': 'Delhi' };
+  function canon(name) { return ALIAS[String(name).toLowerCase()] || name; }
+  /* Region labels like "South Asia" say nothing for a place in India: the curated manifest gives the state. */
+  function sub(d) { var c = CURATED && CURATED[slug(canon(d.name))]; return (c && c.region) || (/^(south|southeast|east|central) asia$/i.test(d.region || '') ? '' : d.region) || ''; }
   function india() {
     var seen = {}, out = [];
-    function add(name, region) { var k = String(name).toLowerCase(); if (!name || seen[k]) return; seen[k] = 1; out.push({ name: name, region: region || '', country: 'India' }); }
+    function add(name, region) { name = canon(name); var k = String(name).toLowerCase(); if (!name || seen[k]) return; seen[k] = 1; out.push({ name: name, region: region || '', country: 'India' }); }
     (W.DB || []).forEach(function (d) { if (d.country === 'India') add(d.name, d.region); });
     var o = W.RW_PLACE_OVERRIDES || {};
     /* State-level entries (admin like "Kerala (Kochi)") are regions, not destinations: skip them. */
@@ -83,10 +101,16 @@
     var a = shuffle(india()), b = shuffle(world());
     var sec = node('section', 'v v-home rw-dest-rows'); sec.id = 'rwDestRows'; sec.setAttribute('aria-label', 'Destinations');
     var head = node('div', 'rw-dr-top'); head.append(node('small', '', 'TAP A PLACE · AILON PLANS IT'), node('h2', '', 'Where next? ' + (a.length + b.length) + ' destinations'));
-    sec.append(head, row('Across India', a.length + ' places', a, 'india'), row('Beyond India', b.length + ' places', b, 'world'));
+    var credits = node('a', 'rw-dr-credits', 'Photo credits'); credits.href = CREDIT_URL;
+    sec.append(head, row('Across India', a.length + ' places', a, 'india'), row('Beyond India', b.length + ' places', b, 'world'), credits);
     anchor.insertAdjacentElement('beforebegin', sec);
     return true;
   }
-  function start() { if (!mount()) { var n = 0, t = setInterval(function () { if (mount() || ++n > 20) clearInterval(t); }, 500); } }
+  function loadCurated() {
+    return fetch('/media/destinations/manifest.json', { credentials: 'omit' }).then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (j) { CURATED = j && j.version === 1 && j.assets && typeof j.assets === 'object' ? j.assets : {}; }, function () { CURATED = {}; });
+  }
+  function start() { loadCurated().then(go); }
+  function go() { if (!mount()) { var n = 0, t = setInterval(function () { if (mount() || ++n > 20) clearInterval(t); }, 500); } }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else start();
 })();

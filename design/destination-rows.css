@@ -13,3 +13,4 @@
 @media (min-width:900px){.rw-dr-card{flex-basis:220px;height:280px}}
 /* The two rows replace the older single destination strip on home. */
 body.shell[data-view="home"] #rwDestinationsRail{display:none!important}
+.rw-dr-credits{display:inline-block;margin:6px 4px 0;font-size:11px;opacity:.6;color:inherit}

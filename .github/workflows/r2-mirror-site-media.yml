@@ -1,0 +1,51 @@
+name: Mirror destination photos and itineraries to R2
+# Keeps a copy of the curated destination photos (media/destinations/) and the itinerary library
+# (itinerary-library/) in the Cloudflare R2 bucket "roamwise-media", so they live in R2 as well as on the site.
+# The site keeps serving its own copies until a public R2 domain is connected.
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'media/destinations/**'
+      - 'itinerary-library/**'
+      - '.github/workflows/r2-mirror-site-media.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: roamwise-r2-mirror
+  cancel-in-progress: false
+jobs:
+  mirror:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      BUCKET: roamwise-media
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+      - name: Check Cloudflare secrets
+        run: |
+          if [ -z "$CLOUDFLARE_API_TOKEN" ] || [ -z "$CLOUDFLARE_ACCOUNT_ID" ]; then
+            echo "::error::Add CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID in repository Actions secrets."; exit 1
+          fi
+      - name: Create the bucket if it does not exist
+        run: npx --yes wrangler@4 r2 bucket create "$BUCKET" || echo "Bucket already exists"
+      - name: Upload files
+        run: |
+          set -e
+          n=0
+          while IFS= read -r -d '' f; do
+            case "$f" in
+              *.webp) t=image/webp ;; *.jpg|*.jpeg) t=image/jpeg ;; *.png) t=image/png ;;
+              *.json) t=application/json ;; *.html) t=text/html ;; *.js) t=application/javascript ;; *.css) t=text/css ;;
+              *) continue ;;
+            esac
+            npx --yes wrangler@4 r2 object put "$BUCKET/${f#./}" --remote --file "$f" --content-type "$t" >/dev/null
+            n=$((n+1))
+          done < <(find ./media/destinations ./itinerary-library -type f -print0)
+          echo "Uploaded $n files to R2 bucket $BUCKET"
