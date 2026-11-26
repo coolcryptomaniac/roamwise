@@ -332,3 +332,12 @@
   .rw-orb-card p{font-size:clamp(15px,3.8vw,18px);line-height:1.55}
   .rw-orb-answer-tile p,.rw-orb-long-answer p{font-size:clamp(15px,3.8vw,18px);line-height:1.65;overflow-wrap:anywhere}
 }
+/* Voice screen, simpler (Nov 2026): three main buttons, the rest under "Voice options";
+   once an answer arrives the orb shrinks so the answer is readable without scrolling. */
+.rw-orb-primary button{flex:1 1 0!important;min-width:0}
+.rw-orb-more{width:100%;box-sizing:border-box;border:1px solid rgba(201,173,220,.22);border-radius:16px;padding:6px 10px;background:rgba(255,255,255,.03)}
+.rw-orb-more>summary{cursor:pointer;padding:8px 4px;font-weight:700;color:#d9c8ff;list-style:none;text-align:center}
+.rw-orb-more>summary::-webkit-details-marker{display:none}
+.rw-orb-more[open]>summary{margin-bottom:8px}
+.rw-orb-has-answer .rw-orb-stage{height:clamp(110px,16vh,150px)!important}
+.rw-orb-has-answer .rw-orb-glow{width:min(34%,120px)!important}

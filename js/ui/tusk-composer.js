@@ -19,7 +19,8 @@
     var nav = document.getElementById('tabbar');
     var floor = nav ? Math.min(vh, nav.getBoundingClientRect().top) : vh;
     var above = r.top - gap - 8, below = floor - r.bottom - gap - 8;
-    var up = h > below && above > below;
+    /* Always open upward (Mohit's call); drop below only if there is truly no room above. */
+    var up = above >= Math.min(h, 160) || above >= below;
     var room = Math.max(120, up ? above : below);
     if (h > room) { m.style.maxHeight = room + 'px'; h = room; }
     m.style.top = (up ? r.top - gap - h : r.bottom + gap) + 'px';

@@ -26,7 +26,7 @@ test('voice studio offers friendly, educational, Kumaoni-inspired style without 
  const context={document:{body:{appendChild(){}},createElement:dom},rwVoiceStart(){},rwVoiceStop(){},tuskStopSpeech(){},console};
  context.window=context;vm.createContext(context);vm.runInContext(source,context);
  const studio=context.RWTuskVoiceStudio;
- assert.equal(studio.spokenStyle('Kanatal is a village').includes('Nice!'),true);
+ assert.equal(studio.spokenStyle('Kanatal is a village'),'Kanatal is a village'); // no canned cheer lines
  studio.state.style='guide';assert.equal(studio.spokenStyle('Kanatal is a village'),'Kanatal is a village');
  studio.state.style='kumaoni-style';assert.match(studio.spokenStyle('Almora'),/Bhula, suno zara/);
  assert.match(studio.spokenStyle('अल्मोड़ा'),/भुला/);
