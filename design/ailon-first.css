@@ -1,8 +1,7 @@
-/* Ailon-first, calm travel homepage. Secondary sections remain in code and are reachable from /more/. */
+/* Ailon-first, calm travel homepage. Secondary sections remain in code and are reachable from /more/.
+   Kept on home as essential: #rwFeatured (be featured), #bigSix (category cards), #rwBoard (creator x stay match). */
 body.shell[data-view="home"] #rwSalesCarousels,
-body.shell[data-view="home"] #rwFeatured,
 body.shell[data-view="home"] #rwMatchLinks,
-body.shell[data-view="home"] #bigSix,
 body.shell[data-view="home"] #rwEveryday,
 body.shell[data-view="home"] #quickGrid,
 body.shell[data-view="home"] #rwPartnerHub,
@@ -13,7 +12,6 @@ body.shell[data-view="home"] #app,
 body.shell[data-view="home"] #results,
 body.shell[data-view="home"] #promoTop,
 body.shell[data-view="home"] > #rwRaveCard,
-body.shell[data-view="home"] > #rwBoard,
 body.shell[data-view="home"] > .rw-discovery-feed,
 body.shell[data-view="home"] > .rw-country-feed {
   display:none!important;
