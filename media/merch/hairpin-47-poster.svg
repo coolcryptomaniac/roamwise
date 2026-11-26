@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 1500" width="1200" height="1500"><defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1a0b3d"/><stop offset=".55" stop-color="#ff3d7f"/><stop offset=".75" stop-color="#ffb347"/><stop offset="1" stop-color="#120a24"/></linearGradient></defs>
+<rect width="1200" height="1500" fill="url(#g)"/>
+<circle cx="600" cy="930" r="250" fill="#ffd36b" opacity=".9"/>
+<rect x="300" y="870" width="600" height="10" fill="#ff3d7f"/><rect x="300" y="900" width="600" height="12" fill="#ff3d7f"/><rect x="300" y="930" width="600" height="14" fill="#ff3d7f"/><rect x="300" y="960" width="600" height="16" fill="#ff3d7f"/><rect x="300" y="990" width="600" height="18" fill="#ff3d7f"/><rect x="300" y="1020" width="600" height="20" fill="#ff3d7f"/><rect x="300" y="1050" width="600" height="22" fill="#ff3d7f"/>
+<path d="M0,1000 L180,780 L330,900 L520,700 L700,930 L880,760 L1200,1000 L1200,1500 L0,1500 Z" fill="#120a24"/>
+<path d="M140,1500 C300,1240 900,1300 760,1120 C640,980 380,1090 520,980" stroke="#2b1d4f" stroke-width="90" fill="none"/>
+<path d="M140,1500 C300,1240 900,1300 760,1120 C640,980 380,1090 520,980" stroke="#ffd36b" stroke-width="4" stroke-dasharray="26 22" fill="none"/>
+<g transform="translate(320,1310) scale(0.95)"><g class="car">
+<path d="M10,-30 C30,-34 80,-40 140,-52 L230,-92 C260,-104 330,-108 390,-100 L470,-74 C520,-70 570,-60 592,-44 L596,-22 C596,-12 588,-8 576,-8 L10,-8 C2,-8 0,-14 2,-20 Z" fill="#0f0f17"/>
+<path d="M250,-88 L300,-100 C340,-104 380,-102 400,-96 L440,-76 L268,-70 Z" fill="#ff3d7f"/>
+<path d="M40,-30 L560,-40" stroke="#ff3d7f" stroke-width="3" fill="none" opacity=".7"/>
+<circle cx="130" cy="-10" r="34" fill="#0b0b12"/><circle cx="130" cy="-10" r="18" fill="#ff3d7f"/>
+<circle cx="480" cy="-10" r="34" fill="#0b0b12"/><circle cx="480" cy="-10" r="18" fill="#ff3d7f"/>
+<path d="M560,-48 l30,4" stroke="#ffffff" stroke-width="6" stroke-linecap="round"/>
+</g></g>
+<text x="600" y="190" text-anchor="middle" style="font-family:Impact,'Anton','Bebas Neue','Arial Black',sans-serif" font-size="34" fill="#ffd36b" letter-spacing="16">A ROAMWISE ROAD PICTURE</text>
+<text x="600" y="400" text-anchor="middle" style="font-family:Impact,'Anton','Bebas Neue','Arial Black',sans-serif" font-size="230" fill="#fff" letter-spacing="6">HAIRPIN</text>
+<text x="600" y="560" text-anchor="middle" style="font-family:Impact,'Anton','Bebas Neue','Arial Black',sans-serif" font-size="190" fill="none" stroke="#fff" stroke-width="5">47</text>
+<text x="600" y="1450" text-anchor="middle" font-family="Arial Narrow,Arial,sans-serif" font-size="22" fill="#ffffffaa" letter-spacing="3">EVERY TURN IS A PLOT TWIST · NOW SHOWING ON THE MOUNTAIN ROAD</text></svg>

@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 1200" width="1200" height="1200"><rect width="1200" height="1200" fill="#0b0b12"/>
+<circle cx="600" cy="600" r="470" fill="none" stroke="#e8ba6c" stroke-width="22"/><circle cx="600" cy="600" r="420" fill="#141326" stroke="#e8ba6c" stroke-width="6"/>
+<path d="M230,690 L400,470 L500,580 L620,380 L760,600 L860,500 L970,690 Z" fill="#2c2852" stroke="#e8ba6c" stroke-width="8"/>
+<path d="M620,380 L660,440 L620,430 L585,445 Z" fill="#fff"/>
+<g transform="translate(355,790) scale(0.82)"><g class="car">
+<path d="M10,-30 C30,-34 80,-40 140,-52 L230,-92 C260,-104 330,-108 390,-100 L470,-74 C520,-70 570,-60 592,-44 L596,-22 C596,-12 588,-8 576,-8 L10,-8 C2,-8 0,-14 2,-20 Z" fill="#e8ba6c"/>
+<path d="M250,-88 L300,-100 C340,-104 380,-102 400,-96 L440,-76 L268,-70 Z" fill="#141326"/>
+<path d="M40,-30 L560,-40" stroke="#141326" stroke-width="3" fill="none" opacity=".7"/>
+<circle cx="130" cy="-10" r="34" fill="#0b0b12"/><circle cx="130" cy="-10" r="18" fill="#0b0b12"/>
+<circle cx="480" cy="-10" r="34" fill="#0b0b12"/><circle cx="480" cy="-10" r="18" fill="#0b0b12"/>
+<path d="M560,-48 l30,4" stroke="#fff" stroke-width="6" stroke-linecap="round"/>
+</g></g>
+<text x="600" y="900" text-anchor="middle" style="font-family:Impact,'Anton','Bebas Neue','Arial Black',sans-serif" font-size="80" fill="#e8ba6c" letter-spacing="8">FULL THROTTLE</text>
+<text x="600" y="975" text-anchor="middle" style="font-family:Impact,'Anton','Bebas Neue','Arial Black',sans-serif" font-size="46" fill="#fff" letter-spacing="26">HIMALAYA</text>
+<text x="600" y="300" text-anchor="middle" style="font-family:Impact,'Anton','Bebas Neue','Arial Black',sans-serif" font-size="40" fill="#e8ba6c" letter-spacing="20">EST. ALMORA</text></svg>

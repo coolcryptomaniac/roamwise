@@ -1,14 +1,15 @@
 /* Discover: Tinder-style swipe deck for artists, paintings and stays (Nov 2026).
- * Open with window.rwOpenDiscover('artists' | 'paintings' | 'stays').
+ * Open with window.rwOpenDiscover('artists' | 'paintings' | 'stays' | 'shop').
  * Swipe right / ♥ = love, left / ✕ = pass, up / ★ = save. Likes and saves are kept
- * on this device only (localStorage). Nothing here books, prices or sends enquiries:
- * stays open the normal rooms-and-dates flow, art opens the artist's own pages. */
+ * on this device only (localStorage). Stays open the normal rooms-and-dates flow, art opens the
+ * artist's own pages, and Shop "Buy now" opens the server-priced checkout sheet (RWTuskCommerce). */
 (function () {
   'use strict';
   var W = /** @type {any} */ (window), KEY = 'rw_discover_v1';
   var VIBES = [['spiritual', '🕉️ Spiritual'], ['himalayan', '🏔️ Himalayan'], ['culture', '🪔 Culture'], ['wellness', '🌿 Wellness'], ['folk', '🎨 Folk art'], ['nature', '🌲 Nature']];
-  var TABS = [['artists', 'Artists & creators'], ['paintings', 'Paintings'], ['stays', 'Stays']];
-  var state = { tab: 'artists', vibes: [], deck: [], idx: 0, history: [], data: null, root: null };
+  var TABS = [['artists', 'Artists & creators'], ['paintings', 'Paintings'], ['stays', 'Stays'], ['shop', 'Shop']];
+  var API = 'https://roamwise-api.founder-f53.workers.dev';
+  var state = { tab: 'artists', vibes: [], deck: [], idx: 0, history: [], data: null, shop: null, root: null };
 
   function rel(u) { u = String(u || ''); return /^https?:/.test(u) ? u : u.replace(/^\//, ''); }
   function node(tag, cls, text) { var n = document.createElement(tag); if (cls) n.className = cls; if (text != null) n.textContent = text; return n; }
@@ -41,6 +42,26 @@
       .catch(function () { var f = W.rwAmbassadorFallback; return { artists: f ? [f] : [], properties: [] }; })
       .then(function (d) { state.data = d; return d; });
   }
+  /* Shop tab: live products (server prices, inline checkout via RWTuskCommerce) and design
+   * concepts people can vote on before anything is printed. Both come from the Worker. */
+  /** @returns {Promise<any>} */
+  function getJson(path) { return fetch(API + path, { credentials: 'omit', cache: 'no-store' }).then(function (r) { return r.ok ? r.json() : {}; }).catch(function () { return {}; }); }
+  function loadShop() {
+    if (state.shop) return Promise.resolve(state.shop);
+    return Promise.all([getJson('/shop/catalogue'), getJson('/shop/concepts')]).then(function (r) {
+      state.shop = { products: r[0].products || [], open: !!r[0].checkoutOpen, concepts: r[1].concepts || [] }; return state.shop;
+    });
+  }
+  function rupees(p) { return '₹' + Math.round(Number(p || 0) / 100).toLocaleString('en-IN'); }
+  function voterId() {
+    var s = store(); if (!s.voter) { s.voter = 'v' + Math.random().toString(36).slice(2, 12) + Date.now().toString(36); save(s); }
+    return s.voter;
+  }
+  function vote(c) {
+    var s = store(); s.voted = s.voted || {}; if (s.voted[c.ref.id]) return;
+    s.voted[c.ref.id] = 1; save(s);
+    fetch(API + '/shop/vote', { method: 'POST', credentials: 'omit', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ id: c.ref.id, voter: voterId() }) }).catch(function () { /* offline: counted locally only */ });
+  }
   function artistPage(a) { return a.id === 'natasha-guleria' ? '/creators/natasha.html' : (a.page || '/creators/artists.html'); }
   function cardsFor(tab, includeSeen) {
     var d = state.data || { artists: [] }, out = [];
@@ -63,6 +84,19 @@
             tags: tagsOf([w.title].concat(a.themes || [])), links: [[w.url || artistPage(a), w.url ? 'View or buy' : 'Artist page', !!w.url]], ref: a });
         });
       });
+    } else if (tab === 'shop') {
+      var sh = state.shop || { products: [], concepts: [] };
+      sh.products.forEach(function (p) {
+        out.push({ key: 'shop:' + p.id, kind: 'product', title: p.name, sub: rupees(p.pricePaise) + (p.type ? ' · ' + p.type : ''), badge: 'IN STOCK',
+          img: p.image || '', glyph: '👕', desc: p.description || '', chips: (p.variants || []).slice(0, 5).map(function (v) { return v.label; }),
+          tags: tagsOf([p.name, p.description]), ref: p, buy: sh.open, links: [['/shop/#' + p.id, 'Open in shop']] });
+      });
+      sh.concepts.forEach(function (p) {
+        out.push({ key: 'concept:' + p.id, kind: 'concept', title: p.name, sub: 'Concept · about ' + rupees(p.pricePaise) + (p.collection ? ' · ' + p.collection : ''),
+          badge: 'VOTE TO PRINT', img: p.image || '', glyph: '🎬', desc: p.description || '', chips: [p.type, p.votes ? p.votes + ' want this' : 'Be the first'].filter(Boolean),
+          tags: tagsOf([p.name, p.description]), ref: p, links: [] });
+      });
+      if (!out.length) out.push({ key: 'shop:empty', kind: 'join', title: 'Shop opening soon', sub: 'Merch drops land here first.', badge: 'SOON', img: '', glyph: '🛍️', chips: [], tags: [], links: [['/shop/', 'Visit the shop']] });
     } else {
       var all = Array.isArray(W.RW_PARTNERS) ? W.RW_PARTNERS : (W.RW_PARTNER_SEED || []);
       all.filter(function (p) { return p && p.cat === 'stay' && typeof W.rwStayPublicEligible === 'function' && W.rwStayPublicEligible(p) && (typeof W.rwBookingOpen !== 'function' || W.rwBookingOpen(p)); })
@@ -101,6 +135,12 @@
     info.append(chips);
     var links = node('div', 'rw-dsc-links');
     c.links.forEach(function (l) { var a = node('a', '', l[1]); a.href = /^https?:/.test(l[0]) ? l[0] : rel(l[0]); if (l[2]) { a.target = '_blank'; a.rel = 'noopener'; } links.append(a); });
+    if (c.kind === 'product' && c.buy) { var bb = node('a', '', 'Buy now'); bb.href = '/shop/#' + c.ref.id; bb.setAttribute('data-tusk-open', 'shop'); bb.setAttribute('data-tusk-id', c.ref.id); links.prepend(bb); }
+    if (c.kind === 'concept') {
+      var voted = !!(store().voted || {})[c.ref.id], vb = node('button', '', voted ? '✓ You want this' : "I'd buy this"); vb.type = 'button'; vb.disabled = voted;
+      vb.addEventListener('click', function () { vote(c); vb.textContent = '✓ You want this'; vb.disabled = true; });
+      links.prepend(vb);
+    }
     if (c.kind === 'stay') { var b = node('a', '', 'See rooms & dates'); b.href = '#'; b.addEventListener('click', function (e) { e.preventDefault(); openStay(c.stay); }); links.prepend(b); }
     if (links.children.length) info.append(links);
     card.append(info);
@@ -197,6 +237,7 @@
     stamp(card, kind === 'like' ? 200 : kind === 'nope' ? -200 : 0, kind === 'save' ? -200 : 0);
     card.style.transform = out; card.style.opacity = '0';
     var s = store(); s.seen = s.seen || {}; s.seen[c.key] = 1;
+    if (kind === 'like' && c.kind === 'concept') vote(c);
     if (kind === 'like') { s.liked = (s.liked || []).filter(function (k) { return k !== c.key; }).concat(c.key); burst(['💖', '✨', '🧡', '💫']); }
     if (W.RWTaste && c) { W.RWTaste.learn((c.tags || []).concat(W.RWTaste.tagsOfText((c.chips || []).join(' ') + ' ' + c.title)), kind, { id: c.key }); if (kind === 'like') W.RWTaste.offer(c, state.root, openStay); }
     if (kind === 'save') { s.saved = (s.saved || []).filter(function (k) { return k !== c.key; }).concat(c.key); burst(['⭐', '✨']); }
@@ -224,12 +265,14 @@
 
   /* ---------- shell ---------- */
   function setTab(tab) {
-    state.tab = tab; state.idx = 0; state.history = []; state.deck = cardsFor(tab);
+    state.tab = tab; state.idx = 0; state.history = [];
     state.root.querySelectorAll('.rw-dsc-tabs button').forEach(function (b) { b.setAttribute('aria-selected', String(b.dataset.tab === tab)); });
+    if (tab === 'shop' && !state.shop) { var root = state.root; root.querySelector('.rw-dsc-deck').replaceChildren(node('p', 'rw-dsc-hint', 'Loading the shop…')); loadShop().then(function () { if (state.root === root && state.tab === 'shop') setTab('shop'); }); return; }
+    state.deck = cardsFor(tab);
     renderDeck();
   }
   function onKey(e) {
-    if (!state.root) return;
+    if (!state.root || document.getElementById('rwTuskCheckout')) return; /* checkout sheet on top handles its own keys */
     if (e.key === 'Escape') close(); else if (e.key === 'ArrowRight') decide('like'); else if (e.key === 'ArrowLeft') decide('nope'); else if (e.key === 'ArrowUp') decide('save');
   }
   W.rwCloseDiscover = function () { close(); };

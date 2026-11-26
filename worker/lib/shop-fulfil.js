@@ -14,7 +14,8 @@ export function createFulfilment(deps) {
   const { getDoc, updateDoc, queryEqualsString, fetchImpl, now, catalogue } = deps;
 
   function skuFor(line) {
-    const p = catalogue.products.find((x) => x.id === line.id);
+    const c = typeof catalogue === 'function' ? catalogue() : catalogue;
+    const p = c.products.find((x) => x.id === line.id);
     const v = p && p.variants.find((x) => x.id === line.variant);
     return v && v.qikinkSku ? v.qikinkSku : null;
   }

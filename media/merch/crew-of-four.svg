@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 1500" width="1200" height="1500"><rect width="1200" height="1500" fill="#f2e6cc"/><rect x="50" y="50" width="1100" height="1400" fill="none" stroke="#0b0b12" stroke-width="6"/>
+<text x="600" y="220" text-anchor="middle" style="font-family:Impact,'Anton','Bebas Neue','Arial Black',sans-serif" font-size="64" fill="#0b0b12" letter-spacing="24">FOUR FRIENDS</text>
+<text x="600" y="300" text-anchor="middle" style="font-family:Impact,'Anton','Bebas Neue','Arial Black',sans-serif" font-size="64" fill="#0b0b12" letter-spacing="24">ONE PLAN</text>
+<g transform="translate(240,700)"><circle cx="0" cy="-260" r="70" fill="#0b0b12"/><path d="M-110,0 C-110,-150 -60,-190 0,-190 C60,-190 110,-150 110,0 Z" fill="#0b0b12"/><rect x="-62" y="-282" width="124" height="26" rx="12" fill="#e8ba6c"/></g><g transform="translate(480,700)"><circle cx="0" cy="-260" r="70" fill="#0b0b12"/><path d="M-110,0 C-110,-150 -60,-190 0,-190 C60,-190 110,-150 110,0 Z" fill="#0b0b12"/><rect x="-62" y="-282" width="124" height="26" rx="12" fill="#5fd3a0"/></g><g transform="translate(720,700)"><circle cx="0" cy="-260" r="70" fill="#0b0b12"/><path d="M-110,0 C-110,-150 -60,-190 0,-190 C60,-190 110,-150 110,0 Z" fill="#0b0b12"/><rect x="-62" y="-282" width="124" height="26" rx="12" fill="#ff3d7f"/></g><g transform="translate(960,700)"><circle cx="0" cy="-260" r="70" fill="#0b0b12"/><path d="M-110,0 C-110,-150 -60,-190 0,-190 C60,-190 110,-150 110,0 Z" fill="#0b0b12"/><rect x="-62" y="-282" width="124" height="26" rx="12" fill="#7c6bff"/></g>
+<rect x="50" y="760" width="1100" height="14" fill="#c8312c"/>
+<g transform="translate(300,1120) scale(1.0)"><g class="car">
+<path d="M10,-30 C30,-34 80,-40 140,-52 L230,-92 C260,-104 330,-108 390,-100 L470,-74 C520,-70 570,-60 592,-44 L596,-22 C596,-12 588,-8 576,-8 L10,-8 C2,-8 0,-14 2,-20 Z" fill="#c8312c"/>
+<path d="M250,-88 L300,-100 C340,-104 380,-102 400,-96 L440,-76 L268,-70 Z" fill="#0b0b12"/>
+<path d="M40,-30 L560,-40" stroke="#f2e6cc" stroke-width="3" fill="none" opacity=".7"/>
+<circle cx="130" cy="-10" r="34" fill="#0b0b12"/><circle cx="130" cy="-10" r="18" fill="#f2e6cc"/>
+<circle cx="480" cy="-10" r="34" fill="#0b0b12"/><circle cx="480" cy="-10" r="18" fill="#f2e6cc"/>
+<path d="M560,-48 l30,4" stroke="#f2e6cc" stroke-width="6" stroke-linecap="round"/>
+</g></g>
+<text x="600" y="1290" text-anchor="middle" style="font-family:Impact,'Anton','Bebas Neue','Arial Black',sans-serif" font-size="150" fill="#0b0b12">THE GETAWAY</text>
+<text x="600" y="1370" text-anchor="middle" style="font-family:Impact,'Anton','Bebas Neue','Arial Black',sans-serif" font-size="44" fill="#c8312c" letter-spacing="14">SEASON ONE · THE HIMALAYAS</text></svg>

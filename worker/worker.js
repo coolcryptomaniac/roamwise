@@ -74,6 +74,8 @@ import { createTripOrder, redeemVoucher } from './handlers/trip-wallet.js';
 import { runPartnerPayouts, handlePayoutMark, handlePayoutAdmin, handlePayeeSubmit } from './handlers/stay-finance.js';
 import { handleBooksDownload, runMonthlyBooks } from './handlers/stay-books.js';
 import { runKvBackup, handleMediaGet } from './lib/records.js';
+import { handleShopCatalog } from './handlers/shop-catalog-admin.js';
+import { handleSupport } from './handlers/support.js';
 import { requireAdmin } from './handlers/push.js';
 import { parseServiceAccount } from './lib/service-account.js';
 import { handleShopDecide, runShopRefundCron } from './handlers/shop-order.js';
@@ -265,6 +267,9 @@ export default {
     if(bhaktiStatus && request.method === 'GET')return handleCashfreeOrderStatus(request,env,bhaktiStatus[1],true);
     if(path === 'payment-events' && request.method === 'POST') return handlePaymentEvent(request, env);
 
+    if(path === 'shop/concepts' || path === 'shop/vote' || path.startsWith('shop/admin/products') || path === 'shop/admin/product') return handleShopCatalog(request, env, path, {
+      isAdmin: async (req, e) => { try { const r = await requireAdmin(req, e, parseServiceAccount(e).project_id); return !r.error; } catch (_) { return false; } } });
+    if(path.startsWith('support/')) return handleSupport(request, env, path);
     if(path === 'shop/catalogue' && request.method === 'GET') return handleShopCatalogue(request, env);
     if(path === 'shop/quote' && request.method === 'POST') return handleShopQuote(request, env);
     if(path === 'shop/order' && request.method === 'POST') return handleShopOrder(request, env);
