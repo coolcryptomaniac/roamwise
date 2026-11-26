@@ -2,7 +2,7 @@ name: Shop engine — one AI design per day
 # Generates the next theme in shop/engine/themes.json (AI emblem + typography + QC), uploads the print file
 # and mockup to R2 and registers the design in D1. Nothing becomes buyable here: the Worker's daily cron
 # makes QC-passed designs live only when SHOP_ENGINE_ENABLED and SHOP_ENGINE_AUTOPUBLISH are 'true'.
-# Scheduled runs happen only when the repository variable SHOP_ENGINE_DESIGN is 'on'.
+# Scheduled runs are on by default (founder, 27 Nov 2026); set the repository variable SHOP_ENGINE_DESIGN to 'off' to pause.
 on:
   schedule:
     - cron: '40 3 * * *' # 09:10 IST, before the Worker's 11:00 IST daily cron
@@ -21,7 +21,7 @@ concurrency:
 
 jobs:
   design:
-    if: github.event_name == 'workflow_dispatch' || vars.SHOP_ENGINE_DESIGN == 'on'
+    if: github.event_name == 'workflow_dispatch' || vars.SHOP_ENGINE_DESIGN != 'off'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:

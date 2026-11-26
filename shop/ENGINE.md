@@ -22,7 +22,7 @@ Mohit's brief (27 Nov 2026): an AI shop that designs, lists and promotes print-o
 |---|---|---|
 | `SHOP_ENGINE_ENABLED=true` | Worker variable | Engine products can be listed and bought; the daily cron runs. |
 | `SHOP_ENGINE_AUTOPUBLISH=true` | Worker variable | QC-passed designs go live without a human look. |
-| `SHOP_ENGINE_DESIGN=on` | Repository variable | Turns on the daily design workflow. It can always be run by hand. |
+| `SHOP_ENGINE_DESIGN=off` | Repository variable | Pauses the daily design workflow, which is on by default. It can always be run by hand. |
 | `CF_AI_TOKEN` | Repository secret (optional) | A Cloudflare token with Workers AI permission, if the deploy token lacks it. |
 
 ## One-time setup before switching on
@@ -30,7 +30,7 @@ Mohit's brief (27 Nov 2026): an AI shop that designs, lists and promotes print-o
 2. **Sandbox order.** Place one order per product type in Qikink **sandbox** to confirm the design-line fields: `design_code`, `width_inches`, `height_inches`, `placement_sku` (`fr`/`bk`), `design_link`, `mockup_link`. These follow Qikink's create-order API but have not yet been run against it.
 3. **Prices.** Check the prices in `PRODUCT_TYPES`: tee ₹899, hoodie ₹1,999, tote ₹599. They must cover blank + print + shipping + gateway fees.
 4. **Deploy.** Run "Deploy Worker (manual)". Migration `0002_shop_engine.sql` is applied automatically.
-5. **Design workflow.** Set the repository variable `SHOP_ENGINE_DESIGN=on`.
+5. **Design workflow.** Runs daily by default; set `SHOP_ENGINE_DESIGN=off` to pause it.
 
 ## Guardrails
 - Original art only. Themes may not name a franchise, brand or game; the blocklist in `design.py` enforces this. No deity imagery on apparel. Kumaoni text only after a native-speaker check.
