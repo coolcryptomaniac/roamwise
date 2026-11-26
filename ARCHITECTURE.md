@@ -62,7 +62,7 @@ start of the modularization effort, down from 3,099 after the prior
 "modularization-final" pass, down from 1,207 after "round 4", and down from
 629 after "round 5" — the further changes since round 5 are incidental to
 unrelated feature PRs #138-143 and this pass's `submitUtr()` one-line
-rewire, not a new extraction round) and there are **239 files** under `js/` (incl. `js/copilot/atlas-cards.js` and `js/copilot/atlas-grounding.js` for safe atlas cards and destination-only grounding, `js/ui/destination-filmstrip.js`, the progressive local-first destination rail with safe media fallbacks, `js/ui/home-mobile-recovery.js` for a single wallet control and easy Settings access, `js/ui/home-curated-discovery.js`, the accessible one-category-at-a-time homepage storefront, `js/ui/ailon-first.js` and `js/ui/home-quick-access.js`, the round shortcut row on the home screen, `js/payments/wallet-chip.js`, the header wallet chip and drawer link with the cash and bonus-coin icons, `js/ui/amor-offers.js`, the season-ordered homepage Amor offers, and `js/ui/trailmesh-entry.js`, which opens the native Android Trail Mesh or the web kit, `js/ui/events-home-rail.js`, the homepage events carousel, and `js/booking/tusk-direct-offers.js`, Tusk's live-priced package cards)
+rewire, not a new extraction round) and there are **241 files** under `js/` (incl. `js/copilot/atlas-cards.js` and `js/copilot/atlas-grounding.js` for safe atlas cards and destination-only grounding, `js/ui/destination-filmstrip.js`, the progressive local-first destination rail with safe media fallbacks, `js/ui/home-mobile-recovery.js` for a single wallet control and easy Settings access, `js/ui/home-curated-discovery.js`, the accessible one-category-at-a-time homepage storefront, `js/ui/ailon-first.js` and `js/ui/home-quick-access.js`, the round shortcut row on the home screen, `js/payments/wallet-chip.js`, the header wallet chip and drawer link with the cash and bonus-coin icons, `js/ui/amor-offers.js`, the season-ordered homepage Amor offers, and `js/ui/trailmesh-entry.js`, which opens the native Android Trail Mesh or the web kit, `js/ui/events-home-rail.js`, the homepage events carousel, and `js/booking/tusk-direct-offers.js`, Tusk's live-priced package cards)
 (including the later `js/admin/` dashboard modules and
 `js/core/push-notifications.js` — see the `js/core/` and `js/admin/`
 entries below; the count was last re-verified via `npm run mod-status`,
@@ -1377,3 +1377,11 @@ button stay in `partner/marketplace.js`. Loaded after `js/booking/form.js`.
 ## js/ui/home-daily.js (10 Nov 2026)
 
 Daily home feed reader. Fetches `GET /home/daily` from the Worker (1.5 s limit, cached per India day), exposes `window.__rwDaily`, and adds the advisories-in-force strip to `#rwPromo`. Loads before `js/ui/home-promo.js`, which uses the feed's `stayOrder`. No feed, no change. See `staff/B2B-DESK.md`.
+
+### Shared signature design engine (November 2026)
+
+`design/catalogue.json` holds versioned visual recipes. `catalogue-core.js` validates them; `catalogue-seed.js` is the generated offline copy; `design-engine.js` maps them to scoped CSS variables and motion controls. The existing Design Vault preserves layout editions and the existing carousel helper consumes carousel settings. The read-only Worker `/design/catalogue` serves its matching release from existing KV, with a bundled fallback. The main-only catalogue publisher stores and verifies each version. See `docs/design-engine.md` for release and rollback details.
+
+### Voice stay quote selection
+
+`js/voice/stay-concierge.js` intercepts explicit spoken stay requests in the shared copilot dispatcher. It gathers dates, guests and budget, reads the live rate book and full-price quotes, and requires an option plus explicit confirmation before producing the existing Cashfree checkout URL. Voice Studio mirrors the same choices. This module never creates orders or debits a wallet. See `docs/voice-stay-booking.md` for transactional prerequisites.

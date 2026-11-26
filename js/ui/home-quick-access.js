@@ -5,12 +5,13 @@
   'use strict';
   var W = /** @type {any} */ (window);
   var ITEMS = [
-    { id: 'stays', icon: '🏡', label: 'Find stays', run: function () { W.openListing(); } },
+    { id: 'group-chat', icon: '💬', label: 'Group chat', run: function () { W.openGroupChat(); } },
+    { id: 'group-plan', icon: '🤝', label: 'Plan together', run: function () { W.openGroupPlanner(); } },
+    { id: 'mesh', icon: '📡', label: 'TrailMesh', note: 'OFFLINE', href: '/trailmesh/' },
+    { id: 'wallet', icon: '👛', label: 'Wallet', href: '/wallet/' },
+    { id: 'stays', icon: '🏡', label: 'Find stays', run: function () { if(W.rwOpenStayBrowser)W.rwOpenStayBrowser();else W.openListing(); } },
     { id: 'transport', icon: '🚆', label: 'Transport', run: function () { W.rwOpenTripDesk(); } },
     { id: 'experiences', icon: '✨', label: 'Experiences', run: function () { W.openExperiences(); } },
-    { id: 'group-chat', icon: '💬', label: 'Group chat', run: function () { W.openGroupChat(); } },
-    { id: 'group-plan', icon: '👥', label: 'Group planning', run: function () { W.openGroupPlanner(); } },
-    { id: 'mesh', icon: '📡', label: 'TrailMesh', href: '/trailmesh/' },
     { id: 'more', icon: '☰', label: 'All tools', href: '/more/' }
   ];
   /* Inside the Android app a folder URL such as /wallet/ is answered with the home page (unstyled, stuck),

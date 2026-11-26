@@ -134,7 +134,7 @@ html[data-rw-design="himalayan-saanjh"] #copilotHero .tusk-title b{letter-spacin
 #tripMapSection #tripMapList{min-width:0;max-width:100%}
 #heroLog .rw-rail{flex-wrap:wrap;max-width:100%;overflow-wrap:anywhere}
 #heroLog img{max-width:100%;height:auto}
-html[data-rw-design="himalayan-saanjh"] body.shell[data-view="home"] :is(#rwQuick,#brief){display:none!important}
+html[data-rw-design="himalayan-saanjh"] body.shell[data-view="home"] #brief{display:none!important}
 @media(max-width:700px){#tripMapSection #tripMap,#tripMapSection #tripMapList{flex:0 0 100%!important;width:100%}#tripMapSection #tripMapList{max-height:320px!important}#heroLog .rw-itinerary-days{grid-template-columns:minmax(0,1fr)!important}}
 @media(min-width:1500px){body.shell[data-view="home"] #copilotHero,body.shell[data-view="copilot"] #copilotHero{width:min(calc(100% - 48px),1120px)}#heroLog .rw-itinerary-day{font-size:17px}}
 

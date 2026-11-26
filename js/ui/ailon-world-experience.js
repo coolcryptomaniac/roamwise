@@ -194,6 +194,7 @@
       }
       button.append(art,make('strong','',item.label));
       button.addEventListener('click',()=>{
+        if(item.id==='rwSalesStays' && typeof W.rwOpenStayBrowser==='function'){W.rwOpenStayBrowser();return;}
         const filter=/** @type {HTMLButtonElement|null} */ (document.querySelector('#rwDiscoverFilters button[data-category="'+item.cat+'"]'));
         if(filter)filter.click();
         sales.scrollIntoView({behavior:'smooth',block:'start'});

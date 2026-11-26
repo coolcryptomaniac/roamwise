@@ -10,7 +10,7 @@
     booking: 'Help me review my trip and booking requests. Ask for the trip or reference first, distinguish confirmed reservations from pending enquiries, and tell me what remains to book. Do not assume a payment or booking is confirmed.'
   };
   var ACTIONS = {
-    stays: function () { return W.openListing && W.openListing(); },
+    stays: function () { return W.rwOpenStayBrowser ? W.rwOpenStayBrowser() : W.openListing && W.openListing(); },
     itineraries: function () { return W.openVault && W.openVault(); },
     bookings: function () { return W.openBooking && W.openBooking(); },
     transport: function () { return W.rwOpenTripDesk && W.rwOpenTripDesk(); },
@@ -24,6 +24,9 @@
   };
   var lastPromptAt=0;
   function startPrompt(key){
+    // Inventory and support actions must work even with an unsent chat draft.
+    if(key==='stay' && typeof W.rwOpenStayBrowser==='function'){W.rwOpenStayBrowser();return true;}
+    if(key==='booking' && typeof W.rwOpenBookingHelp==='function'){W.rwOpenBookingHelp();return true;}
     var inp=/** @type {HTMLTextAreaElement|null} */ (document.getElementById('heroInput')), prompt=PROMPTS[key];
     if(!inp || !prompt) return false;
     var now=Date.now(); if(now-lastPromptAt<900) return true; lastPromptAt=now;
@@ -75,7 +78,7 @@
     var fn=ACTIONS[key];
     try {
       /* Avoid invoking a missing global while the app boot is incomplete. */
-      var symbol={stays:'openListing',itineraries:'openVault',bookings:'openBooking',transport:'rwOpenTripDesk',experiences:'openExperiences',groups:'openGroupPlanner',mesh:'rwOpenTrailMesh',events:'openEvents',settings:'openSettings',saved:'showSaved',journey:'openJourneyLog'}[key];
+      var symbol={stays:typeof W.rwOpenStayBrowser==='function'?'rwOpenStayBrowser':'openListing',itineraries:'openVault',bookings:'openBooking',transport:'rwOpenTripDesk',experiences:'openExperiences',groups:'openGroupPlanner',mesh:'rwOpenTrailMesh',events:'openEvents',settings:'openSettings',saved:'showSaved',journey:'openJourneyLog'}[key];
       if(typeof W[symbol]!=='function') return false;
       fn(); return true;
     }catch(e){return false;}

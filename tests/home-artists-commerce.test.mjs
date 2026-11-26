@@ -22,7 +22,7 @@ test('artist carousel is animated by shared helper, with reduced-motion and exis
  const css=read('design/design-vault.css'),vault=read('design/design-vault.js');
  assert.match(css,/#rwSalesArtists/);
  assert.match(vault,/\['rwSalesArtists','rwSalesStays','rwSalesPackages','rwSalesWeddings','rwSalesShop'\]/);
- assert.match(vault,/window\.rwCarousel\(track,\{auto:5700\}\)/);
+ assert.match(vault,/window\.rwCarousel\(track,\{auto:5700,design:true\}\)/);
  assert.match(home,/src="\/design\/carousel\.js"/);
  assert.match(css,/prefers-reduced-motion:reduce/);
  assert.match(home,/id="rwSalesWeddings"/);

@@ -22,7 +22,7 @@ test('real homepage DOM preserves every commercial carousel across three visual 
  const panels=['rwSalesStays','rwSalesPackages','rwSalesWeddings','rwSalesShop'];
  const sales=document.getElementById('rwSalesCarousels');
  assert.ok(sales,'commercial collection is in HTML');
- assert.equal(sales.previousElementSibling.id,'copilotHero','sales should appear immediately after Ailon hero in new edition');
+ assert.equal(sales.previousElementSibling.id,'rwCreditCard','credit promotion sits between Ailon and the commerce rails');
  for(const id of panels){
   const rail=document.getElementById(id);
   assert.ok(rail,id+' is present');
@@ -35,11 +35,11 @@ test('real homepage DOM preserves every commercial carousel across three visual 
  window.RWDesignVault.select('kasar-cloud');
  assert.equal(window.localStorage.getItem('rw_design_edition'),'kasar-cloud');
  assert.equal(document.documentElement.dataset.rwDesign,'kasar-cloud');
- assert.equal(sales.previousElementSibling.id,'rwQuick','legacy design uses its former location');
+ assert.equal(document.getElementById('copilotHero').nextElementSibling.id,'rwQuick','handy shortcuts stay beside Ailon in every edition');
  window.RWDesignVault.select('buransh-bazaar');
  assert.equal(document.documentElement.dataset.rwDesign,'buransh-bazaar');
  window.RWDesignVault.select('himalayan-saanjh');
- assert.equal(sales.previousElementSibling.id,'copilotHero');
+ assert.equal(sales.previousElementSibling.id,'rwCreditCard');
  const afterCards=panels.map(id=>[id,...document.getElementById(id).querySelectorAll('a[href]')].map(x=>x.href||x.id).join('|'));
  assert.deepEqual(afterCards,originalCards,'switching themes never loses bookable inventory');
  const settings=document.querySelector('#settingsOverlay .modal-body');

@@ -8,6 +8,7 @@
     {id:'kasar-cloud',name:'Kasar Cloud',desc:'Legacy 2 · compact Ailon-first edition'},
     {id:'buransh-bazaar',name:'Buransh Bazaar',desc:'Legacy 1 · classic commerce-forward edition'}
   ];
+  if(window.RWDesignEngine)editions=window.RWDesignEngine.get().editions;
   function valid(id){return editions.some(function(x){return x.id===id;});}
   function current(){
     try{var stored=localStorage.getItem(KEY);if(valid(stored))return stored;}catch(e){}
@@ -24,6 +25,11 @@
     if(sales&&desk&&quick&&sales.parentNode){
       if(id==='himalayan-saanjh')sales.parentNode.insertBefore(sales,desk);
       else quick.parentNode.insertBefore(sales,quick.nextSibling);
+    }
+    var credit=document.getElementById('rwCreditCard'),hero=document.getElementById('copilotHero');
+    if(hero&&hero.parentNode){
+      if(quick)hero.parentNode.insertBefore(quick,hero.nextSibling);
+      var anchor=quick||hero;if(credit)anchor.parentNode.insertBefore(credit,anchor.nextSibling);
     }
     return true;
   }
@@ -62,12 +68,13 @@
       button.addEventListener('click',function(){choose(e.id);});
       choices.appendChild(button);
     });
+    if(window.RWDesignEngine)window.RWDesignEngine.mountSettings();
   }
   function initCarousels(){
     if(typeof window.rwCarousel!=='function')return;
     ['rwSalesArtists','rwSalesStays','rwSalesPackages','rwSalesWeddings','rwSalesShop'].forEach(function(id){
       var track=document.getElementById(id);
-      if(track&&track.querySelectorAll('.rw-sales-card').length>1)window.rwCarousel(track,{auto:5700});
+      if(track&&track.querySelectorAll('.rw-sales-card').length>1)window.rwCarousel(track,{auto:5700,design:true});
     });
   }
   window.RWDesignVault={current:current,select:choose,mountSettings:mountSettings,editions:editions.map(function(e){return {id:e.id,name:e.name};})};

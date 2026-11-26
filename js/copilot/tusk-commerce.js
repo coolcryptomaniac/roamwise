@@ -320,5 +320,5 @@
    var hide=event.target.closest&&event.target.closest('[data-tusk-hide-offers]');
    if(hide){try{localStorage.setItem('rw_tusk_offers','hide');}catch(e){};document.querySelectorAll('.rw-tusk-commerce').forEach(function(e){e.remove();});}
  });
- root.RWTuskCommerce={category:category,cardsHTML:cardsHTML,renderInto:speakCardsInto,open:open};
+ root.RWTuskCommerce={category:category,cardsHTML:cardsHTML,renderInto:speakCardsInto,open:open,resolveScope:function(raw){return scopeFor(raw,{});}};
 })(window);
