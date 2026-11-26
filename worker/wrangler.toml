@@ -157,6 +157,16 @@ id = "be31e0935be843219cea1edf2203877b"
 # CLOUDFLARE-MIGRATION-SETUP.md section D). Uncomment once a real bucket
 # exists:
 #
+# Long-term storage (#916). Declared here, not only added by the GitHub deploy, because Cloudflare's Git
+# integration (Workers Builds: roamwise-api) also deploys from main and would otherwise drop the bindings.
+[[r2_buckets]]
+binding = "RECORDS"
+bucket_name = "roamwise-records"
+
+[[r2_buckets]]
+binding = "MEDIA"
+bucket_name = "roamwise-media"
+
 # [[r2_buckets]]
 # binding = "RW_BUCKET"
 # bucket_name = "roamwise-data"
