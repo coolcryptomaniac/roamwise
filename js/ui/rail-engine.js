@@ -1,0 +1,116 @@
+/* RWRail: endless horizontal rails for home carousels. Classic script, global window.RWRail.
+ *
+ * Two modes:
+ *  1. Data mode  RWRail.create(track, opts) - renders items a page at a time as the user scrolls,
+ *     then starts again from the first item, so a rail never runs out. Works with a local array
+ *     today and a server page function later (search, filters and sort go through setQuery), so a
+ *     rail with thousands of listings only ever builds what is on screen plus the next page.
+ *       opts.items      local array (or call setItems later)
+ *       opts.fetchPage  optional async ({offset, limit, query}) => {items, done}  (server inventory)
+ *       opts.render     (item) => Element             (required)
+ *       opts.match      (item, query) => boolean      (local search/filter; default: always true)
+ *       opts.pageSize   default 12
+ *       opts.loop       default true: wrap to the start when the inventory is exhausted
+ *       opts.loopMin    default 4: fewer matches than this (e.g. a narrow search) are shown once, not repeated
+ *       opts.onCount    (matched, total) => void      (status text)
+ *  2. Loop mode  RWRail.loop(track) - for rails other modules render themselves: when the user nears
+ *     the end, copies of the original cards are appended. Taps on a copy are forwarded to the same
+ *     element in the original card, so JavaScript click handlers keep working.
+ *
+ * DOM is capped (MAX_NODES); the oldest cards are dropped and scroll position is kept steady. */
+(function () {
+  'use strict';
+  var W = /** @type {any} */ (window);
+  var MAX_NODES = 120, NEAR_PX = 700;
+
+  function nearEnd(track) { return track.scrollLeft + track.clientWidth > track.scrollWidth - NEAR_PX; }
+  function trim(track) {
+    var extra = track.children.length - MAX_NODES; if (extra <= 0) return;
+    var before = track.scrollWidth;
+    for (var i = 0; i < extra; i++) track.removeChild(track.firstElementChild);
+    track.scrollLeft -= before - track.scrollWidth;
+  }
+  function onNear(track, fn) {
+    var busy = false;
+    function check() { if (busy || !track.isConnected || track.scrollWidth <= track.clientWidth + 4 && track.children.length > 0 && !track.__rwRailWants) return; if (!nearEnd(track)) return; busy = true; Promise.resolve(fn()).then(function () { busy = false; }, function () { busy = false; }); }
+    track.addEventListener('scroll', check, { passive: true });
+    return check;
+  }
+
+  function create(track, opts) {
+    opts = opts || {};
+    var pageSize = opts.pageSize || 12, loop = opts.loop !== false;
+    var all = (opts.items || []).slice(), list = all, query = null, cursor = 0, done = false, generation = 0, rendered = 0;
+    function matchAll() { return query && opts.match ? all.filter(function (x) { return opts.match(x, query); }) : all; }
+    function count(total) { if (opts.onCount) opts.onCount(total, opts.fetchPage ? total : all.length); }
+    function put(item, copy) { var el = opts.render(item); if (!el) return; if (copy) el.setAttribute('data-rw-loop', '1'); track.appendChild(el); rendered++; }
+    function nextPage() {
+      var gen = generation;
+      if (opts.fetchPage && !done) {
+        return Promise.resolve(opts.fetchPage({ offset: cursor, limit: pageSize, query: query })).then(function (res) {
+          if (gen !== generation) return;
+          var items = (res && res.items) || [];
+          items.forEach(function (x) { list.push(x); put(x, false); });
+          cursor += items.length; done = !!(res && res.done) || items.length < pageSize;
+          count(list.length); trim(track); fill();
+        });
+      }
+      if (!list.length) return;
+      for (var n = 0; n < pageSize; n++) {
+        if (cursor >= list.length) { if (!loop || list.length < (opts.loopMin || 4)) return; cursor = 0; done = true; }
+        put(list[cursor], done || rendered >= list.length); cursor++;
+      }
+      trim(track); fill();
+    }
+    /* Keep adding pages until the rail is wider than the screen, so there is always something to swipe to. */
+    function fill() { if (track.isConnected && track.clientWidth > 0 && track.scrollWidth <= track.clientWidth + NEAR_PX && ((loop && list.length >= (opts.loopMin || 4)) || cursor < list.length || (opts.fetchPage && !done))) { if (++track.__rwFill < 8) setTimeout(nextPage, 0); } }
+    function reset() {
+      generation++; cursor = 0; done = false; rendered = 0; track.__rwFill = 0;
+      list = opts.fetchPage ? [] : matchAll();
+      track.replaceChildren(); track.scrollLeft = 0;
+      if (!opts.fetchPage) count(list.length);
+      return nextPage();
+    }
+    track.__rwRailWants = true;
+    onNear(track, nextPage);
+    var api = {
+      setItems: function (items) { all = (items || []).slice(); return reset(); },
+      setQuery: function (q) { query = q || null; return reset(); },
+      refresh: reset,
+      matched: function () { return list.length; },
+      total: function () { return all.length; }
+    };
+    reset();
+    return api;
+  }
+
+  function pathFrom(root, el) { var path = []; while (el && el !== root) { var p = el.parentElement; if (!p) return null; path.unshift(Array.prototype.indexOf.call(p.children, el)); el = p; } return el === root ? path : null; }
+  function follow(root, path) { var el = root; for (var i = 0; el && i < path.length; i++) el = el.children[path[i]]; return el; }
+
+  function loopTrack(track) {
+    if (!track || track.__rwLoop) return;
+    track.__rwLoop = true;
+    var check = onNear(track, function () {
+      var originals = Array.prototype.filter.call(track.children, function (c) { return !c.hasAttribute('data-rw-loop'); });
+      if (originals.length < 4) return;
+      originals.forEach(function (c, i) { var copy = /** @type {Element} */ (c.cloneNode(true)); copy.setAttribute('data-rw-loop', '1'); copy.setAttribute('data-rw-loop-of', String(i)); copy.removeAttribute('id'); copy.querySelectorAll('[id]').forEach(function (x) { x.removeAttribute('id'); }); track.appendChild(copy); });
+      trim(track);
+    });
+    track.addEventListener('click', function (e) {
+      var t = /** @type {Element} */ (e.target); var copy = t && t.closest && t.closest('[data-rw-loop-of]');
+      if (!copy || copy.parentElement !== track) return;
+      var originals = Array.prototype.filter.call(track.children, function (c) { return !c.hasAttribute('data-rw-loop'); });
+      var orig = originals[+copy.getAttribute('data-rw-loop-of')]; if (!orig) return;
+      var path = pathFrom(copy, t), target = path && follow(orig, path);
+      if (target && target !== t) { e.preventDefault(); e.stopPropagation(); /** @type {HTMLElement} */ (target).click(); }
+    }, true);
+    setTimeout(check, 50);
+  }
+
+  /* Rails other modules render; each is looped once it exists. */
+  var LOOP_SELECTORS = ['#rwDestinationTrack', '.rw-world-track', '.rw-amb-works', '.rw-room-carousel'];
+  function autoLoop() { LOOP_SELECTORS.forEach(function (s) { document.querySelectorAll(s).forEach(loopTrack); }); }
+  W.RWRail = { create: create, loop: loopTrack, autoLoop: autoLoop };
+  function start() { autoLoop(); setTimeout(autoLoop, 2500); setTimeout(autoLoop, 7000); }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else start();
+})();

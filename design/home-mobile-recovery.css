@@ -88,3 +88,5 @@ html[data-rw-design] body.shell[data-view="home"] #rwSalesCarousels .rw-sales-co
 
 /* Recognizable wallet, not an emoji dependent on device fonts. */
 html[data-rw-design] body.shell[data-view="home"] .nav-right .rw-vault-wallet-link::before,.nav .rw-vault-wallet-link::before{content:"";width:22px;height:19px;border:2px solid currentColor;border-radius:5px;box-shadow:inset 0 -5px 0 rgba(225,183,100,.12);background:radial-gradient(circle at 82% 50%,currentColor 0 2px,transparent 2.5px)}
+#rwHomeFooter .rw-programs{margin:12px 0 4px;font-size:12px;line-height:1.7}
+#rwHomeFooter .rw-programs span{color:#e8c58b;font-weight:700;letter-spacing:.04em}
