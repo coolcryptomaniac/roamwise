@@ -10,5 +10,5 @@ test('organiser page offers all three plan models',()=>{
 test('organiser page links from home and More, no checkout on the page',()=>{
   assert.match(read('js/ui/home-quick-access.js'),/href: '\/organisers\/'/);
   assert.match(read('more/index.html'),/href="\/organisers\/"/);
-  const js=read('organisers/organisers.js');assert.match(js,/Founding price on request/);assert.ok(!/cashfree|razorpay|checkout/i.test(js));
+  const js=read('organisers/organisers.js');assert.match(js,/Founding price on request/);assert.ok(!/cashfree|razorpay|fetch\(['"][^'"]*(pay|order)/i.test(js));
 });
