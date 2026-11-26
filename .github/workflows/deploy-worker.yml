@@ -96,13 +96,17 @@ jobs:
           set +e
           W="npx --yes wrangler@4"
           $W r2 bucket create roamwise-records >/dev/null 2>&1; $W r2 bucket create roamwise-media >/dev/null 2>&1
-          if $W r2 bucket list 2>/dev/null | grep -q 'roamwise-records'; then
+          if grep -q 'binding = "RECORDS"' wrangler.toml; then echo "R2 bindings are declared in wrangler.toml"
+          elif $W r2 bucket list 2>/dev/null | grep -q 'roamwise-records'; then
             printf '\n[[r2_buckets]]\nbinding = "RECORDS"\nbucket_name = "roamwise-records"\n\n[[r2_buckets]]\nbinding = "MEDIA"\nbucket_name = "roamwise-media"\n' >> wrangler.toml
             echo "R2 bound: RECORDS (private), MEDIA"
           else echo "::warning::R2 buckets unavailable (token may lack R2 permission); deploying without R2"; fi
           id() { $W d1 list --json 2>/dev/null | python3 -c "import sys,json;print(next((d.get('uuid') or d.get('database_id') or '' for d in json.load(sys.stdin) if d.get('name')=='roamwise-db'),''))" 2>/dev/null; }
           DB=$(id); [ -z "$DB" ] && $W d1 create roamwise-db >/dev/null 2>&1 && DB=$(id)
-          if [ -n "$DB" ]; then
+          echo "D1 database id (not a secret; declare it in wrangler.toml): $DB"
+          if [ -n "$DB" ] && grep -q 'binding = "DB"' wrangler.toml; then
+            if $W d1 migrations apply roamwise-db --remote; then echo "D1 declared in wrangler.toml and migrated"; else echo "::warning::D1 migrations failed"; fi
+          elif [ -n "$DB" ]; then
             printf '\n[[d1_databases]]\nbinding = "DB"\ndatabase_name = "roamwise-db"\ndatabase_id = "%s"\nmigrations_dir = "migrations"\n' "$DB" >> wrangler.toml
             if $W d1 migrations apply roamwise-db --remote; then echo "D1 bound and migrated"; else echo "::warning::D1 migrations failed"; fi
           else echo "::warning::D1 unavailable (token may lack D1 permission); deploying without D1"; fi
