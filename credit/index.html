@@ -52,7 +52,7 @@ small,.muted{color:#cbb9cd;font-size:13px}#msg{min-height:1.4em;color:#ffd08a}.o
 <div id="wallWrap" hidden><label for="wallName">Name to show (first name and city is fine)</label><input id="wallName" type="text" maxlength="40"></div>
 <div class="check"><input id="terms" type="checkbox" required><label for="terms" style="margin:0">I am buying a one-year RoamWise membership (price includes GST). It is not an investment or stored money: no interest, returns or shares. The free Coins are a reward with no cash value, usable for up to 10% of a booking, and end after one year. I can cancel within 7 days for a full refund if I have not used any Coins.</label></div>
 <p id="sum" aria-live="polite"></p>
-<button class="buy" id="buy" type="submit" disabled>Choose a pack</button>
+<button class="buy" id="buy" type="submit" disabled>Choose a pack</button><button class="buy" id="buyWallet" type="button" hidden>Pay from my Trip Wallet</button>
 <p id="msg" role="status" aria-live="polite"></p>
 <small>Payment is handled securely by Cashfree (UPI, cards, net banking). No card or UPI PIN is collected on this page.</small>
 </form>
@@ -107,6 +107,12 @@ $('f').addEventListener('submit',async function(e){e.preventDefault();if(!pick)r
   var cf=Cashfree({mode:d.environment==='production'?'production':'sandbox'});$('msg').textContent='Opening secure checkout…';
   await cf.checkout({paymentSessionId:d.paymentSessionId,redirectTarget:'_self'});
  }catch(err){$('msg').textContent=err.message||'Checkout unavailable';$('buy').disabled=false}});
+var wt=new URLSearchParams(location.search).get('wallet');if(wt)$('buyWallet').hidden=false;
+$('buyWallet').onclick=async function(){if(!pick||!$('f').reportValidity())return;$('buyWallet').disabled=true;$('msg').textContent='Paying from your Trip Wallet…';
+ try{var r=await fetch(API+'/credit/checkout',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({pack:pick,email:$('email').value,phone:$('phone').value,
+  giftTo:$('gift').checked?$('giftTo').value:'',showOnWall:$('showOnWall').checked,wallName:$('wallName').value,acceptTerms:$('terms').checked,payWith:'wallet',wallet:wt})});
+  var d=await r.json();if(!r.ok)throw new Error(d.message||'Could not pay from your wallet.');location.search='?order_id='+encodeURIComponent(d.orderId);
+ }catch(err){$('msg').textContent=err.message;$('buyWallet').disabled=false}};
 var oid=new URLSearchParams(location.search).get('order_id');
 if(oid){var done=$('done');done.hidden=false;done.textContent='Checking your payment…';
  fetch(API+'/credit/order/'+encodeURIComponent(oid)).then(function(r){return r.json()}).then(function(d){

@@ -47,10 +47,10 @@ export async function creditWallet(env, { email, phone, refId, origins, note }, 
 }
 
 /* Spend credit on a new order (called by stay checkout before any Cashfree order is made). */
-export async function spendWallet(env, key, amount, refId, nowMs = Date.now()) {
+export async function spendWallet(env, key, amount, refId, nowMs = Date.now(), product = 'stay') {
   const w = await load(env, key);
   if (!w) throw new Error('no wallet');
-  const r = spend(w, amount, refId, nowMs);
+  const r = spend(w, amount, refId, nowMs, product);
   await save(env, key, r.wallet);
   return r.used;
 }
