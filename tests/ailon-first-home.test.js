@@ -31,7 +31,7 @@ test('Ailon is the primary entry point and saved trips and requests remain reach
   assert.match(script,/W\.copilotSend\(true\)/);
   assert.match(script,/Do not assume a payment or booking is confirmed/);
   assert.match(css,/body\.shell\[data-view="home"\] #rwSalesCarousels/);
-  assert.match(css,/body\.shell\[data-view="home"\] #bigSix/);
+  assert.match(css,/body\.shell\[data-view="home"\] #rwEveryday/);
 });
 
 test('More has a real page, searchable tools and Android-friendly navigation',()=>{

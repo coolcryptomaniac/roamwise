@@ -1,0 +1,15 @@
+/* Home destination rows (js/ui/destination-rows.js). */
+.rw-dest-rows{width:min(calc(100% - 24px),1080px);margin:28px auto;box-sizing:border-box;color:#f5e8fb}
+.rw-dr-top small{color:#e8c58b;font:800 10px/1.4 system-ui;letter-spacing:.14em}
+.rw-dr-top h2{margin:4px 0 8px;font:700 22px/1.2 Outfit,system-ui}
+.rw-dr-head{display:flex;align-items:baseline;justify-content:space-between;margin:14px 2px 8px}
+.rw-dr-head h3{margin:0;font:700 17px Outfit,system-ui}.rw-dr-head span{font-size:12px;opacity:.6}
+.rw-dr-track{display:flex;gap:12px;overflow-x:auto;padding:4px 2px 12px;scroll-snap-type:x proximity;scrollbar-width:none}
+.rw-dr-track::-webkit-scrollbar{display:none}
+.rw-dr-card{flex:0 0 min(62vw,240px);height:min(78vw,300px);scroll-snap-align:center;position:relative;border:0;border-radius:22px;background-size:cover;background-position:center;color:#fff;text-align:left;display:flex;flex-direction:column;justify-content:flex-end;padding:16px;cursor:pointer;box-shadow:0 10px 28px rgba(0,0,0,.35);font-family:Outfit,system-ui}
+.rw-dr-name{font:800 20px/1.15 Outfit,system-ui;text-shadow:0 2px 12px rgba(0,0,0,.9)}
+.rw-dr-sub{font-size:12px;opacity:.85;text-shadow:0 1px 8px rgba(0,0,0,.9)}
+.rw-dr-card:focus-visible{outline:3px solid #ffcf80;outline-offset:2px}
+@media (min-width:900px){.rw-dr-card{flex-basis:220px;height:280px}}
+/* The two rows replace the older single destination strip on home. */
+body.shell[data-view="home"] #rwDestinationsRail{display:none!important}
