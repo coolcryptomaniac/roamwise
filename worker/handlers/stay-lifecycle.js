@@ -8,8 +8,8 @@
  * Links are HMAC-signed with WALLET_LINK_SECRET and expire after 7 days. Orders live in RW_KV (stayorder:<id>);
  * open decisions are indexed as staydue:<id> so the hourly job only reads what it must. */
 import { sendMail } from '../lib/mailer.js';
-import { signLink, verifyLink } from '../lib/wallet-core.js';
-import { creditWallet, walletLinkFor } from './wallet.js';
+import { signLink, verifyLink, spendCoins } from '../lib/wallet-core.js';
+import { creditWallet, walletLinkFor, loadWallet, saveWallet } from './wallet.js';
 
 export const DECIDE_FIRST_MS = 24 * 3600 * 1000;
 export const DECIDE_MAX_MS = 72 * 3600 * 1000;
@@ -33,6 +33,15 @@ async function link(env, id, action, nowMs) {
 export async function onStayPaid(env, record, nowMs = Date.now(), deps = {}) {
   if (record.decisionDue) return record;
   const send = deps.sendMail || sendMail;
+  /* Coins discount (stay-cashfree.js): spend them now that the card/UPI part is paid. If the guest spent some coins
+     elsewhere in the meantime, RoamWise absorbs the difference; coins are promotional, never the guest's money. */
+  if (record.coinsApplied > 0 && !record.coinsSettled && record.coinKey) {
+    const w = await loadWallet(env, record.coinKey);
+    const r = w ? spendCoins(w, record.coinsApplied, record.id, nowMs) : { total: 0, used: [] };
+    if (r.total) await saveWallet(env, record.coinKey, r.wallet);
+    record.coinsSettled = true; record.coinsUsed = r.total;
+    record.paidFromLots = [...(record.paidFromLots || []), ...r.used];
+  }
   record.status = 'paid_pending_confirmation';
   record.paidAt = record.paidAt || new Date(nowMs).toISOString();
   record.decisionDue = new Date(nowMs + DECIDE_FIRST_MS).toISOString();
@@ -69,9 +78,13 @@ export async function refundStayToWallet(env, record, reason, nowMs = Date.now()
   if (record.status === 'refunded_to_wallet') return { ok: true, duplicate: true };
   /* Group stays (handlers/group-pot.js): each member gets their own share back in their own wallet. */
   if (Array.isArray(record.groupMembers) && record.groupMembers.length) return refundGroupStay(env, record, reason, nowMs, deps);
-  const origins = Array.isArray(record.paidFromLots) && record.paidFromLots.length
-    ? record.paidFromLots.map((l) => ({ orderId: l.orderId, amount: l.amount, method: l.method, source: l.source, expiresAt: l.expiresAt, paidLot: l.paidLot, paidAt: l.paidAt }))
-    : [{ orderId: record.id, amount: record.amount }];
+  /* Wallet or coin parts go back to their lots; the card/UPI part goes back to this order's payment. */
+  const fromLots = Array.isArray(record.paidFromLots) ? record.paidFromLots.reduce((t, l) => t + (Number(l.amount) || 0), 0) : 0;
+  const cash = record.paidWith === 'wallet' ? 0 : Number.isFinite(record.cashAmount) ? record.cashAmount : Math.max(0, Number(record.amount || 0) - fromLots);
+  const origins = [
+    ...(Array.isArray(record.paidFromLots) ? record.paidFromLots.map((l) => ({ orderId: l.orderId, amount: l.amount, method: l.method, source: l.source, expiresAt: l.expiresAt, paidLot: l.paidLot, paidAt: l.paidAt })) : []),
+    ...(cash > 0 ? [{ orderId: record.id, amount: cash }] : []),
+  ];
   const r = await creditWallet(env, { email: record.email, phone: record.phone, refId: record.id, origins,
     note: 'Refund: ' + record.property + ' ' + record.checkin }, nowMs);
   record.status = 'refunded_to_wallet'; record.refundedAt = new Date(nowMs).toISOString(); record.refundReason = reason;

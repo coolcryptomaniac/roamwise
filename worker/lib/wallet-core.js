@@ -116,6 +116,38 @@ export function spend(w, amount, refId, nowMs) {
   return { wallet: { ...w, lots, log: [...(w.log || []), { at: new Date(nowMs).toISOString(), kind: 'spend', amount, refId }].slice(-100) }, used };
 }
 
+/* ---- RoamWise Coins as a discount --------------------------------------------------------------------------
+   Coins are free reward credit (source 'bonus'). At checkout they can cover at most COIN_CAP_PCT of a booking or order;
+   the rest is paid by card or UPI. 10% because our thinnest product earns about 10% (lib/credit-packs.js), so a
+   coin-discounted sale never goes below cost. Coins are spent only once the payment is confirmed. */
+export const COIN_CAP_PCT = 10;
+export const COIN_VALID_DAYS = 365;
+export const coinBalance = (w, nowMs) => (w && w.lots || []).filter((l) => lotOpen(l) && l.source === 'bonus' && (!l.expiresAt || Date.parse(l.expiresAt) > (nowMs || 0))).reduce((s, l) => s + l.remaining, 0);
+export const coinCapFor = (amount) => Math.max(0, Math.floor(Number(amount || 0) * COIN_CAP_PCT / 100));
+/* How many coins a checkout may use: the smaller of the cap and what the guest has. */
+export const coinsUsable = (w, amount, nowMs) => Math.min(coinCapFor(amount), coinBalance(w, nowMs));
+export function creditCoins(w, { refId, coins, note, days }, nowMs) {
+  if (!(coins > 0)) throw new Error('no coins');
+  if ((w.lots || []).some((l) => l.refId === refId)) return { wallet: w, lots: [], duplicate: true };
+  const at = new Date(nowMs).toISOString(), expiresAt = new Date(nowMs + (days || COIN_VALID_DAYS) * 24 * 3600 * 1000).toISOString();
+  const lot = { lotId: refId.slice(-24) + 'c', refId, orderId: null, method: 'bonus', amount: coins, remaining: coins, source: 'bonus',
+    state: 'kept', createdAt: at, expiresAt, note: String(note || 'RoamWise Coins').slice(0, 120) };
+  return { wallet: { ...w, lots: [...(w.lots || []), lot], log: [...(w.log || []), { at, kind: 'coins', amount: coins, refId }].slice(-100) }, lots: [lot], expiresAt, duplicate: false };
+}
+/* Spend up to `amount` coins (bonus lots only, soonest expiry first). Best effort: returns what was actually used. */
+export function spendCoins(w, amount, refId, nowMs) {
+  let left = Math.max(0, Math.floor(amount)); const used = [];
+  const lots = (w.lots || []).map((l) => ({ ...l }));
+  lots.filter((l) => lotOpen(l) && l.source === 'bonus' && (!l.expiresAt || Date.parse(l.expiresAt) > nowMs))
+    .sort((a, b) => String(a.expiresAt || '9').localeCompare(String(b.expiresAt || '9'))).forEach((l) => {
+      if (!left) return;
+      const take = Math.min(left, l.remaining); l.remaining -= take; left -= take; if (!l.remaining) l.state = 'used';
+      used.push({ orderId: null, amount: take, lotId: l.lotId, method: 'bonus', source: 'bonus', expiresAt: l.expiresAt, paidLot: l.paidLot || null });
+    });
+  const total = used.reduce((s, u) => s + u.amount, 0);
+  return { wallet: total ? { ...w, lots, log: [...(w.log || []), { at: new Date(nowMs).toISOString(), kind: 'coins_spent', amount: total, refId }].slice(-100) } : w, used, total };
+}
+
 /* Guest choices on one lot. */
 export function keepLot(w, lotId) {
   return { ...w, lots: w.lots.map((l) => (l.lotId === lotId && l.state === 'credit' && !l.noKeep ? { ...l, state: 'kept' } : l)) };
@@ -203,6 +235,7 @@ export function publicWallet(w, nowMs) {
       bankOn: l.state === 'credit' ? l.releaseAt : null, review: !!l.review, bankStatus: l.bankStatus || '',
       credited: l.createdAt, noKeep: !!l.noKeep,
     })).reverse(),
+    coins: coinBalance(w, nowMs), coinCapPct: COIN_CAP_PCT,
     refundsOnTheWay: (w.lots || []).filter((l) => l.state === 'credit' && l.noKeep && l.remaining > 0).reduce((s, l) => s + l.remaining, 0),
     policy: { refundsToSource: WALLET_POLICY.refundsToSource, newPaidCredit: WALLET_POLICY.newPaidCredit },
     stats: walletStats(w, nowMs),

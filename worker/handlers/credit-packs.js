@@ -11,8 +11,8 @@ import { json } from '../lib/http.js';
 import { sendMail } from '../lib/mailer.js';
 import { verifyCashfreeWorkerWebhook } from '../lib/cashfree-booking-webhook-verify.js';
 import { cfBase as CF, cfHeaders as headers } from '../lib/cashfree-pg.js';
-import { priceCreditPack, publicPacks, REJOIN_WINDOW_DAYS } from '../lib/credit-packs.js';
-import { WALLET_POLICY, walletKey, emptyWallet, creditPrepaid, expireCredit, expiringSoon, refundedAtExpiryWithin, normEmail, normPhone, validEmail } from '../lib/wallet-core.js';
+import { priceCreditPack, publicPacks, REJOIN_WINDOW_DAYS, priceMembership, publicMemberships, MEMBERSHIP_DAYS, MEMBER_COOLING_OFF_DAYS } from '../lib/credit-packs.js';
+import { WALLET_POLICY, COIN_CAP_PCT, creditCoins, walletKey, emptyWallet, creditPrepaid, expireCredit, expiringSoon, refundedAtExpiryWithin, normEmail, normPhone, validEmail } from '../lib/wallet-core.js';
 import { loadWallet, saveWallet, walletLinkFor } from './wallet.js';
 
 const SITE = 'https://roamwise.co.in';
@@ -27,31 +27,32 @@ async function wall(env) { return (await env.RW_KV.get('credit:wall', 'json')) |
 export async function creditPacks(request, env) {
   if (!env.RW_KV) return json({ error: 'credit_unavailable' }, 503);
   const c = await counts(env);
-  return json({ ok: true, paused: !WALLET_POLICY.newPaidCredit, ...publicPacks(c), members: c.members || 0, wall: (await wall(env)).slice(-60).reverse() });
+  return json({ ok: true, ...(WALLET_POLICY.newPaidCredit ? publicPacks(c) : publicMemberships(c)), members: c.members || 0, wall: (await wall(env)).slice(-60).reverse() });
 }
 
 export async function createCreditOrder(request, env, nowMs = Date.now(), deps = {}) {
-  /* Paid stored credit is paused (WALLET_POLICY.newPaidCredit). Existing pack lots keep working until expiry. */
-  if (!WALLET_POLICY.newPaidCredit) return json({ error: 'packs_paused', message: 'New credit packs are paused. Credit you already bought still works until its expiry date, and anything unused is refunded to your original payment.' }, 410);
+  /* Paid stored credit is no longer sold (WALLET_POLICY.newPaidCredit); the same tiers are sold as a membership with
+     free Coins (lib/credit-packs.js priceMembership). Existing pack lots keep working until expiry. */
+  const membership = !WALLET_POLICY.newPaidCredit;
   if (!env.CASHFREE_APP_ID || !env.CASHFREE_SECRET_KEY || !env.RW_KV) return json({ error: 'credit_unavailable' }, 503);
   let b; try { b = await request.json(); } catch (_) { return json({ error: 'invalid_json' }, 400); }
   const email = normEmail(b.email), phone = String(b.phone || '').replace(/[\s()-]/g, '');
   if (!validEmail(email) || !/^\+?\d{10,15}$/.test(phone)) return json({ error: 'contact_required', message: 'Enter your email and phone.' }, 422);
   const giftTo = b.giftTo ? normEmail(b.giftTo) : '';
   if (giftTo && !validEmail(giftTo)) return json({ error: 'gift_email', message: 'Check the gift email address.' }, 422);
-  if (b.acceptTerms !== true) return json({ error: 'terms_required', message: 'Please accept the credit terms.' }, 422);
+  if (b.acceptTerms !== true) return json({ error: 'terms_required', message: membership ? 'Please accept the membership terms.' : 'Please accept the credit terms.' }, 422);
   const holder = giftTo || email;
   const w = await loadWallet(env, await walletKey(holder));
-  let quote; try { quote = priceCreditPack(String(b.pack || ''), await counts(env), { rejoin: refundedAtExpiryWithin(w, nowMs, REJOIN_WINDOW_DAYS) }); }
+  let quote; try { quote = membership ? priceMembership(String(b.pack || ''), await counts(env)) : priceCreditPack(String(b.pack || ''), await counts(env), { rejoin: refundedAtExpiryWithin(w, nowMs, REJOIN_WINDOW_DAYS) }); }
   catch (e) { return json({ error: 'invalid_pack', message: e.message }, 422); }
   const id = 'rwcred_' + crypto.randomUUID().replace(/-/g, '');
-  const record = { id, kind: 'credit_pack', ...quote, amount: quote.pay, email, phone, giftTo, holder,
+  const record = { id, kind: membership ? 'membership' : 'credit_pack', ...quote, amount: quote.pay, email, phone, giftTo, holder,
     wallName: b.showOnWall === true ? clean(b.wallName, 40) : '', status: 'payment_pending', createdAt: new Date(nowMs).toISOString() };
   await env.RW_KV.put('creditorder:' + id, JSON.stringify(record), { expirationTtl: 60 * 60 * 24 * 180 });
   const body = { order_id: id, order_amount: quote.pay, order_currency: 'INR',
     customer_details: { customer_id: id, customer_phone: phone, customer_email: email },
     order_meta: { return_url: SITE + '/credit/?order_id=' + id, notify_url: API + '/credit/cashfree/webhook' },
-    order_note: ('RoamWise ' + quote.name + ' travel credit').slice(0, 200) };
+    order_note: ('RoamWise ' + quote.name + (membership ? ' membership' : ' travel credit')).slice(0, 200) };
   let r, data;
   try { r = await (deps.fetch || fetch)(CF(env) + '/pg/orders', { method: 'POST', headers: { ...headers(env), 'x-idempotency-key': id }, body: JSON.stringify(body) }); data = await r.json(); }
   catch (_) { return json({ error: 'cashfree_unreachable' }, 502); }
@@ -62,6 +63,7 @@ export async function createCreditOrder(request, env, nowMs = Date.now(), deps =
 /* Verified payment -> credit in the wallet, member number, counts, emails. Idempotent per order. */
 export async function onCreditPaid(env, record, nowMs = Date.now(), deps = {}) {
   if (record.status !== 'payment_pending') return record;
+  if (record.mode === 'membership') return onMembershipPaid(env, record, nowMs, deps);
   const send = deps.sendMail || sendMail;
   const key = await walletKey(record.holder);
   const w = (await loadWallet(env, key)) || emptyWallet(record.holder);
@@ -103,6 +105,45 @@ export async function onCreditPaid(env, record, nowMs = Date.now(), deps = {}) {
   return record;
 }
 
+/* Verified membership payment -> member number, free coins in the holder's wallet, counts, wall, emails. Idempotent. */
+async function onMembershipPaid(env, record, nowMs, deps) {
+  const send = deps.sendMail || sendMail;
+  const key = await walletKey(record.holder);
+  const w = (await loadWallet(env, key)) || emptyWallet(record.holder);
+  const r = creditCoins(w, { refId: record.id, coins: record.coins, note: record.name + ' membership coins', days: MEMBERSHIP_DAYS }, nowMs);
+  if (!r.duplicate) await saveWallet(env, key, r.wallet);
+  if (!record.giftTo && normPhone(record.phone)) await env.RW_KV.put('walletphone:' + normPhone(record.phone), key);
+  const c = await counts(env);
+  let member = await env.RW_KV.get('creditmember:' + key, 'json');
+  if (!member) { c.members = (c.members || 0) + 1; member = { n: c.members, packs: [] }; }
+  member.packs = [...member.packs, record.packId].slice(-20);
+  c.sold = { ...(c.sold || {}), [record.packId]: ((c.sold || {})[record.packId] || 0) + 1 };
+  await env.RW_KV.put('credit:counts', JSON.stringify(c));
+  await env.RW_KV.put('creditmember:' + key, JSON.stringify(member));
+  if (record.wallName) { const list = await wall(env); list.push({ n: member.n, name: record.wallName, pack: record.name }); await env.RW_KV.put('credit:wall', JSON.stringify(list.slice(-500))); }
+  const until = (r.expiresAt || new Date(nowMs + MEMBERSHIP_DAYS * 864e5).toISOString()).slice(0, 10);
+  record.status = 'paid'; record.paidAt = new Date(nowMs).toISOString(); record.memberNo = member.n; record.expiresAt = until;
+  await env.RW_KV.put('creditorder:' + record.id, JSON.stringify(record), { expirationTtl: 60 * 60 * 24 * 400 });
+  const wl = await walletLinkFor(env, record.holder, nowMs);
+  await send(env, { to: record.holder, subject: 'Welcome, Founding Traveller #' + member.n + ' (' + record.name + ' membership)', text: [
+    record.giftTo ? record.email + ' has gifted you a RoamWise membership.' : 'Thank you for backing RoamWise early.', '',
+    'Membership: ' + record.name + ' · ' + rs(record.pay) + ' (incl. GST) · valid until ' + until,
+    'Founding member number: #' + member.n, 'Your perks: ' + record.perks.join('; ') + '.',
+    'Free RoamWise Coins: ' + Number(record.coins).toLocaleString('en-IN') + ' (valid until ' + until + ').', '',
+    'How your Coins work:',
+    '- Use them as a discount of up to ' + COIN_CAP_PCT + '% on any RoamWise stay, package, shop order or Pro.',
+    '- They are a free reward: no cash value, cannot be withdrawn or transferred, and end on ' + until + '.',
+    '- Changed your mind? Within ' + MEMBER_COOLING_OFF_DAYS + ' days, reply to this email for a full refund to your original payment (the coins are then removed).',
+    '', wl ? 'Your wallet: ' + wl.url : '', 'Book: ' + SITE + '/#rwSalesPackages', '', '— Mohit Pandey, Founder, RoamWise',
+  ].join('\n') });
+  if (record.giftTo) await send(env, { to: record.email, subject: 'Your RoamWise gift is delivered', text: 'Your ' + record.name + ' membership is now active for ' + record.giftTo + ', with ' + Number(record.coins).toLocaleString('en-IN') + ' free RoamWise Coins. Thank you!\n\n— RoamWise' });
+  await send(env, { to: 'founder@roamwise.co.in', subject: 'Membership sold: ' + record.name + ' ' + rs(record.pay) + ' (#' + member.n + ')', text: [
+    'Order ' + record.id + ', paid ' + rs(record.pay) + ' incl. GST, coins ' + record.coins + ', holder ' + record.holder + (record.giftTo ? ' (gift from ' + record.email + ')' : '') + ', phone ' + record.phone + '.',
+    'Grant these perks by hand: ' + record.perks.join('; ') + '.', 'Cooling-off refund window ends ' + new Date(nowMs + MEMBER_COOLING_OFF_DAYS * 864e5).toISOString().slice(0, 10) + '.',
+  ].join('\n') });
+  return record;
+}
+
 async function verifyPaid(env, id, record, deps) {
   const r = await (deps.fetch || fetch)(CF(env) + '/pg/orders/' + id, { headers: headers(env) });
   if (!r.ok) return { error: 'cashfree_lookup_failed', status: 503 };
@@ -121,7 +162,7 @@ export async function creditOrderStatus(request, env, id, nowMs = Date.now(), de
     if (v.paid) await onCreditPaid(env, record, nowMs, deps);
     else return json({ orderId: id, status: v.status });
   }
-  return json({ orderId: id, status: record.status, memberNo: record.memberNo, credit: record.credit, pack: record.name, expiresAt: record.expiresAt, gift: !!record.giftTo });
+  return json({ orderId: id, status: record.status, memberNo: record.memberNo, credit: record.credit, mode: record.mode || 'credit', coins: record.coins || 0, pack: record.name, expiresAt: record.expiresAt, gift: !!record.giftTo });
 }
 
 export async function handleCreditWebhook(request, env, nowMs = Date.now(), deps = {}) {
