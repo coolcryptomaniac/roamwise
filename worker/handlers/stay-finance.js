@@ -4,6 +4,8 @@
  *      hash-chained RoamWise tax invoice. Agent-model bookings are invoiced for RoamWise's fee only.
  *   2. Partner payout: once the partner accepts the booking (stay-lifecycle confirm), the partner's net rate for what
  *      the guest has paid so far is queued and paid the same day (PAYOUT_WHEN=checkin pays on the check-in day).
+ *      Founder decision 26 Nov 2026: pay by hand. If RoamWise has no bank/UPI for the partner yet, the partner gets a
+ *      signed link to send its details (and its invoice for the booking); the payout waits for them.
  *      With Cashfree Payouts configured (CF_PAYOUT_CLIENT_ID / CF_PAYOUT_CLIENT_SECRET / CF_PAYOUT_PUBLIC_KEY and
  *      PAYOUTS_AUTO=true) the transfer goes out automatically; otherwise the founder gets the details and a signed
  *      "mark paid" link. Partner bank/UPI details live only in KV (payee:<supplier>), never in the repository.
@@ -13,6 +15,10 @@ import { sendMail } from '../lib/mailer.js';
 import { taxForPart, inclusiveTax, SAC, SELLER_STATE, stateCode } from '../lib/principal-tax.js';
 import { createDocIfAbsent } from '../lib/firestore-rest.js';
 import { getServiceAccountAccessToken, parseServiceAccount } from '../lib/service-account.js';
+import { bookEntry } from './stay-books.js';
+
+const SITE = 'https://roamwise.co.in';
+const SUPPLIER_INBOX = { amor: 'sales@amorhospitality.in' };
 
 const FOUNDER = 'founder@roamwise.co.in';
 const API = 'https://roamwise-api.founder-f53.workers.dev';
@@ -61,6 +67,7 @@ export async function recordStayInvoice(env, record, part, amount, nowMs = Date.
   if (!(doc.amountINR > 0)) return doc;
   try { await writePayment(env, doc, deps); }
   catch (_) { await env.RW_KV.put('invoiceq:' + doc.id, JSON.stringify(doc), { expirationTtl: TTL }); }
+  try { await bookEntry(env, doc, record); } catch (_) { /* the invoice record is the source of truth */ }
   return doc;
 }
 
@@ -80,7 +87,10 @@ export async function queuePayout(env, record, nowMs = Date.now(), deps = {}) {
   const when = env.PAYOUT_WHEN === 'checkin' ? Math.max(nowMs, Date.parse(record.checkin + 'T00:30:00Z')) : nowMs;
   const po = { key, transferId: ('rwpo_' + record.id.slice(-20) + '_' + n).slice(0, 40), stayId: record.id, supplier: record.supplier === 'amor' ? 'amor' : (record.stay || record.supplier), property: record.property,
     amount: due, dueAt: new Date(when).toISOString(), status: 'queued', createdAt: new Date(nowMs).toISOString(), checkin: record.checkin };
+  const payee = await env.RW_KV.get('payee:' + po.supplier, 'json');
+  if (!payee) po.status = 'awaiting_details';
   await env.RW_KV.put(key, JSON.stringify(po), { expirationTtl: TTL });
+  if (!payee) await askPayeeDetails(env, record, po, deps);
   record.payoutQueued = already + due; record.payouts = n;
   await env.RW_KV.put('stayorder:' + record.id, JSON.stringify(record), { expirationTtl: 60 * 60 * 24 * 180 });
   return po;
@@ -92,7 +102,7 @@ export async function onStayRefunded(env, record, nowMs = Date.now(), deps = {})
   for (let n = 1; n <= (record.payouts || 0); n++) {
     const key = 'payout:' + record.id + ':' + n, po = await env.RW_KV.get(key, 'json');
     if (!po) continue;
-    if (po.status === 'queued' || po.status === 'manual') { await env.RW_KV.put(key, JSON.stringify({ ...po, status: 'cancelled', cancelledAt: new Date(nowMs).toISOString() }), { expirationTtl: TTL }); cancelled += po.amount; }
+    if (po.status === 'queued' || po.status === 'manual' || po.status === 'awaiting_details') { await env.RW_KV.put(key, JSON.stringify({ ...po, status: 'cancelled', cancelledAt: new Date(nowMs).toISOString() }), { expirationTtl: TTL }); cancelled += po.amount; }
     else if (po.status === 'sent' || po.status === 'paid') sentAmt += po.amount;
   }
   await (deps.sendMail || sendMail)(env, { to: FOUNDER, subject: 'Credit note for refunded stay ' + record.id.slice(-8), text: 'Booking ' + record.id + ' (' + record.property + ') was refunded. Issue a credit note against its RoamWise invoice(s) (payments/stay_' + record.id + '_first' + (record.balancePaidAt ? ' and _balance' : '') + ') in the GST return for this month.' });
@@ -149,10 +159,12 @@ export async function runPartnerPayouts(env, nowMs = Date.now(), deps = {}) {
             po.error = String(d.message || d.status_code || r.status).slice(0, 120);
           } catch (_) { continue; }
         }
-        await save({ ...po, status: 'manual', manualAt: new Date(nowMs).toISOString() }); out.manual++;
+        if (!payee) { await save({ ...po, status: 'awaiting_details' }); continue; }
+        await save({ ...po, status: 'manual', manualAt: new Date(nowMs).toISOString(), payeeName: payee.name, partnerGstin: payee.gstin || po.partnerGstin || '' }); out.manual++;
         await send(env, { to: FOUNDER, subject: 'Pay ' + po.property + ' ' + rs(po.amount) + ' today', text: [
           'Partner payout for booking ' + po.stayId + ' (check-in ' + po.checkin + ').', 'Amount: ' + rs(po.amount),
-          payee ? 'Pay to: ' + payee.name + (payee.vpa ? ' · UPI ' + payee.vpa : ' · A/c ' + payee.account + ' · IFSC ' + payee.ifsc) : 'No bank/UPI on file for "' + po.supplier + '": add it with POST /admin/payees.',
+          'Pay to: ' + payee.name + (payee.vpa ? ' · UPI ' + payee.vpa : ' · A/c ' + payee.account + ' · IFSC ' + payee.ifsc) + (payee.verified ? '' : ' (first payment to these details: confirm them by phone with the property first)'),
+          po.partnerInvoice ? 'Their invoice: ' + po.partnerInvoice + (po.partnerInvoiceGst ? ', GST ' + rs(po.partnerInvoiceGst) : '') : 'No partner invoice yet: ask for one in RoamWise\'s name (with our GSTIN) for this amount.',
           po.error ? 'Automatic transfer failed: ' + po.error : (payoutsReady(env) ? '' : 'Automatic payouts are off (set the Cashfree Payouts keys and PAYOUTS_AUTO=true).'),
           '', 'After paying, mark it paid (add &utr=YOUR_UTR): ' + await markLink(env, k.name)].filter(Boolean).join('\n') });
       } else if (po.status === 'sent' && payoutsReady(env)) {
@@ -183,6 +195,8 @@ export async function handlePayoutMark(request, env, nowMs = Date.now(), deps = 
   if (po.status === 'paid') return json({ ok: true, already: true });
   if (po.status === 'cancelled') return json({ error: 'cancelled', message: 'This payout was cancelled (booking refunded).' }, 409);
   await env.RW_KV.put(key, JSON.stringify({ ...po, status: 'paid', paidAt: new Date(nowMs).toISOString(), utr, manual: true }), { expirationTtl: TTL });
+  const payee = await env.RW_KV.get('payee:' + po.supplier, 'json');
+  if (payee && !payee.verified) await env.RW_KV.put('payee:' + po.supplier, JSON.stringify({ ...payee, verified: true, verifiedAt: new Date(nowMs).toISOString() }));
   await remit(env, po, utr, deps.sendMail || sendMail);
   return json({ ok: true, paid: po.amount });
 }
@@ -211,4 +225,49 @@ export async function handlePayoutAdmin(request, env, path, isFounder) {
     return json({ ok: true, payouts: items.sort((a, b) => b.createdAt.localeCompare(a.createdAt)), auto: payoutsReady(env) });
   }
   return json({ error: 'not_found' }, 404);
+}
+
+/* ---- Partner bank/UPI details, asked once per partner when its first booking is accepted ---- */
+export const payeeToken = (env, supplier, stayId) => hmac(env.WALLET_LINK_SECRET || 'x', 'payee|' + supplier + '|' + stayId);
+export async function payeeLink(env, supplier, stayId) {
+  return SITE + '/partners/payout-details.html?s=' + encodeURIComponent(supplier) + '&b=' + stayId + '&t=' + await payeeToken(env, supplier, stayId);
+}
+async function askPayeeDetails(env, record, po, deps = {}) {
+  const send = deps.sendMail || sendMail, link = await payeeLink(env, po.supplier, record.id), inbox = SUPPLIER_INBOX[po.supplier];
+  const text = ['RoamWise booking ' + record.id.slice(-8) + ' at ' + record.property + ' (' + record.checkin + ' to ' + record.checkout + ') is accepted.',
+    'Please send the bank account or UPI ID where RoamWise should pay you ' + rs(po.amount) + ' for it, and your invoice for this amount in RoamWise\'s name:', link,
+    'We pay the same day we receive them. Your details are kept only for paying you.', '', '— RoamWise'].join('\n');
+  if (inbox) await send(env, { to: inbox, subject: 'Where should RoamWise pay you? (booking ' + record.id.slice(-8) + ')', text });
+  await send(env, { to: FOUNDER, subject: 'Bank details needed: ' + record.property + ' ' + rs(po.amount), text: (inbox ? 'Sent to ' + inbox + '. ' : '') + 'Forward this to the property on WhatsApp if needed:\n\n' + text });
+}
+
+/* POST /payees/submit { s, b, t, name, vpa | account+ifsc, gstin, state, email, phone, invoiceNo, invoiceGst } */
+export async function handlePayeeSubmit(request, env, nowMs = Date.now(), deps = {}) {
+  if (request.method !== 'POST') return json({ error: 'method_not_allowed' }, 405);
+  let b; try { b = await request.json(); } catch (_) { return json({ error: 'invalid_json' }, 400); }
+  const s = String(b.s || '').toLowerCase(), stayId = String(b.b || '');
+  if (!/^[a-z0-9_-]{2,40}$/.test(s) || !/^rwstay_[a-f0-9]{32}$/.test(stayId) || String(b.t || '') !== await payeeToken(env, s, stayId)) return json({ error: 'invalid_link', message: 'This link is not valid. Ask RoamWise for a new one.' }, 403);
+  const vpa = /^[\w.-]{2,}@[a-z]{2,}$/i.test(String(b.vpa || '').trim()) ? String(b.vpa).trim() : '', acct = String(b.account || '').replace(/\D/g, ''), ifsc = String(b.ifsc || '').trim().toUpperCase();
+  const name = String(b.name || '').replace(/[^A-Za-z .&'-]/g, '').trim().slice(0, 100);
+  if (name.length < 2) return json({ error: 'name_required', message: 'Enter the account holder name.' }, 422);
+  if (!vpa && !(/^\d{9,18}$/.test(acct) && /^[A-Z]{4}0[A-Z0-9]{6}$/.test(ifsc))) return json({ error: 'bank_or_upi_required', message: 'Enter a UPI ID, or an account number with its IFSC.' }, 422);
+  const gstin = String(b.gstin || '').trim().toUpperCase();
+  if (gstin && !/^\d{2}[A-Z]{5}\d{4}[A-Z][1-9A-Z]Z[0-9A-Z]$/.test(gstin)) return json({ error: 'gstin_invalid', message: 'That GSTIN does not look right.' }, 422);
+  const old = await env.RW_KV.get('payee:' + s, 'json');
+  const changed = !!old && (old.vpa !== vpa || old.account !== (vpa ? '' : acct));
+  await env.RW_KV.put('payee:' + s, JSON.stringify({ name, vpa, account: vpa ? '' : acct, ifsc: vpa ? '' : ifsc, gstin, state: stateCode(b.state), email: String(b.email || '').slice(0, 120),
+    phone: String(b.phone || '').replace(/[^\d+]/g, '').slice(0, 15), verified: changed ? false : !!(old && old.verified), submittedAt: new Date(nowMs).toISOString(), viaBooking: stayId }));
+  const inv = String(b.invoiceNo || '').replace(/[^A-Za-z0-9/-]/g, '').slice(0, 16), invGst = Number(b.invoiceGst) >= 0 ? r2(Number(b.invoiceGst)) : null;
+  const rec = await env.RW_KV.get('stayorder:' + stayId, 'json');
+  for (let n = 1; rec && n <= (rec.payouts || 0); n++) {
+    const key = 'payout:' + stayId + ':' + n, po = await env.RW_KV.get(key, 'json'); if (!po) continue;
+    const upd = { ...po, payeeName: name, partnerGstin: gstin, ...(inv ? { partnerInvoice: inv } : {}), ...(invGst != null && inv ? { partnerInvoiceGst: invGst } : {}) };
+    if (po.status === 'awaiting_details') { upd.status = 'queued'; upd.dueAt = new Date(nowMs).toISOString(); }
+    await env.RW_KV.put(key, JSON.stringify(upd), { expirationTtl: TTL });
+  }
+  /* Other bookings of the same partner that were waiting for these details. */
+  const page = await env.RW_KV.list({ prefix: 'payout:' });
+  for (const k of page.keys) { const po = await env.RW_KV.get(k.name, 'json'); if (po && po.supplier === s && po.status === 'awaiting_details') await env.RW_KV.put(k.name, JSON.stringify({ ...po, status: 'queued', dueAt: new Date(nowMs).toISOString(), payeeName: name }), { expirationTtl: TTL }); }
+  await (deps.sendMail || sendMail)(env, { to: FOUNDER, subject: (changed ? 'CHANGED bank details from ' : 'Bank details received from ') + name, text: (changed ? 'The payout details for "' + s + '" were changed. Call the property on a number you already have before paying.\n\n' : '') + 'Partner "' + s + '", booking ' + stayId + '. The payout email follows within the hour.' });
+  return json({ ok: true });
 }

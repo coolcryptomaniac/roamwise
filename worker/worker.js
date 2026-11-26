@@ -71,7 +71,8 @@ import { handleReferral, runReferralRewards } from './handlers/referrals.js';
 import { handleEarnings } from './handlers/earnings.js';
 import { creditPacks, createCreditOrder, creditOrderStatus, handleCreditWebhook, runCreditExpiry } from './handlers/credit-packs.js';
 import { createTripOrder, redeemVoucher } from './handlers/trip-wallet.js';
-import { runPartnerPayouts, handlePayoutMark, handlePayoutAdmin } from './handlers/stay-finance.js';
+import { runPartnerPayouts, handlePayoutMark, handlePayoutAdmin, handlePayeeSubmit } from './handlers/stay-finance.js';
+import { handleBooksDownload, runMonthlyBooks } from './handlers/stay-books.js';
 import { requireAdmin } from './handlers/push.js';
 import { parseServiceAccount } from './lib/service-account.js';
 import { handleShopDecide, runShopRefundCron } from './handlers/shop-order.js';
@@ -245,6 +246,8 @@ export default {
     if(path === 'vouchers/buy' && request.method === 'POST') return createTripOrder(request, env, 'voucher');
     if(path === 'vouchers/redeem') return redeemVoucher(request, env);
     if(path === 'payouts/mark' && request.method === 'GET') return handlePayoutMark(request, env);
+    if(path === 'payees/submit') return handlePayeeSubmit(request, env);
+    if(path === 'books/download' && request.method === 'GET') return handleBooksDownload(request, env);
     if(path === 'admin/payees' || path === 'admin/payouts' || path === 'admin/stays/net') return handlePayoutAdmin(request, env, path,
       async (req, e) => { try { const r = await requireAdmin(req, e, parseServiceAccount(e).project_id); return !r.error; } catch (_) { return false; } });
     if(path === 'credit/checkout' && request.method === 'POST') return createCreditOrder(request, env);
@@ -337,6 +340,8 @@ export default {
     }catch(e){ /* a cron failure must never take the Worker down */ }
     /* Founding Traveller Credit: expiry reminders, then a real refund of unused paid credit at expiry. */
     try{ await runCreditExpiry(env); }catch(e){ /* retried tomorrow */ }
+    /* 1st of the month: last month's sales, GSTR-1, payouts and margin files for the CA (signed links). */
+    try{ await runMonthlyBooks(env); }catch(e){ /* retried tomorrow */ }
     /* Company ledger: read-only daily snapshot of money held for guests and partners. */
     /* Referral rewards: bonus coins to both people once the friend's first paid stay is finished. Off unless REFERRALS_ENABLED. */
     try{ await runReferralRewards(env); }catch(e){ /* retried tomorrow */ }

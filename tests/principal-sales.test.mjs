@@ -2,7 +2,8 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { createRequire } from 'node:module';
 import { principalQuote, taxForPart, inclusiveTax, placeOfSupply, roomRate, SAC } from '../worker/lib/principal-tax.js';
-import { invoiceRecord, recordStayInvoice, queuePayout, onStayRefunded, runPartnerPayouts, handlePayoutMark, markLink, transferBody, payoutSignature } from '../worker/handlers/stay-finance.js';
+import { invoiceRecord, recordStayInvoice, queuePayout, onStayRefunded, runPartnerPayouts, handlePayoutMark, markLink, transferBody, payoutSignature, payeeLink, handlePayeeSubmit } from '../worker/handlers/stay-finance.js';
+import { bookEntry, salesCsv, gstr1Csv, marginCsv, payoutsCsv, booksLink, handleBooksDownload, runMonthlyBooks, istMonth } from '../worker/handlers/stay-books.js';
 const I = createRequire(import.meta.url)('../features/invoicing/invoice-core.js');
 
 const sum = (a) => Math.round(a.reduce((t, x) => t + x, 0) * 100) / 100;
@@ -96,17 +97,30 @@ test('payout: partner net for what the guest paid is queued on accept and topped
   assert.equal(await queuePayout(env, unknown, Date.now(), deps), null); assert.ok(mails.some((m) => /Set the partner net/.test(m.subject)));
 });
 
-test('payout run: manual path emails the founder with a signed mark-paid link; automatic path calls Cashfree Payouts v2', async () => {
+test('payout run: no details yet -> the partner gets a signed form link; once sent, founder pays by hand with a mark-paid link', async () => {
   const env = { RW_KV: kvStore(), WALLET_LINK_SECRET: 's' }, mails = [], deps = { sendMail: async (e, m) => mails.push(m) };
-  const r = STAY(); r.balance = 0; await queuePayout(env, r, Date.now() - 1000, deps);
-  await env.RW_KV.put('payee:amor', JSON.stringify({ name: 'Amor Hospitality', account: '123456789012', ifsc: 'HDFC0001234', email: 'acc@amor.in' }));
+  const r = STAY(); r.balance = 0; await env.RW_KV.put('stayorder:' + r.id, JSON.stringify(r));
+  const po = await queuePayout(env, r, Date.now() - 1000, deps);
+  assert.equal(po.status, 'awaiting_details');
+  const ask = mails.find((m) => m.to === 'sales@amorhospitality.in'); assert.ok(ask, 'partner asked for its details');
+  const link = await payeeLink(env, 'amor', r.id); assert.ok(ask.text.includes(link));
+  assert.equal((await runPartnerPayouts(env, Date.now(), deps)).manual, 0, 'nothing to pay until details arrive');
+  const q = new URL(link).searchParams, sub = (b) => handlePayeeSubmit(new Request('https://x/', { method: 'POST', body: JSON.stringify({ s: q.get('s'), b: q.get('b'), t: q.get('t'), ...b }) }), env, Date.now(), deps);
+  assert.equal((await sub({ name: 'Amor Hospitality', vpa: 'bad' })).status, 422);
+  assert.equal((await handlePayeeSubmit(new Request('https://x/', { method: 'POST', body: JSON.stringify({ s: 'amor', b: r.id, t: 'nope', name: 'X', vpa: 'a@b' }) }), env)).status, 403);
+  assert.equal((await sub({ name: 'Amor Hospitality', account: '123456789012', ifsc: 'HDFC0001234', email: 'acc@amor.in', gstin: '05ABCDE1234F1Z5', invoiceNo: 'AH/26/101', invoiceGst: 476.19 })).status, 200);
+  const waiting = await env.RW_KV.get('payout:' + r.id + ':1', 'json');
+  assert.equal(waiting.status, 'queued'); assert.equal(waiting.partnerInvoice, 'AH/26/101'); assert.equal(waiting.partnerGstin, '05ABCDE1234F1Z5');
   const out = await runPartnerPayouts(env, Date.now(), deps);
   assert.equal(out.manual, 1); const mail = mails.find((m) => /Pay Nanau/.test(m.subject)); assert.match(mail.text, /IFSC HDFC0001234/);
-  const key = 'payout:' + r.id + ':1', link = await markLink(env, key);
-  assert.equal((await handlePayoutMark(new Request(link.replace('t=', 't=x')), env)).status, 403);
-  const ok = await (await handlePayoutMark(new Request(link + '&utr=UTR123'), env, Date.now(), deps)).json();
+  const key = 'payout:' + r.id + ':1', mark = await markLink(env, key);
+  assert.equal((await handlePayoutMark(new Request(mark.replace('t=', 't=x')), env)).status, 403);
+  const ok = await (await handlePayoutMark(new Request(mark + '&utr=UTR123'), env, Date.now(), deps)).json();
   assert.equal(ok.paid, 10000); assert.equal((await env.RW_KV.get(key, 'json')).utr, 'UTR123');
   assert.ok(mails.some((m) => m.to === 'acc@amor.in'), 'remittance advice to the partner');
+  assert.equal((await env.RW_KV.get('payee:amor', 'json')).verified, true, 'verified once a payment went through');
+  await sub({ name: 'Amor Hospitality', vpa: 'thief@upi' });
+  assert.equal((await env.RW_KV.get('payee:amor', 'json')).verified, false); assert.ok(mails.some((m) => /CHANGED bank details/.test(m.subject)));
 
   const kp = await crypto.subtle.generateKey({ name: 'RSA-OAEP', modulusLength: 2048, publicExponent: new Uint8Array([1, 0, 1]), hash: 'SHA-1' }, true, ['encrypt', 'decrypt']);
   const pem = '-----BEGIN PUBLIC KEY-----\n' + Buffer.from(await crypto.subtle.exportKey('spki', kp.publicKey)).toString('base64') + '\n-----END PUBLIC KEY-----';
@@ -114,8 +128,8 @@ test('payout run: manual path emails the founder with a signed mark-paid link; a
   const plain = new TextDecoder().decode(await crypto.subtle.decrypt({ name: 'RSA-OAEP' }, kp.privateKey, Uint8Array.from(atob(sig), (c) => c.charCodeAt(0))));
   assert.equal(plain, 'CID.1764000000');
   const env2 = { RW_KV: kvStore(), CF_PAYOUT_CLIENT_ID: 'CID', CF_PAYOUT_CLIENT_SECRET: 'SEC', CF_PAYOUT_PUBLIC_KEY: pem, PAYOUTS_AUTO: 'true', CF_PAYOUT_ENV: 'sandbox' };
-  const r2 = STAY(); r2.balance = 0; await queuePayout(env2, r2, Date.now() - 1000, deps);
   await env2.RW_KV.put('payee:amor', JSON.stringify({ name: 'Amor Hospitality', vpa: 'amor@hdfc' }));
+  const r2 = STAY(); r2.balance = 0; await queuePayout(env2, r2, Date.now() - 1000, deps);
   const calls = []; const fetch = async (u, o = {}) => { calls.push({ u, o }); return new Response(JSON.stringify(o.method === 'POST' ? { status: 'RECEIVED', cf_transfer_id: 'cf1' } : { status: 'SUCCESS', transfer_utr: 'U9' }), { status: 200 }); };
   assert.equal((await runPartnerPayouts(env2, Date.now(), { ...deps, fetch })).sent, 1);
   const body = JSON.parse(calls[0].o.body);
@@ -129,4 +143,33 @@ test('part-payment tax lines scale and still add up', () => {
   const tax = principalQuote({ items: [{ cost: 4000, units: 1, margin: 0.2 }, { cost: 12000, units: 1, margin: 0.2 }] });
   const part = taxForPart(tax, tax.total, 3333);
   assert.equal(sum(part.lines.map((l) => l.gross)), 3333); assert.equal(Math.round((part.taxable + part.gst) * 100) / 100, 3333);
+});
+
+test('books: monthly sales, GSTR-1 summary, payouts and private margin files, by signed link and on the 1st', async () => {
+  const env = { RW_KV: kvStore(), WALLET_LINK_SECRET: 's' }, mails = [], deps = { sendMail: async (e, m) => mails.push(m) };
+  const local = { ...STAY(), id: 'rwstay_' + '1'.repeat(32), amount: 13000, balance: 0 };
+  const far = { ...STAY(), id: 'rwstay_' + '2'.repeat(32), property: 'Padma Villa', stay: 'padma', total: 150000, amount: 150000, balance: 0, supplierNet: [{ cost: 120000 }],
+    tax: inclusiveTax(150000, { rate: 0.18, pos: '02' }) };
+  const at = Date.parse('2026-12-10T06:00:00Z');
+  await recordStayInvoice(env, local, 'first', 13000, at, { writePayment: async () => {} });
+  await recordStayInvoice(env, far, 'first', 150000, at, { writePayment: async () => {} });
+  assert.equal(istMonth('2026-11-30T20:00:00Z'), '2026-12', 'months are India time');
+  const link = await booksLink(env, '2026-12', 'gstr1', at);
+  const res = await handleBooksDownload(new Request(link), env, at); assert.equal(res.status, 200);
+  const g = await res.text();
+  assert.match(g, /^B2CS,05,5,/m, 'local 5% rooms summarised by state and rate');
+  assert.match(g, /^B2CL,02,18,/m, 'big inter-state invoice listed on its own');
+  assert.match(g, /^HSN\/SAC,996311,18,/m);
+  assert.equal((await handleBooksDownload(new Request(link.replace('f=gstr1', 'f=margin')), env, at)).status, 403, 'a link opens only its own file');
+  assert.equal((await handleBooksDownload(new Request(link), env, at + 8 * 864e5)).status, 403, 'links expire');
+  const sales = await (await handleBooksDownload(new Request(await booksLink(env, '2026-12', 'sales', at)), env, at)).text();
+  assert.equal(sales.trim().split('\n').length, 3); assert.match(sales, /Padma Villa,RoamWise,02,996311,18,/);
+  const margin = await (await handleBooksDownload(new Request(await booksLink(env, '2026-12', 'margin', at)), env, at)).text();
+  assert.match(margin, /Padma Villa,127118\.64,120000,7118\.64,5\.6/);
+  assert.equal(await runMonthlyBooks(env, Date.parse('2026-12-15T06:00:00Z'), deps), null, 'only on the 1st');
+  const sent = await runMonthlyBooks(env, Date.parse('2027-01-01T03:00:00Z'), deps);
+  assert.equal(sent.records, 2); const mail = mails.find((m) => /books for 2026-12/.test(m.subject));
+  assert.match(mail.text, /quarter-end month: file GSTR-1/); assert.match(mail.text, /books\/download\?m=2026-12&f=margin/);
+  assert.equal(await runMonthlyBooks(env, Date.parse('2027-01-01T05:00:00Z'), deps), null, 'once per month');
+  assert.match(payoutsCsv([{ createdAt: '2026-12-10', stayId: 'x', property: 'P', payeeName: 'A', partnerGstin: 'G', partnerInvoice: 'I1', amount: 5, status: 'paid', utr: 'U' }]), /P,A,G,I1,,5,paid,U/);
 });
