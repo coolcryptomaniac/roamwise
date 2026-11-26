@@ -1,0 +1,43 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Payment details for RoamWise | RoamWise Partners</title>
+<style>
+body{background:#100c1c;color:#fff0dc;font:16px/1.5 system-ui;margin:0}main{max-width:620px;margin:0 auto;padding:22px 18px 60px}
+h1{color:#f8c985;font-size:26px;margin:8px 0}section{border:2px solid #bd7ce7;border-radius:20px;padding:20px;background:#20162e;margin-top:16px}
+label{display:block;margin:12px 0 5px}input,select{width:100%;box-sizing:border-box;padding:13px;border-radius:9px;border:1px solid #9989ac;background:#120d1d;color:#fff;font-size:16px}
+.tabs{display:flex;gap:8px;margin-top:8px}.tabs button{flex:1;padding:10px;border-radius:999px;border:2px solid #4b3a63;background:#1a1226;color:#fff0dc;font-weight:700}.tabs button[aria-pressed=true]{border-color:#ffd08a;background:#2c2140}
+button.go{padding:15px;border:0;border-radius:12px;background:linear-gradient(100deg,#ffd08a,#e9a864);color:#201426;font-weight:800;font-size:17px;width:100%;margin-top:16px}
+.msg{min-height:1.4em;color:#ffd08a}.muted{color:#cbb9cd;font-size:13px}
+</style></head><body><main>
+<h1>Where should RoamWise pay you?</h1>
+<p class="muted">For a booking you accepted. RoamWise buys the stay from you at your agreed rate and pays you directly, the same day it receives these details. They are used only to pay you.</p>
+<section id="form">
+<label for="name">Account holder name (as in the bank)</label><input id="name" autocomplete="name">
+<div class="tabs"><button type="button" id="tUpi" aria-pressed="true">UPI ID</button><button type="button" id="tBank" aria-pressed="false">Bank account</button></div>
+<div id="upiBox"><label for="vpa">UPI ID</label><input id="vpa" placeholder="name@bank" autocapitalize="off"></div>
+<div id="bankBox" hidden><label for="acct">Account number</label><input id="acct" inputmode="numeric"><label for="ifsc">IFSC</label><input id="ifsc" autocapitalize="characters" placeholder="HDFC0001234"></div>
+<label for="gstin">GSTIN (if registered)</label><input id="gstin" autocapitalize="characters" maxlength="15">
+<label for="state">State</label><input id="state" placeholder="Uttarakhand">
+<label for="email">Email for payment advice</label><input id="email" type="email" autocomplete="email">
+<label for="phone">Phone</label><input id="phone" type="tel" autocomplete="tel">
+<label for="inv">Your invoice number for this booking (in RoamWise's name)</label><input id="inv" maxlength="16">
+<label for="invGst">GST on that invoice (₹, 0 if not registered)</label><input id="invGst" type="number" min="0" step="0.01" inputmode="decimal">
+<button class="go" id="go" type="button">Send details</button><p class="msg" id="msg" role="status" aria-live="polite"></p>
+<p class="muted">Please bill RoamWise Technologies, Almora, Uttarakhand (GSTIN on your booking email). If your details change later, RoamWise will call you on your known number before paying to the new account.</p>
+</section>
+</main>
+<script>
+(function(){
+var API='https://roamwise-api.founder-f53.workers.dev',$=function(id){return document.getElementById(id)},q=new URLSearchParams(location.search),mode='upi';
+function set(m){mode=m;$('tUpi').setAttribute('aria-pressed',m==='upi');$('tBank').setAttribute('aria-pressed',m==='bank');$('upiBox').hidden=m!=='upi';$('bankBox').hidden=m!=='bank'}
+$('tUpi').onclick=function(){set('upi')};$('tBank').onclick=function(){set('bank')};
+if(!q.get('s')||!q.get('b')||!q.get('t')){$('msg').textContent='This link is incomplete. Please use the link RoamWise sent you.';$('go').disabled=true}
+$('go').onclick=async function(){var m=$('msg');$('go').disabled=true;m.textContent='Sending…';
+ try{var r=await fetch(API+'/payees/submit',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({s:q.get('s'),b:q.get('b'),t:q.get('t'),name:$('name').value,
+  vpa:mode==='upi'?$('vpa').value:'',account:mode==='bank'?$('acct').value:'',ifsc:mode==='bank'?$('ifsc').value:'',gstin:$('gstin').value,state:$('state').value,email:$('email').value,phone:$('phone').value,invoiceNo:$('inv').value,invoiceGst:$('invGst').value})});
+  var d=await r.json();if(!r.ok)throw new Error(d.message||'Could not save. Please check the details.');
+  $('form').innerHTML='<h2 style="margin-top:0;color:#ffdea8">Thank you</h2><p>RoamWise has your details and will pay you today. You will get a payment advice by email.</p>';
+ }catch(e){m.textContent=e.message;$('go').disabled=false}};
+})();
+</script>
+</body></html>

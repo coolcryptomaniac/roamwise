@@ -106,7 +106,7 @@ export function creditRefund(w, { refId, origins, phone, note }, nowMs) {
    RoamWise itself sells). Money loaded by top-up or gift voucher (lot.scope 'roamwise') is spendable only where RoamWise
    is the seller of record and invoices the guest itself: PRINCIPAL_PRODUCTS. Partner stays are sold on commission
    (marketplace), so they stay off until RoamWise invoices them as principal. Older pack credit keeps its original promise. */
-export const PRINCIPAL_PRODUCTS = Object.freeze({ shop: true, membership: true, stay: false, package: false });
+export const PRINCIPAL_PRODUCTS = Object.freeze({ shop: true, membership: true, stay: true, package: true }); // stays/packages: RoamWise sells as principal from 26 Nov 2026 (lib/principal-tax.js)
 export const TOPUP_MIN = 500, TOPUP_MAX_BALANCE = 50000;
 export const VOUCHER_DENOMS = Object.freeze([500, 1000, 2000, 5000, 10000]);
 const isCoin = (l) => l.source === 'bonus' && !l.paidLot;

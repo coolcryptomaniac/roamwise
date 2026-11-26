@@ -23,9 +23,10 @@ test('closed loop: loaded money buys only what RoamWise sells itself; coins capp
   let w = W.emptyWallet('a@b.in');
   w = W.creditPrepaid(w, { refId: 'rwcred_t1', orderId: 'rwcred_t1', paid: 3000, bonus: 0, scope: 'roamwise', kind: 'topup' }, T0).wallet;
   w = W.creditCoins(w, { refId: 'rwcred_c1', coins: 2000, days: 365 }, T0).wallet;
-  assert.equal(W.PRINCIPAL_PRODUCTS.stay, false, 'partner stays are sold on commission, so not principal');
-  assert.equal(W.spendableFor(w, 1000, 'stay', T0), 100, 'a stay can only take capped coins');
-  assert.throws(() => W.spend(w, 1000, 's1', T0, 'stay'), /not enough/);
+  assert.equal(W.PRINCIPAL_PRODUCTS.stay, true, 'RoamWise sells stays as principal');
+  assert.equal(W.spendableFor(w, 1000, 'agent_stay', T0), 100, 'an agent-model booking only takes capped coins');
+  assert.throws(() => W.spend(w, 1000, 's1', T0, 'agent_stay'), /not enough/);
+  assert.equal(W.spendableFor(w, 1000, 'stay', T0), 3100);
   assert.equal(W.spendableFor(w, 3300, 'shop', T0), 3330, 'shop: loaded money + coins up to 10% of the order');
   const s = W.spend(w, 3300, 'shop1', T0, 'shop');
   assert.deepEqual(s.used.map((u) => [u.source, u.amount]), [['prepaid', 3000], ['bonus', 300]]);
@@ -96,20 +97,21 @@ test('unredeemed voucher: reminder 30 days before, refund to the buyer payment w
   assert.equal(back.reduce((t, l) => t + l.amount, 0), 1500); assert.ok(back.every((l) => l.noKeep), 'goes back to the payment, not spendable');
 });
 
-test('Trip Wallet pays for a membership (RoamWise service) but never for a partner stay', async () => {
+test('Trip Wallet pays for RoamWise-sold stays and memberships', async () => {
   const env = mkEnv();
   const key = await W.walletKey('m@x.in');
   await saveWallet(env, key, W.creditPrepaid(W.emptyWallet('m@x.in'), { refId: 'rwcred_tw', orderId: 'rwcred_tw', paid: 6000, bonus: 0, scope: 'roamwise' }, Date.now()).wallet);
+  env.WALLET_LINK_SECRET = 'test-secret';
   const token = await W.walletLinkToken('test-secret', key, Date.now());
   const realFetch = globalThis.fetch; globalThis.fetch = async () => { throw new Error('no Cashfree call expected'); };
   try {
     const stay = await createStayOrder(post({ stay: 'soulmate', checkin: '2027-01-10', checkout: '2027-01-12', email: 'm@x.in', phone: '9876543210', paymentType: 'full', payWith: 'wallet', wallet: token }), env);
-    assert.equal(stay.status, 409, 'partner stay cannot use RoamWise-only money');
+    const sd = await stay.json(); assert.equal(sd.paid, true, JSON.stringify(sd)); assert.equal(tripMoney(await loadWallet(env, key)), 5000);
     const r = await createCreditOrder(post({ pack: 'explorer', email: 'm@x.in', phone: '9876543210', acceptTerms: true, payWith: 'wallet', wallet: token }), env, Date.now(), deps);
     const d = await r.json();
     assert.equal(d.paid, true, JSON.stringify(d));
     const w = await loadWallet(env, key);
-    assert.equal(tripMoney(w), 1000); assert.ok(W.coinBalance(w, Date.now()) > 0, 'membership coins arrived');
+    assert.equal(tripMoney(w), 0); assert.ok(W.coinBalance(w, Date.now()) > 0, 'membership coins arrived');
   } finally { globalThis.fetch = realFetch; }
 });
 
