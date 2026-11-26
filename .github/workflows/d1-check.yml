@@ -13,6 +13,7 @@ jobs:
     steps:
       - name: List D1 databases (names only)
         run: |
+          set +e
           npx --yes wrangler@4 d1 list --json > /tmp/d1.json 2>/tmp/d1.err; echo "exit $?"
           python3 -c "import json;d=json.load(open('/tmp/d1.json'));print('DATABASES:',[(x.get('name'),(x.get('uuid') or '')[:8]) for x in d])" || true
-          echo "ERR:"; grep -iE "error|auth|permission|code" /tmp/d1.err | head -5 || true
+          echo "ERR:"; grep -vE "telemetry|^\s*$" /tmp/d1.err | head -12
