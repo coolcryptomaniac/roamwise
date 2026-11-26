@@ -104,6 +104,7 @@ function cpModelChips(targetId){
   var provs = admin ? ['sarvam','groq','cerebras','gemini','openrouter','mistral','anthropic','custom','ondevice','webgpu'].filter(function(p){ return lsGet('rwKey_'+p); }) : [];
   var cur = (typeof activeProv!=='undefined')? activeProv : 'smart';
   var chips = [['smart','\u26a1 Ailon Tusk Automatic']].concat(provs.map(function(p){ return [p, p.charAt(0).toUpperCase()+p.slice(1)]; }));
+  chips.sort(function(a,b){ return (b[0]===cur)-(a[0]===cur); });
   host.innerHTML = chips.map(function(c){
     var on = cur===c[0];
     return '<button onclick="cpSetModel(\'' + c[0] + '\')" style="font-size:10px;padding:4px 10px;border-radius:999px;border:1px solid '

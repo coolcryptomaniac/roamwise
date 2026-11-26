@@ -326,6 +326,8 @@ function setProv(p){
     chip.textContent = labels[p]||p;
     chip.className = 'mode-chip '+(p==='anthropic'||p==='roamwise'?'mode-ai':'mode-free');
   }
+  /* Keep the Ailon Tusk model chips in step with the choice made here. */
+  try{ if(typeof cpModelChips==='function'){ cpModelChips('heroModels'); cpModelChips('cpModels'); } }catch(e){ /* chips not mounted yet */ }
   showToast(p==='smart' ? 'Smart Search active (no key needed)' : p==='roamwise' ? 'RoamWise Hosted AI active — monthly allowance applies' : 'AI mode: '+(p.charAt(0).toUpperCase()+p.slice(1)));
 }
 

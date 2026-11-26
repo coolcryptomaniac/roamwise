@@ -27,7 +27,10 @@ html[data-rw-design="himalayan-saanjh"] #copilotHero .tusk-title b {font-size:cl
 html[data-rw-design="himalayan-saanjh"] #copilotHero .copilot-compose {background:#242138!important;border:1px solid #8872a960!important;border-radius:16px!important;min-height:85px;padding:8px!important;}
 html[data-rw-design="himalayan-saanjh"] #copilotHero #heroInput {height:78px!important;min-height:78px!important;max-height:250px!important;padding:10px 8px 38px!important;line-height:1.4!important;}
 html[data-rw-design="himalayan-saanjh"] #copilotHero .copilot-compose:focus-within #heroInput {height:142px!important;min-height:142px!important;}
-html[data-rw-design="himalayan-saanjh"] #copilotHero #heroModels {display:none!important;}
+/* Active AI model chips sit on one line at the bottom-left of the Tusk box, beside mic/send (see js/copilot/core.js cpModelChips). */
+html[data-rw-design="himalayan-saanjh"] #copilotHero #heroModels {flex-wrap:nowrap!important;overflow-x:auto;scrollbar-width:none;max-width:none!important;left:12px!important;right:118px;bottom:14px!important;z-index:2}
+html[data-rw-design="himalayan-saanjh"] #copilotHero #heroModels::-webkit-scrollbar{display:none}
+html[data-rw-design="himalayan-saanjh"] #copilotHero #heroModels button{flex:0 0 auto;white-space:nowrap}
 html[data-rw-design="himalayan-saanjh"] #copilotHero .copilot-actions button[aria-label="Scan a screenshot"] {display:none!important;}
 html[data-rw-design="himalayan-saanjh"] #rwTuskPrompts {display:flex;flex-wrap:wrap;gap:7px;margin:10px 0 3px;}
 html[data-rw-design="himalayan-saanjh"] #rwTuskPrompts button {flex:1 1 135px;min-height:42px;text-align:center;border-radius:999px;background:#322f47;font-size:12px;}
